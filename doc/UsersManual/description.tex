@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.5  2004/10/25 08:59:56  sdahan
+%* add the multi-MA documentation
+%*
 %* Revision 1.4  2004/01/29 17:08:47  ecaron
 %* Add suggestions from Frederic Desprez. Thanks !
 %*
@@ -186,6 +189,16 @@ development of Grid specific services. DIET is based upon
 which provides good communication performance.
 
 
+%====[ Multi-MA ]==============================================================
+\section{Multi-MA}
+\label{init:multima}
+
+LA, SeD and a MA are put together to form a hierarchy. It is possible to
+federate those hierarchies by connecting the MA together. when DIET is run in
+multi-MA mode, the behavior of the architecture does not change, but if a SeD
+that can resolved a problem is not found inside a hierarchy, the architecture
+will automatically looking for a SeD inside the other hierarchies.
+
 %====[ DIET INITIALIZATION ]===================================================
 \section{DIET initialization}
 \label{init}
@@ -265,6 +278,10 @@ made in four steps:
 \item once the MA has collected all the answers from its direct children, it
   chooses a pool of fast servers and sends their references to the client.
 \end{itemize}
+
+If the multi-MA option is enabled and no server is found, then the MA
+propagates the client request to the other MA which follow at their turn the
+same pattern.
 
 %%%%%%%%%%%%%%%
 %% FIXME:

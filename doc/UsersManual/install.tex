@@ -10,6 +10,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.16  2004/10/25 08:59:56  sdahan
+%* add the multi-MA documentation
+%*
 %* Revision 1.15  2004/07/12 08:33:58  rbolze
 %* explain how to copy cfgs file in install_dir/etc directory and correct my english
 %*
@@ -248,9 +251,17 @@ this type of architecture to be deployed.
 
 {\footnotesize
 \begin{verbatim}
+  --enable-multi-MA       enable multi-MA architecture
+\end{verbatim}
+}
+\noindent This option allows the user to connect several MA to be linked
+together. When this option is activated, it allow a MA to looking for a SeD
+into the other MA hierarchies.
+
+{\footnotesize
+\begin{verbatim}
   --enable-Cichlid        enable generation of communication logs for Cichlid
   --enable-stats          enable generation of statistics logs
-  --enable-multi-MA       enable multi-MA architecture
   --disable-dependency-tracking Speeds up one-time builds
   --enable-dependency-tracking  Do not reject slow dependency extractors
   --enable-shared=PKGS    build shared libraries default=yes
