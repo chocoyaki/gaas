@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.16  2002/12/13 13:06:08  lbertsch
+ * Added statistics for the solve on the client side
+ *
  * Revision 1.15  2002/12/03 19:08:24  pcombes
  * Update configure, update to FAST 0.3.15, clean CVS logs in files.
  * Put main Makefile in root directory.
@@ -405,8 +408,14 @@ int diet_call(diet_function_handle_t *handle, diet_profile_t *profile)
 
   if (mrsh_profile_to_in_args(&corba_profile, profile))
     return 1;
+
+  stat_in("diet_call.solve.start");
+
   solve_res =
     (*decision)[server_OK].chosenServer->solve(handle->pb_name, corba_profile);
+
+  stat_out("diet_call.solve.end");
+
   if (unmrsh_out_args_to_profile(profile, &corba_profile))
     return 1;
   
