@@ -12,6 +12,10 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.3  2002/09/17 15:23:14  pcombes
+ * Bug fixes on inout arguments and examples
+ * Add support for omniORB 4.0.0
+ *
  * Revision 1.2  2002/08/30 16:50:15  pcombes
  * This version works as well as the alpha version from the user point of view,
  * but the API is now the one imposed by the latest specifications (GridRPC API
@@ -315,7 +319,7 @@ int diet_call(diet_function_handle_t *handle, diet_profile_t *profile)
   corba_profile_t     corba_profile;
   SeqCorbaDecision_t *decision;
   SeqCorbaData_t     in, inout, out;
-  int subm_count, server_OK;
+  int subm_count, server_OK, solve_res;
   static int nb_tries = 3;
     
   /* Request submission : try nb_tries times */
@@ -355,12 +359,13 @@ int diet_call(diet_function_handle_t *handle, diet_profile_t *profile)
 #endif
   if (mrsh_profile_to_in_args(&in, &inout, &out, profile))
     return 1;
-  (*decision)[server_OK].chosenServer->solve(corba_profile.path,
-					     in, inout, out);
+  solve_res =
+    (*decision)[server_OK].chosenServer->solve(corba_profile.path,
+					       in, inout, out);
   if (unmrsh_out_args_to_profile(profile, &inout, &out))
     return 1;
   
-  return 0;
+  return solve_res;
 }
 
 

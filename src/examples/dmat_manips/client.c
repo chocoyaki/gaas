@@ -12,6 +12,10 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.7  2002/09/17 15:23:18  pcombes
+ * Bug fixes on inout arguments and examples
+ * Add support for omniORB 4.0.0
+ *
  * Revision 1.6  2002/09/09 15:57:00  pcombes
  * Update for dgemm and bug fixes
  *
@@ -51,7 +55,7 @@
     printf("%s = \n", #mat);               \
     for (i = 0; i < (m); i++) {            \
       for (j = 0; j < (n); j++) {          \
-	printf("%3f ", (mat)[i*(n) + j]);  \
+	printf("%3f ", (mat)[i + j*(m)]);  \
       }                                    \
       printf("\n");                        \
     }                                      \
@@ -82,7 +86,10 @@ main(int argc, char **argv)
   A = mat1;
   B = mat2;
 
-  diet_initialize(argc, argv, argv[1]);
+  if (diet_initialize(argc, argv, argv[1])) {
+    fprintf(stderr, "DIET initialization failed !\n");
+    return 1;
+  } 
 
   if (!strcmp(path, PB[0])) {
     
@@ -111,11 +118,11 @@ main(int argc, char **argv)
       matrix_set(&(profile->parameters[2]),
 		 NULL, DIET_VOLATILE, DIET_DOUBLE, 3, 3, 0);
     }
-      
-    print_matrix((double *)(profile->parameters[0].value),
+
+    print_matrix(A,
 		 profile->parameters[0].desc.specific.mat.nb_r,
 		 profile->parameters[0].desc.specific.mat.nb_c);
-    print_matrix((double *)(profile->parameters[1].value),
+    print_matrix(B,
 		 profile->parameters[1].desc.specific.mat.nb_r,
 		 profile->parameters[1].desc.specific.mat.nb_c);
 
@@ -123,7 +130,7 @@ main(int argc, char **argv)
     
   if (!diet_call(fhandle, profile)) {
     if (!strcmp(path, PB[0])) {
-      print_matrix(A,//(double *)(profile->parameters[0].value),//A,
+      print_matrix(A,
 		   profile->parameters[0].desc.specific.mat.nb_r,
 		   profile->parameters[0].desc.specific.mat.nb_c);
     } else {

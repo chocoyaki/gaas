@@ -12,6 +12,10 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.7  2002/09/17 15:23:11  pcombes
+ * Bug fixes on inout arguments and examples
+ * Add support for omniORB 4.0.0
+ *
  * Revision 1.6  2002/09/02 17:09:51  pcombes
  * Add free on OUT arguments.
  *
@@ -70,7 +74,7 @@
    reuse as much as possible already allocated memory */
 int mrsh_data_seq(SeqCorbaData_t *dest, diet_data_seq_t *src,
 		  int only_desc, int release);
-int unmrsh_data_seq(diet_data_seq_t *dest, const SeqCorbaData_t *src);
+int unmrsh_data_seq(diet_data_seq_t *dest, SeqCorbaData_t *src);
 
 
 /*

@@ -12,6 +12,10 @@
 #****************************************************************************#
 #*
 #* $Log$
+#* Revision 1.5  2002/09/17 15:23:18  pcombes
+#* Bug fixes on inout arguments and examples
+#* Add support for omniORB 4.0.0
+#*
 #* Revision 1.4  2002/09/09 15:57:00  pcombes
 #* Update for dgemm and bug fixes
 #*
@@ -44,11 +48,17 @@ LIBS    = $(DIETLIBS) $(OMNIORBLIBS)
 
 all: client server
 
-client: client.c @PREFIX@/lib/libDIET_client.a
-	$(CC) $< $(CCFLAGS) $(LIBS) $(INCLUDE) -lDIET_client -o $@
+client.o:	client.c
+	$(CC) -c $< $(CCFLAGS) $(INCLUDE) -o $@
 
-server: server.c @PREFIX@/lib/libDIET_SeD.a
-	$(CC) $< $(CCFLAGS) $(LIBS) $(INCLUDE) -lDIET_SeD -o $@
+client:		client.o @PREFIX@/lib/libDIET_client.a
+	$(CC) $< $(CCFLAGS) $(LIBS) -lDIET_client -o $@
+
+server.o:	server.c
+	$(CC) -c $< $(CCFLAGS) $(INCLUDE) -o $@
+
+server:		server.o @PREFIX@/lib/libDIET_SeD.a
+	$(CC) $< $(CCFLAGS) $(LIBS) -lDIET_SeD -o $@
 
 clean:
-	rm -f client server
+	rm -f *.o client server

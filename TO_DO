@@ -1,0 +1,36 @@
+
+Client
+-------
+
+Implement the request for SeD contract validity.
+
+Asynchronous API should be implemented.
+  It is specified that each request is processed on the client by a specific
+  thread that runs until the server has finished the computation.
+  Maybe this should be managed by the MA only.
+
+
+SeD
+----
+
+Include contract properties in decision type.
+Implement contract checking on client and server + resources allocation.
+
+
+MA
+---
+
+Only one server is answered by the MA. To change.
+
+
+FAST
+-----
+
+FAST calls should be OK, but slimfast interface should be updated with new corba
+and DIET data structures.
+
+
+CONFIGURE
+----------
+
+Buggy when launched from another directory than the DIET root.

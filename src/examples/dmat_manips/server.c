@@ -12,6 +12,10 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.7  2002/09/17 15:23:18  pcombes
+ * Bug fixes on inout arguments and examples
+ * Add support for omniORB 4.0.0
+ *
  * Revision 1.6  2002/09/09 15:57:01  pcombes
  * Update for dgemm and bug fixes
  *
@@ -66,9 +70,9 @@ solve_T(diet_data_seq_t *in, diet_data_seq_t *inout, diet_data_seq_t *out)
   tmp = malloc(m*n*sizeof(double));
   memcpy(tmp, A, m*n*sizeof(double));
   
-  for (i = 0; i < m; i++) {
-    for (j = 0; j < n; j++) {
-      A[j*m + i] = tmp[i*n + j];
+  for (i = 0; i < n; i++) {
+    for (j = 0; j < m; j++) {
+      A[j*n + i] = tmp[i*m + j];
     }
   }
   //free(A);
@@ -108,32 +112,21 @@ solve_MatSUM(diet_data_seq_t *in, diet_data_seq_t *inout, diet_data_seq_t *out)
   A = (double *) in->seq[0].value;
   B = (double *) in->seq[1].value;
   C = (double *) out->seq[0].value;
-
-  if (in->seq[0].desc.specific.mat.istrans) {
-    if (in->seq[1].desc.specific.mat.istrans) {
-      for (i = 0; i < m; i++) {
-	for (j = 0; j < n; j++) {
-	  C[i*n + j] = A[j*m + i] + B[j*m + i];
+  out->seq[0].desc.specific.mat.istrans = 0;
+  
+  for (i = 0; i < m; i++) {
+    for (j = 0; j < n; j++) {
+      if (in->seq[0].desc.specific.mat.istrans) {
+	if (in->seq[1].desc.specific.mat.istrans) {
+	  C[j*m + i] = A[i*n + j] + B[i*n + j];
+	} else {
+	  C[j*m + i] = A[i*n + j] + B[j*m + i];
 	}
-      }
-    } else {
-      for (i = 0; i < m; i++) {
-	for (j = 0; j < n; j++) {
-	  C[i*n + j] = A[j*m + i] + B[i*n + j];
-	}
-      }
-    }
-  } else {
-    if (in->seq[1].desc.specific.mat.istrans) {
-      for (i = 0; i < m; i++) {
-	for (j = 0; j < n; j++) {
-	  C[i*n + j] = A[i*n + j] + B[j*m + i];
-	}
-      }
-    } else {
-      for (i = 0; i < m; i++) {
-	for (j = 0; j < n; j++) {
-	  C[i*n + j] = A[i*n + j] + B[i*n + j];
+      } else {
+	if (in->seq[1].desc.specific.mat.istrans) {
+	  C[j*m + i] = A[j*m + i] + B[i*n + j];
+	} else {
+	  C[j*m + i] = A[j*m + i] + B[j*m + i];
 	}
       }
     }
@@ -161,10 +154,7 @@ solve_MatPROD(diet_data_seq_t *in, diet_data_seq_t *inout, diet_data_seq_t *out)
     return 1;
   }
 
-  ////out->length = 1;
-  //out->seq->desc = in->seq[0].desc;
-  //out->seq->desc.specific.mat.nb_c  = nB;
-  //out->seq->desc.specific.mat.istrans = 0;
+  out->seq->desc.specific.mat.istrans = 0;
   
   A = (double *) in->seq[0].value;
   B = (double *) in->seq[1].value;
@@ -172,15 +162,24 @@ solve_MatPROD(diet_data_seq_t *in, diet_data_seq_t *inout, diet_data_seq_t *out)
   
   for (i = 0; i < mA; i++) {
     for (j = 0; j < nB; j++) {
-      C[i*nB + j] = 0;
+      C[j*mA + i] = 0;
       for (k = 0; k < nA; k++) {
-	C[i*nB + j] += A[i*nA + k] * B[k*nB + j];
+	if (in->seq[0].desc.specific.mat.istrans) {
+	  if (in->seq[1].desc.specific.mat.istrans) {
+	    C[j*mA + i] += A[i*nA + k] + B[k*nB + j];
+	  } else {
+	    C[j*mA + i] += A[i*nA + k] + B[j*mB + k];
+	  }
+	} else {
+	  if (in->seq[1].desc.specific.mat.istrans) {
+	    C[j*mA + i] += A[k*mA + i] + B[k*nB + j];
+	  } else {
+	    C[j*mA + i] += A[k*mA + i] * B[j*mB + k];
+	  }
+	}
       }
     }
   }
-  
-  //  out->seq->value = C;
-  //  out->seq->to_be_freed = 1;
   
   printf(" done\n");
   return 0;

@@ -12,6 +12,10 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.7  2002/09/17 15:23:12  pcombes
+ * Bug fixes on inout arguments and examples
+ * Add support for omniORB 4.0.0
+ *
  * Revision 1.6  2002/08/30 16:50:13  pcombes
  * This version works as well as the alpha version from the user point of view,
  * but the API is now the one imposed by the latest specifications (GridRPC API
@@ -63,7 +67,7 @@ interface SeD {
   /*--------------------------------------------------------------*/
 
   long solve(in    string         pb,
-	     in    SeqCorbaData_t in_data,
+	     inout SeqCorbaData_t in_data,
 	     inout SeqCorbaData_t inout_data,
 	     inout SeqCorbaData_t out_data);
 

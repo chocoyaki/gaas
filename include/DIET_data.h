@@ -11,6 +11,10 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.2  2002/09/17 15:23:06  pcombes
+ * Bug fixes on inout arguments and examples
+ * Add support for omniORB 4.0.0
+ *
  * Revision 1.1  2002/08/09 14:30:21  pcombes
  * This is commit set the frame for version 1.0 - does not work properly yet
  *
@@ -151,7 +155,7 @@ int vector_desc_set(diet_data_desc_t *desc, diet_persistence_mode_t mode,
 		    diet_base_type_t base_type, size_t size);
 int matrix_desc_set(diet_data_desc_t *desc, diet_persistence_mode_t mode,
 		    diet_base_type_t base_type, size_t nb_r, size_t nb_c,
-		    int istrans );
+		    int istrans);
 int string_desc_set(diet_data_desc_t *desc, diet_persistence_mode_t mode,
 		    size_t length);
 /* Computes the file size */

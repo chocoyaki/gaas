@@ -12,6 +12,10 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.8  2002/09/17 15:23:11  pcombes
+ * Bug fixes on inout arguments and examples
+ * Add support for omniORB 4.0.0
+ *
  * Revision 1.7  2002/09/09 15:57:48  pcombes
  * Fix bugs in marshalling
  *
@@ -144,7 +148,7 @@ int mrsh_data(corba_data_t *dest, diet_data_t *src, int only_desc, int release)
   if (mrsh_data_desc(&(dest->desc), &(src->desc)))
     return 1;
   if (only_desc) {
-    dest->value.length(0);
+    dest->value.replace(0, 0, NULL);
   } else {
     dest->value.replace(size, size, (CORBA::Char *)src->value, release);
   }
@@ -303,20 +307,15 @@ int unmrsh_data_desc_to_sf(sf_data_desc_t *dest, const corba_data_desc_t *src)
   dest->base_type = diet_to_sf_base_type((diet_base_type_t)src->base_type);
   
   switch (dest->type) {
-    
+     
   case sf_type_cons_vect:
     dest->ctn.vect.size = src->specific.vect().size;
     break;
     
   case sf_type_cons_mat:
-    //#ifdef withoutfast
     dest->ctn.mat.nb_l  = src->specific.mat().nb_r;
     dest->ctn.mat.nb_c  = src->specific.mat().nb_c;
     dest->ctn.mat.trans = src->specific.mat().istrans;
-    //#else  // withoutfast
-    //sf_dd_mat_set(dest, src->specific.mat().nb_r,
-    //  	    src->specific.mat().nb_c, src->specific.mat().istrans);
-    //#endif // withoutfast
     break;
 
   case sf_type_cons_scal:
@@ -349,15 +348,15 @@ int unmrsh_data_desc_to_sf(sf_data_desc_t *dest, const corba_data_desc_t *src)
 }
 
 
-int unmrsh_data(diet_data_t *dest, const corba_data_t *src)
+int unmrsh_data(diet_data_t *dest, corba_data_t *src)
 {
   if (unmrsh_data_desc(&(dest->desc), &(src->desc)))
     return 1;
   if (src->value.length() == 0) {
     dest->value = malloc(data_sizeof(&(dest->desc)));
   } else {
-    // CORBA::boolean orphan = (src->persistence_mode != DIET_VOLATILE);
-    dest->value = (char *)src->value.get_buffer();
+    CORBA::Boolean orphan = 1; //(src->persistence_mode != DIET_VOLATILE);
+    dest->value = (char *)src->value.get_buffer(orphan);
   }
   return 0;
 }
@@ -365,7 +364,7 @@ int unmrsh_data(diet_data_t *dest, const corba_data_t *src)
 
 /*====[ unmrsh_data_seq ]===================================================*/
 
-int unmrsh_data_seq(diet_data_seq_t *dest, const SeqCorbaData_t *src)
+int unmrsh_data_seq(diet_data_seq_t *dest, SeqCorbaData_t *src)
 {
   if (dest->length != 0) {
     if (dest->length != src->length()) {

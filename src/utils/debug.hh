@@ -12,6 +12,10 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.7  2002/09/17 15:23:19  pcombes
+ * Bug fixes on inout arguments and examples
+ * Add support for omniORB 4.0.0
+ *
  * Revision 1.6  2002/09/09 15:58:03  pcombes
  * Fix bugs in marshalling
  *
@@ -64,7 +68,7 @@
     printf("%s = \n", #mat);               \
     for (i = 0; i < (m); i++) {            \
       for (j = 0; j < (n); j++) {          \
-	printf("%3f ", (mat)[i*(n) + j]);  \
+	printf("%3f ", (mat)[i + j*(m)]);  \
       }                                    \
       printf("\n");                        \
     }                                      \
