@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.42  2005/03/30 07:41:09  rbolze
+ * No more ASK_FOR_SED and SED_CHOSEN message in SeDs
+ *
  * Revision 1.41  2004/12/15 18:09:58  alsu
  * cleaner, easier to document interface: changing diet_perfmetric_t back
  * to the simpler one-argument (of type diet_profile_t) version, and
@@ -300,11 +303,11 @@ SeDImpl::getRequest(const corba_request_t& creq)
              << "Got request " << creq.reqID << endl << endl);
   resp.reqID = creq.reqID;
   resp.myID  = childID;
-#if HAVE_LOGSERVICE
-  if (dietLogComponent != NULL) {
-    dietLogComponent->logAskForSeD(&creq);
-  }
-#endif
+//#if HAVE_LOGSERVICE
+//  if (dietLogComponent != NULL) {
+//    dietLogComponent->logAskForSeD(&creq);
+//  }
+//#endif
 
   ServiceTable::ServiceReference_t serviceRef;
   serviceRef = SrvT->lookupService(&(creq.pb));
@@ -338,11 +341,11 @@ SeDImpl::getRequest(const corba_request_t& creq)
   if (TRACE_LEVEL >= TRACE_STRUCTURES)
     displayResponse(stdout, &resp);
 
-#if HAVE_LOGSERVICE
-  if (dietLogComponent != NULL) {
-    dietLogComponent->logSedChosen(&creq,&resp);
-  }
-#endif
+//#if HAVE_LOGSERVICE
+//  if (dietLogComponent != NULL) {
+//    dietLogComponent->logSedChosen(&creq,&resp);
+//  }
+//#endif
 
   parent->getResponse(resp);
 }
