@@ -17,21 +17,25 @@
 
 int main(int argc, char **argv)
 {
-  int i;
+  int i, j;
   double  factor = M_PI; /* Pi, why not ? */
   size_t m, n;           /* Matrix size */
-  double *matrix;        /* The matrix to multiply */
+  double *matrix[5];        /* The matrix to multiply */
   float  *time   = NULL; /* Computation time */
-  diet_profile_t         *profile;
+  
+  diet_profile_t         *profile[5];
+  diet_reqID_t rst[5] = {0,0,0,0,0};
 
   m=60;
   n = 100;
 
-  /* Allocate the matrix: m lines, n columns */
-  matrix = malloc(m * n * sizeof(double));
-  /* Fill in the matrix with dummy values (who cares ?) */
-  for (i = 0; i < (m * n); i++) {
-    matrix[i] = 1.2 * i;
+  for (i = 0; i < 5 ; i++) {
+     /* Allocate the matrix: m lines, n columns */
+     matrix[i] = malloc(m * n * sizeof(double));
+     /* Fill in the matrix with dummy values (who cares ?) */
+     for (j = 0; j < (m * n); j++) {
+        matrix[i][j] = 1.2 * j;
+     }
   }
   
   /* Initialize a DIET session */

@@ -10,6 +10,14 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.11  2004/07/08 15:59:10  mcolin
+%* correct the asynchronous example from the tutorial and user manual
+%* FIXME :
+%*  - still a bug with the INOUT parameter : the matrix is not modified
+%*  - User Manuel [5.1] : the first example service/solve_service doesn't
+%*  match with the actual version of DIET (pb with pointer and diet_string_get
+%*  which doesn't exist)
+%*
 %* Revision 1.10  2004/02/10 00:44:24  ecaron
 %* Add suggestions from Christophe Pera. Thanks !
 %*
@@ -136,7 +144,9 @@ first argument on the command line, and we decide to hardcode the matrix,
 its factor, and the name of the problem:
 
 \subsection{synchronous call}
-\texttt{smprod}~\footnote{Source code available in \texttt{doc/tutorial/solutions/exercise2/client\_smprod.c}} for scalar by matrix product.
+\texttt{smprod}
+%~\footnote{Source code available in \texttt{doc/tutorial/solutions/exercise2/client\_smprod.c}} 
+for scalar by matrix product.
 
 {\footnotesize
 \begin{verbatim}
@@ -197,7 +207,9 @@ int main(int argc, char **argv)
 
 
 \subsection{asynchronous call}
-\texttt{smprod}~\footnote{Source code available in \texttt{doc/tutorial/solutions/exercise2/client\_smprodAsync.c}} for scalar by matrix product.
+\texttt{smprod}
+%~\footnote{Source code available in \texttt{doc/tutorial/solutions/exercise2/client\_smprodAsync.c}} 
+for scalar by matrix product.
 {\footnotesize
 \begin{verbatim}
 #include <stdio.h>
@@ -207,54 +219,61 @@ int main(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
-  int i;
+  int i, j;
   double  factor = M_PI; /* Pi, why not ? */
+  size_t m, n; /* Matrix size */
   double *matrix[5];        /* The matrix to multiply */
   float  *time   = NULL; /* To check that time is set by the server */
 
   diet_profile_t         *profile[5];
   diet_reqID_t rst[5] = {0,0,0,0,0};
 
-  
+  m = 60;
+  n = 100;
+ 
   /* Initialize a DIET session */
   diet_initialize("./client.cfg", argc, argv);
 
   /* Create the profile as explained in Chapter 3 */
   for (i = 0; i < 5; i++){
-    /* Allocate the matrix: 60 lines, 100 columns */
-    matrix[i] = malloc(60 * 100 * sizeof(double));
+    /* Allocate the matrix: m lines, n columns */
+    matrix[i] = malloc(m * n * sizeof(double));
     /* Fill in the matrix with dummy values (who cares ?) */
-    for (j = 0; j < (60 * 100); j++) {
+    for (j = 0; j < (m * n); j++) {
       matrix[i][j] = 1.2 * j;
     }
-    profile = diet_profile_alloc("smprod",0, 1, 2); // last_in, last_inout, last_out
+    profile[i] = diet_profile_alloc("smprod",0, 1, 2); // last_in, last_inout, last_out
   
     /* Set profile arguments */
     diet_scalar_set(diet_parameter(profile[i],0), &factor, 0, DIET_DOUBLE);
     diet_matrix_set(diet_parameter(profile[i],1), matrix[i],  0, DIET_DOUBLE,
-                    60, 100, DIET_COL_MAJOR);
+                    m, n, DIET_COL_MAJOR);
     diet_scalar_set(diet_parameter(profile[i],2), NULL,    0, DIET_FLOAT);
   }
   
+  /* Call Diet */
   int rst_call = 0;
-  if ((rst_call = diet_call_async(profile[i], &rst[i])) != 0)  
-     printf("Error in diet_call_async return -%d-\n", rst_call);
-  else {
-    printf("request ID value = -%d- \n", rst[i]);
-    if (rst[i] < 0) {
-      printf("error in request value ID\n");
-      return;
-    }
-  }
-  rst_call = 0;
+  
+  for (i = 0; i < 5; i++){
+     if ((rst_call = diet_call_async(profile[i], &rst[i])) != 0)  
+        printf("Error in diet_call_async return -%d-\n", rst_call);
+     else {
+       printf("request ID value = -%d- \n", rst[i]);
+       if (rst[i] < 0) {
+         printf("error in request value ID\n");
+         return 1;
+       }
+     }
+     rst_call = 0;
+  }   
+
+  /* Wait for Diet answers */
   if ((rst_call = diet_wait_and((diet_reqID_t*)&rst, (unsigned int)5)) != 0)
      printf("Error in diet_wait_and\n");
   else {
     printf("Result data for requestID");
     for (i = 0; i < 5; i++) printf(" %d ", rst[i]);
-    printf(" and omnithreadID %d \n", omni_thread::self()->id());
     for (i = 0; i < 5; i++){
-      sprintf(requestID, "%d", rst[i]);
       /* Get and print time */
       diet_scalar_get(diet_parameter(profile[i],2), &time, NULL);
       if (time == NULL) {
@@ -275,6 +294,7 @@ int main(int argc, char **argv)
     diet_profile_free(profile[i]);
   }
   diet_finalize();
+  return 0;
 }
 \end{verbatim}
 }

@@ -10,6 +10,14 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.9  2004/07/08 15:59:10  mcolin
+%* correct the asynchronous example from the tutorial and user manual
+%* FIXME :
+%*  - still a bug with the INOUT parameter : the matrix is not modified
+%*  - User Manuel [5.1] : the first example service/solve_service doesn't
+%*  match with the actual version of DIET (pb with pointer and diet_string_get
+%*  which doesn't exist)
+%*
 %* Revision 1.8  2004/02/10 01:12:16  ecaron
 %* Add suggestions from Jean-Yves L'Excellent. Thanks !
 %*
@@ -246,21 +254,21 @@ adds it in the service table with its associated solve function.
 #include "DIET_server.h"
 #include "scal_mat_prod.h"
 
-int scal_mat_prod(diet_profile_t *pb)
+int solve_smprod(diet_profile_t *pb)
 {
-  double alpha;
+  double *alpha;
   double *M;
   float  time;
-  int    m, n, res;
+  size_t m, n;
+  int res;
+
   /* Get arguments */
   diet_scalar_get(diet_parameter(pb,0), &alpha, NULL);
   diet_matrix_get(diet_parameter(pb,1), &M, NULL, &m, &n, NULL);
   /* Launch computation */
-  res = scal_mat_prod(alpha, M, m, n, &time);
+  res = scal_mat_prod(*alpha, M, m, n, &time);
   /* Set OUT arguments */
   diet_scalar_desc_set(diet_parameter(pb,2), &time);
-
-
 
   return res;
 }
@@ -282,7 +290,7 @@ int main(int argc, char* argv[])
   diet_profile_desc_free(profile);
 
   /* Launch the SeD: no return call */
-  diet_SeD("SeD.cfg", argc, argv);
+  diet_SeD("./SeD.cfg", argc, argv);
 
   /* Dead code */
   return 0;
