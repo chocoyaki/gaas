@@ -30,7 +30,8 @@ FAST calls should be OK, but slimfast interface should be updated with new corba
 and DIET data structures.
 
 
-CONFIGURE
-----------
+OTHERS
+-------
 
-Buggy when launched from another directory than the DIET root.
+Add trace levels, set in the configuration files
+
