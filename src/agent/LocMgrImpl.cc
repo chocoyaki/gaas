@@ -8,9 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2003/09/24 09:13:05  pcombes
+ * DataMgr does not need a name: use its reference.
+ *
  * Revision 1.1  2003/09/22 21:07:52  pcombes
  * Set all the modules and their interfaces for data persistency.
- *
  ***************************************************************************/
 
 #include "LocMgrImpl.hh"
@@ -335,8 +337,8 @@ LocMgrImpl::printList()
 /**
  * Return the Name of the Data Manager holding the searching Data
  */
-char*
-LocMgrImpl::whereData(const char* argID, const char* hostName)
+DataMgr_ptr
+LocMgrImpl::whereData(const char* argID)
 {
 #if DEVELOPPING_DATA_PERSISTENCY
   char *a=(char *)(malloc(261*sizeof(char)));
@@ -397,7 +399,7 @@ LocMgrImpl::whereData(const char* argID, const char* hostName)
     return a;
   }
 #else
-  return NULL;
+  return DataMgr::_nil();
 #endif // DEVELOPPING_DATA_PERSISTENCY
 }
 

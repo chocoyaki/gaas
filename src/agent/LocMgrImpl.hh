@@ -8,9 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2003/09/24 09:13:05  pcombes
+ * DataMgr does not need a name: use its reference.
+ *
  * Revision 1.1  2003/09/22 21:07:52  pcombes
  * Set all the modules and their interfaces for data persistency.
- *
  ***************************************************************************/
 
 #ifndef _LOCMGRIMPL_HH_
@@ -64,8 +66,8 @@ public:
   virtual void
   updateDataRef(const char* argID, CORBA::ULong cChildID, CORBA::Long upDown);
   /**  */
-  virtual char*
-  whereData(const char* argID, const char* hostName);
+  virtual DataMgr_ptr
+  whereData(const char* argID);
  
   /**  */
   virtual void

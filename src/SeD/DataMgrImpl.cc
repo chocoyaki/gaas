@@ -8,9 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2003/09/24 09:15:03  pcombes
+ * DataMgr does not need a name: use its reference.
+ *
  * Revision 1.1  2003/09/22 21:07:21  pcombes
  * Set all the modules and their interfaces for data persistency.
- *
  ***************************************************************************/
 
 #include "DataMgrImpl.hh"
@@ -514,7 +516,7 @@ DataMgrImpl::getData(char* id)
  *
  */
 void
-DataMgrImpl::putData(const char* id, const char* me)
+DataMgrImpl::putData(const char* id, const DataMgr_ptr me)
 {
 #if DEVELOPPING_DATA_PERSISTENCY
   corba_data_id_t dataId;
@@ -663,8 +665,8 @@ DataMgrImpl::rmDataRef(const char* argID)
 
 
 // call by parent Loc ??? A remplacer par PUTDATA ????????? 
-char*
-DataMgrImpl::whereData(const char* argID, const char* me)
+DataMgr_ptr
+DataMgrImpl::whereData(const char* argID)
 {
 #if DEVELOPPING_DATA_PERSISTENCY
   cout << "am i invoked ????????????????????????????????????????????????????" << endl;
@@ -681,29 +683,10 @@ DataMgrImpl::whereData(const char* argID, const char* me)
 #endif // DEVELOPPING_DATA_PERSISTENCY
 }
 
-DataMgr_var
-DataMgrImpl::resolveDataName(char* myName)
-{
-  DataMgr_var remoteData = DataMgr::_nil();
-#if DEVELOPPING_DATA_PERSISTENCY
-  char remoteDataName[261];
-  strcpy(remoteDataName,myName);
-  //strcat(remoteDataName,"Data");
-  
-  remoteData = DataMgr::_duplicate(DataMgr::_narrow(ORBMgr::getDataReference(remoteDataName)));
-  if (CORBA::is_nil(remoteData)) {
-    cerr << "Cannot locate remote data " << remoteData << endl;
-    // cin.get(c);
-  }
-#endif // DEVELOPPING_DATA_PERSISTENCY
-  return(remoteData);
-}
-
-
-
 /*
- dans le cas où c'est le SeD qui demande l'envoi de la donnée, si non présente modifier la fonctonputDataRefOrder pour réaliser le whereData
-- rajouter des methodes de modification du dataID 
+ dans le cas où c'est le SeD qui demande l'envoi de la donnée, si non présente
+modifier la fonctonputDataRefOrder pour réaliser le whereData - rajouter des
+methodes de modification du dataID
 */
 
 

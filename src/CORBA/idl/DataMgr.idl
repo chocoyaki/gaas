@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2003/09/24 09:08:42  pcombes
+ * DataMgr does not need a name: use its reference.
+ *
  * Revision 1.1  2003/09/22 21:07:01  pcombes
  * Set all the modules and their interfaces for data persistency.
  *
@@ -26,9 +29,9 @@
 interface DataMgr {
   
   /**
-   * Method invoked by the myName Data Manager to get a data identified by id.
+   * Method invoked by the Data Manager to get a data identified by id.
    */
-  void putData(in string argID, in string me);
+  void putData(in string argID, in DataMgr me);
 
   /**
    * Remove data identified by cdataId after a data transfer.
@@ -37,11 +40,11 @@ interface DataMgr {
   void rmDataRef(in string argID);
  
   /**
-   * Invoked by a Loc Manager. The data Manager myName is looking for a  
-   * data identified by cdataId. Returns the data Manager name. If data
-   * not present returns null value. 
+   * Invoked by a Loc Manager because this Data Manager is holding an IN or
+   * INOUT argument identified by argID. Returns this Data Manager reference or
+   * DataMgr::_nil() if the data were not present.
    */
-  string whereData(in string argID, in string me);  
+  DataMgr whereData(in string argID);
 
   /** Sending data to remote Data Manager. */
   void sendData(inout corba_data_t arg);

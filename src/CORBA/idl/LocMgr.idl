@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2003/09/24 09:08:42  pcombes
+ * DataMgr does not need a name: use its reference.
+ *
  * Revision 1.1  2003/09/22 21:07:01  pcombes
  * Set all the modules and their interfaces for data persistency.
  *
@@ -62,12 +65,11 @@ interface LocMgr {
 			    in unsigned long cChildID, in long upDown);
 
   /**
-   * Looking for data Reference method. The first argument is the id of the data
-   * which is searched the second argument is the hostname the ths data Manager
-   * object which is looking for a data (case in or in_out args). Returns the
-   * name of the data Manager which hold the data
+   * Looking for data Reference method. The argument is the id of the IN or
+   * INOUT data which are searched. Returns the reference the Data Manager
+   * holding the data, or DataMgr::_nil() if not found.
    */
-  string whereData(in string argID,in string hostName);
+  DataMgr whereData(in string argID);
   
   /** 
    * Change property of data (as their occupation flag for example).
