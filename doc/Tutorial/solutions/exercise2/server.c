@@ -34,7 +34,6 @@ int scal_mat_prod(double alpha, double *M, int nb_rows, int nb_cols, float *time
   }
   gettimeofday(&t2, NULL);
   *time = (t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000;
-  printf("TIME=%f \n",*time);
 
   return 0;
 }
@@ -43,8 +42,8 @@ int scal_mat_prod_file(double alpha, char *path, float *time)
 {
   int i, m, n;
   struct timeval t1, t2;
-  FILE *f;
-  double *matrix;
+  FILE* f;
+  double* matrix;
 
   gettimeofday(&t1, NULL);
   
@@ -96,33 +95,30 @@ int
 solve_smprod(diet_profile_t *pb)
 {
   size_t m,n;
-  double coeff;
-  double *mat;
+  double* coeff;
+  double* mat;
   float  time;
 
   /* Get arguments */
   diet_scalar_get(diet_parameter(pb,0), &coeff, NULL);
-  printf("coef = %lf\n",coeff);
   diet_matrix_get(diet_parameter(pb,1), &mat, NULL, &m, &n, NULL);
 
   /* Launch computation */
-  printf("Launch computation\n");
-  scal_mat_prod(coeff, mat, m, n, &time);
+  scal_mat_prod(*coeff, mat, m, n, &time);
+  printf("Computation done in %fs\n", time);
   
   /* Set OUT arguments */
-//  printf("Temps : %f\n",time);
   diet_scalar_desc_set(diet_parameter(pb,2), &time);
-//  diet_scalar_get(diet_parameter(pb,2), &time,NULL);
-//  printf("Temps2 : %f\n",time);
+
   return 0;
 }
 
 int
 solve_smprod_file(diet_profile_t *pb)
 {
-  double coeff;
-  float  time;
-  char  *path;
+  double* coeff;
+  char*   path;
+  float   time;
   
   /* Get arguments */
   diet_scalar_get(diet_parameter(pb,0), &coeff, NULL);
@@ -130,8 +126,12 @@ solve_smprod_file(diet_profile_t *pb)
   diet_file_get(diet_parameter(pb,1), NULL, NULL, &path);
 
   /* Launch computation */
-  scal_mat_prod_file(coeff, path, &time);
+  scal_mat_prod_file(*coeff, path, &time);
+  printf("Computation done in %fs\n", time);
+  
+  /* Set OUT arguments */
   diet_scalar_desc_set(diet_parameter(pb,2), &time);
+
   return 0;
 }
 
@@ -145,7 +145,7 @@ main(int argc, char **argv)
 {
   int nb_max_services = 10;
   int res;
-  diet_profile_desc_t *profile = NULL;
+  diet_profile_desc_t* profile = NULL;
   
   /* Initialize table with maximum 2 services */
   diet_service_table_init(nb_max_services);
