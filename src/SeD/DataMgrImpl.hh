@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2004/10/06 11:59:04  bdelfabr
+ * corrected inout bug (I hope so)
+ *
  * Revision 1.10  2004/10/05 08:23:09  bdelfabr
  * fixing bug for persistent file : add a changePath method thta gives the good file access path
  *
@@ -91,6 +94,9 @@ public:
   setDietLogComponent(DietLogComponent* dietLogComponent);
 #endif
 
+
+  void
+  printvalue(double *value,long unsigned int size);
   /** look for data presence */
 
   bool

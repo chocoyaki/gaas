@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2004/10/06 11:59:04  bdelfabr
+ * corrected inout bug (I hope so)
+ *
  * Revision 1.13  2004/10/05 08:23:09  bdelfabr
  * fixing bug for persistent file : add a changePath method thta gives the good file access path
  *
@@ -197,6 +200,15 @@ DataMgrImpl::rmDataFromIDList(char* id)
 }
 
 
+void
+DataMgrImpl::printvalue(double *value,long unsigned int size){
+
+  cout << "value of size" << size << endl;
+  cout << "size of value " << sizeof(value) << endl;
+  for(unsigned int i=0; i< size/8; i++)
+    cout << "i = "  << i << "value = " << value[i] << endl;
+}
+
 /**
  * Add dataDesc to the map
  */
@@ -205,11 +217,13 @@ DataMgrImpl::addDataDescToList(corba_data_t* dataDesc, int inout) // FIXME : die
 {
 #if DEVELOPPING_DATA_PERSISTENCY
 
-  double *value;
+  //double *value;
   char *path;
   corba_data_t &the_data = dataDescList[ms_strdup(dataDesc->desc.id.idNumber)] ;
  
   the_data.desc = dataDesc->desc; 
+
+ if ( (diet_data_type_t)(dataDesc->desc.specific._d()) == DIET_FILE) 
   the_data.desc.specific.file().path = ms_strdup(dataDesc->desc.specific.file().path);
 
   the_data.desc.id.idNumber  = ms_strdup(dataDesc->desc.id.idNumber); 
@@ -218,7 +232,7 @@ DataMgrImpl::addDataDescToList(corba_data_t* dataDesc, int inout) // FIXME : die
 
 
   long unsigned int size = (long unsigned int) data_sizeof(&(dataDesc->desc));
-  value = (double *)malloc(size*sizeof(double));
+  // value = (double *)malloc(size*sizeof(double));
   if ( (diet_data_type_t)(dataDesc->desc.specific._d()) != DIET_FILE) {
     
     if(inout == 0) {/* IN ARGS */
@@ -229,22 +243,21 @@ DataMgrImpl::addDataDescToList(corba_data_t* dataDesc, int inout) // FIXME : die
       p = static_cast <CORBA::Char *>(dataDesc->value.get_buffer(orphan));          
       dataDesc->value.replace(size,size,p,0); /* used to not loose the value */      
       the_data.value.replace(size,size,p,1); /* map takes the control an value */
-
+      
     } else { // OUT ARGS 
-   
+      
       CORBA::Boolean orphan = 0;
       CORBA::Char * p(NULL);            
       p = static_cast <CORBA::Char *> (dataDesc->value.get_buffer(orphan));     
       the_data.value.replace(size,size,p,1);     
       dataDesc->value.replace(size,size,p,0);
-
     } 
-  } else {
-     if(inout == 0) {
-       path = CORBA::string_dup(the_data.desc.specific.file().path);
-     }
+    if(inout == 0) {
+      path = CORBA::string_dup(the_data.desc.specific.file().path);
+    }
     
   }
+ 
 
 
 #if HAVE_LOGSERVICE
@@ -407,7 +420,8 @@ DataMgrImpl::printList1()
       p1=(char *) cur->second.value.get_buffer(0);
       value  = (double*)p1;
       cout << "|        " << cur->first << "        |" << endl; // cur->first[2]
-         cout << "VALUE  " << endl; 
+      /*    cout << "--- VALUE ---" << endl;
+	    for(unsigned int i=0; i<size/8;i++) cout << " -  " << value[i] ;*/
 	cout << "+-----------------+" << endl;
       cur++;
     }
@@ -486,9 +500,27 @@ DataMgrImpl::updateDataList(corba_data_t& src)
   corba_data_t& the_data = dataDescList[strdup(src.desc.id.idNumber)];
 
   the_data.desc = src.desc;
-  long unsigned int size = (long unsigned int) data_sizeof(&(src.desc));
-  if ( (diet_data_type_t)(src.desc.specific._d()) != DIET_FILE) {
-    CORBA::Boolean orphan = 0;
+  // long unsigned int size = (long unsigned int) data_sizeof(&(src.desc));
+  //if ( (diet_data_type_t)(src.desc.specific._d()) != DIET_FILE) {
+
+    /*  CORBA::Char *p1 (NULL);
+    p1 = the_data.value.get_buffer(1);
+    
+
+    
+
+    _CORBA_Sequence<unsigned char>::freebuf((_CORBA_Char*)p1);
+    
+    
+    char * p1; 
+    double *value;
+    value=(double *)malloc(size*sizeof(double));
+    p1=(char *) the_data.value.get_buffer(0);
+    value  = (double*)p1;
+     cout << " BEFORE UPDATEDATA IN LIST  VALUE  = " << endl;
+    for(unsigned int i=0; i<size/8;i++) cout << " - " << value[i] ;
+    cout << endl;
+    CORBA::Boolean orphan = 1;
     CORBA::Char * p(NULL);
     
     p = static_cast <CORBA::Char *> (src.value.get_buffer(orphan));
@@ -496,7 +528,26 @@ DataMgrImpl::updateDataList(corba_data_t& src)
     the_data.value.replace(size,size,p,1);
     
     src.value.replace(size,size,p,0);
-  }
+
+
+    
+      char *p1, *p2;
+    double *value, *value1;
+    
+    value=(double *)malloc(size*sizeof(double));
+    value1 = (double *)malloc(size*sizeof(double));
+    p1=(char *) the_data.value.get_buffer(0);
+    p2 = (char *) src.value.get_buffer(0);
+    value  = (double*)p1;
+    value1  = (double*)p2;
+    cout << " UPDATEDATA IN LIST  VALUE  = " << endl;
+    for(unsigned int i=0; i<size/8;i++) cout << " - " << value[i] ;
+    cout << endl;
+    cout << " UPDATEDATA IN ELT  VALUE  = " << endl;
+    for(unsigned int i=0; i<size/8;i++) cout << " -  " << value1[i] ;
+    cout << endl;
+    */
+ 
   
 #endif // DEVELOPPING_DATA_PERSISTENCY
 } // updateDataList(corba_data_t& src)

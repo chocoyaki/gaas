@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.33  2004/10/06 11:59:04  bdelfabr
+ * corrected inout bug (I hope so)
+ *
  * Revision 1.32  2004/10/05 08:23:09  bdelfabr
  * fixing bug for persistent file : add a changePath method thta gives the good file access path
  *
@@ -391,24 +394,24 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
     if(pb.parameters[i].value.length() == 0){ /* In argument with NULL value : data is present */
       this->dataMgr->getData(pb.parameters[i]); 
     } else { /* data is not yet present but is persistent */
-          if( diet_is_persistent(pb.parameters[i]) ) {
+          if( diet_is_persistent(pb.parameters[i])) {
        	this->dataMgr->addData(pb.parameters[i],0);
       }
     }
   } 
  
   unmrsh_in_args_to_profile(&profile, &pb, cvt);
-  
-  
-#else  // DEVELOPPING_DATA_PERSISTENCY  
-
- for (i=0; i <= pb.last_inout; i++) {
+  for (i=0; i <= pb.last_inout; i++) {
      if( diet_is_persistent(pb.parameters[i])&& (pb.parameters[i].desc.specific._d() == DIET_FILE))
        {
 	 char* in_path   = CORBA::string_dup(profile.parameters[i].desc.specific.file.path);
 	 this->dataMgr->changePath(pb.parameters[i], in_path);
        }
-   }
+  }
+  
+#else  // DEVELOPPING_DATA_PERSISTENCY  
+
+
 
   unmrsh_in_args_to_profile(&profile, &pb, cvt);
 
@@ -421,11 +424,11 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
 
 #if DEVELOPPING_DATA_PERSISTENCY   
  
-    for (i = pb.last_in + 1 ; i <= pb.last_inout; i++) {
+  /*    for (i = pb.last_in + 1 ; i <= pb.last_inout; i++) {
       if ( diet_is_persistent(pb.parameters[i])) {
 	this->dataMgr->updateDataList(pb.parameters[i]); 
       }
-    }
+      }*/
  
     for (i = pb.last_inout + 1 ; i <= pb.last_out; i++) {
       if ( diet_is_persistent(pb.parameters[i])) {
