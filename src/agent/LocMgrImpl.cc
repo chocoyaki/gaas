@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2004/10/15 13:03:16  bdelfabr
+ * set_data_arg method modified to manage non correct id
+ *
  * Revision 1.10  2004/09/13 14:12:19  hdail
  * Cleaned up memory management for class variables myName and localHostName.
  *
@@ -357,13 +360,20 @@ LocMgrImpl::dataLookUp(const char *argID)
 corba_data_desc_t*
 LocMgrImpl::set_data_arg(const char* argID)
 {
-  corba_data_desc_t* arg_data_desc = new corba_data_desc_t;
+  corba_data_desc_t *arg_data_desc = new corba_data_desc_t;
 
-  printList1();
-
-  store_desc_child_t stored_desc = dataLocList[ms_strdup(argID)];
-  *arg_data_desc = stored_desc.id_handle_type;
-  return arg_data_desc;   
+  //printList1();
+  if( dataLookUp(argID) == 1 ) {
+    arg_data_desc->id.idNumber = CORBA::string_dup("-1");
+    arg_data_desc->id.dataCopy =  DIET_ORIGINAL;
+    arg_data_desc->id.state = DIET_FREE;
+  } else {
+    store_desc_child_t stored_desc = dataLocList[ms_strdup(argID)];
+    
+    *arg_data_desc = stored_desc.id_handle_type;
+  }
+  return arg_data_desc;
+  
 } // set_data_arg(const char* argID)
 
 
