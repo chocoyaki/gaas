@@ -11,13 +11,14 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.6  2002/12/18 19:02:46  pcombes
+ * Bug fix in statistics integration.
+ *
  * Revision 1.5  2002/12/03 19:08:24  pcombes
  * Update configure, update to FAST 0.3.15, clean CVS logs in files.
  * Put main Makefile in root directory.
  *
  ****************************************************************************/
-
-#if HAVE_STATISTICS
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,6 +27,8 @@
 #include <unistd.h>
 
 #include "statistics.hh"
+
+#if HAVE_STATISTICS
 
 char* stat_type_string[] = {
   "IN  ",

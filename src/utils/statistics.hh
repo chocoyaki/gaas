@@ -11,6 +11,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.6  2002/12/18 19:02:46  pcombes
+ * Bug fix in statistics integration.
+ *
  * Revision 1.5  2002/12/03 19:08:24  pcombes
  * Update configure, update to FAST 0.3.15, clean CVS logs in files.
  * Put main Makefile in root directory.
@@ -28,6 +31,10 @@
 #include <sys/time.h>
 
 #include "DIET_config.h"
+
+
+#if HAVE_STATISTICS
+
 
 enum stat_type { STAT_IN, STAT_OUT, STAT_INFO };
 
@@ -63,12 +70,12 @@ void do_stat_init();
 /////////////////////////////////
 // Use only the following calls :
 
-#if HAVE_STATISTICS
-
 #  define stat_init()        do_stat_init()
 #  define stat_in(message)   gen_stat(STAT_IN, message)
 #  define stat_out(message)  gen_stat(STAT_OUT, message)
 #  define stat_info(message) gen_stat(STAT_INFO, message)
+
+
 
 #else  // HAVE_STATISTICS
 
