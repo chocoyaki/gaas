@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.46  2005/01/14 13:02:38  bdelfabr
+ * removing useless cout
+ *
  * Revision 1.45  2005/01/13 15:13:42  bdelfabr
  * unmrsh_data modified ro fix file transfer bug (whatever the persistence mode was the client never received an out file)
  *
@@ -195,10 +198,12 @@ __mrsh_data_desc_type(corba_data_desc_t* dest,
     corba_file_specific_t file;
     dest->specific.file(file);
     if (src->specific.file.path) {
+   
       dest->specific.file().path = CORBA::string_dup(src->specific.file.path);
       dest->specific.file().size = src->specific.file.size;
 
     } else {
+     
       dest->specific.file().path = CORBA::string_dup("");
       dest->specific.file().size = 0;
 
@@ -245,6 +250,7 @@ mrsh_data(corba_data_t* dest, diet_data_t* src, int release)
     return 1;
   if (src->desc.generic.type == DIET_FILE) {
     char* path = src->desc.specific.file.path;
+ 
     if (path && strcmp("", path)) {
       ifstream infile(path);
       value = SeqChar::allocbuf(size);
@@ -421,11 +427,10 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
       char* file_name = strrchr(in_path, '/');
       char* out_path  = new char[256];
       pid_t pid = getpid();
-
+    
       if(strncmp(in_path,"/tmp/DIET_",10) != 0) {
         sprintf(out_path, "/tmp/DIET_%d_%s", pid,
                 (file_name) ? (char*)(1 + file_name) : in_path);
-
         ofstream outfile(out_path);
 
         for (int i = 0; i < src->desc.specific.file().size; i++) {
@@ -436,20 +441,20 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
       } else {
 	if(upDown == 1) {
 	  sprintf(out_path,"%s",in_path);
+	
 	  ofstream outfile(out_path);  
 	  for (int i = 0; i < src->desc.specific.file().size; i++) {
 	    outfile.put(src->value[i]);
 	  }
 	  dest->desc.specific.file.path = out_path;
 	  CORBA::string_free(in_path);
-	}else{	  
+	}else{	
+	
 	  dest->desc.specific.file.path = in_path;
 	  
 	  delete[] out_path;
-	}
-	
-        dest->desc.specific.file.path = in_path;
-        delete[] out_path;
+	}	
+
       }
       
     } else if (src->desc.specific.file().size != 0) {
@@ -737,6 +742,7 @@ mrsh_profile_to_out_args(corba_profile_t* dest, const diet_profile_t* src,
               dd.desc.specific.file.size = 0;
             }
           }
+	
           if (mrsh_data(&(dest->parameters[arg_idx]), &dd,
                         !diet_is_persistent(dd)))
             return 1;
@@ -780,9 +786,11 @@ unmrsh_out_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb)
   // marshalling was performed with replace method.
   for (i = dpb->last_in + 1; i <= dpb->last_inout; i++) {
     corba_data_desc_t* cdd = &(cpb->parameters[i].desc);
+
     // Special case for INOUT files: rewrite in the same file.
     if (cdd->specific._d() == (long) DIET_FILE) {
       char* inout_path = dpb->parameters[i].desc.specific.file.path;
+   
       int   size = cdd->specific.file().size;
       ofstream inoutfile(inout_path);
       dpb->parameters[i].desc.specific.file.size = size;
