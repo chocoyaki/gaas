@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2003/06/23 13:15:16  pcombes
+ * diet_reqID_t back to int (GridRPC)
+ *
  * Revision 1.10  2003/05/10 08:48:45  pcombes
  * log to clean at next time: Unify diet_initialize and diet_SeD prototypes.
  *
@@ -62,7 +65,7 @@ extern "C" {
 /* A DIET client can submit several request in one session.                 */
 /****************************************************************************/
 
-typedef long int diet_reqID_t;
+typedef int diet_reqID_t;
 
 int
 diet_initialize(char* config_file_name, int argc, char* argv[]);
