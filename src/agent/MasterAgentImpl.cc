@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2004/06/09 15:10:38  mcolin
+ * add stat_flush in statistics API in order to flush write access to
+ * statistic file for agent and sed which never end and can't call
+ * stat_finalize
+ *
  * Revision 1.10  2004/03/01 18:46:08  rbolze
  * add logservice
  *
@@ -189,6 +194,7 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
   TRACE_TEXT(TRACE_MAIN_STEPS,
 	     "**************************************************\n");
   stat_out(this->myName,"stop request");
+  stat_flush();
 
   return resp;
 } // submit(const corba_pb_desc_t& pb, ...)

@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2004/06/09 15:10:38  mcolin
+ * add stat_flush in statistics API in order to flush write access to
+ * statistic file for agent and sed which never end and can't call
+ * stat_finalize
+ *
  * Revision 1.25  2004/05/28 10:53:21  mcolin
  * change the endpoint option names for agents and servers
  *  endPointPort -> dietPort
@@ -355,6 +360,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
   delete [] profile.parameters; // allocated by unmrsh_in_args_to_profile
   
   stat_out("SeD","solve");  
+  stat_flush();  
 
 #if HAVE_LOGSERVICE
   if (dietLogComponent != NULL) {
@@ -475,6 +481,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 		 << "**************************************************\n");
 
       stat_out("SeD","solveAsync");
+      stat_flush();
 
 #if HAVE_LOGSERVICE
   if (dietLogComponent != NULL) {

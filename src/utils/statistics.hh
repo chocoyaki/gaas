@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2004/06/09 15:10:38  mcolin
+ * add stat_flush in statistics API in order to flush write access to
+ * statistic file for agent and sed which never end and can't call
+ * stat_finalize
+ *
  * Revision 1.11  2003/09/28 22:10:00  ecaron
  * New API for statistics module
  *   stat_in(myname,message)
@@ -84,6 +89,8 @@ gen_stat(int type, char* myname, char* message) {
 void
 do_stat_init();
 void
+do_stat_flush();
+void
 do_stat_finalize();
 
 /////////////////////////////////
@@ -94,6 +101,7 @@ do_stat_finalize();
 #  define stat_out(myname,message)  gen_stat(STAT_OUT, myname, message)
 #  define stat_info(myname,message) gen_stat(STAT_INFO, myname, message)
 #  define stat_finalize()    do_stat_finalize()
+#  define stat_flush()    do_stat_flush()
 
 #else  // HAVE_STATISTICS
 
@@ -102,6 +110,7 @@ do_stat_finalize();
 #  define stat_out(myname,message)
 #  define stat_info(myname,message)
 #  define stat_finalize()
+#  define stat_flush()
 
 #endif // HAVE_STATISTICS
 

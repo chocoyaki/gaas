@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2004/06/09 15:10:38  mcolin
+ * add stat_flush in statistics API in order to flush write access to
+ * statistic file for agent and sed which never end and can't call
+ * stat_finalize
+ *
  * Revision 1.12  2003/10/02 23:02:49  ecaron
  * Apply the TRACE_LEVEL API
  *
@@ -84,6 +89,19 @@ do_stat_init()
     } else {
 	TRACE_TEXT(TRACE_MAIN_STEPS,"Warning (do_stat_init): stats module not initialized !");
 	TRACE_TEXT(TRACE_MAIN_STEPS,"Please set DIET_STAT_FILE_NAME !");
+    }
+  }
+}
+
+void
+do_stat_flush() 
+{
+  if (STAT_FILE == NULL) {
+    TRACE_TEXT(TRACE_MAIN_STEPS, "Warning (do_stat_finalize): stats module is NOT initialized!\n");
+  } else {
+    if (fflush(STAT_FILE) != 0) {
+    TRACE_TEXT(TRACE_MAIN_STEPS, "Unable to flush stat file\n");
+      ERROR("do_stat_flush",);
     }
   }
 }

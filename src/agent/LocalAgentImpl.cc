@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2004/06/09 15:10:38  mcolin
+ * add stat_flush in statistics API in order to flush write access to
+ * statistic file for agent and sed which never end and can't call
+ * stat_finalize
+ *
  * Revision 1.9  2004/03/01 18:45:52  rbolze
  * add logservice
  *
@@ -146,5 +151,6 @@ LocalAgentImpl::getRequest(const corba_request_t& req)
   delete &resp;
 
   stat_out(this->myName,"getRequest");
+  stat_flush();
 } // getRequest(const corba_request_t& req)
 
