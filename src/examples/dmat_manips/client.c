@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.13  2003/01/23 19:13:45  pcombes
+ * Update to API 0.6.4
+ *
  * Revision 1.12  2003/01/17 18:05:37  pcombes
  * Update to API 0.6.3
  *
@@ -45,6 +48,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <sys/stat.h>
+#include <time.h>
 
 #include "DIET_client.h"
 
@@ -55,13 +60,17 @@ void usage() {
   exit(1);
 }
 
-#define print_matrix(mat, m, n)            \
+#define print_matrix(mat, m, n, rm)        \
   {                                        \
     size_t i, j;                           \
-    printf("%s = \n", #mat);               \
+    printf("%s (%s-major) = \n", #mat,     \
+           (rm) ? "row" : "column");       \
     for (i = 0; i < (m); i++) {            \
       for (j = 0; j < (n); j++) {          \
-	printf("%3f ", (mat)[i + j*(m)]);  \
+        if (rm)                            \
+	  printf("%3f ", (mat)[j + i*(n)]);\
+        else                               \
+	  printf("%3f ", (mat)[i + j*(m)]);\
       }                                    \
       printf("\n");                        \
     }                                      \
@@ -82,8 +91,11 @@ main(int argc, char **argv)
   double mat1[6] = {1.0,2.0,3.0,4.0,5.0,6.0};
   double mat2[6] = {7.0,8.0,9.0,10.0,11.0,12.0};
   double *A, *B, *C;
+  diet_matrix_order_t oA, oB, oC;
 
   char *PB[3] = {"T", "MatSUM", "MatPROD"};
+
+  srand(time(NULL));
 
   for (i = 1; i < argc - 2; i++) {
     if (strcmp("--repeat", argv[i]) == 0) {
@@ -114,33 +126,37 @@ main(int argc, char **argv)
       return 1;
     } 
     
+    oA = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
+    oB = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
+    oC = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
+    
     if (!strcmp(path, PB[0])) {
       
       fhandle = diet_function_handle_default(path);
       profile = diet_profile_alloc(-1, 0, 0);
       diet_matrix_set(diet_parameter(profile,0),
-		      A, DIET_VOLATILE, DIET_DOUBLE, m, n, 0);
-      print_matrix(A, m, n);
+		      A, DIET_VOLATILE, DIET_DOUBLE, m, n, oA);
+      print_matrix(A, m, n, (oA == DIET_ROW_MAJOR));
       
     } else if (!(strcmp(path, PB[1]) && strcmp(path, PB[2]))) {
       
       fhandle = diet_function_handle_default(path);
       profile = diet_profile_alloc(1, 1, 2);
       diet_matrix_set(diet_parameter(profile,0),
-		      A, DIET_VOLATILE, DIET_DOUBLE, m, n, 0);
-      print_matrix(A, m, n);
+		      A, DIET_VOLATILE, DIET_DOUBLE, m, n, oA);
+      print_matrix(A, m, n, (oA == DIET_ROW_MAJOR));
       if (!(strcmp(path, PB[1]))) {
 	diet_matrix_set(diet_parameter(profile,1),
-			B, DIET_VOLATILE, DIET_DOUBLE, m, n, 0);
-	print_matrix(B, m, n);
+			B, DIET_VOLATILE, DIET_DOUBLE, m, n, oB);
+	print_matrix(B, m, n, (oB == DIET_ROW_MAJOR));
 	diet_matrix_set(diet_parameter(profile,2),
-			NULL, DIET_VOLATILE, DIET_DOUBLE, m, n, 0);
+			NULL, DIET_VOLATILE, DIET_DOUBLE, m, n, oC);
       } else {
 	diet_matrix_set(diet_parameter(profile,1),
-			B, DIET_VOLATILE, DIET_DOUBLE, n, m, 0);
-	print_matrix(B, n, m);
+			B, DIET_VOLATILE, DIET_DOUBLE, n, m, oB);
+	print_matrix(B, n, m, (oB == DIET_ROW_MAJOR));
 	diet_matrix_set(diet_parameter(profile,2),
-			NULL, DIET_VOLATILE, DIET_DOUBLE, m, m, 0);
+			NULL, DIET_VOLATILE, DIET_DOUBLE, m, m, oC);
       }
       
     } else {
@@ -150,11 +166,11 @@ main(int argc, char **argv)
     
     if (!diet_call(fhandle, profile)) {
       if (!strcmp(path, PB[0])) {
-	diet_matrix_get(diet_parameter(profile,0), NULL, NULL, &m, &n, NULL);
-	print_matrix(A, m, n);
+	diet_matrix_get(diet_parameter(profile,0), NULL, NULL, &m, &n, &oA);
+	print_matrix(A, m, n, (oA == DIET_ROW_MAJOR));
       } else {
-	diet_matrix_get(diet_parameter(profile,2), &C, NULL, &m, &n, NULL);
-	print_matrix(C, m, n);
+	diet_matrix_get(diet_parameter(profile,2), NULL, NULL, &m, &n, &oC);
+	print_matrix(C, m, n, (oC == DIET_ROW_MAJOR));
 	free(C);
       }
     }

@@ -11,6 +11,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.4  2003/01/23 19:13:44  pcombes
+ * Update to API 0.6.4
+ *
  * Revision 1.3  2003/01/17 18:05:37  pcombes
  * Update to API 0.6.3
  *
@@ -30,17 +33,23 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <sys/stat.h>
+#include <time.h>
 
 #include "DIET_client.h"
 
 
-#define print_matrix(mat, m, n)            \
+#define print_matrix(mat, m, n, rm)        \
   {                                        \
     size_t i, j;                           \
-    printf("%s = \n", #mat);               \
+    printf("%s (%s-major) = \n", #mat,     \
+           (rm) ? "row" : "column");       \
     for (i = 0; i < (m); i++) {            \
       for (j = 0; j < (n); j++) {          \
-	printf("%3f ", (mat)[i + j*(m)]);  \
+        if (rm)                            \
+	  printf("%3f ", (mat)[j + i*(n)]);\
+        else                               \
+	  printf("%3f ", (mat)[i + j*(m)]);\
       }                                    \
       printf("\n");                        \
     }                                      \
@@ -60,6 +69,13 @@ main(int argc, char **argv)
   size_t i, j, m, n, k;
   double alpha, beta;
   double *A, *B, *C;
+  diet_matrix_order_t oA, oB, oC;
+
+  srand(time(NULL));
+  
+  oA = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
+  oB = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
+  oC = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
 
   if (argc != 7) {
     fprintf(stderr, "Usage: %s <file.cfg> m n k alpha beta\n", argv[0]);
@@ -92,20 +108,20 @@ main(int argc, char **argv)
   diet_scalar_set(diet_parameter(profile,0), &alpha,
 		  DIET_VOLATILE, DIET_DOUBLE);
   diet_matrix_set(diet_parameter(profile,1), A,
-		  DIET_VOLATILE, DIET_DOUBLE, m, k, 0);
+		  DIET_VOLATILE, DIET_DOUBLE, m, k, oA);
   diet_matrix_set(diet_parameter(profile,2), B,
-		  DIET_VOLATILE, DIET_DOUBLE, k, n, 0);
+		  DIET_VOLATILE, DIET_DOUBLE, k, n, oB);
   diet_scalar_set(diet_parameter(profile,3), &beta,
 		  DIET_VOLATILE, DIET_DOUBLE);
   diet_matrix_set(diet_parameter(profile,4), C,
-		  DIET_VOLATILE, DIET_DOUBLE, m, n, 0);
+		  DIET_VOLATILE, DIET_DOUBLE, m, n, oC);
   
-  print_matrix(A, m, k);
-  print_matrix(B, k, n);
-  print_matrix(C, m, n);
+  print_matrix(A, m, k, (oA == DIET_ROW_MAJOR));
+  print_matrix(B, k, n, (oB == DIET_ROW_MAJOR));
+  print_matrix(C, m, n, (oC == DIET_ROW_MAJOR));
   
   if (!diet_call(fhandle, profile)) {
-    print_matrix(C, m, n);
+    print_matrix(C, m, n, (oC == DIET_ROW_MAJOR));
   }
   
   diet_profile_free(profile);

@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.18  2003/01/23 19:13:45  pcombes
+ * Update to API 0.6.4
+ *
  * Revision 1.17  2003/01/22 17:13:44  pcombes
  * Use DIET_SERVER_LIBS and DIET_CLIENT_LIBS
  *
@@ -62,6 +65,7 @@ int
 solve_T(diet_profile_t *pb)
 {
   size_t m, n;
+  diet_matrix_order_t o;
   double *A;
   int res;
 
@@ -74,18 +78,16 @@ solve_T(diet_profile_t *pb)
   //A = (double *)pb->parameters[2].value;
   /* This is equivalent to
      A = diet_value(double, diet_parameter(pb,2)); */
-  diet_matrix_get(diet_parameter(pb,2), &A, NULL, NULL, NULL, NULL);
-  print_matrix(A, m, n);
+  diet_matrix_get(diet_parameter(pb,2), &A, NULL, NULL, NULL, &o);
   
-  if ((res = T(m, n, A)))
+  if ((res = T(m, n, A, (o == DIET_ROW_MAJOR))))
     return res;
   
   //pb->parameters[2].desc.specific.mat.nb_r = n;
   //pb->parameters[2].desc.specific.mat.nb_c = m;
   // no need to set order
-  diet_matrix_desc_set(diet_parameter(pb,2), n, m, -1);
+  diet_matrix_desc_set(diet_parameter(pb,2), n, m, o);
   
-  print_matrix(A, n, m);
   //printf(" done\n");
   return 0;
 }
@@ -94,24 +96,33 @@ int
 solve_MatSUM(diet_profile_t *pb)
 {
   size_t mA, nA, mB, nB;
-  int tA, tB;
+  char tA, tB;
+  diet_matrix_order_t oA, oB, oC;
   double *A, *B, *C;
   int res;
   
   printf("Solve MatSUM ...");
 
-  diet_matrix_get(diet_parameter(pb,0), &A, NULL, &mA, &nA, &tA);
-  diet_matrix_get(diet_parameter(pb,1), &B, NULL, &mB, &nB, &tB);
+  diet_matrix_get(diet_parameter(pb,0), &A, NULL, &mA, &nA, &oA);
+  diet_matrix_get(diet_parameter(pb,1), &B, NULL, &mB, &nB, &oB);
+  tA = (oA == DIET_ROW_MAJOR) ? 'T' : 'N';
+  tB = (oB == DIET_ROW_MAJOR) ? 'T' : 'N';
   if ((mA != mB) || (nA != nB)) {
     fprintf(stderr, "MatSUM error: mA=%ld, nA=%ld ; mB=%ld, nB=%ld\n",
 	    (long)mA, (long)nA, (long)mB, (long)nB);
     return 1;
   }
-  //C = (double *) pb->parameters[2].value;  OR
-  //diet_matrix_get(diet_parameter(pb,2), &C, NULL, NULL, NULL, NULL); OR
-  C = diet_value(double,diet_parameter(pb,2));
+  //C = diet_value(double,diet_parameter(pb,2));
+  diet_matrix_get(diet_parameter(pb,2), &C, NULL, NULL, NULL, &oC);
   
-  if ((res = MatSUM(tA, tB, mA, nA, A, B, C)))
+  if (oC == DIET_ROW_MAJOR) {
+    tA = (tA == 'T') ? 'N' : 'T';
+    tB = (tB == 'T') ? 'N' : 'T';
+    res = MatSUM(tB, tA, nA, mA, B, A, C);
+  } else {
+    res = MatSUM(tA, tB, mA, nA, A, B, C);
+  }
+  if (res)
     return res;
   
   printf(" done\n");
@@ -123,23 +134,33 @@ int
 solve_MatPROD(diet_profile_t *pb)
 {
   size_t mA, nA, mB, nB;
-  int tA, tB;
+  char tA, tB;
+  diet_matrix_order_t oA, oB, oC;
   double *A, *B, *C;
   
   printf("Solve MatPROD ...");
 
-  diet_matrix_get(diet_parameter(pb,0), &A, NULL, &mA, &nA, &tA);
-  diet_matrix_get(diet_parameter(pb,1), &B, NULL, &mB, &nB, &tB);
+  diet_matrix_get(diet_parameter(pb,0), &A, NULL, &mA, &nA, &oA);
+  diet_matrix_get(diet_parameter(pb,1), &B, NULL, &mB, &nB, &oB);
+  tA = (oA == DIET_ROW_MAJOR) ? 'T' : 'N';
+  tB = (oB == DIET_ROW_MAJOR) ? 'T' : 'N';
   if (nA != mB) {
     fprintf(stderr, "MatPROD error: mA=%ld, nA=%ld ; mB=%ld, nB=%ld\n",
     (long)mA, (long)nA, (long)mB, (long)nB);
     return 1;
   }
-  //diet_matrix_get(diet_parameter(pb,2), &C, NULL, NULL, NULL, NULL); OR
-  C = diet_value(double,diet_parameter(pb,2));
+  //C = diet_value(double,diet_parameter(pb,2));
+  diet_matrix_get(diet_parameter(pb,2), &C, NULL, NULL, NULL, &oC);
   
-  MatPROD(tA, tB, mA, nA, A, nB, B, C);
   
+  if (oC == DIET_ROW_MAJOR) {
+    tA = (tA == 'T') ? 'N' : 'T';
+    tB = (tB == 'T') ? 'N' : 'T';
+    MatPROD(tB, tA, nB, mB, B, mA, A, C);
+  } else {
+    MatPROD(tA, tB, mA, nA, A, nB, B, C);
+  }
+
   printf(" done\n");
   return 0;
 }

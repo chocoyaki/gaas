@@ -11,6 +11,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.6  2003/01/23 19:13:44  pcombes
+ * Update to API 0.6.4
+ *
  * Revision 1.5  2003/01/17 18:05:37  pcombes
  * Update to API 0.6.3
  *
@@ -50,20 +53,25 @@ extern void dgemm_(char   *tA,
 		   int    *ldc);
 
 
-#define print_matrix(mat, m, n)            \
+#define print_matrix(mat, m, n, rm)        \
   {                                        \
     size_t i, j;                           \
-    printf("%s = \n", #mat);               \
+    printf("%s (%s-major) = \n", #mat,     \
+           (rm) ? "row" : "column");       \
     for (i = 0; i < (m); i++) {            \
       for (j = 0; j < (n); j++) {          \
-	printf("%3f ", (mat)[i + j*(m)]);  \
+        if (rm)                            \
+	  printf("%3f ", (mat)[j + i*(n)]);\
+        else                               \
+	  printf("%3f ", (mat)[i + j*(m)]);\
       }                                    \
       printf("\n");                        \
     }                                      \
     printf("\n");                          \
   }
 
-void displayArg(const diet_data_t *arg)
+
+void displayArg(const diet_arg_t *arg)
 {
       
   switch((int) arg->desc.generic.type) {
@@ -97,34 +105,39 @@ void displayArg(const diet_data_t *arg)
 
 
 /*
- * SOLVE FUNCTIONS
+ * SOLVE FUNCTION for dgemm_
+ * C MUST BE COLUMN-MAJOR
  */
 
 int
 solve_dgemm(diet_profile_t *pb)
 {
   char    tA, tB;
-  int     istA, istB;
-  size_t  i, m, n, k, k_;
+  diet_matrix_order_t oA, oB, oC;
+  size_t  i, k, k_, m, m_, n, n_;
   double  alpha, beta;
   double *A, *B, *C;
-  int     IsSqMatSUM=0;
+  int     IsSqMatSUM = 0;
 
-  diet_matrix_get(diet_parameter(pb,0), &A, NULL, &m, &k, &istA);
-  tA = istA ? 'T' : 'N';
-  diet_matrix_get(diet_parameter(pb,1), &B, NULL, &k_, &n, &istB);
-  tB = istB ? 'T' : 'N';
-  if (k_ != k) {
-    fprintf(stderr, "dgemm Error: invalid matrix dimensions !\n");
-    return 1;
-  }
+  diet_matrix_get(diet_parameter(pb,0), &A, NULL, &m, &k, &oA);
+  tA = (oA == DIET_ROW_MAJOR) ? 'T' : 'N';
+  diet_matrix_get(diet_parameter(pb,1), &B, NULL, &k_, &n, &oB);
+  tB = (oB == DIET_ROW_MAJOR) ? 'T' : 'N';
   diet_scalar_get(diet_parameter(pb,2), &alpha, NULL);
   diet_scalar_get(diet_parameter(pb,3), &beta,  NULL);
-  C = diet_value(double,diet_parameter(pb,4));
+  diet_matrix_get(diet_parameter(pb,4), &C, NULL, &m_, &n_, &oC);
   
-  /* Set B to identity in case of SUM only */
-  if ((IsSqMatSUM = (! B))) {
-    diet_matrix_get(diet_parameter(pb,4), NULL, NULL, NULL, &n, NULL);
+  /* A and B NULL => MatScalMult, then m and n are wrong
+   *  only B NULL => SqMatSUM, then set B to identity (and k_ for later test) */
+  if (!A && !B) {
+    m = m_;
+    n = n_;
+    k = (m > n) ? m : n;
+    k_ = k;
+  }
+  if ((IsSqMatSUM = (A && !B))) {
+    k_ = k;
+    n = n_;
     if (m != n || n != k || m != k) {
       fprintf(stderr, "dgemm Error: only square matrices can be summed.\n");
       return 1;
@@ -135,12 +148,32 @@ solve_dgemm(diet_profile_t *pb)
     }
   }
 
+  if ((k_ != k) || (m_ != m) || (n_ != n)) {
+    fprintf(stderr, "dgemm Error: invalid matrix dimensions: ");
+    fprintf(stderr, "%dx%d = %dx%d * %dx%d\n", m_, n_, m, k, k_, n);
+    return 1;
+  }
+
   // DEBUG
-  printf("dgemm args : m=%d, n=%d, k=%d, alpha=%f, beta=%f, tA=%c, tB=%c\n",
-	 m, n, k, alpha, beta, tA, tB);
   
   printf("Solving dgemm_ ...");
-  dgemm_(&tA, &tB, &m, &n, &k, &alpha, A, &m, B, &k, &beta, C, &m);
+  if (oC == DIET_ROW_MAJOR) {
+    tA = (tA == 'T') ? 'N' : 'T';
+    tB = (tB == 'T') ? 'N' : 'T';
+    printf("dgemm args : m=%d, n=%d, k=%d, alpha=%f, beta=%f, tA=%c, tB=%c\n",
+	   n, m, k, alpha, beta, tB, tA);
+    dgemm_(&tB, &tA, &n, &m, &k, &alpha,
+	   B, (tB == 'T') ? &k : &n,
+	   A, (tA == 'T') ? &m : &k,
+	   &beta, C, &n);  
+  } else {
+    printf("dgemm args : m=%d, n=%d, k=%d, alpha=%f, beta=%f, tA=%c, tB=%c\n",
+	   m, n, k, alpha, beta, tA, tB);
+    dgemm_(&tA, &tB, &m, &n, &k, &alpha,
+	   A, (tA == 'T') ? &k : &m,
+	   B, (tB == 'T') ? &n : &k,
+	   &beta, C, &m);
+  }
   printf(" done.\n");
 
   if (IsSqMatSUM) {
@@ -210,13 +243,13 @@ main(int argc, char **argv)
   /* Set convertor */
   diet_arg_cvt_set(diet_arg_conv(cvt,0), DIET_CVT_IDENTITY, 0, NULL);
   {
-    arg = (diet_arg_t *) malloc(sizeof(diet_arg_t));
-    diet_matrix_set(arg, NULL, DIET_VOLATILE, DIET_DOUBLE, 0, 0, 0);
+    arg = (diet_arg_t *) calloc(1, sizeof(diet_arg_t));
+    diet_matrix_set(arg, NULL, DIET_VOLATILE, DIET_DOUBLE, 0, 0, DIET_COL_MAJOR);
   }
   diet_arg_cvt_set(diet_arg_conv(cvt,1), DIET_CVT_IDENTITY, -1, arg);
   {
     double alpha = 1.0;
-    arg = (diet_arg_t *) malloc(sizeof(diet_arg_t));
+    arg = (diet_arg_t *) calloc(1, sizeof(diet_arg_t));
     diet_scalar_set(arg, &alpha, DIET_VOLATILE, DIET_DOUBLE);
   }
   diet_arg_cvt_set(diet_arg_conv(cvt,2), DIET_CVT_IDENTITY, -1, arg);
@@ -241,13 +274,13 @@ main(int argc, char **argv)
   diet_arg_cvt_set(diet_arg_conv(cvt,1), DIET_CVT_IDENTITY, 1, NULL);
   {
     double alpha = 1.0;
-    arg = (diet_arg_t *) malloc(sizeof(diet_arg_t));
+    arg = (diet_arg_t *) calloc(1, sizeof(diet_arg_t));
     diet_scalar_set(arg, &alpha, DIET_VOLATILE, DIET_DOUBLE);
   }
   diet_arg_cvt_set(diet_arg_conv(cvt,2), DIET_CVT_IDENTITY, -1, arg);
   {
     double beta = 0.0;
-    arg = (diet_arg_t *) malloc(sizeof(diet_arg_t));
+    arg = (diet_arg_t *) calloc(1, sizeof(diet_arg_t));
     diet_scalar_set(arg, &beta, DIET_VOLATILE, DIET_DOUBLE);
   }
   diet_arg_cvt_set(diet_arg_conv(cvt,3), DIET_CVT_IDENTITY, -1, arg);
@@ -267,26 +300,25 @@ main(int argc, char **argv)
   diet_generic_desc_set(diet_param_desc(profile,1), DIET_MATRIX, DIET_DOUBLE);
   /* Set convertor */
   {
-    arg = (diet_arg_t *) malloc(sizeof(diet_arg_t));
-    diet_matrix_set(arg, NULL, DIET_VOLATILE, DIET_DOUBLE, 0, 0, 0);
-  }  
-  diet_arg_cvt_set(diet_arg_conv(cvt,0), DIET_CVT_IDENTITY,   -1, arg);
-  diet_arg_cvt_set(diet_arg_conv(cvt,1), DIET_CVT_IDENTITY,   -1, arg);
+    arg = (diet_arg_t *) calloc(1, sizeof(diet_arg_t));
+    // 1x1 matrix (to force dimensions set, because 0 is ignored)
+    diet_matrix_set(arg, NULL, DIET_VOLATILE, DIET_DOUBLE, 1, 1, DIET_COL_MAJOR);
+  }
+  diet_arg_cvt_set(diet_arg_conv(cvt,0), DIET_CVT_IDENTITY, -1, arg);
+  diet_arg_cvt_set(diet_arg_conv(cvt,1), DIET_CVT_IDENTITY, -1, arg);
   {
     double alpha = 0.0;
-    arg = (diet_arg_t *) malloc(sizeof(diet_arg_t));
+    arg = (diet_arg_t *) calloc(1, sizeof(diet_arg_t));
     diet_scalar_set(arg, &alpha, DIET_VOLATILE, DIET_DOUBLE);
   }
-  diet_arg_cvt_set(diet_arg_conv(cvt,2), DIET_CVT_IDENTITY,   -1, arg);
-  diet_arg_cvt_set(diet_arg_conv(cvt,3), DIET_CVT_IDENTITY,    0, NULL);
-  diet_arg_cvt_set(diet_arg_conv(cvt,4), DIET_CVT_IDENTITY,    1, NULL);
+  diet_arg_cvt_set(diet_arg_conv(cvt,2), DIET_CVT_IDENTITY, -1, arg);
+  diet_arg_cvt_set(diet_arg_conv(cvt,3), DIET_CVT_IDENTITY,  0, NULL);
+  diet_arg_cvt_set(diet_arg_conv(cvt,4), DIET_CVT_IDENTITY,  1, NULL);
   /* Add */
   diet_service_table_add("MatScalMult", profile, cvt, solve_dgemm);
   diet_profile_desc_free(profile);
 
-
-  diet_print_service_table();
-
+  /* The same cvt has been used for all services, free it now */
   diet_convertor_free(cvt);
   
   res = diet_SeD(argv[1], argc, argv);

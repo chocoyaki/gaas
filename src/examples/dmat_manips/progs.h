@@ -11,6 +11,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.4  2003/01/23 19:13:45  pcombes
+ * Update to API 0.6.4
+ *
  * Revision 1.3  2002/12/03 19:05:12  pcombes
  * Clean CVS logs in file.
  * Separate BLAS and SCALAPACK examples.
@@ -31,13 +34,17 @@
 #include <string.h>
 
 
-#define print_matrix(mat, m, n)            \
+#define print_matrix(mat, m, n, rm)        \
   {                                        \
     size_t i, j;                           \
-    printf("%s = \n", #mat);               \
+    printf("%s (%s-major) = \n", #mat,     \
+           (rm) ? "row" : "column");       \
     for (i = 0; i < (m); i++) {            \
       for (j = 0; j < (n); j++) {          \
-	printf("%3f ", (mat)[i + j*(m)]);  \
+        if (rm)                            \
+	  printf("%3f ", (mat)[j + i*(n)]);\
+        else                               \
+	  printf("%3f ", (mat)[i + j*(m)]);\
       }                                    \
       printf("\n");                        \
     }                                      \
@@ -45,11 +52,11 @@
   }
 
 /*
- * Transpose matrix
+ * Transpose a matrix (column-major <=> rm == 0)
  */
 
 inline int
-T(int m, int n, double *A)
+T(int m, int n, double *A, int rm)
 {
   size_t i, j;
   double *tmp;
@@ -59,7 +66,10 @@ T(int m, int n, double *A)
 
   for (i = 0; i < n; i++) {
     for (j = 0; j < m; j++) {
-      A[j*n + i] = tmp[i*m + j];
+      if (rm)
+	A[i*m + j] = tmp[j*n + i];
+      else
+	A[j*n + i] = tmp[i*m + j];
     }
   }
 
@@ -68,7 +78,8 @@ T(int m, int n, double *A)
 }
 
 /*
- * Sum 2 matrices
+ * Sum 2 column-major matrices (modulo tA and tB):
+ * if tA == 'T', then A is row-major ...
  */
 
 inline int
@@ -110,8 +121,10 @@ MatSUM(char tA, char tB, int m, int n, double *A, double *B, double *C)
   return 0;
 }
 
+
 /*
- * Mult 2 matrices
+ * Multiply 2 column-major matrices (modulo tA and tB):
+ * if tA == 'T', then A is row-major ...
  */
 
 inline int
@@ -128,7 +141,7 @@ MatPROD(char tA, char tB,
 	for (j = 0; j < nB; j++) {
 	  C[j*mA + i] = 0;
 	  for (k = 0; k < nA; k++) {
-	    C[j*mA + i] += A[i*nA + k] + B[k*nB + j];
+	    C[j*mA + i] += A[i*nA + k] * B[k*nB + j];
 	  }
 	}
       }
@@ -137,7 +150,7 @@ MatPROD(char tA, char tB,
 	for (j = 0; j < nB; j++) {
 	  C[j*mA + i] = 0;
 	  for (k = 0; k < nA; k++) {
-	    C[j*mA + i] += A[i*nA + k] + B[j*mB + k];
+	    C[j*mA + i] += A[i*nA + k] * B[j*mB + k];
 	  }
 	}
       }
@@ -149,7 +162,7 @@ MatPROD(char tA, char tB,
 	for (j = 0; j < nB; j++) {
 	  C[j*mA + i] = 0;
 	  for (k = 0; k < nA; k++) {
-	    C[j*mA + i] += A[k*mA + i] + B[k*nB + j];
+	    C[j*mA + i] += A[k*mA + i] * B[k*nB + j];
 	  }
 	}
       }

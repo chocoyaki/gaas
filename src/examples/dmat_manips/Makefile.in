@@ -12,6 +12,9 @@
 #****************************************************************************#
 #*
 #* $Log$
+#* Revision 1.12  2003/01/23 19:13:45  pcombes
+#* Update to API 0.6.4
+#*
 #* Revision 1.11  2003/01/22 17:13:44  pcombes
 #* Use DIET_SERVER_LIBS and DIET_CLIENT_LIBS
 #*
@@ -69,7 +72,7 @@ client.o:	client.c
 client:		client.o @PREFIX@/lib/libDIET_client.a
 	$(CC) $< $(CCFLAGS) $(DIET_CLIENT_LIBS) -o $@
 
-server.o:	server.c
+server.o:	server.c progs.h
 	$(CC) -c $< $(CCFLAGS) -o $@
 
 server:		server.o @PREFIX@/lib/libDIET_SeD.a

@@ -11,6 +11,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.8  2003/01/23 19:13:45  pcombes
+ * Update to API 0.6.4
+ *
  * Revision 1.7  2003/01/17 18:05:37  pcombes
  * Update to API 0.6.3
  *
@@ -106,8 +109,8 @@ solve_size(diet_profile_t *pb)
   if (!(buf.st_mode & S_IFREG))
     return 2;
   /* This is equivalent to
-     diet_scalar_desc_set(diet_parameter(pb,3), &buf.st_size); */
-  *(diet_value(size_t, diet_parameter(pb,3))) = (size_t) buf.st_size;
+   * *(diet_value(size_t, diet_parameter(pb,3))) = (size_t) buf.st_size; */
+  diet_scalar_desc_set(diet_parameter(pb,3), &buf.st_size);
   
   if (diet_file_desc_set(diet_parameter(pb,4), (rand() & 1) ? path : NULL)) {
     printf("diet_file_desc_set error\n");
