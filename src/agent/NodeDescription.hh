@@ -8,14 +8,17 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2003/09/22 21:08:07  pcombes
+ * Still some problems with Coding Standards ...
+ *
  * Revision 1.3  2003/05/22 12:20:25  sdahan
  * Now the NodeDescriptor completly manages its own memory by itself.
  * The -> operator is defined. You can do :
- * descriptor->ping() ;
+ * descriptor->ping();
  * instead of :
- * LocalAgent_ptr la = localAgent::_duplicate(descriptor.getIor()) ;
- * la->ping() ;
- * CORBA::release(la) ;
+ * LocalAgent_ptr la = localAgent::_duplicate(descriptor.getIor());
+ * la->ping();
+ * CORBA::release(la);
  *
  * Revision 1.2  2003/05/05 14:32:29  pcombes
  * assert in NodeDescription(T_ptr ior, const char* hostName) was buggy.
@@ -24,8 +27,8 @@
  * Replace AgentDescription.hh. Fix bugs on memory management.
  ****************************************************************************/
 
-#ifndef _NODE_DESCRIPTION_HH_
-#define _NODE_DESCRIPTION_HH_
+#ifndef _NODEDESCRIPTION_HH_
+#define _NODEDESCRIPTION_HH_
 
 #include "ms_function.hh"
 #include <assert.h>
@@ -55,36 +58,39 @@ private :
   /**
    * free the memory of the node description
    */
-  inline void freeMemory() {
+  inline void
+  freeMemory() {
     if(defined()) {
-      ms_strfree(hostName) ;
-      hostName = NULL ;
-      CORBA::release(ior) ;
+      ms_strfree(hostName);
+      hostName = NULL;
+      CORBA::release(ior);
     }
   }
 
   /**
    * copy the argument into the attribut of the node
    */
-  inline void copyMemory(T_ptr ior, const char* hostName) {
+  inline void
+  copyMemory(T_ptr ior, const char* hostName) {
     if (hostName != NULL) {
-      this->ior = T::_duplicate(ior) ;
-      this->hostName = ms_strdup(hostName) ;
+      this->ior = T::_duplicate(ior);
+      this->hostName = ms_strdup(hostName);
     } else {
-      this->ior = T::_nil() ;
-      this->hostName = NULL ;
+      this->ior = T::_nil();
+      this->hostName = NULL;
     }
   }
 
 public :
   /** return true if the node is define, false if not. */
-  inline bool defined() const { return hostName;};
+  inline bool
+  defined() const { return hostName; }
 
   /**
    * creates a new undefined NodeDescription.
    */
   NodeDescription() {
-    copyMemory(T::_nil(), NULL) ;
+    copyMemory(T::_nil(), NULL);
   }
 
   /**
@@ -92,13 +98,12 @@ public :
    * the hostName \c hostName.
    *
    * @param ior the IOR of the node. the ior must be defined.
-   *
    * @param hostName the hostName of the node. It must be not \c NULL. A
    * copy of the hostName is made.
    */
   NodeDescription(T_ptr ior, const char* hostName) {
     assert(hostName != NULL);
-    copyMemory(ior, hostName) ;
+    copyMemory(ior, hostName);
   }
 
   /**
@@ -109,14 +114,14 @@ public :
    * duplicated.
    */
   NodeDescription(const NodeDescription& nodeDescription) {
-    copyMemory(nodeDescription.ior, nodeDescription.hostName) ;
+    copyMemory(nodeDescription.ior, nodeDescription.hostName);
   }
 
   /**
    * Destructor of the NodeDescription.
    */
   ~NodeDescription() {
-      freeMemory() ;
+      freeMemory();
   }
 
   /**
@@ -124,9 +129,9 @@ public :
    *
    * @param nodeDescription a NodeDescription that must be copied.
    */
-  NodeDescription<T, T_ptr>& operator=
-  (const NodeDescription<T, T_ptr>& nodeDescription)  {
-    freeMemory() ;
+  NodeDescription<T, T_ptr>&
+  operator=(const NodeDescription<T, T_ptr>& nodeDescription) {
+    freeMemory();
     copyMemory(nodeDescription.ior, nodeDescription.hostName);
     return *this;
   }
@@ -138,8 +143,8 @@ public :
    */
   void
   set(const T_ptr ior, const char* hostName) {
-    freeMemory() ;
-    copyMemory(ior, hostName) ;
+    freeMemory();
+    copyMemory(ior, hostName);
   }
    
 
@@ -148,7 +153,8 @@ public :
    *
    * @return the IOR of the node.
    */
-  T_ptr getIor() const {
+  T_ptr
+  getIor() const {
     assert(defined());
     return this->ior;
   }
@@ -161,7 +167,8 @@ public :
    *
    * @return the hostName of the node.
    */
-  const char* getHostName() const {
+  const char*
+  getHostName() const {
     assert(defined());
     return this->hostName;
   }
@@ -169,8 +176,9 @@ public :
   /**
    * accessor to the ior.
    */
-  inline T_ptr operator->() const {
-    return ior ;
+  inline T_ptr
+  operator->() const {
+    return ior;
   }
 };
 
