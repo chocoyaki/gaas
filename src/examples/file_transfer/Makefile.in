@@ -12,6 +12,9 @@
 #****************************************************************************#
 #*
 #* $Log$
+#* Revision 1.3  2002/11/07 19:16:25  pcombes
+#* Minor fixes in libs order.
+#*
 #* Revision 1.2  2002/11/07 18:42:42  pcombes
 #* Add includes and configured Makefile variables to install directory.
 #* Update dgemm to the implementation that is hardcoded in FAST.
@@ -34,13 +37,13 @@ client.o:	client.c
 	$(CC) -c $< $(CCFLAGS) -o $@
 
 client:		client.o @PREFIX@/lib/libDIET_client.a
-	$(CC) $< $(CCFLAGS) $(LIBS) $(CLIENT_LIB) -o $@
+	$(CC) $< $(CCFLAGS) $(CLIENT_LIB) $(LIBS) -o $@
 
 server.o:	server.c
 	$(CC) -c $< $(CCFLAGS) -o $@
 
 server:		server.o @PREFIX@/lib/libDIET_SeD.a
-	$(CC) $< $(CCFLAGS) $(LIBS) $(SED_LIB) -o $@
+	$(CC) $< $(CCFLAGS) $(SED_LIB) $(LIBS) -o $@
 
 clean:
 	rm -f *.o client server
