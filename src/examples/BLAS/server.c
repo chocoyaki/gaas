@@ -1,5 +1,4 @@
 /****************************************************************************/
-/* $Id$ */
 /* DIET server for BLAS functions                                           */
 /*                                                                          */
 /*  Author(s):                                                              */
@@ -7,8 +6,11 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/*
+/* $Id$
  * $Log$
+ * Revision 1.8  2003/04/10 13:33:21  pcombes
+ * Apply new Coding Standards.
+ *
  * Revision 1.7  2003/02/07 17:05:23  pcombes
  * Add SqMatSUM_opt with the new convertor API.
  * Use diet_free_data to properly free user's data.
@@ -169,9 +171,7 @@ solve_dgemm(diet_profile_t* pb)
 int
 main(int argc, char* argv[])
 {
-  size_t i,j;
   int res;
-
   diet_profile_desc_t* profile = NULL;
   diet_convertor_t* cvt = NULL;
   diet_arg_t* arg = NULL;

@@ -1,5 +1,4 @@
 /****************************************************************************/
-/* $Id$ */
 /* DIET client for BLAS functions                                           */
 /*                                                                          */
 /*  Author(s):                                                              */
@@ -7,8 +6,11 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/*
+/* $Id$
  * $Log$
+ * Revision 1.6  2003/04/10 13:33:21  pcombes
+ * Apply new Coding Standards.
+ *
  * Revision 1.5  2003/02/07 17:05:23  pcombes
  * Add SqMatSUM_opt with the new convertor API.
  * Use diet_free_data to properly free user's data.
