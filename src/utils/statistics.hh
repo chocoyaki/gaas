@@ -2,7 +2,8 @@
 
 #define __STATISTICS_HH__
 
-#ifdef HAVE_STATISTICS
+// The first part is ALWAYS defined, so we can link any program
+// even when the macro HAVE_STATISTICS is not defined
 
 #include <stdio.h>
 #include <sys/time.h>
@@ -41,19 +42,21 @@ void do_stat_init();
 /////////////////////////////////
 // Use only the following calls :
 
-#define stat_init()        do_stat_init()
+#ifdef HAVE_STATISTICS
 
-#define stat_in(message)   gen_stat(STAT_IN, message)
-#define stat_out(message)  gen_stat(STAT_OUT, message)
-#define stat_info(message) gen_stat(STAT_INFO, message)
+#  define stat_init()        do_stat_init()
+
+#  define stat_in(message)   gen_stat(STAT_IN, message)
+#  define stat_out(message)  gen_stat(STAT_OUT, message)
+#  define stat_info(message) gen_stat(STAT_INFO, message)
 
 #else // HAVE_STATISTICS
 
-#define stat_init()
+#  define stat_init()
 
-#define stat_in(message)
-#define stat_out(message)
-#define stat_info(message)
+#  define stat_in(message)
+#  define stat_out(message)
+#  define stat_info(message)
 
 #endif // HAVE_STATISTICS
 

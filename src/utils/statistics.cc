@@ -3,8 +3,6 @@
 
 #include "statistics.hh"
 
-#ifdef HAVE_STATISTICS
-
 char* stat_type_string[] = {
   "IN  ",
   "OUT ",
@@ -29,5 +27,3 @@ void do_stat_init() {
     }
   }
 }
-
-#endif // HAVE_STATISTICS
