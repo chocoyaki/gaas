@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2004/03/02 16:37:10  mcolin
+ * make a uniform storage form for all matrices
+ *
  * Revision 1.5  2004/03/02 14:19:10  bdelfabr
  * *** empty log message ***
  *
@@ -206,8 +209,8 @@ main(int argc, char* argv[])
   oA = DIET_ROW_MAJOR ;
   oB = DIET_ROW_MAJOR ;
   oC = DIET_ROW_MAJOR ;
-  oD = DIET_COL_MAJOR;
-  oE = DIET_COL_MAJOR;
+  oD = DIET_ROW_MAJOR;
+  oE = DIET_ROW_MAJOR;
   
 
   strcpy(path,"MatPROD");
@@ -217,7 +220,7 @@ main(int argc, char* argv[])
   print_matrix(A, mA, nA, (oA == DIET_ROW_MAJOR));
   diet_matrix_set(diet_parameter(profile,1),
 		  B, DIET_PERSISTENT, DIET_DOUBLE, mB, nB, oB);
-  print_matrix(B, nB, mB, (oB == DIET_ROW_MAJOR));
+  print_matrix(B, mB, nB, (oB == DIET_ROW_MAJOR));
   diet_matrix_set(diet_parameter(profile,2),
 		  NULL, DIET_PERSISTENT, DIET_DOUBLE, mA, nB, oC);
   
@@ -241,7 +244,7 @@ main(int argc, char* argv[])
   diet_use_data(diet_parameter(profile2,0),profile->parameters[2].desc.id);
   diet_matrix_set(diet_parameter(profile2,1),
 		  E, DIET_PERSISTENT, DIET_DOUBLE, mA, nB, oE);
-   print_matrix(E, nB, mA, (oE == DIET_ROW_MAJOR));
+   print_matrix(E, mA, nB, (oE == DIET_ROW_MAJOR));
   diet_matrix_set(diet_parameter(profile2,2),
 		  NULL, DIET_PERSISTENT, DIET_DOUBLE, mA, nB, oD);
   
@@ -264,7 +267,7 @@ main(int argc, char* argv[])
   diet_use_data(diet_parameter(profile1,0),profile->parameters[0].desc.id);
   if (!diet_call(profile1)) {
     diet_matrix_get(diet_parameter(profile1,0), NULL, NULL, &mA, &nA, &oA);
-     print_matrix(A, mA, nA, (oA == DIET_COL_MAJOR));
+     print_matrix(A, mA, nA, (oA == DIET_ROW_MAJOR));
      //  diet_profile_free(profile1);
     }       
   
