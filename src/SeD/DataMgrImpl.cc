@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2004/03/03 09:11:58  bdelfabr
+ * bug correction
+ *
  * Revision 1.11  2004/03/01 18:42:22  rbolze
  * add logservice
  *
@@ -200,7 +203,7 @@ DataMgrImpl::addDataDescToList(corba_data_t* dataDesc, int inout) // FIXME : die
 #if DEVELOPPING_DATA_PERSISTENCY
 
   double *value;
-
+  char *path;
   corba_data_t &the_data = dataDescList[ms_strdup(dataDesc->desc.id.idNumber)] ;
  
   the_data.desc = dataDesc->desc; 
@@ -234,7 +237,7 @@ DataMgrImpl::addDataDescToList(corba_data_t* dataDesc, int inout) // FIXME : die
     } 
   }else {
      if(inout == 0) {
-       char *path = CORBA::string_dup(the_data.desc.specific.file().path);
+       path = CORBA::string_dup(the_data.desc.specific.file().path);
      }
     
   }
@@ -559,9 +562,10 @@ DataMgrImpl::dataLookup(char* argID)
  
  printList1();
 #if DEVELOPPING_DATA_PERSISTENCY
-  dataDescList.lock();
-  // dataDescList.begin();
-  return(dataDescList.find(ms_strdup(argID)) != dataDescList.end());
+  if(dataDescList.size() > 0){
+    dataDescList.lock();
+    return(dataDescList.find(ms_strdup(argID)) != dataDescList.end());
+  } else return false;
 #endif // DEVELOPPING_DATA_PERSISTENCY
 return false;
  
