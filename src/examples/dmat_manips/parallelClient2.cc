@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2003/09/25 10:28:07  cpera
+ * Fix a wrong test on diet_probe return value and modify log messages.
+ *
  * Revision 1.4  2003/09/25 09:52:29  cpera
  * Fix bugs linked to GridRPC changes and modify log messages.
  *
@@ -239,7 +242,7 @@ class worker : public omni_thread {
         }
         printf("call diet_probe ...\n");
         int state = 0;
-        while (((state = diet_probe(rst)) != 1) && (state != 2)){
+        while (((state = diet_probe(rst)) == 1) || (state == 2)){
           omni_thread::sleep(1);
         }
         printf("End of diet_probe call with state = %d .\n", state);
@@ -274,7 +277,7 @@ class worker : public omni_thread {
   // public (otherwise the thread object can be destroyed while the
   // underlying thread is still running).
   ~worker() {
-    DIET_DEBUG(TEXT_OUTPUT(("Destroy thread")))
+    printf("Destroy thread\n");
       mutexWorker.lock();
     if (thread_counter < (n_threads-1)){
       thread_counter++;
@@ -301,7 +304,7 @@ main(int argc, char* argv[])
 {
   int i;
   srand(time(NULL));
-  printf("Asynchronous client Type 2 (diet_probe)");
+  printf("Asynchronous client Type 2 (diet_probe)\n");
   for (i = 1; i < argc - 2; i++) {
     if (strcmp("--repeat", argv[i]) == 0) {
       n_loops = atoi(argv[i + 1]);
@@ -340,6 +343,6 @@ main(int argc, char* argv[])
   }
   end.wait();
   diet_finalize();
-  DIET_DEBUG(TEXT_OUTPUT(("End of asynchronous client Type 2 (diet_probe)")))
+  printf("End of asynchronous client Type 2 (diet_probe)\n");
     return 0;
 }
