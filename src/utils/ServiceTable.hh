@@ -1,5 +1,4 @@
 /****************************************************************************/
-/* $Id$ */
 /* DIET service table header (this is used by agents and SeDs)              */
 /*                                                                          */
 /*  Author(s):                                                              */
@@ -7,8 +6,11 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/*
+/* $Id$
  * $Log$
+ * Revision 1.8  2003/04/10 12:51:36  pcombes
+ * "son"->"child", and adapt to CORBA::ULong child IDs.
+ *
  * Revision 1.7  2003/02/04 10:08:22  pcombes
  * Apply Coding Standards
  *
@@ -42,16 +44,16 @@
 #include "DIET_server.h"
 
 #include <stdio.h>
-#include "types.hh"
+#include "common_types.hh"
 
 
 
 /* This class should implement an STL "map" or "multimap" container.
    But I am not that performant with STL, so C++ experts, help ! */
 
-/* This is initial numbers of sons (for an agent) and offered services.
+/* This is initial numbers of children (for an agent) and offered services.
    They might be configured at compilation time or set at runtime. */
-#define MAX_NB_SONS 10
+#define MAX_NB_CHILDREN 10
 #define MAX_NB_SERVICES 20
 
 class ServiceTable
@@ -60,22 +62,22 @@ class ServiceTable
 public:
   typedef int ServiceReference_t;
   typedef struct {
-    int  nb_sons;
-    int* sons;
-  } matching_sons_t;
+    CORBA::ULong  nb_children;
+    CORBA::ULong* children;
+  } matching_children_t;
 
-  // Equivalent to ServiceTable(MAX_NB_SERVICES, MAX_NB_SONS)
+  // Equivalent to ServiceTable(MAX_NB_SERVICES, MAX_NB_CHILDREN)
   ServiceTable();
   // Equivalent to ServiceTable(max_nb_services, 0)  
-  ServiceTable(int max_nb_services);
+  ServiceTable(CORBA::ULong max_nb_services);
   // Allocate memory with given inital numbers, but:
-  //  - the solvers part of the table is nil if max_nb_sons > 0
-  //  - the matching sons part is nil either
-  ServiceTable(int max_nb_services, int max_nb_sons);
+  //  - the solvers part of the table is nil if max_nb_children > 0
+  //  - the matching children part is nil either
+  ServiceTable(CORBA::ULong max_nb_services, CORBA::ULong max_nb_children);
   virtual
   ~ServiceTable();
   
-  int
+  CORBA::ULong
   maxSize();
   
   ServiceReference_t
@@ -90,14 +92,14 @@ public:
   addService(const corba_profile_desc_t* profile, diet_convertor_t* cvt,
 	     diet_solve_t solver, diet_eval_t evalf);
   int
-  addService(const corba_profile_desc_t* profile, int son);
+  addService(const corba_profile_desc_t* profile, const CORBA::ULong child);
 
   int
   rmService(const corba_profile_desc_t* profile);
   int
   rmService(const ServiceReference_t ref);
   int
-  rmSon(const int son);
+  rmChild(const CORBA::ULong child);
 
   // Return a pointer to a copy of all profiles.
   // Caller is responsible for freeing the result.
@@ -115,22 +117,21 @@ public:
   getConvertor(const corba_profile_desc_t* profile);
   diet_convertor_t*
   getConvertor(const ServiceReference_t ref);
-  matching_sons_t*
-  getSons(const corba_profile_desc_t* profile);
-  matching_sons_t*
-  getSons(const ServiceReference_t ref);
+  matching_children_t*
+  getChildren(const corba_profile_desc_t* profile);
+  matching_children_t*
+  getChildren(const ServiceReference_t ref);
   
   void
   dump(FILE* f);
 
-  int max_nb_sons;
-  int traceLevel;
+  CORBA::ULong max_nb_children;
 
 private:
   
   // number of couples {service,profile} in the table
-  int nb_s, max_nb_s, max_nb_s_step;
-  // max number of capable sons for one service
+  CORBA::ULong nb_s, max_nb_s, max_nb_s_step;
+  // max number of capable children for one service
   // array of name and generic data description (a profile description)
   SeqCorbaProfileDesc_t profiles;
   // array of solving functions 
@@ -139,13 +140,14 @@ private:
   diet_eval_t* eval_functions;
   // array of convertors (from a client pb profile to a "solved" pb profile) 
   diet_convertor_t* convertors;
-  // array of int arrays: each element is an array of sons ID, which offer the
+  // array of int arrays: each element is an array of children ID, which offer the
   // corresponding service
-  matching_sons_t* matching_sons;
+  matching_children_t* matching_children;
+
 
   // private methods
   inline int
-  ServiceTableInit(int max_nb_services, int max_nb_sons);
+  ServiceTableInit(CORBA::ULong max_nb_services, CORBA::ULong max_nb_children);
 
 };
 
