@@ -8,18 +8,19 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.6  2004/02/10 00:38:25  ecaron
+%* Add suggestions from Jean-Yves L'Excellent. Thanks !
+%*
 %* Revision 1.5  2004/01/29 17:08:47  ecaron
 %* Add suggestions from Frederic Desprez. Thanks !
-%*
-%* Revision 1.4  2004/01/27 00:21:17  ecaron
-%* Add suggestions from Jean-Yves (Thanks!)
 %*
 %* Revision 1.3  2004/01/21 00:25:13  ecaron
 %* Add suggestions from Holly Dail. Thanks !
 %*
 %* Revision 1.2  2003/12/12 10:15:29  avernois
 %*
-%* precision :les types DIET_SCOMPLEX et DIET_DCOMPLEX sont encore en status de TODO
+%* precision :les types DIET_SCOMPLEX et DIET_DCOMPLEX 
+%*            sont encore en status de TODO
 %*
 %* Revision 1.1  2003/09/09 12:38:20  pcombes
 %* Reorganization of doc: UM becomes UsersManual.
@@ -169,6 +170,11 @@ pointed at by these pointers, and he/she must be very careful not to alter it
 during a call to DIET.
 
 \subsection{Set functions}
+
+The data persistence is not available in this current
+version~\footnote{the data persistence will be available in DIET
+  v1.1}, thus fix the mode of the diet persistence parameter to 0.
+
 \label{sec:setfun}
 {\footnotesize
 \begin{verbatim}
