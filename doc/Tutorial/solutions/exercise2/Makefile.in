@@ -19,7 +19,7 @@ include $(DIET_HOME)/include/Makefile.inc
 VPATH=@srcdir@
 
 
-all:	client_smprod client_smprod_file server
+all:	client_smprod  client_smprodAsync client_smprod_file server
 
 client_smprod.o: client_smprod.c
 	$(CC) -c $< $(CCFLAGS) $(CCFLAGS_DIET) -o $@

@@ -17,7 +17,7 @@
 
 int main(int argc, char **argv)
 {
-  int i;
+  int i, j;
   double  factor = M_PI; /* Pi, why not ? */
   double *matrix[5];        /* The matrix to multiply */
   float  *time   = NULL; /* To check that time is set by the server */
@@ -37,7 +37,7 @@ int main(int argc, char **argv)
     for (j = 0; j < (60 * 100); j++) {
       matrix[i][j] = 1.2 * j;
     }
-    profile = diet_profile_alloc("smprod",0, 1, 2); // last_in, last_inout, last_out
+    profile[i] = diet_profile_alloc("smprod",0, 1, 2); // last_in, last_inout, last_out
   
     /* Set profile arguments */
     diet_scalar_set(diet_parameter(profile[i],0), &factor, 0, DIET_DOUBLE);
@@ -51,7 +51,7 @@ int main(int argc, char **argv)
     printf("request ID value = -%d- \n", rst[i]);
     if (rst[i] < 0) {
       printf("error in request value ID\n");
-      return;
+      return 1;
     }
   }
   rst_call = 0;
@@ -59,9 +59,8 @@ int main(int argc, char **argv)
   else {
     printf("Result data for requestID");
     for (i = 0; i < 5; i++) printf(" %d ", rst[i]);
-    printf(" and omnithreadID %d \n", omni_thread::self()->id());
     for (i = 0; i < 5; i++){
-      sprintf(requestID, "%d", rst[i]);
+      /*sprintf(requestID, "%d", rst[i]);*/
       /* Get and print time */
       diet_scalar_get(diet_parameter(profile[i],2), &time, NULL);
       if (time == NULL) {
@@ -82,5 +81,6 @@ int main(int argc, char **argv)
     diet_profile_free(profile[i]);
   }
   diet_finalize();
+  return 0;
 }
 
