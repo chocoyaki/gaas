@@ -10,6 +10,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.9  2004/01/29 17:08:47  ecaron
+%* Add suggestions from Frederic Desprez. Thanks !
+%*
 %* Revision 1.8  2004/01/21 23:23:03  ecaron
 %* Add suggestions from Jean-Yves. Thanks !
 %*
@@ -72,13 +75,10 @@
 
 \subsection{Hardware dependencies}
 
-DIET has only been tested on Linux i386 and i686 platforms.\\
-Solaris - sparc, Linux - sparc and Linux - alpha will soon be supported.
+DIET has fully tested on Linux i386 and i686 platforms.\\
+DIET has tested on Solaris/Sparc, Linux/Sparc, Linux/i64 and Linux/Alpha platform and seems be supported.
 
 \subsection{Software dependencies}
-
-The three parts of DIET (the client, the agent, and the \sed ) can be used
-separately, and their dependencies are different from each other.
 
 As explained in Section \ref{sec:CORBA}, CORBA is used for all
 communications inside the platform. So all of the three parts depend on it. The
@@ -124,11 +124,10 @@ installed.  FAST depends on:
 \end{itemize}
 For more details about FAST dependencies, please refer to the FAST
 Reference
-Manual~\footnote{\url{http://graal.ens-lyon.fr/FAST/docs/index.html}}.
+Manual~\footnote{\url{http://graal.ens-lyon.fr/FAST/docs}}.
 It is important to understand basically how FAST works, and the role
 of its dependencies, to deactivate the
 ones that are not needed by the user.\\
-
 
 Finally, some examples provided in the DIET sources depend on the BLAS
 and \scalapack\ libraries. However theses examples do not have to be
@@ -139,19 +138,18 @@ compiled.
 \section{Compiling the platform}
 \label{sec:compil_platform}
 
-Once all dependencies are installed, untar the DIET archive and
+Once all dependencies are satisfied, untar the DIET archive and
 change to its root directory. A configure script will prepare DIET for
 compiling: its main options are described below, but please, run
-\texttt{configure --help} to get an up-to-date and complete usage description.
+\texttt{configure --help} to get an up-to-date and complete usage description.\\
 
+\noindent
 {\footnotesize
-\texttt{ tar xzf DIET\_}\dietversion\texttt{.tgz}
-\begin{verbatim}
-~ > cd DIET
-~/DIET > ./configure --help=short
-Configuration of DIET \dietversion:
-...
-\end{verbatim}
+\texttt{$\sim$> tar xzf DIET\_}\dietversion\texttt{.tgz} \\
+\texttt{$\sim$> cd DIET} \\
+\texttt{$\sim$/DIET> ./configure --help=short} \\
+\texttt{Configuration of DIET} \dietversion \texttt{:} \\
+\texttt{...}
 }
 
 \subsection{Optional features for configuration}
@@ -208,9 +206,9 @@ examples are disabled) - disabled by default.
   --enable-multi-MA       enable multi-MA architecture
   --disable-dependency-tracking Speeds up one-time builds
   --enable-dependency-tracking  Do not reject slow dependency extractors
-  --enable-shared=PKGS  build shared libraries default=yes
-  --enable-static=PKGS  build static libraries default=yes
-  --enable-fast-install=PKGS  optimize for fast installation default=yes
+  --enable-shared=PKGS    build shared libraries default=yes
+  --enable-static=PKGS    build static libraries default=yes
+  --enable-fast-install=PKGS optimize for fast installation default=yes
   --disable-libtool-lock  avoid locking (might break parallel builds)
 \end{verbatim}
 }
@@ -268,8 +266,9 @@ examples are disabled) - disabled by default.
   --with-omniORB-libraries=DIR
                           specify exact library directory for omniORB
   --with-omniORB-extra=ARG|"ARG1 ARG2 ..."
-                          specify extra conftest.c -o conftest for the linker to find the
-                          omniORB libraries (use "" in case of several conftest.c -o conftest)
+                          specify extra conftest.c -o conftest for the linker
+                          to find the omniORB libraries (use "" in case of 
+                          several conftest.c -o conftest)
 \end{verbatim}
 }
 \noindent This group of options lets the user define all necessary paths to
@@ -297,7 +296,7 @@ variable should be enough in most cases.\\
 
 \subsubsection{BLAS}
 
-The BLAS~\footnote{url{http://www.netlib.org/blas/}} (Basic Linear
+The BLAS~\footnote{\url{http://www.netlib.org/blas/}} (Basic Linear
 Algebra Subprograms) are high quality "building block" routines for
 performing basic vector and matrix operations.  Level 1 BLAS do
 vector-vector operations, Level 2 BLAS do matrix-vector operations,
@@ -307,15 +306,17 @@ the development of high quality linear algebra software.
 
 {\footnotesize
 \begin{verbatim}
-  --with-BLAS=DIR         specify the root installation directory of BLAS (Basic Linear Algebric Subroutines)
+  --with-BLAS=DIR  specify the root installation directory of BLAS (Basic
+                   Linear Algebric Subroutines)
 
   --with-BLAS-includes=DIR
-                          specify exact header directory for BLAS
+                   specify exact header directory for BLAS
   --with-BLAS-libraries=DIR
-                          specify exact library directory for BLAS
+                   specify exact library directory for BLAS
   --with-BLAS-extra=ARG|"ARG1 ARG2 ..."
-                          specify extra conftest.c -o conftest for the linker to find the BLAS
-                          libraries (use "" in case of several conftest.c -o conftest)
+                   specify extra conftest.c -o conftest for the linker to find
+                   the BLAS libraries (use "" in case of several 
+                   conftest.c -o conftest)
 \end{verbatim}
 }
 \noindent This group of options lets the user define all necessary paths to
@@ -334,7 +335,7 @@ explicit message passing for interprocessor communication. It assumes
 matrices are laid out in a two-dimensional block cyclic decomposition.
 
 Like LAPACK, the ScaLAPACK routines are based on block-partitioned
-algorithms in order to minimize the frequency of data movement between
+algorithms in order to minimize the frequency of data movements between
 different levels of the memory hierarchy. (For such machines, the
 memory hierarchy includes the off-processor memory of other
 processors, in addition to the hierarchy of registers, cache, and
@@ -348,20 +349,22 @@ One of the design goals of ScaLAPACK was to have the ScaLAPACK
 routines resemble their LAPACK equivalents as much as possible.
 
 For detailed information on ScaLAPACK, please refer to the ScaLAPACK
-Users' Guide~\cite{scalapack}.
+Users' Guide~\cite{BCC+97}.
 
 
 {\footnotesize
 \begin{verbatim}
-  --with-ScaLAPACK=DIR    specify the root installation directory of ScaLAPACK (parallel version of the LAPACK library)
+  --with-ScaLAPACK=DIR    specify the root installation directory of ScaLAPACK
+                          (parallel version of the LAPACK library)
 
   --with-ScaLAPACK-includes=DIR
                           specify exact header directory for ScaLAPACK
   --with-ScaLAPACK-libraries=DIR
                           specify exact library directory for ScaLAPACK
   --with-ScaLAPACK-extra=ARG|"ARG1 ARG2 ..."
-                          specify extra conftest.c -o conftest for the linker to find the
-                          ScaLAPACK libraries (use "" in case of several conftest.c -o conftest)
+                          specify extra conftest.c -o conftest for the linker to find 
+                          the ScaLAPACK libraries (use "" in case of several 
+                          conftest.c -o conftest)
 \end{verbatim}
 }
 
@@ -371,7 +374,7 @@ difficult to detect automatically. For instance, the
 \texttt{--with-ScaLAPACK-extra} option is useful to integrate BLACS
 and MPI libraries, which are useful for ScaLAPACK.
 \\
-\textbf{NB:} these options has no effect if the module example and/or
+\textbf{NB:} these options have no effect if the module example and/or
 its sub-module \scalapack\ are disabled.
 
 
@@ -437,9 +440,12 @@ instance, and install it, he must run:
 Four series of examples are provided in the DIET archive:
 \begin{itemize}
 \item{\texttt{file\_transfer}}: the server computes the sizes of two
-  input files and returns them (with or without, randomly, the first
-  file) as output arguments to the client.
-  
+  input files and returns them. A third output parameter may be
+  returned: randomly, the server decides to send back the first file.
+  This is to show how to manage a variable number of arguments: the
+  profile declares all arguments that may be filled, even if they
+  might not be all filled at each request/computation.
+
 \item{\texttt{dmat\_manips}}: the server offers matrix manipulation routines:
   transposition (\texttt{T}), product (\texttt{MatPROD}) and sum
   (\texttt{MatSUM}, \texttt{SqMatSUM} for square matrices, and
@@ -448,7 +454,7 @@ Four series of examples are provided in the DIET archive:
   specified on the command line. The last two of them are given for
   compatibility with a BLAS server, explained below.
   
-\item{\texttt{BLAS}}: the server offers the dgemm BLAS functionality.
+\item{\texttt{BLAS}}: the server offers the \texttt{dgemm} BLAS functionality.
   We plan to offer all BLAS (Basic Linear Algebric Subroutines) in the
   next DIET version. Since this function computes $C = \alpha AB +
   \beta C$, it can also compute a matrix-matrix product, a sum of
@@ -461,7 +467,7 @@ Four series of examples are provided in the DIET archive:
   
 \item{\texttt{\scalapack}}: the server is designed to offer all \scalapack\ 
   (parallel version of the LAPACK library) functions but only manages the
-  \texttt{pdgemm\_} function so far. The \texttt{pdgemm\_} routine is actually the
+  \texttt{pdgemm\_} function so far. The \texttt{pdgemm\_} routine is the
   parallel version of the \texttt{dgemm\_} function, so that the server also
   offers all the same sub-services. Two clients are designed to use these
   services: one (\texttt{pdgemm\_client.c}) is designed to use the

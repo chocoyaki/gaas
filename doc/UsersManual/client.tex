@@ -10,6 +10,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.8  2004/01/29 17:08:47  ecaron
+%* Add suggestions from Frederic Desprez. Thanks !
+%*
 %* Revision 1.7  2004/01/27 00:21:17  ecaron
 %* Add suggestions from Jean-Yves (Thanks!)
 %*
@@ -103,9 +106,10 @@ user can still access them (and still has to free them !)
 
 The client API follows the GridRPC definition \cite{gridRPC:02}: all
 \texttt{diet\_} functions are ``duplicated'' with \texttt{grpc\_}
-functions.  Both \texttt{diet\_initialize} and \texttt{diet\_finalize}
-belong to the GridRPC API.  One important thing to notice is that
-GridRPC defines an asynchronous API that is not fully implemented in
+functions.  Both \texttt{diet\_initialize}/\texttt{grpc\_initialize}
+and \texttt{diet\_finalize}/\texttt{grpc\_finalize} belong to the
+GridRPC API.  One important thing to notice is that GridRPC defines an
+asynchronous API that is not fully implemented in
 DIET yet (it is redirected onto the synchronous API). \fixme{check with CP} \\
 
 A problem is managed through a \emph{function\_handle}, that associates a server
@@ -152,7 +156,7 @@ int main(int argc, char **argv)
     matrix[i] = 1.2 * i;
   }
   
-  /* Iinitialize a DIET session */
+  /* Initialize a DIET session */
   diet_initialize("./client.cfg", argc, argv);
 
   /* Create the profile as explained in Chapter 3 */
@@ -207,10 +211,10 @@ int main(int argc, char **argv)
   diet_reqID_t rst[5] = {0,0,0,0,0};
 
   
-  /* Iinitialize a DIET session */
+  /* Initialize a DIET session */
   diet_initialize("./client.cfg", argc, argv);
 
-  /* Create the profile as explained in Chapter \ref{\ref{ch:data} */
+  /* Create the profile as explained in Chapter 3 */
   for (i = 0; i < 5; i++){
     /* Allocate the matrix: 60 lines, 100 columns */
     matrix[i] = malloc(60 * 100 * sizeof(double));

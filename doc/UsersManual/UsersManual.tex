@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.8  2004/01/29 17:08:47  ecaron
+%* Add suggestions from Frederic Desprez. Thanks !
+%*
 %* Revision 1.7  2004/01/21 23:23:03  ecaron
 %* Add suggestions from Jean-Yves. Thanks !
 %*
@@ -181,18 +184,11 @@ depending on the problem sent and the information contained in the
 database, and finally \emph{Monitors} that acquire information about
 the status of the computational resources.
 
-But \nsl\ and NINF have a centralized scheduler which can become a
-bottleneck when many clients try to access several servers.  Moreover
-as networks are highly hierarchical, the location of this unique
-scheduler has a great impact on the performance of the overall
-platform.
-
 DIET is based on the five component types described above, but a
 hierarchy of schedulers (agents) are used to address the scalability
-problems seen in \nsl\ and NINF. Clients always submit their to one of
-a particular agent (their Master Agent or MA). Below the MA is a
-hierarchy of agents (Local Agents or LA) which share the workload for
-scheduling jobs.
+problems. Clients always submit their to one of a particular agent
+(their Master Agent or MA). Below the MA is a hierarchy of agents
+(Local Agents or LA) which share the workload for scheduling jobs.
 
 %
 % A DIET platform

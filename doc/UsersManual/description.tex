@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.4  2004/01/29 17:08:47  ecaron
+%* Add suggestions from Frederic Desprez. Thanks !
+%*
 %* Revision 1.3  2004/01/21 23:23:03  ecaron
 %* Add suggestions from Jean-Yves. Thanks !
 %*
@@ -65,11 +68,15 @@ The different components of our software architecture are the following:
   Matlab or \sci, or from a compiled program.
 %....[ Master Agent (MA) ].....................................................
 \item \textbf{Master Agent (MA)}\\
-  An MA receives computation requests from clients. These requests refer to some
-  DIET problems listed on a reference web page. Then the MA collects computation
-  abilities from the servers and chooses the best one. The reference of the
-  chosen server is returned to the client. A client can be connected to an MA by
-  a specific name server or a web page which stores the various MA locations.
+  An MA receives computation requests from clients. These requests
+  refer to some DIET problems listed on a reference web
+  page~\footnote{http://graal.ens-lyon.fr/DIET/diet\_services.html}.
+  Then the MA collects computation abilities from the servers and
+  chooses the best one. The reference of the chosen server is returned
+  to the client. A client can be connected to an MA by a specific name
+  server or a web
+  page~\footnote{http://graal.ens-lyon.fr/DIET/diet\_access.html} which
+  stores the various MA locations.
 
 %....[ Local Agent (LA) ]......................................................
 \item \textbf{Local Agent (LA)}\\
@@ -89,8 +96,8 @@ The different components of our software architecture are the following:
   their distribution and the way to access them), the list of problems
   that can be solved on it, and all information concerning its load
   (memory available, number of resources available, \ldots). A SeD
-  declares the problems it can solve to its parent LA.  An eD can give
-  performance prediction for a given problem thanks to the module
+  declares the problems it can solve to its parent LA.  An SeD can give
+  performance predictions for a given problem thanks to the module
   FAST, described in the next section.
 
 \end{description}
@@ -113,7 +120,7 @@ Grid environment. As shown in Figure~\ref{fig:fast-overview}, FAST is
 composed of several layers and relies on low-level software. First it
 uses a network and CPU monitoring software to handle dynamically
 changing resources, like workload or bandwidth.  FAST uses the Network
-Weather Service (NWS)~\cite{WSH99} a distributed system that
+Weather Service (NWS)~\cite{WSH99}, a distributed system that
 periodically monitors and dynamically forecasts the performance of
 various network and computational resources. The resource
 availabilities acquisition module of FAST uses and enhances NWS.
@@ -132,40 +139,42 @@ over a hierarchical network.
   \end{center}
 \end{figure}
 
-In addition to the system availabilities, FAST can also forecast the time and
-space needs of computational routines, depending on both the parameter set and
-the machine where the computation would take place.  For this, FAST 
-benchmarks the routines at installation time on each machine for a
-representative set of parameters. After polynomial data fitting, the results
-are stored in an LDAP tree.  The user API of FAST is composed of a small set
-of functions that combine resource availabilities and routine needs from
-low-level software to produce ready-to-use values. These results can be
-combined into analytical models by the parallel extension~\cite{CS02} to
-forecast execution times of parallel routines.
+In addition to the system availabilities, FAST can also forecast the
+time and space needs of computational routines, depending on both the
+parameter set and the machine where the computation would take place.
+For this, FAST benchmarks the routines at installation time on each
+machine for a representative set of parameters. After polynomial data
+fitting, the results are stored in an LDAP tree.  The user API of FAST
+is composed of a small set of functions that combine resource
+availabilities and routine needs from low-level software to produce
+ready-to-use values.  These results can be combined into analytical
+models by the parallel extension~\cite{CS02} to forecast execution
+times of parallel routines.
 
 Thus DIET components, as any FAST client, can access information like the time
 needed to move a given amount of data between two SeDs, the time to solve a
 problem with a given set of computational resources managed by a SeD, or the
 combination of these two quantities.\\
 
-For more details about FAST, please read the FAST Reference Manual~\footnote{\url{http://graal.ens-lyon.fr/FAST/docs/index.html}}.
+For more details about FAST, please read the FAST Reference Manual~\footnote{\url{http://graal.ens-lyon.fr/FAST/docs}}.
 
 
 %====[ CORBA ]=================================================================
 \section{Communications inner to the platform}
 \label{sec:CORBA}
 
-NES environments can be implemented using a classic socket communication layer.
-NINF and \nsl\ are implemented that way. Several problems to this approach
-have been pointed out such as the lack of portability or the limitation of
+NES environments can be implemented using a classic socket
+communication layer.  Several problems to this approach have been
+pointed out such as the lack of portability or the limitation of
 opened sockets. Our aim is to implement and deploy a distributed NES
-environment that works at a wider scale. Distributed object environments, such
-as \emph{Java}, \emph{DCOM} or CORBA have proven to be a good base for
-building applications that manage access to distributed services. They not only
-provide transparent communications in heterogeneous networks, but they also
-offer a framework for the large scale deployment of distributed
-applications. Being open and language independent, CORBA was chosen as the
-communication layer in DIET.
+environment that works at a wider scale. Distributed object
+environments, such as \emph{Java}, \emph{DCOM} or CORBA have proven to
+be a good base for building applications that manage access to
+distributed services. They not only provide transparent communications
+in heterogeneous networks, but they also offer a framework for the
+large scale deployment of distributed applications. Being open and
+language independent, CORBA was chosen as the communication layer in
+DIET.
 
 As recent implementations of CORBA provide communication time close to
 that of sockets, CORBA is well suited to support distributed resources
@@ -219,14 +228,18 @@ the whole platform.
 \section{Solving a problem}
 \label{sec:solvepb}
 
-Assuming that the architecture described in Section \ref{sec:components}
-includes several servers able to solve the same problem, and that each operand
-needed for the computation is available on one single server.
+Assuming that the architecture described in Section
+\ref{sec:components} includes several servers able to solve the same
+problem, the algorithm presented below lets an MA choose among its
+servers the one which will perform the computation. This decision is
+made in four steps:
+
 
 %%%%%%%%%%%%%%%
 %% FIXME for DIET v1.1
 %%%%%%%%%%%%%%%
-% , the example
+% , and that each operand
+% needed for the computation is available on one single server, the example
 % presented in Figure~\ref{fig:submit_pb} considers the submission of the
 % problem \texttt{F()} involving data \texttt{A} and \texttt{B}.
 %\begin{figure}[hbt]
@@ -238,8 +251,7 @@ needed for the computation is available on one single server.
 %\end{figure}
 %%%%%%%%%%%%%%%
 
-The algorithm presented below lets an MA choose among its servers the one which
-will perform the computation. This decision is made in four steps:
+
 \begin{itemize}
 \item the MA propagates the client request through its subtrees down to the
   capable servers~; actually, each agent only knows which among its children manage

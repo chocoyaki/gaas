@@ -10,6 +10,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.7  2004/01/29 17:08:47  ecaron
+%* Add suggestions from Frederic Desprez. Thanks !
+%*
 %* Revision 1.6  2004/01/27 00:21:17  ecaron
 %* Add suggestions from Jean-Yves (Thanks!)
 %*
@@ -64,7 +67,7 @@ to define the \texttt{main} function. Within the \texttt{main}, the DIET server
 will be launched with a call to \texttt{diet\_SeD} which will never return
 (except if some errors occur). The complete server side interface is described
 in the \texttt{$<$install\_dir$>$/include} files \texttt{DIET\_data.h} (see
-Chapter \ref{ch:data}) and \texttt{DIET\_server.h}. Do not forget to include the \texttt{DIET\_server.h} (\texttt{DIET\_server.h} includes \texttt{DIET\_data.h}) at the beginning of your server source code :
+Chapter \ref{ch:data}) and \texttt{DIET\_server.h}. Do not forget to include the \texttt{DIET\_server.h} (\texttt{DIET\_server.h} includes \texttt{DIET\_data.h}) at the beginning of your server source code:
 
 {\footnotesize
 \begin{verbatim}
@@ -119,11 +122,13 @@ to retrieve the pointer to the zone his/her program should write to.
 To set INOUT and OUT arguments, use the \texttt{diet\_*\_desc\_set} defined
 in \texttt{DIET\_server.h}, because they are helpful for writing ``solve''
 functions only. Using these functions, the server developer must keep in
-mind the fact that he cannot alter the memory space pointed by value
-fields on the server. Indeed, this would make DIET confused about how to
-manage the data.{\footnote{And the server developer should not be confused
-    by the fact that \texttt{diet\_scalar\_desc\_set} uses a value, since
-    scalar values are copied into the data descriptor.}  {\footnotesize
+mind the fact that he cannot alter the memory space pointed by value fields
+on the server. Indeed, this would make DIET confused about how to manage
+the data{\footnote{And the server developer should not be confused by the
+    fact that \texttt{diet\_scalar\_desc\_set} uses a value, since scalar
+    values are copied into the data descriptor.}.
+
+{\footnotesize
 \begin{verbatim}
 /**
  * If value              is NULL,
@@ -157,8 +162,8 @@ diet_file_desc_set(diet_data_t* data, char* path);
 
 \subsubsection*{Defining services}
 
-First, declare the service(s) that will be offered.{\footnote{It is possible to
-  declare several services for one single SeD.}
+First, declare the service(s) that will be offered{\footnote{It is possible to
+  declare several services for one single SeD.}.
 Each service is described by a profile description called \texttt{diet\_profile\_desc\_t}, since the service does not specify the sizes of the data.
 The \texttt{diet\_profile\_desc\_t} type is defined in \texttt{DIET\_server.h},
 and is very similar to \texttt{diet\_profile\_t}. The difference is that the
@@ -275,7 +280,7 @@ should be self explanation.
 
 \end{itemize}
 
-\noindent Lets look a short example:
+\noindent Lets take a short example:
 \footnotesize
 \begin{verbatim}
 
