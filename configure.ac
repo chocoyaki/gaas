@@ -8,8 +8,8 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
-#* Revision 1.14  2003/06/24 15:14:16  pcombes
-#* Fix bugs on --enable-* options.
+#* Revision 1.15  2003/06/24 15:18:30  pcombes
+#* --enable-* options: some HAVE_* variables are useless.
 #*
 #* Revision 1.13  2003/06/23 13:13:27  pcombes
 #* Re-Submit BLAS and ScaLAPACK detection to "enable" options.
@@ -145,10 +145,8 @@ dnl ###########################################################################
 dnl ###########################################################################
 AC_ARG_ENABLE(Cichlid,
 	      AC_HELP_STRING([--enable-Cichlid],
-	                 [enable generation of communication logs for Cichlid]))
-if test "x$enable_Cichlid" = "xyes"; then
-  AC_DEFINE(HAVE_CICHLID)
-fi
+	                 [enable generation of communication logs for Cichlid]),
+	      AC_DEFINE(HAVE_CICHLID))
 
 AC_ARG_ENABLE(stats,
 	      AC_HELP_STRING([--enable-stats],
@@ -158,7 +156,7 @@ AC_ARG_ENABLE(stats,
 AC_ARG_ENABLE(multi-MA,
 	      AC_HELP_STRING([--enable-multi-MA],
 			     [enable multi-MA architecture]),
-			     AC_DEFINE(HAVE_MULTI_MA))
+	      AC_DEFINE(HAVE_MULTI_MA))
 
 
 dnl ###########################################################################
