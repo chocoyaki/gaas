@@ -9,6 +9,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.9  2003/05/16 08:47:26  cpera
+#* Modify FAST compiling/linking parameters.
+#*
 #* Revision 1.8  2003/05/05 13:58:52  pcombes
 #* @PREFIX@ is not substituted by configure -> @prefix@.
 #*
@@ -33,13 +36,13 @@ SED_LIB    = -lDIET_SeD
 # Generic variables
 CC	= @CC@
 CCFLAGS	+= -O2 -Wall -Wno-unused -D@ARCH_DIET@ -D@OS_DIET@ -D__OSVERSION__=2 \
-        $(DIET_FLAGS) @CCFLAGS_OMNIORB@ \
+        $(DIET_FLAGS) @CCFLAGS_OMNIORB@ @CCFLAGS_FAST@ \
         -I@OMNIORB_HOME@/include/omniORB@OMNIORB_VERSION@
 
 CXX      = @CXX@
 CXXFLAGS += -O2 -Wall -Wno-unused -D@ARCH_DIET@ -D@OS_DIET@ -D__OSVERSION__=2 \
-          -D_REENTRANT $(DIET_FLAGS) @CXXFLAGS_OMNIORB@ \
+	  -D_REENTRANT $(DIET_FLAGS) @CXXFLAGS_OMNIORB@ @CXXFLAGS_FAST@ \
           -I@OMNIORB_HOME@/include/omniORB@OMNIORB_VERSION@
 
-DIET_SERVER_LIBS = $(SED_LIB) @LIBS_OMNIORB@
+DIET_SERVER_LIBS = $(SED_LIB) @LIBS_OMNIORB@ @LIBS_FAST@
 DIET_CLIENT_LIBS = $(CLIENT_LIB) @LIBS_OMNIORB@

@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.7  2003/05/16 08:47:26  cpera
+#* Modify FAST compiling/linking parameters.
+#*
 #* Revision 1.6  2003/04/10 14:50:22  pcombes
 #* omniORB includes are added to CXXFLAGS_OMNIORB.
 #* Add DBG_FLAGS for maintainer mode.
@@ -36,5 +39,5 @@ endif
 
 AM_CPPFLAGS = $(DBG_FLAGS) -Wall -D@PROCESSOR_DEFINE@ -D@PLATFORM_DEFINE@ \
 	      -D__OSVERSION__=@OSVERSION@ -D_REENTRANT -I$(top_srcdir)/include \
-	      $(CXXFLAGS_OMNIORB)
+	      $(CXXFLAGS_OMNIORB) $(CXXFLAGS_FAST)
 
