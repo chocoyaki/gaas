@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.36  2003/10/10 11:12:29  mcolin
+ * Fix bug in function mrsh_profile_to_in_args in the case
+ * of a volatile parameter of type DIET_FILE in IN or INOUT mode.
+ * This is a temporary patch for the RNTL DEMO. We have to think
+ * about another solution later.
+ *
  * Revision 1.35  2003/09/30 15:26:36  bdelfabr
  * Manage the case of In argument with NUll value.
  *
@@ -433,7 +439,10 @@ mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src)
 
   for (i = 0; i <= src->last_inout; i++) {
     if (src->parameters[i].value == NULL &&
-	!diet_is_persistent(src->parameters[i])) {
+	!diet_is_persistent(src->parameters[i]) &&
+	src->parameters[i].desc.generic.type != DIET_FILE) {
+      // Warning : For DIET_FILE parameters, value field is NULL
+      // although it is volatile
       ERROR(__FUNCTION__ << ": IN or INOUT parameter "
 	    << i << " is volatile but contains no data", 1);
     }
