@@ -14,6 +14,9 @@
 #****************************************************************************#
 #*
 #* $Log$
+#* Revision 1.2  2003/02/17 15:33:23  cpera
+#* Change SUBMUDULES_diet in SUBMODULES_DIET
+#*
 #* Revision 1.1  2003/02/14 10:31:29  cpera
 #* add files used by autoconf/automake/libtool.
 #*
@@ -30,5 +33,5 @@
 #*
 #****************************************************************************##
 
-SUBDIRS = CORBA utils @SUBMODULES_diet@ 
-DIST_SUBDIRS = $(SUBDIRS) @DIST_SUBMODULES_diet@
+SUBDIRS = CORBA utils @SUBMODULES_DIET@ 
+DIST_SUBDIRS = $(SUBDIRS) @DIST_SUBMODULES_DIET@
