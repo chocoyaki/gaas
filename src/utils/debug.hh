@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2003/12/01 14:49:31  pcombes
+ * Rename dietTypes.hh to DIET_data_internal.hh, for more coherency.
+ *
  * Revision 1.16  2003/10/06 10:07:37  cpontvie
  * Add the EXITFUNCTION call to the INTERNAL_ERROR macro
  *
@@ -42,7 +45,7 @@ using namespace std;
 
 #include "common_types.hh"
 #include "response.hh"
-#include "dietTypes.hh"
+#include "DIET_data_internal.hh"
 
 
 /**

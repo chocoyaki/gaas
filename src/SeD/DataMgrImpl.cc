@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2003/12/01 14:49:30  pcombes
+ * Rename dietTypes.hh to DIET_data_internal.hh, for more coherency.
+ *
  * Revision 1.8  2003/11/10 14:03:11  bdelfabr
  * adding methods that allow tranfer time between servers to be computed
  *
@@ -37,7 +40,7 @@
 #include "DataMgrImpl.hh"
 
 #include "common_types.hh"
-#include "dietTypes.hh"
+#include "DIET_data_internal.hh"
 #include "LocMgr.hh"
 #include "ms_function.hh"
 #include "ORBMgr.hh"

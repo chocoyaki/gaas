@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.39  2003/12/01 14:49:31  pcombes
+ * Rename dietTypes.hh to DIET_data_internal.hh, for more coherency.
+ *
  * Revision 1.38  2003/10/03 12:41:26  mcolin
  * Fix memory management in the list of arguments
  *
@@ -60,7 +63,7 @@ using namespace std;
 
 #include "com_tools.hh"
 #include "debug.hh"
-#include "dietTypes.hh"
+#include "DIET_data_internal.hh"
 #include "marshalling.hh"
 #include "MasterAgent.hh"
 #include "ORBMgr.hh"

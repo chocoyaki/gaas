@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2003/12/01 14:49:31  pcombes
+ * Rename dietTypes.hh to DIET_data_internal.hh, for more coherency.
+ *
  * Revision 1.5  2003/07/04 09:48:06  pcombes
  * Use new ERROR and WARNING macros.
  *
@@ -22,7 +25,7 @@
 #include <unistd.h>
 
 #include "com_tools.hh"
-#include "dietTypes.hh"
+#include "DIET_data_internal.hh"
 
 #if HAVE_CICHLID
 

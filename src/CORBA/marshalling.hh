@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2003/12/01 14:49:30  pcombes
+ * Rename dietTypes.hh to DIET_data_internal.hh, for more coherency.
+ *
  * Revision 1.20  2003/09/22 21:06:22  pcombes
  * Rollback after Bruno's too quick commit.
  *
@@ -64,7 +67,7 @@
 #include "DIET_data.h"
 #include "DIET_server.h"
 
-#include "dietTypes.hh"
+#include "DIET_data_internal.hh"
 #include "common_types.hh"
 
 #include "DIET_config.h"

@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2003/12/01 14:49:30  pcombes
+ * Rename dietTypes.hh to DIET_data_internal.hh, for more coherency.
+ *
  * Revision 1.5  2003/09/22 21:07:52  pcombes
  * Set all the modules and their interfaces for data persistency.
  *
@@ -33,7 +36,7 @@
 
 #include "Counter.hh"
 #include "ChildID.hh"
-#include "dietTypes.hh"
+#include "DIET_data_internal.hh"
 #include "LocMgrImpl.hh"
 #include "NodeDescription.hh"
 #include "RequestID.hh"

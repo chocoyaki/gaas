@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2003/12/01 14:49:31  pcombes
+ * Rename dietTypes.hh to DIET_data_internal.hh, for more coherency.
+ *
  * Revision 1.15  2003/09/27 07:54:01  pcombes
  * Replace silly base type DIET_BYTE by DIET_SHORT.
  *
@@ -33,7 +36,7 @@
 #include <stdlib.h>
 
 #include "debug.hh"
-#include "dietTypes.hh"
+#include "DIET_data_internal.hh"
 
 
 /**

@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.7  2003/12/01 14:49:31  pcombes
+#* Rename dietTypes.hh to DIET_data_internal.hh, for more coherency.
+#*
 #* Revision 1.6  2003/08/01 19:20:23  pcombes
 #* Reorganize FAST and omniORB flags. Include FASTMgr.
 #*
@@ -40,7 +43,7 @@ libUtilsCommon_la_SOURCES  = debug.cc DIET_data.cc ms_function.cc Parsers.cc	\
 libUtilsSeDClt_la_SOURCES  = DIET_mutex.cc
 libUtilsNodes_la_SOURCES   = Counter.cc ServiceTable.cc FASTMgr.cc
 
-noinst_HEADERS = com_tools.hh Counter.hh debug.hh dietTypes.hh FASTMgr.hh	\
+noinst_HEADERS = com_tools.hh Counter.hh debug.hh DIET_data_internal.hh FASTMgr.hh	\
 		 LinkedList.hh ms_function.hh Parsers.hh ReadersWriterLock.hh	\
 		 ServiceTable.hh ServiceTable.hh statistics.hh			\
 		 ts_container/ts_map.hh	ts_container/ts_set.hh			\

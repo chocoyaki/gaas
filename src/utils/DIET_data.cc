@@ -1,5 +1,5 @@
 /****************************************************************************/
-/* DIET data interface for clients as well as servers                       */
+/* DIET data functions implementation (API + internal)                      */
 /*                                                                          */
 /*  Author(s):                                                              */
 /*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
@@ -8,11 +8,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.23  2003/10/21 13:29:19  bdelfabr
- * removing method diet_matrix_set_with_id
- *
- * Revision 1.22  2003/10/10 14:56:14  bdelfabr
- * adding diet_matrix_set_with_id just for tests
+ * Revision 1.24  2003/12/01 14:49:31  pcombes
+ * Rename dietTypes.hh to DIET_data_internal.hh, for more coherency.
  *
  * Revision 1.21  2003/09/27 07:54:01  pcombes
  * Replace silly base type DIET_BYTE by DIET_SHORT.
@@ -46,10 +43,10 @@ using namespace std;
 #include "unistd.h"
 
 #include "DIET_data.h"
+#include "DIET_data_internal.hh"
 #include "DIET_client.h"
 #include "DIET_server.h"
 #include "common_types.hh"
-#include "dietTypes.hh"
 #include "debug.hh"
 
 #define DATA_INTERNAL_WARNING(formatted_msg)                                \
@@ -61,11 +58,10 @@ using namespace std;
 
 
 /****************************************************************************/
-/* Useful functions for data descriptors manipulation                       */
-/* <declared in dietTypes.hh>                                               */
+/* Functions declared in DIET_data_internal.h                               */
 /****************************************************************************/
 
-
+/** Return the size in bytes of a DIET base type. */
 size_t
 type_sizeof(const diet_base_type_t type)
 {
@@ -91,6 +87,7 @@ type_sizeof(const diet_base_type_t type)
   }
 }
 
+/** Compute the size in base elements (base type elements) of an argment. */
 size_t
 macro_data_sizeof(const diet_data_desc_t* desc)
 {
@@ -111,12 +108,14 @@ macro_data_sizeof(const diet_data_desc_t* desc)
   }
 }
 
+/** Compute data size in bytes from their descriptor. */
 size_t
 data_sizeof(const diet_data_desc_t* desc)
 {
   return (macro_data_sizeof(desc) * type_sizeof(desc->generic.base_type));
 }
 
+/** Compute data size in bytes from their descriptor. */
 size_t
 data_sizeof(const corba_data_desc_t* desc)
 {
@@ -139,12 +138,7 @@ data_sizeof(const corba_data_desc_t* desc)
   return (base_size * size);
 }
 
-
-/****************************************************************************/
-/* Useful functions for data descriptors                                    */
-/* <declared in dietTypes.hh>                                               */
-/****************************************************************************/
-
+/** Alter the part of a descriptor that is common to all types. */
 inline int
 generic_set_desc(diet_data_desc_t* desc, char* const id,
 		 const diet_persistence_mode_t mode,
@@ -162,6 +156,10 @@ generic_set_desc(diet_data_desc_t* desc, char* const id,
   return status;
 }
 
+/**
+ * Alter a scalar descriptor.
+ * Each -1 (NULL for pointers) argument does not alter the corresponding field.
+ */
 int
 scalar_set_desc(diet_data_desc_t* desc, char* const id,
 		const diet_persistence_mode_t mode,
@@ -174,6 +172,10 @@ scalar_set_desc(diet_data_desc_t* desc, char* const id,
   return status;
 }
 
+/**
+ * Alter a vector descriptor.
+ * Each -1 (NULL for pointers) argument does not alter the corresponding field.
+ */
 int
 vector_set_desc(diet_data_desc_t* desc, char* const id,
 		const diet_persistence_mode_t mode,
@@ -187,6 +189,10 @@ vector_set_desc(diet_data_desc_t* desc, char* const id,
   return status;
 }
 
+/**
+ * Alter a matrix descriptor.
+ * Each -1 (NULL for pointers) argument does not alter the corresponding field.
+ */
 int
 matrix_set_desc(diet_data_desc_t* desc, char* const id,
 		const diet_persistence_mode_t mode,
@@ -205,6 +211,10 @@ matrix_set_desc(diet_data_desc_t* desc, char* const id,
   return status;
 }
 
+/**
+ * Alter a string descriptor.
+ * Each -1 (NULL for pointers) argument does not alter the corresponding field.
+ */
 int
 string_set_desc(diet_data_desc_t* desc, char* const id,
 		const diet_persistence_mode_t mode, const size_t length)
@@ -217,7 +227,10 @@ string_set_desc(diet_data_desc_t* desc, char* const id,
   return status;
 }
 
-/* Computes the file size */
+/**
+ * Alter a file descriptor. Also computes the file size ... 
+ * Each -1 (NULL for pointers) argument does not alter the corresponding field.
+ */
 int
 file_set_desc(diet_data_desc_t* desc, char* const id,
 	      const diet_persistence_mode_t mode, char* const path)
@@ -238,12 +251,7 @@ file_set_desc(diet_data_desc_t* desc, char* const id,
 }
 
 
-/****************************************************************************/
-/* Useful functions for profile manipulation                                */
-/* <declared in dietTypes.hh>                                               */
-/****************************************************************************/
-
-
+/** Return true if p1 is exactly identical to p2. */
 int
 profile_desc_match(const corba_profile_desc_t* p1,
 		   const corba_profile_desc_t* p2)
@@ -264,6 +272,10 @@ profile_desc_match(const corba_profile_desc_t* p1,
 }
 
 
+/**
+ * Return true if sv_profile describes a service that matches the problem that
+ * pb_desc describes.
+ */
 int
 profile_match(const corba_profile_desc_t* sv_profile,
 	      const corba_pb_desc_t*      pb_desc)
@@ -286,6 +298,10 @@ profile_match(const corba_profile_desc_t* sv_profile,
 }
 
 
+/**
+ * Return true if sv_profile describes a service that matches the problem that
+ * pb and path describe.
+ */
 int
 profile_match(const corba_profile_desc_t* sv_profile,
 	      const char* path, const corba_profile_t* pb)
@@ -306,6 +322,12 @@ profile_match(const corba_profile_desc_t* sv_profile,
   }
   return 1;
 }
+
+
+
+/****************************************************************************/
+/* Functions declared in DIET_data.h                                        */
+/****************************************************************************/
 
 
 extern "C" {

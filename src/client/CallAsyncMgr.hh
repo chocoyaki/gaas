@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2003/12/01 14:49:31  pcombes
+ * Rename dietTypes.hh to DIET_data_internal.hh, for more coherency.
+ *
  * Revision 1.8  2003/10/13 13:03:52  uid515
  * Replace int by int32_t for managing 32-64 bits system and CORBA::Long type.
  *
@@ -39,7 +42,7 @@
 #include <assert.h>
 
 #include "DIET_client.h"
-#include "dietTypes.hh"
+#include "DIET_data_internal.hh"
 #include "ReadersWriterLock.hh"
 
 

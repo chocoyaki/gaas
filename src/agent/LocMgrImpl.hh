@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2003/12/01 14:49:30  pcombes
+ * Rename dietTypes.hh to DIET_data_internal.hh, for more coherency.
+ *
  * Revision 1.5  2003/11/10 14:04:59  bdelfabr
  * add methods invoked by DM for data transfer management
  *
@@ -32,7 +35,7 @@
 #include "ChildID.hh"
 #include "Counter.hh"
 #include "DataMgr.hh"
-#include "dietTypes.hh"
+#include "DIET_data_internal.hh"
 #include "NodeDescription.hh"
 #include "ts_container/ts_map.hh"
 #include "ts_container/ts_vector.hh"

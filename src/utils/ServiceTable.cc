@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2003/12/01 14:49:31  pcombes
+ * Rename dietTypes.hh to DIET_data_internal.hh, for more coherency.
+ *
  * Revision 1.9  2003/07/04 09:48:06  pcombes
  * Use new ERROR and WARNING macros.
  *
@@ -30,7 +33,7 @@ using namespace std;
 #include <string.h>
 
 #include "debug.hh"
-#include "dietTypes.hh"
+#include "DIET_data_internal.hh"
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2003/12/01 14:49:30  pcombes
+ * Rename dietTypes.hh to DIET_data_internal.hh, for more coherency.
+ *
  * Revision 1.2  2003/04/10 13:02:50  pcombes
  * Apply Coding Standards. Add the GS (GlobalScheduler) private member.
  *
@@ -18,7 +21,7 @@
 #ifndef _REQUEST_HH_
 #define _REQUEST_HH_
 
-#include "dietTypes.hh"
+#include "DIET_data_internal.hh"
 #include "GlobalSchedulers.hh"
 #include "ms_function.hh"
 
