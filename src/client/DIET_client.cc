@@ -10,22 +10,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.31  2003/07/02 10:55:47  cpera
- * Remove a wrong trace.
- *
- * Revision 1.30  2003/06/30 11:15:12  cpera
- * Fix bugs in ReaderWriter and new internal debug macros.
- *
- * Revision 1.29  2003/06/25 09:20:55  cpera
- * Change internal reqId from long int to int according to GridRPC and diet_reqID
- * type.
- *
- * Revision 1.28  2003/06/04 14:40:05  cpera
- * Resolve bugs, change type of reqID (long int) and modify
- * diet_wait_all/diet_wait_any.
- *
- * Revision 1.27  2003/06/02 08:48:35  cpera
- * Delete debug infos.
+ * Revision 1.32  2003/07/04 09:48:02  pcombes
+ * Make diet_initialize thread-safe. Use new ERROR and WARNING macros.
  *
  * Revision 1.26  2003/06/02 08:08:11  cpera
  * Beta version of asynchronize DIET API.
@@ -36,31 +22,9 @@
  * Revision 1.24  2003/05/10 08:54:08  pcombes
  * New format for configuration files, new Parsers.
  *
- * Revision 1.19  2003/01/17 18:08:43  pcombes
- * New API (0.6.3): structures are not hidden, but the user can ignore them.
- *
  * Revision 1.13  2002/11/22 13:36:12  lbertsch
  * Added alpha linux support
  * Added a package for statistics and some traces
- *
- * Revision 1.5  2002/10/03 17:58:16  pcombes
- * Add trace levels (for Bert): traceLevel = n can be added in cfg files.
- * An agent son can now be killed (^C) without crashing this agent.
- * DIET with FAST: compilation is OK, but run time is still to be fixed.
- *
- * Revision 1.4  2002/10/02 17:06:15  pcombes
- * Complete ArgStack API
- *
- * Revision 1.2  2002/08/30 16:50:15  pcombes
- * This version works as well as the alpha version from the user point of view,
- * but the API is now the one imposed by the latest specifications (GridRPC API
- * in its sequential part, config file for all parts of the platform, agent
- * algorithm, etc.)
- *  - Reduce marshalling by using CORBA types internally
- *  - Creation of a class ServiceTable that is to be replaced
- *    by an LDAP DB for the MA
- *  - No copy for client/SeD data transfers
- *  - ...
  ****************************************************************************/
 
 
@@ -95,21 +59,25 @@ extern "C" {
 /* Global variables                                                         */
 /****************************************************************************/
 
-/* The Master Agent */
-static MasterAgent_var MA;
-
-/* Trace Level */
+/** The trace level. */
 extern unsigned int TRACE_LEVEL;
 
-/* Error rate for contract checking */
+/** The Master Agent reference */
+static MasterAgent_var MA = NULL;
+//static omni_mutex      MA_MUTEX;
+
+/** Error rate for contract checking */
 #define ERROR_RATE 0.1
 
-/* Maximum servers to be answered */
+/** Maximum servers to be answered */
 static unsigned long MAX_SERVERS = 10;
 
-static char * refCallbackServer;
+/** IOR reference sent to the SeD to let him contact the callback server */
+static char* REF_CALLBACK_SERVER;
+/** Flag for using the asynchronous API (set at configuration time) */
+static size_t USE_ASYNC_API = 1;
 
-static int useAsyncApi = 1;
+
 /****************************************************************************/
 /* GridRPC API                                                              */
 /****************************************************************************/
@@ -125,6 +93,12 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   int    res(0);
   int    myargc;
   char** myargv;
+  void*  value(NULL);
+  
+  if (!CORBA::is_nil(MA)) {
+    WARNING("diet_initialize already called");
+    return 0;
+  }
   
   /* Set arguments for ORBMgr::init */
   myargc = argc;
@@ -138,31 +112,27 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   if ((res = Parsers::beginParsing(config_file_name)))
     return res;
   if ((res = Parsers::parseCfgFile(false, 1,
-			     (Parsers::Results::param_type_t*)compParam))) {
+				   (Parsers::Results::param_type_t*)compParam))) {
     Parsers::endParsing();
     return res;
   }
 
   /* Some more checks */
-  void* value =
-    Parsers::Results::getParamValue(Parsers::Results::NAME);
+  value = Parsers::Results::getParamValue(Parsers::Results::NAME);
   if (value != NULL)
-    cerr << "Warning while parsing " << config_file_name
-	 << ": it is useless to name a client - ignored.\n";
-  value =
-    Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
+    WARNING("parsing " << config_file_name
+	    << ": it is useless to name a client - ignored");
+  value = Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
   if (value != NULL)
-    cerr << "Warning while parsing " << config_file_name << ": no need "
-	 << "to specify a parent for a client - ignored.\n";
-  value =
-    Parsers::Results::getParamValue(Parsers::Results::AGENTTYPE);
+    WARNING("parsing " << config_file_name << ": no need "
+	    << "to specify a parent for a client - ignored");
+  value = Parsers::Results::getParamValue(Parsers::Results::AGENTTYPE);
   if (value != NULL)
-    cerr << "Warning while parsing " << config_file_name
-	  << ": agentType is useless for a client - ignored.\n";
-  value = Parsers::Results::getParamValue(Parsers::Results::USEASYNCAPI);
-  if (value != NULL) useAsyncApi = *(size_t *)(value); 
+    WARNING("parsing " << config_file_name
+	    << ": agentType is useless for a client - ignored");
     
   /* Get the traceLevel */
+  
   if (TRACE_LEVEL >= TRACE_MAX_VALUE) {
     char   level[48];
     int    tmp_argc = myargc + 2;
@@ -173,11 +143,16 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
     myargc = tmp_argc;
   }
   
-  if (useAsyncApi == 1){
-   	/* Initialize the ORB */
-    if (ORBMgr::init(myargc, (char**)myargv, true, 1)) {
-      cerr << "ORB initialization failed.\n";
-      return 1;
+  /* Get the USE_ASYNC_API flag */
+
+  value = Parsers::Results::getParamValue(Parsers::Results::USEASYNCAPI);
+  if (value != NULL)
+    USE_ASYNC_API = *(size_t *)(value); 
+
+  if (USE_ASYNC_API == 1) {
+    /* Initialize the ORB */
+    if (ORBMgr::init(myargc, (char**)myargv)) {
+      ERROR("ORB initialization failed", 1);
     }
     // Create sole instance of synchronized CallAsyncMgr class
     CallAsyncMgr::Instance();
@@ -187,15 +162,14 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
     // activate servant callback
     if (ORBMgr::activate(cb) != 0) return -1;
     // create corba client callback serveur reference ...
-    refCallbackServer = ORBMgr::getIORString(obj);
+    REF_CALLBACK_SERVER = ORBMgr::getIORString(obj);
     // clean
     cb->_remove_ref();
-    if (refCallbackServer == NULL) return -1;
+    if (REF_CALLBACK_SERVER == NULL) return -1;
   }
   else {
-    if (ORBMgr::init(myargc, (char**)myargv, false, 0)) {
-      cerr << "ORB initialization failed.\n";
-      return 1;
+    if (ORBMgr::init(myargc, (char**)myargv, false)) {
+      ERROR("ORB initialization failed", 1);
     }
   }
 
@@ -203,16 +177,14 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   MA_name = (char*)
     Parsers::Results::getParamValue(Parsers::Results::MANAME);
   MA = MasterAgent::_narrow(ORBMgr::getAgentReference(MA_name));
-  if (CORBA::is_nil(MA)){
-    cerr << "Cannot locate Master Agent " << MA_name << ".\n";
-    return 1;
+  if (CORBA::is_nil(MA)) {
+    ERROR("cannot locate Master Agent " << MA_name, 1);
   }
   /* Initialize statistics module */
   stat_init();
 
   /* We do not need the parsing results any more */
   Parsers::endParsing();  
-  PAUSE(25,0)
   return 0;
 }
 
@@ -220,12 +192,13 @@ int
 diet_finalize()
 {
   stat_finalize();
-  if (useAsyncApi == 1){
+  if (USE_ASYNC_API == 1) {
+
     CallAsyncMgr * caMgr = CallAsyncMgr::Instance();
-    while (caMgr->areThereWaitRules() > 0){
+    while (caMgr->areThereWaitRules() > 0) {
       omni_thread::sleep(1);
-      // must be replace by a cal to waitall
-      // must be a call to diet_finalyze_force ....
+      // must be replace by a call to waitall
+      // must be a call to diet_finalize_force ....
       // Maybe we must split async api from sync api ...
     }
     caMgr->release();
@@ -406,15 +379,14 @@ submission(corba_pb_desc_t* pb, corba_response_t*& response)
     CORBA::Any tmp;
     tmp <<= e;
     CORBA::TypeCode_var tc = tmp.type();
-    cerr << "Caught a CORBA exception (" << tc->name()
-	 << ") while submitting problem.\n";
     if (response)
       response->servers.length(0);
-    return -2;
+    ERROR("caught a CORBA exception (" << tc->name()
+	  << ") while submitting problem", -2);
   }
   
   if (!response || response->servers.length() == 0) {
-    cerr << "No server found for problem " << pb->path << ".\n";
+    WARNING("no server found for problem " << pb->path);
     server_OK = -1;
 
   } else {
@@ -444,8 +416,7 @@ submission(corba_pb_desc_t* pb, corba_response_t*& response)
 		MAX(totalTime,response->servers[idx].estim.totalTime))))
 	  break;
 	server_OK++;
-      } catch (...) {
-	cerr << "Warning; exception catched\n";
+      } catch (CORBA::Exception& e) {
 	server_OK++;
 	continue;
       }
@@ -483,15 +454,13 @@ diet_call(diet_function_handle_t* handle, diet_profile_t* profile)
   stat_out("diet_call.submission");
 
   if (!response || response->servers.length() == 0) {
-    cerr << "Unable to find a server.\n";
     if (response)
       delete response;
-    return 1;
+    ERROR("unable to find a server", 1);
   }
   if (server_OK == -1) {
-    cerr << "Unable to find a server after " << nb_tries << " tries.\n";
     delete response;
-    return 1;
+    ERROR("unable to find a server after " << nb_tries << " tries", 1);
   }
 
 #if HAVE_CICHLID
@@ -535,98 +504,96 @@ diet_call(diet_function_handle_t* handle, diet_profile_t* profile)
 diet_reqID_t
 diet_call_async(diet_function_handle_t* handle, diet_profile_t* profile)
 {
-	DIET_DEBUG()
+  DIET_DEBUG();
   corba_pb_desc_t corba_pb;
   corba_profile_t     corba_profile;
   corba_response_t* response(NULL);
-  int subm_count, server_OK, solve_res, reqID;
+  int subm_count, server_OK, reqID;
   static int nb_tries(3);
   try {
     /* Request submission : try nb_tries times */
     displayProfile(profile, handle->pb_name);
-	DIET_DEBUG()
+    DIET_DEBUG();
     if (mrsh_pb_desc(&corba_pb, profile, handle->pb_name))
       return -1;
     subm_count = 0;
 
     stat_in("diet_call.submission.start");
-	DIET_DEBUG()
+    DIET_DEBUG();
     do {
       server_OK = submission(&corba_pb, response);
     }  while ((response->servers.length() > 0)
-       && (server_OK == -1) && (++subm_count < nb_tries));
+	      && (server_OK == -1) && (++subm_count < nb_tries));
     stat_out("diet_call.submission.end");
-	DIET_DEBUG()
+    DIET_DEBUG();
 
     if (!response || response->servers.length() == 0) {
-      cerr << "Unable to find a server.\n";
-      return -1;
+      ERROR("unable to find a server", -1);
     }
-	DIET_DEBUG()
+    DIET_DEBUG();
     if (server_OK == -1) {
-      cerr << "Unable to find a server after " << nb_tries << " tries.\n";
-      return -1;
+      ERROR("unable to find a server after " << nb_tries << " tries", -1);
     }
 #if HAVE_CICHLID
     static int already_initialized(0);
     char str_tmp[1000];
 
-	DIET_DEBUG()
+    DIET_DEBUG();
     if (!already_initialized) {
       init_communications();
       already_initialized = 1;
     }
-	DIET_DEBUG()
+    DIET_DEBUG();
 
     strcpy(str_tmp, response->servers[server_OK].loc.hostName);
-	DIET_DEBUG()
+    DIET_DEBUG();
     strcat(str_tmp, "_SeD");
-	DIET_DEBUG()
+    DIET_DEBUG();
     add_communication("client", str_tmp, profile_size(&corba_pb));
-	DIET_DEBUG(TEXT_OUTPUT(("END")))
+    DIET_DEBUG(TEXT_OUTPUT(("END")));
 #endif // HAVE_CICHLID
     
     if (mrsh_profile_to_in_args(&corba_profile, profile)) return -1;
     stat_in("diet_call.solve.start");
-	DIET_DEBUG()
+    DIET_DEBUG();
 
     // get sole CallAsyncMgr singleton
     CallAsyncMgr * caMgr = CallAsyncMgr::Instance();
-	DIET_DEBUG()
+    DIET_DEBUG();
     // create corba client callback serveur...
     if (caMgr->addAsyncCall(response->reqID, profile) != 0) return -1;
-	DIET_DEBUG()
+    DIET_DEBUG();
 
     response->servers[server_OK].loc.ior->solveAsync(handle->pb_name,
-                                                      corba_profile, 
-																								      response->reqID, 
-                                                      refCallbackServer);
-	DIET_DEBUG()
-  }catch (const CORBA::Exception &e){
+						     corba_profile, 
+						     response->reqID, 
+						     REF_CALLBACK_SERVER);
+    DIET_DEBUG();
+  } catch (const CORBA::Exception &e) {
     // Process any other User exceptions. Use the .id() method to
     // record or display useful information
     CORBA::Any tmp;
     tmp <<= e;
     CORBA::TypeCode_var tc = tmp.type();
     const char * p = tc->name();
-    if (*p != '\0') cout << "SeD async Caught exception : " << p << endl;
-    else cout << "SeD async Caught exception : " << tc->id() << endl;
-    fflush(stdout);
+    if (*p != '\0')
+      WARNING("exception caught in " << __FUNCTION__ << '(' << p << ')');
+    else
+      WARNING("exception caught in " << __FUNCTION__ << '(' << tc->id() << ')');
     reqID = -1;
   }
-  catch (...){
-    cout << "Exception in DIETCallAsync ..." << endl;
+  catch (...) {
+    WARNING("exception caught in " << __FUNCTION__);
     reqID = -1;  
   }
-	DIET_DEBUG()
+  DIET_DEBUG();
   stat_out("diet_call.solve.end");
-	DIET_DEBUG()
+  DIET_DEBUG();
   reqID = response->reqID;
-	DIET_DEBUG()
+  DIET_DEBUG();
   delete response;
-	DIET_DEBUG(TEXT_OUTPUT(("END")))
-  return reqID;  
-
+  DIET_DEBUG(TEXT_OUTPUT(("END")));
+  return reqID;
 }
 
 
@@ -654,8 +621,7 @@ argStack2profile(diet_profile_t* profile, diet_argStack_t* args)
     case INOUT: profile->last_inout = tmp - 1; break;
     case OUT:   {
       if (profile->last_out != tmp - 1) {
-	cerr << "DIET internal error: conversion argStack to profile.\n";
-	return 1;
+	ERROR("argStack could not be converted into a profile", 1);
       }
     }
     }
@@ -700,10 +666,10 @@ diet_call_argstack_async(diet_function_handle_t* handle, diet_argStack_t* args)
 
 
 /****************************************************************************  
-* diet_probe GridRPC function.
-* This function probes status of an asynchronous request.
-* return reqID status.                   
-****************************************************************************/
+ * diet_probe GridRPC function.
+ * This function probes status of an asynchronous request.
+ * return reqID status.                   
+ ****************************************************************************/
 int
 diet_probe(diet_reqID_t reqID)
 {
@@ -711,11 +677,11 @@ diet_probe(diet_reqID_t reqID)
 }
   
 /****************************************************************************  
-* diet_cancel GridRPC function.
-* This function erases all persistent data that are manipulated by the reqID
-* request. Do not forget to call diet_get_data_handle on data you would like
-* to save.                   
-****************************************************************************/
+ * diet_cancel GridRPC function.
+ * This function erases all persistent data that are manipulated by the reqID
+ * request. Do not forget to call diet_get_data_handle on data you would like
+ * to save.                   
+ ****************************************************************************/
 int
 diet_cancel(diet_reqID_t reqID)
 {
@@ -725,9 +691,8 @@ diet_cancel(diet_reqID_t reqID)
 int
 diet_wait(diet_reqID_t reqID)
 {
-  int rst = ERROR;
   try {
-    // Create ruleElements table ...
+      // Create ruleElements table ...
     ruleElement * simpleWait = new ruleElement[1];
     simpleWait[0].reqID = reqID;
     simpleWait[0].op = WAITOPERATOR(SOLE);
@@ -736,98 +701,98 @@ diet_wait(diet_reqID_t reqID)
     rule->ruleElts = simpleWait;
     
     // get lock on condition/waitRule
-    rst = CallAsyncMgr::Instance()->addWaitRule(rule);
-    // NOTES: Be carefull, there may be others rules
+    return CallAsyncMgr::Instance()->addWaitRule(rule);
+    // NOTES: Be careful, there may be others rules
     // using some of this reqID(AsyncCall)
-    // So, carefull using diet_cancel
-    return rst;
-    
+    // So, be careful using diet_cancel
   }
-  catch (const CORBA::Exception &e){
+  catch (const CORBA::Exception &e) {
     // Process any other User exceptions. Use the .id() method to
     // record or display useful information
     CORBA::Any tmp;
     tmp <<= e;
     CORBA::TypeCode_var tc = tmp.type();
     const char * p = tc->name();
-    if (*p != '\0') cout << "diet_wait async Caught exception : " << p << endl;
-    else cout << "diet_wait async Caught exception : " << tc->id() << endl;
-    fflush(stdout);
+    if (*p != '\0')
+      WARNING(__FUNCTION__ << ": exception caught (" << p << ')');
+    else
+      WARNING(__FUNCTION__ << ": exception caught (" << tc->id() << ')');
   }  
-  catch (const exception& e){
-    cout << "Unexpected exception , what=" << e.what() << endl;
-    fflush(stdout);
+  catch (const exception& e) {
+    ERROR(__FUNCTION__ << ": unexpected exception (what="
+	  << e.what() << ')', STATUS_ERROR);
   }
-  return rst;
+  return STATUS_ERROR;
 }
 
 /*****************************************************************************
-* diet_wait_and GridRPC function
-* return error status 
-* three args :
-*  	1 - reqID table.
-*  	2 - size of the table.
-*****************************************************************************/
+ * diet_wait_and GridRPC function
+ * return error status 
+ * three args :
+ *  	1 - reqID table.
+ *  	2 - size of the table.
+ *****************************************************************************/
 int
 diet_wait_and(diet_reqID_t* IDs, size_t length)
 {
-	DIET_DEBUG()
-  STATE rst = ERROR;
+  DIET_DEBUG();
+  request_status_t rst = STATUS_ERROR;
   try {
     // Create ruleElements table ...
     ruleElement * simpleWait = new ruleElement[length];
-	DIET_DEBUG()
-    for (unsigned int k = 0; k < length; k++){
+    DIET_DEBUG();
+    for (size_t k = 0; k < length; k++) {
       simpleWait[k].reqID = IDs[k];
       simpleWait[k].op = WAITOPERATOR(AND);
     }
-	DIET_DEBUG()
+    DIET_DEBUG();
     Rule * rule = new Rule;
     rule->length = length;
     rule->ruleElts = simpleWait;
     
-	DIET_DEBUG()
+    DIET_DEBUG();
     // get lock on condition/waitRule
     return CallAsyncMgr::Instance()->addWaitRule(rule);
     // NOTES: Be carefull, there may be others rules
     // using some of this reqID(AsyncCall)
     // So, carefull using diet_cancel
   }
-  catch (const CORBA::Exception &e){
+  catch (const CORBA::Exception &e) {
     // Process any other User exceptions. Use the .id() method to
     // record or display useful information
     CORBA::Any tmp;
     tmp <<= e;
     CORBA::TypeCode_var tc = tmp.type();
     const char * p = tc->name();
-    if (*p != '\0') cout << "diet_wait_and async Caught exception : " << p << endl;
-    else cout << "diet_wait_and async Caught exception : " << tc->id() << endl;
-    fflush(stdout);
+    if (*p != '\0')
+      WARNING(__FUNCTION__ << ": exception caught (" << p << ')');
+    else
+      WARNING(__FUNCTION__ << ": exception caught (" << tc->id() << ')');
   }  
-  catch (const exception& e){
-    cout << "Unexpected exception, what=" << e.what() << endl;
-    fflush(stdout);
+  catch (const exception& e) {
+    ERROR(__FUNCTION__ << ": unexpected exception (what=" << e.what() << ')',
+	  STATUS_ERROR);
   }
-	DIET_DEBUG(TEXT_OUTPUT(("END")))
+  DIET_DEBUG(TEXT_OUTPUT(("END")));
   return rst;
 }
 
 /*****************************************************************************
-* diet_wait_or GridRPC function
-* return error status 
-* three args :
-*  	1 - reqID table.
-*  	2 - size of the table.
-*  	3 - received reqID
-*****************************************************************************/
+ * diet_wait_or GridRPC function
+ * return error status 
+ * three args :
+ *  	1 - reqID table.
+ *  	2 - size of the table.
+ *  	3 - received reqID
+ *****************************************************************************/
 int
 diet_wait_or(diet_reqID_t* IDs, size_t length, diet_reqID_t* IDptr)
 {
-  STATE rst = ERROR;
+  request_status_t rst = STATUS_ERROR;
   try {
     // Create ruleElements table ...
     ruleElement * simpleWait = new ruleElement[length];
-    for (unsigned int k = 0; k < length; k++){
+    for (unsigned int k = 0; k < length; k++) {
       simpleWait[k].reqID = IDs[k];
       simpleWait[k].op = WAITOPERATOR(OR);
     }
@@ -837,49 +802,48 @@ diet_wait_or(diet_reqID_t* IDs, size_t length, diet_reqID_t* IDptr)
     
     // get lock on condition/waitRule
     // and manage return rule status
-    switch (CallAsyncMgr::Instance()->addWaitRule(rule)){
-      case DONE:
-	for (unsigned int k = 0; k < length; k++){
-	  if (CallAsyncMgr::Instance()->getStatusReqID(IDs[k]) == DONE){
-	    *IDptr = IDs[k];
-	    return DONE;
-	  }
+    switch (CallAsyncMgr::Instance()->addWaitRule(rule)) {
+    case STATUS_DONE:
+      for (unsigned int k = 0; k < length; k++) {
+	if (CallAsyncMgr::Instance()->getStatusReqID(IDs[k]) == STATUS_DONE) {
+	  *IDptr = IDs[k];
+	  return STATUS_DONE;
 	}
-	return ERROR;
-      case CANCEL:
-	return CANCEL;
-      case ERROR:
-	return ERROR;
-      default:
-      return -1; // Unexcpected error, no value describing it (enum STATE)
-    // NOTES: Be carefull, there may be others rules
-    // using some of this reqID(AsyncCall)
-    // So, carefull using diet_cancel
+      }
+      return STATUS_ERROR;
+    case STATUS_CANCEL:
+      return STATUS_CANCEL;
+    case STATUS_ERROR:
+      return STATUS_ERROR;
+    default:
+      return -1; // Unexcpected error, no value describing it
+      // NOTES: Be carefull, there may be others rules
+      // using some of this reqID(AsyncCall)
+      // So, carefull using diet_cancel
     }
   }
-  catch (const CORBA::Exception &e){
+  catch (const CORBA::Exception &e) {
     // Process any other User exceptions. Use the .id() method to
     // record or display useful information
     CORBA::Any tmp;
     tmp <<= e;
     CORBA::TypeCode_var tc = tmp.type();
     const char * p = tc->name();
-    if (*p != '\0') cout << "diet_wait_or async Caught exception : " << p << endl;
-    else cout << "diet_wait_or async Caught exception : " << tc->id() << endl;
-    fflush(stdout);
-  }  
-  catch (const exception& e){
-    cout << "Unexpected exception , what=" << e.what() << endl;
-    fflush(stdout);
+    if (*p != '\0')
+      WARNING(__FUNCTION__ << ": exception caught (" << p << ')');
+    else
+      WARNING(__FUNCTION__ << ": exception caught (" << tc->id() << ')');
+  } catch (const exception& e) {
+    ERROR(__FUNCTION__ << ": unexpected exception (what="
+	  << e.what() << ')', STATUS_ERROR);
   }
   return rst;
 }
 
 /*****************************************************************************
-* diet_wait_all GridRPC function
-* return error status
-* 
-*****************************************************************************/
+ * diet_wait_all GridRPC function
+ * return error status
+ *****************************************************************************/
 int
 diet_wait_all()
 {
@@ -887,10 +851,9 @@ diet_wait_all()
 }
 
 /*****************************************************************************
-* diet_wait_any GridRPC function
-* return the ID of the received request
-* 
-*****************************************************************************/
+ * diet_wait_any GridRPC function
+ * return the ID of the received request
+ *****************************************************************************/
 int
 diet_wait_any(diet_reqID_t* IDptr)
 {
