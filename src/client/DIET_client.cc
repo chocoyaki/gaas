@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.41  2004/02/27 10:23:28  bdelfabr
+ * adding calls in order to use identifier instead of diet_..._set when data is already inside the platform
+ *
  * Revision 1.40  2004/01/16 14:41:42  sdahan
  * In the diet_call_common function, catch the CORBA::MARSHAL exception
  * during the chosenServer->solve() call. Now, when the giopMaxMsgSize is
@@ -59,6 +62,7 @@
 
 #include <CORBA.h>
 #include <iostream>
+#include <fstream>
 using namespace std;
 #include <unistd.h>
 #include <stdlib.h>
@@ -107,6 +111,10 @@ static char* REF_CALLBACK_SERVER;
 /** Flag for using the asynchronous API (set at configuration time) */
 static size_t USE_ASYNC_API = 1;
 
+/** file Name to store Data Ids */
+char* fileName=new char[100];
+
+int num_session;
 
 /****************************************************************************/
 /* Initialize and Finalize session                                          */
@@ -118,6 +126,7 @@ diet_error_t
 diet_initialize(char* config_file_name, int argc, char* argv[])
 {
   char*  MA_name;
+  char* MA1_name;
   int    res(0);
   int    myargc(0);
   char** myargv(NULL);
@@ -212,6 +221,8 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   /* Find Master Agent */
   MA_name = (char*)
     Parsers::Results::getParamValue(Parsers::Results::MANAME);
+   cout << "MA NAME PARSING = " << MA_name << endl;
+   MA1_name = CORBA::string_dup(MA_name);
   MA = MasterAgent::_narrow(ORBMgr::getObjReference(ORBMgr::AGENT, MA_name));
   if (CORBA::is_nil(MA)) {
     ERROR("cannot locate Master Agent " << MA_name, 1);
@@ -221,7 +232,10 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
 
   /* We do not need the parsing results any more */
   Parsers::endParsing();
-
+  /** get Num session*/
+  num_session=MA->get_session_num();
+  cout << "MA NAME =" << MA_name << endl;
+  create_file(MA1_name);
   MA_MUTEX.unlock();
   return 0;
 }
@@ -245,6 +259,9 @@ diet_finalize()
   MA_MUTEX.lock();
   MA = MasterAgent::_nil();
   MA_MUTEX.unlock();
+  
+  /* end fileName */
+  *fileName='\0';
   return 0;
 }
 
@@ -278,6 +295,72 @@ diet_free(diet_data_handle_t* handle)
 
 END_API
 
+/**************************************************************** 
+ *   creation of the file that stores identifiers               * 
+ ***************************************************************/
+
+void create_file(char *MA_name)
+{
+sprintf(fileName,"ID_FILE.%s.%d",MA_name,num_session);
+create_header(fileName);
+
+}
+
+void create_header(char* fileName)
+{
+  char* header_id = "identifiant de le donnee";
+  char* header_msg = "commentaires\n";
+  //ofstream f(fileName);
+  ofstream f(fileName,ios_base::out);
+  int cpt = strlen(header_id);
+  f.write(header_id,cpt);
+    for(int i = 0; i < 10;i++) 
+   f.put(' ');
+   cpt = strlen(header_msg);
+  f.write(header_msg,cpt);
+   f.close();
+
+}
+
+/**************************************************************** 
+ *   Add handler id with message msg in the file                * 
+ ***************************************************************/
+
+void store_id(char* argID, char* msg)
+{
+ 
+  size_t cpt;
+ 
+  char* msg1 = new char[strlen(msg)+1];
+  cpt=strlen(argID);
+  ofstream f(fileName,ios_base::app|ios_base::ate);
+  f.write(argID,cpt);
+  for(int i = 0;i < 10;i++) 
+    f.put(' ');
+  sprintf(msg1,"%s\n",msg);
+  cpt = strlen(msg1);
+  f.write(msg1,cpt);
+  f.close();
+
+}
+
+
+/******************************************************************
+ *  Free persistent data identified by argID                     * 
+ *****************************************************************/
+int 
+diet_free_persistent_data(char* argID)
+{
+
+  if(MA->diet_free_pdata(argID)!=0)
+    return 1;
+  else {
+    cerr << "UNKNOWN DATA" << endl;
+    return 0;
+  }
+
+}
+
 
 /****************************************************************************/
 /* GridRPC call functions                                                   */
@@ -297,13 +380,17 @@ request_submission(diet_profile_t* profile,
   corba_pb_desc_t corba_pb;
   //corba_pb_desc_t& corba_pb = *(new corba_pb_desc_t());
   corba_response_t* response(NULL);
+ 
 
   chosenServer = SeD::_nil();
-
+ 
+ 
+ 
   if (mrsh_pb_desc(&corba_pb, profile)) {
     ERROR("profile is wrongly built", 1);
   }
-
+ 
+ 
   /* Request submission : try nb_tries times */
 
   stat_in("Client","request_submission");
@@ -311,6 +398,17 @@ request_submission(diet_profile_t* profile,
   do {
     response = NULL;
 
+    /* data property base_type and type retrieval : used for scheduler*/
+
+    for(int i = 0;i <= corba_pb.last_out;i++) {
+      char* new_id = strdup(corba_pb.param_desc[i].id.idNumber);
+      if(strlen(new_id) != 0) {
+	corba_data_desc_t* arg_desc(NULL);
+	arg_desc=MA->get_data_arg(new_id);
+	const_cast<corba_data_desc_t&>(corba_pb.param_desc[i]) = *arg_desc;
+      }  
+    }  
+          
     /* Submit to the agent. */
     try {
       response = MA->submit(corba_pb, MAX_SERVERS);
@@ -325,12 +423,13 @@ request_submission(diet_profile_t* profile,
 	    << ") while submitting problem", 1);
     }
   
+  
     /* Check response */
-
+    
     if (!response || response->servers.length() == 0) {
       WARNING("no server found for problem " << corba_pb.path);
       server_OK = -1;
-
+      
     } else {
       
       if (TRACE_LEVEL >= TRACE_MAIN_STEPS) {
@@ -343,9 +442,8 @@ request_submission(diet_profile_t* profile,
 		     << response->servers[idx].loc.port << "\n");
 	}
       }
-
+      
       /* Check the contracts of the servers answered. */
-
       server_OK = 0;
       while ((size_t) server_OK < response->servers.length()) {
 	try {
@@ -370,11 +468,11 @@ request_submission(diet_profile_t* profile,
       if ((size_t) server_OK == response->servers.length())
 	server_OK = -1;
     }
-
+    
   } while ((response) && (response->servers.length() > 0) &&
 	   (server_OK == -1) && (++subm_count < nb_tries));
   stat_out("Client","request_submission");
-
+  
   if (!response || response->servers.length() == 0) {
     //delete &corba_pb;
     if (response)
@@ -387,32 +485,32 @@ request_submission(diet_profile_t* profile,
     ERROR("unable to find a server after " << nb_tries << " tries."
 	  << "The platform might be overloaded, try again later please", 1);
   }
-
+  
 #if HAVE_CICHLID
   static int already_initialized(0);
   char str_tmp[1000];
-
+  
   if (!already_initialized) {
     init_communications();
     already_initialized = 1;
   }
-
+  
   strcpy(str_tmp, response->servers[server_OK].loc.hostName);
   strcat(str_tmp, "_SeD");
   add_communication("client", str_tmp, profile_size(&corba_pb));
 #endif // HAVE_CICHLID
   
   //delete &corba_pb;
-
+  
   if (server_OK >= 0) {
     chosenServer = response->servers[server_OK].loc.ior;
     reqID = response->reqID;
   }
-
+  
   return 0;
 }
-
-
+  
+  
 /****************************************
  * Synchronous call
  ****************************************/
@@ -428,8 +526,9 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
   int solve_res(0);
   diet_reqID_t reqID;
   corba_profile_t corba_profile;
-
+  //char *new_id;
   stat_in("Client","diet_call");
+
 
   if (CORBA::is_nil(chosenServer)) {
     if ((res = request_submission(profile, chosenServer, reqID)))
@@ -437,19 +536,49 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
     if (CORBA::is_nil(chosenServer))
       return 1;
   }
-  
+
+   
   if (mrsh_profile_to_in_args(&corba_profile, profile)) {
     ERROR("profile is wrongly built", 1);
   }
-
+  
+  /* data property base_type and type retrieval : used for scheduler */
+  for(int i = 0;i <= corba_profile.last_out;i++) {
+    char* new_id = strdup(corba_profile.parameters[i].desc.id.idNumber);
+    if(strlen(new_id) != 0) {
+      corba_data_desc_t* arg_desc = new corba_data_desc_t;
+      arg_desc = MA->get_data_arg(new_id);
+      const_cast<corba_data_desc_t&>(corba_profile.parameters[i].desc) = *arg_desc;
+    }
+    
+  }  
+  
+  
+  /* generate new ID for data if not already existant */
+  for(int i = 0;i <= corba_profile.last_out;i++) {
+    if ((corba_profile.parameters[i].desc.mode > DIET_VOLATILE ) && (corba_profile.parameters[i].desc.mode < DIET_PERSISTENCE_MODE_COUNT) && (MA->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber)))) {
+      char* new_id = MA->get_data_id(); 
+      corba_profile.parameters[i].desc.id.idNumber = new_id;
+    }
+  }
+  
   try {
-    stat_in("Client","computation");
-    solve_res = chosenServer->solve(profile->pb_name, corba_profile);
-    stat_out("Client","computation");
-  } catch(CORBA::MARSHAL& e) {
+  stat_in("Client","computation");
+  solve_res = chosenServer->solve(profile->pb_name, corba_profile);
+  stat_out("Client","computation");
+   } catch(CORBA::MARSHAL& e) {
     ERROR("got a marchal exception\n"
 	  "Maybe your giopMaxMsgSize is too small",1) ;
   }
+
+  /* reaffect identifier */
+  for(int i = 0;i <= profile->last_out;i++) {
+    if ((corba_profile.parameters[i].desc.mode > DIET_VOLATILE ) && (corba_profile.parameters[i].desc.mode < DIET_PERSISTENCE_MODE_COUNT)) {
+      profile->parameters[i].desc.id = strdup(corba_profile.parameters[i].desc.id.idNumber);
+    }
+  }
+ 
+
 
   if (unmrsh_out_args_to_profile(profile, &corba_profile)) {
     INTERNAL_ERROR("returned profile is wrongly built", 1);
@@ -509,7 +638,27 @@ diet_call_async_common(diet_profile_t* profile,
     if (mrsh_profile_to_in_args(&corba_profile, profile)) {
       ERROR("profile is wrongly built", 1);
     }
-
+ 
+    /* data property base_type and type retrieval : used for scheduler */
+    for(int i = 0;i <= corba_profile.last_out;i++) {
+      char* new_id = strdup(corba_profile.parameters[i].desc.id.idNumber);
+      if(strlen(new_id) != 0) {
+	corba_data_desc_t *arg_desc = new corba_data_desc_t;
+	arg_desc = MA->get_data_arg(new_id);
+	const_cast<corba_data_desc_t&>(corba_profile.parameters[i].desc) = *arg_desc;
+      }
+      
+    }  
+    
+    
+    /* generate new ID for data if not already existant */
+    for(int i = 0;i <= corba_profile.last_out;i++) {
+      if ((corba_profile.parameters[i].desc.mode > DIET_VOLATILE ) && (corba_profile.parameters[i].desc.mode < DIET_PERSISTENCE_MODE_COUNT) && (MA->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber)))) {
+	char* new_id = MA->get_data_id(); 
+	corba_profile.parameters[i].desc.id.idNumber = new_id;
+      }
+    }
+    
     // get sole CallAsyncMgr singleton
     caMgr = CallAsyncMgr::Instance();
     // create corba client callback server...
