@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2004/09/13 14:12:52  hdail
+ * Improved memory management for class variables localHostName and myName.
+ *
  * Revision 1.7  2004/02/27 10:25:39  bdelfabr
  * coding standard
  *
@@ -16,18 +19,6 @@
  *
  * Revision 1.5  2003/11/10 14:04:59  bdelfabr
  * add methods invoked by DM for data transfer management
- *
- * Revision 1.4  2003/10/14 20:27:16  bdelfabr
- * adding methods for demo RNTL (print List of persistent data)
- *
- * Revision 1.3  2003/09/30 15:10:42  bdelfabr
- * Applying coding standards
- *
- * Revision 1.2  2003/09/24 09:13:05  pcombes
- * DataMgr does not need a name: use its reference.
- *
- * Revision 1.1  2003/09/22 21:07:52  pcombes
- * Set all the modules and their interfaces for data persistency.
  ***************************************************************************/
 
 #ifndef _LOCMGRIMPL_HH_
@@ -141,7 +132,7 @@ private:
   /**************************************************************************/
   
   /** Local host name */
-  char localHostName[257];
+  char* localHostName;
 
   /** ID (-1 if root) of this LocMgr amongst the children of its parent */
   ChildID childID;
@@ -150,7 +141,7 @@ private:
   LocMgr_var parent;
   
   /** Identity in the CORBA Naming Service */
-  char myName[260]; // 257 + 3 for "Loc"
+  char* myName;
   /** ID of next subscribing child */
   Counter childIDCounter;
 
