@@ -1,17 +1,17 @@
 /****************************************************************************/
-/* $Id$ */
 /* DIET SeD IDL description                                                 */
 /*                                                                          */
 /*  Author(s):                                                              */
-/*    - Frederic LOMBARD          - LIFC Besançon (France)                  */
-/*    - Philippe COMBES           - LIP ENS-Lyon (France)                   */
+/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
+/*    - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)             */
 /*                                                                          */
-/*  This is part of DIET software.                                          */
-/*  Copyright (C) 2002 ReMaP/INRIA                                          */
-/*                                                                          */
+/* $LICENSE$                                                                */
 /****************************************************************************/
-/*
+/* $Id$
  * $Log$
+ * Revision 1.11  2003/04/10 12:21:23  pcombes
+ * Add checkContract method.
+ *
  * Revision 1.10  2002/12/03 19:08:23  pcombes
  * Update configure, update to FAST 0.3.15, clean CVS logs in files.
  * Put main Makefile in root directory.
@@ -35,37 +35,33 @@
  *    by an LDAP DB for the MA
  *  - No copy for client/SeD data transfers
  *  - ...
- *
  ****************************************************************************/
 
 
 #ifndef _SED_IDL_
 #define _SED_IDL_
 
-#include "types.idl"
+#include "common_types.idl"
+
 
 interface SeD {
 
-  /*--------------------------------------------------------------*/
-  /* Dummy function returning its first parameter.                */
-  /* Allows to check if the server is alive.                      */
-  /*--------------------------------------------------------------*/
-
+  /** Let check if this server is alive. */
   long ping();
 
-  /*--------------------------------------------------------------*/
-  /* Message posting function:                                    */
-  /* The request is proceeded immediately.                        */
-  /*--------------------------------------------------------------*/
-
+  /** Message posting function: the request is proceeded immediately. */
   oneway void getRequest(in corba_request_t req);
 
+  /**
+   * Re-evaluate the total computation time and commnunication
+   * for persistent data (since it is not possible to re-evaluate
+   * the communication time between the client and the server).
+   * Return non NULL if it was impossible to evaluate.
+   */
+  long checkContract(inout corba_estimation_t estimation,
+		     in corba_pb_desc_t pb);
 
-  /*--------------------------------------------------------------*/
-  /* Solve function:                                              */
-  /*   all arguments are inout for "const" reasons                */
-  /*--------------------------------------------------------------*/
-
+  /** Solve function: all arguments are inout for "const" reasons. */
   long solve(in string path, inout corba_profile_t pb);
 
 };
