@@ -1,0 +1,76 @@
+/****************************************************************************/
+/* DIET agent IDL description                                               */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
+/*    - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)                   */
+/*    - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)             */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.1  2003/04/10 12:30:49  pcombes
+ * Replace agent.idl. Get rid of response definitions and of type decision.
+ *
+ ****************************************************************************/
+
+
+#ifndef _AGENT_IDL_
+#define _AGENT_IDL_
+
+#include "common_types.idl"
+#include "response.idl"
+#include "SeD.idl"
+
+
+
+/****************************************************************************/
+/* Agent interface                                                          */
+/****************************************************************************/
+
+interface Agent {
+
+  /**
+   * Invoked by other agents to register as a child of this agent. As it is
+   * useless to register without offering services, the last argument is the
+   * same as for addServices method. Returns a registration number wich
+   * indentifies the child amongst the other children of this agent.
+   */
+  unsigned long agentSubscribe(in Agent me, in string hostname,
+			       in SeqCorbaProfileDesc_t services);
+  /**
+   * Invoked by servers to register as a child of this agent. As it is useless
+   * to register without offering services, the last argument is the same as for
+   * addServices method. Returns a registration number wich indentifies the
+   * child amongst the other children of this agent.
+   */
+  unsigned long serverSubscribe(in SeD me,  in string hostname,
+				in SeqCorbaProfileDesc_t services);
+
+
+  /**
+   * Service table update method. Propagate the update of the problem list up
+   * the tree when a new child registers. The first parameter is the child's
+   * registration number.
+   */
+  oneway void addServices(in unsigned long myID,
+			  in SeqCorbaProfileDesc_t services);
+
+
+  /**
+   * Message posting functions:
+   * This call is asynchronous. The response message REQ is kept in an
+   * internal list and processed as soon as possible.
+   */
+  oneway void getResponse(in corba_response_t resp);
+
+
+  /** Used to test if this agent is alive. */
+  long ping();
+
+};
+
+
+#endif // _AGENT_IDL_
+
