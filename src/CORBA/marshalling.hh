@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.6  2002/09/02 17:09:51  pcombes
+ * Add free on OUT arguments.
+ *
  * Revision 1.5  2002/08/30 16:50:12  pcombes
  * This version works as well as the alpha version from the user point of view,
  * but the API is now the one imposed by the latest specifications (GridRPC API
@@ -65,11 +68,9 @@
 
 /* This functions allocate each member of the destination sequence. But they
    reuse as much as possible already allocated memory */
-int mrsh_data_seq(SeqCorbaData_t *dest, diet_data_seq_t *src, int only_desc);
+int mrsh_data_seq(SeqCorbaData_t *dest, diet_data_seq_t *src,
+		  int only_desc, int release);
 int unmrsh_data_seq(diet_data_seq_t *dest, const SeqCorbaData_t *src);
-// Same as the former function, but caller is responsible for freeing
-// all the data buffers.
-int unmrsh_data_seq_control(diet_data_seq_t *dest, SeqCorbaData_t *src);
 
 
 /*
@@ -100,62 +101,5 @@ int mrsh_profile_to_in_args(SeqCorbaData_t *in,
 
 int unmrsh_out_args_to_profile(diet_profile_t *profile,
 			       SeqCorbaData_t *inout, SeqCorbaData_t *out);
-
-
-
-#if 0
-/* Conversion for data themselves */
-void
-diet2corbaData(corba_data_t *dest, const diet_data_t *src);
-void
-corba2dietData(diet_data_t *dest, const corba_data_t *src);
-// Both following functions allocate dest sequence
-void
-diet2corbaDataSeq(SeqCorba_data_t *dest, const diet_data_seq_t *src);
-void
-corba2dietDataSeq(diet_data_seq_t *dest, const SeqCorba_data_t *src);
-
-/* Conversion for data descriptors */
-void
-sf2corbaDataDesc(corba_data_desc_t *dest, const sf_data_desc_t *src);
-void
-corba2sfDataDesc(sf_data_desc_t *dest, const corba_data_desc_t *src);
-void
-mrsh_sf2corbaDataDesc(corba_data_desc_t *dest, const sf_data_desc_t *src);
-void
-corba2sfDataDesc(sf_data_desc_t *dest, const corba_data_desc_t *src);
-
-
-/* Conversion for a pb_desc */
-void
-sf2corbaPbDesc(corba_pb_desc_t *dest, const sf_pb_desc_t *src);
-void
-corba2sfPbDesc(sf_pb_desc_t *dest, const corba_pb_desc_t *src);
-
-/* Conversion for an inst_desc */
-void
-sf2corbaInstDesc(corba_inst_desc_t *dest, const sf_inst_desc_t *src);
-void
-corba2sfInstDesc(sf_inst_desc_t *dest, const corba_inst_desc_t *src);
-
-/* Conversion for agent communications */ 
-
-void diet2corbaRequest(corba_request_t *dest,const diet_request_t *src);
-
-void corba2dietRequest(diet_request_t *dest,const corba_request_t *src);
-
-void diet2corbaResponse(corba_response_t *dest,const diet_response_t *src);
-
-void corba2dietResponse(diet_response_t *dest,const corba_response_t *src);
-
-void diet2corbaDecisionDesc(corba_decision_desc_t *dest,const diet_decision_desc_t *src);
-
-void corba2dietDecisionDesc(diet_decision_desc_t *dest,const corba_decision_desc_t *src);
-
-void diet2corbaDecisionSequence(corba_decision_sequence_t *dest,const diet_decision_sequence_t *src);
-
-void corba2dietDecisionSequence(diet_decision_sequence_t *dest,const corba_decision_sequence_t *src);
-
-#endif //0
 
 #endif // _MARSHALLING_HH_

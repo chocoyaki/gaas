@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.6  2002/09/02 17:09:51  pcombes
+ * Add free on OUT arguments.
+ *
  * Revision 1.5  2002/08/30 16:50:12  pcombes
  * This version works as well as the alpha version from the user point of view,
  * but the API is now the one imposed by the latest specifications (GridRPC API
@@ -41,301 +44,6 @@
 #include "marshalling.hh"
 #include "debug.hh"
 
-
-/*===========================================================================*/
-/*                                                                           */
-/* Data structure conversions                                                */
-/*                                                                           */
-/*===========================================================================*/
-
-
-/***  Data descriptors ***/
-
-
-#if 0
-void
-sf2corbaDataDesc(corba_data_desc_t *dest, const sf_data_desc_t *src)
-{
-  dest->id = (CORBA::Long) src->id;
-  dest->base_type = src->base_type;
-
-  switch (src->type) {
-    
-  case sf_type_cons_vect: {
-    corba_data_desc_vect_ctn_t vect;
-    dest->ctn.vect(vect);
-    dest->ctn.vect().size = src->ctn.vect.size;;
-    break;
-  }
-  case sf_type_cons_mat: {
-    corba_data_desc_mat_ctn_t  mat;
-    dest->ctn.mat(mat);
-    dest->ctn.mat().nb_l  = src->ctn.mat.nb_l;
-    dest->ctn.mat().nb_c  = src->ctn.mat.nb_c;
-    dest->ctn.mat().trans = src->ctn.mat.trans;
-    break;
-  }
-  case sf_type_cons_scal: {
-    corba_data_desc_scal_ctn_t scal;
-
-    dest->ctn.scal(scal);
-    switch (src->base_type) {
-    case sf_type_base_char: {
-      char scal = *((char *)(src->ctn.scal.value));
-      dest->ctn.scal().value <<= (short) scal;
-      break;
-    }
-    case sf_type_base_int: {
-      int scal = *((int *)(src->ctn.scal.value));
-      dest->ctn.scal().value <<= (long) scal;
-      break;
-    }
-    case sf_type_base_double: {
-      double scal = *((double *)(src->ctn.scal.value));
-      dest->ctn.scal().value <<= (double) scal;
-      break;
-    }
-    default:
-      cerr << "sf2corbaDataDesc: Error in base type conversion "
-	   << src->base_type << " \n";
-    }
-    break;
-  }
-  default:
-    cerr << "sf2corbaDataDesc: Error in cons type conversion "
-	 << src->type << " \n";
-  }
-}
-
-void
-corba2sfDataDesc(sf_data_desc_t *dest, const corba_data_desc_t *src)
-{
-  dest->id = (long) src->id;
-  dest->type      = (sf_type_cons_t) src->ctn._d();
-  dest->base_type = (sf_type_base_t) src->base_type;
-  
-  switch (dest->type) {
-    
-  case sf_type_cons_vect:
-    dest->ctn.vect.size = src->ctn.vect().size;
-    break;
-    
-  case sf_type_cons_mat:
-#ifndef withoutfast
-    sf_dd_mat_set(dest, src->ctn.mat().nb_l,
-		  src->ctn.mat().nb_c, src->ctn.mat().trans);
-#else  // withoutfast
-    dest->ctn.mat.nb_l  = src->ctn.mat().nb_l;
-    dest->ctn.mat.nb_c  = src->ctn.mat().nb_c;
-    dest->ctn.mat.trans = src->ctn.mat().trans;
-#endif // withoutfast
-    break;
-
-  case sf_type_cons_scal:
-    switch (dest->base_type) {
-    case sf_type_base_char:
-      dest->ctn.scal.value = (void *) new char;
-      src->ctn.scal().value >>= *((short *)(dest->ctn.scal.value));
-      break;
-    case sf_type_base_int:
-      dest->ctn.scal.value = (void *) new int;
-      src->ctn.scal().value >>= *((long *)(dest->ctn.scal.value));
-      break;
-    case sf_type_base_double:
-      dest->ctn.scal.value = (void *) new double;
-      src->ctn.scal().value >>= *((double *)(dest->ctn.scal.value));
-      break;
-    default:
-      cerr << "\ncorba2sfDataDesc: Error in type conversion "
-	   << dest->base_type << " \n";
-    }
-    break;
-    
-  default:
-    cerr << "\ncorba2sfDataDesc: Error in type conversion "
-	 << dest->type << " \n";
-  }
-}
-
-
-/*** Data themselves ***/
-
-void
-diet2corbaData(corba_data_t *dest, const diet_data_t *src)
-{
-  size_t size = macro_data_sizeof(&(src->desc));
-  
-  sf2corbaDataDesc(&(dest->desc), &(src->desc));
-
-  switch (src->desc.base_type) {
-  case sf_type_base_char:
-    if (dest->value.sc().length() != size) {
-      // this is in case of total reallocation in call to length
-      dest->value.sc().length(size);
-    }
-    for (size_t i = 0; i < size; i++)
-      dest->value.sc()[i] = (char) ((char *)(src->value))[i];
-    break;
-
-  case sf_type_base_int:
-    if (dest->value.sl().length() != size) {
-      dest->value.sl().length(size);
-    }
-    for (size_t i = 0; i < size; i++)
-      dest->value.sl()[i] = (int) ((int *)(src->value))[i];
-    break;
-
-  case sf_type_base_double:
-    if (dest->value.sd().length() != size) {
-      dest->value.sd().length(size);
-    }
-    for (size_t i = 0; i < size; i++)
-      dest->value.sd()[i] = (double) ((double *)(src->value))[i];
-    break;
-
-  default:
-    cerr << "diet2corbaData: Error in type conversion (base type)\n";
-  }
-}
-
-
-void
-corba2dietData(diet_data_t *dest, const corba_data_t *src)
-{
-  int realloc_value = 0;
-  size_t size, data_size;
-
-
-  corba2sfDataDesc(&(dest->desc), &(src->desc));
-  data_size = macro_data_sizeof(&(dest->desc));
-
-  switch (dest->desc.base_type) {
-  case sf_type_base_char: {
-    size = src->value.sc().length();
-    if ((realloc_value = ((!dest->value) || (size > data_size))))
-      dest->value = realloc(dest->value, size * sizeof(char));
-    for (size_t i = 0; i < size; i++)
-      ((char *) dest->value)[i] = src->value.sc()[i];
-    break;
-  }
-  case sf_type_base_int: {
-    size = src->value.sl().length();
-    if ((realloc_value = ((!dest->value) || (size > data_size))))
-      dest->value = realloc(dest->value, size * sizeof(int));
-    for (size_t i = 0; i < size; i++)
-      ((int *) dest->value)[i] = src->value.sl()[i];
-    break;
-  }
-  case sf_type_base_double: {
-    size = src->value.sd().length();
-    if ((realloc_value = ((!dest->value) || (size > data_size)))) {
-      dest->value = realloc(dest->value, size * sizeof(double));
-    }
-    for (size_t i = 0; i < size; i++)
-      ((double *) dest->value)[i] = src->value.sd()[i];
-    break;
-  }
-  default:
-    cerr << "corba2dietData: Error in type conversion (base type)\n";
-  }
-  if (realloc_value)
-    dest->to_be_freed = 1;
-}
-
-
-/* Allocate dest sequence if necessary */
-/* First "free" all value sequences :
- *   this could be optimized by freeing only values that have not the same
- *   type in old sequence(already in place) as in the new one.
- * Then set the new sequence length and init the values (with length() == 0). */
-
-void
-diet2corbaDataSeq(SeqCorba_data_t *dest, const diet_data_seq_t *src) 
-{
-  size_t dest_length = dest->length();
-  int all_is_new = (dest_length != src->length);
-  
-  /* "Free" all value fields */
-  for (size_t i = 0; i < dest_length; i++) {
-    switch (src->seq[i].desc.base_type) {
-    case sf_type_base_char:
-      (*dest)[i].value.sc().length(0);
-      break;
-    case sf_type_base_int:
-      (*dest)[i].value.sl().length(0);
-      break;
-    case sf_type_base_double:
-      (*dest)[i].value.sd().length(0);
-      break;
-    default:
-      cerr << "diet2corbaData: Error in type conversion (base type)\n";
-    }
-  }
-  /* Set (new) length */
-  dest->length(src->length);
-  
-  for (size_t i = 0; i < src->length; i++) {
-    
-    /* Initialize (*dest)[i].value sequence if necessary */
-    switch (src->seq[i].desc.base_type) {
-    case sf_type_base_char: {
-      SeqChar sc;
-      (*dest)[i].value.sc(sc);
-      break;
-    }
-    case sf_type_base_int: {
-      SeqLong sl;
-      (*dest)[i].value.sl(sl);
-      break;
-    }
-    case sf_type_base_double: {
-      SeqDouble sd;
-      (*dest)[i].value.sd(sd);
-      break;
-    }
-    default:
-      cerr << "diet2corbaData: Error in type conversion (base type)\n";
-    }
-
-    /* Convert data_t */
-    diet2corbaData(&((*dest)[i]), &(src->seq[i]));
-  }
-}
-
-/* Allocate dest sequence if necessary */
-/* Check if the sequence will have to be reallocated (different length) :
- *  if reallocation is needed then first free all values,
- *  else                           let the data conversion realloc values
- *                                 as needed.                             */
-void
-corba2dietDataSeq(diet_data_seq_t *dest, const SeqCorba_data_t *src)
-{ 
-  int all_is_new = (dest->length != src->length());
-  
-  if (!dest->length)
-    dest->seq = NULL;
-  
-  if (all_is_new) {
-    /* First free all value fields */
-    for (size_t i = 0; i < dest->length; i++) {
-      if (dest->seq[i].to_be_freed)
-	free(dest->seq[i].value);
-    }
-    /* Then realloc sequence */
-    dest->length = src->length();
-    dest->seq = (diet_data_t *) realloc(dest->seq,
-					dest->length * sizeof(diet_data_t));
-  }
-  
-  for (size_t i = 0; i < dest->length; i++) {
-    if (all_is_new) {
-      /* Initialize dest->seq[i].value to force allocation*/
-      dest->seq[i].value = NULL;
-    }
-    corba2dietData(&(dest->seq[i]), &((*src)[i]));
-  }
-}
-#endif // 0
 
 /*==========================================================================*/
 /* Data structure marshalling                                               */
@@ -427,7 +135,7 @@ int mrsh_data_desc(corba_data_desc_t *dest, diet_data_desc_t *src)
 }
 
 
-int mrsh_data(corba_data_t *dest, diet_data_t *src, int only_desc)
+int mrsh_data(corba_data_t *dest, diet_data_t *src, int only_desc, int release)
 {
   long unsigned int size = (long unsigned int) data_sizeof(&(src->desc));
   if (mrsh_data_desc(&(dest->desc), &(src->desc)))
@@ -435,7 +143,7 @@ int mrsh_data(corba_data_t *dest, diet_data_t *src, int only_desc)
   if (only_desc) {
     dest->value.length(0);
   } else {
-    SeqChar value(size, size, (CORBA::Char *)src->value);
+    SeqChar value(size, size, (CORBA::Char *)src->value, release);
     dest->value = value;
   }
   return 0;
@@ -444,7 +152,8 @@ int mrsh_data(corba_data_t *dest, diet_data_t *src, int only_desc)
 
 /*====[ mrsh_data_seq ]=====================================================*/
 
-int mrsh_data_seq(SeqCorbaData_t *dest, diet_data_seq_t *src, int only_desc)
+int mrsh_data_seq(SeqCorbaData_t *dest, diet_data_seq_t *src,
+		  int only_desc, int release)
 {
   size_t dest_length = dest->length();
 
@@ -461,7 +170,7 @@ int mrsh_data_seq(SeqCorbaData_t *dest, diet_data_seq_t *src, int only_desc)
 
   for (size_t i = 0; i < src->length; i++) {
     /* Convert data_t */
-    if (mrsh_data(&((*dest)[i]), &(src->seq[i]), only_desc))
+    if (mrsh_data(&((*dest)[i]), &(src->seq[i]), only_desc, release))
       return 1;
   }
   return 0;
@@ -651,18 +360,6 @@ int unmrsh_data(diet_data_t *dest, const corba_data_t *src)
   return 0;
 }
 
-int unmrsh_data_control(diet_data_t *dest, corba_data_t *src)
-{
-  if (unmrsh_data_desc(&(dest->desc), &(src->desc)))
-    return 1;
-  if (src->value.length() == 0) {
-    dest->value = malloc(data_sizeof(&(dest->desc)));
-  } else {
-    // CORBA::boolean orphan = (src->persistence_mode != DIET_VOLATILE);
-    dest->value = (char *)src->value.get_buffer(true);
-  }
-  return 0;
-}
 
 /*====[ unmrsh_data_seq ]===================================================*/
 
@@ -681,28 +378,6 @@ int unmrsh_data_seq(diet_data_seq_t *dest, const SeqCorbaData_t *src)
   }
   for (size_t i = 0; i < dest->length; i++) {
     if (unmrsh_data(&(dest->seq[i]), &((*src)[i])))
-      return 1;
-  }
-  return 0;
-}
-
-/*====[ unmrsh_data_seq_control ]===========================================*/
-
-int unmrsh_data_seq_control(diet_data_seq_t *dest, SeqCorbaData_t *src)
-{
-  if (dest->length != 0) {
-    if (dest->length != src->length()) {
-      cerr << "This usage of unmrsh_data_seq should not occur in DIET\n"
-	   << "Either unmrsh_data_seq is called on an empty diet_data_seq_t,\n"
-	   << " or it is called on the initial sequence\n";
-      return 1;
-    }
-  } else {
-    dest->length = src->length();
-    dest->seq = (diet_data_t *) malloc(dest->length * sizeof(diet_data_t));
-  }
-  for (size_t i = 0; i < dest->length; i++) {
-    if (unmrsh_data_control(&(dest->seq[i]), &((*src)[i])))
       return 1;
   }
   return 0;
@@ -814,13 +489,13 @@ int mrsh_profile_to_in_args(SeqCorbaData_t *in,
   
   in->length(profile->last_in + 1);
   for (i = 0; i <= profile->last_in; i++) {
-    if (mrsh_data(&((*in)[i]), &(profile->parameters[i]), 0))
+    if (mrsh_data(&((*in)[i]), &(profile->parameters[i]), 0, 0))
       return 1;
   }
   inout->length(profile->last_inout - profile->last_in);
   for (i = 0; i < (profile->last_inout - profile->last_in); i++) {
     j = i + profile->last_in + 1;
-    if (mrsh_data(&((*inout)[i]), &(profile->parameters[j]), 0))
+    if (mrsh_data(&((*inout)[i]), &(profile->parameters[j]), 0, 0))
       return 1;
   }
   // For OUT parameters, marshal only descriptions for checking
@@ -828,7 +503,7 @@ int mrsh_profile_to_in_args(SeqCorbaData_t *in,
   out->length(profile->last_out - profile->last_inout);
   for (i = 0; i < (profile->last_out - profile->last_inout); i++) {
     j = i + profile->last_inout + 1;
-    if (mrsh_data(&((*out)[i]), &(profile->parameters[j]), 1))
+    if (mrsh_data(&((*out)[i]), &(profile->parameters[j]), 1, 0))
       return 1;
   }
   return 0;
