@@ -8,9 +8,11 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.2  2003/11/28 11:54:44  pcombes
+%* Add-ons about maintainer mode.
+%*
 %* Revision 1.1  2003/09/17 14:41:28  pcombes
 %* Split the .tex according to its chapters.
-%*
 %****************************************************************************%
 
 
@@ -108,12 +110,14 @@ a programmer should enable: \texttt{--enable-maintainer-mode}. Enabling this fea
     \begin{itemize}
     \item{combined with \texttt{--enable-doc}, the compilation of this
         Programmer's Guide and the generation of the Doxygen documentation (in
-        doc/API)}
+        doc/API);}
     \item{the files to remove or add to the distribution archive: in maintainer
         mode, the target \texttt{distrib} of the root \make generated a
-        maintainer mode archive.}
-    \item{evrything is compiled with the \texttt{-g} option (instead of
-        \texttt{-O2} in the user version}
+        maintainer mode archive;}
+    \item{the addition of the flag \texttt{-g} in the compilations (instead of
+        \texttt{-O2} in the user version;}
+    \item{the compilation of the classical examples (see section
+        \ref{s:examples}) which is disabled by default in user mode.}
     \end{itemize}
 \end{description}
 
@@ -273,6 +277,7 @@ complete the variable \texttt{noinst\_HEADERS} in the \makeam\ of the directory.
 \begin{table}[h]
  \footnotesize
  \centering
+ \fixme{Bruno - Pease add your files for data persistency ...}
  \begin{tabular}[c]{|l|c|c|c|l|}
   \hline
   Modules  &
