@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.42  2004/11/25 21:46:01  hdail
+ * Repaired various memory leaks and memory management errors.
+ *
  * Revision 1.41  2004/10/05 08:24:33  bdelfabr
  * change umrsh_data to avoid a wrong file name to be set and also to avoid useless file copy
  *
@@ -294,15 +297,7 @@ unmrsh_data_desc(diet_data_desc_t* dest, const corba_data_desc_t* src)
   char *id = NULL;
   diet_base_type_t bt = (diet_base_type_t)src->base_type;
 
-  if( CORBA::string_dup(src->id.idNumber) != NULL ){
-    //    dest->id = CORBA::string_dup(src->id.idNumber);
-    id = CORBA::string_dup(src->id.idNumber);
-  }
-  else { 
-    id = NULL;
-    // dest->id = NULL;
-  }
- 
+  id = CORBA::string_dup(src->id.idNumber);
 
   switch ((diet_data_type_t) src->specific._d()) {
   case DIET_SCALAR: {
@@ -344,11 +339,10 @@ unmrsh_data_desc(diet_data_desc_t* dest, const corba_data_desc_t* src)
 int
 unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
 {
-   if(src->desc.mode == DIET_VOLATILE && upDown == 1){ 
-   
+  if(src->desc.mode == DIET_VOLATILE && upDown == 1){ 
     char *tmp=NULL;
     src->desc.id.idNumber=CORBA::string_dup(tmp);
-    }
+  }
   if (unmrsh_data_desc(&(dest->desc), &(src->desc)))
     return 1;
   if (src->desc.specific._d() == (long) DIET_FILE) {
@@ -359,24 +353,23 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
       char* file_name = strrchr(in_path, '/');
       char* out_path  = new char[256];
       pid_t pid = getpid();
-    
-      if(strncmp(in_path,"/tmp/DIET_",10)!= 0) {
+
+      if(strncmp(in_path,"/tmp/DIET_",10) != 0) {
 	sprintf(out_path, "/tmp/DIET_%d_%s", pid,
 		(file_name) ? (char*)(1 + file_name) : in_path);
-	
+
 	ofstream outfile(out_path);
 
 	for (int i = 0; i < src->desc.specific.file().size; i++) {
 	  outfile.put(src->value[i]);
 	}
 	dest->desc.specific.file.path = out_path;
+        CORBA::string_free(in_path);
       } else {
-
 	dest->desc.specific.file.path = in_path;
-
+        delete[] out_path;
       }
-      //  CORBA::string_free(in_path);
-      
+
     } else if (src->desc.specific.file().size != 0) {
       INTERNAL_WARNING(__FUNCTION__ << ": file structure is vicious");
     } else {
@@ -439,7 +432,6 @@ mrsh_profile_desc(corba_profile_desc_t* dest, const diet_profile_desc_t* src)
 int
 mrsh_pb_desc(corba_pb_desc_t* dest, diet_profile_t* src)
 {
-
   dest->path       = CORBA::string_dup(src->pb_name); // frees old dest->path
   dest->last_in    = src->last_in;
   dest->last_inout = src->last_inout;
@@ -447,17 +439,14 @@ mrsh_pb_desc(corba_pb_desc_t* dest, diet_profile_t* src)
   dest->param_desc.length(src->last_out + 1);
   for (int i = 0; i <= src->last_out; i++) {
     // dest->param_desc[i].id.idNumber = CORBA::string_dup(NULL);
-       if(!src->parameters[i].desc.id) {
-    //    if(strlen(src->parameters[i].desc.id) == 0) {
- 
+    if(!src->parameters[i].desc.id) {
+      // if(strlen(src->parameters[i].desc.id) == 0) {
       mrsh_data_desc(&(dest->param_desc[i]), &(src->parameters[i].desc));
     
-       } else {
-        mrsh_data_id_desc(&(dest->param_desc[i]), &(src->parameters[i].desc));
-  
-       }
+    } else {
+      mrsh_data_id_desc(&(dest->param_desc[i]), &(src->parameters[i].desc));
+    }
   }
-
   return 0;
 }
 
@@ -575,8 +564,10 @@ unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
 			  const diet_convertor_t* cvt)
 {
   /* This keeps all umarshalled arguments */
-  diet_data_t** src_params = // Use calloc to set all elements to NULL
-    (diet_data_t**) calloc(src->last_out + 1, sizeof(diet_data_t*));
+  diet_data_t** src_params = new diet_data_t*[src->last_out + 1];
+  for (int i = 0; i < (src->last_out + 1); i++) {
+    src_params[i] = NULL;
+  }
 
   dest->pb_name    = cvt->path;
   dest->last_in    = cvt->last_in;
@@ -592,7 +583,7 @@ unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
     if ((arg_idx >= 0) && (arg_idx <= src->last_out)) {
       // Each time the cvt function is IDENTITY, unmrsh the data, even if
       // it has already been done (ie duplicate the value)
-      if (!src_params[arg_idx]) {
+      if (src_params[arg_idx] == NULL) {
 	src_params[arg_idx] = new diet_data_t;
 
 	unmrsh_data(src_params[arg_idx], &(src->parameters[arg_idx]),0); 
@@ -614,7 +605,13 @@ unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
     }
   }
 
-  free(src_params);
+  for (int i = 0; i < (src->last_out + 1); i++) {
+    if (src_params[i] != NULL) {
+      delete src_params[i]; 
+    }
+  }
+  delete[] src_params;
+
   return 0;
 }
 
