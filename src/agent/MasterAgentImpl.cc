@@ -10,8 +10,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.6  2003/09/18 09:47:19  bdelfabr
- * adding data persistence
+ * Revision 1.7  2003/09/22 21:19:49  pcombes
+ * Set all the modules and their interfaces for data persistency.
  *
  * Revision 1.4  2003/07/04 09:47:59  pcombes
  * Use new ERROR, WARNING and TRACE macros.
@@ -45,8 +45,7 @@ extern unsigned int TRACE_LEVEL;
 
 MasterAgentImpl::MasterAgentImpl() : AgentImpl()
 {
-  reqIDCounter = 0;
-  *fatherName = '\0';
+  this->reqIDCounter = 0;
 } // MasterAgentImpl
 
 
@@ -65,7 +64,6 @@ int
 MasterAgentImpl::run()
 {
   int res = this->AgentImpl::run();
-
   
   if (res)
     return res;
@@ -77,7 +75,7 @@ MasterAgentImpl::run()
 #endif // HAVE_MULTI_MA
   
   TRACE_TEXT(TRACE_MAIN_STEPS,
-	     "\nMaster Agent " << this->myName << " started.\n\n");
+	     "\nMaster Agent " << this->myName << " started.");
   return 0;
 } // run(char* configFileName)
 
@@ -108,6 +106,7 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
 
   /* Forward request and schedule the responses */
   resp = findServer(req, maxServers);
+  resp->myID = (ChildID) -1;
   // Constructor initializes sequences with length == 0
   if ((resp != NULL) && (resp->servers.length() != 0)) {
     resp->servers.length(MIN(resp->servers.length(), maxServers));

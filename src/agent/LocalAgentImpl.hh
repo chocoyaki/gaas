@@ -10,8 +10,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.3  2003/09/18 09:47:19  bdelfabr
- * adding data persistence
+ * Revision 1.4  2003/09/22 21:19:49  pcombes
+ * Set all the modules and their interfaces for data persistency.
  *
  * Revision 1.2  2003/05/10 08:53:34  pcombes
  * New format for configuration files, new Parsers.
@@ -60,8 +60,10 @@ public :
 
 private:
 
-  /** Pointer to the parent */
+  /** Reference of the parent */
   Agent_var parent;
+  /** ID of this agent amongst the children of its parent */
+  ChildID childID;
 
 
 }; // LocalAgentImpl

@@ -10,9 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2003/09/22 21:21:45  pcombes
+ * Set all the modules and their interfaces for data persistency.
+ *
  * Revision 1.1  2003/04/10 12:30:49  pcombes
  * Replace agent.idl. Get rid of response definitions and of type decision.
- *
  ****************************************************************************/
 
 

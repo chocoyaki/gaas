@@ -10,8 +10,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.6  2003/09/18 09:47:19  bdelfabr
- * adding data persistence
+ * Revision 1.7  2003/09/22 21:19:49  pcombes
+ * Set all the modules and their interfaces for data persistency.
  *
  * Revision 1.4  2003/07/04 09:47:59  pcombes
  * Use new ERROR, WARNING and TRACE macros.
@@ -41,7 +41,8 @@ extern unsigned int TRACE_LEVEL;
 
 LocalAgentImpl::LocalAgentImpl()
 {
-  this->parent = NULL;
+  this->childID = (ChildID)-1;
+  this->parent = Agent::_nil();
 }
 
 /**
@@ -52,26 +53,23 @@ LocalAgentImpl::run()
 {
   int res = this->AgentImpl::run();
 
-
-
   if (res)
     return res;
 
- char* parent_name = (char*)
+  char* parentName = (char*)
     Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
-  if (parent_name == NULL)
+  if (parentName == NULL)
     return 1;
 
-
-  strcpy(fatherName,parent_name);
   this->parent =
-    Agent::_duplicate(Agent::_narrow(ORBMgr::getAgentReference(parent_name)));
+    Agent::_duplicate(Agent::_narrow(ORBMgr::getObjReference(ORBMgr::AGENT,
+							     parentName)));
   if (CORBA::is_nil(this->parent)) {
-     ERROR("cannot locate agent " << parent_name, 1);
+     ERROR("cannot locate agent " << parentName, 1);
   }
 
   TRACE_TEXT(TRACE_MAIN_STEPS,
-	     "\nLocal Agent " << this->myName << " started.\n\n");
+	     "\nLocal Agent " << this->myName << " started.");
 
   return 0;
 } // run()
@@ -115,6 +113,7 @@ LocalAgentImpl::getRequest(const corba_request_t& req)
   LA_TRACE_FUNCTION(req.reqID << ", " << req.pb.path);
 
   corba_response_t& resp = *(this->findServer(currRequest, 0));
+  resp.myID = this->childID;
 
   /* The agent is an LA, the response must be sent to the parent */
   this->parent->getResponse(resp);

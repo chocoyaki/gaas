@@ -9,26 +9,17 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.10  2003/09/18 09:47:19  bdelfabr
- * adding data persistence
+ * Revision 1.11  2003/09/22 21:17:54  pcombes
+ * Set all the modules and their interfaces for data persistency.
  *
  * Revision 1.9  2003/08/01 19:33:11  pcombes
  * Use FASTMgr.
- *
- * Revision 1.8  2003/07/25 20:23:52  pcombes
- * Fix the warning about "uninitialized variables" n the FAST part.
  *
  * Revision 1.7  2003/07/04 09:47:57  pcombes
  * Use new ERROR, WARNING and TRACE macros.
  *
  * Revision 1.6  2003/06/23 13:35:06  pcombes
  * useAsyncAPI should be replaced by a "useBiDir" option. Remove it so far.
- *
- * Revision 1.5  2003/06/02 15:29:46  cpera
- * Update callback use.
- *
- * Revision 1.4  2003/06/02 09:06:46  cpera
- * Beta version of asynchronize DIET API.
  *
  * Revision 1.3  2003/05/13 17:14:00  pcombes
  * Catch CORBA exceptions in serverSubscribe.
@@ -55,28 +46,19 @@ using namespace std;
 
 #include "SeDImpl.hh"
 
+#include "Callback.hh"
+#include "common_types.hh"
 #include "debug.hh"
 #include "FASTMgr.hh"
 #include "marshalling.hh"
 #include "ORBMgr.hh"
 #include "Parsers.hh"
 #include "statistics.hh"
-#include "Callback.hh"
 
-#include "dataMgr.hh"
-#include "locMgr.hh"
-#include "dataMgrImpl.hh"
-#include "common_types.hh"
-
-
-#define HUGE_VAL 0
-
+#define DEVELOPPING_DATA_PERSISTENCY 0
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
-
-#define aff_val(x)
-//#define aff_val(x) cout << #x << " = " << x << endl;
 
 #define SED_TRACE_FUNCTION(formatted_text)       \
   TRACE_TEXT(TRACE_ALL_STEPS, "SeD::");          \
@@ -84,11 +66,10 @@ extern unsigned int TRACE_LEVEL;
 
 SeDImpl::SeDImpl()
 {
-  SrvT    = NULL;
-  childID = -1;
-  parent  = NULL;
-  localHostName[0] = '\0';
-  
+  this->SrvT    = NULL;
+  this->childID = -1;
+  this->parent  = Agent::_nil();
+  this->localHostName[0] = '\0';
 #if HAVE_FAST
   this->fastUse = 1;
 #endif // HAVE_FAST
@@ -99,21 +80,6 @@ SeDImpl::~SeDImpl()
   /* FIXME: Tables should be destroyed. */
 }
 
-// added for data management
-void SeDImpl::refData(dataMgrImpl *_Data){
-  myData= _Data;
-}
-
-char *SeDImpl::getMyName(){
-  return localHostName;
-}
-
-
-char *SeDImpl::getMyFatherName(){
-  return parentName ;
-}
-
-
 int
 SeDImpl::run(ServiceTable* services)
 {
@@ -123,26 +89,18 @@ SeDImpl::run(ServiceTable* services)
   if (gethostname(localHostName, 256)) {
     ERROR("could not get hostname", 1);
   }
-  //for tests
-  cout << "enter local host name : " ;
-  cin >> localHostName;
-
  
- this->SrvT = services;
+  this->SrvT = services;
 
   char* parent_name = (char*)
     Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
   if (parent_name == NULL)
     return 1;
-
- 
   parent =
-    Agent::_duplicate(Agent::_narrow(ORBMgr::getAgentReference(parent_name)));
+    Agent::_duplicate(Agent::_narrow(ORBMgr::getObjReference(ORBMgr::AGENT,
+							     parent_name)));
   if (CORBA::is_nil(parent)) {
     ERROR("cannot locate agent " << parent_name, 1);
-  } else {
-     // for data management 
-    strcpy(parentName,parent_name);
   }
   
   profiles = SrvT->getProfiles();
@@ -171,6 +129,13 @@ SeDImpl::run(ServiceTable* services)
   // Init FAST (HAVE_FAST is managed by the FASTMgr class)
   return FASTMgr::init();
   
+}
+
+/** Set this->dataMgr */
+int
+SeDImpl::linkToDataMgr(DataMgrImpl* dataMgr){
+  this->dataMgr = dataMgr;
+  return 0;
 }
 
 
@@ -234,11 +199,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
   diet_profile_t profile;
   diet_convertor_t* cvt(NULL);
   int solve_res(0);
-   int i;
-  int toto = 0;
-  char *s = NULL ;
-  char c;
-  int *tabValue(NULL);
+
   stat_in("SeDImpl::solve.start");
 
   TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::solve invoked on pb: " << path << endl);
@@ -249,7 +210,12 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
   } 
    
   cvt = SrvT->getConvertor(ref);
+
+#if DEVELOPPING_DATA_PERSISTENCY
   // added for data persistence 
+  int i;
+  char* s = NULL ;
+  int* tabValue(NULL);
 
   profile.last_in = pb.last_in;
   profile.last_inout = pb.last_inout;
@@ -261,43 +227,45 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
   for (i = 0; i <= profile.last_inout; i++) {
     s = (char *)malloc(sizeof(int));
     sprintf(s,"var%d",i);
-    aff_val(s);
+    TRACE_VAR(s);
     pb.parameters[i].desc.id = CORBA::string_dup(s);
-    if(pb.parameters[i].value.length() == 0){ tabValue[i]=0; aff_val(i);}
-  }
-  
+    if(pb.parameters[i].value.length() == 0){ tabValue[i]=0; TRACE_VAR(i);}
+  }  
+
   unmrsh_in_args_to_profile(&profile, &pb, cvt);
-  
   
   for (i = 0; i <= profile.last_inout; i++) {
     
     if(tabValue[i]==0){
       
-      pb.parameters[i]= myData->getData(pb.parameters[i].desc.id);
+      pb.parameters[i]= this->dataMgr->getData(pb.parameters[i].desc.id);
       cout << "DATA PRESENT = GETTING IT....." << endl;
       unmrsh_data((diet_data_t*)(&(profile.parameters[i])),&(pb.parameters[i]));
     } else {
       if( diet_is_persistent(pb.parameters[i]) ) {
 	
-	myData->addData(pb.parameters[i],0);
+	this->dataMgr->addData(pb.parameters[i],0);
       } else {
 	cout << "Data Is not Persistent" << endl;
       }
     }
   }
   
+#else  // DEVELOPPING_DATA_PERSISTENCY  
   
+  unmrsh_in_args_to_profile(&profile, &pb, cvt);
   
-  // unmrsh_in_args_to_profile(&profile, &pb, cvt);
-  
+#endif // DEVELOPPING_DATA_PERSISTENCY
+
   solve_res = (*(SrvT->getSolver(ref)))(&profile);
   
   mrsh_profile_to_out_args(&pb, &profile, cvt);
-  
+
+#if DEVELOPPING_DATA_PERSISTENCY  
   if(profile.last_inout > profile.last_in) {
     for (i = profile.last_in + 1 ; i <= profile.last_inout; i++) {
       if ( diet_is_persistent(profile.parameters[i])) {
-	myData->updateDataList(pb.parameters[i]); 
+	this->dataMgr->updateDataList(pb.parameters[i]); 
       }
     }
   }
@@ -306,15 +274,15 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
       profile.parameters[i].desc.mode = DIET_PERSISTENT;
       s = (char *)malloc(sizeof(int));
       sprintf(s,"var%d",i);
-      aff_val(s);
+      TRACE_VAR(s);
       pb.parameters[i].desc.id = CORBA::string_dup(s);
       if ( diet_is_persistent(profile.parameters[i])) {
 	cout << "adding out data" << endl;
-        myData->addData(pb.parameters[i],1); 
+        this->dataMgr->addData(pb.parameters[i],1); 
       }
     }
   }
-  
+#endif // DEVELOPPING_DATA_PERSISTENCY
   
   if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
     cout << "SeD::solve complete\n"
@@ -329,12 +297,13 @@ void
 SeDImpl::solveAsync(const char* path, const corba_profile_t& pb, 
 		    CORBA::Long reqID, const char* volatileclientREF)
 {
+#if DEVELOPPING_DATA_PERSISTENCY
   int i;
-  int toto = 0;
-  char *s = NULL ;
-  char c;
-  int *tabValue;
-  corba_profile_t pbc= pb ;
+  char* s = NULL;
+  int* tabValue;
+  corba_profile_t pbc = pb;
+#endif // DEVELOPPING_DATA_PERSISTENCY
+
   // test validity of volatileclientREF
   // If nil, it is not necessary to solve ...
   try {
@@ -353,12 +322,15 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
       TRACE_TEXT(TRACE_MAIN_STEPS,
 		 "SeD::solveAsync invoked on pb: " << path << endl);
   
-      ref = SrvT->lookupService(path, &pbc);
+      ref = SrvT->lookupService(path, &pb);
       if (ref == -1) {
 	ERROR("SeD::" << __FUNCTION__ << ": service not found",);
       }
       
       cvt = SrvT->getConvertor(ref);
+
+#if DEVELOPPING_DATA_PERSISTENCY
+
       profile.last_in = pbc.last_in;
       profile.last_inout = pbc.last_inout;
       profile.last_out = pbc.last_out;
@@ -369,24 +341,23 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
       for (i = 0; i <= profile.last_inout; i++) {
 	s = (char *)malloc(sizeof(int));
 	sprintf(s,"var%d",i);
-	aff_val(s);
+	TRACE_VAR(s);
 	pbc.parameters[i].desc.id = CORBA::string_dup(s);
-	if(pbc.parameters[i].value.length() == 0){ tabValue[i]=0; aff_val(i);}
+	if(pbc.parameters[i].value.length() == 0){ tabValue[i]=0; TRACE_VAR(i);}
       }
       
-      //unmrsh_in_args_to_profile(&profile, &(const_cast<corba_profile_t&>(pb)), cvt);
       unmrsh_in_args_to_profile(&profile, &pbc, cvt);
       
       for (i = 0; i <= profile.last_inout; i++) {
 	
 	if(tabValue[i]==0){
 	  
-	  pbc.parameters[i]= myData->getData(pbc.parameters[i].desc.id);
+	  pbc.parameters[i]= this->dataMgr->getData(pbc.parameters[i].desc.id);
 	  unmrsh_data((diet_data_t*)(&(profile.parameters[i])),&(pbc.parameters[i]));
 	} else {
 	  if( diet_is_persistent(pbc.parameters[i]) ) {
 	    
-	    myData->addData(pbc.parameters[i],0);
+	    this->dataMgr->addData(pbc.parameters[i],0);
 	  } else {
 	    cerr << "ERROR : SOLEV ASYNC UNABLE TO ADD OR RETRIEVE DATA" << endl;
 	  }
@@ -395,18 +366,25 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
       
       displayProfile(&profile, path);
       
+#else // DEVELOPPING_DATA_PERSISTENCY
       
+      unmrsh_in_args_to_profile(&profile, &(const_cast<corba_profile_t&>(pb)), cvt);
+
+#endif // DEVELOPPING_DATA_PERSISTENCY
+
       solve_res = (*(SrvT->getSolver(ref)))(&profile);
-      
-      
-      
-      // mrsh_profile_to_out_args(&(const_cast<corba_profile_t&>(pb)), &profile, cvt);
+
+#if ! DEVELOPPING_DATA_PERSISTENCY
+
+      mrsh_profile_to_out_args(&(const_cast<corba_profile_t&>(pb)), &profile, cvt);
+
+#else  // ! DEVELOPPING_DATA_PERSISTENCY
       
       mrsh_profile_to_out_args(&pbc, &profile, cvt);
       if(profile.last_inout > profile.last_in) {
 	for (i = profile.last_in + 1 ; i <= profile.last_inout; i++) {
 	  if ( diet_is_persistent(profile.parameters[i])) {
-	    myData->updateDataList(pbc.parameters[i]); 
+	    this->dataMgr->updateDataList(pbc.parameters[i]); 
 	  }
 	}
       }
@@ -415,11 +393,11 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 	  profile.parameters[i].desc.mode = DIET_PERSISTENT;
 	  s = (char *)malloc(sizeof(int));
 	  sprintf(s,"var%d",i);
-	  aff_val(s);
+	  TRACE_VAR(s);
 	  pbc.parameters[i].desc.id = CORBA::string_dup(s);
 	  if ( diet_is_persistent(profile.parameters[i])) {
 	    
-	    myData->addData(pbc.parameters[i],1); 
+	    this->dataMgr->addData(pbc.parameters[i],1); 
 	  }
 	}
       }
@@ -438,6 +416,8 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 #endif
       // FIXME: persistent data should not be freed but referenced in the data list.
 
+#endif // ! DEVELOPPING_DATA_PERSISTENCY
+
       TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::" << __FUNCTION__ << " complete\n"
 		 << "**************************************************\n");
 
@@ -447,8 +427,8 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
       TRACE_TEXT(TRACE_ALL_STEPS, "SeD::" << __FUNCTION__
 		 << ": performing the call-back.\n");
       Callback_var cb_var = Callback::_narrow(cb);
-      cb_var->notifyResults(path,pbc, reqID);
-      cb_var->solveResults(path,pbc, reqID);
+      cb_var->notifyResults(path, pb, reqID);
+      cb_var->solveResults(path, pb, reqID);
     }
   
   } catch (const CORBA::Exception &e) {
@@ -507,7 +487,7 @@ SeDImpl::estimate(corba_estimation_t& estimation,
       estimation.commTimes[i] = 0;  // getTransferTime(pb.params[i].id);
     }
   }
-
+  
   estimation.totalTime = estimation.tComp;
   if (estimation.totalTime != HUGE_VAL) {
     for (int i = 0; i <= pb.last_out; i++) {
@@ -518,54 +498,4 @@ SeDImpl::estimate(corba_estimation_t& estimation,
   }
 }
 
-#if 0
-
-void
-SeDImpl::rmVar(long dataID)
-{
-  /* FIXME: The parent may be updated */
-
-  dietServerDataDescListIterator* iter =
-    new dietServerDataDescListIterator(data);
-  
-  while (iter->next()) {
-    if (((dietServerDataDescListElt*)(iter->curr()))->data->id == dataID) {
-      dietServerDataDescListElt* tmp =
-	(dietServerDataDescListElt*)(iter->curr());
-      _CORBA_Sequence<unsigned char>::freebuf((_CORBA_Octet*)(tmp->data->data.value));
-      delete(tmp->data);
-    
-      tmp->del();
-      delete(tmp);
-      delete(iter);
-      break;
-    }
-  }
-  
-  if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
-    cout << "Warning, trying to remove an unknown data" << endl;
-  delete(iter);
-}
-
-void
-SeDImpl::rmDeprecatedVars()
-{
-  /* FIXME: The parent may be updated */
-
-  dietServerDataDescListIterator* iter =
-    new dietServerDataDescListIterator(data);
-  
-  while (iter->next()) {
-    dietServerDataDescListElt* tmp =
-      (dietServerDataDescListElt*)(iter->curr());
-    if (tmp->data->id == -1) {
-      tmp->del();
-      _CORBA_Sequence<unsigned char>::freebuf((_CORBA_Octet*)(tmp->data->data.value));
-      delete(tmp->data);
-      delete(tmp);
-    }
-  }
-  delete(iter);
-}
-#endif // 0
 
