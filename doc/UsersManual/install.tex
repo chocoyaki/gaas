@@ -2,12 +2,17 @@
 %* DIET User's Manual installing chapter file                               *%
 %*                                                                          *%
 %*  Author(s):                                                              *%
+%*    - Eddy CARON (Eddy.Caron@ens-lyon.fr)                                 *%
+%*    - Pushpinder Kaur Chouhan (Pushpinder.Kaur.Chouhan@ens-lyon.fr)       *%
 %*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *%
 %*                                                                          *%
 %* $LICENSE$                                                                *%
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.7  2004/01/21 00:25:13  ecaron
+%* Add suggestions from Holly Dail. Thanks !
+%*
 %* Revision 1.6  2004/01/07 20:25:04  ecaron
 %* Add ScaLAPACK and BLAS introduction
 %*
@@ -55,7 +60,7 @@
 %****************************************************************************%
 
 
-\chapter{Installing}
+\chapter{DIET installation}
 \label{ch:installing}
 
 %====[ Dependencies ]==========================================================
@@ -83,17 +88,19 @@ implementations of CORBA currently supported in DIET are:
 % \item{soon \textbf{TAO 1.3}} which depends on \textbf{ACE} (but TAO is always
 %                           provided with ACE)
 \end{itemize}
-We strongly recommend omniORB 4, as it is easier to install, and provides an SSL
-support. In order to deploy CORBA services with omniORB, a configuration file
-and a log directory are required: see Section \ref{sec:CORBA_services} for
-complete description of the services. Their path can be given to omniORB through
-environments variables, and/or, for \textbf{omniORB 4} only, at compile time,
-with the \texttt{--with-omniORB-config} and \texttt{--with-omniNames-logdir}
+We strongly recommend omniORB 4, as it is easier to install, and
+provides SSL support. In order to deploy CORBA services with omniORB,
+a configuration file and a log directory are required: see Section
+\ref{sec:CORBA_services} for a complete description of the services.
+Their path can be given to omniORB through environment variables
+(\texttt{\$OMNIORB\_CONFIG} and \texttt{\$OMNINAMES\_LOGDIR}), and/or,
+for \textbf{omniORB 4} only, at compile time, with the
+\texttt{--with-omniORB-config} and \texttt{--with-omniNames-logdir}
 options.
 
 \noindent 
 \textbf{NB:} We have noticed that some problems occur with \textbf{Python 2.3}:
-the generated C++ code could not be compiled. It has been patched in DIET, but
+the C++ code generated could not be compiled. It has been patched in DIET, but
 some warnings still appear.
 \\
 
@@ -113,28 +120,29 @@ installed.  FAST depends on:
  \item{\textbf{NWS}} the Network Weather Service
 \end{itemize}
 For more details about FAST dependencies, please refer to the FAST
-User's Manual~\footnote{\url{http://graal.ens-lyon.fr/FAST/}}. It is
-important to understand basically how FAST works, and the role of its
-dependencies, to deactivate the
-ones that not needed by the user.\\
+Reference
+Manual~\footnote{\url{http://graal.ens-lyon.fr/FAST/docs/index.html}}.
+It is important to understand basically how FAST works, and the role
+of its dependencies, to deactivate the
+ones that are not needed by the user.\\
 
 
-Finally, some examples provided in the DIET sources depend on the BLAS and
-\scalapack\ libraries (cf. §\ref{sec:compil_platform}). However all examples do
-not have to be compiled.
+Finally, some examples provided in the DIET sources depend on the BLAS
+and \scalapack\ libraries. However theses examples do not have to be
+compiled.
 
 
 %====[ Compilation ]===========================================================
 \section{Compiling the platform}
 \label{sec:compil_platform}
 
-Once all the dependencies you need are installed, untar the DIET archive and
+Once all dependencies are installed, untar the DIET archive and
 change to its root directory. A configure script will prepare DIET for
 compiling: its main options are described below, but please, run
 \texttt{configure --help} to get an up-to-date and complete usage description.
 
 {\footnotesize
-\texttt{ tar xzf DIET\_\dietversion.tgz}
+\texttt{ tar xzf DIET\_}\dietversion\texttt{.tgz}
 \begin{verbatim}
 ~ > cd DIET
 ~/DIET > ./configure --help=short
@@ -255,9 +263,9 @@ examples are disabled) - disabled by default.
 \begin{verbatim}
   --with-omniORB=DIR      specify the root installation directory of omniORB
   --with-omniORB-includes=DIR
-                          specify exact headers directory for omniORB
+                          specify exact header directory for omniORB
   --with-omniORB-libraries=DIR
-                          specify exact libraries directory for omniORB
+                          specify exact library directory for omniORB
   --with-omniORB-extra=ARG|"ARG1 ARG2 ..."
                           specify extra conftest.c -o conftest for the linker to find the
                           omniORB libraries (use "" in case of several conftest.c -o conftest)
@@ -301,9 +309,9 @@ the development of high quality linear algebra software.
   --with-BLAS=DIR         specify the root installation directory of BLAS (Basic Linear Algebric Subroutines)
 
   --with-BLAS-includes=DIR
-                          specify exact headers directory for BLAS
+                          specify exact header directory for BLAS
   --with-BLAS-libraries=DIR
-                          specify exact libraries directory for BLAS
+                          specify exact library directory for BLAS
   --with-BLAS-extra=ARG|"ARG1 ARG2 ..."
                           specify extra conftest.c -o conftest for the linker to find the BLAS
                           libraries (use "" in case of several conftest.c -o conftest)
@@ -347,26 +355,25 @@ Users' Guide~\cite{scalapack}.
   --with-ScaLAPACK=DIR    specify the root installation directory of ScaLAPACK (parallel version of the LAPACK library)
 
   --with-ScaLAPACK-includes=DIR
-                          specify exact headers directory for ScaLAPACK
+                          specify exact header directory for ScaLAPACK
   --with-ScaLAPACK-libraries=DIR
-                          specify exact libraries directory for ScaLAPACK
+                          specify exact library directory for ScaLAPACK
   --with-ScaLAPACK-extra=ARG|"ARG1 ARG2 ..."
                           specify extra conftest.c -o conftest for the linker to find the
                           ScaLAPACK libraries (use "" in case of several conftest.c -o conftest)
 \end{verbatim}
 }
-\noindent This group of options lets the user define all necessary paths to
-compile with the \scalapack\ libraries. Normally, \texttt{--with-ScaLAPACK=}
+\noindent This group of options lets the user define all necessary paths for compilation with the \scalapack\ libraries. Normally, \texttt{--with-ScaLAPACK=}
 should be enough, but the other options are provided because the installation of
 the \scalapack\ libraries is often difficult, and thus difficult to detect
-automatically: for instance, the \texttt{--with-ScaLAPACK-extra} option is
+automatically. For instance, the \texttt{--with-ScaLAPACK-extra} option is
 useful to integrate BLACS and MPI libraries, which are useful for ScaLAPACK.
 \\
 \textbf{NB:} these options has no effect if the module example and/or its
 sub-module \scalapack\ are disabled.
 
 
-\subsection{From the configuration to the compilation}
+\subsection{From configuration to compilation}
 
 A default option for configure scripts is \texttt{--prefix=}, which specifies
 where binary files, documents and configuration files will be installed. It is
@@ -376,9 +383,9 @@ The configuration will return with an error if no ORB was found. So please help
 the configure script to find the ORB with the \texttt{--with-omniORB*} options.\\
 
 
-If everything went OK, the configuration ends with a summary of the options that
-were selected and what it was possible to get. The output will look like:
-{\footnotesize
+If everything went OK, the configuration ends with a summary of the
+options that were selected and what it was possible to get. The output
+will look like: {\footnotesize
 \begin{verbatim}
 ~/DIET > ./configure --enable-doc --enable-BLAS
 DIET successfully configured as follows:

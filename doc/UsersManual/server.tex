@@ -10,6 +10,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.5  2004/01/21 00:25:13  ecaron
+%* Add suggestions from Holly Dail. Thanks !
+%*
 %* Revision 1.4  2004/01/05 23:17:00  ecaron
 %* Building a server application for DIET 1.0
 %*
@@ -70,7 +73,7 @@ Chapter \ref{ch:data}) and \texttt{DIET\_server.h}. Don't forget to include the 
 }
 
 The second step is to define a function whose prototype is ``DIET-normalized''
-and which will be able to convert it into the library function prototype.
+and which will be able to convert the function into the library function prototype.
 Let us consider a library function with the following prototype:
 {\footnotesize
 \begin{verbatim}
@@ -98,8 +101,8 @@ int solve_service(diet_profile_t *pb)
 \end{verbatim}
 }
 
-Several API functions are useful to help the user writing this ``solve''
-function, for getting IN arguments as well as setting OUT ones.
+Several API functions are useful to help the user write this ``solve''
+function, particularly for getting IN arguments as well as setting OUT ones.
 
 \subsubsection*{Getting IN, INOUT and OUT arguments}
 
@@ -110,21 +113,20 @@ to retrieve the pointer to the zone his/her program should write to.
 
 \subsubsection*{Setting INOUT and OUT arguments}
 
-To set INOUT and OUT arguments, use the \texttt{diet\_*\_desc\_set} defined in
-\texttt{DIET\_server.h}, because they are helpful for writing ``solve''
-functions only. Using these functions, the server developer must keep in mind
-the fact that he cannot alter the memory space pointed at value fields on the
-server. Indeed, this would make DIET confused on how to manage the
-data.{\footnote{And the server developer should not be confused by the fact that
-  \texttt{diet\_scalar\_desc\_set} uses a value, since scalar values are
-  copied into the data descriptor.}
-{\footnotesize
+To set INOUT and OUT arguments, use the \texttt{diet\_*\_desc\_set} defined
+in \texttt{DIET\_server.h}, because they are helpful for writing ``solve''
+functions only. Using these functions, the server developer must keep in
+mind the fact that he cannot alter the memory space pointed by value
+fields on the server. Indeed, this would make DIET confused about how to
+manage the data.{\footnote{And the server developer should not be confused
+    by the fact that \texttt{diet\_scalar\_desc\_set} uses a value, since
+    scalar values are copied into the data descriptor.}  {\footnotesize
 \begin{verbatim}
 /**
  * If value              is NULL,
- * if order              is DIET_MATRIX_ORDER_COUNT,
- * if nb_rows or nb_cols is 0,
- * if path               is NULL,
+ * or if order              is DIET_MATRIX_ORDER_COUNT,
+ * or if nb_rows or nb_cols is 0,
+ * or if path               is NULL,
  * then the corresponding field is not modified.
  */
 
@@ -180,9 +182,9 @@ diet_profile_desc_t* diet_profile_desc_alloc(const char* path,
                         int last_in, int last_inout, int last_out);
 int diet_profile_desc_free(diet_profile_desc_t* desc);
 
-     diet_profile_desc_t *diet_profile_desc_alloc(int last_in, int last_inout, int last_out);
+diet_profile_desc_t *diet_profile_desc_alloc(int last_in, int last_inout, int last_out);
 
-     int diet_profile_desc_free(diet_profile_desc_t *desc);
+int diet_profile_desc_free(diet_profile_desc_t *desc);
 \end{verbatim}
 }
 
@@ -219,7 +221,7 @@ explained separately in the next paragraphs.
 \subsubsection*{Using convertors}
 
 The service profiles offered by DIET are sometimes not
-understandable by the implementation. To solve this problem,
+understandable by the service implementations. To solve this problem,
 a convertor processes each profile before it is passed to the
 implementation. This is mainly used to
 hide the implementation specific profile of a service from
@@ -229,7 +231,7 @@ of the service. As FAST relies on the path of the service the
 convertor can also change the path of the declared profile to
 enable a correct evaluation of the incoming requests by FAST.
 If no convertor is passed when declaring a new service, a
-default convertor is assigned to it that does neither change its
+default convertor is assigned to it that does not change its
 profile nor its path.
 
 To translate a profile, the convertor defines a new
@@ -240,7 +242,7 @@ allows the following operations:
 
 \begin{itemize}
 \item Permutation of arguments \\
-This is done implicit by specifying which argument in the source
+This is done implicitly by specifying which argument in the source
 profile corresponds to which argument in the destination profile.
 \item Copy of arguments\\
 Arguments can be simply used by applying the \texttt{DIET\_CVT\_IDENTITY}
@@ -253,7 +255,7 @@ the source argument must be invalid (e.g. -1) and the arg parameter
 must be set to the static argument. To extract a property of an 
 existing argument, other functions than \texttt{DIET\_CVT\_IDENTITY} must be
 applied. The result of this function will
-then be used as value for the destination argument. Corresponding to
+then be used as the value for the destination argument. Corresponding to
 the DIET datatypes, the following functions exist: \\
 \begin{itemize}
 \item{\texttt{DIET\_CVT\_IDENTITY}} Copy the argument
@@ -266,11 +268,11 @@ the DIET datatypes, the following functions exist: \\
 \end{itemize}
 Only the \texttt{DIET\_CVT\_IDENTITY} function can be applied to any argument.
 All other functions can only operate on one type of argument but this
-should be self explaining.
+should be self explanation.
 
 \end{itemize}
 
-\noindent Lets look a a short example:
+\noindent Lets look a short example:
 \footnotesize
 \begin{verbatim}
 
@@ -289,7 +291,7 @@ should be self explaining.
     // apply the function DIET_CVT_MAT_NB_ROW to determine the
     // 0th argument of the converted profile. The function's
     // argument is the 0th argument of the source profile. As it
-    // is a IN argument, the last parameter is not important.
+    // is an IN argument, the last parameter is not important.
     diet_arg_cvt_set(&(cvt->arg_convs[0]), DIET_CVT_MAT_NB_ROW, 0, NULL, 0);
 
     // apply the function DIET_CVT_MAT_NB_COL to determine the
@@ -390,8 +392,8 @@ int main(int argc, char* argv[])
 
 After compiling his/her server program, the user must link it with the DIET
 libraries, the CORBA libraries, and the FAST libraries if DIET was compiled to
-use with FAST. The easiest way to compile a program using DIET with all
-necessary flags and links with the right libraries is to trust the
+use FAST. The easiest way to compile a program using DIET with all
+necessary flags and link with the right libraries is to trust the
 \texttt{Makefile.inc} available in \texttt{$<$include\_dir$>$/include}, and
 include it at the beginning of the program makefile.
 
@@ -416,3 +418,18 @@ server:   server.o
           $(CC) $< $(CCFLAGS) $(DIET_SERVER_LIBS) -o $@
 \end{verbatim}
 }
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% fill-column: 75
+%%% ispell-dictionary: american
+%%% mode: flyspell
+%%% End: 
+
+% LaTeX keywords :
+% LocalWords:  itemize Macros plain utils setspace url wrapfig
+% LocalWords:  inputenc fontenc french babel dvips epsfig twoside enumerate
+% LocalWords:  LocalWords LaTeX keywords fill-column TeX-master End flyspell
+% LocalWords:  american
+

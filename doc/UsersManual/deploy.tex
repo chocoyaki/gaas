@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.3  2004/01/21 00:25:13  ecaron
+%* Add suggestions from Holly Dail. Thanks !
+%*
 %* Revision 1.2  2004/01/07 10:27:33  cpera
 %* Add asynchronous call example and useAsyncAPI config parameter.
 %*
@@ -41,9 +44,10 @@
 \section{Deploying CORBA services}
 \label{sec:CORBA_services}
 
-So far, only one CORBA service is needed: the Naming Service. It is provided by
-a name server that must be launched before all DIET entities. Then, these DIET
-entities must be passed a reference to the $<$host:port$>$ of this name server.
+So far, only one CORBA service is needed: the Naming Service. This
+service provided by a name server that must be launched before all
+DIET entities. Then, these DIET entities must be passed a reference to
+the $<$host:port$>$ of this name server.
 
 In this section, we try to give some basic information to start using DIET with
 a basic CORBA configuration. Please refer to the documentation of your ORB if
@@ -112,15 +116,16 @@ Checkpointing completed.
 
 \subsubsection{The client}
 
-Every DIET entity needs to connect to the CORBA name server: it is the way to
-discover each other. The reference to the omniORB name server is written in the
-configuration file, whose path is given to omniORB through the environment
-variable \texttt{OMNIORB\_CONFIG} (or, with \textbf{omniORB 4}, at compile time,
-through the \texttt{--with-omniORB-config} option of the configure script). Some
+Every DIET entity, you need to connect to the CORBA name server: it is the
+way services discover each other. The reference to the omniORB name
+server is written in theconfiguration file, whose path is given to
+omniORB through the environment variable \texttt{OMNIORB\_CONFIG} (or,
+with \textbf{omniORB 4}, at compile time, through the
+\texttt{--with-omniORB-config} option of the configure script). Some
 examples of such a configuration file are given in the directory
 \texttt{src/examples/cfgs} of the DIET source files and installed in
-\texttt{$<$install\_dir$>$/etc}. The lines concerning the name server, in the
-omniORB configuration file, are built as follows:
+\texttt{$<$install\_dir$>$/etc}. The lines concerning the name server,
+in the omniORB configuration file, are built as follows:
 \begin{description}
  \item{omniORB 3:}
 {\footnotesize
@@ -147,7 +152,7 @@ of \texttt{omniNames}.
 %====[ DIET configuration file ]===============================================
 \section{DIET configuration file} 
 
-Launching a DIET entity needs a configuration file. Some fully commented
+Launch to a DIET entity needs a configuration file. Some fully commented
 examples of such configuration files are given in the directory
 \texttt{src/examples/cfgs} of the DIET source files and installed in
 \texttt{$<$install\_dir$>$/etc}. Please note that:
@@ -201,8 +206,8 @@ They have aliases, respectively \texttt{MA} and \texttt{LA}.
 
 \noindent
 \texttt{name} \ \ \emph{default}\texttt{ = }\emph{none}\\
-This is a \textbf{compulsory} parameter that specifies the name which the agent
-will register with to the CORBA name server.
+This is a \textbf{compulsory} parameter that specifies the name with
+which the agent will register to the CORBA name server.
 
 
 \subsection{LAs and SeD side parameters}
@@ -287,8 +292,8 @@ on client side.
 \section{Example}
 \label{sec:deploy_ex}
 
-As shown in Section \ref{init}, the hierarchy is built from top to down: the
-children register to their direct parent.
+As shown in Section \ref{init}, the hierarchy is built from top to
+bottom: children register to their parent.
 
 Here is an example of a complete platform deployment. Let us assume that:
 
@@ -359,10 +364,10 @@ For such a platform, an LA configuration file could be:
 \end{center}
 \rm
 
-This configuration file is the only argument to the executable \texttt{dietAgent},
-that is installed in \texttt{$<$install\_dir$>$/bin}. This LA will register as a
-son of MA\_example. Run
-{\footnotesize
+This configuration file is the only argument to the executable
+\texttt{dietAgent}, that is installed in
+\texttt{$<$install\_dir$>$/bin}. This LA will register as a child of
+MA\_example. Run {\footnotesize
 \begin{verbatim}
 ~ > dietAgent LA_example.cfg
 
@@ -405,7 +410,7 @@ Our client must connect to the MA\_example:
  \footnotesize
  \begin{tabular}{lcll}
   \multicolumn{4}{l}{\# file SeD\_example.cfg, configuration file for an SeD}\\
-  MAName       &=&LA\_example        &\\
+  MAName       &=&MA\_example        &\\
   \#traceLevel &=&5                 &\# default\\
  \end{tabular}
 \end{center}

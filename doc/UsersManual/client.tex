@@ -2,12 +2,17 @@
 %* DIET User's Manual client chapter file                                   *%
 %*                                                                          *%
 %*  Author(s):                                                              *%
+%*    - Eddy CARON      (Eddy.Caron@ens-lyon.fr)                            *%
 %*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *%
+%*    - Christophe Pera (Christophe.Pera@ens-lyon.fr)                       *%
 %*                                                                          *%
 %* $LICENSE$                                                                *%
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.6  2004/01/21 00:25:13  ecaron
+%* Add suggestions from Holly Dail. Thanks !
+%*
 %* Revision 1.5  2004/01/07 10:27:33  cpera
 %* Add asynchronous call example and useAsyncAPI config parameter.
 %*
@@ -49,19 +54,19 @@
 \chapter{Building a client program}
 \label{ch:client}
 
-The most difficult in building a client program is to understand the way a
-problem has to be described. Once this first step is done, it is fairly easy to
-build the successive calls to DIET.
+The most difficult part of building a client program is to understand the way a
+problem has to be described. Once this step is done, it is fairly easy to
+build calls to DIET.
 
 
-\section{Structure of the program}
+\section{Structure of a client program}
 \label{sec:cl_struct}
 
 Since the client side of DIET is a library, a client program has to define the
 \texttt{main} function: it uses DIET through function calls. The complete
 client-side interface is described in the \texttt{$<$install\_dir$>$/include}
 files \texttt{DIET\_data.h} (see Chapter \ref{ch:data}) and
-\texttt{DIET\_client.h}. So please refer to these two files for a complete and
+\texttt{DIET\_client.h}. Please refer to these two files for a complete and
 up-to-date API description, and include at least the latter at the beginning of
 your source code (\texttt{DIET\_client.h} includes \texttt{DIET\_data.h}):
 {\footnotesize
@@ -83,12 +88,11 @@ int main(int argc, char *argv[])
 The client program must open its DIET session with a call to
 \texttt{diet\_initialize}, which parses the configuration file to set
 all options and get a reference to the DIET Master Agent. The session
-is closed with a call to \texttt{diet\_finalize}, which aims at
-freeing all resources, if any, associated to this session on the
-client, servers, and agents, but not the memory allocated for
-all INOUT and OUT arguments brought back onto the client during the
-session, so that the user can still access them (and still have to
-free them !)
+is closed with a call to \texttt{diet\_finalize}, which frees all
+resources, if any, associated with this session on the client, servers,
+and agents, but not the memory allocated for all INOUT and OUT
+arguments brought back onto the client during the session, so that the
+user can still access them (and still has to free them !)
 
 
 \section{Client API}
@@ -97,14 +101,14 @@ free them !)
 The client API follows the GridRPC definition \cite{gridRPC:02}: all
 \texttt{diet\_} functions are ``duplicated'' with \texttt{grpc\_}
 functions.  Both \texttt{diet\_initialize} and \texttt{diet\_finalize}
-belong to the GridRPC API.  One important thing to notice is that the
+belong to the GridRPC API.  One important thing to notice is that
 GridRPC defines an asynchronous API that is not fully implemented in
 DIET yet (it is redirected onto the synchronous API). \fixme{check with CP} \\
 
 A problem is managed through a \emph{function\_handle}, that associates a server
 to a problem name. Please do not use \texttt{diet\_function\_handle\_init},
 since it assumes that the client already knows the server, and DIET is not
-conceived for such a use.. This function is only provided for GridRPC
+conceived for such a use. This function is only provided for GridRPC
 compliance. The structure allocation is performed through the function
 \texttt{diet\_function\_handle\_default}.
 
@@ -148,7 +152,7 @@ int main(int argc, char **argv)
   /* Iinitialize a DIET session */
   diet_initialize("./client.cfg", argc, argv);
 
-  /* Create the profile as explained in Chapter \ref{\ref{ch:data} */
+  /* Create the profile as explained in Chapter 3 */
   profile = diet_profile_alloc("smprod",0, 1, 2); // last_in, last_inout, last_out
   
   /* Set profile arguments */
