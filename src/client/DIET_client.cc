@@ -12,6 +12,10 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.13  2002/11/22 13:36:12  lbertsch
+ * Added alpha linux support
+ * Added a package for statistics and some traces
+ *
  * Revision 1.12  2002/11/08 16:56:25  lbertsch
  * Added --with[out]-demo-baltimore options, so you don't need the environment
  * variable DEMO_BALTIMORE to be set anymore.
@@ -81,6 +85,8 @@
 #include "com_tools.hh"
 #include <string.h>
 #endif
+
+#include "statistics.hh"
 
 extern "C" {
 
@@ -362,10 +368,16 @@ int diet_call(diet_function_handle_t *handle, diet_profile_t *profile)
   if (mrsh_pb_desc(&corba_pb, profile, handle->pb_name))
     return 1;
   subm_count = 0;
+
+  stat_in("diet_call.submission.start");
+
   do {
     server_OK = submission(&corba_pb, &decision);
   }  while ((decision->length() > 0)
 	    && (server_OK == -1) && (++subm_count < 3));
+
+  stat_out("diet_call.submission.end");
+
   if (decision->length() == 0) {
     cerr << "Unable to find a server.\n";
     return 1;

@@ -12,6 +12,10 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.16  2002/11/22 13:36:12  lbertsch
+ * Added alpha linux support
+ * Added a package for statistics and some traces
+ *
  * Revision 1.15  2002/11/15 17:15:32  pcombes
  * FAST integration complete ...
  *
@@ -121,7 +125,7 @@ inline int mrsh_scalar_desc(corba_data_desc_t *dest, diet_data_desc_t *src)
     }
     case DIET_LONGINT: {
       long long int scal = *((long long int *)(src->specific.scal.value));
-      dest->specific.scal().value <<= (long int) scal;
+      dest->specific.scal().value <<= (CORBA::Long) scal;
       break;
     }
     case DIET_FLOAT: {
@@ -240,7 +244,7 @@ inline int unmrsh_scalar_desc(diet_data_desc_t *dest, const corba_data_desc_t *s
   case DIET_CHAR:
   case DIET_BYTE: {
     value = new char;
-    src->specific.scal().value >>= *((short *)(value));
+    src->specific.scal().value >>= *((CORBA::Short *)(value));
     scalar_desc_set(dest, DIET_VOLATILE, bt, value);
     break;
   }
@@ -252,7 +256,7 @@ inline int unmrsh_scalar_desc(diet_data_desc_t *dest, const corba_data_desc_t *s
   }
   case DIET_LONGINT: {
     value = (void *) new long long int;
-    src->specific.scal().value >>= *((long int *)(value));
+    src->specific.scal().value >>= *((CORBA::Long *)(value));
     scalar_desc_set(dest, DIET_VOLATILE, bt, value);
     break;
   }
