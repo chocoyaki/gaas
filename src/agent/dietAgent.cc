@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2003/08/28 16:51:32  cpontvie
+ * Adding a SIGINT handler to properly clean the agent on interruption (CTRL+C)
+ *
  * Revision 1.2  2003/07/04 09:47:58  pcombes
  * Use new ERROR and WARNING macros.
  *
@@ -18,8 +21,9 @@
  ****************************************************************************/
 
 
-#include <iostream>
 using namespace std;
+#include <iostream>
+#include <signal.h>
 #include <stdlib.h>
 
 #include "LocalAgentImpl.hh"
@@ -31,15 +35,40 @@ using namespace std;
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
 
+
+/** The Agent object. */
+AgentImpl* Agt;
+
+
+
+/* The SIGINT handler function
+   The main function ends here in a fully working Agent !
+*/
+void handler( int sig ) {
+	/* Prevent from raising a new SIGINT handler */
+	signal( SIGINT, SIG_IGN );
+
+	TRACE_TEXT(TRACE_MAIN_STEPS, "______________________________\n");
+	TRACE_TEXT(TRACE_MAIN_STEPS, " Stopping the Agent...\n");
+
+	/* Deactivate and destroy the agent */
+	ORBMgr::deactivate();
+	delete Agt;
+
+	TRACE_TEXT(TRACE_MAIN_STEPS, " Agent stopped !\n");
+	exit(0);
+}  /*handler*/
+
+
+
 int
 main(int argc, char** argv)
 {
-  AgentImpl* Agt;
   char*  config_file_name;
   int    res(0);
   int    myargc;
   char** myargv;
-  
+
   if (argc < 2) {
     ERROR(argv[0] << ": missing configuration file", 1);
   }
@@ -120,7 +149,7 @@ main(int argc, char** argv)
     myargv[myargc + 1] = (char*)level;
     myargc = tmp_argc;
   }
-  
+
 
   /* Initialize the ORB */
 
@@ -142,13 +171,20 @@ main(int argc, char** argv)
   /* Launch the agent */
   if (Agt->run()) {
     ERROR("unable to launch the agent", 1);
-  }  
+  }
 
   /* We do not need the parsing results any more */
-  Parsers::endParsing();  
+  Parsers::endParsing();
 
-  /* Wait for RPCs (blocking call): */
-  ORBMgr::wait();
-  
-  return 0;
+	/* Initialize the SIGINT handler exception */
+	signal( SIGINT, handler );
+
+	/* Wait for RPCs (blocking call): */
+	try {
+		ORBMgr::wait();
+	} catch (...) {}
+	
+	/* NEVER REACHED */
+	ERROR("'ORBMgr::wait()' failed to run !", 1);
+	return 0;
 }
