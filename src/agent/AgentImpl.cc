@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2004/12/14 16:17:51  alsu
+ * in maintainer mode without FAST, we need to avoid compiling the
+ * __addCommTime static function so that the -Werror gcc option doesn't
+ * break the build
+ *
  * Revision 1.26  2004/12/08 15:02:51  alsu
  * plugin scheduler first-pass validation testing complete.  merging into
  * main CVS trunk; ready for more rigorous testing.
@@ -275,8 +280,60 @@ AgentImpl::addServices(CORBA::ULong myID,
 } // addServices(CORBA::ULong myID, const SeqCorbaProfileDesc_t& services)
 
 
+#if ! HAVE_JXTA && HAVE_FAST /* to avoid warning from breaking the
+                             ** build in maintainer mode, this
+                             ** function needs to defined only in
+                             ** the cases in which it is used
+                             */
 static void
-__addCommTime(corba_estimation_t serverEst, size_t paramIdx, double time);
+__addCommTime(corba_estimation_t serverEst, size_t paramIdx, double time)
+{
+  corba_est_value_t* val;
+  size_t found = 0;
+  size_t valIter;
+
+  for (valIter = 0 ; valIter < serverEst.estValues.length() ; valIter++) {
+    val = &(serverEst.estValues[valIter]);
+    int valTagInt = val->v_tag;
+    if (valTagInt != EST_COMMTIME) {
+      continue;
+    }
+    if (found < paramIdx) {
+      found++;
+      continue;
+    }
+    // found it!
+    val->v_value += time;
+    return;
+  }
+
+  /*
+  ** not found, need to create the value!
+  */
+  {
+    size_t curNumValues = serverEst.estValues.length();
+
+    /* STEP 1: resize the estimation value array */
+    size_t newArrayLength = (curNumValues
+                             + 1 // new value
+                             + (paramIdx - found) // new space needed
+                                                  // for 0 values
+                             );
+    serverEst.estValues.length(newArrayLength);
+
+    /* STEP 2: create blank values, if needed */
+    for ( ; found < paramIdx ; found++) {
+      (serverEst.estValues[curNumValues]).v_tag = EST_COMMTIME;
+      (serverEst.estValues[curNumValues]).v_value = 0.0;
+      curNumValues++;
+    }
+
+    /* STEP 3: add the value */
+    (serverEst.estValues[curNumValues]).v_tag = EST_COMMTIME;
+    (serverEst.estValues[curNumValues]).v_value = time;
+  }
+}
+#endif /* ! HAVE_JXTA && HAVE_FAST */
 
 /****************************************************************************/
 /* findServer                                                               */
@@ -686,51 +743,3 @@ AgentImpl::getChildHostName(CORBA::Long childID)
   return hostName;
 } // getChildHostName(CORBA::Long childID)
 
-static void
-__addCommTime(corba_estimation_t serverEst, size_t paramIdx, double time)
-{
-  corba_est_value_t* val;
-  size_t found = 0;
-  size_t valIter;
-
-  for (valIter = 0 ; valIter < serverEst.estValues.length() ; valIter++) {
-    val = &(serverEst.estValues[valIter]);
-    int valTagInt = val->v_tag;
-    if (valTagInt != EST_COMMTIME) {
-      continue;
-    }
-    if (found < paramIdx) {
-      found++;
-      continue;
-    }
-    // found it!
-    val->v_value += time;
-    return;
-  }
-
-  /*
-  ** not found, need to create the value!
-  */
-  {
-    size_t curNumValues = serverEst.estValues.length();
-
-    /* STEP 1: resize the estimation value array */
-    size_t newArrayLength = (curNumValues
-                             + 1 // new value
-                             + (paramIdx - found) // new space needed
-                                                  // for 0 values
-                             );
-    serverEst.estValues.length(newArrayLength);
-
-    /* STEP 2: create blank values, if needed */
-    for ( ; found < paramIdx ; found++) {
-      (serverEst.estValues[curNumValues]).v_tag = EST_COMMTIME;
-      (serverEst.estValues[curNumValues]).v_value = 0.0;
-      curNumValues++;
-    }
-
-    /* STEP 3: add the value */
-    (serverEst.estValues[curNumValues]).v_tag = EST_COMMTIME;
-    (serverEst.estValues[curNumValues]).v_value = time;
-  }
-}
