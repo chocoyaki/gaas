@@ -8,10 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2003/05/05 14:54:50  pcombes
+ * Add assertions in next and previous methods.
+ *
  * Revision 1.2  2003/04/10 12:49:48  pcombes
  * Apply Coding Standards. Remove assertions in next() and previous() so
  * that it is possible to loop on the elements of the list.
- *
  ****************************************************************************/
 
 #ifndef _LINKEDLIST_HH_
@@ -20,6 +22,9 @@
 #include <omnithread.h>
 #include <sys/types.h>
 #include <assert.h>
+
+#include "debug.hh"
+
 
 /**
  * This is a thread safe generic double linked list. The list must be
@@ -70,7 +75,7 @@ private :
     Node* previous ;
     /// a pointer on the element.
     T* element ;
-  } ;
+  }  ;
 
 
   /**
@@ -98,7 +103,7 @@ public :
   /**
    * creates an new empty list.
    */
-  LinkedList() : counter(0), first(NULL) {  }
+  LinkedList() : counter(0), first(NULL), last(NULL) {}
 
 
   /**
@@ -130,7 +135,7 @@ public :
       }
 
       newNode->next = NULL ;
-      last=newNode ;      
+      last = newNode ;      
 
     } else {
       first = NULL ;
@@ -188,7 +193,8 @@ public :
       last = newNode ;
     } else {
       newNode->previous = NULL ;
-      first = last = newNode ;
+      first = newNode ;
+      last = newNode;
     }
     linkedListMutex.unlock() ;
   }
@@ -201,7 +207,7 @@ public :
   T* pop() {
     linkedListMutex.lock() ;
     T* elementBuf = NULL ;
-    if(first) {
+    if (first) {
       --counter ;
       Node* nodeBuf = first ;
       first = nodeBuf->next ;
@@ -306,21 +312,21 @@ public :
      * returns true if there is a current element
      */
     inline bool hasCurrent() {
-      return currentNode ;
+      return (currentNode != NULL);
     }
 
     /**
      * returns true if there is a next element
      */
     inline bool hasNext() {
-      return currentNode->next ;
+      return (currentNode->next != NULL);
     }
 
     /**
      * returns true if there is a previous element
      */
     inline bool hasPrevious() {
-      return currentNode->previous ;
+      return (currentNode->previous != NULL);
     }
 
     /**
@@ -328,6 +334,7 @@ public :
      * check if it existe withe the \c hasNext() methods.
      */
     inline void next() {
+      assert(currentNode != NULL);
       currentNode = currentNode->next ;
     }
 
@@ -337,6 +344,7 @@ public :
      * methods.
      */
     inline void previous() {
+      assert(currentNode != NULL);
       currentNode = currentNode->previous ;
     }
 
