@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2003/10/01 07:06:42  bdelfabr
+ * removing DataManagerID.hh which is not used
+ *
  * Revision 1.3  2003/09/30 15:08:57  bdelfabr
  * dlist are replaced by stl map²
  *
@@ -26,7 +29,6 @@
 
 
 #include "DataMgr.hh"
-#include "DataManagerID.hh"
 #include "ChildID.hh"
 #include "common_types.hh"
 #include "dietTypes.hh"
