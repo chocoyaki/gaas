@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2003/09/16 10:26:41  cpera
+ * Fix a warning.
+ *
  * Revision 1.2  2003/06/02 09:00:19  cpera
  * Delete debug infos.
  *
@@ -45,9 +48,8 @@ long CallbackImpl::notifyResults(const char * path,
 
 long CallbackImpl::solveResults(const char * path, 
                                 const corba_profile_t& pb,
-				long reqID)
+                                long reqID)
 {
   // notify solve result availability
-  int rst = CallAsyncMgr::Instance()->notifyRst(int(reqID), &(const_cast<corba_profile_t&>(pb)));
-  return 0;
+  return CallAsyncMgr::Instance()->notifyRst(int(reqID), &(const_cast<corba_profile_t&>(pb)));
 }
