@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.13  2004/07/08 20:02:47  rbolze
+#* add src/lib dir in the distrib tarballs and correct some mistake from last commit
+#*
 #* Revision 1.12  2004/07/07 18:17:55  rbolze
 #* ready to 1.1 version
 #*
@@ -35,8 +38,7 @@
 #****************************************************************************#
 
 SUBDIRS = @SUBMODULES_DIET@
-DIST_SUBDIRS = $(SUBDIRS) 
-#@DIST_SUBMODULES_DIET@
+DIST_SUBDIRS = $(SUBDIRS) @DIST_SUBMODULES_DIET@
 
 # Headers to install ...
 include_HEADERS = $(top_builddir)/include/Makefile.inc \
@@ -111,6 +113,8 @@ endif
 # Files to add in the dist, which are not already included by 
 # automake.
 EXTRA_DIST = $(top_srcdir)/include/Makefile.inc.in
+EXTRA_DIST+= $(top_srcdir)/src/lib/*
+
 if MAINTAINER_MODE
 EXTRA_DIST += acmacros/aci.m4 acmacros/fast.m4 acmacros/libtool.m4 \
 	      acmacros/omniorb.m4 acmacros/utils.m4 \
@@ -123,17 +127,17 @@ endif
 RM_FROM_DIST    = aclocal.m4 include/Makefile.inc
 DONT_DIST_FILES = README COPYING ChangeLog INSTALL configure config.guess \
 		  config.sub depcomp install-sh ltmain.sh mkinstalldirs   \
-		  missing include/DIET_config.h.in
+		  missing include/DIET_config.h.in $(top_srcdir)/src/lib/*
 
 if MAINTAINER_MODE
 DONT_DIST_FILES += doc/API acmacros bootstrap.sh bin/scripts TO_DO
 else
-RM_FROM_DIST += AUTHORS NEWS configure.ac doc/Programmer `find . -name Makefile.am`
+RM_FROM_DIST += AUTHORS NEWS configure.ac doc/ProgrammerGuide doc/Tutorial `find . -name Makefile.am`
 endif
 
 # The target to execute once the dist is ready to be tgz'd.
 dist-hook:
-	(cd $(distdir);mkdir doc;cp ../doc/UsersManual/DIET_UsersManual.ps doc/ ;rm -rf $(RM_FROM_DIST))
+	(cd $(distdir) ;mv doc/UsersManual/*.ps doc/ ;rm -rf $(RM_FROM_DIST))
 	for f in `ls -A $(distdir)`; do				  \
 	  export VERSION=$(PACKAGE_VERSION);                              \
 	  $(top_srcdir)/bin/scripts/distrib_file.sh $(distdir)/$$f	\
