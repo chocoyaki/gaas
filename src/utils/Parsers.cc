@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2004/03/01 16:34:26  mcolin
+ * enable the possibility of declaring an endpoint with an hostname
+ * for the DIET agents and the SeD (for VTHD demo). To be fixed later
+ *
  * Revision 1.14  2003/08/26 14:59:30  pcombes
  * Fix bug in traces.
  *
@@ -47,7 +51,9 @@ Parsers::Results::param_t Parsers::Results::params[] =
   {/* [0]  */ {"traceLevel", 10, Parsers::parseTraceLevel, 0, NULL},
    /* [1]  */ {"MAName", 6, Parsers::parseName, 0, NULL},
    /* [2]  */ {"agentType", 9, Parsers::parseAgentType, 0, NULL},
-   /* [3]  */ {"endPoint", 8, Parsers::parsePort, 0, NULL},
+   // {"endPoint", 8, Parsers::parsePort, 0, NULL},
+   // TO FIX allow only 3 different syntaxes <host>:<port> <host>: <port>
+   /* [3]  */ {"endPoint", 8, Parsers::parseName, 0, NULL},
    /* [4]  */ {"name", 4, Parsers::parseName, 0, NULL},
    /* [5]  */ {"parentName", 10, Parsers::parseName, 0, NULL},
    /* [6]  */ {"fastUse", 7, Parsers::parseUse, 0, NULL},

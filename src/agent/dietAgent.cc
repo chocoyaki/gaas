@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2004/03/01 16:34:26  mcolin
+ * enable the possibility of declaring an endpoint with an hostname
+ * for the DIET agents and the SeD (for VTHD demo). To be fixed later
+ *
  * Revision 1.10  2003/10/06 12:25:53  cpontvie
  * iostream.h ==> iostream
  *
@@ -124,14 +128,16 @@ main(int argc, char** argv)
 
   /* Get listening port */
 
-  size_t* port = (size_t*)
+  /*  size_t* port = (size_t*) */
+  /* tempory patch for VTHD Demo */
+   char* port = (char*)
     (Parsers::Results::getParamValue(Parsers::Results::ENDPOINT));
   if (port != NULL) {
     char *  endPoint = (char *) calloc(48, sizeof(char*)) ;
     int    tmp_argc = myargc + 2;
     myargv = (char**)realloc(myargv, tmp_argc * sizeof(char*));
     myargv[myargc] = "-ORBendPoint";
-    sprintf(endPoint, "giop:tcp::%u", *port);
+    sprintf(endPoint, "giop:tcp:%u", port);
     myargv[myargc + 1] = (char*)endPoint;
     myargc = tmp_argc;
   }
