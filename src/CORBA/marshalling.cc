@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.15  2002/11/15 17:15:32  pcombes
+ * FAST integration complete ...
+ *
  * Revision 1.14  2002/11/14 13:53:35  pcombes
  * Big fix in converters of files.
  *
@@ -560,7 +563,7 @@ int unmrsh_pb_desc_to_sf(sf_inst_desc_t *dest, const corba_pb_desc_t *src,
       ddd_tmp = &(cvt->arg_convs[i].arg->desc);
     }
     if (cvt_arg_desc(&(dest->param_desc[i]), ddd_tmp, cvt->arg_convs[i].f)) {
-      cerr << "DIET conversion error: Cannot convert client profile"
+      cerr << "DIET conversion error: Cannot convert client profile "
 	   << "to server profile.\n";
       delete src_params;
       return 1;

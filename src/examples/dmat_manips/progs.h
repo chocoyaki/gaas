@@ -11,6 +11,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.2  2002/11/15 17:15:32  pcombes
+ * FAST integration complete ...
+ *
  * Revision 1.1  2002/11/05 17:23:36  pcombes
  * FAST support: convertors implemented and compatible to --without-fast
  *               configure option, but still not tested with FAST !
@@ -69,18 +72,31 @@ MatSUM(char tA, char tB, int m, int n, double *A, double *B, double *C)
 {
   size_t i, j;
   
-  for (i = 0; i < m; i++) {
-    for (j = 0; j < n; j++) {
-      if (tA == 'T') {
-	if (tB == 'T') {
+  if (tA == 'T') {
+    if (tB == 'T') {
+      for (i = 0; i < m; i++) {
+	for (j = 0; j < n; j++) {
 	  C[j*m + i] = A[i*n + j] + B[i*n + j];
-	} else {
+	}
+      }
+    } else {
+      for (i = 0; i < m; i++) {
+	for (j = 0; j < n; j++) {
 	  C[j*m + i] = A[i*n + j] + B[j*m + i];
 	}
-      } else {
-	if (tB == 'T') {
+      }
+    }
+    
+  } else {
+    if (tB == 'T') {
+      for (i = 0; i < m; i++) {
+	for (j = 0; j < n; j++) {
 	  C[j*m + i] = A[j*m + i] + B[i*n + j];
-	} else {
+	}
+      }
+    } else {
+      for (i = 0; i < m; i++) {
+	for (j = 0; j < n; j++) {
 	  C[j*m + i] = A[j*m + i] + B[j*m + i];
 	}
       }
@@ -94,26 +110,50 @@ MatSUM(char tA, char tB, int m, int n, double *A, double *B, double *C)
  * Mult 2 matrices
  */
 
-int
-MatPROD(char tA, char tB, int mA, int nA, double *A,
-	int mB, int nB, double *B, double *C)
+inline int
+MatPROD(char tA, char tB,
+	int mA, int nA, double *A,
+	int nB, double *B, double *C)
 {
   size_t i, j, k;
+  int mB = nA;
   
-  for (i = 0; i < mA; i++) {
-    for (j = 0; j < nB; j++) {
-      C[j*mA + i] = 0;
-      for (k = 0; k < nA; k++) {
-	if (tA == 'T') {
-	  if (tB == 'T') {
+  if (tA == 'T') {
+    if (tB == 'T') {
+      for (i = 0; i < mA; i++) {
+	for (j = 0; j < nB; j++) {
+	  C[j*mA + i] = 0;
+	  for (k = 0; k < nA; k++) {
 	    C[j*mA + i] += A[i*nA + k] + B[k*nB + j];
-	  } else {
+	  }
+	}
+      }
+    } else {
+      for (i = 0; i < mA; i++) {
+	for (j = 0; j < nB; j++) {
+	  C[j*mA + i] = 0;
+	  for (k = 0; k < nA; k++) {
 	    C[j*mA + i] += A[i*nA + k] + B[j*mB + k];
 	  }
-	} else {
-	  if (tB == 'T') {
+	}
+      }
+    }
+    
+  } else {
+    if (tB == 'T') {
+      for (i = 0; i < mA; i++) {
+	for (j = 0; j < nB; j++) {
+	  C[j*mA + i] = 0;
+	  for (k = 0; k < nA; k++) {
 	    C[j*mA + i] += A[k*mA + i] + B[k*nB + j];
-	  } else {
+	  }
+	}
+      }
+    } else {
+      for (i = 0; i < mA; i++) {
+	for (j = 0; j < nB; j++) {
+	  C[j*mA + i] = 0;
+	  for (k = 0; k < nA; k++) {
 	    C[j*mA + i] += A[k*mA + i] * B[j*mB + k];
 	  }
 	}

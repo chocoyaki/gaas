@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.11  2002/11/15 17:15:32  pcombes
+ * FAST integration complete ...
+ *
  * Revision 1.10  2002/11/07 18:42:42  pcombes
  * Add includes and configured Makefile variables to install directory.
  * Update dgemm to the implementation that is hardcoded in FAST.
@@ -100,22 +103,21 @@ solve_MatSUM(diet_profile_t *pb)
   
   printf("Solve MatSUM ...");
 
-  tA = *((char *)pb->parameters[0].value);
-  tB = *((char *)pb->parameters[1].value);
-  m = *((int *)pb->parameters[2].value);
-  n = *((int *)pb->parameters[3].value);
-  A = (double *)pb->parameters[4].value;
-  if ((m != pb->parameters[5].desc.specific.mat.nb_r)
-      || (n != pb->parameters[5].desc.specific.mat.nb_c)) {
+  tA = (pb->parameters[0].desc.specific.mat.istrans) ? 'T' : 'N';
+  tB = (pb->parameters[1].desc.specific.mat.istrans) ? 'T' : 'N';
+  m  = pb->parameters[0].desc.specific.mat.nb_r;
+  n  = pb->parameters[0].desc.specific.mat.nb_c;
+  A  = (double *) pb->parameters[0].value;
+  B  = (double *) pb->parameters[1].value;
+  if ((m != pb->parameters[1].desc.specific.mat.nb_r)
+      || (n != pb->parameters[1].desc.specific.mat.nb_c)) {
     fprintf(stderr, "MatSUM error: mA=%d, nA=%d ; mB=%d, nB=%d\n",
-	    m, n, pb->parameters[5].desc.specific.mat.nb_r,
-	    pb->parameters[5].desc.specific.mat.nb_c);
+	    m, n, pb->parameters[1].desc.specific.mat.nb_r,
+	    pb->parameters[1].desc.specific.mat.nb_c);
     return 1;
   }
-  A = (double *) pb->parameters[4].value;
-  B = (double *) pb->parameters[5].value;
-  C = (double *) pb->parameters[6].value;
-  pb->parameters[6].desc.specific.mat.istrans = 0;
+  C = (double *) pb->parameters[2].value;
+  pb->parameters[2].desc.specific.mat.istrans = 0;
   
   if ((res = MatSUM(tA, tB, m, n, A, B, C)))
     return res;
@@ -128,28 +130,28 @@ solve_MatSUM(diet_profile_t *pb)
 int
 solve_MatPROD(diet_profile_t *pb)
 {
-  size_t mA, nA, mB, nB;
+  size_t mA, nA, nB;
   char tA, tB;
   double *A, *B, *C;
   
   printf("Solve MatPROD ...");
 
-  tA = *((char *)pb->parameters[0].value);
-  tB = *((char *)pb->parameters[1].value);
-  mA = *((int *)pb->parameters[2].value);
-  nA = *((int *)pb->parameters[3].value);
-  mB = *((int *)pb->parameters[5].value);
-  nB = *((int *)pb->parameters[6].value);
-  if (nA != mB) {
-    fprintf(stderr, "MatPROD error: mA=%d, nA=%d ; mB=%d, nB=%d\n", mA, nA, mB, nB);
+  tA = (pb->parameters[0].desc.specific.mat.istrans) ? 'T' : 'N';
+  tB = (pb->parameters[1].desc.specific.mat.istrans) ? 'T' : 'N';
+  mA = pb->parameters[0].desc.specific.mat.nb_r;
+  nA = pb->parameters[0].desc.specific.mat.nb_c;
+  nB = pb->parameters[1].desc.specific.mat.nb_c;
+  A = (double *) pb->parameters[0].value;
+  B = (double *) pb->parameters[1].value;
+  if (nA != pb->parameters[1].desc.specific.mat.nb_r) {
+    fprintf(stderr, "MatPROD error: mA=%d, nA=%d ; mB=%d, nB=%d\n",
+	    mA, nA, pb->parameters[1].desc.specific.mat.nb_r, nB);
     return 1;
   }  
-  A = (double *) pb->parameters[4].value;
-  B = (double *) pb->parameters[7].value;
-  C = (double *) pb->parameters[8].value;
-  pb->parameters[8].desc.specific.mat.istrans = 0;
+  C = (double *) pb->parameters[2].value;
+  pb->parameters[2].desc.specific.mat.istrans = 0;
   
-  MatPROD(tA, tB, mA, nA, A, mB, nB, B, C);
+  MatPROD(tA, tB, mA, nA, A, nB, B, C);
   
   printf(" done\n");
   return 0;
@@ -223,34 +225,23 @@ main(int argc, char **argv)
     generic_desc_set(&(profile->param_desc[2]), DIET_MATRIX, DIET_DOUBLE);
 
     if (services[1]) {
-      cvt = convertor_alloc(SRV[1], 5, 5, 6);
-      diet_arg_cvt_set(&(cvt->arg_convs[0]), DIET_CVT_MAT_ISTRANS, 0, NULL);
-      diet_arg_cvt_set(&(cvt->arg_convs[1]), DIET_CVT_MAT_ISTRANS, 1, NULL);
-      diet_arg_cvt_set(&(cvt->arg_convs[2]), DIET_CVT_MAT_NB_ROW,  0, NULL);
-      diet_arg_cvt_set(&(cvt->arg_convs[3]), DIET_CVT_MAT_NB_COL,  0, NULL);
-      diet_arg_cvt_set(&(cvt->arg_convs[4]), DIET_CVT_IDENTITY,    0, NULL);
-      diet_arg_cvt_set(&(cvt->arg_convs[5]), DIET_CVT_IDENTITY,    1, NULL);
-      diet_arg_cvt_set(&(cvt->arg_convs[6]), DIET_CVT_IDENTITY,    2, NULL);
-
+      cvt = convertor_alloc("base/plus", 1, 1, 2);
+      diet_arg_cvt_set(&(cvt->arg_convs[0]), DIET_CVT_IDENTITY, 0, NULL);
+      diet_arg_cvt_set(&(cvt->arg_convs[1]), DIET_CVT_IDENTITY, 1, NULL);
+      diet_arg_cvt_set(&(cvt->arg_convs[2]), DIET_CVT_IDENTITY, 2, NULL);
       diet_service_table_add(SRV[1], profile, cvt, solve_MatSUM);
+      convertor_free(cvt);
     }
     if (services[2]) {
-      cvt = convertor_alloc(SRV[2], 7, 7, 8);
-      diet_arg_cvt_set(&(cvt->arg_convs[0]), DIET_CVT_MAT_ISTRANS, 0, NULL);
-      diet_arg_cvt_set(&(cvt->arg_convs[1]), DIET_CVT_MAT_ISTRANS, 1, NULL);
-      diet_arg_cvt_set(&(cvt->arg_convs[2]), DIET_CVT_MAT_NB_ROW,  0, NULL);
-      diet_arg_cvt_set(&(cvt->arg_convs[3]), DIET_CVT_MAT_NB_COL,  0, NULL);
-      diet_arg_cvt_set(&(cvt->arg_convs[4]), DIET_CVT_IDENTITY,    0, NULL);
-      diet_arg_cvt_set(&(cvt->arg_convs[5]), DIET_CVT_MAT_NB_ROW,  1, NULL);
-      diet_arg_cvt_set(&(cvt->arg_convs[6]), DIET_CVT_MAT_NB_COL,  1, NULL);
-      diet_arg_cvt_set(&(cvt->arg_convs[7]), DIET_CVT_IDENTITY,    1, NULL);
-      diet_arg_cvt_set(&(cvt->arg_convs[8]), DIET_CVT_IDENTITY,    2, NULL);
-
+      cvt = convertor_alloc("base/mult", 1, 1, 2);
+      diet_arg_cvt_set(&(cvt->arg_convs[0]), DIET_CVT_IDENTITY, 0, NULL);
+      diet_arg_cvt_set(&(cvt->arg_convs[1]), DIET_CVT_IDENTITY, 1, NULL);
+      diet_arg_cvt_set(&(cvt->arg_convs[2]), DIET_CVT_IDENTITY, 2, NULL);
       diet_service_table_add(SRV[2], profile, cvt, solve_MatPROD);
+      convertor_free(cvt);
     }
 
     profile_desc_free(profile);
-    convertor_free(cvt);
   }
   
   print_table();
