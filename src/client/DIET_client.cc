@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.50  2004/10/15 13:04:29  bdelfabr
+ * request_submission modified to avoid mismatch data identifers
+ *
  * Revision 1.49  2004/10/15 08:19:13  hdail
  * Removed references to corba_response_t->sortedIndexes - no longer useful.
  *
@@ -427,11 +430,11 @@ request_submission(diet_profile_t* profile,
 		   SeD_var& chosenServer, diet_reqID_t& reqID)
 {
   static int nb_tries(3);
-  int server_OK(0), subm_count;
+  int server_OK(0), subm_count, data_OK(0);
   corba_pb_desc_t corba_pb;
   //corba_pb_desc_t& corba_pb = *(new corba_pb_desc_t());
   corba_response_t* response(NULL);
- 
+  char* bad_id(NULL);
 
   chosenServer = SeD::_nil();
  
@@ -451,14 +454,26 @@ request_submission(diet_profile_t* profile,
 
     /* data property base_type and type retrieval : used for scheduler*/
 
-    for(int i = 0;i <= corba_pb.last_out;i++) {
+    int i = 0;
+    do{
+ 
       char* new_id = strdup(corba_pb.param_desc[i].id.idNumber);
+ 
       if(strlen(new_id) != 0) {
-	corba_data_desc_t* arg_desc(NULL);
-	arg_desc=MA->get_data_arg(new_id);
-	const_cast<corba_data_desc_t&>(corba_pb.param_desc[i]) = *arg_desc;
-      }  
-    }  
+	corba_data_desc_t *arg_desc = new corba_data_desc_t;
+	arg_desc = MA->get_data_arg(new_id);
+	char *tmp="-1";
+	if( strcmp(CORBA::string_dup(arg_desc->id.idNumber),tmp) ==0) {
+	  bad_id = new_id;
+	  data_OK = 1;
+	} else {
+	  const_cast<corba_data_desc_t&>(corba_pb.param_desc[i]) = *arg_desc;
+	}
+      }
+      i++;
+    } while (( i <= corba_pb.last_out) && (data_OK == 0));
+
+    if(data_OK == 0) {
           
     /* Submit to the agent. */
     try {
@@ -518,9 +533,15 @@ request_submission(diet_profile_t* profile,
       if ((size_t) server_OK == response->servers.length())
 	server_OK = -1;
     }
-    
+    }
   } while ((response) && (response->servers.length() > 0) &&
-	   (server_OK == -1) && (++subm_count < nb_tries));
+	   (server_OK == -1) && (++subm_count < nb_tries) && (data_OK == 0));
+
+  if(data_OK == 1) {
+    ERROR (" data which id is " <<  bad_id << " not inside the platform.", 1);
+
+    delete (bad_id);
+  } else {
   stat_out("Client","request_submission");
   
   if (!response || response->servers.length() == 0) {
@@ -556,7 +577,7 @@ request_submission(diet_profile_t* profile,
     chosenServer = response->servers[server_OK].loc.ior;
     reqID = response->reqID;
   }
-
+  }
   return 0;
 }
   
@@ -599,7 +620,6 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
     j++;
   }
   if(found == true){
-    cout << "found = TRUE !!!!!" << endl;
      create_file();
   }
 
