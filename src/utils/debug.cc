@@ -11,6 +11,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.7  2002/11/22 14:49:28  lbertsch
+ * Suppressed silly warnings on alpha
+ *
  * Revision 1.6  2002/10/25 14:31:18  ecaron
  * FAST support: convertors implemented and compatible to --without-fast
  *               configure option, but still not tested with FAST !
@@ -55,10 +58,10 @@ void displayResponse(FILE *os, const corba_response_t *resp)
   char implName[256];
 
   fprintf(os, "\n----------------------------------------\n");
-  fprintf(os, " Response structure for request %ld :\n\n", resp->reqId);
-  fprintf(os, " I'm son nb %ld\n", resp->myId);
-  fprintf(os, " There are %ld parameters\n", resp->nbIn);
-  fprintf(os, " %ld servers are able to solve the problem\n", resp->nbServers);
+  fprintf(os, " Response structure for request %ld :\n\n", (long)resp->reqId);
+  fprintf(os, " I'm son nb %ld\n", (long)resp->myId);
+  fprintf(os, " There are %ld parameters\n", (long)resp->nbIn);
+  fprintf(os, " %ld servers are able to solve the problem\n", (long)resp->nbServers);
   fprintf(os, " Data:\n");
   
   for (i = 0; i < resp->nbIn; i++) {
@@ -129,14 +132,14 @@ void displayArg(FILE *f, const corba_data_desc_t *arg)
   switch(arg->specific._d()) {
   case DIET_SCALAR: fprintf(f, "scalar");            break;
   case DIET_VECTOR: fprintf(f, "vector (%ld)",
-			    arg->specific.vect().size);  break;
+			    (long)arg->specific.vect().size);  break;
   case DIET_MATRIX: fprintf(f, "matrix (%ldx%ld)",
-			    arg->specific.mat().nb_r,
-			    arg->specific.mat().nb_c);   break;
+			    (long)arg->specific.mat().nb_r,
+			    (long)arg->specific.mat().nb_c);   break;
   case DIET_STRING: fprintf(f, "string (%ld)",
-			    arg->specific.str().length); break;
+			    (long)arg->specific.str().length); break;
   case DIET_FILE:   fprintf(f, "file (%ld)",
-			    arg->specific.file().size);  break;
+			    (long)arg->specific.file().size);  break;
   }
   if ((arg->specific._d() != DIET_STRING)
       && (arg->specific._d() != DIET_FILE)) {
@@ -158,15 +161,15 @@ void displayArg(FILE *f, const diet_data_desc_t *arg)
 {
   switch((int) arg->generic.type) {
   case DIET_SCALAR: fprintf(f, "scalar");                break;
-  case DIET_VECTOR: fprintf(f, "vector (%d)",
-			    arg->specific.vect.size);    break;
-  case DIET_MATRIX: fprintf(f, "matrix (%dx%d)",
-			    arg->specific.mat.nb_r,
-			    arg->specific.mat.nb_c);   break;
-  case DIET_STRING: fprintf(f, "string (%d)",
-			    arg->specific.str.length); break;
-  case DIET_FILE:   fprintf(f, "file (%d)",
-			    arg->specific.file.size);  break;
+  case DIET_VECTOR: fprintf(f, "vector (%ld)",
+			    (long)arg->specific.vect.size);    break;
+  case DIET_MATRIX: fprintf(f, "matrix (%ldx%ld)",
+			    (long)arg->specific.mat.nb_r,
+			    (long)arg->specific.mat.nb_c);   break;
+  case DIET_STRING: fprintf(f, "string (%ld)",
+			    (long)arg->specific.str.length); break;
+  case DIET_FILE:   fprintf(f, "file (%ld)",
+			    (long)arg->specific.file.size);  break;
   }
   if ((arg->generic.type != DIET_STRING)
       && (arg->generic.type != DIET_FILE)) {
