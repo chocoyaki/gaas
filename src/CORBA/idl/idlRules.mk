@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.7  2004/03/01 18:29:56  rbolze
+#* add rules to compile the logservice idl files
+#*
 #* Revision 1.6  2003/09/22 21:06:48  pcombes
 #* Clean useless targets. Add modules for data persistency.
 #*
@@ -27,7 +30,8 @@
 # IDL source files
 IDL_FILES = common_types.idl Callback.idl response.idl \
 	    Agent.idl MasterAgent.idl LocalAgent.idl SeD.idl \
-	    DataMgr.idl LocMgr.idl
+	    DataMgr.idl LocMgr.idl LogTypes.idl \
+	    LogComponent.idl
 
 # compiling and dependency rules for the files generated from IDL
 %.hh %SK.cc %DynSK.cc: %.idl $(IDL_COMPILER)
