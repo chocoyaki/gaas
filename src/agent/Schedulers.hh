@@ -8,9 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2003/05/05 14:50:15  pcombes
+ * Changing the computation of server weights changes NWSScheduler fields.
+ *
  * Revision 1.1  2003/04/10 12:57:15  pcombes
  * Interface, plus three examples, for agent schedulers.
- *
  ****************************************************************************/
 
 #ifndef _SCHEDULERS_HH_
@@ -176,9 +178,7 @@ private:
  * This scheduler sorts servers that have performed NWS estimations, according
  * to a polynomial expression of available CPU, available memory and
  * communication time :
- *    CPUFactor  * (av. CPU)   ^ CPUPower
- *  + memFactor  * (av. mem)   ^ memPower
- *  + commFactor * (comm time) ^ commPower
+ *    (comm time)^commPower / ((av. CPU)^CPUPower * (av. mem)^memPower)
  * The test for "server has performed NWS estimation" is freeCPU >= 0 ...
  *
  * NB: if epsilon is 0 (default), then the random sorting is performed on
@@ -193,19 +193,15 @@ public:
   static const size_t nameLength;
 
   typedef struct {
-    double CPUFactor, CPUPower;
-    double memFactor, memPower;
-    double commFactor, commPower;
+    double CPUPower;
+    double memPower;
+    double commPower;
   } weight_info_t;
 
   NWSScheduler();
-  NWSScheduler(double CPUFactor, double memFactor, double commFactor);
+  NWSScheduler(double CPUPower, double memPower, double commPower);
   NWSScheduler(double epsilon,
-	       double CPUFactor, double memFactor, double commFactor);
-  NWSScheduler(double epsilon,
-	       double CPUFactor, double CPUPower,
-	       double memFactor, double memPower,
-	       double commFactor, double commPower);
+	       double CPUPower, double memPower, double commPower);
   virtual
   ~NWSScheduler();
 
