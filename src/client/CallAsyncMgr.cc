@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2003/06/23 08:05:45  cpera
+ * Fix race condition that cause multiple initializations of pinstance.
+ *
  * Revision 1.4  2003/06/16 15:40:23  pcombes
  * Fix header
  *
@@ -38,10 +41,10 @@ CallAsyncMgr* CallAsyncMgr::pinstance = 0;
  * ********************************************************************/
 CallAsyncMgr* CallAsyncMgr::Instance ()
 {
-  WriterLock r(rwLock);
   if (pinstance == 0)  // is it the first call?
   {  
-    pinstance = new CallAsyncMgr; // create sole instance
+    WriterLock r(rwLock);
+    if (pinstance == 0) pinstance = new CallAsyncMgr; // create sole instance
   }
   return pinstance; // address of sole instance
 }
