@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2003/10/21 13:30:08  bdelfabr
+ * removing diet_matrix_set_with_id method
+ *
  * Revision 1.20  2003/10/10 14:57:22  bdelfabr
  * adding diet_matrix_set_with_id
  *
@@ -179,10 +182,7 @@ int
 diet_matrix_set(diet_arg_t* arg, void* value, diet_persistence_mode_t mode,
 		diet_base_type_t base_type,
 		size_t nb_rows, size_t nb_cols, diet_matrix_order_t order);
-int
-diet_matrix_set_with_id(diet_arg_t* arg, char *id, void* value, diet_persistence_mode_t mode,
-		diet_base_type_t base_type,
-		size_t nb_rows, size_t nb_cols, diet_matrix_order_t order);
+
 int
 diet_string_set(diet_arg_t* arg, char* value, diet_persistence_mode_t mode,
 		size_t length);
