@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.47  2004/10/06 16:43:17  rbolze
+ * implement function that calls Ma to get the list of services in the platform
+ *
  * Revision 1.46  2004/09/29 13:35:31  sdahan
  * Add the Multi-MAs feature.
  *
@@ -318,6 +321,23 @@ diet_free(diet_data_handle_t* handle)
 }
 
 END_API
+
+/**************************************************************** 
+ *    get available Services in the DIET Platform
+ ***************************************************************/
+char**
+get_diet_services(int &services_number){
+	CORBA::Long length;                
+	SeqCorbaProfileDesc_t* profileList = MA->getProfiles(length);
+        services_number= (int)length;        
+        char** services_list = (char**)calloc(length+1,sizeof(char*));
+        fflush(stdout);
+	for(int i=0;i<services_number;i++){		
+                services_list[i]= CORBA::string_dup((*profileList)[i].path);                
+	}    
+        return services_list;
+}
+
 
 /**************************************************************** 
  *   creation of the file that stores identifiers               * 
@@ -784,7 +804,7 @@ diet_probe(diet_reqID_t reqID)
 /****************************************************************************  
  * diet_cancel GridRPC function.
  * This function erases all persistent data that are manipulated by the reqID
- * request. Do not forget to call diet_get_data_handle on data you would like
+ * request. Do not forget to calget_data_handle on data you would like
  * to save.                   
  ****************************************************************************/
 int
