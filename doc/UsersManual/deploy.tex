@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.2  2004/01/07 10:27:33  cpera
+%* Add asynchronous call example and useAsyncAPI config parameter.
+%*
 %* Revision 1.1  2003/09/09 12:38:20  pcombes
 %* Reorganization of doc: UM becomes UsersManual.
 %*
@@ -276,7 +279,9 @@ This option specifies the listening port of an agent or an SeD. It is very
 useful when they are behind a firewall. It defaults to 2809, but if this port is
 already busy, the OS chooses a port number.
 
-
+\texttt{useAsyncAPI} \ \ \emph{default}\texttt{ = }\emph{1}\\
+Specify use of asynchronous call and so create objects managing it
+on client side.
 
 %====[ Example ]=========================================
 \section{Example}
