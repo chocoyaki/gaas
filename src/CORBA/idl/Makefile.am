@@ -10,14 +10,8 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
-#* Revision 1.7  2003/09/19 14:56:55  bdelfabr
-#* adding locMgr and dataMgr to autoconf
-#*
-#* Revision 1.6  2003/08/01 19:20:22  pcombes
-#* Reorganize FAST and omniORB flags. Include FASTMgr.
-#*
-#* Revision 1.5  2003/07/04 09:47:56  pcombes
-#* Indentation. Remove useless comments.
+#* Revision 1.8  2003/09/22 21:06:42  pcombes
+#* Clean SOURCES variables. Add modules for data persistency.
 #*
 #* Revision 1.3  2003/06/02 08:08:11  cpera
 #* Beta version of asynchronize DIET API.
@@ -27,36 +21,33 @@
 #****************************************************************************#
 
 include $(top_srcdir)/config.mk.in
-include ./idlRules.mk
+include idlRules.mk
 
 # automake value to compile following files before everything else.
-BUILT_SOURCES = AgentSK.cc       AgentDynSK.cc         Agent.hh \
-		CallbackSK.cc    CallbackDynSK.cc      Callback.hh \
-		common_typesSK.cc common_typesDynSK.cc common_types.hh \
-		LocalAgentSK.cc  LocalAgentDynSK.cc    LocalAgent.hh \
-		MasterAgentSK.cc MasterAgentDynSK.cc   MasterAgent.hh \
-		responseSK.cc    responseDynSK.cc      response.hh \
-		SeDSK.cc 	 SeDDynSK.cc	       SeD.hh \
-		locMgrSK.cc 	 locMgrDynSK.cc	       locMgr.hh \
-		dataMgrSK.cc 	 dataMgrDynSK.cc       dataMgr.hh
+BUILT_SOURCES = AgentSK.cc	  AgentDynSK.cc		\
+		CallbackSK.cc	  CallbackDynSK.cc	\
+		common_typesSK.cc common_typesDynSK.cc	\
+		DataMgrSK.cc	  DataMgrDynSK.cc	\
+		LocalAgentSK.cc	  LocalAgentDynSK.cc	\
+		LocMgrSK.cc	  LocMgrDynSK.cc	\
+		MasterAgentSK.cc  MasterAgentDynSK.cc	\
+		responseSK.cc	  responseDynSK.cc	\
+		SeDSK.cc	  SeDDynSK.cc
 
 noinst_LTLIBRARIES = libIDLCommon.la libIDLAgent.la libIDLLA.la libIDLMA.la
 
 nodist_libIDLCommon_la_SOURCES = common_typesSK.cc common_typesDynSK.cc \
-				 SeDSK.cc SeDDynSK.cc \
-				 responseSK.cc responseDynSK.cc \
-				 CallbackSK.cc CallbackDynSK.cc \
-				 dataMgrSK.cc dataMgrDynSK.cc
+				 SeDSK.cc SeDDynSK.cc 			\
+				 responseSK.cc responseDynSK.cc 	\
+				 CallbackSK.cc CallbackDynSK.cc
 
-nodist_libIDLAgent_la_SOURCES = AgentSK.cc       AgentDynSK.cc \
-				locMgrSK.cc locMgrDynSK.cc
+nodist_libIDLAgent_la_SOURCES = AgentSK.cc       AgentDynSK.cc		\
+				DataMgrSK.cc     DataMgrDynSK.cc	\
+				LocMgrSK.cc	 LocMgrDynSK.cc
 nodist_libIDLLA_la_SOURCES    = LocalAgentSK.cc  LocalAgentDynSK.cc
 nodist_libIDLMA_la_SOURCES    = MasterAgentSK.cc MasterAgentDynSK.cc
 
-# automake include variables
-AM_CXXFLAGS = -Wno-reorder $(CXXFLAGS_OMNIORB)
 
-Makefile.am:./idlRules.mk
-Makefile.in:./idlRules.mk
-Makefile:./idlRules.mk
+# automake include variables
+AM_CXXFLAGS = $(CXXFLAGS_OMNIORB) #-Wno-reorder
 
