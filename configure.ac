@@ -11,6 +11,9 @@
 #****************************************************************************#
 #*
 #* $Log$
+#* Revision 1.3  2003/02/17 15:34:56  cpera
+#* Use omniorb.m4 and detect new platforms.
+#*
 #* Revision 1.2  2003/02/14 16:20:33  cpera
 #* DIET instead of diet.
 #*
@@ -55,12 +58,63 @@ AM_INIT_AUTOMAKE[]
 AM_MAINTAINER_MODE
 
 
-AC_ARG_ENABLE(multi-MA,[  --enable-multi-MA       enable multi MA architecture], desireMA=true,desireMA=false)
+AC_ARG_ENABLE(multi-MA,[  --enable-multi-MA       enable multi MA architecture],
+              desireMA=true,desireMA=false)
 if test "x$desireMA" = "xtrue"
 	then
 	echo HAVE_MULTI_MA
 	AC_DEFINE(HAVE_MULTI_MA)
 fi
+
+
+dnl ###########################################################################
+dnl #### check OS target
+dnl ** Platform name | according to omniORB configure.ac
+dnl ###########################################################################
+plat_name="Platform_Unknown"
+plat_def="__unknown_platform__"
+os_version="0"
+case "$host" in
+  *-*-linux-*)   plat_name="Linux";    plat_def="__linux__";    os_v="2";;
+  *-*-solaris*)  plat_name="SunOS";    plat_def="__sunos__";    os_v="5";;
+  *-*-osf3*)     plat_name="OSF1";     plat_def="__osf1__";     os_v="3";;
+  *-*-osf4*)     plat_name="OSF1";     plat_def="__osf1__";     os_v="4";;
+  *-*-osf5*)     plat_name="OSF1";     plat_def="__osf1__";     os_v="5";;
+  *-*-hpux10*)   plat_name="HPUX";     plat_def="__hpux__";     os_v="10";;
+  *-*-hpux11*)   plat_name="HPUX";     plat_def="__hpux__";     os_v="11";;
+  *-*-nextstep*) plat_name="NextStep"; plat_def="__nextstep__"; os_v="3";;
+  *-*-openstep*) plat_name="NextStep"; plat_def="__nextstep__"; os_v="3";;
+  *-*-irix*)     plat_name="IRIX";     plat_def="__irix__";     os_v="6";;
+  *-*-aix*)      plat_name="AIX";      plat_def="__aix__";      os_v="4";;
+  *-*-darwin*)   plat_name="Darwin";   plat_def="__darwin__";   os_v="1";;
+  *-*-freebsd3*) plat_name="FreeBSD";  plat_def="__freebsd__";  os_v="3";;
+  *-*-freebsd4*) plat_name="FreeBSD";  plat_def="__freebsd__";  os_v="4";;
+  *-*-sco*)      plat_name="OSR5";     plat_def="__osr5__";     os_v="5";;
+esac
+AC_SUBST(PLATFORM_NAME, $plat_name)
+AC_SUBST(PLATFORM_DEFINE, $plat_def)
+AC_SUBST(OSVERSION, $os_v)
+dnl ###########################################################################
+dnl #### check OS target
+dnl ** Processor | according to omniORB configure.ac
+dnl ###########################################################################
+proc_name="UnknownProcessor"
+proc_def="__processor_unknown__"
+case "$host" in
+  i?86-*)   proc_name="x86Processor";     proc_def="__x86__";;
+  sparc-*)  proc_name="SparcProcessor";   proc_def="__sparc__";;
+  alpha*)   proc_name="AlphaProcessor";   proc_def="__alpha__";;
+  m68k-*)   proc_name="m68kProcessor";    proc_def="__m68k__";;
+  mips*)    proc_name="IndigoProcessor";  proc_def="__mips__";;
+  arm-*)    proc_name="ArmProcessor";     proc_def="__arm__";;
+  s390-*)   proc_name="s390Processor";    proc_def="__s390__";;
+  ia64-*)   proc_name="ia64Processor";    proc_def="__ia64__";;
+  hppa*)    proc_name="HppaProcessor";    proc_def="__hppa__";;
+  powerpc*) proc_name="PowerPCProcessor"; proc_def="__powerpc__";;
+esac
+AC_SUBST(PROCESSOR_NAME, $proc_name)
+AC_SUBST(PROCESSOR_DEFINE, $proc_def)
+
 
 dnl ###########################################################################
 # Initialize the test suite and build position independent wrappers.
@@ -99,81 +153,7 @@ AC_CHECK_LIB([pthread], [pthread_attr_getdetachstate])
 dnl ###########################################################################
 dnl ####[ search omniORB lib and bin ]
 dnl ###########################################################################
-AC_MSG_NOTICE([ ------ search omniorb lib, bin and tools ------ ])
-AC_CHECK_FILE($OMNIORB_HOME, env_flag=true, env_flag=false)
-OMNIORB_VERSION="undefined"
-if test "x$env_flag" = "xtrue"
-  then
-  AC_MSG_NOTICE([OMNIORB_HOME is defined!])
-  AC_CHECK_FILE($with_omniORB, omniorb_arg=true, omnbiorb_arg=false)
-  if test "x$omniorb_arg" = "xtrue"
-    then
-    AC_MSG_NOTICE([configure argument --with-omniORB is also defined!\
-                  so we use it for testing before OMNIORB_HOME])
-    ACI_PACKAGE([omniORB],[omniORB],
-    		[omni_thread_wrapper],
-                [-lomnithread!-lomniDynamic4!-lomniORB4 \
-                -lomnithread!-lomniDynamic3!-lomniORB3!-ltcpwrapGK],
-		[omnithread.h], foundFirst=true)
-    if test "x$founfFirst" = "xfalse"
-      then
-      AC_MSG_NOTICE([configure argument --with-omniORB is not valid ???.\
-                    Try to use OMNIORB_HOME.])
-        $with_omniORB=$OMNIORB_HOME
-	ACI_PACKAGE([omniORB],[omniORB],
-    	            [omni_thread_wrapper],
-  		    [-lomnithread!-lomniDynamic4!-lomniORB4 \
-                    -lomnithread!-lomniDynamic3!-lomniORB3!-ltcpwrapGK],
-		    [omnithread.h], found=true)
-    fi
-    if test "x$founfFirst" = "xtrue"
-      then
-      OMNIORB_HOME=$with_omniORB
-      found=true
-    fi
-  fi
-fi
-if test "x$env_flag" = "xfalse"
-  then
-  AC_MSG_NOTICE([OMNIORB_HOME is not defined! Try to find omniORB with \
-              classic path and configure arg --with-OMNIORB.])
-  ACI_PACKAGE([omniORB],[omniORB],
-              [omni_thread_wrapper],
-              [-lomnithread!-lomniDynamic4!-lomniORB4 \
-              -lomnithread!-lomniDynamic3!-lomniORB3!-ltcpwrapGK],
-	      [omnithread.h], found=true && OMNIORB_HOME=$with_omniORB)
-fi
-
-AC_MSG_NOTICE([Testing omniidl tool ...])
-if test "x$found" = "xtrue"
-  then
-  AC_PATH_PROG(IDL_COMPILER,omniidl,idl_not_found,[$with_omniORB/bin])
-  IDLFLAGS="-bcxx -Wba -Wbtp"
-  if test "x$IDL" = "xidl_not_found"
-    then
-    AC_MSG_NOTICE([unable to find omniidl tool])
-  fi
-  AC_CHECK_HEADER($with_omniORB/include/omniORB4/omniutilities.h, 
-                  AC_DEFINE(__OMNIORB4__, [], 
-                  [OmniORB detected version]), omniVersion = false)
-  if test "x$omniVersion" = "xfalse"
-    then
-    AC_CHECK_HEADER($with_omniORB/include/omniORB3/omniutilities.h, 
-                    AC_DEFINE(__OMNIORB3__, [], 
-                    [OmniORB detected version]), omniVersion3 = false)
-    if test "x$omniVersion3" != "xfalse"
-      then
-      AC_MSG_NOTICE([omniORB detected version : 3])
-                    OMNIORB_VERSION=3
-    else
-      AC_MSG_NOTICE([omniORB detected version : undefined])
-    fi
-  else
-    AC_MSG_NOTICE([omniORB detected version : 4])
-    OMNIORB_VERSION=4
-  fi
-fi
-
+AC_OMNIORB_DIET(,,,,[testing omniorb OK],[testing omniORB NOK])
 
 dnl ###########################################################################
 dnl ####[ search the FAST Library ]
@@ -229,7 +209,6 @@ AC_SUBST(HAVE_CICHLID)
 AC_SUBST(HAVE_STATISTICS)
 AC_SUBST(OMNIORB_VERSION)
 AC_SUBST(OMNIORB_HOME,"$OMNIORB_HOME")
-#AC_SUBST(LIB_BLAS)
 
 AC_SUBST(IDLFLAGS)
 AC_SUBST(prefix)
@@ -308,38 +287,6 @@ AC_CONFIG_FILES([include/Makefile.inc
 		doc/CS/Makefile
 		doc/UM/Makefile])
 AC_OUTPUT
-
-dnl ###########################################################################
-dnl #### Prinf info on compilers and args
-dnl ###########################################################################
-echo " 
-
-Package ${PACKAGE} configuration : 
-	compiler : 
-		CC=${CC} 
-		CXX=${CXX} 
-		GCC=${GCC} 
-		CPP=${CPP} 
-	CFLAGS=${CFLAGS} 
-	CXXFLAGS=${CFLAGS} 
-	CPPFLAGS=${CFLAGS} 
-	IDLFLAGS=${IDLFLAGS} 
-	LDFLAGS=${CFLAGS} 
-	LIBS=${LIBS} 
-	FLIBS=${FLIBS} 
-	DEP_LIBS=.... 
-	"
-
-dnl ###########################################################################
-dnl #### Print info on modules and packages
-dnl ###########################################################################
-case $host_os in
-  *)
-    ACI_MODULES_SUMMARY
-#   ACI_MODULES_SUMMARY_FANCY([DIET])
-  ;;
-esac
-
 
 dnl ###########################################################################
 dnl #### Print general info on DIET 
