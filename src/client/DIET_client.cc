@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2003/06/25 09:20:55  cpera
+ * Change internal reqId from long int to int according to GridRPC and diet_reqID
+ * type.
+ *
  * Revision 1.28  2003/06/04 14:40:05  cpera
  * Resolve bugs, change type of reqID (long int) and modify
  * diet_wait_all/diet_wait_any.
@@ -749,7 +753,7 @@ diet_wait_and(diet_reqID_t* IDs, size_t length)
   try {
     // Create ruleElements table ...
     ruleElement * simpleWait = new ruleElement[length];
-    for (int k = 0; k < length; k++){
+    for (unsigned int k = 0; k < length; k++){
       simpleWait[k].reqID = IDs[k];
       simpleWait[k].op = WAITOPERATOR(AND);
     }
@@ -796,7 +800,7 @@ diet_wait_or(diet_reqID_t* IDs, size_t length, diet_reqID_t* IDptr)
   try {
     // Create ruleElements table ...
     ruleElement * simpleWait = new ruleElement[length];
-    for (int k = 0; k < length; k++){
+    for (unsigned int k = 0; k < length; k++){
       simpleWait[k].reqID = IDs[k];
       simpleWait[k].op = WAITOPERATOR(OR);
     }
@@ -808,7 +812,7 @@ diet_wait_or(diet_reqID_t* IDs, size_t length, diet_reqID_t* IDptr)
     // and manage return rule status
     switch (CallAsyncMgr::Instance()->addWaitRule(rule)){
       case DONE:
-	for (int k = 0; k < length; k++){
+	for (unsigned int k = 0; k < length; k++){
 	  if (CallAsyncMgr::Instance()->getStatusReqID(IDs[k]) == DONE){
 	    *IDptr = IDs[k];
 	    return DONE;

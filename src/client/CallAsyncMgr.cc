@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2003/06/25 09:20:55  cpera
+ * Change internal reqId from long int to int according to GridRPC and diet_reqID
+ * type.
+ *
  * Revision 1.6  2003/06/24 16:44:46  cpera
  * Fix bugs.
  *
@@ -57,7 +61,7 @@ CallAsyncMgr* CallAsyncMgr::Instance ()
  * add into internal list a new asynchronized reference
  * Return : 0 if OK, -1 if error
  * *******************************************************************/
-int CallAsyncMgr::addAsyncCall (long int reqID, diet_profile_t* dpt) 
+int CallAsyncMgr::addAsyncCall (int reqID, diet_profile_t* dpt) 
 {
   WriterLockGuard r(callAsyncListLock);
   // NOTE : maybe we do test if there is already this reqID registered
@@ -81,7 +85,7 @@ int CallAsyncMgr::addAsyncCall (long int reqID, diet_profile_t* dpt)
  * NOTES : caller must be released omni_semaphore and rules  !!!
  * job for awaken thread.. a call to deleteWaitRules is necesary ...
  * ******************************************************************/
- int CallAsyncMgr::deleteAsyncCall(long int reqID) 
+ int CallAsyncMgr::deleteAsyncCall(int reqID) 
 {
   WriterLockGuard r(callAsyncListLock);
   int k = -1;
@@ -197,7 +201,7 @@ int CallAsyncMgr::addWaitAnyRule(diet_reqID_t* IDptr)
       {
 	ReaderLockGuard r(callAsyncListLock);
 	CallAsyncList::iterator h = caList.begin();
-	for (int k = 0; k < caList.size(); k++){
+	for (unsigned int k = 0; k < caList.size(); k++){
 	  if (h->second->st == DONE){
 	    *IDptr = h->first;
 	    return DONE;
@@ -356,7 +360,7 @@ int CallAsyncMgr::areThereWaitRules()
 /**********************************************************************
  * corba callback server service API
  *********************************************************************/ 
-int CallAsyncMgr::notifyRst (long int reqID, corba_profile_t * dp) 
+int CallAsyncMgr::notifyRst (int reqID, corba_profile_t * dp) 
 {
   
   WriterLockGuard r(callAsyncListLock);
@@ -417,7 +421,7 @@ int CallAsyncMgr::notifyRst (long int reqID, corba_profile_t * dp)
  * CallAsyncMgr.hh
  * Return : enum STATUS
  * ********************************************************************/
-int CallAsyncMgr::getStatusReqID(long int reqID)
+int CallAsyncMgr::getStatusReqID(int reqID)
 {
   ReaderLockGuard r(callAsyncListLock);
   CallAsyncList::iterator h = caList.find(reqID);
