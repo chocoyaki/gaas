@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2003/09/29 09:20:05  ecaron
+ * Add stat_finalize() for MA and LA
+ *
  * Revision 1.13  2003/09/28 22:06:11  ecaron
  * Take into account the new API of statistics module
  *
@@ -98,6 +101,7 @@ AgentImpl::~AgentImpl()
   if (ORBMgr::unbindObj(ORBMgr::AGENT, this->myName)) {
     WARNING("could not undeclare myself as " << this->myName);
   }
+  stat_finalize();
 } // ~AgentImpl()
 
 
