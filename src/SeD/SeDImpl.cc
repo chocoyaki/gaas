@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.31  2004/10/04 13:52:32  hdail
+ * Added ability to restrict number of concurrent jobs running in the SeD.
+ *
  * Revision 1.30  2004/07/29 18:52:11  rbolze
  * Change solve function now , DIET_client send the reqID of the request when
  * he call the solve function.
@@ -28,79 +31,6 @@
  * add stat_flush in statistics API in order to flush write access to
  * statistic file for agent and sed which never end and can't call
  * stat_finalize
- *
- * Revision 1.25  2004/05/28 10:53:21  mcolin
- * change the endpoint option names for agents and servers
- *  endPointPort -> dietPort
- *  endPointHostname -> dietHostname
- *
- * Revision 1.24  2004/05/18 21:29:40  alsu
- * change the SeDImpl::estimate method to check for the existence of a
- * custom performance metric, and if so, call it with an apporpriate
- * diet_profile_t object
- *
- * Revision 1.23  2004/04/16 19:04:40  mcolin
- * Fix patch for the vthd demo with the endPoint option in config files.
- * This option is now replaced by two options:
- *   endPointPort: precise the listening port of the agent/server
- *   endPointHostname: precise the listening interface of the agent/server
- *
- * Revision 1.22  2004/03/25 14:30:42  bdelfabr
- * displayProfile removed in solveAsync
- *
- * Revision 1.21  2004/03/01 18:42:34  rbolze
- * add logservice
- *
- * Revision 1.20  2004/02/27 10:26:37  bdelfabr
- * let DIET_PERSISTENCE_MODE set to 1, coding standard
- *
- * Revision 1.19  2003/11/10 14:12:06  bdelfabr
- * estimate method modified
- * adding estimation time for data transfer in case of persistent data.
- * Data transfer time estimation is computed by FAST.
- *
- * Revision 1.18  2003/10/21 13:27:35  bdelfabr
- * Set persistence flag to 0
- *
- * Revision 1.17  2003/10/14 20:28:32  bdelfabr
- * adding method after solved problem to print the list of data owned by the
- * DataManager (PERSISTENT mode only)
- *
- * Revision 1.16  2003/10/10 14:53:45  bdelfabr
- * TabValue removed : no longer used
- *
- * Revision 1.15  2003/09/30 15:40:28  bdelfabr
- * manage Data Persistence with Solve and SolveAsync
- *
- * Revision 1.14  2003/09/29 09:33:50  pcombes
- * solve*: Delete the parameters allocated by unmrsh_in_args_to_profile.
- *
- * Revision 1.13  2003/09/29 09:25:01  ecaron
- * Take into account the new API of statistics module
- *
- * Revision 1.12  2003/09/24 09:15:38  pcombes
- * Merge corba_DataMgr_desc_t and corba_data_desc_t.
- *
- * Revision 1.11  2003/09/22 21:17:54  pcombes
- * Set all the modules and their interfaces for data persistency.
- *
- * Revision 1.9  2003/08/01 19:33:11  pcombes
- * Use FASTMgr.
- *
- * Revision 1.7  2003/07/04 09:47:57  pcombes
- * Use new ERROR, WARNING and TRACE macros.
- *
- * Revision 1.6  2003/06/23 13:35:06  pcombes
- * useAsyncAPI should be replaced by a "useBiDir" option. Remove it so far.
- *
- * Revision 1.3  2003/05/13 17:14:00  pcombes
- * Catch CORBA exceptions in serverSubscribe.
- *
- * Revision 1.2  2003/05/10 08:54:41  pcombes
- * New format for configuration files, new Parsers.
- *
- * Revision 1.1  2003/04/10 13:14:28  pcombes
- * Replace SeD_impl.cc. Implement contract checking. Use Parsers.
  ****************************************************************************/
 
 
@@ -285,7 +215,6 @@ SeDImpl::run(ServiceTable* services)
   }
   //  delete profiles
 
-    // size_t --> unsigned int
   unsigned int* endPoint = (unsigned int*)
     Parsers::Results::getParamValue(Parsers::Results::DIETPORT);
   // FIXME: How can I get the port used by the ORB ? and is it useful ?
@@ -293,6 +222,34 @@ SeDImpl::run(ServiceTable* services)
     this->port = 0;
   else
     this->port = *endPoint;
+
+#if HAVE_QUEUES
+  bool* tmpBoolPtr;
+  int* tmpIntPtr;
+  tmpBoolPtr = (bool*)
+    Parsers::Results::getParamValue(Parsers::Results::USECONCJOBLIMIT);
+  if(tmpBoolPtr == NULL){
+    this->useConcJobLimit = false;
+  } else {
+    this->useConcJobLimit = *tmpBoolPtr;
+  }
+
+  tmpIntPtr = (int*)
+    Parsers::Results::getParamValue(Parsers::Results::MAXCONCJOBS);
+  if(tmpIntPtr == NULL){
+    this->maxConcJobs = 1;
+  } else {
+    this->maxConcJobs = *tmpIntPtr;
+  }
+
+  if (this->useConcJobLimit){
+    this->accessController = new AccessController(this->maxConcJobs);
+    TRACE_TEXT(TRACE_MAIN_STEPS, "Concurrent jobs restricted to " 
+          << this->maxConcJobs << "\n");
+  } else {
+    this->accessController = NULL;
+  }
+#endif // HAVE_QUEUES
   
   // Init FAST (HAVE_FAST is managed by the FASTMgr class)
   return FASTMgr::init();
@@ -388,8 +345,27 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
   diet_profile_t profile;
   diet_convertor_t* cvt(NULL);
   int solve_res(0);
-  stat_in("SeD","solve");
 
+  ref = SrvT->lookupService(path, &pb);
+  if (ref == -1) {
+   ERROR("SeD::" << __FUNCTION__ << ": service not found", 1);
+  } 
+   
+#ifndef HAVE_FAST
+  /*
+  ** tell the default round-robin scheduler that we got a solve request!
+  */
+  RRsolve(ref);
+#endif /* ! HAVE_FAST */
+   
+
+#if HAVE_QUEUES
+  if (this->useConcJobLimit){
+    this->accessController->waitForResource();
+  }
+#endif // HAVE_QUEUES
+
+  stat_in("SeD","solve");
 
 #if HAVE_LOGSERVICE
   if (dietLogComponent != NULL) {
@@ -399,17 +375,6 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
 
   TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::solve invoked on pb: " << path << endl);
 
-  ref = SrvT->lookupService(path, &pb);
-  if (ref == -1) {
-   ERROR("SeD::" << __FUNCTION__ << ": service not found", 1);
-  } 
-#ifndef HAVE_FAST
-  /*
-  ** tell the default round-robin scheduler that we got a solve request!
-  */
-  RRsolve(ref);
-#endif /* ! HAVE_FAST */
-   
   cvt = SrvT->getConvertor(ref);
  
 #if DEVELOPPING_DATA_PERSISTENCY
@@ -474,6 +439,12 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
   }
 #endif
 
+#if HAVE_QUEUES
+  if (this->useConcJobLimit){
+    this->accessController->releaseResource();
+  }
+#endif // HAVE_QUEUES
+
   return solve_res;
 }
 
@@ -481,6 +452,7 @@ void
 SeDImpl::solveAsync(const char* path, const corba_profile_t& pb, 
 		    CORBA::Long reqID, const char* volatileclientREF)
 {
+  // TODO: enable RRSolve & Queue handling here to match solveSync
 #if HAVE_LOGSERVICE
   if (dietLogComponent != NULL) {
     dietLogComponent->logBeginSolve(path, &pb,reqID);

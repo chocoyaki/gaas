@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2004/10/04 13:52:32  hdail
+ * Added ability to restrict number of concurrent jobs running in the SeD.
+ *
  * Revision 1.11  2004/07/29 18:52:11  rbolze
  * Change solve function now , DIET_client send the reqID of the request when
  * he call the solve function.
@@ -62,6 +65,11 @@
 #include "DietLogComponent.hh"
 #endif
 
+#define HAVE_QUEUES 0
+
+#if HAVE_QUEUES
+#include "AccessController.hh"
+#endif
 
 /****************************************************************************/
 /* SeD class                                                                */
@@ -124,11 +132,6 @@ private:
   /* (Fully qualified) local host name */
   char localHostName[257];
 
-#if HAVE_JXTA
-  /* endoint of JXTA SeD*/
-  const char* uuid;
-#endif // HAVE_JXTA
-
   /* Listening port */
   // size_t --> unsigned int
   unsigned int port;
@@ -138,6 +141,21 @@ private:
 
   /* Data Manager associated to this SeD */
   DataMgrImpl* dataMgr;
+
+#if HAVE_QUEUES
+  /* Should SeD restrict the number of concurrent solves? */
+  bool useConcJobLimit;
+  /* If useConcJobLimit == true, how many jobs can run at once? */
+  int maxConcJobs;
+  /* Enforce limit on concurrent solves with semaphore-like semantics
+   * but supporting more features (priority enforcement, count reporting). */
+  AccessController* accessController;
+#endif
+
+#if HAVE_JXTA
+  /* endoint of JXTA SeD*/
+  const char* uuid;
+#endif // HAVE_JXTA
 
 #if HAVE_FAST
 
