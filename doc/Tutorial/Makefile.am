@@ -1,63 +1,77 @@
 #****************************************************************************#
 #* $Id$ *#
-#* DIET Coding Standards Makefile                                           *#
+#* DIET tutorial Makefile                                                   *#
 #*                                                                          *#
 #*  Author(s):                                                              *#
 #*    - Eddy CARON (Eddy.Caron@ens-lyon.fr)                                 *#
 #*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *#
-#*    - Christophe PERA (pera.christophe@ens-lyon.fr)                       *#
 #*                                                                          *#
 #*  This is part of DIET software.                                          *#
 #*  Copyright (C) 2002 ReMaP/LIFC/INRIA                                     *#
 #*                                                                          *#
 #****************************************************************************#
-#*
 #* $Log$
+#* Revision 1.3  2003/12/15 17:27:09  pcombes
+#* Use PG' Makefile with almost no changes.
+#*
 #* Revision 1.2  2003/12/14 07:59:47  ecaron
 #* Create DIET_tutorial.ps
 #*
 #* Revision 1.1  2003/02/14 10:31:29  cpera
 #* add files used by autoconf/automake/libtool.
-#*
 #****************************************************************************#
 
 
-#TOP = ../..
-#INSTALL_DIR = @PREFIX@
+mod = $(shell basename `pwd`)
 
-#export MODULE = $(shell basename `pwd`)
-#export TEX_FILES = $(shell ls *.tex)
-#export PS_FILES  = ../UsersManual/fig/logo_DIET.ps
+moddir = $(prefix)/doc
+mod_DATA = DIET_$(mod).ps
 
-MODULE = $(shell basename `pwd`)
-TEX_FILES = $(shell ls *.tex)
-PS_FILES  = ../UsersManual/fig/logo_DIET.ps
 
-#export EPS_FILES = $(shell if [ -d fig ]; then ls fig/*.fig | sed "s/\.fig/\.eps/g"; fi)
-#export BIB = $(shell ls | grep $(MODULE).bib)
+TEX_FILES = $(notdir $(wildcard $(srcdir)/*.tex))
+FIGDIR    = ../UsersManual/fig
+FIG_FILES = $(wildcard $(srcdir)/fig/*.fig)
+EPS_FILES = $(foreach file, $(notdir $(FIG_FILES)), \
+			    $(patsubst %.fig, fig/%.eps, $(file)))
+PS_FILES  = $(FIGDIR)/logo_DIET.ps
 
-TARGET = DIET_tutorial.ps
+EXTRA_DIST = $(mod_DATA) $(TEX_FILES) $(FIG_FILES)
 
-all: $(TARGET)
+$(mod_DATA): $(mod).dvi
+	dvips $(mod) -o $@
 
-$(PS_FILES):../UsersManual/fig/logo_DIET.gif 
+if MAINTAINER_MODE
+RED1  = 
+RED12 = 
+else
+RED1  = > /dev/null
+RED12 = > /dev/null 2>&1
+endif
 
-$(TARGET):	$(MODULE).dvi
-	dvips $(MODULE) -o  $@
+# If the example of header had true CVS fields, they would be replaced at each
+# commit. That is why $@Id$ and $@Log$ are used, which are to be replaced before
+# the compilation. The source to compile is stored in directory _tmp_.
+$(mod).dvi: $(EPS_FILES) $(PS_FILES) $(TEX_FILES)
+	@(export TEXINPUTS=:.:$(srcdir):;		\
+	  echo latex $(mod) $(RED1);		\
+	  latex $(mod).tex $(RED1);		\
+	  echo latex $(mod) $(RED1);		\
+	  latex $(mod) $(RED1);			\
+	  latex $(mod) $(RED1))
 
-$(MODULE).dvi:	$(PS_FILES) $(TEX_FILES) # $(EPS_FILES) $(BIB)
-	latex $(MODULE) > /dev/null
-#	bibtex -terse $(MODULE) || exit 0
-#	latex $(MODULE)
-	latex $(MODULE) > /dev/null
+.fig.eps:
+	@if [ ! -d fig ]; then mkdir fig; fi
+	fig2dev -L eps $^ $@
 
-#%.eps:	%.fig
-#	fig2dev -L eps $< $@
-
-%.ps:	%.gif
+$(FIGDIR)/logo_DIET.ps: $(FIGDIR)/logo_DIET.gif
+	@if [ ! -d $(FIGDIR) ]; then mkdir $(FIGDIR); fi
 	convert $^ $@
 
+
 clean-local:
-	rm -f *.aux *.log *.dvi *.bbl *.blg *.toc *.lof *.lot *.ps *.pdf
-distclean-local:clean-local
+	rm -f $(mod_DATA) *.aux *.log *.dvi *.ps $(PS_FILES)
+	@if [ "$(top_builddir)" != "$(top_srcdir)" ]; then	\
+	  echo rmdir $(FIGDIR);					\
+	  rmdir $(FIGDIR) $(RED12) || exit 0;			\
+	fi
 
