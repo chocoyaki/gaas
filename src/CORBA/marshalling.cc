@@ -12,6 +12,11 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.9  2002/10/03 17:58:13  pcombes
+ * Add trace levels (for Bert): traceLevel = n can be added in cfg files.
+ * An agent son can now be killed (^C) without crashing this agent.
+ * DIET with FAST: compilation is OK, but run time is still to be fixed.
+ *
  * Revision 1.8  2002/09/17 15:23:11  pcombes
  * Bug fixes on inout arguments and examples
  * Add support for omniORB 4.0.0
@@ -50,6 +55,17 @@
 
 #include "marshalling.hh"
 #include "debug.hh"
+
+/**
+ * Trace level
+ */
+// FIXME: should be used for traceLevel >= TRACE_STRUCTURES only ...
+static int traceLevel;
+
+void mrsh_set_trace_level(int level)
+{
+  traceLevel = level;
+}
 
 
 /*==========================================================================*/

@@ -12,6 +12,11 @@
 #****************************************************************************#
 #*
 #* $Log$
+#* Revision 1.6  2002/10/03 17:58:20  pcombes
+#* Add trace levels (for Bert): traceLevel = n can be added in cfg files.
+#* An agent son can now be killed (^C) without crashing this agent.
+#* DIET with FAST: compilation is OK, but run time is still to be fixed.
+#*
 #* Revision 1.5  2002/09/17 15:23:18  pcombes
 #* Bug fixes on inout arguments and examples
 #* Add support for omniORB 4.0.0
@@ -58,7 +63,7 @@ server.o:	server.c
 	$(CC) -c $< $(CCFLAGS) $(INCLUDE) -o $@
 
 server:		server.o @PREFIX@/lib/libDIET_SeD.a
-	$(CC) $< $(CCFLAGS) $(LIBS) -lDIET_SeD -o $@
+	$(CC) $< $(CCFLAGS) $(LIBS) -lDIET_SeD $(FASTLIBS) -o $@
 
 clean:
 	rm -f *.o client server

@@ -27,11 +27,13 @@ FAST
 
 FAST calls should be OK, but slimfast interface should be updated with new corba
 and DIET data structures.
+Add also calls for low-level API (NWS) when FAST does not know.
 
 
 OTHERS
 -------
 
+FILE TRANSFER !!!!
 Add trace levels, set in the configuration files
 Use openSSL omniORB support for all communication (under option)
 

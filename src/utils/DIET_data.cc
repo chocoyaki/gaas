@@ -11,6 +11,11 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.3  2002/10/03 17:58:20  pcombes
+ * Add trace levels (for Bert): traceLevel = n can be added in cfg files.
+ * An agent son can now be killed (^C) without crashing this agent.
+ * DIET with FAST: compilation is OK, but run time is still to be fixed.
+ *
  * Revision 1.2  2002/08/30 16:50:16  pcombes
  * This version works as well as the alpha version from the user point of view,
  * but the API is now the one imposed by the latest specifications (GridRPC API
@@ -38,6 +43,17 @@
 #include "DIET_server.h"
 #include "types.hh"
 //#include "dietTypes.hh"
+
+/**
+ * Trace level
+ */
+// FIXME: should be used for traceLevel >= TRACE_STRUCTURES only ...
+static int traceLevel;
+
+void data_set_trace_level(int level)
+{
+  traceLevel = level;
+}
 
 
 /****************************************************************************/

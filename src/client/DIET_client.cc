@@ -12,6 +12,11 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.5  2002/10/03 17:58:16  pcombes
+ * Add trace levels (for Bert): traceLevel = n can be added in cfg files.
+ * An agent son can now be killed (^C) without crashing this agent.
+ * DIET with FAST: compilation is OK, but run time is still to be fixed.
+ *
  * Revision 1.4  2002/10/02 17:06:15  pcombes
  * Complete ArgStack API
  *
@@ -49,7 +54,7 @@
 #include "types.hh"
 #include "marshalling.hh"
 #include "omniorb.hh"
-//#include "debug.hh"
+#include "debug.hh"
 
 extern "C" {
 
@@ -60,6 +65,9 @@ extern "C" {
 
 /* The Master Agent */
 static Agent_var MA;
+
+/* Trace Level */
+static int traceLevel;
 
 
 /****************************************************************************/
@@ -85,6 +93,17 @@ int parseConfigFile(char *config_file_name, char *MA_name)
   if (fscanf(file, "%s", MA_name) != 1) {
     cerr << "Parsing client configuration file: Failed to read agent name.\n";
     return 1;
+  }
+  
+  {
+    int fscanf_res, level = 1;
+    fscanf_res = fscanf(file, " traceLevel = %d", &level);
+    if (fscanf_res == 0 || fscanf_res == 1) {
+      traceLevel = level;
+    } else {
+      cerr << "Parsing client configuration file: Failed to read trace level.\n";
+      return 1;
+    }
   }
 
   // Here must be inserted the services parsing
@@ -297,15 +316,17 @@ int submission(corba_profile_t *profile, SeqCorbaDecision_t **decision)
   (*decision) = MA->submit(*profile);
   
   if ((*decision)->length() == 0) {
-    cout << "No server found for problem " << profile->path << ".\n";
+    cerr << "No server found for problem " << profile->path << ".\n";
     server_OK = -1;
 
   } else {
 
-    cout << "The Master Agent found the following server(s):\n";
-    for (size_t i = 0; i < (*decision)->length(); i++) {
-      cout << "    " << (**decision)[i].chosenServerName << ":"
-	   << (**decision)[i].chosenServerPort << "\n";
+    if (traceLevel >= TRACE_MAIN_STEPS) {
+      cout << "The Master Agent found the following server(s):\n";
+      for (size_t i = 0; i < (*decision)->length(); i++) {
+	cout << "    " << (**decision)[i].chosenServerName << ":"
+	     << (**decision)[i].chosenServerPort << "\n";
+      }
     }
     server_OK = 0;
     while ((size_t) server_OK < (*decision)->length()) {
@@ -351,19 +372,21 @@ int diet_call(diet_function_handle_t *handle, diet_profile_t *profile)
   }
 
 #if 0
-  cout << "Parsing parameters locations:" << endl;
+  if (traceLevel >= TRACE_ALL_STEPS) {
+    cout << "Parsing parameters locations:" << endl;
   
-  for (int i = 0; i <= pb->last_inout; i++) {
-    cout << " Datum " << i << ": ";
-    
-    if (CORBA::is_nil(decision->decisions[0].dataLocs[i].localization)) {
-      cout << "  unknown location" << endl;
-    } else {
-      cout << "  located on " << decision->decisions[0].dataLocs[i].hostname << ", port "
-	   << decision->decisions[0].dataLocs[i].port
-	   << "  (pinging server (" << i << ") ... ";
-      decision->decisions[0].dataLocs[i].localization->ping();
-      cout << "done" << endl;
+    for (int i = 0; i <= pb->last_inout; i++) {
+      cout << " Datum " << i << ": ";
+      
+      if (CORBA::is_nil(decision->decisions[0].dataLocs[i].localization)) {
+	cout << "  unknown location" << endl;
+      } else {
+	cout << "  located on " << decision->decisions[0].dataLocs[i].hostname << ", port "
+	     << decision->decisions[0].dataLocs[i].port
+	     << "  (pinging server (" << i << ") ... ";
+	decision->decisions[0].dataLocs[i].localization->ping();
+	cout << "done" << endl;
+      }
     }
   }
 #endif

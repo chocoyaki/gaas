@@ -11,6 +11,11 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.3  2002/10/03 17:58:14  pcombes
+ * Add trace levels (for Bert): traceLevel = n can be added in cfg files.
+ * An agent son can now be killed (^C) without crashing this agent.
+ * DIET with FAST: compilation is OK, but run time is still to be fixed.
+ *
  * Revision 1.2  2002/08/30 16:50:14  pcombes
  * This version works as well as the alpha version from the user point of view,
  * but the API is now the one imposed by the latest specifications (GridRPC API
@@ -154,7 +159,7 @@ int DIET_SeD(char *config_file_name, int argc, char **argv)
 
   while(1)
     {
-      sleep(100);
+      sleep(10000);
     }
  
   return 0;

@@ -12,6 +12,11 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.8  2002/10/03 17:58:13  pcombes
+ * Add trace levels (for Bert): traceLevel = n can be added in cfg files.
+ * An agent son can now be killed (^C) without crashing this agent.
+ * DIET with FAST: compilation is OK, but run time is still to be fixed.
+ *
  * Revision 1.7  2002/09/17 15:23:11  pcombes
  * Bug fixes on inout arguments and examples
  * Add support for omniORB 4.0.0
@@ -50,6 +55,7 @@
 
 #include "dietTypes.hh"
 #include "types.hh"
+
 
 /*--------------------------------------------------------------------------*/
 /* <FIXME: This comments should be updated>                                 */

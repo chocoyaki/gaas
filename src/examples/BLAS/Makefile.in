@@ -12,6 +12,11 @@
 #****************************************************************************#
 #*
 #* $Log$
+#* Revision 1.5  2002/10/03 17:58:16  pcombes
+#* Add trace levels (for Bert): traceLevel = n can be added in cfg files.
+#* An agent son can now be killed (^C) without crashing this agent.
+#* DIET with FAST: compilation is OK, but run time is still to be fixed.
+#*
 #* Revision 1.4  2002/09/17 15:23:16  pcombes
 #* Bug fixes on inout arguments and examples
 #* Add support for omniORB 4.0.0
@@ -51,10 +56,10 @@ BLAS_client.o:	BLAS_client.c
 
 
 
-dgemm\
-pdgemm:
+dgemm:
 	$(MAKE) client_server -C $@ -f ../Makefile TOP=../$(TOP)
-
+pdgemm:
+	$(MAKE) client_server -C $@ -f ../Makefile TOP=../$(TOP) CC=mpicc
 
 
 client_server:	client server
@@ -66,10 +71,10 @@ client.o:	client.c
 	$(CC) -c $< $(CCFLAGS) $(INCLUDE) -o $@
 
 server:		server.o @PREFIX@/lib/libDIET_SeD.a
-	mpicc $< $(CCFLAGS) $(LIBS) $(BLASLIBS) -lDIET_SeD -o $@
+	$(CC) $< $(CCFLAGS) $(LIBS) $(BLASLIBS) -lDIET_SeD $(FASTLIBS) -o $@
 
 server.o:	server.c
-	mpicc -c $< $(CCFLAGS) $(INCLUDE) -o $@
+	$(CC) -c $< $(CCFLAGS) $(INCLUDE) -o $@
 
 
 

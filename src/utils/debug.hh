@@ -12,6 +12,11 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.8  2002/10/03 17:58:21  pcombes
+ * Add trace levels (for Bert): traceLevel = n can be added in cfg files.
+ * An agent son can now be killed (^C) without crashing this agent.
+ * DIET with FAST: compilation is OK, but run time is still to be fixed.
+ *
  * Revision 1.7  2002/09/17 15:23:19  pcombes
  * Bug fixes on inout arguments and examples
  * Add support for omniORB 4.0.0
@@ -49,6 +54,20 @@
 
 #include "types.hh"
 #include "dietTypes.hh"
+
+/**
+ * Various trace levels
+ **/
+#define NO_TRACE            0
+#define TRACE_MAIN_STEPS    1
+#define TRACE_ALL_STEPS     5
+#define TRACE_STRUCTURES   10
+#define TRACE_MAX_VALUE    TRACE_STRUCTURES
+
+/* Implemented in DIET_data.cc */
+void data_set_trace_level(int level);
+void mrsh_set_trace_level(int level);
+
 
 // DEBUG trace: print variable name and value
 #define TRACE(var) cout << #var << " = " << (var) << endl
