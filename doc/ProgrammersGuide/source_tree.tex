@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.8  2004/01/07 22:39:53  cpera
+%* Fix latex syntax errors.
+%*
 %* Revision 1.7  2004/01/07 22:35:53  cpera
 %* Add asynchronous dmat_manip examples description.
 %*
@@ -666,9 +669,9 @@ This directory contains documentations that are to be maintained up-to-date,
         use \texttt{diet\_call\_async} to start solve on SeD but each example shows 
         a distinct function of asynchronous DIET API to get results. Like synchronous
         client, you can ask solving a SUM/PROD/T operation on SeD. Besides, they are 
-        \texttt{dietmultithreaded. You can specify thread number of a pool and solve number. Each 
+        \texttt{multithreaded}. You can specify thread number of a pool and solve number. Each 
         thread cucurently sends data to SeD(s) and gets results according to its used
-        texttt{diet\_\{wait\/probe\}\_*} function.
+        texttt{diet\_wait\/probe\_*} function.
         texttt{parallelclient.cc} retrieves results by a simple texttt{diet\_wait} function 
         and texttt{parallelclient2.cc} by a peridical texttt{diet\_probe} call.
         texttt{parallelclient3.cc} and texttt{parallelclient3.cc} are examples about
