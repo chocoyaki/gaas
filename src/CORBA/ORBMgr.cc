@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2003/06/02 09:20:19  cpera
+ * Delete debug trace.
+ *
  * Revision 1.5  2003/06/02 08:53:16  cpera
  * Update api for asynchronize calls, manage bidir poa.
  *
@@ -30,7 +33,6 @@ using namespace std;
 
 #include "ORBMgr.hh"
 #include "debug.hh"
-#include "Global_macros.hh"
 
 extern unsigned int TRACE_LEVEL;
 
@@ -79,7 +81,6 @@ ORBMgr::init(int argc, char** argv, bool init_POA, int DIET_ct)
     PortableServer::POAManager_var pman = POA->the_POAManager();
     if (ORBMgr::DIET_ct == 1) {
     // Create a POA with the Bidirectional policy
-      DIET_TRACE("Creation d'un POA admettant les communications Bidirectionnelles")
       CORBA::PolicyList pl;
       pl.length(1);
       CORBA::Any a;
@@ -107,7 +108,6 @@ ORBMgr::activate(PortableServer::ServantBase* obj)
     if (ORBMgr::DIET_ct == 1) PortableServer::ObjectId_var mySeDId = ORBMgr::POA_BIDIR->activate_object(obj);
     else { 
       PortableServer::ObjectId_var mySeDId = ORBMgr::POA->activate_object(obj);
-      DIET_TRACE("Fin de l'activation de l'objet -- OK (sans Bidir)....")
       // Activate obj on the poa
       // Get the POAManager Ref and activate it
       // PortableServer::POAManager_var pman = POA->the_POAManager();
@@ -115,7 +115,6 @@ ORBMgr::activate(PortableServer::ServantBase* obj)
     }
   }
   catch (...){
-    DIET_TRACE("Ecxeption catchee!!!!!!!!!!!!!!!!!!!")
     return -1;
   }
   return 0;
@@ -307,7 +306,6 @@ ORBMgr::getIORString(CORBA::Object_ptr obj)
     return ORB->object_to_string(obj);
   }
   catch(...){
-    DIET_TRACE("Exception ...")
   }
   return NULL;  
 }
