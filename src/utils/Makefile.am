@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.12  2004/11/25 08:59:09  rbolze
+#* add AccessController.hh header
+#*
 #* Revision 1.11  2004/10/04 13:55:06  hdail
 #* - Added AccessController class, an enhanced counting semaphore.
 #* - Added config file options for controlling concurrent SeD access.
@@ -62,7 +65,8 @@ noinst_HEADERS = com_tools.hh Counter.hh debug.hh DIET_data_internal.hh \
 		 ReadersWriterLock.hh ServiceTable.hh ServiceTable.hh \
 		 statistics.hh ts_container/ts_map.hh \
 		 ts_container/ts_set.hh ts_container/ts_vector.hh \
-		 DietLogComponent.hh MonitoringThread.hh KeyString.hh
+		 DietLogComponent.hh MonitoringThread.hh KeyString.hh \
+		 AccessController.hh
 
 
 AM_CXXFLAGS = $(CXXFLAGS_OMNIORB) $(CXXFLAGS_FAST) \
