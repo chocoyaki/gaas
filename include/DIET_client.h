@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2004/10/06 18:09:50  rbolze
+ * fix a bug due to last commit :)
+ *
  * Revision 1.15  2004/10/06 16:44:28  rbolze
  * add new function in API : get_diet_services which return a list of available services in the platform
  *
@@ -139,7 +142,7 @@ diet_wait_any(diet_reqID_t* IDptr);
 /*    get available Services in the DIET Platform                           */
 /****************************************************************************/
 char **
-get_diet_services(int &services_number);
+get_diet_services(int *services_number);
 
 #ifdef __cplusplus
 }
