@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2003/11/10 14:03:10  bdelfabr
+ * adding methods that allow tranfer time between servers to be computed
+ *
  * Revision 1.5  2003/10/14 20:29:06  bdelfabr
  * adding print methods (PERSISTENT mode only)
  *
@@ -38,8 +41,10 @@
 #include "LocMgr.hh"
 #include "ServiceTable.hh"
 #include "LinkedList.hh"
+#include "ts_container/ts_map.hh"
 
 /** defines string comparison for map management */
+
 struct cmpID
 {
   bool operator()(const char* s1, const char* s2) const
@@ -96,7 +101,13 @@ public:
   void
   rmAllData();
 #endif
-
+  
+  virtual char *
+  whichSeDOwner(const char * argId);
+  
+  char *
+  whichDataMgr(const char * argId);
+  
 private:
  
   /**************************************************************************/
@@ -111,8 +122,8 @@ private:
   /* reference of the parent Data Location Manager */
   LocMgr_var parent;
 
-  typedef map<const char*,corba_data_t,cmpID> dietDataDescList_t;
-  typedef map<const char *,omni_mutex,cmpID> dietDataIDLockList_t;
+  typedef ts_map<const char*,corba_data_t,cmpID> dietDataDescList_t;
+  typedef ts_map<const char *,omni_mutex,cmpID> dietDataIDLockList_t;
   
   /*List of the data held by the Data Manager*/
   dietDataDescList_t dataDescList;

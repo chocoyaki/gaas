@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2003/11/10 14:03:11  bdelfabr
+ * adding methods that allow tranfer time between servers to be computed
+ *
  * Revision 1.7  2003/10/21 13:27:59  bdelfabr
  * set Persistence flag to 0
  *
@@ -41,7 +44,7 @@
 #include "Parsers.hh"
 #include "ts_container/ts_map.hh"
 
-#define DEVELOPPING_DATA_PERSISTENCY 0
+#define DEVELOPPING_DATA_PERSISTENCY 1
 
 
 /** Data Manager Constructor */
@@ -114,23 +117,32 @@ DataMgrImpl::cpEltListToDataT(corba_data_t *cData)
 {
 
 #if DEVELOPPING_DATA_PERSISTENCY
-
- corba_data_t &the_data=dataDescList[CORBA::string_dup(cData->desc.id.idNumber)] ;
-
- cData->desc=the_data.desc;
-
- long unsigned int size = (long unsigned int) data_sizeof(&(the_data.desc));
- 
- if ((diet_data_type_t)(the_data.desc.specific._d()) != DIET_FILE) {
-   CORBA::Boolean orphan = 0;
-   CORBA::Char *p;
-   
-   p = static_cast <CORBA::Char *>(the_data.value.get_buffer(orphan));
-   
-   cData->value.replace(size,size,p,0); /* the map keeps control of the data */
-   
- }
- 
+  
+  char *p1;
+  double *value;
+  corba_data_t &the_data=dataDescList[CORBA::string_dup(cData->desc.id.idNumber)] ;
+  
+  cData->desc=the_data.desc;
+  
+  long unsigned int size = (long unsigned int) data_sizeof(&(the_data.desc));
+  value=(double *)malloc(size*sizeof(double));
+  if ((diet_data_type_t)(the_data.desc.specific._d()) != DIET_FILE) {
+    CORBA::Boolean orphan = 0;
+    CORBA::Char *p;
+    
+    p = static_cast <CORBA::Char *>(the_data.value.get_buffer(orphan));
+    
+    cData->value.replace(size,size,p,0); /* the map keeps control of the data */
+    cout << "\nGET IN DATA " << endl;
+    p1=(char *) cData->value.get_buffer(0);
+    
+    value  = (double*)p1;
+    for (unsigned int i=0;i<size/sizeof(double);i++)
+      cout <<value[i] << " " ; 
+    cout << "\nEND GET IN DATA" << endl;
+  }
+  
+								     
 #endif // DEVELOPPING_DATA_PERSISTENCY
 }
 
@@ -161,8 +173,11 @@ void
 DataMgrImpl::addDataDescToList(corba_data_t *dataDesc, int inout) // FIXME : diet_grpc_arg_mode_t IN ...
 {
 #if DEVELOPPING_DATA_PERSISTENCY
-  corba_data_t &the_data= dataDescList[ms_strdup(dataDesc->desc.id.idNumber)] ;
+  char *p1;
+  double *value;
 
+  corba_data_t &the_data= dataDescList[ms_strdup(dataDesc->desc.id.idNumber)] ;
+ 
   the_data.desc = dataDesc->desc; 
   the_data.desc.id.idNumber  = ms_strdup(dataDesc->desc.id.idNumber); 
   the_data.desc.id.dataCopy  = DIET_ORIGINAL;
@@ -170,7 +185,7 @@ DataMgrImpl::addDataDescToList(corba_data_t *dataDesc, int inout) // FIXME : die
     
 
   long unsigned int size = (long unsigned int) data_sizeof(&(dataDesc->desc));
- 
+  value=(double *)malloc(size*sizeof(double));
   if ( (diet_data_type_t)(dataDesc->desc.specific._d()) != DIET_FILE) {
     
     if(inout == 0) {/* IN ARGS */
@@ -183,7 +198,14 @@ DataMgrImpl::addDataDescToList(corba_data_t *dataDesc, int inout) // FIXME : die
       dataDesc->value.replace(size,size,p,0); /* used to not loose the value */
       
       the_data.value.replace(size,size,p,1); /* map takes the control an value */
-        
+
+      cout << "\nADD IN DATA " << endl;
+      p1=(char *) the_data.value.get_buffer(0);
+      
+      value  = (double*)p1;
+      for (unsigned int i=0;i<size/sizeof(double);i++)
+	cout <<value[i] << " " ; 
+      cout << "\nEND ADD IN DATA" << endl;
      
     } else { // OUT ARGS 
    
@@ -195,7 +217,14 @@ DataMgrImpl::addDataDescToList(corba_data_t *dataDesc, int inout) // FIXME : die
       the_data.value.replace(size,size,p,1);
       
       dataDesc->value.replace(size,size,p,0);
+     
+      cout << "\nADD OUT DATA " << endl;
+      p1=(char *) the_data.value.get_buffer(0);
       
+      value  = (double*)p1;
+      for (unsigned int i=0;i<size/sizeof(double);i++)
+	cout <<value[i] << " " ; 
+      cout << "\nEND ADD OUT DATA" << endl;
     }
     
   }
@@ -249,20 +278,41 @@ DataMgrImpl::sendData(corba_data_t &arg)
 }
 
 /**
+ * returns the SeD Name whose DM owns a data identified by argId
+ */
+
+char *
+DataMgrImpl::whichSeDOwner(const char * argId){
+  return this->localHostName;
+
+}
+
+char *
+DataMgrImpl::whichDataMgr(const char * argId){
+
+    char *dataSrc = parent->whichSeDOwner(strdup(argId));
+    if (*dataSrc=='\0')
+      return NULL;
+    else 
+      return dataSrc;
+}
+
+/**
  * Invoked by the server. It is looking for a persistent data. 
  * If local just update the value if not invoke its Loc Manager Parent to get it. 
  */
+
 void
 DataMgrImpl::getData(corba_data_t &cData)
 {
   
 #if DEVELOPPING_DATA_PERSISTENCY
   if(dataLookup(cData.desc.id.idNumber)){ // if data present
- 
+   dataDescList.unlock();
     cpEltListToDataT(&cData);
  
   } else { // data not lacally present
-    
+    cout << "DATA NOT HERE" << endl;
     DataMgr_ptr dataSrc;
  
     dataSrc=parent->whereData(strdup(cData.desc.id.idNumber));
@@ -289,13 +339,26 @@ DataMgrImpl::printList1(){
     cout << "+-----------------+" << endl;
     cout << "|  Data ID        |" << endl;
     cout << "+-----------------+" << endl;
+    dataDescList.lock();
     dietDataDescList_t::iterator cur = dataDescList.begin();
+
     while (cur != dataDescList.end()) {
-      //strcpy(cur->first,tab);
-      cout << "|        " << cur->first[2] << "        |" << endl;
-      cout << "+-----------------+" << endl;
+     
+      char *p1;
+      double *value;
+      long unsigned int size = (long unsigned int) data_sizeof(&(cur->second.desc));
+      value=(double *)malloc(size*sizeof(double));
+    
+      p1=(char *) cur->second.value.get_buffer(0);
+      value  = (double*)p1;
+      cout << "|        " << cur->first << "        |" << endl; // cur->first[2]
+         cout << "VALUE  " << endl;
+	 //    for(unsigned int i=0;i<size/sizeof(double);i++)
+	 //	cout <<value[i] << " " ; 
+	cout << "+-----------------+" << endl;
       cur++;
     }
+    dataDescList.unlock();
   }
  
 }
@@ -404,7 +467,8 @@ DataMgrImpl::whereData(const char *argID)
 
 #if DEVELOPPING_DATA_PERSISTENCY
 
-  if(dataLookup(CORBA::string_dup(argID))){  
+  if(dataLookup(CORBA::string_dup(argID))){ 
+    dataDescList.unlock();
     return(this->_this());
   } else {
     return(DataMgr::_nil());
@@ -422,9 +486,18 @@ bool
 DataMgrImpl::dataLookup(char *argID)
 {
 
+  cout << "LOOKING FOR " << argID << endl;
+  printList1();
 #if DEVELOPPING_DATA_PERSISTENCY
-  dataDescList.begin();
+  dataDescList.lock();
+  // dataDescList.begin();
   return(dataDescList.find(ms_strdup(argID)) != dataDescList.end());
+//{
+    //dataDescList.unlock();
+    // cout << "I HAVE FOUND DATA" << endl;
+    // return true;
+    // }else 
+    // return false;
 #endif // DEVELOPPING_DATA_PERSISTENCY
 return false;
  
