@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2004/06/11 15:45:39  ctedesch
+ * add DIET/JXTA
+ *
  * Revision 1.7  2004/03/01 18:43:57  rbolze
  * add logservice
  *
@@ -92,6 +95,9 @@ public:
   /** Subscribe a server as a SeD child. Remotely called by an SeD. */
   virtual CORBA::ULong
   serverSubscribe(SeD_ptr me, const char* hostName,
+#if HAVE_JXTA
+		  const char* uuid,
+#endif // HAVE_JXTA
 		  const SeqCorbaProfileDesc_t& services);
 
   /** Add services into the service table, and attach them to child me.*/

@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.7  2004/06/11 15:45:39  ctedesch
+#* add DIET/JXTA
+#*
 #* Revision 1.6  2003/09/22 21:07:30  pcombes
 #* Add files for data persistency.
 #*
@@ -26,6 +29,10 @@
 include $(top_srcdir)/config.mk.in
 
 lib_LTLIBRARIES = libDIET_SeD.la
+
+if JXTA_MODE
+lib_LTLIBRARIES += libSeDJNI.la
+endif
 
 libDIET_SeD_la_SOURCES = DIET_server.cc SeDImpl.cc DataMgrImpl.cc
 
@@ -44,3 +51,24 @@ AM_CXXFLAGS = $(CXXFLAGS_OMNIORB) $(CXXFLAGS_FAST) -I$(top_srcdir)/src/utils \
 	      -I$(top_srcdir)/src/CORBA -I$(corbadir)/idl 		     \
 	      -I$(top_srcdir)/src/agent
 
+
+if JXTA_MODE
+
+AM_CPPFLAGS += -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux
+
+libSeDJNI_la_SOURCES = $(top_srcdir)/include/DIET_server.h SeDJNI.cc SeDImpl.cc \
+	DataMgrImpl.cc
+libSeDJNI_la_DEPENDENCIES = JXTASeD.h
+libSeDJNI_la_LIBADD = $(libDIET_SeD_la_LIBADD)
+
+SeDJNI.cc: JXTASeD.h
+JXTASeD.h: JXTASeD.class
+	$(JAVAH) JXTASeD
+
+JXTASeD.class: JXTASeD.java
+	$(JAVAC) -classpath .:$(JXTA_JAR) JXTASeD.java
+
+clean:
+	rm -f *.class JXTASeD.h
+
+endif

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2004/06/11 15:45:39  ctedesch
+ * add DIET/JXTA
+ *
  * Revision 1.26  2004/06/09 15:10:38  mcolin
  * add stat_flush in statistics API in order to flush write access to
  * statistic file for agent and sed which never end and can't call
@@ -123,7 +126,7 @@ extern unsigned int TRACE_LEVEL;
 
 SeDImpl::SeDImpl()
 {
-  this->SrvT    = NULL;
+this->SrvT    = NULL;
   this->childID = -1;
   this->parent  = Agent::_nil();
   this->localHostName[0] = '\0';
@@ -134,6 +137,23 @@ SeDImpl::SeDImpl()
   this->dietLogComponent = NULL;
 #endif
 }
+
+#if HAVE_JXTA
+SeDImpl::SeDImpl(const char* uuid = '\0')
+{
+  this->SrvT    = NULL;
+  this->childID = -1;
+  this->parent  = Agent::_nil();
+  this->localHostName[0] = '\0';
+  this->uuid = uuid;
+#if HAVE_FAST
+  this->fastUse = 1;
+#endif // HAVE_FAST
+#if HAVE_LOGSERVICE
+  this->dietLogComponent = NULL;
+#endif
+}
+#endif //HAVE_JXTA
 
 SeDImpl::~SeDImpl()
 {
@@ -178,7 +198,12 @@ SeDImpl::run(ServiceTable* services)
   if (TRACE_LEVEL >= TRACE_STRUCTURES)
     SrvT->dump(stdout);
   try {
-    childID = parent->serverSubscribe(this->_this(), localHostName, *profiles);
+    childID = parent->serverSubscribe(this->_this(), localHostName,
+#if HAVE_JXTA
+				      uuid,
+#endif //HAVE_JXTA
+
+				      *profiles);
   } catch (CORBA::Exception& e) {
     CORBA::Any tmp;
     tmp <<= e;
@@ -246,6 +271,9 @@ SeDImpl::getRequest(const corba_request_t& creq)
     resp.sortedIndexes[0]        = 0;
     resp.servers[0].loc.ior      = SeD::_duplicate(_this());
     resp.servers[0].loc.hostName = CORBA::string_dup(localHostName);
+#if HAVE_JXTA
+    resp.servers[0].loc.uuid = CORBA::string_dup(uuid);
+#endif //HAVE_JXTA
     resp.servers[0].loc.port     = this->port;
     resp.servers[0].estim.commTimes.length(creq.pb.last_out + 1);
     for (int i = 0; i <= creq.pb.last_out; i++)

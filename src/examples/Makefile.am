@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.8  2004/06/11 15:45:39  ctedesch
+#* add DIET/JXTA
+#*
 #* Revision 1.7  2003/09/29 09:16:25  pcombes
 #* Fix bug in generation of ldap_schema.
 #*
@@ -34,9 +37,16 @@
 #****************************************************************************#
 
 SUBDIRS = dmat_manips file_transfer scalars @SUBMODULES_examples@
+if JXTA_MODE
+SUBDIRS += JXTA
+endif
+
 # DIST_SUBDIRS is forced to all examples, so that it is still possible to build
 # a (user) dsitribution in user mode.
 DIST_SUBDIRS = BLAS dmat_manips file_transfer ScaLAPACK scalars
+if JXTA_MODE
+DIST_SUBDIRS += JXTA
+endif
 
 .PHONY:	$(DIST_SUBDIRS)
 

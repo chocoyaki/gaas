@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.30  2004/06/11 15:45:39  ctedesch
+#* add DIET/JXTA
+#*
 #* Revision 1.29  2004/04/19 08:52:42  rbolze
 #* add a line to informe you if you have or not configure with the logservice option
 #*
@@ -190,19 +193,39 @@ AH_TEMPLATE(HAVE_STATISTICS, [Define the use of the statistics tools.])
 AC_ARG_ENABLE(stats,
 	      AC_HELP_STRING([--enable-stats],
 			     [enable generation of statistics logs]),
-	      [AC_DEFINE(HAVE_STATISTICS)][IDLFLAGS="$IDLFAGS -DHAVE_STATISTICS"])
+	      [AC_DEFINE(HAVE_STATISTICS)][IDLFLAGS="$IDLFLAGS -DHAVE_STATISTICS"])
 
 AH_TEMPLATE(HAVE_MULTI_MA, [Define the use of a multi MA architecture.])
 AC_ARG_ENABLE(multi-MA,
 	      AC_HELP_STRING([--enable-multi-MA],
 			     [enable multi-MA architecture]),
-	      [AC_DEFINE(HAVE_MULTI_MA)][IDLFLAGS="$IDLFAGS -DHAVE_MULTI_MA"])
+	      [AC_DEFINE(HAVE_MULTI_MA)][IDLFLAGS="$IDLFLAGS -DHAVE_MULTI_MA"])
+
+AH_TEMPLATE([HAVE_JXTA], [Define use of DIET/JXTA architecture.])
+AC_MSG_CHECKING([whether to use DIET/JXTA architecture])
+    AC_ARG_ENABLE(JXTA-mode,
+    		AC_HELP_STRING([--enable-JXTA-mode],
+		[enable DIET/JXTA architecture]),
+		[USE_JXTA_MODE=yes]
+		[enable_JXTA=yes],
+		[USE_JXTA_MODE=no])
+AC_MSG_RESULT([$USE_JXTA_MODE])
+AM_CONDITIONAL(JXTA_MODE, [test $USE_JXTA_MODE = yes])
+JXTA=$JXTA_MODE_TRUE
+
+if test "x$enable_JXTA" = "xyes"
+then
+  AC_DEFINE(HAVE_JXTA)
+  IDLFLAGS="$IDLFLAGS -DHAVE_JXTA"
+  NA_DETECT_JAVA(required)
+  NA_DETECT_JXTA
+fi
 
 AH_TEMPLATE(HAVE_LOGSERVICE, [Define the use of LogService.])
 AC_ARG_ENABLE(logservice,
 	      AC_HELP_STRING([--enable-logservice],
 			     [enable monitoring through LogService]),
-	      [AC_DEFINE(HAVE_LOGSERVICE)][IDLFLAGS="$IDLFAGS -DHAVE_LOGSERVICE"])
+	      [AC_DEFINE(HAVE_LOGSERVICE)][IDLFLAGS="$IDLFLAGS -DHAVE_LOGSERVICE"])
 
 dnl ###########################################################################
 dnl Load anything under acmacros/*.m4
@@ -383,6 +406,7 @@ AC_CONFIG_FILES([config.mk
 		 src/examples/BLAS/Makefile
 		 src/examples/dmat_manips/Makefile
 		 src/examples/file_transfer/Makefile
+		 src/examples/JXTA/Makefile
 		 src/examples/ScaLAPACK/Makefile
 		 src/examples/scalars/Makefile])
 AC_CONFIG_FILES([src/examples/bin/local_corba_ns.sh
@@ -475,6 +499,16 @@ then
 else
   echo "no" | tee -a config.log
 fi
+
+# JXTA
+printf " - JXTA:            " | tee -a config.log
+if test "x$enable_JXTA" = "xyes"
+then
+  echo "yes" | tee -a config.log
+else
+  echo "no" | tee -a config.log
+fi
+
 # LOGSERVICE
 printf " - LogService:      " | tee -a config.log
 if test "x$enable_logservice" = "xyes"

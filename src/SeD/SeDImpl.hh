@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2004/06/11 15:45:39  ctedesch
+ * add DIET/JXTA
+ *
  * Revision 1.8  2004/03/01 18:43:23  rbolze
  * add logservice
  *
@@ -62,6 +65,9 @@ class SeDImpl : public POA_SeD,
 public:                                              
 
   SeDImpl();
+#if HAVE_JXTA
+  SeDImpl(const char*);
+#endif // HAVE_JXTA
   ~SeDImpl();
   
   int
@@ -108,6 +114,12 @@ private:
 
   /* (Fully qualified) local host name */
   char localHostName[257];
+
+#if HAVE_JXTA
+  /* endoint of JXTA SeD*/
+  const char* uuid;
+#endif // HAVE_JXTA
+
   /* Listening port */
   size_t port;
 

@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2004/06/11 15:45:39  ctedesch
+ * add DIET/JXTA
+ *
  * Revision 1.17  2004/06/11 11:32:34  ecaron
  * Delete dead code (DEVELOPPING_DATA_PERSISTENCY part)
  *
@@ -203,6 +206,9 @@ AgentImpl::agentSubscribe(Agent_ptr me, const char* hostName,
 
 CORBA::ULong
 AgentImpl::serverSubscribe(SeD_ptr me, const char* hostName,
+#if HAVE_JXTA
+			   const char* uuid,
+#endif // HAVE_JXTA
     const SeqCorbaProfileDesc_t& services)
 {
   CORBA::ULong retID;
@@ -215,7 +221,11 @@ AgentImpl::serverSubscribe(SeD_ptr me, const char* hostName,
 
   // FIXME: resize calls default constructor + copy constructor + 1 desctructor
   this->SeDChildren.resize(childIDCounter);
-  (this->SeDChildren[retID]).set(me, hostName);
+  (this->SeDChildren[retID]).set(me, hostName
+#if HAVE_JXTA
+				 , uuid
+#endif // HAVE_JXTA
+				 );
   (this->nbSeDChildren)++; // thread safe
 
   this->addServices(retID, services);
@@ -356,6 +366,12 @@ AgentImpl::findServer(Request* req, size_t max_srv)
      * NB: This does not affect the order of the servers (only comm times). */
 
     size_t nb_resp = req->getResponsesSize();
+
+#if HAVE_JXTA
+    /* this part seems to generate JNI problems */
+    /* but this part should be removed in the next DIET version */
+    /* that explains why we don't fix it */ 
+#else
     double* time = new double[nb_resp]; 
 
     for (i = 0; (int)i <= creq.pb.last_out; i++) {
@@ -381,7 +397,7 @@ AgentImpl::findServer(Request* req, size_t max_srv)
           if ((creq.pb.param_desc[i].mode == DIET_VOLATILE)
               || (*(creq.pb.param_desc[i].id.idNumber) == '\0')) {
             time[j] = getCommTime(resp_j->myID, size);
-          }
+           }
           if (creq.pb.param_desc[i].mode <= DIET_PERSISTENT_RETURN) {
             time[j] += getCommTime(resp_j->myID, size, false);
           }
@@ -399,6 +415,8 @@ AgentImpl::findServer(Request* req, size_t max_srv)
       }
     }
     delete [] time;
+#endif // HAVE_JXTA
+
     resp = this->aggregate(req, max_srv);
     // Just for debugging
     if (TRACE_LEVEL >= TRACE_STRUCTURES)
