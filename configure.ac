@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.26  2004/02/11 07:10:09  ecaron
+#* Tag version 1.0
+#*
 #* Revision 1.25  2003/12/17 16:11:41  ecaron
 #* Change "tutorial" directory to "Tutorial"
 #*
@@ -54,7 +57,7 @@
 #* Use omniorb.m4 and detect new platforms.
 #****************************************************************************#
 
-define(DIET_version,        0.9)
+define(DIET_version,        1.0)
 define(omniORB_min_version, 3)
 define(FAST_min_version,    0.4.3)
 
