@@ -1,5 +1,4 @@
 /****************************************************************************/
-/* $Id$ */
 /* DIET client interface                                                    */
 /*                                                                          */
 /*  Author(s):                                                              */
@@ -8,8 +7,11 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/*
+/* $Id$
  * $Log$
+ * Revision 1.23  2003/04/10 13:11:45  pcombes
+ * Impement contract checking. Use Parsers.
+ *
  * Revision 1.22  2003/02/07 17:02:38  pcombes
  * diet_initialize match GridRPC (config_file_name as first argument).
  *
@@ -49,6 +51,7 @@
 
 #include "DIET_client.h"
 
+#include <CORBA.h>
 #include <iostream>
 using namespace std;
 #include <unistd.h>
@@ -56,14 +59,15 @@ using namespace std;
 #include <stdio.h>
 #include <string.h>
 
-#include "dietTypes.hh"
-#include "masterAgent.hh"
-#include "SeD.hh"
-#include "types.hh"
-#include "marshalling.hh"
-#include "ORBMgr.hh"
-#include "debug.hh"
+
 #include "com_tools.hh"
+#include "debug.hh"
+#include "dietTypes.hh"
+#include "marshalling.hh"
+#include "MasterAgent.hh"
+#include "ORBMgr.hh"
+#include "Parsers.hh"
+#include "SeD.hh"
 #include "statistics.hh"
 
 
@@ -78,7 +82,13 @@ extern "C" {
 static MasterAgent_var MA;
 
 /* Trace Level */
-static int TRACE_LEVEL;
+extern unsigned int TRACE_LEVEL;
+
+/* Error rate for contract checking */
+#define ERROR_RATE 0.1
+
+/* Maximum servers to be answered */
+static unsigned long MAX_SERVERS = 10;
 
 
 /****************************************************************************/
@@ -89,7 +99,7 @@ static int TRACE_LEVEL;
 
 /****************************************************************************/
 /* Initialize and Finalize session                                          */
-
+#if 0
 int
 parseConfigFile(char* config_file_name, char* MA_name)
 {
@@ -125,14 +135,19 @@ parseConfigFile(char* config_file_name, char* MA_name)
   
   return 0;
 }
+#endif // 0
 
 int
 diet_initialize(char* config_file, int argc, char* argv[])
 {
   char MA_name[257];
-  
-  if (parseConfigFile(config_file, MA_name))
-    return 1;
+  int res =
+    Parsers::beginParsing(config_file)
+    || Parsers::parseName(MA_name)
+    || Parsers::parseTraceLevel();//(&TRACE_LEVEL);
+
+  if (res)
+    return res;
   
   /* Initialize ORB */
   if (ORBMgr::init(argc, argv, false)) {
@@ -319,13 +334,13 @@ diet_get_function_handle(diet_reqID_t reqID)
    NB: (*decision)->length() == 0 if no service was found. */
 
 int
-submission(corba_pb_desc_t* pb, SeqCorbaDecision_t** decision)
+submission(corba_pb_desc_t* pb, corba_response_t*& response)
 {
   int server_OK(0);
   
-  (*decision) = MA->submit(*pb);
+  response = MA->submit(*pb, MAX_SERVERS);
   
-  if ((*decision)->length() == 0) {
+  if (!response || response->servers.length() == 0) {
     cerr << "No server found for problem " << pb->path << ".\n";
     server_OK = -1;
 
@@ -333,23 +348,36 @@ submission(corba_pb_desc_t* pb, SeqCorbaDecision_t** decision)
 
     if (TRACE_LEVEL >= TRACE_MAIN_STEPS) {
       cout << "The Master Agent found the following server(s):\n";
-      for (size_t i = 0; i < (*decision)->length(); i++) {
-	cout << "    " << (**decision)[i].chosenServerName << ":"
-	     << (**decision)[i].chosenServerPort << "\n";
+      for (size_t i = 0; i < response->servers.length(); i++) {
+	int idx = response->sortedIndexes[i];
+	cout << "    " << response->servers[idx].loc.hostName << ":"
+	     << response->servers[idx].loc.port << "\n";
       }
     }
 
     server_OK = 0;
-    while ((size_t) server_OK < (*decision)->length()) {
+    while ((size_t) server_OK < response->servers.length()) {
       try {
-	// FIXME: this should be contract checking ...
-	(**decision)[server_OK].chosenServer->ping();
-	break;
+	int           idx       = response->sortedIndexes[server_OK];
+	SeD_ptr       server    = response->servers[idx].loc.ior;
+	CORBA::Double totalTime = response->servers[idx].estim.totalTime;
+	if (server->checkContract(response->servers[idx].estim, *pb)) {
+	  server_OK++;
+	  continue;
+	}
+	if ((totalTime == response->servers[idx].estim.totalTime) ||
+	    ((response->servers[idx].estim.totalTime - totalTime)
+	     < (ERROR_RATE *
+		MAX(totalTime,response->servers[idx].estim.totalTime))))
+	  break;
+	server_OK++;
       } catch (...) {
+	cerr << "Warning; exception catched\n";
+	server_OK++;
 	continue;
       }
     }
-    if ((size_t) server_OK == (*decision)->length())
+    if ((size_t) server_OK == response->servers.length())
       server_OK = -1;
   }
   return server_OK;
@@ -359,28 +387,26 @@ submission(corba_pb_desc_t* pb, SeqCorbaDecision_t** decision)
 int
 diet_call(diet_function_handle_t* handle, diet_profile_t* profile)
 {
-  corba_pb_desc_t&    corba_pb = *(new corba_pb_desc_t);
-  corba_profile_t     corba_profile;
-  SeqCorbaDecision_t* decision(NULL);
+  //corba_pb_desc_t& corba_pb = *(new corba_pb_desc_t());
+  corba_pb_desc_t corba_pb;
+  corba_profile_t corba_profile;
+  corba_response_t* response(NULL);
   int subm_count, server_OK, solve_res;
   static int nb_tries(3);
-    
-  /* Request submission : try nb_tries times */
-
+  
   if (mrsh_pb_desc(&corba_pb, profile, handle->pb_name))
     return 1;
-  subm_count = 0;
 
+  /* Request submission : try nb_tries times */
   stat_in("diet_call.submission.start");
-
+  subm_count = 0;
   do {
-    server_OK = submission(&corba_pb, &decision);
-  }  while ((decision->length() > 0)
-	    && (server_OK == -1) && (++subm_count < 3));
-
+    server_OK = submission(&corba_pb, response);
+  }  while ((response->servers.length() > 0) &&
+ 	    (server_OK == -1) && (++subm_count < nb_tries));
   stat_out("diet_call.submission.end");
 
-  if (decision->length() == 0) {
+  if (!response || response->servers.length() == 0) {
     cerr << "Unable to find a server.\n";
     return 1;
   }
@@ -407,7 +433,7 @@ diet_call(diet_function_handle_t* handle, diet_profile_t* profile)
       }
     }
   }
-#endif
+#endif // 0
 
 #if HAVE_CICHLID
   static int already_initialized(0);
@@ -418,13 +444,10 @@ diet_call(diet_function_handle_t* handle, diet_profile_t* profile)
     already_initialized = 1;
   }
 
-  strcpy(str_tmp, (*decision)[server_OK].chosenServerName);
+  strcpy(str_tmp, response->servers[server_OK].loc.hostName);
   strcat(str_tmp, "_SeD");
-  add_communication("client",
-		    str_tmp,
-		    profile_size(profile));
+  add_communication("client", str_tmp, profile_size(&corba_pb));
 #endif // HAVE_CICHLID
-
 
   if (mrsh_profile_to_in_args(&corba_profile, profile))
     return 1;
@@ -432,13 +455,15 @@ diet_call(diet_function_handle_t* handle, diet_profile_t* profile)
   stat_in("diet_call.solve.start");
 
   solve_res =
-    (*decision)[server_OK].chosenServer->solve(handle->pb_name, corba_profile);
+    response->servers[server_OK].loc.ior->solve(handle->pb_name, corba_profile);
 
   stat_out("diet_call.solve.end");
 
   if (unmrsh_out_args_to_profile(profile, &corba_profile))
     return 1;
   
+  //delete &corba_pb;
+  delete response;
   return solve_res;
 }
 
