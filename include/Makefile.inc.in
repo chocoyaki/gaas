@@ -9,6 +9,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.16  2003/09/26 17:34:45  pcombes
+#* Replace the .so prerequisite for client and SeD by the .a
+#*
 #* Revision 1.15  2003/09/26 14:05:16  pcombes
 #* Get the examples out of the automake chain, to make Makefiles more readable.
 #*
@@ -52,12 +55,12 @@ DIET_CLIENT_SRC_PREREQ = \
 	$(DIET_INSTALLDIR)/include/DIET_client.h	\
 	$(DIET_INSTALLDIR)/include/DIET_grpc.h		\
 	$(DIET_INSTALLDIR)/include/DIET_mutex.h
-DIET_CLIENT_BIN_PREREQ ?= $(DIET_INSTALLDIR)/lib/libDIET_client.so
+DIET_CLIENT_BIN_PREREQ ?= $(DIET_INSTALLDIR)/lib/libDIET_client.a
 DIET_CLIENT_PREREQ = $(DIET_CLIENT_SRC_PREREQ) $(DIET_CLIENT_BIN_PREREQ)
 
 DIET_SERVER_SRC_PREREQ = \
 	$(DIET_INSTALLDIR)/include/DIET_data.h		\
 	$(DIET_INSTALLDIR)/include/DIET_server.h	\
 	$(DIET_INSTALLDIR)/include/DIET_mutex.h
-DIET_SERVER_BIN_PREREQ ?= $(DIET_INSTALLDIR)/lib/libDIET_SeD.so
+DIET_SERVER_BIN_PREREQ ?= $(DIET_INSTALLDIR)/lib/libDIET_SeD.a
 DIET_SERVER_PREREQ = $(DIET_SERVER_SRC_PREREQ) $(DIET_SERVER_BIN_PREREQ)
