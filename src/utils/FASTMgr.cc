@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2003/08/26 14:58:58  pcombes
+ * Fix bug in returned value of init (return codes of FAST are not standard !)
+ *
  * Revision 1.3  2003/08/22 13:06:13  pcombes
  * Fix a bug in the compilation without FAST.
  *
@@ -115,13 +118,14 @@ FASTMgr::init()
 #endif
 		    NULL);
 
-    FASTMgr::initialized = (res != 0);
+    res = (int)(!res);
+    FASTMgr::initialized = (res == 0);
     FASTMgr::mutex.unlock();
 
   } // if (FASTMgr::use > 0) 
 #endif // HAVE_FAST
 
-  return (res != 0) ? 0 : 1;
+  return res;
 }
 
 /**
