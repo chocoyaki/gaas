@@ -14,6 +14,9 @@
 #****************************************************************************#
 #*
 #* $Log$
+#* Revision 1.2  2003/02/19 09:32:24  cpera
+#* Change dist rules for documentation.
+#*
 #* Revision 1.1  2003/02/14 10:31:29  cpera
 #* add files used by autoconf/automake/libtool.
 #*
@@ -32,7 +35,7 @@
 
         
 SUBDIRS = src doc
-DIST_SUBDIRS = $(SUBDIRS) 
+DIST_SUBDIRS = src 
 
 EXTRA_DIST = $(top_srcdir)/include/Makefile.inc.in \
              $(top_srcdir)/include/DIET_config.h.in \
@@ -58,7 +61,9 @@ EXTRA_DIST = $(top_srcdir)/include/Makefile.inc.in \
              $(top_srcdir)/src/examples/SCALAPACK/server.c \
              $(top_srcdir)/src/examples/SCALAPACK/pdgemm_client.c \
              $(top_srcdir)/src/examples/SCALAPACK/job.h \
-             $(top_srcdir)/src/examples/SCALAPACK/job.c
+             $(top_srcdir)/src/examples/SCALAPACK/job.c \
+             $(top_srcdir)/doc/CS/DIET_Coding_Standard.ps \
+             $(top_srcdir)/doc/UM/DIET_User_Manual.ps
 if MAINTAINER_MODE
 	EXTRA_DIST+= $(top_srcdir)/autogen.sh
 endif
