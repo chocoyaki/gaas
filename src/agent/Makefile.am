@@ -11,6 +11,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.10  2004/07/08 17:47:51  rbolze
+#* add java files to the distrib
+#*
 #* Revision 1.9  2004/06/11 15:45:39  ctedesch
 #* add DIET/JXTA
 #*
@@ -36,6 +39,7 @@ bin_PROGRAMS = dietAgent
 lib_LTLIBRARIES = libAgentCommon.la
 if JXTA_MODE
 lib_LTLIBRARIES += libdietMasterAgent.la libdietLocalAgent.la
+#bin_PROGRAMS +=JXTAMultiMA.class LA.class 
 endif
 
 libAgentCommon_la_SOURCES = AgentImpl.cc ExitClass.cc LocalAgentImpl.cc	\
@@ -90,3 +94,5 @@ clean:
 	rm -f *.class JXTAMultiMA.h LA.h
 
 endif
+
+EXTRA_DIST = *.java

@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.8  2004/07/08 17:47:51  rbolze
+#* add java files to the distrib
+#*
 #* Revision 1.7  2004/06/11 15:45:39  ctedesch
 #* add DIET/JXTA
 #*
@@ -32,6 +35,7 @@ lib_LTLIBRARIES = libDIET_SeD.la
 
 if JXTA_MODE
 lib_LTLIBRARIES += libSeDJNI.la
+#bin_PROGRAMS = JXTASeD.class
 endif
 
 libDIET_SeD_la_SOURCES = DIET_server.cc SeDImpl.cc DataMgrImpl.cc
@@ -72,3 +76,5 @@ clean:
 	rm -f *.class JXTASeD.h
 
 endif
+
+EXTA_DIST = *.java
