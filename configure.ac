@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.27  2004/02/27 16:25:55  ecaron
+#* Change bug report to http://graal.ens-lyon.fr/bugzilla
+#*
 #* Revision 1.26  2004/02/11 07:10:09  ecaron
 #* Tag version 1.0
 #*
@@ -67,7 +70,7 @@ dnl #### Process this file with autoconf to produce a configure script.
 dnl ##########################################################################
 AC_PREREQ([2.55])
 ACI_PREREQ(2003.01.29)
-AC_INIT(DIET, DIET_version, diet-dev@ens-lyon.fr)
+AC_INIT(DIET, DIET_version, http://graal.ens-lyon.fr/bugzilla)
 AC_CONFIG_SRCDIR([include/DIET_data.h])
 AC_REVISION($Revision$)
 AC_CONFIG_HEADERS([include/DIET_config.h])
