@@ -18,6 +18,12 @@ client_smprod.o:	client_smprod.c
 client_smprod:		client_smprod.o
 	$(CC) $< $(CCFLAGS) $(DIET_CLIENT_LIBS) -o $@
 
+client_smprodAsync.o:	client_smprodAsync.c
+	$(CC) -c $< $(CCFLAGS) -o $@
+
+client_smprodAsync:		client_smprodAsync.o
+	$(CC) $< $(CCFLAGS) $(DIET_CLIENT_LIBS) -o $@
+
 client_smprod_file.o:	client_smprod_file.c
 	$(CC) -c $< $(CCFLAGS) -o $@
 
