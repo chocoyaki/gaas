@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.40  2004/01/16 14:41:42  sdahan
+ * In the diet_call_common function, catch the CORBA::MARSHAL exception
+ * during the chosenServer->solve() call. Now, when the giopMaxMsgSize is
+ * too small there is an informational error instead of a simple abore.
+ *
  * Revision 1.39  2003/12/01 14:49:31  pcombes
  * Rename dietTypes.hh to DIET_data_internal.hh, for more coherency.
  *
@@ -437,9 +442,14 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
     ERROR("profile is wrongly built", 1);
   }
 
-  stat_in("Client","computation");
-  solve_res = chosenServer->solve(profile->pb_name, corba_profile);
-  stat_out("Client","computation");
+  try {
+    stat_in("Client","computation");
+    solve_res = chosenServer->solve(profile->pb_name, corba_profile);
+    stat_out("Client","computation");
+  } catch(CORBA::MARSHAL& e) {
+    ERROR("got a marchal exception\n"
+	  "Maybe your giopMaxMsgSize is too small",1) ;
+  }
 
   if (unmrsh_out_args_to_profile(profile, &corba_profile)) {
     INTERNAL_ERROR("returned profile is wrongly built", 1);
