@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.5  2003/09/22 21:09:08  pcombes
+#* Scripts for managing a local platform with LDAP + NWS + CORBA Name server.
+#*
 #* Revision 1.4  2003/06/16 17:15:54  pcombes
 #* Move asynchronous examples in dmat_manips.
 #*
@@ -26,23 +29,37 @@
 SUBDIRS = dmat_manips file_transfer @SUBMODULES_examples@
 DIST_SUBDIRS = $(SUBDIRS) @DIST_SUBMODULES_examples@
 
-EXTRA_DIST = $(wildcard $(srcdir)/cfgs/*.cfg)
+EXTRA_DIST = $(wildcard $(srcdir)/cfgs/*.cfg)					\
+	     $(wildcard $(srcdir)/cfgs/*.ldif) $(srcdir)/cfgs/ldap_schema
+
+noinst_bindir = `if [ ! -d bin ]; then mkdir bin; fi; cd bin; pwd`
+# The generated bin/local_corba_ns.sh is already "installed" by configure.
+noinst_bin_SCRIPTS = $(srcdir)/bin/local_platform.sh	\
+		     $(srcdir)/bin/local_ldap.sh $(srcdir)/bin/local_nws.sh
 
 HOSTNAME = @HOST_NAME@
 ex_datadir = ./etc
 
 install-data-hook:
 	@if [ ! -d $(sysconfdir) ]; then mkdir -p $(sysconfdir); fi
+#	Configure does not maintain the mode of the files ...
+	chmod +x bin/local_corba_ns.sh
 #	Generate config files in the build directories
 #	+ copy generated config files into $(sysconfdir)
-	@if [ ! -d $(ex_datadir) ]; then				     \
-	  mkdir -p $(ex_datadir);					     \
-	  for f in $(wildcard $(srcdir)/cfgs/*.cfg); do     		     \
-	    sed -e 's/toto/$(HOSTNAME)/g' $$f > $(ex_datadir)/`basename $$f`;\
-	  done;								     \
-	  for f in $(ex_datadir)/*.cfg; do				     \
-	    $(INSTALL_DATA) $$f $(sysconfdir)/`basename $$f`;		     \
-	  done;								     \
+	if [ ! -d $(ex_datadir) ]; then						\
+	  mkdir -p $(ex_datadir);						\
+	  for f in $(EXTRA_DIST); do						\
+	    if [ -d $$f ]; then\
+	      cp -R $$f $(ex_datadir);						\
+	    else								\
+	      sed -e "s|@host|$(HOSTNAME)|g" $$f |				\
+	      sed -e "s|@pwd|`pwd`|g" $$f > $(ex_datadir)/`basename $$f`;	\
+	    fi;									\
+	  done;									\
+	  for f in $(ex_datadir)/*.cfg; do					\
+	    $(INSTALL_DATA) $$f $(sysconfdir);					\
+	  done;									\
+	  rm -f $(sysconfdir)/slapd.cfg;					\
 	fi
 
 uninstall-hook:

@@ -1,0 +1,16 @@
+dn: dc=ens-lyon,dc=fr
+objectclass: dcObject
+objectclass: organization
+o: ens-lyon
+dc: ens-lyon
+
+dn: dc=LIP,dc=ens-lyon,dc=fr
+objectclass: dcObject
+objectclass: organization
+o: LIP
+dc: LIP
+
+dn: ou=Hardware,dc=LIP,dc=ens-lyon,dc=fr
+objectclass: top
+objectclass: organizationalUnit
+ou: Hardware
