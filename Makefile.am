@@ -14,6 +14,9 @@
 #****************************************************************************#
 #*
 #* $Log$
+#* Revision 1.3  2003/02/19 15:46:20  cpera
+#* Change files because of portability errors.
+#*
 #* Revision 1.2  2003/02/19 09:32:24  cpera
 #* Change dist rules for documentation.
 #*
@@ -33,8 +36,7 @@
 #*
 #****************************************************************************#
 
-        
-SUBDIRS = src doc
+SUBDIRS = src
 DIST_SUBDIRS = src 
 
 EXTRA_DIST = $(top_srcdir)/include/Makefile.inc.in \
@@ -63,7 +65,10 @@ EXTRA_DIST = $(top_srcdir)/include/Makefile.inc.in \
              $(top_srcdir)/src/examples/SCALAPACK/job.h \
              $(top_srcdir)/src/examples/SCALAPACK/job.c \
              $(top_srcdir)/doc/CS/DIET_Coding_Standard.ps \
-             $(top_srcdir)/doc/UM/DIET_User_Manual.ps
+             $(top_srcdir)/doc/UM/DIET_User_Manual.ps \
+             $(top_srcdir)/doc/Makefile.in \
+             $(top_srcdir)/doc/UM/Makefile.in \
+             $(top_srcdir)/doc/CS/Makefile.in
 if MAINTAINER_MODE
 	EXTRA_DIST+= $(top_srcdir)/autogen.sh
 endif
@@ -86,7 +91,7 @@ distclean-local:
 	-rm -rf $(MAINTAINERCLEANFILES)
 
 
-.PHONY: CORBA utils agent SeD client examples 
+.PHONY: CORBA utils agent SeD client examples doc
 
 help:
 	@echo "====================================================================="
@@ -119,5 +124,6 @@ client:	utils
 
 examples:
 	$(MAKE) -C src/examples
-
+doc:
+	$(MAKE) -C doc
 
