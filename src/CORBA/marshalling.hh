@@ -12,6 +12,17 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.5  2002/08/30 16:50:12  pcombes
+ * This version works as well as the alpha version from the user point of view,
+ * but the API is now the one imposed by the latest specifications (GridRPC API
+ * in its sequential part, config file for all parts of the platform, agent
+ * algorithm, etc.)
+ *  - Reduce marshalling by using CORBA types internally
+ *  - Creation of a class ServiceTable that is to be replaced
+ *    by an LDAP DB for the MA
+ *  - No copy for client/SeD data transfers
+ *  - ...
+ *
  * Revision 1.4  2002/08/09 14:30:27  pcombes
  * This is commit set the frame for version 1.0 - does not work properly yet
  *
@@ -55,7 +66,10 @@
 /* This functions allocate each member of the destination sequence. But they
    reuse as much as possible already allocated memory */
 int mrsh_data_seq(SeqCorbaData_t *dest, diet_data_seq_t *src, int only_desc);
-int unmrsh_data_seq(diet_data_seq_t *dest, SeqCorbaData_t *src);
+int unmrsh_data_seq(diet_data_seq_t *dest, const SeqCorbaData_t *src);
+// Same as the former function, but caller is responsible for freeing
+// all the data buffers.
+int unmrsh_data_seq_control(diet_data_seq_t *dest, SeqCorbaData_t *src);
 
 
 /*
@@ -80,7 +94,8 @@ int unmrsh_profile_to_sf(sf_inst_desc_t *dest, const corba_profile_t *src);
  * Profile -> corba data sequences
  */
 
-int mrsh_profile_to_in_args(SeqCorbaData_t *in, SeqCorbaData_t *inout,
+int mrsh_profile_to_in_args(SeqCorbaData_t *in,
+			    SeqCorbaData_t *inout,SeqCorbaData_t *out,
 			    const diet_profile_t *profile);
 
 int unmrsh_out_args_to_profile(diet_profile_t *profile,

@@ -11,6 +11,17 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.2  2002/08/30 16:50:16  pcombes
+ * This version works as well as the alpha version from the user point of view,
+ * but the API is now the one imposed by the latest specifications (GridRPC API
+ * in its sequential part, config file for all parts of the platform, agent
+ * algorithm, etc.)
+ *  - Reduce marshalling by using CORBA types internally
+ *  - Creation of a class ServiceTable that is to be replaced
+ *    by an LDAP DB for the MA
+ *  - No copy for client/SeD data transfers
+ *  - ...
+ *
  * Revision 1.1  2002/08/28 10:07:18  pcombes
  * This commit sets the frame for version 1.0 - does not work properly yet
  * - Some files were still not processed -
@@ -157,24 +168,21 @@ int profile_desc_cmp(const corba_profile_desc_t *p1,
 int profile_match(const corba_profile_desc_t *sv_profile,
 		  const corba_profile_t *pb_profile)
 {
-  int res;
-  if ((res = strcmp(sv_profile->path, pb_profile->path)))
-    return res;
-  if ((res = !((sv_profile->last_in == pb_profile->last_in)
-	       && (sv_profile->last_inout == pb_profile->last_inout)
-	       && (sv_profile->last_out == pb_profile->last_out)
-	       && (sv_profile->param_desc.length()
-		   == pb_profile->param_desc.length()))))
-    return res;
-  res = 0;
+  if (strcmp(sv_profile->path, pb_profile->path))
+    return 0;
+  if ((   (sv_profile->last_in             != pb_profile->last_in)
+       || (sv_profile->last_inout          != pb_profile->last_inout)
+       || (sv_profile->last_out            != pb_profile->last_out)
+       || (sv_profile->param_desc.length() != pb_profile->param_desc.length())))
+    return 0;
   for (size_t i = 0; i < sv_profile->param_desc.length(); i++) {
-    if ((res = !((sv_profile->param_desc[i].type
-		  == pb_profile->param_desc[i].specific._d())
-		 && (sv_profile->param_desc[i].base_type
-		     == pb_profile->param_desc[i].base_type))))
-      return res;
+    if ((   (sv_profile->param_desc[i].type
+	     != pb_profile->param_desc[i].specific._d())
+	 || (sv_profile->param_desc[i].base_type
+	     != pb_profile->param_desc[i].base_type)))
+      return 0;
   }
-  return res;
+  return 1;
 }
 
 

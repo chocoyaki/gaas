@@ -11,6 +11,17 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.2  2002/08/30 16:50:16  pcombes
+ * This version works as well as the alpha version from the user point of view,
+ * but the API is now the one imposed by the latest specifications (GridRPC API
+ * in its sequential part, config file for all parts of the platform, agent
+ * algorithm, etc.)
+ *  - Reduce marshalling by using CORBA types internally
+ *  - Creation of a class ServiceTable that is to be replaced
+ *    by an LDAP DB for the MA
+ *  - No copy for client/SeD data transfers
+ *  - ...
+ *
  * Revision 1.1  2002/08/09 14:30:34  pcombes
  * This is commit set the frame for version 1.0 - does not work properly yet
  *
@@ -22,31 +33,25 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "debug.hh"
 #include "dietTypes.hh"
 
 
 
 ServiceTable::ServiceTable() 
 {
-  ServiceTable::ServiceTable(MAX_NB_SERVICES, MAX_NB_SONS);
+  ServiceTableInit(MAX_NB_SERVICES, MAX_NB_SONS);
 }
 
 ServiceTable::ServiceTable(int max_nb_services) 
 {
-  ServiceTable::ServiceTable(max_nb_services, 0);
+  ServiceTableInit(max_nb_services, 0);
 }
 
 ServiceTable::ServiceTable(int max_nb_services, int max_nb_sons)
 {
-  nb_s          = 0;
-  max_nb_s      = (max_nb_services <= 0) ? MAX_NB_SERVICES : max_nb_services;
-  max_nb_s_step = max_nb_s;
-  max_nb_sons   = (max_nb_sons < 0)      ? 0 : max_nb_sons;
-  profiles.length(0);
-  solvers = NULL;
-  matching_sons = NULL;
+  ServiceTableInit(max_nb_services, max_nb_sons);
 }
-
 
 ServiceTable::~ServiceTable()
 {
@@ -66,40 +71,10 @@ ServiceTable::~ServiceTable()
   profiles.length(0);
 }
 
-
 int ServiceTable::maxSize()
 {
   return max_nb_s;
 }
-
-
-void ServiceTable::maxSize(int _newmax)
-{
-  int old_max = max_nb_s;
-  int newmax  = (_newmax > 0) ? _newmax :MAX_NB_SERVICES;
-  
-  max_nb_s = (newmax < max_nb_s) ? max_nb_s : newmax;
-
-  max_nb_s_step = max_nb_s;
-  profiles.length(max_nb_s);
-
-  if (max_nb_sons > 0) {
-    solvers = NULL;
-    matching_sons = new matching_sons_t[max_nb_s];
-    for (int i = 0; i < max_nb_s; i++) {
-      profiles[i].param_desc.length(0);
-      matching_sons[i].nb_sons = 0;
-      matching_sons[i].sons    = new int[max_nb_sons];
-    }
-  } else {
-    solvers  = new diet_solve_t[max_nb_s];
-    for (int i = 0; i < max_nb_s; i++) {
-      profiles[i].param_desc.length(0);
-      solvers[i] = NULL;
-    }
-  }
-}
-
 
 ServiceTable::ServiceReference_t
 ServiceTable::lookupService(const corba_profile_desc_t *sv_profile)
@@ -123,7 +98,7 @@ int ServiceTable::addService(const corba_profile_desc_t *profile,
 {
   ServiceReference_t service_idx;
   
-  if (!solvers) {
+  if (matching_sons) {
     cerr << "ServiceTable::addService - Attempting to add a service with\n"
 	 << "                    solver in a table initialized with sons.\n";
     return 1;
@@ -144,6 +119,7 @@ int ServiceTable::addService(const corba_profile_desc_t *profile,
     profiles[nb_s] = *profile;
     //profiles[nb_s].path = CORBA::string_dup(profile->path);
     solvers[nb_s] = solver;
+    nb_s++;
 
   } else if (solver == solvers[service_idx]) {
     return -1;
@@ -169,7 +145,7 @@ int ServiceTable::addService(const corba_profile_desc_t *profile, int son)
 
   if ((service_idx = lookupService(profile)) == -1) {
     // Then add a brand new service
-    if ((nb_s % max_nb_s) == 0) {
+    if ((nb_s != 0) && (nb_s % max_nb_s) == 0) {
       max_nb_s += max_nb_s_step;
       profiles.length(max_nb_s);
       matching_sons = (matching_sons_t *)
@@ -181,8 +157,8 @@ int ServiceTable::addService(const corba_profile_desc_t *profile, int son)
       }
     }
     profiles[nb_s] = *profile;
-    //profiles[nb_s].path = CORBA::string_dup(profile->path);
     matching_sons[nb_s].sons[matching_sons[nb_s].nb_sons++] = son;
+    nb_s++;
   
   } else {
     int nb_sons = matching_sons[service_idx].nb_sons;
@@ -195,9 +171,9 @@ int ServiceTable::addService(const corba_profile_desc_t *profile, int son)
     if ((nb_sons % max_nb_sons) == 0) {
       // Then realloc sons array
       sons = (int *) realloc(sons, (nb_sons + max_nb_sons) * sizeof(int));
+      matching_sons[service_idx].sons = sons;
     }
     sons[nb_sons] = son;
-    matching_sons[service_idx].sons = sons;
     matching_sons[service_idx].nb_sons++;
   }
   return 0;
@@ -254,28 +230,39 @@ int ServiceTable::rmService(const ServiceReference_t ref)
 }
 
 
-int ServiceTable::rmSonFromService(const corba_profile_desc_t *profile)
+int ServiceTable::rmSon(const int son)
 {
   ServiceReference_t ref;
   
-  if ((ref = lookupService(profile)) == -1) {
-    cerr << "ServiceTable::getSons - Attempting to get solver\n"
-	 << "               of a service that is not in table.\n";
+  if (solvers) {
+    cerr << "ServiceTable::rmSon - Attempting to remove a son from\n"
+	 << "                     a table initialized with solvers.\n";
     return 1;
   }
-  return rmSonFromService(ref);
-}
-
-
-int ServiceTable::rmSonFromService(const ServiceReference_t ref)
-{
+  for (ref = 0; ref < nb_s; ref++) {
+    int i;
+    for (i = 0; ((i < matching_sons[ref].nb_sons)
+		 && (matching_sons[ref].sons[i] != son)); i++);
+    if (i < matching_sons[ref].nb_sons) {
+      for (int j = i; j < matching_sons[ref].nb_sons; j++){
+	matching_sons[ref].sons[j] = matching_sons[ref].sons[j+1];
+      }
+      // Remove service if there is no son is left
+      if ((--(matching_sons[ref].nb_sons)) == 0)
+	rmService(ref);
+    }
+  }
   return 0;
 }
 
-
 SeqCorbaProfileDesc_t *ServiceTable::getProfiles()
 {
-  return &(profiles);
+  SeqCorbaProfileDesc_t *res = new SeqCorbaProfileDesc_t(nb_s);
+  res->length(nb_s);
+  for (int i = 0; i < nb_s; i++) {
+    (*res)[i] = profiles[i];
+  }
+  return res;
 }
 
 
@@ -344,12 +331,32 @@ void ServiceTable::dump(FILE *f)
   // be called on stdout !
 
   fprintf(f, "\n--------------------------------------------------\n");
-  fprintf(f,   "Service Table:\n");
+  fprintf(f,   "Service Table (%d services)\n", nb_s);
   fprintf(f,   "--------------------------------------------------\n\n");
 
   for (int i = 0; i < nb_s; i++) {
     strcpy(path, profiles[i].path);
     fprintf(f, "- Service %s", path);
+
+    if (matching_sons) {
+      fprintf(f, " offered by ");
+      if ((matching_sons[i].nb_sons <= 0)
+	  || ((matching_sons[i].nb_sons == 1)
+	      && (matching_sons[i].sons[0] == -1)))
+	fprintf(f, "no son\n");
+      else {
+	if (matching_sons[i].nb_sons == 1)
+	  fprintf(f, "son %d", matching_sons[i].sons[0]);
+	else {
+	  fprintf(f, "sons %d", matching_sons[i].sons[0]);
+	  for (int j = 1; j < (matching_sons[i].nb_sons - 1); j++)
+	    fprintf(f, ", %d", matching_sons[i].sons[j]);
+	  fprintf(f, " and %d.",
+		  matching_sons[i].sons[matching_sons[i].nb_sons - 1]);
+	}
+      }
+    }
+
     for (int j = 0; j <= profiles[i].last_out; j++) {
       fprintf(f, "\n     %s ",
 	      (j <= profiles[i].last_in) ? "IN   "
@@ -377,24 +384,35 @@ void ServiceTable::dump(FILE *f)
 	}
       }
     }
-    if (!solvers) {
-      fprintf(f, "\n     offered by ");
-      if ((matching_sons[i].nb_sons <= 0)
-	  || ((matching_sons[i].nb_sons == 1)
-	      && (matching_sons[i].sons[0] = -1)))
-	fprintf(f, "no son\n");
-      else {
-	if (matching_sons[i].nb_sons == 1)
-	  fprintf(f, "son %d", matching_sons[i].sons[0]);
-	else {
-	  fprintf(f, "sons %d", matching_sons[i].sons[0]);
-	  for (int j = 1; j < (matching_sons[i].nb_sons - 1); j++)
-	    fprintf(f, ", %d", matching_sons[i].sons[j]);
-	  fprintf(f, " and %d.\n",
-		  matching_sons[i].sons[matching_sons[i].nb_sons - 1]);
-	}
-      }
-    }
+    fprintf(f, "\n");
   }
 }
 
+
+int ServiceTable::ServiceTableInit(int max_nb_services, int max_nb_sons)
+{
+  nb_s              = 0;
+  max_nb_s          = (max_nb_services <= 0) ? MAX_NB_SERVICES : max_nb_services;
+  max_nb_s_step     = max_nb_s;
+  this->max_nb_sons = (max_nb_sons < 0)      ? 0 : max_nb_sons;
+  profiles.length(max_nb_s);
+
+  if (max_nb_sons > 0) {
+    solvers = NULL;
+    matching_sons = new matching_sons_t[max_nb_s];
+    for (int i = 0; i < max_nb_s; i++) {
+      profiles[i].param_desc.length(0);
+      matching_sons[i].nb_sons = 0;
+      matching_sons[i].sons    = new int[max_nb_sons];
+    }
+  } else {
+    solvers  = new diet_solve_t[max_nb_s];
+    for (int i = 0; i < max_nb_s; i++) {
+      profiles[i].param_desc.length(0);
+      solvers[i] = NULL;
+    }
+    matching_sons = NULL;
+  }
+  return 0;
+}
+  

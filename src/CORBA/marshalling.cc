@@ -12,6 +12,17 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.5  2002/08/30 16:50:12  pcombes
+ * This version works as well as the alpha version from the user point of view,
+ * but the API is now the one imposed by the latest specifications (GridRPC API
+ * in its sequential part, config file for all parts of the platform, agent
+ * algorithm, etc.)
+ *  - Reduce marshalling by using CORBA types internally
+ *  - Creation of a class ServiceTable that is to be replaced
+ *    by an LDAP DB for the MA
+ *  - No copy for client/SeD data transfers
+ *  - ...
+ *
  * Revision 1.4  2002/08/09 14:30:27  pcombes
  * This is commit set the frame for version 1.0 - does not work properly yet
  *
@@ -415,6 +426,7 @@ int mrsh_data_desc(corba_data_desc_t *dest, diet_data_desc_t *src)
   return 0;
 }
 
+
 int mrsh_data(corba_data_t *dest, diet_data_t *src, int only_desc)
 {
   long unsigned int size = (long unsigned int) data_sizeof(&(src->desc));
@@ -461,7 +473,7 @@ int mrsh_data_seq(SeqCorbaData_t *dest, diet_data_seq_t *src, int only_desc)
 /*==========================================================================*/
 
 
-inline int unmrsh_scalar_desc(diet_data_desc_t *dest, corba_data_desc_t *src)
+inline int unmrsh_scalar_desc(diet_data_desc_t *dest, const corba_data_desc_t *src)
 {
   void *value;
   diet_base_type_t bt = (diet_base_type_t)src->base_type;
@@ -505,7 +517,7 @@ inline int unmrsh_scalar_desc(diet_data_desc_t *dest, corba_data_desc_t *src)
   return 0;
 }
 
-int unmrsh_data_desc(diet_data_desc_t *dest, corba_data_desc_t *src)
+int unmrsh_data_desc(diet_data_desc_t *dest, const corba_data_desc_t *src)
 {
   diet_base_type_t bt = (diet_base_type_t)src->base_type;
 
@@ -626,22 +638,35 @@ int unmrsh_data_desc_to_sf(sf_data_desc_t *dest, const corba_data_desc_t *src)
 }
 
 
-int unmrsh_data(diet_data_t *dest, corba_data_t *src)
+int unmrsh_data(diet_data_t *dest, const corba_data_t *src)
 {
   if (unmrsh_data_desc(&(dest->desc), &(src->desc)))
     return 1;
-  if (src->value.length() == 0)
+  if (src->value.length() == 0) {
     dest->value = malloc(data_sizeof(&(dest->desc)));
-  else {
+  } else {
     // CORBA::boolean orphan = (src->persistence_mode != DIET_VOLATILE);
-    dest->value = src->value.get_buffer(true);
+    dest->value = (char *)src->value.get_buffer();
+  }
+  return 0;
+}
+
+int unmrsh_data_control(diet_data_t *dest, corba_data_t *src)
+{
+  if (unmrsh_data_desc(&(dest->desc), &(src->desc)))
+    return 1;
+  if (src->value.length() == 0) {
+    dest->value = malloc(data_sizeof(&(dest->desc)));
+  } else {
+    // CORBA::boolean orphan = (src->persistence_mode != DIET_VOLATILE);
+    dest->value = (char *)src->value.get_buffer(true);
   }
   return 0;
 }
 
 /*====[ unmrsh_data_seq ]===================================================*/
 
-int unmrsh_data_seq(diet_data_seq_t *dest, SeqCorbaData_t *src)
+int unmrsh_data_seq(diet_data_seq_t *dest, const SeqCorbaData_t *src)
 {
   if (dest->length != 0) {
     if (dest->length != src->length()) {
@@ -654,9 +679,30 @@ int unmrsh_data_seq(diet_data_seq_t *dest, SeqCorbaData_t *src)
     dest->length = src->length();
     dest->seq = (diet_data_t *) malloc(dest->length * sizeof(diet_data_t));
   }
-
-  for (size_t i = 0; i <= dest->length; i++) {
+  for (size_t i = 0; i < dest->length; i++) {
     if (unmrsh_data(&(dest->seq[i]), &((*src)[i])))
+      return 1;
+  }
+  return 0;
+}
+
+/*====[ unmrsh_data_seq_control ]===========================================*/
+
+int unmrsh_data_seq_control(diet_data_seq_t *dest, SeqCorbaData_t *src)
+{
+  if (dest->length != 0) {
+    if (dest->length != src->length()) {
+      cerr << "This usage of unmrsh_data_seq should not occur in DIET\n"
+	   << "Either unmrsh_data_seq is called on an empty diet_data_seq_t,\n"
+	   << " or it is called on the initial sequence\n";
+      return 1;
+    }
+  } else {
+    dest->length = src->length();
+    dest->seq = (diet_data_t *) malloc(dest->length * sizeof(diet_data_t));
+  }
+  for (size_t i = 0; i < dest->length; i++) {
+    if (unmrsh_data_control(&(dest->seq[i]), &((*src)[i])))
       return 1;
   }
   return 0;
@@ -760,40 +806,57 @@ int unmrsh_profile_to_sf(sf_inst_desc_t *dest, const corba_profile_t *src)
 /* Profile -> corba data sequences                                          */
 /*==========================================================================*/
 
-int mrsh_profile_to_in_args(SeqCorbaData_t *in, SeqCorbaData_t *inout,
+int mrsh_profile_to_in_args(SeqCorbaData_t *in,
+			    SeqCorbaData_t *inout, SeqCorbaData_t *out,
 			    const diet_profile_t *profile)
 {
+  int i, j;
+  
   in->length(profile->last_in + 1);
-  for (int i = 0; i <= profile->last_in; i++) {
+  for (i = 0; i <= profile->last_in; i++) {
     if (mrsh_data(&((*in)[i]), &(profile->parameters[i]), 0))
       return 1;
   }
   inout->length(profile->last_inout - profile->last_in);
-  for (int i = 0; i < (profile->last_inout - profile->last_in); i++) {
-    if (mrsh_data(&((*inout)[i]),
-		  &(profile->parameters[i + profile->last_in + 1]), 0))
+  for (i = 0; i < (profile->last_inout - profile->last_in); i++) {
+    j = i + profile->last_in + 1;
+    if (mrsh_data(&((*inout)[i]), &(profile->parameters[j]), 0))
+      return 1;
+  }
+  // For OUT parameters, marshal only descriptions for checking
+  // purpose on SeD side, and let data emty.
+  out->length(profile->last_out - profile->last_inout);
+  for (i = 0; i < (profile->last_out - profile->last_inout); i++) {
+    j = i + profile->last_inout + 1;
+    if (mrsh_data(&((*out)[i]), &(profile->parameters[j]), 1))
       return 1;
   }
   return 0;
 }
 
+// INOUT parameters should have been set correctly by the ORB.
+// FIXME: inout argument is useless (or only for checking purpose)
 int unmrsh_out_args_to_profile(diet_profile_t *profile,
 			       SeqCorbaData_t *inout, SeqCorbaData_t *out)
 {
   size_t inout_length = (size_t)(profile->last_inout - profile->last_in);
   size_t out_length   = (size_t)(profile->last_out   - profile->last_inout);
+  corba_data_t *src;
+  diet_data_t  *dest;
   
   if ((inout_length != inout->length()) || (out_length != out->length()))
     return 1;
-  for (size_t i = 0; i < inout->length(); i++) {
-    if (unmrsh_data(&(profile->parameters[i + profile->last_in + 1]),
-		    &((*inout)[i])))
-      return 1;
-  }
+  // Thus unmarshal only OUT parameters, but not the descriptions to save time.
   for (size_t i = 0; i < out->length(); i++) {
-    if (unmrsh_data(&(profile->parameters[i + profile->last_inout + 1]),
-		    &((*out)[i])))
-      return 1;
+    // instead of using unmrsh_data, save time by 
+    src  = &((*out)[i]);
+    dest = &(profile->parameters[i + profile->last_inout + 1]);
+    if (src->value.length() == 0) {
+      dest->value = malloc(data_sizeof(&(dest->desc)));
+    } else {
+      // CORBA::boolean orphan = (src->persistence_mode != DIET_VOLATILE);
+      dest->value = src->value.get_buffer();
+    }
   }
   return 0;
 }

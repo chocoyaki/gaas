@@ -12,6 +12,17 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.5  2002/08/30 16:50:16  pcombes
+ * This version works as well as the alpha version from the user point of view,
+ * but the API is now the one imposed by the latest specifications (GridRPC API
+ * in its sequential part, config file for all parts of the platform, agent
+ * algorithm, etc.)
+ *  - Reduce marshalling by using CORBA types internally
+ *  - Creation of a class ServiceTable that is to be replaced
+ *    by an LDAP DB for the MA
+ *  - No copy for client/SeD data transfers
+ *  - ...
+ *
  * Revision 1.4  2002/08/09 14:30:33  pcombes
  * This is commit set the frame for version 1.0 - does not work properly yet
  *
@@ -89,10 +100,18 @@ main(int argc, char **argv)
     profile = profile_alloc(1, 1, 2);
     matrix_set(&(profile->parameters[0]), A, DIET_VOLATILE,
 	       DIET_DOUBLE, 3, 2, 0);
-    matrix_set(&(profile->parameters[0]), B, DIET_VOLATILE,
+    if (!(strcmp(path, PB[1]))) {
+      matrix_set(&(profile->parameters[1]), B, DIET_VOLATILE,
 	       DIET_DOUBLE, 3, 2, 0);
-    matrix_set(&(profile->parameters[0]), NULL, DIET_VOLATILE,
-	       DIET_DOUBLE, 3, 2, 0);
+      matrix_set(&(profile->parameters[2]), NULL, DIET_VOLATILE,
+		 DIET_DOUBLE, 3, 2, 0);
+    } else {
+      matrix_set(&(profile->parameters[1]), B, DIET_VOLATILE,
+		 DIET_DOUBLE, 2, 3, 0);
+      matrix_set(&(profile->parameters[2]), NULL, DIET_VOLATILE,
+		 DIET_DOUBLE, 3, 3, 0);
+    }
+      
     print_matrix((double *)(profile->parameters[0].value),
 		 profile->parameters[0].desc.specific.mat.nb_r,
 		 profile->parameters[0].desc.specific.mat.nb_c);

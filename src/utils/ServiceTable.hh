@@ -11,6 +11,17 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.2  2002/08/30 16:50:16  pcombes
+ * This version works as well as the alpha version from the user point of view,
+ * but the API is now the one imposed by the latest specifications (GridRPC API
+ * in its sequential part, config file for all parts of the platform, agent
+ * algorithm, etc.)
+ *  - Reduce marshalling by using CORBA types internally
+ *  - Creation of a class ServiceTable that is to be replaced
+ *    by an LDAP DB for the MA
+ *  - No copy for client/SeD data transfers
+ *  - ...
+ *
  * Revision 1.1  2002/08/09 14:30:34  pcombes
  * This is commit set the frame for version 1.0 - does not work properly yet
  *
@@ -55,7 +66,6 @@ public:
   virtual ~ServiceTable();
   
   int  maxSize();
-  void maxSize(int _newmax);
   
   ServiceReference_t lookupService(const corba_profile_desc_t *profile);
   ServiceReference_t lookupService(const corba_profile_t *profile);
@@ -64,11 +74,12 @@ public:
   int addService(const corba_profile_desc_t *profile, diet_solve_t solver);
   int addService(const corba_profile_desc_t *profile, int son);
 
-  int        rmService(const corba_profile_desc_t *profile);
-  int        rmService(const ServiceReference_t ref);
-  int rmSonFromService(const corba_profile_desc_t *profile);
-  int rmSonFromService(const ServiceReference_t ref);
+  int rmService(const corba_profile_desc_t *profile);
+  int rmService(const ServiceReference_t ref);
+  int     rmSon(const int son);
 
+  // Return a pointer to a copy of all profiles.
+  // Caller is responsible for freeing the result.
   SeqCorbaProfileDesc_t *getProfiles();
   diet_solve_t   getSolver(const corba_profile_desc_t *profile);
   diet_solve_t   getSolver(const ServiceReference_t ref);
@@ -76,20 +87,23 @@ public:
   matching_sons_t *getSons(const ServiceReference_t ref);
   
   void dump(FILE *f);
-  diet_solve_t *solvers;
 
+  int max_nb_sons;
 private:
   
   // number of couples {service,profile} in the table
   int nb_s, max_nb_s, max_nb_s_step;
   // max number of capable sons for one service
-  int max_nb_sons;
   // array of name and generic data description (a profile description)
   SeqCorbaProfileDesc_t profiles;
   // array of solving functions 
+  diet_solve_t *solvers;
   // array of int arrays: each element is an array of sons ID, which offer the
   // corresponding service
   matching_sons_t *matching_sons;
+
+  // private methods
+  inline int ServiceTableInit(int max_nb_services, int max_nb_sons);
 
 };
 
