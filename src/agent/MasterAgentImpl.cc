@@ -10,14 +10,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.3  2003/05/22 12:20:25  sdahan
- * Now the NodeDescriptor completly manages its own memory by itself.
- * The -> operator is defined. You can do :
- * descriptor->ping() ;
- * instead of :
- * LocalAgent_ptr la = localAgent::_duplicate(descriptor.getIor()) ;
- * la->ping() ;
- * CORBA::release(la) ;
+ * Revision 1.4  2003/07/04 09:47:59  pcombes
+ * Use new ERROR, WARNING and TRACE macros.
  *
  * Revision 1.2  2003/05/10 08:53:34  pcombes
  * New format for configuration files, new Parsers.
@@ -36,8 +30,12 @@
 using namespace std;
 #include <stdio.h>
 
-
+/** The trace level. */
 extern unsigned int TRACE_LEVEL;
+
+#define MA_TRACE_FUNCTION(formatted_text)       \
+  TRACE_TEXT(TRACE_ALL_STEPS, "MA::");          \
+  TRACE_FUNCTION(TRACE_ALL_STEPS,formatted_text)
 
 
 MasterAgentImpl::MasterAgentImpl() : AgentImpl()
@@ -63,19 +61,15 @@ MasterAgentImpl::run()
 
   if (res)
     return res;
+
 #if HAVE_MULTI_MA
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "Getting MAs references ...\n";
-
+  TRACE_TEXT(TRACE_ALL_STEPS, "Getting MAs references ...\n");
   updateRefs();
-
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "Getting MAs references ... done.\n";
+  TRACE_TEXT(TRACE_ALL_STEPS, "Getting MAs references ... done.\n");
 #endif // HAVE_MULTI_MA
 
-  if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
-    cout << "\nMaster Agent " << this->myName << " started.\n\n";
-
+  TRACE_TEXT(TRACE_MAIN_STEPS,
+	     "\nMaster Agent " << this->myName << " started.\n\n");
   return 0;
 } // run()
 
@@ -95,16 +89,14 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
   Request*          req(NULL);
   corba_response_t* resp(NULL);
 
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "MA::submit(" << pb_profile.path <<", " << maxServers << ")\n";
+  MA_TRACE_FUNCTION(pb_profile.path <<", " << maxServers);
 
   /* Initialize the corba request structure */
   creq.reqID = reqIDCounter++; // thread safe
   creq.pb = pb_profile;
 
   /* Initialize the request with a global scheduler */
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "Initialize the request " << creq.reqID << ".\n";
+  TRACE_TEXT(TRACE_ALL_STEPS, "Initialize the request " << creq.reqID << ".\n");
   req = new Request(&creq, GlobalScheduler::chooseGlobalScheduler(&creq));
 		    
   /* Forward request and schedule the responses */
@@ -112,20 +104,18 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
 
   // Constructor initializes sequences with length == 0
   if ((resp != NULL) && (resp->servers.length() != 0)) {
-    
     resp->servers.length(MIN(resp->servers.length(), maxServers));
-    if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-      cout << "Decision signaled" << endl;
-
-  } else if (TRACE_LEVEL >= TRACE_MAIN_STEPS) {
-    cout << "No server found for problem " << creq.pb.path << ".\n";
+    TRACE_TEXT(TRACE_ALL_STEPS, "Decision signaled.\n");
+  } else {
+    TRACE_TEXT(TRACE_MAIN_STEPS,
+	       "No server found for problem " << creq.pb.path << ".\n");
   }
-	      
+  
   reqList[creq.reqID] = NULL;
   delete req;
   
-  if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
-    cout << "************************************************************\n";
+  TRACE_TEXT(TRACE_MAIN_STEPS,
+	     "**************************************************\n");
   return resp;
 } // submit(const corba_pb_desc_t& pb, ...)
 
@@ -140,33 +130,27 @@ MasterAgentImpl::updateRefs()
   dietMADescListIterator* iter = new dietMADescListIterator(knownMAs);
   CORBA::Object_var obj;
 
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "MA::updateRefs()\n";
+  MA_TRACE_FUNCTION();
 
   while (iter->next()) {
-    if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-      cout << "Resolving " << ((dietMADescListElt *)(iter->curr()))->MA.name
-	   << "...";
+    TRACE_TEXT(TRACE_ALL_STEPS, "Resolving "
+	       << ((dietMADescListElt *)(iter->curr()))->MA.name << "...");
     obj = getAgentReference(((dietMADescListElt *)(iter->curr()))->MA.name);
     if (CORBA::is_nil(obj)) {
-      if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-	cout << " Not found" << endl;
+      TRACE_TEXT(TRACE_ALL_STEPS, " not found.\n");
     } else {
-      if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-	cout << " Found" << endl;
+      TRACE_TEXT(TRACE_ALL_STEPS,
+	cout << " found" << endl;
       ((dietMADescListElt *)(iter->curr()))->MA.ior = Agent::_narrow(obj);
-      if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-	cout << "Shaking hand..." << endl;
+      TRACE_TEXT(TRACE_ALL_STEPS, "Shaking hand ...");
       try {
 	/* retirer par flemme de changer dietMADescListElt */
 	/*	(((dietMADescListElt *)
 		(iter->curr()))->MA.ior->handShake(_this(),myName);*/
-	if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-	  cout << "Success" << endl;
+	TRACE_TEXT(TRACE_ALL_STEPS, " OK.\n");
       }
       catch (CORBA::COMM_FAILURE& ex) {
-	if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-	  cout << "obsolete reference" << endl;
+	TRACE_TEXT(TRACE_ALL_STEPS, " obsolete reference.\n");
 	((dietMADescListElt *)(iter->curr()))->MA.ior = Agent::_nil();
       }
     }
@@ -183,8 +167,7 @@ MasterAgentImpl::updateRefs()
 CORBA::Long
 MasterAgentImpl::handShake(MasterAgent_ptr me, const char* myName)
 {
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << myName << " is shaking my hand" << endl;
+  MA_TRACE_FUNCTION("with " << myName);
 
   bool MAFound = false;
   MAList::Iterator* iter = knownMAs.getIterator();
@@ -192,8 +175,7 @@ MasterAgentImpl::handShake(MasterAgent_ptr me, const char* myName)
   while (!MAFound && iter->hasCurrent()) {
     if (!strcmp(iter->getCurrent().getName(), myName)) {
       iter->setCurrent(MADescription(me, myName));
-      if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-	cout << "Reference updated" << endl;
+      TRACE_TEXT(TRACE_ALL_STEPS, "Reference updated.\n");
       MAFound = true;
     }
   }
@@ -202,8 +184,7 @@ MasterAgentImpl::handShake(MasterAgent_ptr me, const char* myName)
   if(!MAFound)
     knownMAs.addElement(MADescription(me, myName));
 
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "Reference created" << endl;
+  TRACE_TEXT(TRACE_ALL_STEPS, "Reference created.\n");
 
   if (MAFound)
     return 0;

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2003/07/04 09:47:59  pcombes
+ * Use new ERROR, WARNING and TRACE macros.
+ *
  * Revision 1.2  2003/05/05 14:46:21  pcombes
  * Add traces for all methods. aggregate: fix bug in the computation of pow.
  * Improve the server weight computation for NWSScheduler.
@@ -29,8 +32,14 @@ using namespace std;
 
 #include "debug.hh"
 
-
+/** The trace level. */
 extern unsigned int TRACE_LEVEL;
+
+// Use SCHED_CLASS for the name of the class
+// (this->name cannot be used in static member functions)
+#define SCHED_TRACE_FUNCTION(formatted_text)      \
+  TRACE_TEXT(TRACE_ALL_STEPS, SCHED_CLASS << "::");\
+  TRACE_FUNCTION(TRACE_ALL_STEPS,formatted_text)
 
 
 /**
@@ -44,9 +53,12 @@ random_permute(SeqLong* seq, int first_idx, int last_idx);
 /****************************************************************************/
 /* Scheduler                                                                */
 /****************************************************************************/
+#undef SCHED_CLASS
+#define SCHED_CLASS "Scheduler"
 
-
-Scheduler::Scheduler() {}
+Scheduler::Scheduler() {
+  this->name = "Scheduler";
+}
 Scheduler::~Scheduler() {}
 
 /**
@@ -56,8 +68,8 @@ Scheduler::~Scheduler() {}
 char*
 Scheduler::serialize(Scheduler* S)
 {
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "Scheduler::serialize(" << (void*)S->name << ")\n";
+  SCHED_TRACE_FUNCTION((void*)S->name);
+
   if (!strncmp(S->name,
 	       FASTScheduler::stName, FASTScheduler::nameLength)) {
     return FASTScheduler::serialize((FASTScheduler*) S);
@@ -68,8 +80,7 @@ Scheduler::serialize(Scheduler* S)
 		      RandScheduler::stName, RandScheduler::nameLength)) {
     return RandScheduler::serialize((RandScheduler*) S);
   } else {
-    cerr << "Error: unable to serialize scheduler named " << S->name << endl;
-    return NULL;
+    INTERNAL_ERROR("unable to serialize scheduler named " << S->name, 1);
   }
 }
 
@@ -79,8 +90,8 @@ Scheduler::serialize(Scheduler* S)
 Scheduler*
 Scheduler::deserialize(char* serializedScheduler)
 {
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "Scheduler::deserialize(" << serializedScheduler << ")\n";
+  SCHED_TRACE_FUNCTION(serializedScheduler);
+
   if (!strncmp(serializedScheduler,
 	       FASTScheduler::stName, FASTScheduler::nameLength)) {
     return FASTScheduler::deserialize(serializedScheduler);
@@ -91,8 +102,8 @@ Scheduler::deserialize(char* serializedScheduler)
 		      RandScheduler::stName, RandScheduler::nameLength)) {
     return RandScheduler::deserialize(serializedScheduler);
   } else {
-    cerr << "Warning: unable to deserialize scheduler ; "
-	 << "reverting to default (random).\n";
+    INTERNAL_WARNING("unable to deserialize scheduler ; "
+	    << "reverting to default (random)");
     return new RandScheduler();
   }
 }
@@ -109,6 +120,10 @@ Scheduler::qsort(CORBA::Long* const base, size_t nb_elems, const void* info)
 		   this->compare, this->servers, info);
 }
 
+
+/* agregate is non-static: use this->name for the SCHED_TRACE_FUNCTION */
+#undef SCHED_CLASS
+#define SCHED_CLASS this->name
 
 /**
  * Aggregate all servers that this scheduler can process and that are stored
@@ -200,15 +215,14 @@ Scheduler::aggregate(corba_response_t& aggrResp, int* lastAggregated,
 	  case COMP_CANNOT_TREAT_BOTH:					       \
 	    (levels[i])[j].resp_idx = -1; break;			       \
 	  default:							       \
-	    cerr << "Error: compare returned wrong value.\n";		       \
+	    INTERNAL_WARNING("compare returned wrong value");		       \
 	    (levels[i])[j].resp_idx = -1;				       \
 	  }								       \
 	}								       \
       }									       \
     }
 
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << this->name << "::aggregate(nb_responses=" << nb_responses << ")\n";
+  SCHED_TRACE_FUNCTION("nb_responses=" << nb_responses);
 
   /* Initialize the tree */
   size_t idx;
@@ -283,7 +297,8 @@ Scheduler::aggregate(corba_response_t& aggrResp, int* lastAggregated,
 /****************************************************************************/
 /* FAST Scheduler                                                           */
 /****************************************************************************/
-
+#undef SCHED_CLASS
+#define SCHED_CLASS "FASTScheduler"
 
 const char*  FASTScheduler::stName     = "FASTScheduler";
 const size_t FASTScheduler::nameLength = 13;
@@ -330,8 +345,8 @@ FASTScheduler::FASTScheduler(double epsilon)
   this->compare = FASTScheduler_compare;
   this->cmpInfo = NULL;
   if (epsilon < 0) {
-    cerr << "WARNING: attempt to initialize FAST Scheduler with a negative "
-	 << "epsilon.\nSet epsilon to 0.0.\n";
+    INTERNAL_WARNING("attempt to initialize FAST Scheduler with a negative "
+		     << "epsilon.\nSet epsilon to 0.0");
     this->epsilon = 0;
   } else {
     this->epsilon = epsilon;
@@ -349,13 +364,12 @@ FASTScheduler::deserialize(char* serializedScheduler)
 {
   double epsilon(0.0);
 
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "FASTScheduler::deserialize(" << serializedScheduler << ")\n";
+  SCHED_TRACE_FUNCTION(serializedScheduler);
   // Add one for the ','
   if (sscanf((char*)(serializedScheduler + FASTScheduler::nameLength + 1),
 	     "%lg", &epsilon) != 1) {
-    cerr << "Warning: invalid parameters for FAST scheduler, "
-	 << "reverting to default.\n";
+    INTERNAL_WARNING("invalid parameters for FAST scheduler, "
+		     << "reverting to default");
   }
   return new FASTScheduler(epsilon);
 }
@@ -369,8 +383,7 @@ FASTScheduler::serialize(FASTScheduler* S)
 {
   char* res = new char[S->nameLength + 20];
 
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "FASTScheduler::serialize(" << S->name << ")\n";
+  SCHED_TRACE_FUNCTION(S->name);
   sprintf(res, "%s,%.10g", S->stName, S->epsilon);
   return res;
 }
@@ -386,8 +399,7 @@ FASTScheduler::sort(SeqLong* sortedIndexes, int* lastSorted,
   corba_estimation_t* ref;
   corba_estimation_t* curr;
 
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "FASTScheduler::sort(" << servers->length() << " servers)\n";
+  SCHED_TRACE_FUNCTION(servers->length() << " servers");
 
   this->servers = servers;
 
@@ -442,6 +454,8 @@ FASTScheduler::sort(SeqLong* sortedIndexes, int* lastSorted,
 /****************************************************************************/
 /* NWS Scheduler                                                            */
 /****************************************************************************/
+#undef SCHED_CLASS
+#define SCHED_CLASS "NWSScheduler"
 
 #define WEIGHT(estim,wi)                                               \
         ((((estim)->freeCPU == 0)                                      \
@@ -542,8 +556,7 @@ NWSScheduler::deserialize(char* serializedScheduler)
   int i(0);
   NWSScheduler* res;
 
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "NWSScheduler::deserialize(" << serializedScheduler << ")\n";
+  SCHED_TRACE_FUNCTION(serializedScheduler);
   token = strtok_r(serializedScheduler, ",", &ptr);
   if (*ptr != '\0')
     ptr[-1] = ',';
@@ -556,8 +569,8 @@ NWSScheduler::deserialize(char* serializedScheduler)
   }
   // Test for all parameters processed.
   if (i < nb_mb || *ptr != '\0') {
-    cerr << "Warning: invalid parameters for NWS scheduler, "
-	 << "reverting to default.\n";
+    INTERNAL_WARNING("invalid parameters for NWS scheduler, "
+		     << "reverting to default");
     res = new NWSScheduler();
   } else {
     res = new NWSScheduler(members[0], members[1],
@@ -575,8 +588,7 @@ NWSScheduler::serialize(NWSScheduler* S)
 {
   char* res = new char[S->nameLength + nb_mb*20];
 
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "NWSScheduler::serialize(" << S->name << ")\n";
+  SCHED_TRACE_FUNCTION(S->name);
   sprintf(res, "%s,%.10g,%.10g,%.10g,%.10g",
 	  S->stName,      S->epsilon,
 	  S->wi.CPUPower, S->wi.memPower, S->wi.commPower);
@@ -595,8 +607,7 @@ NWSScheduler::sort(SeqLong* sortedIndexes, int* lastSorted,
   corba_estimation_t* curr;
   double ref_weight, curr_weight;
 
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "NWSScheduler::sort(" << servers->length() << " servers)\n";
+  SCHED_TRACE_FUNCTION(servers->length() << " servers");
 
   this->servers = servers;
 
@@ -657,7 +668,8 @@ NWSScheduler::sort(SeqLong* sortedIndexes, int* lastSorted,
 /****************************************************************************/
 /* Random Scheduler                                                         */
 /****************************************************************************/
-
+#undef SCHED_CLASS
+#define SCHED_CLASS "RandScheduler"
 
 const char*  RandScheduler::stName     = "RandScheduler";
 const size_t RandScheduler::nameLength = 13;
@@ -702,8 +714,7 @@ RandScheduler::serialize(RandScheduler* S)
 {
   char* res = new char[S->nameLength + 1];
 
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "RandScheduler::serialize(" << S->name << ")\n";
+  SCHED_TRACE_FUNCTION(S->name);
   strcpy(res, S->stName);
   return res;
 }
@@ -715,8 +726,7 @@ RandScheduler::serialize(RandScheduler* S)
 RandScheduler*
 RandScheduler::deserialize(char* serializedScheduler)
 {
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "RandScheduler::deserialize(" << serializedScheduler << ")\n";
+  SCHED_TRACE_FUNCTION(serializedScheduler);
   return new RandScheduler();
 }
 
@@ -725,8 +735,7 @@ int
 RandScheduler::sort(SeqLong* sortedIndexes, int* lastSorted,
 		    SeqServerEstimation_t* servers)
 {
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "RandScheduler::sort(" << servers->length() << " servers)\n";
+  SCHED_TRACE_FUNCTION(servers->length() << " servers");
 
   if (!lastSorted || (*lastSorted > (int)sortedIndexes->length()))
     return 1;

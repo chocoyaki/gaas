@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2003/07/04 09:47:57  pcombes
+ * Use new ERROR, WARNING and TRACE macros.
+ *
  * Revision 1.6  2003/06/23 13:35:06  pcombes
  * useAsyncAPI should be replaced by a "useBiDir" option. Remove it so far.
  *
@@ -49,7 +52,12 @@ using namespace std;
 #include "statistics.hh"
 #include "Callback.hh"
 
+/** The trace level. */
 extern unsigned int TRACE_LEVEL;
+
+#define SED_TRACE_FUNCTION(formatted_text)       \
+  TRACE_TEXT(TRACE_ALL_STEPS, "SeD::");          \
+  TRACE_FUNCTION(TRACE_ALL_STEPS,formatted_text)
 
 
 SeDImpl::SeDImpl()
@@ -76,8 +84,7 @@ SeDImpl::run(ServiceTable* services)
   
   localHostName[257] = '\0';
   if (gethostname(localHostName, 256)) {
-    perror("Could not initialize the SeD");
-    return 1;
+    ERROR("could not get hostname", 1);
   }
 
   this->SrvT = services;
@@ -90,8 +97,7 @@ SeDImpl::run(ServiceTable* services)
   parent =
     Agent::_duplicate(Agent::_narrow(ORBMgr::getAgentReference(parent_name)));
   if (CORBA::is_nil(parent)) {
-    cerr << "Cannot locate agent " << parent_name << ".\n";
-    return 1;
+    ERROR("cannot locate agent " << parent_name, 1);
   }
   
   profiles = this->SrvT->getProfiles();
@@ -103,10 +109,9 @@ SeDImpl::run(ServiceTable* services)
     CORBA::Any tmp;
     tmp <<= e;
     CORBA::TypeCode_var tc = tmp.type();
-    cerr << "Thrown exception " << tc->name() << " while subscribing to "
-	 << parent_name	 << ": either the latter is down, "
-	 << "or there is a problem with the name server problem\n";
-    return 1;
+    ERROR("exception caught (" << tc->name() << ") while subscribing to "
+	  << parent_name << ": either the latter is down, "
+	  << "or there is a problem with the CORBA name server", 1);
   }
   delete profiles;
 
@@ -176,9 +181,9 @@ SeDImpl::getRequest(const corba_request_t& creq)
 {
   corba_response_t resp;
 
-  if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
-    cout << "\n************************************************************\n"
-	 << "Got request " << creq.reqID << endl << endl;  
+  TRACE_TEXT(TRACE_MAIN_STEPS,
+	     "\n**************************************************\n"
+	     << "Got request " << creq.reqID << endl << endl);
   resp.reqID = creq.reqID;
   resp.myID  = childID;
 
@@ -205,8 +210,6 @@ SeDImpl::getRequest(const corba_request_t& creq)
   // Just for debugging
   if (TRACE_LEVEL >= TRACE_STRUCTURES)
     displayResponse(stdout, &resp);
-  if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
-    cout << "************************************************************\n";
 
   parent->getResponse(resp);
 }
@@ -236,14 +239,11 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
   
   stat_in("SeDImpl::solve.start");
 
-  if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
-    cout << "\n************************************************************\n"
-	 << "SeD::solve invoked on pb: " << path << endl;
+  TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::solve invoked on pb: " << path << endl);
   
   ref = SrvT->lookupService(path, &pb);
   if (ref == -1) {
-    cerr << "ERROR in SeD solve: service not found.\n";
-    return 1;
+    ERROR("SeD::" << __FUNCTION__ << ": service not found", 1);
   }
   
   cvt = SrvT->getConvertor(ref);
@@ -256,9 +256,8 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
   /* Free data */
   // FIXME: persistent data should not be freed but referenced in the data list.
 
-  if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
-    cout << "SeD::solve complete\n"
-	 << "************************************************************\n";
+  TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::" << __FUNCTION__ << " complete\n"
+	     << "**************************************************\n");
 
   stat_out("SeDImpl::solve.end");
 
@@ -267,30 +266,29 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
 
 void
 SeDImpl::solveAsync(const char* path, const corba_profile_t& pb, 
-		    CORBA::Long reqID, const char * volatileclientREF)
+		    CORBA::Long reqID, const char* volatileclientREF)
 {
   // test validity of volatileclientREF
   // If nil, it is not necessary to solve ...
   try {
     //ServiceTable::ServiceReference_t ref(-1);
     CORBA::Object_var cb = ORBMgr::stringToObject(volatileclientREF);
-    if( CORBA::is_nil(cb) ) cerr << "Received a nil callback.\n";
-    else {
+    if (CORBA::is_nil(cb)) {
+      ERROR("SeD::" << __FUNCTION__ << ": received a nil callback",);
+    } else {
       ServiceTable::ServiceReference_t ref(-1);
       diet_profile_t profile;
       diet_convertor_t* cvt(NULL);
       int solve_res(0);
   
-      stat_in("SeDImpl::solve.start");
+      stat_in("SeDImpl::solveAsync.start");
 
-      if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
-	cout << "\n************************************************************\n"
-	<< "SeD::solve invoked on pb: " << path << endl;
+      TRACE_TEXT(TRACE_MAIN_STEPS,
+		 "SeD::solveAsync invoked on pb: " << path << endl);
   
       ref = SrvT->lookupService(path, &pb);
       if (ref == -1) {
-	cerr << "ERROR in SeD solve: service not found.\n";
-	return;
+	ERROR("SeD::" << __FUNCTION__ << ": service not found",);
       }
   
       cvt = SrvT->getConvertor(ref);
@@ -304,37 +302,36 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
       /* Free data */
       // FIXME: persistent data should not be freed but referenced in the data list.
 
-      if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
-	cout << "SeD::solve complete\n"
-	<< "************************************************************\n";
+      TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::" << __FUNCTION__ << " complete\n"
+		 << "**************************************************\n");
 
-      stat_out("SeDImpl::solve.end");
+      stat_out("SeDImpl::solveAsync.end");
       
-      // send result datas to client.
-      cerr << "SED: Doing a call-back: " << endl;
+      // send result data to client.
+      TRACE_TEXT(TRACE_ALL_STEPS, "SeD::" << __FUNCTION__
+		 << ": performing the call-back.\n");
       Callback_var cb_var = Callback::_narrow(cb);
       cb_var->notifyResults(path,pb, reqID);
       cb_var->solveResults(path,pb, reqID);
-
     }
-  }
-  catch (const CORBA::Exception &e){
-      // Process any other User exceptions. Use the .id() method to
-      // record or display useful information
-      CORBA::Any tmp;
-      tmp <<= e;
-      CORBA::TypeCode_var tc = tmp.type();
-      const char * p = tc->name();
-      if (*p != '\0') cout << "SeD async Caught exception : " << p << endl;
-      else cout << "SeD async Caught exception : " << tc->id() << endl;
-      fflush(stdout);
-  }
-  catch (...)
-  {
-      // Process any other exceptions. This would catch any other C++
-      // exceptions and should probably never occur
-      cout << "Caught an unknown Exception" << endl;
-      fflush(stdout);
+  
+  } catch (const CORBA::Exception &e) {
+    // Process any other User exceptions. Use the .id() method to
+    // record or display useful information
+    CORBA::Any tmp;
+    tmp <<= e;
+    CORBA::TypeCode_var tc = tmp.type();
+    const char * p = tc->name();
+    if (*p != '\0') {
+      ERROR("exception caught in SeD::" << __FUNCTION__ << '(' << p << ')',);
+    } else {
+      ERROR("exception caught in SeD::" << __FUNCTION__
+	    << '(' << tc->id() << ')',);
+    }
+  } catch (...) {
+    // Process any other exceptions. This would catch any other C++
+    // exceptions and should probably never occur
+    ERROR("unknown exception caught",);
   }
 }
 
@@ -342,8 +339,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 CORBA::Long
 SeDImpl::ping()
 {
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "SeD::ping()\n";
+  SED_TRACE_FUNCTION("");
   return 0;
 }
 
@@ -373,16 +369,15 @@ SeDImpl::estimate(corba_estimation_t& estimation,
     fastMutex.lock();
     unmrsh_pb_desc_to_sf(&inst, &pb, this->SrvT->getConvertor(ref));
     if ( !(fast_comp_time_best(this->localHostName, &inst, &time)) ) {
-      cerr << "Warning: Cannot estimate computation time. "
-	   << "Try CPU and memory load.\n";
+      WARNING("cannot estimate computation time. Try CPU and memory load");
       time = HUGE_VAL;
     }
     if ( !(fast_load(this->localHostName, &freeCPU)) ) {
-      cerr << "Warning: Cannot estimate free CPU fraction.\n";
+      WARNING("cannot estimate free CPU fraction");
       freeCPU = 0;
     }
     if ( !(fast_memory(this->localHostName, &freeMem)) ) {
-      cerr << "Warning: Cannot estimate free memory.\n";
+      WARNING("cannot estimate free memory");
       freeMem = 0;
     }
     fastMutex.unlock();
@@ -392,7 +387,8 @@ SeDImpl::estimate(corba_estimation_t& estimation,
 
 #else  // HAVE_FAST
 
-  cerr << "Warning: Cannot estimate computation time: time set to inf.\n";
+  WARNING("cannot estimate computation time: time set to inf");
+  PAUSE(0,5000); // simulate FAST interrogation
 
 #endif // HAVE_FAST
 

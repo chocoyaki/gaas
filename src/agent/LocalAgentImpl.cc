@@ -10,8 +10,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.3  2003/06/23 13:41:20  pcombes
- * Print my name at start time
+ * Revision 1.4  2003/07/04 09:47:59  pcombes
+ * Use new ERROR, WARNING and TRACE macros.
  *
  * Revision 1.2  2003/05/10 08:53:34  pcombes
  * New format for configuration files, new Parsers.
@@ -29,8 +29,12 @@
 #include <iostream>
 using namespace std;
 
-
+/** The trace level. */
 extern unsigned int TRACE_LEVEL;
+
+#define LA_TRACE_FUNCTION(formatted_text)       \
+  TRACE_TEXT(TRACE_ALL_STEPS, "LA::");          \
+  TRACE_FUNCTION(TRACE_ALL_STEPS,formatted_text)
 
 
 LocalAgentImpl::LocalAgentImpl()
@@ -57,12 +61,11 @@ LocalAgentImpl::run()
   this->parent =
     Agent::_duplicate(Agent::_narrow(ORBMgr::getAgentReference(parent_name)));
   if (CORBA::is_nil(this->parent)) {
-    cerr << "Cannot locate agent " << parent_name << ".\n";
-    return 1;
+    ERROR("cannot locate agent " << parent_name, 1);
   }
 
-  if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
-    cout << "\nLocal Agent " << this->myName << " started.\n\n";
+  TRACE_TEXT(TRACE_MAIN_STEPS,
+	     "\nLocal Agent " << this->myName << " started.\n\n");
 
   return 0;
 } // run()
@@ -75,9 +78,7 @@ void
 LocalAgentImpl::addServices(CORBA::ULong myID,
 			    const SeqCorbaProfileDesc_t& services)
 {
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "LA::addServices(" << myID <<", "
-	 << services.length() << " services)\n";
+  LA_TRACE_FUNCTION(myID <<", " << services.length() << " services");
 
   if (this->childID == -1) { // still not registered ...
     SeqCorbaProfileDesc_t* tmp;
@@ -105,8 +106,7 @@ LocalAgentImpl::getRequest(const corba_request_t& req)
 {
   Request* currRequest = new Request(&req);
 
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "LA::getRequest(" << req.reqID << ", " << req.pb.path << ")\n";
+  LA_TRACE_FUNCTION(req.reqID << ", " << req.pb.path);
 
   corba_response_t& resp = *(this->findServer(currRequest, 0));
 

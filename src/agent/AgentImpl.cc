@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2003/07/04 09:47:59  pcombes
+ * Use new ERROR, WARNING and TRACE macros.
+ *
  * Revision 1.4  2003/06/03 18:26:28  pcombes
  * Add main step traces for child subscription.
  *
@@ -44,7 +47,13 @@ using namespace std;
 #include "ORBMgr.hh"
 #include "Parsers.hh"
 
+/** The trace level. */
 extern unsigned int TRACE_LEVEL;
+
+#define AGT_TRACE_FUNCTION(formatted_text)       \
+  TRACE_TEXT(TRACE_ALL_STEPS, "Agt::");          \
+  TRACE_FUNCTION(TRACE_ALL_STEPS,formatted_text)
+
 
 AgentImpl::AgentImpl()
 {
@@ -79,8 +88,7 @@ AgentImpl::run()
   /* Set host name */
   this->localHostName[257] = '\0';
   if (gethostname(this->localHostName, 256)) {
-    perror("Could not initialize the agent");
-    return 1;
+    ERROR("could not get hostname", 1);
   }
 
   /* Bind this agent to its name in the CORBA Naming Service */
@@ -89,8 +97,7 @@ AgentImpl::run()
     return 1;
   strncpy(this->myName, name, MIN(256, strlen(name)));
   if (ORBMgr::bindAgentToName(_this(), this->myName)) {
-    cerr << "Agent: could not declare myself as " << this->myName << endl;
-    return 1;
+    ERROR("could not declare myself as " << this->myName, 1);
   }
 
 #if HAVE_FAST
@@ -161,9 +168,8 @@ AgentImpl::agentSubscribe(Agent_ptr me, const char* hostName,
 {
   CORBA::ULong retID = (this->childIDCounter)++; // thread safe
 
-  if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
-    cout << "An agent has registered from << " << hostName << ", with "
-	 << services.length() << " services.\n";
+  TRACE_TEXT(TRACE_MAIN_STEPS, "An agent has registered from << " << hostName
+	     << ", with " << services.length() << " services.\n");
 
   /* the size of the list is childID+1 (first index is 0) */
   this->LAChildren.resize(this->childIDCounter);
@@ -187,9 +193,8 @@ AgentImpl::serverSubscribe(SeD_ptr me, const char* hostName,
 {
   CORBA::ULong retID;
 
-  if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
-    cout << "A server has registered from << " << hostName << ", with "
-	 << services.length() << " services.\n";
+  TRACE_TEXT(TRACE_MAIN_STEPS, "A server has registered from " << hostName
+	     << ", with " << services.length() << " services.\n");
 
   assert (hostName != NULL);
   retID = (this->childIDCounter)++; // thread safe
@@ -211,9 +216,7 @@ AgentImpl::serverSubscribe(SeD_ptr me, const char* hostName,
 void
 AgentImpl::addServices(CORBA::ULong myID, const SeqCorbaProfileDesc_t& services)
 {
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "A::addServices(" << myID <<", "
-	 << services.length() << " services)\n";
+  AGT_TRACE_FUNCTION(myID <<", " << services.length() << " services");
   this->srvTMutex.lock();
   for (size_t i = 0; i < services.length(); i++) {
     if (this->SrvT->addService(&(services[i]), myID)) {
@@ -246,10 +249,10 @@ AgentImpl::findServer(Request* req, size_t max_srv)
   corba_response_t* resp = new corba_response_t;
   const corba_request_t& creq = *(req->getRequest());
 
-  if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
-    cout << "\n************************************************************\n"
-	 << "Got request " << creq.reqID
-	 << " on problem " << creq.pb.path << endl;
+  TRACE_TEXT(TRACE_MAIN_STEPS,
+	     "\n**************************************************\n"
+	     << "Got request " << creq.reqID
+	     << " on problem " << creq.pb.path << endl);
 
   /* Initialize the response */
   resp->reqID = creq.reqID;
@@ -268,7 +271,7 @@ AgentImpl::findServer(Request* req, size_t max_srv)
   serviceRef = SrvT->lookupService(&(creq.pb));
 
   if (serviceRef == -1) {
-    cerr << "DIET failure: no service found for request " << creq.reqID << endl;
+    WARNING("no service found for request " << creq.reqID);
     srvTMutex.unlock();
 
   } else { // then the request must be forwarded
@@ -301,10 +304,9 @@ AgentImpl::findServer(Request* req, size_t max_srv)
 
     /* if no alive server can solve the problem, return */
     if (!nbChildrenContacted) {
-      cerr << "DIET failure: no service found for request "
-	   << creq.reqID << endl;
-      if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
-	cout << "************************************************************\n";
+      WARNING("no service found for request " << creq.reqID);
+      TRACE_TEXT(TRACE_MAIN_STEPS,
+		 "**************************************************\n");
       req->unlock();
       //delete req; // do not delete since getRequest does not perform a copy.
       return resp;
@@ -318,9 +320,8 @@ AgentImpl::findServer(Request* req, size_t max_srv)
 
     /* Everything is ready, we can now wait for the responses */
     /* (This call implicitly unlocks the responses mutex)     */
-    if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-      cout << "Waiting for " << nbChildrenContacted
-	   << " responses to request " << creq.reqID <<  "...\n";
+    TRACE_TEXT(TRACE_ALL_STEPS, "Waiting for " << nbChildrenContacted
+	       << " responses to request " << creq.reqID <<  "...\n");
 
     req->waitResponses(nbChildrenContacted);
     req->unlock();
@@ -396,9 +397,8 @@ AgentImpl::findServer(Request* req, size_t max_srv)
 void
 AgentImpl::getResponse(const corba_response_t& resp)
 {
-  if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
-    cout << "Got a response from " << resp.myID <<"th child"
-	 << " to request " << resp.reqID << endl;
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Got a response from " << resp.myID
+	     <<"th child" << " to request " << resp.reqID << endl);
 
   /* The response should be copied in the logs */
   /* Look for the concerned request in the logs */
@@ -408,7 +408,7 @@ AgentImpl::getResponse(const corba_response_t& resp)
     req->addResponse(&resp);
     req->unlock();
   } else {
-    cerr << "DIET failure: response to unknown request." << endl;
+    WARNING("response to unknown request");
   } // if (req)
 
 } // getResponse(const corba_response_t & resp)
@@ -420,8 +420,7 @@ AgentImpl::getResponse(const corba_response_t& resp)
 CORBA::Long
 AgentImpl::ping()
 {
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "A::ping()\n";
+  AGT_TRACE_FUNCTION("");
   return 0;
 } // ping()
 
@@ -435,8 +434,7 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req)
   bool childFound = false;
   typedef size_t comm_failure_t;
 
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "A::sendRequest(" << childID <<", " << req->pb.path << ")\n";
+  AGT_TRACE_FUNCTION(childID << ", " << req->pb.path);
 
   try {
   /* Is the child an agent ? */
@@ -455,8 +453,8 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req)
 	}
       } catch (comm_failure_t& e) {
 	if (e == 0 || e == 1) {
-	  cerr << "Connection problems with LA child " << childID
-	       << " occured - remove it from known children.\n";
+	  WARNING("connection problems with LA child " << childID
+		  << " occured - remove it from known children");
 	  srvTMutex.lock();
 	  SrvT->rmChild(childID);
 	  if (TRACE_LEVEL >= TRACE_STRUCTURES)
@@ -487,8 +485,8 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req)
 	}
       } catch (comm_failure_t& e) {
 	if (e == 0 || e == 1) {
-	  cerr << "Connection problems with SeD child " << childID
-	       << " occured - remove it from known children.\n";
+	  WARNING("connection problems with SeD child " << childID
+		  << " occured - remove it from known children");
 	  srvTMutex.lock();
 	  SrvT->rmChild(childID);
 	  if (TRACE_LEVEL >= TRACE_STRUCTURES)
@@ -504,13 +502,11 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req)
     }
 
     if (!childFound) {
-      cerr << "Diet failure: Trying to send a request to an unknown child."
-	   << endl;
+      WARNING("trying to send a request to an unknown child");
     }
   }
   } catch(...) {
-    cerr << "WARNING: Exception thrown in "
-	 << "sendRequest(CORBA::Long childID, const corba_request_t* req)\n";
+    WARNING("exception thrown in Agt::" << __FUNCTION__);
   }
 } // sendRequest(CORBA::Long childID, const corba_request_t* req)
 
@@ -527,8 +523,7 @@ AgentImpl::getCommTime(CORBA::Long childID, unsigned long size, bool to)
 {
   double time = HUGE_VAL;
 
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "getCommTime(" << childID <<", " << size << ")\n";
+  AGT_TRACE_FUNCTION(childID <<", " << size);
 
 #if HAVE_FAST
   if (this->fastUse) {
@@ -544,7 +539,7 @@ AgentImpl::getCommTime(CORBA::Long childID, unsigned long size, bool to)
     fastMutex.lock();
     if (!(fast_comm_time_best(src_name, dest_name, size, &time))) {
       time = HUGE_VAL;
-      cerr << "Warning: fast_comm_time_best error (time set to HUGE_VAL)\n";
+      WARNING("fast_comm_time_best error (time set to HUGE_VAL)");
     }
     fastMutex.unlock();
     //ms_strfree(dest_name);
@@ -569,10 +564,8 @@ AgentImpl::aggregate(Request* request, size_t max_srv)
   corba_response_t* aggregResp = new corba_response_t;
   GlobalScheduler* GS = request->getScheduler();
 
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "aggregate(" << request->getRequest()->pb.path
-	 << ", " << request->getResponsesSize() << " responses, "
-	 << max_srv << ")\n";  
+  AGT_TRACE_FUNCTION(request->getRequest()->pb.path << ", " <<
+		     request->getResponsesSize() << " responses, " << max_srv);
 
   GS->aggregate(aggregResp, max_srv,
 		request->getResponsesSize(), request->getResponses());
@@ -591,8 +584,7 @@ AgentImpl::getChildHostName(CORBA::Long childID)
 
   int childFound = 0;
 
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "getChildHostName(" << childID << ")\n";  
+  AGT_TRACE_FUNCTION(childID);
 
   /* Return local host name if childID == -1 */
   /* (This hack is used during the aggregation */
@@ -620,7 +612,7 @@ AgentImpl::getChildHostName(CORBA::Long childID)
   }
 
   if (!childFound) {
-    cerr << "Diet failure: Trying to extract IOR of an unknown child." << endl;
+    WARNING("trying to extract IOR of an unknown child");
   }
 
   return hostName;

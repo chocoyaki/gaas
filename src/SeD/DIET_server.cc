@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2003/07/04 09:47:57  pcombes
+ * Use new ERROR, WARNING and TRACE macros.
+ *
  * Revision 1.13  2003/06/23 13:35:06  pcombes
  * useAsyncAPI should be replaced by a "useBiDir" option. Remove it so far.
  *
@@ -16,20 +19,6 @@
  *
  * Revision 1.11  2003/05/10 08:54:41  pcombes
  * New format for configuration files, new Parsers.
- *
- * Revision 1.9  2003/02/07 17:04:12  pcombes
- * Refine convertor API: arg_idx is splitted into in_arg_idx and out_arg_idx.
- *
- * Revision 1.2  2002/08/30 16:50:14  pcombes
- * This version works as well as the alpha version from the user point of view,
- * but the API is now the one imposed by the latest specifications (GridRPC API
- * in its sequential part, config file for all parts of the platform, agent
- * algorithm, etc.)
- *  - Reduce marshalling by using CORBA types internally
- *  - Creation of a class ServiceTable that is to be replaced
- *    by an LDAP DB for the MA
- *  - No copy for client/SeD data transfers
- *  - ...
  ****************************************************************************/
 
 
@@ -249,13 +238,13 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   char* name = (char*)
     Parsers::Results::getParamValue(Parsers::Results::NAME);
   if (name != NULL)
-    cerr << "Warning while parsing " << config_file_name
-	 << ": it is useless to name an SeD - ignored.\n";
+    WARNING("parsing " << config_file_name
+	    << ": it is useless to name an SeD - ignored");
   name = (char*)
     Parsers::Results::getParamValue(Parsers::Results::MANAME);
   if (name != NULL)
-    cerr << "Warning while parsing " << config_file_name
-	 << ": no need to specify an MA name for an SeD - ignored.\n";
+    WARNING("parsing " << config_file_name
+	    << ": no need to specify an MA name for an SeD - ignored");
 
 
   /* Get listening port */
@@ -286,9 +275,8 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
 
   /* Initialize the ORB */
 
-  if (ORBMgr::init(myargc, (char**)myargv, true)) {
-    cerr << "ORB initialization failed.\n";
-    return 1;
+  if (ORBMgr::init(myargc, (char**)myargv)) {
+    ERROR("ORB initialization failed", 1);
   }
 
   
@@ -298,8 +286,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
 
   /* Launch the SeD */
   if (SeD->run(SRVT)) {
-    cerr << "Unable to launch the SeD.\n";
-    return 1;
+    ERROR("unable to launch the SeD", 1);
   }
 
   /* We do not need the parsing results any more */

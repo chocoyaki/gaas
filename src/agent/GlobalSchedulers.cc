@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2003/07/04 09:47:59  pcombes
+ * Use new ERROR, WARNING and TRACE macros.
+ *
  * Revision 1.2  2003/05/05 14:29:51  pcombes
  * Add "all-steps" traces in all methods.
  *
@@ -26,17 +29,25 @@ using namespace std;
 
 #include "debug.hh"
 
-
+/** The trace level. */
 extern unsigned int TRACE_LEVEL;
+
+// Use SCHED_CLASS for the name of the class
+// (this->name cannot be used in static member functions)
+#define SCHED_TRACE_FUNCTION(formatted_text)      \
+  TRACE_TEXT(TRACE_ALL_STEPS, SCHED_CLASS << "::");\
+  TRACE_FUNCTION(TRACE_ALL_STEPS,formatted_text)
 
 
 /****************************************************************************/
 /* GlobalScheduler: parent class                                            */
 /****************************************************************************/
+#undef SCHED_CLASS
+#define SCHED_CLASS "GlobalScheduler"
 
 GlobalScheduler::GlobalScheduler()
 {
-  this->name = NULL;
+  this->name = "GlobalScheduler";
 }
 
 /** Destroy the schedulers list */
@@ -53,13 +64,13 @@ GlobalScheduler::~GlobalScheduler()
 GlobalScheduler*
 GlobalScheduler::deserialize(const char* serializedScheduler)
 {
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "GS::deserialize(" << serializedScheduler << ")\n";
+  SCHED_TRACE_FUNCTION(serializedScheduler);
+
   if (!strncmp(serializedScheduler, StdGS::stName, StdGS::nameLength)) {
     return StdGS::deserialize(serializedScheduler);
   } else {
-    cerr << "Warning: unable to deserialize global scheduler ; "
-	 << "reverting to default (StdGS).\n";
+    WARNING("unable to deserialize global scheduler ; "
+	    << "reverting to default (StdGS)");
     return new StdGS();
   }
 }
@@ -68,14 +79,12 @@ GlobalScheduler::deserialize(const char* serializedScheduler)
 char*
 GlobalScheduler::serialize(GlobalScheduler* GS)
 {
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "GS::serialize(" << GS->name << ")\n";
+  SCHED_TRACE_FUNCTION(GS->name);
+
   if (!strncmp(GS->name, StdGS::stName, StdGS::nameLength)) {
     return StdGS::serialize((StdGS*) GS);
   } else {
-    cerr << "Error: unable to serialize global scheduler named "
-	 << GS->name << endl;
-    return NULL;
+    ERROR("unable to serialize global scheduler named " << GS->name, NULL);
   }
 }
 
@@ -110,9 +119,8 @@ GlobalScheduler::aggregate(corba_response_t* aggrResp, size_t max_srv,
   int lastAggregated = -1;
   int* lastAggr = new int[nb_responses];
 
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "GS::aggregate(nb_responses=" << nb_responses
-	 << ",max_srv=" << max_srv << ")\n";
+  SCHED_TRACE_FUNCTION("nb_responses=" << nb_responses
+		       << ",max_srv=" << max_srv);
 
   for (size_t i = 0; i < nb_responses; i++) {
     lastAggr[i]    = -1;
@@ -140,6 +148,8 @@ GlobalScheduler::aggregate(corba_response_t* aggrResp, size_t max_srv,
 /****************************************************************************/
 /* StdGS (Standard Global Scheduler)                                        */
 /****************************************************************************/
+#undef SCHED_CLASS
+#define SCHED_CLASS "StdGS"
 
 const char*  StdGS::stName     = "StdGS";
 const size_t StdGS::nameLength = 5;
@@ -170,8 +180,8 @@ StdGS::deserialize(const char* serializedScheduler)
   char* ser_sched = strdup(serializedScheduler);
   StdGS* res = new StdGS();
   
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "StdGS::deserialize(" << serializedScheduler << ")\n";
+  TRACE_TEXT(TRACE_ALL_STEPS,
+	     "StdGS::deserialize(" << serializedScheduler << ")\n");
   token = strtok_r(ser_sched, ":", &ptr);
   assert(!strcmp(token, StdGS::stName));
   if (*ptr != '\0')
@@ -193,8 +203,7 @@ StdGS::serialize(StdGS* GS)
   SchedList::Iterator* iter = GS->schedulers.getIterator();
   size_t length = StdGS::nameLength;
 
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "StdGS::serialize(" << GS->name << ")\n";
+  SCHED_TRACE_FUNCTION(GS->name);
   sprintf(res, GS->name);
   while (iter->hasCurrent()) {
     Scheduler* sched = iter->getCurrent();
@@ -224,8 +233,7 @@ StdGS::sort(SeqLong* sortedIndexes, SeqServerEstimation_t* servers)
   int res;
   SchedList::Iterator* iter = this->schedulers.getIterator();
   
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "StdGS::sort(" << servers->length() << " servers)\n";
+  SCHED_TRACE_FUNCTION(servers->length() << " servers");
   while (iter->hasCurrent() && lastSorted < (int)servers->length()) {
     Scheduler* sched = iter->getCurrent();
     if ((res = sched->sort(sortedIndexes, &lastSorted, servers)))
@@ -233,6 +241,6 @@ StdGS::sort(SeqLong* sortedIndexes, SeqServerEstimation_t* servers)
     iter->next();
   }
   if (lastSorted < (int)servers->length())
-    cerr << "Warning: All servers have not been sorted.\n";
+    WARNING("all servers have not been sorted");
   return 0;
 }
