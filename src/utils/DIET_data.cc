@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2004/05/06 07:01:14  bdelfabr
+ * set src path to null when out file in mrsh_data_desc
+ *
  * Revision 1.26  2004/02/27 10:29:09  bdelfabr
  * adding call for data already present using only its identifier
  *
@@ -252,7 +255,7 @@ file_set_desc(diet_data_desc_t* desc, char* const id,
     if (!(buf.st_mode & S_IFREG))
       return 2;
     desc->specific.file.size = (size_t) buf.st_size;
-  }
+  } else desc->specific.file.path = "";
   return status;
 }
 
