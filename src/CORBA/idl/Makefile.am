@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.7  2003/09/19 14:56:55  bdelfabr
+#* adding locMgr and dataMgr to autoconf
+#*
 #* Revision 1.6  2003/08/01 19:20:22  pcombes
 #* Reorganize FAST and omniORB flags. Include FASTMgr.
 #*
@@ -33,16 +36,20 @@ BUILT_SOURCES = AgentSK.cc       AgentDynSK.cc         Agent.hh \
 		LocalAgentSK.cc  LocalAgentDynSK.cc    LocalAgent.hh \
 		MasterAgentSK.cc MasterAgentDynSK.cc   MasterAgent.hh \
 		responseSK.cc    responseDynSK.cc      response.hh \
-		SeDSK.cc 	 SeDDynSK.cc	       SeD.hh
+		SeDSK.cc 	 SeDDynSK.cc	       SeD.hh \
+		locMgrSK.cc 	 locMgrDynSK.cc	       locMgr.hh \
+		dataMgrSK.cc 	 dataMgrDynSK.cc       dataMgr.hh
 
 noinst_LTLIBRARIES = libIDLCommon.la libIDLAgent.la libIDLLA.la libIDLMA.la
 
 nodist_libIDLCommon_la_SOURCES = common_typesSK.cc common_typesDynSK.cc \
 				 SeDSK.cc SeDDynSK.cc \
 				 responseSK.cc responseDynSK.cc \
-				 CallbackSK.cc CallbackDynSK.cc
+				 CallbackSK.cc CallbackDynSK.cc \
+				 dataMgrSK.cc dataMgrDynSK.cc
 
-nodist_libIDLAgent_la_SOURCES = AgentSK.cc       AgentDynSK.cc
+nodist_libIDLAgent_la_SOURCES = AgentSK.cc       AgentDynSK.cc \
+				locMgrSK.cc locMgrDynSK.cc
 nodist_libIDLLA_la_SOURCES    = LocalAgentSK.cc  LocalAgentDynSK.cc
 nodist_libIDLMA_la_SOURCES    = MasterAgentSK.cc MasterAgentDynSK.cc
 
