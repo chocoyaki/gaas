@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2004/03/02 14:19:10  bdelfabr
+ * *** empty log message ***
+ *
  * Revision 1.4  2004/02/27 10:37:19  bdelfabr
  * example for data persistency : a sequence of three operations is computed
  * MatPROD, MatSUM, tA
@@ -133,7 +136,7 @@ main(int argc, char* argv[])
   double b=2.5;
   double c=1.5;
   int   pb[NB_PB] = {0, 0, 0, 0, 0};
- 
+  char car;
 
   // STATS
   char* STAT_FILE_NAME = NULL;
@@ -200,11 +203,11 @@ main(int argc, char* argv[])
     STAT_FILE = fopen(STAT_FILE_NAME, "wc");
   nb_of_requests = 0;
   
-  oA = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
-  oB = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
-  oC = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
-  oD = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
-  oE = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
+  oA = DIET_ROW_MAJOR ;
+  oB = DIET_ROW_MAJOR ;
+  oC = DIET_ROW_MAJOR ;
+  oD = DIET_COL_MAJOR;
+  oE = DIET_COL_MAJOR;
   
 
   strcpy(path,"MatPROD");
@@ -224,15 +227,18 @@ main(int argc, char* argv[])
     store_id(profile->parameters[1].desc.id,"matrice B de doubles");
     store_id(profile->parameters[0].desc.id,"matrice A de doubles");
     print_matrix(C, mA, nB, (oC == DIET_ROW_MAJOR));
-    diet_profile_free(profile);
+    // diet_profile_free(profile); 
     
   }
      
+  printf ("next....");
+  scanf("%c",&car);
+
   strcpy(path,"MatSUM");
   profile2 = diet_profile_alloc(path, 1, 1, 2);
   
   printf("second pb\n\n");
-  diet_use_data(diet_parameter(profile2,0),"id.MA1.1.3");
+  diet_use_data(diet_parameter(profile2,0),profile->parameters[2].desc.id);
   diet_matrix_set(diet_parameter(profile2,1),
 		  E, DIET_PERSISTENT, DIET_DOUBLE, mA, nB, oE);
    print_matrix(E, nB, mA, (oE == DIET_ROW_MAJOR));
@@ -244,19 +250,22 @@ main(int argc, char* argv[])
    print_matrix(D, mA, nB, (oD == DIET_ROW_MAJOR));
    store_id(profile2->parameters[2].desc.id,"matrice D de doubles");
    store_id(profile2->parameters[1].desc.id,"matrice E de doubles");
-   diet_profile_free(profile2);
+   //  diet_profile_free(profile2);
   }
-    strcpy(path,"T");
-    //mA=3;nA=2;
-    printf("third  pb  = T\n\n");
-   strcpy(path,"T");
-   profile1 = diet_profile_alloc(path, -1, 0, 0);
   
-  diet_use_data(diet_parameter(profile1,0),"id.MA1.1.1");
+  printf ("next....");
+  scanf("%c",&car);
+  strcpy(path,"T");
+  
+  printf("third  pb  = T\n\n");
+  strcpy(path,"T");
+  profile1 = diet_profile_alloc(path, -1, 0, 0);
+  
+  diet_use_data(diet_parameter(profile1,0),profile->parameters[0].desc.id);
   if (!diet_call(profile1)) {
     diet_matrix_get(diet_parameter(profile1,0), NULL, NULL, &mA, &nA, &oA);
      print_matrix(A, mA, nA, (oA == DIET_COL_MAJOR));
-    diet_profile_free(profile1);
+     //  diet_profile_free(profile1);
     }       
   
 
@@ -264,11 +273,19 @@ main(int argc, char* argv[])
   time(&t2);
   printf("\n\n COMPUTATION TIME = %d \n\n", (int)(t2-t1));
 
-  // printf(" \nRemoving one data\n\n" );
+  printf ("next....");
+  scanf("%c",&car);
+  printf(" \nRemoving all persistent data............" );
   //getchar();
-  //  diet_free_persistent_data("id.MA1.1.1");
-
-  //printf(" \ndata removed\n\n");
+  diet_free_persistent_data(profile->parameters[0].desc.id);
+  diet_free_persistent_data(profile->parameters[1].desc.id);
+  diet_free_persistent_data(profile->parameters[2].desc.id);
+  diet_free_persistent_data(profile2->parameters[1].desc.id);
+  diet_free_persistent_data(profile2->parameters[2].desc.id);
+  printf(" \n...................data removed\n\n");
+  diet_profile_free(profile);
+  diet_profile_free(profile1);
+  diet_profile_free(profile2);
   diet_finalize();
   
   return 0;
