@@ -12,6 +12,9 @@
 #****************************************************************************#
 #*
 #* $Log$
+#* Revision 1.11  2003/01/22 17:13:44  pcombes
+#* Use DIET_SERVER_LIBS and DIET_CLIENT_LIBS
+#*
 #* Revision 1.10  2003/01/07 18:27:04  pcombes
 #* "include @PREFIX@/include/Makefile.inc" was not a good idea if examples
 #* are not installed with DIET.
@@ -64,13 +67,13 @@ client.o:	client.c
 	$(CC) -c $< $(CCFLAGS) -o $@
 
 client:		client.o @PREFIX@/lib/libDIET_client.a
-	$(CC) $< $(CCFLAGS) $(CLIENT_LIB) $(LIBS) -o $@
+	$(CC) $< $(CCFLAGS) $(DIET_CLIENT_LIBS) -o $@
 
 server.o:	server.c
 	$(CC) -c $< $(CCFLAGS) -o $@
 
 server:		server.o @PREFIX@/lib/libDIET_SeD.a
-	$(CC) $< $(CCFLAGS) $(SED_LIB) $(LIBS) -o $@
+	$(CC) $< $(CCFLAGS) $(DIET_SERVER_LIBS) -o $@
 
 clean:
 	rm -f *.o client server

@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.17  2003/01/22 17:13:44  pcombes
+ * Use DIET_SERVER_LIBS and DIET_CLIENT_LIBS
+ *
  * Revision 1.16  2003/01/17 18:05:37  pcombes
  * Update to API 0.6.3
  *
@@ -79,7 +82,7 @@ solve_T(diet_profile_t *pb)
   
   //pb->parameters[2].desc.specific.mat.nb_r = n;
   //pb->parameters[2].desc.specific.mat.nb_c = m;
-  // no need to set istrans
+  // no need to set order
   diet_matrix_desc_set(diet_parameter(pb,2), n, m, -1);
   
   print_matrix(A, n, m);
