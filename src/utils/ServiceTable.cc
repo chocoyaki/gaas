@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2004/10/06 16:42:01  rbolze
+ * add function to getProfiles with the number of this profiles available
+ *
  * Revision 1.11  2004/05/18 21:13:25  alsu
  * - added the perfmetrics field to the ServiceTable class to store
  *   custom performance metric functions
@@ -337,6 +340,19 @@ ServiceTable::getProfiles()
   }
   return res;
 }
+
+SeqCorbaProfileDesc_t*
+ServiceTable::getProfiles(CORBA::Long& length)
+{
+  SeqCorbaProfileDesc_t* res = new SeqCorbaProfileDesc_t(nb_s);
+  res->length(nb_s);
+  for (size_t i = 0; i < nb_s; i++) {
+    (*res)[i] = profiles[i];
+  }
+  length = nb_s;
+  return res;
+}
+
 
 
 diet_solve_t
