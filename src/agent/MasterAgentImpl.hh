@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2004/10/06 16:40:24  rbolze
+ * implement function to return the Profiles avialable on platform when a client ask it
+ *
  * Revision 1.6  2004/10/05 07:45:34  hdail
  * Grouped private and public members together.
  *
@@ -87,7 +90,14 @@ public :
   /** returns id of a data */
   virtual  char * 
   get_data_id();
+
+  /** returns the List of Profile available */
+/*  virtual  SeqCorbaProfileDesc_t*
+  getProfiles();*/
   
+  virtual  SeqCorbaProfileDesc_t*
+  getProfiles(CORBA::Long& length);	  
+
   /** returns true if data present, FALSE elsewhere */
   virtual CORBA::ULong  
   dataLookUp(const char* argID);

@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2004/10/06 16:40:24  rbolze
+ * implement function to return the Profiles avialable on platform when a client ask it
+ *
  * Revision 1.12  2004/09/29 13:35:31  sdahan
  * Add the Multi-MAs feature.
  *
@@ -170,8 +173,20 @@ MasterAgentImpl::get_data_id()
   return CORBA::string_dup(id);
 } // get_data_id()
  
-                                                                                                       
- 
+/****************************************************************************/
+/* Available Service                                                        */ 
+/****************************************************************************/
+
+/**
+ * Returns the list of Profile available
+ */ 
+SeqCorbaProfileDesc_t*
+ MasterAgentImpl::getProfiles(CORBA::Long& length)
+{	
+//        cout << "ask for list of services" << endl;
+	return this->AgentImpl::SrvT->getProfiles(length);
+}
+
 
 /****************************************************************************/
 /* Submission                                                               */
