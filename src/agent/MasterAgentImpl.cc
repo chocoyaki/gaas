@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2004/12/16 11:16:44  sdahan
+ * adds multi-mas informations into the logService
+ *
  * Revision 1.16  2004/12/15 15:57:08  sdahan
  * rewrite the FloodRequestsList to use a simplest implementation. The previous mutex bugs does not exist anymore.
  *
@@ -416,6 +419,8 @@ MasterAgentImpl::updateRefs()
   }
   MAIds.unlock() ;
 
+  logNeighbors();
+
   //  cout << "--updateRefs()\n" ;
 
 } // updateRefs()
@@ -440,6 +445,8 @@ MasterAgentImpl::handShake(MasterAgent_ptr me, const char* myName)
 
   MAIds.insert(myName) ;
   knownMAs[myName] = MADescription(me, me->getHostname()) ;
+
+  logNeighbors();
   return true ;
 } // handShake(MasterAgent_ptr me, const char* myName)
 
@@ -609,6 +616,30 @@ void MasterAgentImpl::serviceFound(CORBA::Long reqId,
     WARNING(e) ;
   }
   //printf("<<<<<%d service found\n", (int)decision.length()) ;
+}
+
+void
+MasterAgentImpl::logNeighbors() {
+  char * str ;
+  size_t str_len = 1 ;
+  knownMAs.lock() ;
+  for(MasterAgentImpl::MAList::iterator iter = knownMAs.begin() ;
+      iter != knownMAs.end() ; iter++)
+    str_len += strlen(iter->first) + 1 ;
+  str = new char[str_len] ;
+  str[0] = 0 ;
+  for(MasterAgentImpl::MAList::iterator iter = knownMAs.begin() ;
+      iter != knownMAs.end() ; iter++) {
+    strcat(str, iter->first) ;
+    strcat(str, " ") ;
+  }
+  knownMAs.unlock() ;
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Multi-MAs neighbors " << str << "\n");
+#if HAVE_LOGSERVICE
+    if (dietLogComponent!=NULL) {
+      dietLogComponent->logNeighbors(str);
+    }
+#endif
 }
 
 #endif // HAVE_MULTI_MA

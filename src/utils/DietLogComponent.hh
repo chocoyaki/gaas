@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2004/12/16 11:16:31  sdahan
+ * adds multi-mas informations into the logService
+ *
  * Revision 1.3  2004/12/02 11:24:38  bdelfabr
  * add informations on data (size, type, base type )
  *
@@ -24,9 +27,10 @@
 #ifndef _DIETLOGCOMPONENT_HH_
 #define _DIETLOGCOMPONENT_HH_
 
+#include "LogComponent.hh"
+
 #include "omnithread.h"
 #include "ORBMgr.hh"
-#include "LogComponent.hh"
 #include "common_types.hh"
 #include "response.hh"
 
@@ -229,6 +233,13 @@ public:
   void logAskForSeD(const corba_request_t* request);
   void logSedChosen(const corba_request_t* request,
                     const corba_response_t* response);
+
+#ifdef HAVE_MULTI_MA
+  /**
+   * Notifies the list of neighbors MA in multi-MA environment.
+   */
+  void logNeighbors(const char* list) ;
+#endif // HAVE_MULTI_MA
 
   /**
    * Solve a problem

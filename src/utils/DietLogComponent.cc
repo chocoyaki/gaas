@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2004/12/16 11:16:31  sdahan
+ * adds multi-mas informations into the logService
+ *
  * Revision 1.6  2004/12/02 15:01:11  bdelfabr
  * good order for base_type and type
  *
@@ -170,7 +173,7 @@ DietLogComponent::DietLogComponent(const char* name,
   pingThread=NULL;
 
   // define tags
-  tagCount = 13;
+  tagCount = 14;
   tagFlags = createBoolArrayFalse(tagCount);
   tagNames = new (char*)[tagCount];
   tagNames[0] = strdup("ADD_SERVICE");
@@ -186,6 +189,7 @@ DietLogComponent::DietLogComponent(const char* name,
   tagNames[10] = strdup("LOAD");
   tagNames[11] = strdup("LATENCY");
   tagNames[12] = strdup("BANDWIDTH");
+  tagNames[13] = strdup("NEIGHBORS");
 
   CORBA::Object_ptr myLCCptr;
 
@@ -568,6 +572,14 @@ DietLogComponent::logSedChosen(const corba_request_t* request,
     log(tagNames[2], s);
   }
 }
+
+
+#ifdef HAVE_MULTI_MA
+void
+DietLogComponent::logNeighbors(const char* list) {
+  log(tagNames[13], list);
+}
+#endif // HAVE_MULTI_MA
 
 void
 DietLogComponent::logBeginSolve(const char* path,

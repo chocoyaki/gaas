@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2004/12/16 11:16:44  sdahan
+ * adds multi-mas informations into the logService
+ *
  * Revision 1.8  2004/12/15 15:57:08  sdahan
  * rewrite the FloodRequestsList to use a simplest implementation. The previous mutex bugs does not exist anymore.
  *
@@ -159,6 +162,7 @@ private :
   FloodRequestsList* floodRequestsList ;
   typedef ts_set<CORBA::Long> ReqIdList ;
   ReqIdList reqIdList ;
+  void logNeighbors() ;
 #endif // HAVE_MULTI_MA
   void
   cp_arg_to_pb(corba_data_desc_t& pb, corba_data_desc_t arg_desc);
