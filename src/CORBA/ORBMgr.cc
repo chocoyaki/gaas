@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2004/09/29 13:35:31  sdahan
+ * Add the Multi-MAs feature.
+ *
  * Revision 1.14  2004/03/01 18:40:40  rbolze
  * remove functions getIOD() and setIOD(..)
  * change in wait() : wait CRTL+D to exit
@@ -356,6 +359,8 @@ ORBMgr::stringToObject(const char* IOR)
   try {
     return ORB->string_to_object(IOR);
   } catch (...) {
+    ERROR("Bad format for stringified reference: "<< IOR,
+	  CORBA::Object::_nil());
   }
   return CORBA::Object::_nil();
 }

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2004/09/29 13:35:31  sdahan
+ * Add the Multi-MAs feature.
+ *
  * Revision 1.5  2004/06/11 15:45:39  ctedesch
  * add DIET/JXTA
  *
@@ -40,7 +43,7 @@
 /**
  * The NodeDescription manages the hostname and the IOR of an
  * node. The node can be an Agent or a SeD. The T_ptr must be the
- * pointer of the node.  ex : NodeDescription<SeD_ptr>
+ * pointer of the node.  ex : NodeDescription<SeD, SeD_ptr>
  *
  * All the methods make a copy of the ior and hostname given in
  * argument. The memory is release when the object is destroyed or

@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2004/09/29 13:35:31  sdahan
+ * Add the Multi-MAs feature.
+ *
  * Revision 1.22  2004/09/15 10:38:31  hdail
  * Repaired a bug involving problems with service registration in upper levels of
  * the agent hierarchy.  Added debugging statements in debug level 10 to trace
@@ -115,8 +118,14 @@ AgentImpl::run()
 
   /* Set host name */
   this->localHostName = new char[MAX_HOSTNAME_LENGTH];
-  if (gethostname(this->localHostName, MAX_HOSTNAME_LENGTH)) {
-    ERROR("could not get hostname", 1);
+  char* host = (char*)
+    (Parsers::Results::getParamValue(Parsers::Results::DIETHOSTNAME));
+  if (host != NULL) {
+    strncpy(this->localHostName, host, MAX_HOSTNAME_LENGTH-1) ;
+  } else {
+    if (gethostname(this->localHostName, MAX_HOSTNAME_LENGTH)) {
+      ERROR("could not get hostname", 1);
+    }
   }
   this->localHostName[MAX_HOSTNAME_LENGTH-1] = '\0';
 
@@ -460,6 +469,13 @@ AgentImpl::ping()
   AGT_TRACE_FUNCTION("");
   return 0;
 } // ping()
+
+
+  char*
+AgentImpl::getHostname()
+{
+  return CORBA::string_dup(localHostName) ;
+}
 
 
 /**

@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2004/09/29 13:35:31  sdahan
+ * Add the Multi-MAs feature.
+ *
  * Revision 1.3  2004/02/27 10:25:11  bdelfabr
  * methods for data id creation and  methods to retrieve data descriptor are added
  *
@@ -26,7 +29,12 @@
 #include "MasterAgent.hh"
 #include "AgentImpl.hh"
 #include "LinkedList.hh"
+#include "Parsers.hh"
+#include "BindService.hh"
+#include "KeyString.hh"
+#include "ts_container/ts_set.hh"
 
+class FloodRequestsList ;
 
 class MasterAgentImpl : public POA_MasterAgent, public AgentImpl
 {
@@ -42,6 +50,7 @@ public :
   {
     return this->POA_MasterAgent::_this();
   };
+  
 
 
   /** Launch this agent (initialization + registration in the hierarchy). */
@@ -51,10 +60,21 @@ public :
   /** Problem submission : remotely called by client. */
   corba_response_t*
   submit(const corba_pb_desc_t& pb_profile, CORBA::ULong maxServers);
+  
+  /** Problem submission. Looking for SeDs that can resolve the
+      problem in the local domain. */
+  corba_response_t*
+  submit_local(const corba_request_t& creq);
 
-#if HAVE_MULTI_MA
-  virtual CORBA::Long
+#ifdef HAVE_MULTI_MA
+  /** Ask the authorization to create a link with this Master Agent */
+  virtual CORBA::Boolean
   handShake(MasterAgent_ptr me, const char* myName);
+  /** returns the address of the bind service of the Master Agent */
+  virtual char*
+  getBindName() ;
+  /** Updates all the references to the other Master Agent. It also
+      connect to some new Master Agent if there is not enough links. */
   void
   updateRefs();
 #endif // HAVE_MULTI_MA
@@ -85,12 +105,35 @@ private :
   Counter reqIDCounter;
   Counter num_session;
   Counter num_data;
-#if HAVE_MULTI_MA
+#ifdef HAVE_MULTI_MA
   /* Known MAs : */
-  typedef NodeDescription<MasterAgent_ptr, MasterAgent_var> MADescription;
-  typedef LinkedList<MADescription> MAList;
-  typedef LinkedList<const char*> StrList;
-  MAList knownMAs;
+public:
+  virtual void searchService(MasterAgent_ptr predecessor,
+			     const char* predecessorId,
+			     const corba_request_t& request);
+  virtual void stopFlooding(CORBA::Long reqId,
+			    const char* senderId);
+  virtual void serviceNotFound(CORBA::Long reqId,
+			       const char* senderId);
+  virtual void newFlood(CORBA::Long reqId,
+			const char* senderId);
+  virtual void floodedArea(CORBA::Long reqId,
+			   const char* senderId);
+  virtual void alreadyContacted(CORBA::Long reqId,
+				const char* senderId);
+  virtual void serviceFound(CORBA::Long reqId,
+			    const corba_response_t& decision);
+  typedef NodeDescription<MasterAgent, MasterAgent_ptr> MADescription;
+  typedef ts_map<KeyString, MADescription> MAList;
+private:
+  typedef ts_set<KeyString> StrList;
+  StrList MAIds ;
+  MAList knownMAs ;
+  int minMAlinks ;
+  int maxMAlinks ;
+  BindService* bindSrv ;
+  CORBA::String_var bindName ;
+  FloodRequestsList* floodRequestsList ;
 #endif // HAVE_MULTI_MA
   void
   cp_arg_to_pb(corba_data_desc_t& pb, corba_data_desc_t arg_desc);

@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.46  2004/09/29 13:35:31  sdahan
+ * Add the Multi-MAs feature.
+ *
  * Revision 1.45  2004/09/29 12:54:16  bdelfabr
  * english please
  *
@@ -660,6 +663,7 @@ diet_call_async_common(diet_profile_t* profile,
 
   stat_in("Client","diet_call_async");
 
+
   try {
 
     if (CORBA::is_nil(chosenServer)) {
@@ -708,8 +712,9 @@ diet_call_async_common(diet_profile_t* profile,
     // get sole CallAsyncMgr singleton
     caMgr = CallAsyncMgr::Instance();
     // create corba client callback server...
-    if (caMgr->addAsyncCall(*reqID, profile) != 0)
+  if (caMgr->addAsyncCall(*reqID, profile) != 0) {
       return 1;
+  }
 
     stat_in("Client","computation_async");
     chosenServer->solveAsync(profile->pb_name, corba_profile, 

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2004/09/29 13:35:32  sdahan
+ * Add the Multi-MAs feature.
+ *
  * Revision 1.20  2004/09/14 12:50:26  hdail
  * Commented out free of Results::params[i].value.  Should be cleaned with
  * delete, but the type is unknown at this point so can't be.
@@ -63,6 +66,7 @@ using namespace std;
 #include "assert.h"
 #include "debug.hh"
 #include "DIET_config.h"
+#include "ms_function.hh"
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
@@ -80,14 +84,19 @@ Parsers::Results::param_t Parsers::Results::params[] =
    /* [7]  */ {"fastUse", 7, Parsers::parseUse, 0, NULL},
    /* [8]  */ {"ldapUse", 7, Parsers::parseUse, 0, NULL},
    /* [9]  */ {"ldapBase", 8, Parsers::parseAddress, 0, NULL},
-   /* [10]  */ {"ldapMask", 8, Parsers::parseName, 0, NULL},
+   /* [10] */ {"ldapMask", 8, Parsers::parseName, 0, NULL},
    /* [11] */ {"nwsUse", 6, Parsers::parseUse, 0, NULL},
    /* [12] */ {"nwsNameserver", 13, Parsers::parseAddress, 0, NULL},
    /* [13] */ {"nwsForecaster", 13, Parsers::parseAddress, 0, NULL},
    /* [14] */ {"useAsyncAPI", 11, Parsers::parseUse, 0, NULL},
    /* [15] */ {"useLogService", 13, Parsers::parseUse, 0, NULL},
    /* [16] */ {"lsOutbuffersize", 15, Parsers::parsePort, 0, NULL},
-   /* [17] */ {"lsFlushinterval", 15, Parsers::parsePort, 0, NULL}};
+   /* [17] */ {"lsFlushinterval", 15, Parsers::parsePort, 0, NULL},
+   /* [18] */ {"neighbours", 10, Parsers::parseName, 0, NULL},
+   /* [19] */ {"maximumNeighbours", 17, Parsers::parsePort, 0, NULL},
+   /* [20] */ {"minimumNeighbours", 17, Parsers::parsePort, 0, NULL},
+   /* [21] */ {"updateLinkPeriod", 16, Parsers::parsePort, 0, NULL},
+   /* [22] */ {"bindServicePort", 15, Parsers::parsePort, 0, NULL}};
 
 #define IS_ADDRESS(i) ((i == Results::LDAPBASE) || (i == Results::NWSNAMESERVER) || (i == Results::NWSFORECASTER))
 
@@ -563,3 +572,4 @@ Parsers::parseUse(char* use_str, Results::param_type_t type)
   Results::params[type].value  = new unsigned int(use);
   return 0;
 }
+

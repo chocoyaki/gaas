@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2004/09/29 13:35:32  sdahan
+ * Add the Multi-MAs feature.
+ *
  * Revision 1.5  2003/11/10 14:05:56  bdelfabr
  * adding iterator (made by sylvain)
  *
@@ -23,6 +26,7 @@
 #define _TS_MAP_HH_
 
 #include <map>
+#include <omniconfig.h>
 #include <omnithread.h>
 #include <assert.h>
 

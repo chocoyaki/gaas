@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2004/09/29 13:35:32  sdahan
+ * Add the Multi-MAs feature.
+ *
  * Revision 1.1  2004/03/01 19:00:44  rbolze
  * Thread to enable monitoring from LogCentral
  *
@@ -18,7 +21,8 @@
 #ifndef _MONITORINGTHREAD_HH_
 #define _MONITORINGTHREAD_HH_
 
-#include "omnithread.h"
+#include <omniconfig.h>
+#include <omnithread.h>
 #include "DietLogComponent.hh"
 
 /**

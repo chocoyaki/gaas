@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2004/09/29 13:35:32  sdahan
+ * Add the Multi-MAs feature.
+ *
  * Revision 1.2  2003/04/10 12:44:44  pcombes
  * Apply Coding Standards.
  *
@@ -15,10 +18,11 @@
  * adds a thread safe set container
  ****************************************************************************/
 
-#ifndef _TS_MAP_HH_
-#define _TS_MAP_HH_
+#ifndef _TS_SET_HH_
+#define _TS_SET_HH_
 
 #include <set>
+#include <omniconfig.h>
 #include <omnithread.h>
 #include <assert.h>
 

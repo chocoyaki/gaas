@@ -11,6 +11,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.12  2004/09/29 13:35:31  sdahan
+#* Add the Multi-MAs feature.
+#*
 #* Revision 1.11  2004/07/09 19:51:58  ctedesch
 #* - javac and javah detected instead of java
 #* - JXTA_LIB automatically set before compilation
@@ -50,15 +53,19 @@ lib_LTLIBRARIES += libdietMasterAgent.la libdietLocalAgent.la
 #bin_PROGRAMS +=JXTAMultiMA.class LA.class 
 endif
 
-libAgentCommon_la_SOURCES = AgentImpl.cc ExitClass.cc LocalAgentImpl.cc	\
-			LocMgrImpl.cc MasterAgentImpl.cc GlobalSchedulers.cc	\
-		    	Schedulers.cc Request.cc qsort.cc
+libAgentCommon_la_SOURCES = AgentImpl.cc ExitClass.cc LocalAgentImpl.cc	     \
+			LocMgrImpl.cc MasterAgentImpl.cc GlobalSchedulers.cc \
+		    	Schedulers.cc Request.cc qsort.cc \
+			ReferenceUpdateThread.cc BindService.cc \
+			FloodRequest.cc  FloodRequestsList.cc
 
 dietAgent_SOURCES = dietAgent.cc
 
-noinst_HEADERS = AgentImpl.hh ExitClass.hh LocalAgentImpl.hh LocMgrImpl.hh	\
-		 MasterAgentImpl.hh ChildID.hh GlobalSchedulers.hh		\
-		 NodeDescription.hh Schedulers.hh Request.hh RequestID.hh
+noinst_HEADERS = AgentImpl.hh ExitClass.hh LocalAgentImpl.hh LocMgrImpl.hh \
+		 MasterAgentImpl.hh ChildID.hh GlobalSchedulers.hh	   \
+		 NodeDescription.hh Schedulers.hh Request.hh		   \
+		 RequestID.hh ReferenceUpdateThread.hh BindService.hh \
+		 FloodRequest.hh  FloodRequestsList.hh
 
 utilsdir = $(top_builddir)/src/utils
 corbadir = $(top_builddir)/src/CORBA

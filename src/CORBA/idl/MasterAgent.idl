@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2004/09/29 13:35:31  sdahan
+ * Add the Multi-MAs feature.
+ *
  * Revision 1.2  2004/02/27 10:19:50  bdelfabr
  * description of all methods for data persistency
  *
@@ -45,14 +48,41 @@ interface MasterAgent : Agent {
    */
   long diet_free_pdata(in string argID);
 
-#if HAVE_MULTI_MA
+#ifdef HAVE_MULTI_MA
   
   /** MAs federation management */
-  long handShake(in MasterAgent me, in string myName);
+  boolean handShake(in MasterAgent me, in string myName);
 
+  /** returns the address of the MA's bind service */
+  string getBindName();
 
+  /**
+   * send a new request to the MA.
+   */
+  oneway void searchService(in MasterAgent me,
+			    in string myName,
+			    in corba_request_t request) ;
 
+  /** ask to the MA to stop the flooding */
+  oneway void stopFlooding(in long reqId, in string senderId) ;
 
+  /** response which saids that the service is not found and a new step
+      of flooding can be achive */
+  oneway void serviceNotFound(in long reqId, in string senderId) ;
+
+  /** launchs a new step of flooding */
+  oneway void newFlood(in long reqId, in string senderId) ;
+
+  /** response which saids that no new server can be found via this MA. */
+  oneway void floodedArea(in long reqId, in string senderId) ;
+
+  /** response which saids that the MA was already contacted for this
+      request. */
+  oneway void alreadyContacted(in long reqId,
+			       in string senderId) ;
+
+  /** response which saids that some servers was found. */
+  oneway void serviceFound(in long reqId, in corba_response_t decision) ;
 
 #endif // HAVE_MULTI_MA
 

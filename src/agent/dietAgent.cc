@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2004/09/29 13:35:31  sdahan
+ * Add the Multi-MAs feature.
+ *
  * Revision 1.16  2004/07/05 14:56:13  rbolze
  * correct bug on 64 bit plat-form, when parsing cfg file :
  * remplace size_t by unsigned int for config options
@@ -321,5 +324,6 @@ main(int argc, char** argv)
    * Servants will be deactivated and deleted automatically */
   ORBMgr::destroy();
 
+  printf("hello\n") ;
   return 0;
 }

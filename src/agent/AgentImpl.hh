@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2004/09/29 13:35:31  sdahan
+ * Add the Multi-MAs feature.
+ *
  * Revision 1.9  2004/09/13 14:11:06  hdail
  * Cleaned up memory management for local variables localHostName and myName.
  *
@@ -100,6 +103,10 @@ public:
   /** Used to test if this agent is alive. */
   virtual CORBA::Long
   ping();
+
+  /** returns the hostname of the agent */
+  virtual char*
+  getHostname() ;
 
 
 protected:

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2004/09/29 13:35:32  sdahan
+ * Add the Multi-MAs feature.
+ *
  * Revision 1.5  2003/06/16 17:42:45  pcombes
  * Fix header.
  *
@@ -26,6 +29,7 @@
 #define _TS_VECTOR_HH_
 
 #include <vector>
+#include <omniconfig.h>
 #include <omnithread.h>
 #include <assert.h>
 

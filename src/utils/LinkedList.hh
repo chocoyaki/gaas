@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2004/09/29 13:35:32  sdahan
+ * Add the Multi-MAs feature.
+ *
  * Revision 1.3  2003/05/05 14:54:50  pcombes
  * Add assertions in next and previous methods.
  *
@@ -19,6 +22,7 @@
 #ifndef _LINKEDLIST_HH_
 #define _LINKEDLIST_HH_
 
+#include <omniconfig.h>
 #include <omnithread.h>
 #include <sys/types.h>
 #include <assert.h>

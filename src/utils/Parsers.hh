@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2004/09/29 13:35:32  sdahan
+ * Add the Multi-MAs feature.
+ *
  * Revision 1.9  2004/07/05 14:56:13  rbolze
  * correct bug on 64 bit plat-form, when parsing cfg file :
  * remplace size_t by unsigned int for config options
@@ -50,6 +53,8 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include "ts_container/ts_set.hh"
+#include "ms_function.hh"
 
 
 /**
@@ -82,6 +87,8 @@ public:
       NWSUSE, NWSNAMESERVER, NWSFORECASTER,
       USEASYNCAPI,
       USELOGSERVICE, LSOUTBUFFERSIZE, LSFLUSHINTERVAL,
+      NEIGHBOURS, MAXNEIGHBOURS, MINNEIGHBOURS, UPDATELINKPERIOD,
+      BINDSERVICEPORT,
       NB_PARAM_TYPE
     } param_type_t;
 
@@ -102,11 +109,31 @@ public:
 	this->host = strdup(host);
 	this->port = port;
       }
+      inline
+      Address(const Address& a) {
+	this->host = ms_strdup(a.host);
+	this->port = a.port;
+      }
       ~Address() {
 	if (this->host)
 	  free(this->host);
       }
+      bool operator== (const Address& a) const {
+	return port == a.port && (strcmp(host, a.host) == 0) ;
+      }
+      bool operator< (const Address& a) const {
+	if (port != a.port)
+	  return strcmp(host, a.host)<0 ;
+	else
+	  return port < a.port ;
+      }
     };
+
+
+    /**
+     * a set of addresses
+     */
+    typedef ts_set<Address> AddressesSet ;
 
     /**
      * Return a pointer to the value parsed for the parameter of type \c type.
@@ -243,8 +270,6 @@ private:
   static int
   parseUse(char* use_str, Results::param_type_t type);
 
-
 };
-
 
 #endif // _PARSERS_HH_

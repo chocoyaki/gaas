@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2004/09/29 13:35:32  sdahan
+ * Add the Multi-MAs feature.
+ *
  * Revision 1.17  2003/12/01 14:49:31  pcombes
  * Rename dietTypes.hh to DIET_data_internal.hh, for more coherency.
  *
@@ -36,6 +39,7 @@
 
 #include <iostream>
 using namespace std;
+#include <omniconfig.h>
 #include <omnithread.h>
 #include <stdio.h>
 #include <stdlib.h>

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2004/09/29 13:35:31  sdahan
+ * Add the Multi-MAs feature.
+ *
  * Revision 1.5  2003/09/24 09:07:52  pcombes
  * Merge corba_DataMgr_desc_t and corba_data_desc_t.
  *
@@ -190,6 +193,7 @@ struct corba_request_t {
   unsigned long     reqID;
   corba_pb_desc_t   pb;
   string            serialized_scheduler;
+  long              max_srv;
 };
 
 

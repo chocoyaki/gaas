@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.10  2004/09/29 13:35:32  sdahan
+#* Add the Multi-MAs feature.
+#*
 #* Revision 1.9  2004/07/07 18:19:17  rbolze
 #* correct a dummy bug : forgot \ at the end of a line :)
 #*
@@ -45,7 +48,7 @@ noinst_LTLIBRARIES = libUtilsCichlid.la libUtilsCommon.la \
 
 libUtilsCichlid_la_SOURCES = com_tools.cc
 libUtilsCommon_la_SOURCES  = debug.cc DIET_data.cc ms_function.cc \
-			     Parsers.cc statistics.cc
+			     Parsers.cc statistics.cc KeyString.cc
 libUtilsSeDClt_la_SOURCES  = DIET_mutex.cc
 libUtilsNodes_la_SOURCES   = Counter.cc ServiceTable.cc FASTMgr.cc \
 			     DietLogComponent.cc MonitoringThread.cc
@@ -55,7 +58,7 @@ noinst_HEADERS = com_tools.hh Counter.hh debug.hh DIET_data_internal.hh \
 		 ReadersWriterLock.hh ServiceTable.hh ServiceTable.hh \
 		 statistics.hh ts_container/ts_map.hh \
 		 ts_container/ts_set.hh ts_container/ts_vector.hh \
-		 DietLogComponent.hh MonitoringThread.hh
+		 DietLogComponent.hh MonitoringThread.hh KeyString.hh
 
 
 AM_CXXFLAGS = $(CXXFLAGS_OMNIORB) $(CXXFLAGS_FAST) \

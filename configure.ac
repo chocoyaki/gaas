@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.37  2004/09/29 13:35:31  sdahan
+#* Add the Multi-MAs feature.
+#*
 #* Revision 1.36  2004/09/17 14:08:26  rbolze
 #* comment AC_FUNC_MALLOC and AC_FUNC_REMALLOC because of compile problem.
 #*
@@ -378,6 +381,7 @@ AC_SUBST(CFLAGS)
 AC_SUBST(CPPFLAGS)
 AC_SUBST(CXXFLAGS)
 AC_SUBST(LDFLAGS)
+AC_SUBST(CXXFLAGS_OMNIORB)
 
 AC_SUBST(IDLFLAGS)
 
