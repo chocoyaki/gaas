@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2003/06/23 13:35:06  pcombes
+ * useAsyncAPI should be replaced by a "useBiDir" option. Remove it so far.
+ *
  * Revision 1.3  2003/06/02 09:06:46  cpera
  * Beta version of asynchronize DIET API.
  *
@@ -86,8 +89,8 @@ private:
   /** Use of FAST */
   size_t fastUse;
 
-  /* Fast calls mutex, this should be used until FAST becomes reentrant : */
-  omni_mutex fast_mutex;
+  /* Fast calls mutex, this should be used until FAST becomes reentrant */
+  omni_mutex fastMutex;
 
 #endif // HAVE_FAST
 

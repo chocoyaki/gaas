@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2003/06/23 13:35:06  pcombes
+ * useAsyncAPI should be replaced by a "useBiDir" option. Remove it so far.
+ *
  * Revision 1.5  2003/06/02 15:29:46  cpera
  * Update callback use.
  *
@@ -367,7 +370,7 @@ SeDImpl::estimate(corba_estimation_t& estimation,
   if (this->fastUse) {
     sf_inst_desc_t inst;
   
-    fast_mutex.lock();
+    fastMutex.lock();
     unmrsh_pb_desc_to_sf(&inst, &pb, this->SrvT->getConvertor(ref));
     if ( !(fast_comp_time_best(this->localHostName, &inst, &time)) ) {
       cerr << "Warning: Cannot estimate computation time. "
@@ -382,7 +385,7 @@ SeDImpl::estimate(corba_estimation_t& estimation,
       cerr << "Warning: Cannot estimate free memory.\n";
       freeMem = 0;
     }
-    fast_mutex.unlock();
+    fastMutex.unlock();
     CORBA::string_free(inst.path);
     delete [] inst.param_desc;
   }

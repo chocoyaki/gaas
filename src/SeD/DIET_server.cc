@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2003/06/23 13:35:06  pcombes
+ * useAsyncAPI should be replaced by a "useBiDir" option. Remove it so far.
+ *
  * Revision 1.12  2003/06/02 09:26:10  cpera
  * Beta version of asynchronize DIET API.
  *
@@ -281,14 +284,9 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
     myargc = tmp_argc;
   }
 
-  /* Get CORBA request type */
-  int DIET_ct = *(size_t *)Parsers::Results::getParamValue(Parsers::Results::USEASYNCAPI);
-    cout << "valeur de useAsyncApi :" << DIET_ct << endl;
-    fflush(stdout);
-
   /* Initialize the ORB */
 
-  if (ORBMgr::init(myargc, (char**)myargv, true, DIET_ct)) {
+  if (ORBMgr::init(myargc, (char**)myargv, true)) {
     cerr << "ORB initialization failed.\n";
     return 1;
   }
