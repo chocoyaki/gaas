@@ -9,6 +9,10 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.5  2004/01/07 23:03:02  cpera
+#* Add eror log option in order to get traces on omniNames misbehavior
+#* into a file because we cannot redirect its stderr flow.
+#*
 #* Revision 1.4  2003/11/28 16:15:21  cpera
 #* Add grep and ps checking.
 #*
@@ -34,9 +38,9 @@ omni_start() {
   then
     if [ -f $LOGDIR/omninames-`hostname`.log \
          -o -f $LOGDIR/omninames-`hostname`.bak ]; then
-      $OMNINAMES &
+      $OMNINAMES -errlog $ERRLOGDIR &
     else
-      $OMNINAMES -start &
+      $OMNINAMES -start -errlog $ERRLOGDIR &
     fi
   else
     echo "Error: a CORBA name server may have already been started."
@@ -87,6 +91,7 @@ if [ "`echo @OMNIORB_HOME@ | cut -c1`" != "@" ]; then
   OMNINAMES=@OMNIORB_HOME@/bin/omniNames
   BINDIR=`dirname $0`
   LOGDIR=`cd $BINDIR/..; pwd`/var/log
+  ERRLOGDIR=$LOGDIR/omniNamesError.log
   if [ ! -d $LOGDIR ]; then mkdir -p $LOGDIR; fi
   export OMNINAMES_LOGDIR=$LOGDIR
  
