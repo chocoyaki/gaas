@@ -12,6 +12,10 @@
 #****************************************************************************#
 #*
 #* $Log$
+#* Revision 1.10  2003/01/07 18:27:04  pcombes
+#* "include @PREFIX@/include/Makefile.inc" was not a good idea if examples
+#* are not installed with DIET.
+#*
 #* Revision 1.9  2002/12/03 19:05:12  pcombes
 #* Clean CVS logs in file.
 #* Separate BLAS and SCALAPACK examples.
@@ -28,7 +32,8 @@
 #****************************************************************************#
 
 
-include @PREFIX@/include/Makefile.inc
+TOP = ../../..
+include $(TOP)/include/Makefile.inc
 
 BLASLIBS  = @BLASLIBS@
 
