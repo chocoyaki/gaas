@@ -12,9 +12,8 @@
 /****************************************************************************/
 /*
  * $Log$
- * Revision 1.7  2002/10/25 14:31:18  ecaron
- * FAST support: convertors implemented and compatible to --without-fast
- *               configure option, but still not tested with FAST !
+ * Revision 1.8  2002/11/05 18:32:20  pcombes
+ * Fix bugs in config file parsing.
  *
  * Revision 1.7  2002/10/25 10:50:18  pcombes
  * FAST support: convertors implemented and compatible to --without-fast
@@ -101,14 +100,14 @@ int parseConfigFile(char *config_file_name, char *MA_name)
     return 1;
   }
 
-  if (fscanf(file, "%s", MA_name) != 1) {
+  if (fscanf(file, "%s ", MA_name) != 1) {
     cerr << "Parsing client configuration file: Failed to read agent name.\n";
     return 1;
   }
   
   {
     int fscanf_res, level = 1;
-    fscanf_res = fscanf(file, " traceLevel = %d", &level);
+    fscanf_res = fscanf(file, "traceLevel = %d ", &level);
     if (fscanf_res == 0 || fscanf_res == 1) {
       traceLevel = level;
     } else {
