@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2003/10/06 10:14:06  cpontvie
+ * Remove the interruption management
+ * Initialize the ExitClass
+ * Add call to the EXITFUNCTION
+ *
  * Revision 1.8  2003/10/03 10:13:15  mcolin
  * Fix memory management in the list of arguments
  *
@@ -30,7 +35,8 @@
  ****************************************************************************/
 
 
-#include <signal.h>
+#include "ExitClass.hh"
+#include <iostream.h>
 #include <stdlib.h>
 
 #include "debug.hh"
@@ -49,30 +55,6 @@ AgentImpl* Agt;
 
 /** The Data Location Manager Object  */
 LocMgrImpl *Loc;
-
-
-#if 0
-/* The SIGINT handler function
-   The main function ends here in a fully working Agent !
-*/
-void handler(int sig)
-{
-  /* Prevent from raising a new SIGINT handler */
-  signal(SIGINT, SIG_IGN);
-
-  TRACE_TEXT(TRACE_MAIN_STEPS, "______________________________\n");
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Stopping the Agent...\n");
-
-  /* Deactivate and destroy the agent */
-  ORBMgr::deactivate();
-  delete Agt;
-
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Agent stopped !\n");
-  exit(0);
-}
-
-#endif // 0
-
 
 int
 main(int argc, char** argv)
@@ -185,6 +167,9 @@ main(int argc, char** argv)
     res = ((MasterAgentImpl*)Agt)->run();
   }
 
+  /* Initialize the ExitClass static object */
+  ExitClass::init(Agt);
+    
   /* Launch the agent */
   if (res) {
     ERROR("unable to launch the agent", 1);
@@ -197,20 +182,11 @@ main(int argc, char** argv)
   }
   Agt->linkToLocMgr(Loc);
 
-  /* We do not need the parsing results any more */
-  Parsers::endParsing();
-
-#if 0
-  /* Initialize the SIGINT handler exception */
-  signal( SIGINT, handler );
-#endif // 0
-
   /* Wait for RPCs (blocking call): */
-  try {
-    ORBMgr::wait();
-  } catch (...) {}
+  if (ORBMgr::wait()) {
+      WARNING("Error while exiting the ORBMgr::wait() function");
+  }
 
-  /* NEVER REACHED */
-  ERROR("'ORBMgr::wait()' failed to run !", 1);
+  EXIT_FUNCTION;
   return 0;
 }
