@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2004/11/25 21:21:15  hdail
+ * Fixed bug in function diet_free_data causing lack of proper data cleanup.
+ *
  * Revision 1.28  2004/09/14 12:48:05  hdail
  * Commented out cleanup of arg->value using free due to mismatch with
  * allocation method.
@@ -26,25 +29,6 @@
  *
  * Revision 1.21  2003/09/27 07:54:01  pcombes
  * Replace silly base type DIET_BYTE by DIET_SHORT.
- *
- * Revision 1.20  2003/09/24 09:09:39  pcombes
- * Merge corba_DataMgr_desc_t and corba_data_desc_t.
- *
- * Revision 1.19  2003/09/22 21:09:20  pcombes
- * Set all the modules and their interfaces for data persistency.
- *
- * Revision 1.17  2003/08/01 19:37:47  pcombes
- * Update diet_profile_alloc to the new API (separated from GridRPC)
- *
- * Revision 1.16  2003/07/04 09:48:06  pcombes
- * Use new ERROR and WARNING macros.
- *
- * Revision 1.13  2003/02/19 09:03:40  cpera
- * Add headers include for gcc 2.95.3 compatibility under SunOS.
- *
- * Revision 1.12  2003/02/07 17:02:10  pcombes
- * Remove diet_value. Add diet_is_persistent and diet_free_data.
- * Unify diet_scalar_get prototype to the one of the other _get functions.
  ****************************************************************************/
 
 #include <stdlib.h>
@@ -657,7 +641,6 @@ _file_get(diet_arg_t* arg, diet_persistence_mode_t* mode,
   return 0;
 }
 
-
 /****************************************************************************/
 /* Free the amount of data pointed at by the value field of an argument.    */
 /* This should be used ONLY for VOLATILE data,                              */
@@ -677,31 +660,32 @@ diet_free_data(diet_arg_t* arg)
     return 3;
   }
   switch(arg->desc.generic.type) {
-  case DIET_FILE:
-    if (arg->desc.specific.file.path) {
-      if (unlink(arg->desc.specific.file.path)) {
-	perror(arg->desc.specific.file.path);
-	return 2;
+    case DIET_FILE:
+      if (arg->desc.specific.file.path) {
+        if (unlink(arg->desc.specific.file.path)) {
+	  perror(arg->desc.specific.file.path);
+	  return 2;
+        }
+        free(arg->desc.specific.file.path);
+        arg->desc.specific.file.path = NULL;
+      } else {
+        return 1;
       }
-      free(arg->desc.specific.file.path);
-      arg->desc.specific.file.path = NULL;
-    } else {
-      return 1;
-    }
-    break;
+      break;
     case DIET_SCALAR:
       arg->desc.specific.scal.value = NULL;
-    // DO NOT BREAK !!!
-  default:
-    if (arg->value){
-      // TODO: must use delete to clean memory, but can't without data type
-      //delete arg->value;
-    } else {
-      return 1;
-    }
-    arg->value = NULL;
+      // DO NOT BREAK !!!  Want to run delete[] below.
+    default:
+      if (arg->value != NULL){
+        delete[] ((char *) arg->value);
+      } else {
+        return 1;
+      }
+      arg->value = NULL;
   }
   return 0;
 }
 
 } // extern "C"
+
+
