@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.36  2004/11/25 11:40:32  hdail
+ * Add request ID to statistics output to allow tracing of stats for each request.
+ *
  * Revision 1.35  2004/10/15 08:19:13  hdail
  * Removed references to corba_response_t->sortedIndexes - no longer useful.
  *
@@ -354,6 +357,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
   diet_profile_t profile;
   diet_convertor_t* cvt(NULL);
   int solve_res(0);
+  char statMsg[128];
 
   ref = SrvT->lookupService(path, &pb);
   if (ref == -1) {
@@ -374,7 +378,8 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
   }
 #endif // HAVE_QUEUES
 
-  stat_in("SeD","solve");
+  sprintf(statMsg, "solve %ld", (unsigned long) reqID);
+  stat_in("SeD",statMsg);
 
 #if HAVE_LOGSERVICE
   if (dietLogComponent != NULL) {
@@ -447,7 +452,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
 
   delete [] profile.parameters; // allocated by unmrsh_in_args_to_profile
   
-  stat_out("SeD","solve");  
+  stat_out("SeD",statMsg);  
   stat_flush();  
 
 #if HAVE_LOGSERVICE

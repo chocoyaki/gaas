@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.51  2004/11/25 11:40:32  hdail
+ * Add request ID to statistics output to allow tracing of stats for each request.
+ *
  * Revision 1.50  2004/10/15 13:04:29  bdelfabr
  * request_submission modified to avoid mismatch data identifers
  *
@@ -435,15 +438,13 @@ request_submission(diet_profile_t* profile,
   //corba_pb_desc_t& corba_pb = *(new corba_pb_desc_t());
   corba_response_t* response(NULL);
   char* bad_id(NULL);
+  char statMsg[128];
 
   chosenServer = SeD::_nil();
- 
- 
  
   if (mrsh_pb_desc(&corba_pb, profile)) {
     ERROR("profile is wrongly built", 1);
   }
- 
  
   /* Request submission : try nb_tries times */
 
@@ -475,65 +476,67 @@ request_submission(diet_profile_t* profile,
 
     if(data_OK == 0) {
           
-    /* Submit to the agent. */
-    try {
-      response = MA->submit(corba_pb, MAX_SERVERS);
-    } catch (CORBA::Exception& e) {
-      CORBA::Any tmp;
-      tmp <<= e;
-      CORBA::TypeCode_var tc = tmp.type();
-      //delete &corba_pb;
-      if (response)
-	delete response;
-      ERROR("caught a CORBA exception (" << tc->name()
-	    << ") while submitting problem", 1);
-    }
+      /* Submit to the agent. */
+      try {
+        response = MA->submit(corba_pb, MAX_SERVERS);
+      } catch (CORBA::Exception& e) {
+        CORBA::Any tmp;
+        tmp <<= e;
+        CORBA::TypeCode_var tc = tmp.type();
+        //delete &corba_pb;
+        if (response)
+	  delete response;
+        ERROR("caught a CORBA exception (" << tc->name()
+	      << ") while submitting problem", 1);
+      }
   
   
-    /* Check response */
+      /* Check response */
     
-    if (!response || response->servers.length() == 0) {
-      WARNING("no server found for problem " << corba_pb.path);
-      server_OK = -1;
+      if (!response || response->servers.length() == 0) {
+        WARNING("no server found for problem " << corba_pb.path);
+        server_OK = -1;
       
-    } else {
+      } else {
       
-      if (TRACE_LEVEL >= TRACE_MAIN_STEPS) {
-	TRACE_TEXT(TRACE_MAIN_STEPS,
-		   "The Master Agent found the following server(s):\n");
-	for (size_t i = 0; i < response->servers.length(); i++) {
+        if (TRACE_LEVEL >= TRACE_MAIN_STEPS) {
 	  TRACE_TEXT(TRACE_MAIN_STEPS,
+		   "The Master Agent found the following server(s):\n");
+	  for (size_t i = 0; i < response->servers.length(); i++) {
+	    TRACE_TEXT(TRACE_MAIN_STEPS,
 		     "    " << response->servers[i].loc.hostName << ":"
 		     << response->servers[i].loc.port << "\n");
-	}
-      }
+	  }
+        }
       
-      /* Check the contracts of the servers answered. */
-      server_OK = 0;
-      while ((size_t) server_OK < response->servers.length()) {
-	try {
-	  int           idx       = server_OK;
-	  SeD_ptr       server    = response->servers[idx].loc.ior;
-	  CORBA::Double totalTime = response->servers[idx].estim.totalTime;
-	  if (server->checkContract(response->servers[idx].estim, corba_pb)) {
+        /* Check the contracts of the servers answered. */
+        server_OK = 0;
+        while ((size_t) server_OK < response->servers.length()) {
+	  try {
+	    int           idx       = server_OK;
+	    SeD_ptr       server    = response->servers[idx].loc.ior;
+	    CORBA::Double totalTime = response->servers[idx].estim.totalTime;
+	    if (server->checkContract(response->servers[idx].estim, corba_pb)) {
+	      server_OK++;
+	      continue;
+	    }
+	    if ((totalTime == response->servers[idx].estim.totalTime) ||
+	        ((response->servers[idx].estim.totalTime - totalTime)
+	          < (ERROR_RATE *
+		  MAX(totalTime,response->servers[idx].estim.totalTime)))) {
+	      break;
+            }
+	    server_OK++;
+	  } catch (CORBA::Exception& e) {
 	    server_OK++;
 	    continue;
 	  }
-	  if ((totalTime == response->servers[idx].estim.totalTime) ||
-	      ((response->servers[idx].estim.totalTime - totalTime)
-	       < (ERROR_RATE *
-		  MAX(totalTime,response->servers[idx].estim.totalTime))))
-	    break;
-	  server_OK++;
-	} catch (CORBA::Exception& e) {
-	  server_OK++;
-	  continue;
-	}
-      }
-      if ((size_t) server_OK == response->servers.length())
-	server_OK = -1;
-    }
-    }
+        }
+        if ((size_t) server_OK == response->servers.length()){
+	  server_OK = -1;
+        }
+      } // end else  [if (!response || response->servers.length() == 0)]
+    } // end if data ok
   } while ((response) && (response->servers.length() > 0) &&
 	   (server_OK == -1) && (++subm_count < nb_tries) && (data_OK == 0));
 
@@ -542,41 +545,43 @@ request_submission(diet_profile_t* profile,
 
     delete (bad_id);
   } else {
-  stat_out("Client","request_submission");
   
-  if (!response || response->servers.length() == 0) {
-    //delete &corba_pb;
-    if (response)
+    if (!response || response->servers.length() == 0) {
+      //delete &corba_pb;
+      if (response) {
+        delete response;
+      }
+      ERROR("unable to find a server", 1);
+    }
+    if (server_OK == -1) {
+      //delete &corba_pb;
       delete response;
-    ERROR("unable to find a server", 1);
-  }
-  if (server_OK == -1) {
-    //delete &corba_pb;
-    delete response;
-    ERROR("unable to find a server after " << nb_tries << " tries."
+      ERROR("unable to find a server after " << nb_tries << " tries."
 	  << "The platform might be overloaded, try again later please", 1);
-  }
+    }
   
 #if HAVE_CICHLID
-  static int already_initialized(0);
-  char str_tmp[1000];
+    static int already_initialized(0);
+    char str_tmp[1000];
   
-  if (!already_initialized) {
-    init_communications();
-    already_initialized = 1;
-  }
+    if (!already_initialized) {
+      init_communications();
+      already_initialized = 1;
+    }
   
-  strcpy(str_tmp, response->servers[server_OK].loc.hostName);
-  strcat(str_tmp, "_SeD");
-  add_communication("client", str_tmp, profile_size(&corba_pb));
+    strcpy(str_tmp, response->servers[server_OK].loc.hostName);
+    strcat(str_tmp, "_SeD");
+    add_communication("client", str_tmp, profile_size(&corba_pb));
 #endif // HAVE_CICHLID
   
-  //delete &corba_pb;
+    //delete &corba_pb;
 
-  if (server_OK >= 0) {
-    chosenServer = response->servers[server_OK].loc.ior;
-    reqID = response->reqID;
-  }
+    if (server_OK >= 0) {
+      chosenServer = response->servers[server_OK].loc.ior;
+      reqID = response->reqID;
+    }
+    sprintf(statMsg, "request_submission %ld", (unsigned long) reqID);
+    stat_out("Client",statMsg);
   }
   return 0;
 }
@@ -598,6 +603,7 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
   diet_reqID_t reqID;
   corba_profile_t corba_profile;
   //char *new_id;
+  char statMsg[128];
   stat_in("Client","diet_call");
 
 
@@ -635,7 +641,6 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
     
   }  
   
-  
   /* generate new ID for data if not already existant */
   for(int i = 0;i <= corba_profile.last_out;i++) {
     if ((corba_profile.parameters[i].desc.mode > DIET_VOLATILE ) && (corba_profile.parameters[i].desc.mode < DIET_PERSISTENCE_MODE_COUNT) && (MA->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber)))) {
@@ -643,11 +648,12 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
       corba_profile.parameters[i].desc.id.idNumber = new_id;
     }
   }
-  
+ 
+  sprintf(statMsg, "computation %ld", (unsigned long) reqID);
   try {
-  stat_in("Client","computation");
-  solve_res = chosenServer->solve(profile->pb_name, corba_profile,reqID);
-  stat_out("Client","computation");
+    stat_in("Client",statMsg);
+    solve_res = chosenServer->solve(profile->pb_name, corba_profile,reqID);
+    stat_out("Client",statMsg);
    } catch(CORBA::MARSHAL& e) {
     ERROR("got a marchal exception\n"
 	  "Maybe your giopMaxMsgSize is too small",1) ;
@@ -665,8 +671,9 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
   if (unmrsh_out_args_to_profile(profile, &corba_profile)) {
     INTERNAL_ERROR("returned profile is wrongly built", 1);
   }
- 
-  stat_out("Client","diet_call");
+
+  sprintf(statMsg, "diet_call %ld", (unsigned long) reqID);
+  stat_out("Client",statMsg);
   return solve_res;
 }
 
