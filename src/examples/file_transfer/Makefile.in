@@ -5,6 +5,7 @@
 #*  Author(s):                                                              *#
 #*    - Philippe COMBES           - LIP ENS-Lyon (France)                   *#
 #*    - Romain   LACROIX          - LIP ENS-Lyon (France)                   *#
+#*    - Christophe PERA          - LIP ENS-Lyon (France)                   *#
 #*                                                                          *#
 #*  This is part of DIET software.                                          *#
 #*  Copyright (C) 2002 ReMaP/LIFC/INRIA                                     *#
@@ -12,12 +13,8 @@
 #****************************************************************************#
 #*
 #* $Log$
-#* Revision 1.6  2003/01/22 17:13:44  pcombes
-#* Use DIET_SERVER_LIBS and DIET_CLIENT_LIBS
-#*
-#* Revision 1.5  2003/01/07 18:27:04  pcombes
-#* "include @PREFIX@/include/Makefile.inc" was not a good idea if examples
-#* are not installed with DIET.
+#* Revision 1.7  2003/02/14 10:30:07  cpera
+#* add files used by autoconf/automake.
 #*
 #* Revision 1.4  2002/12/03 19:05:12  pcombes
 #* Clean CVS logs in file.
@@ -38,23 +35,23 @@
 #*
 #****************************************************************************#
 
-TOP = ../../..
-include $(TOP)/include/Makefile.inc
+
+include @prefix@/include/Makefile.inc
 
 
 all: client server
 
-client.o:	client.c
+client.o: client.c
 	$(CC) -c $< $(CCFLAGS) -o $@
 
-client:		client.o @PREFIX@/lib/libDIET_client.a
-	$(CC) $< $(CCFLAGS) $(DIET_CLIENT_LIBS) -o $@
+client:	client.o @prefix@/lib/libDIET_client.a
+	$(CC) $< $(CCFLAGS) $(CLIENT_LIB) $(LIBS) -o $@
 
-server.o:	server.c
+server.o: server.c
 	$(CC) -c $< $(CCFLAGS) -o $@
 
-server:		server.o @PREFIX@/lib/libDIET_SeD.a
-	$(CC) $< $(CCFLAGS) $(DIET_SERVER_LIBS) -o $@
+server:	server.o @prefix@/lib/libDIET_SeD.a
+	$(CC) $< $(CCFLAGS) $(SED_LIB) $(LIBS) -o $@
 
 clean:
-	rm -f *.o client server
+      rm -f *.o client server
