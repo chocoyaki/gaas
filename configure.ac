@@ -8,8 +8,8 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
-#* Revision 1.10  2003/05/23 09:10:41  pcombes
-#* Submit BLAS and ScaLAPACK etection to "enable" options.
+#* Revision 1.11  2003/06/02 09:14:53  cpera
+#* Manage asynchronize samples.
 #*
 #* Revision 1.9  2003/05/16 17:29:28  pcombes
 #* Clean macros and messages. Set omniORB_min_version (not used yet)
@@ -136,23 +136,26 @@ dnl ###########################################################################
 dnl ###########################################################################
 AC_ARG_ENABLE(Cichlid,
 	      AC_HELP_STRING([--enable-Cichlid],
-	                 [enable generation of communication logs for Cichlid]))
-if test "x$enable_CICHLID" = "xyes"; then
+	                 [enable generation of communication logs for Cichlid]),
+              HAVE_CICHLID=true, HAVE_CICHLID=false)
+if test "x$HAVE_CICHLID" = "xtrue"; then
   AC_DEFINE(HAVE_CICHLID,1,[Define use of communication tools])
 fi
 
 AC_ARG_ENABLE(stats,
 	      AC_HELP_STRING([--enable-stats],
-			     [enable generation of statistics logs]))
-if test "enable_STATISTICS" = "xyes"; then
+			     [enable generation of statistics logs]),
+              HAVE_STATISTICS=true, HAVE_STATISTICS=false)
+if test "x$HAVE_STATISTICS" = "xtrue"; then
   AC_DEFINE(HAVE_STATISTICS)
   IDLFLAGS="$IDLFAGS -DHAVE_STATISTICS"
 fi
 
 AC_ARG_ENABLE(multi-MA,
 	      AC_HELP_STRING([--enable-multi-MA],
-			     [enable multi-MA architecture]))
-if test "x$enable_MULTI_MA" = "xyes"; then
+			     [enable multi-MA architecture]),
+              HAVE_MULTI_MA=true, HAVE_MULTI_MA=false)
+if test "x$HAVE_MULTI_MA" = "xtrue"; then
   AC_DEFINE(HAVE_MULTI_MA)
 fi
 
@@ -201,18 +204,14 @@ AM_PATH_FAST(FAST_min_version,
 dnl ###########################################################################
 dnl ####[ search for the BLAS Library ]
 dnl ###########################################################################
-if test "x$enable_BLAS" = "xyes"; then
-  ACI_PACKAGE([BLAS],[BLAS],[dgemm_],
-              [-lcblas -lblas -lblas2 -latlas!-lblas!-llapack!-lm!-lblas!\
-               -lcblas!-llapack!-lm!-L/usr/lib/atlas ],,,:)
-fi
+ACI_PACKAGE([BLAS],[BLAS],[dgemm_],
+            [-lcblas -lblas -lblas2 -latlas!-lblas!-llapack!-lm!-lblas!-lcblas!\
+	     -llapack!-lm!-L/usr/lib/atlas ],,,:)
 
 dnl ###########################################################################
 dnl ####[ search for the ScaLAPACK Library ]
 dnl ###########################################################################
-if test "x$enable_ScaLAPACK" = "xyes"; then
-  ACI_PACKAGE([ScaLAPACK],[ScaLAPACK],[pdgemm_],[-latlas],,,:)
-fi
+ACI_PACKAGE([ScaLAPACK],[ScaLAPACK],[pdgemm_],[-latlas],,,:)
 
 dnl ###########################################################################
 dnl ####[ search for the BLACS Library ]
@@ -275,9 +274,7 @@ dnl ###########################################################################
 AC_C_CONST
 AC_C_INLINE
 dnl AC_TYPE_PID_T # unused
-
-# FIXME: we should get the sizes of all types, to map DIET base types
-#        (DIET_INT, etc.)
+# FIXME: ce qu'il serait bon, c'est de récupérer la taille des types en octets
 AC_TYPE_SIZE_T
 
 dnl ###########################################################################
@@ -308,6 +305,7 @@ AC_CONFIG_FILES([include/Makefile.inc
 		src/examples/Makefile
                 src/examples/BLAS/Makefile
                 src/examples/dmat_manips/Makefile
+                src/examples/dmat_manips_async/Makefile
                 src/examples/file_transfer/Makefile
                 src/examples/ScaLAPACK/Makefile
 		doc/Makefile
@@ -331,15 +329,15 @@ if test "x$HAVE_OMNIORB" = "xtrue"
 then
   echo "DIET configured with omniORB $OMNIORB_VERSION in $OMNIORB_HOME."
 fi
-if test "x$enable_CICHLID" = "xyes"
+if test "x$HAVE_CICHLID" = "xtrue"
 then
   echo "DIET configured with generation of communication logs for Cichlid."
 fi
-if test "x$enable_STATISTICS" = "xyes"
+if test "x$HAVE_STATISTICS" = "xtrue"
 then
   echo "DIET configured with generation of statistics logs."
 fi
-if test "x$enable_MULTI_MA" = "xyes"
+if test "x$HAVE_MULTI_MA" = "xtrue"
 then
   echo "DIET configured in multi MA mode."
 fi
