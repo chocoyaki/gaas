@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2004/09/15 10:38:31  hdail
+ * Repaired a bug involving problems with service registration in upper levels of
+ * the agent hierarchy.  Added debugging statements in debug level 10 to trace
+ * registration.
+ *
  * Revision 1.21  2004/09/14 12:43:11  hdail
  * Clarify "thread-safe" comments for Counter class.
  *
@@ -216,10 +221,12 @@ AgentImpl::serverSubscribe(SeD_ptr me, const char* hostName,
 AgentImpl::addServices(CORBA::ULong myID,
                        const SeqCorbaProfileDesc_t& services)
 {
+  int result;
   AGT_TRACE_FUNCTION(myID <<", " << services.length() << " services");
 
 #if HAVE_LOGSERVICE
-  // FIXME: do we need this information here (in this form) ?
+  // Commented out because we don't currently need to track services in 
+  // agents via LogService.
 #if 0
   for (CORBA::ULong i=0; i<services.length(); i++) {
     if (dietLogComponent != NULL) {
@@ -231,10 +238,13 @@ AgentImpl::addServices(CORBA::ULong myID,
 
   this->srvTMutex.lock();
   for (size_t i = 0; i < services.length(); i++) {
-    if (this->SrvT->addService(&(services[i]), myID)) {
-      for (size_t j = 0; j < i; j++)
-        this->SrvT->rmService(&(services[j]));
-      break;
+    result = this->SrvT->addService(&(services[i]), myID);
+    if(result == 0){
+      TRACE_TEXT(TRACE_STRUCTURES, "Service " << i 
+          << " added for child " << myID << ".\n");
+    } else {
+      TRACE_TEXT(TRACE_STRUCTURES, "Service " << i 
+            << " is a duplicate for child " << myID << ". Not added.\n");
     }
   }
   if (TRACE_LEVEL >= TRACE_STRUCTURES)
