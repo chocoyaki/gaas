@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2005/01/14 10:42:26  lphilipp
+ *
+ * correction bug 13
+ *
  * Revision 1.7  2004/12/08 15:02:51  alsu
  * plugin scheduler first-pass validation testing complete.  merging into
  * main CVS trunk; ready for more rigorous testing.
@@ -138,24 +142,26 @@ struct corba_file_specific_t {
  * Descriptor
  * The field 'type' in diet_data_desc_t is the discriminant of union field
  */
+union type switch (long) {
+ case 0:
+   corba_scalar_specific_t scal;
+ case 1:
+   corba_vector_specific_t vect;
+ case 2:
+   corba_matrix_specific_t mat;
+ case 3:
+   corba_string_specific_t str;
+ case 4:
+   corba_paramstring_specific_t pstr;
+ case 5:
+   corba_file_specific_t   file;
+};
+
 struct corba_data_desc_t {
   corba_data_id_t id;
   long mode;
   long base_type;
-  union type switch (long) {
-  case 0:
-    corba_scalar_specific_t scal;
-  case 1:
-    corba_vector_specific_t vect;
-  case 2:
-    corba_matrix_specific_t mat;
-  case 3:
-    corba_string_specific_t str;
-  case 4:
-    corba_paramstring_specific_t pstr;
-  case 5:
-    corba_file_specific_t   file;
-  } specific;
+  type specific;
 };
 typedef sequence<corba_data_desc_t> SeqCorbaDataDesc_t;
 
