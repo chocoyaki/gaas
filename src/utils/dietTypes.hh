@@ -1,5 +1,4 @@
 /****************************************************************************/
-/* $Id$ */
 /* DIET types specification                                                 */
 /*                                                                          */
 /*  Author(s):                                                              */
@@ -8,8 +7,11 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/*
+/* $Id$
  * $Log$
+ * Revision 1.10  2003/04/10 12:49:27  pcombes
+ * Apply Coding Standards, manage data ID, and remove all dlist types.
+ *
  * Revision 1.9  2003/02/04 09:59:01  pcombes
  * Apply Coding Standards (still much work)
  *
@@ -41,12 +43,12 @@
 
 #include <omnithread.h>
 
-#include "dlist.hh"
-#include "types.hh"
-#include "SeD.hh"
-#include "agent.hh"
+#include "common_types.hh"
+#include "DIET_config.h"
 #include "DIET_server.h"
 
+
+#if 0
 
 /****************************************************
  * All slimfast API types are included in DIET types
@@ -57,185 +59,11 @@
 #include "slimfast_api_local.h"
 #endif // HAVE_FAST
 
-/*************************/
-/********** MAs **********/
-/*************************/
-
-struct diet_MA_desc {
-  char* name;
-  Agent_var ior;
-};
-
-typedef struct diet_MA_desc diet_MA_desc_t;
-      
-class dietMADescListElt : public _dlink {
-public:
-  diet_MA_desc_t MA;
-
-  dietMADescListElt() {}
-  ~dietMADescListElt() {}
-};
-
-class dietMADescList : public _dlist {
-public:
-  omni_mutex write;
-
-  dietMADescList():_dlist() {}
-  ~dietMADescList() {}
-};
-
-class dietMADescListIterator : public _dlistIterator {
-public:
-  dietMADescListIterator(dietMADescList* l):_dlistIterator(l) {}
-  ~dietMADescListIterator() {}
-};
-
-/*************************/
-/***** SONS DATABASE *****/
-/*************************/
-
-/*------------------------------------------------------------*/
-/* Agent's son descriptor. Describes a server/agent and its   */
-/* properties. The Corba IOR is meant to be replaced by a     */
-/* generic communicator in the final version.                 */
-/*------------------------------------------------------------*/
-
-typedef struct {
-  int id;
-  SeD_var ior;
-  char* hostname;
-} diet_SeD_desc_t;
-
-typedef struct {
-  int id;
-  Agent_var ior;
-  char* hostname;
-} diet_Agent_desc_t;
-
-/*------------------------------------------------------------*/
-/* Agent's sons lists.                                        */
-/*                                                            */
-/* FIXME: beeing copyrighted, dlists should be rewritten.     */
-/*------------------------------------------------------------*/
-
-class dietAgentDescListElt : public _dlink {
-public:
-  diet_Agent_desc_t desc;
-  dietAgentDescListElt() {}
-  ~dietAgentDescListElt() {}
-};
-
-class dietAgentDescList : public _dlist {
-public:
-  dietAgentDescList():_dlist() {}
-  ~dietAgentDescList() {}
-};
-
-class dietAgentDescListIterator : public _dlistIterator {
-public:
-  dietAgentDescListIterator(dietAgentDescList* l):_dlistIterator(l) {}
-  ~dietAgentDescListIterator() {}
-};
-
-class dietSeDDescListElt : public _dlink {
-public:
-  diet_SeD_desc_t desc;
-  dietSeDDescListElt() {}
-  ~dietSeDDescListElt() {}
-};
-
-class dietSeDDescList : public _dlist {
-public:
-  dietSeDDescList():_dlist() {}
-  ~dietSeDDescList() {}
-};
-
-class dietSeDDescListIterator : public _dlistIterator {
-public:
-  dietSeDDescListIterator(dietSeDDescList* l):_dlistIterator(l) {}
-  ~dietSeDDescListIterator() {}
-};
-
-
-/*******************************/
-/***** PROPERTIES DATABASE *****/
-/*******************************/
-
-#if 0
-
-/*------------------------------------------------------------*/
-/* Agent's sonIds lists.                                      */
-/*                                                            */
-/* FIXME: beeing copyrighted, dlists should be rewritten.     */
-/*------------------------------------------------------------*/
-
-class dietSonIdListElt : public _dlink {
-public:
-  int sonId;
-  int nbCapableServers;
-
-  dietSonIdListElt() {}
-  ~dietSonIdListElt() {}
-};
-
-
-class dietSonIdList : public _dlist {
-public:
-  dietSonIdList():_dlist() {}
-  ~dietSonIdList() {}
-};
-
-class dietSonIdListIterator : public _dlistIterator {
-public:
-  dietSonIdListIterator(dietSonIdList *l):_dlistIterator(l) {}
-  ~dietSonIdListIterator() {}
-};
-
-/*------------------------------------------------------------*/
-/* Agent's property descriptor . Describes a problem and      */
-/* lists the Ids of all sons that are able to solve it.       */
-/*------------------------------------------------------------*/
-
-struct diet_prop_desc_ {
-  diet_profile_desc_t* profile;
-  dietSonIdList* capableSons;
-};
-typedef struct diet_prop_desc_ diet_prop_desc_t;
-
-/*------------------------------------------------------------*/
-/* Agent's properties lists.                                  */
-/*                                                            */
-/* FIXME: beeing copyrighted, dlists should be rewritten.     */
-/*------------------------------------------------------------*/
-
-class dietPropDescListElt : public _dlink {
-public:
-  diet_prop_desc_t prop;
-
-  dietPropDescListElt() {}
-  ~dietPropDescListElt() {}
-};
-
-class dietPropDescList : public _dlist {
-public:
-  dietPropDescList():_dlist() {}
-  ~dietPropDescList() {}
-};
-
-class dietPropDescListIterator : public _dlistIterator {
-public:
-  dietPropDescListIterator(dietPropDescList* l):_dlistIterator(l) {}
-  ~dietPropDescListIterator() {}
-};
-
-#endif // 0
-
 
 /************/
 /* DECISION */
 /************/
 
-#if 0
 /*------------------------------------------------------------*/
 /* Request and response structures :                          */
 /* These are the standard structures for communication        */
@@ -293,7 +121,6 @@ struct diet_response_ {
 
 typedef struct diet_response_ diet_response_t;
 
-#endif // 0
 
 /*------------------------------------------------------------*/
 /* Request log structure :                                    */
@@ -326,137 +153,6 @@ typedef struct {
 
 
 /*------------------------------------------------------------*/
-/* Request log structure list :                               */
-/* This is the type of the list where an agent stores all its */
-/* requests. Write access id protected by an encapsulated     */
-/* mutex.                                                     */
-/*------------------------------------------------------------*/
-
-class dietRequestLogListElt : public _dlink {
-public:
-  diet_request_log_t log;
-
-  dietRequestLogListElt() {}
-  ~dietRequestLogListElt() {}
-};
-
-class dietRequestLogList : public _dlist {
-public:
-  omni_mutex logMutex;
-  dietRequestLogList():_dlist() {}
-  ~dietRequestLogList() {}
-};
-
-class dietRequestLogListIterator : public _dlistIterator {
-public:
-  dietRequestLogListIterator(dietRequestLogList* l):_dlistIterator(l) {}
-  ~dietRequestLogListIterator() {}
-};
-
-#if 0
-/*------------------------------------------------------------*/
-/* Decision descriptor :                                      */
-/* Allows temporary storage of decisions                      */
-/*------------------------------------------------------------*/
-
-struct diet_decision_desc_ {
-  SeD_var chosenServer; /* Chosen server */
-
-  char* chosenServerName;
-  int chosenServerPort;  
-
-  int nbIn;
-
-  diet_data_loc_t* dataLocs; /* Localisation of each parameter */
-                             /* (localization==nil means that the parameter was not located, */
-                             /* i.e, it's still on the client) */
-
-  char *implPath; /* name of the implementation to call */
-};
-
-typedef struct  diet_decision_desc_ diet_decision_desc_t;
-
-struct diet_decision_sequence_ {
-  int nbElts;
-
-  diet_decision_desc_t* decisions;
-};
-
-typedef diet_decision_sequence_ diet_decision_sequence_t; 
-
-#endif // 0
-
-
-/*------------------------------------------------------------*/
-/* Decision descriptor list :                                 */
-/* Stores all decisions in progress in a Master Agent         */
-/*------------------------------------------------------------*/
-
-class dietDecisionDescListElt : public _dlink {
-public:
-  int reqId;
-  SeqCorbaDecision_t decision;
-
-  /* This condition variable allow to wake the 'client thread' up */
-  /* when the decision is taken :                                 */
-
-  omni_mutex mutex; 
-
-  omni_condition *decisionTaken;
-
-  dietDecisionDescListElt() {}
-  ~dietDecisionDescListElt() {}
-};
-
-class dietDecisionDescList : public _dlist {
-public:
-  omni_mutex logMutex;
-  dietDecisionDescList():_dlist() {}
-  ~dietDecisionDescList() {}
-};
-
-class dietDecisionDescListIterator : public _dlistIterator {
-public:
-  dietDecisionDescListIterator(dietDecisionDescList* l):_dlistIterator(l) {}
-  ~dietDecisionDescListIterator() {}
-};
-
-/************************/
-/* LOCALIZATION SERVICE */
-/************************/
-
-/*------------------------------------------------------------*/
-/* The following list is used on each agent to store the data */
-/* localization. It associates a data identifier (int) which  */
-/* must be unique in the system with a son Id. If a data      */
-/* identifier is in the list, then this data is in the        */
-/* subtree which root is the agent. The sonId field is the ID */
-/* of the son under which the data is.                        */
-/*------------------------------------------------------------*/
-
-class dietDataLocListElt : public _dlink {
-public:
-  int dataId;
-  int sonId;
-
-  dietDataLocListElt() {}
-  ~dietDataLocListElt() {}
-};
-
-class dietDataLocList : public _dlist {
-public:
-  omni_mutex logMutex;
-  dietDataLocList():_dlist() {}
-  ~dietDataLocList() {}
-};
-
-class dietDataLocListIterator : public _dlistIterator {
-public:
-  dietDataLocListIterator(dietDataLocList *l):_dlistIterator(l) {}
-  ~dietDataLocListIterator() {}
-};
-
-/*------------------------------------------------------------*/
 /* These structures are used by a server to keep a list of    */
 /* the datas it owns. The diet_server_data_desc_t just        */
 /* contains the data ID for now. It should be extended later  */
@@ -472,28 +168,7 @@ struct diet_server_data_desc_
 
 typedef struct diet_server_data_desc_ diet_server_data_desc_t;
 
-
-class dietServerDataDescListElt : public _dlink {
-public:
-  diet_server_data_desc_t *data;
-  
-  dietServerDataDescListElt() {}
-  ~dietServerDataDescListElt() {}
-};
-
-class dietServerDataDescList : public _dlist {
-public:
-  omni_mutex logMutex;
-  dietServerDataDescList():_dlist() {}
-  ~dietServerDataDescList() {}
-};
-
-class dietServerDataDescListIterator : public _dlistIterator {
-public:
-  dietServerDataDescListIterator(dietServerDataDescList *l):_dlistIterator(l) {}
-  ~dietServerDataDescListIterator() {}
-};
-
+#endif // 0
 
 /****************************************************************************/
 /* Useful functions for data descriptors manipulation                       */
@@ -513,18 +188,26 @@ data_sizeof(const corba_data_desc_t* desc);
 /* Each -1 (or NULL for pointers) argument does not alter the corresponding
    field. */
 
-int scalar_set_desc(diet_data_desc_t* desc, diet_persistence_mode_t mode,
-		    diet_base_type_t base_type, void* value);
-int vector_set_desc(diet_data_desc_t* desc, diet_persistence_mode_t mode,
-		    diet_base_type_t base_type, size_t size);
-int matrix_set_desc(diet_data_desc_t* desc, diet_persistence_mode_t mode,
-		    diet_base_type_t base_type, size_t nb_r, size_t nb_c,
-		    diet_matrix_order_t order);
-int string_set_desc(diet_data_desc_t* desc, diet_persistence_mode_t mode,
-		    size_t length);
+int
+scalar_set_desc(diet_data_desc_t* desc, char* const id,
+		const diet_persistence_mode_t mode,
+		const diet_base_type_t base_type, void* const value);
+int
+vector_set_desc(diet_data_desc_t* desc, char* const id,
+		const diet_persistence_mode_t mode,
+		const diet_base_type_t base_type, const size_t size);
+int
+matrix_set_desc(diet_data_desc_t* desc, char* const id,
+		const diet_persistence_mode_t mode,
+		const diet_base_type_t base_type, const size_t nb_r,
+		const size_t nb_c, const diet_matrix_order_t order);
+int
+string_set_desc(diet_data_desc_t* desc, char* const id,
+		const diet_persistence_mode_t mode, const size_t length);
 /* Computes the file size */
-int file_set_desc(diet_data_desc_t* desc, diet_persistence_mode_t mode,
-		  char* path);
+int
+file_set_desc(diet_data_desc_t* desc, char* const id,
+	      const diet_persistence_mode_t mode, char* const path);
 
 
 
@@ -534,21 +217,25 @@ int file_set_desc(diet_data_desc_t* desc, diet_persistence_mode_t mode,
 /****************************************************************************/
 
 /* Profile descriptor comparison: as strcmp, return 0 if equal. */
-int profile_desc_cmp(const corba_profile_desc_t* p1,
-		     const corba_profile_desc_t* p2);
+int
+profile_desc_cmp(const corba_profile_desc_t* p1,
+		 const corba_profile_desc_t* p2);
 
 /* Return true if p1 is exactly identical to p2. */
-int profile_desc_match(const corba_profile_desc_t* p1,
-		       const corba_profile_desc_t* p2);
+int
+profile_desc_match(const corba_profile_desc_t* p1,
+		   const corba_profile_desc_t* p2);
 
 /* Return true if sv_profile describes a service that matches the problem
    that pb_desc describes. */
-int profile_match(const corba_profile_desc_t* sv_profile,
-		  const corba_pb_desc_t*      pb_desc);
+int
+profile_match(const corba_profile_desc_t* sv_profile,
+	      const corba_pb_desc_t*      pb_desc);
 
 /* Return true if sv_profile describes a service that matches the problem
    that pb and path describe. */
-int profile_match(const corba_profile_desc_t* sv_profile,
-		  const char* path, const corba_profile_t* pb);
+int
+profile_match(const corba_profile_desc_t* sv_profile,
+	      const char* path, const corba_profile_t* pb);
 
 #endif // _DIETTYPES_HH_
