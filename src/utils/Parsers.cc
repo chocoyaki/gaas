@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2003/05/15 12:49:15  pcombes
+ * Fix compilation bugs with FAST.
+ *
  * Revision 1.3  2003/05/15 11:48:41  pcombes
  * Fix includes.
  *
@@ -197,7 +200,7 @@ Parsers::checkFASTEntries()
   use = *((size_t*)Results::params[Results::FASTUSE].value);
 
   if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << Results::params[FASTUSE].kwd << " = " << use << ".\n";
+    cout << Results::params[Results::FASTUSE].kwd << " = " << use << ".\n";
 
   if (use > 0) {
 
@@ -251,9 +254,9 @@ Parsers::checkFASTEntries()
     /* Check NWS entries */
     if (Results::params[Results::NWSUSE].value == NULL) {
       cerr << "Warning: " << FUNCTION_NAME << ": "
-	   << Results::paramsResults::[NWSUSE].kwd << " is missing."
+	   << Results::paramsResults::[Results::NWSUSE].kwd << " is missing."
 	   << " As DIET was compiled with FAST, and "
-	   << Results::paramsResults::[FASTUSE].kwd << " = 1, I guess "
+	   << Results::params[Results::FASTUSE].kwd << " = 1, I guess "
 	   << Results::params[Results::NWSUSE].kwd << " = 1.\n";
       *((size_t*)Results::params[Results::NWSUSE].value) = 1;
     }
