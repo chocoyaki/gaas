@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.8  2002/10/15 18:47:54  pcombes
+ * Update to convertor API.
+ *
  * Revision 1.7  2002/09/17 15:23:18  pcombes
  * Bug fixes on inout arguments and examples
  * Add support for omniORB 4.0.0
@@ -199,7 +202,6 @@ main(int argc, char **argv)
   int services[3];
 
   diet_profile_desc_t *profile;
-  
 
   if (argc < 3) {
     fprintf(stderr, "Usage: SeD <file> [T][MatSUM][MatPROD]\n");
@@ -235,8 +237,7 @@ main(int argc, char **argv)
   if (services[0]) {
     profile = profile_desc_alloc(-1, 0, 0);
     generic_desc_set(&(profile->param_desc[0]), DIET_MATRIX, DIET_DOUBLE);
-    diet_service_table_add(SRV[0], profile, solve_T);
-    profile_desc_free(profile);
+    diet_service_table_add(SRV[0], profile, NULL, solve_T);
   }
   
   if (services[1] || services[2]) {
@@ -245,12 +246,12 @@ main(int argc, char **argv)
     generic_desc_set(&(profile->param_desc[1]), DIET_MATRIX, DIET_DOUBLE);
     generic_desc_set(&(profile->param_desc[2]), DIET_MATRIX, DIET_DOUBLE);
     if (services[1])
-      diet_service_table_add(SRV[1], profile, solve_MatSUM);
+      diet_service_table_add(SRV[1], profile, NULL, solve_MatSUM);
     if (services[2])
-      diet_service_table_add(SRV[2], profile, solve_MatPROD);
-    profile_desc_free(profile);
+      diet_service_table_add(SRV[2], profile, NULL, solve_MatPROD);
   }
 
+  profile_desc_free(profile);
   print_table();
   res = DIET_SeD(argv[1], argc, argv);
   // Not reached
