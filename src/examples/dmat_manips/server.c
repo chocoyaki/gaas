@@ -4,7 +4,7 @@
 /*   problems                                                               */
 /*                                                                          */
 /*  Author(s):                                                              */
-/*    - Philippe COMBES           - LIP ENS Lyon (France)                   */
+/*    - Philippe COMBES           - LIP ENS-Lyon (France)                   */
 /*                                                                          */
 /*  This is part of DIET software.                                          */
 /*  Copyright (C) 2002 ReMaP/INRIA                                          */
@@ -12,6 +12,10 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.13  2002/12/03 19:05:12  pcombes
+ * Clean CVS logs in file.
+ * Separate BLAS and SCALAPACK examples.
+ *
  * Revision 1.12  2002/11/25 11:57:22  lbertsch
  * Suppressed warnings that might in some rare cases pause problems
  *

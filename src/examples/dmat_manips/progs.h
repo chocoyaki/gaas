@@ -3,7 +3,7 @@
 /* dmat_manips example: matrix manipulations programs                       */
 /*                                                                          */
 /*  Author(s):                                                              */
-/*    - Philippe COMBES           - LIP ENS Lyon (France)                   */
+/*    - Philippe COMBES           - LIP ENS-Lyon (France)                   */
 /*                                                                          */
 /*  This is part of DIET software.                                          */
 /*  Copyright (C) 2002 ReMaP/INRIA                                          */
@@ -11,6 +11,10 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.3  2002/12/03 19:05:12  pcombes
+ * Clean CVS logs in file.
+ * Separate BLAS and SCALAPACK examples.
+ *
  * Revision 1.2  2002/11/15 17:15:32  pcombes
  * FAST integration complete ...
  *

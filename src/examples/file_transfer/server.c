@@ -3,7 +3,7 @@
 /* file_transfer example: server side                                       */
 /*                                                                          */
 /*  Author(s):                                                              */
-/*    - Philippe COMBES           - LIP ENS Lyon (France)                   */
+/*    - Philippe COMBES           - LIP ENS-Lyon (France)                   */
 /*                                                                          */
 /*  This is part of DIET software.                                          */
 /*  Copyright (C) 2002 ReMaP/INRIA                                          */
@@ -11,9 +11,9 @@
 /****************************************************************************/
 /*
  * $Log$
- * Revision 1.4  2002/10/25 14:31:18  ecaron
- * FAST support: convertors implemented and compatible to --without-fast
- *               configure option, but still not tested with FAST !
+ * Revision 1.5  2002/12/03 19:05:12  pcombes
+ * Clean CVS logs in file.
+ * Separate BLAS and SCALAPACK examples.
  *
  * Revision 1.4  2002/10/25 11:29:21  pcombes
  * FAST support: convertors implemented and compatible to --without-fast
