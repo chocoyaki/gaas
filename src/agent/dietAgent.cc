@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2004/10/04 08:10:49  hdail
+ * Removed printf("Hello!\n") debugging message added with multi-MA check-in and
+ * shortened the CVS log.
+ *
  * Revision 1.17  2004/09/29 13:35:31  sdahan
  * Add the Multi-MAs feature.
  *
@@ -31,39 +35,6 @@
  * Revision 1.13  2004/03/03 16:10:53  mcolin
  * correct a bug in the construction of the corba option for the endPoint :
  * %u replaced by %s
- *
- * Revision 1.12  2004/03/01 18:46:18  rbolze
- * add logservice
- *
- * Revision 1.11  2004/03/01 16:34:26  mcolin
- * enable the possibility of declaring an endpoint with an hostname
- * for the DIET agents and the SeD (for VTHD demo). To be fixed later
- *
- * Revision 1.10  2003/10/06 12:25:53  cpontvie
- * iostream.h ==> iostream
- *
- * Revision 1.9  2003/10/06 10:14:06  cpontvie
- * Remove the interruption management
- * Initialize the ExitClass
- * Add call to the EXITFUNCTION
- *
- * Revision 1.8  2003/10/03 10:13:15  mcolin
- * Fix memory management in the list of arguments
- *
- * Revision 1.7  2003/09/22 21:07:52  pcombes
- * Set all the modules and their interfaces for data persistency.
- *
- * Revision 1.5  2003/09/04 10:04:58  pcombes
- * Cast Agt before calling the run method.
- *
- * Revision 1.3  2003/08/28 16:51:32  cpontvie
- * Adding a SIGINT handler to properly clean the agent on interruption(CTRL+C)
- *
- * Revision 1.2  2003/07/04 09:47:58  pcombes
- * Use new ERROR and WARNING macros.
- *
- * Revision 1.1  2003/05/10 08:50:33  pcombes
- * New Parsers let us reunify the two executables into one dietAgent.
  ****************************************************************************/
 
 
@@ -324,6 +295,5 @@ main(int argc, char** argv)
    * Servants will be deactivated and deleted automatically */
   ORBMgr::destroy();
 
-  printf("hello\n") ;
   return 0;
 }
