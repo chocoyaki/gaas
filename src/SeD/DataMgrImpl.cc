@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2003/10/02 17:08:00  bdelfabr
+ * modifying memory management in case of in_out arg
+ *
  * Revision 1.4  2003/10/01 07:40:51  cpera
  * Add false boolean return data of DataMgrImpl::dataLookup function if DEVELOPPING_DATA_PERSISTENCY is set to 0.
  *
@@ -32,7 +35,7 @@
 #include "Parsers.hh"
 #include "ts_container/ts_map.hh"
 
-#define DEVELOPPING_DATA_PERSISTENCY 0
+#define DEVELOPPING_DATA_PERSISTENCY 1
 
 
 /** Data Manager Constructor */
@@ -323,24 +326,18 @@ DataMgrImpl::updateDataList(corba_data_t &src)
 #if DEVELOPPING_DATA_PERSISTENCY
   corba_data_t &the_data=dataDescList[strdup(src.desc.id.idNumber)];
 
- long unsigned int size = (long unsigned int) data_sizeof(&(src.desc));
- CORBA::Boolean orphan = 1;
- CORBA::Char *p, *p1;
-
-
-
- p1 = the_data.value.get_buffer(orphan);
-
- _CORBA_Sequence<unsigned char>::freebuf((_CORBA_Char *)p1);
-
- //dataDescList.erase(strdup(the_data.desc.id.idNumber));
- p = src.value.get_buffer(orphan);
-
- src.value.replace(size,size,p,0); // if(src.desc.mode == DIET_PERSISTENT_RETURN)
-
- the_data.value.replace(size, size,p,1);  
- 
-
+  the_data.desc=src.desc;
+  long unsigned int size = (long unsigned int) data_sizeof(&(src.desc));
+  CORBA::Boolean orphan = 0;
+  CORBA::Char * p(NULL);
+  
+  p = static_cast <CORBA::Char *> (src.value.get_buffer(orphan));
+  
+  the_data.value.replace(size,size,p,1);
+  
+  src.value.replace(size,size,p,0);
+  
+  
 #endif // DEVELOPPING_DATA_PERSISTENCY
 }
 
