@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2003/11/10 14:04:59  bdelfabr
+ * add methods invoked by DM for data transfer management
+ *
  * Revision 1.6  2003/10/21 13:28:26  bdelfabr
  * set persistence flag to 0
  *
@@ -36,7 +39,7 @@
 #include "ts_container/ts_map.hh"
 
 
-#define DEVELOPPING_DATA_PERSISTENCY 0
+#define DEVELOPPING_DATA_PERSISTENCY 1
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
@@ -335,10 +338,16 @@ CORBA::ULong
 LocMgrImpl::dataLookUp(const char *argID)
 {
 #if DEVELOPPING_DATA_PERSISTENCY 
-  if(dataLocList.find(strdup(argID)) != dataLocList.end())
+  dataLocList.lock();
+  dataLocList.begin();
+  if(dataLocList.find(strdup(argID)) != dataLocList.end()){
+    dataLocList.unlock();
     return 0;
-  else 
+  }
+  else {
+    dataLocList.unlock();
     return 1;
+  }
 #else
   return 0;
 #endif // DEVELOPPING_DATA_PERSISTENCY
@@ -360,6 +369,7 @@ LocMgrImpl::printList1()
     cout << "+------------+----------------------------+" << endl;
     cout << "| Data Name  | Data Manager Owner         |" << endl;
     cout << "+------------+----------------------------+" << endl;
+    dataLocList.lock();
     DataLocList_t::iterator cur = dataLocList.begin();
     while (cur != dataLocList.end()) {
       if(cur->second < static_cast<CORBA::Long>(locMgrChildren.size())) {
@@ -368,21 +378,22 @@ LocMgrImpl::printList1()
 	  LocMgr_ptr locChild = theLoc.getIor();
 	  SonName = locChild->setMyName();
 	}
-   } else {
+      } else {
      	dataMgrChild theData =  dataMgrChildren[cur->second];
 	if (theData.defined()) {
 	  DataMgr_ptr dataChild = theData.getIor();
 	  SonName = dataChild->setMyName();
-	
+	  
 	}
-   }
-   cout << "|    " << cur->first << "     |   " << SonName  << endl;
-   cout << "+------------+" << endl; 
+      }
+      cout << "|    " << cur->first << "     |   " << SonName  << endl;
+      cout << "+------------+" << endl; 
       cur++;
     }
+    dataLocList.unlock();
     cout << "+------------+----------------------------+" << endl; 
   }
- 
+  
 }
 
 void
@@ -397,6 +408,76 @@ LocMgrImpl::printList()
 #endif // DEVELOPPING_DATA_PERSISTENCY
 }
 
+char *
+LocMgrImpl::whichSeDOwner(const char* argID){
+#if DEVELOPPING_DATA_PERSISTENCY
+  if (this->parent == LocMgr::_nil()) {
+    dataLocList.lock();
+    dataLocList.begin();
+    if (dataLocList.find(strdup(argID)) != dataLocList.end()) {     
+      ChildID cChildID=dataLocList[strdup(argID)];
+      dataLocList.unlock();
+      if(cChildID < static_cast<CORBA::Long>(locMgrChildren.size())) {
+	locMgrChild theLoc =  locMgrChildren[cChildID];
+	if (theLoc.defined()) {
+	  LocMgr_ptr locChild = theLoc.getIor();
+	  return locChild->whichSeDOwner(ms_strdup(argID)) ;
+	} else return NULL;
+      } else {
+	if(cChildID < static_cast<CORBA::Long>(dataMgrChildren.size())) {
+	  dataMgrChild theData = dataMgrChildren[cChildID];
+	  if (theData.defined()) {
+	  DataMgr_ptr dataChild = theData.getIor();
+	  return dataChild->whichSeDOwner(ms_strdup(argID)) ;
+	  } else return NULL;
+	} else {
+	  cerr << "OBJECT UNKNOWN " << endl;
+	  return NULL;
+	}
+      }
+    } else {
+      dataLocList.unlock();
+      cerr << "DATA NOT IN HIERARCHY " << endl;
+      return NULL;
+    }
+
+  } else { /** I am not root Loc Manager */ 
+    dataLocList.lock();
+    dataLocList.begin();
+    if (dataLocList.find(strdup(argID)) != dataLocList.end()) { /** Data Reference found */
+    
+      ChildID cChildID = dataLocList[strdup(argID)];
+       dataLocList.unlock();
+      if(cChildID < static_cast<CORBA::Long>(locMgrChildren.size())) {
+	locMgrChild theLoc =  locMgrChildren[cChildID];
+	if (theLoc.defined()){
+	  LocMgr_ptr locChild = theLoc.getIor();
+	  return locChild->whichSeDOwner(ms_strdup(argID)) ;
+	  
+	} else return NULL;
+      } else {
+
+	if(cChildID < static_cast<CORBA::Long>(dataMgrChildren.size())) {
+	  dataMgrChild theData = dataMgrChildren[cChildID];
+	  if (theData.defined()){
+	    DataMgr_ptr dataChild = theData.getIor();
+	    return dataChild->whichSeDOwner(ms_strdup(argID));
+	  } else return NULL;
+	} else {
+	  return NULL; 
+	}
+      }
+    } else {
+       dataLocList.unlock(); /** data Reference not found - invoke my parent */
+      return this->parent->whichSeDOwner(ms_strdup(argID));
+    }
+  }
+#else
+  return NULL;
+#endif // DEVELOPPING_DATA_PERSISTENCY
+
+ }
+
  
 /**
  * Return the Name of the Data Manager holding the searched data
@@ -406,8 +487,11 @@ LocMgrImpl::whereData(const char* argID)
 {
 #if DEVELOPPING_DATA_PERSISTENCY
   if (this->parent == LocMgr::_nil()) {
+    dataLocList.lock();
+    dataLocList.begin();
     if (dataLocList.find(strdup(argID)) != dataLocList.end()) {     
       ChildID cChildID=dataLocList[strdup(argID)];
+      dataLocList.unlock();
       if(cChildID < static_cast<CORBA::Long>(locMgrChildren.size())) {
 	locMgrChild theLoc =  locMgrChildren[cChildID];
 	if (theLoc.defined()) {
@@ -427,15 +511,18 @@ LocMgrImpl::whereData(const char* argID)
 	}
       }
     } else {
+      dataLocList.unlock();
       cerr << "DATA NOT IN HIERARCHY " << endl;
       return DataMgr::_nil();
     }
 
   } else { /** I am not root Loc Manager */ 
-
+    dataLocList.lock();
+    dataLocList.begin();
     if (dataLocList.find(strdup(argID)) != dataLocList.end()) { /** Data Reference found */
     
       ChildID cChildID = dataLocList[strdup(argID)];
+       dataLocList.unlock();
       if(cChildID < static_cast<CORBA::Long>(locMgrChildren.size())) {
 	locMgrChild theLoc =  locMgrChildren[cChildID];
 	if (theLoc.defined()){
@@ -455,7 +542,8 @@ LocMgrImpl::whereData(const char* argID)
 	  return DataMgr::_nil(); 
 	}
       }
-    } else { /** data Reference not found - invoke my parent */
+    } else {
+       dataLocList.unlock(); /** data Reference not found - invoke my parent */
       return this->parent->whereData(ms_strdup(argID));
     }
   }

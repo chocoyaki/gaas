@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2003/11/10 14:04:59  bdelfabr
+ * add methods invoked by DM for data transfer management
+ *
  * Revision 1.4  2003/10/14 20:27:16  bdelfabr
  * adding methods for demo RNTL (print List of persistent data)
  *
@@ -35,14 +38,14 @@
 #include "ts_container/ts_vector.hh"
 
 
-struct cmpID
+/*struct cmpID
 {
   bool operator()(const char* s1, const char* s2) const
   {
     return strcmp(s1, s2) < 0;
   }
 };
-
+*/
 
 class LocMgrImpl : public POA_LocMgr,
 		   public PortableServer::RefCountServantBase
@@ -95,7 +98,8 @@ public:
   dataLookUp(const char* argID);
   virtual char *
   setMyName();
-
+  char *
+  whichSeDOwner(const char* argID);
 
 private:
   
@@ -129,7 +133,7 @@ private:
   ts_vector<dataMgrChild> dataMgrChildren;
   
   // FIXME: what is cmpCorbaDataID ????
-  typedef map<const char*, ChildID,cmpID> DataLocList_t ;
+  typedef ts_map<const char*, ChildID> DataLocList_t ;
   DataLocList_t dataLocList;
 
 
