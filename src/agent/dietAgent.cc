@@ -10,6 +10,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2004/04/16 19:04:40  mcolin
+ * Fix patch for the vthd demo with the endPoint option in config files.
+ * This option is now replaced by two options:
+ *   endPointPort: precise the listening port of the agent/server
+ *   endPointHostname: precise the listening interface of the agent/server
+ *
  * Revision 1.13  2004/03/03 16:10:53  mcolin
  * correct a bug in the construction of the corba option for the endPoint :
  * %u replaced by %s
@@ -142,18 +148,24 @@ main(int argc, char** argv)
             << "an MA name for an agent - ignored");
 
 
-  /* Get listening port */
+  /* Get listening port & hostname */
 
-  /*  size_t* port = (size_t*) */
-  /* tempory patch for VTHD Demo */
-   char* port = (char*)
-    (Parsers::Results::getParamValue(Parsers::Results::ENDPOINT));
-  if (port != NULL) {
+  size_t* port = (size_t*) 
+    (Parsers::Results::getParamValue(Parsers::Results::ENDPOINTPORT));
+  char* host = (char*)
+    (Parsers::Results::getParamValue(Parsers::Results::ENDPOINTHOST));
+  if ((port != NULL)|| (host !=NULL)) {
     char *  endPoint = (char *) calloc(48, sizeof(char*)) ;
     int    tmp_argc = myargc + 2;
     myargv = (char**)realloc(myargv, tmp_argc * sizeof(char*));
     myargv[myargc] = "-ORBendPoint";
-    sprintf(endPoint, "giop:tcp:%s", port);
+    if (port == NULL) {
+	    sprintf(endPoint, "giop:tcp:%s:", host);
+    } else if (host == NULL)  {
+	    sprintf(endPoint, "giop:tcp::%u", *port);
+    } else {
+	    sprintf(endPoint, "giop:tcp:%s:%u", host,*port);
+    }	    
     myargv[myargc + 1] = (char*)endPoint;
     myargc = tmp_argc;
   }

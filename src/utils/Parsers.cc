@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2004/04/16 19:04:40  mcolin
+ * Fix patch for the vthd demo with the endPoint option in config files.
+ * This option is now replaced by two options:
+ *   endPointPort: precise the listening port of the agent/server
+ *   endPointHostname: precise the listening interface of the agent/server
+ *
  * Revision 1.16  2004/03/01 19:02:20  rbolze
  * change to enable new options relative to logservice in the config file for MA, LA and SeD
  *
@@ -56,22 +62,23 @@ Parsers::Results::param_t Parsers::Results::params[] =
    /* [2]  */ {"agentType", 9, Parsers::parseAgentType, 0, NULL},
    // {"endPoint", 8, Parsers::parsePort, 0, NULL},
    // TO FIX allow only 3 different syntaxes <host>:<port> <host>: <port>
-   /* [3]  */ {"endPoint", 8, Parsers::parseName, 0, NULL},
-   /* [4]  */ {"name", 4, Parsers::parseName, 0, NULL},
-   /* [5]  */ {"parentName", 10, Parsers::parseName, 0, NULL},
-   /* [6]  */ {"fastUse", 7, Parsers::parseUse, 0, NULL},
-   /* [7]  */ {"ldapUse", 7, Parsers::parseUse, 0, NULL},
-   /* [8]  */ {"ldapBase", 8, Parsers::parseAddress, 0, NULL},
-   /* [9]  */ {"ldapMask", 8, Parsers::parseName, 0, NULL},
-   /* [10] */ {"nwsUse", 6, Parsers::parseUse, 0, NULL},
-   /* [11] */ {"nwsNameserver", 13, Parsers::parseAddress, 0, NULL},
-   /* [12] */ {"nwsForecaster", 13, Parsers::parseAddress, 0, NULL},
-   /* [13] */ {"useAsyncAPI", 11, Parsers::parseUse, 0, NULL},
-   /* [14] */ {"useLogService", 13, Parsers::parseUse, 0, NULL},
-   /* [15] */ {"lsOutbuffersize", 15, Parsers::parsePort, 0, NULL},
-   /* [16] */ {"lsFlushinterval", 15, Parsers::parsePort, 0, NULL}};
+   /* [3]  */ {"endPointPort", 12, Parsers::parsePort, 0, NULL},
+   /* [4]  */ {"endPointHost", 12, Parsers::parseName, 0, NULL},
+   /* [5]  */ {"name", 4, Parsers::parseName, 0, NULL},
+   /* [6]  */ {"parentName", 10, Parsers::parseName, 0, NULL},
+   /* [7]  */ {"fastUse", 7, Parsers::parseUse, 0, NULL},
+   /* [8]  */ {"ldapUse", 7, Parsers::parseUse, 0, NULL},
+   /* [9]  */ {"ldapBase", 8, Parsers::parseAddress, 0, NULL},
+   /* [10]  */ {"ldapMask", 8, Parsers::parseName, 0, NULL},
+   /* [11] */ {"nwsUse", 6, Parsers::parseUse, 0, NULL},
+   /* [12] */ {"nwsNameserver", 13, Parsers::parseAddress, 0, NULL},
+   /* [13] */ {"nwsForecaster", 13, Parsers::parseAddress, 0, NULL},
+   /* [14] */ {"useAsyncAPI", 11, Parsers::parseUse, 0, NULL},
+   /* [15] */ {"useLogService", 13, Parsers::parseUse, 0, NULL},
+   /* [16] */ {"lsOutbuffersize", 15, Parsers::parsePort, 0, NULL},
+   /* [17] */ {"lsFlushinterval", 15, Parsers::parsePort, 0, NULL}};
 
-#define IS_ADDRESS(i) ((i == 8) || (i == 11) || (i == 12))
+#define IS_ADDRESS(i) ((i == Results::LDAPBASE) || (i == Results::NWSNAMESERVER) || (i == Results::NWSFORECASTER))
 
 
 ifstream Parsers::file;

@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2004/04/16 19:04:40  mcolin
+ * Fix patch for the vthd demo with the endPoint option in config files.
+ * This option is now replaced by two options:
+ *   endPointPort: precise the listening port of the agent/server
+ *   endPointHostname: precise the listening interface of the agent/server
+ *
  * Revision 1.6  2004/03/01 19:02:30  rbolze
  * change to enable new options relative to logservice in the config file for MA, LA and SeD
  *
@@ -58,7 +64,8 @@ public:
       TRACELEVEL = 0,
       MANAME,
       AGENTTYPE,
-      ENDPOINT,
+      ENDPOINTPORT,
+      ENDPOINTHOST,
       NAME,
       PARENTNAME,
       FASTUSE,

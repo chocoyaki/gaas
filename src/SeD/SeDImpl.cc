@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2004/04/16 19:04:40  mcolin
+ * Fix patch for the vthd demo with the endPoint option in config files.
+ * This option is now replaced by two options:
+ *   endPointPort: precise the listening port of the agent/server
+ *   endPointHostname: precise the listening interface of the agent/server
+ *
  * Revision 1.22  2004/03/25 14:30:42  bdelfabr
  * displayProfile removed in solveAsync
  *
@@ -169,7 +175,7 @@ SeDImpl::run(ServiceTable* services)
   //  delete profiles
 
   size_t* endPoint = (size_t*)
-    Parsers::Results::getParamValue(Parsers::Results::ENDPOINT);
+    Parsers::Results::getParamValue(Parsers::Results::ENDPOINTPORT);
   // FIXME: How can I get the port used by the ORB ? and is it useful ?
   if (endPoint == NULL)
     this->port = 0;
