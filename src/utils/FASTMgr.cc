@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2003/08/22 13:06:13  pcombes
+ * Fix a bug in the compilation without FAST.
+ *
  * Revision 1.2  2003/08/09 17:35:05  pcombes
  * Fix bug in cvt_arg_desc (break instruction in cases)
  *
@@ -23,6 +26,10 @@
 #include "FASTMgr.hh"
 
 #include "DIET_config.h"
+#include "debug.hh"
+#include "marshalling.hh"
+#include "Parsers.hh"
+#if HAVE_FAST
 #if defined(__FAST_0_8__)
 #include <fast.h>
 #elif defined(__FAST_0_4__)
@@ -30,10 +37,7 @@
 #else
 #error "This version of FAST is not supported !!!"
 #endif
-#include "debug.hh"
-#include "marshalling.hh"
-#include "Parsers.hh"
-
+#endif // HAVE_FAST
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
