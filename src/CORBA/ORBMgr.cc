@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2003/08/28 16:54:08  cpontvie
+ * Add functions deactivate, unbindAgent, get_orb, get_poa, get_poa_bidir, get_oid, set_oid
+ *
  * Revision 1.8  2003/08/01 19:26:35  pcombes
  * Some fixes in the #if conditions.
  *
@@ -45,6 +48,7 @@ extern unsigned int TRACE_LEVEL;
 CORBA::ORB_ptr ORBMgr::ORB = CORBA::ORB::_nil();
 PortableServer::POA_var ORBMgr::POA = PortableServer::POA::_nil();
 PortableServer::POA_var ORBMgr::POA_BIDIR = PortableServer::POA::_nil();
+PortableServer::ObjectId_var ORBMgr::object_ID = NULL;
 
 int
 ORBMgr::init(int argc, char** argv, bool init_POA)
@@ -65,7 +69,7 @@ ORBMgr::init(int argc, char** argv, bool init_POA)
 
   if (CORBA::is_nil(ORB))
     return 1;
-  
+
   if (init_POA) {
     CORBA::Object_var obj;
     PortableServer::POAManager_var pman;
@@ -76,7 +80,7 @@ ORBMgr::init(int argc, char** argv, bool init_POA)
     POA = PortableServer::POA::_narrow(obj);
     // Get the POAManager Ref and activate it
     pman = POA->the_POAManager();
-    
+
     // Create a POA with the Bidirectional policy
     pl.length(1);
     a <<= BiDirPolicy::BOTH;
@@ -100,17 +104,31 @@ ORBMgr::destroy()
 int
 ORBMgr::activate(PortableServer::ServantBase* obj)
 {
-  PortableServer::ObjectId_var objId;
   try {
     if (!CORBA::is_nil(ORBMgr::POA_BIDIR))
-      objId = ORBMgr::POA_BIDIR->activate_object(obj);
-    else 
-      objId = ORBMgr::POA->activate_object(obj);
+      ORBMgr::object_ID = ORBMgr::POA_BIDIR->activate_object(obj);
+    else
+      ORBMgr::object_ID = ORBMgr::POA->activate_object(obj);
   } catch (...) {
     INTERNAL_ERROR("exception caught in ORBMgr::" << __FUNCTION__, -1);
   }
   return 0;
 }
+
+int
+ORBMgr::deactivate()
+{
+  try {
+    if (!CORBA::is_nil(ORBMgr::POA_BIDIR))
+      ORBMgr::POA_BIDIR->deactivate_object(ORBMgr::object_ID);
+    else
+      ORBMgr::POA->deactivate_object(ORBMgr::object_ID);
+  } catch (...) {
+    INTERNAL_ERROR("exception caught in ORBMgr::" << __FUNCTION__, -1);
+  }
+  return 0;
+}
+
 
 void
 ORBMgr::wait()
@@ -161,7 +179,7 @@ ORBMgr::getAgentReference(const char* agentName)
   // by files (CosName.type -- e.g. test.ps = postscript etc.)
 
   try {
-    // Resolve the name to an object reference, and assign the reference 
+    // Resolve the name to an object reference, and assign the reference
     // returned to a CORBA::Object:
     obj = rootContext->resolve(CosName);
   } catch (CosNaming::NamingContext::NotFound& ex) {
@@ -180,13 +198,13 @@ ORBMgr::getAgentReference(const char* agentName)
   return obj;
 }
 
-  
+
 int
 ORBMgr::bindAgentToName(CORBA::Object_ptr obj, const char* agentName)
 {
   CosNaming::NamingContext_var rootContext, agtContext;
   CosNaming::Name cosName;
-  
+
   try {
     // Obtain a reference to the root context of the Name service:
     CORBA::Object_var initServ;
@@ -209,15 +227,15 @@ ORBMgr::bindAgentToName(CORBA::Object_ptr obj, const char* agentName)
   }
 
   cosName.length(1);
-  
+
   /* Bind a context called "dietAgent" to the root context */
-  
+
   cosName[0].id = (const char*) "dietAgent"; // string copied
-  cosName[0].kind = (const char*) "";        // string copied    
+  cosName[0].kind = (const char*) "";        // string copied
   // Note on kind: The kind field is used to indicate the type
   // of the object. This is to avoid conventions such as that used
   // by files (name.type -- e.g. test.ps = postscript etc.)
-  
+
   try {
     try {
       // Bind the context to root, and assign testContext to it:
@@ -232,10 +250,10 @@ ORBMgr::bindAgentToName(CORBA::Object_ptr obj, const char* agentName)
       if (CORBA::is_nil(agtContext)) {
         INTERNAL_ERROR("failed to narrow the agent naming context", 1);
       }
-    } 
+    }
 
     /* Bind obj to the agent context */
-    
+
     cosName[0].id = (const char*) agentName; // string copied
     cosName[0].kind = (const char*) "";      // string copied
 
@@ -246,7 +264,7 @@ ORBMgr::bindAgentToName(CORBA::Object_ptr obj, const char* agentName)
       agtContext->rebind(cosName,obj);
     }
 
-    // Note: Using rebind() will overwrite any Object previously bound 
+    // Note: Using rebind() will overwrite any Object previously bound
     //       to /dietAgent/agentName with obj.
     //       Alternatively, bind() can be used, which will raise a
     //       CosNaming::NamingContext::AlreadyBound exception if the name
@@ -268,13 +286,82 @@ ORBMgr::bindAgentToName(CORBA::Object_ptr obj, const char* agentName)
   return 0;
 }
 
+int
+ORBMgr::unbindAgent(const char* agentName)
+{
+  CosNaming::NamingContext_var rootContext, agtContext;
+  CosNaming::Name cosName;
+
+  try {
+    // Obtain a reference to the root context of the Name service:
+    CORBA::Object_var initServ;
+    initServ = ORB->resolve_initial_references("NameService");
+
+    // Narrow the object returned by resolve_initial_references()
+    // to a CosNaming::NamingContext object:
+    rootContext = CosNaming::NamingContext::_narrow(initServ);
+    if (CORBA::is_nil(rootContext)) {
+      INTERNAL_ERROR("failed to narrow the root naming context.\n", 1);
+    }
+  } catch (CORBA::ORB::InvalidName& ex) {
+    INTERNAL_ERROR("service required is invalid [does not exist]", 1);
+  } catch (CORBA::Exception& e) {
+    CORBA::Any tmp;
+    tmp <<= e;
+    CORBA::TypeCode_var tc = tmp.type();
+    ERROR("exception caught (" << tc->name() << ") while attempting to "
+	  << "unregister as " << agentName << " to the CORBA name server",1);
+  }
+
+  cosName.length(1);
+
+  /* Resolve a context called "dietAgent" from the root context */
+
+  cosName[0].id = (const char*) "dietAgent"; // string copied
+  cosName[0].kind = (const char*) "";        // string copied
+  // Note on kind: The kind field is used to indicate the type
+  // of the object. This is to avoid conventions such as that used
+  // by files (name.type -- e.g. test.ps = postscript etc.)
+
+  try {
+    try {
+      // Resolve the name and assign testContext to the object returned:
+      CORBA::Object_var tmpobj;
+      tmpobj = rootContext->resolve(cosName);
+      agtContext = CosNaming::NamingContext::_narrow(tmpobj);
+      if (CORBA::is_nil(agtContext)) {
+        INTERNAL_ERROR("failed to narrow the agent naming context", 1);
+      }
+    } catch(CosNaming::NamingContext::NotFound& ex) {
+      ERROR("root context for dietAgent not found", 1);
+    } catch (...) {
+      INTERNAL_ERROR("system exception caught while using the naming service", 1);
+    }
+
+    /* Unbind obj to the agent context */
+    cosName[0].id = (const char*) agentName; // string copied
+    cosName[0].kind = (const char*) "";      // string copied
+
+    // Unbind obj with name agentName to the agtContext:
+    agtContext->unbind(cosName);
+  } catch (CORBA::COMM_FAILURE& ex) {
+    ERROR("system exception caught (COMM_FAILURE), unable to connect to "
+	  << "the CORBA name server", 1);
+  } catch (omniORB::fatalException& ex) {
+    throw;
+  } catch (...) {
+    INTERNAL_ERROR("system exception caught while using the naming service", 1);
+  }
+  return 0;
+}
+
 char *
 ORBMgr::getIORString(CORBA::Object_ptr obj)
 {
   try {
     return ORB->object_to_string(obj);
   } catch (...) {}
-  return NULL;  
+  return NULL;
 }
 
 
@@ -286,4 +373,35 @@ ORBMgr::stringToObject(const char* IOR)
   } catch (...) {
   }
   return CORBA::Object::_nil();
+}
+
+CORBA::ORB_ptr
+ORBMgr::get_orb()
+{
+	return ORB;
+}
+
+PortableServer::POA_var
+ORBMgr::get_poa()
+{
+	return POA;
+}
+
+
+PortableServer::POA_var
+ORBMgr::get_poa_bidir()
+{
+	return POA_BIDIR;
+}
+
+PortableServer::ObjectId_var
+ORBMgr::get_oid()
+{
+	return ORBMgr::object_ID;
+}
+
+void
+ORBMgr::set_oid(PortableServer::ObjectId_var oid)
+{
+	ORBMgr::object_ID = oid;
 }
