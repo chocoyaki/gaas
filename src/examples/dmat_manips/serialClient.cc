@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2003/09/27 07:51:25  pcombes
+ * Remove displayArg and displayProfile that make conflicts at static linking.
+ *
  * Revision 1.4  2003/09/25 09:52:29  cpera
  * Fix bugs linked to GridRPC changes and modify log messages.
  *
@@ -22,7 +25,6 @@
  *
  * Revision 1.1  2003/06/16 17:12:49  pcombes
  * Move the examples using the asynchronous API into this directory.
- *
  ****************************************************************************/
 
 #include <string.h>
@@ -59,62 +61,14 @@ static omni_mutex IOWriterLock;
     IOWriterLock.unlock(); \
 }
 
-  void
-displayArg(FILE* f, const diet_data_desc_t* arg)
-{
-  switch((int) arg->generic.type) {
-    case DIET_SCALAR: fprintf(f, "scalar");                break;
-    case DIET_VECTOR: fprintf(f, "vector (%ld)",
-                          (long)arg->specific.vect.size);    break;
-    case DIET_MATRIX: fprintf(f, "matrix (%ldx%ld)",
-                          (long)arg->specific.mat.nb_r,
-                          (long)arg->specific.mat.nb_c);   break;
-    case DIET_STRING: fprintf(f, "string (%ld)",
-                          (long)arg->specific.str.length); break;
-    case DIET_FILE:   fprintf(f, "file (%ld)",
-                          (long)arg->specific.file.size);  break;
-  }
-  if ((arg->generic.type != DIET_STRING)
-      && (arg->generic.type != DIET_FILE)) {
-    fprintf(f, " of ");
-    switch ((int) arg->generic.base_type) {
-      case DIET_CHAR:     fprintf(f, "char");           break;
-      case DIET_BYTE:     fprintf(f, "byte");           break;
-      case DIET_INT:      fprintf(f, "int");            break;
-      case DIET_LONGINT:  fprintf(f, "long int");       break;
-      case DIET_FLOAT:    fprintf(f, "float");          break;
-      case DIET_DOUBLE:   fprintf(f, "double");         break;
-      case DIET_SCOMPLEX: fprintf(f, "float complex");  break;
-      case DIET_DCOMPLEX: fprintf(f, "double complex"); break;
-    }
-  }
-  fprintf(f, "id=|%s|", arg->id);
-}
-
 #define NB_PB 5
 static const char* PB[NB_PB] =
-{"T", "MatPROD", "MatSUM", "SqMatSUM", "SqMatSUM_opt"};
+  {"T", "MatPROD", "MatSUM", "SqMatSUM", "SqMatSUM_opt"};
 
-
-  void
-displayProfile(const diet_profile_t* profile, const char* path)
-{
-  int i = 0;
-  FILE* f = stdout;
-  fprintf(f, " - Service %s", path);
-  for (i = 0; i <= profile->last_out; i++) {
-    fprintf(f, "\n     %s ",
-        (i <= profile->last_in) ? "IN   "
-        : (i <= profile->last_inout) ? "INOUT"
-        : "OUT  ");
-    displayArg(f, &(profile->parameters[i].desc));
-  }
-  fprintf(f, "\n");
-}
 
 /* argv[1]: client config file path
    argv[2]: one of the strings above */
-  void
+void
 usage(char* cmd)
 {
   fprintf(stderr, "Usage: %s [--repeat <n>] <file.cfg> [%s|%s|%s|%s|%s]\n",
@@ -124,7 +78,7 @@ usage(char* cmd)
   exit(1);
 }
 
-  int
+int
 main(int argc, char* argv[])
 {
   size_t i, m, n;
@@ -224,7 +178,6 @@ main(int argc, char* argv[])
       fprintf(stderr, "Unknown problem: %s !\n", path);
       return 1;
     }
-    /*displayProfile(profile, path);*/
     diet_reqID_t rst;
     int rst_call = 0;
     if ((rst_call = diet_call_async(profile, &rst)) != 0) printf("Error in diet_call_async -%d-\n", rst_call);;
