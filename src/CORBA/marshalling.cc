@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.7  2002/09/09 15:57:48  pcombes
+ * Fix bugs in marshalling
+ *
  * Revision 1.6  2002/09/02 17:09:51  pcombes
  * Add free on OUT arguments.
  *
@@ -143,8 +146,7 @@ int mrsh_data(corba_data_t *dest, diet_data_t *src, int only_desc, int release)
   if (only_desc) {
     dest->value.length(0);
   } else {
-    SeqChar value(size, size, (CORBA::Char *)src->value, release);
-    dest->value = value;
+    dest->value.replace(size, size, (CORBA::Char *)src->value, release);
   }
   return 0;
 }
@@ -510,7 +512,8 @@ int mrsh_profile_to_in_args(SeqCorbaData_t *in,
 }
 
 // INOUT parameters should have been set correctly by the ORB.
-// FIXME: inout argument is useless (or only for checking purpose)
+// But their descriptions could have been slightly altered
+//  (matrix dimensions, for instance)
 int unmrsh_out_args_to_profile(diet_profile_t *profile,
 			       SeqCorbaData_t *inout, SeqCorbaData_t *out)
 {
@@ -521,7 +524,12 @@ int unmrsh_out_args_to_profile(diet_profile_t *profile,
   
   if ((inout_length != inout->length()) || (out_length != out->length()))
     return 1;
-  // Thus unmarshal only OUT parameters, but not the descriptions to save time.
+  // Unmarshal INOUT parameters descriptions only.
+  for (size_t i = 0; i < inout->length(); i++) {
+    unmrsh_data_desc(&(profile->parameters[i + profile->last_in + 1].desc),
+		     &((*inout)[i].desc));
+  }
+  // Unmarshal OUT parameters, but not the descriptions to save time.
   for (size_t i = 0; i < out->length(); i++) {
     // instead of using unmrsh_data, save time by 
     src  = &((*out)[i]);
@@ -536,385 +544,3 @@ int unmrsh_out_args_to_profile(diet_profile_t *profile,
   return 0;
 }
 
-
-#if 0
-
-void
-sf2corbaPbDesc(corba_pb_desc_t *dest, const sf_pb_desc_t *src)
-{
-  dest->path       = CORBA::string_dup(src->path);
-  dest->last_in    = src->last_in;
-  dest->last_inout = src->last_inout;
-  dest->last_out   = src->last_out;
-  dest->param_desc.length(dest->last_out + 1);
-  for (int i = 0; i <= src->last_out; i++) {
-    sf2corbaDataDesc(&(dest->param_desc[i]), &(src->param_desc[i]));
-  }
-  dest->code_desc <<= (long) src->code_desc;
-}
-
-void
-corba2sfPbDesc(sf_pb_desc_t *dest, const corba_pb_desc_t *src)
-{
-#ifndef withoutfast
-  sf_pb_desc_set(dest, CORBA::string_dup(src->path),
-		 src->last_in, src->last_inout, src->last_out);
-#else  // withoutfast
-  dest->path       = CORBA::string_dup(src->path);
-  dest->last_in    = src->last_in;
-  dest->last_inout = src->last_inout;
-  dest->last_out   = src->last_out;
-  dest->param_desc = new (sf_data_desc_t)[dest->last_out + 1];
-#endif // withoutfast
-
-  for (int i = 0; i <= dest->last_out; i++) {
-    corba2sfDataDesc(&(dest->param_desc[i]), &(src->param_desc[i]));
-  }
-  // FIXME: This line triggers compilation error - do not care until SLIM is not ready
-  //src->code_desc >>= dest->code_desc;
-}
-
-void
-sf2corbaInstDesc(corba_inst_desc_t *dest, const sf_inst_desc_t *src)
-{
-  dest->path       = CORBA::string_dup(src->path);
-  dest->last_in    = src->last_in;
-  dest->last_inout = src->last_inout;
-  dest->last_out   = src->last_out;
-  dest->param_desc.length(dest->last_out);
-  for (int i = 0; i <= src->last_out; i++) {
-    sf2corbaDataDesc(&(dest->param_desc[i]), &(src->param_desc[i]));
-  }
-}
-
-void
-corba2sfInstDesc(sf_inst_desc_t *dest, const corba_inst_desc_t *src)
-{
-#ifndef withoutfast
-  sf_inst_desc_set(dest, CORBA::string_dup(src->path),
-		   src->last_in, src->last_inout, src->last_out);
-#else  // withoutfast
-  dest->path       = CORBA::string_dup(src->path);
-  dest->last_in    = src->last_in;
-  dest->last_inout = src->last_inout;
-  dest->last_out   = src->last_out;
-  dest->param_desc = new (sf_data_desc_t)[dest->last_out + 1];
-#endif // withoutfast
-
-  for (int i = 0; i <= dest->last_out; i++) {
-    corba2sfDataDesc(&(dest->param_desc[i]), &(src->param_desc[i]));
-  }
-  
-}
-
-#ifdef OLD_VERSION
-
-void sf2corbaPbDesc(corba_pb_desc_t *dest,const sf_pb_desc_t *src)
-{
-  corba_dd_scal_t tmpScal;
-  
-  dest->path=CORBA::string_dup(src->path);
-  
-  dest->nb_in=src->nb_in;
-  
-  dest->datas.length(dest->nb_in+1);
-  
-  for (int i=0;i<dest->nb_in+1;i++)
-    {
-      switch (src->datas[i]->type)
-	{
-	case sf_type_cons_scal:
-	  tmpScal.type=((sf_dd_scal_t *)(src->datas[i]))->type;
-	  tmpScal.base_type=((sf_dd_scal_t *)(src->datas[i]))->base_type;
-	  tmpScal.role=((sf_dd_scal_t *)(src->datas[i]))->role;
-	  
-	  switch (((sf_dd_scal_t *)(src->datas[i]))->base_type)
-	    {
-	    sf_type_base_int:
-	      tmpScal.value<<=((int *)(((sf_dd_scal_t *)(src->datas[i]))->value));
-	      break;
-	    sf_type_base_double:
-	      tmpScal.value<<=((double *)(((sf_dd_scal_t *)(src->datas[i]))->value));
-	      break;
-	    sf_type_base_char:
-	      tmpScal.value<<=((char *)(((sf_dd_scal_t *)(src->datas[i]))->value));
-	      break;
-	    default:
-	      cerr << "Data metatype conversion fatal error, exiting..." << endl;
-	      exit(1);
-	    }
-	  
-	  dest->datas[i]<<=((corba_dd_scal_t *)(&tmpScal));
-	  break;
-	case sf_type_cons_vect:
-	  dest->datas[i]<<=(*((corba_dd_vect_t *)(src->datas[i])));
-	  break;
-	case sf_type_cons_mat:
-	  dest->datas[i]<<=(*((corba_dd_mat_t *)(src->datas[i])));
-	  break;
-	default:
-	  cerr << "Data metatype conversion fatal error, exiting..." << endl;
-	  exit(1);
-	}
-    }
-}
-
-void corba2sfPbDesc(sf_pb_desc_t *dest,const corba_pb_desc_t *src)
-{
-  dest->path=CORBA::string_dup(src->path);
-  
-  dest->nb_in=src->nb_in;
-
-  dest->datas=new (sf_data_desc_t *)[dest->nb_in+1];
-
-  /* For each parametter */
-  
-  for (int i=0;i<dest->nb_in+1;i++)
-    {
-      corba_dd_scal_t *scalref;
-      corba_dd_vect_t *vectref,*vect;
-      corba_dd_mat_t *matref,*mat;
-      
-      sf_dd_scal_t *scal;
-
-      if (src->datas[i]>>=scalref)
-	{
-	  scal=new sf_dd_scal_t;
-	  scal->type=(sf_type_cons_t)scalref->type;
-	  scal->base_type=(sf_type_base_t)scalref->base_type;
-	  scal->role=scalref->role;
-	  
-	  switch (scal->base_type)
-	    {
-	    case sf_type_base_int:
-	      scal->value=(void *)new int;
-	      scalref->value>>=*((long*)(scal->value));
-	      break;
-	    case sf_type_base_double:
-	      scal->value=(void *)new double;
-	      scalref->value>>=*((double*)(scal->value));
-	      break;
-	    case sf_type_base_char:
-	      scal->value=(void *)new char;
-	      scalref->value>>=*((short*)(scal->value));
-	      break;
-	    default:
-	      cerr << "Data metatype conversion fatal error, exiting..." << endl;
-	      exit(1);
-	    }
-	  dest->datas[i]=(sf_data_desc_t *)scal;
-	}
-      else 
-	if (src->datas[i]>>=vectref)
-	  {
-	    vect=new corba_dd_vect_t;
-	    *vect=*vectref;
-	    dest->datas[i]=(sf_data_desc_t *)vect;
-	  }
-	else
-	  if (src->datas[i]>>=matref)
-	    {
-	      mat=new corba_dd_mat_t;
-	      *mat=*matref;
-	      dest->datas[i]=(sf_data_desc_t *)mat;
-	    }
-	  else
-	    {
-	      cerr << "Warning, unknown type in Corba unmarshalling!" << endl;
-	    }
-    } 
-}
-
-
-
-void diet2corbaRequest(corba_request_t *dest,const diet_request_t *src)
-{
-  dest->reqId=src->reqId;
-  sf2corbaPbDesc(&(dest->pb),&(src->pb));  
-}
-
-#endif // OLD_VERSION
-
-
-void corba2dietRequest(diet_request_t *dest, corba_request_t *src)
-{
-  dest->reqId = src->reqId;
-  unmrsh_profile_to_sf(&(dest->pb_profile),&(src->pb_profile));
-}
-
-void diet2corbaResponse(corba_response_t *dest,const diet_response_t *src)
-{
-  int i;
-
-  dest->reqId=src->reqId;
-  dest->myId=src->myId;
-  dest->nbIn=src->nbIn;
-  dest->nbServers=src->nbServers;
-
-  dest->data.length(dest->nbIn);
-  
-  for (i=0;i<dest->nbIn;i++)
-    {
-      dest->data[i].localization=SeD::_duplicate(src->data[i].localization);
-
-      if (CORBA::is_nil(dest->data[i].localization))
-      {
-	dest->data[i].hostname=CORBA::string_dup("");
-      }
-      else
-      {
-	dest->data[i].hostname=CORBA::string_dup(src->data[i].hostname);
-	dest->data[i].port=src->data[i].port;
-	dest->data[i].timeToMe=src->data[i].timeToMe;
-      }
-    }
-
-  if (dest->nbServers>0)
-    {
-      dest->comp.length(dest->nbServers);
-      
-      for (i=0;i<dest->nbServers;i++)
-				{
-					dest->comp[i].myRef=SeD::_duplicate(src->comp[i].myRef);
-
-					dest->comp[i].hostname=CORBA::string_dup(src->comp[i].hostname);
-
-					dest->comp[i].port=src->comp[i].port;
-
-					dest->comp[i].implName=CORBA::string_dup(src->comp[i].implName);
-
-					dest->comp[i].tComp=src->comp[i].tComp;
-	  
-					dest->comp[i].tComm.length(dest->nbIn);
-	  
-					for (int j=0;j<dest->nbIn;j++)
-						{
-							dest->comp[i].tComm[j]=src->comp[i].tComm[j];
-						}
-				}
-    }
-  else
-    {
-      dest->comp.length(0);
-    }
-}
-
-void corba2dietResponse(diet_response_t *dest,const corba_response_t *src)
-{
-  int i;
-
-  dest->reqId=src->reqId;
-  dest->myId=src->myId;
-  dest->nbIn=src->nbIn;
-  dest->nbServers=src->nbServers;
-  
-  dest->data=new diet_data_loc_t[dest->nbIn];
-
-  for (i=0;i<dest->nbIn;i++)
-    {
-      dest->data[i].localization=SeD::_duplicate(src->data[i].localization);
-
-      if (CORBA::is_nil(dest->data[i].localization))
-      {
-	dest->data[i].hostname=CORBA::string_dup("");
-      }
-      else
-      {
-	dest->data[i].hostname=CORBA::string_dup(src->data[i].hostname);
-	dest->data[i].port=src->data[i].port;
-	dest->data[i].timeToMe=src->data[i].timeToMe;
-      }
-    }
-  
-  if (dest->nbServers>0)
-    {
-      dest->comp=new diet_server_comp_t [dest->nbServers];
-
-      for (i=0;i<dest->nbServers;i++)
-				{	 
-					dest->comp[i].myRef=SeD::_duplicate(src->comp[i].myRef);
-
-					dest->comp[i].hostname=CORBA::string_dup(src->comp[i].hostname);
-	  
-					dest->comp[i].port=src->comp[i].port;
-	  
-					dest->comp[i].implName=CORBA::string_dup(src->comp[i].implName);
-
-					dest->comp[i].tComp=src->comp[i].tComp;
-	  
-					dest->comp[i].tComm=new double[dest->nbIn];
-	  
-					for (int j=0;j<dest->nbIn;j++)
-						{
-							dest->comp[i].tComm[j]=src->comp[i].tComm[j];
-						}
-				}
-    }
-  else 
-    {
-      dest->comp=NULL;
-    }
-}
-
-void diet2corbaDecisionDesc(corba_decision_desc_t *dest,const diet_decision_desc_t *src)
-{
-  dest->chosenServer=SeD::_duplicate(src->chosenServer);
-  dest->chosenServerName=CORBA::string_dup(src->chosenServerName);
-  dest->chosenServerPort=src->chosenServerPort;
-
-  dest->nbIn=src->nbIn;
-  dest->dataLocs.length(dest->nbIn);
-  for (int i=0;i<dest->nbIn;i++)
-    {
-      dest->dataLocs[i].localization=SeD::_duplicate(src->dataLocs[i].localization);
-      dest->dataLocs[i].hostname=CORBA::string_dup(src->dataLocs[i].hostname);
-      dest->dataLocs[i].port=src->dataLocs[i].port;
-    }
-  
-  dest->implPath=CORBA::string_dup(src->implPath);
-}
-
-void corba2dietDecisionDesc(diet_decision_desc_t *dest,const corba_decision_desc_t *src)
-{
-  dest->chosenServer=SeD::_duplicate(src->chosenServer);
-  dest->chosenServerName=CORBA::string_dup(src->chosenServerName);
-  dest->chosenServerPort=src->chosenServerPort;
-
-  dest->nbIn=src->nbIn;
-  dest->dataLocs=new diet_data_loc_t[dest->nbIn];
-  for (int i=0;i<dest->nbIn;i++)
-    {
-      dest->dataLocs[i].localization=SeD::_duplicate(src->dataLocs[i].localization);
-      dest->dataLocs[i].hostname=CORBA::string_dup(src->dataLocs[i].hostname);
-      dest->dataLocs[i].port=src->dataLocs[i].port;
-    }
-  
-  dest->implPath=CORBA::string_dup(src->implPath);
-}
-
-void diet2corbaDecisionSequence(corba_decision_sequence_t *dest,const diet_decision_sequence_t *src)
-{
-  dest->nbElts=src->nbElts;
-
-  dest->decisions.length(dest->nbElts);
-  for (int i=0;i<dest->nbElts;i++)
-    {
-      diet2corbaDecisionDesc(&(dest->decisions[i]),&(src->decisions[i]));
-    }
-}
-
-
-
-void corba2dietDecisionSequence(diet_decision_sequence_t *dest,const corba_decision_sequence_t *src)
-{
-  dest->nbElts=src->nbElts;
-  
-  dest->decisions=new diet_decision_desc_t[dest->nbElts];
-  for (int i=0;i<dest->nbElts;i++)
-    {
-      corba2dietDecisionDesc(&(dest->decisions[i]),&(src->decisions[i]));
-    }
-}
-
-
-#endif // 0

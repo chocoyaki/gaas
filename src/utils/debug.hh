@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.6  2002/09/09 15:58:03  pcombes
+ * Fix bugs in marshalling
+ *
  * Revision 1.5  2002/08/30 16:50:16  pcombes
  * This version works as well as the alpha version from the user point of view,
  * but the API is now the one imposed by the latest specifications (GridRPC API
@@ -54,6 +57,19 @@
   tv.tv_usec = us;                     \
   select(0, NULL, NULL, NULL, &tv); \
 }
+
+#define print_matrix(mat, m, n)            \
+  {                                        \
+    size_t i, j;                           \
+    printf("%s = \n", #mat);               \
+    for (i = 0; i < (m); i++) {            \
+      for (j = 0; j < (n); j++) {          \
+	printf("%3f ", (mat)[i*(n) + j]);  \
+      }                                    \
+      printf("\n");                        \
+    }                                      \
+    printf("\n");                          \
+  }
 
 /*--------------------------------------------------------------------------*/
 /* All the functions used to display Diet structures (for logging purposes) */
