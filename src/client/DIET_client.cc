@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.33  2003/07/09 17:08:44  pcombes
+ * Better management of the variable MA (with mutex) and the handles.
+ *
  * Revision 1.32  2003/07/04 09:48:02  pcombes
  * Make diet_initialize thread-safe. Use new ERROR and WARNING macros.
  *
@@ -63,8 +66,8 @@ extern "C" {
 extern unsigned int TRACE_LEVEL;
 
 /** The Master Agent reference */
-static MasterAgent_var MA = NULL;
-//static omni_mutex      MA_MUTEX;
+static MasterAgent_var MA = MasterAgent::_nil();
+static omni_mutex      MA_MUTEX;
 
 /** Error rate for contract checking */
 #define ERROR_RATE 0.1
@@ -95,8 +98,11 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   char** myargv;
   void*  value(NULL);
   
+  MA_MUTEX.lock();
+  
   if (!CORBA::is_nil(MA)) {
-    WARNING("diet_initialize already called");
+    WARNING(__FUNCTION__ << ": diet_finalize has not been called");
+    MA_MUTEX.unlock();
     return 0;
   }
   
@@ -109,11 +115,14 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   /* Parsing */
   Parsers::Results::param_type_t compParam[] = {Parsers::Results::MANAME};
   
-  if ((res = Parsers::beginParsing(config_file_name)))
+  if ((res = Parsers::beginParsing(config_file_name))) {
+    MA_MUTEX.unlock();
     return res;
+  }
   if ((res = Parsers::parseCfgFile(false, 1,
 				   (Parsers::Results::param_type_t*)compParam))) {
     Parsers::endParsing();
+    MA_MUTEX.unlock();
     return res;
   }
 
@@ -184,7 +193,9 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   stat_init();
 
   /* We do not need the parsing results any more */
-  Parsers::endParsing();  
+  Parsers::endParsing();
+
+  MA_MUTEX.unlock();
   return 0;
 }
 
@@ -204,6 +215,9 @@ diet_finalize()
     caMgr->release();
   }
   ORBMgr::destroy();
+  MA_MUTEX.lock();
+  MA = MasterAgent::_nil();
+  MA_MUTEX.unlock();
   return 0;
 }
 
@@ -239,7 +253,7 @@ struct diet_argStack_elt_s {
   diet_arg_t*     arg;
 };
 struct diet_argStack_s {
-  size_t               maxsize, size;
+  size_t               maxsize;
   int                  first;
   diet_argStack_elt_t* stack;
 };
@@ -270,7 +284,6 @@ newArgStack(size_t maxsize)
 {
   diet_argStack_t* res = new diet_argStack_t;
   res->maxsize = maxsize;
-  res->size = 0;
   res->first = -1;
   res->stack = new diet_argStack_elt_t[maxsize];
   return res;
@@ -279,7 +292,7 @@ newArgStack(size_t maxsize)
 int
 pushArg(diet_argStack_t* stack, diet_argStack_elt_t* arg)
 {
-  if (stack->size == stack->maxsize)
+  if (stack->first == (int)(stack->maxsize) - 1)
     return 1;
   stack->first++;
   stack->stack[stack->first] = *arg;
@@ -292,12 +305,11 @@ diet_argStack_elt_t*
 popArg(diet_argStack_t* stack)
 {
   diet_argStack_elt_t* arg(NULL);
-  if (stack->size == 0)
+  if (stack->first == -1)
     return NULL;
   arg = new(diet_argStack_elt_t);
   *arg = stack->stack[stack->first];
   stack->first--;
-  stack->size--;
   return arg;
 }
 
@@ -318,7 +330,7 @@ struct diet_function_handle_s {
   char* pb_name;
   SeD_var server;
 };
-#define DIET_DEFAULT_SERVER NULL
+#define DIET_DEFAULT_SERVER SeD::_nil()
 
 
 /* Allocate a function handle and set its server to DIET_DEFAULT_SERVER */
@@ -460,8 +472,10 @@ diet_call(diet_function_handle_t* handle, diet_profile_t* profile)
   }
   if (server_OK == -1) {
     delete response;
-    ERROR("unable to find a server after " << nb_tries << " tries", 1);
+    ERROR("unable to find a server after " << nb_tries << " tries."
+	  << "The platform might be overloaded, try again later please", 1);
   }
+  handle->server = response->servers[server_OK].loc.ior;
 
 #if HAVE_CICHLID
   static int already_initialized(0);
@@ -483,10 +497,7 @@ diet_call(diet_function_handle_t* handle, diet_profile_t* profile)
   }
 
   stat_in("diet_call.solve");
-
-  solve_res =
-    response->servers[server_OK].loc.ior->solve(handle->pb_name, corba_profile);
-
+  solve_res = handle->server->solve(handle->pb_name, corba_profile);
   stat_out("diet_call.solve");
 
   if (unmrsh_out_args_to_profile(profile, &corba_profile)) {
@@ -504,7 +515,6 @@ diet_call(diet_function_handle_t* handle, diet_profile_t* profile)
 diet_reqID_t
 diet_call_async(diet_function_handle_t* handle, diet_profile_t* profile)
 {
-  DIET_DEBUG();
   corba_pb_desc_t corba_pb;
   corba_profile_t     corba_profile;
   corba_response_t* response(NULL);
@@ -513,62 +523,49 @@ diet_call_async(diet_function_handle_t* handle, diet_profile_t* profile)
   try {
     /* Request submission : try nb_tries times */
     displayProfile(profile, handle->pb_name);
-    DIET_DEBUG();
     if (mrsh_pb_desc(&corba_pb, profile, handle->pb_name))
       return -1;
     subm_count = 0;
 
-    stat_in("diet_call.submission.start");
-    DIET_DEBUG();
+    stat_in("diet_call_async.submission");
     do {
       server_OK = submission(&corba_pb, response);
     }  while ((response->servers.length() > 0)
 	      && (server_OK == -1) && (++subm_count < nb_tries));
-    stat_out("diet_call.submission.end");
-    DIET_DEBUG();
+    stat_out("diet_call_async.submission");
 
     if (!response || response->servers.length() == 0) {
       ERROR("unable to find a server", -1);
     }
-    DIET_DEBUG();
     if (server_OK == -1) {
       ERROR("unable to find a server after " << nb_tries << " tries", -1);
     }
+    handle->server = response->servers[server_OK].loc.ior;
+
 #if HAVE_CICHLID
     static int already_initialized(0);
     char str_tmp[1000];
 
-    DIET_DEBUG();
     if (!already_initialized) {
       init_communications();
       already_initialized = 1;
     }
-    DIET_DEBUG();
 
     strcpy(str_tmp, response->servers[server_OK].loc.hostName);
-    DIET_DEBUG();
     strcat(str_tmp, "_SeD");
-    DIET_DEBUG();
     add_communication("client", str_tmp, profile_size(&corba_pb));
-    DIET_DEBUG(TEXT_OUTPUT(("END")));
 #endif // HAVE_CICHLID
     
     if (mrsh_profile_to_in_args(&corba_profile, profile)) return -1;
-    stat_in("diet_call.solve.start");
-    DIET_DEBUG();
+    stat_in("diet_call_async.solve");
 
     // get sole CallAsyncMgr singleton
     CallAsyncMgr * caMgr = CallAsyncMgr::Instance();
-    DIET_DEBUG();
-    // create corba client callback serveur...
+    // create corba client callback server...
     if (caMgr->addAsyncCall(response->reqID, profile) != 0) return -1;
-    DIET_DEBUG();
 
-    response->servers[server_OK].loc.ior->solveAsync(handle->pb_name,
-						     corba_profile, 
-						     response->reqID, 
-						     REF_CALLBACK_SERVER);
-    DIET_DEBUG();
+    handle->server->solveAsync(handle->pb_name, corba_profile, 
+			       response->reqID, REF_CALLBACK_SERVER);
   } catch (const CORBA::Exception &e) {
     // Process any other User exceptions. Use the .id() method to
     // record or display useful information
@@ -586,13 +583,9 @@ diet_call_async(diet_function_handle_t* handle, diet_profile_t* profile)
     WARNING("exception caught in " << __FUNCTION__);
     reqID = -1;  
   }
-  DIET_DEBUG();
-  stat_out("diet_call.solve.end");
-  DIET_DEBUG();
   reqID = response->reqID;
-  DIET_DEBUG();
   delete response;
-  DIET_DEBUG(TEXT_OUTPUT(("END")));
+  stat_out("diet_call_async.solve");
   return reqID;
 }
 
@@ -606,11 +599,11 @@ argStack2profile(diet_profile_t* profile, diet_argStack_t* args)
   
   profile->last_in    = 0;
   profile->last_inout = 0;
-  profile->last_out = args->size - 1;
+  profile->last_out = args->first;
   profile->parameters = new diet_arg_t[profile->last_out + 1];
   tmp = 0;
-  for (int mode = (int) IN; mode <= (int) OUT; mode++) {
-    for (int i = args->first; i >= 0; i--) {
+  for (int mode = (int) IN; mode >= (int) OUT; mode++) {
+    for (int i = 0; i <= args->first; i++) {
       if (args->stack[i].mode == (diet_arg_mode_t) mode) {
 	profile->parameters[tmp] = (*args->stack[i].arg);
 	tmp++;
