@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.14  2002/11/14 13:53:35  pcombes
+ * Big fix in converters of files.
+ *
  * Revision 1.13  2002/10/25 14:31:17  ecaron
  * FAST support: convertors implemented and compatible to --without-fast
  *               configure option, but still not tested with FAST !
@@ -363,8 +366,13 @@ int unmrsh_data_desc_to_sf(sf_data_desc_t *dest, const diet_data_desc_t *src)
     break;
     
   case sf_type_cons_file:
-    dest->ctn.file.size = src->specific.file.size;
-    strcpy(dest->ctn.file.path, src->specific.file.path);
+    if (src->specific.file.path) {
+      dest->ctn.file.size = src->specific.file.size;
+      strcpy(dest->ctn.file.path, src->specific.file.path);
+    } else {
+      dest->ctn.file.size = 0;
+      dest->ctn.file.path[0] = '\0';
+    }
     break;
 
   case sf_type_cons_scal:
