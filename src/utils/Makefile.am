@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.5  2003/06/24 16:04:18  cpera
+#* Update ReaderWriter file name.
+#*
 #* Revision 1.4  2003/06/18 07:33:48  pcombes
 #* Add files for management of asynchronism into distribution (noinst_HEADERS)
 #*
@@ -35,7 +38,7 @@ libUtilsSeDClt_la_SOURCES  = DIET_mutex.cc
 libUtilsNodes_la_SOURCES   = Counter.cc ServiceTable.cc
 
 noinst_HEADERS = com_tools.hh Counter.hh debug.hh dietTypes.hh			\
-		 LinkedList.hh ms_function.hh Parsers.hh ReadersWritersLock.hh	\
+		 LinkedList.hh ms_function.hh Parsers.hh ReadersWriterLock.hh	\
 		 ServiceTable.hh ServiceTable.hh statistics.hh			\
 		 ts_container/ts_map.hh	ts_container/ts_set.hh			\
 		 ./ts_container/ts_vector.hh
