@@ -11,6 +11,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.3  2003/02/19 09:03:40  cpera
+ * Add headers include for gcc 2.95.3 compatibility under SunOS.
+ *
  * Revision 1.2  2003/02/04 10:08:22  pcombes
  * Apply Coding Standards
  *
@@ -19,7 +22,7 @@
  * Put main Makefile in root directory.
  ****************************************************************************/
 
-
+#include <stdio.h>
 #include <iostream>
 using namespace std;
 #include <stdlib.h>

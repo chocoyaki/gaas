@@ -9,6 +9,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.13  2003/02/19 09:03:40  cpera
+ * Add headers include for gcc 2.95.3 compatibility under SunOS.
+ *
  * Revision 1.12  2003/02/07 17:02:10  pcombes
  * Remove diet_value. Add diet_is_persistent and diet_free_data.
  * Unify diet_scalar_get prototype to the one of the other _get functions.
@@ -45,7 +48,7 @@
  *  - ...
  ****************************************************************************/
 
-
+#include <stdio.h>
 #include <iostream>
 using namespace std;
 #include <sys/stat.h>
