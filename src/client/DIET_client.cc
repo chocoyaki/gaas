@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.45  2004/09/29 12:54:16  bdelfabr
+ * english please
+ *
  * Revision 1.44  2004/07/29 18:52:11  rbolze
  * Change solve function now , DIET_client send the reqID of the request when
  * he call the solve function.
@@ -327,8 +330,8 @@ create_header();
 
 void create_header()
 {
-  char* header_id = "identifiant de le donnee";
-  char* header_msg = "commentaires\n";
+  char* header_id = "Data Handle   ";
+  char* header_msg = "Description \n";
  
     ofstream f(file_Name,ios_base::app|ios_base::ate);
     int cpt = strlen(header_id);
