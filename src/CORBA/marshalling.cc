@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.4  2002/08/09 14:30:27  pcombes
+ * This is commit set the frame for version 1.0 - does not work properly yet
+ *
  * Revision 1.3  2002/05/24 19:36:52  pcombes
  * Add BLAS/dgemm example (implied bug fixes)
  *
@@ -37,30 +40,8 @@
 
 /***  Data descriptors ***/
 
-size_t
-data_sizeof(const sf_data_desc_t *dd)
-{
-  size_t size;
-  
-  switch (dd->type) {
-  case sf_type_cons_scal:
-    size = 1;
-    break;
-  case sf_type_cons_vect:
-    size = dd->ctn.vect.size;
-    break;
-  case sf_type_cons_mat:
-    size = dd->ctn.mat.nb_c * dd->ctn.mat.nb_l;
-    break;
-  default:
-    cerr << "data_sizeof: Error in type (cons type)\n";
-    size = 0;
-  }
 
-  return size;
-}
-
-
+#if 0
 void
 sf2corbaDataDesc(corba_data_desc_t *dest, const sf_data_desc_t *src)
 {
@@ -171,7 +152,7 @@ corba2sfDataDesc(sf_data_desc_t *dest, const corba_data_desc_t *src)
 void
 diet2corbaData(corba_data_t *dest, const diet_data_t *src)
 {
-  size_t size = data_sizeof(&(src->desc));
+  size_t size = macro_data_sizeof(&(src->desc));
   
   sf2corbaDataDesc(&(dest->desc), &(src->desc));
 
@@ -215,7 +196,7 @@ corba2dietData(diet_data_t *dest, const corba_data_t *src)
 
 
   corba2sfDataDesc(&(dest->desc), &(src->desc));
-  data_size = data_sizeof(&(dest->desc));
+  data_size = macro_data_sizeof(&(dest->desc));
 
   switch (dest->desc.base_type) {
   case sf_type_base_char: {
@@ -343,14 +324,482 @@ corba2dietDataSeq(diet_data_seq_t *dest, const SeqCorba_data_t *src)
     corba2dietData(&(dest->seq[i]), &((*src)[i]));
   }
 }
+#endif // 0
+
+/*==========================================================================*/
+/* Data structure marshalling                                               */
+/*==========================================================================*/
+
+inline int mrsh_scalar_desc(corba_data_desc_t *dest, diet_data_desc_t *src)
+{
+  corba_scalar_specific_t scal;
+
+  dest->specific.scal(scal);
+  switch (src->generic.base_type) {
+  case DIET_CHAR:
+  case DIET_BYTE: {
+    char scal = *((char *)(src->specific.scal.value));
+    dest->specific.scal().value <<= (short) scal;
+    break;
+  }
+  case DIET_INT: {
+    long scal = (long) *((int *)(src->specific.scal.value));
+    dest->specific.scal().value <<= (CORBA::Long) scal;
+    break;
+  }
+  case DIET_LONGINT: {
+    long long int scal = *((long long int *)(src->specific.scal.value));
+    dest->specific.scal().value <<= (long int) scal;
+    break;
+  }
+  case DIET_FLOAT: {
+    float scal = *((float *)(src->specific.scal.value));
+    dest->specific.scal().value <<= (CORBA::Float) scal;
+    break;
+  }
+  case DIET_DOUBLE: {
+    double scal = *((double *)(src->specific.scal.value));
+    dest->specific.scal().value <<= (CORBA::Double) scal;
+    break;
+  }
+  default:
+    cerr << "mrsh_scalar_desc: Base type "
+	 << src->generic.base_type << " not implemented.\n";
+    return 1;
+  }
+  return 0;
+}
 
 
-/*===========================================================================*/
-/*                                                                           */
-/* Problem structure conversions                                             */
-/*                                                                           */
-/*===========================================================================*/
+int mrsh_data_desc(corba_data_desc_t *dest, diet_data_desc_t *src)
+{
+  dest->id = 0;
+  dest->base_type = src->generic.base_type;
+  switch (src->generic.type) {
+  case DIET_SCALAR: {
+    if (mrsh_scalar_desc(dest, src))
+      return 1;
+    break;
+  }
+  case DIET_VECTOR: {
+    corba_vector_specific_t vect;
+    dest->specific.vect(vect);
+    dest->specific.vect().size = src->specific.vect.size;
+    break;
+  }
+  case DIET_MATRIX: {
+    corba_matrix_specific_t mat;
+    dest->specific.mat(mat);
+    dest->specific.mat().nb_r = src->specific.mat.nb_r;
+    dest->specific.mat().nb_c = src->specific.mat.nb_c;
+    dest->specific.mat().istrans = src->specific.mat.istrans;
+    break;
+  }
+  case DIET_STRING: {
+    corba_string_specific_t str;
+    dest->specific.str(str);
+    dest->specific.str().length = src->specific.str.length;
+    break;
+  }
+  case DIET_FILE: {
+    corba_file_specific_t file;
+    dest->specific.file(file);
+    dest->specific.file().size = src->specific.file.size;
+    break;
+  }
+  default:
+    cerr << "mrsh_data_desc: Type "
+	 << src->generic.type << " not implemented\n";
+    return 1;
+  }
+  return 0;
+}
 
+int mrsh_data(corba_data_t *dest, diet_data_t *src, int only_desc)
+{
+  long unsigned int size = (long unsigned int) data_sizeof(&(src->desc));
+  if (mrsh_data_desc(&(dest->desc), &(src->desc)))
+    return 1;
+  if (only_desc) {
+    dest->value.length(0);
+  } else {
+    SeqChar value(size, size, (CORBA::Char *)src->value);
+    dest->value = value;
+  }
+  return 0;
+}
+
+
+/*====[ mrsh_data_seq ]=====================================================*/
+
+int mrsh_data_seq(SeqCorbaData_t *dest, diet_data_seq_t *src, int only_desc)
+{
+  size_t dest_length = dest->length();
+
+  if (dest_length != 0) {
+    if (dest_length != src->length) {
+      cerr << "This usage of mrsh_data_seq should not occur in DIET\n"
+	   << "Either mrsh_data_seq is called on an empty SeqCorbaData_t,\n"
+	   << " or it is called on the initial sequence\n";
+      return 1;
+    }
+  } else {
+    dest->length(src->length);
+  }
+
+  for (size_t i = 0; i < src->length; i++) {
+    /* Convert data_t */
+    if (mrsh_data(&((*dest)[i]), &(src->seq[i]), only_desc))
+      return 1;
+  }
+  return 0;
+}
+
+
+/*==========================================================================*/
+/* Data structure unmarshalling                                             */
+/*==========================================================================*/
+
+
+inline int unmrsh_scalar_desc(diet_data_desc_t *dest, corba_data_desc_t *src)
+{
+  void *value;
+  diet_base_type_t bt = (diet_base_type_t)src->base_type;
+  
+  switch(bt) {
+  case DIET_CHAR:
+  case DIET_BYTE: {
+    value = new char;
+    src->specific.scal().value >>= *((short *)(value));
+    scalar_desc_set(dest, DIET_VOLATILE, bt, value);
+    break;
+  }
+  case DIET_INT: {
+    value = (void *) new int;
+    src->specific.scal().value >>= *((long *)(value));
+    scalar_desc_set(dest, DIET_VOLATILE, bt, value);
+    break;
+  }
+  case DIET_LONGINT: {
+    value = (void *) new long long int;
+    src->specific.scal().value >>= *((long int *)(value));
+    scalar_desc_set(dest, DIET_VOLATILE, bt, value);
+    break;
+  }
+  case DIET_FLOAT: {
+    value = (void *) new float;
+    src->specific.scal().value >>= *((float *)(value));
+    scalar_desc_set(dest, DIET_VOLATILE, bt, value);
+    break;
+  }
+  case DIET_DOUBLE: {
+    value = (void *) new double;
+    src->specific.scal().value >>= *((double *)(value));
+    scalar_desc_set(dest, DIET_VOLATILE, bt, value);
+    break;
+  }
+  default:
+    cerr << "unmrsh_scalar_desc: Base type " << bt << " not implemented.\n";
+    return 1;
+  }
+  return 0;
+}
+
+int unmrsh_data_desc(diet_data_desc_t *dest, corba_data_desc_t *src)
+{
+  diet_base_type_t bt = (diet_base_type_t)src->base_type;
+
+  switch ((diet_data_type_t) src->specific._d()) {
+  case DIET_SCALAR: {
+    if (unmrsh_scalar_desc(dest, src))
+      return 1;
+    break;
+  }
+  case DIET_VECTOR: {
+    vector_desc_set(dest, DIET_VOLATILE, bt,
+		    src->specific.vect().size);
+    break;
+  }
+  case DIET_MATRIX: {
+    matrix_desc_set(dest, DIET_VOLATILE, bt,
+		    src->specific.mat().nb_r, src->specific.mat().nb_c,
+		    src->specific.mat().istrans);
+    break;
+  }
+  case DIET_STRING: {
+    string_desc_set(dest, DIET_VOLATILE, src->specific.str().length);
+    break;
+  }
+  case DIET_FILE: {
+    file_desc_set(dest, DIET_VOLATILE, "");
+    break;
+  }
+  default:
+    cerr << "unmrsh_data_desc: Type "
+	 << src->specific._d() << " not implemented\n";
+    return 1;
+  }
+  return 0;
+}
+
+inline sf_type_cons_t diet_to_sf_type(const diet_data_type_t t)
+{
+  switch (t) {
+  case DIET_SCALAR:
+    return sf_type_cons_scal;
+  case DIET_VECTOR:
+    return sf_type_cons_vect;
+  case DIET_MATRIX:
+    return sf_type_cons_mat;
+  default:
+    return sf_type_cons_count;
+  }
+}
+
+inline sf_type_base_t diet_to_sf_base_type(const diet_base_type_t t)
+{
+  switch (t) {
+  case DIET_CHAR:
+  case DIET_BYTE:
+    return sf_type_base_char;
+  case DIET_INT:
+  case DIET_LONGINT:
+    return sf_type_base_int;
+  case DIET_FLOAT:
+  case DIET_DOUBLE:
+    return sf_type_base_double;
+  default:
+    return sf_type_base_count;  
+  }
+}
+
+int unmrsh_data_desc_to_sf(sf_data_desc_t *dest, const corba_data_desc_t *src) 
+{
+  dest->id        = 0;
+  dest->type      = diet_to_sf_type((diet_data_type_t)src->specific._d());
+  dest->base_type = diet_to_sf_base_type((diet_base_type_t)src->base_type);
+  
+  switch (dest->type) {
+    
+  case sf_type_cons_vect:
+    dest->ctn.vect.size = src->specific.vect().size;
+    break;
+    
+  case sf_type_cons_mat:
+    //#ifdef withoutfast
+    dest->ctn.mat.nb_l  = src->specific.mat().nb_r;
+    dest->ctn.mat.nb_c  = src->specific.mat().nb_c;
+    dest->ctn.mat.trans = src->specific.mat().istrans;
+    //#else  // withoutfast
+    //sf_dd_mat_set(dest, src->specific.mat().nb_r,
+    //  	    src->specific.mat().nb_c, src->specific.mat().istrans);
+    //#endif // withoutfast
+    break;
+
+  case sf_type_cons_scal:
+    switch (dest->base_type) {
+    case sf_type_base_char:
+      dest->ctn.scal.value = (void *) new char;
+      src->specific.scal().value >>= *((short *)(dest->ctn.scal.value));
+      break;
+    case sf_type_base_int:
+      dest->ctn.scal.value = (void *) new int;
+      src->specific.scal().value >>= *((long *)(dest->ctn.scal.value));
+      break;
+    case sf_type_base_double:
+      dest->ctn.scal.value = (void *) new double;
+      src->specific.scal().value >>= *((double *)(dest->ctn.scal.value));
+      break;
+    default:
+      cerr << "unmrsh_data_desc_to_sf: Base type "
+	   << dest->base_type << " unknown for FAST\n";
+      return 1;
+    }
+    break;
+    
+  default:
+    cerr << "unmrsh_data_desc_to_sf: Type "
+	 << src->specific._d() << " unknown for FAST\n";
+    return 1;
+  }
+  return 0;
+}
+
+
+int unmrsh_data(diet_data_t *dest, corba_data_t *src)
+{
+  if (unmrsh_data_desc(&(dest->desc), &(src->desc)))
+    return 1;
+  if (src->value.length() == 0)
+    dest->value = malloc(data_sizeof(&(dest->desc)));
+  else {
+    // CORBA::boolean orphan = (src->persistence_mode != DIET_VOLATILE);
+    dest->value = src->value.get_buffer(true);
+  }
+  return 0;
+}
+
+/*====[ unmrsh_data_seq ]===================================================*/
+
+int unmrsh_data_seq(diet_data_seq_t *dest, SeqCorbaData_t *src)
+{
+  if (dest->length != 0) {
+    if (dest->length != src->length()) {
+      cerr << "This usage of unmrsh_data_seq should not occur in DIET\n"
+	   << "Either unmrsh_data_seq is called on an empty diet_data_seq_t,\n"
+	   << " or it is called on the initial sequence\n";
+      return 1;
+    }
+  } else {
+    dest->length = src->length();
+    dest->seq = (diet_data_t *) malloc(dest->length * sizeof(diet_data_t));
+  }
+
+  for (size_t i = 0; i <= dest->length; i++) {
+    if (unmrsh_data(&(dest->seq[i]), &((*src)[i])))
+      return 1;
+  }
+  return 0;
+}
+
+
+/*==========================================================================*/
+/* Profile structure conversions                                            */
+/*==========================================================================*/
+
+
+int mrsh_profile_desc(corba_profile_desc_t *dest,
+		      diet_profile_desc_t *src, char *src_name)
+{
+  dest->path       = CORBA::string_dup(src_name);
+  dest->last_in    = src->last_in;
+  dest->last_inout = src->last_inout;
+  dest->last_out   = src->last_out;
+  dest->param_desc.length(src->last_out + 1);
+  for (int i = 0; i <= src->last_out; i++) {
+    (dest->param_desc[i]).base_type = (src->param_desc[i]).base_type;
+    (dest->param_desc[i]).type      = (src->param_desc[i]).type;
+  }
+  return 0;
+}
+
+int unmrsh_profile_desc(diet_profile_desc_t *dest, char **dest_name,
+			corba_profile_desc_t *src)
+{
+  *dest_name       = CORBA::string_dup(src->path);
+  dest->last_in    = src->last_in;
+  dest->last_inout = src->last_inout;
+  dest->last_out   = src->last_out;
+  dest->param_desc = new (diet_arg_desc_t)[src->last_out + 1];
+  for (int i = 0; i <= src->last_out; i++) {
+    (dest->param_desc[i]).base_type = 
+      (diet_base_type_t)(src->param_desc[i]).base_type;
+    (dest->param_desc[i]).type =
+      (diet_data_type_t)(src->param_desc[i]).type;    
+  }
+  return 0;
+}
+
+int unmrsh_profile_desc_to_name(char **dest_name, corba_profile_desc_t *src)
+{
+  *dest_name = CORBA::string_dup(src->path);
+  return 0;
+}
+
+int mrsh_profile(corba_profile_t *dest, diet_profile_t *src, char *src_name)
+{
+  dest->path       = CORBA::string_dup(src_name);
+  dest->last_in    = src->last_in;
+  dest->last_inout = src->last_inout;
+  dest->last_out   = src->last_out;
+  dest->param_desc.length(src->last_out + 1);
+  for (int i = 0; i <= src->last_out; i++) {
+    mrsh_data_desc(&(dest->param_desc[i]), &(src->parameters[i].desc));
+  }
+  return 0;
+}
+
+int unmrsh_profile_to_desc(diet_profile_desc_t *dest, char **dest_name,
+			   corba_profile_t *src)
+{
+  *dest_name       = CORBA::string_dup(src->path);
+  dest->last_in    = src->last_in;
+  dest->last_inout = src->last_inout;
+  dest->last_out   = src->last_out;
+  dest->param_desc = new (diet_arg_desc_t)[src->last_out + 1];
+  for (int i = 0; i <= src->last_out; i++) {
+    (dest->param_desc[i]).base_type =
+      (diet_base_type_t)(src->param_desc[i]).base_type;
+    (dest->param_desc[i]).type =
+      (diet_data_type_t)(src->param_desc[i]).specific._d();    
+  }
+  return 0;
+}
+
+
+int unmrsh_profile_to_sf(sf_inst_desc_t *dest, const corba_profile_t *src)
+{
+  //#ifdef withoutfast
+  dest->path       = CORBA::string_dup(src->path);
+  dest->last_in    = src->last_in;
+  dest->last_inout = src->last_inout;
+  dest->last_out   = src->last_out;
+  dest->param_desc = new (sf_data_desc_t)[src->last_out + 1]; 
+  //#else  // withoutfast
+  //sf_inst_desc_set(dest, CORBA::string_dup(src->path),
+  //                 src->last_in, src->last_inout, src->last_out);
+  //#endif // withoutfast
+  for (int i = 0; i <= src->last_out; i++) {
+    unmrsh_data_desc_to_sf(&(dest->param_desc[i]), &(src->param_desc[i]));
+  }
+  return 0;
+}
+
+
+/*==========================================================================*/
+/* Profile -> corba data sequences                                          */
+/*==========================================================================*/
+
+int mrsh_profile_to_in_args(SeqCorbaData_t *in, SeqCorbaData_t *inout,
+			    const diet_profile_t *profile)
+{
+  in->length(profile->last_in + 1);
+  for (int i = 0; i <= profile->last_in; i++) {
+    if (mrsh_data(&((*in)[i]), &(profile->parameters[i]), 0))
+      return 1;
+  }
+  inout->length(profile->last_inout - profile->last_in);
+  for (int i = 0; i < (profile->last_inout - profile->last_in); i++) {
+    if (mrsh_data(&((*inout)[i]),
+		  &(profile->parameters[i + profile->last_in + 1]), 0))
+      return 1;
+  }
+  return 0;
+}
+
+int unmrsh_out_args_to_profile(diet_profile_t *profile,
+			       SeqCorbaData_t *inout, SeqCorbaData_t *out)
+{
+  size_t inout_length = (size_t)(profile->last_inout - profile->last_in);
+  size_t out_length   = (size_t)(profile->last_out   - profile->last_inout);
+  
+  if ((inout_length != inout->length()) || (out_length != out->length()))
+    return 1;
+  for (size_t i = 0; i < inout->length(); i++) {
+    if (unmrsh_data(&(profile->parameters[i + profile->last_in + 1]),
+		    &((*inout)[i])))
+      return 1;
+  }
+  for (size_t i = 0; i < out->length(); i++) {
+    if (unmrsh_data(&(profile->parameters[i + profile->last_inout + 1]),
+		    &((*out)[i])))
+      return 1;
+  }
+  return 0;
+}
+
+
+#if 0
 
 void
 sf2corbaPbDesc(corba_pb_desc_t *dest, const sf_pb_desc_t *src)
@@ -538,7 +987,6 @@ void corba2sfPbDesc(sf_pb_desc_t *dest,const corba_pb_desc_t *src)
     } 
 }
 
-#endif // OLD_VERSION
 
 
 void diet2corbaRequest(corba_request_t *dest,const diet_request_t *src)
@@ -547,10 +995,13 @@ void diet2corbaRequest(corba_request_t *dest,const diet_request_t *src)
   sf2corbaPbDesc(&(dest->pb),&(src->pb));  
 }
 
-void corba2dietRequest(diet_request_t *dest,const corba_request_t *src)
+#endif // OLD_VERSION
+
+
+void corba2dietRequest(diet_request_t *dest, corba_request_t *src)
 {
-  dest->reqId=src->reqId;
-  corba2sfPbDesc(&(dest->pb),&(src->pb));
+  dest->reqId = src->reqId;
+  unmrsh_profile_to_sf(&(dest->pb_profile),&(src->pb_profile));
 }
 
 void diet2corbaResponse(corba_response_t *dest,const diet_response_t *src)
@@ -728,3 +1179,4 @@ void corba2dietDecisionSequence(diet_decision_sequence_t *dest,const corba_decis
 }
 
 
+#endif // 0

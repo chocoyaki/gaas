@@ -11,6 +11,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.4  2002/08/09 14:30:34  pcombes
+ * This is commit set the frame for version 1.0 - does not work properly yet
+ *
  * Revision 1.3  2002/05/24 19:36:54  pcombes
  * Add BLAS/dgemm example (implied bug fixes)
  *
@@ -20,59 +23,48 @@
  ****************************************************************************/
 
 
+#include <stdlib.h>
 #include <stdio.h>
 
 #include "debug.hh"
-
 #include "dietTypes.hh"
-#include "SeD.hh"
 
-void displayResponse(FILE *os,const diet_response_t *resp)
+
+void displayResponse(FILE *os, const corba_response_t *resp)
 {
   int i,j;
+  char implName[256];
 
-  fprintf(os,"Response structure for request %i :\n\n",resp->reqId);
-
-  fprintf(os,"I'm son nb %i\n",resp->myId);
-
-  fprintf(os,"There are %i parameters\n",resp->nbIn);
-
-  fprintf(os,"%i servers are able to solve the problem\n",resp->nbServers);
-
-  fprintf(os,"Data :\n");
+  fprintf(os, "Response structure for request %ld :\n\n", resp->reqId);
+  fprintf(os, "I'm son nb %ld\n", resp->myId);
+  fprintf(os, "There are %ld parameters\n", resp->nbIn);
+  fprintf(os, "%ld servers are able to solve the problem\n", resp->nbServers);
+  fprintf(os, "Data :\n");
   
-  for (i=0;i<resp->nbIn;i++)
-    {
-      if (CORBA::is_nil(resp->data[i].localization))
-	{
-	  fprintf(os,"Data %i is not located yet\n",i);
-	}
-      else
-	{
-	  fprintf(os,"Time2Me for data %i is %f\n",i,resp->data[i].timeToMe);
-	}
+  for (i = 0; i < resp->nbIn; i++) {
+    if (CORBA::is_nil(resp->data[i].localization)) {
+      fprintf(os, "Data %i is not located yet\n", i);
+    } else {
+      fprintf(os, "Time2Me for data %i is %f\n",i,resp->data[i].timeToMe);
     }
+  }
   
-  fprintf(os,"\n");
-
-  fprintf(os,"Comp :\n");
+  fprintf(os,"\nComp :\n");
   
-  for (i=0;i<resp->nbServers;i++)
-    {    
-      fprintf(os,"This server can solve the problem in %f seconds\n",resp->comp[i].tComp);
-
-      fprintf(os,"Implementation name: %s\n",resp->comp[i].implName);
-
-      fprintf(os,"TComms for each parameter :\n");
-      for (j=0;j<resp->nbIn;j++)
-	{
-	  fprintf(os,"%f ",resp->comp[i].tComm[j]);
-	  
-	}      
-      fprintf(os,"\n");
-    }
+  for (i = 0; i < resp->nbServers; i++) {
+    strcpy(implName, resp->comp[i].implName);
+    fprintf(os, "This server can solve the problem in %f seconds\n",
+	    resp->comp[i].tComp);
+    fprintf(os, "Implementation name: %s\n", implName);
+    fprintf(os, "TComms for each parameter :\n");
+    for (j = 0; j < resp->nbIn; j++) {
+      fprintf(os, "%f ", resp->comp[i].tComm[j]);
+    }      
+    fprintf(os,"\n");
+  }
   fprintf(os,"\n\n");
 }
+
 
 void displayMAList(FILE* os,dietMADescList *MAs)
 {
@@ -87,4 +79,5 @@ void displayMAList(FILE* os,dietMADescList *MAs)
         fprintf(os,"(up)\n");
     }
 }
+
 
