@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.9  2004/07/07 18:19:17  rbolze
+#* correct a dummy bug : forgot \ at the end of a line :)
+#*
 #* Revision 1.8  2004/03/01 18:57:48  rbolze
 #* change to take account of new  files for logservice
 #*
@@ -42,12 +45,12 @@ noinst_LTLIBRARIES = libUtilsCichlid.la libUtilsCommon.la \
 
 libUtilsCichlid_la_SOURCES = com_tools.cc
 libUtilsCommon_la_SOURCES  = debug.cc DIET_data.cc ms_function.cc \
-				Parsers.cc statistics.cc
+			     Parsers.cc statistics.cc
 libUtilsSeDClt_la_SOURCES  = DIET_mutex.cc
 libUtilsNodes_la_SOURCES   = Counter.cc ServiceTable.cc FASTMgr.cc \
 			     DietLogComponent.cc MonitoringThread.cc
 
-noinst_HEADERS = com_tools.hh Counter.hh debug.hh DIET_data_internal.hh
+noinst_HEADERS = com_tools.hh Counter.hh debug.hh DIET_data_internal.hh \
 		 FASTMgr.hh LinkedList.hh ms_function.hh Parsers.hh \
 		 ReadersWriterLock.hh ServiceTable.hh ServiceTable.hh \
 		 statistics.hh ts_container/ts_map.hh \
