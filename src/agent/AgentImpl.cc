@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2003/08/28 16:48:49  cpontvie
+ * Modifications in the destructor: more trace and unbind the agent to the the NamingService
+ *
  * Revision 1.6  2003/08/01 19:33:11  pcombes
  * Use FASTMgr.
  *
@@ -68,11 +71,22 @@ AgentImpl::AgentImpl()
 
 AgentImpl::~AgentImpl()
 {
-  this->LAChildren.clear();
-  this->SeDChildren.clear();
-  delete this->SrvT;
-  this->reqList.clear();
-  //locList.clear();
+	TRACE_TEXT(TRACE_STRUCTURES, "Agt::start 'this->LAChildren.clear()'...");
+	this->LAChildren.clear();
+	TRACE_TEXT(TRACE_STRUCTURES, "Done\n");
+	TRACE_TEXT(TRACE_STRUCTURES, "Agt::start 'this->SeDChildren.clear()'...");
+	this->SeDChildren.clear();
+	TRACE_TEXT(TRACE_STRUCTURES, "Done\n");
+	TRACE_TEXT(TRACE_STRUCTURES, "Agt::start 'delete this->SrvT'...");
+	delete this->SrvT;
+	TRACE_TEXT(TRACE_STRUCTURES, "Done\n");
+	TRACE_TEXT(TRACE_STRUCTURES, "Agt::start 'this->reqList.clear()'...");
+	this->reqList.clear();
+	TRACE_TEXT(TRACE_STRUCTURES, "Done\n");
+	if (ORBMgr::unbindAgent(this->myName)) {
+		WARNING("could not undeclare myself as " << this->myName);
+	}
+	//locList.clear();
 } // ~AgentImpl()
 
 
