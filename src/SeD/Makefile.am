@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.9  2004/07/08 20:16:30  rbolze
+#* add dmat_jxta_prods.h and remplace EXTA by EXTRA
+#*
 #* Revision 1.8  2004/07/08 17:47:51  rbolze
 #* add java files to the distrib
 #*
@@ -40,7 +43,7 @@ endif
 
 libDIET_SeD_la_SOURCES = DIET_server.cc SeDImpl.cc DataMgrImpl.cc
 
-noinst_HEADERS = SeDImpl.hh DataMgrImpl.hh
+noinst_HEADERS = SeDImpl.hh DataMgrImpl.hh dmat_jxta_progs.h
 
 utilsdir = $(top_builddir)/src/utils
 corbadir = $(top_builddir)/src/CORBA
@@ -77,4 +80,4 @@ clean:
 
 endif
 
-EXTA_DIST = *.java
+EXTRA_DIST = *.java
