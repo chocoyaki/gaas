@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2003/10/21 13:28:26  bdelfabr
+ * set persistence flag to 0
+ *
  * Revision 1.5  2003/10/14 20:27:16  bdelfabr
  * adding methods for demo RNTL (print List of persistent data)
  *
@@ -33,7 +36,7 @@
 #include "ts_container/ts_map.hh"
 
 
-#define DEVELOPPING_DATA_PERSISTENCY 1
+#define DEVELOPPING_DATA_PERSISTENCY 0
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
