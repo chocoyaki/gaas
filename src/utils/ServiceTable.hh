@@ -8,6 +8,17 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2004/05/18 21:13:25  alsu
+ * - added the perfmetrics field to the ServiceTable class to store
+ *   custom performance metric functions
+ *
+ * - changed the ServiceTable::addService interface to require a
+ *   performance metric function; NULL signifies the "old method" of
+ *   performance estimation
+ *     (TODO: decide whether the old interface needs to be reinstated)
+ *
+ * - added ServiceTable::getPerfMetric interface
+ *
  * Revision 1.8  2003/04/10 12:51:36  pcombes
  * "son"->"child", and adapt to CORBA::ULong child IDs.
  *
@@ -88,9 +99,17 @@ public:
   lookupService(const char* path, const corba_profile_t* pb);
 
   // All data structures are duplicated in add methods
+  /*
   int
   addService(const corba_profile_desc_t* profile, diet_convertor_t* cvt,
 	     diet_solve_t solver, diet_eval_t evalf);
+  */
+  int
+  addService(const corba_profile_desc_t* profile,
+             diet_convertor_t* cvt,
+             diet_solve_t solver,
+             diet_eval_t evalf,
+             diet_perfmetric_t perfmetric_fn);
   int
   addService(const corba_profile_desc_t* profile, const CORBA::ULong child);
 
@@ -117,6 +136,10 @@ public:
   getConvertor(const corba_profile_desc_t* profile);
   diet_convertor_t*
   getConvertor(const ServiceReference_t ref);
+  diet_perfmetric_t
+  getPerfMetric(const corba_profile_desc_t* profile);
+  diet_perfmetric_t
+  getPerfMetric(const ServiceReference_t ref);
   matching_children_t*
   getChildren(const corba_profile_desc_t* profile);
   matching_children_t*
@@ -140,6 +163,8 @@ private:
   diet_eval_t* eval_functions;
   // array of convertors (from a client pb profile to a "solved" pb profile) 
   diet_convertor_t* convertors;
+  // array of performance metric functions
+  diet_perfmetric_t* perfmetrics;
   // array of int arrays: each element is an array of children ID, which offer the
   // corresponding service
   matching_children_t* matching_children;

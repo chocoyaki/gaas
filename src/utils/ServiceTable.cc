@@ -8,6 +8,17 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2004/05/18 21:13:25  alsu
+ * - added the perfmetrics field to the ServiceTable class to store
+ *   custom performance metric functions
+ *
+ * - changed the ServiceTable::addService interface to require a
+ *   performance metric function; NULL signifies the "old method" of
+ *   performance estimation
+ *     (TODO: decide whether the old interface needs to be reinstated)
+ *
+ * - added ServiceTable::getPerfMetric interface
+ *
  * Revision 1.10  2003/12/01 14:49:31  pcombes
  * Rename dietTypes.hh to DIET_data_internal.hh, for more coherency.
  *
@@ -71,6 +82,7 @@ ServiceTable::~ServiceTable()
     free(solvers);
     free(eval_functions);
     free(convertors);
+    free(perfmetrics);
   } else if (matching_children) {
     for (size_t i = 0; i < max_nb_s; i++) {
       free(profiles[i].path);
@@ -115,8 +127,10 @@ ServiceTable::lookupService(const char* path, const corba_profile_t* pb)
 
 int
 ServiceTable::addService(const corba_profile_desc_t* profile,
-			 diet_convertor_t* cvt,
-			 diet_solve_t solver, diet_eval_t evalf)
+                         diet_convertor_t* cvt,
+                         diet_solve_t solver,
+                         diet_eval_t evalf,
+                         diet_perfmetric_t perfmetric_fn)
 {
   ServiceReference_t service_idx(-1);
   
@@ -136,11 +150,14 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
 	realloc(eval_functions, max_nb_s * sizeof(diet_eval_t));
       convertors = (diet_convertor_t *)
 	realloc(convertors, max_nb_s * sizeof(diet_convertor_t));
+      perfmetrics = (diet_perfmetric_t *)
+	realloc(perfmetrics, max_nb_s * sizeof(diet_perfmetric_t));
       for (size_t i = nb_s + 1; i < max_nb_s; i++) {
 	profiles[i].param_desc.length(0);
 	solvers[i]              = NULL;
 	eval_functions[i]       = NULL;
 	convertors[i].arg_convs = NULL;
+        perfmetrics[i]          = NULL;
       }
     }
     profiles[nb_s]             = *profile; // deep copy
@@ -154,6 +171,7 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
     for (int i = 0; i <= cvt->last_out; i++) {
       convertors[nb_s].arg_convs[i] = cvt->arg_convs[i];
     }
+    perfmetrics[nb_s]          = perfmetric_fn;
     nb_s++;
 
   } else if (solver == solvers[(size_t)service_idx]) {
@@ -165,8 +183,15 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
   }
   return 0;
 }
-
-
+/*
+int
+ServiceTable::addService(const corba_profile_desc_t* profile,
+			 diet_convertor_t* cvt,
+			 diet_solve_t solver, diet_eval_t evalf)
+{
+  return (this->addService(profile, cvt, solver, evalf, NULL));
+}
+*/
 int
 ServiceTable::addService(const corba_profile_desc_t* profile,
 			 CORBA::ULong child)
@@ -248,11 +273,13 @@ ServiceTable::rmService(const ServiceReference_t ref)
       solvers[i]         = solvers[i+1];
       eval_functions[i]  = eval_functions[i+1];
       convertors[i]      = convertors[i+1];
+      perfmetrics[i]     = perfmetrics[i+1];
     }
     profiles[i].param_desc.length(0);
     solvers[i]              = NULL;
     eval_functions[i]       = NULL;
     convertors[i].arg_convs = NULL;
+    perfmetrics[i]          = NULL;
   } else {
     profiles[ref].param_desc.length(0);
     free(matching_children[ref].children);
@@ -392,6 +419,32 @@ ServiceTable::getConvertor(const ServiceReference_t ref)
   return &(convertors[ref]);
 }
 
+diet_perfmetric_t
+ServiceTable::getPerfMetric(const corba_profile_desc_t* profile)
+{
+  ServiceReference_t ref(-1);
+  
+  if ((ref = lookupService(profile)) == -1) {
+    SRVT_ERROR("attempting to get performance metric\n"
+	       << "  of a service that is not in table");
+  }
+  return (this->getPerfMetric(ref));
+}
+
+
+diet_perfmetric_t
+ServiceTable::getPerfMetric(const ServiceReference_t ref)
+{
+  if (!solvers) {
+    SRVT_ERROR("attempting to get a performance metric\n"
+	       << "  in a table initialized with children");
+  }
+  if (((int) ref < 0) || ((size_t) ref >= nb_s)) {
+    SRVT_ERROR("wrong service reference");
+  }
+  return (this->perfmetrics[ref]);
+}
+
 
 ServiceTable::matching_children_t*
 ServiceTable::getChildren(const corba_profile_desc_t* profile)
@@ -484,6 +537,7 @@ ServiceTable::ServiceTableInit(CORBA::ULong max_nb_services,
     solvers        = NULL;
     eval_functions = NULL;
     convertors     = NULL;
+    perfmetrics    = NULL;
     matching_children  = new matching_children_t[max_nb_s];
     for (size_t i = 0; i < max_nb_s; i++) {
       profiles[i].param_desc.length(0);
@@ -494,11 +548,13 @@ ServiceTable::ServiceTableInit(CORBA::ULong max_nb_services,
     solvers        = new diet_solve_t[max_nb_s];
     eval_functions = new diet_eval_t[max_nb_s];
     convertors     = new diet_convertor_t[max_nb_s];
+    perfmetrics    = new diet_perfmetric_t[max_nb_s];
     for (size_t i = 0; i < max_nb_s; i++) {
       profiles[i].param_desc.length(0);
       solvers[i]              = NULL;
       eval_functions[i]       = NULL;
       convertors[i].arg_convs = NULL;
+      perfmetrics[i]          = NULL;
     }
     matching_children = NULL;
   }
