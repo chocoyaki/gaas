@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2004/09/14 12:48:05  hdail
+ * Commented out cleanup of arg->value using free due to mismatch with
+ * allocation method.
+ *
  * Revision 1.27  2004/05/06 07:01:14  bdelfabr
  * set src path to null when out file in mrsh_data_desc
  *
@@ -689,10 +693,12 @@ diet_free_data(diet_arg_t* arg)
       arg->desc.specific.scal.value = NULL;
     // DO NOT BREAK !!!
   default:
-    if (arg->value)
-      free(arg->value);
-    else
+    if (arg->value){
+      // TODO: must use delete to clean memory, but can't without data type
+      //delete arg->value;
+    } else {
       return 1;
+    }
     arg->value = NULL;
   }
   return 0;
