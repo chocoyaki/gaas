@@ -8,9 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2003/09/24 09:16:18  pcombes
+ * Merge corba_DataMgr_desc_t and corba_data_desc_t.
+ * DataMgr does not need a name: use its reference.
+ *
  * Revision 1.1  2003/09/22 21:07:21  pcombes
  * Set all the modules and their interfaces for data persistency.
- *
  ***************************************************************************/
 
 #ifndef _DATAMGRIMPL_HH_
@@ -25,7 +28,7 @@
 #include "ServiceTable.hh"
 #include "LinkedList.hh"
 
-typedef LinkedList<corba_DataMgr_desc_t>  dietDataDescList;
+typedef LinkedList<corba_data_desc_t>  dietDataDescList;
 typedef LinkedList<diet_data_id_lock_t> dietDataIDLockList;
 
 
@@ -49,17 +52,15 @@ public:
   addData(corba_data_t& dataDesc, int inout);
 
   virtual void
-  putData(const char* argID, const char* me);
+  putData(const char* argID, const DataMgr_ptr me);
   virtual void
   rmDataRef(const char* argID);
-  virtual char*
-  whereData(const char* argID, const char* me);
+  virtual DataMgr_ptr
+  whereData(const char* argID);
   virtual void
   sendData(corba_data_t& arg);
 
 
-  DataMgr_var
-  resolveDataName(char* name);
   void
   updateDataProperty(corba_data_t& dataDesc);
   void
@@ -97,7 +98,7 @@ private:
   /* Private methods                                                        */
   /**************************************************************************/
   corba_data_t
-  moveToCorbaDataT(corba_DataMgr_desc_t& dataDesc);
+  moveToCorbaDataT(corba_data_desc_t& dataDesc);
   corba_data_t
   cpEltListToDataT(const char* id);
   bool
@@ -114,7 +115,7 @@ private:
   addDataIDToLockList(char* id);
   void
   rmDataFromIDList(char* id);
-  corba_DataMgr_desc_t
+  corba_data_desc_t
   moveToCorbaDataDesc(corba_data_t& dataDesc);
 
 };
