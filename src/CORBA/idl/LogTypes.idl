@@ -1,0 +1,47 @@
+/****************************************************************************/
+/* General type definitions used by the new LogService                      */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Georg Hoesch (hoesch@in.tum.de)                                     */
+/*    - Cyrille Pontvieux (cyrille.pontvieux@edu.univ-fcomte.fr)            */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.1  2004/03/01 18:28:53  rbolze
+ * idl file to describe log message types
+ *
+ ****************************************************************************/
+
+#ifndef _LOGTYPES_IDL_
+#define _LOGTYPES_IDL_
+
+/** This file defines important data structures that are
+ *  used in LogService
+ **/
+
+const short LS_OK = 0;
+
+
+// exact time definition with milliseconds
+struct log_time_t {
+  long sec;  // seconds since EPOCH
+  long msec;      // milliseconds since 'sec'
+};
+
+// format for all messages
+struct log_msg_t {
+  string componentName;   // origin of message
+  log_time_t time;        // time of message
+  boolean warning;        // true if the message has not been ordered
+  string tag;             // type of message
+  string msg;             // message content
+};
+
+// lists of important values
+typedef sequence<log_msg_t> log_msg_buf_t;
+typedef sequence<string> tag_list_t;
+typedef sequence<string> component_list_t;
+
+#endif
