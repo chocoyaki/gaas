@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2003/05/13 17:14:49  pcombes
+ * reqID is unsigned long.
+ *
  * Revision 1.1  2003/04/10 12:18:02  pcombes
  * IDL response structure.
  *
@@ -78,7 +81,7 @@ typedef sequence <corba_server_estimation_t> SeqServerEstimation_t;
  */
 
 struct corba_response_t {
-  long reqID;
+  unsigned long reqID;
   long myID;
   // Localization of IN and INOUT parameters
   //SeqDataLoc_t        dataLoc;
