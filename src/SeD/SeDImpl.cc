@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2003/10/10 14:53:45  bdelfabr
+ * TabValue removed : no longer used
+ *
  * Revision 1.15  2003/09/30 15:40:28  bdelfabr
  * manage Data Persistence with Solve and SolveAsync
  *
@@ -229,16 +232,8 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
 #if DEVELOPPING_DATA_PERSISTENCY
   // added for data persistence 
   int i;
-  char *s = NULL ;
-
-
-  for (i = 0; i <= pb.last_inout; i++) {
-    s = (char *)malloc(sizeof(int));
-    sprintf(s,"var%d",i);
-    TRACE_VAR(s);
-    pb.parameters[i].desc.id.idNumber = CORBA::string_dup(s); /* creation of a local id */ 
-  } 
  
+
   for (i=0; i <= pb.last_inout; i++) {
     if(pb.parameters[i].value.length() == 0){ /* In argument with NULL value : data is present */
       this->dataMgr->getData(pb.parameters[i]); 
@@ -273,11 +268,6 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
     }
  
     for (i = pb.last_inout + 1 ; i <= pb.last_out; i++) {
-      s = (char *)malloc(sizeof(int));
-      sprintf(s,"var%d",i);
-      TRACE_VAR(s);
-      pb.parameters[i].desc.id.idNumber = CORBA::string_dup(s);
-
       if ( diet_is_persistent(pb.parameters[i])) {
 	this->dataMgr->addData(pb.parameters[i],1); 
       }
@@ -332,13 +322,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 
 #if DEVELOPPING_DATA_PERSISTENCY
       int i;
-      char* s = NULL ;
-
-      for (i = 0; i <= pb.last_inout; i++) {
-	s = (char *)malloc(sizeof(int));
-	sprintf(s,"var%d",i);
-      }
-      
+ 
       for (i = 0; i <= pb.last_inout; i++) {    
 	if(pb.parameters[i].value.length() == 0){
 	  
@@ -380,10 +364,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
       }
       
       for (i = profile.last_inout + 1 ; i <= profile.last_out; i++) {
-	s = (char *)malloc(sizeof(int));
-	sprintf(s,"var%d",i);
-	TRACE_VAR(s);
-        const_cast<CORBA::String_member&>(pb.parameters[i].desc.id.idNumber) = CORBA::string_dup(s);
+
 	if ( diet_is_persistent(profile.parameters[i])) {
 	  
 	  this->dataMgr->addData(const_cast<corba_data_t&>(pb.parameters[i]),1); 
