@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2003/06/02 09:06:46  cpera
+ * Beta version of asynchronize DIET API.
+ *
  * Revision 1.3  2003/05/13 17:14:00  pcombes
  * Catch CORBA exceptions in serverSubscribe.
  *
@@ -255,7 +258,80 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
   return solve_res;
 }
 
+void
+SeDImpl::solveAsync(const char* path, const corba_profile_t& pb, 
+		    CORBA::Long reqID, const char * volatileclientREF)
+{
+  // test validity of volatileclientREF
+  // If nil, it is not necessary to solve ...
+  try {
+    //ServiceTable::ServiceReference_t ref(-1);
+    CORBA::Object_var cb = ORBMgr::stringToObject(volatileclientREF);
+    if( CORBA::is_nil(cb) ) cerr << "Received a nil callback.\n";
+    else {
+      ServiceTable::ServiceReference_t ref(-1);
+      diet_profile_t profile;
+      diet_convertor_t* cvt(NULL);
+      int solve_res(0);
+  
+      stat_in("SeDImpl::solve.start");
 
+      if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
+	cout << "\n************************************************************\n"
+	<< "SeD::solve invoked on pb: " << path << endl;
+  
+      ref = SrvT->lookupService(path, &pb);
+      if (ref == -1) {
+	cerr << "ERROR in SeD solve: service not found.\n";
+	return;
+      }
+  
+      cvt = SrvT->getConvertor(ref);
+      unmrsh_in_args_to_profile(&profile, &(const_cast<corba_profile_t&>(pb)), cvt);
+      displayProfile(&profile, path);
+  
+      solve_res = (*(SrvT->getSolver(ref)))(&profile);
+      mrsh_profile_to_out_args(&(const_cast<corba_profile_t&>(pb)), &profile, cvt);
+  
+
+      /* Free data */
+      // FIXME: persistent data should not be freed but referenced in the data list.
+
+      if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
+	cout << "SeD::solve complete\n"
+	<< "************************************************************\n";
+
+      stat_out("SeDImpl::solve.end");
+      
+      // send result datas to client.
+      cerr << "SED: Doing a call-back: " << endl;
+      Callback_var cb_var = Callback::_narrow(cb);
+      cb_var->notifyResults(path,pb, reqID);
+      cb_var->solveResults(path,pb, reqID);
+
+    }
+  }
+  catch (const CORBA::Exception &e){
+      // Process any other User exceptions. Use the .id() method to
+      // record or display useful information
+      CORBA::Any tmp;
+      tmp <<= e;
+      CORBA::TypeCode_var tc = tmp.type();
+      const char * p = tc->name();
+      if (*p != '\0') cout << "SeD async Caught exception : " << p << endl;
+      else cout << "SeD async Caught exception : " << tc->id() << endl;
+      fflush(stdout);
+  }
+  catch (...)
+  {
+      // Process any other exceptions. This would catch any other C++
+      // exceptions and should probably never occur
+      cout << "Caught an unknown Exception" << endl;
+      fflush(stdout);
+  }
+}
+
+  
 CORBA::Long
 SeDImpl::ping()
 {

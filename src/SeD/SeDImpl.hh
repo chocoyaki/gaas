@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2003/06/02 09:06:46  cpera
+ * Beta version of asynchronize DIET API.
+ *
  * Revision 1.2  2003/05/10 08:54:41  pcombes
  * New format for configuration files, new Parsers.
  *
@@ -55,7 +58,11 @@ public:
 
   virtual CORBA::Long
   solve(const char* pbName, corba_profile_t& pb);
-
+  
+  virtual void
+  solveAsync(const char* pb_name, const corba_profile_t& pb,
+	    CORBA::Long reqID, const char * volatileclientIOR);
+  
   virtual CORBA::Long
   ping();
 
