@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.11  2002/11/08 15:48:08  lbertsch
+ * Petite correction
+ *
  * Revision 1.10  2002/11/08 15:43:15  lbertsch
  * Added the use of a compilation directive for testing if we are in the
  * demo or not. Do a export DEMO_BALTIMORE=1 to compile for the demo!
@@ -72,6 +75,7 @@
 
 #ifdef DEMO_BALTIMORE
 #include "com_tools.h"
+#include <string.h>
 #endif
 
 extern "C" {
@@ -389,15 +393,18 @@ int diet_call(diet_function_handle_t *handle, diet_profile_t *profile)
 
 #ifdef DEMO_BALTIMORE
   static int already_initialized = 0;
-  
+  char str_tmp[1000];
+
   if (!already_initialized) {
     init_communications();
     already_initialized = 1;
   }
 
   if (DEMO_BALTIMORE + 0) {
+    strcpy(str_tmp, (*decision)[server_OK].chosenServerName);
+    strcat(str_tmp, "_SeD");
     add_communication("client",
-		      (*decision)[server_OK].chosenServerName, 
+		      str_tmp,
 		      profile_size(profile));
   }
 #endif
