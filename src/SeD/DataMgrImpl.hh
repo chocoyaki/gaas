@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2003/10/14 20:29:06  bdelfabr
+ * adding print methods (PERSISTENT mode only)
+ *
  * Revision 1.4  2003/10/01 07:06:42  bdelfabr
  * removing DataManagerID.hh which is not used
  *
@@ -76,8 +79,15 @@ public:
 
   virtual void
   sendData(corba_data_t& arg);
+  
+  virtual char *
+  setMyName();
 
-
+  void 
+  printList();
+  
+  void
+  printList1();
   void
   updateDataProperty(corba_data_t& dataDesc);
   void
@@ -134,8 +144,6 @@ private:
   rmDataFromIDList(char* id);
   corba_data_desc_t
   moveToCorbaDataDesc(corba_data_t& dataDesc);
-  void 
-  printList();
 
 };
 

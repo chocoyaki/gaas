@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2003/10/14 20:29:06  bdelfabr
+ * adding print methods (PERSISTENT mode only)
+ *
  * Revision 1.5  2003/10/02 17:08:00  bdelfabr
  * modifying memory management in case of in_out arg
  *
@@ -87,6 +90,16 @@ DataMgrImpl::run()
 
   return 0;
 }
+
+
+char *
+DataMgrImpl::setMyName(){
+   char myName[261];
+
+   strcpy (myName,this->localHostName);
+   return CORBA::string_dup(myName);
+
+ }
 
 /************************************************************ 
  *Method which permit the copy of an arg present in the map *
@@ -227,7 +240,7 @@ DataMgrImpl::sendData(corba_data_t &arg)
 
   }
   addDataDescToList(&arg,0);
- 
+  printList1();
 
 #endif // DEVELOPPING_DATA_PERSISTENCY
 }
@@ -256,6 +269,7 @@ DataMgrImpl::getData(corba_data_t &cData)
     cpEltListToDataT(&cData);
  
     parent->updateDataRef(cData.desc.id.idNumber,childID,0);
+    printList1();
   }
 #endif // DEVELOPPING_DATA_PERSISTENCY
 }
@@ -263,23 +277,32 @@ DataMgrImpl::getData(corba_data_t &cData)
 /**
  * print the content of the map 
  */
+
 void
-DataMgrImpl::printList(){
-  cout << "______________________" << endl;
-  cout << "|  size of list is " << dataDescList.size() << "  |"<< endl;
+DataMgrImpl::printList1(){
+
+ 
   if( dataDescList.size() > 0){
+    cout << "+-----------------+" << endl;
+    cout << "|  Data ID        |" << endl;
+    cout << "+-----------------+" << endl;
     dietDataDescList_t::iterator cur = dataDescList.begin();
-    cout << "| - - - - - - - - - - |" << endl;
     while (cur != dataDescList.end()) {
-      cout << "| key: " << cur->first << "* value: " << cur->second.desc.id.idNumber << " |" << endl;
-      cout << "|                     |" << endl;
+      //strcpy(cur->first,tab);
+      cout << "|        " << cur->first[2] << "        |" << endl;
+      cout << "+-----------------+" << endl;
       cur++;
     }
   }
-  else {
-    cout << "nil list" << endl;
-  }
-  cout << "______________________" << endl;
+ 
+}
+
+void
+DataMgrImpl::printList(){
+ 
+  printList1();
+ 
+  this->parent->printList();
 }
  
 
@@ -364,7 +387,8 @@ DataMgrImpl::addData(corba_data_t &dataDesc, int inout)
 void
 DataMgrImpl::rmDataRef(const char *argID)
 {
-  rmDataDescFromList(CORBA::string_dup(argID)); 
+  rmDataDescFromList(CORBA::string_dup(argID));
+  printList1();
 }
  
 /**
