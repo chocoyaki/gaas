@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2004/03/03 09:04:57  bdelfabr
+ * add thread safe management to list
+ *
  * Revision 1.8  2004/02/27 10:25:39  bdelfabr
  * coding standard
  *
@@ -259,7 +262,8 @@ LocMgrImpl::updateDataRef(const corba_data_desc_t& arg,
 	  dataChild->rmDataRef(ms_strdup(arg.id.idNumber));
 	}
       }
-    } else { // Not Root Loc Manager
+    } else {
+     // Not Root Loc Manager
       if(dataLookUp(ms_strdup(arg.id.idNumber)) == 1){ // data not found - adding it
 	store_desc_child_t stored_desc ;
 	stored_desc.childID_owner = cChildID;
@@ -423,10 +427,11 @@ LocMgrImpl::whichSeDOwner(const char* argID)
   if (this->parent == LocMgr::_nil()) {
     dataLocList.lock();
     dataLocList.begin();
-    if (dataLocList.find(strdup(argID)) != dataLocList.end()) {     
+    if (dataLocList.find(strdup(argID)) != dataLocList.end()) { 
+      dataLocList.unlock();
      store_desc_child_t &stored_desc = dataLocList[ms_strdup(argID)];
       ChildID cChildID = stored_desc.childID_owner;
-      dataLocList.unlock();
+    
       if(cChildID < static_cast<CORBA::Long>(locMgrChildren.size())) {
 	locMgrChild theLoc = locMgrChildren[cChildID];
 	if (theLoc.defined()) {
@@ -455,9 +460,9 @@ LocMgrImpl::whichSeDOwner(const char* argID)
     dataLocList.lock();
     dataLocList.begin();
     if (dataLocList.find(strdup(argID)) != dataLocList.end()) { /** Data Reference found */
+      dataLocList.unlock();
       store_desc_child_t &stored_desc = dataLocList[ms_strdup(argID)];
       ChildID cChildID = stored_desc.childID_owner;
-       dataLocList.unlock();
       if(cChildID < static_cast<CORBA::Long>(locMgrChildren.size())) {
 	locMgrChild theLoc = locMgrChildren[cChildID];
 	if (theLoc.defined()){
@@ -495,14 +500,16 @@ LocMgrImpl::whichSeDOwner(const char* argID)
 DataMgr_ptr
 LocMgrImpl::whereData(const char* argID)
 {
+
 #if DEVELOPPING_DATA_PERSISTENCY
   if (this->parent == LocMgr::_nil()) {
     dataLocList.lock();
     dataLocList.begin();
     if (dataLocList.find(strdup(argID)) != dataLocList.end()) {     
+      dataLocList.unlock();
       store_desc_child_t &stored_desc = dataLocList[ms_strdup(argID)];
       ChildID cChildID = stored_desc.childID_owner;
-      dataLocList.unlock();
+  
       if(cChildID < static_cast<CORBA::Long>(locMgrChildren.size())) {
 	locMgrChild theLoc =  locMgrChildren[cChildID];
 	if (theLoc.defined()) {
@@ -527,13 +534,14 @@ LocMgrImpl::whereData(const char* argID)
       return DataMgr::_nil();
     }
 
-  } else { /** I am not root Loc Manager */ 
+  } else { 
+     /** I am not root Loc Manager */ 
     dataLocList.lock();
     dataLocList.begin();
     if (dataLocList.find(strdup(argID)) != dataLocList.end()) { /** Data Reference found */
-      store_desc_child_t &stored_desc = dataLocList[ms_strdup(argID)];
-      ChildID cChildID = stored_desc.childID_owner;
       dataLocList.unlock();
+     store_desc_child_t &stored_desc = dataLocList[ms_strdup(argID)];  
+      ChildID cChildID = stored_desc.childID_owner;
       if(cChildID < static_cast<CORBA::Long>(locMgrChildren.size())) {
 	locMgrChild theLoc = locMgrChildren[cChildID];
 	if (theLoc.defined()){
@@ -542,6 +550,7 @@ LocMgrImpl::whereData(const char* argID)
 	  
 	} else return DataMgr::_nil();
       } else {
+
 	if(cChildID < static_cast<CORBA::Long>(dataMgrChildren.size())) {
 	  dataMgrChild theData = dataMgrChildren[cChildID];
 	  if (theData.defined()){
