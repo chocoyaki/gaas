@@ -8,6 +8,10 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.2  2003/12/12 12:36:17  ecaron
+%* Change call to diet_initialize()
+%* Correct some bug
+%*
 %* Revision 1.1  2003/09/09 12:38:20  pcombes
 %* Reorganization of doc: UM becomes UsersManual.
 %*
@@ -58,35 +62,35 @@ your source code (\texttt{DIET\_client.h} includes \texttt{DIET\_data.h}):
 
 #include "DIET_client.h"
 
-int main(int argc, char **argv)
+int main(int argc, char *argv[])
 {
   diet_initialize(configuration_file, argc, argv);
   // Successive DIET calls ...
-  return (diet_finalize());
+  diet_finalize();
 }
 \end{verbatim}
 }
 
 The client program must open its DIET session with a call to
-\texttt{diet\_initialize}, which parses the configuration file to set all
-options and get a reference to the DIET Master Agent. The session is closed with
-a call to \texttt{diet\_finalize}, which aims at freeing all resources, if any,
-associated to this session on the client, the server, and the agents, but not
-the memory allocated for all INOUT and OUT arguments brought back onto the
-client during the session, so that the user can still access them (and still
-have to free them !)
+\texttt{diet\_initialize}, which parses the configuration file to set
+all options and get a reference to the DIET Master Agent. The session
+is closed with a call to \texttt{diet\_finalize}, which aims at
+freeing all resources, if any, associated to this session on the
+client, servers, and agents, but not the memory allocated for
+all INOUT and OUT arguments brought back onto the client during the
+session, so that the user can still access them (and still have to
+free them !)
 
 
 \section{Client API}
 \label{sec:clAPI}
 
 The client API follows the GridRPC definition \cite{gridRPC:02}: all
-\texttt{diet\_} functions are ``duplicated'' with \texttt{grpc\_} functions.
-Both \texttt{diet\_initialize} and \texttt{diet\_finalize} belong to the GridRPC
-API.  One important thing to notice is that the GridRPC defines an asynchronous
-API that is not fully implemented in DIET yet (it is redirected onto the
-synchronous
-API).\\
+\texttt{diet\_} functions are ``duplicated'' with \texttt{grpc\_}
+functions.  Both \texttt{diet\_initialize} and \texttt{diet\_finalize}
+belong to the GridRPC API.  One important thing to notice is that the
+GridRPC defines an asynchronous API that is not fully implemented in
+DIET yet (it is redirected onto the synchronous API). \fixme{check with CP} \\
 
 A problem is managed through a \emph{function\_handle}, that associates a server
 to a problem name. Please do not use \texttt{diet\_function\_handle\_init},
@@ -104,14 +108,14 @@ its profile, in the call to \texttt{diet\_call}.
 Let us consider the same example as in Section \ref{sec:pbex}.  Here, the client
 configuration file is given as the first argument on the command line, and we
 decide to hardcode the matrix, its factor, and the name of the problem:
-\texttt{smprod} for scalar by matrix product.
+\texttt{smprod}~\footnote{Source code available \texttt{doc/tutorial/solutions/exercise2/client_smprod.c}} for scalar by matrix product.
 
 
 {\footnotesize
 \begin{verbatim}
-#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include "DIET_client.h"
 
 int main(int argc, char **argv)
@@ -120,6 +124,7 @@ int main(int argc, char **argv)
   double  factor = M_PI; /* Pi, why not ? */
   double *matrix;        /* The matrix to multiply */
   float  *time   = NULL; /* To check that time is set by the server */
+
   diet_function_handle_t *fhandle;
   diet_profile_t         *profile;
 
@@ -131,12 +136,12 @@ int main(int argc, char **argv)
   }
   
   /* Iinitialize a DIET session */
-  diet_initialize(argc, argv, "./client.cfg");
+  diet_initialize("./client.cfg", argc, argv);
 
-  /* Create the function_handle */
+  /* Create the function_hanle */
   fhandle = diet_function_handle_default("smprod");
 
-  /* Create the profile as explained in Chapter 3 */
+  /* Create the profile as explained in Chapter \ref{\ref{ch:data} */
   profile = diet_profile_alloc(0, 1, 2); // last_in, last_inout, last_out
   
   /* Set profile arguments */
@@ -146,7 +151,7 @@ int main(int argc, char **argv)
   
   if (!diet_call(fhandle, profile)) { /* If the call has succeeded ... */
      
-    /* Print time */
+    /* Get and print time */
     diet_scalar_get(diet_parameter(profile,2), &time, NULL);
     if (time == NULL) {
       printf("Error: time not set !\n");
@@ -160,9 +165,10 @@ int main(int argc, char **argv)
     }
   }
 
+  /* Free profile and function handle */
   diet_profile_free(profile);
   diet_function_handle_destruct(fhandle);
-  return (diet_finalize());
+  diet_finalize();
 }
 \end{verbatim}
 }
