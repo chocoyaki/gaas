@@ -10,13 +10,17 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2003/05/05 14:50:52  pcombes
+ * alloca.h does not exist on all platforms ...
+ *
  * Revision 1.1  2003/04/10 12:58:53  pcombes
  * The gcclib qsort, adapted to server descriptions.
  *
  ****************************************************************************/
 
-
+#if HAVE_ALLOCA_H
 #include <alloca.h>
+#endif // HAVE_ALLOCA_H
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
