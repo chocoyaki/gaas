@@ -9,6 +9,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.14  2003/02/19 10:48:07  cpera
+ * Add stdlib.h include for gcc 2.95.3 with SunOS.
+ *
  * Revision 1.13  2003/02/19 09:03:40  cpera
  * Add headers include for gcc 2.95.3 compatibility under SunOS.
  *
@@ -48,6 +51,7 @@
  *  - ...
  ****************************************************************************/
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
 using namespace std;
