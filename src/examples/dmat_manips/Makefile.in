@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.17  2003/10/14 20:25:06  bdelfabr
+#* update Makefile - adding clientWithoutID
+#*
 #* Revision 1.16  2003/10/10 15:27:32  bdelfabr
 #* adding clientWithID example for Persistance -to be completed
 #*
@@ -23,7 +26,7 @@
 #
 srcdir = @srcdir@
 subdir = src/examples/dmat_manips
-SOURCES = client.c server.c serialClient.cc	\
+SOURCES = client.c server.c serialClient.cc clientWithoutID.c	\
 	  parallelClient.cc parallelClient2.cc parallelClient3.cc clientWithID.c
 HEADERS = progs.h Global_macros.hh
 #
@@ -39,7 +42,7 @@ include ../before.mk
 #
 ##
 
-CC_PROGRAMS = client server clientWithID
+CC_PROGRAMS = client server clientWithID clientWithoutID
 CXX_PROGRAMS = serialClient parallelClient parallelClient2 parallelClient3
 PROGRAMS = $(CC_PROGRAMS) $(CXX_PROGRAMS)
 
@@ -47,6 +50,9 @@ PROGRAMS = $(CC_PROGRAMS) $(CXX_PROGRAMS)
 all:	$(PROGRAMS)
 
 client: client.c $(DIET_CLIENT_PREREQ)
+	$(CC) $(CCFLAGS_DIET) $< $(DIET_CLIENT_LIBS) -o $@
+
+clientWithoutID: clientWithoutID.c $(DIET_CLIENT_PREREQ)
 	$(CC) $(CCFLAGS_DIET) $< $(DIET_CLIENT_LIBS) -o $@
 
 clientWithID: clientWithID.c $(DIET_CLIENT_PREREQ)
