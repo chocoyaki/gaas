@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.5  2003/06/03 18:36:03  pcombes
+#* Add a VERSION file to the distribution.
+#*
 #* Revision 1.4  2003/04/10 15:02:10  pcombes
 #* Add doc and examples modules. Apply distrib_file.sh to distributed files.
 #* Include autotools sources and doxygen documentation in maintainer distribs.
@@ -57,9 +60,12 @@ MAINTAINERCLEANFILES = $(top_srcdir)/Makefile.in \
 
 dist-hook:
 	(cd $(distdir); rm -f $(RM_FROM_DIST))
-	for f in `find $(distdir) -type f`; do				\
+	for f in `find $(distdir) -type f`; do				  \
+	  export VERSION=$(PACKAGE_VERSION);                              \
 	  $(top_srcdir)/bin/script/distrib_file.sh $$f $(DONT_DIST_FILES);\
 	done
+	echo $(PACKAGE_STRING) > $(distdir)/VERSION
+	echo `LANG=C date +"%A %B %d %Y"` >> $(distdir)/VERSION
 if MAINTAINER_MODE
 	@cp $(top_srcdir)/Doxyfile $(distdir)
 	(cd $(distdir); doxygen || exit 0)
@@ -75,8 +81,7 @@ distclean-local:
 help:
 	@echo "===================================================================="
 	@echo "Usage :   make help     : shows this help screen"
-	@echo
-	@echo "          make agent    : builds DIET_MA and DIET_LA executables"
+	@echo "          make agent    : builds DIET agent executable"
 	@echo "          make SeD      : builds DIET SeD library"
 	@echo "          make client   : builds DIET client library"
 	@echo "          make examples : builds basic examples" 
