@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.10  2003/09/26 14:04:24  pcombes
+#* Add DIST_SUBMODULES_DIET in DIST_SUBDIRS
+#*
 #* Revision 1.9  2003/09/22 21:05:49  pcombes
 #* Better management of the maintainer distribution.
 #*
@@ -20,28 +23,13 @@
 #* Separate the DIET API (slightly modified) from the GridRPC API (version of
 #* the draft dated to 07/21/2003)
 #*
-#* Revision 1.6  2003/06/23 13:13:40  pcombes
-#* Update make help.
-#*
-#* Revision 1.5  2003/06/03 18:36:03  pcombes
-#* Add a VERSION file to the distribution.
-#*
 #* Revision 1.4  2003/04/10 15:02:10  pcombes
 #* Add doc and examples modules. Apply distrib_file.sh to distributed files.
 #* Include autotools sources and doxygen documentation in maintainer distribs.
-#*
-#* Revision 1.3  2003/02/19 15:46:20  cpera
-#* Change files because of portability errors.
-#*
-#* Revision 1.2  2003/02/19 09:32:24  cpera
-#* Change dist rules for documentation.
-#*
-#* Revision 1.1  2003/02/14 10:31:29  cpera
-#* add files used by autoconf/automake/libtool.
 #****************************************************************************#
 
 SUBDIRS = @SUBMODULES_DIET@
-DIST_SUBDIRS = $(SUBDIRS)
+DIST_SUBDIRS = $(SUBDIRS) @DIST_SUBMODULES_DIET@
 
 # Headers to install ...
 include_HEADERS = $(top_builddir)/include/Makefile.inc \
@@ -117,21 +105,21 @@ endif
 EXTRA_DIST = $(top_srcdir)/include/Makefile.inc.in
 if MAINTAINER_MODE
 EXTRA_DIST += acmacros/aci.m4 acmacros/fast.m4 acmacros/libtool.m4 \
-	      bin bootstrap.sh TO_DO
+	      acmacros/omniorb.m4 acmacros/utils.m4 \
 	      bin/scripts bootstrap.sh TO_DO
 endif
 
 # RM_FROM_DIST: files that should not be in the dist, but that automake includes
 # DONT_DIST_FILES: files that should not be processed by distrib_file.sh before
-RM_FROM_DIST    = AUTHORS NEWS aclocal.m4 include/Makefile.inc
+#                  distributed
 RM_FROM_DIST    = aclocal.m4 include/Makefile.inc
 DONT_DIST_FILES = README COPYING ChangeLog INSTALL configure config.guess \
 		  config.sub depcomp install-sh ltmain.sh mkinstalldirs   \
 		  missing include/DIET_config.h.in
 
-DONT_DIST_FILES += doc/API acmacros bootstrap.sh bin TO_DO
+if MAINTAINER_MODE
 DONT_DIST_FILES += doc/API acmacros bootstrap.sh bin/scripts TO_DO
-RM_FROM_DIST += configure.ac doc/Programmer `find . -name Makefile.am`
+else
 RM_FROM_DIST += AUTHORS NEWS configure.ac doc/Programmer `find . -name Makefile.am`
 endif
 
