@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.38  2004/12/02 09:33:09  bdelfabr
+ * cleanup memory management for in persistent data.
+ *
  * Revision 1.37  2004/11/25 21:56:37  hdail
  * Among other fixes, use diet_free_data on the IN parameters of the DIET_profile.
  * This seems to resolve the major part of the memory leak problem we have.
@@ -424,11 +427,27 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
   unmrsh_in_args_to_profile(&profile, &pb, cvt);
 
 #endif // DEVELOPPING_DATA_PERSISTENCY
-
+  
   solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
- 
-  mrsh_profile_to_out_args(&pb, &profile, cvt);
+  
+#if DEVELOPPING_DATA_PERSISTENCY 
 
+  for(i=0;i<pb.last_in;i++){
+    if(diet_is_persistent(profile.parameters[i])) {
+      if (pb.parameters[i].desc.specific._d() == DIET_FILE) {
+	pb.parameters[i].desc.specific.file().path= (char *)NULL;
+      } else { 
+	CORBA::Char *p1 (NULL);
+	pb.parameters[i].value.replace(0,0,p1,0);
+      }
+    }
+  }
+
+#endif // DEVELOPPING_DATA_PERSISTENCY   
+    
+    mrsh_profile_to_out_args(&pb, &profile, cvt);
+    
+    
 #if DEVELOPPING_DATA_PERSISTENCY   
  
   /*    for (i = pb.last_in + 1 ; i <= pb.last_inout; i++) {
@@ -552,6 +571,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
       mrsh_profile_to_out_args(&(const_cast<corba_profile_t&>(pb)), &profile, cvt);
       
 #else  // ! DEVELOPPING_DATA_PERSISTENCY
+      
       
       mrsh_profile_to_out_args(&(const_cast<corba_profile_t&>(pb)), &profile, cvt);
 
