@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2003/10/06 10:07:37  cpontvie
+ * Add the EXITFUNCTION call to the INTERNAL_ERROR macro
+ *
  * Revision 1.15  2003/08/01 19:38:02  pcombes
  * Include stdlib for exit.
  *
@@ -54,6 +57,16 @@ using namespace std;
 
 
 /**
+ * Definition of the EXIT_FUNCTION if it not exists
+ * You must put the EXIT_FUNCTION's definition before any
+ * #include "xxx" in order to work.
+ */
+#ifndef EXIT_FUNCTION
+#define EXIT_FUNCTION cout << "DEBUG WARNING: EXIT_FUNCTION undeclared !\n"
+#endif
+
+
+/**
  * Always useful
  */
 #define MAX(a,b) ((a) < (b)) ? (b) : (a)
@@ -79,6 +92,7 @@ using namespace std;
 #define INTERNAL_ERROR(formatted_msg,exit_value)              \
   cerr << "DIET INTERNAL ERROR: " << formatted_msg << ".\n"   \
        << "Please send bug report to diet-usr@ens-lyon.fr\n"; \
+  EXIT_FUNCTION; \
   exit(exit_value)
 
 /**
@@ -148,32 +162,32 @@ using namespace std;
 #define traceFile 1
 #define traceLine 1
 #define traceFunction 1
-#define format 0
+#define debug_format 0
 
 #define FILE_OUTPUT() \
-	if (format == 1) cout << "file="; \
+	if (debug_format == 1) cout << "file="; \
 	cout << __FILE__ << "|";
 #define LINE_OUTPUT() \
-	if (format == 1) cout << "line="; \
+	if (debug_format == 1) cout << "line="; \
 	cout << __LINE__ << "|";
 #define FUNCTION_OUTPUT() \
-	if (format == 1) cout << "function="; \
+	if (debug_format == 1) cout << "function="; \
 	cout << __FUNCTION__ << "|";
 #define OMNITHREADID_OUTPUT()\
 	int id = omni_thread::self()->id(); \
-	if (format == 1)	cout << "ThreaID="; \
+	if (debug_format == 1)	cout << "ThreaID="; \
 	cout << id << "|";
 #define TIMER_OUTPUT() \
 	timeval tval; \
 	gettimeofday(&tval, NULL); \
-	if (format == 1) cout << "timer="; \
+	if (debug_format == 1) cout << "timer="; \
 	cout << tval.tv_sec << "," << tval.tv_usec << "|";
 #define VARIABLE_OUTPUT(X) \
 	cout << #X << "=" << X;
 #define TEXT_OUTPUT(X) \
 	printf X;
 # if defined (NDEBUG)
-#   define DIET_DEBUG(X) 
+#   define DIET_DEBUG(X)
 # else
 #   define DIET_DEBUG(X) DIET_TRACE_IMPL(X,Y)
 # endif
@@ -190,7 +204,6 @@ using namespace std;
 		fflush(stdout); \
 		fflush(stderr); \
   } while(0);
-
 
 
 
