@@ -3,14 +3,15 @@
 /* file_transfer example: client side                                       */
 /*                                                                          */
 /*  Author(s):                                                              */
-/*    - Philippe COMBES           - LIP ENS-Lyon (France)                   */
+/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
 /*                                                                          */
-/*  This is part of DIET software.                                          */
-/*  Copyright (C) 2002 ReMaP/INRIA                                          */
-/*                                                                          */
+/* $LICENSE$                                                                */
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.7  2003/02/07 17:04:42  pcombes
+ * Use diet_free_data to properly free user's data.
+ *
  * Revision 1.6  2003/01/17 18:05:37  pcombes
  * Update to API 0.6.3
  *
@@ -25,7 +26,6 @@
  *
  * Revision 1.1.1.1  2002/10/15 18:52:03  pcombes
  * Example of a file transfer: size of the file.
- *
  ****************************************************************************/
 
 
@@ -40,12 +40,14 @@
    argv[2]: path of the file to transfer */
 
 int
-main(int argc, char **argv)
+main(int argc, char* argv[])
 {
-  char *path;
-  diet_function_handle_t *fhandle;
-  diet_profile_t *profile;
-  int *size1, *size2, out_size;
+  char* path = NULL;
+  diet_function_handle_t* fhandle = NULL;
+  diet_profile_t* profile = NULL;
+  int *size1 = NULL;
+  int *size2 = NULL;
+  int out_size = 0;
 
 
   if (argc != 4) {
@@ -54,7 +56,7 @@ main(int argc, char **argv)
   }
   path = "size";
   
-  if (diet_initialize(argc, argv, argv[1])) {
+  if (diet_initialize(argv[1], argc, argv)) {
     fprintf(stderr, "DIET initialization failed !\n");
     return 1;
   } 
@@ -77,16 +79,21 @@ main(int argc, char **argv)
   }
 
   if (!diet_call(fhandle, profile)) {
-    size1 = diet_value(int, diet_parameter(profile,2));
-    size2 = diet_value(int, diet_parameter(profile,3));
-    printf("Answered sizes are %d and %d.\n", *size1, *size2);
-    free(size1);
-    free(size2);
+    diet_scalar_get(diet_parameter(profile,2), &size1, NULL);
+    diet_scalar_get(diet_parameter(profile,3), &size2, NULL);
+    if (size1 && size2) {
+      printf("Answered sizes are %d and %d.\n", *size1, *size2);
+      free(size1);
+      free(size2);
+    } else {
+      fprintf(stderr, "Error: Cannot get answered sizes !\n");
+    }
     diet_file_get(diet_parameter(profile,4), NULL, &out_size, &path);
-    printf("Location of returned file is %s, its size is %d.\n",
-	   path, out_size);
-    if (path)
-      free(path);
+    if (path) {
+      printf("Location of returned file is %s, its size is %d.\n",
+	     path, out_size);
+      diet_free_data(diet_parameter(profile,4));
+    }
   }
   
   diet_profile_free(profile);

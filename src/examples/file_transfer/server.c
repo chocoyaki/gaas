@@ -3,14 +3,15 @@
 /* file_transfer example: server side                                       */
 /*                                                                          */
 /*  Author(s):                                                              */
-/*    - Philippe COMBES           - LIP ENS-Lyon (France)                   */
+/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
 /*                                                                          */
-/*  This is part of DIET software.                                          */
-/*  Copyright (C) 2002 ReMaP/INRIA                                          */
-/*                                                                          */
+/* $LICENSE$                                                                */
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.9  2003/02/07 17:04:42  pcombes
+ * Use diet_free_data to properly free user's data.
+ *
  * Revision 1.8  2003/01/23 19:13:45  pcombes
  * Update to API 0.6.4
  *
@@ -32,7 +33,6 @@
  *
  * Revision 1.1.1.1  2002/10/15 18:52:03  pcombes
  * Example of a file transfer: size of the file.
- *
  ****************************************************************************/
 
 
@@ -46,7 +46,8 @@
 
 #include "DIET_server.h"
 
-void displayArg(const diet_data_t *arg)
+void
+displayArg(const diet_data_t* arg)
 {
       
   switch((int) arg->desc.generic.type) {
@@ -85,10 +86,11 @@ void displayArg(const diet_data_t *arg)
 
 
 int
-solve_size(diet_profile_t *pb)
+solve_size(diet_profile_t* pb)
 {
-  size_t arg_size, comp_size;
-  char *path;
+  size_t arg_size  = 0;
+  size_t comp_size = 0;
+  char* path = NULL;
   int status = 0;
   struct stat buf;
 
@@ -100,7 +102,9 @@ solve_size(diet_profile_t *pb)
     return status;
   if (!(buf.st_mode & S_IFREG))
     return 2;
-  *(diet_value(size_t, diet_parameter(pb,2))) = (size_t) buf.st_size;
+  diet_scalar_desc_set(diet_parameter(pb,2), &buf.st_size);
+  
+  diet_free_data(diet_parameter(pb,0));
   
   diet_file_get(diet_parameter(pb,1), NULL, &arg_size, &path);
   fprintf(stderr, "and %s (%d) ...", path, arg_size);
@@ -108,11 +112,11 @@ solve_size(diet_profile_t *pb)
     return status;
   if (!(buf.st_mode & S_IFREG))
     return 2;
-  /* This is equivalent to
-   * *(diet_value(size_t, diet_parameter(pb,3))) = (size_t) buf.st_size; */
   diet_scalar_desc_set(diet_parameter(pb,3), &buf.st_size);
-  
-  if (diet_file_desc_set(diet_parameter(pb,4), (rand() & 1) ? path : NULL)) {
+
+  // do not apply diet_free_data on param 1, since it is also the OUT file.
+
+  if (diet_file_desc_set(diet_parameter(pb,4), (rand()&1) ? path : NULL)) {
     printf("diet_file_desc_set error\n");
     return 1;
   }
@@ -126,12 +130,12 @@ solve_size(diet_profile_t *pb)
  */
 
 int
-main(int argc, char **argv)
+main(int argc, char* argv[])
 {
   size_t i,j;
   int res;
 
-  diet_profile_desc_t *profile;
+  diet_profile_desc_t* profile = NULL;
 
   if (argc < 2) {
     fprintf(stderr, "Usage: %s <file.cfg>\n", argv[0]);
