@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2004/10/06 16:44:28  rbolze
+ * add new function in API : get_diet_services which return a list of available services in the platform
+ *
  * Revision 1.14  2004/05/04 11:45:21  bdelfabr
  * methods for creation of an id file modified
  *
@@ -132,7 +135,11 @@ diet_wait_all();
 diet_error_t
 diet_wait_any(diet_reqID_t* IDptr);
 
-
+/****************************************************************************/
+/*    get available Services in the DIET Platform                           */
+/****************************************************************************/
+char **
+get_diet_services(int &services_number);
 
 #ifdef __cplusplus
 }
