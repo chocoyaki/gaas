@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.7  2003/09/16 10:35:58  pcombes
+#* Remove .hh files from libDIET_client_la_SOURCES.
+#*
 #* Revision 1.6  2003/08/01 19:20:23  pcombes
 #* Reorganize FAST and omniORB flags. Include FASTMgr.
 #*
@@ -34,9 +37,7 @@ include $(top_srcdir)/config.mk.in
 
 lib_LTLIBRARIES = libDIET_client.la
 
-libDIET_client_la_SOURCES = $(top_srcdir)/include/DIET_client.h \
-			    $(top_srcdir)/include/DIET_grpc.h   \
-			    DIET_client.cc DIET_grpc.cc         \
+libDIET_client_la_SOURCES = DIET_client.cc DIET_grpc.cc         \
 			    CallAsyncMgr.cc CallbackImpl.cc
 
 noinst_HEADERS = CallAsyncMgr.hh CallbackImpl.hh
