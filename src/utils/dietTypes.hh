@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.8  2003/01/22 17:06:43  pcombes
+ * API 0.6.4 : istrans -> order (row- or column-major)
+ *
  * Revision 1.7  2003/01/17 18:08:43  pcombes
  * New API (0.6.3): structures are not hidden, but the user can ignore them.
  *
@@ -514,7 +517,7 @@ int vector_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
 		    diet_base_type_t base_type, size_t size);
 int matrix_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
 		    diet_base_type_t base_type, size_t nb_r, size_t nb_c,
-		    int istrans);
+		    diet_matrix_order_t order);
 int string_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
 		    size_t length);
 /* Computes the file size */

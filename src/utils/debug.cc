@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.9  2003/01/22 17:06:43  pcombes
+ * API 0.6.4 : istrans -> order (row- or column-major)
+ *
  * Revision 1.8  2002/12/03 19:08:24  pcombes
  * Update configure, update to FAST 0.3.15, clean CVS logs in files.
  * Put main Makefile in root directory.
@@ -261,13 +264,13 @@ void displayConvertor(FILE *f, const diet_convertor_t *cvt)
 	    : (i <= cvt->last_inout) ? "INOUT"
 	    : "OUT  ");
     switch((int)cvt->arg_convs[i].f) {
-    case DIET_CVT_IDENTITY:    fprintf(f, "IDENT  of "); break;
+    case DIET_CVT_IDENTITY:   fprintf(f, "IDENT  of "); break;
     case DIET_CVT_FILE_SIZE:
-    case DIET_CVT_VECT_SIZE:   fprintf(f, "SIZE   of "); break;
-    case DIET_CVT_MAT_NB_ROW:  fprintf(f, "NB_ROW of "); break;
-    case DIET_CVT_MAT_NB_COL:  fprintf(f, "NB_COL of "); break;
-    case DIET_CVT_MAT_ISTRANS: fprintf(f, "TRANS  of "); break;
-    case DIET_CVT_STR_LEN:     fprintf(f, "LENGTH of "); break;
+    case DIET_CVT_VECT_SIZE:  fprintf(f, "SIZE   of "); break;
+    case DIET_CVT_MAT_NB_ROW: fprintf(f, "NB_ROW of "); break;
+    case DIET_CVT_MAT_NB_COL: fprintf(f, "NB_COL of "); break;
+    case DIET_CVT_MAT_ORDER:  fprintf(f, "ORDER  of "); break;
+    case DIET_CVT_STR_LEN:    fprintf(f, "LENGTH of "); break;
     }
     if (cvt->arg_convs[i].arg)
       displayArg(f, &(cvt->arg_convs[i].arg->desc));
