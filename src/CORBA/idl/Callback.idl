@@ -1,0 +1,50 @@
+/****************************************************************************/
+/* DIET callBack IDL description                                            */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Christophe PERA           - LIP ENS-Lyon (France)                   */
+/*                                                                          */
+/* $LICENCES$                                                                          */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.1  2003/06/02 14:56:26  cpera
+ * Applying coding standards.
+ *
+ * Revision 1.1  2003/06/02 08:13:55  cpera
+ * Beta version of asynchronize DIEt API.
+ *
+ ****************************************************************************/
+
+
+#ifndef _CALLBACK_IDL_
+#define _CALLBACK_IDL_
+
+#include "common_types.idl"
+
+interface Callback {
+
+  /*--------------------------------------------------------------*/
+  /* Dummy function returning its first parameter.                */
+  /* Allows to check if the server is alive.                      */
+  /*--------------------------------------------------------------*/
+
+  long ping();
+  
+  /*--------------------------------------------------------------*/
+  /* resultsNotify function:                                      */
+  /*   announce end of solve and results available              */
+  /*--------------------------------------------------------------*/
+
+  long notifyResults(in string path, in corba_profile_t pb, in long reqID);
+
+  /*--------------------------------------------------------------*/
+  /* solveResults function:                                        */
+  /*   put results of solve operation on client...              */
+  /*--------------------------------------------------------------*/
+
+  long solveResults(in string path, in corba_profile_t pb, in long reqID);
+};
+
+
+#endif // _CALLBACK_IDL_
