@@ -8,12 +8,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.4  2003/06/25 09:20:55  cpera
- * Change internal reqId from long int to int according to GridRPC and diet_reqID
- * type.
- *
- * Revision 1.3  2003/06/24 16:44:46  cpera
- * Fix bugs.
+ * Revision 1.5  2003/07/04 09:48:01  pcombes
+ * enum STATE -> request_status_t, and its values are prefixed by STATUS.
  *
  * Revision 1.2  2003/06/04 14:40:05  cpera
  * Resolve bugs, change type of reqID (long int) and modify
@@ -21,7 +17,6 @@
  *
  * Revision 1.1  2003/06/02 08:09:55  cpera
  * Beta version of asynchronize DIET API.
- *
  ****************************************************************************/
 
 
@@ -55,19 +50,19 @@ typedef enum WAITOPERATOR{
                 // rule is created are available
 };
   
-typedef enum STATE{
-  RESOLVING = 0,        // Request is currently solving on Server
-  WAITING,              // End of solving on Server, result comes 
-  DONE,                 // Result is available in local memory on client
-  CANCEL,		// Cancel is called on a reqID.
-  ERROR			// Error catched
-};
+typedef enum {
+  STATUS_RESOLVING = 0, // Request is currently solving on Server
+  STATUS_WAITING,       // End of solving on Server, result comes 
+  STATUS_DONE,          // Result is available in local memory on client
+  STATUS_CANCEL,	// Cancel is called on a reqID.
+  STATUS_ERROR		// Error caught
+} request_status_t;
 
 
 // Don't forget a data is link to a sole reqID
 struct Data{
   diet_profile_t *profile;	// Ref on profile linked to a reqID
-  STATE st;		   	// Info about reqID state 
+  request_status_t st;	   	// Info about reqID state 
   int used;			// Rules number using this profile/ReqID
 };
 
@@ -79,7 +74,7 @@ struct ruleElement{
 struct Rule {
   int length;
   ruleElement * ruleElts;
-  STATE status;
+  request_status_t status;
 };
 
 // manage link between reqID and request datas
@@ -89,7 +84,7 @@ typedef std::multimap<int,Rule *> RulesReqIDMap;
 // Manage link between one rule and one omni semaphore 
 typedef std::map<Rule *, omni_semaphore *> RulesConditionMap;
 // manage link between reqID and request datas
-typedef std::map<int,STATE> ReqIDStateMap;
+typedef std::map<int,request_status_t> ReqIDStateMap;
  
 class CallAsyncMgr 
 {
