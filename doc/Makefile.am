@@ -1,17 +1,17 @@
 #****************************************************************************#
-#* $Id$ 		    *#
 #* DIET documentation global Makefile                                       *#
 #*                                                                          *#
 #*  Author(s):                                                              *#
-#*    - Philippe   COMBES           - LIP ENS-Lyon (France)                 *#
-#*    - Christophe PERA             - LIP ENS-Lyon (France)                 *#
+#*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *#
+#*    - Christophe PERA (Christophe.Pera@ens-lyon.fr)                       *#
 #*                                                                          *#
-#*  This is part of DIET software.                                          *#
-#*  Copyright (C) 2002 ReMaP/LIFC/INRIA                                     *#
-#*                                                                          *#
+#* $LICENSE$                                                                *#
 #****************************************************************************#
-#*
+#* $Id: Makefile.am,v 1.2 2003/02/14 12:27:16 cpera Exp
 #* $Log$
+#* Revision 1.3  2003/04/10 11:11:03  pcombes
+#* Fix compilation in a build directory.
+#*
 #* Revision 1.2  2003/02/14 12:27:16  cpera
 #* change spaces with tabs (make errors in Makefile target).
 #*
@@ -23,11 +23,10 @@
 #*
 #* Revision 1.1  2003/01/07 18:08:43  pcombes
 #* Add install targets in Makefiles.
-#*
 #****************************************************************************#
 
-SUBDIRS=CS UM
-DIST_SUBDIRS=$(SUBDIRS)
+SUBDIRS = CS UM
+DIST_SUBDIRS = $(SUBDIRS)
 
 .PHONY:	CS UM
 
