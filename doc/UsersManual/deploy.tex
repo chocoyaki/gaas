@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.7  2004/07/09 14:34:42  rbolze
+%* make changes relative to DIET 1.1 version
+%*
 %* Revision 1.6  2004/04/05 11:11:37  rbolze
 %* add instrcution for the config files and LogService
 %*
@@ -123,7 +126,7 @@ Checkpointing completed.
 
 \subsubsection{The client}
 
-Every DIET entity, you need to connect to the CORBA name server: it is
+For every DIET entity, you need to connect to the CORBA name server: it is
 the way services discover each other. The reference to the omniORB
 name server is written in the configuration file, whose path is given
 to omniORB through the environment variable \texttt{OMNIORB\_CONFIG}
@@ -149,6 +152,10 @@ InitRef = NameService=corbaname::<name server hostname>:<name server port>
 }
 The name server port is the one given in argument to the \texttt{-start} option
 of \texttt{omniNames}.
+You also need to update your \texttt{LD\_LIBRARY\_PATH} to point to \texttt{$<$install\_dir$>$/lib}.
+So your \texttt{LD\_LIBRARY\_PATH} environment variable should be now :\\
+\texttt{LD\_LIBRARY\_PATH$= <$omniORB\_home$>$/lib:$<$install\_dir$>$/lib}.
+
 \end{description}
 
 %\subsection*{The TAO name server}
@@ -315,9 +322,13 @@ is set to 0.
 \subsection{Miscellanous options}
 
 \noindent
-\texttt{endPoint} \ \ \emph{default}\texttt{ = }\emph{2809}\\
-This option specifies the listening port of an agent or an SeD. It is very
-useful when they are behind a firewall. It defaults set to 2809. 
+\texttt{dietPort} \ \ \emph{default} \texttt{ = }\emph{2809}\\
+This option specifies the listening port of an agent or an SeD. If not specified, let the ORB get a port from the system (if the default 2809 was busy). It is very useful when they are behind a firewall. By default this option is disabled.
+
+\noindent
+\texttt{dietHostname} \ \ \emph{$<$hostname |  IP$>$}\\
+The listening interface of the agent. If not specified,let the ORB get the hostname from the system (the first one if several one are available).
+It is very useful when you has more than one network interface, or you hasn't got DNS...
 
 \noindent
 \texttt{useAsyncAPI} \ \ \emph{default}\texttt{ = }\emph{1}\\
@@ -352,15 +363,19 @@ For such a platform, the MA configuration file could be:
  \footnotesize
  \begin{tabular}{lcll}
   \multicolumn{4}{l}{\# file MA\_example.cfg, configuration file for an MA}\\
-  agentType    &=&DIET\_MASTER\_AGENT&\\
-  name         &=&MA\_example        &\\
-  \#traceLevel &=&5                  &\# default\\
-  \#endPoint   &=&2809               &\# default\\
-  \#fastUse    &=&1                  &\# default\\
-  \#ldapUse    &=&0                  &\# default\\
-  \#nwsUse     &=&1                  &\# default\\
-  nwsNameserver&=&nwshost:9001       &\\
-  nwsForecaster&=&nwshost:9002       &\\
+  agentType     &=&DIET\_MASTER\_AGENT&\\
+  name          &=&MA\_example        &\\
+  \#traceLevel  &=&5                  &\# default\\
+  \#dietPort    &=&<port>             &\# default\\
+  \#dietHostname&=&<hostname|IP>      &\# default\\
+  \#fastUse     &=&1                  &\# default\\
+  \#ldapUse     &=&0                  &\# default\\
+  \#nwsUse      &=&1                  &\# default\\
+  nwsNameserver &=&nwshost:9001       &\\
+  nwsForecaster &=&nwshost:9002       &\\
+  useLogService &=& 0                 &\\
+  lsOutbuffersize &=& 0               &\\
+  lsFlushinterval &=& 10000           &\\
  \end{tabular}
 \end{center}
 \rm
@@ -389,12 +404,16 @@ For such a platform, an LA configuration file could be:
   name         &=&LA\_example       &\\
   parentName   &=&MA\_example       &\\
   \#traceLevel &=&5                 &\# default\\
-  \#endPoint   &=&2809              &\# default\\
+  \#dietPort    &=&<port>             &\# default\\
+  \#dietHostname&=&<hostname|IP>      &\# default\\
   \#fastUse    &=&1                 &\# default\\
   \#ldapUse    &=&0                 &\# default\\
   \#nwsUse     &=&1                 &\# default\\
   nwsNameserver&=&nwshost:9001      &\\
   nwsForecaster&=&nwshost:9002      &\\
+  useLogService &=& 0                 &\\
+  lsOutbuffersize &=& 0               &\\
+  lsFlushinterval &=& 10000           &\\
  \end{tabular}
 \end{center}
 \rm
@@ -420,7 +439,8 @@ For such a platform, an \sed\ configuration file could be:
   \multicolumn{4}{l}{\# file SeD\_example.cfg, configuration file for an SeD}\\
   parentName   &=&LA\_example        &\\
   \#traceLevel &=&5                 &\# default\\
-  \#endPoint   &=&2809              &\# default\\
+  \#dietPort    &=&<port>             &\# default\\
+  \#dietHostname&=&<hostname|IP>      &\# default\\
   \#fastUse    &=&1                 &\# default\\
   \#ldapUse    &=&1                 &\# default\\
   ldapBase     &=&ldaphost:9000     &\\
@@ -428,6 +448,9 @@ For such a platform, an \sed\ configuration file could be:
   \#nwsUse     &=&1                 &\# default\\
   nwsNameserver&=&nwshost:9001      &\\
   nwsForecaster&=&nwshost:9002      &\\
+  useLogService &=& 0                 &\\
+  lsOutbuffersize &=& 0               &\\
+  lsFlushinterval &=& 10000           &\\
  \end{tabular}
 \end{center}
 \rm
