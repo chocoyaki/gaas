@@ -9,6 +9,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.44  2004/12/22 06:28:45  alsu
+ * - slight modifications to make clear the static nature (i.e.,
+ *   logically private to the marshalling code) of a few functions
+ * - back out change introduced to __mrsh_data_id_desc that attempted to
+ *   copy the type and base type of the src data.  previously, this was
+ *   done to make the diet_service_table_lookup_by_profile function work;
+ *   this function has now been rewritten
+ *
  * Revision 1.43  2004/12/08 15:02:51  alsu
  * plugin scheduler first-pass validation testing complete.  merging into
  * main CVS trunk; ready for more rigorous testing.
@@ -266,26 +274,22 @@ mrsh_data(corba_data_t* dest, diet_data_t* src, int release)
  *  Marshall/ Unmarshall data handler                                     *
  *************************************************************************/
 
-int
-mrsh_data_id_desc(corba_data_desc_t* dest, diet_data_desc_t* src){
+static int
+__mrsh_data_id_desc(corba_data_desc_t* dest,
+                    const diet_data_desc_t* const src){
 
   dest->id.idNumber = CORBA::string_dup(src->id);
  
   dest->id.state    = DIET_FREE;
   dest->id.dataCopy = DIET_ORIGINAL;
-  dest->base_type = src->generic.base_type;
-
-  if (__mrsh_data_desc_type(dest, src) != 0) {
-    return (1);
-  }
 
   return (0);
 }
 
 
-void
-mrsh_data_id(corba_data_t* dest, diet_data_t* src){
-  mrsh_data_id_desc(&(dest->desc),&(src->desc));
+static void
+__mrsh_data_id(corba_data_t* dest, const diet_data_t* const src) {
+  __mrsh_data_id_desc(&(dest->desc), &(src->desc));
   dest->value.length(0); 
 }
 
@@ -504,7 +508,7 @@ mrsh_pb_desc(corba_pb_desc_t* dest, const diet_profile_t* const src)
     if(src->parameters[i].desc.id == NULL) {
       mrsh_data_desc(&(dest->param_desc[i]), &(src->parameters[i].desc));
     } else {
-      mrsh_data_id_desc(&(dest->param_desc[i]), &(src->parameters[i].desc));
+      __mrsh_data_id_desc(&(dest->param_desc[i]), &(src->parameters[i].desc));
     }
   }
   return 0;
@@ -527,7 +531,7 @@ mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src)
 
    for (i = 0; i <= src->last_inout; i++) {
     if(src->parameters[i].desc.id) {
-       mrsh_data_id(&(dest->parameters[i]), &(src->parameters[i]));
+       __mrsh_data_id(&(dest->parameters[i]), &(src->parameters[i]));
      } else {
        if (src->parameters[i].value == NULL &&
            !diet_is_persistent(src->parameters[i]) &&
