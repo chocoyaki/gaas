@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2003/08/09 17:35:05  pcombes
+ * Fix bug in cvt_arg_desc (break instruction in cases)
+ *
  * Revision 1.1  2003/08/01 19:16:55  pcombes
  * Add a manager for the FAST API, compatible with FAST 0.4 and FAST 0.8.
  * Any later changes in the FAST API should be processed by this static class.
@@ -432,9 +435,9 @@ cvt_arg_desc(fast_arg_desc_t** dest,
   case DIET_CVT_MAT_ORDER: {
     char t;
     // FIXME test on order !!!!
-    switch (src->specific.mat.order) {
-    case DIET_ROW_MAJOR: t = 'N';
-    case DIET_COL_MAJOR: t = 'T';
+    switch ((diet_matrix_order_t)(src->specific.mat.order)) {
+    case DIET_ROW_MAJOR: t = 'N'; break;
+    case DIET_COL_MAJOR: t = 'T'; break;
     default: {
       ERROR(__FUNCTION__ << ": invalid order for matrix", 1);
     }
@@ -515,8 +518,10 @@ corbaPbDesc2fastPb(const corba_pb_desc_t* src, const diet_convertor_t* cvt)
   delete [] src_params;
 
 #if defined(__FAST_0_8__)
-  if (TRACE_LEVEL >= TRACE_STRUCTURES)
+  if (TRACE_LEVEL >= TRACE_STRUCTURES) {
     data_argstack_dump(res);
+    data_argstack_check(res);
+  }
 #endif
 
   return res;
