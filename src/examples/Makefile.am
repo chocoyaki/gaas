@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.4  2003/06/16 17:15:54  pcombes
+#* Move asynchronous examples in dmat_manips.
+#*
 #* Revision 1.3  2003/06/02 09:10:07  cpera
 #* Samples illustrate use of asynchronize api.
 #*
@@ -20,7 +23,7 @@
 #* NB: installation directory is $(top_builddir)/src/examples/bin.
 #****************************************************************************#
 
-SUBDIRS = dmat_manips dmat_manips_async file_transfer @SUBMODULES_examples@
+SUBDIRS = dmat_manips file_transfer @SUBMODULES_examples@
 DIST_SUBDIRS = $(SUBDIRS) @DIST_SUBMODULES_examples@
 
 EXTRA_DIST = $(wildcard $(srcdir)/cfgs/*.cfg)
