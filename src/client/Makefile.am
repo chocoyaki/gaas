@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.6  2003/08/01 19:20:23  pcombes
+#* Reorganize FAST and omniORB flags. Include FASTMgr.
+#*
 #* Revision 1.5  2003/07/25 20:37:36  pcombes
 #* Separate the DIET API (slightly modified) from the GridRPC API (version of
 #* the draft dated to 07/21/2003)
@@ -44,13 +47,12 @@ utilsdir = $(top_builddir)/src/utils
 corbadir = $(top_builddir)/src/CORBA
 
 libDIET_client_la_LIBADD = \
-	$(utilsdir)/libUtilsCommon.la $(utilsdir)/libUtilsSeDClt.la \
-	$(utilsdir)/libUtilsCichlid.la                              \
-	$(corbadir)/libCorbaCommon.la $(corbadir)/libCorbaSeDClt.la \
-	$(corbadir)/idl/libIDLAgent.la                              \
-	$(corbadir)/idl/libIDLCommon.la $(corbadir)/idl/libIDLMA.la \
+	$(utilsdir)/libUtilsCommon.la $(utilsdir)/libUtilsSeDClt.la	\
+	$(utilsdir)/libUtilsCichlid.la					\
+	$(corbadir)/libCorbaCommon.la $(corbadir)/idl/libIDLAgent.la	\
+	$(corbadir)/idl/libIDLCommon.la $(corbadir)/idl/libIDLMA.la	\
 	$(LIBS_OMNIORB)
 
-AM_CPPFLAGS += -I$(top_srcdir)/src/utils \
-	       -I$(top_srcdir)/src/CORBA -I$(corbadir)/idl
+AM_CXXFLAGS = $(CXXFLAGS_OMNIORB) -I$(top_srcdir)/src/utils \
+	      -I$(top_srcdir)/src/CORBA -I$(corbadir)/idl
 

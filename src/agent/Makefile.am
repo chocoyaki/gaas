@@ -11,6 +11,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.5  2003/08/01 19:20:23  pcombes
+#* Reorganize FAST and omniORB flags. Include FASTMgr.
+#*
 #* Revision 1.4  2003/05/10 08:50:33  pcombes
 #* New Parsers let us reunify the two executables into one dietAgent.
 #*
@@ -38,12 +41,12 @@ utilsdir = $(top_builddir)/src/utils
 corbadir = $(top_builddir)/src/CORBA
 
 dietAgent_LDADD = \
+	$(utilsdir)/libUtilsNodes.la $(utilsdir)/libUtilsCommon.la     \
 	$(corbadir)/libCorbaCommon.la                                  \
 	$(corbadir)/idl/libIDLAgent.la $(corbadir)/idl/libIDLCommon.la \
 	$(corbadir)/idl/libIDLLA.la $(corbadir)/idl/libIDLMA.la        \
-	$(utilsdir)/libUtilsCommon.la $(utilsdir)/libUtilsNodes.la     \
 	$(LIBS_OMNIORB) $(LIBS_FAST)
 
-AM_CPPFLAGS += $(CXXFLAGS_FAST) -I$(top_srcdir)/src/utils \
-	       -I$(top_srcdir)/src/CORBA -I$(corbadir)/idl
+AM_CXXFLAGS = $(CXXFLAGS_OMNIORB) $(CXXFLAGS_FAST) -I$(top_srcdir)/src/utils \
+	      -I$(top_srcdir)/src/CORBA -I$(corbadir)/idl
 

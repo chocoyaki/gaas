@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.6  2003/08/01 19:20:22  pcombes
+#* Reorganize FAST and omniORB flags. Include FASTMgr.
+#*
 #* Revision 1.5  2003/07/04 09:47:56  pcombes
 #* Indentation. Remove useless comments.
 #*
@@ -44,7 +47,7 @@ nodist_libIDLLA_la_SOURCES    = LocalAgentSK.cc  LocalAgentDynSK.cc
 nodist_libIDLMA_la_SOURCES    = MasterAgentSK.cc MasterAgentDynSK.cc
 
 # automake include variables
-#AM_CPPFLAGS += 
+AM_CXXFLAGS = -Wno-reorder $(CXXFLAGS_OMNIORB)
 
 Makefile.am:./idlRules.mk
 Makefile.in:./idlRules.mk

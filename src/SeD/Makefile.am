@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.4  2003/08/01 19:20:23  pcombes
+#* Reorganize FAST and omniORB flags. Include FASTMgr.
+#*
 #* Revision 1.3  2003/05/05 14:15:53  pcombes
 #* FAST flags were missing ...
 #*
@@ -35,12 +38,11 @@ utilsdir = $(top_builddir)/src/utils
 corbadir = $(top_builddir)/src/CORBA
 
 libDIET_SeD_la_LIBADD = \
-	$(utilsdir)/libUtilsCommon.la $(utilsdir)/libUtilsSeDClt.la    \
-	$(utilsdir)/libUtilsNodes.la                                   \
-	$(corbadir)/libCorbaCommon.la $(corbadir)/libCorbaSeDClt.la    \
-	$(corbadir)/idl/libIDLCommon.la $(corbadir)/idl/libIDLAgent.la \
+	$(utilsdir)/libUtilsCommon.la $(utilsdir)/libUtilsSeDClt.la	\
+	$(utilsdir)/libUtilsNodes.la $(corbadir)/libCorbaCommon.la	\
+	$(corbadir)/idl/libIDLCommon.la $(corbadir)/idl/libIDLAgent.la	\
 	$(LIBS_OMNIORB) $(LIBS_FAST)
 
-AM_CPPFLAGS += $(CXXFLAGS_FAST) -I$(top_srcdir)/src/utils \
-	       -I$(top_srcdir)/src/CORBA -I$(corbadir)/idl
+AM_CXXFLAGS = $(CXXFLAGS_OMNIORB) $(CXXFLAGS_FAST) -I$(top_srcdir)/src/utils \
+	      -I$(top_srcdir)/src/CORBA -I$(corbadir)/idl
 

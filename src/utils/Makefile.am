@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.6  2003/08/01 19:20:23  pcombes
+#* Reorganize FAST and omniORB flags. Include FASTMgr.
+#*
 #* Revision 1.5  2003/06/24 16:04:18  cpera
 #* Update ReaderWriter file name.
 #*
@@ -35,12 +38,13 @@ libUtilsCichlid_la_SOURCES = com_tools.cc
 libUtilsCommon_la_SOURCES  = debug.cc DIET_data.cc ms_function.cc Parsers.cc	\
 			     statistics.cc
 libUtilsSeDClt_la_SOURCES  = DIET_mutex.cc
-libUtilsNodes_la_SOURCES   = Counter.cc ServiceTable.cc
+libUtilsNodes_la_SOURCES   = Counter.cc ServiceTable.cc FASTMgr.cc
 
-noinst_HEADERS = com_tools.hh Counter.hh debug.hh dietTypes.hh			\
+noinst_HEADERS = com_tools.hh Counter.hh debug.hh dietTypes.hh FASTMgr.hh	\
 		 LinkedList.hh ms_function.hh Parsers.hh ReadersWriterLock.hh	\
 		 ServiceTable.hh ServiceTable.hh statistics.hh			\
 		 ts_container/ts_map.hh	ts_container/ts_set.hh			\
 		 ./ts_container/ts_vector.hh
 
-AM_CPPFLAGS += -I$(top_builddir)/src/CORBA -I$(top_builddir)/src/CORBA/idl
+AM_CXXFLAGS = $(CXXFLAGS_OMNIORB) $(CXXFLAGS_FAST) \
+	      -I$(top_srcdir)/src/CORBA -I$(top_builddir)/src/CORBA/idl

@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.4  2003/08/01 19:20:23  pcombes
+#* Reorganize FAST and omniORB flags. Include FASTMgr.
+#*
 #* Revision 1.3  2003/05/05 14:00:37  pcombes
 #* Add FAST flags for the compilation of marshalling.
 #*
@@ -25,15 +28,14 @@ DIST_SUBDIRS = idl
 
 include $(top_srcdir)/config.mk.in
 
-noinst_LTLIBRARIES = libCorbaCommon.la libCorbaSeDClt.la
+noinst_LTLIBRARIES = libCorbaCommon.la #libCorbaSeDClt.la
 
 # defining libtool libraries sources
-libCorbaCommon_la_SOURCES = ORBMgr.cc ORBMgr.hh
-libCorbaSeDClt_la_SOURCES = marshalling.cc marshalling.hh \
-                            $(top_srcdir)/src/utils/dietTypes.hh
+libCorbaCommon_la_SOURCES = ORBMgr.cc marshalling.cc
+#libCorbaSeDClt_la_SOURCES = marshalling.cc
 
 noinst_HEADERS = marshalling.hh ORBMgr.hh
 
 # automake include variables
-AM_CPPFLAGS += $(CXXFLAGS_FAST) -I$(top_srcdir)/src/utils -I./idl
+AM_CXXFLAGS = $(CXXFLAGS_OMNIORB) -I$(top_srcdir)/src/utils -I./idl
 
