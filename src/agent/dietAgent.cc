@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2003/10/06 12:25:53  cpontvie
+ * iostream.h ==> iostream
+ *
  * Revision 1.9  2003/10/06 10:14:06  cpontvie
  * Remove the interruption management
  * Initialize the ExitClass
@@ -36,7 +39,7 @@
 
 
 #include "ExitClass.hh"
-#include <iostream.h>
+#include <iostream>
 #include <stdlib.h>
 
 #include "debug.hh"
