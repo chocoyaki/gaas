@@ -1,6 +1,6 @@
 /****************************************************************************/
-/* dmat_manips example: a DIET server for transpose, RSUM a and RPROD       */
-/* services                                                                 */
+/* dmat_manips example: a DIET server for transpose, MatPROD, MatSUM,       */
+/*   SqMatSUM, SqMatSUM_opt services.                                       */
 /*                                                                          */
 /*  Author(s):                                                              */
 /*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
@@ -9,8 +9,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.20  2003/04/10 13:28:15  pcombes
- * Apply new Coding Standards.
+ * Revision 1.21  2003/06/16 17:12:49  pcombes
+ * Move the examples using the asynchronous API into this directory.
  *
  * Revision 1.19  2003/02/07 17:05:23  pcombes
  * Add SqMatSUM_opt with the new convertor API.
