@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2003/08/01 19:26:35  pcombes
+ * Some fixes in the #if conditions.
+ *
  * Revision 1.7  2003/07/04 09:47:54  pcombes
  * Rm setTraceLevel and DIET_ct. Use new ERROR and WARNING macros.
  *
@@ -28,6 +31,7 @@
  * Unify ORBs interface with a manager class: ORBMgr
  ****************************************************************************/
 
+
 #include <iostream>
 using namespace std;
 
@@ -45,21 +49,19 @@ PortableServer::POA_var ORBMgr::POA_BIDIR = PortableServer::POA::_nil();
 int
 ORBMgr::init(int argc, char** argv, bool init_POA)
 {
-#ifdef __OMNIORB3__
+#if defined(__OMNIORB3__)
   ORB = CORBA::ORB_init(argc, argv, "omniORB3");
   omniORB::scanGranularity(0);
-#else
-#ifdef __OMNIORB4__
+#elif defined(__OMNIORB4__)
   const char* options[][2]
     = {{"inConScanPeriod","0"},{"outConScanPeriod","0"},
        {"maxGIOPConnectionPerServer","50"},
        //{"giopMaxMsgSize","33554432"}, // 32MB
        {0,0}};
   ORB = CORBA::ORB_init(argc, argv, "omniORB4", options);
-#else  // __OMNIORB4__
-#error "No omniORB version defined !!!"
-#endif // __OMNIORB4__
-#endif // __OMNIORB3__
+#else
+#error "This version of omniORB is not supported !!!"
+#endif
 
   if (CORBA::is_nil(ORB))
     return 1;
