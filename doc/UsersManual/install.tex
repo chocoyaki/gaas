@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.6  2004/01/07 20:25:04  ecaron
+%* Add ScaLAPACK and BLAS introduction
+%*
 %* Revision 1.5  2004/01/06 15:07:46  ecaron
 %* Correct latex bug
 %*
@@ -284,6 +287,15 @@ variable should be enough in most cases.\\
 \texttt{fast-config} detection.
 
 \subsubsection{BLAS}
+
+The BLAS~\footnote{url{http://www.netlib.org/blas/}} (Basic Linear
+Algebra Subprograms) are high quality "building block" routines for
+performing basic vector and matrix operations.  Level 1 BLAS do
+vector-vector operations, Level 2 BLAS do matrix-vector operations,
+and Level 3 BLAS do matrix-matrix operations. Because the BLAS are
+efficient, portable, and widely available, they're commonly used in
+the development of high quality linear algebra software.
+
 {\footnotesize
 \begin{verbatim}
   --with-BLAS=DIR         specify the root installation directory of BLAS (Basic Linear Algebric Subroutines)
@@ -304,6 +316,32 @@ enough, and the other options are provided for difficult installation of the BLA
 sub-module BLAS are disabled.
 
 \subsubsection{\scalapack}
+
+The ScaLAPACK\footnote{\url{http://www.netlib.org/scalapack/}} (or
+Scalable LAPACK) library includes a subset of LAPACK routines
+redesigned for distributed memory MIMD parallel computers. It is
+currently written in a Single-Program-Multiple-Data style using
+explicit message passing for interprocessor communication. It assumes
+matrices are laid out in a two-dimensional block cyclic decomposition.
+
+Like LAPACK, the ScaLAPACK routines are based on block-partitioned
+algorithms in order to minimize the frequency of data movement between
+different levels of the memory hierarchy. (For such machines, the
+memory hierarchy includes the off-processor memory of other
+processors, in addition to the hierarchy of registers, cache, and
+local memory on each processor.) The fundamental building blocks of
+the ScaLAPACK library are distributed memory versions (PBLAS) of the
+Level 1, 2 and 3 BLAS, and a set of Basic Linear Algebra Communication
+Subprograms (BLACS) for communication tasks that arise frequently in
+parallel linear algebra computations. In the ScaLAPACK routines, all
+interprocessor communication occurs within the PBLAS and the BLACS.
+One of the design goals of ScaLAPACK was to have the ScaLAPACK
+routines resemble their LAPACK equivalents as much as possible.
+
+For detailed information on ScaLAPACK, please refer to the ScaLAPACK
+Users' Guide~\cite{scalapack}.
+
+
 {\footnotesize
 \begin{verbatim}
   --with-ScaLAPACK=DIR    specify the root installation directory of ScaLAPACK (parallel version of the LAPACK library)
@@ -346,9 +384,9 @@ were selected and what it was possible to get. The output will look like:
 DIET successfully configured as follows:
  - documents:       yes
  - examples:        dmat_manips, file_transfer, scalars
- - FAST:            found /home/pcombes/DIET/FAST/bin/fast-config
+ - FAST:            found /home/username/DIET/FAST/bin/fast-config
  - ORB:             omniORB 4 in /usr
- - prefix:          /home/pcombes/DIET/install
+ - prefix:          /home/username/DIET/install
  - multi-MA:        no
  - target platform: i686-pc-linux-gnu
  
@@ -360,7 +398,7 @@ Please run make help to get compilation instructions.
          make SeD      : builds DIET SeD library
          make client   : builds DIET client library
          make examples : builds basic examples
-         make install  : copy files into /home/pcombes/DIET/install
+         make install  : copy files into /home/username/DIET/install
 ====================================================================
 \end{verbatim}
 }
