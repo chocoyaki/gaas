@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.32  2004/12/22 06:49:25  alsu
+ * rewriting the diet_service_table_lookup_by_profile to convert the
+ * incoming diet_profile_t* parameter to a diet_profile_desc_t to do the
+ * lookup.  This works around the behavior of mrsh_pb_desc, which is not
+ * sufficient for the service table lookup, as it does not copy the type
+ * and base type fields.
+ *
  * Revision 1.31  2004/12/15 18:09:58  alsu
  * cleaner, easier to document interface: changing diet_perfmetric_t back
  * to the simpler one-argument (of type diet_profile_t) version, and
@@ -217,17 +224,38 @@ diet_service_table_lookup(const diet_profile_desc_t* const profile)
   return (refNum);
 }
 
-int diet_service_table_lookup_by_profile(const diet_profile_t* const profile)
+int
+diet_service_table_lookup_by_profile(const diet_profile_t* const profile)
 {
   int refNum;
-  corba_pb_desc_t corbaProfile;
+  corba_profile_desc_t corbaProfile;
+  diet_profile_desc_t profileDesc;
 
   if (profile == NULL) {
     ERROR(__FUNCTION__ << ": null profile", -1);
   }
 
-  mrsh_pb_desc(&(corbaProfile), profile);
+  { /* create the corresponding profile description */
+    profileDesc.path = strdup(profile->pb_name);
+    profileDesc.last_in = profile->last_in;
+    profileDesc.last_inout = profile->last_inout;
+    profileDesc.last_out = profile->last_out;
+    int numArgs = profile->last_out + 1;
+    profileDesc.param_desc =
+      (diet_arg_desc_t*) calloc (numArgs, sizeof (diet_arg_desc_t));
+    for (int argIter = 0 ; argIter < numArgs ; argIter++) {
+      profileDesc.param_desc[argIter] =
+        (profile->parameters[argIter]).desc.generic;
+    }
+  }
+
+  mrsh_profile_desc(&corbaProfile, &profileDesc);
   refNum = SRVT->lookupService(&corbaProfile);
+
+  { /* deallocate the dynamic parts of the created profile description */
+    free(profileDesc.path);
+    free(profileDesc.param_desc);
+  }
 
   return (refNum);
 }
