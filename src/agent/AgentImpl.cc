@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2003/10/06 10:14:50  cpontvie
+ * Modify a bit the destructor
+ *
  * Revision 1.14  2003/09/29 09:20:05  ecaron
  * Add stat_finalize() for MA and LA
  *
@@ -69,7 +72,7 @@ extern unsigned int TRACE_LEVEL;
 
 #define AGT_TRACE_FUNCTION(formatted_text)       \
   TRACE_TEXT(TRACE_ALL_STEPS, "Agt::");          \
-  TRACE_FUNCTION(TRACE_ALL_STEPS,formatted_text)
+TRACE_FUNCTION(TRACE_ALL_STEPS,formatted_text)
 
 
 AgentImpl::AgentImpl()
@@ -86,39 +89,46 @@ AgentImpl::AgentImpl()
 
 AgentImpl::~AgentImpl()
 {
- TRACE_TEXT(TRACE_STRUCTURES, "Agt:: 'this->LAChildren.clear()'...");
+  TRACE_TEXT(TRACE_STRUCTURES, "Remove the Local Agents references...");
   this->LAChildren.clear();
+  this->nbLAChildren = 0;
   TRACE_TEXT(TRACE_STRUCTURES, "Done\n");
-  TRACE_TEXT(TRACE_STRUCTURES, "Agt:: 'this->SeDChildren.clear()'...");
+  TRACE_TEXT(TRACE_STRUCTURES, "Remove the SeD references...");
   this->SeDChildren.clear();
+  this->nbSeDChildren = 0;
   TRACE_TEXT(TRACE_STRUCTURES, "Done\n");
-  TRACE_TEXT(TRACE_STRUCTURES, "Agt:: 'delete this->SrvT'...");
-  delete this->SrvT;
+
+  this->childIDCounter = 0;
+
+  TRACE_TEXT(TRACE_STRUCTURES, "Remove the Services references...");
+  /* FIXME : Pb at the destruction of SrvT */
+  //delete this->SrvT;
   TRACE_TEXT(TRACE_STRUCTURES, "Done\n");
-  TRACE_TEXT(TRACE_STRUCTURES, "Agt:: 'this->reqList.clear()'...");
+  TRACE_TEXT(TRACE_STRUCTURES, "Remove the Request list...");
   this->reqList.clear();
   TRACE_TEXT(TRACE_STRUCTURES, "Done\n");
   if (ORBMgr::unbindObj(ORBMgr::AGENT, this->myName)) {
     WARNING("could not undeclare myself as " << this->myName);
   }
   stat_finalize();
+  TRACE_TEXT(TRACE_STRUCTURES, "All Done\n");
 } // ~AgentImpl()
 
 
 /**
  * Launch this agent (initialization + registration in the hierarchy).
  */
-int
+  int
 AgentImpl::run()
 {
   char* name;
-  
+
   /* Set host name */
   this->localHostName[257] = '\0';
   if (gethostname(this->localHostName, 256)) {
     ERROR("could not get hostname", 1);
   }
-   
+
   /* Bind this agent to its name in the CORBA Naming Service */
   name = (char*)Parsers::Results::getParamValue(Parsers::Results::NAME);
   if (name == NULL)
@@ -136,7 +146,7 @@ AgentImpl::run()
 
 
 /** Set this->locMgr */
-int
+  int
 AgentImpl::linkToLocMgr(LocMgrImpl* locMgr)
 {
   this->locMgr = locMgr;
@@ -154,12 +164,12 @@ AgentImpl::linkToLocMgr(LocMgrImpl* locMgr)
  */
 CORBA::ULong
 AgentImpl::agentSubscribe(Agent_ptr me, const char* hostName,
-			  const SeqCorbaProfileDesc_t& services)
+    const SeqCorbaProfileDesc_t& services)
 {
   CORBA::ULong retID = (this->childIDCounter)++; // thread safe
- 
+
   TRACE_TEXT(TRACE_MAIN_STEPS, "An agent has registered from << " << hostName
-             << ", with " << services.length() << " services.\n");
+      << ", with " << services.length() << " services.\n");
 
   /* the size of the list is childIDCounter+1 (first index is 0) */
   this->LAChildren.resize(this->childIDCounter);
@@ -179,12 +189,12 @@ AgentImpl::agentSubscribe(Agent_ptr me, const char* hostName,
 
 CORBA::ULong
 AgentImpl::serverSubscribe(SeD_ptr me, const char* hostName,
-			   const SeqCorbaProfileDesc_t& services)
+    const SeqCorbaProfileDesc_t& services)
 {
   CORBA::ULong retID;
 
-   TRACE_TEXT(TRACE_MAIN_STEPS, "A server has registered from " << hostName
-       << ", with " << services.length() << " services.\n");
+  TRACE_TEXT(TRACE_MAIN_STEPS, "A server has registered from " << hostName
+      << ", with " << services.length() << " services.\n");
 
   assert (hostName != NULL);
   retID = (this->childIDCounter)++; // thread safe
@@ -203,7 +213,7 @@ AgentImpl::serverSubscribe(SeD_ptr me, const char* hostName,
 /**
  * Add \c services into the service table, and attach them to child \c me.
  */
-void
+  void
 AgentImpl::addServices(CORBA::ULong myID, const SeqCorbaProfileDesc_t& services)
 {
   AGT_TRACE_FUNCTION(myID <<", " << services.length() << " services");
@@ -211,7 +221,7 @@ AgentImpl::addServices(CORBA::ULong myID, const SeqCorbaProfileDesc_t& services)
   for (size_t i = 0; i < services.length(); i++) {
     if (this->SrvT->addService(&(services[i]), myID)) {
       for (size_t j = 0; j < i; j++)
-	this->SrvT->rmService(&(services[j]));
+        this->SrvT->rmService(&(services[j]));
       break;
     }
   }
@@ -232,7 +242,7 @@ AgentImpl::addServices(CORBA::ULong myID, const SeqCorbaProfileDesc_t& services)
  * @param max_srv the maximum number of servers to sort.
  * @return non NULL pointer to a response
  */
-corba_response_t*
+  corba_response_t*
 AgentImpl::findServer(Request* req, size_t max_srv)
 {
   size_t i, j, k;
@@ -240,12 +250,12 @@ AgentImpl::findServer(Request* req, size_t max_srv)
   const corba_request_t& creq = *(req->getRequest());
 
   TRACE_TEXT(TRACE_MAIN_STEPS,
-             "\n**************************************************\n"
-             << "Got request " << creq.reqID
-             << " on problem " << creq.pb.path << endl);
+      "\n**************************************************\n"
+      << "Got request " << creq.reqID
+      << " on problem " << creq.pb.path << endl);
   stat_in(this->myName,"findServer");
 
- /* Initialize the response */
+  /* Initialize the response */
   resp->reqID = creq.reqID;
   resp->sortedIndexes.length(0);
   resp->servers.length(0);
@@ -263,12 +273,12 @@ AgentImpl::findServer(Request* req, size_t max_srv)
     if (locs[i] != -1)
       paramFound = 1;
   }
- 
+
   if (paramFound && nbParam > 1) {
     for (i = 0; i < nbParam ; i++) {
       for (j = i+1; j < nbParam ; j++) {
-	if (locs[j] == locs[i])
-	  locs[j] = -1;
+        if (locs[j] == locs[i])
+          locs[j] = -1;
       }
     }
   }
@@ -278,7 +288,7 @@ AgentImpl::findServer(Request* req, size_t max_srv)
   ServiceTable::ServiceReference_t serviceRef;
   srvTMutex.lock();
   serviceRef = SrvT->lookupService(&(creq.pb));
- 
+
   if (serviceRef == -1) {
     WARNING("no service found for request " << creq.reqID);
     srvTMutex.unlock();
@@ -288,7 +298,7 @@ AgentImpl::findServer(Request* req, size_t max_srv)
     int nbChildrenContacted = 0;
     ServiceTable::matching_children_t *mc, *SrvTmc;
     SrvTmc = SrvT->getChildren(serviceRef);
-  
+
     /* Contact the children. The responses array will not be ready until all
        children are contacted. Thus lock the responses mutex now.           */
     req->lock();
@@ -303,16 +313,16 @@ AgentImpl::findServer(Request* req, size_t max_srv)
 
     for (i = 0; i < (size_t)mc->nb_children; i++) {
       sendRequest(mc->children[i], &creq);
-     } // for (i = 0; i < ms->nb_children; i++)
+    } // for (i = 0; i < ms->nb_children; i++)
 
     delete mc->children;
     delete mc;
 
 #if DEVELOPPING_DATA_PERSISTENCY
-      for (j = 0; j < nbParam ; j++) {
-	if (locs[j] == ms->sons[i])
-	  locs[j] = -1;
-      }
+    for (j = 0; j < nbParam ; j++) {
+      if (locs[j] == ms->sons[i])
+        locs[j] = -1;
+    }
 #endif // DEVELOPPING_DATA_PERSISTENCY
 
     srvTMutex.lock();
@@ -323,7 +333,7 @@ AgentImpl::findServer(Request* req, size_t max_srv)
     if (!nbChildrenContacted) {
       WARNING("no service found for request " << creq.reqID);
       TRACE_TEXT(TRACE_MAIN_STEPS,
-                 "**************************************************\n");
+          "**************************************************\n");
       req->unlock();
       //delete req; // do not delete since getRequest does not perform a copy
       return resp;
@@ -334,8 +344,8 @@ AgentImpl::findServer(Request* req, size_t max_srv)
 #if DEVELOPPING_DATA_PERSISTENCY
     for (i = 0; i < nbParam ; i++) {
       if (locs[i] != -1) {
-	nbSonsContacted++;
-	sendRequest(locs[i],&req);
+        nbSonsContacted++;
+        sendRequest(locs[i],&req);
       }
     }
 #endif // DEVELOPPING_DATA_PERSISTENCY
@@ -346,10 +356,10 @@ AgentImpl::findServer(Request* req, size_t max_srv)
     /* Everything is ready, we can now wait for the responses */
     /* (This call implicitly unlocks the responses mutex)     */
     TRACE_TEXT(TRACE_ALL_STEPS, "Waiting for " << nbChildrenContacted
-               << " responses to request " << creq.reqID <<  "...\n");
+        << " responses to request " << creq.reqID <<  "...\n");
     req->waitResponses(nbChildrenContacted);
     req->unlock();
-   
+
     /* The thread is awakened when all responses are gathered */
 
     /* Update communication times for all non-persistent parameters:
@@ -361,43 +371,43 @@ AgentImpl::findServer(Request* req, size_t max_srv)
     double* time = new double[nb_resp]; 
 
     for (i = 0; (int)i <= creq.pb.last_out; i++) {
-      
+
       unsigned long
-      size = sizeof(corba_data_t) + data_sizeof(&(creq.pb.param_desc[i]));
+        size = sizeof(corba_data_t) + data_sizeof(&(creq.pb.param_desc[i]));
 
       for (j = 0; j < nb_resp; j++) {
-	corba_response_t* resp_j = &(req->getResponses()[j]);
+        corba_response_t* resp_j = &(req->getResponses()[j]);
 
-	time[j] = 0.0;
+        time[j] = 0.0;
 
-	if ((int)i <= creq.pb.last_in) {
-	  /* IN args : compute comm time if they are volatile or if their id is
-	     non assigned yet (which means it is not stored in the platform) */
-	  if (((creq.pb.param_desc[i].mode == DIET_VOLATILE)
-	       || (*(creq.pb.param_desc[i].id.idNumber) == '\0'))) {
-	    time[j] = getCommTime(resp_j->myID, size);
-	  }
-	} else if ((int)i <= creq.pb.last_inout) {
-	  /* INOUT args: add comm times for both directions IN (with the
-	     conditions above) and OUT (with the conditions below) */
-	  if ((creq.pb.param_desc[i].mode == DIET_VOLATILE)
-	      || (*(creq.pb.param_desc[i].id.idNumber) == '\0')) {
-	    time[j] = getCommTime(resp_j->myID, size);
-	  }
-	  if (creq.pb.param_desc[i].mode <= DIET_PERSISTENT_RETURN) {
-	    time[j] += getCommTime(resp_j->myID, size, false);
-	  }
-	} else if (creq.pb.param_desc[i].mode <= DIET_PERSISTENT_RETURN) {
-	  /* OUT args : compute comm time if they are volatile or specified as
-	     "return". */
-	  time[j] = getCommTime(resp_j->myID, size, false);
-	}
+        if ((int)i <= creq.pb.last_in) {
+          /* IN args : compute comm time if they are volatile or if their id is
+             non assigned yet (which means it is not stored in the platform) */
+          if (((creq.pb.param_desc[i].mode == DIET_VOLATILE)
+                || (*(creq.pb.param_desc[i].id.idNumber) == '\0'))) {
+            time[j] = getCommTime(resp_j->myID, size);
+          }
+        } else if ((int)i <= creq.pb.last_inout) {
+          /* INOUT args: add comm times for both directions IN (with the
+             conditions above) and OUT (with the conditions below) */
+          if ((creq.pb.param_desc[i].mode == DIET_VOLATILE)
+              || (*(creq.pb.param_desc[i].id.idNumber) == '\0')) {
+            time[j] = getCommTime(resp_j->myID, size);
+          }
+          if (creq.pb.param_desc[i].mode <= DIET_PERSISTENT_RETURN) {
+            time[j] += getCommTime(resp_j->myID, size, false);
+          }
+        } else if (creq.pb.param_desc[i].mode <= DIET_PERSISTENT_RETURN) {
+          /* OUT args : compute comm time if they are volatile or specified as
+             "return". */
+          time[j] = getCommTime(resp_j->myID, size, false);
+        }
 
-	/* Inject the computed comm time (or 0.0 - default) into all servers */
-	for (k = 0; k < resp_j->servers.length(); k++) {
-	  resp_j->servers[k].estim.commTimes[i] += time[j];
-	  resp_j->servers[k].estim.totalTime += time[j];
-	} 
+        /* Inject the computed comm time (or 0.0 - default) into all servers */
+        for (k = 0; k < resp_j->servers.length(); k++) {
+          resp_j->servers[k].estim.commTimes[i] += time[j];
+          resp_j->servers[k].estim.totalTime += time[j];
+        } 
       }
     }
     delete [] time;
@@ -416,11 +426,11 @@ AgentImpl::findServer(Request* req, size_t max_srv)
 /****************************************************************************/
 
 /** Get the response of a child */
-void
+  void
 AgentImpl::getResponse(const corba_response_t& resp)
 {
   TRACE_TEXT(TRACE_MAIN_STEPS, "Got a response from " << resp.myID
-             <<"th child" << " to request " << resp.reqID << endl);
+      <<"th child" << " to request " << resp.reqID << endl);
   stat_in(this->myName,"getResponse");
   /* The response should be copied in the logs */
   /* Look for the concerned request in the logs */
@@ -439,7 +449,7 @@ AgentImpl::getResponse(const corba_response_t& resp)
 /**
  * Used to test if this agent is alive.
  */
-CORBA::Long
+  CORBA::Long
 AgentImpl::ping()
 {
   AGT_TRACE_FUNCTION("");
@@ -450,7 +460,7 @@ AgentImpl::ping()
 /**
  * Send the request structure \c req to the child whose ID is \c childID.
  */
-void
+  void
 AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req)
 {
   bool childFound = false;
@@ -459,76 +469,76 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req)
   AGT_TRACE_FUNCTION(childID << ", " << req->pb.path);
   stat_in(this->myName,"sendRequest");
   try {
-  /* Is the child an agent ? */
-  if (childID < static_cast<CORBA::ULong>(LAChildren.size())) {
-    LAChild& childDesc = LAChildren[childID];
-    if (childDesc.defined()) {
-      try {
-	try {
-	  /* checks if the child is alive with a ping */
-	  childDesc->ping();
-	  childDesc->getRequest(*req);
-	} catch (CORBA::COMM_FAILURE& ex) {
-	  throw (comm_failure_t)0;
-	} catch (CORBA::TRANSIENT& e) {
-	  throw (comm_failure_t)1;
-	}
-      } catch (comm_failure_t& e) {
-	if (e == 0 || e == 1) {
-	  WARNING("connection problems with LA child " << childID
-                  << " occured - remove it from known children");
-	  srvTMutex.lock();
-	  SrvT->rmChild(childID);
-	  if (TRACE_LEVEL >= TRACE_STRUCTURES) {
-	    SrvT->dump(stdout);
-	  }
-	  srvTMutex.unlock();
-	  LAChildren[childID] = LAChild();
-	  --nbLAChildren;
-	} else {
-	  throw e;
-	}
+    /* Is the child an agent ? */
+    if (childID < static_cast<CORBA::ULong>(LAChildren.size())) {
+      LAChild& childDesc = LAChildren[childID];
+      if (childDesc.defined()) {
+        try {
+          try {
+            /* checks if the child is alive with a ping */
+            childDesc->ping();
+            childDesc->getRequest(*req);
+          } catch (CORBA::COMM_FAILURE& ex) {
+            throw (comm_failure_t)0;
+          } catch (CORBA::TRANSIENT& e) {
+            throw (comm_failure_t)1;
+          }
+        } catch (comm_failure_t& e) {
+          if (e == 0 || e == 1) {
+            WARNING("connection problems with LA child " << childID
+                << " occured - remove it from known children");
+            srvTMutex.lock();
+            SrvT->rmChild(childID);
+            if (TRACE_LEVEL >= TRACE_STRUCTURES) {
+              SrvT->dump(stdout);
+            }
+            srvTMutex.unlock();
+            LAChildren[childID] = LAChild();
+            --nbLAChildren;
+          } else {
+            throw e;
+          }
+        }
+        childFound = true;
       }
-      childFound = true;
     }
-  }
-  if (!childFound && childID < static_cast<CORBA::ULong>(SeDChildren.size())) {
-    /* Then it must be a server */
-    SeDChild& childDesc = SeDChildren[childID];
-    if (childDesc.defined()) {
-      try {
-	try {
-	  /* checks if the child is alive with a ping */
-	  childDesc->ping();
-	  childDesc->getRequest(*req);
-	} catch (CORBA::COMM_FAILURE& ex) {
-	  throw (comm_failure_t)0;
-	} catch (CORBA::TRANSIENT& e) {
-	  throw (comm_failure_t)1;
-	}
-      } catch (comm_failure_t& e) {
-	if (e == 0 || e == 1) {
-	   WARNING("connection problems with SeD child " << childID
-                  << " occured - remove it from known children");
-	  srvTMutex.lock();
-	  SrvT->rmChild(childID);
-	  if (TRACE_LEVEL >= TRACE_STRUCTURES) {
-	    SrvT->dump(stdout);
-	  }
-	  srvTMutex.unlock();
-	  SeDChildren[childID] = SeDChild();
-	  --nbSeDChildren;
-	} else {
-	  throw e;
-	}
+    if (!childFound && childID < static_cast<CORBA::ULong>(SeDChildren.size())) {
+      /* Then it must be a server */
+      SeDChild& childDesc = SeDChildren[childID];
+      if (childDesc.defined()) {
+        try {
+          try {
+            /* checks if the child is alive with a ping */
+            childDesc->ping();
+            childDesc->getRequest(*req);
+          } catch (CORBA::COMM_FAILURE& ex) {
+            throw (comm_failure_t)0;
+          } catch (CORBA::TRANSIENT& e) {
+            throw (comm_failure_t)1;
+          }
+        } catch (comm_failure_t& e) {
+          if (e == 0 || e == 1) {
+            WARNING("connection problems with SeD child " << childID
+                << " occured - remove it from known children");
+            srvTMutex.lock();
+            SrvT->rmChild(childID);
+            if (TRACE_LEVEL >= TRACE_STRUCTURES) {
+              SrvT->dump(stdout);
+            }
+            srvTMutex.unlock();
+            SeDChildren[childID] = SeDChild();
+            --nbSeDChildren;
+          } else {
+            throw e;
+          }
+        }
+        childFound = true;
       }
-      childFound = true;
-    }
 
-    if (!childFound) {
-      WARNING("trying to send a request to an unknown child");
+      if (!childFound) {
+        WARNING("trying to send a request to an unknown child");
+      }
     }
-  }
   } catch(...) {
     WARNING("exception thrown in Agt::" << __FUNCTION__);
   }
@@ -543,11 +553,11 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req)
  * \c to : if (to), from this agent to the child, else from the child to this
  * agent.
  */
-inline double
+  inline double
 AgentImpl::getCommTime(CORBA::Long childID, unsigned long size, bool to)
 {
 
-double time;
+  double time;
   char* child_name = getChildHostName(childID);
 
   AGT_TRACE_FUNCTION(childID <<", " << size);
@@ -567,17 +577,17 @@ double time;
  * @param request contains pointers to the scheduler and the responses.
  * @param max_srv the maximum number of servers to aggregate (all if 0).
  */
-corba_response_t*
+  corba_response_t*
 AgentImpl::aggregate(Request* request, size_t max_srv)
 {
   corba_response_t* aggregResp = new corba_response_t;
   GlobalScheduler* GS = request->getScheduler();
- 
+
   AGT_TRACE_FUNCTION(request->getRequest()->pb.path << ", " <<
-                     request->getResponsesSize() << " responses, " << max_srv);
+      request->getResponsesSize() << " responses, " << max_srv);
   stat_in(this->myName,"aggregate");
   GS->aggregate(aggregResp, max_srv,
-		request->getResponsesSize(), request->getResponses());
+      request->getResponsesSize(), request->getResponses());
   aggregResp->reqID = request->getRequest()->reqID;
 
   stat_out(this->myName,"aggregate");
@@ -586,7 +596,7 @@ AgentImpl::aggregate(Request* request, size_t max_srv)
 
 
 /** Get host name of a child (returned string is ms_stralloc'd). */
-char*
+  char*
 AgentImpl::getChildHostName(CORBA::Long childID)
 {
   char* hostName = NULL;
