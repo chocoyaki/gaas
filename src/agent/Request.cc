@@ -1,19 +1,29 @@
-// $Id$
-
-/*
+/****************************************************************************/
+/* Request class source code                                                */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)                   */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
  * $Log$
+ * Revision 1.3  2003/04/10 13:02:50  pcombes
+ * Apply Coding Standards. Add the GS (GlobalScheduler) private member.
+ *
  * Revision 1.2  2003/01/22 15:44:01  sdahan
  * separation of the LA and MA
  *
  * Revision 1.1  2002/12/27 15:57:39  sdahan
  * the log list become a ts_map<RequestID, Request*>
- *
- */
+ ****************************************************************************/
 
 #include "Request.hh"
 
 #include <assert.h>
-
+#include "debug.hh"
+#include <iostream>
+using namespace std;
 #include <stdio.h>
 
 void Request::freeResponses() {
@@ -24,11 +34,36 @@ void Request::freeResponses() {
   }
 }
 
-Request::Request(const corba_request_t* request) {
+Request::Request(const corba_request_t* request)
+{
   this->request = request ;
   gatheringEnded = new omni_condition(&respMutex) ;
   responses = NULL ;
   responsesSize = 0 ;
+  if (*(request->serialized_scheduler.in()) == '\0') {
+    cerr << "Warning: request " << request->reqID
+	 << " has no scheduler associated !\n";
+    this->GS = GlobalScheduler::chooseGlobalScheduler(request);
+  } else {
+    this->GS = GlobalScheduler::deserialize(this->request->serialized_scheduler);
+  }  
+} // Request(...)
+
+Request::Request(const corba_request_t* request, GlobalScheduler* GS)
+{
+  this->request = request ;
+  gatheringEnded = new omni_condition(&respMutex) ;
+  responses = NULL ;
+  responsesSize = 0 ;
+
+  this->GS = GS;
+  if (GS && *(request->serialized_scheduler.in()) == '\0') {
+    char* ser_sched = GlobalScheduler::serialize(this->GS);
+    // deallocates old request->serialized_scheduler
+    (const_cast<corba_request_t*>(request))->serialized_scheduler.out() =
+      CORBA::string_dup(ser_sched);
+    delete [] ser_sched;
+  }  
 } // Request(...)
 
 
@@ -65,12 +100,12 @@ void Request::addResponse(const corba_response_t* response) {
 } // addResponse(const corba_response_t* response)
 
 
-const corba_response_t* Request::getResponses() const {
+corba_response_t* Request::getResponses() const {
   return responses ;
 } // getResponses()
 
 
-int Request::getResponsesSize() const {
+size_t Request::getResponsesSize() const {
   return responsesSize ;
 } // getResponsesSize()
 
@@ -82,3 +117,10 @@ CORBA::Long Request::getNumberOfParameters() const {
 const corba_request_t* Request::getRequest() const {
   return request ;
 } // getRequest()
+
+
+GlobalScheduler*
+Request::getScheduler()
+{
+  return this->GS;
+}
