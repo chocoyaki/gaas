@@ -3,6 +3,7 @@
 /*                                                                          */
 /*  Author(s):                                                              */
 /*    - Ludovic BERTSCH           Ludovic.Bertsch@ens-lyon.fr               */
+/*    - Eddy CARON                Eddy.Caron@ens-lyon.fr                    */
 /*    - Philippe COMBES           Philippe.Combes@ens-lyon.fr               */
 /*                                                                          */
 /****************************************************************************/
@@ -33,6 +34,7 @@ int scal_mat_prod(double alpha, double *M, int nb_rows, int nb_cols, float *time
   }
   gettimeofday(&t2, NULL);
   *time = (t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000;
+  printf("TIME=%f \n",*time);
 
   return 0;
 }
@@ -93,55 +95,43 @@ int scal_mat_prod_file(double alpha, char *path, float *time)
 int
 solve_smprod(diet_profile_t *pb)
 {
-  size_t m, n;
+  size_t m,n;
   double coeff;
   double *mat;
   float  time;
 
   /* Get arguments */
-  // This is equivalent to
-  //  diet_scalar_get(diet_parameter(pb,0), NULL, &coeff);
-  coeff = *diet_value(double,diet_parameter(pb,0));
-  // Old version:
-  //  m     = pb->parameters[1].desc.specific.mat.nb_r;
-  //  n     = pb->parameters[1].desc.specific.mat.nb_c;
-  //  mat   = (double *) pb->parameters[1].value;
+  diet_scalar_get(diet_parameter(pb,0), &coeff, NULL);
+  printf("coef = %lf\n",coeff);
   diet_matrix_get(diet_parameter(pb,1), &mat, NULL, &m, &n, NULL);
 
   /* Launch computation */
+  printf("Launch computation\n");
   scal_mat_prod(coeff, mat, m, n, &time);
   
   /* Set OUT arguments */
-  // Old version:
-  //*(float*)pb->parameters[2].value = time;
-  *diet_value(float,diet_parameter(pb,2)) = time;
-
+//  printf("Temps : %f\n",time);
+  diet_scalar_desc_set(diet_parameter(pb,2), &time);
+//  diet_scalar_get(diet_parameter(pb,2), &time,NULL);
+//  printf("Temps2 : %f\n",time);
   return 0;
 }
 
 int
 solve_smprod_file(diet_profile_t *pb)
 {
-  size_t m, n;
   double coeff;
   float  time;
   char  *path;
   
   /* Get arguments */
-  // This is equivalent to
-  //  diet_scalar_get(diet_parameter(pb,0), NULL, &coeff);
-  coeff = *diet_value(double,diet_parameter(pb,0));
-  // Old version: path  = pb->parameters[1].desc.specific.file.path;
+  diet_scalar_get(diet_parameter(pb,0), &coeff, NULL);
+
   diet_file_get(diet_parameter(pb,1), NULL, NULL, &path);
 
   /* Launch computation */
   scal_mat_prod_file(coeff, path, &time);
-
-  /* Set OUT arguments */
-  // Old version:
-  //*(float*)pb->parameters[2].value = time;
-  *diet_value(float,diet_parameter(pb,2)) = time;
-
+  diet_scalar_desc_set(diet_parameter(pb,2), &time);
   return 0;
 }
 
@@ -154,7 +144,6 @@ int
 main(int argc, char **argv)
 {
   int nb_max_services = 10;
-  size_t i,j;
   int res;
   diet_profile_desc_t *profile = NULL;
   
@@ -162,7 +151,7 @@ main(int argc, char **argv)
   diet_service_table_init(nb_max_services);
 
   /* Allocate smprod profile */
-  profile = diet_profile_desc_alloc(0, 1, 2);
+  profile = diet_profile_desc_alloc("smprod",0, 1, 2);
 
   /* Set profile parameters */
   diet_generic_desc_set(diet_param_desc(profile,0), DIET_SCALAR, DIET_DOUBLE);
@@ -170,13 +159,13 @@ main(int argc, char **argv)
   diet_generic_desc_set(diet_param_desc(profile,2), DIET_SCALAR, DIET_FLOAT);
 
   /* Add the smprod to the service table */
-  diet_service_table_add("smprod", profile, NULL, solve_smprod);
+  diet_service_table_add(profile, NULL, solve_smprod);
 
   /* Free the smprod profile, since it was deep copied */
   diet_profile_desc_free(profile);
   
   /* Allocate smprod_file profile */
-  profile = diet_profile_desc_alloc(0, 1, 2);
+  profile = diet_profile_desc_alloc("smprod_file",0, 1, 2);
 
   /* Set profile parameters */
   diet_generic_desc_set(diet_param_desc(profile,0), DIET_SCALAR, DIET_DOUBLE);
@@ -184,7 +173,7 @@ main(int argc, char **argv)
   diet_generic_desc_set(diet_param_desc(profile,2), DIET_SCALAR, DIET_FLOAT);
   
   /* Add the smprod_file to the service table */
-  diet_service_table_add("smprod_file", profile, NULL, solve_smprod_file);
+  diet_service_table_add(profile, NULL, solve_smprod_file);
 
   /* Free the smprod_file profile, since it was deep copied */
   diet_profile_desc_free(profile);
