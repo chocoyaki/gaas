@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2003/08/29 10:53:10  cpontvie
+ * Coding standards applied
+ *
  * Revision 1.3  2003/08/28 16:51:32  cpontvie
  * Adding a SIGINT handler to properly clean the agent on interruption (CTRL+C)
  *
@@ -44,20 +47,21 @@ AgentImpl* Agt;
 /* The SIGINT handler function
    The main function ends here in a fully working Agent !
 */
-void handler( int sig ) {
-	/* Prevent from raising a new SIGINT handler */
-	signal( SIGINT, SIG_IGN );
+void handler(int sig)
+{
+  /* Prevent from raising a new SIGINT handler */
+  signal(SIGINT, SIG_IGN);
 
-	TRACE_TEXT(TRACE_MAIN_STEPS, "______________________________\n");
-	TRACE_TEXT(TRACE_MAIN_STEPS, " Stopping the Agent...\n");
+  TRACE_TEXT(TRACE_MAIN_STEPS, "______________________________\n");
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Stopping the Agent...\n");
 
-	/* Deactivate and destroy the agent */
-	ORBMgr::deactivate();
-	delete Agt;
+  /* Deactivate and destroy the agent */
+  ORBMgr::deactivate();
+  delete Agt;
 
-	TRACE_TEXT(TRACE_MAIN_STEPS, " Agent stopped !\n");
-	exit(0);
-}  /*handler*/
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Agent stopped !\n");
+  exit(0);
+}
 
 
 
@@ -91,13 +95,13 @@ main(int argc, char** argv)
     return res;
   if ((res =
        Parsers::parseCfgFile(true, 2,
-			     (Parsers::Results::param_type_t*)compParam))) {
+                             (Parsers::Results::param_type_t*)compParam))) {
     Parsers::endParsing();
     return res;
   }
 
   /* Some more checks */
-  
+
   // agtType should be ! NULL, as it is a compulsory param
   Parsers::Results::agent_type_t agtType =
     *((Parsers::Results::agent_type_t*)
@@ -109,23 +113,23 @@ main(int argc, char** argv)
     // For a local agent, PARENTNAME is compulsory.
     if (name == NULL) {
       ERROR("parsing " << config_file_name
-	    << ": no parent name specified", 1);
+            << ": no parent name specified", 1);
     }
   } else {
     if (name != NULL)
       WARNING("parsing " << config_file_name << ": no need to specify "
-	      << "a parent name for an MA - ignored");
+              << "a parent name for an MA - ignored");
   }
-  
+
   name = (char*)
     Parsers::Results::getParamValue(Parsers::Results::MANAME);
   if (name != NULL)
     WARNING("parsing " << config_file_name << ": no need to specify "
-	    << "an MA name for an agent - ignored");
+            << "an MA name for an agent - ignored");
 
-  
+
   /* Get listening port */
-  
+
   size_t* port = (size_t*)
     (Parsers::Results::getParamValue(Parsers::Results::ENDPOINT));
   if (port != NULL) {
@@ -167,7 +171,7 @@ main(int argc, char** argv)
     Agt = new MasterAgentImpl();
     ORBMgr::activate((MasterAgentImpl*)Agt);
   }
-  
+
   /* Launch the agent */
   if (Agt->run()) {
     ERROR("unable to launch the agent", 1);
@@ -176,15 +180,15 @@ main(int argc, char** argv)
   /* We do not need the parsing results any more */
   Parsers::endParsing();
 
-	/* Initialize the SIGINT handler exception */
-	signal( SIGINT, handler );
+  /* Initialize the SIGINT handler exception */
+  signal( SIGINT, handler );
 
-	/* Wait for RPCs (blocking call): */
-	try {
-		ORBMgr::wait();
-	} catch (...) {}
-	
-	/* NEVER REACHED */
-	ERROR("'ORBMgr::wait()' failed to run !", 1);
-	return 0;
+  /* Wait for RPCs (blocking call): */
+  try {
+    ORBMgr::wait();
+  } catch (...) {}
+
+  /* NEVER REACHED */
+  ERROR("'ORBMgr::wait()' failed to run !", 1);
+  return 0;
 }

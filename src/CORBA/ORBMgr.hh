@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2003/08/29 10:53:10  cpontvie
+ * Coding standards applied
+ *
  * Revision 1.6  2003/08/28 16:53:55  cpontvie
  * Add functions deactivate, unbindAgent, get_orb, get_poa, get_poa_bidir, get_oid, set_oid
  *
@@ -72,27 +75,27 @@ public:
   stringToObject(const char* IOR);
 
 	static CORBA::ORB_ptr
-	get_orb();
+	getORB();
 
 	static PortableServer::POA_var
-	get_poa();
+	getPOA();
 
 	static PortableServer::POA_var
-	get_poa_bidir();
+	getPOA_BIDIR();
 
 	// To access to the ObjectID of the activate agent.
 	static PortableServer::ObjectId_var
-	get_oid();
+	getOID();
 
 	// To set the ObjectID of the activate agent.
 	static void
-	set_oid(PortableServer::ObjectId_var oid);
+	setOID(PortableServer::ObjectId_var oid);
 
 private:
   static CORBA::ORB_ptr          ORB;
   static PortableServer::POA_var POA;
   static PortableServer::POA_var POA_BIDIR;
-	static PortableServer::ObjectId_var object_ID;
+	static PortableServer::ObjectId_var OBJECT_ID;
 };
 
 

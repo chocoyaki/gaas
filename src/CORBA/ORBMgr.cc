@@ -9,8 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2003/08/29 10:53:10  cpontvie
+ * Coding standards applied
+ *
  * Revision 1.9  2003/08/28 16:54:08  cpontvie
- * Add functions deactivate, unbindAgent, get_orb, get_poa, get_poa_bidir, get_oid, set_oid
+ * Add functions deactivate, unbindAgent, get_orb, get_poa, get_poa_bidir, 
+get_oid, set_oid
  *
  * Revision 1.8  2003/08/01 19:26:35  pcombes
  * Some fixes in the #if conditions.
@@ -48,7 +52,7 @@ extern unsigned int TRACE_LEVEL;
 CORBA::ORB_ptr ORBMgr::ORB = CORBA::ORB::_nil();
 PortableServer::POA_var ORBMgr::POA = PortableServer::POA::_nil();
 PortableServer::POA_var ORBMgr::POA_BIDIR = PortableServer::POA::_nil();
-PortableServer::ObjectId_var ORBMgr::object_ID = NULL;
+PortableServer::ObjectId_var ORBMgr::OBJECT_ID = NULL;
 
 int
 ORBMgr::init(int argc, char** argv, bool init_POA)
@@ -106,9 +110,9 @@ ORBMgr::activate(PortableServer::ServantBase* obj)
 {
   try {
     if (!CORBA::is_nil(ORBMgr::POA_BIDIR))
-      ORBMgr::object_ID = ORBMgr::POA_BIDIR->activate_object(obj);
+      ORBMgr::OBJECT_ID = ORBMgr::POA_BIDIR->activate_object(obj);
     else
-      ORBMgr::object_ID = ORBMgr::POA->activate_object(obj);
+      ORBMgr::OBJECT_ID = ORBMgr::POA->activate_object(obj);
   } catch (...) {
     INTERNAL_ERROR("exception caught in ORBMgr::" << __FUNCTION__, -1);
   }
@@ -120,9 +124,9 @@ ORBMgr::deactivate()
 {
   try {
     if (!CORBA::is_nil(ORBMgr::POA_BIDIR))
-      ORBMgr::POA_BIDIR->deactivate_object(ORBMgr::object_ID);
+      ORBMgr::POA_BIDIR->deactivate_object(ORBMgr::OBJECT_ID);
     else
-      ORBMgr::POA->deactivate_object(ORBMgr::object_ID);
+      ORBMgr::POA->deactivate_object(ORBMgr::OBJECT_ID);
   } catch (...) {
     INTERNAL_ERROR("exception caught in ORBMgr::" << __FUNCTION__, -1);
   }
@@ -277,7 +281,7 @@ ORBMgr::bindAgentToName(CORBA::Object_ptr obj, const char* agentName)
 
   } catch (CORBA::COMM_FAILURE& ex) {
     ERROR("system exception caught (COMM_FAILURE), unable to connect to "
-	  << "the CORBA name server", 1);
+      << "the CORBA name server", 1);
   } catch (omniORB::fatalException& ex) {
     throw;
   } catch (...) {
@@ -310,7 +314,7 @@ ORBMgr::unbindAgent(const char* agentName)
     tmp <<= e;
     CORBA::TypeCode_var tc = tmp.type();
     ERROR("exception caught (" << tc->name() << ") while attempting to "
-	  << "unregister as " << agentName << " to the CORBA name server",1);
+      << "unregister as " << agentName << " to the CORBA name server",1);
   }
 
   cosName.length(1);
@@ -335,7 +339,8 @@ ORBMgr::unbindAgent(const char* agentName)
     } catch(CosNaming::NamingContext::NotFound& ex) {
       ERROR("root context for dietAgent not found", 1);
     } catch (...) {
-      INTERNAL_ERROR("system exception caught while using the naming service", 1);
+      INTERNAL_ERROR("system exception caught while using the naming service",
+                     1);
     }
 
     /* Unbind obj to the agent context */
@@ -346,7 +351,7 @@ ORBMgr::unbindAgent(const char* agentName)
     agtContext->unbind(cosName);
   } catch (CORBA::COMM_FAILURE& ex) {
     ERROR("system exception caught (COMM_FAILURE), unable to connect to "
-	  << "the CORBA name server", 1);
+      << "the CORBA name server", 1);
   } catch (omniORB::fatalException& ex) {
     throw;
   } catch (...) {
@@ -376,32 +381,32 @@ ORBMgr::stringToObject(const char* IOR)
 }
 
 CORBA::ORB_ptr
-ORBMgr::get_orb()
+ORBMgr::getORB()
 {
 	return ORB;
 }
 
 PortableServer::POA_var
-ORBMgr::get_poa()
+ORBMgr::getPOA()
 {
 	return POA;
 }
 
 
 PortableServer::POA_var
-ORBMgr::get_poa_bidir()
+ORBMgr::getPOA_BIDIR()
 {
 	return POA_BIDIR;
 }
 
 PortableServer::ObjectId_var
-ORBMgr::get_oid()
+ORBMgr::getOID()
 {
-	return ORBMgr::object_ID;
+	return ORBMgr::OBJECT_ID;
 }
 
 void
-ORBMgr::set_oid(PortableServer::ObjectId_var oid)
+ORBMgr::setOID(PortableServer::ObjectId_var oid)
 {
-	ORBMgr::object_ID = oid;
+	ORBMgr::OBJECT_ID = oid;
 }
