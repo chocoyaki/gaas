@@ -9,6 +9,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.8  2004/07/08 18:05:54  rbolze
+#* only have tutorial in maintainer mode => this is only because we don't want to distrib tutorial in the tarballs
+#*
 #* Revision 1.7  2003/12/17 16:12:05  ecaron
 #* Change "tutorial" directory to "Tutorial"
 #*
@@ -37,9 +40,9 @@
 #* Add install targets in Makefiles.
 #****************************************************************************#
 
-SUBDIRS = UsersManual Tutorial
+SUBDIRS = UsersManual 
 if MAINTAINER_MODE
-SUBDIRS += ProgrammersGuide
+SUBDIRS += ProgrammersGuide Tutorial
 endif
 
 DIST_SUBDIRS = $(SUBDIRS)
