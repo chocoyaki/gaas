@@ -8,10 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2003/05/05 14:29:51  pcombes
+ * Add "all-steps" traces in all methods.
+ *
  * Revision 1.1  2003/04/10 12:58:08  pcombes
  * Interface for global schedulers, called by agents and associated to
  * requests. Add an implementation of this interface: StdGS.
- *
  ****************************************************************************/
 
 
@@ -23,6 +25,9 @@ using namespace std;
 #include <string.h>
 
 #include "debug.hh"
+
+
+extern unsigned int TRACE_LEVEL;
 
 
 /****************************************************************************/
@@ -48,6 +53,8 @@ GlobalScheduler::~GlobalScheduler()
 GlobalScheduler*
 GlobalScheduler::deserialize(const char* serializedScheduler)
 {
+  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
+    cout << "GS::deserialize(" << serializedScheduler << ")\n";
   if (!strncmp(serializedScheduler, StdGS::stName, StdGS::nameLength)) {
     return StdGS::deserialize(serializedScheduler);
   } else {
@@ -61,6 +68,8 @@ GlobalScheduler::deserialize(const char* serializedScheduler)
 char*
 GlobalScheduler::serialize(GlobalScheduler* GS)
 {
+  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
+    cout << "GS::serialize(" << GS->name << ")\n";
   if (!strncmp(GS->name, StdGS::stName, StdGS::nameLength)) {
     return StdGS::serialize((StdGS*) GS);
   } else {
@@ -100,6 +109,10 @@ GlobalScheduler::aggregate(corba_response_t* aggrResp, size_t max_srv,
   //corba_response_t* aggrResp = new corba_response_t;
   int lastAggregated = -1;
   int* lastAggr = new int[nb_responses];
+
+  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
+    cout << "GS::aggregate(nb_responses=" << nb_responses
+	 << ",max_srv=" << max_srv << ")\n";
 
   for (size_t i = 0; i < nb_responses; i++) {
     lastAggr[i]    = -1;
@@ -157,10 +170,12 @@ StdGS::deserialize(const char* serializedScheduler)
   char* ser_sched = strdup(serializedScheduler);
   StdGS* res = new StdGS();
   
+  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
+    cout << "StdGS::deserialize(" << serializedScheduler << ")\n";
   token = strtok_r(ser_sched, ":", &ptr);
   assert(!strcmp(token, StdGS::stName));
   if (*ptr != '\0')
-    ptr[-1] = ',';
+    ptr[-1] = ':';
   while ((token = strtok_r(NULL, ":", &ptr)) != NULL) {
     res->schedulers.addElement(Scheduler::deserialize(token));
     if (*ptr != '\0')
@@ -178,6 +193,8 @@ StdGS::serialize(StdGS* GS)
   SchedList::Iterator* iter = GS->schedulers.getIterator();
   size_t length = StdGS::nameLength;
 
+  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
+    cout << "StdGS::serialize(" << GS->name << ")\n";
   sprintf(res, GS->name);
   while (iter->hasCurrent()) {
     Scheduler* sched = iter->getCurrent();
@@ -207,6 +224,8 @@ StdGS::sort(SeqLong* sortedIndexes, SeqServerEstimation_t* servers)
   int res;
   SchedList::Iterator* iter = this->schedulers.getIterator();
   
+  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
+    cout << "StdGS::sort(" << servers->length() << " servers)\n";
   while (iter->hasCurrent() && lastSorted < (int)servers->length()) {
     Scheduler* sched = iter->getCurrent();
     if ((res = sched->sort(sortedIndexes, &lastSorted, servers)))
