@@ -13,6 +13,9 @@
 #****************************************************************************#
 #*
 #* $Log$
+#* Revision 1.5  2003/02/17 15:35:54  cpera
+#* New variables for ARCHITECTURE/PLATEFORM/VERSION.
+#*
 #* Revision 1.4  2003/02/14 10:30:06  cpera
 #* add files used by autoconf/automake.
 #*
@@ -29,10 +32,14 @@
 
 # Generic variables for DIET internal makefiles
 #CXX      = g++
-AM_CCFLAGS	= -O2 -Wall -Wno-unused -D@ARCH_DIET@ -D@OS_DIET@ -D__OSVERSION__=2 $(DIET_FLAGS) @CCFLAGS_FAST@ @CFLAGS_omniORB@
-AM_CXXFLAGS = -O2 -Wall -Wno-unused -D__x86__ -D__linux__ -D__OSVERSION__=2 -D_REENTRANT @CXXFLAGS_FAST@ @CXXFLAGS_omniORB@
-INCLUDE  = -I@OMNIORB_HOME@/include/omniORB@OMNIORB_VERSION@
-LIBS_DIET_USED = @LIBS_omniORB@ @LIBS_FAST@
+AM_CCFLAGS=-O2 -Wall -Wno-unused -D@PROCESSOR_DEFINE@ -D@PLATFORM_DEFINE@ \
+          -D__OSVERSION__=@OSVERSION@ $(DIET_FLAGS) @CCFLAGS_FAST@ \
+          @CFLAGS_omniORB@
+AM_CXXFLAGS=-O2 -Wall -Wno-unused -D@PROCESSOR_DEFINE@ -D@PLATFORM_DEFINE@ \
+          -D__OSVERSION__=@OSVERSION@ -D_REENTRANT @CXXFLAGS_FAST@ \
+          @CXXFLAGS_omniORB@
+INCLUDE=-I@OMNIORB_HOME@/include/omniORB@OMNIORB_VERSION@
+LIBS_DIET_USED=@LIBS_omniORB@ @LIBS_FAST@
 
 
 
