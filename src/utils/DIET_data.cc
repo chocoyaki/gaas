@@ -8,11 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2003/07/04 09:48:06  pcombes
+ * Use new ERROR and WARNING macros.
+ *
  * Revision 1.15  2003/04/10 12:46:03  pcombes
  * Manage data ID (strings).
- *
- * Revision 1.14  2003/02/19 10:48:07  cpera
- * Add stdlib.h include for gcc 2.95.3 with SunOS.
  *
  * Revision 1.13  2003/02/19 09:03:40  cpera
  * Add headers include for gcc 2.95.3 compatibility under SunOS.
@@ -21,36 +21,8 @@
  * Remove diet_value. Add diet_is_persistent and diet_free_data.
  * Unify diet_scalar_get prototype to the one of the other _get functions.
  *
- * Revision 1.11  2003/02/04 10:08:22  pcombes
- * Apply Coding Standards
- *
  * Revision 1.10  2003/01/23 18:41:59  pcombes
  * API 0.6.4 : istrans -> order (row- or column-major)
- *
- * Revision 1.9  2003/01/21 12:17:02  pcombes
- * Update UM to API 0.6.3, and "hide" data structures.
- *
- * Revision 1.8  2003/01/17 18:08:43  pcombes
- * New API (0.6.3): structures are not hidden, but the user can ignore them.
- *
- * Revision 1.4  2002/10/15 18:41:39  pcombes
- * Implement convertor API.
- *
- * Revision 1.3  2002/10/03 17:58:20  pcombes
- * Add trace levels (for Bert): traceLevel = n can be added in cfg files.
- * An agent son can now be killed (^C) without crashing this agent.
- * DIET with FAST: compilation is OK, but run time is still to be fixed.
- *
- * Revision 1.2  2002/08/30 16:50:16  pcombes
- * This version works as well as the alpha version from the user point of view,
- * but the API is now the one imposed by the latest specifications (GridRPC API
- * in its sequential part, config file for all parts of the platform, agent
- * algorithm, etc.)
- *  - Reduce marshalling by using CORBA types internally
- *  - Creation of a class ServiceTable that is to be replaced
- *    by an LDAP DB for the MA
- *  - No copy for client/SeD data transfers
- *  - ...
  ****************************************************************************/
 
 #include <stdlib.h>
@@ -67,6 +39,13 @@ using namespace std;
 #include "common_types.hh"
 #include "dietTypes.hh"
 #include "debug.hh"
+
+
+#define DATA_INTERNAL_WARNING(formatted_msg)                                \
+  INTERNAL_WARNING(__FUNCTION__ << ": " << formatted_msg << endl            \
+		   << "Your program might have written in a DIET-reserved " \
+		   << "space: please make sure\n you are using use the API "\
+		   << "functions to fill in DIET data structures")
 
 
 
@@ -115,7 +94,7 @@ macro_data_sizeof(const diet_data_desc_t* desc)
   case DIET_FILE:
     return desc->specific.file.size;
   default:
-    cerr << "macro_data_sizeof: Error in type (cons type)\n";
+    DATA_INTERNAL_WARNING("bad type (cons type)");
     return 0;
   }
 }
@@ -143,8 +122,7 @@ data_sizeof(const corba_data_desc_t* desc)
   case DIET_FILE:
     size = desc->specific.file().size; break;
   default:
-    cerr << "macro_data_sizeof: Error in type (cons type)\n";
-    size = 0;
+    DATA_INTERNAL_WARNING("bad type (cons type)");
   }
   return (base_size * size);
 }
@@ -430,12 +408,10 @@ int
 diet_scalar_desc_set(diet_data_t* data, void* value)
 {
   if (data->desc.generic.type != DIET_SCALAR) {
-    cerr << "DIET error: diet_scalar_desc_set misused (wrong type)\n";
-    return 1;
+    ERROR(__FUNCTION__ << " misused (wrong type)", 1);
   }   
   if (!data->value) {
-    cerr << "DIET error: diet_scalar_desc_set misused (data->value is NULL)\n";
-    return 1;
+    ERROR(__FUNCTION__ << " misused (data->value is NULL)", 1);
   }
   switch(data->desc.generic.base_type) {
   case DIET_CHAR:     
@@ -451,8 +427,7 @@ diet_scalar_desc_set(diet_data_t* data, void* value)
     *((double complex*)data->value) = *((double complex*)value); break;
 #endif // HAVE_COMPLEX
   default: {
-    cerr << "DIET error: diet_scalar_desc_set misused (wrong base type)\n";
-    return 1;
+    ERROR(__FUNCTION__ << " misused (wrong base type)", 1);
   }
   }
   data->desc.specific.scal.value = data->value;
@@ -464,14 +439,12 @@ diet_matrix_desc_set(diet_data_t* data,
 		     size_t nb_r, size_t nb_c, diet_matrix_order_t order)
 {
   if (data->desc.generic.type != DIET_MATRIX) {
-    cerr << "DIET error: diet_matrix_desc_set misused (wrong type)\n";
-    return 1;
+    ERROR(__FUNCTION__ << " misused (wrong type)", 1);
   }   
   if ((nb_r * nb_c) >
       (data->desc.specific.mat.nb_r * data->desc.specific.mat.nb_c)) {
-    cerr << "DIET error: diet_matrix_desc_set misused\n"
-	 << "(the new size for the matrix cannot exceed the old one)\n";
-    return 1;
+    ERROR(__FUNCTION__
+	  << " misused (the new size cannot exceed the old one)", 1);
   }
   if (nb_r    != 0)
     data->desc.specific.mat.nb_r    = nb_r;
@@ -486,13 +459,8 @@ int
 diet_file_desc_set(diet_data_t* data, char* path)
 {
   if (data->desc.generic.type != DIET_FILE) {
-    cerr << "DIET error: diet_file_desc_set misused (wrong type)\n";
-    return 1;
+    ERROR(__FUNCTION__ << " misused (wrong type)", 1);
   }   
-//   if (!path) {
-//     cerr << "DIET error: diet_file_desc_set misused (path is NULL)\n";
-//     return 1;
-//   }
   if (path != data->desc.specific.file.path)
     CORBA::string_free(data->desc.specific.file.path);
   data->desc.specific.file.path = path;
@@ -538,14 +506,11 @@ _scalar_get(diet_arg_t* arg, void** value, diet_persistence_mode_t* mode)
   int res;
 
   if ((arg->desc.generic.type != DIET_SCALAR) || !arg) {
-    cerr << "DIET error: diet_scalar_get misused "
-	 << "            (wrong type or arg pointer is NULL)\n";
-    return 1;
+    ERROR(__FUNCTION__ << " misused (wrong type or arg pointer is NULL)", 1);
   }
   if ((res = get_value((diet_data_t*)arg, value))) {
-    cerr << "DIET error: diet_scalar_get misused "
-	 << "(wrong base type or arg pointer is NULL)\n";
-    return res;
+    ERROR(__FUNCTION__
+	  << " misused (wrong base type or arg pointer is NULL)", res);
   }
   if (mode)
     *mode = arg->desc.mode;
@@ -559,13 +524,11 @@ _vector_get(diet_arg_t *arg, void** value, diet_persistence_mode_t* mode,
   int res;
 
   if (arg->desc.generic.type != DIET_VECTOR) {
-    cerr << "DIET error: diet_vector_get misused (wrong type)\n";
-    return 1;
+    ERROR(__FUNCTION__ << " misused (wrong type)", 1);
   }   
   if ((res = get_value((diet_data_t*)arg, value))) {
-    cerr << "DIET error: diet_vector_get misused "
-	 << "(wrong base type or arg pointer is NULL)\n";
-    return res;
+    ERROR(__FUNCTION__
+	  << " misused (wrong base type or arg pointer is NULL)", res);
   }
   if (mode)
     *mode = arg->desc.mode;
@@ -581,13 +544,11 @@ _matrix_get(diet_arg_t* arg, void** value, diet_persistence_mode_t* mode,
   int res;
 
   if (arg->desc.generic.type != DIET_MATRIX) {
-    cerr << "DIET error: diet_matrix_get misused (wrong type)\n";
-    return 1;
+    ERROR(__FUNCTION__ << " misused (wrong type)", 1);
   }   
   if ((res = get_value((diet_data_t*)arg, value))) {
-    cerr << "DIET error: diet_matrix_get misused "
-	 << "(wrong base type or arg pointer is NULL)\n";
-    return res;
+    ERROR(__FUNCTION__
+	  << " misused (wrong base type or arg pointer is NULL)", res);
   }
   if (mode)
     *mode = arg->desc.mode;
@@ -607,13 +568,11 @@ _string_get(diet_arg_t* arg, char** value, diet_persistence_mode_t* mode,
   int res;
 
   if (arg->desc.generic.type != DIET_STRING) {
-    cerr << "DIET error: diet_string_get misused (wrong type)\n";
-    return 1;
+    ERROR(__FUNCTION__ << " misused (wrong type)", 1);
   }   
   if ((res = get_value((diet_data_t*)arg, (void**)value))) {
-    cerr << "DIET error: diet_string_get misused "
-	 << "(wrong base type or arg pointer is NULL)\n";
-    return res;
+    ERROR(__FUNCTION__
+	  << " misused (wrong base type or arg pointer is NULL)", res);
   }
   if (mode)
     *mode = arg->desc.mode;
@@ -627,8 +586,7 @@ _file_get(diet_arg_t* arg, diet_persistence_mode_t* mode,
 	  size_t* size, char** path)
 {
   if (arg->desc.generic.type != DIET_FILE) {
-    cerr << "DIET error: diet_file_get misused (wrong type)\n";
-    return 1;
+    ERROR(__FUNCTION__ << " misused (wrong type)", 1);
   }
   if (mode)
     *mode = arg->desc.mode;
@@ -655,8 +613,8 @@ int
 diet_free_data(diet_arg_t* arg)
 {
   if (diet_is_persistent(*arg)) {
-    cerr << "Warning: attempt to use diet_free_data on persistent data "
-	 << "- IGNORED.\n";
+    WARNING(" attempt to use " << __FUNCTION__
+	    << " on persistent data - IGNORED");
     return 3;
   }
   switch(arg->desc.generic.type) {

@@ -9,8 +9,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.4  2003/04/10 12:48:41  pcombes
- * Apply Coding Standards.
+ * Revision 1.5  2003/07/04 09:48:06  pcombes
+ * Use new ERROR and WARNING macros.
  *
  * Revision 1.3  2003/02/19 09:03:40  cpera
  * Add headers include for gcc 2.95.3 compatibility under SunOS.
@@ -20,17 +20,35 @@
  * Put main Makefile in root directory.
  ****************************************************************************/
 
+#include "DIET_mutex.h"
+
 #include <stdio.h>
 #include <iostream>
 using namespace std;
 #include <stdlib.h>
+
+#include "debug.hh"
 #include "omnithread.h"
-#include "DIET_mutex.h"
 
 
 static omni_mutex** MUTEX_FIELD = NULL;
 static int MUTEXCOUNT  = 0;
 static int INITIALIZED = 0;
+
+
+#define MUTEX_ERROR(formatted_text)              \
+  ERROR(__FUNCTION__ << ": " << formatted_text, )
+
+#define MUTEX_CHECK_INIT()                                     \
+  if (!INITIALIZED) {                                          \
+    MUTEX_ERROR("diet_mutex_initialize has not been called");\
+  }
+
+#define MUTEX_CHECK_VALIDITY(i)         \
+  if ((i) >= MUTEXCOUNT) {              \
+    MUTEX_ERROR("invalid mutex");\
+  }    
+
 
 
 void
@@ -51,10 +69,7 @@ diet_mutex_create(int* ret)
   int i;
   omni_mutex **temp;
   
-  if(!INITIALIZED){
-    printf("diet_mutex_create Error: diet_mutex_initialize has not been called\n");
-    exit(2);
-  }
+  MUTEX_CHECK_INIT();
 
   for(i=0; i<MUTEXCOUNT; i++){
     if(MUTEX_FIELD[i]==NULL){
@@ -84,55 +99,38 @@ diet_mutex_create(int* ret)
 void
 diet_mutex_free(int* i)
 {
-  if(!INITIALIZED){
-    printf("diet_mutex_free Error: diet_mutex_initialize has not been called\n");
-    exit(2);
-  }
-  if((*i)>=MUTEXCOUNT){
-    printf("diet_mutex_free Error: invalid mutex\n");
-    exit(2);
-  }    
+  MUTEX_CHECK_INIT();
+  MUTEX_CHECK_VALIDITY(*i);  
 
   delete(MUTEX_FIELD[*i]);
 
   MUTEX_FIELD[*i]=NULL;
   *i=0;
-
 }
 
 void
-diet_mutex_lock(int i){
-   if(!INITIALIZED){
-    printf("diet_mutex_lock Error: diet_mutex_initialize has not been called\n");
-    exit(2);
-  }
-  if((i)>=MUTEXCOUNT){
-    printf("diet_mutex_lock Error: invalid mutex\n");
-    exit(2);
-  }    
+diet_mutex_lock(int i)
+{
+  MUTEX_CHECK_INIT()
+  MUTEX_CHECK_VALIDITY(i);  
+
   MUTEX_FIELD[i]->lock();
 }
 
 void
-diet_mutex_unlock(int i){
-  if(!INITIALIZED){
-    printf("diet_mutex_unlock Error: diet_mutex_initialize has not been called\n");
-    exit(2);
-  }
-  if((i)>=MUTEXCOUNT){
-    printf("diet_mutex_unlock Error: invalid mutex\n");
-    exit(2);
-  }    
+diet_mutex_unlock(int i)
+{
+  MUTEX_CHECK_INIT()
+  MUTEX_CHECK_VALIDITY(i);  
+
   MUTEX_FIELD[i]->unlock();
 }
 
 void
 diet_mutex_finalize()
 {
-  if(!INITIALIZED){
-    printf("diet_mutex_finalize Error: diet_mutex_initialize has not been called\n");
-    exit(2);
-  }
+  MUTEX_CHECK_INIT()
+
   free(MUTEX_FIELD);
   INITIALIZED=0;
 }

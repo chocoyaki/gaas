@@ -9,30 +9,20 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2003/07/04 09:47:55  pcombes
+ * Use new ERROR and WARNING macros.
+ *
  * Revision 1.25  2003/04/10 12:40:22  pcombes
  * Use the TRACE_LEVEL of the debug module. Manage the data ID.
  *
  * Revision 1.24  2003/02/07 17:04:12  pcombes
  * Refine convertor API: arg_idx is splitted into in_arg_idx and out_arg_idx.
  *
- * Revision 1.23  2003/02/04 10:08:22  pcombes
- * Apply Coding Standards
- *
- * Revision 1.22  2003/01/23 18:40:53  pcombes
- * Remove "only_value" argument to unmrsh_data, which is now useless
- *
  * Revision 1.21  2003/01/22 17:11:54  pcombes
  * API 0.6.4 : istrans -> order (row- or column-major)
  *
- * Revision 1.20  2003/01/17 18:08:43  pcombes
- * New API (0.6.3): structures are not hidden, but the user can ignore them.
- *
  * Revision 1.19  2003/01/13 18:06:13  pcombes
  * Add inout files management.
- *
- * Revision 1.18  2002/12/03 19:08:23  pcombes
- * Update configure, update to FAST 0.3.15, clean CVS logs in files.
- * Put main Makefile in root directory.
  *
  * Revision 1.16  2002/11/22 13:36:12  lbertsch
  * Added alpha linux support
@@ -44,22 +34,6 @@
  * Revision 1.10  2002/10/04 16:17:09  pcombes
  * Integrate former hardcoded.h in configuration files. If DIET is compiled
  * without FAST, the correspunding entries in the cfg files can be omitted.
- *
- * Revision 1.9  2002/10/03 17:58:13  pcombes
- * Add trace levels (for Bert): traceLevel = n can be added in cfg files.
- * An agent son can now be killed (^C) without crashing this agent.
- * DIET with FAST: compilation is OK, but run time is still to be fixed.
- *
- * Revision 1.5  2002/08/30 16:50:12  pcombes
- * This version works as well as the alpha version from the user point of view,
- * but the API is now the one imposed by the latest specifications (GridRPC API
- * in its sequential part, config file for all parts of the platform, agent
- * algorithm, etc.)
- *  - Reduce marshalling by using CORBA types internally
- *  - Creation of a class ServiceTable that is to be replaced
- *    by an LDAP DB for the MA
- *  - No copy for client/SeD data transfers
- *  - ...
  ****************************************************************************/
 
 
@@ -73,6 +47,13 @@ using namespace std;
 
 #include "marshalling.hh"
 #include "debug.hh"
+
+/** The trace level. */
+extern unsigned int TRACE_LEVEL;
+
+
+#define MRSH_ERROR(formatted_msg,return_value)                       \
+  INTERNAL_ERROR(__FUNCTION__ << ": " << formatted_msg, return_value)
 
 
 /****************************************************************************/
@@ -120,9 +101,8 @@ mrsh_scalar_desc(corba_data_desc_t* dest, diet_data_desc_t* src)
     case DIET_DCOMPLEX:
 #endif // HAVE_COMPLEX
     default:
-      cerr << "mrsh_scalar_desc: Base type "
-	   << src->generic.base_type << " not implemented.\n";
-      return 1;
+      MRSH_ERROR("base type " << src->generic.base_type
+		 << " not implemented", 1);
     }
   }
   
@@ -176,9 +156,7 @@ mrsh_data_desc(corba_data_desc_t* dest, diet_data_desc_t* src)
     break;
   }
   default:
-    cerr << "mrsh_data_desc: Type "
-	 << src->generic.type << " not implemented\n";
-    return 1;
+    MRSH_ERROR("type " << src->generic.type << " not implemented", 1);
   }
   return 0;
 }
@@ -198,9 +176,7 @@ mrsh_data(corba_data_t* dest, diet_data_t* src, int release)
       ifstream infile(path);
       value = SeqChar::allocbuf(size);
       if (!infile) {
-	cerr << "DIET Error: cannot open file "
-	     << path << " for reading.\n";
-	return 1;
+	MRSH_ERROR("cannot open file " << path << " for reading", 1);
       }
       for (unsigned int i = 0; i < size; i++) {
 	value[i] = infile.get();
@@ -267,8 +243,7 @@ unmrsh_scalar_desc(diet_data_desc_t* dest, const corba_data_desc_t* src)
   case DIET_DCOMPLEX:
 #endif // HAVE_COMPLEX
   default:
-    cerr << "unmrsh_scalar_desc: Base type " << bt << " not implemented.\n";
-    return 1;
+    MRSH_ERROR("base type " << bt << " not implemented", 1);
   }
   return 0;
 }
@@ -310,9 +285,7 @@ unmrsh_data_desc(diet_data_desc_t* dest, const corba_data_desc_t* src)
     break;
   }
   default:
-    cerr << "unmrsh_data_desc: Type "
-	 << src->specific._d() << " not implemented\n";
-    return 1;
+    MRSH_ERROR("type " << src->specific._d() << " not implemented", 1);
   }
   return 0;
 }
@@ -404,16 +377,12 @@ unmrsh_data_desc_to_sf(sf_data_desc_t* dest, const diet_data_desc_t* src)
       *((double*)dest->ctn.scal.value) = *((double*)src->specific.scal.value);
       break;
     default:
-      cerr << "unmrsh_data_desc_to_sf: Base type "
-	   << dest->base_type << " unknown for FAST\n";
-      return 1;
+      MRSH_ERROR("base type " << dest->base_type << " unknown for FAST", 1);
     }
     break;
     
   default:
-    cerr << "unmrsh_data_desc_to_sf: Type "
-	 << src->generic.type << " unknown for FAST\n";
-    return 1;
+    MRSH_ERROR("type " << src->generic.type << " unknown for FAST", 1);
   }
   return 0;
 }
@@ -442,7 +411,7 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src)
       CORBA::string_free(in_path);
       dest->desc.specific.file.path = out_path;
     } else if (src->desc.specific.file().size != 0) {
-      cerr << "DIET unmrsh_data WARNING: file structure is vicious !\n";
+      INTERNAL_WARNING(__FUNCTION__ << ": file structure is vicious");
     } else {
       dest->desc.specific.file.path = strdup("");
     }
@@ -535,8 +504,7 @@ cvt_arg_desc(sf_data_desc_t* dest,
     case DIET_ROW_MAJOR: t = 'N';
     case DIET_COL_MAJOR: t = 'T';
     default: {
-      cerr << "DIET conversion error: invalid order for matrix.\n";
-      return 1;
+      MRSH_ERROR("invalid order for matrix", 1);
     }
     }
     scalar_set_desc(ddd, NULL, DIET_VOLATILE, DIET_CHAR, &t);
@@ -551,8 +519,7 @@ cvt_arg_desc(sf_data_desc_t* dest,
     break;
   }
   default: {
-    cerr << "DIET conversion error: invalid convertor function.\n";
-    return 1;
+    MRSH_ERROR("invalid convertor function", 1);
   }
   }
   
@@ -589,12 +556,10 @@ unmrsh_pb_desc_to_sf(sf_inst_desc_t* dest, const corba_pb_desc_t* src,
       ddd_tmp = &(cvt->arg_convs[i].arg->desc);
     }
     if (cvt_arg_desc(&(dest->param_desc[i]), ddd_tmp, cvt->arg_convs[i].f)) {
-      cerr << "DIET conversion error: Cannot convert client profile "
-	   << "to server profile.\n";
       for (int i = 0; i <= src->last_out; i++)
 	delete src_params[i];
       delete [] src_params;
-      return 1;
+      MRSH_ERROR("cannot convert client profile to server profile", 1);
     }
   }
   
@@ -675,8 +640,7 @@ cvt_arg(diet_data_t* dest, diet_data_t* src,
     case DIET_ROW_MAJOR: t = new char('N');
     case DIET_COL_MAJOR: t = new char('T');
     default: {
-      cerr << "DIET conversion error: invalid order for matrix.\n";
-      return 1;
+      MRSH_ERROR("invalid order for matrix", 1);
     }
     }
     diet_scalar_set(dest, t, DIET_VOLATILE, DIET_CHAR);
@@ -693,8 +657,7 @@ cvt_arg(diet_data_t* dest, diet_data_t* src,
     break;
   }
   default: {
-    cerr << "DIET conversion error: invalid convertor function.\n";
-    return 1;
+    MRSH_ERROR("invalid convertor function", 1);
   }
   }
   
@@ -738,10 +701,9 @@ unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
     }
     if (cvt_arg(&(dest->parameters[i]), dd_tmp,
 		cvt->arg_convs[i].f, duplicate_value)) {
-      cerr << "DIET conversion error: Cannot convert client problem profile"
-	   << "to server profile.\n";
       delete src_params;
-      return 1;
+      MRSH_ERROR("cannot convert client problem profile"
+		 << "to server profile", 1);
     }
   }
 
@@ -799,8 +761,8 @@ mrsh_profile_to_out_args(corba_profile_t* dest, const diet_profile_t* src,
   }
   for (i = dest->last_in + 1; i <= dest->last_out; i++) {
     if (!args_filled[i]) {
-      cerr << "DIET conversion WARNING: "
-	   << "could not reconvert all INOUT and OUT arguments.\n";
+      INTERNAL_WARNING(__FUNCTION__
+		       << ": could not reconvert all INOUT and OUT arguments");
       break;
     }
   }

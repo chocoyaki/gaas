@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2003/07/04 09:48:06  pcombes
+ * Use new ERROR and WARNING macros.
+ *
  * Revision 1.8  2003/04/10 12:51:36  pcombes
  * "son"->"child", and adapt to CORBA::ULong child IDs.
  *
@@ -17,25 +20,6 @@
  * Revision 1.6  2002/12/03 19:08:24  pcombes
  * Update configure, update to FAST 0.3.15, clean CVS logs in files.
  * Put main Makefile in root directory.
- *
- * Revision 1.4  2002/10/15 18:41:39  pcombes
- * Implement convertor API.
- *
- * Revision 1.3  2002/10/03 17:58:20  pcombes
- * Add trace levels (for Bert): traceLevel = n can be added in cfg files.
- * An agent son can now be killed (^C) without crashing this agent.
- * DIET with FAST: compilation is OK, but run time is still to be fixed.
- *
- * Revision 1.2  2002/08/30 16:50:16  pcombes
- * This version works as well as the alpha version from the user point of view,
- * but the API is now the one imposed by the latest specifications (GridRPC API
- * in its sequential part, config file for all parts of the platform, agent
- * algorithm, etc.)
- *  - Reduce marshalling by using CORBA types internally
- *  - Creation of a class ServiceTable that is to be replaced
- *    by an LDAP DB for the MA
- *  - No copy for client/SeD data transfers
- *  - ...
  ****************************************************************************/
 
 
@@ -48,6 +32,12 @@ using namespace std;
 #include "debug.hh"
 #include "dietTypes.hh"
 
+/** The trace level. */
+extern unsigned int TRACE_LEVEL;
+
+#define SRVT_ERROR(formatted_text)                \
+  INTERNAL_ERROR("ServiceTable::" << __FUNCTION__ \
+		 << ": " << formatted_text, 1)
 
 
 ServiceTable::ServiceTable() 
@@ -128,9 +118,8 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
   ServiceReference_t service_idx(-1);
   
   if (matching_children) {
-    cerr << "ServiceTable::addService - Attempting to add a service with\n"
-	 << "                solver in a table initialized with children.\n";
-    return 1;
+    SRVT_ERROR("attempting to add a service with\n"
+	       << "  solver in a table initialized with children");
   }
 
   if ((service_idx = lookupService(profile)) == -1) {
@@ -168,9 +157,8 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
     return -1;
     // service is already in table
   } else {
-    cerr << "ServiceTable::addService - Attempting to add 2 services with\n"
-	 << "           same path and profile, but with different solvers.\n";
-    return 1;
+    SRVT_ERROR("attempting to add 2 services with\n"
+	       << "  same path and profile, but with different solvers");
   }
   return 0;
 }
@@ -183,9 +171,8 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
   ServiceReference_t service_idx(-1);
   
   if (solvers) {
-    cerr << "ServiceTable::addService - Attempting to add a service with\n"
-	 << "                    child in a table initialized with solvers.\n";
-    return 1;
+    SRVT_ERROR("attempting to add a service with\n"
+	       << "  child in a table initialized with solvers");
   }
 
   if ((service_idx = lookupService(profile)) == -1) {
@@ -236,9 +223,7 @@ ServiceTable::rmService(const corba_profile_desc_t* profile)
   ServiceReference_t ref(-1);
   
   if ((ref = lookupService(profile)) == -1) {
-    cerr << "ServiceTable::rmService - Attempting to rm a service "
-	 << "that is not in table.\n";
-    return 1;
+    SRVT_ERROR("attempting to rm a service that is not in table");
   }
   return this->rmService(ref);
 }
@@ -250,8 +235,7 @@ ServiceTable::rmService(const ServiceReference_t ref)
   size_t i(0);
 
   if (((int) ref < 0) || ((size_t) ref >= nb_s)) {
-    cerr << "ServiceTable::rmService - Wrong service reference.\n";
-    return 1;
+    SRVT_ERROR("wrong service reference");
   }
   
   if (solvers) {
@@ -290,19 +274,13 @@ ServiceTable::rmChild(const CORBA::ULong child)
   ServiceReference_t ref(-1);
   
   if (solvers) {
-    cerr << "ServiceTable::rmChild - Attempting to remove a child from\n"
-	 << "                     a table initialized with solvers.\n";
-    return 1;
+    SRVT_ERROR("attempting to remove a child from\n"
+	       << "  a table initialized with solvers");
   }
   for (ref = 0; (size_t)ref < nb_s; ref++) {
     size_t i;
-    cout << " ";
     for (i = 0; ((i < matching_children[ref].nb_children) &&
-		 (matching_children[(size_t)ref].children[i] != child)); i++)
-      {
-	cout << "  ";
-      }
-    cout << " ";
+		 (matching_children[(size_t)ref].children[i] != child)); i++);
     if (i < matching_children[ref].nb_children) {
       for (size_t j = i; j < matching_children[ref].nb_children; j++) {
 	matching_children[ref].children[j]
@@ -337,9 +315,8 @@ ServiceTable::getSolver(const corba_profile_desc_t* profile)
   ServiceReference_t ref(-1);
   
   if ((ref = lookupService(profile)) == -1) {
-    cerr << "ServiceTable::getSolver - Attempting to get solver\n"
-	 << "                 of a service that is not in table.\n";
-    return NULL;
+    SRVT_ERROR("attempting to get solver\n"
+	       << "  of a service that is not in table");
   }
   return getSolver(ref);
 }
@@ -349,13 +326,11 @@ diet_solve_t
 ServiceTable::getSolver(const ServiceReference_t ref)
 {
   if (!solvers) {
-    cerr << "ServiceTable::getSolver - Attempting to get a solver\n"
-	 << "                    in a table initialized with children.\n";
-    return NULL;
+    SRVT_ERROR("attempting to get a solver\n"
+	       << "  in a table initialized with children");
   }
   if (((int) ref < 0) || ((size_t) ref >= nb_s)) {
-    cerr << "ServiceTable::getSolver - Wrong service reference.\n";
-    return NULL;
+    SRVT_ERROR("wrong service reference");
   }
   return solvers[ref];
 }
@@ -367,9 +342,8 @@ ServiceTable::getEvalf(const corba_profile_desc_t* profile)
   ServiceReference_t ref;
   
   if ((ref = lookupService(profile)) == -1) {
-    cerr << "ServiceTable::getEvalf - Attempting to get eval function\n"
-	 << "                       of a service that is not in table.\n";
-    return NULL;
+    SRVT_ERROR("attempting to get eval function\n"
+	       << "  of a service that is not in table");
   }
   return getEvalf(ref);
 }
@@ -379,13 +353,11 @@ diet_eval_t
 ServiceTable::getEvalf(const ServiceReference_t ref)
 {
   if (!solvers) {
-    cerr << "ServiceTable::getEvalf - Attempting to get an eval function\n"
-	 << "                       in a table initialized with children.\n";
-    return NULL;
+    SRVT_ERROR("attempting to get an eval function\n"
+	       << "  in a table initialized with children");
   }
   if (((int) ref < 0) || ((size_t) ref >= nb_s)) {
-    cerr << "ServiceTable::getEvalf - Wrong service reference.\n";
-    return NULL;
+    SRVT_ERROR("wrong service reference");
   }
   return eval_functions[ref];
 }
@@ -397,9 +369,8 @@ ServiceTable::getConvertor(const corba_profile_desc_t* profile)
   ServiceReference_t ref(-1);
   
   if ((ref = lookupService(profile)) == -1) {
-    cerr << "ServiceTable::getConvertor - Attempting to get convertor\n"
-	 << "                       of a service that is not in table.\n";
-    return NULL;
+    SRVT_ERROR("attempting to get convertor\n"
+	       << "  of a service that is not in table");
   }
   return getConvertor(ref);
 }
@@ -409,13 +380,11 @@ diet_convertor_t*
 ServiceTable::getConvertor(const ServiceReference_t ref)
 {
   if (!solvers) {
-    cerr << "ServiceTable::getConvertor - Attempting to get a convertor\n"
-	 << "                      in a table initialized with children.\n";
-    return NULL;
+    SRVT_ERROR("attempting to get a convertor\n"
+	       << "  in a table initialized with children");
   }
   if (((int) ref < 0) || ((size_t) ref >= nb_s)) {
-    cerr << "ServiceTable::getConvertor - Wrong service reference.\n";
-    return NULL;
+    SRVT_ERROR("wrong service reference");
   }
   return &(convertors[ref]);
 }
@@ -427,9 +396,8 @@ ServiceTable::getChildren(const corba_profile_desc_t* profile)
   ServiceReference_t ref(-1);
   
   if ((ref = lookupService(profile)) == -1) {
-    cerr << "ServiceTable::getChildren - Attempting to get children\n"
-	 << "             of a service that is not in table.\n";
-    return NULL;
+    SRVT_ERROR("attempting to get children\n"
+	       << "  of a service that is not in table");
   }
   return getChildren(ref);
 }
@@ -439,13 +407,11 @@ ServiceTable::matching_children_t*
 ServiceTable::getChildren(const ServiceReference_t ref)
 {
   if (solvers) {
-    cerr << "ServiceTable::getSolver - Attempting to get children\n"
-	 << "             in a table initialized with solvers.\n";
-    return NULL;
+    SRVT_ERROR("attempting to get children\n"
+	       << "  in a table initialized with solvers");
   }
   if (((int) ref < 0) || ((size_t) ref >= nb_s)) {
-    cerr << "ServiceTable::getChildren - Wrong service reference.\n";
-    return NULL;
+    SRVT_ERROR("wrong service reference");
   }
   return &(matching_children[ref]);
 }

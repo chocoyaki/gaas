@@ -8,11 +8,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.4  2003/04/10 12:45:25  pcombes
- * Remove duplicated functions.
- *
- * Revision 1.3  2003/02/04 10:08:22  pcombes
- * Apply Coding Standards
+ * Revision 1.5  2003/07/04 09:48:06  pcombes
+ * Use new ERROR and WARNING macros.
  *
  * Revision 1.2  2002/12/03 19:08:24  pcombes
  * Update configure, update to FAST 0.3.15, clean CVS logs in files.
@@ -49,14 +46,10 @@ profile_size(corba_pb_desc_t* p)
 void
 init_communications() 
 {
-  char* com_dir = getenv("COMMUNICATION_DIRECTORY");
-
-  if (com_dir == NULL) {
-    fprintf(stderr,
-	    "The COMMUNICATION_DIRECTORY environment variable is not defined !\n");
+  COMMUNICATION_DIRECTORY = getenv("COMMUNICATION_DIRECTORY");
+  if (COMMUNICATION_DIRECTORY == NULL) {
+    ERROR(" COMMUNICATION_DIRECTORY is not set", );
   }
-
-  COMMUNICATION_DIRECTORY = com_dir;
 }
 
 void
@@ -77,7 +70,7 @@ add_communication(char* node0, char* node1, long size)
       fprintf(f, "%s %s %ld", node0, node1, size);
       fclose(f);
     } else {
-      fprintf(stderr, "Could not create file %s!\n", file_name);
+      WARNING(" could not create file " << file_name);
     }
   
     NB_EMITTED_COM++;

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2003/07/04 09:47:58  pcombes
+ * Use new ERROR and WARNING macros.
+ *
  * Revision 1.3  2003/04/10 13:02:50  pcombes
  * Apply Coding Standards. Add the GS (GlobalScheduler) private member.
  *
@@ -21,10 +24,12 @@
 #include "Request.hh"
 
 #include <assert.h>
-#include "debug.hh"
 #include <iostream>
 using namespace std;
 #include <stdio.h>
+
+#include "debug.hh"
+
 
 void Request::freeResponses() {
   if (responses != NULL) {
@@ -41,8 +46,8 @@ Request::Request(const corba_request_t* request)
   responses = NULL ;
   responsesSize = 0 ;
   if (*(request->serialized_scheduler.in()) == '\0') {
-    cerr << "Warning: request " << request->reqID
-	 << " has no scheduler associated !\n";
+    INTERNAL_WARNING("request " << request->reqID
+		     << " has no scheduler associated");
     this->GS = GlobalScheduler::chooseGlobalScheduler(request);
   } else {
     this->GS = GlobalScheduler::deserialize(this->request->serialized_scheduler);

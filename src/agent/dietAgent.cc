@@ -10,13 +10,16 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2003/07/04 09:47:58  pcombes
+ * Use new ERROR and WARNING macros.
+ *
  * Revision 1.1  2003/05/10 08:50:33  pcombes
  * New Parsers let us reunify the two executables into one dietAgent.
- *
  ****************************************************************************/
 
 
 #include <iostream>
+using namespace std;
 #include <stdlib.h>
 
 #include "LocalAgentImpl.hh"
@@ -24,6 +27,8 @@
 #include "ORBMgr.hh"
 #include "Parsers.hh"
 
+
+/** The trace level. */
 extern unsigned int TRACE_LEVEL;
 
 int
@@ -36,8 +41,7 @@ main(int argc, char** argv)
   char** myargv;
   
   if (argc < 2) {
-    std::cerr << argv[0] << ": Missing configuration file.\n";
-    return 1;
+    ERROR(argv[0] << ": missing configuration file", 1);
   }
   config_file_name = argv[1];
 
@@ -75,21 +79,20 @@ main(int argc, char** argv)
   if (agtType == Parsers::Results::DIET_LOCAL_AGENT) {
     // For a local agent, PARENTNAME is compulsory.
     if (name == NULL) {
-      cerr << "Error while parsing " << config_file_name
-	   << ": no parent name specified.\n";
-      return 1;
+      ERROR("parsing " << config_file_name
+	    << ": no parent name specified", 1);
     }
   } else {
     if (name != NULL)
-      cerr << "Warning while parsing " << config_file_name
-	   << ": no need to specify a parent name for an MA - ignored.\n";
+      WARNING("parsing " << config_file_name << ": no need to specify "
+	      << "a parent name for an MA - ignored");
   }
   
   name = (char*)
     Parsers::Results::getParamValue(Parsers::Results::MANAME);
   if (name != NULL)
-    cerr << "Warning while parsing " << config_file_name
-	 << ": no need to specify an MA name for an agent - ignored.\n";
+    WARNING("parsing " << config_file_name << ": no need to specify "
+	    << "an MA name for an agent - ignored");
 
   
   /* Get listening port */
@@ -121,9 +124,8 @@ main(int argc, char** argv)
 
   /* Initialize the ORB */
 
-  if (ORBMgr::init(myargc, (char**)myargv, true)) {
-    cerr << "ORB initialization failed.\n";
-    return 1;
+  if (ORBMgr::init(myargc, (char**)myargv)) {
+    ERROR("ORB initialization failed", 1);
   }
 
 
@@ -139,8 +141,7 @@ main(int argc, char** argv)
   
   /* Launch the agent */
   if (Agt->run()) {
-    std::cerr << "Unable to launch the agent.\n";
-    return 1;
+    ERROR("unable to launch the agent", 1);
   }  
 
   /* We do not need the parsing results any more */
