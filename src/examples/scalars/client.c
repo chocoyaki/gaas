@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2003/09/29 09:16:26  pcombes
+ * Use max exposants (on Linux ix86 platform) for floats and doubles.
+ *
  * Revision 1.2  2003/09/27 07:53:46  pcombes
  * Fix bugs on floating types
  *
@@ -108,15 +111,15 @@ main(int argc, char* argv[])
     diet_scalar_set(diet_parameter(profile,1), &l2,  DIET_VOLATILE, DIET_LONGINT);
     diet_scalar_set(diet_parameter(profile,2), NULL, DIET_VOLATILE, DIET_LONGINT);
   } else if (pb[4]) {
-    f1 = 1.1;
-    f2 = 2.2;
-    printf("Before the call: f1=%g, f2=%g\n", f1, f2);
+    f1 = 1.1e38;
+    f2 = 2.2e38;
+    printf("Before the call: f1=%lg, f2=%lg\n", f1, f2);
     diet_scalar_set(diet_parameter(profile,0), &f1,  DIET_VOLATILE, DIET_FLOAT);
     diet_scalar_set(diet_parameter(profile,1), &f2,  DIET_VOLATILE, DIET_FLOAT);
     diet_scalar_set(diet_parameter(profile,2), NULL, DIET_VOLATILE, DIET_FLOAT);
   } else if (pb[5]) {
-    d1 = 1.1;
-    d2 = 2.2;
+    d1 = 1.1e307;
+    d2 = 2.2e307;
     printf("Before the call: d1=%lg, d2=%lg\n", d1, d2);
     diet_scalar_set(diet_parameter(profile,0), &d1,  DIET_VOLATILE, DIET_DOUBLE);
     diet_scalar_set(diet_parameter(profile,1), &d2,  DIET_VOLATILE, DIET_DOUBLE);
@@ -159,7 +162,7 @@ main(int argc, char* argv[])
 	     (double)d1, (double)d2, (double)*pd3);
     }
   } else {
-    fprintf(stderr, "diet_call has returned in error !!!\n");
+    fprintf(stderr, "diet_call has returned with an error code !!!\n");
     return 1;
   }
   
