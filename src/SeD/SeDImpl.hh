@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2004/10/04 13:53:41  hdail
+ * Added ability to restrict number of concurrent jobs running in the SeD.
+ *
  * Revision 1.12  2004/10/04 13:52:32  hdail
  * Added ability to restrict number of concurrent jobs running in the SeD.
  *
@@ -65,7 +68,7 @@
 #include "DietLogComponent.hh"
 #endif
 
-#define HAVE_QUEUES 0
+#define HAVE_QUEUES 1
 
 #if HAVE_QUEUES
 #include "AccessController.hh"
