@@ -3,22 +3,23 @@
 %*                                                                          *%
 %*  Author(s):                                                              *%
 %*    - Ludovic BERTSCH (Ludovic.Bertsch@ens-lyon.fr)                       *%
+%*    - Eddy CARON (Eddy.Caron@ens-lyon.fr)                                 *%
 %*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *%
 %*                                                                          *%
 %* $LICENSE$                                                                *%
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.4  2003/12/14 08:01:15  ecaron
+%* New version of tutorial (from current to 1.0) (c source file is updating)
+%*
 %* Revision 1.3  2003/06/16 17:42:03  pcombes
 %* Fix header.
 %*
 %* Revision 1.1.1.1  2003/01/24 16:28:28  pcombes
 %* DIET tutorial based on users's day examples
 %****************************************************************************%
-
-
 \documentclass[11pt,a4paper]{article}
-
 
 \makeatletter
 \def\input@path{{../utils}{../../../../publis/utils/styles/}}
@@ -36,10 +37,10 @@
 \usepackage{graphicx}
 
 \newsavebox{\logobox}
-\sbox{\logobox}{\includegraphics[scale=0.3]{../UM/fig/logo_DIET.ps}}
+\sbox{\logobox}{\includegraphics[scale=0.3]{../UsersManual/fig/logo_DIET.ps}}
 \newcommand{\logo}{\usebox{\logobox}}
 
-\renewcommand{\title}{Travaux Pratiques DIET}
+\renewcommand{\title}{DIET Tutorial}
 
 \pagestyle{fancyplain}
 \lhead[\fancyplain{\title}{\title}]
@@ -55,55 +56,92 @@
 
 \begin{document}
 
+%%%%
+% First sheet
+%%%%
+
+\thispagestyle{empty}
+\vspace*{3cm}
+\vspace*{3cm}
+
+\begin{center}
+\includegraphics[scale=.5]{../UsersManual/fig/LOGO_DIET.ps}\\[2ex]
+\textbf{\Huge TUTORIAL\\[2ex]}
+\end{center}
+
+\vfill
+
+
+\noindent
+\small{
+\begin{tabular}{ll}
+  \textbf{VERSION}  & 1.0\\
+  \textbf{DATE}     & December 2003\\
+  \textbf{PROJECT MANAGER}  & Fr\'ed\'eric \textsc{Desprez}.\\
+  \textbf{EDITORIAL STAFF}  & Eddy \textsc{Caron} and Philippe ~\textsc{Combes}.\\
+  \textbf{AUTHORS STAFF}    & 
+\begin{minipage}[t]{12cm}
+  Ludovic \textsc{Bertsh}, Eddy \textsc{Caron}, Philippe ~\textsc{Combes} and Christophe \textsc{Pera}.
+\end{minipage} \\
+  \textbf{Copyright}& INRIA
+\end{tabular}\\
+}
+
+\newpage
+%\thispagestyle{empty}
+
+%%%%
+% End of first sheet
+%%%%
+
+
 \begin{center}
 {\Huge DIET Tutorial \par}
 \end{center}
 
-
-
 \section{Introduction}
 
-This is a tutorial for DIET (Distributive Interactive Engineering Toolbox). It
-comes with three directories: \texttt{exercise2} and \texttt{exercise3} contain
-the skeletons for the programs you will have to write, \texttt{solutions}
-contains the programs you should write.
+This is a tutorial for DIET (Distributive Interactive Engineering
+Toolbox). It comes with three directories: \texttt{exercise2},
+\texttt{exercise3} and \texttt{solutions}. The exercice directories
+contain the skeletons for the programs you will have to write,
+\texttt{solutions} contains the programs you should write.
 
-To compile the programs, you will need to have omniORB 3 or 4 installed. Some
-tips about omniORB installation are given in the DIET User's Manual, which will
-be often refered to in this tutorial. However, if you still have problems to
-install omniORB 4, please contact your system administrator.
-In this document, we will refer to the directory were omniORB has been installed
-with the environment variable \texttt{\$\{OMNIORB\_HOME\}}.
-
-
+To compile the programs, you will need to have omniORB 3 or 4
+installed~\cite{ref:UMOmniORB}. Some tips about omniORB installation
+are given in the DIET User's Manual~\cite{UMDIET}, which will be often
+refered to in this tutorial.  However, if you still have problems to
+install omniORB 4, please contact your system administrator.  In this
+document, we will refer to the directory were omniORB has been
+installed with the environment variable \texttt{\$\{OMNIORB\_HOME\}}.
 
 \section{Exercise 1: Installing and compiling DIET}
 
 The installation process is described in the User's Manual. Install DIET in the
-directory of your choice, ofr instance \texttt{\$\{HOME\}/DIET}. For this
+directory of your choice, for instance \texttt{\$\{HOME\}/DIET}. For this
 tutorial, FAST will not be used, and as regards omniORB, please add the
 \texttt{\$\{OMNIORB\_HOME\}/bin} directory in your \texttt{PATH}, or give the
 option \texttt{--with-omniORB=\$\{OMNIORB\_HOME\}} to the \texttt{configure}
 script.
 
-Using the command line help, compile {\bf and} install DIET. Refer to the User's
-Manual for more information.
+Compile {\bf and} install DIET. Refer to the User's Manual for more
+information.
 
+\section{Exercise 2: An example of matrix computation}
 
-
-\section{Exercise 2: An example of matrix calculation}
-
-The goal of this example is the programming of a simple client/server
-application that uses DIET. We will use the context of matrix calculations to 
-make this program look more real. We will implement a basic scalar by matrix
-product. Then, we will test this program in different schemes of execution.
+With this example we learn how to program a simple client/server
+application that uses DIET. We will use the context of matrix
+computation to make this program look more real. We will implement a
+basic scalar by matrix product. Then, we will test this program in
+different schemes of execution.
 \par
 
 \subsection{Files skeletons}
 
-The exercise2 directory, located in your home directory contains all the skeleton
-files needed for a quick start. Useful pieces of software are also included
-in them. This directory contains the following files:
+The exercise2 directory, located in your home directory contains all
+the skeleton files needed for a quick start. Useful pieces of software
+are also included in them. This directory contains the following
+files:
 
 \begin{description}
 \item[Makefile]{management of dependencies between source and compiled files}
@@ -119,17 +157,23 @@ in them. This directory contains the following files:
 Using the skeleton of program \texttt{server.c}, write a service of scalar by
 matrix product. This service will have the following parameters:
 
-\begin{itemize}
-\item{a scalar of type double}
-\item{a matrix to be multiplied: all its values will be of type double}
-\item{the duration needed for the product to compute: of type float}
-\end{itemize}
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+parameter & type \\
+\hline
+a scalar & double \\
+a matrix to be multiplied & double \\
+the time needed for the product to compute & float \\
+\hline
+\end{tabular}
+\end{center}
 
-The resulting values of the product will replace the initial values contained
-in the matrix. The matrix will be stored in memory. \par
+The intial matrix is overwritten by the result. The matrix will be
+stored in memory. \par
 
 To start, try to define a detailed interface for the service, i.e. a precise
-definition of the \emph{profile} of the service. To do so, look for {\bf in},
+definition of the service \emph{profile}. To do so, look for {\bf in},
 {\bf inout} and {\bf out} parameters. \par
 
 Next, program the solve function \texttt{solve\_smprod}, and also the
@@ -138,43 +182,44 @@ initialization of the service in the \texttt{main} function. \par
 \footnotesize
 \begin{verbatim}
 int solve_smprod(...) {
+
 }
 \end{verbatim}
 \normalsize
 \noindent
-The following function is given to ease your work:
+The following function is given to help you:
 \footnotesize
 \begin{verbatim}
 int scal_mat_prod(double alpha, double *M, int nb_rows, int nb_cols, float *time)
 \end{verbatim}
 \normalsize
 \noindent
-It mutliplies the scalar \texttt{alpha} by the matrix \texttt{M}
-(\texttt{nb\_rows}, \texttt{nb\_cols}), giving the duration of this operation in 
-seconds.
 
+It mutliplies the scalar \texttt{alpha} by the matrix \texttt{M} a
+\texttt{nb\_rows} by \texttt{nb\_cols} matrix. The result are the
+matrix \texttt{alpha} $\times$ \texttt{M} and the time of this
+operation in seconds.
 
 \subsection{Client-side implementation}
 
-Using the \texttt{client\_smprod.c} skeleton file, write a client for the service
-defined above. You will need to initialize a matrix and a scalar with known
-values. That way, you will be able to figure out if the answer is correct or
-not. \par
+Using the \texttt{client\_smprod.c} skeleton file, write a client for
+the service defined above. You will need to initialize a matrix and a
+scalar with known values. That way, you will be able to verify if the
+answer is correct or not. \par
 
 You will have to remember that the profile used in the client must match 
-exactly the one defined in the server.
+exactly the server profile.
 
 \subsection{Setting up and testing the client/server}
 
-The file \texttt{env\_vars.bash} contains all the environment variables needed
-for the execution of the programs. Please pay attention to the fact that this is
-\textbf{bash}: adapt it to your default shell. Verify the values of those
-variables, then load this file using the following method:
+The file \texttt{env\_vars.bash.in} for bash shell (respectively
+\texttt{env\_vars.csh.in} for tcsh shell) contains all the environment
+variables needed for the execution of the programs. Verify the values
+of those variables, then load this file using the following method:
 
 \footnotesize
 \begin{verbatim}
-$ . env_vars.bash               # This is: [dot][SPACE]env_vars.bash
-$
+~/> source env_vars.bash   
 \end{verbatim}
 \normalsize
 
@@ -186,7 +231,7 @@ option, on which the service will be opened (and on which the server
 \begin{verbatim}
 $ omniNames -start 2810
 
-Tue Jan 13 14:05:28 2003:
+Tue Dec 11 14:05:28 2003:
 
 Starting omniNames for the first time.
 Wrote initial log file.
@@ -209,52 +254,65 @@ name and location of this file is given by the environment variable
 \texttt{OMNIORB\_CONFIG} which is defined in the \texttt{env\_vars.bash} file.
 \par
 
-Using DIET User's Manual, prepare configuration files (suggestion: place
-them in a \texttt{cfgs} directory). You will want to create a hierarchy of agents,
-to make it interesting. This hierarchy will contain at least one MA and one LA.
+Using DIET User's Manual, prepare configuration files (suggestion:
+place them in a \texttt{cfgs} directory). You will want to create a
+hierarchy of agents, to make it interesting. This hierarchy will
+contain at least one MA and one LA.
 \par
 
-Compile server and client with the Makefile, then, launch the server and the
-client. \par
+Compile server and client with the \texttt{Makefile}, then, launch the server
+and the client. \par
 
-Finally, launch several servers in different windows (that way you will see which
-one is activated). Experiment with different hierarchies.
-
+Finally, launch several servers in different windows (you can use same
+or different distributed computers). With different windows, you will
+see which one is activated. You should experiment with different
+hierarchies.
 
 \subsection{Another version of the service}
 
-In this part, you will modify the server to make it support a slightly different
-version of the scalar by matrix product. The matrix will be transmitted as a
-file, and not anymore in memory. \par
+In this part, you will modify the server to make it support a slightly
+different version of the scalar by matrix product. The matrix will be
+transmitted as a file, and not anymore in memory. \par
 
-DIET doesn't impose anything about the data format of files, but it would be a
-good idea to facilitate your work to use the data format used in the skeleton
-files. This format is just simple text~: the file contains a serie of numbers,
-separated by 'white' characters. The meaning of the numbers is as follows~:
+DIET doesn't impose anything about the data format of files, but it
+would be a good idea to facilitate your work to use the data format
+used in the skeleton files. This format is just simple text~: the file
+contains a serie of numbers, separated by 'space' characters. The
+meaning of the numbers is as follows~:
+
 \begin{itemize}
 \item{matrix dimensions (number of rows, number of columns)}
 \item{matrix values}
 \end{itemize}
 
 \par
-Create a file containing a matrix, then implement a new service ``smprod\_file''
-with the following parameters:
-\begin{itemize}
-\item{a scalar of type double}
-\item{a file containing the matrix to be multiplied}
-\item{the duration of the operation : of type float}
-\end{itemize}
+Create a file containing a matrix, then implement a new service
+``\texttt{smprod\_file}'' with the following parameters:
 
-The result of the operation will be stored in the same file as the initial values.
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+parameter & type \\
+\hline
+a scalar & double \\
+a file containing matrix to be multiplied & double \\
+the time needed for the product to compute & float \\
+\hline
+\end{tabular}
+\end{center}
 
+The file is overwritten by the result.
 
-\section{The BLAS dgemm}
+\subsection{Another yet service: The BLAS dgemm}
 
-To compile the programs of this exercise, the library BLAS (Basic Linear Algebric
-Subroutines) is required.
+To compile programs of this exercise, the BLAS library (Basic Linear
+Algebric Subroutines) is required.
 
-The \texttt{dgemm\_} function is part of the BLAS. It performs the following matrix
-computation ($:=$ symbolizes the affectation):
+DGEMM  -  perform  one of the matrix-matrix operations   C :=
+       alpha*op( A )*op( B ) + beta*C
+
+The \texttt{dgemm\_} function is part of the BLAS.  It performs the
+following matrix-matrix computation:
 
 $$ C := \alpha A B + \beta C $$
 
@@ -267,9 +325,11 @@ The matrix dimensions are given through three signed integers $m$, $n$ et $k$.
 \item{$C$ is ($m$,$n$)}
 \end{itemize}
 
-This exercise aims at adding a new service in a DIET platform, that performs the
-\texttt{dgemm\_} computation. The idea is to interface the existing
-\texttt{dgemm\_} function to a DIET SeD. Here is its prototype:
+This exercise aims at adding a new service in a DIET platform, that
+performs the \texttt{dgemm\_} computation. The idea is to interface
+the existing \texttt{dgemm\_} function to a DIET SeD. Here is its
+prototype:
+
 \begin{verbatim}
 void dgemm_(char   *tA,
             char   *tB,
@@ -301,15 +361,15 @@ tA  &  \multicolumn{2}{c|}{Storage order of A ($m$,$k$)}\\\hline
 \end{tabular}
 \end{center}
 
-For this exercise, there is no need to explore all possibilities offered by the
-storage order or the leading dimension. Just set \texttt{*tA} and \texttt{*tB}
-to 'N', and \texttt{lda}, \texttt{ldb} and \texttt{ldc} to the number of rows of
-the corresponding matrix.
+For this exercise, there is no need to explore all possibilities
+offered by the storage order or the leading dimension. Just set
+\texttt{*tA} and \texttt{*tB} to 'N', and \texttt{lda}, \texttt{ldb}
+and \texttt{ldc} to the number of rows of the corresponding matrix.
 
-Once you have specified the \emph{profile} of the service, program a server
-that implements this service, and a test client, using the file skeletons in the
-\textbf{exercise3} directory. Matrices will be stored in memory.
-Eventually, test the client/server architecture, through DIET, in different
-contexts of execution.
+Once you have specified the \emph{profile} of the service, program a
+server that implements this service, and a test client, using the file
+skeletons in the \textbf{exercise3} directory. Matrices will be stored
+in memory.  Eventually, test the client/server architecture, through
+DIET, in different contexts of execution.
 
 \end{document}
