@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.3  2003/05/05 14:15:53  pcombes
+#* FAST flags were missing ...
+#*
 #* Revision 1.2  2003/04/10 13:17:05  pcombes
 #* Update to new utils and CORBA AM libraries.
 #*
@@ -38,6 +41,6 @@ libDIET_SeD_la_LIBADD = \
 	$(corbadir)/idl/libIDLCommon.la $(corbadir)/idl/libIDLAgent.la \
 	$(LIBS_OMNIORB) $(LIBS_FAST)
 
-AM_CPPFLAGS += -static -static-libgcc -I$(top_srcdir)/src/utils \
+AM_CPPFLAGS += $(CXXFLAGS_FAST) -I$(top_srcdir)/src/utils \
 	       -I$(top_srcdir)/src/CORBA -I$(corbadir)/idl
 
