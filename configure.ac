@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.7  2003/04/14 13:44:08  pcombes
+#* Pack DIET specific "enable" arguments all together.
+#*
 #* Revision 1.6  2003/04/10 14:59:23  pcombes
 #* Add modules doc (disabled by default), examples (forced),
 #* examples/BLAS and examples/ScaLAPCAK (both disabled by default).
@@ -136,6 +139,33 @@ ACI_MODULE([DIET],,[omniORB FAST],[src doc],force)
 	         [examples ScaLAPACK],,no)
 
 dnl ###########################################################################
+dnl ####[ various compilation modes ]
+dnl ###########################################################################
+AC_ARG_ENABLE(Cichlid,
+	      AC_HELP_STRING([--enable-Cichlid],
+	                 [enable generation of communication logs for Cichlid]),
+              HAVE_CICHLID=true, HAVE_CICHLID=false)
+if test "x$HAVE_CICHLID" = "xtrue"; then
+  AC_DEFINE(HAVE_CICHLID,1,[Define use of communication tools])
+fi
+
+AC_ARG_ENABLE(stats,
+	      AC_HELP_STRING([--enable-stats],
+			     [enable generation of statistics logs]),
+              HAVE_STATISTICS=true, HAVE_STATISTICS=false)
+if test "x$HAVE_STATISTICS" = "xtrue"; then
+  AC_DEFINE(HAVE_STATISTICS)
+fi
+
+AC_ARG_ENABLE(multi-MA,
+	      AC_HELP_STRING([--enable-multi-MA],
+			     [enable multi-MA architecture]),
+              HAVE_MULTI_MA=true, HAVE_MULTI_MA=false)
+if test "x$HAVE_MULTI_MA" = "xtrue"; then
+  AC_DEFINE(HAVE_MULTI_MA)
+fi
+
+dnl ###########################################################################
 dnl Load anything under acmacros/*.m4
 dnl ###########################################################################
 ACLOCAL="$ACLOCAL -I acmacros"
@@ -169,33 +199,6 @@ AM_PATH_FAST(,[HAVE_FAST=true
 	       AC_MSG_WARN(Use of FAST library is disabled - either by you or because)
                AC_MSG_WARN(it was not found: all performance evaluations will be set)
 	       AC_MSG_WARN(to infinity.)])
-
-dnl ###########################################################################
-dnl ####[ various compilationi modes ]
-dnl ###########################################################################
-AC_ARG_ENABLE(Cichlid,
-	      AC_HELP_STRING([--enable-Cichlid],
-	                 [enable generation of communication logs for Cichlid]),
-              HAVE_CICHLID=true, HAVE_CICHLID=false)
-if test "x$HAVE_CICHLID" = "xtrue"; then
-  AC_DEFINE(HAVE_CICHLID,1,[Define use of communication tools])
-fi
-
-AC_ARG_ENABLE(stats,
-	      AC_HELP_STRING([--enable-stats],
-			     [enable generation of statistics logs]),
-              HAVE_STATISTICS=true, HAVE_STATISTICS=false)
-if test "x$HAVE_STATISTICS" = "xtrue"; then
-  AC_DEFINE(HAVE_STATISTICS)
-fi
-
-AC_ARG_ENABLE(multi-MA,
-	      AC_HELP_STRING([--enable-multi-MA],
-			     [enable multi-MA architecture]),
-              HAVE_MULTI_MA=true, HAVE_MULTI_MA=false)
-if test "x$HAVE_MULTI_MA" = "xtrue"; then
-  AC_DEFINE(HAVE_MULTI_MA)
-fi
 
 dnl ###########################################################################
 dnl ####[ search for the BLAS Library ]
