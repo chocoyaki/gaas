@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.45  2005/01/13 15:13:42  bdelfabr
+ * unmrsh_data modified ro fix file transfer bug (whatever the persistence mode was the client never received an out file)
+ *
  * Revision 1.44  2004/12/22 06:28:45  alsu
  * - slight modifications to make clear the static nature (i.e.,
  *   logically private to the marshalling code) of a few functions
@@ -431,10 +434,24 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
         dest->desc.specific.file.path = out_path;
         CORBA::string_free(in_path);
       } else {
+	if(upDown == 1) {
+	  sprintf(out_path,"%s",in_path);
+	  ofstream outfile(out_path);  
+	  for (int i = 0; i < src->desc.specific.file().size; i++) {
+	    outfile.put(src->value[i]);
+	  }
+	  dest->desc.specific.file.path = out_path;
+	  CORBA::string_free(in_path);
+	}else{	  
+	  dest->desc.specific.file.path = in_path;
+	  
+	  delete[] out_path;
+	}
+	
         dest->desc.specific.file.path = in_path;
         delete[] out_path;
       }
-
+      
     } else if (src->desc.specific.file().size != 0) {
       INTERNAL_WARNING(__FUNCTION__ << ": file structure is vicious");
     } else {
