@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.3  2003/11/27 15:46:20  pcombes
+#* Make doxygen process .c files too.
+#*
 #* Revision 1.2  2003/09/26 14:04:45  pcombes
 #* Doxyfile has been moved in doc.
 #*
@@ -24,7 +27,7 @@ EXTRACT_STATIC = YES
 INTERNAL_DOCS = YES
 CASE_SENSE_NAMES = YES
 WARNINGS = YES
-FILE_PATTERNS = *.h *.cc *.hh *.idl
+FILE_PATTERNS = *.c *.h *.cc *.hh *.idl
 EXCLUDE = src/examples
 RECURSIVE = YES
 GENERATE_HTML = YES
