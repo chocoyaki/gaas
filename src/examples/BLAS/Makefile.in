@@ -1,0 +1,39 @@
+#****************************************************************************#
+#* $Id$ *#
+#* DIET examples BLAS Makefile                                              *#
+#*                                                                          *#
+#*  Author(s):                                                              *#
+#*    - Philippe COMBES           - LIP ENS Lyon (France)                   *#
+#*    - Romain   LACROIX          - LIP ENS Lyon (France)                   *#
+#*                                                                          *#
+#*  This is part of DIET software.                                          *#
+#*  Copyright (C) 2002 ReMaP/LIFC/INRIA                                     *#
+#*                                                                          *#
+#****************************************************************************#
+#*
+#* $Log$
+#* Revision 1.1  2002/07/29 15:44:59  pcombes
+#* J'avais oublié certains cvs add dans la chaîne de compilation.
+#*
+#*
+#****************************************************************************#
+
+export BLASLIBS = /usr/lib/pblas_LINUX.a               /usr/lib/redist_LINUX.a  \
+                  /usr/lib/libblacsF77init-lam.a       /usr/lib/libblacs-lam.a  \
+                  /usr/local/libmath-1.0/ATLAS-3.2.0/lib/Linux_PIII/libf77blas.a\
+                  /usr/local/libmath-1.0/ATLAS-3.2.0/lib/Linux_PIII/libatlas.a  \
+                  /usr/lib/scalapack_LINUX.a           /usr/lib/tools_LINUX.a
+
+export DIETLIBS = -L @PREFIX@/lib
+
+.PHONY: dgemm clean
+
+all:	dgemm
+
+dgemm:
+	$(MAKE) -C dgemm
+
+clean:
+	$(MAKE) clean -C dgemm
+
+
