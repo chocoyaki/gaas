@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2003/09/19 16:07:09  bdelfabr
+ * removing dlist from the diettype files. THe removing is not done on DataManager,
+ * but now you can compile the others stuff
+ *
  * Revision 1.11  2003/09/18 09:47:19  bdelfabr
  * adding data persistence
  *
@@ -50,7 +54,6 @@
 #include "DIET_config.h"
 #include "DIET_server.h"
 
-#include "dlist.hh"
 #include "SeD.hh"
 #include "Agent.hh"
 #include "dataMgr.hh"
@@ -192,27 +195,6 @@ struct dietDataDesc
 typedef struct dietDataDesc dietDataDescT;
 
 
-class dietDataDescListElt : public _dlink {
-public:
-  dietDataDescT *dataDescPtr;
-  
-  dietDataDescListElt() {}
-  ~dietDataDescListElt() {}
-};
-
-class dietDataDescList : public _dlist {
-public:
-  omni_mutex dataMutex;
-  dietDataDescList():_dlist() {}
-  ~dietDataDescList() {}
-};
-
-class dietDataDescListIterator : public _dlistIterator {
-public:
-  dietDataDescListIterator(dietDataDescList *l):_dlistIterator(l) {}
-  ~dietDataDescListIterator() {}
-};
-
 
 /***********************************************************************
  * These structure are used by the Data object to store the reference 
@@ -228,27 +210,6 @@ struct dietDataId
 typedef struct dietDataId dietDataIdT;
 
 
-class dietDataIdListElt : public _dlink {
-public:
-  dietDataIdT *data;
-  
-  dietDataIdListElt() {}
-  ~dietDataIdListElt() {}
-};
-
-class dietDataIdList : public _dlist {
-public:
-  omni_mutex logMutex;
-  dietDataIdList():_dlist() {}
-  ~dietDataIdList() {}
-};
-
-class dietDataIdListIterator : public _dlistIterator {
-public:
-  dietDataIdListIterator(dietDataIdList *l):_dlistIterator(l) {}
-  ~dietDataIdListIterator() {}
-};
-
 /* structure useful for transfert management */
 
 struct dietDataIdLock
@@ -260,26 +221,6 @@ struct dietDataIdLock
 typedef struct dietDataIdLock dietDataIdLockT;
 
 
-class dataIdlockListElt : public _dlink {
-public:
-  dietDataIdLockT *locker;
-  
-  dataIdlockListElt() {}
-  ~dataIdlockListElt() {}
-};
-
-class dataIdlockList : public _dlist {
-public:
-  omni_mutex logMutex;
-  dataIdlockList():_dlist() {}
-  ~dataIdlockList() {}
-};
-
-class dataIdlockListIterator : public _dlistIterator {
-public:
-  dataIdlockListIterator(dataIdlockList *l):_dlistIterator(l) {}
-  ~dataIdlockListIterator() {}
-};
 
 /****************************************************************************/
 /* Useful functions for data descriptors manipulation                       */
