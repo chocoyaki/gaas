@@ -11,14 +11,14 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.6  2003/09/22 21:08:00  pcombes
+#* Add files for data persistency.
+#*
 #* Revision 1.5  2003/08/01 19:20:23  pcombes
 #* Reorganize FAST and omniORB flags. Include FASTMgr.
 #*
 #* Revision 1.4  2003/05/10 08:50:33  pcombes
 #* New Parsers let us reunify the two executables into one dietAgent.
-#*
-#* Revision 1.3  2003/05/05 14:30:42  pcombes
-#* FAST flags were missing ...
 #*
 #* Revision 1.1  2003/02/14 10:31:29  cpera
 #* add files used by autoconf/automake/libtool.
@@ -29,13 +29,13 @@ include $(top_srcdir)/config.mk.in
 bin_PROGRAMS = dietAgent
 
 
-dietAgent_SOURCES = dietAgent.cc AgentImpl.cc LocalAgentImpl.cc \
-		    MasterAgentImpl.cc GlobalSchedulers.cc Schedulers.cc \
+dietAgent_SOURCES = dietAgent.cc AgentImpl.cc LocalAgentImpl.cc LocMgrImpl.cc	\
+		    MasterAgentImpl.cc GlobalSchedulers.cc Schedulers.cc	\
 		    Request.cc qsort.cc
 
-noinst_HEADERS = AgentImpl.hh LocalAgentImpl.hh MasterAgentImpl.hh ChildID.hh \
-		 GlobalSchedulers.hh NodeDescription.hh Schedulers.hh \
-		 Request.hh RequestID.hh
+noinst_HEADERS = AgentImpl.hh LocalAgentImpl.hh LocMgrImpl.hh		\
+		 MasterAgentImpl.hh ChildID.hh GlobalSchedulers.hh	\
+		 NodeDescription.hh Schedulers.hh Request.hh RequestID.hh
 
 utilsdir = $(top_builddir)/src/utils
 corbadir = $(top_builddir)/src/CORBA

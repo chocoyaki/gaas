@@ -10,14 +10,11 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
-#* Revision 1.5  2003/09/16 10:37:19  pcombes
-#* Remove .hh files from libDIET_SeD_la_SOURCES.
+#* Revision 1.6  2003/09/22 21:07:30  pcombes
+#* Add files for data persistency.
 #*
 #* Revision 1.4  2003/08/01 19:20:23  pcombes
 #* Reorganize FAST and omniORB flags. Include FASTMgr.
-#*
-#* Revision 1.3  2003/05/05 14:15:53  pcombes
-#* FAST flags were missing ...
 #*
 #* Revision 1.2  2003/04/10 13:17:05  pcombes
 #* Update to new utils and CORBA AM libraries.
@@ -26,15 +23,13 @@
 #* add files used by autoconf/automake/libtool.
 #****************************************************************************#
 
-#AUTOMAKE_OPTIONS = gnu
-
 include $(top_srcdir)/config.mk.in
 
 lib_LTLIBRARIES = libDIET_SeD.la
 
-libDIET_SeD_la_SOURCES = DIET_server.cc SeDImpl.cc 
+libDIET_SeD_la_SOURCES = DIET_server.cc SeDImpl.cc DataMgrImpl.cc
 
-noinst_HEADERS = SeDImpl.hh
+noinst_HEADERS = SeDImpl.hh DataMgrImpl.hh
 
 utilsdir = $(top_builddir)/src/utils
 corbadir = $(top_builddir)/src/CORBA
@@ -46,5 +41,6 @@ libDIET_SeD_la_LIBADD = \
 	$(LIBS_OMNIORB) $(LIBS_FAST)
 
 AM_CXXFLAGS = $(CXXFLAGS_OMNIORB) $(CXXFLAGS_FAST) -I$(top_srcdir)/src/utils \
-	      -I$(top_srcdir)/src/CORBA -I$(corbadir)/idl
+	      -I$(top_srcdir)/src/CORBA -I$(corbadir)/idl 		     \
+	      -I$(top_srcdir)/src/agent
 
