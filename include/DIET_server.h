@@ -3,14 +3,14 @@
 /* DIET server interface                                                    */
 /*                                                                          */
 /*  Author(s):                                                              */
-/*    - Philippe COMBES           - LIP ENS-Lyon (France)                   */
+/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
 /*                                                                          */
-/*  This is part of DIET software.                                          */
-/*  Copyright (C) 2002 ReMaP/INRIA                                          */
-/*                                                                          */
+/* $LICENSE$                                                                */
 /****************************************************************************/
+/* $Log$
+/* Revision 1.9  2003/01/31 13:08:07  pcombes
+/* Apply Coding Standards
 /*
- * $Log$
  * Revision 1.8  2003/01/23 18:37:30  pcombes
  * API 0.6.4: change _set "dummy" arguments
  *
@@ -29,7 +29,6 @@
  * For compatibility with old API, just add NULL for the convertor argument in
  * diet_service_table_add. But all the solvers needed before in programs using
  * DIET can be transformed into convertors.
- *
  ****************************************************************************/
 
 
@@ -43,8 +42,6 @@ extern "C" {
 #include "DIET_data.h"
 
 
-
-
 /****************************************************************************/
 /* Utils for setting data descriptors (service construction)                */
 /****************************************************************************/
@@ -52,8 +49,9 @@ extern "C" {
  * Every -1 argument implies that the correspunding field is not modified.
  */
 
-int diet_generic_desc_set(struct diet_data_generic *desc,
-			  diet_data_type_t type, diet_base_type_t base_type);
+int
+diet_generic_desc_set(struct diet_data_generic* desc,
+		      diet_data_type_t type, diet_base_type_t base_type);
 
 
 /****************************************************************************/
@@ -64,12 +62,12 @@ typedef struct diet_data_generic diet_arg_desc_t;
 
 typedef struct {
   int              last_in, last_inout, last_out;
-  diet_arg_desc_t *param_desc;
+  diet_arg_desc_t* param_desc;
 } diet_profile_desc_t;
 
 /**
  * Type:
- *  (diet_arg_desc_t *) diet_param_desc ( (diet_profile_desc_t *), (size_t) )
+ *  (diet_arg_desc_t*) diet_param_desc ( (diet_profile_desc_t*), (size_t) )
  * Pointer to the nth parameter of a profile description
  */
 #define diet_param_desc(pt_prof_desc, n) &((pt_prof_desc)->param_desc[(n)])
@@ -85,10 +83,10 @@ typedef struct {
  * For example, the nth argument is a matrix of doubles:
  *  diet_generic_desc_set(diet_param_desc(profile,n), DIET_MATRIX; DIET_DOUBLE);
  */
-diet_profile_desc_t *diet_profile_desc_alloc(int last_in,
-					     int last_inout,
-					     int last_out);
-int diet_profile_desc_free(diet_profile_desc_t *desc);
+diet_profile_desc_t*
+diet_profile_desc_alloc(int last_in, int last_inout, int last_out);
+int
+diet_profile_desc_free(diet_profile_desc_t* desc);
 
 
 /****************************************************************************/
@@ -123,34 +121,36 @@ typedef enum {
 typedef struct {
   diet_convertor_function_t f;
   int                 arg_idx;
-  diet_arg_t             *arg;
+  diet_arg_t*             arg;
 } diet_arg_convertor_t;
 
 
-int diet_arg_cvt_set(diet_arg_convertor_t *arg_cvt,
-		     diet_convertor_function_t f, int arg_idx, diet_arg_t *arg);
+int
+diet_arg_cvt_set(diet_arg_convertor_t* arg_cvt,
+		 diet_convertor_function_t f, int arg_idx, diet_arg_t* arg);
 
 typedef struct {
-  char *path;
-  int last_in, last_inout, last_out;
-  diet_arg_convertor_t *arg_convs;
+  char*                 path;
+  int                   last_in, last_inout, last_out;
+  diet_arg_convertor_t* arg_convs;
 } diet_convertor_t;
 
 /**
  * Type:
- *  (diet_arg_convertor_t *) diet_arg_conv ( (diet_convertor_t *), (size_t) )
+ *  (diet_arg_convertor_t*) diet_arg_conv ( (diet_convertor_t*), (size_t) )
  * Pointer to the nth arg convertor of a convertor
  */
 #define diet_arg_conv(cvt,n) &((cvt)->arg_convs[(n)])
 
+diet_convertor_t*
+diet_convertor_alloc(char* path, int last_in, int last_inout, int last_out);
 
-diet_convertor_t *diet_convertor_alloc(char *path, int last_in,
-				       int last_inout, int last_out);
 /**
  * Free also arg field (if not NULL) of each diet_arg_convertor_t in arg_convs
  * array. Be careful to the coherence between arg_idx and arg fields !!!
  */
-int diet_convertor_free(diet_convertor_t *cvt);
+int
+diet_convertor_free(diet_convertor_t* cvt);
 
 
 /****************************************************************************/
@@ -166,7 +166,7 @@ int diet_convertor_free(diet_convertor_t *cvt);
  */
 
 typedef
-int (* diet_eval_t)(diet_profile_t *, double *);
+int (* diet_eval_t)(diet_profile_t*, double*);
 
 
 /****************************************************************************/
@@ -174,7 +174,7 @@ int (* diet_eval_t)(diet_profile_t *, double *);
 /****************************************************************************/
 
 typedef
-int (* diet_solve_t)(diet_profile_t *);
+int (* diet_solve_t)(diet_profile_t*);
 
 
 /****************************************************************************/
@@ -192,13 +192,15 @@ int (* diet_solve_t)(diet_profile_t *);
  * Since this function should only be used with (IN)OUT arguments,
  * it copies (* value) into the zone allocated by DIET.
  */
-int diet_scalar_desc_set(diet_data_t *data, void *value);
+int
+diet_scalar_desc_set(diet_data_t* data, void* value);
 // No use of diet_vector_desc_set
-
-int diet_matrix_desc_set(diet_data_t *data,
-			 size_t nb_r, size_t nb_c, diet_matrix_order_t order);
+int
+diet_matrix_desc_set(diet_data_t* data,
+		     size_t nb_r, size_t nb_c, diet_matrix_order_t order);
 // No use of diet_string_desc_set
-int diet_file_desc_set(diet_data_t *data, char *path);
+int
+diet_file_desc_set(diet_data_t* data, char* path);
 
 
 /****************************************************************************/
@@ -206,13 +208,16 @@ int diet_file_desc_set(diet_data_t *data, char *path);
 /****************************************************************************/
 /* No need to reference the service table since it is unique for the SeD.   */
 
-int diet_service_table_init(int max_size);
+int
+diet_service_table_init(int max_size);
 /* (cvt = NULL) is equivalent to "no conversion needed" */
-int diet_service_table_add(char                *service_path,
-			   diet_profile_desc_t *profile,
-			   diet_convertor_t    *cvt,
-			   diet_solve_t         solve_func);
-void diet_print_service_table();
+int
+diet_service_table_add(char*                service_path,
+		       diet_profile_desc_t* profile,
+		       diet_convertor_t*    cvt,
+		       diet_solve_t*        solve_func);
+void
+diet_print_service_table();
 
 
 /****************************************************************************/
@@ -222,7 +227,8 @@ void diet_print_service_table();
 /* Most users should set argc to 0 and argv to NULL.
    Advanced omniORB users can set these arguments that are transmitted to
    the ORB initialization. */
-int diet_SeD(char *config_file_name, int argc, char **argv);
+int
+diet_SeD(char* config_file_name, int argc, char** argv);
 
 
 
@@ -234,7 +240,7 @@ int diet_SeD(char *config_file_name, int argc, char **argv);
 
 
 inline int
-diet_generic_desc_set(struct diet_data_generic *desc,
+diet_generic_desc_set(struct diet_data_generic* desc,
 		      diet_data_type_t type, diet_base_type_t base_type)
 {
   if (!desc)

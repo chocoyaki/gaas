@@ -1,3 +1,13 @@
+#****************************************************************************#
+#* DIET tutorial environment variables                                      *#
+#*                                                                          *#
+#*  Author(s):                                                              *#
+#*    - Ludovic BERTSCH (Ludovic.Bertsch@ens-lyon.fr)                       *#
+#*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *#
+#*                                                                          *#
+#* $LICENSE$                                                                *#
+#****************************************************************************#
+
 ##
 # omniORB configuration
 

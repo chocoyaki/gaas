@@ -2,9 +2,10 @@
 #* DIET tutorial dgemm example: Makefile                                    *#
 #*                                                                          *#
 #*  Author(s):                                                              *#
-#*    - Ludovic BERTSCH           Ludovic.Bertsch@ens-lyon.fr               *#
-#*    - Philippe COMBES           Philippe.Combes@ens-lyon.fr               *#
+#*    - Ludovic BERTSCH (Ludovic.Bertsch@ens-lyon.fr)                       *#
+#*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *#
 #*                                                                          *#
+#* $LICENSE$                                                                *#
 #****************************************************************************#
 
 

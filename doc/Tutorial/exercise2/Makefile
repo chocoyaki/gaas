@@ -2,9 +2,10 @@
 #* DIET tutorial scalar by matrix product example: Makefile                 *#
 #*                                                                          *#
 #*  Author(s):                                                              *#
-#*    - Ludovic BERTSCH           Ludovic.Bertsch@ens-lyon.fr               *#
-#*    - Philippe COMBES           Philippe.Combes@ens-lyon.fr               *#
+#*    - Ludovic BERTSCH (Ludovic.Bertsch@ens-lyon.fr)                       *#
+#*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *#
 #*                                                                          *#
+#* $LICENSE$                                                                *#
 #****************************************************************************#
 
 # Do not forget to point at the right Makefile.inc !!!

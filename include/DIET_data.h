@@ -3,14 +3,14 @@
 /* DIET data interface for clients as well as servers                       */
 /*                                                                          */
 /*  Author(s):                                                              */
-/*    - Philippe COMBES           - LIP ENS-Lyon (France)                   */
+/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
 /*                                                                          */
-/*  This is part of DIET software.                                          */
-/*  Copyright (C) 2002 ReMaP/INRIA                                          */
-/*                                                                          */
+/* $LICENSE$                                                                */
 /****************************************************************************/
+/* $Log$
+/* Revision 1.11  2003/01/31 13:08:07  pcombes
+/* Apply Coding Standards
 /*
- * $Log$
  * Revision 1.10  2003/01/23 18:37:30  pcombes
  * API 0.6.4: change _set "dummy" arguments
  *
@@ -32,7 +32,6 @@
  * For compatibility with old API, just add NULL for the convertor argument in
  * diet_service_table_add. But all the solvers needed before in programs using
  * DIET can be transformed into convertors.
- *
  ****************************************************************************/
 
 
@@ -89,16 +88,16 @@ typedef enum {
 /****************************************************************************/
 /* Argument type - a structure with two fields:                             */
 /*  desc  : a descriptor of the argument                                    */
-/*  value : a (void *) pointer to the memory zone where the data are stored */
+/*  value : a (void*) pointer to the memory zone where the data are stored */
 /****************************************************************************/
 
 typedef struct diet_arg_s diet_arg_t;
 
 /**
- * Type: (C_type *) diet_value ( (C_type), (diet_arg_t *) )
+ * Type: (C_type*) diet_value ( (C_type), (diet_arg_t*) )
  * Casted pointer to the argument value (the data themselves)
  */
-#define diet_value(C_type, arg) (C_type *)((arg)->value)
+#define diet_value(C_type, arg) ((C_type)*)((arg)->value)
 
 
 /****************************************************************************/
@@ -107,7 +106,7 @@ typedef struct diet_arg_s diet_arg_t;
 
 typedef struct {
   int         last_in, last_inout, last_out;
-  diet_arg_t *parameters;
+  diet_arg_t* parameters;
 } diet_profile_t;
 
 /* Allocate a DIET profile with memory space for its arguments.
@@ -121,12 +120,14 @@ typedef struct {
    NB: mode is the persistence mode of the parameter.
    Since a profile will not be freed until profile_free is called, it is
    possible to refer to each parameter for data handles (cf. below)         */
-diet_profile_t *diet_profile_alloc(int last_in, int last_inout, int last_out);
-int diet_profile_free(diet_profile_t *profile);
+diet_profile_t*
+diet_profile_alloc(int last_in, int last_inout, int last_out);
+int
+diet_profile_free(diet_profile_t* profile);
 
 
 /**
- * Type: (diet_arg_t *) diet_parameter( (diet_profile_t *), (int) )
+ * Type: (diet_arg_t*) diet_parameter( (diet_profile_t*), (int) )
  * Pointer to the nth parameter of a profile
  */
 #define diet_parameter(pt_profile, n) &((pt_profile)->parameters[(n)])
@@ -146,11 +147,11 @@ int diet_profile_free(diet_profile_t *profile);
 
 /* should not be used on server with (IN)OUT arguments */
 int
-diet_scalar_set(diet_arg_t *arg, void *value, diet_persistence_mode_t mode,
+diet_scalar_set(diet_arg_t* arg, void* value, diet_persistence_mode_t mode,
 		diet_base_type_t base_type);
 /* should not be used on server with (IN)OUT arguments */
 int
-diet_vector_set(diet_arg_t *arg, void *value, diet_persistence_mode_t mode,
+diet_vector_set(diet_arg_t* arg, void* value, diet_persistence_mode_t mode,
 		diet_base_type_t base_type, size_t size);
 
 /* Matrices can be stored by rows or by columns */
@@ -162,17 +163,17 @@ typedef enum {
 
 /* should not be used on server with (IN)OUT arguments */
 int
-diet_matrix_set(diet_arg_t *arg, void *value, diet_persistence_mode_t mode,
+diet_matrix_set(diet_arg_t* arg, void* value, diet_persistence_mode_t mode,
 		diet_base_type_t base_type,
 		size_t nb_rows, size_t nb_cols, diet_matrix_order_t order);
 /* should not be used on server with (IN)OUT arguments */
 int
-diet_string_set(diet_arg_t *arg, char *value, diet_persistence_mode_t mode,
+diet_string_set(diet_arg_t* arg, char* value, diet_persistence_mode_t mode,
 		size_t length);
 /* Computes the file size
    ! Warning ! The path is not duplicated !!! */
 int
-diet_file_set(diet_arg_t *arg, diet_persistence_mode_t mode, char *path);
+diet_file_set(diet_arg_t* arg, diet_persistence_mode_t mode, char* path);
 
 
 /****************************************************************************/
@@ -186,60 +187,65 @@ diet_file_set(diet_arg_t *arg, diet_persistence_mode_t mode, char *path);
  *   diet_scalar_get(arg, &value, NULL),
  * will only set the value to the value field of the (*arg) structure.
  * 
- * NB: these are macros that let the user not worry about casting its (int **)
- * or (double **) etc. into (void **).
+ * NB: these are macros that let the user not worry about casting its (int** )
+ * or (double** ) etc. into (void** ).
  */
 
 /**
- * Type: int diet_scalar_get((diet_arg_t *), (void *),
- *                           (diet_persistence_mode_t *))
- * (void *) means (int *), (double *), (float *), etc., depending on the
+ * Type: int diet_scalar_get((diet_arg_t* ), (void* ),
+ *                           (diet_persistence_mode_t* ))
+ * (void* ) means (int* ), (double* ), (float* ), etc., depending on the
  *          base C type of users's data.
  */
 #define diet_scalar_get(arg, value, mode) \
-        _scalar_get(arg, (void *)value, mode)
+        _scalar_get(arg, (void*)value, mode)
 /**
- * Type: int diet_vector_get((diet_arg_t *), (void **),
- *                           (diet_persistence_mode_t *), (size_t *))
- * (void **) means (int **), (double **), (float **), etc., depending on the
+ * Type: int diet_vector_get((diet_arg_t*), (void**),
+ *                           (diet_persistence_mode_t*), (size_t* ))
+ * (void**) means (int**), (double**), (float**), etc., depending on the
  *           base C type of users's data.
  */
 #define diet_vector_get(arg, value, mode, size) \
-        _vector_get(arg, (void **)value, mode, size)
+        _vector_get(arg, (void**)value, mode, size)
 /**
- * Type: int diet_matrix_get((diet_arg_t *), (void **),
- *                           (diet_persistence_mode_t *),
- *                           (size_t *), (size_t *), (diet_matrix_order_t *))
- * (void **) means (int **), (double **), (float **), etc., depending on the
+ * Type: int diet_matrix_get((diet_arg_t*), (void**),
+ *                           (diet_persistence_mode_t*),
+ *                           (size_t*), (size_t*), (diet_matrix_order_t*))
+ * (void**) means (int**), (double**), (float**), etc., depending on the
  *           base C type of users's data.
  */
 #define diet_matrix_get(arg, value, mode, nb_rows, nb_cols, order) \
-        _matrix_get(arg, (void **)value, mode, nb_rows, nb_cols, order)
+        _matrix_get(arg, (void**)value, mode, nb_rows, nb_cols, order)
 /**
- * Type: int diet_string_get((diet_arg_t *), (char **),
- *                           (diet_persistence_mode_t *), (size_t *))
+ * Type: int diet_string_get((diet_arg_t*), (char**),
+ *                           (diet_persistence_mode_t*), (size_t*))
  */
 #define diet_string_get(arg, value, mode, length) \
-        _string_get(arg, (char **)value, mode, length)
+        _string_get(arg, (char**)value, mode, length)
 /**
- * Type: int diet_file_get((diet_arg_t *),
- *                         (diet_persistence_mode_t *), (size_t *), (char **))
+ * Type: int diet_file_get((diet_arg_t*),
+ *                         (diet_persistence_mode_t*), (size_t*), (char**))
  */
 #define diet_file_get(arg, mode, size, path) \
-        _file_get(arg, mode, size, (char **)path)
+        _file_get(arg, mode, size, (char**)path)
 
 
 
 // These are the effective get functions 
-int _scalar_get(diet_arg_t *arg, void *value, diet_persistence_mode_t *mode);
-int _vector_get(diet_arg_t *arg, void **value, diet_persistence_mode_t *mode,
-		size_t *size);
-int _matrix_get(diet_arg_t *arg, void **value, diet_persistence_mode_t *mode,
-		size_t *nb_rows, size_t *nb_cols, diet_matrix_order_t *order);
-int _string_get(diet_arg_t *arg,
-		char **value, diet_persistence_mode_t *mode, size_t *length);
-int _file_get(diet_arg_t *arg, diet_persistence_mode_t *mode,
-	      size_t *size, char **path);
+int
+_scalar_get(diet_arg_t* arg, void* value, diet_persistence_mode_t* mode);
+int
+_vector_get(diet_arg_t* arg, void** value, diet_persistence_mode_t* mode,
+	    size_t* size);
+int
+_matrix_get(diet_arg_t* arg, void** value, diet_persistence_mode_t* mode,
+	    size_t* nb_rows, size_t *nb_cols, diet_matrix_order_t* order);
+int
+_string_get(diet_arg_t* arg,
+	    char** value, diet_persistence_mode_t* mode, size_t* length);
+int
+_file_get(diet_arg_t* arg, diet_persistence_mode_t* mode,
+	  size_t* size, char** path);
 
 
 
@@ -254,7 +260,7 @@ int _file_get(diet_arg_t *arg, diet_persistence_mode_t *mode,
 
 /*----[ scalar - specific ]-------------------------------------------------*/
 struct diet_scalar_specific {
-  void *value;
+  void* value;
 };
 
 /*----[ vector - specific ]-------------------------------------------------*/
@@ -277,7 +283,7 @@ struct diet_string_specific {
 /*----[ file - specific ]---------------------------------------------------*/
 struct diet_file_specific {
   int   size;
-  char *path;
+  char* path;
 };
 
 /*----[ data - generic ]----------------------------------------------------*/
@@ -302,7 +308,7 @@ typedef struct {
 
 struct diet_arg_s {
   diet_data_desc_t desc;
-  void            *value;
+  void*            value;
 };
 
 /* diet_data_t is the same as diet_arg_t, so far ... */

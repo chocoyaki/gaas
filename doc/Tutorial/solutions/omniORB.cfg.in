@@ -1,2 +1,12 @@
+#****************************************************************************#
+#* DIET tutorial omniORB 4 configuration                                    *#
+#*                                                                          *#
+#*  Author(s):                                                              *#
+#*    - Ludovic BERTSCH (Ludovic.Bertsch@ens-lyon.fr)                       *#
+#*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *#
+#*                                                                          *#
+#* $LICENSE$                                                                *#
+#****************************************************************************#
+
 InitRef = NameService=corbaloc::@HOSTNAME@:2810/NameService
 
