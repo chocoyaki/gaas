@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2003/08/01 19:18:17  pcombes
+ * Update to FAST 0.8: nwsForeCaster is not compulsory when nwsUse = 1.
+ *
  * Revision 1.12  2003/07/25 20:21:25  pcombes
  * Remove unused addr variable in checkFASTEntries.
  *
@@ -268,14 +271,18 @@ Parsers::checkFASTEntries()
 		 << ((Results::Address*)PARAM(NWSNAMESERVER).value)->port
 		 << endl);
       
-      if (PARAM(NWSFORECASTER).value == NULL) {
+      if (PARAM(NWSFORECASTER).value != NULL) {
+	TRACE_TEXT(TRACE_ALL_STEPS, "  " << PARAM(NWSFORECASTER).kwd << " = "
+		   << ((Results::Address*)PARAM(NWSFORECASTER).value)->host
+		   << ':'
+		   << ((Results::Address*)PARAM(NWSFORECASTER).value)->port
+		   << endl);
+#if defined(__FAST_0_4__)
+      } else {
 	PARSERS_ERROR(PARAM(NWSFORECASTER).kwd << " is missing",
-			   DIET_MISSING_PARAMETERS);
+		      DIET_MISSING_PARAMETERS);
+#endif
       }
-      TRACE_TEXT(TRACE_ALL_STEPS, "  " << PARAM(NWSFORECASTER).kwd << " = "
-		 << ((Results::Address*)PARAM(NWSFORECASTER).value)->host << ':'
-		 << ((Results::Address*)PARAM(NWSFORECASTER).value)->port
-		 << endl);
     }
   }
 
