@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2003/08/01 19:26:07  pcombes
+ * The conversions to FAST problems are now managed by FASTMgr.
+ *
  * Revision 1.16  2003/07/25 20:37:36  pcombes
  * Separate the DIET API (slightly modified) from the GridRPC API (version of
  * the draft dated to 07/21/2003)
@@ -59,9 +62,6 @@
 #include "common_types.hh"
 
 #include "DIET_config.h"
-#if HAVE_FAST
-#include "slimfast_api.h"
-#endif // HAVE_FAST
 
 
 /*--------------------------------------------------------------------------*/
@@ -99,13 +99,6 @@ mrsh_profile_desc(corba_profile_desc_t* dest,
 int
 mrsh_pb_desc(corba_pb_desc_t* dest, diet_profile_t* src);
 
-
-#if HAVE_FAST
-// To convert a request profile to FAST sf_inst_desc for evaluation
-int
-unmrsh_pb_desc_to_sf(sf_inst_desc_t* dest, const corba_pb_desc_t* src,
-		     const diet_convertor_t* cvt);
-#endif // HAVE_FAST
 
 // To send the input data from client to SeD
 int

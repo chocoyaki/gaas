@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2003/08/01 19:26:07  pcombes
+ * The conversions to FAST problems are now managed by FASTMgr.
+ *
  * Revision 1.27  2003/07/25 20:37:36  pcombes
  * Separate the DIET API (slightly modified) from the GridRPC API (version of
  * the draft dated to 07/21/2003)
@@ -294,103 +297,6 @@ unmrsh_data_desc(diet_data_desc_t* dest, const corba_data_desc_t* src)
   return 0;
 }
 
-#if HAVE_FAST
-inline sf_type_cons_t
-diet_to_sf_type(const diet_data_type_t t)
-{
-  switch (t) {
-  case DIET_SCALAR:
-    return sf_type_cons_scal;
-  case DIET_VECTOR:
-  case DIET_STRING:
-    return sf_type_cons_vect;
-  case DIET_MATRIX:
-    return sf_type_cons_mat;
-  case DIET_FILE:
-    return sf_type_cons_file;
-  default:
-    return sf_type_cons_count;
-  }
-}
-
-inline sf_type_base_t
-diet_to_sf_base_type(const diet_base_type_t t)
-{
-  switch (t) {
-  case DIET_CHAR:
-  case DIET_BYTE:
-    return sf_type_base_char;
-  case DIET_INT:
-  case DIET_LONGINT:
-    return sf_type_base_int;
-  case DIET_FLOAT:
-  case DIET_DOUBLE:
-    return sf_type_base_double;
-#if HAVE_COMPLEX
-  case DIET_SCOMPLEX:
-  case DIET_DCOMPLEX:
-#endif // HAVE_COMPLEX
-  default:
-    return sf_type_base_count;  
-  }
-}
-
-int
-unmrsh_data_desc_to_sf(sf_data_desc_t* dest, const diet_data_desc_t* src) 
-{
-  dest->id        = 0;
-  dest->type      = diet_to_sf_type(src->generic.type);
-  dest->base_type = diet_to_sf_base_type(src->generic.base_type);
-  
-  switch (dest->type) {
-     
-  case sf_type_cons_vect:
-    dest->ctn.vect.size = src->specific.vect.size;
-    if (src->generic.type == DIET_STRING)
-      dest->ctn.vect.size++;
-    break;
-    
-  case sf_type_cons_mat:
-    dest->ctn.mat.nb_l  = src->specific.mat.nb_r;
-    dest->ctn.mat.nb_c  = src->specific.mat.nb_c;
-    dest->ctn.mat.trans = src->specific.mat.order;
-    break;
-    
-  case sf_type_cons_file:
-    if (src->specific.file.path) {
-      dest->ctn.file.size = src->specific.file.size;
-      strcpy(dest->ctn.file.path, src->specific.file.path);
-    } else {
-      dest->ctn.file.size = 0;
-      dest->ctn.file.path[0] = '\0';
-    }
-    break;
-
-  case sf_type_cons_scal:
-    switch (dest->base_type) {
-    case sf_type_base_char:
-      dest->ctn.scal.value = (void*) new char;
-      *((short*)dest->ctn.scal.value) = *((short*)src->specific.scal.value);
-      break;
-    case sf_type_base_int:
-      dest->ctn.scal.value = (void*) new int;
-      *((long*)dest->ctn.scal.value) = *((long*)src->specific.scal.value);
-      break;
-    case sf_type_base_double:
-      dest->ctn.scal.value = (void*) new double;
-      *((double*)dest->ctn.scal.value) = *((double*)src->specific.scal.value);
-      break;
-    default:
-      MRSH_ERROR("base type " << dest->base_type << " unknown for FAST", 1);
-    }
-    break;
-    
-  default:
-    MRSH_ERROR("type " << src->generic.type << " unknown for FAST", 1);
-  }
-  return 0;
-}
-#endif // HAVE_FAST
 
 int
 unmrsh_data(diet_data_t* dest, corba_data_t* src)
@@ -472,107 +378,6 @@ mrsh_pb_desc(corba_pb_desc_t* dest, diet_profile_t* src)
 }
 
 
-/****************************************************************************/
-/* Problem profile -> FAST sf_inst_desc (for client requests)              */
-/****************************************************************************/
-
-#if HAVE_FAST
-int
-cvt_arg_desc(sf_data_desc_t* dest, 
-	     diet_data_desc_t* src, diet_convertor_function_t f)
-{
-  diet_data_desc_t* ddd = new diet_data_desc_t;
-  
-  switch(f) {
-  case DIET_CVT_IDENTITY: {
-    delete ddd;
-    ddd = src;
-    break;
-  }
-  case DIET_CVT_VECT_SIZE: {
-    scalar_set_desc(ddd, NULL, DIET_VOLATILE, DIET_INT, src->specific.scal.value);
-    break;
-  }
-  case DIET_CVT_MAT_NB_ROW: {
-    scalar_set_desc(ddd, NULL, DIET_VOLATILE, DIET_INT, &src->specific.mat.nb_r);
-    break;
-  }
-  case DIET_CVT_MAT_NB_COL: {
-    scalar_set_desc(ddd, NULL, DIET_VOLATILE, DIET_INT, &src->specific.mat.nb_c);
-    break;
-  }
-  case DIET_CVT_MAT_ORDER: {
-    char t;
-    // FIXME test on order !!!!
-    switch (src->specific.mat.order) {
-    case DIET_ROW_MAJOR: t = 'N';
-    case DIET_COL_MAJOR: t = 'T';
-    default: {
-      MRSH_ERROR("invalid order for matrix", 1);
-    }
-    }
-    scalar_set_desc(ddd, NULL, DIET_VOLATILE, DIET_CHAR, &t);
-    break;
-  }
-  case DIET_CVT_STR_LEN: {
-    scalar_set_desc(ddd, NULL, DIET_VOLATILE, DIET_INT, &src->specific.str.length);
-    break;
-  }
-  case DIET_CVT_FILE_SIZE: {
-    scalar_set_desc(ddd, NULL, DIET_VOLATILE, DIET_INT, &src->specific.file.size);
-    break;
-  }
-  default: {
-    MRSH_ERROR("invalid convertor function", 1);
-  }
-  }
-  
-  return unmrsh_data_desc_to_sf(dest, ddd);
-}
-
-int
-unmrsh_pb_desc_to_sf(sf_inst_desc_t* dest, const corba_pb_desc_t* src,
-		     const diet_convertor_t* cvt)
-{
-  /* This keeps all umarshalled argument descriptions */
-  diet_data_desc_t** src_params = // Use calloc to set all elements to NULL
-    (diet_data_desc_t**) calloc(src->last_out + 1, sizeof(diet_data_desc_t*));
-  
-  dest->path       = CORBA::string_dup(cvt->path);
-  dest->last_in    = cvt->last_in;
-  dest->last_inout = cvt->last_inout;
-  dest->last_out   = cvt->last_out;
-  dest->param_desc = new sf_data_desc_t[cvt->last_out + 1];
-
-  for (int i = 0; i <= cvt->last_out; i++) {
-    diet_data_desc_t* ddd_tmp(NULL);
-    int arg_idx = cvt->arg_convs[i].in_arg_idx;
-    
-    if ((arg_idx >= 0) && (arg_idx <= src->last_out)) {
-      if (!src_params[arg_idx]) {
-	ddd_tmp = new diet_data_desc_t;
-	src_params[arg_idx] = ddd_tmp;
-	unmrsh_data_desc(ddd_tmp, &(src->param_desc[arg_idx]));
-      } else {
-	ddd_tmp = src_params[arg_idx];
-      }
-    } else {
-      ddd_tmp = &(cvt->arg_convs[i].arg->desc);
-    }
-    if (cvt_arg_desc(&(dest->param_desc[i]), ddd_tmp, cvt->arg_convs[i].f)) {
-      for (int i = 0; i <= src->last_out; i++)
-	delete src_params[i];
-      delete [] src_params;
-      MRSH_ERROR("cannot convert client profile to server profile", 1);
-    }
-  }
-  
-  for (int i = 0; i <= src->last_out; i++)
-    delete src_params[i];
-  delete [] src_params;
-  return 0;
-}
-#endif // HAVE_FAST
 
 /****************************************************************************/
 /* Client sends its data ...                                                */
