@@ -24,13 +24,17 @@
 
 /*
  * $Log$
+ * Revision 1.2  2002/12/23 22:55:26  sdahan
+ * removes the implicite stuff and define the default stuff. Now it compile
+ * with gcc 3.1
+ *
  * Revision 1.1  2002/12/20 14:46:57  sdahan
  * creation of a thread safe vector
  *
  */
 
-template <class T, class A = allocator<T> >
-class ts_vector : private vector<T, A> {
+template <class T, class A = std::allocator<T> >
+class ts_vector : private std::vector<T, A> {
 
 private :
 
@@ -43,7 +47,14 @@ private :
   /**
    * A type to avoid to type vector<T, A> each time.
    */
-  typedef vector<T, A> VectorType ;
+  typedef std::vector<T, A> VectorType ;
+
+public :
+
+  /**
+   * the size_type type is the same as the vector::size_type
+   */
+  typedef typename VectorType::size_type size_type ;
 
 public :
 
