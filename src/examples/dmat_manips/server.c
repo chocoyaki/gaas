@@ -1,12 +1,47 @@
 /****************************************************************************/
-/* $Id$             */
-/* DIET users'day server example (TP - exo3)                                */
+/* $Id$ */
+/* dmat_manips example: a DIET server for transpose, RSUM a and RPROD       */
+/*   problems                                                               */
 /*                                                                          */
 /*  Author(s):                                                              */
-/*    - Ludovic BERTSCH           Ludovic.Bertsch@ens-lyon.fr               */
-/*    - Philippe COMBES           Philippe.Combes@ens-lyon.fr               */
+/*    - Philippe COMBES           - LIP ENS-Lyon (France)                   */
+/*                                                                          */
+/*  This is part of DIET software.                                          */
+/*  Copyright (C) 2002 ReMaP/INRIA                                          */
 /*                                                                          */
 /****************************************************************************/
+/*
+ * $Log$
+ * Revision 1.16  2003/01/17 18:05:37  pcombes
+ * Update to API 0.6.3
+ *
+ * Revision 1.11  2002/11/15 17:15:32  pcombes
+ * FAST integration complete ...
+ *
+ * Revision 1.10  2002/11/07 18:42:42  pcombes
+ * Add includes and configured Makefile variables to install directory.
+ * Update dgemm to the implementation that is hardcoded in FAST.
+ *
+ * Revision 1.8  2002/10/15 18:47:54  pcombes
+ * Update to convertor API.
+ *
+ * Revision 1.7  2002/09/17 15:23:18  pcombes
+ * Bug fixes on inout arguments and examples
+ * Add support for omniORB 4.0.0
+ *
+ * Revision 1.5  2002/08/30 16:50:16  pcombes
+ * This version works as well as the alpha version from the user point of view,
+ * but the API is now the one imposed by the latest specifications (GridRPC API
+ * in its sequential part, config file for all parts of the platform, agent
+ * algorithm, etc.)
+ *  - Reduce marshalling by using CORBA types internally
+ *  - Creation of a class ServiceTable that is to be replaced
+ *    by an LDAP DB for the MA
+ *  - No copy for client/SeD data transfers
+ *  - ...
+ *
+ ****************************************************************************/
+
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -29,16 +64,23 @@ solve_T(diet_profile_t *pb)
 
   //printf("Solve T ...");
 
-  m = *((int *)pb->parameters[0].value);
-  n = *((int *)pb->parameters[1].value);
-  A = (double *)pb->parameters[2].value;
+  //m = *((int *)pb->parameters[0].value);
+  diet_scalar_get(diet_parameter(pb,0), &m, NULL);
+  //n = *((int *)pb->parameters[1].value);
+  diet_scalar_get(diet_parameter(pb,1), &n, NULL);
+  //A = (double *)pb->parameters[2].value;
+  /* This is equivalent to
+     A = diet_value(double, diet_parameter(pb,2)); */
+  diet_matrix_get(diet_parameter(pb,2), &A, NULL, NULL, NULL, NULL);
   print_matrix(A, m, n);
   
   if ((res = T(m, n, A)))
     return res;
   
-  pb->parameters[2].desc.specific.mat.nb_r = n;
-  pb->parameters[2].desc.specific.mat.nb_c = m;
+  //pb->parameters[2].desc.specific.mat.nb_r = n;
+  //pb->parameters[2].desc.specific.mat.nb_c = m;
+  // no need to set istrans
+  diet_matrix_desc_set(diet_parameter(pb,2), n, m, -1);
   
   print_matrix(A, n, m);
   //printf(" done\n");
@@ -48,30 +90,25 @@ solve_T(diet_profile_t *pb)
 int
 solve_MatSUM(diet_profile_t *pb)
 {
-  size_t m, n;
-  char tA, tB;
+  size_t mA, nA, mB, nB;
+  int tA, tB;
   double *A, *B, *C;
   int res;
   
   printf("Solve MatSUM ...");
 
-  tA = (pb->parameters[0].desc.specific.mat.istrans) ? 'T' : 'N';
-  tB = (pb->parameters[1].desc.specific.mat.istrans) ? 'T' : 'N';
-  m  = pb->parameters[0].desc.specific.mat.nb_r;
-  n  = pb->parameters[0].desc.specific.mat.nb_c;
-  A  = (double *) pb->parameters[0].value;
-  B  = (double *) pb->parameters[1].value;
-  if ((m != pb->parameters[1].desc.specific.mat.nb_r)
-      || (n != pb->parameters[1].desc.specific.mat.nb_c)) {
+  diet_matrix_get(diet_parameter(pb,0), &A, NULL, &mA, &nA, &tA);
+  diet_matrix_get(diet_parameter(pb,1), &B, NULL, &mB, &nB, &tB);
+  if ((mA != mB) || (nA != nB)) {
     fprintf(stderr, "MatSUM error: mA=%ld, nA=%ld ; mB=%ld, nB=%ld\n",
-	    (long)m, (long)n, (long)pb->parameters[1].desc.specific.mat.nb_r,
-	    (long)pb->parameters[1].desc.specific.mat.nb_c);
+	    (long)mA, (long)nA, (long)mB, (long)nB);
     return 1;
   }
-  C = (double *) pb->parameters[2].value;
-  pb->parameters[2].desc.specific.mat.istrans = 0;
+  //C = (double *) pb->parameters[2].value;  OR
+  //diet_matrix_get(diet_parameter(pb,2), &C, NULL, NULL, NULL, NULL); OR
+  C = diet_value(double,diet_parameter(pb,2));
   
-  if ((res = MatSUM(tA, tB, m, n, A, B, C)))
+  if ((res = MatSUM(tA, tB, mA, nA, A, B, C)))
     return res;
   
   printf(" done\n");
@@ -82,26 +119,21 @@ solve_MatSUM(diet_profile_t *pb)
 int
 solve_MatPROD(diet_profile_t *pb)
 {
-  size_t mA, nA, nB;
-  char tA, tB;
+  size_t mA, nA, mB, nB;
+  int tA, tB;
   double *A, *B, *C;
   
   printf("Solve MatPROD ...");
 
-  tA = (pb->parameters[0].desc.specific.mat.istrans) ? 'T' : 'N';
-  tB = (pb->parameters[1].desc.specific.mat.istrans) ? 'T' : 'N';
-  mA = pb->parameters[0].desc.specific.mat.nb_r;
-  nA = pb->parameters[0].desc.specific.mat.nb_c;
-  nB = pb->parameters[1].desc.specific.mat.nb_c;
-  A = (double *) pb->parameters[0].value;
-  B = (double *) pb->parameters[1].value;
-  if (nA != pb->parameters[1].desc.specific.mat.nb_r) {
+  diet_matrix_get(diet_parameter(pb,0), &A, NULL, &mA, &nA, &tA);
+  diet_matrix_get(diet_parameter(pb,1), &B, NULL, &mB, &nB, &tB);
+  if (nA != mB) {
     fprintf(stderr, "MatPROD error: mA=%ld, nA=%ld ; mB=%ld, nB=%ld\n",
-	    (long)mA, (long)nA, (long)pb->parameters[1].desc.specific.mat.nb_r, (long)nB);
+    (long)mA, (long)nA, (long)mB, (long)nB);
     return 1;
-  }  
-  C = (double *) pb->parameters[2].value;
-  pb->parameters[2].desc.specific.mat.istrans = 0;
+  }
+  //diet_matrix_get(diet_parameter(pb,2), &C, NULL, NULL, NULL, NULL); OR
+  C = diet_value(double,diet_parameter(pb,2));
   
   MatPROD(tA, tB, mA, nA, A, nB, B, C);
   
@@ -157,47 +189,46 @@ main(int argc, char **argv)
   diet_service_table_init(3);
   
   if (services[0]) {
-    profile = profile_desc_alloc(-1, 0, 0);
-    generic_desc_set(&(profile->param_desc[0]), DIET_MATRIX, DIET_DOUBLE);
-
-    cvt = convertor_alloc("T", 1, 2, 2);
+    profile = diet_profile_desc_alloc(-1, 0, 0);
+    diet_generic_desc_set(diet_param_desc(profile,0), DIET_MATRIX, DIET_DOUBLE);
+    cvt = diet_convertor_alloc("T", 1, 2, 2);
     diet_arg_cvt_set(&(cvt->arg_convs[0]), DIET_CVT_MAT_NB_ROW, 0, NULL);
     diet_arg_cvt_set(&(cvt->arg_convs[1]), DIET_CVT_MAT_NB_COL, 0, NULL);
     diet_arg_cvt_set(&(cvt->arg_convs[2]), DIET_CVT_IDENTITY,   0, NULL);
 		     
     diet_service_table_add(SRV[0], profile, cvt, solve_T);
-    profile_desc_free(profile);
-    convertor_free(cvt);
+    diet_profile_desc_free(profile);
+    diet_convertor_free(cvt);
   }
   
   if (services[1] || services[2]) {
-    profile = profile_desc_alloc(1, 1, 2);
-    generic_desc_set(&(profile->param_desc[0]), DIET_MATRIX, DIET_DOUBLE);
-    generic_desc_set(&(profile->param_desc[1]), DIET_MATRIX, DIET_DOUBLE);
-    generic_desc_set(&(profile->param_desc[2]), DIET_MATRIX, DIET_DOUBLE);
+    profile = diet_profile_desc_alloc(1, 1, 2);
+    diet_generic_desc_set(diet_param_desc(profile,0), DIET_MATRIX, DIET_DOUBLE);
+    diet_generic_desc_set(diet_param_desc(profile,1), DIET_MATRIX, DIET_DOUBLE);
+    diet_generic_desc_set(diet_param_desc(profile,2), DIET_MATRIX, DIET_DOUBLE);
 
     if (services[1]) {
-      cvt = convertor_alloc("base/plus", 1, 1, 2);
+      cvt = diet_convertor_alloc("base/plus", 1, 1, 2);
       diet_arg_cvt_set(&(cvt->arg_convs[0]), DIET_CVT_IDENTITY, 0, NULL);
       diet_arg_cvt_set(&(cvt->arg_convs[1]), DIET_CVT_IDENTITY, 1, NULL);
       diet_arg_cvt_set(&(cvt->arg_convs[2]), DIET_CVT_IDENTITY, 2, NULL);
       diet_service_table_add(SRV[1], profile, cvt, solve_MatSUM);
-      convertor_free(cvt);
+      diet_convertor_free(cvt);
     }
     if (services[2]) {
-      cvt = convertor_alloc("base/mult", 1, 1, 2);
+      cvt = diet_convertor_alloc("base/mult", 1, 1, 2);
       diet_arg_cvt_set(&(cvt->arg_convs[0]), DIET_CVT_IDENTITY, 0, NULL);
       diet_arg_cvt_set(&(cvt->arg_convs[1]), DIET_CVT_IDENTITY, 1, NULL);
       diet_arg_cvt_set(&(cvt->arg_convs[2]), DIET_CVT_IDENTITY, 2, NULL);
       diet_service_table_add(SRV[2], profile, cvt, solve_MatPROD);
-      convertor_free(cvt);
+      diet_convertor_free(cvt);
     }
 
-    profile_desc_free(profile);
+    diet_profile_desc_free(profile);
   }
   
-  print_table();
-  res = DIET_SeD(argv[1], argc, argv);
+  diet_print_service_table();
+  res = diet_SeD(argv[1], argc, argv);
   // Not reached
   return res;
 }

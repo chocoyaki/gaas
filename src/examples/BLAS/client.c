@@ -11,6 +11,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.3  2003/01/17 18:05:37  pcombes
+ * Update to API 0.6.3
+ *
  * Revision 1.2  2002/12/12 18:17:04  pcombes
  * Small bug fixes on prints (special thanks to Jean-Yves)
  *
@@ -54,7 +57,7 @@ main(int argc, char **argv)
   diet_function_handle_t *fhandle;
   diet_profile_t *profile;
 
-  int    i, j, m, n, k;
+  size_t i, j, m, n, k;
   double alpha, beta;
   double *A, *B, *C = NULL;
 
@@ -107,12 +110,17 @@ main(int argc, char **argv)
     for (i = 0; i < m * n; i++)     C[i] = 1.0 + j++;
 
     fhandle = diet_function_handle_default(path);
-    profile = profile_alloc(3, 4, 4);
-    scalar_set(&(profile->parameters[0]), &alpha, DIET_VOLATILE, DIET_DOUBLE);
-    matrix_set(&(profile->parameters[1]), A, DIET_VOLATILE, DIET_DOUBLE, m, k, 0);
-    matrix_set(&(profile->parameters[2]), B, DIET_VOLATILE, DIET_DOUBLE, k, n, 0);
-    scalar_set(&(profile->parameters[3]), &beta,  DIET_VOLATILE, DIET_DOUBLE);
-    matrix_set(&(profile->parameters[4]), C, DIET_VOLATILE, DIET_DOUBLE, m, n, 0);
+    profile = diet_profile_alloc(3, 4, 4);
+    diet_scalar_set(diet_parameter(profile,0), &alpha,
+		    DIET_VOLATILE, DIET_DOUBLE);
+    diet_matrix_set(diet_parameter(profile,1), A,
+		    DIET_VOLATILE, DIET_DOUBLE, m, k, 0);
+    diet_matrix_set(diet_parameter(profile,2), B,
+		    DIET_VOLATILE, DIET_DOUBLE, k, n, 0);
+    diet_scalar_set(diet_parameter(profile,3), &beta,
+		    DIET_VOLATILE, DIET_DOUBLE);
+    diet_matrix_set(diet_parameter(profile,4), C,
+		    DIET_VOLATILE, DIET_DOUBLE, m, n, 0);
   
     print_matrix(A, m, k);
     print_matrix(B, k, n);
@@ -141,11 +149,11 @@ main(int argc, char **argv)
     for (i = 0; i < m * m; i++)     C[i] = 1.0 + j++;
 
     fhandle = diet_function_handle_default(path);
-    profile = profile_alloc(0, 1, 1);
-    matrix_set(&(profile->parameters[0]),
-	       A, DIET_VOLATILE, DIET_DOUBLE, m, m, 0);
-    matrix_set(&(profile->parameters[1]),
-	       C, DIET_VOLATILE, DIET_DOUBLE, m, m, 0);
+    profile = diet_profile_alloc(0, 1, 1);
+    diet_matrix_set(diet_parameter(profile,0),
+		    A, DIET_VOLATILE, DIET_DOUBLE, m, m, 0);
+    diet_matrix_set(diet_parameter(profile,1),
+		    C, DIET_VOLATILE, DIET_DOUBLE, m, m, 0);
     
     print_matrix(A, m, m);
     print_matrix(C, m, m);
@@ -177,13 +185,13 @@ main(int argc, char **argv)
     for (i = 0; i < k * n; i++)     B[i] = 1.0 + j++;
 
     fhandle = diet_function_handle_default(path);
-    profile = profile_alloc(1, 1, 2);
-    matrix_set(&(profile->parameters[0]),
-	       A, DIET_VOLATILE, DIET_DOUBLE, m, k, 0);
-    matrix_set(&(profile->parameters[1]),
-	       B, DIET_VOLATILE, DIET_DOUBLE, k, n, 0);
-    matrix_set(&(profile->parameters[2]),
-	       NULL, DIET_VOLATILE, DIET_DOUBLE, m, n, 0);
+    profile = diet_profile_alloc(1, 1, 2);
+    diet_matrix_set(diet_parameter(profile,0),
+		    A, DIET_VOLATILE, DIET_DOUBLE, m, k, 0);
+    diet_matrix_set(diet_parameter(profile,1),
+		    B, DIET_VOLATILE, DIET_DOUBLE, k, n, 0);
+    diet_matrix_set(diet_parameter(profile,2),
+		    NULL, DIET_VOLATILE, DIET_DOUBLE, m, n, 0);
 
     print_matrix(A, m, k);
     print_matrix(B, k, n);
@@ -207,17 +215,16 @@ main(int argc, char **argv)
     printf("Please enter alpha: ");
     while ((fscanf(stdin, "%lf", &alpha) != 1) && empty_line())
       printf("alpha is a double - Please enter alpha: ");
-    printf("m = %d\n", m);
 
     // Fill A, B and C randomly ...
     C = calloc(m*n, sizeof(double));
     for (i = j = 0; i < m * n; i++) C[i] = 1.0 + j++;
 
     fhandle = diet_function_handle_default(path);
-    profile = profile_alloc(0, 1, 1);
-    scalar_set(&(profile->parameters[0]), &alpha, DIET_VOLATILE, DIET_DOUBLE);
-    matrix_set(&(profile->parameters[1]),
-	       C, DIET_VOLATILE, DIET_DOUBLE, m, n, 0);
+    profile = diet_profile_alloc(0, 1, 1);
+    diet_scalar_set(diet_parameter(profile,0), &alpha, DIET_VOLATILE, DIET_DOUBLE);
+    diet_matrix_set(diet_parameter(profile,1),
+		    C, DIET_VOLATILE, DIET_DOUBLE, m, n, 0);
 
     print_matrix(C, m, n);
 
@@ -232,9 +239,9 @@ main(int argc, char **argv)
     alpha = 0.0;
     m = n = 0;
     fhandle = diet_function_handle_default(path);
-    profile = profile_alloc(-1, 0, 0);
-    scalar_set(&(profile->parameters[0]), &alpha, DIET_VOLATILE, DIET_DOUBLE);
-
+    profile = diet_profile_alloc(-1, 0, 0);
+    diet_scalar_set(diet_parameter(profile,0), &alpha,
+		    DIET_VOLATILE, DIET_DOUBLE);
   }
   
 
@@ -244,12 +251,12 @@ main(int argc, char **argv)
 
   if (!diet_call(fhandle, profile)) {
     if (!strcmp(path, PB[2])) { // C is OUT and thus must be set
-      C = (double *)profile->parameters[2].value;
+      C = diet_value(double,diet_parameter(profile,2));
     }
     print_matrix(C, m, n);
   }
   
-  profile_free(profile);
+  diet_profile_free(profile);
   diet_function_handle_destruct(fhandle);
   
   diet_finalize();

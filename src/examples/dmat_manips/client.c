@@ -12,12 +12,12 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.12  2003/01/17 18:05:37  pcombes
+ * Update to API 0.6.3
+ *
  * Revision 1.11  2002/12/24 08:25:38  lbertsch
  * Added a way to execute n tests by a command line argument :
  * Usage is : client --repeat <n> <cfg file> <op>
- *
- * Revision 1.10  2002/12/12 18:17:05  pcombes
- * Small bug fixes on prints (special thanks to Jean-Yves)
  *
  * Revision 1.8  2002/11/07 18:42:42  pcombes
  * Add includes and configured Makefile variables to install directory.
@@ -74,7 +74,7 @@ void usage() {
 int
 main(int argc, char **argv)
 {
-  int i;
+  int i, m, n;
   int n_loops = 1;
   char *path;
   diet_function_handle_t *fhandle;
@@ -106,6 +106,8 @@ main(int argc, char **argv)
   A = mat1;
   B = mat2;
 
+  m = 3;
+  n = 2;
   for (i = 0; i < n_loops; i++) {
     if (diet_initialize(argc, argv, argv[1])) {
       fprintf(stderr, "DIET initialization failed !\n");
@@ -115,37 +117,31 @@ main(int argc, char **argv)
     if (!strcmp(path, PB[0])) {
       
       fhandle = diet_function_handle_default(path);
-      profile = profile_alloc(-1, 0, 0);
-      matrix_set(&(profile->parameters[0]),
-		 A, DIET_VOLATILE, DIET_DOUBLE, 3, 2, 0);
-      print_matrix(A,
-		   profile->parameters[0].desc.specific.mat.nb_r,
-		   profile->parameters[0].desc.specific.mat.nb_c);
+      profile = diet_profile_alloc(-1, 0, 0);
+      diet_matrix_set(diet_parameter(profile,0),
+		      A, DIET_VOLATILE, DIET_DOUBLE, m, n, 0);
+      print_matrix(A, m, n);
       
     } else if (!(strcmp(path, PB[1]) && strcmp(path, PB[2]))) {
       
       fhandle = diet_function_handle_default(path);
-      profile = profile_alloc(1, 1, 2);
-      matrix_set(&(profile->parameters[0]),
-		 A, DIET_VOLATILE, DIET_DOUBLE, 3, 2, 0);
+      profile = diet_profile_alloc(1, 1, 2);
+      diet_matrix_set(diet_parameter(profile,0),
+		      A, DIET_VOLATILE, DIET_DOUBLE, m, n, 0);
+      print_matrix(A, m, n);
       if (!(strcmp(path, PB[1]))) {
-	matrix_set(&(profile->parameters[1]),
-		   B, DIET_VOLATILE, DIET_DOUBLE, 3, 2, 0);
-	matrix_set(&(profile->parameters[2]),
-		   NULL, DIET_VOLATILE, DIET_DOUBLE, 3, 2, 0);
+	diet_matrix_set(diet_parameter(profile,1),
+			B, DIET_VOLATILE, DIET_DOUBLE, m, n, 0);
+	print_matrix(B, m, n);
+	diet_matrix_set(diet_parameter(profile,2),
+			NULL, DIET_VOLATILE, DIET_DOUBLE, m, n, 0);
       } else {
-	matrix_set(&(profile->parameters[1]),
-		   B, DIET_VOLATILE, DIET_DOUBLE, 2, 3, 0);
-	matrix_set(&(profile->parameters[2]),
-		   NULL, DIET_VOLATILE, DIET_DOUBLE, 3, 3, 0);
+	diet_matrix_set(diet_parameter(profile,1),
+			B, DIET_VOLATILE, DIET_DOUBLE, n, m, 0);
+	print_matrix(B, n, m);
+	diet_matrix_set(diet_parameter(profile,2),
+			NULL, DIET_VOLATILE, DIET_DOUBLE, m, m, 0);
       }
-      
-      print_matrix(A,
-		   profile->parameters[0].desc.specific.mat.nb_r,
-		   profile->parameters[0].desc.specific.mat.nb_c);
-      print_matrix(B,
-		   profile->parameters[1].desc.specific.mat.nb_r,
-		   profile->parameters[1].desc.specific.mat.nb_c);
       
     } else {
       fprintf(stderr, "DIET initialization failed !\n");
@@ -154,18 +150,16 @@ main(int argc, char **argv)
     
     if (!diet_call(fhandle, profile)) {
       if (!strcmp(path, PB[0])) {
-	print_matrix(A,
-		     profile->parameters[0].desc.specific.mat.nb_r,
-		     profile->parameters[0].desc.specific.mat.nb_c);
+	diet_matrix_get(diet_parameter(profile,0), NULL, NULL, &m, &n, NULL);
+	print_matrix(A, m, n);
       } else {
-	C = profile->parameters[2].value;
-	print_matrix(C,
-		     profile->parameters[2].desc.specific.mat.nb_r,
-		     profile->parameters[2].desc.specific.mat.nb_c);
+	diet_matrix_get(diet_parameter(profile,2), &C, NULL, &m, &n, NULL);
+	print_matrix(C, m, n);
+	free(C);
       }
     }
     
-    profile_free(profile);
+    diet_profile_free(profile);
     diet_function_handle_destruct(fhandle);
     
     diet_finalize();
