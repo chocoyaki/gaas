@@ -8,8 +8,8 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
-#* Revision 1.16  2003/06/30 11:15:12  cpera
-#* Fix bugs in ReaderWriter and new internal debug macros.
+#* Revision 1.17  2003/07/04 09:47:49  pcombes
+#* Check for -Wno-strict-aliasing option (to be improved with AC macros).
 #*
 #* Revision 1.15  2003/06/24 15:18:30  pcombes
 #* --enable-* options: some HAVE_* variables are useless.
@@ -17,12 +17,6 @@
 #* Revision 1.13  2003/06/23 13:13:27  pcombes
 #* Re-Submit BLAS and ScaLAPACK detection to "enable" options.
 #* Change configuration summary (more complete)
-#*
-#* Revision 1.12  2003/06/16 17:51:06  pcombes
-#* Remove src/examples/dmat_manips_async.
-#*
-#* Revision 1.11  2003/06/02 09:14:53  cpera
-#* Manage asynchronize samples.
 #*
 #* Revision 1.9  2003/05/16 17:29:28  pcombes
 #* Clean macros and messages. Set omniORB_min_version (not used yet)
@@ -33,9 +27,6 @@
 #*
 #* Revision 1.3  2003/02/17 15:34:56  cpera
 #* Use omniorb.m4 and detect new platforms.
-#*
-#* Revision 1.1  2003/02/14 10:31:29  cpera
-#* add files used by autoconf/automake/libtool.
 #****************************************************************************#
 
 define(DIET_version,        0.7_beta)
@@ -126,32 +117,6 @@ esac
 AC_SUBST(PROCESSOR_NAME, $proc_name)
 AC_SUBST(PROCESSOR_DEFINE, $proc_def)
 
-dnl ##########################################################################
-dnl ** Compiler name/version
-dnl ##########################################################################
-
-compiler_name="Compiler_Unknown"
-compiler_version="Version_Unknown"
-
-if test "$ac_cv_cxx_compiler_gnu" = "yes"; then
-  compiler_name="Compiler_GCC"
-  if $CXX -V 2>&1 | grep '2\.95\.[[0-9]]' >/dev/null 2>&1; then
-    compiler_version="2.95.x"
-  elif $CXX -V 2>&1 | grep '3\.0\.[[0-9]]' >/dev/null 2>&1; then
-    compiler_version="3.0.x"
-  elif $CXX -V 2>&1 | grep '3\.1\.[[0-9]]' >/dev/null 2>&1; then
-    compiler_version="3.1.x"
-  elif $CXX -V 2>&1 | grep '3\.2\.[[0-9]]' >/dev/null 2>&1; then
-    compiler_version="3.2.x"
-  elif $CXX -V 2>&1 | grep '3\.3\.[[0-9]]' >/dev/null 2>&1; then
-    compiler_name="3.3.x"
-    AC_SUBST(CFLAGS_GCC_3_3, "-Wno-strict-aliasing")
-  fi
-fi
-
-AC_SUBST(COMPILER_NAME, $compiler_name)
-AC_SUBST(COMPILER_VERSION, $compiler_name)
-
 
 dnl ###########################################################################
 # DIET modules listing. 
@@ -197,14 +162,45 @@ ACLOCAL="$ACLOCAL -I acmacros"
 dnl ###########################################################################
 # Checks for programs.
 dnl ###########################################################################
+
+dnl C compiler
 AC_PROG_CXX
 AC_LANG_CPLUSPLUS
+dnl Compiler tools
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 AC_PROG_LIBTOOL
 AC_SUBST(LIBTOOL_DEPS)
 
-# Checks for libraries.
+dnl AC_PROG_LIBTOOL sets $CC:
+dnl we now can test -Wno-strict-aliasing with CC and CXX
+
+echo "int main(int argc, char* argv[]) {return 0;}" > conftest.c
+AC_MSG_CHECKING(if $CC supports -Wno-strict-aliasing)
+$CC -Wno-strict-aliasing conftest.c -o conftest > conftest.log 2>&1
+status=$?
+if test $status = 0 -a "`grep 'ignoring option' conftest.log`" = ""; then
+  AC_MSG_RESULT(yes)
+  AC_SUBST(CFLAG_NO_STRICT_ALIASING, "-Wno-strict-aliasing")
+dnl  CCFLAGS="$CCFLAGS -Wno-strict-aliasing"
+else
+  AC_MSG_RESULT(no)
+fi
+AC_MSG_CHECKING(if $CXX supports -Wno-strict-aliasing)
+$CXX -Wno-strict-aliasing conftest.c -o conftest > conftest.log 2>&1
+status=$?
+if test $status = 0 -a "`grep 'ignoring option' conftest.log`" = ""; then
+  AC_MSG_RESULT(yes)
+  AC_SUBST(CXXFLAG_NO_STRICT_ALIASING, "-Wno-strict-aliasing")
+else
+  AC_MSG_RESULT(no)
+fi
+rm -f conftest.c conftest conftest.log
+
+
+dnl ###########################################################################
+# Check for the pthread library
+dnl ###########################################################################
 AC_CHECK_LIB([pthread], [pthread_attr_getdetachstate])
 
 dnl ###########################################################################
@@ -289,7 +285,6 @@ AC_SUBST(IDLFLAGS)
 
 AC_SUBST(prefix)
 AC_SUBST(topsrcdir)
-AC_LANG(C++)
 
 
 dnl ###########################################################################
