@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.2  2003/11/28 11:51:36  pcombes
+%* Correction about gcc-2.96 management of exception handling.
+%*
 %* Revision 1.1  2003/09/09 12:38:20  pcombes
 %* Reorganization of doc: UM becomes UsersManual.
 %*
@@ -76,8 +79,8 @@ the generated C++ code could not be compiled. It has been patched in DIET, but
 some warnings still appear.
 \\
 
-Since omniORB needs a thread-safe management handling, compiling DIET with
-\verb+gcc+ requires at least \verb+gcc-2.96+.
+Since omniORB needs a thread-safe management of exception handling, compiling
+DIET with \verb+gcc+ requires at least \verb+gcc-2.96+.
 \\
 
 The agent and server parts of DIET can depend on FAST (see §\ref{sec:FAST}).
