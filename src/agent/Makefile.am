@@ -11,6 +11,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.3  2003/05/05 14:30:42  pcombes
+#* FAST flags were missing ...
+#*
 #* Revision 1.2  2003/04/10 13:10:24  pcombes
 #* Update to new files.
 #*
@@ -47,8 +50,8 @@ DIET_MA_LDADD =	\
 	$(corbadir)/idl/libIDLAgent.la $(corbadir)/idl/libIDLCommon.la \
 	$(corbadir)/idl/libIDLLA.la $(corbadir)/idl/libIDLMA.la        \
 	$(utilsdir)/libUtilsCommon.la $(utilsdir)/libUtilsNodes.la     \
-	@LIBS_OMNIORB@ @LIBS_FAST@
+	$(LIBS_OMNIORB) $(LIBS_FAST)
 
-AM_CPPFLAGS += -I$(top_srcdir)/src/utils \
+AM_CPPFLAGS += $(CXXFLAGS_FAST) -I$(top_srcdir)/src/utils \
 	       -I$(top_srcdir)/src/CORBA -I$(corbadir)/idl
 
