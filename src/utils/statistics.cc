@@ -1,5 +1,4 @@
 /****************************************************************************/
-/* $Id$ */
 /* DIET statistics tools source code                                        */
 /*                                                                          */
 /*  Author(s):                                                              */
@@ -7,8 +6,11 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/*
+/* $Id$
  * $Log$
+ * Revision 1.9  2003/04/10 12:50:02  pcombes
+ * Change some errors into warnings.
+ *
  * Revision 1.8  2003/02/04 10:08:23  pcombes
  * Apply Coding Standards
  *
@@ -47,8 +49,8 @@ void
 do_stat_init() 
 {
   if (STAT_FILE != NULL) {
-    fprintf(stderr, "do_stat_init(): Stat module already initialized!\n");
-    fprintf(stderr, "                Continuing without reopening it!\n");
+    fprintf(stderr,
+	    "Warning (do_stat_init): stats module already initialized !\n");
   } else {
     STAT_FILE_NAME = getenv("DIET_STAT_FILE_NAME");
 
@@ -61,6 +63,10 @@ do_stat_init()
 		"do_stat_init(): (see DIET_STAT_FILE_NAME env variable?)\n");
 	perror("do_stat_init");
       }
+    } else {
+      fprintf(stderr,
+	      "Warning (do_stat_init): stats module not initialized !");
+      fprintf(stderr, "Please set DIET_FILE_NAME !\n");
     }
   }
 }
@@ -69,8 +75,8 @@ void
 do_stat_finalize() 
 {
   if (STAT_FILE == NULL) {
-    fprintf(stderr, "do_stat_finalize(): Stat module is NOT initialized!\n");
-    fprintf(stderr, "                    Continuing...\n");
+    fprintf(stderr,
+	    "Warning (do_stat_finalize): stats module is NOT initialized!\n");
   } else {
     if (fclose(STAT_FILE) < 0) {
       fprintf(stderr, "Unable to close stat file\n");
