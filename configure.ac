@@ -11,6 +11,9 @@
 #****************************************************************************#
 #*
 #* $Log$
+#* Revision 1.2  2003/02/14 16:20:33  cpera
+#* DIET instead of diet.
+#*
 #* Revision 1.1  2003/02/14 10:31:29  cpera
 #* add files used by autoconf/automake/libtool.
 #*
@@ -22,7 +25,7 @@ dnl #### Process this file with autoconf to produce a configure script.
 dnl ###########################################################################
 AC_PREREQ([2.55])
 ACI_PREREQ(2003.01.29)
-AC_INIT(diet, 0.7, diet-dev@ens-lyon.fr)
+AC_INIT(DIET, 0.7, diet-dev@ens-lyon.fr)
 AC_CONFIG_SRCDIR([src/agent/agent_impl.hh])
 AC_REVISION($Revision$)
 AC_CONFIG_HEADERS([include/DIET_config.h])
@@ -68,11 +71,11 @@ dnl ###########################################################################
 dnl ###########################################################################
 dnl DIET modules listing. 
 dnl ###########################################################################
-ACI_MODULE([diet],[The middleware you are trying to use ;)],[omniORB] [FAST],[agent client SeD],,[CORBA  utils])
+ACI_MODULE([DIET],[The middleware you are trying to use ;)],[omniORB] [FAST],[agent client SeD],,[CORBA  utils])
   ACI_MODULE([agent],[Master and Local agent;],)
   ACI_MODULE([client],[client for master agent;],)
-  ACI_MODULE([SeD],[basic diet service server;],)
-  ACI_MODULE([examples],[basic diet service server;],)
+  ACI_MODULE([SeD],[basic DIET service server;],)
+  ACI_MODULE([examples],[basic DIET service server;],)
 
 dnl ###########################################################################
 dnl Load anything under acmacros/*.m4
@@ -89,6 +92,9 @@ AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 AC_PROG_LIBTOOL
 AC_SUBST(LIBTOOL_DEPS)
+
+# Checks for libraries.
+AC_CHECK_LIB([pthread], [pthread_attr_getdetachstate])
 
 dnl ###########################################################################
 dnl ####[ search omniORB lib and bin ]
@@ -197,15 +203,15 @@ AC_SUBST(WARNING)
 dnl ###########################################################################
 dnl ####[ select the right modules ]
 dnl ###########################################################################
-ACI_MODULES_VERIFY([diet]) 
-AC_SUBST(MODULES_diet)
+ACI_MODULES_VERIFY([DIET]) 
+AC_SUBST(MODULES_DIET)
 AC_SUBST(MODULES_agent)
 AC_SUBST(MODULES_SeD)
 AC_SUBST(MODULES_client)
 AC_SUBST(MODULES_examples)
 AC_SUBST(MODULES_doc)
 
-AC_SUBST(DIST_MODULES_diet)
+AC_SUBST(DIST_MODULES_DIET)
 AC_SUBST(DIST_MODULES_agent)
 AC_SUBST(DIST_MODULES_SeD)
 AC_SUBST(DIST_MODULES_client)
@@ -230,8 +236,6 @@ AC_SUBST(prefix)
 AC_SUBST(topsrcdir)
 AC_LANG(C++)
 
-# Checks for libraries.
-AC_CHECK_LIB([pthread], [pthread_attr_getdetachstate])
 
 dnl ###########################################################################
 # Checks for header files.
@@ -332,7 +336,7 @@ dnl ###########################################################################
 case $host_os in
   *)
     ACI_MODULES_SUMMARY
-#   ACI_MODULES_SUMMARY_FANCY([diet])
+#   ACI_MODULES_SUMMARY_FANCY([DIET])
   ;;
 esac
 
@@ -345,7 +349,7 @@ echo "CONFIGURE successfully ended !!!"
 echo "DIET configured with prefix: $prefix."
 if test "x$HAVE_FAST" = "xyes"
 then
-  echo "DIET configured with FAST in $(with-FAST)."
+echo "DIET configured with FAST in $with_FAST."
 else
   echo "DIET configured without FAST."
 fi
