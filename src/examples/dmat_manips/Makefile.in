@@ -1,0 +1,55 @@
+#****************************************************************************#
+#* $Id$ *#
+#* dmat_manips example: Makefile                                            *#
+#*                                                                          *#
+#*  Author(s):                                                              *#
+#*    - Philippe COMBES           - LIP ENS Lyon (France)                   *#
+#*    - Romain   LACROIX          - LIP ENS Lyon (France)                   *#
+#*                                                                          *#
+#*  This is part of DIET software.                                          *#
+#*  Copyright (C) 2002 ReMaP/LIFC/INRIA                                     *#
+#*                                                                          *#
+#****************************************************************************#
+#*
+#* $Log$
+#* Revision 1.1  2002/06/08 10:44:48  rlacroix
+#* First version of a configure script
+#* Doesn't deal yet with --prefix
+#*
+#* Revision 1.4  2002/05/24 19:36:53  pcombes
+#* Add BLAS/dgemm example (implied bug fixes)
+#*
+#* Revision 1.2  2002/05/17 20:35:18  pcombes
+#* Version alpha without FAST
+#*
+#****************************************************************************#
+
+
+TOP = ../../..
+
+include $(TOP)/src/config.mk
+FASTTOP = $(TOP)
+
+ifneq ($(strip $(OMNIORB3_HOME)),)
+  export OMNIORB_LIBS := -L$(OMNIORB3_HOME)/lib/i586_linux_2.0_glibc2.1 -lomniORB3 -lomnithread -lpthread -ltcpwrapGK -lomniDynamic3
+else
+  export OMNIORB_LIBS := -lpthread -L$(OMNIORB_HOME)/lib/i586_linux_2.0_glibc -lomniORB2 -lomnithread -lomniDynamic2 -lomniLC -ltcpwrapGK -lomniGK_stub
+endif 
+
+DIET_CLIENT_LIB = $(TOP)/src/client/libDIET_client.a
+DIET_SED_LIB    = $(TOP)/src/SeD/libDIET_SeD.a
+
+CC = gcc
+INCLUDE = -I$(TOP)/include -I$(FASTTOP)/include
+CCFLAGS = -Dwithoutfast $(INCLUDE)
+
+all: client server
+
+client: client.c $(DIET_CLIENT_LIB)
+	$(CC) client.c $(CCFLAGS) $(DIET_CLIENT_LIB) $(OMNIORB_LIBS) $(INCLUDE) -o client
+
+server: server.c $(DIET_SED_LIB)
+	$(CC) server.c $(CCFLAGS) $(DIET_SED_LIB) $(OMNIORB_LIBS) $(INCLUDE) -o server
+
+clean:
+	rm -f client server
