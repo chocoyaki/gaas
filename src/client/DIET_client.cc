@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.37  2003/09/28 22:11:53  ecaron
+ * Take into account the new API of statistics module
+ *
  * Revision 1.36  2003/09/25 10:03:38  cpera
  * Change return function value according to GridRPC API and delete debug messages.
  *
@@ -292,7 +295,7 @@ request_submission(diet_profile_t* profile,
 
   /* Request submission : try nb_tries times */
 
-  stat_in("request_submission");
+  stat_in("Client","request_submission");
   subm_count = 0;
   do {
     response = NULL;
@@ -359,7 +362,7 @@ request_submission(diet_profile_t* profile,
 
   } while ((response) && (response->servers.length() > 0) &&
 	   (server_OK == -1) && (++subm_count < nb_tries));
-  stat_out("request_submission");
+  stat_out("Client","request_submission");
 
   if (!response || response->servers.length() == 0) {
     //delete &corba_pb;
@@ -415,7 +418,7 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
   diet_reqID_t reqID;
   corba_profile_t corba_profile;
 
-  stat_in("diet_call");
+  stat_in("Client","diet_call");
 
   if (CORBA::is_nil(chosenServer)) {
     if ((res = request_submission(profile, chosenServer, reqID)))
@@ -428,15 +431,15 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
     ERROR("profile is wrongly built", 1);
   }
 
-  stat_in("computation");
+  stat_in("Client","computation");
   solve_res = chosenServer->solve(profile->pb_name, corba_profile);
-  stat_out("computation");
+  stat_out("Client","computation");
 
   if (unmrsh_out_args_to_profile(profile, &corba_profile)) {
     INTERNAL_ERROR("returned profile is wrongly built", 1);
   }
  
-  stat_out("diet_call");
+  stat_out("Client","diet_call");
   return solve_res;
 }
 
@@ -476,7 +479,7 @@ diet_call_async_common(diet_profile_t* profile,
     ERROR(__FUNCTION__ << ": 2nd argument has not been allocated", 1);
   }
 
-  stat_in("diet_call_async");
+  stat_in("Client","diet_call_async");
 
   try {
 
@@ -497,10 +500,10 @@ diet_call_async_common(diet_profile_t* profile,
     if (caMgr->addAsyncCall(*reqID, profile) != 0)
       return 1;
 
-    stat_in("computation_async");
+    stat_in("Client","computation_async");
     chosenServer->solveAsync(profile->pb_name, corba_profile, 
 			     *reqID, REF_CALLBACK_SERVER);
-    stat_out("computation_async");
+    stat_out("Client","computation_async");
 
     if (unmrsh_out_args_to_profile(profile, &corba_profile)) {
       INTERNAL_ERROR("returned profile is wrongly built", 1);
@@ -526,7 +529,7 @@ diet_call_async_common(diet_profile_t* profile,
     return 1;
   }
   
-  stat_out("diet_call_async");
+  stat_out("Client","diet_call_async");
   return 0;
 }
 
