@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.9  2004/03/01 19:07:27  rbolze
+#* change to take into account the new idl files for logservice
+#*
 #* Revision 1.8  2003/09/22 21:06:42  pcombes
 #* Clean SOURCES variables. Add modules for data persistency.
 #*
@@ -32,7 +35,9 @@ BUILT_SOURCES = AgentSK.cc	  AgentDynSK.cc		\
 		LocMgrSK.cc	  LocMgrDynSK.cc	\
 		MasterAgentSK.cc  MasterAgentDynSK.cc	\
 		responseSK.cc	  responseDynSK.cc	\
-		SeDSK.cc	  SeDDynSK.cc
+		SeDSK.cc	  SeDDynSK.cc		\
+		LogTypesSK.cc	  LogTypesDynSK.cc	\
+		LogComponentSK.cc LogComponentDynSK.cc
 
 noinst_LTLIBRARIES = libIDLCommon.la libIDLAgent.la libIDLLA.la libIDLMA.la
 
@@ -43,10 +48,12 @@ nodist_libIDLCommon_la_SOURCES = common_typesSK.cc common_typesDynSK.cc \
 
 nodist_libIDLAgent_la_SOURCES = AgentSK.cc       AgentDynSK.cc		\
 				DataMgrSK.cc     DataMgrDynSK.cc	\
-				LocMgrSK.cc	 LocMgrDynSK.cc
+				LocMgrSK.cc	 LocMgrDynSK.cc		\
+		 		LogTypesSK.cc	 LogTypesDynSK.cc	\
+				LogComponentSK.cc LogComponentDynSK.cc
+
 nodist_libIDLLA_la_SOURCES    = LocalAgentSK.cc  LocalAgentDynSK.cc
 nodist_libIDLMA_la_SOURCES    = MasterAgentSK.cc MasterAgentDynSK.cc
-
 
 # automake include variables
 AM_CXXFLAGS = $(CXXFLAGS_OMNIORB) #-Wno-reorder
