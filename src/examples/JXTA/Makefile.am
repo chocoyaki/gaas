@@ -13,7 +13,7 @@ include $(top_srcdir)/config.mk.in
 utilsdir = $(top_builddir)/src/utils
 corbadir = $(top_builddir)/src/CORBA
 
-EXTRA_DIST = JXTAClient.java
+EXTRA_DIST = JXTAClient.java scripts
 
 all:  JXTAClient.class
 
