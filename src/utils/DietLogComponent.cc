@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2004/03/02 17:38:07  rbolze
+ * fix a little inversion between DATA_RELEASED and DATA_STORED in tagNames tab
+ *
  * Revision 1.1  2004/03/01 18:55:56  rbolze
  * make Diet objects as LogComponent for LogCentral
  * DietLogComponent objects can contact LogCentral and transmit log message
@@ -166,8 +169,8 @@ DietLogComponent::DietLogComponent(const char* name,
   tagNames[2] = strdup("SED_CHOSEN");
   tagNames[3] = strdup("BEGIN_SOLVE");
   tagNames[4] = strdup("END_SOLVE");
-  tagNames[5] = strdup("DATA_STORE");
-  tagNames[6] = strdup("DATA_RELEASE");
+  tagNames[5] = strdup("DATA_RELEASED");
+  tagNames[6] = strdup("DATA_STORED");
   tagNames[7] = strdup("DATA_TRANSFER_BEGIN");
   tagNames[8] = strdup("DATA_TRANSFER_END");
   tagNames[9] = strdup("MEM");
