@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2003/10/14 20:28:32  bdelfabr
+ * adding method after solved problem to print the list of data owned by the DataManager (PERSISTENT mode only)
+ *
  * Revision 1.16  2003/10/10 14:53:45  bdelfabr
  * TabValue removed : no longer used
  *
@@ -70,7 +73,7 @@ using namespace std;
 #include "Parsers.hh"
 #include "statistics.hh"
 
-#define DEVELOPPING_DATA_PERSISTENCY 0
+#define DEVELOPPING_DATA_PERSISTENCY 1
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
@@ -228,7 +231,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
   } 
    
   cvt = SrvT->getConvertor(ref);
-
+ 
 #if DEVELOPPING_DATA_PERSISTENCY
   // added for data persistence 
   int i;
@@ -272,7 +275,8 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
 	this->dataMgr->addData(pb.parameters[i],1); 
       }
     }
- 
+
+    this->dataMgr->printList();
 #endif // DEVELOPPING_DATA_PERSISTENCY
   
   if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
