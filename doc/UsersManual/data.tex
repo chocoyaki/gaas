@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.7  2004/02/10 01:58:08  ecaron
+%* Add suggesstions from Matthias Colin. Thanks!
+%*
 %* Revision 1.6  2004/02/10 00:38:25  ecaron
 %* Add suggestions from Jean-Yves L'Excellent. Thanks !
 %*
@@ -89,7 +92,9 @@ following semantics:
 \end{tabular}
 \end{center}
 
-\textbf{NB:} \textsf{DIET\_SCOMPLEX} and \textsf{DIET\_DCOMPLEX} are not implemented yet.\\
+\begin{itemize}
+\item[NB:] \textsf{DIET\_SCOMPLEX} and \textsf{DIET\_DCOMPLEX} are not implemented yet.
+\end{itemize}
 
 
 \subsection{Composite types}
@@ -180,7 +185,7 @@ version~\footnote{the data persistence will be available in DIET
 \begin{verbatim}
 /**
  * On the server side, these functions should not be used on arguments, but only
- * on convertors.
+ * on convertors (see section 5.5).
  * If mode                                is DIET_PERSISTENCE_MODE_COUNT, 
  * or if base_type                        is DIET_BASE_TYPE_COUNT,
  * or if order                            is DIET_MATRIX_ORDER_COUNT,
@@ -375,14 +380,14 @@ Here are the lines of C code to generate such a profile:
 \end{verbatim}
 }
 
-\noindent \textbf{NB1:} If there is no IN argument, \emph{last\_in} must be set to -1, if
-there is no INOUT argument is needed, \emph{last\_inout} must be equal
-to \emph{last\_in}, and if there is no OUT argument, \emph{last\_out}
-must be equal
-to \emph{last\_inout}.\\
-\textbf{NB2:} The \emph{value} argument for \texttt{\_set} functions
-(\ref{sec:setfun}) is ignored for OUT arguments, since DIET allocates
-the necessary memory space when the corresponding data are transfered
-from the server, so set value to NULL.
-
+\begin{itemize}
+\item[NB1:] If there is no IN argument, \emph{last\_in} must be set to
+  -1, if there is no INOUT argument is needed, \emph{last\_inout} must
+  be equal to \emph{last\_in}, and if there is no OUT argument,
+  \emph{last\_out} must be equal to \emph{last\_inout}.
+\item[NB2:] The \emph{value} argument for \texttt{\_set} functions
+  (\ref{sec:setfun}) is ignored for OUT arguments, since DIET
+  allocates the necessary memory space when the corresponding data are
+  transfered from the server, so set value to NULL.
+\end{itemize}
 
