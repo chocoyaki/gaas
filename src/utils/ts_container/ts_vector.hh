@@ -1,7 +1,7 @@
 // $Id$
 
 #ifndef _TS_VECTOR_HH_
-#define _TS_MAP_HH_
+#define _TS_VECTOR_HH_
 
 #include <vector>
 #include <omnithread.h>
@@ -24,6 +24,9 @@
 
 /*
  * $Log$
+ * Revision 1.3  2002/12/25 21:12:38  sdahan
+ * removes some ambiguities. now compile with gcc 3.1
+ *
  * Revision 1.2  2002/12/23 22:55:26  sdahan
  * removes the implicite stuff and define the default stuff. Now it compile
  * with gcc 3.1

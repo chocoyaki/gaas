@@ -1,3 +1,12 @@
+// $Id$
+
+/*
+ * $Log$
+ * Revision 1.3  2002/12/25 21:12:38  sdahan
+ * removes some ambiguities. now compile with gcc 3.1
+ *
+ */
+
 #ifndef _TS_MAP_HH_
 #define _TS_MAP_HH_
 
@@ -22,8 +31,9 @@
  */
 
 
-template <class Key, class T, class CMP = less<Key>, class A = allocator<T> >
-class ts_map : private map<Key, T, CMP, A> {
+template <class Key, class T, class CMP = std::less<Key>,
+  class A = std::allocator<T> >
+class ts_map : private std::map<Key, T, CMP, A> {
 
 private :
 
@@ -36,7 +46,14 @@ private :
   /**
    * A type to avoid to type map<Key, T, CMP, A> each time.
    */
-  typedef map<Key, T, CMP, A> MapType ;
+  typedef std::map<Key, T, CMP, A> MapType ;
+
+public :
+
+  /**
+   * the size_type type is the same as the map::size_type
+   */
+  typedef typename MapType::size_type size_type ;
 
 public :
 
