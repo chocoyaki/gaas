@@ -8,6 +8,10 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.23  2003/09/26 14:04:12  pcombes
+#* DIET 0.9. Local FAST platform: chmod +x on the scripts. Module examples
+#* is forced in maintainer mode, but disabled by default in user mode.
+#*
 #* Revision 1.22  2003/09/22 21:05:57  pcombes
 #* Add an example of a local platform with LDAP + NWS + CORBA Name Server.
 #*
@@ -44,7 +48,7 @@
 #* Use omniorb.m4 and detect new platforms.
 #****************************************************************************#
 
-define(DIET_version,        0.7_beta)
+define(DIET_version,        0.9)
 define(omniORB_min_version, 3)
 define(FAST_min_version,    0.4.3)
 
@@ -68,10 +72,18 @@ AH_TOP([#ifndef _DIET_CONFIG_H_
 #define _DIET_CONFIG_H_])
 AH_BOTTOM([#endif // _DIET_CONFIG_H_])
 
+AM_MAINTAINER_MODE
+if test "x$enable_maintainer_mode" = "xyes" -a ! -f "$srcdir/bootstrap.sh"
+then
+  echo
+  echo "**********************************************************************"
+  echo "* ERROR: $0: this version of DIET cannot be configured in maintainer mode."
+  echo "**********************************************************************"
+  exit 1
+fi
 
 AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE[]
-AM_MAINTAINER_MODE
 
 dnl ##########################################################################
 dnl #### check OS target
@@ -127,18 +139,22 @@ AC_SUBST(PROCESSOR_DEFINE, $proc_def)
 dnl ###########################################################################
 # DIET modules listing. 
 dnl ###########################################################################
+
 ACI_MODULE([DIET],,[omniORB FAST],[src doc],force)
   ACI_MODULE([doc],[documentation about DIET],,,no)
   ACI_MODULE([src],,,[agent client SeD examples],force)
     ACI_MODULE([agent],[DIET_MA and DIET_LA],,,force)
     ACI_MODULE([client],[the client library],,,force)
     ACI_MODULE([SeD],[the DIET Server Daemon],,,force)
-    ACI_MODULE([examples],[basic DIET examples],[SeD client],[BLAS ScaLAPACK])
+# The examples are forced for maintainers, disabled by default for users.
+    ACI_MODULE([examples],[basic DIET examples],
+	       [SeD client],[BLAS ScaLAPACK],maintainer-force)
       ACI_MODULE([BLAS],[an example for calling BLAS functions through DIET],
 	         [examples BLAS],,no)
       ACI_MODULE([ScaLAPACK],
 	         [an example for calling ScaLAPACK functions through DIET],
 	         [examples ScaLAPACK],,no)
+
 
 dnl ###########################################################################
 # Various compilation features
@@ -329,26 +345,30 @@ AC_CHECK_FUNCS([gethostname gettimeofday strdup strrchr strtok_r])
 dnl ###########################################################################
 dnl Create target output (Makefile(s) ...) 
 dnl ###########################################################################
-AC_CONFIG_FILES([
-		config.mk
-		include/Makefile.inc
-		Makefile
-		src/Makefile
-                src/CORBA/Makefile
-                src/CORBA/idl/Makefile
-                src/utils/Makefile
-                src/SeD/Makefile
-                src/agent/Makefile
-                src/client/Makefile
-		src/examples/Makefile
-                src/examples/bin/local_corba_ns.sh
-                src/examples/BLAS/Makefile
-                src/examples/dmat_manips/Makefile
-                src/examples/file_transfer/Makefile
-                src/examples/ScaLAPACK/Makefile
-		doc/Makefile
-		doc/UsersManual/Makefile])
-
+AC_CONFIG_FILES([config.mk
+		 include/Makefile.inc
+		 Makefile
+		 src/Makefile
+                 src/CORBA/Makefile
+                 src/CORBA/idl/Makefile
+                 src/utils/Makefile
+                 src/SeD/Makefile
+                 src/agent/Makefile
+                 src/client/Makefile
+		 src/examples/Makefile
+		 src/examples/before.mk
+		 src/examples/BLAS/Makefile
+		 src/examples/dmat_manips/Makefile
+		 src/examples/file_transfer/Makefile
+		 src/examples/ScaLAPACK/Makefile
+		 src/examples/scalars/Makefile])
+AC_CONFIG_FILES([src/examples/bin/local_corba_ns.sh
+		 src/examples/bin/local_ldap.sh
+		 src/examples/bin/local_nws.sh
+		 src/examples/bin/local_platform.sh],
+		[chmod +x src/examples/bin/*.sh])
+AC_CONFIG_FILES([doc/Makefile
+		 doc/UsersManual/Makefile])
 if test "x$enable_maintainer_mode" = "xyes"
 then
   AC_CONFIG_FILES([doc/ProgrammersGuide/Makefile])
@@ -389,6 +409,7 @@ else
   then
     printf ", ScaLAPACK" | tee -a config.log
   fi
+  printf ", scalars" | tee -a config.log
   echo | tee -a config.log
 fi
 
