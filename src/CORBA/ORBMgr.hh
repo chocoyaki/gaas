@@ -7,17 +7,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.8  2003/09/18 09:47:19  bdelfabr
- * adding data persistence
- *
- * Revision 1.7  2003/08/29 10:53:10  cpontvie
- * Coding standards applied
- *
- * Revision 1.6  2003/08/28 16:53:55  cpontvie
- * Add functions deactivate, unbindAgent, get_orb, get_poa, get_poa_bidir, get_oid, set_oid
- *
- * Revision 1.5  2003/07/04 09:47:53  pcombes
- * Remove useless setTraceLevel (since r1.2) and DIET_ct.
+ * Revision 1.9  2003/09/22 21:06:12  pcombes
+ * Generalize the bind/unbindAgentToName and getAgentReference methods.
  *
  * Revision 1.4  2003/06/02 08:53:16  cpera
  * Update api for asynchronize calls, manage bidir poa.
@@ -48,6 +39,7 @@ class ORBMgr
 {
   
 public:
+
   static int
   init(int argc, char** argv, bool init_POA = true);
 
@@ -63,16 +55,23 @@ public:
   static void
   wait();
 
-  static CORBA::Object_ptr
-  getAgentReference(const char* agentName);
+  typedef enum {
+    AGENT = 0,
+    DATAMGR,
+    LOCMGR,
+    SED
+  } object_type_t;
 
   static int
-  bindAgentToName(CORBA::Object_ptr obj, const char* agentName);
+  bindObjToName(CORBA::Object_ptr obj, object_type_t type, const char* name);
   
   static int
-  unbindAgent(const char* agentName);
+  unbindObj(object_type_t type, const char* name);
   
-  static char *
+  static CORBA::Object_ptr
+  getObjReference(object_type_t type, const char* name);
+
+  static char*
   getIORString(CORBA::Object_ptr obj);
   
   static CORBA::Object_ptr
@@ -94,26 +93,16 @@ public:
   // To set the ObjectID of the activate agent.
   static void
   setOID(PortableServer::ObjectId_var oid);
-  
-  
-  static CORBA::Object_ptr
-  getLocReference(const char *locName);
-
-  static int
-  bindLocToName(CORBA::Object_ptr obj, const char* locName);
-
-
-  static CORBA::Object_ptr
-  getDataReference(const char* dataName);
-
-  static int
-  bindDataToName(CORBA::Object_ptr obj, const char* dataName);
 
 private:
   static CORBA::ORB_ptr          ORB;
   static PortableServer::POA_var POA;
   static PortableServer::POA_var POA_BIDIR;
-	static PortableServer::ObjectId_var OBJECT_ID;
+  static PortableServer::ObjectId_var OBJECT_ID;
+  static const char* CONTEXTS[];
+
+  static CosNaming::NamingContext_var
+  getRootContext();
 };
 
 
