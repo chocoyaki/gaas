@@ -9,8 +9,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.21  2003/06/16 17:12:49  pcombes
- * Move the examples using the asynchronous API into this directory.
+ * Revision 1.22  2003/07/04 09:48:05  pcombes
+ * Fix bug in getting arguments (only 1 service was declred).
  *
  * Revision 1.19  2003/02/07 17:05:23  pcombes
  * Add SqMatSUM_opt with the new convertor API.
@@ -21,34 +21,6 @@
  *
  * Revision 1.17  2003/01/22 17:13:44  pcombes
  * Use DIET_SERVER_LIBS and DIET_CLIENT_LIBS
- *
- * Revision 1.16  2003/01/17 18:05:37  pcombes
- * Update to API 0.6.3
- *
- * Revision 1.11  2002/11/15 17:15:32  pcombes
- * FAST integration complete ...
- *
- * Revision 1.10  2002/11/07 18:42:42  pcombes
- * Add includes and configured Makefile variables to install directory.
- * Update dgemm to the implementation that is hardcoded in FAST.
- *
- * Revision 1.8  2002/10/15 18:47:54  pcombes
- * Update to convertor API.
- *
- * Revision 1.7  2002/09/17 15:23:18  pcombes
- * Bug fixes on inout arguments and examples
- * Add support for omniORB 4.0.0
- *
- * Revision 1.5  2002/08/30 16:50:16  pcombes
- * This version works as well as the alpha version from the user point of view,
- * but the API is now the one imposed by the latest specifications (GridRPC API
- * in its sequential part, config file for all parts of the platform, agent
- * algorithm, etc.)
- *  - Reduce marshalling by using CORBA types internally
- *  - Creation of a class ServiceTable that is to be replaced
- *    by an LDAP DB for the MA
- *  - No copy for client/SeD data transfers
- *  - ...
  ****************************************************************************/
 
 
@@ -214,17 +186,19 @@ main(int argc, char* argv[])
     char* path = argv[i];
     if (!strcmp("all", path)) {
       for (j = 0; j < NB_SRV; (services[j++] = 1));
+      break;
     } else {
       for (j = 0; j < NB_SRV; j++) {
-	if ((services[j] = (services[j] || !strcmp(SRV[j], path))))
+	if (!strcmp(SRV[j], path)) {
+	  services[j] = 1;
 	  break;
+	}
       }
       if (j == NB_SRV)
 	exit(usage(argv[0]));
     }
   }
   
-
   diet_service_table_init(NB_SRV);
   
   if (services[0]) {
