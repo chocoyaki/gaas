@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2004/10/04 11:32:04  hdail
+ * Modified memory free / delete to agree with variable allocations.
+ *
  * Revision 1.3  2004/07/29 18:53:06  rbolze
  * make some change to send more info to the logService.
  *
@@ -235,8 +238,8 @@ int DietLogComponent::run(const char* agentType,
     cout << "Error: could not connect to the LogCentral" << endl;
     DLC_ERROR("SystemException",-1);
   }
-  delete(hostName);
-  delete(msg);
+  delete[] hostName;  // alloc'ed with new[]
+  free(msg);          // alloc'ed with strdup (e.g. malloc)
 
   if (ret != LS_OK) {
     ERROR("LogCentral refused connection",ret);
@@ -314,7 +317,7 @@ DietLogComponent::setTagFilter(const tag_list_t& tagList) {
   oldList = tagFlags;
   tagFlags = newList;
   dlcMutex.unlock();
-  delete oldList;
+  delete[] oldList;
 }
 
 void
