@@ -1,4 +1,4 @@
-diet (0.7 beta)
+diet (1.0 beta)
 
 * GNU autotools: automake and autoconf.
   - Apparition of this ChangeLog.
@@ -7,10 +7,6 @@ diet (0.7 beta)
     examples/ScaLAPACK), for giving omniORB and FAST paths, installation, etc.
   - For maintainers, three other modules are available: stats, Cichlid (as in
     0.6.4), and multi-MA.
-
-* Data persistency.
-  Add the mode DIET_PERSISTENT_RETURN, which means "keep the data, and send me
-  back a copy". Add the string id field in data description.
 
 * Separation of LA and MA.
   Two different programs are now built: DIET_LA and DIET_MA. Of course the
