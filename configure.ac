@@ -11,6 +11,9 @@
 #****************************************************************************#
 #*
 #* $Log$
+#* Revision 1.4  2003/02/18 14:00:17  cpera
+#* Add a new m4 macro (omniorb.m4) and use it.
+#*
 #* Revision 1.3  2003/02/17 15:34:56  cpera
 #* Use omniorb.m4 and detect new platforms.
 #*
@@ -153,7 +156,7 @@ AC_CHECK_LIB([pthread], [pthread_attr_getdetachstate])
 dnl ###########################################################################
 dnl ####[ search omniORB lib and bin ]
 dnl ###########################################################################
-AC_OMNIORB_DIET(,,,,[testing omniorb OK],[testing omniORB NOK])
+AC_OMNIORB_DIET(,,,,$proc_name,$plat_name,$os_v,omniFounf=true,omniFound=false)
 
 dnl ###########################################################################
 dnl ####[ search the FAST Library ]
