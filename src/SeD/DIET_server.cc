@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2004/07/05 14:56:13  rbolze
+ * correct bug on 64 bit plat-form, when parsing cfg file :
+ * remplace size_t by unsigned int for config options
+ *
  * Revision 1.26  2004/05/28 10:53:21  mcolin
  * change the endpoint option names for agents and servers
  *  endPointPort -> dietPort
@@ -368,7 +372,8 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
 
   /* Get listening port & hostname */
 
-  size_t* port = (size_t*) 
+    // size_t --> unsigned int
+ unsigned int* port = (unsigned int*) 
     (Parsers::Results::getParamValue(Parsers::Results::DIETPORT));
   char* host = (char*)
     (Parsers::Results::getParamValue(Parsers::Results::DIETHOSTNAME));
@@ -410,13 +415,17 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   /* DietLogComponent creation*/
 
   bool useLS;
-  size_t* ULSptr;
+    // size_t --> unsigned int
+  unsigned int* ULSptr;
   int outBufferSize;
-  size_t* OBSptr;
+    // size_t --> unsigned int
+  unsigned int* OBSptr;
   int flushTime;
-  size_t* FTptr;
+    // size_t --> unsigned int
+  unsigned int* FTptr;
 
-  ULSptr = (size_t*)Parsers::Results::getParamValue(
+    // size_t --> unsigned int
+  ULSptr = (unsigned int*)Parsers::Results::getParamValue(
               Parsers::Results::USELOGSERVICE);
   useLS = false;
   if (ULSptr == NULL) {
@@ -428,7 +437,8 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   }
 
   if (useLS) {
-    OBSptr = (size_t*)Parsers::Results::getParamValue(
+    // size_t --> unsigned int
+    OBSptr = (unsigned int*)Parsers::Results::getParamValue(
   	       Parsers::Results::LSOUTBUFFERSIZE);
     if (OBSptr != NULL) {
       outBufferSize = (int)(*OBSptr);
@@ -437,7 +447,8 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
       WARNING("lsOutbuffersize not configured, using default");
     }
 
-    FTptr = (size_t*)Parsers::Results::getParamValue(
+    // size_t --> unsigned int
+    FTptr = (unsigned int*)Parsers::Results::getParamValue(
   	       Parsers::Results::LSFLUSHINTERVAL);
     if (FTptr != NULL) {
       flushTime = (int)(*FTptr);

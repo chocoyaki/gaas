@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2004/07/05 14:56:13  rbolze
+ * correct bug on 64 bit plat-form, when parsing cfg file :
+ * remplace size_t by unsigned int for config options
+ *
  * Revision 1.18  2004/05/28 10:53:21  mcolin
  * change the endpoint option names for agents and servers
  *  endPointPort -> dietPort
@@ -86,7 +90,8 @@ Parsers::Results::param_t Parsers::Results::params[] =
 
 ifstream Parsers::file;
 char*    Parsers::path = "";
-size_t   Parsers::noLine = 0;
+// size_t --> unsigned int
+unsigned int   Parsers::noLine = 0;
 
 
 #define DIET_PARSE_ERROR        1
@@ -151,7 +156,9 @@ Parsers::endParsing()
     // if (Parsers::file != NULL)
     //   PARSERS_WARNING("could not close file");
 //  }
-  for (size_t i = Results::TRACELEVEL; i < Results::NB_PARAM_TYPE; i++) {
+
+    // size_t --> unsigned int
+  for (unsigned int i = Results::TRACELEVEL; i < Results::NB_PARAM_TYPE; i++) {
     if (Results::params[i].value != NULL) {
       if (IS_ADDRESS(i))
 	delete((Results::Address*)Results::params[i].value);
@@ -172,8 +179,10 @@ Parsers::endParsing()
  * @param nbCompulsoryParams is the length of the list \c compulsoryParams
  * @param compulsoryParams   is the list of compulsory parameters
  */
+
+    // size_t --> unsigned int
 int
-Parsers::parseCfgFile(bool checkFASTEntries, size_t nbCompulsoryParams,
+Parsers::parseCfgFile(bool checkFASTEntries, unsigned int nbCompulsoryParams,
 		      Results::param_type_t* compulsoryParams)
 {
   static char full_line[512];
@@ -224,8 +233,9 @@ Parsers::parseCfgFile(bool checkFASTEntries, size_t nbCompulsoryParams,
 int
 Parsers::checkFASTEntries()
 {
-  size_t use(0);
-
+  //size_t use(0);
+ // size_t --> unsigned int
+  unsigned int use = 0;
 #if HAVE_FAST
 
   if (PARAM(FASTUSE).value == NULL) {
@@ -234,7 +244,8 @@ Parsers::checkFASTEntries()
     PARAM(FASTUSE).value = new size_t(1);
   }
 
-  use = *((size_t*)PARAM(FASTUSE).value);
+    // size_t --> unsigned int
+  use = *((unsigned int*)PARAM(FASTUSE).value);
   TRACE_TEXT(TRACE_ALL_STEPS, PARAM(FASTUSE).kwd << " = " << use << ".\n");
 
   if (use > 0) {
@@ -246,14 +257,17 @@ Parsers::checkFASTEntries()
 	PARSERS_WARNING(PARAM(LDAPUSE).kwd << " is missing.\n As DIET was "
 			<< "compiled with FAST, and " << PARAM(FASTUSE).kwd
 			<< " = 1, I guess " << PARAM(LDAPUSE).kwd << " = 1");
-	*((size_t*)PARAM(LDAPUSE).value) = 1;
+    // size_t --> unsigned int
+	*((unsigned int*)PARAM(LDAPUSE).value) = 1;
       } else {
 	// for agents, default is 0
-	*((size_t*)PARAM(LDAPUSE).value) = 0;
+    // size_t --> unsigned int
+	*((unsigned int*)PARAM(LDAPUSE).value) = 0;
       }
     }
 
-    use = *((size_t*)PARAM(LDAPUSE).value);
+    // size_t --> unsigned int
+    use = *((unsigned int*)PARAM(LDAPUSE).value);
     TRACE_TEXT(TRACE_ALL_STEPS,
 	       ' ' << PARAM(LDAPUSE).kwd << " = " << use << ".\n");
     
@@ -279,10 +293,12 @@ Parsers::checkFASTEntries()
       PARSERS_WARNING(PARAM(NWSUSE).kwd << " is missing.\n As DIET was "
 		      << "compiled with FAST, and " << PARAM(FASTUSE).kwd
 		      << " = 1, I guess " << PARAM(NWSUSE).kwd << " = 1");
-      *((size_t*)PARAM(NWSUSE).value) = 1;
+    // size_t --> unsigned int
+      *((unsigned int*)PARAM(NWSUSE).value) = 1;
     }
 
-    use = *((size_t*)PARAM(NWSUSE).value);
+    // size_t --> unsigned int
+    use = *((unsigned int*)PARAM(NWSUSE).value);
     TRACE_TEXT(TRACE_ALL_STEPS,
 	       ' ' << PARAM(NWSUSE).kwd << " = " << use << ".\n");
     
@@ -314,11 +330,13 @@ Parsers::checkFASTEntries()
 #else  // HAVE_FAST
 
   if (PARAM(FASTUSE).value != NULL)
-    use = *((size_t*)PARAM(FASTUSE).value);
+    // size_t --> unsigned int
+    use = *((unsigned int*)PARAM(FASTUSE).value);
   if (use > 0) {
     PARSERS_WARNING("fastUse is set to 1 at line " << Parsers::noLine
 		    << " but DIET was compiled without FAST - ignored");
-    *((size_t*)PARAM(FASTUSE).value) = 0;
+    // size_t --> unsigned int
+    *((unsigned int*)PARAM(FASTUSE).value) = 0;
   }
 
 #endif // HAVE_FAST
@@ -329,8 +347,9 @@ Parsers::checkFASTEntries()
 /**
  * Check for presence of compulsory params, and call checkFASTEntries.
  */
+    // size_t --> unsigned int
 int
-Parsers::checkValidity(bool checkFASTEntries, size_t nbCompulsoryParams,
+Parsers::checkValidity(bool checkFASTEntries, unsigned int nbCompulsoryParams,
 		       Results::param_type_t* compulsoryParams)
 {
   if (checkFASTEntries)
@@ -380,7 +399,8 @@ Parsers::parseCfgLine(char* line)
   }
   ptr++;
   // Call the parser associated to the first keyword matched.
-  for (size_t i = Results::TRACELEVEL; i < Results::NB_PARAM_TYPE; i++) {
+    // size_t --> unsigned int
+  for (unsigned int i = Results::TRACELEVEL; i < Results::NB_PARAM_TYPE; i++) {
     if (!strncmp(line, Results::params[i].kwd, Results::params[i].len)) {
       parse_res =
 	(*Results::params[i].parser)(ptr, (Results::param_type_t)i);
@@ -402,7 +422,8 @@ int
 Parsers::parseAddress(char* address, Results::param_type_t type)
 {
   static char buf[257];
-  size_t port;
+  // size_t --> unsigned int
+  unsigned int port;
   char* ptr;
 
   CHECK_PARAM(type);
@@ -484,14 +505,16 @@ Parsers::parseName(char* name, Results::param_type_t type)
 int
 Parsers::parsePort(char* port_str, Results::param_type_t type)
 {
-  size_t port;
+  // size_t --> unsigned int
+  unsigned int port;
 
   CHECK_PARAM(type);
   if (sscanf(port_str, "%u ", &port) != 1) {
     return DIET_PARSE_ERROR;
   }
   Results::params[type].noLine = Parsers::noLine;
-  Results::params[type].value = new size_t(port);
+  // size_t --> unsigned int
+  Results::params[type].value = new unsigned int(port);
   return 0;
 }
 
@@ -520,7 +543,8 @@ Parsers::parseTraceLevel(char* traceLevel, Results::param_type_t type)
 int
 Parsers::parseUse(char* use_str, Results::param_type_t type)
 {
-  size_t use;
+  // size_t --> unsigned int
+  unsigned int use;
 
   CHECK_PARAM(type);
   if ((sscanf(use_str, "%u ", &use) != 1) || (use != 0 && use != 1)) {
@@ -528,6 +552,7 @@ Parsers::parseUse(char* use_str, Results::param_type_t type)
 		  DIET_PARSE_ERROR);
   }
   Results::params[type].noLine = Parsers::noLine;
-  Results::params[type].value  = new size_t(use);
+  // size_t --> unsigned int
+  Results::params[type].value  = new unsigned int(use);
   return 0;
 }

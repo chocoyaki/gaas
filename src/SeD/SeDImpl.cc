@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2004/07/05 14:56:13  rbolze
+ * correct bug on 64 bit plat-form, when parsing cfg file :
+ * remplace size_t by unsigned int for config options
+ *
  * Revision 1.27  2004/06/11 15:45:39  ctedesch
  * add DIET/JXTA
  *
@@ -214,7 +218,8 @@ SeDImpl::run(ServiceTable* services)
   }
   //  delete profiles
 
-  size_t* endPoint = (size_t*)
+    // size_t --> unsigned int
+  unsigned int* endPoint = (unsigned int*)
     Parsers::Results::getParamValue(Parsers::Results::DIETPORT);
   // FIXME: How can I get the port used by the ORB ? and is it useful ?
   if (endPoint == NULL)

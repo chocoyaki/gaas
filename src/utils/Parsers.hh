@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2004/07/05 14:56:13  rbolze
+ * correct bug on 64 bit plat-form, when parsing cfg file :
+ * remplace size_t by unsigned int for config options
+ *
  * Revision 1.8  2004/05/28 10:53:21  mcolin
  * change the endpoint option names for agents and servers
  *  endPointPort -> dietPort
@@ -90,9 +94,11 @@ public:
     class Address {
     public:
       char*  host;
-      size_t port;
+    // size_t --> unsigned int
+     unsigned int port;
       inline
-      Address(char* host, size_t port) {
+    // size_t --> unsigned int
+      Address(char* host, unsigned int port) {
 	this->host = strdup(host);
 	this->port = port;
       }
@@ -121,11 +127,13 @@ public:
       /** keyword */
       char*  kwd;
       /** length of the keyword */
-      size_t len;
+    // size_t --> unsigned int
+      unsigned int len;
       /** parser */
       parser_t parser;
       /** line where it is set */
-      size_t noLine;
+    // size_t --> unsigned int
+      unsigned int noLine;
       /** pointer to the value of the parameter */
       void* value;
     } param_t;
@@ -157,8 +165,9 @@ public:
    * @param nbCompulsoryParams is the length of the list \c compulsoryParams
    * @param compulsoryParams   is the list of compulsory parameters
    */
+    // size_t --> unsigned int
   static int
-  parseCfgFile(bool checkFASTEntries, size_t nbCompulsoryParams,
+  parseCfgFile(bool checkFASTEntries, unsigned int nbCompulsoryParams,
 	       Results::param_type_t* compulsoryParams);
 
 
@@ -169,7 +178,8 @@ private:
   /** Stream of the file to parse */
   static ifstream file;
   /** Current line number */
-  static size_t noLine;
+    // size_t --> unsigned int
+  static unsigned int noLine;
 
   /**
    * Check the coherence of the FAST parameters, essentially depending on the
@@ -181,8 +191,9 @@ private:
   /**
    * Check for presence of compulsory params, and call checkFASTEntries.
    */
+    // size_t --> unsigned int
   static int
-  checkValidity(bool checkFASTEntries, size_t nbCompulsoryParams,
+  checkValidity(bool checkFASTEntries, unsigned int nbCompulsoryParams,
 		Results::param_type_t* compulsoryParams);
   
   /**

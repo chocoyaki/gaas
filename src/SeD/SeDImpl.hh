@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2004/07/05 14:56:13  rbolze
+ * correct bug on 64 bit plat-form, when parsing cfg file :
+ * remplace size_t by unsigned int for config options
+ *
  * Revision 1.9  2004/06/11 15:45:39  ctedesch
  * add DIET/JXTA
  *
@@ -121,7 +125,8 @@ private:
 #endif // HAVE_JXTA
 
   /* Listening port */
-  size_t port;
+  // size_t --> unsigned int
+  unsigned int port;
 
   /* Service table */
   ServiceTable* SrvT;
@@ -132,7 +137,8 @@ private:
 #if HAVE_FAST
 
   /** Use of FAST */
-  size_t fastUse;
+  // size_t --> unsigned int
+  unsigned int fastUse;
 
   /* Fast calls mutex, this should be used until FAST becomes reentrant */
   omni_mutex fastMutex;
