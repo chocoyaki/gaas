@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2004/02/27 10:19:50  bdelfabr
+ * description of all methods for data persistency
+ *
  * Revision 1.4  2003/11/10 14:01:25  bdelfabr
  * method invoked by DM to find a SeD that hold a data (for data transfer estimation time)
  *
@@ -26,7 +29,6 @@
 #define _LOCMGR_IDL_
 
 #include "DataMgr.idl"
-
 
 /****************************************************************************/
 /* Loc Manager Interface                                                    */
@@ -53,7 +55,7 @@ interface LocMgr {
    * registered, the second argument is the registration number of the son
    * holding it.
    */
-  void addDataRef(in string argID, in unsigned long cChildID);
+  void addDataRef(in corba_data_desc_t arg, in unsigned long cChildID);
 
   /**
    * Remove data Reference method. The first argument is the data id to remove,
@@ -67,7 +69,7 @@ interface LocMgr {
    * number of the new son holding the data the last argument is set to 0 if up
    * and 1 if down (up to add the new reference, down to remove it)
    */
-  oneway void updateDataRef(in string argID,
+  oneway void updateDataRef(in corba_data_desc_t arg,
 			    in unsigned long cChildID, in long upDown);
 
   /**
@@ -83,13 +85,22 @@ interface LocMgr {
    */
   void updateDataProp(in string argID);
 
+
   /**
-   * for demo RNTL
+   * - removes data identified by argID from LocList
+   * - propagates the change to a child
    */
+  long rm_pdata(in string argID);
+
+  /** used in prinList*/
   string setMyName();
-
+ 
+  /** print list of data references stored */
   void printList();
-
+ 
+  /** method called by dataManager to get the IOR of the DM 
+      that hold the data identified by id
+  */
   string whichSeDOwner(in string argID);
 
 };

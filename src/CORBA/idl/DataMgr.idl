@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2004/02/27 10:19:50  bdelfabr
+ * description of all methods for data persistency
+ *
  * Revision 1.4  2003/11/10 14:00:15  bdelfabr
  * methods to get SeD hostname(for later estimation time )
  *
@@ -43,7 +46,7 @@ interface DataMgr {
    * Remove data identified by cdataId after a data transfer.
    * Invoked by the loc Manager Father
    */
-  void rmDataRef(in string argID);
+  long rmDataRef(in string argID);
  
   /**
    * Invoked by a Loc Manager because this Data Manager is holding an IN or
@@ -56,12 +59,17 @@ interface DataMgr {
   void sendData(inout corba_data_t arg);
 
   /**
-   * for demo RNTL
+   * Prints the List of data stored on the DataManager.
    */
   
   string setMyName();
+
   void printList();
 
+  /**
+   * returns the name of the SeD in which a data identified by argID is located,
+   * returns NULL elsewhere.
+   */
   string
   whichSeDOwner(in string argID);
 

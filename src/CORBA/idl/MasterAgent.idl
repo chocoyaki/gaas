@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2004/02/27 10:19:50  bdelfabr
+ * description of all methods for data persistency
+ *
  * Revision 1.1  2003/04/10 12:31:10  pcombes
  * Replace masterAgent.idl. submit returns only a response.
  *
@@ -25,11 +28,31 @@ interface MasterAgent : Agent {
   corba_response_t submit(in corba_pb_desc_t pb_profile,
 			  in unsigned long maxServers);
   
+  /** get number of the current session */
+  long get_session_num();
+
+  /** get id of the data :  aggregation of numsession and numdata */
+  string get_data_id();
+
+  /** look up of data identified by id */ 
+  unsigned long dataLookUp(in string id);
+
+  /** get data descriptor */
+  corba_data_desc_t get_data_arg(in string argID);
+
+  /**
+   * invoked by client : removal from the platform of the data identified by argID
+   */
+  long diet_free_pdata(in string argID);
 
 #if HAVE_MULTI_MA
   
   /** MAs federation management */
   long handShake(in MasterAgent me, in string myName);
+
+
+
+
 
 #endif // HAVE_MULTI_MA
 
