@@ -8,9 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2003/05/05 14:46:21  pcombes
+ * Add traces for all methods. aggregate: fix bug in the computation of pow.
+ * Improve the server weight computation for NWSScheduler.
+ *
  * Revision 1.1  2003/04/10 12:57:15  pcombes
  * Interface, plus three examples, for agent schedulers.
- *
+ ****************************************************************************/
 
 
 #include "Schedulers.hh"
@@ -53,6 +57,8 @@ char*
 Scheduler::serialize(Scheduler* S)
 {
   if (TRACE_LEVEL >= TRACE_ALL_STEPS)
+    cout << "Scheduler::serialize(" << (void*)S->name << ")\n";
+  if (!strncmp(S->name,
 	       FASTScheduler::stName, FASTScheduler::nameLength)) {
     return FASTScheduler::serialize((FASTScheduler*) S);
   } else if (!strncmp(S->name,
@@ -74,6 +80,8 @@ Scheduler*
 Scheduler::deserialize(char* serializedScheduler)
 {
   if (TRACE_LEVEL >= TRACE_ALL_STEPS)
+    cout << "Scheduler::deserialize(" << serializedScheduler << ")\n";
+  if (!strncmp(serializedScheduler,
 	       FASTScheduler::stName, FASTScheduler::nameLength)) {
     return FASTScheduler::deserialize(serializedScheduler);
   } else if (!strncmp(serializedScheduler,
@@ -103,8 +111,6 @@ Scheduler::qsort(CORBA::Long* const base, size_t nb_elems, const void* info)
 
 
 /**
-
-
  * Aggregate all servers that this scheduler can process and that are stored
  * in the \c nb_responses \c responses above the \c lastAggr indexes. The
  * aggregation is dumped into \c aggrResp from \c *lastAggregated up to
@@ -123,7 +129,7 @@ Scheduler::aggregate(corba_response_t& aggrResp, int* lastAggregated,
 		     const corba_response_t* responses, int* lastAggr)
 {
 
-  
+  /**
    * For default aggregation method, we decide to merge all server sequences at
    * once.
    *
@@ -143,7 +149,7 @@ Scheduler::aggregate(corba_response_t& aggrResp, int* lastAggregated,
   } node_t;
   typedef node_t* level_t;
 
-    
+  /* Number of actual leaves of the tree (== nb_responses). */
   size_t nb_leaves = nb_responses;
   /* The lowest power of 2 greater or equal than nb_leaves. */
   size_t pow;
@@ -151,13 +157,13 @@ Scheduler::aggregate(corba_response_t& aggrResp, int* lastAggregated,
   level_t* levels;
   /* Point at the root. */
   node_t* root;
-  level_t root;
+  /* Point at the leaves array. */
   level_t leaves;
 
   /** Print the tree on standard output */
 #define TRACE_TREE(levels,pow)                                                \
   for (size_t i = 0; i <= pow; i++) {				              \
-  for (size_t i = 0; i <= pow; i++) {					      \
+    cout << ' ';							      \
     for (int j = 0; j < (1 << i); j++) {				      \
       cout << ' ' << (levels[i])[j].resp_idx << ',' << (levels[i])[j].srv_idx;\
     }									      \
@@ -165,10 +171,10 @@ Scheduler::aggregate(corba_response_t& aggrResp, int* lastAggregated,
   }
 
 
+  /** Update the tree, ie propagate minima down to the root. */
 #define UPDATE_TREE(levels,pow,responses) \
     for (int i = pow - 1; i >= 0; i--) {                                       \
-  {                                                                            \
-    for (int i = pow - 1; i >= 0; i--) {				       \
+      for (int j = 0; j < (1 << i); j++) {				       \
 	node_t* fst = &((levels[i + 1])[2*j]);				       \
 	node_t* snd = &((levels[i + 1])[2*j + 1]);			       \
 									       \
@@ -200,22 +206,28 @@ Scheduler::aggregate(corba_response_t& aggrResp, int* lastAggregated,
 	}								       \
       }									       \
     }
-    }									       \
-  }									       
-									       
+
+  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
+    cout << this->name << "::aggregate(nb_responses=" << nb_responses << ")\n";
+
   /* Initialize the tree */
   size_t idx;
 
-  
+  if (*lastAggregated >= ((int)aggrResp.servers.length() - 1)) // Nothing to do
     return 0;
 
   /* compute the lower power of 2 greater than nb_leaves */
   pow = 0;
   bool power_of_two = true;
-  while (nb_leaves != 0) {
+  while (nb_leaves > 1) {
+    if ((nb_leaves & 1) == 1)
+      power_of_two = false;
+    nb_leaves = (nb_leaves >> 1);
     pow++;
   }
   if (!power_of_two)
+    pow++;
+  /* init levels array */
   levels = new level_t[pow + 1];
   /* allocate each level: level i is 2^i long */
   for (size_t i = 0; i <= pow; i++) {
@@ -233,12 +245,12 @@ Scheduler::aggregate(corba_response_t& aggrResp, int* lastAggregated,
   }
   UPDATE_TREE(levels,pow,responses);
 
-  
+  if (TRACE_LEVEL >= TRACE_ALL_STEPS) {
     cout << "Initial tree:" << endl;
     TRACE_TREE(levels,pow);
   }
 
-  
+  /* Perform the aggregation itself. */
 
   while ((root->resp_idx != -1)
 	 && (*lastAggregated < ((int)aggrResp.servers.length() - 1))) {
@@ -260,7 +272,6 @@ Scheduler::aggregate(corba_response_t& aggrResp, int* lastAggregated,
     }
   }
   return 0;
-
 
 #undef UPDATE_TREE
 #undef TRACE_TREE
@@ -297,14 +308,14 @@ FASTScheduler_compare(const void* idx1, const void* idx2,
   if (res > COMP_SECOND_IS_INF)
     return res;
 
-  
+  if ((*servers1)[i1].estim.totalTime < (*servers2)[i2].estim.totalTime)
     return COMP_FIRST_IS_INF;
   if ((*servers1)[i1].estim.totalTime == (*servers2)[i2].estim.totalTime)
     return COMP_EQUAL;
   return COMP_SECOND_IS_INF;
 }
 
-  
+
 FASTScheduler::FASTScheduler()
 {
   this->name    = FASTScheduler::stName;
@@ -317,15 +328,15 @@ FASTScheduler::FASTScheduler(double epsilon)
 {
   this->name    = FASTScheduler::stName;
   this->compare = FASTScheduler_compare;
+  this->cmpInfo = NULL;
+  if (epsilon < 0) {
     cerr << "WARNING: attempt to initialize FAST Scheduler with a negative "
 	 << "epsilon.\nSet epsilon to 0.0.\n";
-	 << "epsilon.\nSet epsilon to 0.\n";
+    this->epsilon = 0;
   } else {
     this->epsilon = epsilon;
   }
 }
-  this->compare = FASTScheduler_compare;
-  this->cmpInfo = NULL;
 
 FASTScheduler::~FASTScheduler() {}
 
@@ -338,7 +349,9 @@ FASTScheduler::deserialize(char* serializedScheduler)
 {
   double epsilon(0.0);
 
-  
+  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
+    cout << "FASTScheduler::deserialize(" << serializedScheduler << ")\n";
+  // Add one for the ','
   if (sscanf((char*)(serializedScheduler + FASTScheduler::nameLength + 1),
 	     "%lg", &epsilon) != 1) {
     cerr << "Warning: invalid parameters for FAST scheduler, "
@@ -357,6 +370,8 @@ FASTScheduler::serialize(FASTScheduler* S)
   char* res = new char[S->nameLength + 20];
 
   if (TRACE_LEVEL >= TRACE_ALL_STEPS)
+    cout << "FASTScheduler::serialize(" << S->name << ")\n";
+  sprintf(res, "%s,%.10g", S->stName, S->epsilon);
   return res;
 }
 
@@ -372,15 +387,17 @@ FASTScheduler::sort(SeqLong* sortedIndexes, int* lastSorted,
   corba_estimation_t* curr;
 
   if (TRACE_LEVEL >= TRACE_ALL_STEPS)
+    cout << "FASTScheduler::sort(" << servers->length() << " servers)\n";
+
   this->servers = servers;
 
-  
+  if (!lastSorted || (*lastSorted > (int)sortedIndexes->length()))
     return 1;
   if (*lastSorted >= (int)sortedIndexes->length() - 1) {
     return 0;
   }
 
-  
+  /* Perform a first sort (using qsort) */
   seq = sortedIndexes->get_buffer() + *lastSorted + 1;
   // DEBUG
   if (TRACE_LEVEL >= TRACE_ALL_STEPS) {
@@ -399,7 +416,7 @@ FASTScheduler::sort(SeqLong* sortedIndexes, int* lastSorted,
     cout << endl;
   }
 
-  
+  /* Shuffle servers that have almost the same performances */
   i = *lastSorted + 1;
   ref = &((*servers)[(*sortedIndexes)[i]].estim);
   while ((i < (int)sortedIndexes->length()) && (ref->tComp < HUGE_VAL)) {
@@ -427,16 +444,14 @@ FASTScheduler::sort(SeqLong* sortedIndexes, int* lastSorted,
 /****************************************************************************/
 
 #define WEIGHT(estim,wi)                                               \
-// FIXME: Weight computation is not right, since freeCPU and freeMem should
-// weigh the other way
         ((((estim)->freeCPU == 0)                                      \
 	  || ((estim)->freeMem == 0)                                   \
 	  || ((estim)->totalTime == HUGE_VAL))                         \
 	 ? HUGE_VAL                                                    \
 	 : pow((estim)->totalTime,  (wi)->commPower)                   \
-	 : (wi)->CPUFactor  * pow((estim)->freeCPU,   (wi)->CPUPower) +\
-	   (wi)->memFactor  * pow((estim)->freeMem,   (wi)->memPower) +\
-	   (wi)->commFactor * pow((estim)->totalTime, (wi)->commPower))
+	   / (pow((estim)->freeCPU,   (wi)->CPUPower)                  \
+	      * pow((estim)->freeMem, (wi)->memPower)))
+
 const char*  NWSScheduler::stName     = "NWSScheduler";
 const size_t NWSScheduler::nameLength = 12;
 
@@ -449,13 +464,13 @@ NWSScheduler_compare(const void* idx1, const void* idx2,
 		     const void* cmpInfo)
 {
   NWSScheduler::weight_info_t* wi = (NWSScheduler::weight_info_t*)cmpInfo;
-  NWSScheduler::weight_info_t* wi = (NWSScheduler::weight_info_t*)cmpInfo;  
+  int res = 0;
   CORBA::Long i1 = *((CORBA::Long*)idx1);
   CORBA::Long i2 = *((CORBA::Long*)idx2);
   double sv1Weight = WEIGHT(&((*servers1)[i1].estim), wi);
   double sv2Weight = WEIGHT(&((*servers2)[i2].estim), wi);
 
-  
+  if (sv1Weight == HUGE_VAL)
     res = COMP_CANNOT_TREAT_FIRST;
   if (sv2Weight == HUGE_VAL)
     res += COMP_CANNOT_TREAT_SECOND;
@@ -472,62 +487,37 @@ NWSScheduler_compare(const void* idx1, const void* idx2,
 NWSScheduler::NWSScheduler()
 {
   this->name          = strdup(NWSScheduler::stName);
-  this->name          = NWSScheduler::stName;
+  this->compare       = NWSScheduler_compare;
   this->cmpInfo       = &(this->wi);
   this->epsilon       = 0;
   this->wi.CPUPower   = 3;
-  this->wi.CPUFactor  = 1;
-  this->wi.memFactor  = 1;
-  this->wi.commFactor = 1;
-  this->wi.CPUPower   = 1;
-  this->wi.memPower   = 1;
+  this->wi.memPower   = 0.5;
+  this->wi.commPower  = 1;
 }
 
 NWSScheduler::NWSScheduler(double CPUPower,
-NWSScheduler::NWSScheduler(double CPUFactor, 
-			   double memFactor,
-			   double commFactor)
+			   double memPower,
+			   double commPower)
+{
   this->name          = NWSScheduler::stName;
   this->compare       = NWSScheduler_compare;
   this->cmpInfo       = &(this->wi);
   this->epsilon       = 0;
   this->wi.CPUPower   = CPUPower;
-  this->wi.CPUFactor  = CPUFactor;
-  this->wi.memFactor  = memFactor;
-  this->wi.commFactor = commFactor;
-  this->wi.CPUPower   = 1;
-  this->wi.memPower   = 1;
-  this->wi.commPower  = 1;
+  this->wi.memPower   = memPower;
+  this->wi.commPower  = commPower;
+}
 
+NWSScheduler::NWSScheduler(double espilon,
 			   double CPUPower,
-			   double CPUFactor,
-			   double memFactor,
-			   double commFactor)
+			   double memPower,
+			   double commPower)
 {
   this->name          = NWSScheduler::stName;
   this->compare       = NWSScheduler_compare;
   this->cmpInfo       = &(this->wi);
   this->epsilon       = epsilon;
-  this->wi.CPUFactor  = CPUFactor;
-  this->wi.memFactor  = memFactor;
-  this->wi.commFactor = commFactor;
-  this->wi.CPUPower   = 1;
-  this->wi.memPower   = 1;
-  this->wi.commPower  = 1;
-}
-
-NWSScheduler::NWSScheduler(double epsilon,
-			   double CPUFactor, double CPUPower,
-			   double memFactor, double memPower,
-			   double commFactor, double commPower)
-  this->name          = NWSScheduler::stName;
-  this->compare       = NWSScheduler_compare;
-  this->cmpInfo       = &(this->wi);
-  this->epsilon       = epsilon;
   this->wi.CPUPower   = CPUPower;
-  this->wi.CPUFactor  = CPUFactor;
-  this->wi.memFactor  = memFactor;
-  this->wi.commFactor = commFactor;
   this->wi.memPower   = memPower;
   this->wi.commPower  = commPower;
 }
@@ -536,6 +526,10 @@ NWSScheduler::~NWSScheduler() {}
 
 
 /* Number of private members */
+#define nb_mb 4
+
+
+/**
  * Return the NWSScheduler deserialized from the string
  * \c serializedScheduler.
  */
@@ -545,14 +539,16 @@ NWSScheduler::deserialize(char* serializedScheduler)
   char* ptr(NULL);
   char* token(NULL);
   double members[nb_mb];
-  double members[7];
+  int i(0);
   NWSScheduler* res;
 
-  
+  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
+    cout << "NWSScheduler::deserialize(" << serializedScheduler << ")\n";
+  token = strtok_r(serializedScheduler, ",", &ptr);
   if (*ptr != '\0')
     ptr[-1] = ',';
   while (i < nb_mb && ((token = strtok_r(NULL, ",", &ptr)) != NULL)) {
-  while (i < 7 && ((token = strtok_r(NULL, ",", &ptr)) != NULL)) {
+    if (sscanf(token, "%lg", &(members[i])) != 1)
       break;
     if (*ptr != '\0')
       ptr[-1] = ',';
@@ -560,15 +556,13 @@ NWSScheduler::deserialize(char* serializedScheduler)
   }
   // Test for all parameters processed.
   if (i < nb_mb || *ptr != '\0') {
-  if (i < 7 || *ptr != '\0') {
+    cerr << "Warning: invalid parameters for NWS scheduler, "
 	 << "reverting to default.\n";
     res = new NWSScheduler();
   } else {
     res = new NWSScheduler(members[0], members[1],
-    res = new NWSScheduler(members[0],
-			   members[1], members[2],
-			   members[3], members[4],
-			   members[5], members[6]);
+			   members[2], members[3]);
+  }
   return res;
 }
 
@@ -580,14 +574,18 @@ char*
 NWSScheduler::serialize(NWSScheduler* S)
 {
   char* res = new char[S->nameLength + nb_mb*20];
-  char* res = new char[S->nameLength + 7*20];
+
   if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-  sprintf(res, "%s,%.10g,%.10g,%.10g,%.10g,%.10g,%.10g,%.10g",
-	  S->stName,       S->epsilon,     S->wi.CPUFactor,  S->wi.CPUPower,
-	  S->wi.memFactor, S->wi.memPower, S->wi.commFactor, S->wi.commPower);
+    cout << "NWSScheduler::serialize(" << S->name << ")\n";
+  sprintf(res, "%s,%.10g,%.10g,%.10g,%.10g",
+	  S->stName,      S->epsilon,
+	  S->wi.CPUPower, S->wi.memPower, S->wi.commPower);
+  return res;
 }
 
 #undef nb_mb
+
+int
 NWSScheduler::sort(SeqLong* sortedIndexes, int* lastSorted,
 		   SeqServerEstimation_t* servers)
 {
@@ -597,15 +595,18 @@ NWSScheduler::sort(SeqLong* sortedIndexes, int* lastSorted,
   corba_estimation_t* curr;
   double ref_weight, curr_weight;
 
-  
+  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
+    cout << "NWSScheduler::sort(" << servers->length() << " servers)\n";
 
-  
+  this->servers = servers;
+
+  if (!lastSorted || (*lastSorted > (int)sortedIndexes->length()))
     return 1;
   if (*lastSorted >= (int)sortedIndexes->length() - 1) {
     return 0;
   }
 
-  
+  /* Perform a first sort (using qsort) */
   seq = sortedIndexes->get_buffer()+ *lastSorted + 1;
   // DEBUG
   if (TRACE_LEVEL >= TRACE_ALL_STEPS) {
@@ -625,7 +626,7 @@ NWSScheduler::sort(SeqLong* sortedIndexes, int* lastSorted,
     cout << endl;
   }
 
-  
+  /* Shuffle servers that have almost the same performances */
   i = *lastSorted + 1;
   ref = &((*servers)[(*sortedIndexes)[i]].estim);
   while ((i < (int)sortedIndexes->length()) && (ref->freeCPU >= 0)) {
@@ -649,7 +650,7 @@ NWSScheduler::sort(SeqLong* sortedIndexes, int* lastSorted,
   return 0;
 }
 
-  
+#undef WEIGHT
 
 
 
@@ -670,7 +671,7 @@ RandScheduler_compare(const void* idx1, const void* idx2,
 		      const void* useless)
 {
   return (rand() % 2) ? COMP_FIRST_IS_INF : COMP_SECOND_IS_INF;
-  return COMP_EQUAL;
+}
 
 RandScheduler::RandScheduler()
 {
@@ -701,6 +702,9 @@ RandScheduler::serialize(RandScheduler* S)
 {
   char* res = new char[S->nameLength + 1];
 
+  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
+    cout << "RandScheduler::serialize(" << S->name << ")\n";
+  strcpy(res, S->stName);
   return res;
 }
 
@@ -712,6 +716,8 @@ RandScheduler*
 RandScheduler::deserialize(char* serializedScheduler)
 {
   if (TRACE_LEVEL >= TRACE_ALL_STEPS)
+    cout << "RandScheduler::deserialize(" << serializedScheduler << ")\n";
+  return new RandScheduler();
 }
 
 /** Implement vritual sort method of class Scheduler. */
@@ -720,6 +726,9 @@ RandScheduler::sort(SeqLong* sortedIndexes, int* lastSorted,
 		    SeqServerEstimation_t* servers)
 {
   if (TRACE_LEVEL >= TRACE_ALL_STEPS)
+    cout << "RandScheduler::sort(" << servers->length() << " servers)\n";
+
+  if (!lastSorted || (*lastSorted > (int)sortedIndexes->length()))
     return 1;
   random_permute(sortedIndexes, *lastSorted + 1, sortedIndexes->length() - 1);
   *lastSorted = sortedIndexes->length();
