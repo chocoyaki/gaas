@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2003/06/02 09:00:19  cpera
+ * Delete debug infos.
+ *
  * Revision 1.1  2003/06/02 08:09:55  cpera
  * Beta version of asynchronize DIET API.
  *
@@ -15,7 +18,6 @@
 
 #include <iostream>
 #include <CallbackImpl.hh>
-#include "Global_macros.hh"
 
 using namespace std;
 

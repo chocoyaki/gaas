@@ -8,12 +8,14 @@
 /****************************************************************************/
 /* $ID$
  * $Log$
+ * Revision 1.2  2003/06/02 08:56:56  cpera
+ * Delete debug infos.
+ *
  * Revision 1.1  2003/06/02 08:09:55  cpera
  * Beta version of asynchronize DIET API.
  *
  ****************************************************************************/
 
-#include "Global_macros.hh"
 #include "marshalling.hh"
 #include "CallAsyncMgr.hh"
 
@@ -95,7 +97,6 @@ int CallAsyncMgr::addAsyncCall (int reqID, diet_profile_t* dpt)
     }
   }
   catch(exception ex){
-    DIET_TRACE("Ecxception")
   }
   return k; 
 }
@@ -146,7 +147,6 @@ int CallAsyncMgr::addWaitRule(Rule * rule)
     CallAsyncMgr::Instance()->deleteWaitRule(rule);
   }
   catch (const exception& e){
-    DIET_TRACE("Exception")
     WriterLock r(callAsyncListLock);
     RulesReqIDMap::iterator j;
     for (int k = 0; k < rule->length; k++){
@@ -195,7 +195,6 @@ int CallAsyncMgr::addWaitRule(Rule * rule)
   }
     // ERREUR DE GESTION MEMOIRE. A CORRIGER ???????
   catch (const exception& e){
-    DIET_TRACE("Exception")
   }
   return 0;
 }
@@ -274,7 +273,6 @@ int CallAsyncMgr::notifyRst (int reqID, corba_profile_t * dp)
     }
   }
   catch (...){
-    DIET_TRACE("Exception ...")
     return -1;
   }
   return 0;
@@ -290,7 +288,6 @@ int CallAsyncMgr::getStatusReqID(int reqID)
   ReaderLock r(callAsyncListLock);
   CallAsyncList::iterator h = caList.find(reqID);
   if (h == caList.end()){
-    DIET_TRACE("")
     return -1;
   }
   int rst = h->second->st;
