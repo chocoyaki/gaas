@@ -9,6 +9,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.8  2003/05/05 13:58:52  pcombes
+#* @PREFIX@ is not substituted by configure -> @prefix@.
+#*
 #* Revision 1.7  2003/04/10 11:31:36  pcombes
 #* OMNIORB->omniORB + apply Coding Standards.
 #*
@@ -22,7 +25,7 @@
 
 # DIET variables
 
-DIET_HOME  = @PREFIX@
+DIET_HOME  = @prefix@
 DIET_FLAGS = -L$(DIET_HOME)/lib -I$(DIET_HOME)/include
 CLIENT_LIB = -lDIET_client
 SED_LIB    = -lDIET_SeD
