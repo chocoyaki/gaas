@@ -1,5 +1,4 @@
 /****************************************************************************/
-/* $Id$ */
 /* DIET server interface                                                    */
 /*                                                                          */
 /*  Author(s):                                                              */
@@ -7,8 +6,11 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/*
+/* $Id$
  * $Log$
+ * Revision 1.10  2003/04/10 13:15:18  pcombes
+ * Fix bug in the memory management of convertors.
+ *
  * Revision 1.9  2003/02/07 17:04:12  pcombes
  * Refine convertor API: arg_idx is splitted into in_arg_idx and out_arg_idx.
  *
@@ -39,18 +41,20 @@
  ****************************************************************************/
 
 
+//#include <CORBA.h>
 #include <iostream>
 using namespace std;
 #include <unistd.h>
 #include <stdlib.h>
 
-#include "DIET_server.h"
-#include "ORBMgr.hh"
-#include "marshalling.hh"
-#include "ServiceTable.hh"
-#include "SeD_impl.hh"
 #include "debug.hh"
-#include "types.hh"
+#include "DIET_server.h"
+#include "marshalling.hh"
+#include "ORBMgr.hh"
+#include "common_types.hh"
+//#include "response.hh"
+#include "ServiceTable.hh"
+#include "SeDImpl.hh"
 
 
 extern "C" {
@@ -74,6 +78,7 @@ diet_service_table_add(const char*          service_path,
 		       diet_convertor_t*    cvt,
 		       diet_solve_t         solve_func)
 {
+  int res;
   corba_profile_desc_t corba_profile;
   diet_convertor_t*    actual_cvt(NULL);
 
@@ -87,7 +92,10 @@ diet_service_table_add(const char*          service_path,
       diet_arg_cvt_set(&(actual_cvt->arg_convs[i]),
 		       DIET_CVT_IDENTITY, i, NULL, i);
   }
-  return SRVT->addService(&corba_profile, actual_cvt, solve_func, NULL);
+  res = SRVT->addService(&corba_profile, actual_cvt, solve_func, NULL);
+  if (!cvt)
+    diet_convertor_free(actual_cvt);
+  return res;
 }
 
 void
@@ -129,16 +137,18 @@ diet_profile_desc_alloc(int last_in, int last_inout, int last_out)
 int
 diet_profile_desc_free(diet_profile_desc_t* desc)
 {
+  int res = 0;
+
   if (!desc)
     return 1;
   if ((desc->last_out > -1) && desc->param_desc) {
     free(desc->param_desc);
-    free(desc);
-    return 0;
+    res = 0;
   } else {
-    free(desc);
-    return 1;
+    res = 1;
   }
+  free(desc);
+  return res;
 }
   
 
@@ -188,24 +198,24 @@ diet_convertor_alloc(const char* path,
 int
 diet_convertor_free(diet_convertor_t* cvt)
 {
+  int res = 0;
+
   if (!cvt)
     return 1;
-  if ((cvt->last_out > -1) && cvt->arg_convs) {
+  free(cvt->path);
+  if ((cvt->last_out <= -1) || !(cvt->arg_convs)) {
+    res = 1;
+  } else {
 #if 0
     for (int i = 0; i < cvt->last_out; i++) {
       if (cvt->arg_convs[i].arg)
 	free(cvt->arg_convs[i].arg);
     }
 #endif
-    free(cvt->arg_convs);
-    free(cvt);
-    return 0;
-  } else {
-    free(cvt);
-    return 1;
+    delete [] cvt->arg_convs;
   }
-
-  return 0;
+  delete cvt;
+  return res;
 }
 
 
@@ -216,13 +226,13 @@ diet_convertor_free(diet_convertor_t* cvt)
 int
 diet_SeD(char* config_file_name, int argc, char* argv[])
 {
-  SeD_impl* SeD;
+  SeDImpl* SeD;
   
   /* ORB initialization */
   ORBMgr::init(argc, argv, true);
 
   /* SeD creation */
-  SeD = new SeD_impl(2000);
+  SeD = new SeDImpl(2000);
 
   /* Activate SeD */
   ORBMgr::activate(SeD);
