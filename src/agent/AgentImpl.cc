@@ -10,6 +10,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2004/09/13 14:10:26  hdail
+ * Correcting memory management bugs:
+ * - mc->children is now deleted with delete [] to match allocation by [].
+ * - cleaned up allocation & copies involving class variables localHostName and
+ *   myName
+ *
  * Revision 1.19  2004/07/08 12:49:59  alsu
  * code to adjust time estimates disabled if DIET is not compiled with FAST
  *
@@ -18,45 +24,6 @@
  *
  * Revision 1.17  2004/06/11 11:32:34  ecaron
  * Delete dead code (DEVELOPPING_DATA_PERSISTENCY part)
- *
- * Revision 1.16  2004/03/01 18:43:49  rbolze
- * add logservice
- *
- * Revision 1.15  2003/10/06 10:14:50  cpontvie
- * Modify a bit the destructor
- *
- * Revision 1.14  2003/09/29 09:20:05  ecaron
- * Add stat_finalize() for MA and LA
- *
- * Revision 1.13  2003/09/28 22:06:11  ecaron
- * Take into account the new API of statistics module
- *
- * Revision 1.12  2003/09/24 09:11:58  pcombes
- * Merge corba_DataMgr_desc_t and corba_data_desc_t.
- *
- * Revision 1.11  2003/09/22 21:07:52  pcombes
- * Set all the modules and their interfaces for data persistency.
- *
- * Revision 1.7  2003/08/28 16:48:49  cpontvie
- * Modifications in the destructor: more trace and unbind the agent to
- * the NamingService.
- *
- * Revision 1.6  2003/08/01 19:33:11  pcombes
- * Use FASTMgr.
- *
- * Revision 1.5  2003/07/04 09:47:59  pcombes
- * Use new ERROR, WARNING and TRACE macros.
- *
- * Revision 1.3  2003/05/22 12:20:25  sdahan
- * Now the NodeDescriptor completly manages its own memory by itself.
- *
- * Revision 1.2  2003/05/10 08:53:34  pcombes
- * New format for configuration files, new Parsers.
- *
- * Revision 1.1  2003/04/10 13:00:20  pcombes
- * Replace agent_impl.cc. Apply CS. Use ChildID, NodeDescription, Schedulers
- * and TRACE_LEVEL. Fix bug in sendRequest on child failure. Simplify data
- * transfer time computation in findServer.
  ****************************************************************************/
 
 #include "AgentImpl.hh"
@@ -84,17 +51,18 @@ extern unsigned int TRACE_LEVEL;
   TRACE_TEXT(TRACE_ALL_STEPS, "Agt::");          \
 TRACE_FUNCTION(TRACE_ALL_STEPS,formatted_text)
 
+#define MAX_HOSTNAME_LENGTH  256
 
 AgentImpl::AgentImpl()
 {
-  this->localHostName[0]     = '\0';
-  this->myName[0]            = '\0';
   this->childIDCounter       = 0;
   this->nbLAChildren         = 0;
   this->nbSeDChildren        = 0;
   this->SrvT                 = new ServiceTable();
   this->reqList.clear();
   this->locMgr               = NULL;
+  this->myName               = NULL;
+  this->localHostName        = NULL; 
 
 #ifdef HAVE_LOGSERVICE
   dietLogComponent = NULL;
@@ -138,17 +106,18 @@ AgentImpl::run()
   char* name;
 
   /* Set host name */
-  this->localHostName[257] = '\0';
-  if (gethostname(this->localHostName, 256)) {
+  this->localHostName = new char[MAX_HOSTNAME_LENGTH];
+  if (gethostname(this->localHostName, MAX_HOSTNAME_LENGTH)) {
     ERROR("could not get hostname", 1);
   }
+  this->localHostName[MAX_HOSTNAME_LENGTH-1] = '\0';
 
   /* Bind this agent to its name in the CORBA Naming Service */
   name = (char*)Parsers::Results::getParamValue(Parsers::Results::NAME);
   if (name == NULL)
     return 1;
-  strncpy(this->myName, name, MIN(256, strlen(name)));
-  this->myName[256] = '\0';
+  this->myName = new char[strlen(name)+1];
+  strcpy(this->myName, name);
   if (ORBMgr::bindObjToName(_this(), ORBMgr::AGENT, this->myName)) {
     ERROR("could not declare myself as " << this->myName, 1);
   }
@@ -285,7 +254,7 @@ AgentImpl::addServices(CORBA::ULong myID,
   corba_response_t*
 AgentImpl::findServer(Request* req, size_t max_srv)
 {
-  size_t i, j, k;
+  size_t i; //, j, k;
   corba_response_t* resp = new corba_response_t;
   const corba_request_t& creq = *(req->getRequest());
 
@@ -334,7 +303,7 @@ AgentImpl::findServer(Request* req, size_t max_srv)
       sendRequest(mc->children[i], &creq);
     } // for (i = 0; i < ms->nb_children; i++)
 
-    delete mc->children;
+    delete[] mc->children;
     delete mc;
 
     srvTMutex.lock();
@@ -363,13 +332,6 @@ AgentImpl::findServer(Request* req, size_t max_srv)
 
     /* The thread is awakened when all responses are gathered */
 
-    /* Update communication times for all non-persistent parameters:
-     *  process IN and OUT args separately, which means process them according
-     *  to the way of their transfers.
-     * NB: This does not affect the order of the servers (only comm times). */
-
-    size_t nb_resp = req->getResponsesSize();
-
 #if HAVE_JXTA || ! HAVE_FAST
     /* this part seems to generate JNI problems */
     /* but this part should be removed in the next DIET version */
@@ -387,6 +349,13 @@ AgentImpl::findServer(Request* req, size_t max_srv)
     ** this even possible?
     */
 #else
+    /* Update communication times for all non-persistent parameters:
+     *  process IN and OUT args separately, which means process them according
+     *  to the way of their transfers.
+     * NB: This does not affect the order of the servers (only comm times). */
+
+    size_t nb_resp = req->getResponsesSize();
+
     double* time = new double[nb_resp]; 
 
     for (i = 0; (int)i <= creq.pb.last_out; i++) {
