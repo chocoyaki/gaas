@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2004/05/18 21:07:10  alsu
+ * problems fixed in the process of building in support for custom
+ * performance metrics:
+ *  - call to comparator used wrong server lists
+ *  - code to move entries up the sort tree took max, not min value
+ *
  * Revision 1.3  2003/07/04 09:47:59  pcombes
  * Use new ERROR, WARNING and TRACE macros.
  *
@@ -201,15 +207,15 @@ Scheduler::aggregate(corba_response_t& aggrResp, int* lastAggregated,
 	  int cmp =							       \
 	    (*compare)(&(responses[fst->resp_idx].sortedIndexes[fst->srv_idx]),\
 		       &(responses[snd->resp_idx].sortedIndexes[snd->srv_idx]),\
-		       &(responses[2*j].servers),			       \
-		       &(responses[2*j+1].servers),			       \
+		       &(responses[fst->resp_idx].servers),		       \
+		       &(responses[snd->resp_idx].servers),		       \
 		       this->cmpInfo);					       \
 	  switch (cmp) {						       \
 	  case COMP_CANNOT_TREAT_FIRST:					       \
-	  case COMP_FIRST_IS_INF:					       \
+	  case COMP_SECOND_IS_INF:					       \
 	    (levels[i])[j] = *snd;        break;			       \
 	  case COMP_CANNOT_TREAT_SECOND:				       \
-	  case COMP_SECOND_IS_INF:					       \
+	  case COMP_FIRST_IS_INF:					       \
 	  case COMP_EQUAL:                /* choose the first when equal */    \
 	    (levels[i])[j] = *fst;        break;			       \
 	  case COMP_CANNOT_TREAT_BOTH:					       \
