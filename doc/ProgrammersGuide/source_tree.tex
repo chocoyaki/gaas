@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.5  2003/12/01 09:21:55  sdahan
+%* updates the Request subsection in the source_tree.tex file
+%*
 %* Revision 1.4  2003/11/28 15:27:55  bdelfabr
 %* corrections
 %*
@@ -182,12 +185,14 @@ is why it has to be a template.
 
 \subsection{The requests}
 
-The requests are managed through a class that cares of storing all information
-about the requests, such as their ID, the responses arrived, and the condition
-on which they block (\texttt{gatheringEnded}) until they are all arrived, and
-the scheduler to use for ths request.
+The requests are managed through a class that stores all informations
+about the requests, such as their ID, the responses returned by the SeD and LA
+and the scheduler to use for the request.
 
-\fixme{Sylvain - Please, explain the condition gatheringEnded}
+A mechanism have been developed to manage the waiting of all the responses
+returned by the SeD and LA. The \texttt{waitResponses()} methods will block the
+current thread until a defined number of call of the \texttt{addResponse()}
+method have been made. Look at the doxygen documentation for more information.
 
 
 \subsection{The schedulers}
