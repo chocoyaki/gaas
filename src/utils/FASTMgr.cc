@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2003/12/08 11:02:24  cpera
+ * Delete PAUSE macro used to simulate FAST call ...
+ *
  * Revision 1.7  2003/10/14 10:49:14  cpera
  * Fix unmodified DIET_BYTE type from a previous commit.
  *
@@ -204,7 +207,6 @@ FASTMgr::estimate(char* hostName, corba_estimation_t& estimation,
   double freeMem(0);
   int    nbCPU(1);
 
-#if HAVE_FAST
   if (!FASTMgr::initialized) {
     INTERNAL_ERROR("attempt to estimate a request"
 		   << " without having initalized FAST first.", 1);
@@ -242,14 +244,6 @@ FASTMgr::estimate(char* hostName, corba_estimation_t& estimation,
 
     fast_pb_free(fastPb);
   }
-
-#else  // HAVE_FAST
-
-  WARNING("cannot estimate computation time: set to inf");
-  PAUSE(0,5000); // simulate FAST interrogation
-
-#endif // HAVE_FAST
-
   estimation.tComp   = time;
   estimation.freeCPU = freeCPU;
   estimation.freeMem = freeMem;
