@@ -10,14 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2003/06/03 18:26:28  pcombes
+ * Add main step traces for child subscription.
+ *
  * Revision 1.3  2003/05/22 12:20:25  sdahan
  * Now the NodeDescriptor completly manages its own memory by itself.
- * The -> operator is defined. You can do :
- * descriptor->ping() ;
- * instead of :
- * LocalAgent_ptr la = localAgent::_duplicate(descriptor.getIor()) ;
- * la->ping() ;
- * CORBA::release(la) ;
  *
  * Revision 1.2  2003/05/10 08:53:34  pcombes
  * New format for configuration files, new Parsers.
@@ -164,9 +161,9 @@ AgentImpl::agentSubscribe(Agent_ptr me, const char* hostName,
 {
   CORBA::ULong retID = (this->childIDCounter)++; // thread safe
 
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "A::agentSubscribe(" << hostName << ", "
-	 << services.length() << " services)\n";
+  if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
+    cout << "An agent has registered from << " << hostName << ", with "
+	 << services.length() << " services.\n";
 
   /* the size of the list is childID+1 (first index is 0) */
   this->LAChildren.resize(this->childIDCounter);
@@ -190,9 +187,9 @@ AgentImpl::serverSubscribe(SeD_ptr me, const char* hostName,
 {
   CORBA::ULong retID;
 
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "A::serverSubscribe(" << hostName<< ", "
-	 << services.length() << " services)\n";
+  if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
+    cout << "A server has registered from << " << hostName << ", with "
+	 << services.length() << " services.\n";
 
   assert (hostName != NULL);
   retID = (this->childIDCounter)++; // thread safe
