@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2003/08/09 17:31:38  pcombes
+ * Include path in the diet_profile_desc structure.
+ *
  * Revision 1.28  2003/08/01 19:26:07  pcombes
  * The conversions to FAST problems are now managed by FASTMgr.
  *
@@ -343,10 +346,9 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src)
 
 
 int
-mrsh_profile_desc(corba_profile_desc_t* dest,
-		  const diet_profile_desc_t* src, const char* src_name)
+mrsh_profile_desc(corba_profile_desc_t* dest, const diet_profile_desc_t* src)
 {
-  dest->path       = CORBA::string_dup(src_name); // deallocates old dest->path
+  dest->path       = CORBA::string_dup(src->path); // deallocates old dest->path
   dest->last_in    = src->last_in;
   dest->last_inout = src->last_inout;
   dest->last_out   = src->last_out;
@@ -445,9 +447,9 @@ cvt_arg(diet_data_t* dest, diet_data_t* src,
   case DIET_CVT_MAT_ORDER: {
     char* t(NULL);
     // FIXME test on order !!!!
-    switch (src->desc.specific.mat.order) {
-    case DIET_ROW_MAJOR: t = new char('N');
-    case DIET_COL_MAJOR: t = new char('T');
+    switch ((diet_matrix_order_t)(src->desc.specific.mat.order)) {
+    case DIET_ROW_MAJOR: t = new char('N'); break;
+    case DIET_COL_MAJOR: t = new char('T'); break;
     default: {
       MRSH_ERROR("invalid order for matrix", 1);
     }

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2003/08/09 17:30:38  pcombes
+ * Include path in the diet_profile_desc structure.
+ *
  * Revision 1.13  2003/06/03 18:33:56  pcombes
  * Update comments.
  *
@@ -67,6 +70,7 @@ diet_generic_desc_set(struct diet_data_generic* desc,
 typedef struct diet_data_generic diet_arg_desc_t;
 
 typedef struct {
+  char*            path;
   int              last_in, last_inout, last_out;
   diet_arg_desc_t* param_desc;
 } diet_profile_desc_t;
@@ -90,7 +94,8 @@ typedef struct {
  *  diet_generic_desc_set(diet_param_desc(profile,n), DIET_MATRIX; DIET_DOUBLE);
  */
 diet_profile_desc_t*
-diet_profile_desc_alloc(int last_in, int last_inout, int last_out);
+diet_profile_desc_alloc(const char* path,
+			int last_in, int last_inout, int last_out);
 int
 diet_profile_desc_free(diet_profile_desc_t* desc);
 
@@ -243,8 +248,7 @@ int
 diet_service_table_init(int max_size);
 /* (cvt = NULL) is equivalent to "no conversion needed" */
 int
-diet_service_table_add(const char*          service_path,
-		       diet_profile_desc_t* profile,
+diet_service_table_add(diet_profile_desc_t* profile,
 		       diet_convertor_t*    cvt,
 		       diet_solve_t         solve_func);
 void

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2003/08/09 17:31:38  pcombes
+ * Include path in the diet_profile_desc structure.
+ *
  * Revision 1.17  2003/08/01 19:26:07  pcombes
  * The conversions to FAST problems are now managed by FASTMgr.
  *
@@ -92,8 +95,7 @@ mrsh_set_trace_level(int level);
 
 // To add a CORBA service into the SeD service table
 int
-mrsh_profile_desc(corba_profile_desc_t* dest,
-		  const diet_profile_desc_t* src, const char* src_name);
+mrsh_profile_desc(corba_profile_desc_t* dest, const diet_profile_desc_t* src);
 
 // To submit a request from the client DIET profile
 int
