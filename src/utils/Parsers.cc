@@ -8,23 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.10  2003/06/30 11:43:54  cpera
- * Fix incorrect async use code.
- *
- * Revision 1.9  2003/06/30 11:15:12  cpera
- * Fix bugs in ReaderWriter and new internal debug macros.
- *
- * Revision 1.8  2003/06/23 13:35:49  pcombes
- * useAsyncApi -> useAsyncAPI
+ * Revision 1.11  2003/07/04 09:48:07  pcombes
+ * Use new ERROR and WARNING macros. Add macro PARAM to shorten lines.
  *
  * Revision 1.7  2003/06/02 08:08:11  cpera
  * Beta version of asynchronize DIET API.
- *
- * Revision 1.6  2003/05/22 11:27:47  sdahan
- * adds a missing header in Parsers
- *
- * Revision 1.5  2003/05/15 14:42:16  pcombes
- * Still bug fixes in compilation with FAST. Sorry !
  *
  * Revision 1.2  2003/05/10 08:49:33  pcombes
  * New Parsers for new configuration files.
@@ -41,7 +29,9 @@ using namespace std;
 #include "debug.hh"
 #include "DIET_config.h"
 
+/** The trace level. */
 extern unsigned int TRACE_LEVEL;
+
 
 // !!! None of these keywords can be a prefix for another !!!
 Parsers::Results::param_t Parsers::Results::params[] =
@@ -72,12 +62,26 @@ size_t   Parsers::noLine = 0;
 #define DIET_FILE_IO_ERROR      2
 #define DIET_MISSING_PARAMETERS 3
 
-#define CHECK_PARAM(type) \
-  if (Results::params[(type)].noLine > 0) {                           \
-    cerr << "Warning: " << FUNCTION_NAME << ": "                    \
-	 << Results::params[(type)].kwd  << " already set at line " \
-	 << Results::params[(type)].noLine << " - ignored.\n";      \
-    return 0;                                                       \
+#define PARSERS_ERROR(formatted_msg,return_value)                          \
+  ERROR("Parsers::" << __FUNCTION__ << ": " << formatted_msg, return_value)
+
+#define PARSERS_INTERNAL_ERROR(formatted_msg,return_value)             \
+  INTERNAL_ERROR("Parsers::" << __FUNCTION__ << ": " << formatted_msg, \
+		 return_value)
+
+#define PARSERS_WARNING(formatted_msg)                         \
+  WARNING("Parsers::" << __FUNCTION__ << ": " << formatted_msg)
+
+#define PARSERS_INTERNAL_WARNING(formatted_msg)                         \
+  INTERNAL_WARNING("Parsers::" << __FUNCTION__ << ": " << formatted_msg)
+
+#define PARAM(type) Results::params[Results::type]
+
+#define CHECK_PARAM(type)                                                 \
+  if (Results::params[(type)].noLine > 0) {                               \
+    PARSERS_WARNING(Results::params[(type)].kwd << " already set at line "\
+	            << Results::params[(type)].noLine << " - ignored");   \
+    return 0;                                                             \
   }
 
 
@@ -88,18 +92,14 @@ size_t   Parsers::noLine = 0;
 int
 Parsers::beginParsing(char* filePath)
 {
-  static char* FUNCTION_NAME = "Parsers::beginParsing";
   if ((filePath == NULL) || (*filePath == '\0')) {
-    cerr << "Error: " << FUNCTION_NAME << ": no file to parse !\n";
-    return DIET_FILE_IO_ERROR;
+    PARSERS_ERROR("no file to parse", DIET_FILE_IO_ERROR);
   }
   Parsers::path = filePath;
   Parsers::file.open(filePath);
-  // FIXME: this test should be wrong !!!
+  // FIXME: this test might be wrong !!!
   if (Parsers::file == NULL) {
-    cerr << "Error: " << FUNCTION_NAME << ": could not open "
-	 << filePath << endl;
-    return DIET_FILE_IO_ERROR;
+    PARSERS_ERROR("could not open " << filePath, DIET_FILE_IO_ERROR);
   }
   Parsers::noLine = 0;
   return 0;
@@ -112,15 +112,13 @@ Parsers::beginParsing(char* filePath)
 int
 Parsers::endParsing()
 {
-  //  static char* FUNCTION_NAME = "Parsers::endParsing";
-
 //   if (Parsers::file == NULL)
-//     cerr << "Warning: " << FUNCTION_NAME << ": file was already closed !\n";
+//     PARSERS_WARNING("file was already closed");
 //   else {
     Parsers::file.close();
     // FIXME: this test is wrong
     // if (Parsers::file != NULL)
-    //   cerr << "Warning: " << FUNCTION_NAME << ": could not close file !\n";
+    //   PARSERS_WARNING("could not close file");
 //  }
   for (size_t i = Results::TRACELEVEL; i < Results::NB_PARAM_TYPE; i++) {
     if (Results::params[i].value != NULL) {
@@ -147,15 +145,14 @@ int
 Parsers::parseCfgFile(bool checkFASTEntries, size_t nbCompulsoryParams,
 		      Results::param_type_t* compulsoryParams)
 {
-  static char* FUNCTION_NAME = "Parsers::parseCfgFile";
   static char full_line[512];
   char* ptr;
   int parse_res;
 
   if (Parsers::file == NULL) {
-    cerr << "Error: " << FUNCTION_NAME << ": no file has been opened."
-	 << " Please consider calling beginParsing first !\n";
-    return DIET_FILE_IO_ERROR;
+    PARSERS_INTERNAL_ERROR("no file has been opened. Please consider calling "
+			   << "Parsers::beginParsing first",
+			   DIET_FILE_IO_ERROR);
   }
 
   while (Parsers::file.getline(full_line, 512)) {
@@ -177,10 +174,10 @@ Parsers::parseCfgFile(bool checkFASTEntries, size_t nbCompulsoryParams,
   }
 
   /* If no traceLevel specified, set it to default */
-  if (Results::params[Results::TRACELEVEL].noLine == 0)
+  if (PARAM(TRACELEVEL).noLine == 0)
     TRACE_LEVEL = TRACE_DEFAULT;
   
-	if ((parse_res =
+  if ((parse_res =
        Parsers::checkValidity(checkFASTEntries,
 			      nbCompulsoryParams, compulsoryParams)))
     return parse_res;
@@ -196,129 +193,99 @@ Parsers::parseCfgFile(bool checkFASTEntries, size_t nbCompulsoryParams,
 int
 Parsers::checkFASTEntries()
 {
-  static char* FUNCTION_NAME = "Parsers::checkFASTEntries";
   size_t use(0);
 
 #if HAVE_FAST
 
   Results::Address* addr;
 
-  if (Results::params[Results::FASTUSE].value == NULL) {
-    cerr << "Warning: " << FUNCTION_NAME << ": "
-	 << Results::params[Results::FASTUSE].kwd
-	 << " is missing. As DIET was compiled with FAST, I guess "
-	 << Results::params[Results::FASTUSE].kwd << " = 1.\n";
-    Results::params[Results::FASTUSE].value = new size_t(1);
+  if (PARAM(FASTUSE).value == NULL) {
+    PARSERS_WARNING(PARAM(FASTUSE).kwd << " is missing.\n As DIET was compiled"
+		    << " with FAST, I guess " << PARAM(FASTUSE).kwd << " = 1");
+    PARAM(FASTUSE).value = new size_t(1);
   }
-  use = *((size_t*)Results::params[Results::FASTUSE].value);
 
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << Results::params[Results::FASTUSE].kwd << " = " << use << ".\n";
+  use = *((size_t*)PARAM(FASTUSE).value);
+  TRACE_TEXT(TRACE_ALL_STEPS, PARAM(FASTUSE).kwd << " = " << use << ".\n");
 
   if (use > 0) {
 
     /* Check LDAP entries */
-    if (Results::params[Results::LDAPUSE].value == NULL) {
+    if (PARAM(LDAPUSE).value == NULL) {
       // Display warning for SeDs only, when ldapUse is not set
-      if (Results::params[Results::AGENTTYPE].value != NULL) {
-	cerr << "Warning: " << FUNCTION_NAME << ": "
-	     << Results::params[Results::LDAPUSE].kwd << " is missing."
-	     << " As DIET was compiled with FAST, and "
-	     << Results::params[Results::FASTUSE].kwd << " = 1, I guess "
-	     << Results::params[Results::LDAPUSE].kwd << " = 1.\n";
-	*((size_t*)Results::params[Results::LDAPUSE].value) = 1;
+      if (PARAM(AGENTTYPE).value != NULL) {
+	PARSERS_WARNING(PARAM(LDAPUSE).kwd << " is missing.\n As DIET was "
+			<< "compiled with FAST, and " << PARAM(FASTUSE).kwd
+			<< " = 1, I guess " << PARAM(LDAPUSE).kwd << " = 1");
+	*((size_t*)PARAM(LDAPUSE).value) = 1;
       } else {
 	// for agents, default is 0
-	*((size_t*)Results::params[Results::LDAPUSE].value) = 0;
+	*((size_t*)PARAM(LDAPUSE).value) = 0;
       }
     }
-    use = *((size_t*)Results::params[Results::LDAPUSE].value);
-    
-    if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-      cout << ' ' << Results::params[Results::LDAPUSE].kwd
-	   << " = " << use << endl;
+
+    use = *((size_t*)PARAM(LDAPUSE).value);
+    TRACE_TEXT(TRACE_ALL_STEPS,
+	       ' ' << PARAM(LDAPUSE).kwd << " = " << use << ".\n");
     
     if (use > 0) {
-      if (Results::params[Results::LDAPBASE].value == NULL) {
-	cerr << "Error: " << FUNCTION_NAME << ": "
-	     << Results::params[Results::LDAPBASE].kwd << " is missing !\n";
-	return DIET_MISSING_PARAMETERS;
+      if (PARAM(LDAPBASE).value == NULL) {
+	PARSERS_ERROR(PARAM(LDAPBASE).kwd << " is missing",
+		      DIET_MISSING_PARAMETERS);
       }
-      if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-	cout << "  " << Results::params[Results::LDAPBASE].kwd << " = "
-	     << ((Results::Address*)
-		 Results::params[Results::LDAPBASE].value)->host
-	     << ':'
-	     << ((Results::Address*)
-		 Results::params[Results::LDAPBASE].value)->port
-	     << endl; 
+      TRACE_TEXT(TRACE_ALL_STEPS, "  " << PARAM(LDAPBASE).kwd << " = "
+		 << ((Results::Address*)PARAM(LDAPBASE).value)->host << ':'
+		 << ((Results::Address*)PARAM(LDAPBASE).value)->port << endl);
 
-      if (Results::params[Results::LDAPMASK].value == NULL) {
-	cerr << "Error: " << FUNCTION_NAME << ": "
-	     << Results::params[Results::LDAPMASK].kwd << " is missing !\n";
-	return DIET_MISSING_PARAMETERS;
+      if (PARAM(LDAPMASK).value == NULL) {
+	PARSERS_ERROR(PARAM(LDAPMASK).kwd << " is missing",
+		      DIET_MISSING_PARAMETERS);
       }
-      if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-	cout << "  " << Results::params[Results::LDAPBASE].kwd << " = "
-	     << (char*)Results::params[Results::LDAPMASK].value << endl;
-      
+      TRACE_TEXT(TRACE_ALL_STEPS, "  " << PARAM(LDAPBASE).kwd << " = "
+		 << (char*)PARAM(LDAPMASK).value << endl);
     }
 
     /* Check NWS entries */
-    if (Results::params[Results::NWSUSE].value == NULL) {
-      cerr << "Warning: " << FUNCTION_NAME << ": "
-	   << Results::params[Results::NWSUSE].kwd << " is missing."
-	   << " As DIET was compiled with FAST, and "
-	   << Results::params[Results::FASTUSE].kwd << " = 1, I guess "
-	   << Results::params[Results::NWSUSE].kwd << " = 1.\n";
-      *((size_t*)Results::params[Results::NWSUSE].value) = 1;
+    if (PARAM(NWSUSE).value == NULL) {
+      PARSERS_WARNING(PARAM(NWSUSE).kwd << " is missing.\n As DIET was "
+		      << "compiled with FAST, and " << PARAM(FASTUSE).kwd
+		      << " = 1, I guess " << PARAM(NWSUSE).kwd << " = 1");
+      *((size_t*)PARAM(NWSUSE).value) = 1;
     }
-    use = *((size_t*)Results::params[Results::NWSUSE].value);
 
-    if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-      cout << ' ' << Results::params[Results::LDAPUSE].kwd << " = " << use << endl;
-
+    use = *((size_t*)PARAM(NWSUSE).value);
+    TRACE_TEXT(TRACE_ALL_STEPS,
+	       ' ' << PARAM(NWSUSE).kwd << " = " << use << endl);
+    
     if (use > 0) {
-      if (Results::params[Results::NWSNAMESERVER].value == NULL) {
-	cerr << "Error: " << FUNCTION_NAME << ": "
-	     << Results::params[Results::NWSNAMESERVER].kwd
-	     << " is missing !\n";
-	return DIET_MISSING_PARAMETERS;
+      if (PARAM(NWSNAMESERVER).value == NULL) {
+	PARSERS_ERROR(PARAM(NWSNAMESERVER).kwd << " is missing",
+		      DIET_MISSING_PARAMETERS);
       }
-      if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-	cout << "  " << Results::params[Results::NWSNAMESERVER].kwd << " = "
-	     << ((Results::Address*)
-		 Results::params[Results::NWSNAMESERVER].value)->host
-	     << ':'
-	     << ((Results::Address*)
-		 Results::params[Results::NWSNAMESERVER].value)->port
-	     << endl;
-      if (Results::params[Results::NWSFORECASTER].value == NULL) {
-	cerr << "Error: " << FUNCTION_NAME << ": "
-	     << Results::params[Results::NWSFORECASTER].kwd
-	     << " is missing !\n";
-	return DIET_MISSING_PARAMETERS;
+      TRACE_TEXT(TRACE_ALL_STEPS, "  " << PARAM(NWSNAMESERVER).kwd << " = "
+		 << ((Results::Address*)PARAM(NWSNAMESERVER).value)->host << ':'
+		 << ((Results::Address*)PARAM(NWSNAMESERVER).value)->port
+		 << endl);
+      
+      if (PARAM(NWSFORECASTER).value == NULL) {
+	PARSERS_ERROR(PARAM(NWSFORECASTER).kwd << " is missing",
+			   DIET_MISSING_PARAMETERS);
       }
-      if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-	cout << "  " << Results::params[Results::NWSFORECASTER].kwd << " = "
-	     << ((Results::Address*)
-		 Results::params[Results::NWSFORECASTER].value)->host
-	     << ':'
-	     << ((Results::Address*)
-		 Results::params[Results::NWSFORECASTER].value)->port
-	     << endl; 
+      TRACE_TEXT(TRACE_ALL_STEPS, "  " << PARAM(NWSFORECASTER).kwd << " = "
+		 << ((Results::Address*)PARAM(NWSFORECASTER).value)->host << ':'
+		 << ((Results::Address*)PARAM(NWSFORECASTER).value)->port
+		 << endl);
     }
   }
 
 #else  // HAVE_FAST
 
-  if (Results::params[Results::FASTUSE].value != NULL)
-    use = *((size_t*)Results::params[Results::FASTUSE].value);
+  if (PARAM(FASTUSE).value != NULL)
+    use = *((size_t*)PARAM(FASTUSE).value);
   if (use > 0) {
-    cerr << "Warning: " << FUNCTION_NAME
-	 << ": fastUse is set to 1 at line " << Parsers::noLine
-	 << " but DIET was compiled without FAST - ignored.\n";
-    *((size_t*)Results::params[Results::FASTUSE].value) = 0;
+    PARSERS_WARNING("fastUse is set to 1 at line " << Parsers::noLine
+		    << " but DIET was compiled without FAST - ignored");
+    *((size_t*)PARAM(FASTUSE).value) = 0;
   }
 
 #endif // HAVE_FAST
@@ -333,8 +300,6 @@ int
 Parsers::checkValidity(bool checkFASTEntries, size_t nbCompulsoryParams,
 		       Results::param_type_t* compulsoryParams)
 {
-  static char* FUNCTION_NAME = "Parsers::checkValidity";
-
   if (checkFASTEntries)
     Parsers::checkFASTEntries();
   
@@ -352,7 +317,7 @@ Parsers::checkValidity(bool checkFASTEntries, size_t nbCompulsoryParams,
     }
   }
   if (someAreMissing) {
-    cerr << "Error: " << FUNCTION_NAME
+    cerr << "Error: " << "Parsers::" << __FUNCTION__
 	 << ": some compulsory parameters are missing:\n";
     for (size_t i = 0; i < nbCompulsoryParams - 1; i++) {
       Results::param_type_t type = compulsoryParams[i];
@@ -372,16 +337,13 @@ Parsers::checkValidity(bool checkFASTEntries, size_t nbCompulsoryParams,
 int
 Parsers::parseCfgLine(char* line)
 {
-  static char* FUNCTION_NAME = "Parsers::parseCfgLine";
   char* ptr = line;
   int parse_res = DIET_PARSE_ERROR;
 
   // Set ptr to the character after the '='
   ptr = strchr(line, '=');
   if (ptr == NULL) {
-    cerr << "Error: " << FUNCTION_NAME << ": no '=' at line "
-	 << Parsers::noLine << ".\n";
-    return DIET_PARSE_ERROR;
+    PARSERS_ERROR("no '=' at line " << Parsers::noLine, DIET_PARSE_ERROR);
   }
   ptr++;
   // Call the parser associated to the first keyword matched.
@@ -394,8 +356,8 @@ Parsers::parseCfgLine(char* line)
   }
 
   if (parse_res) {
-    cerr << "Error: " << FUNCTION_NAME << ": syntax error at "
-	 << Parsers::path << ':' << Parsers::noLine << ".\n";
+    PARSERS_ERROR("syntax error at " << Parsers::path << ':' << Parsers::noLine,
+		  parse_res);
   }
   return parse_res;
 }
@@ -406,29 +368,26 @@ Parsers::parseCfgLine(char* line)
 int
 Parsers::parseAddress(char* address, Results::param_type_t type)
 {
-  static char* FUNCTION_NAME = "Parsers::parseAddress";
   static char buf[257];
   size_t port;
   char* ptr;
+
   CHECK_PARAM(type);
 
   ptr = strchr(address, ':');
   if ((ptr == address) || (ptr == NULL)) {
-    cerr << "Error: " << FUNCTION_NAME << ": "
-	 << Results::params[type].kwd << " should be <host:port>.\n";
-    return DIET_PARSE_ERROR;
+    PARSERS_ERROR(Results::params[type].kwd << " should be <host:port>",
+		  DIET_PARSE_ERROR);
   }
   *ptr = '\0';
   if (sscanf(address, "%256s", (char*)buf) != 1) {
-    cerr << "Error: " << FUNCTION_NAME << ": "
-	 << Results::params[type].kwd << " should be <host:port>.\n";
-    return DIET_PARSE_ERROR;
+    PARSERS_ERROR(Results::params[type].kwd << " should be <host:port>",
+		  DIET_PARSE_ERROR);
   }
   *ptr = ':';
   if (sscanf(ptr + 1, "%u ", &port) != 1) {
-    cerr << "Error: " << FUNCTION_NAME << ": "
-	 << Results::params[type].kwd << " should be <host:port>.\n";
-    return DIET_PARSE_ERROR;
+    PARSERS_ERROR(Results::params[type].kwd << " should be <host:port>",
+		  DIET_PARSE_ERROR);
   }
   Results::params[type].noLine = Parsers::noLine;
   Results::params[type].value = new Results::Address((char*)buf, port);
@@ -442,7 +401,6 @@ Parsers::parseAddress(char* address, Results::param_type_t type)
 int
 Parsers::parseAgentType(char* agtType_str, Results::param_type_t type)
 {
-   static char* FUNCTION_NAME = "Parsers::parseAgentType";
    static char buf[257];
    // dummy initialization to avoid warning at compile time.
    Parsers::Results::agent_type_t agtType = Results::DIET_LOCAL_AGENT;
@@ -459,10 +417,10 @@ Parsers::parseAgentType(char* agtType_str, Results::param_type_t type)
      agtType = Results::DIET_MASTER_AGENT;
    else
      res = DIET_PARSE_ERROR;
-   if (res)
-    cerr << "Error: " << FUNCTION_NAME << ": " << Results::params[type].kwd
-	 << " should be DIET_LOCAL_AGENT or DIET_MASTER_AGENT.\n";
-   else {
+   if (res) {
+     PARSERS_ERROR(Results::params[type].kwd << " should be DIET_LOCAL_AGENT "
+		   << "(or LA) or DIET_MASTER_AGENT (or MA)", res);
+   } else {
      Results::params[type].noLine = Parsers::noLine;
      Results::params[type].value =
        new Parsers::Results::agent_type_t(agtType);
@@ -476,7 +434,6 @@ Parsers::parseAgentType(char* agtType_str, Results::param_type_t type)
 int
 Parsers::parseName(char* name, Results::param_type_t type)
 {
-  static char* FUNCTION_NAME = "Parsers::parseName";
   static char buf[257];
 
   CHECK_PARAM(type);
@@ -494,7 +451,6 @@ Parsers::parseName(char* name, Results::param_type_t type)
 int
 Parsers::parsePort(char* port_str, Results::param_type_t type)
 {
-  static char* FUNCTION_NAME = "Parsers::parsePort";
   size_t port;
 
   CHECK_PARAM(type);
@@ -514,12 +470,10 @@ Parsers::parsePort(char* port_str, Results::param_type_t type)
 int
 Parsers::parseTraceLevel(char* traceLevel, Results::param_type_t type)
 {
-  static char* FUNCTION_NAME = "Parsers::parseTraceLevel";
-
   CHECK_PARAM(type);
   if (sscanf(traceLevel, "%u ", &TRACE_LEVEL) != 1) {
-    cerr << "Warning: " << FUNCTION_NAME << ": could not read traceLevel "
-	 << "(set to " << TRACE_DEFAULT << ")\n";
+    PARSERS_WARNING("could not read traceLevel (set to "
+		    << TRACE_DEFAULT << ')');
     TRACE_LEVEL = TRACE_DEFAULT;
   } else { // TRACE_LEVEL is set
     Results::params[type].noLine = Parsers::noLine;
@@ -533,16 +487,14 @@ Parsers::parseTraceLevel(char* traceLevel, Results::param_type_t type)
 int
 Parsers::parseUse(char* use_str, Results::param_type_t type)
 {
-  static char* FUNCTION_NAME = "Parsers::parseUse";
   size_t use;
 
   CHECK_PARAM(type);
   if ((sscanf(use_str, "%u ", &use) != 1) || (use != 0 && use != 1)) {
-    cerr << "Error: " << FUNCTION_NAME << ": "
-	 << Results::params[type].kwd  << " must be 0 or 1.\n";
-    return DIET_PARSE_ERROR;
+    PARSERS_ERROR(Results::params[type].kwd  << " must be 0 or 1",
+		  DIET_PARSE_ERROR);
   }
   Results::params[type].noLine = Parsers::noLine;
-  Results::params[type].value = new size_t(use);
+  Results::params[type].value  = new size_t(use);
   return 0;
 }
