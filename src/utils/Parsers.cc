@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2003/08/26 14:59:30  pcombes
+ * Fix bug in traces.
+ *
  * Revision 1.13  2003/08/01 19:18:17  pcombes
  * Update to FAST 0.8: nwsForeCaster is not compulsory when nwsUse = 1.
  *
@@ -259,7 +262,7 @@ Parsers::checkFASTEntries()
 
     use = *((size_t*)PARAM(NWSUSE).value);
     TRACE_TEXT(TRACE_ALL_STEPS,
-	       ' ' << PARAM(NWSUSE).kwd << " = " << use << endl);
+	       ' ' << PARAM(NWSUSE).kwd << " = " << use << ".\n");
     
     if (use > 0) {
       if (PARAM(NWSNAMESERVER).value == NULL) {
