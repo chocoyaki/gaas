@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2003/10/10 14:57:22  bdelfabr
+ * adding diet_matrix_set_with_id
+ *
  * Revision 1.19  2003/09/27 07:51:06  pcombes
  * Replace silly base type DIET_BYTE by DIET_SHORT.
  *
@@ -174,6 +177,10 @@ typedef enum {
 
 int
 diet_matrix_set(diet_arg_t* arg, void* value, diet_persistence_mode_t mode,
+		diet_base_type_t base_type,
+		size_t nb_rows, size_t nb_cols, diet_matrix_order_t order);
+int
+diet_matrix_set_with_id(diet_arg_t* arg, char *id, void* value, diet_persistence_mode_t mode,
 		diet_base_type_t base_type,
 		size_t nb_rows, size_t nb_cols, diet_matrix_order_t order);
 int
