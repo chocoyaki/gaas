@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2004/04/22 11:27:34  rbolze
+ * make change in addWaitRule function to manage the case
+ *  where a server has answered before the addWaitRule is done.
+ * Correct a bug of Async. call.
+ * to have more details see bugzilla (bug id=3)
+ *
  * Revision 1.13  2003/09/25 10:00:52  cpera
  * Fix bugs on deleteAsyncCall function and add new WARNING messages.
  *
@@ -260,6 +266,7 @@ int CallAsyncMgr::addWaitRule(Rule * rule)
       // for instance : at one state of all reqID is about RESOLVING..
       // else, signal client must not wait ...
       bool plenty = true;
+      bool tmpplenty = false;
       CallAsyncList::iterator h;
       for (int k = 0; k < rule->length; k++){
         h = caList.find(rule->ruleElts[k].reqID);
@@ -271,8 +278,16 @@ int CallAsyncMgr::addWaitRule(Rule * rule)
         else if (h->second->st == STATUS_RESOLVING) {
           plenty = false; // one result is not yet ready, at least ...
         }
+	else if(h->second->st == STATUS_DONE 
+		&& rule->ruleElts[k].op != WAITOPERATOR(ALL) 
+		&& rule->ruleElts[k].op != WAITOPERATOR(AND) ){
+	tmpplenty = true; // one result is finish yet
+	}
         h->second->used++; // NOTES : what to do if an exception ...	
       }
+      if (tmpplenty==true){
+      	plenty=true;
+       }
       if (plenty == true){
         rule->status = STATUS_DONE;
         return STATUS_DONE;
@@ -376,6 +391,8 @@ int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
 {
   WriterLockGuard r(callAsyncListLock);
   try {
+	cout<< "the service has computed the requestID=" << reqID << " and notify his answer\n";
+	fflush(stdout);
     // update diet_profile datas linked to this reqId
     CallAsyncList::iterator h = caList.find(reqID);
     if (h == caList.end()){
