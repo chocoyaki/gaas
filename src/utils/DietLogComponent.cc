@@ -9,8 +9,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.5  2004/12/02 11:24:38  bdelfabr
- * add informations on data (size, type, base type )
+ * Revision 1.6  2004/12/02 15:01:11  bdelfabr
+ * good order for base_type and type
  *
  * Revision 1.4  2004/10/04 11:32:04  hdail
  * Modified memory free / delete to agree with variable allocations.
@@ -607,37 +607,37 @@ void
 DietLogComponent::logDataStore(const char* dataID, const long unsigned int size, const long base_type, const char * type) {
   char * base = (char *)malloc(10*sizeof(char));
    char* s;
-   s = new char[strlen(dataID) + sizeof(size)+ strlen(base) + strlen(type) + 3];
+   s = new char[strlen(dataID) + sizeof(size)+ strlen(type) + strlen(base) + 3];
  if (tagFlags[6]) {
     switch (base_type) {
     case DIET_CHAR: {
       strcpy(base,"CHAR");
-      sprintf(s,"%s %ld %s %s",(const char *)(dataID),(long unsigned int)(size),base, type);
+      sprintf(s,"%s %ld %s %s",(const char *)(dataID),(long unsigned int)(size),type, base);
       break;
     }
     case DIET_SHORT: {
       strcpy(base,"SHORT");
-      sprintf(s,"%s %ld %s %s",(const char *)(dataID),(long unsigned int)(size), base, type);
+      sprintf(s,"%s %ld %s %s",(const char *)(dataID),(long unsigned int)(size), type, base);
       break;
     }
     case DIET_INT: {
       strcpy(base,"INTEGER");
-      sprintf(s,"%s %ld %s %s",(const char *)(dataID),(long unsigned int)(size), base, type);
+      sprintf(s,"%s %ld %s %s",(const char *)(dataID),(long unsigned int)(size), type, base);
       break;
     }
     case DIET_LONGINT: {
       strcpy(base,"LONGINT");
-      sprintf(s,"%s %ld %s %s",(const char *)(dataID),(long unsigned int)(size), base, type);
+      sprintf(s,"%s %ld %s %s",(const char *)(dataID),(long unsigned int)(size), type, base);
       break;
     }
     case DIET_FLOAT: {
       strcpy(base,"FLOAT");
-      sprintf(s,"%s %ld %s %s",(const char *)(dataID),(long unsigned int)(size), base, type);
+      sprintf(s,"%s %ld %s %s",(const char *)(dataID),(long unsigned int)(size), type, base);
       break;
     }
     case DIET_DOUBLE: {
       strcpy(base,"DOUBLE");
-      sprintf(s,"%s %ld %s %s",(const char *)(dataID),(long unsigned int)(size), base, type);
+      sprintf(s,"%s %ld %s %s",(const char *)(dataID),(long unsigned int)(size), type, base);
       break;
     }
     }
