@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.9  2002/11/08 13:53:01  pcombes
+ * Minor bug fix on trace log.
+ *
  * Revision 1.8  2002/11/05 18:32:20  pcombes
  * Fix bugs in config file parsing.
  *
@@ -136,6 +139,12 @@ long int diet_initialize(int argc, char **argv, char *config_file)
     cerr << "ORB initialization failed\n";
     return 1;
   }
+  data_set_trace_level(traceLevel);
+  mrsh_set_trace_level(traceLevel);
+#ifdef __OMNIORB4__
+  omniORB::traceLevel =
+    (traceLevel < TRACE_MAX_VALUE) ? 0 : (traceLevel - TRACE_MAX_VALUE);
+#endif // __OMNIORB4__
   /* Find Master Agent */
   MA = Agent::_narrow(getAgentReference(MA_name));
   if (CORBA::is_nil(MA))
