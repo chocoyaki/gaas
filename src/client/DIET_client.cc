@@ -12,6 +12,10 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.12  2002/11/08 16:56:25  lbertsch
+ * Added --with[out]-demo-baltimore options, so you don't need the environment
+ * variable DEMO_BALTIMORE to be set anymore.
+ *
  * Revision 1.11  2002/11/08 15:48:08  lbertsch
  * Petite correction
  *
@@ -74,7 +78,7 @@
 #include "debug.hh"
 
 #ifdef DEMO_BALTIMORE
-#include "com_tools.h"
+#include "com_tools.hh"
 #include <string.h>
 #endif
 
@@ -400,13 +404,11 @@ int diet_call(diet_function_handle_t *handle, diet_profile_t *profile)
     already_initialized = 1;
   }
 
-  if (DEMO_BALTIMORE + 0) {
-    strcpy(str_tmp, (*decision)[server_OK].chosenServerName);
-    strcat(str_tmp, "_SeD");
-    add_communication("client",
-		      str_tmp,
-		      profile_size(profile));
-  }
+  strcpy(str_tmp, (*decision)[server_OK].chosenServerName);
+  strcat(str_tmp, "_SeD");
+  add_communication("client",
+		    str_tmp,
+		    profile_size(profile));
 #endif
 
 

@@ -1,0 +1,125 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+#include "DIET_client.h"
+
+#include "com_tools.hh"
+
+static char* communication_directory = NULL;
+static int nb_emitted_com = 0;
+
+/* Retourne la taille d'un objet d'un des types de base
+ * 
+ * Rq: La taille est alignee (on utilise sizeof)
+ */
+int base_type_size(diet_base_type_t base_type) {
+  switch (base_type) {
+  case DIET_CHAR:
+    return sizeof(char);
+  case DIET_BYTE:                 // I presume this is a 'byte'
+    return sizeof(unsigned char);
+  case DIET_INT:
+    return sizeof(int);
+  case DIET_LONGINT:
+    return sizeof(long);
+  case DIET_FLOAT:
+    return sizeof(float);
+  case DIET_DOUBLE:
+    return sizeof(double);
+    /*  case DIET_SCOMPLEX:
+    return sizeof();
+  case DIET_DCOMPLEX:
+  return sizeof();*/
+  default:
+    fprintf(stderr, "Warning!! base_type_size(): base_type is unknown\n");
+    return 0;
+  }
+}
+
+/* Retourne une estimation de la taille du parametre, qui va
+ * transiter sur le reseau lors de l'envoi des donnees 
+ * (c'est pourquoi on ne prend pas en compte la taille de
+ *  toutes les structures)
+ */
+long parameter_size(diet_arg_t *p) {
+  diet_data_desc_t *d;
+  long size;
+  int size_of_base_type;
+
+  d = &p->desc;
+  size = sizeof(diet_data_desc_t);
+  size_of_base_type = base_type_size(d->generic.base_type);
+
+  switch (d->generic.type) {
+  case DIET_SCALAR:
+    size += size_of_base_type;
+    break;
+  case DIET_VECTOR:
+    size += d->specific.vect.size*size_of_base_type;
+    break;
+  case DIET_MATRIX:
+    size += d->specific.mat.nb_r*d->specific.mat.nb_c*size_of_base_type;
+    break;
+  case DIET_STRING:
+    size += d->specific.str.length + 1;
+    break;
+  case DIET_FILE:
+    size += d->specific.file.size;
+    break;
+  default:
+    size = 0;
+    fprintf(stderr, "Warning! parameter_size(): Parameter type is unknown\n");
+  }
+
+  return size;
+}
+
+/* Retourne le nombre d'octets (appoximatif) contenu dans le profile
+ * En l'occurrence, c'est la somme des tailles de tous les parametres
+ */
+long profile_size(diet_profile_t *p) {
+  int i;
+  long sum;
+
+  sum = 0;
+  for (i = 0; i < p->last_inout; i++) {
+    sum += parameter_size(&p->parameters[i]);
+  }
+  
+  return sum;
+}
+
+void init_communications() {
+  char *com_dir = getenv("COMMUNICATION_DIRECTORY");
+
+  if (com_dir == NULL) {
+    fprintf(stderr, "La variable d'environnement COMMICATION_DIRECTORY n'est pas definie!!\n");
+    exit(1);
+  }
+
+  communication_directory = com_dir;
+}
+
+void add_communication(char* node0, char* node1, long size) {
+  FILE* f;
+  char file_name[1000];
+
+  sprintf(file_name, 
+	  "%s/com_%d_%d.data", 
+	  communication_directory, 
+	  getpid(),
+	  nb_emitted_com);
+
+  f = fopen(file_name, "w");
+  if (f != NULL) {
+    fprintf(f, "%s %s %ld", node0, node1, size);
+    fclose(f);
+  } else {
+    fprintf(stderr, "Impossible de creer le fichier %s!\n", file_name);
+  }
+  
+  nb_emitted_com++;
+}
+
