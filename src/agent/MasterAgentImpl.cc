@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2003/09/28 22:06:11  ecaron
+ * Take into account the new API of statistics module
+ *
  * Revision 1.7  2003/09/22 21:19:49  pcombes
  * Set all the modules and their interfaces for data persistency.
  *
@@ -28,7 +31,7 @@
 #include "MasterAgentImpl.hh"
 #include "debug.hh"
 #include "Parsers.hh"
-
+#include "statistics.hh"
 #include <iostream>
 using namespace std;
 #include <stdio.h>
@@ -96,6 +99,11 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
   corba_response_t* resp(NULL);
 
   MA_TRACE_FUNCTION(pb_profile.path <<", " << maxServers);
+
+  /* Initialize statistics module */
+  stat_init();
+  stat_in(this->myName,"start request");
+
   /* Initialize the corba request structure */
   creq.reqID = reqIDCounter++; // thread safe
   creq.pb = pb_profile;
@@ -121,6 +129,7 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
   
    TRACE_TEXT(TRACE_MAIN_STEPS,
 	     "**************************************************\n");
+  stat_out(this->myName,"stop request");
   return resp;
 } // submit(const corba_pb_desc_t& pb, ...)
 

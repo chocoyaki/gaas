@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2003/09/28 22:06:11  ecaron
+ * Take into account the new API of statistics module
+ *
  * Revision 1.12  2003/09/24 09:11:58  pcombes
  * Merge corba_DataMgr_desc_t and corba_data_desc_t.
  *
@@ -54,6 +57,7 @@ using namespace std;
 #include "ms_function.hh"
 #include "ORBMgr.hh"
 #include "Parsers.hh"
+#include "statistics.hh"
 
 #define DEVELOPPING_DATA_PERSISTENCY 0
 
@@ -235,6 +239,7 @@ AgentImpl::findServer(Request* req, size_t max_srv)
              "\n**************************************************\n"
              << "Got request " << creq.reqID
              << " on problem " << creq.pb.path << endl);
+  stat_in(this->myName,"findServer");
 
  /* Initialize the response */
   resp->reqID = creq.reqID;
@@ -397,7 +402,7 @@ AgentImpl::findServer(Request* req, size_t max_srv)
     if (TRACE_LEVEL >= TRACE_STRUCTURES)
       displayResponse(stdout, resp);
   }
-
+  stat_out(this->myName,"findServer");
   return resp;
 } // findServer(Request* req)
 
@@ -412,7 +417,7 @@ AgentImpl::getResponse(const corba_response_t& resp)
 {
   TRACE_TEXT(TRACE_MAIN_STEPS, "Got a response from " << resp.myID
              <<"th child" << " to request " << resp.reqID << endl);
-
+  stat_in(this->myName,"getResponse");
   /* The response should be copied in the logs */
   /* Look for the concerned request in the logs */
   Request* req = reqList[resp.reqID];
@@ -423,7 +428,7 @@ AgentImpl::getResponse(const corba_response_t& resp)
   } else {
     WARNING("response to unknown request");
   } // if (req)
-
+  stat_out(this->myName,"getResponse");
 } // getResponse(const corba_response_t & resp)
 
 
@@ -448,7 +453,7 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req)
   typedef size_t comm_failure_t;
 
   AGT_TRACE_FUNCTION(childID << ", " << req->pb.path);
-
+  stat_in(this->myName,"sendRequest");
   try {
   /* Is the child an agent ? */
   if (childID < static_cast<CORBA::ULong>(LAChildren.size())) {
@@ -523,6 +528,7 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req)
   } catch(...) {
     WARNING("exception thrown in Agt::" << __FUNCTION__);
   }
+  stat_out(this->myName,"sendRequest");
 } // sendRequest(CORBA::Long childID, const corba_request_t* req)
 
 
@@ -541,12 +547,12 @@ double time;
   char* child_name = getChildHostName(childID);
 
   AGT_TRACE_FUNCTION(childID <<", " << size);
-
+  stat_in(this->myName,"getCommTime");
   time = FASTMgr::commTime(this->localHostName, child_name, size, to);
 
   ms_strfree(child_name);
 
-
+  stat_out(this->myName,"getCommTime");
   return(time);
 } // getCommTime(int childID, unsigned long size, bool to)
 
@@ -565,11 +571,12 @@ AgentImpl::aggregate(Request* request, size_t max_srv)
  
   AGT_TRACE_FUNCTION(request->getRequest()->pb.path << ", " <<
                      request->getResponsesSize() << " responses, " << max_srv);
-
+  stat_in(this->myName,"aggregate");
   GS->aggregate(aggregResp, max_srv,
 		request->getResponsesSize(), request->getResponses());
   aggregResp->reqID = request->getRequest()->reqID;
 
+  stat_out(this->myName,"aggregate");
   return aggregResp;
 } // aggregate(Request* request, size_t max_srv)
 
@@ -583,7 +590,7 @@ AgentImpl::getChildHostName(CORBA::Long childID)
   int childFound = 0;
 
   AGT_TRACE_FUNCTION(childID);
-
+  stat_in(this->myName,"getChildHostName");
   /* Return local host name if childID == -1 */
   /* (This hack is used during the aggregation */
 
@@ -612,7 +619,7 @@ AgentImpl::getChildHostName(CORBA::Long childID)
   if (!childFound) {
     WARNING("trying to extract IOR of an unknown child");
   }
-
+  stat_out(this->myName,"getChildHostName");
   return hostName;
 } // getChildHostName(CORBA::Long childID)
 

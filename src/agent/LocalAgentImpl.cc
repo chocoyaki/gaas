@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2003/09/28 22:06:11  ecaron
+ * Take into account the new API of statistics module
+ *
  * Revision 1.7  2003/09/22 21:19:49  pcombes
  * Set all the modules and their interfaces for data persistency.
  *
@@ -28,6 +31,7 @@
 #include "ORBMgr.hh"
 #include "Parsers.hh"
 #include "Request.hh"
+#include "statistics.hh"
 
 #include <iostream>
 using namespace std;
@@ -112,6 +116,10 @@ LocalAgentImpl::getRequest(const corba_request_t& req)
 
   LA_TRACE_FUNCTION(req.reqID << ", " << req.pb.path);
 
+  /* Initialize statistics module */
+  stat_init();
+  stat_in(this->myName,"getRequest");
+
   corba_response_t& resp = *(this->findServer(currRequest, 0));
   resp.myID = this->childID;
 
@@ -122,5 +130,6 @@ LocalAgentImpl::getRequest(const corba_request_t& req)
   delete currRequest;
   delete &resp;
 
+  stat_out(this->myName,"getRequest");
 } // getRequest(const corba_request_t& req)
 
