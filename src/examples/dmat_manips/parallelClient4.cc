@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2004/01/13 10:27:07  cpera
+ * Fix a race condition.
+ *
  * Revision 1.1  2004/01/07 23:07:12  cpera
  * Add new asynchronous example "parallelclient4.cc" about diet_wait_or function.
  *
@@ -60,8 +63,8 @@ static size_t thread_counter = 0;
 static const char* PB[NB_PB] =
   {"T", "MatPROD", "MatSUM", "SqMatSUM", "SqMatSUM_opt"};
 
-static size_t n_loops = 5;
-static size_t n_threads = 5;
+static size_t n_loops = 1;
+static size_t n_threads = 1;
 static char* path = NULL;
 
 static int IS_PB[NB_PB] = {0, 0, 0, 0, 0};
@@ -203,16 +206,15 @@ class worker : public omni_thread
       diet_reqID_t resultReqID;
       diet_reqID_t *tmp_rst;
       tmp_rst = &rst[0];
-      while (i != 0){
-        if ((rst_call = diet_wait_or(tmp_rst, (unsigned int)(i), &resultReqID)) != 0) printf("Error in diet_wait_or\n");
+      //while (i != 0){
+        if ((rst_call = diet_wait_or(tmp_rst, 5, &resultReqID)) != 0) printf("Error in diet_wait_or : message=%d\n", rst_call);
         //MUTEX_WORKER.lock();
         else {
           IO_WRITER_LOCK.lock();
           printf("***********************************************************\n");
           printf("Result data for requestID %d", resultReqID);
           printf(" and omnithreadID %d \n", omni_thread::self()->id());
-          int data_rst = -1;
-          for (int w=0; w < i; w++){
+          for (int w=0; w < 5; w++){
             if (resultReqID == rst[w]){
               if (IS_PB[0]) {
                 diet_matrix_get(diet_parameter(profile[w],0), NULL, NULL, (size_t*)&m, (size_t*)&n, &oA);
@@ -228,18 +230,18 @@ class worker : public omni_thread
                 diet_free_data(diet_parameter(profile[w],2));
               }
               printf("***********************************************************\n");
-              IO_WRITER_LOCK.unlock();
-              diet_cancel(resultReqID);
-              diet_profile_free(profile[w]);
             }
-            else {
-              if ( data_rst != -1) tmp_rst[w-1] = rst[w];
-              else tmp_rst[w] = rst[w];
-            }  
+            IO_WRITER_LOCK.unlock();
+          //  diet_cancel(rst[w]);
+          //  diet_profile_free(profile[w]);
+          }
+          for (int w=0; w < 5; w++){
+            diet_cancel(rst[w]);
+            diet_profile_free(profile[w]);
           }
         }
-        i--;
-      }
+      //  i--;
+      //}
       MUTEX_WORKER.lock();
     }
     delete requestID;
