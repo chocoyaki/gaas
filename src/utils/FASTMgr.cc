@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2003/12/09 10:10:11  cpera
+ * Fix an error from previous commit (add #if HAVE_FAST).
+ *
  * Revision 1.8  2003/12/08 11:02:24  cpera
  * Delete PAUSE macro used to simulate FAST call ...
  *
@@ -206,6 +209,7 @@ FASTMgr::estimate(char* hostName, corba_estimation_t& estimation,
   double freeCPU(0);
   double freeMem(0);
   int    nbCPU(1);
+#if HAVE_FAST // with FAST
 
   if (!FASTMgr::initialized) {
     INTERNAL_ERROR("attempt to estimate a request"
@@ -244,11 +248,12 @@ FASTMgr::estimate(char* hostName, corba_estimation_t& estimation,
 
     fast_pb_free(fastPb);
   }
+#else //HAVE_FAST
+#endif //HAVE_FAST
   estimation.tComp   = time;
   estimation.freeCPU = freeCPU;
   estimation.freeMem = freeMem;
   estimation.nbCPU   = nbCPU;
-
 }
 
 
