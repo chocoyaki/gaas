@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2003/05/15 11:48:41  pcombes
+ * Fix includes.
+ *
  * Revision 1.2  2003/05/10 08:49:33  pcombes
  * New Parsers for new configuration files.
  *
@@ -17,7 +20,6 @@
 
 #include <iostream>
 using namespace std;
-#include <fstream>
 
 #include "Parsers.hh"
 #include "assert.h"
@@ -186,7 +188,8 @@ Parsers::checkFASTEntries()
   Results::Address* addr;
 
   if (Results::params[Results::FASTUSE].value == NULL) {
-    cerr << "Warning: " << FUNCTION_NAME << ": " << Results::params[FASTUSE].kwd
+    cerr << "Warning: " << FUNCTION_NAME << ": "
+	 << Results::params[Results::FASTUSE].kwd
 	 << " is missing. As DIET was compiled with FAST, I guess "
 	 << Results::params[Results::FASTUSE].kwd << " = 1.\n";
     Results::params[Results::FASTUSE].value = new size_t(1);
@@ -203,10 +206,10 @@ Parsers::checkFASTEntries()
       // Display warning for SeDs only, when ldapUse is not set
       if (Results::params[Results::AGENTTYPE].value != NULL) {
 	cerr << "Warning: " << FUNCTION_NAME << ": "
-	     << Results::params[LDAPUSE].kwd << " is missing."
+	     << Results::params[Results::LDAPUSE].kwd << " is missing."
 	     << " As DIET was compiled with FAST, and "
-	     << Results::params[FASTUSE].kwd << " = 1, I guess "
-	     << Results::params[LDAPUSE].kwd << " = 1.\n";
+	     << Results::params[Results::FASTUSE].kwd << " = 1, I guess "
+	     << Results::params[Results::LDAPUSE].kwd << " = 1.\n";
 	*((size_t*)Results::params[Results::LDAPUSE].value) = 1;
       } else {
 	// for agents, default is 0
@@ -216,7 +219,8 @@ Parsers::checkFASTEntries()
     use = *((size_t*)Results::params[Results::LDAPUSE].value);
     
     if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-      cout << ' ' << Results::params[LDAPUSE].kwd << " = " << use << endl;
+      cout << ' ' << Results::params[Results::LDAPUSE].kwd
+	   << " = " << use << endl;
     
     if (use > 0) {
       if (Results::params[Results::LDAPBASE].value == NULL) {
@@ -225,10 +229,12 @@ Parsers::checkFASTEntries()
 	return DIET_MISSING_PARAMETERS;
       }
       if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-	cout << "  " << Results::params[LDAPBASE].kwd << " = "
-	     << ((Results::Address*)Results::params[LDAPBASE].value)->host
+	cout << "  " << Results::params[Results::LDAPBASE].kwd << " = "
+	     << ((Results::Address*)
+		 Results::params[Results::LDAPBASE].value)->host
 	     << ':'
-	     << ((Results::Address*)Results::params[LDAPBASE].value)->port
+	     << ((Results::Address*)
+		 Results::params[Results::LDAPBASE].value)->port
 	     << endl; 
 
       if (Results::params[Results::LDAPMASK].value == NULL) {
@@ -237,7 +243,7 @@ Parsers::checkFASTEntries()
 	return DIET_MISSING_PARAMETERS;
       }
       if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-	cout << "  " << Results::params[LDAPBASE].kwd << " = "
+	cout << "  " << Results::params[Results::LDAPBASE].kwd << " = "
 	     << (char*)Results::params[Results::LDAPMASK].value << endl;
       
     }
@@ -245,10 +251,10 @@ Parsers::checkFASTEntries()
     /* Check NWS entries */
     if (Results::params[Results::NWSUSE].value == NULL) {
       cerr << "Warning: " << FUNCTION_NAME << ": "
-	   << Results::params[NWSUSE].kwd << " is missing."
+	   << Results::paramsResults::[NWSUSE].kwd << " is missing."
 	   << " As DIET was compiled with FAST, and "
-	   << Results::params[FASTUSE].kwd << " = 1, I guess "
-	   << Results::params[NWSUSE].kwd << " = 1.\n";
+	   << Results::paramsResults::[FASTUSE].kwd << " = 1, I guess "
+	   << Results::params[Results::NWSUSE].kwd << " = 1.\n";
       *((size_t*)Results::params[Results::NWSUSE].value) = 1;
     }
     use = *((size_t*)Results::params[Results::NWSUSE].value);
@@ -265,9 +271,11 @@ Parsers::checkFASTEntries()
       }
       if (TRACE_LEVEL >= TRACE_ALL_STEPS)
 	cout << "  " << Results::params[NWSNAMESERVER].kwd << " = "
-	     << ((Results::Address*)Results::params[NWSNAMESERVER].value)->host
+	     << ((Results::Address*)
+		 Results::params[Results::NWSNAMESERVER].value)->host
 	     << ':'
-	     << ((Results::Address*)Results::params[NWSNAMESERVER].value)->port
+	     << ((Results::Address*)
+		 Results::params[Results::NWSNAMESERVER].value)->port
 	     << endl;
       if (Results::params[Results::NWSFORECASTER].value == NULL) {
 	cerr << "Error: " << FUNCTION_NAME << ": "
@@ -276,10 +284,12 @@ Parsers::checkFASTEntries()
 	return DIET_MISSING_PARAMETERS;
       }
       if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-	cout << "  " << Results::params[NWSFORECASTER].kwd << " = "
-	     << ((Results::Address*)Results::params[NWSFORECASTER].value)->host
+	cout << "  " << Results::params[Results::NWSFORECASTER].kwd << " = "
+	     << ((Results::Address*)
+		 Results::params[Results::NWSFORECASTER].value)->host
 	     << ':'
-	     << ((Results::Address*)Results::params[NWSFORECASTER].value)->port
+	     << ((Results::Address*)
+		 Results::params[Results::NWSFORECASTER].value)->port
 	     << endl; 
     }
   }

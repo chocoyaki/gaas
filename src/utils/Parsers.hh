@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2003/05/15 11:48:41  pcombes
+ * Fix includes.
+ *
  * Revision 1.2  2003/05/10 08:49:33  pcombes
  * New Parsers for new configuration files.
  *
@@ -18,9 +21,10 @@
 #ifndef _PARSERS_HH_
 #define _PARSERS_HH_
 
+#include <fstream>
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
-
 
 
 /**
