@@ -11,6 +11,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.4  2003/01/15 08:34:19  lbertsch
+ * Clarifie l'aide du Makefile
+ *
  * Revision 1.3  2002/12/18 12:11:42  jylexcel
  * SqMatSUM bug fix related to the use of convertors. Philippe+JY.
  *
@@ -79,6 +82,20 @@ void displayArg(const diet_data_t *arg)
 /*
  * SOLVE FUNCTIONS
  */
+
+extern void dgemm_(char   *tA,
+		   char   *tB,
+		   int    *m,
+		   int    *n,
+		   int    *k,
+		   double *alpha,
+		   double *A,
+		   int    *lda,
+		   double *B,
+		   int    *ldb,
+		   double *beta,
+		   double *C,
+		   int    *ldc);
 
 int
 solve_dgemm(diet_profile_t *pb)

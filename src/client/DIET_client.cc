@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.18  2003/01/15 08:34:19  lbertsch
+ * Clarifie l'aide du Makefile
+ *
  * Revision 1.17  2002/12/24 10:28:04  lbertsch
  * Added a stat_finalize function, so that successive initializations of
  * diet don't issue any warning...
@@ -151,7 +154,7 @@ long int diet_initialize(int argc, char **argv, char *config_file)
 
   return 0;
 }
-  
+
 long int diet_finalize()
 {
   stat_finalize();

@@ -1,47 +1,12 @@
 /****************************************************************************/
-/* $Id$ */
-/* dmat_manips example: a DIET server for transpose, RSUM a and RPROD       */
-/*   problems                                                               */
+/* $Id$             */
+/* DIET users'day server example (TP - exo3)                                */
 /*                                                                          */
 /*  Author(s):                                                              */
-/*    - Philippe COMBES           - LIP ENS-Lyon (France)                   */
-/*                                                                          */
-/*  This is part of DIET software.                                          */
-/*  Copyright (C) 2002 ReMaP/INRIA                                          */
+/*    - Ludovic BERTSCH           Ludovic.Bertsch@ens-lyon.fr               */
+/*    - Philippe COMBES           Philippe.Combes@ens-lyon.fr               */
 /*                                                                          */
 /****************************************************************************/
-/*
- * $Log$
- * Revision 1.14  2002/12/12 18:17:05  pcombes
- * Small bug fixes on prints (special thanks to Jean-Yves)
- *
- * Revision 1.11  2002/11/15 17:15:32  pcombes
- * FAST integration complete ...
- *
- * Revision 1.10  2002/11/07 18:42:42  pcombes
- * Add includes and configured Makefile variables to install directory.
- * Update dgemm to the implementation that is hardcoded in FAST.
- *
- * Revision 1.8  2002/10/15 18:47:54  pcombes
- * Update to convertor API.
- *
- * Revision 1.7  2002/09/17 15:23:18  pcombes
- * Bug fixes on inout arguments and examples
- * Add support for omniORB 4.0.0
- *
- * Revision 1.5  2002/08/30 16:50:16  pcombes
- * This version works as well as the alpha version from the user point of view,
- * but the API is now the one imposed by the latest specifications (GridRPC API
- * in its sequential part, config file for all parts of the platform, agent
- * algorithm, etc.)
- *  - Reduce marshalling by using CORBA types internally
- *  - Creation of a class ServiceTable that is to be replaced
- *    by an LDAP DB for the MA
- *  - No copy for client/SeD data transfers
- *  - ...
- *
- ****************************************************************************/
-
 
 #include <unistd.h>
 #include <stdlib.h>
