@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2003/09/22 21:06:54  pcombes
+ * Add the type corba_data_id_t for data persistency.
+ *
  * Revision 1.3  2003/09/18 09:47:19  bdelfabr
  * adding data persistence
  *
@@ -192,16 +195,16 @@ struct corba_estimation_t {
 
 
 /****************************************************************************/
-/* data Description for Data Manager                                        */
+/* Data Description for Data Manager                                        */
 /****************************************************************************/
 
 /* state of the data */
-enum occupationFlag {DIET_FREE, DIET_INUSE, DIET_TRANSFERT} ;
+enum occupationFlag {DIET_FREE, DIET_INUSE, DIET_TRANSFERT};
 /* flag used to manage data coherence : data only registered on one Data Manager */
-enum kleenexFlag {DIET_ORIGINAL, DIET_KLEENEXCOPY} ;
+enum kleenexFlag {DIET_ORIGINAL, DIET_KLEENEXCOPY};
 
 /* structure of the Data Identifier  */
-struct corba_data_id {
+struct corba_data_id_t {
   string idNumber;
   /* Name of the Data Manager which hold the Data */
   string myName;
@@ -210,10 +213,9 @@ struct corba_data_id {
 };
 
 
-typedef corba_data_id corba_data_id_t;
+// FIXME: Why a new type ???
 
-
-struct corba_dataMgr_desc {
+struct corba_DataMgr_desc_t {
    corba_data_id_t dataID;
 /* equal to corba_data_t */
   SeqChar value;
@@ -234,7 +236,6 @@ struct corba_dataMgr_desc {
     corba_file_specific_t   file;
   } specific;
 };
-typedef corba_dataMgr_desc corba_dataMgr_desc_t;
 
 #endif // _COMMON_TYPES_IDL_
 
