@@ -1,5 +1,4 @@
 /****************************************************************************/
-/* $Id$ */
 /* DIET debug utils source code                                             */
 /*                                                                          */
 /*  Author(s):                                                              */
@@ -8,8 +7,12 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/*
+/* $Id$
  * $Log$
+ * Revision 1.12  2003/04/10 12:45:44  pcombes
+ * Set TRACE_LEVEL as a static variable, used by all other modules.
+ * Update displayResponse to the new corba_response_t structure.
+ *
  * Revision 1.11  2003/02/07 17:04:12  pcombes
  * Refine convertor API: arg_idx is splitted into in_arg_idx and out_arg_idx.
  *
@@ -39,6 +42,7 @@
  ****************************************************************************/
 
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -46,19 +50,24 @@
 #include "dietTypes.hh"
 
 
+unsigned int TRACE_LEVEL = TRACE_DEFAULT;
+
+
 void
 displayResponse(FILE* os, const corba_response_t* resp)
 {
-  int i,j;
-  char implName[256];
+  size_t i,j;
 
   fprintf(os, "\n----------------------------------------\n");
-  fprintf(os, " Response structure for request %ld :\n\n", (long)resp->reqId);
-  fprintf(os, " I'm son nb %ld\n", (long)resp->myId);
-  fprintf(os, " There are %ld parameters\n", (long)resp->nbIn);
-  fprintf(os, " %ld servers are able to solve the problem\n", (long)resp->nbServers);
+  fprintf(os, " Response structure for request %ld :\n\n", (long)resp->reqID);
+  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
+    fprintf(os, " I'm son nb %ld\n", (long)resp->myID);
+  //  fprintf(os, " There are %ld parameters\n", (long)resp->nbIn);
+  fprintf(os, " %ld servers are able to solve the problem\n",
+	  (long)resp->servers.length());
+
+#if 0
   fprintf(os, " Data:\n");
-  
   for (i = 0; i < resp->nbIn; i++) {
     if (CORBA::is_nil(resp->data[i].localization)) {
       fprintf(os, "  Data %i is not located yet\n", i);
@@ -66,29 +75,36 @@ displayResponse(FILE* os, const corba_response_t* resp)
       fprintf(os, "  Time2Me for data %i is %f\n",i,resp->data[i].timeToMe);
     }
   }
-  
-  fprintf(os," Estimated computation time:\n");
-  
-  for (i = 0; i < resp->nbServers; i++) {
-    strcpy(implName, resp->comp[i].implName);
-    fprintf(os, "  %ldth server can solve the problem in %f seconds\n",
-	    (long) i, resp->comp[i].tComp);
-    fprintf(os, "  Implementation name: %s\n", implName);
+#endif // 0
+
+  if (resp->servers.length() > 0)
+    fprintf(os," Estimated computation time:\n");
+
+  for (i = 0; i < resp->servers.length(); i++) {
+    long idx = resp->sortedIndexes[i];
+    if (resp->servers[idx].estim.tComp != HUGE_VAL) {
+      fprintf(os, "  %ldth server can solve the problem in %g seconds\n",
+	      (long) i, resp->servers[idx].estim.tComp);
+    } else {
+      fprintf(os, "  %ldth server has %g free CPU and %g free memory\n",
+	      (long) i, resp->servers[idx].estim.freeCPU,
+	      resp->servers[idx].estim.freeMem);
+    }
     fprintf(os, "  TComms for each parameter: ");
-    for (j = 0; j < resp->nbIn; j++) {
-      fprintf(os, " %f", resp->comp[i].tComm[j]);
-    }      
+    for (j = 0; j < resp->servers[idx].estim.commTimes.length(); j++) {
+      fprintf(os, " %g", (double)resp->servers[idx].estim.commTimes[j]);
+    }
     fprintf(os,"\n");
   }
   fprintf(os, "----------------------------------------\n");
 }
 
-
+#if 0
 void
-displayMAList(FILE* os,dietMADescList* MAs)
+displayMAList(FILE* os, dietMADescList* MAs)
 {
   dietMADescListIterator* iter= new dietMADescListIterator(MAs);
-  
+
   while (iter->next())
     {
       fprintf(os,"Name : %s",((dietMADescListElt*)(iter->curr()))->MA.name);
@@ -98,9 +114,11 @@ displayMAList(FILE* os,dietMADescList* MAs)
         fprintf(os,"(up)\n");
     }
 }
+#endif // 0
+
 
 void
-displayArgDesc(FILE* f, int type, int base_type) 
+displayArgDesc(FILE* f, int type, int base_type)
 {
   switch(type) {
   case DIET_SCALAR: fprintf(f, "scalar"); break;
@@ -153,6 +171,7 @@ displayArg(FILE* f, const corba_data_desc_t* arg)
     case DIET_DCOMPLEX: fprintf(f, "double complex"); break;
     }
   }
+  fprintf(f, ", id=|%s|", arg->id.in());
 }
 
 void
@@ -184,6 +203,7 @@ displayArg(FILE* f, const diet_data_desc_t* arg)
     case DIET_DCOMPLEX: fprintf(f, "double complex"); break;
     }
   }
+  fprintf(f, "id=|%s|", arg->id);
 }
 
 
@@ -220,9 +240,9 @@ displayProfileDesc(const corba_profile_desc_t* desc)
   fprintf(f, "\n");
   free(path);
 }
-  
+
 void
-displayProfile(const diet_profile_t* profile, const char* path) 
+displayProfile(const diet_profile_t* profile, const char* path)
 {
   FILE* f = stdout;
   fprintf(f, " - Service %s", path);
@@ -233,7 +253,7 @@ displayProfile(const diet_profile_t* profile, const char* path)
 	    : "OUT  ");
     displayArg(f, &(profile->parameters[i].desc));
   }
-  fprintf(f, "\n");  
+  fprintf(f, "\n");
 }
 
 void
@@ -248,7 +268,7 @@ displayProfile(const corba_profile_t* profile, const char* path)
 	    : "OUT  ");
     displayArg(f, &(profile->parameters[i].desc));
   }
-  fprintf(f, "\n");  
+  fprintf(f, "\n");
 }
 
 void
@@ -264,7 +284,7 @@ displayPbDesc(const corba_pb_desc_t* profile)
 	    : (j <= profile->last_inout) ? "INOUT"
 	    : "OUT  ");
     displayArg(f, &(profile->param_desc[j]));
-  }  
+  }
   fprintf(f, "\n");
 }
 
@@ -292,5 +312,5 @@ displayConvertor(FILE* f, const diet_convertor_t* cvt)
       fprintf(f, "argument %d", cvt->arg_convs[i].in_arg_idx);
     fprintf(f, " (out: %d)", cvt->arg_convs[i].out_arg_idx);
   }
-  fprintf(f, "\n");  
+  fprintf(f, "\n");
 }

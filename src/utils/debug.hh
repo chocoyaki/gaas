@@ -1,5 +1,4 @@
 /****************************************************************************/
-/* $Id$ */
 /* DIET debug utils header                                                  */
 /*                                                                          */
 /*  Author(s):                                                              */
@@ -8,8 +7,12 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/*
+/* $Id$
  * $Log$
+ * Revision 1.12  2003/04/10 12:45:44  pcombes
+ * Set TRACE_LEVEL as a static variable, used by all other modules.
+ * Update displayResponse to the new corba_response_t structure.
+ *
  * Revision 1.11  2003/02/04 10:08:23  pcombes
  * Apply Coding Standards
  *
@@ -42,25 +45,30 @@
 #ifndef _DEBUG_HH_
 #define _DEBUG_HH_
 
+#include <iostream>
+using namespace std;
 #include <stdio.h>
 
-#include "types.hh"
+#include "common_types.hh"
+#include "response.hh"
 #include "dietTypes.hh"
 
 /**
  * Various trace levels
- **/
+ */
 #define NO_TRACE            0
 #define TRACE_MAIN_STEPS    1
 #define TRACE_ALL_STEPS     5
 #define TRACE_STRUCTURES   10
 #define TRACE_MAX_VALUE    TRACE_STRUCTURES
+#define TRACE_DEFAULT      TRACE_MAIN_STEPS
 
-/* Implemented in DIET_data.cc */
-void
-data_set_trace_level(int level);
-void
-mrsh_set_trace_level(int level);
+/**
+ * Always useful
+ */
+#define MAX(a,b) ((a) < (b)) ? (b) : (a)
+#define MIN(a,b) ((a) > (b)) ? (b) : (a)
+
 
 
 // DEBUG trace: print variable name and value
@@ -100,8 +108,11 @@ mrsh_set_trace_level(int level);
 void
 displayResponse(FILE* os, const corba_response_t* resp);
 
+#if 0
 void
 displayMAList(FILE* os, dietMADescList* MAs);
+#endif // 0
+
 
 void
 displayArgDesc(FILE* f, int type, int base_type);
