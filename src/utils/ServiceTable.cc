@@ -11,6 +11,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.4  2002/10/15 18:41:39  pcombes
+ * Implement convertor API.
+ *
  * Revision 1.3  2002/10/03 17:58:20  pcombes
  * Add trace levels (for Bert): traceLevel = n can be added in cfg files.
  * An agent son can now be killed (^C) without crashing this agent.
@@ -66,6 +69,8 @@ ServiceTable::~ServiceTable()
       profiles[i].param_desc.length(0);
     }
     free(solvers);
+    free(eval_functions);
+    free(convertors);
   } else if (matching_sons) {
     for (int i = 0; i < max_nb_s; i++) {
       profiles[i].param_desc.length(0);
@@ -99,7 +104,8 @@ ServiceTable::lookupService(const corba_profile_t *pb_profile)
 
 
 int ServiceTable::addService(const corba_profile_desc_t *profile,
-			     diet_solve_t solver)
+			     diet_convertor_t *cvt,
+			     diet_solve_t solver, diet_eval_t evalf)
 {
   ServiceReference_t service_idx;
   
@@ -115,15 +121,23 @@ int ServiceTable::addService(const corba_profile_desc_t *profile,
       max_nb_s += max_nb_s_step;
       profiles.length(max_nb_s);
       solvers  = (diet_solve_t *)
-	realloc(solvers,  max_nb_s * sizeof(diet_solve_t));
+	realloc(solvers, max_nb_s * sizeof(diet_solve_t));
+      eval_functions  = (diet_eval_t *)
+	realloc(eval_functions, max_nb_s * sizeof(diet_eval_t));
+      convertors  = (diet_convertor_t *)
+	realloc(convertors, max_nb_s * sizeof(diet_convertor_t));
       for (int i = nb_s; i < max_nb_s; i++) {
 	profiles[i].param_desc.length(0);
-	solvers[i] = NULL;
+	solvers[i]              = NULL;
+	eval_functions[i]       = NULL;
+	convertors[i].arg_convs = NULL;
       }
     }
-    profiles[nb_s] = *profile;
+    profiles[nb_s]       = *profile;
     //profiles[nb_s].path = CORBA::string_dup(profile->path);
-    solvers[nb_s] = solver;
+    solvers[nb_s]        = solver;
+    eval_functions[nb_s] = evalf;
+    convertors[nb_s]     = *cvt;
     nb_s++;
 
   } else if (solver == solvers[service_idx]) {
@@ -211,12 +225,15 @@ int ServiceTable::rmService(const ServiceReference_t ref)
   if (solvers) {
     profiles[ref].param_desc.length(0);
     for (i = (int) ref; i < (nb_s - 1); i++) {
-      profiles[i] = profiles[i+1];
-      solvers[i]  = solvers[i+1];
+      profiles[i]        = profiles[i+1];
+      solvers[i]         = solvers[i+1];
+      eval_functions[i]  = eval_functions[i+1];
+      convertors[i]      = convertors[i+1];
     }
     profiles[i].param_desc.length(0);
-    solvers[i] = NULL;
-
+    solvers[i]              = NULL;
+    eval_functions[i]       = NULL;
+    convertors[i].arg_convs = NULL;
   } else {
     profiles[ref].param_desc.length(0);
     free(matching_sons[ref].sons);
@@ -278,8 +295,8 @@ diet_solve_t ServiceTable::getSolver(const corba_profile_desc_t *profile)
   ServiceReference_t ref;
   
   if ((ref = lookupService(profile)) == -1) {
-    cerr << "ServiceTable::getSons - Attempting to get solver\n"
-	 << "               of a service that is not in table.\n";
+    cerr << "ServiceTable::getSolver - Attempting to get solver\n"
+	 << "                 of a service that is not in table.\n";
     return NULL;
   }
   return getSolver(ref);
@@ -301,6 +318,62 @@ diet_solve_t ServiceTable::getSolver(const ServiceReference_t ref)
 }
 
 
+diet_eval_t ServiceTable::getEvalf(const corba_profile_desc_t *profile)
+{
+  ServiceReference_t ref;
+  
+  if ((ref = lookupService(profile)) == -1) {
+    cerr << "ServiceTable::getEvalf - Attempting to get eval function\n"
+	 << "                       of a service that is not in table.\n";
+    return NULL;
+  }
+  return getEvalf(ref);
+}
+
+
+diet_eval_t ServiceTable::getEvalf(const ServiceReference_t ref)
+{
+  if (!solvers) {
+    cerr << "ServiceTable::getEvalf - Attempting to get an eval function\n"
+	 << "                           in a table initialized with sons.\n";
+    return NULL;
+  }
+  if (((int) ref < 0) || ((int) ref >= nb_s)) {
+    cerr << "ServiceTable::getEvalf - Wrong service reference.\n";
+    return NULL;
+  }
+  return eval_functions[ref];
+}
+
+
+diet_convertor_t *ServiceTable::getConvertor(const corba_profile_desc_t *profile)
+{
+  ServiceReference_t ref;
+  
+  if ((ref = lookupService(profile)) == -1) {
+    cerr << "ServiceTable::getConvertor - Attempting to get convertor\n"
+	 << "                       of a service that is not in table.\n";
+    return NULL;
+  }
+  return getConvertor(ref);
+}
+
+
+diet_convertor_t *ServiceTable::getConvertor(const ServiceReference_t ref)
+{
+  if (!solvers) {
+    cerr << "ServiceTable::getConvertor - Attempting to get a convertor\n"
+	 << "                          in a table initialized with sons.\n";
+    return NULL;
+  }
+  if (((int) ref < 0) || ((int) ref >= nb_s)) {
+    cerr << "ServiceTable::getConvertor - Wrong service reference.\n";
+    return NULL;
+  }
+  return &(convertors[ref]);
+}
+
+
 ServiceTable::matching_sons_t *
 ServiceTable::getSons(const corba_profile_desc_t *profile)
 {
@@ -315,7 +388,8 @@ ServiceTable::getSons(const corba_profile_desc_t *profile)
 }
 
 
-ServiceTable::matching_sons_t *ServiceTable::getSons(const ServiceReference_t ref)
+ServiceTable::matching_sons_t *
+ServiceTable::getSons(const ServiceReference_t ref)
 {
   if (solvers) {
     cerr << "ServiceTable::getSolver - Attempting to get sons\n"
@@ -405,18 +479,24 @@ int ServiceTable::ServiceTableInit(int max_nb_services, int max_nb_sons)
   profiles.length(max_nb_s);
 
   if (max_nb_sons > 0) {
-    solvers = NULL;
-    matching_sons = new matching_sons_t[max_nb_s];
+    solvers        = NULL;
+    eval_functions = NULL;
+    convertors     = NULL;
+    matching_sons  = new matching_sons_t[max_nb_s];
     for (int i = 0; i < max_nb_s; i++) {
       profiles[i].param_desc.length(0);
       matching_sons[i].nb_sons = 0;
       matching_sons[i].sons    = new int[max_nb_sons];
     }
   } else {
-    solvers  = new diet_solve_t[max_nb_s];
+    solvers        = new diet_solve_t[max_nb_s];
+    eval_functions = new diet_eval_t[max_nb_s];
+    convertors     = new diet_convertor_t[max_nb_s];
     for (int i = 0; i < max_nb_s; i++) {
       profiles[i].param_desc.length(0);
-      solvers[i] = NULL;
+      solvers[i]              = NULL;
+      eval_functions[i]       = NULL;
+      convertors[i].arg_convs = NULL;
     }
     matching_sons = NULL;
   }

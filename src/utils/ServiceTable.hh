@@ -11,6 +11,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.4  2002/10/15 18:41:39  pcombes
+ * Implement convertor API.
+ *
  * Revision 1.3  2002/10/03 17:58:21  pcombes
  * Add trace levels (for Bert): traceLevel = n can be added in cfg files.
  * An agent son can now be killed (^C) without crashing this agent.
@@ -76,7 +79,9 @@ public:
   ServiceReference_t lookupService(const corba_profile_t *profile);
 
   // All data structures are duplicated in add methods
-  int addService(const corba_profile_desc_t *profile, diet_solve_t solver);
+  int addService(const corba_profile_desc_t *profile,
+		 diet_convertor_t *cvt,
+		 diet_solve_t solver, diet_eval_t evalf);
   int addService(const corba_profile_desc_t *profile, int son);
 
   int rmService(const corba_profile_desc_t *profile);
@@ -86,8 +91,12 @@ public:
   // Return a pointer to a copy of all profiles.
   // Caller is responsible for freeing the result.
   SeqCorbaProfileDesc_t *getProfiles();
-  diet_solve_t   getSolver(const corba_profile_desc_t *profile);
-  diet_solve_t   getSolver(const ServiceReference_t ref);
+  diet_solve_t getSolver(const corba_profile_desc_t *profile);
+  diet_solve_t getSolver(const ServiceReference_t ref);
+  diet_eval_t   getEvalf(const corba_profile_desc_t *profile);
+  diet_eval_t   getEvalf(const ServiceReference_t ref);
+  diet_convertor_t *getConvertor(const corba_profile_desc_t *profile);
+  diet_convertor_t *getConvertor(const ServiceReference_t ref);
   matching_sons_t *getSons(const corba_profile_desc_t *profile);
   matching_sons_t *getSons(const ServiceReference_t ref);
   
@@ -105,6 +114,10 @@ private:
   SeqCorbaProfileDesc_t profiles;
   // array of solving functions 
   diet_solve_t *solvers;
+  // array of evaluation functions 
+  diet_eval_t  *eval_functions;
+  // array of convertors (from a client pb profile to a "solved" pb profile) 
+  diet_convertor_t *convertors;
   // array of int arrays: each element is an array of sons ID, which offer the
   // corresponding service
   matching_sons_t *matching_sons;

@@ -11,6 +11,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.4  2002/10/15 18:41:39  pcombes
+ * Implement convertor API.
+ *
  * Revision 1.3  2002/10/03 17:58:20  pcombes
  * Add trace levels (for Bert): traceLevel = n can be added in cfg files.
  * An agent son can now be killed (^C) without crashing this agent.
@@ -42,7 +45,8 @@
 #include "DIET_client.h"
 #include "DIET_server.h"
 #include "types.hh"
-//#include "dietTypes.hh"
+#include "dietTypes.hh"
+#include "debug.hh"
 
 /**
  * Trace level
@@ -58,7 +62,7 @@ void data_set_trace_level(int level)
 
 /****************************************************************************/
 /* Useful functions for data descriptors manipulation                       */
-/* <implemented in DIET_data.cc>                                            */
+/* <declared in dietTypes.hh>                                               */
 /****************************************************************************/
 
 
@@ -113,27 +117,6 @@ size_t data_sizeof(const corba_data_desc_t *desc)
 {
   size_t base_size = type_sizeof((diet_base_type_t) desc->base_type);
   size_t size;
-#if 0
-  switch(desc->base_type) {
-  case DIET_CHAR:
-  case DIET_BYTE:
-    base_size = sizeof(CORBA::Char); break;
-  case DIET_INT:
-    base_size = sizeof(CORBA::Long); break;
-  case DIET_LONGINT:
-    base_size = sizeof(CORBA::LongLong); break;
-  case DIET_FLOAT:
-    base_size = sizeof(CORBA::Float); break;
-  case DIET_DOUBLE:
-    base_size = sizeof(CORBA::Double); break;
-  case DIET_SCOMPLEX:
-    base_size = 2 * sizeof(CORBA::Float); break;
-  case DIET_DCOMPLEX:
-    base_size =  2 * sizeof(CORBA::Double); break;
-  default:
-    base_size = 0;
-  }
-#endif // 0
   switch (desc->specific._d()) {
   case DIET_SCALAR:
     size = 1; break;
@@ -154,59 +137,8 @@ size_t data_sizeof(const corba_data_desc_t *desc)
 
 
 /****************************************************************************/
-/* Useful functions for profile manipulation                                */
-/****************************************************************************/
-
-
-int profile_desc_cmp(const corba_profile_desc_t *p1,
-		     const corba_profile_desc_t *p2)
-{
-  int res;
-  if ((res = strcmp(p1->path, p2->path)))
-    return res;
-  if ((res = !((p1->last_in == p2->last_in)
-	       && (p1->last_inout == p2->last_inout)
-	       && (p1->last_out == p2->last_out)
-	       && (p1->param_desc.length() == p2->param_desc.length()))))
-    return res;
-  res = 0;
-  for (size_t i = 0; i < p1->param_desc.length(); i++) {
-    if ((res = !((p1->param_desc[i].type
-		  == p2->param_desc[i].type)
-		 && (p1->param_desc[i].base_type
-		     == p2->param_desc[i].base_type))))
-      return res;
-  }
-  return res;
-}
-
-
-int profile_match(const corba_profile_desc_t *sv_profile,
-		  const corba_profile_t *pb_profile)
-{
-  if (strcmp(sv_profile->path, pb_profile->path))
-    return 0;
-  if ((   (sv_profile->last_in             != pb_profile->last_in)
-       || (sv_profile->last_inout          != pb_profile->last_inout)
-       || (sv_profile->last_out            != pb_profile->last_out)
-       || (sv_profile->param_desc.length() != pb_profile->param_desc.length())))
-    return 0;
-  for (size_t i = 0; i < sv_profile->param_desc.length(); i++) {
-    if ((   (sv_profile->param_desc[i].type
-	     != pb_profile->param_desc[i].specific._d())
-	 || (sv_profile->param_desc[i].base_type
-	     != pb_profile->param_desc[i].base_type)))
-      return 0;
-  }
-  return 1;
-}
-
-
-
-extern "C" {
-
-/****************************************************************************/
 /* Useful functions for data descriptors                                    */
+/* <declared in dietTypes.hh>                                               */
 /****************************************************************************/
 
 
@@ -280,13 +212,88 @@ int file_desc_set(diet_data_desc_t *desc, diet_persistence_mode_t mode,
   desc->specific.file.path = path;
   if ((status = stat(path, &buf)))
     return status;
-  if (buf.st_mode != S_IFREG)
+  if (!(buf.st_mode & S_IFREG))
     return 2;
   desc->specific.file.size = (size_t) buf.st_size;
   return status;
 }
 
 
+/****************************************************************************/
+/* Useful functions for profile manipulation                                */
+/* <declared in dietTypes.hh>                                               */
+/****************************************************************************/
+
+
+int profile_desc_cmp(const corba_profile_desc_t *p1,
+		     const corba_profile_desc_t *p2)
+{
+  int res;
+  if ((res = strcmp(p1->path, p2->path)))
+    return res;
+  if ((res = !((p1->last_in == p2->last_in)
+	       && (p1->last_inout == p2->last_inout)
+	       && (p1->last_out == p2->last_out)
+	       && (p1->param_desc.length() == p2->param_desc.length()))))
+    return res;
+  res = 0;
+  for (size_t i = 0; i < p1->param_desc.length(); i++) {
+    if ((res = !((p1->param_desc[i].type
+		  == p2->param_desc[i].type)
+		 && (p1->param_desc[i].base_type
+		     == p2->param_desc[i].base_type))))
+      return res;
+  }
+  return res;
+}
+
+
+int profile_match(const corba_profile_desc_t *sv_profile,
+		  const corba_profile_t *pb_profile)
+{
+  if (strcmp(sv_profile->path, pb_profile->path))
+    return 0;
+  if ((   (sv_profile->last_in             != pb_profile->last_in)
+       || (sv_profile->last_inout          != pb_profile->last_inout)
+       || (sv_profile->last_out            != pb_profile->last_out)
+       || (sv_profile->param_desc.length() != pb_profile->param_desc.length())))
+    return 0;
+  for (size_t i = 0; i < sv_profile->param_desc.length(); i++) {
+    if ((   (sv_profile->param_desc[i].type
+	     != pb_profile->param_desc[i].specific._d())
+	 || (sv_profile->param_desc[i].base_type
+	     != pb_profile->param_desc[i].base_type)))
+      return 0;
+  }
+  return 1;
+}
+
+
+
+extern "C" {
+
+/****************************************************************************/
+/* Profile descriptor                                                       */
+/****************************************************************************/
+
+diet_profile_t *profile_alloc(int last_in, int last_inout, int last_out)
+{
+  diet_profile_t *res;
+  
+  res = new diet_profile_t;
+  res->last_in    = last_in;
+  res->last_inout = last_inout;
+  res->last_out   = last_out;
+  res->parameters = new diet_arg_t[last_out + 1];
+  return res;
+}
+
+int profile_free(diet_profile_t *profile)
+{
+  delete [] profile->parameters;
+  delete profile;
+  return 0;
+}
 
 
 /****************************************************************************/
