@@ -10,8 +10,8 @@
 /****************************************************************************/
 /*
  * $Log$
- * Revision 1.3  2003/02/04 10:08:22  pcombes
- * Apply Coding Standards
+ * Revision 1.4  2003/02/07 17:03:05  pcombes
+ * Apply Coding Standards.
  *
  * Revision 1.1  2002/12/03 19:08:24  pcombes
  * Update configure, update to FAST 0.3.15, clean CVS logs in files.
@@ -31,13 +31,13 @@ typedef int diet_mutex_t;
 void
 diet_mutex_initialize();
 void
-diet_mutex_create(int *);
+diet_mutex_create(int*);
 void
 diet_mutex_lock(int);
 void
 diet_mutex_unlock(int);
 void
-diet_mutex_free(int *);
+diet_mutex_free(int*);
 void
 diet_mutex_finalize();
 

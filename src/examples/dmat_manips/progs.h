@@ -3,14 +3,15 @@
 /* dmat_manips example: matrix manipulations programs                       */
 /*                                                                          */
 /*  Author(s):                                                              */
-/*    - Philippe COMBES           - LIP ENS-Lyon (France)                   */
+/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
 /*                                                                          */
-/*  This is part of DIET software.                                          */
-/*  Copyright (C) 2002 ReMaP/INRIA                                          */
-/*                                                                          */
+/* $LICENSE$                                                                */
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.5  2003/02/07 17:03:05  pcombes
+ * Apply Coding Standards.
+ *
  * Revision 1.4  2003/01/23 19:13:45  pcombes
  * Update to API 0.6.4
  *
@@ -24,7 +25,6 @@
  * Revision 1.1  2002/11/05 17:23:36  pcombes
  * FAST support: convertors implemented and compatible to --without-fast
  *               configure option, but still not tested with FAST !
- *
  ****************************************************************************/
 
 
@@ -56,10 +56,10 @@
  */
 
 inline int
-T(int m, int n, double *A, int rm)
+T(int m, int n, double* A, int rm)
 {
   size_t i, j;
-  double *tmp;
+  double* tmp = NULL;
 
   tmp = malloc(m*n*sizeof(double));
   memcpy(tmp, A, m*n*sizeof(double));
@@ -83,7 +83,7 @@ T(int m, int n, double *A, int rm)
  */
 
 inline int
-MatSUM(char tA, char tB, int m, int n, double *A, double *B, double *C)
+MatSUM(char tA, char tB, int m, int n, double* A, double* B, double* C)
 {
   size_t i, j;
   
@@ -129,8 +129,8 @@ MatSUM(char tA, char tB, int m, int n, double *A, double *B, double *C)
 
 inline int
 MatPROD(char tA, char tB,
-	int mA, int nA, double *A,
-	int nB, double *B, double *C)
+	int mA, int nA, double* A,
+	int nB, double* B, double* C)
 {
   size_t i, j, k;
   int mB = nA;
