@@ -94,21 +94,21 @@ public:
     acquire();
     state = true;
     }
-  ~ScopeLock(void) {
+  ~ReaderLockGuard(void) {
     release();
     }
-  int acquire(void){
+  void acquire(void){
     if (state == false){
       lock.readLock();
       state = true;
     }
     }
-  int release(void){
+  void release(void){
     if (state == true){
       lock.unlock();
-      state = false
+      state = false;
     }
-    }
+  }
 };
 
 //simple Scoped Lock
@@ -120,19 +120,19 @@ public:
     acquire();
     state = true;
     }
-  ~ScopeLock(void) {
+  ~WriterLockGuard(void) {
     release();
     }
-  int acquire(void){
+  void acquire(void){
     if (state == false){
       lock.writeLock();
       state = true;
     }
     }
-  int release(void){
+  void release(void){
     if (state == true){
       lock.unlock();
-      state = false
+      state = false;
     }
     }
 };
