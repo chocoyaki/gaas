@@ -1,5 +1,4 @@
 /****************************************************************************/
-/* $Id$ */
 /* Thread safe STL vector header                                            */
 /*                                                                          */
 /*  Author(s):                                                              */
@@ -7,10 +6,10 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/*
+/* $Id$
  * $Log$
- * Revision 1.4  2003/04/10 12:44:44  pcombes
- * Apply Coding Standards.
+ * Revision 1.5  2003/06/16 17:42:45  pcombes
+ * Fix header.
  *
  * Revision 1.3  2002/12/25 21:12:38  sdahan
  * removes some ambiguities. now compile with gcc 3.1

@@ -7,8 +7,11 @@
 #*                                                                          *#
 #* $LICENSE$                                                                *#
 #****************************************************************************#
-#* $Id: Makefile.am,v 1.2 2003/02/14 12:27:16 cpera Exp
+#* $Id$
 #* $Log$
+#* Revision 1.4  2003/06/16 17:41:27  pcombes
+#* Fix header.
+#*
 #* Revision 1.3  2003/04/10 11:11:03  pcombes
 #* Fix compilation in a build directory.
 #*
