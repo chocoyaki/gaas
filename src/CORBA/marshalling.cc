@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.37  2004/02/27 10:21:50  bdelfabr
+ * adding mrsh_data_id and mrsh_data_id_desc,
+ * modifying mrsh_data and umrsh_data to avoid memory copy
+ *
  * Revision 1.36  2003/10/10 11:12:29  mcolin
  * Fix bug in function mrsh_profile_to_in_args in the case
  * of a volatile parameter of type DIET_FILE in IN or INOUT mode.
@@ -234,9 +238,27 @@ mrsh_data(corba_data_t* dest, diet_data_t* src, int release)
   if(value == NULL)
     dest->value.length(0);
   else
-    dest->value.replace(size, size, value, release);
+    dest->value.replace(size, size, value, release); // 0 if persistent 1 elsewhere
 
   return 0;
+}
+
+/**************************************************************************
+ *  Marshall/ Unmarshall data handler                                     *
+ *************************************************************************/
+
+void
+mrsh_data_id_desc(corba_data_desc_t* dest, diet_data_desc_t* src){
+  dest->id.idNumber = CORBA::string_dup(src->id);
+  dest->id.state    = DIET_FREE;
+  dest->id.dataCopy = DIET_ORIGINAL;
+}
+
+
+void
+mrsh_data_id(corba_data_t* dest, diet_data_t* src){
+  mrsh_data_id_desc(&(dest->desc),&(src->desc));
+  dest->value.length(0); 
 }
 
 
@@ -338,7 +360,7 @@ unmrsh_data_desc(diet_data_desc_t* dest, const corba_data_desc_t* src)
 
 
 int
-unmrsh_data(diet_data_t* dest, corba_data_t* src)
+unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
 {
   if (unmrsh_data_desc(&(dest->desc), &(src->desc)))
     return 1;
@@ -353,26 +375,41 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src)
       pid_t pid = getpid();
       sprintf(out_path, "/tmp/DIET_%d_%s", pid,
 	      (file_name) ? (char*)(1 + file_name) : in_path);
-
       ofstream outfile(out_path);
-
 
       for (int i = 0; i < src->desc.specific.file().size; i++) {
 	outfile.put(src->value[i]);
       }
       CORBA::string_free(in_path);
       dest->desc.specific.file.path = out_path;
+     
     } else if (src->desc.specific.file().size != 0) {
       INTERNAL_WARNING(__FUNCTION__ << ": file structure is vicious");
     } else {
       dest->desc.specific.file.path = strdup("");
     }
   } else {
-    if (src->value.length() == 0) { // OUT case
+    if (src->value.length() == 0) {
+
       dest->value = malloc(data_sizeof(&(dest->desc)));
+ 
     } else {
-      CORBA::Boolean orphan = (src->desc.mode == DIET_VOLATILE);
-      dest->value = (char*)src->value.get_buffer(orphan);
+      if(upDown==0){ /** Need to know if it is in the client -> SeD way or in the SeD-> client way */
+	if (src->desc.mode != DIET_VOLATILE) {
+	  //       	int size = data_sizeof(&(src->desc));
+	  //	cout << "value of data size = " << size << endl;
+	  //char *p =(char *)malloc(size*sizeof(char));
+	  //for(int i=0; i < size; i++)
+	  //  p[i] = src->value[i];
+	  //  dest->value = p; //memcopy
+	  dest->value = (char*)src->value.get_buffer(0);
+	} else {
+	  CORBA::Boolean orphan = (src->desc.mode == DIET_VOLATILE);
+	  dest->value = (char*)src->value.get_buffer(orphan);
+	} 
+      } else { // for out args when send to client
+	dest->value = (char*)src->value.get_buffer(1);
+      }
     }
   }
   return 0;
@@ -414,9 +451,10 @@ mrsh_pb_desc(corba_pb_desc_t* dest, diet_profile_t* src)
   dest->param_desc.length(src->last_out + 1);
 
   for (int i = 0; i <= src->last_out; i++) {
-
-    mrsh_data_desc(&(dest->param_desc[i]), &(src->parameters[i].desc));
-
+    if(!src->parameters[i].desc.id)
+      mrsh_data_desc(&(dest->param_desc[i]), &(src->parameters[i].desc));
+    else
+      mrsh_data_id_desc(&(dest->param_desc[i]), &(src->parameters[i].desc));
   }
 
   return 0;
@@ -437,25 +475,29 @@ mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src)
   dest->last_out   = src->last_out;
   dest->parameters.length(src->last_out + 1);
 
-  for (i = 0; i <= src->last_inout; i++) {
-    if (src->parameters[i].value == NULL &&
-	!diet_is_persistent(src->parameters[i]) &&
-	src->parameters[i].desc.generic.type != DIET_FILE) {
-      // Warning : For DIET_FILE parameters, value field is NULL
-      // although it is volatile
-      ERROR(__FUNCTION__ << ": IN or INOUT parameter "
-	    << i << " is volatile but contains no data", 1);
-    }
-    if (mrsh_data(&(dest->parameters[i]), &(src->parameters[i]), 0))
-      return 1;
-  }
-  // For OUT parameters, marshal only descriptions for checking
-  // purpose on SeD side, and let data emty.
-  for (; i <= src->last_out; i++) {
-    if (mrsh_data_desc(&(dest->parameters[i].desc), &(src->parameters[i].desc)))
-      return 1;
-    dest->parameters[i].value.replace(0, 0, NULL, 1);
-  }
+   for (i = 0; i <= src->last_inout; i++) {
+     if(src->parameters[i].desc.id) {
+       mrsh_data_id(&(dest->parameters[i]), &(src->parameters[i]));
+     } else {
+       if (src->parameters[i].value == NULL &&
+	   !diet_is_persistent(src->parameters[i]) &&
+	   src->parameters[i].desc.generic.type != DIET_FILE) {
+	 // Warning : For DIET_FILE parameters, value field is NULL
+	 // although it is volatile
+	 ERROR(__FUNCTION__ << ": IN or INOUT parameter "
+	       << i << " is volatile but contains no data", 1);
+       } else {
+	 if (mrsh_data(&(dest->parameters[i]), &(src->parameters[i]), 0))
+	return 1;
+       }
+     } 
+   } 
+    
+   for (; i <= src->last_out; i++) {
+     if (mrsh_data_desc(&(dest->parameters[i].desc), &(src->parameters[i].desc)))
+       return 1;
+     dest->parameters[i].value.replace(0, 0, NULL, 1);
+   }
   return 0;
 }
 
@@ -552,7 +594,7 @@ unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
       if (!src_params[arg_idx]) {
 	src_params[arg_idx] = new diet_data_t;
 
-	unmrsh_data(src_params[arg_idx], &(src->parameters[arg_idx]));
+	unmrsh_data(src_params[arg_idx], &(src->parameters[arg_idx]),0); 
 
       } else if (cvt->arg_convs[i].f == DIET_CVT_IDENTITY) {
 	duplicate_value = 1;
@@ -673,7 +715,7 @@ unmrsh_out_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb)
 
   // Unmarshal OUT parameters
   for (; i <= dpb->last_out; i++) {
-    unmrsh_data(&(dpb->parameters[i]), &(cpb->parameters[i]));
+    unmrsh_data(&(dpb->parameters[i]), &(cpb->parameters[i]),1);
   }
   return 0;
 }
