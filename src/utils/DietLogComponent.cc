@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2004/07/29 18:53:06  rbolze
+ * make some change to send more info to the logService.
+ *
  * Revision 1.2  2004/03/02 17:38:07  rbolze
  * fix a little inversion between DATA_RELEASED and DATA_STORED in tagNames tab
  *
@@ -402,7 +405,16 @@ DietLogComponent::getLocalTime() {
   ret.msec = tv.tv_usec / 1000;
   return ret;
 }
-
+/**
+ * Count the number of Digits in a unsigned long
+ */
+ 
+static int num_Digits(unsigned long num){
+	if ( num < 10 )
+		return 1;
+	else
+		return 1+num_Digits(num/10);
+}
 
 /**
  * "Synchronised" functions with errorhandling
@@ -510,33 +522,67 @@ void
 DietLogComponent::logAskForSeD(const corba_request_t* request) {
   if (tagFlags[1]) {
     // FIXME: add request parameters (size of request arguments?)
-    log(tagNames[1], request->pb.path);
+    char* s;
+    s = new char[strlen(request->pb.path)+num_Digits(request->reqID)+2]; 
+    sprintf(s,"%s %ld",(const char *)(request->pb.path),(unsigned long)(request->reqID));
+    log(tagNames[1], s);
+    delete s;
   }
 }
 
 void
 DietLogComponent::logSedChosen(const corba_request_t* request,
-			       const corba_response_t* resonse) {
+			       const corba_response_t* response) {
   if (tagFlags[2]) {
-    // FIXME: add list/outline of chosen servers ?
-    log(tagNames[2], request->pb.path);
+    // FIXME: add the complet list/outline of chosen servers ?
+    char* s;
+    //cout << "Number of Server = "<< response->servers.length() << endl;
+    //cout << "Name of Server : "<< response->servers[0].loc.hostName <<endl;
+    if (response->servers.length()>0){
+    s = new char[strlen(request->pb.path)
+	    +num_Digits(request->reqID)
+	    +num_Digits(response->servers.length())
+	    +strlen(response->servers[0].loc.hostName)	    
+	    +4]; 
+    sprintf(s,"%s %ld %ld %s",
+	    (const char *)(request->pb.path),
+	    (unsigned long)(request->reqID),
+	    (unsigned long)(response->servers.length()),
+	    (const char *)(response->servers[0].loc.hostName) );
+    }else{
+     s = new char[strlen(request->pb.path)
+	    +num_Digits(request->reqID)
+	    +num_Digits(response->servers.length())
+	    +3];	  
+     sprintf(s,"%s %ld %ld",
+	    (const char *)(request->pb.path),
+	    (unsigned long)(request->reqID),
+	    (unsigned long)(response->servers.length()) );
+     }
+    log(tagNames[2], s);
   }
 }
 
 void
 DietLogComponent::logBeginSolve(const char* path,
-				const corba_profile_t* problem) {
+				const corba_profile_t* problem, const unsigned long reqID ) {
   if (tagFlags[3]) {
     // FIXME: print problem (argument size?)
-    log(tagNames[3], path);
+    char* s;
+    s = new char[strlen(path)+num_Digits(reqID)+2]; 
+    sprintf(s,"%s %ld",(const char *)(path),(unsigned long)(reqID));
+    log(tagNames[3], s);
   }
 }
 
 void
 DietLogComponent::logEndSolve(const char* path,
-				const corba_profile_t* problem) {
+				const corba_profile_t* problem, const unsigned long reqID ) {
   if (tagFlags[4]) {
-    log(tagNames[4], path);
+    char* s;
+    s = new char[strlen(path)+num_Digits(reqID)+2]; 
+    sprintf(s,"%s %ld",(const char *)(path),(unsigned long)(reqID));
+    log(tagNames[4], s);
   }
 }
 
@@ -589,7 +635,7 @@ void
 DietLogComponent::logMem(double mem) {
   if (tagFlags[9]) {
     char buf[20];
-    sprintf(buf,"%f",mem);
+    sprintf(buf,"%14.4f",mem);
     log(tagNames[9], buf);
   }
 }
@@ -598,7 +644,7 @@ void
 DietLogComponent::logLoad(double load) {
   if (tagFlags[10]) {
     char buf[20];
-    sprintf(buf,"%f",load);
+    sprintf(buf,"%14.4f",load);
     log(tagNames[10], buf);
   }
 }
@@ -607,7 +653,7 @@ void
 DietLogComponent::logLatency(double latency) {
   if (tagFlags[11]) {
     char buf[20];
-    sprintf(buf,"%f",latency);
+    sprintf(buf,"%14.4f",latency);
     log(tagNames[11], buf);
   }
 }
@@ -616,7 +662,9 @@ void
 DietLogComponent::logBandwidth(double bandwidth) {
   if (tagFlags[12]) {
     char buf[20];
-    sprintf(buf,"%f",bandwidth);
+    sprintf(buf,"%14.4f",bandwidth);
     log(tagNames[12], buf);
   }
+
 }
+

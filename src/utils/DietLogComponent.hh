@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2004/07/29 18:53:06  rbolze
+ * make some change to send more info to the logService.
+ *
  * Revision 1.1  2004/03/01 18:56:03  rbolze
  * make Diet objects as LogComponent for LogCentral
  * DietLogComponent objects can contact LogCentral and transmit log message
@@ -228,8 +231,8 @@ public:
    * Solve a problem
    * (No ID here, ID exists only in async and is client-specific)
    */
-  void logBeginSolve(const char* path, const corba_profile_t* problem);
-  void logEndSolve(const char* path, const corba_profile_t* problem);
+  void logBeginSolve(const char* path, const corba_profile_t* problem, const unsigned long reqID);
+  void logEndSolve(const char* path, const corba_profile_t* problem, const unsigned long reqID);
 
   /**
    * Track data movements
