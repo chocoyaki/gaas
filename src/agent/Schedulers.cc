@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2004/10/15 11:49:33  hdail
+ * Modified tree update algorithm in aggregate to reduce unecessary comparisons.
+ *
  * Revision 1.6  2004/10/15 08:21:17  hdail
  * - Removed references to corba_response_t->sortedIndexes - no longer useful.
  * - Removed sort functions -- they have been replaced by aggregate and are never
@@ -176,7 +179,10 @@ Scheduler::aggregate(corba_response_t& aggrResp, int* lastAggregated,
   node_t* root;
   /* Point at the leaves array. */
   level_t leaves;
-
+  /* Left and right storage for nodes for comparisons */
+  node_t* lft;
+  node_t* rht;
+  
   /** Print the tree on standard output */
 #define TRACE_TREE(levels,pow)                                                \
   for (size_t i = 0; i <= pow; i++) {				              \
@@ -187,42 +193,34 @@ Scheduler::aggregate(corba_response_t& aggrResp, int* lastAggregated,
     cout << endl;							      \
   }
 
-
-  /** Update the tree, ie propagate minima down to the root. */
-#define UPDATE_TREE(levels,pow,responses) \
-    for (int i = pow - 1; i >= 0; i--) {                                       \
-      for (int j = 0; j < (1 << i); j++) {				       \
-	node_t* fst = &((levels[i + 1])[2*j]);				       \
-	node_t* snd = &((levels[i + 1])[2*j + 1]);			       \
-									       \
-	if (fst->resp_idx == -1)					       \
-	  (levels[i])[j] = *snd;					       \
-	else if (snd->resp_idx == -1)					       \
-	  (levels[i])[j] = *fst;					       \
-	else {								       \
-	  int cmp =							       \
-	    (*compare)(&(fst->srv_idx),                                        \
-		       &(snd->srv_idx),                                        \
-		       &(responses[fst->resp_idx].servers),		       \
-		       &(responses[snd->resp_idx].servers),		       \
-		       this->cmpInfo);					       \
-	  switch (cmp) {						       \
-	  case COMP_CANNOT_TREAT_FIRST:					       \
-	  case COMP_SECOND_IS_INF:					       \
-	    (levels[i])[j] = *snd;        break;			       \
-	  case COMP_CANNOT_TREAT_SECOND:				       \
-	  case COMP_FIRST_IS_INF:					       \
-	  case COMP_EQUAL:                /* choose the first when equal */    \
-	    (levels[i])[j] = *fst;        break;			       \
-	  case COMP_CANNOT_TREAT_BOTH:					       \
-	    (levels[i])[j].resp_idx = -1; break;			       \
-	  default:							       \
-	    INTERNAL_WARNING("compare returned wrong value");		       \
-	    (levels[i])[j].resp_idx = -1;				       \
-	  }								       \
-	}								       \
-      }									       \
-    }
+  /** Compare 2 nodes */
+#define COMPARE_NODES(levels,pow,responses,fst,snd,parent)                     \
+  if (fst->resp_idx == -1)					               \
+    parent = *snd;		        			               \
+  else if (snd->resp_idx == -1)					               \
+    parent = *fst;					                       \
+  else {								       \
+    int cmp =							               \
+      (*compare)(&(fst->srv_idx),                                              \
+		 &(snd->srv_idx),                                              \
+		 &(responses[fst->resp_idx].servers),		               \
+		 &(responses[snd->resp_idx].servers),		               \
+		 this->cmpInfo);					       \
+    switch (cmp) {						               \
+        case COMP_CANNOT_TREAT_FIRST:					       \
+        case COMP_SECOND_IS_INF:					       \
+          parent = *snd;        break;	          		               \
+	case COMP_CANNOT_TREAT_SECOND:				               \
+	case COMP_FIRST_IS_INF:					               \
+	case COMP_EQUAL:                /* choose the first when equal */      \
+	  parent = *fst;        break;			                       \
+	case COMP_CANNOT_TREAT_BOTH:					       \
+	  parent.resp_idx = -1; break;			                       \
+	default:							       \
+	  INTERNAL_WARNING("compare returned wrong value");		       \
+	  parent.resp_idx = -1;				                       \
+    }								               \
+  }
 
   SCHED_TRACE_FUNCTION("nb_responses=" << nb_responses);
 
@@ -256,10 +254,18 @@ Scheduler::aggregate(corba_response_t& aggrResp, int* lastAggregated,
     (levels[pow])[idx].resp_idx = idx;
     (levels[pow])[idx].srv_idx  = lastAggr[idx] + 1;
   }
+  /* fill in rest of leaves with -1 */
   for (; (int)idx < (1 << pow); idx++) {
     (levels[pow])[idx].resp_idx = -1;
   }
-  UPDATE_TREE(levels,pow,responses);
+  /* init the other levels of the tree */
+  for (int i = pow - 1; i >= 0; i--) {
+    for (int j = 0; j < (1 << i); j++) {
+      lft = &((levels[i + 1])[2*j]);
+      rht = &((levels[i + 1])[2*j + 1]);
+      COMPARE_NODES(levels,pow,responses,lft,rht,(levels[i])[j]);
+    }
+  }
 
   if (TRACE_LEVEL >= TRACE_ALL_STEPS) {
     cout << "Initial tree:" << endl;
@@ -267,7 +273,6 @@ Scheduler::aggregate(corba_response_t& aggrResp, int* lastAggregated,
   }
 
   /* Perform the aggregation itself. */
-
   while ((root->resp_idx != -1)
 	 && (*lastAggregated < ((int)aggrResp.servers.length() - 1))) {
     size_t new_srv_idx;
@@ -279,14 +284,37 @@ Scheduler::aggregate(corba_response_t& aggrResp, int* lastAggregated,
     if (new_srv_idx >= responses[root->resp_idx].servers.length()){
       leaves[root->resp_idx].resp_idx = -1; // this response is aggregated
     }
-    UPDATE_TREE(levels,pow,responses);
+
+   /** Update the tree, ie propogate changes for selected node up the tree. 
+    * We use root, which was the selected node, as guide for which parts of 
+    * tree need to be updated.
+    */
+    size_t changed_srv_idx = root->resp_idx;
+    int parent_loc;
+    
+    for (int i = pow; i > 0; i--) {
+      if ((changed_srv_idx & 1) == 0) {  /* even */
+        lft = &((levels[i])[changed_srv_idx]);
+        rht = &((levels[i])[changed_srv_idx+1]);
+      } else {                           /* odd */
+        lft = &((levels[i])[changed_srv_idx-1]);
+        rht = &((levels[i])[changed_srv_idx]);
+      }
+      parent_loc = changed_srv_idx >> 1; /* parent location in bin tree */
+      COMPARE_NODES(levels,pow,responses,lft,rht,(levels[i-1])[parent_loc]);
+
+      /* Find parent srv_idx in binary tree */
+      changed_srv_idx = parent_loc;
+    }
+
     if (TRACE_LEVEL >= TRACE_ALL_STEPS){
       TRACE_TREE(levels,pow);
     }
   }
   return 0;
 
-#undef UPDATE_TREE
+#undef COMPARE_NODES
+//#undef UPDATE_TREE
 #undef TRACE_TREE
 
 }
