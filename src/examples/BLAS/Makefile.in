@@ -12,6 +12,9 @@
 #****************************************************************************#
 #*
 #* $Log$
+#* Revision 1.6  2002/11/06 16:09:24  pcombes
+#* Fix bug in BLASLIBS
+#*
 #* Revision 1.5  2002/10/03 17:58:16  pcombes
 #* Add trace levels (for Bert): traceLevel = n can be added in cfg files.
 #* An agent son can now be killed (^C) without crashing this agent.
@@ -32,10 +35,11 @@
 TOP = ../../..
 include $(TOP)/src/config.mk
 
-BLASLIBS = -lm -lblacsCinit-mpich -lblacs-mpich -lblas \
-	   -lscalapack-mpich -lm -lmpi -lg2c
+BLASLIBS  = -lm -lblas -lm -lg2c
+PBLASLIBS = -lm -lblacsCinit-mpich -lblacs-mpich -lblas \
+	    -lscalapack-mpich -lm -lmpi -lg2c
 
-DIETLIBS = -L@PREFIX@/lib
+DIETLIBS  = -L@PREFIX@/lib
 
 CC = gcc
 INCLUDE = -I$(TOP)/include -I$(FASTTOP)/include
@@ -59,7 +63,8 @@ BLAS_client.o:	BLAS_client.c
 dgemm:
 	$(MAKE) client_server -C $@ -f ../Makefile TOP=../$(TOP)
 pdgemm:
-	$(MAKE) client_server -C $@ -f ../Makefile TOP=../$(TOP) CC=mpicc
+	$(MAKE) client_server -C $@ -f ../Makefile \
+		BLASLIBS=$(PBLASLIBS) TOP=../$(TOP) CC=mpicc
 
 
 client_server:	client server
