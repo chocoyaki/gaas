@@ -7,6 +7,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2004/03/01 18:38:10  rbolze
+ * remove function getOID() end setOID(..)
+ * change in signature of activate(..)
+ * this change are provide by cpontvieux
+ *
  * Revision 1.10  2003/10/06 10:04:00  cpontvie
  * Moving the interruption manager here
  * The current interruption is mapped on SIGINT (Ctrl+C)
@@ -35,7 +40,7 @@
 #include <setjmp.h>
 #include "DIET_config.h"
 
-#define INTERRUPTION_MGR 1
+#define INTERRUPTION_MGR 0
 
 /**
  * This class unifies the interface to all ORBs supported by DIET.
@@ -53,10 +58,8 @@ public:
   destroy();
 
   static int
-  activate(PortableServer::ServantBase* obj);
-
-  static int
-  deactivate();
+  activate(PortableServer::ServantBase* obj,
+           PortableServer::ObjectId_var* idVar_ptr = NULL);
 
   static int
   wait();
@@ -92,14 +95,6 @@ public:
 
   static PortableServer::POA_var
   getPOA_BIDIR();
-
-  // To access to the ObjectID of the activate agent.
-  static PortableServer::ObjectId_var
-  getOID();
-
-  // To set the ObjectID of the activate agent.
-  static void
-  setOID(PortableServer::ObjectId_var oid);
 
 private:
 
