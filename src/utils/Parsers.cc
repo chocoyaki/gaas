@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2003/07/25 20:21:25  pcombes
+ * Remove unused addr variable in checkFASTEntries.
+ *
  * Revision 1.11  2003/07/04 09:48:07  pcombes
  * Use new ERROR and WARNING macros. Add macro PARAM to shorten lines.
  *
@@ -196,8 +199,6 @@ Parsers::checkFASTEntries()
   size_t use(0);
 
 #if HAVE_FAST
-
-  Results::Address* addr;
 
   if (PARAM(FASTUSE).value == NULL) {
     PARSERS_WARNING(PARAM(FASTUSE).kwd << " is missing.\n As DIET was compiled"
