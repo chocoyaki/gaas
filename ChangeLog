@@ -1,4 +1,65 @@
+diet (0.7 beta)
 
-diet (0.7) unstable; urgency=low
-  * use GNU autotools.
- -- Christophe PERA <christophe.pera@ens-lyon.fr>  Thu, 28 november 2002 11:04:36 +0100
+* GNU autotools: automake and autoconf.
+  - Apparition of this ChangeLog.
+  - Ascendant compatibility with the old "manual" configure + all options for
+    abling/disabling modules (doc, examples, examples/BLAS and
+    examples/ScaLAPACK), for giving omniORB and FAST paths, installation, etc.
+  - For maintainers, three other modules are available: stats, Cichlid (as in
+    0.6.4), and multi-MA.
+
+* Data persistency.
+  Add the mode DIET_PERSISTENT_RETURN, which means "keep the data, and send me
+  back a copy". Add the string id field in data description.
+
+* Separation of LA and MA.
+  Two different programs are now built: DIET_LA and DIET_MA. Of course the
+  configuration file is modified (the first line is obsolete).
+
+* Contract checking.
+  The client asks the server for a re-estimation of the request just before it
+  invokes the solve. But the data transfer does not begin at the same time yet.
+
+* Communication structures.
+  - The IDL types are reorganized to take into account the latest discussions
+    about the algorithms to be implemented in DIET. There is no need of a
+    decision type left (the client needs complete information of a response for
+    contract checking).
+  - The attributes of a server include NWS forecasts if FAST was not able to
+    estimate the computation time, and a sequence of communication times (one
+    for each argument, even OUT ones, when it is possible to guess their
+    sizes).
+  - The data loc are removed. Let us the data manager take care of that.
+  
+* Scheduling
+  - Big purge in the agent ! It does not compute the persistent data transfer
+    times (which is done at the SeD level by the data manager), but only the
+    non-persstent ones, assuming the transfer time is approximately the one
+    through all nodes of hierarchy downto the SeD.
+  - The scheduling part of the agent is deported into various scheduling
+    classes. The final goal is to easily switch from a scheduler to another, and
+    make it depend on the request itself.
+    The various scheduling classes are structured as follows:
+     there are Schedulers, which can sort and aggregate servers that have similar
+     features (such as the ones that got a FAST estimation, the ones that have
+     only NWS forecasts, etc.),
+     and there is a GlobalScheduler, which applies the schedulers in a given
+     order for sorting or aggregating.
+  - Some schedulers are defined (with their interface) in Schedulers.hh, and
+    GlobalSchedulers are defined in GlobalSchedulers.hh. Their sort method is
+    dead code so far (only aggregate is used, since all agents give their parent
+    a sorted list of servers).
+
+* CORBA part:
+  - The ORBMgr is the only interface to the ORB.
+  - New IDL files are added:
+    Agent, MasterAgent and LocalAgent.idl for the LA/MA separation,
+    but also registration_and_request, response.idl, since communication
+    structures have been reorganized.
+  - A check-contract mechanism is implemented to avoid crossed-request issues.
+
+* Utils part:
+  - Merge all traceLevels into one static variable in the module debug.
+  - Add Parsers, a class that performs the parsing of configuration files.
+  - Manage the string ID for data.
+
