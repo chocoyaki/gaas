@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.29  2004/04/19 08:52:42  rbolze
+#* add a line to informe you if you have or not configure with the logservice option
+#*
 #* Revision 1.28  2004/03/01 18:21:45  rbolze
 #* add the option --enable-logservice
 #*
@@ -467,6 +470,14 @@ fi
 # MULTI MA
 printf " - multi-MA:        " | tee -a config.log
 if test "x$enable_multi_MA" = "xyes"
+then
+  echo "yes" | tee -a config.log
+else
+  echo "no" | tee -a config.log
+fi
+# LOGSERVICE
+printf " - LogService:      " | tee -a config.log
+if test "x$enable_logservice" = "xyes"
 then
   echo "yes" | tee -a config.log
 else
