@@ -1,5 +1,4 @@
 /****************************************************************************/
-/* $Id$ */
 /* DIET data interface for clients as well as servers                       */
 /*                                                                          */
 /*  Author(s):                                                              */
@@ -7,8 +6,11 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/*
+/* $Id$
  * $Log$
+ * Revision 1.15  2003/04/10 12:46:03  pcombes
+ * Manage data ID (strings).
+ *
  * Revision 1.14  2003/02/19 10:48:07  cpera
  * Add stdlib.h include for gcc 2.95.3 with SunOS.
  *
@@ -62,20 +64,10 @@ using namespace std;
 #include "DIET_data.h"
 #include "DIET_client.h"
 #include "DIET_server.h"
-#include "types.hh"
+#include "common_types.hh"
 #include "dietTypes.hh"
 #include "debug.hh"
 
-/**
- * Trace level
- */
-static int TRACELEVEL;
-
-void
-data_set_trace_level(int level)
-{
-  TRACELEVEL = level;
-}
 
 
 /****************************************************************************/
@@ -163,53 +155,57 @@ data_sizeof(const corba_data_desc_t* desc)
 /* <declared in dietTypes.hh>                                               */
 /****************************************************************************/
 
-
-int
-scalar_set_desc(diet_data_desc_t* desc, diet_persistence_mode_t mode,
-		diet_base_type_t base_type, void* value)
+inline int
+generic_set_desc(diet_data_desc_t* desc, char* const id,
+		 const diet_persistence_mode_t mode,
+		 const diet_data_type_t type, const diet_base_type_t base_type)
 {
   int status(0);
   if (!desc)
     return 1;
-  if ((status = diet_generic_desc_set(&(desc->generic),
-				      DIET_SCALAR, base_type)))
+  if ((status = diet_generic_desc_set(&(desc->generic), type, base_type)))
     return status;
+  if (id != NULL)
+    desc->id = id;
   if (mode != DIET_PERSISTENCE_MODE_COUNT)
     desc->mode = mode;
+  return status;
+}
+
+int
+scalar_set_desc(diet_data_desc_t* desc, char* const id,
+		const diet_persistence_mode_t mode,
+		const diet_base_type_t base_type, void* const value)
+{
+  int status(0);
+  if ((status = generic_set_desc(desc, id, mode, DIET_SCALAR, base_type)))
+    return status;
   desc->specific.scal.value = value;
   return status;
 }
 
 int
-vector_set_desc(diet_data_desc_t* desc, diet_persistence_mode_t mode,
-		diet_base_type_t base_type, size_t size)
+vector_set_desc(diet_data_desc_t* desc, char* const id,
+		const diet_persistence_mode_t mode,
+		const diet_base_type_t base_type, const size_t size)
 {
   int status(0);
-  if (!desc)
-    return 1;
-  if ((status = diet_generic_desc_set(&(desc->generic),
-				      DIET_VECTOR, base_type)))
+  if ((status = generic_set_desc(desc, id, mode, DIET_VECTOR, base_type)))
     return status;
-  if (mode != DIET_PERSISTENCE_MODE_COUNT)
-    desc->mode = mode;
   if (size != 0)
     desc->specific.vect.size = size;
   return status;
 }
 
 int
-matrix_set_desc(diet_data_desc_t* desc, diet_persistence_mode_t mode,
-		diet_base_type_t base_type, size_t nb_r, size_t nb_c,
-		diet_matrix_order_t order)
+matrix_set_desc(diet_data_desc_t* desc, char* const id,
+		const diet_persistence_mode_t mode,
+		const diet_base_type_t base_type, const size_t nb_r,
+		const size_t nb_c, const diet_matrix_order_t order)
 {
   int status(0);
-  if (!desc)
-    return 1;
-  if ((status = diet_generic_desc_set(&(desc->generic),
-				      DIET_MATRIX, base_type)))
+  if ((status = generic_set_desc(desc, id, mode, DIET_MATRIX, base_type)))
     return status;
-  if (mode != 0)
-    desc->mode = mode;
   if (nb_r != 0)
     desc->specific.mat.nb_r = nb_r;
   if (nb_c != 0)
@@ -220,17 +216,12 @@ matrix_set_desc(diet_data_desc_t* desc, diet_persistence_mode_t mode,
 }
 
 int
-string_set_desc(diet_data_desc_t* desc, diet_persistence_mode_t mode,
-		size_t length)
+string_set_desc(diet_data_desc_t* desc, char* const id,
+		const diet_persistence_mode_t mode, const size_t length)
 {
   int status(0);
-  if (!desc)
-    return 1;
-  if ((status = diet_generic_desc_set(&(desc->generic),
-				      DIET_STRING, DIET_CHAR)))
+  if ((status = generic_set_desc(desc, id, mode, DIET_STRING, DIET_CHAR)))
     return status;
-  if (mode != DIET_PERSISTENCE_MODE_COUNT)
-    desc->mode = mode;
   if (length != 0)
     desc->specific.str.length = length;
   return status;
@@ -238,17 +229,13 @@ string_set_desc(diet_data_desc_t* desc, diet_persistence_mode_t mode,
 
 /* Computes the file size */
 int
-file_set_desc(diet_data_desc_t* desc, diet_persistence_mode_t mode, char* path)
+file_set_desc(diet_data_desc_t* desc, char* const id,
+	      const diet_persistence_mode_t mode, char* const path)
 {
   int status(0);
   struct stat buf;
-  if (!desc)
-    return 1;
-  if ((status = diet_generic_desc_set(&(desc->generic),
-				      DIET_FILE, DIET_CHAR)))
+  if ((status = generic_set_desc(desc, id, mode, DIET_FILE, DIET_CHAR)))
     return status;
-  if (mode != DIET_PERSISTENCE_MODE_COUNT)
-    desc->mode = mode;
   if (path) {
     desc->specific.file.path = path;
     if ((status = stat(path, &buf)))
@@ -347,6 +334,8 @@ diet_profile_alloc(int last_in, int last_inout, int last_out)
   res->last_inout = last_inout;
   res->last_out   = last_out;
   res->parameters = new diet_arg_t[last_out + 1];
+  for (int i = 0; i <= last_out; i++)
+    res->parameters[i].desc.id = NULL;
   return res;
 }
 
@@ -363,14 +352,21 @@ diet_profile_free(diet_profile_t* profile)
 /* Utils functions for setting parameters of a problem description          */
 /****************************************************************************/
 
+#define get_id(id,arg)      \
+  char* id;                 \
+  if (!arg)		    \
+    return 1;		    \
+  if (arg->desc.id == NULL) \
+    id = strdup(no_id);	    \
+  else			    \
+    id = arg->desc.id
+
 int
 diet_scalar_set(diet_arg_t* arg, void* value, diet_persistence_mode_t mode,
 		diet_base_type_t base_type)
 {
   int status(0);
-  if (!arg)
-    return 1;
-  if ((status = scalar_set_desc(&(arg->desc), mode, base_type, value)))
+  if ((status = scalar_set_desc(&(arg->desc), NULL, mode, base_type, value)))
     return status;
   arg->value = value;
   return status;
@@ -381,9 +377,7 @@ diet_vector_set(diet_arg_t* arg, void* value, diet_persistence_mode_t mode,
 		diet_base_type_t base_type, size_t size)
 {
   int status(0);
-  if (!arg)
-    return 1;
-  if ((status = vector_set_desc(&(arg->desc), mode, base_type, size)))
+  if ((status = vector_set_desc(&(arg->desc), NULL, mode, base_type, size)))
     return status;
   arg->value = value;
   return status;
@@ -395,9 +389,7 @@ diet_matrix_set(diet_arg_t* arg, void* value, diet_persistence_mode_t mode,
 		size_t nb_rows, size_t nb_cols, diet_matrix_order_t order)
 {
   int status(0);
-  if (!arg)
-    return 1;
-  if ((status = matrix_set_desc(&(arg->desc), mode, base_type,
+  if ((status = matrix_set_desc(&(arg->desc), NULL, mode, base_type,
 				nb_rows, nb_cols, order)))
     return status;
   arg->value = value;
@@ -409,9 +401,7 @@ diet_string_set(diet_arg_t* arg, char* value, diet_persistence_mode_t mode,
 		size_t length)
 {
   int status(0);
-  if (!arg)
-    return 1;
-  if ((status = string_set_desc(&(arg->desc), mode, length)))
+  if ((status = string_set_desc(&(arg->desc), NULL, mode, length)))
     return status;
   arg->value = value;
   return status;
@@ -422,9 +412,7 @@ int
 diet_file_set(diet_arg_t* arg, diet_persistence_mode_t mode, char* path)
 {
   int status(0);
-  if (!arg)
-    return 1;
-  if ((status = file_set_desc(&(arg->desc), mode, path)))
+  if ((status = file_set_desc(&(arg->desc), NULL, mode, path)))
     return status;
   arg->value = NULL;
   return status;
