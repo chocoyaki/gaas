@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2003/09/25 10:00:52  cpera
+ * Fix bugs on deleteAsyncCall function and add new WARNING messages.
+ *
  * Revision 1.12  2003/09/23 14:56:50  cpera
  * Delete logs and correct a loop.
  *
@@ -83,7 +86,7 @@ int CallAsyncMgr::addAsyncCall (diet_reqID_t reqID, diet_profile_t* dpt)
 int CallAsyncMgr::deleteAsyncCall(diet_reqID_t reqID) 
 {
   WriterLockGuard r(callAsyncListLock);
-  return deleteAsyncCall(reqID);
+  return deleteAsyncCallWithoutLock(reqID);
 }
 
 /*********************************************************************
@@ -121,8 +124,14 @@ int CallAsyncMgr::deleteAsyncCallWithoutLock(diet_reqID_t reqID)
       }
       caList.erase(reqID);
     }
+    else {
+      WARNING(__FUNCTION__ << ":There is no request ID (" << reqID << " registered");
+      fflush(stderr);
+    }
   }
   catch(exception ex){
+    WARNING("exception caught in " << __FUNCTION__ << " , what=" << ex.what());
+    fflush(stderr);
   }
   return k; 
 }
@@ -158,21 +167,9 @@ int CallAsyncMgr::addWaitAllRule()
     // get lock on condition/waitRule
     return CallAsyncMgr::Instance()->addWaitRule(rule);
   }
-  catch (const CORBA::Exception &e){
-    // Process any other User exceptions. Use the .id() method to
-    // record or display useful information
-    CORBA::Any tmp;
-    tmp <<= e;
-    CORBA::TypeCode_var tc = tmp.type();
-    const char * p = tc->name();
-    if (*p != '\0') cout << "diet_wait_or async Caught exception : " << p << endl;
-    else cout << "diet_wait_or async Caught exception : " << tc->id() << endl;
-    fflush(stdout);
-    return -1;
-  }  
   catch (const exception& e){
-    cout << "Unexpected exception , what=" << e.what() << endl;
-    fflush(stdout);
+    WARNING("exception caught in " << __FUNCTION__ << " , what=" << e.what());
+    fflush(stderr);
     return -1;
   }
 }
@@ -226,26 +223,19 @@ int CallAsyncMgr::addWaitAnyRule(diet_reqID_t* IDptr)
       case STATUS_ERROR:
         return STATUS_ERROR;
       default:
-        return -1; // Unexcpected error, no value describing it (enum request_status_t)
-        // NOTES: Be carefull, there may be others rules
-        // using some of this reqID(AsyncCall)
-        // So, carefull using diet_cancel
+        {
+          WARNING(__FUNCTION__ << "unexpected error in addWaitRule return value.");
+          fflush(stderr);
+          return -1; // Unexcpected error, no value describing it (enum request_status_t)
+          // NOTES: Be carefull, there may be others rules
+          // using some of this reqID(AsyncCall)
+          // So, carefull using diet_cancel
+        }
     }
   }
-  catch (const CORBA::Exception &e){
-    // Process any other User exceptions. Use the .id() method to
-    // record or display useful information
-    CORBA::Any tmp;
-    tmp <<= e;
-    CORBA::TypeCode_var tc = tmp.type();
-    const char * p = tc->name();
-    if (*p != '\0') cout << "diet_wait_or async Caught exception : " << p << endl;
-    else cout << "diet_wait_or async Caught exception : " << tc->id() << endl;
-    fflush(stdout);
-  }  
   catch (const exception& e){
-    cout << "Unexpected exception , what=" << e.what() << endl;
-    fflush(stdout);
+    WARNING("exception caught in " << __FUNCTION__ << " , what=" << e.what());
+    fflush(stderr);
   }
   return STATUS_ERROR;
 }
@@ -264,7 +254,7 @@ int CallAsyncMgr::addWaitRule(Rule * rule)
   omni_semaphore * condRule = NULL;
   request_status_t status = STATUS_ERROR;
   try {
-    if (true){ // managing WriterLock
+    { // managing WriterLock
       WriterLockGuard r(callAsyncListLock);
       // verify wait rule validity ...
       // for instance : at one state of all reqID is about RESOLVING..
@@ -273,7 +263,11 @@ int CallAsyncMgr::addWaitRule(Rule * rule)
       CallAsyncList::iterator h;
       for (int k = 0; k < rule->length; k++){
         h = caList.find(rule->ruleElts[k].reqID);
-        if (h == caList.end()) return STATUS_ERROR;
+        if (h == caList.end()){
+          WARNING(__FUNCTION__ << ": request ID (" << rule->ruleElts[k].reqID << ") is not registered.");
+          fflush(stderr);
+          return STATUS_ERROR;
+        }
         else if (h->second->st == STATUS_RESOLVING) {
           plenty = false; // one result is not yet ready, at least ...
         }
@@ -300,6 +294,8 @@ int CallAsyncMgr::addWaitRule(Rule * rule)
     }
   }
   catch (const exception& e){
+    WARNING("exception caught in " << __FUNCTION__ << " , what=" << e.what());
+    fflush(stderr);
     WriterLockGuard r(callAsyncListLock);
     RulesReqIDMap::iterator j;
     for (int k = 0; k < rule->length; k++){
@@ -347,6 +343,8 @@ int CallAsyncMgr::deleteWaitRule(Rule* rule)
   }
   // ERREUR DE GESTION MEMOIRE. A CORRIGER ???????
   catch (const exception& e){
+    WARNING("exception caught in " << __FUNCTION__ << " , what=" << e.what());
+    fflush(stderr);
     return STATUS_ERROR;
   }
   return 0;
@@ -368,8 +366,7 @@ int CallAsyncMgr::serialise ()
 int CallAsyncMgr::areThereWaitRules() 
 {
   ReaderLockGuard r(callAsyncListLock);
-  int size = rulesConds.size();
-  return size;
+  return rulesConds.size();
 }
 
 /**********************************************************************
@@ -382,13 +379,18 @@ int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
     // update diet_profile datas linked to this reqId
     CallAsyncList::iterator h = caList.find(reqID);
     if (h == caList.end()){
+      WARNING(__FUNCTION__ << ":SeD notify a result linked to a request ID (" << reqID << ") which is not registered");
+      fflush(stderr);
       return -1;
     } // code de trace et debbug, a virer pour la version CVSise
     else { // update state of this reqID
       h->second->st = STATUS_DONE; 
     }
-    if (unmrsh_out_args_to_profile(h->second->profile, dp))
+    if (unmrsh_out_args_to_profile(h->second->profile, dp)){
+      INTERNAL_WARNING(__FUNCTION__ << ":unmrsh_out_args_to_profile failed");
+      fflush(stderr);
       return -1;
+    }
     // get rules about this reqID
     RulesReqIDMap::iterator j;
     if ((j = rulesIDs.lower_bound(reqID)) == rulesIDs.end()) return 1; 
@@ -427,7 +429,9 @@ int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
       }
     }
   }
-  catch (...){
+  catch (const exception& e){
+    WARNING("exception caught in " << __FUNCTION__ << " , what=" << e.what());
+    fflush(stderr);
     return -1;
   }
   return 0;
@@ -443,6 +447,8 @@ int CallAsyncMgr::getStatusReqID(diet_reqID_t reqID)
   ReaderLockGuard r(callAsyncListLock);
   CallAsyncList::iterator h = caList.find(reqID);
   if (h == caList.end()){
+    WARNING(__FUNCTION__ << ": reqID (" << reqID << ") is not registered.");
+    fflush(stderr);  
     return -1;
   }
   int rst = h->second->st;
