@@ -11,6 +11,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.8  2003/01/23 18:37:30  pcombes
+ * API 0.6.4: change _set "dummy" arguments
+ *
  * Revision 1.7  2003/01/22 17:14:09  pcombes
  * API 0.6.4 : istrans -> order (row- or column-major)
  *
@@ -178,7 +181,11 @@ int (* diet_solve_t)(diet_profile_t *);
 /* Utils for setting (IN)OUT arguments (solve functions, after computation) */
 /****************************************************************************/
 /**
- * Every -1 argument implies that the correspunding field is not modified.
+ * If value                            is NULL,
+ * if order                            is DIET_MATRIX_ORDER_COUNT,
+ * if size, nb_rows, nb_cols or length is 0,
+ * if path                             is NULL,
+ * then the correspunding field is not modified.
  */
 
 /**
@@ -232,9 +239,9 @@ diet_generic_desc_set(struct diet_data_generic *desc,
 {
   if (!desc)
     return 1;
-  if (type != -1)
+  if (type != DIET_DATA_TYPE_COUNT)
     desc->type      = type;
-  if (base_type != -1)
+  if (base_type != DIET_BASE_TYPE_COUNT)
     desc->base_type = base_type;
   return 0;
 }

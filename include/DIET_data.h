@@ -11,6 +11,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.10  2003/01/23 18:37:30  pcombes
+ * API 0.6.4: change _set "dummy" arguments
+ *
  * Revision 1.9  2003/01/22 17:14:09  pcombes
  * API 0.6.4 : istrans -> order (row- or column-major)
  *
@@ -78,7 +81,8 @@ typedef enum {
 typedef enum {
   DIET_VOLATILE = 0,
   DIET_PERSISTENT,
-  DIET_STICKY
+  DIET_STICKY,
+  DIET_PERSISTENCE_MODE_COUNT
 } diet_persistence_mode_t;
 
 
@@ -132,10 +136,12 @@ int diet_profile_free(diet_profile_t *profile);
 /* Utils functions for setting parameters of a problem description          */
 /****************************************************************************/
 /**
- * If mode, base_type or isTransposed is -1,
- *    size, nb_rows, nb_cols or length is 0,
- *    path                       is NULL,
- * the correspunding field is not modified.
+ * If mode                             is DIET_PERSISTENCE_MODE_COUNT,
+ * if base_type                        is DIET_BASE_TYPE_COUNT,
+ * if order                            is DIET_MATRIX_ORDER_COUNT,
+ * if size, nb_rows, nb_cols or length is 0,
+ * if path                             is NULL,
+ * then the correspunding field is not modified.
  */
 
 /* should not be used on server with (IN)OUT arguments */
@@ -149,9 +155,9 @@ diet_vector_set(diet_arg_t *arg, void *value, diet_persistence_mode_t mode,
 
 /* Matrices can be stored by rows or by columns */
 typedef enum {
-  DIET_DUMMY_ORDER = -1,
-  DIET_ROW_MAJOR   = 0,
-  DIET_COL_MAJOR   = 1
+  DIET_COL_MAJOR = 0,
+  DIET_ROW_MAJOR,
+  DIET_MATRIX_ORDER_COUNT
 } diet_matrix_order_t;
 
 /* should not be used on server with (IN)OUT arguments */
