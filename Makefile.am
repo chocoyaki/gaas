@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.6  2003/06/23 13:13:40  pcombes
+#* Update make help.
+#*
 #* Revision 1.5  2003/06/03 18:36:03  pcombes
 #* Add a VERSION file to the distribution.
 #*
@@ -38,7 +41,8 @@ EXTRA_DIST = $(top_srcdir)/include/Makefile.inc.in
 #                  distributed
 RM_FROM_DIST    = AUTHORS NEWS include/Makefile.inc
 DONT_DIST_FILES = README COPYING ChangeLog INSTALL configure config.guess \
-		  config.sub depcomp install-sh ltmain.sh mkinstalldirs missing
+		  config.sub depcomp install-sh ltmain.sh mkinstalldirs   \
+		  missing include/DIET_config.h.in
 
 if MAINTAINER_MODE
 DONT_DIST_FILES += aclocal.m4
@@ -80,13 +84,12 @@ distclean-local:
 
 help:
 	@echo "===================================================================="
-	@echo "Usage :   make help     : shows this help screen"
-	@echo "          make agent    : builds DIET agent executable"
-	@echo "          make SeD      : builds DIET SeD library"
-	@echo "          make client   : builds DIET client library"
-	@echo "          make examples : builds basic examples" 
-	@echo "          make install  : copy files into $(INSTALL_DIR)"
-	@echo "          make all      : builds everything but the examples"
+	@echo " Usage : make help     : shows this help screen"
+	@echo "         make agent    : builds DIET agent executable"
+	@echo "         make SeD      : builds DIET SeD library"
+	@echo "         make client   : builds DIET client library"
+	@echo "         make examples : builds basic examples" 
+	@echo "         make install  : copy files into $(prefix)"
 	@echo "===================================================================="
 
 CORBA:	
