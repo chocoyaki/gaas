@@ -3,14 +3,15 @@
 /*                                                                          */
 /*  Author(s):                                                              */
 /*    - Ludovic BERTSCH           Ludovic.Bertsch@ens-lyon.fr               */
+/*    - Eddy CARON                Eddy.Caron@ens-lyon.fr                    */
 /*    - Philippe COMBES           Philippe.Combes@ens-lyon.fr               */
 /*                                                                          */
 /****************************************************************************/
 
-
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <time.h>
 #include <sys/time.h>
 
@@ -22,10 +23,9 @@
  * They are defined here to simplify compilation.
  */
 
-
 int scal_mat_prod(double alpha, double *M, int nb_rows, int nb_cols, float *time)
 {
-  int i;
+  size_t i;
   struct timeval t1, t2;
 
   gettimeofday(&t1, NULL);
@@ -94,12 +94,13 @@ int scal_mat_prod_file(double alpha, char *path, float *time)
  */
 
 
-int solve_smprod(diet_profile_t *pb)
+int 
+solve_smprod(diet_profile_t *pb)
 {
-  double alpha;
-  double *M;
+  size_t m,n;
+  double* coeff;
+  double *mat;
   float  time;
-  int    m, n, res;
 
   /* Get arguments */
 
@@ -113,10 +114,9 @@ int solve_smprod(diet_profile_t *pb)
 int
 solve_smprod_file(diet_profile_t *pb)
 {
-  double alpha;
-  float  time;
+  double* coeff;
   char  *path;
-  int    res;
+  float  time;
 
   /* Get arguments */
   
@@ -124,7 +124,7 @@ solve_smprod_file(diet_profile_t *pb)
 
   /* Set OUT arguments */
 
-  return res;
+  return 0;
 }
 
 
@@ -132,12 +132,12 @@ solve_smprod_file(diet_profile_t *pb)
  * MAIN
  */
 
-int main(int argc, char **argv)
+int 
+main(int argc, char **argv)
 {
   diet_profile_desc_t *profile;
   
   /* Initialize table with maximum 2 services */
-
 
   /* Allocate smprod profile */
 
@@ -147,7 +147,6 @@ int main(int argc, char **argv)
 
   /* Free the smprod profile, since it was deep copied */
 
-
   /* Allocate smprod_file profile */
 
   /* Set profile parameters */
@@ -155,11 +154,9 @@ int main(int argc, char **argv)
   /* Add the smprod_file to the service table */
 
   /* Free the smprod_file profile, since it was deep copied */
-  
-  
-  /* Launch the SeD: no return call 
+
+  /* Launch the SeD: 
      argv[1] is the path of the configuration file */
 
-
-  return 0;
+  return res;
 }

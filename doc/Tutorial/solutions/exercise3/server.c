@@ -3,6 +3,7 @@
 /*                                                                          */
 /*  Author(s):                                                              */
 /*    - Ludovic BERTSCH           Ludovic.Bertsch@ens-lyon.fr               */
+/*    - Eddy CARON                Eddy.Caron@ens-lyon.fr                    */
 /*    - Philippe COMBES           Philippe.Combes@ens-lyon.fr               */
 /*                                                                          */
 /****************************************************************************/
@@ -12,7 +13,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-
 
 #include "DIET_server.h"
 
@@ -57,10 +57,10 @@ extern void dgemm_(char   *tA,
 int
 solve_dgemm(diet_profile_t *pb) {
   char tA, tB;
-  size_t i, m, n, k, k_;
+  size_t m, n, k, k_, m_, n_;
   double alpha, beta;
   double *A, *B, *C;
-  diet_matrix_order_t oA, oB;
+  diet_matrix_order_t oA, oB, oC;
 
   /* Get arguments */
   // This line is equivalent to:
@@ -75,7 +75,11 @@ solve_dgemm(diet_profile_t *pb) {
     return 1;
   }
   diet_scalar_get(diet_parameter(pb,3), &beta,  NULL);
-  C = diet_value(double,diet_parameter(pb,4));
+
+  diet_matrix_get(diet_parameter(pb,4), &C, NULL, &m_, &n_, &oC);
+
+//  diet_generic_desc_set(diet_param_desc(pb,4),
+//			DIET_MATRIX, DIET_DOUBLE); // C
 
   // DEBUG
   printf("dgemm args : m=%d, n=%d, k=%d, alpha=%f, beta=%f, tA=%c, tB=%c\n",
@@ -92,7 +96,6 @@ solve_dgemm(diet_profile_t *pb) {
   // since it has been written in the already allocated zone
  return 0;
 }
-
 
 /*
  * MAIN
@@ -113,7 +116,7 @@ main(int argc, char **argv)
   diet_service_table_init(3);
 
   /* Allocate dgemm profile */
-  profile = diet_profile_desc_alloc(3, 4, 4);
+  profile = diet_profile_desc_alloc("dgemm",3, 4, 4);
 
   /* Set profile parameters */
   // alpha, A, B, beta, C
@@ -124,7 +127,7 @@ main(int argc, char **argv)
   diet_generic_desc_set(diet_param_desc(profile,4), DIET_MATRIX, DIET_DOUBLE);
 
   /* Add the dgemm to the service table */
-  diet_service_table_add("dgemm", profile, NULL, solve_dgemm);
+  diet_service_table_add(profile, NULL, solve_dgemm);
  
   /* Free the dgemm profile, since it was deep copied */
   diet_profile_desc_free(profile);

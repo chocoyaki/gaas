@@ -32,7 +32,7 @@ client_smprod_file.o: client_smprod_file.c
 
 client_smprod_file: client_smprod_file.o
 	$(CC) $< $(CCFLAGS) $(DIET_CLIENT_LIBS) -o $@
-	if [ "@top_srcdir@" != "@top_builddir@" ]; then	\
+	if [ "@top_srcdir@/" != "@top_builddir@" ]; then	\
 	  cp -f @srcdir@/matrix1 .;			\
 	fi
 

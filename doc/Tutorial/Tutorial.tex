@@ -10,6 +10,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.2  2003/12/20 20:43:15  ecaron
+%* Update Tutorial for DIET Release 1.0
+%*
 %* Revision 1.1  2003/12/17 16:12:36  ecaron
 %* Change "tutorial" directory to "Tutorial"
 %*
@@ -232,9 +235,9 @@ option, on which the service will be opened (and on which the server
 ``listens''):
 \footnotesize
 \begin{verbatim}
-$ omniNames -start 2810
+$ omniNames -start 
 
-Tue Dec 11 14:05:28 2003:
+Tue Dec 11 14:10:28 2003:
 
 Starting omniNames for the first time.
 Wrote initial log file.
@@ -319,14 +322,9 @@ following matrix-matrix computation:
 
 $$ C := \alpha A B + \beta C $$
 
-$\alpha$ and $\beta$ are double precision reals, and $A$, $B$ and $C$ are
-matrices of double precision reals.
-The matrix dimensions are given through three signed integers $m$, $n$ et $k$.
-\begin{itemize}
-\item{$A$ is ($m$,$k$)}
-\item{$B$ is ($k$,$n$)}
-\item{$C$ is ($m$,$n$)}
-\end{itemize}
+$\alpha$ and $\beta$ are scalars, and $A$, $B$ and $C$ are matrices,
+with op( A ) an m by k matrix, op( B ) a k by n matrix and C an m by n
+matrix
 
 This exercise aims at adding a new service in a DIET platform, that
 performs the \texttt{dgemm\_} computation. The idea is to interface

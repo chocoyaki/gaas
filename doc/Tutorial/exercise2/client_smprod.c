@@ -3,6 +3,7 @@
 /*                                                                          */
 /*  Author(s):                                                              */
 /*    - Ludovic BERTSCH           Ludovic.Bertsch@ens-lyon.fr               */
+/*    - Eddy CARON                Eddy.Caron@ens-lyon.fr                    */
 /*    - Philippe COMBES           Philippe.Combes@ens-lyon.fr               */
 /*                                                                          */
 /****************************************************************************/
@@ -10,22 +11,26 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
+
 #include "DIET_client.h"
 
 int main(int argc, char **argv)
 {
   int i;
   double  factor = M_PI; /* Pi, why not ? */
+  size_t m, n;           /* Matrix size */
   double *matrix;        /* The matrix to multiply */
   float  *time   = NULL; /* Computation time */
-
-  diet_function_handle_t *fhandle;
   diet_profile_t         *profile;
 
-  /* Allocate the matrix: 60 lines, 100 columns */
-  matrix = malloc(60 * 100 * sizeof(double));
+  m=60;
+  n = 100;
+
+  /* Allocate the matrix: m lines, n columns */
+  matrix = malloc(m * n * sizeof(double));
   /* Fill in the matrix with dummy values (who cares ?) */
-  for (i = 0; i < (60 * 100); i++) {
+  for (i = 0; i < (m * n); i++) {
     matrix[i] = 1.2 * i;
   }
   

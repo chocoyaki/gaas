@@ -2,8 +2,8 @@
 /* DIET tutorial scalar by matrix product example: client (file version)    */
 /*                                                                          */
 /*  Author(s):                                                              */
-/*    - Eddy CARON                Eddy.Caron@ens-lyon.fr                    */
 /*    - Ludovic BERTSCH           Ludovic.Bertsch@ens-lyon.fr               */
+/*    - Eddy CARON                Eddy.Caron@ens-lyon.fr                    */
 /*    - Philippe COMBES           Philippe.Combes@ens-lyon.fr               */
 /*                                                                          */
 /****************************************************************************/
@@ -33,7 +33,7 @@ int main(int argc, char **argv)
   /* Set profile arguments */
   diet_scalar_set(diet_parameter(profile,0), 
 		  &factor, DIET_VOLATILE, DIET_DOUBLE);
-  diet_file_set(diet_parameter(profile,1), DIET_VOLATILE, matrix_file);
+  diet_file_set(diet_parameter(profile,1), DIET_PERSISTENT, matrix_file);
 
   diet_scalar_set(diet_parameter(profile,2), NULL, DIET_VOLATILE, DIET_FLOAT);
 
@@ -55,7 +55,7 @@ int main(int argc, char **argv)
     printf("\"cat matrix1\" to see that it has been modified !\n");
   }
 
-  /* Free profile and function handle */
+  /* Free profile */
   diet_profile_free(profile);
 
   /* Finalize the DIET session */

@@ -3,6 +3,7 @@
 /*                                                                          */
 /*  Author(s):                                                              */
 /*    - Ludovic BERTSCH           Ludovic.Bertsch@ens-lyon.fr               */
+/*    - Eddy CARON                Eddy.Caron@ens-lyon.fr                    */
 /*    - Philippe COMBES           Philippe.Combes@ens-lyon.fr               */
 /*                                                                          */
 /****************************************************************************/
@@ -40,9 +41,8 @@
 int
 main(int argc, char **argv)
 {
-  diet_function_handle_t *fhandle;
   diet_profile_t *profile;
-  char *path = "dgemm";
+  char *problem_name = "dgemm";
 
   size_t i, j, m, n, k;
   double alpha, beta;
@@ -76,16 +76,13 @@ main(int argc, char **argv)
   for (i = 0; i < m * n; i++)     C[i] = 1.0 + j++;
 
   /* Initialize a DIET session */
-  if (diet_initialize(argc, argv, argv[1])) {
+  if (diet_initialize(argv[1], argc, argv)) {
     fprintf(stderr, "DIET initialization failed !\n");
     return 1;
   }
 
-  /* Create the function_handle */
-  fhandle = diet_function_handle_default(path);
-  
   /* Create the profile */
-  profile = diet_profile_alloc(3, 4, 4);
+  profile = diet_profile_alloc(problem_name,3, 4, 4);
 
   /* Set profile arguments */
   diet_scalar_set(diet_parameter(profile,0), &alpha, DIET_VOLATILE, DIET_DOUBLE);
@@ -99,13 +96,12 @@ main(int argc, char **argv)
   print_matrix(C, m, n, 0);
   
   /* Call DIET */
-  if (!diet_call(fhandle, profile)) {
+  if (!diet_call(profile)) {
     print_matrix(C, m, n, 0);
   }
   
   /* Free profile and function handle */
   diet_profile_free(profile);
-  diet_function_handle_destruct(fhandle);
     
   /* Finalize the DIET session */
   diet_finalize();

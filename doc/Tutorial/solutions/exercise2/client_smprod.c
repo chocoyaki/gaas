@@ -19,7 +19,7 @@ int main(int argc, char **argv)
 {
   int i;
   double  factor = M_PI; /* Pi, why not ? */
-  size_t m, n;
+  size_t m, n;           /* Matrix size */
   double* matrix;        /* The matrix to multiply */
   float*  time   = NULL; /* To check that time is set by the server */
   diet_profile_t* profile;

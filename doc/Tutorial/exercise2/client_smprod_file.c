@@ -2,6 +2,7 @@
 /* DIET tutorial scalar by matrix product example: client (file version)    */
 /*                                                                          */
 /*  Author(s):                                                              */
+/*    - Eddy CARON                Eddy.Caron@ens-lyon.fr                    */
 /*    - Ludovic BERTSCH           Ludovic.Bertsch@ens-lyon.fr               */
 /*    - Philippe COMBES           Philippe.Combes@ens-lyon.fr               */
 /*                                                                          */
@@ -11,25 +12,21 @@
 #include <stdlib.h>
 #include <math.h>
 #include <unistd.h>
+#include <string.h>
 
 #include "DIET_client.h"
 
-
 int main(int argc, char **argv)
 {
-  int i;
-  double  factor = M_PI;           /* Pi, why not ? */
-  char   *matrix_file_path = NULL; /* The matrix to multiply */
-  float  *time   = NULL;           /* Computation time */
 
-  diet_function_handle_t *fhandle;
-  diet_profile_t         *profile;
+  double  factor = M_PI;           /* Pi, why not ? */
+  float  *time   = NULL;           /* To check that time is set by server */
+  char   *matrix_file = "matrix1"; /* The matrix to multiply */
+  diet_profile_t* profile;
 
   /* Initialize a DIET session */
 
-  /* Create the function_handle */
-  
-  /* Create the profile  as explained in chapter 3 of the User Manual */
+  /* Create the profile as explained in chapter 3 of the User Manual */
   
   /* Set profile arguments */
 
@@ -37,9 +34,9 @@ int main(int argc, char **argv)
 
   /* Get and print (IN)OUT arguments if possible */
   
-  /* Free profile and function handle */
+  /* Free profile */
 
-  /* Finalize the DIET session */
+  /* Finalize the DIET session and return the result of this function */
 
-  return 0;
+
 }

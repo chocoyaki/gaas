@@ -22,7 +22,6 @@
  * They are defined here to simplify compilation.
  */
 
-
 int scal_mat_prod(double alpha, double *M, int nb_rows, int nb_cols, float *time)
 {
   size_t i;
@@ -143,9 +142,9 @@ solve_smprod_file(diet_profile_t *pb)
 int
 main(int argc, char **argv)
 {
-  int nb_max_services = 10;
+  int nb_max_services = 2;
   int res;
-  diet_profile_desc_t* profile = NULL;
+  diet_profile_desc_t* profile;
   
   /* Initialize table with maximum 2 services */
   diet_service_table_init(nb_max_services);
