@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2004/07/08 12:27:39  alsu
+ * approximating a round-robin scheduler by default
+ *
  * Revision 1.28  2004/07/05 14:56:13  rbolze
  * correct bug on 64 bit plat-form, when parsing cfg file :
  * remplace size_t by unsigned int for config options
@@ -127,6 +130,65 @@ extern unsigned int TRACE_LEVEL;
 #define SED_TRACE_FUNCTION(formatted_text)       \
   TRACE_TEXT(TRACE_ALL_STEPS, "SeD::");          \
   TRACE_FUNCTION(TRACE_ALL_STEPS,formatted_text)
+
+/*
+** if FAST is not present, we set up the variables
+** and functions needed to do round-robin, by default
+*/
+#ifndef HAVE_FAST
+static struct timeval *RRtimestamps = NULL;
+static int RRtimestampsCapacity = 0;
+static int RRensureSize(int serviceNum) {
+  /* check to see if we have space for the requested service timestamp */
+  /* get the current timestamp */
+  if (serviceNum >= RRtimestampsCapacity) {
+    /* need to increase the size of the array */
+    int newCapacity = serviceNum+1;
+    RRtimestamps = (struct timeval *) realloc (RRtimestamps,
+                                               (newCapacity *
+                                                sizeof (struct timeval)));
+    if (RRtimestamps == NULL) {
+      return (-1);
+    }
+
+    /* initialize new timestamp structures */
+    for (int i = RRtimestampsCapacity ; i < newCapacity ; i++) {
+      (RRtimestamps[i]).tv_sec = (RRtimestamps[i]).tv_usec = 0;
+    }
+    RRtimestampsCapacity = newCapacity;
+  }
+  return (0);
+}
+static void RRsolve(int serviceNum) {
+  if (RRensureSize(serviceNum) == -1) {
+    fprintf(stderr, "SeDImpl::solve: unable to realloc rr array\n");
+    return;
+  }
+  gettimeofday(&(RRtimestamps[serviceNum]), NULL);
+}
+static double RRperformanceMetric(int serviceNum) {
+  if (RRensureSize(serviceNum) == -1) {
+    fprintf(stderr, "SeDImpl::estimate: unable to realloc rr array\n");
+  }
+
+  /* get the current time */
+  struct timeval current;
+  gettimeofday(&current, NULL);
+  double elapsed = ((double) current.tv_sec -
+                    (double) (RRtimestamps[serviceNum]).tv_sec +
+                    (((double) current.tv_usec -
+                      (double) (RRtimestamps[serviceNum]).tv_usec) /
+                     1000000.0));
+
+  /*
+  ** to prevent underflow on the first usage of a server,
+  ** we use a big number as the numerator
+  */
+  return (1000000.0 / elapsed);
+}
+#endif /* ! HAVE_FAST */
+
+
 
 SeDImpl::SeDImpl()
 {
@@ -331,11 +393,17 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
 #endif
 
   TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::solve invoked on pb: " << path << endl);
-  
+
   ref = SrvT->lookupService(path, &pb);
   if (ref == -1) {
    ERROR("SeD::" << __FUNCTION__ << ": service not found", 1);
   } 
+#ifndef HAVE_FAST
+  /*
+  ** tell the default round-robin scheduler that we got a solve request!
+  */
+  RRsolve(ref);
+#endif /* ! HAVE_FAST */
    
   cvt = SrvT->getConvertor(ref);
  
@@ -614,6 +682,7 @@ SeDImpl::estimate(corba_estimation_t& estimation,
   }
 
   if (perfmetric_fn == NULL) {
+#ifdef HAVE_FAST
     estimation.totalTime = estimation.tComp;
     if (estimation.totalTime != HUGE_VAL) {
       for (int i = 0; i <= pb.last_out; i++) {
@@ -622,11 +691,21 @@ SeDImpl::estimate(corba_estimation_t& estimation,
           break;
       }
     }
+#else /* HAVE_FAST */
+    /*
+    ** without FAST, we use a round-robin if no custom performance
+    ** metric has been specified.
+    */
+    estimation.totalTime = estimation.tComp = RRperformanceMetric(ref);
+#endif /* HAVE_FAST */
   }
   else {
     diet_profile_t profile;
 
-    /* fill in the profile, based on the problem description */
+    /*
+    ** create a profile, based on the problem description, to
+    ** be used in the performance metric function
+    */
     profile.pb_name = strdup(pb.path);
     profile.last_in = pb.last_in;
     profile.last_inout = pb.last_inout;
@@ -634,9 +713,7 @@ SeDImpl::estimate(corba_estimation_t& estimation,
     profile.parameters = (diet_arg_t*) calloc ((pb.last_out+1),
                                                sizeof (diet_arg_t));
 
-    /*
-    ** populate the parameter structures
-    */
+    /* populate the parameter structures */
     for (int i = 0 ; i <= pb.last_out ; i++) {
       const corba_data_desc_t cdd = pb.param_desc[i];
       diet_arg_t* da = &(profile.parameters[i]);
@@ -655,6 +732,10 @@ SeDImpl::estimate(corba_estimation_t& estimation,
       ddg_s->type = (diet_data_type_t) cdd.specific._d();
     }
 
+    /*
+    ** profile is ready, call the custom performance
+    ** metric function!
+    */
     estimation.tComp = estimation.totalTime = (*perfmetric_fn)(&profile);
   }
 }
