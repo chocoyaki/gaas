@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2004/10/08 12:19:59  hdail
+ * Correcting warnings with mismatched types (size_t and int) on 64-bit.
+ *
  * Revision 1.23  2004/09/16 09:52:36  hdail
  * Corrected bug whereby the option --repeat results in seg fault or server not
  * found.  Current fix is to not re-use the profile; in longer-term we should
@@ -81,7 +84,8 @@ usage(char* cmd)
 int
 main(int argc, char* argv[])
 {
-  int i, m, n;
+  int i;
+  size_t m, n;
   int n_loops = 1;
   char* path = NULL;
   diet_profile_t* profile = NULL;
@@ -220,7 +224,7 @@ main(int argc, char* argv[])
     sec = tv.tv_sec;
   
     if ((STAT_FILE) && (tv.tv_sec >= sec + 1)) {
-      fprintf(STAT_FILE, "%10ld.%06ld|%s|%d requests\n", 
+      fprintf(STAT_FILE, "%10ld.%06ld|%s|%zd requests\n", 
 	      tv.tv_sec, tv.tv_usec, "INFO", nb_of_requests);
       sec = tv.tv_sec;
       nb_of_requests = 0;

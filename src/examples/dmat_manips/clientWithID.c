@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2004/10/08 12:19:59  hdail
+ * Correcting warnings with mismatched types (size_t and int) on 64-bit.
+ *
  * Revision 1.7  2004/09/14 12:46:37  hdail
  * Commented out unused variables so that compile succeeds with DIET configure
  * option "--enable-maintainer-mode".
@@ -86,7 +89,7 @@
     size_t i, j;                           \
     printf("%s (%s-major) = \n", #mat,     \
            (rm) ? "row" : "column");       \
-    printf(" %d %d \n",m,n);               \
+    printf(" %zd %zd \n",m,n);               \
     for (i = 0; i < (m); i++) {            \
       for (j = 0; j < (n); j++) {          \
         if (rm)                            \
@@ -123,7 +126,9 @@ usage(char* cmd)
 int
 main(int argc, char* argv[])
 {
-  int i, mA, nA,nB,mB;  // j, k
+  //int i, mA, nA,nB,mB;  // j, k
+  int i;
+  size_t mA, nA, nB, mB; // use size_t for 32 / 64 portability
   int n_loops = 1;
   char* path = NULL;
   diet_profile_t* profile = NULL;
