@@ -1,0 +1,38 @@
+/****************************************************************************/
+/* DIET master agent IDL description                                        */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)                   */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.1  2003/04/10 12:31:10  pcombes
+ * Replace masterAgent.idl. submit returns only a response.
+ *
+ ****************************************************************************/
+
+#ifndef _MASTER_AGENT_IDL_
+#define _MASTER_AGENT_IDL_
+
+#include "Agent.idl"
+
+
+interface MasterAgent : Agent {
+  
+  /** Submission function: called by the clients to submit a problem. */
+  corba_response_t submit(in corba_pb_desc_t pb_profile,
+			  in unsigned long maxServers);
+  
+
+#if HAVE_MULTI_MA
+  
+  /** MAs federation management */
+  long handShake(in MasterAgent me, in string myName);
+
+#endif // HAVE_MULTI_MA
+
+};
+
+#endif // _MASTER_AGENT_IDL_
