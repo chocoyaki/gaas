@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2003/07/04 09:47:53  pcombes
+ * Remove useless setTraceLevel (since r1.2) and DIET_ct.
+ *
  * Revision 1.4  2003/06/02 08:53:16  cpera
  * Update api for asynchronize calls, manage bidir poa.
  *
@@ -35,11 +38,8 @@ class ORBMgr
 {
   
 public:
-  static void
-  setTraceLevel();
-
   static int
-  init(int argc, char** argv, bool init_POA, int DIET_ct = 1); 
+  init(int argc, char** argv, bool init_POA = true); 
 
   static void
   destroy();
@@ -66,7 +66,6 @@ private:
   static CORBA::ORB_ptr          ORB;
   static PortableServer::POA_var POA;
   static PortableServer::POA_var POA_BIDIR;
-  static int DIET_ct;
 };
 
 
