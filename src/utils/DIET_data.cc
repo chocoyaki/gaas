@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2003/10/10 14:56:14  bdelfabr
+ * adding diet_matrix_set_with_id just for tests
+ *
  * Revision 1.21  2003/09/27 07:54:01  pcombes
  * Replace silly base type DIET_BYTE by DIET_SHORT.
  *
@@ -381,6 +384,18 @@ diet_matrix_set(diet_arg_t* arg, void* value, diet_persistence_mode_t mode,
   return status;
 }
 
+int
+diet_matrix_set_with_id(diet_arg_t* arg, char *id,void* value, diet_persistence_mode_t mode,
+		diet_base_type_t base_type,
+		size_t nb_rows, size_t nb_cols, diet_matrix_order_t order)
+{
+  int status(0);
+  if ((status = matrix_set_desc(&(arg->desc), id, mode, base_type,
+				nb_rows, nb_cols, order)))
+    return status;
+  arg->value = value;
+  return status;
+}
 int
 diet_string_set(diet_arg_t* arg, char* value, diet_persistence_mode_t mode,
 		size_t length)
