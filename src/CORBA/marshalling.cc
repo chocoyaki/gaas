@@ -9,8 +9,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.30  2003/09/18 09:47:19  bdelfabr
- * adding data persistence
+ * Revision 1.31  2003/09/22 21:06:22  pcombes
+ * Rollback after Bruno's too quick commit.
  *
  * Revision 1.29  2003/08/09 17:31:38  pcombes
  * Include path in the diet_profile_desc structure.
@@ -142,7 +142,7 @@ mrsh_scalar_desc(corba_data_desc_t* dest, diet_data_desc_t* src)
 		 << " not implemented", 1);
     }
   }
-  
+
   return 0;
 }
 
@@ -154,24 +154,24 @@ mrsh_data_desc(corba_data_desc_t* dest, diet_data_desc_t* src)
     dest->id = CORBA::string_dup(src->id); // deallocates old dest->id
   dest->mode = src->mode;
   dest->base_type = src->generic.base_type;
-  
+
   switch (src->generic.type) {
   case DIET_SCALAR: {
-   
+
     if (mrsh_scalar_desc(dest, src))
       return 1;
     break;
   }
   case DIET_VECTOR: {
     corba_vector_specific_t vect;
-  
+
     dest->specific.vect(vect);
     dest->specific.vect().size = src->specific.vect.size;
     break;
   }
   case DIET_MATRIX: {
     corba_matrix_specific_t mat;
-   
+
     dest->specific.mat(mat);
     dest->specific.mat().nb_r  = src->specific.mat.nb_r;
     dest->specific.mat().nb_c  = src->specific.mat.nb_c;
@@ -180,23 +180,23 @@ mrsh_data_desc(corba_data_desc_t* dest, diet_data_desc_t* src)
   }
   case DIET_STRING: {
     corba_string_specific_t str;
-    
+
     dest->specific.str(str);
     dest->specific.str().length = src->specific.str.length;
     break;
   }
   case DIET_FILE: {
     corba_file_specific_t file;
-   
+
     dest->specific.file(file);
     if (src->specific.file.path) {
       dest->specific.file().path = CORBA::string_dup(src->specific.file.path);
       dest->specific.file().size = src->specific.file.size;
-     
+
     } else {
       dest->specific.file().path = CORBA::string_dup("");
       dest->specific.file().size = 0;
-   
+
     }
     break;
   }
@@ -214,7 +214,7 @@ mrsh_data(corba_data_t* dest, diet_data_t* src, int release)
   long unsigned int size = (long unsigned int) data_sizeof(&(src->desc));
   CORBA::Char* value(NULL);
 
-  
+
 
   if (mrsh_data_desc(&(dest->desc), &(src->desc)))
     return 1;
@@ -236,12 +236,13 @@ mrsh_data(corba_data_t* dest, diet_data_t* src, int release)
       value[0] = '\0';
     }
   } else {
-    value = (CORBA::Char*)src->value;  
+    value = (CORBA::Char*)src->value;
   }
- 
-  if (value != NULL) // added for data persistence : in or inout arg with null value (data present)
-   dest->value.replace(size, size, value, 0);
-   
+
+ // added for data persistence : in or inout arg with null value (data present)
+ if (value != NULL)
+    dest->value.replace(size, size, value, release);
+
   return 0;
 }
 
@@ -305,7 +306,7 @@ unmrsh_data_desc(diet_data_desc_t* dest, const corba_data_desc_t* src)
 {
   diet_base_type_t bt = (diet_base_type_t)src->base_type;
   char* id = CORBA::string_dup(src->id);
-  
+
   switch ((diet_data_type_t) src->specific._d()) {
   case DIET_SCALAR: {
     if (unmrsh_scalar_desc(dest, src))
@@ -349,7 +350,7 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src)
   if (unmrsh_data_desc(&(dest->desc), &(src->desc)))
     return 1;
   if (src->desc.specific._d() == (long) DIET_FILE) {
- 
+
     dest->desc.specific.file.size = src->desc.specific.file().size;
     if ((src->desc.specific.file().path != NULL)
 	&& strcmp("", src->desc.specific.file().path)) {
@@ -359,13 +360,13 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src)
       pid_t pid = getpid();
       sprintf(out_path, "/tmp/DIET_%d_%s", pid,
 	      (file_name) ? (char*)(1 + file_name) : in_path);
- 
-      ofstream outfile(out_path);
-      
 
-        for (int i = 0; i < src->desc.specific.file().size; i++) {
-	  outfile.put(src->value[i]);
-	}
+      ofstream outfile(out_path);
+
+
+      for (int i = 0; i < src->desc.specific.file().size; i++) {
+	outfile.put(src->value[i]);
+      }
       CORBA::string_free(in_path);
       dest->desc.specific.file.path = out_path;
     } else if (src->desc.specific.file().size != 0) {
@@ -374,10 +375,10 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src)
       dest->desc.specific.file.path = strdup("");
     }
   } else {
-    if (src->value.length() == 0) { // out case
-	dest->value = malloc(data_sizeof(&(dest->desc)));
+    if (src->value.length() == 0) { // OUT case
+      dest->value = malloc(data_sizeof(&(dest->desc)));
     } else {
-      CORBA::Boolean orphan = 0; //(src->mode != DIET_VOLATILE);
+      CORBA::Boolean orphan = 1; //(src->mode != DIET_VOLATILE);
       dest->value = (char*)src->value.get_buffer(orphan);
     }
   }
@@ -411,16 +412,16 @@ mrsh_profile_desc(corba_profile_desc_t* dest, const diet_profile_desc_t* src)
 /****************************************************************************/
 
 int
-mrsh_pb_desc(corba_pb_desc_t* dest, const diet_profile_t* src)
+mrsh_pb_desc(corba_pb_desc_t* dest, diet_profile_t* src)
 {
-  dest->path       = CORBA::string_dup(src->pb_name); // deallocates old dest->path
+  dest->path       = CORBA::string_dup(src->pb_name); // frees old dest->path
   dest->last_in    = src->last_in;
   dest->last_inout = src->last_inout;
   dest->last_out   = src->last_out;
   dest->param_desc.length(src->last_out + 1);
 
   for (int i = 0; i <= src->last_out; i++) {
- 
+
     mrsh_data_desc(&(dest->param_desc[i]), &(src->parameters[i].desc));
 
   }
@@ -429,44 +430,40 @@ mrsh_pb_desc(corba_pb_desc_t* dest, const diet_profile_t* src)
 }
 
 
-
-
-
 /****************************************************************************/
 /* Client sends its data ...                                                */
 /****************************************************************************/
-
 
 int
 mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src)
 {
   int i;
-  
+
   dest->last_in    = src->last_in;
   dest->last_inout = src->last_inout;
   dest->last_out   = src->last_out;
   dest->parameters.length(src->last_out + 1);
- 
-    for (i = 0; i <= src->last_inout; i++) {
-  
-      if (mrsh_data(&(dest->parameters[i]), &(src->parameters[i]), 0))
-	return 1;
-    }
+
+  for (i = 0; i <= src->last_inout; i++) {
+
+    if (mrsh_data(&(dest->parameters[i]), &(src->parameters[i]), 0))
+      return 1;
+  }
   // For OUT parameters, marshal only descriptions for checking
   // purpose on SeD side, and let data emty.
   for (; i <= src->last_out; i++) {
-    if (mrsh_data_desc(&(dest->parameters[i].desc), &(src->parameters[i].desc)))      return 1;
+    if (mrsh_data_desc(&(dest->parameters[i].desc), &(src->parameters[i].desc)))
+      return 1;
     dest->parameters[i].value.replace(0, 0, NULL, 1);
   }
   return 0;
 }
 
 
- 
 /****************************************************************************/
 /* Server receives client data ...                                          */
 /****************************************************************************/
-  
+
 int
 cvt_arg(diet_data_t* dest, diet_data_t* src,
 	diet_convertor_function_t f, int duplicate_value)
@@ -502,10 +499,10 @@ cvt_arg(diet_data_t* dest, diet_data_t* src,
     char* t(NULL);
     // FIXME test on order !!!!
     switch (src->desc.specific.mat.order) {
-    case DIET_ROW_MAJOR: t = new char('N');
-    case DIET_COL_MAJOR: t = new char('T');
+    case DIET_ROW_MAJOR: t = new char('N'); break;
+    case DIET_COL_MAJOR: t = new char('T'); break;
     default: {
-     MRSH_ERROR("invalid order for matrix", 1);
+      MRSH_ERROR("invalid order for matrix", 1);
     }
     }
     diet_scalar_set(dest, t, DIET_VOLATILE, DIET_CHAR);
@@ -525,7 +522,7 @@ cvt_arg(diet_data_t* dest, diet_data_t* src,
     MRSH_ERROR("invalid convertor function", 1);
   }
   }
-  
+
   return 0;
 }
 
@@ -543,12 +540,12 @@ unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
   dest->last_out   = cvt->last_out;
   dest->parameters = new diet_data_t[cvt->last_out + 1];
 
-  
+
   for (int i = 0; i <= cvt->last_out; i++) {
     diet_data_t* dd_tmp(NULL);
     int arg_idx = cvt->arg_convs[i].in_arg_idx;
     int duplicate_value = 0;
-    
+
     if ((arg_idx >= 0) && (arg_idx <= src->last_out)) {
       // Each time the cvt function is IDENTITY, unmrsh the data, even if
       // it has already been done (ie duplicate the value)
@@ -567,17 +564,16 @@ unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
       duplicate_value = 1;
     }
     if (cvt_arg(&(dest->parameters[i]), dd_tmp,
-		cvt->arg_convs[i].f, duplicate_value)) {  
+		cvt->arg_convs[i].f, duplicate_value)) {
       delete src_params;
       MRSH_ERROR("cannot convert client problem profile"
-	       << "to server profile", 1);
+		 << "to server profile", 1);
     }
   }
 
   delete src_params;
   return 0;
 }
-			      
 
 
 /****************************************************************************/
@@ -652,8 +648,8 @@ unmrsh_out_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb)
   int i;
 
   if (   (dpb->last_in    != cpb->last_in)
-      || (dpb->last_inout != cpb->last_inout)
-      || (dpb->last_out   != cpb->last_out))
+	 || (dpb->last_inout != cpb->last_inout)
+	 || (dpb->last_out   != cpb->last_out))
     return 1;
 
   // Unmarshal INOUT parameters descriptions only ; indeed, the ORB has filled

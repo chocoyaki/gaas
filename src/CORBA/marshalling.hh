@@ -9,8 +9,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.19  2003/09/18 09:47:19  bdelfabr
- * adding data persistence
+ * Revision 1.20  2003/09/22 21:06:22  pcombes
+ * Rollback after Bruno's too quick commit.
  *
  * Revision 1.18  2003/08/09 17:31:38  pcombes
  * Include path in the diet_profile_desc structure.
@@ -102,7 +102,7 @@ mrsh_profile_desc(corba_profile_desc_t* dest, const diet_profile_desc_t* src);
 
 // To submit a request from the client DIET profile
 int
-mrsh_pb_desc(corba_pb_desc_t* dest, const diet_profile_t* src);
+mrsh_pb_desc(corba_pb_desc_t* dest, diet_profile_t* src);
 
 
 // To send the input data from client to SeD
