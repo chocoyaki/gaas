@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2004/03/03 16:10:53  mcolin
+ * correct a bug in the construction of the corba option for the endPoint :
+ * %u replaced by %s
+ *
  * Revision 1.21  2004/03/01 18:43:08  rbolze
  * add logservice
  *
@@ -338,7 +342,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
     int    tmp_argc = myargc + 2;
     myargv = (char**)realloc(myargv, tmp_argc * sizeof(char*));
     myargv[myargc] = "-ORBendPoint";
-    sprintf(endPoint, "giop:tcp:%u", port);
+    sprintf(endPoint, "giop:tcp:%s", port);
     myargv[myargc + 1] = (char*)endPoint;
     myargc = tmp_argc;
   }
