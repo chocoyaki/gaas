@@ -9,6 +9,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.14  2003/08/01 19:21:26  pcombes
+#* Reorganize FAST and omniORB flags.
+#*
 #* Revision 1.13  2003/07/22 14:47:55  pcombes
 #* @ARCH_DIET@ / @OS_DIET@ replaced by autoconf variables.
 #*
@@ -22,20 +25,16 @@
 # DIET variables
 
 DIET_HOME  = @prefix@
-DIET_FLAGS = -L$(DIET_HOME)/lib -I$(DIET_HOME)/include
-CLIENT_LIB = -lDIET_client
-SED_LIB    = -lDIET_SeD
+DIET_FLAGS = -I$(DIET_HOME)/include
+CLIENT_LIB = -L$(DIET_HOME)/lib -lDIET_client
+SED_LIB    = -L$(DIET_HOME)/lib -lDIET_SeD
 
 # Generic variables
 CC	= @CC@
-CCFLAGS	+= -O2 -Wall @CFLAG_NO_STRICT_ALIASING@ -D@PROCESSOR_DEFINE@ \
-	   -D@PLATFORM_DEFINE@ -D__OSVERSION__=@OSVERSION@ $(DIET_FLAGS) \
-	   @CCFLAGS_FAST@ @CCFLAGS_OMNIORB@
+CCFLAGS	+= -O2 -Wall @CFLAG_NO_STRICT_ALIASING@ $(DIET_FLAGS)
 
 CXX      = @CXX@
-CXXFLAGS += -O2 -Wall @CXXFLAG_NO_STRICT_ALIASING@ -D@PROCESSOR_DEFINE@ \
-	    -D@PLATFORM_DEFINE@ -D__OSVERSION__=@OSVERSION@ $(DIET_FLAGS) \
-	    @CXXFLAGS_FAST@ @CXXFLAGS_OMNIORB@
+CXXFLAGS += -O2 -Wall @CXXFLAG_NO_STRICT_ALIASING@ $(DIET_FLAGS)
 
 DIET_SERVER_LIBS = $(SED_LIB) @LIBS_OMNIORB@ @LIBS_FAST@
 DIET_CLIENT_LIBS = $(CLIENT_LIB) @LIBS_OMNIORB@

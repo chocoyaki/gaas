@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.9  2003/08/01 19:21:26  pcombes
+#* Reorganize FAST and omniORB flags.
+#*
 #* Revision 1.8  2003/07/04 09:47:49  pcombes
 #* AC_OMNIORB_DIET manages CXXFLAGS_OMNIORB. Add -Werror in MAINTAINER_MODE.
 #*
@@ -27,7 +30,5 @@ else
 DBG_FLAGS = -O2
 endif
 
-AM_CPPFLAGS = $(DBG_FLAGS) -Wall -D@PROCESSOR_DEFINE@ -D@PLATFORM_DEFINE@ \
-	      -D__OSVERSION__=@OSVERSION@ -D_REENTRANT -I$(top_srcdir)/include \
-	      $(CXXFLAGS_OMNIORB) $(CXXFLAGS_FAST)
+AM_CPPFLAGS = $(DBG_FLAGS) -Wall -I$(top_srcdir)/include
 
