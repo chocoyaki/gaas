@@ -9,8 +9,18 @@
 /*  Copyright (C) 2002 ReMaP/INRIA                                          */
 /*                                                                          */
 /****************************************************************************/
-/*
+/*-
  * $Log$
+ * Revision 1.3  2002/10/15 18:36:03  pcombes
+ * Remove the descriptors set functions.
+ * Add convertors in API :
+ *     Convertors let DIET build the sequence of arguments, that the
+ *     correspunding solver needs, from the client sequence of arguments
+ *     (which might match another service declared with the same solver).
+ * For compatibility with old API, just add NULL for the convertor argument in
+ * diet_service_table_add. But all the solvers needed before in programs using
+ * DIET can be transformed into convertors.
+ *
  * Revision 1.2  2002/09/17 15:23:06  pcombes
  * Bug fixes on inout arguments and examples
  * Add support for omniORB 4.0.0
@@ -136,44 +146,6 @@ typedef struct {
   size_t length;
   diet_data_t *seq;
 } diet_data_seq_t;
-
-
-
-/****************************************************************************/
-/* Useful functions for data descriptors                                    */
-/****************************************************************************/
-
-/* There should be no use of allocating and freeing functions */
-
-/*----[ Descriptors altering ]----------------------------------------------*/
-/* Each -1 (or NULL for pointers) argument does not alter the corresponding
-   field. */
-
-int scalar_desc_set(diet_data_desc_t *desc, diet_persistence_mode_t mode,
-		    diet_base_type_t base_type, void *value);
-int vector_desc_set(diet_data_desc_t *desc, diet_persistence_mode_t mode,
-		    diet_base_type_t base_type, size_t size);
-int matrix_desc_set(diet_data_desc_t *desc, diet_persistence_mode_t mode,
-		    diet_base_type_t base_type, size_t nb_r, size_t nb_c,
-		    int istrans);
-int string_desc_set(diet_data_desc_t *desc, diet_persistence_mode_t mode,
-		    size_t length);
-/* Computes the file size */
-int file_desc_set(diet_data_desc_t *desc, diet_persistence_mode_t mode,
-		  char *path);
-
-inline int generic_desc_set(struct diet_data_generic *desc,
-			    diet_data_type_t type, diet_base_type_t base_type)
-{
-  if (!desc)
-    return 1;
-  desc->type      = type;
-  desc->base_type = base_type;
-  return 0;
-}
-
-
-
 /****************************************************************************/
 /* Useful functions for data                                                */
 /****************************************************************************/
@@ -196,7 +168,28 @@ int string_set(diet_data_t *data, char *value, diet_persistence_mode_t mode,
 int file_set(diet_data_t *data, diet_persistence_mode_t mode, char *path);
 
 
+/****************************************************************************/
+/* Profile descriptor                                                       */
+/****************************************************************************/
 
+typedef diet_data_t diet_arg_t;
+typedef struct {
+  int         last_in, last_inout, last_out;
+  diet_arg_t *parameters;
+} diet_profile_t;
+
+/* Allocate a DIET profile with memory space for its arguments.
+   If no IN argument, please give -1 for last_in.
+   If no INOUT argument, please give last_in for last_inout.
+   If no OUT argument, please give last_inout for last_out.
+   Once the profile is allocated, please use set functions on each parameter.
+   For example, the nth argument is a matrix:
+   matrix_set(&(profile->parameters[n]), mode, value, btype, nb_r, nb_c, istrans);
+   NB: mode is the persistence mode of the parameter.
+   Since a profile will not be freed until profile_free is called, it is
+   possible to refer to each parameter for data handles (cf. below)         */
+diet_profile_t *profile_alloc(int last_in, int last_inout, int last_out);
+int profile_free(diet_profile_t *profile);
 
 
 #ifdef __cplusplus
