@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2003/05/12 14:15:58  ecaron
+ * Update call to stat in according to perl script file (extract.pl)
+ *
  * Revision 1.24  2003/05/10 08:54:08  pcombes
  * New format for configuration files, new Parsers.
  *
@@ -414,18 +417,20 @@ diet_call(diet_function_handle_t* handle, diet_profile_t* profile)
   int subm_count, server_OK, solve_res;
   static int nb_tries(3);
   
+  stat_in("diet_call");
+
   if (mrsh_pb_desc(&corba_pb, profile, handle->pb_name))
     return 1;
 
   /* Request submission : try nb_tries times */
-  stat_in("diet_call.submission.start");
+  stat_in("diet_call.submission");
   subm_count = 0;
   do {
     if ((server_OK = submission(&corba_pb, response)) == -2)
       break;
   } while ((response) && (response->servers.length() > 0) &&
 	   (server_OK == -1) && (++subm_count < nb_tries));
-  stat_out("diet_call.submission.end");
+  stat_out("diet_call.submission");
 
   if (!response || response->servers.length() == 0) {
     cerr << "Unable to find a server.\n";
@@ -458,12 +463,12 @@ diet_call(diet_function_handle_t* handle, diet_profile_t* profile)
     return 1;
   }
 
-  stat_in("diet_call.solve.start");
+  stat_in("diet_call.solve");
 
   solve_res =
     response->servers[server_OK].loc.ior->solve(handle->pb_name, corba_profile);
 
-  stat_out("diet_call.solve.end");
+  stat_out("diet_call.solve");
 
   if (unmrsh_out_args_to_profile(profile, &corba_profile)) {
     delete response;
@@ -472,6 +477,7 @@ diet_call(diet_function_handle_t* handle, diet_profile_t* profile)
   
   //delete &corba_pb;
   delete response;
+  stat_out("diet_call");
   return solve_res;
 }
 
