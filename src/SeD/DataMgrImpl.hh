@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2003/09/30 15:08:57  bdelfabr
+ * dlist are replaced by stl map²
+ *
  * Revision 1.2  2003/09/24 09:16:18  pcombes
  * Merge corba_DataMgr_desc_t and corba_data_desc_t.
  * DataMgr does not need a name: use its reference.
@@ -19,8 +22,11 @@
 #ifndef _DATAMGRIMPL_HH_
 #define _DATAMGRIMPL_HH_
 
-#include "DataMgr.hh"
+#include <map>
 
+
+#include "DataMgr.hh"
+#include "DataManagerID.hh"
 #include "ChildID.hh"
 #include "common_types.hh"
 #include "dietTypes.hh"
@@ -28,8 +34,15 @@
 #include "ServiceTable.hh"
 #include "LinkedList.hh"
 
-typedef LinkedList<corba_data_desc_t>  dietDataDescList;
-typedef LinkedList<diet_data_id_lock_t> dietDataIDLockList;
+/** defines string comparison for map management */
+struct cmpID
+{
+  bool operator()(const char* s1, const char* s2) const
+  {
+    return strcmp(s1, s2) < 0;
+  }
+};
+
 
 
 class DataMgrImpl : public POA_DataMgr,
@@ -46,17 +59,19 @@ public:
   dataLookup(char* id);
   void
   updateDataRefOrder(corba_data_t& dataDesc);
-  corba_data_t
-  getData(char* id);
-  bool
+  void
+  getData(corba_data_t& arg);
+  void
   addData(corba_data_t& dataDesc, int inout);
 
   virtual void
   putData(const char* argID, const DataMgr_ptr me);
   virtual void
   rmDataRef(const char* argID);
+
   virtual DataMgr_ptr
   whereData(const char* argID);
+
   virtual void
   sendData(corba_data_t& arg);
 
@@ -84,14 +99,14 @@ private:
   /* reference of the parent Data Location Manager */
   LocMgr_var parent;
 
-  /* (Fully qualified) local host name */
-  //char myName[261]; // 257 + 4 for Data
+  typedef map<const char*,corba_data_t,cmpID> dietDataDescList_t;
+  typedef map<const char *,omni_mutex,cmpID> dietDataIDLockList_t;
   
   /*List of the data held by the Data Manager*/
-  dietDataDescList dataDescList;
+  dietDataDescList_t dataDescList;
   
   /* list of lock to manage data transmission */
-  dietDataIDLockList lockList;
+  dietDataIDLockList_t lockList;
 
 
   /**************************************************************************/
@@ -99,8 +114,8 @@ private:
   /**************************************************************************/
   corba_data_t
   moveToCorbaDataT(corba_data_desc_t& dataDesc);
-  corba_data_t
-  cpEltListToDataT(const char* id);
+  void
+  cpEltListToDataT(corba_data_t *cData);
   bool
   isInLockList(char* id);
   void
@@ -117,6 +132,8 @@ private:
   rmDataFromIDList(char* id);
   corba_data_desc_t
   moveToCorbaDataDesc(corba_data_t& dataDesc);
+  void 
+  printList();
 
 };
 
