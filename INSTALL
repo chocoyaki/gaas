@@ -1,8 +1,300 @@
-Copyright (C) 1994, 1995, 1996, 1999, 2000, 2001, 2002 Free Software
-Foundation, Inc.
 
-   This file is free documentation; the Free Software Foundation gives
-unlimited permission to copy, distribute and modify it.
+  This is a text help for DIET installation, extracted from the User's
+Manual. At the end of this help, you will find the generic help provided by the
+Free Software Fundation, concerning all softwares which, as DIET does, use the
+autotools and their configure scripts.
+
+
+                                 Dependencies
+
+Hardware dependencies
+
+   DIET has only been tested on Linux i386 and i686 platforms.
+   Solaris - sparc, Linux - sparc and Linux - alpha will soon be
+   supported.
+
+Software dependencies
+
+   The three parts of DIET (the client, the agent, and the ) can be used
+   separately, and their dependencies are different from each other.
+
+   As explained in Section [1][*] , CORBA is used for all communications
+   inside the platform. So all of the three parts depend on it. The
+   implementations of CORBA currently supported in DIET are:
+     * omniORB 3 which depends on Python 1.5
+     * omniORB 4 which depends on Python 2.1 or later, and on OpenSSL if
+       you would like your DIET platform to be secure.
+
+   We strongly recommend omniORB 4, as it is easier to install, and
+   provides an SSL support. In order to deploy CORBA services with
+   omniORB, a configuration file and a log directory are required: see
+   Section [2][*] for complete description of the services. Their path
+   can be given to omniORB through environments variables, and/or, for
+   omniORB 4 only, at compile time, with the -with-omniORB-config and
+   -with-omniNames-logdir options.
+
+   NB: We have noticed that some problems occur with Python 2.3: the
+   generated C++ code could not be compiled. It has been patched in DIET,
+   but some warnings still appear.
+
+   The agent and server parts of DIET can depend on FAST (see §[3] [*] ).
+   Although not absolutely compulsory, it is strongly recommended:
+   indeed, all communication and computation times are set to infinity if
+   FAST is not installed. FAST depends itself on:
+     * DB 2 the Berkeley Database routines
+     * GSL the GNU Scientific Library
+     * OpenLDAP an implementation of the Lightweight Directory Access
+       Protocol
+     * NWS the Network Weather Service
+
+   For more details about FAST dependencies, please refer to the FAST
+   User's Manual soon available. It is important to understand basically
+   how FAST works, and the role of its dependencies, to deactivate the
+   ones not needed by the user.
+
+   Finally, some examples provided in the DIET sources depend on the BLAS
+   and libraries (cf. §[4] [*] ). However all examples do not have to be
+   compiled.
+
+
+
+
+                            Compiling the platform
+
+   Once all the dependencies you need are installed, untar the DIET
+   archive and change to its root directory. A configure script will
+   prepare DIET for compiling: its main options are described below, but
+   please, run configure -help to get an up-to-date and complete usage
+   description.
+
+~ > tar xzf DIET.tgz
+~ > cd DIET
+~/DIET > ./configure --help=short
+Configuration of DIET:
+...
+
+Optional features for configuration
+
+  --enable-doc            enable the module doc, documentation about DIET
+
+   This option activates the compilation and installation of the DIET
+   documents, which is disabled by default, because it is very sensitive
+   to the version of your LATEX compiler. The output postscript files are
+   provided in the archive.
+
+  --disable-examples      disable the module examples, basic DIET examples
+
+   This option deactivates the compilation of the DIET examples, which is
+   enabled by default.
+
+  --enable-BLAS           enable the module BLAS, an example for calling BLAS
+                          functions through DIET
+
+   This option activates the compilation of the DIET BLAS examples, as a
+   sub-module of examples (which means that this option has no effect if
+   examples are disabled) - disabled by default.
+
+ --enable-ScaLAPACK      enable the module ScaLAPACK, an example for calling
+                          ScaLAPACK functions through DIET
+
+   This option activates the compilation of the DIET examples, as a
+   sub-module of examples (which means that this option has no effect if
+   examples are disabled) - disabled by default.
+
+Optional packages for configuration
+
+  The -with-PKG-extra option
+
+   For all packages that DIET depends on, the configure script provides
+   an option that let the user define the arguments needed to compile
+   with the libraries of the package PKG: -with-PKG-extra. This is useful
+   when the configure script does not succeed on its own to get necessary
+   compilation option.
+
+   Let us take the example of a user who wishes to compile the BLAS
+   examples (see the BLAS subsection below). On the platform he/she uses,
+   it is necessary to specify the following arguments to compile with the
+   BLAS library:
+
+   -lm -L/home/theuser/lib -lblas -lg2c -lm
+
+   Let us assume that specifying the option
+   -with-BLAS-libraries=/home/theuser/lib is not enough for the configure
+   script to compile DIET examples. Then, the user will have to add the
+   following arguments to his/her configure command line:
+
+   -with-BLAS-extra="-lm -L/home/theuser/lib -lblas -lg2c -lm"
+
+  omniORB
+
+  --with-omniORB=DIR      specify the root installation directory of omniORB
+  --with-omniORB-includes=DIR
+                          specify exact headers directory for omniORB
+  --with-omniORB-libraries=DIR
+                          specify exact libraries directory for omniORB
+  --with-omniORB-extra=ARG|"ARG1 ARG2 ..."
+                          specify extra args for the linker to find the
+                          omniORB libraries (use "" in case of several args)
+
+   This group of options lets the user define all necessary paths to
+   compile with omniORB. Generally, -with-omniORB= would be enough, and
+   the other options are provided for ugly installations of omniORB.
+   NB: having the executable omniidl in the PATH environment variable
+   should be enough in most cases.
+
+  FAST
+
+  --with-FAST=DIR         installation root directory for FAST (optional)
+  --with-FAST-bin=DIR     installation directory for fast-config (optional)
+
+   This group of options lets the user define all necessary paths to
+   compile with FAST. Generally, -with-FAST= would be enough, and the
+   other options are provided for ugly installations of FAST. There is no
+   need to specify includes, libraries nor extra arguments, since FAST
+   provides a tool fast-config that does the job for us.
+   NB1: having the executable fast-config in the PATH environment
+   variable should be enough in most cases.
+   NB2: it is possible to specify -without-FAST, which overrides
+   fast-config detection.
+
+  BLAS
+
+  --with-BLAS=DIR         specify the root installation directory of BLAS
+  --with-BLAS-includes=DIR
+                          specify exact headers directory for BLAS
+  --with-BLAS-libraries=DIR
+                          specify exact libraries directory for BLAS
+  --with-BLAS-extra=ARG|"ARG1 ARG2 ..."
+                          specify extra args for the linker to find the BLAS
+                          libraries (use "" in case of several args)
+
+   This group of options lets the user define all necessary paths to
+   compile with the BLAS libraries. Generally, -with-BLAS= would be
+   enough, and the other options are provided for ugly installation of
+   the BLAS.
+   NB: these options have no effect if the module example and/or its
+   sub-module BLAS are disabled.
+
+  .
+
+  --with-ScaLAPACK=DIR    specify the root installation directory of ScaLAPACK
+  --with-ScaLAPACK-includes=DIR
+                          specify exact headers directory for ScaLAPACK
+  --with-ScaLAPACK-libraries=DIR
+                          specify exact libraries directory for ScaLAPACK
+  --with-ScaLAPACK-extra=ARG|"ARG1 ARG2 ..."
+                          specify extra args for the linker to find the
+                          ScaLAPACK libraries (use "" in case of several args)
+
+   This group of options lets the user define all necessary paths to
+   compile with the libraries. Normally, -with-ScaLAPACK= should be
+   enough, but the other options are provided because the installation of
+   the libraries is often ugly, and thus difficult to detect
+   automatically: for instance, the -with-ScaLAPACK-extra option is
+   useful to integrate BLACS and MPI libraries, which are useful for
+   ScaLAPACK.
+   NB: these options has no effect if the module example and/or its
+   sub-module are disabled.
+
+From the configuration to the compilation
+
+   A default option for configure scripts is -prefix=, which specifies
+   where binary files, documents and configuration files will be
+   installed. It is important to set this option: it defaults to
+   DIET/install.
+
+   The configuration will return with an error if no ORB was found. So
+   please help the configure script to find the ORB with the
+   -with-omniORB* options.
+
+   If everything went OK, the configuration ends with a summary of the
+   options that were selected and what it was possible to get. The output
+   will look like:
+CONFIGURE successfully ended !!!
+DIET configured with prefix: ...
+DIET configured without FAST.
+DIET configured with omniORB 4 in ...
+
+Please, run make help to get compilation instructions.
+~/DIET > make help
+====================================================================
+Usage :   make help     : shows this help screen
+          make agent    : builds DIET agent executable
+          make SeD      : builds DIET SeD library
+          make client   : builds DIET client library
+          make examples : builds basic examples
+          make install  : copy files into ./install
+          make all      : builds everything but the examples
+====================================================================
+
+   This lets the user choose the DIET parts he/she wants to compile and
+   install. It is recommended for beginners to compile the client, the
+   SeD and the agent in one single step with make all. But please, pay
+   attention to the fact that make all does not install DIET in the
+   prefix provided at configuration time. To do this, run make install.
+
+   make install will run the compilation for all DIET entities before the
+   installation itself. Thus, if the user wants to compile only the
+   agent, for instance, and install it, he must run:
+~/DIET > cd src/agent
+~DIET/src/agent > make install
+
+
+
+
+                            Compiling the examples
+
+   Four series of examples are provided in the DIET archive:
+     * file_transfer: the server computes the sizes of two input files
+       and returns them (with or without, randomly, the first file) as
+       output arguments to the client.
+     * dmat_manips: the server offers matrix manipulation routines:
+       transposition (T), product (MatPROD) and sum (MatSUM, SqMatSUM for
+       square matrices, and SqMatSUM_opt for square matrices but re-using
+       the memory space of the second operand for the result) Any subset
+       of these operations can be specified on the command line. The last
+       two of them are given for compatibility with a BLAS server - see
+       below
+     * BLAS: the server is designed to offer all BLAS (Basic Linear
+       Algebric Subroutines) functions but only manages the dgemm_
+       function so far. Since this function computes $C = \alpha AB +
+       \beta C$ , it can also compute a matrix-matrix product, a sum of
+       square matrices, etc. All these services are offered by the BLAS
+       server. Two clients are designed to use these services: one
+       (dgemm_client.c) is designed to use the dgemm_ function only, and
+       the other one (client.c) to use all BLAS functions (but currently
+       only dgemm_) and sub-services, such as MatPROD.
+     * : the server is designed to offer all (parallel version of the
+       LAPACK library) functions but manages only the pdgemm_ function so
+       far. The pdgemm_ is actually the parallel version of the dgemm_
+       function, so that the server also offers all the same
+       sub-services. Two clients are designed to use these services: one
+       (pdgemm_client.c) is designed to use the pdgemm_ function only,
+       and the other one (client.c) to use all functions and
+       sub-services, such as MatPROD.
+
+   Running make install in the examples directory (or in the root
+   directory, when DIET is configured with -enable-examples) does not
+   copy binary files into $<$ install_dir $>$ /bin, but in examples/bin:
+   this odd behaviour is due to some limitations of the automake tool.
+
+   Likewise, the samples of configuration files located in examples/cfgs
+   are processed by make install to create ready-to-use configuration
+   files in examples/etc, and then copied into $<$ install_dir $>$ /etc.
+   Successive calls to make install will not erase the configuration
+   files created and copied at first time, except if make uninstall is
+   called inbetween ; thus the user will not lose his/her changes to
+   these files.
+
+
+     _________________________________________________________________
+
+   Philippe Combes 2003-05-26
+
+
+                    --------------------------------------
+                   | FSF documentation about installation |
+                    --------------------------------------
 
 Basic Installation
 ==================
