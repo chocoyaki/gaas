@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2004/05/18 21:32:26  alsu
+ * - implement the diet_service_table_set_perfmetric function to allow
+ *   SeDs to set up custom performance metric functions
+ * - call the new ServiceTable::addService method with the current
+ *   performance metric function
+ *
  * Revision 1.23  2004/04/16 19:04:40  mcolin
  * Fix patch for the vthd demo with the endPoint option in config files.
  * This option is now replaced by two options:
@@ -94,6 +100,16 @@ diet_service_table_init(int maxsize)
 
 int
 diet_convertor_check(diet_convertor_t* cvt, diet_profile_desc_t* profile);
+
+static diet_perfmetric_t current_perfmetric_fn = NULL;
+diet_perfmetric_t
+diet_service_table_set_perfmetric(diet_perfmetric_t perfmetric_fn)
+{
+  diet_perfmetric_t tmp_fn = current_perfmetric_fn;
+  current_perfmetric_fn = perfmetric_fn;
+  return (tmp_fn);
+}
+
 int
 diet_service_table_add(diet_profile_desc_t* profile,
 		       diet_convertor_t*    cvt,
@@ -118,7 +134,11 @@ diet_service_table_add(diet_profile_desc_t* profile,
       diet_arg_cvt_set(&(actual_cvt->arg_convs[i]),
 		       DIET_CVT_IDENTITY, i, NULL, i);
   }
-  res = SRVT->addService(&corba_profile, actual_cvt, solve_func, NULL);
+  res = SRVT->addService(&corba_profile,
+                         actual_cvt,
+                         solve_func,
+                         NULL,
+                         current_perfmetric_fn);
   if (!cvt)
     diet_convertor_free(actual_cvt);
   return res;
