@@ -2,6 +2,9 @@
 
 /*
  * $Log$
+ * Revision 1.6  2003/01/22 15:48:54  sdahan
+ * add #include "omniorb.hh"
+ *
  * Revision 1.5  2003/01/22 14:56:30  pcombes
  * Add omniORB3 compatibility
  *
@@ -28,13 +31,7 @@
 #ifndef _MS_FUNCTION_HH_
 #define _MS_FUNCTION_HH_
 
-#ifdef __OMNIORB3__
-#include <omniORB3/CORBA.h>
-#else
-#ifdef __OMNIORB4__
-#include <omniORB4/CORBA.h>
-#endif
-#endif
+#include "omniorb.hh"
 
 /**
  * Duplicates the string given in argument with the \c
