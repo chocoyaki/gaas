@@ -9,11 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.33  2003/09/24 11:04:12  pcombes
+ * Manage the case of a volatile data with a NULL value.
+ *
  * Revision 1.32  2003/09/24 09:07:52  pcombes
  * Merge corba_DataMgr_desc_t and corba_data_desc_t.
- *
- * Revision 1.31  2003/09/22 21:06:22  pcombes
- * Rollback after Bruno's too quick commit.
  *
  * Revision 1.29  2003/08/09 17:31:38  pcombes
  * Include path in the diet_profile_desc structure.
@@ -34,9 +34,6 @@
  * Revision 1.24  2003/02/07 17:04:12  pcombes
  * Refine convertor API: arg_idx is splitted into in_arg_idx and out_arg_idx.
  *
- * Revision 1.23  2003/02/04 10:08:22  pcombes
- * Apply Coding Standards
- *
  * Revision 1.22  2003/01/23 18:40:53  pcombes
  * Remove "only_value" argument to unmrsh_data, which is now useless
  *
@@ -52,38 +49,8 @@
  * Revision 1.18  2002/12/03 19:08:23  pcombes
  * Update configure, update to FAST 0.3.15, clean CVS logs in files.
  * Put main Makefile in root directory.
- *
- * Revision 1.16  2002/11/22 13:36:12  lbertsch
- * Added alpha linux support
- * Added a package for statistics and some traces
- *
- * Revision 1.15  2002/11/15 17:15:32  pcombes
- * FAST integration complete ...
- *
- * Revision 1.10  2002/10/04 16:17:09  pcombes
- * Integrate former hardcoded.h in configuration files. If DIET is compiled
- * without FAST, the correspunding entries in the cfg files can be omitted.
- *
- * Revision 1.9  2002/10/03 17:58:13  pcombes
- * Add trace levels (for Bert): traceLevel = n can be added in cfg files.
- * An agent son can now be killed (^C) without crashing this agent.
- * DIET with FAST: compilation is OK, but run time is still to be fixed.
- *
- * Revision 1.5  2002/08/30 16:50:12  pcombes
- * This version works as well as the alpha version from the user point of view,
- * but the API is now the one imposed by the latest specifications (GridRPC API
- * in its sequential part, config file for all parts of the platform, agent
- * algorithm, etc.)
- *  - Reduce marshalling by using CORBA types internally
- *  - Creation of a class ServiceTable that is to be replaced
- *    by an LDAP DB for the MA
- *  - No copy for client/SeD data transfers
- *  - ...
  ****************************************************************************/
 
-
-#include <iostream>
-using namespace std;
 #include <fstream>
 #include <stdlib.h>
 #include <sys/stat.h>
@@ -239,12 +206,14 @@ mrsh_data(corba_data_t* dest, diet_data_t* src, int release)
       value[0] = '\0';
     }
   } else {
-    value = (CORBA::Char*)src->value;
+    if (src->value != NULL) {
+      value = (CORBA::Char*)src->value;
+    } else {
+      value = SeqChar::allocbuf(1);
+      value[0] = '\0';
+    }
   }
-
- // added for data persistence : in or inout arg with null value (data present)
- if (value != NULL)
-    dest->value.replace(size, size, value, release);
+  dest->value.replace(size, size, value, release);
 
   return 0;
 }
@@ -448,7 +417,11 @@ mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src)
   dest->parameters.length(src->last_out + 1);
 
   for (i = 0; i <= src->last_inout; i++) {
-
+    if (src->parameters[i].value == NULL &&
+	!diet_is_persistent(src->parameters[i])) {
+      ERROR(__FUNCTION__ << ": IN or INOUT parameter "
+	    << i << " is volatile but contains no data", 1);
+    }
     if (mrsh_data(&(dest->parameters[i]), &(src->parameters[i]), 0))
       return 1;
   }
