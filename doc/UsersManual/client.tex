@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.4  2004/01/05 13:06:53  ecaron
+%* Update example to DIET 1.0
+%*
 %* Revision 1.3  2003/12/12 14:40:02  pkchouha
 %* Bug correction
 %*
@@ -141,18 +144,15 @@ int main(int argc, char **argv)
   /* Iinitialize a DIET session */
   diet_initialize("./client.cfg", argc, argv);
 
-  /* Create the function_hanle */
-  fhandle = diet_function_handle_default("smprod");
-
   /* Create the profile as explained in Chapter \ref{\ref{ch:data} */
-  profile = diet_profile_alloc(0, 1, 2); // last_in, last_inout, last_out
+  profile = diet_profile_alloc("smprod",0, 1, 2); // last_in, last_inout, last_out
   
   /* Set profile arguments */
   diet_scalar_set(diet_parameter(profile,0), &factor, 0, DIET_DOUBLE);
-  diet_matrix_set(diet_parameter(profile,1), matrix,  0, DIET_DOUBLE, 60, 100, DIET_ROW_MAJOR);
+  diet_matrix_set(diet_parameter(profile,1), matrix,  0, DIET_DOUBLE, 60, 100, DIET_COL_MAJOR);
   diet_scalar_set(diet_parameter(profile,2), NULL,    0, DIET_FLOAT);
   
-  if (!diet_call(fhandle, profile)) { /* If the call has succeeded ... */
+  if (!diet_call(profile)) { /* If the call has succeeded ... */
      
     /* Get and print time */
     diet_scalar_get(diet_parameter(profile,2), &time, NULL);
@@ -168,14 +168,12 @@ int main(int argc, char **argv)
     }
   }
 
-  /* Free profile and function handle */
+  /* Free profile */
   diet_profile_free(profile);
-  diet_function_handle_destruct(fhandle);
   diet_finalize();
 }
 \end{verbatim}
 }
-
 
 \section{Compilation}
 \label{sec:cl_comp}
