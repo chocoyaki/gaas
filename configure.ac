@@ -1,16 +1,17 @@
 #****************************************************************************#
-#* $Id$                *#
 #* DIET autoconf configure                                                  *#
 #*                                                                          *#
 #*  Author(s):                                                              *#
-#*    - Christophe   PERA          - LIP ENS-Lyon (France)                  *#
+#*    - Christophe PERA (Christophe.Pera@ens-lyon.fr)                       *#
 #*                                                                          *#
-#*  This is part of DIET software.                                          *#
-#*  Copyright (C) 2002 ReMaP/LIFC/INRIA                                     *#
-#*                                                                          *#
+#* $LICENSE$                                                                *#
 #****************************************************************************#
-#*
+#* $Id$
 #* $Log$
+#* Revision 1.6  2003/04/10 14:59:23  pcombes
+#* Add modules doc (disabled by default), examples (forced),
+#* examples/BLAS and examples/ScaLAPCAK (both disabled by default).
+#*
 #* Revision 1.5  2003/02/18 17:06:53  cpera
 #* Correction.
 #*
@@ -25,58 +26,46 @@
 #*
 #* Revision 1.1  2003/02/14 10:31:29  cpera
 #* add files used by autoconf/automake/libtool.
-#*
-#*
 #****************************************************************************#
 
-dnl ###########################################################################
+dnl ##########################################################################
 dnl #### Process this file with autoconf to produce a configure script.
-dnl ###########################################################################
+dnl ##########################################################################
 AC_PREREQ([2.55])
 ACI_PREREQ(2003.01.29)
-AC_INIT(DIET, 0.7, diet-dev@ens-lyon.fr)
-AC_CONFIG_SRCDIR([src/agent/agent_impl.hh])
+AC_INIT(DIET, 0.7_beta, diet-dev@ens-lyon.fr)
+AC_CONFIG_SRCDIR([include/DIET_data.h])
 AC_REVISION($Revision$)
 AC_CONFIG_HEADERS([include/DIET_config.h])
+AC_PREFIX_DEFAULT(`pwd`/install)
 
 
-dnl ###########################################################################
+dnl ##########################################################################
 dnl #### Create templates for config.h.in header.
-dnl ###########################################################################
-AH_TEMPLATE([HAVE_omniORB], [Define use of OMNIORB.])
-AH_TEMPLATE([HAVE_CICHLID], [Define use of CICHLID .])
-AH_TEMPLATE([HAVE_STATISTICS], [Define use of STATISTIC library.])
+dnl ##########################################################################
+AH_TEMPLATE([HAVE_OMNIORB], [Define use of omniORB.])
+AH_TEMPLATE([HAVE_CICHLID], [Define use of Cichlid.])
+AH_TEMPLATE([HAVE_STATISTICS], [Define use of STATISTICS library.])
 AH_TEMPLATE([HAVE_BLAS], [Define use of BLAS library for DIET examples.])
-AH_TEMPLATE([HAVE_PBLAS], [Define use of PBLAS library for DIET examples.])
-AH_TEMPLATE([HAVE_MPI], [Define use of MPI library for DIET examples.])
+dnl AH_TEMPLATE([HAVE_PBLAS], [Define use of PBLAS library for DIET examples.])
+dnl AH_TEMPLATE([HAVE_MPI], [Define use of MPI library for DIET examples.])
 AH_TEMPLATE([HAVE_SCALAPACK], [Define use of SCALAPACK library \
                               for DIET examples.])
-AH_TEMPLATE([HAVE_GSL], [Define use of GSL library for DIET examples.])
+dnl AH_TEMPLATE([HAVE_GSL], [Define use of GSL library for DIET examples.])
 AH_TEMPLATE([HAVE_MULTI_MA], [using multi MA architecture.])
 AH_TOP([#ifndef _DIET_CONFIG_H_
 #define _DIET_CONFIG_H_])
 AH_BOTTOM([#endif // _DIET_CONFIG_H_])
 
 
-
 AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE[]
 AM_MAINTAINER_MODE
 
-
-AC_ARG_ENABLE(multi-MA,[  --enable-multi-MA       enable multi MA architecture],
-              desireMA=true,desireMA=false)
-if test "x$desireMA" = "xtrue"
-	then
-	echo HAVE_MULTI_MA
-	AC_DEFINE(HAVE_MULTI_MA)
-fi
-
-
-dnl ###########################################################################
+dnl ##########################################################################
 dnl #### check OS target
 dnl ** Platform name | according to omniORB configure.ac
-dnl ###########################################################################
+dnl ##########################################################################
 plat_name="Platform_Unknown"
 plat_def="__unknown_platform__"
 os_version="0"
@@ -97,13 +86,15 @@ case "$host" in
   *-*-freebsd4*) plat_name="FreeBSD";  plat_def="__freebsd__";  os_v="4";;
   *-*-sco*)      plat_name="OSR5";     plat_def="__osr5__";     os_v="5";;
 esac
+AC_SUBST(HOST_NAME, $ac_hostname)
 AC_SUBST(PLATFORM_NAME, $plat_name)
 AC_SUBST(PLATFORM_DEFINE, $plat_def)
 AC_SUBST(OSVERSION, $os_v)
-dnl ###########################################################################
+
+dnl ##########################################################################
 dnl #### check OS target
 dnl ** Processor | according to omniORB configure.ac
-dnl ###########################################################################
+dnl ##########################################################################
 proc_name="UnknownProcessor"
 proc_def="__processor_unknown__"
 case "$host" in
@@ -122,20 +113,27 @@ AC_SUBST(PROCESSOR_NAME, $proc_name)
 AC_SUBST(PROCESSOR_DEFINE, $proc_def)
 
 
-dnl ###########################################################################
-# Initialize the test suite and build position independent wrappers.
-dnl ###########################################################################
+dnl ##########################################################################
+dnl # Initialize the test suite and build position independent wrappers.
+dnl ##########################################################################
 #AC_CONFIG_TESTDIR([tests])
 #AC_CONFIG_FILES([tests_auto/Makefile tests_auto/atlocal])
 
 dnl ###########################################################################
 dnl DIET modules listing. 
 dnl ###########################################################################
-ACI_MODULE([DIET],[The middleware you are trying to use ;)],[omniORB] [FAST],[agent client SeD],,[CORBA  utils])
-  ACI_MODULE([agent],[Master and Local agent;],)
-  ACI_MODULE([client],[client for master agent;],)
-  ACI_MODULE([SeD],[basic DIET service server;],)
-  ACI_MODULE([examples],[basic DIET service server;],)
+ACI_MODULE([DIET],,[omniORB FAST],[src doc],force)
+  ACI_MODULE([doc],[documentation about DIET],,,no)
+  ACI_MODULE([src],,,[agent client SeD examples],force)
+    ACI_MODULE([agent],[DIET_MA and DIET_LA],,,force)
+    ACI_MODULE([client],[the client library],,,force)
+    ACI_MODULE([SeD],[the DIET Server Daemon],,,force)
+    ACI_MODULE([examples],[basic DIET examples],[SeD client],[BLAS ScaLAPACK])
+      ACI_MODULE([BLAS],[an example for calling BLAS functions through DIET],
+	         [examples BLAS],,no)
+      ACI_MODULE([ScaLAPACK],
+	         [an example for calling ScaLAPACK functions through DIET],
+	         [examples ScaLAPACK],,no)
 
 dnl ###########################################################################
 dnl Load anything under acmacros/*.m4
@@ -157,21 +155,62 @@ AC_SUBST(LIBTOOL_DEPS)
 AC_CHECK_LIB([pthread], [pthread_attr_getdetachstate])
 
 dnl ###########################################################################
-dnl ####[ search omniORB lib and bin ]
+dnl ####[ search for omniORB lib and bin ]
 dnl ###########################################################################
-AC_OMNIORB_DIET(,,,,$proc_name,$proc_def,$plat_name,$plat_def,$os_v,omniFound=true,omniFound=false)
+AC_OMNIORB_DIET(,,,,$proc_name,$proc_def,$plat_name,$plat_def,$os_v,
+		omniFound=true,omniFound=false)
 
 dnl ###########################################################################
-dnl ####[ search the FAST Library ]
+dnl ####[ search for the FAST Library ]
 dnl ###########################################################################
-AM_PATH_FAST(,[AC_DEFINE(HAVE_FAST,1,[define if you have the library FAST])
-AC_SUBST(HAVE_FAST,"yes")],[AC_MSG_WARN(could not find the FAST lib. Will \
-				try to build a degraded Benchs module, able \
-				to benchs, but not to do any data fitting)])
-
+AM_PATH_FAST(,[HAVE_FAST=true
+	       AC_DEFINE(HAVE_FAST,1,[Define use of the FAST library])],
+	      [HAVE_FAST=false
+	       AC_MSG_WARN(Use of FAST library is disabled - either by you or because)
+               AC_MSG_WARN(it was not found: all performance evaluations will be set)
+	       AC_MSG_WARN(to infinity.)])
 
 dnl ###########################################################################
-dnl ####[ search the BLACS Library ]
+dnl ####[ various compilationi modes ]
+dnl ###########################################################################
+AC_ARG_ENABLE(Cichlid,
+	      AC_HELP_STRING([--enable-Cichlid],
+	                 [enable generation of communication logs for Cichlid]),
+              HAVE_CICHLID=true, HAVE_CICHLID=false)
+if test "x$HAVE_CICHLID" = "xtrue"; then
+  AC_DEFINE(HAVE_CICHLID,1,[Define use of communication tools])
+fi
+
+AC_ARG_ENABLE(stats,
+	      AC_HELP_STRING([--enable-stats],
+			     [enable generation of statistics logs]),
+              HAVE_STATISTICS=true, HAVE_STATISTICS=false)
+if test "x$HAVE_STATISTICS" = "xtrue"; then
+  AC_DEFINE(HAVE_STATISTICS)
+fi
+
+AC_ARG_ENABLE(multi-MA,
+	      AC_HELP_STRING([--enable-multi-MA],
+			     [enable multi-MA architecture]),
+              HAVE_MULTI_MA=true, HAVE_MULTI_MA=false)
+if test "x$HAVE_MULTI_MA" = "xtrue"; then
+  AC_DEFINE(HAVE_MULTI_MA)
+fi
+
+dnl ###########################################################################
+dnl ####[ search for the BLAS Library ]
+dnl ###########################################################################
+ACI_PACKAGE([BLAS],[BLAS],[dgemm_],
+            [-lcblas -lblas -lblas2 -latlas!-lblas!-llapack!-lm!-lblas!-lcblas!\
+	     -llapack!-lm!-L/usr/lib/atlas ],,,:)
+
+dnl ###########################################################################
+dnl ####[ search for the ScaLAPACK Library ]
+dnl ###########################################################################
+ACI_PACKAGE([ScaLAPACK],[ScaLAPACK],[pdgemm_],[-latlas],,,:)
+
+dnl ###########################################################################
+dnl ####[ search for the BLACS Library ]
 dnl ###########################################################################
 #ACI_PACKAGE([BLACS],[the BLACS library: used by DIET samples and so \
 #		necessary if they are compiled], 
@@ -209,12 +248,12 @@ AC_SUBST(CPPFLAGS)
 AC_SUBST(CXXFLAGS)
 AC_SUBST(LDFLAGS)
 
-
-AC_SUBST(HAVE_FAST)
-AC_SUBST(HAVE_CICHLID)
-AC_SUBST(HAVE_STATISTICS)
+# FIXME: kesako ? pq un AC_SUBST sur des HAVE_XXX
+#AC_SUBST(HAVE_FAST)
+#AC_SUBST(HAVE_CICHLID)
+#AC_SUBST(HAVE_STATISTICS)
 AC_SUBST(OMNIORB_VERSION)
-AC_SUBST(OMNIORB_HOME,"$OMNIORB_HOME")
+AC_SUBST(OMNIORB_HOME)
 
 AC_SUBST(IDLFLAGS)
 AC_SUBST(prefix)
@@ -225,28 +264,30 @@ AC_LANG(C++)
 dnl ###########################################################################
 # Checks for header files.
 dnl ###########################################################################
-AC_HEADER_DIRENT
-AC_HEADER_STDC
-AC_CHECK_HEADERS([stdlib.h string.h sys/time.h unistd.h values.h])
+dnl AC_HEADER_DIRENT # unused
+dnl AC_HEADER_STDC   # default
+AC_CHECK_HEADERS([alloca.h assert.h iostream limits.h math.h stdio.h \
+		  sys/time.h time.h])
+AC_HEADER_TIME
+
 
 dnl ###########################################################################
 # Checks for typedefs, structures, and compiler characteristics.
 dnl ###########################################################################
 AC_C_CONST
 AC_C_INLINE
-AC_TYPE_PID_T
+dnl AC_TYPE_PID_T # unused
+# FIXME: ce qu'il serait bon, c'est de récupérer la taille des types en octets
 AC_TYPE_SIZE_T
-AC_HEADER_TIME
 
 dnl ###########################################################################
 # Checks for library functions.
 dnl ###########################################################################
 AC_FUNC_MALLOC
-AC_TYPE_SIGNAL
-AC_FUNC_STAT
-AC_FUNC_STRTOD
-AC_CHECK_FUNCS([gethostname gettimeofday select sqrt strcasecmp strdup strrchr \
-                strstr])
+dnl AC_TYPE_SIGNAL # unused
+dnl AC_FUNC_STAT   # unused
+dnl AC_FUNC_STRTOD # unused
+AC_CHECK_FUNCS([gethostname gettimeofday pow strdup strrchr strtok_r])
 
 dnl ###########################################################################
 dnl #### check OS/Platform target
@@ -269,7 +310,8 @@ esac
 dnl ###########################################################################
 dnl #### Compiling DIET modules with statistic services
 dnl ###########################################################################
-AM_CONDITIONAL(STATISTIC, test "$enable_stats" = yes) 
+# FIXME: et ça, c'est quoi ??? Et Cichlid ??
+#AM_CONDITIONAL(STATISTIC, test "$enable_stats" = yes) 
 
 
 dnl ###########################################################################
@@ -281,14 +323,16 @@ AC_CONFIG_FILES([include/Makefile.inc
 		Makefile
 		src/Makefile
                 src/CORBA/Makefile
+                src/CORBA/idl/Makefile
                 src/utils/Makefile
                 src/SeD/Makefile
                 src/agent/Makefile
                 src/client/Makefile
+		src/examples/Makefile
                 src/examples/BLAS/Makefile
                 src/examples/dmat_manips/Makefile
                 src/examples/file_transfer/Makefile
-                src/examples/SCALAPACK/Makefile
+                src/examples/ScaLAPACK/Makefile
 		doc/Makefile
 		doc/CS/Makefile
 		doc/UM/Makefile])
@@ -300,24 +344,24 @@ dnl ###########################################################################
 echo ""
 echo "CONFIGURE successfully ended !!!"
 echo "DIET configured with prefix: $prefix."
-if test "x$HAVE_FAST" = "xyes"
+if test "x$HAVE_FAST" = "xtrue"
 then
-echo "DIET configured with FAST in $with_FAST."
+  echo "DIET configured with FAST ($FAST_CONFIG)."
 else
   echo "DIET configured without FAST."
 fi
 echo "DIET configured with omniORB $OMNIORB_VERSION in $OMNIORB_HOME."
-if test "x$HAVE_Cichlid" = "xyes"
+if test "x$HAVE_CICHLID" = "xtrue"
 then
   echo "DIET configured with generation of communication logs for Cichlid."
-else
-  echo "DIET configured without Cichlid interface."
 fi
-if test "x$HAVE_STATISTICS" = "xyes"
+if test "x$HAVE_STATISTICS" = "xtrue"
 then
   echo "DIET configured with generation of statistics logs."
-else
-  echo "DIET configured without any statistics."
+fi
+if test "x$HAVE_MULTI_MA" = "xtrue"
+then
+  echo "DIET configured in multi MA mode."
 fi
 
 exit 0;
