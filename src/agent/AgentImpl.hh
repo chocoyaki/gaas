@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2003/08/01 19:33:11  pcombes
+ * Use FASTMgr.
+ *
  * Revision 1.2  2003/05/10 08:53:34  pcombes
  * New format for configuration files, new Parsers.
  *
@@ -119,16 +122,6 @@ protected:
   /** All requests beeing processed */ 
   ts_map<RequestID, Request*> reqList;
  
-#if HAVE_FAST
-
-  /** Use of FAST */
-  size_t fastUse;
-
-  /** Mutex for FAST calls (FAST is not reentrant yet) */
-  omni_mutex fastMutex;
-
-#endif // HAVE_FAST
-
 
   /**************************************************************************/
   /* Private methods                                                        */
@@ -147,10 +140,9 @@ protected:
   sendRequest(CORBA::ULong childID, const corba_request_t* req);
    
   /**
-   * Get communication time between this agent and the child \c childID for a data
-   * amount of size \c size. The way of the data transfer can be specified with
-   * \c to : if (to), from this agent to the child, else from the child to this
-   * agent.
+   * Get communication time for an amount of data of size \c size,<br>
+   *  <ul><li> from this agent to the child \c childID if \c to is true,</li>
+   *  <li> from the child \c childID to this agent, else.          </li></ul>
    */
   inline double
   getCommTime(CORBA::Long childID, unsigned long size, bool to = true);
@@ -164,7 +156,7 @@ protected:
   aggregate(Request* request, size_t max_srv);
 
   /** Get host name of a child (returned string is ms_stralloc'd). */
-  char*
+  inline char*
   getChildHostName(CORBA::Long childID);
 };
 

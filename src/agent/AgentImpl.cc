@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2003/08/01 19:33:11  pcombes
+ * Use FASTMgr.
+ *
  * Revision 1.5  2003/07/04 09:47:59  pcombes
  * Use new ERROR, WARNING and TRACE macros.
  *
@@ -38,12 +41,9 @@ using namespace std;
 #include <stdlib.h>
 #include <unistd.h>
 
-#if HAVE_FAST
-#include "slimfast_api.h"
-#endif // HAVE_FAST
-
 #include "debug.hh"
 #include "ms_function.hh"
+#include "FASTMgr.hh"
 #include "ORBMgr.hh"
 #include "Parsers.hh"
 
@@ -64,9 +64,6 @@ AgentImpl::AgentImpl()
   this->nbLAChildren         = 0;
   this->nbSeDChildren        = 0;
   this->SrvT                 = new ServiceTable();
-#if HAVE_FAST
-  this->fastUse              = 1;
-#endif // HAVE_FAST
 } // AgentImpl()
 
 AgentImpl::~AgentImpl()
@@ -85,6 +82,8 @@ AgentImpl::~AgentImpl()
 int
 AgentImpl::run()
 {
+  char* name;
+
   /* Set host name */
   this->localHostName[257] = '\0';
   if (gethostname(this->localHostName, 256)) {
@@ -92,7 +91,7 @@ AgentImpl::run()
   }
 
   /* Bind this agent to its name in the CORBA Naming Service */
-  char* name = (char*)Parsers::Results::getParamValue(Parsers::Results::NAME);
+  name = (char*)Parsers::Results::getParamValue(Parsers::Results::NAME);
   if (name == NULL)
     return 1;
   strncpy(this->myName, name, MIN(256, strlen(name)));
@@ -100,57 +99,9 @@ AgentImpl::run()
     ERROR("could not declare myself as " << this->myName, 1);
   }
 
-#if HAVE_FAST
+  // Init FAST (HAVE_FAST is managed by the FASTMgr class)
+  return FASTMgr::init();
 
-  this->fastUse =
-    *((size_t*)Parsers::Results::getParamValue(Parsers::Results::FASTUSE));
-
-  if (this->fastUse > 0) {
-    Parsers::Results::Address* tmp;
-    size_t ldapUse, ldapPort, nwsUse, nwsNSPort, nwsFcstPort;
-    char*  ldapHost = "";
-    char*  ldapMask = "";
-    char*  nwsNSHost = "";
-    char*  nwsFcstHost = "";
-    
-    ldapUse = 
-      *((size_t*)Parsers::Results::getParamValue(Parsers::Results::LDAPUSE));
-    if (ldapUse) {
-      tmp = (Parsers::Results::Address*)
-	Parsers::Results::getParamValue(Parsers::Results::LDAPBASE);
-      ldapHost = tmp->host;
-      ldapPort = tmp->port;
-      ldapMask = (char*)
-	Parsers::Results::getParamValue(Parsers::Results::LDAPMASK);
-    }
-
-    nwsUse =
-      *((size_t*)Parsers::Results::getParamValue(Parsers::Results::NWSUSE));
-    if (nwsUse) {
-      tmp = (Parsers::Results::Address*)
-	Parsers::Results::getParamValue(Parsers::Results::NWSNAMESERVER);
-      nwsNSHost = tmp->host;
-      nwsNSPort = tmp->port;
-      tmp = (Parsers::Results::Address*)
-	Parsers::Results::getParamValue(Parsers::Results::NWSFORECASTER);
-      nwsFcstHost = tmp->host;
-      nwsFcstPort = tmp->port;
-    }
-    
-    /* Initialize FAST with parsed parameters */
-    if (!fast_init("ldap_use", ldapUse,
-		   "ldap_server", ldapHost, ldapPort, "ldap_binddn", ldapMask,
-		   "nws_use", nwsUse,
-		   "nws_nameserver", nwsNSHost, nwsNSPort,
-		   "nws_forecaster", nwsFcstHost, nwsFcstPort,
-		   NULL))
-      return 1;
-
-  } // if (this->fastUse > 0)
-
-#endif // HAVE_FAST
-
-  return 0;
 } // run()
 
 
@@ -513,42 +464,22 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req)
 
 
 /**
- * Get communication time between this agent and the child \c childID for a data
- * amount of size \c size. The way of the data transfer can be specified with
- * \c to : if (to), from this agent to the child, else from the child to this
- * agent.
+ * Get communication time for an amount of data of size \c size,<br>
+ *  <ul><li> from this agent to the child \c childID if \c to is true,</li>
+ *  <li> from the child \c childID to this agent, else.          </li></ul>
  */
 inline double
 AgentImpl::getCommTime(CORBA::Long childID, unsigned long size, bool to)
 {
-  double time = HUGE_VAL;
+  double time;
+  char* child_name = getChildHostName(childID);
 
   AGT_TRACE_FUNCTION(childID <<", " << size);
 
-#if HAVE_FAST
-  if (this->fastUse) {
-    char* child_name = getChildHostName(childID);
-    char* dest_name,* src_name;
-    if (to) {
-      dest_name = child_name;
-      src_name  = this->localHostName;
-    } else {
-      dest_name = this->localHostName;
-      src_name  = child_name;
-    }
-    fastMutex.lock();
-    if (!(fast_comm_time_best(src_name, dest_name, size, &time))) {
-      time = HUGE_VAL;
-      WARNING("fast_comm_time_best error (time set to HUGE_VAL)");
-    }
-    fastMutex.unlock();
-    //ms_strfree(dest_name);
-    //ms_strfree(src_name);
-    ms_strfree(child_name);
-  }
-#endif // HAVE_FAST
+  time = FASTMgr::commTime(this->localHostName, child_name, size, to);
 
-  return(time);
+  ms_strfree(child_name);
+  return time;
 } // getCommTime(int childID, unsigned long size, bool to)
 
 
@@ -577,7 +508,7 @@ AgentImpl::aggregate(Request* request, size_t max_srv)
 
 
 /** Get host name of a child (returned string is ms_stralloc'd). */
-char*
+inline char*
 AgentImpl::getChildHostName(CORBA::Long childID)
 {
   char* hostName = NULL;
