@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2003/06/24 16:44:46  cpera
+ * Fix bugs.
+ *
  * Revision 1.2  2003/06/04 14:40:05  cpera
  * Resolve bugs, change type of reqID (long int) and modify
  * diet_wait_all/diet_wait_any.
@@ -25,7 +28,7 @@
 #include <omnithread.h>
 #include <sys/types.h>
 #include <assert.h>
-#include "ReadersWritersLock.hh"
+#include "ReadersWriterLock.hh"
 #include "dietTypes.hh"
 
 /****************************************************************************
@@ -122,8 +125,8 @@ class CallAsyncMgr
     RulesReqIDMap rulesIDs;
     RulesConditionMap rulesConds;
     ReqIDStateMap iDState;
-    ReadersWritersLock callAsyncListLock;
-    ReadersWritersLock waitRulesReqIDStateLock;
+    DietReadersWriterLock callAsyncListLock;
+    DietReadersWriterLock waitRulesReqIDStateLock;
     DietException dex;
 };
 #endif //CALLASYNCMGR

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2003/06/24 16:44:46  cpera
+ * Fix bugs.
+ *
  * Revision 1.5  2003/06/23 08:05:45  cpera
  * Fix race condition that cause multiple initializations of pinstance.
  *
@@ -31,7 +34,7 @@
 using namespace std;
 
 // locking object
-static ReadersWritersLock rwLock; 
+static DietReadersWriterLock rwLock; 
 // initialize pointer
 CallAsyncMgr* CallAsyncMgr::pinstance = 0;
 
@@ -43,7 +46,7 @@ CallAsyncMgr* CallAsyncMgr::Instance ()
 {
   if (pinstance == 0)  // is it the first call?
   {  
-    WriterLock r(rwLock);
+    WriterLockGuard r(rwLock);
     if (pinstance == 0) pinstance = new CallAsyncMgr; // create sole instance
   }
   return pinstance; // address of sole instance
@@ -56,7 +59,7 @@ CallAsyncMgr* CallAsyncMgr::Instance ()
  * *******************************************************************/
 int CallAsyncMgr::addAsyncCall (long int reqID, diet_profile_t* dpt) 
 {
-  WriterLock r(callAsyncListLock);
+  WriterLockGuard r(callAsyncListLock);
   // NOTE : maybe we do test if there is already this reqID registered
   if (caList.find(reqID) == caList.end()){
     Data * data = new Data;
@@ -80,7 +83,7 @@ int CallAsyncMgr::addAsyncCall (long int reqID, diet_profile_t* dpt)
  * ******************************************************************/
  int CallAsyncMgr::deleteAsyncCall(long int reqID) 
 {
-  WriterLock r(callAsyncListLock);
+  WriterLockGuard r(callAsyncListLock);
   int k = -1;
   try{
     if (caList.find(reqID) != caList.end()){
@@ -124,7 +127,7 @@ int CallAsyncMgr::addWaitAllRule()
   try {
     Rule * rule = new Rule;
     {
-      ReaderLock r(callAsyncListLock);
+      ReaderLockGuard r(callAsyncListLock);
       CallAsyncList::iterator h = caList.begin();
       int size = caList.size();
       // Create ruleElements table ...
@@ -174,7 +177,7 @@ int CallAsyncMgr::addWaitAnyRule(diet_reqID_t* IDptr)
   try {
     Rule * rule = new Rule;
     { //managing Reader lock
-      ReaderLock r(callAsyncListLock);
+      ReaderLockGuard r(callAsyncListLock);
       CallAsyncList::iterator h = caList.begin();
       int size = caList.size();
       // Create ruleElements table ...
@@ -192,7 +195,7 @@ int CallAsyncMgr::addWaitAnyRule(diet_reqID_t* IDptr)
     switch (CallAsyncMgr::Instance()->addWaitRule(rule)){
       case DONE:
       {
-	ReaderLock r(callAsyncListLock);
+	ReaderLockGuard r(callAsyncListLock);
 	CallAsyncList::iterator h = caList.begin();
 	for (int k = 0; k < caList.size(); k++){
 	  if (h->second->st == DONE){
@@ -247,7 +250,7 @@ int CallAsyncMgr::addWaitRule(Rule * rule)
   STATE status = ERROR;
   try {
     if (true){ // managing WriterLock
-      WriterLock r(callAsyncListLock);
+      WriterLockGuard r(callAsyncListLock);
       // verify wait rule validity ...
       // for instance : at one state of all reqID is about RESOLVING..
       // else, signal client must not wait ...
@@ -278,7 +281,7 @@ int CallAsyncMgr::addWaitRule(Rule * rule)
     CallAsyncMgr::Instance()->deleteWaitRule(rule);
   }
   catch (const exception& e){
-    WriterLock r(callAsyncListLock);
+    WriterLockGuard r(callAsyncListLock);
     RulesReqIDMap::iterator j;
     for (int k = 0; k < rule->length; k++){
       while ( j != rulesIDs.end()){
@@ -307,7 +310,7 @@ int CallAsyncMgr::addWaitRule(Rule * rule)
 {
   try {
     if (rule == 0) return -1;
-    WriterLock r(callAsyncListLock);
+    WriterLockGuard r(callAsyncListLock);
     RulesConditionMap::iterator i = rulesConds.find(rule);
     if (i != rulesConds.end()) delete i->second; 	// deleting semaphore
     RulesReqIDMap::iterator j;
@@ -345,7 +348,7 @@ int CallAsyncMgr::serialise ()
  * *******************************************************************/
 int CallAsyncMgr::areThereWaitRules() 
 {
-  ReaderLock r(callAsyncListLock);
+  ReaderLockGuard r(callAsyncListLock);
   int size = rulesConds.size();
   return size;
 }
@@ -356,7 +359,7 @@ int CallAsyncMgr::areThereWaitRules()
 int CallAsyncMgr::notifyRst (long int reqID, corba_profile_t * dp) 
 {
   
-  WriterLock r(callAsyncListLock);
+  WriterLockGuard r(callAsyncListLock);
   try {
     // update diet_profile datas linked to this reqId
     CallAsyncList::iterator h = caList.find(reqID);
@@ -416,7 +419,7 @@ int CallAsyncMgr::notifyRst (long int reqID, corba_profile_t * dp)
  * ********************************************************************/
 int CallAsyncMgr::getStatusReqID(long int reqID)
 {
-  ReaderLock r(callAsyncListLock);
+  ReaderLockGuard r(callAsyncListLock);
   CallAsyncList::iterator h = caList.find(reqID);
   if (h == caList.end()){
     return -1;
@@ -431,7 +434,7 @@ int CallAsyncMgr::getStatusReqID(long int reqID)
  * *******************************************************************/
 int CallAsyncMgr::verifyRule(Rule *rule)
 {
-  ReaderLock r(callAsyncListLock);
+  ReaderLockGuard r(callAsyncListLock);
   return 0;
 }
 
@@ -452,7 +455,7 @@ int CallAsyncMgr::init(int argc, char* argv[])
  * *******************************************************************/ 
 int CallAsyncMgr::release()
 {
-  WriterLock r(callAsyncListLock);
+  WriterLockGuard r(callAsyncListLock);
   // all list/map will be clean...
   CallAsyncList::iterator h = caList.begin();
   int rst = 0, tmp_rst = 0;
