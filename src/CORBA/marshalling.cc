@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.19  2003/01/13 18:06:13  pcombes
+ * Add inout files management.
+ *
  * Revision 1.18  2002/12/03 19:08:23  pcombes
  * Update configure, update to FAST 0.3.15, clean CVS logs in files.
  * Put main Makefile in root directory.
@@ -49,6 +52,7 @@
 #include <iostream.h>
 #include <fstream.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -67,9 +71,9 @@ void mrsh_set_trace_level(int level)
 }
 
 
-/*==========================================================================*/
+/****************************************************************************/
 /* Data structure marshalling                                               */
-/*==========================================================================*/
+/****************************************************************************/
 
 inline int mrsh_scalar_desc(corba_data_desc_t *dest, diet_data_desc_t *src)
 {
@@ -106,6 +110,10 @@ inline int mrsh_scalar_desc(corba_data_desc_t *dest, diet_data_desc_t *src)
       dest->specific.scal().value <<= (CORBA::Double) scal;
       break;
     }
+#if HAVE_COMPLEX
+    case DIET_SCOMPLEX:
+    case DIET_DCOMPLEX:
+#endif // HAVE_COMPLEX
     default:
       cerr << "mrsh_scalar_desc: Base type "
 	   << src->generic.base_type << " not implemented.\n";
@@ -198,9 +206,9 @@ int mrsh_data(corba_data_t *dest, diet_data_t *src, int release)
 }
 
 
-/*==========================================================================*/
+/****************************************************************************/
 /* Data structure unmarshalling                                             */
-/*==========================================================================*/
+/****************************************************************************/
 
 
 inline int unmrsh_scalar_desc(diet_data_desc_t *dest, const corba_data_desc_t *src)
@@ -240,6 +248,10 @@ inline int unmrsh_scalar_desc(diet_data_desc_t *dest, const corba_data_desc_t *s
     scalar_desc_set(dest, DIET_VOLATILE, bt, value);
     break;
   }
+#if HAVE_COMPLEX
+  case DIET_SCOMPLEX:
+  case DIET_DCOMPLEX:
+#endif // HAVE_COMPLEX
   default:
     cerr << "unmrsh_scalar_desc: Base type " << bt << " not implemented.\n";
     return 1;
@@ -315,6 +327,10 @@ inline sf_type_base_t diet_to_sf_base_type(const diet_base_type_t t)
   case DIET_FLOAT:
   case DIET_DOUBLE:
     return sf_type_base_double;
+#if HAVE_COMPLEX
+  case DIET_SCOMPLEX:
+  case DIET_DCOMPLEX:
+#endif // HAVE_COMPLEX
   default:
     return sf_type_base_count;  
   }
@@ -418,9 +434,9 @@ int unmrsh_data(diet_data_t *dest, corba_data_t *src, int only_value)
 }
 
 
-/*==========================================================================*/
+/****************************************************************************/
 /* Service profile -> Corba profile descriptor  (for service descriptions)  */
-/*==========================================================================*/
+/****************************************************************************/
 
 
 int mrsh_profile_desc(corba_profile_desc_t *dest,
@@ -439,9 +455,9 @@ int mrsh_profile_desc(corba_profile_desc_t *dest,
 }
 
 
-/*==========================================================================*/
+/****************************************************************************/
 /* Problem profile -> corba profile description (for client requests)       */
-/*==========================================================================*/
+/****************************************************************************/
 
 int mrsh_pb_desc(corba_pb_desc_t *dest, diet_profile_t *src, char *src_name)
 {
@@ -457,9 +473,9 @@ int mrsh_pb_desc(corba_pb_desc_t *dest, diet_profile_t *src, char *src_name)
 }
 
 
-/*==========================================================================*/
+/****************************************************************************/
 /* Problem profile -> FAST sf_inst_desc (for client requests)              */
-/*==========================================================================*/
+/****************************************************************************/
 
 int cvt_arg_desc(sf_data_desc_t *dest,
 		 diet_data_desc_t *src, diet_convertor_function_t f)
@@ -547,9 +563,9 @@ int unmrsh_pb_desc_to_sf(sf_inst_desc_t *dest, const corba_pb_desc_t *src,
 }
 
 
-/*==========================================================================*/
+/****************************************************************************/
 /* Client sends its data ...                                                */
-/*==========================================================================*/
+/****************************************************************************/
 
 int mrsh_profile_to_in_args(corba_profile_t *dest, const diet_profile_t *src)
 {
@@ -574,9 +590,9 @@ int mrsh_profile_to_in_args(corba_profile_t *dest, const diet_profile_t *src)
 }
 
 
-/*==========================================================================*/
+/****************************************************************************/
 /* Server receives client data ...                                          */
-/*==========================================================================*/
+/****************************************************************************/
   
 int cvt_arg(diet_data_t *dest, diet_data_t *src, diet_convertor_function_t f)
 {
@@ -659,9 +675,9 @@ int unmrsh_in_args_to_profile(diet_profile_t *dest, corba_profile_t *src,
 			      
 
 
-/*==========================================================================*/
+/****************************************************************************/
 /* Server sends results ...                                                 */
-/*==========================================================================*/
+/****************************************************************************/
 
   
 int recvt_arg(diet_data_t *dest, diet_data_t *src, diet_convertor_function_t f)
@@ -705,13 +721,33 @@ int mrsh_profile_to_out_args(corba_profile_t *dest, const diet_profile_t *src,
       if ((!args_filled[arg_idx]) && (!res)) {
 	// For IN arguments, reset value fields to NULL, so that the ORB does
 	// not carry in data backwards when the RPC returns.
-	if (arg_idx <= dest->last_in)
+	if (arg_idx <= dest->last_in) {
 	  dest->parameters[arg_idx].value.replace(0, 0, NULL);
-	// For INOUT arguments, release is false, 
-	// For OUT arguments,   release is true.
-	else if (mrsh_data(&(dest->parameters[arg_idx]),
-			   &dd, (arg_idx > dest->last_inout)))
-	  return 1;
+	  // For INOUT arguments, release is false,
+	  // For OUT arguments,   release is true.
+	} else {
+	  // The size of files must be (re)computed
+	  if (dd.desc.generic.type == DIET_FILE) {
+	    if ((dd.desc.specific.file.path)
+		&& (strcmp("", dd.desc.specific.file.path))) {
+	      struct stat buf;
+	      int status;
+	      if ((status = stat(dd.desc.specific.file.path, &buf)))
+		return status;
+	      if (!(buf.st_mode & S_IFREG))
+		return 2;
+	      dd.desc.specific.file.size = (size_t) buf.st_size;
+	    } else {
+	      	cerr << "DIET conversion error:"
+		     << "path of INOUT or OUT file has been modified !\n";
+		cerr << dd.desc.specific.file.path << endl;
+		return 1;
+	    }
+	  }
+	  if (mrsh_data(&(dest->parameters[arg_idx]),
+			&dd, (arg_idx > dest->last_inout)))
+	    return 1;
+	}
 	args_filled[arg_idx] = 1;
       }
     }
@@ -727,9 +763,9 @@ int mrsh_profile_to_out_args(corba_profile_t *dest, const diet_profile_t *src,
 }
 
 
-/*==========================================================================*/
+/****************************************************************************/
 /* Client receives server data ...                                          */
-/*==========================================================================*/
+/****************************************************************************/
 
 // INOUT parameters should have been set correctly by the ORB.
 // But their descriptions could have been slightly altered
@@ -747,7 +783,19 @@ int unmrsh_out_args_to_profile(diet_profile_t *dpb, corba_profile_t *cpb)
   // in the memory zone pointed at by the diet_data value field, since the
   // marshalling was performed with replace method.
   for (i = dpb->last_in + 1; i <= dpb->last_inout; i++) {
-    unmrsh_data_desc(&(dpb->parameters[i].desc), &(cpb->parameters[i].desc));
+    corba_data_desc_t *cdd = &(cpb->parameters[i].desc);
+    // Special case for INOUT files: rewrite in the same file.
+    if (cdd->specific._d() == (long) DIET_FILE) {
+      char *inout_path = dpb->parameters[i].desc.specific.file.path;
+      int   size = cdd->specific.file().size;
+      ofstream inoutfile(inout_path);
+      dpb->parameters[i].desc.specific.file.size = size;
+      for (int j = 0; j < size; j++) {
+	inoutfile.put(cpb->parameters[i].value[j]);
+      }
+    } else {
+      unmrsh_data_desc(&(dpb->parameters[i].desc), cdd);
+    }
   }
 
   // Unmarshal OUT parameters, but not the descriptions to save time,
