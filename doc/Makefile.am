@@ -9,6 +9,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.6  2003/12/15 13:48:07  ecaron
+#* Add tutorial directory to the DIET distribution
+#*
 #* Revision 1.5  2003/09/09 12:38:54  pcombes
 #* Reorganization of doc.
 #*
@@ -31,7 +34,7 @@
 #* Add install targets in Makefiles.
 #****************************************************************************#
 
-SUBDIRS = UsersManual
+SUBDIRS = UsersManual tutorial
 if MAINTAINER_MODE
 SUBDIRS += ProgrammersGuide
 endif
