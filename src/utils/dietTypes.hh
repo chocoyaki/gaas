@@ -11,6 +11,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.3  2002/09/30 16:02:23  pcombes
+ * Work on FAST compliance
+ *
  * Revision 1.2  2002/08/30 16:50:16  pcombes
  * This version works as well as the alpha version from the user point of view,
  * but the API is now the one imposed by the latest specifications (GridRPC API
@@ -43,10 +46,14 @@
 #include "agent.hh"
 #include "DIET_server.h"
 
-#ifndef withoutfast
-#include "slimfast_api.h"
-#else
+
+/****************************************************
+ * All slimfast API types are included in DIET types
+ ****************************************************/
+#ifdef withoutfast
 #include "slimfast_api_local.h"
+#else
+#include "slimfast_api.h"
 #endif
 
 /*************************/
