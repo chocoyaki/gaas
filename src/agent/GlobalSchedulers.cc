@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2004/09/14 12:43:55  hdail
+ * Changed cleanup of ser_sched from delete to free to agree with alloc.
+ *
  * Revision 1.3  2003/07/04 09:47:59  pcombes
  * Use new ERROR, WARNING and TRACE macros.
  *
@@ -191,7 +194,7 @@ StdGS::deserialize(const char* serializedScheduler)
     if (*ptr != '\0')
       ptr[-1] = ':';
   }
-  delete ser_sched;
+  free(ser_sched);
   return res;
 }
 
