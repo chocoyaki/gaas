@@ -10,6 +10,12 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.10  2004/07/12 13:26:11  mcolin
+%* Correct the first example service/solve_service : pb of pointer.
+%* There is still a pb with diet_string_get (it exists?) and with
+%* parameter 3 (is this an OUT or INOUT parameter and so
+%* must we use diet_desc_set?)
+%*
 %* Revision 1.9  2004/07/08 15:59:10  mcolin
 %* correct the asynchronous example from the tutorial and user manual
 %* FIXME :
@@ -103,14 +109,14 @@ This function will be called by the DIET SeD through a pointer.
 \begin{verbatim}
 int solve_service(diet_profile_t *pb)
 {
-   int     arg1;
+   int    *arg1;
    char   *arg2;
-   double arg3;
+   double *arg3;
 
    diet_scalar_get(diet_parameter(pb,0), &arg1, NULL);
    diet_string_get(diet_parameter(pb,1), &arg2, NULL, NULL);
    diet_scalar_get(diet_parameter(pb,2), &arg3, NULL);
-   return service(arg1, arg2, arg3);
+   return service(*arg1, arg2, arg3);
 }
 \end{verbatim}
 }
