@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2004/11/25 21:26:27  hdail
+ * Changed initial allocation of solvers, eval_functions, convertors, and
+ * perfmetrics from new to malloc to match our use of realloc for resizing.
+ *
  * Revision 1.12  2004/10/06 16:42:01  rbolze
  * add function to getProfiles with the number of this profiles available
  *
@@ -561,10 +565,14 @@ ServiceTable::ServiceTableInit(CORBA::ULong max_nb_services,
       matching_children[i].children    = new CORBA::ULong[max_nb_children];
     }
   } else {
-    solvers        = new diet_solve_t[max_nb_s];
-    eval_functions = new diet_eval_t[max_nb_s];
-    convertors     = new diet_convertor_t[max_nb_s];
-    perfmetrics    = new diet_perfmetric_t[max_nb_s];
+    solvers        = (diet_solve_t *) 
+        malloc(max_nb_s * sizeof(diet_solve_t));
+    eval_functions = (diet_eval_t *) 
+        malloc(max_nb_s * sizeof(diet_eval_t));
+    convertors     = (diet_convertor_t *) 
+        malloc(max_nb_s * sizeof(diet_convertor_t));
+    perfmetrics    = (diet_perfmetric_t *) 
+        malloc(max_nb_s * sizeof(diet_perfmetric_t));
     for (size_t i = 0; i < max_nb_s; i++) {
       profiles[i].param_desc.length(0);
       solvers[i]              = NULL;
