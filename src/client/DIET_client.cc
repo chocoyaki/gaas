@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.20  2003/01/22 15:44:55  sdahan
+ * separation of the LA and the MA
+ *
  * Revision 1.19  2003/01/17 18:08:43  pcombes
  * New API (0.6.3): structures are not hidden, but the user can ignore them.
  *
@@ -50,7 +53,7 @@
 #include <string.h>
 
 #include "dietTypes.hh"
-#include "agent.hh"
+#include "masterAgent.hh"
 #include "SeD.hh"
 #include "types.hh"
 #include "marshalling.hh"
@@ -68,7 +71,7 @@ extern "C" {
 /****************************************************************************/
 
 /* The Master Agent */
-static Agent_var MA;
+static MasterAgent_var MA;
 
 /* Trace Level */
 static int traceLevel;
@@ -131,7 +134,7 @@ int diet_initialize(int argc, char **argv, char *config_file)
     return 1;
   }
   /* Find Master Agent */
-  MA = Agent::_narrow(getAgentReference(MA_name));
+  MA = MasterAgent::_narrow(getAgentReference(MA_name));
   if (CORBA::is_nil(MA))
     return 1;
 
