@@ -46,16 +46,66 @@ DIE=0
   DIE=1
 }
 
-(grep "PROG_LIBTOOL" $srcdir/configure.ac >/dev/null) && {
-  (libtool --version) < /dev/null > /dev/null 2>&1 || {
-    echo
-    echo "**Error**: You must have \`libtool\` installed to compile $PKG_NAME."
+
+# (grep "PROG_LIBTOOL" $srcdir/configure.ac >/dev/null) && {
+#   (libtool --version) < /dev/null > /dev/null 2>&1 || {
+#     echo
+#     echo "**Error**: You must have \`libtool\` installed to compile $PKG_NAME."
+#     echo "Get ftp://ftp.gnu.org/pub/gnu/libtool-1.4.tar.gz"
+#     echo "(or a newer version if it is available)"
+#     DIE=1
+# 		NO_LIBTOOLIZE=yes
+#   }
+# }
+
+#--------------------------------------------------------------------------
+# libtool 1.4.2 or newer
+#
+LIBTOOL_WANTED_MAJOR=1
+LIBTOOL_WANTED_MINOR=4
+LIBTOOL_WANTED_PATCH=2
+LIBTOOL_WANTED_VERSION=1.4.2
+
+libtool=`which glibtool 2>/dev/null`
+if test ! -x "$libtool"; then
+    libtool=`which libtool`
+fi
+lt_pversion=`$libtool --version 2>/dev/null|head -1|sed -e 's/^[^0-9]*//g' -e 's/[- ].*//'`
+if test -z "$lt_pversion"; then
+    echo "bootstrap.sh: libtool not found."
+    echo "You need libtool version $LIBTOOL_WANTED_VERSION or newer installed"
     echo "Get ftp://ftp.gnu.org/pub/gnu/libtool-1.4.tar.gz"
     echo "(or a newer version if it is available)"
-    DIE=1
-		NO_LIBTOOLIZE=yes
-  }
-}
+    exit 1
+fi
+lt_version=`echo $lt_pversion` #|sed -e 's/\([a-z]*\)$/.\1/'`
+IFS=.; set $lt_version; IFS=' '
+lt_status="good"
+if test "$1" = "$LIBTOOL_WANTED_MAJOR"; then
+   if test "$2" -lt "$LIBTOOL_WANTED_MINOR"; then
+      lt_status="bad"
+   elif test ! -z "$LIBTOOL_WANTED_PATCH"; then
+
+	    if test -n "$3"; then
+	   if test "$3" -lt "$LIBTOOL_WANTED_PATCH"; then
+lt_status="bad"
+          fi
+
+
+       fi
+   fi
+fi
+if test $lt_status != "good"; then
+  echo "bootstrap.sh: libtool version $lt_pversion found."
+  echo "You need libtool version $LIBTOOL_WANTED_VERSION or newer installed"
+  echo "Get ftp://ftp.gnu.org/pub/gnu/libtool-1.4.tar.gz"
+  echo "(or a newer version if it is available)"
+  exit 1
+fi
+
+echo "bootstrap.sh: libtool version $lt_version (ok)"
+
+# -----------------------------------------------------------
 
 (automake-1.7 --version) < /dev/null > /dev/null 2>&1 || {
   echo
