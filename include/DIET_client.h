@@ -1,5 +1,4 @@
 /****************************************************************************/
-/* $Id$ */
 /* DIET client interface                                                    */
 /*                                                                          */
 /*  Author(s):                                                              */
@@ -7,8 +6,11 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/*
+/* $Id$
  * $Log$
+ * Revision 1.9  2003/04/10 11:27:29  pcombes
+ * Add defines grpc_* for the GridRPC API.
+ *
  * Revision 1.8  2003/02/07 17:02:38  pcombes
  * diet_initialize match GridRPC (config_file_name as first argument).
  *
@@ -41,7 +43,28 @@ extern "C" {
 
 
 /****************************************************************************/
-/* A session in GridRPC terminolgy is a DIET client request.                */
+/* GridRPC compatibility                                                    */
+/****************************************************************************/
+
+#define grpc_initialize               diet_initialize
+#define grpc_finalize                 diet_finalize
+#define grpc_function_handle_default  diet_function_handle_default
+#define grpc_function_handle_init     diet_function_handle_init
+#define grpc_function_handle_destruct diet_function_handle_destruct
+#define grpc_get_function_handle      diet_get_function_handle
+#define grpc_call                     diet_call
+#define grpc_call_async               diet_call_async
+#define grpc_call_argstack            diet_call_argstack
+#define grpc_call_argstack_async      diet_call_argstack_async
+#define grpc_cancel                   diet_cancel
+#define grpc_wait                     diet_wait
+#define grpc_wait_and                 diet_wait_and
+#define grpc_wait_or                  diet_wait_or
+#define grpc_wait_all                 diet_wait_all
+#define grpc_wait_any                 diet_wait_any
+
+
+/****************************************************************************/
 /* A DIET client can submit several request in one session.                 */
 /****************************************************************************/
 
@@ -129,7 +152,7 @@ diet_get_function_handle(diet_reqID_t reqID);
 
 
 /****************************************************************************/
-/* GridRPC call functions                                                   */
+/* Call / submission functions                                              */
 /****************************************************************************/
 
 int
@@ -144,7 +167,7 @@ diet_call_argstack_async(diet_function_handle_t* handle, diet_argStack_t* args);
 
 
 /****************************************************************************/
-/* GridRPC control and wait functions                                       */
+/* Request control and wait functions                                       */
 /****************************************************************************/
 
 int
