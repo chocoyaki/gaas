@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2003/10/13 12:59:21  cpera
+ * Change int to int32_t type in order to manage 32-64 bit system without using CORBA::Long into
+ * Gridrpc API.
+ *
  * Revision 1.1  2003/07/25 20:37:36  pcombes
  * Separate the DIET API (slightly modified) from the GridRPC API (version of
  * the draft dated to 07/21/2003)
@@ -36,7 +40,7 @@ typedef struct grpc_function_handle_s grpc_function_handle_t;
 /* Variables of this data type represent a specific non-blocking GridRPC
    call. Session Ids are used to probe or wait for call completion, to
    cancel a call, or to check the error status of a call.                   */
-typedef int diet_reqID_t;
+typedef int32_t diet_reqID_t;
 #define grpc_sessionid_t              diet_reqID_t
 
 /* This data type is used for argument stacks. (see below)                  */
