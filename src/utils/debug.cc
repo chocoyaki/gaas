@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2004/09/14 12:51:01  hdail
+ * Corrected output types for print statements to agree with variable types.
+ *
  * Revision 1.16  2003/12/01 14:49:31  pcombes
  * Rename dietTypes.hh to DIET_data_internal.hh, for more coherency.
  *
@@ -51,9 +54,9 @@ displayResponse(FILE* os, const corba_response_t* resp)
   size_t i,j;
 
   fprintf(os, "\n----------------------------------------\n");
-  fprintf(os, " Response structure for request %ld :\n\n", (long)resp->reqID);
+  fprintf(os, " Response structure for request %ul :\n\n", resp->reqID);
   if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    fprintf(os, " I'm son nb %ld\n", (long)resp->myID);
+    fprintf(os, " I'm son nb %l\n", resp->myID);
   //  fprintf(os, " There are %ld parameters\n", (long)resp->nbIn);
   fprintf(os, " %ld servers are able to solve the problem\n",
 	  (long)resp->servers.length());
