@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2003/06/02 15:29:46  cpera
+ * Update callback use.
+ *
  * Revision 1.4  2003/06/02 09:06:46  cpera
  * Beta version of asynchronize DIET API.
  *
@@ -41,6 +44,7 @@ using namespace std;
 #include "ORBMgr.hh"
 #include "Parsers.hh"
 #include "statistics.hh"
+#include "Callback.hh"
 
 extern unsigned int TRACE_LEVEL;
 

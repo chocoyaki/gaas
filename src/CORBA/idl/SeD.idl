@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2003/06/02 15:29:46  cpera
+ * Update callback use.
+ *
  * Revision 1.12  2003/06/02 08:08:11  cpera
  * Beta version of asynchronize DIET API.
  *
@@ -45,7 +48,6 @@
 #define _SED_IDL_
 
 #include "common_types.idl"
-#include "callback.idl"
 
 interface SeD {
 
