@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2003/06/23 13:41:20  pcombes
+ * Print my name at start time
+ *
  * Revision 1.2  2003/05/10 08:53:34  pcombes
  * New format for configuration files, new Parsers.
  *
@@ -59,7 +62,7 @@ LocalAgentImpl::run()
   }
 
   if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
-    cout << "\nLocal Agent started.\n\n";
+    cout << "\nLocal Agent " << this->myName << " started.\n\n";
 
   return 0;
 } // run()
