@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.4  2003/06/18 07:33:48  pcombes
+#* Add files for management of asynchronism into distribution (noinst_HEADERS)
+#*
 #* Revision 1.3  2003/06/02 08:09:55  cpera
 #* Beta version of asynchronize DIET API.
 #*
@@ -25,9 +28,9 @@ include $(top_srcdir)/config.mk.in
 lib_LTLIBRARIES = libDIET_client.la
 
 libDIET_client_la_SOURCES = $(top_srcdir)/include/DIET_client.h \
-						  DIET_client.cc \
-						  CallAsyncMgr.cc \
-						  CallbackImpl.cc
+			    DIET_client.cc CallAsyncMgr.cc CallbackImpl.cc
+
+noinst_HEADERS = CallAsyncMgr.hh CallbackImpl.hh
 
 utilsdir = $(top_builddir)/src/utils
 corbadir = $(top_builddir)/src/CORBA
