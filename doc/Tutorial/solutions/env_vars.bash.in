@@ -1,12 +1,9 @@
-#****************************************************************************#
-#* DIET tutorial environment variables                                      *#
-#*                                                                          *#
-#*  Author(s):                                                              *#
-#*    - Ludovic BERTSCH (Ludovic.Bertsch@ens-lyon.fr)                       *#
-#*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *#
-#*                                                                          *#
-#* $LICENSE$                                                                *#
-#****************************************************************************#
+##
+# Avoid an empty LD_LIBRARY_PATH
+
+if [ "$LD_LIBRARY_PATH" = "" ]; then
+  export LD_LIBRARY_PATH=/usr/lib
+fi
 
 ##
 # omniORB configuration

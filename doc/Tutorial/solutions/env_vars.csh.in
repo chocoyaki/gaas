@@ -1,0 +1,23 @@
+##
+# Avoid an empty LD_LIBRARY_PATH
+
+if ("`setenv | grep LD_LIBRARY_PATH`" == "" ) then
+	setenv LD_LIBRARY_PATH /usr/lib
+endif
+
+##
+# omniORB configuration
+
+setenv OMNIORB_HOME @OMNIORB_HOME@
+setenv PATH ${OMNIORB_HOME}/bin:${PATH}
+setenv LD_LIBRARY_PATH ${OMNIORB_HOME}/lib:${LD_LIBRARY_PATH}
+
+setenv OMNINAMES_LOGDIR /tmp
+setenv OMNIORB_CONFIG @PREFIX@/doc/tutorial/solutions/omniORB.cfg
+
+
+##
+# DIET configuration
+
+setenv PATH @PREFIX@/bin:${PATH}
+
