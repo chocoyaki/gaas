@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2004/02/27 10:25:39  bdelfabr
+ * coding standard
+ *
  * Revision 1.6  2003/12/01 14:49:30  pcombes
  * Rename dietTypes.hh to DIET_data_internal.hh, for more coherency.
  *
@@ -41,14 +44,26 @@
 #include "ts_container/ts_vector.hh"
 
 
-/*struct cmpID
+/** Local Loc structure for data type management */
+
+//  FIXME : I don't know in what file to store these types
+struct store_desc_child
+{
+  ChildID childID_owner;
+  corba_data_desc_t id_handle_type;
+};
+
+typedef store_desc_child store_desc_child_t;
+
+struct cmpDataId
 {
   bool operator()(const char* s1, const char* s2) const
   {
     return strcmp(s1, s2) < 0;
   }
 };
-*/
+
+
 
 class LocMgrImpl : public POA_LocMgr,
 		   public PortableServer::RefCountServantBase
@@ -77,32 +92,47 @@ public:
   virtual CORBA::ULong
   dataMgrSubscribe(DataMgr_ptr me, const char* hostName);
  
-  /**  */
+  /** add data reference to the reference List  */
   virtual void
-  addDataRef(const char* argID, CORBA::ULong cChildID);
-  /**  */
+  addDataRef(const corba_data_desc_t& arg, CORBA::ULong cChildID); //  addDataRef(const char* argID, CORBA::ULong cChildID);
+
+  /** remove reference from the reference list */
   virtual void
   rmDataRef(const char* argID, CORBA::ULong cChildID);
-  /**  */
+  
+  /** remove reference from the reference list  */
+  virtual CORBA::Long
+  rm_pdata(const char* argID);
+  
+  /** update reference (add and remove) of the reference list */
   virtual void
-  updateDataRef(const char* argID, CORBA::ULong cChildID, CORBA::Long upDown);
-  /**  */
+  updateDataRef(const corba_data_desc_t& arg, CORBA::ULong cChildID, CORBA::Long upDown);
+  
+  /** look for a data reference */
   virtual DataMgr_ptr
   whereData(const char* argID);
  
   void
   printList1();
 
-  /**  */
+  /** to be defined */
   virtual void
   updateDataProp(const char* argID);
-  /**  */
-  CORBA::ULong
+  
+  /** look for the data localization */
+  virtual CORBA::ULong 
   dataLookUp(const char* argID);
+ 
   virtual char *
   setMyName();
+  
+  /** look for the data owner */
   char *
   whichSeDOwner(const char* argID);
+
+  /** get data properties */
+  corba_data_desc_t*
+  set_data_arg(const char* argID);
 
 private:
   
@@ -115,6 +145,7 @@ private:
 
   /** ID (-1 if root) of this LocMgr amongst the children of its parent */
   ChildID childID;
+
   /** Reference (nil if root) of the parent LocMgr */
   LocMgr_var parent;
   
@@ -135,8 +166,8 @@ private:
   /** List of the SeD children of this agent */
   ts_vector<dataMgrChild> dataMgrChildren;
   
-  // FIXME: what is cmpCorbaDataID ????
-  typedef ts_map<const char*, ChildID> DataLocList_t ;
+  /** List of couples data reference, dataManager owner */ 
+  typedef ts_map<const char*, store_desc_child_t, cmpDataId> DataLocList_t ;
   DataLocList_t dataLocList;
 
 
@@ -144,7 +175,7 @@ private:
   /* Private methods                                                        */
   /**************************************************************************/
  
-  // FIXME: aff for "afficher" is not english, as far as I know.
+  /** print DataLocList content */
   void printList();
 
 };
