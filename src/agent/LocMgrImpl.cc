@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2004/09/13 14:12:19  hdail
+ * Cleaned up memory management for class variables myName and localHostName.
+ *
  * Revision 1.9  2004/03/03 09:04:57  bdelfabr
  * add thread safe management to list
  *
@@ -47,16 +50,18 @@
 
 #define DEVELOPPING_DATA_PERSISTENCY 1
 
+#define MAX_HOSTNAME_LENGTH 256
+
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
 
 
 LocMgrImpl::LocMgrImpl() 
 {
-  this->localHostName[0]  = '\0';
   this->childID           = -1;
   this->parent            = LocMgr::_nil();
-  this->myName[0]         = '\0';
+  this->localHostName     = NULL;
+  this->myName            = NULL;
   this->childIDCounter    = 0;
   this->nbLocMgrChildren     = 0;
   this->nbDataMgrChildren = 0;
@@ -76,22 +81,25 @@ int
 LocMgrImpl::run()
 {
   char* name;
-  char parentName[260];
+  char* parentName;
 
   /* Set host name */
-  this->localHostName[257] = '\0';
-  if (gethostname(this->localHostName, 256)) {
+  this->localHostName = new char[MAX_HOSTNAME_LENGTH];
+  if (gethostname(this->localHostName, MAX_HOSTNAME_LENGTH)) {
     ERROR("could not get hostname", 1);
   }
+  this->localHostName[MAX_HOSTNAME_LENGTH-1] = '\0';
    
   /* Bind this LocMgr to its name in the CORBA Naming Service */
   name = (char*)Parsers::Results::getParamValue(Parsers::Results::NAME);
   if (name == NULL)
     return 1;
-  strncpy(this->myName, name, MIN(256, strlen(name)));
-  this->myName[256] = '\0';
+  this->myName = new char[strlen(name) + 4]; // 3 for "Loc" + 1 for \0
+  strcpy(this->myName, name);
+
   // FIXME : rewrite strcat to ms_strcat
   strcat(strcpy(this->myName, name), "Loc");
+
   if (ORBMgr::bindObjToName(_this(), ORBMgr::LOCMGR, this->myName)) {
     ERROR("LocMgr: could not declare myself as " << this->myName, 1);
   }
@@ -100,20 +108,18 @@ LocMgrImpl::run()
   name = (char*)
     Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
   if (name != NULL) {
-    strcat(strcpy(parentName, name), "Loc");
+    parentName = new char[strlen(name) + 4]; // 3 for "Loc" + 1 for \0
+    strcpy(parentName, name);
+    strcat(parentName, "Loc");
     parent =
       LocMgr::_duplicate(LocMgr::_narrow(ORBMgr::getObjReference(ORBMgr::LOCMGR,
 								 parentName)));
-
     if (CORBA::is_nil(parent)) {
       ERROR("LocMgr: cannot locate my parent " << parentName, 1);
     }
-    TRACE_TEXT(TRACE_MAIN_STEPS,
-	       "\nLocal LocMgr " << this->myName << " started.\n\n");
-  } else {
-    TRACE_TEXT(TRACE_MAIN_STEPS,
-	       "\nRoot LocMgr " << this->myName<< " started.\n\n");
   }
+  TRACE_TEXT(TRACE_MAIN_STEPS,
+	       "\nRoot LocMgr " << this->myName<< " started.\n\n");
   return 0;
 }
 
