@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.19  2003/08/09 17:34:26  pcombes
+#* Print the version of FAST at the end of the configuration.
+#*
 #* Revision 1.18  2003/08/01 19:01:22  pcombes
 #* Clean up omniORB and FAST detection - particularly for versions.
 #*
@@ -377,7 +380,7 @@ fi
 printf " - FAST:            " | tee -a config.log
 if test "x$HAVE_FAST" = "xyes"
 then
-  echo "found $FAST_CONFIG" | tee -a config.log
+  echo "$FAST_VERSION (found $FAST_CONFIG)" | tee -a config.log
 else
   echo "not found" | tee -a config.log
 fi
