@@ -1,0 +1,16 @@
+##
+# omniORB configuration
+
+export OMNIORB_HOME=@OMNIORB_HOME@
+export PATH=${OMNIORB_HOME}/bin:${PATH}
+export LD_LIBRARY_PATH=${OMNIORB_HOME}/lib:${LD_LIBRARY_PATH}
+
+export OMNINAMES_LOGDIR=/tmp
+export OMNIORB_CONFIG=@PREFIX@/doc/tutorial/solutions/omniORB.cfg
+
+
+##
+# DIET configuration
+
+export PATH=@PREFIX@/bin:${PATH}
+

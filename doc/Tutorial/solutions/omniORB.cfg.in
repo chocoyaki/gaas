@@ -1,0 +1,2 @@
+InitRef = NameService=corbaloc::@HOSTNAME@:2810/NameService
+
