@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2003/11/10 14:05:56  bdelfabr
+ * adding iterator (made by sylvain)
+ *
  * Revision 1.4  2003/04/10 12:44:44  pcombes
  * Apply Coding Standards.
  *
@@ -21,6 +24,7 @@
 
 #include <map>
 #include <omnithread.h>
+#include <assert.h>
 
 /**
  * This is a thread safe version of the STL map. All the methods are
@@ -46,6 +50,14 @@ class ts_map : private std::map<Key, T, CMP, A> {
 
 private :
 
+  #ifndef NDEBUG
+  /**
+   * used bye the assertion to check if the \c lock() methods is
+   * called before the not thread safe methods are called.
+   */
+  mutable bool accessLocked ;
+  #endif // NDEBUG
+
   /**
    * This is the mutex that lock the access to the map to avoid that
    * to thread access to the map in the same time.
@@ -63,6 +75,13 @@ public :
    * the size_type type is the same as the map::size_type
    */
   typedef typename MapType::size_type size_type ;
+
+  /**
+   * the iterator type
+   */
+  typedef typename MapType::iterator iterator ;
+
+  typedef typename MapType::value_type value_type ;
 
 public :
 
@@ -116,36 +135,57 @@ public :
   
   /***<iterator>**************************************************************/
 
-  /* NO ITERATOR FOR THE MOMENT */
+   /**
+   * locks the access to the container
+   */
+  inline void lock() const {
+    locker.lock() ;
+    #ifndef NDEBUG // only used by the assert
+    accessLocked = true ;
+    #endif // NDEBUG
+  }
 
   /**
-   * The iterator for the ts_map type. It is the same that the
-   * map::iterator but it free the lock on the map when it's
-   * destroyed.
+   * unlocks the access to the container
    */
-  /*  class iterator : public MapType::iterator {
-  private :
-    omni_mutex* mapLocker ;
-    int instanceNumber ;
-    void setLocker(omni_mutex* locker) {
-      mapLocker = locker ;
-      instanceNumber = 1 ;
-    }
-  public :
-    inline iterator(const iterator& i) {
-      super(i) ;
-      instanceNumber++ ;
-      mapLocker = i.mapLocker ;
-    }
-    inline ~iterator() {
-      instanceNumber-- ;
-      if(!instanceNumber) {
-	mapLocker->unlock() ;
-      }
-    }
-  } ;
+  inline void unlock() const {
+    assert(accessLocked) ;
+    #ifndef NDEBUG //only used by the assert
+    accessLocked = false ;
+    #endif // NDEBUG
+    locker.unlock() ;
+  }
 
-  friend class MapType::iterator ;*/
+  inline iterator find(const Key& x) { 
+    assert(accessLocked) ;
+    return MapType::find(x) ; 
+  }
+
+  inline void erase(iterator pos) { 
+    assert(accessLocked) ;
+    MapType::erase(pos) ; 
+  }
+
+  inline iterator insert(iterator pos, const value_type& x) {
+    assert(accessLocked) ;
+    return MapType::insert(pos, x) ;
+  }
+
+  /**
+   * Returns an iterator pointing to the beginning of the map.
+   */
+  inline iterator begin() {
+    assert(accessLocked) ;
+    return MapType::begin() ;
+  }
+
+  /**
+   * Returns an iterator pointing to the end of the map.
+   */
+  inline iterator end() {
+    assert(accessLocked) ;
+    return MapType::end() ;
+  }
 
   /**************************************************************************/
 
