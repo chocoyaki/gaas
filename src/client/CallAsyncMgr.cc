@@ -1,13 +1,16 @@
 /****************************************************************************/
-/* asynchronized calls singleton Mgr 					    */
+/* Asynchronized calls singleton Mgr 					    */
 /*                                  					    */
 /*  Author(s):                                                              */
 /*    - Christophe PERA (christophe.pera@ens-lyon.fr)                       */
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/* $ID$
+/* $Id$
  * $Log$
+ * Revision 1.4  2003/06/16 15:40:23  pcombes
+ * Fix header
+ *
  * Revision 1.3  2003/06/04 14:40:05  cpera
  * Resolve bugs, change type of reqID (long int) and modify
  * diet_wait_all/diet_wait_any.
@@ -17,7 +20,6 @@
  *
  * Revision 1.1  2003/06/02 08:09:55  cpera
  * Beta version of asynchronize DIET API.
- *
  ****************************************************************************/
 
 #include "marshalling.hh"
