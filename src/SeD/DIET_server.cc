@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2004/10/14 15:02:17  hdail
+ * Allow user to provide name for SeD.  If provided, name is given to LogService
+ * and can be used by GoDIET to verify launch of each SeD.
+ *
  * Revision 1.28  2004/09/14 12:39:27  hdail
  * - Changed cleanup of desc->param_desc from free to delete[] to match alloc.
  * - Changed cleanup of desc from free to delete to match alloc.
@@ -335,6 +339,8 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   int    res(0);
   int    myargc;
   char** myargv;
+  char*  userDefName;
+  char*  name;
 #if HAVE_LOGSERVICE
   DietLogComponent* dietLogComponent;
   MonitoringThread* monitoringThread;
@@ -362,11 +368,11 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   }
 
   /* Some more checks */
-  char* name = (char*)
+
+  // NOTE: if non-NULL, userDefName will be used for LogService
+  userDefName = (char*)
     Parsers::Results::getParamValue(Parsers::Results::NAME);
-  if (name != NULL)
-    WARNING("parsing " << config_file_name
-	    << ": it is useless to name an SeD - ignored");
+
   name = (char*)
     Parsers::Results::getParamValue(Parsers::Results::MANAME);
   if (name != NULL)
@@ -468,7 +474,12 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
     parentName = (char*)Parsers::Results::getParamValue
                           (Parsers::Results::PARENTNAME);
 
-    dietLogComponent = new DietLogComponent("", outBufferSize);
+    if (userDefName != NULL){
+      dietLogComponent = new DietLogComponent(userDefName, outBufferSize);
+    } else {
+      dietLogComponent = new DietLogComponent("", outBufferSize);
+    }
+
     ORBMgr::activate(dietLogComponent);
     if (dietLogComponent->run("SeD", parentName, flushTime) != 0) {
       // delete(dietLogComponent); // DLC is activated, do not delete !
