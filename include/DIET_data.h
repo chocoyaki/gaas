@@ -8,18 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.18  2003/09/26 14:05:16  pcombes
- * Get the examples out of the automake chain, to make Makefiles more readable.
+ * Revision 1.19  2003/09/27 07:51:06  pcombes
+ * Replace silly base type DIET_BYTE by DIET_SHORT.
  *
  * Revision 1.17  2003/07/25 20:37:36  pcombes
  * Separate the DIET API (slightly modified) from the GridRPC API (version of
  * the draft dated to 07/21/2003)
- *
- * Revision 1.16  2003/06/23 13:15:32  pcombes
- * Comments
- *
- * Revision 1.15  2003/06/03 18:33:56  pcombes
- * Update comments.
  *
  * Revision 1.14  2003/04/10 11:27:14  pcombes
  * Add the mode DIET_PERSISTENT_RETURN.
@@ -28,13 +22,6 @@
  * Remove diet_value. Add diet_is_persistent and diet_free_data.
  * Unify diet_scalar_get prototype to the one of the other _get functions.
  *
- * Revision 1.9  2003/01/22 17:14:09  pcombes
- * API 0.6.4 : istrans -> order (row- or column-major)
- *
- * Revision 1.7  2003/01/17 18:08:43  pcombes
- * New API (0.6.3): structures are not hidden, but the user can ignore them.
- *
- * Revision 1.3  2002/10/15 18:36:03  pcombes
  * Remove the descriptors set functions.
  * Add convertors in API :
  *     Convertors let DIET build the sequence of arguments, that the
@@ -62,7 +49,7 @@ extern "C" {
 
 typedef enum {
   DIET_CHAR = 0,
-  DIET_BYTE,
+  DIET_SHORT,
   DIET_INT,
   DIET_LONGINT,
   DIET_FLOAT,

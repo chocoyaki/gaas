@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2003/09/27 07:54:01  pcombes
+ * Replace silly base type DIET_BYTE by DIET_SHORT.
+ *
  * Revision 1.20  2003/09/24 09:09:39  pcombes
  * Merge corba_DataMgr_desc_t and corba_data_desc_t.
  *
@@ -19,9 +22,6 @@
  *
  * Revision 1.16  2003/07/04 09:48:06  pcombes
  * Use new ERROR and WARNING macros.
- *
- * Revision 1.15  2003/04/10 12:46:03  pcombes
- * Manage data ID (strings).
  *
  * Revision 1.13  2003/02/19 09:03:40  cpera
  * Add headers include for gcc 2.95.3 compatibility under SunOS.
@@ -65,8 +65,9 @@ type_sizeof(const diet_base_type_t type)
 {
   switch (type) {
   case DIET_CHAR:
-  case DIET_BYTE:
     return 1;
+  case DIET_SHORT:
+    return 2;
   case DIET_INT:
     return 4;
   case DIET_LONGINT:
@@ -420,8 +421,8 @@ diet_scalar_desc_set(diet_data_t* data, void* value)
     ERROR(__FUNCTION__ << " misused (data->value is NULL)", 1);
   } 
   switch(data->desc.generic.base_type) {
-  case DIET_CHAR:     
-  case DIET_BYTE:    *((char*)data->value)     = *((char*)value);     break;
+  case DIET_CHAR:    *((char*)data->value)     = *((char*)value);     break;
+  case DIET_SHORT:   *((short*)data->value)    = *((short*)value);    break;
   case DIET_INT:     *((int*)data->value)      = *((int*)value);      break;
   case DIET_LONGINT: *((long int*)data->value) = *((long int*)value); break;
   case DIET_FLOAT:   *((float*)data->value)    = *((float*)value);    break;
@@ -487,8 +488,8 @@ get_value(diet_data_t* data, void** value)
     return 1;
   if (value) {
     switch(data->desc.generic.base_type) {
-    case DIET_CHAR:     
-    case DIET_BYTE:    *((char**)value)     = (char*)data->value;     break;
+    case DIET_CHAR:    *((char**)value)     = (char*)data->value;     break;     
+    case DIET_SHORT:   *((short**)value)    = (short*)data->value;    break;
     case DIET_INT:     *((int**)value)      = (int*)data->value;      break;
     case DIET_LONGINT: *((long int**)value) = (long int*)data->value; break;
     case DIET_FLOAT:   *((float**)value)    = (float*)data->value;    break;

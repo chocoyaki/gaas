@@ -8,8 +8,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.5  2003/09/22 21:09:31  pcombes
- * Fix bug in a trace.
+ * Revision 1.6  2003/09/27 07:54:01  pcombes
+ * Replace silly base type DIET_BYTE by DIET_SHORT.
  *
  * Revision 1.4  2003/08/26 14:58:58  pcombes
  * Fix bug in returned value of init (return codes of FAST are not standard !)
@@ -273,9 +273,9 @@ FASTMgr::estimate(char* hostName, corba_estimation_t& estimation,
 #define FAST_FILE   data_cons_file
 
 #define fast_base_type_t data_scal_type_t
+#define FAST_CHAR        data_char
 #define FAST_INT         data_int
 #define FAST_DOUBLE      data_double
-#define FAST_CHAR        data_char
 
 #define fast_arg_desc_t  data_arg_t
 #define fast_char_alloc(value)     data_arg_char_new(value)
@@ -301,9 +301,9 @@ FASTMgr::estimate(char* hostName, corba_estimation_t& estimation,
 #define FAST_FILE   sf_type_cons_file
 
 #define fast_base_type_t sf_type_base_t
+#define FAST_CHAR        sf_type_base_char
 #define FAST_INT         sf_type_base_int
 #define FAST_DOUBLE      sf_type_base_double
-#define FAST_CHAR        sf_type_base_char
 
 #define fast_arg_desc_t  sf_data_desc_t
 #define fast_char_alloc(value)     sf_dd_char_alloc(0,value)
@@ -343,8 +343,8 @@ diet_to_fast_base_type(const diet_base_type_t t)
 {
   switch (t) {
   case DIET_CHAR:
-  case DIET_BYTE:
     return FAST_CHAR;
+  case DIET_BYTE:
   case DIET_INT:
   case DIET_LONGINT:
     return FAST_INT;

@@ -9,11 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2003/09/27 07:54:01  pcombes
+ * Replace silly base type DIET_BYTE by DIET_SHORT.
+ *
  * Revision 1.14  2003/09/24 09:10:01  pcombes
  * Merge corba_DataMgr_desc_t and corba_data_desc_t.
- *
- * Revision 1.13  2003/07/04 09:48:08  pcombes
- * Remove oldies
  *
  * Revision 1.12  2003/04/10 12:45:44  pcombes
  * Set TRACE_LEVEL as a static variable, used by all other modules.
@@ -92,7 +92,7 @@ displayArgDesc(FILE* f, int type, int base_type)
     fprintf(f, " of ");
     switch (base_type) {
     case DIET_CHAR:     fprintf(f, "char");           break;
-    case DIET_BYTE:     fprintf(f, "byte");           break;
+    case DIET_SHORT:    fprintf(f, "short");          break;
     case DIET_INT:      fprintf(f, "int");            break;
     case DIET_LONGINT:  fprintf(f, "long int");       break;
     case DIET_FLOAT:    fprintf(f, "float");          break;
@@ -123,7 +123,7 @@ displayArg(FILE* f, const corba_data_desc_t* arg)
     fprintf(f, " of ");
     switch (arg->base_type) {
     case DIET_CHAR:     fprintf(f, "char");           break;
-    case DIET_BYTE:     fprintf(f, "byte");           break;
+    case DIET_SHORT:    fprintf(f, "short");          break;
     case DIET_INT:      fprintf(f, "int");            break;
     case DIET_LONGINT:  fprintf(f, "long int");       break;
     case DIET_FLOAT:    fprintf(f, "float");          break;
@@ -155,7 +155,7 @@ displayArg(FILE* f, const diet_data_desc_t* arg)
     fprintf(f, " of ");
     switch ((int) arg->generic.base_type) {
     case DIET_CHAR:     fprintf(f, "char");           break;
-    case DIET_BYTE:     fprintf(f, "byte");           break;
+    case DIET_SHORT:    fprintf(f, "short");          break;
     case DIET_INT:      fprintf(f, "int");            break;
     case DIET_LONGINT:  fprintf(f, "long int");       break;
     case DIET_FLOAT:    fprintf(f, "float");          break;
