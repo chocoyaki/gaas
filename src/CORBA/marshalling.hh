@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.9  2002/10/15 18:43:48  pcombes
+ * Implement convertor API and file transfer.
+ *
  * Revision 1.8  2002/10/03 17:58:13  pcombes
  * Add trace levels (for Bert): traceLevel = n can be added in cfg files.
  * An agent son can now be killed (^C) without crashing this agent.
@@ -98,7 +101,9 @@ int unmrsh_profile_desc_to_name(char **dest_name, corba_profile_desc_t *src);
 int mrsh_profile(corba_profile_t *dest, diet_profile_t *src, char *src_name);
 int unmrsh_profile_to_desc(diet_profile_desc_t *dest, char **dest_name,
 			   corba_profile_t *src);
-int unmrsh_profile_to_sf(sf_inst_desc_t *dest, const corba_profile_t *src);
+//int unmrsh_profile_for_eval(diet_profile_t **dest, const corba_profile_t *src);
+int unmrsh_profile_to_sf(sf_inst_desc_t *dest,
+			 const corba_profile_t *src, const diet_convertor_t *cvt);
 
 
 /*

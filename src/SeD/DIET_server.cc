@@ -11,6 +11,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.4  2002/10/15 18:45:00  pcombes
+ * Implement convertor API and file transfer.
+ *
  * Revision 1.3  2002/10/03 17:58:14  pcombes
  * Add trace levels (for Bert): traceLevel = n can be added in cfg files.
  * An agent son can now be killed (^C) without crashing this agent.
@@ -54,7 +57,7 @@ extern "C" {
 
 
 /****************************************************************************/
- /* DIET service table                                                       */
+/* DIET service table                                                       */
 /****************************************************************************/
 
 static ServiceTable *SrvT;
@@ -67,11 +70,21 @@ int diet_service_table_init(int maxsize)
 
 int diet_service_table_add(char                *service_path,
 			   diet_profile_desc_t *profile,
+			   diet_convertor_t    *cvt,
 			   diet_solve_t         solve_func)
 {
   corba_profile_desc_t corba_profile;
+  diet_convertor_t    *actual_cvt;
   mrsh_profile_desc(&corba_profile, profile, service_path);
-  return SrvT->addService(&corba_profile, solve_func);
+  if (cvt) {
+    actual_cvt = cvt;
+  } else {
+    actual_cvt = convertor_alloc(service_path, profile->last_in,
+				 profile->last_inout, profile->last_out);
+    for (int i = 0; i <= profile->last_out; i++)
+      diet_arg_cvt_set(&(actual_cvt->arg_convs[i]), DIET_CVT_IDENTITY, i, NULL);
+  }
+  return SrvT->addService(&corba_profile, actual_cvt, solve_func, NULL);
 }
 
 void print_table()
@@ -123,6 +136,60 @@ int profile_desc_free(diet_profile_desc_t *desc)
   }
 }
   
+
+/****************************************************************************/
+/* DIET problem evaluation                                                  */
+/****************************************************************************/
+
+/* The server may declare several services for only one underlying routine.
+   Thus, diet_convertors are useful to translate the various declared profiles
+   into the actual profile of the underlying routine, ie the profile that is
+   used for the FAST benches.
+   Internally, when a client requests for a declared service, the correspunding
+   convertor is used to generate the actual profile : this allows evaluation
+   (cf. below)
+*/
+
+
+int diet_arg_cvt_set(diet_arg_convertor_t *arg_cvt,
+		     diet_convertor_function_t f, int arg_idx, diet_arg_t *arg)
+{
+  if (!arg_cvt)
+    return 1;
+  arg_cvt->f       = f;
+  arg_cvt->arg_idx = arg_idx;
+  arg_cvt->arg     = arg;
+  return 0;
+}
+
+
+diet_convertor_t *convertor_alloc(char *path,
+				  int last_in, int last_inout, int last_out)
+{
+  diet_convertor_t *res = new diet_convertor_t;
+  res->path       = strdup(path);
+  res->last_in    = last_in;
+  res->last_inout = last_inout;
+  res->last_out   = last_out;
+  res->arg_convs  = new diet_arg_convertor_t[last_out + 1];
+  for (int i = 0; i < last_out; i++) {
+    res->arg_convs[i].f   = DIET_CVT_COUNT;
+    res->arg_convs[i].arg = NULL;
+  }
+  return res;
+}
+
+
+int convertor_free(diet_convertor_t *cvt)
+{
+  free(cvt->path);
+  for (int i = 0; i < cvt->last_out; i++) {
+    if (cvt->arg_convs[i].arg)
+      free(cvt->arg_convs[i].arg);
+  }
+  free(cvt->arg_convs);
+  return 0;
+}
 
 
 /****************************************************************************/

@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.11  2002/10/15 18:43:48  pcombes
+ * Implement convertor API and file transfer.
+ *
  * Revision 1.10  2002/10/04 16:17:09  pcombes
  * Integrate former hardcoded.h in configuration files. If DIET is compiled
  * without FAST, the correspunding entries in the cfg files can be omitted.
@@ -57,6 +60,8 @@
 #include <iostream.h>
 #include <fstream.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include "marshalling.hh"
 #include "debug.hh"
@@ -82,38 +87,43 @@ inline int mrsh_scalar_desc(corba_data_desc_t *dest, diet_data_desc_t *src)
   corba_scalar_specific_t scal;
 
   dest->specific.scal(scal);
-  switch (src->generic.base_type) {
-  case DIET_CHAR:
-  case DIET_BYTE: {
-    char scal = *((char *)(src->specific.scal.value));
-    dest->specific.scal().value <<= (short) scal;
-    break;
+  if (!(src->specific.scal.value)) {
+    dest->specific.scal().value <<= (CORBA::Double) 0;
+  } else {
+    switch (src->generic.base_type) {
+    case DIET_CHAR:
+    case DIET_BYTE: {
+      char scal = *((char *)(src->specific.scal.value));
+      dest->specific.scal().value <<= (short) scal;
+      break;
+    }
+    case DIET_INT: {
+      long scal = (long) *((int *)(src->specific.scal.value));
+      dest->specific.scal().value <<= (CORBA::Long) scal;
+      break;
+    }
+    case DIET_LONGINT: {
+      long long int scal = *((long long int *)(src->specific.scal.value));
+      dest->specific.scal().value <<= (long int) scal;
+      break;
+    }
+    case DIET_FLOAT: {
+      float scal = *((float *)(src->specific.scal.value));
+      dest->specific.scal().value <<= (CORBA::Float) scal;
+      break;
+    }
+    case DIET_DOUBLE: {
+      double scal = *((double *)(src->specific.scal.value));
+      dest->specific.scal().value <<= (CORBA::Double) scal;
+      break;
+    }
+    default:
+      cerr << "mrsh_scalar_desc: Base type "
+	   << src->generic.base_type << " not implemented.\n";
+      return 1;
+    }
   }
-  case DIET_INT: {
-    long scal = (long) *((int *)(src->specific.scal.value));
-    dest->specific.scal().value <<= (CORBA::Long) scal;
-    break;
-  }
-  case DIET_LONGINT: {
-    long long int scal = *((long long int *)(src->specific.scal.value));
-    dest->specific.scal().value <<= (long int) scal;
-    break;
-  }
-  case DIET_FLOAT: {
-    float scal = *((float *)(src->specific.scal.value));
-    dest->specific.scal().value <<= (CORBA::Float) scal;
-    break;
-  }
-  case DIET_DOUBLE: {
-    double scal = *((double *)(src->specific.scal.value));
-    dest->specific.scal().value <<= (CORBA::Double) scal;
-    break;
-  }
-  default:
-    cerr << "mrsh_scalar_desc: Base type "
-	 << src->generic.base_type << " not implemented.\n";
-    return 1;
-  }
+  
   return 0;
 }
 
@@ -152,6 +162,7 @@ int mrsh_data_desc(corba_data_desc_t *dest, diet_data_desc_t *src)
     corba_file_specific_t file;
     dest->specific.file(file);
     dest->specific.file().size = src->specific.file.size;
+    dest->specific.file().path = CORBA::string_dup(src->specific.file.path);
     break;
   }
   default:
@@ -166,23 +177,29 @@ int mrsh_data_desc(corba_data_desc_t *dest, diet_data_desc_t *src)
 int mrsh_data(corba_data_t *dest, diet_data_t *src, int only_desc, int release)
 {
   long unsigned int size = (long unsigned int) data_sizeof(&(src->desc));
+  CORBA::Char *value;
+  
   if (mrsh_data_desc(&(dest->desc), &(src->desc)))
     return 1;
   if (only_desc) {
     dest->value.replace(0, 0, NULL);
   } else {
     if (src->desc.generic.type == DIET_FILE) {
-      ifstream infile;
-      infile.open(src->desc.specific.file.path, ios::nocreate);
+      ifstream infile(src->desc.specific.file.path);
+      value = SeqChar::allocbuf(size);
       if (!infile) {
 	cerr << "DIET Error: cannot open file "
 	     << src->desc.specific.file.path << "for reading.\n";
 	return 1;
       }
+      for (unsigned int i = 0; i < size; i++) {
+	value[i] = infile.get();
+      }
       infile.close();
     } else {
-      dest->value.replace(size, size, (CORBA::Char *)src->value, release);
+      value = (CORBA::Char *)src->value;
     }
+    dest->value.replace(size, size, value, release);
   }
   return 0;
 }
@@ -290,7 +307,9 @@ int unmrsh_data_desc(diet_data_desc_t *dest, const corba_data_desc_t *src)
     break;
   }
   case DIET_FILE: {
-    file_desc_set(dest, DIET_VOLATILE, "");
+    generic_desc_set(&(dest->generic), DIET_FILE, DIET_CHAR);
+    dest->specific.file.size = src->specific.file().size;
+    dest->specific.file.path = NULL;
     break;
   }
   default:
@@ -332,37 +351,37 @@ inline sf_type_base_t diet_to_sf_base_type(const diet_base_type_t t)
   }
 }
 
-int unmrsh_data_desc_to_sf(sf_data_desc_t *dest, const corba_data_desc_t *src) 
+int unmrsh_data_desc_to_sf(sf_data_desc_t *dest, const diet_data_desc_t *src) 
 {
   dest->id        = 0;
-  dest->type      = diet_to_sf_type((diet_data_type_t)src->specific._d());
-  dest->base_type = diet_to_sf_base_type((diet_base_type_t)src->base_type);
+  dest->type      = diet_to_sf_type(src->generic.type);
+  dest->base_type = diet_to_sf_base_type(src->generic.base_type);
   
   switch (dest->type) {
      
   case sf_type_cons_vect:
-    dest->ctn.vect.size = src->specific.vect().size;
+    dest->ctn.vect.size = src->specific.vect.size;
     break;
     
   case sf_type_cons_mat:
-    dest->ctn.mat.nb_l  = src->specific.mat().nb_r;
-    dest->ctn.mat.nb_c  = src->specific.mat().nb_c;
-    dest->ctn.mat.trans = src->specific.mat().istrans;
+    dest->ctn.mat.nb_l  = src->specific.mat.nb_r;
+    dest->ctn.mat.nb_c  = src->specific.mat.nb_c;
+    dest->ctn.mat.trans = src->specific.mat.istrans;
     break;
 
   case sf_type_cons_scal:
     switch (dest->base_type) {
     case sf_type_base_char:
       dest->ctn.scal.value = (void *) new char;
-      src->specific.scal().value >>= *((short *)(dest->ctn.scal.value));
+      *((short *)dest->ctn.scal.value) = *((short *)src->specific.scal.value);
       break;
     case sf_type_base_int:
       dest->ctn.scal.value = (void *) new int;
-      src->specific.scal().value >>= *((long *)(dest->ctn.scal.value));
+      *((long *)dest->ctn.scal.value) = *((long *)src->specific.scal.value);
       break;
     case sf_type_base_double:
       dest->ctn.scal.value = (void *) new double;
-      src->specific.scal().value >>= *((double *)(dest->ctn.scal.value));
+      *((double *)dest->ctn.scal.value) = *((double *)src->specific.scal.value);
       break;
     default:
       cerr << "unmrsh_data_desc_to_sf: Base type "
@@ -373,7 +392,7 @@ int unmrsh_data_desc_to_sf(sf_data_desc_t *dest, const corba_data_desc_t *src)
     
   default:
     cerr << "unmrsh_data_desc_to_sf: Type "
-	 << src->specific._d() << " unknown for FAST\n";
+	 << src->generic.type << " unknown for FAST\n";
     return 1;
   }
   return 0;
@@ -384,11 +403,27 @@ int unmrsh_data(diet_data_t *dest, corba_data_t *src)
 {
   if (unmrsh_data_desc(&(dest->desc), &(src->desc)))
     return 1;
-  if (src->value.length() == 0) {
-    dest->value = malloc(data_sizeof(&(dest->desc)));
+  if (src->desc.specific._d() == (long) DIET_FILE) {
+    char *in_path   = CORBA::string_dup(src->desc.specific.file().path);
+    char *file_name = strrchr(in_path, '/');
+    char *out_path  = new char[256];
+    pid_t pid = getpid();
+    sprintf(out_path, "/tmp/DIET_%d_%s", pid,
+	    (file_name) ? (char *)(1 + file_name) : in_path);
+    
+    ofstream outfile(out_path);
+    for (int i = 0; i < src->desc.specific.file().size; i++) {
+      outfile.put(src->value[i]);
+    }
+    CORBA::string_free(in_path);
+    dest->desc.specific.file.path = out_path;
   } else {
-    CORBA::Boolean orphan = 1; //(src->persistence_mode != DIET_VOLATILE);
-    dest->value = (char *)src->value.get_buffer(orphan);
+    if (src->value.length() == 0) { // OUT case
+      dest->value = malloc(data_sizeof(&(dest->desc)));
+    } else {
+      CORBA::Boolean orphan = 1; //(src->persistence_mode != DIET_VOLATILE);
+      dest->value = (char *)src->value.get_buffer(orphan);
+    }
   }
   return 0;
 }
@@ -491,21 +526,79 @@ int unmrsh_profile_to_desc(diet_profile_desc_t *dest, char **dest_name,
 }
 
 
-int unmrsh_profile_to_sf(sf_inst_desc_t *dest, const corba_profile_t *src)
+int cvt_arg(sf_data_desc_t *dest,
+	    diet_data_desc_t *src, diet_convertor_function_t f)
 {
-  //#ifdef withoutfast
-  dest->path       = CORBA::string_dup(src->path);
-  dest->last_in    = src->last_in;
-  dest->last_inout = src->last_inout;
-  dest->last_out   = src->last_out;
-  dest->param_desc = new (sf_data_desc_t)[src->last_out + 1]; 
-  //#else  // withoutfast
-  //sf_inst_desc_set(dest, CORBA::string_dup(src->path),
-  //                 src->last_in, src->last_inout, src->last_out);
-  //#endif // withoutfast
-  for (int i = 0; i <= src->last_out; i++) {
-    unmrsh_data_desc_to_sf(&(dest->param_desc[i]), &(src->param_desc[i]));
+  diet_data_desc_t *ddd = new diet_data_desc_t;
+  
+  switch(f) {
+  case DIET_CVT_IDENTITY: {
+    delete ddd;
+    ddd = src;
+    break;
   }
+  case DIET_CVT_VECT_SIZE: {
+    scalar_desc_set(ddd, DIET_VOLATILE, DIET_INT, src->specific.scal.value);
+    break;
+  }
+  case DIET_CVT_MAT_NB_ROW: {
+    scalar_desc_set(ddd, DIET_VOLATILE, DIET_INT, &src->specific.mat.nb_r);
+    break;
+  }
+  case DIET_CVT_MAT_NB_COL: {
+    scalar_desc_set(ddd, DIET_VOLATILE, DIET_INT, &src->specific.mat.nb_c);
+    break;
+  }
+  case DIET_CVT_MAT_ISTRANS: {
+    scalar_desc_set(ddd, DIET_VOLATILE, DIET_INT, &src->specific.mat.istrans);
+    break;
+  }
+  case DIET_CVT_STR_LEN: {
+    scalar_desc_set(ddd, DIET_VOLATILE, DIET_INT, &src->specific.str.length);
+    break;
+  }
+  case DIET_CVT_FILE_SIZE: {
+    scalar_desc_set(ddd, DIET_VOLATILE, DIET_INT, &src->specific.file.size);
+    break;
+  }
+  default: {
+    cerr << "DIET conversion error: invalid convertor function.\n";
+    return 1;
+  }
+  }
+  
+  return unmrsh_data_desc_to_sf(dest, ddd);
+}
+
+
+int unmrsh_profile_to_sf(sf_inst_desc_t *dest,
+			 const corba_profile_t *src, const diet_convertor_t *cvt)
+{
+  diet_data_desc_t *ddd = new diet_data_desc_t;
+  
+  dest->path       = CORBA::string_dup(cvt->path);
+  dest->last_in    = cvt->last_in;
+  dest->last_inout = cvt->last_inout;
+  dest->last_out   = cvt->last_out;
+  dest->param_desc = new sf_data_desc_t[cvt->last_out + 1];
+  for (int i = 0; i <= cvt->last_out; i++) {
+    diet_data_desc_t *ddd_tmp;
+    int arg_idx = cvt->arg_convs[i].arg_idx;
+    
+    if ((arg_idx >= 0) && (arg_idx <= src->last_out)) {
+      unmrsh_data_desc(ddd, &(src->param_desc[arg_idx]));
+      ddd_tmp = ddd;
+    } else {
+      ddd_tmp = &(cvt->arg_convs[i].arg->desc);
+    }
+    if (cvt_arg(&(dest->param_desc[i]), ddd_tmp, cvt->arg_convs[i].f)) {
+      cerr << "DIET conversion error: Cannot convert client profile"
+	   << "to server profile.\n";
+	return 1;
+    }
+  }
+  
+  delete ddd;
   return 0;
 }
 
@@ -569,7 +662,7 @@ int unmrsh_out_args_to_profile(diet_profile_t *profile,
       dest->value = malloc(data_sizeof(&(dest->desc)));
     } else {
       // CORBA::boolean orphan = (src->persistence_mode != DIET_VOLATILE);
-      dest->value = src->value.get_buffer();
+      dest->value = src->value.get_buffer(true);
     }
   }
   return 0;
