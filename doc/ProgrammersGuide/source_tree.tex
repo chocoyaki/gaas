@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.7  2004/01/07 22:35:53  cpera
+%* Add asynchronous dmat_manip examples description.
+%*
 %* Revision 1.6  2004/01/07 22:05:32  cpera
 %* Add client asynchronous part and some fixes.
 %*
@@ -658,8 +661,20 @@ This directory contains documentations that are to be maintained up-to-date,
         \textsf{DIET\_config.h}, to get the version of FAST.
         \\
 
-        \fixme{Christophe - Please explain the asynchronous clients.}
-
+        %\fixme{Christophe - Please explain the asynchronous clients.}
+        \texttt{dmat\_manips} contains also client samples about asynchronous call API. All
+        use \texttt{diet\_call\_async} to start solve on SeD but each example shows 
+        a distinct function of asynchronous DIET API to get results. Like synchronous
+        client, you can ask solving a SUM/PROD/T operation on SeD. Besides, they are 
+        \texttt{dietmultithreaded. You can specify thread number of a pool and solve number. Each 
+        thread cucurently sends data to SeD(s) and gets results according to its used
+        texttt{diet\_\{wait\/probe\}\_*} function.
+        texttt{parallelclient.cc} retrieves results by a simple texttt{diet\_wait} function 
+        and texttt{parallelclient2.cc} by a peridical texttt{diet\_probe} call.
+        texttt{parallelclient3.cc} and texttt{parallelclient3.cc} are examples about
+        respectivly texttt{diet\_wait\_and} and texttt{diet\_wait\_or}. Executing
+        one of these examples prints traces about calculus parameters, synchronizing
+        mecanisms on threads and results.
 
         \subsubsection{BLAS}
 
