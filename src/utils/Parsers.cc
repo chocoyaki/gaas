@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2004/09/14 12:50:26  hdail
+ * Commented out free of Results::params[i].value.  Should be cleaned with
+ * delete, but the type is unknown at this point so can't be.
+ *
  * Revision 1.19  2004/07/05 14:56:13  rbolze
  * correct bug on 64 bit plat-form, when parsing cfg file :
  * remplace size_t by unsigned int for config options
@@ -160,10 +164,13 @@ Parsers::endParsing()
     // size_t --> unsigned int
   for (unsigned int i = Results::TRACELEVEL; i < Results::NB_PARAM_TYPE; i++) {
     if (Results::params[i].value != NULL) {
-      if (IS_ADDRESS(i))
+      if (IS_ADDRESS(i)) {
 	delete((Results::Address*)Results::params[i].value);
-      else
-	free(Results::params[i].value);
+      } else {
+        // TODO: should be deleted with delete, but delete can not be  
+        // used with void*.  Identify pointer type and delete.
+	//free(Results::params[i].value);
+      }
     }
     Results::params[i].noLine = 0;
   }
