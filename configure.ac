@@ -11,6 +11,9 @@
 #****************************************************************************#
 #*
 #* $Log$
+#* Revision 1.5  2003/02/18 17:06:53  cpera
+#* Correction.
+#*
 #* Revision 1.4  2003/02/18 14:00:17  cpera
 #* Add a new m4 macro (omniorb.m4) and use it.
 #*
@@ -156,7 +159,7 @@ AC_CHECK_LIB([pthread], [pthread_attr_getdetachstate])
 dnl ###########################################################################
 dnl ####[ search omniORB lib and bin ]
 dnl ###########################################################################
-AC_OMNIORB_DIET(,,,,$proc_name,$plat_name,$os_v,omniFounf=true,omniFound=false)
+AC_OMNIORB_DIET(,,,,$proc_name,$proc_def,$plat_name,$plat_def,$os_v,omniFound=true,omniFound=false)
 
 dnl ###########################################################################
 dnl ####[ search the FAST Library ]
