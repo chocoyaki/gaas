@@ -4,7 +4,7 @@
 /*                                                                          */
 /*  Author(s):                                                              */
 /*    - Frederic LOMBARD          - LIFC Besançon (France)                  */
-/*    - Philippe COMBES           - LIP ENS Lyon (France)                   */
+/*    - Philippe COMBES           - LIP ENS-Lyon (France)                   */
 /*                                                                          */
 /*  This is part of DIET software.                                          */
 /*  Copyright (C) 2002 ReMaP/INRIA                                          */
@@ -12,31 +12,13 @@
 /****************************************************************************/
 /*
  * $Log$
- * Revision 1.14  2002/11/26 12:50:00  lbertsch
- * Modified some things about statistics...
- * Added a config.h.in file that contains compile-time configuration
+ * Revision 1.15  2002/12/03 19:08:24  pcombes
+ * Update configure, update to FAST 0.3.15, clean CVS logs in files.
+ * Put main Makefile in root directory.
  *
  * Revision 1.13  2002/11/22 13:36:12  lbertsch
  * Added alpha linux support
  * Added a package for statistics and some traces
- *
- * Revision 1.12  2002/11/08 16:56:25  lbertsch
- * Added --with[out]-demo-baltimore options, so you don't need the environment
- * variable DEMO_BALTIMORE to be set anymore.
- *
- * Revision 1.11  2002/11/08 15:48:08  lbertsch
- * Petite correction
- *
- * Revision 1.10  2002/11/08 15:43:15  lbertsch
- * Added the use of a compilation directive for testing if we are in the
- * demo or not. Do a export DEMO_BALTIMORE=1 to compile for the demo!
- *
- * Revision 1.8  2002/11/05 18:32:20  pcombes
- * Fix bugs in config file parsing.
- *
- * Revision 1.7  2002/10/25 10:50:18  pcombes
- * FAST support: convertors implemented and compatible to --without-fast
- *               configure option, but still not tested with FAST !
  *
  * Revision 1.6  2002/10/15 18:46:09  pcombes
  * Some impacts of convertor API.
@@ -49,10 +31,6 @@
  * Revision 1.4  2002/10/02 17:06:15  pcombes
  * Complete ArgStack API
  *
- * Revision 1.3  2002/09/17 15:23:14  pcombes
- * Bug fixes on inout arguments and examples
- * Add support for omniORB 4.0.0
- *
  * Revision 1.2  2002/08/30 16:50:15  pcombes
  * This version works as well as the alpha version from the user point of view,
  * but the API is now the one imposed by the latest specifications (GridRPC API
@@ -64,9 +42,6 @@
  *  - No copy for client/SeD data transfers
  *  - ...
  *
- * Revision 1.1  2002/08/09 14:30:31  pcombes
- * This is commit set the frame for version 1.0 - does not work properly yet
- *
  ****************************************************************************/
 
 
@@ -76,6 +51,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "dietTypes.hh"
 #include "agent.hh"
@@ -84,14 +60,9 @@
 #include "marshalling.hh"
 #include "omniorb.hh"
 #include "debug.hh"
-#include "statistics.hh"
-
-#ifdef DEMO_BALTIMORE
 #include "com_tools.hh"
-#include <string.h>
-#endif
-
 #include "statistics.hh"
+
 
 extern "C" {
 
@@ -415,7 +386,7 @@ int diet_call(diet_function_handle_t *handle, diet_profile_t *profile)
   }
 #endif
 
-#ifdef DEMO_BALTIMORE
+#if HAVE_CICHLID
   static int already_initialized = 0;
   char str_tmp[1000];
 
@@ -429,7 +400,7 @@ int diet_call(diet_function_handle_t *handle, diet_profile_t *profile)
   add_communication("client",
 		    str_tmp,
 		    profile_size(profile));
-#endif
+#endif // HAVE_CICHLID
 
 
   if (mrsh_profile_to_in_args(&corba_profile, profile))

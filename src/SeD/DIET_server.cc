@@ -3,7 +3,7 @@
 /* DIET server interface                                                    */
 /*                                                                          */
 /*  Author(s):                                                              */
-/*    - Philippe COMBES           - LIP - ENS Lyon (France)                 */
+/*    - Philippe COMBES           - LIP ENS-Lyon (France)                   */
 /*                                                                          */
 /*  This is part of DIET software.                                          */
 /*  Copyright (C) 2002 ReMaP/INRIA                                          */
@@ -11,13 +11,9 @@
 /****************************************************************************/
 /*
  * $Log$
- * Revision 1.5  2002/10/25 14:31:18  ecaron
- * FAST support: convertors implemented and compatible to --without-fast
- *               configure option, but still not tested with FAST !
- *
- * Revision 1.5  2002/10/25 10:50:35  pcombes
- * FAST support: convertors implemented and compatible to --without-fast
- *               configure option, but still not tested with FAST !
+ * Revision 1.6  2002/12/03 19:08:23  pcombes
+ * Update configure, update to FAST 0.3.15, clean CVS logs in files.
+ * Put main Makefile in root directory.
  *
  * Revision 1.4  2002/10/15 18:45:00  pcombes
  * Implement convertor API and file transfer.
@@ -38,9 +34,6 @@
  *  - No copy for client/SeD data transfers
  *  - ...
  *
- * Revision 1.1  2002/08/09 14:30:29  pcombes
- * This is commit set the frame for version 1.0 - does not work properly yet
- *
  ****************************************************************************/
 
 
@@ -52,11 +45,7 @@
 #include "omniorb.hh"
 #include "marshalling.hh"
 #include "ServiceTable.hh"
-//#include "dietTypes.hh"
 #include "SeD_impl.hh"
-//#include "libSeD.hh"
-//#include "agent.hh"
-//#include "SeD.hh"
 #include "debug.hh"
 #include "types.hh"
 

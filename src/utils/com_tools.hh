@@ -1,8 +1,30 @@
-#ifndef __COM_TOOLS_H__
+/****************************************************************************/
+/* $Id$ */
+/* DIET communication tools specification                                   */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Ludovic BERTSCH           - LIP ENS-Lyon (France)                   */
+/*                                                                          */
+/*  This is part of DIET software.                                          */
+/*  Copyright (C) 2002 ReMaP/INRIA                                          */
+/*                                                                          */
+/****************************************************************************/
+/*
+ * $Log$
+ * Revision 1.2  2002/12/03 19:08:24  pcombes
+ * Update configure, update to FAST 0.3.15, clean CVS logs in files.
+ * Put main Makefile in root directory.
+ *
+ ****************************************************************************/
 
-#define __COM_TOOLS_H__
+
+#ifndef _COM_TOOLS_H_
+#define _COM_TOOLS_H_
 
 #include "DIET_client.h"
+
+#if HAVE_CICHLID
+
 
 /* Retourne la taille d'un objet d'un des types de base
  * 
@@ -32,4 +54,6 @@ void init_communications();
  */
 void add_communication(char* node0, char* node1, long size);
 
-#endif // __COM_TOOLS_H_
+
+#endif // HAVE_CICHLID
+#endif // _COM_TOOLS_H_

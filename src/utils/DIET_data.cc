@@ -3,7 +3,7 @@
 /* DIET data interface for clients as well as servers                       */
 /*                                                                          */
 /*  Author(s):                                                              */
-/*    - Philippe COMBES           - LIP - ENS Lyon (France)                 */
+/*    - Philippe COMBES           - LIP ENS-Lyon (France)                   */
 /*                                                                          */
 /*  This is part of DIET software.                                          */
 /*  Copyright (C) 2002 ReMaP/INRIA                                          */
@@ -11,16 +11,9 @@
 /****************************************************************************/
 /*
  * $Log$
- * Revision 1.6  2002/10/25 14:31:18  ecaron
- * FAST support: convertors implemented and compatible to --without-fast
- *               configure option, but still not tested with FAST !
- *
- * Revision 1.6  2002/10/25 10:50:40  pcombes
- * FAST support: convertors implemented and compatible to --without-fast
- *               configure option, but still not tested with FAST !
- *
- * Revision 1.5  2002/10/18 18:13:24  pcombes
- * Bug fixes for files in OUT parameters.
+ * Revision 1.7  2002/12/03 19:08:24  pcombes
+ * Update configure, update to FAST 0.3.15, clean CVS logs in files.
+ * Put main Makefile in root directory.
  *
  * Revision 1.4  2002/10/15 18:41:39  pcombes
  * Implement convertor API.
@@ -40,10 +33,6 @@
  *    by an LDAP DB for the MA
  *  - No copy for client/SeD data transfers
  *  - ...
- *
- * Revision 1.1  2002/08/28 10:07:18  pcombes
- * This commit sets the frame for version 1.0 - does not work properly yet
- * - Some files were still not processed -
  *
  ****************************************************************************/
 

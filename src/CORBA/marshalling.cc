@@ -4,7 +4,7 @@
 /*                                                                          */
 /*  Author(s):                                                              */
 /*    - Frederic LOMBARD          - LIFC Besançon (France)                  */
-/*    - Philippe COMBES           - LIP ENS Lyon (France)                   */
+/*    - Philippe COMBES           - LIP ENS-Lyon (France)                   */
 /*                                                                          */
 /*  This is part of DIET software.                                          */
 /*  Copyright (C) 2002 ReMaP/INRIA                                          */
@@ -12,8 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
- * Revision 1.17  2002/11/22 13:42:11  lbertsch
- * Little mistake
+ * Revision 1.18  2002/12/03 19:08:23  pcombes
+ * Update configure, update to FAST 0.3.15, clean CVS logs in files.
+ * Put main Makefile in root directory.
  *
  * Revision 1.16  2002/11/22 13:36:12  lbertsch
  * Added alpha linux support
@@ -21,23 +22,6 @@
  *
  * Revision 1.15  2002/11/15 17:15:32  pcombes
  * FAST integration complete ...
- *
- * Revision 1.14  2002/11/14 13:53:35  pcombes
- * Big fix in converters of files.
- *
- * Revision 1.13  2002/10/25 14:31:17  ecaron
- * FAST support: convertors implemented and compatible to --without-fast
- *               configure option, but still not tested with FAST !
- *
- * Revision 1.13  2002/10/25 10:50:22  pcombes
- * FAST support: convertors implemented and compatible to --without-fast
- *               configure option, but still not tested with FAST !
- *
- * Revision 1.12  2002/10/18 18:13:08  pcombes
- * Bug fixes for files in OUT parameters.
- *
- * Revision 1.11  2002/10/15 18:43:48  pcombes
- * Implement convertor API and file transfer.
  *
  * Revision 1.10  2002/10/04 16:17:09  pcombes
  * Integrate former hardcoded.h in configuration files. If DIET is compiled
@@ -47,16 +31,6 @@
  * Add trace levels (for Bert): traceLevel = n can be added in cfg files.
  * An agent son can now be killed (^C) without crashing this agent.
  * DIET with FAST: compilation is OK, but run time is still to be fixed.
- *
- * Revision 1.8  2002/09/17 15:23:11  pcombes
- * Bug fixes on inout arguments and examples
- * Add support for omniORB 4.0.0
- *
- * Revision 1.7  2002/09/09 15:57:48  pcombes
- * Fix bugs in marshalling
- *
- * Revision 1.6  2002/09/02 17:09:51  pcombes
- * Add free on OUT arguments.
  *
  * Revision 1.5  2002/08/30 16:50:12  pcombes
  * This version works as well as the alpha version from the user point of view,
@@ -68,15 +42,6 @@
  *    by an LDAP DB for the MA
  *  - No copy for client/SeD data transfers
  *  - ...
- *
- * Revision 1.4  2002/08/09 14:30:27  pcombes
- * This is commit set the frame for version 1.0 - does not work properly yet
- *
- * Revision 1.3  2002/05/24 19:36:52  pcombes
- * Add BLAS/dgemm example (implied bug fixes)
- *
- * Revision 1.2  2002/05/17 20:35:16  pcombes
- * Version alpha without FAST 
  *
  ****************************************************************************/
 

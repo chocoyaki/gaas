@@ -11,6 +11,10 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.4  2002/12/03 19:08:24  pcombes
+ * Update configure, update to FAST 0.3.15, clean CVS logs in files.
+ * Put main Makefile in root directory.
+ *
  * Revision 1.3  2002/10/15 18:36:03  pcombes
  * Remove the descriptors set functions.
  * Add convertors in API :
@@ -20,12 +24,6 @@
  * For compatibility with old API, just add NULL for the convertor argument in
  * diet_service_table_add. But all the solvers needed before in programs using
  * DIET can be transformed into convertors.
- *
- * Revision 1.2  2002/10/02 17:06:45  pcombes
- * Complete ArgStack API
- *
- * Revision 1.1  2002/08/09 14:30:21  pcombes
- * This is commit set the frame for version 1.0 - does not work properly yet
  *
  ****************************************************************************/
 

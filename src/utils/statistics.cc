@@ -1,3 +1,24 @@
+/****************************************************************************/
+/* $Id$ */
+/* DIET statistics tools source code                                        */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Ludovic BERTSCH           - LIP ENS-Lyon (France)                   */
+/*                                                                          */
+/*  This is part of DIET software.                                          */
+/*  Copyright (C) 2002 ReMaP/LIFC/INRIA                                     */
+/*                                                                          */
+/****************************************************************************/
+/*
+ * $Log$
+ * Revision 1.5  2002/12/03 19:08:24  pcombes
+ * Update configure, update to FAST 0.3.15, clean CVS logs in files.
+ * Put main Makefile in root directory.
+ *
+ ****************************************************************************/
+
+#if HAVE_STATISTICS
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -32,3 +53,5 @@ void do_stat_init() {
     }
   }
 }
+
+#endif // HAVE_STATISTICS

@@ -3,7 +3,7 @@
 /* DIET server interface                                                    */
 /*                                                                          */
 /*  Author(s):                                                              */
-/*    - Philippe COMBES           - LIP - ENS Lyon (France)                 */
+/*    - Philippe COMBES           - LIP ENS-Lyon (France)                   */
 /*                                                                          */
 /*  This is part of DIET software.                                          */
 /*  Copyright (C) 2002 ReMaP/INRIA                                          */
@@ -11,13 +11,9 @@
 /****************************************************************************/
 /*
  * $Log$
- * Revision 1.4  2002/10/25 14:31:17  ecaron
- * FAST support: convertors implemented and compatible to --without-fast
- *               configure option, but still not tested with FAST !
- *
- * Revision 1.4  2002/10/25 10:50:05  pcombes
- * FAST support: convertors implemented and compatible to --without-fast
- *               configure option, but still not tested with FAST !
+ * Revision 1.5  2002/12/03 19:08:24  pcombes
+ * Update configure, update to FAST 0.3.15, clean CVS logs in files.
+ * Put main Makefile in root directory.
  *
  * Revision 1.3  2002/10/15 18:36:04  pcombes
  * Remove the descriptors set functions.
@@ -28,12 +24,6 @@
  * For compatibility with old API, just add NULL for the convertor argument in
  * diet_service_table_add. But all the solvers needed before in programs using
  * DIET can be transformed into convertors.
- *
- * Revision 1.2  2002/10/07 14:54:03  pcombes
- * Add print_table header in API.
- *
- * Revision 1.1  2002/08/09 14:30:21  pcombes
- * This is commit set the frame for version 1.0 - does not work properly yet
  *
  ****************************************************************************/
 

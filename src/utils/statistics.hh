@@ -1,6 +1,25 @@
-#ifndef __STATISTICS_HH__
+/****************************************************************************/
+/* $Id$ */
+/* DIET statistics tools specification                                      */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Ludovic BERTSCH           - LIP ENS-Lyon (France)                   */
+/*                                                                          */
+/*  This is part of DIET software.                                          */
+/*  Copyright (C) 2002 ReMaP/INRIA                                          */
+/*                                                                          */
+/****************************************************************************/
+/*
+ * $Log$
+ * Revision 1.5  2002/12/03 19:08:24  pcombes
+ * Update configure, update to FAST 0.3.15, clean CVS logs in files.
+ * Put main Makefile in root directory.
+ *
+ ****************************************************************************/
 
-#define __STATISTICS_HH__
+
+#ifndef _STATISTICS_HH_
+#define _STATISTICS_HH_
 
 // The first part is ALWAYS defined, so we can link any program
 // even when the macro HAVE_STATISTICS is not defined
@@ -44,22 +63,20 @@ void do_stat_init();
 /////////////////////////////////
 // Use only the following calls :
 
-#ifdef HAVE_STATISTICS
+#if HAVE_STATISTICS
 
 #  define stat_init()        do_stat_init()
-
 #  define stat_in(message)   gen_stat(STAT_IN, message)
 #  define stat_out(message)  gen_stat(STAT_OUT, message)
 #  define stat_info(message) gen_stat(STAT_INFO, message)
 
-#else // HAVE_STATISTICS
+#else  // HAVE_STATISTICS
 
 #  define stat_init()
-
 #  define stat_in(message)
 #  define stat_out(message)
 #  define stat_info(message)
 
 #endif // HAVE_STATISTICS
 
-#endif // __STATISTICS_HH__
+#endif // _STATISTICS_HH_

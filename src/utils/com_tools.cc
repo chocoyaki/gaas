@@ -1,11 +1,30 @@
+/****************************************************************************/
+/* $Id$ */
+/* DIET communication tools source code                                     */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Ludovic BERTSCH           - LIP ENS-Lyon (France)                   */
+/*                                                                          */
+/*  This is part of DIET software.                                          */
+/*  Copyright (C) 2002 ReMaP/LIFC/INRIA                                     */
+/*                                                                          */
+/****************************************************************************/
+/*
+ * $Log$
+ * Revision 1.2  2002/12/03 19:08:24  pcombes
+ * Update configure, update to FAST 0.3.15, clean CVS logs in files.
+ * Put main Makefile in root directory.
+ *
+ ****************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "DIET_client.h"
-
 #include "com_tools.hh"
+
+#if HAVE_CICHLID
 
 static char* communication_directory = NULL;
 static int nb_emitted_com = 0;
@@ -95,7 +114,8 @@ void init_communications() {
   char *com_dir = getenv("COMMUNICATION_DIRECTORY");
 
   if (com_dir == NULL) {
-    fprintf(stderr, "La variable d'environnement COMMICATION_DIRECTORY n'est pas definie!!\n");
+    fprintf(stderr,
+	    "The COMMUNICATION_DIRECTORY environment variable is not defined !\n");
     exit(1);
   }
 
@@ -117,9 +137,11 @@ void add_communication(char* node0, char* node1, long size) {
     fprintf(f, "%s %s %ld", node0, node1, size);
     fclose(f);
   } else {
-    fprintf(stderr, "Impossible de creer le fichier %s!\n", file_name);
+    fprintf(stderr, "Could not create file %s!\n", file_name);
   }
   
   nb_emitted_com++;
 }
 
+
+#endif // HAVE_CICHLID

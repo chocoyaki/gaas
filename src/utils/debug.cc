@@ -4,6 +4,7 @@
 /*                                                                          */
 /*  Author(s):                                                              */
 /*    - Frederic LOMBARD          - LIFC Besançon (France)                  */
+/*    - Philippe COMBES           - LIP ENS-Lyon (France)                   */
 /*                                                                          */
 /*  This is part of DIET software.                                          */
 /*  Copyright (C) 2002 ReMaP/LIFC/INRIA                                     */
@@ -11,16 +12,12 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.8  2002/12/03 19:08:24  pcombes
+ * Update configure, update to FAST 0.3.15, clean CVS logs in files.
+ * Put main Makefile in root directory.
+ *
  * Revision 1.7  2002/11/22 14:49:28  lbertsch
  * Suppressed silly warnings on alpha
- *
- * Revision 1.6  2002/10/25 14:31:18  ecaron
- * FAST support: convertors implemented and compatible to --without-fast
- *               configure option, but still not tested with FAST !
- *
- * Revision 1.6  2002/10/25 10:50:40  pcombes
- * FAST support: convertors implemented and compatible to --without-fast
- *               configure option, but still not tested with FAST !
  *
  * Revision 1.5  2002/08/30 16:50:16  pcombes
  * This version works as well as the alpha version from the user point of view,
@@ -32,15 +29,6 @@
  *    by an LDAP DB for the MA
  *  - No copy for client/SeD data transfers
  *  - ...
- *
- * Revision 1.4  2002/08/09 14:30:34  pcombes
- * This is commit set the frame for version 1.0 - does not work properly yet
- *
- * Revision 1.3  2002/05/24 19:36:54  pcombes
- * Add BLAS/dgemm example (implied bug fixes)
- *
- * Revision 1.2  2002/05/17 20:35:18  pcombes
- * Version alpha without FAST 
  *
  ****************************************************************************/
 

@@ -3,24 +3,17 @@
 /* DIET data interface for clients as well as servers                       */
 /*                                                                          */
 /*  Author(s):                                                              */
-/*    - Philippe COMBES           - LIP - ENS Lyon (France)                 */
+/*    - Philippe COMBES           - LIP ENS-Lyon (France)                   */
 /*                                                                          */
 /*  This is part of DIET software.                                          */
 /*  Copyright (C) 2002 ReMaP/INRIA                                          */
 /*                                                                          */
 /****************************************************************************/
-/*-
+/*
  * $Log$
- * Revision 1.5  2002/10/25 14:31:17  ecaron
- * FAST support: convertors implemented and compatible to --without-fast
- *               configure option, but still not tested with FAST !
- *
- * Revision 1.5  2002/10/25 10:50:05  pcombes
- * FAST support: convertors implemented and compatible to --without-fast
- *               configure option, but still not tested with FAST !
- *
- * Revision 1.4  2002/10/18 18:12:03  pcombes
- * Better comments on file_set function.
+ * Revision 1.6  2002/12/03 19:08:24  pcombes
+ * Update configure, update to FAST 0.3.15, clean CVS logs in files.
+ * Put main Makefile in root directory.
  *
  * Revision 1.3  2002/10/15 18:36:03  pcombes
  * Remove the descriptors set functions.
@@ -32,13 +25,6 @@
  * diet_service_table_add. But all the solvers needed before in programs using
  * DIET can be transformed into convertors.
  *
- * Revision 1.2  2002/09/17 15:23:06  pcombes
- * Bug fixes on inout arguments and examples
- * Add support for omniORB 4.0.0
- *
- * Revision 1.1  2002/08/09 14:30:21  pcombes
- * This is commit set the frame for version 1.0 - does not work properly yet
- *
  ****************************************************************************/
 
 
@@ -46,6 +32,7 @@
 #define _DIET_DATA_H_
 
 #include <sys/types.h>
+#include "DIET_config.h"
 
 #ifdef __cplusplus
 extern "C" {
