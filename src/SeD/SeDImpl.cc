@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2003/07/25 20:23:52  pcombes
+ * Fix the warning about "uninitialized variables" n the FAST part.
+ *
  * Revision 1.7  2003/07/04 09:47:57  pcombes
  * Use new ERROR, WARNING and TRACE macros.
  *
@@ -130,7 +133,7 @@ SeDImpl::run(ServiceTable* services)
 
   if (this->fastUse > 0) {
     Parsers::Results::Address* tmp;
-    size_t ldapUse, ldapPort, nwsUse, nwsNSPort, nwsFcstPort;
+    size_t ldapUse(1), ldapPort(0), nwsUse(1), nwsNSPort(0), nwsFcstPort(0);
     char*  ldapHost = "";
     char*  ldapMask = "";
     char*  nwsNSHost = "";
