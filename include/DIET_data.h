@@ -1,5 +1,4 @@
 /****************************************************************************/
-/* $Id$ */
 /* DIET data interface for clients as well as servers                       */
 /*                                                                          */
 /*  Author(s):                                                              */
@@ -7,8 +6,11 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/*
+/* $Id$
  * $Log$
+ * Revision 1.14  2003/04/10 11:27:14  pcombes
+ * Add the mode DIET_PERSISTENT_RETURN.
+ *
  * Revision 1.13  2003/02/07 17:02:10  pcombes
  * Remove diet_value. Add diet_is_persistent and diet_free_data.
  * Unify diet_scalar_get prototype to the one of the other _get functions.
@@ -39,12 +41,10 @@
  * DIET can be transformed into convertors.
  ****************************************************************************/
 
-
 #ifndef _DIET_DATA_H_
 #define _DIET_DATA_H_
 
 #include <sys/types.h>
-#include "DIET_config.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -79,11 +79,23 @@ typedef enum {
 
 
 /****************************************************************************/
-/* Various persistence modes for data                                       */
+/* Various persistence modes for data :                                     */
+/*   - DIET_VOLATILE:                                                       */
+/*        No persistency at all.                                            */
+/*   - DIET_PERSISTENT_RETURN: (valid for INOUT and OUT arguments only)     */
+/*        Data are saved on the server and a copy is sent back to the       */
+/*        client after the computation is complete.                         */
+/*   - DIET_PERSISTENT:                                                     */
+/*        Data are saved on the server and nothing is brought back to the   */
+/*        client.                                                           */
+/*   - DIET_STICKY:                                                         */
+/*        Data are saved on the server, they cannot been moved from there   */
+/*        to another server, and thus cannot be sent back to the client.    */
 /****************************************************************************/
 
 typedef enum {
   DIET_VOLATILE = 0,
+  DIET_PERSISTENT_RETURN, // Data are saved on the server, but must be brought back
   DIET_PERSISTENT,
   DIET_STICKY,
   DIET_PERSISTENCE_MODE_COUNT
@@ -103,7 +115,7 @@ typedef struct diet_arg_s diet_arg_t;
  * Return true if arg persistence mode is sticky or persistent.
  */
 #define diet_is_persistent(arg) \
-  (((arg).desc.mode == DIET_PERSISTENT) || ((arg).desc.mode == DIET_STICKY))
+  (((arg).desc.mode > DIET_VOLATILE) && ((arg).desc.mode <= DIET_STICKY))
 
 
 /****************************************************************************/
@@ -332,6 +344,7 @@ struct diet_data_generic {
 
 /*----[ data description ]--------------------------------------------------*/
 typedef struct {
+  char* id;     // allocated at the creation of the encapsulating data_handle
   diet_persistence_mode_t  mode;
   struct diet_data_generic generic;
   union {
@@ -342,7 +355,6 @@ typedef struct {
     struct diet_file_specific   file;
   } specific;
 } diet_data_desc_t;
-
 
 struct diet_arg_s {
   diet_data_desc_t desc;
