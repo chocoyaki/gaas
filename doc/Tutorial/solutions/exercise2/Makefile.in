@@ -8,9 +8,16 @@
 #* $LICENSE$                                                                *#
 #****************************************************************************#
 
-
-DIET_HOME = @top_srcdir@
+# If the path to Makefile.inc is not right, do feel free to change it !
+DIET_HOME = @top_builddir@
 include $(DIET_HOME)/include/Makefile.inc
+
+# If your build directory is different from the sources, VPATH helps this
+# Makefile to find the sources.
+# If you do not understand the last sentence, you may probably be able to
+# comment this line without any effect. Anyway, do not care about that.
+VPATH=@srcdir@
+
 
 all:	client_smprod client_smprod_file server
 
@@ -25,6 +32,9 @@ client_smprod_file.o: client_smprod_file.c
 
 client_smprod_file: client_smprod_file.o
 	$(CC) $< $(CCFLAGS) $(DIET_CLIENT_LIBS) -o $@
+	if [ "@top_srcdir@" != "@top_builddir@" ]; then	\
+	  cp -f @srcdir@/matrix1 .;			\
+	fi
 
 server.o: server.c
 	$(CC) -c $< $(CCFLAGS)  $(CCFLAGS_DIET) -o $@
@@ -33,4 +43,4 @@ server:	server.o
 	$(CC) $< $(CCFLAGS) $(DIET_SERVER_LIBS) -o $@
 
 clean:
-	rm -f *.o client_smprod client_smprod_file server
+	rm -f *.o client_smprod client_smprod_file matrix1 server
