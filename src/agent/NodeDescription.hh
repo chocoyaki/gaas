@@ -8,9 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2003/05/05 14:32:29  pcombes
+ * assert in NodeDescription(T_ptr ior, const char* hostName) was buggy.
+ *
  * Revision 1.1  2003/04/10 12:58:35  pcombes
  * Replace AgentDescription.hh. Fix bugs on memory management.
- *
+ ****************************************************************************/
 
 #ifndef _NODE_DESCRIPTION_HH_
 #define _NODE_DESCRIPTION_HH_
@@ -59,7 +62,7 @@ public :
    */
   NodeDescription(T_ptr ior, const char* hostName) {
     assert(hostName != NULL);
-    assert(this->hostName != NULL);
+    this->hostName = ms_strdup(hostName);
     this->ior = T::_duplicate(ior);
   }
 
