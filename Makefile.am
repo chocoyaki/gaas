@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.8  2003/09/09 12:55:17  pcombes
+#* Reoraganization of doc + new distrib generation.
+#*
 #* Revision 1.7  2003/07/25 20:37:36  pcombes
 #* Separate the DIET API (slightly modified) from the GridRPC API (version of
 #* the draft dated to 07/21/2003)
@@ -37,21 +40,32 @@
 SUBDIRS = @SUBMODULES_DIET@
 DIST_SUBDIRS = $(SUBDIRS)
 
-EXTRA_DIST = $(top_srcdir)/include/Makefile.inc.in
+if MAINTAINER_MODE
+override PACKAGE_VERSION = $(VERSION)-dev
+override PACKAGE_STRING  = $(PACKAGE_NAME) $(VERSION)-dev
+override distdir         = $(PACKAGE)-$(VERSION)-dev
+endif
 
+
+EXTRA_DIST = $(top_srcdir)/include/Makefile.inc.in
+if MAINTAINER_MODE
+EXTRA_DIST += acmacros/aci.m4 acmacros/fast.m4 acmacros/libtool.m4 \
+	      acmacros/omniorb.m4 acmacros/utils.m4 \
+	      bin bootstrap.sh TO_DO
+endif
 
 # RM_FROM_DIST: files that should not be in the dist, but that automake includes
 # DONT_DIST_FILES: files that should not be processed by distrib_file.sh before
 #                  distributed
-RM_FROM_DIST    = AUTHORS NEWS include/Makefile.inc
+RM_FROM_DIST    = AUTHORS NEWS aclocal.m4 include/Makefile.inc
 DONT_DIST_FILES = README COPYING ChangeLog INSTALL configure config.guess \
 		  config.sub depcomp install-sh ltmain.sh mkinstalldirs   \
 		  missing include/DIET_config.h.in
 
 if MAINTAINER_MODE
-DONT_DIST_FILES += aclocal.m4
+DONT_DIST_FILES += doc/API acmacros bootstrap.sh bin TO_DO
 else
-RM_FROM_DIST += aclocal.m4 configure.ac `find . -name Makefile.am`
+RM_FROM_DIST += configure.ac doc/Programmer `find . -name Makefile.am`
 endif
 
 include_HEADERS = $(top_builddir)/include/Makefile.inc \
@@ -67,19 +81,20 @@ MAINTAINERCLEANFILES = $(top_srcdir)/Makefile.in \
 		       $(top_srcdir)/config-h.in \
 		       $(top_srcdir)/stamp-h.in
 
+
 dist-hook:
-	(cd $(distdir); rm -f $(RM_FROM_DIST))
-	for f in `find $(distdir) -type f`; do				  \
+	(cd $(distdir); rm -rf $(RM_FROM_DIST))
+	for f in `ls -A $(distdir)`; do				  \
 	  export VERSION=$(PACKAGE_VERSION);                              \
-	  $(top_srcdir)/bin/script/distrib_file.sh $$f $(DONT_DIST_FILES);\
+	  $(top_srcdir)/bin/script/distrib_file.sh $(distdir)/$$f	\
+						   $(DONT_DIST_FILES);	\
 	done
-	echo $(PACKAGE_STRING) > $(distdir)/VERSION
-	echo `LANG=C date +"%A %B %d %Y"` >> $(distdir)/VERSION
 if MAINTAINER_MODE
-	@cp $(top_srcdir)/Doxyfile $(distdir)
-	(cd $(distdir); doxygen || exit 0)
-	@rm -f $(distdir)/Doxyfile
+	echo "$(PACKAGE_STRING) (maintainer distribution)" > $(distdir)/VERSION
+else
+	echo $(PACKAGE_STRING) > $(distdir)/VERSION
 endif
+	echo `LANG=C date +"%A %B %d %Y"` >> $(distdir)/VERSION
 
 distclean-local:
 	-rm -rf $(MAINTAINERCLEANFILES)
@@ -98,25 +113,25 @@ help:
 	@echo "===================================================================="
 
 CORBA:	
-	$(MAKE) -C src/CORBA
+	$(MAKE) -C src/$@
 
 utils:	CORBA
-	$(MAKE) -C src/utils	
+	$(MAKE) -C src/$@
 
 agent:	utils
-	$(MAKE) -C src/agent
+	$(MAKE) -C src/$@
 
 SeD:	utils
-	$(MAKE) -C src/SeD
+	$(MAKE) -C src/$@
 
 client:	utils
-	$(MAKE) -C src/client
+	$(MAKE) -C src/$@
 
 examples:
-	$(MAKE) -C src/examples
+	$(MAKE) -C src/$@
 
 doc:
-	$(MAKE) -C doc
+	$(MAKE) -C $@
 
 distrib: doc dist
 distribcheck: doc distcheck
