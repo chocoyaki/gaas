@@ -12,6 +12,9 @@
 #****************************************************************************#
 #*
 #* $Log$
+#* Revision 1.2  2003/02/14 12:27:16  cpera
+#* change spaces with tabs (make errors in Makefile target).
+#*
 #* Revision 1.1  2003/02/14 10:31:29  cpera
 #* add files used by autoconf/automake/libtool.
 #*
@@ -28,8 +31,9 @@ DIST_SUBDIRS=$(SUBDIRS)
 
 .PHONY:	CS UM
 
-CS:
-  $(MAKE) -C CS
+CS: 
+	$(MAKE) -C CS
 
-UM:
-  $(MAKE) -C UM
+UM: 
+	$(MAKE) -C UM
+
