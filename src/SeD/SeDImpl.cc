@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2003/09/29 09:33:50  pcombes
+ * solve*: Delete the parameters allocated by unmrsh_in_args_to_profile.
+ *
  * Revision 1.13  2003/09/29 09:25:01  ecaron
  * Take into account the new API of statistics module
  *
@@ -263,7 +266,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
 #else  // DEVELOPPING_DATA_PERSISTENCY  
   
   unmrsh_in_args_to_profile(&profile, &pb, cvt);
-  
+
 #endif // DEVELOPPING_DATA_PERSISTENCY
 
   solve_res = (*(SrvT->getSolver(ref)))(&profile);
@@ -298,6 +301,8 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
     cout << "SeD::solve complete\n"
 	 << "************************************************************\n";
 
+  delete [] profile.parameters; // allocated by unmrsh_in_args_to_profile
+  
   stat_out("SeD","solve");  
 
   return solve_res;
@@ -439,6 +444,9 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
       Callback_var cb_var = Callback::_narrow(cb);
       cb_var->notifyResults(path, pb, reqID);
       cb_var->solveResults(path, pb, reqID);
+
+      delete [] profile.parameters; // allocated by unmrsh_in_args_to_profile
+
     }
   
   } catch (const CORBA::Exception &e) {
