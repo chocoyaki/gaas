@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2004/02/27 10:26:37  bdelfabr
+ * let DIET_PERSISTENCE_MODE set to 1, coding standard
+ *
  * Revision 1.19  2003/11/10 14:12:06  bdelfabr
  * estimate method modified
  * adding estimation time for data transfer in case of persistent data. Data transfer time estimation is computed by FAST.
@@ -63,7 +66,7 @@ using namespace std;
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-
+#include <time.h>
 
 #if HAVE_FAST
 #include "slimfast_api.h"
@@ -80,7 +83,7 @@ using namespace std;
 #include "Parsers.hh"
 #include "statistics.hh"
 
-#define DEVELOPPING_DATA_PERSISTENCY 0
+#define DEVELOPPING_DATA_PERSISTENCY 1
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
@@ -160,7 +163,8 @@ SeDImpl::run(ServiceTable* services)
 
 /** Set this->dataMgr */
 int
-SeDImpl::linkToDataMgr(DataMgrImpl* dataMgr){
+SeDImpl::linkToDataMgr(DataMgrImpl* dataMgr)
+{
   this->dataMgr = dataMgr;
   return 0;
 }
@@ -182,7 +186,7 @@ SeDImpl::getRequest(const corba_request_t& creq)
   if (serviceRef == -1) {
     resp.sortedIndexes.length(0);;
     resp.servers.length(0);
-
+    cout << "service not found ??????????????????????????????????????" << endl;
   } else {
     resp.sortedIndexes.length(1);
     resp.servers.length(1);
@@ -226,9 +230,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
   diet_profile_t profile;
   diet_convertor_t* cvt(NULL);
   int solve_res(0);
-  
   stat_in("SeD","solve");
-
 
    TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::solve invoked on pb: " << path << endl);
   
@@ -242,35 +244,36 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
 #if DEVELOPPING_DATA_PERSISTENCY
   // added for data persistence 
   int i;
- 
 
+ 
   for (i=0; i <= pb.last_inout; i++) {
+ 
+   
     if(pb.parameters[i].value.length() == 0){ /* In argument with NULL value : data is present */
       this->dataMgr->getData(pb.parameters[i]); 
     } else { /* data is not yet present but is persistent */
-      if( diet_is_persistent(pb.parameters[i]) ) {
+          if( diet_is_persistent(pb.parameters[i]) ) {
        	this->dataMgr->addData(pb.parameters[i],0);
       }
     }
   } 
-
+ 
   unmrsh_in_args_to_profile(&profile, &pb, cvt);
   
   
-  
 #else  // DEVELOPPING_DATA_PERSISTENCY  
-  
+
   unmrsh_in_args_to_profile(&profile, &pb, cvt);
 
 #endif // DEVELOPPING_DATA_PERSISTENCY
 
   solve_res = (*(SrvT->getSolver(ref)))(&profile);
-  
+ 
   mrsh_profile_to_out_args(&pb, &profile, cvt);
+ 
 
-
-#if DEVELOPPING_DATA_PERSISTENCY  
-
+#if DEVELOPPING_DATA_PERSISTENCY   
+ 
     for (i = pb.last_in + 1 ; i <= pb.last_inout; i++) {
       if ( diet_is_persistent(pb.parameters[i])) {
 	this->dataMgr->updateDataList(pb.parameters[i]); 
@@ -282,7 +285,6 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
 	this->dataMgr->addData(pb.parameters[i],1); 
       }
     }
-
     this->dataMgr->printList();
 #endif // DEVELOPPING_DATA_PERSISTENCY
   
@@ -338,7 +340,6 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 	if(pb.parameters[i].value.length() == 0){
 	  
 	  this->dataMgr->getData(const_cast<corba_data_t&>(pb.parameters[i]));
-	  
 	} else {
 	  if( diet_is_persistent(pb.parameters[i]) ) {
 	    
@@ -346,7 +347,6 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 	  }
 	}
       }
-      
       unmrsh_in_args_to_profile(&profile, &(const_cast<corba_profile_t&>(pb)), cvt);
       
       
@@ -467,8 +467,9 @@ SeDImpl::estimate(corba_estimation_t& estimation,
     if ((pb.param_desc[i].mode > DIET_VOLATILE)
 	&& (pb.param_desc[i].mode <= DIET_STICKY)
 	&& (*(pb.param_desc[i].id.idNumber) != '\0')) {    
-      	estimation.commTimes[i] = 0;  
+      estimation.commTimes[i] = 0;  
 #if DEVELOPPING_DATA_PERSISTENCY
+      /*   cout << "in ESTIMATE" << endl;
       if(this->dataMgr->dataLookup(CORBA::string_dup(pb.param_desc[i].id.idNumber)))	
 	estimation.commTimes[i] = 0;  // getTransferTime(pb.params[i].id);
       else {
@@ -480,7 +481,7 @@ SeDImpl::estimate(corba_estimation_t& estimation,
 	unsigned int size =(long unsigned int) data_sizeof(&(pb.param_desc[i]));
 	estimation.commTimes[i]=FASTMgr::commTime(localHostName,remoteHostName,size,false);
 	// getTransferTime(pb.params[i].id);
-      }
+	}*/
 #endif //  DEVELOPPING_DATA_PERSISTENCY
     }
   }
