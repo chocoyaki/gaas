@@ -9,6 +9,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.2  2003/11/26 12:57:32  cpera
+#* Manage return ldapadd code "68" about data which are already registered.
+#*
 #* Revision 1.1  2003/09/26 14:05:39  pcombes
 #* Local platform scripts are managed by configure.
 #*
@@ -47,7 +50,9 @@ ldap_start() {
   $LDAPBIN/ldapadd -x -c -H "ldap://localhost:$SLAPD_PORT"            \
           -D "cn=admin,ou=People,dc=ens-lyon,dc=fr" -w "DUMMY_PASSWD" \
 	  -f "$LDIF" >> $LOG 2>&1
-  if [ "$?" -ne 0 ] ; then
+  # 68 is return ldapadd code when data is already registered in ldap base ...
+  # so, it is not an error.
+  if [ "$?" -ne 0 -a "$?" -ne 68 ] ; then
     echo "Error: cannot add the plus, mult and dgemm problems (check $LOG)"
     exit 1
   fi  
