@@ -1,0 +1,412 @@
+%****************************************************************************%
+%* DIET User's Manual deploying chapter file                                *%
+%*                                                                          *%
+%*  Author(s):                                                              *%
+%*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *%
+%*                                                                          *%
+%* $LICENSE$                                                                *%
+%****************************************************************************%
+%* $Id$
+%* $Log$
+%* Revision 1.1  2003/09/09 12:38:20  pcombes
+%* Reorganization of doc: UM becomes UsersManual.
+%*
+%* Revision 1.10  2003/06/02 13:47:05  pcombes
+%* Fix footnotesize.
+%*
+%* Revision 1.9  2003/05/23 09:23:35  pcombes
+%* Add suggestions from Jean-Yves. Thanks !
+%*
+%* Revision 1.8  2003/05/15 14:17:58  pcombes
+%* UM 0.7
+%*
+%* Revision 1.5  2003/01/22 17:34:53  pcombes
+%* User Manual, v. 0.6.4
+%*
+%* Revision 1.4  2003/01/21 12:17:02  pcombes
+%* Update UM to API 0.6.3, and "hide" data structures.
+%*
+%* Revision 1.3  2003/01/13 12:09:00  pcombes
+%* UM: client part complete for users's day ...
+%****************************************************************************%
+
+\chapter{Deploying a DIET platform}
+\label{ch:deploying}
+
+
+%====[ Deploying CORBA services ]==============================================
+\section{Deploying CORBA services}
+\label{sec:CORBA_services}
+
+So far, only one CORBA service is needed: the Naming Service. It is provided by
+a name server that must be launched before all DIET entities. Then, these DIET
+entities must be passed a reference to the $<$host:port$>$ of this name server.
+
+In this section, we try to give some basic information to start using DIET with
+a basic CORBA configuration. Please refer to the documentation of your ORB if
+you need more details.
+
+\subsection{omniNames}
+
+\subsubsection{The server}
+
+To launch the omniORB name server, first check that the path of the omniORB
+libraries is in your environment variable \texttt{LD\_LIBRARY\_PATH}, then
+specify the log directory, through the environment variable
+\texttt{OMNINAMES\_LOGDIR} (or, with \textbf{omniORB 4}, at compile time,
+through the \texttt{--with-omniNames-logdir} option of the omniORB configure
+script). If there is no log file in this directory, \texttt{omniNames} needs to
+be given the port through which its client will connect. It can be launched
+as follows:
+{\footnotesize
+\begin{verbatim}
+~ > omniNames -start
+
+Fri Dec 13 14:46:02 2002:
+
+Starting omniNames for the first time.
+Wrote initial log file.
+Read log file successfully.
+Root context is IOR:010000002b00000049444c3a6f6d672e6f72672f436f734e616d696e672f4e61
+6d696e67436f6e746578744578743a312e300000010000000000000060000000010102000d0000003134
+302e37372e31332e34360000fa0a0b0000004e616d655365727669636500020000000000000008000000
+0100000000545441010000001c0000000100000001000100010000000100010509010100010000000901
+0100
+Checkpointing Phase 1: Prepare.
+Checkpointing Phase 2: Commit.
+Checkpointing completed.
+\end{verbatim}
+}
+
+This sets an omniORB name server which listens to clients
+connections on default port 2809. If omniNames has already been launched once,
+\emph{ie} there is already some log files in the log directory, using the
+\texttt{-start} option causes an error. The port is actually read from old
+log files:
+{\footnotesize
+\begin{verbatim}
+~ > omniNames -start 2810
+
+Fri Dec 13 15:02:36 2002:
+
+Error: log file '/tmp/omninames-toto.log' exists.  Can't use -start option.
+~ > omniNames  
+
+Fri Dec 13 15:02:40 2002:
+
+Read log file successfully.
+Root context is IOR:010000002b00000049444c3a6f6d672e6f72672f436f734e616d696e672f4e61
+6d696e67436f6e746578744578743a312e300000010000000000000060000000010102000d0000003134
+302e37372e31332e34360000fa0a0b0000004e616d655365727669636500020000000000000008000000
+0100000000545441010000001c0000000100000001000100010000000100010509010100010000000901
+0100
+Checkpointing Phase 1: Prepare.
+Checkpointing Phase 2: Commit.
+Checkpointing completed.
+\end{verbatim}
+}
+
+
+\subsubsection{The client}
+
+Every DIET entity needs to connect to the CORBA name server: it is the way to
+discover each other. The reference to the omniORB name server is written in the
+configuration file, whose path is given to omniORB through the environment
+variable \texttt{OMNIORB\_CONFIG} (or, with \textbf{omniORB 4}, at compile time,
+through the \texttt{--with-omniORB-config} option of the configure script). Some
+examples of such a configuration file are given in the directory
+\texttt{src/examples/cfgs} of the DIET source files and installed in
+\texttt{$<$install\_dir$>$/etc}. The lines concerning the name server, in the
+omniORB configuration file, are built as follows:
+\begin{description}
+ \item{omniORB 3:}
+{\footnotesize
+\begin{verbatim}
+ORBInitialHost <name server hostname>
+ORBInitialPort <name server port>
+\end{verbatim}
+}
+ \item{omniORB 4:}
+{\footnotesize
+\begin{verbatim}
+InitRef = NameService=corbaname::<name server hostname>:<name server port>
+\end{verbatim}
+}
+The name server port is the one given in argument to the \texttt{-start} option
+of \texttt{omniNames}.
+\end{description}
+
+%\subsection*{The TAO name server}
+%\subsubsection{The server}
+%\subsubsection{The client}
+
+
+%====[ DIET configuration file ]===============================================
+\section{DIET configuration file} 
+
+Launching a DIET entity needs a configuration file. Some fully commented
+examples of such configuration files are given in the directory
+\texttt{src/examples/cfgs} of the DIET source files and installed in
+\texttt{$<$install\_dir$>$/etc}. Please note that:
+\begin{itemize}
+\item comments start with '\#' and finish at the end of the current
+  line,
+\item meaningful lines have the format: \texttt{keyword = value}, following the
+  format of configuration files for omniORB 4,
+\item keywords are case sensitive.
+\end{itemize}
+
+\subsection{Tracing API}
+
+\noindent
+\texttt{traceLevel} \ \ \emph{default}\texttt{ = 1}\\
+This option controls debugging trace output. The following levels are defined:
+
+\begin{center}
+ \footnotesize
+ \begin{tabular}{p{.1\linewidth}p{.8\linewidth}}
+  level $=$ 0  & Print only errors\\
+  level $<$ 5  & Print errors and messages for the main steps (such as ``Got a
+  request'') - default\\
+  level $<$ 10 & Print errors and messages for all steps\\
+  level $=$ 10 & Print errors, all steps, and some important structures (such
+  as the list of offered services)\\
+  level $>$ 10 & Print all DIET messages AND omniORB messages corresponding to
+  an omniORB traceLevel of (level~-~10)
+ \end{tabular}
+\end{center}
+
+
+\subsection{Client side parameters}
+
+\noindent
+\texttt{MAName} \ \ \emph{default}\texttt{ = }\emph{none}\\
+This is a \textbf{compulsory} parameter that specifies the name of the Master
+Agent to connect to. The MA must have registered with this same name to the
+CORBA name server.
+
+
+\subsection{Agent side parameters}
+
+\noindent
+\texttt{agentType} \ \ \emph{default}\texttt{ = }\emph{none}\\
+As DIET offers only one executable for both types of agent, it is
+\textbf{compulsory} to specify which kind of agent must be launched. Two values
+are available: \texttt{DIET\_MASTER\_AGENT} and \texttt{DIET\_LOCAL\_AGENT}.
+They have aliases, respectively \texttt{MA} and \texttt{LA}.
+\\
+
+\noindent
+\texttt{name} \ \ \emph{default}\texttt{ = }\emph{none}\\
+This is a \textbf{compulsory} parameter that specifies the name which the agent
+will register with to the CORBA name server.
+
+
+\subsection{LAs and SeD side parameters}
+
+\noindent
+\texttt{parentName} \ \ \emph{default}\texttt{ = }\emph{none}\\
+This is a \textbf{compulsory} parameter for Local Agents only ; it indicates the
+name of the parent (an LA or the MA) to register to.
+
+
+\subsection{FAST options}
+
+\noindent
+\texttt{fastUse} \ \ \emph{default}\texttt{ = 1}\\
+This option activates the requests to FAST. It is ignored if DIET was
+compiled without FAST, and defaults to 1 otherwise. In the latter case, it is
+useful to set it to 0 if one wishes to perform some tests
+without deploying the whole NWS/LDAP platform.
+
+The following options are ignored if DIET was compiled without FAST or if
+\texttt{fastUse} is set to 0.
+
+\subsubsection{LDAP options}
+
+\noindent
+\texttt{ldapUse} \ \ \emph{default}\texttt{ = 0} for agents, \texttt{ = 1} for
+SeDs\\
+This option activates the use of LDAP in FAST requests. It defaults to 0 for
+agents (which do not need to connect to the LDAP base) and to 1 for SeDs.
+\\
+
+The following two options are ignored if \texttt{ldapUse} is set to 0.
+\\
+
+\noindent
+\texttt{ldapBase} \ \ \emph{default}\texttt{ = }\emph{none}\\
+Specify the \texttt{host:port} address of the LDAP base where FAST gets the
+results of its benchmarks.
+\\
+
+\noindent
+\texttt{ldapMask} \ \ \emph{default}\texttt{ = }\emph{none}\\
+Specify the mask used for requests to the LDAP base. It must match the one given
+in the \texttt{.ldif} file of the server that was added to the base.
+
+
+\subsubsection{NWS options}
+
+\noindent
+\texttt{nwsUse} \ \ \emph{default}\texttt{ = 1}\\
+This option activates the use of NWS in FAST requests. If 0, FAST will use an
+internal sensor for the performance of the machine, but will not be able to
+evaluate communication times.
+\\
+
+The following two options are ignored if \texttt{nwsUse} is set to 0.
+\\
+
+\noindent
+\texttt{nwsNameserver} \ \ \emph{default}\texttt{ = }\emph{none}\\
+Specify the \texttt{host:port} address of the NWS name server.
+\\
+
+\noindent
+\texttt{nwsForecaster} \ \ \emph{default}\texttt{ = }\emph{none}\\
+Specify the \texttt{host:port} address of the NWS forecaster.
+\\
+
+
+\subsection{Miscellanous options}
+
+\texttt{endPoint} \ \ \emph{default}\texttt{ = }\emph{2809}\\
+This option specifies the listening port of an agent or an SeD. It is very
+useful when they are behind a firewall. It defaults to 2809, but if this port is
+already busy, the OS chooses a port number.
+
+
+
+%====[ Example ]=========================================
+\section{Example}
+\label{sec:deploy_ex}
+
+As shown in Section \ref{init}, the hierarchy is built from top to down: the
+children register to their direct parent.
+
+Here is an example of a complete platform deployment. Let us assume that:
+
+\begin{itemize}
+\item DIET was compiled with FAST on all machines used,
+\item the LDAP server is launched on the machine \texttt{ldaphost} and listens
+  on the port 9000,
+\item the NWS name server is launched on the machine \texttt{nwshost} and
+  listens on the port 9001,
+\item the NWS forecaster is launched on the machine \texttt{nwshost} and
+  listens on the port 9002,
+\item the NWS sensors are launched on every machine we use.
+\end{itemize}
+
+
+\subsubsection{Launching the MA}
+
+For such a platform, the MA configuration file could be:
+\tt
+\begin{center}
+ \footnotesize
+ \begin{tabular}{lcll}
+  \multicolumn{4}{l}{\# file MA\_example.cfg, configuration file for an MA}\\
+  agentType    &=&DIET\_MASTER\_AGENT&\\
+  name         &=&MA\_example        &\\
+  \#traceLevel &=&5                  &\# default\\
+  \#endPoint   &=&2809               &\# default\\
+  \#fastUse    &=&1                  &\# default\\
+  \#ldapUse    &=&0                  &\# default\\
+  \#nwsUse     &=&1                  &\# default\\
+  nwsNameserver&=&nwshost:9001       &\\
+  nwsForecaster&=&nwshost:9002       &\\
+ \end{tabular}
+\end{center}
+\rm
+
+This configuration file is the only argument to the executable \texttt{dietAgent},
+that is installed in \texttt{$<$install\_dir$>$/bin}. Provided
+\texttt{$<$install\_dir$>$/bin} is in your PATH environment variable, run
+{\footnotesize
+\begin{verbatim}
+~ > dietAgent MA_example.cfg
+
+Master Agent MA_example started.
+\end{verbatim}
+}
+
+
+\subsubsection{Launching an LA}
+
+For such a platform, an LA configuration file could be:
+\tt
+\begin{center}
+ \footnotesize
+ \begin{tabular}{lcll}
+  \multicolumn{4}{l}{\# file LA\_example.cfg, configuration file for an LA}\\
+  agentType    &=&DIET\_LOCAL\_AGENT&\\
+  name         &=&LA\_example       &\\
+  parentName   &=&MA\_example       &\\
+  \#traceLevel &=&5                 &\# default\\
+  \#endPoint   &=&2809              &\# default\\
+  \#fastUse    &=&1                 &\# default\\
+  \#ldapUse    &=&0                 &\# default\\
+  \#nwsUse     &=&1                 &\# default\\
+  nwsNameserver&=&nwshost:9001      &\\
+  nwsForecaster&=&nwshost:9002      &\\
+ \end{tabular}
+\end{center}
+\rm
+
+This configuration file is the only argument to the executable \texttt{dietAgent},
+that is installed in \texttt{$<$install\_dir$>$/bin}. This LA will register as a
+son of MA\_example. Run
+{\footnotesize
+\begin{verbatim}
+~ > dietAgent LA_example.cfg
+
+Local Agent LA_example started.
+\end{verbatim}
+}
+
+\subsubsection{Launching a server}
+
+For such a platform, an \sed\ configuration file could be:
+\tt
+\begin{center}
+ \footnotesize
+ \begin{tabular}{lcll}
+  \multicolumn{4}{l}{\# file SeD\_example.cfg, configuration file for an SeD}\\
+  parentName   &=&LA\_example        &\\
+  \#traceLevel &=&5                 &\# default\\
+  \#endPoint   &=&2809              &\# default\\
+  \#fastUse    &=&1                 &\# default\\
+  \#ldapUse    &=&1                 &\# default\\
+  ldapBase     &=&ldaphost:9000     &\\
+  ldapMask     &=&dc=LIP,dc=ens-lyon,dc=fr&\\
+  \#nwsUse     &=&1                 &\# default\\
+  nwsNameserver&=&nwshost:9001      &\\
+  nwsForecaster&=&nwshost:9002      &\\
+ \end{tabular}
+\end{center}
+\rm
+
+This \sed\ will register as a son of LA\_example. Run the executable that you
+linked with the DIET SeD library, and do not forget that the first argument of
+\texttt{diet\_SeD} must be the path of the configuration file above.
+
+
+\subsubsection{Launching a client}
+
+Our client must connect to the MA\_example:
+\tt
+\begin{center}
+ \footnotesize
+ \begin{tabular}{lcll}
+  \multicolumn{4}{l}{\# file SeD\_example.cfg, configuration file for an SeD}\\
+  MAName       &=&LA\_example        &\\
+  \#traceLevel &=&5                 &\# default\\
+ \end{tabular}
+\end{center}
+\rm
+
+Run the executable that you linked with the DIET client library, and do not
+forget that the first argument of \texttt{diet\_initialize} must be the path of
+the configuration file above.
+

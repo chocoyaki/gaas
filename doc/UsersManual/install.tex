@@ -1,0 +1,382 @@
+%****************************************************************************%
+%* DIET User's Manual installing chapter file                               *%
+%*                                                                          *%
+%*  Author(s):                                                              *%
+%*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *%
+%*                                                                          *%
+%* $LICENSE$                                                                *%
+%****************************************************************************%
+%* $Id$
+%* $Log$
+%* Revision 1.1  2003/09/09 12:38:20  pcombes
+%* Reorganization of doc: UM becomes UsersManual.
+%*
+%* Revision 1.12  2003/06/23 13:14:09  pcombes
+%* Update example to new configuration summary.
+%*
+%* Revision 1.11  2003/06/16 17:39:55  pcombes
+%* One word about gcc-2.96.
+%*
+%* Revision 1.10  2003/06/02 13:47:05  pcombes
+%* Fix footnotesize.
+%*
+%* Revision 1.9  2003/05/23 09:23:35  pcombes
+%* Add suggestions from Jean-Yves. Thanks !
+%*
+%* Revision 1.8  2003/05/15 14:17:58  pcombes
+%* UM 0.7
+%*
+%* Revision 1.6  2003/01/24 16:58:54  pcombes
+%* UM 0.6.4
+%*
+%* Revision 1.5  2003/01/22 17:34:53  pcombes
+%* User Manual, v. 0.6.4
+%****************************************************************************%
+
+
+\chapter{Installing}
+\label{ch:installing}
+
+%====[ Dependencies ]==========================================================
+\section{Dependencies}
+\label{sec:dependencies}
+
+\subsection{Hardware dependencies}
+
+DIET has only been tested on Linux i386 and i686 platforms.\\
+Solaris - sparc, Linux - sparc and Linux - alpha will soon be supported.
+
+\subsection{Software dependencies}
+
+The three parts of DIET (the client, the agent, and the \sed ) can be used
+separately, and their dependencies are different from each other.
+
+As explained in Section \ref{sec:CORBA}, CORBA is used for all
+communications inside the platform. So all of the three parts depend on it. The
+implementations of CORBA currently supported in DIET are:
+\begin{itemize}
+ \item{\textbf{omniORB 3}} which depends on \textbf{Python 1.5}
+ \item{\textbf{omniORB 4}} which depends on \textbf{Python 2.1} or later,
+                           and on \textbf{OpenSSL} if you would like your DIET
+                           platform to be secure.
+% \item{soon \textbf{TAO 1.3}} which depends on \textbf{ACE} (but TAO is always
+%                           provided with ACE)
+\end{itemize}
+We strongly recommend omniORB 4, as it is easier to install, and provides an SSL
+support. In order to deploy CORBA services with omniORB, a configuration file
+and a log directory are required: see Section \ref{sec:CORBA_services} for
+complete description of the services. Their path can be given to omniORB through
+environments variables, and/or, for \textbf{omniORB 4} only, at compile time,
+with the \texttt{--with-omniORB-config} and \texttt{--with-omniNames-logdir}
+options.
+
+\noindent 
+\textbf{NB:} We have noticed that some problems occur with \textbf{Python 2.3}:
+the generated C++ code could not be compiled. It has been patched in DIET, but
+some warnings still appear.
+\\
+
+Since omniORB needs a thread-safe management handling, compiling DIET with
+\verb+gcc+ requires at least \verb+gcc-2.96+.
+\\
+
+The agent and server parts of DIET can depend on FAST (see §\ref{sec:FAST}).
+Although not absolutely compulsory, it is strongly recommended: indeed, all
+communication and computation times are set to infinity if FAST is not
+installed.  FAST depends itself on:
+\begin{itemize}
+ \item{\textbf{DB 2}} the Berkeley Database routines
+ \item{\textbf{GSL}} the GNU Scientific Library
+ \item{\textbf{OpenLDAP}} an implementation of the Lightweight Directory Access
+                          Protocol
+ \item{\textbf{NWS}} the Network Weather Service
+\end{itemize}
+For more details about FAST dependencies, please refer to the FAST User's Manual
+soon available. It is important to understand basically how FAST works, and the
+role of its dependencies, to deactivate the ones not needed by the user.\\
+
+
+Finally, some examples provided in the DIET sources depend on the BLAS and
+\scalapack\ libraries (cf. §\ref{sec:compil_platform}). However all examples do
+not have to be compiled.
+
+
+%====[ Compilation ]===========================================================
+\section{Compiling the platform}
+\label{sec:compil_platform}
+
+Once all the dependencies you need are installed, untar the DIET archive and
+change to its root directory. A configure script will prepare DIET for
+compiling: its main options are described below, but please, run
+\texttt{configure --help} to get an up-to-date and complete usage description.
+
+{\footnotesize
+\begin{verbatim}
+~ > tar xzf DIET.tgz
+~ > cd DIET
+~/DIET > ./configure --help=short
+Configuration of DIET:
+...
+\end{verbatim}
+}
+
+\subsection{Optional features for configuration}
+
+{\footnotesize
+\begin{verbatim}
+  --enable-doc            enable the module doc, documentation about DIET
+\end{verbatim}
+}
+\noindent This option activates the compilation and installation of the DIET
+documents, which is disabled by default, because it is very sensitive to the
+version of your \LaTeX\ compiler. The output postscript files are provided in
+the archive.
+
+{\footnotesize
+\begin{verbatim}
+  --disable-examples      disable the module examples, basic DIET examples
+\end{verbatim}
+}
+\noindent This option deactivates the compilation of the DIET examples, which is
+enabled by default.
+
+{\footnotesize
+\begin{verbatim}
+  --enable-BLAS           enable the module BLAS, an example for calling BLAS
+                          functions through DIET
+\end{verbatim}
+}
+\noindent This option activates the compilation of the DIET BLAS examples, as a
+sub-module of examples (which means that this option has no effect if examples
+are disabled) - disabled by default.
+
+{\footnotesize
+\begin{verbatim}
+ --enable-ScaLAPACK      enable the module ScaLAPACK, an example for calling
+                          ScaLAPACK functions through DIET
+\end{verbatim}
+}
+\noindent This option activates the compilation of the DIET \scalapack\ examples,
+as a sub-module of examples (which means that this option has no effect if
+examples are disabled) - disabled by default.
+
+%
+% FIXME: Sylvain should document this option if it is a permanent option.
+%
+\begin{comment}
+{\footnotesize
+\begin{verbatim}
+  --enable-multi-MA       enable multi-MA architecture
+\end{verbatim}
+}
+\end{comment}
+
+
+\subsection{Optional packages for configuration}
+
+\subsubsection{The \texttt{--with-PKG-extra} option}
+
+For all packages that DIET depends on, the \texttt{configure} script provides an
+option that let the user define the arguments needed to compile with the
+libraries of the package PKG: \texttt{--with-PKG-extra}. This is useful when
+the \texttt{configure} script does not succeed on its own to get necessary
+compilation option.
+
+Let us take the example of a user who wishes to compile the BLAS examples (see
+the BLAS subsection below). On the platform he/she uses, it is necessary to
+specify the following arguments to compile with the BLAS library:
+
+{\footnotesize \texttt{-lm -L/home/theuser/lib -lblas -lg2c -lm} }
+
+\noindent
+Let us assume that specifying the option
+\texttt{--with-BLAS-libraries=/home/theuser/lib} is not enough for the
+\texttt{configure} script to compile DIET examples. Then, the user will have to
+add the following arguments to his/her \texttt{configure} command line:
+
+{\footnotesize \texttt{--with-BLAS-extra="-lm -L/home/theuser/lib -lblas -lg2c
+  -lm"} }
+
+\subsubsection{omniORB}
+{\footnotesize
+\begin{verbatim}
+  --with-omniORB=DIR      specify the root installation directory of omniORB
+  --with-omniORB-includes=DIR
+                          specify exact headers directory for omniORB
+  --with-omniORB-libraries=DIR
+                          specify exact libraries directory for omniORB
+  --with-omniORB-extra=ARG|"ARG1 ARG2 ..."
+                          specify extra args for the linker to find the
+                          omniORB libraries (use "" in case of several args)
+\end{verbatim}
+}
+\noindent This group of options lets the user define all necessary paths to
+compile with omniORB. Generally, \texttt{--with-omniORB=} would be enough, and
+the other options are provided for ugly installations of omniORB.\\
+\textbf{NB:} having the executable \texttt{omniidl} in the PATH environment
+variable should be enough in most cases.
+
+\subsubsection{FAST}
+{\footnotesize
+\begin{verbatim}
+  --with-FAST=DIR         installation root directory for FAST (optional)
+  --with-FAST-bin=DIR     installation directory for fast-config (optional)
+\end{verbatim}
+}
+\noindent This group of options lets the user define all necessary paths to
+compile with FAST. Generally, \texttt{--with-FAST=} would be enough, and the
+other options are provided for ugly installations of FAST. There is no need to
+specify includes, libraries nor extra arguments, since FAST provides a tool
+\texttt{fast-config} that does the job for us.\\
+\textbf{NB1:} having the executable \texttt{fast-config} in the PATH environment
+variable should be enough in most cases.\\
+\textbf{NB2:} it is possible to specify \texttt{--without-FAST}, which overrides
+\texttt{fast-config} detection.
+
+\subsubsection{BLAS}
+{\footnotesize
+\begin{verbatim}
+  --with-BLAS=DIR         specify the root installation directory of BLAS
+  --with-BLAS-includes=DIR
+                          specify exact headers directory for BLAS
+  --with-BLAS-libraries=DIR
+                          specify exact libraries directory for BLAS
+  --with-BLAS-extra=ARG|"ARG1 ARG2 ..."
+                          specify extra args for the linker to find the BLAS
+                          libraries (use "" in case of several args)
+\end{verbatim}
+}
+\noindent This group of options lets the user define all necessary paths to
+compile with the BLAS libraries. Generally, \texttt{--with-BLAS=} would be
+enough, and the other options are provided for ugly installation of the BLAS.\\
+\textbf{NB:} these options have no effect if the module example and/or its
+sub-module BLAS are disabled.
+
+\subsubsection{\scalapack}
+{\footnotesize
+\begin{verbatim}
+  --with-ScaLAPACK=DIR    specify the root installation directory of ScaLAPACK
+  --with-ScaLAPACK-includes=DIR
+                          specify exact headers directory for ScaLAPACK
+  --with-ScaLAPACK-libraries=DIR
+                          specify exact libraries directory for ScaLAPACK
+  --with-ScaLAPACK-extra=ARG|"ARG1 ARG2 ..."
+                          specify extra args for the linker to find the
+                          ScaLAPACK libraries (use "" in case of several args)
+\end{verbatim}
+}
+\noindent This group of options lets the user define all necessary paths to
+compile with the \scalapack\ libraries. Normally, \texttt{--with-ScaLAPACK=}
+should be enough, but the other options are provided because the installation of
+the \scalapack\ libraries is often ugly, and thus difficult to detect
+automatically: for instance, the \texttt{--with-ScaLAPACK-extra} option is
+useful to integrate BLACS and MPI libraries, which are useful for ScaLAPACK.
+\\
+\textbf{NB:} these options has no effect if the module example and/or its
+sub-module \scalapack\ are disabled.
+
+
+\subsection{From the configuration to the compilation}
+
+A default option for configure scripts is \texttt{--prefix=}, which specifies
+where binary files, documents and configuration files will be installed. It is
+important to set this option: it defaults to \texttt{DIET/install}.
+
+The configuration will return with an error if no ORB was found. So please help
+the configure script to find the ORB with the \texttt{--with-omniORB*} options.\\
+
+
+If everything went OK, the configuration ends with a summary of the options that
+were selected and what it was possible to get. The output will look like:
+{\footnotesize
+\begin{verbatim}
+~/DIET > ./configure --enable-doc --enable-BLAS
+DIET successfully configured as follows:
+ - documents:       yes
+ - examples:        dmat_manips, file_transfer, BLAS
+ - FAST:            found /home/pcombes/DIET/FAST/bin/fast-config
+ - ORB:             omniORB 4 in /usr
+ - prefix:          /home/pcombes/DIET/install
+ - multi-MA:        no
+ - target platform: i686-pc-linux-gnu
+ 
+Please run make help to get compilation instructions.
+~/DIET > make help
+====================================================================
+ Usage : make help     : shows this help screen
+         make agent    : builds DIET agent executable
+         make SeD      : builds DIET SeD library
+         make client   : builds DIET client library
+         make examples : builds basic examples
+         make install  : copy files into /home/pcombes/DIET/install
+====================================================================
+\end{verbatim}
+}
+
+This lets the user choose the DIET parts he/she wants to compile and install. It
+is recommended for beginners to compile the client, the SeD and the agent in one
+single step with \texttt{make all}. But please, pay attention to the fact that
+\texttt{make all} does not install DIET in the prefix provided at configuration
+time. To do this, run \texttt{make install}.
+
+\texttt{make install} will run the compilation for all DIET entities before the
+installation itself. Thus, if the user wants to compile only the agent, for
+instance, and install it, he must run:
+{\footnotesize
+\begin{verbatim}
+~/DIET > cd src/agent
+~DIET/src/agent > make install
+\end{verbatim}
+}
+
+
+\section{Compiling the examples}
+
+Four series of examples are provided in the DIET archive:
+\begin{itemize}
+\item{\texttt{file\_transfer}}: the server computes the sizes of two input files
+  and returns them (with or without, randomly, the first file) as output
+  arguments to the client.
+  
+\item{\texttt{dmat\_manips}}: the server offers matrix manipulation routines:
+  transposition (\texttt{T}), product (\texttt{MatPROD}) and sum
+  (\texttt{MatSUM}, \texttt{SqMatSUM} for square matrices, and
+  \texttt{SqMatSUM\_opt} for square matrices but re-using the memory space of
+  the second operand for the result) Any subset of these operations can be
+  specified on the command line. The last two of them are given for
+  compatibility with a BLAS server - see below
+  
+\item{\texttt{BLAS}}: the server is designed to offer all BLAS (Basic Linear
+  Algebric Subroutines) functions but only manages the \texttt{dgemm\_} function
+  so far. Since this function computes $C = \alpha AB + \beta C$, it can also
+  compute a matrix-matrix product, a sum of square matrices, etc. All these
+  services are offered by the BLAS server. Two clients are designed to use these
+  services: one (\texttt{dgemm\_client.c}) is designed to use the
+  \texttt{dgemm\_} function only, and the other one (\texttt{client.c}) to use
+  all BLAS functions (but currently only \texttt{dgemm\_}) and sub-services,
+  such as \texttt{MatPROD}.
+  
+\item{\texttt{\scalapack}}: the server is designed to offer all \scalapack\ 
+  (parallel version of the LAPACK library) functions but manages only the
+  \texttt{pdgemm\_} function so far. The \texttt{pdgemm\_} is actually the
+  parallel version of the \texttt{dgemm\_} function, so that the server also
+  offers all the same sub-services. Two clients are designed to use these
+  services: one (\texttt{pdgemm\_client.c}) is designed to use the
+  \texttt{pdgemm\_} function only, and the other one (\texttt{client.c}) to use
+  all \scalapack\ functions and sub-services, such as \texttt{MatPROD}.
+\end{itemize}
+
+Running \texttt{make install} in the \texttt{examples} directory (or in the root
+directory, when DIET is configured with \texttt{--enable-examples}) does not
+copy binary files into \texttt{$<$install\_dir$>$/bin}, but in
+\texttt{examples/bin}: this odd behaviour is due to some limitations of the
+\textsf{automake} tool.
+
+Likewise, the samples of configuration files located in \texttt{examples/cfgs}
+are processed by \texttt{make install} to create ready-to-use configuration
+files in \texttt{examples/etc}, and then copied into
+\texttt{$<$install\_dir$>$/etc}. Successive calls to make install will not erase
+the configuration files created and copied at first time, except if \texttt{make
+  uninstall} is called inbetween ; thus the user will not lose his/her changes
+to these files.
+

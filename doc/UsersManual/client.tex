@@ -1,0 +1,202 @@
+%****************************************************************************%
+%* DIET User's Manual client chapter file                                   *%
+%*                                                                          *%
+%*  Author(s):                                                              *%
+%*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *%
+%*                                                                          *%
+%* $LICENSE$                                                                *%
+%****************************************************************************%
+%* $Id$
+%* $Log$
+%* Revision 1.1  2003/09/09 12:38:20  pcombes
+%* Reorganization of doc: UM becomes UsersManual.
+%*
+%* Revision 1.11  2003/06/02 13:47:05  pcombes
+%* Fix footnotesize.
+%*
+%* Revision 1.10  2003/05/23 09:23:35  pcombes
+%* Add suggestions from Jean-Yves. Thanks !
+%*
+%* Revision 1.9  2003/05/15 14:17:58  pcombes
+%* UM 0.7
+%*
+%* Revision 1.6  2003/01/24 16:58:54  pcombes
+%* UM 0.6.4
+%*
+%* Revision 1.4  2003/01/21 12:17:02  pcombes
+%* Update UM to API 0.6.3, and "hide" data structures.
+%*
+%* Revision 1.3  2003/01/14 08:04:36  pcombes
+%* MAJ
+%*
+%* Revision 1.2  2003/01/13 12:09:00  pcombes
+%* UM: client part complete for users's day ...
+%****************************************************************************%
+
+\chapter{Building a client program}
+\label{ch:client}
+
+The most difficult in building a client program is to understand the way a
+problem has to be described. Once this first step is done, it is fairly easy to
+build the successive calls to DIET.
+
+
+\section{Structure of the program}
+\label{sec:cl_struct}
+
+Since the client side of DIET is a library, a client program has to define the
+\texttt{main} function: it uses DIET through function calls. The complete
+client-side interface is described in the \texttt{$<$install\_dir$>$/include}
+files \texttt{DIET\_data.h} (see Chapter \ref{ch:data}) and
+\texttt{DIET\_client.h}. So please refer to these two files for a complete and
+up-to-date API description, and include at least the latter at the beginning of
+your source code (\texttt{DIET\_client.h} includes \texttt{DIET\_data.h}):
+{\footnotesize
+\begin{verbatim}
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "DIET_client.h"
+
+int main(int argc, char **argv)
+{
+  diet_initialize(configuration_file, argc, argv);
+  // Successive DIET calls ...
+  return (diet_finalize());
+}
+\end{verbatim}
+}
+
+The client program must open its DIET session with a call to
+\texttt{diet\_initialize}, which parses the configuration file to set all
+options and get a reference to the DIET Master Agent. The session is closed with
+a call to \texttt{diet\_finalize}, which aims at freeing all resources, if any,
+associated to this session on the client, the server, and the agents, but not
+the memory allocated for all INOUT and OUT arguments brought back onto the
+client during the session, so that the user can still access them (and still
+have to free them !)
+
+
+\section{Client API}
+\label{sec:clAPI}
+
+The client API follows the GridRPC definition \cite{gridRPC:02}: all
+\texttt{diet\_} functions are ``duplicated'' with \texttt{grpc\_} functions.
+Both \texttt{diet\_initialize} and \texttt{diet\_finalize} belong to the GridRPC
+API.  One important thing to notice is that the GridRPC defines an asynchronous
+API that is not fully implemented in DIET yet (it is redirected onto the
+synchronous
+API).\\
+
+A problem is managed through a \emph{function\_handle}, that associates a server
+to a problem name. Please do not use \texttt{diet\_function\_handle\_init},
+since it assumes that the client already knows the server, and DIET is not
+conceived for such a use.. This function is only provided for GridRPC
+compliance. The structure allocation is performed through the function
+\texttt{diet\_function\_handle\_default}.
+
+The \emph{function\_handle} returned is associated to the problem description,
+its profile, in the call to \texttt{diet\_call}.
+
+\section{Example}
+\label{sec:cl_ex}
+
+Let us consider the same example as in Section \ref{sec:pbex}.  Here, the client
+configuration file is given as the first argument on the command line, and we
+decide to hardcode the matrix, its factor, and the name of the problem:
+\texttt{smprod} for scalar by matrix product.
+
+
+{\footnotesize
+\begin{verbatim}
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include "DIET_client.h"
+
+int main(int argc, char **argv)
+{
+  int i;
+  double  factor = M_PI; /* Pi, why not ? */
+  double *matrix;        /* The matrix to multiply */
+  float  *time   = NULL; /* To check that time is set by the server */
+  diet_function_handle_t *fhandle;
+  diet_profile_t         *profile;
+
+  /* Allocate the matrix: 60 lines, 100 columns */
+  matrix = malloc(60 * 100 * sizeof(double));
+  /* Fill in the matrix with dummy values (who cares ?) */
+  for (i = 0; i < (60 * 100); i++) {
+    matrix[i] = 1.2 * i;
+  }
+  
+  /* Iinitialize a DIET session */
+  diet_initialize(argc, argv, "./client.cfg");
+
+  /* Create the function_handle */
+  fhandle = diet_function_handle_default("smprod");
+
+  /* Create the profile as explained in Chapter 3 */
+  profile = diet_profile_alloc(0, 1, 2); // last_in, last_inout, last_out
+  
+  /* Set profile arguments */
+  diet_scalar_set(diet_parameter(profile,0), &factor, 0, DIET_DOUBLE);
+  diet_matrix_set(diet_parameter(profile,1), matrix,  0, DIET_DOUBLE, 60, 100, DIET_ROW_MAJOR);
+  diet_scalar_set(diet_parameter(profile,2), NULL,    0, DIET_FLOAT);
+  
+  if (!diet_call(fhandle, profile)) { /* If the call has succeeded ... */
+     
+    /* Print time */
+    diet_scalar_get(diet_parameter(profile,2), &time, NULL);
+    if (time == NULL) {
+      printf("Error: time not set !\n");
+    } else {
+      printf("time = %f\n", *time);
+    }
+
+    /* Check the first non-zero element of the matrix */
+    if (fabs(matrix[1] - ((1.2 * 1) * factor)) > 1e-15) {
+      printf("Error: matrix not correctly set !\n");
+    }
+  }
+
+  diet_profile_free(profile);
+  diet_function_handle_destruct(fhandle);
+  return (diet_finalize());
+}
+\end{verbatim}
+}
+
+
+\section{Compilation}
+\label{sec:cl_comp}
+
+After compiling his client program, the user must link it with the DIET
+libraries and the CORBA libraries. The easiest way to compile a program using
+DIET with all necessary flags and links with the right libraries is to trust the
+\texttt{Makefile.inc} available in \texttt{$<$include\_dir$>$/include}, and
+include it at the beginning of the program makefile.
+
+The \texttt{Makefile.inc} defines the variables:
+\begin{itemize}
+\item \texttt{CC} and \texttt{CCFLAGS} that are to be used if you compile C
+ code,
+\item \texttt{CXX} and \texttt{CXXFLAGS} that are to be used if you compile C++
+  code,
+\item \texttt{DIET\_CLIENT\_LIBS} that link the program to the CORBA and DIET
+  client libraries.
+\end{itemize}
+
+For our C example, the Makefile should be something like:
+{\footnotesize
+\begin{verbatim}
+include <install_dir>/Makefile.inc
+
+client.o:  client.c
+           $(CC) -c $< $(CCFLAGS) -o $@
+
+client:    client.o
+           $(CC) $< $(CCFLAGS) $(DIET_CLIENT_LIBS) -o $@
+\end{verbatim}
+}
+

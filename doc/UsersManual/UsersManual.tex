@@ -1,0 +1,209 @@
+%****************************************************************************%
+%* DIET User's Manual main file                                             *%
+%*                                                                          *%
+%*  Author(s):                                                              *%
+%*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *%
+%*                                                                          *%
+%* $LICENSE$                                                                *%
+%****************************************************************************%
+%* $Id$
+%* $Log$
+%* Revision 1.1  2003/09/09 12:38:20  pcombes
+%* Reorganization of doc: UM becomes UsersManual.
+%*
+%* Revision 1.9  2003/06/16 17:40:33  pcombes
+%* Date
+%*
+%* Revision 1.8  2003/05/23 09:23:35  pcombes
+%* Add suggestions from Jean-Yves. Thanks !
+%*
+%* Revision 1.7  2003/05/15 14:17:58  pcombes
+%* UM 0.7
+%*
+%* Revision 1.4  2003/01/22 17:34:53  pcombes
+%* User Manual, v. 0.6.4
+%*
+%* Revision 1.3  2003/01/21 12:17:02  pcombes
+%* Update UM to API 0.6.3, and "hide" data structures.
+%*
+%* Revision 1.2  2003/01/13 12:09:00  pcombes
+%* UM: client part complete for users's day ...
+%*
+%* Revision 1.1.1.1  2002/12/13 17:06:34  pcombes
+%* User's Manual - architecture
+%****************************************************************************%
+
+\documentclass[12pt,a4paper]{book}
+\makeatletter
+\makeatother
+\usepackage{fancyheadings}
+\usepackage[headings]{fullpage}
+%\usepackage[french]{babel}
+%\usepackage[latin1]{inputenc}
+%\usepackage{multicol}
+\usepackage{verbatim}
+\usepackage{url}
+\usepackage{subfigure}
+
+\usepackage{graphicx}
+\graphicspath{{./fig}}
+
+\newsavebox{\logobox}
+\sbox{\logobox}{\includegraphics[scale=0.3]{fig/logo_DIET.ps}}
+\newcommand{\logo}{\usebox{\logobox}}
+
+%%%%
+\renewcommand{\title}{DIET User's Manual}
+%%%%
+
+\pagestyle{fancyplain}
+\lhead[\fancyplain{\title}{\title}]
+      {\fancyplain{\title}{\title}}
+\chead{}
+\rhead[\fancyplain{\logo}{\logo}]{\fancyplain{\logo}{\logo}}
+
+\lfoot[\fancyplain{INRIA}{INRIA}]{\fancyplain{INRIA}{INRIA}}
+\cfoot[\fancyplain{}{}]{\fancyplain{}{}}
+\rfoot[\fancyplain{Page~\thepage}{Page~\thepage}]
+      {\fancyplain{Page~\thepage}{Page~\thepage}}
+
+
+\newcommand{\ptop}{\textit{Peer-to-Peer}}
+\newcommand{\red}{\textit{Red}}
+\newcommand{\sci}{Scilab}
+\newcommand{\scip}{Scilab$_{//}$}
+\newcommand{\scalapack}{ScaLAPACK}
+\newcommand{\sed}{\textit{SeD}}
+\newcommand{\thread}{\textit{thread}}
+\newcommand{\threads}{\textit{threads}}
+\newcommand{\nsl}{NetSolve}
+
+%%%%
+% Document beginning
+%%%%
+
+\begin{document}
+
+
+
+%%%%
+% First sheet
+%%%%
+
+\thispagestyle{empty}
+\vspace*{3cm}
+\vspace*{3cm}
+
+\begin{center}
+\includegraphics[scale=.5]{fig/LOGO_DIET.ps}\\[2ex]
+\textbf{\Huge USER'S MANUAL\\[2ex]}
+\end{center}
+
+\vfill
+
+\noindent
+\small{
+\begin{tabular}{ll}
+  \textbf{VERSION}  & 1.0\\
+  \textbf{DATE}     & July 2003\\
+  \textbf{AUTHORS}  & P.~\textsc{Combes}\\
+  \textbf{Copyright}& INRIA
+\end{tabular}\\
+}
+
+\newpage
+\thispagestyle{empty}
+\ 
+
+%%%%
+% End of first sheet
+%%%%
+
+
+\newpage
+\tableofcontents
+
+
+%
+% Introduction
+%
+\newpage
+\addcontentsline{toc}{chapter}{Introduction}
+\chapter*{Introduction}
+
+
+DIET stands for Distributed Interactive Engineering Toolbox. It is a toolbox for
+easily developing Application Service Provider systems, based on the
+Client/Agent/Server scheme: servers register to the agent, so that when a client
+sends a request to the agent, it finds the best server to satisfy the
+request.
+
+The RPC paradigm~\cite{CM00,MNS+00} seems to be a good candidate to build
+Problem Solving Environments (PSE) for numerical applications on the
+Grid~\cite{HR00}. Several tools following this approach exist, such as
+\nsl~\cite{nug}, NINF~\cite{NSS99}, NEOS~\cite{FMM00}, or RCS~\cite{AGM97}. They
+are most commonly referred to as Network Enabled Server (NES)
+environments~\cite{MNS+00}. Such environments usually have five different
+components: \emph{Clients} that submit problems they have to solve to
+\emph{Servers}, a \emph{Database} that contains information about software and
+hardware resources, a \emph{Scheduler} that chooses an appropriate server
+depending on the problem sent and the information contained in the database, and
+finally \emph{Monitors} that acquire information about the status of the
+computational resources.
+
+But \nsl\ or NINF have a centralized scheduler which can become a bottleneck
+when many clients try to access several servers.  Moreover as networks are
+highly hierarchical, the location of this unique scheduler has a great impact on
+the performance of the overall platform.
+
+The great innovation of DIET is to get rid of this bottleneck of one single
+agent with a complete hierarchy of agents. On the top of this hierarchy is the
+Master Agent (MA), whose children are called Local Agents (LA).  A server can
+register to any type of agent, but a client can only submit its request to the
+MA.
+
+%
+% A DIET platform
+%
+\newpage
+\input{description.tex}
+
+%
+% Installing
+%
+\newpage
+\input{install.tex}
+
+%
+% DIET data
+%
+\newpage
+\input{data.tex}
+
+%
+% Building a client program
+%
+\newpage
+\input{client.tex}
+
+
+% Building a server application
+%
+\newpage
+\input{server.tex}
+
+%
+% Deploying a DIET platform
+%
+\newpage
+\input{deploy.tex}
+
+
+%%%%
+% BIBLIO
+%%%%
+
+\bibliographystyle{plain}
+\bibliography{UM}
+
+\end{document}
