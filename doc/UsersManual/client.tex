@@ -10,6 +10,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.9  2004/02/02 15:57:15  ecaron
+%* Add suggestion from Christophe Pera (Thanks Christophe)
+%*
 %* Revision 1.8  2004/01/29 17:08:47  ecaron
 %* Add suggestions from Frederic Desprez. Thanks !
 %*
@@ -108,15 +111,14 @@ The client API follows the GridRPC definition \cite{gridRPC:02}: all
 \texttt{diet\_} functions are ``duplicated'' with \texttt{grpc\_}
 functions.  Both \texttt{diet\_initialize}/\texttt{grpc\_initialize}
 and \texttt{diet\_finalize}/\texttt{grpc\_finalize} belong to the
-GridRPC API.  One important thing to notice is that GridRPC defines an
-asynchronous API that is not fully implemented in
-DIET yet (it is redirected onto the synchronous API). \fixme{check with CP} \\
-
-A problem is managed through a \emph{function\_handle}, that associates a server
-to a problem name. Please do not use \texttt{diet\_function\_handle\_init},
-since it assumes that the client already knows the server, and DIET is not
-conceived for such a use. This function is only provided for GridRPC
-compliance. The structure allocation is performed through the function
+GridRPC API. 
+ 
+A problem is managed through a \emph{function\_handle}, that
+associates a server to a problem name. Please do not use
+\texttt{diet\_function\_handle\_init}, since it assumes that the
+client already knows the server, and DIET is not conceived for such a
+use. This function is only provided for GridRPC compliance. The
+structure allocation is performed through the function
 \texttt{diet\_function\_handle\_default}.
 
 The \emph{function\_handle} returned is associated to the problem description,
