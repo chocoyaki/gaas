@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2003/06/02 08:48:35  cpera
+ * Delete debug infos.
+ *
  * Revision 1.26  2003/06/02 08:08:11  cpera
  * Beta version of asynchronize DIET API.
  *
@@ -69,8 +72,6 @@ using namespace std;
 
 #include "CallAsyncMgr.hh"
 #include "CallbackImpl.hh"
-
-#include "Global_macros.hh"
 
 extern "C" {
 
@@ -147,8 +148,6 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
 	  << ": agentType is useless for a client - ignored.\n";
   value = Parsers::Results::getParamValue(Parsers::Results::USEASYNCAPI);
   DIET_ct = *(size_t *)(value);
-    cout << "valeur de useAsyncApi :" << DIET_ct << endl;
-    fflush(stdout);
     
   /* Get the traceLevel */
   if (TRACE_LEVEL >= TRACE_MAX_VALUE) {
@@ -161,9 +160,7 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
     myargc = tmp_argc;
   }
   
-  DIET_TRACE("Systeme asynchrone a installer ??????????????????????")
   if (DIET_ct == 1){
-  DIET_TRACE("Systeme asynchrone en cours d'instanciation!!!!!!!!!!!")
     /* Initialize the ORB */
     if (ORBMgr::init(myargc, (char**)myargv, true, 1)) {
       cerr << "ORB initialization failed.\n";
@@ -213,7 +210,6 @@ diet_finalize()
   if (DIET_ct == 1){
     CallAsyncMgr * caMgr = CallAsyncMgr::Instance();
     while (caMgr->areThereWaitRules() > 0){
-      //DIET_TRACE("on attend tant qu'il reste des regles ...")
       omni_thread::sleep(1);
       // must be replace by a cal to waitall
       // must be a call to diet_finalyze_force ....
@@ -572,13 +568,9 @@ diet_call_async(diet_function_handle_t* handle, diet_profile_t* profile)
 
     // get sole CallAsyncMgr singleton
     CallAsyncMgr * caMgr = CallAsyncMgr::Instance();
-    cout << "id=" << response->reqID << "." << endl;
     // create corba client callback serveur...
     if (caMgr->addAsyncCall(response->reqID, profile) != 0) return -1;
 
-    cout << "valeur de refCallbackServer : " << refCallbackServer << endl;
-    fflush(stdout);
-    DIET_TRACE("TEST de VALIDITE _______________________________________________________") 
     response->servers[server_OK].loc.ior->solveAsync(handle->pb_name,
                                                       corba_profile, 
 						      response->reqID, 
@@ -599,7 +591,6 @@ diet_call_async(diet_function_handle_t* handle, diet_profile_t* profile)
     cout << "Exception in DIETCallAsync ..." << endl;
     reqID = -1;  
   }
-  DIET_TRACE("")  
   stat_out("diet_call.solve.end");
   reqID = response->reqID;
   delete response;
