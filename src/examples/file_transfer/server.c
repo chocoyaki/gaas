@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2003/09/27 07:53:38  pcombes
+ * Remove unused displayArg function.
+ *
  * Revision 1.11  2003/08/09 17:32:47  pcombes
  * Update to the new diet_profile_desc_t.
  *
@@ -17,21 +20,8 @@
  * Revision 1.9  2003/02/07 17:04:42  pcombes
  * Use diet_free_data to properly free user's data.
  *
- * Revision 1.8  2003/01/23 19:13:45  pcombes
- * Update to API 0.6.4
- *
- * Revision 1.7  2003/01/17 18:05:37  pcombes
- * Update to API 0.6.3
- *
  * Revision 1.6  2002/12/12 18:17:05  pcombes
  * Small bug fixes on prints (special thanks to Jean-Yves)
- *
- * Revision 1.4  2002/10/25 11:29:21  pcombes
- * FAST support: convertors implemented and compatible to --without-fast
- *               configure option, but still not tested with FAST !
- *
- * Revision 1.3  2002/10/18 18:13:21  pcombes
- * Bug fixes for files in OUT parameters.
  *
  * Revision 1.2  2002/10/17 15:36:37  pcombes
  * Two files are transfered for size.
@@ -51,39 +41,6 @@
 
 #include "DIET_server.h"
 
-void
-displayArg(const diet_data_t* arg)
-{
-      
-  switch((int) arg->desc.generic.type) {
-  case DIET_SCALAR: fprintf(stdout, "scalar");                break;
-  case DIET_VECTOR: fprintf(stdout, "vector (%d)",
-			    arg->desc.specific.vect.size);    break;
-  case DIET_MATRIX: fprintf(stdout, "matrix (%dx%d)",
-			    arg->desc.specific.mat.nb_r,
-			    arg->desc.specific.mat.nb_c);   break;
-  case DIET_STRING: fprintf(stdout, "string (%d)",
-			    arg->desc.specific.str.length); break;
-  case DIET_FILE:   fprintf(stdout, "file (%d, %s)",
-			    arg->desc.specific.file.size,
-			    arg->desc.specific.file.path);  break;
-  }
-  if ((arg->desc.generic.type != DIET_STRING)
-      && (arg->desc.generic.type != DIET_FILE)) {
-    fprintf(stdout, " of ");
-    switch ((int) arg->desc.generic.base_type) {
-    case DIET_CHAR:     fprintf(stdout, "char");           break;
-    case DIET_BYTE:     fprintf(stdout, "byte");           break;
-    case DIET_INT:      fprintf(stdout, "int");            break;
-    case DIET_LONGINT:  fprintf(stdout, "long int");       break;
-    case DIET_FLOAT:    fprintf(stdout, "float");          break;
-    case DIET_DOUBLE:   fprintf(stdout, "double");         break;
-    case DIET_SCOMPLEX: fprintf(stdout, "float complex");  break;
-    case DIET_DCOMPLEX: fprintf(stdout, "double complex"); break;
-    }
-  }
-  fprintf(stdout, "\n");
-}
 
 /*
  * SOLVE FUNCTIONS
