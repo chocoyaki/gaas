@@ -9,6 +9,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.3  2004/01/09 15:27:47  cpera
+#* Manage png figures.
+#*
 #* Revision 1.2  2003/09/17 14:41:28  pcombes
 #* Split the .tex according to its chapters.
 #*
@@ -34,15 +37,17 @@ mod = $(shell basename `pwd`)
 moddir = $(prefix)/doc
 mod_DATA = DIET_$(mod).ps
 
-
+GIF_FILES = $(wildcard $(srcdir)/fig/*.gif)
+PNG_FILES = $(wildcard $(srcdir)/fig/*.png)
 TEX_FILES = $(notdir $(wildcard $(srcdir)/*.tex))
 FIGDIR    = ../UsersManual/fig
 FIG_FILES = $(wildcard $(srcdir)/fig/*.fig)
 EPS_FILES = $(foreach file, $(notdir $(FIG_FILES)), \
 			    $(patsubst %.fig, fig/%.eps, $(file)))
-PS_FILES  = $(FIGDIR)/logo_DIET.ps
+PS_FILES  = $(FIGDIR)/logo_DIET.ps  $(foreach file, $(notdir $(PNG_FILES)), \
+			    $(patsubst %.png, fig/%.ps, $(file)))
 
-EXTRA_DIST = $(mod_DATA) $(TEX_FILES) $(FIG_FILES)
+EXTRA_DIST = $(mod_DATA) $(TEX_FILES) $(FIG_FILES) $(GIF_FILES) $(PNG_FILES)
 
 $(mod_DATA): $(mod).dvi
 	dvips $(mod) -o $@
@@ -69,6 +74,14 @@ $(mod).dvi: $(EPS_FILES) $(PS_FILES) $(TEX_FILES)
 	  echo latex $(mod) $(RED1);		\
 	  latex $(mod) $(RED1);			\
 	  rm -rf _tmp_)
+
+.gif.ps:
+	@if [ ! -d fig ]; then mkdir fig; fi
+	convert $^ $@
+
+.png.ps:
+	@if [ ! -d fig ]; then mkdir fig; fi
+	convert -quality 6 $^ $@
 
 .fig.eps:
 	@if [ ! -d fig ]; then mkdir fig; fi
