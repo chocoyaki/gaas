@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2003/11/10 14:12:06  bdelfabr
+ * estimate method modified
+ * adding estimation time for data transfer in case of persistent data. Data transfer time estimation is computed by FAST.
+ *
  * Revision 1.18  2003/10/21 13:27:35  bdelfabr
  * Set persistence flag to 0
  *
@@ -462,8 +466,22 @@ SeDImpl::estimate(corba_estimation_t& estimation,
     // determine the transfer time of all IN and INOUT parameters.
     if ((pb.param_desc[i].mode > DIET_VOLATILE)
 	&& (pb.param_desc[i].mode <= DIET_STICKY)
-	&& (*(pb.param_desc[i].id.idNumber) != '\0')) {
-      estimation.commTimes[i] = 0;  // getTransferTime(pb.params[i].id);
+	&& (*(pb.param_desc[i].id.idNumber) != '\0')) {    
+      	estimation.commTimes[i] = 0;  
+#if DEVELOPPING_DATA_PERSISTENCY
+      if(this->dataMgr->dataLookup(CORBA::string_dup(pb.param_desc[i].id.idNumber)))	
+	estimation.commTimes[i] = 0;  // getTransferTime(pb.params[i].id);
+      else {
+	char *remoteHostName=NULL;
+	remoteHostName = this->dataMgr->whichDataMgr(pb.param_desc[i].id.idNumber);
+	//	if (*remoteHostName == '\0')
+	//  cout << " PROBLEM" << endl;
+	//else 
+	unsigned int size =(long unsigned int) data_sizeof(&(pb.param_desc[i]));
+	estimation.commTimes[i]=FASTMgr::commTime(localHostName,remoteHostName,size,false);
+	// getTransferTime(pb.params[i].id);
+      }
+#endif //  DEVELOPPING_DATA_PERSISTENCY
     }
   }
   
