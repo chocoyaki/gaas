@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2003/09/29 09:25:01  ecaron
+ * Take into account the new API of statistics module
+ *
  * Revision 1.12  2003/09/24 09:15:38  pcombes
  * Merge corba_DataMgr_desc_t and corba_data_desc_t.
  *
@@ -81,13 +84,15 @@ SeDImpl::SeDImpl()
 SeDImpl::~SeDImpl()
 {
   /* FIXME: Tables should be destroyed. */
+  stat_finalize();  
 }
 
 int
 SeDImpl::run(ServiceTable* services)
 {
   SeqCorbaProfileDesc_t* profiles(NULL);
-  
+
+  stat_init();  
   localHostName[257] = '\0';
   if (gethostname(localHostName, 256)) {
     ERROR("could not get hostname", 1);
@@ -202,8 +207,9 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
   diet_profile_t profile;
   diet_convertor_t* cvt(NULL);
   int solve_res(0);
+  
+  stat_in("SeD","solve");
 
-  stat_in("SeDImpl::solve.start");
 
   TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::solve invoked on pb: " << path << endl);
   
@@ -264,6 +270,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
   
   mrsh_profile_to_out_args(&pb, &profile, cvt);
 
+
 #if DEVELOPPING_DATA_PERSISTENCY  
   if(profile.last_inout > profile.last_in) {
     for (i = profile.last_in + 1 ; i <= profile.last_inout; i++) {
@@ -290,9 +297,9 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
   if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
     cout << "SeD::solve complete\n"
 	 << "************************************************************\n";
-  
-  stat_out("SeDImpl::solve.end");
-  
+
+  stat_out("SeD","solve");  
+
   return solve_res;
 }
 
@@ -320,7 +327,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
       diet_convertor_t* cvt(NULL);
       int solve_res(0);
   
-      stat_in("SeDImpl::solveAsync.start");
+      stat_in("SeD","solveAsync");
 
       TRACE_TEXT(TRACE_MAIN_STEPS,
 		 "SeD::solveAsync invoked on pb: " << path << endl);
@@ -424,7 +431,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
       TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::" << __FUNCTION__ << " complete\n"
 		 << "**************************************************\n");
 
-      stat_out("SeDImpl::solveAsync.end");
+      stat_out("SeD","solveAsync");
       
       // send result data to client.
       TRACE_TEXT(TRACE_ALL_STEPS, "SeD::" << __FUNCTION__
