@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.37  2004/11/25 21:56:37  hdail
+ * Among other fixes, use diet_free_data on the IN parameters of the DIET_profile.
+ * This seems to resolve the major part of the memory leak problem we have.
+ *
  * Revision 1.36  2004/11/25 11:40:32  hdail
  * Add request ID to statistics output to allow tracing of stats for each request.
  *
@@ -228,7 +232,7 @@ SeDImpl::run(ServiceTable* services)
 	  << parent_name << ": either the latter is down, "
 	  << "or there is a problem with the CORBA name server", 1);
   }
-  //  delete profiles
+  delete profiles;
 
   unsigned int* endPoint = (unsigned int*)
     Parsers::Results::getParamValue(Parsers::Results::DIETPORT);
@@ -358,6 +362,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
   diet_convertor_t* cvt(NULL);
   int solve_res(0);
   char statMsg[128];
+  int i;//, arg_idx;
 
   ref = SrvT->lookupService(path, &pb);
   if (ref == -1) {
@@ -393,42 +398,36 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
  
 #if DEVELOPPING_DATA_PERSISTENCY
   // added for data persistence 
-  int i;
-
- 
   for (i=0; i <= pb.last_inout; i++) {
  
-   
     if(pb.parameters[i].value.length() == 0){ /* In argument with NULL value : data is present */
       this->dataMgr->getData(pb.parameters[i]); 
     } else { /* data is not yet present but is persistent */
-          if( diet_is_persistent(pb.parameters[i])) {
+      if( diet_is_persistent(pb.parameters[i])) {
        	this->dataMgr->addData(pb.parameters[i],0);
       }
     }
-  } 
+  }
  
   unmrsh_in_args_to_profile(&profile, &pb, cvt);
   for (i=0; i <= pb.last_inout; i++) {
-     if( diet_is_persistent(pb.parameters[i])&& (pb.parameters[i].desc.specific._d() == DIET_FILE))
-       {
-	 char* in_path   = CORBA::string_dup(profile.parameters[i].desc.specific.file.path);
-	 this->dataMgr->changePath(pb.parameters[i], in_path);
-       }
+    if( diet_is_persistent(pb.parameters[i]) && 
+        (pb.parameters[i].desc.specific._d() == DIET_FILE))
+    {
+      char* in_path   = CORBA::string_dup(profile.parameters[i].desc.specific.file.path);
+      this->dataMgr->changePath(pb.parameters[i], in_path);
+    }
   }
-  
+
 #else  // DEVELOPPING_DATA_PERSISTENCY  
-
-
 
   unmrsh_in_args_to_profile(&profile, &pb, cvt);
 
 #endif // DEVELOPPING_DATA_PERSISTENCY
 
-  solve_res = (*(SrvT->getSolver(ref)))(&profile);
+  solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
  
   mrsh_profile_to_out_args(&pb, &profile, cvt);
- 
 
 #if DEVELOPPING_DATA_PERSISTENCY   
  
@@ -445,15 +444,18 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
     }
     this->dataMgr->printList();
 #endif // DEVELOPPING_DATA_PERSISTENCY
-  
+ 
   if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
     cout << "SeD::solve complete\n"
 	 << "************************************************************\n";
 
+  for (i = 0; i <= cvt->last_in; i++) {
+    diet_free_data(&(profile.parameters[i]));
+  }
   delete [] profile.parameters; // allocated by unmrsh_in_args_to_profile
-  
-  stat_out("SeD",statMsg);  
-  stat_flush();  
+ 
+  stat_out("SeD",statMsg);
+  stat_flush();
 
 #if HAVE_LOGSERVICE
   if (dietLogComponent != NULL) {
@@ -498,17 +500,17 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
       diet_profile_t profile;
       diet_convertor_t* cvt(NULL);
       int solve_res(0);
-  
+
       stat_in("SeD","solveAsync");
 
       TRACE_TEXT(TRACE_MAIN_STEPS,
 		 "SeD::solveAsync invoked on pb: " << path << endl);
-  
+
       ref = SrvT->lookupService(path, &pb);
       if (ref == -1) {
 	ERROR("SeD::" << __FUNCTION__ << ": service not found",);
       }
-      
+ 
       cvt = SrvT->getConvertor(ref);
 
 #if DEVELOPPING_DATA_PERSISTENCY
