@@ -1,55 +1,42 @@
 #****************************************************************************#
-#* $Id$ *#
 #* DIET global options for User Makefiles                                   *#
 #*                                                                          *#
 #*  Author(s):                                                              *#
-#*    - Philippe COMBES           - LIP ENS-Lyon (France)                   *#
-#*    - Christophe PERA           - LIP ENS-Lyon (France)                   *#
+#*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *#
+#*    - Christophe PERA (Christophe.Pera@ens-lyon.fr)                       *#
 #*                                                                          *#
-#*  This is part of DIET software.                                          *#
-#*  Copyright (C) 2002 ReMaP/LIFC/INRIA                                     *#
-#*                                                                          *#
+#* $LICENSE$                                                                *#
 #****************************************************************************#
-#*
+#* $Id$
 #* $Log$
+#* Revision 1.7  2003/04/10 11:31:36  pcombes
+#* OMNIORB->omniORB + apply Coding Standards.
+#*
 #* Revision 1.6  2003/02/14 10:30:06  cpera
 #* add files used by autoconf/automake.
 #*
 #* Revision 1.2  2002/12/03 19:08:24  pcombes
 #* Update configure, update to FAST 0.3.15, clean CVS logs in files.
 #* Put main Makefile in root directory.
-#*
 #****************************************************************************#
-
 
 # DIET variables
 
-DIET_HOME  = @prefix@
+DIET_HOME  = @PREFIX@
 DIET_FLAGS = -L$(DIET_HOME)/lib -I$(DIET_HOME)/include
 CLIENT_LIB = -lDIET_client
 SED_LIB    = -lDIET_SeD
 
-
-# omniORB variables
-
-OMNIORB_V   = @OMNIORB_VERSION@
-OMNIORBLIBS = @LIBS_omniORB@ -lpthread 
-ifeq ($(OMNIORB_V), 3)
-  OMNIORBLIBS += -ltcpwrapGK
-endif
-
-
 # Generic variables
 CC	= @CC@
 CCFLAGS	+= -O2 -Wall -Wno-unused -D@ARCH_DIET@ -D@OS_DIET@ -D__OSVERSION__=2 \
-        $(DIET_FLAGS) @CCFLAGS_omniORB@ \
+        $(DIET_FLAGS) @CCFLAGS_OMNIORB@ \
         -I@OMNIORB_HOME@/include/omniORB@OMNIORB_VERSION@
 
 CXX      = @CXX@
 CXXFLAGS += -O2 -Wall -Wno-unused -D@ARCH_DIET@ -D@OS_DIET@ -D__OSVERSION__=2 \
-          -D_REENTRANT $(DIET_FLAGS) @CXXFLAGS_omniORB@ \
+          -D_REENTRANT $(DIET_FLAGS) @CXXFLAGS_OMNIORB@ \
           -I@OMNIORB_HOME@/include/omniORB@OMNIORB_VERSION@
 
-#LIBS_DIET_USED = @LIBS_omniORB@ @LIBS_FAST@
-DIET_SERVER_LIBS = $(SED_LIB) @LIBS_omniORB@
-DIET_CLIENT_LIBS = $(CLIENT_LIB) @LIBS_omniORB@
+DIET_SERVER_LIBS = $(SED_LIB) @LIBS_OMNIORB@
+DIET_CLIENT_LIBS = $(CLIENT_LIB) @LIBS_OMNIORB@
