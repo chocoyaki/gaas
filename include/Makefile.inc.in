@@ -9,6 +9,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.11  2003/06/30 11:15:12  cpera
+#* Fix bugs in ReaderWriter and new internal debug macros.
+#*
 #* Revision 1.10  2003/06/16 17:18:28  pcombes
 #* Add gcc option -Wno-strict-aliasing for diet_*_get functions.
 #*
@@ -38,12 +41,12 @@ SED_LIB    = -lDIET_SeD
 
 # Generic variables
 CC	= @CC@
-CCFLAGS	+= -O2 -Wall -Wno-strict-aliasing -D@ARCH_DIET@ -D@OS_DIET@ \
+CCFLAGS	+= -O2 -Wall @CFLAGS_GCC_3_3@ -D@ARCH_DIET@ -D@OS_DIET@ \
            -D__OSVERSION__=2 $(DIET_FLAGS) @CCFLAGS_FAST@ @CCFLAGS_OMNIORB@ \
            -I@OMNIORB_HOME@/include/omniORB@OMNIORB_VERSION@
 
 CXX      = @CXX@
-CXXFLAGS += -O2 -Wall -Wno-strict-aliasing -D@ARCH_DIET@ -D@OS_DIET@ \
+CXXFLAGS += -O2 -Wall @CFLAGS_GCC_3_3@ -D@ARCH_DIET@ -D@OS_DIET@ \
             -D__OSVERSION__=2 -D_REENTRANT $(DIET_FLAGS) @CXXFLAGS_FAST@ \
             @CXXFLAGS_OMNIORB@ -I@OMNIORB_HOME@/include/omniORB@OMNIORB_VERSION@
 

@@ -26,8 +26,9 @@
 
 #include <iostream>
 #include <omnithread.h>
+#include "debug.hh"
 
-
+using namespace std;
 
 
 // managing multiple reads and one write
@@ -42,46 +43,37 @@ public:
 DietReadersWriterLock() : c(&m), writer_count(0), readers_waiting(0), reader_count(0), is_write_lock(0){}
 
   void readLock(void) { 
+		DIET_DEBUG()
     m.lock(); // if there is at least one writer using the lock or waiting for it, 
 		    // we need to wait for access 
     if (writer_count > 0) { 
-      if (readers_waiting++ == 0){ // if we're the first reader in line 
-	m.unlock(); 
-	c.wait(); // get the access lock 
-	m.lock();
-	if (readers_waiting > 1) // then if there are other readers 
-	  c.broadcast(); // let them go 
-      } else { 
-	m.unlock(); 
-	c.wait(); // otherwise wait until someone lets us go 
-	m.lock(); 
-      } 
-      readers_waiting--; 
+	    c.wait();
     } 
     reader_count++; 
     m.unlock(); 
+		DIET_DEBUG(TEXT_OUTPUT(("END")))
   }
       
   void writeLock(void) { 
+		DIET_DEBUG()
     m.lock(); 
-    writer_count++; // one more writer 
-    m.unlock(); 
-    c.wait(); // wait until the access lock is available 
-    m.lock(); 
+	if (is_write_lock == 1 || reader_count > 0) c.wait(); // wait until the access lock is available 
     is_write_lock = 1; // lock is a write lock 
-    c.broadcast(); // give readers something to wait for 
     m.unlock(); 
+    c.broadcast(); // give readers something to wait for 
+		DIET_DEBUG(TEXT_OUTPUT(("END")))
   } 
     
   void unlock(void) { 
+		DIET_DEBUG()
     m.lock(); 
     if (is_write_lock) { // if this is a write lock 
       is_write_lock = 0; // let it go 
-      writer_count--; // one less writer 
       c.broadcast(); // now let someone else have a chance 
     } else if (--reader_count == 0) // if we're the last reader 
       c.broadcast(); // release the access lock 
     m.unlock(); 
+		DIET_DEBUG(TEXT_OUTPUT(("END")))
   }
 };
 
@@ -92,7 +84,6 @@ class ReaderLockGuard {
 public:
   ReaderLockGuard(DietReadersWriterLock& l) : lock(l), state(false) {
     acquire();
-    state = true;
     }
   ~ReaderLockGuard(void) {
     release();
@@ -118,7 +109,6 @@ class WriterLockGuard {
 public:
   WriterLockGuard(DietReadersWriterLock& l) : lock(l), state(false) {
     acquire();
-    state = true;
     }
   ~WriterLockGuard(void) {
     release();

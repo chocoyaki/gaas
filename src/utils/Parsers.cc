@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2003/06/30 11:15:12  cpera
+ * Fix bugs in ReaderWriter and new internal debug macros.
+ *
  * Revision 1.8  2003/06/23 13:35:49  pcombes
  * useAsyncApi -> useAsyncAPI
  *
@@ -174,7 +177,11 @@ Parsers::parseCfgFile(bool checkFASTEntries, size_t nbCompulsoryParams,
   if (Results::params[Results::TRACELEVEL].noLine == 0)
     TRACE_LEVEL = TRACE_DEFAULT;
   
-  if ((parse_res =
+  /* If no Async parameter specified, set it to default (1) */
+  if (Results::params[USEASYNCAPI].noLine == 0)
+    useAsyncAPI = use(1);
+  
+	if ((parse_res =
        Parsers::checkValidity(checkFASTEntries,
 			      nbCompulsoryParams, compulsoryParams)))
     return parse_res;

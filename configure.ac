@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.16  2003/06/30 11:15:12  cpera
+#* Fix bugs in ReaderWriter and new internal debug macros.
+#*
 #* Revision 1.15  2003/06/24 15:18:30  pcombes
 #* --enable-* options: some HAVE_* variables are useless.
 #*
@@ -122,6 +125,32 @@ case "$host" in
 esac
 AC_SUBST(PROCESSOR_NAME, $proc_name)
 AC_SUBST(PROCESSOR_DEFINE, $proc_def)
+
+dnl ##########################################################################
+dnl ** Compiler name/version
+dnl ##########################################################################
+
+compiler_name="Compiler_Unknown"
+compiler_version="Version_Unknown"
+
+if test "$ac_cv_cxx_compiler_gnu" = "yes"; then
+  compiler_name="Compiler_GCC"
+  if $CXX -V 2>&1 | grep '2\.95\.[[0-9]]' >/dev/null 2>&1; then
+    compiler_version="2.95.x"
+  elif $CXX -V 2>&1 | grep '3\.0\.[[0-9]]' >/dev/null 2>&1; then
+    compiler_version="3.0.x"
+  elif $CXX -V 2>&1 | grep '3\.1\.[[0-9]]' >/dev/null 2>&1; then
+    compiler_version="3.1.x"
+  elif $CXX -V 2>&1 | grep '3\.2\.[[0-9]]' >/dev/null 2>&1; then
+    compiler_version="3.2.x"
+  elif $CXX -V 2>&1 | grep '3\.3\.[[0-9]]' >/dev/null 2>&1; then
+    compiler_name="3.3.x"
+    AC_SUBST(CFLAGS_GCC_3_3, "-Wno-strict-aliasing")
+  fi
+fi
+
+AC_SUBST(COMPILER_NAME, $compiler_name)
+AC_SUBST(COMPILER_VERSION, $compiler_name)
 
 
 dnl ###########################################################################

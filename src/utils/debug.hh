@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2003/06/30 11:15:12  cpera
+ * Fix bugs in ReaderWriter and new internal debug macros.
+ *
  * Revision 1.12  2003/04/10 12:45:44  pcombes
  * Set TRACE_LEVEL as a static variable, used by all other modules.
  * Update displayResponse to the new corba_response_t structure.
@@ -45,6 +48,10 @@
 #ifndef _DEBUG_HH_
 #define _DEBUG_HH_
 
+#include <sys/time.h>
+#include <unistd.h>
+#include <time.h>
+#include <omnithread.h>
 #include <iostream>
 using namespace std;
 #include <stdio.h>
@@ -73,6 +80,55 @@ using namespace std;
 
 // DEBUG trace: print variable name and value
 #define TRACE(var) cout << #var << " = " << (var) << endl
+
+// Others debug Traces
+#define traceTimer 1
+#define traceThreadId 1
+#define traceFile 1
+#define traceLine 1
+#define traceFunction 1
+#define format 0
+
+#define FILE_OUTPUT() \
+	if (format == 1) cout << "file="; \
+	cout << __FILE__ << "|";
+#define LINE_OUTPUT() \
+	if (format == 1) cout << "line="; \
+	cout << __LINE__ << "|";
+#define FUNCTION_OUTPUT() \
+	if (format == 1) cout << "function="; \
+	cout << __FUNCTION__ << "|";
+#define OMNITHREADID_OUTPUT()\
+	int id = omni_thread::self()->id(); \
+	if (format == 1)	cout << "ThreaID="; \
+	cout << id << "|";
+#define TIMER_OUTPUT() \
+	timeval tval; \
+	gettimeofday(&tval, NULL); \
+	if (format == 1) cout << "timer="; \
+	cout << tval.tv_sec << "," << tval.tv_usec << "|";
+#define VARIABLE_OUTPUT(X) \
+	cout << #X << "=" << X;
+#define TEXT_OUTPUT(X) \
+	printf X;
+# if defined (NDEBUG)
+#   define DIET_DEBUG(X) 
+# else
+#   define DIET_DEBUG(X) DIET_TRACE_IMPL(X,Y)
+# endif
+
+# define DIET_TRACE_IMPL(X,Y) \
+	do { \
+		if (traceTimer == 1) { TIMER_OUTPUT() } \
+		if (traceThreadId == 1){ OMNITHREADID_OUTPUT() } \
+		if (traceFile == 1) { FILE_OUTPUT() } \
+		if (traceLine == 1) { LINE_OUTPUT() } \
+		if (traceFunction == 1) { FUNCTION_OUTPUT() } \
+		X \
+		cout << endl; \
+		fflush(stdout); \
+		fflush(stderr); \
+  } while(0);
 
 // DEBUG pause: insert a pause of duration <s>+<us>E-6 seconds
 #define PAUSE(s,us)                 \

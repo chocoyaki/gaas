@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.30  2003/06/30 11:15:12  cpera
+ * Fix bugs in ReaderWriter and new internal debug macros.
+ *
  * Revision 1.29  2003/06/25 09:20:55  cpera
  * Change internal reqId from long int to int according to GridRPC and diet_reqID
  * type.
@@ -103,7 +106,7 @@ static unsigned long MAX_SERVERS = 10;
 
 static char * refCallbackServer;
 
-static int DIET_ct = 1;
+static int useAsyncApi = 1;
 /****************************************************************************/
 /* GridRPC API                                                              */
 /****************************************************************************/
@@ -121,14 +124,12 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   char** myargv;
   
   /* Set arguments for ORBMgr::init */
-
   myargc = argc;
   myargv = (char**)malloc(argc * sizeof(char*));
   for (int i = 0; i < argc; i++)
     myargv[i] = argv[i];
 
   /* Parsing */
-
   Parsers::Results::param_type_t compParam[] = {Parsers::Results::MANAME};
   
   if ((res = Parsers::beginParsing(config_file_name)))
@@ -156,7 +157,7 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
     cerr << "Warning while parsing " << config_file_name
 	  << ": agentType is useless for a client - ignored.\n";
   value = Parsers::Results::getParamValue(Parsers::Results::USEASYNCAPI);
-  DIET_ct = *(size_t *)(value);
+  if (*(size_t *)(value) != NULL) useAsyncApi = *(size_t *)(value); 
     
   /* Get the traceLevel */
   if (TRACE_LEVEL >= TRACE_MAX_VALUE) {
@@ -169,8 +170,8 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
     myargc = tmp_argc;
   }
   
-  if (DIET_ct == 1){
-    /* Initialize the ORB */
+  if (useAsyncApi == 1){
+   	/* Initialize the ORB */
     if (ORBMgr::init(myargc, (char**)myargv, true, 1)) {
       cerr << "ORB initialization failed.\n";
       return 1;
@@ -209,6 +210,7 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   /* We do not need the parsing results any more */
   Parsers::endParsing();  
 
+ cout << "FIN de diet_initialise" << endl;
   return 0;
 }
 

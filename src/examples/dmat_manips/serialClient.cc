@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2003/06/30 11:15:12  cpera
+ * Fix bugs in ReaderWriter and new internal debug macros.
+ *
  * Revision 1.1  2003/06/16 17:12:49  pcombes
  * Move the examples using the asynchronous API into this directory.
  *
@@ -124,7 +127,7 @@ main(int argc, char* argv[])
   diet_matrix_order_t oA, oB, oC;
 
   int   pb[NB_PB] = {0, 0, 0, 0, 0};
-  DIET_TRACE("DEBUT du client asynchrone avec des appels en serie.")
+  DIET_DEBUG(TEXT_OUTPUT(("DEBUT du client asynchrone avec des appels en serie.")))
 
   srand(time(NULL));
 
@@ -170,7 +173,6 @@ main(int argc, char* argv[])
     n = m;
 
   for (i = 0; i < n_loops; i++) {
-    
     oA = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
     oB = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
     oC = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
@@ -246,6 +248,6 @@ main(int argc, char* argv[])
     diet_function_handle_destruct(fhandle);
   }
   diet_finalize();
-  DIET_TRACE("FIN du client asynchrone avec des appels en serie.")
+  DIET_DEBUG(TEXT_OUTPUT(("FIN du client asynchrone avec des appels en serie.")))
   return 0;
 }

@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2003/06/30 11:15:12  cpera
+ * Fix bugs in ReaderWriter and new internal debug macros.
+ *
  * Revision 1.1  2003/06/16 17:12:49  pcombes
  * Move the examples using the asynchronous API into this directory.
  *
@@ -248,7 +251,7 @@ class worker : public omni_thread {
   // public (otherwise the thread object can be destroyed while the
   // underlying thread is still running).
   ~worker() {
-    DIET_TRACE("DEBUT destruction worker")
+    DIET_DEBUG(TEXT_OUTPUT(("DEBUT destruction worker")))
     mutexWorker.lock();
     if (thread_counter < (n_threads-1)){
       thread_counter++; 
@@ -257,7 +260,7 @@ class worker : public omni_thread {
       end.broadcast();
     }
     mutexWorker.unlock();
-    DIET_TRACE("FIN destruction worker")
+    DIET_DEBUG(TEXT_OUTPUT(("FIN destruction worker")))
   }
 
   void* make_arg(int i) { return (void*)new int(i); }
@@ -275,7 +278,7 @@ int
 main(int argc, char* argv[])
 {
   int i;
-  DIET_TRACE("DEBUT du client parallelle Type 1 (diet_wait)")
+  DIET_DEBUG(TEXT_OUTPUT(("DEBUT du client parallelle Type 1 (diet_wait)")))
   srand(time(NULL));
   for (i = 1; i < argc - 2; i++) {
     if (strcmp("--repeat", argv[i]) == 0) {
@@ -316,6 +319,6 @@ main(int argc, char* argv[])
   //omni_thread::sleep(5);
   end.wait();
   diet_finalize();
-  DIET_TRACE("FIN du client parallelle Type 1 (diet_wait)")
+  DIET_DEBUG(TEXT_OUTPUT(("FIN du client parallelle Type 1 (diet_wait)")))
   return 0;
 }

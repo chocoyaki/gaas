@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2003/06/30 11:15:12  cpera
+ * Fix bugs in ReaderWriter and new internal debug macros.
+ *
  * Revision 1.1  2003/06/16 17:12:49  pcombes
  * Move the examples using the asynchronous API into this directory.
  *
@@ -26,11 +29,6 @@
 
 #include "Global_macros.hh"
 
-//#include <string.h>
-//#include <unistd.h>
-//#include <stdlib.h>
-//#include <stdio.h>
-//#include <sys/stat.h>
 #include <time.h>
 
 using namespace std;
@@ -219,14 +217,14 @@ class worker : public omni_thread {
 	rst[i] = diet_call_async(fhandle[i], profile[i]);
 	printf("valeur de retour de diet_call_async = -%d- \n", rst[i]);
 	if (rst[i] < 1) {
-	  DIET_TRACE("erreur dans le retour de diet_call_async")
+	  DIET_DEBUG(TEXT_OUTPUT(("erreur dans le retour de diet_call_async")))
 	  return;
 	}
       }
       // test all return rst
-      DIET_TRACE("debut du diet_waitAND ...\n");
+      DIET_DEBUG(TEXT_OUTPUT(("debut du diet_waitAND ...\n")));
       diet_wait_and((diet_reqID_t*)&rst, (unsigned int)5);
-      DIET_TRACE("fin du diet_waitAND ...\n");
+      DIET_DEBUG(TEXT_OUTPUT(("fin du diet_waitAND ...\n")));
       //mutexWorker.lock();
       for (i = 0; i < 5; i++){
         if (pb[0]) {
@@ -256,7 +254,7 @@ class worker : public omni_thread {
   // public (otherwise the thread object can be destroyed while the
   // underlying thread is still running).
   ~worker() {
-    DIET_TRACE("DEBUT destruction worker")
+    DIET_DEBUG(TEXT_OUTPUT(("DEBUT destruction worker")))
     mutexWorker.lock();
     if (thread_counter < (n_threads-1)){
       thread_counter++; 
@@ -265,7 +263,7 @@ class worker : public omni_thread {
       end.broadcast();
     }
     mutexWorker.unlock();
-    DIET_TRACE("FIN destruction worker")
+    DIET_DEBUG(TEXT_OUTPUT(("FIN destruction worker")))
   }
 
   void* make_arg(int i) { return (void*)new int(i); }
@@ -283,7 +281,7 @@ int
 main(int argc, char* argv[])
 {
   int i;
-  DIET_TRACE("DEBUT du client parallelle Type 1 (diet_wait_and)")
+  DIET_DEBUG(TEXT_OUTPUT(("DEBUT du client parallelle Type 1 (diet_wait_and)")))
   srand(time(NULL));
   for (i = 1; i < argc - 2; i++) {
     if (strcmp("--repeat", argv[i]) == 0) {
@@ -324,6 +322,6 @@ main(int argc, char* argv[])
   //omni_thread::sleep(5);
   end.wait();
   diet_finalize();
-  DIET_TRACE("FIN du client parallelle Type 1 (diet_wait_and)")
+  DIET_DEBUG(TEXT_OUTPUT(("FIN du client parallelle Type 1 (diet_wait_and)")))
   return 0;
 }
