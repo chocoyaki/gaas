@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.9  2004/01/07 22:55:23  cpera
+%* Add asynchronous server part description.
+%*
 %* Revision 1.8  2004/01/07 22:39:53  cpera
 %* Fix latex syntax errors.
 %*
@@ -757,7 +760,13 @@ the ACI\_PACKAGE macros (\texttt{--with-BLAS=}, ...)
   and thus it has to send explicitly the results, through a callback mechanism, at
   the end of the computation.
 
-  \fixme{Christophe - the callback mechanism might require some more explanations}
+  %\fixme{Christophe - the callback mechanism might require some more explanations}
+  In case of asynchronous call, i.e solve\_async call, client specifies a request
+  identifier and a CORBA reference defining its Callback client server (IP/Port).
+  And thus, at the end of the solve, the \texttt{solveAsync} function call \texttt{notifyRst}
+  of client callback server with diet profile and request ID parameters. Client manages
+  callback threads, results and notifying news through its asynchronous API.
+  After this calling, SeD thread free memory.
 
   Both methods have to ``unmarshall'' the arguments, ie. to convert them into DIET
   data that the programmer of the server can manipulate. Then they invoke the
