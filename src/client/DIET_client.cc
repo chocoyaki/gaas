@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.36  2003/09/25 10:03:38  cpera
+ * Change return function value according to GridRPC API and delete debug messages.
+ *
  * Revision 1.35  2003/09/22 21:08:15  pcombes
  * Update to changes of ORBMgr.
  *
@@ -492,7 +495,7 @@ diet_call_async_common(diet_profile_t* profile,
     caMgr = CallAsyncMgr::Instance();
     // create corba client callback server...
     if (caMgr->addAsyncCall(*reqID, profile) != 0)
-      return -1;
+      return 1;
 
     stat_in("computation_async");
     chosenServer->solveAsync(profile->pb_name, corba_profile, 
@@ -515,12 +518,12 @@ diet_call_async_common(diet_profile_t* profile,
     else
       WARNING("exception caught in " << __FUNCTION__ << '(' << tc->id() << ')');
     *reqID = -1;
-    return -1;
+    return 1;
   }
   catch (...) {
     WARNING("exception caught in " << __FUNCTION__);
     *reqID = -1;
-    return -1;
+    return 1;
   }
   
   stat_out("diet_call_async");
@@ -582,6 +585,7 @@ diet_wait(diet_reqID_t reqID)
     Rule * rule = new Rule;
     rule->length = 1;
     rule->ruleElts = simpleWait;
+    rule->status = STATUS_RESOLVING;
     
     // get lock on condition/waitRule
     return CallAsyncMgr::Instance()->addWaitRule(rule);
@@ -618,22 +622,18 @@ diet_wait(diet_reqID_t reqID)
 int
 diet_wait_and(diet_reqID_t* IDs, size_t length)
 {
-  DIET_DEBUG();
   request_status_t rst = STATUS_ERROR;
   try {
     // Create ruleElements table ...
     ruleElement * simpleWait = new ruleElement[length];
-    DIET_DEBUG();
     for (size_t k = 0; k < length; k++) {
       simpleWait[k].reqID = IDs[k];
       simpleWait[k].op = WAITOPERATOR(AND);
     }
-    DIET_DEBUG();
     Rule * rule = new Rule;
     rule->length = length;
     rule->ruleElts = simpleWait;
     
-    DIET_DEBUG();
     // get lock on condition/waitRule
     return CallAsyncMgr::Instance()->addWaitRule(rule);
     // NOTES: Be carefull, there may be others rules
@@ -656,7 +656,6 @@ diet_wait_and(diet_reqID_t* IDs, size_t length)
     ERROR(__FUNCTION__ << ": unexpected exception (what=" << e.what() << ')',
 	  STATUS_ERROR);
   }
-  DIET_DEBUG(TEXT_OUTPUT(("END")));
   return rst;
 }
 
