@@ -37,35 +37,28 @@ class DietReadersWriterLock {
   omni_mutex m;
   omni_condition c;
   int writer_count, readers_waiting, reader_count, is_write_lock;
-  
-public:
 
-DietReadersWriterLock() : c(&m), writer_count(0), readers_waiting(0), reader_count(0), is_write_lock(0){}
+  public:
+
+  DietReadersWriterLock() : c(&m), writer_count(0), readers_waiting(0), reader_count(0), is_write_lock(0){}
 
   void readLock(void) { 
-		DIET_DEBUG()
     m.lock(); // if there is at least one writer using the lock or waiting for it, 
-		    // we need to wait for access 
-    if (writer_count > 0) { 
-	    c.wait();
-    } 
+    // we need to wait for access 
+    while(writer_count > 0) c.wait(); 
     reader_count++; 
     m.unlock(); 
-		DIET_DEBUG(TEXT_OUTPUT(("END")))
   }
-      
+
   void writeLock(void) { 
-		DIET_DEBUG()
     m.lock(); 
-	if (is_write_lock == 1 || reader_count > 0) c.wait(); // wait until the access lock is available 
+    while (is_write_lock == 1 || reader_count > 0) c.wait(); // wait until the access lock is available 
     is_write_lock = 1; // lock is a write lock 
     m.unlock(); 
     c.broadcast(); // give readers something to wait for 
-		DIET_DEBUG(TEXT_OUTPUT(("END")))
   } 
-    
+
   void unlock(void) { 
-		DIET_DEBUG()
     m.lock(); 
     if (is_write_lock) { // if this is a write lock 
       is_write_lock = 0; // let it go 
@@ -73,7 +66,6 @@ DietReadersWriterLock() : c(&m), writer_count(0), readers_waiting(0), reader_cou
     } else if (--reader_count == 0) // if we're the last reader 
       c.broadcast(); // release the access lock 
     m.unlock(); 
-		DIET_DEBUG(TEXT_OUTPUT(("END")))
   }
 };
 
@@ -81,19 +73,19 @@ DietReadersWriterLock() : c(&m), writer_count(0), readers_waiting(0), reader_cou
 class ReaderLockGuard {
   DietReadersWriterLock& lock;
   bool state;
-public:
+  public:
   ReaderLockGuard(DietReadersWriterLock& l) : lock(l), state(false) {
     acquire();
-    }
+  }
   ~ReaderLockGuard(void) {
     release();
-    }
+  }
   void acquire(void){
     if (state == false){
       lock.readLock();
       state = true;
     }
-    }
+  }
   void release(void){
     if (state == true){
       lock.unlock();
@@ -106,25 +98,25 @@ public:
 class WriterLockGuard {
   DietReadersWriterLock& lock;
   bool state;
-public:
+  public:
   WriterLockGuard(DietReadersWriterLock& l) : lock(l), state(false) {
     acquire();
-    }
+  }
   ~WriterLockGuard(void) {
     release();
-    }
+  }
   void acquire(void){
     if (state == false){
       lock.writeLock();
       state = true;
     }
-    }
+  }
   void release(void){
     if (state == true){
       lock.unlock();
       state = false;
     }
-    }
+  }
 };
 
 #endif
