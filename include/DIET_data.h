@@ -9,6 +9,10 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.13  2003/02/07 17:02:10  pcombes
+ * Remove diet_value. Add diet_is_persistent and diet_free_data.
+ * Unify diet_scalar_get prototype to the one of the other _get functions.
+ *
  * Revision 1.12  2003/02/04 10:08:22  pcombes
  * Apply Coding Standards
  *
@@ -95,10 +99,11 @@ typedef enum {
 typedef struct diet_arg_s diet_arg_t;
 
 /**
- * Type: (C_type*) diet_value ( (C_type), (diet_arg_t*) )
- * Casted pointer to the argument value (the data themselves)
+ * Type: int diet_is_persistent ((diet_arg_t))
+ * Return true if arg persistence mode is sticky or persistent.
  */
-#define diet_value(C_type, arg) (C_type*)((arg)->value)
+#define diet_is_persistent(arg) \
+  (((arg).desc.mode == DIET_PERSISTENT) || ((arg).desc.mode == DIET_STICKY))
 
 
 /****************************************************************************/
@@ -188,26 +193,28 @@ diet_file_set(diet_arg_t* arg, diet_persistence_mode_t mode, char* path);
  *   diet_scalar_get(arg, &value, NULL),
  * will only set the value to the value field of the (*arg) structure.
  * 
- * NB: these are macros that let the user not worry about casting its (int** )
- * or (double** ) etc. into (void** ).
+ * NB: these are macros that let the user not worry about casting its (int**)
+ * or (double**) etc. into (void**).
  */
 
 /**
- * Type: int diet_scalar_get((diet_arg_t* ), (void* ),
- *                           (diet_persistence_mode_t* ))
- * (void* ) means (int* ), (double* ), (float* ), etc., depending on the
+ * Type: int diet_scalar_get((diet_arg_t*), (void**),
+ *                           (diet_persistence_mode_t*))
+ * (void**) means (int**), (double**), (float**), etc., depending on the
  *          base C type of users's data.
  */
 #define diet_scalar_get(arg, value, mode) \
-        _scalar_get(arg, (void*)value, mode)
+  _scalar_get(arg, (void**)value, mode)
+
 /**
  * Type: int diet_vector_get((diet_arg_t*), (void**),
- *                           (diet_persistence_mode_t*), (size_t* ))
+ *                           (diet_persistence_mode_t*), (size_t*))
  * (void**) means (int**), (double**), (float**), etc., depending on the
  *           base C type of users's data.
  */
 #define diet_vector_get(arg, value, mode, size) \
-        _vector_get(arg, (void**)value, mode, size)
+  _vector_get(arg, (void**)value, mode, size)
+
 /**
  * Type: int diet_matrix_get((diet_arg_t*), (void**),
  *                           (diet_persistence_mode_t*),
@@ -216,25 +223,56 @@ diet_file_set(diet_arg_t* arg, diet_persistence_mode_t mode, char* path);
  *           base C type of users's data.
  */
 #define diet_matrix_get(arg, value, mode, nb_rows, nb_cols, order) \
-        _matrix_get(arg, (void**)value, mode, nb_rows, nb_cols, order)
+  _matrix_get(arg, (void**)value, mode, nb_rows, nb_cols, order)
+
 /**
  * Type: int diet_string_get((diet_arg_t*), (char**),
  *                           (diet_persistence_mode_t*), (size_t*))
  */
 #define diet_string_get(arg, value, mode, length) \
-        _string_get(arg, (char**)value, mode, length)
+  _string_get(arg, (char**)value, mode, length)
+
 /**
  * Type: int diet_file_get((diet_arg_t*),
  *                         (diet_persistence_mode_t*), (size_t*), (char**))
  */
 #define diet_file_get(arg, mode, size, path) \
-        _file_get(arg, mode, size, (char**)path)
+  _file_get(arg, mode, size, (char**)path)
 
 
 
-// These are the effective get functions 
+
+/****************************************************************************/
+/* Free the amount of data pointed at by the value field of an argument.    */
+/* This should be used ONLY for VOLATILE data,                              */
+/*    - on the server for IN arguments that will no longer be used          */
+/*    - on the client for OUT arguments, after the problem has been solved, */
+/*      when they will no longer be used.                                   */
+/* NB: for files, this function removes the file and free the path (since   */
+/*     it has been dynamically allocated by DIET in both cases)             */
+/****************************************************************************/
+
 int
-_scalar_get(diet_arg_t* arg, void* value, diet_persistence_mode_t* mode);
+diet_free_data(diet_arg_t* arg);
+
+
+
+
+
+
+/****************************************************************************/
+/* This part is useless for users, but may be read for more information     */
+/* on data structures                                                       */
+/****************************************************************************/
+
+
+/****************************************************************************
+ * Utils for getting argument descriptions and values
+ *    (the effective get function)
+ */
+
+int
+_scalar_get(diet_arg_t* arg, void** value, diet_persistence_mode_t* mode);
 int
 _vector_get(diet_arg_t* arg, void** value, diet_persistence_mode_t* mode,
 	    size_t* size);
@@ -242,8 +280,8 @@ int
 _matrix_get(diet_arg_t* arg, void** value, diet_persistence_mode_t* mode,
 	    size_t* nb_rows, size_t *nb_cols, diet_matrix_order_t* order);
 int
-_string_get(diet_arg_t* arg,
-	    char** value, diet_persistence_mode_t* mode, size_t* length);
+_string_get(diet_arg_t* arg, char** value, diet_persistence_mode_t* mode,
+	    size_t* length);
 int
 _file_get(diet_arg_t* arg, diet_persistence_mode_t* mode,
 	  size_t* size, char** path);
@@ -251,13 +289,12 @@ _file_get(diet_arg_t* arg, diet_persistence_mode_t* mode,
 
 
 
-/****************************************************************************/
-/* Data descriptions                                                        */
-/* The user can read this to understand how data structures are built       */
-/* internally, but all functions and macros defined above should be         */
-/* sufficient.                                                              */
-/****************************************************************************/
-
+/****************************************************************************
+ * Data descriptions
+ * The user can read this to understand how data structures are built
+ * internally, but all functions and macros defined above should be
+ * sufficient.
+ */
 
 /*----[ scalar - specific ]-------------------------------------------------*/
 struct diet_scalar_specific {

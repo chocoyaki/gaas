@@ -9,6 +9,10 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.12  2003/02/07 17:02:10  pcombes
+ * Remove diet_value. Add diet_is_persistent and diet_free_data.
+ * Unify diet_scalar_get prototype to the one of the other _get functions.
+ *
  * Revision 1.11  2003/02/04 10:08:22  pcombes
  * Apply Coding Standards
  *
@@ -46,6 +50,7 @@
 using namespace std;
 #include <sys/stat.h>
 #include <sys/types.h>
+#include "unistd.h"
 
 #include "DIET_data.h"
 #include "DIET_client.h"
@@ -533,7 +538,7 @@ get_value(diet_data_t* data, void** value)
 }
 
 int
-_scalar_get(diet_arg_t* arg, void* value, diet_persistence_mode_t* mode)
+_scalar_get(diet_arg_t* arg, void** value, diet_persistence_mode_t* mode)
 {
   int res;
 
@@ -542,25 +547,10 @@ _scalar_get(diet_arg_t* arg, void* value, diet_persistence_mode_t* mode)
 	 << "            (wrong type or arg pointer is NULL)\n";
     return 1;
   }
-  if (value) {
-    switch(arg->desc.generic.base_type) {
-    case DIET_CHAR:     
-    case DIET_BYTE:    *((char*)value)     = *((char*)arg->value);     break;
-    case DIET_INT:     *((int*)value)      = *((int*)arg->value);      break;
-    case DIET_LONGINT: *((long int*)value) = *((long int*)arg->value); break;
-    case DIET_FLOAT:   *((float*)value)    = *((float*)arg->value);    break;
-    case DIET_DOUBLE:  *((double*)value)   = *((double*)arg->value);   break;
-#if HAVE_COMPLEX
-    case DIET_SCOMPLEX:
-      *((complex*)value)        = *((complex*)arg->value);        break;
-    case DIET_DCOMPLEX:
-      *((double complex*)value) = *((double complex*)arg->value); break;
-#endif // HAVE_COMPLEX
-    default: {
-      cerr << "DIET error: diet_scalar_get misused (wrong base type)\n";
-      return 1;
-    }
-    }
+  if ((res = get_value((diet_data_t*)arg, value))) {
+    cerr << "DIET error: diet_scalar_get misused "
+	 << "(wrong base type or arg pointer is NULL)\n";
+    return res;
   }
   if (mode)
     *mode = arg->desc.mode;
@@ -656,6 +646,47 @@ _file_get(diet_arg_t* arg, diet_persistence_mode_t* mode,
 }
 
 
+/****************************************************************************/
+/* Free the amount of data pointed at by the value field of an argument.    */
+/* This should be used ONLY for VOLATILE data,                              */
+/*    - on the server for IN arguments that will no longer be used          */
+/*    - on the client for OUT arguments, after the problem has been solved, */
+/*      when they will no longer be used.                                   */
+/* NB: for files, this function removes the file and free the path (since   */
+/*     it has been dynamically allocated by DIET in both cases)             */
+/****************************************************************************/
+
+int
+diet_free_data(diet_arg_t* arg)
+{
+  if (diet_is_persistent(*arg)) {
+    cerr << "Warning: attempt to use diet_free_data on persistent data "
+	 << "- IGNORED.\n";
+    return 3;
+  }
+  switch(arg->desc.generic.type) {
+  case DIET_FILE:
+    if (arg->desc.specific.file.path) {
+      if (unlink(arg->desc.specific.file.path)) {
+	perror(arg->desc.specific.file.path);
+	return 2;
+      }
+      free(arg->desc.specific.file.path);
+      arg->desc.specific.file.path = NULL;
+    } else {
+      return 1;
+    }
+    break;
+
+  default:
+    if (arg->value)
+      free(arg->value);
+    else
+      return 1;
+    arg->value = NULL;
+  }
+  return 0;
+}
 
 
 } // extern "C"
