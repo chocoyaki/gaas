@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.35  2003/09/22 21:08:15  pcombes
+ * Update to changes of ORBMgr.
+ *
  * Revision 1.34  2003/07/25 20:37:36  pcombes
  * Separate the DIET API (slightly modified) from the GridRPC API (version of
  * the draft dated to 07/21/2003)
@@ -192,7 +195,7 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   /* Find Master Agent */
   MA_name = (char*)
     Parsers::Results::getParamValue(Parsers::Results::MANAME);
-  MA = MasterAgent::_narrow(ORBMgr::getAgentReference(MA_name));
+  MA = MasterAgent::_narrow(ORBMgr::getObjReference(ORBMgr::AGENT, MA_name));
   if (CORBA::is_nil(MA)) {
     ERROR("cannot locate Master Agent " << MA_name, 1);
   }
