@@ -9,12 +9,17 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2003/10/06 10:04:13  cpontvie
+ * Moving the interruption manager here
+ * The current interruption is mapped on SIGINT (Ctrl+C)
+ * The 'wait' function now return after the SIGINT
+ *
  * Revision 1.12  2003/09/22 21:06:12  pcombes
  * Generalize the bind/unbindAgentToName and getAgentReference methods.
  *
  * Revision 1.9  2003/08/28 16:54:08  cpontvie
  * Add functions deactivate, unbindAgent, get_orb, get_poa, get_poa_bidir, 
- get_oid, set_oid
+ * get_oid, set_oid
  *
  * Revision 1.5  2003/06/02 08:53:16  cpera
  * Update api for asynchronize calls, manage bidir poa.
@@ -30,8 +35,10 @@
  ****************************************************************************/
 
 
-#include <iostream>
 using namespace std;
+#include <iostream>
+#include <signal.h>
+#include <setjmp.h>
 
 #include "ORBMgr.hh"
 #include "debug.hh"
@@ -45,7 +52,11 @@ PortableServer::POA_var ORBMgr::POA = PortableServer::POA::_nil();
 PortableServer::POA_var ORBMgr::POA_BIDIR = PortableServer::POA::_nil();
 PortableServer::ObjectId_var ORBMgr::OBJECT_ID = NULL;
 const char* ORBMgr::CONTEXTS[] =
-  {"dietAgent", "dietDataMgr", "dietLocMgr", "dietSeD"};
+  {"dietAgent", "dietDataMgr", "dietLocMgr", "dietLogService", "dietSeD"};
+
+#if INTERRUPTION_MGR
+sigjmp_buf ORBMgr::buff_int;
+#endif
 
 int
 ORBMgr::init(int argc, char** argv, bool init_POA)
@@ -88,13 +99,18 @@ ORBMgr::init(int argc, char** argv, bool init_POA)
     pman->activate();
   }
   return 0;
-  
+
 }
 
 void
 ORBMgr::destroy()
 {
-  ORB->destroy();
+  try {
+#if INTERRUPTION_MGR
+    signal(SIGINT, SIG_DFL);
+#endif // INTERRUPTION_MGR
+    ORB->destroy();
+  } catch (...) {};
 }
 
 
@@ -128,12 +144,28 @@ ORBMgr::deactivate()
 }
 
 
-void
+#if INTERRUPTION_MGR
+int
+ORBMgr::wait()
+{
+  signal(SIGINT, ORBMgr::SigIntHandler);
+  if (! sigsetjmp(buff_int, 1)) {
+    try {
+      ORB->run();
+    } catch (...) {
+      ERROR("exception caught in ORBMgr::" << __FUNCTION__, true);
+    }
+  }
+  return false;
+}
+#else // INTERRUPTION_MGR
+int
 ORBMgr::wait()
 {
   ORB->run();
-  ORB->destroy();
+  return false;
 }
+#endif // INTERRUPTION_MGR
 
 
 int
@@ -168,7 +200,7 @@ ORBMgr::bindObjToName(CORBA::Object_ptr obj, ORBMgr::object_type_t type,
 	INTERNAL_ERROR("failed to narrow the naming context for "
 		       << CONTEXTS[type], 1);
       }
-    } 
+    }
 
     /* Bind the object (obj) to testContext */
     cosName[0].id   = (const char*) name; // string copied
@@ -181,7 +213,7 @@ ORBMgr::bindObjToName(CORBA::Object_ptr obj, ORBMgr::object_type_t type,
       context->rebind(cosName,obj);
     }
 
-    // Note: Using rebind() will overwrite any Object previously bound 
+    // Note: Using rebind() will overwrite any Object previously bound
     //       to /test/Echo with obj.
     //       Alternatively, bind() can be used, which will raise a
     //       CosNaming::NamingContext::AlreadyBound exception if the name
@@ -349,6 +381,20 @@ ORBMgr::setOID(PortableServer::ObjectId_var oid)
 {
   ORBMgr::OBJECT_ID = oid;
 }
+
+
+#if INTERRUPTION_MGR
+/**
+ * The SIGINT handler function
+ */
+void
+ORBMgr::SigIntHandler(int sig)
+{
+  /* Prevent from raising a new SIGINT handler */
+  signal(SIGINT, SIG_IGN);
+  siglongjmp(buff_int, 1);
+}
+#endif // INTERRUPTION_MGR
 
 
 CosNaming::NamingContext_var

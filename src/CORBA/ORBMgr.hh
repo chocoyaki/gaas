@@ -7,6 +7,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2003/10/06 10:04:00  cpontvie
+ * Moving the interruption manager here
+ * The current interruption is mapped on SIGINT (Ctrl+C)
+ * The 'wait' function now return after the SIGINT
+ *
  * Revision 1.9  2003/09/22 21:06:12  pcombes
  * Generalize the bind/unbindAgentToName and getAgentReference methods.
  *
@@ -27,9 +32,10 @@
 #define _ORBMGR_HH_
 
 #include <CORBA.h>
+#include <setjmp.h>
 #include "DIET_config.h"
 
-
+#define INTERRUPTION_MGR 1
 
 /**
  * This class unifies the interface to all ORBs supported by DIET.
@@ -37,7 +43,7 @@
 
 class ORBMgr
 {
-  
+
 public:
 
   static int
@@ -52,19 +58,20 @@ public:
   static int
   deactivate();
 
-  static void
+  static int
   wait();
 
   typedef enum {
     AGENT = 0,
     DATAMGR,
     LOCMGR,
+    LOGSERVICE,
     SED
   } object_type_t;
 
   static int
   bindObjToName(CORBA::Object_ptr obj, object_type_t type, const char* name);
-  
+
   static int
   unbindObj(object_type_t type, const char* name);
   
@@ -73,36 +80,44 @@ public:
 
   static char*
   getIORString(CORBA::Object_ptr obj);
-  
+
   static CORBA::Object_ptr
   stringToObject(const char* IOR);
-  
+
   static CORBA::ORB_ptr
   getORB();
-  
+
   static PortableServer::POA_var
   getPOA();
-  
+
   static PortableServer::POA_var
   getPOA_BIDIR();
-  
+
   // To access to the ObjectID of the activate agent.
   static PortableServer::ObjectId_var
   getOID();
-  
+
   // To set the ObjectID of the activate agent.
   static void
   setOID(PortableServer::ObjectId_var oid);
 
 private:
+
   static CORBA::ORB_ptr          ORB;
   static PortableServer::POA_var POA;
   static PortableServer::POA_var POA_BIDIR;
+
   static PortableServer::ObjectId_var OBJECT_ID;
   static const char* CONTEXTS[];
 
   static CosNaming::NamingContext_var
   getRootContext();
+  
+#if INTERRUPTION_MGR
+  static sigjmp_buf buff_int;
+  static void
+  SigIntHandler(int sig);
+#endif // INTERRUPTION_MGR
 };
 
 
