@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.6  2002/09/09 15:57:00  pcombes
+ * Update for dgemm and bug fixes
+ *
  * Revision 1.5  2002/08/30 16:50:16  pcombes
  * This version works as well as the alpha version from the user point of view,
  * but the API is now the one imposed by the latest specifications (GridRPC API
@@ -41,8 +44,6 @@
 #include <stdio.h>
 
 #include "DIET_client.h"
-#include "slimfast_api_local.h"
-
 
 #define print_matrix(mat, m, n)            \
   {                                        \
@@ -57,9 +58,8 @@
     printf("\n");                          \
   }
 
-
 /* argv[1]: client config file path
-   argv[2]: trans, rsum, or rprod   */
+   argv[2]: T, MatSUM, or MatPROD   */
 
 int
 main(int argc, char **argv)
@@ -77,20 +77,20 @@ main(int argc, char **argv)
     fprintf(stderr, "Usage: client <file> [T|MatSUM|MatPROD]\n");
     return 1;
   }
-  diet_initialize(argc, argv, argv[1]);
-
-  path = strdup(argv[2]);
+  path = argv[2];
   
   A = mat1;
   B = mat2;
+
+  diet_initialize(argc, argv, argv[1]);
 
   if (!strcmp(path, PB[0])) {
     
     fhandle = diet_function_handle_default(path);
     profile = profile_alloc(-1, 0, 0);
-    matrix_set(&(profile->parameters[0]), A, DIET_VOLATILE,
-	       DIET_DOUBLE, 3, 2, 0);
-    print_matrix((double *)(profile->parameters[0].value),
+    matrix_set(&(profile->parameters[0]),
+	       A, DIET_VOLATILE, DIET_DOUBLE, 3, 2, 0);
+    print_matrix(A,
 		 profile->parameters[0].desc.specific.mat.nb_r,
 		 profile->parameters[0].desc.specific.mat.nb_c);
 
@@ -98,18 +98,18 @@ main(int argc, char **argv)
 
     fhandle = diet_function_handle_default(path);
     profile = profile_alloc(1, 1, 2);
-    matrix_set(&(profile->parameters[0]), A, DIET_VOLATILE,
-	       DIET_DOUBLE, 3, 2, 0);
+    matrix_set(&(profile->parameters[0]),
+	       A, DIET_VOLATILE, DIET_DOUBLE, 3, 2, 0);
     if (!(strcmp(path, PB[1]))) {
-      matrix_set(&(profile->parameters[1]), B, DIET_VOLATILE,
-	       DIET_DOUBLE, 3, 2, 0);
-      matrix_set(&(profile->parameters[2]), NULL, DIET_VOLATILE,
-		 DIET_DOUBLE, 3, 2, 0);
+      matrix_set(&(profile->parameters[1]),
+		 B, DIET_VOLATILE, DIET_DOUBLE, 3, 2, 0);
+      matrix_set(&(profile->parameters[2]),
+		 NULL, DIET_VOLATILE, DIET_DOUBLE, 3, 2, 0);
     } else {
-      matrix_set(&(profile->parameters[1]), B, DIET_VOLATILE,
-		 DIET_DOUBLE, 2, 3, 0);
-      matrix_set(&(profile->parameters[2]), NULL, DIET_VOLATILE,
-		 DIET_DOUBLE, 3, 3, 0);
+      matrix_set(&(profile->parameters[1]),
+		 B, DIET_VOLATILE, DIET_DOUBLE, 2, 3, 0);
+      matrix_set(&(profile->parameters[2]),
+		 NULL, DIET_VOLATILE, DIET_DOUBLE, 3, 3, 0);
     }
       
     print_matrix((double *)(profile->parameters[0].value),
@@ -123,7 +123,7 @@ main(int argc, char **argv)
     
   if (!diet_call(fhandle, profile)) {
     if (!strcmp(path, PB[0])) {
-      print_matrix(A,
+      print_matrix(A,//(double *)(profile->parameters[0].value),//A,
 		   profile->parameters[0].desc.specific.mat.nb_r,
 		   profile->parameters[0].desc.specific.mat.nb_c);
     } else {
@@ -137,8 +137,6 @@ main(int argc, char **argv)
   profile_free(profile);
   diet_function_handle_destruct(fhandle);
     
-  free(path);
-
   diet_finalize();
 
   return 0;

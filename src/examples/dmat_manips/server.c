@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.6  2002/09/09 15:57:01  pcombes
+ * Update for dgemm and bug fixes
+ *
  * Revision 1.5  2002/08/30 16:50:16  pcombes
  * This version works as well as the alpha version from the user point of view,
  * but the API is now the one imposed by the latest specifications (GridRPC API
@@ -41,7 +44,6 @@
 #include <string.h>
 
 #include "DIET_server.h"
-#include "slimfast_api_local.h"
 
 
 /*
@@ -69,9 +71,12 @@ solve_T(diet_data_seq_t *in, diet_data_seq_t *inout, diet_data_seq_t *out)
       A[j*m + i] = tmp[i*n + j];
     }
   }
+  //free(A);
   
   inout->seq[0].desc.specific.mat.nb_r = n;
   inout->seq[0].desc.specific.mat.nb_c = m;
+  //inout->seq[0].value = tmp;
+  
   //  out->length = 0;
 
   free(tmp);
@@ -88,9 +93,8 @@ solve_MatSUM(diet_data_seq_t *in, diet_data_seq_t *inout, diet_data_seq_t *out)
   
   printf("Solve MatSUM ...");
 
-  //  out->length = 1;
-  out->seq->desc = in->seq[0].desc;
-  out->seq->desc.specific.mat.istrans = 0;
+  //out->seq->desc = in->seq[0].desc;
+  //out->seq->desc.specific.mat.istrans = 0;
   
   m = in->seq[0].desc.specific.mat.nb_r;
   n = in->seq[0].desc.specific.mat.nb_c;
@@ -157,10 +161,10 @@ solve_MatPROD(diet_data_seq_t *in, diet_data_seq_t *inout, diet_data_seq_t *out)
     return 1;
   }
 
-  //  out->length = 1;
-  out->seq->desc = in->seq[0].desc;
-  out->seq->desc.specific.mat.nb_c  = nB;
-  out->seq->desc.specific.mat.istrans = 0;
+  ////out->length = 1;
+  //out->seq->desc = in->seq[0].desc;
+  //out->seq->desc.specific.mat.nb_c  = nB;
+  //out->seq->desc.specific.mat.istrans = 0;
   
   A = (double *) in->seq[0].value;
   B = (double *) in->seq[1].value;
@@ -222,11 +226,10 @@ main(int argc, char **argv)
   }
   
 
-  /* Brutal construction of fake service tables:  */
-  /* This fake server can solve 3 pbs:            */
-  /*   - T = matrix translation                   */
-  /*   - MatSUM = matrix addition                 */
-  /*   - MatPROD = matrix product                 */
+  /* This server can solve 3 pbs:  */
+  /*   - T = matrix translation    */
+  /*   - MatSUM = matrix addition  */
+  /*   - MatPROD = matrix product  */
 
   diet_service_table_init(3);
   
