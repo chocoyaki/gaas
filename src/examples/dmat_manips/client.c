@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2003/08/01 19:35:11  pcombes
+ * Fix bugs on memcpy (misused) and DIET_STAT_FILE_NAME.
+ *
  * Revision 1.18  2003/07/25 20:37:36  pcombes
  * Separate the DIET API (slightly modified) from the GridRPC API (version of
  * the draft dated to 07/21/2003)
@@ -104,8 +107,8 @@ main(int argc, char* argv[])
   int   pb[NB_PB] = {0, 0, 0, 0, 0};
 
   // STATS
-  char* STAT_FILE_NAME;
-  FILE* STAT_FILE;
+  char* STAT_FILE_NAME = NULL;
+  FILE* STAT_FILE      = NULL;
   struct timeval tv, tv_pause;
   size_t nb_of_requests;
   int sec, pause = 0;
@@ -116,13 +119,13 @@ main(int argc, char* argv[])
     if (strcmp("--repeat", argv[i]) == 0) {
       n_loops = atoi(argv[i + 1]);
       i++;
-      memcpy(argv + i - 2, argv + i, (argc - i)*sizeof(char*));
+      memmove(argv + i - 2, argv + i, (argc - i)*sizeof(char*));
       i -= 2;
       argc -= 2;
     } else if (strcmp("--pause", argv[i]) == 0) {
       pause = atoi(argv[i + 1]);
       i++;
-      memcpy(argv + i - 2, argv + i, (argc - i)*sizeof(char*));
+      memmove(argv + i - 2, argv + i, (argc - i)*sizeof(char*));
       i -= 2;
       argc -= 2;
     } else {
@@ -157,8 +160,8 @@ main(int argc, char* argv[])
   if (pb[3] || pb[4])
     n = m;
 
-  STAT_FILE_NAME = getenv("DIET_STAT_FILE_NAME");
-  STAT_FILE = fopen(STAT_FILE_NAME, "wc");
+  if ((STAT_FILE_NAME = getenv("DIET_STAT_FILE_NAME")))
+    STAT_FILE = fopen(STAT_FILE_NAME, "wc");
   nb_of_requests = 0;
   
   oA = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
@@ -213,7 +216,7 @@ main(int argc, char* argv[])
   for (i = 0; i < n_loops; i++) {
     
     gettimeofday(&tv, NULL);
-    if (tv.tv_sec >= sec + 1) {
+    if ((STAT_FILE) && (tv.tv_sec >= sec + 1)) {
       fprintf(STAT_FILE, "%10ld.%06ld|%s|%d requests\n", 
 	      tv.tv_sec, tv.tv_usec, "INFO", nb_of_requests);
       sec = tv.tv_sec;
