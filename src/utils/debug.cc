@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2004/10/15 08:22:18  hdail
+ * Removed references to corba_response_t->sortedIndexes - no longer useful.
+ * Added displayResponseShort(...) for easier debugging.
+ *
  * Revision 1.19  2004/10/14 15:03:47  hdail
  * Added shorter, cleaner response debug message.
  *
@@ -78,18 +82,17 @@ displayResponse(FILE* os, const corba_response_t* resp)
     fprintf(os," Estimated computation time:\n");
 
   for (i = 0; i < resp->servers.length(); i++) {
-    long idx = resp->sortedIndexes[i];
-    if (resp->servers[idx].estim.tComp != HUGE_VAL) {
+    if (resp->servers[i].estim.tComp != HUGE_VAL) {
       fprintf(os, "  %ldth server can solve the problem in %g seconds\n",
-	      (long) i, resp->servers[idx].estim.tComp);
+	      (long) i, resp->servers[i].estim.tComp);
     } else {
       fprintf(os, "  %ldth server has %g free CPU and %g free memory\n",
-	      (long) i, resp->servers[idx].estim.freeCPU,
-	      resp->servers[idx].estim.freeMem);
+	      (long) i, resp->servers[i].estim.freeCPU,
+	      resp->servers[i].estim.freeMem);
     }
     fprintf(os, "  TComms for each parameter: ");
-    for (j = 0; j < resp->servers[idx].estim.commTimes.length(); j++) {
-      fprintf(os, " %g", (double)resp->servers[idx].estim.commTimes[j]);
+    for (j = 0; j < resp->servers[i].estim.commTimes.length(); j++) {
+      fprintf(os, " %g", (double)resp->servers[i].estim.commTimes[j]);
     }
     fprintf(os,"\n");
   }
@@ -102,16 +105,14 @@ displayResponseShort(FILE* os, const corba_response_t* resp)
   fprintf(os, "\n---------- Responses for request %lu ----------\n",
       resp->reqID);
   for (size_t i = 0; i < resp->servers.length(); i++){
-    size_t idx = resp->sortedIndexes[i];
     fprintf(stdout, 
-      "    %d: %s:%ld (id %ld): tComp %g fCpu %g fMem %g\n",
+      "    %d: %s:%ld: tComp %g fCpu %g fMem %g\n",
       i,
-      (const char *)(resp->servers[idx].loc.hostName),
-      resp->servers[idx].loc.port,
-      idx, 
-      resp->servers[idx].estim.tComp,
-      resp->servers[idx].estim.freeCPU,
-      resp->servers[idx].estim.freeMem);
+      (const char *)(resp->servers[i].loc.hostName),
+      resp->servers[i].loc.port,
+      resp->servers[i].estim.tComp,
+      resp->servers[i].estim.freeCPU,
+      resp->servers[i].estim.freeMem);
   }
 }
 
