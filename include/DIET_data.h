@@ -11,6 +11,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.9  2003/01/22 17:14:09  pcombes
+ * API 0.6.4 : istrans -> order (row- or column-major)
+ *
  * Revision 1.8  2003/01/21 12:17:02  pcombes
  * Update UM to API 0.6.3, and "hide" data structures.
  *
@@ -110,7 +113,7 @@ typedef struct {
    Once the profile is allocated, please use set functions on each parameter.
    For example, the nth argument is a matrix:
    diet_matrix_set(diet_parameter(profile,n),
-                   mode, value, btype, nb_r, nb_c, istrans);
+                   mode, value, btype, nb_r, nb_c, order);
    NB: mode is the persistence mode of the parameter.
    Since a profile will not be freed until profile_free is called, it is
    possible to refer to each parameter for data handles (cf. below)         */
@@ -143,11 +146,19 @@ diet_scalar_set(diet_arg_t *arg, void *value, diet_persistence_mode_t mode,
 int
 diet_vector_set(diet_arg_t *arg, void *value, diet_persistence_mode_t mode,
 		diet_base_type_t base_type, size_t size);
+
+/* Matrices can be stored by rows or by columns */
+typedef enum {
+  DIET_DUMMY_ORDER = -1,
+  DIET_ROW_MAJOR   = 0,
+  DIET_COL_MAJOR   = 1
+} diet_matrix_order_t;
+
 /* should not be used on server with (IN)OUT arguments */
 int
 diet_matrix_set(diet_arg_t *arg, void *value, diet_persistence_mode_t mode,
 		diet_base_type_t base_type,
-		size_t nb_rows, size_t nb_cols, int isTransposed);
+		size_t nb_rows, size_t nb_cols, diet_matrix_order_t order);
 /* should not be used on server with (IN)OUT arguments */
 int
 diet_string_set(diet_arg_t *arg, char *value, diet_persistence_mode_t mode,
@@ -192,12 +203,12 @@ diet_file_set(diet_arg_t *arg, diet_persistence_mode_t mode, char *path);
 /**
  * Type: int diet_matrix_get((diet_arg_t *), (void **),
  *                           (diet_persistence_mode_t *),
- *                           (size_t *), (size_t *), (int *))
+ *                           (size_t *), (size_t *), (diet_matrix_order_t *))
  * (void **) means (int **), (double **), (float **), etc., depending on the
  *           base C type of users's data.
  */
-#define diet_matrix_get(arg, value, mode, nb_rows, nb_cols, isTransposed) \
-        _matrix_get(arg, (void **)value, mode, nb_rows, nb_cols, isTransposed)
+#define diet_matrix_get(arg, value, mode, nb_rows, nb_cols, order) \
+        _matrix_get(arg, (void **)value, mode, nb_rows, nb_cols, order)
 /**
  * Type: int diet_string_get((diet_arg_t *), (char **),
  *                           (diet_persistence_mode_t *), (size_t *))
@@ -218,7 +229,7 @@ int _scalar_get(diet_arg_t *arg, void *value, diet_persistence_mode_t *mode);
 int _vector_get(diet_arg_t *arg, void **value, diet_persistence_mode_t *mode,
 		size_t *size);
 int _matrix_get(diet_arg_t *arg, void **value, diet_persistence_mode_t *mode,
-		size_t *nb_rows, size_t *nb_cols, int *isTransposed);
+		size_t *nb_rows, size_t *nb_cols, diet_matrix_order_t *order);
 int _string_get(diet_arg_t *arg,
 		char **value, diet_persistence_mode_t *mode, size_t *length);
 int _file_get(diet_arg_t *arg, diet_persistence_mode_t *mode,
@@ -247,9 +258,9 @@ struct diet_vector_specific {
 
 /*----[ matrix - specific ]-------------------------------------------------*/
 struct diet_matrix_specific {
-  size_t nb_r;
-  size_t nb_c;
-  int    istrans; /* whether the matrix is transposed or not */
+  size_t              nb_r;
+  size_t              nb_c;
+  diet_matrix_order_t order;
 };
 
 /*----[ string - specific ]-------------------------------------------------*/

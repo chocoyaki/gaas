@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.21  2003/01/22 17:11:54  pcombes
+ * API 0.6.4 : istrans -> order (row- or column-major)
+ *
  * Revision 1.20  2003/01/17 18:08:43  pcombes
  * New API (0.6.3): structures are not hidden, but the user can ignore them.
  *
@@ -147,9 +150,9 @@ int mrsh_data_desc(corba_data_desc_t *dest, diet_data_desc_t *src)
   case DIET_MATRIX: {
     corba_matrix_specific_t mat;
     dest->specific.mat(mat);
-    dest->specific.mat().nb_r = src->specific.mat.nb_r;
-    dest->specific.mat().nb_c = src->specific.mat.nb_c;
-    dest->specific.mat().istrans = src->specific.mat.istrans;
+    dest->specific.mat().nb_r  = src->specific.mat.nb_r;
+    dest->specific.mat().nb_c  = src->specific.mat.nb_c;
+    dest->specific.mat().order = src->specific.mat.order;
     break;
   }
   case DIET_STRING: {
@@ -283,7 +286,7 @@ int unmrsh_data_desc(diet_data_desc_t *dest, const corba_data_desc_t *src)
   case DIET_MATRIX: {
     matrix_set_desc(dest, DIET_VOLATILE, bt,
 		    src->specific.mat().nb_r, src->specific.mat().nb_c,
-		    src->specific.mat().istrans);
+		    (diet_matrix_order_t) src->specific.mat().order);
     break;
   }
   case DIET_STRING: {
@@ -359,7 +362,7 @@ int unmrsh_data_desc_to_sf(sf_data_desc_t *dest, const diet_data_desc_t *src)
   case sf_type_cons_mat:
     dest->ctn.mat.nb_l  = src->specific.mat.nb_r;
     dest->ctn.mat.nb_c  = src->specific.mat.nb_c;
-    dest->ctn.mat.trans = src->specific.mat.istrans;
+    dest->ctn.mat.trans = src->specific.mat.order;
     break;
     
   case sf_type_cons_file:
@@ -506,8 +509,17 @@ int cvt_arg_desc(sf_data_desc_t *dest,
     scalar_set_desc(ddd, DIET_VOLATILE, DIET_INT, &src->specific.mat.nb_c);
     break;
   }
-  case DIET_CVT_MAT_ISTRANS: {
-    char t = (src->specific.mat.istrans) ? 'T' : 'N';
+  case DIET_CVT_MAT_ORDER: {
+    char t;
+    // FIXME test on order !!!!
+    switch (src->specific.mat.order) {
+    case DIET_ROW_MAJOR: t = 'N';
+    case DIET_COL_MAJOR: t = 'T';
+    default: {
+      cerr << "DIET conversion error: invalid order for matrix.\n";
+      return 1;
+    }
+    }
     scalar_set_desc(ddd, DIET_VOLATILE, DIET_CHAR, &t);
     break;
   }
@@ -622,8 +634,17 @@ int cvt_arg(diet_data_t *dest, diet_data_t *src, diet_convertor_function_t f)
 		    DIET_VOLATILE, DIET_INT);
     break;
   }
-  case DIET_CVT_MAT_ISTRANS: {
-    char *t = new char((src->desc.specific.mat.istrans) ? 'T' : 'N');
+  case DIET_CVT_MAT_ORDER: {
+    char *t;
+    // FIXME test on order !!!!
+    switch (src->desc.specific.mat.order) {
+    case DIET_ROW_MAJOR: t = new char('N');
+    case DIET_COL_MAJOR: t = new char('T');
+    default: {
+      cerr << "DIET conversion error: invalid order for matrix.\n";
+      return 1;
+    }
+    }
     diet_scalar_set(dest, t, DIET_VOLATILE, DIET_CHAR);
     break;
   }
@@ -701,7 +722,7 @@ int recvt_arg(diet_data_t *dest, diet_data_t *src, diet_convertor_function_t f)
   case DIET_CVT_VECT_SIZE:
   case DIET_CVT_MAT_NB_ROW:
   case DIET_CVT_MAT_NB_COL:
-  case DIET_CVT_MAT_ISTRANS:
+  case DIET_CVT_MAT_ORDER:
   case DIET_CVT_STR_LEN:
   case DIET_CVT_FILE_SIZE:
     return 1;

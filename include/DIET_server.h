@@ -11,6 +11,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.7  2003/01/22 17:14:09  pcombes
+ * API 0.6.4 : istrans -> order (row- or column-major)
+ *
  * Revision 1.6  2003/01/17 18:08:43  pcombes
  * New API (0.6.3): structures are not hidden, but the user can ignore them.
  *
@@ -103,7 +106,7 @@ typedef enum {
   DIET_CVT_VECT_SIZE,
   DIET_CVT_MAT_NB_ROW,
   DIET_CVT_MAT_NB_COL,
-  DIET_CVT_MAT_ISTRANS,
+  DIET_CVT_MAT_ORDER,
   DIET_CVT_STR_LEN,
   DIET_CVT_FILE_SIZE,
   DIET_CVT_COUNT,
@@ -186,7 +189,7 @@ int diet_scalar_desc_set(diet_data_t *data, void *value);
 // No use of diet_vector_desc_set
 
 int diet_matrix_desc_set(diet_data_t *data,
-			 size_t nb_r, size_t nb_c, int istrans);
+			 size_t nb_r, size_t nb_c, diet_matrix_order_t order);
 // No use of diet_string_desc_set
 int diet_file_desc_set(diet_data_t *data, char *path);
 
