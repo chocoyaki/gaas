@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.42  2004/03/01 18:52:24  rbolze
+ * make some change relative to the new ORBMgr
+ *
  * Revision 1.41  2004/02/27 10:23:28  bdelfabr
  * adding calls in order to use identifier instead of diet_..._set when data is already inside the platform
  *
@@ -202,14 +205,14 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
     // Create sole instance of synchronized CallAsyncMgr class
     CallAsyncMgr::Instance();
     // Create servant callback object
-    CallbackImpl* cb = new CallbackImpl;
-    CORBA::Object_var obj = cb->_this();
+    CallbackImpl* cb = new CallbackImpl();
     // activate servant callback
     if (ORBMgr::activate(cb) != 0) return -1;
+    CORBA::Object_var obj = cb->_this();
     // create corba client callback serveur reference ...
     REF_CALLBACK_SERVER = ORBMgr::getIORString(obj);
-    // clean
-    cb->_remove_ref();
+    //This is done in the activate() of the newest ORBMgr version
+    //cb->_remove_ref();
     if (REF_CALLBACK_SERVER == NULL) return -1;
   }
   else {
