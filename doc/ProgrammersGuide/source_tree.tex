@@ -8,6 +8,11 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.3  2003/11/28 15:16:42  sdahan
+%* I write the Counter, ms_function and ts_container part of the
+%* source_tree documentation. I think I have finish this it, I will just
+%* read it later to be sure that every thing is ok.
+%*
 %* Revision 1.2  2003/11/28 12:00:07  pcombes
 %* Add examples documentation.
 %*
@@ -495,7 +500,41 @@ arguments into files ... It is still to be done.
 \section{\textsf{src/utils}}
 \label{s:utils}
 
-This directory gathers all tools and utils that are used by more than one entity
-of DIET.
+This directory gathers all tools and utils that are used by more than one
+entity of DIET.
 
 \fixme{under construction ...}
+
+\subsection{\textsf{Counter}}
+
+The \texttt{Counter} class implement a thread safe counter. This counter
+accepts only 32 bits positive value. This class must be used each time a
+counter is shared by several threads. Read the doxygen documentation for more
+informations about how-to use it.
+
+\subsection{\textsf{ms\_function}}
+
+Several calls to \texttt{strdup()}, \texttt{CORBA::string\_dup()},
+\texttt{malloc()} and \texttt{stralloc()} are made inside the DIET code. The
+problem is : each of these functions can return the \texttt{NULL} value. The
+use of an allocated memory without testing the \texttt{NULL} value will
+probably result to a segmentation fault if there was not enough memory. This
+is why the \textsf{ms\_function} file describes some functions which allocate
+the memory and test if the \texttt{NULL} value is returned. If it is the case,
+a \texttt{bad\_alloc} exception is thrown, if not the functions behave like the
+standard ones. Read the doxygen documentation for more informations about
+how-to use them.
+
+\subsection{\textsf{ts\_container}}
+
+The C++ Standard Library gives access to several containers. A map, a vector, a
+list and a set templates are defined by the C++ Standard. The only problem with
+them is that there are not thread safe. If two threads alter a container at the
+same time, a crash is on the way. Therefor a critical section access mechanism
+must be implemented to avoid it. It is easy to forgot to lock the access to a
+list before using it. This is why the \texttt{ts\_container} exists (the
+\texttt{ts} is for Thread Safe). They managed the access to there critical
+section by themselves. All the list and set which are shared by several threads
+must be implemented with a \texttt{ts\_container} to avoid a simultaneous
+access to it. Read carefully the doxygen documentation to know which one to use
+and how-to use it.
