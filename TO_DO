@@ -1,42 +1,33 @@
 Client
--------
+------
 
-Implement the request for SeD contract validity.
-
-Asynchronous API should be implemented.
-  It is specified that each request is processed on the client by a specific
-  thread that runs until the server has finished the computation.
-  Maybe this should be managed by the MA only.
-
+Modify the SeD contract check phase.  Either remove the check or perform a check
+that is more useful.
 
 SeD
 ----
 
-Include contract properties in decision type.
-Implement contract checking on client and server + resources allocation.
+Modify the SeD contract check phase.  Either remove the check or perform a check
+that is more useful.
 
-Implement a forking version of the solve method.
-Develop a batch system API.
+Implement a batch system API.       [in process by Yves Caniou]
 
+Modify resource information collection.  Adopt useful aspects of FAST directly
+in DIET, add separate interfaces to collect NWS data, and augment collection
+with other info systems like Ganglia.
 
 MA
 ---
-
-Only one server is answered by the MA. To be changed.
-
-
-FAST
------
-
-FAST calls should be OK, but slimfast interface should be updated with new corba
-and DIET data structures.
-SeD must ask NWS (through FAST) if there is enough memory on the server.
 
 
 OTHERS
 -------
 
-FILE TRANSFER !!!! Must use streaming, better than loading the file in RAM.
-Use openSSL omniORB support for all communication (under option)
+File transfer could be implemented with streaming to provide better perf 
+than loading the file in RAM.
 
+OpenSSL communications should be enabled for all CORBA communications.
 
+Client should be able to submit job to server via a designated agent in the
+hierarchy (who would act as a proxy).  This approach could help avoid a lot of
+firewall problems between the client and the server.

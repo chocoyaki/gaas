@@ -1,7 +1,7 @@
 
-  This is a text help for DIET installation, extracted from the User's
-Manual. At the end of this help, you will find the generic help provided by the
-Free Software Fundation, concerning all softwares which, as DIET does, use the
+This is a text help for DIET installation, extracted from the User's Manual. At
+the end of this help, you will find the generic help provided by the Free
+Software Fundation, concerning all software which, as DIET does, use the
 autotools and their configure scripts.
 
 
@@ -15,49 +15,39 @@ Hardware dependencies
 
 Software dependencies
 
-   The three parts of DIET (the client, the agent, and the ) can be used
+   The three parts of DIET (the client, the agent, and the SeD) can be used
    separately, and their dependencies are different from each other.
 
-   As explained in Section [1][*] , CORBA is used for all communications
-   inside the platform. So all of the three parts depend on it. The
-   implementations of CORBA currently supported in DIET are:
-     * omniORB 3 which depends on Python 1.5
-     * omniORB 4 which depends on Python 2.1 or later, and on OpenSSL if
-       you would like your DIET platform to be secure.
+   DIET has been compiled successfully with various gcc versions between 3 and
+   3.3 and no known problems exist for versions in that range.  Known problems
+   exist compiling DIET with gcc 2.96 and gcc 3.4.
 
-   We strongly recommend omniORB 4, as it is easier to install, and
-   provides an SSL support. In order to deploy CORBA services with
-   omniORB, a configuration file and a log directory are required: see
-   Section [2][*] for complete description of the services. Their path
-   can be given to omniORB through environments variables, and/or, for
-   omniORB 4 only, at compile time, with the -with-omniORB-config and
-   -with-omniNames-logdir options.
+   When compiling DIET from the CVS, it is necessary to run bootstrap.sh 
+   before configuring.  In this case, you will need libtool >= 1.4.2, 
+   autoconf >= 2.59, and automake.
+
+   CORBA is used for all communications inside the platform so all three
+   parts of DIET depend on CORBA. The implementation of CORBA currently
+   supported in DIET is:
+     * omniORB 4 which depends on Python 1.5.2 or later.  We regularly
+       use omniORB versions 4.0.3 and 4.0.5.
+
+   In order to deploy CORBA services with omniORB, a configuration file and a
+   log directory are required.  Their paths can be given to omniORB through
+   environments variables, and/or at compile time with the
+   -with-omniORB-config and -with-omniNames-logdir options.
 
    NB: We have noticed that some problems occur with Python 2.3: the
    generated C++ code could not be compiled. It has been patched in DIET,
    but some warnings still appear.
 
-   The agent and server parts of DIET can depend on FAST (see §[3] [*] ).
-   Although not absolutely compulsory, it is strongly recommended:
-   indeed, all communication and computation times are set to infinity if
-   FAST is not installed. FAST depends itself on:
-     * DB 2 the Berkeley Database routines
-     * GSL the GNU Scientific Library
-     * OpenLDAP an implementation of the Lightweight Directory Access
-       Protocol
-     * NWS the Network Weather Service
-
-   For more details about FAST dependencies, please refer to the FAST
-   User's Manual soon available. It is important to understand basically
-   how FAST works, and the role of its dependencies, to deactivate the
-   ones not needed by the user.
-
+   The server parts of DIET can depend on FAST for the gathering of 
+   performance data.  See http://graal.ens-lyon.fr/~mquinson/fast.html for 
+   more information on FAST and its dependencies.
+   
    Finally, some examples provided in the DIET sources depend on the BLAS
-   and libraries (cf. §[4] [*] ). However all examples do not have to be
-   compiled.
+   libraries. However, all examples do not have to be compiled.
 
-
-
 
                             Compiling the platform
 
