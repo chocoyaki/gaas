@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2004/12/15 15:57:20  sdahan
+ * rewrite the FloodRequestsList to use a simplest implementation. The previous mut
+ * ex bugs does not exist anymore.
+ *
  * Revision 1.3  2004/09/29 13:35:32  sdahan
  * Add the Multi-MAs feature.
  *
@@ -172,6 +176,23 @@ public :
   inline iterator end() const {
     assert(accessLocked) ;
     return SetType::end() ;
+  }
+
+  /**
+   * returns an iterator pointing onto the x elements.
+   */
+  inline iterator find(const Key & x) {
+    assert(accessLocked) ;
+    return SetType::find(x) ;
+  }
+
+  /**
+   * Insert a element x using posas a hint to where it will be
+   * inserted. The set must be lock to use it.
+   */
+  inline iterator insert(iterator pos, const Key & x) {
+    assert(accessLocked) ;
+    return SetType::insert(pos, x) ;
   }
 
   /**************************************************************************/
