@@ -1,0 +1,140 @@
+#!/bin/sh
+#****************************************************************************#
+#* Manager of a local NWS platform, containing:                             *#
+#*     the memory (log data base), a name server, a forecaster, one sensor. *#
+#*                                                                          *#
+#*  Author(s):                                                              *#
+#*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *#
+#*                                                                          *#
+#* $LICENSE$                                                                *#
+#****************************************************************************#
+#* $Id$
+#* $Log$
+#* Revision 1.1  2003/09/26 14:05:39  pcombes
+#* Local platform scripts are managed by configure.
+#*
+#* Revision 1.1  2003/09/22 21:09:08  pcombes
+#* Scripts for managing a local platform with LDAP + NWS + CORBA Name server.
+#****************************************************************************#
+
+
+nws_start() {
+  echo "## Starting a local NWS platform ..."
+  if [ ! -d $STATEDIR ]; then mkdir -p $STATEDIR; fi
+  echo "A name server listening on $NS_PORT"
+  $NWSBIN/nws_nameserver -p $NS_PORT \
+                          -e $LOGDIR/ns.err -l $LOGDIR/ns.log -f $STATEDIR/ns &
+  sleep 1
+
+  if [ "$FAST_SHORT_VERSION" = 0_4 ]; then
+    echo "A forcaster listening on $FCT_PORT"
+    $NWSBIN/nws_forecast -p $FCT_PORT -N localhost:$NS_PORT \
+	                  -l $LOGDIR/fore.log -e $LOGDIR/fore.err &
+  fi
+
+  echo "A memory listening on $MEM_PORT"
+  $NWSBIN/nws_memory -p $MEM_PORT -N localhost:$NS_PORT \
+                      -e $LOGDIR/mem.err -l $LOGDIR/mem.log -d $STATEDIR &
+  sleep 1
+
+  args="-N localhost:$NS_PORT -M localhost:$MEM_PORT"
+
+  echo "A sensor listening on $SEN_PORT .."
+  $NWSBIN/nws_sensor $args -p $SEN_PORT -c no \
+		     -e $LOGDIR/sensor.err -l $LOGDIR/sensor.log &
+  sleep 5
+
+  echo "NWS activities ..."
+  $NWSBIN/nws_start_activity -F localhost:$SEN_PORT skillName:tcpMessageMonitor\
+      member:localhost:$SEN_PORT_1 member:localhost:$SEN_PORT_2 period:30
+  $NWSBIN/nws_start_activity -F localhost:$SEN_PORT skillName:memoryMonitor
+  $NWSBIN/nws_start_activity -F localhost:$SEN_PORT skillName:cpuMonitor period:1
+  sleep 10
+
+  echo "## NWS platform started."
+}
+
+nws_stop() {
+  echo "## Stopping the local NWS platform ..."
+  for p in $PORTS; do
+    if $NWSBIN/nws_ctrl_host test localhost:$p 2>/dev/null\
+       | grep -v dead >/dev/null; then
+      kind=`$NWSBIN/nws_ctrl_host test localhost:$p 2>/dev/null | sed 's/ .*$//'`
+      echo "Stopping NWS $kind on $p ..."
+      $NWSBIN/nws_ctrl_host halt localhost:$p
+    else
+      echo "NWS element on $p seems already dead."
+    fi
+  done
+  rm -rf $LOGDIR/{ns,mem,fore,sensor}.{err,log} $STATEDIR 
+  echo "## NWS platform stopped."
+}
+
+nws_test() {
+  echo "## Testing the NWS platform ..."
+  echo "Sensors:"
+  $NWSBIN/nws_search -N localhost:$NS_PORT '(hostType=sensor)' name\
+  | egrep -v '^$'
+  
+  echo "Hosts:"
+  for p in $PORTS; do
+    $NWSBIN/nws_ctrl_host -z test localhost:$p
+  done
+  echo "TCP Bandwidth experiments:"
+  $NWSBIN/nws_search -N localhost:$NS_PORT \
+		      '(resource=bandwidthTcp)' host target
+  
+  echo "CPU experiments:"
+  $NWSBIN/nws_search -N localhost:$NS_PORT \
+		      '(resource=currentCpu)' host option nice period
+}
+
+#
+# Get the PATH for NWS binaries
+#
+NWSBIN="noidea"
+for part in `echo $PATH|sed 's|:| |g'` /bin /usr/bin; do
+  if [ -x "$part/nws_nameserver" ]; then
+    if [ "x$NWSBIN" = "xnoidea" ]; then
+      NWSBIN="$part"
+      break
+    fi
+  fi
+done
+if [ "x$NWSBIN" = "xnoidea" ]; then
+  echo "Cannot find the NWS binaries in"
+  echo "PATH=$PATH[+:/bin:/usr/bin]"
+  exit 2
+fi
+
+#
+# Set the ports of NWS entities
+#
+
+NS_PORT=9056
+FCT_PORT=9055
+MEM_PORT=9054
+SEN_PORT=9053
+SEN_PORT_1=9052
+SEN_PORT_2=9051
+
+# There is no need for the forecaster in FAST 0.8 and later ...
+# the short version of FAST is extracted from DIET_config.h
+CONFIG_H=`dirname $0`/../../../include/DIET_config.h
+FAST_SHORT_VERSION=`grep "#define __FAST_" $CONFIG_H \
+		   | sed "s|#define __FAST_\([0-9_]*\)__|\1|g"`
+PORTS="$SEN_PORT $MEM_PORT $NS_PORT"
+if [ "$FAST_SHORT_VERSION" = 0_4 ]; then
+  PORTS="$PORTS $FCT_PORT"
+fi
+
+LOGDIR=`dirname $0`/../var/log
+STATEDIR=`dirname $0`/../var/state
+
+case "$1" in 
+  start) nws_start;;
+  stop)  nws_stop;;
+  test)  nws_test;;
+  *) echo "$0 {start|stop|test}"; exit 2;;
+esac
+

@@ -9,19 +9,21 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.2  2003/09/26 14:05:39  pcombes
+#* Local platform scripts are managed by configure.
+#*
 #* Revision 1.1  2003/09/22 21:09:08  pcombes
 #* Scripts for managing a local platform with LDAP + NWS + CORBA Name server.
-#*
 #****************************************************************************#
 
 # FIXME: this should be independent from the ORB or at least 
 
 omni_start() {
   echo "## Starting a local CORBA name server ..."
-  processes=`ps -edf | grep omniNames`
-  nb_processes=`echo $processes | wc -l`
+  processes=`ps -edf | grep omniNames | tr '\n' '@'`
+  nb_processes=`echo $processes | tr '@' '\n' | grep omniNames | wc -l`
   if [ "$processes" = "" -o \
-       \( "$nb_processes" -eq 1 -a "`echo $processes | grep grep`" != "" \) ]
+       \( "$nb_processes" -eq 1 -a "`echo $processes | grep 'grep'`" != "" \) ]
   then
     if [ -f $LOGDIR/omninames-`hostname`.log \
          -o -f $LOGDIR/omninames-`hostname`.bak ]; then
@@ -39,7 +41,7 @@ omni_start() {
 omni_stop() {
   echo "## Stopping the local CORBA name server ..."
   pprocess=`ps -u $USER | grep omniNames | sort | head -1`
-  if [ -n "$pprocess" ]; then
+  if [ -n "$pprocess" -a "`echo $pprocess | grep 'grep omniNames'`" = "" ]; then
     pid=`echo $pprocess | cut -f1 -d' '`
     kill $pid > /dev/null 2>&1
     status=$?
