@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.24  2003/12/15 17:24:52  pcombes
+#* Add the tutorial and the solutions to the compilation chain.
+#*
 #* Revision 1.23  2003/09/26 14:04:12  pcombes
 #* DIET 0.9. Local FAST platform: chmod +x on the scripts. Module examples
 #* is forced in maintainer mode, but disabled by default in user mode.
@@ -349,12 +352,12 @@ AC_CONFIG_FILES([config.mk
 		 include/Makefile.inc
 		 Makefile
 		 src/Makefile
-                 src/CORBA/Makefile
-                 src/CORBA/idl/Makefile
-                 src/utils/Makefile
-                 src/SeD/Makefile
-                 src/agent/Makefile
-                 src/client/Makefile
+		 src/CORBA/Makefile
+		 src/CORBA/idl/Makefile
+		 src/utils/Makefile
+		 src/SeD/Makefile
+		 src/agent/Makefile
+		 src/client/Makefile
 		 src/examples/Makefile
 		 src/examples/before.mk
 		 src/examples/BLAS/Makefile
@@ -368,6 +371,9 @@ AC_CONFIG_FILES([src/examples/bin/local_corba_ns.sh
 		 src/examples/bin/local_platform.sh],
 		[chmod +x src/examples/bin/*.sh])
 AC_CONFIG_FILES([doc/Makefile
+		 doc/tutorial/Makefile
+		 doc/tutorial/solutions/exercise2/Makefile
+		 doc/tutorial/solutions/exercise3/Makefile
 		 doc/UsersManual/Makefile])
 if test "x$enable_maintainer_mode" = "xyes"
 then
