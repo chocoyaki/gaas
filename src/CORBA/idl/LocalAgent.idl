@@ -1,0 +1,32 @@
+/****************************************************************************/
+/* DIET local agent IDL description                                         */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)                   */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.1  2003/04/10 12:31:47  pcombes
+ * Replace localAgent.idl. Update doxygen doc.
+ *
+ ****************************************************************************/
+
+#ifndef _LOCAL_AGENT_IDL_
+#define _LOCAL_AGENT_IDL_
+
+#include "Agent.idl"
+
+interface LocalAgent : Agent {
+
+  /**
+   * Message posting function:<br>
+   * This call is asynchronous. The request message REQ is kept
+   * in an internal list and processed as soon as possible.
+   */
+  oneway void getRequest(in corba_request_t req);
+
+};
+
+#endif // _LOCAL_AGENT_IDL_
