@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.31  2004/07/07 18:17:55  rbolze
+#* ready to 1.1 version
+#*
 #* Revision 1.30  2004/06/11 15:45:39  ctedesch
 #* add DIET/JXTA
 #*
@@ -69,7 +72,7 @@
 #* Use omniorb.m4 and detect new platforms.
 #****************************************************************************#
 
-define(DIET_version,        1.0)
+define(DIET_version,        1.1)
 define(omniORB_min_version, 3)
 define(FAST_min_version,    0.4.3)
 
@@ -198,7 +201,8 @@ AC_ARG_ENABLE(stats,
 AH_TEMPLATE(HAVE_MULTI_MA, [Define the use of a multi MA architecture.])
 AC_ARG_ENABLE(multi-MA,
 	      AC_HELP_STRING([--enable-multi-MA],
-			     [enable multi-MA architecture]),
+			     [In progress. You should use the JXTA version 
+for this feature]),
 	      [AC_DEFINE(HAVE_MULTI_MA)][IDLFLAGS="$IDLFLAGS -DHAVE_MULTI_MA"])
 
 AH_TEMPLATE([HAVE_JXTA], [Define use of DIET/JXTA architecture.])
@@ -414,11 +418,11 @@ AC_CONFIG_FILES([src/examples/bin/local_corba_ns.sh
 		 src/examples/bin/local_nws.sh
 		 src/examples/bin/local_platform.sh],
 		[chmod +x src/examples/bin/*.sh])
-AC_CONFIG_FILES([doc/Makefile
-		 doc/Tutorial/Makefile
-		 doc/Tutorial/solutions/exercise2/Makefile
-		 doc/Tutorial/solutions/exercise3/Makefile
-		 doc/UsersManual/Makefile])
+dnl AC_CONFIG_FILES([doc/Makefile
+dnl		 doc/Tutorial/Makefile
+dnl		 doc/Tutorial/solutions/exercise2/Makefile
+dnl		 doc/Tutorial/solutions/exercise3/Makefile
+dnl		 doc/UsersManual/Makefile])
 if test "x$enable_maintainer_mode" = "xyes"
 then
   AC_CONFIG_FILES([doc/ProgrammersGuide/Makefile])

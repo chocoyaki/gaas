@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.12  2004/07/07 18:17:55  rbolze
+#* ready to 1.1 version
+#*
 #* Revision 1.11  2003/12/15 13:13:59  pcombes
 #* Add the 'make' line in the help.
 #*
@@ -32,7 +35,8 @@
 #****************************************************************************#
 
 SUBDIRS = @SUBMODULES_DIET@
-DIST_SUBDIRS = $(SUBDIRS) @DIST_SUBMODULES_DIET@
+DIST_SUBDIRS = $(SUBDIRS) 
+#@DIST_SUBMODULES_DIET@
 
 # Headers to install ...
 include_HEADERS = $(top_builddir)/include/Makefile.inc \
@@ -129,7 +133,7 @@ endif
 
 # The target to execute once the dist is ready to be tgz'd.
 dist-hook:
-	(cd $(distdir); rm -rf $(RM_FROM_DIST))
+	(cd $(distdir);mkdir doc;cp ../doc/UsersManual/DIET_UsersManual.ps doc/ ;rm -rf $(RM_FROM_DIST))
 	for f in `ls -A $(distdir)`; do				  \
 	  export VERSION=$(PACKAGE_VERSION);                              \
 	  $(top_srcdir)/bin/scripts/distrib_file.sh $(distdir)/$$f	\
