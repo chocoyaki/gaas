@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2003/10/06 12:58:04  cpera
+ * Fix an error from the previous merge.
+ *
  * Revision 1.5  2003/09/27 07:51:25  pcombes
  * Remove displayArg and displayProfile that make conflicts at static linking.
  *
@@ -44,8 +47,6 @@ using namespace std;
 
 #define print_matrix(pouf, string, reqID, mat, m, n, rm)        \
 {     \
-  IO_WRITER_LOCK.lock(); \
-    printf("---------------------------------------------------\n"); \
     printf(string); \
     printf("Matrix linked to Thread -%d- and requestID -%s-:\n",omni_thread::self()->id(), reqID); \
     size_t i, j;                           \
@@ -60,9 +61,7 @@ using namespace std;
       }                                    \
       printf("\n");                        \
     }                                      \
-  printf("---------------------------------------------------\n"); \
     printf("\n");                          \
-    IO_WRITER_LOCK.unlock(); \
 }
 
 static omni_mutex IO_WRITER_LOCK;
@@ -177,14 +176,14 @@ class worker : public omni_thread
         if ((rst_call = diet_call_async(profile[i], &rst[i])) != 0)  printf("Error in diet_call_async return -%d-\n", rst_call);
         printf("request ID value = -%d- \n", rst[i]);
         if (rst[i] < 0) {
-          printf("error in request value ID");
+          printf("error in request value ID\n");
           return;
         }
       }
       // print input data
       IO_WRITER_LOCK.lock();
       printf("***********************************************************\n");
-      printf("Input data for requestID");
+      printf("Input data for requestID ");
       for (i = 0; i < 5; i++) printf(" %d ", rst[i]);
       printf(" and omnithreadID %d \n", omni_thread::self()->id());
       for (i = 0; i < 5; i++){
@@ -218,29 +217,31 @@ class worker : public omni_thread
       int rst_call = 0;
       if ((rst_call = diet_wait_and((diet_reqID_t*)&rst, (unsigned int)5)) != 0) printf("Error in diet_wait_and\n");
       //MUTEX_WORKER.lock();
-      IO_WRITER_LOCK.lock();
-      printf("***********************************************************\n");
-      printf("Result data for requestID");
-      for (i = 0; i < 5; i++) printf(" %d ", rst[i]);
-      printf(" and omnithreadID %d \n", omni_thread::self()->id());
-      for (i = 0; i < 5; i++){
-        sprintf(requestID, "%d", rst[i]);
-        if (IS_PB[0]) {
-          diet_matrix_get(diet_parameter(profile[i],0), NULL, NULL, (size_t*)&m, (size_t*)&n, &oA);
-          print_matrix(i, "-result-\n", requestID, A, m, n, (oA == DIET_ROW_MAJOR));
+      else {
+        IO_WRITER_LOCK.lock();
+        printf("***********************************************************\n");
+        printf("Result data for requestID");
+        for (i = 0; i < 5; i++) printf(" %d ", rst[i]);
+        printf(" and omnithreadID %d \n", omni_thread::self()->id());
+        for (i = 0; i < 5; i++){
+          sprintf(requestID, "%d", rst[i]);
+          if (IS_PB[0]) {
+            diet_matrix_get(diet_parameter(profile[i],0), NULL, NULL, (size_t*)&m, (size_t*)&n, &oA);
+            print_matrix(i, "-result-\n", requestID, A, m, n, (oA == DIET_ROW_MAJOR));
+          }
+          else if (IS_PB[4]) {
+            diet_matrix_get(diet_parameter(profile[i],0), NULL, NULL, (size_t*)&m, (size_t*)&n, &oB);
+            print_matrix(i, "-result-\n", requestID, B, m, n, (oB == DIET_ROW_MAJOR));
+          }
+          else {
+            diet_matrix_get(diet_parameter(profile[i],2), &C, NULL, (size_t*)&m, (size_t*)&n, &oC);
+            print_matrix(i, "-result-\n", requestID, C, m, n, (oC == DIET_ROW_MAJOR));
+            diet_free_data(diet_parameter(profile[i],2));
+          }
         }
-        else if (IS_PB[4]) {
-          diet_matrix_get(diet_parameter(profile[i],0), NULL, NULL, (size_t*)&m, (size_t*)&n, &oB);
-          print_matrix(i, "-result-\n", requestID, B, m, n, (oB == DIET_ROW_MAJOR));
-        }
-        else {
-          diet_matrix_get(diet_parameter(profile[i],2), &C, NULL, (size_t*)&m, (size_t*)&n, &oC);
-          print_matrix(i, "-result-\n", requestID, C, m, n, (oC == DIET_ROW_MAJOR));
-          diet_free_data(diet_parameter(profile[i],2));
-        }
-      }
-      printf("***********************************************************\n");
+        printf("***********************************************************\n");
       IO_WRITER_LOCK.unlock();
+      }
       for (i = 0; i < 5; i++){
         diet_cancel(rst[i]);
         diet_profile_free(profile[i]);
@@ -257,7 +258,7 @@ class worker : public omni_thread
   // underlying thread is still running).
   ~worker() {
       IO_WRITER_LOCK.lock();
-    printf("Destroy thread");
+    printf("Destroy thread \n");
       IO_WRITER_LOCK.unlock();
     MUTEX_WORKER.lock();
     if (thread_counter < (n_threads-1)){
