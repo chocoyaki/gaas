@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.12  2002/11/25 11:57:22  lbertsch
+ * Suppressed warnings that might in some rare cases pause problems
+ *
  * Revision 1.11  2002/11/15 17:15:32  pcombes
  * FAST integration complete ...
  *
@@ -111,9 +114,9 @@ solve_MatSUM(diet_profile_t *pb)
   B  = (double *) pb->parameters[1].value;
   if ((m != pb->parameters[1].desc.specific.mat.nb_r)
       || (n != pb->parameters[1].desc.specific.mat.nb_c)) {
-    fprintf(stderr, "MatSUM error: mA=%d, nA=%d ; mB=%d, nB=%d\n",
-	    m, n, pb->parameters[1].desc.specific.mat.nb_r,
-	    pb->parameters[1].desc.specific.mat.nb_c);
+    fprintf(stderr, "MatSUM error: mA=%ld, nA=%ld ; mB=%ld, nB=%ld\n",
+	    (long)m, (long)n, (long)pb->parameters[1].desc.specific.mat.nb_r,
+	    (long)pb->parameters[1].desc.specific.mat.nb_c);
     return 1;
   }
   C = (double *) pb->parameters[2].value;
@@ -144,8 +147,8 @@ solve_MatPROD(diet_profile_t *pb)
   A = (double *) pb->parameters[0].value;
   B = (double *) pb->parameters[1].value;
   if (nA != pb->parameters[1].desc.specific.mat.nb_r) {
-    fprintf(stderr, "MatPROD error: mA=%d, nA=%d ; mB=%d, nB=%d\n",
-	    mA, nA, pb->parameters[1].desc.specific.mat.nb_r, nB);
+    fprintf(stderr, "MatPROD error: mA=%ld, nA=%ld ; mB=%ld, nB=%ld\n",
+	    (long)mA, (long)nA, (long)pb->parameters[1].desc.specific.mat.nb_r, (long)nB);
     return 1;
   }  
   C = (double *) pb->parameters[2].value;
