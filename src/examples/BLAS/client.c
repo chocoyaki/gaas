@@ -3,14 +3,16 @@
 /* DIET client for BLAS functions                                           */
 /*                                                                          */
 /*  Author(s):                                                              */
-/*    - Philippe COMBES           - LIP ENS-Lyon (France)                   */
+/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
 /*                                                                          */
-/*  This is part of DIET software.                                          */
-/*  Copyright (C) 2002 ReMaP/INRIA                                          */
-/*                                                                          */
+/* $LICENSE$                                                                */
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.5  2003/02/07 17:05:23  pcombes
+ * Add SqMatSUM_opt with the new convertor API.
+ * Use diet_free_data to properly free user's data.
+ *
  * Revision 1.4  2003/01/23 19:13:44  pcombes
  * Update to API 0.6.4
  *
@@ -19,7 +21,6 @@
  *
  * Revision 1.2  2002/12/12 18:17:04  pcombes
  * Small bug fixes on prints (special thanks to Jean-Yves)
- *
  ****************************************************************************/
 
 #include <string.h>
@@ -49,29 +50,34 @@
   }
 
 
-int empty_line()
+int
+empty_line()
 {
   while (fgetc(stdin) != '\n');
   return 1;
 }
 
+#define NB_PB 5
+static const char* PB[NB_PB] =
+  {"dgemm", "SqMatSUM", "SqMatSUM_opt", "MatPROD", "MatScalMult"};
+
 
 /* argv[1]: client config file path
- * argv[2]: dgemm, SqMatSUM, MatPROD or MatScalMult */
+ * argv[2]: one of the strings above */
 
 int
-main(int argc, char **argv)
+main(int argc, char* argv[])
 {
-  char *path;
-  diet_function_handle_t *fhandle;
-  diet_profile_t *profile;
+  char* path = NULL;
+  diet_function_handle_t* fhandle = NULL;
+  diet_profile_t* profile = NULL;
 
   size_t i, j, m, n, k;
   double alpha, beta;
-  double *A, *B, *C = NULL;
+  double* A = NULL;
+  double* B = NULL;
+  double* C = NULL;
   diet_matrix_order_t oA, oB, oC;
-
-  char *PB[4] = {"dgemm", "SqMatSUM", "MatPROD", "MatScalMult"};
 
   srand(time(NULL));
   
@@ -80,14 +86,13 @@ main(int argc, char **argv)
   oC = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
 
  if (argc != 3) {
-    fprintf(stderr,
-	    "Usage: %s <file.cfg> [dgemm|SqMatSUM|MatPROD|MatScalMult]\n",
-	    argv[0]);
+   fprintf(stderr, "Usage: %s <file.cfg> [%s|%s|%s|%s|%s]\n",
+	   argv[0], PB[0], PB[1], PB[2], PB[3], PB[4]);
     return 1;
   }
   path = argv[2];
 
-  if (diet_initialize(argc, argv, argv[1])) {
+  if (diet_initialize(argv[1], argc, argv)) {
     fprintf(stderr, "DIET initialization failed !\n");
     return 1;
   }
@@ -145,10 +150,10 @@ main(int argc, char **argv)
 
 
   /*********************
-   * SqMatSUM
+   * SqMatSUM_opt
    *********************/
 
-  } else if (!strcmp(path, PB[1])) {
+  } else if (!strcmp(path, PB[2])) {
     
     printf("%s: C = A + C, with A[m,m]\n", path);
     printf("A and C are generated randomly, from entered m.\n");
@@ -159,7 +164,6 @@ main(int argc, char **argv)
     
     // Fill A, B and C randomly ...
     A = calloc(m*m, sizeof(double));
-    B = calloc(m*m, sizeof(double));
     C = calloc(m*m, sizeof(double));
     for (i = j = 0; i < m * m; i++) A[i] = 1.0 + j++;
     for (i = 0; i < m * m; i++)     C[i] = 1.0 + j++;
@@ -177,22 +181,32 @@ main(int argc, char **argv)
 
     
   /*********************
-   * MatPROD
+   * SqMatSUM and MatPROD
    *********************/
 
-  } else if (!strcmp(path, PB[2])) {
+  } else if (!(strcmp(path, PB[1]) && strcmp(path, PB[3]))) {
 
-    printf("%s: C = A * B, with A[m,k] and B[k,n]\n", path);
-    printf("A and B are generated randomly, from entered m, n and k.\n");
+    if (!strcmp(path, PB[1])) {
+      printf("%s: C = A + B, with A[m,m] and B[m,m]\n", path);
+      printf("A and B are generated randomly, from entered m.\n");
+    } else {
+      printf("%s: C = A * B, with A[m,k] and B[k,n]\n", path);
+      printf("A and B are generated randomly, from entered m, n and k.\n");
+    }
     printf("Please enter m: ");
     while (((fscanf(stdin, "%d", &m) != 1) && empty_line()) || (m <= 0))
       printf("m is a positive integer - Please enter m: ");
-    printf("Please enter n: ");
-    while (((fscanf(stdin, "%d", &n) != 1) && empty_line()) || (n <= 0))
-      printf("n is a positive integer - Please enter n: ");
-    printf("Please enter k: ");
-    while (((fscanf(stdin, "%d", &k) != 1) && empty_line()) || (k <= 0))
-      printf("k is a positive integer - Please enter k: ");
+    if (!strcmp(path, PB[1])) {
+      k = m;
+      n = m;
+    } else {
+      printf("Please enter n: ");
+      while (((fscanf(stdin, "%d", &n) != 1) && empty_line()) || (n <= 0))
+	printf("n is a positive integer - Please enter n: ");
+      printf("Please enter k: ");
+      while (((fscanf(stdin, "%d", &k) != 1) && empty_line()) || (k <= 0))
+	printf("k is a positive integer - Please enter k: ");
+    }
 
     // Fill A, B and C randomly ...
     A = calloc(m*k, sizeof(double));
@@ -218,7 +232,7 @@ main(int argc, char **argv)
    * MatScalMult
    *********************/
 
-  } else if (!strcmp(path, PB[3])) {
+  } else if (!strcmp(path, PB[4])) {
   
     printf("%s: C = alpha.C, with C[m,n]\n", path);
     printf("C is generated randomly, from entered m and n.\n");
@@ -266,14 +280,20 @@ main(int argc, char **argv)
    *********************/
 
   if (!diet_call(fhandle, profile)) {
-    if (!strcmp(path, PB[2])) { // C is OUT and thus must be set
-      C = diet_value(double,diet_parameter(profile,2));
+    if (!(strcmp(path, PB[1]) && strcmp(path, PB[3]))) {
+      // C is OUT and thus must be set
+      diet_matrix_get(diet_parameter(profile,2), &C, NULL, NULL, NULL, &oC);
       print_matrix(C, m, n, (oC == DIET_ROW_MAJOR));
-      free(C);
+      diet_free_data(diet_parameter(profile,2));
+      C = NULL;
     } else {
       print_matrix(C, m, n, (oC == DIET_ROW_MAJOR));
     }
   }
+
+  if (A) free(A);
+  if (B) free(B);
+  if (C) free(C);
   
   diet_profile_free(profile);
   diet_function_handle_destruct(fhandle);

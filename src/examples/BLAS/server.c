@@ -3,14 +3,16 @@
 /* DIET server for BLAS functions                                           */
 /*                                                                          */
 /*  Author(s):                                                              */
-/*    - Philippe COMBES           - LIP ENS-Lyon (France)                   */
+/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
 /*                                                                          */
-/*  This is part of DIET software.                                          */
-/*  Copyright (C) 2002 ReMaP/INRIA                                          */
-/*                                                                          */
+/* $LICENSE$                                                                */
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.7  2003/02/07 17:05:23  pcombes
+ * Add SqMatSUM_opt with the new convertor API.
+ * Use diet_free_data to properly free user's data.
+ *
  * Revision 1.6  2003/01/23 19:13:44  pcombes
  * Update to API 0.6.4
  *
@@ -22,7 +24,6 @@
  *
  * Revision 1.2  2002/12/12 18:17:04  pcombes
  * Small bug fixes on prints (special thanks to Jean-Yves)
- *
  ****************************************************************************/
 
 
@@ -38,19 +39,10 @@
 /**
  * dgemm_ prototype
  */
-extern void dgemm_(char   *tA,
-		   char   *tB,
-		   int    *m,
-		   int    *n,
-		   int    *k,
-		   double *alpha,
-		   double *A,
-		   int    *lda,
-		   double *B,
-		   int    *ldb,
-		   double *beta,
-		   double *C,
-		   int    *ldc);
+extern void
+dgemm_(char*   tA,    char* tB,  int* m,   int* n,    int* k,
+       double* alpha, double* A, int* lda, double* B, int* ldb,
+       double* beta,  double* C, int* ldc);
 
 
 #define print_matrix(mat, m, n, rm)        \
@@ -71,37 +63,14 @@ extern void dgemm_(char   *tA,
   }
 
 
-void displayArg(const diet_arg_t *arg)
-{
-      
-  switch((int) arg->desc.generic.type) {
-  case DIET_SCALAR: fprintf(stdout, "scalar");                break;
-  case DIET_VECTOR: fprintf(stdout, "vector (%d)",
-			    arg->desc.specific.vect.size);    break;
-  case DIET_MATRIX: fprintf(stdout, "matrix (%dx%d)",
-			    arg->desc.specific.mat.nb_r,
-			    arg->desc.specific.mat.nb_c);   break;
-  case DIET_STRING: fprintf(stdout, "string (%d)",
-			    arg->desc.specific.str.length); break;
-  case DIET_FILE:   fprintf(stdout, "file (%d)",
-			    arg->desc.specific.file.size);  break;
-  }
-  if ((arg->desc.generic.type != DIET_STRING)
-      && (arg->desc.generic.type != DIET_FILE)) {
-    fprintf(stdout, " of ");
-    switch ((int) arg->desc.generic.base_type) {
-    case DIET_CHAR:     fprintf(stdout, "char");           break;
-    case DIET_BYTE:     fprintf(stdout, "byte");           break;
-    case DIET_INT:      fprintf(stdout, "int");            break;
-    case DIET_LONGINT:  fprintf(stdout, "long int");       break;
-    case DIET_FLOAT:    fprintf(stdout, "float");          break;
-    case DIET_DOUBLE:   fprintf(stdout, "double");         break;
-    case DIET_SCOMPLEX: fprintf(stdout, "float complex");  break;
-    case DIET_DCOMPLEX: fprintf(stdout, "double complex"); break;
-    }
-  }
-  fprintf(stdout, "\n");
-}
+/* This server can offer 5 services (chosen by user at launch time): */
+/*   - T = matrix translation                                        */
+/*   - MatSUM = matrix addition (and thus SqMatSUM and SqMatSUM_opt) */
+/*   - MatPROD = matrix product                                      */
+
+#define NB_SRV 5
+static const char* SRV[NB_SRV] =
+  {"dgemm", "MatPROD", "SqMatSUM", "SqMatSUM_opt", "MatScalMult"};
 
 
 /*
@@ -110,13 +79,16 @@ void displayArg(const diet_arg_t *arg)
  */
 
 int
-solve_dgemm(diet_profile_t *pb)
+solve_dgemm(diet_profile_t* pb)
 {
   char    tA, tB;
   diet_matrix_order_t oA, oB, oC;
   size_t  i, k, k_, m, m_, n, n_;
-  double  alpha, beta;
-  double *A, *B, *C;
+  double* alpha = NULL;
+  double* beta  = NULL;
+  double* A = NULL;
+  double* B = NULL;
+  double* C = NULL;
   int     IsSqMatSUM = 0;
 
   diet_matrix_get(diet_parameter(pb,0), &A, NULL, &m, &k, &oA);
@@ -142,7 +114,7 @@ solve_dgemm(diet_profile_t *pb)
       fprintf(stderr, "dgemm Error: only square matrices can be summed.\n");
       return 1;
     }
-    B = (double *) calloc(m * m, sizeof(double));
+    B = (double*) calloc(m * m, sizeof(double));
     for (i = 0; i < m; i++) {
       B[i + m * i] = 1.0;
     }
@@ -160,21 +132,28 @@ solve_dgemm(diet_profile_t *pb)
   if (oC == DIET_ROW_MAJOR) {
     tA = (tA == 'T') ? 'N' : 'T';
     tB = (tB == 'T') ? 'N' : 'T';
-    printf("dgemm args : m=%d, n=%d, k=%d, alpha=%f, beta=%f, tA=%c, tB=%c\n",
-	   n, m, k, alpha, beta, tB, tA);
-    dgemm_(&tB, &tA, &n, &m, &k, &alpha,
+    fprintf(stderr,
+	    "dgemm args : m=%d, n=%d, k=%d, alpha=%f, beta=%f, tA=%c, tB=%c\n",
+	    n, m, k, *alpha, *beta, tB, tA);
+    dgemm_(&tB, &tA, &n, &m, &k, alpha,
 	   B, (tB == 'T') ? &k : &n,
 	   A, (tA == 'T') ? &m : &k,
-	   &beta, C, &n);  
+	   beta, C, &n);  
   } else {
-    printf("dgemm args : m=%d, n=%d, k=%d, alpha=%f, beta=%f, tA=%c, tB=%c\n",
-	   m, n, k, alpha, beta, tA, tB);
-    dgemm_(&tA, &tB, &m, &n, &k, &alpha,
+    fprintf(stderr,
+	    "dgemm args : m=%d, n=%d, k=%d, alpha=%f, beta=%f, tA=%c, tB=%c\n",
+	    m, n, k, *alpha, *beta, tA, tB);
+    dgemm_(&tA, &tB, &m, &n, &k, alpha,
 	   A, (tA == 'T') ? &k : &m,
 	   B, (tB == 'T') ? &n : &k,
-	   &beta, C, &m);
+	   beta, C, &m);
   }
   printf(" done.\n");
+
+  diet_free_data(diet_parameter(pb,0));
+  diet_free_data(diet_parameter(pb,1));
+  diet_free_data(diet_parameter(pb,2));
+  diet_free_data(diet_parameter(pb,3));
 
   if (IsSqMatSUM) {
     free(B);
@@ -188,14 +167,14 @@ solve_dgemm(diet_profile_t *pb)
  */
 
 int
-main(int argc, char **argv)
+main(int argc, char* argv[])
 {
   size_t i,j;
   int res;
 
-  diet_profile_desc_t *profile;
-  diet_convertor_t *cvt;
-  diet_arg_t *arg;
+  diet_profile_desc_t* profile = NULL;
+  diet_convertor_t* cvt = NULL;
+  diet_arg_t* arg = NULL;
 
   if (argc != 2) {
     fprintf(stderr, "Usage: %s <file.cfg>\n", argv[0]);
@@ -223,45 +202,17 @@ main(int argc, char **argv)
   diet_generic_desc_set(diet_param_desc(profile,4),
 			DIET_MATRIX, DIET_DOUBLE); // C
   /* Set convertor */
-  diet_arg_cvt_set(diet_arg_conv(cvt,0), DIET_CVT_IDENTITY, 1, NULL);
-  diet_arg_cvt_set(diet_arg_conv(cvt,1), DIET_CVT_IDENTITY, 2, NULL);
-  diet_arg_cvt_set(diet_arg_conv(cvt,2), DIET_CVT_IDENTITY, 0, NULL);
-  diet_arg_cvt_set(diet_arg_conv(cvt,3), DIET_CVT_IDENTITY, 3, NULL);
-  diet_arg_cvt_set(diet_arg_conv(cvt,4), DIET_CVT_IDENTITY, 4, NULL);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,0), 1, NULL);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,1), 2, NULL);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,2), 0, NULL);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,3), 3, NULL);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,4), 4, NULL);
   /* Add */
-  diet_service_table_add("dgemm", profile, cvt, solve_dgemm);
+  diet_service_table_add(SRV[0], profile, cvt, solve_dgemm);
   diet_profile_desc_free(profile);
 
 
   /*
-   * Adding SqMatSUM
-   */
-  /* Set profile */
-  profile = diet_profile_desc_alloc(0, 1, 1);
-  diet_generic_desc_set(diet_param_desc(profile,0), DIET_MATRIX, DIET_DOUBLE);
-  diet_generic_desc_set(diet_param_desc(profile,1), DIET_MATRIX, DIET_DOUBLE);
-  /* Set convertor */
-  diet_arg_cvt_set(diet_arg_conv(cvt,0), DIET_CVT_IDENTITY, 0, NULL);
-  {
-    arg = (diet_arg_t *) calloc(1, sizeof(diet_arg_t));
-    diet_matrix_set(arg, NULL, DIET_VOLATILE, DIET_DOUBLE, 0, 0, DIET_COL_MAJOR);
-  }
-  diet_arg_cvt_set(diet_arg_conv(cvt,1), DIET_CVT_IDENTITY, -1, arg);
-  {
-    double alpha = 1.0;
-    arg = (diet_arg_t *) calloc(1, sizeof(diet_arg_t));
-    diet_scalar_set(arg, &alpha, DIET_VOLATILE, DIET_DOUBLE);
-  }
-  diet_arg_cvt_set(diet_arg_conv(cvt,2), DIET_CVT_IDENTITY, -1, arg);
-  // beta is the same
-  diet_arg_cvt_set(diet_arg_conv(cvt,3), DIET_CVT_IDENTITY, -1, arg);
-  diet_arg_cvt_set(diet_arg_conv(cvt,4), DIET_CVT_IDENTITY,  1, NULL);
-  /* Add */
-  diet_service_table_add("SqMatSUM",  profile, cvt, solve_dgemm);
-  diet_profile_desc_free(profile);
-
-
- /*
    * Adding MatPROD
    */
   /* Set profile */
@@ -270,23 +221,86 @@ main(int argc, char **argv)
   diet_generic_desc_set(diet_param_desc(profile,1), DIET_MATRIX, DIET_DOUBLE);
   diet_generic_desc_set(diet_param_desc(profile,2), DIET_MATRIX, DIET_DOUBLE);
   /* Set convertor */
-  diet_arg_cvt_set(diet_arg_conv(cvt,0), DIET_CVT_IDENTITY, 0, NULL);
-  diet_arg_cvt_set(diet_arg_conv(cvt,1), DIET_CVT_IDENTITY, 1, NULL);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,0), 0, NULL);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,1), 1, NULL);
   {
     double alpha = 1.0;
-    arg = (diet_arg_t *) calloc(1, sizeof(diet_arg_t));
+    arg = (diet_arg_t*) calloc(1, sizeof(diet_arg_t));
     diet_scalar_set(arg, &alpha, DIET_VOLATILE, DIET_DOUBLE);
   }
-  diet_arg_cvt_set(diet_arg_conv(cvt,2), DIET_CVT_IDENTITY, -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,2), -1, arg);
   {
     double beta = 0.0;
-    arg = (diet_arg_t *) calloc(1, sizeof(diet_arg_t));
+    arg = (diet_arg_t*) calloc(1, sizeof(diet_arg_t));
     diet_scalar_set(arg, &beta, DIET_VOLATILE, DIET_DOUBLE);
   }
-  diet_arg_cvt_set(diet_arg_conv(cvt,3), DIET_CVT_IDENTITY, -1, arg);
-  diet_arg_cvt_set(diet_arg_conv(cvt,4), DIET_CVT_IDENTITY,  2, NULL);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,3), -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,4),  2, NULL);
   /* Add */
-  diet_service_table_add("MatPROD", profile, cvt, solve_dgemm);
+  diet_service_table_add(SRV[1], profile, cvt, solve_dgemm);
+  diet_profile_desc_free(profile);
+
+
+  /*
+   * Adding SqMatSUM (IN, IN, OUT)
+   */
+  /* Set profile */
+  profile = diet_profile_desc_alloc(1, 1, 2);
+  diet_generic_desc_set(diet_param_desc(profile,0), DIET_MATRIX, DIET_DOUBLE);
+  diet_generic_desc_set(diet_param_desc(profile,1), DIET_MATRIX, DIET_DOUBLE);
+  diet_generic_desc_set(diet_param_desc(profile,2), DIET_MATRIX, DIET_DOUBLE);
+  /* Set convertor
+     NB: the difficulty here is that the INOUT parameter of the dgemm
+         corresponds to the second IN AND the OUT parameter of the profile. */
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,0), 0, NULL);
+  {
+    arg = (diet_arg_t*) calloc(1, sizeof(diet_arg_t));
+    diet_matrix_set(arg, NULL, DIET_VOLATILE,
+		    DIET_DOUBLE, 0, 0, DIET_COL_MAJOR);
+  }
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,1), -1, arg);
+  {
+    double alpha = 1.0;
+    arg = (diet_arg_t*) calloc(1, sizeof(diet_arg_t));
+    diet_scalar_set(arg, &alpha, DIET_VOLATILE, DIET_DOUBLE);
+  }
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,2), -1, arg);
+  // beta is the same
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,3), -1, arg);
+  // Use all arguments of diet_arg_cvt_set, since out_arg_idx == 2 (the OUT
+  // parameter of the profile) and in_arg_idx == 1 (the second IN parameter).
+  diet_arg_cvt_set(diet_arg_conv(cvt,4), DIET_CVT_IDENTITY, 1, NULL, 2);
+  /* Add */
+  diet_service_table_add(SRV[2],  profile, cvt, solve_dgemm);
+  diet_profile_desc_free(profile);
+
+
+  /*
+   * Adding SqMatSUM_opt (IN, INOUT)
+   */
+  /* Set profile */
+  profile = diet_profile_desc_alloc(0, 1, 1);
+  diet_generic_desc_set(diet_param_desc(profile,0), DIET_MATRIX, DIET_DOUBLE);
+  diet_generic_desc_set(diet_param_desc(profile,1), DIET_MATRIX, DIET_DOUBLE);
+  /* Set convertor */
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,0), 0, NULL);
+  {
+    arg = (diet_arg_t*) calloc(1, sizeof(diet_arg_t));
+    diet_matrix_set(arg, NULL, DIET_VOLATILE,
+		    DIET_DOUBLE, 0, 0, DIET_COL_MAJOR);
+  }
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,1), -1, arg);
+  {
+    double alpha = 1.0;
+    arg = (diet_arg_t*) calloc(1, sizeof(diet_arg_t));
+    diet_scalar_set(arg, &alpha, DIET_VOLATILE, DIET_DOUBLE);
+  }
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,2), -1, arg);
+  // beta is the same
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,3), -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,4), 1, NULL);
+  /* Add */
+  diet_service_table_add(SRV[3],  profile, cvt, solve_dgemm);
   diet_profile_desc_free(profile);
 
 
@@ -295,27 +309,27 @@ main(int argc, char **argv)
    */
   /* Set profile */
   profile = diet_profile_desc_alloc(0, 1, 1);
-  // beta and then, C
+  // beta and C
   diet_generic_desc_set(diet_param_desc(profile,0), DIET_SCALAR, DIET_DOUBLE);
   diet_generic_desc_set(diet_param_desc(profile,1), DIET_MATRIX, DIET_DOUBLE);
   /* Set convertor */
   {
-    arg = (diet_arg_t *) calloc(1, sizeof(diet_arg_t));
+    arg = (diet_arg_t*) calloc(1, sizeof(diet_arg_t));
     // 1x1 matrix (to force dimensions set, because 0 is ignored)
     diet_matrix_set(arg, NULL, DIET_VOLATILE, DIET_DOUBLE, 1, 1, DIET_COL_MAJOR);
   }
-  diet_arg_cvt_set(diet_arg_conv(cvt,0), DIET_CVT_IDENTITY, -1, arg);
-  diet_arg_cvt_set(diet_arg_conv(cvt,1), DIET_CVT_IDENTITY, -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,0), -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,1), -1, arg);
   {
     double alpha = 0.0;
-    arg = (diet_arg_t *) calloc(1, sizeof(diet_arg_t));
+    arg = (diet_arg_t*) calloc(1, sizeof(diet_arg_t));
     diet_scalar_set(arg, &alpha, DIET_VOLATILE, DIET_DOUBLE);
   }
-  diet_arg_cvt_set(diet_arg_conv(cvt,2), DIET_CVT_IDENTITY, -1, arg);
-  diet_arg_cvt_set(diet_arg_conv(cvt,3), DIET_CVT_IDENTITY,  0, NULL);
-  diet_arg_cvt_set(diet_arg_conv(cvt,4), DIET_CVT_IDENTITY,  1, NULL);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,2), -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,3),  0, NULL);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,4),  1, NULL);
   /* Add */
-  diet_service_table_add("MatScalMult", profile, cvt, solve_dgemm);
+  diet_service_table_add(SRV[4], profile, cvt, solve_dgemm);
   diet_profile_desc_free(profile);
 
   /* The same cvt has been used for all services, free it now */

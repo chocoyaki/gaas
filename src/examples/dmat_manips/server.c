@@ -4,14 +4,16 @@
 /*   problems                                                               */
 /*                                                                          */
 /*  Author(s):                                                              */
-/*    - Philippe COMBES           - LIP ENS-Lyon (France)                   */
+/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
 /*                                                                          */
-/*  This is part of DIET software.                                          */
-/*  Copyright (C) 2002 ReMaP/INRIA                                          */
-/*                                                                          */
+/* $LICENSE$                                                                */
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.19  2003/02/07 17:05:23  pcombes
+ * Add SqMatSUM_opt with the new convertor API.
+ * Use diet_free_data to properly free user's data.
+ *
  * Revision 1.18  2003/01/23 19:13:45  pcombes
  * Update to API 0.6.4
  *
@@ -45,7 +47,6 @@
  *    by an LDAP DB for the MA
  *  - No copy for client/SeD data transfers
  *  - ...
- *
  ****************************************************************************/
 
 
@@ -57,48 +58,57 @@
 #include "DIET_server.h"
 #include "progs.h"
 
+/* This server can offer 5 services (chosen by at launch time):      */
+/*   - T = matrix translation                                        */
+/*   - MatSUM = matrix addition (and thus SqMatSUM and SqMatSUM_opt) */
+/*   - MatPROD = matrix product                                      */
+
+#define NB_SRV 5
+static const char* SRV[NB_SRV] =
+  {"T", "MatPROD", "MatSUM", "SqMatSUM", "SqMatSUM_opt"};
+
+
 /*
  * SOLVE FUNCTIONS
  */
 
 int
-solve_T(diet_profile_t *pb)
+solve_T(diet_profile_t* pb)
 {
-  size_t m, n;
+  size_t* m = NULL;
+  size_t* n = NULL;
+  double* A = NULL;
   diet_matrix_order_t o;
-  double *A;
   int res;
 
-  //printf("Solve T ...");
+  printf("Solve T ...");
 
-  //m = *((int *)pb->parameters[0].value);
   diet_scalar_get(diet_parameter(pb,0), &m, NULL);
-  //n = *((int *)pb->parameters[1].value);
   diet_scalar_get(diet_parameter(pb,1), &n, NULL);
-  //A = (double *)pb->parameters[2].value;
-  /* This is equivalent to
-     A = diet_value(double, diet_parameter(pb,2)); */
   diet_matrix_get(diet_parameter(pb,2), &A, NULL, NULL, NULL, &o);
   
-  if ((res = T(m, n, A, (o == DIET_ROW_MAJOR))))
+  if ((res = T(*m, *n, A, (o == DIET_ROW_MAJOR))))
     return res;
   
-  //pb->parameters[2].desc.specific.mat.nb_r = n;
-  //pb->parameters[2].desc.specific.mat.nb_c = m;
   // no need to set order
-  diet_matrix_desc_set(diet_parameter(pb,2), n, m, o);
+  diet_matrix_desc_set(diet_parameter(pb,2), *n, *m, DIET_MATRIX_ORDER_COUNT);
   
-  //printf(" done\n");
+  diet_free_data(diet_parameter(pb,0));
+  diet_free_data(diet_parameter(pb,1));
+
+  printf(" done\n");
   return 0;
 }
 
 int
-solve_MatSUM(diet_profile_t *pb)
+solve_MatSUM(diet_profile_t* pb)
 {
-  size_t mA, nA, mB, nB;
+  size_t mA, nA, mB, nB, mC, nC;
   char tA, tB;
   diet_matrix_order_t oA, oB, oC;
-  double *A, *B, *C;
+  double* A = NULL;
+  double* B = NULL;
+  double* C = NULL;
   int res;
   
   printf("Solve MatSUM ...");
@@ -112,9 +122,8 @@ solve_MatSUM(diet_profile_t *pb)
 	    (long)mA, (long)nA, (long)mB, (long)nB);
     return 1;
   }
-  //C = diet_value(double,diet_parameter(pb,2));
-  diet_matrix_get(diet_parameter(pb,2), &C, NULL, NULL, NULL, &oC);
-  
+  diet_matrix_get(diet_parameter(pb,2), &C, NULL, &mC, &nC, &oC);
+
   if (oC == DIET_ROW_MAJOR) {
     tA = (tA == 'T') ? 'N' : 'T';
     tB = (tB == 'T') ? 'N' : 'T';
@@ -125,18 +134,23 @@ solve_MatSUM(diet_profile_t *pb)
   if (res)
     return res;
   
+  diet_free_data(diet_parameter(pb,0));
+  diet_free_data(diet_parameter(pb,1));
+
   printf(" done\n");
   return 0;
 }
 
 
 int
-solve_MatPROD(diet_profile_t *pb)
+solve_MatPROD(diet_profile_t* pb)
 {
   size_t mA, nA, mB, nB;
   char tA, tB;
   diet_matrix_order_t oA, oB, oC;
-  double *A, *B, *C;
+  double* A = NULL;
+  double* B = NULL;
+  double* C = NULL;
   
   printf("Solve MatPROD ...");
 
@@ -149,7 +163,6 @@ solve_MatPROD(diet_profile_t *pb)
     (long)mA, (long)nA, (long)mB, (long)nB);
     return 1;
   }
-  //C = diet_value(double,diet_parameter(pb,2));
   diet_matrix_get(diet_parameter(pb,2), &C, NULL, NULL, NULL, &oC);
   
   
@@ -161,8 +174,19 @@ solve_MatPROD(diet_profile_t *pb)
     MatPROD(tA, tB, mA, nA, A, nB, B, C);
   }
 
+  diet_free_data(diet_parameter(pb,0));
+  diet_free_data(diet_parameter(pb,1));
+
   printf(" done\n");
   return 0;
+}
+
+int
+usage(char* cmd)
+{
+  fprintf(stderr, "Usage: %s <file.cfg> [all | [%s][%s][%s][%s][%s] ]\n",
+	  cmd, SRV[0], SRV[1], SRV[2], SRV[3], SRV[4]);
+  return 1;
 }
 
 
@@ -171,86 +195,97 @@ solve_MatPROD(diet_profile_t *pb)
  */
 
 int
-main(int argc, char **argv)
+main(int argc, char* argv[])
 {
   size_t i,j;
   int res;
-  char *SRV[3]    = {"T", "MatSUM", "MatPROD"};
-  int services[3];
+  int services[NB_SRV] = {0, 0, 0, 0, 0};
 
-  diet_profile_desc_t *profile = NULL;
-  diet_convertor_t    *cvt     = NULL;
+  diet_profile_desc_t* profile = NULL;
+  diet_convertor_t*    cvt     = NULL;
   
   if (argc < 3) {
-    fprintf(stderr, "Usage: %s <file.cfg> [T][MatSUM][MatPROD]\n", argv[0]);
-    return 1;
+    return usage(argv[0]);
   }  
   
-  for (i = 0; i < 3; i++) {
-    services[i] = 0;
-  }
-
   for (i = 2; i < argc; i++) {
-    char *path = argv[i];
-    if (!strcmp(SRV[0], path))
-      services[0] = 1;
-    else if (!strcmp(SRV[1], path))
-      services[1] = 1;
-    else if (!strcmp(SRV[2], path))
-      services[2] = 1;
-    else {
-      fprintf(stderr, "Usage: %s <file.cfg> [T][MatSUM][MatPROD]\n", argv[0]);
-      exit(1);
+    char* path = argv[i];
+    if (!strcmp("all", path)) {
+      for (j = 0; j < NB_SRV; (services[j++] = 1));
+    } else {
+      for (j = 0; j < NB_SRV; j++) {
+	if ((services[j] = (services[j] || !strcmp(SRV[j], path))))
+	  break;
+      }
+      if (j == NB_SRV)
+	exit(usage(argv[0]));
     }
   }
   
 
-  /* This server can solve 3 pbs:  */
-  /*   - T = matrix translation    */
-  /*   - MatSUM = matrix addition  */
-  /*   - MatPROD = matrix product  */
-
-  diet_service_table_init(3);
+  diet_service_table_init(NB_SRV);
   
   if (services[0]) {
     profile = diet_profile_desc_alloc(-1, 0, 0);
     diet_generic_desc_set(diet_param_desc(profile,0), DIET_MATRIX, DIET_DOUBLE);
+    /**
+     * Example of convertor:
+     *  solve_T assumes that the profile is (IN m, IN n, INOUT A), but we
+     *  declare a simpler service as (INOUT A). The convertor will let DIET
+     *  extract automatically m and n before calling solve_T.
+     */
     cvt = diet_convertor_alloc("T", 1, 2, 2);
-    diet_arg_cvt_set(&(cvt->arg_convs[0]), DIET_CVT_MAT_NB_ROW, 0, NULL);
-    diet_arg_cvt_set(&(cvt->arg_convs[1]), DIET_CVT_MAT_NB_COL, 0, NULL);
-    diet_arg_cvt_set(&(cvt->arg_convs[2]), DIET_CVT_IDENTITY,   0, NULL);
-		     
+    diet_arg_cvt_set(&(cvt->arg_convs[0]), DIET_CVT_MAT_NB_ROW, 0, NULL, 0);
+    diet_arg_cvt_set(&(cvt->arg_convs[1]), DIET_CVT_MAT_NB_COL, 0, NULL, 0);
+    diet_arg_cvt_short_set(&(cvt->arg_convs[2]), 0, NULL);
+    
     diet_service_table_add(SRV[0], profile, cvt, solve_T);
     diet_profile_desc_free(profile);
     diet_convertor_free(cvt);
   }
   
-  if (services[1] || services[2]) {
+  if (services[1] || services[2] || services[3]) {
     profile = diet_profile_desc_alloc(1, 1, 2);
     diet_generic_desc_set(diet_param_desc(profile,0), DIET_MATRIX, DIET_DOUBLE);
     diet_generic_desc_set(diet_param_desc(profile,1), DIET_MATRIX, DIET_DOUBLE);
     diet_generic_desc_set(diet_param_desc(profile,2), DIET_MATRIX, DIET_DOUBLE);
 
     if (services[1]) {
-      cvt = diet_convertor_alloc("base/plus", 1, 1, 2);
-      diet_arg_cvt_set(&(cvt->arg_convs[0]), DIET_CVT_IDENTITY, 0, NULL);
-      diet_arg_cvt_set(&(cvt->arg_convs[1]), DIET_CVT_IDENTITY, 1, NULL);
-      diet_arg_cvt_set(&(cvt->arg_convs[2]), DIET_CVT_IDENTITY, 2, NULL);
-      diet_service_table_add(SRV[1], profile, cvt, solve_MatSUM);
+      cvt = diet_convertor_alloc("base/mult", 1, 1, 2);
+      diet_arg_cvt_short_set(&(cvt->arg_convs[0]), 0, NULL);
+      diet_arg_cvt_short_set(&(cvt->arg_convs[1]), 1, NULL);
+      diet_arg_cvt_short_set(&(cvt->arg_convs[2]), 2, NULL);
+      diet_service_table_add(SRV[1], profile, cvt, solve_MatPROD);
       diet_convertor_free(cvt);
     }
-    if (services[2]) {
-      cvt = diet_convertor_alloc("base/mult", 1, 1, 2);
-      diet_arg_cvt_set(&(cvt->arg_convs[0]), DIET_CVT_IDENTITY, 0, NULL);
-      diet_arg_cvt_set(&(cvt->arg_convs[1]), DIET_CVT_IDENTITY, 1, NULL);
-      diet_arg_cvt_set(&(cvt->arg_convs[2]), DIET_CVT_IDENTITY, 2, NULL);
-      diet_service_table_add(SRV[2], profile, cvt, solve_MatPROD);
+    if (services[2] || services[3]) {
+      cvt = diet_convertor_alloc("base/plus", 1, 1, 2);
+      diet_arg_cvt_short_set(&(cvt->arg_convs[0]), 0, NULL);
+      diet_arg_cvt_short_set(&(cvt->arg_convs[1]), 1, NULL);
+      diet_arg_cvt_short_set(&(cvt->arg_convs[2]), 2, NULL);
+      if (services[2])
+	diet_service_table_add(SRV[2], profile, cvt, solve_MatSUM);
+      if (services[3])
+	diet_service_table_add(SRV[3], profile, cvt, solve_MatSUM);
       diet_convertor_free(cvt);
     }
 
     diet_profile_desc_free(profile);
   }
-  
+
+  if (services[4]) {
+    profile = diet_profile_desc_alloc(0, 1, 1);
+    diet_generic_desc_set(diet_param_desc(profile,0), DIET_MATRIX, DIET_DOUBLE);
+    diet_generic_desc_set(diet_param_desc(profile,1), DIET_MATRIX, DIET_DOUBLE);
+    cvt = diet_convertor_alloc("base/plus", 1, 1, 2);
+    diet_arg_cvt_short_set(&(cvt->arg_convs[0]), 0, NULL);
+    diet_arg_cvt_short_set(&(cvt->arg_convs[1]), 1, NULL);
+    diet_arg_cvt_short_set(&(cvt->arg_convs[2]), 1, NULL);
+    diet_service_table_add(SRV[4], profile, cvt, solve_MatSUM);
+    diet_convertor_free(cvt);
+    diet_profile_desc_free(profile);    
+  }
+
   diet_print_service_table();
   res = diet_SeD(argv[1], argc, argv);
   // Not reached

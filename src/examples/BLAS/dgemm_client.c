@@ -3,14 +3,16 @@
 /* BLAS/dgemm server : a DIET client for dgemm                              */
 /*                                                                          */
 /*  Author(s):                                                              */
-/*    - Philippe COMBES           - LIP ENS-Lyon (France)                   */
+/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
 /*                                                                          */
-/*  This is part of DIET software.                                          */
-/*  Copyright (C) 2002 ReMaP/INRIA                                          */
-/*                                                                          */
+/* $LICENSE$                                                                */
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.5  2003/02/07 17:05:23  pcombes
+ * Add SqMatSUM_opt with the new convertor API.
+ * Use diet_free_data to properly free user's data.
+ *
  * Revision 1.4  2003/01/23 19:13:44  pcombes
  * Update to API 0.6.4
  *
@@ -26,7 +28,6 @@
  *
  * Revision 1.2  2002/09/09 15:56:56  pcombes
  * Update for dgemm and bug fixes
- *
  ****************************************************************************/
 
 #include <string.h>
@@ -60,15 +61,17 @@
  * argv[2]: dgemm, MatSUM, or MatPROD */
 
 int
-main(int argc, char **argv)
+main(int argc, char* argv[])
 {
-  diet_function_handle_t *fhandle;
-  diet_profile_t *profile;
-  char *path = "dgemm";
+  diet_function_handle_t* fhandle;
+  diet_profile_t* profile;
+  char* path = "dgemm";
 
   size_t i, j, m, n, k;
   double alpha, beta;
-  double *A, *B, *C;
+  double* A = NULL;
+  double* B = NULL;
+  double* C = NULL;
   diet_matrix_order_t oA, oB, oC;
 
   srand(time(NULL));
@@ -97,7 +100,7 @@ main(int argc, char **argv)
   for (i = 0; i < k * n; i++)     B[i] = 1.0 + j++;
   for (i = 0; i < m * n; i++)     C[i] = 1.0 + j++;
 
-  if (diet_initialize(argc, argv, argv[1])) {
+  if (diet_initialize(argv[1], argc, argv)) {
     fprintf(stderr, "DIET initialization failed !\n");
     return 1;
   } 
@@ -124,6 +127,10 @@ main(int argc, char **argv)
     print_matrix(C, m, n, (oC == DIET_ROW_MAJOR));
   }
   
+  free(A);
+  free(B);
+  free(C);
+
   diet_profile_free(profile);
   diet_function_handle_destruct(fhandle);
     
