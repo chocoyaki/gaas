@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.32  2004/07/08 20:04:11  rbolze
+#* doc/ and doc/UsersManual is for non maintainer-mode
+#*
 #* Revision 1.31  2004/07/07 18:17:55  rbolze
 #* ready to 1.1 version
 #*
@@ -418,14 +421,14 @@ AC_CONFIG_FILES([src/examples/bin/local_corba_ns.sh
 		 src/examples/bin/local_nws.sh
 		 src/examples/bin/local_platform.sh],
 		[chmod +x src/examples/bin/*.sh])
-dnl AC_CONFIG_FILES([doc/Makefile
-dnl		 doc/Tutorial/Makefile
-dnl		 doc/Tutorial/solutions/exercise2/Makefile
-dnl		 doc/Tutorial/solutions/exercise3/Makefile
-dnl		 doc/UsersManual/Makefile])
+AC_CONFIG_FILES([doc/Makefile
+		doc/UsersManual/Makefile])
 if test "x$enable_maintainer_mode" = "xyes"
 then
-  AC_CONFIG_FILES([doc/ProgrammersGuide/Makefile])
+  AC_CONFIG_FILES([doc/ProgrammersGuide/Makefile
+		doc/Tutorial/Makefile
+		doc/Tutorial/solutions/exercise2/Makefile
+		doc/Tutorial/solutions/exercise3/Makefile])
 fi
 
 AC_OUTPUT
