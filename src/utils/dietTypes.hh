@@ -11,6 +11,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.4  2002/10/15 18:40:05  pcombes
+ * Remove descriptors set finctions.
+ *
  * Revision 1.3  2002/09/30 16:02:23  pcombes
  * Work on FAST compliance
  *
@@ -502,6 +505,27 @@ public:
 /* Compute size in bytes of data from its descriptor. */
 size_t data_sizeof(const diet_data_desc_t *desc);
 size_t data_sizeof(const corba_data_desc_t *desc);
+
+
+/* There should be no use of allocating and freeing functions */
+
+/*----[ Descriptors altering ]----------------------------------------------*/
+/* Each -1 (or NULL for pointers) argument does not alter the corresponding
+   field. */
+
+int scalar_desc_set(diet_data_desc_t *desc, diet_persistence_mode_t mode,
+		    diet_base_type_t base_type, void *value);
+int vector_desc_set(diet_data_desc_t *desc, diet_persistence_mode_t mode,
+		    diet_base_type_t base_type, size_t size);
+int matrix_desc_set(diet_data_desc_t *desc, diet_persistence_mode_t mode,
+		    diet_base_type_t base_type, size_t nb_r, size_t nb_c,
+		    int istrans);
+int string_desc_set(diet_data_desc_t *desc, diet_persistence_mode_t mode,
+		    size_t length);
+/* Computes the file size */
+int file_desc_set(diet_data_desc_t *desc, diet_persistence_mode_t mode,
+		  char *path);
+
 
 
 /****************************************************************************/
