@@ -7,10 +7,11 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/* $Log$
-/* Revision 1.6  2003/01/31 13:08:07  pcombes
-/* Apply Coding Standards
 /*
+ * $Log$
+ * Revision 1.7  2003/02/04 10:08:22  pcombes
+ * Apply Coding Standards
+ *
  * Revision 1.5  2003/01/17 18:08:43  pcombes
  * New API (0.6.3): structures are not hidden, but the user can ignore them.
  *

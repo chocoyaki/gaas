@@ -3,14 +3,15 @@
 /* DIET statistics tools specification                                      */
 /*                                                                          */
 /*  Author(s):                                                              */
-/*    - Ludovic BERTSCH           - LIP ENS-Lyon (France)                   */
+/*    - Ludovic BERTSCH (Ludovic.Bertsch@ens-lyon.fr)                       */
 /*                                                                          */
-/*  This is part of DIET software.                                          */
-/*  Copyright (C) 2002 ReMaP/INRIA                                          */
-/*                                                                          */
+/* $LICENSE$                                                                */
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.8  2003/02/04 10:08:23  pcombes
+ * Apply Coding Standards
+ *
  * Revision 1.7  2002/12/24 10:28:04  lbertsch
  * Added a stat_finalize function, so that successive initializations of
  * diet don't issue any warning...
@@ -21,7 +22,6 @@
  * Revision 1.5  2002/12/03 19:08:24  pcombes
  * Update configure, update to FAST 0.3.15, clean CVS logs in files.
  * Put main Makefile in root directory.
- *
  ****************************************************************************/
 
 
@@ -40,22 +40,27 @@
 #if HAVE_STATISTICS
 
 
-enum stat_type { STAT_IN, STAT_OUT, STAT_INFO };
+enum stat_type {
+  STAT_IN,
+  STAT_OUT,
+  STAT_INFO
+};
 
 // Please, don't use those variables
-extern FILE* stat_file;
-extern char* stat_type_string[3];
+extern FILE* STAT_FILE;
+extern char* STAT_TYPE_STRING[3];
 
 // Don't call this, call stat_in, stat_out & stat_info instead
-inline void gen_stat(int type, char *message) {
-  if (stat_file != NULL) {
+inline void
+gen_stat(int type, char* message) {
+  if (STAT_FILE != NULL) {
     struct timeval tv;
     struct timezone tz;
 
     if (gettimeofday(&tv, &tz) == 0) {
-      fprintf(stat_file, "%10ld.%06ld|%s|%s\n", 
+      fprintf(STAT_FILE, "%10ld.%06ld|%s|%s\n", 
 	      tv.tv_sec, tv.tv_usec,
-	      stat_type_string[type],
+	      STAT_TYPE_STRING[type],
 	      message);
 
       /* Examples of generated trace :
@@ -69,8 +74,10 @@ inline void gen_stat(int type, char *message) {
 }
 
 // Don't call this, call init_stat instead!
-void do_stat_init();
-void do_stat_finalize();
+void
+do_stat_init();
+void
+do_stat_finalize();
 
 /////////////////////////////////
 // Use only the following calls :

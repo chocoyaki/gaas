@@ -3,18 +3,18 @@
 /* DIET communication tools source code                                     */
 /*                                                                          */
 /*  Author(s):                                                              */
-/*    - Ludovic BERTSCH           - LIP ENS-Lyon (France)                   */
+/*    - Ludovic BERTSCH (Ludovic.Bertsch@ens-lyon.fr)                       */
 /*                                                                          */
-/*  This is part of DIET software.                                          */
-/*  Copyright (C) 2002 ReMaP/LIFC/INRIA                                     */
-/*                                                                          */
+/* $LICENSE$                                                                */
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.3  2003/02/04 10:08:22  pcombes
+ * Apply Coding Standards
+ *
  * Revision 1.2  2002/12/03 19:08:24  pcombes
  * Update configure, update to FAST 0.3.15, clean CVS logs in files.
  * Put main Makefile in root directory.
- *
  ****************************************************************************/
 
 #include <stdio.h>
@@ -26,14 +26,12 @@
 
 #if HAVE_CICHLID
 
-static char* communication_directory = NULL;
-static int nb_emitted_com = 0;
+static char* COMMUNICATION_DIRECTORY = NULL;
+static int NB_EMITTED_COM = 0;
 
-/* Retourne la taille d'un objet d'un des types de base
- * 
- * Rq: La taille est alignee (on utilise sizeof)
- */
-int base_type_size(diet_base_type_t base_type) {
+int
+base_type_size(diet_base_type_t base_type)
+{
   switch (base_type) {
   case DIET_CHAR:
     return sizeof(char);
@@ -57,13 +55,10 @@ int base_type_size(diet_base_type_t base_type) {
   }
 }
 
-/* Retourne une estimation de la taille du parametre, qui va
- * transiter sur le reseau lors de l'envoi des donnees 
- * (c'est pourquoi on ne prend pas en compte la taille de
- *  toutes les structures)
- */
-long parameter_size(diet_arg_t *p) {
-  diet_data_desc_t *d;
+long
+parameter_size(diet_arg_t* p) 
+{
+  diet_data_desc_t* d;
   long size;
   int size_of_base_type;
 
@@ -95,10 +90,9 @@ long parameter_size(diet_arg_t *p) {
   return size;
 }
 
-/* Retourne le nombre d'octets (appoximatif) contenu dans le profile
- * En l'occurrence, c'est la somme des tailles de tous les parametres
- */
-long profile_size(diet_profile_t *p) {
+long
+profile_size(diet_profile_t* p) 
+{
   int i;
   long sum;
 
@@ -110,8 +104,10 @@ long profile_size(diet_profile_t *p) {
   return sum;
 }
 
-void init_communications() {
-  char *com_dir = getenv("COMMUNICATION_DIRECTORY");
+void
+init_communications() 
+{
+  char* com_dir = getenv("COMMUNICATION_DIRECTORY");
 
   if (com_dir == NULL) {
     fprintf(stderr,
@@ -119,18 +115,20 @@ void init_communications() {
     exit(1);
   }
 
-  communication_directory = com_dir;
+  COMMUNICATION_DIRECTORY = com_dir;
 }
 
-void add_communication(char* node0, char* node1, long size) {
+void
+add_communication(char* node0, char* node1, long size) 
+{
   FILE* f;
   char file_name[1000];
 
   sprintf(file_name, 
 	  "%s/com_%d_%d.data", 
-	  communication_directory, 
+	  COMMUNICATION_DIRECTORY, 
 	  getpid(),
-	  nb_emitted_com);
+	  NB_EMITTED_COM);
 
   f = fopen(file_name, "w");
   if (f != NULL) {
@@ -140,7 +138,7 @@ void add_communication(char* node0, char* node1, long size) {
     fprintf(stderr, "Could not create file %s!\n", file_name);
   }
   
-  nb_emitted_com++;
+  NB_EMITTED_COM++;
 }
 
 

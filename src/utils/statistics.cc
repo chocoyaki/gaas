@@ -3,14 +3,15 @@
 /* DIET statistics tools source code                                        */
 /*                                                                          */
 /*  Author(s):                                                              */
-/*    - Ludovic BERTSCH           - LIP ENS-Lyon (France)                   */
+/*    - Ludovic BERTSCH (Ludovic.Bertsch@ens-lyon.fr)                       */
 /*                                                                          */
-/*  This is part of DIET software.                                          */
-/*  Copyright (C) 2002 ReMaP/LIFC/INRIA                                     */
-/*                                                                          */
+/* $LICENSE$                                                                */
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.8  2003/02/04 10:08:23  pcombes
+ * Apply Coding Standards
+ *
  * Revision 1.7  2002/12/24 10:28:04  lbertsch
  * Added a stat_finalize function, so that successive initializations of
  * diet don't issue any warning...
@@ -21,7 +22,6 @@
  * Revision 1.5  2002/12/03 19:08:24  pcombes
  * Update configure, update to FAST 0.3.15, clean CVS logs in files.
  * Put main Makefile in root directory.
- *
  ****************************************************************************/
 
 #include <stdio.h>
@@ -34,43 +34,49 @@
 
 #if HAVE_STATISTICS
 
-char* stat_type_string[] = {
+char* STAT_TYPE_STRING[] = {
   "IN  ",
   "OUT ",
   "INFO"
 };
 
-static char* stat_file_name; // We don't need it to be global
-FILE* stat_file = NULL;
+static char* STAT_FILE_NAME; // We don't need it to be global
+FILE* STAT_FILE = NULL;
 
-void do_stat_init() {
-  if (stat_file != NULL) {
+void
+do_stat_init() 
+{
+  if (STAT_FILE != NULL) {
     fprintf(stderr, "do_stat_init(): Stat module already initialized!\n");
     fprintf(stderr, "                Continuing without reopening it!\n");
   } else {
-    stat_file_name = getenv("DIET_STAT_FILE_NAME");
+    STAT_FILE_NAME = getenv("DIET_STAT_FILE_NAME");
 
-    if (stat_file_name != NULL) {
-      stat_file = fopen(stat_file_name, "wc");
-      if (stat_file == NULL) {
-	fprintf(stderr, "do_stat_init(): Unable to open file \"%s\"\n", stat_file_name);
-	fprintf(stderr, "do_stat_init(): (see DIET_STAT_FILE_NAME env variable?)\n");
+    if (STAT_FILE_NAME != NULL) {
+      STAT_FILE = fopen(STAT_FILE_NAME, "wc");
+      if (STAT_FILE == NULL) {
+	fprintf(stderr, "do_stat_init(): Unable to open file \"%s\"\n",
+		STAT_FILE_NAME);
+	fprintf(stderr,
+		"do_stat_init(): (see DIET_STAT_FILE_NAME env variable?)\n");
 	perror("do_stat_init");
       }
     }
   }
 }
 
-void do_stat_finalize() {
-  if (stat_file == NULL) {
+void
+do_stat_finalize() 
+{
+  if (STAT_FILE == NULL) {
     fprintf(stderr, "do_stat_finalize(): Stat module is NOT initialized!\n");
     fprintf(stderr, "                    Continuing...\n");
   } else {
-    if (fclose(stat_file) < 0) {
+    if (fclose(STAT_FILE) < 0) {
       fprintf(stderr, "Unable to close stat file\n");
       perror("do_stat_finalize");
     }
-    stat_file = NULL;
+    STAT_FILE = NULL;
   }
 }
 

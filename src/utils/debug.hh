@@ -3,15 +3,16 @@
 /* DIET debug utils header                                                  */
 /*                                                                          */
 /*  Author(s):                                                              */
-/*    - Frederic LOMBARD          - LIFC Besançon (France)                  */
-/*    - Philippe COMBES           - LIP ENS-Lyon (France)                   */
+/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
+/*    - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)             */
 /*                                                                          */
-/*  This is part of DIET software.                                          */
-/*  Copyright (C) 2002 ReMaP/LIFC/INRIA                                     */
-/*                                                                          */
+/* $LICENSE$                                                                */
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.11  2003/02/04 10:08:23  pcombes
+ * Apply Coding Standards
+ *
  * Revision 1.10  2002/12/03 19:08:24  pcombes
  * Update configure, update to FAST 0.3.15, clean CVS logs in files.
  * Put main Makefile in root directory.
@@ -35,7 +36,6 @@
  *    by an LDAP DB for the MA
  *  - No copy for client/SeD data transfers
  *  - ...
- *
  ****************************************************************************/
 
 
@@ -57,8 +57,10 @@
 #define TRACE_MAX_VALUE    TRACE_STRUCTURES
 
 /* Implemented in DIET_data.cc */
-void data_set_trace_level(int level);
-void mrsh_set_trace_level(int level);
+void
+data_set_trace_level(int level);
+void
+mrsh_set_trace_level(int level);
 
 
 // DEBUG trace: print variable name and value
@@ -73,13 +75,17 @@ void mrsh_set_trace_level(int level);
   select(0, NULL, NULL, NULL, &tv); \
 }
 
-#define print_matrix(mat, m, n)            \
+#define print_matrix(mat, m, n, rm)        \
   {                                        \
     size_t i, j;                           \
-    printf("%s = \n", #mat);               \
+    printf("%s (%s-major) = \n", #mat,     \
+           (rm) ? "row" : "column");       \
     for (i = 0; i < (m); i++) {            \
       for (j = 0; j < (n); j++) {          \
-	printf("%3f ", (mat)[i + j*(m)]);  \
+        if (rm)                            \
+	  printf("%3f ", (mat)[j + i*(n)]);\
+        else                               \
+	  printf("%3f ", (mat)[i + j*(m)]);\
       }                                    \
       printf("\n");                        \
     }                                      \
@@ -91,20 +97,31 @@ void mrsh_set_trace_level(int level);
 /* can be found in this library.                                            */
 /*--------------------------------------------------------------------------*/
 
-void displayResponse(FILE *os, const corba_response_t *resp);
+void
+displayResponse(FILE* os, const corba_response_t* resp);
 
-void displayMAList(FILE *os, dietMADescList *MAs);
+void
+displayMAList(FILE* os, dietMADescList* MAs);
 
-void displayArgDesc(FILE *f, int type, int base_type);
-void displayArg(FILE *f, const corba_data_desc_t *arg);
-void displayArg(FILE *f, const diet_data_desc_t *arg);
+void
+displayArgDesc(FILE* f, int type, int base_type);
+void
+displayArg(FILE* f, const corba_data_desc_t* arg);
+void
+displayArg(FILE* f, const diet_data_desc_t* arg);
 
-void displayProfileDesc(const diet_profile_desc_t *desc, const char *path);
-void displayProfileDesc(const corba_profile_desc_t *desc);
-void displayProfile(const diet_profile_t *profile, const char *path);
-void displayProfile(const corba_profile_t *profile, const char *path);
-void displayPbDesc(const corba_pb_desc_t *pb_desc);
+void
+displayProfileDesc(const diet_profile_desc_t* desc, const char* path);
+void
+displayProfileDesc(const corba_profile_desc_t* desc);
+void
+displayProfile(const diet_profile_t* profile, const char* path);
+void
+displayProfile(const corba_profile_t* profile, const char* path);
+void
+displayPbDesc(const corba_pb_desc_t* pb_desc);
 
-void displayConvertor(FILE *f, const diet_convertor_t *cvt);
+void
+displayConvertor(FILE* f, const diet_convertor_t* cvt);
 
 #endif // _DEBUG_HH_

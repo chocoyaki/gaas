@@ -3,14 +3,15 @@
 /* DIET service table header (this is used by agents and SeDs)              */
 /*                                                                          */
 /*  Author(s):                                                              */
-/*    - Philippe COMBES           - LIP ENS-Lyon (France)                   */
+/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
 /*                                                                          */
-/*  This is part of DIET software.                                          */
-/*  Copyright (C) 2002 ReMaP/INRIA                                          */
-/*                                                                          */
+/* $LICENSE$                                                                */
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.7  2003/02/04 10:08:22  pcombes
+ * Apply Coding Standards
+ *
  * Revision 1.6  2002/12/03 19:08:24  pcombes
  * Update configure, update to FAST 0.3.15, clean CVS logs in files.
  * Put main Makefile in root directory.
@@ -33,7 +34,6 @@
  *    by an LDAP DB for the MA
  *  - No copy for client/SeD data transfers
  *  - ...
- *
  ****************************************************************************/
 
 #ifndef _SERVICETABLE_HH_
@@ -61,7 +61,7 @@ public:
   typedef int ServiceReference_t;
   typedef struct {
     int  nb_sons;
-    int *sons;
+    int* sons;
   } matching_sons_t;
 
   // Equivalent to ServiceTable(MAX_NB_SERVICES, MAX_NB_SONS)
@@ -72,37 +72,56 @@ public:
   //  - the solvers part of the table is nil if max_nb_sons > 0
   //  - the matching sons part is nil either
   ServiceTable(int max_nb_services, int max_nb_sons);
-  virtual ~ServiceTable();
+  virtual
+  ~ServiceTable();
   
-  int  maxSize();
+  int
+  maxSize();
   
-  ServiceReference_t lookupService(const corba_profile_desc_t *sv_profile);
-  ServiceReference_t lookupService(const corba_pb_desc_t      *pb_desc);
-  ServiceReference_t lookupService(const char *path, const corba_profile_t *pb);
+  ServiceReference_t
+  lookupService(const corba_profile_desc_t* sv_profile);
+  ServiceReference_t
+  lookupService(const corba_pb_desc_t* pb_desc);
+  ServiceReference_t
+  lookupService(const char* path, const corba_profile_t* pb);
 
   // All data structures are duplicated in add methods
-  int addService(const corba_profile_desc_t *profile,
-		 diet_convertor_t *cvt,
-		 diet_solve_t solver, diet_eval_t evalf);
-  int addService(const corba_profile_desc_t *profile, int son);
+  int
+  addService(const corba_profile_desc_t* profile, diet_convertor_t* cvt,
+	     diet_solve_t solver, diet_eval_t evalf);
+  int
+  addService(const corba_profile_desc_t* profile, int son);
 
-  int rmService(const corba_profile_desc_t *profile);
-  int rmService(const ServiceReference_t ref);
-  int     rmSon(const int son);
+  int
+  rmService(const corba_profile_desc_t* profile);
+  int
+  rmService(const ServiceReference_t ref);
+  int
+  rmSon(const int son);
 
   // Return a pointer to a copy of all profiles.
   // Caller is responsible for freeing the result.
-  SeqCorbaProfileDesc_t *getProfiles();
-  diet_solve_t getSolver(const corba_profile_desc_t *profile);
-  diet_solve_t getSolver(const ServiceReference_t ref);
-  diet_eval_t   getEvalf(const corba_profile_desc_t *profile);
-  diet_eval_t   getEvalf(const ServiceReference_t ref);
-  diet_convertor_t *getConvertor(const corba_profile_desc_t *profile);
-  diet_convertor_t *getConvertor(const ServiceReference_t ref);
-  matching_sons_t *getSons(const corba_profile_desc_t *profile);
-  matching_sons_t *getSons(const ServiceReference_t ref);
+  SeqCorbaProfileDesc_t*
+  getProfiles();
+  diet_solve_t
+  getSolver(const corba_profile_desc_t* profile);
+  diet_solve_t
+  getSolver(const ServiceReference_t ref);
+  diet_eval_t
+  getEvalf(const corba_profile_desc_t* profile);
+  diet_eval_t
+  getEvalf(const ServiceReference_t ref);
+  diet_convertor_t*
+  getConvertor(const corba_profile_desc_t* profile);
+  diet_convertor_t*
+  getConvertor(const ServiceReference_t ref);
+  matching_sons_t*
+  getSons(const corba_profile_desc_t* profile);
+  matching_sons_t*
+  getSons(const ServiceReference_t ref);
   
-  void dump(FILE *f);
+  void
+  dump(FILE* f);
 
   int max_nb_sons;
   int traceLevel;
@@ -115,17 +134,18 @@ private:
   // array of name and generic data description (a profile description)
   SeqCorbaProfileDesc_t profiles;
   // array of solving functions 
-  diet_solve_t *solvers;
+  diet_solve_t* solvers;
   // array of evaluation functions 
-  diet_eval_t  *eval_functions;
+  diet_eval_t* eval_functions;
   // array of convertors (from a client pb profile to a "solved" pb profile) 
-  diet_convertor_t *convertors;
+  diet_convertor_t* convertors;
   // array of int arrays: each element is an array of sons ID, which offer the
   // corresponding service
-  matching_sons_t *matching_sons;
+  matching_sons_t* matching_sons;
 
   // private methods
-  inline int ServiceTableInit(int max_nb_services, int max_nb_sons);
+  inline int
+  ServiceTableInit(int max_nb_services, int max_nb_sons);
 
 };
 

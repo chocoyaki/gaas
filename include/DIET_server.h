@@ -7,10 +7,11 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/* $Log$
-/* Revision 1.9  2003/01/31 13:08:07  pcombes
-/* Apply Coding Standards
 /*
+ * $Log$
+ * Revision 1.10  2003/02/04 10:08:22  pcombes
+ * Apply Coding Standards
+ *
  * Revision 1.8  2003/01/23 18:37:30  pcombes
  * API 0.6.4: change _set "dummy" arguments
  *
@@ -165,16 +166,14 @@ diet_convertor_free(diet_convertor_t* cvt);
  * fields set, since evaluation takes place before data are transfered.
  */
 
-typedef
-int (* diet_eval_t)(diet_profile_t*, double*);
+typedef int (* diet_eval_t)(diet_profile_t*, double*);
 
 
 /****************************************************************************/
 /* DIET solve function prototype                                            */
 /****************************************************************************/
 
-typedef
-int (* diet_solve_t)(diet_profile_t*);
+typedef int (* diet_solve_t)(diet_profile_t*);
 
 
 /****************************************************************************/
@@ -215,7 +214,7 @@ int
 diet_service_table_add(char*                service_path,
 		       diet_profile_desc_t* profile,
 		       diet_convertor_t*    cvt,
-		       diet_solve_t*        solve_func);
+		       diet_solve_t         solve_func);
 void
 diet_print_service_table();
 

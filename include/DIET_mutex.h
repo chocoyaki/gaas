@@ -8,10 +8,11 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/* $Log$
-/* Revision 1.2  2003/01/31 13:08:07  pcombes
-/* Apply Coding Standards
 /*
+ * $Log$
+ * Revision 1.3  2003/02/04 10:08:22  pcombes
+ * Apply Coding Standards
+ *
  * Revision 1.1  2002/12/03 19:08:24  pcombes
  * Update configure, update to FAST 0.3.15, clean CVS logs in files.
  * Put main Makefile in root directory.

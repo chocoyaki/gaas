@@ -3,15 +3,16 @@
 /* DIET debug utils source code                                             */
 /*                                                                          */
 /*  Author(s):                                                              */
-/*    - Frederic LOMBARD          - LIFC Besançon (France)                  */
-/*    - Philippe COMBES           - LIP ENS-Lyon (France)                   */
+/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
+/*    - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)             */
 /*                                                                          */
-/*  This is part of DIET software.                                          */
-/*  Copyright (C) 2002 ReMaP/LIFC/INRIA                                     */
-/*                                                                          */
+/* $LICENSE$                                                                */
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.10  2003/02/04 10:08:23  pcombes
+ * Apply Coding Standards
+ *
  * Revision 1.9  2003/01/22 17:06:43  pcombes
  * API 0.6.4 : istrans -> order (row- or column-major)
  *
@@ -32,18 +33,18 @@
  *    by an LDAP DB for the MA
  *  - No copy for client/SeD data transfers
  *  - ...
- *
  ****************************************************************************/
 
 
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "debug.hh"
 #include "dietTypes.hh"
 
 
-void displayResponse(FILE *os, const corba_response_t *resp)
+void
+displayResponse(FILE* os, const corba_response_t* resp)
 {
   int i,j;
   char implName[256];
@@ -80,21 +81,23 @@ void displayResponse(FILE *os, const corba_response_t *resp)
 }
 
 
-void displayMAList(FILE* os,dietMADescList *MAs)
+void
+displayMAList(FILE* os,dietMADescList* MAs)
 {
-  dietMADescListIterator *iter= new dietMADescListIterator(MAs);
+  dietMADescListIterator* iter= new dietMADescListIterator(MAs);
   
   while (iter->next())
     {
-      fprintf(os,"Name : %s",((dietMADescListElt *)(iter->curr()))->MA.name);
-      if (CORBA::is_nil(((dietMADescListElt *)(iter->curr()))->MA.ior))
+      fprintf(os,"Name : %s",((dietMADescListElt*)(iter->curr()))->MA.name);
+      if (CORBA::is_nil(((dietMADescListElt*)(iter->curr()))->MA.ior))
 	fprintf(os," (down)\n");
       else
         fprintf(os,"(up)\n");
     }
 }
 
-void displayArgDesc(FILE *f, int type, int base_type) 
+void
+displayArgDesc(FILE* f, int type, int base_type) 
 {
   switch(type) {
   case DIET_SCALAR: fprintf(f, "scalar"); break;
@@ -118,7 +121,8 @@ void displayArgDesc(FILE *f, int type, int base_type)
   }
 }
 
-void displayArg(FILE *f, const corba_data_desc_t *arg)
+void
+displayArg(FILE* f, const corba_data_desc_t* arg)
 {
   switch(arg->specific._d()) {
   case DIET_SCALAR: fprintf(f, "scalar");            break;
@@ -148,7 +152,8 @@ void displayArg(FILE *f, const corba_data_desc_t *arg)
   }
 }
 
-void displayArg(FILE *f, const diet_data_desc_t *arg)
+void
+displayArg(FILE* f, const diet_data_desc_t* arg)
 {
   switch((int) arg->generic.type) {
   case DIET_SCALAR: fprintf(f, "scalar");                break;
@@ -179,9 +184,10 @@ void displayArg(FILE *f, const diet_data_desc_t *arg)
 }
 
 
-void displayProfileDesc(const diet_profile_desc_t *desc, const char *path)
+void
+displayProfileDesc(const diet_profile_desc_t* desc, const char* path)
 {
-  FILE *f = stdout;
+  FILE* f = stdout;
   fprintf(f, " - Service %s", path);
   for (int i = 0; i <= desc->last_out; i++) {
     fprintf(f, "\n     %s ",
@@ -194,10 +200,11 @@ void displayProfileDesc(const diet_profile_desc_t *desc, const char *path)
 }
 
 
-void displayProfileDesc(const corba_profile_desc_t *desc)
+void
+displayProfileDesc(const corba_profile_desc_t* desc)
 {
-  FILE *f = stdout;
-  char *path = CORBA::string_dup(desc->path);
+  FILE* f = stdout;
+  char* path = CORBA::string_dup(desc->path);
   fprintf(f, " - Service %s", path);
   CORBA::string_free(path);
   for (int j = 0; j <= desc->last_out; j++) {
@@ -211,9 +218,10 @@ void displayProfileDesc(const corba_profile_desc_t *desc)
   free(path);
 }
   
-void displayProfile(const diet_profile_t *profile, const char *path) 
+void
+displayProfile(const diet_profile_t* profile, const char* path) 
 {
-  FILE *f = stdout;
+  FILE* f = stdout;
   fprintf(f, " - Service %s", path);
   for (int i = 0; i <= profile->last_out; i++) {
     fprintf(f, "\n     %s ",
@@ -225,9 +233,10 @@ void displayProfile(const diet_profile_t *profile, const char *path)
   fprintf(f, "\n");  
 }
 
-void displayProfile(const corba_profile_t *profile, const char *path)
+void
+displayProfile(const corba_profile_t* profile, const char* path)
 {
-  FILE *f = stdout;
+  FILE* f = stdout;
   fprintf(f, " - Service %s", path);
   for (int i = 0; i <= profile->last_out; i++) {
     fprintf(f, "\n     %s ",
@@ -239,10 +248,11 @@ void displayProfile(const corba_profile_t *profile, const char *path)
   fprintf(f, "\n");  
 }
 
-void displayPbDesc(const corba_pb_desc_t *profile)
+void
+displayPbDesc(const corba_pb_desc_t* profile)
 {
-  FILE *f = stdout;
-  char *path = CORBA::string_dup(profile->path);
+  FILE* f = stdout;
+  char* path = CORBA::string_dup(profile->path);
   fprintf(f, " - Service %s", path);
   CORBA::string_free(path);
   for (int j = 0; j <= profile->last_out; j++) {
@@ -255,7 +265,8 @@ void displayPbDesc(const corba_pb_desc_t *profile)
   fprintf(f, "\n");
 }
 
-void displayConvertor(FILE *f, const diet_convertor_t *cvt)
+void
+displayConvertor(FILE* f, const diet_convertor_t* cvt)
 {
   fprintf(f, " - Convertor to %s", cvt->path);
   for (int i = 0; i <= cvt->last_out; i++) {

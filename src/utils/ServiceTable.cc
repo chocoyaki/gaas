@@ -3,14 +3,15 @@
 /* DIET service table source code (this is used by agents and SeDs)         */
 /*                                                                          */
 /*  Author(s):                                                              */
-/*    - Philippe COMBES           - LIP ENS-Lyon (France)                   */
+/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
 /*                                                                          */
-/*  This is part of DIET software.                                          */
-/*  Copyright (C) 2002 ReMaP/INRIA                                          */
-/*                                                                          */
+/* $LICENSE$                                                                */
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.7  2003/02/04 10:08:22  pcombes
+ * Apply Coding Standards
+ *
  * Revision 1.6  2002/12/03 19:08:24  pcombes
  * Update configure, update to FAST 0.3.15, clean CVS logs in files.
  * Put main Makefile in root directory.
@@ -33,12 +34,12 @@
  *    by an LDAP DB for the MA
  *  - No copy for client/SeD data transfers
  *  - ...
- *
  ****************************************************************************/
 
 
 #include "ServiceTable.hh"
-#include <iostream.h>
+#include <iostream>
+using namespace std;
 #include <stdlib.h>
 #include <string.h>
 
@@ -82,41 +83,43 @@ ServiceTable::~ServiceTable()
   profiles.length(0);
 }
 
-int ServiceTable::maxSize()
+int
+ServiceTable::maxSize()
 {
   return max_nb_s;
 }
 
 ServiceTable::ServiceReference_t
-ServiceTable::lookupService(const corba_profile_desc_t *sv_profile)
+ServiceTable::lookupService(const corba_profile_desc_t* sv_profile)
 {
-  int i = 0;
+  int i(0);
   for (; (i < nb_s) && (!profile_desc_match(&(profiles[i]), sv_profile)); i++);
   return (ServiceReference_t) ((i == nb_s) ? -1 : i);
 }
 
 ServiceTable::ServiceReference_t
-ServiceTable::lookupService(const corba_pb_desc_t *pb_desc)
+ServiceTable::lookupService(const corba_pb_desc_t* pb_desc)
 {
-  int i = 0;
+  int i(0);
   for (; (i < nb_s) && (!profile_match(&(profiles[i]), pb_desc)); i++);
   return (ServiceReference_t) ((i == nb_s) ? -1 : i);
 }
 
 ServiceTable::ServiceReference_t
-ServiceTable::lookupService(const char *path, const corba_profile_t *pb)
+ServiceTable::lookupService(const char* path, const corba_profile_t* pb)
 {
-  int i = 0;
+  int i(0);
   for (; (i < nb_s) && (!profile_match(&(profiles[i]), path, pb)); i++);
   return (ServiceReference_t) ((i == nb_s) ? -1 : i);
 }
 
 
-int ServiceTable::addService(const corba_profile_desc_t *profile,
-			     diet_convertor_t *cvt,
-			     diet_solve_t solver, diet_eval_t evalf)
+int
+ServiceTable::addService(const corba_profile_desc_t* profile,
+			 diet_convertor_t* cvt,
+			 diet_solve_t solver, diet_eval_t evalf)
 {
-  ServiceReference_t service_idx;
+  ServiceReference_t service_idx(-1);
   
   if (matching_sons) {
     cerr << "ServiceTable::addService - Attempting to add a service with\n"
@@ -165,9 +168,10 @@ int ServiceTable::addService(const corba_profile_desc_t *profile,
 }
 
 
-int ServiceTable::addService(const corba_profile_desc_t *profile, int son)
+int
+ServiceTable::addService(const corba_profile_desc_t* profile, int son)
 {
-  ServiceReference_t service_idx;
+  ServiceReference_t service_idx(-1);
   
   if (solvers) {
     cerr << "ServiceTable::addService - Attempting to add a service with\n"
@@ -180,7 +184,7 @@ int ServiceTable::addService(const corba_profile_desc_t *profile, int son)
     if ((nb_s != 0) && (nb_s % max_nb_s) == 0) {
       max_nb_s += max_nb_s_step;
       profiles.length(max_nb_s);
-      matching_sons = (matching_sons_t *)
+      matching_sons = (matching_sons_t*)
 	realloc(matching_sons, max_nb_s * sizeof(matching_sons_t));
       for (int i = nb_s; i < max_nb_s; i++) {
 	profiles[i].param_desc.length(0);
@@ -194,7 +198,7 @@ int ServiceTable::addService(const corba_profile_desc_t *profile, int son)
   
   } else {
     int nb_sons = matching_sons[service_idx].nb_sons;
-    int *sons   = matching_sons[service_idx].sons;
+    int* sons   = matching_sons[service_idx].sons;
     
     for (int i = 0; i < nb_sons; i++)
       if (sons[i] == son)
@@ -202,7 +206,7 @@ int ServiceTable::addService(const corba_profile_desc_t *profile, int son)
     // Here, we must add the son in matching_sons[service_idx].sons
     if ((nb_sons % max_nb_sons) == 0) {
       // Then realloc sons array
-      sons = (int *) realloc(sons, (nb_sons + max_nb_sons) * sizeof(int));
+      sons = (int*) realloc(sons, (nb_sons + max_nb_sons) * sizeof(int));
       matching_sons[service_idx].sons = sons;
     }
     sons[nb_sons] = son;
@@ -213,9 +217,10 @@ int ServiceTable::addService(const corba_profile_desc_t *profile, int son)
 
 
 
-int ServiceTable::rmService(const corba_profile_desc_t *profile)
+int
+ServiceTable::rmService(const corba_profile_desc_t* profile)
 {
-  ServiceReference_t ref;
+  ServiceReference_t ref(-1);
   
   if ((ref = lookupService(profile)) == -1) {
     cerr << "ServiceTable::rmService - Attempting to rm a service "
@@ -226,9 +231,10 @@ int ServiceTable::rmService(const corba_profile_desc_t *profile)
 }
 
 
-int ServiceTable::rmService(const ServiceReference_t ref)
+int
+ServiceTable::rmService(const ServiceReference_t ref)
 {
-  int i;
+  int i(0);
 
   if (((int) ref < 0) || ((int) ref >= nb_s)) {
     cerr << "ServiceTable::rmService - Wrong service reference.\n";
@@ -265,9 +271,10 @@ int ServiceTable::rmService(const ServiceReference_t ref)
 }
 
 
-int ServiceTable::rmSon(const int son)
+int
+ServiceTable::rmSon(const int son)
 {
-  ServiceReference_t ref;
+  ServiceReference_t ref(-1);
   
   if (solvers) {
     cerr << "ServiceTable::rmSon - Attempting to remove a son from\n"
@@ -292,9 +299,10 @@ int ServiceTable::rmSon(const int son)
   return 0;
 }
 
-SeqCorbaProfileDesc_t *ServiceTable::getProfiles()
+SeqCorbaProfileDesc_t*
+ServiceTable::getProfiles()
 {
-  SeqCorbaProfileDesc_t *res = new SeqCorbaProfileDesc_t(nb_s);
+  SeqCorbaProfileDesc_t* res = new SeqCorbaProfileDesc_t(nb_s);
   res->length(nb_s);
   for (int i = 0; i < nb_s; i++) {
     (*res)[i] = profiles[i];
@@ -303,9 +311,10 @@ SeqCorbaProfileDesc_t *ServiceTable::getProfiles()
 }
 
 
-diet_solve_t ServiceTable::getSolver(const corba_profile_desc_t *profile)
+diet_solve_t
+ServiceTable::getSolver(const corba_profile_desc_t* profile)
 {
-  ServiceReference_t ref;
+  ServiceReference_t ref(-1);
   
   if ((ref = lookupService(profile)) == -1) {
     cerr << "ServiceTable::getSolver - Attempting to get solver\n"
@@ -316,7 +325,8 @@ diet_solve_t ServiceTable::getSolver(const corba_profile_desc_t *profile)
 }
 
 
-diet_solve_t ServiceTable::getSolver(const ServiceReference_t ref)
+diet_solve_t
+ServiceTable::getSolver(const ServiceReference_t ref)
 {
   if (!solvers) {
     cerr << "ServiceTable::getSolver - Attempting to get a solver\n"
@@ -331,7 +341,8 @@ diet_solve_t ServiceTable::getSolver(const ServiceReference_t ref)
 }
 
 
-diet_eval_t ServiceTable::getEvalf(const corba_profile_desc_t *profile)
+diet_eval_t
+ServiceTable::getEvalf(const corba_profile_desc_t* profile)
 {
   ServiceReference_t ref;
   
@@ -344,7 +355,8 @@ diet_eval_t ServiceTable::getEvalf(const corba_profile_desc_t *profile)
 }
 
 
-diet_eval_t ServiceTable::getEvalf(const ServiceReference_t ref)
+diet_eval_t
+ServiceTable::getEvalf(const ServiceReference_t ref)
 {
   if (!solvers) {
     cerr << "ServiceTable::getEvalf - Attempting to get an eval function\n"
@@ -359,9 +371,10 @@ diet_eval_t ServiceTable::getEvalf(const ServiceReference_t ref)
 }
 
 
-diet_convertor_t *ServiceTable::getConvertor(const corba_profile_desc_t *profile)
+diet_convertor_t*
+ServiceTable::getConvertor(const corba_profile_desc_t* profile)
 {
-  ServiceReference_t ref;
+  ServiceReference_t ref(-1);
   
   if ((ref = lookupService(profile)) == -1) {
     cerr << "ServiceTable::getConvertor - Attempting to get convertor\n"
@@ -372,7 +385,8 @@ diet_convertor_t *ServiceTable::getConvertor(const corba_profile_desc_t *profile
 }
 
 
-diet_convertor_t *ServiceTable::getConvertor(const ServiceReference_t ref)
+diet_convertor_t*
+ServiceTable::getConvertor(const ServiceReference_t ref)
 {
   if (!solvers) {
     cerr << "ServiceTable::getConvertor - Attempting to get a convertor\n"
@@ -387,10 +401,10 @@ diet_convertor_t *ServiceTable::getConvertor(const ServiceReference_t ref)
 }
 
 
-ServiceTable::matching_sons_t *
-ServiceTable::getSons(const corba_profile_desc_t *profile)
+ServiceTable::matching_sons_t*
+ServiceTable::getSons(const corba_profile_desc_t* profile)
 {
-  ServiceReference_t ref;
+  ServiceReference_t ref(-1);
   
   if ((ref = lookupService(profile)) == -1) {
     cerr << "ServiceTable::getSons - Attempting to get sons\n"
@@ -401,7 +415,7 @@ ServiceTable::getSons(const corba_profile_desc_t *profile)
 }
 
 
-ServiceTable::matching_sons_t *
+ServiceTable::matching_sons_t*
 ServiceTable::getSons(const ServiceReference_t ref)
 {
   if (solvers) {
@@ -417,7 +431,8 @@ ServiceTable::getSons(const ServiceReference_t ref)
 }
 
 
-void ServiceTable::dump(FILE *f)
+void
+ServiceTable::dump(FILE* f)
 {
   char path[257];
   
@@ -467,7 +482,8 @@ void ServiceTable::dump(FILE *f)
 }
 
 
-int ServiceTable::ServiceTableInit(int max_nb_services, int max_nb_sons)
+int
+ServiceTable::ServiceTableInit(int max_nb_services, int max_nb_sons)
 {
   nb_s              = 0;
   max_nb_s          = (max_nb_services <= 0) ? MAX_NB_SERVICES : max_nb_services;

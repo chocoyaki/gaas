@@ -3,14 +3,15 @@
 /* DIET data interface for clients as well as servers                       */
 /*                                                                          */
 /*  Author(s):                                                              */
-/*    - Philippe COMBES           - LIP ENS-Lyon (France)                   */
+/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
 /*                                                                          */
-/*  This is part of DIET software.                                          */
-/*  Copyright (C) 2002 ReMaP/INRIA                                          */
-/*                                                                          */
+/* $LICENSE$                                                                */
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.11  2003/02/04 10:08:22  pcombes
+ * Apply Coding Standards
+ *
  * Revision 1.10  2003/01/23 18:41:59  pcombes
  * API 0.6.4 : istrans -> order (row- or column-major)
  *
@@ -38,11 +39,11 @@
  *    by an LDAP DB for the MA
  *  - No copy for client/SeD data transfers
  *  - ...
- *
  ****************************************************************************/
 
 
-#include <iostream.h>
+#include <iostream>
+using namespace std;
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -56,11 +57,12 @@
 /**
  * Trace level
  */
-static int traceLevel;
+static int TRACELEVEL;
 
-void data_set_trace_level(int level)
+void
+data_set_trace_level(int level)
 {
-  traceLevel = level;
+  TRACELEVEL = level;
 }
 
 
@@ -70,7 +72,8 @@ void data_set_trace_level(int level)
 /****************************************************************************/
 
 
-size_t type_sizeof(const diet_base_type_t type)
+size_t
+type_sizeof(const diet_base_type_t type)
 {
   switch (type) {
   case DIET_CHAR:
@@ -93,7 +96,8 @@ size_t type_sizeof(const diet_base_type_t type)
   }
 }
 
-size_t macro_data_sizeof(const diet_data_desc_t *desc)
+size_t
+macro_data_sizeof(const diet_data_desc_t* desc)
 {
   switch (desc->generic.type) {
   case DIET_SCALAR:
@@ -112,15 +116,17 @@ size_t macro_data_sizeof(const diet_data_desc_t *desc)
   }
 }
 
-size_t data_sizeof(const diet_data_desc_t *desc)
+size_t
+data_sizeof(const diet_data_desc_t* desc)
 {
   return (macro_data_sizeof(desc) * type_sizeof(desc->generic.base_type));
 }
 
-size_t data_sizeof(const corba_data_desc_t *desc)
+size_t
+data_sizeof(const corba_data_desc_t* desc)
 {
-  size_t base_size = type_sizeof((diet_base_type_t) desc->base_type);
-  size_t size;
+  size_t base_size(type_sizeof((diet_base_type_t) desc->base_type));
+  size_t size(0);
   switch (desc->specific._d()) {
   case DIET_SCALAR:
     size = 1; break;
@@ -146,10 +152,11 @@ size_t data_sizeof(const corba_data_desc_t *desc)
 /****************************************************************************/
 
 
-int scalar_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
-		    diet_base_type_t base_type, void *value)
+int
+scalar_set_desc(diet_data_desc_t* desc, diet_persistence_mode_t mode,
+		diet_base_type_t base_type, void* value)
 {
-  int status = 0;
+  int status(0);
   if (!desc)
     return 1;
   if ((status = diet_generic_desc_set(&(desc->generic),
@@ -161,10 +168,11 @@ int scalar_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
   return status;
 }
 
-int vector_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
-		    diet_base_type_t base_type, size_t size)
+int
+vector_set_desc(diet_data_desc_t* desc, diet_persistence_mode_t mode,
+		diet_base_type_t base_type, size_t size)
 {
-  int status = 0;
+  int status(0);
   if (!desc)
     return 1;
   if ((status = diet_generic_desc_set(&(desc->generic),
@@ -177,11 +185,12 @@ int vector_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
   return status;
 }
 
-int matrix_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
-		    diet_base_type_t base_type, size_t nb_r, size_t nb_c,
-		    diet_matrix_order_t order)
+int
+matrix_set_desc(diet_data_desc_t* desc, diet_persistence_mode_t mode,
+		diet_base_type_t base_type, size_t nb_r, size_t nb_c,
+		diet_matrix_order_t order)
 {
-  int status = 0;
+  int status(0);
   if (!desc)
     return 1;
   if ((status = diet_generic_desc_set(&(desc->generic),
@@ -198,10 +207,11 @@ int matrix_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
   return status;
 }
 
-int string_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
-		    size_t length)
+int
+string_set_desc(diet_data_desc_t* desc, diet_persistence_mode_t mode,
+		size_t length)
 {
-  int status = 0;
+  int status(0);
   if (!desc)
     return 1;
   if ((status = diet_generic_desc_set(&(desc->generic),
@@ -215,10 +225,10 @@ int string_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
 }
 
 /* Computes the file size */
-int file_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
-		  char *path)
+int
+file_set_desc(diet_data_desc_t* desc, diet_persistence_mode_t mode, char* path)
 {
-  int status = 0;
+  int status(0);
   struct stat buf;
   if (!desc)
     return 1;
@@ -245,8 +255,9 @@ int file_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
 /****************************************************************************/
 
 
-int profile_desc_match(const corba_profile_desc_t *p1,
-		       const corba_profile_desc_t *p2)
+int
+profile_desc_match(const corba_profile_desc_t* p1,
+		   const corba_profile_desc_t* p2)
 {
   if (strcmp(p1->path, p2->path))
     return 0;
@@ -264,8 +275,9 @@ int profile_desc_match(const corba_profile_desc_t *p1,
 }
 
 
-int profile_match(const corba_profile_desc_t *sv_profile,
-		  const corba_pb_desc_t      *pb_desc)
+int
+profile_match(const corba_profile_desc_t* sv_profile,
+	      const corba_pb_desc_t*      pb_desc)
 {
   if (strcmp(sv_profile->path, pb_desc->path))
     return 0;
@@ -285,8 +297,9 @@ int profile_match(const corba_profile_desc_t *sv_profile,
 }
 
 
-int profile_match(const corba_profile_desc_t *sv_profile,
-		  const char *path, const corba_profile_t *pb)
+int
+profile_match(const corba_profile_desc_t* sv_profile,
+	      const char* path, const corba_profile_t* pb)
 {
   if (strcmp(sv_profile->path, path))
     return 0;
@@ -312,9 +325,10 @@ extern "C" {
 /* Profile descriptor                                                       */
 /****************************************************************************/
 
-diet_profile_t *diet_profile_alloc(int last_in, int last_inout, int last_out)
+diet_profile_t*
+diet_profile_alloc(int last_in, int last_inout, int last_out)
 {
-  diet_profile_t *res;
+  diet_profile_t* res(NULL);
   
   res = new diet_profile_t;
   res->last_in    = last_in;
@@ -324,7 +338,8 @@ diet_profile_t *diet_profile_alloc(int last_in, int last_inout, int last_out)
   return res;
 }
 
-int diet_profile_free(diet_profile_t *profile)
+int
+diet_profile_free(diet_profile_t* profile)
 {
   delete [] profile->parameters;
   delete profile;
@@ -337,10 +352,10 @@ int diet_profile_free(diet_profile_t *profile)
 /****************************************************************************/
 
 int
-diet_scalar_set(diet_arg_t *arg, void *value, diet_persistence_mode_t mode,
+diet_scalar_set(diet_arg_t* arg, void* value, diet_persistence_mode_t mode,
 		diet_base_type_t base_type)
 {
-  int status = 0;
+  int status(0);
   if (!arg)
     return 1;
   if ((status = scalar_set_desc(&(arg->desc), mode, base_type, value)))
@@ -350,10 +365,10 @@ diet_scalar_set(diet_arg_t *arg, void *value, diet_persistence_mode_t mode,
 }
 
 int
-diet_vector_set(diet_arg_t *arg, void *value, diet_persistence_mode_t mode,
+diet_vector_set(diet_arg_t* arg, void* value, diet_persistence_mode_t mode,
 		diet_base_type_t base_type, size_t size)
 {
-  int status = 0;
+  int status(0);
   if (!arg)
     return 1;
   if ((status = vector_set_desc(&(arg->desc), mode, base_type, size)))
@@ -363,11 +378,11 @@ diet_vector_set(diet_arg_t *arg, void *value, diet_persistence_mode_t mode,
 }
 
 int
-diet_matrix_set(diet_arg_t *arg, void *value, diet_persistence_mode_t mode,
+diet_matrix_set(diet_arg_t* arg, void* value, diet_persistence_mode_t mode,
 		diet_base_type_t base_type,
 		size_t nb_rows, size_t nb_cols, diet_matrix_order_t order)
 {
-  int status = 0;
+  int status(0);
   if (!arg)
     return 1;
   if ((status = matrix_set_desc(&(arg->desc), mode, base_type,
@@ -378,10 +393,10 @@ diet_matrix_set(diet_arg_t *arg, void *value, diet_persistence_mode_t mode,
 }
 
 int
-diet_string_set(diet_arg_t *arg, char *value, diet_persistence_mode_t mode,
+diet_string_set(diet_arg_t* arg, char* value, diet_persistence_mode_t mode,
 		size_t length)
 {
-  int status = 0;
+  int status(0);
   if (!arg)
     return 1;
   if ((status = string_set_desc(&(arg->desc), mode, length)))
@@ -392,9 +407,9 @@ diet_string_set(diet_arg_t *arg, char *value, diet_persistence_mode_t mode,
 
 /* Computes the file size */
 int
-diet_file_set(diet_arg_t *arg, diet_persistence_mode_t mode, char *path)
+diet_file_set(diet_arg_t* arg, diet_persistence_mode_t mode, char* path)
 {
-  int status = 0;
+  int status(0);
   if (!arg)
     return 1;
   if ((status = file_set_desc(&(arg->desc), mode, path)))
@@ -411,7 +426,8 @@ diet_file_set(diet_arg_t *arg, diet_persistence_mode_t mode, char *path)
  * Since this function should only be used with (IN)OUT arguments,
  * it copies (* value) into the zone allocated by DIET.
  */
-int diet_scalar_desc_set(diet_data_t *data, void *value)
+int
+diet_scalar_desc_set(diet_data_t* data, void* value)
 {
   if (data->desc.generic.type != DIET_SCALAR) {
     cerr << "DIET error: diet_scalar_desc_set misused (wrong type)\n";
@@ -423,16 +439,16 @@ int diet_scalar_desc_set(diet_data_t *data, void *value)
   }
   switch(data->desc.generic.base_type) {
   case DIET_CHAR:     
-  case DIET_BYTE:    *((char *)data->value)     = *((char *)value);     break;
-  case DIET_INT:     *((int  *)data->value)     = *((int  *)value);     break;
-  case DIET_LONGINT: *((long int *)data->value) = *((long int *)value); break;
-  case DIET_FLOAT:   *((float *)data->value)    = *((float *)value);    break;
-  case DIET_DOUBLE:  *((double *)data->value)   = *((double *)value);   break;
+  case DIET_BYTE:    *((char*)data->value)     = *((char*)value);     break;
+  case DIET_INT:     *((int*)data->value)      = *((int*)value);      break;
+  case DIET_LONGINT: *((long int*)data->value) = *((long int*)value); break;
+  case DIET_FLOAT:   *((float*)data->value)    = *((float*)value);    break;
+  case DIET_DOUBLE:  *((double*)data->value)   = *((double*)value);   break;
 #if HAVE_COMPLEX
   case DIET_SCOMPLEX:
-    *((complex *)data->value)        = *((complex *)value);        break;
+    *((complex*)data->value)        = *((complex*)value);        break;
   case DIET_DCOMPLEX:
-    *((double complex *)data->value) = *((double complex *)value); break;
+    *((double complex*)data->value) = *((double complex*)value); break;
 #endif // HAVE_COMPLEX
   default: {
     cerr << "DIET error: diet_scalar_desc_set misused (wrong base type)\n";
@@ -443,8 +459,9 @@ int diet_scalar_desc_set(diet_data_t *data, void *value)
   return 0;
 }
     
-int diet_matrix_desc_set(diet_data_t *data,
-			 size_t nb_r, size_t nb_c, diet_matrix_order_t order)
+int
+diet_matrix_desc_set(diet_data_t* data,
+		     size_t nb_r, size_t nb_c, diet_matrix_order_t order)
 {
   if (data->desc.generic.type != DIET_MATRIX) {
     cerr << "DIET error: diet_matrix_desc_set misused (wrong type)\n";
@@ -465,7 +482,8 @@ int diet_matrix_desc_set(diet_data_t *data,
   return 0;
 }
 
-int diet_file_desc_set(diet_data_t *data, char *path)
+int
+diet_file_desc_set(diet_data_t* data, char* path)
 {
   if (data->desc.generic.type != DIET_FILE) {
     cerr << "DIET error: diet_file_desc_set misused (wrong type)\n";
@@ -488,23 +506,24 @@ int diet_file_desc_set(diet_data_t *data, char *path)
 /****************************************************************************/
 
 
-int get_value(diet_data_t *data, void **value)
+int
+get_value(diet_data_t* data, void** value)
 {
   if (!data)
     return 1;
   if (value) {
     switch(data->desc.generic.base_type) {
     case DIET_CHAR:     
-    case DIET_BYTE:    *((char **)value)     = (char *)data->value;     break;
-    case DIET_INT:     *((int  **)value)     = (int  *)data->value;     break;
-    case DIET_LONGINT: *((long int **)value) = (long int *)data->value; break;
-    case DIET_FLOAT:   *((float **)value)    = (float *)data->value;    break;
-    case DIET_DOUBLE:  *((double **)value)   = (double *)data->value;   break;
+    case DIET_BYTE:    *((char**)value)     = (char*)data->value;     break;
+    case DIET_INT:     *((int**)value)      = (int*)data->value;      break;
+    case DIET_LONGINT: *((long int**)value) = (long int*)data->value; break;
+    case DIET_FLOAT:   *((float**)value)    = (float*)data->value;    break;
+    case DIET_DOUBLE:  *((double**)value)   = (double*)data->value;   break;
 #if HAVE_COMPLEX
     case DIET_SCOMPLEX:
-      *((complex **)value)        = (complex *)data->value;        break;
+      *((complex**)value)        = (complex*)data->value;        break;
     case DIET_DCOMPLEX:
-      *((double complex **)value) = (double complex *)data->value; break;
+      *((double complex**)value) = (double complex*)data->value; break;
 #endif // HAVE_COMPLEX
     default:
       return 1;
@@ -513,7 +532,8 @@ int get_value(diet_data_t *data, void **value)
   return 0;
 }
 
-int _scalar_get(diet_arg_t *arg, void *value, diet_persistence_mode_t *mode)
+int
+_scalar_get(diet_arg_t* arg, void* value, diet_persistence_mode_t* mode)
 {
   int res;
 
@@ -525,16 +545,16 @@ int _scalar_get(diet_arg_t *arg, void *value, diet_persistence_mode_t *mode)
   if (value) {
     switch(arg->desc.generic.base_type) {
     case DIET_CHAR:     
-    case DIET_BYTE:    *((char *)value)     = *((char *)arg->value);     break;
-    case DIET_INT:     *((int  *)value)     = *((int  *)arg->value);     break;
-    case DIET_LONGINT: *((long int *)value) = *((long int *)arg->value); break;
-    case DIET_FLOAT:   *((float *)value)    = *((float *)arg->value);    break;
-    case DIET_DOUBLE:  *((double *)value)   = *((double *)arg->value);   break;
+    case DIET_BYTE:    *((char*)value)     = *((char*)arg->value);     break;
+    case DIET_INT:     *((int*)value)      = *((int*)arg->value);      break;
+    case DIET_LONGINT: *((long int*)value) = *((long int*)arg->value); break;
+    case DIET_FLOAT:   *((float*)value)    = *((float*)arg->value);    break;
+    case DIET_DOUBLE:  *((double*)value)   = *((double*)arg->value);   break;
 #if HAVE_COMPLEX
     case DIET_SCOMPLEX:
-      *((complex *)value)        = *((complex *)arg->value);        break;
+      *((complex*)value)        = *((complex*)arg->value);        break;
     case DIET_DCOMPLEX:
-      *((double complex *)value) = *((double complex *)arg->value); break;
+      *((double complex*)value) = *((double complex*)arg->value); break;
 #endif // HAVE_COMPLEX
     default: {
       cerr << "DIET error: diet_scalar_get misused (wrong base type)\n";
@@ -547,8 +567,9 @@ int _scalar_get(diet_arg_t *arg, void *value, diet_persistence_mode_t *mode)
   return 0;
 }
 
-int _vector_get(diet_arg_t *arg, void **value, diet_persistence_mode_t *mode,
-		size_t *size)
+int
+_vector_get(diet_arg_t *arg, void** value, diet_persistence_mode_t* mode,
+	    size_t* size)
 {
   int res;
 
@@ -556,7 +577,7 @@ int _vector_get(diet_arg_t *arg, void **value, diet_persistence_mode_t *mode,
     cerr << "DIET error: diet_vector_get misused (wrong type)\n";
     return 1;
   }   
-  if ((res = get_value((diet_data_t *)arg, value))) {
+  if ((res = get_value((diet_data_t*)arg, value))) {
     cerr << "DIET error: diet_vector_get misused "
 	 << "(wrong base type or arg pointer is NULL)\n";
     return res;
@@ -568,8 +589,9 @@ int _vector_get(diet_arg_t *arg, void **value, diet_persistence_mode_t *mode,
   return 0;
 }
 
-int _matrix_get(diet_arg_t *arg, void **value, diet_persistence_mode_t *mode,
-		size_t *nb_rows, size_t *nb_cols, diet_matrix_order_t *order)
+int
+_matrix_get(diet_arg_t* arg, void** value, diet_persistence_mode_t* mode,
+	    size_t* nb_rows, size_t* nb_cols, diet_matrix_order_t* order)
 {
   int res;
 
@@ -577,7 +599,7 @@ int _matrix_get(diet_arg_t *arg, void **value, diet_persistence_mode_t *mode,
     cerr << "DIET error: diet_matrix_get misused (wrong type)\n";
     return 1;
   }   
-  if ((res = get_value((diet_data_t *)arg, value))) {
+  if ((res = get_value((diet_data_t*)arg, value))) {
     cerr << "DIET error: diet_matrix_get misused "
 	 << "(wrong base type or arg pointer is NULL)\n";
     return res;
@@ -593,8 +615,9 @@ int _matrix_get(diet_arg_t *arg, void **value, diet_persistence_mode_t *mode,
   return 0;
 }
 
-int _string_get(diet_arg_t *arg, char **value, diet_persistence_mode_t *mode,
-		size_t *length)
+int
+_string_get(diet_arg_t* arg, char** value, diet_persistence_mode_t* mode,
+	    size_t* length)
 {
   int res;
 
@@ -602,7 +625,7 @@ int _string_get(diet_arg_t *arg, char **value, diet_persistence_mode_t *mode,
     cerr << "DIET error: diet_string_get misused (wrong type)\n";
     return 1;
   }   
-  if ((res = get_value((diet_data_t *)arg, (void **)value))) {
+  if ((res = get_value((diet_data_t*)arg, (void**)value))) {
     cerr << "DIET error: diet_string_get misused "
 	 << "(wrong base type or arg pointer is NULL)\n";
     return res;
@@ -614,8 +637,9 @@ int _string_get(diet_arg_t *arg, char **value, diet_persistence_mode_t *mode,
   return 0;
 }
 
-int _file_get(diet_arg_t *arg, diet_persistence_mode_t *mode,
-	      size_t *size, char **path)
+int
+_file_get(diet_arg_t* arg, diet_persistence_mode_t* mode,
+	  size_t* size, char** path)
 {
   if (arg->desc.generic.type != DIET_FILE) {
     cerr << "DIET error: diet_file_get misused (wrong type)\n";

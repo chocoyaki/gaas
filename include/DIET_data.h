@@ -7,10 +7,11 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/* $Log$
-/* Revision 1.11  2003/01/31 13:08:07  pcombes
-/* Apply Coding Standards
 /*
+ * $Log$
+ * Revision 1.12  2003/02/04 10:08:22  pcombes
+ * Apply Coding Standards
+ *
  * Revision 1.10  2003/01/23 18:37:30  pcombes
  * API 0.6.4: change _set "dummy" arguments
  *
@@ -97,7 +98,7 @@ typedef struct diet_arg_s diet_arg_t;
  * Type: (C_type*) diet_value ( (C_type), (diet_arg_t*) )
  * Casted pointer to the argument value (the data themselves)
  */
-#define diet_value(C_type, arg) ((C_type)*)((arg)->value)
+#define diet_value(C_type, arg) (C_type*)((arg)->value)
 
 
 /****************************************************************************/
