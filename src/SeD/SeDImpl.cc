@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.34  2004/10/06 15:56:13  bdelfabr
+ * bug persistent data fixed (hope so one more time)
+ *
  * Revision 1.33  2004/10/06 11:59:04  bdelfabr
  * corrected inout bug (I hope so)
  *
@@ -544,11 +547,12 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 #else  // ! DEVELOPPING_DATA_PERSISTENCY
       
       mrsh_profile_to_out_args(&(const_cast<corba_profile_t&>(pb)), &profile, cvt);
-      for (i = profile.last_in + 1 ; i <= profile.last_inout; i++) {
+
+      /*      for (i = profile.last_in + 1 ; i <= profile.last_inout; i++) {
 	if ( diet_is_persistent(profile.parameters[i])) {
 	  this->dataMgr->updateDataList(const_cast<corba_data_t&>(pb.parameters[i])); 
 	}
-      }
+	}*/
       
       for (i = profile.last_inout + 1 ; i <= profile.last_out; i++) {
 

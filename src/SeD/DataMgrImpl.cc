@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2004/10/06 15:56:13  bdelfabr
+ * bug persistent data fixed (hope so one more time)
+ *
  * Revision 1.14  2004/10/06 11:59:04  bdelfabr
  * corrected inout bug (I hope so)
  *
@@ -153,6 +156,8 @@ DataMgrImpl::cpEltListToDataT(corba_data_t* cData)
     p = static_cast <CORBA::Char *>(the_data.value.get_buffer(orphan));
     cData->value.replace(size,size,p,0); 
     /* the map keeps control of the data */
+ 
+  
   } else {
     CORBA::Char* val(NULL);
     char* path = the_data.desc.specific.file().path;
@@ -173,7 +178,7 @@ DataMgrImpl::cpEltListToDataT(corba_data_t* cData)
     }
     
      cData->value.replace(size,size,val,1);
-   
+
   }
   
 								     
@@ -217,10 +222,11 @@ DataMgrImpl::addDataDescToList(corba_data_t* dataDesc, int inout) // FIXME : die
 {
 #if DEVELOPPING_DATA_PERSISTENCY
 
-  //double *value;
+ 
   char *path;
   corba_data_t &the_data = dataDescList[ms_strdup(dataDesc->desc.id.idNumber)] ;
  
+  // cout << "value of id to add" << dataDesc->desc.id.idNumber << endl;
   the_data.desc = dataDesc->desc; 
 
  if ( (diet_data_type_t)(dataDesc->desc.specific._d()) == DIET_FILE) 
@@ -229,20 +235,21 @@ DataMgrImpl::addDataDescToList(corba_data_t* dataDesc, int inout) // FIXME : die
   the_data.desc.id.idNumber  = ms_strdup(dataDesc->desc.id.idNumber); 
   the_data.desc.id.dataCopy  = DIET_ORIGINAL;
   the_data.desc.id.state  = DIET_FREE;
-
-
+ 
   long unsigned int size = (long unsigned int) data_sizeof(&(dataDesc->desc));
   // value = (double *)malloc(size*sizeof(double));
   if ( (diet_data_type_t)(dataDesc->desc.specific._d()) != DIET_FILE) {
     
     if(inout == 0) {/* IN ARGS */
-    
+  
+
       CORBA::Boolean orphan = 1; 
       CORBA::Char * p(NULL); 
       
       p = static_cast <CORBA::Char *>(dataDesc->value.get_buffer(orphan));          
       dataDesc->value.replace(size,size,p,0); /* used to not loose the value */      
       the_data.value.replace(size,size,p,1); /* map takes the control an value */
+    
       
     } else { // OUT ARGS 
       
@@ -299,13 +306,15 @@ DataMgrImpl::rmDataDescFromList(char* argID)
   if(the_data.desc.specific._d() != DIET_FILE) {
     CORBA::Char *p1 (NULL);
     p1 = the_data.value.get_buffer(1);
-    _CORBA_Sequence<unsigned char>::freebuf((_CORBA_Char*)p1);//(_CORBA_SeqChar)
+    _CORBA_Sequence<unsigned char>::freebuf((_CORBA_Char*)p1);//(_CORBA_SeqChar) cout << "REMOVED --  DATA REFERENCE" << endl;
   } else {
     char *path = (char *)malloc(sizeof(the_data.desc.specific.file().path)+7);   
     sprintf(path,"rm -f %s",ms_strdup(the_data.desc.specific.file().path));
     system(path);
   }
+
   dataDescList.erase(ms_strdup(argID));
+ 
 #endif // DEVELOPPING_DATA_PERSISTENCY
 }// rmDataDescFromList(char* argID)
 
@@ -335,7 +344,10 @@ DataMgrImpl::sendData(corba_data_t& arg)
     }
 
   }
+  
+  // dataDescList.unlock();
   addDataDescToList(&arg,0);
+ 
   printList1();
 
 #endif // DEVELOPPING_DATA_PERSISTENCY
@@ -377,21 +389,26 @@ DataMgrImpl::getData(corba_data_t& cData)
 {
   
 #if DEVELOPPING_DATA_PERSISTENCY
+
   if(dataLookup(cData.desc.id.idNumber)){ // if data present
-   dataDescList.unlock();
-  
+    // dataDescList.unlock();
+ 
     cpEltListToDataT(&cData);
  
   } else { // data not locally present
+ 
     DataMgr_ptr dataSrc;
+  
     dataSrc = parent->whereData(strdup(cData.desc.id.idNumber));
     /* invoke remote Data Manager that will send Data */  
     dataSrc->putData(CORBA::string_dup(cData.desc.id.idNumber), this->_this());
     // copy value to cData that is used by solver
+  
     cpEltListToDataT(&cData);
- 
+  
     parent->updateDataRef(cData.desc,childID,0);
-    printList1();
+
+ //    printList1();
   }
 #endif // DEVELOPPING_DATA_PERSISTENCY
 }// getData(corba_data_t& cData)
@@ -452,7 +469,7 @@ DataMgrImpl::putData(const char* argID, const DataMgr_ptr me)
   corba_data_t dest;
   dest.desc.id.idNumber=CORBA::string_dup(argID);
   cpEltListToDataT(&dest);
- 
+  cout << "PUT DATA " << endl;
   if ( (diet_data_type_t)(dest.desc.specific._d()) == DIET_FILE) {
     CORBA::Char *dataValue(NULL);
 
@@ -476,7 +493,7 @@ DataMgrImpl::putData(const char* argID, const DataMgr_ptr me)
     dietLogComponent->logDataBeginTransfer(argID, "");
   }
 #endif
-
+ 
   me->sendData(dest);
 
 #if HAVE_LOGSERVICE
@@ -594,7 +611,7 @@ DataMgrImpl::whereData(const char* argID)
 #if DEVELOPPING_DATA_PERSISTENCY
 
   if(dataLookup(CORBA::string_dup(argID))){ 
-    dataDescList.unlock();
+    //  dataDescList.unlock();
     return(this->_this());
   } else {
     return(DataMgr::_nil());
@@ -614,10 +631,12 @@ DataMgrImpl::dataLookup(char* argID)
  
  printList1();
 #if DEVELOPPING_DATA_PERSISTENCY
-  if(dataDescList.size() > 0){
+ // if(dataDescList.size() > 0){
     dataDescList.lock();
-    return(dataDescList.find(ms_strdup(argID)) != dataDescList.end());
-  } else return false;
+    bool found = dataDescList.find(ms_strdup(argID)) != dataDescList.end();
+     dataDescList.unlock();
+     return found;
+
 #endif // DEVELOPPING_DATA_PERSISTENCY
 return false;
  
