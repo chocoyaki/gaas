@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.28  2004/03/01 18:21:45  rbolze
+#* add the option --enable-logservice
+#*
 #* Revision 1.27  2004/02/27 16:25:55  ecaron
 #* Change bug report to http://graal.ens-lyon.fr/bugzilla
 #*
@@ -192,6 +195,11 @@ AC_ARG_ENABLE(multi-MA,
 			     [enable multi-MA architecture]),
 	      [AC_DEFINE(HAVE_MULTI_MA)][IDLFLAGS="$IDLFAGS -DHAVE_MULTI_MA"])
 
+AH_TEMPLATE(HAVE_LOGSERVICE, [Define the use of LogService.])
+AC_ARG_ENABLE(logservice,
+	      AC_HELP_STRING([--enable-logservice],
+			     [enable monitoring through LogService]),
+	      [AC_DEFINE(HAVE_LOGSERVICE)][IDLFLAGS="$IDLFAGS -DHAVE_LOGSERVICE"])
 
 dnl ###########################################################################
 dnl Load anything under acmacros/*.m4
