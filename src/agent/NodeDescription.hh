@@ -8,6 +8,15 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2003/05/22 12:20:25  sdahan
+ * Now the NodeDescriptor completly manages its own memory by itself.
+ * The -> operator is defined. You can do :
+ * descriptor->ping() ;
+ * instead of :
+ * LocalAgent_ptr la = localAgent::_duplicate(descriptor.getIor()) ;
+ * la->ping() ;
+ * CORBA::release(la) ;
+ *
  * Revision 1.2  2003/05/05 14:32:29  pcombes
  * assert in NodeDescription(T_ptr ior, const char* hostName) was buggy.
  *
@@ -23,9 +32,13 @@
 #include "debug.hh"
 
 /**
- * The NodeDescription manages the hostname and the IOR of an node. The node can
- * be an Agent or a SeD. The T_ptr must be the pointer of the node.
- * ex : NodeDescription<SeD_ptr>
+ * The NodeDescription manages the hostname and the IOR of an
+ * node. The node can be an Agent or a SeD. The T_ptr must be the
+ * pointer of the node.  ex : NodeDescription<SeD_ptr>
+ *
+ * All the methods make a copy of the ior and hostname given in
+ * argument. The memory is release when the object is destroyed or
+ * when a new value of the ior and of the hostname is set.
  */
 
 template<class T, class T_ptr> class NodeDescription {
@@ -39,6 +52,30 @@ private :
    */
   char* hostName;
 
+  /**
+   * free the memory of the node description
+   */
+  inline void freeMemory() {
+    if(defined()) {
+      ms_strfree(hostName) ;
+      hostName = NULL ;
+      CORBA::release(ior) ;
+    }
+  }
+
+  /**
+   * copy the argument into the attribut of the node
+   */
+  inline void copyMemory(T_ptr ior, const char* hostName) {
+    if (hostName != NULL) {
+      this->ior = T::_duplicate(ior) ;
+      this->hostName = ms_strdup(hostName) ;
+    } else {
+      this->ior = T::_nil() ;
+      this->hostName = NULL ;
+    }
+  }
+
 public :
   /** return true if the node is define, false if not. */
   inline bool defined() const { return hostName;};
@@ -47,8 +84,7 @@ public :
    * creates a new undefined NodeDescription.
    */
   NodeDescription() {
-    this->hostName = NULL;
-    this->ior = T::_nil();
+    copyMemory(T::_nil(), NULL) ;
   }
 
   /**
@@ -62,8 +98,7 @@ public :
    */
   NodeDescription(T_ptr ior, const char* hostName) {
     assert(hostName != NULL);
-    this->hostName = ms_strdup(hostName);
-    this->ior = T::_duplicate(ior);
+    copyMemory(ior, hostName) ;
   }
 
   /**
@@ -74,23 +109,14 @@ public :
    * duplicated.
    */
   NodeDescription(const NodeDescription& nodeDescription) {
-    if(nodeDescription.defined()) {
-      this->hostName = ms_strdup(nodeDescription.hostName);
-      this->ior = T::_duplicate(nodeDescription.ior);
-    } else {
-      this->hostName = NULL;
-      this->ior = T::_nil();
-    }
+    copyMemory(nodeDescription.ior, nodeDescription.hostName) ;
   }
 
   /**
    * Destructor of the NodeDescription.
    */
   ~NodeDescription() {
-    if (this->hostName)
-      ms_strfree(this->hostName);
-    if (! CORBA::is_nil(this->ior))
-      CORBA::release(this->ior);
+      freeMemory() ;
   }
 
   /**
@@ -100,15 +126,8 @@ public :
    */
   NodeDescription<T, T_ptr>& operator=
   (const NodeDescription<T, T_ptr>& nodeDescription)  {
-    if (hostName)
-      ms_strfree(hostName);
-    if (! CORBA::is_nil(this->ior))
-      CORBA::release(this->ior);
-	
-    if(nodeDescription.defined()) {
-      this->ior = T::_duplicate(nodeDescription.ior);
-      this->hostName = ms_strdup(nodeDescription.hostName);
-    }
+    freeMemory() ;
+    copyMemory(nodeDescription.ior, nodeDescription.hostName);
     return *this;
   }
 
@@ -119,12 +138,8 @@ public :
    */
   void
   set(const T_ptr ior, const char* hostName) {
-    if (! CORBA::is_nil(this->ior))
-      CORBA::release(this->ior);
-    if (this->hostName)
-      ms_strfree(this->hostName);
-    this->ior = T::_duplicate(ior);
-    this->hostName = ms_strdup(hostName);
+    freeMemory() ;
+    copyMemory(ior, hostName) ;
   }
    
 
@@ -149,6 +164,13 @@ public :
   const char* getHostName() const {
     assert(defined());
     return this->hostName;
+  }
+
+  /**
+   * accessor to the ior.
+   */
+  inline T_ptr operator->() const {
+    return ior ;
   }
 };
 

@@ -10,6 +10,15 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2003/05/22 12:20:25  sdahan
+ * Now the NodeDescriptor completly manages its own memory by itself.
+ * The -> operator is defined. You can do :
+ * descriptor->ping() ;
+ * instead of :
+ * LocalAgent_ptr la = localAgent::_duplicate(descriptor.getIor()) ;
+ * la->ping() ;
+ * CORBA::release(la) ;
+ *
  * Revision 1.2  2003/05/10 08:53:34  pcombes
  * New format for configuration files, new Parsers.
  *
@@ -161,8 +170,9 @@ AgentImpl::agentSubscribe(Agent_ptr me, const char* hostName,
 
   /* the size of the list is childID+1 (first index is 0) */
   this->LAChildren.resize(this->childIDCounter);
+  LocalAgent_var meLA = LocalAgent::_narrow(me) ;
   this->LAChildren[retID] =
-    LAChild(LocalAgent::_duplicate(LocalAgent::_narrow(me)), hostName);
+    LAChild(meLA, hostName);
   (this->nbLAChildren)++; // thread safe
 
   this->addServices(retID, services);
@@ -436,13 +446,11 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req)
   if (childID < static_cast<CORBA::ULong>(LAChildren.size())) {
     LAChild& childDesc = LAChildren[childID];
     if (childDesc.defined()) {
-      LocalAgent_ptr child = LocalAgent::_duplicate(childDesc.getIor());
       try {
 	try {
 	  /* checks if the child is alive with a ping */
-	  LocalAgent_ptr child = LocalAgent::_duplicate(childDesc.getIor());
-	  child->ping();
-	  child->getRequest(*req);
+	  childDesc->ping();
+	  childDesc->getRequest(*req);
 	} catch (CORBA::COMM_FAILURE& ex) {
 	  throw (comm_failure_t)0;
 	} catch (CORBA::TRANSIENT& e) {
@@ -463,7 +471,6 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req)
 	  throw e;
 	}
       }
-      CORBA::release(child);
       childFound = true;
     }
   }
@@ -471,12 +478,11 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req)
     /* Then it must be a server */
     SeDChild& childDesc = SeDChildren[childID];
     if (childDesc.defined()) {
-      SeD_ptr child = SeD::_duplicate(childDesc.getIor());
       try {
 	try {
 	  /* checks if the child is alive with a ping */
-	  child->ping();
-	  child->getRequest(*req);
+	  childDesc->ping();
+	  childDesc->getRequest(*req);
 	} catch (CORBA::COMM_FAILURE& ex) {
 	  throw (comm_failure_t)0;
 	} catch (CORBA::TRANSIENT& e) {
@@ -497,7 +503,6 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req)
 	  throw e;
 	}
       }
-      CORBA::release(child);
       childFound = true;
     }
 

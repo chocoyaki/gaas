@@ -10,6 +10,15 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2003/05/22 12:20:25  sdahan
+ * Now the NodeDescriptor completly manages its own memory by itself.
+ * The -> operator is defined. You can do :
+ * descriptor->ping() ;
+ * instead of :
+ * LocalAgent_ptr la = localAgent::_duplicate(descriptor.getIor()) ;
+ * la->ping() ;
+ * CORBA::release(la) ;
+ *
  * Revision 1.2  2003/05/10 08:53:34  pcombes
  * New format for configuration files, new Parsers.
  *
@@ -182,7 +191,7 @@ MasterAgentImpl::handShake(MasterAgent_ptr me, const char* myName)
 
   while (!MAFound && iter->hasCurrent()) {
     if (!strcmp(iter->getCurrent().getName(), myName)) {
-      iter->setCurrent(MADescription(MasterAgent::_duplicate(me), myName));
+      iter->setCurrent(MADescription(me, myName));
       if (TRACE_LEVEL >= TRACE_ALL_STEPS)
 	cout << "Reference updated" << endl;
       MAFound = true;
@@ -191,7 +200,7 @@ MasterAgentImpl::handShake(MasterAgent_ptr me, const char* myName)
   delete(iter);
 
   if(!MAFound)
-    knownMAs.addElement(MADescription(MasterAgent::_duplicate(me), myName));
+    knownMAs.addElement(MADescription(me, myName));
 
   if (TRACE_LEVEL >= TRACE_ALL_STEPS)
     cout << "Reference created" << endl;
