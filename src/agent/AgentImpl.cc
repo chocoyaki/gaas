@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2004/07/08 12:49:59  alsu
+ * code to adjust time estimates disabled if DIET is not compiled with FAST
+ *
  * Revision 1.18  2004/06/11 15:45:39  ctedesch
  * add DIET/JXTA
  *
@@ -367,10 +370,22 @@ AgentImpl::findServer(Request* req, size_t max_srv)
 
     size_t nb_resp = req->getResponsesSize();
 
-#if HAVE_JXTA
+#if HAVE_JXTA || ! HAVE_FAST
     /* this part seems to generate JNI problems */
     /* but this part should be removed in the next DIET version */
     /* that explains why we don't fix it */ 
+
+    /* in fact, the following code is only useful if one has
+    ** chosen to compile with fast.  furthermore, it causes
+    ** problems in the custom estimators by fiddling with the
+    ** estimation after the SeD has set it.
+    **
+    ** to include this kind of estimation, the plan is to
+    ** either (i) send the transfer time estimation *down*
+    ** the hierarchy as the request descends, or (ii) use a
+    ** CORBA-based ping mechanism from the SeD to the MA (is
+    ** this even possible?
+    */
 #else
     double* time = new double[nb_resp]; 
 
