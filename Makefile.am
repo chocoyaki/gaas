@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.11  2003/12/15 13:13:59  pcombes
+#* Add the 'make' line in the help.
+#*
 #* Revision 1.10  2003/09/26 14:04:24  pcombes
 #* Add DIST_SUBMODULES_DIET in DIST_SUBDIRS
 #*
@@ -57,6 +60,7 @@ help:
 	@echo "         make SeD      : builds DIET SeD library"
 	@echo "         make client   : builds DIET client library"
 	@echo "         make examples : builds basic examples" 
+	@echo "         make          : builds everything configured" 
 	@echo "         make install  : copy files into $(prefix)"
 	@echo "===================================================================="
 
