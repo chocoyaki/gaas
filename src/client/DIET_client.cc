@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.34  2003/07/25 20:37:36  pcombes
+ * Separate the DIET API (slightly modified) from the GridRPC API (version of
+ * the draft dated to 07/21/2003)
+ *
  * Revision 1.33  2003/07/09 17:08:44  pcombes
  * Better management of the variable MA (with mutex) and the handles.
  *
@@ -55,7 +59,10 @@ using namespace std;
 #include "CallAsyncMgr.hh"
 #include "CallbackImpl.hh"
 
-extern "C" {
+
+#define BEGIN_API extern "C" {
+#define END_API   } // extern "C"
+
 
 
 /****************************************************************************/
@@ -82,20 +89,18 @@ static size_t USE_ASYNC_API = 1;
 
 
 /****************************************************************************/
-/* GridRPC API                                                              */
-/****************************************************************************/
-
-
-
-/****************************************************************************/
 /* Initialize and Finalize session                                          */
-int
+/****************************************************************************/
+
+BEGIN_API
+
+diet_error_t
 diet_initialize(char* config_file_name, int argc, char* argv[])
 {
   char*  MA_name;
   int    res(0);
-  int    myargc;
-  char** myargv;
+  int    myargc(0);
+  char** myargv(NULL);
   void*  value(NULL);
   
   MA_MUTEX.lock();
@@ -107,11 +112,13 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   }
   
   /* Set arguments for ORBMgr::init */
-  myargc = argc;
-  myargv = (char**)malloc(argc * sizeof(char*));
-  for (int i = 0; i < argc; i++)
-    myargv[i] = argv[i];
-
+  if (argc) {
+    myargc = argc;
+    myargv = (char**)malloc(argc * sizeof(char*));
+    for (int i = 0; i < argc; i++)
+      myargv[i] = argv[i];
+  }
+  
   /* Parsing */
   Parsers::Results::param_type_t compParam[] = {Parsers::Results::MANAME};
   
@@ -199,7 +206,7 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   return 0;
 }
 
-int
+diet_error_t
 diet_finalize()
 {
   stat_finalize();
@@ -221,9 +228,14 @@ diet_finalize()
   return 0;
 }
 
+END_API
+
 
 /****************************************************************************/
 /* Data handles                                                             */
+/****************************************************************************/
+
+BEGIN_API
 
 diet_data_handle_t*
 diet_data_handle_malloc()
@@ -244,238 +256,117 @@ diet_free(diet_data_handle_t* handle)
   return 0;
 }
 
-
-/****************************************************************************/
-/* Argument Stack                                                           */
-
-struct diet_argStack_elt_s {
-  diet_arg_mode_t mode;
-  diet_arg_t*     arg;
-};
-struct diet_argStack_s {
-  size_t               maxsize;
-  int                  first;
-  diet_argStack_elt_t* stack;
-};
-
-diet_argStack_elt_t*
-newArgStack_elt(diet_arg_mode_t mode, diet_arg_t* arg)
-{
-  diet_argStack_elt_t* res = new diet_argStack_elt_t;
-  res->mode = mode;
-  res->arg  = arg;
-  return res;
-}
-
-diet_arg_mode_t
-diet_argStack_elt_mode(diet_argStack_elt_t* argStack_elt)
-{
-  return argStack_elt->mode;
-}
-
-diet_arg_t*
-diet_argStack_elt_arg(diet_argStack_elt_t* argStack_elt)
-{
-  return argStack_elt->arg;
-}
-
-diet_argStack_t*
-newArgStack(size_t maxsize)
-{
-  diet_argStack_t* res = new diet_argStack_t;
-  res->maxsize = maxsize;
-  res->first = -1;
-  res->stack = new diet_argStack_elt_t[maxsize];
-  return res;
-}
-
-int
-pushArg(diet_argStack_t* stack, diet_argStack_elt_t* arg)
-{
-  if (stack->first == (int)(stack->maxsize) - 1)
-    return 1;
-  stack->first++;
-  stack->stack[stack->first] = *arg;
-  return 0;
-}
-
-/* !!! allocate a new diet_argStack_elt_t => to be freed !!! */
-// FIXME: take care that argument copy is partial
-diet_argStack_elt_t*
-popArg(diet_argStack_t* stack)
-{
-  diet_argStack_elt_t* arg(NULL);
-  if (stack->first == -1)
-    return NULL;
-  arg = new(diet_argStack_elt_t);
-  *arg = stack->stack[stack->first];
-  stack->first--;
-  return arg;
-}
-
-int
-destructArgStack(diet_argStack_t* stack)
-{
-  delete [] stack->stack;
-  delete stack;
-  return 0;
-}
-
-
-
-/****************************************************************************/
-/* Function handles                                                         */
-
-struct diet_function_handle_s {
-  char* pb_name;
-  SeD_var server;
-};
-#define DIET_DEFAULT_SERVER SeD::_nil()
-
-
-/* Allocate a function handle and set its server to DIET_DEFAULT_SERVER */
-diet_function_handle_t*
-diet_function_handle_default(char* pb_name)
-{
-  diet_function_handle_t* res = new diet_function_handle_t;
-  res->pb_name = strdup(pb_name);
-  res->server = DIET_DEFAULT_SERVER;
-  return res;
-}
-
-/* Allocate a function handle and set its server */
-/* This function is only added for GridRPC compatibility.
-   Please, avoid using it !                              */
-diet_function_handle_t*
-diet_function_handle_init(char* server_name)
-{
-  /* Cannot be implemented until servers register in Naming Service */
-  return NULL;
-}
-
-/* Free a function handle */
-long int
-diet_function_handle_destruct(diet_function_handle_t* handle)
-{
-  free(handle->pb_name);
-  delete handle;
-  return 0;
-}
-
-/* Get the function handle linked to reqID */
-diet_function_handle_t*
-diet_get_function_handle(diet_reqID_t reqID)
-{
-  return NULL;
-}
-
+END_API
 
 
 /****************************************************************************/
 /* GridRPC call functions                                                   */
+/****************************************************************************/
 
 
-/* Submit a request: the profile descriptor.
-   Return the index of decision that can be used, -1 if none can be used.
-   NB: (*decision)->length() == 0 if no service was found. */
+/****************************************
+ * Request submission
+ ****************************************/
 
-int
-submission(corba_pb_desc_t* pb, corba_response_t*& response)
+diet_error_t
+request_submission(diet_profile_t* profile,
+		   SeD_var& chosenServer, diet_reqID_t& reqID)
 {
-  int server_OK(0);
-  
-  response = NULL;
-  try {
-    response = MA->submit(*pb, MAX_SERVERS);
-  } catch (CORBA::Exception& e) {
-    CORBA::Any tmp;
-    tmp <<= e;
-    CORBA::TypeCode_var tc = tmp.type();
-    if (response)
-      response->servers.length(0);
-    ERROR("caught a CORBA exception (" << tc->name()
-	  << ") while submitting problem", -2);
+  static int nb_tries(3);
+  int server_OK(0), subm_count;
+  corba_pb_desc_t corba_pb;
+  //corba_pb_desc_t& corba_pb = *(new corba_pb_desc_t());
+  corba_response_t* response(NULL);
+
+  chosenServer = SeD::_nil();
+
+  if (mrsh_pb_desc(&corba_pb, profile)) {
+    ERROR("profile is wrongly built", 1);
   }
-  
-  if (!response || response->servers.length() == 0) {
-    WARNING("no server found for problem " << pb->path);
-    server_OK = -1;
 
-  } else {
+  /* Request submission : try nb_tries times */
 
-    if (TRACE_LEVEL >= TRACE_MAIN_STEPS) {
-      cout << "The Master Agent found the following server(s):\n";
-      for (size_t i = 0; i < response->servers.length(); i++) {
-	int idx = response->sortedIndexes[i];
-	cout << "    " << response->servers[idx].loc.hostName << ":"
-	     << response->servers[idx].loc.port << "\n";
-      }
+  stat_in("request_submission");
+  subm_count = 0;
+  do {
+    response = NULL;
+
+    /* Submit to the agent. */
+    try {
+      response = MA->submit(corba_pb, MAX_SERVERS);
+    } catch (CORBA::Exception& e) {
+      CORBA::Any tmp;
+      tmp <<= e;
+      CORBA::TypeCode_var tc = tmp.type();
+      //delete &corba_pb;
+      if (response)
+	delete response;
+      ERROR("caught a CORBA exception (" << tc->name()
+	    << ") while submitting problem", 1);
     }
+  
+    /* Check response */
 
-    server_OK = 0;
-    while ((size_t) server_OK < response->servers.length()) {
-      try {
-	int           idx       = response->sortedIndexes[server_OK];
-	SeD_ptr       server    = response->servers[idx].loc.ior;
-	CORBA::Double totalTime = response->servers[idx].estim.totalTime;
-	if (server->checkContract(response->servers[idx].estim, *pb)) {
+    if (!response || response->servers.length() == 0) {
+      WARNING("no server found for problem " << corba_pb.path);
+      server_OK = -1;
+
+    } else {
+      
+      if (TRACE_LEVEL >= TRACE_MAIN_STEPS) {
+	TRACE_TEXT(TRACE_MAIN_STEPS,
+		   "The Master Agent found the following server(s):\n");
+	for (size_t i = 0; i < response->servers.length(); i++) {
+	  int idx = response->sortedIndexes[i];
+	  TRACE_TEXT(TRACE_MAIN_STEPS,
+		     "    " << response->servers[idx].loc.hostName << ":"
+		     << response->servers[idx].loc.port << "\n");
+	}
+      }
+
+      /* Check the contracts of the servers answered. */
+
+      server_OK = 0;
+      while ((size_t) server_OK < response->servers.length()) {
+	try {
+	  int           idx       = response->sortedIndexes[server_OK];
+	  SeD_ptr       server    = response->servers[idx].loc.ior;
+	  CORBA::Double totalTime = response->servers[idx].estim.totalTime;
+	  if (server->checkContract(response->servers[idx].estim, corba_pb)) {
+	    server_OK++;
+	    continue;
+	  }
+	  if ((totalTime == response->servers[idx].estim.totalTime) ||
+	      ((response->servers[idx].estim.totalTime - totalTime)
+	       < (ERROR_RATE *
+		  MAX(totalTime,response->servers[idx].estim.totalTime))))
+	    break;
+	  server_OK++;
+	} catch (CORBA::Exception& e) {
 	  server_OK++;
 	  continue;
 	}
-	if ((totalTime == response->servers[idx].estim.totalTime) ||
-	    ((response->servers[idx].estim.totalTime - totalTime)
-	     < (ERROR_RATE *
-		MAX(totalTime,response->servers[idx].estim.totalTime))))
-	  break;
-	server_OK++;
-      } catch (CORBA::Exception& e) {
-	server_OK++;
-	continue;
       }
+      if ((size_t) server_OK == response->servers.length())
+	server_OK = -1;
     }
-    if ((size_t) server_OK == response->servers.length())
-      server_OK = -1;
-  }
-  return server_OK;
-}
 
-
-int
-diet_call(diet_function_handle_t* handle, diet_profile_t* profile)
-{
-  //corba_pb_desc_t& corba_pb = *(new corba_pb_desc_t());
-  corba_pb_desc_t corba_pb;
-  corba_profile_t corba_profile;
-  corba_response_t* response(NULL);
-  int subm_count, server_OK, solve_res;
-  static int nb_tries(3);
-  
-  stat_in("diet_call");
-
-  if (mrsh_pb_desc(&corba_pb, profile, handle->pb_name))
-    return 1;
-
-  /* Request submission : try nb_tries times */
-  stat_in("diet_call.submission");
-  subm_count = 0;
-  do {
-    if ((server_OK = submission(&corba_pb, response)) == -2)
-      break;
   } while ((response) && (response->servers.length() > 0) &&
 	   (server_OK == -1) && (++subm_count < nb_tries));
-  stat_out("diet_call.submission");
+  stat_out("request_submission");
 
   if (!response || response->servers.length() == 0) {
+    //delete &corba_pb;
     if (response)
       delete response;
     ERROR("unable to find a server", 1);
   }
   if (server_OK == -1) {
+    //delete &corba_pb;
     delete response;
     ERROR("unable to find a server after " << nb_tries << " tries."
 	  << "The platform might be overloaded, try again later please", 1);
   }
-  handle->server = response->servers[server_OK].loc.ior;
 
 #if HAVE_CICHLID
   static int already_initialized(0);
@@ -490,82 +381,125 @@ diet_call(diet_function_handle_t* handle, diet_profile_t* profile)
   strcat(str_tmp, "_SeD");
   add_communication("client", str_tmp, profile_size(&corba_pb));
 #endif // HAVE_CICHLID
-
-  if (mrsh_profile_to_in_args(&corba_profile, profile)) {
-    delete response;
-    return 1;
-  }
-
-  stat_in("diet_call.solve");
-  solve_res = handle->server->solve(handle->pb_name, corba_profile);
-  stat_out("diet_call.solve");
-
-  if (unmrsh_out_args_to_profile(profile, &corba_profile)) {
-    delete response;
-    return 1;
-  }
   
   //delete &corba_pb;
-  delete response;
+
+  if (server_OK >= 0) {
+    chosenServer = response->servers[server_OK].loc.ior;
+    reqID = response->reqID;
+  }
+
+  return 0;
+}
+
+
+/****************************************
+ * Synchronous call
+ ****************************************/
+
+/**
+ * This function unifies DIET and GridRPC APIs.
+ * It is designed to be called from diet_call, grpc_call and grpc_call_argstack.
+ */
+diet_error_t
+diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
+{
+  diet_error_t res(0);
+  int solve_res(0);
+  diet_reqID_t reqID;
+  corba_profile_t corba_profile;
+
+  stat_in("diet_call");
+
+  if (CORBA::is_nil(chosenServer)) {
+    if ((res = request_submission(profile, chosenServer, reqID)))
+      return res;
+    if (CORBA::is_nil(chosenServer))
+      return 1;
+  }
+  
+  if (mrsh_profile_to_in_args(&corba_profile, profile)) {
+    ERROR("profile is wrongly built", 1);
+  }
+
+  stat_in("computation");
+  solve_res = chosenServer->solve(profile->pb_name, corba_profile);
+  stat_out("computation");
+
+  if (unmrsh_out_args_to_profile(profile, &corba_profile)) {
+    INTERNAL_ERROR("returned profile is wrongly built", 1);
+  }
+ 
   stat_out("diet_call");
   return solve_res;
 }
 
+BEGIN_API
 
-diet_reqID_t
-diet_call_async(diet_function_handle_t* handle, diet_profile_t* profile)
+/**
+ * Request + computation submissions.
+ */
+diet_error_t
+diet_call(diet_profile_t* profile)
 {
-  corba_pb_desc_t corba_pb;
-  corba_profile_t     corba_profile;
-  corba_response_t* response(NULL);
-  int subm_count, server_OK, reqID;
-  static int nb_tries(3);
+  SeD_var chosenServer = SeD::_nil();
+  return diet_call_common(profile, chosenServer);
+}
+
+END_API
+
+
+/****************************************
+ * Asynchronous call
+ ****************************************/
+
+/**
+ * This function unifies DIET and GridRPC APIs.
+ * It is designed to be called from diet_call_async, grpc_call-async
+ * and grpc_call_argstack_async.
+ */
+diet_error_t
+diet_call_async_common(diet_profile_t* profile,
+		       SeD_var& chosenServer, diet_reqID_t* reqID)
+{
+   corba_profile_t corba_profile;
+   CallAsyncMgr* caMgr;
+   diet_error_t res(0);
+  
+  if (!reqID) {
+    ERROR(__FUNCTION__ << ": 2nd argument has not been allocated", 1);
+  }
+
+  stat_in("diet_call_async");
+
   try {
-    /* Request submission : try nb_tries times */
-    displayProfile(profile, handle->pb_name);
-    if (mrsh_pb_desc(&corba_pb, profile, handle->pb_name))
-      return -1;
-    subm_count = 0;
 
-    stat_in("diet_call_async.submission");
-    do {
-      server_OK = submission(&corba_pb, response);
-    }  while ((response->servers.length() > 0)
-	      && (server_OK == -1) && (++subm_count < nb_tries));
-    stat_out("diet_call_async.submission");
-
-    if (!response || response->servers.length() == 0) {
-      ERROR("unable to find a server", -1);
+    if (CORBA::is_nil(chosenServer)) {
+      if ((res = request_submission(profile, chosenServer, *reqID)))
+	return res;
+      if (CORBA::is_nil(chosenServer))
+	return 1;
     }
-    if (server_OK == -1) {
-      ERROR("unable to find a server after " << nb_tries << " tries", -1);
-    }
-    handle->server = response->servers[server_OK].loc.ior;
-
-#if HAVE_CICHLID
-    static int already_initialized(0);
-    char str_tmp[1000];
-
-    if (!already_initialized) {
-      init_communications();
-      already_initialized = 1;
-    }
-
-    strcpy(str_tmp, response->servers[server_OK].loc.hostName);
-    strcat(str_tmp, "_SeD");
-    add_communication("client", str_tmp, profile_size(&corba_pb));
-#endif // HAVE_CICHLID
     
-    if (mrsh_profile_to_in_args(&corba_profile, profile)) return -1;
-    stat_in("diet_call_async.solve");
+    if (mrsh_profile_to_in_args(&corba_profile, profile)) {
+      ERROR("profile is wrongly built", 1);
+    }
 
     // get sole CallAsyncMgr singleton
-    CallAsyncMgr * caMgr = CallAsyncMgr::Instance();
+    caMgr = CallAsyncMgr::Instance();
     // create corba client callback server...
-    if (caMgr->addAsyncCall(response->reqID, profile) != 0) return -1;
+    if (caMgr->addAsyncCall(*reqID, profile) != 0)
+      return -1;
 
-    handle->server->solveAsync(handle->pb_name, corba_profile, 
-			       response->reqID, REF_CALLBACK_SERVER);
+    stat_in("computation_async");
+    chosenServer->solveAsync(profile->pb_name, corba_profile, 
+			     *reqID, REF_CALLBACK_SERVER);
+    stat_out("computation_async");
+
+    if (unmrsh_out_args_to_profile(profile, &corba_profile)) {
+      INTERNAL_ERROR("returned profile is wrongly built", 1);
+    }
+   
   } catch (const CORBA::Exception &e) {
     // Process any other User exceptions. Use the .id() method to
     // record or display useful information
@@ -577,86 +511,39 @@ diet_call_async(diet_function_handle_t* handle, diet_profile_t* profile)
       WARNING("exception caught in " << __FUNCTION__ << '(' << p << ')');
     else
       WARNING("exception caught in " << __FUNCTION__ << '(' << tc->id() << ')');
-    reqID = -1;
+    *reqID = -1;
+    return -1;
   }
   catch (...) {
     WARNING("exception caught in " << __FUNCTION__);
-    reqID = -1;  
+    *reqID = -1;
+    return -1;
   }
-  reqID = response->reqID;
-  delete response;
-  stat_out("diet_call_async.solve");
-  return reqID;
-}
-
-
-
-// FIXME: take care that argument copies are partial
-int
-argStack2profile(diet_profile_t* profile, diet_argStack_t* args)
-{
-  int tmp;
   
-  profile->last_in    = 0;
-  profile->last_inout = 0;
-  profile->last_out = args->first;
-  profile->parameters = new diet_arg_t[profile->last_out + 1];
-  tmp = 0;
-  for (int mode = (int) IN; mode >= (int) OUT; mode++) {
-    for (int i = 0; i <= args->first; i++) {
-      if (args->stack[i].mode == (diet_arg_mode_t) mode) {
-	profile->parameters[tmp] = (*args->stack[i].arg);
-	tmp++;
-      }
-    }
-    switch (mode) {
-    case IN:    profile->last_in    = tmp - 1; break;
-    case INOUT: profile->last_inout = tmp - 1; break;
-    case OUT:   {
-      if (profile->last_out != tmp - 1) {
-	ERROR("argStack could not be converted into a profile", 1);
-      }
-    }
-    }
-  }
+  stat_out("diet_call_async");
   return 0;
 }
 
-int
-diet_call_argstack(diet_function_handle_t* handle, diet_argStack_t* args)
+BEGIN_API
+
+/**
+ * Request + asynchronous computation submissions.
+ */
+diet_error_t
+diet_call_async(diet_profile_t* profile, diet_reqID_t* reqID)
 {
-  int res;
-  diet_profile_t profile;
-
-  if (argStack2profile(&profile, args))
-    return 1;
-  
-  res = diet_call(handle, &profile);
-
-  delete [] profile.parameters;
-  return res;
+  SeD_var chosenServer = SeD::_nil();
+  return diet_call_async_common(profile, chosenServer, reqID);
 }
 
-
-diet_reqID_t
-diet_call_argstack_async(diet_function_handle_t* handle, diet_argStack_t* args)
-{
-  diet_reqID_t reqID;
-  diet_profile_t profile;
-
-  if (argStack2profile(&profile, args))
-    return 1;
-  
-  reqID = diet_call_async(handle, &profile);
-
-  delete [] profile.parameters;
-  return reqID;
-}
+END_API
 
 
 /****************************************************************************/
-/* GridRPC control and wait functions                                       */
+/* Asynchronous control and wait functions                                  */
+/****************************************************************************/
 
+BEGIN_API
 
 /****************************************************************************  
  * diet_probe GridRPC function.
@@ -853,6 +740,5 @@ diet_wait_any(diet_reqID_t* IDptr)
   return CallAsyncMgr::Instance()->addWaitAnyRule(IDptr);
 }
 
+END_API
 
-
-} // extern "C"

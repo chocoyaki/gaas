@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2003/07/25 20:37:36  pcombes
+ * Separate the DIET API (slightly modified) from the GridRPC API (version of
+ * the draft dated to 07/21/2003)
+ *
  * Revision 1.6  2003/04/10 13:33:21  pcombes
  * Apply new Coding Standards.
  *
@@ -65,7 +69,6 @@
 int
 main(int argc, char* argv[])
 {
-  diet_function_handle_t* fhandle;
   diet_profile_t* profile;
   char* path = "dgemm";
 
@@ -107,8 +110,7 @@ main(int argc, char* argv[])
     return 1;
   } 
 
-  fhandle = diet_function_handle_default(path);
-  profile = diet_profile_alloc(3, 4, 4);
+  profile = diet_profile_alloc(path, 3, 4, 4);
 
   diet_scalar_set(diet_parameter(profile,0), &alpha,
 		  DIET_VOLATILE, DIET_DOUBLE);
@@ -125,7 +127,7 @@ main(int argc, char* argv[])
   print_matrix(B, k, n, (oB == DIET_ROW_MAJOR));
   print_matrix(C, m, n, (oC == DIET_ROW_MAJOR));
   
-  if (!diet_call(fhandle, profile)) {
+  if (!diet_call(profile)) {
     print_matrix(C, m, n, (oC == DIET_ROW_MAJOR));
   }
   
@@ -134,7 +136,6 @@ main(int argc, char* argv[])
   free(C);
 
   diet_profile_free(profile);
-  diet_function_handle_destruct(fhandle);
     
   diet_finalize();
 

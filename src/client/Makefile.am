@@ -10,6 +10,10 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.5  2003/07/25 20:37:36  pcombes
+#* Separate the DIET API (slightly modified) from the GridRPC API (version of
+#* the draft dated to 07/21/2003)
+#*
 #* Revision 1.4  2003/06/18 07:33:48  pcombes
 #* Add files for management of asynchronism into distribution (noinst_HEADERS)
 #*
@@ -28,9 +32,13 @@ include $(top_srcdir)/config.mk.in
 lib_LTLIBRARIES = libDIET_client.la
 
 libDIET_client_la_SOURCES = $(top_srcdir)/include/DIET_client.h \
-			    DIET_client.cc CallAsyncMgr.cc CallbackImpl.cc
+			    $(top_srcdir)/include/DIET_grpc.h   \
+			    DIET_client.cc DIET_grpc.cc         \
+			    CallAsyncMgr.cc CallbackImpl.cc
 
 noinst_HEADERS = CallAsyncMgr.hh CallbackImpl.hh
+
+instdir = $(sysconfdir)
 
 utilsdir = $(top_builddir)/src/utils
 corbadir = $(top_builddir)/src/CORBA

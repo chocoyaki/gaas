@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2003/07/25 20:37:36  pcombes
+ * Separate the DIET API (slightly modified) from the GridRPC API (version of
+ * the draft dated to 07/21/2003)
+ *
  * Revision 1.16  2003/06/23 13:15:32  pcombes
  * Comments
  *
@@ -120,11 +124,13 @@ typedef struct diet_arg_s diet_arg_t;
 /****************************************************************************/
 
 typedef struct {
+  char*       pb_name;
   int         last_in, last_inout, last_out;
   diet_arg_t* parameters;
 } diet_profile_t;
 
 /* Allocate a DIET profile with memory space for its arguments.
+   pb_name is deep-copied.
    If no IN argument, please give -1 for last_in.
    If no INOUT argument, please give last_in for last_inout.
    If no OUT argument, please give last_inout for last_out.
@@ -136,7 +142,7 @@ typedef struct {
    Since a profile will not be freed until profile_free is called, it is
    possible to refer to each parameter for data handles (cf. below)         */
 diet_profile_t*
-diet_profile_alloc(int last_in, int last_inout, int last_out);
+diet_profile_alloc(char* pb_name, int last_in, int last_inout, int last_out);
 int
 diet_profile_free(diet_profile_t* profile);
 

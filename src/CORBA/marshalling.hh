@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2003/07/25 20:37:36  pcombes
+ * Separate the DIET API (slightly modified) from the GridRPC API (version of
+ * the draft dated to 07/21/2003)
+ *
  * Revision 1.15  2003/04/10 12:40:22  pcombes
  * Use the TRACE_LEVEL of the debug module. Manage the data ID.
  *
@@ -48,7 +52,6 @@
 #ifndef _MARSHALLING_HH_
 #define _MARSHALLING_HH_
 
-#include "DIET_client.h"
 #include "DIET_data.h"
 #include "DIET_server.h"
 
@@ -94,7 +97,7 @@ mrsh_profile_desc(corba_profile_desc_t* dest,
 
 // To submit a request from the client DIET profile
 int
-mrsh_pb_desc(corba_pb_desc_t* dest, diet_profile_t* src, char* src_name);
+mrsh_pb_desc(corba_pb_desc_t* dest, diet_profile_t* src);
 
 
 #if HAVE_FAST

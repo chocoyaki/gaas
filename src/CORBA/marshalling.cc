@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2003/07/25 20:37:36  pcombes
+ * Separate the DIET API (slightly modified) from the GridRPC API (version of
+ * the draft dated to 07/21/2003)
+ *
  * Revision 1.26  2003/07/04 09:47:55  pcombes
  * Use new ERROR and WARNING macros.
  *
@@ -454,9 +458,9 @@ mrsh_profile_desc(corba_profile_desc_t* dest,
 /****************************************************************************/
 
 int
-mrsh_pb_desc(corba_pb_desc_t* dest, diet_profile_t* src, char* src_name)
+mrsh_pb_desc(corba_pb_desc_t* dest, diet_profile_t* src)
 {
-  dest->path       = CORBA::string_dup(src_name); // deallocates old dest->path
+  dest->path       = CORBA::string_dup(src->pb_name); // frees old dest->path
   dest->last_in    = src->last_in;
   dest->last_inout = src->last_inout;
   dest->last_out   = src->last_out;

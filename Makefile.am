@@ -10,6 +10,10 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.7  2003/07/25 20:37:36  pcombes
+#* Separate the DIET API (slightly modified) from the GridRPC API (version of
+#* the draft dated to 07/21/2003)
+#*
 #* Revision 1.6  2003/06/23 13:13:40  pcombes
 #* Update make help.
 #*
@@ -51,6 +55,7 @@ RM_FROM_DIST += aclocal.m4 configure.ac `find . -name Makefile.am`
 endif
 
 include_HEADERS = $(top_builddir)/include/Makefile.inc \
+		  $(top_srcdir)/include/DIET_grpc.h \
 		  $(top_srcdir)/include/DIET_client.h \
 		  $(top_srcdir)/include/DIET_server.h \
 		  $(top_srcdir)/include/DIET_data.h \

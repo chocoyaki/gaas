@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2003/07/25 20:37:36  pcombes
+ * Separate the DIET API (slightly modified) from the GridRPC API (version of
+ * the draft dated to 07/21/2003)
+ *
  * Revision 1.2  2003/06/30 11:15:12  cpera
  * Fix bugs in ReaderWriter and new internal debug macros.
  *
@@ -117,7 +121,6 @@ main(int argc, char* argv[])
   size_t i, m, n;
   size_t n_loops = 1;
   char* path = NULL;
-  diet_function_handle_t* fhandle = NULL;
   diet_profile_t* profile = NULL;
   double mat1[9] = {1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0};
   double mat2[9] = {10.0,11.0,12.0,13.0,14.0,15.0,16.0,17.0,18.0};
@@ -178,15 +181,13 @@ main(int argc, char* argv[])
     oC = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
     
     if (pb[0]) {
-      fhandle = diet_function_handle_default(path);
-      profile = diet_profile_alloc(-1, 0, 0);
+      profile = diet_profile_alloc(path, -1, 0, 0);
       diet_matrix_set(diet_parameter(profile,0),
 		      A, DIET_VOLATILE, DIET_DOUBLE, m, n, oA);
       print_matrix(A, m, n, (oA == DIET_ROW_MAJOR));
     } 
     else if (pb[1] || pb[2] || pb[3]) {  
-      fhandle = diet_function_handle_default(path);
-      profile = diet_profile_alloc(1, 1, 2);
+      profile = diet_profile_alloc(path, 1, 1, 2);
       diet_matrix_set(diet_parameter(profile,0),
 		      A, DIET_VOLATILE, DIET_DOUBLE, m, n, oA);
       print_matrix(A, m, n, (oA == DIET_ROW_MAJOR));
@@ -206,8 +207,7 @@ main(int argc, char* argv[])
       }
     } 
     else if (pb[4]) {
-      fhandle = diet_function_handle_default(path);
-      profile = diet_profile_alloc(0, 1, 1);
+      profile = diet_profile_alloc(path, 0, 1, 1);
       diet_matrix_set(diet_parameter(profile,0),
 		      A, DIET_VOLATILE, DIET_DOUBLE, m, m, oA);
       print_matrix(A, m, m, (oA == DIET_ROW_MAJOR));
@@ -221,7 +221,8 @@ main(int argc, char* argv[])
       return 1;
     }
     /*displayProfile(profile, path);*/
-    int rst = diet_call_async(fhandle, profile);
+    diet_reqID_t rst;
+    diet_call_async(profile, &rst);
     printf("valeur de retour de diet_call_async = -%d- \n", rst);
     if (rst > 0){
       printf("debut du diet_waitfor ...\n");
@@ -245,7 +246,6 @@ main(int argc, char* argv[])
       printf("error in diet_call_async ...\n");
     }
     diet_profile_free(profile);
-    diet_function_handle_destruct(fhandle);
   }
   diet_finalize();
   DIET_DEBUG(TEXT_OUTPUT(("FIN du client asynchrone avec des appels en serie.")))

@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2003/07/25 20:37:36  pcombes
+ * Separate the DIET API (slightly modified) from the GridRPC API (version of
+ * the draft dated to 07/21/2003)
+ *
  * Revision 1.9  2003/07/04 09:48:00  pcombes
  * Use new ERROR and WARNING macros => each STATE value becomes STATUS_value.
  *
@@ -62,7 +66,7 @@ CallAsyncMgr* CallAsyncMgr::Instance ()
  * add into internal list a new asynchronized reference
  * Return : 0 if OK, -1 if error
  * *******************************************************************/
-int CallAsyncMgr::addAsyncCall (int reqID, diet_profile_t* dpt) 
+int CallAsyncMgr::addAsyncCall (diet_reqID_t reqID, diet_profile_t* dpt) 
 {
 	DIET_DEBUG()
   WriterLockGuard r(callAsyncListLock);
@@ -90,7 +94,7 @@ int CallAsyncMgr::addAsyncCall (int reqID, diet_profile_t* dpt)
  * NOTES : caller must be released omni_semaphore and rules  !!!
  * job for awaken thread.. a call to deleteWaitRules is necesary ...
  * ******************************************************************/
- int CallAsyncMgr::deleteAsyncCall(int reqID) 
+ int CallAsyncMgr::deleteAsyncCall(diet_reqID_t reqID) 
 {
 	DIET_DEBUG()
   WriterLockGuard r(callAsyncListLock);
@@ -402,7 +406,7 @@ int CallAsyncMgr::areThereWaitRules()
 /**********************************************************************
  * corba callback server service API
  *********************************************************************/ 
-int CallAsyncMgr::notifyRst (int reqID, corba_profile_t * dp) 
+int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp) 
 {
   
 	DIET_DEBUG()
@@ -468,7 +472,7 @@ int CallAsyncMgr::notifyRst (int reqID, corba_profile_t * dp)
  * CallAsyncMgr.hh
  * Return : enum STATUS
  * ********************************************************************/
-int CallAsyncMgr::getStatusReqID(int reqID)
+int CallAsyncMgr::getStatusReqID(diet_reqID_t reqID)
 {
 	DIET_DEBUG()
   ReaderLockGuard r(callAsyncListLock);

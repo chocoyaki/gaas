@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2003/07/25 20:37:36  pcombes
+ * Separate the DIET API (slightly modified) from the GridRPC API (version of
+ * the draft dated to 07/21/2003)
+ *
  * Revision 1.1.1.1  2003/04/10 13:21:39  pcombes
  * SCALAPCK is included in the autotools chain under "ScaLAPACK".
  *
@@ -63,7 +67,6 @@ int
 main(int argc, char* argv[])
 {
   char* path = "pdgemm";
-  diet_function_handle_t* fhandle = NULL;
   diet_profile_t* profile = NULL;
 
   size_t i, j, m, n, k, procs, rows, cols, bs;
@@ -110,8 +113,7 @@ main(int argc, char* argv[])
     return 1;
   } 
 
-  fhandle = diet_function_handle_default(path);
-  profile = diet_profile_alloc(7, 8, 8);
+  profile = diet_profile_alloc(path, 7, 8, 8);
 
   diet_scalar_set(diet_parameter(profile,0), &procs, DIET_VOLATILE, DIET_INT);
   diet_scalar_set(diet_parameter(profile,1), &rows, DIET_VOLATILE, DIET_INT);
@@ -132,7 +134,7 @@ main(int argc, char* argv[])
   print_matrix(B, k, n, (oB == DIET_ROW_MAJOR));
   print_matrix(C, m, n, (oC == DIET_ROW_MAJOR));
   
-  if(!diet_call(fhandle, profile)){
+  if(!diet_call(profile)){
     print_matrix(C, m, n, (oC == DIET_ROW_MAJOR));
   }
 
@@ -141,7 +143,6 @@ main(int argc, char* argv[])
   free(C);
 
   diet_profile_free(profile);
-  diet_function_handle_destruct(fhandle);
 
   diet_finalize();
 

@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2003/07/25 20:37:36  pcombes
+ * Separate the DIET API (slightly modified) from the GridRPC API (version of
+ * the draft dated to 07/21/2003)
+ *
  * Revision 1.5  2003/07/04 09:48:01  pcombes
  * enum STATE -> request_status_t, and its values are prefixed by STATUS.
  *
@@ -27,8 +31,11 @@
 #include <omnithread.h>
 #include <sys/types.h>
 #include <assert.h>
-#include "ReadersWriterLock.hh"
+
+#include "DIET_client.h"
 #include "dietTypes.hh"
+#include "ReadersWriterLock.hh"
+
 
 /****************************************************************************
  * A singleton class which manage asynchronnized call on SeD                
@@ -93,11 +100,11 @@ class CallAsyncMgr
     static CallAsyncMgr* Instance();
     // client service API
     // add into internal list a new asynchronized reference
-    int addAsyncCall(int reqID, diet_profile_t* dpt);
-    int deleteAsyncCall(int reqId);
+    int addAsyncCall(diet_reqID_t reqID, diet_profile_t* dpt);
+    int deleteAsyncCall(diet_reqID_t reqID);
     // add a new wait rule 
     int addWaitRule(Rule *);
-    int addWaitAnyRule(int * IDptr);
+    int addWaitAnyRule(diet_reqID_t* IDptr);
     int addWaitAllRule();
     int deleteWaitRule(Rule* rule);
     // persistence of async call ID and corba callback IOR
@@ -105,8 +112,8 @@ class CallAsyncMgr
     int serialise();
     int areThereWaitRules();
     // corba callback server service API
-    int notifyRst(int reqID, corba_profile_t *dp);
-    int getStatusReqID(int reqID);
+    int notifyRst(diet_reqID_t reqID, corba_profile_t *dp);
+    int getStatusReqID(diet_reqID_t reqID);
     int verifyRule(Rule *rule);
     // initialise all necessary corba services 
     // call by the first add of asynchronized call 

@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2003/07/25 20:37:37  pcombes
+ * Separate the DIET API (slightly modified) from the GridRPC API (version of
+ * the draft dated to 07/21/2003)
+ *
  * Revision 1.8  2003/04/10 13:31:21  pcombes
  * Update to empty (not only NULL) file paths.
  *
@@ -45,7 +49,6 @@ int
 main(int argc, char* argv[])
 {
   char* path = NULL;
-  diet_function_handle_t* fhandle = NULL;
   diet_profile_t* profile = NULL;
   int *size1 = NULL;
   int *size2 = NULL;
@@ -63,8 +66,7 @@ main(int argc, char* argv[])
     return 1;
   } 
 
-  fhandle = diet_function_handle_default(path);
-  profile = diet_profile_alloc(1, 1, 4);
+  profile = diet_profile_alloc(path, 1, 1, 4);
   if (diet_file_set(diet_parameter(profile,0), DIET_VOLATILE, argv[2])) {
     printf("diet_file_set error\n");
     return 1;
@@ -80,7 +82,7 @@ main(int argc, char* argv[])
     return 1;
   }
 
-  if (!diet_call(fhandle, profile)) {
+  if (!diet_call(profile)) {
     diet_scalar_get(diet_parameter(profile,2), &size1, NULL);
     diet_scalar_get(diet_parameter(profile,3), &size2, NULL);
     if (size1 && size2) {
@@ -99,7 +101,6 @@ main(int argc, char* argv[])
   }
   
   diet_profile_free(profile);
-  diet_function_handle_destruct(fhandle);
     
   diet_finalize();
 

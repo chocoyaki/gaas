@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2003/07/25 20:37:36  pcombes
+ * Separate the DIET API (slightly modified) from the GridRPC API (version of
+ * the draft dated to 07/21/2003)
+ *
  * Revision 1.6  2003/04/10 13:33:21  pcombes
  * Apply new Coding Standards.
  *
@@ -71,7 +75,6 @@ int
 main(int argc, char* argv[])
 {
   char* path = NULL;
-  diet_function_handle_t* fhandle = NULL;
   diet_profile_t* profile = NULL;
 
   size_t i, j, m, n, k;
@@ -132,8 +135,7 @@ main(int argc, char* argv[])
     for (i = 0; i < k * n; i++)     B[i] = 1.0 + j++;
     for (i = 0; i < m * n; i++)     C[i] = 1.0 + j++;
 
-    fhandle = diet_function_handle_default(path);
-    profile = diet_profile_alloc(3, 4, 4);
+    profile = diet_profile_alloc(path, 3, 4, 4);
     diet_scalar_set(diet_parameter(profile,0), &alpha,
 		    DIET_VOLATILE, DIET_DOUBLE);
     diet_matrix_set(diet_parameter(profile,1), A,
@@ -170,8 +172,7 @@ main(int argc, char* argv[])
     for (i = j = 0; i < m * m; i++) A[i] = 1.0 + j++;
     for (i = 0; i < m * m; i++)     C[i] = 1.0 + j++;
 
-    fhandle = diet_function_handle_default(path);
-    profile = diet_profile_alloc(0, 1, 1);
+    profile = diet_profile_alloc(path, 0, 1, 1);
     diet_matrix_set(diet_parameter(profile,0),
 		    A, DIET_VOLATILE, DIET_DOUBLE, m, m, oA);
     diet_matrix_set(diet_parameter(profile,1),
@@ -216,8 +217,7 @@ main(int argc, char* argv[])
     for (i = j = 0; i < m * k; i++) A[i] = 1.0 + j++;
     for (i = 0; i < k * n; i++)     B[i] = 1.0 + j++;
 
-    fhandle = diet_function_handle_default(path);
-    profile = diet_profile_alloc(1, 1, 2);
+    profile = diet_profile_alloc(path, 1, 1, 2);
     diet_matrix_set(diet_parameter(profile,0),
 		    A, DIET_VOLATILE, DIET_DOUBLE, m, k, oA);
     diet_matrix_set(diet_parameter(profile,1),
@@ -252,8 +252,7 @@ main(int argc, char* argv[])
     C = calloc(m*n, sizeof(double));
     for (i = j = 0; i < m * n; i++) C[i] = 1.0 + j++;
 
-    fhandle = diet_function_handle_default(path);
-    profile = diet_profile_alloc(0, 1, 1);
+    profile = diet_profile_alloc(path, 0, 1, 1);
     diet_scalar_set(diet_parameter(profile,0), &alpha, DIET_VOLATILE, DIET_DOUBLE);
     diet_matrix_set(diet_parameter(profile,1),
 		    C, DIET_VOLATILE, DIET_DOUBLE, m, n, oC);
@@ -270,8 +269,7 @@ main(int argc, char* argv[])
 
     alpha = 0.0;
     m = n = 0;
-    fhandle = diet_function_handle_default(path);
-    profile = diet_profile_alloc(-1, 0, 0);
+    profile = diet_profile_alloc(path, -1, 0, 0);
     diet_scalar_set(diet_parameter(profile,0), &alpha,
 		    DIET_VOLATILE, DIET_DOUBLE);
   }
@@ -281,7 +279,7 @@ main(int argc, char* argv[])
    * DIET Call
    *********************/
 
-  if (!diet_call(fhandle, profile)) {
+  if (!diet_call(profile)) {
     if (!(strcmp(path, PB[1]) && strcmp(path, PB[3]))) {
       // C is OUT and thus must be set
       diet_matrix_get(diet_parameter(profile,2), &C, NULL, NULL, NULL, &oC);
@@ -298,7 +296,6 @@ main(int argc, char* argv[])
   if (C) free(C);
   
   diet_profile_free(profile);
-  diet_function_handle_destruct(fhandle);
   
   diet_finalize();
 
