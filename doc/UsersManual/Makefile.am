@@ -9,6 +9,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.2  2004/07/08 18:04:08  rbolze
+#* little change to have distrib name in the ps file name
+#*
 #* Revision 1.1  2003/09/09 12:38:20  pcombes
 #* Reorganization of doc: UM becomes UsersManual.
 #*
@@ -32,7 +35,8 @@ mod = $(shell basename `pwd`)
 
 
 moddir = $(prefix)/doc
-mod_DATA = DIET_$(mod).ps
+#mod_DATA = DIET_$(mod).ps
+mod_DATA = ${PACKAGE_NAME}-${VERSION}_${mod}.ps
 
 TEX_FILES = $(notdir $(wildcard $(srcdir)/*.tex))
 FIG_FILES = $(wildcard $(srcdir)/fig/*.fig)
