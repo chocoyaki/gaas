@@ -3,11 +3,19 @@
 /*                                                                          */
 /*  Author(s):                                                              */
 /*    - Ludovic BERTSCH (Ludovic.Bertsch@ens-lyon.fr)                       */
+/*    - Eddy Caron (Eddy.Caron@ens-lyon.fr)                                 */
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2003/09/28 22:10:00  ecaron
+ * New API for statistics module
+ *   stat_in(myname,message)
+ *   stat_out(myname,message)
+ * where myname is the identity of DIET component
+ *       message is the name of the current function
+ *
  * Revision 1.10  2003/09/16 13:22:03  pcombes
  * Fix error message.
  *
@@ -53,20 +61,20 @@ extern char* STAT_TYPE_STRING[3];
 
 // Don't call this, call stat_in, stat_out & stat_info instead
 inline void
-gen_stat(int type, char* message) {
+gen_stat(int type, char* myname, char* message) {
   if (STAT_FILE != NULL) {
     struct timeval tv;
     struct timezone tz;
 
     if (gettimeofday(&tv, &tz) == 0) {
-      fprintf(STAT_FILE, "%10ld.%06ld|%s|%s\n", tv.tv_sec, tv.tv_usec,
-	      STAT_TYPE_STRING[type], message);
+      fprintf(STAT_FILE, "%10ld.%06ld|%s|[%s] %s\n", tv.tv_sec, tv.tv_usec,
+	      STAT_TYPE_STRING[type], myname, message);
 
       /* Examples of generated trace :
-       * 123456.340569|IN  |submission.start
-       * 123456.340867|INFO|submission.phase1
-       * 123455.345986|INFO|submission.phase2
-       * 123456.354032|OUT |submission.end
+       * 123456.340569|IN  |[Name of DIET component] submission.start
+       * 123456.340867|INFO|[Name of DIET component] submission.phase1
+       * 123455.345986|INFO|[Name of DIET component] submission.phase2
+       * 123456.354032|OUT |[Name of DIET component] submission.end
        */
     }
   }
@@ -82,17 +90,17 @@ do_stat_finalize();
 // Use only the following calls :
 
 #  define stat_init()        do_stat_init()
-#  define stat_in(message)   gen_stat(STAT_IN, message)
-#  define stat_out(message)  gen_stat(STAT_OUT, message)
-#  define stat_info(message) gen_stat(STAT_INFO, message)
+#  define stat_in(myname,message)   gen_stat(STAT_IN, myname, message)
+#  define stat_out(myname,message)  gen_stat(STAT_OUT, myname, message)
+#  define stat_info(myname,message) gen_stat(STAT_INFO, myname, message)
 #  define stat_finalize()    do_stat_finalize()
 
 #else  // HAVE_STATISTICS
 
 #  define stat_init()
-#  define stat_in(message)
-#  define stat_out(message)
-#  define stat_info(message)
+#  define stat_in(myname,message)
+#  define stat_out(myname,message)
+#  define stat_info(myname,message)
 #  define stat_finalize()
 
 #endif // HAVE_STATISTICS
