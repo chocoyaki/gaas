@@ -1,0 +1,472 @@
+%****************************************************************************%
+%* DIET Coding Standards                                                    *%
+%*                                                                          *%
+%*  Author(s):                                                              *%
+%*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *%
+%*                                                                          *%
+%* $LICENSE$                                                                *%
+%****************************************************************************%
+%* $Id$
+%* $Log$
+%* Revision 1.1  2003/09/09 12:42:44  pcombes
+%* Reorganization of doc: include CS in a programmer's guide.
+%*
+%* Revision 1.9  2003/06/03 18:22:05  pcombes
+%* License field is kept.
+%*
+%* Revision 1.8  2003/04/10 11:12:43  pcombes
+%* Put the CVS Id field right above the CVS Log field.
+%*
+%* Revision 1.7  2003/02/07 15:32:49  pcombes
+%* Update - noting new in the background
+%*
+%* Revision 1.3  2003/01/30 15:13:42  pcombes
+%* New Coding Standards
+%*
+%* Revision 1.2  2003/01/13 12:09:00  pcombes
+%* UM: client part complete for users's day ...
+%*
+%* Revision 1.1.1.1  2003/01/07 18:06:18  pcombes
+%* Add Coding Standards for DIET.
+%****************************************************************************%
+
+\begin{comment}
+\documentclass[11pt,a4paper]{article}
+\makeatletter
+%\makeatother
+\usepackage{fancyheadings}
+%\usepackage[french]{babel}
+%\usepackage[latin1]{inputenc}
+\usepackage{multicol}
+\usepackage{verbatim}
+\usepackage[headings]{fullpage}
+\usepackage{url}
+
+\usepackage{graphicx}
+\graphicspath{{../UM/fig}}
+
+\newsavebox{\logobox}
+\sbox{\logobox}{\includegraphics[scale=0.3]{../UM/fig/logo_DIET.ps}}
+\newcommand{\logo}{\usebox{\logobox}}
+
+%%%%
+\renewcommand{\title}{DIET Coding Standards}
+%%%%
+
+\pagestyle{fancyplain}
+\lhead[\fancyplain{\title}{\title}]
+      {\fancyplain{\title}{\title}}
+\chead{}
+\rhead[\fancyplain{\logo}{\logo}]{\fancyplain{\logo}{\logo}}
+
+\lfoot[\fancyplain{INRIA}{INRIA}]{\fancyplain{INRIA}{INRIA}}
+\cfoot[\fancyplain{}{}]{\fancyplain{}{}}
+\rfoot[\fancyplain{Page~\thepage}{Page~\thepage}]
+      {\fancyplain{Page~\thepage}{Page~\thepage}}
+
+
+\begin{document}
+%\vspace*{1cm}
+\thispagestyle{empty}
+\begin {center}
+\noindent\textbf{\LARGE{\title}}
+\end{center}
+\vspace*{1cm}
+\end{comment}
+
+In a continuous attempt to unify the structure and the format of the DIET source
+code, we have collected a few guidelines here to which we ask you to adhere as
+you add new source code or modify the existing code. We ask you to make every
+effort to follow our guidelines before you submit your contributions to the
+project. We also ask for your help in improving existing incompliant code as you
+make modifications to it.
+
+
+\section{File structure}
+\label{fstruct}
+
+\subsection{Headers}
+
+Each file begins with the DIET header, where are precised:\\
+\begin{tabular}{l}
+- a short title (in one line)  that explains the role of this file (l. 3),\\
+- the authors of the file,\\
+- three fields that are automatically filled in.\\
+\end{tabular}
+
+As an example, here is the header of the \LaTeX\ source of this document, before
+\texttt{\$Id\$} and \texttt{\$Log\$} fields have been filled in by CVS
+operations:
+\footnotesize
+\begin{verbatim}
+%****************************************************************************%
+%* DIET Coding Standards                                                    *%
+%*                                                                          *%
+%*  Author(s):                                                              *%
+%*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *%
+%*                                                                          *%
+%* $LICENSE$                                                                *%
+%****************************************************************************%
+%* $@Id$
+%* $@Log$
+%****************************************************************************%
+\end{verbatim}
+\normalsize
+% NB: in the verbatim above, the $@ is replaced by $ before the latex
+%     compilation to produce the correct output. If we did not use such an
+%     artefact, the cvs commits would fill in fields also ...
+
+Of course, in a Makefile (or Doxyfile, shell, etc.) the '\%' sign is replaced by
+a '\#'; in a C or C++ file, it is replaced by a '/'.
+
+
+The fields \texttt{\$Id\$} and \texttt{\$Log\$} are automatically set at every
+CVS commit on the file. The CVS log message is added to the \texttt{\$Log\$}
+region, prefixed by the characters that preceeds \texttt{\$Log\$} on its line.
+It thus keeps the history of all modifications performed on the file. But it may
+increase drastically the size of the file with some useless information. So
+please help us purging sometimes this Log part of all minor modifications (such
+as bug fixes).
+
+These CVS fields are removed by a shell script when a distribution is built. The
+\texttt{\$LICENSE\$} line will also be processed automatically, o be replaced by
+a short version of the DIET license, so please be very careful to put one and
+only one space between the \texttt{\%*} and the \texttt{\$}, between
+\texttt{\$Id\$} and the final \texttt{*\%}, between \texttt{\$LICENSE\$} and the
+final \texttt{*\%}, and NO space after the last
+significant character of all these lines.
+
+\subsection{Defining a new class}
+
+In a class declaration, the public part comes before the private one. Inner each
+part, declare the field first, and all methods then.
+
+The file in which the class is declared should be named
+\texttt{$<$ClassName$>$.hh} and the one in which it is implemented should be named 
+\texttt{$<$ClassName$>$.cc}.
+
+
+\section{Naming}
+
+Please follow the chapter 9 of the JAVA coding conventions.
+
+\subsection{Classes}
+
+Class names should be nouns, in mixed case with the first letter of each
+internal word capitalized. Try to keep your class names simple and descriptive.
+Use whole words-avoid acronyms and abbreviations (unless the abbreviation is
+much more widely used than the long form, such as URL or HTML).
+\footnotesize
+\begin{verbatim}
+class AgentImpl
+{
+  ...
+\end{verbatim}
+\normalsize
+
+
+\subsection{Methods}
+
+Methods should be verbs, in mixed case with the first letter lowercase, with the
+first letter of each internal word capitalized.
+\footnotesize
+\begin{verbatim}
+run();
+addServices();
+\end{verbatim}
+\normalsize
+
+
+\subsection{Member Variables}
+
+Member variable names should be short yet meaningful. The choice of a variable
+name should be mnemonic - that is, designed to indicate to the casual observer
+the intent of its use.
+\footnotesize
+\begin{verbatim}
+float myWidth;
+\end{verbatim}
+\normalsize
+
+
+\subsection{Variables}
+
+All instance, class, and class constants are in mixed case with a lowercase
+first letter. Internal words start with capital letters.\\
+
+Variable names should not start with underscore \texttt{\_} or dollar sign
+\texttt{\$} characters, even though both are allowed. They can follow the
+members naming conventions or be lowercase with words separated by underscores.
+One-character variable names should be avoided except for temporary "throwaway"
+variables. Common names for temporary variables are i, j, k, m, and n for
+integers; c, d, and e for characters.
+\footnotesize
+\begin{verbatim}
+int   i;
+char* c;
+\end{verbatim}
+\normalsize
+
+
+\subsection{Constants and Macros}
+
+The names of variables declared class constants and of ANSI constants, the names
+of macros and enum constants should be all uppercase with words separated by
+underscores. (ANSI constants should be avoided, for ease of debugging.)
+\footnotesize
+\begin{verbatim}
+#define TRACE_STRUCTURES 10
+static int MIN_WIDTH = 4;
+typedef enum {
+  DIET_CHAR,
+  ...
+}
+\end{verbatim}
+\normalsize
+
+
+\subsection{Types}
+
+Type names must be suffixed with \texttt{\_t}: \texttt{diet\_type\_t}.
+
+
+
+\section{Comments}
+
+Source code documentation is essential in an increasing group of developers
+producing software collabortatively and efficiently. Comments within the source
+code are one way to create a comprehensive documentation. This insures that the
+related information is in the right place and makes it easier for the software
+engineer to maintain it.
+
+Inside DIET we use line comments to describe certain attributes, block comments
+to explain bigger code sections and Doxygen comments to declare modules,
+functions and other important parts of the software.
+
+Line comments look like this:
+\footnotesize
+\begin{verbatim}
+  int reqId;      /* Request ID */
+or
+  int reqId;      // Request ID
+...
+  } else { /* At least one offered service matches the problem */
+or
+  } else { // At least one offered service matches the problem
+\end{verbatim}
+\footnotesize
+
+They are at the end of a line after the code or in the line before it just
+like block comments as shown below:
+\footnotesize
+\begin{verbatim}
+    /* Add the new log to the list */
+    requestsLog->logMutex.lock();
+    requestsLog->append(newLog);
+    requestsLog->logMutex.unlock();
+\end{verbatim}
+\normalsize
+\noindent \textbf{NB:} All comments are written \texttt{in english} !!!\\
+
+It can be introduced a hierarchy in comments by the use of various symbols. For
+instance, some comments can be used to simply separate the file into main
+sections that group functions or methods together:
+\footnotesize
+\begin{verbatim}
+  /****************************************************************************/
+  /* Private methods                                                          */
+  /****************************************************************************/
+or
+  /****************************************************************************/
+  /* Data structure marshalling                                               */
+  /****************************************************************************/
+\end{verbatim}
+\normalsize
+
+Each method or function must be commented with Doxygen comments (see below)
+Inside functions or methods, you can use '//' to mark that the comment is less
+important than '/* ... */' comments.
+\\
+
+
+Eventually, please comment even your \verb+#if+ an \verb+#ifdef+ conditions: add
+the conditional expression as a comment on the corresponding \verb+#else+ and
+\verb+#endif+ lines:
+\footnotesize
+\begin{verbatim}
+#if HAVE_FAST
+  ...
+#else  // HAVE_FAST
+  ...
+#endif // HAVE_FAST
+\end{verbatim}
+\normalsize
+
+\addcontentsline{toc}{subsection}{Doxygen}
+\subsection*{Doxygen}
+Doxygen comments can be extracted from the source code by the doxygen tool. The
+doxygen tool identifies the different sections inside an doxygen comment and
+creates I do not what but Sylvain will fill in this part of the Coding Standards
+with a complete example, so that all of us will be able to use Doxygen basics
+very soon.\\
+
+
+As there are C files in the DIET sources, the flag \texttt{@author} cannot be
+used in all DIET source files. Thus, it is important to authentify the
+author of the file \textbf{in the header}, as explained section \ref{fstruct}.
+Using the flag \texttt{@author} would be redundant.
+
+
+\section{Tabs, Line Length and Indentation}
+
+Please do not use tabs inside of the code and wrap lines after the 80th
+character in a line. We do not like tabs because different editors and editor
+settings always lead to different displays. However, it is permitted to insert
+tabs if and if only they correspond to 8 charcters in the indentation (as for
+Emacs standards).
+
+Lines have to be indented by two spaces for each code block level.  See more
+details below.
+
+
+\section{Declarations}
+
+
+\subsection{Variables}
+
+Initialize variables at declaration. It is accepted not to initialize
+"throwaway" variables, and to declare several of them on one single line.
+
+The asterisk of a pointer declaration and the \texttt{\&} of a reference
+declaration are parts of the \textbf{type} name. The space has to be put in
+between the \texttt{*} or the \texttt{\&} and the type name.
+\footnotesize
+\begin{verbatim}
+
+\end{verbatim}
+\normalsize
+
+\subsection{Functions}
+
+The format of a function prototype should be equivalent with the function
+definition. Return type and keywords such as extern, static, export, explicit,
+inline, etc, go on the line above the function name. They should start with the
+qualifier and return type. There is no space between the function name and the
+open parentheses. If the arguments do not fit into one line split the line and
+continue the arguments under the first one of the previous line.
+
+\footnotesize
+\begin{verbatim}
+CORBA::Long
+AgentImpl::serverSubscribe(SeD_ptr me, const char* hostname,
+                           const SeqCorbaProfileDesc_t& services)
+{
+   ...
+or
+int
+unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
+                          const diet_convertor_t* cvt)
+{
+   ...
+\end{verbatim}
+\normalsize
+
+\noindent In the function definition, the brace has to be in column zero again.
+\footnotesize
+\begin{verbatim}
+int
+mrsh_profile_to_out_args(corba_profile_t* dest, const diet_profile_t* src,
+                         const diet_convertor_t* cvt)
+{
+  int i, res;
+  int arg_idx(0);
+  int* args_filled = new int[(dest->last_out + 1)];
+  diet_data_t dd;
+  ...
+\end{verbatim}
+\normalsize
+
+
+\section{Statements}
+
+Statements inside the function body should be indented with 2 spaces like
+statements inside a compound statement.  In contrast to functions, the opening
+left brace of a compound statement should be at the end of the line beginning
+the compound statement and the closing right brace should be alone on a line.
+Some examples:\\
+
+\footnotesize
+\begin{center}
+ \begin{tabular}{l|l}
+  \begin{minipage}[c]{.5\linewidth}
+   \begin{verbatim}
+  for (int i = 0; i < max_nb_s; i++) {
+    ...
+  }
+
+  do {
+      ...
+  } while (!found);
+
+
+
+  if (i == 1) {
+      ...
+  } else if (i == -5) {
+      ...
+  } else {
+      one_function_call();
+  }
+
+   \end{verbatim}
+  \end{minipage}
+&
+  \begin{minipage}[c]{.5\linewidth}
+   \begin{verbatim}
+  while (1) {
+      ...
+  }
+  
+  switch (i) {
+  case 1,2:
+      ...
+      break;
+  case 3:
+      ...
+      break;
+  default:
+      ...
+  }
+
+  typedef struct name_s {
+      char *first;
+  } name_t
+   \end{verbatim}
+  \end{minipage}\\
+ \end{tabular}
+\end{center}
+
+\textrm
+\normalsize
+
+There is one space between the keyword and the open parentheses. Braces are in
+the same line like the keywords. They should be used even if it is not
+necessary. Function calls do not contain spaces between the function name and
+the open parentheses.
+
+\section{Clean use of C++ constructs}
+
+Past experience leads us to some best-practice coding advices:
+\begin{itemize}
+\item Huge parameter lists or function or methods bodies are an indicator that
+  it is time to split a function or method into some smaller ones which are
+  easier to read and understand.
+\item Try to avoid nested expressions where multiple assignments or the
+  $?$-operators are envolved.
+\item Use \verb+#if 0+ to disable code sections and add a short comment why this
+  code was disabled.
+%\item Avoid casting a CORBA type variable with a C/C++ type.
+\end{itemize}
+
+%\end{document}
+

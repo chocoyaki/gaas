@@ -1,0 +1,321 @@
+%****************************************************************************%
+%* DIET Programmer's Guide                                                  *%
+%*                                                                          *%
+%*  Author(s):                                                              *%
+%*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *%
+%*                                                                          *%
+%* $LICENSE$                                                                *%
+%****************************************************************************%
+%* $Id$
+%* $Log$
+%* Revision 1.1  2003/09/09 12:42:44  pcombes
+%* Reorganization of doc: include CS in a programmer's guide.
+%*
+%****************************************************************************%
+
+\documentclass[11pt,a4paper]{report}
+\makeatletter
+%\makeatother
+\usepackage{fancyheadings}
+%\usepackage[french]{babel}
+%\usepackage[latin1]{inputenc}
+\usepackage{multicol}
+\usepackage{verbatim}
+\usepackage[headings]{fullpage}
+\usepackage{url}
+
+\usepackage{graphicx}
+\graphicspath{{../UM/fig}}
+
+\newsavebox{\logobox}
+\sbox{\logobox}{\includegraphics[scale=0.3]{../UsersManual/fig/logo_DIET.ps}}
+\newcommand{\logo}{\usebox{\logobox}}
+
+%%%%
+\renewcommand{\title}{DIET Programmer's Guide}
+%%%%
+
+\pagestyle{fancyplain}
+\lhead[\fancyplain{\title}{\title}]
+      {\fancyplain{\title}{\title}}
+\chead{}
+\rhead[\fancyplain{\logo}{\logo}]{\fancyplain{\logo}{\logo}}
+
+\lfoot[\fancyplain{INRIA}{INRIA}]{\fancyplain{INRIA}{INRIA}}
+\cfoot[\fancyplain{}{}]{\fancyplain{}{}}
+\rfoot[\fancyplain{Page~\thepage}{Page~\thepage}]
+      {\fancyplain{Page~\thepage}{Page~\thepage}}
+
+
+\newcommand{\fixme}[1]{\fbox{\textsl{{\bf FIXME: }#1}}}
+\newcommand{\configure}{\textsf{configure}}
+\newcommand{\makeam}{\texttt{Makefile.am}}
+\newcommand{\makein}{\texttt{Makefile.in}}
+\newcommand{\make}{\texttt{Makefile}}
+
+\begin{document}
+
+
+%%%%
+% First sheet
+%%%%
+
+\thispagestyle{empty}
+\vspace*{3cm}
+\vspace*{3cm}
+
+\begin{center}
+\includegraphics[scale=.5]{../UsersManual/fig/LOGO_DIET.ps}\\[2ex]
+\textbf{\Huge PROGRAMMER'S GUIDE\\[2ex]}
+\end{center}
+
+\vfill
+
+\noindent
+\small{
+\begin{tabular}{ll}
+  \textbf{VERSION}  & 0.1\\
+  \textbf{DATE}     & September 2003\\
+  \textbf{AUTHORS}  & P.~\textsc{Combes}\\
+  \textbf{Copyright}& INRIA
+\end{tabular}\\
+}
+
+\newpage
+\thispagestyle{empty}
+\ 
+
+%%%%
+% End of first sheet
+%%%%
+
+
+\newpage
+\tableofcontents
+
+
+%
+% Introduction
+%
+\newpage
+\addcontentsline{toc}{chapter}{Introduction}
+\chapter*{Introduction}
+
+This documents aims at giving to the new programmers of DIET a global view of the
+software and it source code, so that they can quickly (and cleanly) change it to
+fix bugs or to add new features.
+
+The first chapter is dedicated to the installation of DIET as a developer, to
+the use of CVS and the autotools.
+The second chapter describes the source tree, the roles of the various
+subdirectories and some explanations about some very sensitive parts of the code
+(choices for implementation, etc.)
+In the last chapter, you will find the DIET coding standards, in which we have
+collected a few guidelines to follow when adding new source code or modifying
+the existing code.
+
+
+%
+% Introduction
+%
+\chapter{Getting started}
+
+
+\section{Using CVS}
+
+There are two ways to get the source code for developers. DIET is published
+under two forms of archive, and one of them contains all files that are
+necessary to program in DIET: it is the maintainer mode archive. But the most
+current way of getting the source files is to use the CVS.
+
+Here are the CVS environment variables to set (of course, the programmer needs
+an account on the GRAAL server so far):
+\begin{description}
+\item{\sf CVSROOT} \textsf{ = :ext:graal.ens-lyon.fr:/home/CVS}
+\item{\sf CVSUMASK} \textsf{ = 000}
+\item{\sf CVS\_RSH} \textsf{ = ssh}
+\item{\sf CVSEDITOR [optional]} your favorite editor.
+\end{description}
+
+Once all these variables are set, just execute\\
+\centerline{\sf cvs checkout GRAAL/devel/diet}\\
+
+
+As many developers work on DIET simultaneously, it is important to commit files
+only when it is proved that it will not hinder the other developers in their own
+work. The consensual use of simultaneous developments is to perform an update of
+each file just before editing it, then merge with the changes committed
+in-between and test the local version to make sure that basic functionnalities
+are not buggy. Commit the local version at last.
+
+Deep changes should be preceeded by a discussion on the mailing list
+\url{diet-dev@ens-lyon.fr} with all DIET developers.
+
+On each commit, a log message is required. It is important that this log message
+is clear enough for other developers to understand the outlines of the changes,
+but it should remain concise. Try not to exceed two 80 character-lines.  Indeed,
+the log messages are dumped into the files headers.
+
+
+\section{Bootstrapping}
+
+The compilation of DIET is managed by Makefiles generated and configured with
+the autotools. \textsf{automake} generates a \makein\ in each
+directory where there is a \makeam. \textsf{autoconf} generates a
+\configure\ script from a \texttt{configure.ac} and all m4 macros in
+\texttt{acmacro}. This script fills in all configuration-dependent fields of the
+\makein\ files to generate the final Makefiles - see Figure
+\ref{fig:autochain}.
+
+If you have to add a file, or if you have to modify the
+compilation dependence of an existing file in DIET, then you will have to modify
+a \makeam, and this requires \textsf{automake 1.7} or
+higher. Please make sure you have it installed on your system.
+
+
+\begin{figure}[hbt]
+\begin{center}
+\includegraphics[scale=.65]{fig/autotools_chain.eps}
+\end{center}
+\label{fig:autochain}
+\caption{The autotools chain}
+\end{figure}
+
+We have added to the root of the source code tree a short script that performs
+the most part of the chain: \textsf{bootstrap.sh}. As long as you have the right
+version of the autotools (\textsf{automake} is the reference),
+\textsf{bootstrap.sh} will do everything but the configuration of the
+\makein\ files.\\
+
+\fixme{Christophe - Tell more about the versions and the libtool}\\
+
+\noindent
+\textbf{NB:} in the maintainer distribution, the bootstrapping has been already
+performed, so that there is no need for \textsf{automake 1.7} if you simply
+intent to modify a file. Nevertheless, there are also all the files necessary
+for regenerating the autotools chain as long as you have \textsf{automake 1.7}
+installed. So that you can also alter the \makeam.
+
+
+
+
+\section{Configuring and compiling as a programmer}
+
+Among the numerous options of the \configure\ script, there is a feature that
+a programmer should enable: \texttt{--enable-maintainer-mode}. Enabling this feature
+\begin{description}
+\item{}makes the \make\ and \makein\ files dependent from the associated \makeam,
+    i.e., when executing \texttt{make} in the directory where a \makeam\ is
+    changed (directly, or through an upper-level \texttt{make}), the \makein\ is
+    first regenerated and then configured into the \make\ with the options used
+    at the first configuration~;
+\item{}activates all the parts of the \makeam\ files enclosed between the
+    instrutions \texttt{\footnotesize if MAINTAINER\_MODE} and the matching
+    \texttt{\footnotesize else or endif}, such as:
+    \begin{itemize}
+    \item{combined with \texttt{--enable-doc}, the compilation of this
+        Programmer's Guide and the generation of the Doxygen documentation (in
+        doc/API)}
+    \item{the files to remove or add to the distribution archive: in maintainer
+        mode, the target \texttt{distrib} of the root \make generated a
+        maintainer mode archive.}
+    \item{evrything is compiled with the \texttt{-g} option (instead of
+        \texttt{-O2} in the user version}
+    \end{itemize}
+\end{description}
+
+As the maintainer mode option alters significantly the behaviour of the
+compilation, we strongly recommend to configure and compile in a
+different directory than the root of the source code tree. This has got two main
+advantages:
+\begin{enumerate}
+\item{the CVS operations, such as diffing or committing, are greatly eased in
+    the source code tree (no need to worry about the generated files, except
+    \makein)~;}
+\item{as it is important that the programmer knows exactly how his modifications
+  will behave from the user point of view, it is better to keep a directory
+  configured whithout the maintainer mode option, and to test the changes in the
+  user mode as well as in the developer mode. But, it is not possible to
+  configure with maintainer mode in the source code tree, and without in another
+  tree (the presence of the \make\ in the root directory will make the second
+  configuration fail.}
+\end{enumerate}
+The other options for the \configure\ script are described in its help
+(\texttt{--help} option). Here is the example of my source tree, got from the
+CVS server:
+\begin{verbatim}
+~ > cvs checkout GRAAL/devel/diet
+~ > cd GRAAL/devel/diet
+~/GRAAL/devel/diet > mkdir build_dev build_usr
+~/GRAAL/devel/diet > cd build_usr
+~/GRAAL/devel/diet/build_usr > ../configure --srcdir=.. <options>
+...
+~/GRAAL/devel/diet/build_usr > cd ../build_dev
+~/GRAAL/devel/diet/build_usr > ./configure --srcdir=.. --enable-maintainer-mode
+<same options>
+...
+\end{verbatim}
+
+Finally, it is also strongly recommended to make your modifications using FAST,
+or at least to test them with a whole platform before submitting them.
+
+
+
+\section{Adding a file or a directory in the compilation chain}
+
+\fixme{Christophe - please check up and complete this part}\\
+
+Understanding the conception of a \makeam\ in DIET is not that easy. The problem
+is that we have to build two libraries and one binary executable using great
+amount of common source code.
+
+\subsection{``Terminal'' directories}
+
+A ``terminal'' directory is a directory where a library or an executable is
+generated.\\
+
+Let us take the example of the generation of the executable \textsf{dietAgent}.
+It is declared in the Makefile variable \texttt{bin\_PROGRAMS}, and the
+corresponding variable \texttt{dietAgent\_SOURCES}\footnote{These names are
+  important, since they tell automake what to compile and how.} lists all source
+files of the current diectory involved in this executable. The source files in
+the other directories are not included directly, but as temporary libraries
+(\textsf{.la}). They are taken into account thanks to the Makefile variable
+\texttt{dietAgent\_LDADD} that lists all the temporary libraries to include in
+the generation of \textsf{dietAgent}.
+
+Thus, adding a \texttt{.cc} file in a ``terminal'' directory implies only adding
+its name in the \texttt{*\_SOURCES} variable. If there is an associated
+\texttt{.hh} (or a header file alone), it has to be added in the variable
+\texttt{noinst\_HEADERS} (the headers that we do not want to copy in the
+\texttt{$<$install\_dir$>$/include} directory)
+
+
+\subsection{``Non-terminal'' directories}
+
+
+
+%
+% The source tree
+%
+\chapter{The source code tree}
+\label{ch:tree}
+
+There are two mains source directories, \textsf{include} and \textsf{src}, and
+the \textsf{doc} directory.
+
+\section{\textsf{include}}
+
+This directory contains all the headers necessary for the DIET user to program his
+application.
+
+
+
+%
+% Coding Standards
+%
+\chapter{Coding Standards}
+\label{ch:CS}
+\input{CS.tex}
+
+\end{document}
