@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2003/06/02 09:26:10  cpera
+ * Beta version of asynchronize DIET API.
+ *
  * Revision 1.11  2003/05/10 08:54:41  pcombes
  * New format for configuration files, new Parsers.
  *
@@ -277,11 +280,15 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
     myargv[myargc + 1] = (char*)level;
     myargc = tmp_argc;
   }
-  
+
+  /* Get CORBA request type */
+  int DIET_ct = *(size_t *)Parsers::Results::getParamValue(Parsers::Results::USEASYNCAPI);
+    cout << "valeur de useAsyncApi :" << DIET_ct << endl;
+    fflush(stdout);
 
   /* Initialize the ORB */
 
-  if (ORBMgr::init(myargc, (char**)myargv, true)) {
+  if (ORBMgr::init(myargc, (char**)myargv, true, DIET_ct)) {
     cerr << "ORB initialization failed.\n";
     return 1;
   }
