@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2003/06/02 08:53:16  cpera
+ * Update api for asynchronize calls, manage bidir poa.
+ *
  * Revision 1.3  2003/05/05 14:10:55  pcombes
  * Add destroy and stringToObject methods.
  *
@@ -24,7 +27,6 @@
 #include <CORBA.h>
 #include "DIET_config.h"
 
-
 /**
  * This class unifies the interface to all ORBs supported by DIET.
  */
@@ -37,7 +39,7 @@ public:
   setTraceLevel();
 
   static int
-  init(int argc, char** argv, bool init_POA);
+  init(int argc, char** argv, bool init_POA, int DIET_ct = 1); 
 
   static void
   destroy();
@@ -54,7 +56,7 @@ public:
   static int
   bindAgentToName(CORBA::Object_ptr obj, const char* agentName);
 
-  static CORBA::String_var
+  static char * 
   getIORString(CORBA::Object_ptr obj);
 
   static CORBA::Object_ptr
@@ -63,6 +65,8 @@ public:
 private:
   static CORBA::ORB_ptr          ORB;
   static PortableServer::POA_var POA;
+  static PortableServer::POA_var POA_BIDIR;
+  static int DIET_ct;
 };
 
 

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2003/06/02 08:53:16  cpera
+ * Update api for asynchronize calls, manage bidir poa.
+ *
  * Revision 1.4  2003/05/13 17:20:06  pcombes
  * Catch all CORBA exceptions in registers and requests to name server.
  *
@@ -27,12 +30,15 @@ using namespace std;
 
 #include "ORBMgr.hh"
 #include "debug.hh"
+#include "Global_macros.hh"
 
 extern unsigned int TRACE_LEVEL;
 
 /* Initialize private static members. */
 CORBA::ORB_ptr ORBMgr::ORB = CORBA::ORB::_nil();
 PortableServer::POA_var ORBMgr::POA = PortableServer::POA::_nil();
+int ORBMgr::DIET_ct = 1;
+PortableServer::POA_var ORBMgr::POA_BIDIR = PortableServer::POA::_nil();
 
 void
 ORBMgr::setTraceLevel()
@@ -45,7 +51,7 @@ ORBMgr::setTraceLevel()
 }
 
 int
-ORBMgr::init(int argc, char** argv, bool init_POA)
+ORBMgr::init(int argc, char** argv, bool init_POA, int DIET_ct)
 {
 #ifdef __OMNIORB3__
   ORB = CORBA::ORB_init(argc, argv, "omniORB3");
@@ -69,6 +75,19 @@ ORBMgr::init(int argc, char** argv, bool init_POA)
   if (init_POA) {
     CORBA::Object_var obj = ORB->resolve_initial_references("RootPOA");
     POA = PortableServer::POA::_narrow(obj);
+    // Get the POAManager Ref and activate it
+    PortableServer::POAManager_var pman = POA->the_POAManager();
+    if (ORBMgr::DIET_ct == 1) {
+    // Create a POA with the Bidirectional policy
+      DIET_TRACE("Creation d'un POA admettant les communications Bidirectionnelles")
+      CORBA::PolicyList pl;
+      pl.length(1);
+      CORBA::Any a;
+      a <<= BiDirPolicy::BOTH;
+      pl[0] = ORBMgr::ORB->create_policy(BiDirPolicy::BIDIRECTIONAL_POLICY_TYPE, a);
+      ORBMgr::POA_BIDIR = ORBMgr::POA->create_POA("bidir", pman, pl);
+    }
+    pman->activate();
   }
   return 0;
 }
@@ -84,11 +103,21 @@ ORBMgr::destroy()
 int
 ORBMgr::activate(PortableServer::ServantBase* obj)
 {
-  // Activate obj on the poa
-  PortableServer::ObjectId_var mySeDId = POA->activate_object(obj);
-  // Get the POAManager Ref and activate it
-  PortableServer::POAManager_var pman = POA->the_POAManager();
-  pman->activate();
+  try {
+    if (ORBMgr::DIET_ct == 1) PortableServer::ObjectId_var mySeDId = ORBMgr::POA_BIDIR->activate_object(obj);
+    else { 
+      PortableServer::ObjectId_var mySeDId = ORBMgr::POA->activate_object(obj);
+      DIET_TRACE("Fin de l'activation de l'objet -- OK (sans Bidir)....")
+      // Activate obj on the poa
+      // Get the POAManager Ref and activate it
+      // PortableServer::POAManager_var pman = POA->the_POAManager();
+      // pman->activate();
+    }
+  }
+  catch (...){
+    DIET_TRACE("Ecxeption catchee!!!!!!!!!!!!!!!!!!!")
+    return -1;
+  }
   return 0;
 }
 
@@ -271,10 +300,16 @@ ORBMgr::bindAgentToName(CORBA::Object_ptr obj, const char* agentName)
   return 0;
 }
 
-CORBA::String_var
+char *
 ORBMgr::getIORString(CORBA::Object_ptr obj)
 {
-  return ORB->object_to_string(obj);  
+  try {
+    return ORB->object_to_string(obj);
+  }
+  catch(...){
+    DIET_TRACE("Exception ...")
+  }
+  return NULL;  
 }
 
 
