@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.7  2004/01/21 23:23:03  ecaron
+%* Add suggestions from Jean-Yves. Thanks !
+%*
 %* Revision 1.6  2004/01/15 23:59:31  ecaron
 %* Add corrections from Holly Dail
 %*
@@ -161,8 +164,8 @@
 
 DIET stands for Distributed Interactive Engineering Toolbox. It is a
 toolbox for easily developing Application Service Provider systems,
-based on the Client/Agent/Server scheme. In DIET, user's requests are
-served via RPC.
+based on the Client/Agent/Server scheme. Agents are the schedulers of
+this toolbox. In DIET, user's requests are served via RPC.
 
 The RPC paradigm~\cite{CM00,MNS+00} is a good candidate for building
 to build Problem Solving Environments (PSE) for numerical applications
@@ -173,10 +176,10 @@ Enabled Server (NES) environments~\cite{MNS+00}. Such environments
 usually have five different components: \emph{Clients} that submit
 problems they have to solve to \emph{Servers}, a \emph{Database} that
 contains information about software and hardware resources, a
-\emph{Scheduler} that chooses an appropriate server depending on the
-problem sent and the information contained in the database, and
-finally \emph{Monitors} that acquire information about the status of
-the computational resources.
+\emph{Scheduler} that chooses an appropriate server
+depending on the problem sent and the information contained in the
+database, and finally \emph{Monitors} that acquire information about
+the status of the computational resources.
 
 But \nsl\ and NINF have a centralized scheduler which can become a
 bottleneck when many clients try to access several servers.  Moreover

@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.3  2004/01/21 23:23:03  ecaron
+%* Add suggestions from Jean-Yves. Thanks !
+%*
 %* Revision 1.2  2004/01/15 23:59:31  ecaron
 %* Add corrections from Holly Dail
 %*
@@ -33,12 +36,13 @@
 \chapter{A DIET platform}
 \label{ch:description}
 
-DIET is built upon \emph{Computational Resource Daemons} and \emph{Server
-Daemons}. The scheduler is scattered across a hierarchy of \emph{Local Agents}
-and \emph{Master Agents}. NWS~\cite{WSH99} sensors are placed on every node of
-the hierarchy to collect resource availabilities, which are used by an
-application-centric performance prediction tool named FAST \cite{Qui02}.
-Figure~\ref{fig:platform} shows the hierarchical organization of DIET.
+DIET is built upon the \emph{Server Daemons}. The scheduler is
+scattered across a hierarchy of \emph{Local Agents} and \emph{Master
+  Agents}. NWS~\cite{WSH99} sensors are placed on every node of the
+hierarchy to collect resource availabilities, which are used by an
+application-centric performance prediction tool called FAST
+\cite{Qui02}.  Figure~\ref{fig:platform} shows the hierarchical
+organization of DIET.
 
 \begin{figure}[htb]
  \begin{center}
@@ -57,8 +61,7 @@ The different components of our software architecture are the following:
 \begin{description}
 %....[ Client ]................................................................
 \item \textbf{Client}\\
-  A client is an application which uses DIET to solve problems.  Many kinds
-  of clients should be able to connect to DIET from a web page, a PSE such as
+  A client is an application which uses DIET to solve problems.  Many types of clients are able to connect to DIET from a web page, a PSE such as
   Matlab or \sci, or from a compiled program.
 %....[ Master Agent (MA) ].....................................................
 \item \textbf{Master Agent (MA)}\\
@@ -88,7 +91,7 @@ The different components of our software architecture are the following:
   (memory available, number of resources available, \ldots). A SeD
   declares the problems it can solve to its parent LA.  An eD can give
   performance prediction for a given problem thanks to the module
-  FAST, which is described in the next section.
+  FAST, described in the next section.
 
 \end{description}
 
@@ -218,19 +221,22 @@ the whole platform.
 
 Assuming that the architecture described in Section \ref{sec:components}
 includes several servers able to solve the same problem, and that each operand
-needed for the computation is available on one single server, the example
-presented in Figure~\ref{fig:submit_pb} considers the submission of the problem
-\texttt{F()} involving data \texttt{A} and \texttt{B}.
+needed for the computation is available on one single server.
 
-
-\begin{figure}[hbt]
-  \begin{center}
-    \resizebox{8cm}{!}{\includegraphics{fig/submit_pb.eps}}
-    \caption{Problem submission example}
-    \label{fig:submit_pb}
-  \end{center}
-\end{figure}
-
+%%%%%%%%%%%%%%%
+%% FIXME for DIET v1.1
+%%%%%%%%%%%%%%%
+% , the example
+% presented in Figure~\ref{fig:submit_pb} considers the submission of the
+% problem \texttt{F()} involving data \texttt{A} and \texttt{B}.
+%\begin{figure}[hbt]
+%  \begin{center}
+%    \resizebox{8cm}{!}{\includegraphics{fig/submit_pb.eps}}
+%    \caption{Problem submission example}
+%    \label{fig:submit_pb}
+%  \end{center}
+%\end{figure}
+%%%%%%%%%%%%%%%
 
 The algorithm presented below lets an MA choose among its servers the one which
 will perform the computation. This decision is made in four steps:
@@ -253,8 +259,12 @@ will perform the computation. This decision is made in four steps:
 %%  Memory aspects should be treated here.
 %%%%%%%%%%%%%%%
 
-In order to solve the problem itself, the client connects to one of the servers
-chosen: it sends its local data and specifies if the results should be kept
-in-place for further computation or if they should be brought back. The transfer
-of persistent operand is performed at this time.
-
+%%%%%%%%%%%%%%%
+%% FIXME for DIET v1.1
+%%%%%%%%%%%%%%%
+% In order to solve the problem itself, the client connects to one of
+% the servers chosen: it sends its local data and specifies if the
+% results should be kept in-place for further computation or if they
+% should be brought back. The transfer of persistent operands is
+% performed at this stage.
+%%%%%%%%%%%%%%%

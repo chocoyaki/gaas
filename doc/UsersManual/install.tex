@@ -10,6 +10,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.8  2004/01/21 23:23:03  ecaron
+%* Add suggestions from Jean-Yves. Thanks !
+%*
 %* Revision 1.7  2004/01/21 00:25:13  ecaron
 %* Add suggestions from Holly Dail. Thanks !
 %*
@@ -212,8 +215,6 @@ examples are disabled) - disabled by default.
 \end{verbatim}
 }
 
- FIXME: Explain the new options.
-
 \begin{comment}
 {\footnotesize
 \begin{verbatim}
@@ -272,7 +273,7 @@ examples are disabled) - disabled by default.
 \end{verbatim}
 }
 \noindent This group of options lets the user define all necessary paths to
-compile with omniORB. Generally, \texttt{--with-omniORB=} would be enough, and
+compile with omniORB. Generally, \texttt{--with-omniORB=DIR} should be enough, and
 the other options are provided for ugly installations of omniORB.\\
 \textbf{NB:} having the executable \texttt{omniidl} in the PATH environment
 variable should be enough in most cases.
@@ -285,10 +286,10 @@ variable should be enough in most cases.
 \end{verbatim}
 }
 \noindent This group of options lets the user define all necessary paths to
-compile with FAST. Generally, \texttt{--with-FAST=} would be enough, and the
+compile with FAST. Generally, \texttt{--with-FAST=DIR} should be enough, and the
 other options are provided for difficult installations of FAST. There is no need to
 specify includes, libraries and extra arguments, since FAST provides a tool
-\texttt{fast-config} that does the job automatically.\\
+\texttt{fast-config} that does this job automatically.\\
 \textbf{NB1:} having the executable \texttt{fast-config} in the PATH environment
 variable should be enough in most cases.\\
 \textbf{NB2:} it is possible to specify \texttt{--without-FAST}, which overrides
@@ -318,7 +319,7 @@ the development of high quality linear algebra software.
 \end{verbatim}
 }
 \noindent This group of options lets the user define all necessary paths to
-compile with the BLAS libraries. Generally, \texttt{--with-BLAS=} would be
+compile with the BLAS libraries. Generally, \texttt{--with-BLAS=DIR} should be
 enough, and the other options are provided for difficult installation of the BLAS.\\
 \textbf{NB:} these options have no effect if the module example and/or its
 sub-module BLAS are disabled.
@@ -363,21 +364,23 @@ Users' Guide~\cite{scalapack}.
                           ScaLAPACK libraries (use "" in case of several conftest.c -o conftest)
 \end{verbatim}
 }
-\noindent This group of options lets the user define all necessary paths for compilation with the \scalapack\ libraries. Normally, \texttt{--with-ScaLAPACK=}
-should be enough, but the other options are provided because the installation of
-the \scalapack\ libraries is often difficult, and thus difficult to detect
-automatically. For instance, the \texttt{--with-ScaLAPACK-extra} option is
-useful to integrate BLACS and MPI libraries, which are useful for ScaLAPACK.
+
+\noindent This group of options lets the user define all necessary paths for compilation with the \scalapack\ libraries. Normally, \texttt{--with-ScaLAPACK=DIR} could be enough, but the other options are provided because the
+installation of the \scalapack\ libraries is often difficult, and thus
+difficult to detect automatically. For instance, the
+\texttt{--with-ScaLAPACK-extra} option is useful to integrate BLACS
+and MPI libraries, which are useful for ScaLAPACK.
 \\
-\textbf{NB:} these options has no effect if the module example and/or its
-sub-module \scalapack\ are disabled.
+\textbf{NB:} these options has no effect if the module example and/or
+its sub-module \scalapack\ are disabled.
 
 
 \subsection{From configuration to compilation}
 
-A default option for configure scripts is \texttt{--prefix=}, which specifies
-where binary files, documents and configuration files will be installed. It is
-important to set this option: it defaults to \texttt{DIET/install}.
+An important option for configure scripts is \texttt{--prefix=}, which
+specifies where binary files, documents and configuration files will
+be installed. It is important to set this option: it otherwise
+defaults to \texttt{DIET/install}.
 
 The configuration will return with an error if no ORB was found. So please help
 the configure script to find the ORB with the \texttt{--with-omniORB*} options.\\
@@ -405,16 +408,18 @@ Please run make help to get compilation instructions.
          make SeD      : builds DIET SeD library
          make client   : builds DIET client library
          make examples : builds basic examples
+         make          : builds everything configured
          make install  : copy files into /home/username/DIET/install
 ====================================================================
 \end{verbatim}
 }
 
-This helps the user to choose the DIET parts for installation and compilation. It
-is recommended for beginners to compile the client, the SeD and the agent in one
-single step with \texttt{make all}. But please, pay attention to the fact that
-\texttt{make all} does not install DIET in the prefix provided at configuration
-time. To do this, run \texttt{make install}.
+This helps the user to choose the DIET parts for installation and
+compilation. It is recommended for beginners to compile the client,
+the SeD and the agent in one single step with \texttt{make all}. But
+please, pay attention to the fact that \texttt{make all} does not
+install DIET in the prefix provided at configuration time. To do this,
+run \texttt{make install}.
 
 \texttt{make install} will run the compilation for all DIET entities before the
 installation itself. Thus, if the user wants to compile only the agent, for
@@ -431,9 +436,9 @@ instance, and install it, he must run:
 
 Four series of examples are provided in the DIET archive:
 \begin{itemize}
-\item{\texttt{file\_transfer}}: the server computes the sizes of two input files
-  and returns them (with or without, randomly, the first file) as output
-  arguments to the client.
+\item{\texttt{file\_transfer}}: the server computes the sizes of two
+  input files and returns them (with or without, randomly, the first
+  file) as output arguments to the client.
   
 \item{\texttt{dmat\_manips}}: the server offers matrix manipulation routines:
   transposition (\texttt{T}), product (\texttt{MatPROD}) and sum
@@ -443,19 +448,20 @@ Four series of examples are provided in the DIET archive:
   specified on the command line. The last two of them are given for
   compatibility with a BLAS server, explained below.
   
-\item{\texttt{BLAS}}: the server is designed to offer all BLAS (Basic Linear
-  Algebric Subroutines) functions but only manages the \texttt{dgemm\_} function
-  so far. Since this function computes $C = \alpha AB + \beta C$, it can also
-  compute a matrix-matrix product, a sum of square matrices, etc. All these
-  services are offered by the BLAS server. Two clients are designed to use these
-  services: one (\texttt{dgemm\_client.c}) is designed to use the
-  \texttt{dgemm\_} function only, and the other one (\texttt{client.c}) to use
-  all BLAS functions (but currently only \texttt{dgemm\_}) and sub-services,
+\item{\texttt{BLAS}}: the server offers the dgemm BLAS functionality.
+  We plan to offer all BLAS (Basic Linear Algebric Subroutines) in the
+  next DIET version. Since this function computes $C = \alpha AB +
+  \beta C$, it can also compute a matrix-matrix product, a sum of
+  square matrices, etc. All these services are offered by the BLAS
+  server. Two clients are designed to use these services: one
+  (\texttt{dgemm\_client.c}) is designed to use the \texttt{dgemm\_}
+  function only, and the other one (\texttt{client.c}) to use all BLAS
+  functions (but currently only \texttt{dgemm\_}) and sub-services,
   such as \texttt{MatPROD}.
   
 \item{\texttt{\scalapack}}: the server is designed to offer all \scalapack\ 
-  (parallel version of the LAPACK library) functions but manages only the
-  \texttt{pdgemm\_} function so far. The \texttt{pdgemm\_} is actually the
+  (parallel version of the LAPACK library) functions but only manages the
+  \texttt{pdgemm\_} function so far. The \texttt{pdgemm\_} routine is actually the
   parallel version of the \texttt{dgemm\_} function, so that the server also
   offers all the same sub-services. Two clients are designed to use these
   services: one (\texttt{pdgemm\_client.c}) is designed to use the
@@ -469,11 +475,11 @@ copy binary files into \texttt{$<$install\_dir$>$/bin}, but in
 \texttt{examples/bin}: this odd behaviour is due to some limitations of the
 \textsf{automake} tool.
 
-Likewise, the samples of configuration files located in \texttt{examples/cfgs}
-are processed by \texttt{make install} to create ready-to-use configuration
-files in \texttt{examples/etc} and then copied into
-\texttt{$<$install\_dir$>$/etc}. Successive calls to make install will not erase
-the configuration files created and copied at first time, except if \texttt{make
-  uninstall} is called inbetween ; thus the user will not lose thechanges
-to these files.
+Likewise, the samples of configuration files located in
+\texttt{examples/cfgs} are processed by \texttt{make install} to
+create ready-to-use configuration files in \texttt{examples/etc} and
+then copied into \texttt{$<$install\_dir$>$/etc}. Successive calls to
+make install will not erase the configuration files created and copied
+the first time, except if \texttt{make uninstall} is called inbetween ;
+thus the user will not lose the changes to these files.
 
