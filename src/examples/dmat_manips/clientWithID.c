@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2004/09/14 12:46:37  hdail
+ * Commented out unused variables so that compile succeeds with DIET configure
+ * option "--enable-maintainer-mode".
+ *
  * Revision 1.6  2004/03/02 16:37:10  mcolin
  * make a uniform storage form for all matrices
  *
@@ -119,7 +123,7 @@ usage(char* cmd)
 int
 main(int argc, char* argv[])
 {
-  int i, mA, nA,j,k,nB,mB;
+  int i, mA, nA,nB,mB;  // j, k
   int n_loops = 1;
   char* path = NULL;
   diet_profile_t* profile = NULL;
@@ -135,20 +139,20 @@ main(int argc, char* argv[])
   double *D = NULL;
   double *E = NULL;
   diet_matrix_order_t oA, oB, oC,oD,oE;
-  double a=1.0;
-  double b=2.5;
-  double c=1.5;
+  //double a=1.0;
+  //double b=2.5;
+  //double c=1.5;
   int   pb[NB_PB] = {0, 0, 0, 0, 0};
   char car;
 
   // STATS
   char* STAT_FILE_NAME = NULL;
   FILE* STAT_FILE      = NULL;
-  struct timeval tv, tv_pause;
+  //struct timeval tv, tv_pause;
   size_t nb_of_requests;
-  int sec, pause = 0;
+  int pause = 0;   // sec
   time_t t1,t2;
-    char *idC, *idD;
+    //char *idC, *idD;
   srand(time(NULL));
 
   for (i = 1; i < argc - 2; i++) {
