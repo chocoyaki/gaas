@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2004/10/14 15:03:47  hdail
+ * Added shorter, cleaner response debug message.
+ *
  * Revision 1.18  2004/09/29 13:35:32  sdahan
  * Add the Multi-MAs feature.
  *
@@ -260,5 +263,8 @@ displayPbDesc(const corba_pb_desc_t* pb_desc);
 
 void
 displayResponse(FILE* os, const corba_response_t* resp);
+
+void
+displayResponseShort(FILE* os, const corba_response_t* resp);
 
 #endif // _DEBUG_HH_

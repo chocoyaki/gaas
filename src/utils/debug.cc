@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2004/10/14 15:03:47  hdail
+ * Added shorter, cleaner response debug message.
+ *
  * Revision 1.18  2004/10/04 09:40:43  sdahan
  * warning fix :
  *  - debug.cc : change the printf format from %ul to %lu and from %l to %ld
@@ -91,6 +94,25 @@ displayResponse(FILE* os, const corba_response_t* resp)
     fprintf(os,"\n");
   }
   fprintf(os, "----------------------------------------\n");
+}
+
+void
+displayResponseShort(FILE* os, const corba_response_t* resp)
+{
+  fprintf(os, "\n---------- Responses for request %lu ----------\n",
+      resp->reqID);
+  for (size_t i = 0; i < resp->servers.length(); i++){
+    size_t idx = resp->sortedIndexes[i];
+    fprintf(stdout, 
+      "    %d: %s:%ld (id %ld): tComp %g fCpu %g fMem %g\n",
+      i,
+      (const char *)(resp->servers[idx].loc.hostName),
+      resp->servers[idx].loc.port,
+      idx, 
+      resp->servers[idx].estim.tComp,
+      resp->servers[idx].estim.freeCPU,
+      resp->servers[idx].estim.freeMem);
+  }
 }
 
 
