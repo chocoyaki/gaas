@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2004/06/11 11:32:34  ecaron
+ * Delete dead code (DEVELOPPING_DATA_PERSISTENCY part)
+ *
  * Revision 1.16  2004/03/01 18:43:49  rbolze
  * add logservice
  *
@@ -67,8 +70,6 @@ using namespace std;
 #include "ORBMgr.hh"
 #include "Parsers.hh"
 #include "statistics.hh"
-
-#define DEVELOPPING_DATA_PERSISTENCY 0
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
@@ -289,27 +290,6 @@ AgentImpl::findServer(Request* req, size_t max_srv)
   /* Add the new request to the list */
   reqList[creq.reqID] = req;
 
-  /* Here was the data lookup ... */
-#if DEVELOPPING_DATA_PERSISTENCY
-  int* locs;
-  int nbParam = req.pb.last_inout + 1 ;
-  locs = new ChildID[nbParam] ;
-  for (i = 0; i < nbParam ; i++) {
-    locs[i] = locMgr->dataLookUp(req.pb.param_desc[i].id);
-    if (locs[i] != -1)
-      paramFound = 1;
-  }
-
-  if (paramFound && nbParam > 1) {
-    for (i = 0; i < nbParam ; i++) {
-      for (j = i+1; j < nbParam ; j++) {
-        if (locs[j] == locs[i])
-          locs[j] = -1;
-      }
-    }
-  }
-#endif // DEVELOPPING_DATA_PERSISTENCY
-
   /* Find capable children */
   ServiceTable::ServiceReference_t serviceRef;
   srvTMutex.lock();
@@ -344,13 +324,6 @@ AgentImpl::findServer(Request* req, size_t max_srv)
     delete mc->children;
     delete mc;
 
-#if DEVELOPPING_DATA_PERSISTENCY
-    for (j = 0; j < nbParam ; j++) {
-      if (locs[j] == ms->sons[i])
-        locs[j] = -1;
-    }
-#endif // DEVELOPPING_DATA_PERSISTENCY
-
     srvTMutex.lock();
     nbChildrenContacted = SrvTmc->nb_children;
     srvTMutex.unlock();
@@ -364,17 +337,6 @@ AgentImpl::findServer(Request* req, size_t max_srv)
       //delete req; // do not delete since getRequest does not perform a copy
       return resp;
     }
-
-    /* Here was contacts to children that own some parameters and are not
-     * contacted yet */
-#if DEVELOPPING_DATA_PERSISTENCY
-    for (i = 0; i < nbParam ; i++) {
-      if (locs[i] != -1) {
-        nbSonsContacted++;
-        sendRequest(locs[i],&req);
-      }
-    }
-#endif // DEVELOPPING_DATA_PERSISTENCY
 
     /* We don't need the locs table anymore */
     //delete [] locs;
