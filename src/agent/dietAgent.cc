@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2004/10/04 11:26:58  hdail
+ * Changed delete(agtTypeName) to free to agree with allocation.
+ *
  * Revision 1.18  2004/10/04 08:10:49  hdail
  * Removed printf("Hello!\n") debugging message added with multi-MA check-in and
  * shortened the CVS log.
@@ -242,7 +245,7 @@ main(int argc, char** argv)
       WARNING("Could not initialize DietLogComponent");
       dietLogComponent = NULL; // this should not happen;
     }
-    delete(agtTypeName);
+    free(agtTypeName);
   } else {
     TRACE_TEXT(TRACE_MAIN_STEPS, "LogService disabled\n");
     dietLogComponent = NULL;
