@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2003/08/01 19:27:26  pcombes
+ * Add the field nbCPU to the estimation (got from FAST 0.8)
+ *
  * Revision 1.1  2003/04/10 12:17:45  pcombes
  * Replace common_types.idl : IDL structures for service, problem and
  * request description (inc. estimation).
@@ -180,6 +183,8 @@ struct corba_estimation_t {
   /* NWS fields */
   double    freeCPU;
   double    freeMem;
+  /* Static fields */
+  long      nbCPU;
 };
 
 
