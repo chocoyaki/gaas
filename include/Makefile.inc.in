@@ -1,0 +1,42 @@
+
+# DIET variabes for makefiles
+
+export DIET_HOME  = @DIET_HOME@
+export DIET_FLAGS = -L$(DIET_HOME)/lib -I$(DIET_HOME)/include
+export CLIENT_LIB = -lDIET_client
+export SED_LIB    = -lDIET_SeD
+
+
+# FAST variabes for makefiles
+
+export FAST_HOME = @FAST_HOME@
+ifneq ($(strip $(FAST_HOME)),)
+  export FASTLIBS    = $(shell $(FAST_HOME)/bin/fast-config --libs fast)
+endif
+
+
+# omniORB variables for makefiles
+
+export OMNIORB_V      = @OMNIORB_VERSION@
+#export OMNIORBINCLUDE = -I@OMNIORB_HOME@/include
+ifeq ($(OMNIORB_V), 3)
+  export OMNIORBLIBS  = -L@OMNIORB_LIB@ -lomniORB$(OMNIORB_V) -lomnithread \
+			-lpthread -lomniDynamic$(OMNIORB_V) -ltcpwrapGK
+else
+  export OMNIORBLIBS  = -L@OMNIORB_LIB@ -lomniORB$(OMNIORB_V) -lomnithread \
+			-lpthread -lomniDynamic$(OMNIORB_V)
+endif
+
+
+# Generic variables
+export CC	= gcc
+export CCFLAGS	= -O2 -Wall -Wno-unused -D__x86__ -D__linux__ -D__OSVERSION__=2 \
+		  $(DIET_FLAGS)
+export CXX      = g++
+export CXXFLAGS = -O2 -Wall -Wno-unused -D__x86__ -D__linux__ -D__OSVERSION__=2 \
+		  -D_REENTRANT $(DIET_FLAGS)
+export LIBS     = $(OMNIORBLIBS) $(FASTLIBS)
+
+
+
+

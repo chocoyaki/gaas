@@ -12,6 +12,10 @@
 #****************************************************************************#
 #*
 #* $Log$
+#* Revision 1.7  2002/11/07 18:42:42  pcombes
+#* Add includes and configured Makefile variables to install directory.
+#* Update dgemm to the implementation that is hardcoded in FAST.
+#*
 #* Revision 1.6  2002/11/06 16:09:24  pcombes
 #* Fix bug in BLASLIBS
 #*
@@ -32,20 +36,12 @@
 #*
 #****************************************************************************#
 
-TOP = ../../..
-include $(TOP)/src/config.mk
+
+include @PREFIX@/include/Makefile.inc
 
 BLASLIBS  = -lm -lblas -lm -lg2c
 PBLASLIBS = -lm -lblacsCinit-mpich -lblacs-mpich -lblas \
 	    -lscalapack-mpich -lm -lmpi -lg2c
-
-DIETLIBS  = -L@PREFIX@/lib
-
-CC = gcc
-INCLUDE = -I$(TOP)/include -I$(FASTTOP)/include
-CCFLAGS = $(FASTFLAGS)
-LIBS    = $(DIETLIBS) $(OMNIORBLIBS)
-
 
 .PHONY: dgemm pdgemm clean
 
@@ -53,40 +49,40 @@ all:	BLAS_client dgemm pdgemm
 
 
 BLAS_client:	BLAS_client.o @PREFIX@/lib/libDIET_client.a
-	$(CC) $< $(CCFLAGS) $(LIBS) -lDIET_client -o $@
+	$(CC) $< $(CCFLAGS) $(LIBS) $(CLIENT_LIB) -o $@
 
 BLAS_client.o:	BLAS_client.c
-	$(CC) -c $< $(CCFLAGS) $(INCLUDE) -o $@
+	$(CC) -c $< $(CCFLAGS) -o $@
 
 
 
 dgemm:
-	$(MAKE) client_server -C $@ -f ../Makefile TOP=../$(TOP)
+	$(MAKE) client_server -C $@ -f ../Makefile
 pdgemm:
 	$(MAKE) client_server -C $@ -f ../Makefile \
-		BLASLIBS=$(PBLASLIBS) TOP=../$(TOP) CC=mpicc
+		BLASLIBS=$(PBLASLIBS) CC=mpicc
 
 
 client_server:	client server
 
 client:		client.o @PREFIX@/lib/libDIET_client.a
-	$(CC) $< $(CCFLAGS) $(LIBS) -lDIET_client -o $@
+	$(CC) $< $(CCFLAGS) $(LIBS) $(CLIENT_LIB) -o $@
 
 client.o:	client.c
-	$(CC) -c $< $(CCFLAGS) $(INCLUDE) -o $@
+	$(CC) -c $< $(CCFLAGS) -o $@
 
 server:		server.o @PREFIX@/lib/libDIET_SeD.a
-	$(CC) $< $(CCFLAGS) $(LIBS) $(BLASLIBS) -lDIET_SeD $(FASTLIBS) -o $@
+	$(CC) $< $(CCFLAGS) $(LIBS) $(SED_LIB) $(BLASLIBS) -o $@
 
 server.o:	server.c
-	$(CC) -c $< $(CCFLAGS) $(INCLUDE) -o $@
+	$(CC) -c $< $(CCFLAGS) -o $@
 
 
 
 clean:
 	rm -f *.o BLAS_client
-	$(MAKE) clean_subdir -C dgemm -f ../Makefile  TOP=../$(TOP)
-	$(MAKE) clean_subdir -C pdgemm -f ../Makefile TOP=../$(TOP)
+	$(MAKE) clean_subdir -C dgemm  -f ../Makefile
+	$(MAKE) clean_subdir -C pdgemm -f ../Makefile
 
 clean_subdir:
 	rm -f *.o client server

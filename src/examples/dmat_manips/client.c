@@ -12,6 +12,10 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.8  2002/11/07 18:42:42  pcombes
+ * Add includes and configured Makefile variables to install directory.
+ * Update dgemm to the implementation that is hardcoded in FAST.
+ *
  * Revision 1.7  2002/09/17 15:23:18  pcombes
  * Bug fixes on inout arguments and examples
  * Add support for omniORB 4.0.0
@@ -126,7 +130,10 @@ main(int argc, char **argv)
 		 profile->parameters[1].desc.specific.mat.nb_r,
 		 profile->parameters[1].desc.specific.mat.nb_c);
 
-  }
+  } else {
+    fprintf(stderr, "DIET initialization failed !\n");
+    return 1;
+  } 
     
   if (!diet_call(fhandle, profile)) {
     if (!strcmp(path, PB[0])) {

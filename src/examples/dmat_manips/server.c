@@ -12,9 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
- * Revision 1.9  2002/10/25 14:31:18  ecaron
- * FAST support: convertors implemented and compatible to --without-fast
- *               configure option, but still not tested with FAST !
+ * Revision 1.10  2002/11/07 18:42:42  pcombes
+ * Add includes and configured Makefile variables to install directory.
+ * Update dgemm to the implementation that is hardcoded in FAST.
  *
  * Revision 1.9  2002/10/25 11:00:24  pcombes
  * FAST support: convertors implemented and compatible to --without-fast
@@ -168,8 +168,8 @@ main(int argc, char **argv)
   char *SRV[3]    = {"T", "MatSUM", "MatPROD"};
   int services[3];
 
-  diet_profile_desc_t *profile;
-  diet_convertor_t *cvt;
+  diet_profile_desc_t *profile = NULL;
+  diet_convertor_t    *cvt     = NULL;
   
   if (argc < 3) {
     fprintf(stderr, "Usage: SeD <file> [T][MatSUM][MatPROD]\n");
