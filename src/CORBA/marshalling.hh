@@ -1,5 +1,5 @@
 /****************************************************************************/
-/* $Id$          */
+/* $Id$ */
 /* DIET CORBA marshalling header                                            */
 /*                                                                          */
 /*  Author(s):                                                              */
@@ -12,10 +12,13 @@
 /****************************************************************************/
 /*
  * $Log$
- * Revision 1.2  2002/05/17 20:35:16  pcombes
- * Version alpha without FAST
+ * Revision 1.3  2002/05/24 19:36:52  pcombes
+ * Add BLAS/dgemm example (implied bug fixes)
  *
- */
+ * Revision 1.2  2002/05/17 20:35:16  pcombes
+ * Version alpha without FAST 
+ *
+ ****************************************************************************/
 
 
 #ifndef _MARSHALLING_HH_

@@ -1,5 +1,5 @@
 /****************************************************************************/
-/* $Id$                */
+/* $Id$ */
 /* DIET debug utils header                                                  */
 /*                                                                          */
 /*  Author(s):                                                              */
@@ -12,9 +12,13 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.3  2002/05/24 19:36:54  pcombes
+ * Add BLAS/dgemm example (implied bug fixes)
+ *
  * Revision 1.2  2002/05/17 20:35:18  pcombes
- * Version alpha without FAST
- * */
+ * Version alpha without FAST 
+ *
+ ****************************************************************************/
 
 
 #ifndef _DEBUG_HH_

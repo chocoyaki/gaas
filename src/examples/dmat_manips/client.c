@@ -1,5 +1,5 @@
 /****************************************************************************/
-/* $Id$                */
+/* $Id$ */
 /* dmat_manips example: a DIET client for transpose, MatSUM and MatPROD     */
 /*   problems                                                               */
 /*                                                                          */
@@ -12,11 +12,16 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.3  2002/05/24 19:36:53  pcombes
+ * Add BLAS/dgemm example (implied bug fixes)
+ *
  * Revision 1.2  2002/05/17 20:35:18  pcombes
  * Version alpha without FAST
- * */
+ *
+ ****************************************************************************/
 
 
+#include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -38,6 +43,29 @@
     printf("\n");                          \
   }
 
+enum {IN, INOUT, OUT};
+
+#define init_data_seq(data_seq, pb, type)                           \
+  {                                                                 \
+    int i;                                                          \
+    (data_seq).length=((type) == IN)                                \
+                       ? (pb).last_in + 1                           \
+                       : ((type) == INOUT)                          \
+                         ? (pb).last_inout - (pb).last_in           \
+                         : (pb).last_out - (pb).last_inout;         \
+    if ((data_seq).length > 0)                                      \
+      (data_seq).seq=malloc((data_seq).length*sizeof(diet_data_t)); \
+    else                                                            \
+      (data_seq).seq = NULL;                                        \
+    for (i = 0; i < (data_seq).length; i++) {                       \
+      int j = ((type) == IN) ? i : ((type) == INOUT)                \
+                                   ? (pb).last_in + 1 + i           \
+                                   : (pb).last_inout + 1 + i;       \
+      (data_seq).seq[i].desc    = (pb).param_desc[j];               \
+      (data_seq).seq[i].desc.id = j + 1;                            \
+    }                                                               \
+  }
+
 
 /* argv[1]: client config file path
    argv[2]: trans, rsum, or rprod   */
@@ -47,7 +75,6 @@ main(int argc, char **argv)
 {
   char *path;
   sf_pb_desc_t pb;
-  sf_data_desc_t *tmp;
   diet_data_seq_t in_data, inout_data, out_data;
  
   double mat1[6] = {1.0,2.0,3.0,4.0,5.0,6.0};
@@ -65,9 +92,6 @@ main(int argc, char **argv)
   }
   path = argv[2];
   
-  pb.path = malloc(max_pb_length*sizeof(char));     /* problem name */
-  pb.param_desc = malloc(3*sizeof(sf_data_desc_t)); 
-
   A = mat1;
   B = mat2;
 
@@ -75,110 +99,79 @@ main(int argc, char **argv)
 
   if (!strcmp(path, PB[0])) {
     
-    strcpy(pb.path, path);
+    pb.path       = strdup(path);
     pb.last_in    = -1;
     pb.last_inout = 0;
     pb.last_out   = 0;
-    tmp = &(pb.param_desc[0]);
-    tmp->id = 0;
-    tmp->type = sf_type_cons_mat;
-    tmp->base_type = sf_type_base_double;
-    tmp->ctn.mat.nb_l  = 3;
-    tmp->ctn.mat.nb_c  = 2;
-    tmp->ctn.mat.trans = 0;
+    pb.code_desc  = NULL;
+    pb.param_desc = malloc((pb.last_out + 1) * sizeof(sf_data_desc_t)); 
+    pb.param_desc[0].id            = 0;
+    pb.param_desc[0].type          = sf_type_cons_mat;
+    pb.param_desc[0].base_type     = sf_type_base_double;
+    pb.param_desc[0].ctn.mat.nb_l  = 3;
+    pb.param_desc[0].ctn.mat.nb_c  = 2;
+    pb.param_desc[0].ctn.mat.trans = 0;
+    
+    // in_data.length = 0
+    init_data_seq(in_data, pb, IN);
 
-    in_data.length = 0;
-
-    inout_data.length = 1;
-    inout_data.seq = malloc(sizeof(diet_data_t));
+    // inout_data.length = 1
+    init_data_seq(inout_data, pb, INOUT);
     inout_data.seq[0].value = A;
-    tmp = &(inout_data.seq[0].desc);
-    tmp->id = 1;
-    tmp->type = sf_type_cons_mat;
-    tmp->base_type = sf_type_base_double;
-    tmp->ctn.mat.nb_l  = 3;
-    tmp->ctn.mat.nb_c  = 2;
-    tmp->ctn.mat.trans = 0;
     print_matrix(A,
 		 inout_data.seq[0].desc.ctn.mat.nb_l,
 		 inout_data.seq[0].desc.ctn.mat.nb_c);
 
-    out_data.length = 0;
+    // out_data.length = 0
+    init_data_seq(out_data, pb, OUT);
 
   } else if (!strcmp(path, PB[1])) {
     size_t i;
     
-    strcpy(pb.path, path);
+    pb.path       = strdup(path);
     pb.last_in    = 1;
     pb.last_inout = 1;
     pb.last_out   = 2;
+    pb.param_desc = malloc((pb.last_out + 1) * sizeof(sf_data_desc_t)); 
     for (i = 0; i < 3; i++) {
-      tmp = &(pb.param_desc[i]);
-      tmp->id = 0;
-      tmp->type = sf_type_cons_mat;
-      tmp->base_type = sf_type_base_double;
-      tmp->ctn.mat.nb_l  = 3;
-      tmp->ctn.mat.nb_c  = 2;
-      tmp->ctn.mat.trans = 0;
+      pb.param_desc[i].id            = 0;
+      pb.param_desc[i].type          = sf_type_cons_mat;
+      pb.param_desc[i].base_type     = sf_type_base_double;
+      pb.param_desc[i].ctn.mat.nb_l  = 3;
+      pb.param_desc[i].ctn.mat.nb_c  = 2;
+      pb.param_desc[i].ctn.mat.trans = 0;
     }
 
-    in_data.length = 2;
-    in_data.seq = malloc(2*sizeof(diet_data_t));
+    // in_data.length = 2;
+    init_data_seq(in_data, pb, IN);
     in_data.seq[0].value = A;
-    tmp = &(in_data.seq[0].desc);
-    tmp->id = 1;
-    tmp->type = sf_type_cons_mat;
-    tmp->base_type = sf_type_base_double;
-    tmp->ctn.mat.nb_l  = 3;
-    tmp->ctn.mat.nb_c  = 2;
-    tmp->ctn.mat.trans = 0;
     print_matrix(A,
 		 in_data.seq[0].desc.ctn.mat.nb_l,
 		 in_data.seq[0].desc.ctn.mat.nb_c);
-    in_data.seq[1].value = B;
-    tmp = &(in_data.seq[1].desc);
-    tmp->id = 2;
-    tmp->type = sf_type_cons_mat;
-    tmp->base_type = sf_type_base_double;
-    tmp->ctn.mat.nb_l  = 3;
-    tmp->ctn.mat.nb_c  = 2;
-    tmp->ctn.mat.trans = 0;
+    in_data.seq[1].value   = B;
     print_matrix(B,
 		 in_data.seq[1].desc.ctn.mat.nb_l,
 		 in_data.seq[1].desc.ctn.mat.nb_c);
 
-    inout_data.length = 0;
+    // inout_data.length = 0;
+    init_data_seq(inout_data, pb, INOUT);
     
-    out_data.length = 1;
-    out_data.seq = malloc(sizeof(diet_data_t));
-    out_data.seq[0].value = C;
-    tmp = &(out_data.seq[0].desc);
-    tmp->id = 1;
-    tmp->type = sf_type_cons_mat;
-    tmp->base_type = sf_type_base_double;
-    tmp->ctn.mat.nb_l  = 3;
-    tmp->ctn.mat.nb_c  = 2;
-    tmp->ctn.mat.trans = 0;
-    
+    // out_data.length = 1;
+    init_data_seq(out_data, pb, OUT);
+
   } else {
     size_t i;
 
-    if (!strcmp(path, PB[2])) {
-      strcpy(pb.path, path);
-    } else {
-      // this is unknown problem
-      strncpy(pb.path, path, max_pb_length - 1);
-      pb.path[max_pb_length] = '\0';
-    }
+    pb.path       = strdup(path); // ! this can be unknown problem
     pb.last_in    = 1;
     pb.last_inout = 1;
     pb.last_out   = 2;
+    pb.param_desc = malloc((pb.last_out + 1) * sizeof(sf_data_desc_t)); 
     for (i = 0; i < 3; i++) {
-      tmp = &(pb.param_desc[i]);
-      tmp->id = 0;
-      tmp->type = sf_type_cons_mat;
-      tmp->base_type = sf_type_base_double;
-      tmp->ctn.mat.trans = 0;
+      pb.param_desc[i].id            = 0;
+      pb.param_desc[i].type          = sf_type_cons_mat;
+      pb.param_desc[i].base_type     = sf_type_base_double;
+      pb.param_desc[i].ctn.mat.trans = 0;
     }
     pb.param_desc[0].ctn.mat.nb_l  = 3;
     pb.param_desc[0].ctn.mat.nb_c  = 2;
@@ -187,44 +180,23 @@ main(int argc, char **argv)
     pb.param_desc[2].ctn.mat.nb_l  = 3;
     pb.param_desc[2].ctn.mat.nb_c  = 3;
 
-    in_data.length = 2;
-    in_data.seq = malloc(2*sizeof(diet_data_t));
-    in_data.seq[0].value = A;
-    tmp = &(in_data.seq[0].desc);
-    tmp->id = 1;
-    tmp->type = sf_type_cons_mat;
-    tmp->base_type = sf_type_base_double;
-    tmp->ctn.mat.nb_l  = 3;
-    tmp->ctn.mat.nb_c  = 2;
-    tmp->ctn.mat.trans = 0;
+    // in_data.length = 2;
+    init_data_seq(in_data, pb, IN);
+    in_data.seq[0].value   = A;
     print_matrix(A,
 		 in_data.seq[0].desc.ctn.mat.nb_l,
 		 in_data.seq[0].desc.ctn.mat.nb_c);
-    in_data.seq[1].value = B;
-    tmp = &(in_data.seq[1].desc);
-    tmp->id = 2;
-    tmp->type = sf_type_cons_mat;
-    tmp->base_type = sf_type_base_double;
-    tmp->ctn.mat.nb_l  = 2;
-    tmp->ctn.mat.nb_c  = 3;
-    tmp->ctn.mat.trans = 0;
+    in_data.seq[1].value   = B;
     print_matrix(B,
 		 in_data.seq[1].desc.ctn.mat.nb_l,
 		 in_data.seq[1].desc.ctn.mat.nb_c);
-    
-    inout_data.length = 0;
-    
-    out_data.length = 0;
-    out_data.seq = malloc(sizeof(diet_data_t));
-    out_data.seq[0].value = C;
-    tmp = &(out_data.seq[0].desc);
-    tmp->id = 1;
-    tmp->type = sf_type_cons_mat;
-    tmp->base_type = sf_type_base_double;
-    tmp->ctn.mat.nb_l  = 3;
-    tmp->ctn.mat.nb_c  = 3;
-    tmp->ctn.mat.trans = 0;
 
+    // inout_data.length = 0;
+    init_data_seq(inout_data, pb, INOUT);
+    
+    // out_data.length = 1;
+    init_data_seq(out_data, pb, OUT);
+    
   }
     
   if (! DIET_client(3, configfile, &pb, &in_data, &inout_data, &out_data)) {
@@ -232,7 +204,6 @@ main(int argc, char **argv)
       print_matrix(A,
 		   inout_data.seq[0].desc.ctn.mat.nb_l,
 		   inout_data.seq[0].desc.ctn.mat.nb_c);
-      print_matrix(mat1, 2, 3);
     } else {
       C = out_data.seq[0].value;
       print_matrix(C,
@@ -241,13 +212,14 @@ main(int argc, char **argv)
     }
   }
   
+  free(pb.path);
+  free(pb.param_desc);  
   if (!strcmp(path, PB[0])) {
     free(inout_data.seq);
   } else {
     free(in_data.seq);
     free(out_data.seq);
   }
-  free(pb.param_desc);     
 
   return 0;
 }

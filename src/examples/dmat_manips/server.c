@@ -1,5 +1,5 @@
 /****************************************************************************/
-/* $Id$                */
+/* $Id$ */
 /* dmat_manips example: a DIET server for transpose, RSUM a and RPROD       */
 /*   problems                                                               */
 /*                                                                          */
@@ -12,9 +12,13 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.3  2002/05/24 19:36:53  pcombes
+ * Add BLAS/dgemm example (implied bug fixes)
+ *
  * Revision 1.2  2002/05/17 20:35:18  pcombes
  * Version alpha without FAST
- * */
+ *
+ ****************************************************************************/
 
 
 #include <unistd.h>
@@ -41,7 +45,6 @@ solve_T(diet_data_seq_t *in, diet_data_seq_t *inout, diet_data_seq_t *out)
 
   m = inout->seq[0].desc.ctn.mat.nb_l;
   n = inout->seq[0].desc.ctn.mat.nb_c;
-  
   A = (double *) inout->seq[0].value;
   
   tmp = malloc(m*n*sizeof(double));
@@ -178,14 +181,14 @@ solve_MatPROD(diet_data_seq_t *in, diet_data_seq_t *inout, diet_data_seq_t *out)
 int
 main(int argc, char **argv)
 {
-
   size_t i,j;
   int nb_insts;                
   sf_inst_desc_t *instTable; /* Instances */
   int nb_pbs, pb_no;
-  sf_pb_desc_t  *pbTable;    /* Problemes */
+  sf_pb_desc_t  *pbTable;    /* Problems  */
   solve_function_t *solveTable;
 
+  int res;
   char *configfile[3] = {"", "nowhere.com", "MASTER"};
   char *PB[3]    = {"T", "MatSUM", "MatPROD"};
   int max_pb_length = 8;
@@ -238,20 +241,19 @@ main(int argc, char **argv)
   
   if (solved_pbs[0]) {
     
-    pbTable[pb_no].path = malloc(max_pb_length*sizeof(char));
-    strcpy(pbTable[pb_no].path, PB[0]);
+    pbTable[pb_no].path       = strdup(PB[0]);
     pbTable[pb_no].last_in    = -1;
     pbTable[pb_no].last_inout = 0;
     pbTable[pb_no].last_out   = 0;
-    pbTable[pb_no].param_desc = malloc(sizeof(sf_data_desc_t));
     pbTable[pb_no].code_desc  = NULL;
+    pbTable[pb_no].param_desc = malloc((pbTable[pb_no].last_out + 1)
+				       * sizeof(sf_data_desc_t));
     (pbTable[pb_no].param_desc[0]).id = 0;
     (pbTable[pb_no].param_desc[0]).type = sf_type_cons_mat;
     (pbTable[pb_no].param_desc[0]).base_type = sf_type_base_double;
     (pbTable[pb_no].param_desc[0]).ctn.mat.nb_c  = 0;
     (pbTable[pb_no].param_desc[0]).ctn.mat.nb_l  = 0;
     (pbTable[pb_no].param_desc[0]).ctn.mat.trans = 0;
-
     instTable[pb_no].path       = strdup(pbTable[pb_no].path);
     instTable[pb_no].last_in    = pbTable[pb_no].last_in;
     instTable[pb_no].last_inout = pbTable[pb_no].last_inout;
@@ -265,8 +267,7 @@ main(int argc, char **argv)
   
   if (solved_pbs[1]) {
     
-    pbTable[pb_no].path = malloc(max_pb_length*sizeof(char));
-    strcpy(pbTable[pb_no].path, PB[1]);
+    pbTable[pb_no].path       = strdup(PB[1]);
     pbTable[pb_no].last_in    = 1;
     pbTable[pb_no].last_inout = 1;
     pbTable[pb_no].last_out   = 2;
@@ -304,8 +305,7 @@ main(int argc, char **argv)
   
   if (solved_pbs[2]) {
     
-    pbTable[pb_no].path = malloc(max_pb_length*sizeof(char));
-    strcpy(pbTable[pb_no].path, PB[2]);
+    pbTable[pb_no].path       = strdup(PB[2]);
     pbTable[pb_no].last_in    = 1;
     pbTable[pb_no].last_inout = 1;
     pbTable[pb_no].last_out   = 2;
@@ -346,8 +346,17 @@ main(int argc, char **argv)
     exit(1);
   }
 
-  return DIET_SeD(3, configfile, nb_pbs, pbTable, nb_insts, instTable, solveTable);
-
+  res = DIET_SeD(3, configfile, nb_pbs, pbTable, nb_insts, instTable, solveTable);
+  
+  for (i = 0; i <= nb_pbs; i++) {
+    free(pbTable[i].path);
+    free(pbTable[i].param_desc);
+  }
+  free(pbTable);
+  free(instTable);
+  free(solveTable);  
+  
+  return res;
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************/
-/* $Id$          */
+/* $Id$ */
 /* DIET CORBA marshalling source code                                       */
 /*                                                                          */
 /*  Author(s):                                                              */
@@ -12,10 +12,13 @@
 /****************************************************************************/
 /*
  * $Log$
- * Revision 1.2  2002/05/17 20:35:16  pcombes
- * Version alpha without FAST
+ * Revision 1.3  2002/05/24 19:36:52  pcombes
+ * Add BLAS/dgemm example (implied bug fixes)
  *
- */
+ * Revision 1.2  2002/05/17 20:35:16  pcombes
+ * Version alpha without FAST 
+ *
+ ****************************************************************************/
 
 
 #include <iostream.h>
@@ -141,17 +144,14 @@ corba2sfDataDesc(sf_data_desc_t *dest, const corba_data_desc_t *src)
     case sf_type_base_char:
       dest->ctn.scal.value = (void *) new char;
       src->ctn.scal().value >>= *((short *)(dest->ctn.scal.value));
-      cout<<"corba2sfDataDesc: dest->scal="<<*((short *)(dest->ctn.scal.value))<<endl;
       break;
     case sf_type_base_int:
       dest->ctn.scal.value = (void *) new int;
       src->ctn.scal().value >>= *((long *)(dest->ctn.scal.value));
-      cout<<"corba2sfDataDesc: dest->scal="<<*((long *)(dest->ctn.scal.value))<<endl;
       break;
     case sf_type_base_double:
       dest->ctn.scal.value = (void *) new double;
       src->ctn.scal().value >>= *((double *)(dest->ctn.scal.value));
-      cout<<"corba2sfDataDesc: dest->scal="<<*((double *)(dest->ctn.scal.value))<<endl;
       break;
     default:
       cerr << "\ncorba2sfDataDesc: Error in type conversion "
@@ -250,64 +250,94 @@ corba2dietData(diet_data_t *dest, const corba_data_t *src)
     dest->to_be_freed = 1;
 }
 
+
 /* Allocate dest sequence if necessary */
+/* First "free" all value sequences :
+ *   this could be optimized by freeing only values that have not the same
+ *   type in old sequence(already in place) as in the new one.
+ * Then set the new sequence length and init the values (with length() == 0). */
 
 void
 diet2corbaDataSeq(SeqCorba_data_t *dest, const diet_data_seq_t *src) 
 {
-  int all_is_new = ((!dest->length()) || (dest->length() != src->length));
+  size_t dest_length = dest->length();
+  int all_is_new = (dest_length != src->length);
   
-  if (all_is_new)
-    dest->length(src->length);
-
+  /* "Free" all value fields */
+  for (size_t i = 0; i < dest_length; i++) {
+    switch (src->seq[i].desc.base_type) {
+    case sf_type_base_char:
+      (*dest)[i].value.sc().length(0);
+      break;
+    case sf_type_base_int:
+      (*dest)[i].value.sl().length(0);
+      break;
+    case sf_type_base_double:
+      (*dest)[i].value.sd().length(0);
+      break;
+    default:
+      cerr << "diet2corbaData: Error in type conversion (base type)\n";
+    }
+  }
+  /* Set (new) length */
+  dest->length(src->length);
+  
   for (size_t i = 0; i < src->length; i++) {
     
-    if (all_is_new) {
-      /* Initialize (*dest)[i].value sequence if necessary */
-    
-      switch (src->seq[i].desc.base_type) {
-      case sf_type_base_char: {
-	SeqChar sc;
-	(*dest)[i].value.sc(sc);
-	break;
-      }
-      case sf_type_base_int: {
-	SeqLong sl;
-	(*dest)[i].value.sl(sl);
-	break;
-      }
-      case sf_type_base_double: {
-	SeqDouble sd;
-	(*dest)[i].value.sd(sd);
-	break;
-      }
-      default:
-	cerr << "diet2corbaData: Error in type conversion (base type)\n";
-      }
+    /* Initialize (*dest)[i].value sequence if necessary */
+    switch (src->seq[i].desc.base_type) {
+    case sf_type_base_char: {
+      SeqChar sc;
+      (*dest)[i].value.sc(sc);
+      break;
     }
-    
-    /* Convert data_t */
+    case sf_type_base_int: {
+      SeqLong sl;
+      (*dest)[i].value.sl(sl);
+      break;
+    }
+    case sf_type_base_double: {
+      SeqDouble sd;
+      (*dest)[i].value.sd(sd);
+      break;
+    }
+    default:
+      cerr << "diet2corbaData: Error in type conversion (base type)\n";
+    }
 
+    /* Convert data_t */
     diet2corbaData(&((*dest)[i]), &(src->seq[i]));
   }
 }
 
 /* Allocate dest sequence if necessary */
-
+/* Check if the sequence will have to be reallocated (different length) :
+ *  if reallocation is needed then first free all values,
+ *  else                           let the data conversion realloc values
+ *                                 as needed.                             */
 void
 corba2dietDataSeq(diet_data_seq_t *dest, const SeqCorba_data_t *src)
 { 
-  int all_is_new = ((!dest->seq) || (dest->length != src->length()));
+  int all_is_new = (dest->length != src->length());
   
-  dest->length = src->length();
+  if (!dest->length)
+    dest->seq = NULL;
+  
   if (all_is_new) {
+    /* First free all value fields */
+    for (size_t i = 0; i < dest->length; i++) {
+      if (dest->seq[i].to_be_freed)
+	free(dest->seq[i].value);
+    }
+    /* Then realloc sequence */
+    dest->length = src->length();
     dest->seq = (diet_data_t *) realloc(dest->seq,
 					dest->length * sizeof(diet_data_t));
   }
   
   for (size_t i = 0; i < dest->length; i++) {
     if (all_is_new) {
-      /* Initialize dest->seq[i].value */
+      /* Initialize dest->seq[i].value to force allocation*/
       dest->seq[i].value = NULL;
     }
     corba2dietData(&(dest->seq[i]), &((*src)[i]));
