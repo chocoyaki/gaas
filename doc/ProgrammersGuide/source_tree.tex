@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.10  2004/02/10 16:07:21  rbolze
+%* *** empty log message ***
+%*
 %* Revision 1.9  2004/01/07 22:55:23  cpera
 %* Add asynchronous server part description.
 %*
@@ -317,9 +320,9 @@ This directory contains documentations that are to be maintained up-to-date,
   communication architecture on its avalaible services.
   Two basic CORBA mecanisms can allow this asynchronous architecture.
   First is using IDL key word \emph{oneway} which delegates \emph{thread} managing
-  to \emph{POA} (Portable Object Adaptor) and stops imediatly after sending data parameters. This thread
+  to \emph{POA} (Portable Object Adaptor) and stops immediatly after sending data parameters. This thread
   executes solver code and return explicitly results data to client.
-  Seconth uses standard CORBA synchronous call.
+  Secondth uses standard CORBA synchronous call.
   \emph{RPC} creates a thread, delegates algorythm executing to it and returns.
   Executed algorythm solves its problem and return results data to clients or stores
   it (waitting for client get it).
@@ -338,7 +341,7 @@ This directory contains documentations that are to be maintained up-to-date,
   them of synchronous call. Currently, client callback server reference and request 
   identifier are volatile.
   \item[\emph{Polling} mecanism] will use next DIET data persistency mecanism.
-  Restlts data will be store locally or exported to a persistency service.
+  Results data will be store locally or exported to a persistency service.
   They will be avalaible through DIET persistency API. This mecanism is under 
   development as polling service. It will replace callback when presistence will
   by critical.
@@ -352,7 +355,7 @@ This directory contains documentations that are to be maintained up-to-date,
   Callback 's module is part of DIET client library. It contains classes generated
   from \emph{callback.idl} file by CORBA idl compiler and CallbackImpl class
   which provides functions for waiting and managing results. It is a \emph{singleton}
-  \emph{thread-safe} classe.
+  \emph{thread-safe} class.
 
   %\begin{figure}[h]
   %\begin{center}
@@ -368,7 +371,7 @@ This directory contains documentations that are to be maintained up-to-date,
   creates object, initialises its class data and CORBA context, provides a
   client callback CORBA server on network.
   Client code must only give its CORBA reference when calling asynchronous
-  function \emph{solveAsync}.
+  function \emph{solveAsync}.s
   SeD server calls \emph{CORBA} \emph{solveResult} function with this 
   reference to send results to client callback server.
   Combining  a call to \emph{diet\_initialise} and DIET file option 
@@ -380,12 +383,12 @@ This directory contains documentations that are to be maintained up-to-date,
   Synchronising access on data is necessary because of:
   \begin{itemize}
   \item Threads can together retrieve results data.
-  \item CORBA threads pool from client callback server serveur read concurrently
+  \item CORBA threads pool from client callback server read concurrently
   profil data structure.
   \item DIET API function \emph{diet\_wait*} stop caller thread until wait 
   results data are arrived on client.
   \end{itemize}
-  Classe from following UML diagram resume these drawbacks.
+  Classes from following UML diagram resume these drawbacks.
 
   %\begin{figure}[h]
   %\begin{center}
@@ -398,15 +401,15 @@ This directory contains documentations that are to be maintained up-to-date,
 
   CallAsyncMgr manages synchronising mecanism on wait results. It is a \emph{thread-safe}
   singleton which locks access on share data and race condition code. A 
-  \emph{diet\_initialise}/emph{diet\_finalise} call creates/destroys it. A
+  \emph{diet\_initialise}/\emph{diet\_finalise} call creates/destroys it. A
   Reader/Writer lock mecanism (exception-safe) manages syncronising between
   CORBA and DIET client threads. 
 
   \includegraphics{./fig/WaitRulesClassDiagram.ps}
 
   \emph{CallAsyncMgr} register/unregister asynchronous calls, their request
-  identifiers and data by \emph{addAsyncCall}/\emph{deleteAsyncCall} methode.
-  It stops cleint threads with addWait* methodes. These methodes have 
+  identifiers and data by \emph{addAsyncCall}/ \emph{deleteAsynCall} methode.
+  It stops client threads with addWait* methodes. These methodes have 
   parameters which store conditions on retrieved results to unlock threads.
   A \emph{Rule} structure contains a set of three data (request identifier,logical operator, state).
   Two list of data pair (\emph{RulesConditionMap} and \emph{CallAsyncList}) map \emph{Rule} with a
@@ -480,7 +483,7 @@ This directory contains documentations that are to be maintained up-to-date,
   \begin{itemize}
   \item SeD pushes results on client by a CORBA call to \emph{solveResults}.
   \item Callback server notifies available results by a call to \emph{notifyRst}.
-  \item locks synbchronising mecanism (\emph{WriterLock}).
+  \item locks synchronising mecanism (\emph{WriterLock}).
   \item validates data and request identifier(\emph{find}).
   \item finds rules linked to retrieved results.
   \item verifies all rules waiting conditions.
@@ -494,7 +497,7 @@ This directory contains documentations that are to be maintained up-to-date,
   which defines five state (RESOLVING, WAITING, DONE, CANCEL, ERROR). 
   \emph{CallAsyncMgr::addWait*} returns also this enum.
   RESOLVING announces that calculus goes on, WAITING that is not started, 
-  DONE that is finished and results are availabale, CANCEL thaht is stopped
+  DONE that is finished and results are availabale, CANCEL that is stopped
   by user and ERROR that is stopped by an error or an exception. 
 
   \begin{center}
@@ -519,7 +522,7 @@ This directory contains documentations that are to be maintained up-to-date,
   it into its waiting conditions.
   If others rules are linked to this result, their state are modified to 
   CANCEL as well as calculus state linked. Then synchronising mecanisms
-  are unlocks, threads goes on and\emph{CallAsyncMgr::addWait*} returns
+  are unlocks, threads goes on and \emph{CallAsyncMgr::addWait*} returns
   CANCEL state. Finally, memory is free.
 
   \begin{center}
@@ -674,11 +677,11 @@ This directory contains documentations that are to be maintained up-to-date,
         client, you can ask solving a SUM/PROD/T operation on SeD. Besides, they are 
         \texttt{multithreaded}. You can specify thread number of a pool and solve number. Each 
         thread cucurently sends data to SeD(s) and gets results according to its used
-        texttt{diet\_wait\/probe\_*} function.
-        texttt{parallelclient.cc} retrieves results by a simple texttt{diet\_wait} function 
-        and texttt{parallelclient2.cc} by a peridical texttt{diet\_probe} call.
-        texttt{parallelclient3.cc} and texttt{parallelclient3.cc} are examples about
-        respectivly texttt{diet\_wait\_and} and texttt{diet\_wait\_or}. Executing
+        \texttt{diet\_wait\/probe\_*} function.
+        \texttt{parallelclient.cc} retrieves results by a simple \texttt{diet\_wait} function 
+        and \texttt{parallelclient2.cc} by a peridical \texttt{diet\_probe} call.
+        \texttt{parallelclient3.cc} and \texttt{parallelclient3.cc} are examples about
+        respectivly \texttt{diet\_wait\_and} and \texttt{diet\_wait\_or}. Executing
         one of these examples prints traces about calculus parameters, synchronizing
         mecanisms on threads and results.
 
