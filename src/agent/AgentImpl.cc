@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2004/09/14 12:43:11  hdail
+ * Clarify "thread-safe" comments for Counter class.
+ *
  * Revision 1.20  2004/09/13 14:10:26  hdail
  * Correcting memory management bugs:
  * - mc->children is now deleted with delete [] to match allocation by [].
@@ -155,7 +158,7 @@ CORBA::ULong
 AgentImpl::agentSubscribe(Agent_ptr me, const char* hostName,
     const SeqCorbaProfileDesc_t& services)
 {
-  CORBA::ULong retID = (this->childIDCounter)++; // thread safe
+  CORBA::ULong retID = (this->childIDCounter)++; // thread safe Counter class
 
   TRACE_TEXT(TRACE_MAIN_STEPS, "An agent has registered from << " << hostName
       << ", with " << services.length() << " services.\n");
@@ -164,9 +167,9 @@ AgentImpl::agentSubscribe(Agent_ptr me, const char* hostName,
   this->LAChildren.resize(this->childIDCounter);
   LocalAgent_var meLA = LocalAgent::_narrow(me) ;
   this->LAChildren[retID] = LAChild(meLA, hostName);
-  (this->nbLAChildren)++; // thread safe
+  (this->nbLAChildren)++; // thread safe Counter class
 
-  this->addServices(retID, services);
+  this->addServices(retID, services); 
 
   return retID;
 } // agentSubscribe(Agent_ptr me, const char* hostName, ...)
@@ -198,7 +201,7 @@ AgentImpl::serverSubscribe(SeD_ptr me, const char* hostName,
 				 , uuid
 #endif // HAVE_JXTA
 				 );
-  (this->nbSeDChildren)++; // thread safe
+  (this->nbSeDChildren)++; // thread safe Counter class
 
   this->addServices(retID, services);
 
