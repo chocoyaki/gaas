@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2004/05/24 20:54:41  alsu
+ * replacing diet_service_table_set_perfmetric with shorter, less
+ * confusing function name diet_service_use_perfmetric
+ *
  * Revision 1.24  2004/05/18 21:32:26  alsu
  * - implement the diet_service_table_set_perfmetric function to allow
  *   SeDs to set up custom performance metric functions
@@ -103,7 +107,7 @@ diet_convertor_check(diet_convertor_t* cvt, diet_profile_desc_t* profile);
 
 static diet_perfmetric_t current_perfmetric_fn = NULL;
 diet_perfmetric_t
-diet_service_table_set_perfmetric(diet_perfmetric_t perfmetric_fn)
+diet_service_use_perfmetric(diet_perfmetric_t perfmetric_fn)
 {
   diet_perfmetric_t tmp_fn = current_perfmetric_fn;
   current_perfmetric_fn = perfmetric_fn;

@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2004/05/24 20:54:41  alsu
+ * replacing diet_service_table_set_perfmetric with shorter, less
+ * confusing function name diet_service_use_perfmetric
+ *
  * Revision 1.15  2004/05/18 21:24:46  alsu
  * - adding diet_perfmetric_t type
  * - adding diet_service_table_set_perfmetric function
@@ -258,7 +262,7 @@ int
 diet_service_table_init(int max_size);
 /* (cvt = NULL) is equivalent to "no conversion needed" */
 diet_perfmetric_t
-diet_service_table_set_perfmetric(diet_perfmetric_t fn);
+diet_service_use_perfmetric(diet_perfmetric_t fn);
 int
 diet_service_table_add(diet_profile_desc_t* profile,
 		       diet_convertor_t*    cvt,
