@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2004/10/08 12:04:02  hdail
+ * Corrected mis-matched return values for hash in .cc and .hh.  Caused problem
+ * for comptability with 64-bit machines.
+ *
  * Revision 1.1  2004/09/29 13:35:32  sdahan
  * Add the Multi-MAs feature.
  *
@@ -24,7 +28,7 @@
 //#define disp_state(fct) printf("KeyString::%s %s (%lx)\n", fct, (const char*)this->value ? (const char*)this->value : "empty-string", (long)(const char*)this->value)
 #define disp_state(fct)
 
-size_t KeyString::hash(const char* id) {
+u_int32_t KeyString::hash(const char* id) {
   assert(id != NULL) ;
   u_int32_t result = 0 ;
   size_t length = strlen(id) ;
