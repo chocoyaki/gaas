@@ -203,18 +203,25 @@ class ProcessThread extends Thread
         if (Array.getLength(resp) == 0) {
           resp = new String [30];
           Enumeration otherMA = null;
-          try {
-            otherMA = discoServ.getLocalAdvertisements
-		(DiscoveryService.ADV, "Name", "DIET_MA");
-            discoServ.getRemoteAdvertisements
-		(null, DiscoveryService.ADV, "Name", "DIET_MA", 10, null);
-          }
-          catch (Exception e) {
-            e.printStackTrace();
-          }
+	  System.out.print("Searching other MAs DIET...");
+	  int nbTry = 3;
+	  while (nbTry > 0) {
+            try {
+	      discoServ.getRemoteAdvertisements
+		  (null, DiscoveryService.ADV, "Name", "DIET_MA", 10, null);
+	      Thread.sleep(1000);
+	      otherMA = discoServ.getLocalAdvertisements
+		  (DiscoveryService.ADV, "Name", "DIET_MA");
+	      if (otherMA != null && otherMA.hasMoreElements())
+		break;
+	      nbTry--;
+	    }
+	    catch (Exception e) {
+	      e.printStackTrace();
+	    }
+	  }
           int ind = 0;
           while (otherMA.hasMoreElements()) {
-	      //String pType = null;
 	    String[] rsp = null;
             PipeAdvertisement otherPipeAdv = (PipeAdvertisement)otherMA.nextElement();
 	    pID = otherPipeAdv.getPipeID().toString();
@@ -362,8 +369,8 @@ class PublishThread extends Thread
     try {
       while(true) {
         /* publish the advertisement with lifetime = 20s */
-	  long lifetime = 20000;
-        disco.publish(pipeAdv, lifetime, lifetime);
+	long lifetime = 20000;
+        //disco.publish(pipeAdv, lifetime, lifetime);
         disco.remotePublish(pipeAdv, lifetime);
 
         /* Wait 15s and re-publish the advertisement */
