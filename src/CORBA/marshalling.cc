@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.35  2003/09/30 15:26:36  bdelfabr
+ * Manage the case of In argument with NUll value.
+ *
  * Revision 1.34  2003/09/27 07:51:15  pcombes
  * Replace silly base type DIET_BYTE by DIET_SHORT.
  * Fis bugs on data persistency tags and profile->pb_name that were not set.
@@ -220,12 +223,12 @@ mrsh_data(corba_data_t* dest, diet_data_t* src, int release)
   } else {
     if (src->value != NULL) {
       value = (CORBA::Char*)src->value;
-    } else {
-      value = SeqChar::allocbuf(1);
-      value[0] = '\0';
     }
   }
-  dest->value.replace(size, size, value, release);
+  if(value == NULL)
+    dest->value.length(0);
+  else
+    dest->value.replace(size, size, value, release);
 
   return 0;
 }
@@ -362,7 +365,7 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src)
     if (src->value.length() == 0) { // OUT case
       dest->value = malloc(data_sizeof(&(dest->desc)));
     } else {
-      CORBA::Boolean orphan = 1;//(src->mode == DIET_VOLATILE);
+      CORBA::Boolean orphan = (src->desc.mode == DIET_VOLATILE);
       dest->value = (char*)src->value.get_buffer(orphan);
     }
   }
