@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.15  2004/10/21 15:29:08  alsu
+#* error in maintainer mode
+#*
 #* Revision 1.14  2004/07/09 19:51:57  ctedesch
 #* - javac and javah detected instead of java
 #* - JXTA_LIB automatically set before compilation
@@ -124,8 +127,8 @@ EXTRA_DIST = $(top_srcdir)/include/Makefile.inc.in
 EXTRA_DIST += $(top_srcdir)/src/lib/*
 
 if MAINTAINER_MODE
-EXTRA_DIST += acmacros/aci.m4 acmacros/fast.m4 acmacros/libtool.m4 \
-	      acmacros/omniorb.m4 acmacros/utils.m4 \
+EXTRA_DIST += acmacros/aci.m4 acmacros/fast.m4 acmacros/libtool.m4 \\
+	      acmacros/omniorb.m4 acmacros/utils.m4 \\
 	      bin/scripts bootstrap.sh TO_DO
 endif
 
