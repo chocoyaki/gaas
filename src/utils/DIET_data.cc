@@ -1,5 +1,5 @@
 /****************************************************************************/
-/* DIET data functions implementation (API + internal)                      */
+/* DIET data interface for clients as well as servers                       */
 /*                                                                          */
 /*  Author(s):                                                              */
 /*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2004/02/27 10:29:09  bdelfabr
+ * adding call for data already present using only its identifier
+ *
  * Revision 1.25  2003/12/15 17:26:30  pcombes
  * Fix minor bug in diet_free_data (for scalar case)
  *
@@ -283,7 +286,7 @@ int
 profile_match(const corba_profile_desc_t* sv_profile,
 	      const corba_pb_desc_t*      pb_desc)
 {
-  if (strcmp(sv_profile->path, pb_desc->path))
+  if (strcmp(sv_profile->path, pb_desc->path)) //param_desc[Žâ†’].id.idNumber
     return 0;
   if ((   (sv_profile->last_in             != pb_desc->last_in)
        || (sv_profile->last_inout          != pb_desc->last_inout)
@@ -423,6 +426,13 @@ diet_string_set(diet_arg_t* arg, char* value, diet_persistence_mode_t mode,
   return status;
 }
 
+void
+diet_use_data(diet_arg_t* arg, char* id){
+
+  arg->value = NULL;
+  arg->desc.id=id;
+}
+
 /* Computes the file size */
 int
 diet_file_set(diet_arg_t* arg, diet_persistence_mode_t mode, char* path)
@@ -525,6 +535,7 @@ get_value(diet_data_t* data, void** value)
     case DIET_LONGINT: *((long int**)value) = (long int*)data->value; break;
     case DIET_FLOAT:   *((float**)value)    = (float*)data->value;    break;
     case DIET_DOUBLE:  *((double**)value)   = (double*)data->value;   break;
+  
 #if HAVE_COMPLEX
     case DIET_SCOMPLEX:
       *((complex**)value)        = (complex*)data->value;        break;
@@ -584,10 +595,13 @@ _matrix_get(diet_arg_t* arg, void** value, diet_persistence_mode_t* mode,
   if (arg->desc.generic.type != DIET_MATRIX) {
     ERROR(__FUNCTION__ << " misused (wrong type)", 1);
   }   
-  if ((res = get_value((diet_data_t*)arg, value))) {
+
+    if ((res = get_value((diet_data_t*)arg, value))) {
     ERROR(__FUNCTION__
 	  << " misused (wrong base type or arg pointer is NULL)", res);
-  }
+	  }
+
+ 
   if (mode)
     *mode = arg->desc.mode;
   if (nb_rows)
@@ -668,9 +682,8 @@ diet_free_data(diet_arg_t* arg)
       return 1;
     }
     break;
-
-  case DIET_SCALAR:
-    arg->desc.specific.scal.value = NULL;
+    case DIET_SCALAR:
+      arg->desc.specific.scal.value = NULL;
     // DO NOT BREAK !!!
   default:
     if (arg->value)
@@ -681,6 +694,5 @@ diet_free_data(diet_arg_t* arg)
   }
   return 0;
 }
-
 
 } // extern "C"
