@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2004/11/26 17:08:12  hdail
+ * Correct error in memory management.  We were trying to free an INOUT parameter
+ * with diet_free_data, but it can only be used for OUT parameters on the client
+ * and IN parameters on the server.
+ *
  * Revision 1.24  2004/10/08 12:19:59  hdail
  * Correcting warnings with mismatched types (size_t and int) on 64-bit.
  *
@@ -241,7 +246,6 @@ main(int argc, char* argv[])
       if (pb[0]) {
 	diet_matrix_get(diet_parameter(profile,0), NULL, NULL, &m, &n, &oA);
 	print_matrix(A, m, n, (oA == DIET_ROW_MAJOR));
-        diet_free_data(diet_parameter(profile,0));
       } else if (pb[4]) {
 	diet_matrix_get(diet_parameter(profile,0), NULL, NULL, &m, &n, &oB);
 	print_matrix(B, m, n, (oB == DIET_ROW_MAJOR));
