@@ -11,6 +11,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.2  2002/10/17 15:36:37  pcombes
+ * Two files are transfered for size.
+ *
  * Revision 1.1.1.1  2002/10/15 18:52:03  pcombes
  * Example of a file transfer: size of the file.
  *
@@ -36,11 +39,11 @@ main(int argc, char **argv)
   char *path;
   diet_function_handle_t *fhandle;
   diet_profile_t *profile;
-  int *size;
+  int *size1, *size2;
 
 
-  if (argc != 3) {
-    fprintf(stderr, "Usage: client <config_file> <file>\n");
+  if (argc != 4) {
+    fprintf(stderr, "Usage: client <config_file> <file1> <file2>\n");
     return 1;
   }
   path = "size";
@@ -51,17 +54,24 @@ main(int argc, char **argv)
   } 
 
   fhandle = diet_function_handle_default(path);
-  profile = profile_alloc(0, 0, 1);
+  profile = profile_alloc(1, 1, 3);
   if (file_set(&(profile->parameters[0]), DIET_VOLATILE, argv[2])) {
     printf("file_set error\n");
     return 1;
   }
-  scalar_set(&(profile->parameters[1]), NULL, DIET_VOLATILE, DIET_INT);
+  if (file_set(&(profile->parameters[1]), DIET_VOLATILE, argv[3])) {
+    printf("file_set error\n");
+    return 1;
+  }
+  scalar_set(&(profile->parameters[2]), NULL, DIET_VOLATILE, DIET_INT);
+  scalar_set(&(profile->parameters[3]), NULL, DIET_VOLATILE, DIET_INT);
 
   if (!diet_call(fhandle, profile)) {
-    size = ((int *)(profile->parameters[1].value));
-    printf("Answered size is %d.\n", *size);
-    free(size);
+    size1 = ((int *)(profile->parameters[2].value));
+    size2 = ((int *)(profile->parameters[3].value));
+    printf("Answered sizes are %d and %d.\n", *size1, *size2);
+    free(size1);
+    free(size2);
   }
   
   profile_free(profile);
