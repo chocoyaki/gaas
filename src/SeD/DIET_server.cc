@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2003/07/25 20:22:48  pcombes
+ * Add macros BEGIN_API and END_API to refine what is to be put in extern "C".
+ *
  * Revision 1.14  2003/07/04 09:47:57  pcombes
  * Use new ERROR, WARNING and TRACE macros.
  *
@@ -37,15 +40,20 @@ using namespace std;
 #include "SeDImpl.hh"
 
 
+#define BEGIN_API extern "C" {
+#define END_API   } // extern "C"
+
 extern unsigned int TRACE_LEVEL;
 
-extern "C" {
+
+BEGIN_API
 
 /****************************************************************************/
 /* DIET service table                                                       */
 /****************************************************************************/
 
 static ServiceTable* SRVT;
+
 
 int
 diet_service_table_init(int maxsize)
@@ -299,5 +307,4 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
 }
 
 
-} // extern "C"
-
+END_API
