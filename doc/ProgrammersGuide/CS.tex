@@ -1,5 +1,5 @@
 %****************************************************************************%
-%* DIET Coding Standards                                                    *%
+%* DIET Coding Standards - chapter three of the Programmer's Guide          *%
 %*                                                                          *%
 %*  Author(s):                                                              *%
 %*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *%
@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.2  2003/09/17 14:41:28  pcombes
+%* Split the .tex according to its chapters.
+%*
 %* Revision 1.1  2003/09/09 12:42:44  pcombes
 %* Reorganization of doc: include CS in a programmer's guide.
 %*
@@ -231,13 +234,16 @@ Type names must be suffixed with \texttt{\_t}: \texttt{diet\_type\_t}.
 
 
 
-\section{Comments}
+\section{Comments and Documentation}
 
 Source code documentation is essential in an increasing group of developers
-producing software collabortatively and efficiently. Comments within the source
-code are one way to create a comprehensive documentation. This insures that the
-related information is in the right place and makes it easier for the software
-engineer to maintain it.
+producing software collabortatively and efficiently.
+
+\subsection{Source code}
+
+Comments within the source code are one way to create a comprehensive
+documentation. This insures that the related information is in the right place
+and makes it easier for the software engineer to maintain it.
 
 Inside DIET we use line comments to describe certain attributes, block comments
 to explain bigger code sections and Doxygen comments to declare modules,
@@ -302,8 +308,10 @@ the conditional expression as a comment on the corresponding \verb+#else+ and
 \end{verbatim}
 \normalsize
 
-\addcontentsline{toc}{subsection}{Doxygen}
-\subsection*{Doxygen}
+\subsubsection{Doxygen}
+
+\fixme{Sylvain - Please complete this part}\\
+
 Doxygen comments can be extracted from the source code by the doxygen tool. The
 doxygen tool identifies the different sections inside an doxygen comment and
 creates I do not what but Sylvain will fill in this part of the Coding Standards
@@ -316,6 +324,27 @@ used in all DIET source files. Thus, it is important to authentify the
 author of the file \textbf{in the header}, as explained section \ref{fstruct}.
 Using the flag \texttt{@author} would be redundant.
 
+\subsection{Manuals}
+
+As soon as modifications visible from the user's point of view are performed,
+they have to be commented in the \textit{User's Manual}. These include changes
+in the installation process, in the API or still in the general behaviour of the
+platform, the new features that a programmer could add, etc. The \textit{Users's
+  Manual} should always be up-to-date.
+\\
+
+It is also very important for the developers to maintain this
+\textit{Programmer's Guide}, essentially the first two chapters of course.
+Indeed, these chapters expose the architecture of the software, its various
+parts and their links: this could evoluate a lot with the future developments.
+The \textit{Programmer's Guide} is not redundant with the comments put into the
+source code, since these comments cannot give a general view of the software,
+and some parts of the code require so many comments that it is better to put
+them in this \textit{Programmer's Guide}, with a simple reference in the
+source code. Moreover, it is a \textit{guide}, which means it should help a
+newbie programmer finding quickly what changes to do and where, before having
+read the least source code line.
+
 
 \section{Tabs, Line Length and Indentation}
 
@@ -323,10 +352,10 @@ Please do not use tabs inside of the code and wrap lines after the 80th
 character in a line. We do not like tabs because different editors and editor
 settings always lead to different displays. However, it is permitted to insert
 tabs if and if only they correspond to 8 charcters in the indentation (as for
-Emacs standards).
+GNU-Emacs standards).
 
 Lines have to be indented by two spaces for each code block level.  See more
-details below.
+details below, especially in section \ref{s:statements}.
 
 
 \section{Declarations}
@@ -388,6 +417,7 @@ mrsh_profile_to_out_args(corba_profile_t* dest, const diet_profile_t* src,
 
 
 \section{Statements}
+\label{s:statements}
 
 Statements inside the function body should be indented with 2 spaces like
 statements inside a compound statement.  In contrast to functions, the opening

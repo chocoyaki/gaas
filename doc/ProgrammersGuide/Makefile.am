@@ -9,6 +9,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.2  2003/09/17 14:41:28  pcombes
+#* Split the .tex according to its chapters.
+#*
 #* Revision 1.1  2003/09/09 12:42:44  pcombes
 #* Reorganization of doc: include CS in a programmer's guide.
 #*
@@ -57,13 +60,14 @@ endif
 # the compilation. The source to compile is stored in directory _tmp_.
 $(mod).dvi: $(EPS_FILES) $(PS_FILES) $(TEX_FILES)
 	@if [ ! -d _tmp_ ]; then mkdir _tmp_; fi
-	@sed -e "s/\$$@/\$$/g" $(srcdir)/$(mod).tex > _tmp_/$(mod).tex
-	@(export TEXINPUTS=:.:$(srcdir):;	\
+#	Replace the $@ - to avoid CVS changes - by a true $
+	@sed -e "s/\$$@/\$$/g" $(srcdir)/CS.tex > _tmp_/CS.tex
+	@(export TEXINPUTS=:.:_tmp_:$(srcdir):;	\
 	  export BIBINPUTS=:.:$(srcdir):;	\
 	  echo latex $(mod) $(RED1);		\
-	  latex _tmp_/$(mod).tex $(RED1);	\
+	  latex $(mod).tex $(RED1);		\
 	  echo latex $(mod) $(RED1);		\
-	  latex _tmp_/$(mod) $(RED1)		\
+	  latex $(mod) $(RED1);			\
 	  rm -rf _tmp_)
 
 .fig.eps:
