@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2003/09/16 13:22:03  pcombes
+ * Fix error message.
+ *
  * Revision 1.9  2003/04/10 12:45:10  pcombes
  * Apply Coding Standards.
  *
@@ -56,10 +59,8 @@ gen_stat(int type, char* message) {
     struct timezone tz;
 
     if (gettimeofday(&tv, &tz) == 0) {
-      fprintf(STAT_FILE, "%10ld.%06ld|%s|%s\n", 
-	      tv.tv_sec, tv.tv_usec,
-	      STAT_TYPE_STRING[type],
-	      message);
+      fprintf(STAT_FILE, "%10ld.%06ld|%s|%s\n", tv.tv_sec, tv.tv_usec,
+	      STAT_TYPE_STRING[type], message);
 
       /* Examples of generated trace :
        * 123456.340569|IN  |submission.start

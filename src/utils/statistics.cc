@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2003/09/16 13:22:03  pcombes
+ * Fix error message.
+ *
  * Revision 1.9  2003/04/10 12:50:02  pcombes
  * Change some errors into warnings.
  *
@@ -66,7 +69,7 @@ do_stat_init()
     } else {
       fprintf(stderr,
 	      "Warning (do_stat_init): stats module not initialized !");
-      fprintf(stderr, "Please set DIET_FILE_NAME !\n");
+      fprintf(stderr, "Please set DIET_STAT_FILE_NAME !\n");
     }
   }
 }
