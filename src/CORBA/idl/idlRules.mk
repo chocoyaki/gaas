@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.6  2003/09/22 21:06:48  pcombes
+#* Clean useless targets. Add modules for data persistency.
+#*
 #* Revision 1.5  2003/09/19 07:48:57  bdelfabr
 #* adding locMgr.idl and dataMgr.idl files to idlRules
 #*
@@ -24,21 +27,9 @@
 # IDL source files
 IDL_FILES = common_types.idl Callback.idl response.idl \
 	    Agent.idl MasterAgent.idl LocalAgent.idl SeD.idl \
-	    locMgr.idl dataMgr.idl
+	    DataMgr.idl LocMgr.idl
 
-# idl dependancies
-AgentSK.cc AgentDynSK.cc Agent.hh: \
-	common_types.hh response.hh SeD.hh
-MasterAgentSK.cc MasterAgentDynSK.cc MasterAgent.hh: Agent.hh
-LocalAgentSK.cc LocalAgentDynSK.cc LocalAgent.hh:    Agent.hh
-SeDSK.cc SeDDynSK.cc SeD.hh:                         common_types.hh Callback.hh
-responseSK.cc responseDynSK.cc response.hh:          SeD.hh
-Callback.hh CallbackSK.cc CallbackDynSK.cc:          common_types.hh	
-dataMgr.hh dataMgrSK.cc dataMgrDynSK.cc:	     common_types.hh
-locMgr.hh locMgrSK.cc locMgrDynSK.cc:		     dataMgr.hh common_types.hh
-
-
-# compiling and dependency rules for idl files
+# compiling and dependency rules for the files generated from IDL
 %.hh %SK.cc %DynSK.cc: %.idl $(IDL_COMPILER)
 	$(IDL_COMPILER) $(IDLFLAGS) $<
 # FIXME: The following two lines are a trick for omniORB 4 compiled with
