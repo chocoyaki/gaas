@@ -9,6 +9,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.5  2003/09/09 12:38:54  pcombes
+#* Reorganization of doc.
+#*
 #* Revision 1.4  2003/06/16 17:41:27  pcombes
 #* Fix header.
 #*
@@ -28,14 +31,24 @@
 #* Add install targets in Makefiles.
 #****************************************************************************#
 
-SUBDIRS = CS UM
+SUBDIRS = UsersManual
+if MAINTAINER_MODE
+SUBDIRS += ProgrammersGuide
+endif
+
 DIST_SUBDIRS = $(SUBDIRS)
 
-.PHONY:	CS UM
+if MAINTAINER_MODE
 
-CS: 
-	$(MAKE) -C CS
+# This is an artifact for automake to generate the targets necessary for
+# generating the source code docmentation without attempting to install it.
+BUILT_SOURCES = API
+EXTRA_DIST = Doxyfile API
+$(BUILT_SOURCES): $(srcdir)/Doxyfile
+	(CURDIR=`pwd`; cd $(top_srcdir); \
+	 sed "s|API|$$CURDIR/API|g" doc/Doxyfile | doxygen - || exit 0)
 
-UM: 
-	$(MAKE) -C UM
+endif
 
+tutorial:
+	$(MAKE) -C $@
