@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2003/09/16 15:01:56  ecaron
+ * Add statistics log into MA and LA [getRequest part]
+ *
  * Revision 1.10  2003/09/16 13:22:03  pcombes
  * Fix error message.
  *
@@ -65,7 +68,10 @@ do_stat_init()
 	fprintf(stderr,
 		"do_stat_init(): (see DIET_STAT_FILE_NAME env variable?)\n");
 	perror("do_stat_init");
-      }
+      }		
+      else {
+	fprintf(stderr,"stats module is on\n");
+      }			
     } else {
       fprintf(stderr,
 	      "Warning (do_stat_init): stats module not initialized !");

@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2003/09/16 15:01:56  ecaron
+ * Add statistics log into MA and LA [getRequest part]
+ *
  * Revision 1.4  2003/07/04 09:47:59  pcombes
  * Use new ERROR, WARNING and TRACE macros.
  *
@@ -25,6 +28,7 @@
 #include "ORBMgr.hh"
 #include "Parsers.hh"
 #include "Request.hh"
+#include "statistics.hh"
 
 #include <iostream>
 using namespace std;
@@ -35,7 +39,6 @@ extern unsigned int TRACE_LEVEL;
 #define LA_TRACE_FUNCTION(formatted_text)       \
   TRACE_TEXT(TRACE_ALL_STEPS, "LA::");          \
   TRACE_FUNCTION(TRACE_ALL_STEPS,formatted_text)
-
 
 LocalAgentImpl::LocalAgentImpl()
 {
@@ -107,6 +110,8 @@ LocalAgentImpl::getRequest(const corba_request_t& req)
   Request* currRequest = new Request(&req);
 
   LA_TRACE_FUNCTION(req.reqID << ", " << req.pb.path);
+  stat_init();
+  stat_in("start [getRequest]");
 
   corba_response_t& resp = *(this->findServer(currRequest, 0));
 
@@ -116,6 +121,6 @@ LocalAgentImpl::getRequest(const corba_request_t& req)
   this->reqList[req.reqID] = NULL;
   delete currRequest;
   delete &resp;
-
+  stat_out("stop [getRequest]");
 } // getRequest(const corba_request_t& req)
 

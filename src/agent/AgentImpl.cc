@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2003/09/16 15:01:56  ecaron
+ * Add statistics log into MA and LA [getRequest part]
+ *
  * Revision 1.8  2003/08/29 10:53:10  cpontvie
  * Coding standards applied
  *
@@ -53,7 +56,7 @@ using namespace std;
 #include "FASTMgr.hh"
 #include "ORBMgr.hh"
 #include "Parsers.hh"
-
+#include "statistics.hh"
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
 
@@ -87,6 +90,7 @@ AgentImpl::~AgentImpl()
   TRACE_TEXT(TRACE_STRUCTURES, "Agt:: 'this->reqList.clear()'...");
   this->reqList.clear();
   TRACE_TEXT(TRACE_STRUCTURES, "Done\n");
+  stat_finalize();
   if (ORBMgr::unbindAgent(this->myName)) {
     WARNING("could not undeclare myself as " << this->myName);
   }

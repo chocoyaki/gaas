@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2003/09/16 15:01:56  ecaron
+ * Add statistics log into MA and LA [getRequest part]
+ *
  * Revision 1.4  2003/07/04 09:47:59  pcombes
  * Use new ERROR, WARNING and TRACE macros.
  *
@@ -21,14 +24,14 @@
  * Schedulers and TRACE_LEVEL. Update submit.
  * Multi-MA parts are still to be updated.
  ****************************************************************************/
-
+#include <stdio.h>
+#include <iostream>
+using namespace std;
 #include "MasterAgentImpl.hh"
 #include "debug.hh"
 #include "Parsers.hh"
+#include "statistics.hh"
 
-#include <iostream>
-using namespace std;
-#include <stdio.h>
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
@@ -91,6 +94,10 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
 
   MA_TRACE_FUNCTION(pb_profile.path <<", " << maxServers);
 
+  /* Initialize statistics module */
+  stat_init();
+  stat_in("start MA request");
+
   /* Initialize the corba request structure */
   creq.reqID = reqIDCounter++; // thread safe
   creq.pb = pb_profile;
@@ -116,6 +123,7 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
   
   TRACE_TEXT(TRACE_MAIN_STEPS,
 	     "**************************************************\n");
+  stat_out("stop  MA request");
   return resp;
 } // submit(const corba_pb_desc_t& pb, ...)
 
