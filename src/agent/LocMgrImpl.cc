@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2003/09/30 15:10:15  bdelfabr
+ * applying coding standard.
+ * WhereData is modified to avoid warning while compiling
+ *
  * Revision 1.2  2003/09/24 09:13:05  pcombes
  * DataMgr does not need a name: use its reference.
  *
@@ -151,63 +155,63 @@ LocMgrImpl::dataMgrSubscribe(DataMgr_ptr me, const char* hostName)
 
 /** Add Data Reference to the Reference List */
 void
-LocMgrImpl::addDataRef(const char* argID, CORBA::ULong cChildID)
+LocMgrImpl::addDataRef(const char *argID, CORBA::ULong cChildID)
 {
 #if DEVELOPPING_DATA_PERSISTENCY 
   
-  dataLocList[strdup(id)]=csonId;
+  dataLocList[strdup(argID)]=cChildID;
  
   printList();
 
-  if (*myAgentFatherName != '\0') {
+  if (this->parent != LocMgr::_nil()) {
   
-    locMgrFather->addDataRef(id,sonId);
+    parent->addDataRef(argID,cChildID);
   }
 
 #endif // DEVELOPPING_DATA_PERSISTENCY
 }
 
-// initially invoked by the MA : client wants to destroy all its data
+/** initially invoked by the MA : client wants to destroy all its data */
 #if 0
 void
 LocMgrImpl::rmAllRef()
 {
   if ( dataLocList.size() > 0) {
     DataLocList_t::iterator cur = dataLocList.begin();
-    ChildID sonId = dataLocList[strdup(cur->first)];
-    if(sonId < static_cast<CORBA::ULong>(locSons.size())) {
-      locDescription theLoc =  locSons[sonId];
+    ChildID cChildID = dataLocList[strdup(cur->first)];
+    if(cChildID < static_cast<CORBA::ULong>(locSons.size())) {
+      locDescription theLoc =  locSons[cChildID];
       if (theLoc.defined()){
-	LocMgr_var myLocChild = theLoc.getIor();
-	myLocChild->rmAllRef(dataId);
+	LocMgr_ptr locChild = theLoc.getIor();
+	locChild->rmAllRef();
       }
     }
     if(oldSonId < static_cast<CORBA::ULong>(dataSons.size())) {
       dataDescription theData = dataSons[oldSonId];
       if(theData.defined()){
-	DataMgr_var myDataChild = theData.getIor();
-	myDataChild->rmDataRef(dataId);
+	DataMgr_ptr dataChild = theData.getIor();
+	dataChild->rmDataRef();
       }
     }
     while (cur != dataLocList.end()) {
-      //if partie d'id = MA + session FIXME : decomposition de l'id  
+      // FIXME id decomposition 
       dataLocList.erase(strdup(cur->first));
       cur++;
     }
-    ChildID oldSonId = dataLocList[strdup(dataId)];
+    ChildID oldChildID = dataLocList[strdup(dataId)];
     dataLocList.erase(strdup(dataId));
-    if(oldSonId < static_cast<CORBA::ULong>(locSons.size())) {
+    if(oldChildID < static_cast<CORBA::ULong>(locSons.size())) {
       locDescription theLoc =  locSons[oldSonId];
       if (theLoc.defined()){
-	LocMgr_var myLocChild = theLoc.getIor();
-	myLocChild->rmDeprecatedVarRef(dataId);
+	LocMgr_ptr locChild = theLoc.getIor();
+	locChild->rmDeprecatedVarRef();
       }
     }
     if(oldSonId < static_cast<CORBA::ULong>(dataSons.size())) {
       dataDescription theData = dataSons[oldSonId];
       if(theData.defined()){
-	DataMgr_var myDataChild = theData.getIor();
-	myDataChild->rmDataRef(dataId);
+	DataMgr_ptr dataChild = theData.getIor();
+	dataChild->rmDataRef();
       }
     }
   }
@@ -216,80 +220,81 @@ LocMgrImpl::rmAllRef()
 
 /** Remove Data Reference from the Reference List */
 void
-LocMgrImpl::rmDataRef(const char* argID, CORBA::ULong cChildID)
+LocMgrImpl::rmDataRef(const char *argID, CORBA::ULong cChildID)
 {
 #if DEVELOPPING_DATA_PERSISTENCY
-  if (*myAgentFatherName != '\0')
-    dataLocList.erase(strdup(dataId));
-  
-    locMgrFather->rmDataRef(dataId,sonId);
+  dataLocList.erase(strdup(argID));
+  if (this->parent != LocMgr::_nil())
+    parent->rmDataRef(argID,cChildID);
 #endif // DEVELOPPING_DATA_PERSISTENCY
 }
 
- 
+/**
+ * initially invoked by a Data Manager.
+ * the owner a the data has changed. The list must be updated.
+ */ 
 void
-LocMgrImpl::updateDataRef(const char* argID,
-			  CORBA::ULong cCchildID, CORBA::Long upDown)
+LocMgrImpl::updateDataRef(const char *argID,
+			  CORBA::ULong cChildID, CORBA::Long upDown)
 {
 #if DEVELOPPING_DATA_PERSISTENCY
-  if(upDown == 0){ // UP
-    if (*myAgentFatherName == '\0') {
+  if(upDown == 0){ // UP = replace old owner by new one
+    if (this->parent == LocMgr::_nil()) {
    
-      ChildID oldSonId = dataLocList[strdup(dataId)];
- 
-  
-      dataLocList[strdup(dataId)]=csonId;
-     
+      ChildID oldChildID = dataLocList[ms_strdup(argID)];
+   
+      dataLocList[ms_strdup(argID)]=cChildID;
+      printList();
     
-      UpDown = 1;
-      if(oldSonId < static_cast<CORBA::Long>(locMgrSons.size())) {
-	locMgrDescription theLoc =  locSons[oldSonId];
+      upDown = 1;
+      if(oldChildID < static_cast<CORBA::Long>(locMgrChildren.size())) {
+	locMgrChild theLoc =   locMgrChildren[oldChildID];
 	
 	
 	if (theLoc.defined()){
 	  
-	  LocMgr_var myLocChild = theLoc.getIor();
-	  myLocChild->updateDataRef(dataId,(unsigned)-1,1);
+	  LocMgr_ptr locChild = theLoc.getIor();
+	  locChild->updateDataRef(argID,(unsigned)-1,1);
 	}
       }
-      if(oldSonId < static_cast<CORBA::Long>(dataSons.size())) {
-	dataDescription theData = dataSons[oldSonId];
+      if(oldChildID < static_cast<CORBA::Long>(dataMgrChildren.size())) {
+	dataMgrChild theData = dataMgrChildren[oldChildID];
 	
 	if(theData.defined()){
-	  DataMgr_var myDataChild = theData.getIor();
+	  DataMgr_ptr dataChild = theData.getIor();
 	  
-	  myDataChild->rmDataRef(dataId);
+	  dataChild->rmDataRef(ms_strdup(argID));
 	}
       }
     } else {
-      dataLocList[strdup(dataId)] = csonId;
-      
-      //affList();
-      locFather->updateDataRef(dataId,sonId,0); 
+      dataLocList[ms_strdup(argID)] = cChildID;
+      printList();
+      parent->updateDataRef(argID,cChildID,0); 
+
     }
-  }else{ 
-    if(*myAgentFatherName != '\0'){// DOWN
-      ChildID oldSonId = dataLocList[strdup(dataId)];
+  } else { // DOWN = removing old owner
+      if (this->parent != LocMgr::_nil()){
+	ChildID oldChildID = dataLocList[strdup(argID)];
       
-      dataLocList.erase(strdup(dataId));
-     
-      // affList();
-      if(oldSonId < static_cast<CORBA::Long>(locSons.size())) {
-	locDescription theLoc =  locSons[oldSonId];
-	if (theLoc.defined()){
-	  LocMgr_var myLocChild = theLoc.getIor();
-	  myLocChild->updateDataRef(dataId,(unsigned)-1,1);
+	dataLocList.erase(strdup(argID));
+	printList();
+	if(oldChildID < static_cast<CORBA::Long>(locMgrChildren.size())) {
+	  locMgrChild theLoc =  locMgrChildren[oldChildID];
+	  if (theLoc.defined()){
+	    LocMgr_ptr locChild = theLoc.getIor();
+	    locChild->updateDataRef(argID,(unsigned)-1,1);
+	  }
+	}
+	if(oldChildID < static_cast<CORBA::Long>(dataMgrChildren.size())) {    
+	  dataMgrChild theData = dataMgrChildren[oldChildID];
+	  if (theData.defined()){
+	    DataMgr_ptr dataChild = theData.getIor();
+	    dataChild->rmDataRef(argID);
+	  }
 	}
       }
-      if(oldSonId < static_cast<CORBA::Long>(dataSons.size())) {    
-	dataDescription theData = dataSons[oldSonId];
-	if (theData.defined()){
-	  DataMgr_var myDataChild = theData.getIor();
-	  myDataChild->rmDataRef(dataId);
-	}
-      }
-    }
   }
+
 #endif // DEVELOPPING_DATA_PERSISTENCY
 }
 
@@ -300,10 +305,10 @@ LocMgrImpl::updateDataRef(const char* argID,
  *   - the Loc Manager holding the reference of the Data
  */
 CORBA::ULong
-LocMgrImpl::dataLookUp(const char* argID)
+LocMgrImpl::dataLookUp(const char *argID)
 {
 #if DEVELOPPING_DATA_PERSISTENCY 
-  return (dataLocList.find(strdup(id)) != dataLocList.end());
+  return (dataLocList.find(strdup(argID)) != dataLocList.end());
 #else
   return 0;
 #endif // DEVELOPPING_DATA_PERSISTENCY
@@ -335,68 +340,65 @@ LocMgrImpl::printList()
 
  
 /**
- * Return the Name of the Data Manager holding the searching Data
+ * Return the Name of the Data Manager holding the searched data
  */
 DataMgr_ptr
 LocMgrImpl::whereData(const char* argID)
 {
 #if DEVELOPPING_DATA_PERSISTENCY
-  char *a=(char *)(malloc(261*sizeof(char)));
-  if (*myAgentFatherName == '\0') {
-    if (dataLocList.find(strdup(dataId)) != dataLocList.end()) {
-   
-     
-      ChildID theSonId=dataLocList[strdup(dataId)];
-      if(theSonId < static_cast<CORBA::Long>(locSons.size())) {
-	locDescription theLoc =  locSons[theSonId];
+  if (this->parent == LocMgr::_nil()) {
+    if (dataLocList.find(strdup(argID)) != dataLocList.end()) {     
+      ChildID cChildID=dataLocList[strdup(argID)];
+      if(cChildID < static_cast<CORBA::Long>(locMgrChildren.size())) {
+	locMgrChild theLoc =  locMgrChildren[cChildID];
 	if (theLoc.defined()) {
-	  LocMgr_var myChild = theLoc.getIor();
-	  return(CORBA::string_dup(myChild->whereData(dataId,hostname)));
-	}
+	  LocMgr_ptr locChild = theLoc.getIor();
+	  return locChild->whereData(ms_strdup(argID)) ;
+	} else return DataMgr::_nil();
       } else {
-	if(theSonId < static_cast<CORBA::Long>(dataSons.size())) {
-	  dataDescription theData = dataSons[theSonId];
-	  DataMgr_var myChild = theData.getIor();
-	  return(CORBA::string_dup(myChild->whereData(dataId, hostname)));
-	  
+	if(cChildID < static_cast<CORBA::Long>(dataMgrChildren.size())) {
+	  dataMgrChild theData = dataMgrChildren[cChildID];
+	  if (theData.defined()) {
+	  DataMgr_ptr dataChild = theData.getIor();
+	  return dataChild->whereData(ms_strdup(argID)) ;
+	  } else return DataMgr::_nil();
 	} else {
 	  cerr << "OBJECT UNKNOWN " << endl;
+	  return DataMgr::_nil();
 	}
       }
     } else {
       cerr << "DATA NOT IN HIERARCHY " << endl;
-      *a = '\0';
-      return a;
+      return DataMgr::_nil();
     }
-    return a;
 
-  } else { 
-    if (dataLocList.find(strdup(dataId)) != dataLocList.end()) { 
-      ChildID theSonId=dataLocList[strdup(dataId)];
-      if(theSonId < static_cast<CORBA::Long>(locSons.size())) {
-	locDescription theLoc =  locSons[theSonId];
+  } else { /** I am not root Loc Manager */ 
+
+    if (dataLocList.find(strdup(argID)) != dataLocList.end()) { /** Data Reference found */
+    
+      ChildID cChildID = dataLocList[strdup(argID)];
+      if(cChildID < static_cast<CORBA::Long>(locMgrChildren.size())) {
+	locMgrChild theLoc =  locMgrChildren[cChildID];
 	if (theLoc.defined()){
-	  LocMgr_var myChild = theLoc.getIor();
-	  return(CORBA::string_dup(myChild->whereData(dataId,hostname)));
+	  LocMgr_ptr locChild = theLoc.getIor();
+	  return locChild->whereData(ms_strdup(argID)) ;
 	  
-	}
+	} else return DataMgr::_nil();
       } else {
-	if(theSonId < static_cast<CORBA::Long>(dataSons.size())) {
-	  dataDescription theData = dataSons[theSonId];
-	  DataMgr_var myChild = theData.getIor();
-	  return(CORBA::string_dup(myChild->whereData(dataId, hostname)));
+
+	if(cChildID < static_cast<CORBA::Long>(dataMgrChildren.size())) {
+	  dataMgrChild theData = dataMgrChildren[cChildID];
+	  if (theData.defined()){
+	    DataMgr_ptr dataChild = theData.getIor();
+	    return dataChild->whereData(ms_strdup(argID));
+	  } else return DataMgr::_nil();
 	} else {
-	;
-	  cerr << "BIG PROBLEM" << endl;
-	  *a='\0';
+	  return DataMgr::_nil(); 
 	}
       }
-    } else {
-	return(CORBA::string_dup(locFather->whereData(dataId, hostname)));
-
-      return a;
+    } else { /** data Reference not found - invoke my parent */
+      return this->parent->whereData(ms_strdup(argID));
     }
-    return a;
   }
 #else
   return DataMgr::_nil();
@@ -405,11 +407,11 @@ LocMgrImpl::whereData(const char* argID)
 
 
 void
-LocMgrImpl::updateDataProp(const char* argID)
+LocMgrImpl::updateDataProp(const char *argID)
 {
 #if DEVELOPPING_DATA_PERSISTENCY  
-  if (*myAgentFatherName != '\0') 
-    locFather->updateDataProp(cDataId);
+  if (this->parent == LocMgr::_nil())
+    this->parent->updateDataProp(ms_strdup(argID));
 #endif
 }
 
