@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.39  2004/12/03 09:53:51  bdelfabr
+ * cleanup data when persistent
+ *
  * Revision 1.38  2004/12/02 09:33:09  bdelfabr
  * cleanup memory management for in persistent data.
  *
@@ -356,6 +359,43 @@ SeDImpl::checkContract(corba_estimation_t& estimation,
 }
 
 
+void persistent_data_release(corba_data_t* arg){
+
+  switch((diet_data_type_t)(arg->desc.specific._d())) {
+ case DIET_VECTOR: {
+    corba_vector_specific_t vect;
+
+    arg->desc.specific.vect(vect);
+    arg->desc.specific.vect().size = 0;
+    break;
+  }
+  case DIET_MATRIX: {
+    corba_matrix_specific_t mat;
+
+     arg->desc.specific.mat(mat);
+     arg->desc.specific.mat().nb_r  = 0;
+     arg->desc.specific.mat().nb_c  = 0;
+  
+    break;
+  }
+  case DIET_STRING: {
+    corba_string_specific_t str;
+
+     arg->desc.specific.str(str);
+     arg->desc.specific.str().length = 0;
+    break;
+  }
+  case DIET_FILE: {
+    corba_file_specific_t file;
+     arg->desc.specific.file(file);
+       arg->desc.specific.file().path = CORBA::string_dup("");
+       arg->desc.specific.file().size = 0;
+    break;
+  }
+  default:
+    break;
+  }
+}
 
 CORBA::Long
 SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
@@ -432,29 +472,26 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
   
 #if DEVELOPPING_DATA_PERSISTENCY 
 
-  for(i=0;i<pb.last_in;i++){
-    if(diet_is_persistent(profile.parameters[i])) {
-      if (pb.parameters[i].desc.specific._d() == DIET_FILE) {
-	pb.parameters[i].desc.specific.file().path= (char *)NULL;
-      } else { 
-	CORBA::Char *p1 (NULL);
-	pb.parameters[i].value.replace(0,0,p1,0);
+  
+  for(i=0;i<=pb.last_in;i++){
+    if(diet_is_persistent(pb.parameters[i])) {
+      if (pb.parameters[i].desc.specific._d() != DIET_FILE) {
+      	CORBA::Char *p1 (NULL);
+	pb.parameters[i].value.replace(0,0,p1,1);
       }
+      persistent_data_release(&(pb.parameters[i]));
     }
   }
+  
+  
 
 #endif // DEVELOPPING_DATA_PERSISTENCY   
-    
+  
     mrsh_profile_to_out_args(&pb, &profile, cvt);
-    
+
     
 #if DEVELOPPING_DATA_PERSISTENCY   
  
-  /*    for (i = pb.last_in + 1 ; i <= pb.last_inout; i++) {
-      if ( diet_is_persistent(pb.parameters[i])) {
-	this->dataMgr->updateDataList(pb.parameters[i]); 
-      }
-      }*/
  
     for (i = pb.last_inout + 1 ; i <= pb.last_out; i++) {
       if ( diet_is_persistent(pb.parameters[i])) {
