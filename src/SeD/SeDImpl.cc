@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.41  2004/12/15 18:09:58  alsu
+ * cleaner, easier to document interface: changing diet_perfmetric_t back
+ * to the simpler one-argument (of type diet_profile_t) version, and
+ * hiding a copy of the pointer back to the SeD in the profile.
+ *
  * Revision 1.40  2004/12/08 15:02:51  alsu
  * plugin scheduler first-pass validation testing complete.  merging into
  * main CVS trunk; ready for more rigorous testing.
@@ -716,6 +721,7 @@ SeDImpl::estimate(corba_estimation_t& estimation,
   profile.last_in = pb.last_in;
   profile.last_inout = pb.last_inout;
   profile.last_out = pb.last_out;
+  profile.SeDPtr = (const void*) this;
   profile.parameters = (diet_arg_t*) calloc ((pb.last_out+1),
                                              sizeof (diet_arg_t));
 
@@ -780,14 +786,14 @@ SeDImpl::estimate(corba_estimation_t& estimation,
     /***** END FAST-based metrics *****/
 
     /***** START RR metrics *****/
-    diet_estimate_lastexec(eVals, &profile, (const void *) this);
+    diet_estimate_lastexec(eVals, &profile);
     /***** END RR metrics *****/
   }
   else {
     /*
     ** just call the custom performance metric function!
     */
-    eVals = (*perfmetric_fn)(&profile, (const void*) this);
+    eVals = (*perfmetric_fn)(&profile);
   }
 
   /* Evaluate comm times for persistent IN arguments only: comm times for

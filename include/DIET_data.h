@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2004/12/15 18:09:58  alsu
+ * cleaner, easier to document interface: changing diet_perfmetric_t back
+ * to the simpler one-argument (of type diet_profile_t) version, and
+ * hiding a copy of the pointer back to the SeD in the profile.
+ *
  * Revision 1.23  2004/12/08 15:02:51  alsu
  * plugin scheduler first-pass validation testing complete.  merging into
  * main CVS trunk; ready for more rigorous testing.
@@ -154,6 +159,10 @@ typedef struct {
   char*       pb_name;
   int         last_in, last_inout, last_out;
   diet_arg_t* parameters;
+
+  const void* SeDPtr; /* pointer to SeD object, to be used in
+                      ** performance estimation
+                      */
 } diet_profile_t;
 
 /* Allocate a DIET profile with memory space for its arguments.

@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2004/12/15 18:09:58  alsu
+ * cleaner, easier to document interface: changing diet_perfmetric_t back
+ * to the simpler one-argument (of type diet_profile_t) version, and
+ * hiding a copy of the pointer back to the SeD in the profile.
+ *
  * Revision 1.17  2004/12/08 15:02:51  alsu
  * plugin scheduler first-pass validation testing complete.  merging into
  * main CVS trunk; ready for more rigorous testing.
@@ -245,7 +250,7 @@ typedef int (* diet_solve_t)(diet_profile_t*);
 /* DIET performance metric function prototype                               */
 /****************************************************************************/
 
-typedef estVector_t (* diet_perfmetric_t)(diet_profile_t*, const void*);
+typedef estVector_t (* diet_perfmetric_t)(diet_profile_t*);
 
 
 /****************************************************************************/
@@ -336,8 +341,7 @@ void free_estVector(estVector_t ev);
 /****************************************************************************/
 int diet_estimate_fast(estVector_t ev, const diet_profile_t* const profilePtr);
 int diet_estimate_lastexec(estVector_t ev,
-                           const diet_profile_t* const profilePtr,
-                           const void* const SeDPtr);
+                           const diet_profile_t* const profilePtr);
 
 /****************************************************************************/
 /* Inline definitions of functions declared above                           */
