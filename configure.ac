@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.14  2003/06/24 15:14:16  pcombes
+#* Fix bugs on --enable-* options.
+#*
 #* Revision 1.13  2003/06/23 13:13:27  pcombes
 #* Re-Submit BLAS and ScaLAPACK detection to "enable" options.
 #* Change configuration summary (more complete)
@@ -53,15 +56,14 @@ dnl ##########################################################################
 dnl #### Create templates for config.h.in header.
 dnl ##########################################################################
 AH_TEMPLATE([HAVE_OMNIORB], [Define use of omniORB.])
-AH_TEMPLATE([HAVE_CICHLID], [Define use of Cichlid.])
-AH_TEMPLATE([HAVE_STATISTICS], [Define use of STATISTICS library.])
+AH_TEMPLATE([HAVE_CICHLID], [Define use of Cichlid and the communication tools.])
+AH_TEMPLATE([HAVE_STATISTICS], [Define use of the statistics tools.])
 AH_TEMPLATE([HAVE_BLAS], [Define use of BLAS library for DIET examples.])
 dnl AH_TEMPLATE([HAVE_PBLAS], [Define use of PBLAS library for DIET examples.])
 dnl AH_TEMPLATE([HAVE_MPI], [Define use of MPI library for DIET examples.])
 AH_TEMPLATE([HAVE_SCALAPACK], [Define use of SCALAPACK library \
                               for DIET examples.])
-dnl AH_TEMPLATE([HAVE_GSL], [Define use of GSL library for DIET examples.])
-AH_TEMPLATE([HAVE_MULTI_MA], [using multi MA architecture.])
+AH_TEMPLATE([HAVE_MULTI_MA], [Define use multi MA architecture.])
 AH_TOP([#ifndef _DIET_CONFIG_H_
 #define _DIET_CONFIG_H_])
 AH_BOTTOM([#endif // _DIET_CONFIG_H_])
@@ -144,25 +146,19 @@ dnl ###########################################################################
 AC_ARG_ENABLE(Cichlid,
 	      AC_HELP_STRING([--enable-Cichlid],
 	                 [enable generation of communication logs for Cichlid]))
-if test "x$enable_CICHLID" = "xyes"; then
-  AC_DEFINE(HAVE_CICHLID,1,[Define use of communication tools])
+if test "x$enable_Cichlid" = "xyes"; then
+  AC_DEFINE(HAVE_CICHLID)
 fi
 
 AC_ARG_ENABLE(stats,
 	      AC_HELP_STRING([--enable-stats],
-			     [enable generation of statistics logs]))
-if test "x$enable_stats" = "xyes"; then
-  AC_DEFINE(HAVE_STATISTICS)
-  IDLFLAGS="$IDLFAGS -DHAVE_STATISTICS"
-  HAVE_STATISTICS=yes
-fi
+			     [enable generation of statistics logs]),
+	      [AC_DEFINE(HAVE_STATISTICS)][IDLFLAGS="$IDLFAGS -DHAVE_STATISTICS"])
 
 AC_ARG_ENABLE(multi-MA,
 	      AC_HELP_STRING([--enable-multi-MA],
-			     [enable multi-MA architecture]))
-if test "x$enable_MULTI_MA" = "xyes"; then
-  AC_DEFINE(HAVE_MULTI_MA)
-fi
+			     [enable multi-MA architecture]),
+			     AC_DEFINE(HAVE_MULTI_MA))
 
 
 dnl ###########################################################################
@@ -390,7 +386,7 @@ fi
 
 # MULTI MA
 printf " - multi-MA:        " | tee -a config.log
-if test "x$HAVE_MULTI_MA" = "xyes"
+if test "x$enable_multi_MA" = "xyes"
 then
   echo "yes" | tee -a config.log
 else
@@ -398,7 +394,7 @@ else
 fi
 
 # STATISTICS
-if test "x$HAVE_STATISTICS" = "xyes"
+if test "x$enable_stats" = "xyes"
 then
   echo " - statistics log:  yes" | tee -a config.log
 fi
