@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2004/10/04 08:21:12  hdail
+ * Removed temporary << printf ("tata\n") ; >> lines.
+ *
  * Revision 1.6  2004/09/29 13:35:32  sdahan
  * Add the Multi-MAs feature.
  *
@@ -96,7 +99,7 @@ main(int argc, char* argv[])
   diet_matrix_order_t oA, oB, oC;
 
   int   pb[NB_PB] = {0, 0, 0, 0, 0};
-  printf("Asynchronous seriel client.\n");
+  printf("Asynchronous serial client.\n");
 
   srand(time(NULL));
 
@@ -183,10 +186,8 @@ main(int argc, char* argv[])
     }
     diet_reqID_t rst;
     int rst_call = 0;
-    printf ("tata\n") ;
     if ((rst_call = diet_call_async(profile, &rst)) != 0) printf("Error in diet_call_async -%d-\n", rst_call);;
     printf("request ID value = -%d- \n", rst);
-    printf ("tata\n") ;
     if (rst >= 0){
       // print input data
       sprintf(requestID, "%d", rst);
