@@ -8,9 +8,11 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.2  2003/11/28 12:00:07  pcombes
+%* Add examples documentation.
+%*
 %* Revision 1.1  2003/09/17 14:41:28  pcombes
 %* Split the .tex according to its chapters.
-%*
 %****************************************************************************%
 
 
@@ -21,7 +23,8 @@ the \textsf{doc} directory.
 \section{\textsf{doc}}
 \label{s:doc}
 
-This directory contains documentations that are to be maintained up-to-date, even in CVS:
+This directory contains documentations that are to be maintained up-to-date,
+even in CVS, (\emph{ie} \textbf{not only for releases !}):
 
 \begin{itemize}
 \item The \textit{User's Manual}, in \textsf{UsersManual}. Its output file is
@@ -60,9 +63,13 @@ application. Almost all these files are headers which are copied into the
 complete API of DIET, for the client side as well as for the server side.
 
 Nevertheless, there is also a \texttt{Makefile.inc.in} which will be configured
-into a \texttt{Makefile.inc}. The latter is to be included
-by the \make\ of the DIET user, to set all options and variables necessary for
-compiling and linking with the DIET libraries.
+into a \texttt{Makefile.inc}. The latter is to be included by the \make\ of the
+DIET user, to set all options and variables necessary for compiling and linking
+with the DIET libraries. It may be noticed that some variables are affected with
+\texttt{?=} ; it is because the \texttt{Makefile.inc} is also included by the
+DIET examples, which need to define a different prefix as long as the
+\texttt{make install} has not been invoked.
+
 
 
 \subsubsection{\tt DIET\_data.h}
@@ -261,10 +268,10 @@ ever it is possible.
 This directory contains the implementation of both client APIs, the DIET API and
 the GridRPC API.
 
-The GridRPC is actually incompatible with the strict types
-used in DIET, that we use to avoid many run-time errors. That is why the
-\texttt{gridrpc\_call} functions is a bit modified, as it waits for
-\texttt{diet\_arg\_t} arguments only.
+The GridRPC is actually incompatible with the strictly defined types used in
+DIET, which avoid many run-time errors. That is why the \texttt{gridrpc\_call}
+functions is a bit modified, as it requires \texttt{diet\_arg\_t} arguments
+only.
 
 \fixme{Christophe - the asynchronous part of the API}
 
@@ -289,12 +296,12 @@ it is easier to initialize, bind its name in the naming service, etc.
 
 \subsection{Data memory management}
 
-\fixme{under construction ..}
+\fixme{Bruno - Help me please, if I have no time ...}
 
 
 \subsection{Convertors}
 
-\fixme{under construction ..}
+\fixme{under construction ...}
 
 
 
@@ -336,10 +343,118 @@ sources from the IDL files. This is the role of the file \textsf{idlRules.mk}.
 \label{s:examples}
 
 This directory contains the examples distributed with DIET. Its compilation
-depends from the configure option \texttt{--enable-examples}, activated by
-default.
+depends on the configure option \texttt{--enable-examples}, forced in
+maintainer, and disabled by default for users.
 
-\fixme{under construction ..}
+There are five complete applications, providing a server and one or several
+clients able to use the service(s) offered by the server. Two of them require
+special libraries to be installed on the machine, which are more or less
+detected at configuration time, but there is still much work to do for
+the automatic detection.
+
+\subsubsection{file\_transfer}
+
+This example was aimed to show how to manipulate the \texttt{DIET\_FILE} type.
+The client sends two files to the server. The second file is re-transfered
+without any change, since it is an INOUT, and its size is returned as an OUT.
+It shows the drawback of the file management: it is impossible for the user to
+gain control over the path of the received files.
+
+\subsubsection{scalars}
+
+This example was aimed to show how to manipulate the \texttt{DIET\_SCALAR} type,
+and the various modes of passing arguments. It shows the problems of the
+management of the base types in DIET: the length of the given data is not
+checked, and the correspondance with the CORBA types is still to be perfected.
+Actually, the length of the base types has been defined according to the
+NetSolve types, but it would have been more clever to accord them with the CORBA
+types. 
+
+\subsubsection{dmat\_manips}
+
+The server offers an interface to some basic double matrix manipulations:
+transpose, product and sum. To make the clients of the examples
+\texttt{dmat\_manips}, \texttt{BLAS} and \texttt{ScaLAPACK} interchangeable for
+some problems, the profiles for services \texttt{MatPROD}, \texttt{SqMatSUM}
+(square matrix sum) and \texttt{SqMatSUM\_opt} (``optimized'' because the second
+operand is INOUT) are the same. Thus, for a demo, a matrix product can be
+invoked by a client, and executed either on a server having the BLAS library
+installed, or a server performing only a basic matrix product (usually far much
+slower), according to the FAST estimation.
+\\
+
+Although there are many examples of convertors in this and other examples, the
+service \texttt{T}, the first written, was designed to give an example of
+remanipulation of the arguments. When FAST 0.4 has been integrated into DIET,
+all other services had to include convertors.
+
+Another step has been done for FAST 0.8. The convertors had to be rewritten
+since the matrix type has been suppressed from the FAST API (with all high-level
+descriptions of the problems) The idea is to create a profile, through the
+convertor, that has got only the arguments declared in the LDAP base (which can
+be extracted from the others), followed by the arguments that the computation
+needs. It was not possible to do that with FAST 0.4 because it was not designed
+to ignore unknown arguments. That is why we are forced to include
+\textsf{DIET\_config.h}, to get the version of FAST.
+\\
+
+\fixme{Christophe - Please explain the asynchronous clients.}
+
+
+\subsubsection{BLAS}
+
+To compile the BLAS server, you will need the BLAS library installed. For
+developers using a Linux Debian, there is a package, and everything has been
+performed for the configure to take such a package into account: just use the
+\texttt{--enable-BLAS} option, and it should be automagically detected. For
+other installations, it might be necessary to use all the arguments defined by
+the ACI\_PACKAGE macros (\texttt{--with-BLAS=}, ...)
+
+So far, this server provides the \texttt{dgemm} service and all its derivations:
+\texttt{MatPROD}, \texttt{SqMatSUM}, \texttt{SqMatSUM\_opt} and
+\texttt{MatScalMult}. Convertors are used to convert the profiles of the
+problems to the one of the pdgemm service, so that only one solve function has
+to be implemented. But this server is destined to be an interface to all the
+functions of the BLAS library.
+\\
+
+We have the same problem of compatibility with FAST 0.4 and FAST 0.8 in the BLAS
+server as in the dmat\_manips example. Actually, this server only supports
+FAST 0.4, since the modifications to get low-level profiles for FAST 0.8 have not
+been done yet. But these modifications are quite similar to the ones of the
+dmat\_manips server, and they will be easy to add.
+
+\subsubsection{ScaLAPACK}
+
+It is very difficult to detect all the libraries necessary to compile a program
+calling the \texttt{pdgemm} function. Nothing has been done actually for it in
+the \texttt{configure.ac}, because not only the LAPACK library should be found,
+but also an MPI implementation, etc. Nevertheless it is still possible to
+compile the server of this example if the user knows exactly all the paths for
+these libraries, or the extra arguments to compile with them (through
+\texttt{--with-ScaLAPACK-extra}), thanks to the \texttt{ACI\_PACKAGE} macros
+from M. Quinson.
+
+So far, this server provides the \texttt{pdgemm} service and all its
+derivations: \texttt{dgemm}, \texttt{MatPROD}, \texttt{SqMatSUM},
+\texttt{SqMatSUM\_opt} and \texttt{MatScalMult}. Convertors are used to convert
+the profiles of the problems to the one of the pdgemm service, so that only one
+solve function has to be implemented. But this server is destined to be an
+interface to all the functions of the ScaLAPACK library.
+
+The implementation of this SeD is complex. It is launched on the node 0 of an
+MPI grid. When the client submits a problem, it asks for a number of nodes to
+execute the computation. Then, the node 0 creates a subgrid of the available
+nodes and launches the computation on this new grid. Of course, depending on the
+number of nodes required by the client, and the number of nodes still available
+in the initial grid, it is possible that the computation returns with an error
+code, or that the same node is used for several processes.
+\\
+
+The support for FAST is quite difficult to add, since the server is supposed to
+be parallel. Maybe we should wait for the FAST/Freddy integration to be
+complete.
+
 
 
 \section{\textsf{src/SeD}}
@@ -350,8 +465,31 @@ This directory contains the implementations of
 \item the DIET server API,
 \item the IDL interface of the SeD.
 \end{itemize}
+\
 
-\fixme{under construction ..}
+The functions of the API are easy to understand, as far as the User's Manual is
+well understood. They use a global static variable \texttt{SRVT}, and its
+manipulation is not thread-safe, since it would have no sense to launch two SeDs
+with the same service table in two different threads.
+\\
+
+There is nothing else important to explain in the implementation of the IDL
+interface but the \texttt{solve} methods. These methods run on the same
+scheme, except that \texttt{solveAsync} is \textit{oneway}, ie. asynchronous,
+and thus it has to send explicitly the results, through a callback mechanism, at
+the end of the computation.
+
+\fixme{Christophe - the callback mechanism might require some more explanations}
+
+Both methods have to ``unmarshall'' the arguments, ie. to convert them into DIET
+data that the programmer of the server can manipulate. Then they invoke the
+solve function through the pointer given by this programmer, and reconvert
+(marshall) the OUT data into CORBA data to be sent back on the client. Thus the
+computation is performed inner a CORBA thread, created at the remote invokation
+of the method.
+
+To perform the computation in a separate process, we will be forced to dump the
+arguments into files ... It is still to be done.
 
 
 \section{\textsf{src/utils}}
@@ -360,4 +498,4 @@ This directory contains the implementations of
 This directory gathers all tools and utils that are used by more than one entity
 of DIET.
 
-\fixme{under construction ..}
+\fixme{under construction ...}
