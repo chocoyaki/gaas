@@ -1,3 +1,37 @@
+diet-1.1
+
+* logService
+	- add LogManager to DIET component (MAs, LAs and SeDs) to enable DIET
+	to suscribe to LogService. ( use configure with  :
+	--enable--logservice option)
+	
+* Data persistance
+	- add data persistance in DIET, now SeDs can store DATA.
+	
+* DIET multi-MA with JXTA
+	- a prototype of multi-MA based on JXTA. ( use configure with :
+	--enable-JXTA-mode option)
+	- it is only a prototype!
+
+* change in config file
+	- name of variables "endPointPort" and "endHostname" change with
+	"dietPort" and "dietHostname".
+
+* bugs correction
+	- bugs in diet_wait_or() function (bug #3 in bugzilla)
+	- detection of omniORB in darwin (bug #4 in bugzilla)
+	- empty file for DATA_PERSISTANCE even if we don't use it (bug #6 in bugzilla)
+	- option --repeat in dmat_manip/client.c example (bug #7 in bugzilla)
+	- parsing file on 64 bit architectures (bug #8 in bugzilla)
+	
+* known bugs but not resolved
+	- INOUT parameters are not changed in asynchronous mode ( bug #9 in
+	bugzilla)
+	- file length are too short (bug #10 in bugzilla)
+	- dmat_manips clients crash when useAsyncAPI = 0 ( bug #11 in
+	bugzilla)
+
+
 diet (1.0 beta)  
 
 * GNU autotools: automake and autoconf.
