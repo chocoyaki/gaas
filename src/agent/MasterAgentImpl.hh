@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2004/10/05 07:45:34  hdail
+ * Grouped private and public members together.
+ *
  * Revision 1.5  2004/10/04 09:40:43  sdahan
  * warning fix :
  *  - debug.cc : change the printf format from %ul to %lu and from %l to %ld
@@ -41,11 +44,13 @@
 #include "AgentImpl.hh"
 #include "LinkedList.hh"
 #include "Parsers.hh"
+
+#if HAVE_MULTI_MA
 #include "BindService.hh"
 #include "KeyString.hh"
 #include "ts_container/ts_set.hh"
-
 class FloodRequestsList ;
+#endif
 
 class MasterAgentImpl : public POA_MasterAgent, public AgentImpl
 {
@@ -62,8 +67,6 @@ public :
     return this->POA_MasterAgent::_this();
   };
   
-
-
   /** Launch this agent (initialization + registration in the hierarchy). */
   int
   run();
@@ -76,19 +79,6 @@ public :
       problem in the local domain. */
   corba_response_t*
   submit_local(const corba_request_t& creq);
-
-#ifdef HAVE_MULTI_MA
-  /** Ask the authorization to create a link with this Master Agent */
-  virtual CORBA::Boolean
-  handShake(MasterAgent_ptr me, const char* myName);
-  /** returns the address of the bind service of the Master Agent */
-  virtual char*
-  getBindName() ;
-  /** Updates all the references to the other Master Agent. It also
-      connect to some new Master Agent if there is not enough links. */
-  void
-  updateRefs();
-#endif // HAVE_MULTI_MA
 
   /** get session id */
   virtual  CORBA::Long 
@@ -110,15 +100,17 @@ public :
   virtual CORBA::Long 
   diet_free_pdata(const char *argID);
 
-
-private :
-  /** ID of next incoming request. */
-  Counter reqIDCounter;
-  Counter num_session;
-  Counter num_data;
 #ifdef HAVE_MULTI_MA
-  /* Known MAs : */
-public:
+  /** Ask the authorization to create a link with this Master Agent */
+  virtual CORBA::Boolean
+  handShake(MasterAgent_ptr me, const char* myName);
+  /** returns the address of the bind service of the Master Agent */
+  virtual char*
+  getBindName() ;
+  /** Updates all the references to the other Master Agent. It also
+      connect to some new Master Agent if there is not enough links. */
+  void
+  updateRefs();
   virtual void searchService(MasterAgent_ptr predecessor,
 			     const char* predecessorId,
 			     const corba_request_t& request);
@@ -136,7 +128,14 @@ public:
 			    const corba_response_t& decision);
   typedef NodeDescription<MasterAgent, MasterAgent_ptr> MADescription;
   typedef ts_map<KeyString, MADescription> MAList;
-private:
+#endif // HAVE_MULTI_MA
+
+private :
+  /** ID of next incoming request. */
+  Counter reqIDCounter;
+  Counter num_session;
+  Counter num_data;
+#ifdef HAVE_MULTI_MA
   typedef ts_set<KeyString> StrList;
   StrList MAIds ;
   MAList knownMAs ;
