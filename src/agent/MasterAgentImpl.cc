@@ -10,6 +10,15 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2004/12/02 08:21:07  sdahan
+ * bug fix:
+ *   - file id leak in the BindService
+ *   - can search an service that do not existe and having MA name different to
+ *     its binding name.
+ * warning message added in FloodRequest:
+ *   - instead of just ignoring eronous message, a warning is print in the log
+ * ALL_PRINT_STEP messages added to show some Multi-MAs request
+ *
  * Revision 1.14  2004/11/29 15:22:16  sdahan
  * update the hash algorithm.
  * the ls6 and ls7 had the same hash value. So two differents request had the same id. By updating the hash function, this should not append presently.
@@ -115,8 +124,8 @@ MasterAgentImpl::run()
   } else {
     reqIDCounter = KeyString::hash(localHostName) ;
   }
-  reqIDCounter =
-    ((reqIDCounter & 0xFFFFF) ^ (reqIDCounter >> 20))* 1000 ;
+  reqIDCounter = ((reqIDCounter & 0xFFFFF) ^ ((reqIDCounter >> 12) & 0xFFF))
+    * 1000 ;
 
   TRACE_TEXT(TRACE_ALL_STEPS, "Getting MAs references ...\n");
 
@@ -258,7 +267,9 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
 	floodRequestsList->add(floodRequest) ;
       assert(requestAdded) ;
 
-      while((decision->servers.length() == 0) && (!floodRequest.flooded())) {
+      while((decision->servers.length() == 0) && (!floodRequest.flooded())) {  
+	TRACE_TEXT(TRACE_ALL_STEPS, "multi-MAs search "
+		   << creq.pb.path << " request (" << creq.reqID << ")\n") ;
 	floodRequest.floodNextStep() ;
 	*decision = floodRequest.getDecision() ;
       }
@@ -429,10 +440,13 @@ void MasterAgentImpl::searchService(MasterAgent_ptr predecessor,
 
   //printTime() ;
   //fprintf(stderr, "searchService from %s, %s:%d, %s\n", predecessorId, (const char*)request.reqId.maId, (int)request.reqId.idNumber, (const char*)myName) ;
+  TRACE_TEXT(TRACE_ALL_STEPS, predecessor << " search " 
+	     << request.pb.path << " request (" << request.reqID << ")\n") ;
+
   
   FloodRequest& floodRequest =
     *(new FloodRequest(MADescription(predecessor, predecessorId), 
-		       MADescription(_this(), myName),
+		       MADescription(_this(), bindName),
 		       request, knownMAs)) ;
 
   bool requestAdded =
@@ -442,14 +456,22 @@ void MasterAgentImpl::searchService(MasterAgent_ptr predecessor,
     corba_response_t* decision = submit_local(request) ;
 
     if (decision->servers.length() == 0) {
-      predecessor->serviceNotFound(request.reqID, myName) ;
+      predecessor->serviceNotFound(request.reqID, bindName) ;
+      TRACE_TEXT(TRACE_ALL_STEPS, "no server for request (" <<
+		 request.reqID << ")\n") ;
     } else {
       predecessor->serviceFound(request.reqID, *decision) ;
+      TRACE_TEXT(TRACE_ALL_STEPS, decision->servers.length() 
+		 << " server(s) found for request (" <<
+		 request.reqID << ")\n") ;
     }
 
     floodRequest.releaseAccess() ;
   } else {
-    predecessor->alreadyContacted(request.reqID, myName) ;
+    predecessor->alreadyContacted(request.reqID, bindName) ;  
+    TRACE_TEXT(TRACE_ALL_STEPS, "already contacted for request (" << 
+	       request.reqID << ")\n") ;
+
   }
   
   //printf("<<<<<search service from %s\n", predecessorId) ;
@@ -475,7 +497,7 @@ void MasterAgentImpl::stopFlooding(CORBA::Long reqId,
 
 void MasterAgentImpl::serviceNotFound(CORBA::Long reqId,
 				      const char* senderId) {
-  //  fprintf(stderr, "serviceNotFound from %s, %s:%d, %s\n", senderId, (const char*)reqId.maId, (int)reqId.idNumber, (const char*)myName) ; 
+  //fprintf(stderr, "serviceNotFound from %s, %s:%d, %s\n", senderId, (const char*)reqId.maId, (int)reqId.idNumber, (const char*)myName) ; 
   try {
     FloodRequest& floodRequest = 
       floodRequestsList->get(reqId) ;
@@ -489,7 +511,9 @@ void MasterAgentImpl::serviceNotFound(CORBA::Long reqId,
 
 void MasterAgentImpl::newFlood(CORBA::Long reqId,
 			       const char* senderId){
-  //  fprintf(stderr, "newFlood from %s, %s:%d, %s\n", senderId, (const char*)reqId.maId, (int)reqId.idNumber, (const char*)myName) ;
+  //fprintf(stderr, "newFlood from %s, %s:%d, %s\n", senderId, (const char*)reqId.maId, (int)reqId.idNumber, (const char*)myName) ;
+    TRACE_TEXT(TRACE_ALL_STEPS, senderId << " continue the search for "
+	       << " request (" << reqId << ")\n") ;
   try {
     FloodRequest& floodRequest = 
       floodRequestsList->get(reqId) ;
@@ -497,13 +521,15 @@ void MasterAgentImpl::newFlood(CORBA::Long reqId,
     floodRequest.releaseAccess() ;
   } catch (FloodRequestNotFoundException& e) {
     cerr << e << endl ;
-    knownMAs[senderId]->alreadyContacted(reqId, myName) ;
+    knownMAs[senderId]->alreadyContacted(reqId, bindName) ;
   }
 }
 
 void MasterAgentImpl::floodedArea(CORBA::Long reqId,
 				  const char* senderId) {
-  //  fprintf(stderr, "floodedArea from %s, %s:%d, %s\n", senderId, (const char*)reqId.maId, (int)reqId.idNumber, (const char*)myName) ;
+  //fprintf(stderr, "floodedArea from %s, %s:%d, %s\n", senderId, (const char*)reqId.maId, (int)reqId.idNumber, (const char*)myName) ;
+  TRACE_TEXT(TRACE_ALL_STEPS, "stop the flood of " << senderId << " for "
+	     << " request (" << reqId << ")\n") ;
   try {
     FloodRequest& floodRequest = 
       floodRequestsList->get(reqId) ;
@@ -517,7 +543,8 @@ void MasterAgentImpl::floodedArea(CORBA::Long reqId,
 
 void MasterAgentImpl::alreadyContacted(CORBA::Long reqId,
 				       const char* senderId) {
-  //  fprintf(stderr, "alreadyContacted from %s, %s:%d, %s\n", senderId, (const char*)reqId.maId, (int)reqId.idNumber, (const char*)myName) ;
+  //fprintf(stderr, "alreadyContacted from %s, %s:%d, %s\n", senderId, (const char*)reqId.maId, (int)reqId.idNumber, (const char*)myName) ;
+  TRACE_TEXT(TRACE_ALL_STEPS, "already contacted for request (" << reqId << ")") ;
   try {
     FloodRequest& floodRequest = 
       floodRequestsList->get(reqId) ;

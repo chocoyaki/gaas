@@ -8,6 +8,15 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2004/12/02 08:21:07  sdahan
+ * bug fix:
+ *   - file id leak in the BindService
+ *   - can search an service that do not existe and having MA name different to
+ *     its binding name.
+ * warning message added in FloodRequest:
+ *   - instead of just ignoring eronous message, a warning is print in the log
+ * ALL_PRINT_STEP messages added to show some Multi-MAs request
+ *
  * Revision 1.2  2004/10/15 08:19:56  hdail
  * Removed references to corba_response_t->sortedIndexes - no longer useful.
  *
@@ -164,7 +173,7 @@ void FloodRequest::floodNextStep() {
     case NeighbouringMA::nmaStateFlooding :
       // the MA was already contacted, ask to continue the search
       try {
-	MA->newFlood(request.reqID, owner->getBindName()) ;
+	MA->newFlood(request.reqID, ownerId) ;
 	nbOfWaitingResponse++ ;
       } catch(CORBA::SystemException& ex) {
 	iter->second.state = NeighbouringMA::nmaStateFlooded ;
@@ -181,7 +190,7 @@ void FloodRequest::floodNextStep() {
   try {
     if (completelyFlooded) {
       if (predecessor.defined()) {
-	predecessor->floodedArea(request.reqID, owner->getBindName()) ;
+	predecessor->floodedArea(request.reqID, ownerId) ;
       }
     } else {
       // wait a maximum of 5 seconds
@@ -202,9 +211,9 @@ void FloodRequest::floodNextStep() {
 	      completelyFlooded = false ;
 	  }
 	  if (completelyFlooded)
-	    predecessor->floodedArea(request.reqID, owner->getBindName()) ;
+	    predecessor->floodedArea(request.reqID, ownerId) ;
 	  else
-	    predecessor->serviceNotFound(request.reqID, owner->getBindName()) ;
+	    predecessor->serviceNotFound(request.reqID, ownerId) ;
 	}
       }
     }
@@ -271,6 +280,8 @@ void FloodRequest::addResponseFloodedArea(KeyString senderId) {
   NeighbouringMAs::iterator senderIter = neighbouringMAs.find(senderId) ;
   if (senderIter != neighbouringMAs.end())
     senderIter->second.state = NeighbouringMA::nmaStateFlooded ;
+  else
+    WARNING("sender " << senderId << " is unknown from neighbours list") ;
   addNewResponse() ;
   disp(locker.unlock()) ;
 }
@@ -282,6 +293,8 @@ void FloodRequest::addResponseAlreadyContacted(KeyString senderId) {
   NeighbouringMAs::iterator senderIter = neighbouringMAs.find(senderId) ;
   if (senderIter != neighbouringMAs.end())
     senderIter->second.state = NeighbouringMA::nmaStateAlreadyContacted ;
+  else
+    WARNING("sender " << senderId << " is unknown from neighbours list") ;
   addNewResponse() ;
   disp(locker.unlock()) ;
 }

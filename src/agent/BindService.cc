@@ -8,6 +8,15 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2004/12/02 08:21:07  sdahan
+ * bug fix:
+ *   - file id leak in the BindService
+ *   - can search an service that do not existe and having MA name different to
+ *     its binding name.
+ * warning message added in FloodRequest:
+ *   - instead of just ignoring eronous message, a warning is print in the log
+ * ALL_PRINT_STEP messages added to show some Multi-MAs request
+ *
  * Revision 1.2  2004/10/04 09:40:43  sdahan
  * warning fix :
  *  - debug.cc : change the printf format from %ul to %lu and from %l to %ld
@@ -112,13 +121,13 @@ MasterAgent_ptr BindService::lookup(const char* addr) {
 
   int sockfd = socket(AF_INET, SOCK_STREAM, 0);
   if (sockfd < 0) {
-    TRACE_TEXT(TRACE_ALL_STEPS, "opening socket: " << strerror(errno) << "\n");
+    TRACE_TEXT(TRACE_ALL_STEPS, " opening socket:" << strerror(errno) << "\n");
     return MasterAgent::_nil();
   }
 
   struct hostent* server = gethostbyname(hostname);
   if (server == NULL) {
-    TRACE_TEXT(TRACE_ALL_STEPS, "no such host: " << hostname << "\n");
+    TRACE_TEXT(TRACE_ALL_STEPS, " no such host: " << hostname << "\n");
     return MasterAgent::_nil();
   }
 
@@ -131,16 +140,18 @@ MasterAgent_ptr BindService::lookup(const char* addr) {
   servAddr.sin_port = htons(portNo);
 
   if (connect(sockfd,(const sockaddr*)&servAddr,sizeof(servAddr)) < 0)  {
-    TRACE_TEXT(TRACE_ALL_STEPS, "not connecting: " << strerror(errno) << "\n");
+    TRACE_TEXT(TRACE_ALL_STEPS, " not connecting:" << strerror(errno) << "\n");
     return MasterAgent::_nil();
   }
   char buffer[2048] ;
   bzero(buffer,sizeof(buffer));
   int n = read(sockfd,buffer,sizeof(buffer)-1);
   if (n < 0) {
-    TRACE_TEXT(TRACE_ALL_STEPS, "reading from socket: " << strerror(errno) << "\n");
+    TRACE_TEXT(TRACE_ALL_STEPS, " reading from socket:" << strerror(errno) << "\n");
+    close(sockfd) ;
     return MasterAgent::_nil();
   }
+  close(sockfd) ;
   CORBA::Object_var obj = ORBMgr::stringToObject(buffer) ;
   if (CORBA::is_nil(obj)) {
     TRACE_TEXT(TRACE_ALL_STEPS, "is nil: " << buffer << "\n");
