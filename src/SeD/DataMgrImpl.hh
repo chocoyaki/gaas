@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2004/10/05 08:23:09  bdelfabr
+ * fixing bug for persistent file : add a changePath method thta gives the good file access path
+ *
  * Revision 1.9  2004/03/01 18:42:08  rbolze
  * add logservice
  *
@@ -114,7 +117,7 @@ public:
   virtual void
   sendData(corba_data_t& arg);
   void 
-  changePath(corba_data_t &arg, char *path);
+  changePath(corba_data_t &arg, char * newPath);
  
   virtual char *
   setMyName();

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2004/10/05 08:23:09  bdelfabr
+ * fixing bug for persistent file : add a changePath method thta gives the good file access path
+ *
  * Revision 1.12  2004/03/03 09:11:58  bdelfabr
  * bug correction
  *
@@ -208,6 +211,7 @@ DataMgrImpl::addDataDescToList(corba_data_t* dataDesc, int inout) // FIXME : die
  
   the_data.desc = dataDesc->desc; 
   the_data.desc.specific.file().path = ms_strdup(dataDesc->desc.specific.file().path);
+
   the_data.desc.id.idNumber  = ms_strdup(dataDesc->desc.id.idNumber); 
   the_data.desc.id.dataCopy  = DIET_ORIGINAL;
   the_data.desc.id.state  = DIET_FREE;
@@ -235,7 +239,7 @@ DataMgrImpl::addDataDescToList(corba_data_t* dataDesc, int inout) // FIXME : die
       dataDesc->value.replace(size,size,p,0);
 
     } 
-  }else {
+  } else {
      if(inout == 0) {
        path = CORBA::string_dup(the_data.desc.specific.file().path);
      }
@@ -253,16 +257,12 @@ DataMgrImpl::addDataDescToList(corba_data_t* dataDesc, int inout) // FIXME : die
 }// addDataDescToList(corba_data_t* dataDesc, int inout)
 
 
-/*void 
-DataMgrImpl::changePath(corba_data_t& dataDesc, char* path){
-  corba_data_t &the_data= dataDescList[ms_strdup(dataDesc.desc.id.idNumber)] ;
-  char * path1;
-  path1 =  ms_strdup( the_data.desc.specific.file().path);
-
-  the_data.desc.specific.file().path = ms_strdup(path);
-  path1 =  ms_strdup( the_data.desc.specific.file().path);
-
-  }*/
+void 
+DataMgrImpl::changePath(corba_data_t& dataDesc, char * newPath) 
+{
+  corba_data_t &the_data = dataDescList[ms_strdup(dataDesc.desc.id.idNumber)] ;
+  the_data.desc.specific.file().path = ms_strdup(newPath);
+}
 
 
 /**
@@ -309,12 +309,12 @@ DataMgrImpl::sendData(corba_data_t& arg)
     if ((arg.desc.specific.file().path != NULL)
 	&& strcmp("", arg.desc.specific.file().path)) {
       char* in_path   = CORBA::string_dup(arg.desc.specific.file().path);
-      char* file_name = strrchr(in_path, '/');
+      //   char* file_name = strrchr(in_path, '/');
       char* out_path  = new char[256];
-      pid_t pid = getpid();
-      sprintf(out_path, "/tmp/DIET_%d_%s", pid,
-	      (file_name) ? (char*)(1 + file_name) : in_path);
-      
+      // pid_t pid = getpid();
+      // sprintf(out_path, "/tmp/DIET_%d_%s", pid,
+      //	      (file_name) ? (char*)(1 + file_name) : in_path);
+      sprintf(out_path, "%s",in_path);
       ofstream outfile(out_path);
       for (int i = 0; i < arg.desc.specific.file().size; i++) {
 	outfile.put(arg.value[i]);
@@ -366,6 +366,7 @@ DataMgrImpl::getData(corba_data_t& cData)
 #if DEVELOPPING_DATA_PERSISTENCY
   if(dataLookup(cData.desc.id.idNumber)){ // if data present
    dataDescList.unlock();
+  
     cpEltListToDataT(&cData);
  
   } else { // data not locally present

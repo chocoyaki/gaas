@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.32  2004/10/05 08:23:09  bdelfabr
+ * fixing bug for persistent file : add a changePath method thta gives the good file access path
+ *
  * Revision 1.31  2004/10/04 13:52:32  hdail
  * Added ability to restrict number of concurrent jobs running in the SeD.
  *
@@ -399,6 +402,14 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
   
 #else  // DEVELOPPING_DATA_PERSISTENCY  
 
+ for (i=0; i <= pb.last_inout; i++) {
+     if( diet_is_persistent(pb.parameters[i])&& (pb.parameters[i].desc.specific._d() == DIET_FILE))
+       {
+	 char* in_path   = CORBA::string_dup(profile.parameters[i].desc.specific.file.path);
+	 this->dataMgr->changePath(pb.parameters[i], in_path);
+       }
+   }
+
   unmrsh_in_args_to_profile(&profile, &pb, cvt);
 
 #endif // DEVELOPPING_DATA_PERSISTENCY
@@ -512,7 +523,13 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 #else // DEVELOPPING_DATA_PERSISTENCY
       
       unmrsh_in_args_to_profile(&profile, &(const_cast<corba_profile_t&>(pb)), cvt);
-      
+       for (i=0; i <= pb.last_inout; i++) {
+     if( diet_is_persistent(pb.parameters[i])&& (pb.parameters[i].desc.specific._d() == DIET_FILE))
+       {
+	 char* in_path   = CORBA::string_dup(profile.parameters[i].desc.specific.file.path);
+	 this->dataMgr->changePath(pb.parameters[i], in_path);
+       }
+   }
 #endif // DEVELOPPING_DATA_PERSISTENCY
       
       solve_res = (*(SrvT->getSolver(ref)))(&profile);
