@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2003/05/05 14:10:55  pcombes
+ * Add destroy and stringToObject methods.
+ *
  * Revision 1.2  2003/04/10 12:43:56  pcombes
  * Use the TRACE_LEVEL of the debug module. Uniformize return codes.
  *
@@ -36,6 +39,9 @@ public:
   static int
   init(int argc, char** argv, bool init_POA);
 
+  static void
+  destroy();
+
   static int
   activate(PortableServer::ServantBase* obj);
 
@@ -49,7 +55,10 @@ public:
   bindAgentToName(CORBA::Object_ptr obj, const char* agentName);
 
   static CORBA::String_var
-  getIORstring(CORBA::Object_ptr obj);
+  getIORString(CORBA::Object_ptr obj);
+
+  static CORBA::Object_ptr
+  stringToObject(const char* IOR);
 
 private:
   static CORBA::ORB_ptr          ORB;

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2003/05/05 14:10:55  pcombes
+ * Add destroy and stringToObject methods.
+ *
  * Revision 1.2  2003/04/10 12:43:56  pcombes
  * Use the TRACE_LEVEL of the debug module. Uniformize return codes.
  *
@@ -48,17 +51,30 @@ ORBMgr::init(int argc, char** argv, bool init_POA)
 #ifdef __OMNIORB4__
   const char* options[][2]
     = {{"inConScanPeriod","0"},{"outConScanPeriod","0"},
-       {"maxGIOPConnectionPerServer","50"},{"giopMaxMsgSize","33554432"},
+       {"maxGIOPConnectionPerServer","50"},
+       //{"giopMaxMsgSize","33554432"}, // 32MB
        {0,0}};
   ORB = CORBA::ORB_init(argc, argv, "omniORB4", options);
+#else  // __OMNIORB4__
+#error "No omniORB version defined !!!"
 #endif // __OMNIORB4__
 #endif // __OMNIORB3__
+
+  if (CORBA::is_nil(ORB))
+    return 1;
   
   if (init_POA) {
     CORBA::Object_var obj = ORB->resolve_initial_references("RootPOA");
     POA = PortableServer::POA::_narrow(obj);
   }
   return 0;
+}
+
+
+void
+ORBMgr::destroy()
+{
+  ORB->destroy();
 }
 
 
@@ -86,13 +102,6 @@ ORBMgr::getAgentReference(const char* agentName)
 {
   CosNaming::NamingContext_var rootContext;
   CORBA::Object_ptr obj;
-
-  try {
-    obj = ORB->resolve_initial_references(agentName);
-  } catch (...) {
-    if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-      cerr << "Attempt to resolve init ref of Agent failed.\n";
-  }
 
   try {
     // Obtain a reference to the root context of the Name service:
@@ -253,7 +262,14 @@ ORBMgr::bindAgentToName(CORBA::Object_ptr obj, const char* agentName)
 }
 
 CORBA::String_var
-ORBMgr::getIORstring(CORBA::Object_ptr obj)
+ORBMgr::getIORString(CORBA::Object_ptr obj)
 {
   return ORB->object_to_string(obj);  
+}
+
+
+CORBA::Object_ptr
+ORBMgr::stringToObject(const char* IOR)
+{
+  return ORB->string_to_object(IOR);
 }
