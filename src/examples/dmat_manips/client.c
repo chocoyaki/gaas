@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.14  2003/01/27 17:55:49  pcombes
+ * Bug fix on OUT matrix: C was not initialized.
+ *
  * Revision 1.13  2003/01/23 19:13:45  pcombes
  * Update to API 0.6.4
  *
@@ -169,7 +172,7 @@ main(int argc, char **argv)
 	diet_matrix_get(diet_parameter(profile,0), NULL, NULL, &m, &n, &oA);
 	print_matrix(A, m, n, (oA == DIET_ROW_MAJOR));
       } else {
-	diet_matrix_get(diet_parameter(profile,2), NULL, NULL, &m, &n, &oC);
+	diet_matrix_get(diet_parameter(profile,2), &C, NULL, &m, &n, &oC);
 	print_matrix(C, m, n, (oC == DIET_ROW_MAJOR));
 	free(C);
       }
