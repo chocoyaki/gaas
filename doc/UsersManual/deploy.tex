@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.9  2004/09/28 07:03:39  rbolze
+%* remove useAsyncAPI parameter
+%*
 %* Revision 1.8  2004/07/12 08:33:58  rbolze
 %* explain how to copy cfgs file in install_dir/etc directory and correct my english
 %*
@@ -335,10 +338,6 @@ This option specifies the listening port of an agent or SeD. If not specified, l
 \texttt{dietHostname} \ \ \emph{$<$hostname |  IP$>$}\\
 The listening interface of the agent. If not specified,let the ORB get the hostname from the system (the first one if several are available).
 It is very useful when you has more than one network interface, or you don't have a DNS, ...
-
-\noindent
-\texttt{useAsyncAPI} \ \ \emph{default}\texttt{ = }\emph{1}\\
-This option specifies use of asynchronous calls and so creates objects managing them on the client side.
 
 %====[ Example ]=========================================
 \section{Example}
