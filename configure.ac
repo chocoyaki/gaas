@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.12  2003/06/16 17:51:06  pcombes
+#* Remove src/examples/dmat_manips_async.
+#*
 #* Revision 1.11  2003/06/02 09:14:53  cpera
 #* Manage asynchronize samples.
 #*
@@ -305,7 +308,6 @@ AC_CONFIG_FILES([include/Makefile.inc
 		src/examples/Makefile
                 src/examples/BLAS/Makefile
                 src/examples/dmat_manips/Makefile
-                src/examples/dmat_manips_async/Makefile
                 src/examples/file_transfer/Makefile
                 src/examples/ScaLAPACK/Makefile
 		doc/Makefile
