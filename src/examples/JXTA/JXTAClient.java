@@ -5,7 +5,7 @@
 /*  Author(s):                                                              */
 /*    - Cedric TEDESCHI (Cedric.Tedeschi@insa-lyon.fr)                      */
 /*                                                                          */
-/*  $LICENCE$                                                               */
+/*  $LICENSE$                                                               */
 /****************************************************************************/
 
 import java.net.*;

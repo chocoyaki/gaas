@@ -10,6 +10,14 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.4  2004/07/09 19:51:58  ctedesch
+#* - javac and javah detected instead of java
+#* - JXTA_LIB automatically set before compilation
+#* - JXTA libraries copied into install_dir/lib
+#* - DIET license added in the java files
+#* - JXTA loaders scripts modified: set JXTA_LIB for execution
+#* - update doc
+#*
 #* Revision 1.3  2003/04/10 13:17:31  pcombes
 #* Apply Coding Standards.
 #*
@@ -22,3 +30,6 @@
 
 SUBDIRS = CORBA utils @SUBMODULES_src@ 
 DIST_SUBDIRS = $(SUBDIRS) @DIST_SUBMODULES_src@
+
+jardir = $(prefix)/lib
+jar_DATA = lib/*.jar

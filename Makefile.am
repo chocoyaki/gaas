@@ -10,6 +10,14 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.14  2004/07/09 19:51:57  ctedesch
+#* - javac and javah detected instead of java
+#* - JXTA_LIB automatically set before compilation
+#* - JXTA libraries copied into install_dir/lib
+#* - DIET license added in the java files
+#* - JXTA loaders scripts modified: set JXTA_LIB for execution
+#* - update doc
+#*
 #* Revision 1.13  2004/07/08 20:02:47  rbolze
 #* add src/lib dir in the distrib tarballs and correct some mistake from last commit
 #*
@@ -113,7 +121,7 @@ endif
 # Files to add in the dist, which are not already included by 
 # automake.
 EXTRA_DIST = $(top_srcdir)/include/Makefile.inc.in
-EXTRA_DIST+= $(top_srcdir)/src/lib/*
+EXTRA_DIST += $(top_srcdir)/src/lib/*
 
 if MAINTAINER_MODE
 EXTRA_DIST += acmacros/aci.m4 acmacros/fast.m4 acmacros/libtool.m4 \

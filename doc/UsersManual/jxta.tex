@@ -274,25 +274,14 @@ The SeD$_{DIET}$ contains:
 \label{ssec:installjxta}
 
 \begin{itemize}
-\item{Download the JDK1.4.1 or later release from for instance:
-    \texttt{http://java.sun.com/\linebreak[4]j2se/1.4.2/download.html}
-    (Previous JDKs are known to generate errors with JXTA 2.0) and set
-    environment variable PATH with java binaries location.}
-\item{Download from
-    \texttt{http://download.jxta.org/stablebuilds/index.html} and
-    extract the JAR files of the last stable JXTA release (current
-    version of DIET$_{JXTA}$ is based on JXTA 2.3). Files to download
-    are :}
-\begin{itemize}
-\item{\texttt{jxta.jar},}
-\item{\texttt{jxtasecurtity.jar},}
-\item{\texttt{jxtalib.zip},}
-\item{\texttt{jxtaext.zip}.}
-  \end{itemize}
-  
-\item{Unzip the ZIP files and set environment variable named
-    \texttt{JXTA\_LIB} containing the directory where you extracted
-    the JAR files.}
+\item{You need a JDK1.4.1 or later release from for instance:\\
+    \noindent
+    {\footnotesize
+      \texttt{http://java.sun.com/j2se/1.4.2/download.html}
+    }\\
+    (Previous JDKs are known to generate errors with JXTA 2.) Ensure
+    that environment variable PATH contains the javac and javah
+    binaries location.}
   
 \item{Then, to configure DIET and to deploy DIET$_{JXTA}$ platforms, the
     \texttt{./configure} command must be run with options including
@@ -304,7 +293,6 @@ The SeD$_{DIET}$ contains:
     \noindent
     {\footnotesize
       \texttt{$\sim$/DIET> ./configure --enable-JXTA-mode --enable-examples --without-FAST}
-      
     }
 }
 
@@ -316,43 +304,44 @@ The SeD$_{DIET}$ contains:
 Please refer to the previous chapter for more information concerning
 things to do before deploying the platform.
 
-\begin {itemize}
-\item{\textbf{First step}: launching a MA$_{JXTA}$. After having set
-    the \texttt{LD\_LIBRARY\_PATH}, \\ \texttt{OMNIORB\_CONFIG} and
-    \texttt{OMNINAMES\_LOGDIR} paths, DIET is ready to run, except the JXTA part :}
 
+\begin{itemize}
+
+  \item{\textbf{First step}: launching a MA$_{JXTA}$. After having set
+      the \texttt{LD\_LIBRARY\_PATH}, \\ \texttt{OMNIORB\_CONFIG} and
+      \texttt{OMNINAMES\_LOGDIR} paths, DIET is ready to run, except the JXTA part :}
     \begin{itemize}
-    \item{Ensure that \texttt{JXTA\_LIB}, the directory containing the
-        JXTA JARs, is correctly set.}
-    \item{At last, the command to be launched to run a MA$_{JXTA}$ is:\\\\
-        \texttt{\$ java -cp <JXTA\_JARS> JXTAMultiMA <DIET\_MA\_config\_file>}\\\\
-        Ensure that this command is launched inside the right
-        directory : indeed, only one peer can be launched by directory
-        : information concerning this peer is available in a
-        \texttt{.jxta} directory under the directory where you
-        launched the peer.  Delete this directory before launching a
-        peer if you have already used it on another machine, in order
-        to clean the platform configuration.}
-  
-    \item{Each time a new JXTA peer is launched, you have to configure
-        it.  On the first setup screen, the name of the peer is
-        required and must be unique, for instance, ``MA1''. The second
-        screen, named ``advanced'', displays the TCP and HTTP
-        settings. When using DIET$_{JXTA}$ on a single machine, the
-        configuration is on figure 7.2, in the other case, just
-        replace \texttt{localhost} by the IP address of the machine.
-        Please note that, for each peer on a single machine, the TCP
-        and HTTP ports have to be different. For instance : 9701 and
-        9700 for the first peer, 9703 and 9702 for the second, ... The
-        third setup screen deals with the web access. If you want to
-        access peers outside the local network, references of
-        rendezvous and relay peers placed at the disposal of JXTA
-        users by the JXTA developpers can be downloaded. Otherwise,
-        don't do anything with this screen. The last screen deals with
-        username and password, but these parameters are filled with
-        default values.}
+      \item{Set an environment variable called \texttt{JXTA\_LIB} containing the path
+      to the JXTA JAR files. At time of running the \texttt{make install}
+      command, they have been copied in \texttt{<install\_dir>/lib}.}
+  \item{At last, the command to be launched to run a MA$_{JXTA}$ is:\\
+      \noindent
+      {\footnotesize \texttt{\$ java -cp <JXTA\_JARS> JXTAMultiMA
+          <DIET\_MA\_config\_file>} } \\Ensure that this command is
+      launched inside the right directory : indeed, only one peer can
+      be launched by directory : information concerning this peer is
+      available in a \texttt{.jxta} directory under the directory
+      where you launched the peer.  Delete this directory before
+      launching a peer if you have already used it on another machine,
+      in order to clean the platform configuration.}
     \end{itemize}
 
+\item{Each time a new JXTA peer is launched, you have to configure
+      it.  On the first setup screen, the name of the peer is
+      required and must be unique, for instance, ``MA1''. The second
+      screen, named ``advanced'', displays the TCP and HTTP
+      settings. When using DIET$_{JXTA}$ on a single machine, the
+      configuration is as shown on figure 7.2, else, just replace
+      \texttt{localhost} by the IP address of the machine.  Please
+      note that, for each peer on a single machine, the TCP and HTTP
+      ports have to be different. For instance : 9701 and 9700 for
+      the first peer, 9703 and 9702 for the second, etc. The third
+      setup screen deals with the web access. If you want to access
+      peers outside the local network, references of rendezvous and
+      relay peers placed at the disposal of JXTA users by the JXTA
+      community can be downloaded. Otherwise, don't do anything with
+      this screen. The last screen deals with username and password,
+      but these parameters are filled with default values.}
 \begin{figure}[htb]
  \begin{center}
   \resizebox{.7\linewidth}{!}{\includegraphics{fig/JXTAConfig.ps}}
@@ -363,19 +352,25 @@ things to do before deploying the platform.
 
 \item{\textbf{Second step}: registering a SeD to the MA. Be sure that
     the \texttt{parentName} inside the configuration file matches the
-    name of the MA$_{DIET}$ previously launched. The command to run is:\\\\
-    \texttt{\$ java -cp <JXTA\_JARS> JXTASeD
-      <DIET\_SeD\_config\_file>\linebreak[4] <computation\_abilities>}
-    \\\\ If you want to put LA(s) between the MA and the
-    SeD, launch the following command before loading the SeD:\\\\
-    \texttt{\$ java LA <DIET\_LA\_config\_file>}\\\\ Check the DIET
-    tree coherence and the \texttt{parentName} variables inside the
-    configuration files. }
+    name of the MA$_{DIET}$ previously launched. The command to run is:\\
+    {\footnotesize \texttt{\$ java -cp <JXTA\_JARS> JXTASeD
+        <DIET\_SeD\_config\_file> <computation\_abilities>}
+    }\\
+    If you want to put LA(s) between the MA and the
+    SeD, launch the following command before loading the SeD:\\
+    {\footnotesize
+      \texttt{\$ java LA <DIET\_LA\_config\_file>}
+    }\\ Check the DIET tree coherence and the \texttt{parentName}
+    variables inside the configuration files. }
+\item{\textbf{Third step}: Launch a client$_{JXTA}$ with the command:\\
+    {\footnotesize
+      \texttt{\$ java -cp <JXTA\_JARS> JXTAClient <pb>}
 
-\item{\textbf{Third step}: Launch a JXTA client with the command:\\\\
-                    \texttt{\$ java -cp <JXTA\_JARS> ClientJXTA <pb>}}
+   }
+ }
 
-\end{itemize}
+  \end{itemize}
+  
 
 At this point, you still haven't tested the Multi-MA. To achieve this,
 launch other MA$_{JXTA}$(s) and launch again the client.
@@ -383,9 +378,11 @@ launch other MA$_{JXTA}$(s) and launch again the client.
 Scripts have been left at your disposal. You just need to check the
 environment variables and paths required. As said before, only one
 JXTA peer can be run in one directory, so each script is inside a
-different one. These directories have to be edited (for configuration), are named
-\texttt{MMA1/}, \texttt{MMA2/}, \texttt{MMA3/}, \texttt{LA1/},
-\texttt{SeD1/}, \texttt{SeD2/} and \texttt{client/}.  and are located
-in : \texttt{<DIET\_root>/src/example/jxta/scripts}.
- 
+different one. These directories have to be edited (for
+configuration), are named \texttt{MMA1/}, \texttt{MMA2/},
+\texttt{MMA3/}, \texttt{LA1/}, \texttt{SeD1/}, \texttt{SeD2/} and
+\texttt{client/}.  and are located in :
+\texttt{<DIET\_root>/src/example/JXTA/scripts}.
+
+
 

@@ -8,6 +8,14 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.33  2004/07/09 19:51:57  ctedesch
+#* - javac and javah detected instead of java
+#* - JXTA_LIB automatically set before compilation
+#* - JXTA libraries copied into install_dir/lib
+#* - DIET license added in the java files
+#* - JXTA loaders scripts modified: set JXTA_LIB for execution
+#* - update doc
+#*
 #* Revision 1.32  2004/07/08 20:04:11  rbolze
 #* doc/ and doc/UsersManual is for non maintainer-mode
 #*
@@ -209,24 +217,25 @@ for this feature]),
 	      [AC_DEFINE(HAVE_MULTI_MA)][IDLFLAGS="$IDLFLAGS -DHAVE_MULTI_MA"])
 
 AH_TEMPLATE([HAVE_JXTA], [Define use of DIET/JXTA architecture.])
-AC_MSG_CHECKING([whether to use DIET/JXTA architecture])
-    AC_ARG_ENABLE(JXTA-mode,
-    		AC_HELP_STRING([--enable-JXTA-mode],
-		[enable DIET/JXTA architecture]),
-		[USE_JXTA_MODE=yes]
-		[enable_JXTA=yes],
-		[USE_JXTA_MODE=no])
-AC_MSG_RESULT([$USE_JXTA_MODE])
-AM_CONDITIONAL(JXTA_MODE, [test $USE_JXTA_MODE = yes])
-JXTA=$JXTA_MODE_TRUE
+AC_ARG_ENABLE(JXTA-mode,
+    	AC_HELP_STRING([--enable-JXTA-mode],
+			[enable DIET/JXTA architecture]),
+	[enable_JXTA=yes],
+	[USE_JXTA_MODE=no]
+	)
 
 if test "x$enable_JXTA" = "xyes"
 then
   AC_DEFINE(HAVE_JXTA)
   IDLFLAGS="$IDLFLAGS -DHAVE_JXTA"
-  NA_DETECT_JAVA(required)
+  USE_JXTA_MODE=yes
+  NA_DETECT_JAVAC(required)
   NA_DETECT_JXTA
 fi
+
+AM_CONDITIONAL(JXTA_MODE, [test $USE_JXTA_MODE = yes])
+JXTA=$JXTA_MODE_TRUE
+
 
 AH_TEMPLATE(HAVE_LOGSERVICE, [Define the use of LogService.])
 AC_ARG_ENABLE(logservice,

@@ -10,6 +10,14 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.10  2004/07/09 19:51:58  ctedesch
+#* - javac and javah detected instead of java
+#* - JXTA_LIB automatically set before compilation
+#* - JXTA libraries copied into install_dir/lib
+#* - DIET license added in the java files
+#* - JXTA loaders scripts modified: set JXTA_LIB for execution
+#* - update doc
+#*
 #* Revision 1.9  2004/07/08 20:16:30  rbolze
 #* add dmat_jxta_prods.h and remplace EXTA by EXTRA
 #*
@@ -73,7 +81,7 @@ JXTASeD.h: JXTASeD.class
 	$(JAVAH) JXTASeD
 
 JXTASeD.class: JXTASeD.java
-	$(JAVAC) -classpath .:$(JXTA_JAR) JXTASeD.java
+	$(JAVAC) -classpath .:$(top_srcdir)/src/lib/jxta.jar JXTASeD.java
 
 clean:
 	rm -f *.class JXTASeD.h

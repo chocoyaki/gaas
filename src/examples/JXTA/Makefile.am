@@ -18,7 +18,7 @@ EXTRA_DIST = JXTAClient.java scripts
 all:  JXTAClient.class
 
 JXTAClient.class: JXTAClient.java
-	$(JAVAC) -classpath .:$(JXTA_JAR) JXTAClient.java
+	$(JAVAC) -classpath .:$(top_srcdir)/src/lib/jxta.jar JXTAClient.java
 
 clean:
 	rm -f *.class

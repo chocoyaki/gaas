@@ -11,6 +11,14 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.11  2004/07/09 19:51:58  ctedesch
+#* - javac and javah detected instead of java
+#* - JXTA_LIB automatically set before compilation
+#* - JXTA libraries copied into install_dir/lib
+#* - DIET license added in the java files
+#* - JXTA loaders scripts modified: set JXTA_LIB for execution
+#* - update doc
+#*
 #* Revision 1.10  2004/07/08 17:47:51  rbolze
 #* add java files to the distrib
 #*
@@ -82,7 +90,7 @@ masterAgentJNI.cc: JXTAMultiMA.h
 JXTAMultiMA.h: JXTAMultiMA.class
 	$(JAVAH) JXTAMultiMA
 JXTAMultiMA.class: JXTAMultiMA.java
-	$(JAVAC) -classpath .:$(JXTA_JAR) JXTAMultiMA.java
+	$(JAVAC) -classpath .:$(top_srcdir)/src/lib/jxta.jar JXTAMultiMA.java
 
 localAgentJNI.cc: LA.h
 LA.h: LA.class
