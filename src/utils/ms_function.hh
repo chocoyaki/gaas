@@ -2,6 +2,9 @@
 
 /*
  * $Log$
+ * Revision 1.5  2003/01/22 14:56:30  pcombes
+ * Add omniORB3 compatibility
+ *
  * Revision 1.4  2003/01/17 18:03:10  pcombes
  * Suppress warning on last #endif
  *
@@ -25,7 +28,13 @@
 #ifndef _MS_FUNCTION_HH_
 #define _MS_FUNCTION_HH_
 
+#ifdef __OMNIORB3__
+#include <omniORB3/CORBA.h>
+#else
+#ifdef __OMNIORB4__
 #include <omniORB4/CORBA.h>
+#endif
+#endif
 
 /**
  * Duplicates the string given in argument with the \c

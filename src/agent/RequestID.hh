@@ -2,6 +2,9 @@
 
 /*
  * $Log$
+ * Revision 1.2  2003/01/22 14:56:30  pcombes
+ * Add omniORB3 compatibility
+ *
  * Revision 1.1  2002/12/27 15:57:39  sdahan
  * the log list becaume a ts_map<RequestID, Request*>
  *
@@ -10,7 +13,13 @@
 #ifndef _REQUEST_ID_
 #define _REQUEST_ID_
 
+#ifdef __OMNIORB3__
+#include <omniORB3/CORBA.h>
+#else
+#ifdef __OMNIORB4__
 #include <omniORB4/CORBA.h>
+#endif
+#endif
 
 /**
  * This is the identifier type for a request.

@@ -8,7 +8,13 @@
 #ifndef _COUNTER_HH_
 #define _COUNTER_HH_
 
+#ifdef __OMNIORB3__
+#include <omniORB3/CORBA.h>
+#else
+#ifdef __OMNIORB4__
 #include <omniORB4/CORBA.h>
+#endif
+#endif
 #include <omnithread.h>
 #include <sys/types.h>
 #include <assert.h>
