@@ -8,8 +8,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.12  2003/04/10 11:29:44  pcombes
- * Apply Coding Standards.
+ * Revision 1.13  2003/06/03 18:33:56  pcombes
+ * Update comments.
  *
  * Revision 1.11  2003/02/07 17:04:12  pcombes
  * Refine convertor API: arg_idx is splitted into in_arg_idx and out_arg_idx.
@@ -208,24 +208,28 @@ typedef int (* diet_solve_t)(diet_profile_t*);
 /* Utils for setting (IN)OUT arguments (solve functions, after computation) */
 /****************************************************************************/
 /**
- * If value                            is NULL,
- * if order                            is DIET_MATRIX_ORDER_COUNT,
- * if size, nb_rows, nb_cols or length is 0,
- * if path                             is NULL,
+ * These functions do not alter the data memory sizes: ie the server CANNOT
+ * alter the arguments sizes, since the necessary memory space is allocated by
+ * DIET, following the client specifications.
+ * If value              is NULL,
+ * if order              is DIET_MATRIX_ORDER_COUNT,
+ * if nb_rows or nb_cols is 0,
+ * if path               is NULL,
  * then the correspunding field is not modified.
  */
 
-/**
- * Since this function should only be used with (IN)OUT arguments,
- * it copies (* value) into the zone allocated by DIET.
- */
 int
 diet_scalar_desc_set(diet_data_t* data, void* value);
+
 // No use of diet_vector_desc_set: size should not be altered by server
+
+// You can alter nb_r and nb_c, but the total size must remain the same
 int
 diet_matrix_desc_set(diet_data_t* data,
 		     size_t nb_r, size_t nb_c, diet_matrix_order_t order);
+
 // No use of diet_string_desc_set: length should not be altered by server
+
 int
 diet_file_desc_set(diet_data_t* data, char* path);
 

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2003/06/03 18:33:56  pcombes
+ * Update comments.
+ *
  * Revision 1.14  2003/04/10 11:27:14  pcombes
  * Add the mode DIET_PERSISTENT_RETURN.
  *
@@ -15,17 +18,8 @@
  * Remove diet_value. Add diet_is_persistent and diet_free_data.
  * Unify diet_scalar_get prototype to the one of the other _get functions.
  *
- * Revision 1.12  2003/02/04 10:08:22  pcombes
- * Apply Coding Standards
- *
- * Revision 1.10  2003/01/23 18:37:30  pcombes
- * API 0.6.4: change _set "dummy" arguments
- *
  * Revision 1.9  2003/01/22 17:14:09  pcombes
  * API 0.6.4 : istrans -> order (row- or column-major)
- *
- * Revision 1.8  2003/01/21 12:17:02  pcombes
- * Update UM to API 0.6.3, and "hide" data structures.
  *
  * Revision 1.7  2003/01/17 18:08:43  pcombes
  * New API (0.6.3): structures are not hidden, but the user can ignore them.
@@ -155,6 +149,8 @@ diet_profile_free(diet_profile_t* profile);
 /* Utils functions for setting parameters of a problem description          */
 /****************************************************************************/
 /**
+ * On the server side, these functions should not be used on arguments, but only
+ * on convertors.
  * If mode                             is DIET_PERSISTENCE_MODE_COUNT,
  * if base_type                        is DIET_BASE_TYPE_COUNT,
  * if order                            is DIET_MATRIX_ORDER_COUNT,
@@ -163,11 +159,9 @@ diet_profile_free(diet_profile_t* profile);
  * then the correspunding field is not modified.
  */
 
-/* should not be used on server with (IN)OUT arguments */
 int
 diet_scalar_set(diet_arg_t* arg, void* value, diet_persistence_mode_t mode,
 		diet_base_type_t base_type);
-/* should not be used on server with (IN)OUT arguments */
 int
 diet_vector_set(diet_arg_t* arg, void* value, diet_persistence_mode_t mode,
 		diet_base_type_t base_type, size_t size);
@@ -179,12 +173,10 @@ typedef enum {
   DIET_MATRIX_ORDER_COUNT
 } diet_matrix_order_t;
 
-/* should not be used on server with (IN)OUT arguments */
 int
 diet_matrix_set(diet_arg_t* arg, void* value, diet_persistence_mode_t mode,
 		diet_base_type_t base_type,
 		size_t nb_rows, size_t nb_cols, diet_matrix_order_t order);
-/* should not be used on server with (IN)OUT arguments */
 int
 diet_string_set(diet_arg_t* arg, char* value, diet_persistence_mode_t mode,
 		size_t length);
@@ -260,7 +252,7 @@ diet_file_set(diet_arg_t* arg, diet_persistence_mode_t mode, char* path);
 /*    - on the server for IN arguments that will no longer be used          */
 /*    - on the client for OUT arguments, after the problem has been solved, */
 /*      when they will no longer be used.                                   */
-/* NB: for files, this function removes the file and free the path (since   */
+/* NB: for files, this function removes the file and frees the path (since  */
 /*     it has been dynamically allocated by DIET in both cases)             */
 /****************************************************************************/
 
