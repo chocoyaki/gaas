@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2003/06/04 14:40:05  cpera
+ * Resolve bugs, change type of reqID (long int) and modify
+ * diet_wait_all/diet_wait_any.
+ *
  * Revision 1.1  2003/06/02 08:09:55  cpera
  * Beta version of asynchronize DIET API.
  *
@@ -61,7 +65,7 @@ struct Data{
 };
 
 struct ruleElement{
-  int reqID;
+  long int reqID;
   WAITOPERATOR op;
 };
 
@@ -72,9 +76,9 @@ struct Rule {
 };
 
 // manage link between reqID and request datas
-typedef std::map<int,Data *> CallAsyncList;
+typedef std::map<long int,Data *> CallAsyncList;
 // manage link between reqID and waitRules about it.
-typedef std::multimap<int,Rule *> RulesReqIDMap;
+typedef std::multimap<long int,Rule *> RulesReqIDMap;
 // Manage link between one rule and one omni semaphore 
 typedef std::map<Rule *, omni_semaphore *> RulesConditionMap;
 // manage link between reqID and request datas
@@ -87,18 +91,20 @@ class CallAsyncMgr
     static CallAsyncMgr* Instance();
     // client service API
     // add into internal list a new asynchronized reference
-    int addAsyncCall(int reqID, diet_profile_t* dpt);
-    int deleteAsyncCall(int reqId);
+    int addAsyncCall(long int reqID, diet_profile_t* dpt);
+    int deleteAsyncCall(long int reqId);
     // add a new wait rule 
     int addWaitRule(Rule *);
+    int addWaitAnyRule(long int * IDptr);
+    int addWaitAllRule();
     int deleteWaitRule(Rule* rule);
     // persistence of async call ID and corba callback IOR
     // Not implemented
     int serialise();
     int areThereWaitRules();
     // corba callback server service API
-    int notifyRst(int reqID, corba_profile_t *dp);
-    int getStatusReqID(int reqID);
+    int notifyRst(long int reqID, corba_profile_t *dp);
+    int getStatusReqID(long int reqID);
     int verifyRule(Rule *rule);
     // initialise all necessary corba services 
     // call by the first add of asynchronized call 

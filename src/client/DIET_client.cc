@@ -4,11 +4,16 @@
 /*  Author(s):                                                              */
 /*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
 /*    - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)             */
+/*    - Christophe PERA (pera.christophe@ens-lyon.fr)                       */
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2003/06/04 14:40:05  cpera
+ * Resolve bugs, change type of reqID (long int) and modify
+ * diet_wait_all/diet_wait_any.
+ *
  * Revision 1.27  2003/06/02 08:48:35  cpera
  * Delete debug infos.
  *
@@ -667,15 +672,24 @@ diet_call_argstack_async(diet_function_handle_t* handle, diet_argStack_t* args)
 /****************************************************************************/
 /* GridRPC control and wait functions                                       */
 
+
+/****************************************************************************  
+* diet_probe GridRPC function.
+* This function probes status of an asynchronous request.
+* return reqID status.                   
+****************************************************************************/
 int
 diet_probe(diet_reqID_t reqID)
 {
   return CallAsyncMgr::Instance()->getStatusReqID(reqID);
 }
   
-/* This function erases all persistent data that are manipulated by the reqID
-   request. Do not forget to call diet_get_data_handle on data you would like
-   to save.                                                                 */
+/****************************************************************************  
+* diet_cancel GridRPC function.
+* This function erases all persistent data that are manipulated by the reqID
+* request. Do not forget to call diet_get_data_handle on data you would like
+* to save.                   
+****************************************************************************/
 int
 diet_cancel(diet_reqID_t reqID)
 {
@@ -685,7 +699,7 @@ diet_cancel(diet_reqID_t reqID)
 int
 diet_wait(diet_reqID_t reqID)
 {
-  int rst = 0;
+  int rst = ERROR;
   try {
     // Create ruleElements table ...
     ruleElement * simpleWait = new ruleElement[1];
@@ -697,10 +711,10 @@ diet_wait(diet_reqID_t reqID)
     
     // get lock on condition/waitRule
     rst = CallAsyncMgr::Instance()->addWaitRule(rule);
-    cout << "valeur de retour du wait =" << rst << endl;
-    fflush(stdout);
+    // NOTES: Be carefull, there may be others rules
+    // using some of this reqID(AsyncCall)
+    // So, carefull using diet_cancel
     return rst;
-    // CallAsyncMgr::Instance()->deleteAsyncCall(reqID);
     
   }
   catch (const CORBA::Exception &e){
@@ -710,20 +724,28 @@ diet_wait(diet_reqID_t reqID)
     tmp <<= e;
     CORBA::TypeCode_var tc = tmp.type();
     const char * p = tc->name();
-    if (*p != '\0') cout << "SeD async Caught exception : " << p << endl;
-    else cout << "SeD async Caught exception : " << tc->id() << endl;
+    if (*p != '\0') cout << "diet_wait async Caught exception : " << p << endl;
+    else cout << "diet_wait async Caught exception : " << tc->id() << endl;
     fflush(stdout);
   }  
   catch (const exception& e){
-    cout << "Excteion catchee, what=" << e.what() << endl;
+    cout << "Unexpected exception , what=" << e.what() << endl;
+    fflush(stdout);
   }
-  return -1;
+  return rst;
 }
 
+/*****************************************************************************
+* diet_wait_and GridRPC function
+* return error status 
+* three args :
+*  	1 - reqID table.
+*  	2 - size of the table.
+*****************************************************************************/
 int
 diet_wait_and(diet_reqID_t* IDs, size_t length)
 {
-  int rst = 0;
+  STATE rst = ERROR;
   try {
     // Create ruleElements table ...
     ruleElement * simpleWait = new ruleElement[length];
@@ -736,15 +758,10 @@ diet_wait_and(diet_reqID_t* IDs, size_t length)
     rule->ruleElts = simpleWait;
     
     // get lock on condition/waitRule
-    CallAsyncMgr::Instance()->addWaitRule(rule);
-    // delete AsyncCall..
+    return CallAsyncMgr::Instance()->addWaitRule(rule);
     // NOTES: Be carefull, there may be others rules
     // using some of this reqID(AsyncCall)
-    // So, we must implement smart refs managing
-    // memory of it ?????
-    /*for (int k = 0; k < length; k++){
-      CallAsyncMgr::Instance()->deleteAsyncCall(IDs[k]);
-    }*/
+    // So, carefull using diet_cancel
   }
   catch (const CORBA::Exception &e){
     // Process any other User exceptions. Use the .id() method to
@@ -753,32 +770,100 @@ diet_wait_and(diet_reqID_t* IDs, size_t length)
     tmp <<= e;
     CORBA::TypeCode_var tc = tmp.type();
     const char * p = tc->name();
-    if (*p != '\0') cout << "SeD async Caught exception : " << p << endl;
-    else cout << "SeD async Caught exception : " << tc->id() << endl;
+    if (*p != '\0') cout << "diet_wait_and async Caught exception : " << p << endl;
+    else cout << "diet_wait_and async Caught exception : " << tc->id() << endl;
     fflush(stdout);
   }  
   catch (const exception& e){
-    cout << "Excteion catchee, what=" << e.what() << endl;
+    cout << "Unexpected exception, what=" << e.what() << endl;
+    fflush(stdout);
   }
   return rst;
 }
 
+/*****************************************************************************
+* diet_wait_or GridRPC function
+* return error status 
+* three args :
+*  	1 - reqID table.
+*  	2 - size of the table.
+*  	3 - received reqID
+*****************************************************************************/
 int
 diet_wait_or(diet_reqID_t* IDs, size_t length, diet_reqID_t* IDptr)
 {
-  return 0;
+  STATE rst = ERROR;
+  try {
+    // Create ruleElements table ...
+    ruleElement * simpleWait = new ruleElement[length];
+    for (int k = 0; k < length; k++){
+      simpleWait[k].reqID = IDs[k];
+      simpleWait[k].op = WAITOPERATOR(OR);
+    }
+    Rule * rule = new Rule;
+    rule->length = length;
+    rule->ruleElts = simpleWait;
+    
+    // get lock on condition/waitRule
+    // and manage return rule status
+    switch (CallAsyncMgr::Instance()->addWaitRule(rule)){
+      case DONE:
+	for (int k = 0; k < length; k++){
+	  if (CallAsyncMgr::Instance()->getStatusReqID(IDs[k]) == DONE){
+	    *IDptr = IDs[k];
+	    return DONE;
+	  }
+	}
+	return ERROR;
+      case CANCEL:
+	return CANCEL;
+      case ERROR:
+	return ERROR;
+      default:
+      return -1; // Unexcpected error, no value describing it (enum STATE)
+    // NOTES: Be carefull, there may be others rules
+    // using some of this reqID(AsyncCall)
+    // So, carefull using diet_cancel
+    }
+  }
+  catch (const CORBA::Exception &e){
+    // Process any other User exceptions. Use the .id() method to
+    // record or display useful information
+    CORBA::Any tmp;
+    tmp <<= e;
+    CORBA::TypeCode_var tc = tmp.type();
+    const char * p = tc->name();
+    if (*p != '\0') cout << "diet_wait_or async Caught exception : " << p << endl;
+    else cout << "diet_wait_or async Caught exception : " << tc->id() << endl;
+    fflush(stdout);
+  }  
+  catch (const exception& e){
+    cout << "Unexpected exception , what=" << e.what() << endl;
+    fflush(stdout);
+  }
+  return rst;
 }
 
+/*****************************************************************************
+* diet_wait_all GridRPC function
+* return error status
+* 
+*****************************************************************************/
 int
 diet_wait_all()
 {
-  return 0;
+  return CallAsyncMgr::Instance()->addWaitAllRule();
 }
 
+/*****************************************************************************
+* diet_wait_any GridRPC function
+* return the ID of the received request
+* 
+*****************************************************************************/
 int
 diet_wait_any(diet_reqID_t* IDptr)
 {
-  return 0;
+  return CallAsyncMgr::Instance()->addWaitAnyRule(IDptr);
 }
 
 

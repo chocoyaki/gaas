@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $ID$
  * $Log$
+ * Revision 1.3  2003/06/04 14:40:05  cpera
+ * Resolve bugs, change type of reqID (long int) and modify
+ * diet_wait_all/diet_wait_any.
+ *
  * Revision 1.2  2003/06/02 08:56:56  cpera
  * Delete debug infos.
  *
@@ -45,7 +49,7 @@ CallAsyncMgr* CallAsyncMgr::Instance ()
  * add into internal list a new asynchronized reference
  * Return : 0 if OK, -1 if error
  * *******************************************************************/
-int CallAsyncMgr::addAsyncCall (int reqID, diet_profile_t* dpt) 
+int CallAsyncMgr::addAsyncCall (long int reqID, diet_profile_t* dpt) 
 {
   WriterLock r(callAsyncListLock);
   // NOTE : maybe we do test if there is already this reqID registered
@@ -69,7 +73,7 @@ int CallAsyncMgr::addAsyncCall (int reqID, diet_profile_t* dpt)
  * NOTES : caller must be released omni_semaphore and rules  !!!
  * job for awaken thread.. a call to deleteWaitRules is necesary ...
  * ******************************************************************/
- int CallAsyncMgr::deleteAsyncCall(int reqID) 
+ int CallAsyncMgr::deleteAsyncCall(long int reqID) 
 {
   WriterLock r(callAsyncListLock);
   int k = -1;
@@ -100,7 +104,129 @@ int CallAsyncMgr::addAsyncCall (int reqID, diet_profile_t* dpt)
   }
   return k; 
 }
-  
+
+/***********************************************************************
+ * Add a new wait ALL rule
+ * Create ReaderLock allowing client thread waiting on...
+ * Store it in a list, map it with rule
+ * Wait on semaphore
+ * Release waitRule 
+ * Return STATE, -1 for an unexpected error or STATE(CANCEL)
+ * if a reqID is cancelled. 
+ * ********************************************************************/
+int CallAsyncMgr::addWaitAllRule()
+{
+  try {
+    Rule * rule = new Rule;
+    {
+      ReaderLock r(callAsyncListLock);
+      CallAsyncList::iterator h = caList.begin();
+      int size = caList.size();
+      // Create ruleElements table ...
+      ruleElement * simpleWait = new ruleElement[size];
+      for (int k = 0; k < size; k++){
+	simpleWait[k].reqID = h->first;
+	simpleWait[k].op = WAITOPERATOR(ALL);
+	++h;
+      }
+      rule->length = size;
+      rule->ruleElts = simpleWait;
+    }
+    
+    // get lock on condition/waitRule
+    return CallAsyncMgr::Instance()->addWaitRule(rule);
+  }
+  catch (const CORBA::Exception &e){
+    // Process any other User exceptions. Use the .id() method to
+    // record or display useful information
+    CORBA::Any tmp;
+    tmp <<= e;
+    CORBA::TypeCode_var tc = tmp.type();
+    const char * p = tc->name();
+    if (*p != '\0') cout << "diet_wait_or async Caught exception : " << p << endl;
+    else cout << "diet_wait_or async Caught exception : " << tc->id() << endl;
+    fflush(stdout);
+    return -1;
+  }  
+  catch (const exception& e){
+    cout << "Unexpected exception , what=" << e.what() << endl;
+    fflush(stdout);
+    return -1;
+  }
+}
+
+/***********************************************************************
+ * Add a new wait ALL rule
+ * Create ReaderLock allowing client thread waiting on...
+ * Store it in a list, map it with rule
+ * Wait on semaphore
+ * Release waitRule 
+ * Return STATE, -1 for an unexpected error or STATE(CANCEL)
+ * if a reqID is cancelled. 
+ * ********************************************************************/
+int CallAsyncMgr::addWaitAnyRule(diet_reqID_t* IDptr)
+{
+  try {
+    Rule * rule = new Rule;
+    { //managing Reader lock
+      ReaderLock r(callAsyncListLock);
+      CallAsyncList::iterator h = caList.begin();
+      int size = caList.size();
+      // Create ruleElements table ...
+      ruleElement * simpleWait = new ruleElement[size];
+      for (int k = 0; k < size; k++){
+	simpleWait[k].reqID = h->first;
+	simpleWait[k].op = WAITOPERATOR(ANY);
+	++h;
+      }
+      rule->length = size;
+      rule->ruleElts = simpleWait;
+    }
+    
+    // get lock on condition/waitRule
+    switch (CallAsyncMgr::Instance()->addWaitRule(rule)){
+      case DONE:
+      {
+	ReaderLock r(callAsyncListLock);
+	CallAsyncList::iterator h = caList.begin();
+	for (int k = 0; k < caList.size(); k++){
+	  if (h->second->st == DONE){
+	    *IDptr = h->first;
+	    return DONE;
+	  }
+	  ++h;  
+	}
+	return ERROR;
+      }
+      case CANCEL:
+	return CANCEL;
+      case ERROR:
+	return ERROR;
+      default:
+      return -1; // Unexcpected error, no value describing it (enum STATE)
+    // NOTES: Be carefull, there may be others rules
+    // using some of this reqID(AsyncCall)
+    // So, carefull using diet_cancel
+    }
+  }
+  catch (const CORBA::Exception &e){
+    // Process any other User exceptions. Use the .id() method to
+    // record or display useful information
+    CORBA::Any tmp;
+    tmp <<= e;
+    CORBA::TypeCode_var tc = tmp.type();
+    const char * p = tc->name();
+    if (*p != '\0') cout << "diet_wait_or async Caught exception : " << p << endl;
+    else cout << "diet_wait_or async Caught exception : " << tc->id() << endl;
+    fflush(stdout);
+  }  
+  catch (const exception& e){
+    cout << "Unexpected exception , what=" << e.what() << endl;
+    fflush(stdout);
+  }
+  return ERROR;
+}
+
 /***********************************************************************
  * Add a new wait rule
  * Create ReaderLock allowing client thread waiting on...
@@ -113,7 +239,7 @@ int CallAsyncMgr::addAsyncCall (int reqID, diet_profile_t* dpt)
 int CallAsyncMgr::addWaitRule(Rule * rule)
 {
   omni_semaphore * condRule = NULL;
-  int status = -1;
+  STATE status = ERROR;
   try {
     if (true){ // managing WriterLock
       WriterLock r(callAsyncListLock);
@@ -124,9 +250,9 @@ int CallAsyncMgr::addWaitRule(Rule * rule)
       CallAsyncList::iterator h;
       for (int k = 0; k < rule->length; k++){
 	h = caList.find(rule->ruleElts[k].reqID);
-	if (h == caList.end()) return -1;
-	else if (h->second->st == STATE(RESOLVING)) {
-	  plenty = false;
+	if (h == caList.end()) return ERROR;
+	else if (h->second->st == RESOLVING) {
+	  plenty = false; // one result is not yet ready, at least ...
 	}
 	h->second->used++; // NOTES : what to do if an exception ...	
       }
@@ -161,7 +287,7 @@ int CallAsyncMgr::addWaitRule(Rule * rule)
     rulesConds.erase(rule);
     delete[] rule->ruleElts;
     delete rule;
-    return -1; // unexpected error
+    return ERROR; // unexpected error
   }
   return status; // Maybe OK, or a reqID should be deleted
 	      // or maybe an error in callback or Sed server ...
@@ -222,7 +348,7 @@ int CallAsyncMgr::areThereWaitRules()
 /**********************************************************************
  * corba callback server service API
  *********************************************************************/ 
-int CallAsyncMgr::notifyRst (int reqID, corba_profile_t * dp) 
+int CallAsyncMgr::notifyRst (long int reqID, corba_profile_t * dp) 
 {
   
   WriterLock r(callAsyncListLock);
@@ -254,9 +380,9 @@ int CallAsyncMgr::notifyRst (int reqID, corba_profile_t * dp)
       /**********************************************************************
        * NOTES : rule parsing must be reimplemented ....
        * for performance and function 
-       * ********************************************************************/
+       * *******************************************************************/
       }
-     if (plenty == true){
+      if (plenty == true){
 	j->second->status=STATE(DONE);
 	i = rulesConds.find(j->second);
 	if (i != rulesConds.end()){
@@ -283,7 +409,7 @@ int CallAsyncMgr::notifyRst (int reqID, corba_profile_t * dp)
  * CallAsyncMgr.hh
  * Return : enum STATUS
  * ********************************************************************/
-int CallAsyncMgr::getStatusReqID(int reqID)
+int CallAsyncMgr::getStatusReqID(long int reqID)
 {
   ReaderLock r(callAsyncListLock);
   CallAsyncList::iterator h = caList.find(reqID);
