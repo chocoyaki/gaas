@@ -1,5 +1,4 @@
 /****************************************************************************/
-/* $Id$ */
 /* file_transfer example: client side                                       */
 /*                                                                          */
 /*  Author(s):                                                              */
@@ -7,8 +6,11 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/*
+/* $Id$
  * $Log$
+ * Revision 1.8  2003/04/10 13:31:21  pcombes
+ * Update to empty (not only NULL) file paths.
+ *
  * Revision 1.7  2003/02/07 17:04:42  pcombes
  * Use diet_free_data to properly free user's data.
  *
@@ -89,7 +91,7 @@ main(int argc, char* argv[])
       fprintf(stderr, "Error: Cannot get answered sizes !\n");
     }
     diet_file_get(diet_parameter(profile,4), NULL, &out_size, &path);
-    if (path) {
+    if (path && (*path != '\0')) {
       printf("Location of returned file is %s, its size is %d.\n",
 	     path, out_size);
       diet_free_data(diet_parameter(profile,4));
