@@ -8,17 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2003/05/10 08:48:45  pcombes
+ * log to clean at next time: Unify diet_initialize and diet_SeD prototypes.
+ *
  * Revision 1.9  2003/04/10 11:27:29  pcombes
  * Add defines grpc_* for the GridRPC API.
- *
- * Revision 1.8  2003/02/07 17:02:38  pcombes
- * diet_initialize match GridRPC (config_file_name as first argument).
- *
- * Revision 1.7  2003/02/04 10:08:22  pcombes
- * Apply Coding Standards
- *
- * Revision 1.5  2003/01/17 18:08:43  pcombes
- * New API (0.6.3): structures are not hidden, but the user can ignore them.
  *
  * Revision 1.3  2002/10/15 18:36:03  pcombes
  * Remove the descriptors set functions.
@@ -71,7 +65,7 @@ extern "C" {
 typedef long int diet_reqID_t;
 
 int
-diet_initialize(char* config_file, int argc, char* argv[]);
+diet_initialize(char* config_file_name, int argc, char* argv[]);
 int
 diet_finalize();
 
