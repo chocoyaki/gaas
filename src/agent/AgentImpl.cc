@@ -10,11 +10,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2003/05/10 08:53:34  pcombes
+ * New format for configuration files, new Parsers.
+ *
  * Revision 1.1  2003/04/10 13:00:20  pcombes
  * Replace agent_impl.cc. Apply CS. Use ChildID, NodeDescription, Schedulers
  * and TRACE_LEVEL. Fix bug in sendRequest on child failure. Simplify data
  * transfer time computation in findServer.
- *
  ****************************************************************************/
 
 #include "AgentImpl.hh"
@@ -27,16 +29,19 @@ using namespace std;
 #include <stdlib.h>
 #include <unistd.h>
 
+#if HAVE_FAST
+#include "slimfast_api.h"
+#endif // HAVE_FAST
+
 #include "debug.hh"
 #include "ms_function.hh"
 #include "ORBMgr.hh"
-
+#include "Parsers.hh"
 
 extern unsigned int TRACE_LEVEL;
 
 AgentImpl::AgentImpl()
 {
-  TRACE_LEVEL                = TRACE_DEFAULT;
   this->localHostName[0]     = '\0';
   this->myName[0]            = '\0';
   this->childID              = -1;
@@ -44,15 +49,9 @@ AgentImpl::AgentImpl()
   this->nbLAChildren         = 0;
   this->nbSeDChildren        = 0;
   this->SrvT                 = new ServiceTable();
-  this->ldapUse              = 0;
-  this->ldapHost[0]          = '\0';
-  this->ldapPort             = 0;
-  this->ldapMask[0]          = '\0';
-  this->nwsUse               = 0;
-  this->nwsNSHost[0]         = '\0';
-  this->nwsNSPort            = 0;
-  this->nwsForecasterHost[0] = '\0';
-  this->nwsForecasterPort    = 0;
+#if HAVE_FAST
+  this->fastUse              = 1;
+#endif // HAVE_FAST
 } // AgentImpl()
 
 AgentImpl::~AgentImpl()
@@ -69,7 +68,7 @@ AgentImpl::~AgentImpl()
  * Launch this agent (initialization + registration in the hierarchy).
  */
 int
-AgentImpl::run(char* configFileName, char* parentName)
+AgentImpl::run()
 {
   /* Set host name */
   this->localHostName[257] = '\0';
@@ -78,31 +77,68 @@ AgentImpl::run(char* configFileName, char* parentName)
     return 1;
   }
 
-  /* Parsing */
-  if(this->parseConfigFile(configFileName, parentName))
-    return -1;
-  ORBMgr::setTraceLevel();
-
   /* Bind this agent to its name in the CORBA Naming Service */
+  char* name = (char*)Parsers::Results::getParamValue(Parsers::Results::NAME);
+  if (name == NULL)
+    return 1;
+  strncpy(this->myName, name, MIN(256, strlen(name)));
   if (ORBMgr::bindAgentToName(_this(), this->myName)) {
-    cerr << "Agent: could not declare myself as " << myName << endl;
+    cerr << "Agent: could not declare myself as " << this->myName << endl;
     return 1;
   }
 
 #if HAVE_FAST
-  /* Initialize FAST with parsed parameters */
-  if (!fast_init("nws_use", this->nwsUse,
-		 "nws_nameserver", this->nwsNSHost, this->nwsNSPort,
-		 "nws_forecaster",
-		 this->nwsForecasterHost, this->nwsForecasterPort,
-		 "ldap_use", this->ldapUse,
-		 "ldap_server", this->ldapHost, this->ldapPort,
-		 "ldap_binddn", this->ldapMask))
-    return 1;
+
+  this->fastUse =
+    *((size_t*)Parsers::Results::getParamValue(Parsers::Results::FASTUSE));
+
+  if (this->fastUse > 0) {
+    Parsers::Results::Address* tmp;
+    size_t ldapUse, ldapPort, nwsUse, nwsNSPort, nwsFcstPort;
+    char*  ldapHost = "";
+    char*  ldapMask = "";
+    char*  nwsNSHost = "";
+    char*  nwsFcstHost = "";
+    
+    ldapUse = 
+      *((size_t*)Parsers::Results::getParamValue(Parsers::Results::LDAPUSE));
+    if (ldapUse) {
+      tmp = (Parsers::Results::Address*)
+	Parsers::Results::getParamValue(Parsers::Results::LDAPBASE);
+      ldapHost = tmp->host;
+      ldapPort = tmp->port;
+      ldapMask = (char*)
+	Parsers::Results::getParamValue(Parsers::Results::LDAPMASK);
+    }
+
+    nwsUse =
+      *((size_t*)Parsers::Results::getParamValue(Parsers::Results::NWSUSE));
+    if (nwsUse) {
+      tmp = (Parsers::Results::Address*)
+	Parsers::Results::getParamValue(Parsers::Results::NWSNAMESERVER);
+      nwsNSHost = tmp->host;
+      nwsNSPort = tmp->port;
+      tmp = (Parsers::Results::Address*)
+	Parsers::Results::getParamValue(Parsers::Results::NWSFORECASTER);
+      nwsFcstHost = tmp->host;
+      nwsFcstPort = tmp->port;
+    }
+    
+    /* Initialize FAST with parsed parameters */
+    if (!fast_init("ldap_use", ldapUse,
+		   "ldap_server", ldapHost, ldapPort, "ldap_binddn", ldapMask,
+		   "nws_use", nwsUse,
+		   "nws_nameserver", nwsNSHost, nwsNSPort,
+		   "nws_forecaster", nwsFcstHost, nwsFcstPort,
+		   NULL))
+      return 1;
+
+  } // if (this->fastUse > 0)
+
 #endif // HAVE_FAST
 
   return 0;
-} // run(char* config_file_name, char* parentName)
+} // run()
 
 
 
@@ -120,7 +156,7 @@ AgentImpl::agentSubscribe(Agent_ptr me, const char* hostName,
   CORBA::ULong retID = (this->childIDCounter)++; // thread safe
 
   if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "A::agentSubscribe(" << hostName<< ", "
+    cout << "A::agentSubscribe(" << hostName << ", "
 	 << services.length() << " services)\n";
 
   /* the size of the list is childID+1 (first index is 0) */
@@ -194,18 +230,25 @@ AgentImpl::addServices(CORBA::ULong myID, const SeqCorbaProfileDesc_t& services)
  * Forward a request, schedule and merge the responses associated.
  * @param req     the request.
  * @param max_srv the maximum number of servers to sort.
+ * @return non NULL pointer to a response
  */
 corba_response_t*
 AgentImpl::findServer(Request* req, size_t max_srv)
 {
   size_t i, j, k;
-  corba_response_t* resp(NULL);
+  corba_response_t* resp = new corba_response_t;
   const corba_request_t& creq = *(req->getRequest());
 
   if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
     cout << "\n************************************************************\n"
 	 << "Got request " << creq.reqID
 	 << " on problem " << creq.pb.path << endl;
+
+  /* Initialize the response */
+  resp->reqID = creq.reqID;
+  resp->myID  = this->childID;
+  resp->sortedIndexes.length(0);
+  resp->servers.length(0);
 
   /* Add the new request to the list */
   reqList[creq.reqID] = req;
@@ -256,12 +299,7 @@ AgentImpl::findServer(Request* req, size_t max_srv)
       if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
 	cout << "************************************************************\n";
       req->unlock();
-      //delete req;
-      resp = new corba_response_t;
-      resp->reqID = creq.reqID;
-      resp->myID  = this->childID;
-      resp->sortedIndexes.length(0);
-      resp->servers.length(0);
+      //delete req; // do not delete since getRequest does not perform a copy.
       return resp;
     }
 
@@ -491,24 +529,26 @@ AgentImpl::getCommTime(CORBA::Long childID, unsigned long size, bool to)
     cout << "getCommTime(" << childID <<", " << size << ")\n";
 
 #if HAVE_FAST
-  char* child_name = getChildHostName(childID);
-  char* dest_name,* src_name;
-  if (to) {
-    dest_name = child_name;
-    src_name  = this->localHostName;
-  } else {
-    dest_name = this->localHostName;
-    src_name  = child_name;
+  if (this->fastUse) {
+    char* child_name = getChildHostName(childID);
+    char* dest_name,* src_name;
+    if (to) {
+      dest_name = child_name;
+      src_name  = this->localHostName;
+    } else {
+      dest_name = this->localHostName;
+      src_name  = child_name;
+    }
+    fastMutex.lock();
+    if (!(fast_comm_time_best(src_name, dest_name, size, &time))) {
+      time = HUGE_VAL;
+      cerr << "Warning: fast_comm_time_best error (time set to HUGE_VAL)\n";
+    }
+    fastMutex.unlock();
+    //ms_strfree(dest_name);
+    //ms_strfree(src_name);
+    ms_strfree(child_name);
   }
-  fastMutex.lock();
-  if (!(fast_comm_time_best(src_name, dest_name, size, &time))) {
-    time = HUGE_VAL;
-    cerr << "Warning: fast_comm_time_best error (time set to HUGE_VAL)\n";
-  }
-  fastMutex.unlock();
-  //ms_strfree(dest_name);
-  //ms_strfree(src_name);
-  ms_strfree(child_name);
 #endif // HAVE_FAST
 
   return(time);
@@ -528,7 +568,9 @@ AgentImpl::aggregate(Request* request, size_t max_srv)
   GlobalScheduler* GS = request->getScheduler();
 
   if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "aggregate(" << request->getRequest()->pb.path << ")\n";  
+    cout << "aggregate(" << request->getRequest()->pb.path
+	 << ", " << request->getResponsesSize() << " responses, "
+	 << max_srv << ")\n";  
 
   GS->aggregate(aggregResp, max_srv,
 		request->getResponsesSize(), request->getResponses());
@@ -536,7 +578,7 @@ AgentImpl::aggregate(Request* request, size_t max_srv)
   aggregResp->myID = childID;
 
   return aggregResp;
-} // aggregate(Request* request)
+} // aggregate(Request* request, size_t max_srv)
 
 
 /** Get host name of a child (returned string is ms_stralloc'd). */
@@ -583,100 +625,3 @@ AgentImpl::getChildHostName(CORBA::Long childID)
 } // getChildHostName(CORBA::Long childID)
 
 
-
-
-#if 0
-void AgentImpl::addPropertyToPbDb(int childID,sf_pb_desc_t *pb)
-{
-  /*  This method  adds  the problem  pb  to the  local properties  */
-  /* database for the child childID. The pb pointer is freed if  */
-  /* not used (pb already in the db).                        */
-
-  /* Is the pb allready in the db ? */
-
-  int pbFound=0; /* becomes true if the problem is found */
-  dietPropDescListIterator *iter= new dietPropDescListIterator(properties);
-
-
-  while ((!pbFound)&&(iter->next()))
-    {
-      if (pbDescCmp(((dietPropDescListElt *)(iter->curr()))->prop.pbDesc,pb))
-				{
-				  pbFound=1;
-				}
-    }
-
-  if (pbFound)
-    {
-      /* The pb already exists in the db, does the child already knows it ? */
-
-      int childFound=0; /* becomes true if the child is found */
-
-      dietChildIDListIterator *iter2=
-	new dietChildIDListIterator((((dietPropDescListElt *)
-				    (iter->curr()))->prop.capableChildren));
-
-      while ((!childFound)&&(iter2->next()))
-	{
-	  if (((dietChildIDListElt *)(iter2->curr()))->childID==childID)
-	    {
-	      childFound=1;
-	    }
-	}
-
-      if (childFound)
-	{
-	  /* The problem already exists in this subtree, add the new server */
-
-	  ((dietChildIDListElt *)(iter2->curr()))->nbCapableServers++;
-	}
-      else
-	{
-	  /* It's a new problem in this subtree, add a new entry */
-
-	  dietChildIDListElt *newChildID=new dietChildIDListElt();
-	  newChildID->childID=childID;
-	  newChildID->nbCapableServers=1;
-
-	  (((dietPropDescListElt *)
-	    (iter->curr()))->prop.capableChildren)->append(newChildID);
-	}
-
-      delete(iter2);
-
-      /* The pb pointer can be freed : */
-
-      /* FIXME: The path was created by CORBA::string_dup. */
-      /* Should it be freed?                               */
-
-      /* Only free the param_desc array */
-      // for (int i=0;i<=pb->nb_in;i++)
-      //   delete pb->param_desc[i];
-
-      delete [] pb->path;
-      delete [] pb->param_desc;
-      delete pb;
-    }
-  else
-    {
-      /* This is a new pb, a new entry must be created : */
-
-      dietPropDescListElt *newPropDesc=new dietPropDescListElt();
-
-      newPropDesc->prop.pbDesc=pb;
-
-      newPropDesc->prop.capableChildren=new dietChildIDList();
-
-      dietChildIDListElt *newChildID=new dietChildIDListElt();
-      newChildID->childID=childID;
-      newChildID->nbCapableServers=1;
-
-      newPropDesc->prop.capableChildren->append(newChildID);
-
-      properties->append(newPropDesc);
-    }
-
-  delete(iter);
-
-} // addPropertyToPbDb(int childID,sf_pb_desc_t *pb)
-#endif // 0

@@ -10,9 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2003/05/10 08:53:34  pcombes
+ * New format for configuration files, new Parsers.
+ *
  * Revision 1.1  2003/04/10 13:02:06  pcombes
  * Replace LocalAgent_impl.cc. Apply CS. Use ChildID, Parsers, TRACE_LEVEL.
- *
  ****************************************************************************/
 
 #include "LocalAgentImpl.hh"
@@ -37,14 +39,18 @@ LocalAgentImpl::LocalAgentImpl()
  * Launch this agent (initialization + registration in the hierarchy).
  */
 int
-LocalAgentImpl::run(char* configFileName, char* parentName)
+LocalAgentImpl::run()
 {
-  char parent_name[257];
-  int res = this->AgentImpl::run(configFileName, parent_name);
+  int res = this->AgentImpl::run();
 
   if (res)
     return res;
-  
+
+  char* parent_name = (char*)
+    Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
+  if (parent_name == NULL)
+    return 1;
+
   this->parent =
     Agent::_duplicate(Agent::_narrow(ORBMgr::getAgentReference(parent_name)));
   if (CORBA::is_nil(this->parent)) {
@@ -56,7 +62,7 @@ LocalAgentImpl::run(char* configFileName, char* parentName)
     cout << "\nLocal Agent started.\n\n";
 
   return 0;
-} // run(char *config_file_name)
+} // run()
 
 
 /**
@@ -71,15 +77,15 @@ LocalAgentImpl::addServices(CORBA::ULong myID,
 	 << services.length() << " services)\n";
 
   if (this->childID == -1) { // still not registered ...
-    SeqCorbaProfileDesc_t* profiles;
+    SeqCorbaProfileDesc_t* tmp;
 
     /* Update local service table first */
     this->AgentImpl::addServices(myID, services);
     /* Then propagate the complete service table to the parent */
-    profiles = this->SrvT->getProfiles();
-    this->childID =
-      this->parent->agentSubscribe(_this(), this->localHostName, *profiles);
-    delete profiles;
+    tmp = this->SrvT->getProfiles();
+    this->childID = this->parent->agentSubscribe(this->_this(),
+						 this->localHostName, *tmp);
+    delete tmp;
   } else {
     /* First, propagate asynchronously the new services to parent */
     this->parent->addServices(this->childID, services);
@@ -110,41 +116,3 @@ LocalAgentImpl::getRequest(const corba_request_t& req)
 
 } // getRequest(const corba_request_t& req)
 
-
-
-/****************************************************************************/
-/* Private methods                                                          */
-/****************************************************************************/
-
-
-int
-LocalAgentImpl::parseConfigFile(char* configFileName, char* parentName)
-{
-  int res =
-    Parsers::beginParsing(configFileName)
-    || Parsers::parseName(myName)
-    || Parsers::parseName(parentName)
-    || Parsers::parseTraceLevel()//(&TRACE_LEVEL)
-    || Parsers::parseFASTEntries(&this->ldapUse,   this->ldapHost,
-				 &this->ldapPort,  this->ldapMask,
-				 &this->nwsUse,    this->nwsNSHost,
-				 &this->nwsNSPort, this->nwsForecasterHost,
-				 &this->nwsForecasterPort);
-
-  if (!res && TRACE_LEVEL >= TRACE_STRUCTURES) {
-    cout << "TRACE_LEVEL = "         << TRACE_LEVEL             << endl
-	 << "LDAP_USE = "            << this->ldapUse           << endl
-	 << "LDAP_HOST = "           << this->ldapHost          << " | "
-	 << "LDAP_PORT = "           << this->ldapPort          << " | "
-	 << "LDAP_MASK = "           << this->ldapMask          << endl
-	 << "NWS_USE = "             << this->nwsUse            << endl
-	 << "NWS_NAMESERVER_HOST = " << this->nwsNSHost         << " | "
-	 << "NWS_NAMESERVER_PORT = " << this->nwsNSPort         << endl
-	 << "NWS_FORECASTER_HOST = " << this->nwsForecasterHost << " | "
-	 << "NWS_FORECASTER_PORT = " << this->nwsForecasterPort << endl;
-  }
-
-  Parsers::endParsing();
-      
-  return res;
-}

@@ -10,11 +10,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2003/05/10 08:53:34  pcombes
+ * New format for configuration files, new Parsers.
+ *
  * Revision 1.1  2003/04/10 13:01:32  pcombes
  * Replace MasterAgent_impl.cc. Apply CS. Use ChildID, NodeDescription, Parsers,
  * Schedulers and TRACE_LEVEL. Update submit.
  * Multi-MA parts are still to be updated.
- *
  ****************************************************************************/
 
 #include "MasterAgentImpl.hh"
@@ -34,7 +36,6 @@ MasterAgentImpl::MasterAgentImpl() : AgentImpl()
   reqIDCounter = 0;
 } // MasterAgentImpl
 
-
 MasterAgentImpl::~MasterAgentImpl()
 {
 #if HAVE_MULTI_MA
@@ -47,13 +48,12 @@ MasterAgentImpl::~MasterAgentImpl()
  * Launch this agent (initialization + registration in the hierarchy).
  */
 int
-MasterAgentImpl::run(char* configFileName, char* parentName)
+MasterAgentImpl::run()
 {
-  int res = this->AgentImpl::run(configFileName);
+  int res = this->AgentImpl::run();
 
   if (res)
     return res;
-  
 #if HAVE_MULTI_MA
   if (TRACE_LEVEL >= TRACE_ALL_STEPS)
     cout << "Getting MAs references ...\n";
@@ -65,10 +65,10 @@ MasterAgentImpl::run(char* configFileName, char* parentName)
 #endif // HAVE_MULTI_MA
 
   if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
-    cout << "\nMaster Agent started.\n\n";
+    cout << "\nMaster Agent " << this->myName << " started.\n\n";
 
   return 0;
-} // run(char* configFileName)
+} // run()
 
 
 
@@ -91,7 +91,6 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
 
   /* Initialize the corba request structure */
   creq.reqID = reqIDCounter++; // thread safe
-  //creq.maxServers = maxServers;
   creq.pb = pb_profile;
 
   /* Initialize the request with a global scheduler */
@@ -106,32 +105,11 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
   if ((resp != NULL) && (resp->servers.length() != 0)) {
     
     resp->servers.length(MIN(resp->servers.length(), maxServers));
-//     decision->length(1);
-//     (*decision)[0].chosenServer =
-//       SeD::_duplicate(resp->comp[chosenServer].myRef);
-//     (*decision)[0].chosenServerName =
-//       ms_strdup(resp->comp[chosenServer].hostname);
-//     (*decision)[0].chosenServerPort = resp->comp[chosenServer].port;
-//     (*decision)[0].nbIn = resp->nbIn;
-//     (*decision)[0].dataLocs.length(resp->nbIn);
-//     for (int l = 0; l < resp->nbIn; l++) {
-//       (*decision)[0].dataLocs[l].localization =
-// 	SeD::_duplicate(resp->data[l].localization);
-//       if (!(CORBA::is_nil(resp->data[l].localization))) {
-// 	(*decision)[0].dataLocs[l].hostname =
-// 	  ms_strdup(resp->data[l].hostname);
-// 	(*decision)[0].dataLocs[l].port = resp->data[l].port;
-//       } else
-// 	(*decision)[0].dataLocs[l].hostname = ms_strdup("");
-//     }
-//     (*decision)[0].implPath = 
-//       ms_strdup(resp->comp[chosenServer].implName);
-
     if (TRACE_LEVEL >= TRACE_ALL_STEPS)
       cout << "Decision signaled" << endl;
 
   } else if (TRACE_LEVEL >= TRACE_MAIN_STEPS) {
-      cout << "No server found for problem " << creq.pb.path << ".\n";
+    cout << "No server found for problem " << creq.pb.path << ".\n";
   }
 	      
   reqList[creq.reqID] = NULL;
@@ -225,60 +203,3 @@ MasterAgentImpl::handShake(MasterAgent_ptr me, const char* myName)
 } // handShake(MasterAgent_ptr me, const char* myName)
 
 #endif // HAVE_MULTI_MA
-
-
-
-/****************************************************************************/
-/* Private methods                                                          */
-/****************************************************************************/
-
-
-/* Parse configuration file */
-int
-MasterAgentImpl::parseConfigFile(char* configFileName, char* parentName)
-{
-  int res =
-    Parsers::beginParsing(configFileName)
-    || Parsers::parseName(myName)
-    || Parsers::parseTraceLevel()//(&TRACE_LEVEL)
-    || Parsers::parseFASTEntries(&this->ldapUse,   this->ldapHost,
-				 &this->ldapPort,  this->ldapMask,
-				 &this->nwsUse,    this->nwsNSHost,
-				 &this->nwsNSPort, this->nwsForecasterHost,
-				 &this->nwsForecasterPort);
- 
-  if (!res && TRACE_LEVEL >= TRACE_STRUCTURES) {
-    cout << "TRACE_LEVEL = "         << TRACE_LEVEL       << endl
-	 << "LDAP_USE = "            << ldapUse           << endl
-	 << "LDAP_HOST = "           << ldapHost          << " | "
-	 << "LDAP_PORT = "           << ldapPort          << " | "
-	 << "LDAP_MASK = "           << ldapMask          << endl
-	 << "NWS_USE = "             << nwsUse            << endl
-	 << "NWS_NAMESERVER_HOST = " << nwsNSHost         << " | "
-	 << "NWS_NAMESERVER_PORT = " << nwsNSPort         << endl
-	 << "NWS_FORECASTER_HOST = " << nwsForecasterHost << " | "
-	 << "NWS_FORECASTER_PORT = " << nwsForecasterPort << endl;
-  }
-
-#if HAVE_MULTI_MA
-  if (!res) {
-
-    char buffer[257];
-
-    /* Parsers::parseMAReference has special error code:
-     *  0 is 'one line has been read'
-     *  1 is 'EOF reached'
-     *  2 is ERROR
-     */
-    while ((res = Parsers::parseMAReference(buffer)) == 0) {
-      knownMAs.addElement(MADescription(buffer, MasterAgent::_nil()));
-    }     
-    if (res == 1)
-      res = 0;
-  }
-#endif // HAVE_MULTI_MA
-
-  Parsers::endParsing();
-  
-  return res;
-} // parseConfigFile(char* configFileName)

@@ -8,25 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.10  2003/04/10 13:15:18  pcombes
- * Fix bug in the memory management of convertors.
+ * Revision 1.11  2003/05/10 08:54:41  pcombes
+ * New format for configuration files, new Parsers.
  *
  * Revision 1.9  2003/02/07 17:04:12  pcombes
  * Refine convertor API: arg_idx is splitted into in_arg_idx and out_arg_idx.
- *
- * Revision 1.8  2003/02/04 10:02:04  pcombes
- * Apply Coding Standards - Use ORBMgr
- *
- * Revision 1.7  2003/01/17 18:08:43  pcombes
- * New API (0.6.3): structures are not hidden, but the user can ignore them.
- *
- * Revision 1.4  2002/10/15 18:45:00  pcombes
- * Implement convertor API and file transfer.
- *
- * Revision 1.3  2002/10/03 17:58:14  pcombes
- * Add trace levels (for Bert): traceLevel = n can be added in cfg files.
- * An agent son can now be killed (^C) without crashing this agent.
- * DIET with FAST: compilation is OK, but run time is still to be fixed.
  *
  * Revision 1.2  2002/08/30 16:50:14  pcombes
  * This version works as well as the alpha version from the user point of view,
@@ -41,7 +27,6 @@
  ****************************************************************************/
 
 
-//#include <CORBA.h>
 #include <iostream>
 using namespace std;
 #include <unistd.h>
@@ -51,11 +36,13 @@ using namespace std;
 #include "DIET_server.h"
 #include "marshalling.hh"
 #include "ORBMgr.hh"
+#include "Parsers.hh"
 #include "common_types.hh"
-//#include "response.hh"
 #include "ServiceTable.hh"
 #include "SeDImpl.hh"
 
+
+extern unsigned int TRACE_LEVEL;
 
 extern "C" {
 
@@ -227,20 +214,91 @@ int
 diet_SeD(char* config_file_name, int argc, char* argv[])
 {
   SeDImpl* SeD;
+  int    res(0);
+  int    myargc;
+  char** myargv;
   
-  /* ORB initialization */
-  ORBMgr::init(argc, argv, true);
+  /* Set arguments for ORBMgr::init */
 
-  /* SeD creation */
-  SeD = new SeDImpl(2000);
+  myargc = argc;
+  myargv = (char**)malloc(argc * sizeof(char*));
+  for (int i = 0; i < argc; i++)
+    myargv[i] = argv[i];
 
-  /* Activate SeD */
+
+  /* Parsing */
+
+  Parsers::Results::param_type_t compParam[] = {Parsers::Results::PARENTNAME};
+  
+  if ((res = Parsers::beginParsing(config_file_name)))
+    return res;
+  if ((res =
+       Parsers::parseCfgFile(true, 1,
+			     (Parsers::Results::param_type_t*)compParam))) {
+    Parsers::endParsing();
+    return res;
+  }
+
+  /* Some more checks */
+  char* name = (char*)
+    Parsers::Results::getParamValue(Parsers::Results::NAME);
+  if (name != NULL)
+    cerr << "Warning while parsing " << config_file_name
+	 << ": it is useless to name an SeD - ignored.\n";
+  name = (char*)
+    Parsers::Results::getParamValue(Parsers::Results::MANAME);
+  if (name != NULL)
+    cerr << "Warning while parsing " << config_file_name
+	 << ": no need to specify an MA name for an SeD - ignored.\n";
+
+
+  /* Get listening port */
+  
+  size_t* port = (size_t*)
+    (Parsers::Results::getParamValue(Parsers::Results::ENDPOINT));
+  if (port != NULL) {
+    char   endPoint[48];
+    int    tmp_argc = myargc + 2;
+    realloc(myargv, tmp_argc * sizeof(char*));
+    myargv[myargc] = "-ORBendPoint";
+    sprintf(endPoint, "giop:tcp::%u", *port);
+    myargv[myargc + 1] = (char*)endPoint;
+    myargc = tmp_argc;
+  }
+
+  /* Get the traceLevel */
+
+  if (TRACE_LEVEL >= TRACE_MAX_VALUE) {
+    char   level[48];
+    int    tmp_argc = myargc + 2;
+    myargv = (char**)realloc(myargv, tmp_argc * sizeof(char*));
+    myargv[myargc] = "-ORBtraceLevel";
+    sprintf(level, "%u", TRACE_LEVEL - TRACE_MAX_VALUE);
+    myargv[myargc + 1] = (char*)level;
+    myargc = tmp_argc;
+  }
+  
+
+  /* Initialize the ORB */
+
+  if (ORBMgr::init(myargc, (char**)myargv, true)) {
+    cerr << "ORB initialization failed.\n";
+    return 1;
+  }
+
+  
+  /* Create and activate the SeD */
+  SeD = new SeDImpl();
   ORBMgr::activate(SeD);
 
-  if (SeD->run(config_file_name, SRVT)) {
+  /* Launch the SeD */
+  if (SeD->run(SRVT)) {
     cerr << "Unable to launch the SeD.\n";
     return 1;
   }
+
+  /* We do not need the parsing results any more */
+  Parsers::endParsing();  
 
   /* Wait for RPCs : */
   ORBMgr::wait();

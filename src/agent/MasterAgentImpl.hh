@@ -1,5 +1,4 @@
 /****************************************************************************/
-/* $Id$ */
 /* DIET master agent implementation header                                  */
 /*                                                                          */
 /*  Author(s):                                                              */
@@ -9,11 +8,13 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/*
+/* $Id$
  * $Log$
+ * Revision 1.2  2003/05/10 08:53:34  pcombes
+ * New format for configuration files, new Parsers.
+ *
  * Revision 1.1  2003/04/10 13:00:55  pcombes
  * Replace MasterAgent_impl.hh. Apply CS. Update submit profile.
- *
  ****************************************************************************/
 
 #ifndef _MASTERAGENTIMPL_HH_
@@ -42,7 +43,7 @@ public :
 
   /** Launch this agent (initialization + registration in the hierarchy). */
   int
-  run(char* configFileName, char* parentName = NULL);
+  run();
   
   /** Problem submission : remotely called by client. */
   corba_response_t*
@@ -66,12 +67,6 @@ private :
   typedef LinkedList<const char*> StrList;
   MAList knownMAs;
 #endif // HAVE_MULTI_MA
-
-  /**
-   * Parse the configration file \c configFileName to fill in this MA fields.
-   */
-  int
-  parseConfigFile(char* configFileName, char* parentName = NULL);
 
 }; // MasterAgentImpl
 

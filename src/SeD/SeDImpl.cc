@@ -9,17 +9,24 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2003/05/10 08:54:41  pcombes
+ * New format for configuration files, new Parsers.
+ *
  * Revision 1.1  2003/04/10 13:14:28  pcombes
  * Replace SeD_impl.cc. Implement contract checking. Use Parsers.
- *
  ****************************************************************************/
 
 
 #include <iostream>
 using namespace std;
+#include <math.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+
+#if HAVE_FAST
+#include "slimfast_api.h"
+#endif // HAVE_FAST
 
 #include "SeDImpl.hh"
 
@@ -29,31 +36,17 @@ using namespace std;
 #include "Parsers.hh"
 #include "statistics.hh"
 
-#if HAVE_FAST
-#include "slimfast_api.h"
-#endif // HAVE_FAST
-
 extern unsigned int TRACE_LEVEL;
 
 
-SeDImpl::SeDImpl(int SeDPort)
+SeDImpl::SeDImpl()
 {
-  port    = SeDPort;
   SrvT    = NULL;
   childID = -1;
   parent  = NULL;
   localHostName[0] = '\0';
-  //  data    = new dietServerDataDescList();
 #if HAVE_FAST
-  ldapUse     = 1;
-  ldapHost[0] = '\0';
-  ldapPort    = 0;
-  ldapMask[0] = '\0';
-  nwsUse               = 1;
-  nwsNSHost[0]         = '\0';
-  nwsNSPort            = 0;
-  nwsForecasterHost[0] = '\0';
-  nwsForecasterPort    = 0;
+  this->fastUse = 1;
 #endif // HAVE_FAST
 }
 
@@ -64,9 +57,8 @@ SeDImpl::~SeDImpl()
 
 
 int
-SeDImpl::run(char* configFileName, ServiceTable* services)
+SeDImpl::run(ServiceTable* services)
 {
-  char parent_name[257];
   SeqCorbaProfileDesc_t* profiles(NULL);
   
   localHostName[257] = '\0';
@@ -75,14 +67,12 @@ SeDImpl::run(char* configFileName, ServiceTable* services)
     return 1;
   }
 
-  if (parseConfigFile(configFileName, (char*)parent_name))
-    return 1;
   SrvT = services;
 
-//   SrvT->traceLevel = traceLevel;
-//   data_set_trace_level(traceLevel);
-//   mrsh_set_trace_level(traceLevel);
-  ORBMgr::setTraceLevel();
+  char* parent_name = (char*)
+    Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
+  if (parent_name == NULL)
+    return 1;
 
   parent =
     Agent::_duplicate(Agent::_narrow(ORBMgr::getAgentReference(parent_name)));
@@ -97,15 +87,63 @@ SeDImpl::run(char* configFileName, ServiceTable* services)
   childID = parent->serverSubscribe(_this(), localHostName, *profiles);
   delete profiles;
 
+  size_t* endPoint = (size_t*)
+    Parsers::Results::getParamValue(Parsers::Results::ENDPOINT);
+  // FIXME: How can I get the port used by the ORB ?
+  //        and is it useful ?
+  if (endPoint == NULL)
+    this->port = 0;
+  else
+    this->port = *endPoint;
+
 #if HAVE_FAST
-  if (!fast_init("nws_use", this->nwsUse,
-		 "nws_nameserver", this->nwsNSHost, this->nwsNSPort,
-		 "nws_forecaster",
-		 this->nwsForecasterHost, this->nwsForecasterPort,
-		 "ldap_use", this->ldapUse,
-		 "ldap_server", this->ldapHost, this->ldapPort,
-		 "ldap_binddn", this->ldapMask))
-    return 1; 
+
+  this->fastUse =
+    *((size_t*)Parsers::Results::getParamValue(Parsers::Results::FASTUSE));
+
+  if (this->fastUse > 0) {
+    Parsers::Results::Address* tmp;
+    size_t ldapUse, ldapPort, nwsUse, nwsNSPort, nwsFcstPort;
+    char*  ldapHost = "";
+    char*  ldapMask = "";
+    char*  nwsNSHost = "";
+    char*  nwsFcstHost = "";
+    
+    ldapUse = 
+      *((size_t*)Parsers::Results::getParamValue(Parsers::Results::LDAPUSE));
+    if (ldapUse) {
+      tmp = (Parsers::Results::Address*)
+	Parsers::Results::getParamValue(Parsers::Results::LDAPBASE);
+      ldapHost = tmp->host;
+      ldapPort = tmp->port;
+      ldapMask = (char*)
+	Parsers::Results::getParamValue(Parsers::Results::LDAPMASK);
+    }
+
+    nwsUse =
+      *((size_t*)Parsers::Results::getParamValue(Parsers::Results::NWSUSE));
+    if (nwsUse) {
+      tmp = (Parsers::Results::Address*)
+	Parsers::Results::getParamValue(Parsers::Results::NWSNAMESERVER);
+      nwsNSHost = tmp->host;
+      nwsNSPort = tmp->port;
+      tmp = (Parsers::Results::Address*)
+	Parsers::Results::getParamValue(Parsers::Results::NWSFORECASTER);
+      nwsFcstHost = tmp->host;
+      nwsFcstPort = tmp->port;
+    }
+    
+    /* Initialize FAST with parsed parameters */
+    if (!fast_init("ldap_use", ldapUse,
+		   "ldap_server", ldapHost, ldapPort, "ldap_binddn", ldapMask,
+		   "nws_use", nwsUse,
+		   "nws_nameserver", nwsNSHost, nwsNSPort,
+		   "nws_forecaster", nwsFcstHost, nwsFcstPort,
+		   NULL))
+      return 1;
+
+  } // if (this->fastUse > 0)
+
 #endif // HAVE_FAST
   return 0;
 }
@@ -193,26 +231,9 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
   
   mrsh_profile_to_out_args(&pb, &profile, cvt);
 
-#if 0
   /* Free data */
   // FIXME: persistent data should not be freed but referenced in the data list.
-  for (i = 0; i <= pb_profile.last_inout; i++) {
-    diet_server_data_desc_t* newData = new diet_server_data_desc_t;
-    newData->id = -1;
-    newData->data = inout_args.seq[i];
-    if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-      cout << "Adding " << i << "th INOUT arg\n";
-    addVar(newData);
-  }
-  for (i = 0; i < pb_profile.last_out; i++) {
-    diet_server_data_desc_t* newData = new diet_server_data_desc_t;
-    newData->id = -1;
-    if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-      cout << "Adding " << i << "th OUT arg\n";
-    newData->data = out_args.seq[i];
-    addVar(newData);
-  }
-#endif // 0
+
   if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
     cout << "SeD::solve complete\n"
 	 << "************************************************************\n";
@@ -226,7 +247,8 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
 CORBA::Long
 SeDImpl::ping()
 {
-  //cout << "I was pinged !\n";
+  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
+    cout << "SeD::ping()\n";
   return 0;
 }
 
@@ -234,38 +256,6 @@ SeDImpl::ping()
 /****************************************************************************/
 /* Private methods                                                          */
 /****************************************************************************/
-
-
-int
-SeDImpl::parseConfigFile(char* configFileName, char* parentName)
-{
-  int res =
-    Parsers::beginParsing(configFileName)
-    || Parsers::parseName(parentName)
-    || Parsers::parseTraceLevel()//(&TRACE_LEVEL)
-    || Parsers::parseFASTEntries(&this->ldapUse,   this->ldapHost,
-				 &this->ldapPort,  this->ldapMask,
-				 &this->nwsUse,    this->nwsNSHost,
-				 &this->nwsNSPort, this->nwsForecasterHost,
-				 &this->nwsForecasterPort);
-
-  if (!res && TRACE_LEVEL >= TRACE_STRUCTURES) {
-    cout << "TRACE_LEVEL = "         << TRACE_LEVEL       << endl
-	 << "LDAP_USE = "            << ldapUse           << endl
-	 << "LDAP_HOST = "           << ldapHost          << " | "
-	 << "LDAP_PORT = "           << ldapPort          << " | "
-	 << "LDAP_MASK = "           << ldapMask          << endl
-	 << "NWS_USE = "             << nwsUse            << endl
-	 << "NWS_NAMESERVER_HOST = " << nwsNSHost         << " | "
-	 << "NWS_NAMESERVER_PORT = " << nwsNSPort         << endl
-	 << "NWS_FORECASTER_HOST = " << nwsForecasterHost << " | "
-	 << "NWS_FORECASTER_PORT = " << nwsForecasterPort << endl;
-  }
-
-  Parsers::endParsing();
-      
-  return res;
-}
 
 /**
  * Called for first evaluation and when client connects to this SeD.
@@ -279,21 +269,36 @@ SeDImpl::estimate(corba_estimation_t& estimation,
   double time(HUGE_VAL);
   double freeCPU(0);
   double freeMem(0);
+
 #if HAVE_FAST
-  sf_inst_desc_t inst;
+
+  if (this->fastUse) {
+    sf_inst_desc_t inst;
   
-  fast_mutex.lock();
-  unmrsh_pb_desc_to_sf(&inst, &pb, this->SrvT->getConvertor(ref));
-  if ( !(fast_comp_time_best(this->localHostName, &inst, &time)) ) {
-    cerr << "Warning: Cannot estimate computation time. "
-	 << "Try CPU and memory load.\n";
-    time = HUGE_VAL;
+    fast_mutex.lock();
+    unmrsh_pb_desc_to_sf(&inst, &pb, this->SrvT->getConvertor(ref));
+    if ( !(fast_comp_time_best(this->localHostName, &inst, &time)) ) {
+      cerr << "Warning: Cannot estimate computation time. "
+	   << "Try CPU and memory load.\n";
+      time = HUGE_VAL;
+    }
+    if ( !(fast_load(this->localHostName, &freeCPU)) ) {
+      cerr << "Warning: Cannot estimate free CPU fraction.\n";
+      freeCPU = 0;
+    }
+    if ( !(fast_memory(this->localHostName, &freeMem)) ) {
+      cerr << "Warning: Cannot estimate free memory.\n";
+      freeMem = 0;
+    }
+    fast_mutex.unlock();
+    CORBA::string_free(inst.path);
+    delete [] inst.param_desc;
   }
-  fast_mutex.unlock();
-  CORBA::string_free(inst.path);
-  delete [] inst.param_desc;
+
 #else  // HAVE_FAST
+
   cerr << "Warning: Cannot estimate computation time: time set to inf.\n";
+
 #endif // HAVE_FAST
 
   estimation.tComp   = time;
@@ -323,91 +328,3 @@ SeDImpl::estimate(corba_estimation_t& estimation,
     }
   }
 }
-
-#if 0
-/* Returns true if the data is on this server */
-
-int SeDImpl::dataLookup(long dataID)
-{
-  dietServerDataDescListIterator* iter =
-    new dietServerDataDescListIterator(data);
-
-  while (iter->next()) {      
-    if (((dietServerDataDescListElt*)(iter->curr()))->data->id == dataID) {
-      delete(iter);
-      return(1);
-    }
-  }
-
-  delete(iter);
-  return(0);
-}
-
-
-void
-SeDImpl::addVar(diet_server_data_desc_t* data_desc)
-{
-  dietServerDataDescListElt* newData = new dietServerDataDescListElt();
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    cout << "addVar";
-  newData->data = data_desc;
-
-  // Only update the SeD table
-  data->append(newData);
-  if (data_desc->id >= 0) {
-    if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-      cout << " and forward\n";
-    parent->createData(data_desc->id, childID);
-  }
-  cout << endl;
-}
-
-void
-SeDImpl::rmVar(long dataID)
-{
-  /* FIXME: The parent may be updated */
-
-  dietServerDataDescListIterator* iter =
-    new dietServerDataDescListIterator(data);
-  
-  while (iter->next()) {
-    if (((dietServerDataDescListElt*)(iter->curr()))->data->id == dataID) {
-      dietServerDataDescListElt* tmp =
-	(dietServerDataDescListElt*)(iter->curr());
-      _CORBA_Sequence<unsigned char>::freebuf((_CORBA_Octet*)(tmp->data->data.value));
-      delete(tmp->data);
-      // Only updates the SeD
-      tmp->del();
-      delete(tmp);
-      delete(iter);
-      break;
-    }
-  }
-  
-  if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
-    cout << "Warning, trying to remove an unknown data" << endl;
-  delete(iter);
-}
-
-void
-SeDImpl::rmDeprecatedVars()
-{
-  /* FIXME: The parent may be updated */
-
-  dietServerDataDescListIterator* iter =
-    new dietServerDataDescListIterator(data);
-  
-  while (iter->next()) {
-    dietServerDataDescListElt* tmp =
-      (dietServerDataDescListElt*)(iter->curr());
-    if (tmp->data->id == -1) {
-      tmp->del();
-      _CORBA_Sequence<unsigned char>::freebuf((_CORBA_Octet*)(tmp->data->data.value));
-      delete(tmp->data);
-      delete(tmp);
-    }
-  }
-  delete(iter);
-}
-#endif // 0
-

@@ -10,9 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2003/05/10 08:53:34  pcombes
+ * New format for configuration files, new Parsers.
+ *
  * Revision 1.1  2003/04/10 12:59:34  pcombes
  * Replace agent_impl.hh. Apply CS. Use ChildID and NodeDescription.
- *
  ****************************************************************************/
 
 
@@ -38,12 +40,6 @@ class AgentImpl : public POA_Agent,
 		  public PortableServer::RefCountServantBase
 {
 public:
-
-  /**************************************************************************/
-  /* Public fields                                                          */
-  /**************************************************************************/
-
-
   
   /**************************************************************************/
   /* Public methods                                                         */
@@ -57,7 +53,7 @@ public:
    * Launch this agent (initialization + registration in the hierarchy).
    */
   virtual int
-  run(char* configFileName, char* parentName = NULL);
+  run();
 
   /** Subscribe an agent as a LA child. Remotely called by an LA. */
   virtual CORBA::ULong
@@ -75,12 +71,14 @@ public:
   virtual void
   getResponse(const corba_response_t& resp);
 
-  //virtual void
-  //createData(CORBA::Long dataId, CORBA::Long sonId);
-
   /** Used to test if this agent is alive. */
   virtual CORBA::Long
   ping();
+
+  /** Get pointer to the read-only name of this agent. */
+  inline const char*
+  getName() {return (const char*)this->myName;};
+
 
   
 protected:
@@ -122,34 +120,19 @@ protected:
   ts_map<RequestID, Request*> reqList;
  
 #if HAVE_FAST
+
+  /** Use of FAST */
+  size_t fastUse;
+
   /** Mutex for FAST calls (FAST is not reentrant yet) */
   omni_mutex fastMutex;
+
 #endif // HAVE_FAST
-  
-  /* LDAP and NWS parameters for FAST
-     They are not conditioned by HAVE_FAST, because they can be initialized
-     in the configuration file. */
-  int  ldapUse;
-  char ldapHost[257];
-  int  ldapPort;
-  char ldapMask[257];
-  int  nwsUse;
-  char nwsNSHost[257];
-  int  nwsNSPort;
-  char nwsForecasterHost[257];
-  int  nwsForecasterPort;
 
 
   /**************************************************************************/
   /* Private methods                                                        */
   /**************************************************************************/
-
-  /**
-   * Parse the configration file \c configFileName to fill in this agent fields.
-   * This method is to be implemented by Master and Local Agent classes.
-   */
-  virtual int
-  parseConfigFile(char* configFileName, char* parentName = NULL) = 0;
   
   /**
    * Forward a request, schedule and merge the responses associated.

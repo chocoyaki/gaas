@@ -10,9 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2003/05/10 08:53:34  pcombes
+ * New format for configuration files, new Parsers.
+ *
  * Revision 1.1  2003/04/10 13:01:51  pcombes
  * Replace LocalAgent_impl.hh. Apply CS. Remove createData.
- *
  ****************************************************************************/
 
 
@@ -39,7 +41,7 @@ public :
 
   /** Launch this agent (initialization + registration in the hierarchy). */
   int
-  run(char* configFileName, char* parentName = NULL);
+  run();
 
   /** Get a request from the parent */
   virtual void
@@ -58,12 +60,6 @@ private:
   /** Pointer to the parent */
   Agent_var parent;
   
-  /**
-   * Parse the configration file \c configFileName to fill in this MA fields.
-   */
-  int
-  parseConfigFile(char* configFileName, char* parentName = NULL);
-
 
 }; // LocalAgentImpl
 

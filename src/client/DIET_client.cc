@@ -9,17 +9,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.23  2003/04/10 13:11:45  pcombes
- * Impement contract checking. Use Parsers.
- *
- * Revision 1.22  2003/02/07 17:02:38  pcombes
- * diet_initialize match GridRPC (config_file_name as first argument).
- *
- * Revision 1.21  2003/02/04 10:02:04  pcombes
- * Apply Coding Standards - Use ORBMgr
- *
- * Revision 1.20  2003/01/22 15:44:55  sdahan
- * separation of the LA and the MA
+ * Revision 1.24  2003/05/10 08:54:08  pcombes
+ * New format for configuration files, new Parsers.
  *
  * Revision 1.19  2003/01/17 18:08:43  pcombes
  * New API (0.6.3): structures are not hidden, but the user can ignore them.
@@ -71,6 +62,8 @@ using namespace std;
 #include "statistics.hh"
 
 
+extern unsigned int TRACE_LEVEL;
+
 extern "C" {
 
 
@@ -99,62 +92,73 @@ static unsigned long MAX_SERVERS = 10;
 
 /****************************************************************************/
 /* Initialize and Finalize session                                          */
-#if 0
 int
-parseConfigFile(char* config_file_name, char* MA_name)
+diet_initialize(char* config_file_name, int argc, char* argv[])
 {
-  FILE* file(NULL); 
+  char*  MA_name;
+  int    res(0);
+  int    myargc;
+  char** myargv;
+
+  /* Set arguments for ORBMgr::init */
+
+  myargc = argc;
+  myargv = (char**)malloc(argc * sizeof(char*));
+  for (int i = 0; i < argc; i++)
+    myargv[i] = argv[i];
+
+  /* Parsing */
+
+  Parsers::Results::param_type_t compParam[] = {Parsers::Results::MANAME};
   
-  file = fopen(config_file_name, "r");
-
-  if (!file) {
-    perror("Parsing client configuration file");
-    return 1;
-  }
-
-  if (fscanf(file, "%s ", MA_name) != 1) {
-    cerr << "Parsing client configuration file: Failed to read agent name.\n";
-    return 1;
-  }
-  
-  {
-    int fscanf_res, level(1);
-    fscanf_res = fscanf(file, "traceLevel = %d ", &level);
-    if (fscanf_res == 0 || fscanf_res == 1) {
-      TRACE_LEVEL = level;
-    } else {
-      cerr << "Parsing client configuration file: Failed to read trace level.\n";
-      return 1;
-    }
-  }
-
-  // Here must be inserted the services parsing
-
-  if (fclose(file))
-    cerr << "Warning: cannot close configuration file.\n";
-  
-  return 0;
-}
-#endif // 0
-
-int
-diet_initialize(char* config_file, int argc, char* argv[])
-{
-  char MA_name[257];
-  int res =
-    Parsers::beginParsing(config_file)
-    || Parsers::parseName(MA_name)
-    || Parsers::parseTraceLevel();//(&TRACE_LEVEL);
-
-  if (res)
+  if ((res = Parsers::beginParsing(config_file_name)))
     return res;
+  if ((res =
+       Parsers::parseCfgFile(false, 1,
+			     (Parsers::Results::param_type_t*)compParam))) {
+    Parsers::endParsing();
+    return res;
+  }
+
+  /* Some more checks */
+  void* value =
+    Parsers::Results::getParamValue(Parsers::Results::NAME);
+  if (value != NULL)
+    cerr << "Warning while parsing " << config_file_name
+	 << ": it is useless to name a client - ignored.\n";
+  value =
+    Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
+  if (value != NULL)
+    cerr << "Warning while parsing " << config_file_name << ": no need "
+	 << "to specify a parent for a client - ignored.\n";
+  value =
+    Parsers::Results::getParamValue(Parsers::Results::AGENTTYPE);
+  if (value != NULL)
+    cerr << "Warning while parsing " << config_file_name
+	 << ": agentType is useless for a client - ignored.\n";
   
-  /* Initialize ORB */
-  if (ORBMgr::init(argc, argv, false)) {
-    cerr << "ORB initialization failed\n";
+  /* Get the traceLevel */
+
+  if (TRACE_LEVEL >= TRACE_MAX_VALUE) {
+    char   level[48];
+    int    tmp_argc = myargc + 2;
+    myargv = (char**)realloc(myargv, tmp_argc * sizeof(char*));
+    myargv[myargc] = "-ORBtraceLevel";
+    sprintf(level, "%u", TRACE_LEVEL - TRACE_MAX_VALUE);
+    myargv[myargc + 1] = (char*)level;
+    myargc = tmp_argc;
+  }
+  
+  /* Initialize the ORB */
+
+  if (ORBMgr::init(myargc, (char**)myargv, true)) {
+    cerr << "ORB initialization failed.\n";
     return 1;
   }
+
   /* Find Master Agent */
+  MA_name = (char*)
+    Parsers::Results::getParamValue(Parsers::Results::MANAME);
   MA = MasterAgent::_narrow(ORBMgr::getAgentReference(MA_name));
   if (CORBA::is_nil(MA)){
     cerr << "Cannot locate Master Agent " << MA_name << ".\n";
@@ -163,6 +167,9 @@ diet_initialize(char* config_file, int argc, char* argv[])
   /* Initialize statistics module */
   stat_init();
 
+  /* We do not need the parsing results any more */
+  Parsers::endParsing();  
+
   return 0;
 }
 
@@ -170,6 +177,7 @@ int
 diet_finalize()
 {
   stat_finalize();
+  ORBMgr::destroy();
   return 0;
 }
 
@@ -338,7 +346,19 @@ submission(corba_pb_desc_t* pb, corba_response_t*& response)
 {
   int server_OK(0);
   
-  response = MA->submit(*pb, MAX_SERVERS);
+  response = NULL;
+  try {
+    response = MA->submit(*pb, MAX_SERVERS);
+  } catch (CORBA::Exception& e) {
+    CORBA::Any tmp;
+    tmp <<= e;
+    CORBA::TypeCode_var tc = tmp.type();
+    cerr << "Caught a CORBA exception (" << tc->name()
+	 << ") while submitting problem.\n";
+    if (response)
+      response->servers.length(0);
+    return -2;
+  }
   
   if (!response || response->servers.length() == 0) {
     cerr << "No server found for problem " << pb->path << ".\n";
@@ -401,39 +421,23 @@ diet_call(diet_function_handle_t* handle, diet_profile_t* profile)
   stat_in("diet_call.submission.start");
   subm_count = 0;
   do {
-    server_OK = submission(&corba_pb, response);
-  }  while ((response->servers.length() > 0) &&
- 	    (server_OK == -1) && (++subm_count < nb_tries));
+    if ((server_OK = submission(&corba_pb, response)) == -2)
+      break;
+  } while ((response) && (response->servers.length() > 0) &&
+	   (server_OK == -1) && (++subm_count < nb_tries));
   stat_out("diet_call.submission.end");
 
   if (!response || response->servers.length() == 0) {
     cerr << "Unable to find a server.\n";
+    if (response)
+      delete response;
     return 1;
   }
   if (server_OK == -1) {
     cerr << "Unable to find a server after " << nb_tries << " tries.\n";
+    delete response;
     return 1;
   }
-
-#if 0
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS) {
-    cout << "Parsing parameters locations:" << endl;
-  
-    for (int i = 0; i <= pb->last_inout; i++) {
-      cout << " Datum " << i << ": ";
-      
-      if (CORBA::is_nil(decision->decisions[0].dataLocs[i].localization)) {
-	cout << "  unknown location" << endl;
-      } else {
-	cout << "  located on " << decision->decisions[0].dataLocs[i].hostname << ", port "
-	     << decision->decisions[0].dataLocs[i].port
-	     << "  (pinging server (" << i << ") ... ";
-	decision->decisions[0].dataLocs[i].localization->ping();
-	cout << "done" << endl;
-      }
-    }
-  }
-#endif // 0
 
 #if HAVE_CICHLID
   static int already_initialized(0);
@@ -449,8 +453,10 @@ diet_call(diet_function_handle_t* handle, diet_profile_t* profile)
   add_communication("client", str_tmp, profile_size(&corba_pb));
 #endif // HAVE_CICHLID
 
-  if (mrsh_profile_to_in_args(&corba_profile, profile))
+  if (mrsh_profile_to_in_args(&corba_profile, profile)) {
+    delete response;
     return 1;
+  }
 
   stat_in("diet_call.solve.start");
 
@@ -459,8 +465,10 @@ diet_call(diet_function_handle_t* handle, diet_profile_t* profile)
 
   stat_out("diet_call.solve.end");
 
-  if (unmrsh_out_args_to_profile(profile, &corba_profile))
+  if (unmrsh_out_args_to_profile(profile, &corba_profile)) {
+    delete response;
     return 1;
+  }
   
   //delete &corba_pb;
   delete response;
