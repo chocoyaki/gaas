@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2004/02/27 10:31:47  bdelfabr
+ * modifications applied to corresponding header files
+ *
  * Revision 1.21  2003/10/21 13:30:08  bdelfabr
  * removing diet_matrix_set_with_id method
  *
@@ -183,6 +186,8 @@ diet_matrix_set(diet_arg_t* arg, void* value, diet_persistence_mode_t mode,
 		diet_base_type_t base_type,
 		size_t nb_rows, size_t nb_cols, diet_matrix_order_t order);
 
+
+
 int
 diet_string_set(diet_arg_t* arg, char* value, diet_persistence_mode_t mode,
 		size_t length);
@@ -191,6 +196,9 @@ diet_string_set(diet_arg_t* arg, char* value, diet_persistence_mode_t mode,
 int
 diet_file_set(diet_arg_t* arg, diet_persistence_mode_t mode, char* path);
 
+  /** sets only identifier : data is present inside the platform */
+void
+diet_use_data(diet_arg_t* arg, char* id);
 
 /****************************************************************************/
 /* Utils for getting argument descriptions and values                       */
@@ -235,6 +243,8 @@ diet_file_set(diet_arg_t* arg, diet_persistence_mode_t mode, char* path);
 #define diet_matrix_get(arg, value, mode, nb_rows, nb_cols, order) \
   _matrix_get(arg, (void**)value, mode, nb_rows, nb_cols, order)
 
+#define diet_matrix_get_with_id(arg, id, value, mode, nb_rows, nb_cols, order) \
+  _matrix_get_with_id(arg, id, (void**)value, mode, nb_rows, nb_cols, order)
 /**
  * Type: int diet_string_get((diet_arg_t*), (char**),
  *                           (diet_persistence_mode_t*), (size_t*))

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2004/02/27 10:31:47  bdelfabr
+ * modifications applied to corresponding header files
+ *
  * Revision 1.12  2003/07/25 20:37:36  pcombes
  * Separate the DIET API (slightly modified) from the GridRPC API (version of
  * the draft dated to 07/21/2003)
@@ -72,7 +75,18 @@ diet_get(diet_data_handle_t* handle);
 diet_error_t
 diet_free(diet_data_handle_t* handle);
 
+void
+create_file(char *MA_name);
 
+  /** stores identifier of a eprsistent data in a file in the client directory */
+void
+store_id(char* id, char* msg);
+
+void 
+create_header(char* fileName);
+
+int 
+diet_free_persistent_data(char *id);
 /****************************************************************************/
 /* Call / submission functions                                              */
 /****************************************************************************/
