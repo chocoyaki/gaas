@@ -12,8 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
- * Revision 1.9  2002/11/08 13:53:01  pcombes
- * Minor bug fix on trace log.
+ * Revision 1.10  2002/11/08 15:43:15  lbertsch
+ * Added the use of a compilation directive for testing if we are in the
+ * demo or not. Do a export DEMO_BALTIMORE=1 to compile for the demo!
  *
  * Revision 1.8  2002/11/05 18:32:20  pcombes
  * Fix bugs in config file parsing.
@@ -68,6 +69,10 @@
 #include "marshalling.hh"
 #include "omniorb.hh"
 #include "debug.hh"
+
+#ifdef DEMO_BALTIMORE
+#include "com_tools.h"
+#endif
 
 extern "C" {
 
@@ -139,12 +144,6 @@ long int diet_initialize(int argc, char **argv, char *config_file)
     cerr << "ORB initialization failed\n";
     return 1;
   }
-  data_set_trace_level(traceLevel);
-  mrsh_set_trace_level(traceLevel);
-#ifdef __OMNIORB4__
-  omniORB::traceLevel =
-    (traceLevel < TRACE_MAX_VALUE) ? 0 : (traceLevel - TRACE_MAX_VALUE);
-#endif // __OMNIORB4__
   /* Find Master Agent */
   MA = Agent::_narrow(getAgentReference(MA_name));
   if (CORBA::is_nil(MA))
@@ -324,6 +323,7 @@ int submission(corba_pb_desc_t *pb, SeqCorbaDecision_t **decision)
 	     << (**decision)[i].chosenServerPort << "\n";
       }
     }
+
     server_OK = 0;
     while ((size_t) server_OK < (*decision)->length()) {
       try {
@@ -386,6 +386,23 @@ int diet_call(diet_function_handle_t *handle, diet_profile_t *profile)
     }
   }
 #endif
+
+#ifdef DEMO_BALTIMORE
+  static int already_initialized = 0;
+  
+  if (!already_initialized) {
+    init_communications();
+    already_initialized = 1;
+  }
+
+  if (DEMO_BALTIMORE + 0) {
+    add_communication("client",
+		      (*decision)[server_OK].chosenServerName, 
+		      profile_size(profile));
+  }
+#endif
+
+
   if (mrsh_profile_to_in_args(&corba_profile, profile))
     return 1;
   solve_res =
