@@ -8,19 +8,15 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2003/09/22 21:09:31  pcombes
+ * Fix bug in a trace.
+ *
  * Revision 1.4  2003/08/26 14:58:58  pcombes
  * Fix bug in returned value of init (return codes of FAST are not standard !)
- *
- * Revision 1.3  2003/08/22 13:06:13  pcombes
- * Fix a bug in the compilation without FAST.
- *
- * Revision 1.2  2003/08/09 17:35:05  pcombes
- * Fix bug in cvt_arg_desc (break instruction in cases)
  *
  * Revision 1.1  2003/08/01 19:16:55  pcombes
  * Add a manager for the FAST API, compatible with FAST 0.4 and FAST 0.8.
  * Any later changes in the FAST API should be processed by this static class.
- *
  ****************************************************************************/
 
 
@@ -32,6 +28,7 @@
 #include "debug.hh"
 #include "marshalling.hh"
 #include "Parsers.hh"
+
 #if HAVE_FAST
 #if defined(__FAST_0_8__)
 #include <fast.h>
@@ -115,7 +112,7 @@ FASTMgr::init()
 		    "nws_nameserver", nwsNSHost, nwsNSPort,
 #if defined(__FAST_0_4__)
 		    "nws_forecaster", nwsFcstHost, nwsFcstPort,
-#endif
+#endif // __FAST_0_4__
 		    NULL);
 
     res = (int)(!res);
@@ -234,7 +231,7 @@ FASTMgr::estimate(char* hostName, corba_estimation_t& estimation,
       freeMem = 0;
     }
     if ( !(fast_cpucount(hostName, &nbCPU)) ) {
-      WARNING("cannot estimate free memory");
+      WARNING("cannot estimate number of CPU");
       freeMem = 0;
     }
 
