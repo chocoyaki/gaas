@@ -1,5 +1,5 @@
 /****************************************************************************/
-/* $Id$                 */
+/* $Id$ */
 /* DIET SeD IDL description                                                 */
 /*                                                                          */
 /*  Author(s):                                                              */
@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.4  2002/07/26 18:02:25  pcombes
+ * Quelques mises au point sur la chaîne de compilation.
+ *
  * Revision 1.3  2002/05/24 19:36:52  pcombes
  * Add BLAS/dgemm example (implied bug fixes)
  *

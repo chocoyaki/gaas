@@ -12,6 +12,9 @@
 #****************************************************************************#
 #*
 #* $Log$
+#* Revision 1.2  2002/07/26 18:02:38  pcombes
+#* Quelques mises au point sur la chaîne de compilation.
+#*
 #* Revision 1.1  2002/06/08 10:44:48  rlacroix
 #* First version of a configure script
 #* Doesn't deal yet with --prefix
@@ -26,30 +29,23 @@
 
 
 TOP = ../../..
-
 include $(TOP)/src/config.mk
-FASTTOP = $(TOP)
 
-ifneq ($(strip $(OMNIORB3_HOME)),)
-  export OMNIORB_LIBS := -L$(OMNIORB3_HOME)/lib/i586_linux_2.0_glibc2.1 -lomniORB3 -lomnithread -lpthread -ltcpwrapGK -lomniDynamic3
-else
-  export OMNIORB_LIBS := -lpthread -L$(OMNIORB_HOME)/lib/i586_linux_2.0_glibc -lomniORB2 -lomnithread -lomniDynamic2 -lomniLC -ltcpwrapGK -lomniGK_stub
-endif 
-
-DIET_CLIENT_LIB = $(TOP)/src/client/libDIET_client.a
-DIET_SED_LIB    = $(TOP)/src/SeD/libDIET_SeD.a
+DIETLIBS = -L @PREFIX@/lib
 
 CC = gcc
 INCLUDE = -I$(TOP)/include -I$(FASTTOP)/include
-CCFLAGS = -Dwithoutfast $(INCLUDE)
+CCFLAGS = $(FASTFLAGS)
+LIBS    = $(DIETLIBS) $(OMNIORBLIBS)
+
 
 all: client server
 
 client: client.c $(DIET_CLIENT_LIB)
-	$(CC) client.c $(CCFLAGS) $(DIET_CLIENT_LIB) $(OMNIORB_LIBS) $(INCLUDE) -o client
+	$(CC) client.c $(CCFLAGS) $(LIBS) $(INCLUDE) -lDIET_Client -o client
 
 server: server.c $(DIET_SED_LIB)
-	$(CC) server.c $(CCFLAGS) $(DIET_SED_LIB) $(OMNIORB_LIBS) $(INCLUDE) -o server
+	$(CC) server.c $(CCFLAGS) $(LIBS) $(INCLUDE) -lDIET_SeD -o server
 
 clean:
 	rm -f client server
