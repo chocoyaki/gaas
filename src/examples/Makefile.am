@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.7  2003/09/29 09:16:25  pcombes
+#* Fix bug in generation of ldap_schema.
+#*
 #* Revision 1.6  2003/09/26 14:07:01  pcombes
 #* Get the examples out of the automake chain, to make Makefiles more readable.
 #* The generated before.mk includes the right Makefile.inc.
@@ -60,6 +63,10 @@ $(ex_datadir)/%.ldif:	$(srcdir)/cfgs/%.ldif
 	@sed -e "s|@host|$(HOSTNAME)|g" $< | sed -e "s|@pwd|`pwd`|g"	\
 	  > $(ex_datadir)/`basename $@`
 $(ex_datadir)/%.schema:	$(srcdir)/cfgs/%.schema
+	@if [ ! -d $(ex_datadir)/ldap_schema ]; then	\
+	  echo "Creating $(ex_datadir)/ldap_schema";	\
+	  mkdir -p $(ex_datadir)/ldap_schema;		\
+	fi
 	@echo "Creating $@"
 	@cp -f $< $@
 clean-config-files:
@@ -81,8 +88,8 @@ all-am:	Makefile before.mk all-data
 all-data:	$(ex_datadir) config-files
 
 $(ex_datadir):
-	@if [ ! -d $(ex_datadir)/ldap_schema ]; then	\
-	  mkdir -p $(ex_datadir)/ldap_schema;		\
+	@if [ ! -d $(ex_datadir) ]; then	\
+	  mkdir -p $(ex_datadir);		\
 	fi
 
 clean: clean-am clean-config-files clean-recursive
