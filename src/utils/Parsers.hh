@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2003/05/22 11:27:47  sdahan
+ * adds a missing header in Parsers
+ *
  * Revision 1.3  2003/05/15 11:48:41  pcombes
  * Fix includes.
  *
@@ -25,6 +28,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 
 /**

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2003/05/22 11:27:47  sdahan
+ * adds a missing header in Parsers
+ *
  * Revision 1.5  2003/05/15 14:42:16  pcombes
  * Still bug fixes in compilation with FAST. Sorry !
  *
@@ -96,7 +99,7 @@ Parsers::beginParsing(char* filePath)
 int
 Parsers::endParsing()
 {
-  static char* FUNCTION_NAME = "Parsers::endParsing";
+  //  static char* FUNCTION_NAME = "Parsers::endParsing";
 
 //   if (Parsers::file == NULL)
 //     cerr << "Warning: " << FUNCTION_NAME << ": file was already closed !\n";
