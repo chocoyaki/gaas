@@ -11,9 +11,8 @@
 /****************************************************************************/
 /*
  * $Log$
- * Revision 1.7  2002/12/03 19:08:24  pcombes
- * Update configure, update to FAST 0.3.15, clean CVS logs in files.
- * Put main Makefile in root directory.
+ * Revision 1.8  2003/01/17 18:08:43  pcombes
+ * New API (0.6.3): structures are not hidden, but the user can ignore them.
  *
  * Revision 1.4  2002/10/15 18:41:39  pcombes
  * Implement convertor API.
@@ -51,7 +50,6 @@
 /**
  * Trace level
  */
-// FIXME: should be used for traceLevel >= TRACE_STRUCTURES only ...
 static int traceLevel;
 
 void data_set_trace_level(int level)
@@ -142,75 +140,89 @@ size_t data_sizeof(const corba_data_desc_t *desc)
 /****************************************************************************/
 
 
-int scalar_desc_set(diet_data_desc_t *desc, diet_persistence_mode_t mode,
+int scalar_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
 		    diet_base_type_t base_type, void *value)
 {
   int status = 0;
   if (!desc)
     return 1;
-  if ((status = generic_desc_set(&(desc->generic), DIET_SCALAR, base_type)))
+  if ((status = diet_generic_desc_set(&(desc->generic),
+				      DIET_SCALAR, base_type)))
     return status;
-  desc->mode = mode;
+  if (mode != -1)
+    desc->mode = mode;
   desc->specific.scal.value = value;
   return status;
 }
 
-int vector_desc_set(diet_data_desc_t *desc, diet_persistence_mode_t mode,
+int vector_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
 		    diet_base_type_t base_type, size_t size)
 {
   int status = 0;
   if (!desc)
     return 1;
-  if ((status = generic_desc_set(&(desc->generic), DIET_VECTOR, base_type)))
+  if ((status = diet_generic_desc_set(&(desc->generic),
+				      DIET_VECTOR, base_type)))
     return status;
-  desc->mode = mode;
-  desc->specific.vect.size = size;
+  if (mode != -1)
+    desc->mode = mode;
+  if (size != 0)
+    desc->specific.vect.size = size;
   return status;
 }
 
-int matrix_desc_set(diet_data_desc_t *desc, diet_persistence_mode_t mode,
+int matrix_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
 		    diet_base_type_t base_type, size_t nb_r, size_t nb_c,
 		    int istrans)
 {
   int status = 0;
   if (!desc)
     return 1;
-  if ((status = generic_desc_set(&(desc->generic), DIET_MATRIX, base_type)))
+  if ((status = diet_generic_desc_set(&(desc->generic),
+				      DIET_MATRIX, base_type)))
     return status;
-  desc->mode = mode;
-  desc->specific.mat.nb_r = nb_r;
-  desc->specific.mat.nb_c = nb_c;
-  desc->specific.mat.istrans = istrans;
+  if (mode != 0)
+    desc->mode = mode;
+  if (nb_r != 0)
+    desc->specific.mat.nb_r = nb_r;
+  if (nb_c != 0)
+    desc->specific.mat.nb_c = nb_c;
+  if (istrans != -1)
+    desc->specific.mat.istrans = istrans;
   return status;
- 
 }
 
-int string_desc_set(diet_data_desc_t *desc, diet_persistence_mode_t mode,
+int string_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
 		    size_t length)
 {
   int status = 0;
   if (!desc)
     return 1;
-  if ((status = generic_desc_set(&(desc->generic), DIET_STRING, DIET_CHAR)))
+  if ((status = diet_generic_desc_set(&(desc->generic),
+				      DIET_STRING, DIET_CHAR)))
     return status;
-  desc->mode = mode;
-  desc->specific.str.length = length;
+  if (mode != -1)
+    desc->mode = mode;
+  if (length != 0)
+    desc->specific.str.length = length;
   return status;
 }
 
 /* Computes the file size */
-int file_desc_set(diet_data_desc_t *desc, diet_persistence_mode_t mode,
+int file_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
 		  char *path)
 {
   int status = 0;
   struct stat buf;
   if (!desc)
     return 1;
-  if ((status = generic_desc_set(&(desc->generic), DIET_FILE, DIET_CHAR)))
+  if ((status = diet_generic_desc_set(&(desc->generic),
+				      DIET_FILE, DIET_CHAR)))
     return status;
-  desc->mode = mode;
-  desc->specific.file.path = path;
+  if (mode != -1)
+    desc->mode = mode;
   if (path) {
+    desc->specific.file.path = path;
     if ((status = stat(path, &buf)))
       return status;
     if (!(buf.st_mode & S_IFREG))
@@ -294,7 +306,7 @@ extern "C" {
 /* Profile descriptor                                                       */
 /****************************************************************************/
 
-diet_profile_t *profile_alloc(int last_in, int last_inout, int last_out)
+diet_profile_t *diet_profile_alloc(int last_in, int last_inout, int last_out)
 {
   diet_profile_t *res;
   
@@ -306,7 +318,7 @@ diet_profile_t *profile_alloc(int last_in, int last_inout, int last_out)
   return res;
 }
 
-int profile_free(diet_profile_t *profile)
+int diet_profile_free(diet_profile_t *profile)
 {
   delete [] profile->parameters;
   delete profile;
@@ -315,70 +327,304 @@ int profile_free(diet_profile_t *profile)
 
 
 /****************************************************************************/
-/* Useful functions for data                                                */
+/* Utils functions for setting parameters of a problem description          */
 /****************************************************************************/
 
-int scalar_set(diet_data_t *data, void *value, diet_persistence_mode_t mode,
-	       diet_base_type_t base_type)
+int
+diet_scalar_set(diet_data_t *data, void *value, diet_persistence_mode_t mode,
+		diet_base_type_t base_type)
 {
   int status = 0;
   if (!data)
     return 1;
-  if ((status = scalar_desc_set(&(data->desc), mode, base_type, value)))
+  if ((status = scalar_set_desc(&(data->desc), mode, base_type, value)))
     return status;
   data->value = value;
   return status;
 }
 
-int vector_set(diet_data_t *data, void *value, diet_persistence_mode_t mode,
-	       diet_base_type_t base_type, size_t size)
+int
+diet_vector_set(diet_data_t *data, void *value, diet_persistence_mode_t mode,
+		diet_base_type_t base_type, size_t size)
 {
   int status = 0;
   if (!data)
     return 1;
-  if ((status = vector_desc_set(&(data->desc), mode, base_type, size)))
+  if ((status = vector_set_desc(&(data->desc), mode, base_type, size)))
     return status;
   data->value = value;
   return status;
 }
 
-int matrix_set(diet_data_t *data, void *value, diet_persistence_mode_t mode,
-	       diet_base_type_t base_type, size_t nb_r, size_t nb_c, int istrans)
+int
+diet_matrix_set(diet_data_t *data, void *value, diet_persistence_mode_t mode,
+		diet_base_type_t base_type,
+		size_t nb_r, size_t nb_c, int istrans)
 {
   int status = 0;
   if (!data)
     return 1;
-  if ((status = matrix_desc_set(&(data->desc),mode,base_type,nb_r,nb_c,istrans)))
+  if ((status = matrix_set_desc(&(data->desc),mode,base_type,nb_r,nb_c,istrans)))
     return status;
   data->value = value;
   return status;
 }
 
-int string_set(diet_data_t *data, char *value, diet_persistence_mode_t mode,
-	       size_t length)
+int
+diet_string_set(diet_data_t *data, char *value, diet_persistence_mode_t mode,
+		size_t length)
 {
   int status = 0;
   if (!data)
     return 1;
-  if ((status = string_desc_set(&(data->desc), mode, length)))
+  if ((status = string_set_desc(&(data->desc), mode, length)))
     return status;
   data->value = value;
   return status;
 }
 
 /* Computes the file size */
-int file_set(diet_data_t *data, diet_persistence_mode_t mode, char *path)
+int
+diet_file_set(diet_data_t *data, diet_persistence_mode_t mode, char *path)
 {
   int status = 0;
   if (!data)
     return 1;
-  if ((status = file_desc_set(&(data->desc), mode, path)))
+  if ((status = file_set_desc(&(data->desc), mode, path)))
     return status;
   data->value = NULL;
   return status;
 }
 
+/****************************************************************************/
+/* Utils for setting (IN)OUT arguments (solve functions, after computation) */
+/****************************************************************************/
+
+/**
+ * Since this function should only be used with (IN)OUT arguments,
+ * it copies (* value) into the zone allocated by DIET.
+ */
+int diet_scalar_desc_set(diet_data_t *data, void *value)
+{
+  if (data->desc.generic.type != DIET_SCALAR) {
+    cerr << "DIET error: diet_scalar_desc_set misused (wrong type)\n";
+    return 1;
+  }   
+  if (!data->value) {
+    cerr << "DIET error: diet_scalar_desc_set misused (data->value is NULL)\n";
+    return 1;
+  }
+  switch(data->desc.generic.base_type) {
+  case DIET_CHAR:     
+  case DIET_BYTE:    *((char *)data->value)     = *((char *)value);     break;
+  case DIET_INT:     *((int  *)data->value)     = *((int  *)value);     break;
+  case DIET_LONGINT: *((long int *)data->value) = *((long int *)value); break;
+  case DIET_FLOAT:   *((float *)data->value)    = *((float *)value);    break;
+  case DIET_DOUBLE:  *((double *)data->value)   = *((double *)value);   break;
+#if HAVE_COMPLEX
+  case DIET_SCOMPLEX:
+    *((complex *)data->value)        = *((complex *)value);        break;
+  case DIET_DCOMPLEX:
+    *((double complex *)data->value) = *((double complex *)value); break;
+#endif // HAVE_COMPLEX
+  default: {
+    cerr << "DIET error: diet_scalar_desc_set misused (wrong base type)\n";
+    return 1;
+  }
+  }
+  data->desc.specific.scal.value = data->value;
+  return 0;
+}
+    
+int diet_matrix_desc_set(diet_data_t *data,
+			 size_t nb_r, size_t nb_c, int istrans)
+{
+  if (data->desc.generic.type != DIET_MATRIX) {
+    cerr << "DIET error: diet_matrix_desc_set misused (wrong type)\n";
+    return 1;
+  }   
+  if ((nb_r * nb_c) >
+      (data->desc.specific.mat.nb_r * data->desc.specific.mat.nb_c)) {
+    cerr << "DIET error: diet_matrix_desc_set misused\n"
+	 << "(the new size for the matrix cannot exceed the old one)\n";
+    return 1;
+  }
+  if (nb_r    != 0)
+    data->desc.specific.mat.nb_r    = nb_r;
+  if (nb_c    != 0)
+    data->desc.specific.mat.nb_c    = nb_c;
+  if (istrans != 0)
+    data->desc.specific.mat.istrans = istrans;    
+  return 0;
+}
+
+int diet_file_desc_set(diet_data_t *data, char *path)
+{
+  if (data->desc.generic.type != DIET_FILE) {
+    cerr << "DIET error: diet_file_desc_set misused (wrong type)\n";
+    return 1;
+  }   
+//   if (!path) {
+//     cerr << "DIET error: diet_file_desc_set misused (path is NULL)\n";
+//     return 1;
+//   }
+  if (path != data->desc.specific.file.path)
+    CORBA::string_free(data->desc.specific.file.path);
+  data->desc.specific.file.path = path;
+  return 0;
+}
+
+
+/****************************************************************************/
+/* Utils for getting data descriptions and values                           */
+/*    (parameter extraction in solve functions)                             */
+/****************************************************************************/
+
+
+int get_value(diet_data_t *data, void **value)
+{
+  if (!data)
+    return 1;
+  if (value) {
+    switch(data->desc.generic.base_type) {
+    case DIET_CHAR:     
+    case DIET_BYTE:    *((char **)value)     = (char *)data->value;     break;
+    case DIET_INT:     *((int  **)value)     = (int  *)data->value;     break;
+    case DIET_LONGINT: *((long int **)value) = (long int *)data->value; break;
+    case DIET_FLOAT:   *((float **)value)    = (float *)data->value;    break;
+    case DIET_DOUBLE:  *((double **)value)   = (double *)data->value;   break;
+#if HAVE_COMPLEX
+    case DIET_SCOMPLEX:
+      *((complex **)value)        = (complex *)data->value;        break;
+    case DIET_DCOMPLEX:
+      *((double complex **)value) = (double complex *)data->value; break;
+#endif // HAVE_COMPLEX
+    default:
+      return 1;
+    }
+  }
+  return 0;
+}
+
+int _scalar_get(diet_data_t *data, void *value, diet_persistence_mode_t *mode)
+{
+  int res;
+
+  if ((data->desc.generic.type != DIET_SCALAR) || !data) {
+    cerr << "DIET error: diet_scalar_get misused "
+	 << "            (wrong type or data pointer is NULL)\n";
+    return 1;
+  }
+  if (value) {
+    switch(data->desc.generic.base_type) {
+    case DIET_CHAR:     
+    case DIET_BYTE:    *((char *)value)     = *((char *)data->value);     break;
+    case DIET_INT:     *((int  *)value)     = *((int  *)data->value);     break;
+    case DIET_LONGINT: *((long int *)value) = *((long int *)data->value); break;
+    case DIET_FLOAT:   *((float *)value)    = *((float *)data->value);    break;
+    case DIET_DOUBLE:  *((double *)value)   = *((double *)data->value);   break;
+#if HAVE_COMPLEX
+    case DIET_SCOMPLEX:
+      *((complex *)value)        = *((complex *)data->value);        break;
+    case DIET_DCOMPLEX:
+      *((double complex *)value) = *((double complex *)data->value); break;
+#endif // HAVE_COMPLEX
+    default: {
+      cerr << "DIET error: diet_scalar_get misused (wrong base type)\n";
+      return 1;
+    }
+    }
+  }
+  if (mode)
+    *mode = data->desc.mode;
+  return 0;
+}
+
+int _vector_get(diet_data_t *data, void **value, diet_persistence_mode_t *mode,
+		size_t *size)
+{
+  int res;
+
+  if (data->desc.generic.type != DIET_VECTOR) {
+    cerr << "DIET error: diet_vector_get misused (wrong type)\n";
+    return 1;
+  }   
+  if ((res = get_value(data, value))) {
+    cerr << "DIET error: diet_vector_get misused "
+	 << "(wrong base type or data pointer is NULL)\n";
+    return res;
+  }
+  if (mode)
+    *mode = data->desc.mode;
+  if (size)
+    *size = data->desc.specific.vect.size;
+  return 0;
+}
+
+int _matrix_get(diet_data_t *data, void **value, diet_persistence_mode_t *mode,
+		size_t *nb_r, size_t *nb_c, int *istrans)
+{
+  int res;
+
+  if (data->desc.generic.type != DIET_MATRIX) {
+    cerr << "DIET error: diet_matrix_get misused (wrong type)\n";
+    return 1;
+  }   
+  if ((res = get_value(data, value))) {
+    cerr << "DIET error: diet_matrix_get misused "
+	 << "(wrong base type or data pointer is NULL)\n";
+    return res;
+  }
+  if (mode)
+    *mode = data->desc.mode;
+  if (nb_r)
+    *nb_r    = data->desc.specific.mat.nb_r;
+  if (nb_c)
+    *nb_c    = data->desc.specific.mat.nb_c;
+  if (istrans)
+    *istrans = data->desc.specific.mat.istrans;
+  return 0;
+}
+
+int _string_get(diet_data_t *data, char **value, diet_persistence_mode_t *mode,
+		size_t *length)
+{
+  int res;
+
+  if (data->desc.generic.type != DIET_STRING) {
+    cerr << "DIET error: diet_string_get misused (wrong type)\n";
+    return 1;
+  }   
+  if ((res = get_value(data, (void **)value))) {
+    cerr << "DIET error: diet_string_get misused "
+	 << "(wrong base type or data pointer is NULL)\n";
+    return res;
+  }
+  if (mode)
+    *mode = data->desc.mode;
+  if (length)
+    *length = data->desc.specific.str.length;
+  return 0;
+}
+
+int _file_get(diet_data_t *data, diet_persistence_mode_t *mode,
+	      size_t *size, char **path)
+{
+  if (data->desc.generic.type != DIET_FILE) {
+    cerr << "DIET error: diet_file_get misused (wrong type)\n";
+    return 1;
+  }
+  if (mode)
+    *mode = data->desc.mode;
+  if (size)
+    *size = data->desc.specific.file.size;
+  if (path)
+    *path = data->desc.specific.file.path;
+
+  return 0;
+}
+
+
+
 
 } // extern "C"
-
-

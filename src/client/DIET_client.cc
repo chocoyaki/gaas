@@ -12,26 +12,12 @@
 /****************************************************************************/
 /*
  * $Log$
- * Revision 1.18  2003/01/15 08:34:19  lbertsch
- * Clarifie l'aide du Makefile
- *
- * Revision 1.17  2002/12/24 10:28:04  lbertsch
- * Added a stat_finalize function, so that successive initializations of
- * diet don't issue any warning...
- *
- * Revision 1.16  2002/12/13 13:06:08  lbertsch
- * Added statistics for the solve on the client side
- *
- * Revision 1.15  2002/12/03 19:08:24  pcombes
- * Update configure, update to FAST 0.3.15, clean CVS logs in files.
- * Put main Makefile in root directory.
+ * Revision 1.19  2003/01/17 18:08:43  pcombes
+ * New API (0.6.3): structures are not hidden, but the user can ignore them.
  *
  * Revision 1.13  2002/11/22 13:36:12  lbertsch
  * Added alpha linux support
  * Added a package for statistics and some traces
- *
- * Revision 1.6  2002/10/15 18:46:09  pcombes
- * Some impacts of convertor API.
  *
  * Revision 1.5  2002/10/03 17:58:16  pcombes
  * Add trace levels (for Bert): traceLevel = n can be added in cfg files.
@@ -132,7 +118,7 @@ int parseConfigFile(char *config_file_name, char *MA_name)
   return 0;
 }
 
-long int diet_initialize(int argc, char **argv, char *config_file)
+int diet_initialize(int argc, char **argv, char *config_file)
 {
   char MA_name[257];
   
@@ -155,7 +141,7 @@ long int diet_initialize(int argc, char **argv, char *config_file)
   return 0;
 }
 
-long int diet_finalize()
+int diet_finalize()
 {
   stat_finalize();
   

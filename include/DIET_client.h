@@ -11,9 +11,8 @@
 /****************************************************************************/
 /*
  * $Log$
- * Revision 1.4  2002/12/03 19:08:24  pcombes
- * Update configure, update to FAST 0.3.15, clean CVS logs in files.
- * Put main Makefile in root directory.
+ * Revision 1.5  2003/01/17 18:08:43  pcombes
+ * New API (0.6.3): structures are not hidden, but the user can ignore them.
  *
  * Revision 1.3  2002/10/15 18:36:03  pcombes
  * Remove the descriptors set functions.
@@ -44,9 +43,8 @@ extern "C" {
 
 typedef long int diet_reqID_t;
 
-/*----[ Initialize and Finalize session ]-----------------------------------*/
-long int diet_initialize(int argc, char **argv, char *config_file);
-long int diet_finalize();
+int diet_initialize(int argc, char **argv, char *config_file);
+int diet_finalize();
 
 
 /****************************************************************************/

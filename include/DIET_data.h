@@ -11,9 +11,8 @@
 /****************************************************************************/
 /*
  * $Log$
- * Revision 1.6  2002/12/03 19:08:24  pcombes
- * Update configure, update to FAST 0.3.15, clean CVS logs in files.
- * Put main Makefile in root directory.
+ * Revision 1.7  2003/01/17 18:08:43  pcombes
+ * New API (0.6.3): structures are not hidden, but the user can ignore them.
  *
  * Revision 1.3  2002/10/15 18:36:03  pcombes
  * Remove the descriptors set functions.
@@ -140,33 +139,18 @@ typedef struct {
   void            *value;
 } diet_data_t;
 
+/**
+ * Type: (type *) diet_value ( (C type name), (diet_data_t *) )
+ * Casted pointer to the data value.
+ */
+#define diet_value(type, data) (type *)((data)->value)
+
+
 typedef struct {
   size_t length;
   diet_data_t *seq;
 } diet_data_seq_t;
 
-
-/****************************************************************************/
-/* Useful functions for data                                                */
-/****************************************************************************/
-
-/* There should be no use of allocating functions */
-
-/*----[ Data altering ]-----------------------------------------------------*/
-/* Each -1 (or NULL for pointers) argument does not alter the corresponding
-   field. */
-
-int scalar_set(diet_data_t *data, void *value, diet_persistence_mode_t mode,
-	       diet_base_type_t base_type);
-int vector_set(diet_data_t *data, void *value, diet_persistence_mode_t mode,
-	       diet_base_type_t base_type, size_t size);
-int matrix_set(diet_data_t *data, void *value, diet_persistence_mode_t mode,
-	       diet_base_type_t base_type, size_t nb_r, size_t nb_c, int istrans);
-int string_set(diet_data_t *data, char *value, diet_persistence_mode_t mode,
-	       size_t length);
-/* Computes the file size
-   ! Warning ! The path is not duplicated !!! */
-int file_set(diet_data_t *data, diet_persistence_mode_t mode, char *path);
 
 
 /****************************************************************************/
@@ -185,12 +169,122 @@ typedef struct {
    If no OUT argument, please give last_inout for last_out.
    Once the profile is allocated, please use set functions on each parameter.
    For example, the nth argument is a matrix:
-   matrix_set(&(profile->parameters[n]), mode, value, btype, nb_r, nb_c, istrans);
+   diet_matrix_set(diet_parameter(profile,n),
+                   mode, value, btype, nb_r, nb_c, istrans);
    NB: mode is the persistence mode of the parameter.
    Since a profile will not be freed until profile_free is called, it is
    possible to refer to each parameter for data handles (cf. below)         */
-diet_profile_t *profile_alloc(int last_in, int last_inout, int last_out);
-int profile_free(diet_profile_t *profile);
+diet_profile_t *diet_profile_alloc(int last_in, int last_inout, int last_out);
+int diet_profile_free(diet_profile_t *profile);
+
+
+/**
+ * Type: (diet_arg_t *) diet_parameter( (diet_profile_t *), (int) )
+ * Pointer to the nth parameter of a profile
+ */
+#define diet_parameter(pt_profile, n) &((pt_profile)->parameters[(n)])
+
+
+/****************************************************************************/
+/* Utils functions for setting parameters of a problem description          */
+/****************************************************************************/
+/**
+ * If mode, base_type or istrans is -1,
+ *    size, nb_r, nb_c or length is 0,
+ *    path                       is NULL,
+ * the correspunding field is not modified.
+ */
+
+/* should not be used on server with (IN)OUT arguments */
+int
+diet_scalar_set(diet_data_t *data, void *value, diet_persistence_mode_t mode,
+		diet_base_type_t base_type);
+/* should not be used on server with (IN)OUT arguments */
+int
+diet_vector_set(diet_data_t *data, void *value, diet_persistence_mode_t mode,
+		diet_base_type_t base_type, size_t size);
+/* should not be used on server with (IN)OUT arguments */
+int
+diet_matrix_set(diet_data_t *data, void *value, diet_persistence_mode_t mode,
+		diet_base_type_t base_type,
+		size_t nb_r, size_t nb_c, int istrans);
+
+/* should not be used on server with (IN)OUT arguments */
+int
+diet_string_set(diet_data_t *data, char *value, diet_persistence_mode_t mode,
+		size_t length);
+/* Computes the file size
+   ! Warning ! The path is not duplicated !!! */
+int
+diet_file_set(diet_data_t *data, diet_persistence_mode_t mode, char *path);
+
+
+/****************************************************************************/
+/* Utils for getting data descriptions and values                           */
+/*    (parameter extraction on server in solve functions)                   */
+/*    (parameter extraction on client at results return)                    */
+/****************************************************************************/
+/**
+ * A NULL pointer is not an error (except for data argument): it is simply
+ * IGNORED. For instance,
+ *   diet_scalar_get(arg, &value, NULL),
+ * will only set the value to the value field of the (*arg) structure.
+ * 
+ * NB: these are macros that let the user not worry about casting its (int **)
+ * or (double **) etc. into (void **).
+ */
+
+/**
+ * Type: int diet_scalar_get((diet_data_t *), (void *),
+ *                           (diet_persistence_mode_t *))
+ * (void *) means (int *), (double *), (float *), etc., depending on the
+ *          base C type of users's data.
+ */
+#define diet_scalar_get(data, value, mode) \
+        _scalar_get((data), (void *)(value), (mode))
+/**
+ * Type: int diet_vector_get((diet_data_t *), (void **),
+ *                           (diet_persistence_mode_t *), (size_t *))
+ * (void **) means (int **), (double **), (float **), etc., depending on the
+ *           base C type of users's data.
+ */
+#define diet_vector_get(data, value, mode, size) \
+        _vector_get((data), (void **)(value), (mode), (size))
+/**
+ * Type: int diet_matrix_get((diet_data_t *), (void **),
+ *                           (diet_persistence_mode_t *),
+ *                           (size_t *), (size_t *), (int *))
+ * (void **) means (int **), (double **), (float **), etc., depending on the
+ *           base C type of users's data.
+ */
+#define diet_matrix_get(data, value, mode, nb_r, nb_c, istrans) \
+        _matrix_get((data), (void **)(value), (mode), (nb_r), (nb_c), (istrans))
+/**
+ * Type: int diet_string_get((diet_data_t *), (char **),
+ *                           (diet_persistence_mode_t *), (size_t *))
+ */
+#define diet_string_get(data, value, mode, length) \
+        _string_get((data), (char **)(value), (mode), (length))
+/**
+ * Type: int diet_file_get((diet_data_t *),
+ *                         (diet_persistence_mode_t *), (size_t *), (char **))
+ */
+#define diet_file_get(data, mode, size, path) \
+        _file_get((data), (mode), (size), (char **)(path))
+
+
+
+// These are the effective get functions 
+int _scalar_get(diet_data_t *data, void *value, diet_persistence_mode_t *mode);
+int _vector_get(diet_data_t *data, void **value, diet_persistence_mode_t *mode,
+		size_t *size);
+int _matrix_get(diet_data_t *data, void **value, diet_persistence_mode_t *mode,
+		size_t *nb_r, size_t *nb_c, int *istrans);
+int _string_get(diet_data_t *data,
+		char **value, diet_persistence_mode_t *mode, size_t *length);
+int _file_get(diet_data_t *data, diet_persistence_mode_t *mode,
+	      size_t *size, char **path);
+
 
 
 #ifdef __cplusplus
@@ -198,3 +292,4 @@ int profile_free(diet_profile_t *profile);
 #endif // __cplusplus
 
 #endif // _DIET_DATA_H_
+

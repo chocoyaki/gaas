@@ -11,9 +11,8 @@
 /****************************************************************************/
 /*
  * $Log$
- * Revision 1.6  2002/12/03 19:08:23  pcombes
- * Update configure, update to FAST 0.3.15, clean CVS logs in files.
- * Put main Makefile in root directory.
+ * Revision 1.7  2003/01/17 18:08:43  pcombes
+ * New API (0.6.3): structures are not hidden, but the user can ignore them.
  *
  * Revision 1.4  2002/10/15 18:45:00  pcombes
  * Implement convertor API and file transfer.
@@ -76,15 +75,15 @@ int diet_service_table_add(char                *service_path,
   if (cvt) {
     actual_cvt = cvt;
   } else {
-    actual_cvt = convertor_alloc(service_path, profile->last_in,
-				 profile->last_inout, profile->last_out);
+    actual_cvt = diet_convertor_alloc(service_path, profile->last_in,
+				      profile->last_inout, profile->last_out);
     for (int i = 0; i <= profile->last_out; i++)
       diet_arg_cvt_set(&(actual_cvt->arg_convs[i]), DIET_CVT_IDENTITY, i, NULL);
   }
   return SrvT->addService(&corba_profile, actual_cvt, solve_func, NULL);
 }
 
-void print_table()
+void diet_print_service_table()
 {
   SrvT->dump(stdout);
 }
@@ -94,7 +93,9 @@ void print_table()
 /* DIET service profile descriptor                                          */
 /****************************************************************************/
 
-diet_profile_desc_t *profile_desc_alloc(int last_in, int last_inout, int last_out)
+diet_profile_desc_t *diet_profile_desc_alloc(int last_in,
+					     int last_inout,
+					     int last_out)
 {
   diet_profile_desc_t *desc = NULL;
   diet_arg_desc_t *param_desc;
@@ -119,7 +120,7 @@ diet_profile_desc_t *profile_desc_alloc(int last_in, int last_inout, int last_ou
   return desc;
 }
 
-int profile_desc_free(diet_profile_desc_t *desc)
+int diet_profile_desc_free(diet_profile_desc_t *desc)
 {
   if (!desc)
     return 1;
@@ -160,8 +161,8 @@ int diet_arg_cvt_set(diet_arg_convertor_t *arg_cvt,
 }
 
 
-diet_convertor_t *convertor_alloc(char *path,
-				  int last_in, int last_inout, int last_out)
+diet_convertor_t *diet_convertor_alloc(char *path, int last_in,
+				       int last_inout, int last_out)
 {
   diet_convertor_t *res = new diet_convertor_t;
   res->path       = strdup(path);
@@ -177,7 +178,7 @@ diet_convertor_t *convertor_alloc(char *path,
 }
 
 
-int convertor_free(diet_convertor_t *cvt)
+int diet_convertor_free(diet_convertor_t *cvt)
 {
   if (!cvt)
     return 1;
@@ -204,7 +205,7 @@ int convertor_free(diet_convertor_t *cvt)
 /* DIET server call                                                         */
 /****************************************************************************/
 
-int DIET_SeD(char *config_file_name, int argc, char **argv)
+int diet_SeD(char *config_file_name, int argc, char **argv)
 {
   SeD_impl *SeD;
   

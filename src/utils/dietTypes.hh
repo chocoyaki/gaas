@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.7  2003/01/17 18:08:43  pcombes
+ * New API (0.6.3): structures are not hidden, but the user can ignore them.
+ *
  * Revision 1.6  2002/12/03 19:08:24  pcombes
  * Update configure, update to FAST 0.3.15, clean CVS logs in files.
  * Put main Makefile in root directory.
@@ -505,17 +508,17 @@ size_t data_sizeof(const corba_data_desc_t *desc);
 /* Each -1 (or NULL for pointers) argument does not alter the corresponding
    field. */
 
-int scalar_desc_set(diet_data_desc_t *desc, diet_persistence_mode_t mode,
+int scalar_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
 		    diet_base_type_t base_type, void *value);
-int vector_desc_set(diet_data_desc_t *desc, diet_persistence_mode_t mode,
+int vector_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
 		    diet_base_type_t base_type, size_t size);
-int matrix_desc_set(diet_data_desc_t *desc, diet_persistence_mode_t mode,
+int matrix_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
 		    diet_base_type_t base_type, size_t nb_r, size_t nb_c,
 		    int istrans);
-int string_desc_set(diet_data_desc_t *desc, diet_persistence_mode_t mode,
+int string_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
 		    size_t length);
 /* Computes the file size */
-int file_desc_set(diet_data_desc_t *desc, diet_persistence_mode_t mode,
+int file_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
 		  char *path);
 
 

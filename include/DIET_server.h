@@ -11,9 +11,8 @@
 /****************************************************************************/
 /*
  * $Log$
- * Revision 1.5  2002/12/03 19:08:24  pcombes
- * Update configure, update to FAST 0.3.15, clean CVS logs in files.
- * Put main Makefile in root directory.
+ * Revision 1.6  2003/01/17 18:08:43  pcombes
+ * New API (0.6.3): structures are not hidden, but the user can ignore them.
  *
  * Revision 1.3  2002/10/15 18:36:04  pcombes
  * Remove the descriptors set functions.
@@ -38,19 +37,17 @@ extern "C" {
 #include "DIET_data.h"
 
 
-/****************************************************************************/
-/* Useful functions for data descriptors                                    */
-/****************************************************************************/
 
-inline int generic_desc_set(struct diet_data_generic *desc,
-			    diet_data_type_t type, diet_base_type_t base_type)
-{
-  if (!desc)
-    return 1;
-  desc->type      = type;
-  desc->base_type = base_type;
-  return 0;
-}
+
+/****************************************************************************/
+/* Utils for setting data descriptors (service construction)                */
+/****************************************************************************/
+/**
+ * Every -1 argument implies that the correspunding field is not modified.
+ */
+
+int diet_generic_desc_set(struct diet_data_generic *desc,
+			  diet_data_type_t type, diet_base_type_t base_type);
 
 
 /****************************************************************************/
@@ -64,30 +61,42 @@ typedef struct {
   diet_arg_desc_t *param_desc;
 } diet_profile_desc_t;
 
-/* Allocate a DIET profile descriptors with memory space for its argument
-   descriptors.
-   If no IN argument, please give -1 for last_in.
-   If no INOUT argument, please give last_in for last_inout.
-   If no OUT argument, please give last_inout for last_out.
-   Once allocation is performed, please use set functions for each descriptor.
-   For example, the nth argument is a matrix of doubles:
-    generic_desc_set(&(profile->param_desc[n]), DIET_MATRIX; DIET_DOUBLE);   */
-diet_profile_desc_t *profile_desc_alloc(int last_in, int last_inout, int last_out);
-int profile_desc_free(diet_profile_desc_t *desc);
+/**
+ * Type:
+ *  (diet_arg_desc_t *) diet_param_desc ( (diet_profile_desc_t *), (size_t) )
+ * Pointer to the nth parameter of a profile description
+ */
+#define diet_param_desc(pt_prof_desc, n) &((pt_prof_desc)->param_desc[(n)])
+
+
+/**
+ * Allocate a DIET profile descriptors with memory space for its argument
+ * descriptors.
+ * If no IN argument, please give -1 for last_in.
+ * If no INOUT argument, please give last_in for last_inout.
+ * If no OUT argument, please give last_inout for last_out.
+ * Once allocation is performed, please use set functions for each descriptor.
+ * For example, the nth argument is a matrix of doubles:
+ *  diet_generic_desc_set(diet_param_desc(profile,n), DIET_MATRIX; DIET_DOUBLE);
+ */
+diet_profile_desc_t *diet_profile_desc_alloc(int last_in,
+					     int last_inout,
+					     int last_out);
+int diet_profile_desc_free(diet_profile_desc_t *desc);
 
 
 /****************************************************************************/
 /* DIET problem evaluation                                                  */
 /****************************************************************************/
-
-/* The server may declare several services for only one underlying routine.
-   Thus, diet_convertors are useful to translate the various declared profiles
-   into the actual profile of the underlying routine, ie the profile that is
-   used for the FAST benches.
-   Internally, when a client requests for a declared service, the correspunding
-   convertor is used to generate the actual profile : this allows evaluation
-   (cf. below)
-*/
+/**
+ * The server may declare several services for only one underlying routine.
+ * Thus, diet_convertors are useful to translate the various declared profiles
+ * into the actual profile of the underlying routine, ie the profile that is
+ * used for the FAST benches.
+ * Internally, when a client requests for a declared service, the correspunding
+ * convertor is used to generate the actual profile : this allows evaluation
+ * (cf. below)
+ */
 
 typedef enum {
   DIET_CVT_IDENTITY = 0,
@@ -111,6 +120,7 @@ typedef struct {
   diet_arg_t             *arg;
 } diet_arg_convertor_t;
 
+
 int diet_arg_cvt_set(diet_arg_convertor_t *arg_cvt,
 		     diet_convertor_function_t f, int arg_idx, diet_arg_t *arg);
 
@@ -120,24 +130,33 @@ typedef struct {
   diet_arg_convertor_t *arg_convs;
 } diet_convertor_t;
 
-diet_convertor_t *convertor_alloc(char *path,
-				  int last_in, int last_inout, int last_out);
-// Free also arg field (if not NULL) of each diet_arg_convertor_t in arg_convs
-// array. Be careful to the coherence between arg_idx and arg fields !!!
-int convertor_free(diet_convertor_t *cvt);
+/**
+ * Type:
+ *  (diet_arg_convertor_t *) diet_arg_conv ( (diet_convertor_t *), (size_t) )
+ * Pointer to the nth arg convertor of a convertor
+ */
+#define diet_arg_conv(cvt,n) &((cvt)->arg_convs[(n)])
+
+
+diet_convertor_t *diet_convertor_alloc(char *path, int last_in,
+				       int last_inout, int last_out);
+/**
+ * Free also arg field (if not NULL) of each diet_arg_convertor_t in arg_convs
+ * array. Be careful to the coherence between arg_idx and arg fields !!!
+ */
+int diet_convertor_free(diet_convertor_t *cvt);
 
 
 /****************************************************************************/
 /* DIET evaluation function prototype                                       */
 /****************************************************************************/
-
-
-/* If FAST cannot evaluate the computation time of a request, for instance
-   because the FAST benches have not been performed, then the service programmer
-   should provide an evaluation function that uses the actual profile fo the
-   service to forecast the computation time.
-   NB: The profile internally given to the eval function has not the value
-   fields set, since evaluation takes place before data are transfered.
+/**
+ * If FAST cannot evaluate the computation time of a request, for instance
+ * because the FAST benches have not been performed, then the service programmer
+ * should provide an evaluation function that uses the actual profile fo the
+ * service to forecast the computation time.
+ * NB: The profile internally given to the eval function has not the value
+ * fields set, since evaluation takes place before data are transfered.
  */
 
 typedef
@@ -153,6 +172,26 @@ int (* diet_solve_t)(diet_profile_t *);
 
 
 /****************************************************************************/
+/* Utils for setting (IN)OUT arguments (solve functions, after computation) */
+/****************************************************************************/
+/**
+ * Every -1 argument implies that the correspunding field is not modified.
+ */
+
+/**
+ * Since this function should only be used with (IN)OUT arguments,
+ * it copies (* value) into the zone allocated by DIET.
+ */
+int diet_scalar_desc_set(diet_data_t *data, void *value);
+// No use of diet_vector_desc_set
+
+int diet_matrix_desc_set(diet_data_t *data,
+			 size_t nb_r, size_t nb_c, int istrans);
+// No use of diet_string_desc_set
+int diet_file_desc_set(diet_data_t *data, char *path);
+
+
+/****************************************************************************/
 /* DIET service table API                                                   */
 /****************************************************************************/
 /* No need to reference the service table since it is unique for the SeD.   */
@@ -163,7 +202,7 @@ int diet_service_table_add(char                *service_path,
 			   diet_profile_desc_t *profile,
 			   diet_convertor_t    *cvt,
 			   diet_solve_t         solve_func);
-void print_table();
+void diet_print_service_table();
 
 
 /****************************************************************************/
@@ -173,8 +212,29 @@ void print_table();
 /* Most users should set argc to 0 and argv to NULL.
    Advanced omniORB users can set these arguments that are transmitted to
    the ORB initialization. */
-int DIET_SeD(char *config_file_name, int argc, char **argv);
+int diet_SeD(char *config_file_name, int argc, char **argv);
 
+
+
+
+
+/****************************************************************************/
+/* Inline definitions of functions declared above                           */
+/****************************************************************************/
+
+
+inline int
+diet_generic_desc_set(struct diet_data_generic *desc,
+		      diet_data_type_t type, diet_base_type_t base_type)
+{
+  if (!desc)
+    return 1;
+  if (type != -1)
+    desc->type      = type;
+  if (base_type != -1)
+    desc->base_type = base_type;
+  return 0;
+}
 
 
 #ifdef __cplusplus

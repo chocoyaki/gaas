@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.20  2003/01/17 18:08:43  pcombes
+ * New API (0.6.3): structures are not hidden, but the user can ignore them.
+ *
  * Revision 1.19  2003/01/13 18:06:13  pcombes
  * Add inout files management.
  *
@@ -158,11 +161,13 @@ int mrsh_data_desc(corba_data_desc_t *dest, diet_data_desc_t *src)
   case DIET_FILE: {
     corba_file_specific_t file;
     dest->specific.file(file);
-    dest->specific.file().size = src->specific.file.size;
-    if (src->specific.file.path)
+    if (src->specific.file.path) {
       dest->specific.file().path = CORBA::string_dup(src->specific.file.path);
-    else
+      dest->specific.file().size = src->specific.file.size;
+    } else {
       dest->specific.file().path = CORBA::string_dup("");
+      dest->specific.file().size = 0;
+    }
     break;
   }
   default:
@@ -178,16 +183,17 @@ int mrsh_data(corba_data_t *dest, diet_data_t *src, int release)
 {
   long unsigned int size = (long unsigned int) data_sizeof(&(src->desc));
   CORBA::Char *value;
+  char *path = src->desc.specific.file.path;
   
   if (mrsh_data_desc(&(dest->desc), &(src->desc)))
     return 1;
   if (src->desc.generic.type == DIET_FILE) {
-    if (strcmp("", src->desc.specific.file.path)) {
-      ifstream infile(src->desc.specific.file.path);
+    if (path && strcmp("", path)) {
+      ifstream infile(path);
       value = SeqChar::allocbuf(size);
       if (!infile) {
 	cerr << "DIET Error: cannot open file "
-	     << src->desc.specific.file.path << " for reading.\n";
+	     << path << " for reading.\n";
 	return 1;
       }
       for (unsigned int i = 0; i < size; i++) {
@@ -221,31 +227,31 @@ inline int unmrsh_scalar_desc(diet_data_desc_t *dest, const corba_data_desc_t *s
   case DIET_BYTE: {
     value = new char;
     src->specific.scal().value >>= *((CORBA::Short *)(value));
-    scalar_desc_set(dest, DIET_VOLATILE, bt, value);
+    scalar_set_desc(dest, DIET_VOLATILE, bt, value);
     break;
   }
   case DIET_INT: {
     value = (void *) new int;
     src->specific.scal().value >>= *((CORBA::Long *)(value));
-    scalar_desc_set(dest, DIET_VOLATILE, bt, value);
+    scalar_set_desc(dest, DIET_VOLATILE, bt, value);
     break;
   }
   case DIET_LONGINT: {
     value = (void *) new long long int;
     src->specific.scal().value >>= *((CORBA::Long *)(value));
-    scalar_desc_set(dest, DIET_VOLATILE, bt, value);
+    scalar_set_desc(dest, DIET_VOLATILE, bt, value);
     break;
   }
   case DIET_FLOAT: {
     value = (void *) new float;
     src->specific.scal().value >>= *((float *)(value));
-    scalar_desc_set(dest, DIET_VOLATILE, bt, value);
+    scalar_set_desc(dest, DIET_VOLATILE, bt, value);
     break;
   }
   case DIET_DOUBLE: {
     value = (void *) new double;
     src->specific.scal().value >>= *((double *)(value));
-    scalar_desc_set(dest, DIET_VOLATILE, bt, value);
+    scalar_set_desc(dest, DIET_VOLATILE, bt, value);
     break;
   }
 #if HAVE_COMPLEX
@@ -270,22 +276,22 @@ int unmrsh_data_desc(diet_data_desc_t *dest, const corba_data_desc_t *src)
     break;
   }
   case DIET_VECTOR: {
-    vector_desc_set(dest, DIET_VOLATILE, bt,
+    vector_set_desc(dest, DIET_VOLATILE, bt,
 		    src->specific.vect().size);
     break;
   }
   case DIET_MATRIX: {
-    matrix_desc_set(dest, DIET_VOLATILE, bt,
+    matrix_set_desc(dest, DIET_VOLATILE, bt,
 		    src->specific.mat().nb_r, src->specific.mat().nb_c,
 		    src->specific.mat().istrans);
     break;
   }
   case DIET_STRING: {
-    string_desc_set(dest, DIET_VOLATILE, src->specific.str().length);
+    string_set_desc(dest, DIET_VOLATILE, src->specific.str().length);
     break;
   }
   case DIET_FILE: {
-    generic_desc_set(&(dest->generic), DIET_FILE, DIET_CHAR);
+    diet_generic_desc_set(&(dest->generic), DIET_FILE, DIET_CHAR);
     dest->specific.file.size = src->specific.file().size;
     dest->specific.file.path = NULL;
     break;
@@ -420,7 +426,7 @@ int unmrsh_data(diet_data_t *dest, corba_data_t *src, int only_value)
     } else if (src->desc.specific.file().size != 0) {
       cerr << "DIET unmrsh_data WARNING: file structure is vicious !\n";
     } else {
-      dest->desc.specific.file.path = "";
+      dest->desc.specific.file.path = strdup("");
     }
   } else {
     if (src->value.length() == 0) { // OUT case
@@ -489,28 +495,28 @@ int cvt_arg_desc(sf_data_desc_t *dest,
     break;
   }
   case DIET_CVT_VECT_SIZE: {
-    scalar_desc_set(ddd, DIET_VOLATILE, DIET_INT, src->specific.scal.value);
+    scalar_set_desc(ddd, DIET_VOLATILE, DIET_INT, src->specific.scal.value);
     break;
   }
   case DIET_CVT_MAT_NB_ROW: {
-    scalar_desc_set(ddd, DIET_VOLATILE, DIET_INT, &src->specific.mat.nb_r);
+    scalar_set_desc(ddd, DIET_VOLATILE, DIET_INT, &src->specific.mat.nb_r);
     break;
   }
   case DIET_CVT_MAT_NB_COL: {
-    scalar_desc_set(ddd, DIET_VOLATILE, DIET_INT, &src->specific.mat.nb_c);
+    scalar_set_desc(ddd, DIET_VOLATILE, DIET_INT, &src->specific.mat.nb_c);
     break;
   }
   case DIET_CVT_MAT_ISTRANS: {
     char t = (src->specific.mat.istrans) ? 'T' : 'N';
-    scalar_desc_set(ddd, DIET_VOLATILE, DIET_CHAR, &t);
+    scalar_set_desc(ddd, DIET_VOLATILE, DIET_CHAR, &t);
     break;
   }
   case DIET_CVT_STR_LEN: {
-    scalar_desc_set(ddd, DIET_VOLATILE, DIET_INT, &src->specific.str.length);
+    scalar_set_desc(ddd, DIET_VOLATILE, DIET_INT, &src->specific.str.length);
     break;
   }
   case DIET_CVT_FILE_SIZE: {
-    scalar_desc_set(ddd, DIET_VOLATILE, DIET_INT, &src->specific.file.size);
+    scalar_set_desc(ddd, DIET_VOLATILE, DIET_INT, &src->specific.file.size);
     break;
   }
   default: {
@@ -602,28 +608,33 @@ int cvt_arg(diet_data_t *dest, diet_data_t *src, diet_convertor_function_t f)
     break;
   }
   case DIET_CVT_VECT_SIZE: {
-    scalar_set(dest, src->desc.specific.scal.value, DIET_VOLATILE, DIET_INT);
+    diet_scalar_set(dest, src->desc.specific.scal.value,
+		    DIET_VOLATILE, DIET_INT);
     break;
   }
   case DIET_CVT_MAT_NB_ROW: {
-    scalar_set(dest, &src->desc.specific.mat.nb_r, DIET_VOLATILE, DIET_INT);
+    diet_scalar_set(dest, &src->desc.specific.mat.nb_r,
+		    DIET_VOLATILE, DIET_INT);
     break;
   }
   case DIET_CVT_MAT_NB_COL: {
-    scalar_set(dest, &src->desc.specific.mat.nb_c, DIET_VOLATILE, DIET_INT);
+    diet_scalar_set(dest, &src->desc.specific.mat.nb_c,
+		    DIET_VOLATILE, DIET_INT);
     break;
   }
   case DIET_CVT_MAT_ISTRANS: {
     char *t = new char((src->desc.specific.mat.istrans) ? 'T' : 'N');
-    scalar_set(dest, t, DIET_VOLATILE, DIET_CHAR);
+    diet_scalar_set(dest, t, DIET_VOLATILE, DIET_CHAR);
     break;
   }
   case DIET_CVT_STR_LEN: {
-    scalar_set(dest, &src->desc.specific.str.length, DIET_VOLATILE, DIET_INT);
+    diet_scalar_set(dest, &src->desc.specific.str.length,
+		    DIET_VOLATILE, DIET_INT);
     break;
   }
   case DIET_CVT_FILE_SIZE: {
-    scalar_set(dest, &src->desc.specific.file.size, DIET_VOLATILE, DIET_INT);
+    diet_scalar_set(dest, &src->desc.specific.file.size,
+		    DIET_VOLATILE, DIET_INT);
     break;
   }
   default: {
@@ -714,7 +725,7 @@ int mrsh_profile_to_out_args(corba_profile_t *dest, const diet_profile_t *src,
     if ((arg_idx >= 0) && (arg_idx <= dest->last_out)) {
       res = recvt_arg(&dd, &(src->parameters[i]), cvt->arg_convs[i].f);
       if (res == 2) {
-	cerr << "DIET conversion error: Cannot convert server profile"
+	cerr << "DIET conversion error: Cannot convert server profile "
 	     << "to client problem profile.\n";
 	return 1;
       }
@@ -738,10 +749,7 @@ int mrsh_profile_to_out_args(corba_profile_t *dest, const diet_profile_t *src,
 		return 2;
 	      dd.desc.specific.file.size = (size_t) buf.st_size;
 	    } else {
-	      	cerr << "DIET conversion error:"
-		     << "path of INOUT or OUT file has been modified !\n";
-		cerr << dd.desc.specific.file.path << endl;
-		return 1;
+	      dd.desc.specific.file.size = 0;
 	    }
 	  }
 	  if (mrsh_data(&(dest->parameters[arg_idx]),
