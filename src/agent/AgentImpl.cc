@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2004/10/14 15:03:31  hdail
+ * Changed to cleaner, shorter debug message for response.
+ *
  * Revision 1.23  2004/09/29 13:35:31  sdahan
  * Add the Multi-MAs feature.
  *
@@ -425,8 +428,10 @@ AgentImpl::findServer(Request* req, size_t max_srv)
 
     resp = this->aggregate(req, max_srv);
     // Just for debugging
-    if (TRACE_LEVEL >= TRACE_STRUCTURES)
-      displayResponse(stdout, resp);
+    if (TRACE_LEVEL >= TRACE_STRUCTURES){
+      //displayResponse(stdout, resp);
+      displayResponseShort(stdout,resp);
+    }
   }
 
   stat_out(this->myName,"findServer");
