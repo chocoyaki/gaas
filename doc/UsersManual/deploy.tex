@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.8  2004/07/12 08:33:58  rbolze
+%* explain how to copy cfgs file in install_dir/etc directory and correct my english
+%*
 %* Revision 1.7  2004/07/09 14:34:42  rbolze
 %* make changes relative to DIET 1.1 version
 %*
@@ -153,7 +156,7 @@ InitRef = NameService=corbaname::<name server hostname>:<name server port>
 The name server port is the one given in argument to the \texttt{-start} option
 of \texttt{omniNames}.
 You also need to update your \texttt{LD\_LIBRARY\_PATH} to point to \texttt{$<$install\_dir$>$/lib}.
-So your \texttt{LD\_LIBRARY\_PATH} environment variable should be now :\\
+So your \texttt{LD\_LIBRARY\_PATH} environment variable should now be :\\
 \texttt{LD\_LIBRARY\_PATH$= <$omniORB\_home$>$/lib:$<$install\_dir$>$/lib}.
 
 \end{description}
@@ -169,7 +172,10 @@ So your \texttt{LD\_LIBRARY\_PATH} environment variable should be now :\\
 A configuration file is needed to launch a DIET entity. Some fully
 commented examples of such configuration files are given in the
 directory \texttt{src/examples/cfgs} of the DIET source files and
-installed in \texttt{$<$install\_dir$>$/etc}. Please note that:
+installed in \texttt{$<$install\_dir$>$/etc} \footnote{if there isn't 
+\texttt{$<$install\_dir$>$/etc} directory, please configure DIET with
+\texttt{--enable-examples} and/or run \texttt{make install}
+ command in \texttt{src/examples} directory.}. Please note that:
 \begin{itemize}
 \item comments start with '\#' and finish at the end of the current
   line,
@@ -323,12 +329,12 @@ is set to 0.
 
 \noindent
 \texttt{dietPort} \ \ \emph{default} \texttt{ = }\emph{2809}\\
-This option specifies the listening port of an agent or an SeD. If not specified, let the ORB get a port from the system (if the default 2809 was busy). It is very useful when they are behind a firewall. By default this option is disabled.
+This option specifies the listening port of an agent or SeD. If not specified, let the ORB get a port from the system (if the default 2809 was busy). This option is very useful when a machine is behind a firewall. By default this option is disabled.
 
 \noindent
 \texttt{dietHostname} \ \ \emph{$<$hostname |  IP$>$}\\
-The listening interface of the agent. If not specified,let the ORB get the hostname from the system (the first one if several one are available).
-It is very useful when you has more than one network interface, or you hasn't got DNS...
+The listening interface of the agent. If not specified,let the ORB get the hostname from the system (the first one if several are available).
+It is very useful when you has more than one network interface, or you don't have a DNS, ...
 
 \noindent
 \texttt{useAsyncAPI} \ \ \emph{default}\texttt{ = }\emph{1}\\
