@@ -2,6 +2,9 @@
 
 /*
  * $Log$
+ * Revision 1.3  2003/01/22 17:12:48  pcombes
+ * #include "DIET_config.h" is better than #include "omniorb.hh"
+ *
  * Revision 1.2  2003/01/22 14:56:30  pcombes
  * Add omniORB3 compatibility
  *
@@ -12,6 +15,8 @@
 
 #ifndef _REQUEST_ID_
 #define _REQUEST_ID_
+
+#include "DIET_config.h"
 
 #ifdef __OMNIORB3__
 #include <omniORB3/CORBA.h>

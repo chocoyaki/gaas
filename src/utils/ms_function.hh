@@ -1,7 +1,19 @@
-// $Id$
-
+/****************************************************************************/
+/* $Id$ */
+/* Memory safe management header                                            */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Sylvain DAHAN             - Sylvain.Dahan@lifc.univ-fcomte.fr       */
+/*                                                                          */
+/*  This is part of DIET software.                                          */
+/*  Copyright (C) 2002 ReMaP/INRIA                                          */
+/*                                                                          */
+/****************************************************************************/
 /*
  * $Log$
+ * Revision 1.7  2003/01/22 17:11:19  pcombes
+ * #include "DIET_config.h" is better than #include "omniorb.hh"
+ *
  * Revision 1.6  2003/01/22 15:48:54  sdahan
  * add #include "omniorb.hh"
  *
@@ -15,7 +27,7 @@
  * Add the documentation of the ms_function tool. This is a set of memory use
  * functions that throw an bad_alloc exception if there is not enough memory.
  *
- */
+ ****************************************************************************/
 
 /**
  * \page ms_function
@@ -31,7 +43,15 @@
 #ifndef _MS_FUNCTION_HH_
 #define _MS_FUNCTION_HH_
 
-#include "omniorb.hh"
+#include "DIET_config.h"
+
+#ifdef __OMNIORB3__
+#include <omniORB3/CORBA.h>
+#else
+#ifdef __OMNIORB4__
+#include <omniORB4/CORBA.h>
+#endif
+#endif
 
 /**
  * Duplicates the string given in argument with the \c
