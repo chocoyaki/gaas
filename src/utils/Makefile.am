@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.8  2004/03/01 18:57:48  rbolze
+#* change to take account of new  files for logservice
+#*
 #* Revision 1.7  2003/12/01 14:49:31  pcombes
 #* Rename dietTypes.hh to DIET_data_internal.hh, for more coherency.
 #*
@@ -38,16 +41,19 @@ noinst_LTLIBRARIES = libUtilsCichlid.la libUtilsCommon.la \
 		     libUtilsSeDClt.la  libUtilsNodes.la
 
 libUtilsCichlid_la_SOURCES = com_tools.cc
-libUtilsCommon_la_SOURCES  = debug.cc DIET_data.cc ms_function.cc Parsers.cc	\
-			     statistics.cc
+libUtilsCommon_la_SOURCES  = debug.cc DIET_data.cc ms_function.cc \
+				Parsers.cc statistics.cc
 libUtilsSeDClt_la_SOURCES  = DIET_mutex.cc
-libUtilsNodes_la_SOURCES   = Counter.cc ServiceTable.cc FASTMgr.cc
+libUtilsNodes_la_SOURCES   = Counter.cc ServiceTable.cc FASTMgr.cc \
+			     DietLogComponent.cc MonitoringThread.cc
 
-noinst_HEADERS = com_tools.hh Counter.hh debug.hh DIET_data_internal.hh FASTMgr.hh	\
-		 LinkedList.hh ms_function.hh Parsers.hh ReadersWriterLock.hh	\
-		 ServiceTable.hh ServiceTable.hh statistics.hh			\
-		 ts_container/ts_map.hh	ts_container/ts_set.hh			\
-		 ./ts_container/ts_vector.hh
+noinst_HEADERS = com_tools.hh Counter.hh debug.hh DIET_data_internal.hh
+		 FASTMgr.hh LinkedList.hh ms_function.hh Parsers.hh \
+		 ReadersWriterLock.hh ServiceTable.hh ServiceTable.hh \
+		 statistics.hh ts_container/ts_map.hh \
+		 ts_container/ts_set.hh ts_container/ts_vector.hh \
+		 DietLogComponent.hh MonitoringThread.hh
+
 
 AM_CXXFLAGS = $(CXXFLAGS_OMNIORB) $(CXXFLAGS_FAST) \
 	      -I$(top_srcdir)/src/CORBA -I$(top_builddir)/src/CORBA/idl
