@@ -3,14 +3,15 @@
 /* DIET server interface                                                    */
 /*                                                                          */
 /*  Author(s):                                                              */
-/*    - Philippe COMBES           - LIP ENS-Lyon (France)                   */
+/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
 /*                                                                          */
-/*  This is part of DIET software.                                          */
-/*  Copyright (C) 2002 ReMaP/INRIA                                          */
-/*                                                                          */
+/* $LICENSE$                                                                */
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.8  2003/02/04 10:02:04  pcombes
+ * Apply Coding Standards - Use ORBMgr
+ *
  * Revision 1.7  2003/01/17 18:08:43  pcombes
  * New API (0.6.3): structures are not hidden, but the user can ignore them.
  *
@@ -32,16 +33,16 @@
  *    by an LDAP DB for the MA
  *  - No copy for client/SeD data transfers
  *  - ...
- *
  ****************************************************************************/
 
 
-#include <iostream.h>
+#include <iostream>
+using namespace std;
 #include <unistd.h>
 #include <stdlib.h>
 
 #include "DIET_server.h"
-#include "omniorb.hh"
+#include "ORBMgr.hh"
 #include "marshalling.hh"
 #include "ServiceTable.hh"
 #include "SeD_impl.hh"
@@ -51,26 +52,27 @@
 
 extern "C" {
 
-
 /****************************************************************************/
 /* DIET service table                                                       */
 /****************************************************************************/
 
-static ServiceTable *SrvT;
+static ServiceTable* SRVT;
 
-int diet_service_table_init(int maxsize)
+int
+diet_service_table_init(int maxsize)
 {
-  SrvT = new ServiceTable(maxsize);
+  SRVT = new ServiceTable(maxsize);
   return 0;
 }
 
-int diet_service_table_add(char                *service_path,
-			   diet_profile_desc_t *profile,
-			   diet_convertor_t    *cvt,
-			   diet_solve_t         solve_func)
+int
+diet_service_table_add(char*                service_path,
+		       diet_profile_desc_t* profile,
+		       diet_convertor_t*    cvt,
+		       diet_solve_t         solve_func)
 {
   corba_profile_desc_t corba_profile;
-  diet_convertor_t    *actual_cvt;
+  diet_convertor_t*    actual_cvt(NULL);
   mrsh_profile_desc(&corba_profile, profile, service_path);
   if (cvt) {
     actual_cvt = cvt;
@@ -80,12 +82,13 @@ int diet_service_table_add(char                *service_path,
     for (int i = 0; i <= profile->last_out; i++)
       diet_arg_cvt_set(&(actual_cvt->arg_convs[i]), DIET_CVT_IDENTITY, i, NULL);
   }
-  return SrvT->addService(&corba_profile, actual_cvt, solve_func, NULL);
+  return SRVT->addService(&corba_profile, actual_cvt, solve_func, NULL);
 }
 
-void diet_print_service_table()
+void
+diet_print_service_table()
 {
-  SrvT->dump(stdout);
+  SRVT->dump(stdout);
 }
 
 
@@ -93,24 +96,22 @@ void diet_print_service_table()
 /* DIET service profile descriptor                                          */
 /****************************************************************************/
 
-diet_profile_desc_t *diet_profile_desc_alloc(int last_in,
-					     int last_inout,
-					     int last_out)
+diet_profile_desc_t*
+diet_profile_desc_alloc(int last_in, int last_inout, int last_out)
 {
-  diet_profile_desc_t *desc = NULL;
-  diet_arg_desc_t *param_desc;
+  diet_profile_desc_t* desc(NULL);
+  diet_arg_desc_t*     param_desc(NULL);
   
   if ((last_in < -1) || (last_inout < -1) || (last_out < -1))
     return NULL;
   if (last_out == -1)
     param_desc = NULL;
   else {
-    param_desc = (diet_arg_desc_t *) calloc(last_out + 1,
-					    sizeof(diet_arg_desc_t));
+    param_desc = new diet_arg_desc_t[last_out + 1];
     if (!param_desc)
       return NULL;  
   }
-  desc = (diet_profile_desc_t *) malloc(sizeof(diet_profile_desc_t));
+  desc = new diet_profile_desc_t;
   if (!desc)
     return NULL;
   desc->last_in    = last_in;
@@ -120,7 +121,8 @@ diet_profile_desc_t *diet_profile_desc_alloc(int last_in,
   return desc;
 }
 
-int diet_profile_desc_free(diet_profile_desc_t *desc)
+int
+diet_profile_desc_free(diet_profile_desc_t* desc)
 {
   if (!desc)
     return 1;
@@ -148,9 +150,9 @@ int diet_profile_desc_free(diet_profile_desc_t *desc)
    (cf. below)
 */
 
-
-int diet_arg_cvt_set(diet_arg_convertor_t *arg_cvt,
-		     diet_convertor_function_t f, int arg_idx, diet_arg_t *arg)
+int
+diet_arg_cvt_set(diet_arg_convertor_t* arg_cvt,
+		 diet_convertor_function_t f, int arg_idx, diet_arg_t* arg)
 {
   if (!arg_cvt)
     return 1;
@@ -160,11 +162,10 @@ int diet_arg_cvt_set(diet_arg_convertor_t *arg_cvt,
   return 0;
 }
 
-
-diet_convertor_t *diet_convertor_alloc(char *path, int last_in,
-				       int last_inout, int last_out)
+diet_convertor_t*
+diet_convertor_alloc(char* path, int last_in, int last_inout, int last_out)
 {
-  diet_convertor_t *res = new diet_convertor_t;
+  diet_convertor_t* res = new diet_convertor_t;
   res->path       = strdup(path);
   res->last_in    = last_in;
   res->last_inout = last_inout;
@@ -177,8 +178,8 @@ diet_convertor_t *diet_convertor_alloc(char *path, int last_in,
   return res;
 }
 
-
-int diet_convertor_free(diet_convertor_t *cvt)
+int
+diet_convertor_free(diet_convertor_t* cvt)
 {
   if (!cvt)
     return 1;
@@ -205,38 +206,28 @@ int diet_convertor_free(diet_convertor_t *cvt)
 /* DIET server call                                                         */
 /****************************************************************************/
 
-int diet_SeD(char *config_file_name, int argc, char **argv)
+int
+diet_SeD(char* config_file_name, int argc, char** argv)
 {
-  SeD_impl *SeD;
+  SeD_impl* SeD;
   
   /* ORB initialization */
-  omniORB_init(argc, argv, true);
+  ORBMgr::init(argc, argv, true);
 
   /* SeD creation */
   SeD = new SeD_impl(2000);
 
   /* Activate SeD */
-  omniORB_activate(SeD);
+  ORBMgr::activate(SeD);
 
-  if (SeD->run(config_file_name, SrvT)) {
+  if (SeD->run(config_file_name, SRVT)) {
     cerr << "Unable to launch the SeD.\n";
     return 1;
   }
 
-
   /* Wait for RPCs : */
-
-  /* FIXME: This is ugly.                 */
-  /* A smart signal handling should be    */
-  /* implemented anyway. This would       */
-  /* allow to kill a server/agent without */
-  /* crashing the diet system.            */
-
-  while(1)
-    {
-      sleep(10000);
-    }
- 
+  ORBMgr::wait();
+  
   return 0;
 }
 

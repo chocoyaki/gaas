@@ -3,15 +3,16 @@
 /* DIET client interface                                                    */
 /*                                                                          */
 /*  Author(s):                                                              */
-/*    - Frederic LOMBARD          - LIFC Besançon (France)                  */
-/*    - Philippe COMBES           - LIP ENS-Lyon (France)                   */
+/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
+/*    - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)             */
 /*                                                                          */
-/*  This is part of DIET software.                                          */
-/*  Copyright (C) 2002 ReMaP/INRIA                                          */
-/*                                                                          */
+/* $LICENSE$                                                                */
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.21  2003/02/04 10:02:04  pcombes
+ * Apply Coding Standards - Use ORBMgr
+ *
  * Revision 1.20  2003/01/22 15:44:55  sdahan
  * separation of the LA and the MA
  *
@@ -40,13 +41,13 @@
  *    by an LDAP DB for the MA
  *  - No copy for client/SeD data transfers
  *  - ...
- *
  ****************************************************************************/
 
 
 #include "DIET_client.h"
 
-#include <iostream.h>
+#include <iostream>
+using namespace std;
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -57,7 +58,7 @@
 #include "SeD.hh"
 #include "types.hh"
 #include "marshalling.hh"
-#include "omniorb.hh"
+#include "ORBMgr.hh"
 #include "debug.hh"
 #include "com_tools.hh"
 #include "statistics.hh"
@@ -74,7 +75,7 @@ extern "C" {
 static MasterAgent_var MA;
 
 /* Trace Level */
-static int traceLevel;
+static int TRACE_LEVEL;
 
 
 /****************************************************************************/
@@ -86,9 +87,10 @@ static int traceLevel;
 /****************************************************************************/
 /* Initialize and Finalize session                                          */
 
-int parseConfigFile(char *config_file_name, char *MA_name)
+int
+parseConfigFile(char* config_file_name, char* MA_name)
 {
-  FILE *file; 
+  FILE* file(NULL); 
   
   file = fopen(config_file_name, "r");
 
@@ -103,10 +105,10 @@ int parseConfigFile(char *config_file_name, char *MA_name)
   }
   
   {
-    int fscanf_res, level = 1;
+    int fscanf_res, level(1);
     fscanf_res = fscanf(file, "traceLevel = %d ", &level);
     if (fscanf_res == 0 || fscanf_res == 1) {
-      traceLevel = level;
+      TRACE_LEVEL = level;
     } else {
       cerr << "Parsing client configuration file: Failed to read trace level.\n";
       return 1;
@@ -121,7 +123,8 @@ int parseConfigFile(char *config_file_name, char *MA_name)
   return 0;
 }
 
-int diet_initialize(int argc, char **argv, char *config_file)
+int
+diet_initialize(int argc, char** argv, char* config_file)
 {
   char MA_name[257];
   
@@ -129,12 +132,12 @@ int diet_initialize(int argc, char **argv, char *config_file)
     return 1;
   
   /* Initialize ORB */
-  if (omniORB_init(argc, argv, false)) {
+  if (ORBMgr::init(argc, argv, false)) {
     cerr << "ORB initialization failed\n";
     return 1;
   }
   /* Find Master Agent */
-  MA = MasterAgent::_narrow(getAgentReference(MA_name));
+  MA = MasterAgent::_narrow(ORBMgr::getAgentReference(MA_name));
   if (CORBA::is_nil(MA))
     return 1;
 
@@ -144,10 +147,10 @@ int diet_initialize(int argc, char **argv, char *config_file)
   return 0;
 }
 
-int diet_finalize()
+int
+diet_finalize()
 {
   stat_finalize();
-  
   return 0;
 }
 
@@ -155,17 +158,20 @@ int diet_finalize()
 /****************************************************************************/
 /* Data handles                                                             */
 
-diet_data_handle_t *diet_data_handle_malloc()
+diet_data_handle_t*
+diet_data_handle_malloc()
 {
   return new diet_data_handle_t;
 }
 
-void *diet_get(diet_data_handle_t *handle)
+void*
+diet_get(diet_data_handle_t* handle)
 {
   return handle->value;
 }
 
-int diet_free(diet_data_handle_t *handle)
+int
+diet_free(diet_data_handle_t* handle)
 {
   delete handle;
   return 0;
@@ -177,36 +183,39 @@ int diet_free(diet_data_handle_t *handle)
 
 struct diet_argStack_elt_s {
   diet_arg_mode_t mode;
-  diet_arg_t     *arg;
+  diet_arg_t*     arg;
 };
 struct diet_argStack_s {
   size_t               maxsize, size;
   int                  first;
-  diet_argStack_elt_t *stack;
+  diet_argStack_elt_t* stack;
 };
 
-diet_argStack_elt_t *newArgStack_elt(diet_arg_mode_t mode, diet_arg_t *arg)
+diet_argStack_elt_t*
+newArgStack_elt(diet_arg_mode_t mode, diet_arg_t* arg)
 {
-  diet_argStack_elt_t *res = new diet_argStack_elt_t;
+  diet_argStack_elt_t* res = new diet_argStack_elt_t;
   res->mode = mode;
   res->arg  = arg;
   return res;
 }
 
-diet_arg_mode_t diet_argStack_elt_mode(diet_argStack_elt_t *argStack_elt)
+diet_arg_mode_t
+diet_argStack_elt_mode(diet_argStack_elt_t* argStack_elt)
 {
   return argStack_elt->mode;
 }
 
-diet_arg_t *diet_argStack_elt_arg(diet_argStack_elt_t *argStack_elt)
+diet_arg_t*
+diet_argStack_elt_arg(diet_argStack_elt_t* argStack_elt)
 {
   return argStack_elt->arg;
 }
 
-diet_argStack_t *newArgStack(size_t maxsize)
+diet_argStack_t*
+newArgStack(size_t maxsize)
 {
-  diet_argStack_t *res;
-  res = new diet_argStack_t;
+  diet_argStack_t* res = new diet_argStack_t;
   res->maxsize = maxsize;
   res->size = 0;
   res->first = -1;
@@ -214,7 +223,8 @@ diet_argStack_t *newArgStack(size_t maxsize)
   return res;
 }
 
-int pushArg(diet_argStack_t *stack, diet_argStack_elt_t *arg)
+int
+pushArg(diet_argStack_t* stack, diet_argStack_elt_t* arg)
 {
   if (stack->size == stack->maxsize)
     return 1;
@@ -225,19 +235,21 @@ int pushArg(diet_argStack_t *stack, diet_argStack_elt_t *arg)
 
 /* !!! allocate a new diet_argStack_elt_t => to be freed !!! */
 // FIXME: take care that argument copy is partial
-diet_argStack_elt_t *popArg(diet_argStack_t *stack)
+diet_argStack_elt_t*
+popArg(diet_argStack_t* stack)
 {
-  diet_argStack_elt_t *arg;
+  diet_argStack_elt_t* arg(NULL);
   if (stack->size == 0)
     return NULL;
-  arg = (diet_argStack_elt_t *)malloc(sizeof(diet_argStack_elt_t));
+  arg = new(diet_argStack_elt_t);
   *arg = stack->stack[stack->first];
   stack->first--;
   stack->size--;
   return arg;
 }
 
-int destructArgStack(diet_argStack_t *stack)
+int
+destructArgStack(diet_argStack_t* stack)
 {
   delete [] stack->stack;
   delete stack;
@@ -250,16 +262,17 @@ int destructArgStack(diet_argStack_t *stack)
 /* Function handles                                                         */
 
 struct diet_function_handle_s {
-  char *pb_name;
+  char* pb_name;
   SeD_var server;
 };
 #define DIET_DEFAULT_SERVER NULL
 
 
 /* Allocate a function handle and set its server to DIET_DEFAULT_SERVER */
-diet_function_handle_t *diet_function_handle_default(char *pb_name)
+diet_function_handle_t*
+diet_function_handle_default(char* pb_name)
 {
-  diet_function_handle_t *res = new diet_function_handle_t;
+  diet_function_handle_t* res = new diet_function_handle_t;
   res->pb_name = strdup(pb_name);
   res->server = DIET_DEFAULT_SERVER;
   return res;
@@ -268,14 +281,16 @@ diet_function_handle_t *diet_function_handle_default(char *pb_name)
 /* Allocate a function handle and set its server */
 /* This function is only added for GridRPC compatibility.
    Please, avoid using it !                              */
-diet_function_handle_t *diet_function_handle_init(char *server_name)
+diet_function_handle_t*
+diet_function_handle_init(char* server_name)
 {
   /* Cannot be implemented until servers register in Naming Service */
   return NULL;
 }
 
 /* Free a function handle */
-long int diet_function_handle_destruct(diet_function_handle_t *handle)
+long int
+diet_function_handle_destruct(diet_function_handle_t* handle)
 {
   free(handle->pb_name);
   delete handle;
@@ -283,7 +298,8 @@ long int diet_function_handle_destruct(diet_function_handle_t *handle)
 }
 
 /* Get the function handle linked to reqID */
-diet_function_handle_t *diet_get_function_handle(diet_reqID_t reqID)
+diet_function_handle_t*
+diet_get_function_handle(diet_reqID_t reqID)
 {
   return NULL;
 }
@@ -298,9 +314,10 @@ diet_function_handle_t *diet_get_function_handle(diet_reqID_t reqID)
    Return the index of decision that can be used, -1 if none can be used.
    NB: (*decision)->length() == 0 if no service was found. */
 
-int submission(corba_pb_desc_t *pb, SeqCorbaDecision_t **decision)
+int
+submission(corba_pb_desc_t* pb, SeqCorbaDecision_t** decision)
 {
-  int server_OK;
+  int server_OK(0);
   
   (*decision) = MA->submit(*pb);
   
@@ -310,7 +327,7 @@ int submission(corba_pb_desc_t *pb, SeqCorbaDecision_t **decision)
 
   } else {
 
-    if (traceLevel >= TRACE_MAIN_STEPS) {
+    if (TRACE_LEVEL >= TRACE_MAIN_STEPS) {
       cout << "The Master Agent found the following server(s):\n";
       for (size_t i = 0; i < (*decision)->length(); i++) {
 	cout << "    " << (**decision)[i].chosenServerName << ":"
@@ -335,13 +352,14 @@ int submission(corba_pb_desc_t *pb, SeqCorbaDecision_t **decision)
 }
 
 
-int diet_call(diet_function_handle_t *handle, diet_profile_t *profile)
+int
+diet_call(diet_function_handle_t* handle, diet_profile_t* profile)
 {
   corba_pb_desc_t     corba_pb;
   corba_profile_t     corba_profile;
-  SeqCorbaDecision_t *decision;
+  SeqCorbaDecision_t* decision(NULL);
   int subm_count, server_OK, solve_res;
-  static int nb_tries = 3;
+  static int nb_tries(3);
     
   /* Request submission : try nb_tries times */
 
@@ -368,7 +386,7 @@ int diet_call(diet_function_handle_t *handle, diet_profile_t *profile)
   }
 
 #if 0
-  if (traceLevel >= TRACE_ALL_STEPS) {
+  if (TRACE_LEVEL >= TRACE_ALL_STEPS) {
     cout << "Parsing parameters locations:" << endl;
   
     for (int i = 0; i <= pb->last_inout; i++) {
@@ -388,7 +406,7 @@ int diet_call(diet_function_handle_t *handle, diet_profile_t *profile)
 #endif
 
 #if HAVE_CICHLID
-  static int already_initialized = 0;
+  static int already_initialized(0);
   char str_tmp[1000];
 
   if (!already_initialized) {
@@ -421,8 +439,8 @@ int diet_call(diet_function_handle_t *handle, diet_profile_t *profile)
 }
 
 
-diet_reqID_t diet_call_async(diet_function_handle_t *handle,
-			     diet_profile_t *profile)
+diet_reqID_t
+diet_call_async(diet_function_handle_t* handle, diet_profile_t* profile)
 {
   if (diet_call(handle, profile))
     return 0;
@@ -433,7 +451,8 @@ diet_reqID_t diet_call_async(diet_function_handle_t *handle,
 
 
 // FIXME: take care that argument copies are partial
-int argStack2profile(diet_profile_t *profile, diet_argStack_t *args)
+int
+argStack2profile(diet_profile_t* profile, diet_argStack_t* args)
 {
   int tmp;
   
@@ -463,8 +482,8 @@ int argStack2profile(diet_profile_t *profile, diet_argStack_t *args)
   return 0;
 }
 
-int diet_call_argstack(diet_function_handle_t *handle,
-		       diet_argStack_t *args)
+int
+diet_call_argstack(diet_function_handle_t* handle, diet_argStack_t* args)
 {
   int res;
   diet_profile_t profile;
@@ -479,8 +498,8 @@ int diet_call_argstack(diet_function_handle_t *handle,
 }
 
 
-diet_reqID_t diet_call_argstack_async(diet_function_handle_t *handle,
-				      diet_argStack_t *args)
+diet_reqID_t
+diet_call_argstack_async(diet_function_handle_t* handle, diet_argStack_t* args)
 {
   diet_reqID_t reqID;
   diet_profile_t profile;
@@ -498,7 +517,8 @@ diet_reqID_t diet_call_argstack_async(diet_function_handle_t *handle,
 /****************************************************************************/
 /* GridRPC control and wait functions                                       */
 
-int diet_probe(diet_reqID_t reqID)
+int
+diet_probe(diet_reqID_t reqID)
 {
   return 1;
 }
@@ -506,32 +526,38 @@ int diet_probe(diet_reqID_t reqID)
 /* This function erases all persistent data that are manipulated by the reqID
    request. Do not forget to call diet_get_data_handle on data you would like
    to save.                                                                 */
-int diet_cancel(diet_reqID_t reqID)
+int
+diet_cancel(diet_reqID_t reqID)
 {
   return 1;
 }
 
-int diet_wait(diet_reqID_t reqID)
+int
+diet_wait(diet_reqID_t reqID)
 {
   return 0;
 }
 
-int diet_wait_and(diet_reqID_t *IDs, size_t length)
+int
+diet_wait_and(diet_reqID_t* IDs, size_t length)
 {
   return 0;
 }
 
-int diet_wait_or(diet_reqID_t *IDs, size_t length, diet_reqID_t *IDptr)
+int
+diet_wait_or(diet_reqID_t* IDs, size_t length, diet_reqID_t* IDptr)
 {
   return 0;
 }
 
-int diet_wait_all()
+int
+diet_wait_all()
 {
   return 0;
 }
 
-int diet_wait_any(diet_reqID_t *IDptr)
+int
+diet_wait_any(diet_reqID_t* IDptr)
 {
   return 0;
 }
@@ -539,7 +565,3 @@ int diet_wait_any(diet_reqID_t *IDptr)
 
 
 } // extern "C"
-
-
-
-
