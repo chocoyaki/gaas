@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.34  2003/09/27 07:51:15  pcombes
+ * Replace silly base type DIET_BYTE by DIET_SHORT.
+ * Fis bugs on data persistency tags and profile->pb_name that were not set.
+ *
  * Revision 1.33  2003/09/24 11:04:12  pcombes
  * Manage the case of a volatile data with a NULL value.
  *
@@ -60,6 +64,8 @@
 #include "marshalling.hh"
 #include "debug.hh"
 
+extern unsigned int TRACE_LEVEL;
+
 #define MRSH_ERROR(formatted_msg,return_value)                       \
   INTERNAL_ERROR(__FUNCTION__ << ": " << formatted_msg, return_value)
 
@@ -77,10 +83,14 @@ mrsh_scalar_desc(corba_data_desc_t* dest, diet_data_desc_t* src)
     dest->specific.scal().value <<= (CORBA::Double) 0;
   } else {
     switch (src->generic.base_type) {
-    case DIET_CHAR:
-    case DIET_BYTE: {
+    case DIET_CHAR: { // Impossible to insert a Char or an Octet into an Any.
       char scal = *((char*)(src->specific.scal.value));
-      dest->specific.scal().value <<= (short) scal;
+      dest->specific.scal().value <<= (CORBA::Short) scal;
+      break;
+    }
+    case DIET_SHORT: {
+      short scal = *((short*)(src->specific.scal.value));
+      dest->specific.scal().value <<= (CORBA::Short) scal;
       break;
     }
     case DIET_INT: {
@@ -121,7 +131,11 @@ int
 mrsh_data_desc(corba_data_desc_t* dest, diet_data_desc_t* src)
 {
   if (src->id)
-    dest->id.idNumber = CORBA::string_dup(src->id); // deallocates old dest->id
+    // deallocates old dest->id.idNumber
+    dest->id.idNumber = CORBA::string_dup(src->id);
+  // The default values are not always inner the enum types, which triggers an ABORT.
+  dest->id.state    = DIET_FREE;
+  dest->id.dataCopy = DIET_ORIGINAL;
   dest->mode = src->mode;
   dest->base_type = src->generic.base_type;
 
@@ -184,8 +198,6 @@ mrsh_data(corba_data_t* dest, diet_data_t* src, int release)
   long unsigned int size = (long unsigned int) data_sizeof(&(src->desc));
   CORBA::Char* value(NULL);
 
-
-
   if (mrsh_data_desc(&(dest->desc), &(src->desc)))
     return 1;
   if (src->desc.generic.type == DIET_FILE) {
@@ -232,9 +244,9 @@ unmrsh_scalar_desc(diet_data_desc_t* dest, const corba_data_desc_t* src)
   char* id = CORBA::string_dup(src->id.idNumber);
 
   switch(bt) {
-  case DIET_CHAR:
-  case DIET_BYTE: {
-    value = (void*) new char;
+  case DIET_CHAR: // Impossible to extract a Char or an Octet from an Any.
+  case DIET_SHORT: {
+    value = (void*) new short;
     src->specific.scal().value >>= *((CORBA::Short*)(value));
     scalar_set_desc(dest, id, (diet_persistence_mode_t)src->mode, bt, value);
     break;
@@ -253,13 +265,13 @@ unmrsh_scalar_desc(diet_data_desc_t* dest, const corba_data_desc_t* src)
   }
   case DIET_FLOAT: {
     value = (void*) new float;
-    src->specific.scal().value >>= *((float*)(value));
+    src->specific.scal().value >>= *((CORBA::Float*)(value));
     scalar_set_desc(dest, id, (diet_persistence_mode_t)src->mode, bt, value);
     break;
   }
   case DIET_DOUBLE: {
     value = (void*) new double;
-    src->specific.scal().value >>= *((double*)(value));
+    src->specific.scal().value >>= *((CORBA::Double*)(value));
     scalar_set_desc(dest, id, (diet_persistence_mode_t)src->mode, bt, value);
     break;
   }
@@ -350,7 +362,7 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src)
     if (src->value.length() == 0) { // OUT case
       dest->value = malloc(data_sizeof(&(dest->desc)));
     } else {
-      CORBA::Boolean orphan = 1; //(src->mode != DIET_VOLATILE);
+      CORBA::Boolean orphan = 1;//(src->mode == DIET_VOLATILE);
       dest->value = (char*)src->value.get_buffer(orphan);
     }
   }
@@ -511,11 +523,11 @@ unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
   diet_data_t** src_params = // Use calloc to set all elements to NULL
     (diet_data_t**) calloc(src->last_out + 1, sizeof(diet_data_t*));
 
+  dest->pb_name    = cvt->path;
   dest->last_in    = cvt->last_in;
   dest->last_inout = cvt->last_inout;
   dest->last_out   = cvt->last_out;
   dest->parameters = new diet_data_t[cvt->last_out + 1];
-
 
   for (int i = 0; i <= cvt->last_out; i++) {
     diet_data_t* dd_tmp(NULL);
