@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2003/09/25 09:52:29  cpera
+ * Fix bugs linked to GridRPC changes and modify log messages.
+ *
  * Revision 1.3  2003/07/25 20:37:36  pcombes
  * Separate the DIET API (slightly modified) from the GridRPC API (version of
  * the draft dated to 07/21/2003)
@@ -38,23 +41,25 @@
 using namespace std;
 
 #include "DIET_client.h"
-
-#define print_matrix(mat, m, n, rm)        \
-  {                                        \
+static omni_mutex IOWriterLock;
+#define print_matrix(item, string, reqID, mat, m, n, rm)        \
+{     \
+    printf("Item %d : %s", item, string); \
+    printf("Matrix linked to Thread -%d- and requestID -%s-:\n",omni_thread::self()->id(), reqID); \
     size_t i, j;                           \
     printf("%s (%s-major) = \n", #mat,     \
-           (rm) ? "row" : "column");       \
+        (rm) ? "row" : "column");       \
     for (i = 0; i < (m); i++) {            \
       for (j = 0; j < (n); j++) {          \
         if (rm)                            \
-	  printf("%3f ", (mat)[j + i*(n)]);\
+          printf("%3f ", (mat)[j + i*(n)]);\
         else                               \
-	  printf("%3f ", (mat)[i + j*(m)]);\
+          printf("%3f ", (mat)[i + j*(m)]);\
       }                                    \
       printf("\n");                        \
     }                                      \
     printf("\n");                          \
-  }
+}
 
 static omni_mutex mutexWorker;
 static omni_mutex endy;
@@ -64,7 +69,7 @@ static size_t thread_counter = 0;
 
 #define NB_PB 5
 static const char* PB[NB_PB] =
-  {"T", "MatPROD", "MatSUM", "SqMatSUM", "SqMatSUM_opt"};
+{"T", "MatPROD", "MatSUM", "SqMatSUM", "SqMatSUM_opt"};
 
 static size_t n_loops = 5;
 static size_t n_threads = 5;
@@ -73,33 +78,33 @@ static char* path = NULL;
 static int pb[NB_PB] = {0, 0, 0, 0, 0};
 
 
-void
+  void
 displayArg(FILE* f, const diet_data_desc_t* arg)
 {
   switch((int) arg->generic.type) {
-  case DIET_SCALAR: fprintf(f, "scalar");                break;
-  case DIET_VECTOR: fprintf(f, "vector (%ld)",
-			    (long)arg->specific.vect.size);    break;
-  case DIET_MATRIX: fprintf(f, "matrix (%ldx%ld)",
-			    (long)arg->specific.mat.nb_r,
-			    (long)arg->specific.mat.nb_c);   break;
-  case DIET_STRING: fprintf(f, "string (%ld)",
-			    (long)arg->specific.str.length); break;
-  case DIET_FILE:   fprintf(f, "file (%ld)",
-			    (long)arg->specific.file.size);  break;
+    case DIET_SCALAR: fprintf(f, "scalar");                break;
+    case DIET_VECTOR: fprintf(f, "vector (%ld)",
+                          (long)arg->specific.vect.size);    break;
+    case DIET_MATRIX: fprintf(f, "matrix (%ldx%ld)",
+                          (long)arg->specific.mat.nb_r,
+                          (long)arg->specific.mat.nb_c);   break;
+    case DIET_STRING: fprintf(f, "string (%ld)",
+                          (long)arg->specific.str.length); break;
+    case DIET_FILE:   fprintf(f, "file (%ld)",
+                          (long)arg->specific.file.size);  break;
   }
   if ((arg->generic.type != DIET_STRING)
       && (arg->generic.type != DIET_FILE)) {
     fprintf(f, " of ");
     switch ((int) arg->generic.base_type) {
-    case DIET_CHAR:     fprintf(f, "char");           break;
-    case DIET_BYTE:     fprintf(f, "byte");           break;
-    case DIET_INT:      fprintf(f, "int");            break;
-    case DIET_LONGINT:  fprintf(f, "long int");       break;
-    case DIET_FLOAT:    fprintf(f, "float");          break;
-    case DIET_DOUBLE:   fprintf(f, "double");         break;
-    case DIET_SCOMPLEX: fprintf(f, "float complex");  break;
-    case DIET_DCOMPLEX: fprintf(f, "double complex"); break;
+      case DIET_CHAR:     fprintf(f, "char");           break;
+      case DIET_BYTE:     fprintf(f, "byte");           break;
+      case DIET_INT:      fprintf(f, "int");            break;
+      case DIET_LONGINT:  fprintf(f, "long int");       break;
+      case DIET_FLOAT:    fprintf(f, "float");          break;
+      case DIET_DOUBLE:   fprintf(f, "double");         break;
+      case DIET_SCOMPLEX: fprintf(f, "float complex");  break;
+      case DIET_DCOMPLEX: fprintf(f, "double complex"); break;
     }
   }
   fprintf(f, "id=|%s|", arg->id);
@@ -107,7 +112,7 @@ displayArg(FILE* f, const diet_data_desc_t* arg)
 
 
 
-void
+  void
 displayProfile(const diet_profile_t* profile, const char* path)
 {
   int i = 0;
@@ -115,9 +120,9 @@ displayProfile(const diet_profile_t* profile, const char* path)
   fprintf(f, " - Service %s", path);
   for (i = 0; i <= profile->last_out; i++) {
     fprintf(f, "\n     %s ",
-	    (i <= profile->last_in) ? "IN   "
-	    : (i <= profile->last_inout) ? "INOUT"
-	    : "OUT  ");
+        (i <= profile->last_in) ? "IN   "
+        : (i <= profile->last_inout) ? "INOUT"
+        : "OUT  ");
     displayArg(f, &(profile->parameters[i].desc));
   }
   fprintf(f, "\n");
@@ -125,11 +130,11 @@ displayProfile(const diet_profile_t* profile, const char* path)
 
 /* argv[1]: client config file path
    argv[2]: one of the strings above */
-void
+  void
 usage(char* cmd)
 {
-fprintf(stderr, "Usage: %s [--poolThreadNbr <n>] [--repeat <n>] <file.cfg> [%s|%s|%s|%s|%s]\n",
-	   cmd, PB[0], PB[1], PB[2], PB[3], PB[4]);
+  fprintf(stderr, "Usage: %s [--poolThreadNbr <n>] [--repeat <n>] <file.cfg> [%s|%s|%s|%s|%s]\n",
+      cmd, PB[0], PB[1], PB[2], PB[3], PB[4]);
   fprintf(stderr, "    ex: %s client.cfg T\n", cmd);
   fprintf(stderr, "        %s --poolThreadNbr 10 --repeat 1000 client.cfg MatSUM\n", cmd);
   exit(1);
@@ -153,6 +158,7 @@ class worker : public omni_thread {
     diet_matrix_order_t oA, oB, oC;
     int i;
     diet_reqID_t rst[5] = {0,0,0,0,0};
+    char * requestID = new char[10];
     mutexWorker.lock();
     while ( n_loops > 0){
       n_loops-=5;
@@ -162,86 +168,130 @@ class worker : public omni_thread {
       m = 3;
       n = 2;
       for (i = 0; i < NB_PB; i++) {
-	if ((pb[i] = !strcmp(path, PB[i]))) break;
+        if ((pb[i] = !strcmp(path, PB[i]))) break;
       }
       for (i = 0; i < 5; i++){
-	// Square matrix problems:
-	if (pb[3] || pb[4]) n = m;
-	oA = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
-	oB = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
-	oC = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
-	if (pb[0]) {
-	  profile[i] = diet_profile_alloc(path, -1, 0, 0);
-	  diet_matrix_set(diet_parameter(profile[i],0),
-			A, DIET_VOLATILE, DIET_DOUBLE, m, n, oA);
-	  print_matrix(A, m, n, (oA == DIET_ROW_MAJOR));
-	}
-	else if (pb[1] || pb[2] || pb[3]) {
-	  profile[i] = diet_profile_alloc(path, 1, 1, 2);
-	  diet_matrix_set(diet_parameter(profile[i],0),
-			A, DIET_VOLATILE, DIET_DOUBLE, m, n, oA);
-	  print_matrix(A, m, n, (oA == DIET_ROW_MAJOR));
-	  if (pb[1]) {
-	    diet_matrix_set(diet_parameter(profile[i],1),
-			  B, DIET_VOLATILE, DIET_DOUBLE, n, m, oB);
-	    print_matrix(B, n, m, (oB == DIET_ROW_MAJOR));
-	    diet_matrix_set(diet_parameter(profile[i],2),
-			  NULL, DIET_VOLATILE, DIET_DOUBLE, m, m, oC);
-	  }
-	  else {
-	    diet_matrix_set(diet_parameter(profile[i],1),
-			  B, DIET_VOLATILE, DIET_DOUBLE, m, n, oB);
-	    print_matrix(B, m, n, (oB == DIET_ROW_MAJOR));
-	    diet_matrix_set(diet_parameter(profile[i],2),
-			  NULL, DIET_VOLATILE, DIET_DOUBLE, m, n, oC);
-	  }
-	}
-	else if (pb[4]) {
-	  profile[i] = diet_profile_alloc(path, 0, 1, 1);
-	  diet_matrix_set(diet_parameter(profile[i],0),
-			A, DIET_VOLATILE, DIET_DOUBLE, m, m, oA);
-	  print_matrix(A, m, m, (oA == DIET_ROW_MAJOR));
-	  diet_matrix_set(diet_parameter(profile[i],1),
-			B, DIET_VOLATILE, DIET_DOUBLE, m, m, oB);
-	  print_matrix(B, m, m, (oB == DIET_ROW_MAJOR));
-
-	}
-	else {
-	  fprintf(stderr, "Unknown problem: %s !\n", path);
-	  rv = -1;
-	  return;
-	}
-	diet_call_async(profile[i], &rst[i]);
-	printf("valeur de retour de diet_call_async = -%d- \n", rst[i]);
-	if (rst[i] < 1) {
-	  DIET_DEBUG(TEXT_OUTPUT(("erreur dans le retour de diet_call_async")))
-	  return;
-	}
-      }
-      // test all return rst
-      DIET_DEBUG(TEXT_OUTPUT(("debut du diet_waitAND ...\n")));
-      diet_wait_and((diet_reqID_t*)&rst, (unsigned int)5);
-      DIET_DEBUG(TEXT_OUTPUT(("fin du diet_waitAND ...\n")));
-      //mutexWorker.lock();
-      for (i = 0; i < 5; i++){
+        // Square matrix problems:
+        if (pb[3] || pb[4]) n = m;
+        oA = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
+        oB = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
+        oC = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
         if (pb[0]) {
-	  diet_matrix_get(diet_parameter(profile[i],0), NULL, NULL, (size_t*)&m, (size_t*)&n, &oA);
-	  print_matrix(A, m, n, (oA == DIET_ROW_MAJOR));
-	}
-	else if (pb[4]) {
-	  diet_matrix_get(diet_parameter(profile[i],0), NULL, NULL, (size_t*)&m, (size_t*)&n, &oB);
-	  print_matrix(B, m, n, (oB == DIET_ROW_MAJOR));
-	}
-	else {
-	  diet_matrix_get(diet_parameter(profile[i],2), &C, NULL, (size_t*)&m, (size_t*)&n, &oC);
-	  print_matrix(C, m, n, (oC == DIET_ROW_MAJOR));
-	  diet_free_data(diet_parameter(profile[i],2));
-	}
-	diet_cancel(rst[i]);
-	diet_profile_free(profile[i]);
+          profile[i] = diet_profile_alloc(path, -1, 0, 0);
+          diet_matrix_set(diet_parameter(profile[i],0),
+              A, DIET_VOLATILE, DIET_DOUBLE, m, n, oA);
+          //print_matrix(A, m, n, (oA == DIET_ROW_MAJOR));
+        }
+        else if (pb[1] || pb[2] || pb[3]) {
+          profile[i] = diet_profile_alloc(path, 1, 1, 2);
+          diet_matrix_set(diet_parameter(profile[i],0),
+              A, DIET_VOLATILE, DIET_DOUBLE, m, n, oA);
+          //print_matrix(A, m, n, (oA == DIET_ROW_MAJOR));
+          if (pb[1]) {
+            diet_matrix_set(diet_parameter(profile[i],1),
+                B, DIET_VOLATILE, DIET_DOUBLE, n, m, oB);
+            //print_matrix(B, n, m, (oB == DIET_ROW_MAJOR));
+            diet_matrix_set(diet_parameter(profile[i],2),
+                NULL, DIET_VOLATILE, DIET_DOUBLE, m, m, oC);
+          }
+          else {
+            diet_matrix_set(diet_parameter(profile[i],1),
+                B, DIET_VOLATILE, DIET_DOUBLE, m, n, oB);
+            //print_matrix(B, m, n, (oB == DIET_ROW_MAJOR));
+            diet_matrix_set(diet_parameter(profile[i],2),
+                NULL, DIET_VOLATILE, DIET_DOUBLE, m, n, oC);
+          }
+        }
+        else if (pb[4]) {
+          profile[i] = diet_profile_alloc(path, 0, 1, 1);
+          diet_matrix_set(diet_parameter(profile[i],0),
+              A, DIET_VOLATILE, DIET_DOUBLE, m, m, oA);
+          //print_matrix(A, m, m, (oA == DIET_ROW_MAJOR));
+          diet_matrix_set(diet_parameter(profile[i],1),
+              B, DIET_VOLATILE, DIET_DOUBLE, m, m, oB);
+          //print_matrix(B, m, m, (oB == DIET_ROW_MAJOR));
+
+        }
+        else {
+          fprintf(stderr, "Unknown problem: %s !\n", path);
+          rv = -1;
+          return;
+        }
+        int rst_call = 0;
+        if ((rst_call = diet_call_async(profile[i], &rst[i])) != 0)  printf("Error in diet_call_async return -%d-\n", rst_call);
+        printf("request ID value = -%d- \n", rst[i]);
+        if (rst[i] < 0) {
+          printf("error in request value ID");
+          return;
+        }
+      }
+      // print input data
+      IOWriterLock.lock();
+      printf("***********************************************************\n");
+      printf("Input data for requestID");
+      for (i = 0; i < 5; i++) printf(" %d ", rst[i]);
+      printf(" and omnithreadID %d \n", omni_thread::self()->id());
+      for (i = 0; i < 5; i++){
+        sprintf(requestID, "%d", rst[i]);
+        if (pb[0]) {
+          diet_matrix_get(diet_parameter(profile[i],0), NULL, NULL, (size_t*)&m, (size_t*)&n, &oA);
+          print_matrix(i, "-Input data-\n",requestID, A, m, n, (oA == DIET_ROW_MAJOR));
+        } 
+        else if (pb[1] || pb[2] || pb[3]) {  
+          diet_matrix_get(diet_parameter(profile[i],0), NULL, NULL, (size_t*)&m, (size_t*)&n, &oA);
+          print_matrix(i, "-Input data-\n",requestID, A, m, n, (oA == DIET_ROW_MAJOR));
+          if (pb[1]) {
+            diet_matrix_get(diet_parameter(profile[i],0), NULL, NULL, (size_t*)&m, (size_t*)&n, &oB);
+            print_matrix(i, "-Input data-\n",requestID, B, n, m, (oB == DIET_ROW_MAJOR));
+          } 
+          else {
+            diet_matrix_get(diet_parameter(profile[i],0), NULL, NULL, (size_t*)&m, (size_t*)&n, &oB);
+            print_matrix(i, "-Input data-\n",requestID, B, m, n, (oB == DIET_ROW_MAJOR));
+          }
+        } 
+        else if (pb[4]) {
+          diet_matrix_get(diet_parameter(profile[i],0), NULL, NULL, (size_t*)&m, (size_t*)&n, &oA);
+          diet_matrix_get(diet_parameter(profile[i],0), NULL, NULL, (size_t*)&m, (size_t*)&n, &oB);
+          print_matrix(i, "-Input data-\n",requestID, A, m, m, (oA == DIET_ROW_MAJOR));
+          print_matrix(i, "-Input data-\n",requestID,B, m, m, (oB == DIET_ROW_MAJOR));
+        }
+      }
+      printf("***********************************************************\n");
+      IOWriterLock.unlock();
+      // test all return rst
+      int rst_call = 0;
+      if ((rst_call = diet_wait_and((diet_reqID_t*)&rst, (unsigned int)5)) != 0) printf("Error in diet_wait_and\n");
+      //mutexWorker.lock();
+      IOWriterLock.lock();
+      printf("***********************************************************\n");
+      printf("Result data for requestID");
+      for (i = 0; i < 5; i++) printf(" %d ", rst[i]);
+      printf(" and omnithreadID %d \n", omni_thread::self()->id());
+      for (i = 0; i < 5; i++){
+        sprintf(requestID, "%d", rst[i]);
+        if (pb[0]) {
+          diet_matrix_get(diet_parameter(profile[i],0), NULL, NULL, (size_t*)&m, (size_t*)&n, &oA);
+          print_matrix(i, "-result-\n", requestID, A, m, n, (oA == DIET_ROW_MAJOR));
+        }
+        else if (pb[4]) {
+          diet_matrix_get(diet_parameter(profile[i],0), NULL, NULL, (size_t*)&m, (size_t*)&n, &oB);
+          print_matrix(i, "-result-\n", requestID, B, m, n, (oB == DIET_ROW_MAJOR));
+        }
+        else {
+          diet_matrix_get(diet_parameter(profile[i],2), &C, NULL, (size_t*)&m, (size_t*)&n, &oC);
+          print_matrix(i, "-result-\n", requestID, C, m, n, (oC == DIET_ROW_MAJOR));
+          diet_free_data(diet_parameter(profile[i],2));
+        }
+      }
+      printf("***********************************************************\n");
+      IOWriterLock.unlock();
+      for (i = 0; i < 5; i++){
+        diet_cancel(rst[i]);
+        diet_profile_free(profile[i]);
       }
       mutexWorker.lock();
     }
+    delete requestID;
     mutexWorker.unlock();
     return;
   }
@@ -250,7 +300,9 @@ class worker : public omni_thread {
   // public (otherwise the thread object can be destroyed while the
   // underlying thread is still running).
   ~worker() {
-    DIET_DEBUG(TEXT_OUTPUT(("DEBUT destruction worker")))
+      IOWriterLock.lock();
+    printf("Destroy thread");
+      IOWriterLock.unlock();
     mutexWorker.lock();
     if (thread_counter < (n_threads-1)){
       thread_counter++;
@@ -259,12 +311,11 @@ class worker : public omni_thread {
       end.broadcast();
     }
     mutexWorker.unlock();
-    DIET_DEBUG(TEXT_OUTPUT(("FIN destruction worker")))
   }
 
   void* make_arg(int i) { return (void*)new int(i); }
 
-public:
+  public:
 
   worker(int id) : omni_thread(make_arg(id)) {
     rv = id;
@@ -273,11 +324,11 @@ public:
 };
 
 
-int
+  int
 main(int argc, char* argv[])
 {
   int i;
-  DIET_DEBUG(TEXT_OUTPUT(("DEBUT du client parallelle Type 1 (diet_wait_and)")))
+  printf("Asynchronous client Type 3 (diet_wait_and)\n");
   srand(time(NULL));
   for (i = 1; i < argc - 2; i++) {
     if (strcmp("--repeat", argv[i]) == 0) {
@@ -318,6 +369,6 @@ main(int argc, char* argv[])
   //omni_thread::sleep(5);
   end.wait();
   diet_finalize();
-  DIET_DEBUG(TEXT_OUTPUT(("FIN du client parallelle Type 1 (diet_wait_and)")))
+  printf("END of asynchronous client Type 3 (diet_wait_and)\n");
   return 0;
 }
