@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2004/09/16 09:52:36  hdail
+ * Corrected bug whereby the option --repeat results in seg fault or server not
+ * found.  Current fix is to not re-use the profile; in longer-term we should
+ * verify why DIET fails when profile is re-used.
+ *
  * Revision 1.22  2004/02/25 22:35:34  ecaron
  * Clean Bruno's version (DIET 1.0 without data persistency)
  *
@@ -22,30 +27,7 @@
  * Revision 1.18  2003/07/25 20:37:36  pcombes
  * Separate the DIET API (slightly modified) from the GridRPC API (version of
  * the draft dated to 07/21/2003)
- *
- * Revision 1.17  2003/07/09 17:11:43  pcombes
- * Add --pause option to longer each step of the loop of submissions.
- *
- * Revision 1.15  2003/02/07 17:05:23  pcombes
- * Add SqMatSUM_opt with the new convertor API.
- * Use diet_free_data to properly free user's data.
- *
- * Revision 1.14  2003/01/27 17:55:49  pcombes
- * Bug fix on OUT matrix: C was not initialized.
- *
- * Revision 1.11  2002/12/24 08:25:38  lbertsch
- * Added a way to execute n tests by a command line argument :
- * Usage is : client --repeat <n> <cfg file> <op>
- *
- * Revision 1.8  2002/11/07 18:42:42  pcombes
- * Add includes and configured Makefile variables to install directory.
- * Update dgemm to the implementation that is hardcoded in FAST.
- *
- * Revision 1.7  2002/09/17 15:23:18  pcombes
- * Bug fixes on inout arguments and examples
- * Add support for omniORB 4.0.0
  ****************************************************************************/
-
 
 #include <string.h>
 #include <unistd.h>
@@ -56,7 +38,6 @@
 #include <time.h>
 
 #include "DIET_client.h"
-
 
 #define print_condition 1
 #define print_matrix(mat, m, n, rm)        \
@@ -104,10 +85,10 @@ main(int argc, char* argv[])
   int n_loops = 1;
   char* path = NULL;
   diet_profile_t* profile = NULL;
-  double mat1[9] = {1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0};
-  double mat2[9] = {10.0,11.0,12.0,13.0,14.0,15.0,16.0,17.0,18.0};
-  double* A = NULL;
-  double* B = NULL;
+  //double mat1[9] = {1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0};
+  //double mat2[9] = {10.0,11.0,12.0,13.0,14.0,15.0,16.0,17.0,18.0};
+  double A[9];
+  double B[9];
   double* C = NULL;
   diet_matrix_order_t oA, oB, oC;
 
@@ -149,12 +130,6 @@ main(int argc, char* argv[])
 #undef print_condition
 #define print_condition n_loops == 1
 
-  A = mat1;
-  B = mat2;
-
-  m = 3;
-  n = 2;
-
   if (diet_initialize(argv[1], argc, argv)) {
     fprintf(stderr, "DIET initialization failed !\n");
     return 1;
@@ -170,59 +145,80 @@ main(int argc, char* argv[])
   if ((STAT_FILE_NAME = getenv("DIET_STAT_FILE_NAME")))
     STAT_FILE = fopen(STAT_FILE_NAME, "wc");
   nb_of_requests = 0;
-  
-  oA = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
-  oB = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
-  oC = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
-    
-  if (pb[0]) {
-    
-    profile = diet_profile_alloc(path, -1, 0, 0);
-    diet_matrix_set(diet_parameter(profile,0),
-		    A, DIET_VOLATILE, DIET_DOUBLE, m, n, oA);
-    print_matrix(A, m, n, (oA == DIET_ROW_MAJOR));
-    
-  } else if (pb[1] || pb[2] || pb[3]) {
-    
-    profile = diet_profile_alloc(path, 1, 1, 2);
-    diet_matrix_set(diet_parameter(profile,0),
-		    A, DIET_VOLATILE, DIET_DOUBLE, m, n, oA);
-    print_matrix(A, m, n, (oA == DIET_ROW_MAJOR));
-    if (pb[1]) {
-      diet_matrix_set(diet_parameter(profile,1),
-		      B, DIET_VOLATILE, DIET_DOUBLE, n, m, oB);
-      print_matrix(B, n, m, (oB == DIET_ROW_MAJOR));
-      diet_matrix_set(diet_parameter(profile,2),
-		      NULL, DIET_VOLATILE, DIET_DOUBLE, m, m, oC);
-    } else {
-      diet_matrix_set(diet_parameter(profile,1),
-		      B, DIET_VOLATILE, DIET_DOUBLE, m, n, oB);
-      print_matrix(B, m, n, (oB == DIET_ROW_MAJOR));
-      diet_matrix_set(diet_parameter(profile,2),
-		      NULL, DIET_VOLATILE, DIET_DOUBLE, m, n, oC);
-    }
-    
-  } else if (pb[4]) {
-    
-    profile = diet_profile_alloc(path, 0, 1, 1);
-    diet_matrix_set(diet_parameter(profile,0),
-		    A, DIET_VOLATILE, DIET_DOUBLE, m, m, oA);
-    print_matrix(A, m, m, (oA == DIET_ROW_MAJOR));
-    diet_matrix_set(diet_parameter(profile,1),
-		    B, DIET_VOLATILE, DIET_DOUBLE, m, m, oB);
-    print_matrix(B, m, m, (oB == DIET_ROW_MAJOR));
-    
-  } else {
-    fprintf(stderr, "Unknown problem: %s !\n", path);
-    return 1;
-  } 
-    
-  gettimeofday(&tv, NULL);
-  sec = tv.tv_sec;
-  
+
+  oA = ((double)rand()/(double)RAND_MAX <= 0.5) ? DIET_ROW_MAJOR : 
+                                                  DIET_COL_MAJOR;
+  oB = ((double)rand()/(double)RAND_MAX <= 0.5) ? DIET_ROW_MAJOR : 
+                                                  DIET_COL_MAJOR;
+  oC = ((double)rand()/(double)RAND_MAX <= 0.5) ? DIET_ROW_MAJOR : 
+                                                  DIET_COL_MAJOR;
+  //printf("oA: %d oB: %d oC: %d\n", oA, oB, oC);
+
+  A[0] = 1.0; A[1] = 2.0; A[2] = 3.0; A[3] = 4.0; A[4] = 5.0;
+  A[5] = 6.0; A[6] = 7.0; A[7] = 8.0; A[8] = 9.0;
+
+  B[0] = 10.0; B[1] = 11.0; B[2] = 12.0; B[3] = 13.0; B[4] = 14.0;
+  B[5] = 15.0; B[6] = 16.0; B[7] = 17.0; B[8] = 18.0;
+
+  C = NULL;
+
+  if (pb[0]) { 
+    // Each repetition transposes result of last
+    // Set values only once
+    n = 2; m = 3; 
+  }
+
   for (i = 0; i < n_loops; i++) {
+    if (pb[3] || pb[4]){  // Square matrix problems
+      n = 2; m = 2;
+    } else if (pb[1] || pb[2]){
+      n = 2; m = 3;
+    }
+  
+    if (pb[0]) {
+      profile = diet_profile_alloc(path, -1, 0, 0);
+      diet_matrix_set(diet_parameter(profile,0),
+		      A, DIET_VOLATILE, DIET_DOUBLE, m, n, oA);
+      print_matrix(A, m, n, (oA == DIET_ROW_MAJOR));
+
+    } else if (pb[1] || pb[2] || pb[3]) {
+      
+      profile = diet_profile_alloc(path, 1, 1, 2);
+      diet_matrix_set(diet_parameter(profile,0),
+		      A, DIET_VOLATILE, DIET_DOUBLE, m, n, oA);
+      print_matrix(A, m, n, (oA == DIET_ROW_MAJOR));
+      if (pb[1]) {
+        diet_matrix_set(diet_parameter(profile,1),
+		        B, DIET_VOLATILE, DIET_DOUBLE, n, m, oB);
+        print_matrix(B, n, m, (oB == DIET_ROW_MAJOR));
+        diet_matrix_set(diet_parameter(profile,2),
+		        NULL, DIET_VOLATILE, DIET_DOUBLE, m, m, oC);
+      } else {
+        diet_matrix_set(diet_parameter(profile,1),
+		        B, DIET_VOLATILE, DIET_DOUBLE, m, n, oB);
+        print_matrix(B, m, n, (oB == DIET_ROW_MAJOR));
+        diet_matrix_set(diet_parameter(profile,2),
+		        NULL, DIET_VOLATILE, DIET_DOUBLE, m, n, oC);
+      }
+      
+    } else if (pb[4]) {
+ 
+      profile = diet_profile_alloc(path, 0, 1, 1);
+      diet_matrix_set(diet_parameter(profile,0),
+		      A, DIET_VOLATILE, DIET_DOUBLE, m, m, oA);
+      print_matrix(A, m, m, (oA == DIET_ROW_MAJOR));
+      diet_matrix_set(diet_parameter(profile,1),
+		      B, DIET_VOLATILE, DIET_DOUBLE, m, m, oB);
+      print_matrix(B, m, m, (oB == DIET_ROW_MAJOR));
+    
+    } else {
+      fprintf(stderr, "Unknown problem: %s !\n", path);
+      return 1;
+    } 
     
     gettimeofday(&tv, NULL);
+    sec = tv.tv_sec;
+  
     if ((STAT_FILE) && (tv.tv_sec >= sec + 1)) {
       fprintf(STAT_FILE, "%10ld.%06ld|%s|%d requests\n", 
 	      tv.tv_sec, tv.tv_usec, "INFO", nb_of_requests);
@@ -235,12 +231,13 @@ main(int argc, char* argv[])
       tv_pause.tv_usec = pause;
       select(0, NULL, NULL, NULL, &tv_pause);
     }
-    
+   
     nb_of_requests++;
     if (!diet_call(profile)) {
       if (pb[0]) {
 	diet_matrix_get(diet_parameter(profile,0), NULL, NULL, &m, &n, &oA);
 	print_matrix(A, m, n, (oA == DIET_ROW_MAJOR));
+        diet_free_data(diet_parameter(profile,0));
       } else if (pb[4]) {
 	diet_matrix_get(diet_parameter(profile,0), NULL, NULL, &m, &n, &oB);
 	print_matrix(B, m, n, (oB == DIET_ROW_MAJOR));
@@ -250,10 +247,10 @@ main(int argc, char* argv[])
 	diet_free_data(diet_parameter(profile,2));
       }
     }
-    
+    diet_profile_free(profile);
   }
 
-  diet_profile_free(profile);
+  //diet_profile_free(profile);
   diet_finalize();
 
   return 0;
