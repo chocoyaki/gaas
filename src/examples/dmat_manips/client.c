@@ -1,6 +1,6 @@
 /****************************************************************************/
-/* $Id$             */
-/* dmat_manips example: a DIET client for transpose, RSUM a and RPROD       */
+/* $Id$                */
+/* dmat_manips example: a DIET client for transpose, MatSUM and MatPROD     */
 /*   problems                                                               */
 /*                                                                          */
 /*  Author(s):                                                              */
@@ -10,14 +10,13 @@
 /*  Copyright (C) 2002 ReMaP/INRIA                                          */
 /*                                                                          */
 /****************************************************************************/
+/*
+ * $Log$
+ * Revision 1.2  2002/05/17 20:35:18  pcombes
+ * Version alpha without FAST
+ * */
 
-/* $Log$
-/* Revision 1.1.1.1  2002/05/16 10:49:09  pcombes
-/* Set source tree for DIET alpha version
-/* */
 
-
-#include <dlfcn.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -46,6 +45,7 @@
 int
 main(int argc, char **argv)
 {
+  char *path;
   sf_pb_desc_t pb;
   sf_data_desc_t *tmp;
   diet_data_seq_t in_data, inout_data, out_data;
@@ -54,26 +54,18 @@ main(int argc, char **argv)
   double mat2[6] = {7.0,8.0,9.0,10.0,11.0,12.0};
   double *A, *B, *C;
 
-  char *configfile[2] = {"MASTER", "nowhere.com"};
-
-
-
-  void *handle;
-  int (*DIET_Client)(int, char **,
-		     sf_pb_desc_t *,
-		     diet_data_seq_t *, diet_data_seq_t *, diet_data_seq_t *);
-  handle = dlopen(DIET_CLIENT_LIB, RTLD_LAZY);
-  DIET_Client = dlsym(handle, "DIET_Client");
-
-
-
+  char *configfile[3] = {"", "MASTER", "nowhere.com"};
+  char *PB[3] = {"T", "MatSUM", "MatPROD"};
+  size_t max_pb_length = 8;
+  
 
   if (argc != 3) {
-    fprintf(stderr, "Usage: client <file> [t|rsum|rprod]\n");
+    fprintf(stderr, "Usage: client <file> [T|MatSUM|MatPROD]\n");
     return 1;
   }
-
-  pb.path = malloc(6*sizeof(char));     /* nom du probleme */
+  path = argv[2];
+  
+  pb.path = malloc(max_pb_length*sizeof(char));     /* problem name */
   pb.param_desc = malloc(3*sizeof(sf_data_desc_t)); 
 
   A = mat1;
@@ -81,9 +73,9 @@ main(int argc, char **argv)
 
   // Filling pb desc and data
 
-  if (!strcmp(argv[2], "t")) {
+  if (!strcmp(path, PB[0])) {
     
-    strcpy(pb.path, "T");
+    strcpy(pb.path, path);
     pb.last_in    = -1;
     pb.last_inout = 0;
     pb.last_out   = 0;
@@ -113,10 +105,10 @@ main(int argc, char **argv)
 
     out_data.length = 0;
 
-  } else if (!strcmp(argv[2], "rsum")) {
+  } else if (!strcmp(path, PB[1])) {
     size_t i;
     
-    strcpy(pb.path, "RSUM");
+    strcpy(pb.path, path);
     pb.last_in    = 1;
     pb.last_inout = 1;
     pb.last_out   = 2;
@@ -171,12 +163,12 @@ main(int argc, char **argv)
   } else {
     size_t i;
 
-    if (!strcmp(argv[2], "rprod")) {
-      strcpy(pb.path, "RPROD");
+    if (!strcmp(path, PB[2])) {
+      strcpy(pb.path, path);
     } else {
       // this is unknown problem
-      strncpy(pb.path, argv[2], 5);
-      pb.path[6] = '\0';
+      strncpy(pb.path, path, max_pb_length - 1);
+      pb.path[max_pb_length] = '\0';
     }
     pb.last_in    = 1;
     pb.last_inout = 1;
@@ -213,8 +205,8 @@ main(int argc, char **argv)
     tmp->id = 2;
     tmp->type = sf_type_cons_mat;
     tmp->base_type = sf_type_base_double;
-    tmp->ctn.mat.nb_l  = 3;
-    tmp->ctn.mat.nb_c  = 2;
+    tmp->ctn.mat.nb_l  = 2;
+    tmp->ctn.mat.nb_c  = 3;
     tmp->ctn.mat.trans = 0;
     print_matrix(B,
 		 in_data.seq[1].desc.ctn.mat.nb_l,
@@ -222,7 +214,7 @@ main(int argc, char **argv)
     
     inout_data.length = 0;
     
-    out_data.length = 1;
+    out_data.length = 0;
     out_data.seq = malloc(sizeof(diet_data_t));
     out_data.seq[0].value = C;
     tmp = &(out_data.seq[0].desc);
@@ -230,28 +222,31 @@ main(int argc, char **argv)
     tmp->type = sf_type_cons_mat;
     tmp->base_type = sf_type_base_double;
     tmp->ctn.mat.nb_l  = 3;
-    tmp->ctn.mat.nb_c  = 2;
+    tmp->ctn.mat.nb_c  = 3;
     tmp->ctn.mat.trans = 0;
 
   }
     
-  (*DIET_Client)(3, configfile, &pb, &in_data, &inout_data, &out_data);
+  if (! DIET_client(3, configfile, &pb, &in_data, &inout_data, &out_data)) {
+    if (!strcmp(path, PB[0])) {
+      print_matrix(A,
+		   inout_data.seq[0].desc.ctn.mat.nb_l,
+		   inout_data.seq[0].desc.ctn.mat.nb_c);
+      print_matrix(mat1, 2, 3);
+    } else {
+      C = out_data.seq[0].value;
+      print_matrix(C,
+		   out_data.seq[0].desc.ctn.mat.nb_l,
+		   out_data.seq[0].desc.ctn.mat.nb_c);
+    }
+  }
   
-  if (!strcmp(argv[2], "t")) {
-    print_matrix(A,
-		 inout_data.seq[0].desc.ctn.mat.nb_l,
-		 inout_data.seq[0].desc.ctn.mat.nb_c);
-    print_matrix(mat1, 2, 3);
+  if (!strcmp(path, PB[0])) {
     free(inout_data.seq);
   } else {
-    C = out_data.seq[0].value;
-    print_matrix(C,
-		 out_data.seq[0].desc.ctn.mat.nb_l,
-		 out_data.seq[0].desc.ctn.mat.nb_c);
     free(in_data.seq);
     free(out_data.seq);
   }
-  
   free(pb.param_desc);     
 
   return 0;

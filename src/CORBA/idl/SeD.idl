@@ -1,5 +1,25 @@
-#ifndef __SED_IDL__
-#define __SED_IDL__
+/****************************************************************************/
+/* $Id$                 */
+/* DIET SeD IDL description                                                 */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Frederic LOMBARD          - LIFC Besançon (France)                  */
+/*    - Philippe COMBES           - LIP ENS Lyon (France)                   */
+/*                                                                          */
+/*  This is part of DIET software.                                          */
+/*  Copyright (C) 2002 ReMaP/INRIA                                          */
+/*                                                                          */
+/****************************************************************************/
+/*
+ * $Log$
+ * Revision 1.2  2002/05/17 20:35:17  pcombes
+ * Version alpha without FAST
+ *
+ */
+
+
+#ifndef _SED_IDL_
+#define _SED_IDL_
 
 #include "types.idl"
 
@@ -32,6 +52,4 @@ interface SeD {
 };
 
 
-
-
-#endif 
+#endif // _SED_IDL_

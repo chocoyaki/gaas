@@ -1,5 +1,5 @@
 /****************************************************************************/
-/* $Id$                  */
+/* $Id$                */
 /* DIET debug utils header                                                  */
 /*                                                                          */
 /*  Author(s):                                                              */
@@ -10,11 +10,11 @@
 /*  Copyright (C) 2002 ReMaP/LIFC/INRIA                                     */
 /*                                                                          */
 /****************************************************************************/
-
-/* $Log$
-/* Revision 1.1.1.1  2002/05/16 10:49:09  pcombes
-/* Set source tree for DIET alpha version
-/* */
+/*
+ * $Log$
+ * Revision 1.2  2002/05/17 20:35:18  pcombes
+ * Version alpha without FAST
+ * */
 
 
 #ifndef _DEBUG_HH_

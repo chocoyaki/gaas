@@ -1,5 +1,5 @@
 /****************************************************************************/
-/* $Id$            */
+/* $Id$          */
 /* DIET CORBA marshalling source code                                       */
 /*                                                                          */
 /*  Author(s):                                                              */
@@ -10,17 +10,19 @@
 /*  Copyright (C) 2002 ReMaP/INRIA                                          */
 /*                                                                          */
 /****************************************************************************/
-
-/* $Log$
-/* Revision 1.1.1.1  2002/05/16 10:49:09  pcombes
-/* Set source tree for DIET alpha version
-/* */
+/*
+ * $Log$
+ * Revision 1.2  2002/05/17 20:35:16  pcombes
+ * Version alpha without FAST
+ *
+ */
 
 
 #include <iostream.h>
 #include <stdlib.h>
 
 #include "marshalling.hh"
+#include "debug.hh"
 
 
 /*===========================================================================*/
@@ -33,7 +35,7 @@
 /***  Data descriptors ***/
 
 size_t
-sf_data_desc_sizeof(const sf_data_desc_t *dd)
+data_sizeof(const sf_data_desc_t *dd)
 {
   size_t size;
   
@@ -48,7 +50,7 @@ sf_data_desc_sizeof(const sf_data_desc_t *dd)
     size = dd->ctn.mat.nb_c * dd->ctn.mat.nb_l;
     break;
   default:
-    cerr << "sf_data_desc_sizeof: Error in type (cons type)\n";
+    cerr << "data_sizeof: Error in type (cons type)\n";
     size = 0;
   }
 
@@ -169,7 +171,7 @@ corba2sfDataDesc(sf_data_desc_t *dest, const corba_data_desc_t *src)
 void
 diet2corbaData(corba_data_t *dest, const diet_data_t *src)
 {
-  size_t size = sf_data_desc_sizeof(&(src->desc));
+  size_t size = data_sizeof(&(src->desc));
   
   sf2corbaDataDesc(&(dest->desc), &(src->desc));
 
@@ -208,29 +210,35 @@ diet2corbaData(corba_data_t *dest, const diet_data_t *src)
 void
 corba2dietData(diet_data_t *dest, const corba_data_t *src)
 {
+  int realloc_value = 0;
+  size_t size, data_size;
+
+
   corba2sfDataDesc(&(dest->desc), &(src->desc));
-  
+  data_size = data_sizeof(&(dest->desc));
+
   switch (dest->desc.base_type) {
   case sf_type_base_char: {
-    size_t size = src->value.sc().length();
-    if ((!dest->value) || (size != sf_data_desc_sizeof(&(dest->desc))))
+    size = src->value.sc().length();
+    if ((realloc_value = ((!dest->value) || (size > data_size))))
       dest->value = realloc(dest->value, size * sizeof(char));
     for (size_t i = 0; i < size; i++)
       ((char *) dest->value)[i] = src->value.sc()[i];
     break;
   }
   case sf_type_base_int: {
-    size_t size = src->value.sl().length();
-    if ((!dest->value) || (size != sf_data_desc_sizeof(&(dest->desc))))
+    size = src->value.sl().length();
+    if ((realloc_value = ((!dest->value) || (size > data_size))))
       dest->value = realloc(dest->value, size * sizeof(int));
     for (size_t i = 0; i < size; i++)
       ((int *) dest->value)[i] = src->value.sl()[i];
     break;
   }
   case sf_type_base_double: {
-    size_t size = src->value.sd().length();
-    if ((!dest->value) || (size != sf_data_desc_sizeof(&(dest->desc))))
+    size = src->value.sd().length();
+    if ((realloc_value = ((!dest->value) || (size > data_size)))) {
       dest->value = realloc(dest->value, size * sizeof(double));
+    }
     for (size_t i = 0; i < size; i++)
       ((double *) dest->value)[i] = src->value.sd()[i];
     break;
@@ -238,7 +246,8 @@ corba2dietData(diet_data_t *dest, const corba_data_t *src)
   default:
     cerr << "corba2dietData: Error in type conversion (base type)\n";
   }
-  dest->to_be_freed = 1;
+  if (realloc_value)
+    dest->to_be_freed = 1;
 }
 
 /* Allocate dest sequence if necessary */
@@ -246,7 +255,7 @@ corba2dietData(diet_data_t *dest, const corba_data_t *src)
 void
 diet2corbaDataSeq(SeqCorba_data_t *dest, const diet_data_seq_t *src) 
 {
-  int all_is_new = (dest->length() != src->length);
+  int all_is_new = ((!dest->length()) || (dest->length() != src->length));
   
   if (all_is_new)
     dest->length(src->length);
@@ -288,11 +297,13 @@ diet2corbaDataSeq(SeqCorba_data_t *dest, const diet_data_seq_t *src)
 void
 corba2dietDataSeq(diet_data_seq_t *dest, const SeqCorba_data_t *src)
 { 
-  int all_is_new = ((! dest->seq) || (dest->length != src->length()));
+  int all_is_new = ((!dest->seq) || (dest->length != src->length()));
   
-  dest->length = src->length();  
-  if (all_is_new)
-    dest->seq = (diet_data_t *) realloc(dest->seq, dest->length);
+  dest->length = src->length();
+  if (all_is_new) {
+    dest->seq = (diet_data_t *) realloc(dest->seq,
+					dest->length * sizeof(diet_data_t));
+  }
   
   for (size_t i = 0; i < dest->length; i++) {
     if (all_is_new) {
