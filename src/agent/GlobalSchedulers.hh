@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2004/10/15 08:21:17  hdail
+ * - Removed references to corba_response_t->sortedIndexes - no longer useful.
+ * - Removed sort functions -- they have been replaced by aggregate and are never
+ *   called.
+ *
  * Revision 1.1  2003/04/10 12:58:08  pcombes
  * Interface for global schedulers, called by agents and associated to
  * requests. Add an implementation of this interface: StdGS.
@@ -37,15 +42,6 @@ public:
   GlobalScheduler();
   virtual
   ~GlobalScheduler();
-
-  /**
-   * Sort a sequence of servers depending on the GlobalScheduler type.
-   *
-   * The data for the servers are stored in \c servers, and the sequence
-   * \c sortedIndexes keeps track of their order.
-   */
-  virtual int
-  sort(SeqLong* sortedIndexes, SeqServerEstimation_t* servers) = 0;
 
   /**
    * Aggregate and sort all servers of the \c responses. This method provides a
@@ -105,14 +101,6 @@ public:
   /** Initialize this global scheduler (build its list of schedulers). */
   void
   init();
-
-  /**
-   * Implement virtual sort method of class GlobalScheduler.
-   * Sort the servers as follows:
-   *  | ... FAST servers ... | ... NWS servers ... | ... Others ... |
-   */
-  int
-  sort(SeqLong* sortedIndexes, SeqServerEstimation_t* servers);
 
   /** Return the serialized StdGS (a string). */
   static char*

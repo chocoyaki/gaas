@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2004/10/15 08:21:17  hdail
+ * - Removed references to corba_response_t->sortedIndexes - no longer useful.
+ * - Removed sort functions -- they have been replaced by aggregate and are never
+ *   called.
+ *
  * Revision 1.4  2004/09/14 12:43:55  hdail
  * Changed cleanup of ser_sched from delete to free to agree with alloc.
  *
@@ -127,11 +132,10 @@ GlobalScheduler::aggregate(corba_response_t* aggrResp, size_t max_srv,
 
   for (size_t i = 0; i < nb_responses; i++) {
     lastAggr[i]    = -1;
-    total_size    += responses[i].sortedIndexes.length();
+    total_size    += responses[i].servers.length();
   }
   if (max_srv == 0)
     max_srv = total_size; // keep all servers
-  aggrResp->sortedIndexes.length(MIN(total_size, max_srv));
   aggrResp->servers.length(MIN(total_size, max_srv));
 
   while (iter->hasCurrent()) {
@@ -227,23 +231,4 @@ StdGS::serialize(StdGS* GS)
   }
   delete iter;
   return res;
-}
-
-int
-StdGS::sort(SeqLong* sortedIndexes, SeqServerEstimation_t* servers)
-{
-  int lastSorted = -1;
-  int res;
-  SchedList::Iterator* iter = this->schedulers.getIterator();
-  
-  SCHED_TRACE_FUNCTION(servers->length() << " servers");
-  while (iter->hasCurrent() && lastSorted < (int)servers->length()) {
-    Scheduler* sched = iter->getCurrent();
-    if ((res = sched->sort(sortedIndexes, &lastSorted, servers)))
-      return res;
-    iter->next();
-  }
-  if (lastSorted < (int)servers->length())
-    WARNING("all servers have not been sorted");
-  return 0;
 }

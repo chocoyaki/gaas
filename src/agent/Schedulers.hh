@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2004/10/15 08:21:17  hdail
+ * - Removed references to corba_response_t->sortedIndexes - no longer useful.
+ * - Removed sort functions -- they have been replaced by aggregate and are never
+ *   called.
+ *
  * Revision 1.2  2003/05/05 14:50:15  pcombes
  * Changing the computation of server weights changes NWSScheduler fields.
  *
@@ -76,20 +81,6 @@ public:
 	    const corba_response_t* responses, int* lastAggr);
 
   /**
-   * Sort the servers depending on the scheduler type.
-   *
-   * The data for the servers are stored in \c servers, and the sequence
-   * \c sortedIndexes keeps track of their order.
-   * The sorting starts at index \c *lastSorted in \c sortedIndexes, and takes
-   * effect on servers that gave the information appropriate to the scheduler
-   * type. After the sorting has completed, \c *lastSorted contains the index in
-   * \c sortedIndexes of the last server that could be sorted.
-   */
-  virtual int
-  sort(SeqLong* sortedIndexes, int* lastSorted,
-       SeqServerEstimation_t* servers) = 0;
-  
-  /**
    * Return the serialized scheduler (a string)
    * NB: doubles are serialized with a precision of 10 significant decimals.
    */
@@ -101,14 +92,6 @@ public:
    */
   static Scheduler*
   deserialize(char* serializedScheduler);
-
-  /**
-   * This is the gcclib qsort adapted to servers / sortedIndexes (to avoid deep
-   * copy of corba_server_t structures while sorting).
-   */
-  virtual void
-  qsort(CORBA::Long* const base, size_t nb_elems, const void* info);
-
 
 protected:
   const char*  name;
@@ -150,10 +133,6 @@ public:
   FASTScheduler(double epsilon);
   virtual
   ~FASTScheduler();
-
-  /** Implement vritual sort method of class Scheduler. */
-  int
-  sort(SeqLong* sortedIndexes, int* lastSorted, SeqServerEstimation_t* servers);
 
   /**
    * Return the serialized FAST scheduler (a string)
@@ -205,10 +184,6 @@ public:
   virtual
   ~NWSScheduler();
 
-  /** Implement vritual sort method of class Scheduler. */
-  int
-  sort(SeqLong* sortedIndexes, int* lastSorted, SeqServerEstimation_t* servers);
-
   /**
    * Return the serialized NWS scheduler (a string)
    * NB: doubles are serialized with a precision of 10 significant decimals.
@@ -243,10 +218,6 @@ public:
   RandScheduler(unsigned int seed);
   virtual
   ~RandScheduler();
-
-  /** Implement vritual sort method of class Scheduler. */
-  int
-  sort(SeqLong* sortedIndexes, int* lastSorted, SeqServerEstimation_t* servers);
 
   /**
    * Return the serialized Rand scheduler (a string)

@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2004/10/15 08:21:17  hdail
+ * - Removed references to corba_response_t->sortedIndexes - no longer useful.
+ * - Removed sort functions -- they have been replaced by aggregate and are never
+ *   called.
+ *
  * Revision 1.5  2004/09/14 12:45:28  hdail
  * Changed mispelling of input variable for NWSScheduler variable.  Should correct
  * bug where can not change setting of epsilon for NWSScheduler.
@@ -118,19 +123,6 @@ Scheduler::deserialize(char* serializedScheduler)
   }
 }
 
-extern void
-gcclib_quicksort(void* const pbase, size_t total_elems, size_t size,
-		 comp_fun_t cmp, SeqServerEstimation_t* servers,
-		 const void* info);
-
-void
-Scheduler::qsort(CORBA::Long* const base, size_t nb_elems, const void* info)
-{
-  gcclib_quicksort(base, nb_elems, sizeof(CORBA::Long),
-		   this->compare, this->servers, info);
-}
-
-
 /* agregate is non-static: use this->name for the SCHED_TRACE_FUNCTION */
 #undef SCHED_CLASS
 #define SCHED_CLASS this->name
@@ -209,8 +201,8 @@ Scheduler::aggregate(corba_response_t& aggrResp, int* lastAggregated,
 	  (levels[i])[j] = *fst;					       \
 	else {								       \
 	  int cmp =							       \
-	    (*compare)(&(responses[fst->resp_idx].sortedIndexes[fst->srv_idx]),\
-		       &(responses[snd->resp_idx].sortedIndexes[snd->srv_idx]),\
+	    (*compare)(&(fst->srv_idx),                                        \
+		       &(snd->srv_idx),                                        \
 		       &(responses[fst->resp_idx].servers),		       \
 		       &(responses[snd->resp_idx].servers),		       \
 		       this->cmpInfo);					       \
@@ -278,18 +270,15 @@ Scheduler::aggregate(corba_response_t& aggrResp, int* lastAggregated,
 
   while ((root->resp_idx != -1)
 	 && (*lastAggregated < ((int)aggrResp.servers.length() - 1))) {
-    size_t sorted_idx;
+    size_t new_srv_idx;
     (*lastAggregated)++;
-    // FIXME: The deep copy of the server, makes the sortedIndexes field
-    // useless for the default scheduler ...
-    aggrResp.sortedIndexes[*lastAggregated] = *lastAggregated;
-    sorted_idx = responses[root->resp_idx].sortedIndexes[root->srv_idx];
     aggrResp.servers[*lastAggregated]
-      = responses[root->resp_idx].servers[sorted_idx];
-    // re-use sorted_idx
-    sorted_idx = ++leaves[root->resp_idx].srv_idx;
-    if (sorted_idx >= responses[root->resp_idx].servers.length())
+      = responses[root->resp_idx].servers[root->srv_idx];
+
+    new_srv_idx = ++leaves[root->resp_idx].srv_idx;
+    if (new_srv_idx >= responses[root->resp_idx].servers.length()){
       leaves[root->resp_idx].resp_idx = -1; // this response is aggregated
+    }
     UPDATE_TREE(levels,pow,responses);
     if (TRACE_LEVEL >= TRACE_ALL_STEPS){
       TRACE_TREE(levels,pow);
@@ -397,69 +386,6 @@ FASTScheduler::serialize(FASTScheduler* S)
   sprintf(res, "%s,%.10g", S->stName, S->epsilon);
   return res;
 }
-
-
-/** Implement vritual sort method of class Scheduler. */
-int
-FASTScheduler::sort(SeqLong* sortedIndexes, int* lastSorted,
-		    SeqServerEstimation_t* servers)
-{
-  CORBA::Long* seq;
-  int i;
-  corba_estimation_t* ref;
-  corba_estimation_t* curr;
-
-  SCHED_TRACE_FUNCTION(servers->length() << " servers");
-
-  this->servers = servers;
-
-  if (!lastSorted || (*lastSorted > (int)sortedIndexes->length()))
-    return 1;
-  if (*lastSorted >= (int)sortedIndexes->length() - 1) {
-    return 0;
-  }
-
-  /* Perform a first sort (using qsort) */
-  seq = sortedIndexes->get_buffer() + *lastSorted + 1;
-  // DEBUG
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS) {
-    cout << "Subsequence [" << *lastSorted + 1 << "-"
-	 << sortedIndexes->length() << "] before: |";
-    for (int j = *lastSorted + 1; j < (int)sortedIndexes->length(); j++)
-      cout << (*sortedIndexes)[j] << '|';
-    cout << endl;
-  }
-  this->qsort(seq, sortedIndexes->length() - (*lastSorted + 1), NULL);
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS) {
-    cout << "Subsequence [" << *lastSorted + 1 << "-"
-	 << sortedIndexes->length() << "] after : |";
-    for (int j = *lastSorted + 1; j < (int)sortedIndexes->length(); j++)
-      cout << (*sortedIndexes)[j] << '|';
-    cout << endl;
-  }
-
-  /* Shuffle servers that have almost the same performances */
-  i = *lastSorted + 1;
-  ref = &((*servers)[(*sortedIndexes)[i]].estim);
-  while ((i < (int)sortedIndexes->length()) && (ref->tComp < HUGE_VAL)) {
-    // Find the last server having performances differing of less than epsilon
-    // from the ones of the reference.
-    int j = i;
-    curr = &((*servers)[(*sortedIndexes)[j]].estim);
-    while ((j < (int)sortedIndexes->length()) && (curr->tComp < HUGE_VAL)
-	   && (curr->totalTime <= ref->totalTime * (1 + this->epsilon))) {
-      curr = &((*servers)[(*sortedIndexes)[j++]].estim);
-    }
-    random_permute(sortedIndexes, i, j - 1);
-    i = j;
-    ref = &((*servers)[(*sortedIndexes)[i]].estim);
-  }
-
-  *lastSorted = i - 1;
-  return 0;
-}
-
-
 
 /****************************************************************************/
 /* NWS Scheduler                                                            */
@@ -607,72 +533,7 @@ NWSScheduler::serialize(NWSScheduler* S)
 
 #undef nb_mb
 
-int
-NWSScheduler::sort(SeqLong* sortedIndexes, int* lastSorted,
-		   SeqServerEstimation_t* servers)
-{
-  CORBA::Long* seq;
-  int i;
-  corba_estimation_t* ref;
-  corba_estimation_t* curr;
-  double ref_weight, curr_weight;
-
-  SCHED_TRACE_FUNCTION(servers->length() << " servers");
-
-  this->servers = servers;
-
-  if (!lastSorted || (*lastSorted > (int)sortedIndexes->length()))
-    return 1;
-  if (*lastSorted >= (int)sortedIndexes->length() - 1) {
-    return 0;
-  }
-
-  /* Perform a first sort (using qsort) */
-  seq = sortedIndexes->get_buffer()+ *lastSorted + 1;
-  // DEBUG
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS) {
-    cout << "Subsequence [" << *lastSorted + 1 << "-"
-	 << sortedIndexes->length() << "] before: |";
-    for (int j = *lastSorted + 1; j < (int)sortedIndexes->length(); j++)
-      cout << (*sortedIndexes)[j] << '|';
-    cout << endl;
-  }
-  this->qsort(seq, sortedIndexes->length() - (*lastSorted + 1), &(this->wi));
-  // DEBUG
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS) {
-    cout << "Subsequence [" << *lastSorted + 1 << "-"
-	 << sortedIndexes->length() << "] after : |";
-    for (int j = *lastSorted + 1; j < (int)sortedIndexes->length(); j++)
-      cout << (*sortedIndexes)[j] << '|';
-    cout << endl;
-  }
-
-  /* Shuffle servers that have almost the same performances */
-  i = *lastSorted + 1;
-  ref = &((*servers)[(*sortedIndexes)[i]].estim);
-  while ((i < (int)sortedIndexes->length()) && (ref->freeCPU >= 0)) {
-    // Find the last server having performances differing of less than epsilon
-    // from the ones of the reference.
-    int j = i;
-    ref_weight = WEIGHT(ref, &(this->wi));
-    curr = &((*servers)[(*sortedIndexes)[j]].estim);
-    curr_weight = WEIGHT(curr, &(this->wi));
-    while ((j < (int)sortedIndexes->length()) && (curr->freeCPU >= 0)
-	   && (curr_weight <= ref_weight * (1 + this->epsilon))) {
-      curr = &((*servers)[(*sortedIndexes)[j++]].estim);
-      curr_weight = WEIGHT(curr, &(this->wi));
-    }
-    random_permute(sortedIndexes, i, j - 1);
-    i = j;
-    ref = &((*servers)[(*sortedIndexes)[i]].estim);
-  }
-
-  *lastSorted = i - 1;
-  return 0;
-}
-
 #undef WEIGHT
-
 
 
 /****************************************************************************/
@@ -739,22 +600,6 @@ RandScheduler::deserialize(char* serializedScheduler)
   SCHED_TRACE_FUNCTION(serializedScheduler);
   return new RandScheduler();
 }
-
-/** Implement vritual sort method of class Scheduler. */
-int
-RandScheduler::sort(SeqLong* sortedIndexes, int* lastSorted,
-		    SeqServerEstimation_t* servers)
-{
-  SCHED_TRACE_FUNCTION(servers->length() << " servers");
-
-  if (!lastSorted || (*lastSorted > (int)sortedIndexes->length()))
-    return 1;
-  random_permute(sortedIndexes, *lastSorted + 1, sortedIndexes->length() - 1);
-  *lastSorted = sortedIndexes->length();
-  return 0;
-}
-
-
 
 /****************************************************************************/
 /* Utils                                                                    */
