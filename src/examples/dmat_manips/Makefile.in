@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.19  2004/01/07 23:07:12  cpera
+#* Add new asynchronous example "parallelclient4.cc" about diet_wait_or function.
+#*
 #* Revision 1.18  2003/10/21 13:32:28  bdelfabr
 #* removing clientWithID and clientWithoutID examples
 #*
@@ -30,7 +33,7 @@
 srcdir = @srcdir@
 subdir = src/examples/dmat_manips
 SOURCES = client.c server.c serialClient.cc \
-	  parallelClient.cc parallelClient2.cc parallelClient3.cc
+	  parallelClient.cc parallelClient2.cc parallelClient3.cc parallelClient4.cc
 HEADERS = progs.h Global_macros.hh
 #
 # before.mk includes the right Makefile.inc. Indeed, the user might wish to
@@ -46,7 +49,7 @@ include ../before.mk
 ##
 
 CC_PROGRAMS = client server
-CXX_PROGRAMS = serialClient parallelClient parallelClient2 parallelClient3
+CXX_PROGRAMS = serialClient parallelClient parallelClient2 parallelClient3 parallelClient3 parallelClient4
 PROGRAMS = $(CC_PROGRAMS) $(CXX_PROGRAMS)
 
 
