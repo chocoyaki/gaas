@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2003/10/13 13:02:22  cpera
+ * Replace long by CORBA::Long.
+ *
  * Revision 1.2  2003/06/02 14:51:54  cpera
  * Applying coding standards on Callback.idl.
  *
@@ -29,13 +32,13 @@ class CallbackImpl : public POA_Callback,
 public:
   CallbackImpl();
   virtual ~CallbackImpl();
-  virtual long ping();
-  virtual long notifyResults(const char * path,
+  virtual CORBA::Long ping();
+  virtual CORBA::Long notifyResults(const char * path,
                             const corba_profile_t& pb,
-			    long reqID);
-  virtual long solveResults(const char * path, 
+                            CORBA::Long reqID);
+  virtual CORBA::Long solveResults(const char * path, 
                             const corba_profile_t& pb,
-			    long reqID);
+                            CORBA::Long reqID);
 };
 
 #endif

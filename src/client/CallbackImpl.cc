@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2003/10/13 13:02:22  cpera
+ * Replace long by CORBA::Long.
+ *
  * Revision 1.4  2003/09/25 10:06:24  cpera
  * Delete messages and useless include.
  *
@@ -38,21 +41,21 @@ CallbackImpl::~CallbackImpl()
   // nothing
 }
 
-long CallbackImpl::ping()
+CORBA::Long CallbackImpl::ping()
 {
   return 0;
 }
 
-long CallbackImpl::notifyResults(const char * path,
+CORBA::Long CallbackImpl::notifyResults(const char * path,
     const corba_profile_t& pb,
-    long reqID)
+    CORBA::Long reqID)
 {
   return 0;
 }
 
-long CallbackImpl::solveResults(const char * path, 
+CORBA::Long CallbackImpl::solveResults(const char * path, 
     const corba_profile_t& pb,
-    long reqID)
+    CORBA::Long reqID)
 {
   // notify solve result availability
   return CallAsyncMgr::Instance()->notifyRst(int(reqID), &(const_cast<corba_profile_t&>(pb)));
