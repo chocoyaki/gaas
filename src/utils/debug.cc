@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2003/09/24 09:10:01  pcombes
+ * Merge corba_DataMgr_desc_t and corba_data_desc_t.
+ *
  * Revision 1.13  2003/07/04 09:48:08  pcombes
  * Remove oldies
  *
@@ -129,7 +132,7 @@ displayArg(FILE* f, const corba_data_desc_t* arg)
     case DIET_DCOMPLEX: fprintf(f, "double complex"); break;
     }
   }
-  fprintf(f, ", id=|%s|", arg->id.in());
+  fprintf(f, ", id=|%s|", arg->id.idNumber.in());
 }
 
 void

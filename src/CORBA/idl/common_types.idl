@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2003/09/24 09:07:52  pcombes
+ * Merge corba_DataMgr_desc_t and corba_data_desc_t.
+ *
  * Revision 1.4  2003/09/22 21:06:54  pcombes
  * Add the type corba_data_id_t for data persistency.
  *
@@ -33,6 +36,26 @@ typedef sequence<double> SeqDouble;
 typedef sequence<long>   SeqLong;
 typedef sequence<char>   SeqChar;
 typedef sequence<string> SeqString;
+
+
+
+/****************************************************************************/
+/* DATA PERISTENCY: Data Description for Data Manager                       */
+/****************************************************************************/
+
+/** State of the data */
+enum occupationFlag {DIET_FREE, DIET_INUSE, DIET_TRANSFERT};
+/**
+ * Flag used to manage data coherence: data only registered on one Data Manager
+ */
+enum kleenexFlag {DIET_ORIGINAL, DIET_KLEENEXCOPY};
+
+/** Structure of the Data Identifier */
+struct corba_data_id_t {
+  string idNumber;
+  kleenexFlag dataCopy;
+  occupationFlag state;
+};
 
 
 /****************************************************************************/
@@ -85,7 +108,7 @@ struct corba_file_specific_t {
  * The field 'type' in diet_data_desc_t is the discriminant of union field
  */
 struct corba_data_desc_t {
-  string id;
+  corba_data_id_t id;
   long mode;
   long base_type;
   union type switch (long) {
@@ -193,49 +216,6 @@ struct corba_estimation_t {
   long      nbCPU;
 };
 
-
-/****************************************************************************/
-/* Data Description for Data Manager                                        */
-/****************************************************************************/
-
-/* state of the data */
-enum occupationFlag {DIET_FREE, DIET_INUSE, DIET_TRANSFERT};
-/* flag used to manage data coherence : data only registered on one Data Manager */
-enum kleenexFlag {DIET_ORIGINAL, DIET_KLEENEXCOPY};
-
-/* structure of the Data Identifier  */
-struct corba_data_id_t {
-  string idNumber;
-  /* Name of the Data Manager which hold the Data */
-  string myName;
-  kleenexFlag dataCopy;
-  occupationFlag state;
-};
-
-
-// FIXME: Why a new type ???
-
-struct corba_DataMgr_desc_t {
-   corba_data_id_t dataID;
-/* equal to corba_data_t */
-  SeqChar value;
-   //corba_type_base_t base_type;
-  long base_type;
-  long mode;
-  //any type;
-  union type switch (long) {
-  case 0:
-    corba_scalar_specific_t scal;
-  case 1:
-    corba_vector_specific_t vect;
-  case 2:
-    corba_matrix_specific_t mat;
-  case 3:
-    corba_string_specific_t str;
-  case 4:
-    corba_file_specific_t   file;
-  } specific;
-};
 
 #endif // _COMMON_TYPES_IDL_
 

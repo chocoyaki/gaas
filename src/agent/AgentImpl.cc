@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2003/09/24 09:11:58  pcombes
+ * Merge corba_DataMgr_desc_t and corba_data_desc_t.
+ *
  * Revision 1.11  2003/09/22 21:07:52  pcombes
  * Set all the modules and their interfaces for data persistency.
  *
@@ -362,14 +365,14 @@ AgentImpl::findServer(Request* req, size_t max_srv)
 	  /* IN args : compute comm time if they are volatile or if their id is
 	     non assigned yet (which means it is not stored in the platform) */
 	  if (((creq.pb.param_desc[i].mode == DIET_VOLATILE)
-	       || (*(creq.pb.param_desc[i].id) == '\0'))) {
+	       || (*(creq.pb.param_desc[i].id.idNumber) == '\0'))) {
 	    time[j] = getCommTime(resp_j->myID, size);
 	  }
 	} else if ((int)i <= creq.pb.last_inout) {
 	  /* INOUT args: add comm times for both directions IN (with the
 	     conditions above) and OUT (with the conditions below) */
 	  if ((creq.pb.param_desc[i].mode == DIET_VOLATILE)
-	      || (*(creq.pb.param_desc[i].id) == '\0')) {
+	      || (*(creq.pb.param_desc[i].id.idNumber) == '\0')) {
 	    time[j] = getCommTime(resp_j->myID, size);
 	  }
 	  if (creq.pb.param_desc[i].mode <= DIET_PERSISTENT_RETURN) {

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2003/09/24 09:15:38  pcombes
+ * Merge corba_DataMgr_desc_t and corba_data_desc_t.
+ *
  * Revision 1.11  2003/09/22 21:17:54  pcombes
  * Set all the modules and their interfaces for data persistency.
  *
@@ -483,7 +486,7 @@ SeDImpl::estimate(corba_estimation_t& estimation,
     // determine the transfer time of all IN and INOUT parameters.
     if ((pb.param_desc[i].mode > DIET_VOLATILE)
 	&& (pb.param_desc[i].mode <= DIET_STICKY)
-	&& (*(pb.param_desc[i].id) != '\0')) {
+	&& (*(pb.param_desc[i].id.idNumber) != '\0')) {
       estimation.commTimes[i] = 0;  // getTransferTime(pb.params[i].id);
     }
   }

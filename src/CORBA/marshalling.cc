@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.32  2003/09/24 09:07:52  pcombes
+ * Merge corba_DataMgr_desc_t and corba_data_desc_t.
+ *
  * Revision 1.31  2003/09/22 21:06:22  pcombes
  * Rollback after Bruno's too quick commit.
  *
@@ -151,7 +154,7 @@ int
 mrsh_data_desc(corba_data_desc_t* dest, diet_data_desc_t* src)
 {
   if (src->id)
-    dest->id = CORBA::string_dup(src->id); // deallocates old dest->id
+    dest->id.idNumber = CORBA::string_dup(src->id); // deallocates old dest->id
   dest->mode = src->mode;
   dest->base_type = src->generic.base_type;
 
@@ -257,7 +260,7 @@ unmrsh_scalar_desc(diet_data_desc_t* dest, const corba_data_desc_t* src)
 {
   void* value(NULL);
   diet_base_type_t bt = (diet_base_type_t)src->base_type;
-  char* id = CORBA::string_dup(src->id);
+  char* id = CORBA::string_dup(src->id.idNumber);
 
   switch(bt) {
   case DIET_CHAR:
@@ -305,7 +308,7 @@ int
 unmrsh_data_desc(diet_data_desc_t* dest, const corba_data_desc_t* src)
 {
   diet_base_type_t bt = (diet_base_type_t)src->base_type;
-  char* id = CORBA::string_dup(src->id);
+  char* id = CORBA::string_dup(src->id.idNumber);
 
   switch ((diet_data_type_t) src->specific._d()) {
   case DIET_SCALAR: {

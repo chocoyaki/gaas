@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2003/09/24 09:09:39  pcombes
+ * Merge corba_DataMgr_desc_t and corba_data_desc_t.
+ *
  * Revision 1.13  2003/09/22 21:09:20  pcombes
  * Set all the modules and their interfaces for data persistency.
  *
@@ -209,8 +212,6 @@ size_t
 data_sizeof(const diet_data_desc_t* desc);
 size_t
 data_sizeof(const corba_data_desc_t* desc);
-size_t
-data_sizeof(const corba_DataMgr_desc_t* desc);
 
 
 /* There should be no use of allocating and freeing functions */
