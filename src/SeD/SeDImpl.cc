@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2003/10/21 13:27:35  bdelfabr
+ * Set persistence flag to 0
+ *
  * Revision 1.17  2003/10/14 20:28:32  bdelfabr
  * adding method after solved problem to print the list of data owned by the DataManager (PERSISTENT mode only)
  *
@@ -73,7 +76,7 @@ using namespace std;
 #include "Parsers.hh"
 #include "statistics.hh"
 
-#define DEVELOPPING_DATA_PERSISTENCY 1
+#define DEVELOPPING_DATA_PERSISTENCY 0
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
