@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2004/02/27 10:25:11  bdelfabr
+ * methods for data id creation and  methods to retrieve data descriptor are added
+ *
  * Revision 1.2  2003/05/10 08:53:34  pcombes
  * New format for configuration files, new Parsers.
  *
@@ -56,10 +59,32 @@ public :
   updateRefs();
 #endif // HAVE_MULTI_MA
 
+  /** get session id */
+  virtual  CORBA::Long 
+  get_session_num();
+
+  /** returns id of a data */
+  virtual  char * 
+  get_data_id();
+  
+  /** returns true if data present, FALSE elsewhere */
+  virtual CORBA::ULong  
+  dataLookUp(const char* argID);
+
+  /** return the descriptor the the data */
+   corba_data_desc_t* 
+   get_data_arg(const char* argID);
+
+  /** removes data from the list */
+  virtual CORBA::Long 
+  diet_free_pdata(const char *argID);
+
+
 private :
   /** ID of next incoming request. */
   Counter reqIDCounter;
-
+  Counter num_session;
+  Counter num_data;
 #if HAVE_MULTI_MA
   /* Known MAs : */
   typedef NodeDescription<MasterAgent_ptr, MasterAgent_var> MADescription;
@@ -67,6 +92,8 @@ private :
   typedef LinkedList<const char*> StrList;
   MAList knownMAs;
 #endif // HAVE_MULTI_MA
+  void
+  cp_arg_to_pb(corba_data_desc_t& pb, corba_data_desc_t arg_desc);
 
 }; // MasterAgentImpl
 
