@@ -8,6 +8,10 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.13  2003/06/23 13:13:27  pcombes
+#* Re-Submit BLAS and ScaLAPACK detection to "enable" options.
+#* Change configuration summary (more complete)
+#*
 #* Revision 1.12  2003/06/16 17:51:06  pcombes
 #* Remove src/examples/dmat_manips_async.
 #*
@@ -139,28 +143,27 @@ dnl ###########################################################################
 dnl ###########################################################################
 AC_ARG_ENABLE(Cichlid,
 	      AC_HELP_STRING([--enable-Cichlid],
-	                 [enable generation of communication logs for Cichlid]),
-              HAVE_CICHLID=true, HAVE_CICHLID=false)
-if test "x$HAVE_CICHLID" = "xtrue"; then
+	                 [enable generation of communication logs for Cichlid]))
+if test "x$enable_CICHLID" = "xyes"; then
   AC_DEFINE(HAVE_CICHLID,1,[Define use of communication tools])
 fi
 
 AC_ARG_ENABLE(stats,
 	      AC_HELP_STRING([--enable-stats],
-			     [enable generation of statistics logs]),
-              HAVE_STATISTICS=true, HAVE_STATISTICS=false)
-if test "x$HAVE_STATISTICS" = "xtrue"; then
+			     [enable generation of statistics logs]))
+if test "x$enable_stats" = "xyes"; then
   AC_DEFINE(HAVE_STATISTICS)
   IDLFLAGS="$IDLFAGS -DHAVE_STATISTICS"
+  HAVE_STATISTICS=yes
 fi
 
 AC_ARG_ENABLE(multi-MA,
 	      AC_HELP_STRING([--enable-multi-MA],
-			     [enable multi-MA architecture]),
-              HAVE_MULTI_MA=true, HAVE_MULTI_MA=false)
-if test "x$HAVE_MULTI_MA" = "xtrue"; then
+			     [enable multi-MA architecture]))
+if test "x$enable_MULTI_MA" = "xyes"; then
   AC_DEFINE(HAVE_MULTI_MA)
 fi
+
 
 dnl ###########################################################################
 dnl Load anything under acmacros/*.m4
@@ -186,8 +189,8 @@ dnl ###########################################################################
 dnl ###########################################################################
 AC_OMNIORB_DIET(omniORB_min_version,,,,
 		$proc_name,$proc_def,$plat_name,$plat_def,$os_v,
-		HAVE_OMNIORB=true,HAVE_OMNIORB=false)
-if test "x$HAVE_OMNIORB" != "xtrue"; then
+		HAVE_OMNIORB=yes,HAVE_OMNIORB=no)
+if test "x$HAVE_OMNIORB" != "xyes"; then
   AC_MSG_ERROR([could not detect omniORB omniORB_min_version or higher])
 fi
 
@@ -207,14 +210,18 @@ AM_PATH_FAST(FAST_min_version,
 dnl ###########################################################################
 dnl ####[ search for the BLAS Library ]
 dnl ###########################################################################
-ACI_PACKAGE([BLAS],[BLAS],[dgemm_],
-            [-lcblas -lblas -lblas2 -latlas!-lblas!-llapack!-lm!-lblas!-lcblas!\
-	     -llapack!-lm!-L/usr/lib/atlas ],,,:)
+if test "x$enable_BLAS" = "xyes"; then
+  ACI_PACKAGE([BLAS],[BLAS],[dgemm_],
+              [-lcblas -lblas -lblas2 -latlas!-lblas!-llapack!-lm!-lblas!\
+               -lcblas!-llapack!-lm!-L/usr/lib/atlas ],,,:)
+fi
 
 dnl ###########################################################################
 dnl ####[ search for the ScaLAPACK Library ]
 dnl ###########################################################################
-ACI_PACKAGE([ScaLAPACK],[ScaLAPACK],[pdgemm_],[-latlas],,,:)
+if test "x$enable_ScaLAPACK" = "xyes"; then
+  ACI_PACKAGE([ScaLAPACK],[ScaLAPACK],[pdgemm_],[-latlas],,,:)
+fi
 
 dnl ###########################################################################
 dnl ####[ search for the BLACS Library ]
@@ -277,7 +284,9 @@ dnl ###########################################################################
 AC_C_CONST
 AC_C_INLINE
 dnl AC_TYPE_PID_T # unused
-# FIXME: ce qu'il serait bon, c'est de récupérer la taille des types en octets
+
+# FIXME: we should get the sizes of all types, to map DIET base types
+#        (DIET_INT, etc.)
 AC_TYPE_SIZE_T
 
 dnl ###########################################################################
@@ -318,32 +327,87 @@ AC_OUTPUT
 dnl ###########################################################################
 dnl #### Print general info on DIET 
 dnl ###########################################################################
-echo ""
-echo "CONFIGURE successfully ended !!!"
-echo "DIET configured with prefix: $prefix."
-if test "x$HAVE_FAST" = "xtrue"
+echo "" | tee -a config.log
+echo "DIET successfully configured as follows:" | tee -a config.log
+
+# CICHLID
+if test "x$enable_Cichlid" = "xyes"
 then
-  echo "DIET configured with FAST ($FAST_CONFIG)."
+  echo " - Cichlid log:     yes" | tee -a config.log
+fi
+
+# DOCUMENTS
+if test "x$enable_doc" = "xyes"
+then
+  echo " - documents:       yes" | tee -a config.log
+fi
+
+# EXAMPLES
+printf " - examples:        " | tee -a config.log
+if test "x$enable_examples" = "xno"
+then
+  echo none | tee -a config.log
 else
-  echo "DIET configured without FAST."
+  printf "dmat_manips, file_transfer" | tee -a config.log
+  if test "x$HAVE_BLAS" = "xyes"
+  then
+    printf ", BLAS" | tee -a config.log
+  fi
+  if test "x$HAVE_ScaLAPACK" = "xyes"
+  then
+    printf ", ScaLAPACK" | tee -a config.log
+  fi
+  echo | tee -a config.log
 fi
-if test "x$HAVE_OMNIORB" = "xtrue"
+
+# FAST
+printf " - FAST:            " | tee -a config.log
+if test "x$HAVE_FAST" = "xyes"
 then
-  echo "DIET configured with omniORB $OMNIORB_VERSION in $OMNIORB_HOME."
+  echo "found $FAST_CONFIG" | tee -a config.log
+else
+  echo "not found" | tee -a config.log
 fi
-if test "x$HAVE_CICHLID" = "xtrue"
+
+# ORB
+printf " - ORB:             " | tee -a config.log
+if test "x$HAVE_OMNIORB" = "xyes"
 then
-  echo "DIET configured with generation of communication logs for Cichlid."
-fi
-if test "x$HAVE_STATISTICS" = "xtrue"
+  echo "omniORB $OMNIORB_VERSION in $OMNIORB_HOME" | tee -a config.log
+else if test "x$HAVE_TAO" = "xyes"
 then
-  echo "DIET configured with generation of statistics logs."
-fi
-if test "x$HAVE_MULTI_MA" = "xtrue"
+  echo "TAO $TAO_VERSION in $TAO_HOME" | tee -a config.log
+fi fi
+
+# PREFIX
+echo " - prefix:          $prefix" | tee -a config.log
+
+# MAINTAINER MODE
+if test "x$enable_maintainer_mode" = "xyes"
 then
-  echo "DIET configured in multi MA mode."
+  echo " - maintainer mode: yes" | tee -a config.log
 fi
-echo
+
+# MULTI MA
+printf " - multi-MA:        " | tee -a config.log
+if test "x$HAVE_MULTI_MA" = "xyes"
+then
+  echo "yes" | tee -a config.log
+else
+  echo "no" | tee -a config.log
+fi
+
+# STATISTICS
+if test "x$HAVE_STATISTICS" = "xyes"
+then
+  echo " - statistics log:  yes" | tee -a config.log
+fi
+
+# PLATFORM
+echo " - target platform: $target" | tee -a config.log
+
+echo | tee -a config.log
+
 echo "Please run make help to get compilation instructions."
 
 exit 0;
