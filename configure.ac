@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.21  2003/09/09 12:54:46  pcombes
+#* Reorganization of doc.
+#*
 #* Revision 1.20  2003/08/22 13:03:23  pcombes
 #* FAST not found is not right when --without-FAST is specified.
 #*
@@ -339,8 +342,13 @@ AC_CONFIG_FILES([include/Makefile.inc
                 src/examples/file_transfer/Makefile
                 src/examples/ScaLAPACK/Makefile
 		doc/Makefile
-		doc/CS/Makefile
-		doc/UM/Makefile])
+		doc/UsersManual/Makefile])
+
+if test "x$enable_maintainer_mode" = "xyes"
+then
+  AC_CONFIG_FILES([doc/ProgrammersGuide/Makefile])
+fi
+
 AC_OUTPUT
 
 dnl ###########################################################################
