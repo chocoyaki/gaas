@@ -10,6 +10,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.7  2004/01/27 00:21:17  ecaron
+%* Add suggestions from Jean-Yves (Thanks!)
+%*
 %* Revision 1.6  2004/01/21 00:25:13  ecaron
 %* Add suggestions from Holly Dail. Thanks !
 %*
@@ -124,7 +127,7 @@ first argument on the command line, and we decide to hardcode the matrix,
 its factor, and the name of the problem:
 
 \subsection{synchronous call}
-\texttt{smprod}~\footnote{Source code available \texttt{doc/tutorial/solutions/exercise2/client\_smprod.c}} for scalar by matrix product.
+\texttt{smprod}~\footnote{Source code available in \texttt{doc/tutorial/solutions/exercise2/client\_smprod.c}} for scalar by matrix product.
 
 {\footnotesize
 \begin{verbatim}
@@ -185,7 +188,7 @@ int main(int argc, char **argv)
 
 
 \subsection{asynchronous call}
-\texttt{smprod}~\footnote{Source code available \texttt{doc/tutorial/solutions/exercise2/client\_smprodAsync.c}} for scalar by matrix product.
+\texttt{smprod}~\footnote{Source code available in \texttt{doc/tutorial/solutions/exercise2/client\_smprodAsync.c}} for scalar by matrix product.
 {\footnotesize
 \begin{verbatim}
 #include <stdio.h>
@@ -219,12 +222,14 @@ int main(int argc, char **argv)
   
     /* Set profile arguments */
     diet_scalar_set(diet_parameter(profile[i],0), &factor, 0, DIET_DOUBLE);
-    diet_matrix_set(diet_parameter(profile[i],1), matrix[i],  0, DIET_DOUBLE, 60, 100, DIET_COL_MAJOR);
+    diet_matrix_set(diet_parameter(profile[i],1), matrix[i],  0, DIET_DOUBLE,
+                    60, 100, DIET_COL_MAJOR);
     diet_scalar_set(diet_parameter(profile[i],2), NULL,    0, DIET_FLOAT);
   }
   
   int rst_call = 0;
-  if ((rst_call = diet_call_async(profile[i], &rst[i])) != 0)  printf("Error in diet_call_async return -%d-\n", rst_call);
+  if ((rst_call = diet_call_async(profile[i], &rst[i])) != 0)  
+     printf("Error in diet_call_async return -%d-\n", rst_call);
   else {
     printf("request ID value = -%d- \n", rst[i]);
     if (rst[i] < 0) {
@@ -233,7 +238,8 @@ int main(int argc, char **argv)
     }
   }
   rst_call = 0;
-  if ((rst_call = diet_wait_and((diet_reqID_t*)&rst, (unsigned int)5)) != 0) printf("Error in diet_wait_and\n");
+  if ((rst_call = diet_wait_and((diet_reqID_t*)&rst, (unsigned int)5)) != 0)
+     printf("Error in diet_wait_and\n");
   else {
     printf("Result data for requestID");
     for (i = 0; i < 5; i++) printf(" %d ", rst[i]);
@@ -269,9 +275,9 @@ int main(int argc, char **argv)
 \section{Compilation}
 \label{sec:cl_comp}
 
-After compiling his client program, the user must link it with the DIET
+After compiling the client program, the user must link it with the DIET
 libraries and the CORBA libraries. The easiest way to compile a program using
-DIET with all necessary flags and links with the right libraries is to trust the
+DIET with all necessary flags and link it with the right libraries is to trust the
 \texttt{Makefile.inc} available in \texttt{$<$include\_dir$>$/include}, and
 include it at the beginning of the program makefile.
 

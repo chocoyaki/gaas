@@ -10,6 +10,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.6  2004/01/27 00:21:17  ecaron
+%* Add suggestions from Jean-Yves (Thanks!)
+%*
 %* Revision 1.5  2004/01/21 00:25:13  ecaron
 %* Add suggestions from Holly Dail. Thanks !
 %*
@@ -50,7 +53,7 @@
 \chapter{Building a server application}
 \label{ch:server}
 
-A DIET server program is the link between the DIET SeD and the libraries that
+A DIET server program is the link between the DIET Server Deamon (SeD) and the libraries that
 implement the service to offer.
 
 \section{Structure of the program}
@@ -61,7 +64,7 @@ to define the \texttt{main} function. Within the \texttt{main}, the DIET server
 will be launched with a call to \texttt{diet\_SeD} which will never return
 (except if some errors occur). The complete server side interface is described
 in the \texttt{$<$install\_dir$>$/include} files \texttt{DIET\_data.h} (see
-Chapter \ref{ch:data}) and \texttt{DIET\_server.h}. Don't forget to include the \texttt{DIET\_server.h} (\texttt{DIET\_server.h} includes \texttt{DIET\_data.h}) at the beginning of your server source code :
+Chapter \ref{ch:data}) and \texttt{DIET\_server.h}. Do not forget to include the \texttt{DIET\_server.h} (\texttt{DIET\_server.h} includes \texttt{DIET\_data.h}) at the beginning of your server source code :
 
 {\footnotesize
 \begin{verbatim}
@@ -91,7 +94,7 @@ int solve_service(diet_profile_t *pb)
 {
    int     arg1;
    char   *arg2;
-   double *arg3;
+   double arg3;
 
    diet_scalar_get(diet_parameter(pb,0), &arg1, NULL);
    diet_string_get(diet_parameter(pb,1), &arg2, NULL, NULL);

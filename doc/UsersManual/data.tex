@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.4  2004/01/27 00:21:17  ecaron
+%* Add suggestions from Jean-Yves (Thanks!)
+%*
 %* Revision 1.3  2004/01/21 00:25:13  ecaron
 %* Add suggestions from Holly Dail. Thanks !
 %*
@@ -82,7 +85,7 @@ following semantics:
 \end{tabular}
 \end{center}
 
-\textbf{NB:} \textsf{DIET\_SCOMPLEX} and \textsf{DIET\_DCOMPLEX} are not yet implemented.\\
+\textbf{NB:} \textsf{DIET\_SCOMPLEX} and \textsf{DIET\_DCOMPLEX} are not implemented yet.\\
 
 
 \subsection{Composite types}
@@ -310,10 +313,11 @@ $last\_out + 1$. Arguments can be
   memory while the computation is performed on the server would result in a
   segmentation fault when the data are brought back onto the client.
 \item{OUT:} The data are created on the server and brought back into a
-  newly allocated zone on the client. After the call has returned, the user can
-  find its result in the zone pointed at by the \emph{value} field. Of course,
-  DIET cannot guess how long the user needs these data for, so it lets him/her
-  free the memory allocated with \texttt{diet\_free\_data}.
+  newly allocated zone on the client. This allocation is performed by
+  DIET. After the call has returned, the user can find its result in
+  the zone pointed at by the \emph{value} field. Of course, DIET
+  cannot guess how long the user needs these data for, so it lets
+  him/her free the memory allocated with \texttt{diet\_free\_data}.
 \end{description}
 
 This behaviour will be modified soon with the introduction of the persistence
@@ -362,15 +366,14 @@ Here are the lines of C code to generate such a profile:
 \end{verbatim}
 }
 
-\noindent
-
-\textbf{NB1:} If there is no IN argument, \emph{last\_in} must be set to -1, if
-there is no INOUT argument is needed, \emph{last\_inout} must be equal to
-\emph{last\_in}, and if there is no OUT argument, \emph{last\_out} must be equal
+\noindent \textbf{NB1:} If there is no IN argument, \emph{last\_in} must be set to -1, if
+there is no INOUT argument is needed, \emph{last\_inout} must be equal
+to \emph{last\_in}, and if there is no OUT argument, \emph{last\_out}
+must be equal
 to \emph{last\_inout}.\\
 \textbf{NB2:} The \emph{value} argument for \texttt{\_set} functions
-(\ref{sec:setfun}) is ignored for OUT arguments, since DIET allocates the
-necessary memory space when the corresponding data are transfered from the
-server, so set value to NULL.
+(\ref{sec:setfun}) is ignored for OUT arguments, since DIET allocates
+the necessary memory space when the corresponding data are transfered
+from the server, so set value to NULL.
 
 
