@@ -10,6 +10,10 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.11  2004/10/04 13:55:06  hdail
+#* - Added AccessController class, an enhanced counting semaphore.
+#* - Added config file options for controlling concurrent SeD access.
+#*
 #* Revision 1.10  2004/09/29 13:35:32  sdahan
 #* Add the Multi-MAs feature.
 #*
@@ -49,7 +53,7 @@ noinst_LTLIBRARIES = libUtilsCichlid.la libUtilsCommon.la \
 libUtilsCichlid_la_SOURCES = com_tools.cc
 libUtilsCommon_la_SOURCES  = debug.cc DIET_data.cc ms_function.cc \
 			     Parsers.cc statistics.cc KeyString.cc
-libUtilsSeDClt_la_SOURCES  = DIET_mutex.cc
+libUtilsSeDClt_la_SOURCES  = DIET_mutex.cc AccessController.cc
 libUtilsNodes_la_SOURCES   = Counter.cc ServiceTable.cc FASTMgr.cc \
 			     DietLogComponent.cc MonitoringThread.cc
 

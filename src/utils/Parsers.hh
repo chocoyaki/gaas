@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2004/10/04 13:55:06  hdail
+ * - Added AccessController class, an enhanced counting semaphore.
+ * - Added config file options for controlling concurrent SeD access.
+ *
  * Revision 1.10  2004/09/29 13:35:32  sdahan
  * Add the Multi-MAs feature.
  *
@@ -88,7 +92,7 @@ public:
       USEASYNCAPI,
       USELOGSERVICE, LSOUTBUFFERSIZE, LSFLUSHINTERVAL,
       NEIGHBOURS, MAXNEIGHBOURS, MINNEIGHBOURS, UPDATELINKPERIOD,
-      BINDSERVICEPORT,
+      BINDSERVICEPORT, USECONCJOBLIMIT, MAXCONCJOBS,
       NB_PARAM_TYPE
     } param_type_t;
 
@@ -263,6 +267,13 @@ private:
   static int
   parseTraceLevel(char* traceLevel,
 		  Results::param_type_t type = Results::TRACELEVEL);
+
+  /**
+   * Parse an integer.  If the integer conversion did not succeed, the
+   * integer result is set to -1;
+   */ 
+  static int
+  parseInt(char* intString, Results::param_type_t type);
 
   /**
    * Parse a use (for fastUse, ldapUse, etc.): 0 or 1.

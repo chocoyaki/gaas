@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2004/10/04 13:55:06  hdail
+ * - Added AccessController class, an enhanced counting semaphore.
+ * - Added config file options for controlling concurrent SeD access.
+ *
  * Revision 1.21  2004/09/29 13:35:32  sdahan
  * Add the Multi-MAs feature.
  *
@@ -29,34 +33,6 @@
  * This option is now replaced by two options:
  *   endPointPort: precise the listening port of the agent/server
  *   endPointHostname: precise the listening interface of the agent/server
- *
- * Revision 1.16  2004/03/01 19:02:20  rbolze
- * change to enable new options relative to logservice in the config file for MA, LA and SeD
- *
- * Revision 1.15  2004/03/01 16:34:26  mcolin
- * enable the possibility of declaring an endpoint with an hostname
- * for the DIET agents and the SeD (for VTHD demo). To be fixed later
- *
- * Revision 1.14  2003/08/26 14:59:30  pcombes
- * Fix bug in traces.
- *
- * Revision 1.13  2003/08/01 19:18:17  pcombes
- * Update to FAST 0.8: nwsForeCaster is not compulsory when nwsUse = 1.
- *
- * Revision 1.12  2003/07/25 20:21:25  pcombes
- * Remove unused addr variable in checkFASTEntries.
- *
- * Revision 1.11  2003/07/04 09:48:07  pcombes
- * Use new ERROR and WARNING macros. Add macro PARAM to shorten lines.
- *
- * Revision 1.7  2003/06/02 08:08:11  cpera
- * Beta version of asynchronize DIET API.
- *
- * Revision 1.2  2003/05/10 08:49:33  pcombes
- * New Parsers for new configuration files.
- *
- * Revision 1.1  2003/04/10 12:51:22  pcombes
- * Static class for configuration files parsing.
  ****************************************************************************/
 
 #include <iostream>
@@ -96,7 +72,9 @@ Parsers::Results::param_t Parsers::Results::params[] =
    /* [19] */ {"maximumNeighbours", 17, Parsers::parsePort, 0, NULL},
    /* [20] */ {"minimumNeighbours", 17, Parsers::parsePort, 0, NULL},
    /* [21] */ {"updateLinkPeriod", 16, Parsers::parsePort, 0, NULL},
-   /* [22] */ {"bindServicePort", 15, Parsers::parsePort, 0, NULL}};
+   /* [22] */ {"bindServicePort", 15, Parsers::parsePort, 0, NULL},
+   /* [23] */ {"useConcJobLimit", 15, Parsers::parseUse, 0, NULL},
+   /* [24] */ {"maxConcJobs", 11, Parsers::parseInt, 0, NULL}};
 
 #define IS_ADDRESS(i) ((i == Results::LDAPBASE) || (i == Results::NWSNAMESERVER) || (i == Results::NWSFORECASTER))
 
@@ -552,6 +530,25 @@ Parsers::parseTraceLevel(char* traceLevel, Results::param_type_t type)
   }
   return 0;
 }
+
+/**
+ * Parse an integer.  If the integer conversion did not succeed, the
+ * integer result is set to -1;
+ */ 
+int
+Parsers::parseInt(char* intString, Results::param_type_t type)
+{
+  int value;
+
+  CHECK_PARAM(type);
+  if (sscanf(intString, "%d ", &value) != 1) {
+    PARSERS_WARNING("could not read int from " << intString);
+    Results::params[type].value = new int(-1);
+  } else {
+    Results::params[type].value = new int(value);
+  }
+  return 0;
+} 
 
 /**
  * Parse a use (for fastUse, ldapUse, etc.): 0 or 1.
