@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.3  2003/06/02 09:10:07  cpera
+#* Samples illustrate use of asynchronize api.
+#*
 #* Revision 1.2  2003/05/19 17:15:35  pcombes
 #* Change install behaviour: never erase cfg files already installed.
 #*
@@ -17,7 +20,7 @@
 #* NB: installation directory is $(top_builddir)/src/examples/bin.
 #****************************************************************************#
 
-SUBDIRS = dmat_manips file_transfer @SUBMODULES_examples@
+SUBDIRS = dmat_manips dmat_manips_async file_transfer @SUBMODULES_examples@
 DIST_SUBDIRS = $(SUBDIRS) @DIST_SUBMODULES_examples@
 
 EXTRA_DIST = $(wildcard $(srcdir)/cfgs/*.cfg)
