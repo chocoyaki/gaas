@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2004/12/02 11:25:14  bdelfabr
+ * addi informarion for LogCentral on data profile
+ *
  * Revision 1.15  2004/10/06 15:56:13  bdelfabr
  * bug persistent data fixed (hope so one more time)
  *
@@ -266,10 +269,37 @@ DataMgrImpl::addDataDescToList(corba_data_t* dataDesc, int inout) // FIXME : die
   }
  
 
-
+  
 #if HAVE_LOGSERVICE
+  char * type_data = (char *)malloc(10*sizeof(char));
   if (dietLogComponent != NULL) {
-    dietLogComponent->logDataStore(dataDesc->desc.id.idNumber);
+    switch ((diet_data_type_t)(dataDesc->desc.specific._d())) {
+    case DIET_SCALAR: {
+      strcpy(type_data,"SCALAR");
+    }
+    case DIET_VECTOR: {
+      strcpy(type_data,"VECTOR");
+      break;
+    }
+    case DIET_MATRIX: {
+      strcpy(type_data,"MATRIX");
+      break;
+    }
+    case DIET_STRING: {
+      strcpy(type_data,"STRING");
+      break;
+    }
+    case DIET_FILE: {
+      strcpy(type_data,"FILE");
+      break;
+    }
+    default: {
+      strcpy(type_data,"UNKNOWN");
+      break;
+  }
+ 
+    }
+    dietLogComponent->logDataStore(dataDesc->desc.id.idNumber, data_sizeof(&(dataDesc->desc)),(long)(dataDesc->desc.base_type), type_data);
   }
 #endif // HAVE_LOGSERVICE
 
