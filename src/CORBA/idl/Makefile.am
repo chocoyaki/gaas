@@ -10,9 +10,11 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.2  2003/05/13 17:05:09  pcombes
+#* Comment AM_CPPFLAGS - useless.
+#*
 #* Revision 1.1  2003/04/10 12:34:32  pcombes
 #* IDL descriptions are back in their directory.
-#*
 #****************************************************************************#
 
 include $(top_srcdir)/config.mk.in
@@ -37,7 +39,7 @@ nodist_libIDLLA_la_SOURCES    = LocalAgentSK.cc  LocalAgentDynSK.cc
 nodist_libIDLMA_la_SOURCES    = MasterAgentSK.cc MasterAgentDynSK.cc
 
 # automake include variables
-AM_CPPFLAGS += -I$(top_builddir)/src/utils
+#AM_CPPFLAGS += 
 
 Makefile.am:./idlRules.mk
 Makefile.in:./idlRules.mk
