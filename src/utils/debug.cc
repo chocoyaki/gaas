@@ -9,6 +9,16 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2004/10/04 09:40:43  sdahan
+ * warning fix :
+ *  - debug.cc : change the printf format from %ul to %lu and from %l to %ld
+ *  - ReferenceUpdateThread and BindService : The omniORB documentation said that
+ *    it's better to create private destructor for the thread subclasses. But
+ *    private destructors generate warning, so I set the destructors public.
+ *  - CORBA.h and DIET_config.h define the same macros. So I include the CORBA.h
+ *    before the DIET_config.h to avoid to define two times the same macros.
+ *  - remove the deprecated warning when including iostream.h and set.h
+ *
  * Revision 1.17  2004/09/14 12:51:01  hdail
  * Corrected output types for print statements to agree with variable types.
  *
@@ -54,9 +64,9 @@ displayResponse(FILE* os, const corba_response_t* resp)
   size_t i,j;
 
   fprintf(os, "\n----------------------------------------\n");
-  fprintf(os, " Response structure for request %ul :\n\n", resp->reqID);
+  fprintf(os, " Response structure for request %lu :\n\n", resp->reqID);
   if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-    fprintf(os, " I'm son nb %l\n", resp->myID);
+    fprintf(os, " I'm son nb %ld\n", resp->myID);
   //  fprintf(os, " There are %ld parameters\n", (long)resp->nbIn);
   fprintf(os, " %ld servers are able to solve the problem\n",
 	  (long)resp->servers.length());

@@ -8,6 +8,16 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2004/10/04 09:40:43  sdahan
+ * warning fix :
+ *  - debug.cc : change the printf format from %ul to %lu and from %l to %ld
+ *  - ReferenceUpdateThread and BindService : The omniORB documentation said that
+ *    it's better to create private destructor for the thread subclasses. But
+ *    private destructors generate warning, so I set the destructors public.
+ *  - CORBA.h and DIET_config.h define the same macros. So I include the CORBA.h
+ *    before the DIET_config.h to avoid to define two times the same macros.
+ *  - remove the deprecated warning when including iostream.h and set.h
+ *
  * Revision 1.1  2004/09/29 13:35:31  sdahan
  * Add the Multi-MAs feature.
  *
@@ -18,11 +28,11 @@
 #ifdef HAVE_MULTI_MA
 
 #include <assert.h>
-#include <set.h>
+#include <set>
 
 void FloodRequestsList::garbageCollector() {
   garbageCounter = 0 ;
-  set<RequestID> garbage ;
+  std::set<RequestID> garbage ;
   for(iterator iter = requestsList.begin() ;
       iter != requestsList.end() ; iter++) {
     if(iter->second->accessCpt == -1) {
@@ -30,7 +40,7 @@ void FloodRequestsList::garbageCollector() {
       garbage.insert(iter->first) ;
     }
   }
-  for(set<RequestID>::iterator iter = garbage.begin() ;
+  for(std::set<RequestID>::iterator iter = garbage.begin() ;
       iter == garbage.end() ; iter++)
     requestsList.erase(*iter) ;
 }

@@ -10,6 +10,16 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2004/10/04 09:40:43  sdahan
+ * warning fix :
+ *  - debug.cc : change the printf format from %ul to %lu and from %l to %ld
+ *  - ReferenceUpdateThread and BindService : The omniORB documentation said that
+ *    it's better to create private destructor for the thread subclasses. But
+ *    private destructors generate warning, so I set the destructors public.
+ *  - CORBA.h and DIET_config.h define the same macros. So I include the CORBA.h
+ *    before the DIET_config.h to avoid to define two times the same macros.
+ *  - remove the deprecated warning when including iostream.h and set.h
+ *
  * Revision 1.4  2004/09/29 13:35:31  sdahan
  * Add the Multi-MAs feature.
  *
@@ -27,6 +37,7 @@
 #define _MASTERAGENTIMPL_HH_
 
 #include "MasterAgent.hh"
+#include "DIET_config.h"
 #include "AgentImpl.hh"
 #include "LinkedList.hh"
 #include "Parsers.hh"
