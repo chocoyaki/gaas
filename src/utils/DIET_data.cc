@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2003/08/01 19:37:47  pcombes
+ * Update diet_profile_alloc to the new API (separated from GridRPC)
+ *
  * Revision 1.16  2003/07/04 09:48:06  pcombes
  * Use new ERROR and WARNING macros.
  *
@@ -303,11 +306,11 @@ extern "C" {
 /****************************************************************************/
 
 diet_profile_t*
-diet_profile_alloc(int last_in, int last_inout, int last_out)
+diet_profile_alloc(char* pb_name, int last_in, int last_inout, int last_out)
 {
   diet_profile_t* res(NULL);
-  
   res = new diet_profile_t;
+  res->pb_name    = strdup(pb_name);
   res->last_in    = last_in;
   res->last_inout = last_inout;
   res->last_out   = last_out;
@@ -320,6 +323,7 @@ diet_profile_alloc(int last_in, int last_inout, int last_out)
 int
 diet_profile_free(diet_profile_t* profile)
 {
+  free(profile->pb_name);
   delete [] profile->parameters;
   delete profile;
   return 0;
