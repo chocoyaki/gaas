@@ -8,8 +8,11 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.10  2004/02/26 10:28:05  ecaron
+%* Latex bug correction
+%*
 %* Revision 1.9  2004/02/25 07:01:28  desprez
-%* hourra, l intro de Fred
+%* Revised version for the introduction
 %*
 %* Revision 1.8  2004/01/29 17:08:47  ecaron
 %* Add suggestions from Frederic Desprez. Thanks !
@@ -173,7 +176,7 @@ The first approach provides the user with a uniform view of resources. This is t
 
 A second approach provides a semi-transparent access to computing servers by submitting jobs to dedicated servers. This model is known as the Application Service Provider (ASP) model where providers offer, not necessarily for free, computing resources (hardware and software) to clients in the same way as Internet providers offer network resources to clients. The programming granularity of this model is rather coarse. One of the advantages of this approach is that end users do not need to be experts in parallel programming to benefit from high performance parallel programs and computers. This model is closely related to the classical Remote Procedure Call (RPC) paradigm. On a Grid platform, the RPC (or GridRPC~\cite{MNS+00,NMSDLC02}) offers an easy access to available resources to a Web browser, a Problem Solving Environment (PSE), or a simple client program written in C, Fortran, or Java.  It also provides more transparency by hiding the search and allocation of computing resources. We favour this second approach.
 
-In a Grid context, this approach requires the implementation of middlewares to facilitate the client access to remote resources. In the ASP approach, a common way for clients to ask for resources to solve their problem is to submit a request to the middleware. The middleware will find the most appropriate server that will solve the problem on behalf of the client using a specific software. Several environments, usually called Network Enabled Servers (NES), have developed such a paradigm: NetSolve~\cite{nug}, Ninf~\footcite{NSS99}, NEOS~\cite{FMM00}, OmniRPC~\cite{SHTS01}, and more recently DIET developed in the GRAAL project. A common feature of these environments is that they are built on top of five components: clients, servers, databases, monitors and schedulers. Clients solve computational requests on servers found by the NES. The NES schedules the requests on the different servers using performance information obtained by monitors and stored in a database.
+In a Grid context, this approach requires the implementation of middlewares to facilitate the client access to remote resources. In the ASP approach, a common way for clients to ask for resources to solve their problem is to submit a request to the middleware. The middleware will find the most appropriate server that will solve the problem on behalf of the client using a specific software. Several environments, usually called Network Enabled Servers (NES), have developed such a paradigm: NetSolve~\cite{nug}, Ninf~\cite{NSS99}, NEOS~\cite{FMM00}, OmniRPC~\cite{SHTS01}, and more recently DIET developed in the GRAAL project. A common feature of these environments is that they are built on top of five components: clients, servers, databases, monitors and schedulers. Clients solve computational requests on servers found by the NES. The NES schedules the requests on the different servers using performance information obtained by monitors and stored in a database.
 
 DIET stands for Distributed Interactive Engineering Toolbox. It is a toolbox for easily developing Application Service Provider systems on Grid platforms, based on the Client/Agent/Server scheme. Agents are the schedulers of this toolbox. In DIET, user's requests are served via RPC.
 
