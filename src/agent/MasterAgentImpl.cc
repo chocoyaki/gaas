@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2004/11/29 15:22:16  sdahan
+ * update the hash algorithm.
+ * the ls6 and ls7 had the same hash value. So two differents request had the same id. By updating the hash function, this should not append presently.
+ *
  * Revision 1.13  2004/10/06 16:40:24  rbolze
  * implement function to return the Profiles avialable on platform when a client ask it
  *
@@ -111,7 +115,8 @@ MasterAgentImpl::run()
   } else {
     reqIDCounter = KeyString::hash(localHostName) ;
   }
-  reqIDCounter = (reqIDCounter & 0xFFFFF) * 1000 ;
+  reqIDCounter =
+    ((reqIDCounter & 0xFFFFF) ^ (reqIDCounter >> 20))* 1000 ;
 
   TRACE_TEXT(TRACE_ALL_STEPS, "Getting MAs references ...\n");
 
