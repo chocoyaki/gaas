@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.18  2003/08/01 19:01:22  pcombes
+#* Clean up omniORB and FAST detection - particularly for versions.
+#*
 #* Revision 1.17  2003/07/04 09:47:49  pcombes
 #* Check for -Wno-strict-aliasing option (to be improved with AC macros).
 #*
@@ -49,15 +52,6 @@ AC_PREFIX_DEFAULT(`pwd`/install)
 dnl ##########################################################################
 dnl #### Create templates for config.h.in header.
 dnl ##########################################################################
-AH_TEMPLATE([HAVE_OMNIORB], [Define use of omniORB.])
-AH_TEMPLATE([HAVE_CICHLID], [Define use of Cichlid and the communication tools.])
-AH_TEMPLATE([HAVE_STATISTICS], [Define use of the statistics tools.])
-AH_TEMPLATE([HAVE_BLAS], [Define use of BLAS library for DIET examples.])
-dnl AH_TEMPLATE([HAVE_PBLAS], [Define use of PBLAS library for DIET examples.])
-dnl AH_TEMPLATE([HAVE_MPI], [Define use of MPI library for DIET examples.])
-AH_TEMPLATE([HAVE_SCALAPACK], [Define use of SCALAPACK library \
-                              for DIET examples.])
-AH_TEMPLATE([HAVE_MULTI_MA], [Define use multi MA architecture.])
 AH_TOP([#ifndef _DIET_CONFIG_H_
 #define _DIET_CONFIG_H_])
 AH_BOTTOM([#endif // _DIET_CONFIG_H_])
@@ -137,20 +131,26 @@ ACI_MODULE([DIET],,[omniORB FAST],[src doc],force)
 dnl ###########################################################################
 # Various compilation features
 dnl ###########################################################################
+
+AH_TEMPLATE(HAVE_CICHLID,
+	    [Define the use of Cichlid and the communication tools.])
 AC_ARG_ENABLE(Cichlid,
 	      AC_HELP_STRING([--enable-Cichlid],
 	                 [enable generation of communication logs for Cichlid]),
-	      AC_DEFINE(HAVE_CICHLID))
+	      AC_DEFINE(HAVE_CICHLID,,
+		        [Define the use of Cichlid and the communication tools.]))
 
+AH_TEMPLATE(HAVE_STATISTICS, [Define the use of the statistics tools.])
 AC_ARG_ENABLE(stats,
 	      AC_HELP_STRING([--enable-stats],
 			     [enable generation of statistics logs]),
 	      [AC_DEFINE(HAVE_STATISTICS)][IDLFLAGS="$IDLFAGS -DHAVE_STATISTICS"])
 
+AH_TEMPLATE(HAVE_MULTI_MA, [Define the use of a multi MA architecture.])
 AC_ARG_ENABLE(multi-MA,
 	      AC_HELP_STRING([--enable-multi-MA],
 			     [enable multi-MA architecture]),
-	      AC_DEFINE(HAVE_MULTI_MA))
+	      [AC_DEFINE(HAVE_MULTI_MA)][IDLFLAGS="$IDLFAGS -DHAVE_MULTI_MA"])
 
 
 dnl ###########################################################################
@@ -173,35 +173,27 @@ AC_PROG_LIBTOOL
 AC_SUBST(LIBTOOL_DEPS)
 
 dnl AC_PROG_LIBTOOL sets $CC:
-dnl we now can test -Wno-strict-aliasing with CC and CXX
+dnl we now can test some warning options with CC and CXX
 
 echo "int main(int argc, char* argv[]) {return 0;}" > conftest.c
-AC_MSG_CHECKING(if $CC supports -Wno-strict-aliasing)
-$CC -Wno-strict-aliasing conftest.c -o conftest > conftest.log 2>&1
-status=$?
-if test $status = 0 -a "`grep 'ignoring option' conftest.log`" = ""; then
-  AC_MSG_RESULT(yes)
-  AC_SUBST(CFLAG_NO_STRICT_ALIASING, "-Wno-strict-aliasing")
-dnl  CCFLAGS="$CCFLAGS -Wno-strict-aliasing"
-else
-  AC_MSG_RESULT(no)
-fi
-AC_MSG_CHECKING(if $CXX supports -Wno-strict-aliasing)
-$CXX -Wno-strict-aliasing conftest.c -o conftest > conftest.log 2>&1
-status=$?
-if test $status = 0 -a "`grep 'ignoring option' conftest.log`" = ""; then
-  AC_MSG_RESULT(yes)
-  AC_SUBST(CXXFLAG_NO_STRICT_ALIASING, "-Wno-strict-aliasing")
-else
-  AC_MSG_RESULT(no)
-fi
-rm -f conftest.c conftest conftest.log
 
+AC_CHECK_OPTIONS($CC, [conftest.c -o conftest], -Wno-strict-aliasing,
+		 [AC_SUBST(CFLAG_NO_STRICT_ALIASING,
+			   "-Wno-strict-aliasing")],)
+AC_CHECK_OPTIONS($CXX, [conftest.c -o conftest], -Wno-strict-aliasing,
+ 	         [AC_SUBST(CXXFLAG_NO_STRICT_ALIASING,
+			   "-Wno-strict-aliasing")],)
+AC_CHECK_OPTIONS($CXX, [conftest.c -o conftest], -Wno-ctor-dtor-privacy,
+		 [AC_SUBST(CXXFLAG_NO_CTOR_DTOR_PRIVACY,
+			   "-Wno-ctor-dtor-privacy")])
+
+rm -f conftest.c conftest
 
 dnl ###########################################################################
 # Check for the pthread library
 dnl ###########################################################################
-AC_CHECK_LIB([pthread], [pthread_attr_getdetachstate])
+dnl Detected in AC_OMNIORB_DIET :
+dnl AC_CHECK_LIB([pthread], [pthread_attr_getdetachstate])
 
 dnl ###########################################################################
 # Search the ORB to use
@@ -218,19 +210,18 @@ fi
 dnl ###########################################################################
 # Search for the FAST Library
 dnl ###########################################################################
-AM_PATH_FAST(FAST_min_version,
-	     [HAVE_FAST=true
-	      AC_DEFINE(HAVE_FAST,1,[Define use of the FAST library])],
-	     [HAVE_FAST=false
-	      AC_MSG_WARN(Use of FAST library is disabled - either by you or)
-              AC_MSG_WARN(because it was not found: all performance evaluations)
-	      AC_MSG_WARN(will be set to infinity.)])
+AM_FAST(FAST_min_version,
+	[HAVE_FAST=yes],
+	[HAVE_FAST=no
+	 AC_MSG_WARN(Use of FAST library is disabled - either by you or)
+         AC_MSG_WARN(because it was not found: all performance evaluations)
+	 AC_MSG_WARN(will be set to infinity.)])
 
 dnl ###########################################################################
 dnl ####[ search for the BLAS Library ]
 dnl ###########################################################################
 if test "x$enable_BLAS" = "xyes"; then
-  ACI_PACKAGE([BLAS],[BLAS],[dgemm_],
+  ACI_PACKAGE([BLAS],[Basic Linear Algebric Subroutines],[dgemm_],
               [-lcblas -lblas -lblas2 -latlas!-lblas!-llapack!-lm!-lblas!\
                -lcblas!-llapack!-lm!-L/usr/lib/atlas ],,,:)
 fi
@@ -239,17 +230,20 @@ dnl ###########################################################################
 dnl ####[ search for the ScaLAPACK Library ]
 dnl ###########################################################################
 if test "x$enable_ScaLAPACK" = "xyes"; then
-  ACI_PACKAGE([ScaLAPACK],[ScaLAPACK],[pdgemm_],[-latlas],,,:)
+  ACI_PACKAGE([ScaLAPACK],[a parallel version of the LAPACK library],[pdgemm_],
+	      [-latlas],,,:)
 fi
+
+dnl TO DO: PBLAS, MPI, etc.
 
 dnl ###########################################################################
 dnl ####[ search for the BLACS Library ]
 dnl ###########################################################################
-#ACI_PACKAGE([BLACS],[the BLACS library: used by DIET samples and so \
-#		necessary if they are compiled], 
-#		[ldap_bind],
-#		[-lldap -lldap!-L$with_OPENLDAP/lib!-I$with_OPENLDAP/include],
-#		[ldap.h])
+dnl ACI_PACKAGE([BLACS],[the BLACS library: used by DIET samples and so \
+dnl 		necessary if they are compiled], 
+dnl 		[ldap_bind],
+dnl 		[-lldap -lldap!-L$with_OPENLDAP/lib!-I$with_OPENLDAP/include],
+dnl 		[ldap.h])
 
 dnl ###########################################################################
 dnl ####[ check for some programs ]
@@ -261,7 +255,7 @@ AC_SUBST(WARNING)
 dnl ###########################################################################
 dnl ####[ select the right modules ]
 dnl ###########################################################################
-ACI_MODULES_VERIFY([DIET]) 
+ACI_MODULES_VERIFY([DIET])
 AC_SUBST(MODULES_DIET)
 AC_SUBST(MODULES_agent)
 AC_SUBST(MODULES_SeD)
@@ -314,14 +308,15 @@ AC_FUNC_MALLOC
 AC_FUNC_REALLOC
 dnl AC_TYPE_SIGNAL # unused yet
 AC_FUNC_STAT
-AC_FUNC_STRTOD # used in BLAS and ScaLAPACK clients
+if test "x$HAVE_BLAS" = "xyes" -o "x$HAVE_ScaLAPACK" = "xyes" ; then
+  AC_FUNC_STRTOD # used in BLAS and ScaLAPACK clients
+fi
 AC_CHECK_FUNCS([gethostname gettimeofday strdup strrchr strtok_r])
 
 
 dnl ###########################################################################
 dnl Create target output (Makefile(s) ...) 
 dnl ###########################################################################
-#include/DIET_config.h
 AC_CONFIG_FILES([include/Makefile.inc
 		config.mk
 		Makefile
@@ -428,4 +423,4 @@ echo | tee -a config.log
 
 echo "Please run make help to get compilation instructions."
 
-exit 0;
+exit 0
