@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2004/03/01 19:02:30  rbolze
+ * change to enable new options relative to logservice in the config file for MA, LA and SeD
+ *
  * Revision 1.5  2003/06/02 08:08:11  cpera
  * Beta version of asynchronize DIET API.
  *
@@ -62,6 +65,7 @@ public:
       LDAPUSE, LDAPBASE, LDAPMASK,
       NWSUSE, NWSNAMESERVER, NWSFORECASTER,
       USEASYNCAPI,
+      USELOGSERVICE, LSOUTBUFFERSIZE, LSFLUSHINTERVAL,
       NB_PARAM_TYPE
     } param_type_t;
 

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2004/03/01 19:02:20  rbolze
+ * change to enable new options relative to logservice in the config file for MA, LA and SeD
+ *
  * Revision 1.15  2004/03/01 16:34:26  mcolin
  * enable the possibility of declaring an endpoint with an hostname
  * for the DIET agents and the SeD (for VTHD demo). To be fixed later
@@ -63,7 +66,10 @@ Parsers::Results::param_t Parsers::Results::params[] =
    /* [10] */ {"nwsUse", 6, Parsers::parseUse, 0, NULL},
    /* [11] */ {"nwsNameserver", 13, Parsers::parseAddress, 0, NULL},
    /* [12] */ {"nwsForecaster", 13, Parsers::parseAddress, 0, NULL},
-   /* [13] */ {"useAsyncAPI", 11, Parsers::parseUse, 0, NULL}};
+   /* [13] */ {"useAsyncAPI", 11, Parsers::parseUse, 0, NULL},
+   /* [14] */ {"useLogService", 13, Parsers::parseUse, 0, NULL},
+   /* [15] */ {"lsOutbuffersize", 15, Parsers::parsePort, 0, NULL},
+   /* [16] */ {"lsFlushinterval", 15, Parsers::parsePort, 0, NULL}};
 
 #define IS_ADDRESS(i) ((i == 8) || (i == 11) || (i == 12))
 
