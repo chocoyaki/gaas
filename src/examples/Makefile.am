@@ -8,6 +8,10 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.6  2003/09/26 14:07:01  pcombes
+#* Get the examples out of the automake chain, to make Makefiles more readable.
+#* The generated before.mk includes the right Makefile.inc.
+#*
 #* Revision 1.5  2003/09/22 21:09:08  pcombes
 #* Scripts for managing a local platform with LDAP + NWS + CORBA Name server.
 #*
@@ -26,64 +30,78 @@
 #* NB: installation directory is $(top_builddir)/src/examples/bin.
 #****************************************************************************#
 
-SUBDIRS = dmat_manips file_transfer @SUBMODULES_examples@
-DIST_SUBDIRS = $(SUBDIRS) @DIST_SUBMODULES_examples@
+SUBDIRS = dmat_manips file_transfer scalars @SUBMODULES_examples@
+# DIST_SUBDIRS is forced to all examples, so that it is still possible to build
+# a (user) dsitribution in user mode.
+DIST_SUBDIRS = BLAS dmat_manips file_transfer ScaLAPACK scalars
 
-EXTRA_DIST = $(wildcard $(srcdir)/cfgs/*.cfg)					\
-	     $(wildcard $(srcdir)/cfgs/*.ldif) $(srcdir)/cfgs/ldap_schema
+.PHONY:	$(DIST_SUBDIRS)
 
-noinst_bindir = `if [ ! -d bin ]; then mkdir bin; fi; cd bin; pwd`
-# The generated bin/local_corba_ns.sh is already "installed" by configure.
-noinst_bin_SCRIPTS = $(srcdir)/bin/local_platform.sh	\
-		     $(srcdir)/bin/local_ldap.sh $(srcdir)/bin/local_nws.sh
+##
+# Manage "manually" the additional configuration files,
+# ie the cfgs/*.cfg, cfgs/*.ldif and cfgs/ldap_schema/*.schema files.
+#
 
 HOSTNAME = @HOST_NAME@
 ex_datadir = ./etc
+SRC_CONFIG_FILES = $(wildcard $(srcdir)/cfgs/*.cfg)	\
+		   $(wildcard $(srcdir)/cfgs/*.ldif)	\
+		   $(wildcard $(srcdir)/cfgs/ldap_schema/*.schema)
+CONFIG_FILES = $(patsubst $(srcdir)/cfgs/%, $(ex_datadir)/%, $(SRC_CONFIG_FILES))
+
+config-files:	$(CONFIG_FILES)
+
+$(ex_datadir)/%.cfg:	$(srcdir)/cfgs/%.cfg
+	@echo "Creating $@"
+	@sed -e "s|@host|$(HOSTNAME)|g" $< | sed -e "s|@pwd|`pwd`|g"	\
+	  > $(ex_datadir)/`basename $@`
+$(ex_datadir)/%.ldif:	$(srcdir)/cfgs/%.ldif
+	@echo "Creating $@"
+	@sed -e "s|@host|$(HOSTNAME)|g" $< | sed -e "s|@pwd|`pwd`|g"	\
+	  > $(ex_datadir)/`basename $@`
+$(ex_datadir)/%.schema:	$(srcdir)/cfgs/%.schema
+	@echo "Creating $@"
+	@cp -f $< $@
+clean-config-files:
+	@for f in $(CONFIG_FILES); do	\
+	  echo "rm -f $$f"; rm -f $$f;	\
+	done
+
+#
+##
+
+##
+# Main targets
+#
+
+EXTRA_DIST = $(SRC_CONFIG_FILES) $(wildcard $(srcdir)/bin/*.sh.in)
+
+all-am:	Makefile before.mk all-data
+
+all-data:	$(ex_datadir) config-files
+
+$(ex_datadir):
+	@if [ ! -d $(ex_datadir)/ldap_schema ]; then	\
+	  mkdir -p $(ex_datadir)/ldap_schema;		\
+	fi
+
+clean: clean-am clean-config-files clean-recursive
+	 rmdir $(ex_datadir)/ldap_schema $(ex_datadir) > /dev/null 2>&1 || exit 0
 
 install-data-hook:
-	@if [ ! -d $(sysconfdir) ]; then mkdir -p $(sysconfdir); fi
-#	Configure does not maintain the mode of the files ...
-	chmod +x bin/local_corba_ns.sh
-#	Generate config files in the build directories
-#	+ copy generated config files into $(sysconfdir)
-	if [ ! -d $(ex_datadir) ]; then						\
-	  mkdir -p $(ex_datadir);						\
-	  for f in $(EXTRA_DIST); do						\
-	    if [ -d $$f ]; then\
-	      cp -R $$f $(ex_datadir);						\
-	    else								\
-	      sed -e "s|@host|$(HOSTNAME)|g" $$f |				\
-	      sed -e "s|@pwd|`pwd`|g" $$f > $(ex_datadir)/`basename $$f`;	\
-	    fi;									\
-	  done;									\
-	  for f in $(ex_datadir)/*.cfg; do					\
-	    $(INSTALL_DATA) $$f $(sysconfdir);					\
-	  done;									\
-	  rm -f $(sysconfdir)/slapd.cfg;					\
+#	Copy generated config files into $(sysconfdir)
+	@if [ ! -d $(sysconfdir) ]; then		\
+	  mkdir -p $(sysconfdir);			\
+	  for f in $(ex_datadir)/*.cfg; do		\
+	    if [ "`basename $$f`" != slapd.cfg ]; then	\
+	      echo "$(INSTALL_DATA) $$f $(sysconfdir)";	\
+	      $(INSTALL_DATA) $$f $(sysconfdir);	\
+	    fi;						\
+	  done;						\
 	fi
 
 uninstall-hook:
 	@for f in $(wildcard $(srcdir)/cfgs/*.cfg); do	\
-	  rm -f $(ex_datadir)/`basename $$f`;		\
-	done;
-	@rmdir $(ex_datadir)
-	@for f in $(wildcard $(srcdir)/cfgs/*.cfg); do	\
 	  rm -f $(sysconfdir)/`basename $$f`;		\
 	done;
-
-.PHONY: dmat_manips file_transfer BLAS ScaLAPACK
-
-dmat_manips:
-	$(MAKE) -C dmat_manips
-
-file_transfer:
-	$(MAKE) -C file_transfer
-
-BLAS:
-	$(MAKE) -C BLAS
-
-ScaLAPACK:
-	$(MAKE) -C ScaLAPACK
-
-
 

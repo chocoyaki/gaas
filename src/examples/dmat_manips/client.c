@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2003/09/26 14:07:01  pcombes
+ * Get the examples out of the automake chain, to make Makefiles more readable.
+ * The generated before.mk includes the right Makefile.inc.
+ *
  * Revision 1.19  2003/08/01 19:35:11  pcombes
  * Fix bugs on memcpy (misused) and DIET_STAT_FILE_NAME.
  *
@@ -192,7 +196,7 @@ main(int argc, char* argv[])
 		      B, DIET_VOLATILE, DIET_DOUBLE, m, n, oB);
       print_matrix(B, m, n, (oB == DIET_ROW_MAJOR));
       diet_matrix_set(diet_parameter(profile,2),
-			NULL, DIET_VOLATILE, DIET_DOUBLE, m, n, oC);
+		      NULL, DIET_VOLATILE, DIET_DOUBLE, m, n, oC);
     }
     
   } else if (pb[4]) {

@@ -1,0 +1,47 @@
+#****************************************************************************#
+#* DIET file_transfer example: Makefile                                     *#
+#*                                                                          *#
+#*  Author(s):                                                              *#
+#*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *#
+#*                                                                          *#
+#* $LICENSE$                                                                *#
+#****************************************************************************#
+#* $Id$
+#* $Log$
+#* Revision 1.9  2003/09/26 14:07:01  pcombes
+#* Get the examples out of the automake chain, to make Makefiles more readable.
+#* The generated before.mk includes the right Makefile.inc.
+#*
+#****************************************************************************#
+
+##
+# The following lines are necessary to include this example in the
+# configuration chain of DIET.
+#
+srcdir = @srcdir@
+subdir = src/examples/file_transfer
+SOURCES = client.c server.c
+HEADERS = 
+#
+# before.mk includes the right Makefile.inc. Indeed, the user might wish to
+# compile this example without installing actually DIET ; thus we cannot assume
+# that the Makefile.inc is really in $(prefix): if it is not installed, then we
+# will look for it in the build directory.
+# If we could be sure that Makefile.inc is installed before compiling this
+# example, we would simply add the following line, which is what the user should
+# do for his own examples: include $(prefix)/include/Makefile.inc
+#
+include ../before.mk
+#
+##
+
+PROGRAMS = client server
+
+all: 	$(PROGRAMS)
+
+client: client.c $(DIET_CLIENT_PREREQ)
+	$(CC) $(CCFLAGS_DIET) $< $(DIET_CLIENT_LIBS) -o $@
+
+server: server.c $(DIET_SERVER_PREREQ)
+	$(CC) $(CCFLAGS_DIET) $< $(DIET_SERVER_LIBS) -o $@
+
