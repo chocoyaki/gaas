@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2004/12/15 15:57:08  sdahan
+ * rewrite the FloodRequestsList to use a simplest implementation. The previous mutex bugs does not exist anymore.
+ *
  * Revision 1.3  2004/10/21 18:14:55  rbolze
  * correct a comment line which wasn't compatible with distrib script :)
  *
@@ -35,8 +38,8 @@
 #ifdef HAVE_MULTI_MA
 
 #include <map>
+#include "omnithread.h"
 #include "RequestID.hh"
-#include "ReadersWriterLock.hh"
 
 /**
  * exception throw when we try to get an FloodRequest that does not
@@ -73,14 +76,7 @@ class FloodRequestsList {
 
 private :
   /** The lock which control the access to the list */
-  DietReadersWriterLock lock ;
-
-  /** a counter to know when the garbage collector is called */
-  unsigned int garbageCounter ;
-
-  /** indicates after how many period call to the method add the
-      garbage collector must be executed.*/
-  const static unsigned int period = 258 ;
+  omni_mutex mutex ;
 
   /** a map to store the FloodRequest. */
   typedef map<RequestID, FloodRequest*> RequestsList ;
@@ -90,9 +86,6 @@ private :
 
   /** the list of all the request */
   RequestsList requestsList ;
-
-  /** the garbage collector */
-  void garbageCollector() ;
 
 public :
   /**
@@ -104,11 +97,12 @@ public :
    * @return true if the floodRequest is added to the list. false if
    * another request with the same id was added.
    */
-  bool add(FloodRequest& floodRequest) ;
+  bool put(FloodRequest& floodRequest) ;
 
   /**
-   * get the flood request with the ID reqID. if the flood request
-   * does not exists, an FloodRequestNotFoundException is send.
+   * get and remove from the list the flood request with the ID
+   * reqID. if the flood request does not exists, an
+   * FloodRequestNotFoundException is send.
    *
    * @param reqID the id of the searched request.
    *

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2004/12/15 15:57:08  sdahan
+ * rewrite the FloodRequestsList to use a simplest implementation. The previous mutex bugs does not exist anymore.
+ *
  * Revision 1.3  2004/10/21 18:14:55  rbolze
  * correct a comment line which wasn't compatible with distrib script :)
  *
@@ -53,27 +56,6 @@ class FloodRequest {
   friend class FloodRequestsList ;
 
 private :
-  /**
-   * control the access of the access compter
-   */
-  mutable omni_mutex accessMutex ;
-
-  /**
-   * count the number of simultaneous access to the Request. a
-   * negative value means that the Request can be removed.
-   */
-  mutable int accessCpt ;
-
-  /**
-   * the mutex which is used to make the FloodRequest thread safe
-   */
-  mutable omni_mutex locker ;
-
-  /**
-   * true if the FloodRequest is defined
-   */
-  bool _defined ;
-
   /**
    * the description of the predecessor, it is not defined if there is
    * no predecessor.
@@ -136,6 +118,11 @@ private :
   int nbOfWaitingResponse ;
   
   /**
+   * mutex used by allResponseReceived
+   */
+  omni_mutex locker ;
+
+  /**
    * an condition to used to wait all the responses of the last
    * flooding.
    */
@@ -146,11 +133,6 @@ private :
    * if all responses arrived and wake up the method floodNextStep.
    */
   void addNewResponse() ;
-
-  /**
-   * gets an access right to the request
-   */
-  void getAccess() const ;
 
 public :
 
@@ -192,16 +174,6 @@ public :
   ~FloodRequest() ;
 
   /**
-   * release the access right to the request
-   */
-  void releaseAccess() const ;
-
-  /**
-   * returns true if the FloodRequest is defined, false if not.
-   */
-  inline bool defined() { return _defined ; }
-
-  /**
    * The current flood request become a copy of request. (thread safe)
    *
    * @param request the flood request which is copied.
@@ -220,7 +192,13 @@ public :
    * taken and returnes it to its predecessor if it exists. The
    * FloodRequest must be defined. (thread safe)
    */
-  void floodNextStep() ;
+  bool floodNextStep() ;
+
+  /**
+   * Waits that all response are received. But it does not wait more
+   * that 5 seconds.
+   */
+  void waitResponses() ;
 
   /**
    * Return the union of all the decision token by the new flooded
@@ -229,6 +207,14 @@ public :
    * defined. (thread safe)
    */
   corba_response_t getDecision() ;
+
+  /**
+   * return the description of the predecessor, it is not defined if
+   * there is no predecessor.
+   */
+  inline MasterAgentImpl::MADescription getPredecessor() {
+    return predecessor ;
+  }
 
   /**
    * returns the identifier of the request

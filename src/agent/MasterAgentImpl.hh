@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2004/12/15 15:57:08  sdahan
+ * rewrite the FloodRequestsList to use a simplest implementation. The previous mutex bugs does not exist anymore.
+ *
  * Revision 1.7  2004/10/06 16:40:24  rbolze
  * implement function to return the Profiles avialable on platform when a client ask it
  *
@@ -154,6 +157,8 @@ private :
   BindService* bindSrv ;
   CORBA::String_var bindName ;
   FloodRequestsList* floodRequestsList ;
+  typedef ts_set<CORBA::Long> ReqIdList ;
+  ReqIdList reqIdList ;
 #endif // HAVE_MULTI_MA
   void
   cp_arg_to_pb(corba_data_desc_t& pb, corba_data_desc_t arg_desc);

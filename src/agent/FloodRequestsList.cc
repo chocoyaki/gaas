@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2004/12/15 15:57:08  sdahan
+ * rewrite the FloodRequestsList to use a simplest implementation. The previous mutex bugs does not exist anymore.
+ *
  * Revision 1.2  2004/10/04 09:40:43  sdahan
  * warning fix :
  *  - debug.cc : change the printf format from %ul to %lu and from %l to %ld
@@ -29,46 +32,51 @@
 
 #include <assert.h>
 #include <set>
+#include <unistd.h>
+#include "debug.hh"
 
-void FloodRequestsList::garbageCollector() {
-  garbageCounter = 0 ;
-  std::set<RequestID> garbage ;
-  for(iterator iter = requestsList.begin() ;
-      iter != requestsList.end() ; iter++) {
-    if(iter->second->accessCpt == -1) {
-      delete iter->second ;
-      garbage.insert(iter->first) ;
-    }
-  }
-  for(std::set<RequestID>::iterator iter = garbage.begin() ;
-      iter == garbage.end() ; iter++)
-    requestsList.erase(*iter) ;
-}
-
-bool FloodRequestsList::add(FloodRequest& floodRequest) {
-  lock.writeLock() ;
-  if (garbageCounter > period)
-    garbageCollector() ;
-  floodRequest.getAccess() ;
+bool FloodRequestsList::put(FloodRequest& floodRequest) {
+  //TRACE_TEXT(15,"fr put lock\n") ;
+  mutex.lock() ;
+  //TRACE_TEXT(15,"fr put --lock\n") ;
   RequestID reqId = floodRequest.getId() ;
   iterator iter = requestsList.find(reqId) ;
   bool result = (iter == requestsList.end()) ;
   if(result) {
     requestsList[reqId] = &floodRequest ;
   }
-  lock.unlock() ;
+  //TRACE_TEXT(15,"fr put unlock\n") ;
+  mutex.unlock() ;
   return result ;
 }
 
 FloodRequest & FloodRequestsList::get(const RequestID & reqID) {
-  lock.readLock() ;
-  iterator iter = requestsList.find(reqID) ;
-  if (iter == requestsList.end())
-    throw FloodRequestNotFoundException(reqID) ;
-  FloodRequest & result = *iter->second ;
-  result.getAccess() ;
-  lock.unlock() ;
-  return result ;
+  int lp = 0 ;
+  FloodRequest* result = NULL;
+  bool find = false ;
+  while (!find && lp < 100) { // waits a maximum of one second
+    //TRACE_TEXT(15,"fr get lock\n") ;
+    mutex.lock() ;
+    //TRACE_TEXT(15,"fr get --lock\n") ;
+    iterator iter = requestsList.find(reqID) ;
+    find = (iter != requestsList.end()) ;
+    if (find) {
+      result = &(*iter->second) ;
+      requestsList.erase(iter) ;
+      //TRACE_TEXT(15,"fr get unlock\n") ;
+      mutex.unlock() ;
+    } else {
+      // if the request is not found, wait 10 ms that a thread free
+      // the resource access
+      //TRACE_TEXT(15,"fr get unlock\n") ;
+      mutex.unlock() ;
+      TRACE_TEXT(20, "FloodRequestsLists sleep 10ms\n") ;
+      usleep(10000) ;
+    }
+  }
+  if (!find)
+      throw FloodRequestNotFoundException(reqID) ;
+  return *result ;
 }
 
 #endif // HAVE_MULTI_MA
