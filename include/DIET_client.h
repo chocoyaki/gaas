@@ -9,6 +9,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.8  2003/02/07 17:02:38  pcombes
+ * diet_initialize match GridRPC (config_file_name as first argument).
+ *
  * Revision 1.7  2003/02/04 10:08:22  pcombes
  * Apply Coding Standards
  *
@@ -29,11 +32,12 @@
 
 #ifndef _DIET_CLIENT_H_
 #define _DIET_CLIENT_H_
+
+#include "DIET_data.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
-
-#include "DIET_data.h"
 
 
 /****************************************************************************/
@@ -44,7 +48,7 @@ extern "C" {
 typedef long int diet_reqID_t;
 
 int
-diet_initialize(int argc, char** argv, char* config_file);
+diet_initialize(char* config_file, int argc, char* argv[]);
 int
 diet_finalize();
 
@@ -53,7 +57,7 @@ diet_finalize();
 /* Data handles                                                             */
 /****************************************************************************/
 
-typedef diet_data_t diet_data_handle_t;
+typedef diet_arg_t diet_data_handle_t;
 
 /* The grpc_malloc function is useless, since it data descriptor allocation is
    useless and set functions aim at filling the structure.                  */
@@ -69,7 +73,6 @@ int
 diet_free(diet_data_handle_t* handle);
 
  
-
 /****************************************************************************/
 /* Argument Stack                                                           */
 /****************************************************************************/

@@ -10,6 +10,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.22  2003/02/07 17:02:38  pcombes
+ * diet_initialize match GridRPC (config_file_name as first argument).
+ *
  * Revision 1.21  2003/02/04 10:02:04  pcombes
  * Apply Coding Standards - Use ORBMgr
  *
@@ -124,7 +127,7 @@ parseConfigFile(char* config_file_name, char* MA_name)
 }
 
 int
-diet_initialize(int argc, char** argv, char* config_file)
+diet_initialize(char* config_file, int argc, char* argv[])
 {
   char MA_name[257];
   
@@ -138,9 +141,10 @@ diet_initialize(int argc, char** argv, char* config_file)
   }
   /* Find Master Agent */
   MA = MasterAgent::_narrow(ORBMgr::getAgentReference(MA_name));
-  if (CORBA::is_nil(MA))
+  if (CORBA::is_nil(MA)){
+    cerr << "Cannot locate Master Agent " << MA_name << ".\n";
     return 1;
-
+  }
   /* Initialize statistics module */
   stat_init();
 
@@ -355,7 +359,7 @@ submission(corba_pb_desc_t* pb, SeqCorbaDecision_t** decision)
 int
 diet_call(diet_function_handle_t* handle, diet_profile_t* profile)
 {
-  corba_pb_desc_t     corba_pb;
+  corba_pb_desc_t&    corba_pb = *(new corba_pb_desc_t);
   corba_profile_t     corba_profile;
   SeqCorbaDecision_t* decision(NULL);
   int subm_count, server_OK, solve_res;
