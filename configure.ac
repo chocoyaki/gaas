@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.8  2003/05/15 14:50:03  cpera
+#* Add version fast test.
+#*
 #* Revision 1.7  2003/04/14 13:44:08  pcombes
 #* Pack DIET specific "enable" arguments all together.
 #*
@@ -31,12 +34,16 @@
 #* add files used by autoconf/automake/libtool.
 #****************************************************************************#
 
+define(DIET_version,     0.7_beta)
+define(FAST_min_version, 0.4.3)
+
+
 dnl ##########################################################################
 dnl #### Process this file with autoconf to produce a configure script.
 dnl ##########################################################################
 AC_PREREQ([2.55])
 ACI_PREREQ(2003.01.29)
-AC_INIT(DIET, 0.7_beta, diet-dev@ens-lyon.fr)
+AC_INIT(DIET, DIET_version, diet-dev@ens-lyon.fr)
 AC_CONFIG_SRCDIR([include/DIET_data.h])
 AC_REVISION($Revision$)
 AC_CONFIG_HEADERS([include/DIET_config.h])
@@ -193,12 +200,14 @@ AC_OMNIORB_DIET(,,,,$proc_name,$proc_def,$plat_name,$plat_def,$os_v,
 dnl ###########################################################################
 dnl ####[ search for the FAST Library ]
 dnl ###########################################################################
-AM_PATH_FAST(,[HAVE_FAST=true
-	       AC_DEFINE(HAVE_FAST,1,[Define use of the FAST library])],
-	      [HAVE_FAST=false
-	       AC_MSG_WARN(Use of FAST library is disabled - either by you or because)
-               AC_MSG_WARN(it was not found: all performance evaluations will be set)
-	       AC_MSG_WARN(to infinity.)])
+
+AM_PATH_FAST(FAST_min_version,
+	       [HAVE_FAST=true
+	         AC_DEFINE(HAVE_FAST,1,[Define use of the FAST library])],
+	       [HAVE_FAST=false
+	         AC_MSG_WARN(Use of FAST library is disabled - either by you or because)
+                 AC_MSG_WARN(it was not found: all performance evaluations will be set)
+	         AC_MSG_WARN(to infinity.)])
 
 dnl ###########################################################################
 dnl ####[ search for the BLAS Library ]
@@ -366,5 +375,7 @@ if test "x$HAVE_MULTI_MA" = "xtrue"
 then
   echo "DIET configured in multi MA mode."
 fi
+echo
+echo "Please run make help to get compilation instructions."
 
 exit 0;
