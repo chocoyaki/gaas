@@ -8,6 +8,12 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.34  2004/08/27 16:28:18  ctedesch
+#* - Use of the asynchronous PIF scheme for propagation of the requests inside
+#* the DIET J multi-hierarchy
+#* - DIET/JXTA -> DIET J
+#* - Change the JXTA examples scripts to build a whole multi-hierarchy
+#*
 #* Revision 1.33  2004/07/09 19:51:57  ctedesch
 #* - javac and javah detected instead of java
 #* - JXTA_LIB automatically set before compilation
@@ -219,7 +225,7 @@ for this feature]),
 AH_TEMPLATE([HAVE_JXTA], [Define use of DIET/JXTA architecture.])
 AC_ARG_ENABLE(JXTA-mode,
     	AC_HELP_STRING([--enable-JXTA-mode],
-			[enable DIET/JXTA architecture]),
+			[enable DIET/J architecture]),
 	[enable_JXTA=yes],
 	[USE_JXTA_MODE=no]
 	)
@@ -516,8 +522,8 @@ else
   echo "no" | tee -a config.log
 fi
 
-# JXTA
-printf " - JXTA:            " | tee -a config.log
+# DIET J
+printf " - DIET J:          " | tee -a config.log
 if test "x$enable_JXTA" = "xyes"
 then
   echo "yes" | tee -a config.log

@@ -24,63 +24,82 @@ import net.jxta.discovery.*;
 import net.jxta.exception.*;
 import net.jxta.document.MimeMediaType;
 
-public class JXTAMultiMA
+public class JXTAMultiMA implements PipeMsgListener
 {
   private DiscoveryService discoServ;
   private PipeService pipeServ;
 
-  private OutputPipe outPipe;
   private InputPipe inPipe;
   private PipeAdvertisement pipeAdv; 
 
+  private InputPipe propagateInPipe;
+  private PipeAdvertisement propagatePipeAdv;
+
   private PeerGroup netPeerGroup = null;    
-    
+  
+  private ReqMgr reqMgr;
+
   public native int startDIETAgent(String config_file);
   public native String[] submitJXTA(String pbName, String nbRow, String nbCol);
     
   static
   {
-    /*
-      System.out.println("Loading omniORB libraries... ");
-      System.loadLibrary("omniDynamic4");
-      System.loadLibrary("omnithread");
-      System.loadLibrary("omniORB4");
-      System.out.println("done.\n");
-    */
+
     System.err.print("Loading MA library... ");
     System.loadLibrary("dietMasterAgent");
     System.err.println("done.");
     
   } // static load libraries
 
-  public InputPipe 
-  getInputPipe()
-  {
-      return (inPipe);
-  }
+  public InputPipe getInputPipe() {return (inPipe);}
 
-  public static void
-  main(String args[])
+  public void pipeMsgEvent (PipeMsgEvent e)
   {
+    Message msg = e.getMessage();
+
+    if (!reqMgr.isElement(msg.getMessageElement("reqId").toString())) {
+      
+      System.out.println("MA JXTA: Request received from AGENT.");
+      Request req = new Request
+	  (msg.getMessageElement("reqId").toString(), 
+	   msg.getMessageElement("fatherId").toString());
+      reqMgr.addElement(req);
+      
+      /* Lauching a thread to process the query */
+      ProcessQuery processQuery = new ProcessQuery 
+	  (this, msg, netPeerGroup, propagatePipeAdv);
+      processQuery.start();
+    }
+  } // pipeMsgEvent
+
+  public static void main(String args[])
+  {
+
+    if (args.length < 1)
+    {
+      System.out.println("USAGE: java JXTAMultiMA <config_file>");
+      System.exit(0);
+    }
+
     JXTAMultiMA mma = new JXTAMultiMA();
-    System.out.println ("Starting DIET Agent...");
+    System.out.println ("MA JXTA: Loading MA DIET...");
+
     int r;
     if ((r = mma.startDIETAgent(args[0])) != 0) {
-      System.out.println("JXTA Agent: loading DIET Agent failed.");
+      System.out.println("MA JXTA: loading MA DIET failed.");
       System.out.println("STOP.");
       System.exit(1);
     }
-    System.out.println("JXTA Agent: DIET Agent is running.");
+    System.out.println("MA JXTA: MA DIET is running.");
 
-    System.out.println("Starting JXTA... ");    
+    System.out.println("MA JXTA: Starting JXTA... ");    
     mma.startJxta();
     System.out.println("done.");
     mma.run();
     System.exit(0);
   } //main
 
-  private void 
-  startJxta()
+  private void startJxta()
   {
     try {
      System.setProperty("net.jxta.tls.password", "agentpwd");
@@ -100,9 +119,55 @@ public class JXTAMultiMA
 
   private void run()
   {
-      MimeMediaType mimeType = new MimeMediaType("text", "xml");
+    MimeMediaType mimeType = new MimeMediaType("text", "xml");
     try {
-	/* Build the input pipe advertisement */
+
+      /* Searching the propagate pipe advertisement*/
+      Enumeration enumPipeAdv = null;
+
+      System.out.print("MA JXTA: Looking for the propagate pipe advertisement... ");
+      int nbDisco = 3;
+      while (--nbDisco > 0) {
+        try {
+	  discoServ.getRemoteAdvertisements
+	      (null, DiscoveryService.ADV, "Name", "DIET_MA_propagate", 1, null);
+	  Thread.sleep(2500);
+	  enumPipeAdv = discoServ.getLocalAdvertisements
+	      (DiscoveryService.ADV, "Name", "DIET_MA_propagate");
+	  if (enumPipeAdv.hasMoreElements())
+	      break;
+	}
+	catch (Exception e) {
+	    e.printStackTrace();
+	}
+      }
+
+      /* if not found, create it */
+      if (enumPipeAdv.hasMoreElements()) {
+	System.out.println("found.");
+	propagatePipeAdv = (PipeAdvertisement)enumPipeAdv.nextElement();
+      }
+      else {
+	System.out.println ("not found, creating it.");
+	propagatePipeAdv = (PipeAdvertisement)
+	    AdvertisementFactory.newAdvertisement
+	    (PipeAdvertisement.getAdvertisementType());
+	propagatePipeAdv.setName("DIET_MA_propagate");
+	propagatePipeAdv.setPipeID(IDFactory.newPipeID(netPeerGroup.getPeerGroupID())); // usefull ?
+	propagatePipeAdv.setType(PipeService.PropagateType);
+      }
+
+      /* build input pipe for propagations */
+      System.out.print ("MA JXTA: Creating propagate input pipe... ");
+      propagateInPipe = pipeServ.createInputPipe(propagatePipeAdv, this);
+      System.out.println("done.");
+
+      /* publish the propagate pipe advertisement */
+      PublishThread propagatePipeAdvPublishThread =
+	  new PublishThread(discoServ, propagatePipeAdv);
+      propagatePipeAdvPublishThread.start();
+
+      /* Build the input pipe advertisement */
       pipeAdv = (PipeAdvertisement) 
 	  AdvertisementFactory.newAdvertisement
 	  (PipeAdvertisement.getAdvertisementType());
@@ -112,21 +177,25 @@ public class JXTAMultiMA
       pipeAdv.setType(PipeService.UnicastType);
 
       /* Create the input pipe to listen to request */
-      inPipe = pipeServ.createInputPipe(pipeAdv);    
-      System.out.println("MA input pipe: " + inPipeId.toString());
+      System.out.print ("MA JXTA: Creating input pipe for clients... ");
+      inPipe = pipeServ.createInputPipe(pipeAdv);
+      System.out.println("done.");
 	    
       /* Publish the agent advertisement */
       PublishThread publishThread = new PublishThread(discoServ, pipeAdv);
       publishThread.start();
-      System.out.println("Publishing MA advertisement...");
       
-      /* Wait for client or agent query */
+      /* Create the request manager */
+      reqMgr = new ReqMgr();
+
+      /* Wait for queries */
+      System.out.println("MA JXTA: Ready to process queries.");
       while(true) {
-        System.out.println("JXTA Agent: waiting for client or agent queries...");
 	Message msg = inPipe.waitForMessage();
-	System.out.println("received, launching a thread to process it.");
-	ProcessThread processThread = new ProcessThread (this, msg, netPeerGroup);
-	processThread.start();
+	System.out.println("MA JXTA: Request received from a CLIENT");
+	ProcessQuery processQuery = new ProcessQuery 
+	    (this, msg, netPeerGroup, propagatePipeAdv);
+	processQuery.start();
       }
     }
     catch(Exception e) {
@@ -140,11 +209,16 @@ public class JXTAMultiMA
     return (resp);
     
   } // call DIET Agent
-    
+
 } // JXTAMultiMA
 
 
-class ProcessThread extends Thread
+/**
+ *
+ * This thread process a query
+ *
+ */
+class ProcessQuery extends Thread implements PipeMsgListener
 {
   private JXTAMultiMA mma;
   private Message msg;
@@ -154,53 +228,78 @@ class ProcessThread extends Thread
   private PipeService pipeServ;
   
   private PipeAdvertisement pipeAdv;
-  private OutputPipe outPipe;
   private InputPipe inPipe;
 
-  ProcessThread (JXTAMultiMA _mma, Message _msg, PeerGroup _netPeerGroup)
+  private PipeAdvertisement propagatePipeAdv;
+  private OutputPipe outPipe;
+
+  private OutputPipe backOutPipe;
+
+  private MimeMediaType mimeType;
+
+  private UuidsMgr seds;
+  private int nbForwards;
+  private int nbResponses;
+  private boolean allRspsReceived;
+
+  ProcessQuery (JXTAMultiMA _mma, Message _msg, PeerGroup _netPeerGroup, PipeAdvertisement _propagatePipeAdv)
   {
     mma = _mma;
     msg = _msg;
     netPeerGroup = _netPeerGroup;
     
+    allRspsReceived = false;
+    nbResponses = 0;
+
+    propagatePipeAdv = _propagatePipeAdv;
+
     discoServ = netPeerGroup.getDiscoveryService();
     pipeServ = netPeerGroup.getPipeService();
 
-    /* Build an input pipe to listen to client or agent responses */
+    /* Build an input pipe to listen to agent responses */
     try {
       pipeAdv = (PipeAdvertisement)
 	  AdvertisementFactory.newAdvertisement
 	  (PipeAdvertisement.getAdvertisementType());
       PipeID inPipeId = IDFactory.newPipeID(netPeerGroup.getPeerGroupID());
-      pipeAdv.setName("Normal");
       pipeAdv.setPipeID(inPipeId);
       pipeAdv.setType(PipeService.UnicastType);
-      inPipe = pipeServ.createInputPipe(pipeAdv);
+      inPipe = pipeServ.createInputPipe(pipeAdv, this);
     }
     catch (Exception e) {
       e.printStackTrace();
     }
+
+    mimeType = new MimeMediaType("text", "xml");
+
   } // ctor
 
   public void run()
   {
-    String pID = null;
-    MimeMediaType mimeType = new MimeMediaType("text", "xml");
+      //String pID = null;
     try {
-      String component = (msg.getMessageElement("origin")).toString();
-      if (component.compareTo("client") == 0) {
-        /* Call DIET Agent to get a SeD reference */
-        String pbName = (msg.getMessageElement("pbName")).toString();
+      if ((msg.getMessageElement("origin")).toString().compareTo("CLIENT") == 0) {
+
+	/* Create a new UUIDs manager */
+	String reqId = msg.getMessageElement("reqId").toString();
+	seds = new UuidsMgr(reqId);
+
+	/* Extract problem description */
+	String pbName = (msg.getMessageElement("pbName")).toString();
         String nbRow = (msg.getMessageElement("nbRow")).toString();
         String nbCol = (msg.getMessageElement("nbCol")).toString();
 
+        /* Submit */
         String[] resp = mma.callDIETAgent(pbName, nbRow, nbCol);
+	for (int i = 0; i < Array.getLength(resp); i++)
+	    seds.addUuid(resp[i]);
 
-        /* if no SeD is found in the own agent's tree, forward to others MA */
+        /* Propagation if failure */
         if (Array.getLength(resp) == 0) {
           resp = new String [30];
+
           Enumeration otherMA = null;
-	  System.out.print("Searching other MAs DIET...");
+	  System.out.print("MA JXTA: Looking for other MA(s)... ");
 	  int nbTry = 3;
 	  while (nbTry > 0) {
             try {
@@ -217,68 +316,93 @@ class ProcessThread extends Thread
 	      e.printStackTrace();
 	    }
 	  }
-          int ind = 0;
-          while (otherMA.hasMoreElements()) {
-	    String[] rsp = null;
-            PipeAdvertisement otherPipeAdv = (PipeAdvertisement)otherMA.nextElement();
-	    pID = otherPipeAdv.getPipeID().toString();
+
+	  if (otherMA.hasMoreElements()) {
+
+	    String otherPipeIdStr = null;
+	    PipeAdvertisement [] otherPipeAdvs = new PipeAdvertisement [100];
+	    for (int i = 0; i < 100; i++)
+	      otherPipeAdvs[i] = null;
 	    
-            if (pID.compareTo (mma.getInputPipe().getPipeID().toString()) != 0) {   
-              System.out.println("Agent found input pipe uuid: " + pID.toString());
+	    /* Extracting other MA from the discovery */
+	    while (otherMA.hasMoreElements()) {
+		String[] rsp = null;
+	      PipeAdvertisement otherPipeAdv = (PipeAdvertisement)otherMA.nextElement();
+	      otherPipeIdStr = otherPipeAdv.getPipeID().toString();
 
-              try {
-                outPipe = pipeServ.createOutputPipe(otherPipeAdv, -1);
-              }
-              catch(Exception e) {
-                e.printStackTrace();
-              }
+	      /* removing himself to discover only other MA(s) */
+	      if (otherPipeIdStr.compareTo (mma.getInputPipe().
+					    getPipeID().toString()) != 0) {
+	      nbForwards++;
+	      }
+	    }
 
-              /* Create messages to forward */
-              String forwardPbName = (msg.getMessageElement("pbName")).toString();
-              String forwardNbRow = (msg.getMessageElement("nbRow")).toString();
-              String forwardNbCol = (msg.getMessageElement("nbCol")).toString();
+	    /* If other MAs found */
+	    if (nbForwards > 0) {
 
-              Message forwardMsg = new Message ();
-
-	      InputStream ip;
-	      InputStreamMessageElement smeforwardPipeAdv;
-	      ip = pipeAdv.getDocument(mimeType).getStream();
-	      smeforwardPipeAdv = new InputStreamMessageElement("pipeAdv", 
-							   mimeType, 
-							   ip,
-							   null);
-              StringMessageElement smeforwardPbName = 
-		  new StringMessageElement("pbName", forwardPbName, null);
-              StringMessageElement smeforwardNbRow = 
-		  new StringMessageElement("nbRow", forwardNbRow, null);
-              StringMessageElement smeforwardNbCol = 
-		  new StringMessageElement("nbCol", forwardNbCol, null);
-              StringMessageElement smeorigin = 
-		  new StringMessageElement("origin", "agent", null);
-					
-              forwardMsg.addMessageElement(smeforwardPbName);
-              forwardMsg.addMessageElement(smeforwardNbRow);
-              forwardMsg.addMessageElement(smeforwardNbCol);
-              forwardMsg.addMessageElement(smeorigin);
-              forwardMsg.addMessageElement(smeforwardPipeAdv);
-					
-              /* forward query to agent */ 
-              outPipe.send(forwardMsg);
-              System.out.println ("Problem forwarded to agent...");
-
-              Message rspMsg = inPipe.waitForMessage();
-					
-              /* Response received from agent, send back to client */
-              Message.ElementIterator respIter = rspMsg.getMessageElements("SeDUuid");
+	      /* Adding himself to have the right number of responses to wait */
+	      nbForwards++;
+	      System.out.println("found.");
+	      /* get Request elements to be forwarded */
+	      String fwdReqId = msg.getMessageElement("reqId").toString();
+	      String fwdPbName = (msg.getMessageElement("pbName")).toString();
+	      String fwdNbRow = (msg.getMessageElement("nbRow")).toString();
+	      String fwdNbCol = (msg.getMessageElement("nbCol")).toString();
+	      InputStream ip = pipeAdv.getDocument(mimeType).getStream();
+	      InputStreamMessageElement smeFwdPipeAdv =
+		  new InputStreamMessageElement("pipeAdv", mimeType, ip, 
+						null);
+	      StringMessageElement smeFwdReqId =
+		  new StringMessageElement("reqId", fwdReqId, null);
 	      
-					
-              /* extracting SeD Uuid(s) from message */
-              while (respIter.hasNext()) {
-                resp[ind++] = (respIter.next()).toString();
-              }
-            }
-          }
+	      StringMessageElement smeFatherId =
+		  new StringMessageElement("fatherId", 
+					   mma.getInputPipe().getPipeID()
+					   .toString(),
+					   null);
+	      StringMessageElement smeFwdPbName = 
+		  new StringMessageElement("pbName", fwdPbName, null);
+	      StringMessageElement smeFwdNbRow = 
+		  new StringMessageElement("nbRow", fwdNbRow, null);
+	      StringMessageElement smeFwdNbCol = 
+		  new StringMessageElement("nbCol", fwdNbCol, null);
+	      StringMessageElement smeOrigin = 
+		  new StringMessageElement("origin", "AGENT", null);
+
+	      Message fwdMsg = new Message();
+
+	      fwdMsg.addMessageElement(smeFwdPbName);
+	      fwdMsg.addMessageElement(smeFwdNbRow);
+	      fwdMsg.addMessageElement(smeFwdNbCol);
+	      fwdMsg.addMessageElement(smeOrigin);
+	      fwdMsg.addMessageElement(smeFwdReqId);
+	      fwdMsg.addMessageElement(smeFatherId);
+	      fwdMsg.addMessageElement(smeFwdPipeAdv);
+	      
+	      try {
+		outPipe = pipeServ.createOutputPipe
+		    (propagatePipeAdv, 10000);
+	      }
+	      catch(Exception e) {
+		  e.printStackTrace();
+	      }
+	      
+	      /* send message */
+	      outPipe.send(fwdMsg);
+		
+	      System.out.println("MA JXTA: Request forwarded to " + 
+				 (nbForwards - 1) + " MA(s).");
+
+	      /* Waiting all responses */
+	      while(!allRspsReceived);
+	      System.out.println("MA JXTA: All responses received");
+	    }
+	    else
+		System.out.println("not found.");
+	  }
         }
+
+	/* Answer the client */
 	InputStream ip = null;
         ip = (msg.getMessageElement("pipeAdv")).getStream();
 	PipeAdvertisement clientPipeAdv = (PipeAdvertisement)
@@ -289,67 +413,138 @@ class ProcessThread extends Thread
 	Message responseMsg = new Message();
 	
 	/* insert uuids of server found */
+	String [] sedUuids = seds.getUuids();
+	
 	int i;
-	for(i = 0; ((i < Array.getLength(resp)) && (resp[i] != null)); i++) {
+	for(i = 0; i < seds.getNbUuids(); i++) {
 	  
           StringMessageElement smeSeDUuid = 
-	      new StringMessageElement("SeDUuid", resp[i], null);
+	      new StringMessageElement("SeDUuid", sedUuids[i], null);
 	  responseMsg.addMessageElement(smeSeDUuid);
-	  System.out.println ("JXTA Agent: SeD sent to client : " + resp[i]);
 	}
-	System.out.println(i + " SeD sent to client");
+	System.out.println("MA JXTA: " + i + " SeD(s) sent to client");
 	
 	/* Send the response message to client */    
 	outPipe.send (responseMsg);
+	outPipe.close();
       }
-      else /* Query forwarded by an agent */ {
-			
-        String pbName;
-        String nbRow;
-        String nbCol;
-			
-        pbName = (msg.getMessageElement("pbName")).toString();
-        nbRow = (msg.getMessageElement("nbRow")).toString();
-        nbCol = (msg.getMessageElement("nbCol")).toString();
-			
-        /* Call DIET Agent to submit to DIET */
-        String[] resp = mma.callDIETAgent(pbName, nbRow, nbCol);
-	
-        //String agentUuid = (msg.getMessageElement("agentUuid")).toString();
-        InputStream ip = null;
-        ip = msg.getMessageElement("pipeAdv").getStream();
-   
-	PipeAdvertisement agentPipeAdv = (PipeAdvertisement)
-	    AdvertisementFactory.newAdvertisement(mimeType, ip);
-	outPipe = pipeServ.createOutputPipe(agentPipeAdv, 20000);
+      else /* Query forwarded by an AGENT */ {
 
-        /* build an output pipe to connect on the agent input pipe */
-        outPipe = pipeServ.createOutputPipe(agentPipeAdv, 20000);
+	/* Extract problem description */
+	String pbName = (msg.getMessageElement("pbName")).toString();
+	String nbRow = (msg.getMessageElement("nbRow")).toString();
+	String nbCol = (msg.getMessageElement("nbCol")).toString();
+
+	/* Submit */
+	String[] resp = mma.callDIETAgent(pbName, nbRow, nbCol);
+
+	/* Extract father pipe advertisement */
+	InputStream ip3 = msg.getMessageElement("pipeAdv").getStream();
+	PipeAdvertisement agentPipeAdv = (PipeAdvertisement)
+	    AdvertisementFactory.newAdvertisement(mimeType, ip3);
+	
+	/* Binding father input pipe */
+	backOutPipe = pipeServ.createOutputPipe(agentPipeAdv, 0);
 
 	/* Create the response message */
 	Message responseMsg = new Message();
-	
+	  
 	/* insert uuids of server found */
-	System.out.println("JXTA Agent: " + Array.getLength(resp) + 
-			   " SeD sent to agent.");
 	for(int i = 0; i < Array.getLength(resp); i++) {
-          StringMessageElement smeSeDUuid = 
-	      new StringMessageElement("SeDUuid", resp[i], null);
-	  responseMsg.addMessageElement(smeSeDUuid);
-	  System.out.println ("JXTA Agent: SeD sent to agent: " + resp[i]);
+	    StringMessageElement smeSeDUuid = 
+		new StringMessageElement("SeDUuid", resp[i], null);
+	    responseMsg.addMessageElement(smeSeDUuid);
 	}
-			    
+
 	/* Send the response message */
-        outPipe.send (responseMsg);
+	backOutPipe.send (responseMsg);
+	System.out.println ("MA JXTA: FEEDBACK - SENT");
+
+        /* creating message to be propagated */
+	String reqId2 = msg.getMessageElement("reqId").toString();
+      
+	InputStream ip = pipeAdv.getDocument(mimeType).getStream();
+	InputStreamMessageElement smePipeAdv =
+	    new InputStreamMessageElement("pipeAdv", mimeType, ip, null);
+	StringMessageElement smeReqId =
+	    new StringMessageElement("reqId", reqId2, null);
+	StringMessageElement smePbName = 
+	    new StringMessageElement("pbName", pbName, null);
+	StringMessageElement smeNbRow = 
+	    new StringMessageElement("nbRow", nbRow, null);
+	StringMessageElement smeNbCol = 
+	    new StringMessageElement("nbCol", nbCol, null);
+	StringMessageElement smeOrigin = 
+	    new StringMessageElement("origin", "AGENT", null);
+	
+	Message forwardMsg = new Message ();
+	
+	forwardMsg.addMessageElement(smeReqId);
+	forwardMsg.addMessageElement(smePbName);
+	forwardMsg.addMessageElement(smeNbRow);
+	forwardMsg.addMessageElement(smeNbCol);
+	forwardMsg.addMessageElement(smeOrigin);
+	forwardMsg.addMessageElement(smePipeAdv);
+	
+	try {
+	  /* create propagate output pipe */
+	  outPipe = pipeServ.createOutputPipe
+	      (propagatePipeAdv, 10000);
+	  /* send message */
+	  outPipe.send(forwardMsg);
+	}
+	catch(Exception e) {
+	  e.printStackTrace();
+	}
       }
     }
     catch (Exception e) {
       e.printStackTrace();
     }
   } // run
-} // ProcessThread
 
+  public void pipeMsgEvent (PipeMsgEvent event)
+  {
 
+    Message rspMsg = event.getMessage();
+
+    if (((msg.getMessageElement("origin")).toString().compareTo("CLIENT") == 0)) {
+      /* FIXME : useful test because of reentrance */
+      if (allRspsReceived == false) {
+      
+	Message.ElementIterator msgIter = rspMsg.getMessageElements("SeDUuid");      
+	int nbSeDs = 0;
+	while (msgIter.hasNext()) {
+	  if(!seds.addUuid(msgIter.next().toString())) {
+	    System.out.println("MA JXTA: Too many SeDs found!");
+	    break;
+	  }
+	  nbSeDs++;
+	}
+	System.out.println("MA JXTA: " + nbSeDs + " SeD(s) added.");
+	if (++nbResponses == nbForwards) {
+	  allRspsReceived = true;
+	}
+      }
+    }
+    else {
+      try {
+	backOutPipe.send(rspMsg);
+	System.out.println("MA JXTA: FEEDBACK - FORWARDED.");
+      }
+      catch (IOException ioe) {
+	ioe.printStackTrace();
+      }
+    }
+  } // pipeMsgEvent
+
+} // ProcessQuery
+
+/**
+ *
+ * Thred publishing advertisements with lifetime
+ *
+ */
 class PublishThread extends Thread
 {
   private DiscoveryService disco;
@@ -361,18 +556,15 @@ class PublishThread extends Thread
     pipeAdv = _pipeAdv;
   }
     
-  public void 
-  run()
+  public void run()
   {
     try {
       while(true) {
-        /* publish the advertisement with lifetime = 20s */
-	long lifetime = 20000;
-        //disco.publish(pipeAdv, lifetime, lifetime);
+        /* publish the advertisement with lifetime = 15s every 7 seconds */
+	long lifetime = 15000;
+        disco.publish(pipeAdv, lifetime, lifetime);
         disco.remotePublish(pipeAdv, lifetime);
-
-        /* Wait 15s and re-publish the advertisement */
-        this.sleep(15000);
+        this.sleep(7000);
       }
     }
     catch(Exception e) {

@@ -58,8 +58,7 @@ public class JXTAClient
     System.exit(0);
   }
    
-  private void 
-  startJxta()
+  private void startJxta()
   {
     /* Start the JXTA platform */
     try {   
@@ -80,8 +79,7 @@ public class JXTAClient
 
   } // startJxta
 
-  private void 
-  run(String _pbName)
+  private void run(String _pbName)
   {
     MimeMediaType mimeType = new MimeMediaType("text", "xml");
     pbName = new String(_pbName);
@@ -89,7 +87,7 @@ public class JXTAClient
     Enumeration jxtaMA = null;
     PipeAdvertisement agentPipeAdv = null;
 
-    System.out.print("Searching a DIET-MA advertisement... ");
+    System.out.print("Searching MA advertisement... ");
     while (true) {
 	try {
 	  jxtaMA = discoServ.getLocalAdvertisements
@@ -137,12 +135,17 @@ public class JXTAClient
     }
 
     /* submit */
-    this.submitPb();
+    for(int i = 0; i < 10; i++)
+      this.submitPb();
 
   } // run
 
   private void submitPb()
   {
+
+    /* reqId : Id of the request at the DIET_J multi-hierarchy level */
+    /* ReqID : ID of the request for one hierarchy */
+
     MimeMediaType mimeType = new MimeMediaType("text", "xml");
     try {
       /* Create the description of the pb */
@@ -157,6 +160,7 @@ public class JXTAClient
       String mat2 = "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16";
     
       /* build a message containing this description */
+      Date d = new Date();
       Message msg = new Message();
 
       InputStream ip = pipeAdvIn.getDocument(mimeType).getStream();
@@ -165,7 +169,9 @@ public class JXTAClient
 				      mimeType, 
 				      ip, null);
       StringMessageElement smeorigin = 
-	  new StringMessageElement("origin", "client", null);
+	  new StringMessageElement("origin", "CLIENT", null);
+      StringMessageElement smeReqId = 
+	  new StringMessageElement ("reqId", Long.toString(d.getTime()), null);
       StringMessageElement smepbName = 
 	  new StringMessageElement("pbName", pbName, null);
       StringMessageElement smenbRow = 
@@ -174,6 +180,7 @@ public class JXTAClient
 	  new StringMessageElement("nbCol", nbCol, null);
 
       msg.addMessageElement(smeorigin);
+      msg.addMessageElement(smeReqId);
       msg.addMessageElement(smePipeAdv);
       msg.addMessageElement(smepbName);
       msg.addMessageElement(smenbRow);
@@ -204,6 +211,7 @@ public class JXTAClient
 	/* Try to connect the SeDs, one by one */
 	int k = 1;
 	String reqID = null;
+	OutputPipe pbOutPipe = null;
 	while (iter.hasNext() && !connected) {
 	    
 	  StringTokenizer stk = new StringTokenizer (iter.next().toString());
@@ -214,7 +222,7 @@ public class JXTAClient
 	  pipeAdvOut.setType(PipeService.UnicastType);
 	  try {
 	    connected = true;
-	    outPipe = pipeServ.createOutputPipe(pipeAdvOut, 20000);
+	    pbOutPipe = pipeServ.createOutputPipe(pipeAdvOut, 20000);
 	  }
 	  catch(IOException e) {
 	    System.out.println("Unable to connect the SeD " + k);
@@ -269,7 +277,7 @@ public class JXTAClient
 
         /* Send Message to SeD */
         System.out.print("Sending pb to SeD... ");
-        outPipe.send(msgPb);
+        pbOutPipe.send(msgPb);
         System.out.println("done.");
   
         System.out.println("Waiting the result of computation...");

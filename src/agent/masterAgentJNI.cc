@@ -43,7 +43,8 @@ MasterAgentImpl* MasterAgt;
 LocMgrImpl *Loc;
 
 void RPCsWait (void* args);
-long int strToLong (char *);
+
+long int atol (char *);
 char *ltoa (long);
 
 JNIEXPORT jint JNICALL 
@@ -247,9 +248,7 @@ Java_JXTAMultiMA_startDIETAgent(JNIEnv *env,
   MasterAgt->linkToLocMgr(Loc);
 
   /* Wait for RPCs (blocking call): */
-  cout << "DIET Agent: Creating thread waiting for client call... ";
   omni_thread *RPCsWaitThread = omni_thread::create(RPCsWait, (void *)0, omni_thread::PRIORITY_NORMAL);
-  cout << "done." << endl;
 
   return (0);
 } // start DIET Agent
@@ -275,8 +274,8 @@ Java_JXTAMultiMA_submitJXTA(JNIEnv *env,
   // 3 matrices
   long int nbR, nbC;
 
-  nbR = strToLong(strdup(env->GetStringUTFChars(nbRow, 0)));
-  nbC = strToLong(strdup(env->GetStringUTFChars(nbCol, 0)));
+  nbR = atol(strdup(env->GetStringUTFChars(nbRow, 0)));
+  nbC = atol(strdup(env->GetStringUTFChars(nbCol, 0)));
 
   corba_matrix_specific_t mat1, mat2, mat3;
   
@@ -340,40 +339,37 @@ Java_JXTAMultiMA_submitJXTA(JNIEnv *env,
   if (resp->servers.length() == 0)
     cout << "MA DIET: No server found." << endl;
   else {
-    cout << "MA DIET: " << resp->servers.length() << " server(s) found:" << endl;
+    cout << "MA DIET: " << resp->servers.length() << " server(s) found." << endl;
     jstring uuid_string;
     
     for (int respCt = 0; respCt < resp->servers.length(); respCt++) {
       
       uuid_string = NULL;
       char *uuid_char = (char *)((((resp->servers[respCt]).loc).uuid).in());
-      char *reqIDNbr = NULL;
+      const char* reqIDNbr = ltoa(resp->reqID);
       
       uuid_char = strcat(uuid_char, (const char *)" ");
-      reqIDNbr = ltoa(resp->reqID);
-      
-      char *uuid_char2 = strcat(uuid_char, (const char *)reqIDNbr);
+      uuid_char = strcat(uuid_char, reqIDNbr);
 
-      uuid_string = env->NewStringUTF(uuid_char2);
+      uuid_string = env->NewStringUTF(uuid_char);
       env->SetObjectArrayElement(uuid_ret, respCt, uuid_string);
 
       delete [] reqIDNbr;
       delete [] uuid_char;
-      delete [] uuid_char2;
     }
   }
   return (uuid_ret);
   
 } // submitJXTA
 
-/* return a char * represnting the parameter int value */
+/* return a string representing the parameter long value */
 char *ltoa (long i)
 {
-  char *s = new char [50];
+  char *s = new char [20];
   long tmp = i;
   int cpt = 0;
   if (tmp == 0) {
-    return "0";
+    return ("0");
   }
   else {
     while (tmp >= 1) {
@@ -382,9 +378,9 @@ char *ltoa (long i)
 	tmp/=10;
     }
     s[cpt] = '\0';
-    char *srev = new char[strlen(s)];
+    char *srev = new char[strlen(s) + 1];
     int irev = 0;
-			  
+
     for (int i = strlen(s)- 1; i >= 0; i--)
       srev[irev++] = s[i];
     srev[irev] = '\0';
@@ -393,7 +389,7 @@ char *ltoa (long i)
   }
 } // ltoa
 
-long int strToLong (char *str)
+long int atol (char *str)
 {
   long int d = 0;
   int diz = 1; 
@@ -403,4 +399,4 @@ long int strToLong (char *str)
     diz = diz * 10;
   }
   return (d);
-} // str to long
+} // atol
