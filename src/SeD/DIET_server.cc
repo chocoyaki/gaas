@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2003/08/09 17:28:25  pcombes
+ * Make diet_profile_desc_alloc and diet_profile_alloc homogenous.
+ *
  * Revision 1.15  2003/07/25 20:22:48  pcombes
  * Add macros BEGIN_API and END_API to refine what is to be put in extern "C".
  *
@@ -63,8 +66,9 @@ diet_service_table_init(int maxsize)
 }
 
 int
-diet_service_table_add(const char*          service_path,
-		       diet_profile_desc_t* profile,
+diet_convertor_check(diet_convertor_t* cvt, diet_profile_desc_t* profile);
+int
+diet_service_table_add(diet_profile_desc_t* profile,
 		       diet_convertor_t*    cvt,
 		       diet_solve_t         solve_func)
 {
@@ -72,11 +76,16 @@ diet_service_table_add(const char*          service_path,
   corba_profile_desc_t corba_profile;
   diet_convertor_t*    actual_cvt(NULL);
 
-  mrsh_profile_desc(&corba_profile, profile, service_path);
+  mrsh_profile_desc(&corba_profile, profile);
   if (cvt) {
+    /* Check the convertor */
+    if (diet_convertor_check(cvt, profile)) {
+      ERROR("the convertor for profile " << profile->path
+	    << " is not valid. Please correct above errors first", 1);
+    }
     actual_cvt = cvt;
   } else {
-    actual_cvt = diet_convertor_alloc(service_path, profile->last_in,
+    actual_cvt = diet_convertor_alloc(profile->path, profile->last_in,
 				      profile->last_inout, profile->last_out);
     for (int i = 0; i <= profile->last_out; i++)
       diet_arg_cvt_set(&(actual_cvt->arg_convs[i]),
@@ -100,11 +109,12 @@ diet_print_service_table()
 /****************************************************************************/
 
 diet_profile_desc_t*
-diet_profile_desc_alloc(int last_in, int last_inout, int last_out)
+diet_profile_desc_alloc(const char* path,
+			int last_in, int last_inout, int last_out)
 {
   diet_profile_desc_t* desc(NULL);
   diet_arg_desc_t*     param_desc(NULL);
-  
+
   if ((last_in < -1) || (last_inout < -1) || (last_out < -1))
     return NULL;
   if (last_out == -1)
@@ -112,11 +122,12 @@ diet_profile_desc_alloc(int last_in, int last_inout, int last_out)
   else {
     param_desc = new diet_arg_desc_t[last_out + 1];
     if (!param_desc)
-      return NULL;  
+      return NULL;
   }
   desc = new diet_profile_desc_t;
   if (!desc)
     return NULL;
+  desc->path       = strdup(path);
   desc->last_in    = last_in;
   desc->last_inout = last_inout;
   desc->last_out   = last_out;
@@ -131,6 +142,7 @@ diet_profile_desc_free(diet_profile_desc_t* desc)
 
   if (!desc)
     return 1;
+  free(desc->path);
   if ((desc->last_out > -1) && desc->param_desc) {
     free(desc->param_desc);
     res = 0;
@@ -140,7 +152,7 @@ diet_profile_desc_free(diet_profile_desc_t* desc)
   free(desc);
   return res;
 }
-  
+
 
 /****************************************************************************/
 /* DIET problem evaluation                                                  */
@@ -208,6 +220,45 @@ diet_convertor_free(diet_convertor_t* cvt)
   return res;
 }
 
+int
+diet_convertor_check(diet_convertor_t* cvt, diet_profile_desc_t* profile)
+{
+  int res = 0;
+
+#define CHECK_ERROR(formatted_text)                         \
+  if (res == 0)                                             \
+    cerr << "DIET ERROR while checking the convertor from " \
+	 << profile->path << " to " << cvt->path << ":\n";  \
+  cerr << formatted_text << ".\n";                  \
+  res = 1;
+
+
+  for (int i = 0; i <= cvt->last_out; i++) {
+    int in, out;
+
+    if ((((int)cvt->arg_convs[i].f) < 0)
+	|| (cvt->arg_convs[i].f >= DIET_CVT_COUNT)) {
+      CHECK_ERROR("- the argument convertor " << i << " has got a wrong "
+		  << "convertor function (" << cvt->arg_convs[i].f << ")");
+    }
+    in  = cvt->arg_convs[i].in_arg_idx;
+    out = cvt->arg_convs[i].out_arg_idx;
+    if ((in < 0) || (in > profile->last_out) ||
+	(out < 0) || (out > profile->last_out)) {
+      if (cvt->arg_convs[i].arg == NULL) {
+	CHECK_ERROR("- the argument convertor " << i << " references no "
+		    << "argument ;\n  it should reference either an index of "
+		    << "the profile, or a constant argument");
+      }
+    } else if (cvt->arg_convs[i].arg != NULL) {
+      CHECK_ERROR("- the argument convertor " << i << " references too many "
+		  << "arguments ;\n  it should reference either an index of "
+		  << "the profile, or a constant argument");
+    }
+  }
+  return res;
+}
+
 
 /****************************************************************************/
 /* DIET server call                                                         */
@@ -220,7 +271,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   int    res(0);
   int    myargc;
   char** myargv;
-  
+
   /* Set arguments for ORBMgr::init */
 
   myargc = argc;
@@ -232,7 +283,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   /* Parsing */
 
   Parsers::Results::param_type_t compParam[] = {Parsers::Results::PARENTNAME};
-  
+
   if ((res = Parsers::beginParsing(config_file_name)))
     return res;
   if ((res =
@@ -256,7 +307,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
 
 
   /* Get listening port */
-  
+
   size_t* port = (size_t*)
     (Parsers::Results::getParamValue(Parsers::Results::ENDPOINT));
   if (port != NULL) {
@@ -287,7 +338,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
     ERROR("ORB initialization failed", 1);
   }
 
-  
+
   /* Create and activate the SeD */
   SeD = new SeDImpl();
   ORBMgr::activate(SeD);
@@ -298,11 +349,11 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   }
 
   /* We do not need the parsing results any more */
-  Parsers::endParsing();  
+  Parsers::endParsing();
 
   /* Wait for RPCs : */
   ORBMgr::wait();
-  
+
   return 0;
 }
 
