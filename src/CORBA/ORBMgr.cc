@@ -1,36 +1,41 @@
 /****************************************************************************/
-/* $Id$ */
 /* DIET ORB Manager implementation                                          */
 /*                                                                          */
 /*  Author(s):                                                              */
 /*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
+/*    - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)             */
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/*
+/* $Id$
  * $Log$
+ * Revision 1.2  2003/04/10 12:43:56  pcombes
+ * Use the TRACE_LEVEL of the debug module. Uniformize return codes.
+ *
  * Revision 1.1  2003/02/04 09:58:13  pcombes
  * Unify ORBs interface with a manager class: ORBMgr
- *
  ****************************************************************************/
-
-#include "ORBMgr.hh"
 
 #include <iostream>
 using namespace std;
-//#include <stdio.h>
 
+#include "ORBMgr.hh"
+#include "debug.hh"
 
-static CORBA::ORB_ptr          ORB;
-static PortableServer::POA_var POA;
+extern unsigned int TRACE_LEVEL;
 
+/* Initialize private static members. */
+CORBA::ORB_ptr ORBMgr::ORB = CORBA::ORB::_nil();
+PortableServer::POA_var ORBMgr::POA = PortableServer::POA::_nil();
 
 void
-ORBMgr::traceLevel(int level)
+ORBMgr::setTraceLevel()
 {
 #ifdef __OMNIORB4__
-  omniORB::traceLevel = level;
+  omniORB::traceLevel =
+    (TRACE_LEVEL < TRACE_MAX_VALUE) ? 0 : (TRACE_LEVEL - TRACE_MAX_VALUE);
 #endif // __OMNIORB4__
+  return;
 }
 
 int
@@ -80,6 +85,14 @@ CORBA::Object_ptr
 ORBMgr::getAgentReference(const char* agentName)
 {
   CosNaming::NamingContext_var rootContext;
+  CORBA::Object_ptr obj;
+
+  try {
+    obj = ORB->resolve_initial_references(agentName);
+  } catch (...) {
+    if (TRACE_LEVEL >= TRACE_ALL_STEPS)
+      cerr << "Attempt to resolve init ref of Agent failed.\n";
+  }
 
   try {
     // Obtain a reference to the root context of the Name service:
@@ -114,7 +127,6 @@ ORBMgr::getAgentReference(const char* agentName)
   // of the object. This is to avoid conventions such as that used
   // by files (name.type -- e.g. test.ps = postscript etc.)
 
-  CORBA::Object_ptr obj;
   try {
     // Resolve the name to an object reference, and assign the reference 
     // returned to a CORBA::Object:
@@ -144,7 +156,7 @@ ORBMgr::getAgentReference(const char* agentName)
 }
 
   
-CORBA::Boolean
+int
 ORBMgr::bindAgentToName(CORBA::Object_ptr obj, const char* agentName)
 {
   CosNaming::NamingContext_var rootContext;
@@ -157,15 +169,14 @@ ORBMgr::bindAgentToName(CORBA::Object_ptr obj, const char* agentName)
     // Narrow the object returned by resolve_initial_references()
     // to a CosNaming::NamingContext object:
     rootContext = CosNaming::NamingContext::_narrow(initServ);
-    if (CORBA::is_nil(rootContext))
-      {
-        cerr << "Failed to narrow naming context." << endl;
-        return 0;
-      }
+    if (CORBA::is_nil(rootContext)) {
+      cerr << "Failed to narrow naming context." << endl;
+      return 1;
+    }
   }
   catch(CORBA::ORB::InvalidName& ex) {
     cerr << "Service required is invalid [does not exist]." << endl;
-    return 0;
+    return 1;
   }
 
 
@@ -195,7 +206,7 @@ ORBMgr::bindAgentToName(CORBA::Object_ptr obj, const char* agentName)
       testContext = CosNaming::NamingContext::_narrow(tmpobj);
       if (CORBA::is_nil(testContext)) {
         cerr << "Failed to narrow naming context." << endl;
-        return 0;
+        return 1;
       }
     } 
 
@@ -229,16 +240,16 @@ ORBMgr::bindAgentToName(CORBA::Object_ptr obj, const char* agentName)
   catch (CORBA::COMM_FAILURE& ex) {
     cerr << "Caught system exception COMM_FAILURE, unable to contact the "
          << "naming service." << endl;
-    return 0;
+    return 1;
   }
   catch (omniORB::fatalException& ex) {
     throw;
   }
   catch (...) {
-    cerr << "Caught a system exception while using the naming service."<< endl;
-    return 0;
+    cerr << "Caught a system exception while using the naming service." << endl;
+    return 1;
   }
-  return 1;
+  return 0;
 }
 
 CORBA::String_var

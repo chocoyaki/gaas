@@ -1,5 +1,4 @@
 /****************************************************************************/
-/* $Id$ */
 /* DIET ORB Manager header                                                  */
 /*                                                                          */
 /*  Author(s):                                                              */
@@ -7,19 +6,21 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/*
+/* $Id$
  * $Log$
+ * Revision 1.2  2003/04/10 12:43:56  pcombes
+ * Use the TRACE_LEVEL of the debug module. Uniformize return codes.
+ *
  * Revision 1.1  2003/02/04 09:58:13  pcombes
  * Unify ORBs interface with a manager class: ORBMgr
- *
  ****************************************************************************/
 
 #ifndef _ORBMGR_HH_
 #define _ORBMGR_HH_
 
+#include <CORBA.h>
 #include "DIET_config.h"
 
-#include <CORBA.h>
 
 /**
  * This class unifies the interface to all ORBs supported by DIET.
@@ -30,7 +31,7 @@ class ORBMgr
   
 public:
   static void
-  traceLevel(int level);
+  setTraceLevel();
 
   static int
   init(int argc, char** argv, bool init_POA);
@@ -44,12 +45,15 @@ public:
   static CORBA::Object_ptr
   getAgentReference(const char* agentName);
   
-  static CORBA::Boolean
+  static int
   bindAgentToName(CORBA::Object_ptr obj, const char* agentName);
 
   static CORBA::String_var
   getIORstring(CORBA::Object_ptr obj);
 
+private:
+  static CORBA::ORB_ptr          ORB;
+  static PortableServer::POA_var POA;
 };
 
 
