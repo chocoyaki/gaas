@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2003/09/30 15:10:42  bdelfabr
+ * Applying coding standards
+ *
  * Revision 1.2  2003/09/24 09:13:05  pcombes
  * DataMgr does not need a name: use its reference.
  *
@@ -27,6 +30,15 @@
 #include "NodeDescription.hh"
 #include "ts_container/ts_map.hh"
 #include "ts_container/ts_vector.hh"
+
+
+struct cmpID
+{
+  bool operator()(const char* s1, const char* s2) const
+  {
+    return strcmp(s1, s2) < 0;
+  }
+};
 
 
 class LocMgrImpl : public POA_LocMgr,
@@ -109,7 +121,7 @@ private:
   ts_vector<dataMgrChild> dataMgrChildren;
   
   // FIXME: what is cmpCorbaDataID ????
-  typedef map<const char*, ChildID, cmpCorbaDataID> DataLocList_t ;
+  typedef map<const char*, ChildID,cmpID> DataLocList_t ;
   DataLocList_t dataLocList;
 
 
