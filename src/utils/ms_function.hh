@@ -2,6 +2,9 @@
 
 /*
  * $Log$
+ * Revision 1.4  2003/01/17 18:03:10  pcombes
+ * Suppress warning on last #endif
+ *
  * Revision 1.3  2002/12/23 17:02:06  sdahan
  * Add the documentation of the ms_function tool. This is a set of memory use
  * functions that throw an bad_alloc exception if there is not enough memory.
@@ -54,4 +57,4 @@ char* ms_stralloc(int length) ;
  */
 #define ms_strfree(str) CORBA::string_free(str)
 
-#endif _MS_FUNCTION_HH_
+#endif // _MS_FUNCTION_HH_
