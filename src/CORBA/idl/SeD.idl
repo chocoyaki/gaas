@@ -1,0 +1,37 @@
+#ifndef __SED_IDL__
+#define __SED_IDL__
+
+#include "types.idl"
+
+interface SeD {
+
+  /*--------------------------------------------------------------*/
+  /* Dummy function returning its first parameter.                */
+  /* Allows to check if the server is alive.                      */
+  /*--------------------------------------------------------------*/
+
+  long ping(in long i);
+
+  /*--------------------------------------------------------------*/
+  /* Message posting function:                                    */
+  /* The request is proceeded immediately.                        */
+  /*--------------------------------------------------------------*/
+
+  oneway void getRequest(in corba_request_t req);
+
+
+  /*--------------------------------------------------------------*/
+  /* Solve function:  ONEWAY ????????????????????????             */
+  /*--------------------------------------------------------------*/
+
+  long solve(in    string          pb,
+	     in    SeqCorba_data_t in_data,
+	     inout SeqCorba_data_t inout_data,
+	     out   SeqCorba_data_t out_data);
+
+};
+
+
+
+
+#endif 
