@@ -1,5 +1,4 @@
 /****************************************************************************/
-/* $Id$ */
 /* DIET mutex interface for multi-threaded server applications              */
 /*                                                                          */
 /*  Author(s):                                                              */
@@ -8,9 +7,9 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/*
+/* $Id$
  * $Log$
- * Revision 1.4  2003/02/07 17:03:05  pcombes
+ * Revision 1.5  2003/04/10 11:32:15  pcombes
  * Apply Coding Standards.
  *
  * Revision 1.1  2002/12/03 19:08:24  pcombes

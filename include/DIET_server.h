@@ -1,5 +1,4 @@
 /****************************************************************************/
-/* $Id$ */
 /* DIET server interface                                                    */
 /*                                                                          */
 /*  Author(s):                                                              */
@@ -7,8 +6,11 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/*
+/* $Id$
  * $Log$
+ * Revision 1.12  2003/04/10 11:29:44  pcombes
+ * Apply Coding Standards.
+ *
  * Revision 1.11  2003/02/07 17:04:12  pcombes
  * Refine convertor API: arg_idx is splitted into in_arg_idx and out_arg_idx.
  *
