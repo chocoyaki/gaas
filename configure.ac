@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.22  2003/09/22 21:05:57  pcombes
+#* Add an example of a local platform with LDAP + NWS + CORBA Name Server.
+#*
 #* Revision 1.21  2003/09/09 12:54:46  pcombes
 #* Reorganization of doc.
 #*
@@ -326,8 +329,9 @@ AC_CHECK_FUNCS([gethostname gettimeofday strdup strrchr strtok_r])
 dnl ###########################################################################
 dnl Create target output (Makefile(s) ...) 
 dnl ###########################################################################
-AC_CONFIG_FILES([include/Makefile.inc
+AC_CONFIG_FILES([
 		config.mk
+		include/Makefile.inc
 		Makefile
 		src/Makefile
                 src/CORBA/Makefile
@@ -337,6 +341,7 @@ AC_CONFIG_FILES([include/Makefile.inc
                 src/agent/Makefile
                 src/client/Makefile
 		src/examples/Makefile
+                src/examples/bin/local_corba_ns.sh
                 src/examples/BLAS/Makefile
                 src/examples/dmat_manips/Makefile
                 src/examples/file_transfer/Makefile
