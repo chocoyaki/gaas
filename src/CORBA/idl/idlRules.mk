@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.5  2003/09/19 07:48:57  bdelfabr
+#* adding locMgr.idl and dataMgr.idl files to idlRules
+#*
 #* Revision 1.4  2003/07/04 09:47:56  pcombes
 #* Indentation. Remove useless comments.
 #*
@@ -20,7 +23,8 @@
 
 # IDL source files
 IDL_FILES = common_types.idl Callback.idl response.idl \
-	    Agent.idl MasterAgent.idl LocalAgent.idl SeD.idl
+	    Agent.idl MasterAgent.idl LocalAgent.idl SeD.idl \
+	    locMgr.idl dataMgr.idl
 
 # idl dependancies
 AgentSK.cc AgentDynSK.cc Agent.hh: \
@@ -30,6 +34,8 @@ LocalAgentSK.cc LocalAgentDynSK.cc LocalAgent.hh:    Agent.hh
 SeDSK.cc SeDDynSK.cc SeD.hh:                         common_types.hh Callback.hh
 responseSK.cc responseDynSK.cc response.hh:          SeD.hh
 Callback.hh CallbackSK.cc CallbackDynSK.cc:          common_types.hh	
+dataMgr.hh dataMgrSK.cc dataMgrDynSK.cc:	     common_types.hh
+locMgr.hh locMgrSK.cc locMgrDynSK.cc:		     dataMgr.hh common_types.hh
 
 
 # compiling and dependency rules for idl files
