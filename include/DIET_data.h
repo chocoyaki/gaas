@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2003/09/26 14:05:16  pcombes
+ * Get the examples out of the automake chain, to make Makefiles more readable.
+ *
  * Revision 1.17  2003/07/25 20:37:36  pcombes
  * Separate the DIET API (slightly modified) from the GridRPC API (version of
  * the draft dated to 07/21/2003)
@@ -274,8 +277,8 @@ diet_free_data(diet_arg_t* arg);
 
 
 /****************************************************************************/
-/* This part is useless for users, but may be read for more information     */
-/* on data structures                                                       */
+/* The following part is useless for users, but may be read for more        */
+/* information on data structures.                                          */
 /****************************************************************************/
 
 

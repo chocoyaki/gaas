@@ -9,6 +9,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.15  2003/09/26 14:05:16  pcombes
+#* Get the examples out of the automake chain, to make Makefiles more readable.
+#*
 #* Revision 1.14  2003/08/01 19:21:26  pcombes
 #* Reorganize FAST and omniORB flags.
 #*
@@ -24,17 +27,37 @@
 
 # DIET variables
 
-DIET_HOME  = @prefix@
-DIET_FLAGS = -I$(DIET_HOME)/include
-CLIENT_LIB = -L$(DIET_HOME)/lib -lDIET_client
-SED_LIB    = -L$(DIET_HOME)/lib -lDIET_SeD
+DIET_INSTALLDIR ?= @prefix@
+DIET_FLAGS       = -I$(DIET_INSTALLDIR)/include
+DIET_CLIENT_LIB ?= -L$(DIET_INSTALLDIR)/lib -lDIET_client
+DIET_SED_LIB    ?= -L$(DIET_INSTALLDIR)/lib -lDIET_SeD
 
 # Generic variables
 CC	= @CC@
-CCFLAGS	+= -O2 -Wall @CFLAG_NO_STRICT_ALIASING@ $(DIET_FLAGS)
+@MAINTAINER_MODE_FALSE@ CCFLAGS_DIET += -O2
+@MAINTAINER_MODE_TRUE@  CCFLAGS_DIET += -g -Werror
+CCFLAGS_DIET += -Wall @CFLAG_NO_STRICT_ALIASING@ $(DIET_FLAGS)
 
 CXX      = @CXX@
-CXXFLAGS += -O2 -Wall @CXXFLAG_NO_STRICT_ALIASING@ $(DIET_FLAGS)
+@MAINTAINER_MODE_FALSE@ CXXFLAGS_DIET += -O2
+@MAINTAINER_MODE_TRUE@  CXXFLAGS_DIET += -g -Werror
+CXXFLAGS_DIET += -Wall @CXXFLAG_NO_STRICT_ALIASING@ $(DIET_FLAGS) \
+	         @CXXFLAGS_OMNIORB@ # As long as DIET_mutex is not finished
 
-DIET_SERVER_LIBS = $(SED_LIB) @LIBS_OMNIORB@ @LIBS_FAST@
-DIET_CLIENT_LIBS = $(CLIENT_LIB) @LIBS_OMNIORB@
+DIET_SERVER_LIBS = $(DIET_SED_LIB) @LIBS_OMNIORB@ @LIBS_FAST@
+DIET_CLIENT_LIBS = $(DIET_CLIENT_LIB) @LIBS_OMNIORB@
+
+DIET_CLIENT_SRC_PREREQ = \
+	$(DIET_INSTALLDIR)/include/DIET_data.h		\
+	$(DIET_INSTALLDIR)/include/DIET_client.h	\
+	$(DIET_INSTALLDIR)/include/DIET_grpc.h		\
+	$(DIET_INSTALLDIR)/include/DIET_mutex.h
+DIET_CLIENT_BIN_PREREQ ?= $(DIET_INSTALLDIR)/lib/libDIET_client.so
+DIET_CLIENT_PREREQ = $(DIET_CLIENT_SRC_PREREQ) $(DIET_CLIENT_BIN_PREREQ)
+
+DIET_SERVER_SRC_PREREQ = \
+	$(DIET_INSTALLDIR)/include/DIET_data.h		\
+	$(DIET_INSTALLDIR)/include/DIET_server.h	\
+	$(DIET_INSTALLDIR)/include/DIET_mutex.h
+DIET_SERVER_BIN_PREREQ ?= $(DIET_INSTALLDIR)/lib/libDIET_SeD.so
+DIET_SERVER_PREREQ = $(DIET_SERVER_SRC_PREREQ) $(DIET_SERVER_BIN_PREREQ)
