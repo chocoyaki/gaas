@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.4  2002/10/02 17:06:15  pcombes
+ * Complete ArgStack API
+ *
  * Revision 1.3  2002/09/17 15:23:14  pcombes
  * Bug fixes on inout arguments and examples
  * Add support for omniORB 4.0.0
@@ -174,6 +177,13 @@ struct diet_argStack_s {
   diet_argStack_elt_t *stack;
 };
 
+diet_argStack_elt_t *newArgStack_elt(diet_arg_mode_t mode, diet_arg_t *arg)
+{
+  diet_argStack_elt_t *res = new diet_argStack_elt_t;
+  res->mode = mode;
+  res->arg  = arg;
+  return res;
+}
 
 diet_arg_mode_t diet_argStack_elt_mode(diet_argStack_elt_t *argStack_elt)
 {
@@ -301,7 +311,7 @@ int submission(corba_profile_t *profile, SeqCorbaDecision_t **decision)
     while ((size_t) server_OK < (*decision)->length()) {
       try {
 	// FIXME: this should be contract checking ...
-	(**decision)[server_OK].chosenServer->ping(1);
+	(**decision)[server_OK].chosenServer->ping();
 	break;
       } catch (...) {
 	continue;
@@ -352,7 +362,7 @@ int diet_call(diet_function_handle_t *handle, diet_profile_t *profile)
       cout << "  located on " << decision->decisions[0].dataLocs[i].hostname << ", port "
 	   << decision->decisions[0].dataLocs[i].port
 	   << "  (pinging server (" << i << ") ... ";
-      decision->decisions[0].dataLocs[i].localization->ping(i);
+      decision->decisions[0].dataLocs[i].localization->ping();
       cout << "done" << endl;
     }
   }

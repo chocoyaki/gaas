@@ -11,6 +11,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.2  2002/10/02 17:06:45  pcombes
+ * Complete ArgStack API
+ *
  * Revision 1.1  2002/08/09 14:30:21  pcombes
  * This is commit set the frame for version 1.0 - does not work properly yet
  *
@@ -94,7 +97,10 @@ typedef struct diet_argStack_s     diet_argStack_t;
 diet_arg_mode_t diet_argStack_elt_mode(diet_argStack_elt_t *argStack_elt);
 diet_arg_t     *diet_argStack_elt_arg(diet_argStack_elt_t *argStack_elt);
 
+/* !!! allocate a new diet_argStack_elt_t => to be freed !!! */
+diet_argStack_elt_t *newArgStack_elt(diet_arg_mode_t mode, diet_arg_t *arg);
 diet_argStack_t     *newArgStack(size_t maxsize);
+/* !!! copy arg fields !!! */
 int                  pushArg(diet_argStack_t *stack, diet_argStack_elt_t *arg);
 /* !!! allocate a new diet_argStack_elt_t => to be freed !!! */
 diet_argStack_elt_t *popArg(diet_argStack_t *stack);
