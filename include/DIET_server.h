@@ -11,6 +11,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.2  2002/10/07 14:54:03  pcombes
+ * Add print_table header in API.
+ *
  * Revision 1.1  2002/08/09 14:30:21  pcombes
  * This is commit set the frame for version 1.0 - does not work properly yet
  *
@@ -67,7 +70,7 @@ int diet_service_table_init(int max_size);
 int diet_service_table_add(char                *service_path,
 			   diet_profile_desc_t *profile,
 			   diet_solve_t         solve_func);
-
+void print_table();
 
 
 /****************************************************************************/
