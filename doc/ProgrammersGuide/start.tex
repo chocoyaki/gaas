@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.3  2004/01/07 21:55:37  cpera
+%* Add brief text on autotools and references.
+%*
 %* Revision 1.2  2003/11/28 11:54:44  pcombes
 %* Add-ons about maintainer mode.
 %*
@@ -82,7 +85,12 @@ version of the autotools (\textsf{automake} is the reference),
 \textsf{bootstrap.sh} will do everything but the configuration of the
 \makein\ files.\\
 
-\fixme{Christophe - Tell more about the versions and the libtool}\\
+%\fixme{Christophe - Tell more about the versions and the libtool}\\
+
+You will find more details about Autotools and Bootstrap.sh shell script 
+(which contains calls to libtoolize, aclocal, autoheader, automake and 
+autoconf) in Annexe 1.
+
 
 \noindent
 \fbox{\textbf{NB}} In the maintainer distribution, the bootstrapping has been already
@@ -91,8 +99,10 @@ intent to modify a file. Nevertheless, there are also all the files necessary
 for regenerating the autotools chain as long as you have \textsf{automake 1.7}
 installed. So that you can also alter the \makeam.
 
-
-
+\noindent
+\fbox{\textbf{NB}} Currently, DIET is developped with at least libtool 1.4.3,
+automake 1.7.3 and autoconf 2.57. Previous version of these tools can generate
+misbehavior or cannot collaborate correctly.
 
 \section{Configuring and compiling as a programmer}
 
@@ -191,7 +201,7 @@ is structured, please respect the following steps:
 
 \section{Adding a file or a directory in the compilation chain}
 
-\fixme{Christophe - please check up and complete this part}\\
+%\fixme{Christophe - please check up and complete this part}\\
 
 Understanding the conception of a \makeam\ in DIET is not that easy. The problem
 is that we have to build two libraries (\textsf{DIET\_client} and
