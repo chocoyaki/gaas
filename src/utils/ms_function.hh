@@ -1,7 +1,7 @@
 #ifndef _MS_FUNCTION_HH_
 #define _MS_FUNCTION_HH_
 
-#include <omniORB3/CORBA.h>
+#include <omniORB4/CORBA.h>
 
 char* ms_strdup(const char* str) ;
 char* ms_stralloc(int length) ;
