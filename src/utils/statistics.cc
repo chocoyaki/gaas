@@ -3,11 +3,15 @@
 /*                                                                          */
 /*  Author(s):                                                              */
 /*    - Ludovic BERTSCH (Ludovic.Bertsch@ens-lyon.fr)                       */
+/*    - Eddy CARON (Eddy.Caron@ens-lyon.fr)                                 */
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2003/10/02 23:02:49  ecaron
+ * Apply the TRACE_LEVEL API
+ *
  * Revision 1.11  2003/09/16 15:01:56  ecaron
  * Add statistics log into MA and LA [getRequest part]
  *
@@ -37,7 +41,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
-
+#include "debug.hh"
 #include "statistics.hh"
 
 #if HAVE_STATISTICS
@@ -48,6 +52,14 @@ char* STAT_TYPE_STRING[] = {
   "INFO"
 };
 
+/** The trace level. */
+extern unsigned int TRACE_LEVEL;
+
+#define STAT_TRACE_FUNCTION(formatted_text)       \
+  TRACE_TEXT(TRACE_ALL_STEPS, "Statistics::");          \
+  TRACE_FUNCTION(TRACE_ALL_STEPS,formatted_text)
+
+
 static char* STAT_FILE_NAME; // We don't need it to be global
 FILE* STAT_FILE = NULL;
 
@@ -55,27 +67,23 @@ void
 do_stat_init() 
 {
   if (STAT_FILE != NULL) {
-    fprintf(stderr,
-	    "Warning (do_stat_init): stats module already initialized !\n");
+    TRACE_TEXT(TRACE_MAIN_STEPS,"Warning (do_stat_init): stats module already initialized !\n");
   } else {
     STAT_FILE_NAME = getenv("DIET_STAT_FILE_NAME");
 
     if (STAT_FILE_NAME != NULL) {
-      STAT_FILE = fopen(STAT_FILE_NAME, "wc");
+      STAT_FILE = fopen(STAT_FILE_NAME, "a");
       if (STAT_FILE == NULL) {
-	fprintf(stderr, "do_stat_init(): Unable to open file \"%s\"\n",
-		STAT_FILE_NAME);
-	fprintf(stderr,
-		"do_stat_init(): (see DIET_STAT_FILE_NAME env variable?)\n");
-	perror("do_stat_init");
+    TRACE_TEXT(TRACE_MAIN_STEPS,"do_stat_init():  Unable to open file " << STAT_FILE_NAME);
+    TRACE_TEXT(TRACE_MAIN_STEPS,"do_stat_init(): (see DIET_STAT_FILE_NAME env variable?)");
+	ERROR("do_stat_init",);
       }		
       else {
-	fprintf(stderr,"stats module is on\n");
+	TRACE_TEXT(TRACE_MAIN_STEPS,"stats module is on");
       }			
     } else {
-      fprintf(stderr,
-	      "Warning (do_stat_init): stats module not initialized !");
-      fprintf(stderr, "Please set DIET_STAT_FILE_NAME !\n");
+	TRACE_TEXT(TRACE_MAIN_STEPS,"Warning (do_stat_init): stats module not initialized !");
+	TRACE_TEXT(TRACE_MAIN_STEPS,"Please set DIET_STAT_FILE_NAME !");
     }
   }
 }
@@ -84,12 +92,11 @@ void
 do_stat_finalize() 
 {
   if (STAT_FILE == NULL) {
-    fprintf(stderr,
-	    "Warning (do_stat_finalize): stats module is NOT initialized!\n");
+    TRACE_TEXT(TRACE_MAIN_STEPS, "Warning (do_stat_finalize): stats module is NOT initialized!\n");
   } else {
     if (fclose(STAT_FILE) < 0) {
-      fprintf(stderr, "Unable to close stat file\n");
-      perror("do_stat_finalize");
+    TRACE_TEXT(TRACE_MAIN_STEPS, "Unable to close stat file\n");
+      ERROR("do_stat_finalize",);
     }
     STAT_FILE = NULL;
   }
