@@ -12,6 +12,14 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.10  2002/10/25 14:31:17  ecaron
+ * FAST support: convertors implemented and compatible to --without-fast
+ *               configure option, but still not tested with FAST !
+ *
+ * Revision 1.10  2002/10/25 10:50:22  pcombes
+ * FAST support: convertors implemented and compatible to --without-fast
+ *               configure option, but still not tested with FAST !
+ *
  * Revision 1.9  2002/10/15 18:43:48  pcombes
  * Implement convertor API and file transfer.
  *
@@ -75,46 +83,43 @@
 /* but their name and prototype should be relevant enough.                  */
 /*--------------------------------------------------------------------------*/
 
-/*
- * Data conversion
- */
+int unmrsh_data(diet_data_t *dest, corba_data_t *src, int only_value);
 
-/* This functions allocate each member of the destination sequence. But they
-   reuse as much as possible already allocated memory */
-int mrsh_data_seq(SeqCorbaData_t *dest, diet_data_seq_t *src,
-		  int only_desc, int release);
-int unmrsh_data_seq(diet_data_seq_t *dest, SeqCorbaData_t *src);
+
+/*
+ * Trace Level
+ */
+void mrsh_set_trace_level(int level);
 
 
 /*
  * Profile conversion
  */
 
+// To add a CORBA service into the SeD service table
 int mrsh_profile_desc(corba_profile_desc_t *dest,
 		      diet_profile_desc_t *src, char *src_name);
-/* dest_name is allocated: caller is responsible for freeing it */
-int unmrsh_profile_desc(diet_profile_desc_t *dest, char **dest_name,
-			corba_profile_desc_t *src);
-int unmrsh_profile_desc_to_name(char **dest_name, corba_profile_desc_t *src);
 
+// To submit a request from the client DIET profile
+int mrsh_pb_desc(corba_pb_desc_t *dest, diet_profile_t *src, char *src_name);
 
-int mrsh_profile(corba_profile_t *dest, diet_profile_t *src, char *src_name);
-int unmrsh_profile_to_desc(diet_profile_desc_t *dest, char **dest_name,
-			   corba_profile_t *src);
-//int unmrsh_profile_for_eval(diet_profile_t **dest, const corba_profile_t *src);
-int unmrsh_profile_to_sf(sf_inst_desc_t *dest,
-			 const corba_profile_t *src, const diet_convertor_t *cvt);
+// To convert a request profile to FAST sf_inst_desc for evaluation
+int unmrsh_pb_desc_to_sf(sf_inst_desc_t *dest, const corba_pb_desc_t *src,
+			 const diet_convertor_t *cvt);
 
+// To send the input data from client to SeD
+int mrsh_profile_to_in_args(corba_profile_t *dest, const diet_profile_t *src);
 
-/*
- * Profile -> corba data sequences
- */
+// To convert client data profile to service profile
+int unmrsh_in_args_to_profile(diet_profile_t *dest, corba_profile_t *src,
+			      const diet_convertor_t *cvt);
 
-int mrsh_profile_to_in_args(SeqCorbaData_t *in,
-			    SeqCorbaData_t *inout,SeqCorbaData_t *out,
-			    const diet_profile_t *profile);
+// To reconvert service output data to client data profile
+int mrsh_profile_to_out_args(corba_profile_t *dest, const diet_profile_t *src,
+			     const diet_convertor_t *cvt);
 
-int unmrsh_out_args_to_profile(diet_profile_t *profile,
-			       SeqCorbaData_t *inout, SeqCorbaData_t *out);
+// To receive output data on the client
+int unmrsh_out_args_to_profile(diet_profile_t *dpb, corba_profile_t *cpb);
+
 
 #endif // _MARSHALLING_HH_

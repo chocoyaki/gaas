@@ -11,6 +11,14 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.5  2002/10/25 14:31:18  ecaron
+ * FAST support: convertors implemented and compatible to --without-fast
+ *               configure option, but still not tested with FAST !
+ *
+ * Revision 1.5  2002/10/25 10:50:40  pcombes
+ * FAST support: convertors implemented and compatible to --without-fast
+ *               configure option, but still not tested with FAST !
+ *
  * Revision 1.4  2002/10/15 18:41:39  pcombes
  * Implement convertor API.
  *
@@ -75,8 +83,9 @@ public:
   
   int  maxSize();
   
-  ServiceReference_t lookupService(const corba_profile_desc_t *profile);
-  ServiceReference_t lookupService(const corba_profile_t *profile);
+  ServiceReference_t lookupService(const corba_profile_desc_t *sv_profile);
+  ServiceReference_t lookupService(const corba_pb_desc_t      *pb_desc);
+  ServiceReference_t lookupService(const char *path, const corba_profile_t *pb);
 
   // All data structures are duplicated in add methods
   int addService(const corba_profile_desc_t *profile,

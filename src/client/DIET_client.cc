@@ -12,6 +12,14 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.7  2002/10/25 14:31:18  ecaron
+ * FAST support: convertors implemented and compatible to --without-fast
+ *               configure option, but still not tested with FAST !
+ *
+ * Revision 1.7  2002/10/25 10:50:18  pcombes
+ * FAST support: convertors implemented and compatible to --without-fast
+ *               configure option, but still not tested with FAST !
+ *
  * Revision 1.6  2002/10/15 18:46:09  pcombes
  * Some impacts of convertor API.
  *
@@ -289,14 +297,14 @@ diet_function_handle_t *diet_get_function_handle(diet_reqID_t reqID)
    Return the index of decision that can be used, -1 if none can be used.
    NB: (*decision)->length() == 0 if no service was found. */
 
-int submission(corba_profile_t *profile, SeqCorbaDecision_t **decision)
+int submission(corba_pb_desc_t *pb, SeqCorbaDecision_t **decision)
 {
   int server_OK;
   
-  (*decision) = MA->submit(*profile);
+  (*decision) = MA->submit(*pb);
   
   if ((*decision)->length() == 0) {
-    cerr << "No server found for problem " << profile->path << ".\n";
+    cerr << "No server found for problem " << pb->path << ".\n";
     server_OK = -1;
 
   } else {
@@ -327,19 +335,19 @@ int submission(corba_profile_t *profile, SeqCorbaDecision_t **decision)
 
 int diet_call(diet_function_handle_t *handle, diet_profile_t *profile)
 {
+  corba_pb_desc_t     corba_pb;
   corba_profile_t     corba_profile;
   SeqCorbaDecision_t *decision;
-  SeqCorbaData_t     in, inout, out;
   int subm_count, server_OK, solve_res;
   static int nb_tries = 3;
     
   /* Request submission : try nb_tries times */
 
-  if (mrsh_profile(&corba_profile, profile, handle->pb_name))
+  if (mrsh_pb_desc(&corba_pb, profile, handle->pb_name))
     return 1;
   subm_count = 0;
   do {
-    server_OK = submission(&corba_profile, &decision);
+    server_OK = submission(&corba_pb, &decision);
   }  while ((decision->length() > 0)
 	    && (server_OK == -1) && (++subm_count < 3));
   if (decision->length() == 0) {
@@ -370,14 +378,13 @@ int diet_call(diet_function_handle_t *handle, diet_profile_t *profile)
     }
   }
 #endif
-  if (mrsh_profile_to_in_args(&in, &inout, &out, profile))
+  if (mrsh_profile_to_in_args(&corba_profile, profile))
     return 1;
   solve_res =
-    (*decision)[server_OK].chosenServer->solve(corba_profile.path,
-					       in, inout, out);
-  if (unmrsh_out_args_to_profile(profile, &inout, &out))
+    (*decision)[server_OK].chosenServer->solve(handle->pb_name, corba_profile);
+  if (unmrsh_out_args_to_profile(profile, &corba_profile))
     return 1;
-
+  
   return solve_res;
 }
 

@@ -11,6 +11,14 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.5  2002/10/25 14:31:18  ecaron
+ * FAST support: convertors implemented and compatible to --without-fast
+ *               configure option, but still not tested with FAST !
+ *
+ * Revision 1.5  2002/10/25 10:50:40  pcombes
+ * FAST support: convertors implemented and compatible to --without-fast
+ *               configure option, but still not tested with FAST !
+ *
  * Revision 1.4  2002/10/15 18:41:39  pcombes
  * Implement convertor API.
  *
@@ -90,15 +98,23 @@ ServiceTable::ServiceReference_t
 ServiceTable::lookupService(const corba_profile_desc_t *sv_profile)
 {
   int i = 0;
-  for (; (i < nb_s) && (profile_desc_cmp(&(profiles[i]), sv_profile)); i++);
+  for (; (i < nb_s) && (!profile_desc_match(&(profiles[i]), sv_profile)); i++);
   return (ServiceReference_t) ((i == nb_s) ? -1 : i);
 }
-  
+
 ServiceTable::ServiceReference_t
-ServiceTable::lookupService(const corba_profile_t *pb_profile)
+ServiceTable::lookupService(const corba_pb_desc_t *pb_desc)
 {
   int i = 0;
-  for (; (i < nb_s) && (!profile_match(&(profiles[i]), pb_profile)); i++);
+  for (; (i < nb_s) && (!profile_match(&(profiles[i]), pb_desc)); i++);
+  return (ServiceReference_t) ((i == nb_s) ? -1 : i);
+}
+
+ServiceTable::ServiceReference_t
+ServiceTable::lookupService(const char *path, const corba_profile_t *pb)
+{
+  int i = 0;
+  for (; (i < nb_s) && (!profile_match(&(profiles[i]), path, pb)); i++);
   return (ServiceReference_t) ((i == nb_s) ? -1 : i);
 }
 
@@ -120,11 +136,11 @@ int ServiceTable::addService(const corba_profile_desc_t *profile,
     if (nb_s == max_nb_s) {
       max_nb_s += max_nb_s_step;
       profiles.length(max_nb_s);
-      solvers  = (diet_solve_t *)
+      solvers = (diet_solve_t *)
 	realloc(solvers, max_nb_s * sizeof(diet_solve_t));
-      eval_functions  = (diet_eval_t *)
+      eval_functions = (diet_eval_t *)
 	realloc(eval_functions, max_nb_s * sizeof(diet_eval_t));
-      convertors  = (diet_convertor_t *)
+      convertors = (diet_convertor_t *)
 	realloc(convertors, max_nb_s * sizeof(diet_convertor_t));
       for (int i = nb_s; i < max_nb_s; i++) {
 	profiles[i].param_desc.length(0);
@@ -135,9 +151,13 @@ int ServiceTable::addService(const corba_profile_desc_t *profile,
     }
     profiles[nb_s]       = *profile;
     //profiles[nb_s].path = CORBA::string_dup(profile->path);
-    solvers[nb_s]        = solver;
-    eval_functions[nb_s] = evalf;
-    convertors[nb_s]     = *cvt;
+    solvers[nb_s]              = solver;
+    eval_functions[nb_s]       = evalf;
+    convertors[nb_s]           = *cvt;
+    convertors[nb_s].arg_convs = new diet_arg_convertor_t[cvt->last_out + 1];
+    for (int i = 0; i <= cvt->last_out; i++) {
+      convertors[nb_s].arg_convs[i] = cvt->arg_convs[i];
+    }
     nb_s++;
 
   } else if (solver == solvers[service_idx]) {
@@ -424,7 +444,7 @@ void ServiceTable::dump(FILE *f)
       if ((matching_sons[i].nb_sons <= 0)
 	  || ((matching_sons[i].nb_sons == 1)
 	      && (matching_sons[i].sons[0] == -1)))
-	fprintf(f, "no son\n");
+	fprintf(f, "no son");
       else {
 	if (matching_sons[i].nb_sons == 1)
 	  fprintf(f, "son %d", matching_sons[i].sons[0]);
@@ -443,29 +463,13 @@ void ServiceTable::dump(FILE *f)
 	      (j <= profiles[i].last_in) ? "IN   "
 	      : (j <= profiles[i].last_inout) ? "INOUT"
 	      : "OUT  ");
-      switch(profiles[i].param_desc[j].type) {
-      case DIET_SCALAR: fprintf(f, "scalar"); break;
-      case DIET_VECTOR: fprintf(f, "vector"); break;
-      case DIET_MATRIX: fprintf(f, "matrix"); break;
-      case DIET_STRING: fprintf(f, "string"); break;
-      case DIET_FILE:   fprintf(f, "file");   break;
-      }
-      if ((profiles[i].param_desc[j].type != DIET_STRING)
-	  && (profiles[i].param_desc[j].type != DIET_FILE)) {
-	fprintf(f, " of ");
-	switch (profiles[i].param_desc[j].base_type) {
-	case DIET_CHAR:     fprintf(f, "char");           break;
-	case DIET_BYTE:     fprintf(f, "byte");           break;
-	case DIET_INT:      fprintf(f, "int");            break;
-	case DIET_LONGINT:  fprintf(f, "long int");       break;
-	case DIET_FLOAT:    fprintf(f, "float");          break;
-	case DIET_DOUBLE:   fprintf(f, "double");         break;
-	case DIET_SCOMPLEX: fprintf(f, "float complex");  break;
-	case DIET_DCOMPLEX: fprintf(f, "double complex"); break;
-	}
-      }
+      displayArgDesc(f, profiles[i].param_desc[j].type,
+		     profiles[i].param_desc[j].base_type);
     }
     fprintf(f, "\n");
+    
+    if (!matching_sons)
+      displayConvertor(f, &(convertors[i]));
   }
 }
 

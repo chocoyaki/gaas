@@ -12,6 +12,14 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.9  2002/10/25 14:31:18  ecaron
+ * FAST support: convertors implemented and compatible to --without-fast
+ *               configure option, but still not tested with FAST !
+ *
+ * Revision 1.9  2002/10/25 10:50:40  pcombes
+ * FAST support: convertors implemented and compatible to --without-fast
+ *               configure option, but still not tested with FAST !
+ *
  * Revision 1.8  2002/10/03 17:58:21  pcombes
  * Add trace levels (for Bert): traceLevel = n can be added in cfg files.
  * An agent son can now be killed (^C) without crashing this agent.
@@ -99,12 +107,20 @@ void mrsh_set_trace_level(int level);
 /* can be found in this library.                                            */
 /*--------------------------------------------------------------------------*/
 
-void displayResponse(FILE *os,const corba_response_t *resp);
+void displayResponse(FILE *os, const corba_response_t *resp);
 
-void displayMAList(FILE *os,dietMADescList *MAs);
+void displayMAList(FILE *os, dietMADescList *MAs);
 
-void displayProfileDesc(const diet_profile_desc_t *profile, const char *path);
-void displayCorbaProfileDesc(const corba_profile_desc_t *profile);
-void displayProfile(const corba_profile_t *profile);
+void displayArgDesc(FILE *f, int type, int base_type);
+void displayArg(FILE *f, const corba_data_desc_t *arg);
+void displayArg(FILE *f, const diet_data_desc_t *arg);
+
+void displayProfileDesc(const diet_profile_desc_t *desc, const char *path);
+void displayProfileDesc(const corba_profile_desc_t *desc);
+void displayProfile(const diet_profile_t *profile, const char *path);
+void displayProfile(const corba_profile_t *profile, const char *path);
+void displayPbDesc(const corba_pb_desc_t *pb_desc);
+
+void displayConvertor(FILE *f, const diet_convertor_t *cvt);
 
 #endif // _DEBUG_HH_

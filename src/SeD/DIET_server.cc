@@ -11,6 +11,14 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.5  2002/10/25 14:31:18  ecaron
+ * FAST support: convertors implemented and compatible to --without-fast
+ *               configure option, but still not tested with FAST !
+ *
+ * Revision 1.5  2002/10/25 10:50:35  pcombes
+ * FAST support: convertors implemented and compatible to --without-fast
+ *               configure option, but still not tested with FAST !
+ *
  * Revision 1.4  2002/10/15 18:45:00  pcombes
  * Implement convertor API and file transfer.
  *
@@ -182,12 +190,23 @@ diet_convertor_t *convertor_alloc(char *path,
 
 int convertor_free(diet_convertor_t *cvt)
 {
-  free(cvt->path);
-  for (int i = 0; i < cvt->last_out; i++) {
-    if (cvt->arg_convs[i].arg)
-      free(cvt->arg_convs[i].arg);
+  if (!cvt)
+    return 1;
+  if ((cvt->last_out > -1) && cvt->arg_convs) {
+#if 0
+    for (int i = 0; i < cvt->last_out; i++) {
+      if (cvt->arg_convs[i].arg)
+	free(cvt->arg_convs[i].arg);
+    }
+#endif
+    free(cvt->arg_convs);
+    free(cvt);
+    return 0;
+  } else {
+    free(cvt);
+    return 1;
   }
-  free(cvt->arg_convs);
+
   return 0;
 }
 
@@ -209,7 +228,6 @@ int DIET_SeD(char *config_file_name, int argc, char **argv)
   /* Activate SeD */
   omniORB_activate(SeD);
 
-  /* Launch SeD */
   if (SeD->run(config_file_name, SrvT)) {
     cerr << "Unable to launch the SeD.\n";
     return 1;

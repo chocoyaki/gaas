@@ -11,6 +11,14 @@
 /****************************************************************************/
 /*-
  * $Log$
+ * Revision 1.5  2002/10/25 14:31:17  ecaron
+ * FAST support: convertors implemented and compatible to --without-fast
+ *               configure option, but still not tested with FAST !
+ *
+ * Revision 1.5  2002/10/25 10:50:05  pcombes
+ * FAST support: convertors implemented and compatible to --without-fast
+ *               configure option, but still not tested with FAST !
+ *
  * Revision 1.4  2002/10/18 18:12:03  pcombes
  * Better comments on file_set function.
  *
@@ -149,6 +157,8 @@ typedef struct {
   size_t length;
   diet_data_t *seq;
 } diet_data_seq_t;
+
+
 /****************************************************************************/
 /* Useful functions for data                                                */
 /****************************************************************************/

@@ -12,6 +12,14 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.9  2002/10/25 14:31:17  ecaron
+ * FAST support: convertors implemented and compatible to --without-fast
+ *               configure option, but still not tested with FAST !
+ *
+ * Revision 1.9  2002/10/25 10:50:32  pcombes
+ * FAST support: convertors implemented and compatible to --without-fast
+ *               configure option, but still not tested with FAST !
+ *
  * Revision 1.8  2002/10/03 17:58:14  pcombes
  * Add trace levels (for Bert): traceLevel = n can be added in cfg files.
  * An agent son can now be killed (^C) without crashing this agent.
@@ -71,10 +79,7 @@ interface SeD {
   /*   all arguments are inout for "const" reasons                */
   /*--------------------------------------------------------------*/
 
-  long solve(in    string         pb,
-	     inout SeqCorbaData_t in_data,
-	     inout SeqCorbaData_t inout_data,
-	     inout SeqCorbaData_t out_data);
+  long solve(in string path, inout corba_profile_t pb);
 
 };
 

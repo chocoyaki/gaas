@@ -11,6 +11,14 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.6  2002/10/25 14:31:18  ecaron
+ * FAST support: convertors implemented and compatible to --without-fast
+ *               configure option, but still not tested with FAST !
+ *
+ * Revision 1.6  2002/10/25 10:50:40  pcombes
+ * FAST support: convertors implemented and compatible to --without-fast
+ *               configure option, but still not tested with FAST !
+ *
  * Revision 1.5  2002/08/30 16:50:16  pcombes
  * This version works as well as the alpha version from the user point of view,
  * but the API is now the one imposed by the latest specifications (GridRPC API
@@ -92,77 +100,152 @@ void displayMAList(FILE* os,dietMADescList *MAs)
     }
 }
 
-void displayProfileDesc(const diet_profile_desc_t *profile, const char *path)
+void displayArgDesc(FILE *f, int type, int base_type) 
+{
+  switch(type) {
+  case DIET_SCALAR: fprintf(f, "scalar"); break;
+  case DIET_VECTOR: fprintf(f, "vector"); break;
+  case DIET_MATRIX: fprintf(f, "matrix"); break;
+  case DIET_STRING: fprintf(f, "string"); break;
+  case DIET_FILE:   fprintf(f, "file");   break;
+  }
+  if ((type != DIET_STRING) && (type != DIET_FILE)) {
+    fprintf(f, " of ");
+    switch (base_type) {
+    case DIET_CHAR:     fprintf(f, "char");           break;
+    case DIET_BYTE:     fprintf(f, "byte");           break;
+    case DIET_INT:      fprintf(f, "int");            break;
+    case DIET_LONGINT:  fprintf(f, "long int");       break;
+    case DIET_FLOAT:    fprintf(f, "float");          break;
+    case DIET_DOUBLE:   fprintf(f, "double");         break;
+    case DIET_SCOMPLEX: fprintf(f, "float complex");  break;
+    case DIET_DCOMPLEX: fprintf(f, "double complex"); break;
+    }
+  }
+}
+
+void displayArg(FILE *f, const corba_data_desc_t *arg)
+{
+  switch(arg->specific._d()) {
+  case DIET_SCALAR: fprintf(f, "scalar");            break;
+  case DIET_VECTOR: fprintf(f, "vector (%ld)",
+			    arg->specific.vect().size);  break;
+  case DIET_MATRIX: fprintf(f, "matrix (%ldx%ld)",
+			    arg->specific.mat().nb_r,
+			    arg->specific.mat().nb_c);   break;
+  case DIET_STRING: fprintf(f, "string (%ld)",
+			    arg->specific.str().length); break;
+  case DIET_FILE:   fprintf(f, "file (%ld)",
+			    arg->specific.file().size);  break;
+  }
+  if ((arg->specific._d() != DIET_STRING)
+      && (arg->specific._d() != DIET_FILE)) {
+    fprintf(f, " of ");
+    switch (arg->base_type) {
+    case DIET_CHAR:     fprintf(f, "char");           break;
+    case DIET_BYTE:     fprintf(f, "byte");           break;
+    case DIET_INT:      fprintf(f, "int");            break;
+    case DIET_LONGINT:  fprintf(f, "long int");       break;
+    case DIET_FLOAT:    fprintf(f, "float");          break;
+    case DIET_DOUBLE:   fprintf(f, "double");         break;
+    case DIET_SCOMPLEX: fprintf(f, "float complex");  break;
+    case DIET_DCOMPLEX: fprintf(f, "double complex"); break;
+    }
+  }
+}
+
+void displayArg(FILE *f, const diet_data_desc_t *arg)
+{
+  switch((int) arg->generic.type) {
+  case DIET_SCALAR: fprintf(f, "scalar");                break;
+  case DIET_VECTOR: fprintf(f, "vector (%d)",
+			    arg->specific.vect.size);    break;
+  case DIET_MATRIX: fprintf(f, "matrix (%dx%d)",
+			    arg->specific.mat.nb_r,
+			    arg->specific.mat.nb_c);   break;
+  case DIET_STRING: fprintf(f, "string (%d)",
+			    arg->specific.str.length); break;
+  case DIET_FILE:   fprintf(f, "file (%d)",
+			    arg->specific.file.size);  break;
+  }
+  if ((arg->generic.type != DIET_STRING)
+      && (arg->generic.type != DIET_FILE)) {
+    fprintf(f, " of ");
+    switch ((int) arg->generic.base_type) {
+    case DIET_CHAR:     fprintf(f, "char");           break;
+    case DIET_BYTE:     fprintf(f, "byte");           break;
+    case DIET_INT:      fprintf(f, "int");            break;
+    case DIET_LONGINT:  fprintf(f, "long int");       break;
+    case DIET_FLOAT:    fprintf(f, "float");          break;
+    case DIET_DOUBLE:   fprintf(f, "double");         break;
+    case DIET_SCOMPLEX: fprintf(f, "float complex");  break;
+    case DIET_DCOMPLEX: fprintf(f, "double complex"); break;
+    }
+  }
+}
+
+
+void displayProfileDesc(const diet_profile_desc_t *desc, const char *path)
 {
   FILE *f = stdout;
   fprintf(f, " - Service %s", path);
-  for (int j = 0; j <= profile->last_out; j++) {
+  for (int i = 0; i <= desc->last_out; i++) {
     fprintf(f, "\n     %s ",
-	    (j <= profile->last_in) ? "IN   "
-	    : (j <= profile->last_inout) ? "INOUT"
+	    (i <= desc->last_in) ? "IN   "
+	    : (i <= desc->last_inout) ? "INOUT"
 	    : "OUT  ");
-    switch((int) profile->param_desc[j].type) {
-    case DIET_SCALAR: fprintf(f, "scalar"); break;
-    case DIET_VECTOR: fprintf(f, "vector"); break;
-    case DIET_MATRIX: fprintf(f, "matrix"); break;
-    case DIET_STRING: fprintf(f, "string"); break;
-    case DIET_FILE:   fprintf(f, "file");   break;
-    }
-    if ((profile->param_desc[j].type != DIET_STRING)
-	&& (profile->param_desc[j].type != DIET_FILE)) {
-      fprintf(f, " of ");
-      switch ((int) profile->param_desc[j].base_type) {
-      case DIET_CHAR:     fprintf(f, "char");           break;
-      case DIET_BYTE:     fprintf(f, "byte");           break;
-      case DIET_INT:      fprintf(f, "int");            break;
-      case DIET_LONGINT:  fprintf(f, "long int");       break;
-      case DIET_FLOAT:    fprintf(f, "float");          break;
-      case DIET_DOUBLE:   fprintf(f, "double");         break;
-      case DIET_SCOMPLEX: fprintf(f, "float complex");  break;
-      case DIET_DCOMPLEX: fprintf(f, "double complex"); break;
-      }
-    }
+    displayArgDesc(f, desc->param_desc[i].type, desc->param_desc[i].base_type);
   }
   fprintf(f, "\n");
 }
 
-void displayCorbaProfileDesc(const corba_profile_desc_t *profile)
+
+void displayProfileDesc(const corba_profile_desc_t *desc)
 {
   FILE *f = stdout;
-  char *path = CORBA::string_dup(profile->path);
+  char *path = CORBA::string_dup(desc->path);
   fprintf(f, " - Service %s", path);
   CORBA::string_free(path);
-  for (int j = 0; j <= profile->last_out; j++) {
+  for (int j = 0; j <= desc->last_out; j++) {
     fprintf(f, "\n     %s ",
-	    (j <= profile->last_in) ? "IN   "
-	    : (j <= profile->last_inout) ? "INOUT"
+	    (j <= desc->last_in) ? "IN   "
+	    : (j <= desc->last_inout) ? "INOUT"
 	    : "OUT  ");
-    switch(profile->param_desc[j].type) {
-    case DIET_SCALAR: fprintf(f, "scalar"); break;
-    case DIET_VECTOR: fprintf(f, "vector"); break;
-    case DIET_MATRIX: fprintf(f, "matrix"); break;
-    case DIET_STRING: fprintf(f, "string"); break;
-    case DIET_FILE:   fprintf(f, "file");   break;
-    }
-    if ((profile->param_desc[j].type != DIET_STRING)
-	&& (profile->param_desc[j].type != DIET_FILE)) {
-      fprintf(f, " of ");
-      switch (profile->param_desc[j].base_type) {
-      case DIET_CHAR:     fprintf(f, "char");           break;
-      case DIET_BYTE:     fprintf(f, "byte");           break;
-      case DIET_INT:      fprintf(f, "int");            break;
-      case DIET_LONGINT:  fprintf(f, "long int");       break;
-      case DIET_FLOAT:    fprintf(f, "float");          break;
-      case DIET_DOUBLE:   fprintf(f, "double");         break;
-      case DIET_SCOMPLEX: fprintf(f, "float complex");  break;
-      case DIET_DCOMPLEX: fprintf(f, "double complex"); break;
-      }
-    }
-  }  
+    displayArgDesc(f, desc->param_desc[j].type, desc->param_desc[j].base_type);
+  }
   fprintf(f, "\n");
+  free(path);
 }
   
-void displayProfile(const corba_profile_t *profile)
+void displayProfile(const diet_profile_t *profile, const char *path) 
+{
+  FILE *f = stdout;
+  fprintf(f, " - Service %s", path);
+  for (int i = 0; i <= profile->last_out; i++) {
+    fprintf(f, "\n     %s ",
+	    (i <= profile->last_in) ? "IN   "
+	    : (i <= profile->last_inout) ? "INOUT"
+	    : "OUT  ");
+    displayArg(f, &(profile->parameters[i].desc));
+  }
+  fprintf(f, "\n");  
+}
+
+void displayProfile(const corba_profile_t *profile, const char *path)
+{
+  FILE *f = stdout;
+  fprintf(f, " - Service %s", path);
+  for (int i = 0; i <= profile->last_out; i++) {
+    fprintf(f, "\n     %s ",
+	    (i <= profile->last_in) ? "IN   "
+	    : (i <= profile->last_inout) ? "INOUT"
+	    : "OUT  ");
+    displayArg(f, &(profile->parameters[i].desc));
+  }
+  fprintf(f, "\n");  
+}
+
+void displayPbDesc(const corba_pb_desc_t *profile)
 {
   FILE *f = stdout;
   char *path = CORBA::string_dup(profile->path);
@@ -173,34 +256,32 @@ void displayProfile(const corba_profile_t *profile)
 	    (j <= profile->last_in) ? "IN   "
 	    : (j <= profile->last_inout) ? "INOUT"
 	    : "OUT  ");
-    switch(profile->param_desc[j].specific._d()) {
-    case DIET_SCALAR: fprintf(f, "scalar"); break;
-    case DIET_VECTOR: fprintf(f, "vector (%ld)",
-			      profile->param_desc[j].specific.vect().size); break;
-    case DIET_MATRIX: fprintf(f, "matrix (%ldx%ld)",
-			      profile->param_desc[j].specific.mat().nb_r,
-			      profile->param_desc[j].specific.mat().nb_c); break;
-    case DIET_STRING: fprintf(f, "string (%ld)",
-			       profile->param_desc[j].specific.str().length); break;
-    case DIET_FILE:   fprintf(f, "file (%ld)",
-			      profile->param_desc[j].specific.file().size);   break;
-    }
-    if ((profile->param_desc[j].specific._d() != DIET_STRING)
-	&& (profile->param_desc[j].specific._d() != DIET_FILE)) {
-      fprintf(f, " of ");
-      switch (profile->param_desc[j].base_type) {
-      case DIET_CHAR:     fprintf(f, "char");           break;
-      case DIET_BYTE:     fprintf(f, "byte");           break;
-      case DIET_INT:      fprintf(f, "int");            break;
-      case DIET_LONGINT:  fprintf(f, "long int");       break;
-      case DIET_FLOAT:    fprintf(f, "float");          break;
-      case DIET_DOUBLE:   fprintf(f, "double");         break;
-      case DIET_SCOMPLEX: fprintf(f, "float complex");  break;
-      case DIET_DCOMPLEX: fprintf(f, "double complex"); break;
-      }
-    }
+    displayArg(f, &(profile->param_desc[j]));
   }  
   fprintf(f, "\n");
 }
 
-
+void displayConvertor(FILE *f, const diet_convertor_t *cvt)
+{
+  fprintf(f, " - Convertor to %s", cvt->path);
+  for (int i = 0; i <= cvt->last_out; i++) {
+    fprintf(f, "\n     %s ",
+	    (i <= cvt->last_in) ? "IN   "
+	    : (i <= cvt->last_inout) ? "INOUT"
+	    : "OUT  ");
+    switch((int)cvt->arg_convs[i].f) {
+    case DIET_CVT_IDENTITY:    fprintf(f, "IDENT  of "); break;
+    case DIET_CVT_FILE_SIZE:
+    case DIET_CVT_VECT_SIZE:   fprintf(f, "SIZE   of "); break;
+    case DIET_CVT_MAT_NB_ROW:  fprintf(f, "NB_ROW of "); break;
+    case DIET_CVT_MAT_NB_COL:  fprintf(f, "NB_COL of "); break;
+    case DIET_CVT_MAT_ISTRANS: fprintf(f, "TRANS  of "); break;
+    case DIET_CVT_STR_LEN:     fprintf(f, "LENGTH of "); break;
+    }
+    if (cvt->arg_convs[i].arg)
+      displayArg(f, &(cvt->arg_convs[i].arg->desc));
+    else
+      fprintf(f, "argument %d", cvt->arg_convs[i].arg_idx);
+  }
+  fprintf(f, "\n");  
+}

@@ -11,6 +11,14 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.5  2002/10/25 14:31:18  ecaron
+ * FAST support: convertors implemented and compatible to --without-fast
+ *               configure option, but still not tested with FAST !
+ *
+ * Revision 1.5  2002/10/25 10:50:40  pcombes
+ * FAST support: convertors implemented and compatible to --without-fast
+ *               configure option, but still not tested with FAST !
+ *
  * Revision 1.4  2002/10/15 18:40:05  pcombes
  * Remove descriptors set finctions.
  *
@@ -537,11 +545,19 @@ int file_desc_set(diet_data_desc_t *desc, diet_persistence_mode_t mode,
 int profile_desc_cmp(const corba_profile_desc_t *p1,
 		     const corba_profile_desc_t *p2);
 
-/* Return true if sv_profile describes a service that matches the problem
-   that pb_profile describes. */
-int profile_match(const corba_profile_desc_t *sv_profile,
-		  const corba_profile_t *pb_profile);
+/* Return true if p1 is exactly identical to p2. */
+int profile_desc_match(const corba_profile_desc_t *p1,
+		       const corba_profile_desc_t *p2);
 
+/* Return true if sv_profile describes a service that matches the problem
+   that pb_desc describes. */
+int profile_match(const corba_profile_desc_t *sv_profile,
+		  const corba_pb_desc_t      *pb_desc);
+
+/* Return true if sv_profile describes a service that matches the problem
+   that pb and path describe. */
+int profile_match(const corba_profile_desc_t *sv_profile,
+		  const char *path, const corba_profile_t *pb);
 
 #endif // _DIETTYPES_HH_
 

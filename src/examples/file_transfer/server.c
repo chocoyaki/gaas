@@ -11,6 +11,14 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.4  2002/10/25 14:31:18  ecaron
+ * FAST support: convertors implemented and compatible to --without-fast
+ *               configure option, but still not tested with FAST !
+ *
+ * Revision 1.4  2002/10/25 11:29:21  pcombes
+ * FAST support: convertors implemented and compatible to --without-fast
+ *               configure option, but still not tested with FAST !
+ *
  * Revision 1.3  2002/10/18 18:13:21  pcombes
  * Bug fixes for files in OUT parameters.
  *
@@ -42,7 +50,7 @@
 
 
 int
-solve_size(diet_data_seq_t *in, diet_data_seq_t *inout, diet_data_seq_t *out)
+solve_size(diet_profile_t *pb)
 {
   size_t arg_size, comp_size;
   char *path;
@@ -51,25 +59,26 @@ solve_size(diet_data_seq_t *in, diet_data_seq_t *inout, diet_data_seq_t *out)
 
   printf("Solve size ");
 
-  arg_size = in->seq[0].desc.specific.file.size;
-  path = in->seq[0].desc.specific.file.path;
+  arg_size = pb->parameters[0].desc.specific.file.size;
+  path     = pb->parameters[0].desc.specific.file.path;
   printf("on %s ", path);
   if ((status = stat(path, &buf)))
     return status;
   if (!(buf.st_mode & S_IFREG))
     return 2;
-  *((size_t *)out->seq[0].value) = (size_t) buf.st_size;
+  *((size_t *)pb->parameters[2].value) = (size_t) buf.st_size;
   
-  arg_size = in->seq[1].desc.specific.file.size;
-  path = in->seq[1].desc.specific.file.path;
+  arg_size = pb->parameters[1].desc.specific.file.size;
+  path     = pb->parameters[1].desc.specific.file.path;
   printf("and %s ...", path);
   if ((status = stat(path, &buf)))
     return status;
   if (!(buf.st_mode & S_IFREG))
     return 2;
-  *((size_t *)out->seq[1].value) = (size_t) buf.st_size;
+  *((size_t *)pb->parameters[3].value) = (size_t) buf.st_size;
   
-  if (file_set(&(out->seq[2]), DIET_VOLATILE, path)) {
+  srand(1);
+  if (file_set(&(pb->parameters[4]), DIET_VOLATILE, (rand() & 1) ? path : NULL)) {
     printf("file_set error\n");
     return 1;
   }

@@ -11,6 +11,14 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.4  2002/10/25 14:31:17  ecaron
+ * FAST support: convertors implemented and compatible to --without-fast
+ *               configure option, but still not tested with FAST !
+ *
+ * Revision 1.4  2002/10/25 10:50:05  pcombes
+ * FAST support: convertors implemented and compatible to --without-fast
+ *               configure option, but still not tested with FAST !
+ *
  * Revision 1.3  2002/10/15 18:36:04  pcombes
  * Remove the descriptors set functions.
  * Add convertors in API :
@@ -151,8 +159,7 @@ int (* diet_eval_t)(diet_profile_t *, double *);
 /****************************************************************************/
 
 typedef
-int (* diet_solve_t)(diet_data_seq_t *, diet_data_seq_t *, diet_data_seq_t *);
-  //int (* diet_solve_t)(diet_data_seq_t *);
+int (* diet_solve_t)(diet_profile_t *);
 
 
 /****************************************************************************/

@@ -11,6 +11,14 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.6  2002/10/25 14:31:18  ecaron
+ * FAST support: convertors implemented and compatible to --without-fast
+ *               configure option, but still not tested with FAST !
+ *
+ * Revision 1.6  2002/10/25 10:50:40  pcombes
+ * FAST support: convertors implemented and compatible to --without-fast
+ *               configure option, but still not tested with FAST !
+ *
  * Revision 1.5  2002/10/18 18:13:24  pcombes
  * Bug fixes for files in OUT parameters.
  *
@@ -230,49 +238,65 @@ int file_desc_set(diet_data_desc_t *desc, diet_persistence_mode_t mode,
 /****************************************************************************/
 
 
-int profile_desc_cmp(const corba_profile_desc_t *p1,
-		     const corba_profile_desc_t *p2)
+int profile_desc_match(const corba_profile_desc_t *p1,
+		       const corba_profile_desc_t *p2)
 {
-  int res;
-  if ((res = strcmp(p1->path, p2->path)))
-    return res;
-  if ((res = !((p1->last_in == p2->last_in)
-	       && (p1->last_inout == p2->last_inout)
-	       && (p1->last_out == p2->last_out)
-	       && (p1->param_desc.length() == p2->param_desc.length()))))
-    return res;
-  res = 0;
+  if (strcmp(p1->path, p2->path))
+    return 0;
+  if (   (p1->last_in             != p2->last_in)
+      || (p1->last_inout          != p2->last_inout)
+      || (p1->last_out            != p2->last_out)
+      || (p1->param_desc.length() != p2->param_desc.length()))
+    return 0;
   for (size_t i = 0; i < p1->param_desc.length(); i++) {
-    if ((res = !((p1->param_desc[i].type
-		  == p2->param_desc[i].type)
-		 && (p1->param_desc[i].base_type
-		     == p2->param_desc[i].base_type))))
-      return res;
-  }
-  return res;
-}
-
-
-int profile_match(const corba_profile_desc_t *sv_profile,
-		  const corba_profile_t *pb_profile)
-{
-  if (strcmp(sv_profile->path, pb_profile->path))
-    return 0;
-  if ((   (sv_profile->last_in             != pb_profile->last_in)
-       || (sv_profile->last_inout          != pb_profile->last_inout)
-       || (sv_profile->last_out            != pb_profile->last_out)
-       || (sv_profile->param_desc.length() != pb_profile->param_desc.length())))
-    return 0;
-  for (size_t i = 0; i < sv_profile->param_desc.length(); i++) {
-    if ((   (sv_profile->param_desc[i].type
-	     != pb_profile->param_desc[i].specific._d())
-	 || (sv_profile->param_desc[i].base_type
-	     != pb_profile->param_desc[i].base_type)))
+    if (   (p1->param_desc[i].type      != p2->param_desc[i].type)
+	|| (p1->param_desc[i].base_type != p2->param_desc[i].base_type))
       return 0;
   }
   return 1;
 }
 
+
+int profile_match(const corba_profile_desc_t *sv_profile,
+		  const corba_pb_desc_t      *pb_desc)
+{
+  if (strcmp(sv_profile->path, pb_desc->path))
+    return 0;
+  if ((   (sv_profile->last_in             != pb_desc->last_in)
+       || (sv_profile->last_inout          != pb_desc->last_inout)
+       || (sv_profile->last_out            != pb_desc->last_out)
+       || (sv_profile->param_desc.length() != pb_desc->param_desc.length())))
+    return 0;
+  for (size_t i = 0; i < sv_profile->param_desc.length(); i++) {
+    if ((   (sv_profile->param_desc[i].type
+	     != pb_desc->param_desc[i].specific._d())
+	 || (sv_profile->param_desc[i].base_type
+	     != pb_desc->param_desc[i].base_type)))
+      return 0;
+  }
+  return 1;
+}
+
+
+int profile_match(const corba_profile_desc_t *sv_profile,
+		  const char *path, const corba_profile_t *pb)
+{
+  if (strcmp(sv_profile->path, path))
+    return 0;
+  if ((   (sv_profile->last_in             != pb->last_in)
+       || (sv_profile->last_inout          != pb->last_inout)
+       || (sv_profile->last_out            != pb->last_out)
+       || (sv_profile->param_desc.length() != pb->parameters.length())))
+    return 0;
+  for (size_t i = 0; i < sv_profile->param_desc.length(); i++) {
+    if ((   (sv_profile->param_desc[i].type
+	     != pb->parameters[i].desc.specific._d())
+	 || (sv_profile->param_desc[i].base_type
+	     != pb->parameters[i].desc.base_type)))
+      return 0;
+  }
+  return 1;
+}
 
 
 extern "C" {

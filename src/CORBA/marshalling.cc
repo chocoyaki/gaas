@@ -12,6 +12,14 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.13  2002/10/25 14:31:17  ecaron
+ * FAST support: convertors implemented and compatible to --without-fast
+ *               configure option, but still not tested with FAST !
+ *
+ * Revision 1.13  2002/10/25 10:50:22  pcombes
+ * FAST support: convertors implemented and compatible to --without-fast
+ *               configure option, but still not tested with FAST !
+ *
  * Revision 1.12  2002/10/18 18:13:08  pcombes
  * Bug fixes for files in OUT parameters.
  *
@@ -180,22 +188,20 @@ int mrsh_data_desc(corba_data_desc_t *dest, diet_data_desc_t *src)
 }
 
 
-int mrsh_data(corba_data_t *dest, diet_data_t *src, int only_desc, int release)
+int mrsh_data(corba_data_t *dest, diet_data_t *src, int release)
 {
   long unsigned int size = (long unsigned int) data_sizeof(&(src->desc));
   CORBA::Char *value;
   
   if (mrsh_data_desc(&(dest->desc), &(src->desc)))
     return 1;
-  if (only_desc) {
-    dest->value.replace(0, 0, NULL);
-  } else {
-    if (src->desc.generic.type == DIET_FILE) {
+  if (src->desc.generic.type == DIET_FILE) {
+    if (strcmp("", src->desc.specific.file.path)) {
       ifstream infile(src->desc.specific.file.path);
       value = SeqChar::allocbuf(size);
       if (!infile) {
 	cerr << "DIET Error: cannot open file "
-	     << src->desc.specific.file.path << "for reading.\n";
+	     << src->desc.specific.file.path << " for reading.\n";
 	return 1;
       }
       for (unsigned int i = 0; i < size; i++) {
@@ -203,37 +209,13 @@ int mrsh_data(corba_data_t *dest, diet_data_t *src, int only_desc, int release)
       }
       infile.close();
     } else {
-      value = (CORBA::Char *)src->value;
-    }
-    dest->value.replace(size, size, value, release);
-  }
-  return 0;
-}
-
-
-/*====[ mrsh_data_seq ]=====================================================*/
-
-int mrsh_data_seq(SeqCorbaData_t *dest, diet_data_seq_t *src,
-		  int only_desc, int release)
-{
-  size_t dest_length = dest->length();
-
-  if (dest_length != 0) {
-    if (dest_length != src->length) {
-      cerr << "This usage of mrsh_data_seq should not occur in DIET\n"
-	   << "Either mrsh_data_seq is called on an empty SeqCorbaData_t,\n"
-	   << " or it is called on the initial sequence\n";
-      return 1;
+      value = SeqChar::allocbuf(1);
+      value[0] = '\0';
     }
   } else {
-    dest->length(src->length);
+    value = (CORBA::Char *)src->value;
   }
-
-  for (size_t i = 0; i < src->length; i++) {
-    /* Convert data_t */
-    if (mrsh_data(&((*dest)[i]), &(src->seq[i]), only_desc, release))
-      return 1;
-  }
+  dest->value.replace(size, size, value, release);
   return 0;
 }
 
@@ -332,9 +314,12 @@ inline sf_type_cons_t diet_to_sf_type(const diet_data_type_t t)
   case DIET_SCALAR:
     return sf_type_cons_scal;
   case DIET_VECTOR:
+  case DIET_STRING:
     return sf_type_cons_vect;
   case DIET_MATRIX:
     return sf_type_cons_mat;
+  case DIET_FILE:
+    return sf_type_cons_file;
   default:
     return sf_type_cons_count;
   }
@@ -367,12 +352,19 @@ int unmrsh_data_desc_to_sf(sf_data_desc_t *dest, const diet_data_desc_t *src)
      
   case sf_type_cons_vect:
     dest->ctn.vect.size = src->specific.vect.size;
+    if (src->generic.type == DIET_STRING)
+      dest->ctn.vect.size++;
     break;
     
   case sf_type_cons_mat:
     dest->ctn.mat.nb_l  = src->specific.mat.nb_r;
     dest->ctn.mat.nb_c  = src->specific.mat.nb_c;
     dest->ctn.mat.trans = src->specific.mat.istrans;
+    break;
+    
+  case sf_type_cons_file:
+    dest->ctn.file.size = src->specific.file.size;
+    strcpy(dest->ctn.file.path, src->specific.file.path);
     break;
 
   case sf_type_cons_scal:
@@ -410,7 +402,9 @@ int unmrsh_data(diet_data_t *dest, corba_data_t *src, int only_value)
   if ((!only_value) && unmrsh_data_desc(&(dest->desc), &(src->desc)))
     return 1;
   if (src->desc.specific._d() == (long) DIET_FILE) {
-    if (strcmp("", src->desc.specific.file().path)) {
+    dest->desc.specific.file.size = src->desc.specific.file().size;
+    if ((src->desc.specific.file().path != NULL)
+	&& strcmp("", src->desc.specific.file().path)) {
       char *in_path   = CORBA::string_dup(src->desc.specific.file().path);
       char *file_name = strrchr(in_path, '/');
       char *out_path  = new char[256];
@@ -424,8 +418,10 @@ int unmrsh_data(diet_data_t *dest, corba_data_t *src, int only_value)
       }
       CORBA::string_free(in_path);
       dest->desc.specific.file.path = out_path;
+    } else if (src->desc.specific.file().size != 0) {
+      cerr << "DIET unmrsh_data WARNING: file structure is vicious !\n";
     } else {
-      dest->desc.specific.file.path = NULL;
+      dest->desc.specific.file.path = "";
     }
   } else {
     if (src->value.length() == 0) { // OUT case
@@ -439,31 +435,8 @@ int unmrsh_data(diet_data_t *dest, corba_data_t *src, int only_value)
 }
 
 
-/*====[ unmrsh_data_seq ]===================================================*/
-
-int unmrsh_data_seq(diet_data_seq_t *dest, SeqCorbaData_t *src)
-{
-  if (dest->length != 0) {
-    if (dest->length != src->length()) {
-      cerr << "This usage of unmrsh_data_seq should not occur in DIET\n"
-	   << "Either unmrsh_data_seq is called on an empty diet_data_seq_t,\n"
-	   << " or it is called on the initial sequence\n";
-      return 1;
-    }
-  } else {
-    dest->length = src->length();
-    dest->seq = (diet_data_t *) malloc(dest->length * sizeof(diet_data_t));
-  }
-  for (size_t i = 0; i < dest->length; i++) {
-    if (unmrsh_data(&(dest->seq[i]), &((*src)[i]), 0))
-      return 1;
-  }
-  return 0;
-}
-
-
 /*==========================================================================*/
-/* Profile structure conversions                                            */
+/* Service profile -> Corba profile descriptor  (for service descriptions)  */
 /*==========================================================================*/
 
 
@@ -482,30 +455,12 @@ int mrsh_profile_desc(corba_profile_desc_t *dest,
   return 0;
 }
 
-int unmrsh_profile_desc(diet_profile_desc_t *dest, char **dest_name,
-			corba_profile_desc_t *src)
-{
-  *dest_name       = CORBA::string_dup(src->path);
-  dest->last_in    = src->last_in;
-  dest->last_inout = src->last_inout;
-  dest->last_out   = src->last_out;
-  dest->param_desc = new (diet_arg_desc_t)[src->last_out + 1];
-  for (int i = 0; i <= src->last_out; i++) {
-    (dest->param_desc[i]).base_type = 
-      (diet_base_type_t)(src->param_desc[i]).base_type;
-    (dest->param_desc[i]).type =
-      (diet_data_type_t)(src->param_desc[i]).type;    
-  }
-  return 0;
-}
 
-int unmrsh_profile_desc_to_name(char **dest_name, corba_profile_desc_t *src)
-{
-  *dest_name = CORBA::string_dup(src->path);
-  return 0;
-}
+/*==========================================================================*/
+/* Problem profile -> corba profile description (for client requests)       */
+/*==========================================================================*/
 
-int mrsh_profile(corba_profile_t *dest, diet_profile_t *src, char *src_name)
+int mrsh_pb_desc(corba_pb_desc_t *dest, diet_profile_t *src, char *src_name)
 {
   dest->path       = CORBA::string_dup(src_name);
   dest->last_in    = src->last_in;
@@ -518,26 +473,13 @@ int mrsh_profile(corba_profile_t *dest, diet_profile_t *src, char *src_name)
   return 0;
 }
 
-int unmrsh_profile_to_desc(diet_profile_desc_t *dest, char **dest_name,
-			   corba_profile_t *src)
-{
-  *dest_name       = CORBA::string_dup(src->path);
-  dest->last_in    = src->last_in;
-  dest->last_inout = src->last_inout;
-  dest->last_out   = src->last_out;
-  dest->param_desc = new (diet_arg_desc_t)[src->last_out + 1];
-  for (int i = 0; i <= src->last_out; i++) {
-    (dest->param_desc[i]).base_type =
-      (diet_base_type_t)(src->param_desc[i]).base_type;
-    (dest->param_desc[i]).type =
-      (diet_data_type_t)(src->param_desc[i]).specific._d();    
-  }
-  return 0;
-}
 
+/*==========================================================================*/
+/* Problem profile -> FAST sf_inst_desc (for client requests)              */
+/*==========================================================================*/
 
-int cvt_arg(sf_data_desc_t *dest,
-	    diet_data_desc_t *src, diet_convertor_function_t f)
+int cvt_arg_desc(sf_data_desc_t *dest,
+		 diet_data_desc_t *src, diet_convertor_function_t f)
 {
   diet_data_desc_t *ddd = new diet_data_desc_t;
   
@@ -560,7 +502,8 @@ int cvt_arg(sf_data_desc_t *dest,
     break;
   }
   case DIET_CVT_MAT_ISTRANS: {
-    scalar_desc_set(ddd, DIET_VOLATILE, DIET_INT, &src->specific.mat.istrans);
+    char t = (src->specific.mat.istrans) ? 'T' : 'N';
+    scalar_desc_set(ddd, DIET_VOLATILE, DIET_CHAR, &t);
     break;
   }
   case DIET_CVT_STR_LEN: {
@@ -581,98 +524,253 @@ int cvt_arg(sf_data_desc_t *dest,
 }
 
 
-int unmrsh_profile_to_sf(sf_inst_desc_t *dest,
-			 const corba_profile_t *src, const diet_convertor_t *cvt)
+int unmrsh_pb_desc_to_sf(sf_inst_desc_t *dest, const corba_pb_desc_t *src,
+			 const diet_convertor_t *cvt)
 {
-  diet_data_desc_t *ddd = new diet_data_desc_t;
+  diet_data_desc_t **src_params =
+    (diet_data_desc_t **) calloc(src->last_out + 1, sizeof(diet_data_desc_t **));
   
   dest->path       = CORBA::string_dup(cvt->path);
   dest->last_in    = cvt->last_in;
   dest->last_inout = cvt->last_inout;
   dest->last_out   = cvt->last_out;
   dest->param_desc = new sf_data_desc_t[cvt->last_out + 1];
+
   for (int i = 0; i <= cvt->last_out; i++) {
     diet_data_desc_t *ddd_tmp;
     int arg_idx = cvt->arg_convs[i].arg_idx;
     
     if ((arg_idx >= 0) && (arg_idx <= src->last_out)) {
-      unmrsh_data_desc(ddd, &(src->param_desc[arg_idx]));
-      ddd_tmp = ddd;
+      if (!src_params[arg_idx]) {
+	ddd_tmp = new diet_data_desc_t;
+	src_params[arg_idx] = ddd_tmp;
+	unmrsh_data_desc(ddd_tmp, &(src->param_desc[arg_idx]));
+      } else {
+	ddd_tmp = src_params[arg_idx];
+      }
     } else {
       ddd_tmp = &(cvt->arg_convs[i].arg->desc);
     }
-    if (cvt_arg(&(dest->param_desc[i]), ddd_tmp, cvt->arg_convs[i].f)) {
-      cerr << "DIET conversion error: Cannot convert client profile "
+    if (cvt_arg_desc(&(dest->param_desc[i]), ddd_tmp, cvt->arg_convs[i].f)) {
+      cerr << "DIET conversion error: Cannot convert client profile"
 	   << "to server profile.\n";
-	return 1;
+      delete src_params;
+      return 1;
     }
   }
   
-  delete ddd;
+  delete src_params;
   return 0;
 }
 
 
 /*==========================================================================*/
-/* Profile -> corba data sequences                                          */
+/* Client sends its data ...                                                */
 /*==========================================================================*/
 
-int mrsh_profile_to_in_args(SeqCorbaData_t *in,
-			    SeqCorbaData_t *inout, SeqCorbaData_t *out,
-			    const diet_profile_t *profile)
+int mrsh_profile_to_in_args(corba_profile_t *dest, const diet_profile_t *src)
 {
-  int i, j;
+  int i;
   
-  in->length(profile->last_in + 1);
-  for (i = 0; i <= profile->last_in; i++) {
-    if (mrsh_data(&((*in)[i]), &(profile->parameters[i]), 0, 0))
-      return 1;
-  }
-  inout->length(profile->last_inout - profile->last_in);
-  for (i = 0; i < (profile->last_inout - profile->last_in); i++) {
-    j = i + profile->last_in + 1;
-    if (mrsh_data(&((*inout)[i]), &(profile->parameters[j]), 0, 0))
+  dest->last_in    = src->last_in;
+  dest->last_inout = src->last_inout;
+  dest->last_out   = src->last_out;
+  dest->parameters.length(src->last_out + 1);
+  for (i = 0; i <= src->last_inout; i++) {
+    if (mrsh_data(&(dest->parameters[i]), &(src->parameters[i]), 0))
       return 1;
   }
   // For OUT parameters, marshal only descriptions for checking
   // purpose on SeD side, and let data emty.
-  out->length(profile->last_out - profile->last_inout);
-  for (i = 0; i < (profile->last_out - profile->last_inout); i++) {
-    j = i + profile->last_inout + 1;
-    if (mrsh_data(&((*out)[i]), &(profile->parameters[j]), 1, 0))
+  for (; i <= src->last_out; i++) {
+    if (mrsh_data_desc(&(dest->parameters[i].desc), &(src->parameters[i].desc)))
       return 1;
+    dest->parameters[i].value.replace(0, 0, NULL);
   }
   return 0;
 }
 
+
+/*==========================================================================*/
+/* Server receives client data ...                                          */
+/*==========================================================================*/
+  
+int cvt_arg(diet_data_t *dest, diet_data_t *src, diet_convertor_function_t f)
+{
+  switch(f) {
+  case DIET_CVT_IDENTITY: {
+    (*dest) = (*src);
+    break;
+  }
+  case DIET_CVT_VECT_SIZE: {
+    scalar_set(dest, src->desc.specific.scal.value, DIET_VOLATILE, DIET_INT);
+    break;
+  }
+  case DIET_CVT_MAT_NB_ROW: {
+    scalar_set(dest, &src->desc.specific.mat.nb_r, DIET_VOLATILE, DIET_INT);
+    break;
+  }
+  case DIET_CVT_MAT_NB_COL: {
+    scalar_set(dest, &src->desc.specific.mat.nb_c, DIET_VOLATILE, DIET_INT);
+    break;
+  }
+  case DIET_CVT_MAT_ISTRANS: {
+    char *t = new char((src->desc.specific.mat.istrans) ? 'T' : 'N');
+    scalar_set(dest, t, DIET_VOLATILE, DIET_CHAR);
+    break;
+  }
+  case DIET_CVT_STR_LEN: {
+    scalar_set(dest, &src->desc.specific.str.length, DIET_VOLATILE, DIET_INT);
+    break;
+  }
+  case DIET_CVT_FILE_SIZE: {
+    scalar_set(dest, &src->desc.specific.file.size, DIET_VOLATILE, DIET_INT);
+    break;
+  }
+  default: {
+    cerr << "DIET conversion error: invalid convertor function.\n";
+    return 1;
+  }
+  }
+  
+  return 0;
+}
+
+
+int unmrsh_in_args_to_profile(diet_profile_t *dest, corba_profile_t *src,
+			      const diet_convertor_t *cvt)
+{
+  diet_data_t **src_params =
+    (diet_data_t **) calloc(src->last_out + 1, sizeof(diet_data_t *));
+
+  dest->last_in    = cvt->last_in;
+  dest->last_inout = cvt->last_inout;
+  dest->last_out   = cvt->last_out;
+  dest->parameters = new diet_data_t[cvt->last_out + 1];
+
+  
+  for (int i = 0; i <= cvt->last_out; i++) {
+    diet_data_t *dd_tmp;
+    int arg_idx = cvt->arg_convs[i].arg_idx;
+    
+    if ((arg_idx >= 0) && (arg_idx <= src->last_out)) {
+      if (!src_params[arg_idx]) {
+	src_params[arg_idx] = new diet_data_t;
+	unmrsh_data(src_params[arg_idx], &(src->parameters[arg_idx]), 0);
+      }
+      dd_tmp = src_params[arg_idx];
+    } else {
+      dd_tmp = cvt->arg_convs[i].arg;
+    }
+    if (cvt_arg(&(dest->parameters[i]), dd_tmp, cvt->arg_convs[i].f)) {
+      cerr << "DIET conversion error: Cannot convert client problem profile"
+	   << "to server profile.\n";
+      delete src_params;
+      return 1;
+    }
+  }
+
+  delete src_params;
+  return 0;
+}
+			      
+
+
+/*==========================================================================*/
+/* Server sends results ...                                                 */
+/*==========================================================================*/
+
+  
+int recvt_arg(diet_data_t *dest, diet_data_t *src, diet_convertor_function_t f)
+{
+  switch(f) {
+  case DIET_CVT_IDENTITY: {
+    (*dest) = (*src);
+    return 0;
+  }
+  case DIET_CVT_VECT_SIZE:
+  case DIET_CVT_MAT_NB_ROW:
+  case DIET_CVT_MAT_NB_COL:
+  case DIET_CVT_MAT_ISTRANS:
+  case DIET_CVT_STR_LEN:
+  case DIET_CVT_FILE_SIZE:
+    return 1;
+  default: {
+    cerr << "DIET conversion error: invalid convertor function.\n";
+    return 2;
+  }
+  }
+}
+
+
+int mrsh_profile_to_out_args(corba_profile_t *dest, const diet_profile_t *src,
+			     const diet_convertor_t *cvt)
+{
+  int i, arg_idx, res;
+  int *args_filled = (int *) calloc(dest->last_out + 1, sizeof(int));
+  diet_data_t dd;
+
+  for (i = 0; i <= cvt->last_out; i++) {
+    arg_idx = cvt->arg_convs[i].arg_idx;
+    if ((arg_idx >= 0) && (arg_idx <= dest->last_out)) {
+      res = recvt_arg(&dd, &(src->parameters[i]), cvt->arg_convs[i].f);
+      if (res == 2) {
+	cerr << "DIET conversion error: Cannot convert server profile"
+	     << "to client problem profile.\n";
+	return 1;
+      }
+      if ((!args_filled[arg_idx]) && (!res)) {
+	// For IN arguments, reset value fields to NULL, so that the ORB does
+	// not carry in data backwards when the RPC returns.
+	if (arg_idx <= dest->last_in)
+	  dest->parameters[arg_idx].value.replace(0, 0, NULL);
+	// For INOUT arguments, release is false, 
+	// For OUT arguments,   release is true.
+	else if (mrsh_data(&(dest->parameters[arg_idx]),
+			   &dd, (arg_idx > dest->last_inout)))
+	  return 1;
+	args_filled[arg_idx] = 1;
+      }
+    }
+  }
+  for (i = dest->last_in + 1; i <= dest->last_out; i++) {
+    if (!args_filled[i]) {
+      cerr << "DIET conversion WARNING: could not reconvert all arguments.\n";
+      break;
+    }
+  }
+
+  return 0;
+}
+
+
+/*==========================================================================*/
+/* Client receives server data ...                                          */
+/*==========================================================================*/
+
 // INOUT parameters should have been set correctly by the ORB.
 // But their descriptions could have been slightly altered
 //  (matrix dimensions, for instance)
-int unmrsh_out_args_to_profile(diet_profile_t *profile,
-			       SeqCorbaData_t *inout, SeqCorbaData_t *out)
+int unmrsh_out_args_to_profile(diet_profile_t *dpb, corba_profile_t *cpb)
 {
-  size_t inout_length = (size_t)(profile->last_inout - profile->last_in);
-  size_t out_length   = (size_t)(profile->last_out   - profile->last_inout);
-  corba_data_t *src;
-  diet_data_t  *dest;
-  
-  if ((inout_length != inout->length()) || (out_length != out->length()))
+  int i;
+
+  if (   (dpb->last_in    != cpb->last_in)
+      || (dpb->last_inout != cpb->last_inout)
+      || (dpb->last_out   != cpb->last_out))
     return 1;
 
   // Unmarshal INOUT parameters descriptions only ; indeed, the ORB has filled
   // in the memory zone pointed at by the diet_data value field, since the
   // marshalling was performed with replace method.
-  for (size_t i = 0; i < inout->length(); i++) {
-    unmrsh_data_desc(&(profile->parameters[i + profile->last_in + 1].desc),
-		     &((*inout)[i].desc));
+  for (i = dpb->last_in + 1; i <= dpb->last_inout; i++) {
+    unmrsh_data_desc(&(dpb->parameters[i].desc), &(cpb->parameters[i].desc));
   }
 
   // Unmarshal OUT parameters, but not the descriptions to save time,
   // EXCEPT for files !!
-  for (size_t i = 0; i < out->length(); i++) {
-    src  = &((*out)[i]);
-    dest = &(profile->parameters[i + profile->last_inout + 1]);
-    unmrsh_data(dest, src, 1);
+  for (; i <= dpb->last_out; i++) {
+    unmrsh_data(&(dpb->parameters[i]), &(cpb->parameters[i]), 1);
   }
   return 0;
 }
