@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2003/09/23 14:56:50  cpera
+ * Delete logs and correct a loop.
+ *
  * Revision 1.11  2003/09/22 13:10:54  cpera
  * Fix bugs and correct release function.
  *
@@ -35,7 +38,6 @@
 #include "marshalling.hh"
 #include "CallAsyncMgr.hh"
 #include "debug.hh"
-#define TRACE_LEVEL 50
 using namespace std;
 
 // locking object
@@ -51,12 +53,9 @@ CallAsyncMgr* CallAsyncMgr::Instance ()
 {
   if (pinstance == 0)  // is it the first call?
   {  
-    cout << "on va acquerir le lock" << endl;
     WriterLockGuard r(rwLock);
-    cout << "on va peut etre initialiser pinstance = " << pinstance << endl;
     if (pinstance == 0) {
       CallAsyncMgr::pinstance = new CallAsyncMgr; // create sole instance
-      cout << "on a initialisé pinstance : " << pinstance << endl;
     }
   }
   return CallAsyncMgr::pinstance; // address of sole instance
@@ -294,9 +293,11 @@ int CallAsyncMgr::addWaitRule(Rule * rule)
       }
     }	
     condRule->wait();
-    WriterLockGuard r(callAsyncListLock);
-    status = rule->status;
-    CallAsyncMgr::Instance()->deleteWaitRule(rule);
+    {
+      WriterLockGuard r(callAsyncListLock);
+      status = rule->status;
+      CallAsyncMgr::Instance()->deleteWaitRule(rule);
+    }
   }
   catch (const exception& e){
     WriterLockGuard r(callAsyncListLock);
@@ -346,6 +347,7 @@ int CallAsyncMgr::deleteWaitRule(Rule* rule)
   }
   // ERREUR DE GESTION MEMOIRE. A CORRIGER ???????
   catch (const exception& e){
+    return STATUS_ERROR;
   }
   return 0;
 }
@@ -375,7 +377,6 @@ int CallAsyncMgr::areThereWaitRules()
  *********************************************************************/ 
 int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp) 
 {
-
   WriterLockGuard r(callAsyncListLock);
   try {
     // update diet_profile datas linked to this reqId
@@ -424,7 +425,6 @@ int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
       else {
         // nothing. try another rule linked to this reqID
       }
-      ++j;
     }
   }
   catch (...){
