@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.9  2004/02/25 07:01:28  desprez
+%* hourra, l intro de Fred
+%*
 %* Revision 1.8  2004/01/29 17:08:47  ecaron
 %* Add suggestions from Frederic Desprez. Thanks !
 %*
@@ -164,31 +167,17 @@
 \addcontentsline{toc}{chapter}{Introduction}
 \chapter*{Introduction}
 
+Resource management is one of the key issues for the development of efficient Grid environments. Several approaches co-exist in today's middleware platforms. The computation (or communication) grain and the dependences between the computations also have a great influence on the software choices.
 
-DIET stands for Distributed Interactive Engineering Toolbox. It is a
-toolbox for easily developing Application Service Provider systems,
-based on the Client/Agent/Server scheme. Agents are the schedulers of
-this toolbox. In DIET, user's requests are served via RPC.
+The first approach provides the user with a uniform view of resources. This is the case of GLOBUS~\cite{Globus} which provides transparent MPI communications (with MPICH-G2) between distant nodes but does not manage load balancing issues between these nodes. It's the user's task to develop a code that will take into account the heterogeneity of the target architecture. Classical batch processing can also be used on the Grid with projects like Condor-G~\cite{Condor} or Sun GridEngine~\cite{SunGridEngine}. Finally, peer-to-peer~\cite{Oram01} or Global computing~\cite{germain01global} can be used for fine grain and loosely coupled applications.
 
-The RPC paradigm~\cite{CM00,MNS+00} is a good candidate for building
-to build Problem Solving Environments (PSE) for numerical applications
-on the Grid~\cite{HR00}. Several tools following this approach exist,
-such as \nsl~\cite{nug}, NINF~\cite{NSS99}, NEOS~\cite{FMM00}, or
-RCS~\cite{AGM97}. They are most commonly referred to as Network
-Enabled Server (NES) environments~\cite{MNS+00}. Such environments
-usually have five different components: \emph{Clients} that submit
-problems they have to solve to \emph{Servers}, a \emph{Database} that
-contains information about software and hardware resources, a
-\emph{Scheduler} that chooses an appropriate server
-depending on the problem sent and the information contained in the
-database, and finally \emph{Monitors} that acquire information about
-the status of the computational resources.
+A second approach provides a semi-transparent access to computing servers by submitting jobs to dedicated servers. This model is known as the Application Service Provider (ASP) model where providers offer, not necessarily for free, computing resources (hardware and software) to clients in the same way as Internet providers offer network resources to clients. The programming granularity of this model is rather coarse. One of the advantages of this approach is that end users do not need to be experts in parallel programming to benefit from high performance parallel programs and computers. This model is closely related to the classical Remote Procedure Call (RPC) paradigm. On a Grid platform, the RPC (or GridRPC~\cite{MNS+00,NMSDLC02}) offers an easy access to available resources to a Web browser, a Problem Solving Environment (PSE), or a simple client program written in C, Fortran, or Java.  It also provides more transparency by hiding the search and allocation of computing resources. We favour this second approach.
 
-DIET is based on the five component types described above, but a
-hierarchy of schedulers (agents) are used to address the scalability
-problems. Clients always submit their to one of a particular agent
-(their Master Agent or MA). Below the MA is a hierarchy of agents
-(Local Agents or LA) which share the workload for scheduling jobs.
+In a Grid context, this approach requires the implementation of middlewares to facilitate the client access to remote resources. In the ASP approach, a common way for clients to ask for resources to solve their problem is to submit a request to the middleware. The middleware will find the most appropriate server that will solve the problem on behalf of the client using a specific software. Several environments, usually called Network Enabled Servers (NES), have developed such a paradigm: NetSolve~\cite{nug}, Ninf~\footcite{NSS99}, NEOS~\cite{FMM00}, OmniRPC~\cite{SHTS01}, and more recently DIET developed in the GRAAL project. A common feature of these environments is that they are built on top of five components: clients, servers, databases, monitors and schedulers. Clients solve computational requests on servers found by the NES. The NES schedules the requests on the different servers using performance information obtained by monitors and stored in a database.
+
+DIET stands for Distributed Interactive Engineering Toolbox. It is a toolbox for easily developing Application Service Provider systems on Grid platforms, based on the Client/Agent/Server scheme. Agents are the schedulers of this toolbox. In DIET, user's requests are served via RPC.
+
+DIET follows the GridRPC API defined within the Global Grid Forum~\cite{GridRPC}.
 
 %
 % A DIET platform
