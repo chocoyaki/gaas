@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.40  2004/12/08 15:02:51  alsu
+ * plugin scheduler first-pass validation testing complete.  merging into
+ * main CVS trunk; ready for more rigorous testing.
+ *
  * Revision 1.39  2004/12/03 09:53:51  bdelfabr
  * cleanup data when persistent
  *
@@ -21,6 +25,45 @@
  *
  * Revision 1.36  2004/11/25 11:40:32  hdail
  * Add request ID to statistics output to allow tracing of stats for each request.
+ *
+ * Revision 1.35.2.9  2004/11/30 15:46:50  alsu
+ * minor cleanup, adding a note to reconsider an unecessary block of code
+ * in the case that contract checking is reworked, as planned.
+ *
+ * Revision 1.35.2.8  2004/11/26 15:19:52  alsu
+ * - restructuring estimate method to use new diet_estimate_* functions
+ * - adding timeSinceLastSolve() to give enable access to the last-solve
+ *   timestamp
+ *
+ * Revision 1.35.2.7  2004/11/24 09:30:57  alsu
+ * using unmarshalling function to help us construct the profile for
+ * custom performance metrics
+ *
+ * Revision 1.35.2.6  2004/11/06 16:22:55  alsu
+ * estimation vector access functions now have parameter-based default
+ * return values
+ *
+ * Revision 1.35.2.5  2004/11/02 00:35:26  alsu
+ * - removing old hard-coded implementation of RR scheduling (replaced by
+ *   plugin version in Schedulers.cc)
+ * - code modifications to use dynamic performance estimation vector
+ *   instead of the old hard-coded estimation fields
+ *
+ * Revision 1.35.2.4  2004/10/31 22:08:33  alsu
+ * minor cleanup
+ *
+ * Revision 1.35.2.3  2004/10/27 22:35:50  alsu
+ * include
+ *
+ * Revision 1.35.2.2  2004/10/26 19:44:04  alsu
+ * minor changes, confirmed successful calculation of
+ * "timeSinceLastSolve" value
+ *
+ * Revision 1.35.2.1  2004/10/26 14:12:52  alsu
+ * (Tag: AS-plugin-sched)
+ *  - branch created to avoid conflicting with release 1.2 (imminent)
+ *  - initial commit on branch, new dynamic performance info structure in
+ *    the profile
  *
  * Revision 1.35  2004/10/15 08:19:13  hdail
  * Removed references to corba_response_t->sortedIndexes - no longer useful.
@@ -81,6 +124,7 @@ using namespace std;
 #include "ORBMgr.hh"
 #include "Parsers.hh"
 #include "statistics.hh"
+#include "Vector.h"
 
 #define DEVELOPPING_DATA_PERSISTENCY 1
 
@@ -91,62 +135,6 @@ extern unsigned int TRACE_LEVEL;
   TRACE_TEXT(TRACE_ALL_STEPS, "SeD::");          \
   TRACE_FUNCTION(TRACE_ALL_STEPS,formatted_text)
 
-/*
-** if FAST is not present, we set up the variables
-** and functions needed to do round-robin, by default
-*/
-#ifndef HAVE_FAST
-static struct timeval *RRtimestamps = NULL;
-static int RRtimestampsCapacity = 0;
-static int RRensureSize(int serviceNum) {
-  /* check to see if we have space for the requested service timestamp */
-  /* get the current timestamp */
-  if (serviceNum >= RRtimestampsCapacity) {
-    /* need to increase the size of the array */
-    int newCapacity = serviceNum+1;
-    RRtimestamps = (struct timeval *) realloc (RRtimestamps,
-                                               (newCapacity *
-                                                sizeof (struct timeval)));
-    if (RRtimestamps == NULL) {
-      return (-1);
-    }
-
-    /* initialize new timestamp structures */
-    for (int i = RRtimestampsCapacity ; i < newCapacity ; i++) {
-      (RRtimestamps[i]).tv_sec = (RRtimestamps[i]).tv_usec = 0;
-    }
-    RRtimestampsCapacity = newCapacity;
-  }
-  return (0);
-}
-static void RRsolve(int serviceNum) {
-  if (RRensureSize(serviceNum) == -1) {
-    fprintf(stderr, "SeDImpl::solve: unable to realloc rr array\n");
-    return;
-  }
-  gettimeofday(&(RRtimestamps[serviceNum]), NULL);
-}
-static double RRperformanceMetric(int serviceNum) {
-  if (RRensureSize(serviceNum) == -1) {
-    fprintf(stderr, "SeDImpl::estimate: unable to realloc rr array\n");
-  }
-
-  /* get the current time */
-  struct timeval current;
-  gettimeofday(&current, NULL);
-  double elapsed = ((double) current.tv_sec -
-                    (double) (RRtimestamps[serviceNum]).tv_sec +
-                    (((double) current.tv_usec -
-                      (double) (RRtimestamps[serviceNum]).tv_usec) /
-                     1000000.0));
-
-  /*
-  ** to prevent underflow on the first usage of a server,
-  ** we use a big number as the numerator
-  */
-  return (1000000.0 / elapsed);
-}
-#endif /* ! HAVE_FAST */
 
 
 
@@ -156,6 +144,7 @@ this->SrvT    = NULL;
   this->childID = -1;
   this->parent  = Agent::_nil();
   this->localHostName[0] = '\0';
+  (this->lastSolveStart).tv_sec = -1;
 #if HAVE_FAST
   this->fastUse = 1;
 #endif // HAVE_FAST
@@ -172,6 +161,7 @@ SeDImpl::SeDImpl(const char* uuid = '\0')
   this->parent  = Agent::_nil();
   this->localHostName[0] = '\0';
   this->uuid = uuid;
+  (this->lastSolveStart).tv_sec = -1;
 #if HAVE_FAST
   this->fastUse = 1;
 #endif // HAVE_FAST
@@ -206,7 +196,7 @@ SeDImpl::run(ServiceTable* services)
     return 1;
   parent =
     Agent::_duplicate(Agent::_narrow(ORBMgr::getObjReference(ORBMgr::AGENT,
-							     parent_name)));
+                                                             parent_name)));
   if (CORBA::is_nil(parent)) {
     ERROR("cannot locate agent " << parent_name, 1);
   }
@@ -226,17 +216,16 @@ SeDImpl::run(ServiceTable* services)
   try {
     childID = parent->serverSubscribe(this->_this(), localHostName,
 #if HAVE_JXTA
-				      uuid,
+                                      uuid,
 #endif //HAVE_JXTA
-
-				      *profiles);
+                                      *profiles);
   } catch (CORBA::Exception& e) {
     CORBA::Any tmp;
     tmp <<= e;
     CORBA::TypeCode_var tc = tmp.type();
     ERROR("exception caught (" << tc->name() << ") while subscribing to "
-	  << parent_name << ": either the latter is down, "
-	  << "or there is a problem with the CORBA name server", 1);
+          << parent_name << ": either the latter is down, "
+          << "or there is a problem with the CORBA name server", 1);
   }
   delete profiles;
 
@@ -302,8 +291,8 @@ SeDImpl::getRequest(const corba_request_t& creq)
   corba_response_t resp;
   
   TRACE_TEXT(TRACE_MAIN_STEPS,
-	     "\n**************************************************\n"
-	     << "Got request " << creq.reqID << endl << endl);
+             "\n**************************************************\n"
+             << "Got request " << creq.reqID << endl << endl);
   resp.reqID = creq.reqID;
   resp.myID  = childID;
 #if HAVE_LOGSERVICE
@@ -326,9 +315,17 @@ SeDImpl::getRequest(const corba_request_t& creq)
     resp.servers[0].loc.uuid = CORBA::string_dup(uuid);
 #endif //HAVE_JXTA
     resp.servers[0].loc.port     = this->port;
-    resp.servers[0].estim.commTimes.length(creq.pb.last_out + 1);
-    for (int i = 0; i <= creq.pb.last_out; i++)
-      resp.servers[0].estim.commTimes[i] = 0;
+
+//     resp.servers[0].estim.commTimes.length(creq.pb.last_out + 1);
+//     for (int i = 0; i <= creq.pb.last_out; i++)
+//       resp.servers[0].estim.commTimes[i] = 0;
+    estVector_t ev = new_estVector();
+    for (int ctIter = 0 ; ctIter < creq.pb.last_out ; ctIter++) {
+      estVector_addEstimation(ev, EST_COMMTIME, 0.0);
+    }
+    mrsh_estVector_to_estimation(&(resp.servers[0].estim), ev);
+    free_estVector(ev);
+
     this->estimate(resp.servers[0].estim, creq.pb, serviceRef);
   }
 
@@ -347,7 +344,7 @@ SeDImpl::getRequest(const corba_request_t& creq)
 
 CORBA::Long
 SeDImpl::checkContract(corba_estimation_t& estimation,
-		       const corba_pb_desc_t& pb)
+                       const corba_pb_desc_t& pb)
 {  
   ServiceTable::ServiceReference_t ref(-1);
   ref = SrvT->lookupService(&(pb));
@@ -412,14 +409,6 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
    ERROR("SeD::" << __FUNCTION__ << ": service not found", 1);
   } 
    
-#ifndef HAVE_FAST
-  /*
-  ** tell the default round-robin scheduler that we got a solve request!
-  */
-  RRsolve(ref);
-#endif /* ! HAVE_FAST */
-   
-
 #if HAVE_QUEUES
   if (this->useConcJobLimit){
     this->accessController->waitForResource();
@@ -447,7 +436,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
       this->dataMgr->getData(pb.parameters[i]); 
     } else { /* data is not yet present but is persistent */
       if( diet_is_persistent(pb.parameters[i])) {
-       	this->dataMgr->addData(pb.parameters[i],0);
+        this->dataMgr->addData(pb.parameters[i],0);
       }
     }
   }
@@ -468,34 +457,29 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
 
 #endif // DEVELOPPING_DATA_PERSISTENCY
   
+  /* record the timestamp of this solve */
+  gettimeofday(&(this->lastSolveStart), NULL);
+
   solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
   
 #if DEVELOPPING_DATA_PERSISTENCY 
-
-  
   for(i=0;i<=pb.last_in;i++){
     if(diet_is_persistent(pb.parameters[i])) {
       if (pb.parameters[i].desc.specific._d() != DIET_FILE) {
-      	CORBA::Char *p1 (NULL);
-	pb.parameters[i].value.replace(0,0,p1,1);
+        CORBA::Char *p1 (NULL);
+        pb.parameters[i].value.replace(0,0,p1,1);
       }
       persistent_data_release(&(pb.parameters[i]));
     }
   }
-  
-  
-
 #endif // DEVELOPPING_DATA_PERSISTENCY   
   
-    mrsh_profile_to_out_args(&pb, &profile, cvt);
-
+  mrsh_profile_to_out_args(&pb, &profile, cvt);
     
 #if DEVELOPPING_DATA_PERSISTENCY   
- 
- 
     for (i = pb.last_inout + 1 ; i <= pb.last_out; i++) {
       if ( diet_is_persistent(pb.parameters[i])) {
-	this->dataMgr->addData(pb.parameters[i],1); 
+        this->dataMgr->addData(pb.parameters[i],1); 
       }
     }
     this->dataMgr->printList();
@@ -503,7 +487,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
  
   if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
     cout << "SeD::solve complete\n"
-	 << "************************************************************\n";
+         << "************************************************************\n";
 
   for (i = 0; i <= cvt->last_in; i++) {
     diet_free_data(&(profile.parameters[i]));
@@ -530,7 +514,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
 
 void
 SeDImpl::solveAsync(const char* path, const corba_profile_t& pb, 
-		    CORBA::Long reqID, const char* volatileclientREF)
+                    CORBA::Long reqID, const char* volatileclientREF)
 {
   // TODO: enable RRSolve & Queue handling here to match solveSync
 #if HAVE_LOGSERVICE
@@ -560,11 +544,11 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
       stat_in("SeD","solveAsync");
 
       TRACE_TEXT(TRACE_MAIN_STEPS,
-		 "SeD::solveAsync invoked on pb: " << path << endl);
+                 "SeD::solveAsync invoked on pb: " << path << endl);
 
       ref = SrvT->lookupService(path, &pb);
       if (ref == -1) {
-	ERROR("SeD::" << __FUNCTION__ << ": service not found",);
+        ERROR("SeD::" << __FUNCTION__ << ": service not found",);
       }
  
       cvt = SrvT->getConvertor(ref);
@@ -573,15 +557,14 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
       int i;
  
       for (i = 0; i <= pb.last_inout; i++) {    
-	if(pb.parameters[i].value.length() == 0){
-	  
-	  this->dataMgr->getData(const_cast<corba_data_t&>(pb.parameters[i]));
-	} else {
-	  if( diet_is_persistent(pb.parameters[i]) ) {
-	    
-	    this->dataMgr->addData(const_cast<corba_data_t&>(pb.parameters[i]),0);
-	  }
-	}
+        if(pb.parameters[i].value.length() == 0){
+          this->dataMgr->getData(const_cast<corba_data_t&>(pb.parameters[i]));
+        } else {
+          if( diet_is_persistent(pb.parameters[i]) ) {
+            this->dataMgr->addData(const_cast<corba_data_t&>(pb.parameters[i]),
+                                   0);
+          }
+        }
       }
       unmrsh_in_args_to_profile(&profile, &(const_cast<corba_profile_t&>(pb)), cvt);
       
@@ -595,12 +578,15 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
        for (i=0; i <= pb.last_inout; i++) {
      if( diet_is_persistent(pb.parameters[i])&& (pb.parameters[i].desc.specific._d() == DIET_FILE))
        {
-	 char* in_path   = CORBA::string_dup(profile.parameters[i].desc.specific.file.path);
-	 this->dataMgr->changePath(pb.parameters[i], in_path);
+         char* in_path   = CORBA::string_dup(profile.parameters[i].desc.specific.file.path);
+         this->dataMgr->changePath(pb.parameters[i], in_path);
        }
    }
 #endif // DEVELOPPING_DATA_PERSISTENCY
       
+      /* record the timestamp of this solve */
+      gettimeofday(&(this->lastSolveStart), NULL);
+
       solve_res = (*(SrvT->getSolver(ref)))(&profile);
       
 #if ! DEVELOPPING_DATA_PERSISTENCY
@@ -613,29 +599,28 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
       mrsh_profile_to_out_args(&(const_cast<corba_profile_t&>(pb)), &profile, cvt);
 
       /*      for (i = profile.last_in + 1 ; i <= profile.last_inout; i++) {
-	if ( diet_is_persistent(profile.parameters[i])) {
-	  this->dataMgr->updateDataList(const_cast<corba_data_t&>(pb.parameters[i])); 
-	}
-	}*/
+        if ( diet_is_persistent(profile.parameters[i])) {
+          this->dataMgr->updateDataList(const_cast<corba_data_t&>(pb.parameters[i])); 
+        }
+        }*/
       
       for (i = profile.last_inout + 1 ; i <= profile.last_out; i++) {
-
-	if ( diet_is_persistent(profile.parameters[i])) {
-	  
-	  this->dataMgr->addData(const_cast<corba_data_t&>(pb.parameters[i]),1); 
-	}
+        if ( diet_is_persistent(profile.parameters[i])) {
+          this->dataMgr->addData(const_cast<corba_data_t&>(pb.parameters[i]),
+                                 1); 
+        }
       }
       
       
       /* Free data */
 #if 0
       for(i=0;i<pb.last_out;i++)
-	if(!diet_is_persistent(profile.parameters[i])) {
-	    // FIXME : adding file test
-	  CORBA::Char *p1 (NULL);
-	  p1 = pbc.parameters[i].value.get_buffer(1);
-	  _CORBA_Sequence<unsigned char>::freebuf((_CORBA_Char *)p1);
-	  }
+        if(!diet_is_persistent(profile.parameters[i])) {
+            // FIXME : adding file test
+          CORBA::Char *p1 (NULL);
+          p1 = pbc.parameters[i].value.get_buffer(1);
+          _CORBA_Sequence<unsigned char>::freebuf((_CORBA_Char *)p1);
+          }
       
 #endif
       // FIXME: persistent data should not be freed but referenced in the data list.
@@ -643,7 +628,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 #endif // ! DEVELOPPING_DATA_PERSISTENCY
 
       TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::" << __FUNCTION__ << " complete\n"
-		 << "**************************************************\n");
+                 << "**************************************************\n");
 
       stat_out("SeD","solveAsync");
       stat_flush();
@@ -656,7 +641,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
      
       // send result data to client.
       TRACE_TEXT(TRACE_ALL_STEPS, "SeD::" << __FUNCTION__
-		 << ": performing the call-back.\n");
+                 << ": performing the call-back.\n");
       Callback_var cb_var = Callback::_narrow(cb);
       cb_var->notifyResults(path, pb, reqID);
       cb_var->solveResults(path, pb, reqID);
@@ -676,13 +661,19 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
       ERROR("exception caught in SeD::" << __FUNCTION__ << '(' << p << ')',);
     } else {
       ERROR("exception caught in SeD::" << __FUNCTION__
-	    << '(' << tc->id() << ')',);
+            << '(' << tc->id() << ')',);
     }
   } catch (...) {
     // Process any other exceptions. This would catch any other C++
     // exceptions and should probably never occur
     ERROR("unknown exception caught",);
   }
+}
+
+const struct timeval*
+SeDImpl::timeSinceLastSolve()
+{
+  return (&(this->lastSolveStart));
 }
 
 CORBA::Long
@@ -709,13 +700,95 @@ corbaPbDesc2dietProfile(const corba_pb_desc_t& pb, diet_profile_t& prof)
  */
 inline void 
 SeDImpl::estimate(corba_estimation_t& estimation,
-		  const corba_pb_desc_t& pb,
-		  const ServiceTable::ServiceReference_t ref)
+                  const corba_pb_desc_t& pb,
+                  const ServiceTable::ServiceReference_t ref)
 {
   diet_perfmetric_t perfmetric_fn = SrvT->getPerfMetric(ref);
+  estVector_t eVals = NULL;
 
-  FASTMgr::estimate(this->localHostName,
-		    estimation, pb, SrvT->getConvertor(ref));
+  diet_profile_t profile;
+
+  /*
+  ** create a profile, based on the problem description, to
+  ** be used in the performance metric function
+  */
+  profile.pb_name = strdup(pb.path);
+  profile.last_in = pb.last_in;
+  profile.last_inout = pb.last_inout;
+  profile.last_out = pb.last_out;
+  profile.parameters = (diet_arg_t*) calloc ((pb.last_out+1),
+                                             sizeof (diet_arg_t));
+
+  /* populate the parameter structures */
+  for (int i = 0 ; i <= pb.last_out ; i++) {
+    const corba_data_desc_t* const cdd = &(pb.param_desc[i]);
+    diet_arg_t* da = &(profile.parameters[i]);
+    da->value = NULL;
+    diet_data_desc_t* ddd = &(da->desc);
+    unmrsh_data_desc(ddd, cdd);
+  }
+
+  if (perfmetric_fn == NULL) {
+    /* initialize the estimation value vector */
+    eVals = new_estVector();
+
+    /***** START FAST-based metrics *****/
+    diet_estimate_fast(eVals, &profile);
+
+    estVector_setEstimation(eVals,
+                            EST_TOTALTIME,
+                            estVector_getEstimationValue(eVals,
+                                                         EST_TCOMP,
+                                                         HUGE_VAL));
+
+    {
+      /*
+      ** add in times for communication.  there are communication
+      ** values ONLY when this method is called from the contract
+      ** checking code; if we redo contract checking, we may be
+      ** able to minimize/eliminate this section.
+      **
+      ** TODO: decide if this block should change according to the
+      **       above comment
+      */
+      if (estVector_getEstimationValue(eVals, EST_TOTALTIME, HUGE_VAL) !=
+          HUGE_VAL) {
+        double newTotalTime;
+        newTotalTime = estVector_getEstimationValue(eVals,
+                                                    EST_TOTALTIME,
+                                                    HUGE_VAL);
+
+        for (int i = 0; i <= pb.last_out; i++) {
+          if (estVector_getEstimationValueNum(eVals,
+                                              EST_COMMTIME,
+                                              HUGE_VAL,
+                                              i) == HUGE_VAL) {
+            estVector_setEstimation(eVals, EST_TOTALTIME, HUGE_VAL);
+            break;
+          }
+
+//         estimation.totalTime += estimation.commTimes[i];
+          newTotalTime += estVector_getEstimationValueNum(eVals,
+                                                          EST_COMMTIME,
+                                                          HUGE_VAL,
+                                                          i);
+        }
+
+        estVector_setEstimation(eVals, EST_TOTALTIME, newTotalTime);
+      }
+    }
+    /***** END FAST-based metrics *****/
+
+    /***** START RR metrics *****/
+    diet_estimate_lastexec(eVals, &profile, (const void *) this);
+    /***** END RR metrics *****/
+  }
+  else {
+    /*
+    ** just call the custom performance metric function!
+    */
+    eVals = (*perfmetric_fn)(&profile, (const void*) this);
+  }
 
   /* Evaluate comm times for persistent IN arguments only: comm times for
      volatile IN and persistent OUT arguments cannot be estimated here, and
@@ -724,84 +797,15 @@ SeDImpl::estimate(corba_estimation_t& estimation,
     // FIXME: here the data localization service must be interrogated to
     // determine the transfer time of all IN and INOUT parameters.
     if ((pb.param_desc[i].mode > DIET_VOLATILE)
-	&& (pb.param_desc[i].mode <= DIET_STICKY)
-	&& (*(pb.param_desc[i].id.idNumber) != '\0')) {    
-      estimation.commTimes[i] = 0;  
-#if DEVELOPPING_DATA_PERSISTENCY
-      /*   cout << "in ESTIMATE" << endl;
-      if(this->dataMgr->dataLookup(CORBA::string_dup(pb.param_desc[i].id.idNumber)))	
-	estimation.commTimes[i] = 0;  // getTransferTime(pb.params[i].id);
-      else {
-	char *remoteHostName=NULL;
-	remoteHostName = this->dataMgr->whichDataMgr(pb.param_desc[i].id.idNumber);
-	//	if (*remoteHostName == '\0')
-	//  cout << " PROBLEM" << endl;
-	//else 
-	unsigned int size =(long unsigned int) data_sizeof(&(pb.param_desc[i]));
-	estimation.commTimes[i]=FASTMgr::commTime(localHostName,remoteHostName,size,false);
-	// getTransferTime(pb.params[i].id);
-	}*/
-#endif //  DEVELOPPING_DATA_PERSISTENCY
+        && (pb.param_desc[i].mode <= DIET_STICKY)
+        && (*(pb.param_desc[i].id.idNumber) != '\0')) {    
+//       estimation.commTimes[i] = 0;  
+      estVector_addEstimation(eVals, EST_COMMTIME, 0.0);
     }
   }
 
-  if (perfmetric_fn == NULL) {
-#ifdef HAVE_FAST
-    estimation.totalTime = estimation.tComp;
-    if (estimation.totalTime != HUGE_VAL) {
-      for (int i = 0; i <= pb.last_out; i++) {
-        estimation.totalTime += estimation.commTimes[i];
-        if (estimation.commTimes[i] == HUGE_VAL)
-          break;
-      }
-    }
-#else /* HAVE_FAST */
-    /*
-    ** without FAST, we use a round-robin if no custom performance
-    ** metric has been specified.
-    */
-    estimation.totalTime = estimation.tComp = RRperformanceMetric(ref);
-#endif /* HAVE_FAST */
-  }
-  else {
-    diet_profile_t profile;
-
-    /*
-    ** create a profile, based on the problem description, to
-    ** be used in the performance metric function
-    */
-    profile.pb_name = strdup(pb.path);
-    profile.last_in = pb.last_in;
-    profile.last_inout = pb.last_inout;
-    profile.last_out = pb.last_out;
-    profile.parameters = (diet_arg_t*) calloc ((pb.last_out+1),
-                                               sizeof (diet_arg_t));
-
-    /* populate the parameter structures */
-    for (int i = 0 ; i <= pb.last_out ; i++) {
-      const corba_data_desc_t cdd = pb.param_desc[i];
-      diet_arg_t* da = &(profile.parameters[i]);
-      da->value = NULL;
-      diet_data_desc_t* ddd = &(da->desc);
-      ddd->id = strdup(cdd.id.idNumber);
-      ddd->mode = (diet_persistence_mode_t) cdd.mode;
-      struct diet_data_generic* ddg_s = &(ddd->generic);
-      ddg_s->base_type = (diet_base_type_t) cdd.base_type;
-
-      /*
-      ** TODO: figure out if this is acceptable (calling a seemingly
-      **       private method of an inner class), and if the
-      **       correspondence of these two member variables is fixed
-      */
-      ddg_s->type = (diet_data_type_t) cdd.specific._d();
-    }
-
-    /*
-    ** profile is ready, call the custom performance
-    ** metric function!
-    */
-    estimation.tComp = estimation.totalTime = (*perfmetric_fn)(&profile);
+  { /* fill in the corba estimation structure */
+    mrsh_estVector_to_estimation(&(estimation), eVals);
+    free_estVector(eVals);
   }
 }
-
-

@@ -9,6 +9,28 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2004/12/08 15:02:51  alsu
+ * plugin scheduler first-pass validation testing complete.  merging into
+ * main CVS trunk; ready for more rigorous testing.
+ *
+ * Revision 1.6.2.4  2004/11/24 09:32:38  alsu
+ * adding CORBA support (new datatype in the IDL and corresponding
+ * marshalling/unmarshalling functions) to deal with
+ * DIET_PARAMSTRING-specific data description structure
+ *
+ * Revision 1.6.2.3  2004/11/02 00:29:35  alsu
+ * removing all hard-coded fields from corba_estimation_t (code elsewhere
+ * modified to use the estValues dynamic estimation value vector)
+ *
+ * Revision 1.6.2.2  2004/10/27 22:35:50  alsu
+ * include
+ *
+ * Revision 1.6.2.1  2004/10/26 14:12:52  alsu
+ * (Tag: AS-plugin-sched)
+ *  - branch created to avoid conflicting with release 1.2 (imminent)
+ *  - initial commit on branch, new dynamic performance info structure in
+ *    the profile
+ *
  * Revision 1.6  2004/09/29 13:35:31  sdahan
  * Add the Multi-MAs feature.
  *
@@ -99,6 +121,12 @@ struct corba_string_specific_t {
   long length;
 };
 
+/** Mapping for struct diet_paramstring_specific */
+struct corba_paramstring_specific_t {
+  long length;
+  string param;
+};
+
 /** Mapping for struct diet_file_specific */
 struct corba_file_specific_t {
   long size;
@@ -124,6 +152,8 @@ struct corba_data_desc_t {
   case 3:
     corba_string_specific_t str;
   case 4:
+    corba_paramstring_specific_t pstr;
+  case 5:
     corba_file_specific_t   file;
   } specific;
 };
@@ -201,6 +231,21 @@ struct corba_request_t {
 /* ESTIMATION                                                               */
 /****************************************************************************/
 /**
+ * Custom estimation tags: space of a char, acceptable values
+ * defined DIET_data_internal.h
+ */
+typedef octet corba_est_tag_storage_t;
+
+/**
+ * Custom estimation value
+ */
+struct corba_est_value_t {
+  corba_est_tag_storage_t v_tag;
+  double                  v_value;
+};
+typedef sequence <corba_est_value_t> SeqEstValue_t;
+
+/**
  * The estimation structure
  * commTimes == Communication times of ALL parameters :
  * the tranfer time of OUT parameters is estimated as if they were IN,
@@ -209,15 +254,18 @@ struct corba_request_t {
  * totalTime stores all communication times + tComp
  */
 struct corba_estimation_t {
-  double    totalTime;
-  SeqDouble commTimes;
+//   double    totalTime;
+//   SeqDouble commTimes;
   /* FAST fields */
-  double    tComp;
+//   double    tComp;
   /* NWS fields */
-  double    freeCPU;
-  double    freeMem;
+//   double    freeCPU;
+//   double    freeMem;
   /* Static fields */
-  long      nbCPU;
+//   long      nbCPU;
+
+  /* dynamic storage for performance estimation values */
+  SeqEstValue_t estValues;
 };
 
 

@@ -9,6 +9,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2004/12/08 15:02:52  alsu
+ * plugin scheduler first-pass validation testing complete.  merging into
+ * main CVS trunk; ready for more rigorous testing.
+ *
+ * Revision 1.1.2.1  2004/12/01 14:53:44  alsu
+ * removing spurious argument that caused compilation warning (and thus
+ * failure in maintainer mode) on certain "sensitive" versions of gcc.
+ *
  * Revision 1.1  2004/10/04 13:55:06  hdail
  * - Added AccessController class, an enhanced counting semaphore.
  * - Added config file options for controlling concurrent SeD access.
@@ -77,11 +85,13 @@ AccessController::waitForResource(){
 
   if(this->numFreeSlots <= 0){
     fprintf(stderr, 
-        "AccessController:: confusion between semaphore and numFreeSlots ...", 1);
+            "AccessController:: confusion between "
+            "semaphore and numFreeSlots ...");
   }
   if(this->numWaiting <= 0){
     fprintf(stderr, 
-        "AccessController:: Unexplained problem counting waiting threads.", 1);
+            "AccessController:: Unexplained problem "
+            "counting waiting threads.");
   }
 
   this->globalLock.lock();      /** LOCK */

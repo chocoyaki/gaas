@@ -10,6 +10,13 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.11  2004/12/08 15:02:51  alsu
+#* plugin scheduler first-pass validation testing complete.  merging into
+#* main CVS trunk; ready for more rigorous testing.
+#*
+#* Revision 1.10.2.1  2004/10/27 22:35:50  alsu
+#* include
+#*
 #* Revision 1.10  2004/07/09 19:51:58  ctedesch
 #* - javac and javah detected instead of java
 #* - JXTA_LIB automatically set before compilation
@@ -58,9 +65,9 @@ corbadir = $(top_builddir)/src/CORBA
 
 libDIET_SeD_la_LIBADD = \
 	$(utilsdir)/libUtilsCommon.la $(utilsdir)/libUtilsSeDClt.la	\
-	$(utilsdir)/libUtilsNodes.la $(corbadir)/libCorbaCommon.la	\
-	$(corbadir)/idl/libIDLCommon.la $(corbadir)/idl/libIDLAgent.la	\
-	$(LIBS_OMNIORB) $(LIBS_FAST)
+	$(utilsdir)/libUtilsNodes.la $(utilsdir)/libUtilsVector.la	\
+	$(corbadir)/libCorbaCommon.la $(corbadir)/idl/libIDLCommon.la	\
+	$(corbadir)/idl/libIDLAgent.la $(LIBS_OMNIORB) $(LIBS_FAST)
 
 AM_CXXFLAGS = $(CXXFLAGS_OMNIORB) $(CXXFLAGS_FAST) -I$(top_srcdir)/src/utils \
 	      -I$(top_srcdir)/src/CORBA -I$(corbadir)/idl 		     \

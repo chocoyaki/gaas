@@ -8,6 +8,23 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2004/12/08 15:02:51  alsu
+ * plugin scheduler first-pass validation testing complete.  merging into
+ * main CVS trunk; ready for more rigorous testing.
+ *
+ * Revision 1.5.2.4  2004/12/06 16:05:57  alsu
+ * using RR scheduler only after the generic MIN/MAX schedulers
+ *
+ * Revision 1.5.2.3  2004/11/06 16:23:19  alsu
+ * reordering adding RR, generic min, and generic max aggregators
+ *
+ * Revision 1.5.2.2  2004/10/31 22:17:30  alsu
+ * minor code cleanup and adding the RR aggregator to the "scheduler"
+ * stack.
+ *
+ * Revision 1.5.2.1  2004/10/27 22:35:50  alsu
+ * include
+ *
  * Revision 1.5  2004/10/15 08:21:17  hdail
  * - Removed references to corba_response_t->sortedIndexes - no longer useful.
  * - Removed sort functions -- they have been replaced by aggregate and are never
@@ -36,6 +53,7 @@ using namespace std;
 #include <string.h>
 
 #include "debug.hh"
+#include "Vector.h"
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
@@ -118,7 +136,7 @@ int
 GlobalScheduler::aggregate(corba_response_t* aggrResp, size_t max_srv,
 			   const size_t nb_responses,
 			   const corba_response_t* responses)
-{ 
+{
   size_t total_size = 0;
   // lock the schedulers 
   SchedList::Iterator* iter = this->schedulers.getIterator();
@@ -127,12 +145,22 @@ GlobalScheduler::aggregate(corba_response_t* aggrResp, size_t max_srv,
   int lastAggregated = -1;
   int* lastAggr = new int[nb_responses];
 
+  /*
+  ** structure for caching estVector structures.  initially this
+  ** is a vector with as many empty vectors as there are
+  ** responses.  during the aggregation phase, this cache will
+  ** be populated.  at the end of aggregation, this cache needs
+  ** to be purged (see below).
+  */ 
+  Vector_t evCache = new_Vector();
+
   SCHED_TRACE_FUNCTION("nb_responses=" << nb_responses
 		       << ",max_srv=" << max_srv);
 
   for (size_t i = 0; i < nb_responses; i++) {
     lastAggr[i]    = -1;
     total_size    += responses[i].servers.length();
+    Vector_add(evCache, new_Vector());
   }
   if (max_srv == 0)
     max_srv = total_size; // keep all servers
@@ -140,11 +168,31 @@ GlobalScheduler::aggregate(corba_response_t* aggrResp, size_t max_srv,
 
   while (iter->hasCurrent()) {
     Scheduler* sched = iter->getCurrent();
-    sched->aggregate(*aggrResp, &lastAggregated,
-		     nb_responses, responses, lastAggr);
+//     fprintf(stderr,
+//             "before %s, lastAggregated=%d\n",
+//             Scheduler::serialize(sched),
+//             lastAggregated);
+    sched->aggregate(*aggrResp,
+                     &lastAggregated,
+                     nb_responses,
+                     responses,
+                     lastAggr,
+                     evCache);
     iter->next();
   }
-  
+
+  {  /* purge the estVector cache */
+    while (! Vector_isEmpty(evCache)) {
+      Vector_t respV = (Vector_t) Vector_removeAtPosition(evCache, 0);
+      while (! Vector_isEmpty(respV)) {
+        estVector_t ev = (estVector_t) Vector_removeAtPosition(respV, 0);
+        free_estVector(ev);
+      }
+      free_Vector(respV);
+    }
+    free_Vector(evCache);
+  }
+
   delete iter; // unlock the schedulers list
   delete [] lastAggr;
   
@@ -176,6 +224,9 @@ StdGS::init()
   // constructor.
   this->schedulers.addElement(new FASTScheduler());
   this->schedulers.addElement(new NWSScheduler(3.0, 2.0, 1.0));
+  this->schedulers.addElement(new MinScheduler());
+  this->schedulers.addElement(new MaxScheduler());
+  this->schedulers.addElement(new RRScheduler());
   this->schedulers.addElement(new RandScheduler());
 }
 

@@ -8,6 +8,38 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2004/12/08 15:02:52  alsu
+ * plugin scheduler first-pass validation testing complete.  merging into
+ * main CVS trunk; ready for more rigorous testing.
+ *
+ * Revision 1.9.2.6  2004/12/08 00:03:57  alsu
+ * basic validation tests using FAST 0.8.5 / NWS 2.6.mt4 complete
+ *
+ * Revision 1.9.2.5  2004/12/01 20:17:45  alsu
+ * in commTime and estimate methods, FASTMgr::use should be checked
+ * before FASTMgr::initialized, since the initialized variable is only
+ * set if the check on the use variable succeeded in the init method.
+ *
+ * Revision 1.9.2.4  2004/11/30 13:57:12  alsu
+ * minor problems during FAST testing on plugin schedulers
+ *
+ * Revision 1.9.2.3  2004/11/26 15:20:26  alsu
+ * change the estimate function to enable the SeD-level C interface
+ *
+ * Revision 1.9.2.2  2004/11/24 09:30:15  alsu
+ * - adding new datatype DIET_PARAMSTRING, which allows users to define
+ *   strings for which the value is important for performance evaluation
+ *   (and which is consequently stored in the argument description, much
+ *   like what is done for DIET_SCALAR arguments)
+ * - adding functions to access the type-specific data structures stored
+ *   in the diet_data_desc_t.specific union (for use in custom
+ *   performance metrics to access data such as those that are described
+ *   above)
+ *
+ * Revision 1.9.2.1  2004/11/02 00:45:45  alsu
+ * new estimate method to store data into an estVector_t, rather than
+ * directly into a corba_estimation_t
+ *
  * Revision 1.9  2003/12/09 10:10:11  cpera
  * Fix an error from previous commit (add #if HAVE_FAST).
  *
@@ -146,25 +178,28 @@ FASTMgr::commTime(char* host1, char* host2, unsigned long size, bool to)
 #if HAVE_FAST
   char* dest_name, * src_name;
 
+  if (FASTMgr::use == 0) {
+    return (time);
+  }
+
   if (!FASTMgr::initialized) {
     INTERNAL_ERROR("attempt to estimate a communication time"
 		   << " without having initalized FAST first.", 1);
   }
-  if (FASTMgr::use > 0) {
-    if (to) {
-      dest_name = host2;
-      src_name  = host1;
-    } else {
-      dest_name = host1;
-      src_name  = host2;
-    }
-    FASTMgr::mutex.lock();
-    if (!(fast_comm_time_best(src_name, dest_name, size, &time))) {
-      time = HUGE_VAL;
-      WARNING("cannot estimate communication time: set to inf");
-    }
-    FASTMgr::mutex.unlock();
+
+  if (to) {
+    dest_name = host2;
+    src_name  = host1;
+  } else {
+    dest_name = host1;
+    src_name  = host2;
   }
+  FASTMgr::mutex.lock();
+  if (!(fast_comm_time_best(src_name, dest_name, size, &time))) {
+    time = HUGE_VAL;
+    WARNING("cannot estimate communication time: set to inf");
+  }
+  FASTMgr::mutex.unlock();
 #endif // HAVE_FAST
   
   return time;
@@ -192,8 +227,11 @@ typedef sf_inst_desc_t fast_pb_t;
  * Convert the description of a DIET problem into a FAST description, using hte
  * convertor developped by the user.
  */
+// fast_pb_t*
+// corbaPbDesc2fastPb(const corba_pb_desc_t* src, const diet_convertor_t* cvt);
 fast_pb_t*
-corbaPbDesc2fastPb(const corba_pb_desc_t* src, const diet_convertor_t* cvt);
+corbaPbDesc2fastPb(const diet_profile_t* const src,
+                   const diet_convertor_t* cvt);
 
 #endif // HAVE_FAST
 
@@ -201,59 +239,88 @@ corbaPbDesc2fastPb(const corba_pb_desc_t* src, const diet_convertor_t* cvt);
  * Estimate the computation time for \c pb. \c cvt is used to convert the DIET
  * profile into a FAST profile.
  */
+// void
+// FASTMgr::estimate(char* hostName,
+// 		  const corba_pb_desc_t& pb,
+//                   const diet_convertor_t* cvt,
+//                   estVector_t ev)
 void
-FASTMgr::estimate(char* hostName, corba_estimation_t& estimation,
-		  const corba_pb_desc_t& pb, const diet_convertor_t* cvt)
+FASTMgr::estimate(char* hostName,
+		  const diet_profile_t* const profilePtr,
+                  const ServiceTable* SrvT,
+                  ServiceTable::ServiceReference_t ref,
+                  estVector_t ev)
 {
   double time(HUGE_VAL);
   double freeCPU(0);
   double freeMem(0);
   int    nbCPU(1);
+
 #if HAVE_FAST // with FAST
+
+  if (FASTMgr::use == 0) {
+    return;
+  }
 
   if (!FASTMgr::initialized) {
     INTERNAL_ERROR("attempt to estimate a request"
 		   << " without having initalized FAST first.", 1);
   }
 
-  if (FASTMgr::use > 0) {
 
-    fast_pb_t* fastPb = corbaPbDesc2fastPb(&pb, cvt);
+  // casting away the const, because i *know* getConvertor doesn't
+  // modify the service table, but i don't know how to declare that
+  // in C++...-as
+  const diet_convertor_t* cvt = ((ServiceTable*)SrvT)->getConvertor(ref);
 
-    if (!fastPb) {
-      WARNING("cannot evaluate the server");
-      return;
-    }
+  fast_pb_t* fastPb = corbaPbDesc2fastPb(profilePtr, cvt);
 
-    FASTMgr::mutex.lock();
-    
-    if ( !(fast_comp_time_best(hostName, fastPb, &time)) ) {
-      WARNING("cannot estimate computation time. Try CPU and memory load");
-      time = HUGE_VAL;
-    }
-    if ( !(fast_load(hostName, &freeCPU)) ) {
-      WARNING("cannot estimate free CPU fraction");
-      freeCPU = 0;
-    }
-    if ( !(fast_memory(hostName, &freeMem)) ) {
-      WARNING("cannot estimate free memory");
-      freeMem = 0;
-    }
-    if ( !(fast_cpucount(hostName, &nbCPU)) ) {
-      WARNING("cannot estimate number of CPU");
-      freeMem = 0;
-    }
-
-    FASTMgr::mutex.unlock();
-
-    fast_pb_free(fastPb);
+  if (!fastPb) {
+    WARNING("cannot evaluate the server");
+    return;
   }
+
+  FASTMgr::mutex.lock();
+    
+  if ( !(fast_comp_time_best(hostName, fastPb, &time)) ) {
+    WARNING("cannot estimate computation time. Try CPU and memory load");
+    time = HUGE_VAL;
+  }
+  if ( !(fast_load(hostName, &freeCPU)) ) {
+    WARNING("cannot estimate free CPU fraction");
+    freeCPU = 0;
+  }
+  if ( !(fast_memory(hostName, &freeMem)) ) {
+    WARNING("cannot estimate free memory");
+    freeMem = 0;
+  }
+  if ( !(fast_cpucount(hostName, &nbCPU)) ) {
+    WARNING("cannot estimate number of CPU");
+    freeMem = 0;
+  }
+
+  FASTMgr::mutex.unlock();
+
+  fast_pb_free(fastPb);
+
 #else //HAVE_FAST
 #endif //HAVE_FAST
-  estimation.tComp   = time;
-  estimation.freeCPU = freeCPU;
-  estimation.freeMem = freeMem;
-  estimation.nbCPU   = nbCPU;
+//   estimation.tComp   = time;
+//   estimation.freeCPU = freeCPU;
+//   estimation.freeMem = freeMem;
+//   estimation.nbCPU   = nbCPU;
+  {
+//     fprintf(stderr,
+// 	    "****FASTTEST****** FASTMgr::estimate: (%.4f,%.4f,%.4f,%.4f)\n",
+// 	    time,
+// 	    freeCPU,
+// 	    freeMem,
+// 	    (double) nbCPU);
+    estVector_setEstimation(ev, EST_TCOMP, time);
+    estVector_setEstimation(ev, EST_FREECPU, freeCPU);
+    estVector_setEstimation(ev, EST_FREEMEM, freeMem);
+    estVector_setEstimation(ev, EST_NBCPU, nbCPU);
+  }
 }
 
 
@@ -327,6 +394,7 @@ diet_to_fast_type(const diet_data_type_t t)
 {
   switch (t) {
   case DIET_SCALAR:
+  case DIET_PARAMSTRING:
     return FAST_SCAL;
   case DIET_VECTOR:
   case DIET_STRING:
@@ -475,30 +543,36 @@ unmrsh_data_desc(diet_data_desc_t* dest, const corba_data_desc_t* src);
 
 
 fast_pb_t*
-corbaPbDesc2fastPb(const corba_pb_desc_t* src, const diet_convertor_t* cvt)
+corbaPbDesc2fastPb(const diet_profile_t* srcProf, const diet_convertor_t* cvt)
 {
   fast_pb_t* res(NULL);
   /* This keeps all unmarshalled argument descriptions */
-  diet_data_desc_t** src_params = // Use calloc to set all elements to NULL
-    (diet_data_desc_t**) calloc(src->last_out + 1, sizeof(diet_data_desc_t*));
+  diet_data_desc_t** srcProf_params = // Use calloc to set all elements to NULL
+    (diet_data_desc_t**) calloc(srcProf->last_out + 1,
+                                sizeof(diet_data_desc_t*));
   
   fast_pb_alloc(cvt->path, cvt->last_in, cvt->last_inout, cvt->last_out, &res);
 
-
-  displayPbDesc(src);
+//   displayPbDesc(src);
   displayConvertor(stderr, cvt);
 
   for (int i = 0; i <= cvt->last_out; i++) {
     diet_data_desc_t* ddd_tmp(NULL);
     int arg_idx = cvt->arg_convs[i].in_arg_idx;
     
-    if ((arg_idx >= 0) && (arg_idx <= src->last_out)) {
-      if (!src_params[arg_idx]) {
+    if ((arg_idx >= 0) && (arg_idx <= srcProf->last_out)) {
+      if (!srcProf_params[arg_idx]) {
 	ddd_tmp = new diet_data_desc_t;
-	src_params[arg_idx] = ddd_tmp;
-	unmrsh_data_desc(ddd_tmp, &(src->param_desc[arg_idx]));
+	srcProf_params[arg_idx] = ddd_tmp;
+
+// as: we now have a profile, so we don't need to do an unmrsh
+//         unmrsh_data_desc(ddd_tmp, &(src->param_desc[arg_idx]));
+        memcpy(ddd_tmp,
+//                &(srcProf->param_desc[arg_idx]),
+               &((srcProf->parameters[arg_idx]).desc),
+               sizeof (diet_data_desc_t));
       } else {
-	ddd_tmp = src_params[arg_idx];
+	ddd_tmp = srcProf_params[arg_idx];
       }
     } else {
       ddd_tmp = &(cvt->arg_convs[i].arg->desc);
@@ -508,9 +582,9 @@ corbaPbDesc2fastPb(const corba_pb_desc_t* src, const diet_convertor_t* cvt)
     fast_arg_desc_t* fastArg;
     
     if (cvt_arg_desc(&fastArg, ddd_tmp, cvt->arg_convs[i].f)) {
-      for (int j = 0; j <= src->last_out; j++)
-	delete src_params[j];
-      delete [] src_params;
+      for (int j = 0; j <= srcProf->last_out; j++)
+	delete srcProf_params[j];
+      delete [] srcProf_params;
       WARNING(__FUNCTION__
 	      << ": cannot convert client profile to server profile");
       fast_pb_free(res);
@@ -520,9 +594,9 @@ corbaPbDesc2fastPb(const corba_pb_desc_t* src, const diet_convertor_t* cvt)
     }
   }
   
-  for (int i = 0; i <= src->last_out; i++)
-    delete src_params[i];
-  delete [] src_params;
+  for (int i = 0; i <= srcProf->last_out; i++)
+    delete srcProf_params[i];
+  delete [] srcProf_params;
 
 #if defined(__FAST_0_8__)
   if (TRACE_LEVEL >= TRACE_STRUCTURES) {

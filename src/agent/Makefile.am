@@ -11,6 +11,18 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.13  2004/12/08 15:02:52  alsu
+#* plugin scheduler first-pass validation testing complete.  merging into
+#* main CVS trunk; ready for more rigorous testing.
+#*
+#* Revision 1.12.2.2  2004/10/31 22:18:39  alsu
+#* removing qsort.cc (unused) from the compilation process, as the
+#* comp_fun_t type has been changed to be incompatible with the qsort
+#* routines.
+#*
+#* Revision 1.12.2.1  2004/10/27 22:35:51  alsu
+#* include
+#*
 #* Revision 1.12  2004/09/29 13:35:31  sdahan
 #* Add the Multi-MAs feature.
 #*
@@ -55,7 +67,7 @@ endif
 
 libAgentCommon_la_SOURCES = AgentImpl.cc ExitClass.cc LocalAgentImpl.cc	     \
 			LocMgrImpl.cc MasterAgentImpl.cc GlobalSchedulers.cc \
-		    	Schedulers.cc Request.cc qsort.cc \
+		    	Schedulers.cc Request.cc \
 			ReferenceUpdateThread.cc BindService.cc \
 			FloodRequest.cc  FloodRequestsList.cc
 
@@ -72,10 +84,10 @@ corbadir = $(top_builddir)/src/CORBA
 
 dietAgent_LDADD = \
 	libAgentCommon.la	\
-	$(utilsdir)/libUtilsNodes.la $(utilsdir)/libUtilsCommon.la     \
-	$(corbadir)/libCorbaCommon.la                                  \
-	$(corbadir)/idl/libIDLAgent.la $(corbadir)/idl/libIDLCommon.la \
-	$(corbadir)/idl/libIDLLA.la $(corbadir)/idl/libIDLMA.la        \
+	$(utilsdir)/libUtilsNodes.la $(utilsdir)/libUtilsCommon.la	\
+	$(utilsdir)/libUtilsVector.la $(corbadir)/libCorbaCommon.la	\
+	$(corbadir)/idl/libIDLAgent.la $(corbadir)/idl/libIDLCommon.la	\
+	$(corbadir)/idl/libIDLLA.la $(corbadir)/idl/libIDLMA.la		\
 	$(LIBS_OMNIORB) $(LIBS_FAST)
 
 AM_CXXFLAGS = $(CXXFLAGS_OMNIORB) $(CXXFLAGS_FAST) -I$(top_srcdir)/src/utils \

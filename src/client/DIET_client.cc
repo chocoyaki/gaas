@@ -10,8 +10,24 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.52  2004/12/08 15:02:52  alsu
+ * plugin scheduler first-pass validation testing complete.  merging into
+ * main CVS trunk; ready for more rigorous testing.
+ *
  * Revision 1.51  2004/11/25 11:40:32  hdail
  * Add request ID to statistics output to allow tracing of stats for each request.
+ *
+ * Revision 1.50.2.3  2004/11/30 20:04:26  alsu
+ * math.h needed for HUGE_VAL
+ *
+ * Revision 1.50.2.2  2004/11/06 16:23:37  alsu
+ * - minor bug for a zero-parameter service
+ * - changes for new parameter-based default values for estVector access
+ *   functions
+ *
+ * Revision 1.50.2.1  2004/11/02 00:42:03  alsu
+ * modifying the "contract checking" code to use new estimation
+ * structure.
  *
  * Revision 1.50  2004/10/15 13:04:29  bdelfabr
  * request_submission modified to avoid mismatch data identifers
@@ -100,6 +116,7 @@ using namespace std;
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 
 #include "com_tools.hh"
@@ -194,8 +211,10 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
     MA_MUTEX.unlock();
     return res;
   }
-  if ((res = Parsers::parseCfgFile(false, 1,
-				   (Parsers::Results::param_type_t*)compParam))) {
+  res = Parsers::parseCfgFile(false,
+                              1,
+                              (Parsers::Results::param_type_t*) compParam);
+  if (res) {
     Parsers::endParsing();
     MA_MUTEX.unlock();
     return res;
@@ -205,15 +224,15 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   value = Parsers::Results::getParamValue(Parsers::Results::NAME);
   if (value != NULL)
     WARNING("parsing " << config_file_name
-	    << ": it is useless to name a client - ignored");
+            << ": it is useless to name a client - ignored");
   value = Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
   if (value != NULL)
     WARNING("parsing " << config_file_name << ": no need "
-	    << "to specify a parent for a client - ignored");
+            << "to specify a parent for a client - ignored");
   value = Parsers::Results::getParamValue(Parsers::Results::AGENTTYPE);
   if (value != NULL)
     WARNING("parsing " << config_file_name
-	    << ": agentType is useless for a client - ignored");
+            << ": agentType is useless for a client - ignored");
     
   /* Get the traceLevel */
   
@@ -339,15 +358,15 @@ END_API
  ***************************************************************/
 char**
 get_diet_services(int *services_number){
-	CORBA::Long length;                
-	SeqCorbaProfileDesc_t* profileList = MA->getProfiles(length);
-        *services_number= (int)length;        
-        char** services_list = (char**)calloc(length+1,sizeof(char*));
-        fflush(stdout);
-	for(int i=0;i<*services_number;i++){		
-                services_list[i]= CORBA::string_dup((*profileList)[i].path);                
-	}    
-        return services_list;
+  CORBA::Long length;                
+  SeqCorbaProfileDesc_t* profileList = MA->getProfiles(length);
+  *services_number= (int)length;        
+  char** services_list = (char**)calloc(length+1,sizeof(char*));
+  fflush(stdout);
+  for(int i=0;i<*services_number;i++){
+    services_list[i]= CORBA::string_dup((*profileList)[i].path);
+  }    
+  return services_list;
 }
 
 
@@ -430,7 +449,8 @@ diet_free_persistent_data(char* argID)
 
 diet_error_t
 request_submission(diet_profile_t* profile,
-		   SeD_var& chosenServer, diet_reqID_t& reqID)
+                   SeD_var& chosenServer,
+                   diet_reqID_t& reqID)
 {
   static int nb_tries(3);
   int server_OK(0), subm_count, data_OK(0);
@@ -456,23 +476,27 @@ request_submission(diet_profile_t* profile,
     /* data property base_type and type retrieval : used for scheduler*/
 
     int i = 0;
-    do{
- 
+//     do {
+    for (i = 0, data_OK = 0 ;
+         (i <= corba_pb.last_out && data_OK == 0) ;
+         i++) {
       char* new_id = strdup(corba_pb.param_desc[i].id.idNumber);
  
       if(strlen(new_id) != 0) {
-	corba_data_desc_t *arg_desc = new corba_data_desc_t;
-	arg_desc = MA->get_data_arg(new_id);
-	char *tmp="-1";
-	if( strcmp(CORBA::string_dup(arg_desc->id.idNumber),tmp) ==0) {
-	  bad_id = new_id;
-	  data_OK = 1;
-	} else {
-	  const_cast<corba_data_desc_t&>(corba_pb.param_desc[i]) = *arg_desc;
-	}
+        corba_data_desc_t *arg_desc = new corba_data_desc_t;
+        arg_desc = MA->get_data_arg(new_id);
+        char *tmp="-1";
+        if( strcmp(CORBA::string_dup(arg_desc->id.idNumber),tmp) ==0) {
+          bad_id = new_id;
+          data_OK = 1;
+        }
+        else {
+          const_cast<corba_data_desc_t&>(corba_pb.param_desc[i]) = *arg_desc;
+        }
       }
-      i++;
-    } while (( i <= corba_pb.last_out) && (data_OK == 0));
+//       i++;
+//     } while (( i <= corba_pb.last_out) && (data_OK == 0));
+    }
 
     if(data_OK == 0) {
           
@@ -485,60 +509,77 @@ request_submission(diet_profile_t* profile,
         CORBA::TypeCode_var tc = tmp.type();
         //delete &corba_pb;
         if (response)
-	  delete response;
+          delete response;
         ERROR("caught a CORBA exception (" << tc->name()
-	      << ") while submitting problem", 1);
+              << ") while submitting problem", 1);
       }
-  
-  
+
       /* Check response */
-    
       if (!response || response->servers.length() == 0) {
         WARNING("no server found for problem " << corba_pb.path);
         server_OK = -1;
-      
+
       } else {
-      
+
         if (TRACE_LEVEL >= TRACE_MAIN_STEPS) {
-	  TRACE_TEXT(TRACE_MAIN_STEPS,
-		   "The Master Agent found the following server(s):\n");
-	  for (size_t i = 0; i < response->servers.length(); i++) {
-	    TRACE_TEXT(TRACE_MAIN_STEPS,
-		     "    " << response->servers[i].loc.hostName << ":"
-		     << response->servers[i].loc.port << "\n");
-	  }
+          TRACE_TEXT(TRACE_MAIN_STEPS,
+                     "The Master Agent found the following server(s):\n");
+          for (size_t i = 0; i < response->servers.length(); i++) {
+            TRACE_TEXT(TRACE_MAIN_STEPS,
+                       "    " << response->servers[i].loc.hostName << ":"
+                       << response->servers[i].loc.port << "\n");
+          }
         }
-      
+
         /* Check the contracts of the servers answered. */
         server_OK = 0;
         while ((size_t) server_OK < response->servers.length()) {
-	  try {
-	    int           idx       = server_OK;
-	    SeD_ptr       server    = response->servers[idx].loc.ior;
-	    CORBA::Double totalTime = response->servers[idx].estim.totalTime;
-	    if (server->checkContract(response->servers[idx].estim, corba_pb)) {
-	      server_OK++;
-	      continue;
-	    }
-	    if ((totalTime == response->servers[idx].estim.totalTime) ||
-	        ((response->servers[idx].estim.totalTime - totalTime)
-	          < (ERROR_RATE *
-		  MAX(totalTime,response->servers[idx].estim.totalTime)))) {
-	      break;
+          try {
+            int           idx       = server_OK;
+            SeD_ptr       server    = response->servers[idx].loc.ior;
+//             CORBA::Double totalTime = response->servers[idx].estim.totalTime;
+
+            estVector_t ev = new_estVector();
+            unmrsh_estimation_to_estVector(&(response->servers[idx].estim),
+                                           ev);
+            CORBA::Double totalTime =
+              estVector_getEstimationValue(ev, EST_TOTALTIME, HUGE_VAL);
+            free_estVector(ev);
+
+            if (server->checkContract(response->servers[idx].estim,
+                                      corba_pb)) {
+              server_OK++;
+              continue;
             }
-	    server_OK++;
-	  } catch (CORBA::Exception& e) {
-	    server_OK++;
-	    continue;
-	  }
+
+//             if ((totalTime == response->servers[idx].estim.totalTime) ||
+//                 ((response->servers[idx].estim.totalTime - totalTime)
+//                  < (ERROR_RATE *
+//                     MAX(totalTime,response->servers[idx].estim.totalTime))))
+            ev = new_estVector();
+            unmrsh_estimation_to_estVector(&(response->servers[idx].estim),
+                                           ev);
+            CORBA::Double newTotalTime =
+              estVector_getEstimationValue(ev, EST_TOTALTIME, HUGE_VAL);
+            free_estVector(ev);
+            if ((totalTime == newTotalTime) ||
+                ((newTotalTime - totalTime) <
+                 (ERROR_RATE * MAX(totalTime, newTotalTime)))) {
+              break;
+            }
+            server_OK++;
+          } catch (CORBA::Exception& e) {
+            server_OK++;
+            continue;
+          }
         }
-        if ((size_t) server_OK == response->servers.length()){
-	  server_OK = -1;
+        if ((size_t) server_OK == response->servers.length()) {
+          server_OK = -1;
         }
       } // end else  [if (!response || response->servers.length() == 0)]
     } // end if data ok
   } while ((response) && (response->servers.length() > 0) &&
-	   (server_OK == -1) && (++subm_count < nb_tries) && (data_OK == 0));
+           (server_OK == -1) && (++subm_count < nb_tries) && (data_OK == 0));
 
   if(data_OK == 1) {
     ERROR (" data which id is " <<  bad_id << " not inside the platform.", 1);
@@ -557,7 +598,7 @@ request_submission(diet_profile_t* profile,
       //delete &corba_pb;
       delete response;
       ERROR("unable to find a server after " << nb_tries << " tries."
-	  << "The platform might be overloaded, try again later please", 1);
+          << "The platform might be overloaded, try again later please", 1);
     }
   
 #if HAVE_CICHLID
@@ -583,6 +624,7 @@ request_submission(diet_profile_t* profile,
     sprintf(statMsg, "request_submission %ld", (unsigned long) reqID);
     stat_out("Client",statMsg);
   }
+
   return 0;
 }
   
@@ -656,7 +698,7 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
     stat_out("Client",statMsg);
    } catch(CORBA::MARSHAL& e) {
     ERROR("got a marchal exception\n"
-	  "Maybe your giopMaxMsgSize is too small",1) ;
+          "Maybe your giopMaxMsgSize is too small",1) ;
   }
 
   /* reaffect identifier */
@@ -703,7 +745,7 @@ END_API
  */
 diet_error_t
 diet_call_async_common(diet_profile_t* profile,
-		       SeD_var& chosenServer, diet_reqID_t* reqID)
+                       SeD_var& chosenServer, diet_reqID_t* reqID)
 {
    corba_profile_t corba_profile;
    CallAsyncMgr* caMgr;
@@ -720,9 +762,9 @@ diet_call_async_common(diet_profile_t* profile,
 
     if (CORBA::is_nil(chosenServer)) {
       if ((res = request_submission(profile, chosenServer, *reqID)))
-	return res;
+        return res;
       if (CORBA::is_nil(chosenServer))
-	return 1;
+        return 1;
     }
     
     if (mrsh_profile_to_in_args(&corba_profile, profile)) {
@@ -745,9 +787,9 @@ diet_call_async_common(diet_profile_t* profile,
     for(int i = 0;i <= corba_profile.last_out;i++) {
       char* new_id = strdup(corba_profile.parameters[i].desc.id.idNumber);
       if(strlen(new_id) != 0) {
-	corba_data_desc_t *arg_desc = new corba_data_desc_t;
-	arg_desc = MA->get_data_arg(new_id);
-	const_cast<corba_data_desc_t&>(corba_profile.parameters[i].desc) = *arg_desc;
+        corba_data_desc_t *arg_desc = new corba_data_desc_t;
+        arg_desc = MA->get_data_arg(new_id);
+        const_cast<corba_data_desc_t&>(corba_profile.parameters[i].desc) = *arg_desc;
       }
       
     }  
@@ -756,8 +798,8 @@ diet_call_async_common(diet_profile_t* profile,
     /* generate new ID for data if not already existant */
     for(int i = 0;i <= corba_profile.last_out;i++) {
       if ((corba_profile.parameters[i].desc.mode > DIET_VOLATILE ) && (corba_profile.parameters[i].desc.mode < DIET_PERSISTENCE_MODE_COUNT) && (MA->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber)))) {
-	char* new_id = MA->get_data_id(); 
-	corba_profile.parameters[i].desc.id.idNumber = new_id;
+        char* new_id = MA->get_data_id(); 
+        corba_profile.parameters[i].desc.id.idNumber = new_id;
       }
     }
     
@@ -770,7 +812,7 @@ diet_call_async_common(diet_profile_t* profile,
 
     stat_in("Client","computation_async");
     chosenServer->solveAsync(profile->pb_name, corba_profile, 
-			     *reqID, REF_CALLBACK_SERVER);
+                             *reqID, REF_CALLBACK_SERVER);
     stat_out("Client","computation_async");
 
     if (unmrsh_out_args_to_profile(profile, &corba_profile)) {
@@ -878,7 +920,7 @@ diet_wait(diet_reqID_t reqID)
   }  
   catch (const exception& e) {
     ERROR(__FUNCTION__ << ": unexpected exception (what="
-	  << e.what() << ')', STATUS_ERROR);
+          << e.what() << ')', STATUS_ERROR);
   }
   return STATUS_ERROR;
 }
@@ -887,8 +929,8 @@ diet_wait(diet_reqID_t reqID)
  * diet_wait_and GridRPC function
  * return error status 
  * three args :
- *  	1 - reqID table.
- *  	2 - size of the table.
+ *      1 - reqID table.
+ *      2 - size of the table.
  *****************************************************************************/
 int
 diet_wait_and(diet_reqID_t* IDs, size_t length)
@@ -925,7 +967,7 @@ diet_wait_and(diet_reqID_t* IDs, size_t length)
   }  
   catch (const exception& e) {
     ERROR(__FUNCTION__ << ": unexpected exception (what=" << e.what() << ')',
-	  STATUS_ERROR);
+          STATUS_ERROR);
   }
   return rst;
 }
@@ -934,9 +976,9 @@ diet_wait_and(diet_reqID_t* IDs, size_t length)
  * diet_wait_or GridRPC function
  * return error status 
  * three args :
- *  	1 - reqID table.
- *  	2 - size of the table.
- *  	3 - received reqID
+ *      1 - reqID table.
+ *      2 - size of the table.
+ *      3 - received reqID
  *****************************************************************************/
 int
 diet_wait_or(diet_reqID_t* IDs, size_t length, diet_reqID_t* IDptr)
@@ -958,10 +1000,10 @@ diet_wait_or(diet_reqID_t* IDs, size_t length, diet_reqID_t* IDptr)
     switch (CallAsyncMgr::Instance()->addWaitRule(rule)) {
     case STATUS_DONE:
       for (unsigned int k = 0; k < length; k++) {
-	if (CallAsyncMgr::Instance()->getStatusReqID(IDs[k]) == STATUS_DONE) {
-	  *IDptr = IDs[k];
-	  return STATUS_DONE;
-	}
+        if (CallAsyncMgr::Instance()->getStatusReqID(IDs[k]) == STATUS_DONE) {
+          *IDptr = IDs[k];
+          return STATUS_DONE;
+        }
       }
       return STATUS_ERROR;
     case STATUS_CANCEL:
@@ -988,7 +1030,7 @@ diet_wait_or(diet_reqID_t* IDs, size_t length, diet_reqID_t* IDptr)
       WARNING(__FUNCTION__ << ": exception caught (" << tc->id() << ')');
   } catch (const exception& e) {
     ERROR(__FUNCTION__ << ": unexpected exception (what="
-	  << e.what() << ')', STATUS_ERROR);
+          << e.what() << ')', STATUS_ERROR);
   }
   return rst;
 }

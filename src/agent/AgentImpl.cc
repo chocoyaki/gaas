@@ -10,6 +10,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2004/12/08 15:02:51  alsu
+ * plugin scheduler first-pass validation testing complete.  merging into
+ * main CVS trunk; ready for more rigorous testing.
+ *
+ * Revision 1.25.2.1  2004/11/30 15:48:00  alsu
+ * fixing problems found testing FAST with plugin schedulers
+ *
  * Revision 1.25  2004/10/15 08:19:56  hdail
  * Removed references to corba_response_t->sortedIndexes - no longer useful.
  *
@@ -268,6 +275,8 @@ AgentImpl::addServices(CORBA::ULong myID,
 } // addServices(CORBA::ULong myID, const SeqCorbaProfileDesc_t& services)
 
 
+static void
+__addCommTime(corba_estimation_t serverEst, size_t paramIdx, double time);
 
 /****************************************************************************/
 /* findServer                                                               */
@@ -390,6 +399,8 @@ AgentImpl::findServer(Request* req, size_t max_srv)
       unsigned long
         size = sizeof(corba_data_t) + data_sizeof(&(creq.pb.param_desc[i]));
 
+      size_t j;
+
       for (j = 0; j < nb_resp; j++) {
         corba_response_t* resp_j = &(req->getResponses()[j]);
 
@@ -418,13 +429,23 @@ AgentImpl::findServer(Request* req, size_t max_srv)
           time[j] = getCommTime(resp_j->myID, size, false);
         }
 
-        /* Inject the computed comm time (or 0.0 - default) into all servers */
-        for (k = 0; k < resp_j->servers.length(); k++) {
-          resp_j->servers[k].estim.commTimes[i] += time[j];
-          resp_j->servers[k].estim.totalTime += time[j];
-        } 
+        // if no time is needed, we can skip this iteration
+        if (time[j] > 0.0) {
+
+          size_t server_iter;
+
+          /* Inject the computed comm time into all servers */
+          for (server_iter = 0 ;
+               server_iter < resp_j->servers.length() ;
+               server_iter++) {
+//             resp_j->servers[server_iter].estim.commTimes[i] += time[j];
+//             resp_j->servers[server_iter].estim.totalTime += time[j];
+            __addCommTime(resp_j->servers[server_iter].estim, i, time[j]);
+          }
+        }
       }
     }
+
     delete [] time;
 #endif // HAVE_JXTA
 
@@ -665,3 +686,51 @@ AgentImpl::getChildHostName(CORBA::Long childID)
   return hostName;
 } // getChildHostName(CORBA::Long childID)
 
+static void
+__addCommTime(corba_estimation_t serverEst, size_t paramIdx, double time)
+{
+  corba_est_value_t* val;
+  size_t found = 0;
+  size_t valIter;
+
+  for (valIter = 0 ; valIter < serverEst.estValues.length() ; valIter++) {
+    val = &(serverEst.estValues[valIter]);
+    int valTagInt = val->v_tag;
+    if (valTagInt != EST_COMMTIME) {
+      continue;
+    }
+    if (found < paramIdx) {
+      found++;
+      continue;
+    }
+    // found it!
+    val->v_value += time;
+    return;
+  }
+
+  /*
+  ** not found, need to create the value!
+  */
+  {
+    size_t curNumValues = serverEst.estValues.length();
+
+    /* STEP 1: resize the estimation value array */
+    size_t newArrayLength = (curNumValues
+                             + 1 // new value
+                             + (paramIdx - found) // new space needed
+                                                  // for 0 values
+                             );
+    serverEst.estValues.length(newArrayLength);
+
+    /* STEP 2: create blank values, if needed */
+    for ( ; found < paramIdx ; found++) {
+      (serverEst.estValues[curNumValues]).v_tag = EST_COMMTIME;
+      (serverEst.estValues[curNumValues]).v_value = 0.0;
+      curNumValues++;
+    }
+
+    /* STEP 3: add the value */
+    (serverEst.estValues[curNumValues]).v_tag = EST_COMMTIME;
+    (serverEst.estValues[curNumValues]).v_value = time;
+  }
+}

@@ -8,6 +8,20 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2004/12/08 15:02:52  alsu
+ * plugin scheduler first-pass validation testing complete.  merging into
+ * main CVS trunk; ready for more rigorous testing.
+ *
+ * Revision 1.1.2.1  2004/11/24 09:30:15  alsu
+ * - adding new datatype DIET_PARAMSTRING, which allows users to define
+ *   strings for which the value is important for performance evaluation
+ *   (and which is consequently stored in the argument description, much
+ *   like what is done for DIET_SCALAR arguments)
+ * - adding functions to access the type-specific data structures stored
+ *   in the diet_data_desc_t.specific union (for use in custom
+ *   performance metrics to access data such as those that are described
+ *   above)
+ *
  * Revision 1.1  2003/12/01 14:49:31  pcombes
  * Rename dietTypes.hh to DIET_data_internal.hh, for more coherency.
  *
@@ -122,6 +136,14 @@ matrix_set_desc(diet_data_desc_t* desc, char* const id,
 int
 string_set_desc(diet_data_desc_t* desc, char* const id,
 		const diet_persistence_mode_t mode, const size_t length);
+
+int
+paramstring_set_desc(diet_data_desc_t* desc,
+                     char* const id,
+                     const diet_persistence_mode_t mode,
+                     const size_t length,
+                     const char* const param);
+
 /**
  * Alter a file descriptor. Also computes the file size ... 
  * Each -1 (NULL for pointers) argument does not alter the corresponding field.

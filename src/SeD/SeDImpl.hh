@@ -9,6 +9,20 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2004/12/08 15:02:51  alsu
+ * plugin scheduler first-pass validation testing complete.  merging into
+ * main CVS trunk; ready for more rigorous testing.
+ *
+ * Revision 1.13.2.2  2004/11/26 15:19:44  alsu
+ * adding timeSinceLastSolve() to give enable access to the last-solve
+ * timestamp
+ *
+ * Revision 1.13.2.1  2004/10/26 14:12:52  alsu
+ * (Tag: AS-plugin-sched)
+ *  - branch created to avoid conflicting with release 1.2 (imminent)
+ *  - initial commit on branch, new dynamic performance info structure in
+ *    the profile
+ *
  * Revision 1.13  2004/10/04 13:53:41  hdail
  * Added ability to restrict number of concurrent jobs running in the SeD.
  *
@@ -124,6 +138,7 @@ public:
   virtual CORBA::Long
   ping();
 
+  const struct timeval* timeSinceLastSolve();
 
 private:
   
@@ -144,6 +159,9 @@ private:
 
   /* Data Manager associated to this SeD */
   DataMgrImpl* dataMgr;
+
+  /* last queue timestamp */
+  struct timeval lastSolveStart;
 
 #if HAVE_QUEUES
   /* Should SeD restrict the number of concurrent solves? */

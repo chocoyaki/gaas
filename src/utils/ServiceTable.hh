@@ -8,6 +8,16 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2004/12/08 15:02:52  alsu
+ * plugin scheduler first-pass validation testing complete.  merging into
+ * main CVS trunk; ready for more rigorous testing.
+ *
+ * Revision 1.10.2.2  2004/11/30 13:57:12  alsu
+ * minor problems during FAST testing on plugin schedulers
+ *
+ * Revision 1.10.2.1  2004/11/26 15:20:38  alsu
+ * minor additions to enforce const-ness
+ *
  * Revision 1.10  2004/10/06 16:42:01  rbolze
  * add function to getProfiles with the number of this profiles available
  *
@@ -109,7 +119,7 @@ public:
   */
   int
   addService(const corba_profile_desc_t* profile,
-             diet_convertor_t* cvt,
+             const diet_convertor_t* const cvt,
              diet_solve_t solver,
              diet_eval_t evalf,
              diet_perfmetric_t perfmetric_fn);
@@ -137,7 +147,7 @@ public:
   getEvalf(const corba_profile_desc_t* profile);
   diet_eval_t
   getEvalf(const ServiceReference_t ref);
-  diet_convertor_t*
+  const diet_convertor_t* const
   getConvertor(const corba_profile_desc_t* profile);
   diet_convertor_t*
   getConvertor(const ServiceReference_t ref);

@@ -9,6 +9,22 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2004/12/08 15:02:51  alsu
+ * plugin scheduler first-pass validation testing complete.  merging into
+ * main CVS trunk; ready for more rigorous testing.
+ *
+ * Revision 1.21.2.3  2004/11/26 15:19:13  alsu
+ * making the src argument of mrsh_pb_desc const
+ *
+ * Revision 1.21.2.2  2004/11/24 09:32:38  alsu
+ * adding CORBA support (new datatype in the IDL and corresponding
+ * marshalling/unmarshalling functions) to deal with
+ * DIET_PARAMSTRING-specific data description structure
+ *
+ * Revision 1.21.2.1  2004/11/02 00:30:59  alsu
+ * marshalling/unmarshalling functions to translate between estimations
+ * (CORBA structures) and estimation vectors (plain C structures)
+ *
  * Revision 1.21  2003/12/01 14:49:30  pcombes
  * Rename dietTypes.hh to DIET_data_internal.hh, for more coherency.
  *
@@ -105,7 +121,7 @@ mrsh_profile_desc(corba_profile_desc_t* dest, const diet_profile_desc_t* src);
 
 // To submit a request from the client DIET profile
 int
-mrsh_pb_desc(corba_pb_desc_t* dest, diet_profile_t* src);
+mrsh_pb_desc(corba_pb_desc_t* dest, const diet_profile_t* const src);
 
 
 // To send the input data from client to SeD
@@ -128,5 +144,17 @@ unmrsh_out_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb);
 
 int
 unmrsh_data(diet_data_t* dest, corba_data_t* src);
+
+// to manipulate estimation data vectors
+int mrsh_estVector_to_estimation(corba_estimation_t* estPtr,
+                                 const estVector_t ev);
+int unmrsh_estimation_to_estVector(const corba_estimation_t* estPtr,
+                                   estVector_t ev);
+
+// unmarshall only the data description (needed for custom
+// performance metrics)
+int unmrsh_data_desc(diet_data_desc_t* dest,
+                     const corba_data_desc_t* const src);
+
 
 #endif // _MARSHALLING_HH_

@@ -8,6 +8,29 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.30  2004/12/08 15:02:51  alsu
+ * plugin scheduler first-pass validation testing complete.  merging into
+ * main CVS trunk; ready for more rigorous testing.
+ *
+ * Revision 1.29.2.3  2004/11/26 15:19:30  alsu
+ * - diet_estimate_fast (available to perf metrics) to get and store FAST
+ *   performance values
+ * - diet_estimate_lastexec (available to perf metrics) to get and store
+ *   time elapsed since SeD-level last-solve timestamp (to enable the RR
+ *   scheduler)
+ * - diet_service_table_lookup functions (C expression of the
+ *   SeviceTable::lookupService methods)
+ * - various additions of const to enforce const-ness
+ *
+ * Revision 1.29.2.2  2004/10/27 22:35:50  alsu
+ * include
+ *
+ * Revision 1.29.2.1  2004/10/26 14:12:52  alsu
+ * (Tag: AS-plugin-sched)
+ *  - branch created to avoid conflicting with release 1.2 (imminent)
+ *  - initial commit on branch, new dynamic performance info structure in
+ *    the profile
+ *
  * Revision 1.29  2004/10/14 15:02:17  hdail
  * Allow user to provide name for SeD.  If provided, name is given to LogService
  * and can be used by GoDIET to verify launch of each SeD.
@@ -92,6 +115,8 @@ using namespace std;
 #include "ORBMgr.hh"
 #include "Parsers.hh"
 #include "SeDImpl.hh"
+#include "Vector.h"
+#include "FASTMgr.hh"
 
 #if HAVE_LOGSERVICE
 #include "DietLogComponent.hh"
@@ -120,7 +145,8 @@ diet_service_table_init(int maxsize)
 }
 
 int
-diet_convertor_check(diet_convertor_t* cvt, diet_profile_desc_t* profile);
+diet_convertor_check(const diet_convertor_t* const cvt,
+                     const diet_profile_desc_t* const profile);
 
 static diet_perfmetric_t current_perfmetric_fn = NULL;
 diet_perfmetric_t
@@ -132,13 +158,13 @@ diet_service_use_perfmetric(diet_perfmetric_t perfmetric_fn)
 }
 
 int
-diet_service_table_add(diet_profile_desc_t* profile,
-		       diet_convertor_t*    cvt,
-		       diet_solve_t         solve_func)
+diet_service_table_add(const diet_profile_desc_t* const profile,
+                       const diet_convertor_t*    const cvt,
+                       diet_solve_t                     solve_func)
 {
   int res;
   corba_profile_desc_t corba_profile;
-  diet_convertor_t*    actual_cvt(NULL);
+  const diet_convertor_t*    actual_cvt(NULL);
 
   mrsh_profile_desc(&corba_profile, profile);
   if (cvt) {
@@ -160,9 +186,45 @@ diet_service_table_add(diet_profile_desc_t* profile,
                          solve_func,
                          NULL,
                          current_perfmetric_fn);
-  if (!cvt)
-    diet_convertor_free(actual_cvt);
+  if (!cvt) {
+    /*
+    ** free it only when the incoming parameter was null (i.e., in
+    ** the case where we allocated it
+    */
+    diet_convertor_free((diet_convertor_t*) actual_cvt);
+  }
   return res;
+}
+
+int
+diet_service_table_lookup(const diet_profile_desc_t* const profile)
+{
+  int refNum;
+  corba_profile_desc_t corbaProfile;
+
+  if (profile == NULL) {
+    ERROR(__FUNCTION__ << ": null profile", -1);
+  }
+
+  mrsh_profile_desc(&corbaProfile, profile);
+  refNum = SRVT->lookupService(&corbaProfile);
+
+  return (refNum);
+}
+
+int diet_service_table_lookup_by_profile(const diet_profile_t* const profile)
+{
+  int refNum;
+  corba_pb_desc_t corbaProfile;
+
+  if (profile == NULL) {
+    ERROR(__FUNCTION__ << ": null profile", -1);
+  }
+
+  mrsh_pb_desc(&(corbaProfile), profile);
+  refNum = SRVT->lookupService(&corbaProfile);
+
+  return (refNum);
 }
 
 void
@@ -289,7 +351,8 @@ diet_convertor_free(diet_convertor_t* cvt)
 }
 
 int
-diet_convertor_check(diet_convertor_t* cvt, diet_profile_desc_t* profile)
+diet_convertor_check(const diet_convertor_t* const cvt,
+                     const diet_profile_desc_t* const profile)
 {
   int res = 0;
 
@@ -530,6 +593,52 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   return 0;
 }
 
+#define HOSTNAME_BUFLEN 256
+int
+diet_estimate_fast(estVector_t ev,
+                   const diet_profile_t* const profilePtr)
+//                    int stRef)
+{
+  char hostnameBuf[HOSTNAME_BUFLEN];
+  int stRef;
 
-} // extern "C"
+  if (gethostname(hostnameBuf, HOSTNAME_BUFLEN-1)) {
+    ERROR("error getting hostname", -1);
+  }
 
+  stRef = diet_service_table_lookup_by_profile(profilePtr);
+  FASTMgr::estimate(hostnameBuf,
+                    profilePtr,
+                    SRVT,
+                    (ServiceTable::ServiceReference_t) stRef,
+                    ev);
+                    
+  return (0);
+}
+
+int diet_estimate_lastexec(estVector_t ev,
+                           const diet_profile_t* const profilePtr,
+                           const void* const SeDPtr)
+{
+  SeDImpl* refSeD = (SeDImpl*) SeDPtr;
+  double timeSinceLastSolve;
+  const struct timeval* lastSolveStartPtr;
+  struct timeval currentTime;
+
+  lastSolveStartPtr = refSeD->timeSinceLastSolve();
+
+  gettimeofday(&currentTime, NULL);
+  timeSinceLastSolve = ((double) currentTime.tv_sec -
+                        (double) lastSolveStartPtr->tv_sec +
+                        (((double) currentTime.tv_usec -
+                          (double) lastSolveStartPtr->tv_usec) /
+                         1000000.0));
+
+  /* store the value in the performance data array */
+  estVector_addEstimation(ev,
+                          EST_TIMESINCELASTSOLVE,
+                          timeSinceLastSolve);
+  return (0);
+}
+
+END_API

@@ -8,6 +8,31 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2004/12/08 15:02:51  alsu
+ * plugin scheduler first-pass validation testing complete.  merging into
+ * main CVS trunk; ready for more rigorous testing.
+ *
+ * Revision 1.16.2.5  2004/11/26 15:19:01  alsu
+ * "length" field of string arguments calculated automatically now
+ *
+ * Revision 1.16.2.4  2004/11/06 16:22:55  alsu
+ * estimation vector access functions now have parameter-based default
+ * return values
+ *
+ * Revision 1.16.2.3  2004/11/02 00:27:52  alsu
+ * adding a setEstimation interface for the estimation vector (to be used
+ * in the case where a value for a particular tag should replace all
+ * instances of that tag)
+ *
+ * Revision 1.16.2.2  2004/10/27 22:35:50  alsu
+ * include
+ *
+ * Revision 1.16.2.1  2004/10/26 14:12:52  alsu
+ * (Tag: AS-plugin-sched)
+ *  - branch created to avoid conflicting with release 1.2 (imminent)
+ *  - initial commit on branch, new dynamic performance info structure in
+ *    the profile
+ *
  * Revision 1.16  2004/05/24 20:54:41  alsu
  * replacing diet_service_table_set_perfmetric with shorter, less
  * confusing function name diet_service_use_perfmetric
@@ -220,7 +245,7 @@ typedef int (* diet_solve_t)(diet_profile_t*);
 /* DIET performance metric function prototype                               */
 /****************************************************************************/
 
-typedef double (* diet_perfmetric_t)(diet_profile_t*);
+typedef estVector_t (* diet_perfmetric_t)(diet_profile_t*, const void*);
 
 
 /****************************************************************************/
@@ -258,17 +283,15 @@ diet_file_desc_set(diet_data_t* data, char* path);
 /****************************************************************************/
 /* No need to reference the service table since it is unique for the SeD.   */
 
-int
-diet_service_table_init(int max_size);
+int diet_service_table_init(int max_size);
 /* (cvt = NULL) is equivalent to "no conversion needed" */
-diet_perfmetric_t
-diet_service_use_perfmetric(diet_perfmetric_t fn);
-int
-diet_service_table_add(diet_profile_desc_t* profile,
-		       diet_convertor_t*    cvt,
-		       diet_solve_t         solve_func);
-void
-diet_print_service_table();
+diet_perfmetric_t diet_service_use_perfmetric(diet_perfmetric_t fn);
+int diet_service_table_add(const diet_profile_desc_t* const profile,
+                           const diet_convertor_t*    const cvt,
+                           diet_solve_t               solve_func);
+int diet_service_table_lookup(const diet_profile_desc_t* const profile);
+int diet_service_table_lookup_by_profile(const diet_profile_t* const profile);
+void diet_print_service_table();
 
 
 /****************************************************************************/
@@ -284,6 +307,37 @@ diet_SeD(char* config_file_name, int argc, char* argv[]);
 
 
 
+
+/****************************************************************************/
+/* DIET estimation vector interface                                         */
+/****************************************************************************/
+estVector_t new_estVector();
+int estVector_addEstimation(estVector_t ev, diet_est_tag_t tag, double val);
+int estVector_setEstimation(estVector_t ev, diet_est_tag_t tag, double val);
+int estVector_numEstimationsByType(estVector_t ev, diet_est_tag_t tag);
+int estVector_numEstimations(estVector_t ev);
+diet_est_tag_t estVector_getEstimationTagByIdx(estVector_t ev, int idx);
+double estVector_getEstimationValueByIdx(estVector_t ev,
+                                         int idx,
+                                         double errVal);
+double estVector_getEstimationValue(estVector_t ev,
+                                    diet_est_tag_t tag,
+                                    double errVal);
+double estVector_getEstimationValueNum(estVector_t ev,
+                                       diet_est_tag_t tag,
+                                       double errVal,
+                                       int idx);
+void free_estVector(estVector_t ev);
+
+
+
+/****************************************************************************/
+/* DIET standard estimation methods (DIET_server.cc)                        */
+/****************************************************************************/
+int diet_estimate_fast(estVector_t ev, const diet_profile_t* const profilePtr);
+int diet_estimate_lastexec(estVector_t ev,
+                           const diet_profile_t* const profilePtr,
+                           const void* const SeDPtr);
 
 /****************************************************************************/
 /* Inline definitions of functions declared above                           */

@@ -9,6 +9,27 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2004/12/08 15:02:52  alsu
+ * plugin scheduler first-pass validation testing complete.  merging into
+ * main CVS trunk; ready for more rigorous testing.
+ *
+ * Revision 1.20.2.3  2004/11/24 09:30:15  alsu
+ * - adding new datatype DIET_PARAMSTRING, which allows users to define
+ *   strings for which the value is important for performance evaluation
+ *   (and which is consequently stored in the argument description, much
+ *   like what is done for DIET_SCALAR arguments)
+ * - adding functions to access the type-specific data structures stored
+ *   in the diet_data_desc_t.specific union (for use in custom
+ *   performance metrics to access data such as those that are described
+ *   above)
+ *
+ * Revision 1.20.2.2  2004/11/06 16:22:55  alsu
+ * estimation vector access functions now have parameter-based default
+ * return values
+ *
+ * Revision 1.20.2.1  2004/11/02 00:44:34  alsu
+ * minor changes to accomodate the new estimation structure
+ *
  * Revision 1.20  2004/10/15 08:22:18  hdail
  * Removed references to corba_response_t->sortedIndexes - no longer useful.
  * Added displayResponseShort(...) for easier debugging.
@@ -56,7 +77,9 @@
 #include <stdlib.h>
 
 #include "debug.hh"
+#include "marshalling.hh"
 #include "DIET_data_internal.hh"
+#include "DIET_server.h"
 
 
 /**
@@ -68,7 +91,7 @@ unsigned int TRACE_LEVEL = TRACE_DEFAULT;
 void
 displayResponse(FILE* os, const corba_response_t* resp)
 {
-  size_t i,j;
+  size_t i;
 
   fprintf(os, "\n----------------------------------------\n");
   fprintf(os, " Response structure for request %lu :\n\n", resp->reqID);
@@ -76,25 +99,57 @@ displayResponse(FILE* os, const corba_response_t* resp)
     fprintf(os, " I'm son nb %ld\n", resp->myID);
   //  fprintf(os, " There are %ld parameters\n", (long)resp->nbIn);
   fprintf(os, " %ld servers are able to solve the problem\n",
-	  (long)resp->servers.length());
+          (long)resp->servers.length());
 
   if (resp->servers.length() > 0)
     fprintf(os," Estimated computation time:\n");
 
   for (i = 0; i < resp->servers.length(); i++) {
-    if (resp->servers[i].estim.tComp != HUGE_VAL) {
-      fprintf(os, "  %ldth server can solve the problem in %g seconds\n",
-	      (long) i, resp->servers[i].estim.tComp);
-    } else {
-      fprintf(os, "  %ldth server has %g free CPU and %g free memory\n",
-	      (long) i, resp->servers[i].estim.freeCPU,
-	      resp->servers[i].estim.freeMem);
+    estVector_t ev = new_estVector();
+
+//     if (resp->servers[i].estim.tComp != HUGE_VAL) {
+//       fprintf(os, "  %ldth server can solve the problem in %g seconds\n",
+//               (long) i, resp->servers[i].estim.tComp);
+//     }
+//     else {
+//       fprintf(os, "  %ldth server has %g free CPU and %g free memory\n",
+//               (long) i, resp->servers[i].estim.freeCPU,
+//               resp->servers[i].estim.freeMem);
+//     }
+    {
+      unmrsh_estimation_to_estVector(&(resp->servers[i].estim), ev);
+      if (estVector_getEstimationValue(ev, EST_TCOMP, HUGE_VAL) != HUGE_VAL) {
+        fprintf(os,
+                "  %ldth server can solve the problem in %g seconds\n",
+                (long) i,
+                estVector_getEstimationValue(ev, EST_TCOMP, HUGE_VAL));
+      }
+      else {
+        fprintf(os,
+                "  %ldth server has %g free CPU and %g free memory\n",
+                (long) i,
+                estVector_getEstimationValue(ev, EST_FREECPU, HUGE_VAL),
+                estVector_getEstimationValue(ev, EST_FREEMEM, HUGE_VAL));
+      }
     }
+
     fprintf(os, "  TComms for each parameter: ");
-    for (j = 0; j < resp->servers[i].estim.commTimes.length(); j++) {
-      fprintf(os, " %g", (double)resp->servers[i].estim.commTimes[j]);
+//     for (j = 0; j < resp->servers[i].estim.commTimes.length(); j++) {
+//       fprintf(os, " %g", (double)resp->servers[i].estim.commTimes[j]);
+//     }
+    for (int commTimeIter = 0 ;
+         commTimeIter < estVector_numEstimationsByType(ev, EST_COMMTIME) ;
+         commTimeIter++) {
+      fprintf(os,
+              " %g",
+              estVector_getEstimationValueNum(ev,
+                                              EST_COMMTIME,
+                                              HUGE_VAL,
+                                              commTimeIter));
     }
     fprintf(os,"\n");
+
+    free_estVector(ev);
   }
   fprintf(os, "----------------------------------------\n");
 }
@@ -104,15 +159,29 @@ displayResponseShort(FILE* os, const corba_response_t* resp)
 {
   fprintf(os, "\n---------- Responses for request %lu ----------\n",
       resp->reqID);
+
   for (size_t i = 0; i < resp->servers.length(); i++){
+    estVector_t ev = new_estVector();
+    unmrsh_estimation_to_estVector(&(resp->servers[i].estim), ev);
+
+//     fprintf(stdout, 
+//       "    %d: %s:%ld: tComp %g fCpu %g fMem %g\n",
+//       i,
+//       (const char *)(resp->servers[i].loc.hostName),
+//       resp->servers[i].loc.port,
+//       resp->servers[i].estim.tComp,
+//       resp->servers[i].estim.freeCPU,
+//       resp->servers[i].estim.freeMem);
     fprintf(stdout, 
-      "    %d: %s:%ld: tComp %g fCpu %g fMem %g\n",
-      i,
-      (const char *)(resp->servers[i].loc.hostName),
-      resp->servers[i].loc.port,
-      resp->servers[i].estim.tComp,
-      resp->servers[i].estim.freeCPU,
-      resp->servers[i].estim.freeMem);
+            "    %d: %s:%ld: tComp %g fCpu %g fMem %g\n",
+            i,
+            (const char *)(resp->servers[i].loc.hostName),
+            resp->servers[i].loc.port,
+            estVector_getEstimationValue(ev, EST_TCOMP, HUGE_VAL),
+            estVector_getEstimationValue(ev, EST_FREECPU, HUGE_VAL),
+            estVector_getEstimationValue(ev, EST_FREEMEM, HUGE_VAL));
+
+    free_estVector(ev);
   }
 }
 
@@ -125,9 +194,12 @@ displayArgDesc(FILE* f, int type, int base_type)
   case DIET_VECTOR: fprintf(f, "vector"); break;
   case DIET_MATRIX: fprintf(f, "matrix"); break;
   case DIET_STRING: fprintf(f, "string"); break;
+  case DIET_PARAMSTRING: fprintf(f, "paramstring"); break;
   case DIET_FILE:   fprintf(f, "file");   break;
   }
-  if ((type != DIET_STRING) && (type != DIET_FILE)) {
+  if ((type != DIET_STRING) &&
+      (type != DIET_PARAMSTRING) &&
+      (type != DIET_FILE)) {
     fprintf(f, " of ");
     switch (base_type) {
     case DIET_CHAR:     fprintf(f, "char");           break;
@@ -148,17 +220,20 @@ displayArg(FILE* f, const corba_data_desc_t* arg)
   switch(arg->specific._d()) {
   case DIET_SCALAR: fprintf(f, "scalar");            break;
   case DIET_VECTOR: fprintf(f, "vector (%ld)",
-			    (long)arg->specific.vect().size);  break;
+                            (long)arg->specific.vect().size);  break;
   case DIET_MATRIX: fprintf(f, "matrix (%ldx%ld)",
-			    (long)arg->specific.mat().nb_r,
-			    (long)arg->specific.mat().nb_c);   break;
+                            (long)arg->specific.mat().nb_r,
+                            (long)arg->specific.mat().nb_c);   break;
   case DIET_STRING: fprintf(f, "string (%ld)",
-			    (long)arg->specific.str().length); break;
+                            (long)arg->specific.str().length); break;
+  case DIET_PARAMSTRING: fprintf(f, "paramstring (%ld)",
+                            (long)arg->specific.pstr().length); break;
   case DIET_FILE:   fprintf(f, "file (%ld)",
-			    (long)arg->specific.file().size);  break;
+                            (long)arg->specific.file().size);  break;
   }
-  if ((arg->specific._d() != DIET_STRING)
-      && (arg->specific._d() != DIET_FILE)) {
+  if ((arg->specific._d() != DIET_STRING) &&
+      (arg->specific._d() != DIET_PARAMSTRING) &&
+      (arg->specific._d() != DIET_FILE)) {
     fprintf(f, " of ");
     switch (arg->base_type) {
     case DIET_CHAR:     fprintf(f, "char");           break;
@@ -180,17 +255,20 @@ displayArg(FILE* f, const diet_data_desc_t* arg)
   switch((int) arg->generic.type) {
   case DIET_SCALAR: fprintf(f, "scalar");                break;
   case DIET_VECTOR: fprintf(f, "vector (%ld)",
-			    (long)arg->specific.vect.size);    break;
+                            (long)arg->specific.vect.size);    break;
   case DIET_MATRIX: fprintf(f, "matrix (%ldx%ld)",
-			    (long)arg->specific.mat.nb_r,
-			    (long)arg->specific.mat.nb_c);   break;
+                            (long)arg->specific.mat.nb_r,
+                            (long)arg->specific.mat.nb_c);   break;
   case DIET_STRING: fprintf(f, "string (%ld)",
-			    (long)arg->specific.str.length); break;
+                            (long)arg->specific.str.length); break;
+  case DIET_PARAMSTRING: fprintf(f, "paramstring (%ld)",
+                            (long)arg->specific.pstr.length); break;
   case DIET_FILE:   fprintf(f, "file (%ld)",
-			    (long)arg->specific.file.size);  break;
+                            (long)arg->specific.file.size);  break;
   }
-  if ((arg->generic.type != DIET_STRING)
-      && (arg->generic.type != DIET_FILE)) {
+  if ((arg->generic.type != DIET_STRING) &&
+      (arg->generic.type != DIET_PARAMSTRING) &&
+      (arg->generic.type != DIET_FILE)) {
     fprintf(f, " of ");
     switch ((int) arg->generic.base_type) {
     case DIET_CHAR:     fprintf(f, "char");           break;
@@ -214,9 +292,9 @@ displayProfileDesc(const diet_profile_desc_t* desc, const char* path)
   fprintf(f, " - Service %s", path);
   for (int i = 0; i <= desc->last_out; i++) {
     fprintf(f, "\n     %s ",
-	    (i <= desc->last_in) ? "IN   "
-	    : (i <= desc->last_inout) ? "INOUT"
-	    : "OUT  ");
+            (i <= desc->last_in) ? "IN   "
+            : (i <= desc->last_inout) ? "INOUT"
+            : "OUT  ");
     displayArgDesc(f, desc->param_desc[i].type, desc->param_desc[i].base_type);
   }
   fprintf(f, "\n");
@@ -232,9 +310,9 @@ displayProfileDesc(const corba_profile_desc_t* desc)
   CORBA::string_free(path);
   for (int j = 0; j <= desc->last_out; j++) {
     fprintf(f, "\n     %s ",
-	    (j <= desc->last_in) ? "IN   "
-	    : (j <= desc->last_inout) ? "INOUT"
-	    : "OUT  ");
+            (j <= desc->last_in) ? "IN   "
+            : (j <= desc->last_inout) ? "INOUT"
+            : "OUT  ");
     displayArgDesc(f, desc->param_desc[j].type, desc->param_desc[j].base_type);
   }
   fprintf(f, "\n");
@@ -248,9 +326,9 @@ displayProfile(const diet_profile_t* profile, const char* path)
   fprintf(f, " - Service %s", path);
   for (int i = 0; i <= profile->last_out; i++) {
     fprintf(f, "\n     %s ",
-	    (i <= profile->last_in) ? "IN   "
-	    : (i <= profile->last_inout) ? "INOUT"
-	    : "OUT  ");
+            (i <= profile->last_in) ? "IN   "
+            : (i <= profile->last_inout) ? "INOUT"
+            : "OUT  ");
     displayArg(f, &(profile->parameters[i].desc));
   }
   fprintf(f, "\n");
@@ -263,9 +341,9 @@ displayProfile(const corba_profile_t* profile, const char* path)
   fprintf(f, " - Service %s", path);
   for (int i = 0; i <= profile->last_out; i++) {
     fprintf(f, "\n     %s ",
-	    (i <= profile->last_in) ? "IN   "
-	    : (i <= profile->last_inout) ? "INOUT"
-	    : "OUT  ");
+            (i <= profile->last_in) ? "IN   "
+            : (i <= profile->last_inout) ? "INOUT"
+            : "OUT  ");
     displayArg(f, &(profile->parameters[i].desc));
   }
   fprintf(f, "\n");
@@ -280,9 +358,9 @@ displayPbDesc(const corba_pb_desc_t* profile)
   CORBA::string_free(path);
   for (int j = 0; j <= profile->last_out; j++) {
     fprintf(f, "\n     %s ",
-	    (j <= profile->last_in) ? "IN   "
-	    : (j <= profile->last_inout) ? "INOUT"
-	    : "OUT  ");
+            (j <= profile->last_in) ? "IN   "
+            : (j <= profile->last_inout) ? "INOUT"
+            : "OUT  ");
     displayArg(f, &(profile->param_desc[j]));
   }
   fprintf(f, "\n");
@@ -294,9 +372,9 @@ displayConvertor(FILE* f, const diet_convertor_t* cvt)
   fprintf(f, " - Convertor to %s", cvt->path);
   for (int i = 0; i <= cvt->last_out; i++) {
     fprintf(f, "\n     %s ",
-	    (i <= cvt->last_in) ? "IN   "
-	    : (i <= cvt->last_inout) ? "INOUT"
-	    : "OUT  ");
+            (i <= cvt->last_in) ? "IN   "
+            : (i <= cvt->last_inout) ? "INOUT"
+            : "OUT  ");
     switch((int)cvt->arg_convs[i].f) {
     case DIET_CVT_IDENTITY:   fprintf(f, "IDENT  of "); break;
     case DIET_CVT_FILE_SIZE:

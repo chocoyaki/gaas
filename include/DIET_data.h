@@ -8,6 +8,33 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2004/12/08 15:02:51  alsu
+ * plugin scheduler first-pass validation testing complete.  merging into
+ * main CVS trunk; ready for more rigorous testing.
+ *
+ * Revision 1.22.2.4  2004/11/26 16:54:30  alsu
+ * string/paramstring functions calculate length on their own (so that
+ * they can be null-terminated automatically)
+ *
+ * Revision 1.22.2.3  2004/11/24 09:30:15  alsu
+ * - adding new datatype DIET_PARAMSTRING, which allows users to define
+ *   strings for which the value is important for performance evaluation
+ *   (and which is consequently stored in the argument description, much
+ *   like what is done for DIET_SCALAR arguments)
+ * - adding functions to access the type-specific data structures stored
+ *   in the diet_data_desc_t.specific union (for use in custom
+ *   performance metrics to access data such as those that are described
+ *   above)
+ *
+ * Revision 1.22.2.2  2004/10/27 22:35:50  alsu
+ * include
+ *
+ * Revision 1.22.2.1  2004/10/26 14:12:52  alsu
+ * (Tag: AS-plugin-sched)
+ *  - branch created to avoid conflicting with release 1.2 (imminent)
+ *  - initial commit on branch, new dynamic performance info structure in
+ *    the profile
+ *
  * Revision 1.22  2004/02/27 10:31:47  bdelfabr
  * modifications applied to corresponding header files
  *
@@ -73,6 +100,7 @@ typedef enum {
   DIET_VECTOR,
   DIET_MATRIX,
   DIET_STRING,
+  DIET_PARAMSTRING,
   DIET_FILE,
   DIET_DATA_TYPE_COUNT
 } diet_data_type_t;
@@ -189,8 +217,13 @@ diet_matrix_set(diet_arg_t* arg, void* value, diet_persistence_mode_t mode,
 
 
 int
-diet_string_set(diet_arg_t* arg, char* value, diet_persistence_mode_t mode,
-		size_t length);
+diet_string_set(diet_arg_t* arg, char* value, diet_persistence_mode_t mode);
+
+int
+diet_paramstring_set(diet_arg_t* arg,
+                     char* value,
+                     diet_persistence_mode_t mode);
+
 /* Computes the file size
    ! Warning ! The path is not duplicated !!! */
 int
@@ -249,8 +282,17 @@ diet_use_data(diet_arg_t* arg, char* id);
  * Type: int diet_string_get((diet_arg_t*), (char**),
  *                           (diet_persistence_mode_t*), (size_t*))
  */
-#define diet_string_get(arg, value, mode, length) \
-  _string_get(arg, (char**)value, mode, length)
+#define diet_string_get(arg, value, mode) \
+  _string_get(arg, (char**)value, mode)
+
+/**
+ * Type: int diet_paramstring_get((diet_arg_t*),
+ *                                (char**),
+ *                                (diet_persistence_mode_t*),
+ *                                (size_t*))
+ */
+#define diet_paramstring_get(arg, value, mode) \
+  _paramstring_get(arg, (char**) value, mode)
 
 /**
  * Type: int diet_file_get((diet_arg_t*),
@@ -261,6 +303,21 @@ diet_use_data(diet_arg_t* arg, char* id);
 
 
 
+/*
+** type-specific data descriptor access functions
+*/
+typedef const struct diet_scalar_specific* diet_scalar_desc_t;
+typedef const struct diet_vector_specific* diet_vector_desc_t;
+typedef const struct diet_matrix_specific* diet_matrix_desc_t;
+typedef const struct diet_string_specific* diet_string_desc_t;
+typedef const struct diet_paramstring_specific* diet_paramstring_desc_t;
+typedef const struct diet_file_specific* diet_file_desc_t;
+diet_scalar_desc_t const diet_scalar_get_desc(diet_arg_t* arg);
+diet_vector_desc_t const diet_vector_get_desc(diet_arg_t* arg);
+diet_matrix_desc_t const diet_matrix_get_desc(diet_arg_t* arg);
+diet_string_desc_t const diet_string_get_desc(diet_arg_t* arg);
+diet_paramstring_desc_t const diet_paramstring_get_desc(diet_arg_t* arg);
+diet_file_desc_t const diet_file_get_desc(diet_arg_t* arg);
 
 /****************************************************************************/
 /* Free the amount of data pointed at by the value field of an argument.    */
@@ -300,8 +357,11 @@ int
 _matrix_get(diet_arg_t* arg, void** value, diet_persistence_mode_t* mode,
 	    size_t* nb_rows, size_t *nb_cols, diet_matrix_order_t* order);
 int
-_string_get(diet_arg_t* arg, char** value, diet_persistence_mode_t* mode,
-	    size_t* length);
+_string_get(diet_arg_t* arg, char** value, diet_persistence_mode_t* mode);
+
+int
+_paramstring_get(diet_arg_t* arg, char** value, diet_persistence_mode_t* mode);
+
 int
 _file_get(diet_arg_t* arg, diet_persistence_mode_t* mode,
 	  size_t* size, char** path);
@@ -338,6 +398,11 @@ struct diet_string_specific {
   size_t length;
 };
 
+struct diet_paramstring_specific {
+  size_t length;
+  char*  param;
+};
+
 /*----[ file - specific ]---------------------------------------------------*/
 struct diet_file_specific {
   int   size;
@@ -356,11 +421,12 @@ typedef struct {
   diet_persistence_mode_t  mode;
   struct diet_data_generic generic;
   union {
-    struct diet_scalar_specific scal;
-    struct diet_vector_specific vect;
-    struct diet_matrix_specific mat;
-    struct diet_string_specific str;
-    struct diet_file_specific   file;
+    struct diet_scalar_specific      scal;
+    struct diet_vector_specific      vect;
+    struct diet_matrix_specific      mat;
+    struct diet_string_specific      str;
+    struct diet_paramstring_specific pstr;
+    struct diet_file_specific        file;
   } specific;
 } diet_data_desc_t;
 
@@ -372,7 +438,34 @@ struct diet_arg_s {
 /* diet_data_t is the same as diet_arg_t, so far ... */
 typedef struct diet_arg_s diet_data_t;
 
+/**
+ * estimation tags
+ */
+typedef enum {
+  EST_INVALID = -1,
+  EST_TOTALTIME = 1,
+  EST_COMMTIME,
+  EST_TCOMP,
+  EST_FREECPU,
+  EST_FREEMEM,
+  EST_NBCPU,
+  EST_CPUSPEED,
+  EST_TOTALMEM,
+  EST_TIMESINCELASTSOLVE,
+  EST_MINMETRIC,
+  EST_MAXMETRIC,
+  EST_USERDEFINED
+} diet_est_tag_t;
 
+
+/**
+ * estimation vector
+ */
+/*
+typedef struct s_Vector *Vector_t;
+typedef Vector_t estVector_t;
+*/
+typedef void* estVector_t;  /* workaround for vector/estvector equivalence */
 
 #ifdef __cplusplus
 }

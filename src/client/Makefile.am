@@ -10,6 +10,13 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.8  2004/12/08 15:02:52  alsu
+#* plugin scheduler first-pass validation testing complete.  merging into
+#* main CVS trunk; ready for more rigorous testing.
+#*
+#* Revision 1.7.2.1  2004/11/02 00:38:08  alsu
+#* providing clients access to estVector_t structure
+#*
 #* Revision 1.7  2003/09/16 10:35:58  pcombes
 #* Remove .hh files from libDIET_client_la_SOURCES.
 #*
@@ -49,7 +56,7 @@ corbadir = $(top_builddir)/src/CORBA
 
 libDIET_client_la_LIBADD = \
 	$(utilsdir)/libUtilsCommon.la $(utilsdir)/libUtilsSeDClt.la	\
-	$(utilsdir)/libUtilsCichlid.la					\
+	$(utilsdir)/libUtilsCichlid.la $(utilsdir)/libUtilsVector.la	\
 	$(corbadir)/libCorbaCommon.la $(corbadir)/idl/libIDLAgent.la	\
 	$(corbadir)/idl/libIDLCommon.la $(corbadir)/idl/libIDLMA.la	\
 	$(LIBS_OMNIORB)

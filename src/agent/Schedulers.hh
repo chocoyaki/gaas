@@ -8,6 +8,27 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2004/12/08 15:02:52  alsu
+ * plugin scheduler first-pass validation testing complete.  merging into
+ * main CVS trunk; ready for more rigorous testing.
+ *
+ * Revision 1.3.2.4  2004/11/06 16:32:18  alsu
+ * adding generic min and generic max aggregators
+ *
+ * Revision 1.3.2.3  2004/11/02 00:37:28  alsu
+ * removing references to obviated fields in the estimation data structure
+ *
+ * Revision 1.3.2.2  2004/10/31 22:21:52  alsu
+ * - restructured the old COMP_* definitions to be more "logcial" rather
+ *   than absolute (i.e., COMP_FIRST_IS_INF => COMPARE_FIRST_IS_BETTER)
+ * - added class methods to the Scheduler class to construct (and cache)
+ *   estimation value vectors during the server sorting process
+ * - implementation of the new default round-robin scheduler that is
+ *   consistent with the dynamic performance data design
+ *
+ * Revision 1.3.2.1  2004/10/27 22:35:51  alsu
+ * include
+ *
  * Revision 1.3  2004/10/15 08:21:17  hdail
  * - Removed references to corba_response_t->sortedIndexes - no longer useful.
  * - Removed sort functions -- they have been replaced by aggregate and are never
@@ -24,30 +45,28 @@
 #define _SCHEDULERS_HH_
 
 #include "response.hh"
+#include "DIET_data.h"
+#include "DIET_server.h"
+#include "marshalling.hh"
+#include "Vector.h"
 
 
 /**
- * Return values for compare functions. These values are chosen to match the
- * behaviour required by the standard qsort function:
- *  < 0: first element is inf (which is also the case if the scheduler cannot
- *       manage the second element)
- *  = 0: both elements equal
- *  > 0: second element is inf (which is also the case if the scheduler cannot
- *       manage the first element)
- * NB: if none of both cannot be managed, no matter the sign of the result,
- *     but it is useful for implementation to get BOTH = FIRST + SECOND ...
+ * Return values for compare functions.
  */
-#define COMP_CANNOT_TREAT_SECOND -2
-#define COMP_FIRST_IS_INF        -1
-#define COMP_EQUAL                0
-#define COMP_SECOND_IS_INF        1
-#define COMP_CANNOT_TREAT_BOTH    4 // CANNOT_TREAT_FIRST + CANNOT_TREAT_SECOND
-#define COMP_CANNOT_TREAT_FIRST   6
+#define COMPARE_EQUAL             0
+#define COMPARE_FIRST_IS_BETTER   1
+#define COMPARE_SECOND_IS_BETTER  2
+#define COMPARE_UNDEFINED         3
 
 /** Type of a compare function. */
-typedef int (* comp_fun_t)(const void*, const void*,
-			   const SeqServerEstimation_t*,
-			   const SeqServerEstimation_t*, const void*);
+typedef int (*comp_fun_t)(int serverIdx1,
+                          int serverIdx2,
+                          int responseIdx1,
+                          int responseIdx2,
+                          const corba_response_t* responses,
+                          Vector_t estVectorCache,
+                          const void* data);
 
 
 /**
@@ -74,11 +93,16 @@ public:
    * @param responses      array of all responses to aggregate.
    * @param lastAggr       array of indexes: each index points at the last
    *                       processed server in the correspunding response.
+   * @param evCache        vector of vectors, storing previously constrctued
+   *                       estVector objects
    */
   virtual int
-  aggregate(corba_response_t& aggrResp, int* lastAggregated,
+  aggregate(corba_response_t& aggrResp,
+            int* lastAggregated,
 	    const size_t nb_responses,
-	    const corba_response_t* responses, int* lastAggr);
+	    const corba_response_t* responses,
+            int* lastAggr,
+            Vector_t evCache);
 
   /**
    * Return the serialized scheduler (a string)
@@ -92,6 +116,23 @@ public:
    */
   static Scheduler*
   deserialize(char* serializedScheduler);
+
+  /**
+   * Return an estVector for the indicated server estimation
+   */
+  static estVector_t getEstVector(int sIdx,
+                                  int rIdx,
+                                  const corba_response_t* responses);
+
+  /**
+   * Return an estVector for the indicated server estimation, using
+   * the cached value, if available
+   */
+  static estVector_t getEstVector(int sIdx,
+                                  int rIdx,
+                                  const corba_response_t* responses,
+                                  Vector_t evCache);
+  
 
 protected:
   const char*  name;
@@ -237,5 +278,92 @@ private:
   unsigned int seed;
 };
 
+
+class RRScheduler : public Scheduler
+{
+public:
+  static const char*  stName;
+  static const size_t nameLength;
+
+  RRScheduler();
+  RRScheduler(unsigned int seed);
+  virtual
+  ~RRScheduler();
+
+  /**
+   * Return the serialized RR scheduler (a string)
+   * NB: doubles are serialized with a precision of 10 significant decimals.
+   */
+  static char*
+  serialize(RRScheduler* S);
+  
+  /**
+   * Return the RRScheduler deserialized from the string
+   * \c serializedScheduler.
+   */
+  static RRScheduler*
+  deserialize(char* serializedScheduler);
+
+private:
+  unsigned int seed;
+};
+
+class MinScheduler : public Scheduler
+{
+public:
+  static const char*  stName;
+  static const size_t nameLength;
+
+  MinScheduler();
+  MinScheduler(unsigned int seed);
+  virtual
+  ~MinScheduler();
+
+  /**
+   * Return the serialized Min scheduler (a string)
+   * NB: doubles are serialized with a precision of 10 significant decimals.
+   */
+  static char*
+  serialize(MinScheduler* S);
+  
+  /**
+   * Return the MinScheduler deserialized from the string
+   * \c serializedScheduler.
+   */
+  static MinScheduler*
+  deserialize(char* serializedScheduler);
+
+private:
+  unsigned int seed;
+};
+
+class MaxScheduler : public Scheduler
+{
+public:
+  static const char*  stName;
+  static const size_t nameLength;
+
+  MaxScheduler();
+  MaxScheduler(unsigned int seed);
+  virtual
+  ~MaxScheduler();
+
+  /**
+   * Return the serialized Max scheduler (a string)
+   * NB: doubles are serialized with a precision of 10 significant decimals.
+   */
+  static char*
+  serialize(MaxScheduler* S);
+  
+  /**
+   * Return the MaxScheduler deserialized from the string
+   * \c serializedScheduler.
+   */
+  static MaxScheduler*
+  deserialize(char* serializedScheduler);
+
+private:
+  unsigned int seed;
+};
 
 #endif // _SCHEDULERS_HH_

@@ -8,6 +8,17 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2004/12/08 15:02:52  alsu
+ * plugin scheduler first-pass validation testing complete.  merging into
+ * main CVS trunk; ready for more rigorous testing.
+ *
+ * Revision 1.1.2.2  2004/11/26 15:20:26  alsu
+ * change the estimate function to enable the SeD-level C interface
+ *
+ * Revision 1.1.2.1  2004/11/02 00:45:45  alsu
+ * new estimate method to store data into an estVector_t, rather than
+ * directly into a corba_estimation_t
+ *
  * Revision 1.1  2003/08/01 19:16:55  pcombes
  * Add a manager for the FAST API, compatible with FAST 0.4 and FAST 0.8.
  * Any later changes in the FAST API should be processed by this static class.
@@ -19,6 +30,7 @@
 
 #include "DIET_server.h"
 #include "common_types.hh"
+#include "ServiceTable.hh"
 
 
 /**
@@ -50,8 +62,11 @@ public:
    * DIET profile into a FAST profile.
    */
   static void
-  estimate(char* hostName, corba_estimation_t& estimation,
-	   const corba_pb_desc_t& pb, const diet_convertor_t* cvt);
+  estimate(char* hostName,
+           const diet_profile_t* const profilePtr,
+           const ServiceTable* SrvT,
+           ServiceTable::ServiceReference_t ref,
+           estVector_t ev);
 
 private:
 
