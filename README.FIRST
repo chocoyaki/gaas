@@ -1,0 +1,22 @@
+                         D istributed
+                         I nteractive
+                         E ngineering
+                         T oolbox
+
+
+Welcome in using DIET.
+
+If you read this file, then you have downloaded DIET from the CVS
+repository and you want to compile, install and maybe use it.
+ 
+First of all, execute ./bootstrap.sh which will generate all the
+initial makefiles, etc.  
+
+Second, read the INSTALL file, which contains the rest of the
+documentation on the way to build the whole stuff. Note that if you
+want to go into the DIET code, you want to add the
+--enable-maintainer-mode --enable-doc options when doing the
+configuration (with ./configure). This will add the programmer's
+manual which is one of the first step to do playing with DIET
+code. You'll find further explanations there.
+ 
