@@ -1,0 +1,92 @@
+/****************************************************************************/
+/* DIET IDL types for the responses to requests                             */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
+/*    - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)             */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.1  2003/04/10 12:18:02  pcombes
+ * IDL response structure.
+ *
+ ****************************************************************************/
+
+
+#ifndef _RESPONSE_IDL_
+#define _RESPONSE_IDL_
+
+#include "common_types.idl"
+#include "SeD.idl"
+
+
+/**
+ * Full reference to a server
+ */
+
+struct corba_server_t {
+  SeD    ior;
+  string hostName;
+  long   port;
+};
+
+
+/**
+ * Localization and transfer time of a parameter
+ */
+
+struct corba_data_loc_t {
+  corba_server_t loc;
+  double         timeToMe;
+};
+typedef sequence <corba_data_loc_t> SeqDataLoc_t;
+
+
+/**
+ * The server estimation structure 
+ */
+
+struct corba_server_estimation_t{
+  corba_server_t     loc;
+  corba_estimation_t estim;
+};
+
+typedef sequence <corba_server_estimation_t> SeqServerEstimation_t;
+
+
+/****************************************************************************/
+/* RESPONSE                                                                 */
+/****************************************************************************/
+/**
+ * The servers are sorted as follows:
+ *   the first part of the servers sequence consists of all servers where the
+ *   computation could be estimated,
+ *   whereas the second part consists of all the ones that provide only an
+ *   estimation of their free resources.
+ * Actually the servers are not sorted in the "servers" sequence itself : 
+ *   it is far cheaper to maintain sorted a sequence of indexes, with an apart
+ *   long field that stores the number of servers where the computation could be
+ *   estimated (nbComp).
+ * Thus, for each i between 0 and nbComp, the computation on the server
+ *   servers[sortedServers[i]] was estimated and the result is stored in
+ *   servers[sortedServers[i]].perf().tComp
+ * For i between nbComp and servers.length(), free resources on the server
+ *   servers[sortedServers[i]] was estimated and the results are stored in
+ *   servers[sortedServers[i]].perf.feeCpu and freeMem
+ */
+
+struct corba_response_t {
+  long reqID;
+  long myID;
+  // Localization of IN and INOUT parameters
+  //SeqDataLoc_t        dataLoc;
+  // The available servers
+  SeqLong               sortedIndexes;
+  SeqServerEstimation_t servers;
+};
+
+
+#endif // _RESPONSE_IDL_
+
