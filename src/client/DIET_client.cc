@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.6  2002/10/15 18:46:09  pcombes
+ * Some impacts of convertor API.
+ *
  * Revision 1.5  2002/10/03 17:58:16  pcombes
  * Add trace levels (for Bert): traceLevel = n can be added in cfg files.
  * An agent son can now be killed (^C) without crashing this agent.
@@ -136,29 +139,6 @@ long int diet_initialize(int argc, char **argv, char *config_file)
   
 long int diet_finalize()
 {
-  return 0;
-}
-
-
-/****************************************************************************/
-/* Profile descriptor                                                       */
-
-diet_profile_t *profile_alloc(int last_in, int last_inout, int last_out)
-{
-  diet_profile_t *res;
-  
-  res = new diet_profile_t;
-  res->last_in    = last_in;
-  res->last_inout = last_inout;
-  res->last_out   = last_out;
-  res->parameters = new diet_arg_t[last_out + 1];
-  return res;
-}
-
-int profile_free(diet_profile_t *profile)
-{
-  delete [] profile->parameters;
-  delete profile;
   return 0;
 }
 
@@ -397,7 +377,7 @@ int diet_call(diet_function_handle_t *handle, diet_profile_t *profile)
 					       in, inout, out);
   if (unmrsh_out_args_to_profile(profile, &inout, &out))
     return 1;
-  
+
   return solve_res;
 }
 
