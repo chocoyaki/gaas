@@ -9,6 +9,10 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.3  2003/11/26 15:51:33  cpera
+#* Add ps command line argument "-wwww" in order to get all process name when
+#* its lenght is larger than 80 characters.
+#*
 #* Revision 1.2  2003/09/26 14:05:39  pcombes
 #* Local platform scripts are managed by configure.
 #*
@@ -20,7 +24,7 @@
 
 omni_start() {
   echo "## Starting a local CORBA name server ..."
-  processes=`ps -edf | grep omniNames | tr '\n' '@'`
+  processes=`ps -edfwwwww | grep omniNames | tr '\n' '@'`
   nb_processes=`echo $processes | tr '@' '\n' | grep omniNames | wc -l`
   if [ "$processes" = "" -o \
        \( "$nb_processes" -eq 1 -a "`echo $processes | grep 'grep'`" != "" \) ]
@@ -40,7 +44,7 @@ omni_start() {
 
 omni_stop() {
   echo "## Stopping the local CORBA name server ..."
-  pprocess=`ps -u $USER | grep omniNames | sort | head -1`
+  pprocess=`ps -wwwww -u $USER | grep omniNames | sort | head -1`
   if [ -n "$pprocess" -a "`echo $pprocess | grep 'grep omniNames'`" = "" ]; then
     pid=`echo $pprocess | cut -f1 -d' '`
     kill $pid > /dev/null 2>&1
@@ -54,7 +58,7 @@ omni_stop() {
 }
 
 omninames_test() {
-  if [ "`ps -edf | grep omniNames`" = "" ]; then
+  if [ "`ps -edfwwwww | grep omniNames`" = "" ]; then
     echo "No CORBA name server seems alive."
   else
     echo "There is a CORBA name server running. I cannot guess its port (normal)."
