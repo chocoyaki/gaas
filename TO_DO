@@ -15,26 +15,28 @@ SeD
 Include contract properties in decision type.
 Implement contract checking on client and server + resources allocation.
 
+Implement a forking version of the solve method.
+Develop a batch system API.
+
 
 MA
 ---
 
-Only one server is answered by the MA. To change.
-Check for down sons.
+Only one server is answered by the MA. To be changed.
+
 
 FAST
 -----
 
 FAST calls should be OK, but slimfast interface should be updated with new corba
 and DIET data structures.
-Add also calls for low-level API (NWS) when FAST does not know.
+SeD must ask NWS (through FAST) if there is enough memory on the server.
 
 
 OTHERS
 -------
 
-FILE TRANSFER !!!!
-Add trace levels, set in the configuration files
+FILE TRANSFER !!!! Must use streaming, better than loading the file in RAM.
 Use openSSL omniORB support for all communication (under option)
 
 
