@@ -1,18 +1,19 @@
 #****************************************************************************#
-#* $Id$ *#
 #* DIET global options for Makefiles                                        *#
 #*                                                                          *#
 #*  Author(s):                                                              *#
-#*    - Frederic LOMBARD          - LIFC Besançon (France)                  *#
-#*    - Philippe COMBES           - LIP ENS-Lyon (France)                   *#
-#*    - Romain   LACROIX          - LIP ENS-Lyon (France)                   *#
+#*    - Philippe COMBES (Philipp.Combes@ens-lyon.fr)                        *#
+#*    - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)             *#
+#*    - Christophe PERA (Christophe.Pera@ens-lyon.fr)                       *#
 #*                                                                          *#
-#*  This is part of DIET software.                                          *#
-#*  Copyright (C) 2002 ReMaP/LIFC/INRIA                                     *#
-#*                                                                          *#
+#* $LICENSE$                                                                *#
 #****************************************************************************#
-#*
+#* $Id$
 #* $Log$
+#* Revision 1.6  2003/04/10 14:50:22  pcombes
+#* omniORB includes are added to CXXFLAGS_OMNIORB.
+#* Add DBG_FLAGS for maintainer mode.
+#*
 #* Revision 1.5  2003/02/17 15:35:54  cpera
 #* New variables for ARCHITECTURE/PLATEFORM/VERSION.
 #*
@@ -23,23 +24,17 @@
 #* Define DIET_SERVER_LIBS and DIET_CLIENT_LIBS instead of two variables for
 #* each ; move FAST_LIBS into confg.mk.in (not required to compile users'
 #* programs)
-#*
-#* Revision 1.1  2002/12/03 19:08:23  pcombes
-#* Update configure, update to FAST 0.3.15, clean CVS logs in files.
-#* Put main Makefile in root directory.
-#*
 #****************************************************************************#
 
-# Generic variables for DIET internal makefiles
-#CXX      = g++
-AM_CCFLAGS=-O2 -Wall -Wno-unused -D@PROCESSOR_DEFINE@ -D@PLATFORM_DEFINE@ \
-          -D__OSVERSION__=@OSVERSION@ $(DIET_FLAGS) @CCFLAGS_FAST@ \
-          @CFLAGS_omniORB@
-AM_CXXFLAGS=-O2 -Wall -Wno-unused -D@PROCESSOR_DEFINE@ -D@PLATFORM_DEFINE@ \
-          -D__OSVERSION__=@OSVERSION@ -D_REENTRANT @CXXFLAGS_FAST@ \
-          @CXXFLAGS_omniORB@
-INCLUDE=-I@OMNIORB_HOME@/include/omniORB@OMNIORB_VERSION@
-LIBS_DIET_USED=@LIBS_omniORB@ @LIBS_FAST@
+CXXFLAGS_OMNIORB += -I@OMNIORB_HOME@/include/omniORB@OMNIORB_VERSION@
 
+if MAINTAINER_MODE
+DBG_FLAGS = -g
+else
+DBG_FLAGS = -O2
+endif
 
+AM_CPPFLAGS = $(DBG_FLAGS) -Wall -D@PROCESSOR_DEFINE@ -D@PLATFORM_DEFINE@ \
+	      -D__OSVERSION__=@OSVERSION@ -D_REENTRANT -I$(top_srcdir)/include \
+	      $(CXXFLAGS_OMNIORB)
 
