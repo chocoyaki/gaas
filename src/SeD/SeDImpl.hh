@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2004/07/29 18:52:11  rbolze
+ * Change solve function now , DIET_client send the reqID of the request when
+ * he call the solve function.
+ * Nothing is change for DIET's API
+ *
  * Revision 1.10  2004/07/05 14:56:13  rbolze
  * correct bug on 64 bit plat-form, when parsing cfg file :
  * remplace size_t by unsigned int for config options
@@ -99,7 +104,7 @@ public:
 		const corba_pb_desc_t& pb);
 
   virtual CORBA::Long
-  solve(const char* pbName, corba_profile_t& pb);
+  solve(const char* pbName, corba_profile_t& pb,CORBA::Long reqID);
 
   virtual void
   solveAsync(const char* pb_name, const corba_profile_t& pb,

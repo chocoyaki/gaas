@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2004/07/29 18:52:11  rbolze
+ * Change solve function now , DIET_client send the reqID of the request when
+ * he call the solve function.
+ * Nothing is change for DIET's API
+ *
  * Revision 1.13  2003/06/02 15:29:46  cpera
  * Update callback use.
  *
@@ -67,7 +72,7 @@ interface SeD {
 		     in corba_pb_desc_t pb);
 
   /** Solve function: all arguments are inout for "const" reasons. */
-  long solve(in string path, inout corba_profile_t pb);
+  long solve(in string path, inout corba_profile_t pb,in long reqID);
   
   /*--------------------------------------------------------------*/
   /* asyncSolve function:                                         */

@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.30  2004/07/29 18:52:11  rbolze
+ * Change solve function now , DIET_client send the reqID of the request when
+ * he call the solve function.
+ * Nothing is change for DIET's API
+ *
  * Revision 1.29  2004/07/08 12:27:39  alsu
  * approximating a round-robin scheduler by default
  *
@@ -377,7 +382,7 @@ SeDImpl::checkContract(corba_estimation_t& estimation,
 
 
 CORBA::Long
-SeDImpl::solve(const char* path, corba_profile_t& pb)
+SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
 {
   ServiceTable::ServiceReference_t ref(-1);
   diet_profile_t profile;
@@ -388,7 +393,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
 
 #if HAVE_LOGSERVICE
   if (dietLogComponent != NULL) {
-    dietLogComponent->logBeginSolve(path, &pb);
+    dietLogComponent->logBeginSolve(path, &pb,reqID);
   }
 #endif
 
@@ -465,7 +470,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
 
 #if HAVE_LOGSERVICE
   if (dietLogComponent != NULL) {
-    dietLogComponent->logEndSolve(path, &pb);
+    dietLogComponent->logEndSolve(path, &pb,reqID);
   }
 #endif
 
@@ -476,10 +481,9 @@ void
 SeDImpl::solveAsync(const char* path, const corba_profile_t& pb, 
 		    CORBA::Long reqID, const char* volatileclientREF)
 {
-
 #if HAVE_LOGSERVICE
   if (dietLogComponent != NULL) {
-    dietLogComponent->logBeginSolve(path, &pb);
+    dietLogComponent->logBeginSolve(path, &pb,reqID);
   }
 #endif
 
@@ -586,7 +590,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 
 #if HAVE_LOGSERVICE
   if (dietLogComponent != NULL) {
-    dietLogComponent->logEndSolve(path, &pb);
+    dietLogComponent->logEndSolve(path, &pb,reqID);
   }
 #endif
      

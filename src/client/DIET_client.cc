@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.44  2004/07/29 18:52:11  rbolze
+ * Change solve function now , DIET_client send the reqID of the request when
+ * he call the solve function.
+ * Nothing is change for DIET's API
+ *
  * Revision 1.43  2004/05/04 11:46:20  bdelfabr
  * id files are created only in case of persistent data
  *
@@ -551,7 +556,6 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
       return 1;
   }
 
-   
   if (mrsh_profile_to_in_args(&corba_profile, profile)) {
     ERROR("profile is wrongly built", 1);
   }
@@ -591,7 +595,7 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
   
   try {
   stat_in("Client","computation");
-  solve_res = chosenServer->solve(profile->pb_name, corba_profile);
+  solve_res = chosenServer->solve(profile->pb_name, corba_profile,reqID);
   stat_out("Client","computation");
    } catch(CORBA::MARSHAL& e) {
     ERROR("got a marchal exception\n"
