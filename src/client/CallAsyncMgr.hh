@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2003/10/13 13:03:52  uid515
+ * Replace int by int32_t for managing 32-64 bits system and CORBA::Long type.
+ *
  * Revision 1.7  2003/09/22 13:10:54  cpera
  * Fix bugs and correct release function.
  *
@@ -77,7 +80,7 @@ struct Data{
 };
 
 struct ruleElement{
-  int reqID;
+  int32_t reqID;
   WAITOPERATOR op;
 };
 
@@ -88,13 +91,13 @@ struct Rule {
 };
 
 // manage link between reqID and request datas
-typedef std::map<int,Data *> CallAsyncList;
+typedef std::map<int32_t ,Data *> CallAsyncList;
 // manage link between reqID and waitRules about it.
-typedef std::multimap<int,Rule *> RulesReqIDMap;
+typedef std::multimap<int32_t ,Rule *> RulesReqIDMap;
 // Manage link between one rule and one omni semaphore 
 typedef std::map<Rule *, omni_semaphore *> RulesConditionMap;
 // manage link between reqID and request datas
-typedef std::map<int,request_status_t> ReqIDStateMap;
+typedef std::map<int32_t ,request_status_t> ReqIDStateMap;
 
 class CallAsyncMgr 
 {
