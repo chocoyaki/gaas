@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2004/05/18 21:24:46  alsu
+ * - adding diet_perfmetric_t type
+ * - adding diet_service_table_set_perfmetric function
+ *
  * Revision 1.14  2003/08/09 17:30:38  pcombes
  * Include path in the diet_profile_desc structure.
  *
@@ -208,6 +212,12 @@ typedef int (* diet_eval_t)(diet_profile_t*, double*);
 
 typedef int (* diet_solve_t)(diet_profile_t*);
 
+/****************************************************************************/
+/* DIET performance metric function prototype                               */
+/****************************************************************************/
+
+typedef double (* diet_perfmetric_t)(diet_profile_t*);
+
 
 /****************************************************************************/
 /* Utils for setting (IN)OUT arguments (solve functions, after computation) */
@@ -247,6 +257,8 @@ diet_file_desc_set(diet_data_t* data, char* path);
 int
 diet_service_table_init(int max_size);
 /* (cvt = NULL) is equivalent to "no conversion needed" */
+diet_perfmetric_t
+diet_service_table_set_perfmetric(diet_perfmetric_t fn);
 int
 diet_service_table_add(diet_profile_desc_t* profile,
 		       diet_convertor_t*    cvt,
