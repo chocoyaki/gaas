@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2003/09/04 10:04:58  pcombes
+ * Cast Agt before calling the run method.
+ *
  * Revision 1.4  2003/08/29 10:53:10  cpontvie
  * Coding standards applied
  *
@@ -162,18 +165,20 @@ main(int argc, char** argv)
   }
 
 
-  /* Create and activate the agent */
+  /* Create, activate, and launch the agent */
 
   if (agtType == Parsers::Results::DIET_LOCAL_AGENT) {
     Agt = new LocalAgentImpl();
     ORBMgr::activate((LocalAgentImpl*)Agt);
+    res = ((LocalAgentImpl*)Agt)->run();
   } else {
     Agt = new MasterAgentImpl();
     ORBMgr::activate((MasterAgentImpl*)Agt);
+    res = ((MasterAgentImpl*)Agt)->run();
   }
 
   /* Launch the agent */
-  if (Agt->run()) {
+  if (res) {
     ERROR("unable to launch the agent", 1);
   }
 
