@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.41  2004/10/05 08:24:33  bdelfabr
+ * change umrsh_data to avoid a wrong file name to be set and also to avoid useless file copy
+ *
  * Revision 1.40  2004/09/29 12:45:53  bdelfabr
  * remove cout
  *
@@ -349,7 +352,6 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
   if (unmrsh_data_desc(&(dest->desc), &(src->desc)))
     return 1;
   if (src->desc.specific._d() == (long) DIET_FILE) {
-
     dest->desc.specific.file.size = src->desc.specific.file().size;
     if ((src->desc.specific.file().path != NULL)
 	&& strcmp("", src->desc.specific.file().path)) {
@@ -357,16 +359,24 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
       char* file_name = strrchr(in_path, '/');
       char* out_path  = new char[256];
       pid_t pid = getpid();
-      sprintf(out_path, "/tmp/DIET_%d_%s", pid,
-	      (file_name) ? (char*)(1 + file_name) : in_path);
-      ofstream outfile(out_path);
+    
+      if(strncmp(in_path,"/tmp/DIET_",10)!= 0) {
+	sprintf(out_path, "/tmp/DIET_%d_%s", pid,
+		(file_name) ? (char*)(1 + file_name) : in_path);
+	
+	ofstream outfile(out_path);
 
-      for (int i = 0; i < src->desc.specific.file().size; i++) {
-	outfile.put(src->value[i]);
+	for (int i = 0; i < src->desc.specific.file().size; i++) {
+	  outfile.put(src->value[i]);
+	}
+	dest->desc.specific.file.path = out_path;
+      } else {
+
+	dest->desc.specific.file.path = in_path;
+
       }
-      CORBA::string_free(in_path);
-      dest->desc.specific.file.path = out_path;
-     
+      //  CORBA::string_free(in_path);
+      
     } else if (src->desc.specific.file().size != 0) {
       INTERNAL_WARNING(__FUNCTION__ << ": file structure is vicious");
     } else {
