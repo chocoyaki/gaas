@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.20  2004/02/27 10:44:04  bdelfabr
+#* clientWithID example added
+#*
 #* Revision 1.19  2004/01/07 23:07:12  cpera
 #* Add new asynchronous example "parallelclient4.cc" about diet_wait_or function.
 #*
@@ -32,7 +35,7 @@
 #
 srcdir = @srcdir@
 subdir = src/examples/dmat_manips
-SOURCES = client.c server.c serialClient.cc \
+SOURCES = client.c server.c serialClient.cc clientWithID.c \
 	  parallelClient.cc parallelClient2.cc parallelClient3.cc parallelClient4.cc
 HEADERS = progs.h Global_macros.hh
 #
@@ -48,7 +51,7 @@ include ../before.mk
 #
 ##
 
-CC_PROGRAMS = client server
+CC_PROGRAMS = client server clientWithID
 CXX_PROGRAMS = serialClient parallelClient parallelClient2 parallelClient3 parallelClient3 parallelClient4
 PROGRAMS = $(CC_PROGRAMS) $(CXX_PROGRAMS)
 
@@ -56,6 +59,9 @@ PROGRAMS = $(CC_PROGRAMS) $(CXX_PROGRAMS)
 all:	$(PROGRAMS)
 
 client: client.c $(DIET_CLIENT_PREREQ)
+	$(CC) $(CCFLAGS_DIET) $< $(DIET_CLIENT_LIBS) -o $@
+
+clientWithID: clientWithID.c $(DIET_CLIENT_PREREQ)
 	$(CC) $(CCFLAGS_DIET) $< $(DIET_CLIENT_LIBS) -o $@
 
 # As the server uses the __FAST_*__ macros, we must exceptionnally add
