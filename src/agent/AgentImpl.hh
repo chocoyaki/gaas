@@ -10,26 +10,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2004/09/13 14:11:06  hdail
+ * Cleaned up memory management for local variables localHostName and myName.
+ *
  * Revision 1.8  2004/06/11 15:45:39  ctedesch
  * add DIET/JXTA
  *
  * Revision 1.7  2004/03/01 18:43:57  rbolze
  * add logservice
- *
- * Revision 1.6  2003/12/01 14:49:30  pcombes
- * Rename dietTypes.hh to DIET_data_internal.hh, for more coherency.
- *
- * Revision 1.5  2003/09/22 21:07:52  pcombes
- * Set all the modules and their interfaces for data persistency.
- *
- * Revision 1.3  2003/08/01 19:33:11  pcombes
- * Use FASTMgr.
- *
- * Revision 1.2  2003/05/10 08:53:34  pcombes
- * New format for configuration files, new Parsers.
- *
- * Revision 1.1  2003/04/10 12:59:34  pcombes
- * Replace agent_impl.hh. Apply CS. Use ChildID and NodeDescription.
  ****************************************************************************/
 
 
@@ -121,10 +109,10 @@ protected:
   /**************************************************************************/
 
   /** Local host name */
-  char localHostName[257];
+  char* localHostName;
 
   /** Identity in the CORBA Naming Service */
-  char myName[257];
+  char* myName;
   /** ID of next subscribing child */
   Counter childIDCounter;
 
