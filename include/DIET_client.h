@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2004/05/04 11:45:21  bdelfabr
+ * methods for creation of an id file modified
+ *
  * Revision 1.13  2004/02/27 10:31:47  bdelfabr
  * modifications applied to corresponding header files
  *
@@ -46,6 +49,8 @@ extern "C" {
 #endif // __cplusplus
 
 
+
+  
 /****************************************************************************/
 /* A DIET client can submit several request in one session.                 */
 /****************************************************************************/
@@ -76,14 +81,14 @@ diet_error_t
 diet_free(diet_data_handle_t* handle);
 
 void
-create_file(char *MA_name);
+create_file();
 
   /** stores identifier of a eprsistent data in a file in the client directory */
 void
-store_id(char* id, char* msg);
+store_id(char* argID, char* msg);
 
 void 
-create_header(char* fileName);
+create_header();
 
 int 
 diet_free_persistent_data(char *id);
