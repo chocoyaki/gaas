@@ -8,21 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.8  2003/06/30 11:15:12  cpera
- * Fix bugs in ReaderWriter and new internal debug macros.
- *
- * Revision 1.7  2003/06/25 09:20:55  cpera
- * Change internal reqId from long int to int according to GridRPC and diet_reqID
- * type.
- *
- * Revision 1.6  2003/06/24 16:44:46  cpera
- * Fix bugs.
+ * Revision 1.9  2003/07/04 09:48:00  pcombes
+ * Use new ERROR and WARNING macros => each STATE value becomes STATUS_value.
  *
  * Revision 1.5  2003/06/23 08:05:45  cpera
  * Fix race condition that cause multiple initializations of pinstance.
- *
- * Revision 1.4  2003/06/16 15:40:23  pcombes
- * Fix header
  *
  * Revision 1.3  2003/06/04 14:40:05  cpera
  * Resolve bugs, change type of reqID (long int) and modify
@@ -81,7 +71,7 @@ int CallAsyncMgr::addAsyncCall (int reqID, diet_profile_t* dpt)
 	DIET_DEBUG()
     Data * data = new Data;
     data->profile = dpt;
-    data->st = STATE(RESOLVING);
+    data->st = STATUS_RESOLVING;
     data->used = 0;
     caList.insert(CallAsyncList::value_type(reqID,data));
 	DIET_DEBUG()
@@ -121,7 +111,7 @@ int CallAsyncMgr::addAsyncCall (int reqID, diet_profile_t* dpt)
 	DIET_DEBUG()
 	while ((j != rulesIDs.end()) && (j != rulesIDs.upper_bound(reqID)))
 	{
-	  j->second->status=STATE(CANCEL);
+	  j->second->status=STATUS_CANCEL;
 	  i = rulesConds.find(j->second);
 	  if (i != rulesConds.end()) i->second->post();
 	  ++j;
@@ -143,7 +133,7 @@ int CallAsyncMgr::addAsyncCall (int reqID, diet_profile_t* dpt)
  * Store it in a list, map it with rule
  * Wait on semaphore
  * Release waitRule 
- * Return STATE, -1 for an unexpected error or STATE(CANCEL)
+ * Return request_status_t, -1 for an unexpected error or STATUS_CANCEL
  * if a reqID is cancelled. 
  * ********************************************************************/
 int CallAsyncMgr::addWaitAllRule()
@@ -197,7 +187,7 @@ int CallAsyncMgr::addWaitAllRule()
  * Store it in a list, map it with rule
  * Wait on semaphore
  * Release waitRule 
- * Return STATE, -1 for an unexpected error or STATE(CANCEL)
+ * Return request_status_t, -1 for an unexpected error or STATUS_CANCEL
  * if a reqID is cancelled. 
  * ********************************************************************/
 int CallAsyncMgr::addWaitAnyRule(diet_reqID_t* IDptr)
@@ -223,26 +213,26 @@ int CallAsyncMgr::addWaitAnyRule(diet_reqID_t* IDptr)
     
     // get lock on condition/waitRule
     switch (CallAsyncMgr::Instance()->addWaitRule(rule)){
-      case DONE:
+      case STATUS_DONE:
       {
 	ReaderLockGuard r(callAsyncListLock);
 	CallAsyncList::iterator h = caList.begin();
 	for (unsigned int k = 0; k < caList.size(); k++){
-	  if (h->second->st == DONE){
+	  if (h->second->st == STATUS_DONE){
 	    *IDptr = h->first;
 	DIET_DEBUG(TEXT_OUTPUT(("END")))
-	    return DONE;
+	    return STATUS_DONE;
 	  }
 	  ++h;  
 	}
-	return ERROR;
+	return STATUS_ERROR;
       }
-      case CANCEL:
-	return CANCEL;
-      case ERROR:
-	return ERROR;
+      case STATUS_CANCEL:
+	return STATUS_CANCEL;
+      case STATUS_ERROR:
+	return STATUS_ERROR;
       default:
-      return -1; // Unexcpected error, no value describing it (enum STATE)
+      return -1; // Unexcpected error, no value describing it (enum request_status_t)
     // NOTES: Be carefull, there may be others rules
     // using some of this reqID(AsyncCall)
     // So, carefull using diet_cancel
@@ -263,7 +253,7 @@ int CallAsyncMgr::addWaitAnyRule(diet_reqID_t* IDptr)
     cout << "Unexpected exception , what=" << e.what() << endl;
     fflush(stdout);
   }
-  return ERROR;
+  return STATUS_ERROR;
 }
 
 /***********************************************************************
@@ -272,14 +262,14 @@ int CallAsyncMgr::addWaitAnyRule(diet_reqID_t* IDptr)
  * Store it in a list, map it with rule
  * Wait on semaphore
  * Release waitRule 
- * Return STATE, -1 for an unexpected error or STATE(CANCEL)
+ * Return request_status_t, -1 for an unexpected error or STATUS_CANCEL
  * if a reqID is cancelled. 
  * ********************************************************************/
 int CallAsyncMgr::addWaitRule(Rule * rule)
 {
 	DIET_DEBUG()
   omni_semaphore * condRule = NULL;
-  STATE status = ERROR;
+  request_status_t status = STATUS_ERROR;
   try {
 	DIET_DEBUG()
     if (true){ // managing WriterLock
@@ -290,12 +280,12 @@ int CallAsyncMgr::addWaitRule(Rule * rule)
       bool plenty = true;
       CallAsyncList::iterator h;
       for (int k = 0; k < rule->length; k++){
-				h = caList.find(rule->ruleElts[k].reqID);
-				if (h == caList.end()) return ERROR;
-				else if (h->second->st == RESOLVING) {
-	  			plenty = false; // one result is not yet ready, at least ...
-				}
-				h->second->used++; // NOTES : what to do if an exception ...	
+	h = caList.find(rule->ruleElts[k].reqID);
+	if (h == caList.end()) return STATUS_ERROR;
+	else if (h->second->st == STATUS_RESOLVING) {
+	  plenty = false; // one result is not yet ready, at least ...
+	}
+	h->second->used++; // NOTES : what to do if an exception ...	
       }
       if (plenty == true){
 				return 0;
@@ -337,7 +327,7 @@ int CallAsyncMgr::addWaitRule(Rule * rule)
 	DIET_DEBUG()
     delete rule;
 	DIET_DEBUG()
-    return ERROR; // unexpected error
+    return STATUS_ERROR; // unexpected error
   }
 	DIET_DEBUG(TEXT_OUTPUT(("END")))
   return status; // Maybe OK, or a reqID should be deleted
@@ -425,7 +415,7 @@ int CallAsyncMgr::notifyRst (int reqID, corba_profile_t * dp)
       return -1;
     } // code de trace et debbug, a virer pour la version CVSise
     else { // update state of this reqID
-      h->second->st = STATE(DONE); 
+      h->second->st = STATUS_DONE; 
     }
 	DIET_DEBUG()
     if (unmrsh_out_args_to_profile(h->second->profile, dp))
@@ -438,8 +428,9 @@ int CallAsyncMgr::notifyRst (int reqID, corba_profile_t * dp)
       bool plenty = true;
       for (int k = 0; k < j->second->length; k++){
         h = caList.find(j->second->ruleElts[k].reqID);
-	if (h == caList.end())continue; // ERROR, must be changed!!
-	else if ((h->second->st != STATE(DONE)) && 
+	if (h == caList.end())
+	  continue; // FIXME: must be changed!!
+	else if ((h->second->st != STATUS_DONE) && 
 		((j->second->ruleElts[k].op == WAITOPERATOR(AND)) || 
 		(j->second->ruleElts[k].op == WAITOPERATOR(SOLE)) ||
 		(j->second->ruleElts[k].op == WAITOPERATOR(ALL)))) 
@@ -450,7 +441,7 @@ int CallAsyncMgr::notifyRst (int reqID, corba_profile_t * dp)
        * *******************************************************************/
       }
       if (plenty == true){
-	j->second->status=STATE(DONE);
+	j->second->status=STATUS_DONE;
 	i = rulesConds.find(j->second);
 	if (i != rulesConds.end()){
 	  i->second->post();
