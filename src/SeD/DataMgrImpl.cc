@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2003/10/21 13:27:59  bdelfabr
+ * set Persistence flag to 0
+ *
  * Revision 1.6  2003/10/14 20:29:06  bdelfabr
  * adding print methods (PERSISTENT mode only)
  *
@@ -38,7 +41,7 @@
 #include "Parsers.hh"
 #include "ts_container/ts_map.hh"
 
-#define DEVELOPPING_DATA_PERSISTENCY 1
+#define DEVELOPPING_DATA_PERSISTENCY 0
 
 
 /** Data Manager Constructor */
