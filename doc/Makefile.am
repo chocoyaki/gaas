@@ -9,6 +9,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.7  2003/12/17 16:12:05  ecaron
+#* Change "tutorial" directory to "Tutorial"
+#*
 #* Revision 1.6  2003/12/15 13:48:07  ecaron
 #* Add tutorial directory to the DIET distribution
 #*
@@ -34,7 +37,7 @@
 #* Add install targets in Makefiles.
 #****************************************************************************#
 
-SUBDIRS = UsersManual tutorial
+SUBDIRS = UsersManual Tutorial
 if MAINTAINER_MODE
 SUBDIRS += ProgrammersGuide
 endif
@@ -53,5 +56,5 @@ $(BUILT_SOURCES): $(srcdir)/Doxyfile
 
 endif
 
-tutorial:
+Tutorial:
 	$(MAKE) -C $@

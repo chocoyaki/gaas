@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.25  2003/12/17 16:11:41  ecaron
+#* Change "tutorial" directory to "Tutorial"
+#*
 #* Revision 1.24  2003/12/15 17:24:52  pcombes
 #* Add the tutorial and the solutions to the compilation chain.
 #*
@@ -371,9 +374,9 @@ AC_CONFIG_FILES([src/examples/bin/local_corba_ns.sh
 		 src/examples/bin/local_platform.sh],
 		[chmod +x src/examples/bin/*.sh])
 AC_CONFIG_FILES([doc/Makefile
-		 doc/tutorial/Makefile
-		 doc/tutorial/solutions/exercise2/Makefile
-		 doc/tutorial/solutions/exercise3/Makefile
+		 doc/Tutorial/Makefile
+		 doc/Tutorial/solutions/exercise2/Makefile
+		 doc/Tutorial/solutions/exercise3/Makefile
 		 doc/UsersManual/Makefile])
 if test "x$enable_maintainer_mode" = "xyes"
 then
