@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2004/10/15 08:19:56  hdail
+ * Removed references to corba_response_t->sortedIndexes - no longer useful.
+ *
  * Revision 1.24  2004/10/14 15:03:31  hdail
  * Changed to cleaner, shorter debug message for response.
  *
@@ -291,7 +294,6 @@ AgentImpl::findServer(Request* req, size_t max_srv)
 
   /* Initialize the response */
   resp->reqID = creq.reqID;
-  resp->sortedIndexes.length(0);
   resp->servers.length(0);
 
   /* Add the new request to the list */

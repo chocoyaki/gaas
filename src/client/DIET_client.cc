@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.49  2004/10/15 08:19:13  hdail
+ * Removed references to corba_response_t->sortedIndexes - no longer useful.
+ *
  * Revision 1.48  2004/10/06 18:37:07  rbolze
  * fix a bug due to the last commit
  *
@@ -484,10 +487,9 @@ request_submission(diet_profile_t* profile,
 	TRACE_TEXT(TRACE_MAIN_STEPS,
 		   "The Master Agent found the following server(s):\n");
 	for (size_t i = 0; i < response->servers.length(); i++) {
-	  int idx = response->sortedIndexes[i];
 	  TRACE_TEXT(TRACE_MAIN_STEPS,
-		     "    " << response->servers[idx].loc.hostName << ":"
-		     << response->servers[idx].loc.port << "\n");
+		     "    " << response->servers[i].loc.hostName << ":"
+		     << response->servers[i].loc.port << "\n");
 	}
       }
       
@@ -495,7 +497,7 @@ request_submission(diet_profile_t* profile,
       server_OK = 0;
       while ((size_t) server_OK < response->servers.length()) {
 	try {
-	  int           idx       = response->sortedIndexes[server_OK];
+	  int           idx       = server_OK;
 	  SeD_ptr       server    = response->servers[idx].loc.ior;
 	  CORBA::Double totalTime = response->servers[idx].estim.totalTime;
 	  if (server->checkContract(response->servers[idx].estim, corba_pb)) {
@@ -549,12 +551,12 @@ request_submission(diet_profile_t* profile,
 #endif // HAVE_CICHLID
   
   //delete &corba_pb;
-  
+
   if (server_OK >= 0) {
     chosenServer = response->servers[server_OK].loc.ior;
     reqID = response->reqID;
   }
-  
+
   return 0;
 }
   

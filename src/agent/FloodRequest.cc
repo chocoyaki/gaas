@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2004/10/15 08:19:56  hdail
+ * Removed references to corba_response_t->sortedIndexes - no longer useful.
+ *
  * Revision 1.1  2004/09/29 13:35:31  sdahan
  * Add the Multi-MAs feature.
  *
@@ -293,15 +296,12 @@ FloodRequest::addResponseServiceFound(const corba_response_t& decision) {
   CORBA::ULong newDecisionsLength =
     decisionsLength + decision.servers.length() ;
   decisions.servers.length(newDecisionsLength) ;
-  decisions.sortedIndexes.length(newDecisionsLength) ;
 
   for (CORBA::ULong decisionsIdx = decisionsLength ;
        decisionsIdx < newDecisionsLength ;
        decisionsIdx++) {
     decisions.servers[decisionsIdx] =
-      decision.servers[decision.sortedIndexes[decisionsIdx
-					       - decisionsLength]] ;
-    decisions.sortedIndexes[decisionsIdx] = decisionsIdx ;
+      decision.servers[decisionsIdx - decisionsLength] ;
   }
 
   addNewResponse() ;

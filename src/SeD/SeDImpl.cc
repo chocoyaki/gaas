@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.35  2004/10/15 08:19:13  hdail
+ * Removed references to corba_response_t->sortedIndexes - no longer useful.
+ *
  * Revision 1.34  2004/10/06 15:56:13  bdelfabr
  * bug persistent data fixed (hope so one more time)
  *
@@ -299,14 +302,11 @@ SeDImpl::getRequest(const corba_request_t& creq)
   ServiceTable::ServiceReference_t serviceRef;
   serviceRef = SrvT->lookupService(&(creq.pb));
   if (serviceRef == -1) {
-    resp.sortedIndexes.length(0);;
     resp.servers.length(0);
     cout << "service not found ??????????????????????????????????????" << endl;
   } else {
-    resp.sortedIndexes.length(1);
     resp.servers.length(1);
 
-    resp.sortedIndexes[0]        = 0;
     resp.servers[0].loc.ior      = SeD::_duplicate(_this());
     resp.servers[0].loc.hostName = CORBA::string_dup(localHostName);
 #if HAVE_JXTA
