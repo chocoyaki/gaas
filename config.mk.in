@@ -10,29 +10,19 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.8  2003/07/04 09:47:49  pcombes
+#* AC_OMNIORB_DIET manages CXXFLAGS_OMNIORB. Add -Werror in MAINTAINER_MODE.
+#*
 #* Revision 1.7  2003/05/16 08:47:26  cpera
 #* Modify FAST compiling/linking parameters.
 #*
 #* Revision 1.6  2003/04/10 14:50:22  pcombes
 #* omniORB includes are added to CXXFLAGS_OMNIORB.
 #* Add DBG_FLAGS for maintainer mode.
-#*
-#* Revision 1.5  2003/02/17 15:35:54  cpera
-#* New variables for ARCHITECTURE/PLATEFORM/VERSION.
-#*
-#* Revision 1.4  2003/02/14 10:30:06  cpera
-#* add files used by autoconf/automake.
-#*
-#* Revision 1.2  2003/01/22 17:05:13  pcombes
-#* Define DIET_SERVER_LIBS and DIET_CLIENT_LIBS instead of two variables for
-#* each ; move FAST_LIBS into confg.mk.in (not required to compile users'
-#* programs)
 #****************************************************************************#
 
-CXXFLAGS_OMNIORB += -I@OMNIORB_HOME@/include/omniORB@OMNIORB_VERSION@
-
 if MAINTAINER_MODE
-DBG_FLAGS = -g
+DBG_FLAGS = -g -Werror
 else
 DBG_FLAGS = -O2
 endif
