@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.20  2003/08/22 13:03:23  pcombes
+#* FAST not found is not right when --without-FAST is specified.
+#*
 #* Revision 1.19  2003/08/09 17:34:26  pcombes
 #* Print the version of FAST at the end of the configuration.
 #*
@@ -382,7 +385,7 @@ if test "x$HAVE_FAST" = "xyes"
 then
   echo "$FAST_VERSION (found $FAST_CONFIG)" | tee -a config.log
 else
-  echo "not found" | tee -a config.log
+  echo "disabled" | tee -a config.log
 fi
 
 # ORB
