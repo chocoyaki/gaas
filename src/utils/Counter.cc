@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2003/09/04 14:49:24  ckochhof
+ * CED: fix of an assert bug
+ *
  * Revision 1.2  2003/04/10 12:45:10  pcombes
  * Apply Coding Standards.
  *
@@ -26,8 +29,8 @@ Counter::Counter(const Counter& aCounter) {
 
 
 Counter Counter::operator++(int) {
-  assert(value < value + 1) ; // check for overflow
   valueMutex.lock() ;
+  assert(value < value + 1) ; // check for overflow
   Counter oldValue ;
   oldValue.value = value ;
   value++ ;
@@ -37,8 +40,8 @@ Counter Counter::operator++(int) {
 
 
 Counter Counter::operator--(int) {
-  assert(value > 0) ;
   valueMutex.lock() ;
+  assert(value > 0) ;
   Counter oldValue ;
   oldValue.value = value ;
   value-- ;
