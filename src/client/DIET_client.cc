@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.38  2003/10/03 12:41:26  mcolin
+ * Fix memory management in the list of arguments
+ *
  * Revision 1.37  2003/09/28 22:11:53  ecaron
  * Take into account the new API of statistics module
  *
@@ -159,7 +162,7 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   /* Get the traceLevel */
   
   if (TRACE_LEVEL >= TRACE_MAX_VALUE) {
-    char   level[48];
+    char *  level = (char *) calloc(48, sizeof(char*)) ;
     int    tmp_argc = myargc + 2;
     myargv = (char**)realloc(myargv, tmp_argc * sizeof(char*));
     myargv[myargc] = "-ORBtraceLevel";

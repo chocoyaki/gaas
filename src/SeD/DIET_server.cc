@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2003/10/03 12:41:26  mcolin
+ * Fix memory management in the list of arguments
+ *
  * Revision 1.18  2003/09/22 21:07:21  pcombes
  * Set all the modules and their interfaces for data persistency.
  *
@@ -313,9 +316,9 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   size_t* port = (size_t*)
     (Parsers::Results::getParamValue(Parsers::Results::ENDPOINT));
   if (port != NULL) {
-    char   endPoint[48];
+    char *  endPoint = (char *) calloc(48, sizeof(char*)) ;
     int    tmp_argc = myargc + 2;
-    realloc(myargv, tmp_argc * sizeof(char*));
+    myargv = (char**)realloc(myargv, tmp_argc * sizeof(char*));
     myargv[myargc] = "-ORBendPoint";
     sprintf(endPoint, "giop:tcp::%u", *port);
     myargv[myargc + 1] = (char*)endPoint;
@@ -325,7 +328,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   /* Get the traceLevel */
 
   if (TRACE_LEVEL >= TRACE_MAX_VALUE) {
-    char   level[48];
+    char *  level = (char *) calloc(48, sizeof(char*)) ;
     int    tmp_argc = myargc + 2;
     myargv = (char**)realloc(myargv, tmp_argc * sizeof(char*));
     myargv[myargc] = "-ORBtraceLevel";
