@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2003/10/01 07:40:51  cpera
+ * Add false boolean return data of DataMgrImpl::dataLookup function if DEVELOPPING_DATA_PERSISTENCY is set to 0.
+ *
  * Revision 1.3  2003/09/30 15:08:09  bdelfabr
  * dlist are replaced by map.
  * Coding standards are applied
@@ -399,7 +402,7 @@ DataMgrImpl::dataLookup(char *argID)
   dataDescList.begin();
   return(dataDescList.find(ms_strdup(argID)) != dataDescList.end());
 #endif // DEVELOPPING_DATA_PERSISTENCY
-
+return false;
  
 }
 
