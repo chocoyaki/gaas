@@ -11,6 +11,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.3  2002/12/18 12:11:42  jylexcel
+ * SqMatSUM bug fix related to the use of convertors. Philippe+JY.
+ *
  * Revision 1.2  2002/12/12 18:17:04  pcombes
  * Small bug fixes on prints (special thanks to Jean-Yves)
  *
@@ -84,26 +87,22 @@ solve_dgemm(diet_profile_t *pb)
   int     i, m, n, k;
   double  alpha, beta;
   double *A, *B, *C;
+  int     IsSqMatSUM=0;
 
   tA    = (pb->parameters[0].desc.specific.mat.istrans) ? 'T' : 'N';
   tB    = (pb->parameters[1].desc.specific.mat.istrans) ? 'T' : 'N';
   m     = (pb->parameters[0].desc.specific.mat.nb_r);
   n     = (pb->parameters[1].desc.specific.mat.nb_c);
-  k     = (pb->parameters[1].desc.specific.mat.nb_r);
+  k     = (pb->parameters[0].desc.specific.mat.nb_c);
   alpha = *((double *) pb->parameters[2].value);
   A     =   (double *) pb->parameters[0].value;
   B     =   (double *) pb->parameters[1].value;
   beta  = *((double *) pb->parameters[3].value);
   C     =   (double *) pb->parameters[4].value;
   
-  // DEBUG
-  printf("dgemm args : m=%d, n=%d, k=%d, alpha=%f, beta=%f, tA=%c, tB=%c\n",
-	 m, n, k, alpha, beta, tA, tB);
-
   // Set B to identity in case of SUM only
-  if ((pb->parameters[7].desc.specific.mat.nb_r == 1)
-      && (pb->parameters[7].desc.specific.mat.nb_c == 1)
-      && (B[0] == 1)) {
+  if ((IsSqMatSUM = (! B))) {
+    n=  (pb->parameters[4].desc.specific.mat.nb_c);
     if (m != n || n != k || m != k) {
       printf("dgemm Error: only square matrices can be summed.\n");
       return 1;
@@ -113,10 +112,18 @@ solve_dgemm(diet_profile_t *pb)
       B[i + m * i] = 1.0;
     }
   }
+
+  // DEBUG
+  printf("dgemm args : m=%d, n=%d, k=%d, alpha=%f, beta=%f, tA=%c, tB=%c\n",
+	 m, n, k, alpha, beta, tA, tB);
   
   printf("Solving dgemm_ ...");
   dgemm_(&tA, &tB, &m, &n, &k, &alpha, A, &m, B, &k, &beta, C, &m);
   printf(" done.\n");
+
+  if (IsSqMatSUM) {
+    free(B);
+  }
 
   return 0;
 }
@@ -176,9 +183,8 @@ main(int argc, char **argv)
   /* Set convertor */
   diet_arg_cvt_set(&(cvt->arg_convs[0]), DIET_CVT_IDENTITY,    0, NULL);
   {
-    double B00 = 1.0;
     arg = (diet_arg_t *) malloc(sizeof(diet_arg_t));
-    matrix_set(arg, &B00, DIET_VOLATILE, DIET_DOUBLE, 1, 1, 0);
+    matrix_set(arg, NULL, DIET_VOLATILE, DIET_DOUBLE, 0, 0, 0);
   }
   diet_arg_cvt_set(&(cvt->arg_convs[1]), DIET_CVT_IDENTITY,   -1, arg);
   {
