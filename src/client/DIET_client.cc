@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.31  2003/07/02 10:55:47  cpera
+ * Remove a wrong trace.
+ *
  * Revision 1.30  2003/06/30 11:15:12  cpera
  * Fix bugs in ReaderWriter and new internal debug macros.
  *
@@ -157,7 +160,7 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
     cerr << "Warning while parsing " << config_file_name
 	  << ": agentType is useless for a client - ignored.\n";
   value = Parsers::Results::getParamValue(Parsers::Results::USEASYNCAPI);
-  if (*(size_t *)(value) != NULL) useAsyncApi = *(size_t *)(value); 
+  if (value != NULL) useAsyncApi = *(size_t *)(value); 
     
   /* Get the traceLevel */
   if (TRACE_LEVEL >= TRACE_MAX_VALUE) {
@@ -209,8 +212,7 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
 
   /* We do not need the parsing results any more */
   Parsers::endParsing();  
-
- cout << "FIN de diet_initialise" << endl;
+  PAUSE(25,0)
   return 0;
 }
 
@@ -218,7 +220,7 @@ int
 diet_finalize()
 {
   stat_finalize();
-  if (DIET_ct == 1){
+  if (useAsyncApi == 1){
     CallAsyncMgr * caMgr = CallAsyncMgr::Instance();
     while (caMgr->areThereWaitRules() > 0){
       omni_thread::sleep(1);
@@ -533,6 +535,7 @@ diet_call(diet_function_handle_t* handle, diet_profile_t* profile)
 diet_reqID_t
 diet_call_async(diet_function_handle_t* handle, diet_profile_t* profile)
 {
+	DIET_DEBUG()
   corba_pb_desc_t corba_pb;
   corba_profile_t     corba_profile;
   corba_response_t* response(NULL);
@@ -541,21 +544,25 @@ diet_call_async(diet_function_handle_t* handle, diet_profile_t* profile)
   try {
     /* Request submission : try nb_tries times */
     displayProfile(profile, handle->pb_name);
+	DIET_DEBUG()
     if (mrsh_pb_desc(&corba_pb, profile, handle->pb_name))
       return -1;
     subm_count = 0;
 
     stat_in("diet_call.submission.start");
+	DIET_DEBUG()
     do {
       server_OK = submission(&corba_pb, response);
     }  while ((response->servers.length() > 0)
        && (server_OK == -1) && (++subm_count < nb_tries));
     stat_out("diet_call.submission.end");
+	DIET_DEBUG()
 
     if (!response || response->servers.length() == 0) {
       cerr << "Unable to find a server.\n";
       return -1;
     }
+	DIET_DEBUG()
     if (server_OK == -1) {
       cerr << "Unable to find a server after " << nb_tries << " tries.\n";
       return -1;
@@ -564,28 +571,37 @@ diet_call_async(diet_function_handle_t* handle, diet_profile_t* profile)
     static int already_initialized(0);
     char str_tmp[1000];
 
+	DIET_DEBUG()
     if (!already_initialized) {
       init_communications();
       already_initialized = 1;
     }
+	DIET_DEBUG()
 
     strcpy(str_tmp, response->servers[server_OK].loc.hostName);
+	DIET_DEBUG()
     strcat(str_tmp, "_SeD");
+	DIET_DEBUG()
     add_communication("client", str_tmp, profile_size(&corba_pb));
+	DIET_DEBUG(TEXT_OUTPUT(("END")))
 #endif // HAVE_CICHLID
     
     if (mrsh_profile_to_in_args(&corba_profile, profile)) return -1;
     stat_in("diet_call.solve.start");
+	DIET_DEBUG()
 
     // get sole CallAsyncMgr singleton
     CallAsyncMgr * caMgr = CallAsyncMgr::Instance();
+	DIET_DEBUG()
     // create corba client callback serveur...
     if (caMgr->addAsyncCall(response->reqID, profile) != 0) return -1;
+	DIET_DEBUG()
 
     response->servers[server_OK].loc.ior->solveAsync(handle->pb_name,
                                                       corba_profile, 
-						      response->reqID, 
+																								      response->reqID, 
                                                       refCallbackServer);
+	DIET_DEBUG()
   }catch (const CORBA::Exception &e){
     // Process any other User exceptions. Use the .id() method to
     // record or display useful information
@@ -602,9 +618,13 @@ diet_call_async(diet_function_handle_t* handle, diet_profile_t* profile)
     cout << "Exception in DIETCallAsync ..." << endl;
     reqID = -1;  
   }
+	DIET_DEBUG()
   stat_out("diet_call.solve.end");
+	DIET_DEBUG()
   reqID = response->reqID;
+	DIET_DEBUG()
   delete response;
+	DIET_DEBUG(TEXT_OUTPUT(("END")))
   return reqID;  
 
 }
@@ -751,18 +771,22 @@ diet_wait(diet_reqID_t reqID)
 int
 diet_wait_and(diet_reqID_t* IDs, size_t length)
 {
+	DIET_DEBUG()
   STATE rst = ERROR;
   try {
     // Create ruleElements table ...
     ruleElement * simpleWait = new ruleElement[length];
+	DIET_DEBUG()
     for (unsigned int k = 0; k < length; k++){
       simpleWait[k].reqID = IDs[k];
       simpleWait[k].op = WAITOPERATOR(AND);
     }
+	DIET_DEBUG()
     Rule * rule = new Rule;
     rule->length = length;
     rule->ruleElts = simpleWait;
     
+	DIET_DEBUG()
     // get lock on condition/waitRule
     return CallAsyncMgr::Instance()->addWaitRule(rule);
     // NOTES: Be carefull, there may be others rules
@@ -784,6 +808,7 @@ diet_wait_and(diet_reqID_t* IDs, size_t length)
     cout << "Unexpected exception, what=" << e.what() << endl;
     fflush(stdout);
   }
+	DIET_DEBUG(TEXT_OUTPUT(("END")))
   return rst;
 }
 
