@@ -12,9 +12,8 @@
 /****************************************************************************/
 /*
  * $Log$
- * Revision 1.9  2002/12/03 19:05:12  pcombes
- * Clean CVS logs in file.
- * Separate BLAS and SCALAPACK examples.
+ * Revision 1.10  2002/12/12 18:17:05  pcombes
+ * Small bug fixes on prints (special thanks to Jean-Yves)
  *
  * Revision 1.8  2002/11/07 18:42:42  pcombes
  * Add includes and configured Makefile variables to install directory.
@@ -23,9 +22,6 @@
  * Revision 1.7  2002/09/17 15:23:18  pcombes
  * Bug fixes on inout arguments and examples
  * Add support for omniORB 4.0.0
- *
- * Revision 1.6  2002/09/09 15:57:00  pcombes
- * Update for dgemm and bug fixes
  *
  * Revision 1.5  2002/08/30 16:50:16  pcombes
  * This version works as well as the alpha version from the user point of view,
@@ -37,15 +33,6 @@
  *    by an LDAP DB for the MA
  *  - No copy for client/SeD data transfers
  *  - ...
- *
- * Revision 1.4  2002/08/09 14:30:33  pcombes
- * This is commit set the frame for version 1.0 - does not work properly yet
- *
- * Revision 1.3  2002/05/24 19:36:53  pcombes
- * Add BLAS/dgemm example (implied bug fixes)
- *
- * Revision 1.2  2002/05/17 20:35:18  pcombes
- * Version alpha without FAST
  *
  ****************************************************************************/
 
@@ -86,7 +73,7 @@ main(int argc, char **argv)
   char *PB[3] = {"T", "MatSUM", "MatPROD"};
 
   if (argc != 3) {
-    fprintf(stderr, "Usage: client <file> [T|MatSUM|MatPROD]\n");
+    fprintf(stderr, "Usage: %s <file.cfg> [T|MatSUM|MatPROD]\n", argv[0]);
     return 1;
   }
   path = argv[2];

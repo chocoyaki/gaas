@@ -11,6 +11,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.6  2002/12/12 18:17:05  pcombes
+ * Small bug fixes on prints (special thanks to Jean-Yves)
+ *
  * Revision 1.5  2002/12/03 19:05:12  pcombes
  * Clean CVS logs in file.
  * Separate BLAS and SCALAPACK examples.
@@ -101,7 +104,7 @@ main(int argc, char **argv)
   diet_profile_desc_t *profile;
 
   if (argc < 2) {
-    fprintf(stderr, "Usage: SeD <file>\n");
+    fprintf(stderr, "Usage: %s <file.cfg>\n", argv[0]);
     return 1;
   }  
 

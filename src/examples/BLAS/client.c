@@ -11,9 +11,8 @@
 /****************************************************************************/
 /*
  * $Log$
- * Revision 1.1  2002/12/03 19:05:12  pcombes
- * Clean CVS logs in file.
- * Separate BLAS and SCALAPACK examples.
+ * Revision 1.2  2002/12/12 18:17:04  pcombes
+ * Small bug fixes on prints (special thanks to Jean-Yves)
  *
  ****************************************************************************/
 
@@ -63,7 +62,8 @@ main(int argc, char **argv)
 
   if (argc != 3) {
     fprintf(stderr,
-	    "Usage: client <file> [dgemm|SqMatSUM|MatPROD|MatScalMult]\n");
+	    "Usage: %s <file.cfg> [dgemm|SqMatSUM|MatPROD|MatScalMult]\n",
+	    argv[0]);
     return 1;
   }
   path = argv[2];

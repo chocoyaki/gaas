@@ -11,9 +11,8 @@
 /****************************************************************************/
 /*
  * $Log$
- * Revision 1.1  2002/12/03 19:05:12  pcombes
- * Clean CVS logs in file.
- * Separate BLAS and SCALAPACK examples.
+ * Revision 1.2  2002/12/12 18:17:04  pcombes
+ * Small bug fixes on prints (special thanks to Jean-Yves)
  *
  ****************************************************************************/
 
@@ -137,7 +136,7 @@ main(int argc, char **argv)
   diet_arg_t *arg;
 
   if (argc != 2) {
-    fprintf(stderr, "Usage: server <file>\n");
+    fprintf(stderr, "Usage: %s <file.cfg>\n", argv[0]);
     return 1;
   }
 

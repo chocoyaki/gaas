@@ -11,9 +11,8 @@
 /****************************************************************************/
 /*
  * $Log$
- * Revision 1.1  2002/12/03 19:05:12  pcombes
- * Clean CVS logs in file.
- * Separate BLAS and SCALAPACK examples.
+ * Revision 1.2  2002/12/12 18:17:04  pcombes
+ * Small bug fixes on prints (special thanks to Jean-Yves)
  *
  * Revision 1.3  2002/09/17 15:23:17  pcombes
  * Bug fixes on inout arguments and examples
@@ -21,10 +20,6 @@
  *
  * Revision 1.2  2002/09/09 15:56:56  pcombes
  * Update for dgemm and bug fixes
- *
- * Revision 1.1.1.1  2002/05/24 19:40:09  pcombes
- * Add BLAS/dgemm example (implied bug fixes)
- *
  *
  ****************************************************************************/
 
@@ -64,7 +59,7 @@ main(int argc, char **argv)
   double *A, *B, *C;
 
   if (argc != 7) {
-    fprintf(stderr, "Usage: client <file> m n k alpha beta\n");
+    fprintf(stderr, "Usage: %s <file.cfg> m n k alpha beta\n", argv[0]);
     return 1;
   }
 
