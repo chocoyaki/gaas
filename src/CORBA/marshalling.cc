@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.17  2002/11/22 13:42:11  lbertsch
+ * Little mistake
+ *
  * Revision 1.16  2002/11/22 13:36:12  lbertsch
  * Added alpha linux support
  * Added a package for statistics and some traces
@@ -250,7 +253,7 @@ inline int unmrsh_scalar_desc(diet_data_desc_t *dest, const corba_data_desc_t *s
   }
   case DIET_INT: {
     value = (void *) new int;
-    src->specific.scal().value >>= *((long *)(value));
+    src->specific.scal().value >>= *((CORBA::Long *)(value));
     scalar_desc_set(dest, DIET_VOLATILE, bt, value);
     break;
   }
