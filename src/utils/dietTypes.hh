@@ -3,15 +3,16 @@
 /* DIET types specification                                                 */
 /*                                                                          */
 /*  Author(s):                                                              */
-/*    - Frederic LOMBARD          - LIFC Besançon (France)                  */
-/*    - Philippe COMBES           - LIP ENS-Lyon (France)                   */
+/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
+/*    - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)             */
 /*                                                                          */
-/*  This is part of DIET software.                                          */
-/*  Copyright (C) 2002 ReMaP/INRIA                                          */
-/*                                                                          */
+/* $LICENSE$                                                                */
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.9  2003/02/04 09:59:01  pcombes
+ * Apply Coding Standards (still much work)
+ *
  * Revision 1.8  2003/01/22 17:06:43  pcombes
  * API 0.6.4 : istrans -> order (row- or column-major)
  *
@@ -32,7 +33,6 @@
  *    by an LDAP DB for the MA
  *  - No copy for client/SeD data transfers
  *  - ...
- *
  ****************************************************************************/
 
 
@@ -86,7 +86,7 @@ public:
 
 class dietMADescListIterator : public _dlistIterator {
 public:
-  dietMADescListIterator(dietMADescList *l):_dlistIterator(l) {}
+  dietMADescListIterator(dietMADescList* l):_dlistIterator(l) {}
   ~dietMADescListIterator() {}
 };
 
@@ -103,13 +103,13 @@ public:
 typedef struct {
   int id;
   SeD_var ior;
-  char *hostname;
+  char* hostname;
 } diet_SeD_desc_t;
 
 typedef struct {
   int id;
   Agent_var ior;
-  char *hostname;
+  char* hostname;
 } diet_Agent_desc_t;
 
 /*------------------------------------------------------------*/
@@ -133,7 +133,7 @@ public:
 
 class dietAgentDescListIterator : public _dlistIterator {
 public:
-  dietAgentDescListIterator(dietAgentDescList *l):_dlistIterator(l) {}
+  dietAgentDescListIterator(dietAgentDescList* l):_dlistIterator(l) {}
   ~dietAgentDescListIterator() {}
 };
 
@@ -152,7 +152,7 @@ public:
 
 class dietSeDDescListIterator : public _dlistIterator {
 public:
-  dietSeDDescListIterator(dietSeDDescList *l):_dlistIterator(l) {}
+  dietSeDDescListIterator(dietSeDDescList* l):_dlistIterator(l) {}
   ~dietSeDDescListIterator() {}
 };
 
@@ -197,8 +197,8 @@ public:
 /*------------------------------------------------------------*/
 
 struct diet_prop_desc_ {
-  diet_profile_desc_t *profile;
-  dietSonIdList *capableSons;
+  diet_profile_desc_t* profile;
+  dietSonIdList* capableSons;
 };
 typedef struct diet_prop_desc_ diet_prop_desc_t;
 
@@ -224,7 +224,7 @@ public:
 
 class dietPropDescListIterator : public _dlistIterator {
 public:
-  dietPropDescListIterator(dietPropDescList *l):_dlistIterator(l) {}
+  dietPropDescListIterator(dietPropDescList* l):_dlistIterator(l) {}
   ~dietPropDescListIterator() {}
 };
 
@@ -275,7 +275,7 @@ struct diet_server_comp_ {
 
   char* implName;
   double tComp;
-  double *tComm;
+  double* tComm;
 };
 
 typedef struct diet_server_comp_ diet_server_comp_t;
@@ -287,8 +287,8 @@ struct diet_response_ {
   int nbIn;
   int nbServers;
 
-  diet_data_loc_t *data;
-  diet_server_comp_t *comp;
+  diet_data_loc_t* data;
+  diet_server_comp_t* comp;
 };
 
 typedef struct diet_response_ diet_response_t;
@@ -320,7 +320,7 @@ typedef struct {
 
   int nbResp;          /* how many respomnses where gathered for now */
 
-  corba_response_t *responses; /* this is where responses are gathered */
+  corba_response_t* responses; /* this is where responses are gathered */
 
 } diet_request_log_t;
 
@@ -349,7 +349,7 @@ public:
 
 class dietRequestLogListIterator : public _dlistIterator {
 public:
-  dietRequestLogListIterator(dietRequestLogList *l):_dlistIterator(l) {}
+  dietRequestLogListIterator(dietRequestLogList* l):_dlistIterator(l) {}
   ~dietRequestLogListIterator() {}
 };
 
@@ -362,12 +362,12 @@ public:
 struct diet_decision_desc_ {
   SeD_var chosenServer; /* Chosen server */
 
-  char *chosenServerName;
+  char* chosenServerName;
   int chosenServerPort;  
 
   int nbIn;
 
-  diet_data_loc_t *dataLocs; /* Localisation of each parameter */
+  diet_data_loc_t* dataLocs; /* Localisation of each parameter */
                              /* (localization==nil means that the parameter was not located, */
                              /* i.e, it's still on the client) */
 
@@ -417,7 +417,7 @@ public:
 
 class dietDecisionDescListIterator : public _dlistIterator {
 public:
-  dietDecisionDescListIterator(dietDecisionDescList *l):_dlistIterator(l) {}
+  dietDecisionDescListIterator(dietDecisionDescList* l):_dlistIterator(l) {}
   ~dietDecisionDescListIterator() {}
 };
 
@@ -501,8 +501,10 @@ public:
 /****************************************************************************/
 
 /* Compute size in bytes of data from its descriptor. */
-size_t data_sizeof(const diet_data_desc_t *desc);
-size_t data_sizeof(const corba_data_desc_t *desc);
+size_t
+data_sizeof(const diet_data_desc_t* desc);
+size_t
+data_sizeof(const corba_data_desc_t* desc);
 
 
 /* There should be no use of allocating and freeing functions */
@@ -511,18 +513,18 @@ size_t data_sizeof(const corba_data_desc_t *desc);
 /* Each -1 (or NULL for pointers) argument does not alter the corresponding
    field. */
 
-int scalar_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
-		    diet_base_type_t base_type, void *value);
-int vector_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
+int scalar_set_desc(diet_data_desc_t* desc, diet_persistence_mode_t mode,
+		    diet_base_type_t base_type, void* value);
+int vector_set_desc(diet_data_desc_t* desc, diet_persistence_mode_t mode,
 		    diet_base_type_t base_type, size_t size);
-int matrix_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
+int matrix_set_desc(diet_data_desc_t* desc, diet_persistence_mode_t mode,
 		    diet_base_type_t base_type, size_t nb_r, size_t nb_c,
 		    diet_matrix_order_t order);
-int string_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
+int string_set_desc(diet_data_desc_t* desc, diet_persistence_mode_t mode,
 		    size_t length);
 /* Computes the file size */
-int file_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
-		  char *path);
+int file_set_desc(diet_data_desc_t* desc, diet_persistence_mode_t mode,
+		  char* path);
 
 
 
@@ -532,26 +534,21 @@ int file_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
 /****************************************************************************/
 
 /* Profile descriptor comparison: as strcmp, return 0 if equal. */
-int profile_desc_cmp(const corba_profile_desc_t *p1,
-		     const corba_profile_desc_t *p2);
+int profile_desc_cmp(const corba_profile_desc_t* p1,
+		     const corba_profile_desc_t* p2);
 
 /* Return true if p1 is exactly identical to p2. */
-int profile_desc_match(const corba_profile_desc_t *p1,
-		       const corba_profile_desc_t *p2);
+int profile_desc_match(const corba_profile_desc_t* p1,
+		       const corba_profile_desc_t* p2);
 
 /* Return true if sv_profile describes a service that matches the problem
    that pb_desc describes. */
-int profile_match(const corba_profile_desc_t *sv_profile,
-		  const corba_pb_desc_t      *pb_desc);
+int profile_match(const corba_profile_desc_t* sv_profile,
+		  const corba_pb_desc_t*      pb_desc);
 
 /* Return true if sv_profile describes a service that matches the problem
    that pb and path describe. */
-int profile_match(const corba_profile_desc_t *sv_profile,
-		  const char *path, const corba_profile_t *pb);
+int profile_match(const corba_profile_desc_t* sv_profile,
+		  const char* path, const corba_profile_t* pb);
 
 #endif // _DIETTYPES_HH_
-
-
-
-
-
