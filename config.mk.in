@@ -13,6 +13,11 @@
 #****************************************************************************#
 #*
 #* $Log$
+#* Revision 1.2  2003/01/22 17:05:13  pcombes
+#* Define DIET_SERVER_LIBS and DIET_CLIENT_LIBS instead of two variables for
+#* each ; move FAST_LIBS into confg.mk.in (not required to compile users'
+#* programs)
+#*
 #* Revision 1.1  2002/12/03 19:08:23  pcombes
 #* Update configure, update to FAST 0.3.15, clean CVS logs in files.
 #* Put main Makefile in root directory.
@@ -27,17 +32,19 @@ IDL            = @OMNIIDL@
 IDLFLAGS       = -bcxx -Wba -Wbtp
 OMNIORBINCLUDE = -I@OMNIORB_HOME@/include
 
-
 # FAST variabes for DIET internal makefiles
 
+FAST_HOME = @FAST_HOME@
 ifneq ($(strip $(FAST_HOME)),)
+  FASTLIBS = $(shell $(FAST_HOME)/bin/fast-config --libs fast)
   FASTINCLUDE = -I$(FAST_HOME)/include
 endif
 
 
 # Generic variables for DIET internal makefiles
 CXX      = g++
-CXXFLAGS = -O2 -Wall -Wno-unused -D__x86__ -D__linux__ -D__OSVERSION__=2 -D_REENTRANT   
+CXXFLAGS = -O2 -Wall -Wno-unused -D__x86__ -D__linux__ -D__OSVERSION__=2 \
+	   -D_REENTRANT
 INCLUDE  = -I. -I$(TOP)/include -I$(TOP)/src/CORBA -I$(TOP)/src/CORBA/C++\
 	   -I$(TOP)/include -I$(TOP)/src/utils -I$(TOP)/CORBA/C++        \
 	   $(OMNIORBINCLUDE) $(FASTINCLUDE)

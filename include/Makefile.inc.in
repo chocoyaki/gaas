@@ -11,6 +11,11 @@
 #****************************************************************************#
 #*
 #* $Log$
+#* Revision 1.3  2003/01/22 17:05:13  pcombes
+#* Define DIET_SERVER_LIBS and DIET_CLIENT_LIBS instead of two variables for
+#* each ; move FAST_LIBS into confg.mk.in (not required to compile users'
+#* programs)
+#*
 #* Revision 1.2  2002/12/03 19:08:24  pcombes
 #* Update configure, update to FAST 0.3.15, clean CVS logs in files.
 #* Put main Makefile in root directory.
@@ -26,14 +31,6 @@ CLIENT_LIB = -lDIET_client
 SED_LIB    = -lDIET_SeD
 
 
-# FAST variables
-
-FAST_HOME = @FAST_HOME@
-ifneq ($(strip $(FAST_HOME)),)
-  FASTLIBS = $(shell $(FAST_HOME)/bin/fast-config --libs fast)
-endif
-
-
 # omniORB variables
 
 OMNIORB_V   = @OMNIORB_VERSION@
@@ -46,11 +43,12 @@ endif
 
 # Generic variables
 CC	= gcc
-CCFLAGS	= -O2 -Wall -Wno-unused -D__x86__ -D__linux__ -D__OSVERSION__=2 $(DIET_FLAGS)
+CCFLAGS	= -O2 -Wall -Wno-unused -D__x86__ -D__linux__ -D__OSVERSION__=2 \
+	  $(DIET_FLAGS)
 
 CXX      = g++
 CXXFLAGS = -O2 -Wall -Wno-unused -D__x86__ -D__linux__ -D__OSVERSION__=2 \
 	   -D_REENTRANT $(DIET_FLAGS)
 
-LIBS     = $(OMNIORBLIBS)
-
+DIET_SERVER_LIBS = $(SED_LIB) $(OMNIORBLIBS)
+DIET_CLIENT_LIBS = $(CLIENT_LIB) $(OMNIORBLIBS)
