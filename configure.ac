@@ -8,34 +8,23 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
-#* Revision 1.8  2003/05/15 14:50:03  cpera
-#* Add version fast test.
-#*
-#* Revision 1.7  2003/04/14 13:44:08  pcombes
-#* Pack DIET specific "enable" arguments all together.
+#* Revision 1.9  2003/05/16 17:29:28  pcombes
+#* Clean macros and messages. Set omniORB_min_version (not used yet)
 #*
 #* Revision 1.6  2003/04/10 14:59:23  pcombes
 #* Add modules doc (disabled by default), examples (forced),
 #* examples/BLAS and examples/ScaLAPCAK (both disabled by default).
 #*
-#* Revision 1.5  2003/02/18 17:06:53  cpera
-#* Correction.
-#*
-#* Revision 1.4  2003/02/18 14:00:17  cpera
-#* Add a new m4 macro (omniorb.m4) and use it.
-#*
 #* Revision 1.3  2003/02/17 15:34:56  cpera
 #* Use omniorb.m4 and detect new platforms.
-#*
-#* Revision 1.2  2003/02/14 16:20:33  cpera
-#* DIET instead of diet.
 #*
 #* Revision 1.1  2003/02/14 10:31:29  cpera
 #* add files used by autoconf/automake/libtool.
 #****************************************************************************#
 
-define(DIET_version,     0.7_beta)
-define(FAST_min_version, 0.4.3)
+define(DIET_version,        0.7_beta)
+define(omniORB_min_version, 3)
+define(FAST_min_version,    0.4.3)
 
 
 dnl ##########################################################################
@@ -123,14 +112,8 @@ AC_SUBST(PROCESSOR_NAME, $proc_name)
 AC_SUBST(PROCESSOR_DEFINE, $proc_def)
 
 
-dnl ##########################################################################
-dnl # Initialize the test suite and build position independent wrappers.
-dnl ##########################################################################
-#AC_CONFIG_TESTDIR([tests])
-#AC_CONFIG_FILES([tests_auto/Makefile tests_auto/atlocal])
-
 dnl ###########################################################################
-dnl DIET modules listing. 
+# DIET modules listing. 
 dnl ###########################################################################
 ACI_MODULE([DIET],,[omniORB FAST],[src doc],force)
   ACI_MODULE([doc],[documentation about DIET],,,no)
@@ -146,7 +129,7 @@ ACI_MODULE([DIET],,[omniORB FAST],[src doc],force)
 	         [examples ScaLAPACK],,no)
 
 dnl ###########################################################################
-dnl ####[ various compilation modes ]
+# Various compilation features
 dnl ###########################################################################
 AC_ARG_ENABLE(Cichlid,
 	      AC_HELP_STRING([--enable-Cichlid],
@@ -162,6 +145,7 @@ AC_ARG_ENABLE(stats,
               HAVE_STATISTICS=true, HAVE_STATISTICS=false)
 if test "x$HAVE_STATISTICS" = "xtrue"; then
   AC_DEFINE(HAVE_STATISTICS)
+  IDLFLAGS="$IDLFAGS -DHAVE_STATISTICS"
 fi
 
 AC_ARG_ENABLE(multi-MA,
@@ -192,22 +176,27 @@ AC_SUBST(LIBTOOL_DEPS)
 AC_CHECK_LIB([pthread], [pthread_attr_getdetachstate])
 
 dnl ###########################################################################
-dnl ####[ search for omniORB lib and bin ]
+# Search the ORB to use
 dnl ###########################################################################
-AC_OMNIORB_DIET(,,,,$proc_name,$proc_def,$plat_name,$plat_def,$os_v,
-		omniFound=true,omniFound=false)
+AC_OMNIORB_DIET(omniORB_min_version,,,,
+		$proc_name,$proc_def,$plat_name,$plat_def,$os_v,
+		HAVE_OMNIORB=true,HAVE_OMNIORB=false)
+if test "x$HAVE_OMNIORB" != "xtrue"; then
+  AC_MSG_ERROR([could not detect omniORB omniORB_min_version or higher])
+fi
+
+# AC_TAO ???
 
 dnl ###########################################################################
-dnl ####[ search for the FAST Library ]
+# Search for the FAST Library
 dnl ###########################################################################
-
 AM_PATH_FAST(FAST_min_version,
-	       [HAVE_FAST=true
-	         AC_DEFINE(HAVE_FAST,1,[Define use of the FAST library])],
-	       [HAVE_FAST=false
-	         AC_MSG_WARN(Use of FAST library is disabled - either by you or because)
-                 AC_MSG_WARN(it was not found: all performance evaluations will be set)
-	         AC_MSG_WARN(to infinity.)])
+	     [HAVE_FAST=true
+	      AC_DEFINE(HAVE_FAST,1,[Define use of the FAST library])],
+	     [HAVE_FAST=false
+	      AC_MSG_WARN(Use of FAST library is disabled - either by you or)
+              AC_MSG_WARN(because it was not found: all performance evaluations)
+	      AC_MSG_WARN(will be set to infinity.)])
 
 dnl ###########################################################################
 dnl ####[ search for the BLAS Library ]
@@ -231,7 +220,7 @@ dnl ###########################################################################
 #		[ldap.h])
 
 dnl ###########################################################################
-dnl ####[ check for some programms ]
+dnl ####[ check for some programs ]
 dnl ###########################################################################
 AC_CHECK_PROG(BASH, bash, `which bash`, /bin/sh)
 WARNING="This file is generated, do not edit"
@@ -260,14 +249,8 @@ AC_SUBST(CPPFLAGS)
 AC_SUBST(CXXFLAGS)
 AC_SUBST(LDFLAGS)
 
-# FIXME: kesako ? pq un AC_SUBST sur des HAVE_XXX
-#AC_SUBST(HAVE_FAST)
-#AC_SUBST(HAVE_CICHLID)
-#AC_SUBST(HAVE_STATISTICS)
-AC_SUBST(OMNIORB_VERSION)
-AC_SUBST(OMNIORB_HOME)
-
 AC_SUBST(IDLFLAGS)
+
 AC_SUBST(prefix)
 AC_SUBST(topsrcdir)
 AC_LANG(C++)
@@ -276,11 +259,10 @@ AC_LANG(C++)
 dnl ###########################################################################
 # Checks for header files.
 dnl ###########################################################################
-dnl AC_HEADER_DIRENT # unused
-dnl AC_HEADER_STDC   # default
-AC_CHECK_HEADERS([alloca.h assert.h iostream limits.h math.h stdio.h \
-		  sys/time.h time.h])
-AC_HEADER_TIME
+dnl AC_HEADER_STAT   # not very useful, yet, although sys/stat.h is included
+dnl AC_HEADER_STDC   # we should learn using the defined variables ...
+dnl AC_HEADER_TIME   # we should learn using the defined variables ...
+AC_CHECK_HEADERS([alloca.h assert.h iostream fstream limits.h math.h])
 
 
 dnl ###########################################################################
@@ -296,34 +278,11 @@ dnl ###########################################################################
 # Checks for library functions.
 dnl ###########################################################################
 AC_FUNC_MALLOC
-dnl AC_TYPE_SIGNAL # unused
-dnl AC_FUNC_STAT   # unused
-dnl AC_FUNC_STRTOD # unused
-AC_CHECK_FUNCS([gethostname gettimeofday pow strdup strrchr strtok_r])
-
-dnl ###########################################################################
-dnl #### check OS/Platform target
-dnl ###########################################################################
-case $host_os in
-  linux*)
-    AC_SUBST(OS_DIET, __linux__)
-    case $host_cpu in
-      *86*)
-        AC_SUBST(ARCH_DIET, __x86__)
-	;;
-      *)
-        ;;
-    esac
-    ;;
-  *)
-  ;;
-esac
-
-dnl ###########################################################################
-dnl #### Compiling DIET modules with statistic services
-dnl ###########################################################################
-# FIXME: et ça, c'est quoi ??? Et Cichlid ??
-#AM_CONDITIONAL(STATISTIC, test "$enable_stats" = yes) 
+AC_FUNC_REALLOC
+dnl AC_TYPE_SIGNAL # unused yet
+AC_FUNC_STAT
+AC_FUNC_STRTOD # used in BLAS and ScaLAPACK clients
+AC_CHECK_FUNCS([gethostname gettimeofday strdup strrchr strtok_r])
 
 
 dnl ###########################################################################
@@ -362,7 +321,10 @@ then
 else
   echo "DIET configured without FAST."
 fi
-echo "DIET configured with omniORB $OMNIORB_VERSION in $OMNIORB_HOME."
+if test "x$HAVE_OMNIORB" = "xtrue"
+then
+  echo "DIET configured with omniORB $OMNIORB_VERSION in $OMNIORB_HOME."
+fi
 if test "x$HAVE_CICHLID" = "xtrue"
 then
   echo "DIET configured with generation of communication logs for Cichlid."
