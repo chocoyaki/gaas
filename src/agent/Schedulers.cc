@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2004/09/14 12:45:28  hdail
+ * Changed mispelling of input variable for NWSScheduler variable.  Should correct
+ * bug where can not change setting of epsilon for NWSScheduler.
+ *
  * Revision 1.4  2004/05/18 21:07:10  alsu
  * problems fixed in the process of building in support for custom
  * performance metrics:
@@ -528,7 +532,7 @@ NWSScheduler::NWSScheduler(double CPUPower,
   this->wi.commPower  = commPower;
 }
 
-NWSScheduler::NWSScheduler(double espilon,
+NWSScheduler::NWSScheduler(double epsilon,
 			   double CPUPower,
 			   double memPower,
 			   double commPower)
