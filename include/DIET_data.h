@@ -11,6 +11,9 @@
 /****************************************************************************/
 /*-
  * $Log$
+ * Revision 1.4  2002/10/18 18:12:03  pcombes
+ * Better comments on file_set function.
+ *
  * Revision 1.3  2002/10/15 18:36:03  pcombes
  * Remove the descriptors set functions.
  * Add convertors in API :
@@ -164,7 +167,8 @@ int matrix_set(diet_data_t *data, void *value, diet_persistence_mode_t mode,
 	       diet_base_type_t base_type, size_t nb_r, size_t nb_c, int istrans);
 int string_set(diet_data_t *data, char *value, diet_persistence_mode_t mode,
 	       size_t length);
-/* Computes the file size */
+/* Computes the file size
+   ! Warning ! The path is not duplicated !!! */
 int file_set(diet_data_t *data, diet_persistence_mode_t mode, char *path);
 
 
