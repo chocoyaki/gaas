@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.3  2003/05/05 14:00:37  pcombes
+#* Add FAST flags for the compilation of marshalling.
+#*
 #* Revision 1.2  2003/04/10 12:38:30  pcombes
 #* IDL descriptions are back in their directory.
 #*
@@ -32,5 +35,5 @@ libCorbaSeDClt_la_SOURCES = marshalling.cc marshalling.hh \
 noinst_HEADERS = marshalling.hh ORBMgr.hh
 
 # automake include variables
-AM_CPPFLAGS += -I$(top_srcdir)/src/utils -I./idl
+AM_CPPFLAGS += $(CXXFLAGS_FAST) -I$(top_srcdir)/src/utils -I./idl
 
