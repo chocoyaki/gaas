@@ -858,14 +858,16 @@ SeDRPCsWait (void* par)
 JNIEXPORT jstring 
 JNICALL Java_JXTASeD_solveJXTA (JNIEnv *env, jobject obj, 
 				jstring pb, jstring nbRow, jstring nbCol, 
-				jstring _mat1, jstring _mat2)
+				jstring _mat1, jstring _mat2, jstring reqID)
 {
 
   /* create C types from Java types */
   char* pbName = strdup(env->GetStringUTFChars(pb, 0));
-  long int nbR, nbC;
+
+  long int nbR, nbC, rID;
   nbR = strToLong(strdup(env->GetStringUTFChars(nbRow, 0)));
   nbC = strToLong(strdup(env->GetStringUTFChars(nbCol, 0))); 
+  rID = strToLong(strdup(env->GetStringUTFChars(reqID, 0)));
 
   char* mat1Char = strdup(env->GetStringUTFChars(_mat1, 0));
   char* mat2Char = strdup(env->GetStringUTFChars(_mat2, 0));
@@ -961,7 +963,7 @@ JNICALL Java_JXTASeD_solveJXTA (JNIEnv *env, jobject obj,
   profile.last_out = 2;
   profile.parameters = seqData;
 
-  long int ret = SeD->solve(pbName, profile);
+  long int ret = SeD->solve(pbName, profile, rID);
 
   /* extract and print the result */
   char *matRes = new char[nbR * nbC * sizeof (double)];
@@ -1005,8 +1007,7 @@ strToLong (char *str)
 
 /* parse the char * (representing an integer) parameter 
  * and return it as a double */
-double 
-strToDouble (char *str)
+double strToDouble (char *str)
 {
   double d = 0;
   int diz = 1;
@@ -1018,7 +1019,7 @@ strToDouble (char *str)
   return (d);
 } // str to double
 
-/* return a char * represnting the parameter int value */
+/* return a char * representing the parameter int value */
 char *itoa (int i)
 {
   char *s = new char [50];

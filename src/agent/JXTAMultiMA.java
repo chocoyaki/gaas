@@ -35,11 +35,8 @@ public class JXTAMultiMA
 
   private PeerGroup netPeerGroup = null;    
     
-  public native int 
-  startDIETAgent(String config_file);
-  
-  public native String[]
-  submitJXTA(String pbName, String nbRow, String nbCol);
+  public native int startDIETAgent(String config_file);
+  public native String[] submitJXTA(String pbName, String nbRow, String nbCol);
     
   static
   {
@@ -185,8 +182,7 @@ class ProcessThread extends Thread
     }
   } // ctor
 
-  public void 
-  run()
+  public void run()
   {
     String pID = null;
     MimeMediaType mimeType = new MimeMediaType("text", "xml");
@@ -197,8 +193,9 @@ class ProcessThread extends Thread
         String pbName = (msg.getMessageElement("pbName")).toString();
         String nbRow = (msg.getMessageElement("nbRow")).toString();
         String nbCol = (msg.getMessageElement("nbCol")).toString();
-	  
+
         String[] resp = mma.callDIETAgent(pbName, nbRow, nbCol);
+
         /* if no SeD is found in the own agent's tree, forward to others MA */
         if (Array.getLength(resp) == 0) {
           resp = new String [30];
@@ -273,6 +270,7 @@ class ProcessThread extends Thread
 					
               /* Response received from agent, send back to client */
               Message.ElementIterator respIter = rspMsg.getMessageElements("SeDUuid");
+	      
 					
               /* extracting SeD Uuid(s) from message */
               while (respIter.hasNext()) {

@@ -32,9 +32,8 @@ public class JXTASeD
   public native int 
   startDIETSeD(String config_file, String uuid, String pbs []);
   
-  public native String 
-  solveJXTA(String serialPb, String nbRow, String nbCol, 
-	    String mat1, String mat2);
+  public native String solveJXTA(String serialPb, String nbRow, String nbCol, 
+				 String mat1, String mat2, String reqID);
   
   public native void 
   ping();
@@ -55,8 +54,7 @@ public class JXTASeD
     } // static libraries load
     
 
-  public static void
-  main(String args[])
+  public static void main(String args[])
   {
 
     if (args.length < 2) {
@@ -161,13 +159,14 @@ class SolveThread extends Thread
       String nbCol = (msg.getMessageElement("nbCol")).toString();
       String mat1 = (msg.getMessageElement("mat1")).toString();
       String mat2 = (msg.getMessageElement("mat2")).toString();
+      String reqID = (msg.getMessageElement("reqID")).toString();
 
       /* Ping DIET SeD via JXTA SeD */
       sed.ping();
       
       /* Call DIET SeD to solve the pb */
       System.out.println("JXTA SeD: Call DIET SeD solve on " + pb);
-      String resultat = sed.solveJXTA(pb, nbRow, nbCol, mat1, mat2);
+      String resultat = sed.solveJXTA(pb, nbRow, nbCol, mat1, mat2, reqID);
       
       /* Send back the response to client */
       System.out.println ("JXTA SeD : response : " + resultat);

@@ -141,8 +141,7 @@ public class JXTAClient
 
   } // run
 
-  private void 
-  submitPb()
+  private void submitPb()
   {
     MimeMediaType mimeType = new MimeMediaType("text", "xml");
     try {
@@ -204,8 +203,13 @@ public class JXTAClient
 	
 	/* Try to connect the SeDs, one by one */
 	int k = 1;
+	String reqID = null;
 	while (iter.hasNext() && !connected) {
-	  SeDURI = new URI(iter.next().toString());
+	    
+	  StringTokenizer stk = new StringTokenizer (iter.next().toString());
+	  String adv = stk.nextToken();
+	  reqID = stk.nextToken();
+	  SeDURI = new URI(adv);
 	  pipeAdvOut.setPipeID((PipeID)IDFactory.fromURI(SeDURI)); 
 	  pipeAdvOut.setType(PipeService.UnicastType);
 	  try {
@@ -248,6 +252,8 @@ public class JXTAClient
 	    new StringMessageElement("mat1", mat1, null);
         StringMessageElement pbsmemat2 = 
 	    new StringMessageElement("mat2", mat2, null);
+	StringMessageElement smeReqID =
+	    new StringMessageElement("reqID", reqID, null);
 
         msgPb = new Message();
 
@@ -257,6 +263,7 @@ public class JXTAClient
         msgPb.addMessageElement(pbsmenbCol);
         msgPb.addMessageElement(pbsmemat1);
         msgPb.addMessageElement(pbsmemat2);
+	msgPb.addMessageElement(smeReqID);
        
         System.out.println("done.");
 

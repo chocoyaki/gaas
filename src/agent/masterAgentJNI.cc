@@ -44,6 +44,7 @@ LocMgrImpl *Loc;
 
 void RPCsWait (void* args);
 long int strToLong (char *);
+char *ltoa (long);
 
 JNIEXPORT jint JNICALL 
 Java_JXTAMultiMA_startDIETAgent(JNIEnv *env, 
@@ -335,23 +336,62 @@ Java_JXTAMultiMA_submitJXTA(JNIEnv *env,
   jobjectArray uuid_ret = (jobjectArray)env->NewObjectArray
     (resp->servers.length(), env->FindClass("java/lang/String"),
      env->NewStringUTF(""));
-
+  
   if (resp->servers.length() == 0)
-    cout << "DIET Agent: No server found." << endl;
+    cout << "MA DIET: No server found." << endl;
   else {
-    cout << "DIET Agent: " << resp->servers.length() << " server(s) found:" << endl;
+    cout << "MA DIET: " << resp->servers.length() << " server(s) found:" << endl;
     jstring uuid_string;
+    
     for (int respCt = 0; respCt < resp->servers.length(); respCt++) {
-      cout << "DIET Agent: SeD UUID :" << 
-	((((resp->servers[respCt]).loc).uuid).in()) << endl;      
+      
       uuid_string = NULL;
-      uuid_string = env->NewStringUTF(((((resp->servers[respCt]).loc).uuid).in()));
+      char *uuid_char = (char *)((((resp->servers[respCt]).loc).uuid).in());
+      char *reqIDNbr = NULL;
+      
+      uuid_char = strcat(uuid_char, (const char *)" ");
+      reqIDNbr = ltoa(resp->reqID);
+      
+      char *uuid_char2 = strcat(uuid_char, (const char *)reqIDNbr);
+
+      uuid_string = env->NewStringUTF(uuid_char2);
       env->SetObjectArrayElement(uuid_ret, respCt, uuid_string);
+
+      delete [] reqIDNbr;
+      delete [] uuid_char;
+      delete [] uuid_char2;
     }
   }
   return (uuid_ret);
   
 } // submitJXTA
+
+/* return a char * represnting the parameter int value */
+char *ltoa (long i)
+{
+  char *s = new char [50];
+  long tmp = i;
+  int cpt = 0;
+  if (tmp == 0) {
+    return "0";
+  }
+  else {
+    while (tmp >= 1) {
+	s[cpt++] = tmp % 10 + '0';
+	tmp-=tmp % 10;
+	tmp/=10;
+    }
+    s[cpt] = '\0';
+    char *srev = new char[strlen(s)];
+    int irev = 0;
+			  
+    for (int i = strlen(s)- 1; i >= 0; i--)
+      srev[irev++] = s[i];
+    srev[irev] = '\0';
+    
+    return (srev);
+  }
+} // ltoa
 
 long int strToLong (char *str)
 {
