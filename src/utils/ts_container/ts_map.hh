@@ -80,7 +80,7 @@ public :
   /**
    * erase all the elements of the map. It can be a good idea to make
    * a \c clear which are thread safe before the call to the
-   * destructer of the object.
+   * destructor of the object.
    */
   inline void clear() {
     locker.lock() ;
