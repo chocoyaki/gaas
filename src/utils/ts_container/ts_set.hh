@@ -1,11 +1,19 @@
-// $Id$
-
-/*
+/****************************************************************************/
+/* Thread safe STL set header                                               */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)                   */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
  * $Log$
+ * Revision 1.2  2003/04/10 12:44:44  pcombes
+ * Apply Coding Standards.
+ *
  * Revision 1.1  2003/01/23 14:27:37  sdahan
  * adds a thread safe set container
- *
- */
+ ****************************************************************************/
 
 #ifndef _TS_MAP_HH_
 #define _TS_MAP_HH_

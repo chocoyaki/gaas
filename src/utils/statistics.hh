@@ -1,5 +1,4 @@
 /****************************************************************************/
-/* $Id$ */
 /* DIET statistics tools specification                                      */
 /*                                                                          */
 /*  Author(s):                                                              */
@@ -7,10 +6,10 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/*
+/* $Id$
  * $Log$
- * Revision 1.8  2003/02/04 10:08:23  pcombes
- * Apply Coding Standards
+ * Revision 1.9  2003/04/10 12:45:10  pcombes
+ * Apply Coding Standards.
  *
  * Revision 1.7  2002/12/24 10:28:04  lbertsch
  * Added a stat_finalize function, so that successive initializations of
@@ -38,7 +37,6 @@
 
 
 #if HAVE_STATISTICS
-
 
 enum stat_type {
   STAT_IN,

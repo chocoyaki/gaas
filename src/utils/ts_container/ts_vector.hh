@@ -1,4 +1,27 @@
-// $Id$
+/****************************************************************************/
+/* $Id$ */
+/* Thread safe STL vector header                                            */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)                   */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/*
+ * $Log$
+ * Revision 1.4  2003/04/10 12:44:44  pcombes
+ * Apply Coding Standards.
+ *
+ * Revision 1.3  2002/12/25 21:12:38  sdahan
+ * removes some ambiguities. now compile with gcc 3.1
+ *
+ * Revision 1.2  2002/12/23 22:55:26  sdahan
+ * removes the implicite stuff and define the default stuff. Now it compile
+ * with gcc 3.1
+ *
+ * Revision 1.1  2002/12/20 14:46:57  sdahan
+ * creation of a thread safe vector
+ ****************************************************************************/
 
 #ifndef _TS_VECTOR_HH_
 #define _TS_VECTOR_HH_
@@ -20,20 +43,6 @@
  * of the STL container classes, and in many cases the most efficient.
  *
  * @author Sylvain DAHAN : LIFC Besancon (France)
- */
-
-/*
- * $Log$
- * Revision 1.3  2002/12/25 21:12:38  sdahan
- * removes some ambiguities. now compile with gcc 3.1
- *
- * Revision 1.2  2002/12/23 22:55:26  sdahan
- * removes the implicite stuff and define the default stuff. Now it compile
- * with gcc 3.1
- *
- * Revision 1.1  2002/12/20 14:46:57  sdahan
- * creation of a thread safe vector
- *
  */
 
 template <class T, class A = std::allocator<T> >

@@ -1,40 +1,31 @@
 /****************************************************************************/
-/* $Id$ */
 /* Thread safe counter header                                               */
 /*                                                                          */
 /*  Author(s):                                                              */
-/*    - Sylvain DAHAN             - Sylvain.Dahan@lifc.univ-fcomte.fr       */
+/*    - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)                   */
 /*                                                                          */
-/*  This is part of DIET software.                                          */
-/*  Copyright (C) 2002 ReMaP/INRIA                                          */
-/*                                                                          */
+/* $LICENSE$                                                                */
 /****************************************************************************/
-/*
+/* $Id$
  * $Log$
+ * Revision 1.5  2003/04/10 12:45:10  pcombes
+ * Apply Coding Standards.
+ *
  * Revision 1.4  2003/01/22 17:11:19  pcombes
  * #include "DIET_config.h" is better than #include "omniorb.hh"
- *
- * Revision 1.3  2003/01/22 15:48:09  sdahan
- * add #include "omniorb.hh"
- *
  ****************************************************************************/
 
 
 #ifndef _COUNTER_HH_
 #define _COUNTER_HH_
 
-#include "DIET_config.h"
+#include <CORBA.h>
 
-#ifdef __OMNIORB3__
-#include <omniORB3/CORBA.h>
-#else
-#ifdef __OMNIORB4__
-#include <omniORB4/CORBA.h>
-#endif
-#endif
 #include <omnithread.h>
 #include <sys/types.h>
 #include <assert.h>
+
+#include "DIET_config.h"
 
 /**
  * This is a thread safe counter. The operators ++, -- and = are

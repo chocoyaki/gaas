@@ -1,21 +1,19 @@
 /****************************************************************************/
-/* $Id$ */
 /* DIET mutex interface for multi-threaded server applications (source code)*/
 /*                                                                          */
-/*  Author(s):                                                              */
 /*  Author(s):                                                              */
 /*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
 /*    - Bert VAN HEUKELOM (Bert.Van-Heukelom@ens-lyon.fr)                   */
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/*
+/* $Id$
  * $Log$
+ * Revision 1.4  2003/04/10 12:48:41  pcombes
+ * Apply Coding Standards.
+ *
  * Revision 1.3  2003/02/19 09:03:40  cpera
  * Add headers include for gcc 2.95.3 compatibility under SunOS.
- *
- * Revision 1.2  2003/02/04 10:08:22  pcombes
- * Apply Coding Standards
  *
  * Revision 1.1  2002/12/03 19:08:24  pcombes
  * Update configure, update to FAST 0.3.15, clean CVS logs in files.
@@ -26,8 +24,6 @@
 #include <iostream>
 using namespace std;
 #include <stdlib.h>
-//#include <string.h>
-//#include <math.h>
 #include "omnithread.h"
 #include "DIET_mutex.h"
 
@@ -35,8 +31,6 @@ using namespace std;
 static omni_mutex** MUTEX_FIELD = NULL;
 static int MUTEXCOUNT  = 0;
 static int INITIALIZED = 0;
-
-//diet_mutex_t M[100];
 
 
 void

@@ -1,16 +1,16 @@
 /****************************************************************************/
-/* $Id$ */
 /* Memory safe management header                                            */
 /*                                                                          */
 /*  Author(s):                                                              */
 /*    - Sylvain DAHAN             - Sylvain.Dahan@lifc.univ-fcomte.fr       */
 /*                                                                          */
-/*  This is part of DIET software.                                          */
-/*  Copyright (C) 2002 ReMaP/INRIA                                          */
-/*                                                                          */
+/* $LICENSE$                                                                */
 /****************************************************************************/
-/*
+/* $Id$
  * $Log$
+ * Revision 1.8  2003/04/10 12:45:10  pcombes
+ * Apply Coding Standards.
+ *
  * Revision 1.7  2003/01/22 17:11:19  pcombes
  * #include "DIET_config.h" is better than #include "omniorb.hh"
  *
@@ -43,15 +43,9 @@
 #ifndef _MS_FUNCTION_HH_
 #define _MS_FUNCTION_HH_
 
-#include "DIET_config.h"
+#include <CORBA.h>
 
-#ifdef __OMNIORB3__
-#include <omniORB3/CORBA.h>
-#else
-#ifdef __OMNIORB4__
-#include <omniORB4/CORBA.h>
-#endif
-#endif
+//#include "DIET_config.h"
 
 /**
  * Duplicates the string given in argument with the \c
