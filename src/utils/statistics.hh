@@ -51,9 +51,9 @@ void do_stat_init();
 
 #define stat_init()
 
-#define stat_in()
-#define stat_out()
-#define stat_info()
+#define stat_in(message)
+#define stat_out(message)
+#define stat_info(message)
 
 #endif // HAVE_STATISTICS
 
