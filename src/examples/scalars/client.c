@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2004/10/08 12:08:05  alsu
+ * casting lvalues deprecated, moved casts to the rhs
+ *
  * Revision 1.3  2003/09/29 09:16:26  pcombes
  * Use max exposants (on Linux ix86 platform) for floats and doubles.
  *
@@ -83,22 +86,22 @@ main(int argc, char* argv[])
   profile = diet_profile_alloc(path, 0, 1, 2);
 
   if (pb[0]) {
-    (char)l1 = 0x1;
-    (char)l2 = 0x2;
+    l1 = (char) 0x1;
+    l2 = (char) 0x2;
     printf("Before the call: l1=0x%hhX, l2=0x%hhX\n", (char)l1, (char)l2);
     diet_scalar_set(diet_parameter(profile,0), &l1,  DIET_VOLATILE, DIET_CHAR);
     diet_scalar_set(diet_parameter(profile,1), &l2,  DIET_VOLATILE, DIET_CHAR);
     diet_scalar_set(diet_parameter(profile,2), NULL, DIET_VOLATILE, DIET_CHAR);
   } else if (pb[1]) {
-    (short)l1 = 0x11;
-    (short)l2 = 0x22;
+    l1 = (short) 0x11;
+    l2 = (short) 0x22;
     printf("Before the call: l1=0x%hX, l2=0x%hX\n", (short)l1, (short)l2);
     diet_scalar_set(diet_parameter(profile,0), &l1,  DIET_VOLATILE, DIET_SHORT);
     diet_scalar_set(diet_parameter(profile,1), &l2,  DIET_VOLATILE, DIET_SHORT);
     diet_scalar_set(diet_parameter(profile,2), NULL, DIET_VOLATILE, DIET_SHORT);
   } else if (pb[2]) {
-    (int)l1 = 0x1111;
-    (int)l2 = 0x2222;
+    l1 = (int) 0x1111;
+    l2 = (int) 0x2222;
     printf("Before the call: l1=0x%X, l2=0x%X\n", (int)l1, (int)l2);
     diet_scalar_set(diet_parameter(profile,0), &l1,  DIET_VOLATILE, DIET_INT);
     diet_scalar_set(diet_parameter(profile,1), &l2,  DIET_VOLATILE, DIET_INT);
