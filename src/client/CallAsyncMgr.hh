@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2003/09/22 13:10:54  cpera
+ * Fix bugs and correct release function.
+ *
  * Revision 1.6  2003/07/25 20:37:36  pcombes
  * Separate the DIET API (slightly modified) from the GridRPC API (version of
  * the draft dated to 07/21/2003)
@@ -54,13 +57,13 @@ typedef enum WAITOPERATOR{
   AND,          // Wait rule is satisfied when all AND element are avalaible
   ANY,          // Wait rule is satisfied whatever request arrived
   ALL           // Wait rule is satisfied if all requests registered when the 
-                // rule is created are available
+    // rule is created are available
 };
-  
+
 typedef enum {
-  STATUS_RESOLVING = 0, // Request is currently solving on Server
+  STATUS_DONE = 0, // Result is available in local memory 
   STATUS_WAITING,       // End of solving on Server, result comes 
-  STATUS_DONE,          // Result is available in local memory on client
+  STATUS_RESOLVING,          // Request is currently solving on Server
   STATUS_CANCEL,	// Cancel is called on a reqID.
   STATUS_ERROR		// Error caught
 } request_status_t;
@@ -92,7 +95,7 @@ typedef std::multimap<int,Rule *> RulesReqIDMap;
 typedef std::map<Rule *, omni_semaphore *> RulesConditionMap;
 // manage link between reqID and request datas
 typedef std::map<int,request_status_t> ReqIDStateMap;
- 
+
 class CallAsyncMgr 
 {
   public:
@@ -122,9 +125,10 @@ class CallAsyncMgr
     // call when there is 
     int release();
   protected:
+    int deleteAsyncCallWithoutLock(diet_reqID_t reqID);
     // constructors
     CallAsyncMgr();
-    
+
   private:
     static CallAsyncMgr* pinstance;
     CallAsyncList caList;
