@@ -1,17 +1,17 @@
 /****************************************************************************/
-/* $Id$ */
 /* dmat_manips example: a DIET client for transpose, MatSUM and MatPROD     */
 /*   problems (MatSUM is expanded to SqMatSUM and SqMatSUM_bis).            */
 /*                                                                          */
 /*  Author(s):                                                              */
 /*    - Philippe COMBES           - LIP ENS-Lyon (France)                   */
 /*                                                                          */
-/*  This is part of DIET software.                                          */
-/*  Copyright (C) 2002 ReMaP/INRIA                                          */
-/*                                                                          */
+/* $LICENSE$                                                                */
 /****************************************************************************/
-/*
+/* $Id$
  * $Log$
+ * Revision 1.16  2003/04/10 13:28:15  pcombes
+ * Apply new Coding Standards.
+ *
  * Revision 1.15  2003/02/07 17:05:23  pcombes
  * Add SqMatSUM_opt with the new convertor API.
  * Use diet_free_data to properly free user's data.
@@ -47,7 +47,6 @@
  *    by an LDAP DB for the MA
  *  - No copy for client/SeD data transfers
  *  - ...
- *
  ****************************************************************************/
 
 

@@ -1,15 +1,17 @@
 /****************************************************************************/
-/* $Id$ */
 /* dmat_manips example: a DIET server for transpose, RSUM a and RPROD       */
-/*   problems                                                               */
+/* services                                                                 */
 /*                                                                          */
 /*  Author(s):                                                              */
 /*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/*
+/* $Id$
  * $Log$
+ * Revision 1.20  2003/04/10 13:28:15  pcombes
+ * Apply new Coding Standards.
+ *
  * Revision 1.19  2003/02/07 17:05:23  pcombes
  * Add SqMatSUM_opt with the new convertor API.
  * Use diet_free_data to properly free user's data.

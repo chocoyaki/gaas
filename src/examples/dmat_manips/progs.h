@@ -1,5 +1,4 @@
 /****************************************************************************/
-/* $Id$ */
 /* dmat_manips example: matrix manipulations programs                       */
 /*                                                                          */
 /*  Author(s):                                                              */
@@ -7,8 +6,11 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/*
+/* $Id$
  * $Log$
+ * Revision 1.6  2003/04/10 13:28:15  pcombes
+ * Apply new Coding Standards.
+ *
  * Revision 1.5  2003/02/07 17:03:05  pcombes
  * Apply Coding Standards.
  *
