@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2004/05/18 21:29:40  alsu
+ * change the SeDImpl::estimate method to check for the existence of a
+ * custom performance metric, and if so, call it with an apporpriate
+ * diet_profile_t object
+ *
  * Revision 1.23  2004/04/16 19:04:40  mcolin
  * Fix patch for the vthd demo with the endPoint option in config files.
  * This option is now replaced by two options:
@@ -515,6 +520,13 @@ SeDImpl::ping()
 /* Private methods                                                          */
 /****************************************************************************/
 
+/*
+static void
+corbaPbDesc2dietProfile(const corba_pb_desc_t& pb, diet_profile_t& prof)
+{
+}
+*/
+
 /**
  * Estimate a request, with FAST if available.
  */
@@ -523,6 +535,7 @@ SeDImpl::estimate(corba_estimation_t& estimation,
 		  const corba_pb_desc_t& pb,
 		  const ServiceTable::ServiceReference_t ref)
 {
+  diet_perfmetric_t perfmetric_fn = SrvT->getPerfMetric(ref);
 
   FASTMgr::estimate(this->localHostName,
 		    estimation, pb, SrvT->getConvertor(ref));
@@ -554,14 +567,50 @@ SeDImpl::estimate(corba_estimation_t& estimation,
 #endif //  DEVELOPPING_DATA_PERSISTENCY
     }
   }
-  
-  estimation.totalTime = estimation.tComp;
-  if (estimation.totalTime != HUGE_VAL) {
-    for (int i = 0; i <= pb.last_out; i++) {
-      estimation.totalTime += estimation.commTimes[i];
-      if (estimation.commTimes[i] == HUGE_VAL)
-	break;
+
+  if (perfmetric_fn == NULL) {
+    estimation.totalTime = estimation.tComp;
+    if (estimation.totalTime != HUGE_VAL) {
+      for (int i = 0; i <= pb.last_out; i++) {
+        estimation.totalTime += estimation.commTimes[i];
+        if (estimation.commTimes[i] == HUGE_VAL)
+          break;
+      }
     }
+  }
+  else {
+    diet_profile_t profile;
+
+    /* fill in the profile, based on the problem description */
+    profile.pb_name = strdup(pb.path);
+    profile.last_in = pb.last_in;
+    profile.last_inout = pb.last_inout;
+    profile.last_out = pb.last_out;
+    profile.parameters = (diet_arg_t*) calloc ((pb.last_out+1),
+                                               sizeof (diet_arg_t));
+
+    /*
+    ** populate the parameter structures
+    */
+    for (int i = 0 ; i <= pb.last_out ; i++) {
+      const corba_data_desc_t cdd = pb.param_desc[i];
+      diet_arg_t* da = &(profile.parameters[i]);
+      da->value = NULL;
+      diet_data_desc_t* ddd = &(da->desc);
+      ddd->id = strdup(cdd.id.idNumber);
+      ddd->mode = (diet_persistence_mode_t) cdd.mode;
+      struct diet_data_generic* ddg_s = &(ddd->generic);
+      ddg_s->base_type = (diet_base_type_t) cdd.base_type;
+
+      /*
+      ** TODO: figure out if this is acceptable (calling a seemingly
+      **       private method of an inner class), and if the
+      **       correspondence of these two member variables is fixed
+      */
+      ddg_s->type = (diet_data_type_t) cdd.specific._d();
+    }
+
+    estimation.tComp = estimation.totalTime = (*perfmetric_fn)(&profile);
   }
 }
 
