@@ -11,6 +11,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.5  2002/10/18 18:13:24  pcombes
+ * Bug fixes for files in OUT parameters.
+ *
  * Revision 1.4  2002/10/15 18:41:39  pcombes
  * Implement convertor API.
  *
@@ -210,11 +213,13 @@ int file_desc_set(diet_data_desc_t *desc, diet_persistence_mode_t mode,
     return status;
   desc->mode = mode;
   desc->specific.file.path = path;
-  if ((status = stat(path, &buf)))
-    return status;
-  if (!(buf.st_mode & S_IFREG))
-    return 2;
-  desc->specific.file.size = (size_t) buf.st_size;
+  if (path) {
+    if ((status = stat(path, &buf)))
+      return status;
+    if (!(buf.st_mode & S_IFREG))
+      return 2;
+    desc->specific.file.size = (size_t) buf.st_size;
+  }
   return status;
 }
 

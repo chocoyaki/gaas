@@ -11,6 +11,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.3  2002/10/18 18:13:21  pcombes
+ * Bug fixes for files in OUT parameters.
+ *
  * Revision 1.2  2002/10/17 15:36:37  pcombes
  * Two files are transfered for size.
  *
@@ -54,7 +57,7 @@ main(int argc, char **argv)
   } 
 
   fhandle = diet_function_handle_default(path);
-  profile = profile_alloc(1, 1, 3);
+  profile = profile_alloc(1, 1, 4);
   if (file_set(&(profile->parameters[0]), DIET_VOLATILE, argv[2])) {
     printf("file_set error\n");
     return 1;
@@ -65,11 +68,17 @@ main(int argc, char **argv)
   }
   scalar_set(&(profile->parameters[2]), NULL, DIET_VOLATILE, DIET_INT);
   scalar_set(&(profile->parameters[3]), NULL, DIET_VOLATILE, DIET_INT);
+  if (file_set(&(profile->parameters[4]), DIET_VOLATILE, NULL)) {
+    printf("file_set error\n");
+    return 1;
+  }
 
   if (!diet_call(fhandle, profile)) {
     size1 = ((int *)(profile->parameters[2].value));
     size2 = ((int *)(profile->parameters[3].value));
     printf("Answered sizes are %d and %d.\n", *size1, *size2);
+    printf("Location of returned file is %s.\n",
+	   profile->parameters[4].desc.specific.file.path);
     free(size1);
     free(size2);
   }

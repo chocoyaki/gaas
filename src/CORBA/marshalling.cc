@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.12  2002/10/18 18:13:08  pcombes
+ * Bug fixes for files in OUT parameters.
+ *
  * Revision 1.11  2002/10/15 18:43:48  pcombes
  * Implement convertor API and file transfer.
  *
@@ -162,7 +165,10 @@ int mrsh_data_desc(corba_data_desc_t *dest, diet_data_desc_t *src)
     corba_file_specific_t file;
     dest->specific.file(file);
     dest->specific.file().size = src->specific.file.size;
-    dest->specific.file().path = CORBA::string_dup(src->specific.file.path);
+    if (src->specific.file.path)
+      dest->specific.file().path = CORBA::string_dup(src->specific.file.path);
+    else
+      dest->specific.file().path = CORBA::string_dup("");
     break;
   }
   default:
@@ -399,24 +405,28 @@ int unmrsh_data_desc_to_sf(sf_data_desc_t *dest, const diet_data_desc_t *src)
 }
 
 
-int unmrsh_data(diet_data_t *dest, corba_data_t *src)
+int unmrsh_data(diet_data_t *dest, corba_data_t *src, int only_value)
 {
-  if (unmrsh_data_desc(&(dest->desc), &(src->desc)))
+  if ((!only_value) && unmrsh_data_desc(&(dest->desc), &(src->desc)))
     return 1;
   if (src->desc.specific._d() == (long) DIET_FILE) {
-    char *in_path   = CORBA::string_dup(src->desc.specific.file().path);
-    char *file_name = strrchr(in_path, '/');
-    char *out_path  = new char[256];
-    pid_t pid = getpid();
-    sprintf(out_path, "/tmp/DIET_%d_%s", pid,
-	    (file_name) ? (char *)(1 + file_name) : in_path);
+    if (strcmp("", src->desc.specific.file().path)) {
+      char *in_path   = CORBA::string_dup(src->desc.specific.file().path);
+      char *file_name = strrchr(in_path, '/');
+      char *out_path  = new char[256];
+      pid_t pid = getpid();
+      sprintf(out_path, "/tmp/DIET_%d_%s", pid,
+	      (file_name) ? (char *)(1 + file_name) : in_path);
     
-    ofstream outfile(out_path);
-    for (int i = 0; i < src->desc.specific.file().size; i++) {
-      outfile.put(src->value[i]);
+      ofstream outfile(out_path);
+      for (int i = 0; i < src->desc.specific.file().size; i++) {
+	outfile.put(src->value[i]);
+      }
+      CORBA::string_free(in_path);
+      dest->desc.specific.file.path = out_path;
+    } else {
+      dest->desc.specific.file.path = NULL;
     }
-    CORBA::string_free(in_path);
-    dest->desc.specific.file.path = out_path;
   } else {
     if (src->value.length() == 0) { // OUT case
       dest->value = malloc(data_sizeof(&(dest->desc)));
@@ -445,7 +455,7 @@ int unmrsh_data_seq(diet_data_seq_t *dest, SeqCorbaData_t *src)
     dest->seq = (diet_data_t *) malloc(dest->length * sizeof(diet_data_t));
   }
   for (size_t i = 0; i < dest->length; i++) {
-    if (unmrsh_data(&(dest->seq[i]), &((*src)[i])))
+    if (unmrsh_data(&(dest->seq[i]), &((*src)[i]), 0))
       return 1;
   }
   return 0;
@@ -592,7 +602,7 @@ int unmrsh_profile_to_sf(sf_inst_desc_t *dest,
       ddd_tmp = &(cvt->arg_convs[i].arg->desc);
     }
     if (cvt_arg(&(dest->param_desc[i]), ddd_tmp, cvt->arg_convs[i].f)) {
-      cerr << "DIET conversion error: Cannot convert client profile"
+      cerr << "DIET conversion error: Cannot convert client profile "
 	   << "to server profile.\n";
 	return 1;
     }
@@ -648,22 +658,21 @@ int unmrsh_out_args_to_profile(diet_profile_t *profile,
   
   if ((inout_length != inout->length()) || (out_length != out->length()))
     return 1;
-  // Unmarshal INOUT parameters descriptions only.
+
+  // Unmarshal INOUT parameters descriptions only ; indeed, the ORB has filled
+  // in the memory zone pointed at by the diet_data value field, since the
+  // marshalling was performed with replace method.
   for (size_t i = 0; i < inout->length(); i++) {
     unmrsh_data_desc(&(profile->parameters[i + profile->last_in + 1].desc),
 		     &((*inout)[i].desc));
   }
-  // Unmarshal OUT parameters, but not the descriptions to save time.
+
+  // Unmarshal OUT parameters, but not the descriptions to save time,
+  // EXCEPT for files !!
   for (size_t i = 0; i < out->length(); i++) {
-    // instead of using unmrsh_data, save time by 
     src  = &((*out)[i]);
     dest = &(profile->parameters[i + profile->last_inout + 1]);
-    if (src->value.length() == 0) {
-      dest->value = malloc(data_sizeof(&(dest->desc)));
-    } else {
-      // CORBA::boolean orphan = (src->persistence_mode != DIET_VOLATILE);
-      dest->value = src->value.get_buffer(true);
-    }
+    unmrsh_data(dest, src, 1);
   }
   return 0;
 }
