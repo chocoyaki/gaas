@@ -1,5 +1,4 @@
 /****************************************************************************/
-/* $Id$ */
 /* file_transfer example: server side                                       */
 /*                                                                          */
 /*  Author(s):                                                              */
@@ -7,8 +6,11 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/*
+/* $Id$
  * $Log$
+ * Revision 1.10  2003/04/10 13:31:38  pcombes
+ * Use diet_file_get.
+ *
  * Revision 1.9  2003/02/07 17:04:42  pcombes
  * Use diet_free_data to properly free user's data.
  *
@@ -89,7 +91,6 @@ int
 solve_size(diet_profile_t* pb)
 {
   size_t arg_size  = 0;
-  size_t comp_size = 0;
   char* path = NULL;
   int status = 0;
   struct stat buf;
@@ -121,6 +122,9 @@ solve_size(diet_profile_t* pb)
     return 1;
   }
   printf(" done\n");
+  diet_file_get(diet_parameter(pb,4), NULL, NULL, &path);
+  if (path)
+    printf("Returned file: %s.\n", path);
   return 0;
 }
 
@@ -132,9 +136,7 @@ solve_size(diet_profile_t* pb)
 int
 main(int argc, char* argv[])
 {
-  size_t i,j;
   int res;
-
   diet_profile_desc_t* profile = NULL;
 
   if (argc < 2) {
