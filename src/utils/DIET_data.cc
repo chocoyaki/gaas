@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2003/12/15 17:26:30  pcombes
+ * Fix minor bug in diet_free_data (for scalar case)
+ *
  * Revision 1.24  2003/12/01 14:49:31  pcombes
  * Rename dietTypes.hh to DIET_data_internal.hh, for more coherency.
  *
@@ -666,6 +669,9 @@ diet_free_data(diet_arg_t* arg)
     }
     break;
 
+  case DIET_SCALAR:
+    arg->desc.specific.scal.value = NULL;
+    // DO NOT BREAK !!!
   default:
     if (arg->value)
       free(arg->value);
