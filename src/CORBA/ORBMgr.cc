@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2004/03/01 18:40:40  rbolze
+ * remove functions getIOD() and setIOD(..)
+ * change in wait() : wait CRTL+D to exit
+ * change in activate(...)
+ * this change are provide by cpontvieux
+ *
  * Revision 1.13  2003/10/06 10:04:13  cpontvie
  * Moving the interruption manager here
  * The current interruption is mapped on SIGINT (Ctrl+C)
@@ -50,9 +56,8 @@ extern unsigned int TRACE_LEVEL;
 CORBA::ORB_ptr ORBMgr::ORB = CORBA::ORB::_nil();
 PortableServer::POA_var ORBMgr::POA = PortableServer::POA::_nil();
 PortableServer::POA_var ORBMgr::POA_BIDIR = PortableServer::POA::_nil();
-PortableServer::ObjectId_var ORBMgr::OBJECT_ID = NULL;
 const char* ORBMgr::CONTEXTS[] =
-  {"dietAgent", "dietDataMgr", "dietLocMgr", "dietLogService", "dietSeD"};
+  {"dietAgent", "dietDataMgr", "dietLocMgr", "LogService", "dietSeD"};
 
 #if INTERRUPTION_MGR
 sigjmp_buf ORBMgr::buff_int;
@@ -89,12 +94,15 @@ ORBMgr::init(int argc, char** argv, bool init_POA)
     // Get the POAManager Ref and activate it
     pman = POA->the_POAManager();
 
+    // omniORB3 does not know the bidirectional policy
+#ifndef __OMNIORB3__
     // Create a POA with the Bidirectional policy
     pl.length(1);
     a <<= BiDirPolicy::BOTH;
     pl[0] =
       ORBMgr::ORB->create_policy(BiDirPolicy::BIDIRECTIONAL_POLICY_TYPE, a);
     ORBMgr::POA_BIDIR = ORBMgr::POA->create_POA("bidir", pman, pl);
+#endif
 
     pman->activate();
   }
@@ -109,36 +117,31 @@ ORBMgr::destroy()
 #if INTERRUPTION_MGR
     signal(SIGINT, SIG_DFL);
 #endif // INTERRUPTION_MGR
+    ORB->shutdown(true);
     ORB->destroy();
   } catch (...) {};
 }
 
 
 int
-ORBMgr::activate(PortableServer::ServantBase* obj)
+ORBMgr::activate(PortableServer::ServantBase* obj,
+                 PortableServer::ObjectId_var* idVar_ptr)
 {
+  PortableServer::ObjectId_var objId;
   try {
-    if (!CORBA::is_nil(ORBMgr::POA_BIDIR))
-      ORBMgr::OBJECT_ID = ORBMgr::POA_BIDIR->activate_object(obj);
-    else
-      ORBMgr::OBJECT_ID = ORBMgr::POA->activate_object(obj);
+    if (!CORBA::is_nil(ORBMgr::POA_BIDIR)) {
+      objId = ORBMgr::POA_BIDIR->activate_object(obj);
+    } else {
+      objId = ORBMgr::POA->activate_object(obj);
+    }
+    obj->_remove_ref();
   } catch (...) {
     INTERNAL_ERROR("exception caught in ORBMgr::" << __FUNCTION__, -1);
   }
-  return 0;
-}
 
-
-int
-ORBMgr::deactivate()
-{
-  try {
-    if (!CORBA::is_nil(ORBMgr::POA_BIDIR))
-      ORBMgr::POA_BIDIR->deactivate_object(ORBMgr::OBJECT_ID);
-    else
-      ORBMgr::POA->deactivate_object(ORBMgr::OBJECT_ID);
-  } catch (...) {
-    INTERNAL_ERROR("exception caught in ORBMgr::" << __FUNCTION__, -1);
+  if (idVar_ptr != NULL) {
+    // copy the objectId if user needs it
+    *idVar_ptr = objId;
   }
   return 0;
 }
@@ -151,19 +154,25 @@ ORBMgr::wait()
   signal(SIGINT, ORBMgr::SigIntHandler);
   if (! sigsetjmp(buff_int, 1)) {
     try {
-      ORB->run();
+      char c;
+      // This loop replaces ORB->run()
+      // it might not be the official way but it works very well
+      printf("Press CRTL-D to exit\n");
+      while(cin.get(c)) {
+        if (c==10) printf("Press CRTL-D to exit\n");
+      }
     } catch (...) {
       ERROR("exception caught in ORBMgr::" << __FUNCTION__, true);
     }
   }
-  return false;
+  return 0;
 }
 #else // INTERRUPTION_MGR
 int
 ORBMgr::wait()
 {
   ORB->run();
-  return false;
+  return 0;
 }
 #endif // INTERRUPTION_MGR
 
@@ -368,18 +377,6 @@ PortableServer::POA_var
 ORBMgr::getPOA_BIDIR()
 {
   return POA_BIDIR;
-}
-
-PortableServer::ObjectId_var
-ORBMgr::getOID()
-{
-  return ORBMgr::OBJECT_ID;
-}
-
-void
-ORBMgr::setOID(PortableServer::ObjectId_var oid)
-{
-  ORBMgr::OBJECT_ID = oid;
 }
 
 
