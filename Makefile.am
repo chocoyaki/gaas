@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.17  2005/01/27 10:13:40  ycaniou
+#* Exclude the file README.FIRST from the distrib.
+#*
 #* Revision 1.16  2004/10/21 21:22:27  alsu
 #* working around strange difference in behavior of automake 1.7.1 (on
 #* graal) and 1.7.9 (current debian testing version) causing differences
@@ -132,7 +135,7 @@ EXTRA_DIST = $(top_srcdir)/include/Makefile.inc.in
 EXTRA_DIST += $(top_srcdir)/src/lib/*
 
 if MAINTAINER_MODE
-EXTRA_DIST += acmacros/aci.m4 acmacros/fast.m4 acmacros/libtool.m4 acmacros/omniorb.m4 acmacros/utils.m4 bin/scripts bootstrap.sh TO_DO
+EXTRA_DIST += acmacros/aci.m4 acmacros/fast.m4 acmacros/libtool.m4 acmacros/omniorb.m4 acmacros/utils.m4 bin/scripts bootstrap.sh TO_DO README.FIRST
 endif
 
 # RM_FROM_DIST: files that should not be in the dist, but that automake includes
@@ -144,7 +147,7 @@ DONT_DIST_FILES = README COPYING ChangeLog INSTALL configure config.guess \
 		  missing include/DIET_config.h.in $(top_srcdir)/src/lib/*
 
 if MAINTAINER_MODE
-DONT_DIST_FILES += doc/API acmacros bootstrap.sh bin/scripts TO_DO
+DONT_DIST_FILES += doc/API acmacros bootstrap.sh bin/scripts TO_DO README.FIRST
 else
 RM_FROM_DIST += AUTHORS NEWS configure.ac doc/ProgrammerGuide doc/Tutorial `find . -name Makefile.am`
 endif
