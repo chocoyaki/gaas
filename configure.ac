@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.36  2004/09/17 14:08:26  rbolze
+#* comment AC_FUNC_MALLOC and AC_FUNC_REMALLOC because of compile problem.
+#*
 #* Revision 1.35  2004/09/13 14:53:10  sdahan
 #* changes the ways used to looking for the omniORB library.
 #* the configure is now able to find omniORB on bsd system.
@@ -405,8 +408,8 @@ AC_TYPE_SIZE_T
 dnl ###########################################################################
 # Checks for library functions.
 dnl ###########################################################################
-AC_FUNC_MALLOC
-AC_FUNC_REALLOC
+dnl AC_FUNC_MALLOC
+dnl AC_FUNC_REALLOC
 dnl AC_TYPE_SIGNAL # unused yet
 AC_FUNC_STAT
 if test "x$HAVE_BLAS" = "xyes" -o "x$HAVE_ScaLAPACK" = "xyes" ; then
