@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2003/10/14 20:27:16  bdelfabr
+ * adding methods for demo RNTL (print List of persistent data)
+ *
  * Revision 1.3  2003/09/30 15:10:42  bdelfabr
  * Applying coding standards
  *
@@ -81,12 +84,17 @@ public:
   virtual DataMgr_ptr
   whereData(const char* argID);
  
+  void
+  printList1();
+
   /**  */
   virtual void
   updateDataProp(const char* argID);
   /**  */
   CORBA::ULong
   dataLookUp(const char* argID);
+  virtual char *
+  setMyName();
 
 
 private:

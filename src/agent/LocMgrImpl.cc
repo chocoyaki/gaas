@@ -8,8 +8,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.4  2003/10/10 14:54:51  bdelfabr
- * bug correction for childID references
+ * Revision 1.5  2003/10/14 20:27:16  bdelfabr
+ * adding methods for demo RNTL (print List of persistent data)
  *
  * Revision 1.3  2003/09/30 15:10:15  bdelfabr
  * applying coding standard.
@@ -33,7 +33,7 @@
 #include "ts_container/ts_map.hh"
 
 
-#define DEVELOPPING_DATA_PERSISTENCY 0
+#define DEVELOPPING_DATA_PERSISTENCY 1
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
@@ -165,7 +165,7 @@ LocMgrImpl::addDataRef(const char *argID, CORBA::ULong cChildID)
   
   dataLocList[strdup(argID)]=cChildID;
  
-  printList();
+  //printList();
 
   if (!CORBA::is_nil(this->parent)) {
   
@@ -228,6 +228,7 @@ LocMgrImpl::rmDataRef(const char *argID, CORBA::ULong cChildID)
 {
 #if DEVELOPPING_DATA_PERSISTENCY
   dataLocList.erase(strdup(argID));
+  printList1();
   if (this->parent != LocMgr::_nil())
     parent->rmDataRef(argID,cChildID);
 #endif // DEVELOPPING_DATA_PERSISTENCY
@@ -248,7 +249,7 @@ LocMgrImpl::updateDataRef(const char *argID,
       ChildID oldChildID = dataLocList[ms_strdup(argID)];
    
       dataLocList[ms_strdup(argID)]=cChildID;
-      printList();
+      printList1();
     
       upDown = 1;
       if(oldChildID < static_cast<CORBA::Long>(locMgrChildren.size())) {
@@ -273,11 +274,27 @@ LocMgrImpl::updateDataRef(const char *argID,
     } else { // Not Root Loc Manager
       if(dataLookUp(argID)==1){ // data not found - adding it
 	dataLocList[ms_strdup(argID)] = cChildID;
-	printList();
+	printList1();
 	parent->updateDataRef(argID, this->childID,0); 
       } else {
+	ChildID oldChildID = dataLocList[ms_strdup(argID)];
 	dataLocList[ms_strdup(argID)] = cChildID;
-	printList();
+	upDown=1;
+	if(oldChildID < static_cast<CORBA::Long>(locMgrChildren.size())) {
+	  locMgrChild theLoc =   locMgrChildren[oldChildID]; 
+	  if (theLoc.defined()){
+	    LocMgr_ptr locChild = theLoc.getIor();
+	    locChild->updateDataRef(argID,(unsigned)-1,1);
+	  }
+	}
+
+	if(oldChildID < static_cast<CORBA::Long>(dataMgrChildren.size())) {
+	  dataMgrChild theData = dataMgrChildren[oldChildID];	  
+	  if(theData.defined()){
+	    DataMgr_ptr dataChild = theData.getIor();
+	    dataChild->rmDataRef(ms_strdup(argID));
+	  }
+	}
       }
     }
   } else { // DOWN = removing old owner
@@ -285,7 +302,7 @@ LocMgrImpl::updateDataRef(const char *argID,
       ChildID oldChildID = dataLocList[strdup(argID)];
       
       dataLocList.erase(strdup(argID));
-      printList();
+      printList1();
       if(oldChildID < static_cast<CORBA::Long>(locMgrChildren.size())) {
 	locMgrChild theLoc =  locMgrChildren[oldChildID];
 	if (theLoc.defined()){
@@ -301,8 +318,7 @@ LocMgrImpl::updateDataRef(const char *argID,
 	}
       }
     }
-  }
-  
+  } 
 #endif // DEVELOPPING_DATA_PERSISTENCY
 }
 
@@ -326,26 +342,55 @@ LocMgrImpl::dataLookUp(const char *argID)
 }
 
 /** Display the List of known data Reference */
+
+char *
+LocMgrImpl::setMyName(){
+  return CORBA::string_dup(this->myName);
+}
+
+void
+LocMgrImpl::printList1()
+{
+ 
+  char *SonName=NULL;
+  if( dataLocList.size() > 0){
+    cout << "+------------+----------------------------+" << endl;
+    cout << "| Data Name  | Data Manager Owner         |" << endl;
+    cout << "+------------+----------------------------+" << endl;
+    DataLocList_t::iterator cur = dataLocList.begin();
+    while (cur != dataLocList.end()) {
+      if(cur->second < static_cast<CORBA::Long>(locMgrChildren.size())) {
+	locMgrChild theLoc =  locMgrChildren[cur->second];
+	if (theLoc.defined()) {
+	  LocMgr_ptr locChild = theLoc.getIor();
+	  SonName = locChild->setMyName();
+	}
+   } else {
+     	dataMgrChild theData =  dataMgrChildren[cur->second];
+	if (theData.defined()) {
+	  DataMgr_ptr dataChild = theData.getIor();
+	  SonName = dataChild->setMyName();
+	
+	}
+   }
+   cout << "|    " << cur->first << "     |   " << SonName  << endl;
+   cout << "+------------+" << endl; 
+      cur++;
+    }
+    cout << "+------------+----------------------------+" << endl; 
+  }
+ 
+}
+
 void
 LocMgrImpl::printList()
 {
+ 
 #if DEVELOPPING_DATA_PERSISTENCY
-  cout << "______________________" << endl;
-  cout << "|  size of list is " << dataLocList.size() << "  |"<< endl;
-  if( dataLocList.size() > 0){
-    DataLocList_t::iterator cur = dataLocList.begin();
-    cout << "| - - - - - - - - - - |" << endl;
-    while (cur != dataLocList.end()) {
-      cout << "| key: " << cur->first << "* value: " << cur->second << " |" << endl;
-      cout << "|                     |" << endl;
-      cur++;
-    }
-  }
-  else {
-    cout << "nil list" << endl;
-  }
-  cout << "_______________________" << endl;
 
+  printList1();
+ if (this->parent != LocMgr::_nil())
+   this->parent->printList();
 #endif // DEVELOPPING_DATA_PERSISTENCY
 }
 
