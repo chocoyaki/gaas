@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2004/12/15 13:53:22  sdahan
+ * - the trace function are now thread safe.
+ * - add "extern unsigned int TRACE_LEVEL" in debug.hh
+ *
  * Revision 1.19  2004/10/14 15:03:47  hdail
  * Added shorter, cleaner response debug message.
  *
@@ -55,6 +59,11 @@ using namespace std;
 #include "DIET_data_internal.hh"
 
 
+/** The trace level. */
+extern unsigned int TRACE_LEVEL;
+/** mutex used by the debug library to share the stderr and stdout */
+extern omni_mutex debug_log_mutex ;
+
 /**
  * Various values for the trace level
  */
@@ -86,32 +95,40 @@ using namespace std;
  * Error message - return with return_value.
  */
 #define ERROR(formatted_msg,return_value)           \
+  debug_log_mutex.lock() ;                          \
   cerr << "DIET ERROR: " << formatted_msg << ".\n"; \
+  debug_log_mutex.unlock() ;                        \
   return return_value
 
 /**
  * Warning message.
  */
-#define WARNING(formatted_msg)                       \
-  cerr << "DIET WARNING: " << formatted_msg << ".\n" \
+#define WARNING(formatted_msg) {                     \
+  debug_log_mutex.lock() ;                           \
+  cerr << "DIET WARNING: " << formatted_msg << ".\n";\
+  debug_log_mutex.unlock() ; }
 
 
 /**
  * Internal Error message - exit with exit_value.
  */
-#define INTERNAL_ERROR(formatted_msg,exit_value)              \
+#define INTERNAL_ERROR(formatted_msg,exit_value) {            \
+  debug_log_mutex.lock() ;                                    \
   cerr << "DIET INTERNAL ERROR: " << formatted_msg << ".\n"   \
-       << "Please send bug report to diet-usr@ens-lyon.fr\n"; \
+       "Please send bug report to diet-usr@ens-lyon.fr\n" ;   \
+  debug_log_mutex.unlock() ; }                                \
   EXIT_FUNCTION; \
   exit(exit_value)
 
 /**
  * Internal Warning message.
  */
-#define INTERNAL_WARNING(formatted_msg)                       \
+#define INTERNAL_WARNING(formatted_msg) {                     \
+  debug_log_mutex.lock() ;                                    \
   cerr << "DIET INTERNAL WARNING: " << formatted_msg << ".\n" \
-       << "This is not a fatal bug, but please send a report "\
-       << "to diet-usr@ens-lyon.fr\n"
+       "This is not a fatal bug, but please send a report "   \
+      "to diet-dev@ens-lyon.fr\n"                           ; \
+  debug_log_mutex.unlock() ; }
 
 
 // DEBUG pause: insert a pause of duration <s>+<us>E-6 seconds
@@ -126,21 +143,28 @@ using namespace std;
 
 // DEBUG trace: print "function(formatted_text)\n", following the iostream
 // format. First argument is the minimum TRACE_LEVEL for the line to be printed.
-#define TRACE_FUNCTION(level,formatted_text)              \
-  if (TRACE_LEVEL >= (level))                             \
-    cout << __FUNCTION__ << '(' << formatted_text << ")\n"
+#define TRACE_FUNCTION(level,formatted_text)               \
+  if (TRACE_LEVEL >= (level)) {                            \
+    debug_log_mutex.lock() ;                               \
+    cout << __FUNCTION__ << '(' << formatted_text << ")\n";\
+    debug_log_mutex.unlock() ; }
 
 // DEBUG trace: print formatted_text following the iostream format (no '\n'
 // added). First argument is the minimum TRACE_LEVEL for the line to be printed.
-#define TRACE_TEXT(level,formatted_text)              \
-  if (TRACE_LEVEL >= (level)) cout << formatted_text
+#define TRACE_TEXT(level,formatted_text)             \
+  if (TRACE_LEVEL >= (level)) {                      \
+    debug_log_mutex.lock() ;                         \
+    cout << formatted_text ;                         \
+    debug_log_mutex.unlock() ; }
 
 // DEBUG trace: print "file:line: formatted_text", following the iostream format
 // (no '\n' added). First argument is the minimum TRACE_LEVEL for the line to be
 // printed.
 #define TRACE_TEXT_POS(level,formatted_text)                      \
-  if (TRACE_LEVEL >= (level))                                     \
-    cout << __FILE__ << ':' << __LINE__ << ": " << formatted_text
+  if (TRACE_LEVEL >= (level)) {                                   \
+    debug_log_mutex.lock() ;                                      \
+    cout << __FILE__ << ':' << __LINE__ << ": " << formatted_text;\
+    debug_log_mutex.unlock() ; }
 
 // DEBUG trace: print "time: formatted_text", following the iostream format (no
 // '\n' added). First argument is the minimum TRACE_LEVEL for the line to be
@@ -148,14 +172,18 @@ using namespace std;
 #define TRACE_TIME(level,formatted_text)            \
   if (TRACE_LEVEL >= (level)) {                     \
     struct timeval tv;                              \
+    debug_log_mutex.lock() ;                        \
     gettimeofday(&tv, nuLL);                        \
     printf("%10ld.%06ld: ", tv.tv_sec, tv.tv_usec); \
     cout << formatted_text;                         \
+    debug_log_mutex.unlock() ;                      \
   }
 
 // DEBUG trace: print variable name and value
-#define TRACE_VAR(var) \
-  TRACE_TEXT_POS(NO_TRACE, #var << " = " << (var) << endl)
+#define TRACE_VAR(var) { \
+  debug_log_mutex.lock() ;                          \
+  TRACE_TEXT_POS(NO_TRACE, #var << " = " << (var) << endl) ; \
+  debug_log_mutex.unlock() ; }
 
 
 

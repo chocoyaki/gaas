@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.53  2004/12/15 13:53:22  sdahan
+ * - the trace function are now thread safe.
+ * - add "extern unsigned int TRACE_LEVEL" in debug.hh
+ *
  * Revision 1.52  2004/12/08 15:02:52  alsu
  * plugin scheduler first-pass validation testing complete.  merging into
  * main CVS trunk; ready for more rigorous testing.
@@ -826,10 +830,11 @@ diet_call_async_common(diet_profile_t* profile,
     tmp <<= e;
     CORBA::TypeCode_var tc = tmp.type();
     const char * p = tc->name();
-    if (*p != '\0')
+    if (*p != '\0') {
       WARNING("exception caught in " << __FUNCTION__ << '(' << p << ')');
-    else
+    } else {
       WARNING("exception caught in " << __FUNCTION__ << '(' << tc->id() << ')');
+    }
     *reqID = -1;
     return 1;
   }
@@ -913,10 +918,11 @@ diet_wait(diet_reqID_t reqID)
     tmp <<= e;
     CORBA::TypeCode_var tc = tmp.type();
     const char * p = tc->name();
-    if (*p != '\0')
+    if (*p != '\0') {
       WARNING(__FUNCTION__ << ": exception caught (" << p << ')');
-    else
-      WARNING(__FUNCTION__ << ": exception caught (" << tc->id() << ')');
+    } else {
+      WARNING(__FUNCTION__ << ": exception caught (" << tc->id() << ')'); 
+    }
   }  
   catch (const exception& e) {
     ERROR(__FUNCTION__ << ": unexpected exception (what="
@@ -960,10 +966,11 @@ diet_wait_and(diet_reqID_t* IDs, size_t length)
     tmp <<= e;
     CORBA::TypeCode_var tc = tmp.type();
     const char * p = tc->name();
-    if (*p != '\0')
+    if (*p != '\0') {
       WARNING(__FUNCTION__ << ": exception caught (" << p << ')');
-    else
+    } else {
       WARNING(__FUNCTION__ << ": exception caught (" << tc->id() << ')');
+    }
   }  
   catch (const exception& e) {
     ERROR(__FUNCTION__ << ": unexpected exception (what=" << e.what() << ')',
@@ -1024,10 +1031,11 @@ diet_wait_or(diet_reqID_t* IDs, size_t length, diet_reqID_t* IDptr)
     tmp <<= e;
     CORBA::TypeCode_var tc = tmp.type();
     const char * p = tc->name();
-    if (*p != '\0')
+    if (*p != '\0') {
       WARNING(__FUNCTION__ << ": exception caught (" << p << ')');
-    else
+    } else {
       WARNING(__FUNCTION__ << ": exception caught (" << tc->id() << ')');
+    }
   } catch (const exception& e) {
     ERROR(__FUNCTION__ << ": unexpected exception (what="
           << e.what() << ')', STATUS_ERROR);

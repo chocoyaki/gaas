@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2004/12/15 13:53:22  sdahan
+ * - the trace function are now thread safe.
+ * - add "extern unsigned int TRACE_LEVEL" in debug.hh
+ *
  * Revision 1.21  2004/12/08 15:02:52  alsu
  * plugin scheduler first-pass validation testing complete.  merging into
  * main CVS trunk; ready for more rigorous testing.
@@ -87,6 +91,8 @@
  */
 unsigned int TRACE_LEVEL = TRACE_DEFAULT;
 
+// see debug.hh
+omni_mutex debug_log_mutex ;
 
 void
 displayResponse(FILE* os, const corba_response_t* resp)
