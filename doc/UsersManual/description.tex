@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.2  2004/01/15 23:59:31  ecaron
+%* Add corrections from Holly Dail
+%*
 %* Revision 1.1  2003/09/09 12:38:20  pcombes
 %* Reorganization of doc: UM becomes UsersManual.
 %*
@@ -67,23 +70,25 @@ The different components of our software architecture are the following:
 
 %....[ Local Agent (LA) ]......................................................
 \item \textbf{Local Agent (LA)}\\
-  An LA aims at transmitting requests and information between MAs and servers.
-  The information stored on an LA is the list of the requests being processed
-  and, and performance of all servers in its subtree that can solve a given
-  problem. Depending on the underlying network topology, a hierarchy of LAs may
-  be deployed between an MA and the servers. Of course, the interest of an LA is
-  to do a partial scheduling on its subtree, which reduces the job of the MA.
+  An LA aims at transmitting requests and information between MAs and
+  servers.  The information stored on an LA is the list of the
+  requests being processed and performance of all servers in its
+  subtree that can solve a given problem. Depending on the underlying
+  network topology, a hierarchy of LAs may be deployed between an MA
+  and the servers. Of course, the function of an LA is to do a partial
+  scheduling on its subtree, which reduces the job of the MA.
 
 %....[ Server Daemon (SeD) ]...................................................
 \item \textbf{Server Daemon (SeD)}\\
-  An SeD encapsulates a computational server. For instance it can be located on
-  the entry point of a parallel computer. The information stored on an SeD is a
-  list of the data available on its server (with their distribution and the way
-  to access them), the list of problems that can be solved on it, and all
-  information concerning its load (memory available, number of resources
-  available, \ldots). An SeD declares the problems it can solve to its parent LA.
-  An SeD can give performance prediction for a given problem thanks to the
-  module FAST, which is described in the next section.
+  A SeD encapsulates a computational server. For instance it can be
+  located on the entry point of a parallel computer. The information
+  stored on a SeD is a list of the data available on its server (with
+  their distribution and the way to access them), the list of problems
+  that can be solved on it, and all information concerning its load
+  (memory available, number of resources available, \ldots). A SeD
+  declares the problems it can solve to its parent LA.  An eD can give
+  performance prediction for a given problem thanks to the module
+  FAST, which is described in the next section.
 
 \end{description}
 
@@ -101,19 +106,20 @@ The different components of our software architecture are the following:
 \label{sec:FAST}
 
 FAST \cite{Qui02} is a tool for dynamic performance forecasting in a
-Grid environment. As shown in Figure~\ref{fig:fast-overview}, FAST is composed
-of several layers and relies on low-level software. First it uses a network and
-CPU monitoring software to handle dynamically changing resources, like workload
-or bandwidth.  FAST uses the Network Weather Service (NWS)~\cite{WSH99}, a
-tool developed at the University of California, Santa Barbara. This is a
-distributed system that periodically monitors and dynamically forecasts the
-performance of various network and computational resources. The resource
-availabilities acquisition module of FAST uses and enhances NWS. Indeed, if
-there is no direct NWS monitoring between two machines, FAST automatically
-searches for the shortest path between them in the graph of monitored links. It
-estimates the bandwidth as the minimum of those in the path and the latency as
-the sum of those measured. This allows for more accurate predictions when DIET
-is deployed over a hierarchical network.
+Grid environment. As shown in Figure~\ref{fig:fast-overview}, FAST is
+composed of several layers and relies on low-level software. First it
+uses a network and CPU monitoring software to handle dynamically
+changing resources, like workload or bandwidth.  FAST uses the Network
+Weather Service (NWS)~\cite{WSH99} a distributed system that
+periodically monitors and dynamically forecasts the performance of
+various network and computational resources. The resource
+availabilities acquisition module of FAST uses and enhances NWS.
+Indeed, if there is no direct NWS monitoring between two machines,
+FAST automatically searches for the shortest path between them in the
+graph of monitored links. It estimates the bandwidth as the minimum of
+those in the path and the latency as the sum of those measured. This
+allows for the availability of more predictions when DIET is deployed
+over a hierarchical network.
 
 \begin{figure}[htb]
   \begin{center}
@@ -136,10 +142,10 @@ forecast execution times of parallel routines.
 
 Thus DIET components, as any FAST client, can access information like the time
 needed to move a given amount of data between two SeDs, the time to solve a
-problem with a given set of computational resources managed by an SeD, or the
+problem with a given set of computational resources managed by a SeD, or the
 combination of these two quantities.\\
 
-For more details about FAST, please read the FAST User's Manual.
+For more details about FAST, please read the FAST Reference Manual~\footnote{\url{http://graal.ens-lyon.fr/FAST/docs/index.html}}.
 
 
 %====[ CORBA ]=================================================================
@@ -149,7 +155,7 @@ For more details about FAST, please read the FAST User's Manual.
 NES environments can be implemented using a classic socket communication layer.
 NINF and \nsl\ are implemented that way. Several problems to this approach
 have been pointed out such as the lack of portability or the limitation of
-opened sockets. Our aim is to implement and then deploy a distributed NES
+opened sockets. Our aim is to implement and deploy a distributed NES
 environment that works at a wider scale. Distributed object environments, such
 as \emph{Java}, \emph{DCOM} or CORBA have proven to be a good base for
 building applications that manage access to distributed services. They not only
@@ -158,13 +164,14 @@ offer a framework for the large scale deployment of distributed
 applications. Being open and language independent, CORBA was chosen as the
 communication layer in DIET.
 
-As recent implementations of CORBA let the communication time close to that of
-sockets, it is well suited to support distributed resources and applications in
-a large scale Grid environment. New dedicated services can be easily published
-and existing services can also be used.  Therefore, CORBA is an alternative of
-choice for the development of Grid specific services. DIET is based upon
-\emph{OmniORB 3}~\cite{OMNIORB} or later, a free CORBA implementation which
-provides good communication performance.
+As recent implementations of CORBA provide communication time close to
+that of sockets, CORBA is well suited to support distributed resources
+and applications in a large scale Grid environment. New specialized
+services can be easily published and existing services can also be
+used.  Therefore, CORBA is a good choice for the
+development of Grid specific services. DIET is based upon
+\emph{OmniORB 3}~\cite{OMNIORB} or later, a free CORBA implementation
+which provides good communication performance.
 
 
 %====[ DIET INITIALIZATION ]===================================================
@@ -172,7 +179,7 @@ provides good communication performance.
 \label{init}
 
 Figure~\ref{fig:init} shows each step of the initialization of a simple Grid
-system. The architecture is built in the hierarchical order, each component
+system. The architecture is built in hierarchical order, each component
 connecting to its parent. The MA is the first entity to be started~(1). It waits
 for connections from LAs or requests from clients.
 
@@ -235,7 +242,7 @@ will perform the computation. This decision is made in four steps:
   computation time necessary to process the request, and sends this
   estimation back to its ``parent'' (the LA)~;
 \item each LA of the tree that receives one or more positive answers from its
-  children sorts the servers and forwards their answers to the MA, through the
+  children sorts the servers and forwards their answers to the MA through the
   hierarchy~;
 \item once the MA has collected all the answers from its direct children, it
   chooses a pool of fast servers and sends their references to the client.
