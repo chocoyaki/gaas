@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.5  2004/01/06 15:07:46  ecaron
+%* Correct latex bug
+%*
 %* Revision 1.4  2003/12/12 14:42:44  pkchouha
 %*  define \diet_version in UserManual.tex to be 1.0
 %*
@@ -107,8 +110,9 @@ installed.  FAST depends on:
  \item{\textbf{NWS}} the Network Weather Service
 \end{itemize}
 For more details about FAST dependencies, please refer to the FAST
-User's Manual [http://graal.ens-lyon.fr/FAST/]. It is important to understand basically
-how FAST works, and the role of its dependencies, to deactivate the
+User's Manual~\footnote{\url{http://graal.ens-lyon.fr/FAST/}}. It is
+important to understand basically how FAST works, and the role of its
+dependencies, to deactivate the
 ones that not needed by the user.\\
 
 
@@ -127,7 +131,7 @@ compiling: its main options are described below, but please, run
 \texttt{configure --help} to get an up-to-date and complete usage description.
 
 {\footnotesize
-\texttt{ tar xzf DIET \dietversion .tgz}
+\texttt{ tar xzf DIET\_\dietversion.tgz}
 \begin{verbatim}
 ~ > cd DIET
 ~/DIET > ./configure --help=short
