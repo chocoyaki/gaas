@@ -8,9 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2003/09/27 07:53:46  pcombes
+ * Fix bugs on floating types
+ *
  * Revision 1.1  2003/09/26 14:07:33  pcombes
  * Add an example devoted to the management of scalars (and their encoding length).
- *
  ****************************************************************************/
 
 #include <math.h>
@@ -44,11 +46,14 @@ int
 main(int argc, char* argv[])
 {
   int i;
-  /* Use the long type for all "integer" types, and double for floating types,
-     so that no overflow can occur. */
+  /* Use the long type for all "integer" types. */
   long     l1 = 0;
   long     l2 = 0;
   long*   pl3 = NULL;
+  /* It is not possible to apply this rule for floating types ... */
+  float    f1 = 0.0;
+  float    f2 = 0.0;
+  float*  pf3 = NULL;
   double   d1 = 0.0;
   double   d2 = 0.0;
   double* pd3 = NULL;
@@ -85,9 +90,9 @@ main(int argc, char* argv[])
     (short)l1 = 0x11;
     (short)l2 = 0x22;
     printf("Before the call: l1=0x%hX, l2=0x%hX\n", (short)l1, (short)l2);
-    diet_scalar_set(diet_parameter(profile,0), &l1,  DIET_VOLATILE, DIET_BYTE);
-    diet_scalar_set(diet_parameter(profile,1), &l2,  DIET_VOLATILE, DIET_BYTE);
-    diet_scalar_set(diet_parameter(profile,2), NULL, DIET_VOLATILE, DIET_BYTE);
+    diet_scalar_set(diet_parameter(profile,0), &l1,  DIET_VOLATILE, DIET_SHORT);
+    diet_scalar_set(diet_parameter(profile,1), &l2,  DIET_VOLATILE, DIET_SHORT);
+    diet_scalar_set(diet_parameter(profile,2), NULL, DIET_VOLATILE, DIET_SHORT);
   } else if (pb[2]) {
     (int)l1 = 0x1111;
     (int)l2 = 0x2222;
@@ -103,57 +108,59 @@ main(int argc, char* argv[])
     diet_scalar_set(diet_parameter(profile,1), &l2,  DIET_VOLATILE, DIET_LONGINT);
     diet_scalar_set(diet_parameter(profile,2), NULL, DIET_VOLATILE, DIET_LONGINT);
   } else if (pb[4]) {
-    (float)d1 = HUGE_VAL;
-    (float)d2 = HUGE_VAL;
-    printf("Before the call: d1=%f, d2=%f\n", (float)d1, (float)d2);
-    diet_scalar_set(diet_parameter(profile,0), &l1,  DIET_VOLATILE, DIET_FLOAT);
-    diet_scalar_set(diet_parameter(profile,1), &l2,  DIET_VOLATILE, DIET_FLOAT);
+    f1 = 1.1;
+    f2 = 2.2;
+    printf("Before the call: f1=%g, f2=%g\n", f1, f2);
+    diet_scalar_set(diet_parameter(profile,0), &f1,  DIET_VOLATILE, DIET_FLOAT);
+    diet_scalar_set(diet_parameter(profile,1), &f2,  DIET_VOLATILE, DIET_FLOAT);
     diet_scalar_set(diet_parameter(profile,2), NULL, DIET_VOLATILE, DIET_FLOAT);
   } else if (pb[5]) {
-    (double)d1 = HUGE_VAL;
-    (double)d2 = HUGE_VAL;
-    printf("Before the call: d1=%lf, d2=%lf\n", (double)d1, (double)d2);
-    diet_scalar_set(diet_parameter(profile,0), &l1,  DIET_VOLATILE, DIET_DOUBLE);
-    diet_scalar_set(diet_parameter(profile,1), &l2,  DIET_VOLATILE, DIET_DOUBLE);
+    d1 = 1.1;
+    d2 = 2.2;
+    printf("Before the call: d1=%lg, d2=%lg\n", d1, d2);
+    diet_scalar_set(diet_parameter(profile,0), &d1,  DIET_VOLATILE, DIET_DOUBLE);
+    diet_scalar_set(diet_parameter(profile,1), &d2,  DIET_VOLATILE, DIET_DOUBLE);
     diet_scalar_set(diet_parameter(profile,2), NULL, DIET_VOLATILE, DIET_DOUBLE);    
   } else {
     usage(argv[0]);
   } 
     
-  if (!diet_call(profile)) {
-    if (pb[4] || pb[5]) {
-      diet_scalar_get(diet_parameter(profile,2), &pd3, NULL);
-      if (pb[4]) {
-	printf("After the call: d1=%f, d2=%f, d3=%f\n",
-	       (float)d1, (float)d2, (float)*pd3);
-      } else if (pb[5]) {
-	printf("After the call: d1=%lf, d2=%lf, d3=%lf\n",
-	       (double)d1, (double)d2, (double)*pd3);
-      }
-    } else {
-      diet_scalar_get(diet_parameter(profile,2), &pl3, NULL);
-
-      /* We decide to print all results as longs, which lets the user see how
-	 the types are managed. */
 #define PRETTY_PRINT 0
+
+  if (!diet_call(profile)) {
+
+    if (pb[0] || pb[1] || pb[2] || pb[3]) {
+    
+      diet_scalar_get(diet_parameter(profile,2), &pl3, NULL);
 #if PRETTY_PRINT
-      if (pb[0]) {
+      if (pb[0])
 	printf("After the call: l1=0x%hhX, l2=0x%hhX, l3=0x%hhX\n",
 	       (char)l1, (char)l2, (char)(*pl3));
-      } else if (pb[1]) {
+      else if (pb[1])
 	printf("After the call: l1=0x%hX, l2=0x%hX, l3=0x%hX\n",
 	       (short)l1, (short)l2, (short)*pl3);
-      } else if (pb[2]) {
+      else if (pb[2])
 	printf("After the call: l1=0x%X, l2=0x%X, l3=0x%X\n",
 	       (int)l1, (int)l2, (int)*pl3);
-      } else if (pb[3]) {
+      else if (pb[3])
 #endif // PRETTY_PRINT
+      /* When PRETTY_PRINT is 0, we print all results as longs, which lets the
+	 user see how the types are managed. */
 	printf("After the call: l1=0x%lX, l2=0x%lX, l3=0x%lX\n",
 	       (long)l1, (long)l2, (long)*pl3);
-#if PRETTY_PRINT
-      }
-#endif // PRETTY_PRINT
+
+    } else if (pb[4]) {
+      diet_scalar_get(diet_parameter(profile,2), &pf3, NULL);
+      printf("After the call: f1=%g, f2=%g, f3=%g\n",
+	     (float)f1, (float)f2, (float)*pf3);
+    } else if (pb[5]) {
+      diet_scalar_get(diet_parameter(profile,2), &pd3, NULL);
+      printf("After the call: d1=%lg, d2=%lg, d3=%lg\n",
+	     (double)d1, (double)d2, (double)*pd3);
     }
+  } else {
+    fprintf(stderr, "diet_call has returned in error !!!\n");
+    return 1;
   }
   
   diet_profile_free(profile);
