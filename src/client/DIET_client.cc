@@ -12,6 +12,10 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.14  2002/11/26 12:50:00  lbertsch
+ * Modified some things about statistics...
+ * Added a config.h.in file that contains compile-time configuration
+ *
  * Revision 1.13  2002/11/22 13:36:12  lbertsch
  * Added alpha linux support
  * Added a package for statistics and some traces
@@ -80,6 +84,7 @@
 #include "marshalling.hh"
 #include "omniorb.hh"
 #include "debug.hh"
+#include "statistics.hh"
 
 #ifdef DEMO_BALTIMORE
 #include "com_tools.hh"
@@ -162,7 +167,10 @@ long int diet_initialize(int argc, char **argv, char *config_file)
   MA = Agent::_narrow(getAgentReference(MA_name));
   if (CORBA::is_nil(MA))
     return 1;
-  
+
+  /* Initialize statistics module */
+  stat_init();
+
   return 0;
 }
   

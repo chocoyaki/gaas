@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <sys/time.h>
 
+#include "DIET_config.h"
+
 enum stat_type { STAT_IN, STAT_OUT, STAT_INFO };
 
 // Please, don't use those variables
