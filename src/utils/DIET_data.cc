@@ -11,6 +11,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.10  2003/01/23 18:41:59  pcombes
+ * API 0.6.4 : istrans -> order (row- or column-major)
+ *
  * Revision 1.9  2003/01/21 12:17:02  pcombes
  * Update UM to API 0.6.3, and "hide" data structures.
  *
@@ -152,7 +155,7 @@ int scalar_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
   if ((status = diet_generic_desc_set(&(desc->generic),
 				      DIET_SCALAR, base_type)))
     return status;
-  if (mode != -1)
+  if (mode != DIET_PERSISTENCE_MODE_COUNT)
     desc->mode = mode;
   desc->specific.scal.value = value;
   return status;
@@ -167,7 +170,7 @@ int vector_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
   if ((status = diet_generic_desc_set(&(desc->generic),
 				      DIET_VECTOR, base_type)))
     return status;
-  if (mode != -1)
+  if (mode != DIET_PERSISTENCE_MODE_COUNT)
     desc->mode = mode;
   if (size != 0)
     desc->specific.vect.size = size;
@@ -176,7 +179,7 @@ int vector_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
 
 int matrix_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
 		    diet_base_type_t base_type, size_t nb_r, size_t nb_c,
-		    int istrans)
+		    diet_matrix_order_t order)
 {
   int status = 0;
   if (!desc)
@@ -190,8 +193,8 @@ int matrix_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
     desc->specific.mat.nb_r = nb_r;
   if (nb_c != 0)
     desc->specific.mat.nb_c = nb_c;
-  if (istrans != -1)
-    desc->specific.mat.istrans = istrans;
+  if (order != DIET_MATRIX_ORDER_COUNT)
+    desc->specific.mat.order = order;
   return status;
 }
 
@@ -204,7 +207,7 @@ int string_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
   if ((status = diet_generic_desc_set(&(desc->generic),
 				      DIET_STRING, DIET_CHAR)))
     return status;
-  if (mode != -1)
+  if (mode != DIET_PERSISTENCE_MODE_COUNT)
     desc->mode = mode;
   if (length != 0)
     desc->specific.str.length = length;
@@ -222,7 +225,7 @@ int file_set_desc(diet_data_desc_t *desc, diet_persistence_mode_t mode,
   if ((status = diet_generic_desc_set(&(desc->generic),
 				      DIET_FILE, DIET_CHAR)))
     return status;
-  if (mode != -1)
+  if (mode != DIET_PERSISTENCE_MODE_COUNT)
     desc->mode = mode;
   if (path) {
     desc->specific.file.path = path;
@@ -362,13 +365,13 @@ diet_vector_set(diet_arg_t *arg, void *value, diet_persistence_mode_t mode,
 int
 diet_matrix_set(diet_arg_t *arg, void *value, diet_persistence_mode_t mode,
 		diet_base_type_t base_type,
-		size_t nb_rows, size_t nb_cols, int isTransposed)
+		size_t nb_rows, size_t nb_cols, diet_matrix_order_t order)
 {
   int status = 0;
   if (!arg)
     return 1;
   if ((status = matrix_set_desc(&(arg->desc), mode, base_type,
-				nb_rows, nb_cols, isTransposed)))
+				nb_rows, nb_cols, order)))
     return status;
   arg->value = value;
   return status;
@@ -441,7 +444,7 @@ int diet_scalar_desc_set(diet_data_t *data, void *value)
 }
     
 int diet_matrix_desc_set(diet_data_t *data,
-			 size_t nb_r, size_t nb_c, int istrans)
+			 size_t nb_r, size_t nb_c, diet_matrix_order_t order)
 {
   if (data->desc.generic.type != DIET_MATRIX) {
     cerr << "DIET error: diet_matrix_desc_set misused (wrong type)\n";
@@ -457,8 +460,8 @@ int diet_matrix_desc_set(diet_data_t *data,
     data->desc.specific.mat.nb_r    = nb_r;
   if (nb_c    != 0)
     data->desc.specific.mat.nb_c    = nb_c;
-  if (istrans != 0)
-    data->desc.specific.mat.istrans = istrans;    
+  if (order != DIET_MATRIX_ORDER_COUNT)
+    data->desc.specific.mat.order = order;    
   return 0;
 }
 
@@ -566,7 +569,7 @@ int _vector_get(diet_arg_t *arg, void **value, diet_persistence_mode_t *mode,
 }
 
 int _matrix_get(diet_arg_t *arg, void **value, diet_persistence_mode_t *mode,
-		size_t *nb_rows, size_t *nb_cols, int *isTransposed)
+		size_t *nb_rows, size_t *nb_cols, diet_matrix_order_t *order)
 {
   int res;
 
@@ -585,8 +588,8 @@ int _matrix_get(diet_arg_t *arg, void **value, diet_persistence_mode_t *mode,
     *nb_rows = arg->desc.specific.mat.nb_r;
   if (nb_cols)
     *nb_cols = arg->desc.specific.mat.nb_c;
-  if (isTransposed)
-    *isTransposed = arg->desc.specific.mat.istrans;
+  if (order)
+    *order = arg->desc.specific.mat.order;
   return 0;
 }
 
