@@ -10,6 +10,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.11  2003/02/07 17:04:12  pcombes
+ * Refine convertor API: arg_idx is splitted into in_arg_idx and out_arg_idx.
+ *
  * Revision 1.10  2003/02/04 10:08:23  pcombes
  * Apply Coding Standards
  *
@@ -286,7 +289,8 @@ displayConvertor(FILE* f, const diet_convertor_t* cvt)
     if (cvt->arg_convs[i].arg)
       displayArg(f, &(cvt->arg_convs[i].arg->desc));
     else
-      fprintf(f, "argument %d", cvt->arg_convs[i].arg_idx);
+      fprintf(f, "argument %d", cvt->arg_convs[i].in_arg_idx);
+    fprintf(f, " (out: %d)", cvt->arg_convs[i].out_arg_idx);
   }
   fprintf(f, "\n");  
 }

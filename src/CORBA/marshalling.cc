@@ -10,6 +10,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.24  2003/02/07 17:04:12  pcombes
+ * Refine convertor API: arg_idx is splitted into in_arg_idx and out_arg_idx.
+ *
  * Revision 1.23  2003/02/04 10:08:22  pcombes
  * Apply Coding Standards
  *
@@ -194,11 +197,11 @@ mrsh_data(corba_data_t* dest, diet_data_t* src, int release)
 {
   long unsigned int size = (long unsigned int) data_sizeof(&(src->desc));
   CORBA::Char* value(NULL);
-  char* path = src->desc.specific.file.path;
   
   if (mrsh_data_desc(&(dest->desc), &(src->desc)))
     return 1;
   if (src->desc.generic.type == DIET_FILE) {
+    char* path = src->desc.specific.file.path;
     if (path && strcmp("", path)) {
       ifstream infile(path);
       value = SeqChar::allocbuf(size);
@@ -237,7 +240,7 @@ unmrsh_scalar_desc(diet_data_desc_t* dest, const corba_data_desc_t* src)
   switch(bt) {
   case DIET_CHAR:
   case DIET_BYTE: {
-    value = new char;
+    value = (void*) new char;
     src->specific.scal().value >>= *((CORBA::Short*)(value));
     scalar_set_desc(dest, DIET_VOLATILE, bt, value);
     break;
@@ -464,7 +467,7 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src)
 
 int
 mrsh_profile_desc(corba_profile_desc_t* dest,
-		  diet_profile_desc_t* src, char* src_name)
+		  const diet_profile_desc_t* src, const char* src_name)
 {
   dest->path       = CORBA::string_dup(src_name);
   dest->last_in    = src->last_in;
@@ -562,6 +565,7 @@ int
 unmrsh_pb_desc_to_sf(sf_inst_desc_t* dest, const corba_pb_desc_t* src,
 		     const diet_convertor_t* cvt)
 {
+  /* This keeps all umarshalled argument descriptions */
   diet_data_desc_t** src_params = // Use calloc to set all elements to NULL
     (diet_data_desc_t**) calloc(src->last_out + 1, sizeof(diet_data_desc_t*));
   
@@ -573,7 +577,7 @@ unmrsh_pb_desc_to_sf(sf_inst_desc_t* dest, const corba_pb_desc_t* src,
 
   for (int i = 0; i <= cvt->last_out; i++) {
     diet_data_desc_t* ddd_tmp(NULL);
-    int arg_idx = cvt->arg_convs[i].arg_idx;
+    int arg_idx = cvt->arg_convs[i].in_arg_idx;
     
     if ((arg_idx >= 0) && (arg_idx <= src->last_out)) {
       if (!src_params[arg_idx]) {
@@ -625,7 +629,7 @@ mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src)
   for (; i <= src->last_out; i++) {
     if (mrsh_data_desc(&(dest->parameters[i].desc), &(src->parameters[i].desc)))
       return 1;
-    dest->parameters[i].value.replace(0, 0, NULL);
+    dest->parameters[i].value.replace(0, 0, NULL, 1);
   }
   return 0;
 }
@@ -636,26 +640,34 @@ mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src)
 /****************************************************************************/
   
 int
-cvt_arg(diet_data_t* dest, diet_data_t* src, diet_convertor_function_t f)
+cvt_arg(diet_data_t* dest, diet_data_t* src,
+	diet_convertor_function_t f, int duplicate_value)
 {
   switch(f) {
   case DIET_CVT_IDENTITY: {
     (*dest) = (*src);
+    if (duplicate_value && src->value) {
+      size_t size = data_sizeof(&(src->desc));
+      dest->value = (char*)malloc(size);
+      memcpy(dest->value, src->value, size);
+      if (dest->desc.generic.type == DIET_SCALAR)
+	dest->desc.specific.scal.value = dest->value;
+    }
     break;
   }
   case DIET_CVT_VECT_SIZE: {
-    diet_scalar_set(dest, src->desc.specific.scal.value,
-		    DIET_VOLATILE, DIET_INT);
+    size_t* size = new size_t(src->desc.specific.vect.size);
+    diet_scalar_set(dest, size, DIET_VOLATILE, DIET_INT);
     break;
   }
   case DIET_CVT_MAT_NB_ROW: {
-    diet_scalar_set(dest, &src->desc.specific.mat.nb_r,
-		    DIET_VOLATILE, DIET_INT);
+    size_t* nb_r = new size_t(src->desc.specific.mat.nb_r);
+    diet_scalar_set(dest, nb_r, DIET_VOLATILE, DIET_INT);
     break;
   }
   case DIET_CVT_MAT_NB_COL: {
-    diet_scalar_set(dest, &src->desc.specific.mat.nb_c,
-		    DIET_VOLATILE, DIET_INT);
+    size_t* nb_c = new size_t(src->desc.specific.mat.nb_c);
+    diet_scalar_set(dest, nb_c, DIET_VOLATILE, DIET_INT);
     break;
   }
   case DIET_CVT_MAT_ORDER: {
@@ -673,13 +685,13 @@ cvt_arg(diet_data_t* dest, diet_data_t* src, diet_convertor_function_t f)
     break;
   }
   case DIET_CVT_STR_LEN: {
-    diet_scalar_set(dest, &src->desc.specific.str.length,
-		    DIET_VOLATILE, DIET_INT);
+    size_t* lgth = new size_t(src->desc.specific.str.length);
+    diet_scalar_set(dest, lgth, DIET_VOLATILE, DIET_INT);
     break;
   }
   case DIET_CVT_FILE_SIZE: {
-    diet_scalar_set(dest, &src->desc.specific.file.size,
-		    DIET_VOLATILE, DIET_INT);
+    size_t* size = new size_t(src->desc.specific.file.size);
+    diet_scalar_set(dest, size, DIET_VOLATILE, DIET_INT);
     break;
   }
   default: {
@@ -696,6 +708,7 @@ int
 unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
 			  const diet_convertor_t* cvt)
 {
+  /* This keeps all umarshalled arguments */
   diet_data_t** src_params = // Use calloc to set all elements to NULL
     (diet_data_t**) calloc(src->last_out + 1, sizeof(diet_data_t*));
 
@@ -707,18 +720,26 @@ unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
   
   for (int i = 0; i <= cvt->last_out; i++) {
     diet_data_t* dd_tmp(NULL);
-    int arg_idx = cvt->arg_convs[i].arg_idx;
+    int arg_idx = cvt->arg_convs[i].in_arg_idx;
+    int duplicate_value = 0;
     
     if ((arg_idx >= 0) && (arg_idx <= src->last_out)) {
+      // Each time the cvt function is IDENTITY, unmrsh the data, even if
+      // it has already been done (ie duplicate the value)
       if (!src_params[arg_idx]) {
 	src_params[arg_idx] = new diet_data_t;
 	unmrsh_data(src_params[arg_idx], &(src->parameters[arg_idx]));
+      } else if (cvt->arg_convs[i].f == DIET_CVT_IDENTITY) {
+	duplicate_value = 1;
       }
       dd_tmp = src_params[arg_idx];
     } else {
       dd_tmp = cvt->arg_convs[i].arg;
+      // Duplicate the value field, so that it can be freed by user
+      duplicate_value = 1;
     }
-    if (cvt_arg(&(dest->parameters[i]), dd_tmp, cvt->arg_convs[i].f)) {
+    if (cvt_arg(&(dest->parameters[i]), dd_tmp,
+		cvt->arg_convs[i].f, duplicate_value)) {
       cerr << "DIET conversion error: Cannot convert client problem profile"
 	   << "to server profile.\n";
       delete src_params;
@@ -726,7 +747,7 @@ unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
     }
   }
 
-  delete [] src_params;
+  delete src_params;
   return 0;
 }
 			      
@@ -735,30 +756,6 @@ unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
 /****************************************************************************/
 /* Server sends results ...                                                 */
 /****************************************************************************/
-
-  
-int
-recvt_arg(diet_data_t* dest, diet_data_t* src, diet_convertor_function_t f)
-{
-  switch(f) {
-  case DIET_CVT_IDENTITY: {
-    (*dest) = (*src);
-    return 0;
-  }
-  case DIET_CVT_VECT_SIZE:
-  case DIET_CVT_MAT_NB_ROW:
-  case DIET_CVT_MAT_NB_COL:
-  case DIET_CVT_MAT_ORDER:
-  case DIET_CVT_STR_LEN:
-  case DIET_CVT_FILE_SIZE:
-    return 1;
-  default: {
-    cerr << "DIET conversion error: invalid convertor function.\n";
-    return 2;
-  }
-  }
-}
-
 
 int
 mrsh_profile_to_out_args(corba_profile_t* dest, const diet_profile_t* src,
@@ -769,22 +766,15 @@ mrsh_profile_to_out_args(corba_profile_t* dest, const diet_profile_t* src,
     (int*) calloc(dest->last_out + 1, sizeof(int));
   diet_data_t dd;
 
-  for (i = 0; i <= cvt->last_out; i++) {
-    arg_idx = cvt->arg_convs[i].arg_idx;
+  for (i = cvt->last_in + 1; i <= cvt->last_out; i++) {
+    arg_idx = cvt->arg_convs[i].out_arg_idx;
     if ((arg_idx >= 0) && (arg_idx <= dest->last_out)) {
-      res = recvt_arg(&dd, &(src->parameters[i]), cvt->arg_convs[i].f);
-      if (res == 2) {
-	cerr << "DIET conversion error: Cannot convert server profile "
-	     << "to client problem profile.\n";
-	return 1;
-      }
-      if ((!args_filled[arg_idx]) && (!res)) {
+      dd = src->parameters[i];
+      if (!args_filled[arg_idx]) {
 	// For IN arguments, reset value fields to NULL, so that the ORB does
 	// not carry in data backwards when the RPC returns.
 	if (arg_idx <= dest->last_in) {
-	  dest->parameters[arg_idx].value.replace(0, 0, NULL);
-	  // For INOUT arguments, release is false,
-	  // For OUT arguments,   release is true.
+	  dest->parameters[arg_idx].value.replace(0, 0, NULL, 1);
 	} else {
 	  // The size of files must be (re)computed
 	  if (dd.desc.generic.type == DIET_FILE) {
@@ -801,8 +791,8 @@ mrsh_profile_to_out_args(corba_profile_t* dest, const diet_profile_t* src,
 	      dd.desc.specific.file.size = 0;
 	    }
 	  }
-	  if (mrsh_data(&(dest->parameters[arg_idx]),
-			&dd, (arg_idx > dest->last_inout)))
+	  if (mrsh_data(&(dest->parameters[arg_idx]), &dd,
+			!diet_is_persistent(dd)))
 	    return 1;
 	}
 	args_filled[arg_idx] = 1;
@@ -811,7 +801,8 @@ mrsh_profile_to_out_args(corba_profile_t* dest, const diet_profile_t* src,
   }
   for (i = dest->last_in + 1; i <= dest->last_out; i++) {
     if (!args_filled[i]) {
-      cerr << "DIET conversion WARNING: could not reconvert all arguments.\n";
+      cerr << "DIET conversion WARNING: "
+	   << "could not reconvert all INOUT and OUT arguments.\n";
       break;
     }
   }

@@ -10,6 +10,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.14  2003/02/07 17:04:12  pcombes
+ * Refine convertor API: arg_idx is splitted into in_arg_idx and out_arg_idx.
+ *
  * Revision 1.13  2003/02/04 10:08:22  pcombes
  * Apply Coding Standards
  *
@@ -80,7 +83,7 @@ mrsh_set_trace_level(int level);
 // To add a CORBA service into the SeD service table
 int
 mrsh_profile_desc(corba_profile_desc_t* dest,
-		  diet_profile_desc_t* src, char* src_name);
+		  const diet_profile_desc_t* src, const char* src_name);
 
 // To submit a request from the client DIET profile
 int

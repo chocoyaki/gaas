@@ -9,6 +9,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.11  2003/02/07 17:04:12  pcombes
+ * Refine convertor API: arg_idx is splitted into in_arg_idx and out_arg_idx.
+ *
  * Revision 1.10  2003/02/04 10:08:22  pcombes
  * Apply Coding Standards
  *
@@ -35,12 +38,12 @@
 
 #ifndef _DIET_SERVER_H_
 #define _DIET_SERVER_H_
+
+#include "DIET_data.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
-
-
-#include "DIET_data.h"
 
 
 /****************************************************************************/
@@ -115,20 +118,42 @@ typedef enum {
 } diet_convertor_function_t;
 
 /**
- * If arg_idx is between last_in and last_out fields of the profile, then the
- * function f is applied to the diet_arg_t which is at arg_idx place in the
- * profile parameters array. Else, it is applied to arg.
+ * When the server receives data from the client:
+ *  - If in_arg_idx is a valid argument index of the sent profile, then the
+ *    function f is applied to the diet_arg_t indexed by in_arg_idx in this
+ *    profile parameters array.
+ *  - Else, f is applied to arg (for instance, if in_arg_idx is -1).
+ * When the server sends results to the client:
+ *  - If out_arg_idx is a valid argument index of the sent profile, then the
+ *    function DIET_CVT_IDENTITY is applied to the diet_arg_t indexed by
+ *    out_arg_idx in this profile parameters array.
+ *
+ * NB: when DIET_CVT_IDENTITY is applied several times on an IN parameter, the
+ *     data are duplicated, so that the server gets two (or more) copies.
  */
 typedef struct {
   diet_convertor_function_t f;
-  int                 arg_idx;
+  int              in_arg_idx;
   diet_arg_t*             arg;
+  int             out_arg_idx;
 } diet_arg_convertor_t;
 
 
 int
-diet_arg_cvt_set(diet_arg_convertor_t* arg_cvt,
-		 diet_convertor_function_t f, int arg_idx, diet_arg_t* arg);
+diet_arg_cvt_set(diet_arg_convertor_t* arg_cvt, diet_convertor_function_t f,
+		 int in_arg_idx, diet_arg_t* arg, int out_arg_idx);
+
+/**
+ * This function is often used with this configuration:
+ *  - f == DIET_CVT_IDENTITY
+ *  - out_arg_idx == in_arg_idx
+ * Thus we define the following macro that sets these two arguments ...
+ * Type:
+ *  (int) diet_arg_cvt_short_set((diet_arg_convertor_t*), (int), (diet_arg_t *))
+ */
+#define diet_arg_cvt_short_set(arg_cvt,arg_idx,arg) \
+  diet_arg_cvt_set((arg_cvt), DIET_CVT_IDENTITY, (arg_idx), (arg), (arg_idx))
+
 
 typedef struct {
   char*                 path;
@@ -144,7 +169,8 @@ typedef struct {
 #define diet_arg_conv(cvt,n) &((cvt)->arg_convs[(n)])
 
 diet_convertor_t*
-diet_convertor_alloc(char* path, int last_in, int last_inout, int last_out);
+diet_convertor_alloc(const char* path,
+		     int last_in, int last_inout, int last_out);
 
 /**
  * Free also arg field (if not NULL) of each diet_arg_convertor_t in arg_convs
@@ -193,11 +219,11 @@ typedef int (* diet_solve_t)(diet_profile_t*);
  */
 int
 diet_scalar_desc_set(diet_data_t* data, void* value);
-// No use of diet_vector_desc_set
+// No use of diet_vector_desc_set: size should not be altered by server
 int
 diet_matrix_desc_set(diet_data_t* data,
 		     size_t nb_r, size_t nb_c, diet_matrix_order_t order);
-// No use of diet_string_desc_set
+// No use of diet_string_desc_set: length should not be altered by server
 int
 diet_file_desc_set(diet_data_t* data, char* path);
 
@@ -211,7 +237,7 @@ int
 diet_service_table_init(int max_size);
 /* (cvt = NULL) is equivalent to "no conversion needed" */
 int
-diet_service_table_add(char*                service_path,
+diet_service_table_add(const char*          service_path,
 		       diet_profile_desc_t* profile,
 		       diet_convertor_t*    cvt,
 		       diet_solve_t         solve_func);
@@ -227,7 +253,7 @@ diet_print_service_table();
    Advanced omniORB users can set these arguments that are transmitted to
    the ORB initialization. */
 int
-diet_SeD(char* config_file_name, int argc, char** argv);
+diet_SeD(char* config_file_name, int argc, char* argv[]);
 
 
 

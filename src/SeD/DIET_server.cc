@@ -9,6 +9,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.9  2003/02/07 17:04:12  pcombes
+ * Refine convertor API: arg_idx is splitted into in_arg_idx and out_arg_idx.
+ *
  * Revision 1.8  2003/02/04 10:02:04  pcombes
  * Apply Coding Standards - Use ORBMgr
  *
@@ -66,13 +69,14 @@ diet_service_table_init(int maxsize)
 }
 
 int
-diet_service_table_add(char*                service_path,
+diet_service_table_add(const char*          service_path,
 		       diet_profile_desc_t* profile,
 		       diet_convertor_t*    cvt,
 		       diet_solve_t         solve_func)
 {
   corba_profile_desc_t corba_profile;
   diet_convertor_t*    actual_cvt(NULL);
+
   mrsh_profile_desc(&corba_profile, profile, service_path);
   if (cvt) {
     actual_cvt = cvt;
@@ -80,7 +84,8 @@ diet_service_table_add(char*                service_path,
     actual_cvt = diet_convertor_alloc(service_path, profile->last_in,
 				      profile->last_inout, profile->last_out);
     for (int i = 0; i <= profile->last_out; i++)
-      diet_arg_cvt_set(&(actual_cvt->arg_convs[i]), DIET_CVT_IDENTITY, i, NULL);
+      diet_arg_cvt_set(&(actual_cvt->arg_convs[i]),
+		       DIET_CVT_IDENTITY, i, NULL, i);
   }
   return SRVT->addService(&corba_profile, actual_cvt, solve_func, NULL);
 }
@@ -151,19 +156,21 @@ diet_profile_desc_free(diet_profile_desc_t* desc)
 */
 
 int
-diet_arg_cvt_set(diet_arg_convertor_t* arg_cvt,
-		 diet_convertor_function_t f, int arg_idx, diet_arg_t* arg)
+diet_arg_cvt_set(diet_arg_convertor_t* arg_cvt, diet_convertor_function_t f,
+		 int in_arg_idx, diet_arg_t* arg, int out_arg_idx)
 {
   if (!arg_cvt)
     return 1;
-  arg_cvt->f       = f;
-  arg_cvt->arg_idx = arg_idx;
-  arg_cvt->arg     = arg;
+  arg_cvt->f           = f;
+  arg_cvt->in_arg_idx  = in_arg_idx;
+  arg_cvt->arg         = arg;
+  arg_cvt->out_arg_idx = out_arg_idx;
   return 0;
 }
 
 diet_convertor_t*
-diet_convertor_alloc(char* path, int last_in, int last_inout, int last_out)
+diet_convertor_alloc(const char* path,
+		     int last_in, int last_inout, int last_out)
 {
   diet_convertor_t* res = new diet_convertor_t;
   res->path       = strdup(path);
@@ -207,7 +214,7 @@ diet_convertor_free(diet_convertor_t* cvt)
 /****************************************************************************/
 
 int
-diet_SeD(char* config_file_name, int argc, char** argv)
+diet_SeD(char* config_file_name, int argc, char* argv[])
 {
   SeD_impl* SeD;
   
