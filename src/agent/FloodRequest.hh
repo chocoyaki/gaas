@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2004/10/21 18:14:55  rbolze
+ * correct a comment line which wasn't compatible with distrib script :)
+ *
  * Revision 1.2  2004/10/04 09:40:43  sdahan
  * warning fix :
  *  - debug.cc : change the printf format from %ul to %lu and from %l to %ld
@@ -21,7 +24,7 @@
  * Revision 1.1  2004/09/29 13:35:31  sdahan
  * Add the Multi-MAs feature.
  *
- ****************************************************************************///
+ ****************************************************************************/
 
 #ifndef _FLOOD_REQUEST_HH_
 #define _FLOOD_REQUEST_HH_
