@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2004/12/06 07:32:50  bdelfabr
+ * cleanup memory management for tranfers between servers.
+ *
  * Revision 1.16  2004/12/02 11:25:14  bdelfabr
  * addi informarion for LogCentral on data profile
  *
@@ -351,6 +354,48 @@ DataMgrImpl::rmDataDescFromList(char* argID)
 /**
  * data is "pushed" by the owner. This method takes arg and add it into the map
  */
+
+void 
+DataMgrImpl::persistent_data_release(corba_data_t* arg){
+
+  switch((diet_data_type_t)(arg->desc.specific._d())) {
+ case DIET_VECTOR: {
+    corba_vector_specific_t vect;
+
+    arg->desc.specific.vect(vect);
+    arg->desc.specific.vect().size = 0;
+    break;
+  }
+  case DIET_MATRIX: {
+    corba_matrix_specific_t mat;
+
+     arg->desc.specific.mat(mat);
+     arg->desc.specific.mat().nb_r  = 0;
+     arg->desc.specific.mat().nb_c  = 0;
+  
+    break;
+  }
+  case DIET_STRING: {
+    corba_string_specific_t str;
+
+     arg->desc.specific.str(str);
+     arg->desc.specific.str().length = 0;
+    break;
+  }
+  case DIET_FILE: {
+    corba_file_specific_t file;
+     arg->desc.specific.file(file);
+       arg->desc.specific.file().path = CORBA::string_dup("");
+       arg->desc.specific.file().size = 0;
+    break;
+  }
+  default:
+    break;
+  }
+}
+
+
+
 void
 DataMgrImpl::sendData(corba_data_t& arg)
 {
@@ -361,11 +406,9 @@ DataMgrImpl::sendData(corba_data_t& arg)
     if ((arg.desc.specific.file().path != NULL)
 	&& strcmp("", arg.desc.specific.file().path)) {
       char* in_path   = CORBA::string_dup(arg.desc.specific.file().path);
-      //   char* file_name = strrchr(in_path, '/');
+ 
       char* out_path  = new char[256];
-      // pid_t pid = getpid();
-      // sprintf(out_path, "/tmp/DIET_%d_%s", pid,
-      //	      (file_name) ? (char*)(1 + file_name) : in_path);
+
       sprintf(out_path, "%s",in_path);
       ofstream outfile(out_path);
       for (int i = 0; i < arg.desc.specific.file().size; i++) {
@@ -374,9 +417,16 @@ DataMgrImpl::sendData(corba_data_t& arg)
     }
 
   }
-  
+ 
   // dataDescList.unlock();
-  addDataDescToList(&arg,0);
+
+ addDataDescToList(&arg,0);
+   if (arg.desc.specific._d() != DIET_FILE) {
+      	CORBA::Char *p1 (NULL);
+	arg.value.replace(0,0,p1,1);
+      }
+ persistent_data_release(&arg); 
+ 
  
   printList1();
 
@@ -419,7 +469,7 @@ DataMgrImpl::getData(corba_data_t& cData)
 {
   
 #if DEVELOPPING_DATA_PERSISTENCY
-
+  struct timeval t1, t2;
   if(dataLookup(cData.desc.id.idNumber)){ // if data present
     // dataDescList.unlock();
  
@@ -431,9 +481,12 @@ DataMgrImpl::getData(corba_data_t& cData)
   
     dataSrc = parent->whereData(strdup(cData.desc.id.idNumber));
     /* invoke remote Data Manager that will send Data */  
+  gettimeofday(&t1, NULL);
+
     dataSrc->putData(CORBA::string_dup(cData.desc.id.idNumber), this->_this());
     // copy value to cData that is used by solver
-  
+   gettimeofday(&t2, NULL);
+   cout << "TIME TO TRANSFERT = " << ((t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000)  << endl;
     cpEltListToDataT(&cData);
   
     parent->updateDataRef(cData.desc,childID,0);
@@ -496,17 +549,16 @@ DataMgrImpl::putData(const char* argID, const DataMgr_ptr me)
 {
 #if DEVELOPPING_DATA_PERSISTENCY
  
-  corba_data_t dest;
-  dest.desc.id.idNumber=CORBA::string_dup(argID);
-  cpEltListToDataT(&dest);
-  cout << "PUT DATA " << endl;
-  if ( (diet_data_type_t)(dest.desc.specific._d()) == DIET_FILE) {
+  corba_data_t *dest= new corba_data_t;
+  dest->desc.id.idNumber=CORBA::string_dup(argID);
+  cpEltListToDataT(dest);
+  if ( (diet_data_type_t)(dest->desc.specific._d()) == DIET_FILE) {
     CORBA::Char *dataValue(NULL);
 
-    ifstream infile(dest.desc.specific.file().path);
-    if (dest.desc.specific.file().path && strcmp("",dest.desc.specific.file().path)){
-      dataValue = SeqChar::allocbuf(dest.desc.specific.file().size);
-      for (int i = 0; i < dest.desc.specific.file().size; i++) {
+    ifstream infile(dest->desc.specific.file().path);
+    if (dest->desc.specific.file().path && strcmp("",dest->desc.specific.file().path)){
+      dataValue = SeqChar::allocbuf(dest->desc.specific.file().size);
+      for (int i = 0; i < dest->desc.specific.file().size; i++) {
 	dataValue[i] = infile.get();
       }
       infile.close();
@@ -514,7 +566,7 @@ DataMgrImpl::putData(const char* argID, const DataMgr_ptr me)
       dataValue = SeqChar::allocbuf(1);
       dataValue[0] = '\0';
     } 
-    dest.value.replace(dest.desc.specific.file().size,dest.desc.specific.file().size , dataValue, 1);
+    dest->value.replace(dest->desc.specific.file().size,dest->desc.specific.file().size , dataValue, 1);
   }
   
 #if HAVE_LOGSERVICE
@@ -523,16 +575,18 @@ DataMgrImpl::putData(const char* argID, const DataMgr_ptr me)
     dietLogComponent->logDataBeginTransfer(argID, "");
   }
 #endif
- 
-  me->sendData(dest);
-
+   struct timeval t1, t2;
+ gettimeofday(&t1, NULL);
+  me->sendData(*dest);
+  gettimeofday(&t2, NULL);
+   cout << "TIME TO SENDATA = " << ((t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000)  << endl;
 #if HAVE_LOGSERVICE
   // FIXME: we cannot get the name of the receiving agent yet
   if (dietLogComponent != NULL) {
     dietLogComponent->logDataEndTransfer(argID, "");
   }
 #endif
- 
+  delete dest;
 #endif // DEVELOPPING_DATA_PERSISTENCY
 } // putData(const char* argID, const DataMgr_ptr me)
 

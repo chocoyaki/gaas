@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2004/12/06 07:32:50  bdelfabr
+ * cleanup memory management for tranfers between servers.
+ *
  * Revision 1.11  2004/10/06 11:59:04  bdelfabr
  * corrected inout bug (I hope so)
  *
@@ -213,6 +216,8 @@ private:
   /** copy a corba_data_t to a corba_data_desc_t argument */
   corba_data_desc_t
   moveToCorbaDataDesc(corba_data_t& arg);
+  void 
+  persistent_data_release(corba_data_t* arg);
 
 };
 
