@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2003/09/30 15:40:28  bdelfabr
+ * manage Data Persistence with Solve and SolveAsync
+ *
  * Revision 1.14  2003/09/29 09:33:50  pcombes
  * solve*: Delete the parameters allocated by unmrsh_in_args_to_profile.
  *
@@ -214,7 +217,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
   stat_in("SeD","solve");
 
 
-  TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::solve invoked on pb: " << path << endl);
+   TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::solve invoked on pb: " << path << endl);
   
   ref = SrvT->lookupService(path, &pb);
   if (ref == -1) {
@@ -226,42 +229,29 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
 #if DEVELOPPING_DATA_PERSISTENCY
   // added for data persistence 
   int i;
-  char* s = NULL ;
-  int* tabValue(NULL);
+  char *s = NULL ;
 
-  profile.last_in = pb.last_in;
-  profile.last_inout = pb.last_inout;
-  profile.last_out = pb.last_out;
- 
-  // end for tests 
-  tabValue=(int *)malloc(pb.last_out*sizeof(int));
-  for (i = 0; i <= profile.last_inout; i++) tabValue[i] = -1; 
-  for (i = 0; i <= profile.last_inout; i++) {
+
+  for (i = 0; i <= pb.last_inout; i++) {
     s = (char *)malloc(sizeof(int));
     sprintf(s,"var%d",i);
     TRACE_VAR(s);
-    pb.parameters[i].desc.id = CORBA::string_dup(s);
-    if(pb.parameters[i].value.length() == 0){ tabValue[i]=0; TRACE_VAR(i);}
-  }  
+    pb.parameters[i].desc.id.idNumber = CORBA::string_dup(s); /* creation of a local id */ 
+  } 
+ 
+  for (i=0; i <= pb.last_inout; i++) {
+    if(pb.parameters[i].value.length() == 0){ /* In argument with NULL value : data is present */
+      this->dataMgr->getData(pb.parameters[i]); 
+    } else { /* data is not yet present but is persistent */
+      if( diet_is_persistent(pb.parameters[i]) ) {
+       	this->dataMgr->addData(pb.parameters[i],0);
+      }
+    }
+  } 
 
   unmrsh_in_args_to_profile(&profile, &pb, cvt);
   
-  for (i = 0; i <= profile.last_inout; i++) {
-    
-    if(tabValue[i]==0){
-      
-      pb.parameters[i]= this->dataMgr->getData(pb.parameters[i].desc.id);
-      cout << "DATA PRESENT = GETTING IT....." << endl;
-      unmrsh_data((diet_data_t*)(&(profile.parameters[i])),&(pb.parameters[i]));
-    } else {
-      if( diet_is_persistent(pb.parameters[i]) ) {
-	
-	this->dataMgr->addData(pb.parameters[i],0);
-      } else {
-	cout << "Data Is not Persistent" << endl;
-      }
-    }
-  }
+  
   
 #else  // DEVELOPPING_DATA_PERSISTENCY  
   
@@ -275,26 +265,24 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
 
 
 #if DEVELOPPING_DATA_PERSISTENCY  
-  if(profile.last_inout > profile.last_in) {
-    for (i = profile.last_in + 1 ; i <= profile.last_inout; i++) {
-      if ( diet_is_persistent(profile.parameters[i])) {
+
+    for (i = pb.last_in + 1 ; i <= pb.last_inout; i++) {
+      if ( diet_is_persistent(pb.parameters[i])) {
 	this->dataMgr->updateDataList(pb.parameters[i]); 
       }
     }
-  }
-  if(profile.last_out > profile.last_inout) {
-    for (i = profile.last_inout + 1 ; i <= profile.last_out; i++) {
-      profile.parameters[i].desc.mode = DIET_PERSISTENT;
+ 
+    for (i = pb.last_inout + 1 ; i <= pb.last_out; i++) {
       s = (char *)malloc(sizeof(int));
       sprintf(s,"var%d",i);
       TRACE_VAR(s);
-      pb.parameters[i].desc.id = CORBA::string_dup(s);
-      if ( diet_is_persistent(profile.parameters[i])) {
-	cout << "adding out data" << endl;
-        this->dataMgr->addData(pb.parameters[i],1); 
+      pb.parameters[i].desc.id.idNumber = CORBA::string_dup(s);
+
+      if ( diet_is_persistent(pb.parameters[i])) {
+	this->dataMgr->addData(pb.parameters[i],1); 
       }
     }
-  }
+ 
 #endif // DEVELOPPING_DATA_PERSISTENCY
   
   if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
@@ -313,10 +301,8 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 		    CORBA::Long reqID, const char* volatileclientREF)
 {
 #if DEVELOPPING_DATA_PERSISTENCY
-  int i;
-  char* s = NULL;
-  int* tabValue;
-  corba_profile_t pbc = pb;
+ 
+
 #endif // DEVELOPPING_DATA_PERSISTENCY
 
   // test validity of volatileclientREF
@@ -345,92 +331,79 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
       cvt = SrvT->getConvertor(ref);
 
 #if DEVELOPPING_DATA_PERSISTENCY
+      int i;
+      char* s = NULL ;
 
-      profile.last_in = pbc.last_in;
-      profile.last_inout = pbc.last_inout;
-      profile.last_out = pbc.last_out;
-      
-      // end for tests 
-      tabValue=(int *)malloc(pbc.last_inout*sizeof(int));
-      for (i = 0; i <= profile.last_inout; i++) tabValue[i] = -1; 
-      for (i = 0; i <= profile.last_inout; i++) {
+      for (i = 0; i <= pb.last_inout; i++) {
 	s = (char *)malloc(sizeof(int));
 	sprintf(s,"var%d",i);
-	TRACE_VAR(s);
-	pbc.parameters[i].desc.id = CORBA::string_dup(s);
-	if(pbc.parameters[i].value.length() == 0){ tabValue[i]=0; TRACE_VAR(i);}
       }
       
-      unmrsh_in_args_to_profile(&profile, &pbc, cvt);
-      
-      for (i = 0; i <= profile.last_inout; i++) {
-	
-	if(tabValue[i]==0){
+      for (i = 0; i <= pb.last_inout; i++) {    
+	if(pb.parameters[i].value.length() == 0){
 	  
-	  pbc.parameters[i]= this->dataMgr->getData(pbc.parameters[i].desc.id);
-	  unmrsh_data((diet_data_t*)(&(profile.parameters[i])),&(pbc.parameters[i]));
+	  this->dataMgr->getData(const_cast<corba_data_t&>(pb.parameters[i]));
+	  
 	} else {
-	  if( diet_is_persistent(pbc.parameters[i]) ) {
+	  if( diet_is_persistent(pb.parameters[i]) ) {
 	    
-	    this->dataMgr->addData(pbc.parameters[i],0);
-	  } else {
-	    cerr << "ERROR : SOLEV ASYNC UNABLE TO ADD OR RETRIEVE DATA" << endl;
+	    this->dataMgr->addData(const_cast<corba_data_t&>(pb.parameters[i]),0);
 	  }
 	}
       }
+      
+      unmrsh_in_args_to_profile(&profile, &(const_cast<corba_profile_t&>(pb)), cvt);
+      
+      
       
       displayProfile(&profile, path);
       
 #else // DEVELOPPING_DATA_PERSISTENCY
       
       unmrsh_in_args_to_profile(&profile, &(const_cast<corba_profile_t&>(pb)), cvt);
-
+      
 #endif // DEVELOPPING_DATA_PERSISTENCY
-
+      
       solve_res = (*(SrvT->getSolver(ref)))(&profile);
-
+      
 #if ! DEVELOPPING_DATA_PERSISTENCY
-
+      
       mrsh_profile_to_out_args(&(const_cast<corba_profile_t&>(pb)), &profile, cvt);
-
+      
 #else  // ! DEVELOPPING_DATA_PERSISTENCY
       
-      mrsh_profile_to_out_args(&pbc, &profile, cvt);
-      if(profile.last_inout > profile.last_in) {
-	for (i = profile.last_in + 1 ; i <= profile.last_inout; i++) {
-	  if ( diet_is_persistent(profile.parameters[i])) {
-	    this->dataMgr->updateDataList(pbc.parameters[i]); 
-	  }
+      mrsh_profile_to_out_args(&(const_cast<corba_profile_t&>(pb)), &profile, cvt);
+      for (i = profile.last_in + 1 ; i <= profile.last_inout; i++) {
+	if ( diet_is_persistent(profile.parameters[i])) {
+	  this->dataMgr->updateDataList(const_cast<corba_data_t&>(pb.parameters[i])); 
 	}
       }
-      if(profile.last_out > profile.last_inout) {
-	for (i = profile.last_inout + 1 ; i <= profile.last_out; i++) {
-	  profile.parameters[i].desc.mode = DIET_PERSISTENT;
-	  s = (char *)malloc(sizeof(int));
-	  sprintf(s,"var%d",i);
-	  TRACE_VAR(s);
-	  pbc.parameters[i].desc.id = CORBA::string_dup(s);
-	  if ( diet_is_persistent(profile.parameters[i])) {
-	    
-	    this->dataMgr->addData(pbc.parameters[i],1); 
-	  }
+      
+      for (i = profile.last_inout + 1 ; i <= profile.last_out; i++) {
+	s = (char *)malloc(sizeof(int));
+	sprintf(s,"var%d",i);
+	TRACE_VAR(s);
+        const_cast<CORBA::String_member&>(pb.parameters[i].desc.id.idNumber) = CORBA::string_dup(s);
+	if ( diet_is_persistent(profile.parameters[i])) {
+	  
+	  this->dataMgr->addData(const_cast<corba_data_t&>(pb.parameters[i]),1); 
 	}
       }
-       
+      
       
       /* Free data */
 #if 0
       for(i=0;i<pb.last_out;i++)
 	if(!diet_is_persistent(profile.parameters[i])) {
-	  // FIXME : adding file test
-	   CORBA::Char *p1 (NULL);
-       p1 = pbc.parameters[i].value.get_buffer(1);
-       _CORBA_Sequence<unsigned char>::freebuf((_CORBA_Char *)p1);
-	}
-	
+	    // FIXME : adding file test
+	  CORBA::Char *p1 (NULL);
+	  p1 = pbc.parameters[i].value.get_buffer(1);
+	  _CORBA_Sequence<unsigned char>::freebuf((_CORBA_Char *)p1);
+	  }
+      
 #endif
       // FIXME: persistent data should not be freed but referenced in the data list.
-
+      
 #endif // ! DEVELOPPING_DATA_PERSISTENCY
 
       TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::" << __FUNCTION__ << " complete\n"
