@@ -10,6 +10,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.13  2004/07/06 13:40:42  ctedesch
+%* add corrections from Raphael Bolze.
+%*
 %* Revision 1.12  2004/04/09 11:19:32  rbolze
 %* Add the testing platform : Linux/amd64
 %*
@@ -215,6 +218,7 @@ and send it to the LogService. Note that the support of LogService is
 built in. You do not have to install the LogService package to compile
 with this option.
 
+
 {\footnotesize
 \begin{verbatim}
  --enable-ScaLAPACK      enable the module ScaLAPACK, an example for calling
@@ -222,8 +226,17 @@ with this option.
 \end{verbatim}
 }
 \noindent This option activates the compilation of the DIET \scalapack\ examples,
-as a sub-module of examples (which means that this option has no effect if
-examples are disabled) - disabled by default.
+as a sub-module of examples (which means that this option has no
+effect if examples are disabled) - disabled by default.
+
+{\footnotesize
+\begin{verbatim}
+  --enable-JXTA-mode      enable DIET/JXTA architecture
+\end{verbatim}
+}
+\noindent This option allows the user to deploy DIET$_{JXTA}$ architectures. 
+When this option is activated (disable by default), DIET allows only
+this type of architecture to be deployed.
 
 {\footnotesize
 \begin{verbatim}
@@ -427,6 +440,7 @@ DIET successfully configured as follows:
  - ORB:             omniORB 4 in /usr
  - prefix:          /home/username/DIET/install
  - multi-MA:        no
+ - JXTA:            no
  - target platform: i686-pc-linux-gnu
  
 Please run make help to get compilation instructions.

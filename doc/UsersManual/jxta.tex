@@ -16,9 +16,9 @@ To extend the field of the available services for each client in a
 transparent manner, DIET uses the Multi-Agent system to increase
 scalability. To achieve this, the MAs access each others' resources
 when processing a client's request. Thus, each request is not only
-submitted inside the tree of the MA contacted by the client, but also
-inside the tree of MAs connected to the first MA, if the first
-submission failed.
+submitted inside the hierarchy of the MA contacted by the client, but
+also inside the hierarchy of each MAs connected to the first MA, if the
+first submission failed.
 
 \section{P2P and JXTA}
 \label{sec:JXTA}
@@ -40,7 +40,7 @@ tools to develop a Multi-Agent system using peer-to-peer technology.
 
 In this chapter we discuss \textbf{the first prototype}. We plan to
 update this prototype with a future powerful Multi-MA using an
-algorithm of discovery. The architecture of DIET/JXTA is shown Figure
+algorithm of discovery. The DIET$_{JXTA}$ is shown Figure
 7.1. We can consider that the elements allowing its use are divided in
 two parts:
 
@@ -61,7 +61,7 @@ two parts:
  \begin{center}
    \resizebox{.7\linewidth}{!}{\includegraphics{fig/global_platform_jxta.eps}}
   \label{fig:platform}
-  \caption{DIET/JXTA architecture}
+  \caption{DIET$_{JXTA}$ architecture}
  \end{center}
 \end{figure}
 
@@ -168,12 +168,12 @@ The general algorithm of the MA$_{JXTA}$ is as follows:
 \end{itemize}}
 \end{itemize}
 
-\subsection{The DIET/JXTA interface: JNI}
+\subsection{Interfacing JXTA and DIET with JNI}
 \label{ssec:jni}
 
 JNI is a technology allowing programmers to call native methods
 (written in C/C++) from a program written in java. As seen before, the
-DIET/JXTA components having a DIET part and a JXTA part are the MA
+DIET$_{JXTA}$ components having a DIET part and a JXTA part are the MA
 and the SeD.
 
 \subsubsection{The MA$_{DIET}$}
@@ -218,7 +218,7 @@ The SeD$_{DIET}$ contains:
         \end{itemize}
 \end{itemize}
 
-\section{The future of DIET/JXTA}
+\section{The future of DIET$_{JXTA}$}
 \label{sec:future}
 
 \subsection{Remaining problems}
@@ -228,12 +228,13 @@ The SeD$_{DIET}$ contains:
 \item{An unsolved problem dealing with \textbf{omniORB and JNI}
     results in a failure when a JNI SeD$_{DIET}$ registers to a DIET
     Agent not launched via JNI. Because of that, to deploy some LAs
-    between a DIET/MA$_{JXTA}$ and a DIET/JXTA SeD, they have to be
-    launched via JNI.  Moreover, a DIET/MA$_{JXTA}$ won't be able to
-    know LAs or SeDs not launched via JNI.  The current DIET/JXTA tree
-    is unable to contain classic LAs$_{DIET}$ or SeDs$_{DIET}$.}
+    between a DIET$_{JXTA}$ MA and a DIET$_{JXTA}$ SeD, they have to
+    be launched via JNI.  Moreover, a DIET$_{JXTA}$ MA won't be able
+    to know LAs or SeDs not launched via JNI.  The current
+    DIET$_{JXTA}$ tree is unable to contain classic LAs$_{DIET}$ or
+    SeDs$_{DIET}$.}
   
-\item{The current version of the DIET/JXTA platform works only for
+\item{The current version of the DIET$_{JXTA}$ platform works only for
     problems having two input matrices and one output matrix. The
     serialization has been written only for these cases. One of the
     first things to do is to write a \textbf{generic packing and
@@ -266,7 +267,7 @@ The SeD$_{DIET}$ contains:
 \end{itemize}
 
 
-\section{Working with a DIET/JXTA platform}
+\section{Working with a DIET$_{JXTA}$ platform}
 \label{sec:workwithjxta}
 
 \subsection{Installation and configuration}
@@ -280,8 +281,8 @@ The SeD$_{DIET}$ contains:
 \item{Download from
     \texttt{http://download.jxta.org/stablebuilds/index.html} and
     extract the JAR files of the last stable JXTA release (current
-    version of DIET/JXTA is based on JXTA 2.3). Files to download are
-    :}
+    version of DIET$_{JXTA}$ is based on JXTA 2.3). Files to download
+    are :}
 \begin{itemize}
 \item{\texttt{jxta.jar},}
 \item{\texttt{jxtasecurtity.jar},}
@@ -293,30 +294,36 @@ The SeD$_{DIET}$ contains:
     \texttt{JXTA\_LIB} containing the directory where you extracted
     the JAR files.}
   
-\item{Then, to configure DIET and to deploy DIET/JXTA platforms, the
+\item{Then, to configure DIET and to deploy DIET$_{JXTA}$ platforms, the
     \texttt{./configure} command must be run with options including
     \texttt{--enable-JXTA-mode} (warning, case sensitive!) and
     ·\texttt{--enable-examples} for the client$_{JXTA}$. It is
     recommended to add the option \texttt{--without-FAST}, because no
-    scheduling is made in the current DIET/JXTA platform.}
+    scheduling is made in the current DIET$_{JXTA}$ platform:
+
+    \noindent
+    {\footnotesize
+      \texttt{$\sim$/DIET> ./configure --enable-JXTA-mode --enable-examples --without-FAST}
+      
+    }
+}
 
 \end{itemize}
 
-\subsection {Deploying a DIET/JXTA platform}
+\subsection {Deploying a DIET$_{JXTA}$ platform}
 \label{ssec:deployjxta}
 
 Please refer to the previous chapter for more information concerning
 things to do before deploying the platform.
 
 \begin {itemize}
-\item{\textbf{First step}: launching a MA$_{JXTA}$. After having set the
-    \texttt{OMNIORB\_CONFIG} and \\ \texttt{OMNINAMES\_LOGDIR} paths, DIET is ready
-    to run, except the JXTA part. You have to set : }
+\item{\textbf{First step}: launching a MA$_{JXTA}$. After having set
+    the \texttt{LD\_LIBRARY\_PATH}, \\ \texttt{OMNIORB\_CONFIG} and
+    \texttt{OMNINAMES\_LOGDIR} paths, DIET is ready to run, except the JXTA part :}
 
     \begin{itemize}
-    \item {\texttt{LD\_LIBRARY\_PATH}, to allow the java classes to load
-        libraries including the native methods : \\ \texttt{<DIET\_root>/src/agent/.libs}.}
-    \item{\texttt{JXTA\_LIB}, the directory containing the JXTA JARs,}
+    \item{Ensure that \texttt{JXTA\_LIB}, the directory containing the
+        JXTA JARs, is correctly set.}
     \item{At last, the command to be launched to run a MA$_{JXTA}$ is:\\\\
         \texttt{\$ java -cp <JXTA\_JARS> JXTAMultiMA <DIET\_MA\_config\_file>}\\\\
         Ensure that this command is launched inside the right
@@ -331,7 +338,7 @@ things to do before deploying the platform.
         it.  On the first setup screen, the name of the peer is
         required and must be unique, for instance, ``MA1''. The second
         screen, named ``advanced'', displays the TCP and HTTP
-        settings. When using DIET/JXTA on a single machine, the
+        settings. When using DIET$_{JXTA}$ on a single machine, the
         configuration is on figure 7.2, in the other case, just
         replace \texttt{localhost} by the IP address of the machine.
         Please note that, for each peer on a single machine, the TCP
@@ -350,16 +357,14 @@ things to do before deploying the platform.
  \begin{center}
   \resizebox{.7\linewidth}{!}{\includegraphics{fig/JXTAConfig.ps}}
   \label{fig:platform}
-  \caption{General architecture of DIET/JXTA}
+  \caption{Configuring JXTA}
  \end{center}
 \end{figure}
 
-\item{\textbf{Second step}: registering a SeD to the MA. The same
-    paths must be set:\\ (\texttt{<DIET\_root>/src/SeD/.libs} for
-    \texttt{LD\_LIBRARY\_PATH}.) Be sure that the \texttt{parentName}
-    inside the configuration file matches the name
-    of the MA$_{DIET}$ previously launched. The command to run is:\\\\
-    \texttt{\$ java -cp <JXTA\_LIBS> JXTASeD
+\item{\textbf{Second step}: registering a SeD to the MA. Be sure that
+    the \texttt{parentName} inside the configuration file matches the
+    name of the MA$_{DIET}$ previously launched. The command to run is:\\\\
+    \texttt{\$ java -cp <JXTA\_JARS> JXTASeD
       <DIET\_SeD\_config\_file>\linebreak[4] <computation\_abilities>}
     \\\\ If you want to put LA(s) between the MA and the
     SeD, launch the following command before loading the SeD:\\\\
@@ -368,7 +373,7 @@ things to do before deploying the platform.
     configuration files. }
 
 \item{\textbf{Third step}: Launch a JXTA client with the command:\\\\
-                    \texttt{\$ java -cp <JXTA\_LIBS> ClientJXTA <pb>}}
+                    \texttt{\$ java -cp <JXTA\_JARS> ClientJXTA <pb>}}
 
 \end{itemize}
 
