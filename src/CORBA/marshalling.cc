@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.22  2003/01/23 18:40:53  pcombes
+ * Remove "only_value" argument to unmrsh_data, which is now useless
+ *
  * Revision 1.21  2003/01/22 17:11:54  pcombes
  * API 0.6.4 : istrans -> order (row- or column-major)
  *
@@ -405,9 +408,9 @@ int unmrsh_data_desc_to_sf(sf_data_desc_t *dest, const diet_data_desc_t *src)
 }
 
 
-int unmrsh_data(diet_data_t *dest, corba_data_t *src, int only_value)
+int unmrsh_data(diet_data_t *dest, corba_data_t *src)
 {
-  if ((!only_value) && unmrsh_data_desc(&(dest->desc), &(src->desc)))
+  if (unmrsh_data_desc(&(dest->desc), &(src->desc)))
     return 1;
   if (src->desc.specific._d() == (long) DIET_FILE) {
     dest->desc.specific.file.size = src->desc.specific.file().size;
@@ -687,7 +690,7 @@ int unmrsh_in_args_to_profile(diet_profile_t *dest, corba_profile_t *src,
     if ((arg_idx >= 0) && (arg_idx <= src->last_out)) {
       if (!src_params[arg_idx]) {
 	src_params[arg_idx] = new diet_data_t;
-	unmrsh_data(src_params[arg_idx], &(src->parameters[arg_idx]), 0);
+	unmrsh_data(src_params[arg_idx], &(src->parameters[arg_idx]));
       }
       dd_tmp = src_params[arg_idx];
     } else {
@@ -827,10 +830,9 @@ int unmrsh_out_args_to_profile(diet_profile_t *dpb, corba_profile_t *cpb)
     }
   }
 
-  // Unmarshal OUT parameters, but not the descriptions to save time,
-  // EXCEPT for files !!
+  // Unmarshal OUT parameters
   for (; i <= dpb->last_out; i++) {
-    unmrsh_data(&(dpb->parameters[i]), &(cpb->parameters[i]), 1);
+    unmrsh_data(&(dpb->parameters[i]), &(cpb->parameters[i]));
   }
   return 0;
 }

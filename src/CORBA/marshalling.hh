@@ -12,6 +12,9 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.12  2003/01/23 18:40:53  pcombes
+ * Remove "only_value" argument to unmrsh_data, which is now useless
+ *
  * Revision 1.11  2002/12/03 19:08:23  pcombes
  * Update configure, update to FAST 0.3.15, clean CVS logs in files.
  * Put main Makefile in root directory.
@@ -63,7 +66,7 @@
 /* but their name and prototype should be relevant enough.                  */
 /*--------------------------------------------------------------------------*/
 
-int unmrsh_data(diet_data_t *dest, corba_data_t *src, int only_value);
+int unmrsh_data(diet_data_t *dest, corba_data_t *src);
 
 
 /*
