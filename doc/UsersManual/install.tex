@@ -8,6 +8,15 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.3  2003/12/03 11:06:57  pkchouha
+%* 1. change the version of DIET to 1.0
+%* 2. DIET.tgz to DIET_0.1.tgz
+%* 3. added the unlisted options in  section 2.2.1
+%* 4. commented the  all part of section 2.2.2 before the subcetion oniORB
+%* 5. added the unlisted options in section 2.2.2
+%* 6. changed the args to conftest.c -o conftest
+%* 7. changed some words and sentances for simplification
+%*
 %* Revision 1.2  2003/11/28 11:51:36  pcombes
 %* Correction about gcc-2.96 management of exception handling.
 %*
@@ -86,7 +95,7 @@ DIET with \verb+gcc+ requires at least \verb+gcc-2.96+.
 The agent and server parts of DIET can depend on FAST (see §\ref{sec:FAST}).
 Although not absolutely compulsory, it is strongly recommended: indeed, all
 communication and computation times are set to infinity if FAST is not
-installed.  FAST depends itself on:
+installed.  FAST depends on:
 \begin{itemize}
  \item{\textbf{DB 2}} the Berkeley Database routines
  \item{\textbf{GSL}} the GNU Scientific Library
@@ -94,9 +103,10 @@ installed.  FAST depends itself on:
                           Protocol
  \item{\textbf{NWS}} the Network Weather Service
 \end{itemize}
-For more details about FAST dependencies, please refer to the FAST User's Manual
-soon available. It is important to understand basically how FAST works, and the
-role of its dependencies, to deactivate the ones not needed by the user.\\
+For more details about FAST dependencies, please refer to the FAST
+User's Manual [http://graal.ens-lyon.fr/FAST/]. It is important to understand basically
+how FAST works, and the role of its dependencies, to deactivate the
+ones that not needed by the user.\\
 
 
 Finally, some examples provided in the DIET sources depend on the BLAS and
@@ -115,10 +125,10 @@ compiling: its main options are described below, but please, run
 
 {\footnotesize
 \begin{verbatim}
-~ > tar xzf DIET.tgz
+~ > tar xzf DIET_0.1.tgz
 ~ > cd DIET
 ~/DIET > ./configure --help=short
-Configuration of DIET:
+Configuration of DIET 1.0:
 ...
 \end{verbatim}
 }
@@ -126,6 +136,13 @@ Configuration of DIET:
 \subsection{Optional features for configuration}
 
 {\footnotesize
+\begin{verbatim}
+  --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
+  --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
+  --enable-maintainer-mode enable make rules and dependencies not useful
+                          (and sometimes confusing) to the casual installer
+\end{verbatim}
+
 \begin{verbatim}
   --enable-doc            enable the module doc, documentation about DIET
 \end{verbatim}
@@ -163,9 +180,22 @@ are disabled) - disabled by default.
 as a sub-module of examples (which means that this option has no effect if
 examples are disabled) - disabled by default.
 
-%
-% FIXME: Sylvain should document this option if it is a permanent option.
-%
+{\footnotesize
+\begin{verbatim}
+  --enable-Cichlid        enable generation of communication logs for Cichlid
+  --enable-stats          enable generation of statistics logs
+  --enable-multi-MA       enable multi-MA architecture
+  --disable-dependency-tracking Speeds up one-time builds
+  --enable-dependency-tracking  Do not reject slow dependency extractors
+  --enable-shared=PKGS  build shared libraries default=yes
+  --enable-static=PKGS  build static libraries default=yes
+  --enable-fast-install=PKGS  optimize for fast installation default=yes
+  --disable-libtool-lock  avoid locking (might break parallel builds)
+\end{verbatim}
+}
+
+ FIXME: Explain the new options.
+
 \begin{comment}
 {\footnotesize
 \begin{verbatim}
@@ -177,28 +207,38 @@ examples are disabled) - disabled by default.
 
 \subsection{Optional packages for configuration}
 
-\subsubsection{The \texttt{--with-PKG-extra} option}
 
-For all packages that DIET depends on, the \texttt{configure} script provides an
-option that let the user define the arguments needed to compile with the
-libraries of the package PKG: \texttt{--with-PKG-extra}. This is useful when
-the \texttt{configure} script does not succeed on its own to get necessary
-compilation option.
+{\footnotesize
+\begin{verbatim}
+  --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
+  --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
+  --with-gnu-ld           assume the C compiler uses GNU ld default=no
+  --with-pic              try to use only PIC/non-PIC objects default=use both
+\end{verbatim}
+}
 
-Let us take the example of a user who wishes to compile the BLAS examples (see
-the BLAS subsection below). On the platform he/she uses, it is necessary to
-specify the following arguments to compile with the BLAS library:
+%% \subsubsection{The \texttt{--with-PKG-extra} option}
 
-{\footnotesize \texttt{-lm -L/home/theuser/lib -lblas -lg2c -lm} }
+%% For all packages that DIET depends on, the \texttt{configure} script provides an
+%% option that let the user define the arguments needed to compile with the
+%% libraries of the package PKG: \texttt{--with-PKG-extra}. This is useful when
+%% the \texttt{configure} script does not succeed on its own to get necessary
+%% compilation option.
 
-\noindent
-Let us assume that specifying the option
-\texttt{--with-BLAS-libraries=/home/theuser/lib} is not enough for the
-\texttt{configure} script to compile DIET examples. Then, the user will have to
-add the following arguments to his/her \texttt{configure} command line:
+%% Let us take the example of a user who wishes to compile the BLAS examples (see
+%% the BLAS subsection below). On the platform he/she uses, it is necessary to
+%% specify the following arguments to compile with the BLAS library:
 
-{\footnotesize \texttt{--with-BLAS-extra="-lm -L/home/theuser/lib -lblas -lg2c
-  -lm"} }
+%% {\footnotesize \texttt{-lm -L/home/theuser/lib -lblas -lg2c -lm} }
+
+%% \noindent
+%% Let us assume that specifying the option
+%% \texttt{--with-BLAS-libraries=/home/theuser/lib} is not enough for the
+%% \texttt{configure} script to compile DIET examples. Then, the user will have to
+%% add the following arguments to his/her \texttt{configure} command line:
+
+%% {\footnotesize \texttt{--with-BLAS-extra="-lm -L/home/theuser/lib -lblas -lg2c
+%%   -lm"} }
 
 \subsubsection{omniORB}
 {\footnotesize
@@ -209,8 +249,8 @@ add the following arguments to his/her \texttt{configure} command line:
   --with-omniORB-libraries=DIR
                           specify exact libraries directory for omniORB
   --with-omniORB-extra=ARG|"ARG1 ARG2 ..."
-                          specify extra args for the linker to find the
-                          omniORB libraries (use "" in case of several args)
+                          specify extra conftest.c -o conftest for the linker to find the
+                          omniORB libraries (use "" in case of several conftest.c -o conftest)
 \end{verbatim}
 }
 \noindent This group of options lets the user define all necessary paths to
@@ -228,9 +268,9 @@ variable should be enough in most cases.
 }
 \noindent This group of options lets the user define all necessary paths to
 compile with FAST. Generally, \texttt{--with-FAST=} would be enough, and the
-other options are provided for ugly installations of FAST. There is no need to
-specify includes, libraries nor extra arguments, since FAST provides a tool
-\texttt{fast-config} that does the job for us.\\
+other options are provided for difficult installations of FAST. There is no need to
+specify includes, libraries and extra arguments, since FAST provides a tool
+\texttt{fast-config} that does the job automatically.\\
 \textbf{NB1:} having the executable \texttt{fast-config} in the PATH environment
 variable should be enough in most cases.\\
 \textbf{NB2:} it is possible to specify \texttt{--without-FAST}, which overrides
@@ -239,39 +279,41 @@ variable should be enough in most cases.\\
 \subsubsection{BLAS}
 {\footnotesize
 \begin{verbatim}
-  --with-BLAS=DIR         specify the root installation directory of BLAS
+  --with-BLAS=DIR         specify the root installation directory of BLAS (Basic Linear Algebric Subroutines)
+
   --with-BLAS-includes=DIR
                           specify exact headers directory for BLAS
   --with-BLAS-libraries=DIR
                           specify exact libraries directory for BLAS
   --with-BLAS-extra=ARG|"ARG1 ARG2 ..."
-                          specify extra args for the linker to find the BLAS
-                          libraries (use "" in case of several args)
+                          specify extra conftest.c -o conftest for the linker to find the BLAS
+                          libraries (use "" in case of several conftest.c -o conftest)
 \end{verbatim}
 }
 \noindent This group of options lets the user define all necessary paths to
 compile with the BLAS libraries. Generally, \texttt{--with-BLAS=} would be
-enough, and the other options are provided for ugly installation of the BLAS.\\
+enough, and the other options are provided for difficult installation of the BLAS.\\
 \textbf{NB:} these options have no effect if the module example and/or its
 sub-module BLAS are disabled.
 
 \subsubsection{\scalapack}
 {\footnotesize
 \begin{verbatim}
-  --with-ScaLAPACK=DIR    specify the root installation directory of ScaLAPACK
+  --with-ScaLAPACK=DIR    specify the root installation directory of ScaLAPACK (parallel version of the LAPACK library)
+
   --with-ScaLAPACK-includes=DIR
                           specify exact headers directory for ScaLAPACK
   --with-ScaLAPACK-libraries=DIR
                           specify exact libraries directory for ScaLAPACK
   --with-ScaLAPACK-extra=ARG|"ARG1 ARG2 ..."
-                          specify extra args for the linker to find the
-                          ScaLAPACK libraries (use "" in case of several args)
+                          specify extra conftest.c -o conftest for the linker to find the
+                          ScaLAPACK libraries (use "" in case of several conftest.c -o conftest)
 \end{verbatim}
 }
 \noindent This group of options lets the user define all necessary paths to
 compile with the \scalapack\ libraries. Normally, \texttt{--with-ScaLAPACK=}
 should be enough, but the other options are provided because the installation of
-the \scalapack\ libraries is often ugly, and thus difficult to detect
+the \scalapack\ libraries is often difficult, and thus difficult to detect
 automatically: for instance, the \texttt{--with-ScaLAPACK-extra} option is
 useful to integrate BLACS and MPI libraries, which are useful for ScaLAPACK.
 \\
@@ -296,7 +338,7 @@ were selected and what it was possible to get. The output will look like:
 ~/DIET > ./configure --enable-doc --enable-BLAS
 DIET successfully configured as follows:
  - documents:       yes
- - examples:        dmat_manips, file_transfer, BLAS
+ - examples:        dmat_manips, file_transfer, scalars
  - FAST:            found /home/pcombes/DIET/FAST/bin/fast-config
  - ORB:             omniORB 4 in /usr
  - prefix:          /home/pcombes/DIET/install
@@ -316,7 +358,7 @@ Please run make help to get compilation instructions.
 \end{verbatim}
 }
 
-This lets the user choose the DIET parts he/she wants to compile and install. It
+This helps the user to choose the DIET parts for installation and compilation. It
 is recommended for beginners to compile the client, the SeD and the agent in one
 single step with \texttt{make all}. But please, pay attention to the fact that
 \texttt{make all} does not install DIET in the prefix provided at configuration
@@ -345,9 +387,9 @@ Four series of examples are provided in the DIET archive:
   transposition (\texttt{T}), product (\texttt{MatPROD}) and sum
   (\texttt{MatSUM}, \texttt{SqMatSUM} for square matrices, and
   \texttt{SqMatSUM\_opt} for square matrices but re-using the memory space of
-  the second operand for the result) Any subset of these operations can be
+  the second operand for the result). Any subset of these operations can be
   specified on the command line. The last two of them are given for
-  compatibility with a BLAS server - see below
+  compatibility with a BLAS server, explained below.
   
 \item{\texttt{BLAS}}: the server is designed to offer all BLAS (Basic Linear
   Algebric Subroutines) functions but only manages the \texttt{dgemm\_} function
@@ -377,9 +419,9 @@ copy binary files into \texttt{$<$install\_dir$>$/bin}, but in
 
 Likewise, the samples of configuration files located in \texttt{examples/cfgs}
 are processed by \texttt{make install} to create ready-to-use configuration
-files in \texttt{examples/etc}, and then copied into
+files in \texttt{examples/etc} and then copied into
 \texttt{$<$install\_dir$>$/etc}. Successive calls to make install will not erase
 the configuration files created and copied at first time, except if \texttt{make
-  uninstall} is called inbetween ; thus the user will not lose his/her changes
+  uninstall} is called inbetween ; thus the user will not lose thechanges
 to these files.
 
