@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2003/06/23 13:35:49  pcombes
+ * useAsyncApi -> useAsyncAPI
+ *
  * Revision 1.7  2003/06/02 08:08:11  cpera
  * Beta version of asynchronize DIET API.
  *
@@ -49,7 +52,7 @@ Parsers::Results::param_t Parsers::Results::params[] =
    /* [10] */ {"nwsUse", 6, Parsers::parseUse, 0, NULL},
    /* [11] */ {"nwsNameserver", 13, Parsers::parseAddress, 0, NULL},
    /* [12] */ {"nwsForecaster", 13, Parsers::parseAddress, 0, NULL},
-   /* [13] */ {"useAsyncApi", 11, Parsers::parseUse, 0, NULL}};
+   /* [13] */ {"useAsyncAPI", 11, Parsers::parseUse, 0, NULL}};
 
 #define IS_ADDRESS(i) ((i == 8) || (i == 11) || (i == 12))
 
