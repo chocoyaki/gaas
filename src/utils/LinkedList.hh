@@ -1,9 +1,18 @@
-// $Id$
-
-/*
- * This is part of DIET software.
- * Copyright (C) 2002 ReMaP/LIFC/INRIA
- */
+/****************************************************************************/
+/* Thread generic double linked list header                                 */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)                   */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.2  2003/04/10 12:49:48  pcombes
+ * Apply Coding Standards. Remove assertions in next() and previous() so
+ * that it is possible to loop on the elements of the list.
+ *
+ ****************************************************************************/
 
 #ifndef _LINKEDLIST_HH_
 #define _LINKEDLIST_HH_
@@ -268,7 +277,7 @@ public :
     /**
      * creates a new iterator for the linked list \c controledList.
      *
-     * @parame controledList pointer on the list which is controled by
+     * @param controledList pointer on the list which is controled by
      * the iterator.
      */
     Iterator(LinkedList* controledList) {
@@ -319,7 +328,6 @@ public :
      * check if it existe withe the \c hasNext() methods.
      */
     inline void next() {
-      assert(hasNext()) ;
       currentNode = currentNode->next ;
     }
 
@@ -329,7 +337,6 @@ public :
      * methods.
      */
     inline void previous() {
-      assert(hasPrevious()) ;
       currentNode = currentNode->previous ;
     }
 
