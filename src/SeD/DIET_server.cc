@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2004/05/28 10:53:21  mcolin
+ * change the endpoint option names for agents and servers
+ *  endPointPort -> dietPort
+ *  endPointHostname -> dietHostname
+ *
  * Revision 1.25  2004/05/24 20:54:41  alsu
  * replacing diet_service_table_set_perfmetric with shorter, less
  * confusing function name diet_service_use_perfmetric
@@ -364,9 +369,9 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   /* Get listening port & hostname */
 
   size_t* port = (size_t*) 
-    (Parsers::Results::getParamValue(Parsers::Results::ENDPOINTPORT));
+    (Parsers::Results::getParamValue(Parsers::Results::DIETPORT));
   char* host = (char*)
-    (Parsers::Results::getParamValue(Parsers::Results::ENDPOINTHOST));
+    (Parsers::Results::getParamValue(Parsers::Results::DIETHOSTNAME));
   if ((port != NULL)|| (host !=NULL)) {
     char *  endPoint = (char *) calloc(48, sizeof(char*)) ;
     int    tmp_argc = myargc + 2;

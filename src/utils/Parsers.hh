@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2004/05/28 10:53:21  mcolin
+ * change the endpoint option names for agents and servers
+ *  endPointPort -> dietPort
+ *  endPointHostname -> dietHostname
+ *
  * Revision 1.7  2004/04/16 19:04:40  mcolin
  * Fix patch for the vthd demo with the endPoint option in config files.
  * This option is now replaced by two options:
@@ -64,8 +69,8 @@ public:
       TRACELEVEL = 0,
       MANAME,
       AGENTTYPE,
-      ENDPOINTPORT,
-      ENDPOINTHOST,
+      DIETPORT,
+      DIETHOSTNAME,
       NAME,
       PARENTNAME,
       FASTUSE,

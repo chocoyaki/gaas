@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2004/05/28 10:53:21  mcolin
+ * change the endpoint option names for agents and servers
+ *  endPointPort -> dietPort
+ *  endPointHostname -> dietHostname
+ *
  * Revision 1.14  2004/04/16 19:04:40  mcolin
  * Fix patch for the vthd demo with the endPoint option in config files.
  * This option is now replaced by two options:
@@ -151,9 +156,9 @@ main(int argc, char** argv)
   /* Get listening port & hostname */
 
   size_t* port = (size_t*) 
-    (Parsers::Results::getParamValue(Parsers::Results::ENDPOINTPORT));
+    (Parsers::Results::getParamValue(Parsers::Results::DIETPORT));
   char* host = (char*)
-    (Parsers::Results::getParamValue(Parsers::Results::ENDPOINTHOST));
+    (Parsers::Results::getParamValue(Parsers::Results::DIETHOSTNAME));
   if ((port != NULL)|| (host !=NULL)) {
     char *  endPoint = (char *) calloc(48, sizeof(char*)) ;
     int    tmp_argc = myargc + 2;

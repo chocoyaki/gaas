@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2004/05/28 10:53:21  mcolin
+ * change the endpoint option names for agents and servers
+ *  endPointPort -> dietPort
+ *  endPointHostname -> dietHostname
+ *
  * Revision 1.17  2004/04/16 19:04:40  mcolin
  * Fix patch for the vthd demo with the endPoint option in config files.
  * This option is now replaced by two options:
@@ -60,10 +65,8 @@ Parsers::Results::param_t Parsers::Results::params[] =
   {/* [0]  */ {"traceLevel", 10, Parsers::parseTraceLevel, 0, NULL},
    /* [1]  */ {"MAName", 6, Parsers::parseName, 0, NULL},
    /* [2]  */ {"agentType", 9, Parsers::parseAgentType, 0, NULL},
-   // {"endPoint", 8, Parsers::parsePort, 0, NULL},
-   // TO FIX allow only 3 different syntaxes <host>:<port> <host>: <port>
-   /* [3]  */ {"endPointPort", 12, Parsers::parsePort, 0, NULL},
-   /* [4]  */ {"endPointHost", 12, Parsers::parseName, 0, NULL},
+   /* [3]  */ {"dietPort", 8, Parsers::parsePort, 0, NULL},
+   /* [4]  */ {"dietHostname", 12, Parsers::parseName, 0, NULL},
    /* [5]  */ {"name", 4, Parsers::parseName, 0, NULL},
    /* [6]  */ {"parentName", 10, Parsers::parseName, 0, NULL},
    /* [7]  */ {"fastUse", 7, Parsers::parseUse, 0, NULL},

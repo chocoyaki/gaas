@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2004/05/28 10:53:21  mcolin
+ * change the endpoint option names for agents and servers
+ *  endPointPort -> dietPort
+ *  endPointHostname -> dietHostname
+ *
  * Revision 1.24  2004/05/18 21:29:40  alsu
  * change the SeDImpl::estimate method to check for the existence of a
  * custom performance metric, and if so, call it with an apporpriate
@@ -180,7 +185,7 @@ SeDImpl::run(ServiceTable* services)
   //  delete profiles
 
   size_t* endPoint = (size_t*)
-    Parsers::Results::getParamValue(Parsers::Results::ENDPOINTPORT);
+    Parsers::Results::getParamValue(Parsers::Results::DIETPORT);
   // FIXME: How can I get the port used by the ORB ? and is it useful ?
   if (endPoint == NULL)
     this->port = 0;
