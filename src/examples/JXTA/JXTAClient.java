@@ -37,6 +37,7 @@ public class JXTAClient
   /* pipes informations */
   private OutputPipe outPipe;
   private InputPipe inPipe;
+  private PipeAdvertisement pipeAdvIn;
   private PipeID inPipeId;
 
   /* problem to be submitted and solved */
@@ -82,12 +83,11 @@ public class JXTAClient
   private void 
   run(String _pbName)
   {
+    MimeMediaType mimeType = new MimeMediaType("text", "xml");
     pbName = new String(_pbName);
 
     Enumeration jxtaMA = null;
-    String pID = null;
-    String pType = null;
-    ModuleSpecAdvertisement mdsadv = null;
+    PipeAdvertisement agentPipeAdv = null;
 
     System.out.print("Searching a DIET-MA advertisement... ");
     while (true) {
@@ -106,63 +106,32 @@ public class JXTAClient
     System.out.println("found.");
 
     System.out.print("Extracting Agent input pipe... ");
-    mdsadv = (ModuleSpecAdvertisement)jxtaMA.nextElement();
-    try {
-      StructuredTextDocument paramDoc = 
-        (StructuredTextDocument)mdsadv.getParam();
-      Enumeration elements = paramDoc.getChildren();
-      elements = ((TextElement)elements.nextElement()).getChildren();
-      
-      while (elements.hasMoreElements()) {
-        TextElement elem = (TextElement) elements.nextElement();
-        String nm = elem.getName();
-        if(nm.equals("Id")) {
-	   pID = elem.getTextValue();
-	   continue;
-        }
-	 if(nm.equals("Type"))
-	   pType = elem.getTextValue();
-      }
-    }
-    catch (Exception e) {
-      e.printStackTrace();
-    }
-    System.out.println(pID.toString());
+    agentPipeAdv = (PipeAdvertisement)jxtaMA.nextElement();
+    System.out.println("done.");
 
-    /* Create an input pipe to receive the agent response */
+    /* Create the pipe advertisement */
     try {
-      PipeAdvertisement pipeadvIn = (PipeAdvertisement) 
+      pipeAdvIn = (PipeAdvertisement) 
 	  AdvertisementFactory.newAdvertisement
 	  (PipeAdvertisement.getAdvertisementType());
       inPipeId = IDFactory.newPipeID(netPeerGroup.getPeerGroupID());
-      pipeadvIn.setPipeID(inPipeId);
-      pipeadvIn.setType(PipeService.UnicastType);
-      inPipe = pipeServ.createInputPipe(pipeadvIn);  
+      pipeAdvIn.setPipeID(inPipeId);
+      pipeAdvIn.setType(PipeService.UnicastType);
+
+      /* create the input pipe to receive the agent response */
+      inPipe = pipeServ.createInputPipe(pipeAdvIn);  
     }
     catch (Exception e) {
       e.printStackTrace();
     }
-	
-    /* Create an output pipe to send a message to the agent */
-    PipeAdvertisement pipeadvOut = (PipeAdvertisement) 
-	AdvertisementFactory.newAdvertisement
-	(PipeAdvertisement.getAdvertisementType());
-    try {
-      URL agentURL = new URL(pID);
-      pipeadvOut.setPipeID((PipeID)IDFactory.fromURL(agentURL));
-      pipeadvOut.setType(pType);
-    } 
-    catch(Exception e) {
-      e.printStackTrace();
-    }
 
     try {
-	outPipe = pipeServ.createOutputPipe(pipeadvOut, 20000);
+	outPipe = pipeServ.createOutputPipe(agentPipeAdv, 20000);
     }
     catch (IOException e) {
       System.out.print("Unable to connect the MA, ");
       System.out.println("should have been stopped recently.");
-      /* FIXME : try others MA */
+      /* FIXME : try others MA ? */
       System.out.println("STOP.");
       System.exit(1);
     }
@@ -175,6 +144,7 @@ public class JXTAClient
   private void 
   submitPb()
   {
+    MimeMediaType mimeType = new MimeMediaType("text", "xml");
     try {
       /* Create the description of the pb */
   
@@ -189,10 +159,14 @@ public class JXTAClient
     
       /* build a message containing this description */
       Message msg = new Message();
+
+      InputStream ip = pipeAdvIn.getDocument(mimeType).getStream();
+      InputStreamMessageElement smePipeAdv;
+      smePipeAdv = new InputStreamMessageElement("pipeAdv", 
+				      mimeType, 
+				      ip, null);
       StringMessageElement smeorigin = 
 	  new StringMessageElement("origin", "client", null);
-      StringMessageElement smeclientUuid = 
-	  new StringMessageElement("clientUuid", inPipeId.toString(), null);
       StringMessageElement smepbName = 
 	  new StringMessageElement("pbName", pbName, null);
       StringMessageElement smenbRow = 
@@ -201,7 +175,7 @@ public class JXTAClient
 	  new StringMessageElement("nbCol", nbCol, null);
 
       msg.addMessageElement(smeorigin);
-      msg.addMessageElement(smeclientUuid);
+      msg.addMessageElement(smePipeAdv);
       msg.addMessageElement(smepbName);
       msg.addMessageElement(smenbRow);
       msg.addMessageElement(smenbCol);
@@ -213,59 +187,57 @@ public class JXTAClient
 
       System.out.print("Waiting for the agent response... ");
       msg = inPipe.waitForMessage();
-      System.out.println("received:");
+      System.out.println("done.");
 
-      /* extract the SeD uuid(s) */
+      /* extract the SeD pipe advertisements */
+      int nbSeD = 0;
       Message.ElementIterator iter = msg.getMessageElements("SeDUuid");
-      int ind = 0;
-  
-      String[] sedUuids = new String [10];
-      while (iter.hasNext()){
-        sedUuids[ind] = (iter.next()).toString();
-        System.out.println("SeD input pipe : " + sedUuids[ind]);
-        ind++;
-      }
-      if(ind != 0){
-        /* print the SeD uuid(s) received */
-        System.out.println("Reception of " + ind + 
-  			 " SeD uuid(s).");
-  
-        /* Create an output pipe to send pb to SeD */	       
-        System.out.print ("Creating output pipe to send pb to SeD... ");
-        PipeAdvertisement pipeadvOut = (PipeAdvertisement) 
+      
+      /* Create an output pipe to send pb to SeD */	       
+      if (iter.hasNext()) {
+	System.out.print ("Creating output pipe to send pb to SeD... ");
+	PipeAdvertisement pipeAdvOut = (PipeAdvertisement) 
 	    AdvertisementFactory.newAdvertisement
 	    (PipeAdvertisement.getAdvertisementType());
-        URL SeDURL = null;
-        boolean connected = false;
-        for (int i = 0; ((i < ind) && (!connected)); i++) {
-          SeDURL = new URL(sedUuids[i]);
-          pipeadvOut.setPipeID((PipeID)IDFactory.fromURL(SeDURL)); 
-          pipeadvOut.setType(PipeService.UnicastType);
-		    
-          try {
-            connected = true;
-            outPipe = pipeServ.createOutputPipe(pipeadvOut, 20000);
-          }
-          catch(IOException e) {
-            System.out.println("Unable to connect the SeD " + i);
-            connected = false;
-          }
-        }
+	URI SeDURI = null;
+	boolean connected = false;
+	
+	/* Try to connect the SeDs, one by one */
+	int k = 1;
+	while (iter.hasNext() && !connected) {
+	  SeDURI = new URI(iter.next().toString());
+	  pipeAdvOut.setPipeID((PipeID)IDFactory.fromURI(SeDURI)); 
+	  pipeAdvOut.setType(PipeService.UnicastType);
+	  try {
+	    connected = true;
+	    outPipe = pipeServ.createOutputPipe(pipeAdvOut, 20000);
+	  }
+	  catch(IOException e) {
+	    System.out.println("Unable to connect the SeD " + k);
+	    connected = false;
+	  }
+	  k++;
+	}
+
 	if (!connected) {
-	  System.out.println("All SeDs tried unsuccessfully.");
+	  System.out.println("All SeDs tried without success.");
 	  System.out.println("STOP");
 	  System.exit(1);
 	}
-        System.out.println ("done.");
+	System.out.println ("done.");
 
         /* Create message containing the problem */
         System.out.print("Building the problem message for SeD... ");
         Message msgPb;
 
+	ip = pipeAdvIn.getDocument(mimeType).getStream();
+	InputStreamMessageElement pbsmePipeAdv;
+	pbsmePipeAdv = new InputStreamMessageElement("pipeAdv", 
+						     mimeType, 
+						     ip,
+						     null);
         StringMessageElement pbsmeorigin = 
 	    new StringMessageElement("origin", "client", null);
-        StringMessageElement pbsmeclientUuid = 
-	    new StringMessageElement("clientUuid", inPipeId.toString(), null);
         StringMessageElement pbsmepbName = 
 	    new StringMessageElement("pbName", pbName, null);
         StringMessageElement pbsmenbRow = 
@@ -279,7 +251,7 @@ public class JXTAClient
 
         msgPb = new Message();
 
-        msgPb.addMessageElement(pbsmeclientUuid);
+        msgPb.addMessageElement(pbsmePipeAdv);
         msgPb.addMessageElement(pbsmepbName);
         msgPb.addMessageElement(pbsmenbRow);
         msgPb.addMessageElement(pbsmenbCol);

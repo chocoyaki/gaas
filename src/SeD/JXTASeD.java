@@ -20,8 +20,8 @@ import net.jxta.peergroup.*;
 import net.jxta.protocol.*;
 import net.jxta.endpoint.*;
 import net.jxta.util.ClassFactory;
-import net.jxta.impl.peergroup.*;
 import net.jxta.exception.*;
+import net.jxta.document.MimeMediaType;
 
 public class JXTASeD
 {
@@ -150,9 +150,12 @@ class SolveThread extends Thread
 
   public void run()
   {
+    MimeMediaType mimeType = new MimeMediaType("text", "xml");
     try {
       /* Getting pb to be solved */
-      String clientUuid = (msg.getMessageElement("clientUuid")).toString();
+      InputStream ip = null;
+      ip = msg.getMessageElement("pipeAdv").getStream();
+      //String clientUuid = (msg.getMessageElement("clientUuid")).toString();
       String pb = (msg.getMessageElement("pbName")).toString();
       String nbRow = (msg.getMessageElement("nbRow")).toString();
       String nbCol = (msg.getMessageElement("nbCol")).toString();
@@ -160,29 +163,18 @@ class SolveThread extends Thread
       String mat2 = (msg.getMessageElement("mat2")).toString();
 
       /* Ping DIET SeD via JXTA SeD */
-      //System.out.print("SeD JXTA : Pinging DIET SeD... "); 
       sed.ping();
-      //System.out.println("done.");
-      System.out.println("JXTA SeD: Call DIET SeD solve on " + pb);
       
       /* Call DIET SeD to solve the pb */
+      System.out.println("JXTA SeD: Call DIET SeD solve on " + pb);
       String resultat = sed.solveJXTA(pb, nbRow, nbCol, mat1, mat2);
       
       /* Send back the response to client */
       System.out.println ("JXTA SeD : response : " + resultat);
       PipeAdvertisement clientPipeAdv = (PipeAdvertisement)
-	  AdvertisementFactory.newAdvertisement
-	  (PipeAdvertisement.getAdvertisementType());
-      try {
-        URL clientURL = new URL(clientUuid);
-        clientPipeAdv.setPipeID((PipeID)IDFactory.fromURL(clientURL));
-        clientPipeAdv.setType("JxtaUnicast");
-      }
-      catch (MalformedURLException badURL) {
-        badURL.printStackTrace();
-      }
+	  AdvertisementFactory.newAdvertisement(mimeType, ip);
+
       OutputPipe oppToClient = pipeServ.createOutputPipe(clientPipeAdv, 10000);
-      //Message respToClient = pipeServ.createMessage();
       Message respToClient = new Message();
       StringMessageElement smeresultat = new StringMessageElement
 	  ("response", resultat, null);
@@ -197,4 +189,3 @@ class SolveThread extends Thread
     }
   } // run
 } // SolveThread
-    
