@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2003/10/14 10:49:14  cpera
+ * Fix unmodified DIET_BYTE type from a previous commit.
+ *
  * Revision 1.6  2003/09/27 07:54:01  pcombes
  * Replace silly base type DIET_BYTE by DIET_SHORT.
  *
@@ -344,7 +347,7 @@ diet_to_fast_base_type(const diet_base_type_t t)
   switch (t) {
   case DIET_CHAR:
     return FAST_CHAR;
-  case DIET_BYTE:
+  case DIET_SHORT:
   case DIET_INT:
   case DIET_LONGINT:
     return FAST_INT;
