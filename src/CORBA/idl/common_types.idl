@@ -1,0 +1,187 @@
+/****************************************************************************/
+/* DIET IDL types for SeD registration and client request (init steps)      */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
+/*    - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)             */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.1  2003/04/10 12:17:45  pcombes
+ * Replace common_types.idl : IDL structures for service, problem and
+ * request description (inc. estimation).
+ *
+ ****************************************************************************/
+
+
+#ifndef _COMMON_TYPES_IDL_
+#define _COMMON_TYPES_IDL_
+
+typedef sequence<any>    SeqAny;
+typedef sequence<double> SeqDouble;
+typedef sequence<long>   SeqLong;
+typedef sequence<char>   SeqChar;
+typedef sequence<string> SeqString;
+
+
+/****************************************************************************/
+/* REGISTRATON _ Data description                                           */
+/* Mapping for the diet_data_desc_t type                                    */
+/****************************************************************************/
+
+/** Simple complex mapping */
+struct corba_scomplex_t {
+  float r;
+  float i;
+};
+/** Double complex mapping */
+struct corba_dcomplex_t {
+  double r;
+  double i;
+};
+
+/** Mapping for struct diet_scalar_specific */
+struct corba_scalar_specific_t {
+  any value;
+};
+
+/** Mapping for struct diet_vector_specific */
+struct corba_vector_specific_t {
+  long size;
+};
+
+/** Mapping fo structr diet_matrix_specific */
+struct corba_matrix_specific_t {
+  long nb_r;
+  long nb_c;
+  long order;
+};
+
+/** Mapping for struct diet_string_specific */
+struct corba_string_specific_t {
+  long length;
+};
+
+/** Mapping for struct diet_file_specific */
+struct corba_file_specific_t {
+  long size;
+  string path;
+};
+
+
+/**
+ * Descriptor
+ * The field 'type' in diet_data_desc_t is the discriminant of union field
+ */
+struct corba_data_desc_t {
+  string id;
+  long mode;
+  long base_type;
+  union type switch (long) {
+  case 0:
+    corba_scalar_specific_t scal;
+  case 1:
+    corba_vector_specific_t vect;
+  case 2:
+    corba_matrix_specific_t mat;
+  case 3:
+    corba_string_specific_t str;
+  case 4:
+    corba_file_specific_t   file;
+  } specific;
+};
+typedef sequence<corba_data_desc_t> SeqCorbaDataDesc_t;
+
+
+/****************************************************************************/
+/* REGISTRATON _ Service description                                        */
+/****************************************************************************/
+
+/** Argument descriptor */
+struct corba_arg_desc_t {
+  long base_type;
+  long type;
+};
+
+/** Service profile descriptor (mapping for diet_profile_desc_t) */
+struct corba_profile_desc_t {
+  string path;
+  long   last_in;
+  long   last_inout;
+  long   last_out;
+  sequence<corba_arg_desc_t> param_desc;
+};
+typedef sequence<corba_profile_desc_t> SeqCorbaProfileDesc_t;
+
+
+
+/****************************************************************************/
+/* REQUEST _ Problem profile description                                    */
+/****************************************************************************/
+
+/** Mapping for diet_data_t */
+struct corba_data_t {
+  corba_data_desc_t desc;
+  SeqChar value;
+};
+typedef sequence<corba_data_t> SeqCorbaData_t;
+
+/**
+ * Actually, this is an equivalent to a diet_profile_t without the data.
+ */
+struct corba_pb_desc_t {
+  string path;
+  long   last_in;
+  long   last_inout;
+  long   last_out;
+  SeqCorbaDataDesc_t param_desc;
+};
+
+/** The complete problem, sent from client to server. */
+struct corba_profile_t {
+  long   last_in;
+  long   last_inout;
+  long   last_out;
+  SeqCorbaData_t parameters;
+};
+
+
+/****************************************************************************/
+/* REQUEST                                                                  */
+/****************************************************************************/
+/**
+ * A request is associated to an ID, a problem description, and a scheduler.
+ */
+struct corba_request_t {
+  unsigned long     reqID;
+  corba_pb_desc_t   pb;
+  string            serialized_scheduler;
+};
+
+
+/****************************************************************************/
+/* ESTIMATION                                                               */
+/****************************************************************************/
+/**
+ * The estimation structure
+ * commTimes == Communication times of ALL parameters :
+ * the tranfer time of OUT parameters is estimated as if they were IN,
+ * which is better than not taking them into account.
+ *
+ * totalTime stores all communication times + tComp
+ */
+struct corba_estimation_t {
+  double    totalTime;
+  SeqDouble commTimes;
+  /* FAST fields */
+  double    tComp;
+  /* NWS fields */
+  double    freeCPU;
+  double    freeMem;
+};
+
+
+#endif // _COMMON_TYPES_IDL_
+
