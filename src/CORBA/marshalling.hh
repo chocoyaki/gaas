@@ -1,5 +1,4 @@
 /****************************************************************************/
-/* $Id$ */
 /* DIET CORBA marshalling header                                            */
 /*                                                                          */
 /*  Author(s):                                                              */
@@ -8,8 +7,11 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/*
+/* $Id$
  * $Log$
+ * Revision 1.15  2003/04/10 12:40:22  pcombes
+ * Use the TRACE_LEVEL of the debug module. Manage the data ID.
+ *
  * Revision 1.14  2003/02/07 17:04:12  pcombes
  * Refine convertor API: arg_idx is splitted into in_arg_idx and out_arg_idx.
  *
@@ -51,7 +53,12 @@
 #include "DIET_server.h"
 
 #include "dietTypes.hh"
-#include "types.hh"
+#include "common_types.hh"
+
+#include "DIET_config.h"
+#if HAVE_FAST
+#include "slimfast_api.h"
+#endif // HAVE_FAST
 
 
 /*--------------------------------------------------------------------------*/
@@ -89,10 +96,13 @@ mrsh_profile_desc(corba_profile_desc_t* dest,
 int
 mrsh_pb_desc(corba_pb_desc_t* dest, diet_profile_t* src, char* src_name);
 
+
+#if HAVE_FAST
 // To convert a request profile to FAST sf_inst_desc for evaluation
 int
 unmrsh_pb_desc_to_sf(sf_inst_desc_t* dest, const corba_pb_desc_t* src,
 		     const diet_convertor_t* cvt);
+#endif // HAVE_FAST
 
 // To send the input data from client to SeD
 int

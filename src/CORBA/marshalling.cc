@@ -1,5 +1,4 @@
 /****************************************************************************/
-/* $Id$ */
 /* DIET CORBA marshalling source code                                       */
 /*                                                                          */
 /*  Author(s):                                                              */
@@ -8,8 +7,11 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/*
+/* $Id$
  * $Log$
+ * Revision 1.25  2003/04/10 12:40:22  pcombes
+ * Use the TRACE_LEVEL of the debug module. Manage the data ID.
+ *
  * Revision 1.24  2003/02/07 17:04:12  pcombes
  * Refine convertor API: arg_idx is splitted into in_arg_idx and out_arg_idx.
  *
@@ -72,18 +74,6 @@ using namespace std;
 #include "marshalling.hh"
 #include "debug.hh"
 
-/**
- * Trace level
- */
-// FIXME: should be used for traceLevel >= TRACE_STRUCTURES only ...
-static int TRACELEVEL;
-
-void
-mrsh_set_trace_level(int level)
-{
-  TRACELEVEL = level;
-}
-
 
 /****************************************************************************/
 /* Data structure marshalling                                               */
@@ -143,7 +133,9 @@ mrsh_scalar_desc(corba_data_desc_t* dest, diet_data_desc_t* src)
 int
 mrsh_data_desc(corba_data_desc_t* dest, diet_data_desc_t* src)
 {
-  dest->id = 0;
+  if (src->id)
+    dest->id = CORBA::string_dup(src->id); // deallocates old dest->id
+  dest->mode = src->mode;
   dest->base_type = src->generic.base_type;
   switch (src->generic.type) {
   case DIET_SCALAR: {
@@ -236,37 +228,38 @@ unmrsh_scalar_desc(diet_data_desc_t* dest, const corba_data_desc_t* src)
 {
   void* value(NULL);
   diet_base_type_t bt = (diet_base_type_t)src->base_type;
-  
+  char* id = CORBA::string_dup(src->id);
+
   switch(bt) {
   case DIET_CHAR:
   case DIET_BYTE: {
     value = (void*) new char;
     src->specific.scal().value >>= *((CORBA::Short*)(value));
-    scalar_set_desc(dest, DIET_VOLATILE, bt, value);
+    scalar_set_desc(dest, id, (diet_persistence_mode_t)src->mode, bt, value);
     break;
   }
   case DIET_INT: {
     value = (void*) new int;
     src->specific.scal().value >>= *((CORBA::Long*)(value));
-    scalar_set_desc(dest, DIET_VOLATILE, bt, value);
+    scalar_set_desc(dest, id, (diet_persistence_mode_t)src->mode, bt, value);
     break;
   }
   case DIET_LONGINT: {
     value = (void*) new long long int;
     src->specific.scal().value >>= *((CORBA::Long*)(value));
-    scalar_set_desc(dest, DIET_VOLATILE, bt, value);
+    scalar_set_desc(dest, id, (diet_persistence_mode_t)src->mode, bt, value);
     break;
   }
   case DIET_FLOAT: {
     value = (void*) new float;
     src->specific.scal().value >>= *((float*)(value));
-    scalar_set_desc(dest, DIET_VOLATILE, bt, value);
+    scalar_set_desc(dest, id, (diet_persistence_mode_t)src->mode, bt, value);
     break;
   }
   case DIET_DOUBLE: {
     value = (void*) new double;
     src->specific.scal().value >>= *((double*)(value));
-    scalar_set_desc(dest, DIET_VOLATILE, bt, value);
+    scalar_set_desc(dest, id, (diet_persistence_mode_t)src->mode, bt, value);
     break;
   }
 #if HAVE_COMPLEX
@@ -284,7 +277,8 @@ int
 unmrsh_data_desc(diet_data_desc_t* dest, const corba_data_desc_t* src)
 {
   diet_base_type_t bt = (diet_base_type_t)src->base_type;
-
+  char* id = CORBA::string_dup(src->id);
+  
   switch ((diet_data_type_t) src->specific._d()) {
   case DIET_SCALAR: {
     if (unmrsh_scalar_desc(dest, src))
@@ -292,21 +286,24 @@ unmrsh_data_desc(diet_data_desc_t* dest, const corba_data_desc_t* src)
     break;
   }
   case DIET_VECTOR: {
-    vector_set_desc(dest, DIET_VOLATILE, bt,
+    vector_set_desc(dest, id, (diet_persistence_mode_t)src->mode, bt,
 		    src->specific.vect().size);
     break;
   }
   case DIET_MATRIX: {
-    matrix_set_desc(dest, DIET_VOLATILE, bt,
+    matrix_set_desc(dest, id, (diet_persistence_mode_t)src->mode, bt,
 		    src->specific.mat().nb_r, src->specific.mat().nb_c,
 		    (diet_matrix_order_t) src->specific.mat().order);
     break;
   }
   case DIET_STRING: {
-    string_set_desc(dest, DIET_VOLATILE, src->specific.str().length);
+    string_set_desc(dest, id, (diet_persistence_mode_t)src->mode,
+		    src->specific.str().length);
     break;
   }
   case DIET_FILE: {
+    dest->id = id;
+    dest->mode = (diet_persistence_mode_t)src->mode;
     diet_generic_desc_set(&(dest->generic), DIET_FILE, DIET_CHAR);
     dest->specific.file.size = src->specific.file().size;
     dest->specific.file.path = NULL;
@@ -320,6 +317,7 @@ unmrsh_data_desc(diet_data_desc_t* dest, const corba_data_desc_t* src)
   return 0;
 }
 
+#if HAVE_FAST
 inline sf_type_cons_t
 diet_to_sf_type(const diet_data_type_t t)
 {
@@ -419,7 +417,7 @@ unmrsh_data_desc_to_sf(sf_data_desc_t* dest, const diet_data_desc_t* src)
   }
   return 0;
 }
-
+#endif // HAVE_FAST
 
 int
 unmrsh_data(diet_data_t* dest, corba_data_t* src)
@@ -452,7 +450,7 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src)
     if (src->value.length() == 0) { // OUT case
       dest->value = malloc(data_sizeof(&(dest->desc)));
     } else {
-      CORBA::Boolean orphan = 1; //(src->persistence_mode != DIET_VOLATILE);
+      CORBA::Boolean orphan = 1; //(src->mode != DIET_VOLATILE);
       dest->value = (char*)src->value.get_buffer(orphan);
     }
   }
@@ -469,7 +467,7 @@ int
 mrsh_profile_desc(corba_profile_desc_t* dest,
 		  const diet_profile_desc_t* src, const char* src_name)
 {
-  dest->path       = CORBA::string_dup(src_name);
+  dest->path       = CORBA::string_dup(src_name); // deallocates old dest->path
   dest->last_in    = src->last_in;
   dest->last_inout = src->last_inout;
   dest->last_out   = src->last_out;
@@ -489,7 +487,7 @@ mrsh_profile_desc(corba_profile_desc_t* dest,
 int
 mrsh_pb_desc(corba_pb_desc_t* dest, diet_profile_t* src, char* src_name)
 {
-  dest->path       = CORBA::string_dup(src_name);
+  dest->path       = CORBA::string_dup(src_name); // deallocates old dest->path
   dest->last_in    = src->last_in;
   dest->last_inout = src->last_inout;
   dest->last_out   = src->last_out;
@@ -505,6 +503,7 @@ mrsh_pb_desc(corba_pb_desc_t* dest, diet_profile_t* src, char* src_name)
 /* Problem profile -> FAST sf_inst_desc (for client requests)              */
 /****************************************************************************/
 
+#if HAVE_FAST
 int
 cvt_arg_desc(sf_data_desc_t* dest, 
 	     diet_data_desc_t* src, diet_convertor_function_t f)
@@ -518,15 +517,15 @@ cvt_arg_desc(sf_data_desc_t* dest,
     break;
   }
   case DIET_CVT_VECT_SIZE: {
-    scalar_set_desc(ddd, DIET_VOLATILE, DIET_INT, src->specific.scal.value);
+    scalar_set_desc(ddd, NULL, DIET_VOLATILE, DIET_INT, src->specific.scal.value);
     break;
   }
   case DIET_CVT_MAT_NB_ROW: {
-    scalar_set_desc(ddd, DIET_VOLATILE, DIET_INT, &src->specific.mat.nb_r);
+    scalar_set_desc(ddd, NULL, DIET_VOLATILE, DIET_INT, &src->specific.mat.nb_r);
     break;
   }
   case DIET_CVT_MAT_NB_COL: {
-    scalar_set_desc(ddd, DIET_VOLATILE, DIET_INT, &src->specific.mat.nb_c);
+    scalar_set_desc(ddd, NULL, DIET_VOLATILE, DIET_INT, &src->specific.mat.nb_c);
     break;
   }
   case DIET_CVT_MAT_ORDER: {
@@ -540,15 +539,15 @@ cvt_arg_desc(sf_data_desc_t* dest,
       return 1;
     }
     }
-    scalar_set_desc(ddd, DIET_VOLATILE, DIET_CHAR, &t);
+    scalar_set_desc(ddd, NULL, DIET_VOLATILE, DIET_CHAR, &t);
     break;
   }
   case DIET_CVT_STR_LEN: {
-    scalar_set_desc(ddd, DIET_VOLATILE, DIET_INT, &src->specific.str.length);
+    scalar_set_desc(ddd, NULL, DIET_VOLATILE, DIET_INT, &src->specific.str.length);
     break;
   }
   case DIET_CVT_FILE_SIZE: {
-    scalar_set_desc(ddd, DIET_VOLATILE, DIET_INT, &src->specific.file.size);
+    scalar_set_desc(ddd, NULL, DIET_VOLATILE, DIET_INT, &src->specific.file.size);
     break;
   }
   default: {
@@ -559,7 +558,6 @@ cvt_arg_desc(sf_data_desc_t* dest,
   
   return unmrsh_data_desc_to_sf(dest, ddd);
 }
-
 
 int
 unmrsh_pb_desc_to_sf(sf_inst_desc_t* dest, const corba_pb_desc_t* src,
@@ -605,7 +603,7 @@ unmrsh_pb_desc_to_sf(sf_inst_desc_t* dest, const corba_pb_desc_t* src,
   delete [] src_params;
   return 0;
 }
-
+#endif // HAVE_FAST
 
 /****************************************************************************/
 /* Client sends its data ...                                                */
@@ -761,7 +759,7 @@ int
 mrsh_profile_to_out_args(corba_profile_t* dest, const diet_profile_t* src,
 			 const diet_convertor_t* cvt)
 {
-  int i, arg_idx, res;
+  int i, arg_idx;
   int* args_filled = // Use calloc to set all elements to NULL
     (int*) calloc(dest->last_out + 1, sizeof(int));
   diet_data_t dd;
