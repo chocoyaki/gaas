@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2003/06/02 08:08:11  cpera
+ * Beta version of asynchronize DIET API.
+ *
  * Revision 1.6  2003/05/22 11:27:47  sdahan
  * adds a missing header in Parsers
  *
@@ -45,7 +48,8 @@ Parsers::Results::param_t Parsers::Results::params[] =
    /* [9]  */ {"ldapMask", 8, Parsers::parseName, 0, NULL},
    /* [10] */ {"nwsUse", 6, Parsers::parseUse, 0, NULL},
    /* [11] */ {"nwsNameserver", 13, Parsers::parseAddress, 0, NULL},
-   /* [12] */ {"nwsForecaster", 13, Parsers::parseAddress, 0, NULL}};
+   /* [12] */ {"nwsForecaster", 13, Parsers::parseAddress, 0, NULL},
+   /* [13] */ {"useAsyncApi", 11, Parsers::parseUse, 0, NULL}};
 
 #define IS_ADDRESS(i) ((i == 8) || (i == 11) || (i == 12))
 

@@ -8,13 +8,16 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.2  2003/06/02 08:08:11  cpera
+#* Beta version of asynchronize DIET API.
+#*
 #* Revision 1.1  2003/04/10 12:34:32  pcombes
 #* IDL descriptions are back in their directory.
 #*
 #****************************************************************************#
 
 # IDL source files
-IDL_FILES = common_types.idl response.idl \
+IDL_FILES = common_types.idl callback.idl response.idl \
 	    Agent.idl MasterAgent.idl LocalAgent.idl SeD.idl
 
 # idl dependancies
@@ -22,8 +25,9 @@ AgentSK.cc AgentDynSK.cc Agent.hh: \
 	common_types.hh response.hh SeD.hh
 MasterAgentSK.cc MasterAgentDynSK.cc MasterAgent.hh: Agent.hh
 LocalAgentSK.cc LocalAgentDynSK.cc LocalAgent.hh:    Agent.hh
-SeDSK.cc SeDDynSK.cc SeD.hh:                         common_types.hh
+SeDSK.cc SeDDynSK.cc SeD.hh:                         common_types.hh callback.hh
 responseSK.cc responseDynSK.cc response.hh:          SeD.hh
+callback.hh callbackSK.cc callbackDynSK.cc : 		common_types.hh	
 
 
 # compiling and dependency rules for idl files

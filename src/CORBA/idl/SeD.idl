@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2003/06/02 08:08:11  cpera
+ * Beta version of asynchronize DIET API.
+ *
  * Revision 1.11  2003/04/10 12:21:23  pcombes
  * Add checkContract method.
  *
@@ -42,7 +45,7 @@
 #define _SED_IDL_
 
 #include "common_types.idl"
-
+#include "callback.idl"
 
 interface SeD {
 
@@ -63,7 +66,16 @@ interface SeD {
 
   /** Solve function: all arguments are inout for "const" reasons. */
   long solve(in string path, inout corba_profile_t pb);
+  
+  /*--------------------------------------------------------------*/
+  /* asyncSolve function:                                         */
+  /*   all arguments are in for asynchronous reasons              */
+  /*   We can use persistent IOR rather callback ref in futur which */
+  /*   will allow fault tolerance on if client dies               */
+  /*--------------------------------------------------------------*/
 
+  oneway void solveAsync(in string path, in corba_profile_t pb,
+                      in long reqID, in string volatileclientPtr);
 };
 
 

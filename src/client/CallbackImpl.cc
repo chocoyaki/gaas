@@ -1,0 +1,51 @@
+/****************************************************************************/
+/* POA callback implementation                                             */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Christophe PERA (christophe.pera@ens-lyon.fr)                       */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.1  2003/06/02 08:09:55  cpera
+ * Beta version of asynchronize DIET API.
+ *
+ ****************************************************************************/
+
+#include <iostream>
+#include <CallbackImpl.hh>
+#include "Global_macros.hh"
+
+using namespace std;
+
+CallbackImpl::CallbackImpl()
+{
+  // nothing
+}
+
+CallbackImpl::~CallbackImpl()
+{
+  // nothing
+}
+
+long CallbackImpl::ping()
+{
+  return 0;
+}
+
+long CallbackImpl::notifyResults(const char * path,
+                                const corba_profile_t& pb,
+				long reqID)
+				{
+  return 0;
+}
+
+long CallbackImpl::solveResults(const char * path, 
+                                const corba_profile_t& pb,
+				long reqID)
+{
+  // notify solve result availability
+  int rst = CallAsyncMgr::Instance()->notifyRst(int(reqID), &(const_cast<corba_profile_t&>(pb)));
+  return 0;
+}

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2003/06/02 08:08:11  cpera
+ * Beta version of asynchronize DIET API.
+ *
  * Revision 1.4  2003/05/22 11:27:47  sdahan
  * adds a missing header in Parsers
  *
@@ -58,6 +61,7 @@ public:
       FASTUSE,
       LDAPUSE, LDAPBASE, LDAPMASK,
       NWSUSE, NWSNAMESERVER, NWSFORECASTER,
+      USEASYNCAPI,
       NB_PARAM_TYPE
     } param_type_t;
 

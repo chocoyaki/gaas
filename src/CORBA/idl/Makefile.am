@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.3  2003/06/02 08:08:11  cpera
+#* Beta version of asynchronize DIET API.
+#*
 #* Revision 1.2  2003/05/13 17:05:09  pcombes
 #* Comment AM_CPPFLAGS - useless.
 #*
@@ -26,13 +29,15 @@ BUILT_SOURCES = AgentSK.cc       AgentDynSK.cc         Agent.hh \
 		MasterAgentSK.cc MasterAgentDynSK.cc   MasterAgent.hh \
 		LocalAgentSK.cc  LocalAgentDynSK.cc    LocalAgent.hh \
 		SeDSK.cc 	 SeDDynSK.cc	       SeD.hh \
-		responseSK.cc    responseDynSK.cc      response.hh
+		responseSK.cc    responseDynSK.cc      response.hh \
+		callback.hh	callbackSK.cc		callbackDynSK.cc
 
 noinst_LTLIBRARIES = libIDLCommon.la libIDLAgent.la libIDLLA.la libIDLMA.la
 
 nodist_libIDLCommon_la_SOURCES = common_typesSK.cc common_typesDynSK.cc \
 				 SeDSK.cc SeDDynSK.cc \
-				 responseSK.cc responseDynSK.cc
+				 responseSK.cc responseDynSK.cc \
+				 callbackSK.cc callbackDynSK.cc
 
 nodist_libIDLAgent_la_SOURCES = AgentSK.cc       AgentDynSK.cc
 nodist_libIDLLA_la_SOURCES    = LocalAgentSK.cc  LocalAgentDynSK.cc
