@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.43  2004/05/04 11:46:20  bdelfabr
+ * id files are created only in case of persistent data
+ *
  * Revision 1.42  2004/03/01 18:52:24  rbolze
  * make some change relative to the new ORBMgr
  *
@@ -114,10 +117,18 @@ static char* REF_CALLBACK_SERVER;
 /** Flag for using the asynchronous API (set at configuration time) */
 static size_t USE_ASYNC_API = 1;
 
-/** file Name to store Data Ids */
-char* fileName=new char[100];
 
-int num_session;
+
+/****************************************************************************/
+/* Manage MA name and Session Number for data persistency issue             */
+/****************************************************************************/
+
+  char* MA_Name;
+  
+  int num_Session;
+  
+  char file_Name[150];
+
 
 /****************************************************************************/
 /* Initialize and Finalize session                                          */
@@ -129,7 +140,6 @@ diet_error_t
 diet_initialize(char* config_file_name, int argc, char* argv[])
 {
   char*  MA_name;
-  char* MA1_name;
   int    res(0);
   int    myargc(0);
   char** myargv(NULL);
@@ -225,7 +235,7 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   MA_name = (char*)
     Parsers::Results::getParamValue(Parsers::Results::MANAME);
    cout << "MA NAME PARSING = " << MA_name << endl;
-   MA1_name = CORBA::string_dup(MA_name);
+   MA_Name = CORBA::string_dup(MA_name);
   MA = MasterAgent::_narrow(ORBMgr::getObjReference(ORBMgr::AGENT, MA_name));
   if (CORBA::is_nil(MA)) {
     ERROR("cannot locate Master Agent " << MA_name, 1);
@@ -236,10 +246,10 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   /* We do not need the parsing results any more */
   Parsers::endParsing();
   /** get Num session*/
-  num_session=MA->get_session_num();
-  cout << "MA NAME =" << MA_name << endl;
-  create_file(MA1_name);
+
+  //create_file();
   MA_MUTEX.unlock();
+  num_Session=MA->get_session_num();
   return 0;
 }
 
@@ -264,7 +274,7 @@ diet_finalize()
   MA_MUTEX.unlock();
   
   /* end fileName */
-  *fileName='\0';
+  // *fileName='\0';
   return 0;
 }
 
@@ -302,27 +312,28 @@ END_API
  *   creation of the file that stores identifiers               * 
  ***************************************************************/
 
-void create_file(char *MA_name)
+
+void create_file()
 {
-sprintf(fileName,"ID_FILE.%s.%d",MA_name,num_session);
-create_header(fileName);
+sprintf(file_Name,"/tmp/ID_FILE.%s.%d",MA_Name,num_Session);
+create_header();
 
 }
 
-void create_header(char* fileName)
+void create_header()
 {
   char* header_id = "identifiant de le donnee";
   char* header_msg = "commentaires\n";
-  //ofstream f(fileName);
-  ofstream f(fileName,ios_base::out);
-  int cpt = strlen(header_id);
-  f.write(header_id,cpt);
+ 
+    ofstream f(file_Name,ios_base::app|ios_base::ate);
+    int cpt = strlen(header_id);
+    f.write(header_id,cpt);
     for(int i = 0; i < 10;i++) 
-   f.put(' ');
-   cpt = strlen(header_msg);
-  f.write(header_msg,cpt);
-   f.close();
-
+      f.put(' ');
+    cpt = strlen(header_msg);
+    f.write(header_msg,cpt);
+    f.close();
+ 
 }
 
 /**************************************************************** 
@@ -336,7 +347,7 @@ void store_id(char* argID, char* msg)
  
   char* msg1 = new char[strlen(msg)+1];
   cpt=strlen(argID);
-  ofstream f(fileName,ios_base::app|ios_base::ate);
+  ofstream f(file_Name,ios_base::app|ios_base::ate);
   f.write(argID,cpt);
   for(int i = 0;i < 10;i++) 
     f.put(' ');
@@ -545,6 +556,19 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
     ERROR("profile is wrongly built", 1);
   }
   
+    int j = 0;
+  bool found = false;
+  while ((j <= corba_profile.last_out) && (found == false)) {
+    if (diet_is_persistent(corba_profile.parameters[j]))// && (MA->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber))))
+       found = true;
+    j++;
+  }
+  if(found == true){
+    cout << "found = TRUE !!!!!" << endl;
+     create_file();
+  }
+
+
   /* data property base_type and type retrieval : used for scheduler */
   for(int i = 0;i <= corba_profile.last_out;i++) {
     char* new_id = strdup(corba_profile.parameters[i].desc.id.idNumber);
@@ -641,6 +665,18 @@ diet_call_async_common(diet_profile_t* profile,
     if (mrsh_profile_to_in_args(&corba_profile, profile)) {
       ERROR("profile is wrongly built", 1);
     }
+
+
+    int j = 0;
+  bool found = false;
+  while ((j <= corba_profile.last_out) && (found == false)) {
+    if (diet_is_persistent(corba_profile.parameters[j]))// && (MA->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber))))
+       found = true;
+    j++;
+  }
+  if(found == true){
+     create_file();
+  }
  
     /* data property base_type and type retrieval : used for scheduler */
     for(int i = 0;i <= corba_profile.last_out;i++) {
