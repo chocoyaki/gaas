@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2004/03/25 14:30:42  bdelfabr
+ * displayProfile removed in solveAsync
+ *
  * Revision 1.21  2004/03/01 18:42:34  rbolze
  * add logservice
  *
@@ -405,7 +408,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
       
       
       
-      displayProfile(&profile, path);
+      //      displayProfile(&profile, path);
       
 #else // DEVELOPPING_DATA_PERSISTENCY
       
