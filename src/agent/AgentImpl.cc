@@ -1,0 +1,682 @@
+/****************************************************************************/
+/* DIET agent implementation source code                                    */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
+/*    - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)                   */
+/*    - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)             */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.1  2003/04/10 13:00:20  pcombes
+ * Replace agent_impl.cc. Apply CS. Use ChildID, NodeDescription, Schedulers
+ * and TRACE_LEVEL. Fix bug in sendRequest on child failure. Simplify data
+ * transfer time computation in findServer.
+ *
+ ****************************************************************************/
+
+#include "AgentImpl.hh"
+
+#include <iostream>
+using namespace std;
+#include <math.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+#include "debug.hh"
+#include "ms_function.hh"
+#include "ORBMgr.hh"
+
+
+extern unsigned int TRACE_LEVEL;
+
+AgentImpl::AgentImpl()
+{
+  TRACE_LEVEL                = TRACE_DEFAULT;
+  this->localHostName[0]     = '\0';
+  this->myName[0]            = '\0';
+  this->childID              = -1;
+  this->childIDCounter       = 0;
+  this->nbLAChildren         = 0;
+  this->nbSeDChildren        = 0;
+  this->SrvT                 = new ServiceTable();
+  this->ldapUse              = 0;
+  this->ldapHost[0]          = '\0';
+  this->ldapPort             = 0;
+  this->ldapMask[0]          = '\0';
+  this->nwsUse               = 0;
+  this->nwsNSHost[0]         = '\0';
+  this->nwsNSPort            = 0;
+  this->nwsForecasterHost[0] = '\0';
+  this->nwsForecasterPort    = 0;
+} // AgentImpl()
+
+AgentImpl::~AgentImpl()
+{
+  this->LAChildren.clear();
+  this->SeDChildren.clear();
+  delete this->SrvT;
+  this->reqList.clear();
+  //locList.clear();
+} // ~AgentImpl()
+
+
+/**
+ * Launch this agent (initialization + registration in the hierarchy).
+ */
+int
+AgentImpl::run(char* configFileName, char* parentName)
+{
+  /* Set host name */
+  this->localHostName[257] = '\0';
+  if (gethostname(this->localHostName, 256)) {
+    perror("Could not initialize the agent");
+    return 1;
+  }
+
+  /* Parsing */
+  if(this->parseConfigFile(configFileName, parentName))
+    return -1;
+  ORBMgr::setTraceLevel();
+
+  /* Bind this agent to its name in the CORBA Naming Service */
+  if (ORBMgr::bindAgentToName(_this(), this->myName)) {
+    cerr << "Agent: could not declare myself as " << myName << endl;
+    return 1;
+  }
+
+#if HAVE_FAST
+  /* Initialize FAST with parsed parameters */
+  if (!fast_init("nws_use", this->nwsUse,
+		 "nws_nameserver", this->nwsNSHost, this->nwsNSPort,
+		 "nws_forecaster",
+		 this->nwsForecasterHost, this->nwsForecasterPort,
+		 "ldap_use", this->ldapUse,
+		 "ldap_server", this->ldapHost, this->ldapPort,
+		 "ldap_binddn", this->ldapMask))
+    return 1;
+#endif // HAVE_FAST
+
+  return 0;
+} // run(char* config_file_name, char* parentName)
+
+
+
+/****************************************************************************/
+/* Subscribing and adding services                                          */
+/****************************************************************************/
+
+/**
+ * Subscribe an agent as a LA child. Remotely called by an LA.
+ */
+CORBA::ULong
+AgentImpl::agentSubscribe(Agent_ptr me, const char* hostName,
+			  const SeqCorbaProfileDesc_t& services)
+{
+  CORBA::ULong retID = (this->childIDCounter)++; // thread safe
+
+  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
+    cout << "A::agentSubscribe(" << hostName<< ", "
+	 << services.length() << " services)\n";
+
+  /* the size of the list is childID+1 (first index is 0) */
+  this->LAChildren.resize(this->childIDCounter);
+  this->LAChildren[retID] =
+    LAChild(LocalAgent::_duplicate(LocalAgent::_narrow(me)), hostName);
+  (this->nbLAChildren)++; // thread safe
+
+  this->addServices(retID, services);
+
+  return retID;
+} // agentSubscribe(Agent_ptr me, const char* hostName, ...)
+
+
+/**
+ * Subscribe a server as a SeD child. Remotely called by an SeD.
+ */
+CORBA::ULong
+AgentImpl::serverSubscribe(SeD_ptr me, const char* hostName,
+			   const SeqCorbaProfileDesc_t& services)
+{
+  CORBA::ULong retID;
+
+  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
+    cout << "A::serverSubscribe(" << hostName<< ", "
+	 << services.length() << " services)\n";
+
+  assert (hostName != NULL);
+  retID = (this->childIDCounter)++; // thread safe
+
+  // FIXME: resize calls default constructor + copy constructor + 1 desctructor
+  this->SeDChildren.resize(childIDCounter);
+  (this->SeDChildren[retID]).set(me, hostName);
+  (this->nbSeDChildren)++; // thread safe
+
+  this->addServices(retID, services);
+
+  return retID;
+} // serverSubscribe(SeD_ptr me, const char* hostName, ...)
+
+
+/**
+ * Add \c services into the service table, and attach them to child \c me.
+ */
+void
+AgentImpl::addServices(CORBA::ULong myID, const SeqCorbaProfileDesc_t& services)
+{
+  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
+    cout << "A::addServices(" << myID <<", "
+	 << services.length() << " services)\n";
+  this->srvTMutex.lock();
+  for (size_t i = 0; i < services.length(); i++) {
+    if (this->SrvT->addService(&(services[i]), myID)) {
+      for (size_t j = 0; j < i; j++)
+	this->SrvT->rmService(&(services[j]));
+      break;
+    }
+  }
+  if (TRACE_LEVEL >= TRACE_STRUCTURES)
+    this->SrvT->dump(stdout);
+  this->srvTMutex.unlock();
+} // addServices(CORBA::ULong myID, const SeqCorbaProfileDesc_t& services)
+
+
+
+/****************************************************************************/
+/* findServer                                                               */
+/****************************************************************************/
+
+/**
+ * Forward a request, schedule and merge the responses associated.
+ * @param req     the request.
+ * @param max_srv the maximum number of servers to sort.
+ */
+corba_response_t*
+AgentImpl::findServer(Request* req, size_t max_srv)
+{
+  size_t i, j, k;
+  corba_response_t* resp(NULL);
+  const corba_request_t& creq = *(req->getRequest());
+
+  if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
+    cout << "\n************************************************************\n"
+	 << "Got request " << creq.reqID
+	 << " on problem " << creq.pb.path << endl;
+
+  /* Add the new request to the list */
+  reqList[creq.reqID] = req;
+
+  /* Here was the data lookup ... */
+
+  /* Find capable children */
+  ServiceTable::ServiceReference_t serviceRef;
+  srvTMutex.lock();
+  serviceRef = SrvT->lookupService(&(creq.pb));
+
+  if (serviceRef == -1) {
+    cerr << "DIET failure: no service found for request " << creq.reqID << endl;
+    srvTMutex.unlock();
+
+  } else { // then the request must be forwarded
+
+    int nbChildrenContacted = 0;
+    ServiceTable::matching_children_t *mc, *SrvTmc;
+    SrvTmc = SrvT->getChildren(serviceRef);
+
+    /* Contact the children. The responses array will not be ready until all
+       children are contacted. Thus lock the responses mutex now.           */
+    req->lock();
+
+    // Copy matching children for sendRequest ...
+    mc = new ServiceTable::matching_children_t(*SrvTmc);
+    mc->children = new CORBA::ULong[mc->nb_children];
+    for (i = 0; i < (size_t)mc->nb_children; i++)
+      mc->children[i] = SrvTmc->children[i];
+
+    srvTMutex.unlock();
+
+    for (i = 0; i < (size_t)mc->nb_children; i++) {
+      sendRequest(mc->children[i], &creq);
+    } // for (i = 0; i < ms->nb_children; i++)
+    delete mc->children;
+    delete mc;
+
+    srvTMutex.lock();
+    nbChildrenContacted = SrvTmc->nb_children;
+    srvTMutex.unlock();
+
+    /* if no alive server can solve the problem, return */
+    if (!nbChildrenContacted) {
+      cerr << "DIET failure: no service found for request "
+	   << creq.reqID << endl;
+      if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
+	cout << "************************************************************\n";
+      req->unlock();
+      //delete req;
+      resp = new corba_response_t;
+      resp->reqID = creq.reqID;
+      resp->myID  = this->childID;
+      resp->sortedIndexes.length(0);
+      resp->servers.length(0);
+      return resp;
+    }
+
+    /* Here was contacts to children that own some parameters and are not
+     * contacted yet */
+
+    /* We don't need the locs table anymore */
+    //delete [] locs;
+
+    /* Everything is ready, we can now wait for the responses */
+    /* (This call implicitly unlocks the responses mutex)     */
+    if (TRACE_LEVEL >= TRACE_ALL_STEPS)
+      cout << "Waiting for " << nbChildrenContacted
+	   << " responses to request " << creq.reqID <<  "...\n";
+
+    req->waitResponses(nbChildrenContacted);
+    req->unlock();
+    
+    /* The thread is awakened when all responses are gathered */
+
+    /* Update communication times for all non-persistent parameters:
+     *  process IN and OUT args separately, which means process them according
+     *  to the way of their transfers.
+     * NB: This does not affect the order of the servers (only comm times). */
+
+    size_t nb_resp = req->getResponsesSize();
+    double* time = new double[nb_resp]; 
+
+    for (i = 0; (int)i <= creq.pb.last_out; i++) {
+
+      unsigned long
+      size = sizeof(corba_data_t) + data_sizeof(&(creq.pb.param_desc[i]));
+
+      for (j = 0; j < nb_resp; j++) {
+	corba_response_t* resp_j = &(req->getResponses()[j]);
+	
+	time[j] = 0.0;
+
+	if ((int)i <= creq.pb.last_in) {
+	  /* IN args : compute comm time if they are volatile or if their id is
+	     non assigned yet (which means it is not stored in the platform) */
+	  if (((creq.pb.param_desc[i].mode == DIET_VOLATILE)
+	       || (*(creq.pb.param_desc[i].id) == '\0'))) {
+	    time[j] = getCommTime(resp_j->myID, size);
+	  }
+	} else if ((int)i <= creq.pb.last_inout) {
+	  /* INOUT args: add comm times for both directions IN (with the
+	     conditions above) and OUT (with the conditions below) */
+	  if ((creq.pb.param_desc[i].mode == DIET_VOLATILE)
+	      || (*(creq.pb.param_desc[i].id) == '\0')) {
+	    time[j] = getCommTime(resp_j->myID, size);
+	  }
+	  if (creq.pb.param_desc[i].mode <= DIET_PERSISTENT_RETURN) {
+	    time[j] += getCommTime(resp_j->myID, size, false);
+	  }
+	} else if (creq.pb.param_desc[i].mode <= DIET_PERSISTENT_RETURN) {
+	  /* OUT args : compute comm time if they are volatile or specified as
+	     "return". */
+	  time[j] = getCommTime(resp_j->myID, size, false);
+	}
+
+	/* Inject the computed comm time (or 0.0 - default) into all servers */
+	for (k = 0; k < resp_j->servers.length(); k++) {
+	  resp_j->servers[k].estim.commTimes[i] += time[j];
+	  resp_j->servers[k].estim.totalTime += time[j];
+	} 
+      }
+    }
+    delete [] time;
+
+    resp = this->aggregate(req, max_srv);
+
+    // Just for debugging
+    if (TRACE_LEVEL >= TRACE_STRUCTURES)
+      displayResponse(stdout, resp);
+  }
+
+  return resp;
+} // findServer(Request* req)
+
+
+/****************************************************************************/
+/* getResponse                                                              */
+/****************************************************************************/
+
+/** Get the response of a child */
+void
+AgentImpl::getResponse(const corba_response_t& resp)
+{
+  if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
+    cout << "Got a response from " << resp.myID <<"th child"
+	 << " to request " << resp.reqID << endl;
+
+  /* The response should be copied in the logs */
+  /* Look for the concerned request in the logs */
+  Request* req = reqList[resp.reqID];
+  if (req) { // req == NULL if it doesn't exist.
+    req->lock();
+    req->addResponse(&resp);
+    req->unlock();
+  } else {
+    cerr << "DIET failure: response to unknown request." << endl;
+  } // if (req)
+
+} // getResponse(const corba_response_t & resp)
+
+
+/**
+ * Used to test if this agent is alive.
+ */
+CORBA::Long
+AgentImpl::ping()
+{
+  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
+    cout << "A::ping()\n";
+  return 0;
+} // ping()
+
+
+/**
+ * Send the request structure \c req to the child whose ID is \c childID.
+ */
+void
+AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req)
+{
+  bool childFound = false;
+  typedef size_t comm_failure_t;
+
+  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
+    cout << "A::sendRequest(" << childID <<", " << req->pb.path << ")\n";
+
+  try {
+  /* Is the child an agent ? */
+  if (childID < static_cast<CORBA::ULong>(LAChildren.size())) {
+    LAChild& childDesc = LAChildren[childID];
+    if (childDesc.defined()) {
+      LocalAgent_ptr child = LocalAgent::_duplicate(childDesc.getIor());
+      try {
+	try {
+	  /* checks if the child is alive with a ping */
+	  LocalAgent_ptr child = LocalAgent::_duplicate(childDesc.getIor());
+	  child->ping();
+	  child->getRequest(*req);
+	} catch (CORBA::COMM_FAILURE& ex) {
+	  throw (comm_failure_t)0;
+	} catch (CORBA::TRANSIENT& e) {
+	  throw (comm_failure_t)1;
+	}
+      } catch (comm_failure_t& e) {
+	if (e == 0 || e == 1) {
+	  cerr << "Connection problems with LA child " << childID
+	       << " occured - remove it from known children.\n";
+	  srvTMutex.lock();
+	  SrvT->rmChild(childID);
+	  if (TRACE_LEVEL >= TRACE_STRUCTURES)
+	    SrvT->dump(stdout);
+	  srvTMutex.unlock();
+	  LAChildren[childID] = LAChild();
+	  --nbLAChildren;
+	} else {
+	  throw e;
+	}
+      }
+      CORBA::release(child);
+      childFound = true;
+    }
+  }
+  if (!childFound && childID < static_cast<CORBA::ULong>(SeDChildren.size())) {
+    /* Then it must be a server */
+    SeDChild& childDesc = SeDChildren[childID];
+    if (childDesc.defined()) {
+      SeD_ptr child = SeD::_duplicate(childDesc.getIor());
+      try {
+	try {
+	  /* checks if the child is alive with a ping */
+	  child->ping();
+	  child->getRequest(*req);
+	} catch (CORBA::COMM_FAILURE& ex) {
+	  throw (comm_failure_t)0;
+	} catch (CORBA::TRANSIENT& e) {
+	  throw (comm_failure_t)1;
+	}
+      } catch (comm_failure_t& e) {
+	if (e == 0 || e == 1) {
+	  cerr << "Connection problems with SeD child " << childID
+	       << " occured - remove it from known children.\n";
+	  srvTMutex.lock();
+	  SrvT->rmChild(childID);
+	  if (TRACE_LEVEL >= TRACE_STRUCTURES)
+	    SrvT->dump(stdout);
+	  srvTMutex.unlock();
+	  SeDChildren[childID] = SeDChild();
+	  --nbSeDChildren;
+	} else {
+	  throw e;
+	}
+      }
+      CORBA::release(child);
+      childFound = true;
+    }
+
+    if (!childFound) {
+      cerr << "Diet failure: Trying to send a request to an unknown child."
+	   << endl;
+    }
+  }
+  } catch(...) {
+    cerr << "WARNING: Exception thrown in "
+	 << "sendRequest(CORBA::Long childID, const corba_request_t* req)\n";
+  }
+} // sendRequest(CORBA::Long childID, const corba_request_t* req)
+
+
+
+/**
+ * Get communication time between this agent and the child \c childID for a data
+ * amount of size \c size. The way of the data transfer can be specified with
+ * \c to : if (to), from this agent to the child, else from the child to this
+ * agent.
+ */
+inline double
+AgentImpl::getCommTime(CORBA::Long childID, unsigned long size, bool to)
+{
+  double time = HUGE_VAL;
+
+  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
+    cout << "getCommTime(" << childID <<", " << size << ")\n";
+
+#if HAVE_FAST
+  char* child_name = getChildHostName(childID);
+  char* dest_name,* src_name;
+  if (to) {
+    dest_name = child_name;
+    src_name  = this->localHostName;
+  } else {
+    dest_name = this->localHostName;
+    src_name  = child_name;
+  }
+  fastMutex.lock();
+  if (!(fast_comm_time_best(src_name, dest_name, size, &time))) {
+    time = HUGE_VAL;
+    cerr << "Warning: fast_comm_time_best error (time set to HUGE_VAL)\n";
+  }
+  fastMutex.unlock();
+  //ms_strfree(dest_name);
+  //ms_strfree(src_name);
+  ms_strfree(child_name);
+#endif // HAVE_FAST
+
+  return(time);
+} // getCommTime(int childID, unsigned long size, bool to)
+
+
+
+/**
+ * Return a pointer to a unique aggregated response from various responses.
+ * @param request contains pointers to the scheduler and the responses.
+ * @param max_srv the maximum number of servers to aggregate (all if 0).
+ */
+corba_response_t*
+AgentImpl::aggregate(Request* request, size_t max_srv)
+{
+  corba_response_t* aggregResp = new corba_response_t;
+  GlobalScheduler* GS = request->getScheduler();
+
+  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
+    cout << "aggregate(" << request->getRequest()->pb.path << ")\n";  
+
+  GS->aggregate(aggregResp, max_srv,
+		request->getResponsesSize(), request->getResponses());
+  aggregResp->reqID = request->getRequest()->reqID;
+  aggregResp->myID = childID;
+
+  return aggregResp;
+} // aggregate(Request* request)
+
+
+/** Get host name of a child (returned string is ms_stralloc'd). */
+char*
+AgentImpl::getChildHostName(CORBA::Long childID)
+{
+  char* hostName = NULL;
+
+  int childFound = 0;
+
+  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
+    cout << "getChildHostName(" << childID << ")\n";  
+
+  /* Return local host name if childID == -1 */
+  /* (This hack is used during the aggregation */
+
+  if (childID == -1) {
+    return ms_strdup(localHostName);
+  }
+
+  /* Is the child an agent ? */
+  // to avoid the overflow
+  if(childID < static_cast<CORBA::Long>(LAChildren.size())) {
+    LAChild childDesc = LAChildren[childID];
+    if(childDesc.defined()) {
+      hostName = ms_strdup(childDesc.getHostName());
+      childFound = 1;
+    }
+  }
+
+  if (!childFound && childID < static_cast<CORBA::Long>(SeDChildren.size())) {
+    SeDChild childDesc = SeDChildren[childID];
+    if(childDesc.defined()) {
+      hostName = ms_strdup(childDesc.getHostName());
+      childFound = 1;
+    }
+  }
+
+  if (!childFound) {
+    cerr << "Diet failure: Trying to extract IOR of an unknown child." << endl;
+  }
+
+  return hostName;
+} // getChildHostName(CORBA::Long childID)
+
+
+
+
+#if 0
+void AgentImpl::addPropertyToPbDb(int childID,sf_pb_desc_t *pb)
+{
+  /*  This method  adds  the problem  pb  to the  local properties  */
+  /* database for the child childID. The pb pointer is freed if  */
+  /* not used (pb already in the db).                        */
+
+  /* Is the pb allready in the db ? */
+
+  int pbFound=0; /* becomes true if the problem is found */
+  dietPropDescListIterator *iter= new dietPropDescListIterator(properties);
+
+
+  while ((!pbFound)&&(iter->next()))
+    {
+      if (pbDescCmp(((dietPropDescListElt *)(iter->curr()))->prop.pbDesc,pb))
+				{
+				  pbFound=1;
+				}
+    }
+
+  if (pbFound)
+    {
+      /* The pb already exists in the db, does the child already knows it ? */
+
+      int childFound=0; /* becomes true if the child is found */
+
+      dietChildIDListIterator *iter2=
+	new dietChildIDListIterator((((dietPropDescListElt *)
+				    (iter->curr()))->prop.capableChildren));
+
+      while ((!childFound)&&(iter2->next()))
+	{
+	  if (((dietChildIDListElt *)(iter2->curr()))->childID==childID)
+	    {
+	      childFound=1;
+	    }
+	}
+
+      if (childFound)
+	{
+	  /* The problem already exists in this subtree, add the new server */
+
+	  ((dietChildIDListElt *)(iter2->curr()))->nbCapableServers++;
+	}
+      else
+	{
+	  /* It's a new problem in this subtree, add a new entry */
+
+	  dietChildIDListElt *newChildID=new dietChildIDListElt();
+	  newChildID->childID=childID;
+	  newChildID->nbCapableServers=1;
+
+	  (((dietPropDescListElt *)
+	    (iter->curr()))->prop.capableChildren)->append(newChildID);
+	}
+
+      delete(iter2);
+
+      /* The pb pointer can be freed : */
+
+      /* FIXME: The path was created by CORBA::string_dup. */
+      /* Should it be freed?                               */
+
+      /* Only free the param_desc array */
+      // for (int i=0;i<=pb->nb_in;i++)
+      //   delete pb->param_desc[i];
+
+      delete [] pb->path;
+      delete [] pb->param_desc;
+      delete pb;
+    }
+  else
+    {
+      /* This is a new pb, a new entry must be created : */
+
+      dietPropDescListElt *newPropDesc=new dietPropDescListElt();
+
+      newPropDesc->prop.pbDesc=pb;
+
+      newPropDesc->prop.capableChildren=new dietChildIDList();
+
+      dietChildIDListElt *newChildID=new dietChildIDListElt();
+      newChildID->childID=childID;
+      newChildID->nbCapableServers=1;
+
+      newPropDesc->prop.capableChildren->append(newChildID);
+
+      properties->append(newPropDesc);
+    }
+
+  delete(iter);
+
+} // addPropertyToPbDb(int childID,sf_pb_desc_t *pb)
+#endif // 0
