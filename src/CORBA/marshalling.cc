@@ -12,6 +12,10 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.10  2002/10/04 16:17:09  pcombes
+ * Integrate former hardcoded.h in configuration files. If DIET is compiled
+ * without FAST, the correspunding entries in the cfg files can be omitted.
+ *
  * Revision 1.9  2002/10/03 17:58:13  pcombes
  * Add trace levels (for Bert): traceLevel = n can be added in cfg files.
  * An agent son can now be killed (^C) without crashing this agent.
@@ -51,6 +55,7 @@
 
 
 #include <iostream.h>
+#include <fstream.h>
 #include <stdlib.h>
 
 #include "marshalling.hh"
@@ -166,7 +171,18 @@ int mrsh_data(corba_data_t *dest, diet_data_t *src, int only_desc, int release)
   if (only_desc) {
     dest->value.replace(0, 0, NULL);
   } else {
-    dest->value.replace(size, size, (CORBA::Char *)src->value, release);
+    if (src->desc.generic.type == DIET_FILE) {
+      ifstream infile;
+      infile.open(src->desc.specific.file.path, ios::nocreate);
+      if (!infile) {
+	cerr << "DIET Error: cannot open file "
+	     << src->desc.specific.file.path << "for reading.\n";
+	return 1;
+      }
+      infile.close();
+    } else {
+      dest->value.replace(size, size, (CORBA::Char *)src->value, release);
+    }
   }
   return 0;
 }
