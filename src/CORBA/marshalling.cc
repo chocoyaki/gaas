@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.38  2004/09/14 12:42:18  hdail
+ * Shortened log, changed allocation of desc->value to match cleanup done by
+ * omniORB, matched cleanup of src_params and args_filled to match alloc.
+ *
  * Revision 1.37  2004/02/27 10:21:50  bdelfabr
  * adding mrsh_data_id and mrsh_data_id_desc,
  * modifying mrsh_data and umrsh_data to avoid memory copy
@@ -21,51 +25,6 @@
  *
  * Revision 1.35  2003/09/30 15:26:36  bdelfabr
  * Manage the case of In argument with NUll value.
- *
- * Revision 1.34  2003/09/27 07:51:15  pcombes
- * Replace silly base type DIET_BYTE by DIET_SHORT.
- * Fis bugs on data persistency tags and profile->pb_name that were not set.
- *
- * Revision 1.33  2003/09/24 11:04:12  pcombes
- * Manage the case of a volatile data with a NULL value.
- *
- * Revision 1.32  2003/09/24 09:07:52  pcombes
- * Merge corba_DataMgr_desc_t and corba_data_desc_t.
- *
- * Revision 1.29  2003/08/09 17:31:38  pcombes
- * Include path in the diet_profile_desc structure.
- *
- * Revision 1.28  2003/08/01 19:26:07  pcombes
- * The conversions to FAST problems are now managed by FASTMgr.
- *
- * Revision 1.27  2003/07/25 20:37:36  pcombes
- * Separate the DIET API (slightly modified) from the GridRPC API (version of
- * the draft dated to 07/21/2003)
- *
- * Revision 1.26  2003/07/04 09:47:55  pcombes
- * Use new ERROR and WARNING macros.
- *
- * Revision 1.25  2003/04/10 12:40:22  pcombes
- * Use the TRACE_LEVEL of the debug module. Manage the data ID.
- *
- * Revision 1.24  2003/02/07 17:04:12  pcombes
- * Refine convertor API: arg_idx is splitted into in_arg_idx and out_arg_idx.
- *
- * Revision 1.22  2003/01/23 18:40:53  pcombes
- * Remove "only_value" argument to unmrsh_data, which is now useless
- *
- * Revision 1.21  2003/01/22 17:11:54  pcombes
- * API 0.6.4 : istrans -> order (row- or column-major)
- *
- * Revision 1.20  2003/01/17 18:08:43  pcombes
- * New API (0.6.3): structures are not hidden, but the user can ignore them.
- *
- * Revision 1.19  2003/01/13 18:06:13  pcombes
- * Add inout files management.
- *
- * Revision 1.18  2002/12/03 19:08:23  pcombes
- * Update configure, update to FAST 0.3.15, clean CVS logs in files.
- * Put main Makefile in root directory.
  ****************************************************************************/
 
 #include <fstream>
@@ -390,7 +349,8 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
     }
   } else {
     if (src->value.length() == 0) {
-
+      // TODO: should be allocated with new x[] to match delete[] used
+      // by omniORB.  But ... what is the type?
       dest->value = malloc(data_sizeof(&(dest->desc)));
  
     } else {
@@ -515,7 +475,7 @@ cvt_arg(diet_data_t* dest, diet_data_t* src,
     (*dest) = (*src);
     if (duplicate_value && src->value) {
       size_t size = data_sizeof(&(src->desc));
-      dest->value = (char*)malloc(size);
+      dest->value = new char[size]; 
       memcpy(dest->value, src->value, size);
       if (dest->desc.generic.type == DIET_SCALAR)
 	dest->desc.specific.scal.value = dest->value;
@@ -613,7 +573,7 @@ unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
     }
   }
 
-  delete src_params;
+  free(src_params);
   return 0;
 }
 
@@ -672,7 +632,7 @@ mrsh_profile_to_out_args(corba_profile_t* dest, const diet_profile_t* src,
     }
   }
 
-  delete [] args_filled;
+  free(args_filled);
   return 0;
 }
 
