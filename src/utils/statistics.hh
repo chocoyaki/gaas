@@ -11,6 +11,10 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.7  2002/12/24 10:28:04  lbertsch
+ * Added a stat_finalize function, so that successive initializations of
+ * diet don't issue any warning...
+ *
  * Revision 1.6  2002/12/18 19:02:46  pcombes
  * Bug fix in statistics integration.
  *
@@ -66,6 +70,7 @@ inline void gen_stat(int type, char *message) {
 
 // Don't call this, call init_stat instead!
 void do_stat_init();
+void do_stat_finalize();
 
 /////////////////////////////////
 // Use only the following calls :
@@ -74,8 +79,7 @@ void do_stat_init();
 #  define stat_in(message)   gen_stat(STAT_IN, message)
 #  define stat_out(message)  gen_stat(STAT_OUT, message)
 #  define stat_info(message) gen_stat(STAT_INFO, message)
-
-
+#  define stat_finalize()    do_stat_finalize()
 
 #else  // HAVE_STATISTICS
 
@@ -83,6 +87,7 @@ void do_stat_init();
 #  define stat_in(message)
 #  define stat_out(message)
 #  define stat_info(message)
+#  define stat_finalize()
 
 #endif // HAVE_STATISTICS
 

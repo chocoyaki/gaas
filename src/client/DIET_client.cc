@@ -12,6 +12,10 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.17  2002/12/24 10:28:04  lbertsch
+ * Added a stat_finalize function, so that successive initializations of
+ * diet don't issue any warning...
+ *
  * Revision 1.16  2002/12/13 13:06:08  lbertsch
  * Added statistics for the solve on the client side
  *
@@ -150,6 +154,8 @@ long int diet_initialize(int argc, char **argv, char *config_file)
   
 long int diet_finalize()
 {
+  stat_finalize();
+  
   return 0;
 }
 

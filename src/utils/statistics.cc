@@ -11,6 +11,10 @@
 /****************************************************************************/
 /*
  * $Log$
+ * Revision 1.7  2002/12/24 10:28:04  lbertsch
+ * Added a stat_finalize function, so that successive initializations of
+ * diet don't issue any warning...
+ *
  * Revision 1.6  2002/12/18 19:02:46  pcombes
  * Bug fix in statistics integration.
  *
@@ -41,8 +45,8 @@ FILE* stat_file = NULL;
 
 void do_stat_init() {
   if (stat_file != NULL) {
-    fprintf(stderr, "do_stat_init(): Stat module already initialized!\n"
-	    "             Continuing without reopening it!\n");
+    fprintf(stderr, "do_stat_init(): Stat module already initialized!\n");
+    fprintf(stderr, "                Continuing without reopening it!\n");
   } else {
     stat_file_name = getenv("DIET_STAT_FILE_NAME");
 
@@ -54,6 +58,19 @@ void do_stat_init() {
 	perror("do_stat_init");
       }
     }
+  }
+}
+
+void do_stat_finalize() {
+  if (stat_file == NULL) {
+    fprintf(stderr, "do_stat_finalize(): Stat module is NOT initialized!\n");
+    fprintf(stderr, "                    Continuing...\n");
+  } else {
+    if (fclose(stat_file) < 0) {
+      fprintf(stderr, "Unable to close stat file\n");
+      perror("do_stat_finalize");
+    }
+    stat_file = NULL;
   }
 }
 
