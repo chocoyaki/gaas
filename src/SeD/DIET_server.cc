@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2004/09/14 12:39:27  hdail
+ * - Changed cleanup of desc->param_desc from free to delete[] to match alloc.
+ * - Changed cleanup of desc from free to delete to match alloc.
+ *
  * Revision 1.27  2004/07/05 14:56:13  rbolze
  * correct bug on 64 bit plat-form, when parsing cfg file :
  * remplace size_t by unsigned int for config options
@@ -204,12 +208,12 @@ diet_profile_desc_free(diet_profile_desc_t* desc)
     return 1;
   free(desc->path);
   if ((desc->last_out > -1) && desc->param_desc) {
-    free(desc->param_desc);
+    delete[] desc->param_desc;
     res = 0;
   } else {
     res = 1;
   }
-  free(desc);
+  delete desc;
   return res;
 }
   
