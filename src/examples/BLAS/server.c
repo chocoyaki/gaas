@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2003/08/09 17:32:47  pcombes
+ * Update to the new diet_profile_desc_t.
+ *
  * Revision 1.8  2003/04/10 13:33:21  pcombes
  * Apply new Coding Standards.
  *
@@ -190,7 +193,7 @@ main(int argc, char* argv[])
    * Adding dgemm
    */
   /* Set profile */
-  profile = diet_profile_desc_alloc(3, 4, 4);
+  profile = diet_profile_desc_alloc(SRV[0], 3, 4, 4);
   diet_generic_desc_set(diet_param_desc(profile,0),
 			DIET_SCALAR, DIET_DOUBLE); // alpha
   diet_generic_desc_set(diet_param_desc(profile,1),
@@ -208,7 +211,7 @@ main(int argc, char* argv[])
   diet_arg_cvt_short_set(diet_arg_conv(cvt,3), 3, NULL);
   diet_arg_cvt_short_set(diet_arg_conv(cvt,4), 4, NULL);
   /* Add */
-  diet_service_table_add(SRV[0], profile, cvt, solve_dgemm);
+  if (diet_service_table_add(profile, cvt, solve_dgemm)) return 1;
   diet_profile_desc_free(profile);
 
 
@@ -216,7 +219,7 @@ main(int argc, char* argv[])
    * Adding MatPROD
    */
   /* Set profile */
-  profile = diet_profile_desc_alloc(1, 1, 2);
+  profile = diet_profile_desc_alloc(SRV[1], 1, 1, 2);
   diet_generic_desc_set(diet_param_desc(profile,0), DIET_MATRIX, DIET_DOUBLE);
   diet_generic_desc_set(diet_param_desc(profile,1), DIET_MATRIX, DIET_DOUBLE);
   diet_generic_desc_set(diet_param_desc(profile,2), DIET_MATRIX, DIET_DOUBLE);
@@ -237,7 +240,7 @@ main(int argc, char* argv[])
   diet_arg_cvt_short_set(diet_arg_conv(cvt,3), -1, arg);
   diet_arg_cvt_short_set(diet_arg_conv(cvt,4),  2, NULL);
   /* Add */
-  diet_service_table_add(SRV[1], profile, cvt, solve_dgemm);
+  if (diet_service_table_add(profile, cvt, solve_dgemm)) return 1;
   diet_profile_desc_free(profile);
 
 
@@ -245,7 +248,7 @@ main(int argc, char* argv[])
    * Adding SqMatSUM (IN, IN, OUT)
    */
   /* Set profile */
-  profile = diet_profile_desc_alloc(1, 1, 2);
+  profile = diet_profile_desc_alloc(SRV[2], 1, 1, 2);
   diet_generic_desc_set(diet_param_desc(profile,0), DIET_MATRIX, DIET_DOUBLE);
   diet_generic_desc_set(diet_param_desc(profile,1), DIET_MATRIX, DIET_DOUBLE);
   diet_generic_desc_set(diet_param_desc(profile,2), DIET_MATRIX, DIET_DOUBLE);
@@ -271,7 +274,7 @@ main(int argc, char* argv[])
   // parameter of the profile) and in_arg_idx == 1 (the second IN parameter).
   diet_arg_cvt_set(diet_arg_conv(cvt,4), DIET_CVT_IDENTITY, 1, NULL, 2);
   /* Add */
-  diet_service_table_add(SRV[2],  profile, cvt, solve_dgemm);
+  if (diet_service_table_add(profile, cvt, solve_dgemm)) return 1;
   diet_profile_desc_free(profile);
 
 
@@ -279,7 +282,7 @@ main(int argc, char* argv[])
    * Adding SqMatSUM_opt (IN, INOUT)
    */
   /* Set profile */
-  profile = diet_profile_desc_alloc(0, 1, 1);
+  profile = diet_profile_desc_alloc(SRV[3], 0, 1, 1);
   diet_generic_desc_set(diet_param_desc(profile,0), DIET_MATRIX, DIET_DOUBLE);
   diet_generic_desc_set(diet_param_desc(profile,1), DIET_MATRIX, DIET_DOUBLE);
   /* Set convertor */
@@ -300,7 +303,7 @@ main(int argc, char* argv[])
   diet_arg_cvt_short_set(diet_arg_conv(cvt,3), -1, arg);
   diet_arg_cvt_short_set(diet_arg_conv(cvt,4), 1, NULL);
   /* Add */
-  diet_service_table_add(SRV[3],  profile, cvt, solve_dgemm);
+  if (diet_service_table_add(profile, cvt, solve_dgemm)) return 1;
   diet_profile_desc_free(profile);
 
 
@@ -308,7 +311,7 @@ main(int argc, char* argv[])
    * Adding MatScalMult
    */
   /* Set profile */
-  profile = diet_profile_desc_alloc(0, 1, 1);
+  profile = diet_profile_desc_alloc(SRV[4], 0, 1, 1);
   // beta and C
   diet_generic_desc_set(diet_param_desc(profile,0), DIET_SCALAR, DIET_DOUBLE);
   diet_generic_desc_set(diet_param_desc(profile,1), DIET_MATRIX, DIET_DOUBLE);
@@ -329,7 +332,7 @@ main(int argc, char* argv[])
   diet_arg_cvt_short_set(diet_arg_conv(cvt,3),  0, NULL);
   diet_arg_cvt_short_set(diet_arg_conv(cvt,4),  1, NULL);
   /* Add */
-  diet_service_table_add(SRV[4], profile, cvt, solve_dgemm);
+  if (diet_service_table_add(profile, cvt, solve_dgemm)) return 1;
   diet_profile_desc_free(profile);
 
   /* The same cvt has been used for all services, free it now */

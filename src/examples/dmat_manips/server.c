@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2003/08/09 17:32:47  pcombes
+ * Update to the new diet_profile_desc_t.
+ *
  * Revision 1.22  2003/07/04 09:48:05  pcombes
  * Fix bug in getting arguments (only 1 service was declred).
  *
@@ -202,7 +205,7 @@ main(int argc, char* argv[])
   diet_service_table_init(NB_SRV);
   
   if (services[0]) {
-    profile = diet_profile_desc_alloc(-1, 0, 0);
+    profile = diet_profile_desc_alloc(SRV[0], -1, 0, 0);
     diet_generic_desc_set(diet_param_desc(profile,0), DIET_MATRIX, DIET_DOUBLE);
     /**
      * Example of convertor:
@@ -215,13 +218,15 @@ main(int argc, char* argv[])
     diet_arg_cvt_set(&(cvt->arg_convs[1]), DIET_CVT_MAT_NB_COL, 0, NULL, 0);
     diet_arg_cvt_short_set(&(cvt->arg_convs[2]), 0, NULL);
     
-    diet_service_table_add(SRV[0], profile, cvt, solve_T);
+    diet_service_table_add(profile, cvt, solve_T);
     diet_profile_desc_free(profile);
     diet_convertor_free(cvt);
   }
   
   if (services[1] || services[2] || services[3]) {
-    profile = diet_profile_desc_alloc(1, 1, 2);
+    const char* path =
+      (services[1]) ? SRV[1] : ((services[2]) ? SRV[2] : SRV[3]);
+    profile = diet_profile_desc_alloc(path, 1, 1, 2);
     diet_generic_desc_set(diet_param_desc(profile,0), DIET_MATRIX, DIET_DOUBLE);
     diet_generic_desc_set(diet_param_desc(profile,1), DIET_MATRIX, DIET_DOUBLE);
     diet_generic_desc_set(diet_param_desc(profile,2), DIET_MATRIX, DIET_DOUBLE);
@@ -231,7 +236,7 @@ main(int argc, char* argv[])
       diet_arg_cvt_short_set(&(cvt->arg_convs[0]), 0, NULL);
       diet_arg_cvt_short_set(&(cvt->arg_convs[1]), 1, NULL);
       diet_arg_cvt_short_set(&(cvt->arg_convs[2]), 2, NULL);
-      diet_service_table_add(SRV[1], profile, cvt, solve_MatPROD);
+      if (diet_service_table_add(profile, cvt, solve_MatPROD)) return 1;
       diet_convertor_free(cvt);
     }
     if (services[2] || services[3]) {
@@ -239,10 +244,7 @@ main(int argc, char* argv[])
       diet_arg_cvt_short_set(&(cvt->arg_convs[0]), 0, NULL);
       diet_arg_cvt_short_set(&(cvt->arg_convs[1]), 1, NULL);
       diet_arg_cvt_short_set(&(cvt->arg_convs[2]), 2, NULL);
-      if (services[2])
-	diet_service_table_add(SRV[2], profile, cvt, solve_MatSUM);
-      if (services[3])
-	diet_service_table_add(SRV[3], profile, cvt, solve_MatSUM);
+      if (diet_service_table_add(profile, cvt, solve_MatSUM)) return 1;
       diet_convertor_free(cvt);
     }
 
@@ -250,14 +252,14 @@ main(int argc, char* argv[])
   }
 
   if (services[4]) {
-    profile = diet_profile_desc_alloc(0, 1, 1);
+    profile = diet_profile_desc_alloc(SRV[4], 0, 1, 1);
     diet_generic_desc_set(diet_param_desc(profile,0), DIET_MATRIX, DIET_DOUBLE);
     diet_generic_desc_set(diet_param_desc(profile,1), DIET_MATRIX, DIET_DOUBLE);
     cvt = diet_convertor_alloc("base/plus", 1, 1, 2);
     diet_arg_cvt_short_set(&(cvt->arg_convs[0]), 0, NULL);
     diet_arg_cvt_short_set(&(cvt->arg_convs[1]), 1, NULL);
     diet_arg_cvt_short_set(&(cvt->arg_convs[2]), 1, NULL);
-    diet_service_table_add(SRV[4], profile, cvt, solve_MatSUM);
+    if (diet_service_table_add(profile, cvt, solve_MatSUM)) return 1;
     diet_convertor_free(cvt);
     diet_profile_desc_free(profile);    
   }

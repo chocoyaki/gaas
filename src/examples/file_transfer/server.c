@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2003/08/09 17:32:47  pcombes
+ * Update to the new diet_profile_desc_t.
+ *
  * Revision 1.10  2003/04/10 13:31:38  pcombes
  * Use diet_file_get.
  *
@@ -149,13 +152,13 @@ main(int argc, char* argv[])
 
 
   diet_service_table_init(1);
-  profile = diet_profile_desc_alloc(1, 1, 4);
+  profile = diet_profile_desc_alloc("size", 1, 1, 4);
   diet_generic_desc_set(diet_param_desc(profile,0), DIET_FILE, DIET_CHAR);
   diet_generic_desc_set(diet_param_desc(profile,1), DIET_FILE, DIET_CHAR);
   diet_generic_desc_set(diet_param_desc(profile,2), DIET_SCALAR, DIET_INT);
   diet_generic_desc_set(diet_param_desc(profile,3), DIET_SCALAR, DIET_INT);
   diet_generic_desc_set(diet_param_desc(profile,4), DIET_FILE, DIET_CHAR);
-  diet_service_table_add("size", profile, NULL, solve_size);
+  if (diet_service_table_add(profile, NULL, solve_size)) return 1;
 
   diet_profile_desc_free(profile);
   diet_print_service_table();

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2003/08/09 17:32:47  pcombes
+ * Update to the new diet_profile_desc_t.
+ *
  * Revision 1.1.1.1  2003/04/10 13:21:39  pcombes
  * SCALAPCK is included in the autotools chain under "ScaLAPACK".
  *
@@ -1192,12 +1195,12 @@ registration(int argc, char* argv[])
   
   STATUS("Registering at DIET");
   
-  cvt = diet_convertor_alloc("SCALAPACK/pdgemm", 7, 8, 8);
+  cvt = diet_convertor_alloc("ScaLAPACK/pdgemm", 7, 8, 8);
   
   /*
    * Adding pdgemm
    */
-  profile = diet_profile_desc_alloc(7, 8, 8);
+  profile = diet_profile_desc_alloc("ScaLAPACK/pdgemm", 7, 8, 8);
   // nbProcs, nbRows, nbCols, bs, alpha, A, B, beta, C
   diet_generic_desc_set(diet_param_desc(profile,0), DIET_SCALAR, DIET_INT);
   diet_generic_desc_set(diet_param_desc(profile,1), DIET_SCALAR, DIET_INT);
@@ -1209,14 +1212,14 @@ registration(int argc, char* argv[])
   diet_generic_desc_set(diet_param_desc(profile,7), DIET_SCALAR, DIET_DOUBLE);
   diet_generic_desc_set(diet_param_desc(profile,8), DIET_MATRIX, DIET_DOUBLE);
 
-  diet_service_table_add("SCALAPACK/pdgemm", profile, NULL, solve_pdgemm);
+  if (diet_service_table_add(profile, NULL, solve_pdgemm)) return 1;
   diet_profile_desc_free(profile);
 
   /*
    * Adding dgemm
    */
   /* Set profile */
-  profile = diet_profile_desc_alloc(3, 4, 4);
+  profile = diet_profile_desc_alloc("dgemm", 3, 4, 4);
   // alpha, A, B, beta, C
   diet_generic_desc_set(diet_param_desc(profile,0), DIET_SCALAR, DIET_DOUBLE);
   diet_generic_desc_set(diet_param_desc(profile,1), DIET_MATRIX, DIET_DOUBLE);
@@ -1226,23 +1229,23 @@ registration(int argc, char* argv[])
   /* Set convertor */
   arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
   diet_scalar_set(arg, &nbProcs, DIET_VOLATILE, DIET_INT);
-  diet_arg_cvt_set(diet_arg_conv(cvt,0), DIET_CVT_IDENTITY,   -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,0), -1, arg);
   arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
   diet_scalar_set(arg, &nbRows, DIET_VOLATILE, DIET_INT);
-  diet_arg_cvt_set(diet_arg_conv(cvt,1), DIET_CVT_IDENTITY,   -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,1), -1, arg);
   arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
   diet_scalar_set(arg, &nbCols, DIET_VOLATILE, DIET_INT);
-  diet_arg_cvt_set(&(cvt->arg_convs[2]), DIET_CVT_IDENTITY,   -1, arg);
+  diet_arg_cvt_short_set(&(cvt->arg_convs[2]), -1, arg);
   arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
   diet_scalar_set(arg, &bs, DIET_VOLATILE, DIET_INT);
-  diet_arg_cvt_set(diet_arg_conv(cvt,3), DIET_CVT_IDENTITY,   -1, arg);
-  diet_arg_cvt_set(diet_arg_conv(cvt,4), DIET_CVT_IDENTITY,    0, NULL);
-  diet_arg_cvt_set(diet_arg_conv(cvt,5), DIET_CVT_IDENTITY,    1, NULL);
-  diet_arg_cvt_set(diet_arg_conv(cvt,6), DIET_CVT_IDENTITY,    2, NULL);
-  diet_arg_cvt_set(diet_arg_conv(cvt,7), DIET_CVT_IDENTITY,    3, NULL);
-  diet_arg_cvt_set(diet_arg_conv(cvt,8), DIET_CVT_IDENTITY,    4, NULL);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,3), -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,4),  0, NULL);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,5),  1, NULL);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,6),  2, NULL);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,7),  3, NULL);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,8),  4, NULL);
   /* Add */
-  diet_service_table_add("dgemm", profile, cvt, solve_pdgemm);
+  if (diet_service_table_add(profile, cvt, solve_pdgemm)) return 1;
   diet_profile_desc_free(profile);
 
 
@@ -1250,39 +1253,39 @@ registration(int argc, char* argv[])
    * Adding SqMatSUM
    */
   /* Set profile */
-  profile = diet_profile_desc_alloc(0, 1, 1);
+  profile = diet_profile_desc_alloc("SqMatSUM", 0, 1, 1);
   diet_generic_desc_set(diet_param_desc(profile,0), DIET_MATRIX, DIET_DOUBLE);
   diet_generic_desc_set(diet_param_desc(profile,1), DIET_MATRIX, DIET_DOUBLE);
   /* Set convertor */
   arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
   diet_scalar_set(arg, &nbProcs, DIET_VOLATILE, DIET_INT);
-  diet_arg_cvt_set(diet_arg_conv(cvt,0), DIET_CVT_IDENTITY,   -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,0), -1, arg);
   arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
   diet_scalar_set(arg, &nbRows, DIET_VOLATILE, DIET_INT);
-  diet_arg_cvt_set(diet_arg_conv(cvt,1), DIET_CVT_IDENTITY,   -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,1), -1, arg);
   arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
   diet_scalar_set(arg, &nbCols, DIET_VOLATILE, DIET_INT);
-  diet_arg_cvt_set(diet_arg_conv(cvt,2), DIET_CVT_IDENTITY,   -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,2), -1, arg);
   arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
   diet_scalar_set(arg, &bs, DIET_VOLATILE, DIET_INT);
-  diet_arg_cvt_set(diet_arg_conv(cvt,3), DIET_CVT_IDENTITY,   -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,3), -1, arg);
   {
     double alpha = 1.0;
     arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
     diet_scalar_set(arg, &alpha, DIET_VOLATILE, DIET_DOUBLE);
   }
-  diet_arg_cvt_set(diet_arg_conv(cvt,4), DIET_CVT_IDENTITY,   -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,4), -1, arg);
   // beta is the same
-  diet_arg_cvt_set(diet_arg_conv(cvt,7), DIET_CVT_IDENTITY,   -1, arg);
-  diet_arg_cvt_set(diet_arg_conv(cvt,5), DIET_CVT_IDENTITY,    0, NULL);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,7), -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,5),  0, NULL);
   {
     arg = (diet_arg_t*) calloc(1, sizeof(diet_arg_t));
     diet_matrix_set(arg, NULL, DIET_VOLATILE, DIET_DOUBLE, 0, 0, DIET_COL_MAJOR);
   }
-  diet_arg_cvt_set(diet_arg_conv(cvt,6), DIET_CVT_IDENTITY,   -1, arg);
-  diet_arg_cvt_set(diet_arg_conv(cvt,8), DIET_CVT_IDENTITY,    1, NULL);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,6), -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,8),  1, NULL);
   /* Add */
-  diet_service_table_add("SqMatSUM", profile, cvt, solve_pdgemm);
+  if (diet_service_table_add(profile, cvt, solve_pdgemm)) return 1;
   diet_profile_desc_free(profile);
 
 
@@ -1290,40 +1293,40 @@ registration(int argc, char* argv[])
    * Adding MatPROD
    */
   /* Set profile */
-  profile = diet_profile_desc_alloc(1, 1, 2);
+  profile = diet_profile_desc_alloc("MatPROD", 1, 1, 2);
   diet_generic_desc_set(diet_param_desc(profile,0), DIET_MATRIX, DIET_DOUBLE);
   diet_generic_desc_set(diet_param_desc(profile,1), DIET_MATRIX, DIET_DOUBLE);
   diet_generic_desc_set(diet_param_desc(profile,2), DIET_MATRIX, DIET_DOUBLE);
   /* Set convertor */
   arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
   diet_scalar_set(arg, &nbProcs, DIET_VOLATILE, DIET_INT);
-  diet_arg_cvt_set(diet_arg_conv(cvt,0), DIET_CVT_IDENTITY,   -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,0), -1, arg);
   arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
   diet_scalar_set(arg, &nbRows, DIET_VOLATILE, DIET_INT);
-  diet_arg_cvt_set(diet_arg_conv(cvt,1), DIET_CVT_IDENTITY,   -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,1), -1, arg);
   arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
   diet_scalar_set(arg, &nbCols, DIET_VOLATILE, DIET_INT);
-  diet_arg_cvt_set(&(cvt->arg_convs[2]), DIET_CVT_IDENTITY,   -1, arg);
+  diet_arg_cvt_short_set(&(cvt->arg_convs[2]), -1, arg);
   arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
   diet_scalar_set(arg, &bs, DIET_VOLATILE, DIET_INT);
-  diet_arg_cvt_set(diet_arg_conv(cvt,3), DIET_CVT_IDENTITY,   -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,3), -1, arg);
   {
     double alpha = 1.0;
     arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
     diet_scalar_set(arg, &alpha, DIET_VOLATILE, DIET_DOUBLE);
   }
-  diet_arg_cvt_set(diet_arg_conv(cvt,4), DIET_CVT_IDENTITY,   -1, arg);
-  diet_arg_cvt_set(diet_arg_conv(cvt,5), DIET_CVT_IDENTITY,    0, NULL);
-  diet_arg_cvt_set(diet_arg_conv(cvt,6), DIET_CVT_IDENTITY,    1, NULL);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,4), -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,5),  0, NULL);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,6),  1, NULL);
   {
     double beta = 0.0;
     arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
     diet_scalar_set(arg, &beta, DIET_VOLATILE, DIET_DOUBLE);
   }
-  diet_arg_cvt_set(diet_arg_conv(cvt,7), DIET_CVT_IDENTITY,   -1, arg);
-  diet_arg_cvt_set(diet_arg_conv(cvt,8), DIET_CVT_IDENTITY,    2, NULL);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,7), -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,8),  2, NULL);
   /* Add */
-  diet_service_table_add("MatPROD", profile, cvt, solve_pdgemm);
+  if (diet_service_table_add(profile, cvt, solve_pdgemm)) return 1;
   diet_profile_desc_free(profile);
 
 
@@ -1331,7 +1334,7 @@ registration(int argc, char* argv[])
    * Adding MatScalMult
    */
   /* Set profile */
-  profile = diet_profile_desc_alloc(0, 1, 1);
+  profile = diet_profile_desc_alloc("MatScalMult", 0, 1, 1);
   diet_generic_desc_set(diet_param_desc(profile,0), DIET_SCALAR, DIET_DOUBLE);
   diet_generic_desc_set(diet_param_desc(profile,1), DIET_MATRIX, DIET_DOUBLE);
   /* Set convertor */
@@ -1352,17 +1355,17 @@ registration(int argc, char* argv[])
     arg = (diet_arg_t*) malloc(sizeof(diet_arg_t));
     diet_scalar_set(arg, &alpha, DIET_VOLATILE, DIET_DOUBLE);
   }
-  diet_arg_cvt_set(diet_arg_conv(cvt,4), DIET_CVT_IDENTITY,   -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,4), -1, arg);
   {
     arg = (diet_arg_t*) calloc(1, sizeof(diet_arg_t));
     diet_matrix_set(arg, NULL, DIET_VOLATILE, DIET_DOUBLE, 1, 1, DIET_COL_MAJOR);
   }  
-  diet_arg_cvt_set(diet_arg_conv(cvt,5), DIET_CVT_IDENTITY,   -1, arg);
-  diet_arg_cvt_set(diet_arg_conv(cvt,6), DIET_CVT_IDENTITY,   -1, arg);
-  diet_arg_cvt_set(diet_arg_conv(cvt,7), DIET_CVT_IDENTITY,    0, NULL);
-  diet_arg_cvt_set(diet_arg_conv(cvt,8), DIET_CVT_IDENTITY,    1, NULL);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,5), -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,6), -1, arg);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,7),  0, NULL);
+  diet_arg_cvt_short_set(diet_arg_conv(cvt,8),  1, NULL);
   /* Add */
-  diet_service_table_add("MatScalMult", profile, cvt, solve_pdgemm); 
+  if (diet_service_table_add(profile, cvt, solve_pdgemm)) return 1; 
   diet_profile_desc_free(profile);
 
 
