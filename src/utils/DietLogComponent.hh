@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2004/12/02 11:24:38  bdelfabr
+ * add informations on data (size, type, base type )
+ *
  * Revision 1.2  2004/07/29 18:53:06  rbolze
  * make some change to send more info to the logService.
  *
@@ -237,7 +240,7 @@ public:
   /**
    * Track data movements
    */
-  void logDataStore(const char* dataID);    // data profile ?
+  void logDataStore(const char* dataID, const long unsigned int size,const long base_type, const char * type );    // data profile ?
   void logDataRelease(const char* dataID);
   // invoked by Sender:
   void logDataBeginTransfer(const char* dataID,
