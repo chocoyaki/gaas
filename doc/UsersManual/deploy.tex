@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.6  2004/04/05 11:11:37  rbolze
+%* add instrcution for the config files and LogService
+%*
 %* Revision 1.5  2004/02/10 01:39:50  ecaron
 %* Add suggestions from Frederic Desprez. Thanks !
 %*
@@ -281,12 +284,42 @@ Specify the \texttt{host:port} address of the NWS forecaster.
 \\
 
 
+\subsection{LogService options}
+
+\noindent
+\texttt{useLogService} \ \ \emph{default}\texttt{ = 0}\\
+This activates the connection to LogService if DIET was compiled with
+\texttt{--enable-logservice}. LogService is disabled by default.
+If this option is set to 1 then the LogCentral must be started
+before any DIET nodes. Agents and SeDs will connect to it to
+deliver their monitoring information and they will refuse to
+start if they cannot establish this connection. See http://graal.ens-lyon.fr/LogService/
+to know how to launch LogCentral.
+\\
+
+\noindent
+\texttt{lsOutbuffersize} \ \ \emph{default}\texttt{ = 0}\\
+\noindent
+\texttt{lsFlushinterval} \ \ \emph{default}\texttt{ = 10000}\\
+DIETs LogService connection offers to buffer outgoing messages
+and send them asynchronously. This can eventually decrease the network
+load when several messages are sent at one time. It can also be used
+to decouple the generation and the transfer of messages.
+The buffer is specified by it's size (\texttt{lsOutbuffersize},
+number of messages) and the time it is regularly flushed
+(\texttt{lsFlushinterval}, nanoseconds). It is recommended not
+to change the default parameters if you do not encounter
+problems. The buffer options will be ignored if \texttt{useLogService}
+is set to 0.
+
 \subsection{Miscellanous options}
 
+\noindent
 \texttt{endPoint} \ \ \emph{default}\texttt{ = }\emph{2809}\\
 This option specifies the listening port of an agent or an SeD. It is very
 useful when they are behind a firewall. It defaults set to 2809. 
 
+\noindent
 \texttt{useAsyncAPI} \ \ \emph{default}\texttt{ = }\emph{1}\\
 This option specifies use of asynchronous calls and so creates objects managing them on the client side.
 
