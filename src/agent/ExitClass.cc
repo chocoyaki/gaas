@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2004/03/01 18:45:28  rbolze
+ * change in exitFunction()
+ *
  * Revision 1.1  2003/10/06 10:11:55  cpontvie
  * Class to manage a clean exit, call by EXITFUNCTION
  *
@@ -39,7 +42,6 @@ ExitClass::exitFunction()
   TRACE_TEXT(TRACE_MAIN_STEPS, "Stopping the Agent...\n");
   // Deactivate and destroy the agent
   try {
-    ORBMgr::deactivate();
     if (ExitClass::agent != NULL) {
       delete ExitClass::agent;
     }
