@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2003/05/13 17:14:00  pcombes
+ * Catch CORBA exceptions in serverSubscribe.
+ *
  * Revision 1.2  2003/05/10 08:54:41  pcombes
  * New format for configuration files, new Parsers.
  *
@@ -67,7 +70,7 @@ SeDImpl::run(ServiceTable* services)
     return 1;
   }
 
-  SrvT = services;
+  this->SrvT = services;
 
   char* parent_name = (char*)
     Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
@@ -81,16 +84,25 @@ SeDImpl::run(ServiceTable* services)
     return 1;
   }
   
-  profiles = SrvT->getProfiles();
+  profiles = this->SrvT->getProfiles();
   if (TRACE_LEVEL >= TRACE_STRUCTURES)
-    SrvT->dump(stdout);
-  childID = parent->serverSubscribe(_this(), localHostName, *profiles);
+    this->SrvT->dump(stdout);
+  try {
+    childID = parent->serverSubscribe(this->_this(), localHostName, *profiles);
+  } catch (CORBA::Exception& e) {
+    CORBA::Any tmp;
+    tmp <<= e;
+    CORBA::TypeCode_var tc = tmp.type();
+    cerr << "Thrown exception " << tc->name() << " while subscribing to "
+	 << parent_name	 << ": either the latter is down, "
+	 << "or there is a problem with the name server problem\n";
+    return 1;
+  }
   delete profiles;
 
   size_t* endPoint = (size_t*)
     Parsers::Results::getParamValue(Parsers::Results::ENDPOINT);
-  // FIXME: How can I get the port used by the ORB ?
-  //        and is it useful ?
+  // FIXME: How can I get the port used by the ORB ? and is it useful ?
   if (endPoint == NULL)
     this->port = 0;
   else
