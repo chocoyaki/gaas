@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.3  2003/12/02 10:29:02  sdahan
+%* update the doxygen part of the Programmer Guide
+%*
 %* Revision 1.2  2003/09/17 14:41:28  pcombes
 %* Split the .tex according to its chapters.
 %*
@@ -310,19 +313,41 @@ the conditional expression as a comment on the corresponding \verb+#else+ and
 
 \subsubsection{Doxygen}
 
-\fixme{Sylvain - Please complete this part}\\
+\textit{Doxygen} is a documentation system very similar to javadoc. It analyses
+the header files of your code and build a pretty and easy to use documentation
+from it. You can/must add some comments into your header file to describe the
+interface of your classes. If the comment start by \texttt{/**} instead of
+\texttt{/*}, \textit{Doxygen} takes it as the description of your class or
+method. The documentation of Doxygen can be found at
+\url{http://www.stack.nl/~dimitri/doxygen/docblocks.html}.
 
-Doxygen comments can be extracted from the source code by the doxygen tool. The
-doxygen tool identifies the different sections inside an doxygen comment and
-creates I do not what but Sylvain will fill in this part of the Coding Standards
-with a complete example, so that all of us will be able to use Doxygen basics
-very soon.\\
+The most important things that must be put in the documentation is the
+hypothesis made by our methods. If your class can accept several modifications
+in the same time, you put ``this class is thread safe'' in the
+documentation. If a methods accept a \texttt{char*} as a parameter but not the
+\texttt{NULL} value, the documentation must say it too. It is useless to put
+tons and tons of documentation, but nothing must stay undefined and an example
+of use can be useful. This is really important when you describes your methods,
+every hypothesis about your parameters and the state of the object must be
+defined.
 
+The easiest way to learn how to use \textit{Doxygen} is to look at a header
+with \textit{Doxygen} comments like the \texttt{src/utils/Counter.hh} file. To
+build the documentation run \texttt{doxygen doc/Doxyfile} in the source
+directory of diet. The API directory will be created with all the
+documentations inside. There is one rule that you must remember : always put
+your comment just above your prototype or it will be ignored by
+\textit{Doxygen}.
 
 As there are C files in the DIET sources, the flag \texttt{@author} cannot be
-used in all DIET source files. Thus, it is important to authentify the
-author of the file \textbf{in the header}, as explained section \ref{fstruct}.
-Using the flag \texttt{@author} would be redundant.
+used in all DIET source files. Thus, it is important to identify the author
+of the file \textbf{in the header}, as explained section \ref{fstruct}.  Using
+the flag \texttt{@author} would be redundant.
+
+One last thing, do not put some \texttt{//FIXME blablabla} but use \texttt{/**
+@warning blabla */}, \texttt{/** @todo blabla */} and \texttt{/** @bug blabla
+*/} directly in the C code. A report will be generated with all the todo,
+warning and bugs. It will be easier to know what must be done.
 
 \subsection{Manuals}
 
