@@ -1,7 +1,16 @@
-// $Id$
-
-/*
+/****************************************************************************/
+/* Identifier for a request                                                 */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)                   */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
  * $Log$
+ * Revision 1.4  2003/04/10 13:03:01  pcombes
+ * Apply Coding Standards.
+ *
  * Revision 1.3  2003/01/22 17:12:48  pcombes
  * #include "DIET_config.h" is better than #include "omniorb.hh"
  *
@@ -10,21 +19,13 @@
  *
  * Revision 1.1  2002/12/27 15:57:39  sdahan
  * the log list becaume a ts_map<RequestID, Request*>
- *
- */
+ ****************************************************************************/
 
 #ifndef _REQUEST_ID_
 #define _REQUEST_ID_
 
+#include <CORBA.h>
 #include "DIET_config.h"
-
-#ifdef __OMNIORB3__
-#include <omniORB3/CORBA.h>
-#else
-#ifdef __OMNIORB4__
-#include <omniORB4/CORBA.h>
-#endif
-#endif
 
 /**
  * This is the identifier type for a request.
