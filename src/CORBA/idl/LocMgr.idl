@@ -1,0 +1,80 @@
+/****************************************************************************/
+/* DIET Data Location Manager IDL description                               */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Bruno DEL FABBRO (Bruno.DelFabbro@lifc.univ-fcomte.fr)              */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.1  2003/09/22 21:07:01  pcombes
+ * Set all the modules and their interfaces for data persistency.
+ *
+ ***************************************************************************/
+
+#ifndef _LOCMGR_IDL_
+#define _LOCMGR_IDL_
+
+#include "DataMgr.idl"
+
+
+/****************************************************************************/
+/* Loc Manager Interface                                                    */
+/****************************************************************************/
+
+interface LocMgr {
+
+  /**
+   * Invoked by other loc Managers to register as a child of this Loc Manager. 
+   * Returns a registration number which
+   * indentifies the child amongst the other children of this Loc Manager.
+   */
+  unsigned long locMgrSubscribe(in LocMgr me, in string hostName);
+
+  /**
+   * Invoked by other data Managers to register as a child of this Loc Manager. 
+   * Returns a registration number which
+   * indentifies the child amongst the other children of this Loc Manager.
+   */
+  unsigned long dataMgrSubscribe(in DataMgr me, in string hostName);
+
+  /**
+   * Add data Reference method. The first argument is the id of the data
+   * registered, the second argument is the registration number of the son
+   * holding it.
+   */
+  void addDataRef(in string argID, in unsigned long cChildID);
+
+  /**
+   * Remove data Reference method. The first argument is the data id to remove,
+   * the second argument is the registration number of the son holding it
+   */  
+  void rmDataRef(in string argID, in unsigned long cChildID);
+
+  /**
+   * Update data Reference method. The first argument is the id of the data
+   * which was updated (i.e. was moved) the second argument is the registration
+   * number of the new son holding the data the last argument is set to 0 if up
+   * and 1 if down (up to add the new reference, down to remove it)
+   */
+  oneway void updateDataRef(in string argID,
+			    in unsigned long cChildID, in long upDown);
+
+  /**
+   * Looking for data Reference method. The first argument is the id of the data
+   * which is searched the second argument is the hostname the ths data Manager
+   * object which is looking for a data (case in or in_out args). Returns the
+   * name of the data Manager which hold the data
+   */
+  string whereData(in string argID,in string hostName);
+  
+  /** 
+   * Change property of data (as their occupation flag for example).
+   * NB : method not used so far
+   */
+  void updateDataProp(in string argID);
+};
+
+
+#endif //_LOCMGR_IDL_

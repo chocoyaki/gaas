@@ -9,39 +9,15 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.12  2003/09/19 16:07:09  bdelfabr
- * removing dlist from the diettype files. THe removing is not done on DataManager,
- * but now you can compile the others stuff
- *
- * Revision 1.11  2003/09/18 09:47:19  bdelfabr
- * adding data persistence
+ * Revision 1.13  2003/09/22 21:09:20  pcombes
+ * Set all the modules and their interfaces for data persistency.
  *
  * Revision 1.10  2003/04/10 12:49:27  pcombes
  * Apply Coding Standards, manage data ID, and remove all dlist types.
  *
- * Revision 1.9  2003/02/04 09:59:01  pcombes
- * Apply Coding Standards (still much work)
- *
- * Revision 1.8  2003/01/22 17:06:43  pcombes
- * API 0.6.4 : istrans -> order (row- or column-major)
- *
- * Revision 1.7  2003/01/17 18:08:43  pcombes
- * New API (0.6.3): structures are not hidden, but the user can ignore them.
- *
  * Revision 1.6  2002/12/03 19:08:24  pcombes
  * Update configure, update to FAST 0.3.15, clean CVS logs in files.
  * Put main Makefile in root directory.
- *
- * Revision 1.2  2002/08/30 16:50:16  pcombes
- * This version works as well as the alpha version from the user point of view,
- * but the API is now the one imposed by the latest specifications (GridRPC API
- * in its sequential part, config file for all parts of the platform, agent
- * algorithm, etc.)
- *  - Reduce marshalling by using CORBA types internally
- *  - Creation of a class ServiceTable that is to be replaced
- *    by an LDAP DB for the MA
- *  - No copy for client/SeD data transfers
- *  - ...
  ****************************************************************************/
 
 
@@ -54,9 +30,6 @@
 #include "DIET_config.h"
 #include "DIET_server.h"
 
-#include "SeD.hh"
-#include "Agent.hh"
-#include "dataMgr.hh"
 #if 0
 
 /****************************************************
@@ -186,14 +159,13 @@ typedef struct diet_server_data_desc_ diet_server_data_desc_t;
 /* to include informations about he data type, size and       */
 /* distribution.                                              */
 /*------------------------------------------------------------*/
-
-struct dietDataDesc
+#if 0
+struct diet_data_desc_s
 {
-  corba_dataMgr_desc_t dataDesc;
+  corba_DataMgr_desc_t dataDesc;
 };
-
-typedef struct dietDataDesc dietDataDescT;
-
+typedef struct diet_data_desc_s diet_data_desc_t;
+#endif // 0
 
 
 /***********************************************************************
@@ -202,23 +174,28 @@ typedef struct dietDataDesc dietDataDescT;
  *
  ***********************************************************************/
 
-struct dietDataId
+// FIXME: what is the interest of such a type ?
+//        why not use simply corba_data_id_t ?
+typedef struct diet_data_id_s
 {
-   corba_data_id_t dataId;
-};
-
-typedef struct dietDataId dietDataIdT;
+   corba_data_id_t dataID;
+} diet_data_id_t;
 
 
 /* structure useful for transfert management */
-
-struct dietDataIdLock
+typedef struct diet_data_id_lock_s
 {
-  char *id;
+  char* id;
   omni_mutex lockMutex;
-};
+} diet_data_id_lock_t;
 
-typedef struct dietDataIdLock dietDataIdLockT;
+struct cmpCorbaDataID {
+  bool
+  operator()(const char* a, const char* b) const
+  {
+    return strcmp(a,b) < 0;
+  }
+};
 
 
 
@@ -233,7 +210,7 @@ data_sizeof(const diet_data_desc_t* desc);
 size_t
 data_sizeof(const corba_data_desc_t* desc);
 size_t
-data_sizeof(const corba_dataMgr_desc_t* desc);
+data_sizeof(const corba_DataMgr_desc_t* desc);
 
 
 /* There should be no use of allocating and freeing functions */

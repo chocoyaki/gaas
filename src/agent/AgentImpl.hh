@@ -10,8 +10,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.4  2003/09/18 09:47:19  bdelfabr
- * adding data persistence
+ * Revision 1.5  2003/09/22 21:07:52  pcombes
+ * Set all the modules and their interfaces for data persistency.
  *
  * Revision 1.3  2003/08/01 19:33:11  pcombes
  * Use FASTMgr.
@@ -34,16 +34,13 @@
 #include "Counter.hh"
 #include "ChildID.hh"
 #include "dietTypes.hh"
+#include "LocMgrImpl.hh"
 #include "NodeDescription.hh"
 #include "RequestID.hh"
 #include "Request.hh"
 #include "ServiceTable.hh"
 #include "ts_container/ts_vector.hh"
 #include "ts_container/ts_map.hh"
-#include "locMgr.hh"
-#include "common_types.hh"
-
-class locMgrImpl;
 
 class AgentImpl : public POA_Agent,
 		  public PortableServer::RefCountServantBase
@@ -63,6 +60,10 @@ public:
    */
   virtual int
   run();
+
+  /** Set this->locMgr */
+  int
+  linkToLocMgr(LocMgrImpl* locMgr);
 
   /** Subscribe an agent as a LA child. Remotely called by an LA. */
   virtual CORBA::ULong
@@ -85,35 +86,18 @@ public:
   virtual CORBA::Long
   ping();
 
-  /* loc management */
-  virtual char *
-  getMyName();
-  
-  virtual char *
-  getMyFatherName();
-  void 
-  setMyName(locMgrImpl *_loc);
 
-  /** Get pointer to the read-only name of this agent. */
-  inline const char*
-  getName() {return (const char*)this->myName;};
-  
 protected:
 
   /**************************************************************************/
   /* Private fields                                                         */
   /**************************************************************************/
 
-  locMgrImpl *myLoc;
   /** Local host name */
   char localHostName[257];
 
   /** Identity in the CORBA Naming Service */
   char myName[257];
-  /* loc management */
-  char fatherName[257];
-  /** ID of this agent amongst the children of its parent */
-  ChildID childID;
   /** ID of next subscribing child */
   Counter childIDCounter;
 
@@ -138,6 +122,9 @@ protected:
   /** All requests beeing processed */ 
   ts_map<RequestID, Request*> reqList;
  
+  /** Data Location Manager associated to this agent */
+  LocMgrImpl* locMgr;
+
 
   /**************************************************************************/
   /* Private methods                                                        */

@@ -1,0 +1,52 @@
+/****************************************************************************/
+/* DIET Data Manager IDL description                                        */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Bruno DEL FABBRO (Bruno.DelFabbro@lifc.univ-fcomte.fr)              */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.1  2003/09/22 21:07:01  pcombes
+ * Set all the modules and their interfaces for data persistency.
+ *
+ ***************************************************************************/
+
+#ifndef _DATAMGR_IDL_
+#define _DATAMGR_IDL_
+
+
+#include "common_types.idl"
+
+/****************************************************************************/
+/* Data Manager Interface                                                   */
+/****************************************************************************/
+
+interface DataMgr {
+  
+  /**
+   * Method invoked by the myName Data Manager to get a data identified by id.
+   */
+  void putData(in string argID, in string me);
+
+  /**
+   * Remove data identified by cdataId after a data transfer.
+   * Invoked by the loc Manager Father
+   */
+  void rmDataRef(in string argID);
+ 
+  /**
+   * Invoked by a Loc Manager. The data Manager myName is looking for a  
+   * data identified by cdataId. Returns the data Manager name. If data
+   * not present returns null value. 
+   */
+  string whereData(in string argID, in string me);  
+
+  /** Sending data to remote Data Manager. */
+  void sendData(inout corba_data_t arg);
+
+};
+
+
+#endif // _DATAMGR_IDL_

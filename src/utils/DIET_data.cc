@@ -8,8 +8,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.18  2003/09/18 09:47:19  bdelfabr
- * adding data persistence
+ * Revision 1.19  2003/09/22 21:09:20  pcombes
+ * Set all the modules and their interfaces for data persistency.
  *
  * Revision 1.17  2003/08/01 19:37:47  pcombes
  * Update diet_profile_alloc to the new API (separated from GridRPC)
@@ -26,9 +26,6 @@
  * Revision 1.12  2003/02/07 17:02:10  pcombes
  * Remove diet_value. Add diet_is_persistent and diet_free_data.
  * Unify diet_scalar_get prototype to the one of the other _get functions.
- *
- * Revision 1.10  2003/01/23 18:41:59  pcombes
- * API 0.6.4 : istrans -> order (row- or column-major)
  ****************************************************************************/
 
 #include <stdlib.h>
@@ -133,7 +130,7 @@ data_sizeof(const corba_data_desc_t* desc)
 }
 
 size_t
-data_sizeof(const  corba_dataMgr_desc_t* desc)
+data_sizeof(const  corba_DataMgr_desc_t* desc)
 {
   size_t base_size(type_sizeof((diet_base_type_t) desc->base_type));
   size_t size(0);

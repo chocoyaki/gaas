@@ -8,8 +8,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.17  2003/09/18 09:47:19  bdelfabr
- * adding data persistence
+ * Revision 1.18  2003/09/22 21:07:21  pcombes
+ * Set all the modules and their interfaces for data persistency.
  *
  * Revision 1.16  2003/08/09 17:28:25  pcombes
  * Make diet_profile_desc_alloc and diet_profile_alloc homogenous.
@@ -36,16 +36,15 @@ using namespace std;
 #include <unistd.h>
 #include <stdlib.h>
 
-#include "debug.hh"
 #include "DIET_server.h"
+
+//#include "common_types.hh"
+#include "debug.hh"
+#include "DataMgrImpl.hh"
 #include "marshalling.hh"
 #include "ORBMgr.hh"
 #include "Parsers.hh"
-#include "common_types.hh"
-#include "ServiceTable.hh"
 #include "SeDImpl.hh"
-#include "dataMgr.hh"
-#include "dataMgrImpl.hh"
 
 #define BEGIN_API extern "C" {
 #define END_API   } // extern "C"
@@ -145,6 +144,7 @@ diet_profile_desc_free(diet_profile_desc_t* desc)
 
   if (!desc)
     return 1;
+  free(desc->path);
   if ((desc->last_out > -1) && desc->param_desc) {
     free(desc->param_desc);
     res = 0;
@@ -269,7 +269,7 @@ int
 diet_SeD(char* config_file_name, int argc, char* argv[])
 {
   SeDImpl* SeD;
-  dataMgrImpl *Data; 
+  DataMgrImpl* dataMgr; 
   int    res(0);
   int    myargc;
   char** myargv;
@@ -341,17 +341,17 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   }
   /* SeD creation */
   SeD = new SeDImpl();
-  Data = new dataMgrImpl(SeD);
+  dataMgr = new DataMgrImpl();
   /* Activate SeD */
   ORBMgr::activate(SeD);
-  SeD->refData(Data);
-  ORBMgr::activate(Data);
   if (SeD->run(SRVT)) {
-   ERROR("unable to launch the SeD", 1);
+    ERROR("unable to launch the SeD", 1);
   }
-  if (Data->run()) {
-     ERROR("unable to launch the DataManager", 1);
+  ORBMgr::activate(dataMgr);
+  if (dataMgr->run()) {
+    ERROR("unable to launch the DataManager", 1);
   }
+  SeD->linkToDataMgr(dataMgr);
 
   /* We do not need the parsing results any more */
   Parsers::endParsing();

@@ -10,24 +10,18 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.10  2003/09/18 09:47:19  bdelfabr
- * adding data persistence
- *
- * Revision 1.8  2003/08/29 10:53:10  cpontvie
- * Coding standards applied
+ * Revision 1.11  2003/09/22 21:07:52  pcombes
+ * Set all the modules and their interfaces for data persistency.
  *
  * Revision 1.7  2003/08/28 16:48:49  cpontvie
- * Modifications in the destructor: more trace and unbind the agent to the the
-NamingService
+ * Modifications in the destructor: more trace and unbind the agent to
+ * the NamingService.
  *
  * Revision 1.6  2003/08/01 19:33:11  pcombes
  * Use FASTMgr.
  *
  * Revision 1.5  2003/07/04 09:47:59  pcombes
  * Use new ERROR, WARNING and TRACE macros.
- *
- * Revision 1.4  2003/06/03 18:26:28  pcombes
- * Add main step traces for child subscription.
  *
  * Revision 1.3  2003/05/22 12:20:25  sdahan
  * Now the NodeDescriptor completly manages its own memory by itself.
@@ -51,13 +45,14 @@ using namespace std;
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "debug.hh"
-#include "ms_function.hh"
-#include "FASTMgr.hh"
-#include "ORBMgr.hh"
 #include "common_types.hh"
-#include "locMgrImpl.hh"
+#include "debug.hh"
+#include "FASTMgr.hh"
+#include "ms_function.hh"
+#include "ORBMgr.hh"
 #include "Parsers.hh"
+
+#define DEVELOPPING_DATA_PERSISTENCY 0
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
@@ -71,11 +66,12 @@ AgentImpl::AgentImpl()
 {
   this->localHostName[0]     = '\0';
   this->myName[0]            = '\0';
-  this->childID              = -1;
   this->childIDCounter       = 0;
   this->nbLAChildren         = 0;
   this->nbSeDChildren        = 0;
   this->SrvT                 = new ServiceTable();
+  this->reqList.clear();
+  this->locMgr               = NULL;
 } // AgentImpl()
 
 AgentImpl::~AgentImpl()
@@ -92,32 +88,11 @@ AgentImpl::~AgentImpl()
   TRACE_TEXT(TRACE_STRUCTURES, "Agt:: 'this->reqList.clear()'...");
   this->reqList.clear();
   TRACE_TEXT(TRACE_STRUCTURES, "Done\n");
-  if (ORBMgr::unbindAgent(this->myName)) {
+  if (ORBMgr::unbindObj(ORBMgr::AGENT, this->myName)) {
     WARNING("could not undeclare myself as " << this->myName);
   }
-  //locList.clear();
 } // ~AgentImpl()
 
-/**
- * reference of the localisation object \c myLoc 
- */
-void AgentImpl::setMyName(locMgrImpl *_loc){
-  myLoc = _loc;
-}
-
-/**
- * return the name of the agent
- */
-char *AgentImpl::getMyName(){
-  return myName;
-}
-
-/**
- * return the name of agent father
- */
-char *AgentImpl::getMyFatherName(){
-  return fatherName ;
-}
 
 /**
  * Launch this agent (initialization + registration in the hierarchy).
@@ -125,20 +100,21 @@ char *AgentImpl::getMyFatherName(){
 int
 AgentImpl::run()
 {
-   char* name;
-
+  char* name;
+  
   /* Set host name */
   this->localHostName[257] = '\0';
   if (gethostname(this->localHostName, 256)) {
     ERROR("could not get hostname", 1);
   }
-
+   
   /* Bind this agent to its name in the CORBA Naming Service */
   name = (char*)Parsers::Results::getParamValue(Parsers::Results::NAME);
   if (name == NULL)
     return 1;
   strncpy(this->myName, name, MIN(256, strlen(name)));
-  if (ORBMgr::bindAgentToName(_this(), this->myName)) {
+  this->myName[256] = '\0';
+  if (ORBMgr::bindObjToName(_this(), ORBMgr::AGENT, this->myName)) {
     ERROR("could not declare myself as " << this->myName, 1);
   }
 
@@ -146,6 +122,15 @@ AgentImpl::run()
   return FASTMgr::init();
 
 } // run()
+
+
+/** Set this->locMgr */
+int
+AgentImpl::linkToLocMgr(LocMgrImpl* locMgr)
+{
+  this->locMgr = locMgr;
+  return 0;
+}
 
 
 
@@ -165,11 +150,10 @@ AgentImpl::agentSubscribe(Agent_ptr me, const char* hostName,
   TRACE_TEXT(TRACE_MAIN_STEPS, "An agent has registered from << " << hostName
              << ", with " << services.length() << " services.\n");
 
-  /* the size of the list is childID+1 (first index is 0) */
+  /* the size of the list is childIDCounter+1 (first index is 0) */
   this->LAChildren.resize(this->childIDCounter);
   LocalAgent_var meLA = LocalAgent::_narrow(me) ;
-  this->LAChildren[retID] =
-    LAChild(meLA, hostName);
+  this->LAChildren[retID] = LAChild(meLA, hostName);
   (this->nbLAChildren)++; // thread safe
 
   this->addServices(retID, services);
@@ -241,7 +225,6 @@ corba_response_t*
 AgentImpl::findServer(Request* req, size_t max_srv)
 {
   size_t i, j, k;
-  int *locs;
   corba_response_t* resp = new corba_response_t;
   const corba_request_t& creq = *(req->getRequest());
 
@@ -252,7 +235,6 @@ AgentImpl::findServer(Request* req, size_t max_srv)
 
  /* Initialize the response */
   resp->reqID = creq.reqID;
-  resp->myID  = this->childID;
   resp->sortedIndexes.length(0);
   resp->servers.length(0);
 
@@ -260,11 +242,12 @@ AgentImpl::findServer(Request* req, size_t max_srv)
   reqList[creq.reqID] = req;
 
   /* Here was the data lookup ... */
-#if 0
+#if DEVELOPPING_DATA_PERSISTENCY
+  int* locs;
   int nbParam = req.pb.last_inout + 1 ;
-  locs = new corbaSonID[nbParam] ;
+  locs = new ChildID[nbParam] ;
   for (i = 0; i < nbParam ; i++) {
-    locs[i] = myLoc->dataLookUp(req.pb.param_desc[i].id);
+    locs[i] = locMgr->dataLookUp(req.pb.param_desc[i].id);
     if (locs[i] != -1)
       paramFound = 1;
   }
@@ -277,9 +260,7 @@ AgentImpl::findServer(Request* req, size_t max_srv)
       }
     }
   }
-#endif
-
-
+#endif // DEVELOPPING_DATA_PERSISTENCY
 
   /* Find capable children */
   ServiceTable::ServiceReference_t serviceRef;
@@ -315,12 +296,12 @@ AgentImpl::findServer(Request* req, size_t max_srv)
     delete mc->children;
     delete mc;
 
-#if 0
+#if DEVELOPPING_DATA_PERSISTENCY
       for (j = 0; j < nbParam ; j++) {
 	if (locs[j] == ms->sons[i])
 	  locs[j] = -1;
       }
-#endif
+#endif // DEVELOPPING_DATA_PERSISTENCY
 
     srvTMutex.lock();
     nbChildrenContacted = SrvTmc->nb_children;
@@ -338,14 +319,14 @@ AgentImpl::findServer(Request* req, size_t max_srv)
 
     /* Here was contacts to children that own some parameters and are not
      * contacted yet */
-#if 0
+#if DEVELOPPING_DATA_PERSISTENCY
     for (i = 0; i < nbParam ; i++) {
       if (locs[i] != -1) {
 	nbSonsContacted++;
 	sendRequest(locs[i],&req);
       }
     }
-#endif
+#endif // DEVELOPPING_DATA_PERSISTENCY
 
     /* We don't need the locs table anymore */
     //delete [] locs;
@@ -585,7 +566,6 @@ AgentImpl::aggregate(Request* request, size_t max_srv)
   GS->aggregate(aggregResp, max_srv,
 		request->getResponsesSize(), request->getResponses());
   aggregResp->reqID = request->getRequest()->reqID;
-  aggregResp->myID = childID;
 
   return aggregResp;
 } // aggregate(Request* request, size_t max_srv)

@@ -10,14 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.6  2003/09/18 09:47:19  bdelfabr
- * adding data persistence
+ * Revision 1.7  2003/09/22 21:07:52  pcombes
+ * Set all the modules and their interfaces for data persistency.
  *
  * Revision 1.5  2003/09/04 10:04:58  pcombes
  * Cast Agt before calling the run method.
- *
- * Revision 1.4  2003/08/29 10:53:10  cpontvie
- * Coding standards applied
  *
  * Revision 1.3  2003/08/28 16:51:32  cpontvie
  * Adding a SIGINT handler to properly clean the agent on interruption (CTRL+C)
@@ -30,16 +27,15 @@
  ****************************************************************************/
 
 
-using namespace std;
-#include <iostream>
 #include <signal.h>
 #include <stdlib.h>
 
+#include "debug.hh"
 #include "LocalAgentImpl.hh"
+#include "LocMgrImpl.hh"
 #include "MasterAgentImpl.hh"
 #include "ORBMgr.hh"
 #include "Parsers.hh"
-#include "locMgrImpl.hh"
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
@@ -48,10 +44,11 @@ extern unsigned int TRACE_LEVEL;
 /** The Agent object. */
 AgentImpl* Agt;
 
-/** The Loc Manager Object  */
-locMgrImpl *Loc;
+/** The Data Location Manager Object  */
+LocMgrImpl *Loc;
 
 
+#if 0
 /* The SIGINT handler function
    The main function ends here in a fully working Agent !
 */
@@ -71,6 +68,7 @@ void handler(int sig)
   exit(0);
 }
 
+#endif // 0
 
 
 int
@@ -169,25 +167,19 @@ main(int argc, char** argv)
     ERROR("ORB initialization failed", 1);
   }
 
+  /* Create the Data Location Manager */
+  Loc = new LocMgrImpl();
 
   /* Create, activate, and launch the agent */
 
   if (agtType == Parsers::Results::DIET_LOCAL_AGENT) {
     Agt = new LocalAgentImpl();
-    Loc =new locMgrImpl((AgentImpl *)Agt);
     ORBMgr::activate((LocalAgentImpl*)Agt);
-    Agt->setMyName(Loc);
-    ORBMgr::activate(Loc);
     res = ((LocalAgentImpl*)Agt)->run();
-    Loc->run();
   } else {
     Agt = new MasterAgentImpl();
-    Loc =new locMgrImpl((AgentImpl *)Agt);
     ORBMgr::activate((MasterAgentImpl*)Agt);
-    Agt->setMyName(Loc);
-    ORBMgr::activate(Loc);
     res = ((MasterAgentImpl*)Agt)->run();
-    Loc->run();
   }
 
   /* Launch the agent */
@@ -195,11 +187,20 @@ main(int argc, char** argv)
     ERROR("unable to launch the agent", 1);
   }
 
+  /* Launch the LocMgr */
+  ORBMgr::activate(Loc);
+  if (Loc->run()) {
+    ERROR("unable to launch the LocMgr", 1);
+  }
+  Agt->linkToLocMgr(Loc);
+
   /* We do not need the parsing results any more */
   Parsers::endParsing();
 
+#if 0
   /* Initialize the SIGINT handler exception */
   signal( SIGINT, handler );
+#endif // 0
 
   /* Wait for RPCs (blocking call): */
   try {
