@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.48  2004/10/06 18:37:07  rbolze
+ * fix a bug due to the last commit
+ *
  * Revision 1.47  2004/10/06 16:43:17  rbolze
  * implement function that calls Ma to get the list of services in the platform
  *
@@ -326,13 +329,13 @@ END_API
  *    get available Services in the DIET Platform
  ***************************************************************/
 char**
-get_diet_services(int &services_number){
+get_diet_services(int *services_number){
 	CORBA::Long length;                
 	SeqCorbaProfileDesc_t* profileList = MA->getProfiles(length);
-        services_number= (int)length;        
+        *services_number= (int)length;        
         char** services_list = (char**)calloc(length+1,sizeof(char*));
         fflush(stdout);
-	for(int i=0;i<services_number;i++){		
+	for(int i=0;i<*services_number;i++){		
                 services_list[i]= CORBA::string_dup((*profileList)[i].path);                
 	}    
         return services_list;
