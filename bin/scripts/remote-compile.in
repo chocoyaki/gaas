@@ -1,0 +1,106 @@
+#! /bin/sh
+# @WARNING@
+# It is used to compile on remote hosts
+
+echo "Launching $0"
+
+### 
+# Magic to search a working shell (from autobook)
+###
+# Zsh is not Bourne compatible without the following:
+if test -n "$ZSH_VERSION"; then
+  emulate sh
+  NULLCMD=:
+fi
+
+# Bash is not POSIX compliant without the following:
+test -n "$BASH_VERSION" && set -o posix
+
+SHELL="${SHELL-/bin/sh}"
+if test x"$1" = x--re-executed; then
+  # Functional shell was found.  Remove option and continue
+  shift
+elif "$SHELL" -c 'foo () { exit 0; }; foo' 2>/dev/null &&
+     "$SHELL" -c 'export toto=tutu' 2>/dev/null ; then
+  # The current shell works already!
+  echo "Current shell ($SHELL) working"
+else
+  # Try alternative shells that (sometimes) support functions
+  for cmd in bash sh ash bsh ksh zsh sh5
+  do
+    for dir in `echo $PATH | sed -e 's/:/ /g'` /bin /usr/bin
+    do
+      shell="$dir/$cmd"
+      if (test -f "$shell" || test -f "$shell.exe") &&
+         "$shell" -c 'foo () { exit 0; }; foo' 2>/dev/null &&
+         "$shell" -c 'export toto=tutu' 2>/dev/null
+      then
+        # Re-execute with discovered functional shell
+        echo "Reexecute $0 $@ with shell $shell"
+        SHELL="$shell" exec "$shell" "$0" --re-executed ${1+"$@"}
+      fi
+    done
+  done
+  echo "Unable to locate a shell interpreter with function support and export syntax" >&2
+  exit 1
+fi
+
+
+
+###
+# Real script
+###
+fail () {
+   echo $1;
+   exit 1;
+}
+
+LD_LIBRARY_PATH="$HOME/DIET/openldap/lib:$HOME/DIET/gsl/lib";
+export LD_LIBRARY_PATH NETSOLVE_ROOT
+printenv;
+
+cd $HOME/DIET/src || fail "Can't cd to $HOME/DIET/src"
+
+if echo $@ | grep clean >/dev/null ; then
+  for name in @PACKAGE@* ; do
+    if test "$name" != "@PACKAGE@-@VERSION@.tar.gz" ; then 
+      echo "Remove $name";
+      rm -r $name;
+    fi;
+  done;
+fi
+
+if echo $@ | grep untar >/dev/null ; then
+  echo "Untar @PACKAGE@-@VERSION@"
+  gunzip @PACKAGE@-@VERSION@.tar.gz || fail "Can't gunzip"
+  tar xf @PACKAGE@-@VERSION@.tar || fail "Can't untar"
+  for f in `find @PACKAGE@-@VERSION@ -type f` ; do touch $f;done
+  sleep 2
+fi
+cd @PACKAGE@-@VERSION@ || fail "Can't cd to @PACKAGE@-@VERSION@"
+
+if echo $@ | grep config >/dev/null ; then
+  env CPPFLAGS=-I$HOME/DIET/db/BerkeleyDB/include \
+      LDFLAGS=-L$HOME/DIET/db/BerkeleyDB/lib      \
+  ./configure -prefix=$HOME/DIET/fast\
+              -datadir=$HOME/DIET/fast/bin\
+              -with-DB2=$HOME/DIET/db2/BerkeleyDB\
+              -with-LDAP=$HOME/DIET/openldap\
+              -with-NWS=$HOME/DIET/nws\
+              -with-gsl-prefix=$HOME/DIET/gsl\
+              -disable-fast-config 2>&1 || fail "Can't configure"
+fi
+
+if echo $@ | grep compile >/dev/null ; then
+  make clean all 2>&1 || fail "Can't make"
+fi
+
+if echo $@ | grep install >/dev/null ; then
+  make install 2>&1 || fail "Can't make install"
+fi
+
+if echo $@ | grep check >/dev/null ; then
+  make -k check 2>&1 || fail "Can't make check"
+fi
+echo Cool, it works
+exit 0
