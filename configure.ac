@@ -8,6 +8,10 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.35  2004/09/13 14:53:10  sdahan
+#* changes the ways used to looking for the omniORB library.
+#* the configure is now able to find omniORB on bsd system.
+#*
 #* Revision 1.34  2004/08/27 16:28:18  ctedesch
 #* - Use of the asynchronous PIF scheme for propagation of the requests inside
 #* the DIET J multi-hierarchy
@@ -92,6 +96,7 @@
 define(DIET_version,        1.1)
 define(omniORB_min_version, 3)
 define(FAST_min_version,    0.4.3)
+
 
 
 dnl ##########################################################################
