@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.40  2004/09/29 12:45:53  bdelfabr
+ * remove cout
+ *
  * Revision 1.39  2004/09/27 09:20:50  bdelfabr
  * when marshalling in-out or our args, set id to null when data is volatile.
  *
@@ -432,17 +435,14 @@ mrsh_pb_desc(corba_pb_desc_t* dest, diet_profile_t* src)
   dest->last_inout = src->last_inout;
   dest->last_out   = src->last_out;
   dest->param_desc.length(src->last_out + 1);
-  cout << "SRC : in = " <<  src->last_in << " inout = " <<  src->last_inout << " out = " <<  src->last_out << endl;
   for (int i = 0; i <= src->last_out; i++) {
     // dest->param_desc[i].id.idNumber = CORBA::string_dup(NULL);
-     cout << "src->parameters[i].desc.id = " << src->parameters[i].desc.id << endl;
        if(!src->parameters[i].desc.id) {
     //    if(strlen(src->parameters[i].desc.id) == 0) {
  
       mrsh_data_desc(&(dest->param_desc[i]), &(src->parameters[i].desc));
     
        } else {
-	 cout << "value === " << src->parameters[i].desc.id << endl;
         mrsh_data_id_desc(&(dest->param_desc[i]), &(src->parameters[i].desc));
   
        }
