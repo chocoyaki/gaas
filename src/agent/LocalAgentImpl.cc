@@ -10,8 +10,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.5  2003/09/16 15:01:56  ecaron
- * Add statistics log into MA and LA [getRequest part]
+ * Revision 1.6  2003/09/18 09:47:19  bdelfabr
+ * adding data persistence
  *
  * Revision 1.4  2003/07/04 09:47:59  pcombes
  * Use new ERROR, WARNING and TRACE macros.
@@ -28,7 +28,6 @@
 #include "ORBMgr.hh"
 #include "Parsers.hh"
 #include "Request.hh"
-#include "statistics.hh"
 
 #include <iostream>
 using namespace std;
@@ -53,18 +52,22 @@ LocalAgentImpl::run()
 {
   int res = this->AgentImpl::run();
 
+
+
   if (res)
     return res;
 
-  char* parent_name = (char*)
+ char* parent_name = (char*)
     Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
   if (parent_name == NULL)
     return 1;
 
+
+  strcpy(fatherName,parent_name);
   this->parent =
     Agent::_duplicate(Agent::_narrow(ORBMgr::getAgentReference(parent_name)));
   if (CORBA::is_nil(this->parent)) {
-    ERROR("cannot locate agent " << parent_name, 1);
+     ERROR("cannot locate agent " << parent_name, 1);
   }
 
   TRACE_TEXT(TRACE_MAIN_STEPS,
@@ -81,7 +84,7 @@ void
 LocalAgentImpl::addServices(CORBA::ULong myID,
 			    const SeqCorbaProfileDesc_t& services)
 {
-  LA_TRACE_FUNCTION(myID <<", " << services.length() << " services");
+ LA_TRACE_FUNCTION(myID <<", " << services.length() << " services");
 
   if (this->childID == -1) { // still not registered ...
     SeqCorbaProfileDesc_t* tmp;
@@ -90,7 +93,7 @@ LocalAgentImpl::addServices(CORBA::ULong myID,
     this->AgentImpl::addServices(myID, services);
     /* Then propagate the complete service table to the parent */
     tmp = this->SrvT->getProfiles();
-    this->childID = this->parent->agentSubscribe(this->_this(),
+    this->childID = this->parent->agentSubscribe(this->_this(), 
 						 this->localHostName, *tmp);
     delete tmp;
   } else {
@@ -110,8 +113,6 @@ LocalAgentImpl::getRequest(const corba_request_t& req)
   Request* currRequest = new Request(&req);
 
   LA_TRACE_FUNCTION(req.reqID << ", " << req.pb.path);
-  stat_init();
-  stat_in("start [getRequest]");
 
   corba_response_t& resp = *(this->findServer(currRequest, 0));
 
@@ -121,6 +122,6 @@ LocalAgentImpl::getRequest(const corba_request_t& req)
   this->reqList[req.reqID] = NULL;
   delete currRequest;
   delete &resp;
-  stat_out("stop [getRequest]");
+
 } // getRequest(const corba_request_t& req)
 

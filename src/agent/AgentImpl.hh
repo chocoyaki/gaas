@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2003/09/18 09:47:19  bdelfabr
+ * adding data persistence
+ *
  * Revision 1.3  2003/08/01 19:33:11  pcombes
  * Use FASTMgr.
  *
@@ -37,7 +40,10 @@
 #include "ServiceTable.hh"
 #include "ts_container/ts_vector.hh"
 #include "ts_container/ts_map.hh"
+#include "locMgr.hh"
+#include "common_types.hh"
 
+class locMgrImpl;
 
 class AgentImpl : public POA_Agent,
 		  public PortableServer::RefCountServantBase
@@ -74,15 +80,23 @@ public:
   virtual void
   getResponse(const corba_response_t& resp);
 
+
   /** Used to test if this agent is alive. */
   virtual CORBA::Long
   ping();
 
+  /* loc management */
+  virtual char *
+  getMyName();
+  
+  virtual char *
+  getMyFatherName();
+  void 
+  setMyName(locMgrImpl *_loc);
+
   /** Get pointer to the read-only name of this agent. */
   inline const char*
   getName() {return (const char*)this->myName;};
-
-
   
 protected:
 
@@ -90,12 +104,14 @@ protected:
   /* Private fields                                                         */
   /**************************************************************************/
 
+  locMgrImpl *myLoc;
   /** Local host name */
   char localHostName[257];
 
   /** Identity in the CORBA Naming Service */
   char myName[257];
-
+  /* loc management */
+  char fatherName[257];
   /** ID of this agent amongst the children of its parent */
   ChildID childID;
   /** ID of next subscribing child */
@@ -140,9 +156,10 @@ protected:
   sendRequest(CORBA::ULong childID, const corba_request_t* req);
    
   /**
-   * Get communication time for an amount of data of size \c size,<br>
-   *  <ul><li> from this agent to the child \c childID if \c to is true,</li>
-   *  <li> from the child \c childID to this agent, else.          </li></ul>
+   * Get communication time between this agent and the child \c childID for a data
+   * amount of size \c size. The way of the data transfer can be specified with
+   * \c to : if (to), from this agent to the child, else from the child to this
+   * agent.
    */
   inline double
   getCommTime(CORBA::Long childID, unsigned long size, bool to = true);
@@ -156,7 +173,7 @@ protected:
   aggregate(Request* request, size_t max_srv);
 
   /** Get host name of a child (returned string is ms_stralloc'd). */
-  inline char*
+  char*
   getChildHostName(CORBA::Long childID);
 };
 

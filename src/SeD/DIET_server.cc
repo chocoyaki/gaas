@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2003/09/18 09:47:19  bdelfabr
+ * adding data persistence
+ *
  * Revision 1.16  2003/08/09 17:28:25  pcombes
  * Make diet_profile_desc_alloc and diet_profile_alloc homogenous.
  *
@@ -41,7 +44,8 @@ using namespace std;
 #include "common_types.hh"
 #include "ServiceTable.hh"
 #include "SeDImpl.hh"
-
+#include "dataMgr.hh"
+#include "dataMgrImpl.hh"
 
 #define BEGIN_API extern "C" {
 #define END_API   } // extern "C"
@@ -56,7 +60,6 @@ BEGIN_API
 /****************************************************************************/
 
 static ServiceTable* SRVT;
-
 
 int
 diet_service_table_init(int maxsize)
@@ -142,7 +145,6 @@ diet_profile_desc_free(diet_profile_desc_t* desc)
 
   if (!desc)
     return 1;
-  free(desc->path);
   if ((desc->last_out > -1) && desc->param_desc) {
     free(desc->param_desc);
     res = 0;
@@ -152,7 +154,7 @@ diet_profile_desc_free(diet_profile_desc_t* desc)
   free(desc);
   return res;
 }
-
+  
 
 /****************************************************************************/
 /* DIET problem evaluation                                                  */
@@ -259,7 +261,6 @@ diet_convertor_check(diet_convertor_t* cvt, diet_profile_desc_t* profile)
   return res;
 }
 
-
 /****************************************************************************/
 /* DIET server call                                                         */
 /****************************************************************************/
@@ -268,11 +269,12 @@ int
 diet_SeD(char* config_file_name, int argc, char* argv[])
 {
   SeDImpl* SeD;
+  dataMgrImpl *Data; 
   int    res(0);
   int    myargc;
   char** myargv;
 
-  /* Set arguments for ORBMgr::init */
+ /* Set arguments for ORBMgr::init */
 
   myargc = argc;
   myargv = (char**)malloc(argc * sizeof(char*));
@@ -332,20 +334,23 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
     myargc = tmp_argc;
   }
 
-  /* Initialize the ORB */
+  /* ORB initialization */
 
-  if (ORBMgr::init(myargc, (char**)myargv)) {
+ if (ORBMgr::init(myargc, (char**)myargv)) {
     ERROR("ORB initialization failed", 1);
   }
-
-
-  /* Create and activate the SeD */
+  /* SeD creation */
   SeD = new SeDImpl();
+  Data = new dataMgrImpl(SeD);
+  /* Activate SeD */
   ORBMgr::activate(SeD);
-
-  /* Launch the SeD */
+  SeD->refData(Data);
+  ORBMgr::activate(Data);
   if (SeD->run(SRVT)) {
-    ERROR("unable to launch the SeD", 1);
+   ERROR("unable to launch the SeD", 1);
+  }
+  if (Data->run()) {
+     ERROR("unable to launch the DataManager", 1);
   }
 
   /* We do not need the parsing results any more */
@@ -353,9 +358,10 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
 
   /* Wait for RPCs : */
   ORBMgr::wait();
-
+  
   return 0;
 }
 
 
-END_API
+} // extern "C"
+

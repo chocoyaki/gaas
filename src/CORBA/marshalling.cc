@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.30  2003/09/18 09:47:19  bdelfabr
+ * adding data persistence
+ *
  * Revision 1.29  2003/08/09 17:31:38  pcombes
  * Include path in the diet_profile_desc structure.
  *
@@ -28,11 +31,24 @@
  * Revision 1.24  2003/02/07 17:04:12  pcombes
  * Refine convertor API: arg_idx is splitted into in_arg_idx and out_arg_idx.
  *
+ * Revision 1.23  2003/02/04 10:08:22  pcombes
+ * Apply Coding Standards
+ *
+ * Revision 1.22  2003/01/23 18:40:53  pcombes
+ * Remove "only_value" argument to unmrsh_data, which is now useless
+ *
  * Revision 1.21  2003/01/22 17:11:54  pcombes
  * API 0.6.4 : istrans -> order (row- or column-major)
  *
+ * Revision 1.20  2003/01/17 18:08:43  pcombes
+ * New API (0.6.3): structures are not hidden, but the user can ignore them.
+ *
  * Revision 1.19  2003/01/13 18:06:13  pcombes
  * Add inout files management.
+ *
+ * Revision 1.18  2002/12/03 19:08:23  pcombes
+ * Update configure, update to FAST 0.3.15, clean CVS logs in files.
+ * Put main Makefile in root directory.
  *
  * Revision 1.16  2002/11/22 13:36:12  lbertsch
  * Added alpha linux support
@@ -44,6 +60,22 @@
  * Revision 1.10  2002/10/04 16:17:09  pcombes
  * Integrate former hardcoded.h in configuration files. If DIET is compiled
  * without FAST, the correspunding entries in the cfg files can be omitted.
+ *
+ * Revision 1.9  2002/10/03 17:58:13  pcombes
+ * Add trace levels (for Bert): traceLevel = n can be added in cfg files.
+ * An agent son can now be killed (^C) without crashing this agent.
+ * DIET with FAST: compilation is OK, but run time is still to be fixed.
+ *
+ * Revision 1.5  2002/08/30 16:50:12  pcombes
+ * This version works as well as the alpha version from the user point of view,
+ * but the API is now the one imposed by the latest specifications (GridRPC API
+ * in its sequential part, config file for all parts of the platform, agent
+ * algorithm, etc.)
+ *  - Reduce marshalling by using CORBA types internally
+ *  - Creation of a class ServiceTable that is to be replaced
+ *    by an LDAP DB for the MA
+ *  - No copy for client/SeD data transfers
+ *  - ...
  ****************************************************************************/
 
 
@@ -58,13 +90,8 @@ using namespace std;
 #include "marshalling.hh"
 #include "debug.hh"
 
-/** The trace level. */
-extern unsigned int TRACE_LEVEL;
-
-
 #define MRSH_ERROR(formatted_msg,return_value)                       \
   INTERNAL_ERROR(__FUNCTION__ << ": " << formatted_msg, return_value)
-
 
 /****************************************************************************/
 /* Data structure marshalling                                               */
@@ -127,20 +154,24 @@ mrsh_data_desc(corba_data_desc_t* dest, diet_data_desc_t* src)
     dest->id = CORBA::string_dup(src->id); // deallocates old dest->id
   dest->mode = src->mode;
   dest->base_type = src->generic.base_type;
+  
   switch (src->generic.type) {
   case DIET_SCALAR: {
+   
     if (mrsh_scalar_desc(dest, src))
       return 1;
     break;
   }
   case DIET_VECTOR: {
     corba_vector_specific_t vect;
+  
     dest->specific.vect(vect);
     dest->specific.vect().size = src->specific.vect.size;
     break;
   }
   case DIET_MATRIX: {
     corba_matrix_specific_t mat;
+   
     dest->specific.mat(mat);
     dest->specific.mat().nb_r  = src->specific.mat.nb_r;
     dest->specific.mat().nb_c  = src->specific.mat.nb_c;
@@ -149,25 +180,30 @@ mrsh_data_desc(corba_data_desc_t* dest, diet_data_desc_t* src)
   }
   case DIET_STRING: {
     corba_string_specific_t str;
+    
     dest->specific.str(str);
     dest->specific.str().length = src->specific.str.length;
     break;
   }
   case DIET_FILE: {
     corba_file_specific_t file;
+   
     dest->specific.file(file);
     if (src->specific.file.path) {
       dest->specific.file().path = CORBA::string_dup(src->specific.file.path);
       dest->specific.file().size = src->specific.file.size;
+     
     } else {
       dest->specific.file().path = CORBA::string_dup("");
       dest->specific.file().size = 0;
+   
     }
     break;
   }
   default:
     MRSH_ERROR("type " << src->generic.type << " not implemented", 1);
   }
+
   return 0;
 }
 
@@ -177,7 +213,9 @@ mrsh_data(corba_data_t* dest, diet_data_t* src, int release)
 {
   long unsigned int size = (long unsigned int) data_sizeof(&(src->desc));
   CORBA::Char* value(NULL);
+
   
+
   if (mrsh_data_desc(&(dest->desc), &(src->desc)))
     return 1;
   if (src->desc.generic.type == DIET_FILE) {
@@ -190,6 +228,7 @@ mrsh_data(corba_data_t* dest, diet_data_t* src, int release)
       }
       for (unsigned int i = 0; i < size; i++) {
 	value[i] = infile.get();
+
       }
       infile.close();
     } else {
@@ -197,9 +236,12 @@ mrsh_data(corba_data_t* dest, diet_data_t* src, int release)
       value[0] = '\0';
     }
   } else {
-    value = (CORBA::Char*)src->value;
+    value = (CORBA::Char*)src->value;  
   }
-  dest->value.replace(size, size, value, release);
+ 
+  if (value != NULL) // added for data persistence : in or inout arg with null value (data present)
+   dest->value.replace(size, size, value, 0);
+   
   return 0;
 }
 
@@ -307,6 +349,7 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src)
   if (unmrsh_data_desc(&(dest->desc), &(src->desc)))
     return 1;
   if (src->desc.specific._d() == (long) DIET_FILE) {
+ 
     dest->desc.specific.file.size = src->desc.specific.file().size;
     if ((src->desc.specific.file().path != NULL)
 	&& strcmp("", src->desc.specific.file().path)) {
@@ -316,11 +359,13 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src)
       pid_t pid = getpid();
       sprintf(out_path, "/tmp/DIET_%d_%s", pid,
 	      (file_name) ? (char*)(1 + file_name) : in_path);
-    
+ 
       ofstream outfile(out_path);
-      for (int i = 0; i < src->desc.specific.file().size; i++) {
-	outfile.put(src->value[i]);
-      }
+      
+
+        for (int i = 0; i < src->desc.specific.file().size; i++) {
+	  outfile.put(src->value[i]);
+	}
       CORBA::string_free(in_path);
       dest->desc.specific.file.path = out_path;
     } else if (src->desc.specific.file().size != 0) {
@@ -329,10 +374,10 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src)
       dest->desc.specific.file.path = strdup("");
     }
   } else {
-    if (src->value.length() == 0) { // OUT case
-      dest->value = malloc(data_sizeof(&(dest->desc)));
+    if (src->value.length() == 0) { // out case
+	dest->value = malloc(data_sizeof(&(dest->desc)));
     } else {
-      CORBA::Boolean orphan = 1; //(src->mode != DIET_VOLATILE);
+      CORBA::Boolean orphan = 0; //(src->mode != DIET_VOLATILE);
       dest->value = (char*)src->value.get_buffer(orphan);
     }
   }
@@ -366,24 +411,31 @@ mrsh_profile_desc(corba_profile_desc_t* dest, const diet_profile_desc_t* src)
 /****************************************************************************/
 
 int
-mrsh_pb_desc(corba_pb_desc_t* dest, diet_profile_t* src)
+mrsh_pb_desc(corba_pb_desc_t* dest, const diet_profile_t* src)
 {
-  dest->path       = CORBA::string_dup(src->pb_name); // frees old dest->path
+  dest->path       = CORBA::string_dup(src->pb_name); // deallocates old dest->path
   dest->last_in    = src->last_in;
   dest->last_inout = src->last_inout;
   dest->last_out   = src->last_out;
   dest->param_desc.length(src->last_out + 1);
+
   for (int i = 0; i <= src->last_out; i++) {
+ 
     mrsh_data_desc(&(dest->param_desc[i]), &(src->parameters[i].desc));
+
   }
+
   return 0;
 }
+
+
 
 
 
 /****************************************************************************/
 /* Client sends its data ...                                                */
 /****************************************************************************/
+
 
 int
 mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src)
@@ -394,21 +446,23 @@ mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src)
   dest->last_inout = src->last_inout;
   dest->last_out   = src->last_out;
   dest->parameters.length(src->last_out + 1);
-  for (i = 0; i <= src->last_inout; i++) {
-    if (mrsh_data(&(dest->parameters[i]), &(src->parameters[i]), 0))
-      return 1;
-  }
+ 
+    for (i = 0; i <= src->last_inout; i++) {
+  
+      if (mrsh_data(&(dest->parameters[i]), &(src->parameters[i]), 0))
+	return 1;
+    }
   // For OUT parameters, marshal only descriptions for checking
   // purpose on SeD side, and let data emty.
   for (; i <= src->last_out; i++) {
-    if (mrsh_data_desc(&(dest->parameters[i].desc), &(src->parameters[i].desc)))
-      return 1;
+    if (mrsh_data_desc(&(dest->parameters[i].desc), &(src->parameters[i].desc)))      return 1;
     dest->parameters[i].value.replace(0, 0, NULL, 1);
   }
   return 0;
 }
 
 
+ 
 /****************************************************************************/
 /* Server receives client data ...                                          */
 /****************************************************************************/
@@ -447,11 +501,11 @@ cvt_arg(diet_data_t* dest, diet_data_t* src,
   case DIET_CVT_MAT_ORDER: {
     char* t(NULL);
     // FIXME test on order !!!!
-    switch ((diet_matrix_order_t)(src->desc.specific.mat.order)) {
-    case DIET_ROW_MAJOR: t = new char('N'); break;
-    case DIET_COL_MAJOR: t = new char('T'); break;
+    switch (src->desc.specific.mat.order) {
+    case DIET_ROW_MAJOR: t = new char('N');
+    case DIET_COL_MAJOR: t = new char('T');
     default: {
-      MRSH_ERROR("invalid order for matrix", 1);
+     MRSH_ERROR("invalid order for matrix", 1);
     }
     }
     diet_scalar_set(dest, t, DIET_VOLATILE, DIET_CHAR);
@@ -500,7 +554,9 @@ unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
       // it has already been done (ie duplicate the value)
       if (!src_params[arg_idx]) {
 	src_params[arg_idx] = new diet_data_t;
+
 	unmrsh_data(src_params[arg_idx], &(src->parameters[arg_idx]));
+
       } else if (cvt->arg_convs[i].f == DIET_CVT_IDENTITY) {
 	duplicate_value = 1;
       }
@@ -511,10 +567,10 @@ unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
       duplicate_value = 1;
     }
     if (cvt_arg(&(dest->parameters[i]), dd_tmp,
-		cvt->arg_convs[i].f, duplicate_value)) {
+		cvt->arg_convs[i].f, duplicate_value)) {  
       delete src_params;
       MRSH_ERROR("cannot convert client problem profile"
-		 << "to server profile", 1);
+	       << "to server profile", 1);
     }
   }
 

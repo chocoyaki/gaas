@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2003/09/18 09:47:19  bdelfabr
+ * adding data persistence
+ *
  * Revision 1.10  2003/04/10 12:49:27  pcombes
  * Apply Coding Standards, manage data ID, and remove all dlist types.
  *
@@ -47,7 +50,10 @@
 #include "DIET_config.h"
 #include "DIET_server.h"
 
-
+#include "dlist.hh"
+#include "SeD.hh"
+#include "Agent.hh"
+#include "dataMgr.hh"
 #if 0
 
 /****************************************************
@@ -170,6 +176,111 @@ typedef struct diet_server_data_desc_ diet_server_data_desc_t;
 
 #endif // 0
 
+/*------------------------------------------------------------*/
+/* These structures are used by a server to keep a list of    */
+/* the datas it owns. The diet_server_data_desc_t just        */
+/* contains the data ID for now. It should be extended later  */
+/* to include informations about he data type, size and       */
+/* distribution.                                              */
+/*------------------------------------------------------------*/
+
+struct dietDataDesc
+{
+  corba_dataMgr_desc_t dataDesc;
+};
+
+typedef struct dietDataDesc dietDataDescT;
+
+
+class dietDataDescListElt : public _dlink {
+public:
+  dietDataDescT *dataDescPtr;
+  
+  dietDataDescListElt() {}
+  ~dietDataDescListElt() {}
+};
+
+class dietDataDescList : public _dlist {
+public:
+  omni_mutex dataMutex;
+  dietDataDescList():_dlist() {}
+  ~dietDataDescList() {}
+};
+
+class dietDataDescListIterator : public _dlistIterator {
+public:
+  dietDataDescListIterator(dietDataDescList *l):_dlistIterator(l) {}
+  ~dietDataDescListIterator() {}
+};
+
+
+/***********************************************************************
+ * These structure are used by the Data object to store the reference 
+ * of the data hold by the server
+ *
+ ***********************************************************************/
+
+struct dietDataId
+{
+   corba_data_id_t dataId;
+};
+
+typedef struct dietDataId dietDataIdT;
+
+
+class dietDataIdListElt : public _dlink {
+public:
+  dietDataIdT *data;
+  
+  dietDataIdListElt() {}
+  ~dietDataIdListElt() {}
+};
+
+class dietDataIdList : public _dlist {
+public:
+  omni_mutex logMutex;
+  dietDataIdList():_dlist() {}
+  ~dietDataIdList() {}
+};
+
+class dietDataIdListIterator : public _dlistIterator {
+public:
+  dietDataIdListIterator(dietDataIdList *l):_dlistIterator(l) {}
+  ~dietDataIdListIterator() {}
+};
+
+/* structure useful for transfert management */
+
+struct dietDataIdLock
+{
+  char *id;
+  omni_mutex lockMutex;
+};
+
+typedef struct dietDataIdLock dietDataIdLockT;
+
+
+class dataIdlockListElt : public _dlink {
+public:
+  dietDataIdLockT *locker;
+  
+  dataIdlockListElt() {}
+  ~dataIdlockListElt() {}
+};
+
+class dataIdlockList : public _dlist {
+public:
+  omni_mutex logMutex;
+  dataIdlockList():_dlist() {}
+  ~dataIdlockList() {}
+};
+
+class dataIdlockListIterator : public _dlistIterator {
+public:
+  dataIdlockListIterator(dataIdlockList *l):_dlistIterator(l) {}
+  ~dataIdlockListIterator() {}
+};
+
 /****************************************************************************/
 /* Useful functions for data descriptors manipulation                       */
 /* <implemented in DIET_data.cc>                                            */
@@ -180,6 +291,8 @@ size_t
 data_sizeof(const diet_data_desc_t* desc);
 size_t
 data_sizeof(const corba_data_desc_t* desc);
+size_t
+data_sizeof(const corba_dataMgr_desc_t* desc);
 
 
 /* There should be no use of allocating and freeing functions */

@@ -1,4 +1,3 @@
-/****************************************************************************/
 /* DIET ORB Manager header                                                  */
 /*                                                                          */
 /*  Author(s):                                                              */
@@ -8,6 +7,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2003/09/18 09:47:19  bdelfabr
+ * adding data persistence
+ *
  * Revision 1.7  2003/08/29 10:53:10  cpontvie
  * Coding standards applied
  *
@@ -36,13 +38,15 @@
 #include <CORBA.h>
 #include "DIET_config.h"
 
+
+
 /**
  * This class unifies the interface to all ORBs supported by DIET.
  */
 
 class ORBMgr
 {
-
+  
 public:
   static int
   init(int argc, char** argv, bool init_POA = true);
@@ -64,32 +68,46 @@ public:
 
   static int
   bindAgentToName(CORBA::Object_ptr obj, const char* agentName);
-
-	static int
-	unbindAgent(const char* agentName);
-
+  
+  static int
+  unbindAgent(const char* agentName);
+  
   static char *
   getIORString(CORBA::Object_ptr obj);
-
+  
   static CORBA::Object_ptr
   stringToObject(const char* IOR);
+  
+  static CORBA::ORB_ptr
+  getORB();
+  
+  static PortableServer::POA_var
+  getPOA();
+  
+  static PortableServer::POA_var
+  getPOA_BIDIR();
+  
+  // To access to the ObjectID of the activate agent.
+  static PortableServer::ObjectId_var
+  getOID();
+  
+  // To set the ObjectID of the activate agent.
+  static void
+  setOID(PortableServer::ObjectId_var oid);
+  
+  
+  static CORBA::Object_ptr
+  getLocReference(const char *locName);
 
-	static CORBA::ORB_ptr
-	getORB();
+  static int
+  bindLocToName(CORBA::Object_ptr obj, const char* locName);
 
-	static PortableServer::POA_var
-	getPOA();
 
-	static PortableServer::POA_var
-	getPOA_BIDIR();
+  static CORBA::Object_ptr
+  getDataReference(const char* dataName);
 
-	// To access to the ObjectID of the activate agent.
-	static PortableServer::ObjectId_var
-	getOID();
-
-	// To set the ObjectID of the activate agent.
-	static void
-	setOID(PortableServer::ObjectId_var oid);
+  static int
+  bindDataToName(CORBA::Object_ptr obj, const char* dataName);
 
 private:
   static CORBA::ORB_ptr          ORB;

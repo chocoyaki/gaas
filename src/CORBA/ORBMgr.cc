@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2003/09/18 09:47:19  bdelfabr
+ * adding data persistence
+ *
  * Revision 1.10  2003/08/29 10:53:10  cpontvie
  * Coding standards applied
  *
@@ -54,17 +57,18 @@ PortableServer::POA_var ORBMgr::POA = PortableServer::POA::_nil();
 PortableServer::POA_var ORBMgr::POA_BIDIR = PortableServer::POA::_nil();
 PortableServer::ObjectId_var ORBMgr::OBJECT_ID = NULL;
 
+
 int
 ORBMgr::init(int argc, char** argv, bool init_POA)
 {
-#if defined(__OMNIORB3__)
+#ifdef __OMNIORB3__
   ORB = CORBA::ORB_init(argc, argv, "omniORB3");
   omniORB::scanGranularity(0);
-#elif defined(__OMNIORB4__)
+#elif defined (__OMNIORB4__)
   const char* options[][2]
     = {{"inConScanPeriod","0"},{"outConScanPeriod","0"},
        {"maxGIOPConnectionPerServer","50"},
-       //{"giopMaxMsgSize","33554432"}, // 32MB
+       //{"giopMaxMsgSize","33554432"},
        {0,0}};
   ORB = CORBA::ORB_init(argc, argv, "omniORB4", options);
 #else
@@ -95,8 +99,8 @@ ORBMgr::init(int argc, char** argv, bool init_POA)
     pman->activate();
   }
   return 0;
+  
 }
-
 
 void
 ORBMgr::destroy()
@@ -108,7 +112,7 @@ ORBMgr::destroy()
 int
 ORBMgr::activate(PortableServer::ServantBase* obj)
 {
-  try {
+ try {
     if (!CORBA::is_nil(ORBMgr::POA_BIDIR))
       ORBMgr::OBJECT_ID = ORBMgr::POA_BIDIR->activate_object(obj);
     else
@@ -118,6 +122,7 @@ ORBMgr::activate(PortableServer::ServantBase* obj)
   }
   return 0;
 }
+
 
 int
 ORBMgr::deactivate()
@@ -134,6 +139,7 @@ ORBMgr::deactivate()
 }
 
 
+
 void
 ORBMgr::wait()
 {
@@ -148,7 +154,7 @@ ORBMgr::getAgentReference(const char* agentName)
   CosNaming::NamingContext_var rootContext;
   CORBA::Object_ptr obj;
   CosNaming::Name CosName;
-
+  
   try {
     // Obtain a reference to the root context of the Name service:
     CORBA::Object_ptr initServ;
@@ -157,11 +163,12 @@ ORBMgr::getAgentReference(const char* agentName)
     // Narrow the object returned by resolve_initial_references()
     // to a CosNaming::NamingContext object:
     rootContext = CosNaming::NamingContext::_narrow(initServ);
-    if (CORBA::is_nil(rootContext)) {
-      INTERNAL_ERROR("failed to narrow the root naming context", 1);
-    }
+    if (CORBA::is_nil(rootContext)) 
+      {
+	INTERNAL_ERROR("failed to narrow the root naming context", 1);
+      }
   } catch(CORBA::ORB::InvalidName& ex) {
-    INTERNAL_ERROR("service required is invalid [does not exist]", 1);
+     INTERNAL_ERROR("service required is invalid [does not exist]", 1);
   } catch (CORBA::Exception& e) {
     CORBA::Any tmp;
     tmp <<= e;
@@ -170,44 +177,46 @@ ORBMgr::getAgentReference(const char* agentName)
 	  << "connect to the CORBA name server", CORBA::Object::_nil());
   }
 
-  // Create a name object, containing the agentName and its context:
 
+  // Create a name object, containing the name test/context:
   CosName.length(2);
 
-  CosName[0].id   = (const char*) "dietAgent"; // string copied
-  CosName[0].kind = (const char*) "";          // string copied
+  CosName[0].id   = (const char*) "dietAgent";       // string copied
+  CosName[0].kind = (const char*) "";                // string copied
   CosName[1].id   = (const char*) agentName;
   CosName[1].kind = (const char*) "";
   // Note on kind: The kind field is used to indicate the type
   // of the object. This is to avoid conventions such as that used
-  // by files (CosName.type -- e.g. test.ps = postscript etc.)
+  // by files (name.type -- e.g. test.ps = postscript etc.)
+
 
   try {
-    // Resolve the name to an object reference, and assign the reference
+    // Resolve the name to an object reference, and assign the reference 
     // returned to a CORBA::Object:
     obj = rootContext->resolve(CosName);
-  } catch (CosNaming::NamingContext::NotFound& ex) {
-    // This exception is thrown if any of the components of the
-    // path [contexts or the object] aren't found:
-    ERROR("context for " << agentName << " not found", CORBA::Object::_nil());
-  } catch (CORBA::COMM_FAILURE& ex) {
-    ERROR("system exception caught (COMM_FAILURE): unable to connect to "
+  } catch(CosNaming::NamingContext::NotFound& ex)
+    {
+      // This exception is thrown if any of the components of the
+      // path [contexts or the object] aren't found:
+      ERROR("context for " << agentName << " not found", CORBA::Object::_nil());
+    } catch (CORBA::COMM_FAILURE& ex) {
+      ERROR("system exception caught (COMM_FAILURE): unable to connect to "
 	  << "the CORBA name server", CORBA::Object::_nil());
-  } catch (omniORB::fatalException& ex) {
+  }
+  catch(omniORB::fatalException& ex) {
     throw;
-  } catch (...) {
+  }
+  catch (...) {
     INTERNAL_ERROR("system exception caught while using the naming service", 1);
   }
-
   return obj;
 }
-
 
 int
 ORBMgr::bindAgentToName(CORBA::Object_ptr obj, const char* agentName)
 {
   CosNaming::NamingContext_var rootContext, agtContext;
-  CosNaming::Name cosName;
+   CosNaming::Name cosName;
 
   try {
     // Obtain a reference to the root context of the Name service:
@@ -220,8 +229,8 @@ ORBMgr::bindAgentToName(CORBA::Object_ptr obj, const char* agentName)
     if (CORBA::is_nil(rootContext)) {
       INTERNAL_ERROR("failed to narrow the root naming context.\n", 1);
     }
-  } catch (CORBA::ORB::InvalidName& ex) {
-    INTERNAL_ERROR("service required is invalid [does not exist]", 1);
+  } catch(CORBA::ORB::InvalidName& ex) {
+   INTERNAL_ERROR("service required is invalid [does not exist]", 1);
   } catch (CORBA::Exception& e) {
     CORBA::Any tmp;
     tmp <<= e;
@@ -231,20 +240,18 @@ ORBMgr::bindAgentToName(CORBA::Object_ptr obj, const char* agentName)
   }
 
   cosName.length(1);
-
-  /* Bind a context called "dietAgent" to the root context */
-
-  cosName[0].id = (const char*) "dietAgent"; // string copied
-  cosName[0].kind = (const char*) "";        // string copied
-  // Note on kind: The kind field is used to indicate the type
-  // of the object. This is to avoid conventions such as that used
-  // by files (name.type -- e.g. test.ps = postscript etc.)
+  cosName[0].id   = (const char*) "dietAgent";   // string copied
+  cosName[0].kind = (const char*) "";            // string copied    
+    // Note on kind: The kind field is used to indicate the type
+    // of the object. This is to avoid conventions such as that used
+    // by files (name.type -- e.g. test.ps = postscript etc.)
 
   try {
     try {
       // Bind the context to root, and assign testContext to it:
       agtContext = rootContext->bind_new_context(cosName);
-    } catch(CosNaming::NamingContext::AlreadyBound& ex) {
+    }
+    catch(CosNaming::NamingContext::AlreadyBound& ex) {
       // If the context already exists, this exception will be raised.
       // In this case, just resolve the name and assign testContext
       // to the object returned:
@@ -252,24 +259,25 @@ ORBMgr::bindAgentToName(CORBA::Object_ptr obj, const char* agentName)
       tmpobj = rootContext->resolve(cosName);
       agtContext = CosNaming::NamingContext::_narrow(tmpobj);
       if (CORBA::is_nil(agtContext)) {
-        INTERNAL_ERROR("failed to narrow the agent naming context", 1);
+	INTERNAL_ERROR("failed to narrow the agent naming context", 1);
       }
-    }
+    } 
 
-    /* Bind obj to the agent context */
+    /* Bind the object (obj) to testContext */
 
     cosName[0].id = (const char*) agentName; // string copied
     cosName[0].kind = (const char*) "";      // string copied
 
-    // Bind obj with name agentName to the agtContext:
+    // Bind obj with name Echo to the testContext:
     try {
       agtContext->bind(cosName,obj);
-    } catch(CosNaming::NamingContext::AlreadyBound& ex) {
+    }
+    catch(CosNaming::NamingContext::AlreadyBound& ex) {
       agtContext->rebind(cosName,obj);
     }
 
-    // Note: Using rebind() will overwrite any Object previously bound
-    //       to /dietAgent/agentName with obj.
+    // Note: Using rebind() will overwrite any Object previously bound 
+    //       to /test/Echo with obj.
     //       Alternatively, bind() can be used, which will raise a
     //       CosNaming::NamingContext::AlreadyBound exception if the name
     //       supplied is already bound to an object.
@@ -278,17 +286,20 @@ ORBMgr::bindAgentToName(CORBA::Object_ptr obj, const char* agentName)
     // and then rebind, as rebind on it's own will throw a NotFoundexception if
     // the Name has not already been bound. [This is incorrect behaviour -
     // it should just bind].
-
-  } catch (CORBA::COMM_FAILURE& ex) {
+  }
+  catch (CORBA::COMM_FAILURE& ex) {
     ERROR("system exception caught (COMM_FAILURE), unable to connect to "
       << "the CORBA name server", 1);
-  } catch (omniORB::fatalException& ex) {
+  }
+  catch (omniORB::fatalException& ex) {
     throw;
-  } catch (...) {
+  }
+  catch (...) {
     INTERNAL_ERROR("system exception caught while using the naming service", 1);
   }
   return 0;
 }
+
 
 int
 ORBMgr::unbindAgent(const char* agentName)
@@ -364,9 +375,317 @@ char *
 ORBMgr::getIORString(CORBA::Object_ptr obj)
 {
   try {
-    return ORB->object_to_string(obj);
+    return ORB->object_to_string(obj);  
   } catch (...) {}
   return NULL;
+}
+
+
+CORBA::Object_ptr
+ORBMgr::getLocReference(const char* locName)
+{
+  CosNaming::NamingContext_var rootContext;
+  CORBA::Object_ptr obj;
+  CosNaming::Name CosName;
+  
+  try {
+    // Obtain a reference to the root context of the Name service:
+    CORBA::Object_ptr initServ;
+    initServ = ORB->resolve_initial_references("NameService");
+
+    // Narrow the object returned by resolve_initial_references()
+    // to a CosNaming::NamingContext object:
+    rootContext = CosNaming::NamingContext::_narrow(initServ);
+    if (CORBA::is_nil(rootContext)) 
+      {
+	INTERNAL_ERROR("failed to narrow the root naming context", 1);
+      }
+  } catch(CORBA::ORB::InvalidName& ex) {
+     INTERNAL_ERROR("service required is invalid [does not exist]", 1);
+  } catch (CORBA::Exception& e) {
+    CORBA::Any tmp;
+    tmp <<= e;
+    CORBA::TypeCode_var tc = tmp.type();
+    ERROR("exception caught (" << tc->name() << ") while attempting to "
+	  << "connect to the CORBA name server", CORBA::Object::_nil());
+  }
+
+
+  // Create a name object, containing the name test/context:
+  CosName.length(2);
+
+  CosName[0].id   = (const char*) "dietLoc";       // string copied
+  CosName[0].kind = (const char*) "";                // string copied
+  CosName[1].id   = (const char*) locName;
+  CosName[1].kind = (const char*) "";
+  // Note on kind: The kind field is used to indicate the type
+  // of the object. This is to avoid conventions such as that used
+  // by files (name.type -- e.g. test.ps = postscript etc.)
+
+
+  try {
+    // Resolve the name to an object reference, and assign the reference 
+    // returned to a CORBA::Object:
+    obj = rootContext->resolve(CosName);
+  } catch(CosNaming::NamingContext::NotFound& ex)
+    {
+      // This exception is thrown if any of the components of the
+      // path [contexts or the object] aren't found:
+      ERROR("context for " << locName << " not found", CORBA::Object::_nil());
+    } catch (CORBA::COMM_FAILURE& ex) {
+      ERROR("system exception caught (COMM_FAILURE): unable to connect to "
+	  << "the CORBA name server", CORBA::Object::_nil());
+  }
+  catch(omniORB::fatalException& ex) {
+    throw;
+  }
+  catch (...) {
+    INTERNAL_ERROR("system exception caught while using the naming service", 1);
+  }
+  return obj;
+}
+
+
+int
+ORBMgr::bindLocToName(CORBA::Object_ptr obj, const char* locName)
+{
+  CosNaming::NamingContext_var rootContext, locContext;
+   CosNaming::Name cosName;
+
+  try {
+    // Obtain a reference to the root context of the Name service:
+    CORBA::Object_var initServ;
+    initServ = ORB->resolve_initial_references("NameService");
+
+    // Narrow the object returned by resolve_initial_references()
+    // to a CosNaming::NamingContext object:
+    rootContext = CosNaming::NamingContext::_narrow(initServ);
+    if (CORBA::is_nil(rootContext)) {
+      INTERNAL_ERROR("failed to narrow the root naming context.\n", 1);
+    }
+  } catch(CORBA::ORB::InvalidName& ex) {
+   INTERNAL_ERROR("service required is invalid [does not exist]", 1);
+  } catch (CORBA::Exception& e) {
+    CORBA::Any tmp;
+    tmp <<= e;
+    CORBA::TypeCode_var tc = tmp.type();
+    ERROR("exception caught (" << tc->name() << ") while attempting to "
+	  << "register as " << locName << " to the CORBA name server",1);
+  }
+
+  cosName.length(1);
+  cosName[0].id   = (const char*) "dietLoc";   // string copied
+  cosName[0].kind = (const char*) "";            // string copied    
+    // Note on kind: The kind field is used to indicate the type
+    // of the object. This is to avoid conventions such as that used
+    // by files (name.type -- e.g. test.ps = postscript etc.)
+
+  try {
+    try {
+      // Bind the context to root, and assign testContext to it:
+      locContext = rootContext->bind_new_context(cosName);
+    }
+    catch(CosNaming::NamingContext::AlreadyBound& ex) {
+      // If the context already exists, this exception will be raised.
+      // In this case, just resolve the name and assign testContext
+      // to the object returned:
+      CORBA::Object_var tmpobj;
+      tmpobj = rootContext->resolve(cosName);
+      locContext = CosNaming::NamingContext::_narrow(tmpobj);
+      if (CORBA::is_nil(locContext)) {
+	INTERNAL_ERROR("failed to narrow the agent naming context", 1);
+      }
+    } 
+
+    /* Bind the object (obj) to testContext */
+
+    cosName[0].id = (const char*) locName; // string copied
+    cosName[0].kind = (const char*) "";      // string copied
+
+    // Bind obj with name Echo to the testContext:
+    try {
+      locContext->bind(cosName,obj);
+    }
+    catch(CosNaming::NamingContext::AlreadyBound& ex) {
+      locContext->rebind(cosName,obj);
+    }
+
+    // Note: Using rebind() will overwrite any Object previously bound 
+    //       to /test/Echo with obj.
+    //       Alternatively, bind() can be used, which will raise a
+    //       CosNaming::NamingContext::AlreadyBound exception if the name
+    //       supplied is already bound to an object.
+
+    // Amendment: When using OrbixNames, it is necessary to first try bind
+    // and then rebind, as rebind on it's own will throw a NotFoundexception if
+    // the Name has not already been bound. [This is incorrect behaviour -
+    // it should just bind].
+  }
+  catch (CORBA::COMM_FAILURE& ex) {
+    ERROR("system exception caught (COMM_FAILURE), unable to connect to "
+      << "the CORBA name server", 1);
+  }
+  catch (omniORB::fatalException& ex) {
+    throw;
+  }
+  catch (...) {
+    INTERNAL_ERROR("system exception caught while using the naming service", 1);
+  }
+  return 0;
+}
+
+
+CORBA::Object_ptr
+ORBMgr::getDataReference(const char* dataName)
+{
+  CosNaming::NamingContext_var rootContext;
+  CORBA::Object_ptr obj;
+  CosNaming::Name CosName;
+  
+  try {
+    // Obtain a reference to the root context of the Name service:
+    CORBA::Object_ptr initServ;
+    initServ = ORB->resolve_initial_references("NameService");
+
+    // Narrow the object returned by resolve_initial_references()
+    // to a CosNaming::NamingContext object:
+    rootContext = CosNaming::NamingContext::_narrow(initServ);
+    if (CORBA::is_nil(rootContext)) 
+      {
+	INTERNAL_ERROR("failed to narrow the root naming context", 1);
+      }
+  } catch(CORBA::ORB::InvalidName& ex) {
+     INTERNAL_ERROR("service required is invalid [does not exist]", 1);
+  } catch (CORBA::Exception& e) {
+    CORBA::Any tmp;
+    tmp <<= e;
+    CORBA::TypeCode_var tc = tmp.type();
+    ERROR("exception caught (" << tc->name() << ") while attempting to "
+	  << "connect to the CORBA name server", CORBA::Object::_nil());
+  }
+
+
+  // Create a name object, containing the name test/context:
+  CosName.length(2);
+
+  CosName[0].id   = (const char*) "dietData";       // string copied
+  CosName[0].kind = (const char*) "";                // string copied
+  CosName[1].id   = (const char*) dataName;
+  CosName[1].kind = (const char*) "";
+  // Note on kind: The kind field is used to indicate the type
+  // of the object. This is to avoid conventions such as that used
+  // by files (name.type -- e.g. test.ps = postscript etc.)
+
+
+  try {
+    // Resolve the name to an object reference, and assign the reference 
+    // returned to a CORBA::Object:
+    obj = rootContext->resolve(CosName);
+  } catch(CosNaming::NamingContext::NotFound& ex)
+    {
+      // This exception is thrown if any of the components of the
+      // path [contexts or the object] aren't found:
+      ERROR("context for " << dataName << " not found", CORBA::Object::_nil());
+    } catch (CORBA::COMM_FAILURE& ex) {
+      ERROR("system exception caught (COMM_FAILURE): unable to connect to "
+	  << "the CORBA name server", CORBA::Object::_nil());
+  }
+  catch(omniORB::fatalException& ex) {
+    throw;
+  }
+  catch (...) {
+    INTERNAL_ERROR("system exception caught while using the naming service", 1);
+  }
+  return obj;
+}
+
+
+int
+ORBMgr::bindDataToName(CORBA::Object_ptr obj, const char* dataName)
+{
+  CosNaming::NamingContext_var rootContext, dataContext;
+   CosNaming::Name cosName;
+
+  try {
+    // Obtain a reference to the root context of the Name service:
+    CORBA::Object_var initServ;
+    initServ = ORB->resolve_initial_references("NameService");
+
+    // Narrow the object returned by resolve_initial_references()
+    // to a CosNaming::NamingContext object:
+    rootContext = CosNaming::NamingContext::_narrow(initServ);
+    if (CORBA::is_nil(rootContext)) {
+      INTERNAL_ERROR("failed to narrow the root naming context.\n", 1);
+    }
+  } catch(CORBA::ORB::InvalidName& ex) {
+   INTERNAL_ERROR("service required is invalid [does not exist]", 1);
+  } catch (CORBA::Exception& e) {
+    CORBA::Any tmp;
+    tmp <<= e;
+    CORBA::TypeCode_var tc = tmp.type();
+    ERROR("exception caught (" << tc->name() << ") while attempting to "
+	  << "register as " << dataName << " to the CORBA name server",1);
+  }
+
+  cosName.length(1);
+  cosName[0].id   = (const char*) "dietData";   // string copied
+  cosName[0].kind = (const char*) "";            // string copied    
+    // Note on kind: The kind field is used to indicate the type
+    // of the object. This is to avoid conventions such as that used
+    // by files (name.type -- e.g. test.ps = postscript etc.)
+
+  try {
+    try {
+      // Bind the context to root, and assign testContext to it:
+      dataContext = rootContext->bind_new_context(cosName);
+    }
+    catch(CosNaming::NamingContext::AlreadyBound& ex) {
+      // If the context already exists, this exception will be raised.
+      // In this case, just resolve the name and assign testContext
+      // to the object returned:
+      CORBA::Object_var tmpobj;
+      tmpobj = rootContext->resolve(cosName);
+      dataContext = CosNaming::NamingContext::_narrow(tmpobj);
+      if (CORBA::is_nil(dataContext)) {
+	INTERNAL_ERROR("failed to narrow the agent naming context", 1);
+      }
+    } 
+
+    /* Bind the object (obj) to testContext */
+
+    cosName[0].id = (const char*) dataName; // string copied
+    cosName[0].kind = (const char*) "";      // string copied
+
+    // Bind obj with name Echo to the testContext:
+    try {
+      dataContext->bind(cosName,obj);
+    }
+    catch(CosNaming::NamingContext::AlreadyBound& ex) {
+      dataContext->rebind(cosName,obj);
+    }
+
+    // Note: Using rebind() will overwrite any Object previously bound 
+    //       to /test/Echo with obj.
+    //       Alternatively, bind() can be used, which will raise a
+    //       CosNaming::NamingContext::AlreadyBound exception if the name
+    //       supplied is already bound to an object.
+
+    // Amendment: When using OrbixNames, it is necessary to first try bind
+    // and then rebind, as rebind on it's own will throw a NotFoundexception if
+    // the Name has not already been bound. [This is incorrect behaviour -
+    // it should just bind].
+  }
+  catch (CORBA::COMM_FAILURE& ex) {
+    ERROR("system exception caught (COMM_FAILURE), unable to connect to "
+      << "the CORBA name server", 1);
+  }
+  catch (omniORB::fatalException& ex) {
+    throw;
+  }
+  catch (...) {
+    INTERNAL_ERROR("system exception caught while using the naming service", 1);
+  }
+  return 0;
 }
 
 

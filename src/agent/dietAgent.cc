@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2003/09/18 09:47:19  bdelfabr
+ * adding data persistence
+ *
  * Revision 1.5  2003/09/04 10:04:58  pcombes
  * Cast Agt before calling the run method.
  *
@@ -36,7 +39,7 @@ using namespace std;
 #include "MasterAgentImpl.hh"
 #include "ORBMgr.hh"
 #include "Parsers.hh"
-
+#include "locMgrImpl.hh"
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
@@ -45,6 +48,8 @@ extern unsigned int TRACE_LEVEL;
 /** The Agent object. */
 AgentImpl* Agt;
 
+/** The Loc Manager Object  */
+locMgrImpl *Loc;
 
 
 /* The SIGINT handler function
@@ -169,12 +174,20 @@ main(int argc, char** argv)
 
   if (agtType == Parsers::Results::DIET_LOCAL_AGENT) {
     Agt = new LocalAgentImpl();
+    Loc =new locMgrImpl((AgentImpl *)Agt);
     ORBMgr::activate((LocalAgentImpl*)Agt);
+    Agt->setMyName(Loc);
+    ORBMgr::activate(Loc);
     res = ((LocalAgentImpl*)Agt)->run();
+    Loc->run();
   } else {
     Agt = new MasterAgentImpl();
+    Loc =new locMgrImpl((AgentImpl *)Agt);
     ORBMgr::activate((MasterAgentImpl*)Agt);
+    Agt->setMyName(Loc);
+    ORBMgr::activate(Loc);
     res = ((MasterAgentImpl*)Agt)->run();
+    Loc->run();
   }
 
   /* Launch the agent */

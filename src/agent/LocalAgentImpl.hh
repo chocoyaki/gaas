@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2003/09/18 09:47:19  bdelfabr
+ * adding data persistence
+ *
  * Revision 1.2  2003/05/10 08:53:34  pcombes
  * New format for configuration files, new Parsers.
  *
@@ -59,7 +62,7 @@ private:
 
   /** Pointer to the parent */
   Agent_var parent;
-  
+
 
 }; // LocalAgentImpl
 

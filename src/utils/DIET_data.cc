@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2003/09/18 09:47:19  bdelfabr
+ * adding data persistence
+ *
  * Revision 1.17  2003/08/01 19:37:47  pcombes
  * Update diet_profile_alloc to the new API (separated from GridRPC)
  *
@@ -42,7 +45,6 @@ using namespace std;
 #include "common_types.hh"
 #include "dietTypes.hh"
 #include "debug.hh"
-
 
 #define DATA_INTERNAL_WARNING(formatted_msg)                                \
   INTERNAL_WARNING(__FUNCTION__ << ": " << formatted_msg << endl            \
@@ -126,6 +128,28 @@ data_sizeof(const corba_data_desc_t* desc)
     size = desc->specific.file().size; break;
   default:
     DATA_INTERNAL_WARNING("bad type (cons type)");
+  }
+  return (base_size * size);
+}
+
+size_t
+data_sizeof(const  corba_dataMgr_desc_t* desc)
+{
+  size_t base_size(type_sizeof((diet_base_type_t) desc->base_type));
+  size_t size(0);
+ switch (desc->specific._d()) {
+  case DIET_SCALAR:
+    size = 1; break;
+  case DIET_VECTOR:
+    size = desc->specific.vect().size; break;
+  case DIET_MATRIX:
+    size = (desc->specific.mat().nb_c * desc->specific.mat().nb_r); break;
+  case DIET_STRING:
+    size = desc->specific.str().length; break;
+  case DIET_FILE:
+    size = desc->specific.file().size; break;
+  default:
+   DATA_INTERNAL_WARNING("bad type (cons type)");
   }
   return (base_size * size);
 }
@@ -416,7 +440,7 @@ diet_scalar_desc_set(diet_data_t* data, void* value)
   }   
   if (!data->value) {
     ERROR(__FUNCTION__ << " misused (data->value is NULL)", 1);
-  }
+  } 
   switch(data->desc.generic.base_type) {
   case DIET_CHAR:     
   case DIET_BYTE:    *((char*)data->value)     = *((char*)value);     break;
@@ -431,7 +455,7 @@ diet_scalar_desc_set(diet_data_t* data, void* value)
     *((double complex*)data->value) = *((double complex*)value); break;
 #endif // HAVE_COMPLEX
   default: {
-    ERROR(__FUNCTION__ << " misused (wrong base type)", 1);
+   ERROR(__FUNCTION__ << " misused (wrong base type)", 1);
   }
   }
   data->desc.specific.scal.value = data->value;
@@ -443,11 +467,11 @@ diet_matrix_desc_set(diet_data_t* data,
 		     size_t nb_r, size_t nb_c, diet_matrix_order_t order)
 {
   if (data->desc.generic.type != DIET_MATRIX) {
-    ERROR(__FUNCTION__ << " misused (wrong type)", 1);
+   ERROR(__FUNCTION__ << " misused (wrong type)", 1);
   }   
   if ((nb_r * nb_c) >
       (data->desc.specific.mat.nb_r * data->desc.specific.mat.nb_c)) {
-    ERROR(__FUNCTION__
+     ERROR(__FUNCTION__
 	  << " misused (the new size cannot exceed the old one)", 1);
   }
   if (nb_r    != 0)
@@ -463,7 +487,7 @@ int
 diet_file_desc_set(diet_data_t* data, char* path)
 {
   if (data->desc.generic.type != DIET_FILE) {
-    ERROR(__FUNCTION__ << " misused (wrong type)", 1);
+   ERROR(__FUNCTION__ << " misused (wrong type)", 1);
   }   
   if (path != data->desc.specific.file.path)
     CORBA::string_free(data->desc.specific.file.path);
@@ -528,7 +552,7 @@ _vector_get(diet_arg_t *arg, void** value, diet_persistence_mode_t* mode,
   int res;
 
   if (arg->desc.generic.type != DIET_VECTOR) {
-    ERROR(__FUNCTION__ << " misused (wrong type)", 1);
+   ERROR(__FUNCTION__ << " misused (wrong type)", 1);
   }   
   if ((res = get_value((diet_data_t*)arg, value))) {
     ERROR(__FUNCTION__
@@ -572,10 +596,10 @@ _string_get(diet_arg_t* arg, char** value, diet_persistence_mode_t* mode,
   int res;
 
   if (arg->desc.generic.type != DIET_STRING) {
-    ERROR(__FUNCTION__ << " misused (wrong type)", 1);
+   ERROR(__FUNCTION__ << " misused (wrong type)", 1);
   }   
   if ((res = get_value((diet_data_t*)arg, (void**)value))) {
-    ERROR(__FUNCTION__
+   ERROR(__FUNCTION__
 	  << " misused (wrong base type or arg pointer is NULL)", res);
   }
   if (mode)
