@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.5  2003/09/16 10:37:19  pcombes
+#* Remove .hh files from libDIET_SeD_la_SOURCES.
+#*
 #* Revision 1.4  2003/08/01 19:20:23  pcombes
 #* Reorganize FAST and omniORB flags. Include FASTMgr.
 #*
@@ -29,8 +32,7 @@ include $(top_srcdir)/config.mk.in
 
 lib_LTLIBRARIES = libDIET_SeD.la
 
-libDIET_SeD_la_SOURCES = \
-	$(top_srcdir)/include/DIET_server.h DIET_server.cc SeDImpl.cc 
+libDIET_SeD_la_SOURCES = DIET_server.cc SeDImpl.cc 
 
 noinst_HEADERS = SeDImpl.hh
 
