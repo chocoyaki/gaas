@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2003/06/23 13:15:32  pcombes
+ * Comments
+ *
  * Revision 1.15  2003/06/03 18:33:56  pcombes
  * Update comments.
  *
@@ -89,7 +92,7 @@ typedef enum {
 
 typedef enum {
   DIET_VOLATILE = 0,
-  DIET_PERSISTENT_RETURN, // Data are saved on the server, but must be brought back
+  DIET_PERSISTENT_RETURN, // Saved on the server, and a copy brought back
   DIET_PERSISTENT,
   DIET_STICKY,
   DIET_PERSISTENCE_MODE_COUNT
@@ -99,7 +102,7 @@ typedef enum {
 /****************************************************************************/
 /* Argument type - a structure with two fields:                             */
 /*  desc  : a descriptor of the argument                                    */
-/*  value : a (void*) pointer to the memory zone where the data are stored */
+/*  value : a (void*) pointer to the memory zone where the data are stored. */
 /****************************************************************************/
 
 typedef struct diet_arg_s diet_arg_t;
