@@ -2,8 +2,11 @@
 
 /*
  * $Log$
+ * Revision 1.2  2003/01/22 15:44:01  sdahan
+ * separation of the LA and MA
+ *
  * Revision 1.1  2002/12/27 15:57:39  sdahan
- * the log list becaume a ts_map<RequestID, Request*>
+ * the log list become a ts_map<RequestID, Request*>
  *
  */
 
@@ -11,21 +14,21 @@
 
 #include <assert.h>
 
+#include <stdio.h>
+
 void Request::freeResponses() {
   if (responses != NULL) {
     delete [] responses ;
-    responses == NULL ;
+    responses = NULL ;
     responsesSize = 0 ;
   }
 }
 
 Request::Request(const corba_request_t* request) {
-  
   this->request = request ;
   gatheringEnded = new omni_condition(&respMutex) ;
   responses = NULL ;
   responsesSize = 0 ;
-
 } // Request(...)
 
 
@@ -44,7 +47,6 @@ void Request::unlock() {
   respMutex.unlock() ;
 } // unlock()
 
-
 void Request::waitResponses(int numberOfResponses) {
   assert(numberOfResponses > 0) ;
   freeResponses() ;
@@ -57,7 +59,7 @@ void Request::waitResponses(int numberOfResponses) {
 
 void Request::addResponse(const corba_response_t* response) {
   assert(nbWaitedSonsResponse > 0) ;
-  responses[--nbWaitedSonsResponse] = *responses ;
+  responses[--nbWaitedSonsResponse] = *response ;
   if(nbWaitedSonsResponse == 0)
     gatheringEnded->signal() ;
 } // addResponse(const corba_response_t* response)
