@@ -9,18 +9,23 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2004/03/01 18:42:34  rbolze
+ * add logservice
+ *
  * Revision 1.20  2004/02/27 10:26:37  bdelfabr
  * let DIET_PERSISTENCE_MODE set to 1, coding standard
  *
  * Revision 1.19  2003/11/10 14:12:06  bdelfabr
  * estimate method modified
- * adding estimation time for data transfer in case of persistent data. Data transfer time estimation is computed by FAST.
+ * adding estimation time for data transfer in case of persistent data.
+ * Data transfer time estimation is computed by FAST.
  *
  * Revision 1.18  2003/10/21 13:27:35  bdelfabr
  * Set persistence flag to 0
  *
  * Revision 1.17  2003/10/14 20:28:32  bdelfabr
- * adding method after solved problem to print the list of data owned by the DataManager (PERSISTENT mode only)
+ * adding method after solved problem to print the list of data owned by the
+ * DataManager (PERSISTENT mode only)
  *
  * Revision 1.16  2003/10/10 14:53:45  bdelfabr
  * TabValue removed : no longer used
@@ -101,6 +106,9 @@ SeDImpl::SeDImpl()
 #if HAVE_FAST
   this->fastUse = 1;
 #endif // HAVE_FAST
+#if HAVE_LOGSERVICE
+  this->dietLogComponent = NULL;
+#endif
 }
 
 SeDImpl::~SeDImpl()
@@ -134,6 +142,15 @@ SeDImpl::run(ServiceTable* services)
   }
   
   profiles = SrvT->getProfiles();
+
+#if HAVE_LOGSERVICE
+  if (dietLogComponent != NULL) {
+    for (CORBA::ULong i=0; i<profiles->length(); i++) {
+      dietLogComponent->logAddService(&((*profiles)[i]));
+    }
+  }
+#endif
+
   if (TRACE_LEVEL >= TRACE_STRUCTURES)
     SrvT->dump(stdout);
   try {
@@ -158,7 +175,6 @@ SeDImpl::run(ServiceTable* services)
   
   // Init FAST (HAVE_FAST is managed by the FASTMgr class)
   return FASTMgr::init();
-  
 }
 
 /** Set this->dataMgr */
@@ -168,6 +184,13 @@ SeDImpl::linkToDataMgr(DataMgrImpl* dataMgr)
   this->dataMgr = dataMgr;
   return 0;
 }
+
+#if HAVE_LOGSERVICE
+void
+SeDImpl::setDietLogComponent(DietLogComponent* dietLogComponent) {
+  this->dietLogComponent = dietLogComponent;
+}
+#endif
 
 
 void
@@ -180,6 +203,11 @@ SeDImpl::getRequest(const corba_request_t& creq)
 	     << "Got request " << creq.reqID << endl << endl);
   resp.reqID = creq.reqID;
   resp.myID  = childID;
+#if HAVE_LOGSERVICE
+  if (dietLogComponent != NULL) {
+    dietLogComponent->logAskForSeD(&creq);
+  }
+#endif
 
   ServiceTable::ServiceReference_t serviceRef;
   serviceRef = SrvT->lookupService(&(creq.pb));
@@ -204,6 +232,12 @@ SeDImpl::getRequest(const corba_request_t& creq)
   // Just for debugging
   if (TRACE_LEVEL >= TRACE_STRUCTURES)
     displayResponse(stdout, &resp);
+
+#if HAVE_LOGSERVICE
+  if (dietLogComponent != NULL) {
+    dietLogComponent->logSedChosen(&creq,&resp);
+  }
+#endif
 
   parent->getResponse(resp);
 }
@@ -232,7 +266,14 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
   int solve_res(0);
   stat_in("SeD","solve");
 
-   TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::solve invoked on pb: " << path << endl);
+
+#if HAVE_LOGSERVICE
+  if (dietLogComponent != NULL) {
+    dietLogComponent->logBeginSolve(path, &pb);
+  }
+#endif
+
+  TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::solve invoked on pb: " << path << endl);
   
   ref = SrvT->lookupService(path, &pb);
   if (ref == -1) {
@@ -296,6 +337,12 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
   
   stat_out("SeD","solve");  
 
+#if HAVE_LOGSERVICE
+  if (dietLogComponent != NULL) {
+    dietLogComponent->logEndSolve(path, &pb);
+  }
+#endif
+
   return solve_res;
 }
 
@@ -303,6 +350,13 @@ void
 SeDImpl::solveAsync(const char* path, const corba_profile_t& pb, 
 		    CORBA::Long reqID, const char* volatileclientREF)
 {
+
+#if HAVE_LOGSERVICE
+  if (dietLogComponent != NULL) {
+    dietLogComponent->logBeginSolve(path, &pb);
+  }
+#endif
+
 #if DEVELOPPING_DATA_PERSISTENCY
  
 
@@ -402,7 +456,13 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 		 << "**************************************************\n");
 
       stat_out("SeD","solveAsync");
-      
+
+#if HAVE_LOGSERVICE
+  if (dietLogComponent != NULL) {
+    dietLogComponent->logEndSolve(path, &pb);
+  }
+#endif
+     
       // send result data to client.
       TRACE_TEXT(TRACE_ALL_STEPS, "SeD::" << __FUNCTION__
 		 << ": performing the call-back.\n");

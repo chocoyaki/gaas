@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2004/03/01 18:43:49  rbolze
+ * add logservice
+ *
  * Revision 1.15  2003/10/06 10:14:50  cpontvie
  * Modify a bit the destructor
  *
@@ -85,6 +88,10 @@ AgentImpl::AgentImpl()
   this->SrvT                 = new ServiceTable();
   this->reqList.clear();
   this->locMgr               = NULL;
+
+#ifdef HAVE_LOGSERVICE
+  dietLogComponent = NULL;
+#endif
 } // AgentImpl()
 
 AgentImpl::~AgentImpl()
@@ -153,6 +160,12 @@ AgentImpl::linkToLocMgr(LocMgrImpl* locMgr)
   return 0;
 }
 
+#if HAVE_LOGSERVICE
+void
+AgentImpl::setDietLogComponent(DietLogComponent* dietLogComponent) {
+  this->dietLogComponent = dietLogComponent;
+}
+#endif
 
 
 /****************************************************************************/
@@ -214,9 +227,22 @@ AgentImpl::serverSubscribe(SeD_ptr me, const char* hostName,
  * Add \c services into the service table, and attach them to child \c me.
  */
   void
-AgentImpl::addServices(CORBA::ULong myID, const SeqCorbaProfileDesc_t& services)
+AgentImpl::addServices(CORBA::ULong myID,
+                       const SeqCorbaProfileDesc_t& services)
 {
   AGT_TRACE_FUNCTION(myID <<", " << services.length() << " services");
+
+#if HAVE_LOGSERVICE
+  // FIXME: do we need this information here (in this form) ?
+#if 0
+  for (CORBA::ULong i=0; i<services.length(); i++) {
+    if (dietLogComponent != NULL) {
+      dietLogComponent->logAddService(&(services[i]));
+    }
+  }
+#endif
+#endif
+
   this->srvTMutex.lock();
   for (size_t i = 0; i < services.length(); i++) {
     if (this->SrvT->addService(&(services[i]), myID)) {
@@ -416,7 +442,9 @@ AgentImpl::findServer(Request* req, size_t max_srv)
     if (TRACE_LEVEL >= TRACE_STRUCTURES)
       displayResponse(stdout, resp);
   }
+
   stat_out(this->myName,"findServer");
+
   return resp;
 } // findServer(Request* req)
 

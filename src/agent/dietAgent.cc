@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2004/03/01 18:46:18  rbolze
+ * add logservice
+ *
  * Revision 1.11  2004/03/01 16:34:26  mcolin
  * enable the possibility of declaring an endpoint with an hostname
  * for the DIET agents and the SeD (for VTHD demo). To be fixed later
@@ -32,7 +35,7 @@
  * Cast Agt before calling the run method.
  *
  * Revision 1.3  2003/08/28 16:51:32  cpontvie
- * Adding a SIGINT handler to properly clean the agent on interruption (CTRL+C)
+ * Adding a SIGINT handler to properly clean the agent on interruption(CTRL+C)
  *
  * Revision 1.2  2003/07/04 09:47:58  pcombes
  * Use new ERROR and WARNING macros.
@@ -45,6 +48,7 @@
 #include "ExitClass.hh"
 #include <iostream>
 #include <stdlib.h>
+using namespace std;
 
 #include "debug.hh"
 #include "LocalAgentImpl.hh"
@@ -53,9 +57,17 @@
 #include "ORBMgr.hh"
 #include "Parsers.hh"
 
+#if HAVE_LOGSERVICE
+#include "DietLogComponent.hh"
+#endif
+
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
 
+#if HAVE_LOGSERVICE
+/** The DietLogComponent */
+DietLogComponent* dietLogComponent;
+#endif
 
 /** The Agent object. */
 AgentImpl* Agt;
@@ -161,6 +173,77 @@ main(int argc, char** argv)
     ERROR("ORB initialization failed", 1);
   }
 
+#if HAVE_LOGSERVICE
+  /* Create the DietLogComponent */
+  bool useLS;
+  size_t* ULSptr;
+  int outBufferSize;
+  size_t* OBSptr;
+  int flushTime;
+  size_t* FTptr;
+
+  ULSptr = (size_t*)Parsers::Results::getParamValue(
+              Parsers::Results::USELOGSERVICE);
+  useLS = false;
+  if (ULSptr == NULL) {
+    cout << "WARNING: useLogService not configured. Disabled by default\n";
+  } else {
+    if (*ULSptr) {
+      useLS = true;
+    }
+  }
+
+  if (useLS) {
+    OBSptr = (size_t*)Parsers::Results::getParamValue(
+  	       Parsers::Results::LSOUTBUFFERSIZE);
+    if (OBSptr != NULL) {
+      outBufferSize = (int)(*OBSptr);
+    } else {
+      outBufferSize = 0;
+      WARNING("lsOutbuffersize not configured, using default");
+    }
+
+    FTptr = (size_t*)Parsers::Results::getParamValue(
+  	       Parsers::Results::LSFLUSHINTERVAL);
+    if (FTptr != NULL) {
+      flushTime = (int)(*FTptr);
+    } else {
+      flushTime = 10000;
+      WARNING("lsFlushinterval not configured, using default");
+    }
+  }
+
+  if (useLS) {
+    TRACE_TEXT(TRACE_MAIN_STEPS, "LogService enabled\n");
+    char* agtTypeName;
+    char* agtParentName;
+    char* agtName;
+    agtParentName = (char*)Parsers::Results::getParamValue
+                          (Parsers::Results::PARENTNAME);
+    agtName =       (char*)Parsers::Results::getParamValue
+                          (Parsers::Results::NAME);
+    // the agent names should be correct if we arrive here
+
+    dietLogComponent = new DietLogComponent(agtName, outBufferSize);
+    ORBMgr::activate(dietLogComponent);
+
+    if (agtType == Parsers::Results::DIET_LOCAL_AGENT) {
+      agtTypeName = strdup("LA");
+    } else {
+      agtTypeName = strdup("MA");
+    }
+    if (dietLogComponent->run(agtTypeName, agtParentName, flushTime) != 0) {
+      // delete(dietLogComponent); // DLC is activated, do not delete !
+      WARNING("Could not initialize DietLogComponent");
+      dietLogComponent = NULL; // this should not happen;
+    }
+    delete(agtTypeName);
+  } else {
+    TRACE_TEXT(TRACE_MAIN_STEPS, "LogService disabled\n");
+    dietLogComponent = NULL;
+  }
+#endif  // HAVE_LOGSERVICE
+
   /* Create the Data Location Manager */
   Loc = new LocMgrImpl();
 
@@ -169,16 +252,23 @@ main(int argc, char** argv)
   if (agtType == Parsers::Results::DIET_LOCAL_AGENT) {
     Agt = new LocalAgentImpl();
     ORBMgr::activate((LocalAgentImpl*)Agt);
+#if HAVE_LOGSERVICE
+    Agt->setDietLogComponent(dietLogComponent);
+#endif
     res = ((LocalAgentImpl*)Agt)->run();
   } else {
     Agt = new MasterAgentImpl();
     ORBMgr::activate((MasterAgentImpl*)Agt);
+#if HAVE_LOGSERVICE
+    Agt->setDietLogComponent(dietLogComponent);
+#endif
     res = ((MasterAgentImpl*)Agt)->run();
   }
 
+
   /* Initialize the ExitClass static object */
   ExitClass::init(Agt);
-    
+
   /* Launch the agent */
   if (res) {
     ERROR("unable to launch the agent", 1);
@@ -193,9 +283,12 @@ main(int argc, char** argv)
 
   /* Wait for RPCs (blocking call): */
   if (ORBMgr::wait()) {
-      WARNING("Error while exiting the ORBMgr::wait() function");
+    WARNING("Error while exiting the ORBMgr::wait() function");
   }
 
-  EXIT_FUNCTION;
+  /* shutdown and destroy the ORB
+   * Servants will be deactivated and deleted automatically */
+  ORBMgr::destroy();
+
   return 0;
 }

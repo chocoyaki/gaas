@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2004/03/01 18:43:08  rbolze
+ * add logservice
+ *
  * Revision 1.20  2004/03/01 16:34:26  mcolin
  * enable the possibility of declaring an endpoint with an hostname
  * for the DIET agents and the SeD (for VTHD demo). To be fixed later
@@ -52,6 +55,11 @@ using namespace std;
 #include "ORBMgr.hh"
 #include "Parsers.hh"
 #include "SeDImpl.hh"
+
+#if HAVE_LOGSERVICE
+#include "DietLogComponent.hh"
+#include "MonitoringThread.hh"
+#endif
 
 #define BEGIN_API extern "C" {
 #define END_API   } // extern "C"
@@ -280,6 +288,10 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   int    res(0);
   int    myargc;
   char** myargv;
+#if HAVE_LOGSERVICE
+  DietLogComponent* dietLogComponent;
+  MonitoringThread* monitoringThread;
+#endif
 
  /* Set arguments for ORBMgr::init */
 
@@ -345,12 +357,84 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
 
   /* ORB initialization */
 
- if (ORBMgr::init(myargc, (char**)myargv)) {
+  if (ORBMgr::init(myargc, (char**)myargv)) {
     ERROR("ORB initialization failed", 1);
   }
+
+#if HAVE_LOGSERVICE
+  /* DietLogComponent creation*/
+
+  bool useLS;
+  size_t* ULSptr;
+  int outBufferSize;
+  size_t* OBSptr;
+  int flushTime;
+  size_t* FTptr;
+
+  ULSptr = (size_t*)Parsers::Results::getParamValue(
+              Parsers::Results::USELOGSERVICE);
+  useLS = false;
+  if (ULSptr == NULL) {
+    cout << "WARNING: useLogService not configured. Disabled by default\n";
+  } else {
+    if (*ULSptr) {
+      useLS = true;
+    }
+  }
+
+  if (useLS) {
+    OBSptr = (size_t*)Parsers::Results::getParamValue(
+  	       Parsers::Results::LSOUTBUFFERSIZE);
+    if (OBSptr != NULL) {
+      outBufferSize = (int)(*OBSptr);
+    } else {
+      outBufferSize = 0;
+      WARNING("lsOutbuffersize not configured, using default");
+    }
+
+    FTptr = (size_t*)Parsers::Results::getParamValue(
+  	       Parsers::Results::LSFLUSHINTERVAL);
+    if (FTptr != NULL) {
+      flushTime = (int)(*FTptr);
+    } else {
+      flushTime = 10000;
+      WARNING("lsFlushinterval not configured, using default");
+    }
+  }
+
+  if (useLS) {
+    TRACE_TEXT(TRACE_MAIN_STEPS, "LogService enabled\n");
+    char* parentName;
+    parentName = (char*)Parsers::Results::getParamValue
+                          (Parsers::Results::PARENTNAME);
+
+    dietLogComponent = new DietLogComponent("", outBufferSize);
+    ORBMgr::activate(dietLogComponent);
+    if (dietLogComponent->run("SeD", parentName, flushTime) != 0) {
+      // delete(dietLogComponent); // DLC is activated, do not delete !
+      WARNING("Could not initialize DietLogComponent");
+      dietLogComponent = NULL; // this should never happen;
+    }
+  } else {
+    TRACE_TEXT(TRACE_MAIN_STEPS, "LogService disabled\n");
+    dietLogComponent = NULL;
+  }
+
+  // Just start the thread, as it might not be FAST-related
+  monitoringThread = new MonitoringThread(dietLogComponent);
+
+#endif  // HAVE_LOGSERVICE
+
+
   /* SeD creation */
   SeD = new SeDImpl();
   dataMgr = new DataMgrImpl();
+
+#if HAVE_LOGSERVICE
+  SeD->setDietLogComponent(dietLogComponent);
+  dataMgr->setDietLogComponent(dietLogComponent);
+#endif
+
   /* Activate SeD */
   ORBMgr::activate(SeD);
   if (SeD->run(SRVT)) {
@@ -367,6 +451,10 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
 
   /* Wait for RPCs : */
   ORBMgr::wait();
+
+  /* shutdown and destroy the ORB
+   * Servants will be deactivated and deleted automatically */
+  ORBMgr::destroy();
   
   return 0;
 }

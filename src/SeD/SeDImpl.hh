@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2004/03/01 18:43:23  rbolze
+ * add logservice
+ *
  * Revision 1.7  2003/12/01 14:49:30  pcombes
  * Rename dietTypes.hh to DIET_data_internal.hh, for more coherency.
  *
@@ -43,6 +46,10 @@
 #include "response.hh"
 #include "ServiceTable.hh"
 
+#if HAVE_LOGSERVICE
+#include "DietLogComponent.hh"
+#endif
+
 
 /****************************************************************************/
 /* SeD class                                                                */
@@ -63,6 +70,16 @@ public:
   /** Set this->dataMgr */
   int
   linkToDataMgr(DataMgrImpl* dataMgr);
+
+#if HAVE_LOGSERVICE
+  /**
+   * Set the DietLogComponent of this SeD. If this function is not
+   * called or the parameter is NULL, no monitoring information is
+   * gathered.
+   */
+  void
+  setDietLogComponent(DietLogComponent* dietLogComponent);
+#endif
 
   virtual void
   getRequest(const corba_request_t& req);
@@ -110,6 +127,14 @@ private:
 
 #endif // HAVE_FAST
 
+#if HAVE_LOGSERVICE
+  /**
+   * The actual dietLogComponent of this SeD. If it contains NULL,
+   * no monitoring information must be gathered, so it must be checked
+   * each time before it is used.
+   */
+  DietLogComponent* dietLogComponent;
+#endif
 
 
   /**************************************************************************/

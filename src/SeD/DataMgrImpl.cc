@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2004/03/01 18:42:22  rbolze
+ * add logservice
+ *
  * Revision 1.10  2004/02/27 10:26:37  bdelfabr
  * let DIET_PERSISTENCE_MODE set to 1, coding standard
  *
@@ -27,7 +30,8 @@
  * modifying memory management in case of in_out arg
  *
  * Revision 1.4  2003/10/01 07:40:51  cpera
- * Add false boolean return data of DataMgrImpl::dataLookup function if DEVELOPPING_DATA_PERSISTENCY is set to 0.
+ * Add false boolean return data of DataMgrImpl::dataLookup function
+ * if DEVELOPPING_DATA_PERSISTENCY is set to 0.
  *
  * Revision 1.3  2003/09/30 15:08:09  bdelfabr
  * dlist are replaced by map.
@@ -61,8 +65,11 @@ DataMgrImpl::DataMgrImpl()
   this->childID  = (childID)-1;
   this->parent = LocMgr::_nil();
   this->dataDescList.clear();
-}
 
+#ifdef HAVE_LOGSERVICE
+  this->dietLogComponent = NULL;
+#endif
+}
 
 DataMgrImpl::~DataMgrImpl(){
   this->dataDescList.clear();
@@ -105,15 +112,17 @@ DataMgrImpl::run()
   return 0;
 }
 
+#if HAVE_LOGSERVICE
+void
+DataMgrImpl::setDietLogComponent(DietLogComponent* dietLogComponent) {
+  this->dietLogComponent = dietLogComponent;
+}
+#endif
 
 char *
-DataMgrImpl::setMyName(){
-   char myName[261];
-
-   strcpy (myName,this->localHostName);
-   return CORBA::string_dup(myName);
-
- }
+DataMgrImpl::setMyName() {
+   return CORBA::string_dup((const char*)(this->localHostName));
+}
 
 /************************************************************ 
  *Method that allow the copy of an arg present in the map *
@@ -177,7 +186,7 @@ void
 DataMgrImpl::rmDataFromIDList(char* id)
 {
 #if DEVELOPPING_DATA_PERSISTENCY
-   lockList.erase(strdup(id)) ;
+  lockList.erase(strdup(id)) ;
 #endif // DEVELOPPING_DATA_PERSISTENCY
 }
 
@@ -229,9 +238,14 @@ DataMgrImpl::addDataDescToList(corba_data_t* dataDesc, int inout) // FIXME : die
      }
     
   }
-  
-  
-  
+
+
+#if HAVE_LOGSERVICE
+  if (dietLogComponent != NULL) {
+    dietLogComponent->logDataStore(dataDesc->desc.id.idNumber);
+  }
+#endif // HAVE_LOGSERVICE
+
 #endif // DEVELOPPING_DATA_PERSISTENCY
 }// addDataDescToList(corba_data_t* dataDesc, int inout)
 
@@ -257,6 +271,12 @@ void
 DataMgrImpl::rmDataDescFromList(char* argID)
 {
 #if DEVELOPPING_DATA_PERSISTENCY
+#if HAVE_LOGSERVICE
+  if (dietLogComponent != NULL) {
+    dietLogComponent->logDataRelease(argID);
+  }
+#endif // HAVE_LOGSERVICE
+
   corba_data_t &the_data= dataDescList[ms_strdup(argID)] ;
   //CORBA::Char *p1 (NULL);
   //  p1 = pbc.parameters[i].value.get_buffer(1);
@@ -313,9 +333,12 @@ DataMgrImpl::whichSeDOwner(const char* argId)
 {
   return this->localHostName;
 
-} // whichSeDOwner(const char* argId)
+}
+
+// whichSeDOwner(const char* argId)
 
 /** got the owner of the data identified by argID */
+
 
 char *
 DataMgrImpl::whichDataMgr(const char* argId)
@@ -429,7 +452,21 @@ DataMgrImpl::putData(const char* argID, const DataMgr_ptr me)
     dest.value.replace(dest.desc.specific.file().size,dest.desc.specific.file().size , dataValue, 1);
   }
   
+#if HAVE_LOGSERVICE
+  // FIXME: we cannot get the name of the receiving agent yet
+  if (dietLogComponent != NULL) {
+    dietLogComponent->logDataBeginTransfer(argID, "");
+  }
+#endif
+
   me->sendData(dest);
+
+#if HAVE_LOGSERVICE
+  // FIXME: we cannot get the name of the receiving agent yet
+  if (dietLogComponent != NULL) {
+    dietLogComponent->logDataEndTransfer(argID, "");
+  }
+#endif
  
 #endif // DEVELOPPING_DATA_PERSISTENCY
 } // putData(const char* argID, const DataMgr_ptr me)

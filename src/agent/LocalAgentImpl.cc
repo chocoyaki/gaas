@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2004/03/01 18:45:52  rbolze
+ * add logservice
+ *
  * Revision 1.8  2003/09/28 22:06:11  ecaron
  * Take into account the new API of statistics module
  *
@@ -112,6 +115,12 @@ LocalAgentImpl::addServices(CORBA::ULong myID,
 void
 LocalAgentImpl::getRequest(const corba_request_t& req)
 {
+#if HAVE_LOGSERVICE
+  if (dietLogComponent!=NULL) {
+    dietLogComponent->logAskForSeD(&req);
+  }
+#endif
+
   Request* currRequest = new Request(&req);
 
   LA_TRACE_FUNCTION(req.reqID << ", " << req.pb.path);
@@ -122,6 +131,12 @@ LocalAgentImpl::getRequest(const corba_request_t& req)
 
   corba_response_t& resp = *(this->findServer(currRequest, 0));
   resp.myID = this->childID;
+
+#if HAVE_LOGSERVICE
+  if (dietLogComponent != NULL) {
+    dietLogComponent->logSedChosen(&req, &resp);
+  }
+#endif
 
   /* The agent is an LA, the response must be sent to the parent */
   this->parent->getResponse(resp);

@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2004/03/01 18:43:57  rbolze
+ * add logservice
+ *
  * Revision 1.6  2003/12/01 14:49:30  pcombes
  * Rename dietTypes.hh to DIET_data_internal.hh, for more coherency.
  *
@@ -45,6 +48,10 @@
 #include "ts_container/ts_vector.hh"
 #include "ts_container/ts_map.hh"
 
+#if HAVE_LOGSERVICE
+#include "DietLogComponent.hh"
+#endif
+
 class AgentImpl : public POA_Agent,
 		  public PortableServer::RefCountServantBase
 {
@@ -68,15 +75,26 @@ public:
   int
   linkToLocMgr(LocMgrImpl* locMgr);
 
+#if HAVE_LOGSERVICE
+  /**
+   * Set the DietLogManager. If the dietLogManager is NULL, no
+   * monitoring information will be sent.
+   */
+  void
+  setDietLogComponent(DietLogComponent* dietLogComponent);
+#endif
+
   /** Subscribe an agent as a LA child. Remotely called by an LA. */
   virtual CORBA::ULong
   agentSubscribe(Agent_ptr me, const char* hostName,
 		 const SeqCorbaProfileDesc_t& services);
+
   /** Subscribe a server as a SeD child. Remotely called by an SeD. */
   virtual CORBA::ULong
   serverSubscribe(SeD_ptr me, const char* hostName,
 		  const SeqCorbaProfileDesc_t& services);
-  /** Add \c services into the service table, and attach them to child \c me.*/
+
+  /** Add services into the service table, and attach them to child me.*/
   virtual void
   addServices(CORBA::ULong myID, const SeqCorbaProfileDesc_t& services);
 
@@ -165,6 +183,15 @@ protected:
   /** Get host name of a child (returned string is ms_stralloc'd). */
   char*
   getChildHostName(CORBA::Long childID);
+
+#if HAVE_LOGSERVICE
+  /**
+   * Ptr to the DietLogComponent. This ptr can be NULL, so it has to
+   * be checked every time it is used. If it is NULL, no monitoring 
+   * messages have to be sent.
+   */
+  DietLogComponent* dietLogComponent;
+#endif
 };
 
 #endif // _AGENTIMPL_HH_

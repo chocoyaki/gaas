@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2004/03/01 18:42:08  rbolze
+ * add logservice
+ *
  * Revision 1.8  2004/02/27 10:26:37  bdelfabr
  * let DIET_PERSISTENCE_MODE set to 1, coding standard
  *
@@ -24,7 +27,7 @@
  * removing DataManagerID.hh which is not used
  *
  * Revision 1.3  2003/09/30 15:08:57  bdelfabr
- * dlist are replaced by stl map²
+ * dlist are replaced by stl map?
  *
  * Revision 1.2  2003/09/24 09:16:18  pcombes
  * Merge corba_DataMgr_desc_t and corba_data_desc_t.
@@ -49,6 +52,10 @@
 #include "LinkedList.hh"
 #include "ts_container/ts_map.hh"
 
+#if HAVE_LOGSERVICE
+#include "DietLogComponent.hh"
+#endif
+
 /** defines string comparison for map management */
 
 struct cmpID
@@ -58,7 +65,6 @@ struct cmpID
     return strcmp(s1, s2) < 0;
   }
 };
-
 
 
 class DataMgrImpl : public POA_DataMgr,
@@ -71,7 +77,19 @@ public:
 
   int
   run();
+
+#if HAVE_LOGSERVICE
+  /**
+   * Sets the dietLogComponent of this DataMgr. If this function
+   * is not called or the parameter is NULL, no monitoring information
+   * will be gathered.
+   */
+  void
+  setDietLogComponent(DietLogComponent* dietLogComponent);
+#endif
+
   /** look for data presence */
+
   bool
   dataLookup(char* argID);
   /** update add and remove data */
@@ -145,6 +163,15 @@ private:
   
   /** List of lock to manage data transmission */
   dietDataIDLockList_t lockList;
+
+#if HAVE_LOGSERVICE
+  /**
+   * The dietLogComponent. This ptr can be null to indicate that
+   * no monitoring information must be generated, so don't forget
+   * to check it before usage.
+   */
+  DietLogComponent* dietLogComponent;
+#endif
 
 
   /**************************************************************************/

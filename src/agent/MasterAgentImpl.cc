@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2004/03/01 18:46:08  rbolze
+ * add logservice
+ *
  * Revision 1.9  2004/02/27 10:25:11  bdelfabr
  * methods for data id creation and  methods to retrieve data descriptor are added
  *
@@ -150,7 +153,11 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
  
   creq.pb = pb_profile;
 
-
+#if HAVE_LOGSERVICE
+  if (dietLogComponent!=NULL) {
+    dietLogComponent->logAskForSeD(&creq);
+  }
+#endif
   /* Initialize the request with a global scheduler */
   TRACE_TEXT(TRACE_ALL_STEPS, "Initialize the request " << creq.reqID << ".\n");	    
   req = new Request(&creq, GlobalScheduler::chooseGlobalScheduler(&creq));
@@ -170,11 +177,19 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
   }
   
   reqList[creq.reqID] = NULL;
+
+#if HAVE_LOGSERVICE
+  if (dietLogComponent != NULL) {
+    dietLogComponent->logSedChosen(&creq, resp);
+  }
+#endif
+
   delete req;
   
-   TRACE_TEXT(TRACE_MAIN_STEPS,
+  TRACE_TEXT(TRACE_MAIN_STEPS,
 	     "**************************************************\n");
   stat_out(this->myName,"stop request");
+
   return resp;
 } // submit(const corba_pb_desc_t& pb, ...)
 
