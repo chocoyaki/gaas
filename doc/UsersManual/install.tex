@@ -10,6 +10,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.11  2004/04/05 11:04:29  rbolze
+%* add instruction to compile with logService
+%*
 %* Revision 1.10  2004/02/10 00:13:55  ecaron
 %* Add bugzilla reference.
 %*
@@ -197,6 +200,17 @@ enabled by default.
 \noindent This option activates the compilation of the DIET BLAS examples, as a
 sub-module of examples (which means that this option has no effect if examples
 are disabled) - disabled by default.
+
+{\footnotesize
+\begin{verbatim}
+  --enable-logservice     enable monitoring through LogService
+\end{verbatim}
+}
+\noindent This option enables the connection from DIET to the LogService
+monitoring software. It will enable DIET to generate monitoring data
+and send it to the LogService. Note that the support of LogService is
+built in. You do not have to install the LogService package to compile
+with this option.
 
 {\footnotesize
 \begin{verbatim}
