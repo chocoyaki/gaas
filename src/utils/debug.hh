@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2003/08/01 19:38:02  pcombes
+ * Include stdlib for exit.
+ *
  * Revision 1.14  2003/07/04 09:48:09  pcombes
  * Add new macros for traces, errors and warning - internal or not.
  *
@@ -29,6 +32,7 @@
 using namespace std;
 #include <omnithread.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
