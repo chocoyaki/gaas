@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.18  2003/10/21 13:32:28  bdelfabr
+#* removing clientWithID and clientWithoutID examples
+#*
 #* Revision 1.17  2003/10/14 20:25:06  bdelfabr
 #* update Makefile - adding clientWithoutID
 #*
@@ -26,8 +29,8 @@
 #
 srcdir = @srcdir@
 subdir = src/examples/dmat_manips
-SOURCES = client.c server.c serialClient.cc clientWithoutID.c	\
-	  parallelClient.cc parallelClient2.cc parallelClient3.cc clientWithID.c
+SOURCES = client.c server.c serialClient.cc \
+	  parallelClient.cc parallelClient2.cc parallelClient3.cc
 HEADERS = progs.h Global_macros.hh
 #
 # before.mk includes the right Makefile.inc. Indeed, the user might wish to
@@ -42,7 +45,7 @@ include ../before.mk
 #
 ##
 
-CC_PROGRAMS = client server clientWithID clientWithoutID
+CC_PROGRAMS = client server
 CXX_PROGRAMS = serialClient parallelClient parallelClient2 parallelClient3
 PROGRAMS = $(CC_PROGRAMS) $(CXX_PROGRAMS)
 
@@ -52,11 +55,6 @@ all:	$(PROGRAMS)
 client: client.c $(DIET_CLIENT_PREREQ)
 	$(CC) $(CCFLAGS_DIET) $< $(DIET_CLIENT_LIBS) -o $@
 
-clientWithoutID: clientWithoutID.c $(DIET_CLIENT_PREREQ)
-	$(CC) $(CCFLAGS_DIET) $< $(DIET_CLIENT_LIBS) -o $@
-
-clientWithID: clientWithID.c $(DIET_CLIENT_PREREQ)
-	$(CC) $(CCFLAGS_DIET) $< $(DIET_CLIENT_LIBS) -o $@
 # As the server uses the __FAST_*__ macros, we must exceptionnally add
 # the flag -I ../../../include.
 server:	server.c $(DIET_SERVER_PREREQ)
