@@ -57,9 +57,6 @@ int main(int argc, char **argv)
       printf("Error: time not set !\n");
    } else {
       printf("time = %f\n", *time);
-      /* Free the DIET-alloc'd time parameter: do not use time from this point ! */
-      diet_free_data(diet_parameter(profile,2));
-      time = NULL; /* not to leave a pending reference */
     }
 
     /* Check the first non-zero element of the matrix */
@@ -68,10 +65,7 @@ int main(int argc, char **argv)
     }
   }
 
-  /* Free malloc'd matrix */
-  free(matrix);
-
-  /* Free profile and function handle.
+  /* Free profile 
    * This does NOT free the data themselves ! */
   diet_profile_free(profile);
   
