@@ -11,6 +11,9 @@
 #****************************************************************************#
 #*
 #* $Log$
+#* Revision 1.4  2003/01/27 17:59:08  pcombes
+#* Process all .in files the same way
+#*
 #* Revision 1.3  2003/01/22 17:05:13  pcombes
 #* Define DIET_SERVER_LIBS and DIET_CLIENT_LIBS instead of two variables for
 #* each ; move FAST_LIBS into confg.mk.in (not required to compile users'
@@ -25,7 +28,7 @@
 
 # DIET variables
 
-DIET_HOME  = @DIET_HOME@
+DIET_HOME  = @PREFIX@
 DIET_FLAGS = -L$(DIET_HOME)/lib -I$(DIET_HOME)/include
 CLIENT_LIB = -lDIET_client
 SED_LIB    = -lDIET_SeD
