@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.39  2004/09/27 09:20:50  bdelfabr
+ * when marshalling in-out or our args, set id to null when data is volatile.
+ *
  * Revision 1.38  2004/09/14 12:42:18  hdail
  * Shortened log, changed allocation of desc->value to match cleanup done by
  * omniORB, matched cleanup of src_params and args_filled to match alloc.
@@ -102,9 +105,12 @@ mrsh_scalar_desc(corba_data_desc_t* dest, diet_data_desc_t* src)
 int
 mrsh_data_desc(corba_data_desc_t* dest, diet_data_desc_t* src)
 {
-  if (src->id)
+   
+  if (src->id != NULL)
     // deallocates old dest->id.idNumber
     dest->id.idNumber = CORBA::string_dup(src->id);
+  else 
+    dest->id.idNumber = CORBA::string_dup("");
   // The default values are not always inner the enum types, which triggers an ABORT.
   dest->id.state    = DIET_FREE;
   dest->id.dataCopy = DIET_ORIGINAL;
@@ -143,7 +149,6 @@ mrsh_data_desc(corba_data_desc_t* dest, diet_data_desc_t* src)
   }
   case DIET_FILE: {
     corba_file_specific_t file;
-
     dest->specific.file(file);
     if (src->specific.file.path) {
       dest->specific.file().path = CORBA::string_dup(src->specific.file.path);
@@ -208,7 +213,9 @@ mrsh_data(corba_data_t* dest, diet_data_t* src, int release)
 
 void
 mrsh_data_id_desc(corba_data_desc_t* dest, diet_data_desc_t* src){
+
   dest->id.idNumber = CORBA::string_dup(src->id);
+ 
   dest->id.state    = DIET_FREE;
   dest->id.dataCopy = DIET_ORIGINAL;
 }
@@ -278,8 +285,18 @@ unmrsh_scalar_desc(diet_data_desc_t* dest, const corba_data_desc_t* src)
 int
 unmrsh_data_desc(diet_data_desc_t* dest, const corba_data_desc_t* src)
 {
+  char *id = NULL;
   diet_base_type_t bt = (diet_base_type_t)src->base_type;
-  char* id = CORBA::string_dup(src->id.idNumber);
+
+  if( CORBA::string_dup(src->id.idNumber) != NULL ){
+    //    dest->id = CORBA::string_dup(src->id.idNumber);
+    id = CORBA::string_dup(src->id.idNumber);
+  }
+  else { 
+    id = NULL;
+    // dest->id = NULL;
+  }
+ 
 
   switch ((diet_data_type_t) src->specific._d()) {
   case DIET_SCALAR: {
@@ -304,7 +321,7 @@ unmrsh_data_desc(diet_data_desc_t* dest, const corba_data_desc_t* src)
     break;
   }
   case DIET_FILE: {
-    dest->id = id;
+    //  dest->id = id;
     dest->mode = (diet_persistence_mode_t)src->mode;
     diet_generic_desc_set(&(dest->generic), DIET_FILE, DIET_CHAR);
     dest->specific.file.size = src->specific.file().size;
@@ -321,6 +338,11 @@ unmrsh_data_desc(diet_data_desc_t* dest, const corba_data_desc_t* src)
 int
 unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
 {
+   if(src->desc.mode == DIET_VOLATILE && upDown == 1){ 
+   
+    char *tmp=NULL;
+    src->desc.id.idNumber=CORBA::string_dup(tmp);
+    }
   if (unmrsh_data_desc(&(dest->desc), &(src->desc)))
     return 1;
   if (src->desc.specific._d() == (long) DIET_FILE) {
@@ -404,17 +426,26 @@ mrsh_profile_desc(corba_profile_desc_t* dest, const diet_profile_desc_t* src)
 int
 mrsh_pb_desc(corba_pb_desc_t* dest, diet_profile_t* src)
 {
+
   dest->path       = CORBA::string_dup(src->pb_name); // frees old dest->path
   dest->last_in    = src->last_in;
   dest->last_inout = src->last_inout;
   dest->last_out   = src->last_out;
   dest->param_desc.length(src->last_out + 1);
-
+  cout << "SRC : in = " <<  src->last_in << " inout = " <<  src->last_inout << " out = " <<  src->last_out << endl;
   for (int i = 0; i <= src->last_out; i++) {
-    if(!src->parameters[i].desc.id)
+    // dest->param_desc[i].id.idNumber = CORBA::string_dup(NULL);
+     cout << "src->parameters[i].desc.id = " << src->parameters[i].desc.id << endl;
+       if(!src->parameters[i].desc.id) {
+    //    if(strlen(src->parameters[i].desc.id) == 0) {
+ 
       mrsh_data_desc(&(dest->param_desc[i]), &(src->parameters[i].desc));
-    else
-      mrsh_data_id_desc(&(dest->param_desc[i]), &(src->parameters[i].desc));
+    
+       } else {
+	 cout << "value === " << src->parameters[i].desc.id << endl;
+        mrsh_data_id_desc(&(dest->param_desc[i]), &(src->parameters[i].desc));
+  
+       }
   }
 
   return 0;
@@ -436,7 +467,7 @@ mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src)
   dest->parameters.length(src->last_out + 1);
 
    for (i = 0; i <= src->last_inout; i++) {
-     if(src->parameters[i].desc.id) {
+    if(src->parameters[i].desc.id) {
        mrsh_data_id(&(dest->parameters[i]), &(src->parameters[i]));
      } else {
        if (src->parameters[i].value == NULL &&
@@ -669,6 +700,10 @@ unmrsh_out_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb)
 	inoutfile.put(cpb->parameters[i].value[j]);
       }
     } else {
+      if(cpb->parameters[i].desc.mode == DIET_VOLATILE){ 
+	char *tmp=NULL;
+	cdd->id.idNumber=CORBA::string_dup(tmp);
+    }
       unmrsh_data_desc(&(dpb->parameters[i].desc), cdd);
     }
   }
