@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.54  2005/04/08 09:55:19  hdail
+ * Removing unused cichlid definition and cleaning up client code.
+ *
  * Revision 1.53  2004/12/15 13:53:22  sdahan
  * - the trace function are now thread safe.
  * - add "extern unsigned int TRACE_LEVEL" in debug.hh
@@ -35,78 +38,6 @@
  *
  * Revision 1.50  2004/10/15 13:04:29  bdelfabr
  * request_submission modified to avoid mismatch data identifers
- *
- * Revision 1.49  2004/10/15 08:19:13  hdail
- * Removed references to corba_response_t->sortedIndexes - no longer useful.
- *
- * Revision 1.48  2004/10/06 18:37:07  rbolze
- * fix a bug due to the last commit
- *
- * Revision 1.47  2004/10/06 16:43:17  rbolze
- * implement function that calls Ma to get the list of services in the platform
- *
- * Revision 1.46  2004/09/29 13:35:31  sdahan
- * Add the Multi-MAs feature.
- *
- * Revision 1.45  2004/09/29 12:54:16  bdelfabr
- * english please
- *
- * Revision 1.44  2004/07/29 18:52:11  rbolze
- * Change solve function now , DIET_client send the reqID of the request when
- * he call the solve function.
- * Nothing is change for DIET's API
- *
- * Revision 1.43  2004/05/04 11:46:20  bdelfabr
- * id files are created only in case of persistent data
- *
- * Revision 1.42  2004/03/01 18:52:24  rbolze
- * make some change relative to the new ORBMgr
- *
- * Revision 1.41  2004/02/27 10:23:28  bdelfabr
- * adding calls in order to use identifier instead of diet_..._set when data is already inside the platform
- *
- * Revision 1.40  2004/01/16 14:41:42  sdahan
- * In the diet_call_common function, catch the CORBA::MARSHAL exception
- * during the chosenServer->solve() call. Now, when the giopMaxMsgSize is
- * too small there is an informational error instead of a simple abore.
- *
- * Revision 1.39  2003/12/01 14:49:31  pcombes
- * Rename dietTypes.hh to DIET_data_internal.hh, for more coherency.
- *
- * Revision 1.38  2003/10/03 12:41:26  mcolin
- * Fix memory management in the list of arguments
- *
- * Revision 1.37  2003/09/28 22:11:53  ecaron
- * Take into account the new API of statistics module
- *
- * Revision 1.36  2003/09/25 10:03:38  cpera
- * Change return function value according to GridRPC API and delete debug messages.
- *
- * Revision 1.35  2003/09/22 21:08:15  pcombes
- * Update to changes of ORBMgr.
- *
- * Revision 1.34  2003/07/25 20:37:36  pcombes
- * Separate the DIET API (slightly modified) from the GridRPC API (version of
- * the draft dated to 07/21/2003)
- *
- * Revision 1.33  2003/07/09 17:08:44  pcombes
- * Better management of the variable MA (with mutex) and the handles.
- *
- * Revision 1.32  2003/07/04 09:48:02  pcombes
- * Make diet_initialize thread-safe. Use new ERROR and WARNING macros.
- *
- * Revision 1.26  2003/06/02 08:08:11  cpera
- * Beta version of asynchronize DIET API.
- *
- * Revision 1.25  2003/05/12 14:15:58  ecaron
- * Update call to stat in according to perl script file (extract.pl)
- *
- * Revision 1.24  2003/05/10 08:54:08  pcombes
- * New format for configuration files, new Parsers.
- *
- * Revision 1.13  2002/11/22 13:36:12  lbertsch
- * Added alpha linux support
- * Added a package for statistics and some traces
  ****************************************************************************/
 
 
@@ -122,8 +53,6 @@ using namespace std;
 #include <string.h>
 #include <math.h>
 
-
-#include "com_tools.hh"
 #include "debug.hh"
 #include "DIET_data_internal.hh"
 #include "marshalling.hh"
@@ -378,7 +307,6 @@ get_diet_services(int *services_number){
  *   creation of the file that stores identifiers               * 
  ***************************************************************/
 
-
 void create_file()
 {
 sprintf(file_Name,"/tmp/ID_FILE.%s.%d",MA_Name,num_Session);
@@ -394,12 +322,12 @@ void create_header()
     ofstream f(file_Name,ios_base::app|ios_base::ate);
     int cpt = strlen(header_id);
     f.write(header_id,cpt);
-    for(int i = 0; i < 10;i++) 
+    for(int i = 0; i < 10; i++) {
       f.put(' ');
+    }
     cpt = strlen(header_msg);
     f.write(header_msg,cpt);
     f.close();
- 
 }
 
 /**************************************************************** 
@@ -415,13 +343,13 @@ void store_id(char* argID, char* msg)
   cpt=strlen(argID);
   ofstream f(file_Name,ios_base::app|ios_base::ate);
   f.write(argID,cpt);
-  for(int i = 0;i < 10;i++) 
+  for(int i = 0; i < 10; i++) {
     f.put(' ');
+  }
   sprintf(msg1,"%s\n",msg);
   cpt = strlen(msg1);
   f.write(msg1,cpt);
   f.close();
-
 }
 
 
@@ -431,14 +359,12 @@ void store_id(char* argID, char* msg)
 int 
 diet_free_persistent_data(char* argID)
 {
-
-  if(MA->diet_free_pdata(argID)!=0)
+  if(MA->diet_free_pdata(argID)!=0) {
     return 1;
-  else {
+  } else {
     cerr << "UNKNOWN DATA" << endl;
     return 0;
   }
-
 }
 
 
@@ -459,7 +385,6 @@ request_submission(diet_profile_t* profile,
   static int nb_tries(3);
   int server_OK(0), subm_count, data_OK(0);
   corba_pb_desc_t corba_pb;
-  //corba_pb_desc_t& corba_pb = *(new corba_pb_desc_t());
   corba_response_t* response(NULL);
   char* bad_id(NULL);
   char statMsg[128];
@@ -478,9 +403,7 @@ request_submission(diet_profile_t* profile,
     response = NULL;
 
     /* data property base_type and type retrieval : used for scheduler*/
-
     int i = 0;
-//     do {
     for (i = 0, data_OK = 0 ;
          (i <= corba_pb.last_out && data_OK == 0) ;
          i++) {
@@ -493,13 +416,10 @@ request_submission(diet_profile_t* profile,
         if( strcmp(CORBA::string_dup(arg_desc->id.idNumber),tmp) ==0) {
           bad_id = new_id;
           data_OK = 1;
-        }
-        else {
+        } else {
           const_cast<corba_data_desc_t&>(corba_pb.param_desc[i]) = *arg_desc;
         }
       }
-//       i++;
-//     } while (( i <= corba_pb.last_out) && (data_OK == 0));
     }
 
     if(data_OK == 0) {
@@ -511,7 +431,6 @@ request_submission(diet_profile_t* profile,
         CORBA::Any tmp;
         tmp <<= e;
         CORBA::TypeCode_var tc = tmp.type();
-        //delete &corba_pb;
         if (response)
           delete response;
         ERROR("caught a CORBA exception (" << tc->name()
@@ -541,7 +460,6 @@ request_submission(diet_profile_t* profile,
           try {
             int           idx       = server_OK;
             SeD_ptr       server    = response->servers[idx].loc.ior;
-//             CORBA::Double totalTime = response->servers[idx].estim.totalTime;
 
             estVector_t ev = new_estVector();
             unmrsh_estimation_to_estVector(&(response->servers[idx].estim),
@@ -586,40 +504,21 @@ request_submission(diet_profile_t* profile,
            (server_OK == -1) && (++subm_count < nb_tries) && (data_OK == 0));
 
   if(data_OK == 1) {
-    ERROR (" data which id is " <<  bad_id << " not inside the platform.", 1);
-
+    ERROR (" data with ID " <<  bad_id << " not inside the platform.", 1);
     delete (bad_id);
   } else {
   
     if (!response || response->servers.length() == 0) {
-      //delete &corba_pb;
       if (response) {
         delete response;
       }
       ERROR("unable to find a server", 1);
     }
     if (server_OK == -1) {
-      //delete &corba_pb;
       delete response;
       ERROR("unable to find a server after " << nb_tries << " tries."
           << "The platform might be overloaded, try again later please", 1);
     }
-  
-#if HAVE_CICHLID
-    static int already_initialized(0);
-    char str_tmp[1000];
-  
-    if (!already_initialized) {
-      init_communications();
-      already_initialized = 1;
-    }
-  
-    strcpy(str_tmp, response->servers[server_OK].loc.hostName);
-    strcat(str_tmp, "_SeD");
-    add_communication("client", str_tmp, profile_size(&corba_pb));
-#endif // HAVE_CICHLID
-  
-    //delete &corba_pb;
 
     if (server_OK >= 0) {
       chosenServer = response->servers[server_OK].loc.ior;
@@ -648,33 +547,35 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
   int solve_res(0);
   diet_reqID_t reqID;
   corba_profile_t corba_profile;
-  //char *new_id;
+
   char statMsg[128];
   stat_in("Client","diet_call");
 
-
   if (CORBA::is_nil(chosenServer)) {
-    if ((res = request_submission(profile, chosenServer, reqID)))
+    if ((res = request_submission(profile, chosenServer, reqID))) {
       return res;
-    if (CORBA::is_nil(chosenServer))
+    }
+    if (CORBA::is_nil(chosenServer)) {
       return 1;
+    }
   }
 
   if (mrsh_profile_to_in_args(&corba_profile, profile)) {
     ERROR("profile is wrongly built", 1);
   }
   
-    int j = 0;
+  int j = 0;
   bool found = false;
   while ((j <= corba_profile.last_out) && (found == false)) {
-    if (diet_is_persistent(corba_profile.parameters[j]))// && (MA->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber))))
+    if (diet_is_persistent(corba_profile.parameters[j])) {
+// && (MA->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber))))
        found = true;
+    }
     j++;
   }
   if(found == true){
      create_file();
   }
-
 
   /* data property base_type and type retrieval : used for scheduler */
   for(int i = 0;i <= corba_profile.last_out;i++) {
@@ -684,12 +585,14 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
       arg_desc = MA->get_data_arg(new_id);
       const_cast<corba_data_desc_t&>(corba_profile.parameters[i].desc) = *arg_desc;
     }
-    
   }  
   
   /* generate new ID for data if not already existant */
   for(int i = 0;i <= corba_profile.last_out;i++) {
-    if ((corba_profile.parameters[i].desc.mode > DIET_VOLATILE ) && (corba_profile.parameters[i].desc.mode < DIET_PERSISTENCE_MODE_COUNT) && (MA->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber)))) {
+    if ((corba_profile.parameters[i].desc.mode > DIET_VOLATILE ) && 
+        (corba_profile.parameters[i].desc.mode < DIET_PERSISTENCE_MODE_COUNT) &&
+        (MA->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber))))
+    {
       char* new_id = MA->get_data_id(); 
       corba_profile.parameters[i].desc.id.idNumber = new_id;
     }
@@ -707,12 +610,11 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
 
   /* reaffect identifier */
   for(int i = 0;i <= profile->last_out;i++) {
-    if ((corba_profile.parameters[i].desc.mode > DIET_VOLATILE ) && (corba_profile.parameters[i].desc.mode < DIET_PERSISTENCE_MODE_COUNT)) {
+    if ((corba_profile.parameters[i].desc.mode > DIET_VOLATILE ) && 
+        (corba_profile.parameters[i].desc.mode < DIET_PERSISTENCE_MODE_COUNT)) {
       profile->parameters[i].desc.id = strdup(corba_profile.parameters[i].desc.id.idNumber);
     }
   }
- 
-
 
   if (unmrsh_out_args_to_profile(profile, &corba_profile)) {
     INTERNAL_ERROR("returned profile is wrongly built", 1);
@@ -777,15 +679,17 @@ diet_call_async_common(diet_profile_t* profile,
 
 
     int j = 0;
-  bool found = false;
-  while ((j <= corba_profile.last_out) && (found == false)) {
-    if (diet_is_persistent(corba_profile.parameters[j]))// && (MA->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber))))
-       found = true;
-    j++;
-  }
-  if(found == true){
-     create_file();
-  }
+    bool found = false;
+    while ((j <= corba_profile.last_out) && (found == false)) {
+      if (diet_is_persistent(corba_profile.parameters[j])) {
+  // && (MA->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber))))
+        found = true;
+      }
+      j++;
+    }
+    if(found == true){
+      create_file();
+    }
  
     /* data property base_type and type retrieval : used for scheduler */
     for(int i = 0;i <= corba_profile.last_out;i++) {
@@ -795,13 +699,15 @@ diet_call_async_common(diet_profile_t* profile,
         arg_desc = MA->get_data_arg(new_id);
         const_cast<corba_data_desc_t&>(corba_profile.parameters[i].desc) = *arg_desc;
       }
-      
     }  
     
     
     /* generate new ID for data if not already existant */
     for(int i = 0;i <= corba_profile.last_out;i++) {
-      if ((corba_profile.parameters[i].desc.mode > DIET_VOLATILE ) && (corba_profile.parameters[i].desc.mode < DIET_PERSISTENCE_MODE_COUNT) && (MA->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber)))) {
+      if ((corba_profile.parameters[i].desc.mode > DIET_VOLATILE ) && 
+          (corba_profile.parameters[i].desc.mode < DIET_PERSISTENCE_MODE_COUNT) 
+     && (MA->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber)))) 
+      {
         char* new_id = MA->get_data_id(); 
         corba_profile.parameters[i].desc.id.idNumber = new_id;
       }
@@ -810,9 +716,9 @@ diet_call_async_common(diet_profile_t* profile,
     // get sole CallAsyncMgr singleton
     caMgr = CallAsyncMgr::Instance();
     // create corba client callback server...
-  if (caMgr->addAsyncCall(*reqID, profile) != 0) {
+    if (caMgr->addAsyncCall(*reqID, profile) != 0) {
       return 1;
-  }
+    }
 
     stat_in("Client","computation_async");
     chosenServer->solveAsync(profile->pb_name, corba_profile, 
@@ -955,9 +861,8 @@ diet_wait_and(diet_reqID_t* IDs, size_t length)
     
     // get lock on condition/waitRule
     return CallAsyncMgr::Instance()->addWaitRule(rule);
-    // NOTES: Be carefull, there may be others rules
-    // using some of this reqID(AsyncCall)
-    // So, carefull using diet_cancel
+    // NOTES: Be careful, there may be others rules using some of this
+    // reqID(AsyncCall) So, careful using diet_cancel
   }
   catch (const CORBA::Exception &e) {
     // Process any other User exceptions. Use the .id() method to
@@ -1018,10 +923,10 @@ diet_wait_or(diet_reqID_t* IDs, size_t length, diet_reqID_t* IDptr)
     case STATUS_ERROR:
       return STATUS_ERROR;
     default:
-      return -1; // Unexcpected error, no value describing it
-      // NOTES: Be carefull, there may be others rules
+      return -1; // Unexpected error, no value describing it
+      // NOTES: Be careful, there may be others rules
       // using some of this reqID(AsyncCall)
-      // So, carefull using diet_cancel
+      // So, careful using diet_cancel
     }
   }
   catch (const CORBA::Exception &e) {
