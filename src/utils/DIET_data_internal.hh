@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2005/04/08 13:08:12  hdail
+ * Remove very old sections of code surrounded by DEVELOPPING_DATA_PERSISTENCY
+ * but where top of file has included #define DEVELOPPING_DATA_PERSISTENCY 0
+ * for a long time.  Verified with Bruno that this is not his code.
+ *
  * Revision 1.2  2004/12/08 15:02:52  alsu
  * plugin scheduler first-pass validation testing complete.  merging into
  * main CVS trunk; ready for more rigorous testing.
@@ -36,51 +41,10 @@
 #ifndef _DIET_DATA_INTERNAL_HH_
 #define _DIET_DATA_INTERNAL_HH_
 
-//#include <omnithread.h>
-
 #include "common_types.hh"
 #include "DIET_config.h"
 #include "DIET_data.h"
 #include "DIET_server.h"
-
-
-#define DEVELOPPING_DATA_PERSISTENCY 0
-
-#if DEVELOPPING_DATA_PERSISTENCY
-
-/***********************************************************************
- * These structure are used by the Data object to store the reference 
- * of the data hold by the server
- ***********************************************************************/
-
-// FIXME from Philippe: what is the interest of such a type ?
-//        why not use simply corba_data_id_t ?
-typedef struct diet_data_id_s
-{
-   corba_data_id_t dataID;
-} diet_data_id_t;
-
-
-/* structure useful for transfert management */
-typedef struct diet_data_id_lock_s
-{
-  char* id;
-  omni_mutex lockMutex;
-} diet_data_id_lock_t;
-
-struct cmpCorbaDataID {
-  bool
-  operator()(const char* a, const char* b) const
-  {
-    return strcmp(a,b) < 0;
-  }
-};
-
-#endif // DEVELOPPING_DATA_PERSISTENCY
-
-// For compatibility with files including this one
-// ALL THIS STUFF IS TEMPORARY !!!
-#undef DEVELOPPING_DATA_PERSISTENCY
 
 
 /****************************************************************************/
