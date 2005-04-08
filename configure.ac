@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.38  2005/04/08 09:56:12  hdail
+#* Removing unused Cichlid from DIET.
+#*
 #* Revision 1.37  2004/09/29 13:35:31  sdahan
 #* Add the Multi-MAs feature.
 #*
@@ -40,63 +43,6 @@
 #*
 #* Revision 1.30  2004/06/11 15:45:39  ctedesch
 #* add DIET/JXTA
-#*
-#* Revision 1.29  2004/04/19 08:52:42  rbolze
-#* add a line to informe you if you have or not configure with the logservice option
-#*
-#* Revision 1.28  2004/03/01 18:21:45  rbolze
-#* add the option --enable-logservice
-#*
-#* Revision 1.27  2004/02/27 16:25:55  ecaron
-#* Change bug report to http://graal.ens-lyon.fr/bugzilla
-#*
-#* Revision 1.26  2004/02/11 07:10:09  ecaron
-#* Tag version 1.0
-#*
-#* Revision 1.25  2003/12/17 16:11:41  ecaron
-#* Change "tutorial" directory to "Tutorial"
-#*
-#* Revision 1.24  2003/12/15 17:24:52  pcombes
-#* Add the tutorial and the solutions to the compilation chain.
-#*
-#* Revision 1.23  2003/09/26 14:04:12  pcombes
-#* DIET 0.9. Local FAST platform: chmod +x on the scripts. Module examples
-#* is forced in maintainer mode, but disabled by default in user mode.
-#*
-#* Revision 1.22  2003/09/22 21:05:57  pcombes
-#* Add an example of a local platform with LDAP + NWS + CORBA Name Server.
-#*
-#* Revision 1.21  2003/09/09 12:54:46  pcombes
-#* Reorganization of doc.
-#*
-#* Revision 1.20  2003/08/22 13:03:23  pcombes
-#* FAST not found is not right when --without-FAST is specified.
-#*
-#* Revision 1.19  2003/08/09 17:34:26  pcombes
-#* Print the version of FAST at the end of the configuration.
-#*
-#* Revision 1.18  2003/08/01 19:01:22  pcombes
-#* Clean up omniORB and FAST detection - particularly for versions.
-#*
-#* Revision 1.17  2003/07/04 09:47:49  pcombes
-#* Check for -Wno-strict-aliasing option (to be improved with AC macros).
-#*
-#* Revision 1.15  2003/06/24 15:18:30  pcombes
-#* --enable-* options: some HAVE_* variables are useless.
-#*
-#* Revision 1.13  2003/06/23 13:13:27  pcombes
-#* Re-Submit BLAS and ScaLAPACK detection to "enable" options.
-#* Change configuration summary (more complete)
-#*
-#* Revision 1.9  2003/05/16 17:29:28  pcombes
-#* Clean macros and messages. Set omniORB_min_version (not used yet)
-#*
-#* Revision 1.6  2003/04/10 14:59:23  pcombes
-#* Add modules doc (disabled by default), examples (forced),
-#* examples/BLAS and examples/ScaLAPCAK (both disabled by default).
-#*
-#* Revision 1.3  2003/02/17 15:34:56  cpera
-#* Use omniorb.m4 and detect new platforms.
 #****************************************************************************#
 
 define(DIET_version,        1.1)
@@ -211,14 +157,6 @@ ACI_MODULE([DIET],,[omniORB FAST],[src doc],force)
 dnl ###########################################################################
 # Various compilation features
 dnl ###########################################################################
-
-AH_TEMPLATE(HAVE_CICHLID,
-	    [Define the use of Cichlid and the communication tools.])
-AC_ARG_ENABLE(Cichlid,
-	      AC_HELP_STRING([--enable-Cichlid],
-	                 [enable generation of communication logs for Cichlid]),
-	      AC_DEFINE(HAVE_CICHLID,,
-		        [Define the use of Cichlid and the communication tools.]))
 
 AH_TEMPLATE(HAVE_STATISTICS, [Define the use of the statistics tools.])
 AC_ARG_ENABLE(stats,
@@ -465,12 +403,6 @@ dnl #### Print general info on DIET
 dnl ###########################################################################
 echo "" | tee -a config.log
 echo "DIET successfully configured as follows:" | tee -a config.log
-
-# CICHLID
-if test "x$enable_Cichlid" = "xyes"
-then
-  echo " - Cichlid log:     yes" | tee -a config.log
-fi
 
 # DOCUMENTS
 if test "x$enable_doc" = "xyes"
