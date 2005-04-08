@@ -10,6 +10,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2005/04/08 13:02:43  hdail
+ * The code for LogCentral has proven itself stable and it seems bug free.
+ * Since no external libraries are required to compile in LogCentral, its now
+ * going to be compiled in by default always ... its usage is easily controlled by
+ * configuration file.
+ *
  * Revision 1.10  2004/06/09 15:10:38  mcolin
  * add stat_flush in statistics API in order to flush write access to
  * statistic file for agent and sed which never end and can't call
@@ -120,11 +126,9 @@ LocalAgentImpl::addServices(CORBA::ULong myID,
 void
 LocalAgentImpl::getRequest(const corba_request_t& req)
 {
-#if HAVE_LOGSERVICE
-  if (dietLogComponent!=NULL) {
+  if (dietLogComponent != NULL) {
     dietLogComponent->logAskForSeD(&req);
   }
-#endif
 
   Request* currRequest = new Request(&req);
 
@@ -137,11 +141,9 @@ LocalAgentImpl::getRequest(const corba_request_t& req)
   corba_response_t& resp = *(this->findServer(currRequest, 0));
   resp.myID = this->childID;
 
-#if HAVE_LOGSERVICE
   if (dietLogComponent != NULL) {
     dietLogComponent->logSedChosen(&req, &resp);
   }
-#endif
 
   /* The agent is an LA, the response must be sent to the parent */
   this->parent->getResponse(resp);

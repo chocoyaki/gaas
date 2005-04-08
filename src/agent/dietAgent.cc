@@ -10,6 +10,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2005/04/08 13:02:43  hdail
+ * The code for LogCentral has proven itself stable and it seems bug free.
+ * Since no external libraries are required to compile in LogCentral, its now
+ * going to be compiled in by default always ... its usage is easily controlled by
+ * configuration file.
+ *
  * Revision 1.19  2004/10/04 11:26:58  hdail
  * Changed delete(agtTypeName) to free to agree with allocation.
  *
@@ -52,18 +58,13 @@ using namespace std;
 #include "MasterAgentImpl.hh"
 #include "ORBMgr.hh"
 #include "Parsers.hh"
-
-#if HAVE_LOGSERVICE
 #include "DietLogComponent.hh"
-#endif
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
 
-#if HAVE_LOGSERVICE
 /** The DietLogComponent */
 DietLogComponent* dietLogComponent;
-#endif
 
 /** The Agent object. */
 AgentImpl* Agt;
@@ -176,8 +177,7 @@ main(int argc, char** argv)
     ERROR("ORB initialization failed", 1);
   }
 
-#if HAVE_LOGSERVICE
-  /* Create the DietLogComponent */
+  /* Create the DietLogComponent for use with LogService */
   bool useLS;
     // size_t --> unsigned int
   unsigned int* ULSptr;
@@ -250,7 +250,6 @@ main(int argc, char** argv)
     TRACE_TEXT(TRACE_MAIN_STEPS, "LogService disabled\n");
     dietLogComponent = NULL;
   }
-#endif  // HAVE_LOGSERVICE
 
   /* Create the Data Location Manager */
   Loc = new LocMgrImpl();
@@ -260,19 +259,14 @@ main(int argc, char** argv)
   if (agtType == Parsers::Results::DIET_LOCAL_AGENT) {
     Agt = new LocalAgentImpl();
     ORBMgr::activate((LocalAgentImpl*)Agt);
-#if HAVE_LOGSERVICE
-    Agt->setDietLogComponent(dietLogComponent);
-#endif
+    Agt->setDietLogComponent(dietLogComponent);   /* LogService */
     res = ((LocalAgentImpl*)Agt)->run();
   } else {
     Agt = new MasterAgentImpl();
     ORBMgr::activate((MasterAgentImpl*)Agt);
-#if HAVE_LOGSERVICE
-    Agt->setDietLogComponent(dietLogComponent);
-#endif
+    Agt->setDietLogComponent(dietLogComponent);   /* LogService */
     res = ((MasterAgentImpl*)Agt)->run();
   }
-
 
   /* Initialize the ExitClass static object */
   ExitClass::init(Agt);

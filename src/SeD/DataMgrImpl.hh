@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2005/04/08 13:02:43  hdail
+ * The code for LogCentral has proven itself stable and it seems bug free.
+ * Since no external libraries are required to compile in LogCentral, its now
+ * going to be compiled in by default always ... its usage is easily controlled by
+ * configuration file.
+ *
  * Revision 1.12  2004/12/06 07:32:50  bdelfabr
  * cleanup memory management for tranfers between servers.
  *
@@ -60,10 +66,7 @@
 #include "ServiceTable.hh"
 #include "LinkedList.hh"
 #include "ts_container/ts_map.hh"
-
-#if HAVE_LOGSERVICE
 #include "DietLogComponent.hh"
-#endif
 
 /** defines string comparison for map management */
 
@@ -87,7 +90,6 @@ public:
   int
   run();
 
-#if HAVE_LOGSERVICE
   /**
    * Sets the dietLogComponent of this DataMgr. If this function
    * is not called or the parameter is NULL, no monitoring information
@@ -95,8 +97,6 @@ public:
    */
   void
   setDietLogComponent(DietLogComponent* dietLogComponent);
-#endif
-
 
   void
   printvalue(double *value,long unsigned int size);
@@ -176,15 +176,12 @@ private:
   /** List of lock to manage data transmission */
   dietDataIDLockList_t lockList;
 
-#if HAVE_LOGSERVICE
   /**
    * The dietLogComponent. This ptr can be null to indicate that
    * no monitoring information must be generated, so don't forget
    * to check it before usage.
    */
   DietLogComponent* dietLogComponent;
-#endif
-
 
   /**************************************************************************/
   /* Private methods                                                        */

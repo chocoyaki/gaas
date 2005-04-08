@@ -10,6 +10,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2005/04/08 13:02:43  hdail
+ * The code for LogCentral has proven itself stable and it seems bug free.
+ * Since no external libraries are required to compile in LogCentral, its now
+ * going to be compiled in by default always ... its usage is easily controlled by
+ * configuration file.
+ *
  * Revision 1.10  2004/09/29 13:35:31  sdahan
  * Add the Multi-MAs feature.
  *
@@ -41,10 +47,7 @@
 #include "ServiceTable.hh"
 #include "ts_container/ts_vector.hh"
 #include "ts_container/ts_map.hh"
-
-#if HAVE_LOGSERVICE
 #include "DietLogComponent.hh"
-#endif
 
 class AgentImpl : public POA_Agent,
 		  public PortableServer::RefCountServantBase
@@ -69,14 +72,12 @@ public:
   int
   linkToLocMgr(LocMgrImpl* locMgr);
 
-#if HAVE_LOGSERVICE
   /**
    * Set the DietLogManager. If the dietLogManager is NULL, no
    * monitoring information will be sent.
    */
   void
   setDietLogComponent(DietLogComponent* dietLogComponent);
-#endif
 
   /** Subscribe an agent as a LA child. Remotely called by an LA. */
   virtual CORBA::ULong
@@ -185,14 +186,12 @@ protected:
   char*
   getChildHostName(CORBA::Long childID);
 
-#if HAVE_LOGSERVICE
   /**
    * Ptr to the DietLogComponent. This ptr can be NULL, so it has to
    * be checked every time it is used. If it is NULL, no monitoring 
    * messages have to be sent.
    */
   DietLogComponent* dietLogComponent;
-#endif
 };
 
 #endif // _AGENTIMPL_HH_

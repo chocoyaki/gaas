@@ -21,11 +21,8 @@ using namespace std;
 #include "ORBMgr.hh"
 #include "Parsers.hh"
 #include "SeDImpl.hh"
-
-#if HAVE_LOGSERVICE
 #include "DietLogComponent.hh"
 #include "MonitoringThread.hh"
-#endif
 
 #include "dmat_jxta_progs.h"
 
@@ -481,10 +478,9 @@ JNIEXPORT jint JNICALL
 {
   char* config_file_name;
 
-#if HAVE_LOGSERVICE
+  /* LogService components */
   DietLogComponent* dietLogComponent;
   MonitoringThread* monitoringThread;
-#endif
 
   /* Getting arguments for DIET SeD */
   argc = env->GetArrayLength(pbs) + 2;
@@ -746,9 +742,7 @@ JNIEXPORT jint JNICALL
     ERROR("ORB initialization failed", 1);
   }
 
-#if HAVE_LOGSERVICE
-  /* DietLogComponent creation*/
-
+  /* DietLogComponent creation */
   bool useLS;
   size_t* ULSptr;
   int outBufferSize;
@@ -808,17 +802,14 @@ JNIEXPORT jint JNICALL
   // Just start the thread, as it might not be FAST-related
   monitoringThread = new MonitoringThread(dietLogComponent);
 
-#endif  // HAVE_LOGSERVICE
 
-
-  /* Create the SeD*/
+  /* Create the SeD */
   SeD = new SeDImpl(uuid);
   dataMgr = new DataMgrImpl();
 
-#if HAVE_LOGSERVICE
+  /* Set up LogService */
   SeD->setDietLogComponent(dietLogComponent);
   dataMgr->setDietLogComponent(dietLogComponent);
-#endif
 
   /* Activate SeD */
   ORBMgr::activate(SeD);

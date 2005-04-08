@@ -24,17 +24,13 @@ using namespace std;
 #include "jni.h"
 #include "JXTAMultiMA.h"
 
-#if HAVE_LOGSERVICE
 #include "DietLogComponent.hh"
-#endif
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
 
-#if HAVE_LOGSERVICE
-/** The DietLogComponent */
+/** The DietLogComponent for use with LogService */
 DietLogComponent* dietLogComponent;
-#endif
 
 /** The Master Agent object */
 MasterAgentImpl* MasterAgt;
@@ -148,7 +144,6 @@ Java_JXTAMultiMA_startDIETAgent(JNIEnv *env,
     ERROR("ORB initialization failed", 1);
   }
 
-#if HAVE_LOGSERVICE
   /* Create the DietLogComponent */
   bool useLS;
   size_t* ULSptr;
@@ -217,7 +212,6 @@ Java_JXTAMultiMA_startDIETAgent(JNIEnv *env,
     TRACE_TEXT(TRACE_MAIN_STEPS, "LogService disabled\n");
     dietLogComponent = NULL;
   }
-#endif  // HAVE_LOGSERVICE
 
   /* Create the Data Location Manager */
   Loc = new LocMgrImpl();
@@ -227,12 +221,9 @@ Java_JXTAMultiMA_startDIETAgent(JNIEnv *env,
   MasterAgt = new MasterAgentImpl();
   ORBMgr::activate(MasterAgt);
 
-#if HAVE_LOGSERVICE
-    MasterAgt->setDietLogComponent(dietLogComponent);
-#endif
+  MasterAgt->setDietLogComponent(dietLogComponent);
 
   /* Launch the Master Agent */
- 
   if (MasterAgt->run()) {
     ERROR("Unable to launch the agent.", 1);
   }

@@ -10,6 +10,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2005/04/08 13:02:43  hdail
+ * The code for LogCentral has proven itself stable and it seems bug free.
+ * Since no external libraries are required to compile in LogCentral, its now
+ * going to be compiled in by default always ... its usage is easily controlled by
+ * configuration file.
+ *
  * Revision 1.17  2004/12/16 11:16:44  sdahan
  * adds multi-mas informations into the logService
  *
@@ -251,11 +257,9 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
     creq.pb = pb_profile;
     creq.max_srv = maxServers ;
 
-#if HAVE_LOGSERVICE
-    if (dietLogComponent!=NULL) {
+    if (dietLogComponent != NULL) {
       dietLogComponent->logAskForSeD(&creq);
     }
-#endif
 
     decision = submit_local(creq) ;
 
@@ -298,12 +302,9 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
     WARNING("An exception was catched\n") ;
   }
 
-#if HAVE_LOGSERVICE
   if (dietLogComponent != NULL) {
     dietLogComponent->logSedChosen(&creq, decision);
   }
-#endif
-
   
   TRACE_TEXT(TRACE_MAIN_STEPS,
 	     "**************************************************\n");
@@ -635,11 +636,10 @@ MasterAgentImpl::logNeighbors() {
   }
   knownMAs.unlock() ;
   TRACE_TEXT(TRACE_MAIN_STEPS, "Multi-MAs neighbors " << str << "\n");
-#if HAVE_LOGSERVICE
-    if (dietLogComponent!=NULL) {
-      dietLogComponent->logNeighbors(str);
-    }
-#endif
+
+  if (dietLogComponent!=NULL) {
+    dietLogComponent->logNeighbors(str);
+  }
 }
 
 #endif // HAVE_MULTI_MA

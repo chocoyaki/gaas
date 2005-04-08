@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2005/04/08 13:02:43  hdail
+ * The code for LogCentral has proven itself stable and it seems bug free.
+ * Since no external libraries are required to compile in LogCentral, its now
+ * going to be compiled in by default always ... its usage is easily controlled by
+ * configuration file.
+ *
  * Revision 1.14  2004/12/08 15:02:51  alsu
  * plugin scheduler first-pass validation testing complete.  merging into
  * main CVS trunk; ready for more rigorous testing.
@@ -77,10 +83,7 @@
 #include "DIET_data_internal.hh"
 #include "response.hh"
 #include "ServiceTable.hh"
-
-#if HAVE_LOGSERVICE
 #include "DietLogComponent.hh"
-#endif
 
 #define HAVE_QUEUES 1
 
@@ -111,7 +114,6 @@ public:
   int
   linkToDataMgr(DataMgrImpl* dataMgr);
 
-#if HAVE_LOGSERVICE
   /**
    * Set the DietLogComponent of this SeD. If this function is not
    * called or the parameter is NULL, no monitoring information is
@@ -119,7 +121,6 @@ public:
    */
   void
   setDietLogComponent(DietLogComponent* dietLogComponent);
-#endif
 
   virtual void
   getRequest(const corba_request_t& req);
@@ -189,14 +190,12 @@ private:
 
 #endif // HAVE_FAST
 
-#if HAVE_LOGSERVICE
   /**
    * The actual dietLogComponent of this SeD. If it contains NULL,
    * no monitoring information must be gathered, so it must be checked
    * each time before it is used.
    */
   DietLogComponent* dietLogComponent;
-#endif
 
 
   /**************************************************************************/

@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2005/04/08 13:02:43  hdail
+ * The code for LogCentral has proven itself stable and it seems bug free.
+ * Since no external libraries are required to compile in LogCentral, its now
+ * going to be compiled in by default always ... its usage is easily controlled by
+ * configuration file.
+ *
  * Revision 1.17  2004/12/06 07:32:50  bdelfabr
  * cleanup memory management for tranfers between servers.
  *
@@ -83,10 +89,7 @@ DataMgrImpl::DataMgrImpl()
   this->childID  = (childID)-1;
   this->parent = LocMgr::_nil();
   this->dataDescList.clear();
-
-#ifdef HAVE_LOGSERVICE
   this->dietLogComponent = NULL;
-#endif
 }
 
 DataMgrImpl::~DataMgrImpl(){
@@ -130,12 +133,10 @@ DataMgrImpl::run()
   return 0;
 }
 
-#if HAVE_LOGSERVICE
 void
 DataMgrImpl::setDietLogComponent(DietLogComponent* dietLogComponent) {
   this->dietLogComponent = dietLogComponent;
 }
-#endif
 
 char *
 DataMgrImpl::setMyName() {
@@ -271,40 +272,35 @@ DataMgrImpl::addDataDescToList(corba_data_t* dataDesc, int inout) // FIXME : die
     
   }
  
-
-  
-#if HAVE_LOGSERVICE
   char * type_data = (char *)malloc(10*sizeof(char));
   if (dietLogComponent != NULL) {
     switch ((diet_data_type_t)(dataDesc->desc.specific._d())) {
-    case DIET_SCALAR: {
-      strcpy(type_data,"SCALAR");
-    }
-    case DIET_VECTOR: {
-      strcpy(type_data,"VECTOR");
-      break;
-    }
-    case DIET_MATRIX: {
-      strcpy(type_data,"MATRIX");
-      break;
-    }
-    case DIET_STRING: {
-      strcpy(type_data,"STRING");
-      break;
-    }
-    case DIET_FILE: {
-      strcpy(type_data,"FILE");
-      break;
-    }
-    default: {
-      strcpy(type_data,"UNKNOWN");
-      break;
-  }
- 
+      case DIET_SCALAR: {
+        strcpy(type_data,"SCALAR");
+      }
+      case DIET_VECTOR: {
+        strcpy(type_data,"VECTOR");
+        break;
+      }
+      case DIET_MATRIX: {
+        strcpy(type_data,"MATRIX");
+        break;
+      }
+      case DIET_STRING: {
+        strcpy(type_data,"STRING");
+        break;
+      }
+      case DIET_FILE: {
+        strcpy(type_data,"FILE");
+        break;
+      }
+      default: {
+        strcpy(type_data,"UNKNOWN");
+        break;
+      }
     }
     dietLogComponent->logDataStore(dataDesc->desc.id.idNumber, data_sizeof(&(dataDesc->desc)),(long)(dataDesc->desc.base_type), type_data);
   }
-#endif // HAVE_LOGSERVICE
 
 #endif // DEVELOPPING_DATA_PERSISTENCY
 }// addDataDescToList(corba_data_t* dataDesc, int inout)
@@ -327,11 +323,9 @@ void
 DataMgrImpl::rmDataDescFromList(char* argID)
 {
 #if DEVELOPPING_DATA_PERSISTENCY
-#if HAVE_LOGSERVICE
   if (dietLogComponent != NULL) {
     dietLogComponent->logDataRelease(argID);
   }
-#endif // HAVE_LOGSERVICE
 
   corba_data_t &the_data= dataDescList[ms_strdup(argID)] ;
   //CORBA::Char *p1 (NULL);
@@ -569,23 +563,22 @@ DataMgrImpl::putData(const char* argID, const DataMgr_ptr me)
     dest->value.replace(dest->desc.specific.file().size,dest->desc.specific.file().size , dataValue, 1);
   }
   
-#if HAVE_LOGSERVICE
   // FIXME: we cannot get the name of the receiving agent yet
   if (dietLogComponent != NULL) {
     dietLogComponent->logDataBeginTransfer(argID, "");
   }
-#endif
-   struct timeval t1, t2;
- gettimeofday(&t1, NULL);
+
+  struct timeval t1, t2;
+  gettimeofday(&t1, NULL);
   me->sendData(*dest);
   gettimeofday(&t2, NULL);
-   cout << "TIME TO SENDATA = " << ((t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000)  << endl;
-#if HAVE_LOGSERVICE
+  cout << "TIME TO SENDATA = " << ((t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000)  << endl;
+
   // FIXME: we cannot get the name of the receiving agent yet
   if (dietLogComponent != NULL) {
     dietLogComponent->logDataEndTransfer(argID, "");
   }
-#endif
+
   delete dest;
 #endif // DEVELOPPING_DATA_PERSISTENCY
 } // putData(const char* argID, const DataMgr_ptr me)

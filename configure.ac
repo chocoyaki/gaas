@@ -8,6 +8,12 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.39  2005/04/08 13:02:42  hdail
+#* The code for LogCentral has proven itself stable and it seems bug free.
+#* Since no external libraries are required to compile in LogCentral, its now
+#* going to be compiled in by default always ... its usage is easily controlled by
+#* configuration file.
+#*
 #* Revision 1.38  2005/04/08 09:56:12  hdail
 #* Removing unused Cichlid from DIET.
 #*
@@ -191,12 +197,6 @@ fi
 AM_CONDITIONAL(JXTA_MODE, [test $USE_JXTA_MODE = yes])
 JXTA=$JXTA_MODE_TRUE
 
-
-AH_TEMPLATE(HAVE_LOGSERVICE, [Define the use of LogService.])
-AC_ARG_ENABLE(logservice,
-	      AC_HELP_STRING([--enable-logservice],
-			     [enable monitoring through LogService]),
-	      [AC_DEFINE(HAVE_LOGSERVICE)][IDLFLAGS="$IDLFLAGS -DHAVE_LOGSERVICE"])
 
 dnl ###########################################################################
 dnl Load anything under acmacros/*.m4
@@ -469,15 +469,6 @@ fi
 # DIET J
 printf " - DIET J:          " | tee -a config.log
 if test "x$enable_JXTA" = "xyes"
-then
-  echo "yes" | tee -a config.log
-else
-  echo "no" | tee -a config.log
-fi
-
-# LOGSERVICE
-printf " - LogService:      " | tee -a config.log
-if test "x$enable_logservice" = "xyes"
 then
   echo "yes" | tee -a config.log
 else

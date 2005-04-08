@@ -11,9 +11,7 @@
 /****************************************************************************/
 
 #include "ExitClass.hh"
-//#include <unistd.h>
 #include <stdlib.h>
-//#include <stdio.h>
 #include <iostream>
 using namespace std;
 
@@ -27,17 +25,13 @@ using namespace std;
 #include "jni.h"
 #include "LA.h"
 
-#if HAVE_LOGSERVICE
 #include "DietLogComponent.hh"
-#endif
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
 
-#if HAVE_LOGSERVICE
-/** The DietLogComponent */
+/** The DietLogComponent for use with LogService */
 DietLogComponent* dietLogComponent;
-#endif
 
 /** The Agent object. */
 AgentImpl* Agt;
@@ -144,7 +138,6 @@ Java_LA_startDIETLA(JNIEnv *env,
     ERROR("ORB initialization failed",1);
   }
 
-#if HAVE_LOGSERVICE
   /* Create the DietLogComponent */
   bool useLS;
   size_t* ULSptr;
@@ -213,9 +206,8 @@ Java_LA_startDIETLA(JNIEnv *env,
     TRACE_TEXT(TRACE_MAIN_STEPS, "LogService disabled\n");
     dietLogComponent = NULL;
   }
-#endif  // HAVE_LOGSERVICE
 
-   /* Create the Data Location Manager */
+  /* Create the Data Location Manager */
   Loc = new LocMgrImpl();
 
   /* Create, activate, and launch the agent */
@@ -223,16 +215,12 @@ Java_LA_startDIETLA(JNIEnv *env,
   if (agtType == Parsers::Results::DIET_LOCAL_AGENT) {
     Agt = new LocalAgentImpl();
     ORBMgr::activate((LocalAgentImpl*)Agt);
-#if HAVE_LOGSERVICE
-    Agt->setDietLogComponent(dietLogComponent);
-#endif
+    Agt->setDietLogComponent(dietLogComponent); /* LogService */
     res = ((LocalAgentImpl*)Agt)->run();
   } else {
     Agt = new MasterAgentImpl();
     ORBMgr::activate((MasterAgentImpl*)Agt);
-#if HAVE_LOGSERVICE
-    Agt->setDietLogComponent(dietLogComponent);
-#endif
+    Agt->setDietLogComponent(dietLogComponent); /* LogService */
     res = ((MasterAgentImpl*)Agt)->run();
   }
 

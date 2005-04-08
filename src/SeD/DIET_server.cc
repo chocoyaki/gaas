@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.33  2005/04/08 13:02:43  hdail
+ * The code for LogCentral has proven itself stable and it seems bug free.
+ * Since no external libraries are required to compile in LogCentral, its now
+ * going to be compiled in by default always ... its usage is easily controlled by
+ * configuration file.
+ *
  * Revision 1.32  2004/12/22 06:49:25  alsu
  * rewriting the diet_service_table_lookup_by_profile to convert the
  * incoming diet_profile_t* parameter to a diet_profile_desc_t to do the
@@ -54,64 +60,7 @@
  * Revision 1.27  2004/07/05 14:56:13  rbolze
  * correct bug on 64 bit plat-form, when parsing cfg file :
  * remplace size_t by unsigned int for config options
- *
- * Revision 1.26  2004/05/28 10:53:21  mcolin
- * change the endpoint option names for agents and servers
- *  endPointPort -> dietPort
- *  endPointHostname -> dietHostname
- *
- * Revision 1.25  2004/05/24 20:54:41  alsu
- * replacing diet_service_table_set_perfmetric with shorter, less
- * confusing function name diet_service_use_perfmetric
- *
- * Revision 1.24  2004/05/18 21:32:26  alsu
- * - implement the diet_service_table_set_perfmetric function to allow
- *   SeDs to set up custom performance metric functions
- * - call the new ServiceTable::addService method with the current
- *   performance metric function
- *
- * Revision 1.23  2004/04/16 19:04:40  mcolin
- * Fix patch for the vthd demo with the endPoint option in config files.
- * This option is now replaced by two options:
- *   endPointPort: precise the listening port of the agent/server
- *   endPointHostname: precise the listening interface of the agent/server
- *
- * Revision 1.22  2004/03/03 16:10:53  mcolin
- * correct a bug in the construction of the corba option for the endPoint :
- * %u replaced by %s
- *
- * Revision 1.21  2004/03/01 18:43:08  rbolze
- * add logservice
- *
- * Revision 1.20  2004/03/01 16:34:26  mcolin
- * enable the possibility of declaring an endpoint with an hostname
- * for the DIET agents and the SeD (for VTHD demo). To be fixed later
- *
- * Revision 1.19  2003/10/03 12:41:26  mcolin
- * Fix memory management in the list of arguments
- *
- * Revision 1.18  2003/09/22 21:07:21  pcombes
- * Set all the modules and their interfaces for data persistency.
- *
- * Revision 1.16  2003/08/09 17:28:25  pcombes
- * Make diet_profile_desc_alloc and diet_profile_alloc homogenous.
- *
- * Revision 1.15  2003/07/25 20:22:48  pcombes
- * Add macros BEGIN_API and END_API to refine what is to be put in extern "C".
- *
- * Revision 1.14  2003/07/04 09:47:57  pcombes
- * Use new ERROR, WARNING and TRACE macros.
- *
- * Revision 1.13  2003/06/23 13:35:06  pcombes
- * useAsyncAPI should be replaced by a "useBiDir" option. Remove it so far.
- *
- * Revision 1.12  2003/06/02 09:26:10  cpera
- * Beta version of asynchronize DIET API.
- *
- * Revision 1.11  2003/05/10 08:54:41  pcombes
- * New format for configuration files, new Parsers.
  ****************************************************************************/
-
 
 #include <iostream>
 using namespace std;
@@ -120,7 +69,6 @@ using namespace std;
 
 #include "DIET_server.h"
 
-//#include "common_types.hh"
 #include "debug.hh"
 #include "DataMgrImpl.hh"
 #include "marshalling.hh"
@@ -129,14 +77,13 @@ using namespace std;
 #include "SeDImpl.hh"
 #include "Vector.h"
 #include "FASTMgr.hh"
-
-#if HAVE_LOGSERVICE
 #include "DietLogComponent.hh"
 #include "MonitoringThread.hh"
-#endif
 
 #define BEGIN_API extern "C" {
 #define END_API   } // extern "C"
+
+#define HOSTNAME_BUFLEN 256
 
 extern unsigned int TRACE_LEVEL;
 
@@ -437,13 +384,10 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   char** myargv;
   char*  userDefName;
   char*  name;
-#if HAVE_LOGSERVICE
-  DietLogComponent* dietLogComponent;
+  DietLogComponent* dietLogComponent;     /* LogService */
   MonitoringThread* monitoringThread;
-#endif
 
- /* Set arguments for ORBMgr::init */
-
+  /* Set arguments for ORBMgr::init */
   myargc = argc;
   myargv = (char**)malloc(argc * sizeof(char*));
   for (int i = 0; i < argc; i++)
@@ -451,11 +395,11 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
 
 
   /* Parsing */
-
   Parsers::Results::param_type_t compParam[] = {Parsers::Results::PARENTNAME};
 
-  if ((res = Parsers::beginParsing(config_file_name)))
+  if ((res = Parsers::beginParsing(config_file_name))) {
     return res;
+  }
   if ((res =
        Parsers::parseCfgFile(true, 1,
 			     (Parsers::Results::param_type_t*)compParam))) {
@@ -517,9 +461,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
     ERROR("ORB initialization failed", 1);
   }
 
-#if HAVE_LOGSERVICE
-  /* DietLogComponent creation*/
-
+  /* DietLogComponent creation for LogService usage */
   bool useLS;
     // size_t --> unsigned int
   unsigned int* ULSptr;
@@ -590,17 +532,13 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   // Just start the thread, as it might not be FAST-related
   monitoringThread = new MonitoringThread(dietLogComponent);
 
-#endif  // HAVE_LOGSERVICE
-
-
   /* SeD creation */
   SeD = new SeDImpl();
   dataMgr = new DataMgrImpl();
 
-#if HAVE_LOGSERVICE
+  /* Hand LogService object to other components */
   SeD->setDietLogComponent(dietLogComponent);
   dataMgr->setDietLogComponent(dietLogComponent);
-#endif
 
   /* Activate SeD */
   ORBMgr::activate(SeD);
@@ -626,7 +564,6 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   return 0;
 }
 
-#define HOSTNAME_BUFLEN 256
 int
 diet_estimate_fast(estVector_t ev,
                    const diet_profile_t* const profilePtr)

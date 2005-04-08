@@ -10,6 +10,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2005/04/08 13:02:43  hdail
+ * The code for LogCentral has proven itself stable and it seems bug free.
+ * Since no external libraries are required to compile in LogCentral, its now
+ * going to be compiled in by default always ... its usage is easily controlled by
+ * configuration file.
+ *
  * Revision 1.27  2004/12/14 16:17:51  alsu
  * in maintainer mode without FAST, we need to avoid compiling the
  * __addCommTime static function so that the -Werror gcc option doesn't
@@ -92,10 +98,7 @@ AgentImpl::AgentImpl()
   this->locMgr               = NULL;
   this->myName               = NULL;
   this->localHostName        = NULL; 
-
-#ifdef HAVE_LOGSERVICE
-  dietLogComponent = NULL;
-#endif
+  this->dietLogComponent     = NULL;
 } // AgentImpl()
 
 AgentImpl::~AgentImpl()
@@ -171,12 +174,10 @@ AgentImpl::linkToLocMgr(LocMgrImpl* locMgr)
   return 0;
 }
 
-#if HAVE_LOGSERVICE
 void
 AgentImpl::setDietLogComponent(DietLogComponent* dietLogComponent) {
   this->dietLogComponent = dietLogComponent;
 }
-#endif
 
 
 /****************************************************************************/
@@ -251,17 +252,14 @@ AgentImpl::addServices(CORBA::ULong myID,
   int result;
   AGT_TRACE_FUNCTION(myID <<", " << services.length() << " services");
 
-#if HAVE_LOGSERVICE
-  // Commented out because we don't currently need to track services in 
-  // agents via LogService.
-#if 0
+/* Commented to reduce overhead of un-needed log messages.  Enable if you
+ * want to track service information at the agent-level.
   for (CORBA::ULong i=0; i<services.length(); i++) {
     if (dietLogComponent != NULL) {
       dietLogComponent->logAddService(&(services[i]));
     }
   }
-#endif
-#endif
+*/
 
   this->srvTMutex.lock();
   for (size_t i = 0; i < services.length(); i++) {

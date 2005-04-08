@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.43  2005/04/08 13:02:43  hdail
+ * The code for LogCentral has proven itself stable and it seems bug free.
+ * Since no external libraries are required to compile in LogCentral, its now
+ * going to be compiled in by default always ... its usage is easily controlled by
+ * configuration file.
+ *
  * Revision 1.42  2005/03/30 07:41:09  rbolze
  * No more ASK_FOR_SED and SED_CHOSEN message in SeDs
  *
@@ -50,63 +56,6 @@
  * Revision 1.35.2.6  2004/11/06 16:22:55  alsu
  * estimation vector access functions now have parameter-based default
  * return values
- *
- * Revision 1.35.2.5  2004/11/02 00:35:26  alsu
- * - removing old hard-coded implementation of RR scheduling (replaced by
- *   plugin version in Schedulers.cc)
- * - code modifications to use dynamic performance estimation vector
- *   instead of the old hard-coded estimation fields
- *
- * Revision 1.35.2.4  2004/10/31 22:08:33  alsu
- * minor cleanup
- *
- * Revision 1.35.2.3  2004/10/27 22:35:50  alsu
- * include
- *
- * Revision 1.35.2.2  2004/10/26 19:44:04  alsu
- * minor changes, confirmed successful calculation of
- * "timeSinceLastSolve" value
- *
- * Revision 1.35.2.1  2004/10/26 14:12:52  alsu
- * (Tag: AS-plugin-sched)
- *  - branch created to avoid conflicting with release 1.2 (imminent)
- *  - initial commit on branch, new dynamic performance info structure in
- *    the profile
- *
- * Revision 1.35  2004/10/15 08:19:13  hdail
- * Removed references to corba_response_t->sortedIndexes - no longer useful.
- *
- * Revision 1.34  2004/10/06 15:56:13  bdelfabr
- * bug persistent data fixed (hope so one more time)
- *
- * Revision 1.33  2004/10/06 11:59:04  bdelfabr
- * corrected inout bug (I hope so)
- *
- * Revision 1.32  2004/10/05 08:23:09  bdelfabr
- * fixing bug for persistent file : add a changePath method thta gives the good file access path
- *
- * Revision 1.31  2004/10/04 13:52:32  hdail
- * Added ability to restrict number of concurrent jobs running in the SeD.
- *
- * Revision 1.30  2004/07/29 18:52:11  rbolze
- * Change solve function now , DIET_client send the reqID of the request when
- * he call the solve function.
- * Nothing is change for DIET's API
- *
- * Revision 1.29  2004/07/08 12:27:39  alsu
- * approximating a round-robin scheduler by default
- *
- * Revision 1.28  2004/07/05 14:56:13  rbolze
- * correct bug on 64 bit plat-form, when parsing cfg file :
- * remplace size_t by unsigned int for config options
- *
- * Revision 1.27  2004/06/11 15:45:39  ctedesch
- * add DIET/JXTA
- *
- * Revision 1.26  2004/06/09 15:10:38  mcolin
- * add stat_flush in statistics API in order to flush write access to
- * statistic file for agent and sed which never end and can't call
- * stat_finalize
  ****************************************************************************/
 
 
@@ -144,8 +93,6 @@ extern unsigned int TRACE_LEVEL;
   TRACE_FUNCTION(TRACE_ALL_STEPS,formatted_text)
 
 
-
-
 SeDImpl::SeDImpl()
 {
 this->SrvT    = NULL;
@@ -156,9 +103,7 @@ this->SrvT    = NULL;
 #if HAVE_FAST
   this->fastUse = 1;
 #endif // HAVE_FAST
-#if HAVE_LOGSERVICE
   this->dietLogComponent = NULL;
-#endif
 }
 
 #if HAVE_JXTA
@@ -173,9 +118,7 @@ SeDImpl::SeDImpl(const char* uuid = '\0')
 #if HAVE_FAST
   this->fastUse = 1;
 #endif // HAVE_FAST
-#if HAVE_LOGSERVICE
   this->dietLogComponent = NULL;
-#endif
 }
 #endif //HAVE_JXTA
 
@@ -211,13 +154,11 @@ SeDImpl::run(ServiceTable* services)
   
   profiles = SrvT->getProfiles();
 
-#if HAVE_LOGSERVICE
   if (dietLogComponent != NULL) {
     for (CORBA::ULong i=0; i<profiles->length(); i++) {
       dietLogComponent->logAddService(&((*profiles)[i]));
     }
   }
-#endif
 
   if (TRACE_LEVEL >= TRACE_STRUCTURES)
     SrvT->dump(stdout);
@@ -285,13 +226,10 @@ SeDImpl::linkToDataMgr(DataMgrImpl* dataMgr)
   return 0;
 }
 
-#if HAVE_LOGSERVICE
 void
 SeDImpl::setDietLogComponent(DietLogComponent* dietLogComponent) {
   this->dietLogComponent = dietLogComponent;
 }
-#endif
-
 
 void
 SeDImpl::getRequest(const corba_request_t& creq)
@@ -303,11 +241,12 @@ SeDImpl::getRequest(const corba_request_t& creq)
              << "Got request " << creq.reqID << endl << endl);
   resp.reqID = creq.reqID;
   resp.myID  = childID;
-//#if HAVE_LOGSERVICE
-//  if (dietLogComponent != NULL) {
-//    dietLogComponent->logAskForSeD(&creq);
-//  }
-//#endif
+
+/** Commented to cut overhead of un-needed log messages
+   if (dietLogComponent != NULL) {
+      dietLogComponent->logAskForSeD(&creq);
+    }
+*/
 
   ServiceTable::ServiceReference_t serviceRef;
   serviceRef = SrvT->lookupService(&(creq.pb));
@@ -324,9 +263,11 @@ SeDImpl::getRequest(const corba_request_t& creq)
 #endif //HAVE_JXTA
     resp.servers[0].loc.port     = this->port;
 
-//     resp.servers[0].estim.commTimes.length(creq.pb.last_out + 1);
-//     for (int i = 0; i <= creq.pb.last_out; i++)
-//       resp.servers[0].estim.commTimes[i] = 0;
+/** Commented because we don't have appropriate comm time estimation method
+    resp.servers[0].estim.commTimes.length(creq.pb.last_out + 1);
+    for (int i = 0; i <= creq.pb.last_out; i++)
+      resp.servers[0].estim.commTimes[i] = 0;
+*/
     estVector_t ev = new_estVector();
     for (int ctIter = 0 ; ctIter < creq.pb.last_out ; ctIter++) {
       estVector_addEstimation(ev, EST_COMMTIME, 0.0);
@@ -338,15 +279,15 @@ SeDImpl::getRequest(const corba_request_t& creq)
   }
 
   // Just for debugging
-  if (TRACE_LEVEL >= TRACE_STRUCTURES)
+  if (TRACE_LEVEL >= TRACE_STRUCTURES) {
     displayResponse(stdout, &resp);
+  }
 
-//#if HAVE_LOGSERVICE
-//  if (dietLogComponent != NULL) {
-//    dietLogComponent->logSedChosen(&creq,&resp);
-//  }
-//#endif
-
+/** Commented to cut overhead of un-needed log messages
+  if (dietLogComponent != NULL) {
+    dietLogComponent->logSedChosen(&creq,&resp);
+  }
+*/
   parent->getResponse(resp);
 }
 
@@ -426,11 +367,9 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
   sprintf(statMsg, "solve %ld", (unsigned long) reqID);
   stat_in("SeD",statMsg);
 
-#if HAVE_LOGSERVICE
   if (dietLogComponent != NULL) {
     dietLogComponent->logBeginSolve(path, &pb,reqID);
   }
-#endif
 
   TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::solve invoked on pb: " << path << endl);
 
@@ -505,11 +444,9 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
   stat_out("SeD",statMsg);
   stat_flush();
 
-#if HAVE_LOGSERVICE
   if (dietLogComponent != NULL) {
     dietLogComponent->logEndSolve(path, &pb,reqID);
   }
-#endif
 
 #if HAVE_QUEUES
   if (this->useConcJobLimit){
@@ -525,16 +462,9 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
                     CORBA::Long reqID, const char* volatileclientREF)
 {
   // TODO: enable RRSolve & Queue handling here to match solveSync
-#if HAVE_LOGSERVICE
   if (dietLogComponent != NULL) {
     dietLogComponent->logBeginSolve(path, &pb,reqID);
   }
-#endif
-
-#if DEVELOPPING_DATA_PERSISTENCY
- 
-
-#endif // DEVELOPPING_DATA_PERSISTENCY
 
   // test validity of volatileclientREF
   // If nil, it is not necessary to solve ...
@@ -641,11 +571,9 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
       stat_out("SeD","solveAsync");
       stat_flush();
 
-#if HAVE_LOGSERVICE
-  if (dietLogComponent != NULL) {
-    dietLogComponent->logEndSolve(path, &pb,reqID);
-  }
-#endif
+      if (dietLogComponent != NULL) {
+        dietLogComponent->logEndSolve(path, &pb,reqID);
+      }
      
       // send result data to client.
       TRACE_TEXT(TRACE_ALL_STEPS, "SeD::" << __FUNCTION__
