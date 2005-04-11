@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.12  2005/04/11 20:21:27  ycaniou
+#* Allow the compilation of a elagi Batch enabled SeD
+#*
 #* Revision 1.11  2004/12/08 15:02:51  alsu
 #* plugin scheduler first-pass validation testing complete.  merging into
 #* main CVS trunk; ready for more rigorous testing.
@@ -47,6 +50,10 @@
 #* add files used by autoconf/automake/libtool.
 #****************************************************************************#
 
+if USE_BATCH
+   include $(ELAGI_DIR)/include/elagi/elagi.make
+endif
+
 include $(top_srcdir)/config.mk.in
 
 lib_LTLIBRARIES = libDIET_SeD.la
@@ -58,7 +65,7 @@ endif
 
 libDIET_SeD_la_SOURCES = DIET_server.cc SeDImpl.cc DataMgrImpl.cc
 
-noinst_HEADERS = SeDImpl.hh DataMgrImpl.hh dmat_jxta_progs.h
+noinst_HEADERS = SeDImpl.hh DataMgrImpl.hh dmat_jxta_progs.h 
 
 utilsdir = $(top_builddir)/src/utils
 corbadir = $(top_builddir)/src/CORBA
@@ -67,8 +74,9 @@ libDIET_SeD_la_LIBADD = \
 	$(utilsdir)/libUtilsCommon.la $(utilsdir)/libUtilsSeDClt.la	\
 	$(utilsdir)/libUtilsNodes.la $(utilsdir)/libUtilsVector.la	\
 	$(corbadir)/libCorbaCommon.la $(corbadir)/idl/libIDLCommon.la	\
-	$(corbadir)/idl/libIDLAgent.la $(LIBS_OMNIORB) $(LIBS_FAST)
-
+	$(corbadir)/idl/libIDLAgent.la $(LIBS_OMNIORB) $(LIBS_FAST) \
+	$(ELAGI_LIBS)
+	
 AM_CXXFLAGS = $(CXXFLAGS_OMNIORB) $(CXXFLAGS_FAST) -I$(top_srcdir)/src/utils \
 	      -I$(top_srcdir)/src/CORBA -I$(corbadir)/idl 		     \
 	      -I$(top_srcdir)/src/agent
