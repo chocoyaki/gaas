@@ -8,6 +8,11 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.41  2005/04/11 20:17:53  ycaniou
+#* Correct the last commit :
+#* - withdraw some conflicting lines
+#* - add a USE_BATCH variable to allow the compilation if batch mode asked.. or not.
+#*
 #* Revision 1.40  2005/04/11 18:39:12  ycaniou
 #* Include modifications to compile batch submission sections if elagi
 #*  is installed, as well as an example.
@@ -284,8 +289,8 @@ AC_ARG_WITH(Elagi,
 	HAVE_BATCH="yes"
 	HAVE_Batch="yes"
 	IDLFLAGS="$IDLFLAGS -DHAVE_BATCH"
-
 fi
+AM_CONDITIONAL(USE_BATCH, [test $HAVE_BATCH = yes])
 
 dnl ###########################################################################
 # Search for the FAST Library
@@ -440,7 +445,6 @@ dnl ###########################################################################
 echo "" | tee -a config.log
 echo "DIET successfully configured as follows:" | tee -a config.log
 
-<<<<<<< configure.ac
 # Batch
 printf " - Batch:           " | tee -a config.log
 if test "x$enable_Batch" = "xyes"
@@ -450,14 +454,6 @@ else
   echo "no" | tee -a config.log
 fi
 
-# CICHLID
-if test "x$enable_Cichlid" = "xyes"
-then
-  echo " - Cichlid log:     yes" | tee -a config.log
-fi
-
-=======
->>>>>>> 1.39
 # DOCUMENTS
 if test "x$enable_doc" = "xyes"
 then
