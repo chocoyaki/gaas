@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.10  2005/04/11 20:23:08  ycaniou
+#* Add the example subdirectory Batch in DIST_SUBDIRS.
+#*
 #* Revision 1.9  2004/07/07 18:18:23  rbolze
 #* add JXTA to distrib files
 #*
@@ -45,8 +48,8 @@ SUBDIRS += JXTA
 endif
 
 # DIST_SUBDIRS is forced to all examples, so that it is still possible to build
-# a (user) dsitribution in user mode.
-DIST_SUBDIRS = BLAS dmat_manips file_transfer ScaLAPACK scalars JXTA
+# a (user) distribution in user mode.
+DIST_SUBDIRS = Batch BLAS dmat_manips file_transfer ScaLAPACK scalars JXTA
 
 .PHONY:	$(DIST_SUBDIRS)
 
