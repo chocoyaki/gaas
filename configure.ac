@@ -8,6 +8,10 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.40  2005/04/11 18:39:12  ycaniou
+#* Include modifications to compile batch submission sections if elagi
+#*  is installed, as well as an example.
+#*
 #* Revision 1.39  2005/04/08 13:02:42  hdail
 #* The code for LogCentral has proven itself stable and it seems bug free.
 #* Since no external libraries are required to compile in LogCentral, its now
@@ -152,12 +156,15 @@ ACI_MODULE([DIET],,[omniORB FAST],[src doc],force)
     ACI_MODULE([SeD],[the DIET Server Daemon],,,force)
 # The examples are forced for maintainers, disabled by default for users.
     ACI_MODULE([examples],[basic DIET examples],
-	       [SeD client],[BLAS ScaLAPACK],maintainer-force)
-      ACI_MODULE([BLAS],[an example for calling BLAS functions through DIET],
-	         [examples BLAS],,no)
-      ACI_MODULE([ScaLAPACK],
-	         [an example for calling ScaLAPACK functions through DIET],
-	         [examples ScaLAPACK],,no)
+	       [SeD client],[Batch BLAS ScaLAPACK],maintainer-force)
+    ACI_MODULE([Batch],
+		[an example for calling functions through a batch scheduler via DIET],
+		[examples Batch],,no)
+    ACI_MODULE([BLAS],[an example for calling BLAS functions through DIET],
+		[examples BLAS],,no)
+    ACI_MODULE([ScaLAPACK],
+		[an example for calling ScaLAPACK functions through DIET],
+		[examples ScaLAPACK],,no)
 
 
 dnl ###########################################################################
@@ -197,6 +204,11 @@ fi
 AM_CONDITIONAL(JXTA_MODE, [test $USE_JXTA_MODE = yes])
 JXTA=$JXTA_MODE_TRUE
 
+AH_TEMPLATE(HAVE_BATCH, [Define the use of the SeD Batch Submission.])
+AC_ARG_ENABLE(Batch,
+	AC_HELP_STRING([--enable-Batch],
+			[enable submission of batch jobs]),
+	[enable_batch=yes],[enable_batch=no])
 
 dnl ###########################################################################
 dnl Load anything under acmacros/*.m4
@@ -249,8 +261,31 @@ AC_OMNIORB_DIET(omniORB_min_version,,,,
 if test "x$HAVE_OMNIORB" != "xyes"; then
   AC_MSG_ERROR([could not detect omniORB omniORB_min_version or higher])
 fi
+# In order omniORB to pass ACI_MODULES_VERIFY(DIET) which does not look
+# for uppercase variable
+HAVE_omniORB="yes"
 
 # AC_TAO ???
+
+dnl ###########################################################################
+dnl ####[ search for the elagi Library ]
+dnl ###########################################################################
+if test "x$enable_batch" = "xyes"; then
+
+AC_ARG_WITH(Elagi,
+	[  --with-Elagi=DIR        location of elagi installation directory ],
+	[ELAGI_DIR=${withval}
+	ELAGI_INCLUDE_DIR="${C_INC}${withval}/include/elagi"],
+        [echo "The Elagi installation dir is required: ./configure --enable-batch --with-Elagi=<dir>"
+        exit 1])
+
+	AC_SUBST(ELAGI_DIR)
+
+	HAVE_BATCH="yes"
+	HAVE_Batch="yes"
+	IDLFLAGS="$IDLFLAGS -DHAVE_BATCH"
+
+fi
 
 dnl ###########################################################################
 # Search for the FAST Library
@@ -375,6 +410,7 @@ AC_CONFIG_FILES([config.mk
 		 src/client/Makefile
 		 src/examples/Makefile
 		 src/examples/before.mk
+		 src/examples/Batch/Makefile
 		 src/examples/BLAS/Makefile
 		 src/examples/dmat_manips/Makefile
 		 src/examples/file_transfer/Makefile
@@ -404,6 +440,24 @@ dnl ###########################################################################
 echo "" | tee -a config.log
 echo "DIET successfully configured as follows:" | tee -a config.log
 
+<<<<<<< configure.ac
+# Batch
+printf " - Batch:           " | tee -a config.log
+if test "x$enable_Batch" = "xyes"
+then
+  echo "yes" | tee -a config.log
+else
+  echo "no" | tee -a config.log
+fi
+
+# CICHLID
+if test "x$enable_Cichlid" = "xyes"
+then
+  echo " - Cichlid log:     yes" | tee -a config.log
+fi
+
+=======
+>>>>>>> 1.39
 # DOCUMENTS
 if test "x$enable_doc" = "xyes"
 then
@@ -417,6 +471,10 @@ then
   echo none | tee -a config.log
 else
   printf "dmat_manips, file_transfer" | tee -a config.log
+  if test "x$enable_batch" = "xyes"
+  then
+    printf ", Batch" | tee -a config.log
+  fi
   if test "x$HAVE_BLAS" = "xyes"
   then
     printf ", BLAS" | tee -a config.log
