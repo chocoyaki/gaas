@@ -10,6 +10,22 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2005/04/13 08:49:11  hdail
+ * Beginning of adoption of new persistency model: DTM is enabled by default and
+ * JuxMem will be supported via configure flags.  DIET will always provide at
+ * least one type of persistency.  As a first step, persistency across DTM and
+ * JuxMem is not supported so all persistency handling should be surrounded by
+ *     #if HAVE_JUXMEM
+ *         // JuxMem code
+ *     #else
+ *         // DTM code
+ *     #endif
+ * This check-in prepares for the JuxMem check-in by cleaning up old
+ * DEVELOPPING_DATA_PERSISTENCY flags and surrounding DTM code with
+ * #if ! HAVE_JUXMEM / #endif flags to be replaced by above format by Mathieu's
+ * check-in.  Currently the HAVE_JUXMEM flag is set in AgentImpl.hh - to be
+ * replaced by Mathieu's check-in of a configure system for JuxMem.
+ *
  * Revision 1.11  2005/04/08 13:02:43  hdail
  * The code for LogCentral has proven itself stable and it seems bug free.
  * Since no external libraries are required to compile in LogCentral, its now
@@ -48,6 +64,8 @@
 #include "ts_container/ts_vector.hh"
 #include "ts_container/ts_map.hh"
 #include "DietLogComponent.hh"
+
+#define HAVE_JUXMEM 0
 
 class AgentImpl : public POA_Agent,
 		  public PortableServer::RefCountServantBase

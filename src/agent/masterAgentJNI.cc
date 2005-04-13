@@ -17,14 +17,16 @@ using namespace std;
 
 #include "debug.hh"
 #include "MasterAgentImpl.hh"
-#include "LocMgrImpl.hh"
 #include "ORBMgr.hh"
 #include "Parsers.hh"
+#include "DietLogComponent.hh"
 
 #include "jni.h"
 #include "JXTAMultiMA.h"
 
-#include "DietLogComponent.hh"
+#if ! HAVE_JUXMEM
+#include "LocMgrImpl.hh"    // DTM header file
+#endif // ! HAVE_JUXMEM
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
@@ -35,8 +37,10 @@ DietLogComponent* dietLogComponent;
 /** The Master Agent object */
 MasterAgentImpl* MasterAgt;
 
-/** The Data Location Manager Object  */
+#if ! HAVE_JUXMEM
+/** The Data Location Manager Object for DTM */
 LocMgrImpl *Loc;
+#endif // ! HAVE_JUXMEM
 
 void RPCsWait (void* args);
 
@@ -213,11 +217,12 @@ Java_JXTAMultiMA_startDIETAgent(JNIEnv *env,
     dietLogComponent = NULL;
   }
 
-  /* Create the Data Location Manager */
+#if ! HAVE_JUXMEM
+  /* Create the Data Location Manager for DTM */
   Loc = new LocMgrImpl();
+#endif // ! HAVE_JUXMEM
 
   /* Create and activate the Master Agent */
-  
   MasterAgt = new MasterAgentImpl();
   ORBMgr::activate(MasterAgt);
 
@@ -231,12 +236,14 @@ Java_JXTAMultiMA_startDIETAgent(JNIEnv *env,
   /* Initialize the ExitClass static object */
   ExitClass::init(MasterAgt);
 
-  /* Launch the LocMgr */
+#if ! HAVE_JUXMEM
+  /* Launch the LocMgr for DTM */
   ORBMgr::activate(Loc);
   if (Loc->run()) {
     ERROR("unable to launch the LocMgr", 1);
   }
   MasterAgt->linkToLocMgr(Loc);
+#endif // ! HAVE_JUXMEM
 
   /* Wait for RPCs (blocking call): */
   omni_thread *RPCsWaitThread = omni_thread::create(RPCsWait, (void *)0, omni_thread::PRIORITY_NORMAL);

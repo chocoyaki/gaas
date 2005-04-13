@@ -17,7 +17,6 @@ using namespace std;
 
 #include "debug.hh"
 #include "LocalAgentImpl.hh"
-#include "LocMgrImpl.hh"
 #include "MasterAgentImpl.hh"
 #include "ORBMgr.hh"
 #include "Parsers.hh"
@@ -26,6 +25,10 @@ using namespace std;
 #include "LA.h"
 
 #include "DietLogComponent.hh"
+
+#if ! HAVE_JUXMEM
+#include "LocMgrImpl.hh"
+#endif // ! HAVE_JUXMEM
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
@@ -36,8 +39,10 @@ DietLogComponent* dietLogComponent;
 /** The Agent object. */
 AgentImpl* Agt;
 
+#if ! HAVE_JUXMEM
 /** The Data Location Manager Object  */
 LocMgrImpl *Loc;
+#endif // ! HAVE_JUXMEM
 
 JNIEXPORT jint JNICALL 
 Java_LA_startDIETLA(JNIEnv *env, 
@@ -207,8 +212,10 @@ Java_LA_startDIETLA(JNIEnv *env,
     dietLogComponent = NULL;
   }
 
+#if ! HAVE_JUXMEM
   /* Create the Data Location Manager */
   Loc = new LocMgrImpl();
+#endif // ! HAVE_JUXMEM
 
   /* Create, activate, and launch the agent */
 
@@ -233,12 +240,14 @@ Java_LA_startDIETLA(JNIEnv *env,
     ERROR("unable to launch the agent", 1);
   }
 
+#if ! HAVE_JUXMEM
   /* Launch the LocMgr */
   ORBMgr::activate(Loc);
   if (Loc->run()) {
     ERROR("unable to launch the LocMgr", 1);
   }
   Agt->linkToLocMgr(Loc);
+#endif // ! HAVE_JUXMEM
 
   /* Wait for RPCs (blocking call): */
   if (ORBMgr::wait()) {

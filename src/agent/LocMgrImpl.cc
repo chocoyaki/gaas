@@ -8,6 +8,22 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2005/04/13 08:49:11  hdail
+ * Beginning of adoption of new persistency model: DTM is enabled by default and
+ * JuxMem will be supported via configure flags.  DIET will always provide at
+ * least one type of persistency.  As a first step, persistency across DTM and
+ * JuxMem is not supported so all persistency handling should be surrounded by
+ *     #if HAVE_JUXMEM
+ *         // JuxMem code
+ *     #else
+ *         // DTM code
+ *     #endif
+ * This check-in prepares for the JuxMem check-in by cleaning up old
+ * DEVELOPPING_DATA_PERSISTENCY flags and surrounding DTM code with
+ * #if ! HAVE_JUXMEM / #endif flags to be replaced by above format by Mathieu's
+ * check-in.  Currently the HAVE_JUXMEM flag is set in AgentImpl.hh - to be
+ * replaced by Mathieu's check-in of a configure system for JuxMem.
+ *
  * Revision 1.11  2004/10/15 13:03:16  bdelfabr
  * set_data_arg method modified to manage non correct id
  *
@@ -50,8 +66,6 @@
 #include "Parsers.hh"
 #include "ts_container/ts_map.hh"
 
-
-#define DEVELOPPING_DATA_PERSISTENCY 1
 
 #define MAX_HOSTNAME_LENGTH 256
 
@@ -183,15 +197,12 @@ LocMgrImpl::dataMgrSubscribe(DataMgr_ptr me, const char* hostName)
 void
 LocMgrImpl::addDataRef(const corba_data_desc_t& arg, CORBA::ULong cChildID)
 {
-#if DEVELOPPING_DATA_PERSISTENCY 
   store_desc_child_t &data_to_store = dataLocList[strdup(arg.id.idNumber)];
   data_to_store.childID_owner = cChildID;
   data_to_store.id_handle_type = arg;
   if (!CORBA::is_nil(this->parent)) {
     parent->addDataRef(arg,this->childID);
   }
-
-#endif // DEVELOPPING_DATA_PERSISTENCY
 }
 
 /** initially invoked by the MA : client wants to destroy data */
@@ -228,12 +239,11 @@ LocMgrImpl::rm_pdata(const char* argID)
 void
 LocMgrImpl::rmDataRef(const char *argID, CORBA::ULong cChildID)
 {
-#if DEVELOPPING_DATA_PERSISTENCY
   dataLocList.erase(strdup(argID));
   printList1();
-  if (this->parent != LocMgr::_nil())
+  if (this->parent != LocMgr::_nil()) {
     parent->rmDataRef(argID,cChildID);
-#endif // DEVELOPPING_DATA_PERSISTENCY
+  }
 }
 
 /**
@@ -244,7 +254,6 @@ void
 LocMgrImpl::updateDataRef(const corba_data_desc_t& arg,
 			  CORBA::ULong cChildID, CORBA::Long upDown)
 {
-#if DEVELOPPING_DATA_PERSISTENCY
   if(upDown == 0){ // UP = replace old owner by new one
     if ( CORBA::is_nil(this->parent)) { // Root Loc Manager
    
@@ -327,7 +336,6 @@ LocMgrImpl::updateDataRef(const corba_data_desc_t& arg,
       }
     }
   } 
-#endif // DEVELOPPING_DATA_PERSISTENCY
 } //updateDataRef(const corba_data_desc_t& arg, CORBA::ULong cChildID, CORBA::Long upDown)
 
 
@@ -339,7 +347,6 @@ LocMgrImpl::updateDataRef(const corba_data_desc_t& arg,
 CORBA::ULong
 LocMgrImpl::dataLookUp(const char *argID)
 {
-#if DEVELOPPING_DATA_PERSISTENCY 
   dataLocList.lock();
   dataLocList.begin();
   if(dataLocList.find(strdup(argID)) != dataLocList.end()){
@@ -350,9 +357,6 @@ LocMgrImpl::dataLookUp(const char *argID)
     dataLocList.unlock();
     return 1;
   }
-#else
-  return 0;
-#endif // DEVELOPPING_DATA_PERSISTENCY
 } //dataLookUp(const char *argID)
 
 
@@ -423,14 +427,11 @@ LocMgrImpl::printList1()
 void
 LocMgrImpl::printList()
 {
- 
-#if DEVELOPPING_DATA_PERSISTENCY
-
   printList1();
- if (this->parent != LocMgr::_nil())
+  if (this->parent != LocMgr::_nil()) {
    this->parent->printList();
-#endif // DEVELOPPING_DATA_PERSISTENCY
-}// printList()
+  }
+} // printList()
 
 /**
  * returns the name of the DataManager that owns a data identified by argID,
@@ -439,7 +440,6 @@ LocMgrImpl::printList()
 char *
 LocMgrImpl::whichSeDOwner(const char* argID)
 {
-#if DEVELOPPING_DATA_PERSISTENCY
   if (this->parent == LocMgr::_nil()) {
     dataLocList.lock();
     dataLocList.begin();
@@ -503,11 +503,8 @@ LocMgrImpl::whichSeDOwner(const char* argID)
       return this->parent->whichSeDOwner(ms_strdup(argID));
     }
   }
-#else
-  return NULL;
-#endif // DEVELOPPING_DATA_PERSISTENCY
 
-}// whichSeDOwner(const char* argID)
+} // whichSeDOwner(const char* argID)
 
  
 /**
@@ -517,7 +514,6 @@ DataMgr_ptr
 LocMgrImpl::whereData(const char* argID)
 {
 
-#if DEVELOPPING_DATA_PERSISTENCY
   if (this->parent == LocMgr::_nil()) {
     dataLocList.lock();
     dataLocList.begin();
@@ -582,18 +578,14 @@ LocMgrImpl::whereData(const char* argID)
       return this->parent->whereData(ms_strdup(argID));
     }
   }
-#else
-  return DataMgr::_nil();
-#endif // DEVELOPPING_DATA_PERSISTENCY
 } // whereData(const char* argID)
 
 
 void
 LocMgrImpl::updateDataProp(const char *argID)
 {
-#if DEVELOPPING_DATA_PERSISTENCY  
-  if (this->parent == LocMgr::_nil())
+  if (this->parent == LocMgr::_nil()) {
     this->parent->updateDataProp(ms_strdup(argID));
-#endif
+  }
 }
 

@@ -10,6 +10,22 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2005/04/13 08:49:11  hdail
+ * Beginning of adoption of new persistency model: DTM is enabled by default and
+ * JuxMem will be supported via configure flags.  DIET will always provide at
+ * least one type of persistency.  As a first step, persistency across DTM and
+ * JuxMem is not supported so all persistency handling should be surrounded by
+ *     #if HAVE_JUXMEM
+ *         // JuxMem code
+ *     #else
+ *         // DTM code
+ *     #endif
+ * This check-in prepares for the JuxMem check-in by cleaning up old
+ * DEVELOPPING_DATA_PERSISTENCY flags and surrounding DTM code with
+ * #if ! HAVE_JUXMEM / #endif flags to be replaced by above format by Mathieu's
+ * check-in.  Currently the HAVE_JUXMEM flag is set in AgentImpl.hh - to be
+ * replaced by Mathieu's check-in of a configure system for JuxMem.
+ *
  * Revision 1.20  2005/04/08 13:02:43  hdail
  * The code for LogCentral has proven itself stable and it seems bug free.
  * Since no external libraries are required to compile in LogCentral, its now
@@ -54,11 +70,14 @@ using namespace std;
 
 #include "debug.hh"
 #include "LocalAgentImpl.hh"
-#include "LocMgrImpl.hh"
 #include "MasterAgentImpl.hh"
 #include "ORBMgr.hh"
 #include "Parsers.hh"
 #include "DietLogComponent.hh"
+
+#if ! HAVE_JUXMEM
+#include "LocMgrImpl.hh"    // DTM header file
+#endif // ! HAVE_JUXMEM
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
@@ -69,8 +88,10 @@ DietLogComponent* dietLogComponent;
 /** The Agent object. */
 AgentImpl* Agt;
 
-/** The Data Location Manager Object  */
+#if ! HAVE_JUXMEM
+/** The DTM Data Location Manager Object  */
 LocMgrImpl *Loc;
+#endif // ! HAVE_JUXMEM
 
 int
 main(int argc, char** argv)
@@ -251,8 +272,10 @@ main(int argc, char** argv)
     dietLogComponent = NULL;
   }
 
-  /* Create the Data Location Manager */
+#if ! HAVE_JUXMEM
+  /* Create the DTM Data Location Manager */
   Loc = new LocMgrImpl();
+#endif // ! HAVE_JUXMEM
 
   /* Create, activate, and launch the agent */
 
@@ -276,12 +299,14 @@ main(int argc, char** argv)
     ERROR("unable to launch the agent", 1);
   }
 
-  /* Launch the LocMgr */
+#if ! HAVE_JUXMEM
+  /* Launch the DTM LocMgr */
   ORBMgr::activate(Loc);
   if (Loc->run()) {
     ERROR("unable to launch the LocMgr", 1);
   }
   Agt->linkToLocMgr(Loc);
+#endif // ! HAVE_JUXMEM
 
   /* Wait for RPCs (blocking call): */
   if (ORBMgr::wait()) {
