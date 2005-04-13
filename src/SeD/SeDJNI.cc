@@ -16,13 +16,16 @@ using namespace std;
 
 #include "DIET_server.h"
 #include "debug.hh"
-#include "DataMgrImpl.hh"
 #include "marshalling.hh"
 #include "ORBMgr.hh"
 #include "Parsers.hh"
 #include "SeDImpl.hh"
 #include "DietLogComponent.hh"
 #include "MonitoringThread.hh"
+
+#if ! HAVE_JUXMEM
+#include "DataMgrImpl.hh"   // DTM header file
+#endif // ! HAVE_JUXMEM
 
 #include "dmat_jxta_progs.h"
 
@@ -41,8 +44,10 @@ char **argv;
 /** The DIET SeD object*/
 SeDImpl* SeD;
 
-/** The data Mgr object */
+#if ! HAVE_JUXMEM
+/** The data Mgr object for DTM */
 DataMgrImpl* dataMgr;
+#endif // ! HAVE_JUXMEM
 
 void SeDRPCsWait (void* par);
 long int strToLong (char*);
@@ -802,25 +807,28 @@ JNIEXPORT jint JNICALL
   // Just start the thread, as it might not be FAST-related
   monitoringThread = new MonitoringThread(dietLogComponent);
 
-
   /* Create the SeD */
   SeD = new SeDImpl(uuid);
-  dataMgr = new DataMgrImpl();
 
   /* Set up LogService */
   SeD->setDietLogComponent(dietLogComponent);
-  dataMgr->setDietLogComponent(dietLogComponent);
 
   /* Activate SeD */
   ORBMgr::activate(SeD);
   if (SeD->run(SRVT)) {
     ERROR("unable to launch the SeD", 1);
   }
+
+#if ! HAVE_JUXMEM
+  /* Set up Data Manager for DTM */
+  dataMgr = new DataMgrImpl();
+  dataMgr->setDietLogComponent(dietLogComponent);
   ORBMgr::activate(dataMgr);
   if (dataMgr->run()) {
     ERROR("unable to launch the DataManager", 1);
   }
   SeD->linkToDataMgr(dataMgr);
+#endif // ! HAVE_JUXMEM
 
   /* We do not need the parsing results any more */
   Parsers::endParsing();  

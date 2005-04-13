@@ -8,6 +8,22 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.34  2005/04/13 08:46:29  hdail
+ * Beginning of adoption of new persistency model: DTM is enabled by default and
+ * JuxMem will be supported via configure flags.  DIET will always provide at
+ * least one type of persistency.  As a first step, persistency across DTM and
+ * JuxMem is not supported so all persistency handling should be surrounded by
+ *     #if HAVE_JUXMEM
+ *       // JuxMem code
+ *     #else
+ *       // DTM code
+ *     #endif
+ * This check-in prepares for the JuxMem check-in by cleaning up old
+ * DEVELOPPING_DATA_PERSISTENCY flags and surrounding DTM code with
+ * #if ! HAVE_JUXMEM / #endif flags to be replaced by above format by Mathieu's
+ * check-in.  Currently the HAVE_JUXMEM flag is set in SeDImpl.hh - to be replaced
+ * by Mathieu's check-in of a configure system for JuxMem.
+ *
  * Revision 1.33  2005/04/08 13:02:43  hdail
  * The code for LogCentral has proven itself stable and it seems bug free.
  * Since no external libraries are required to compile in LogCentral, its now
@@ -70,7 +86,6 @@ using namespace std;
 #include "DIET_server.h"
 
 #include "debug.hh"
-#include "DataMgrImpl.hh"
 #include "marshalling.hh"
 #include "ORBMgr.hh"
 #include "Parsers.hh"
@@ -79,6 +94,10 @@ using namespace std;
 #include "FASTMgr.hh"
 #include "DietLogComponent.hh"
 #include "MonitoringThread.hh"
+
+#if ! HAVE_JUXMEM
+#include "DataMgrImpl.hh"
+#endif // ! HAVE_JUXMEM
 
 #define BEGIN_API extern "C" {
 #define END_API   } // extern "C"
@@ -378,7 +397,6 @@ int
 diet_SeD(char* config_file_name, int argc, char* argv[])
 {
   SeDImpl* SeD;
-  DataMgrImpl* dataMgr; 
   int    res(0);
   int    myargc;
   char** myargv;
@@ -386,6 +404,9 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   char*  name;
   DietLogComponent* dietLogComponent;     /* LogService */
   MonitoringThread* monitoringThread;
+#if ! HAVE_JUXMEM
+  DataMgrImpl* dataMgr; 
+#endif // ! HAVE_JUXMEM
 
   /* Set arguments for ORBMgr::init */
   myargc = argc;
@@ -534,22 +555,26 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
 
   /* SeD creation */
   SeD = new SeDImpl();
-  dataMgr = new DataMgrImpl();
 
-  /* Hand LogService object to other components */
+  /* Set SeD to use LogService object */
   SeD->setDietLogComponent(dietLogComponent);
-  dataMgr->setDietLogComponent(dietLogComponent);
 
   /* Activate SeD */
   ORBMgr::activate(SeD);
   if (SeD->run(SRVT)) {
     ERROR("unable to launch the SeD", 1);
   }
+
+#if ! HAVE_JUXMEM
+  /* Set-up and activate Data Manager for DTM usage */
+  dataMgr = new DataMgrImpl();
+  dataMgr->setDietLogComponent(dietLogComponent);
   ORBMgr::activate(dataMgr);
   if (dataMgr->run()) {
     ERROR("unable to launch the DataManager", 1);
   }
   SeD->linkToDataMgr(dataMgr);
+#endif // ! HAVE_JUXMEM
 
   /* We do not need the parsing results any more */
   Parsers::endParsing();

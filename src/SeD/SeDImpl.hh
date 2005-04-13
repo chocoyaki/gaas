@@ -9,6 +9,22 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2005/04/13 08:46:29  hdail
+ * Beginning of adoption of new persistency model: DTM is enabled by default and
+ * JuxMem will be supported via configure flags.  DIET will always provide at
+ * least one type of persistency.  As a first step, persistency across DTM and
+ * JuxMem is not supported so all persistency handling should be surrounded by
+ *     #if HAVE_JUXMEM
+ *       // JuxMem code
+ *     #else
+ *       // DTM code
+ *     #endif
+ * This check-in prepares for the JuxMem check-in by cleaning up old
+ * DEVELOPPING_DATA_PERSISTENCY flags and surrounding DTM code with
+ * #if ! HAVE_JUXMEM / #endif flags to be replaced by above format by Mathieu's
+ * check-in.  Currently the HAVE_JUXMEM flag is set in SeDImpl.hh - to be replaced
+ * by Mathieu's check-in of a configure system for JuxMem.
+ *
  * Revision 1.15  2005/04/08 13:02:43  hdail
  * The code for LogCentral has proven itself stable and it seems bug free.
  * Since no external libraries are required to compile in LogCentral, its now
@@ -49,24 +65,6 @@
  *
  * Revision 1.8  2004/03/01 18:43:23  rbolze
  * add logservice
- *
- * Revision 1.7  2003/12/01 14:49:30  pcombes
- * Rename dietTypes.hh to DIET_data_internal.hh, for more coherency.
- *
- * Revision 1.6  2003/09/22 21:17:54  pcombes
- * Set all the modules and their interfaces for data persistency.
- *
- * Revision 1.4  2003/06/23 13:35:06  pcombes
- * useAsyncAPI should be replaced by a "useBiDir" option. Remove it so far.
- *
- * Revision 1.3  2003/06/02 09:06:46  cpera
- * Beta version of asynchronize DIET API.
- *
- * Revision 1.2  2003/05/10 08:54:41  pcombes
- * New format for configuration files, new Parsers.
- *
- * Revision 1.1  2003/04/10 13:15:05  pcombes
- * Replace SeD_impl.hh. Add checkContract method.
  ****************************************************************************/
 
 
@@ -79,11 +77,16 @@
 #include "common_types.hh"
 #include "ChildID.hh"
 #include "Counter.hh"
-#include "DataMgrImpl.hh"
 #include "DIET_data_internal.hh"
 #include "response.hh"
 #include "ServiceTable.hh"
 #include "DietLogComponent.hh"
+
+#define HAVE_JUXMEM 0
+
+#if ! HAVE_JUXMEM
+#include "DataMgrImpl.hh"     // DTM header file
+#endif // ! HAVE_JUXMEM
 
 #define HAVE_QUEUES 1
 
@@ -109,10 +112,12 @@ public:
   
   int
   run(ServiceTable* services);
-  
-  /** Set this->dataMgr */
+ 
+#if ! HAVE_JUXMEM
+  /** Set this->dataMgr for DTM usage */
   int
   linkToDataMgr(DataMgrImpl* dataMgr);
+#endif // ! HAVE_JUXMEM
 
   /**
    * Set the DietLogComponent of this SeD. If this function is not
@@ -158,8 +163,10 @@ private:
   /* Service table */
   ServiceTable* SrvT;
 
+#if ! HAVE_JUXMEM
   /* Data Manager associated to this SeD */
   DataMgrImpl* dataMgr;
+#endif // ! HAVE_JUXMEM
 
   /* last queue timestamp */
   struct timeval lastSolveStart;

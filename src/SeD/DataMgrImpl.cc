@@ -8,6 +8,22 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2005/04/13 08:46:29  hdail
+ * Beginning of adoption of new persistency model: DTM is enabled by default and
+ * JuxMem will be supported via configure flags.  DIET will always provide at
+ * least one type of persistency.  As a first step, persistency across DTM and
+ * JuxMem is not supported so all persistency handling should be surrounded by
+ *     #if HAVE_JUXMEM
+ *       // JuxMem code
+ *     #else
+ *       // DTM code
+ *     #endif
+ * This check-in prepares for the JuxMem check-in by cleaning up old
+ * DEVELOPPING_DATA_PERSISTENCY flags and surrounding DTM code with
+ * #if ! HAVE_JUXMEM / #endif flags to be replaced by above format by Mathieu's
+ * check-in.  Currently the HAVE_JUXMEM flag is set in SeDImpl.hh - to be replaced
+ * by Mathieu's check-in of a configure system for JuxMem.
+ *
  * Revision 1.18  2005/04/08 13:02:43  hdail
  * The code for LogCentral has proven itself stable and it seems bug free.
  * Since no external libraries are required to compile in LogCentral, its now
@@ -43,29 +59,6 @@
  *
  * Revision 1.8  2003/11/10 14:03:11  bdelfabr
  * adding methods that allow tranfer time between servers to be computed
- *
- * Revision 1.7  2003/10/21 13:27:59  bdelfabr
- * set Persistence flag to 0
- *
- * Revision 1.6  2003/10/14 20:29:06  bdelfabr
- * adding print methods (PERSISTENT mode only)
- *
- * Revision 1.5  2003/10/02 17:08:00  bdelfabr
- * modifying memory management in case of in_out arg
- *
- * Revision 1.4  2003/10/01 07:40:51  cpera
- * Add false boolean return data of DataMgrImpl::dataLookup function
- * if DEVELOPPING_DATA_PERSISTENCY is set to 0.
- *
- * Revision 1.3  2003/09/30 15:08:09  bdelfabr
- * dlist are replaced by map.
- * Coding standards are applied
- *
- * Revision 1.2  2003/09/24 09:15:03  pcombes
- * DataMgr does not need a name: use its reference.
- *
- * Revision 1.1  2003/09/22 21:07:21  pcombes
- * Set all the modules and their interfaces for data persistency.
  ***************************************************************************/
 
 #include <stdlib.h>
@@ -79,9 +72,6 @@
 #include "ORBMgr.hh"
 #include "Parsers.hh"
 #include "ts_container/ts_map.hh"
-
-#define DEVELOPPING_DATA_PERSISTENCY 1
-
 
 /** Data Manager Constructor */
 DataMgrImpl::DataMgrImpl()
@@ -152,8 +142,6 @@ void
 DataMgrImpl::cpEltListToDataT(corba_data_t* cData)
 {
 
-#if DEVELOPPING_DATA_PERSISTENCY
-   
   corba_data_t &the_data = dataDescList[CORBA::string_dup(cData->desc.id.idNumber)] ;
   cData->desc = the_data.desc;
   long unsigned int size = (long unsigned int) data_sizeof(&(the_data.desc));
@@ -185,11 +173,7 @@ DataMgrImpl::cpEltListToDataT(corba_data_t* cData)
     }
     
      cData->value.replace(size,size,val,1);
-
   }
-  
-								     
-#endif // DEVELOPPING_DATA_PERSISTENCY
 } // cpEltListToDataT(corba_data_t* cData)
 
 
@@ -197,18 +181,13 @@ DataMgrImpl::cpEltListToDataT(corba_data_t* cData)
 void
 DataMgrImpl::addDataIDToLockList(char* id)
 {
-#if DEVELOPPING_DATA_PERSISTENCY
-
-#endif // DEVELOPPING_DATA_PERSISTENCY
 }
 
 /** to be used later */
 void
 DataMgrImpl::rmDataFromIDList(char* id)
 {
-#if DEVELOPPING_DATA_PERSISTENCY
   lockList.erase(strdup(id)) ;
-#endif // DEVELOPPING_DATA_PERSISTENCY
 }
 
 
@@ -227,9 +206,6 @@ DataMgrImpl::printvalue(double *value,long unsigned int size){
 void
 DataMgrImpl::addDataDescToList(corba_data_t* dataDesc, int inout) // FIXME : diet_grpc_arg_mode_t IN ...
 {
-#if DEVELOPPING_DATA_PERSISTENCY
-
- 
   char *path;
   corba_data_t &the_data = dataDescList[ms_strdup(dataDesc->desc.id.idNumber)] ;
  
@@ -301,8 +277,6 @@ DataMgrImpl::addDataDescToList(corba_data_t* dataDesc, int inout) // FIXME : die
     }
     dietLogComponent->logDataStore(dataDesc->desc.id.idNumber, data_sizeof(&(dataDesc->desc)),(long)(dataDesc->desc.base_type), type_data);
   }
-
-#endif // DEVELOPPING_DATA_PERSISTENCY
 }// addDataDescToList(corba_data_t* dataDesc, int inout)
 
 
@@ -318,11 +292,9 @@ DataMgrImpl::changePath(corba_data_t& dataDesc, char * newPath)
  * Remove data from map : call by Loc Manager after 
  * data was transferred from Data Manager to Data Manager. 
  */
-
 void
 DataMgrImpl::rmDataDescFromList(char* argID)
 {
-#if DEVELOPPING_DATA_PERSISTENCY
   if (dietLogComponent != NULL) {
     dietLogComponent->logDataRelease(argID);
   }
@@ -342,59 +314,52 @@ DataMgrImpl::rmDataDescFromList(char* argID)
 
   dataDescList.erase(ms_strdup(argID));
  
-#endif // DEVELOPPING_DATA_PERSISTENCY
 }// rmDataDescFromList(char* argID)
 
 /**
  * data is "pushed" by the owner. This method takes arg and add it into the map
  */
-
 void 
 DataMgrImpl::persistent_data_release(corba_data_t* arg){
 
   switch((diet_data_type_t)(arg->desc.specific._d())) {
- case DIET_VECTOR: {
-    corba_vector_specific_t vect;
-
-    arg->desc.specific.vect(vect);
-    arg->desc.specific.vect().size = 0;
-    break;
-  }
-  case DIET_MATRIX: {
-    corba_matrix_specific_t mat;
-
-     arg->desc.specific.mat(mat);
-     arg->desc.specific.mat().nb_r  = 0;
-     arg->desc.specific.mat().nb_c  = 0;
-  
-    break;
-  }
-  case DIET_STRING: {
-    corba_string_specific_t str;
-
-     arg->desc.specific.str(str);
-     arg->desc.specific.str().length = 0;
-    break;
-  }
-  case DIET_FILE: {
-    corba_file_specific_t file;
-     arg->desc.specific.file(file);
-       arg->desc.specific.file().path = CORBA::string_dup("");
-       arg->desc.specific.file().size = 0;
-    break;
-  }
-  default:
-    break;
+    case DIET_VECTOR: {
+      corba_vector_specific_t vect;
+      arg->desc.specific.vect(vect);
+      arg->desc.specific.vect().size = 0;
+      break;
+    }
+    case DIET_MATRIX: {
+      corba_matrix_specific_t mat;
+      arg->desc.specific.mat(mat);
+      arg->desc.specific.mat().nb_r  = 0;
+      arg->desc.specific.mat().nb_c  = 0;
+      break;
+    }
+    case DIET_STRING: {
+      corba_string_specific_t str;
+      arg->desc.specific.str(str);
+      arg->desc.specific.str().length = 0;
+      break;
+    }
+    case DIET_FILE: {
+      corba_file_specific_t file;
+      arg->desc.specific.file(file);
+      arg->desc.specific.file().path = CORBA::string_dup("");
+      arg->desc.specific.file().size = 0;
+      break;
+    }
+    default: {
+      break;
+    }
   }
 }
-
 
 
 void
 DataMgrImpl::sendData(corba_data_t& arg)
 {
 
-#if DEVELOPPING_DATA_PERSISTENCY
   if ( (diet_data_type_t)(arg.desc.specific._d())== DIET_FILE) {
   
     if ((arg.desc.specific.file().path != NULL)
@@ -409,22 +374,18 @@ DataMgrImpl::sendData(corba_data_t& arg)
 	outfile.put(arg.value[i]);
       }
     }
-
   }
  
   // dataDescList.unlock();
 
- addDataDescToList(&arg,0);
-   if (arg.desc.specific._d() != DIET_FILE) {
-      	CORBA::Char *p1 (NULL);
-	arg.value.replace(0,0,p1,1);
-      }
- persistent_data_release(&arg); 
- 
+  addDataDescToList(&arg,0);
+  if (arg.desc.specific._d() != DIET_FILE) {
+    CORBA::Char *p1 (NULL);
+    arg.value.replace(0,0,p1,1);
+  }
+  persistent_data_release(&arg); 
  
   printList1();
-
-#endif // DEVELOPPING_DATA_PERSISTENCY
 } // sendData(corba_data_t& arg)
 
 /**
@@ -434,13 +395,10 @@ char *
 DataMgrImpl::whichSeDOwner(const char* argId)
 {
   return this->localHostName;
-
 }
 
 // whichSeDOwner(const char* argId)
-
 /** got the owner of the data identified by argID */
-
 
 char *
 DataMgrImpl::whichDataMgr(const char* argId)
@@ -461,8 +419,6 @@ DataMgrImpl::whichDataMgr(const char* argId)
 void
 DataMgrImpl::getData(corba_data_t& cData)
 {
-  
-#if DEVELOPPING_DATA_PERSISTENCY
   struct timeval t1, t2;
   if(dataLookup(cData.desc.id.idNumber)){ // if data present
     // dataDescList.unlock();
@@ -485,10 +441,9 @@ DataMgrImpl::getData(corba_data_t& cData)
   
     parent->updateDataRef(cData.desc,childID,0);
 
- //    printList1();
+//  printList1();
   }
-#endif // DEVELOPPING_DATA_PERSISTENCY
-}// getData(corba_data_t& cData)
+} // getData(corba_data_t& cData)
 
 
 /**
@@ -536,13 +491,10 @@ DataMgrImpl::printList()
 
 /*******************************************************************************
  * Method invoked by Data Manager me to get data. Sends data to me DataManager *
- *******************************************************************************/
-
+ ******************************************************************************/
 void
 DataMgrImpl::putData(const char* argID, const DataMgr_ptr me)
 {
-#if DEVELOPPING_DATA_PERSISTENCY
- 
   corba_data_t *dest= new corba_data_t;
   dest->desc.id.idNumber=CORBA::string_dup(argID);
   cpEltListToDataT(dest);
@@ -580,7 +532,6 @@ DataMgrImpl::putData(const char* argID, const DataMgr_ptr me)
   }
 
   delete dest;
-#endif // DEVELOPPING_DATA_PERSISTENCY
 } // putData(const char* argID, const DataMgr_ptr me)
 
 
@@ -590,7 +541,6 @@ DataMgrImpl::putData(const char* argID, const DataMgr_ptr me)
 void
 DataMgrImpl::updateDataList(corba_data_t& src)
 {
-#if DEVELOPPING_DATA_PERSISTENCY
   corba_data_t& the_data = dataDescList[strdup(src.desc.id.idNumber)];
 
   the_data.desc = src.desc;
@@ -600,11 +550,7 @@ DataMgrImpl::updateDataList(corba_data_t& src)
     /*  CORBA::Char *p1 (NULL);
     p1 = the_data.value.get_buffer(1);
     
-
-    
-
     _CORBA_Sequence<unsigned char>::freebuf((_CORBA_Char*)p1);
-    
     
     char * p1; 
     double *value;
@@ -622,10 +568,8 @@ DataMgrImpl::updateDataList(corba_data_t& src)
     the_data.value.replace(size,size,p,1);
     
     src.value.replace(size,size,p,0);
-
-
     
-      char *p1, *p2;
+    char *p1, *p2;
     double *value, *value1;
     
     value=(double *)malloc(size*sizeof(double));
@@ -641,9 +585,6 @@ DataMgrImpl::updateDataList(corba_data_t& src)
     for(unsigned int i=0; i<size/8;i++) cout << " -  " << value1[i] ;
     cout << endl;
     */
- 
-  
-#endif // DEVELOPPING_DATA_PERSISTENCY
 } // updateDataList(corba_data_t& src)
 
 
@@ -654,15 +595,15 @@ DataMgrImpl::updateDataList(corba_data_t& src)
 void
 DataMgrImpl::addData(corba_data_t& dataDesc, int inout)
 {
-#if DEVELOPPING_DATA_PERSISTENCY
- 
   // FIXME :  if (inout == 0) ??
-    addDataDescToList(&dataDesc,inout);  
+  addDataDescToList(&dataDesc,inout);  
  
-    if(dataDesc.desc.mode != DIET_STICKY) // doesn't update Loc Manager references is sticky data
+  if(dataDesc.desc.mode != DIET_STICKY) {
+    // doesn't update Loc Manager references is sticky data
       parent->addDataRef(dataDesc.desc,childID);
-#endif // DEVELOPPING_DATA_PERSISTENCY
+  }
 } // addData(corba_data_t& dataDesc, int inout)
+
 
 /*******************************************************
  * call by Loc Manager Parent to destroy reference :   *
@@ -684,18 +625,12 @@ DataMgrImpl::rmDataRef(const char* argID)
 DataMgr_ptr
 DataMgrImpl::whereData(const char* argID)
 {
-
-#if DEVELOPPING_DATA_PERSISTENCY
-
   if(dataLookup(CORBA::string_dup(argID))){ 
     //  dataDescList.unlock();
     return(this->_this());
   } else {
     return(DataMgr::_nil());
   }
-#else // DEVELOPPING_DATA_PERSISTENCY
-  return NULL;
-#endif // DEVELOPPING_DATA_PERSISTENCY
 } // whereData(const char* argID)
 
 
@@ -705,36 +640,24 @@ DataMgrImpl::whereData(const char* argID)
 bool
 DataMgrImpl::dataLookup(char* argID)
 {
- 
- printList1();
-#if DEVELOPPING_DATA_PERSISTENCY
+  printList1();
  // if(dataDescList.size() > 0){
     dataDescList.lock();
     bool found = dataDescList.find(ms_strdup(argID)) != dataDescList.end();
-     dataDescList.unlock();
-     return found;
-
-#endif // DEVELOPPING_DATA_PERSISTENCY
-return false;
- 
+    dataDescList.unlock();
+    return found;
 } //dataLookup(char* argID)
 
 /** to be defined */
 void
 DataMgrImpl::dataIDLock(const corba_data_id_t& cDataID)
 {
-#if DEVELOPPING_DATA_PERSISTENCY
- 
-#endif // DEVELOPPING_DATA_PERSISTENCY
 }
 
 /** to be defined */
 void
 DataMgrImpl::dataIDUnlock(const corba_data_id_t &cDataID)
 {
-#if DEVELOPPING_DATA_PERSISTENCY
-  
-#endif // DEVELOPPING_DATA_PERSISTENCY
 }
 
 
@@ -753,21 +676,14 @@ DataMgrImpl::updateDataRefOrder(corba_data_t& dataDesc)
 bool
 DataMgrImpl::isInLockList(char* argID)
 {
-  //#if DEVELOPPING_DATA_PERSISTENCY
   bool found = TRUE;
-  //#endif // DEVELOPPING_DATA_PERSISTENCY
   return(found);
 }
 
 void
 DataMgrImpl::updateDataProperty(corba_data_t& dataDesc)
 {
-  //#if DEVELOPPING_DATA_PERSISTENCY
- 
- 
-  //#endif // DEVELOPPING_DATA_PERSISTENCY
+
 }
 
-
 #endif // 0
-

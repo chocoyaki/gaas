@@ -9,6 +9,22 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.44  2005/04/13 08:46:29  hdail
+ * Beginning of adoption of new persistency model: DTM is enabled by default and
+ * JuxMem will be supported via configure flags.  DIET will always provide at
+ * least one type of persistency.  As a first step, persistency across DTM and
+ * JuxMem is not supported so all persistency handling should be surrounded by
+ *     #if HAVE_JUXMEM
+ *       // JuxMem code
+ *     #else
+ *       // DTM code
+ *     #endif
+ * This check-in prepares for the JuxMem check-in by cleaning up old
+ * DEVELOPPING_DATA_PERSISTENCY flags and surrounding DTM code with
+ * #if ! HAVE_JUXMEM / #endif flags to be replaced by above format by Mathieu's
+ * check-in.  Currently the HAVE_JUXMEM flag is set in SeDImpl.hh - to be replaced
+ * by Mathieu's check-in of a configure system for JuxMem.
+ *
  * Revision 1.43  2005/04/08 13:02:43  hdail
  * The code for LogCentral has proven itself stable and it seems bug free.
  * Since no external libraries are required to compile in LogCentral, its now
@@ -43,21 +59,7 @@
  * Revision 1.35.2.9  2004/11/30 15:46:50  alsu
  * minor cleanup, adding a note to reconsider an unecessary block of code
  * in the case that contract checking is reworked, as planned.
- *
- * Revision 1.35.2.8  2004/11/26 15:19:52  alsu
- * - restructuring estimate method to use new diet_estimate_* functions
- * - adding timeSinceLastSolve() to give enable access to the last-solve
- *   timestamp
- *
- * Revision 1.35.2.7  2004/11/24 09:30:57  alsu
- * using unmarshalling function to help us construct the profile for
- * custom performance metrics
- *
- * Revision 1.35.2.6  2004/11/06 16:22:55  alsu
- * estimation vector access functions now have parameter-based default
- * return values
  ****************************************************************************/
-
 
 #include <iostream>
 using namespace std;
@@ -83,8 +85,6 @@ using namespace std;
 #include "statistics.hh"
 #include "Vector.h"
 
-#define DEVELOPPING_DATA_PERSISTENCY 1
-
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
 
@@ -95,7 +95,7 @@ extern unsigned int TRACE_LEVEL;
 
 SeDImpl::SeDImpl()
 {
-this->SrvT    = NULL;
+  this->SrvT    = NULL;
   this->childID = -1;
   this->parent  = Agent::_nil();
   this->localHostName[0] = '\0';
@@ -218,6 +218,7 @@ SeDImpl::run(ServiceTable* services)
   return FASTMgr::init();
 }
 
+#if ! HAVE_JUXMEM
 /** Set this->dataMgr */
 int
 SeDImpl::linkToDataMgr(DataMgrImpl* dataMgr)
@@ -225,6 +226,7 @@ SeDImpl::linkToDataMgr(DataMgrImpl* dataMgr)
   this->dataMgr = dataMgr;
   return 0;
 }
+#endif // ! HAVE_JUXMEM
 
 void
 SeDImpl::setDietLogComponent(DietLogComponent* dietLogComponent) {
@@ -375,11 +377,12 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
 
   cvt = SrvT->getConvertor(ref);
  
-#if DEVELOPPING_DATA_PERSISTENCY
+#if ! HAVE_JUXMEM
   // added for data persistence 
   for (i=0; i <= pb.last_inout; i++) {
  
-    if(pb.parameters[i].value.length() == 0){ /* In argument with NULL value : data is present */
+    if(pb.parameters[i].value.length() == 0) { 
+      /* In argument with NULL value : data is present */
       this->dataMgr->getData(pb.parameters[i]); 
     } else { /* data is not yet present but is persistent */
       if( diet_is_persistent(pb.parameters[i])) {
@@ -398,18 +401,14 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
     }
   }
 
-#else  // DEVELOPPING_DATA_PERSISTENCY  
-
-  unmrsh_in_args_to_profile(&profile, &pb, cvt);
-
-#endif // DEVELOPPING_DATA_PERSISTENCY
+#endif // ! HAVE_JUXMEM 
   
   /* record the timestamp of this solve */
   gettimeofday(&(this->lastSolveStart), NULL);
 
   solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
   
-#if DEVELOPPING_DATA_PERSISTENCY 
+#if ! HAVE_JUXMEM 
   for(i=0;i<=pb.last_in;i++){
     if(diet_is_persistent(pb.parameters[i])) {
       if (pb.parameters[i].desc.specific._d() != DIET_FILE) {
@@ -419,18 +418,18 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
       persistent_data_release(&(pb.parameters[i]));
     }
   }
-#endif // DEVELOPPING_DATA_PERSISTENCY   
+#endif // ! HAVE_JUXMEM
   
   mrsh_profile_to_out_args(&pb, &profile, cvt);
     
-#if DEVELOPPING_DATA_PERSISTENCY   
+#if ! HAVE_JUXMEM
     for (i = pb.last_inout + 1 ; i <= pb.last_out; i++) {
       if ( diet_is_persistent(pb.parameters[i])) {
         this->dataMgr->addData(pb.parameters[i],1); 
       }
     }
     this->dataMgr->printList();
-#endif // DEVELOPPING_DATA_PERSISTENCY
+#endif // ! HAVE_JUXMEM 
  
   if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
     cout << "SeD::solve complete\n"
@@ -491,7 +490,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
  
       cvt = SrvT->getConvertor(ref);
 
-#if DEVELOPPING_DATA_PERSISTENCY
+#if ! HAVE_JUXMEM
       int i;
  
       for (i = 0; i <= pb.last_inout; i++) {    
@@ -505,37 +504,18 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
         }
       }
       unmrsh_in_args_to_profile(&profile, &(const_cast<corba_profile_t&>(pb)), cvt);
-      
-      
-      
       //      displayProfile(&profile, path);
       
-#else // DEVELOPPING_DATA_PERSISTENCY
-      
-      unmrsh_in_args_to_profile(&profile, &(const_cast<corba_profile_t&>(pb)), cvt);
-       for (i=0; i <= pb.last_inout; i++) {
-     if( diet_is_persistent(pb.parameters[i])&& (pb.parameters[i].desc.specific._d() == DIET_FILE))
-       {
-         char* in_path   = CORBA::string_dup(profile.parameters[i].desc.specific.file.path);
-         this->dataMgr->changePath(pb.parameters[i], in_path);
-       }
-   }
-#endif // DEVELOPPING_DATA_PERSISTENCY
+#endif // ! HAVE_JUXMEM
       
       /* record the timestamp of this solve */
       gettimeofday(&(this->lastSolveStart), NULL);
 
       solve_res = (*(SrvT->getSolver(ref)))(&profile);
       
-#if ! DEVELOPPING_DATA_PERSISTENCY
+#if ! HAVE_JUXMEM
       
       mrsh_profile_to_out_args(&(const_cast<corba_profile_t&>(pb)), &profile, cvt);
-      
-#else  // ! DEVELOPPING_DATA_PERSISTENCY
-      
-      
-      mrsh_profile_to_out_args(&(const_cast<corba_profile_t&>(pb)), &profile, cvt);
-
       /*      for (i = profile.last_in + 1 ; i <= profile.last_inout; i++) {
         if ( diet_is_persistent(profile.parameters[i])) {
           this->dataMgr->updateDataList(const_cast<corba_data_t&>(pb.parameters[i])); 
@@ -548,7 +528,6 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
                                  1); 
         }
       }
-      
       
       /* Free data */
 #if 0
@@ -563,7 +542,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 #endif
       // FIXME: persistent data should not be freed but referenced in the data list.
       
-#endif // ! DEVELOPPING_DATA_PERSISTENCY
+#endif // ! HAVE_JUXMEM
 
       TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::" << __FUNCTION__ << " complete\n"
                  << "**************************************************\n");
@@ -583,7 +562,6 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
       cb_var->solveResults(path, pb, reqID);
 
       delete [] profile.parameters; // allocated by unmrsh_in_args_to_profile
-
     }
   
   } catch (const CORBA::Exception &e) {
