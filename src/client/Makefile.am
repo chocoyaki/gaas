@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.9  2005/04/13 08:49:54  hdail
+#* Cleaning up references to libUtilsCichlid.la.
+#*
 #* Revision 1.8  2004/12/08 15:02:52  alsu
 #* plugin scheduler first-pass validation testing complete.  merging into
 #* main CVS trunk; ready for more rigorous testing.
@@ -56,7 +59,7 @@ corbadir = $(top_builddir)/src/CORBA
 
 libDIET_client_la_LIBADD = \
 	$(utilsdir)/libUtilsCommon.la $(utilsdir)/libUtilsSeDClt.la	\
-	$(utilsdir)/libUtilsCichlid.la $(utilsdir)/libUtilsVector.la	\
+	$(utilsdir)/libUtilsVector.la	\
 	$(corbadir)/libCorbaCommon.la $(corbadir)/idl/libIDLAgent.la	\
 	$(corbadir)/idl/libIDLCommon.la $(corbadir)/idl/libIDLMA.la	\
 	$(LIBS_OMNIORB)
