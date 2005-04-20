@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.42  2005/04/20 22:24:08  ycaniou
+#* The tool now really checks if elbase.h and if libelagi.a are present
+#*
 #* Revision 1.41  2005/04/11 20:17:53  ycaniou
 #* Correct the last commit :
 #* - withdraw some conflicting lines
@@ -283,6 +286,11 @@ AC_ARG_WITH(Elagi,
 	ELAGI_INCLUDE_DIR="${C_INC}${withval}/include/elagi"],
         [echo "The Elagi installation dir is required: ./configure --enable-batch --with-Elagi=<dir>"
         exit 1])
+
+	AC_CHECK_HEADER([${withval}/include/elagi/elbase.h],,
+		  AC_MSG_ERROR([Could not detect elagi.h]))
+	AC_CHECK_FILE([${withval}/lib/libelagi.a],,
+		  AC_MSG_ERROR([Could not detect libelagi.a]))
 
 	AC_SUBST(ELAGI_DIR)
 
