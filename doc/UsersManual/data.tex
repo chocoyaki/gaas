@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.11  2005/04/22 10:35:53  ycaniou
+%* The fourth arg of diet_string_set(), size_t length, does not exist
+%*
 %* Revision 1.10  2004/08/27 17:04:36  ctedesch
 %* - update DIET J chapter :
 %* use of the PIF DIET
@@ -300,8 +303,8 @@ diet_matrix_set(diet_arg_t* arg, void* value, diet_persistence_mode_t mode,
                 diet_base_type_t base_type,
                 size_t nb_rows, size_t nb_cols, diet_matrix_order_t order);
 int
-diet_string_set(diet_arg_t* arg, char* value, diet_persistence_mode_t mode,
-                size_t length);
+diet_string_set(diet_arg_t* arg, char* value, diet_persistence_mode_t mode);
+
 /* Computes the file size
    ! Warning ! The path is not duplicated !!! */
 int
