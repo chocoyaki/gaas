@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2005/04/25 09:06:01  hdail
+ * Use hard-coded row and column orderings as input to BLAS service so we obtain
+ * dependable performance.  Later we need to add more advanced example that
+ * allows user to pass in file-based matrices with information on their ordering
+ * given on command line.
+ *
  * Revision 1.7  2003/07/25 20:37:36  pcombes
  * Separate the DIET API (slightly modified) from the GridRPC API (version of
  * the draft dated to 07/21/2003)
@@ -81,9 +87,12 @@ main(int argc, char* argv[])
 
   srand(time(NULL));
   
-  oA = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
+  /*oA = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
   oB = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
-  oC = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;
+  oC = (rand() & 1) ? DIET_ROW_MAJOR : DIET_COL_MAJOR;*/
+  oA = DIET_ROW_MAJOR;
+  oB = DIET_COL_MAJOR;
+  oC = DIET_ROW_MAJOR;
 
   if (argc != 7) {
     fprintf(stderr, "Usage: %s <file.cfg> m n k alpha beta\n", argv[0]);
