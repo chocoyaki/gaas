@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2005/04/25 09:08:12  hdail
+ * Print warning if jobs exit SeD-level queue out of order, but don't re-insert
+ * them.  This approach needs to be redone later.
+ *
  * Revision 1.2  2004/12/08 15:02:52  alsu
  * plugin scheduler first-pass validation testing complete.  merging into
  * main CVS trunk; ready for more rigorous testing.
@@ -72,15 +76,17 @@ AccessController::waitForResource(){
         << this->numWaiting << " waiting, "
         << this->numFreeSlots << " slots free)" << endl);
 
-  while(1){
-    this->resourceSemaphore->wait();
-    // Threads seem to be released in order of their arrival at 
-    // the semaphore.  To guarantee FIFO in order of arrival at
-    // waitForAccess do a check and yield if not our turn.
-    if( myReqID == (this->maxIDReleased + 1) ) {
-      break;
-    }
-    (omni_thread::self())->yield();
+  this->resourceSemaphore->wait();
+
+  // TODO: On systems tested semaphore gives FIFO ordering and the following
+  // test succeeds only in the case that tasks switch order between the receipt
+  // of request IDs and the wait on the semaphore.  This case is not very
+  // important because those tasks arrive at almost the same moment.
+  // However, semaphores do not guarantee FIFO ordering so for portability
+  // another solution must be found to guarantee FIFO.
+  if( myReqID != (this->maxIDReleased + 1) ) {
+    WARNING("Thread " << (omni_thread::self())->id()
+          << " / Request " << myReqID << " exiting queue out-of-order.");
   }
 
   if(this->numFreeSlots <= 0){
