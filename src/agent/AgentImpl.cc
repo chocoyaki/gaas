@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.30  2005/04/25 08:56:43  hdail
+ * Cleaned up memory leak for corba_response_t* resp.
+ *
  * Revision 1.29  2005/04/13 08:49:11  hdail
  * Beginning of adoption of new persistency model: DTM is enabled by default and
  * JuxMem will be supported via configure flags.  DIET will always provide at
@@ -365,7 +368,7 @@ __addCommTime(corba_estimation_t serverEst, size_t paramIdx, double time)
 AgentImpl::findServer(Request* req, size_t max_srv)
 {
   size_t i; //, j, k;
-  corba_response_t* resp = new corba_response_t;
+  corba_response_t* resp;
   const corba_request_t& creq = *(req->getRequest());
 
   TRACE_TEXT(TRACE_MAIN_STEPS,
@@ -373,10 +376,6 @@ AgentImpl::findServer(Request* req, size_t max_srv)
       << "Got request " << creq.reqID
       << " on problem " << creq.pb.path << endl);
   stat_in(this->myName,"findServer");
-
-  /* Initialize the response */
-  resp->reqID = creq.reqID;
-  resp->servers.length(0);
 
   /* Add the new request to the list */
   reqList[creq.reqID] = req;
@@ -426,6 +425,10 @@ AgentImpl::findServer(Request* req, size_t max_srv)
           "**************************************************\n");
       req->unlock();
       //delete req; // do not delete since getRequest does not perform a copy
+
+      resp = new corba_response_t;
+      resp->reqID = creq.reqID;
+      resp->servers.length(0);
       return resp;
     }
 
