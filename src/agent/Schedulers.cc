@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2005/04/25 08:57:56  hdail
+ * Clean up memory leak for levels[] structure used in tree-based response sorting.
+ *
  * Revision 1.8  2004/12/08 15:02:52  alsu
  * plugin scheduler first-pass validation testing complete.  merging into
  * main CVS trunk; ready for more rigorous testing.
@@ -397,8 +400,9 @@ Scheduler::aggregate(corba_response_t& aggrResp,
     nb_leaves = (nb_leaves >> 1);
     pow++;
   }
-  if (!power_of_two)
+  if (!power_of_two){
     pow++;
+  }
   /* init levels array */
   levels = new level_t[pow + 1];
   /* allocate each level: level i is 2^i long */
@@ -469,6 +473,13 @@ Scheduler::aggregate(corba_response_t& aggrResp,
       TRACE_TREE(levels,pow);
     }
   }
+
+  /* Clean up memory */
+  for (size_t i = 0; i <= pow; i++) {
+    delete [] levels[i];
+  }
+  delete [] levels;
+
   return 0;
 
 #undef COMPARE_NODES
