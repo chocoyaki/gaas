@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2005/04/25 08:57:17  hdail
+ * Clean up memory for GS in Request destructor.
+ *
  * Revision 1.4  2003/07/04 09:47:58  pcombes
  * Use new ERROR and WARNING macros.
  *
@@ -74,6 +77,7 @@ Request::Request(const corba_request_t* request, GlobalScheduler* GS)
 
 Request::~Request() {
   freeResponses() ;
+  delete this->GS;
   delete gatheringEnded ;
 } // ~Request()
 
