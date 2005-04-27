@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2005/04/27 01:41:34  ycaniou
+ * Added the stuff for a correct compilation, for a correct registration of
+ * a batch profile, and for its execution.
+ * Added the solve_batch() function
+ *
  * Revision 1.19  2005/04/13 08:46:29  hdail
  * Beginning of adoption of new persistency model: DTM is enabled by default and
  * JuxMem will be supported via configure flags.  DIET will always provide at
@@ -431,7 +436,7 @@ DataMgrImpl::getData(corba_data_t& cData)
   
     dataSrc = parent->whereData(strdup(cData.desc.id.idNumber));
     /* invoke remote Data Manager that will send Data */  
-  gettimeofday(&t1, NULL);
+    gettimeofday(&t1, NULL);
 
     dataSrc->putData(CORBA::string_dup(cData.desc.id.idNumber), this->_this());
     // copy value to cData that is used by solver

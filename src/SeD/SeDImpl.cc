@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.45  2005/04/27 01:41:34  ycaniou
+ * Added the stuff for a correct compilation, for a correct registration of
+ * a batch profile, and for its execution.
+ * Added the solve_batch() function
+ *
  * Revision 1.44  2005/04/13 08:46:29  hdail
  * Beginning of adoption of new persistency model: DTM is enabled by default and
  * JuxMem will be supported via configure flags.  DIET will always provide at
@@ -104,6 +109,12 @@ SeDImpl::SeDImpl()
   this->fastUse = 1;
 #endif // HAVE_FAST
   this->dietLogComponent = NULL;
+#if HAVE_BATCH
+  //  this->batchID = -1 ;
+  this->tabCorresIDIndex=0 ;
+  for( int i=0 ; i<MAX_RUNNING_NBSERVICES ; i++ )
+    tabCorresID[i].dietReqID = -1 ;
+#endif
 }
 
 #if HAVE_JXTA
@@ -119,6 +130,12 @@ SeDImpl::SeDImpl(const char* uuid = '\0')
   this->fastUse = 1;
 #endif // HAVE_FAST
   this->dietLogComponent = NULL;
+#if HAVE_BATCH
+  //  this->batchID = -1 ;
+  this->tabCorresIDIndex=0 ;
+  for( int i=0 ; i<MAX_RUNNING_NBSERVICES ; i++ )
+    tabCorresID[i].dietReqID = -1 ;
+#endif
 }
 #endif //HAVE_JXTA
 
@@ -140,6 +157,21 @@ SeDImpl::run(ServiceTable* services)
   }
  
   this->SrvT = services;
+
+#if HAVE_BATCH
+  // All profiles must be either batch or not batch. No mix allowed. 
+  if( this->SrvT->testIfAllBatchServices() ) {
+    // Read the batchName if one is specified
+    char* batchname =(char*) 
+      (Parsers::Results::getParamValue(Parsers::Results::BATCHNAME));
+    if (batchname == NULL) 
+      ERROR("Can not launch batch jobs",1) ;
+    if( !(ELBASE_ExistBatchScheduler(batchname,&this->batchID)) ) 
+      ERROR("Batch scheduler not recognized", 1) ;
+    TRACE_TEXT(TRACE_MAIN_STEPS,"Batch submission enabled\n") ;
+  } else if (this->SrvT->existBatchService())
+    ERROR("SeD is not allowed to launch non batch job", 1) ;
+#endif
 
   char* parent_name = (char*)
     Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
@@ -233,6 +265,9 @@ SeDImpl::setDietLogComponent(DietLogComponent* dietLogComponent) {
   this->dietLogComponent = dietLogComponent;
 }
 
+/* 
+** The server receives a request by an agent
+*/
 void
 SeDImpl::getRequest(const corba_request_t& creq)
 {
@@ -265,6 +300,7 @@ SeDImpl::getRequest(const corba_request_t& creq)
 #endif //HAVE_JXTA
     resp.servers[0].loc.port     = this->port;
 
+#if ! HAVE_BATCH
 /** Commented because we don't have appropriate comm time estimation method
     resp.servers[0].estim.commTimes.length(creq.pb.last_out + 1);
     for (int i = 0; i <= creq.pb.last_out; i++)
@@ -276,6 +312,9 @@ SeDImpl::getRequest(const corba_request_t& creq)
     }
     mrsh_estVector_to_estimation(&(resp.servers[0].estim), ev);
     free_estVector(ev);
+#else
+    // Must do the same if not a batch job or [.?.] if so
+#endif
 
     this->estimate(resp.servers[0].estim, creq.pb, serviceRef);
   }
@@ -405,9 +444,8 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
   
   /* record the timestamp of this solve */
   gettimeofday(&(this->lastSolveStart), NULL);
-
   solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
-  
+
 #if ! HAVE_JUXMEM 
   for(i=0;i<=pb.last_in;i++){
     if(diet_is_persistent(pb.parameters[i])) {
@@ -429,6 +467,120 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
       }
     }
     this->dataMgr->printList();
+#endif // ! HAVE_JUXMEM
+ 
+  if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
+    cout << "SeD::solve complete\n"
+         << "************************************************************\n";
+
+  for (i = 0; i <= cvt->last_in; i++) {
+    diet_free_data(&(profile.parameters[i]));
+  }
+  delete [] profile.parameters; // allocated by unmrsh_in_args_to_profile
+ 
+  stat_out("SeD",statMsg);
+  stat_flush();
+
+  if (dietLogComponent != NULL) {
+    dietLogComponent->logEndSolve(path, &pb,reqID);
+  }
+
+#if HAVE_QUEUES
+  if (this->useConcJobLimit){
+    this->accessController->releaseResource();
+  }
+#endif // HAVE_QUEUES
+
+  return solve_res;
+}
+
+#if HAVE_BATCH
+CORBA::Long
+SeDImpl::solve_batch(const char* path, corba_profile_t& pb, CORBA::Long reqID)
+{
+  ServiceTable::ServiceReference_t ref(-1);
+  diet_profile_t profile;
+  diet_convertor_t* cvt(NULL);
+  int solve_res(0);
+  char statMsg[128];
+  int i;//, arg_idx;
+
+  ref = SrvT->lookupService(path, &pb);
+  if (ref == -1) {
+   ERROR("SeD::" << __FUNCTION__ << ": service not found", 1);
+  } 
+
+  /*************************************************************
+   **                  submit a batch job                     **
+   **
+   ** For the moment, the only difference with solve is the
+   ** number of args when we call the profile solve function.
+   ** The datas are transferred before batch submission which has
+   ** to be done interactively if we want to be the most efficient.
+   *************************************************************/
+  sprintf(statMsg, "solve %ld", (unsigned long) reqID);
+  stat_in("SeD",statMsg);
+
+  if (dietLogComponent != NULL) {
+    dietLogComponent->logBeginSolve(path, &pb,reqID);
+  }
+
+  TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::solve invoked on batch pb: " 
+	     << path << endl);
+
+  cvt = SrvT->getConvertor(ref);
+ 
+#if ! HAVE_JUXMEM
+  // added for data persistence 
+  for (i=0; i <= pb.last_inout; i++) {
+ 
+    if(pb.parameters[i].value.length() == 0){ /* In argument with NULL value : data is present */
+      this->dataMgr->getData(pb.parameters[i]); 
+    } else { /* data is not yet present but is persistent */
+      if( diet_is_persistent(pb.parameters[i])) {
+        this->dataMgr->addData(pb.parameters[i],0);
+      }
+    }
+  }
+ 
+  unmrsh_in_args_to_profile(&profile, &pb, cvt);
+  for (i=0; i <= pb.last_inout; i++) {
+    if( diet_is_persistent(pb.parameters[i]) && 
+        (pb.parameters[i].desc.specific._d() == DIET_FILE))
+      {
+	char* in_path   = CORBA::string_dup(profile.parameters[i].desc.specific.file.path);
+	this->dataMgr->changePath(pb.parameters[i], in_path);
+      }
+  }
+#endif // ! HAVE_JUXMEM 
+  
+  /* record the timestamp of this solve */
+  gettimeofday(&(this->lastSolveStart), NULL);
+  
+  profile.dietJobID=reqID ;
+  solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
+
+#if ! HAVE_JUXMEM 
+  for(i=0;i<=pb.last_in;i++){
+    if(diet_is_persistent(pb.parameters[i])) {
+      if (pb.parameters[i].desc.specific._d() != DIET_FILE) {
+        CORBA::Char *p1 (NULL);
+        pb.parameters[i].value.replace(0,0,p1,1);
+      }
+      persistent_data_release(&(pb.parameters[i]));
+    }
+  }
+#endif // ! HAVE_JUXMEM
+  
+  mrsh_profile_to_out_args(&pb, &profile, cvt);
+    
+#if ! HAVE_JUXMEM
+  for (i = pb.last_inout + 1 ; i <= pb.last_out; i++) {
+    if ( diet_is_persistent(pb.parameters[i])) {
+      this->dataMgr->addData(pb.parameters[i],1); 
+    }
+  }
+  this->dataMgr->printList();
 #endif // ! HAVE_JUXMEM 
  
   if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
@@ -455,6 +607,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
 
   return solve_res;
 }
+#endif //HAVE_BATCH
 
 void
 SeDImpl::solveAsync(const char* path, const corba_profile_t& pb, 
@@ -511,7 +664,19 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
       /* record the timestamp of this solve */
       gettimeofday(&(this->lastSolveStart), NULL);
 
-      solve_res = (*(SrvT->getSolver(ref)))(&profile);
+#if HAVE_BATCH
+      // nbprocs and walltime are set
+  if( profile.batch_flag != 1 ) {
+    if( profile.nbprocs == 1 )
+      solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
+    else
+      solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE_multiproc
+  } else {
+    solve_res = (*(SrvT->getSolver(ref)))(&profile) ;    // SOLVE_Batch
+  }
+#else
+  solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
+#endif // HAVE_BATCH
       
 #if ! HAVE_JUXMEM
       
@@ -597,6 +762,61 @@ SeDImpl::ping()
   return 0;
 }
 
+
+
+#if HAVE_BATCH
+int
+SeDImpl::submitBatch(char* parallelService,char* configfilename, int synchro)
+{
+  int passed = -1 ;
+  char *schedulerName = NULL ;
+  ELBASE_SchedulerServiceTypes schedulerID ;
+  ELBASE_ComputeServiceTypes ELBASE_service ;
+  char **attrs ;
+  ELBASE_Process pid ;
+  int status ;
+      
+  /* Read schedulerName in SeD.cfg */
+  /* Change in Parsers.hh for BATCHSCHEDULERNAME ? */
+  schedulerName = strdup("oar") ;
+  schedulerID = ELBASE_GiveBatchID(schedulerName) ;
+  if( schedulerID == -1 ) {
+    cerr << "DIET ERROR: the batch scheduler " << schedulerName 
+	 << " is unknown, can not submit job" ;
+    return passed ;
+  }
+  
+  /* Make the script and submit it to the batch scheduler */
+  ELBASE_service = ELBASE_FORK ;
+  /* Read args in filename */
+  attrs = (char**)malloc(sizeof(char*)*3) ;
+  attrs[0] = strdup("host_count=2") ;
+  attrs[1] = strdup("max_wall_time=0:1:0") ;
+  attrs[2] = NULL ;
+  
+  passed = ELBASE_Submit(ELBASE_service, "localhost", schedulerID
+			 , (const char **)attrs,
+			 parallelService, NULL, NULL, NULL, "dietSubmit"
+			 , NULL, NULL,
+			 &pid) ;
+  if( synchro == 1 ) {
+    passed = passed  &&
+      ELBASE_Poll(pid, 1, &status) &&
+      status == 0 ;
+  }
+  /*
+      &&
+      ELBASE_Spawn(service, server, "rm", NULL, rmArgs, NULL, NULL,
+		   NULL, NULL, &pid)
+      &&
+      ELBASE_Poll(pid, 1, &status) &&
+      status == 0;
+  */
+  
+  return passed ;
+  
+}
+#endif
 
 /****************************************************************************/
 /* Private methods                                                          */

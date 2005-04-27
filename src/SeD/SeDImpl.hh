@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2005/04/27 01:41:34  ycaniou
+ * Added the stuff for a correct compilation, for a correct registration of
+ * a batch profile, and for its execution.
+ * Added the solve_batch() function
+ *
  * Revision 1.16  2005/04/13 08:46:29  hdail
  * Beginning of adoption of new persistency model: DTM is enabled by default and
  * JuxMem will be supported via configure flags.  DIET will always provide at
@@ -94,6 +99,10 @@
 #include "AccessController.hh"
 #endif
 
+#if HAVE_BATCH
+#include "elbase.h"
+#endif
+
 /****************************************************************************/
 /* SeD class                                                                */
 /****************************************************************************/
@@ -137,12 +146,22 @@ public:
   virtual CORBA::Long
   solve(const char* pbName, corba_profile_t& pb,CORBA::Long reqID);
 
+#if HAVE_BATCH
+  virtual CORBA::Long
+  solve_batch(const char* pbName, corba_profile_t& pb,CORBA::Long reqID);
+#endif
+
   virtual void
   solveAsync(const char* pb_name, const corba_profile_t& pb,
 	    CORBA::Long reqID, const char * volatileclientIOR);
 
   virtual CORBA::Long
   ping();
+
+#if HAVE_BATCH
+  int
+  submitBatch(char* parallelService,char* configfilename, int synchro) ;
+#endif
 
   const struct timeval* timeSinceLastSolve();
 
@@ -170,6 +189,21 @@ private:
 
   /* last queue timestamp */
   struct timeval lastSolveStart;
+
+#if HAVE_BATCH
+  /* Correspondance with Elagi
+  ** -> must be initialized with a special call to Elagi */
+  ELBASE_SchedulerServiceTypes batchID ;
+  /* Correspondance between the Diet reqID and the Batch Job ID */
+  /* Supposes that no more than 100 batch jobs are submitted on one SeD */
+  typedef struct {
+    int dietReqID ;
+    int batchJobId ;
+  } corresID ;
+  #define MAX_RUNNING_NBSERVICES 100
+  corresID tabCorresID[MAX_RUNNING_NBSERVICES] ;
+  int tabCorresIDIndex ;
+#endif
 
 #if HAVE_QUEUES
   /* Should SeD restrict the number of concurrent solves? */

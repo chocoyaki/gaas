@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.35  2005/04/27 01:41:34  ycaniou
+ * Added the stuff for a correct compilation, for a correct registration of
+ * a batch profile, and for its execution.
+ * Added the solve_batch() function
+ *
  * Revision 1.34  2005/04/13 08:46:29  hdail
  * Beginning of adoption of new persistency model: DTM is enabled by default and
  * JuxMem will be supported via configure flags.  DIET will always provide at
@@ -155,6 +160,12 @@ diet_service_table_add(const diet_profile_desc_t* const profile,
   } else {
     actual_cvt = diet_convertor_alloc(profile->path, profile->last_in,
 				      profile->last_inout, profile->last_out);
+#if HAVE_BATCH
+
+    // Must I add something here ?? -> I guess so
+
+#endif
+
     for (int i = 0; i <= profile->last_out; i++)
       diet_arg_cvt_set(&(actual_cvt->arg_convs[i]),
 		       DIET_CVT_IDENTITY, i, NULL, i);
@@ -206,6 +217,9 @@ diet_service_table_lookup_by_profile(const diet_profile_t* const profile)
     profileDesc.last_in = profile->last_in;
     profileDesc.last_inout = profile->last_inout;
     profileDesc.last_out = profile->last_out;
+#if HAVE_BATCH
+    profileDesc.batch_flag = profile->batch_flag ;
+#endif
     int numArgs = profile->last_out + 1;
     profileDesc.param_desc =
       (diet_arg_desc_t*) calloc (numArgs, sizeof (diet_arg_desc_t));
@@ -443,8 +457,8 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
 
   /* Get listening port & hostname */
 
-    // size_t --> unsigned int
- unsigned int* port = (unsigned int*) 
+  // size_t --> unsigned int
+  unsigned int* port = (unsigned int*) 
     (Parsers::Results::getParamValue(Parsers::Results::DIETPORT));
   char* host = (char*)
     (Parsers::Results::getParamValue(Parsers::Results::DIETHOSTNAME));
