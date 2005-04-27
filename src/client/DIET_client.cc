@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.55  2005/04/27 01:14:26  ycaniou
+ * Added the diet_call_batch() and diet_call_async_batch() in the API and
+ * modified the respective solve functions if the client wants to perform
+ * a batch submission
+ *
  * Revision 1.54  2005/04/08 09:55:19  hdail
  * Removing unused cichlid definition and cleaning up client code.
  *
@@ -601,7 +606,17 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
   sprintf(statMsg, "computation %ld", (unsigned long) reqID);
   try {
     stat_in("Client",statMsg);
+
+#if HAVE_BATCH
+    if( profile->batch_flag == 1 )
+      solve_res = chosenServer->solve_batch(profile->pb_name,
+					    corba_profile,reqID);
+    else
+      solve_res = chosenServer->solve(profile->pb_name, corba_profile,reqID);
+#else
     solve_res = chosenServer->solve(profile->pb_name, corba_profile,reqID);
+#endif // HAVE_BATCH
+
     stat_out("Client",statMsg);
    } catch(CORBA::MARSHAL& e) {
     ERROR("got a marchal exception\n"
@@ -636,6 +651,15 @@ diet_call(diet_profile_t* profile)
   SeD_var chosenServer = SeD::_nil();
   return diet_call_common(profile, chosenServer);
 }
+
+#ifdef HAVE_BATCH
+diet_error_t
+diet_call_batch(diet_profile_t* profile)
+{
+  profile->batch_flag = 1 ;
+  return diet_call(profile) ;
+}
+#endif
 
 END_API
 
@@ -721,8 +745,20 @@ diet_call_async_common(diet_profile_t* profile,
     }
 
     stat_in("Client","computation_async");
+
+#ifdef HAVE_BATCH
+    if( profile->batch_flag == 1 )
+      /*      chosenServer->solveAsync_batch(profile->pb_name, corba_profile, 
+       *reqID, REF_CALLBACK_SERVER); */
+      ;
+    else
+      chosenServer->solveAsync(profile->pb_name, corba_profile, 
+			       *reqID, REF_CALLBACK_SERVER);
+#else
     chosenServer->solveAsync(profile->pb_name, corba_profile, 
                              *reqID, REF_CALLBACK_SERVER);
+#endif
+
     stat_out("Client","computation_async");
 
     if (unmrsh_out_args_to_profile(profile, &corba_profile)) {
@@ -765,7 +801,14 @@ diet_call_async(diet_profile_t* profile, diet_reqID_t* reqID)
   SeD_var chosenServer = SeD::_nil();
   return diet_call_async_common(profile, chosenServer, reqID);
 }
-
+#ifdef HAVE_BATCH
+diet_error_t
+diet_call_async_batch(diet_profile_t* profile, diet_reqID_t* reqID)
+{
+  profile->batch_flag = 1 ;
+  return diet_call_async(profile, reqID);
+}
+#endif
 END_API
 
 
