@@ -8,6 +8,16 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2005/04/27 01:49:41  ycaniou
+ * Added the necessary for initialisation of batch profile, for profiles to
+ * match
+ * Added the functions diet_profile_set_parallel(), diet_profile_set_nbprocs(),
+ * diet_profile_desc_set_batch(), diet_profile_desc_set_parallel() that the
+ * client needs to define a parallel/batch job
+ * Added the parsing of the batch scheduler name that must be provided in the
+ * server configuration file, accordingly to the elagi library, plus some
+ * checkings about the server that can only submit batch or non-batch jobs
+ *
  * Revision 1.11  2004/12/08 15:02:52  alsu
  * plugin scheduler first-pass validation testing complete.  merging into
  * main CVS trunk; ready for more rigorous testing.
@@ -165,6 +175,13 @@ public:
 
   CORBA::ULong max_nb_children;
 
+#if HAVE_BATCH
+  int
+  existBatchService() ;
+  int 
+  testIfAllBatchServices() ;
+#endif  
+
 private:
   
   // number of couples {service,profile} in the table
@@ -184,11 +201,9 @@ private:
   // corresponding service
   matching_children_t* matching_children;
 
-
   // private methods
   inline int
   ServiceTableInit(CORBA::ULong max_nb_services, CORBA::ULong max_nb_children);
-
 };
 
 #endif // _SERVICETABLE_HH_

@@ -8,6 +8,16 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.31  2005/04/27 01:49:41  ycaniou
+ * Added the necessary for initialisation of batch profile, for profiles to
+ * match
+ * Added the functions diet_profile_set_parallel(), diet_profile_set_nbprocs(),
+ * diet_profile_desc_set_batch(), diet_profile_desc_set_parallel() that the
+ * client needs to define a parallel/batch job
+ * Added the parsing of the batch scheduler name that must be provided in the
+ * server configuration file, accordingly to the elagi library, plus some
+ * checkings about the server that can only submit batch or non-batch jobs
+ *
  * Revision 1.30  2004/12/08 15:02:52  alsu
  * plugin scheduler first-pass validation testing complete.  merging into
  * main CVS trunk; ready for more rigorous testing.
@@ -58,10 +68,9 @@ using namespace std;
 #include <sys/types.h>
 #include "unistd.h"
 
-#include "DIET_data.h"
+#include "DIET_server.h"
 #include "DIET_data_internal.hh"
 #include "DIET_client.h"
-#include "DIET_server.h"
 #include "common_types.hh"
 #include "debug.hh"
 
@@ -295,11 +304,15 @@ profile_desc_match(const corba_profile_desc_t* p1,
 {
   if (strcmp(p1->path, p2->path))
     return 0;
-  if (   (p1->last_in             != p2->last_in)
-      || (p1->last_inout          != p2->last_inout)
-      || (p1->last_out            != p2->last_out)
-      || (p1->param_desc.length() != p2->param_desc.length()))
-    return 0;
+  if ( (p1->last_in                != p2->last_in)
+       || (p1->last_inout          != p2->last_inout)
+       || (p1->last_out            != p2->last_out)
+       || (p1->param_desc.length() != p2->param_desc.length())
+#if HAVE_BATCH
+       || (p1->batch_flag          != p2->batch_flag) 
+#endif
+       )
+    return 0 ;
   for (size_t i = 0; i < p1->param_desc.length(); i++) {
     if (   (p1->param_desc[i].type      != p2->param_desc[i].type)
         || (p1->param_desc[i].base_type != p2->param_desc[i].base_type))
@@ -319,10 +332,14 @@ profile_match(const corba_profile_desc_t* sv_profile,
 {
   if (strcmp(sv_profile->path, pb_desc->path)) //param_desc[Žâ†’].id.idNumber
     return 0;
-  if ((   (sv_profile->last_in             != pb_desc->last_in)
+  if ( (sv_profile->last_in                != pb_desc->last_in)
        || (sv_profile->last_inout          != pb_desc->last_inout)
        || (sv_profile->last_out            != pb_desc->last_out)
-       || (sv_profile->param_desc.length() != pb_desc->param_desc.length())))
+       || (sv_profile->param_desc.length() != pb_desc->param_desc.length())
+#if HAVE_BATCH
+       || (sv_profile->batch_flag          != pb_desc->batch_flag)
+#endif
+       )
     return 0;
   for (size_t i = 0; i < sv_profile->param_desc.length(); i++) {
     if ((   (sv_profile->param_desc[i].type
@@ -345,10 +362,14 @@ profile_match(const corba_profile_desc_t* sv_profile,
 {
   if (strcmp(sv_profile->path, path))
     return 0;
-  if ((   (sv_profile->last_in             != pb->last_in)
+  if ( (sv_profile->last_in                != pb->last_in)
        || (sv_profile->last_inout          != pb->last_inout)
        || (sv_profile->last_out            != pb->last_out)
-       || (sv_profile->param_desc.length() != pb->parameters.length())))
+       || (sv_profile->param_desc.length() != pb->parameters.length())
+#if HAVE_BATCH
+       || (sv_profile->batch_flag          != pb->batch_flag)
+#endif
+       )
     return 0;
   for (size_t i = 0; i < sv_profile->param_desc.length(); i++) {
     if ((   (sv_profile->param_desc[i].type
@@ -385,6 +406,11 @@ diet_profile_alloc(char* pb_name, int last_in, int last_inout, int last_out)
   res->parameters = new diet_arg_t[last_out + 1];
   for (int i = 0; i <= last_out; i++)
     res->parameters[i].desc.id = NULL;
+#if HAVE_BATCH
+  res->batch_flag=0 ;
+  res->nbprocs=1 ;
+  res->walltime=0 ;
+#endif
   return res;
 }
 
@@ -397,6 +423,42 @@ diet_profile_free(diet_profile_t* profile)
   return 0;
 }
 
+#ifdef HAVE_BATCH
+/* Functions for client profile request */
+int
+diet_profile_set_batch(diet_profile_t* profile)
+{
+  profile->batch_flag = 1 ;
+  return 0 ;
+}
+int
+diet_profile_set_parallel(diet_profile_t* profile)
+{
+  profile->nbprocs = 2 ;
+  return 0 ;
+}
+int
+diet_profile_set_nbprocs(diet_profile_t* profile, int nbprocs)
+{
+  if( nbprocs <= 0 )
+    ERROR("the Number of procs must be greater than 0", 1);    
+  profile->nbprocs = nbprocs ;
+  return 0 ;
+}
+/* Functions for server profile registration */
+int
+diet_profile_desc_set_batch(diet_profile_desc_t* profile)
+{
+  profile->batch_flag = 1 ;
+  return 0 ;
+}
+int
+diet_profile_desc_set_parallel(diet_profile_desc_t* profile)
+{
+  profile->nbprocs = 2 ;
+  return 0 ;
+}
+#endif
 
 /****************************************************************************/
 /* Utils functions for setting parameters of a problem description          */

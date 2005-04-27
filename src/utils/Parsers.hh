@@ -8,6 +8,16 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2005/04/27 01:49:41  ycaniou
+ * Added the necessary for initialisation of batch profile, for profiles to
+ * match
+ * Added the functions diet_profile_set_parallel(), diet_profile_set_nbprocs(),
+ * diet_profile_desc_set_batch(), diet_profile_desc_set_parallel() that the
+ * client needs to define a parallel/batch job
+ * Added the parsing of the batch scheduler name that must be provided in the
+ * server configuration file, accordingly to the elagi library, plus some
+ * checkings about the server that can only submit batch or non-batch jobs
+ *
  * Revision 1.11  2004/10/04 13:55:06  hdail
  * - Added AccessController class, an enhanced counting semaphore.
  * - Added config file options for controlling concurrent SeD access.
@@ -93,6 +103,9 @@ public:
       USELOGSERVICE, LSOUTBUFFERSIZE, LSFLUSHINTERVAL,
       NEIGHBOURS, MAXNEIGHBOURS, MINNEIGHBOURS, UPDATELINKPERIOD,
       BINDSERVICEPORT, USECONCJOBLIMIT, MAXCONCJOBS,
+#if HAVE_BATCH
+      BATCHNAME,
+#endif
       NB_PARAM_TYPE
     } param_type_t;
 
