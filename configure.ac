@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.43  2005/04/27 01:53:05  ycaniou
+#* Modified in order to really compile well (hope this to be the good one ;)
+#*
 #* Revision 1.42  2005/04/20 22:24:08  ycaniou
 #* The tool now really checks if elbase.h and if libelagi.a are present
 #*
@@ -296,8 +299,23 @@ AC_ARG_WITH(Elagi,
 
 	HAVE_BATCH="yes"
 	HAVE_Batch="yes"
+
+	AC_DEFINE(HAVE_BATCH)
+# For information
+# CFLAGS correspond to flags for the processor on which prog is built
+# AM_CPPFLAGS: 
+#	The contents of this variable are passed to every compilation
+#       which invokes the C preprocessor; it is a list of arguments to the
+#       preprocessor.  For instance, `-I' and `-D' options should be
+#       listed here.
+	AM_CPPFLAGS="-DHAVE_BATCH $AM_CPPFLAGS"
+
+	# for Corba things (CORBA/idl/common_types.idl)
 	IDLFLAGS="$IDLFLAGS -DHAVE_BATCH"
+	CPPFLAGS_OMNIORB="-DHAVE_BATCH $CPPFLAGS_OMNIORB"
+	CXXFLAGS_OMNIORB="-DHAVE_BATCH $CXXFLAGS_OMNIORB"
 fi
+# to 
 AM_CONDITIONAL(USE_BATCH, [test $HAVE_BATCH = yes])
 
 dnl ###########################################################################
