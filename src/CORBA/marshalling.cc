@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.47  2005/04/27 01:07:37  ycaniou
+ * Added the necessary 'translations' for the new profiles structure fields
+ *
  * Revision 1.46  2005/01/14 13:02:38  bdelfabr
  * removing useless cout
  *
@@ -508,6 +511,9 @@ mrsh_profile_desc(corba_profile_desc_t* dest, const diet_profile_desc_t* src)
     (dest->param_desc[i]).base_type = (src->param_desc[i]).base_type;
     (dest->param_desc[i]).type      = (src->param_desc[i]).type;
   }
+#if HAVE_BATCH
+  dest->batch_flag = src->batch_flag ;
+#endif
   return 0;
 }
 
@@ -533,6 +539,11 @@ mrsh_pb_desc(corba_pb_desc_t* dest, const diet_profile_t* const src)
       __mrsh_data_id_desc(&(dest->param_desc[i]), &(src->parameters[i].desc));
     }
   }
+#if HAVE_BATCH
+  dest->batch_flag = src->batch_flag ;
+  dest->nbprocs    = src->nbprocs ;
+  dest->walltime   = src->walltime ;
+#endif
   return 0;
 }
 
@@ -546,6 +557,11 @@ mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src)
 {
   int i;
 
+#if HAVE_BATCH
+  dest->batch_flag = src->batch_flag ;
+  dest->nbprocs    = src->nbprocs ;
+  dest->walltime   = src->walltime ;
+#endif
   dest->last_in    = src->last_in;
   dest->last_inout = src->last_inout;
   dest->last_out   = src->last_out;
@@ -657,6 +673,11 @@ unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
     src_params[i] = NULL;
   }
 
+#if HAVE_BATCH
+  dest->batch_flag = cvt->batch_flag ;
+  dest->nbprocs    = cvt->nbprocs ;
+  dest->walltime   = cvt->walltime ;
+#endif
   dest->pb_name    = cvt->path;
   dest->last_in    = cvt->last_in;
   dest->last_inout = cvt->last_inout;
@@ -776,9 +797,10 @@ unmrsh_out_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb)
 {
   int i;
 
-  if (   (dpb->last_in    != cpb->last_in)
+  if (   (dpb->last_in       != cpb->last_in)
          || (dpb->last_inout != cpb->last_inout)
-         || (dpb->last_out   != cpb->last_out))
+         || (dpb->last_out   != cpb->last_out)
+	 )
     return 1;
 
   // Unmarshal INOUT parameters descriptions only ; indeed, the ORB has filled
