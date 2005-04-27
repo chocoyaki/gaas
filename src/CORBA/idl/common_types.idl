@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2005/04/27 01:04:55  ycaniou
+ * Added solve_batch() to the SeD API
+ * Modified corba profile structures
+ *
  * Revision 1.8  2005/01/14 10:42:26  lphilipp
  *
  * correction bug 13
@@ -183,6 +187,9 @@ struct corba_profile_desc_t {
   long   last_inout;
   long   last_out;
   sequence<corba_arg_desc_t> param_desc;
+#if HAVE_BATCH
+  long batch_flag ;
+#endif
 };
 typedef sequence<corba_profile_desc_t> SeqCorbaProfileDesc_t;
 
@@ -208,6 +215,11 @@ struct corba_pb_desc_t {
   long   last_inout;
   long   last_out;
   SeqCorbaDataDesc_t param_desc;
+#if HAVE_BATCH
+  long   batch_flag ;
+  long   nbprocs ;
+  long   walltime ;
+#endif
 };
 
 /** The complete problem, sent from client to server. */
@@ -216,6 +228,11 @@ struct corba_profile_t {
   long   last_inout;
   long   last_out;
   SeqCorbaData_t parameters;
+#if HAVE_BATCH
+  long   batch_flag ;
+  long   nbprocs ;
+  long   walltime ;
+#endif
 };
 
 
