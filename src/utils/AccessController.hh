@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2005/04/28 13:07:05  eboix
+ *     Inclusion of CORBA.h substitued with omniORB4/CORBA.h. --- Injay 2461
+ *
  * Revision 1.1  2004/10/04 13:55:06  hdail
  * - Added AccessController class, an enhanced counting semaphore.
  * - Added config file options for controlling concurrent SeD access.
@@ -18,7 +21,7 @@
 #ifndef _ACCESSCONTROLLER_HH_
 #define _ACCESSCONTROLLER_HH_
 
-#include <CORBA.h>
+#include <omniORB4/CORBA.h>
 
 #include <omnithread.h>
 #include <sys/types.h>

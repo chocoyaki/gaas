@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2005/04/28 13:07:05  eboix
+ *     Inclusion of CORBA.h substitued with omniORB4/CORBA.h. --- Injay 2461
+ *
  * Revision 1.11  2004/03/01 18:38:10  rbolze
  * remove function getOID() end setOID(..)
  * change in signature of activate(..)
@@ -36,7 +39,7 @@
 #ifndef _ORBMGR_HH_
 #define _ORBMGR_HH_
 
-#include <CORBA.h>
+#include <omniORB4/CORBA.h>
 #include <setjmp.h>
 #include "DIET_config.h"
 

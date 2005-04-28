@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2005/04/28 13:07:05  eboix
+ *     Inclusion of CORBA.h substitued with omniORB4/CORBA.h. --- Injay 2461
+ *
  * Revision 1.8  2003/04/10 12:45:10  pcombes
  * Apply Coding Standards.
  *
@@ -43,7 +46,7 @@
 #ifndef _MS_FUNCTION_HH_
 #define _MS_FUNCTION_HH_
 
-#include <CORBA.h>
+#include <omniORB4/CORBA.h>
 
 //#include "DIET_config.h"
 

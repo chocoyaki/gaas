@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2005/04/28 13:07:05  eboix
+ *     Inclusion of CORBA.h substitued with omniORB4/CORBA.h. --- Injay 2461
+ *
  * Revision 1.1  2003/04/10 13:11:06  pcombes
  * Replace SonID.hh. Apply Coding Standards.
  *
@@ -17,7 +20,7 @@
 #ifndef _CHILD_ID_
 #define _CHILD_ID_
 
-#include <CORBA.h>
+#include <omniORB4/CORBA.h>
 
 /**
  * This is the identifier type for the agent children. It is a CORBA::Long

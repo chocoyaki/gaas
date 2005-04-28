@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.56  2005/04/28 13:07:05  eboix
+ *     Inclusion of CORBA.h substitued with omniORB4/CORBA.h. --- Injay 2461
+ *
  * Revision 1.55  2005/04/27 01:14:26  ycaniou
  * Added the diet_call_batch() and diet_call_async_batch() in the API and
  * modified the respective solve functions if the client wants to perform
@@ -48,7 +51,7 @@
 
 #include "DIET_client.h"
 
-#include <CORBA.h>
+#include <omniORB4/CORBA.h>
 #include <iostream>
 #include <fstream>
 using namespace std;
