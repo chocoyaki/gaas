@@ -1,0 +1,5 @@
+local_corba_ns.sh
+local_ldap.sh
+local_nws.sh
+local_platform.sh
+
