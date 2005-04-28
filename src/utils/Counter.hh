@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2005/04/28 13:14:32  eboix
+ *    Inclusion of CORBA.h substituted with omniORB4/CORBA.h --- Injay 2461
+ *
  * Revision 1.5  2003/04/10 12:45:10  pcombes
  * Apply Coding Standards.
  *
@@ -19,7 +22,7 @@
 #ifndef _COUNTER_HH_
 #define _COUNTER_HH_
 
-#include <CORBA.h>
+#include <omniORB4/CORBA.h>
 
 #include <omnithread.h>
 #include <sys/types.h>
