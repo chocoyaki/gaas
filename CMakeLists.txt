@@ -6,6 +6,9 @@
 #* $LICENSE$
 #* $Id$
 #* $Log$
+#* Revision 1.2  2005/04/29 16:18:01  eboix
+#*     First example of JXTA dependant compilation.  --- Injay 2461
+#*
 #* Revision 1.1  2005/04/28 12:26:39  eboix
 #*     Adding configuration files (trial version) of CMake building mecanism.
 #*     This will NOT interfere with current autotools.  --- Injay 2461
@@ -21,7 +24,9 @@ SET(DIET_version 1.1)
 # --------------------- OPTIONS OF THE PROJECT -----------------------------
 # Build dynamic lib by default
 OPTION( BUILD_SHARED_LIBS "Build DIET with shared libraries." ON )
+OPTION( DIET_BUILD_EXAMPLES "Build DIET examples." ON )
 OPTION( DIET_BUILD_DOCUMENTATION "Build the users manual documentation." OFF )
+OPTION( DIET_USE_JXTA "Build the JXTA mode." OFF )
 OPTION( DIET_USE_FAST "Build the users manual documentation." OFF )
 
 # --------------------- DEPENDENCIES TO EXTERNALS --------------------------
@@ -31,6 +36,13 @@ IF( DIET_BUILD_DOCUMENTATION )
   FIND_PACKAGE( LATEX )
   SUBDIRS( doc )
 ENDIF( DIET_BUILD_DOCUMENTATION )
+
+IF( DIET_USE_JXTA )
+  INCLUDE( ${DIET_SOURCE_DIR}/Cmake/FindJava.cmake )
+  IF( NOT JAVA_FOUND )
+     SET( DIET_UST_JXTA OFF )
+  ENDIF( NOT JAVA_FOUND )
+ENDIF( DIET_USE_JXTA )
 
 IF( DIET_USE_FAST )
   SET( CMAKE_HAVE_FAST 1 )   # for configuration file

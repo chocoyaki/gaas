@@ -6,6 +6,9 @@
 #* $LICENSE$
 #* $Id$
 #* $Log$
+#* Revision 1.3  2005/04/29 16:18:02  eboix
+#*     First example of JXTA dependant compilation.  --- Injay 2461
+#*
 #* Revision 1.2  2005/04/29 10:36:37  eboix
 #*     idl generated files are now taken into account.  --- Injay 2461
 #*
@@ -31,12 +34,12 @@ SET(AgentCommon_SOURCES
 INCLUDE_DIRECTORIES(
   ${OMNIORB4_INCLUDE_DIR}
   ${DIET_SOURCE_DIR}/src/utils
+  ${DIET_BINARY_DIR}/src/CORBA/idl
+  ${DIET_SOURCE_DIR}/src/CORBA
   ${DIET_SOURCE_DIR}/src/agent          # local dir .
-  ${DIET_SOURCE_DIR}/src/CORBA          # for e.g. marshalling.hh
-  ${DIET_BINARY_DIR}/include            # FIXME: must preceed source/include
-                                        # to take cmake-generated DIET_config.h
-  ${DIET_SOURCE_DIR}/include            # FIXME: for DIET_data.h 
-  ${DIET_BINARY_DIR}/src/CORBA/idl      # FIXME: is this a lib ?
+  ${DIET_BINARY_DIR}/include            # for e.g. DIET_config.h
+  ${DIET_SOURCE_DIR}/include
+
 )
 
 ADD_LIBRARY( AgentCommon ${AgentCommon_SOURCES} )
@@ -52,7 +55,37 @@ TARGET_LINK_LIBRARIES( dietAgent
   UtilsCommon
   UtilsNodes
   UtilsVector
-  ${OMNIORB4_LIBRARIES} )
+  ${OMNIORB4_LIBRARIES}
+)
 
-### FIXME
-### missing all the JXTA_MODE related stuff...
+IF( DIET_USE_JXTA )
+  SET( TARGET_JAVA_DIR ${DIET_BINARY_DIR}/src/agent )
+  ADD_CUSTOM_COMMAND(
+    OUTPUT    ${DIET_BINARY_DIR}/src/agent/LA.class
+    COMMAND   ${JAVA_COMPILE}
+    ARGS      -d ${DIET_BINARY_DIR}/src/agent
+              ${DIET_SOURCE_DIR}/src/agent/LA.java
+    DEPENDS   ${DIET_SOURCE_DIR}/src/agent/LA.java
+    COMMENT   "java compile"
+  )
+  ADD_CUSTOM_COMMAND(
+    OUTPUT    ${DIET_BINARY_DIR}/src/agent/LA.h
+    COMMAND   ${JAVA_HEADER_COMPILE}
+    ARGS      -classpath ${DIET_BINARY_DIR}/src/agent
+              -d ${DIET_BINARY_DIR}/src/agent
+              LA
+    DEPENDS   ${DIET_BINARY_DIR}/src/agent/LA.class
+    COMMENT   "java header compile"
+  )
+  SET_SOURCE_FILES_PROPERTIES( 
+    ${DIET_SOURCE_DIR}/src/agent/localAgentJNI.cc
+    PROPERTIES
+    OBJECT_DEPENDS ${DIET_BINARY_DIR}/src/agent/LA.h
+  )
+
+  INCLUDE_DIRECTORIES( ${DIET_BINARY_DIR}/src/agent )  # For LA.h ...
+  ADD_LIBRARY( dietLocalAgent ${DIET_SOURCE_DIR}/src/agent/localAgentJNI.cc )
+
+### missing all the dietMasterAgent_la part
+
+ENDIF( DIET_USE_JXTA )
