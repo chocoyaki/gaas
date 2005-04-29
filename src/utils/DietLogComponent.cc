@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2005/04/29 15:17:08  ecaron
+ * Bug fix for gcc 3.4.x
+ *
  * Revision 1.7  2004/12/16 11:16:31  sdahan
  * adds multi-mas informations into the logService
  *
@@ -175,7 +178,7 @@ DietLogComponent::DietLogComponent(const char* name,
   // define tags
   tagCount = 14;
   tagFlags = createBoolArrayFalse(tagCount);
-  tagNames = new (char*)[tagCount];
+  tagNames = new char*[14];
   tagNames[0] = strdup("ADD_SERVICE");
   tagNames[1] = strdup("ASK_FOR_SED");
   tagNames[2] = strdup("SED_CHOSEN");
@@ -190,7 +193,6 @@ DietLogComponent::DietLogComponent(const char* name,
   tagNames[11] = strdup("LATENCY");
   tagNames[12] = strdup("BANDWIDTH");
   tagNames[13] = strdup("NEIGHBORS");
-
   CORBA::Object_ptr myLCCptr;
 
   try {
