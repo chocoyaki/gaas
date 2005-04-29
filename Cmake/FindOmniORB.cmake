@@ -4,7 +4,8 @@
  
 # OMNIORB4_INCLUDE_DIR  - Directories to include to use omniORB
 # OMNIORB4_LIBRARIES    - Files to link against to use omniORB
-# OMNIORB4_FOUND        - If false, don't try to use omniORB
+# OMNIORB4_IDL_COMPILER
+# OMNIORB4_FOUND        - When false, don't try to use omniORB
 # OMNIORB4_DIR          - (optional) Suggested installation directory to search
 #
 # OMNIORB4_DIR can be used to make it simpler to find the various include
@@ -35,11 +36,18 @@ FIND_LIBRARY( OMNIORB4_LIBRARY_COSDynamic4 COSDynamic4
   ${OMNIORB4_DIR}/lib
 )
 
+FIND_PROGRAM(OMNIORB4_IDL_COMPILER
+  NAMES omniidl
+  PATHS ${OMNIORB4_DIR}/bin
+  DOC "The idl compiler"
+)
+ 
 IF( OMNIORB4_omniORB4_SUBDIR )
 IF( OMNIORB4_LIBRARY_omniORB4 )
 IF( OMNIORB4_LIBRARY_omnithread )
 IF( OMNIORB4_LIBRARY_COS4 )
 IF( OMNIORB4_LIBRARY_COSDynamic4 )
+IF( OMNIORB4_IDL_COMPILER )
 
   SET( OMNIORB4_FOUND "YES" )
   SET( OMNIORB4_INCLUDE_DIR
@@ -50,6 +58,7 @@ IF( OMNIORB4_LIBRARY_COSDynamic4 )
     ${OMNIORB4_LIBRARY_COS4}
     ${OMNIORB4_LIBRARY_COSDynamic4} )
 
+ENDIF( OMNIORB4_IDL_COMPILER )
 ENDIF( OMNIORB4_LIBRARY_COSDynamic4 )
 ENDIF( OMNIORB4_LIBRARY_COS4 )
 ENDIF( OMNIORB4_LIBRARY_omnithread )

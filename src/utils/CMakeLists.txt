@@ -6,6 +6,9 @@
 #* $LICENSE$
 #* $Id$
 #* $Log$
+#* Revision 1.2  2005/04/29 10:36:38  eboix
+#*     idl generated files are now taken into account.  --- Injay 2461
+#*
 #* Revision 1.1  2005/04/28 13:25:11  eboix
 #*     Added cmake subdir configuration files. --- Injay 2461
 #*
@@ -13,7 +16,7 @@
 
 INCLUDE_DIRECTORIES(
   ${OMNIORB4_INCLUDE_DIR}
-  ${DIET_SOURCE_DIR}/src/CORBA/idl
+  ${DIET_BINARY_DIR}/src/CORBA/idl
   ${DIET_SOURCE_DIR}/src/CORBA        # for e.g. marshalling.hh
   ${DIET_SOURCE_DIR}/src/utils        # for DIET_data_internal.hh
   ${DIET_BINARY_DIR}/include          # FIXME: must preceed source/include
