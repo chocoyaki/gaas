@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2005/04/29 15:03:11  ecaron
+ * Delete friend definition to class Result to avoid one problem with gcc 3.4.x
+ *
  * Revision 1.12  2005/04/27 01:49:41  ycaniou
  * Added the necessary for initialisation of batch profile, for profiles to
  * match
@@ -82,7 +85,7 @@ public:
   /**
    * The structure filled in by Parsers.
    */
-  friend class Results
+  class Results
   {
   public:
     friend class Parsers;
