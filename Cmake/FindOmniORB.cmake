@@ -16,29 +16,39 @@
 #
  
 FIND_PATH( OMNIORB4_omniORB4_SUBDIR omniORB4/CORBA.h
+  PATHS
   ${OMNIORB4_DIR}/include
+  /usr/include
+  /usr/local/include
 )
 
+SET( OMNIORB4_DEFAULT_LIB_PATH /usr/lib /usr/local/lib )
 #### FIXME: what are the required libraries for proper usage ????
 FIND_LIBRARY(  OMNIORB4_LIBRARY_omniORB4 omniORB4
-  ${OMNIORB4_DIR}/lib
+  PATHS ${OMNIORB4_DIR}/lib
+        ${OMNIORB4_DEFAULT_LIB_PATH}
 )
 
 FIND_LIBRARY( OMNIORB4_LIBRARY_omnithread omnithread
-  ${OMNIORB4_DIR}/lib
+  PATHS ${OMNIORB4_DIR}/lib
+        ${OMNIORB4_DEFAULT_LIB_PATH}
 )
 
 FIND_LIBRARY( OMNIORB4_LIBRARY_COS4 COS4
-  ${OMNIORB4_DIR}/lib
+  PATHS ${OMNIORB4_DIR}/lib
+        ${OMNIORB4_DEFAULT_LIB_PATH}
 )
 
 FIND_LIBRARY( OMNIORB4_LIBRARY_COSDynamic4 COSDynamic4
-  ${OMNIORB4_DIR}/lib
+  PATHS ${OMNIORB4_DIR}/lib
+        ${OMNIORB4_DEFAULT_LIB_PATH}
 )
 
 FIND_PROGRAM(OMNIORB4_IDL_COMPILER
   NAMES omniidl
   PATHS ${OMNIORB4_DIR}/bin
+        /usr/bin
+        /usr/local/bin
   DOC "The idl compiler"
 )
  
