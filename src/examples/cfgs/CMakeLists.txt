@@ -6,14 +6,41 @@
 #* $LICENSE$
 #* $Id$
 #* $Log$
-#* Revision 1.1  2005/04/28 13:25:11  eboix
-#*     Added cmake subdir configuration files. --- Injay 2461
+#* Revision 1.2  2005/05/02 15:34:54  eboix
+#*     - Cmake/FindOmniORB.cmake now exposes the OMNIORB4_DIR (no need to
+#*       toggle to advanced mode anymore) and also hides away (to advanced mode)
+#*       the PATHs (include, lib, omniidl) when found.
+#*       Tested on FC2 and graal.ens-lyon.fr: libCOS4.so and libDynamicCOS4.so
+#*       seemed to be allways required...
+#*     - src/examples/cfgs/CMakeLists.txt now generates all the test configuration
+#*       files.   --- Injay 2461
 #*
 #****************************************************************************#
 
-SET( @host bozo )
-CONFIGURE_FILE(
-      ${DIET_SOURCE_DIR}/src/examples/cfgs/LA1.cfg
-      ${DIET_BINARY_DIR}/etc/LA1.cfg
-      IMMEDIATE
+# Build (by configuration) all the configurations files of the examples by
+# basically substituting with the proper "hostname".
+
+SET( DIET_EXAMPLES_CONFIG_BUILD ON BOOL "Wether the configuration files were build" )
+EXEC_PROGRAM( hostname
+  OUTPUT_VARIABLE DIET_CMAKE_HOSTNAME
+)
+FILE( GLOB DIET_CONFIG_FILES_GLOB 
+  "${DIET_SOURCE_DIR}/src/examples/cfgs/*.cfg.in"
+  "${DIET_SOURCE_DIR}/src/examples/cfgs/*.ldif.in"
+  "${DIET_SOURCE_DIR}/src/examples/cfgs/ldap_schema/*.schema.in"
+)
+FOREACH( filename ${DIET_CONFIG_FILES_GLOB} )
+  GET_FILENAME_COMPONENT( filenameNoPath ${filename} NAME )
+  STRING( REGEX REPLACE "[.]in$" "" filenameNoPath ${filenameNoPath} )
+  SET( filenameDest ${DIET_BINARY_DIR}/etc/${filenameNoPath} )
+  CONFIGURE_FILE(
+    ${filename}
+    ${filenameDest}
+    IMMEDIATE
   )
+ENDFOREACH( filename )
+
+## FIXME: find out why we cannot test availability of the hostname command with
+##        IF( COMMAND "hostname" ) or IF( COMMAND hostname )
+## SET( DIET_EXAMPLES_CONFIG_BUILD OFF BOOL "Wether the configuration files were build" )
+## MESSAGE( FATAL_ERROR "hostname command not available" )

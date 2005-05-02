@@ -1,0 +1,82 @@
+#****************************************************************************#
+#* Example of a configuration file for a DIET SeD                           *#
+#*  (*): compulsory parameter.                                              *#
+#*                                                                          *#
+#*  Author(s):                                                              *#
+#*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *#
+#*                                                                          *#
+#* $LICENSE$                                                                *#
+#****************************************************************************#
+
+
+#****************************************************************************#
+# traceLevel for the DIET SeD library:
+#    0  DIET prints only warnings and errors on the standard error output.
+#    1  [default] DIET prints information on the main steps of a call.
+#    5  DIET prints information on all internal steps too.
+#   10  DIET prints all the communication structures too.
+#  >10  (traceLevel - 10) is given to the ORB to print CORBA messages too.
+#****************************************************************************#
+
+traceLevel = 1
+
+
+#****************************************************************************#
+# (*) parentName: the name of the agent to which the SeD will register. This
+#   agent must have registered at the same CORBA Naming Service that is
+#   pointed to by your ORB configuration.
+#****************************************************************************#
+
+parentName = MA1
+
+
+#****************************************************************************#
+# dietPort: the listening port of the agent. If not specified, let the ORB
+#   get a port from the system (if the default 2809 was busy).
+# dietHostname : the listening interface of the agent. If not specified,
+#   let the ORB get the hostname from the system (the first one if several 
+#   one are available)
+#****************************************************************************#
+
+#dietPort = 2809
+#dietHostname = <hostname|IP>
+
+
+#****************************************************************************#
+# fastUse: if set to 0, all LDAP and NWS parameters are ignored, and all
+#   requests to FAST are disabled (when DIET is compiled with FAST). This is
+#   useful for testing a DIET platform without deploying an LDAP base nor an
+#   NWS platform.
+#****************************************************************************#
+
+fastUse = 0
+
+
+#****************************************************************************#
+# ldapUse: 0 tells FAST not to look for the services in an LDAP base.
+# (**) ldapBase: <host:port> of the LDAP base that stores FAST-known services.
+# (**) ldapMask: the mask which is registered in the LDAP base.
+#****************************************************************************#
+
+ldapUse  = 1
+ldapBase = @DIET_CMAKE_HOSTNAME@:9050
+ldapMask = dc=LIP,dc=ens-lyon,dc=fr
+
+
+#****************************************************************************#
+# nwsUse:  0 tells FAST not to use NWS for its comm times forecasts.
+# nwsNameserver: <host:port> of the NWS nameserver.
+#****************************************************************************#
+
+nwsUse   = 1
+nwsNameserver = @DIET_CMAKE_HOSTNAME@:9056
+
+#****************************************************************************#
+# useLogService:    1 to use the LogService for monitoring.
+# lsOutbuffersize:  the size of the buffer for outgoing messages.
+# lsFlushinterval:  the flush interval for the outgoing message buffer.
+#****************************************************************************#
+
+useLogService = 0
+lsOutbuffersize = 0
+lsFlushinterval = 10000
