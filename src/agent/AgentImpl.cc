@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.31  2005/05/02 16:47:45  ycaniou
+ * Nothing but indentation of the code
+ *
  * Revision 1.30  2005/04/25 08:56:43  hdail
  * Cleaned up memory leak for corba_response_t* resp.
  *
@@ -184,7 +187,6 @@ AgentImpl::run()
 
 } // run()
 
-
 #if ! HAVE_JUXMEM
 /** Set this->locMgr for DTM usage */
 int
@@ -266,7 +268,7 @@ AgentImpl::serverSubscribe(SeD_ptr me, const char* hostName,
 /**
  * Add \c services into the service table, and attach them to child \c me.
  */
-  void
+void
 AgentImpl::addServices(CORBA::ULong myID,
                        const SeqCorbaProfileDesc_t& services)
 {
@@ -364,7 +366,7 @@ __addCommTime(corba_estimation_t serverEst, size_t paramIdx, double time)
  * @param max_srv the maximum number of servers to sort.
  * @return non NULL pointer to a response
  */
-  corba_response_t*
+corba_response_t*
 AgentImpl::findServer(Request* req, size_t max_srv)
 {
   size_t i; //, j, k;
@@ -544,7 +546,7 @@ AgentImpl::findServer(Request* req, size_t max_srv)
 /****************************************************************************/
 
 /** Get the response of a child */
-  void
+void
 AgentImpl::getResponse(const corba_response_t& resp)
 {
   TRACE_TEXT(TRACE_MAIN_STEPS, "Got a response from " << resp.myID
@@ -567,7 +569,7 @@ AgentImpl::getResponse(const corba_response_t& resp)
 /**
  * Used to test if this agent is alive.
  */
-  CORBA::Long
+CORBA::Long
 AgentImpl::ping()
 {
   AGT_TRACE_FUNCTION("");
@@ -575,7 +577,7 @@ AgentImpl::ping()
 } // ping()
 
 
-  char*
+char*
 AgentImpl::getHostname()
 {
   return CORBA::string_dup(localHostName) ;
@@ -585,7 +587,7 @@ AgentImpl::getHostname()
 /**
  * Send the request structure \c req to the child whose ID is \c childID.
  */
-  void
+void
 AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req)
 {
   bool childFound = false;
@@ -678,7 +680,7 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req)
  * \c to : if (to), from this agent to the child, else from the child to this
  * agent.
  */
-  inline double
+inline double
 AgentImpl::getCommTime(CORBA::Long childID, unsigned long size, bool to)
 {
 
@@ -702,7 +704,7 @@ AgentImpl::getCommTime(CORBA::Long childID, unsigned long size, bool to)
  * @param request contains pointers to the scheduler and the responses.
  * @param max_srv the maximum number of servers to aggregate (all if 0).
  */
-  corba_response_t*
+corba_response_t*
 AgentImpl::aggregate(Request* request, size_t max_srv)
 {
   corba_response_t* aggregResp = new corba_response_t;
@@ -721,7 +723,7 @@ AgentImpl::aggregate(Request* request, size_t max_srv)
 
 
 /** Get host name of a child (returned string is ms_stralloc'd). */
-  char*
+char*
 AgentImpl::getChildHostName(CORBA::Long childID)
 {
   char* hostName = NULL;
