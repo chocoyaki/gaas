@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2005/05/02 14:51:53  ycaniou
+ * The client API has now the functions diet_call_batch() and diet_call_async_batch(). The client has also the possibility to modify the profile so that it is a batch, parallel or if he wants a special number of procs.
+ * Changes in diet_profile_t and diet_profile_desc_t structures
+ * Functions to register a parallel or batch problem.
+ * The SeD developper must end its profile solve function by a call to diet_submit_batch().
+ *
  * Revision 1.18  2004/12/15 18:09:58  alsu
  * cleaner, easier to document interface: changing diet_perfmetric_t back
  * to the simpler one-argument (of type diet_profile_t) version, and
@@ -111,6 +117,13 @@ typedef struct {
   char*            path;
   int              last_in, last_inout, last_out;
   diet_arg_desc_t* param_desc;
+
+#ifdef HAVE_BATCH
+  unsigned short int batch_flag ;
+  int nbprocs ; 
+  /* if job is parallel but not batch */
+#endif
+
 } diet_profile_desc_t;
 
 /**
@@ -136,6 +149,14 @@ diet_profile_desc_alloc(const char* path,
 			int last_in, int last_inout, int last_out);
 int
 diet_profile_desc_free(diet_profile_desc_t* desc);
+
+#ifdef HAVE_BATCH
+/* Functions for server profile registration */
+int
+diet_profile_desc_set_batch(diet_profile_desc_t* profile) ;
+int
+diet_profile_desc_set_parallel(diet_profile_desc_t* profile) ;
+#endif
 
 
 /****************************************************************************/
@@ -204,6 +225,11 @@ typedef struct {
   char*                 path;
   int                   last_in, last_inout, last_out;
   diet_arg_convertor_t* arg_convs;
+#ifdef HAVE_BATCH
+  unsigned short int batch_flag ;
+  int nbprocs ;
+  unsigned long walltime ;
+#endif
 } diet_convertor_t;
 
 /**
@@ -282,7 +308,6 @@ diet_matrix_desc_set(diet_data_t* data,
 int
 diet_file_desc_set(diet_data_t* data, char* path);
 
-
 /****************************************************************************/
 /* DIET service table API                                                   */
 /****************************************************************************/
@@ -309,10 +334,13 @@ void diet_print_service_table();
 int
 diet_SeD(char* config_file_name, int argc, char* argv[]);
 
-
-
-
-
+/****************************************************************************/
+/* DIET batch submit call                                                   */
+/****************************************************************************/
+#ifdef HAVE_BATCH
+int
+diet_submit_batch(diet_profile_t* profile, const char *command) ;
+#endif
 /****************************************************************************/
 /* DIET estimation vector interface                                         */
 /****************************************************************************/
@@ -360,7 +388,6 @@ diet_generic_desc_set(struct diet_data_generic* desc,
     desc->base_type = base_type;
   return 0;
 }
-
 
 #ifdef __cplusplus
 }

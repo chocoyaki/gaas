@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2005/05/02 14:51:53  ycaniou
+ * The client API has now the functions diet_call_batch() and diet_call_async_batch(). The client has also the possibility to modify the profile so that it is a batch, parallel or if he wants a special number of procs.
+ * Changes in diet_profile_t and diet_profile_desc_t structures
+ * Functions to register a parallel or batch problem.
+ * The SeD developper must end its profile solve function by a call to diet_submit_batch().
+ *
  * Revision 1.24  2004/12/15 18:09:58  alsu
  * cleaner, easier to document interface: changing diet_perfmetric_t back
  * to the simpler one-argument (of type diet_profile_t) version, and
@@ -162,7 +168,18 @@ typedef struct {
 
   const void* SeDPtr; /* pointer to SeD object, to be used in
                       ** performance estimation
+		      ** YC
+		      ** And for batch submission
+		      ** FYC
                       */
+#ifdef HAVE_BATCH
+  unsigned short int batch_flag ;
+  int nbprocs ;
+  unsigned long walltime ;
+  // Only used in the SeD for batch submission
+  int dietJobID ;
+#endif
+
 } diet_profile_t;
 
 /* Allocate a DIET profile with memory space for its arguments.
@@ -182,6 +199,14 @@ diet_profile_alloc(char* pb_name, int last_in, int last_inout, int last_out);
 int
 diet_profile_free(diet_profile_t* profile);
 
+#ifdef HAVE_BATCH
+int
+diet_profile_set_batch(diet_profile_t* profile) ;
+int
+diet_profile_set_parallel(diet_profile_t* profile) ;
+int
+diet_profile_set_nbprocs(diet_profile_t* profile, int nbprocs) ;
+#endif
 
 /**
  * Type: (diet_arg_t*) diet_parameter( (diet_profile_t*), (int) )

@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2005/05/02 14:51:53  ycaniou
+ * The client API has now the functions diet_call_batch() and diet_call_async_batch(). The client has also the possibility to modify the profile so that it is a batch, parallel or if he wants a special number of procs.
+ * Changes in diet_profile_t and diet_profile_desc_t structures
+ * Functions to register a parallel or batch problem.
+ * The SeD developper must end its profile solve function by a call to diet_submit_batch().
+ *
  * Revision 1.16  2004/10/06 18:09:50  rbolze
  * fix a bug due to last commit :)
  *
@@ -98,16 +104,23 @@ create_header();
 
 int 
 diet_free_persistent_data(char *id);
+
 /****************************************************************************/
 /* Call / submission functions                                              */
 /****************************************************************************/
 
 diet_error_t
 diet_call(diet_profile_t* profile);
+#ifdef HAVE_BATCH
+diet_error_t
+diet_call_batch(diet_profile_t* profile) ;
+#endif
 diet_error_t
 diet_call_async(diet_profile_t* profile, diet_reqID_t* reqID);
-
-
+#ifdef HAVE_BATCH
+diet_error_t
+diet_call_async_batch(diet_profile_t* profile, diet_reqID_t* reqID);
+#endif
 
 /****************************************************************************/
 /* Request control and wait functions                                       */
