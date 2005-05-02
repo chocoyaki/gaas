@@ -1,21 +1,21 @@
 #****************************************************************************#
-#* DIET ScaLAPACK example: Makefile                                         *#
+#* DIET Batch and parallel jobs example: Makefile                           *#
 #*                                                                          *#
 #*  Author(s):                                                              *#
-#*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *#
-#*    - Bert VAN HEUKELOM (Bert.VanHeukelom@ens-lyon.fr)                    *#
+#*    - Yves Caniou (Yves.Caniou@ens-lyon.fr)                               *#
+#* From Scalapack Makefile						    *#
 #*                                                                          *#
 #* $LICENSE$                                                                *#
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.2  2005/05/02 16:50:52  ycaniou
+#* Added examples of submitting a batch/parallel job
+#* Modified Makefile to compile correctly
+#*
 #* Revision 1.1  2005/04/13 08:27:12  ycaniou
 #* Add a fake makefile to allow the correct configuration if --enable-Batch is
 #*  not specified.
-#*
-#* Revision 1.1  2003/09/26 14:07:01  pcombes
-#* Get the examples out of the automake chain, to make Makefiles more readable.
-#* The generated before.mk includes the right Makefile.inc.
 #*
 #****************************************************************************#
 
@@ -25,8 +25,8 @@
 #
 srcdir = @srcdir@
 subdir = src/examples/Batch
-SOURCES = client.c job.c pdgemm_client.c server.c
-HEADERS = job.h
+SOURCES = batch_client.c batch_server.c parallel_client.c parallel_server.c
+HEADERS = 
 #
 # before.mk includes the right Makefile.inc. Indeed, the user might wish to
 # compile this example without installing actually DIET ; thus we cannot assume
@@ -40,25 +40,25 @@ include ../before.mk
 #
 ##
 
-MPICC = mpicc
-MPIFLAGS = -I/usr/include/lam
+CCFLAGS_DIET += -DHAVE_BATCH
 
-PROGRAMS = ScaL_client ScaL_server pdgemm_client
+#include $(ELAGI_DIR)/include/elagi/elagi.make
+#CCFFLAGS_DIET += $(ELAGI_INC) 
+#DIET_SERVER_LIBS += $(ELAGI_LIBS)
 
-all: 	$(PROGRAMS)
+PROGRAMS = batch_client batch_server parallel_client parallel_server
 
-pdgemm_client:	pdgemm_client.c $(DIET_CLIENT_PREREQ)
+all:    $(PROGRAMS)
+
+parallel_client:	$(srcdir)/parallel_client.c $(DIET_CLIENT_PREREQ)
 	$(CC) $(CCFLAGS_DIET) $< $(DIET_CLIENT_LIBS) -o $@
-
-ScaL_client:	client.c $(DIET_CLIENT_PREREQ)
+	
+batch_client:	$(srcdir)/batch_client.c $(DIET_CLIENT_PREREQ)
 	$(CC) $(CCFLAGS_DIET) $< $(DIET_CLIENT_LIBS) -o $@
+		
+parallel_server:	$(srcdir)/parallel_server.c $(DIET_SERVER_PREREQ)
+	$(CC) $(CCFLAGS_DIET) $< $(DIET_SERVER_LIBS) -o $@
 
-ScaL_server:	server.o job.o $(DIET_SERVER_BIN_PREREQ)
-	$(MPICC) -o $@ $^ @LIBS_SCALAPACK@ $(DIET_SERVER_LIBS)
-
-server.o:	server.c job.h $(DIET_SERVER_SRC_PREREQ)
-	$(MPICC) -c $< @CCFLAGS_SCALAPACK@ $(CCFLAGS_DIET) $(MPIFLAGS) -o $@
-
-job.o:		job.c
-	$(CC) -c $(CCFLAGS_DIET) $(MPIFLAGS) job.c
+batch_server:	$(srcdir)/batch_server.c $(DIET_SERVER_PREREQ)
+	$(CC) $(CCFLAGS_DIET) $< $(DIET_SERVER_LIBS) -o $@
 
