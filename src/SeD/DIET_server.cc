@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.36  2005/05/02 16:46:33  ycaniou
+ * Added the function diet_submit_batch(), the stuff in the makefile to compile
+ *  with appleseeds..
+ *
  * Revision 1.35  2005/04/27 01:41:34  ycaniou
  * Added the stuff for a correct compilation, for a correct registration of
  * a batch profile, and for its execution.
@@ -652,5 +656,69 @@ int diet_estimate_lastexec(estVector_t ev,
                           timeSinceLastSolve);
   return (0);
 }
+
+/****************************************************************************/
+/* DIET batch submit call                                                   */
+/****************************************************************************/
+
+#ifdef HAVE_BATCH
+int
+diet_submit_batch(diet_profile_t* profile, const char *command)
+{
+  int passed = -1 ;
+  ELBASE_SchedulerServiceTypes schedulerID ;
+  ELBASE_ComputeServiceTypes ELBASE_service ;
+  char **attrs ;
+  ELBASE_Process pid ;
+  char *chaine ;
+  //  int status ;
+      
+  schedulerID = ((SeDImpl*)profile->SeDPtr)->getBatchSchedulerID() ;
+  /* Make the script and submit it to the batch scheduler */
+  ELBASE_service = ELBASE_FORK ;
+  /* Read the walltime and the nbprocs in profile */
+  /* until a correct prediction function is given, fixed values are used */
+  profile->walltime=125 ;
+  profile->nbprocs=2 ;
+  /* Make the correct script */
+  attrs = (char**)malloc(sizeof(char*)*3) ;
+  sprintf(chaine,"host_count=%d",profile->nbprocs) ;
+  attrs[0] = strdup(chaine) ;
+  sprintf(chaine,"max_wall_time=%d:%d:%d",
+	  (int)(profile->nbprocs/3600),
+	  (int)((profile->nbprocs%3600)/60),
+	  profile->nbprocs%60) ;
+  attrs[1] = strdup(chaine) ;
+  attrs[2] = NULL ;
+  
+  passed = ELBASE_Submit(ELBASE_service, "localhost", schedulerID
+			 , (const char **)attrs,
+			 command, NULL, NULL, NULL, "dietBatchSubmit05"
+			 , NULL, NULL,
+			 &pid) ;
+  /* Stock the task pid in relation with the profile */
+  /*  ((SeDImpl*)profile->SeDPtr)-> ; */
+  /* But is the pid the task ID or the submission ID ??? */
+
+  /*
+  if( synchro == 1 ) {
+    passed = passed  &&
+      ELBASE_Poll(pid, 1, &status) &&
+      status == 0 ;
+  }
+  */
+  /*
+      &&
+      ELBASE_Spawn(service, server, "rm", NULL, rmArgs, NULL, NULL,
+		   NULL, NULL, &pid)
+      &&
+      ELBASE_Poll(pid, 1, &status) &&
+      status == 0;
+  */
+  
+  return passed ;
+  
+}
+#endif
 
 END_API

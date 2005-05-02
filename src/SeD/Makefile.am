@@ -10,6 +10,10 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.14  2005/05/02 16:46:33  ycaniou
+#* Added the function diet_submit_batch(), the stuff in the makefile to compile
+#*  with appleseeds..
+#*
 #* Revision 1.13  2005/04/27 01:41:34  ycaniou
 #* Added the stuff for a correct compilation, for a correct registration of
 #* a batch profile, and for its execution.
@@ -76,15 +80,16 @@ libDIET_SeD_la_LIBADD = \
 	$(utilsdir)/libUtilsNodes.la $(utilsdir)/libUtilsVector.la	\
 	$(corbadir)/libCorbaCommon.la $(corbadir)/idl/libIDLCommon.la	\
 	$(corbadir)/idl/libIDLAgent.la $(LIBS_OMNIORB) $(LIBS_FAST) \
-	$(ELAGI_LIBS)
+	$(ELAGI_LIBS) $(AS_LIBS)
 
 AM_CXXFLAGS = $(CXXFLAGS_OMNIORB) $(CXXFLAGS_FAST) -I$(top_srcdir)/src/utils \
 	      -I$(top_srcdir)/src/CORBA -I$(corbadir)/idl 		     \
 	      -I$(top_srcdir)/src/agent
 
 if USE_BATCH
-   include $(ELAGI_DIR)/include/elagi/elagi.make
-   AM_CXXFLAGS += $(ELAGI_INC)
+include $(APPLESEEDS_DIR)/include/appleseeds/appleseeds.make
+include $(ELAGI_DIR)/include/elagi/elagi.make
+AM_CPPFLAGS += $(ELAGI_INC) $(AS_INC)
 endif
 
 if JXTA_MODE

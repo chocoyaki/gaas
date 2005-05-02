@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.46  2005/05/02 16:46:33  ycaniou
+ * Added the function diet_submit_batch(), the stuff in the makefile to compile
+ *  with appleseeds..
+ *
  * Revision 1.45  2005/04/27 01:41:34  ycaniou
  * Added the stuff for a correct compilation, for a correct registration of
  * a batch profile, and for its execution.
@@ -170,7 +174,7 @@ SeDImpl::run(ServiceTable* services)
       ERROR("Batch scheduler not recognized", 1) ;
     TRACE_TEXT(TRACE_MAIN_STEPS,"Batch submission enabled\n") ;
   } else if (this->SrvT->existBatchService())
-    ERROR("SeD is not allowed to launch non batch job", 1) ;
+    ERROR("SeD is not allowed to launch batch and non batch job", 1) ;
 #endif
 
   char* parent_name = (char*)
@@ -495,6 +499,12 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
 }
 
 #if HAVE_BATCH
+ELBASE_SchedulerServiceTypes
+SeDImpl::getBatchSchedulerID()
+{
+  return this->batchID ;
+}
+
 CORBA::Long
 SeDImpl::solve_batch(const char* path, corba_profile_t& pb, CORBA::Long reqID)
 {
@@ -761,62 +771,6 @@ SeDImpl::ping()
   SED_TRACE_FUNCTION("");
   return 0;
 }
-
-
-
-#if HAVE_BATCH
-int
-SeDImpl::submitBatch(char* parallelService,char* configfilename, int synchro)
-{
-  int passed = -1 ;
-  char *schedulerName = NULL ;
-  ELBASE_SchedulerServiceTypes schedulerID ;
-  ELBASE_ComputeServiceTypes ELBASE_service ;
-  char **attrs ;
-  ELBASE_Process pid ;
-  int status ;
-      
-  /* Read schedulerName in SeD.cfg */
-  /* Change in Parsers.hh for BATCHSCHEDULERNAME ? */
-  schedulerName = strdup("oar") ;
-  schedulerID = ELBASE_GiveBatchID(schedulerName) ;
-  if( schedulerID == -1 ) {
-    cerr << "DIET ERROR: the batch scheduler " << schedulerName 
-	 << " is unknown, can not submit job" ;
-    return passed ;
-  }
-  
-  /* Make the script and submit it to the batch scheduler */
-  ELBASE_service = ELBASE_FORK ;
-  /* Read args in filename */
-  attrs = (char**)malloc(sizeof(char*)*3) ;
-  attrs[0] = strdup("host_count=2") ;
-  attrs[1] = strdup("max_wall_time=0:1:0") ;
-  attrs[2] = NULL ;
-  
-  passed = ELBASE_Submit(ELBASE_service, "localhost", schedulerID
-			 , (const char **)attrs,
-			 parallelService, NULL, NULL, NULL, "dietSubmit"
-			 , NULL, NULL,
-			 &pid) ;
-  if( synchro == 1 ) {
-    passed = passed  &&
-      ELBASE_Poll(pid, 1, &status) &&
-      status == 0 ;
-  }
-  /*
-      &&
-      ELBASE_Spawn(service, server, "rm", NULL, rmArgs, NULL, NULL,
-		   NULL, NULL, &pid)
-      &&
-      ELBASE_Poll(pid, 1, &status) &&
-      status == 0;
-  */
-  
-  return passed ;
-  
-}
-#endif
 
 /****************************************************************************/
 /* Private methods                                                          */

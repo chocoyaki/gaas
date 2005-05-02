@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2005/05/02 16:46:33  ycaniou
+ * Added the function diet_submit_batch(), the stuff in the makefile to compile
+ *  with appleseeds..
+ *
  * Revision 1.17  2005/04/27 01:41:34  ycaniou
  * Added the stuff for a correct compilation, for a correct registration of
  * a batch profile, and for its execution.
@@ -106,7 +110,6 @@
 /****************************************************************************/
 /* SeD class                                                                */
 /****************************************************************************/
-
 class SeDImpl : public POA_SeD,
 		public PortableServer::RefCountServantBase
 {
@@ -147,6 +150,9 @@ public:
   solve(const char* pbName, corba_profile_t& pb,CORBA::Long reqID);
 
 #if HAVE_BATCH
+  ELBASE_SchedulerServiceTypes
+  getBatchSchedulerID() ;
+
   virtual CORBA::Long
   solve_batch(const char* pbName, corba_profile_t& pb,CORBA::Long reqID);
 #endif
@@ -157,11 +163,6 @@ public:
 
   virtual CORBA::Long
   ping();
-
-#if HAVE_BATCH
-  int
-  submitBatch(char* parallelService,char* configfilename, int synchro) ;
-#endif
 
   const struct timeval* timeSinceLastSolve();
 
