@@ -8,6 +8,10 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.44  2005/05/02 14:28:50  ycaniou
+#* The server lib needs appleseeds to be linked with, for all the examples
+#* to compile without any problem.
+#*
 #* Revision 1.43  2005/04/27 01:53:05  ycaniou
 #* Modified in order to really compile well (hope this to be the good one ;)
 #*
@@ -279,7 +283,7 @@ HAVE_omniORB="yes"
 # AC_TAO ???
 
 dnl ###########################################################################
-dnl ####[ search for the elagi Library ]
+dnl ####[ search for the elagi and appleseeds Libraries ]
 dnl ###########################################################################
 if test "x$enable_batch" = "xyes"; then
 
@@ -294,8 +298,29 @@ AC_ARG_WITH(Elagi,
 		  AC_MSG_ERROR([Could not detect elagi.h]))
 	AC_CHECK_FILE([${withval}/lib/libelagi.a],,
 		  AC_MSG_ERROR([Could not detect libelagi.a]))
+	AC_CHECK_FILE([${withval}/include/elagi/elagi.make],,
+		  AC_MSG_ERROR([Could not detect elagi.make]))
 
 	AC_SUBST(ELAGI_DIR)
+
+AC_ARG_WITH(Appleseeds,
+	[  --with-Appleseeds=DIR        location of appleseeds installation directory ],
+	[APPLESEEDS_DIR=${withval}
+	APPLESEEDS_INCLUDE_DIR="${C_INC}${withval}/include/appleseeds"],
+        [echo "The Appleseeds installation dir is required: ./configure --enable-batch --with-Appleseeds=<dir>"
+        exit 1])
+
+	AC_CHECK_HEADER([${withval}/include/appleseeds/appleseeds.h],,
+		  AC_MSG_ERROR([Could not detect appleseeds.h]))
+	AC_CHECK_FILE([${withval}/lib/libappleseeds.a],,
+		  AC_MSG_ERROR([Could not detect libappleseeds.a]))
+	AC_CHECK_FILE([${withval}/include/appleseeds/appleseeds.make],,
+		  AC_MSG_ERROR([Could not detect appleseeds.make]))
+
+	AC_SUBST(APPLESEEDS_DIR)
+
+
+# Then we can enable all the flags (source and makefile ones)
 
 	HAVE_BATCH="yes"
 	HAVE_Batch="yes"
