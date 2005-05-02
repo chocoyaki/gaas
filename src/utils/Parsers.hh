@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2005/05/02 16:52:50  ycaniou
+ * Added code commentaries
+ *
  * Revision 1.13  2005/04/29 15:03:11  ecaron
  * Delete friend definition to class Result to avoid one problem with gcc 3.4.x
  *
@@ -147,7 +150,7 @@ public:
 	else
 	  return port < a.port ;
       }
-    };
+    }; // class Address
 
 
     /**
@@ -186,7 +189,7 @@ public:
     } param_t;
     /** All keywords and their lengths */
     static param_t params[];
-  };
+  }; // Class Results
   
   
   /**
