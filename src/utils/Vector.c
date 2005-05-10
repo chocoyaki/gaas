@@ -2,21 +2,29 @@
 
 
 /* forward declarations for private functions */
-static int __Vector_idxIsValid(Vector_t v, int idx);
+static int __Vector_idxIsValid(const VectorConst_t v, int idx);
 static int __pointerCompare(const void* o1, const void* o2);
 
 
 Vector_t
 new_Vector()
 {
-  return ((Vector_t) calloc (1, sizeof (struct s_Vector)));
+  return ((Vector_t) calloc (1, sizeof (struct Vector_s)));
 }
 
 Vector_t
 new_Vector1(int capacity)
 {
   Vector_t v = new_Vector();
-  Vector_ensureCapacity(v, capacity);
+  if (v == NULL) {
+    fprintf(stderr, "new_Vector1: unable to allocate vector\n");
+    return (NULL);
+  }
+  if (! Vector_ensureCapacity(v, capacity)) {
+    fprintf(stderr, "new_Vector1: unable to ensure capacity %d\n", capacity);
+    free_Vector(v);
+    return (NULL);
+  }
   return (v);
 }
 
@@ -46,7 +54,12 @@ Vector_add(Vector_t v, void* o)
     return (0);
   }
 
-  Vector_ensureCapacity(v, Vector_size(v) + 1);
+  if (! Vector_ensureCapacity(v, Vector_size(v) + 1)) {
+    fprintf(stderr,
+            "Vector_add: unable to ensure capacity %d\n",
+            Vector_size(v) + 1);
+    return (0);
+  }
 
   (v->v_obj)[v->v_size] = o;
   v->v_size++;
@@ -57,8 +70,6 @@ Vector_add(Vector_t v, void* o)
 int
 Vector_addAtPosition(Vector_t v, void *o, int idx)
 {
-  int i;
-
   if (v == NULL) {
     fprintf(stderr, "Vector_addAtPosition: NULL v\n");
     return (0);
@@ -69,16 +80,24 @@ Vector_addAtPosition(Vector_t v, void *o, int idx)
   }
 
   if (idx <= Vector_size(v)) {
-    Vector_ensureCapacity(v, Vector_size(v) + 1);
-    for (i = v->v_size ; i > idx ; i--) {
-      (v->v_obj)[i] = (v->v_obj)[i-1];
+    if (! Vector_ensureCapacity(v, Vector_size(v) + 1)) {
+      fprintf(stderr,
+              "Vector_addAtPosition: unable to ensure capacity %d\n",
+              Vector_size(v) + 1);
+      return (0);
     }
+
+    memmove(&((v->v_obj)[idx+1]),
+            &((v->v_obj)[idx]),
+            (v->v_size - idx) * sizeof (void *));
     v->v_size++;
   }
   else {
-    Vector_ensureCapacity(v, idx + 1);
-    for (i = v->v_size ; i < idx ; i++) {
-      (v->v_obj)[i] = NULL;
+    if (! Vector_ensureCapacity(v, idx + 1)) {
+      fprintf(stderr,
+              "Vector_addAtPosition: unable to ensure capacity %d\n",
+              idx + 1);
+      return (0);
     }
     v->v_size = idx+1;
   }
@@ -88,7 +107,7 @@ Vector_addAtPosition(Vector_t v, void *o, int idx)
 }
 
 int
-Vector_capacity(Vector_t v)
+Vector_capacity(const VectorConst_t v)
 {
   if (v == NULL) {
     fprintf(stderr, "Vector_capacity: NULL v\n");
@@ -119,7 +138,7 @@ Vector_clear(Vector_t v)
 }
 
 int
-Vector_contains(Vector_t v, void* o)
+Vector_contains(const VectorConst_t v, const void* o)
 {
   if (v == NULL) {
     fprintf(stderr, "Vector_contains: NULL v\n");
@@ -133,7 +152,7 @@ Vector_contains(Vector_t v, void* o)
 }
 
 Vector_t
-Vector_copy(Vector_t v)
+Vector_copy(const VectorConst_t v)
 {
   Vector_t copy;
 
@@ -154,8 +173,8 @@ Vector_copy(Vector_t v)
   return (copy);
 }
 
-void*
-Vector_elementAt(Vector_t v, int idx)
+const void *
+Vector_elementAt(const VectorConst_t v, int idx)
 {
   if (v == NULL) {
     fprintf(stderr, "Vector_elementAt: NULL v\n");
@@ -175,7 +194,6 @@ Vector_elementAt(Vector_t v, int idx)
 int
 Vector_ensureCapacity(Vector_t v, int capacity)
 {
-  int i;
   int newCapacity;
 
   if (v == NULL) {
@@ -204,9 +222,10 @@ Vector_ensureCapacity(Vector_t v, int capacity)
     fprintf(stderr, "Vector_ensureCapacity: failed realloc\n");
     return (0);
   }
-
-  for (i = v->v_capacity ; i < newCapacity ; i++) {
-    (v->v_obj)[i] = NULL;
+  else {
+    size_t newAreaSize = (newCapacity - v->v_capacity) * sizeof (void *);
+    void **newAreaStart = &((v->v_obj)[v->v_capacity]);
+    memset(newAreaStart, '\0', newAreaSize);
   }
   v->v_capacity = newCapacity;
 
@@ -215,7 +234,7 @@ Vector_ensureCapacity(Vector_t v, int capacity)
 
 
 int
-Vector_indexOf(Vector_t v, const void* o)
+Vector_indexOf(const VectorConst_t v, const void* o)
 {
   if (v == NULL) {
     fprintf(stderr, "Vector_indexOf: NULL v\n");
@@ -226,7 +245,7 @@ Vector_indexOf(Vector_t v, const void* o)
 }
 
 int
-Vector_indexOf3(Vector_t v, const void* o, compfn_t c)
+Vector_indexOf3(const VectorConst_t v, const void* o, compfn_t c)
 {
   int i;
 
@@ -245,7 +264,7 @@ Vector_indexOf3(Vector_t v, const void* o, compfn_t c)
 }
 
 int
-Vector_isEmpty(Vector_t v)
+Vector_isEmpty(const VectorConst_t v)
 {
   if (v == NULL) {
     fprintf(stderr, "Vector_isEmpty: NULL v\n");
@@ -259,8 +278,8 @@ Vector_isEmpty(Vector_t v)
   return (0);
 }
 
-void*
-Vector_lastElement(Vector_t v)
+const void *
+Vector_lastElement(const VectorConst_t v)
 {
   if (v == NULL) {
     fprintf(stderr, "Vector_lastElement: NULL v\n");
@@ -275,7 +294,7 @@ Vector_lastElement(Vector_t v)
 }
 
 int
-Vector_lastIndexOf(Vector_t v, const void* o)
+Vector_lastIndexOf(const VectorConst_t v, const void* o)
 {
   int i;
 
@@ -327,7 +346,6 @@ Vector_remove3(Vector_t v, void* o, compfn_t c)
 void*
 Vector_removeAtPosition(Vector_t v, int idx)
 {
-  int i;
   void* rv;
 
   if (v == NULL) {
@@ -343,9 +361,9 @@ Vector_removeAtPosition(Vector_t v, int idx)
   }
 
   rv = (v->v_obj)[idx];
-  for (i = idx ; i < v->v_size - 1 ; i++) {
-    (v->v_obj)[i] = (v->v_obj)[i+1];
-  }
+  memmove(&((v->v_obj)[idx]),
+          &((v->v_obj)[idx+1]),
+          (v->v_size - 1 - idx) * sizeof (void *));
   (v->v_obj)[v->v_size - 1] = NULL;
   v->v_size--;
 
@@ -367,14 +385,17 @@ Vector_set(Vector_t v, void* o, int idx)
     (v->v_obj)[idx] = o;
   }
   else {
-    Vector_addAtPosition(v, o, idx);
+    if (! Vector_addAtPosition(v, o, idx)) {
+      fprintf(stderr, "Vector_set: unable to add object at index %d\n", idx);
+      return (0);
+    }
   }
 
   return (rv);
 }
 
 int
-Vector_size(Vector_t v)
+Vector_size(const VectorConst_t v)
 {
   if (v == NULL) {
     fprintf(stderr, "Vector_size: NULL v\n");
@@ -410,7 +431,7 @@ Vector_trimToSize(Vector_t v)
 /* private functions */
 
 static int
-__Vector_idxIsValid(Vector_t v, int idx)
+__Vector_idxIsValid(const VectorConst_t v, int idx)
 {
   return (idx >= 0 && idx < v->v_size);
 }
