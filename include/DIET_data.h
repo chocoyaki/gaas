@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2005/05/10 11:55:05  alsu
+ * optimized and retested estimation vector
+ *
  * Revision 1.25  2005/05/02 14:51:53  ycaniou
  * The client API has now the functions diet_call_batch() and diet_call_async_batch(). The client has also the possibility to modify the profile so that it is a batch, parallel or if he wants a special number of procs.
  * Changes in diet_profile_t and diet_profile_desc_t structures
@@ -499,7 +502,8 @@ typedef enum {
 typedef struct s_Vector *Vector_t;
 typedef Vector_t estVector_t;
 */
-typedef void* estVector_t;  /* workaround for vector/estvector equivalence */
+/* typedef void* estVector_t;  /\* workaround for vector/estvector equivalence *\/ */
+typedef struct estVector_s *estVector_t;
 
 #ifdef __cplusplus
 }

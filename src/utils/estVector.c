@@ -5,6 +5,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2005/05/10 11:55:07  alsu
+ * optimized and retested estimation vector
+ *
  * Revision 1.2  2004/12/08 15:02:52  alsu
  * plugin scheduler first-pass validation testing complete.  merging into
  * main CVS trunk; ready for more rigorous testing.
@@ -24,138 +27,136 @@
  *
  ****************************************************************************/
 
+#include <assert.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "DIET_data.h"
 #include "DIET_server.h"
-#include "Vector.h"
+
+typedef struct __tagvalpair_s {
+  diet_est_tag_t __tag;
+  double         __val;
+} __tagvalpair_s, *__tagvalpair_t;
+struct estVector_s {
+  size_t ev_num;
+  size_t ev_cap;
+  __tagvalpair_t ev_vect;
+};
+
+static int
+__estVector_ensureCapacity(estVector_t ev, size_t cap)
+{
+  if (ev->ev_cap >= cap) {
+    return (1);
+  }
+  ev->ev_vect = realloc(ev->ev_vect, cap * sizeof (struct __tagvalpair_s));
+  if (ev->ev_vect == NULL) {
+    return (0);
+  }
+
+  {
+    int numElts = cap - ev->ev_cap;
+    memset(&(ev->ev_vect[ev->ev_cap]),
+           0,
+           numElts * sizeof (struct __tagvalpair_s));
+  }
+
+  ev->ev_cap = cap;
+  return (1);
+}
+static int
+__estVector_grow(estVector_t ev)
+{
+  return (__estVector_ensureCapacity(ev, ev->ev_cap * 2));
+}
+
 
 estVector_t
 new_estVector()
 {
-  estVector_t ev;
-  if ((ev = (estVector_t) new_Vector()) == NULL) {
-    fprintf(stderr, "%s: unable to allocate vector\n", __FUNCTION__);
-    return (NULL);
-  }
-
+  estVector_t ev = calloc(1, sizeof (struct estVector_s));
+  assert(ev != NULL);
   return (ev);
 }
-
-typedef struct __s_tagvalpair {
-  diet_est_tag_t __tag;
-  double         __val;
-} __s_tagvalpair, *__tagvalpair_t;
 
 int
 estVector_addEstimation(estVector_t ev, diet_est_tag_t tag, double val)
 {
-  __tagvalpair_t tvp;
-  if (ev == NULL) {
-    fprintf(stderr, "%s: null vector\n", __FUNCTION__);
-    return (-1);
+  assert(ev != NULL);
+  if (ev->ev_num == ev->ev_cap) {
+    __estVector_grow(ev);
   }
-
-  if ((tvp = (__tagvalpair_t) calloc(1, sizeof (__s_tagvalpair))) == NULL) {
-    fprintf(stderr, "%s: unable to allocate pair\n", __FUNCTION__);
-    return (-1);
-  }
-  tvp->__tag = tag;
-  tvp->__val = val;
-
-  Vector_add((Vector_t) ev, tvp);
-  return (Vector_size((Vector_t) ev));
+  return (ev->ev_num);
 }
 
 int
 estVector_setEstimation(estVector_t ev, diet_est_tag_t tag, double val)
 {
-  __tagvalpair_t tvp;
-  if (ev == NULL) {
-    fprintf(stderr, "%s: null vector\n", __FUNCTION__);
-    return (-1);
-  }
-
-  if ((tvp = (__tagvalpair_t) calloc(1, sizeof (__s_tagvalpair))) == NULL) {
-    fprintf(stderr, "%s: unable to allocate pair\n", __FUNCTION__);
-    return (-1);
-  }
-  tvp->__tag = tag;
-  tvp->__val = val;
+  assert(ev != NULL);
 
   { /* eliminate all instances of this tag */
-    int evIter;
-    for (evIter = Vector_size((Vector_t) ev) - 1 ; evIter >= 0 ; evIter--) {
-      __tagvalpair_t tvpIter;
-      tvpIter = (__tagvalpair_t) Vector_elementAt((Vector_t) ev, evIter);
-      if (tvpIter->__tag == tag) {
-        Vector_removeAtPosition((Vector_t) ev, evIter);
-        free(tvpIter);
+    int tvpIter = 0;
+    while (tvpIter < ev->ev_num) {
+      if ((ev->ev_vect[tvpIter]).__tag == tag) {
+        ev->ev_vect[tvpIter] = ev->ev_vect[ev->ev_num-1];
+        memset(&(ev->ev_vect[ev->ev_num-1]),
+               0,
+               sizeof (struct __tagvalpair_s));
+        ev->ev_num--;
+      }
+      else {
+        tvpIter++;
       }
     }
   }
+  estVector_addEstimation(ev, tag, val);
 
-  Vector_add((Vector_t) ev, tvp);
-  return (Vector_size((Vector_t) ev));
+  return (ev->ev_num);
 }
 
 int
 estVector_numEstimations(estVector_t ev)
 {
-  if (ev == NULL) {
-    fprintf(stderr, "%s: null vector\n", __FUNCTION__);
-    return (-1);
-  }
-  return (Vector_size((Vector_t) ev));
+  assert(ev != NULL);
+  return (ev->ev_num);
 }
 
 int
 estVector_numEstimationsByType(estVector_t ev, diet_est_tag_t tag)
 {
-  int vIter;
-  int found;
-  if (ev == NULL) {
-    fprintf(stderr, "%s: null vector\n", __FUNCTION__);
-    return (-1);
-  }
-  for (found = 0, vIter = 0 ; vIter < Vector_size((Vector_t) ev) ; vIter++) {
-    __tagvalpair_t tvp =
-      (__tagvalpair_t) Vector_elementAt((Vector_t) ev, vIter);
-    if (tvp == NULL ||
-        tvp->__tag != tag) {
-      continue;
+  int tvpIter, count;
+
+  assert(ev != NULL);
+
+  for (tvpIter = 0, count = 0 ; tvpIter < ev->ev_num ; tvpIter++) {
+    if (ev->ev_vect[tvpIter].__tag == tag) {
+      count++;
     }
-    found++;
   }
-  return (found);
+  return (count);
 }
 
 diet_est_tag_t
 estVector_getEstimationTagByIdx(estVector_t ev, int idx)
 {
-  __tagvalpair_t tvp;
-  if (ev == NULL) {
-    fprintf(stderr, "%s: null vector\n", __FUNCTION__);
+  assert(ev != NULL);
+  if (idx >= ev->ev_num) {
     return (EST_INVALID);
   }
-  if ((tvp = (__tagvalpair_t) Vector_elementAt((Vector_t) ev, idx)) == NULL) {
-    fprintf(stderr, "%s: null element\n", __FUNCTION__);
-    return (EST_INVALID);
-  }
-  return (tvp->__tag);
+  return (ev->ev_vect[idx].__tag);
 }
 
 double
 estVector_getEstimationValueByIdx(estVector_t ev, int idx, double errVal)
 {
-  __tagvalpair_t tvp;
-  if (ev == NULL) {
-    fprintf(stderr, "%s: null vector\n", __FUNCTION__);
-    return (errVal);
+  assert(ev != NULL);
+  assert(idx >= 0);
+
+  if (idx >= ev->ev_num) {
+    return (EST_INVALID);
   }
-  if ((tvp = (__tagvalpair_t) Vector_elementAt((Vector_t) ev, idx)) == NULL) {
-    fprintf(stderr, "%s: null element\n", __FUNCTION__);
-    return (errVal);
-  }
-  return (tvp->__val);
+  return (ev->ev_vect[idx].__val);
 }
 
 double
@@ -172,48 +173,33 @@ estVector_getEstimationValueNum(estVector_t ev,
                                 double errVal,
                                 int idx)
 {
-  int vIter;
+  int tvpIter;
   int found;
-  if (ev == NULL) {
-    fprintf(stderr, "%s: null vector\n", __FUNCTION__);
-    return (errVal);
-  }
-  if (idx < 0) {
-    fprintf(stderr, "%s: invalid index\n", __FUNCTION__);
-    return (errVal);
-  }
-  for (found = 0, vIter = 0 ; vIter < Vector_size((Vector_t) ev) ; vIter++) {
-    __tagvalpair_t tvp =
-      (__tagvalpair_t) Vector_elementAt((Vector_t) ev, vIter);
-    if (tvp == NULL ||
-        tvp->__tag != tag) {
+
+  assert(ev != NULL);
+  assert(idx >= 0);
+
+  for (found = 0, tvpIter = 0 ; tvpIter < ev->ev_num ; tvpIter++) {
+    if (ev->ev_vect[tvpIter].__tag != tag) {
       continue;
     }
-
     if (found == idx) {
-      return (tvp->__val);
+      return (ev->ev_vect[tvpIter].__val);
     }
     found++;
   }
-
-/*   fprintf(stderr, "%s: index not found\n", __FUNCTION__); */
   return (errVal);
 }
 
 void
 free_estVector(estVector_t ev)
 {
-  __tagvalpair_t tvp;
-  if (ev == NULL) {
-    fprintf(stderr, "%s: null vector\n", __FUNCTION__);
-    return;
+  assert(ev != NULL);
+
+  if (ev->ev_cap > 0) {
+    assert(ev->ev_vect != NULL);
+    free(ev->ev_vect);
   }
-  while (! Vector_isEmpty((Vector_t) ev)) {
-    tvp = (__tagvalpair_t) Vector_removeAtPosition((Vector_t) ev, 0);
-    if (tvp != NULL) {
-      free(tvp);
-    }
-    /* ELSE ERROR? */
-  }
-  free_Vector((Vector_t) ev);
+
+  free(ev);
 }
