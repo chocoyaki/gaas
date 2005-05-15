@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.48  2005/05/15 15:32:22  alsu
+ * marshalling functions for aggregator
+ *
  * Revision 1.47  2005/04/27 01:07:37  ycaniou
  * Added the necessary 'translations' for the new profiles structure fields
  *
@@ -87,6 +90,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "estVector.h"
 #include "marshalling.hh"
 #include "debug.hh"
 
@@ -278,7 +282,7 @@ mrsh_data(corba_data_t* dest, diet_data_t* src, int release)
     dest->value.length(0);
   else
     dest->value.replace(size, size, value, release); // 0 if persistent 1 elsewhere
-
+//   cout << "mrsh_data: value is " << dest->value.get_buffer() << "\n";
   return 0;
 }
 
@@ -396,6 +400,7 @@ unmrsh_data_desc(diet_data_desc_t* dest, const corba_data_desc_t* const src)
                          (diet_persistence_mode_t)src->mode,
                          src->specific.pstr().length,
                          src->specific.pstr().param);
+//     cout << "unmrsh_data_desc: param is " << src->specific.pstr().param << "\n";
     break;
   }
   case DIET_FILE: {
@@ -490,9 +495,45 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
       }
     }
   }
+//   cout << "unmrsh_data: value is " << dest->value << "\n";
   return 0;
 }
 
+
+/****************************************************************************/
+/* Aggregator descriptor -> Corba aggregator descriptor                     */
+/****************************************************************************/
+
+int mrsh_aggregator_desc(corba_aggregator_desc_t* dest,
+                         const diet_aggregator_desc_t* const src)
+{
+  switch (src->agg_method) {
+  case DIET_AGG_DEFAULT:
+    {
+      corba_agg_default_t d;
+      dest->agg_specific.agg_default(d);
+      break;
+    }
+  case DIET_AGG_PRIORITY:
+    {
+      /* set the type-specific structure */
+      corba_agg_priority_t p;
+      dest->agg_specific.agg_priority(p);
+
+      /* set the lenth dynamic array */
+      int numPValues = src->agg_specific.agg_specific_priority.p_numPValues;
+      dest->agg_specific.agg_priority().priorityList.length(numPValues);
+
+      /* fill in the values */
+      for (int pIter = 0 ; pIter < numPValues ; pIter++) {
+        dest->agg_specific.agg_priority().priorityList[pIter] =
+          src->agg_specific.agg_specific_priority.p_pValues[pIter];
+      }
+      break;
+    }
+  }
+  return (0);
+}
 
 /****************************************************************************/
 /* Service profile -> Corba profile descriptor  (for service descriptions)  */
@@ -514,6 +555,9 @@ mrsh_profile_desc(corba_profile_desc_t* dest, const diet_profile_desc_t* src)
 #if HAVE_BATCH
   dest->batch_flag = src->batch_flag ;
 #endif
+
+  mrsh_aggregator_desc(&(dest->aggregator), &(src->aggregator));
+
   return 0;
 }
 
