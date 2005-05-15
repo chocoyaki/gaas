@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2005/05/15 15:46:40  alsu
+ * minor change to the chooseGlobalScheduler method
+ *
  * Revision 1.5  2005/04/25 08:57:17  hdail
  * Clean up memory for GS in Request destructor.
  *
@@ -51,7 +54,7 @@ Request::Request(const corba_request_t* request)
   if (*(request->serialized_scheduler.in()) == '\0') {
     INTERNAL_WARNING("request " << request->reqID
 		     << " has no scheduler associated");
-    this->GS = GlobalScheduler::chooseGlobalScheduler(request);
+    this->GS = GlobalScheduler::chooseGlobalScheduler();
   } else {
     this->GS = GlobalScheduler::deserialize(this->request->serialized_scheduler);
   }  
