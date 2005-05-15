@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2005/05/15 15:31:44  alsu
+ * - aggregator structures and interfaces
+ * - simplified estimation vector interface
+ *
  * Revision 1.19  2005/05/02 14:51:53  ycaniou
  * The client API has now the functions diet_call_batch() and diet_call_async_batch(). The client has also the possibility to modify the profile so that it is a batch, parallel or if he wants a special number of procs.
  * Changes in diet_profile_t and diet_profile_desc_t structures
@@ -104,8 +108,30 @@ extern "C" {
 
 int
 diet_generic_desc_set(struct diet_data_generic* desc,
-		      diet_data_type_t type, diet_base_type_t base_type);
+                      diet_data_type_t type,
+                      diet_base_type_t base_type);
 
+
+/****************************************************************************/
+/* DIET aggregator descriptor                                               */
+/****************************************************************************/
+
+typedef struct {
+  char __dummy;
+} diet_aggregator_default_t;
+
+typedef struct {
+  int p_numPValues;
+  int* p_pValues;
+} diet_aggregator_priority_t;
+
+typedef struct {
+  diet_aggregator_type_t agg_method;
+  union {
+    diet_aggregator_default_t agg_specific_default;
+    diet_aggregator_priority_t agg_specific_priority;
+  } agg_specific;
+} diet_aggregator_desc_t;
 
 /****************************************************************************/
 /* DIET service profile descriptor                                          */
@@ -124,6 +150,8 @@ typedef struct {
   /* if job is parallel but not batch */
 #endif
 
+  /* aggregator description, used when declaring a service */
+  diet_aggregator_desc_t aggregator;
 } diet_profile_desc_t;
 
 /**
@@ -149,6 +177,28 @@ diet_profile_desc_alloc(const char* path,
 			int last_in, int last_inout, int last_out);
 int
 diet_profile_desc_free(diet_profile_desc_t* desc);
+
+
+
+
+
+/**
+ * Configure a priority aggregator
+ */
+diet_aggregator_desc_t*
+diet_profile_desc_aggregator(diet_profile_desc_t* profile);
+int diet_aggregator_set_type(diet_aggregator_desc_t* agg,
+                             diet_aggregator_type_t atype);
+int diet_aggregator_priority_max(diet_aggregator_desc_t* agg,
+                                 diet_est_tag_t tag);
+int diet_aggregator_priority_min(diet_aggregator_desc_t* agg,
+                                 diet_est_tag_t tag);
+int diet_aggregator_priority_maxuser(diet_aggregator_desc_t* agg, int val);
+int diet_aggregator_priority_minuser(diet_aggregator_desc_t* agg, int val);
+
+
+
+
 
 #ifdef HAVE_BATCH
 /* Functions for server profile registration */
@@ -341,32 +391,18 @@ diet_SeD(char* config_file_name, int argc, char* argv[]);
 int
 diet_submit_batch(diet_profile_t* profile, const char *command) ;
 #endif
-/****************************************************************************/
-/* DIET estimation vector interface                                         */
-/****************************************************************************/
-estVector_t new_estVector();
-int estVector_addEstimation(estVector_t ev, diet_est_tag_t tag, double val);
-int estVector_setEstimation(estVector_t ev, diet_est_tag_t tag, double val);
-int estVector_numEstimationsByType(estVector_t ev, diet_est_tag_t tag);
-int estVector_numEstimations(estVector_t ev);
-diet_est_tag_t estVector_getEstimationTagByIdx(estVector_t ev, int idx);
-double estVector_getEstimationValueByIdx(estVector_t ev,
-                                         int idx,
-                                         double errVal);
-double estVector_getEstimationValue(estVector_t ev,
-                                    diet_est_tag_t tag,
-                                    double errVal);
-double estVector_getEstimationValueNum(estVector_t ev,
-                                       diet_est_tag_t tag,
-                                       double errVal,
-                                       int idx);
-void free_estVector(estVector_t ev);
 
 
 
 /****************************************************************************/
 /* DIET standard estimation methods (DIET_server.cc)                        */
 /****************************************************************************/
+estVector_t diet_estimate_new_vector();
+int diet_set_user_estimate(estVector_t ev, int userTag, double value);
+/***/
+/* unclear whether we want to allow users to estimate standard metrics */
+/* int diet_set_estimate(estVector_t ev, diet_est_tag_t tag, double value); */
+/***/
 int diet_estimate_fast(estVector_t ev, const diet_profile_t* const profilePtr);
 int diet_estimate_lastexec(estVector_t ev,
                            const diet_profile_t* const profilePtr);
