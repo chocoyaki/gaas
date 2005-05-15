@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2005/05/15 15:50:49  alsu
+ * implementing PriorityScheduler
+ *
  * Revision 1.4  2004/12/08 15:02:52  alsu
  * plugin scheduler first-pass validation testing complete.  merging into
  * main CVS trunk; ready for more rigorous testing.
@@ -314,8 +317,7 @@ public:
   static const char*  stName;
   static const size_t nameLength;
 
-  MinScheduler();
-  MinScheduler(unsigned int seed);
+  MinScheduler(int tagval);
   virtual
   ~MinScheduler();
 
@@ -334,7 +336,7 @@ public:
   deserialize(char* serializedScheduler);
 
 private:
-  unsigned int seed;
+  int tagval;
 };
 
 class MaxScheduler : public Scheduler
@@ -343,8 +345,7 @@ public:
   static const char*  stName;
   static const size_t nameLength;
 
-  MaxScheduler();
-  MaxScheduler(unsigned int seed);
+  MaxScheduler(int tagval);
   virtual
   ~MaxScheduler();
 
@@ -363,7 +364,41 @@ public:
   deserialize(char* serializedScheduler);
 
 private:
-  unsigned int seed;
+  int tagval;
+};
+
+class PriorityScheduler : public Scheduler
+{
+public:
+  class priorityList {
+  public:
+    int pl_numValues;
+    int *pl_values;
+  };
+
+  static const char*  stName;
+  static const size_t nameLength;
+
+  PriorityScheduler(int numValues, int *values);
+  virtual
+  ~PriorityScheduler();
+
+  /**
+   * Return the serialized Max scheduler (a string)
+   * NB: doubles are serialized with a precision of 10 significant decimals.
+   */
+  static char*
+  serialize(PriorityScheduler* S);
+  
+  /**
+   * Return the PriorityScheduler deserialized from the string
+   * \c serializedScheduler.
+   */
+  static PriorityScheduler*
+  deserialize(char* serializedScheduler);
+
+private:
+  PriorityScheduler::priorityList pl;
 };
 
 #endif // _SCHEDULERS_HH_
