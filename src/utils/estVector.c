@@ -5,6 +5,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2005/05/15 15:42:41  alsu
+ * - minor changes to the interfaces
+ * - hiding most of the useless estimation vector stuff from the server
+ *   interface
+ *
  * Revision 1.3  2005/05/10 11:55:07  alsu
  * optimized and retested estimation vector
  *
@@ -35,8 +40,8 @@
 #include "DIET_server.h"
 
 typedef struct __tagvalpair_s {
-  diet_est_tag_t __tag;
-  double         __val;
+  int __tag;
+  double __val;
 } __tagvalpair_s, *__tagvalpair_t;
 struct estVector_s {
   size_t ev_num;
@@ -65,9 +70,14 @@ __estVector_ensureCapacity(estVector_t ev, size_t cap)
   ev->ev_cap = cap;
   return (1);
 }
+
+#define ESTVECTOR_INITIAL_SIZE 4
 static int
 __estVector_grow(estVector_t ev)
 {
+  if (ev->ev_cap == 0) {
+    return (__estVector_ensureCapacity(ev, ESTVECTOR_INITIAL_SIZE));
+  }
   return (__estVector_ensureCapacity(ev, ev->ev_cap * 2));
 }
 
@@ -81,17 +91,22 @@ new_estVector()
 }
 
 int
-estVector_addEstimation(estVector_t ev, diet_est_tag_t tag, double val)
+estVector_addEstimation(estVector_t ev, int tag, double val)
 {
   assert(ev != NULL);
   if (ev->ev_num == ev->ev_cap) {
-    __estVector_grow(ev);
+    if (! __estVector_grow(ev)) {
+      return (0);
+    }
   }
+  (ev->ev_vect[ev->ev_num]).__tag = tag;
+  (ev->ev_vect[ev->ev_num]).__val = val;
+  ev->ev_num++;
   return (ev->ev_num);
 }
 
 int
-estVector_setEstimation(estVector_t ev, diet_est_tag_t tag, double val)
+estVector_setEstimation(estVector_t ev, int tag, double val)
 {
   assert(ev != NULL);
 
@@ -123,7 +138,7 @@ estVector_numEstimations(estVector_t ev)
 }
 
 int
-estVector_numEstimationsByType(estVector_t ev, diet_est_tag_t tag)
+estVector_numEstimationsByTag(estVector_t ev, int tag)
 {
   int tvpIter, count;
 
@@ -137,7 +152,7 @@ estVector_numEstimationsByType(estVector_t ev, diet_est_tag_t tag)
   return (count);
 }
 
-diet_est_tag_t
+int
 estVector_getEstimationTagByIdx(estVector_t ev, int idx)
 {
   assert(ev != NULL);
@@ -160,16 +175,8 @@ estVector_getEstimationValueByIdx(estVector_t ev, int idx, double errVal)
 }
 
 double
-estVector_getEstimationValue(estVector_t ev,
-                             diet_est_tag_t tag,
-                             double errVal)
-{
-  return (estVector_getEstimationValueNum(ev, tag, errVal, 0));
-}
-
-double
 estVector_getEstimationValueNum(estVector_t ev,
-                                diet_est_tag_t tag,
+                                int tag,
                                 double errVal,
                                 int idx)
 {
@@ -189,6 +196,14 @@ estVector_getEstimationValueNum(estVector_t ev,
     found++;
   }
   return (errVal);
+}
+
+double
+estVector_getEstimationValue(estVector_t ev,
+                             int tag,
+                             double errVal)
+{
+  return (estVector_getEstimationValueNum(ev, tag, errVal, 0));
 }
 
 void
