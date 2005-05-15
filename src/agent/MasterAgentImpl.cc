@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2005/05/15 15:48:50  alsu
+ * minor changes from estimation vector reorganization
+ *
  * Revision 1.18  2005/04/08 13:02:43  hdail
  * The code for LogCentral has proven itself stable and it seems bug free.
  * Since no external libraries are required to compile in LogCentral, its now
@@ -326,7 +329,16 @@ MasterAgentImpl::submit_local(const corba_request_t& creq)
 
   /* Initialize the request with a global scheduler */
   TRACE_TEXT(TRACE_ALL_STEPS, "Initialize the request " << creq.reqID << ".\n");	    
-  req = new Request(&creq, GlobalScheduler::chooseGlobalScheduler(&creq));
+  ServiceTable::ServiceReference_t sref =
+    this->SrvT->lookupService(&(creq.pb));
+  assert(sref >= 0);
+  CORBA::Long numProfiles;
+  SeqCorbaProfileDesc_t *profiles = this->SrvT->getProfiles(numProfiles);
+  assert(sref < numProfiles);
+  const corba_profile_desc_t profile = (*profiles)[sref];
+  corba_aggregator_desc_t agg = ((*profiles)[sref]).aggregator;
+  req = new Request(&creq,
+                    GlobalScheduler::chooseGlobalScheduler(&creq, &profile));
 
   /* Forward request and schedule the responses */
 

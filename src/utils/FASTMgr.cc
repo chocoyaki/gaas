@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2005/05/15 15:44:08  alsu
+ * minor changes from estimation vector reorganization
+ *
  * Revision 1.10  2004/12/08 15:02:52  alsu
  * plugin scheduler first-pass validation testing complete.  merging into
  * main CVS trunk; ready for more rigorous testing.
@@ -65,6 +68,7 @@
 
 #include "FASTMgr.hh"
 
+#include "estVector.h"
 #include "DIET_config.h"
 #include "debug.hh"
 #include "marshalling.hh"
@@ -305,10 +309,6 @@ FASTMgr::estimate(char* hostName,
 
 #else //HAVE_FAST
 #endif //HAVE_FAST
-//   estimation.tComp   = time;
-//   estimation.freeCPU = freeCPU;
-//   estimation.freeMem = freeMem;
-//   estimation.nbCPU   = nbCPU;
   {
 //     fprintf(stderr,
 // 	    "****FASTTEST****** FASTMgr::estimate: (%.4f,%.4f,%.4f,%.4f)\n",

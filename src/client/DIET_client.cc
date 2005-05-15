@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.57  2005/05/15 15:44:46  alsu
+ * minor changes from estimation vector reorganization
+ *
  * Revision 1.56  2005/04/28 13:07:05  eboix
  *     Inclusion of CORBA.h substitued with omniORB4/CORBA.h. --- Injay 2461
  *
@@ -62,6 +65,7 @@ using namespace std;
 #include <math.h>
 
 #include "debug.hh"
+#include "estVector.h"
 #include "DIET_data_internal.hh"
 #include "marshalling.hh"
 #include "MasterAgent.hh"
@@ -482,10 +486,6 @@ request_submission(diet_profile_t* profile,
               continue;
             }
 
-//             if ((totalTime == response->servers[idx].estim.totalTime) ||
-//                 ((response->servers[idx].estim.totalTime - totalTime)
-//                  < (ERROR_RATE *
-//                     MAX(totalTime,response->servers[idx].estim.totalTime))))
             ev = new_estVector();
             unmrsh_estimation_to_estVector(&(response->servers[idx].estim),
                                            ev);

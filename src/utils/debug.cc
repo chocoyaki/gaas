@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2005/05/15 15:44:08  alsu
+ * minor changes from estimation vector reorganization
+ *
  * Revision 1.22  2004/12/15 13:53:22  sdahan
  * - the trace function are now thread safe.
  * - add "extern unsigned int TRACE_LEVEL" in debug.hh
@@ -81,6 +84,7 @@
 #include <stdlib.h>
 
 #include "debug.hh"
+#include "estVector.h"
 #include "marshalling.hh"
 #include "DIET_data_internal.hh"
 #include "DIET_server.h"
@@ -113,15 +117,6 @@ displayResponse(FILE* os, const corba_response_t* resp)
   for (i = 0; i < resp->servers.length(); i++) {
     estVector_t ev = new_estVector();
 
-//     if (resp->servers[i].estim.tComp != HUGE_VAL) {
-//       fprintf(os, "  %ldth server can solve the problem in %g seconds\n",
-//               (long) i, resp->servers[i].estim.tComp);
-//     }
-//     else {
-//       fprintf(os, "  %ldth server has %g free CPU and %g free memory\n",
-//               (long) i, resp->servers[i].estim.freeCPU,
-//               resp->servers[i].estim.freeMem);
-//     }
     {
       unmrsh_estimation_to_estVector(&(resp->servers[i].estim), ev);
       if (estVector_getEstimationValue(ev, EST_TCOMP, HUGE_VAL) != HUGE_VAL) {
@@ -140,11 +135,8 @@ displayResponse(FILE* os, const corba_response_t* resp)
     }
 
     fprintf(os, "  TComms for each parameter: ");
-//     for (j = 0; j < resp->servers[i].estim.commTimes.length(); j++) {
-//       fprintf(os, " %g", (double)resp->servers[i].estim.commTimes[j]);
-//     }
     for (int commTimeIter = 0 ;
-         commTimeIter < estVector_numEstimationsByType(ev, EST_COMMTIME) ;
+         commTimeIter < estVector_numEstimationsByTag(ev, EST_COMMTIME) ;
          commTimeIter++) {
       fprintf(os,
               " %g",
@@ -170,14 +162,6 @@ displayResponseShort(FILE* os, const corba_response_t* resp)
     estVector_t ev = new_estVector();
     unmrsh_estimation_to_estVector(&(resp->servers[i].estim), ev);
 
-//     fprintf(stdout, 
-//       "    %d: %s:%ld: tComp %g fCpu %g fMem %g\n",
-//       i,
-//       (const char *)(resp->servers[i].loc.hostName),
-//       resp->servers[i].loc.port,
-//       resp->servers[i].estim.tComp,
-//       resp->servers[i].estim.freeCPU,
-//       resp->servers[i].estim.freeMem);
     fprintf(stdout, 
             "    %d: %s:%ld: tComp %g fCpu %g fMem %g\n",
             i,
