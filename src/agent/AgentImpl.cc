@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.32  2005/05/15 15:49:40  alsu
+ * to indicate sucess/failure, addServices not returns a value
+ *
  * Revision 1.31  2005/05/02 16:47:45  ycaniou
  * Nothing but indentation of the code
  *
@@ -210,7 +213,7 @@ AgentImpl::setDietLogComponent(DietLogComponent* dietLogComponent) {
 /**
  * Subscribe an agent as a LA child. Remotely called by an LA.
  */
-CORBA::ULong
+CORBA::Long
 AgentImpl::agentSubscribe(Agent_ptr me, const char* hostName,
     const SeqCorbaProfileDesc_t& services)
 {
@@ -225,7 +228,9 @@ AgentImpl::agentSubscribe(Agent_ptr me, const char* hostName,
   this->LAChildren[retID] = LAChild(meLA, hostName);
   (this->nbLAChildren)++; // thread safe Counter class
 
-  this->addServices(retID, services); 
+  if (this->addServices(retID, services) != 0) {
+    return (-1);
+  }
 
   return retID;
 } // agentSubscribe(Agent_ptr me, const char* hostName, ...)
@@ -235,7 +240,7 @@ AgentImpl::agentSubscribe(Agent_ptr me, const char* hostName,
  * Subscribe a server as a SeD child. Remotely called by an SeD.
  */
 
-CORBA::ULong
+CORBA::Long
 AgentImpl::serverSubscribe(SeD_ptr me, const char* hostName,
 #if HAVE_JXTA
 			   const char* uuid,
@@ -259,7 +264,9 @@ AgentImpl::serverSubscribe(SeD_ptr me, const char* hostName,
 				 );
   (this->nbSeDChildren)++; // thread safe Counter class
 
-  this->addServices(retID, services);
+  if (this->addServices(retID, services) != 0) {
+    return (-1);
+  }
 
   return retID;
 } // serverSubscribe(SeD_ptr me, const char* hostName, ...)
@@ -268,7 +275,7 @@ AgentImpl::serverSubscribe(SeD_ptr me, const char* hostName,
 /**
  * Add \c services into the service table, and attach them to child \c me.
  */
-void
+CORBA::Long
 AgentImpl::addServices(CORBA::ULong myID,
                        const SeqCorbaProfileDesc_t& services)
 {
@@ -290,14 +297,28 @@ AgentImpl::addServices(CORBA::ULong myID,
     if(result == 0){
       TRACE_TEXT(TRACE_STRUCTURES, "Service " << i 
           << " added for child " << myID << ".\n");
-    } else {
+    }
+    else if (result == -1) {
       TRACE_TEXT(TRACE_STRUCTURES, "Service " << i 
             << " is a duplicate for child " << myID << ". Not added.\n");
+    }
+    else if (result == -2) {
+      this->SrvT->rmChild(myID);
+      return (-1);
+    }
+    else {
+      INTERNAL_ERROR(__FUNCTION__ <<
+                     ": unexpected return code from " <<
+                     "ServiceTable::addService (" <<
+                     result <<
+                     ")", -1);
     }
   }
   if (TRACE_LEVEL >= TRACE_STRUCTURES)
     this->SrvT->dump(stdout);
   this->srvTMutex.unlock();
+
+  return (0);
 } // addServices(CORBA::ULong myID, const SeqCorbaProfileDesc_t& services)
 
 

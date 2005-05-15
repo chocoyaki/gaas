@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2005/05/15 15:51:15  alsu
+ * to indicate sucess/failure, addServices not returns a value
+ *
  * Revision 1.4  2003/09/22 21:19:49  pcombes
  * Set all the modules and their interfaces for data persistency.
  *
@@ -54,7 +57,7 @@ public :
    * Add \c services into the service table, and attach them to child \c me.
    * Then, propagate information to the parent
    */
-  virtual void
+  virtual CORBA::Long
   addServices(CORBA::ULong myID, const SeqCorbaProfileDesc_t& services);
 
 

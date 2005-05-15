@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2005/05/15 15:49:40  alsu
+ * to indicate sucess/failure, addServices not returns a value
+ *
  * Revision 1.12  2005/04/13 08:49:11  hdail
  * Beginning of adoption of new persistency model: DTM is enabled by default and
  * JuxMem will be supported via configure flags.  DIET will always provide at
@@ -98,12 +101,12 @@ public:
   setDietLogComponent(DietLogComponent* dietLogComponent);
 
   /** Subscribe an agent as a LA child. Remotely called by an LA. */
-  virtual CORBA::ULong
+  virtual CORBA::Long
   agentSubscribe(Agent_ptr me, const char* hostName,
 		 const SeqCorbaProfileDesc_t& services);
 
   /** Subscribe a server as a SeD child. Remotely called by an SeD. */
-  virtual CORBA::ULong
+  virtual CORBA::Long
   serverSubscribe(SeD_ptr me, const char* hostName,
 #if HAVE_JXTA
 		  const char* uuid,
@@ -111,7 +114,7 @@ public:
 		  const SeqCorbaProfileDesc_t& services);
 
   /** Add services into the service table, and attach them to child me.*/
-  virtual void
+  virtual CORBA::Long
   addServices(CORBA::ULong myID, const SeqCorbaProfileDesc_t& services);
 
   /** Get the response of a child */

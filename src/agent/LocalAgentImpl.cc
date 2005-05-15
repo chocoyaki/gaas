@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2005/05/15 15:51:15  alsu
+ * to indicate sucess/failure, addServices not returns a value
+ *
  * Revision 1.11  2005/04/08 13:02:43  hdail
  * The code for LogCentral has proven itself stable and it seems bug free.
  * Since no external libraries are required to compile in LogCentral, its now
@@ -96,7 +99,7 @@ LocalAgentImpl::run()
 /**
  * Add \c services into the service table, and attach them to child \c me.
  */
-void
+CORBA::Long
 LocalAgentImpl::addServices(CORBA::ULong myID,
 			    const SeqCorbaProfileDesc_t& services)
 {
@@ -106,18 +109,27 @@ LocalAgentImpl::addServices(CORBA::ULong myID,
     SeqCorbaProfileDesc_t* tmp;
 
     /* Update local service table first */
-    this->AgentImpl::addServices(myID, services);
+    if (this->AgentImpl::addServices(myID, services) != 0) {
+      return (-1);
+    }
     /* Then propagate the complete service table to the parent */
     tmp = this->SrvT->getProfiles();
     this->childID = this->parent->agentSubscribe(this->_this(), 
 						 this->localHostName, *tmp);
+    if (this->childID < 0) {
+      return (-1);
+    }
     delete tmp;
   } else {
     /* First, propagate asynchronously the new services to parent */
     this->parent->addServices(this->childID, services);
     /* Then update local service table */
-    this->AgentImpl::addServices(myID, services);
+    if (this->AgentImpl::addServices(myID, services) != 0) {
+      return (-1);
+    }
   }
+
+  return (0);
 } // addServices((CORBA::ULong myID, ...)
 
 
