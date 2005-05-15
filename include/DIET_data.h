@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2005/05/15 15:29:33  alsu
+ * - adding new aggregator structure
+ * - removing obsolete estimation tags
+ *
  * Revision 1.26  2005/05/10 11:55:05  alsu
  * optimized and retested estimation vector
  *
@@ -92,6 +96,15 @@ extern "C" {
 #endif // __cplusplus
 
 
+
+/****************************************************************************/
+/* Aggregator types                                                         */
+/****************************************************************************/
+
+typedef enum {
+  DIET_AGG_DEFAULT = 0,
+  DIET_AGG_PRIORITY
+} diet_aggregator_type_t;
 
 /****************************************************************************/
 /* Base and data types                                                      */
@@ -489,8 +502,6 @@ typedef enum {
   EST_CPUSPEED,
   EST_TOTALMEM,
   EST_TIMESINCELASTSOLVE,
-  EST_MINMETRIC,
-  EST_MAXMETRIC,
   EST_USERDEFINED
 } diet_est_tag_t;
 
@@ -498,11 +509,6 @@ typedef enum {
 /**
  * estimation vector
  */
-/*
-typedef struct s_Vector *Vector_t;
-typedef Vector_t estVector_t;
-*/
-/* typedef void* estVector_t;  /\* workaround for vector/estvector equivalence *\/ */
 typedef struct estVector_s *estVector_t;
 
 #ifdef __cplusplus
