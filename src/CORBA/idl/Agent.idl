@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2005/05/15 15:34:08  alsu
+ * to indicate success/failure, addServices now returns a value
+ *
  * Revision 1.4  2004/09/29 13:35:31  sdahan
  * Add the Multi-MAs feature.
  *
@@ -45,7 +48,7 @@ interface Agent {
    * same as for addServices method. Returns a registration number wich
    * indentifies the child amongst the other children of this agent.
    */
-  unsigned long agentSubscribe(in Agent me, in string hostname,
+  long agentSubscribe(in Agent me, in string hostname,
 			       in SeqCorbaProfileDesc_t services);
   /**
    * Invoked by servers to register as a child of this agent. As it is useless
@@ -53,7 +56,7 @@ interface Agent {
    * addServices method. Returns a registration number wich indentifies the
    * child amongst the other children of this agent.
    */
-  unsigned long serverSubscribe(in SeD me,  in string hostname,
+  long serverSubscribe(in SeD me,  in string hostname,
 #if HAVE_JXTA
 				in string uuid,
 #endif // HAVE_JXTA
@@ -65,8 +68,8 @@ interface Agent {
    * the tree when a new child registers. The first parameter is the child's
    * registration number.
    */
-  oneway void addServices(in unsigned long myID,
-			  in SeqCorbaProfileDesc_t services);
+  long addServices(in unsigned long myID,
+                   in SeqCorbaProfileDesc_t services);
 
 
   /**
