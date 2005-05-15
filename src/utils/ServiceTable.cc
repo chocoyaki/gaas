@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2005/05/15 15:43:55  alsu
+ * ensure aggregators are equivalent when registering services
+ *
  * Revision 1.15  2005/04/27 01:49:41  ycaniou
  * Added the necessary for initialisation of batch profile, for profiles to
  * match
@@ -210,15 +213,7 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
   }
   return 0;
 }
-/*
-int
-ServiceTable::addService(const corba_profile_desc_t* profile,
-                         diet_convertor_t* cvt,
-                         diet_solve_t solver, diet_eval_t evalf)
-{
-  return (this->addService(profile, cvt, solver, evalf, NULL));
-}
-*/
+
 int
 ServiceTable::addService(const corba_profile_desc_t* profile,
                          CORBA::ULong child)
@@ -248,7 +243,54 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
       = child;
     nb_s++;
   
-  } else {
+  }
+  else {
+
+    { /* verify that the aggregators are equivalent */
+      corba_profile_desc_t *storedProfile = &(profiles[service_idx]);
+      const corba_aggregator_desc_t *a1 = &(storedProfile->aggregator);
+      const corba_aggregator_desc_t *a2 = &(profile->aggregator);
+      if (a1->agg_specific._d() != a2->agg_specific._d()) {
+        ERROR(__FUNCTION__ << ": aggregator type mismatch\n", -2);
+      }
+      switch (a1->agg_specific._d()) {
+      case DIET_AGG_DEFAULT:
+        break;
+      case DIET_AGG_PRIORITY:
+        {
+          const corba_agg_priority_t *p1 = &(a1->agg_specific.agg_priority());
+          const corba_agg_priority_t *p2 = &(a2->agg_specific.agg_priority());
+          if (p1->priorityList.length() != p2->priorityList.length()) {
+            ERROR(__FUNCTION__ <<
+                  ": priority list length mismatch (" <<
+                  p1->priorityList.length() <<
+                  " != " <<
+                  p2->priorityList.length() <<
+                  ")\n", -2);
+          }
+          for (unsigned int pvIter = 0 ;
+               pvIter < p1->priorityList.length() ;
+               pvIter++) {
+            if (p1->priorityList[pvIter] != p2->priorityList[pvIter]) {
+              ERROR(__FUNCTION__ <<
+                    ": priority list value mismatch, index " <<
+                    pvIter <<
+                    " (" <<
+                    p1->priorityList[pvIter] <<
+                    " != " <<
+                    p2->priorityList[pvIter] <<
+                    ")\n", -2);
+            }
+          }
+        }
+        break;
+      default:
+        ERROR(__FUNCTION__ <<
+              ": unexpected aggregator type (" <<
+              a1->agg_specific._d(), -2);
+      }
+    }
+
     CORBA::ULong nb_children =
       matching_children[(size_t)service_idx].nb_children;
     CORBA::ULong* children   = matching_children[(size_t)service_idx].children;
