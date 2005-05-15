@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.37  2005/05/15 15:38:59  alsu
+ * implementing aggregation interface
+ *
  * Revision 1.36  2005/05/02 16:46:33  ycaniou
  * Added the function diet_submit_batch(), the stuff in the makefile to compile
  *  with appleseeds..
@@ -95,6 +98,7 @@ using namespace std;
 #include "DIET_server.h"
 
 #include "debug.hh"
+#include "estVector.h"
 #include "marshalling.hh"
 #include "ORBMgr.hh"
 #include "Parsers.hh"
@@ -153,6 +157,10 @@ diet_service_table_add(const diet_profile_desc_t* const profile,
   corba_profile_desc_t corba_profile;
   const diet_convertor_t*    actual_cvt(NULL);
 
+  if (SRVT == NULL) {
+    ERROR(__FUNCTION__ << ": service table not yet initialized", 1);
+  }
+
   mrsh_profile_desc(&corba_profile, profile);
   if (cvt) {
     /* Check the convertor */
@@ -196,7 +204,11 @@ diet_service_table_lookup(const diet_profile_desc_t* const profile)
   corba_profile_desc_t corbaProfile;
 
   if (profile == NULL) {
-    ERROR(__FUNCTION__ << ": null profile", -1);
+    ERROR(__FUNCTION__ << ": NULL profile", -1);
+  }
+
+  if (SRVT == NULL) {
+    ERROR(__FUNCTION__ << ": service table not yet initialized", -1);
   }
 
   mrsh_profile_desc(&corbaProfile, profile);
@@ -213,7 +225,11 @@ diet_service_table_lookup_by_profile(const diet_profile_t* const profile)
   diet_profile_desc_t profileDesc;
 
   if (profile == NULL) {
-    ERROR(__FUNCTION__ << ": null profile", -1);
+    ERROR(__FUNCTION__ << ": NULL profile", -1);
+  }
+
+  if (SRVT == NULL) {
+    ERROR(__FUNCTION__ << ": service table not yet initialized", -1);
   }
 
   { /* create the corresponding profile description */
@@ -247,6 +263,10 @@ diet_service_table_lookup_by_profile(const diet_profile_t* const profile)
 void
 diet_print_service_table()
 {
+  if (SRVT == NULL) {
+    ERROR(__FUNCTION__ << ": service table not yet initialized",);
+  }
+
   SRVT->dump(stdout);
 }
 
@@ -300,6 +320,140 @@ diet_profile_desc_free(diet_profile_desc_t* desc)
   return res;
 }
   
+
+/****************************************************************************/
+/* DIET aggregation                                                         */
+/****************************************************************************/
+diet_aggregator_desc_t*
+diet_profile_desc_aggregator(diet_profile_desc_t* profile)
+{
+  if (profile == NULL) {
+    WARNING(__FUNCTION__ << ": NULL profile\n");
+    return (NULL);
+  }
+  return (&(profile->aggregator));
+}
+int
+diet_aggregator_set_type(diet_aggregator_desc_t* agg,
+                         diet_aggregator_type_t atype)
+{
+  if (agg == NULL) {
+    ERROR(__FUNCTION__ << ": NULL aggregator\n", 0);
+  }
+  if (atype != DIET_AGG_DEFAULT &&
+      atype != DIET_AGG_PRIORITY) {
+    ERROR(__FUNCTION__ << ": unknown aggregation type (" << atype << ")\n", 0);
+  }
+  if (agg->agg_method != DIET_AGG_DEFAULT) {
+    WARNING(__FUNCTION__ <<
+            ": overriding previous aggregation type (" <<
+            agg->agg_method <<
+            ")\n");
+  }
+  agg->agg_method = atype;
+  memset(&(agg->agg_specific), 0, sizeof (agg->agg_specific));
+  return (1);
+}
+static int
+__diet_agg_pri_add_value(diet_aggregator_priority_t* priority, int value)
+{
+  if (priority->p_numPValues == 0) {
+    if ((priority->p_pValues = (int *) calloc(1, sizeof (int))) == NULL) {
+      return (0);
+    }
+    priority->p_pValues[0] = value;
+    priority->p_numPValues = 1;
+  }
+  else {
+    int *newArray = (int *) realloc(priority->p_pValues,
+                                    (priority->p_numPValues+1) * sizeof (int));
+    if (newArray == NULL) {
+      return (0);
+    }
+    priority->p_pValues = newArray;
+    priority->p_pValues[priority->p_numPValues] = value;
+    priority->p_numPValues++;
+  }
+
+  return (1);
+}
+int
+diet_aggregator_priority_max(diet_aggregator_desc_t* agg,
+                             diet_est_tag_t tag)
+{
+  if (agg == NULL) {
+    ERROR(__FUNCTION__ << ": NULL aggregator\n", 0);
+  }
+  if (agg->agg_method != DIET_AGG_PRIORITY) {
+    ERROR(__FUNCTION__ << ": aggregator not a priority list\n", 0);
+  }
+  if (! __diet_agg_pri_add_value(&(agg->agg_specific.agg_specific_priority),
+                                 tag)) {
+    ERROR(__FUNCTION__ <<
+          ": failure adding value to priority list (" <<
+          tag <<
+          ")\n", 0);
+  }
+  return (1);
+}
+int
+diet_aggregator_priority_min(diet_aggregator_desc_t* agg,
+                             diet_est_tag_t tag)
+{
+  if (agg == NULL) {
+    ERROR(__FUNCTION__ << ": NULL aggregator\n", 0);
+  }
+  if (agg->agg_method != DIET_AGG_PRIORITY) {
+    ERROR(__FUNCTION__ << ": aggregator not a priority list\n", 0);
+  }
+  if (! __diet_agg_pri_add_value(&(agg->agg_specific.agg_specific_priority),
+                                 -tag)) {
+    ERROR(__FUNCTION__ <<
+          ": failure adding value to priority list (" <<
+          -tag <<
+          ")\n", 0);
+  }
+  return (1);
+}
+
+int
+diet_aggregator_priority_maxuser(diet_aggregator_desc_t* agg, int val)
+{
+  if (agg == NULL) {
+    ERROR(__FUNCTION__ << ": NULL aggregator\n", 0);
+  }
+  if (agg->agg_method != DIET_AGG_PRIORITY) {
+    ERROR(__FUNCTION__ << ": aggregator not a priority list\n", 0);
+  }
+  if (! __diet_agg_pri_add_value(&(agg->agg_specific.agg_specific_priority),
+                                 EST_USERDEFINED + val)) {
+    ERROR(__FUNCTION__ <<
+          ": failure adding value to priority list (" <<
+          (EST_USERDEFINED + val) <<
+          ")\n", 0);
+  }
+  return (1);
+}
+int
+diet_aggregator_priority_minuser(diet_aggregator_desc_t* agg, int val)
+{
+  if (agg == NULL) {
+    ERROR(__FUNCTION__ << ": NULL aggregator\n", 0);
+  }
+  if (agg->agg_method != DIET_AGG_PRIORITY) {
+    ERROR(__FUNCTION__ << ": aggregator not a priority list\n", 0);
+  }
+  if (! __diet_agg_pri_add_value(&(agg->agg_specific.agg_specific_priority),
+                                 -(EST_USERDEFINED + val))) {
+    ERROR(__FUNCTION__ <<
+          ": failure adding value to priority list (" <<
+          -(EST_USERDEFINED + val) <<
+          ")\n", 0);
+  }
+  return (1);
+}
+
+
 
 /****************************************************************************/
 /* DIET problem evaluation                                                  */
@@ -425,6 +579,10 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
 #if ! HAVE_JUXMEM
   DataMgrImpl* dataMgr; 
 #endif // ! HAVE_JUXMEM
+
+  if (SRVT == NULL) {
+    ERROR(__FUNCTION__ << ": service table not yet initialized", 1);
+  }
 
   /* Set arguments for ORBMgr::init */
   myargc = argc;
@@ -607,6 +765,33 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   return 0;
 }
 
+
+estVector_t
+diet_estimate_new_vector()
+{
+  return (new_estVector());
+}
+int
+diet_set_user_estimate(estVector_t ev, int userTag, double value)
+{
+  if (userTag < 0) {
+    ERROR(__FUNCTION__ <<
+          ": userTag must be non-negative (" <<
+          userTag <<
+          ")\n", 0);
+  }
+  if (! estVector_addEstimation(ev, EST_USERDEFINED + userTag, value)) {
+    ERROR(__FUNCTION__ <<
+          ": error adding " <<
+          userTag <<
+          " = " <<
+          value <<
+          "\n", 0);
+  }
+  return (1);
+}
+
+
 int
 diet_estimate_fast(estVector_t ev,
                    const diet_profile_t* const profilePtr)
@@ -616,7 +801,7 @@ diet_estimate_fast(estVector_t ev,
   int stRef;
 
   if (gethostname(hostnameBuf, HOSTNAME_BUFLEN-1)) {
-    ERROR("error getting hostname", -1);
+    ERROR("error getting hostname", 0);
   }
 
   stRef = diet_service_table_lookup_by_profile(profilePtr);
@@ -626,7 +811,7 @@ diet_estimate_fast(estVector_t ev,
                     (ServiceTable::ServiceReference_t) stRef,
                     ev);
                     
-  return (0);
+  return (1);
 }
 
 int diet_estimate_lastexec(estVector_t ev,
@@ -654,7 +839,7 @@ int diet_estimate_lastexec(estVector_t ev,
   estVector_addEstimation(ev,
                           EST_TIMESINCELASTSOLVE,
                           timeSinceLastSolve);
-  return (0);
+  return (1);
 }
 
 /****************************************************************************/

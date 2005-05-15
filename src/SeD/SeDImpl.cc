@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.47  2005/05/15 15:38:59  alsu
+ * implementing aggregation interface
+ *
  * Revision 1.46  2005/05/02 16:46:33  ycaniou
  * Added the function diet_submit_batch(), the stuff in the makefile to compile
  *  with appleseeds..
@@ -87,6 +90,7 @@ using namespace std;
 #include "Callback.hh"
 #include "common_types.hh"
 #include "debug.hh"
+#include "estVector.h"
 #include "FASTMgr.hh"
 #include "marshalling.hh"
 #include "ORBMgr.hh"
@@ -211,6 +215,9 @@ SeDImpl::run(ServiceTable* services)
     ERROR("exception caught (" << tc->name() << ") while subscribing to "
           << parent_name << ": either the latter is down, "
           << "or there is a problem with the CORBA name server", 1);
+  }
+  if (childID < 0) {
+    ERROR(__FUNCTION__ << ": error subscribing server\n", 1);
   }
   delete profiles;
 
@@ -776,13 +783,6 @@ SeDImpl::ping()
 /* Private methods                                                          */
 /****************************************************************************/
 
-/*
-static void
-corbaPbDesc2dietProfile(const corba_pb_desc_t& pb, diet_profile_t& prof)
-{
-}
-*/
-
 /**
  * Estimate a request, with FAST if available.
  */
@@ -893,8 +893,10 @@ SeDImpl::estimate(corba_estimation_t& estimation,
     }
   }
 
-  { /* fill in the corba estimation structure */
-    mrsh_estVector_to_estimation(&(estimation), eVals);
-    free_estVector(eVals);
+  /* fill in the corba estimation structure */
+  if (eVals == NULL) {
+    eVals = new_estVector();
   }
+  mrsh_estVector_to_estimation(&(estimation), eVals);
+  free_estVector(eVals);
 }
