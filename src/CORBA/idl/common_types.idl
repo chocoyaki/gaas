@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2005/05/15 15:33:30  alsu
+ * CORBA versions of the aggregator (+ some cleanup)
+ *
  * Revision 1.9  2005/04/27 01:04:55  ycaniou
  * Added solve_batch() to the SeD API
  * Modified corba profile structures
@@ -180,6 +183,25 @@ struct corba_arg_desc_t {
   long type;
 };
 
+/*
+** server estimate aggregation
+*/
+struct corba_agg_default_t {
+  octet dummy;
+};
+struct corba_agg_priority_t {
+  sequence<long> priorityList;
+};
+union corba_agg_specific_t switch (long) {
+ case 0:
+   corba_agg_default_t agg_default;
+ case 1:
+   corba_agg_priority_t agg_priority;
+};
+struct corba_aggregator_desc_t {
+  corba_agg_specific_t agg_specific;
+};
+
 /** Service profile descriptor (mapping for diet_profile_desc_t) */
 struct corba_profile_desc_t {
   string path;
@@ -190,6 +212,7 @@ struct corba_profile_desc_t {
 #if HAVE_BATCH
   long batch_flag ;
 #endif
+  corba_aggregator_desc_t aggregator;
 };
 typedef sequence<corba_profile_desc_t> SeqCorbaProfileDesc_t;
 
@@ -277,16 +300,6 @@ typedef sequence <corba_est_value_t> SeqEstValue_t;
  * totalTime stores all communication times + tComp
  */
 struct corba_estimation_t {
-//   double    totalTime;
-//   SeqDouble commTimes;
-  /* FAST fields */
-//   double    tComp;
-  /* NWS fields */
-//   double    freeCPU;
-//   double    freeMem;
-  /* Static fields */
-//   long      nbCPU;
-
   /* dynamic storage for performance estimation values */
   SeqEstValue_t estValues;
 };
