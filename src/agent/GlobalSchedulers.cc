@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2005/05/15 15:47:04  alsu
+ * - implementing PriorityScheduler
+ * - minor change to the chooseGlobalScheduler method
+ *
  * Revision 1.6  2004/12/08 15:02:51  alsu
  * plugin scheduler first-pass validation testing complete.  merging into
  * main CVS trunk; ready for more rigorous testing.
@@ -46,6 +50,8 @@
 
 
 #include "GlobalSchedulers.hh"
+
+#include "estVector.h"
 
 #include <iostream>
 using namespace std;
@@ -94,7 +100,13 @@ GlobalScheduler::deserialize(const char* serializedScheduler)
 
   if (!strncmp(serializedScheduler, StdGS::stName, StdGS::nameLength)) {
     return StdGS::deserialize(serializedScheduler);
-  } else {
+  }
+  else if (!strncmp(serializedScheduler,
+                    PriorityGS::stName,
+                    PriorityGS::nameLength)) {
+    return PriorityGS::deserialize(serializedScheduler);
+  }
+  else {
     WARNING("unable to deserialize global scheduler ; "
 	    << "reverting to default (StdGS)");
     return new StdGS();
@@ -109,18 +121,48 @@ GlobalScheduler::serialize(GlobalScheduler* GS)
 
   if (!strncmp(GS->name, StdGS::stName, StdGS::nameLength)) {
     return StdGS::serialize((StdGS*) GS);
-  } else {
+  }
+  else if (!strncmp(GS->name, PriorityGS::stName, PriorityGS::nameLength)) {
+    return PriorityGS::serialize((PriorityGS*) GS);
+  }
+  else {
     ERROR("unable to serialize global scheduler named " << GS->name, NULL);
   }
 }
 
 /** Returns a global scheduler adapted to the request. */
 GlobalScheduler*
-GlobalScheduler::chooseGlobalScheduler(const corba_request_t* req)
+GlobalScheduler::chooseGlobalScheduler()
 {
   StdGS* res = new StdGS();
   res->init();
   return res;
+}
+
+
+
+GlobalScheduler*
+GlobalScheduler::chooseGlobalScheduler(const corba_request_t* req,
+                                       const corba_profile_desc_t* profile)
+{
+  corba_aggregator_desc_t agg = profile->aggregator;
+
+  switch (agg.agg_specific._d()) {
+  case DIET_AGG_DEFAULT:
+    return (GlobalScheduler::chooseGlobalScheduler());
+    break;
+  case DIET_AGG_PRIORITY:
+    PriorityGS* ps = new PriorityGS(agg.agg_specific.agg_priority());
+    ps->init();
+    return (ps);
+    break;
+  }
+
+  ERROR(__FUNCTION__ <<
+        ": unhandled aggregator (" <<
+        agg.agg_specific._d() <<
+        ")\n", NULL);
+  return (NULL);
 }
 
 
@@ -154,6 +196,8 @@ GlobalScheduler::aggregate(corba_response_t* aggrResp, size_t max_srv,
   */ 
   Vector_t evCache = new_Vector();
 
+  cout << "global scheduler: " << this->name << "\n";
+
   SCHED_TRACE_FUNCTION("nb_responses=" << nb_responses
 		       << ",max_srv=" << max_srv);
 
@@ -168,6 +212,9 @@ GlobalScheduler::aggregate(corba_response_t* aggrResp, size_t max_srv,
 
   while (iter->hasCurrent()) {
     Scheduler* sched = iter->getCurrent();
+    char *str = Scheduler::serialize(sched);
+    cout << "sched=" << str << "\n";
+    delete str;
 //     fprintf(stderr,
 //             "before %s, lastAggregated=%d\n",
 //             Scheduler::serialize(sched),
@@ -224,8 +271,6 @@ StdGS::init()
   // constructor.
   this->schedulers.addElement(new FASTScheduler());
   this->schedulers.addElement(new NWSScheduler(3.0, 2.0, 1.0));
-  this->schedulers.addElement(new MinScheduler());
-  this->schedulers.addElement(new MaxScheduler());
   this->schedulers.addElement(new RRScheduler());
   this->schedulers.addElement(new RandScheduler());
 }
@@ -260,6 +305,106 @@ StdGS::serialize(StdGS* GS)
   char* res = new char[maxLength];
   SchedList::Iterator* iter = GS->schedulers.getIterator();
   size_t length = StdGS::nameLength;
+
+  SCHED_TRACE_FUNCTION(GS->name);
+  sprintf(res, GS->name);
+  while (iter->hasCurrent()) {
+    Scheduler* sched = iter->getCurrent();
+    char* tmp = Scheduler::serialize(sched);
+    size_t tmp_length = strlen(tmp) + 1; // Add 1 for the ':'
+    if ((length + tmp_length) >= maxLength) {
+      maxLength += 128;
+      char* new_res = new char[maxLength];
+      sprintf(new_res, "%s:%s", res, tmp);
+      delete [] res;
+      res = new_res;
+    } else {
+      sprintf((char*)(res+length), ":%s", tmp);
+    }
+    length += tmp_length;
+    delete [] tmp;
+    iter->next();
+  }
+  delete iter;
+  return res;
+}
+
+
+
+/****************************************************************************/
+/* PriorityGS (Priority List Global Scheduler)                              */
+/****************************************************************************/
+#undef SCHED_CLASS
+#define SCHED_CLASS "PriorityGS"
+
+const char*  PriorityGS::stName     = "PriorityGS";
+const size_t PriorityGS::nameLength = 10;
+
+PriorityGS::PriorityGS()
+{
+  this->name = this->stName;
+}
+PriorityGS::PriorityGS(corba_agg_priority_t priority)
+{
+  this->name = this->stName;
+  this->numPValues = priority.priorityList.length();
+  this->pValues = new int[this->numPValues];
+  for (int pvIter = 0 ; pvIter < this->numPValues ; pvIter++) {
+    this->pValues[pvIter] = priority.priorityList[pvIter];
+  }
+}
+
+PriorityGS::~PriorityGS() {};
+
+  /** Initialize this global scheduler (build its list of schedulers). */
+void
+PriorityGS::init()
+{
+  this->schedulers.addElement(new PriorityScheduler(this->numPValues,
+                                                    this->pValues));
+//   for (int pvIter = 0 ; pvIter < this->numPValues ; pvIter++) {
+//     int tag = this->pValues[pvIter];
+//     if (tag < 0) {
+//       cout << "min scheduler on tag " << -tag << "\n";
+//       this->schedulers.addElement(new MinScheduler(-tag));
+//     }
+//     else {
+//       cout << "max scheduler on tag " << tag << "\n";
+//       this->schedulers.addElement(new MaxScheduler(tag));
+//     }
+//   }
+}
+
+PriorityGS*
+PriorityGS::deserialize(const char* serializedScheduler)
+{
+  char* token(NULL);
+  char* ptr(NULL);
+  char* ser_sched = strdup(serializedScheduler);
+  PriorityGS* res = new PriorityGS();
+  
+  TRACE_TEXT(TRACE_ALL_STEPS,
+	     "PriorityGS::deserialize(" << serializedScheduler << ")\n");
+  token = strtok_r(ser_sched, ":", &ptr);
+  assert(!strcmp(token, PriorityGS::stName));
+  if (*ptr != '\0')
+    ptr[-1] = ':';
+  while ((token = strtok_r(NULL, ":", &ptr)) != NULL) {
+    res->schedulers.addElement(Scheduler::deserialize(token));
+    if (*ptr != '\0')
+      ptr[-1] = ':';
+  }
+  free(ser_sched);
+  return res;
+}
+
+char*
+PriorityGS::serialize(PriorityGS* GS)
+{
+  size_t maxLength = 128;
+  char* res = new char[maxLength];
+  SchedList::Iterator* iter = GS->schedulers.getIterator();
+  size_t length = PriorityGS::nameLength;
 
   SCHED_TRACE_FUNCTION(GS->name);
   sprintf(res, GS->name);
