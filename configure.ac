@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.45  2005/05/16 15:27:32  alsu
+#* adding plugin_example to the examples lists
+#*
 #* Revision 1.44  2005/05/02 14:28:50  ycaniou
 #* The server lib needs appleseeds to be linked with, for all the examples
 #* to compile without any problem.
@@ -470,6 +473,7 @@ AC_CONFIG_FILES([config.mk
 		 src/examples/BLAS/Makefile
 		 src/examples/dmat_manips/Makefile
 		 src/examples/file_transfer/Makefile
+		 src/examples/plugin_example/Makefile
 		 src/examples/JXTA/Makefile
 		 src/examples/ScaLAPACK/Makefile
 		 src/examples/scalars/Makefile])
@@ -517,7 +521,7 @@ if test "x$enable_examples" = "xno"
 then
   echo none | tee -a config.log
 else
-  printf "dmat_manips, file_transfer" | tee -a config.log
+  printf "dmat_manips, file_transfer, plugin_example" | tee -a config.log
   if test "x$enable_batch" = "xyes"
   then
     printf ", Batch" | tee -a config.log

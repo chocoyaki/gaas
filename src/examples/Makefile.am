@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.11  2005/05/16 15:27:33  alsu
+#* adding plugin_example to the examples lists
+#*
 #* Revision 1.10  2005/04/11 20:23:08  ycaniou
 #* Add the example subdirectory Batch in DIST_SUBDIRS.
 #*
@@ -42,14 +45,14 @@
 #* NB: installation directory is $(top_builddir)/src/examples/bin.
 #****************************************************************************#
 
-SUBDIRS = dmat_manips file_transfer scalars @SUBMODULES_examples@
+SUBDIRS = dmat_manips file_transfer scalars @SUBMODULES_examples@ plugin_example
 if JXTA_MODE
 SUBDIRS += JXTA
 endif
 
 # DIST_SUBDIRS is forced to all examples, so that it is still possible to build
 # a (user) distribution in user mode.
-DIST_SUBDIRS = Batch BLAS dmat_manips file_transfer ScaLAPACK scalars JXTA
+DIST_SUBDIRS = Batch BLAS dmat_manips file_transfer ScaLAPACK scalars JXTA plugin_example
 
 .PHONY:	$(DIST_SUBDIRS)
 
