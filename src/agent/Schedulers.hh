@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2005/05/16 12:27:24  alsu
+ * removing hard-coded nameLength fields
+ *
  * Revision 1.5  2005/05/15 15:50:49  alsu
  * implementing PriorityScheduler
  *
@@ -118,7 +121,7 @@ public:
    * Return the Scheduler deserialized from the string \c serializedScheduler.
    */
   static Scheduler*
-  deserialize(char* serializedScheduler);
+  deserialize(const char* serializedScheduler);
 
   /**
    * Return an estVector for the indicated server estimation
@@ -138,7 +141,8 @@ public:
   
 
 protected:
-  const char*  name;
+  const char* name;
+  int nameLength;
   SeqServerEstimation_t* servers;
 
   /**
@@ -171,7 +175,6 @@ class FASTScheduler : public Scheduler
 {
 public:
   static const char*  stName;
-  static const size_t nameLength;
 
   FASTScheduler();
   FASTScheduler(double epsilon);
@@ -190,7 +193,7 @@ public:
    * \c serializedScheduler.
    */
   static FASTScheduler*
-  deserialize(char* serializedScheduler);
+  deserialize(const char* serializedScheduler);
 
 private:
   double epsilon;
@@ -213,7 +216,6 @@ class NWSScheduler : public Scheduler
 {
 public:
   static const char*  stName;
-  static const size_t nameLength;
 
   typedef struct {
     double CPUPower;
@@ -240,7 +242,7 @@ public:
    * \c serializedScheduler.
    */
   static NWSScheduler*
-  deserialize(char* serializedScheduler);
+  deserialize(const char* serializedScheduler);
 
 private:
   double epsilon;
@@ -256,7 +258,6 @@ class RandScheduler : public Scheduler
 {
 public:
   static const char*  stName;
-  static const size_t nameLength;
 
   RandScheduler();
   RandScheduler(unsigned int seed);
@@ -275,7 +276,7 @@ public:
    * \c serializedScheduler.
    */
   static RandScheduler*
-  deserialize(char* serializedScheduler);
+  deserialize(const char* serializedScheduler);
 
 private:
   unsigned int seed;
@@ -286,7 +287,6 @@ class RRScheduler : public Scheduler
 {
 public:
   static const char*  stName;
-  static const size_t nameLength;
 
   RRScheduler();
   RRScheduler(unsigned int seed);
@@ -305,7 +305,7 @@ public:
    * \c serializedScheduler.
    */
   static RRScheduler*
-  deserialize(char* serializedScheduler);
+  deserialize(const char* serializedScheduler);
 
 private:
   unsigned int seed;
@@ -315,7 +315,6 @@ class MinScheduler : public Scheduler
 {
 public:
   static const char*  stName;
-  static const size_t nameLength;
 
   MinScheduler(int tagval);
   virtual
@@ -333,7 +332,7 @@ public:
    * \c serializedScheduler.
    */
   static MinScheduler*
-  deserialize(char* serializedScheduler);
+  deserialize(const char* serializedScheduler);
 
 private:
   int tagval;
@@ -343,7 +342,6 @@ class MaxScheduler : public Scheduler
 {
 public:
   static const char*  stName;
-  static const size_t nameLength;
 
   MaxScheduler(int tagval);
   virtual
@@ -361,7 +359,7 @@ public:
    * \c serializedScheduler.
    */
   static MaxScheduler*
-  deserialize(char* serializedScheduler);
+  deserialize(const char* serializedScheduler);
 
 private:
   int tagval;
@@ -377,7 +375,6 @@ public:
   };
 
   static const char*  stName;
-  static const size_t nameLength;
 
   PriorityScheduler(int numValues, int *values);
   virtual
@@ -395,7 +392,7 @@ public:
    * \c serializedScheduler.
    */
   static PriorityScheduler*
-  deserialize(char* serializedScheduler);
+  deserialize(const char* serializedScheduler);
 
 private:
   PriorityScheduler::priorityList pl;

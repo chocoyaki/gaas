@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2005/05/16 12:27:24  alsu
+ * removing hard-coded nameLength fields
+ *
  * Revision 1.3  2005/05/15 15:47:04  alsu
  * - implementing PriorityScheduler
  * - minor change to the chooseGlobalScheduler method
@@ -79,6 +82,7 @@ public:
 protected:
   /** Name of this global scheduler */
   const char* name;
+  int nameLength;
   /** Ordered list of sub-schedulers */
   SchedList schedulers;
 };
@@ -96,9 +100,6 @@ class StdGS : public GlobalScheduler
 public:
   /** Name of this global scheduler */
   static const char* stName;
-  /** Length of the name of this global scheduler */
-  static const size_t nameLength;
-
 
   StdGS();
   virtual
@@ -124,8 +125,6 @@ class PriorityGS : public GlobalScheduler
 public:
   /** Name of this global scheduler */
   static const char* stName;
-  /** Length of the name of this global scheduler */
-  static const size_t nameLength;
 
   int numPValues;
   int *pValues;

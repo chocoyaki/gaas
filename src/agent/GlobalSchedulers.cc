@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2005/05/16 12:27:24  alsu
+ * removing hard-coded nameLength fields
+ *
  * Revision 1.7  2005/05/15 15:47:04  alsu
  * - implementing PriorityScheduler
  * - minor change to the chooseGlobalScheduler method
@@ -97,13 +100,22 @@ GlobalScheduler*
 GlobalScheduler::deserialize(const char* serializedScheduler)
 {
   SCHED_TRACE_FUNCTION(serializedScheduler);
+  int nameLength;
 
-  if (!strncmp(serializedScheduler, StdGS::stName, StdGS::nameLength)) {
+  {
+    char *comma;
+    if ((comma = strchr(serializedScheduler, ',')) != NULL) {
+      nameLength = comma - serializedScheduler;
+    }
+    else {
+      nameLength = strlen(serializedScheduler);
+    }
+  }
+
+  if (!strncmp(serializedScheduler, StdGS::stName, nameLength)) {
     return StdGS::deserialize(serializedScheduler);
   }
-  else if (!strncmp(serializedScheduler,
-                    PriorityGS::stName,
-                    PriorityGS::nameLength)) {
+  else if (!strncmp(serializedScheduler, PriorityGS::stName, nameLength)) {
     return PriorityGS::deserialize(serializedScheduler);
   }
   else {
@@ -119,10 +131,10 @@ GlobalScheduler::serialize(GlobalScheduler* GS)
 {
   SCHED_TRACE_FUNCTION(GS->name);
 
-  if (!strncmp(GS->name, StdGS::stName, StdGS::nameLength)) {
+  if (!strncmp(GS->name, StdGS::stName, GS->nameLength)) {
     return StdGS::serialize((StdGS*) GS);
   }
-  else if (!strncmp(GS->name, PriorityGS::stName, PriorityGS::nameLength)) {
+  else if (!strncmp(GS->name, PriorityGS::stName, GS->nameLength)) {
     return PriorityGS::serialize((PriorityGS*) GS);
   }
   else {
@@ -212,9 +224,7 @@ GlobalScheduler::aggregate(corba_response_t* aggrResp, size_t max_srv,
 
   while (iter->hasCurrent()) {
     Scheduler* sched = iter->getCurrent();
-    char *str = Scheduler::serialize(sched);
-    cout << "sched=" << str << "\n";
-    delete str;
+
 //     fprintf(stderr,
 //             "before %s, lastAggregated=%d\n",
 //             Scheduler::serialize(sched),
@@ -254,11 +264,11 @@ GlobalScheduler::aggregate(corba_response_t* aggrResp, size_t max_srv,
 #define SCHED_CLASS "StdGS"
 
 const char*  StdGS::stName     = "StdGS";
-const size_t StdGS::nameLength = 5;
 
 StdGS::StdGS()
 {
   this->name = this->stName;
+  this->nameLength = strlen(this->name);
 }
 
 StdGS::~StdGS() {};
@@ -304,7 +314,7 @@ StdGS::serialize(StdGS* GS)
   size_t maxLength = 128;
   char* res = new char[maxLength];
   SchedList::Iterator* iter = GS->schedulers.getIterator();
-  size_t length = StdGS::nameLength;
+  size_t length = GS->nameLength;
 
   SCHED_TRACE_FUNCTION(GS->name);
   sprintf(res, GS->name);
@@ -338,11 +348,11 @@ StdGS::serialize(StdGS* GS)
 #define SCHED_CLASS "PriorityGS"
 
 const char*  PriorityGS::stName     = "PriorityGS";
-const size_t PriorityGS::nameLength = 10;
 
 PriorityGS::PriorityGS()
 {
   this->name = this->stName;
+  this->nameLength = strlen(this->name);
 }
 PriorityGS::PriorityGS(corba_agg_priority_t priority)
 {
@@ -362,17 +372,6 @@ PriorityGS::init()
 {
   this->schedulers.addElement(new PriorityScheduler(this->numPValues,
                                                     this->pValues));
-//   for (int pvIter = 0 ; pvIter < this->numPValues ; pvIter++) {
-//     int tag = this->pValues[pvIter];
-//     if (tag < 0) {
-//       cout << "min scheduler on tag " << -tag << "\n";
-//       this->schedulers.addElement(new MinScheduler(-tag));
-//     }
-//     else {
-//       cout << "max scheduler on tag " << tag << "\n";
-//       this->schedulers.addElement(new MaxScheduler(tag));
-//     }
-//   }
 }
 
 PriorityGS*
@@ -404,7 +403,7 @@ PriorityGS::serialize(PriorityGS* GS)
   size_t maxLength = 128;
   char* res = new char[maxLength];
   SchedList::Iterator* iter = GS->schedulers.getIterator();
-  size_t length = PriorityGS::nameLength;
+  size_t length = GS->nameLength;
 
   SCHED_TRACE_FUNCTION(GS->name);
   sprintf(res, GS->name);

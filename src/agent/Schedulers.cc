@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2005/05/16 12:27:24  alsu
+ * removing hard-coded nameLength fields
+ *
  * Revision 1.10  2005/05/15 15:50:49  alsu
  * implementing PriorityScheduler
  *
@@ -142,32 +145,25 @@ Scheduler::serialize(Scheduler* S)
 {
   SCHED_TRACE_FUNCTION((void*)S->name);
 
-  if (!strncmp(S->name,
-               FASTScheduler::stName, FASTScheduler::nameLength)) {
+  if (!strncmp(S->name, FASTScheduler::stName, S->nameLength)) {
     return (FASTScheduler::serialize((FASTScheduler*) S));
   }
-  else if (!strncmp(S->name,
-                    NWSScheduler::stName, NWSScheduler::nameLength)) {
+  else if (!strncmp(S->name, NWSScheduler::stName, S->nameLength)) {
     return (NWSScheduler::serialize((NWSScheduler*) S));
   }
-  else if (!strncmp(S->name,
-                    RandScheduler::stName, RandScheduler::nameLength)) {
+  else if (!strncmp(S->name, RandScheduler::stName, S->nameLength)) {
     return (RandScheduler::serialize((RandScheduler*) S));
   }
-  else if (!strncmp(S->name,
-                    MinScheduler::stName, MinScheduler::nameLength)) {
+  else if (!strncmp(S->name, MinScheduler::stName, S->nameLength)) {
     return (MinScheduler::serialize((MinScheduler*) S));
   }
-  else if (!strncmp(S->name,
-                    MaxScheduler::stName, MaxScheduler::nameLength)) {
+  else if (!strncmp(S->name, MaxScheduler::stName, S->nameLength)) {
     return (MaxScheduler::serialize((MaxScheduler*) S));
   }
-  else if (!strncmp(S->name,
-                    PriorityScheduler::stName, PriorityScheduler::nameLength)) {
+  else if (!strncmp(S->name, PriorityScheduler::stName, S->nameLength)) {
     return (PriorityScheduler::serialize((PriorityScheduler*) S));
   }
-  else if (!strncmp(S->name,
-                    RRScheduler::stName, RRScheduler::nameLength)) {
+  else if (!strncmp(S->name, RRScheduler::stName, S->nameLength)) {
     return (RRScheduler::serialize((RRScheduler*) S));
   }
   else {
@@ -179,37 +175,43 @@ Scheduler::serialize(Scheduler* S)
  * Return the Scheduler deserialized from the string \c serializedScheduler.
  */
 Scheduler*
-Scheduler::deserialize(char* serializedScheduler)
+Scheduler::deserialize(const char* serializedScheduler)
 {
   SCHED_TRACE_FUNCTION(serializedScheduler);
+  int nameLength;
 
-  if (!strncmp(serializedScheduler,
-               FASTScheduler::stName, FASTScheduler::nameLength)) {
-    return (FASTScheduler::deserialize(serializedScheduler));
+  {
+    char *comma;
+    if ((comma = strchr(serializedScheduler, ',')) != NULL) {
+      nameLength = comma - serializedScheduler;
+    }
+    else {
+      nameLength = strlen(serializedScheduler);
+    }
+  }
+
+  if (!strncmp(serializedScheduler, FASTScheduler::stName, nameLength)) {
+    return (FASTScheduler::deserialize(serializedScheduler + nameLength));
+  }
+  else if (!strncmp(serializedScheduler, NWSScheduler::stName, nameLength)) {
+    return (NWSScheduler::deserialize(serializedScheduler + nameLength));
+  }
+  else if (!strncmp(serializedScheduler, RandScheduler::stName, nameLength)) {
+    return (RandScheduler::deserialize(serializedScheduler + nameLength));
+  }
+  else if (!strncmp(serializedScheduler, MinScheduler::stName, nameLength)) {
+    return (MinScheduler::deserialize(serializedScheduler + nameLength));
+  }
+  else if (!strncmp(serializedScheduler, MaxScheduler::stName, nameLength)) {
+    return (MaxScheduler::deserialize(serializedScheduler + nameLength));
   }
   else if (!strncmp(serializedScheduler,
-                    NWSScheduler::stName, NWSScheduler::nameLength)) {
-    return (NWSScheduler::deserialize(serializedScheduler));
+                    PriorityScheduler::stName,
+                    nameLength)) {
+    return (PriorityScheduler::deserialize(serializedScheduler + nameLength));
   }
-  else if (!strncmp(serializedScheduler,
-                    RandScheduler::stName, RandScheduler::nameLength)) {
-    return (RandScheduler::deserialize(serializedScheduler));
-  }
-  else if (!strncmp(serializedScheduler,
-                    MinScheduler::stName, MinScheduler::nameLength)) {
-    return (MinScheduler::deserialize(serializedScheduler));
-  }
-  else if (!strncmp(serializedScheduler,
-                    MaxScheduler::stName, MaxScheduler::nameLength)) {
-    return (MaxScheduler::deserialize(serializedScheduler));
-  }
-  else if (!strncmp(serializedScheduler,
-                    PriorityScheduler::stName, PriorityScheduler::nameLength)) {
-    return (PriorityScheduler::deserialize(serializedScheduler));
-  }
-  else if (!strncmp(serializedScheduler,
-                    RRScheduler::stName, RRScheduler::nameLength)) {
-    return (RRScheduler::deserialize(serializedScheduler));
+  else if (!strncmp(serializedScheduler, RRScheduler::stName, nameLength)) {
+    return (RRScheduler::deserialize(serializedScheduler + nameLength));
   }
   else {
     INTERNAL_WARNING("unable to deserialize scheduler ; "
@@ -551,7 +553,6 @@ Scheduler::getEstVector(int sIdx,
 #define SCHED_CLASS "FASTScheduler"
 
 const char*  FASTScheduler::stName     = "FASTScheduler";
-const size_t FASTScheduler::nameLength = 13;
 
 static double
 __getAggregateCommTime(estVector_t ev)
@@ -638,6 +639,7 @@ int FASTScheduler_compare(int serverIdx1,
 FASTScheduler::FASTScheduler()
 {
   this->name    = FASTScheduler::stName;
+  this->nameLength = strlen(this->name);
   this->epsilon = 0;
   this->compare = FASTScheduler_compare;
   this->cmpInfo = NULL;
@@ -646,12 +648,13 @@ FASTScheduler::FASTScheduler()
 FASTScheduler::FASTScheduler(double epsilon)
 {
   this->name    = FASTScheduler::stName;
+  this->nameLength = strlen(this->name);
   this->compare = FASTScheduler_compare;
   this->cmpInfo = NULL;
-  if (epsilon < 0) {
+  if (epsilon < 0.0) {
     INTERNAL_WARNING("attempt to initialize FAST Scheduler with a negative "
                      << "epsilon.\nSet epsilon to 0.0");
-    this->epsilon = 0;
+    this->epsilon = 0.0;
   } else {
     this->epsilon = epsilon;
   }
@@ -664,14 +667,13 @@ FASTScheduler::~FASTScheduler() {}
  * \c serializedScheduler.
  */
 FASTScheduler*
-FASTScheduler::deserialize(char* serializedScheduler)
+FASTScheduler::deserialize(const char* serializedScheduler)
 {
   double epsilon(0.0);
 
   SCHED_TRACE_FUNCTION(serializedScheduler);
   // Add one for the ','
-  if (sscanf((char*)(serializedScheduler + FASTScheduler::nameLength + 1),
-             "%lg", &epsilon) != 1) {
+  if (sscanf((char*)(serializedScheduler + 1), "%lg", &epsilon) != 1) {
     INTERNAL_WARNING("invalid parameters for FAST scheduler, "
                      << "reverting to default");
   }
@@ -709,8 +711,6 @@ FASTScheduler::serialize(FASTScheduler* S)
         (wi)->memPower)))
 
 const char*  NWSScheduler::stName     = "NWSScheduler";
-const size_t NWSScheduler::nameLength = 12;
-
 
 /** This is designed to fill in NWSScheduler compare member. */
 // int
@@ -769,6 +769,7 @@ int NWSScheduler_compare(int serverIdx1,
 NWSScheduler::NWSScheduler()
 {
   this->name          = strdup(NWSScheduler::stName);
+  this->nameLength = strlen(this->name);
   this->compare       = NWSScheduler_compare;
   this->cmpInfo       = &(this->wi);
   this->epsilon       = 0;
@@ -782,6 +783,7 @@ NWSScheduler::NWSScheduler(double CPUPower,
                            double commPower)
 {
   this->name          = NWSScheduler::stName;
+  this->nameLength = strlen(this->name);
   this->compare       = NWSScheduler_compare;
   this->cmpInfo       = &(this->wi);
   this->epsilon       = 0;
@@ -796,6 +798,7 @@ NWSScheduler::NWSScheduler(double epsilon,
                            double commPower)
 {
   this->name          = NWSScheduler::stName;
+  this->nameLength = strlen(this->name);
   this->compare       = NWSScheduler_compare;
   this->cmpInfo       = &(this->wi);
   this->epsilon       = epsilon;
@@ -816,35 +819,78 @@ NWSScheduler::~NWSScheduler() {}
  * \c serializedScheduler.
  */
 NWSScheduler*
-NWSScheduler::deserialize(char* serializedScheduler)
+NWSScheduler::deserialize(const char* serializedScheduler)
 {
-  char* ptr(NULL);
-  char* token(NULL);
+  const char* ptr(NULL);
+//   char* token(NULL);
   double members[nb_mb];
-  int i(0);
-  NWSScheduler* res;
+//   int i(0);
+//   NWSScheduler* res;
 
   SCHED_TRACE_FUNCTION(serializedScheduler);
-  token = strtok_r(serializedScheduler, ",", &ptr);
-  if (*ptr != '\0')
-    ptr[-1] = ',';
-  while (i < nb_mb && ((token = strtok_r(NULL, ",", &ptr)) != NULL)) {
-    if (sscanf(token, "%lg", &(members[i])) != 1)
-      break;
-    if (*ptr != '\0')
-      ptr[-1] = ',';
-    i++;
+
+//   token = strtok_r(serializedScheduler, ",", &ptr);
+//   if (*ptr != '\0')
+//     ptr[-1] = ',';
+//   while (i < nb_mb && ((token = strtok_r(NULL, ",", &ptr)) != NULL)) {
+//     if (sscanf(token, "%lg", &(members[i])) != 1)
+//       break;
+//     if (*ptr != '\0')
+//       ptr[-1] = ',';
+//     i++;
+//   }
+
+  /*
+  ** serializedScheduler should start with the comma
+  ** after the scheduler name
+  */
+  assert(*serializedScheduler == ',');
+
+  /* position the pointer after the leading comma */
+  ptr = serializedScheduler + 1;
+
+  for (int paramIter = 0 ; paramIter < nb_mb ; paramIter++) {
+    if (paramIter == nb_mb-1) {
+      /* check that this is the last param */
+      if (strchr(ptr, ',') != NULL) {
+        INTERNAL_WARNING("too many parameters for NWS scheduler, "
+                         << "reverting to default");
+        return (new NWSScheduler());
+      }
+
+      { /* extract the value */
+        char dummy;
+        if (sscanf(ptr, "%lg%c", &(members[paramIter]), &dummy) != 1) {
+          INTERNAL_WARNING("invalid parameter " <<
+                           paramIter <<
+                           " for NWS scheduler, reverting to default");
+          return (new NWSScheduler());
+        }
+      }
+    }
+    else {
+      /* check that this is not the last param */
+      if (strchr(ptr, ',') == NULL) {
+        INTERNAL_WARNING("too few parameters for NWS scheduler, "
+                         << "reverting to default");
+        return (new NWSScheduler());
+      }
+
+      { /* extract the value */
+        char dummy;
+        assert(sscanf(ptr, "%lg%c", &(members[paramIter]), &dummy) == 2);
+        if (dummy != ',') {
+          INTERNAL_WARNING("invalid parameter " <<
+                           paramIter <<
+                           " for NWS scheduler, reverting to default");
+          return (new NWSScheduler());
+        }
+      }
+    }
   }
-  // Test for all parameters processed.
-  if (i < nb_mb || *ptr != '\0') {
-    INTERNAL_WARNING("invalid parameters for NWS scheduler, "
-                     << "reverting to default");
-    res = new NWSScheduler();
-  } else {
-    res = new NWSScheduler(members[0], members[1],
-                           members[2], members[3]);
-  }
-  return res;
+
+  return (new NWSScheduler(members[0], members[1],
+                           members[2], members[3]));
 }
 
 /**
@@ -875,8 +921,6 @@ NWSScheduler::serialize(NWSScheduler* S)
 #define SCHED_CLASS "RandScheduler"
 
 const char*  RandScheduler::stName     = "RandScheduler";
-const size_t RandScheduler::nameLength = 13;
-
 
 /** This is designed to fill in RandScheduler compare member. */
 int RandScheduler_compare(int serverIdx1,
@@ -893,6 +937,7 @@ int RandScheduler_compare(int serverIdx1,
 RandScheduler::RandScheduler()
 {
   this->name    = RandScheduler::stName;
+  this->nameLength = strlen(this->name);
   this->compare = RandScheduler_compare;
   this->cmpInfo = NULL;
   this->seed    = time(NULL);
@@ -902,6 +947,7 @@ RandScheduler::RandScheduler()
 RandScheduler::RandScheduler(unsigned int seed)
 {
   this->name    = RandScheduler::stName;
+  this->nameLength = strlen(this->name);
   this->compare = RandScheduler_compare;
   this->cmpInfo = NULL;
   this->seed    = seed;
@@ -929,10 +975,11 @@ RandScheduler::serialize(RandScheduler* S)
  * \c serializedScheduler.
  */
 RandScheduler*
-RandScheduler::deserialize(char* serializedScheduler)
+RandScheduler::deserialize(const char* serializedScheduler)
 {
   SCHED_TRACE_FUNCTION(serializedScheduler);
-  return new RandScheduler();
+  assert(*serializedScheduler == '\0');
+  return (new RandScheduler());
 }
 
 /****************************************************************************/
@@ -942,8 +989,6 @@ RandScheduler::deserialize(char* serializedScheduler)
 #define SCHED_CLASS "RRScheduler"
 
 const char*  RRScheduler::stName     = "RRScheduler";
-const size_t RRScheduler::nameLength = 11;
-
 
 /** This is designed to fill in RRScheduler compare member. */
 int RRScheduler_compare(int serverIdx1,
@@ -1010,6 +1055,7 @@ int RRScheduler_compare(int serverIdx1,
 RRScheduler::RRScheduler()
 {
   this->name    = RRScheduler::stName;
+  this->nameLength = strlen(this->name);
   this->compare = RRScheduler_compare;
   this->cmpInfo = NULL;
   this->seed    = time(NULL);
@@ -1019,6 +1065,7 @@ RRScheduler::RRScheduler()
 RRScheduler::RRScheduler(unsigned int seed)
 {
   this->name    = RRScheduler::stName;
+  this->nameLength = strlen(this->name);
   this->compare = RRScheduler_compare;
   this->cmpInfo = NULL;
   this->seed    = seed;
@@ -1046,10 +1093,11 @@ RRScheduler::serialize(RRScheduler* S)
  * \c serializedScheduler.
  */
 RRScheduler*
-RRScheduler::deserialize(char* serializedScheduler)
+RRScheduler::deserialize(const char* serializedScheduler)
 {
   SCHED_TRACE_FUNCTION(serializedScheduler);
-  return new RRScheduler();
+  assert(*serializedScheduler == '\0');
+  return (new RRScheduler());
 }
 
 /****************************************************************************/
@@ -1059,8 +1107,6 @@ RRScheduler::deserialize(char* serializedScheduler)
 #define SCHED_CLASS "MinScheduler"
 
 const char*  MinScheduler::stName     = "MinScheduler";
-const size_t MinScheduler::nameLength = 12;
-
 
 /** This is designed to fill in MinScheduler compare member. */
 int MinScheduler_compare(int serverIdx1,
@@ -1113,6 +1159,7 @@ MinScheduler::MinScheduler(int tagval)
 {
   assert(tagval >= 0);
   this->name    = MinScheduler::stName;
+  this->nameLength = strlen(this->name);
   this->compare = MinScheduler_compare;
   this->tagval  = tagval;
   this->cmpInfo = &(this->tagval);
@@ -1139,21 +1186,18 @@ MinScheduler::serialize(MinScheduler* S)
  * \c serializedScheduler.
  */
 MinScheduler*
-MinScheduler::deserialize(char* serializedScheduler)
+MinScheduler::deserialize(const char* serializedScheduler)
 {
   int tagval;
   char dummy;
 
   SCHED_TRACE_FUNCTION(serializedScheduler);
-  if (sscanf((char*)(serializedScheduler + MinScheduler::nameLength + 1),
-             "%d%c",
-             &tagval,
-             &dummy) != 1) {
+  if (sscanf((char*)(serializedScheduler + 1), "%d%c", &tagval, &dummy) != 1) {
     INTERNAL_ERROR("invalid parameters for Min scheduler", -1);
     return (NULL);
   }
 
-  return new MinScheduler(tagval);
+  return (new MinScheduler(tagval));
 }
 
 /****************************************************************************/
@@ -1163,8 +1207,6 @@ MinScheduler::deserialize(char* serializedScheduler)
 #define SCHED_CLASS "MaxScheduler"
 
 const char*  MaxScheduler::stName     = "MaxScheduler";
-const size_t MaxScheduler::nameLength = 12;
-
 
 /** This is designed to fill in MaxScheduler compare member. */
 int MaxScheduler_compare(int serverIdx1,
@@ -1221,6 +1263,7 @@ MaxScheduler::MaxScheduler(int tagval)
 {
   assert(tagval >= 0);
   this->name    = MaxScheduler::stName;
+  this->nameLength = strlen(this->name);
   this->compare = MaxScheduler_compare;
   this->tagval  = tagval;
   this->cmpInfo = &(this->tagval);
@@ -1247,21 +1290,18 @@ MaxScheduler::serialize(MaxScheduler* S)
  * \c serializedScheduler.
  */
 MaxScheduler*
-MaxScheduler::deserialize(char* serializedScheduler)
+MaxScheduler::deserialize(const char* serializedScheduler)
 {
   int tagval;
   char dummy;
 
   SCHED_TRACE_FUNCTION(serializedScheduler);
-  if (sscanf((char*)(serializedScheduler + MaxScheduler::nameLength + 1),
-             "%d%c",
-             &tagval,
-             &dummy) != 1) {
+  if (sscanf((char*)(serializedScheduler + 1), "%d%c", &tagval, &dummy) != 1) {
     INTERNAL_ERROR("invalid parameters for Max scheduler", -1);
     return (NULL);
   }
 
-  return new MaxScheduler(tagval);
+  return (new MaxScheduler(tagval));
 }
 
 /****************************************************************************/
@@ -1271,7 +1311,6 @@ MaxScheduler::deserialize(char* serializedScheduler)
 #define SCHED_CLASS "PriorityScheduler"
 
 const char*  PriorityScheduler::stName     = "PriorityScheduler";
-const size_t PriorityScheduler::nameLength = 17;
 
 /** This is designed to fill in PriorityScheduler compare member. */
 int PriorityScheduler_compare(int serverIdx1,
@@ -1349,6 +1388,7 @@ PriorityScheduler::PriorityScheduler(int numValues, int *values)
     return;
   }
   this->name    = PriorityScheduler::stName;
+  this->nameLength = strlen(this->name);
   this->compare = PriorityScheduler_compare;
   this->pl.pl_numValues = numValues;
   this->pl.pl_values = new int[numValues];
@@ -1374,7 +1414,6 @@ PriorityScheduler::serialize(PriorityScheduler* S)
   for (int valIter = 0 ; valIter < S->pl.pl_numValues ; valIter++) {
     sprintf(res + strlen(res), ",%d", S->pl.pl_values[valIter]);
   }
-  cout << "serialize:" << res << "\n";
   return res;
 }
 
@@ -1383,19 +1422,18 @@ PriorityScheduler::serialize(PriorityScheduler* S)
  * \c serializedScheduler.
  */
 PriorityScheduler*
-PriorityScheduler::deserialize(char* serializedScheduler)
+PriorityScheduler::deserialize(const char* serializedScheduler)
 {
   int numValues;
-  const char *strPtr = serializedScheduler;
+  const char *strPtr = serializedScheduler + 1;
 
-  cout << "deserialize:" << serializedScheduler << "\n";
   SCHED_TRACE_FUNCTION(serializedScheduler);
-  strPtr += (PriorityScheduler::nameLength + 1);
+
   if (sscanf(strPtr, "%d", &numValues) != 1) {
     INTERNAL_ERROR("error reading numValues for Priority scheduler", -1);
     return (NULL);
   }
-  cout << "numValues=" << numValues << "\n";
+
   if (numValues <= 0) {
     INTERNAL_ERROR("invalid numValues (" <<
                    numValues <<
@@ -1418,7 +1456,7 @@ PriorityScheduler::deserialize(char* serializedScheduler)
       return (NULL);
     }
     values[valIter] = curVal;
-    cout << " val" << valIter << "=" << curVal << "\n";
+
     if (valIter < numValues - 1) {
       strPtr = strchr(strPtr, ',') + 1;
     }
