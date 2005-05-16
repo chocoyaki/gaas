@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.33  2005/05/16 12:27:02  alsu
+ * eliminate warning on uninitialized corba_response_t
+ *
  * Revision 1.32  2005/05/15 15:49:40  alsu
  * to indicate sucess/failure, addServices not returns a value
  *
@@ -412,7 +415,12 @@ AgentImpl::findServer(Request* req, size_t max_srv)
     WARNING("no service found for request " << creq.reqID);
     srvTMutex.unlock();
 
-  } else { // then the request must be forwarded
+    /* Initialize the response */
+    resp = new corba_response_t;
+    resp->reqID = creq.reqID;
+    resp->servers.length(0);
+  }
+  else { // then the request must be forwarded
 
     int nbChildrenContacted = 0;
     ServiceTable::matching_children_t *mc, *SrvTmc;
