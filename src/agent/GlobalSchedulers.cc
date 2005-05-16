@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2005/05/16 15:22:52  alsu
+ * mostly small stuff, one big (stupid) bug
+ *
  * Revision 1.8  2005/05/16 12:27:24  alsu
  * removing hard-coded nameLength fields
  *
@@ -103,9 +106,9 @@ GlobalScheduler::deserialize(const char* serializedScheduler)
   int nameLength;
 
   {
-    char *comma;
-    if ((comma = strchr(serializedScheduler, ',')) != NULL) {
-      nameLength = comma - serializedScheduler;
+    char *colon;
+    if ((colon = strchr(serializedScheduler, ':')) != NULL) {
+      nameLength = colon - serializedScheduler;
     }
     else {
       nameLength = strlen(serializedScheduler);
@@ -121,6 +124,7 @@ GlobalScheduler::deserialize(const char* serializedScheduler)
   else {
     WARNING("unable to deserialize global scheduler ; "
 	    << "reverting to default (StdGS)");
+    cout << "scheduler was \"" << serializedScheduler << "\"\n";
     return new StdGS();
   }
 }
@@ -208,7 +212,7 @@ GlobalScheduler::aggregate(corba_response_t* aggrResp, size_t max_srv,
   */ 
   Vector_t evCache = new_Vector();
 
-  cout << "global scheduler: " << this->name << "\n";
+//   cout << "global scheduler: " << this->name << "\n";
 
   SCHED_TRACE_FUNCTION("nb_responses=" << nb_responses
 		       << ",max_srv=" << max_srv);
@@ -357,6 +361,7 @@ PriorityGS::PriorityGS()
 PriorityGS::PriorityGS(corba_agg_priority_t priority)
 {
   this->name = this->stName;
+  this->nameLength = strlen(this->name);
   this->numPValues = priority.priorityList.length();
   this->pValues = new int[this->numPValues];
   for (int pvIter = 0 ; pvIter < this->numPValues ; pvIter++) {
@@ -407,6 +412,7 @@ PriorityGS::serialize(PriorityGS* GS)
 
   SCHED_TRACE_FUNCTION(GS->name);
   sprintf(res, GS->name);
+  cout << "res is " << res << "\n";
   while (iter->hasCurrent()) {
     Scheduler* sched = iter->getCurrent();
     char* tmp = Scheduler::serialize(sched);
@@ -420,6 +426,7 @@ PriorityGS::serialize(PriorityGS* GS)
     } else {
       sprintf((char*)(res+length), ":%s", tmp);
     }
+    cout << "  res is " << res << "\n";
     length += tmp_length;
     delete [] tmp;
     iter->next();
