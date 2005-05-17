@@ -6,6 +6,11 @@
 #* $LICENSE$
 #* $Id$
 #* $Log$
+#* Revision 1.5  2005/05/17 11:58:53  eboix
+#*     Added a Cmake/README for cmake starters.
+#*     First try on compiling the tex documentation.
+#*     Cosmetic changes to CMakeLists.txt.  --- Injay 2461
+#*
 #* Revision 1.4  2005/05/02 15:34:54  eboix
 #*     - Cmake/FindOmniORB.cmake now exposes the OMNIORB4_DIR (no need to
 #*       toggle to advanced mode anymore) and also hides away (to advanced mode)
@@ -89,7 +94,9 @@ IF( OMNIORB4_FOUND )
     LocMgrSK.cc
     LocMgrDynSK.cc
     LogTypesSK.cc
-    LogTypesDynSK.cc )
+    LogTypesDynSK.cc 
+  )
+  INSTALL_TARGETS(/lib/ IDLAgent )
   
   ADD_LIBRARY( IDLCommon 
     CallbackDynSK.cc
@@ -99,14 +106,20 @@ IF( OMNIORB4_FOUND )
     responseDynSK.cc
     responseSK.cc
     SeDSK.cc
-    SeDDynSK.cc )
+    SeDDynSK.cc
+  )
+  INSTALL_TARGETS(/lib/ IDLCommon )
   
   ADD_LIBRARY( IDLLA
     LocalAgentSK.cc
-    LocalAgentDynSK.cc )
+    LocalAgentDynSK.cc
+   )
+  INSTALL_TARGETS(/lib/ IDLLA )
   
   ADD_LIBRARY( IDLMA
     MasterAgentSK.cc
-    MasterAgentDynSK.cc )
+    MasterAgentDynSK.cc
+  )
+  INSTALL_TARGETS(/lib/ IDLMA )
   
 ENDIF( OMNIORB4_FOUND )

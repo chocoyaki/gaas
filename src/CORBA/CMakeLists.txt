@@ -6,6 +6,11 @@
 #* $LICENSE$
 #* $Id$
 #* $Log$
+#* Revision 1.3  2005/05/17 11:58:53  eboix
+#*     Added a Cmake/README for cmake starters.
+#*     First try on compiling the tex documentation.
+#*     Cosmetic changes to CMakeLists.txt.  --- Injay 2461
+#*
 #* Revision 1.2  2005/04/29 10:36:37  eboix
 #*     idl generated files are now taken into account.  --- Injay 2461
 #*
@@ -31,4 +36,6 @@ INCLUDE_DIRECTORIES(
 
 ADD_LIBRARY( CorbaCommon
   ORBMgr.cc
-  marshalling.cc )
+  marshalling.cc 
+)
+INSTALL_TARGETS(/lib/ CorbaCommon )

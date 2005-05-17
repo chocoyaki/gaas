@@ -6,6 +6,11 @@
 #* $LICENSE$
 #* $Id$
 #* $Log$
+#* Revision 1.3  2005/05/17 11:58:53  eboix
+#*     Added a Cmake/README for cmake starters.
+#*     First try on compiling the tex documentation.
+#*     Cosmetic changes to CMakeLists.txt.  --- Injay 2461
+#*
 #* Revision 1.2  2005/05/02 15:34:54  eboix
 #*     - Cmake/FindOmniORB.cmake now exposes the OMNIORB4_DIR (no need to
 #*       toggle to advanced mode anymore) and also hides away (to advanced mode)
@@ -38,6 +43,7 @@ FOREACH( filename ${DIET_CONFIG_FILES_GLOB} )
     ${filenameDest}
     IMMEDIATE
   )
+  INSTALL_FILES( /etc/ FILES ${filenameNoPath} )
 ENDFOREACH( filename )
 
 ## FIXME: find out why we cannot test availability of the hostname command with

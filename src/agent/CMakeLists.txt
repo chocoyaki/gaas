@@ -6,6 +6,11 @@
 #* $LICENSE$
 #* $Id$
 #* $Log$
+#* Revision 1.4  2005/05/17 11:58:53  eboix
+#*     Added a Cmake/README for cmake starters.
+#*     First try on compiling the tex documentation.
+#*     Cosmetic changes to CMakeLists.txt.  --- Injay 2461
+#*
 #* Revision 1.3  2005/04/29 16:18:02  eboix
 #*     First example of JXTA dependant compilation.  --- Injay 2461
 #*
@@ -43,6 +48,7 @@ INCLUDE_DIRECTORIES(
 )
 
 ADD_LIBRARY( AgentCommon ${AgentCommon_SOURCES} )
+INSTALL_TARGETS(/lib/ AgentCommon )
 
 ADD_EXECUTABLE( dietAgent dietAgent.cc )
 TARGET_LINK_LIBRARIES( dietAgent
@@ -57,6 +63,7 @@ TARGET_LINK_LIBRARIES( dietAgent
   UtilsVector
   ${OMNIORB4_LIBRARIES}
 )
+INSTALL_TARGETS(/bin/ dietAgent )
 
 IF( DIET_USE_JXTA )
   SET( TARGET_JAVA_DIR ${DIET_BINARY_DIR}/src/agent )

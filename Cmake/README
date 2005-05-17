@@ -1,0 +1,86 @@
+Compiling and installing DIET with cmake:
+
+I/ Cmake general information, references and docs:
+  Entry point:   http://www.cmake.org
+  Official docs: http://www.cmake.org/HTML/Documentation.html
+  Wiki docs:     http://www.cmake.org/Wiki/CMake
+  FAQ:           http://www.cmake.org/Wiki/CMake_FAQ
+  Google with the command your are looking for as key (avoid cmake as keyword).
+
+II/ For the impatients:
+  cd GRAAL/devel/diet/diet/Bin
+  cmake .. -DCMAKE_INSTALL_PREFIX:PATH=/tmp -DDIET_USE_JXTA:BOOL=ON
+  make
+  make install
+
+III/ Requirements:
+  Obtain and install the current version of cmake from 
+     http://cmake.kitware.org/
+  Alltough the various binary packages are not available on this site
+  apt-get is generally cmake aware. By default fetching the sources
+  compilation and installation of cmake should be straightfoward.
+
+IV/ Generating the Makefiles:
+  Two ways for setting configuration parameters in order to to generate the
+  Makefiles:
+   - ccmake [options] <path-to-source>
+     specify the parameters interactively through a GUI interface
+   - cmake [options] <path-to-source> [-D<var>:<type>=<value>]
+     specify the parameters on the command line ( cmake -i [*] = ccmake [*] ).
+
+  For both commands:
+   - <path-to-source> specifes a path to the top level of the source tree
+     (where the top level CMakeLists.txt file is to be encountered),
+   - the current working directory will be used as the build tree for
+     the  project. Out of source building is generaly prefered (specially
+     when working on a CVS tree).
+  
+  ccmake interface tips:
+   - look for the bottom of the interface were ccmake shortcuts are recalled,
+   - moving up/down the paramater list with up/down arrows keys
+   - hitting h on a parameter pops up the documentation for that parameter
+     and general ccmake documentation and keyboard shortcuts (hit e to exit)
+   - hit t for displaying cmake advanced parameters
+   - when editing a PATH parameter the <TAB> key provides the "usual"
+     (for emacs or bash users) automatic path completion
+
+  cmake internal worth mentioning parameters:
+   - CMAKE_BUILD_TYPE set to Debug for producing debugging information
+   - CMAKE_VERBOSE_MAKEFILE set to ON will generate makefiles without
+        the .SILENT directive (usefull for watching the invoked commands
+        and their arguments)
+   - CMAKE_C[XX]_FLAGS* for customized setting of C/C++ compiler options
+
+V/ the DIET case:
+   - assume CVS_DIET_HOME refers to the directory GRAAL/devel/diet/diet
+     of a cvs checkout of the DIET sources hierarchy. CVS_DIET_HOME is
+     the path to the top level directory of the DIET CMakeLists.txt hierarchy,
+   - DIET CVS_DIET_HOME/Bin is a recommended out of source build directory,
+   - The configuarion through the GUI goes:
+     cd CVS_DIET_HOME/Bin
+     ccmake ..
+       * hit c (equivalent of bootstrap.sh)
+       * Toggle/specify the following parameters
+         CMAKE_INSTALL_PREFIX  (for avoiding default /usr/local)
+         DIET_USE_JXTA
+       * hit c for checking requires dependencies
+       * While they are
+         [
+              (paramaters preceeded with a *)
+           or (parameters whose value is terminated by NOT-FOUND)
+         ]
+         - provide the necessary information
+         - hit c to configure
+       * hit g to generate the makefile
+       * hit q to exit ccmake
+     make
+     make install
+
+VI/ DIET specific cmake parameters
+  - Watch out: neither DIET_BUILD_DOCUMENTATION , nor DIET_USE_FAST bolean
+    togles are [yet] effective ! (both defaulted to OFF)
+  - DIET_BUILD_EXAMPLES for ... building examples
+  - DIET_USE_JXTA for ... compiling with JXTA
+  - OMNIORB4_DIR is the path to the omniORB4 installation directory
+    (only relevant when omniORB4 was not installed in /usr/local).
+    Example: cmake .. -DOMNIORB4_DIR:PATH=/usr/local/omniORB-4.0.5

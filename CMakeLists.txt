@@ -6,6 +6,11 @@
 #* $LICENSE$
 #* $Id$
 #* $Log$
+#* Revision 1.3  2005/05/17 11:58:52  eboix
+#*     Added a Cmake/README for cmake starters.
+#*     First try on compiling the tex documentation.
+#*     Cosmetic changes to CMakeLists.txt.  --- Injay 2461
+#*
 #* Revision 1.2  2005/04/29 16:18:01  eboix
 #*     First example of JXTA dependant compilation.  --- Injay 2461
 #*
@@ -27,7 +32,8 @@ OPTION( BUILD_SHARED_LIBS "Build DIET with shared libraries." ON )
 OPTION( DIET_BUILD_EXAMPLES "Build DIET examples." ON )
 OPTION( DIET_BUILD_DOCUMENTATION "Build the users manual documentation." OFF )
 OPTION( DIET_USE_JXTA "Build the JXTA mode." OFF )
-OPTION( DIET_USE_FAST "Build the users manual documentation." OFF )
+OPTION( DIET_USE_FAST "Build DIET with the FAST support." OFF )
+OPTION( DIET_MAINTAINER_MODE "Build additional documentation..." OFF )
 
 # --------------------- DEPENDENCIES TO EXTERNALS --------------------------
 INCLUDE( ${DIET_SOURCE_DIR}/Cmake/FindOmniORB.cmake )

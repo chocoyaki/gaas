@@ -6,6 +6,11 @@
 #* $LICENSE$
 #* $Id$
 #* $Log$
+#* Revision 1.3  2005/05/17 11:58:54  eboix
+#*     Added a Cmake/README for cmake starters.
+#*     First try on compiling the tex documentation.
+#*     Cosmetic changes to CMakeLists.txt.  --- Injay 2461
+#*
 #* Revision 1.2  2005/04/29 10:36:38  eboix
 #*     idl generated files are now taken into account.  --- Injay 2461
 #*
@@ -31,19 +36,27 @@ ADD_LIBRARY( UtilsCommon
   KeyString.cc
   ms_function.cc
   Parsers.cc
-  statistics.cc )
+  statistics.cc
+)
+INSTALL_TARGETS( /lib/ UtilsCommon )
 
 ADD_LIBRARY( UtilsNodes
   Counter.cc
   DietLogComponent.cc
   FASTMgr.cc
   MonitoringThread.cc
-  ServiceTable.cc )
+  ServiceTable.cc
+)
+INSTALL_TARGETS( /lib/ UtilsNodes )
 
 ADD_LIBRARY( UtilsSeDClt
   DIET_mutex.cc 
-  AccessController.cc )
+  AccessController.cc
+)
+INSTALL_TARGETS( /lib/ UtilsSeDClt )
 
 ADD_LIBRARY( UtilsVector
   estVector.c 
-  Vector.c )
+  Vector.c
+)
+INSTALL_TARGETS( /lib/ UtilsVector )

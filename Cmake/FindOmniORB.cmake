@@ -23,7 +23,15 @@ FIND_PATH( OMNIORB4_INCLUDE_DIR omniORB4/CORBA.h
 )
 
 SET( OMNIORB4_DEFAULT_LIB_PATH /usr/lib /usr/local/lib )
-#### FIXME: what are the required libraries for proper usage ????
+#### For the list of required libraries for omniORB see
+# http://www.omniorb-support.com/pipermail/omniorb-list/2005-May/026666.html
+# Basically, look at
+#  - omniORB-4.0.5/README.*
+#  - omniORB-4.0.5/readmes/*
+# Platfrom dependencies might (only?) happen for Win32/VC++ (sigh):
+# "Because of a bug in VC++, unless you require the dynamic interfaces, it
+#  is suggested that you use a smaller stub library called msvcstub.lib."
+
 FIND_LIBRARY(  OMNIORB4_LIBRARY_omniORB4 omniORB4
   PATHS ${OMNIORB4_DIR}/lib
         ${OMNIORB4_DEFAULT_LIB_PATH}
@@ -82,6 +90,7 @@ ENDIF( OMNIORB4_LIBRARY_omniORB4 )
 ENDIF( OMNIORB4_INCLUDE_DIR )
 
 IF( NOT OMNIORB4_FOUND )
+  MESSAGE("omniORB installation was not found. Please provide OMNIORB4_DIR")
   SET( OMNIORB4_DIR "" CACHE PATH "Root of omniORB instal tree." )
 ENDIF( NOT OMNIORB4_FOUND )
 
