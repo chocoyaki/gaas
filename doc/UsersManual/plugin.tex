@@ -467,7 +467,11 @@ performanceFn(diet\_profile\_t* pb) \\
   return (perfValues); \\
 \}
 \end{code}
-These two blocks of code serve to customize the generation of
+The function \texttt{computeMismatches} (defined earlier in
+\texttt{server.c}), calculates the number of requested databases that
+are not present on the SeD making the evaluation.
+Together, the \texttt{performanceFn} function and the block of code
+added to \texttt{main} serve to customize the generation of
 performance information and the treatment of these data in the context
 of the simulated database search.
 Finally, it should be noted that the client code is not affected by
