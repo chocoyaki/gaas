@@ -1,0 +1,501 @@
+%****************************************************************************%
+%* DIET User's Manual plugin scheduler chapter file                         *%
+%*                                                                          *%
+%*  Author(s):                                                              *%
+%*    - Alan SU (Alan.SU@ens-lyon.fr)                                       *%
+%*                                                                          *%
+%* $LICENSE$                                                                *%
+%****************************************************************************%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% \documentclass{article}
+
+\newenvironment{code}
+{\begin{list}{}{\setlength{\leftmargin}{1em}}\item\bfseries\tt}
+{\end{list}}
+
+\newenvironment{tinycode}
+{\begin{list}{}{\setlength{\leftmargin}{1em}}\item\tiny\bfseries\tt}
+{\end{list}}
+
+%% \begin{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Plugin Scheduler extension}
+\label{ch:plugin}
+
+\section{Introduction}
+
+With the release of version 2.0 of the DIET toolkit, we introduce a
+\emph{plugin scheduling} facility, designed to allow DIET service
+developers to define application-specific performance measures and
+to implement corresponding scheduling strategies.  This section
+describes the interface to this facility.
+
+\section{Default Scheduling}
+
+The default scheduling strategy of the DIET toolkit is changed subtly
+with the release of the plugin scheduler.  Aside from various bugfixes
+in the low-level
+performance measurement and comparison algorithms, the default
+behavior of the scheduler has adapted according to the newly
+redesigned framework.  In particular, the logical process used to
+order SeDs by default has been changed to account for the
+modifications in
+the scheduling mechanisms.  The SeD selection process is effected by a
+series of pairwise comparisons between
+\emph{performance estimations} -- collections of data pertaining to
+the capabilities of a particular server in the context of a particular
+client request -- throughout the DIET agent hierarchy.  At the level
+of a particular agent, we term this process
+\emph{server respnose aggregation}.  The end result of the aggregation
+phase is a list of server responses sorted according to the
+aggregation method in effect.
+By default, the aggregation phase
+implements the following ordered sequence of tests:
+
+\begin{enumerate}
+\item \textbf{FAST/NWS data}: SeDs compiled with FAST and NWS
+  configuration options enabled are capable of making dynamic (and
+  potentially application-tuned) performance estimates.  If such data
+  were generated, these are the metrics on which DIET prefers to
+  select servers.
+\item \textbf{Round-robin}: In the absence of application- and
+  platform-specific performance
+  data, the DIET scheduler attempts to probabalistically achieve load
+  balance by attempting to assign client requests on a round-robin
+  basis.  Essentially each server records a timestamp indicating the
+  last time at which it was assigned a job for execution.  Each time a
+  request is recieved, the SeD computes the time elapsed since its
+  last execution, and among the responses it recieves, DIET agents
+  favor SeDs with a longer elapsed time.
+\item \textbf{Random}: If for any reason, the SeD is unable to store
+  timestamps, the DIET scheduler will chose randomly when
+  comparing two otherwise equivalent SeD performance estimations.
+\end{enumerate}
+
+In the following sections, we describe the plugin scheduler, providing
+the application developer the means to extend the notion of a
+performance estimation to include metrics that are
+application-specific, and to instruct DIET how to treat those data in
+the aggregation phase.
+
+
+\section{Plugin Scheduler Interface}
+
+Distributed applications are varied and often exhibit performance
+behavior specific to the domain from which they arise.  Consequently,
+application-specific scheduling approaches are often necessary to
+achieve high-performance execution.  We propose an extensible
+framework to build
+\emph{plugin schedulers}, enabling application developers to tune the
+metrics and heuristics by which the DIET system deploys tasks.
+
+The DIET scheduling subsystem is based on the notion that, for the
+sake of system efficacy and scalability, the work of
+determining the appropriate schedule for a parallel workload should be
+distributed across the computational platform.  As each task in a
+such a parallel workload is submitted to the system for processing,
+each Server Daemon (SeD) provides a
+\emph{performance estimate} for that task.  These estimates are
+propagated up the hierarchy and sorted in a manner that optimizes
+certain performance criteria.  The structure of the
+performance estimate is static and their interpretation and comparison
+is fixed; the focus of the basic plugin scheduler is to enable
+application developers to specify performance estimation metrics that
+are tailored to their individual needs.
+
+%% This section introduces the principal components of the basic plugin
+%% scheduler framework.
+
+\subsection{Estimation Metric Vector}\label{sect:estvector}
+
+The new type \texttt{estVector\_t} is a structure that can manage a
+dynamic collection of performance estimation values.  Logically, we
+refer to such an object as an \emph{estimation vector}, containing
+values that represent the performance profile provided by a
+SeD in response to a DIET service request.  This collection of values
+may contain either standard performance measures that are used in the
+DIET system, or developer-defined values that are meaningful only in
+the context of the application being developed.
+
+\subsubsection{Standard Performance Metrics}
+
+To allow users to use the existing default performance estimation
+routines (as described in Section~\ref{sect:est_fn}), the following
+functions are available to facilitate the construction of custom
+performance estimation functions:
+\begin{itemize}
+\item\texttt{int diet\_estimate\_fast(estVector\_t ev, const diet\_profile\_t* const profilePtr)}:
+  store both the FAST- and NWS-based performance estimation metrics
+  (contingent on availability of these packages at compilation time)
+  into the estimation metric vector \texttt{ev}
+\item\texttt{int diet\_estimate\_lastexec(estVector\_t ev,
+                           const diet\_profile\_t* const profilePtr)}:
+  store the time elapsed since the last execution timestamp (to enable
+  the round-robin scheduler) in the estimation metric vector \texttt{ev}
+\end{itemize}
+
+In the future, we plan to expand the suite of default estimation
+metrics to include other performance estimation systems
+(e.g.,~ganglia) and dynamic internal DIET system state information
+(e.g.,~queue lengths).
+
+\subsubsection{Developer-defined Performance Metrics}
+
+Application developers may also define performance values to be
+included in a SeD response to a client request.  For example, a DIET
+SeD that provides a service to examine particular databases may need
+to include information about which databases are currently resident in
+its disk cache, in order that an appropriate server be identified for
+each client request.  To store such values, the SeD developer should
+utilize the following interface:
+\begin{code}
+int diet\_set\_user\_estimate(estVector\_t ev, int userTag, double value);
+\end{code}
+Such a call instructs DIET to store in the estimation vector
+\texttt{ev} the value \texttt{value} associated with the identifier
+\texttt{userTag}.
+
+
+%% The interface for inspecting and
+%% manipulating such structures is as follows:
+%% \begin{itemize}
+%% \item\texttt{estVector\_t new\_estVector()}:
+%%   create a new estimation metric vector
+%% \item\texttt{int estVector\_addEstimation(estVector\_t ev, diet\_est\_tag\_t tag, double val)}:
+%%   add a new estimation (with metric identifier \texttt{tag} and value
+%%   \texttt{val}) to the estimation metric vector \texttt{ev}
+%% \item\texttt{int estVector\_setEstimation(estVector\_t ev, diet\_est\_tag\_t tag, double val)}:
+%%   in the estimation metric vector \texttt{ev}, set the value
+%%   associated with metric identifier \texttt{tag} to
+%%   value \texttt{val} (to be created if no such tag yet exists, and to
+%%   refer to the first such value if multiple instances of the
+%%   identifier exist)
+%% \item\texttt{int estVector\_numEstimationsByType(estVector\_t ev, diet\_est\_tag\_t tag)}:
+%%   return a count of the number of values associated with identifier
+%%   \texttt{tag} in the estimation metric vector \texttt{ev}
+%% \item\texttt{int estVector\_numEstimations(estVector\_t ev)}:
+%%   return the total number of values (regardless of identifier) in the
+%%   estimation metric vector \texttt{ev}
+%% \item\texttt{diet\_est\_tag\_t estVector\_getEstimationTagByIdx(estVector\_t ev, int idx)}:
+%%   return the identifier of the \texttt{idx}$^{th}$ metric in the
+%%   estimation metric vector \texttt{ev}
+%% \item\texttt{double estVector\_getEstimationValueByIdx(estVector\_t ev,
+%%                                          int idx,
+%%                                          double errVal)}:
+%%   return the \texttt{idx}$^{th}$ value in the estimation metric vector
+%%   \texttt{ev} (returning \texttt{errVal} if no such value exists)
+%% \item\texttt{double estVector\_getEstimationValue(estVector\_t ev,
+%%                                     diet\_est\_tag\_t tag,
+%%                                     double errVal)}:
+%%   return the first value in the estimation metric vector
+%%   \texttt{ev} associated with the identifier \texttt{tag} (returning
+%%   \texttt{errVal} if no such value exists)
+%% \item\texttt{double estVector\_getEstimationValueNum(estVector\_t ev,
+%%                                        diet\_est\_tag\_t tag,
+%%                                        double errVal,
+%%                                        int idx)}:
+%%   return the \texttt{idx}$^{th}$ value in the estimation metric vector
+%%   \texttt{ev} associated with the identifier \texttt{tag}
+%%   (returning \texttt{errVal} if no such value exists)
+%% \item\texttt{void free\_estVector(estVector\_t ev)}:
+%%   deallocate an estimation vector and all its stored metrics
+%% \end{itemize}
+
+\subsection{Estimation Function}\label{sect:est_fn}
+
+The default behavior of a SeD when a task service request arrives from
+its managing agent is to store the following information in the
+request profile:
+\begin{enumerate}
+\item \textbf{FAST-based execution time predictions}: DIET SeDs
+  attempt to call FAST~\cite{fast}
+  routines to obtain execution time predictions based on the type of
+  service requested, if FAST was available at compilation time.  If
+  available, such predictions are stored in the
+  performance estimate.
+\item \textbf{NWS-based dynamic resource information}: If NWS library
+  functions are available, performance estimates may include dynamic
+  resource performance information about CPU availability, free
+  memory, and network bandwidth.
+\item \textbf{Last execution timestamp}: To implement the default
+  round-robin behavior in absence of FAST and NWS facilities, each SeD
+  stores a timestamp of the last time at which it started a solve
+  request.
+\end{enumerate}
+This is accomplished by using the \texttt{diet\_estimate\_fast} and
+\texttt{diet\_estimate\_lastexec} functions described in
+Section~\ref{sect:estvector}.
+
+To implement a plugin scheduler, we define an
+interface that admits customizable performance estimation routines:
+\begin{code}
+  typedef estVector\_t (* diet\_perfmetric\_t)(diet\_profile\_t*);\\
+  \\
+  diet\_perfmetric\_t\\
+  diet\_service\_use\_perfmetric(diet\_perfmetric\_t perfmetric\_fn);\\
+\end{code}
+Thus, the type \texttt{diet\_perfmetric\_t} is a function pointer
+that returns a performance estimation (represented by the
+\texttt{est\_vector\_t} object), given a DIET service request
+profile.  Once such a function has been defined, the application
+developer can instruct DIET to use it for all subsequent service
+registrations with the
+\texttt{diet\_service\_use\_perfmetric} interface.  This function
+returns the previously registered performance metric function, if one
+was defined (and
+\texttt{NULL} otherwise).  This call remains in effect
+(i.e.,~continues to modify the performance estimations for newly
+registered services) until the
+\texttt{diet\_service\_use\_perfmetric} interface is called with a new
+performance metric function.
+
+%% \subsection{Using Standard Metrics}
+
+%% To allow users to use the existing default performance estimation
+%% routines (as described in Section~\ref{sect:est_fn}), the following
+%% functions are available to facilitate the construction of custom
+%% performance estimation functions:
+%% \begin{itemize}
+%% \item\texttt{int diet\_estimate\_fast(estVector\_t ev, const diet\_profile\_t* const profilePtr)}:
+%%   store both the FAST- and NWS-based performance estimation metrics
+%%   (contingent on availability of these packages at compilation time)
+%%   into the estimation metric vector \texttt{ev}
+%% \item\texttt{int diet\_estimate\_lastexec(estVector\_t ev,
+%%                            const diet\_profile\_t* const profilePtr)}:
+%%   store the last execution timestamp (to enable the round-robin
+%%   scheduler) in the estimation metric vector \texttt{ev}
+%% \end{itemize}
+
+%% In the future, we plan to expand the suite of default estimation
+%% metrics to include other performance estimation systems
+%% (e.g.,~ganglia) and dynamic internal DIET system state information
+%% (e.g.,~queue lengths).
+
+\subsection{Aggregation Methods}
+
+At the time a DIET service is defined, an \emph{aggregation method}~--
+the logical mechanism by which SeD responses are sorted~-- is
+associated with the service.
+By default, DIET agents will favor SeDs that supply
+FAST- and/or NWS-based performance prediction data during the
+aggregation phase.  If such data are
+not available, DIET attempts to achieve load balance by sorting SeDs
+using a round-robin or random approach.
+If the estimation function is not overridden by the
+application developer (as described in Section~\ref{sect:est_fn}),
+each SeD will attempt to supply these data in response to a client
+request.  We refer to this as the \emph{standard DIET scheduler}.
+
+If application-specific data \emph{are} supplied (i.e.,~the
+estiamation function has been redefined), an alternative method for
+aggregation is needed.  Currently, a basic
+\emph{priority scheduler} has been implemented, enabling an
+application developer to specify a series of performance values that
+are to be optimized in succession.  A developer may implement a
+priority scheduler using the following interface
+\begin{code}
+diet\_aggregator\_desc\_t* \\
+diet\_profile\_desc\_aggregator(diet\_profile\_desc\_t* profile); \\
+\\
+int \\
+diet\_aggregator\_set\_type(diet\_aggregator\_desc\_t* agg, diet\_aggregator\_type\_t atype); \\
+\\
+int \\
+diet\_aggregator\_priority\_max(diet\_aggregator\_desc\_t* agg, diet\_est\_tag\_t tag); \\
+\\
+int \\
+diet\_aggregator\_priority\_min(diet\_aggregator\_desc\_t* agg, diet\_est\_tag\_t tag); \\
+\\
+int \\
+diet\_aggregator\_priority\_maxuser(diet\_aggregator\_desc\_t* agg, int val); \\
+\\
+int \\
+diet\_aggregator\_priority\_minuser(diet\_aggregator\_desc\_t* agg, int val); \\
+\end{code}
+The \texttt{diet\_profile\_desc\_aggregator} and
+\texttt{diet\_aggregator\_set\_type} functions fetch and configure the
+aggregator corresponding to a DIET service profile, respectively.
+In particular, a priority scheduler is declared by using the
+\texttt{DIET\_AGG\_PRIORITY} aggregator type to the latter function.
+An agent's aggregation phase (effectively, the sorting of all server
+responses from its children) will then use the specified tags to
+perform the pairwise server comparisons needed to construct the final
+result: a sorted list of server responses.
+
+The four
+\texttt{diet\_aggregator\_priority\_*} functions serve to identify the
+estimation values to be optimzed during the aggregation phase.  The
+\texttt{\_min} and \texttt{\_max} forms indicate that a standard
+performance metric (e.g.,~time elapsed since last execution, supplied
+by the \texttt{diet\_estimate\_lastexec} function) to be either
+minimized or maximized, respectively.  Similarly, the
+\texttt{\_minuser} and \texttt{\_maxuser} forms indicate the analogous
+operations on user-supplied estimation values.  Calls to these
+functions indicate the order of \textbf{precedence} of the tags.  Each
+time two server responses need to be compared, the values associated
+with the tags specified in the priority aggregator are retrieved.  In
+the specified order, pairs or corresponding values are successively
+compared, passing to the next tag only if the values for the current
+tag are identical.  This process continues until one response is
+declared superior to the other, or all tags in the priority aggregator
+are exhaused (and the responses are judged equivalent).
+
+
+
+%% \subsection{Generic Minimization/Maximization Metrics}
+%% \label{sect:genl_min_max}
+
+%% The basic plugin scheduler is based on the notion that each SeD can
+%% estimate (in an application-specific manner) its
+%% \emph{relative suitability}
+%% in absence of information about other SeDs in the system.  Moreover,
+%% such an estimate is assumed to be expressible on a numeric scale,
+%% where the basic ``greater than'' and ``less than'' comparators
+%% indicate the relative suitability for the given task.  Assuming this
+%% is the case, DIET's basic plugin scheduling framework provides a means
+%% of effecting a greedy task-by-task scheduling based on this metric
+%% by simply providing a SeD-level performance estimation function.  This
+%% is done with the following procedure:
+%% \begin{enumerate}
+%% \item Create a performance estimation function (with prototype
+%%   conforming to the \texttt{diet\_perfmetric\_t} type).
+%% \item Within this function,
+%%   \begin{itemize}
+%%   \item create an \texttt{estVector\_t} structure using the provided
+%%     interface;
+%%   \item calculate the relative suitability metric;
+%%   \item store this value in the newly created estimation metric vector
+%%     tagged with either the 
+%%     \texttt{EST\_MINMETRIC} or
+%%     \texttt{EST\_MAXMETRIC} identifier in the call to
+%%     \texttt{estVector\_setEstimation()}; this tag indicates whether
+%%     the suitability metric is a minimization metric (i.e.,~''lesser is
+%%     better'') or a maximization metric (i.e.,~''greater is better''),
+%%     respectively; and
+%%   \item return the created estimation metric vector.
+%%   \end{itemize}
+%% \item Register this function as the desired performance estimation
+%%   function using the \begin{code}diet\_service\_use\_perfmetric\end{code}
+%%   interface, \emph{before} registering the DIET service.
+%% \end{enumerate}
+%% In this manner, SeDs will be chosen according to the optimization of
+%% the metric represented by the value generated in the custom
+%% performance estimation function.  In the next section, we discuss
+%% methods to implement performance estimations that cannot be expressed
+%% simply as a numerical value to be optimized.
+
+%% \section{Enhanced Plugin Scheduler}
+
+%% \subsection{User-defined Metrics}
+
+%% \subsection{Application-specific Aggregation}
+
+%% \subsection{Instantiating New Schedulers}
+
+\section{Example}
+
+A new example has been added to the DIET distribution, in the
+directory
+\begin{code}
+src/examples/plugin\_example/
+\end{code}
+Provided are a DIET server and client, corresponding to a simulation
+of a database research application.  In this context, one may use this
+example and the corresponding code as a model for the usage of the
+plugin scheduling facility.  If the construction of examples was
+enabled during DIET configuration, two binaries \texttt{server} and
+\texttt{client} will be built in this directory.  Having deployed a
+DIET agent hierarchy, the server may be simply instantiated at various
+sites in the platform:
+\begin{code}
+  \$ server <SeD\_config> <DB> [ <DB> ... ]
+\end{code}
+where \texttt{<DB>} are simply string that represent the existence of
+a particular database at the SeD's site.  A client would pose a query
+against a set of databases:
+\begin{code}
+  \$ client <client\_config> <DB> [ <DB> ... ]
+\end{code}
+The application uses the plugin scheduling facility to prioritize the
+existence of databases in selecting a server, and thus, the expected
+result is that one of the SeDs with the fewest number of database
+mismatches will be selected.
+
+In the \texttt{main} function of the \texttt{server.c} file, the
+following block of code (i)~specifies the use of the priority
+aggregator for this service, (ii)~declares a performance estimation
+function to supply the necessary data at request-time, and
+(iii)~defines the order of precedence of the performance values
+(i.e.,~minimizing the number of database mismatches, and then
+maximizing the elapsed execution time).
+\begin{code}
+  \{
+    /* new section of the profile: aggregator */ \\
+    diet\_aggregator\_desc\_t *agg; \\
+    agg = diet\_profile\_desc\_aggregator(profile); \\
+\\
+    /* point the DIET server code to our custom performance function */ \\
+    diet\_service\_use\_perfmetric(performanceFn); \\
+\\
+    /* for this service, use a priority scheduler */ \\
+    diet\_aggregator\_set\_type(agg, DIET\_AGG\_PRIORITY); \\
+    diet\_aggregator\_priority\_minuser(agg, 0); \\
+    diet\_aggregator\_priority\_max(agg, EST\_TIMESINCELASTSOLVE); \\
+  \}
+\end{code}
+The performance function \texttt{performanceFn} is thus defined:
+\begin{code}
+static estVector\_t \\
+performanceFn(diet\_profile\_t* pb) \\
+\{ \\
+  const char *targetString; \\
+  int numMismatch; \\
+  estVector\_t perfValues = diet\_estimate\_new\_vector(); \\
+\\
+  /* string value must be fetched from description; value is NULL */ \\
+  targetString = (diet\_paramstring\_get\_desc(diet\_parameter(pb, 0)))->param; \\
+  numMismatch = computeMismatches(targetString); \\
+\\
+  /* store the mismatch value in the user estimate space */ \\
+  diet\_set\_user\_estimate(perfValues, 0, numMismatch); \\
+\\
+  /* also store the timestamp since last execution */ \\
+  diet\_estimate\_lastexec(perfValues, pb); \\
+\\
+  return (perfValues); \\
+\}
+\end{code}
+These two blocks of code serve to customize the generation of
+performance information and the treatment of these data in the context
+of the simulated database search.
+Finally, it should be noted that the client code is not affected by
+the introduction of a plugin scheduler.
+
+\section{Future Work}
+
+We have two primary efforts planned for extensions to the plugin
+scheduler.
+\begin{itemize}
+\item \textbf{Additional information services}: We plan to add
+  functionality to enable to application developer to access and use
+  data concerning the internal state of the DIET server (e.g.,~the
+  current length of request queues).  As other performance measurement
+  and evaluation tools are developed both within and external to the
+  DIET project, we may also create access functions to enable such
+  information to be incorporated in the context of the plugin
+  scheduler.
+\item \textbf{Enhanced aggregation methods}: The plugin scheduler
+  implemented in the current release enables the DIET system to
+  account for user-defined factors in the server selection process.
+  However, the priority aggregation method is fairly rudimentary and
+  lacks the power to express many imaginable comparison mechanisms.
+  We plan to investigate methods to embed code into DIET agents
+  (e.g.,~a simple expression interpreter) in a manner that is secure
+  and that preserves performance.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% \end{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
