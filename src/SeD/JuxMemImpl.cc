@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2005/05/18 21:14:58  mjan
+ * minor bug fix inside JuxMem wrapper for DIET
+ *
  * Revision 1.1  2005/05/18 14:18:09  mjan
  * Initial adding of JuxMem support inside DIET. dmat_manips examples tested without JuxMem and with JuxMem
  *
@@ -111,8 +114,6 @@ JuxMemImpl::JuxMemAlloc(char** data_id, long size, apr_hash_t* attributes)
 	       (const void *) number_of_providers);
   apr_hash_set(attributes, (const void *) CP_TYPE, (apr_ssize_t) strlen(CP_TYPE), (const void *) FLAT_EC_PROTOCOL);
   apr_hash_set(attributes, (const void *) SOG_TYPE, (apr_ssize_t) strlen(SOG_TYPE), (const void *) NO_REPL_SOG);
-
-  JXTA_OBJECT_SHARE(jxta_data_id);
 
   status = juxmem_alloc(this->juxmem_service, &jxta_data_id, 10, attributes);
   if (status != JXTA_SUCCESS) {
