@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.48  2005/05/18 14:18:09  mjan
+ * Initial adding of JuxMem support inside DIET. dmat_manips examples tested without JuxMem and with JuxMem
+ *
  * Revision 1.47  2005/05/15 15:38:59  alsu
  * implementing aggregation interface
  *
@@ -271,6 +274,16 @@ SeDImpl::linkToDataMgr(DataMgrImpl* dataMgr)
 }
 #endif // ! HAVE_JUXMEM
 
+#if HAVE_JUXMEM
+/** Set this->JuxMem */
+int
+SeDImpl::linkToJuxMem(JuxMemImpl* JuxMem)
+{
+  this->JuxMem = JuxMem;
+  return 0;
+}
+#endif // HAVE_JUXMEM
+
 void
 SeDImpl::setDietLogComponent(DietLogComponent* dietLogComponent) {
   this->dietLogComponent = dietLogComponent;
@@ -423,11 +436,32 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
     dietLogComponent->logBeginSolve(path, &pb,reqID);
   }
 
-  TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::solve invoked on pb: " << path << endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::solve JuxMem invoked on pb: " << path << endl);
 
   cvt = SrvT->getConvertor(ref);
- 
-#if ! HAVE_JUXMEM
+
+#if HAVE_JUXMEM
+  unmrsh_in_args_to_profile(&profile, &pb, cvt);
+
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Number of data to check = " << profile.last_out);
+  for (i=0; i <= profile.last_inout; i++) {
+    /** The data is stored by JuxMem, call it! */
+    if (profile.parameters[i].desc.generic.type == DIET_MATRIX && 
+	diet_is_persistent_juxmem(profile.parameters[i]) &&
+	profile.parameters[i].desc.id != NULL &&
+	strlen(profile.parameters[i].desc.id ) != 0) {
+      
+      TRACE_TEXT(TRACE_MAIN_STEPS, "Data number = " << i << " is stored in JuxMem! Retrieve it ...\n");
+      stat_out("SeD",statMsg);
+      stat_flush();
+      
+      long result = this->JuxMem->JuxMemRead(profile.parameters[i].desc.id, (char*) profile.parameters[i].value, 0, (int) data_sizeof(&(profile.parameters[i].desc)));
+      TRACE_TEXT(TRACE_MAIN_STEPS, "JuxMem::Return value of the juxmem_read " << result << "\n");
+      stat_out("SeD",statMsg);
+      stat_flush();
+    }
+  }
+#else // DTM case
   // added for data persistence 
   for (i=0; i <= pb.last_inout; i++) {
  
@@ -435,7 +469,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
       /* In argument with NULL value : data is present */
       this->dataMgr->getData(pb.parameters[i]); 
     } else { /* data is not yet present but is persistent */
-      if( diet_is_persistent(pb.parameters[i])) {
+      if(diet_is_persistent(pb.parameters[i])) {
         this->dataMgr->addData(pb.parameters[i],0);
       }
     }
@@ -450,14 +484,57 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
       this->dataMgr->changePath(pb.parameters[i], in_path);
     }
   }
-
-#endif // ! HAVE_JUXMEM 
+#endif
   
   /* record the timestamp of this solve */
   gettimeofday(&(this->lastSolveStart), NULL);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Calling getSolver\n");
   solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
 
-#if ! HAVE_JUXMEM 
+#if HAVE_JUXMEM
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Number of data to check = " << profile.last_out << "\n");
+  for (i=0; i <= profile.last_out; i++) {
+    /** The data is stored by JuxMem, call it! */
+    if (profile.parameters[i].desc.generic.type == DIET_MATRIX && diet_is_persistent_juxmem(profile.parameters[i])) {
+      long result;
+
+      TRACE_TEXT(TRACE_MAIN_STEPS, "Data number = " << i << " will be stored in JuxMem!\n");
+      stat_out("SeD",statMsg);
+      stat_flush();
+
+      /** First time we see this data, alloc a data block inside JuxMem ... */
+      if (strlen(profile.parameters[i].desc.id) == 0) {
+	/** The data id is set by this call **/
+	result = this->JuxMem->JuxMemAlloc(&profile.parameters[i].desc.id, data_sizeof(&(profile.parameters[i].desc)), NULL);
+	TRACE_TEXT(TRACE_MAIN_STEPS, "JuxMem::Return value of the juxmem_alloc " << result << "\n");
+	TRACE_TEXT(TRACE_MAIN_STEPS, "ID of the data = " << profile.parameters[i].desc.id << "\n");
+	stat_out("SeD",statMsg);
+	stat_flush();
+	result = this->JuxMem->JuxMemMap(profile.parameters[i].desc.id, data_sizeof(&(profile.parameters[i].desc)), NULL);
+	TRACE_TEXT(TRACE_MAIN_STEPS, "JuxMem::Return value of the juxmem_map " << result << "\n");
+	stat_out("SeD",statMsg);
+	stat_flush();
+      }
+      result = this->JuxMem->JuxMemAcquire(profile.parameters[i].desc.id);
+      TRACE_TEXT(TRACE_MAIN_STEPS, "JuxMem::Return value of the juxmem_acquire " << result << "\n");
+      stat_out("SeD",statMsg);
+      stat_flush();
+      result = this->JuxMem->JuxMemWrite(profile.parameters[i].desc.id, (char*) profile.parameters[i].value, 0, (int) data_sizeof(&(profile.parameters[i].desc)));
+      TRACE_TEXT(TRACE_MAIN_STEPS, "Return value of the juxmem_write" << result << "\n");
+      stat_out("SeD",statMsg);
+      stat_flush();
+      result = this->JuxMem->JuxMemRelease(profile.parameters[i].desc.id);
+      TRACE_TEXT(TRACE_MAIN_STEPS, "JuxMem::Return value of the juxmem_release " << result << "\n");
+      stat_out("SeD",statMsg);
+      stat_flush();
+      /** Reset the data so that it doesn't goes back on the client. What do I need to do is unclear for me so don't do it at all ...
+      CORBA::Char *p1 (NULL);
+      pb.parameters[i].value.replace(0, 0, p1, 1);
+      persistent_data_release(&(pb.parameters[i]));*/
+    }
+  }
+  mrsh_profile_to_out_args(&pb, &profile, cvt);
+#else // DTM case
   for(i=0;i<=pb.last_in;i++){
     if(diet_is_persistent(pb.parameters[i])) {
       if (pb.parameters[i].desc.specific._d() != DIET_FILE) {
@@ -467,18 +544,15 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
       persistent_data_release(&(pb.parameters[i]));
     }
   }
-#endif // ! HAVE_JUXMEM
-  
   mrsh_profile_to_out_args(&pb, &profile, cvt);
-    
-#if ! HAVE_JUXMEM
-    for (i = pb.last_inout + 1 ; i <= pb.last_out; i++) {
-      if ( diet_is_persistent(pb.parameters[i])) {
-        this->dataMgr->addData(pb.parameters[i],1); 
-      }
+  
+  for (i = pb.last_inout + 1 ; i <= pb.last_out; i++) {
+    if ( diet_is_persistent(pb.parameters[i])) {
+      this->dataMgr->addData(pb.parameters[i],1); 
     }
-    this->dataMgr->printList();
-#endif // ! HAVE_JUXMEM
+  }
+  this->dataMgr->printList();
+#endif
  
   if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
     cout << "SeD::solve complete\n"

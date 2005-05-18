@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.15  2005/05/18 14:18:09  mjan
+#* Initial adding of JuxMem support inside DIET. dmat_manips examples tested without JuxMem and with JuxMem
+#*
 #* Revision 1.14  2005/05/02 16:46:33  ycaniou
 #* Added the function diet_submit_batch(), the stuff in the makefile to compile
 #*  with appleseeds..
@@ -70,7 +73,15 @@ endif
 
 libDIET_SeD_la_SOURCES = DIET_server.cc SeDImpl.cc DataMgrImpl.cc
 
+if JUXMEM_MODE
+libDIET_SeD_la_SOURCES += JuxMemImpl.cc
+endif
+
 noinst_HEADERS = SeDImpl.hh DataMgrImpl.hh dmat_jxta_progs.h 
+
+if JUXMEM_MODE
+noinst_HEADERS += JuxMemImpl.hh
+endif
 
 utilsdir = $(top_builddir)/src/utils
 corbadir = $(top_builddir)/src/CORBA
@@ -82,7 +93,7 @@ libDIET_SeD_la_LIBADD = \
 	$(corbadir)/idl/libIDLAgent.la $(LIBS_OMNIORB) $(LIBS_FAST) \
 	$(ELAGI_LIBS) $(AS_LIBS)
 
-AM_CXXFLAGS = $(CXXFLAGS_OMNIORB) $(CXXFLAGS_FAST) -I$(top_srcdir)/src/utils \
+AM_CXXFLAGS = @JUXMEM_CXXFLAGS@ $(CXXFLAGS_OMNIORB) $(CXXFLAGS_FAST) -I$(top_srcdir)/src/utils \
 	      -I$(top_srcdir)/src/CORBA -I$(corbadir)/idl 		     \
 	      -I$(top_srcdir)/src/agent
 

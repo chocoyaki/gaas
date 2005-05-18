@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2005/05/18 14:18:10  mjan
+ * Initial adding of JuxMem support inside DIET. dmat_manips examples tested without JuxMem and with JuxMem
+ *
  * Revision 1.13  2005/05/15 15:49:40  alsu
  * to indicate sucess/failure, addServices not returns a value
  *
@@ -67,8 +70,6 @@
 #include "ts_container/ts_vector.hh"
 #include "ts_container/ts_map.hh"
 #include "DietLogComponent.hh"
-
-#define HAVE_JUXMEM 0
 
 class AgentImpl : public POA_Agent,
 		  public PortableServer::RefCountServantBase

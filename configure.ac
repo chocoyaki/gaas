@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.46  2005/05/18 14:18:09  mjan
+#* Initial adding of JuxMem support inside DIET. dmat_manips examples tested without JuxMem and with JuxMem
+#*
 #* Revision 1.45  2005/05/16 15:27:32  alsu
 #* adding plugin_example to the examples lists
 #*
@@ -227,6 +230,40 @@ AC_ARG_ENABLE(Batch,
 	AC_HELP_STRING([--enable-Batch],
 			[enable submission of batch jobs]),
 	[enable_batch=yes],[enable_batch=no])
+
+dnl ##########################################
+dnl Specific to JuxMem
+dnl ##########################################
+
+AC_ARG_WITH(apr,
+	AC_HELP_STRING([--with-apr], [location of APR to use (needed by JuxMem)]),
+	[with_apr="$withval"],[enable_APR=no])
+
+AC_ARG_WITH(jxta-c,
+	AC_HELP_STRING([--with-jxta-c], [location of JXTA-C to use (needed by JuxMem)]),
+	[with_jxta="$withval"],[enable_JXTA-C=no])
+
+AC_ARG_WITH(juxmem,
+	AC_HELP_STRING([--with-juxmem], [location of JuxMem to use]),
+	[with_juxmem="$withval"],[enable_JUXMEM=no])
+
+AH_TEMPLATE(HAVE_JUXMEM, [Define use of JuxMem by DIET.])
+AC_ARG_ENABLE(JuxMem,
+	      AC_HELP_STRING([--enable-JuxMem],
+			     [to use JuxMem with DIET specify the path of JuxMem.]),
+	      [enable_JuxMem=yes])
+
+if test "x$enable_JuxMem" = "xyes"
+then
+  AC_DEFINE(HAVE_JUXMEM)
+  IDLFLAGS="$IDLFLAGS -DHAVE_JUXMEM"
+  JUXMEM_CXXFLAGS=" -I$with_jxta/include -I$with_apr/include -I$with_juxmem/include"
+  JUXMEM_LDFLAGS=" -L$with_apr/lib -L$with_jxta/lib -L$with_juxmem/lib -lapr-0 -laprutil-0 -ljpr -ljxta -ljuxmem"
+  AC_SUBST(JUXMEM_CXXFLAGS)
+  AC_SUBST(JUXMEM_LDFLAGS)
+fi
+
+AM_CONDITIONAL(JUXMEM_MODE, [test $enable_JuxMem = yes])
 
 dnl ###########################################################################
 dnl Load anything under acmacros/*.m4
@@ -578,6 +615,15 @@ fi
 # DIET J
 printf " - DIET J:          " | tee -a config.log
 if test "x$enable_JXTA" = "xyes"
+then
+  echo "yes" | tee -a config.log
+else
+  echo "no" | tee -a config.log
+fi
+
+# JuxMem
+printf " - JuxMem:          " | tee -a config.log
+if test "x$enable_JuxMem" = "xyes"
 then
   echo "yes" | tee -a config.log
 else

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2005/05/18 14:18:09  mjan
+ * Initial adding of JuxMem support inside DIET. dmat_manips examples tested without JuxMem and with JuxMem
+ *
  * Revision 1.27  2005/05/15 15:29:33  alsu
  * - adding new aggregator structure
  * - removing obsolete estimation tags
@@ -172,6 +175,14 @@ typedef struct diet_arg_s diet_arg_t;
 #define diet_is_persistent(arg) \
   (((arg).desc.mode > DIET_VOLATILE) && ((arg).desc.mode <= DIET_STICKY))
 
+#if HAVE_JUXMEM
+/**
+ * Type: int diet_is_persistent_juxmem ((diet_arg_t))
+ * Return true if arg persistence mode is persistent.
+ */
+#define diet_is_persistent_juxmem(arg) \
+  (((arg).desc.mode > DIET_VOLATILE) && ((arg).desc.mode < DIET_STICKY))
+#endif // HAVE_JUXMEM
 
 /****************************************************************************/
 /* Profile descriptor                                                       */

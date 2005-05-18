@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2005/05/18 14:18:09  mjan
+ * Initial adding of JuxMem support inside DIET. dmat_manips examples tested without JuxMem and with JuxMem
+ *
  * Revision 1.18  2005/05/02 16:46:33  ycaniou
  * Added the function diet_submit_batch(), the stuff in the makefile to compile
  *  with appleseeds..
@@ -91,11 +94,11 @@
 #include "ServiceTable.hh"
 #include "DietLogComponent.hh"
 
-#define HAVE_JUXMEM 0
-
-#if ! HAVE_JUXMEM
+#if HAVE_JUXMEM
+#include "JuxMemImpl.hh"      // JuxMem header file
+#else
 #include "DataMgrImpl.hh"     // DTM header file
-#endif // ! HAVE_JUXMEM
+#endif
 
 #define HAVE_QUEUES 1
 
@@ -125,11 +128,15 @@ public:
   int
   run(ServiceTable* services);
  
-#if ! HAVE_JUXMEM
+#if HAVE_JUXMEM
+  /** Set this->JuxMem */
+  int 
+  linkToJuxMem(JuxMemImpl* JuxMem);
+#else
   /** Set this->dataMgr for DTM usage */
   int
   linkToDataMgr(DataMgrImpl* dataMgr);
-#endif // ! HAVE_JUXMEM
+#endif 
 
   /**
    * Set the DietLogComponent of this SeD. If this function is not
@@ -183,10 +190,12 @@ private:
   /* Service table */
   ServiceTable* SrvT;
 
-#if ! HAVE_JUXMEM
+#if HAVE_JUXMEM
+  JuxMemImpl* JuxMem;
+#else
   /* Data Manager associated to this SeD */
   DataMgrImpl* dataMgr;
-#endif // ! HAVE_JUXMEM
+#endif 
 
   /* last queue timestamp */
   struct timeval lastSolveStart;

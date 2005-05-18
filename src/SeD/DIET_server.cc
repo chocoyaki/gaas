@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.38  2005/05/18 14:18:09  mjan
+ * Initial adding of JuxMem support inside DIET. dmat_manips examples tested without JuxMem and with JuxMem
+ *
  * Revision 1.37  2005/05/15 15:38:59  alsu
  * implementing aggregation interface
  *
@@ -108,9 +111,11 @@ using namespace std;
 #include "DietLogComponent.hh"
 #include "MonitoringThread.hh"
 
-#if ! HAVE_JUXMEM
+#if HAVE_JUXMEM
+#include "JuxMemImpl.hh"
+#else
 #include "DataMgrImpl.hh"
-#endif // ! HAVE_JUXMEM
+#endif // HAVE_JUXMEM
 
 #define BEGIN_API extern "C" {
 #define END_API   } // extern "C"
@@ -576,9 +581,11 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   char*  name;
   DietLogComponent* dietLogComponent;     /* LogService */
   MonitoringThread* monitoringThread;
-#if ! HAVE_JUXMEM
+#if HAVE_JUXMEM
+  JuxMemImpl* JuxMem;
+#else
   DataMgrImpl* dataMgr; 
-#endif // ! HAVE_JUXMEM
+#endif // HAVE_JUXMEM
 
   if (SRVT == NULL) {
     ERROR(__FUNCTION__ << ": service table not yet initialized", 1);
@@ -741,7 +748,14 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
     ERROR("unable to launch the SeD", 1);
   }
 
-#if ! HAVE_JUXMEM
+#if HAVE_JUXMEM
+  /** JuxMem creation */
+  JuxMem = new JuxMemImpl();
+  if (JuxMem->run()) {
+    ERROR("Unable to launch JuxMem", 1);
+  }
+  SeD->linkToJuxMem(JuxMem);
+#else
   /* Set-up and activate Data Manager for DTM usage */
   dataMgr = new DataMgrImpl();
   dataMgr->setDietLogComponent(dietLogComponent);
@@ -750,7 +764,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
     ERROR("unable to launch the DataManager", 1);
   }
   SeD->linkToDataMgr(dataMgr);
-#endif // ! HAVE_JUXMEM
+#endif // HAVE_JUXMEM
 
   /* We do not need the parsing results any more */
   Parsers::endParsing();

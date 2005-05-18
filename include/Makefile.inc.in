@@ -1,3 +1,4 @@
+
 #****************************************************************************#
 #* DIET global options for User Makefiles                                   *#
 #*                                                                          *#
@@ -9,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.17  2005/05/18 14:18:09  mjan
+#* Initial adding of JuxMem support inside DIET. dmat_manips examples tested without JuxMem and with JuxMem
+#*
 #* Revision 1.16  2003/09/26 17:34:45  pcombes
 #* Replace the .so prerequisite for client and SeD by the .a
 #*
@@ -47,7 +51,7 @@ CXX      = @CXX@
 CXXFLAGS_DIET += -Wall @CXXFLAG_NO_STRICT_ALIASING@ $(DIET_FLAGS) \
 	         @CXXFLAGS_OMNIORB@ # As long as DIET_mutex is not finished
 
-DIET_SERVER_LIBS = $(DIET_SED_LIB) @LIBS_OMNIORB@ @LIBS_FAST@
+DIET_SERVER_LIBS = $(DIET_SED_LIB) @LIBS_OMNIORB@ @LIBS_FAST@ @JUXMEM_LDFLAGS@
 DIET_CLIENT_LIBS = $(DIET_CLIENT_LIB) @LIBS_OMNIORB@
 
 DIET_CLIENT_SRC_PREREQ = \
