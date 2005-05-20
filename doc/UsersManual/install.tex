@@ -10,6 +10,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.17  2005/05/20 19:06:01  mjan
+%* Short description of how to configure DIET for JuxMem
+%*
 %* Revision 1.16  2004/10/25 08:59:56  sdahan
 %* add the multi-MA documentation
 %*
@@ -260,6 +263,17 @@ into the other MA hierarchies.
 
 {\footnotesize
 \begin{verbatim}
+  --enable-JuxMem       enable the use of JuxMem for managing persistent data
+\end{verbatim}
+}
+\noindent This option allows the user to interact with JuxMem for the
+management of persistent data. When this option is activated (disabled
+by default), a SeD can store data blocks within
+JuxMem. Chapter~\ref{ch:juxmem} describes in more details JuxMem and
+its use inside DIET.
+
+{\footnotesize
+\begin{verbatim}
   --enable-Cichlid        enable generation of communication logs for Cichlid
   --enable-stats          enable generation of statistics logs
   --disable-dependency-tracking Speeds up one-time builds
@@ -270,15 +284,6 @@ into the other MA hierarchies.
   --disable-libtool-lock  avoid locking (might break parallel builds)
 \end{verbatim}
 }
-
-\begin{comment}
-{\footnotesize
-\begin{verbatim}
-  --enable-multi-MA       enable multi-MA architecture
-\end{verbatim}
-}
-\end{comment}
-
 
 \subsection{Optional packages for configuration}
 

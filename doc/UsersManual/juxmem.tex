@@ -1,0 +1,71 @@
+%****************************************************************************%
+%* DIET User's Manual JuxMem use chapter file                               *%
+%*                                                                          *%
+%*  Author(s):                                                              *%
+%*    - Mathieu Jan (Mathieu.Jan@irisa.fr)                                  *%
+%*                                                                          *%
+%* $LICENSE$                                                                *%
+%****************************************************************************%
+
+\chapter{JuxMem extension}
+\label{ch:juxmem}
+
+\section{Introduction}
+
+With the release of version 2.0 of the DIET toolkit, we introduce the
+ability to use JuxMem for managing persistent data blocks. This
+section shortly describes how to use JuxMem inside DIET, as it is an
+on going work.
+
+\section{Overview of JuxMem}
+
+JuxMem, stands for Juxtaposed Memory, implements the concept of data
+sharing service for grid, based on a compromise between DSM systems
+and P2P systems. JuxMem decouples data management from grid
+computation, by providing location transparency as well as data
+persistence in a dynamic environnement. JuxMem is based on the P2P
+platform called JXTA, which stands for Juxtaposed. For more
+information about JuxMem, please check the available documentation on
+the web site of JuxMem~\cite{JuxMem}.
+
+\section{How to configure DIET to use JuxMem?}
+
+DIET currently needs JuxMem version 0.1.1 to work. This version can be
+downloaded on the web site of JuxMem~\cite{JuxMem}. For configuring
+and building JuxMem, please check the README file included in this
+0.1.1 release of JuxMem. When the \texttt{--enable-JuxMem} option is
+activated, you need to have JuxMem-C build, so please read the
+documentation for building JuxMem-C. Currently, for configuring DIET
+in order to use JuxMem you need to specify the build path of JuxMem,
+JXTA-C and APR using respectively the \texttt{--with-juxmem},
+\texttt{--with-jxta-c} and \texttt{--with-apr} options.
+Note that APR (Apache Portable Runtime) is a requirement of both
+JuxMem-C and JXTA-C.
+
+When DIET is configured to use JuxMem, SeDs are able to store data
+blocks inside JuxMem. Please be carefull as it does not mean that you
+have a JuxMem platform deployed and usable!  In a first step, you must
+deploy a JuxMem platform as described in the documentations of
+JuxMem. This JuxMem platform is currently based on JuxMem-J2SE,
+JuxMem-C is only used to play the role of a JuxMem client within a
+DIET SeD. Please read the REAMDE file of JuxMem to build and deployed
+a JuxMem platform.
+
+\section{Example}
+
+A simple example of the JuxMem usage inside DIET can be found in the
+dmat_manips sample. The name of the client is
+\texttt{clientJuxMem}. This example stores DIET matrices inside JuxMem, 
+and allows next computations to retrieve these matrices directly from
+JuxMem. Clients therefore avoid unnecessary tranfers of matrices as
+they only need to transfer the ID of the data returned by JuxMem. More
+documentation and examples will be available in the future.
+
+\section{Troubleshooting}
+
+If you encounter any problem, you can try get help from Mathieu Jan
+\url{<Mathieu.Jan@irisa.fr>}. Do not forget to 
+include in your e-mails the exact error message, your hardware
+description, your OS name and version, and the JuxMem version number.
+However, please do understand that this is an on going work and
+therefore no full support is provided.
