@@ -21,7 +21,7 @@
 %% \begin{document}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\chapter{Plugin Scheduler extension}
+\chapter{Plugin Scheduler Extension}
 \label{ch:plugin}
 
 \section{Introduction}
@@ -48,7 +48,7 @@ series of pairwise comparisons between
 the capabilities of a particular server in the context of a particular
 client request -- throughout the DIET agent hierarchy.  At the level
 of a particular agent, we term this process
-\emph{server respnose aggregation}.  The end result of the aggregation
+\emph{server response aggregation}.  The end result of the aggregation
 phase is a list of server responses sorted according to the
 aggregation method in effect.
 By default, the aggregation phase
@@ -62,7 +62,7 @@ implements the following ordered sequence of tests:
   select servers.
 \item \textbf{Round-robin}: In the absence of application- and
   platform-specific performance
-  data, the DIET scheduler attempts to probabalistically achieve load
+  data, the DIET scheduler attempts to probabilistically achieve load
   balance by attempting to assign client requests on a round-robin
   basis.  Essentially each server records a timestamp indicating the
   last time at which it was assigned a job for execution.  Each time a
@@ -210,7 +210,7 @@ its managing agent is to store the following information in the
 request profile:
 \begin{enumerate}
 \item \textbf{FAST-based execution time predictions}: DIET SeDs
-  attempt to call FAST~\cite{fast}
+  attempt to call FAST~\cite{Qui02}
   routines to obtain execution time predictions based on the type of
   service requested, if FAST was available at compilation time.  If
   available, such predictions are stored in the
@@ -289,12 +289,12 @@ each SeD will attempt to supply these data in response to a client
 request.  We refer to this as the \emph{standard DIET scheduler}.
 
 If application-specific data \emph{are} supplied (i.e.,~the
-estiamation function has been redefined), an alternative method for
+estimation function has been redefined), an alternative method for
 aggregation is needed.  Currently, a basic
 \emph{priority scheduler} has been implemented, enabling an
 application developer to specify a series of performance values that
 are to be optimized in succession.  A developer may implement a
-priority scheduler using the following interface
+priority scheduler using the following interface:
 \begin{code}
 diet\_aggregator\_desc\_t* \\
 diet\_profile\_desc\_aggregator(diet\_profile\_desc\_t* profile); \\
