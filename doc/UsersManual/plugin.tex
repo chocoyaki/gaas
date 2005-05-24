@@ -55,9 +55,10 @@ By default, the aggregation phase
 implements the following ordered sequence of tests:
 
 \begin{enumerate}
-\item \textbf{FAST/NWS data}: SeDs compiled with FAST and NWS
-  configuration options enabled are capable of making dynamic (and
-  potentially application-tuned) performance estimates.  If such data
+\item \textbf{FAST/NWS data}: SeDs compiled with FAST~\cite{Qui02} and
+  NWS~\cite{WSH99}
+  configuration options enabled are capable of making dynamic
+  performance estimates.  If such data
   were generated, these are the metrics on which DIET prefers to
   select servers.
 \item \textbf{Round-robin}: In the absence of application- and
@@ -94,7 +95,7 @@ metrics and heuristics by which the DIET system deploys tasks.
 The DIET scheduling subsystem is based on the notion that, for the
 sake of system efficacy and scalability, the work of
 determining the appropriate schedule for a parallel workload should be
-distributed across the computational platform.  As each task in a
+distributed across the computational platform.  As each task in
 such a parallel workload is submitted to the system for processing,
 each Server Daemon (SeD) provides a
 \emph{performance estimate} for that task.  These estimates are
@@ -210,7 +211,7 @@ its managing agent is to store the following information in the
 request profile:
 \begin{enumerate}
 \item \textbf{FAST-based execution time predictions}: DIET SeDs
-  attempt to call FAST~\cite{Qui02}
+  attempt to call FAST
   routines to obtain execution time predictions based on the type of
   service requested, if FAST was available at compilation time.  If
   available, such predictions are stored in the
