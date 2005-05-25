@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.47  2005/05/25 07:53:31  mjan
+#* Bug fix for JuxMem support. Reported by Eddy. Thx!
+#*
 #* Revision 1.46  2005/05/18 14:18:09  mjan
 #* Initial adding of JuxMem support inside DIET. dmat_manips examples tested without JuxMem and with JuxMem
 #*
@@ -261,6 +264,9 @@ then
   JUXMEM_LDFLAGS=" -L$with_apr/lib -L$with_jxta/lib -L$with_juxmem/lib -lapr-0 -laprutil-0 -ljpr -ljxta -ljuxmem"
   AC_SUBST(JUXMEM_CXXFLAGS)
   AC_SUBST(JUXMEM_LDFLAGS)
+else
+  JUXMEM_CXXFLAGS=""
+  JUXMEM_LDFLAGS=""
 fi
 
 AM_CONDITIONAL(JUXMEM_MODE, [test $enable_JuxMem = yes])
