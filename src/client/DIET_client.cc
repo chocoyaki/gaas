@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.59  2005/05/27 11:57:25  mjan
+ * Removing commented log service code on the client side when using JuxMem.
+ * Thanks Raphael!
+ *
  * Revision 1.58  2005/05/27 08:18:17  mjan
  * Moving JuxMem in a more appropriate place (src/utils)
  * Added log messages for VizDIET
@@ -607,24 +611,12 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
       
       TRACE_TEXT(TRACE_MAIN_STEPS, "A data space with ID = " << profile->parameters[i].desc.id << " for IN data has been allocated inside JuxMem!\n");
       
-      //      if (dietLogComponent != NULL) {
-      //dietLogComponent->logJuxMemDataStore(profile->parameters[i].desc.id, 
-      //					     (int) data_sizeof(&(profile->parameters[i].desc)), 
-      //      				     (long) profile->parameters[i].desc.generic.base_type,
-      //					     "MATRIX", 
-      //					     ((t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000));
-      //					     }
-      
       gettimeofday(&t1, NULL);
       JuxMem->JuxMemAcquire(profile->parameters[i].desc.id);
       JuxMem->JuxMemWrite(profile->parameters[i].desc.id, (char*) profile->parameters[i].value, 0, (int) (sizeof(double) * data_sizeof(&(profile->parameters[i].desc))));
       JuxMem->JuxMemRelease(profile->parameters[i].desc.id);
       gettimeofday(&t2, NULL);
       
-      //if (dietLogComponent != NULL) {
-      //	dietLogComponent->logJuxMemDataUse(profile->parameters[i].desc.id, "WRITE", ((t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000));
-      //}
-	
       profile->parameters[i].value = NULL;
     }
   }
@@ -720,9 +712,6 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
       JuxMem->JuxMemRelease(profile->parameters[i].desc.id);
       gettimeofday(&t2, NULL);
 	
-      //if (dietLogComponent != NULL) {
-      //	dietLogComponent->logJuxMemDataUse(profile->parameters[i].desc.id, "READ", ((t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000));
-      //}
     }
   }
 #endif // HAVE_JUXMEM
