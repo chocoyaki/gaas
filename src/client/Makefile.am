@@ -10,6 +10,11 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.10  2005/05/27 08:18:17  mjan
+#* Moving JuxMem in a more appropriate place (src/utils)
+#* Added log messages for VizDIET
+#* Added use of JuxMem in the client side
+#*
 #* Revision 1.9  2005/04/13 08:49:54  hdail
 #* Cleaning up references to libUtilsCichlid.la.
 #*
@@ -63,7 +68,10 @@ libDIET_client_la_LIBADD = \
 	$(corbadir)/libCorbaCommon.la $(corbadir)/idl/libIDLAgent.la	\
 	$(corbadir)/idl/libIDLCommon.la $(corbadir)/idl/libIDLMA.la	\
 	$(LIBS_OMNIORB)
+if JUXMEM_MODE
+libDIET_client_la_LIBADD += $(utilsdir)/libJuxMemWrapper.la
+endif
 
-AM_CXXFLAGS = $(CXXFLAGS_OMNIORB) -I$(top_srcdir)/src/utils \
+AM_CXXFLAGS = @JUXMEM_CXXFLAGS@ $(CXXFLAGS_OMNIORB) -I$(top_srcdir)/src/utils \
 	      -I$(top_srcdir)/src/CORBA -I$(corbadir)/idl
 

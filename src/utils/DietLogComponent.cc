@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2005/05/27 08:18:17  mjan
+ * Moving JuxMem in a more appropriate place (src/utils)
+ * Added log messages for VizDIET
+ * Added use of JuxMem in the client side
+ *
  * Revision 1.8  2005/04/29 15:17:08  ecaron
  * Bug fix for gcc 3.4.x
  *
@@ -176,9 +181,9 @@ DietLogComponent::DietLogComponent(const char* name,
   pingThread=NULL;
 
   // define tags
-  tagCount = 14;
+  tagCount = 16;
   tagFlags = createBoolArrayFalse(tagCount);
-  tagNames = new char*[14];
+  tagNames = new char*[16];
   tagNames[0] = strdup("ADD_SERVICE");
   tagNames[1] = strdup("ASK_FOR_SED");
   tagNames[2] = strdup("SED_CHOSEN");
@@ -193,6 +198,10 @@ DietLogComponent::DietLogComponent(const char* name,
   tagNames[11] = strdup("LATENCY");
   tagNames[12] = strdup("BANDWIDTH");
   tagNames[13] = strdup("NEIGHBORS");
+#if HAVE_JUXMEM
+  tagNames[14] = strdup("JUXMEM_DATA_STORE");
+  tagNames[15] = strdup("JUXMEM_DATA_USER");
+#endif
   CORBA::Object_ptr myLCCptr;
 
   try {
@@ -620,9 +629,9 @@ DietLogComponent::logDataRelease(const char* dataID) {
 void
 DietLogComponent::logDataStore(const char* dataID, const long unsigned int size, const long base_type, const char * type) {
   char * base = (char *)malloc(10*sizeof(char));
-   char* s;
-   s = new char[strlen(dataID) + sizeof(size)+ strlen(type) + strlen(base) + 3];
- if (tagFlags[6]) {
+  char* s;
+  s = new char[strlen(dataID) + sizeof(size)+ strlen(type) + strlen(base) + 3];
+  if (tagFlags[6]) {
     switch (base_type) {
     case DIET_CHAR: {
       strcpy(base,"CHAR");
@@ -683,6 +692,57 @@ DietLogComponent::logDataEndTransfer(const char* dataID,
     delete(s);
   }
 }
+
+#if HAVE_JUXMEM
+void 
+DietLogComponent::logJuxMemDataStore(const char* dataID, const long unsigned int size, const long base_type, const char * type, const float time) {
+   char * base = (char *)malloc(10*sizeof(char));
+   char* s;
+   s = new char[strlen(dataID) + sizeof(size)+ strlen(type) + strlen(base) + sizeof(time) + 15];
+   if (tagFlags[14]) {
+    switch (base_type) {
+    case DIET_CHAR: {
+      strcpy(base,"CHAR");
+      break;
+    }
+    case DIET_SHORT: {
+      strcpy(base,"SHORT");
+      break;
+    }
+    case DIET_INT: {
+      strcpy(base,"INTEGER");
+      break;
+    }
+    case DIET_LONGINT: {
+      strcpy(base,"LONGINT");
+      break;
+    }
+    case DIET_FLOAT: {
+      strcpy(base,"FLOAT");
+      break;
+    }
+    case DIET_DOUBLE: {
+      strcpy(base,"DOUBLE");
+      break;
+    }
+    }
+    sprintf(s,"%s %ld %s %s %f",(const char *)(dataID),(long unsigned int)(size), type, base, time);
+    log(tagNames[14], s);
+  }
+  free(base);
+  //delete(s);
+}
+
+void 
+DietLogComponent::logJuxMemDataUse(const char* dataID, const char* access_mode, const float time) {
+   char* s;
+   s = new char[strlen(dataID) + strlen(access_mode) + sizeof(time) + 10];  
+   sprintf(s,"%s %s %f",(const char *)(dataID),(const char *) access_mode, time);
+   log(tagNames[15], s);
+   //delete(s);
+}
+
+#endif // HAVE_JUXMEM
 
 /**
  * NWS data

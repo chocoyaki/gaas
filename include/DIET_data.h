@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2005/05/27 08:18:16  mjan
+ * Moving JuxMem in a more appropriate place (src/utils)
+ * Added log messages for VizDIET
+ * Added use of JuxMem in the client side
+ *
  * Revision 1.28  2005/05/18 14:18:09  mjan
  * Initial adding of JuxMem support inside DIET. dmat_manips examples tested without JuxMem and with JuxMem
  *
@@ -174,15 +179,6 @@ typedef struct diet_arg_s diet_arg_t;
  */
 #define diet_is_persistent(arg) \
   (((arg).desc.mode > DIET_VOLATILE) && ((arg).desc.mode <= DIET_STICKY))
-
-#if HAVE_JUXMEM
-/**
- * Type: int diet_is_persistent_juxmem ((diet_arg_t))
- * Return true if arg persistence mode is persistent.
- */
-#define diet_is_persistent_juxmem(arg) \
-  (((arg).desc.mode > DIET_VOLATILE) && ((arg).desc.mode < DIET_STICKY))
-#endif // HAVE_JUXMEM
 
 /****************************************************************************/
 /* Profile descriptor                                                       */

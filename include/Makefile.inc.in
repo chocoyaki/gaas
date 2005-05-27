@@ -10,6 +10,11 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.18  2005/05/27 08:18:16  mjan
+#* Moving JuxMem in a more appropriate place (src/utils)
+#* Added log messages for VizDIET
+#* Added use of JuxMem in the client side
+#*
 #* Revision 1.17  2005/05/18 14:18:09  mjan
 #* Initial adding of JuxMem support inside DIET. dmat_manips examples tested without JuxMem and with JuxMem
 #*
@@ -52,7 +57,7 @@ CXXFLAGS_DIET += -Wall @CXXFLAG_NO_STRICT_ALIASING@ $(DIET_FLAGS) \
 	         @CXXFLAGS_OMNIORB@ # As long as DIET_mutex is not finished
 
 DIET_SERVER_LIBS = $(DIET_SED_LIB) @LIBS_OMNIORB@ @LIBS_FAST@ @JUXMEM_LDFLAGS@
-DIET_CLIENT_LIBS = $(DIET_CLIENT_LIB) @LIBS_OMNIORB@
+DIET_CLIENT_LIBS = $(DIET_CLIENT_LIB) @LIBS_OMNIORB@ @JUXMEM_LDFLAGS@
 
 DIET_CLIENT_SRC_PREREQ = \
 	$(DIET_INSTALLDIR)/include/DIET_data.h		\

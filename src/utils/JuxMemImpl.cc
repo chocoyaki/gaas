@@ -8,11 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.2  2005/05/18 21:14:58  mjan
- * minor bug fix inside JuxMem wrapper for DIET
- *
- * Revision 1.1  2005/05/18 14:18:09  mjan
- * Initial adding of JuxMem support inside DIET. dmat_manips examples tested without JuxMem and with JuxMem
+ * Revision 1.1  2005/05/27 08:18:17  mjan
+ * Moving JuxMem in a more appropriate place (src/utils)
+ * Added log messages for VizDIET
+ * Added use of JuxMem in the client side
  *
  *
  ****************************************************************************/
@@ -68,7 +67,7 @@ JuxMemImpl::run()
 
   this->log_s = jxta_log_selector_new_and_set("*.*", &status);
   if (NULL == this->log_s || status != JXTA_SUCCESS) {
-    ERROR("JuxMemImpl::Failed to init default log selector",1);
+    ERROR("JuxMemImpl::Failed to init default log selector\n",1);
   }
 
   jxta_log_file_open(&(this->log_f),"jxta.log");
@@ -78,14 +77,14 @@ JuxMemImpl::run()
   /** Start JXTA */
   status = jxta_PG_new_netpg (&(this->juxmem_group));
   if (status != JXTA_SUCCESS) {
-    ERROR("JuxMemImpl::Failed to start JuxMem group!",1);
+    ERROR("JuxMemImpl::Failed to start JuxMem group!\n",1);
   }
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Started the JuxMem client inside the SeD!\n");
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Started the JuxMem client!\n");
 
   /** Get useful services */
   jxta_PG_get_juxmem_service (this->juxmem_group, &(this->juxmem_service));
   if (this->juxmem_service == NULL) {
-    ERROR("JuxMemImpl::Failed to get JuxMem service!",1);
+    ERROR("JuxMemImpl::Failed to get JuxMem service!\n",1);
   }
   TRACE_TEXT(TRACE_MAIN_STEPS, "Getting the JuxMem service!\n");
 
@@ -93,14 +92,14 @@ JuxMemImpl::run()
 }
 
 long 
-JuxMemImpl::JuxMemAlloc(char** data_id, long size, apr_hash_t* attributes)
+JuxMemImpl::JuxMemAlloc(char** data_id, int size, apr_hash_t* attributes)
 {
   Jxta_status status = JXTA_SUCCESS;
   JString *jxta_data_id_jstring = NULL;
   Jxta_id *jxta_data_id = NULL;
   char *number_of_providers = NULL;
 
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Calling JuxMemAlloc");
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Calling JuxMemAlloc for a data of size = " << size << "\n");
   
   if (attributes == NULL) {
     attributes = apr_hash_make(this->pool);
@@ -117,7 +116,7 @@ JuxMemImpl::JuxMemAlloc(char** data_id, long size, apr_hash_t* attributes)
 
   status = juxmem_alloc(this->juxmem_service, &jxta_data_id, 10, attributes);
   if (status != JXTA_SUCCESS) {
-    ERROR("JuxMemImpl::Failed to call JuxMemAlloc!",1);
+    ERROR("JuxMemImpl::Failed to call JuxMemAlloc!\n",1);
   } 
 
   jxta_id_to_jstring(jxta_data_id, &jxta_data_id_jstring);
@@ -131,7 +130,7 @@ JuxMemImpl::JuxMemAlloc(char** data_id, long size, apr_hash_t* attributes)
 }
 
 long 
-JuxMemImpl::JuxMemMap(char* data_id, long size, apr_hash_t* attributes) 
+JuxMemImpl::JuxMemMap(char* data_id, int size, apr_hash_t* attributes) 
 {
   Jxta_status status = JXTA_SUCCESS;
   Jxta_id *jxta_data_id = NULL;
@@ -139,7 +138,7 @@ JuxMemImpl::JuxMemMap(char* data_id, long size, apr_hash_t* attributes)
   char *data_size_char = NULL;
   char *number_of_providers = NULL;
 
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Calling JuxMemMap");
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Calling JuxMemMap for a data of size = " << size << "\n");
 
   if (attributes == NULL) {
     attributes = apr_hash_make(this->pool);
@@ -155,7 +154,7 @@ JuxMemImpl::JuxMemMap(char* data_id, long size, apr_hash_t* attributes)
   apr_hash_set(attributes, (const void *) SOG_TYPE, (apr_ssize_t) strlen(SOG_TYPE), (const void *) NO_REPL_SOG);
 
   data_size_char = (char *) malloc(sizeof(char) * 10);
-  sprintf(data_size_char, "%li", size);
+  sprintf(data_size_char, "%i", size);
   apr_hash_set(attributes, (const void *) MEMORY_SIZE, (apr_ssize_t) strlen(MEMORY_SIZE), (const void *) data_size_char);
   
   jxta_data_id_jstring = jstring_new_2(data_id);
@@ -164,7 +163,7 @@ JuxMemImpl::JuxMemMap(char* data_id, long size, apr_hash_t* attributes)
   JXTA_OBJECT_SHARE(jxta_data_id);
   status = juxmem_map(this->juxmem_service, jxta_data_id, attributes);
   if (status != JXTA_SUCCESS) {
-    ERROR("JuxMemImpl::Failed to call JuxMemMap!",1);
+    ERROR("JuxMemImpl::Failed to call JuxMemMap!\n",1);
   } 
 
   free(number_of_providers);
@@ -183,7 +182,7 @@ JuxMemImpl::JuxMemRead(char* data_id, char* buffer, int offset, int length)
   Jxta_id *jxta_data_id = NULL;
   JString *jxta_data_id_jstring = NULL;
 
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Calling JuxMemRead");
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Calling JuxMemRead\n");
   
   jxta_data_id_jstring = jstring_new_2(data_id);
   assert(jxta_id_from_jstring(&jxta_data_id, jxta_data_id_jstring) == JXTA_SUCCESS);
@@ -191,7 +190,7 @@ JuxMemImpl::JuxMemRead(char* data_id, char* buffer, int offset, int length)
   JXTA_OBJECT_SHARE(jxta_data_id);
   status = juxmem_read(this->juxmem_service, jxta_data_id, buffer, offset, length);
   if (status != JXTA_SUCCESS) {
-    ERROR("JuxMemImpl::Failed to call JuxMemRead!",1);
+    ERROR("JuxMemImpl::Failed to call JuxMemRead!\n",1);
   }
 
   JXTA_OBJECT_RELEASE(jxta_data_id);
@@ -207,7 +206,7 @@ JuxMemImpl::JuxMemWrite(char* data_id, char* buffer, int offset, int length)
   JString *jxta_data_id_jstring = NULL;
   Jxta_id *jxta_data_id = NULL;
 
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Calling JuxMemWrite");
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Calling JuxMemWrite\n");
   
   jxta_data_id_jstring = jstring_new_2(data_id);
   assert(jxta_id_from_jstring(&jxta_data_id, jxta_data_id_jstring) == JXTA_SUCCESS);
@@ -215,7 +214,7 @@ JuxMemImpl::JuxMemWrite(char* data_id, char* buffer, int offset, int length)
   JXTA_OBJECT_SHARE(jxta_data_id);
   status = juxmem_write(this->juxmem_service, jxta_data_id, buffer, offset, length);
   if (status != JXTA_SUCCESS) {
-    ERROR("JuxMemImpl::Failed to call JuxMemWrite!",1);
+    ERROR("JuxMemImpl::Failed to call JuxMemWrite\n!",1);
   }
 
   JXTA_OBJECT_RELEASE(jxta_data_id);
@@ -231,7 +230,7 @@ JuxMemImpl::JuxMemFlush(char* data_id)
   JString *jxta_data_id_jstring = NULL;
   Jxta_id *jxta_data_id = NULL;
 
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Calling JuxMemFlush");
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Calling JuxMemFlush\n");
   
   jxta_data_id_jstring = jstring_new_2(data_id);
   assert(jxta_id_from_jstring(&jxta_data_id, jxta_data_id_jstring) == JXTA_SUCCESS);
@@ -239,7 +238,7 @@ JuxMemImpl::JuxMemFlush(char* data_id)
   JXTA_OBJECT_SHARE(jxta_data_id);
   status = juxmem_flush(this->juxmem_service, jxta_data_id);
   if (status != JXTA_SUCCESS) {
-    ERROR("JuxMemImpl::Failed to call JuxMemFlush!",1);
+    ERROR("JuxMemImpl::Failed to call JuxMemFlush!\n",1);
   }
 
   JXTA_OBJECT_RELEASE(jxta_data_id);
@@ -254,7 +253,7 @@ JuxMemImpl::JuxMemAcquire(char* data_id)
   Jxta_status status = JXTA_SUCCESS;
   JString *jxta_data_id_jstring = NULL;
   Jxta_id *jxta_data_id = NULL;
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Calling JuxMemAcquire");
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Calling JuxMemAcquire\n");
   
   jxta_data_id_jstring = jstring_new_2(data_id);
   assert(jxta_id_from_jstring(&jxta_data_id, jxta_data_id_jstring) == JXTA_SUCCESS);
@@ -262,7 +261,7 @@ JuxMemImpl::JuxMemAcquire(char* data_id)
   JXTA_OBJECT_SHARE(jxta_data_id);
   status = juxmem_acquire(this->juxmem_service, jxta_data_id);
   if (status != JXTA_SUCCESS) {
-    ERROR("JuxMemImpl::Failed to call JuxMemAcquire!",1);
+    ERROR("JuxMemImpl::Failed to call JuxMemAcquire!\n",1);
   }
 
   JXTA_OBJECT_RELEASE(jxta_data_id);
@@ -278,7 +277,7 @@ JuxMemImpl::JuxMemAcquireRead(char* data_id)
   JString *jxta_data_id_jstring = NULL;
   Jxta_id *jxta_data_id = NULL;
 
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Calling JuxMemAcquireRead");
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Calling JuxMemAcquireRead\n");
   
   jxta_data_id_jstring = jstring_new_2(data_id);
   assert(jxta_id_from_jstring(&jxta_data_id, jxta_data_id_jstring) == JXTA_SUCCESS);
@@ -286,7 +285,7 @@ JuxMemImpl::JuxMemAcquireRead(char* data_id)
   JXTA_OBJECT_SHARE(jxta_data_id);
   status = juxmem_acquire_read(this->juxmem_service, jxta_data_id);
   if (status != JXTA_SUCCESS) {
-    ERROR("JuxMemImpl::Failed to call JuxMemAcquireRead!",1);
+    ERROR("JuxMemImpl::Failed to call JuxMemAcquireRead!\n",1);
   }
 
   JXTA_OBJECT_RELEASE(jxta_data_id);
@@ -302,7 +301,7 @@ JuxMemImpl::JuxMemRelease(char* data_id)
   JString *jxta_data_id_jstring = NULL;
   Jxta_id *jxta_data_id = NULL;
 
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Calling JuxMemRelease");
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Calling JuxMemRelease\n");
   
   jxta_data_id_jstring = jstring_new_2(data_id);
   assert(jxta_id_from_jstring(&jxta_data_id, jxta_data_id_jstring) == JXTA_SUCCESS);
@@ -310,7 +309,7 @@ JuxMemImpl::JuxMemRelease(char* data_id)
   JXTA_OBJECT_SHARE(jxta_data_id);
   status = juxmem_release(this->juxmem_service, jxta_data_id);
   if (status != JXTA_SUCCESS) {
-    ERROR("JuxMemImpl::Failed to call JuxMemRelease!",1);
+    ERROR("JuxMemImpl::Failed to call JuxMemRelease!\n",1);
   }
 
   JXTA_OBJECT_RELEASE(jxta_data_id);

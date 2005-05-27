@@ -8,6 +8,11 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.22  2005/05/27 08:18:17  mjan
+#* Moving JuxMem in a more appropriate place (src/utils)
+#* Added log messages for VizDIET
+#* Added use of JuxMem in the client side
+#*
 #* Revision 1.21  2005/05/18 14:18:10  mjan
 #* Initial adding of JuxMem support inside DIET. dmat_manips examples tested without JuxMem and with JuxMem
 #*
@@ -73,7 +78,7 @@ clientJuxMem: clientJuxMem.c $(DIET_CLIENT_PREREQ)
 # the flag -I ../../../include.
 server:	server.c $(DIET_SERVER_PREREQ)
 	$(CC) $(CCFLAGS_DIET) -I $(top_builddir)/include $<	\
-	      $(DIET_SERVER_LIBS) -o $@
+	      $(DIET_SERVER_LIBS)  -o $@
 
 # Implicit rule for all CXX clients
 %:	%.cc Global_macros.hh $(DIET_CLIENT_PREREQ)

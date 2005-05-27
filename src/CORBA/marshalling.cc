@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.49  2005/05/27 08:18:17  mjan
+ * Moving JuxMem in a more appropriate place (src/utils)
+ * Added log messages for VizDIET
+ * Added use of JuxMem in the client side
+ *
  * Revision 1.48  2005/05/15 15:32:22  alsu
  * marshalling functions for aggregator
  *
@@ -577,11 +582,16 @@ mrsh_pb_desc(corba_pb_desc_t* dest, const diet_profile_t* const src)
   for (int i = 0; i <= src->last_out; i++) {
     // dest->param_desc[i].id.idNumber = CORBA::string_dup(NULL);
 
+    /** Hack for correctly building CORBA profile. JuxMem does not require a call to the MA */
+#if HAVE_JUXMEM
+    mrsh_data_desc(&(dest->param_desc[i]), &(src->parameters[i].desc));
+#else
     if(src->parameters[i].desc.id == NULL) {
       mrsh_data_desc(&(dest->param_desc[i]), &(src->parameters[i].desc));
     } else {
       __mrsh_data_id_desc(&(dest->param_desc[i]), &(src->parameters[i].desc));
     }
+#endif // HAVE_JUXMEM
   }
 #if HAVE_BATCH
   dest->batch_flag = src->batch_flag ;
@@ -612,7 +622,13 @@ mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src)
   dest->parameters.length(src->last_out + 1);
 
    for (i = 0; i <= src->last_inout; i++) {
-    if(src->parameters[i].desc.id) {
+     /** Hack for correctly building CORBA profile. JuxMem does not require a call to the MA */
+#if HAVE_JUXMEM
+     if (mrsh_data(&(dest->parameters[i]), &(src->parameters[i]), 0)) {
+       return 1;
+     }
+#else
+     if(src->parameters[i].desc.id) {
        __mrsh_data_id(&(dest->parameters[i]), &(src->parameters[i]));
      } else {
        if (src->parameters[i].value == NULL &&
@@ -629,8 +645,9 @@ mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src)
          }
        }
      }
+#endif // HAVE_JUXMEM
    } 
-    
+   
    for (; i <= src->last_out; i++) {
      if (mrsh_data_desc(&(dest->parameters[i].desc), &(src->parameters[i].desc)))
        return 1;

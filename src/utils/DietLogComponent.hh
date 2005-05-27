@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2005/05/27 08:18:17  mjan
+ * Moving JuxMem in a more appropriate place (src/utils)
+ * Added log messages for VizDIET
+ * Added use of JuxMem in the client side
+ *
  * Revision 1.4  2004/12/16 11:16:31  sdahan
  * adds multi-mas informations into the logService
  *
@@ -258,6 +263,14 @@ public:
 			    const char* destAgent);
   void logDataEndTransfer(const char* dataID,
 			    const char* destAgent);
+
+#if HAVE_JUXMEM
+  /**
+   * Track the use of JuxMem inside DIET
+   */
+  void logJuxMemDataStore(const char* dataID, const long unsigned int size, const long base_type, const char * type, const float time);
+  void logJuxMemDataUse(const char* dataID, const char* access_mode, const float time);
+#endif // HAVE_JUXMEM
 
   /**
    * NWS values

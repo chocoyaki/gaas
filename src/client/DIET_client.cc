@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.58  2005/05/27 08:18:17  mjan
+ * Moving JuxMem in a more appropriate place (src/utils)
+ * Added log messages for VizDIET
+ * Added use of JuxMem in the client side
+ *
  * Revision 1.57  2005/05/15 15:44:46  alsu
  * minor changes from estimation vector reorganization
  *
@@ -67,6 +72,9 @@ using namespace std;
 #include "debug.hh"
 #include "estVector.h"
 #include "DIET_data_internal.hh"
+#if HAVE_JUXMEM
+#include "JuxMemImpl.hh"
+#endif // HAVE_JUXMEM
 #include "marshalling.hh"
 #include "MasterAgent.hh"
 #include "ORBMgr.hh"
@@ -117,6 +125,9 @@ static size_t USE_ASYNC_API = 1;
   
   char file_Name[150];
 
+#if HAVE_JUXMEM
+  JuxMemImpl* JuxMem;
+#endif // HAVE_JUXMEM
 
 /****************************************************************************/
 /* Initialize and Finalize session                                          */
@@ -221,6 +232,13 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
     }
   }
 
+#if HAVE_JUXMEM
+  JuxMem = new JuxMemImpl();
+  if (JuxMem->run()) {
+    ERROR("Unable to launch the SeD", 1);
+  }
+#endif // HAVE_JUXMEM
+
   /* Find Master Agent */
   MA_name = (char*)
     Parsers::Results::getParamValue(Parsers::Results::MANAME);
@@ -262,6 +280,10 @@ diet_finalize()
   MA_MUTEX.lock();
   MA = MasterAgent::_nil();
   MA_MUTEX.unlock();
+
+#if HAVE_JUXMEM
+  delete(JuxMem);
+#endif // HAVE_JUXMEM
   
   /* end fileName */
   // *fileName='\0';
@@ -414,8 +436,10 @@ request_submission(diet_profile_t* profile,
   do {
     response = NULL;
 
+#if ! HAVE_JUXMEM
     /* data property base_type and type retrieval : used for scheduler*/
     int i = 0;
+
     for (i = 0, data_OK = 0 ;
          (i <= corba_pb.last_out && data_OK == 0) ;
          i++) {
@@ -433,6 +457,7 @@ request_submission(diet_profile_t* profile,
         }
       }
     }
+#endif // ! HAVE_JUXMEM
 
     if(data_OK == 0) {
           
@@ -568,6 +593,43 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
     }
   }
 
+#if HAVE_JUXMEM 
+  int i = 0;
+  for (i = 0; i <= profile->last_in; i++) {
+    if (profile->parameters[i].desc.generic.type == DIET_MATRIX && 
+	profile->parameters[i].desc.mode == DIET_PERSISTENT) {
+      struct timeval t1, t2;
+      
+      gettimeofday(&t1, NULL);
+      JuxMem->JuxMemAlloc(&profile->parameters[i].desc.id, sizeof(double) * data_sizeof(&(profile->parameters[i].desc)), NULL);
+      JuxMem->JuxMemMap(profile->parameters[i].desc.id, sizeof(double) * data_sizeof(&(profile->parameters[i].desc)), NULL);
+      gettimeofday(&t2, NULL);
+      
+      TRACE_TEXT(TRACE_MAIN_STEPS, "A data space with ID = " << profile->parameters[i].desc.id << " for IN data has been allocated inside JuxMem!\n");
+      
+      //      if (dietLogComponent != NULL) {
+      //dietLogComponent->logJuxMemDataStore(profile->parameters[i].desc.id, 
+      //					     (int) data_sizeof(&(profile->parameters[i].desc)), 
+      //      				     (long) profile->parameters[i].desc.generic.base_type,
+      //					     "MATRIX", 
+      //					     ((t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000));
+      //					     }
+      
+      gettimeofday(&t1, NULL);
+      JuxMem->JuxMemAcquire(profile->parameters[i].desc.id);
+      JuxMem->JuxMemWrite(profile->parameters[i].desc.id, (char*) profile->parameters[i].value, 0, (int) (sizeof(double) * data_sizeof(&(profile->parameters[i].desc))));
+      JuxMem->JuxMemRelease(profile->parameters[i].desc.id);
+      gettimeofday(&t2, NULL);
+      
+      //if (dietLogComponent != NULL) {
+      //	dietLogComponent->logJuxMemDataUse(profile->parameters[i].desc.id, "WRITE", ((t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000));
+      //}
+	
+      profile->parameters[i].value = NULL;
+    }
+  }
+#endif // HAVE_JUXMEM
+
   if (mrsh_profile_to_in_args(&corba_profile, profile)) {
     ERROR("profile is wrongly built", 1);
   }
@@ -585,6 +647,7 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
      create_file();
   }
 
+#if ! HAVE_JUXMEM
   /* data property base_type and type retrieval : used for scheduler */
   for(int i = 0;i <= corba_profile.last_out;i++) {
     char* new_id = strdup(corba_profile.parameters[i].desc.id.idNumber);
@@ -605,7 +668,8 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
       corba_profile.parameters[i].desc.id.idNumber = new_id;
     }
   }
- 
+#endif
+
   sprintf(statMsg, "computation %ld", (unsigned long) reqID);
   try {
     stat_in("Client",statMsg);
@@ -617,6 +681,7 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
     else
       solve_res = chosenServer->solve(profile->pb_name, corba_profile,reqID);
 #else
+    TRACE_TEXT(TRACE_MAIN_STEPS, "Calling the ref Corba of the SeD\n");
     solve_res = chosenServer->solve(profile->pb_name, corba_profile,reqID);
 #endif // HAVE_BATCH
 
@@ -631,12 +696,36 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
     if ((corba_profile.parameters[i].desc.mode > DIET_VOLATILE ) && 
         (corba_profile.parameters[i].desc.mode < DIET_PERSISTENCE_MODE_COUNT)) {
       profile->parameters[i].desc.id = strdup(corba_profile.parameters[i].desc.id.idNumber);
+#if HAVE_JUXMEM
+      corba_profile.parameters[i].value = NULL;
+#endif
     }
   }
 
   if (unmrsh_out_args_to_profile(profile, &corba_profile)) {
     INTERNAL_ERROR("returned profile is wrongly built", 1);
   }
+
+#if HAVE_JUXMEM
+  for (i = profile->last_inout + 1; i <= profile->last_out; i++) {
+    if (profile->parameters[i].desc.generic.type == DIET_MATRIX && 
+	profile->parameters[i].desc.mode == DIET_PERSISTENT) {
+      struct timeval t1, t2;
+
+      /** IN_OUT and OUT data must be retrieve from JuxMem */
+      gettimeofday(&t1, NULL);
+      JuxMem->JuxMemMap(profile->parameters[i].desc.id, sizeof(double) * data_sizeof(&(profile->parameters[i].desc)), NULL);
+      JuxMem->JuxMemAcquireRead(profile->parameters[i].desc.id);
+      JuxMem->JuxMemRead(profile->parameters[i].desc.id, (char*) profile->parameters[i].value, 0, (int) (sizeof(double) * data_sizeof(&(profile->parameters[i].desc))));
+      JuxMem->JuxMemRelease(profile->parameters[i].desc.id);
+      gettimeofday(&t2, NULL);
+	
+      //if (dietLogComponent != NULL) {
+      //	dietLogComponent->logJuxMemDataUse(profile->parameters[i].desc.id, "READ", ((t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000));
+      //}
+    }
+  }
+#endif // HAVE_JUXMEM
 
   sprintf(statMsg, "diet_call %ld", (unsigned long) reqID);
   stat_out("Client",statMsg);

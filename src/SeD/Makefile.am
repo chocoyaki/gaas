@@ -10,6 +10,11 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.16  2005/05/27 08:18:17  mjan
+#* Moving JuxMem in a more appropriate place (src/utils)
+#* Added log messages for VizDIET
+#* Added use of JuxMem in the client side
+#*
 #* Revision 1.15  2005/05/18 14:18:09  mjan
 #* Initial adding of JuxMem support inside DIET. dmat_manips examples tested without JuxMem and with JuxMem
 #*
@@ -92,6 +97,9 @@ libDIET_SeD_la_LIBADD = \
 	$(corbadir)/libCorbaCommon.la $(corbadir)/idl/libIDLCommon.la	\
 	$(corbadir)/idl/libIDLAgent.la $(LIBS_OMNIORB) $(LIBS_FAST) \
 	$(ELAGI_LIBS) $(AS_LIBS)
+if JUXMEM_MODE
+libDIET_SeD_la_LIBADD += $(utilsdir)/libJuxMemWrapper.la
+endif
 
 AM_CXXFLAGS = @JUXMEM_CXXFLAGS@ $(CXXFLAGS_OMNIORB) $(CXXFLAGS_FAST) -I$(top_srcdir)/src/utils \
 	      -I$(top_srcdir)/src/CORBA -I$(corbadir)/idl 		     \

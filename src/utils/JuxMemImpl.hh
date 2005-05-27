@@ -8,8 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.1  2005/05/18 14:18:09  mjan
- * Initial adding of JuxMem support inside DIET. dmat_manips examples tested without JuxMem and with JuxMem
+ * Revision 1.1  2005/05/27 08:18:17  mjan
+ * Moving JuxMem in a more appropriate place (src/utils)
+ * Added log messages for VizDIET
+ * Added use of JuxMem in the client side
  *
  *
  ****************************************************************************/
@@ -37,9 +39,9 @@ public:
   
   int run();
 
-  long JuxMemAlloc(char** data_id, long size, apr_hash_t* attributes);
+  long JuxMemAlloc(char** data_id, int size, apr_hash_t* attributes);
 
-  long JuxMemMap(char* data_id, long size, apr_hash_t* attrib);
+  long JuxMemMap(char* data_id, int size, apr_hash_t* attrib);
   
   long JuxMemRead(char* data_id, char* buffer, int offset, int length);
 

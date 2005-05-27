@@ -3,8 +3,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.1  2005/05/18 14:18:10  mjan
- * Initial adding of JuxMem support inside DIET. dmat_manips examples tested without JuxMem and with JuxMem
+ * Revision 1.2  2005/05/27 08:18:17  mjan
+ * Moving JuxMem in a more appropriate place (src/utils)
+ * Added log messages for VizDIET
+ * Added use of JuxMem in the client side
  *
  ****************************************************************************/
 
@@ -57,7 +59,7 @@ usage(char* cmd)
 int
 main(int argc, char* argv[])
 {
-  int i;
+  size_t i, j;                          
   size_t mA, nA, nB, mB; // use size_t for 32 / 64 portability
   char* path = NULL;
   diet_profile_t* profile = NULL;
@@ -68,6 +70,7 @@ main(int argc, char* argv[])
 
   double* A = NULL;
   double* B = NULL;
+  double* C = NULL;
   double *D = NULL;
   double *E = NULL;
   diet_matrix_order_t oA, oB, oC,oD,oE;
@@ -94,7 +97,7 @@ main(int argc, char* argv[])
   nA = 3;
   mB= 3;
   nB= 6;
- 
+
   if (diet_initialize(argv[1], argc, argv)) { 
     fprintf(stderr, "DIET initialization failed !\n");
     return 1;
@@ -124,7 +127,14 @@ main(int argc, char* argv[])
   profile = diet_profile_alloc(path, 1, 1, 2);
   diet_matrix_set(diet_parameter(profile,0),
 		  A, DIET_PERSISTENT, DIET_DOUBLE, mA, nA, oA);
-  print_matrix(A, mA, nA, (oA == DIET_ROW_MAJOR));
+  for (i = 0; i < mA; i++) {           
+    for (j = 0; j < nA; j++) {         
+      printf("%3f ", (A)[j + i*(nA)]);
+    }                                    
+    printf("\n");                        
+  }                                      
+  printf("\n");                          
+  //print_matrix(A, mA, nA, (oA == DIET_ROW_MAJOR));
   diet_matrix_set(diet_parameter(profile,1),
 		  B, DIET_PERSISTENT, DIET_DOUBLE, mB, nB, oB);
   print_matrix(B, mB, nB, (oB == DIET_ROW_MAJOR));
@@ -132,23 +142,24 @@ main(int argc, char* argv[])
 		  NULL, DIET_PERSISTENT, DIET_DOUBLE, mA, nB, oC);
   
   if (!diet_call(profile)) {
-    //diet_matrix_get(diet_parameter(profile,2),&C, NULL, &mA, &nB, &oC);
-    store_id(profile->parameters[2].desc.id,"matrice C de doubles");
-    store_id(profile->parameters[1].desc.id,"matrice B de doubles");
-    store_id(profile->parameters[0].desc.id,"matrice A de doubles");
-    //print_matrix(C, mA, nB, (oC == DIET_ROW_MAJOR));
-    // diet_profile_free(profile); 
-    
+    diet_matrix_get(diet_parameter(profile,2),&C, NULL, &mA, &nB, &oC);
+    //store_id(profile->parameters[2].desc.id,"matrice C de doubles");
+    //store_id(profile->parameters[1].desc.id,"matrice B de doubles");
+    //store_id(profile->parameters[0].desc.id,"matrice A de doubles");
+    print_matrix(C, mA, nB, (oC == DIET_ROW_MAJOR));
+    //diet_profile_free(profile);
   }
      
   printf ("next....");
   scanf("%c",&car);
-
+  printf("second pb\n\n");
   strcpy(path,"MatSUM");
   profile2 = diet_profile_alloc(path, 1, 1, 2);
-  
-  printf("second pb\n\n");
-  diet_use_data(diet_parameter(profile2,0),profile->parameters[2].desc.id);
+  // The way to use JuxMem inside DIET currently
+  diet_matrix_set(diet_parameter(profile2,0),
+		  A, DIET_PERSISTENT, DIET_DOUBLE, mA, nB, oC);
+  diet_use_data(diet_parameter(profile2,0), profile->parameters[2].desc.id);
+
   diet_matrix_set(diet_parameter(profile2,1),
 		  E, DIET_PERSISTENT, DIET_DOUBLE, mA, nB, oE);
   print_matrix(E, mA, nB, (oE == DIET_ROW_MAJOR));
@@ -166,16 +177,16 @@ main(int argc, char* argv[])
   time(&t2);
   printf("\n\n COMPUTATION TIME = %d \n\n", (int)(t2-t1));
 
-  printf ("next....");
-  scanf("%c",&car);
-  printf(" \nRemoving all persistent data............" );
+  //printf ("next....");
+  //scanf("%c",&car);
+  //printf(" \nRemoving all persistent data............" );
+  //diet_free_persistent_data(profile->parameters[0].desc.id);
+  //diet_free_persistent_data(profile->parameters[1].desc.id);
+  //diet_free_persistent_data(profile->parameters[2].desc.id);
+  //diet_free_persistent_data(profile2->parameters[1].desc.id);
+  //diet_free_persistent_data(profile2->parameters[2].desc.id);
+  //printf(" \n...................data removed\n\n");
 
-  diet_free_persistent_data(profile->parameters[0].desc.id);
-  diet_free_persistent_data(profile->parameters[1].desc.id);
-  diet_free_persistent_data(profile->parameters[2].desc.id);
-  diet_free_persistent_data(profile2->parameters[1].desc.id);
-  diet_free_persistent_data(profile2->parameters[2].desc.id);
-  printf(" \n...................data removed\n\n");
   diet_profile_free(profile);
   diet_profile_free(profile2);
   diet_finalize();

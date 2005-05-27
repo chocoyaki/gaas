@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2005/05/27 08:18:17  mjan
+ * Moving JuxMem in a more appropriate place (src/utils)
+ * Added log messages for VizDIET
+ * Added use of JuxMem in the client side
+ *
  * Revision 1.24  2003/09/10 12:43:06  pcombes
  * Compatibility between the convertors and FAST 0.4.3 and FAST 0.8.
  *
@@ -78,7 +83,7 @@ solve_T(diet_profile_t* pb)
   
   // no need to set order
   diet_matrix_desc_set(diet_parameter(pb,2), *n, *m, DIET_MATRIX_ORDER_COUNT);
-  
+
   diet_free_data(diet_parameter(pb,0));
   diet_free_data(diet_parameter(pb,1));
 
@@ -139,13 +144,15 @@ solve_MatSUM(diet_profile_t* pb)
   }
   if (res)
     return res;
-  
+
+#if ! HAVE_JUXMEM  
   diet_free_data(diet_parameter(pb,0));
   diet_free_data(diet_parameter(pb,1));
 #if !defined(__FAST_0_4__)
   diet_free_data(diet_parameter(pb,2));
   diet_free_data(diet_parameter(pb,3));
 #endif // ! __FAST_0_4__
+#endif // ! HAVE_JUXMEM
 
   printf(" done\n");
   return res;
@@ -204,6 +211,7 @@ solve_MatPROD(diet_profile_t* pb)
     res = MatPROD(tA, tB, mA, nA, A, nB, B, C);
   }
 
+#if ! HAVE_JUXMEM
   diet_free_data(diet_parameter(pb,0));
   diet_free_data(diet_parameter(pb,1));
 #if !defined(__FAST_0_4__)
@@ -211,6 +219,7 @@ solve_MatPROD(diet_profile_t* pb)
   diet_free_data(diet_parameter(pb,3));
   diet_free_data(diet_parameter(pb,4));
 #endif // ! __FAST_0_4__
+#endif // ! HAVE_JUXMEM
 
   printf(" done\n");
   return res;

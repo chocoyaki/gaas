@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.49  2005/05/27 08:18:17  mjan
+ * Moving JuxMem in a more appropriate place (src/utils)
+ * Added log messages for VizDIET
+ * Added use of JuxMem in the client side
+ *
  * Revision 1.48  2005/05/18 14:18:09  mjan
  * Initial adding of JuxMem support inside DIET. dmat_manips examples tested without JuxMem and with JuxMem
  *
@@ -107,7 +112,6 @@ extern unsigned int TRACE_LEVEL;
 #define SED_TRACE_FUNCTION(formatted_text)       \
   TRACE_TEXT(TRACE_ALL_STEPS, "SeD::");          \
   TRACE_FUNCTION(TRACE_ALL_STEPS,formatted_text)
-
 
 SeDImpl::SeDImpl()
 {
@@ -443,22 +447,29 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
 #if HAVE_JUXMEM
   unmrsh_in_args_to_profile(&profile, &pb, cvt);
 
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Number of data to check = " << profile.last_out);
-  for (i=0; i <= profile.last_inout; i++) {
-    /** The data is stored by JuxMem, call it! */
+  for (i= 0; i <= profile.last_inout; i++) {
     if (profile.parameters[i].desc.generic.type == DIET_MATRIX && 
-	diet_is_persistent_juxmem(profile.parameters[i]) &&
+	profile.parameters[i].desc.mode == DIET_PERSISTENT &&
 	profile.parameters[i].desc.id != NULL &&
 	strlen(profile.parameters[i].desc.id ) != 0) {
-      
-      TRACE_TEXT(TRACE_MAIN_STEPS, "Data number = " << i << " is stored in JuxMem! Retrieve it ...\n");
-      stat_out("SeD",statMsg);
-      stat_flush();
-      
-      long result = this->JuxMem->JuxMemRead(profile.parameters[i].desc.id, (char*) profile.parameters[i].value, 0, (int) data_sizeof(&(profile.parameters[i].desc)));
-      TRACE_TEXT(TRACE_MAIN_STEPS, "JuxMem::Return value of the juxmem_read " << result << "\n");
-      stat_out("SeD",statMsg);
-      stat_flush();
+
+      if (i <= profile.last_in) {
+	TRACE_TEXT(TRACE_MAIN_STEPS, "Retrieving IN data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
+      } else {
+	TRACE_TEXT(TRACE_MAIN_STEPS, "Retrieving IN_OUT data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
+      }
+
+      struct timeval t1, t2;
+      gettimeofday(&t1, NULL);
+      this->JuxMem->JuxMemMap(profile.parameters[i].desc.id, sizeof(double) * data_sizeof(&(profile.parameters[i].desc)), NULL);
+      this->JuxMem->JuxMemAcquireRead(profile.parameters[i].desc.id);
+      this->JuxMem->JuxMemRead(profile.parameters[i].desc.id, (char*) profile.parameters[i].value, 0, (int) data_sizeof(&(profile.parameters[i].desc)));
+      this->JuxMem->JuxMemRelease(profile.parameters[i].desc.id);
+      gettimeofday(&t2, NULL);
+
+      if (dietLogComponent != NULL) {
+	dietLogComponent->logJuxMemDataUse(profile.parameters[i].desc.id, "READ", ((t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000));
+      }
     }
   }
 #else // DTM case
@@ -492,45 +503,48 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
   solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
 
 #if HAVE_JUXMEM
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Number of data to check = " << profile.last_out << "\n");
-  for (i=0; i <= profile.last_out; i++) {
-    /** The data is stored by JuxMem, call it! */
-    if (profile.parameters[i].desc.generic.type == DIET_MATRIX && diet_is_persistent_juxmem(profile.parameters[i])) {
-      long result;
+  for (i = 0; i <= profile.last_out; i++) {
+    if (profile.parameters[i].desc.generic.type == DIET_MATRIX && 
+	profile.parameters[i].desc.mode == DIET_PERSISTENT) {
+      struct timeval t1, t2;
 
-      TRACE_TEXT(TRACE_MAIN_STEPS, "Data number = " << i << " will be stored in JuxMem!\n");
-      stat_out("SeD",statMsg);
-      stat_flush();
+      /** Case of OUT data, a data space must be allocated inside JuxMem */
+      if (i > profile.last_inout) {
+	gettimeofday(&t1, NULL);
+	this->JuxMem->JuxMemAlloc(&profile.parameters[i].desc.id, sizeof(double) * data_sizeof(&(profile.parameters[i].desc)), NULL);
+	this->JuxMem->JuxMemMap(profile.parameters[i].desc.id, sizeof(double) * data_sizeof(&(profile.parameters[i].desc)), NULL);
+	gettimeofday(&t2, NULL);
 
-      /** First time we see this data, alloc a data block inside JuxMem ... */
-      if (strlen(profile.parameters[i].desc.id) == 0) {
-	/** The data id is set by this call **/
-	result = this->JuxMem->JuxMemAlloc(&profile.parameters[i].desc.id, data_sizeof(&(profile.parameters[i].desc)), NULL);
-	TRACE_TEXT(TRACE_MAIN_STEPS, "JuxMem::Return value of the juxmem_alloc " << result << "\n");
-	TRACE_TEXT(TRACE_MAIN_STEPS, "ID of the data = " << profile.parameters[i].desc.id << "\n");
-	stat_out("SeD",statMsg);
-	stat_flush();
-	result = this->JuxMem->JuxMemMap(profile.parameters[i].desc.id, data_sizeof(&(profile.parameters[i].desc)), NULL);
-	TRACE_TEXT(TRACE_MAIN_STEPS, "JuxMem::Return value of the juxmem_map " << result << "\n");
-	stat_out("SeD",statMsg);
-	stat_flush();
+	TRACE_TEXT(TRACE_MAIN_STEPS, "A data space with ID = " << profile.parameters[i].desc.id << " for OUT data has been allocated inside JuxMem!\n");
+	
+	if (dietLogComponent != NULL) {
+	  dietLogComponent->logJuxMemDataStore(profile.parameters[i].desc.id, 
+					       (int) (sizeof(double) * data_sizeof(&(profile.parameters[i].desc))), 
+					       (long) profile.parameters[i].desc.generic.base_type,
+					       "MATRIX", 
+					       ((t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000));
+	}
       }
-      result = this->JuxMem->JuxMemAcquire(profile.parameters[i].desc.id);
-      TRACE_TEXT(TRACE_MAIN_STEPS, "JuxMem::Return value of the juxmem_acquire " << result << "\n");
-      stat_out("SeD",statMsg);
-      stat_flush();
-      result = this->JuxMem->JuxMemWrite(profile.parameters[i].desc.id, (char*) profile.parameters[i].value, 0, (int) data_sizeof(&(profile.parameters[i].desc)));
-      TRACE_TEXT(TRACE_MAIN_STEPS, "Return value of the juxmem_write" << result << "\n");
-      stat_out("SeD",statMsg);
-      stat_flush();
-      result = this->JuxMem->JuxMemRelease(profile.parameters[i].desc.id);
-      TRACE_TEXT(TRACE_MAIN_STEPS, "JuxMem::Return value of the juxmem_release " << result << "\n");
-      stat_out("SeD",statMsg);
-      stat_flush();
-      /** Reset the data so that it doesn't goes back on the client. What do I need to do is unclear for me so don't do it at all ...
-      CORBA::Char *p1 (NULL);
-      pb.parameters[i].value.replace(0, 0, p1, 1);
-      persistent_data_release(&(pb.parameters[i]));*/
+      
+      /** IN_OUT and OUT data must be written inside JuxMem */
+      if (i > profile.last_in) {
+	gettimeofday(&t1, NULL);
+	this->JuxMem->JuxMemAcquire(profile.parameters[i].desc.id);
+	this->JuxMem->JuxMemWrite(profile.parameters[i].desc.id, 
+				  (char*) profile.parameters[i].value, 
+				  0, 
+				  (int) (sizeof(double) * data_sizeof(&(profile.parameters[i].desc))));
+	this->JuxMem->JuxMemRelease(profile.parameters[i].desc.id);
+	gettimeofday(&t2, NULL);
+	
+	if (dietLogComponent != NULL) {
+	  dietLogComponent->logJuxMemDataUse(profile.parameters[i].desc.id, "WRITE", ((t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000));
+	}
+
+	/** Removing all INOUT and OUT data so that it doesn't go back with the client request */
+	free(profile.parameters[i].value);
+	profile.parameters[i].value = NULL;
+      }
     }
   }
   mrsh_profile_to_out_args(&pb, &profile, cvt);
