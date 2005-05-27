@@ -8,10 +8,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.1  2005/05/27 08:18:17  mjan
- * Moving JuxMem in a more appropriate place (src/utils)
- * Added log messages for VizDIET
- * Added use of JuxMem in the client side
+ * Revision 1.2  2005/05/27 15:28:54  mjan
+ * Bug fixes inside JuxMem wrapper.
  *
  *
  ****************************************************************************/
@@ -176,7 +174,7 @@ JuxMemImpl::JuxMemMap(char* data_id, int size, apr_hash_t* attributes)
 }
 
 long 
-JuxMemImpl::JuxMemRead(char* data_id, char* buffer, int offset, int length)
+JuxMemImpl::JuxMemRead(char* data_id, void* buffer, int offset, int length)
 {
   Jxta_status status = JXTA_SUCCESS;
   Jxta_id *jxta_data_id = NULL;
@@ -200,7 +198,7 @@ JuxMemImpl::JuxMemRead(char* data_id, char* buffer, int offset, int length)
 }
 
 long 
-JuxMemImpl::JuxMemWrite(char* data_id, char* buffer, int offset, int length) 
+JuxMemImpl::JuxMemWrite(char* data_id, void* buffer, int offset, int length) 
 {
   Jxta_status status = JXTA_SUCCESS;
   JString *jxta_data_id_jstring = NULL;

@@ -9,13 +9,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.49  2005/05/27 08:18:17  mjan
- * Moving JuxMem in a more appropriate place (src/utils)
- * Added log messages for VizDIET
- * Added use of JuxMem in the client side
- *
- * Revision 1.48  2005/05/18 14:18:09  mjan
- * Initial adding of JuxMem support inside DIET. dmat_manips examples tested without JuxMem and with JuxMem
+ * Revision 1.50  2005/05/27 15:28:53  mjan
+ * Bug fixes inside JuxMem wrapper.
  *
  * Revision 1.47  2005/05/15 15:38:59  alsu
  * implementing aggregation interface
@@ -440,7 +435,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
     dietLogComponent->logBeginSolve(path, &pb,reqID);
   }
 
-  TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::solve JuxMem invoked on pb: " << path << endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::solve invoked on pb: " << path << endl);
 
   cvt = SrvT->getConvertor(ref);
 
@@ -461,9 +456,9 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
 
       struct timeval t1, t2;
       gettimeofday(&t1, NULL);
-      this->JuxMem->JuxMemMap(profile.parameters[i].desc.id, sizeof(double) * data_sizeof(&(profile.parameters[i].desc)), NULL);
+      this->JuxMem->JuxMemMap(profile.parameters[i].desc.id, (int) data_sizeof(&(profile.parameters[i].desc)), NULL);
       this->JuxMem->JuxMemAcquireRead(profile.parameters[i].desc.id);
-      this->JuxMem->JuxMemRead(profile.parameters[i].desc.id, (char*) profile.parameters[i].value, 0, (int) data_sizeof(&(profile.parameters[i].desc)));
+      this->JuxMem->JuxMemRead(profile.parameters[i].desc.id, (void*) profile.parameters[i].value, 0, (int) data_sizeof(&(profile.parameters[i].desc)));
       this->JuxMem->JuxMemRelease(profile.parameters[i].desc.id);
       gettimeofday(&t2, NULL);
 
@@ -511,15 +506,15 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
       /** Case of OUT data, a data space must be allocated inside JuxMem */
       if (i > profile.last_inout) {
 	gettimeofday(&t1, NULL);
-	this->JuxMem->JuxMemAlloc(&profile.parameters[i].desc.id, sizeof(double) * data_sizeof(&(profile.parameters[i].desc)), NULL);
-	this->JuxMem->JuxMemMap(profile.parameters[i].desc.id, sizeof(double) * data_sizeof(&(profile.parameters[i].desc)), NULL);
+	this->JuxMem->JuxMemAlloc(&profile.parameters[i].desc.id, data_sizeof(&(profile.parameters[i].desc)), NULL);
+	this->JuxMem->JuxMemMap(profile.parameters[i].desc.id, data_sizeof(&(profile.parameters[i].desc)), NULL);
 	gettimeofday(&t2, NULL);
 
 	TRACE_TEXT(TRACE_MAIN_STEPS, "A data space with ID = " << profile.parameters[i].desc.id << " for OUT data has been allocated inside JuxMem!\n");
 	
 	if (dietLogComponent != NULL) {
 	  dietLogComponent->logJuxMemDataStore(profile.parameters[i].desc.id, 
-					       (int) (sizeof(double) * data_sizeof(&(profile.parameters[i].desc))), 
+					       (int) data_sizeof(&(profile.parameters[i].desc)), 
 					       (long) profile.parameters[i].desc.generic.base_type,
 					       "MATRIX", 
 					       ((t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000));
@@ -531,9 +526,9 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
 	gettimeofday(&t1, NULL);
 	this->JuxMem->JuxMemAcquire(profile.parameters[i].desc.id);
 	this->JuxMem->JuxMemWrite(profile.parameters[i].desc.id, 
-				  (char*) profile.parameters[i].value, 
+				  (void*) profile.parameters[i].value, 
 				  0, 
-				  (int) (sizeof(double) * data_sizeof(&(profile.parameters[i].desc))));
+				  (int) data_sizeof(&(profile.parameters[i].desc)));
 	this->JuxMem->JuxMemRelease(profile.parameters[i].desc.id);
 	gettimeofday(&t2, NULL);
 	

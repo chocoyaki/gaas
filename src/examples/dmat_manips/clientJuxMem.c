@@ -3,10 +3,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.2  2005/05/27 08:18:17  mjan
- * Moving JuxMem in a more appropriate place (src/utils)
- * Added log messages for VizDIET
- * Added use of JuxMem in the client side
+ * Revision 1.3  2005/05/27 15:28:54  mjan
+ * Bug fixes inside JuxMem wrapper.
  *
  ****************************************************************************/
 
@@ -59,7 +57,7 @@ usage(char* cmd)
 int
 main(int argc, char* argv[])
 {
-  size_t i, j;                          
+  size_t i;
   size_t mA, nA, nB, mB; // use size_t for 32 / 64 portability
   char* path = NULL;
   diet_profile_t* profile = NULL;
@@ -127,14 +125,7 @@ main(int argc, char* argv[])
   profile = diet_profile_alloc(path, 1, 1, 2);
   diet_matrix_set(diet_parameter(profile,0),
 		  A, DIET_PERSISTENT, DIET_DOUBLE, mA, nA, oA);
-  for (i = 0; i < mA; i++) {           
-    for (j = 0; j < nA; j++) {         
-      printf("%3f ", (A)[j + i*(nA)]);
-    }                                    
-    printf("\n");                        
-  }                                      
-  printf("\n");                          
-  //print_matrix(A, mA, nA, (oA == DIET_ROW_MAJOR));
+  print_matrix(A, mA, nA, (oA == DIET_ROW_MAJOR));
   diet_matrix_set(diet_parameter(profile,1),
 		  B, DIET_PERSISTENT, DIET_DOUBLE, mB, nB, oB);
   print_matrix(B, mB, nB, (oB == DIET_ROW_MAJOR));
@@ -143,11 +134,7 @@ main(int argc, char* argv[])
   
   if (!diet_call(profile)) {
     diet_matrix_get(diet_parameter(profile,2),&C, NULL, &mA, &nB, &oC);
-    //store_id(profile->parameters[2].desc.id,"matrice C de doubles");
-    //store_id(profile->parameters[1].desc.id,"matrice B de doubles");
-    //store_id(profile->parameters[0].desc.id,"matrice A de doubles");
     print_matrix(C, mA, nB, (oC == DIET_ROW_MAJOR));
-    //diet_profile_free(profile);
   }
      
   printf ("next....");
@@ -155,7 +142,6 @@ main(int argc, char* argv[])
   printf("second pb\n\n");
   strcpy(path,"MatSUM");
   profile2 = diet_profile_alloc(path, 1, 1, 2);
-  // The way to use JuxMem inside DIET currently
   diet_matrix_set(diet_parameter(profile2,0),
 		  A, DIET_PERSISTENT, DIET_DOUBLE, mA, nB, oC);
   diet_use_data(diet_parameter(profile2,0), profile->parameters[2].desc.id);

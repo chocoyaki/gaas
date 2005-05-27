@@ -10,14 +10,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.59  2005/05/27 11:57:25  mjan
- * Removing commented log service code on the client side when using JuxMem.
- * Thanks Raphael!
- *
- * Revision 1.58  2005/05/27 08:18:17  mjan
- * Moving JuxMem in a more appropriate place (src/utils)
- * Added log messages for VizDIET
- * Added use of JuxMem in the client side
+ * Revision 1.60  2005/05/27 15:28:54  mjan
+ * Bug fixes inside JuxMem wrapper.
  *
  * Revision 1.57  2005/05/15 15:44:46  alsu
  * minor changes from estimation vector reorganization
@@ -601,19 +595,20 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
   int i = 0;
   for (i = 0; i <= profile->last_in; i++) {
     if (profile->parameters[i].desc.generic.type == DIET_MATRIX && 
+	profile->parameters[i].desc.id == NULL &&
 	profile->parameters[i].desc.mode == DIET_PERSISTENT) {
       struct timeval t1, t2;
       
       gettimeofday(&t1, NULL);
-      JuxMem->JuxMemAlloc(&profile->parameters[i].desc.id, sizeof(double) * data_sizeof(&(profile->parameters[i].desc)), NULL);
-      JuxMem->JuxMemMap(profile->parameters[i].desc.id, sizeof(double) * data_sizeof(&(profile->parameters[i].desc)), NULL);
+      JuxMem->JuxMemAlloc(&profile->parameters[i].desc.id, (int) data_sizeof(&(profile->parameters[i].desc)), NULL);
+      JuxMem->JuxMemMap(profile->parameters[i].desc.id, (int) data_sizeof(&(profile->parameters[i].desc)), NULL);
       gettimeofday(&t2, NULL);
       
       TRACE_TEXT(TRACE_MAIN_STEPS, "A data space with ID = " << profile->parameters[i].desc.id << " for IN data has been allocated inside JuxMem!\n");
       
       gettimeofday(&t1, NULL);
       JuxMem->JuxMemAcquire(profile->parameters[i].desc.id);
-      JuxMem->JuxMemWrite(profile->parameters[i].desc.id, (char*) profile->parameters[i].value, 0, (int) (sizeof(double) * data_sizeof(&(profile->parameters[i].desc))));
+      JuxMem->JuxMemWrite(profile->parameters[i].desc.id, (void*) profile->parameters[i].value, 0, (int) data_sizeof(&(profile->parameters[i].desc)));
       JuxMem->JuxMemRelease(profile->parameters[i].desc.id);
       gettimeofday(&t2, NULL);
       
@@ -706,9 +701,9 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
 
       /** IN_OUT and OUT data must be retrieve from JuxMem */
       gettimeofday(&t1, NULL);
-      JuxMem->JuxMemMap(profile->parameters[i].desc.id, sizeof(double) * data_sizeof(&(profile->parameters[i].desc)), NULL);
+      JuxMem->JuxMemMap(profile->parameters[i].desc.id, (int) data_sizeof(&(profile->parameters[i].desc)), NULL);
       JuxMem->JuxMemAcquireRead(profile->parameters[i].desc.id);
-      JuxMem->JuxMemRead(profile->parameters[i].desc.id, (char*) profile->parameters[i].value, 0, (int) (sizeof(double) * data_sizeof(&(profile->parameters[i].desc))));
+      JuxMem->JuxMemRead(profile->parameters[i].desc.id, (void*) profile->parameters[i].value, 0, (int) data_sizeof(&(profile->parameters[i].desc)));
       JuxMem->JuxMemRelease(profile->parameters[i].desc.id);
       gettimeofday(&t2, NULL);
 	
