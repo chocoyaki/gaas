@@ -1,4 +1,4 @@
-%****************************************************************************%
+g%****************************************************************************%
 %* DIET User's Manual description chapter file                              *%
 %*                                                                          *%
 %*  Author(s):                                                              *%
@@ -8,6 +8,13 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.6  2005/05/29 13:51:22  ycaniou
+%* Moved the section concerning FAST from description to a new chapter about FAST
+%* and performances prediction.
+%* Moved the section about convertors in the FAST chapter.
+%* Modified the small introduction in chapter 1.
+%* The rest of the changes are purely in the format of .tex files.
+%*
 %* Revision 1.5  2004/10/25 08:59:56  sdahan
 %* add the multi-MA documentation
 %*
@@ -42,12 +49,14 @@
 \chapter{A DIET platform}
 \label{ch:description}
 
-DIET is built upon the \emph{Server Daemons}. The scheduler is
-scattered across a hierarchy of \emph{Local Agents} and \emph{Master
-  Agents}. NWS~\cite{WSH99} sensors are placed on every node of the
-hierarchy to collect resource availabilities, which are used by an
-application-centric performance prediction tool called FAST
-\cite{Qui02}.  Figure~\ref{fig:platform} shows the hierarchical
+\textsc{DIET} is built upon the \emph{Server Daemons}. The process of
+scheduling the requests is scattered across a hierarchy of \emph{Local
+Agents} and \emph{Master Agents}. The scheduler can use resource
+availabilities information collected from NWS~\cite{WSH99} sensors
+which are placed on every node of the hierarchy. The scheduler can
+also use information from the application-centric performance
+prediction tool called \textsc{FAST} \cite{Qui02}, which relies on NWS
+information. Figure~\ref{fig:platform} shows the hierarchical
 organization of DIET.
 
 \begin{figure}[htb]
@@ -67,8 +76,9 @@ The different components of our software architecture are the following:
 \begin{description}
 %....[ Client ]................................................................
 \item \textbf{Client}\\
-  A client is an application which uses DIET to solve problems.  Many types of clients are able to connect to DIET from a web page, a PSE such as
-  Matlab or \sci, or from a compiled program.
+  A client is an application which uses DIET to solve problems.  Many
+  types of clients are able to connect to DIET from a web page, a PSE
+  such as Matlab or \sci, or from a compiled program.
 %....[ Master Agent (MA) ].....................................................
 \item \textbf{Master Agent (MA)}\\
   An MA receives computation requests from clients. These requests
@@ -78,8 +88,8 @@ The different components of our software architecture are the following:
   chooses the best one. The reference of the chosen server is returned
   to the client. A client can be connected to an MA by a specific name
   server or a web
-  page~\footnote{http://graal.ens-lyon.fr/DIET/diet\_access.html} which
-  stores the various MA locations.
+  page~\footnote{http://graal.ens-lyon.fr/DIET/diet\_access.html}
+  which stores the various MA locations.
 
 %....[ Local Agent (LA) ]......................................................
 \item \textbf{Local Agent (LA)}\\
@@ -99,9 +109,9 @@ The different components of our software architecture are the following:
   their distribution and the way to access them), the list of problems
   that can be solved on it, and all information concerning its load
   (memory available, number of resources available, \ldots). A SeD
-  declares the problems it can solve to its parent LA.  An SeD can give
-  performance predictions for a given problem thanks to the module
-  FAST, described in the next section.
+  declares the problems it can solve to its parent LA.  An SeD can
+  give performance predictions for a given problem thanks to the
+  module FAST, described in chapter~\ref{chapter:fast}.
 
 \end{description}
 
@@ -112,55 +122,6 @@ The different components of our software architecture are the following:
 %  \caption{A hierarchy of DIET agents}
 % \end{center}
 %\end{figure}
-
-
-%====[ FAST: FAST AGENT'S SYSTEM TIMER ]=======================================
-\section{FAST: Fast Agent's System Timer}
-\label{sec:FAST}
-
-FAST \cite{Qui02} is a tool for dynamic performance forecasting in a
-Grid environment. As shown in Figure~\ref{fig:fast-overview}, FAST is
-composed of several layers and relies on low-level software. First it
-uses a network and CPU monitoring software to handle dynamically
-changing resources, like workload or bandwidth.  FAST uses the Network
-Weather Service (NWS)~\cite{WSH99}, a distributed system that
-periodically monitors and dynamically forecasts the performance of
-various network and computational resources. The resource
-availabilities acquisition module of FAST uses and enhances NWS.
-Indeed, if there is no direct NWS monitoring between two machines,
-FAST automatically searches for the shortest path between them in the
-graph of monitored links. It estimates the bandwidth as the minimum of
-those in the path and the latency as the sum of those measured. This
-allows for the availability of more predictions when DIET is deployed
-over a hierarchical network.
-
-\begin{figure}[htb]
-  \begin{center}
-    \resizebox{.75\linewidth}{!}{\includegraphics{fig/FAST.eps}}
-    \caption{FAST overview}
-    \label{fig:fast-overview}
-  \end{center}
-\end{figure}
-
-In addition to the system availabilities, FAST can also forecast the
-time and space needs of computational routines, depending on both the
-parameter set and the machine where the computation would take place.
-For this, FAST benchmarks the routines at installation time on each
-machine for a representative set of parameters. After polynomial data
-fitting, the results are stored in an LDAP tree.  The user API of FAST
-is composed of a small set of functions that combine resource
-availabilities and routine needs from low-level software to produce
-ready-to-use values.  These results can be combined into analytical
-models by the parallel extension~\cite{CS02} to forecast execution
-times of parallel routines.
-
-Thus DIET components, as any FAST client, can access information like the time
-needed to move a given amount of data between two SeDs, the time to solve a
-problem with a given set of computational resources managed by a SeD, or the
-combination of these two quantities.\\
-
-For more details about FAST, please read the FAST Reference Manual~\footnote{\url{http://graal.ens-lyon.fr/FAST/docs}}.
-
 
 %====[ CORBA ]=================================================================
 \section{Communications inner to the platform}
@@ -183,30 +144,32 @@ As recent implementations of CORBA provide communication time close to
 that of sockets, CORBA is well suited to support distributed resources
 and applications in a large scale Grid environment. New specialized
 services can be easily published and existing services can also be
-used.  Therefore, CORBA is a good choice for the
-development of Grid specific services. DIET is based upon
-\emph{OmniORB 3}~\cite{OMNIORB} or later, a free CORBA implementation
-which provides good communication performance.
+used.  Therefore, CORBA is a good choice for the development of Grid
+specific services. DIET is based upon \emph{OmniORB 3}~\cite{OMNIORB}
+or later, a free CORBA implementation which provides good
+communication performance.
 
 
 %====[ Multi-MA ]==============================================================
 \section{Multi-MA}
 \label{init:multima}
 
-LA, SeD and a MA are put together to form a hierarchy. It is possible to
-federate those hierarchies by connecting the MA together. when DIET is run in
-multi-MA mode, the behavior of the architecture does not change, but if a SeD
-that can resolved a problem is not found inside a hierarchy, the architecture
-will automatically looking for a SeD inside the other hierarchies.
+LA, SeD and a MA are put together to form a hierarchy. It is possible
+to federate those hierarchies by connecting the MA together. when DIET
+is run in multi-MA mode, the behavior of the architecture does not
+change, but if a SeD that can resolved a problem is not found inside a
+hierarchy, the architecture will automatically looking for a SeD
+inside the other hierarchies.
 
 %====[ DIET INITIALIZATION ]===================================================
 \section{DIET initialization}
 \label{init}
 
-Figure~\ref{fig:init} shows each step of the initialization of a simple Grid
-system. The architecture is built in hierarchical order, each component
-connecting to its parent. The MA is the first entity to be started~(1). It waits
-for connections from LAs or requests from clients.
+Figure~\ref{fig:init} shows each step of the initialization of a
+simple Grid system. The architecture is built in hierarchical order,
+each component connecting to its parent. The MA is the first entity to
+be started~(1). It waits for connections from LAs or requests from
+clients.
 
 \begin{figure}[hbt]
   \begin{center}
@@ -216,24 +179,25 @@ for connections from LAs or requests from clients.
   \end{center}
 \end{figure}
 
-Then when an LA is launched, it subscribes to the MA~(2). At this step of the
-system initialization, two kinds of components can connect to the LA: an
-\sed ~(3), which manages some computational resource, or another LA~(4), to add a
-hierarchical level in this branch. When the \sed\ registers to an LA, it
-publishes a list of the services it offers, which is forwarded to the parent
-agent until the MA.
-Finally, any client can access the registered resource through the platform: it
-can contact an MA~(5) to get a reference to the best server available and then
-directly connect to it to launch the computation.
+Then when an LA is launched, it subscribes to the MA~(2). At this step
+of the system initialization, two kinds of components can connect to
+the LA: an \sed ~(3), which manages some computational resource, or
+another LA~(4), to add a hierarchical level in this branch. When the
+\sed\ registers to an LA, it publishes a list of the services it
+offers, which is forwarded to the parent agent until the MA.  Finally,
+any client can access the registered resource through the platform: it
+can contact an MA~(5) to get a reference to the best server available
+and then directly connect to it to launch the computation.
 
-The architecture of the hierarchy is described in configuration files and each
-component transmits the local configuration to its parent. Thus, the system
-administration can also be hierarchical. For instance, an MA can manage a domain
-like a university, providing prioritary access to users of this domain. Then
-each laboratory can run an LA, while each team of the laboratory can run some
-other LAs to administrate its own servers. This hierarchical administration of
-the system allows local changes in the configuration without interfering with
-the whole platform.
+The architecture of the hierarchy is described in configuration files
+and each component transmits the local configuration to its
+parent. Thus, the system administration can also be hierarchical. For
+instance, an MA can manage a domain like a university, providing
+prioritary access to users of this domain. Then each laboratory can
+run an LA, while each team of the laboratory can run some other LAs to
+administrate its own servers. This hierarchical administration of the
+system allows local changes in the configuration without interfering
+with the whole platform.
 
 
 
@@ -266,22 +230,24 @@ made in four steps:
 
 
 \begin{itemize}
-\item the MA propagates the client request through its subtrees down to the
-  capable servers~; actually, each agent only knows which among its children manage
-  the service, and it forwards the client request to them only~;
-\item each server that can satisfy the request calls FAST to estimate the
-  computation time necessary to process the request, and sends this
-  estimation back to its ``parent'' (the LA)~;
-\item each LA of the tree that receives one or more positive answers from its
-  children sorts the servers and forwards their answers to the MA through the
-  hierarchy~;
-\item once the MA has collected all the answers from its direct children, it
-  chooses a pool of fast servers and sends their references to the client.
+\item the MA propagates the client request through its subtrees down
+  to the capable servers~; actually, each agent only knows which among
+  its children manage the service, and it forwards the client request
+  to them only~;
+\item each server that can satisfy the request calls FAST (if it is
+  available) to estimate the computation time necessary to process the
+  request, and sends this estimation back to its ``parent'' (the LA)~;
+\item each LA of the tree that receives one or more positive answers
+  from its children sorts the servers and forwards their answers to
+  the MA through the hierarchy~;
+\item once the MA has collected all the answers from its direct
+  children, it chooses a pool of fast servers and sends their
+  references to the client.
 \end{itemize}
 
 If the multi-MA option is enabled and no server is found, then the MA
-propagates the client request to the other MA which follow at their turn the
-same pattern.
+propagates the client request to the other MA which follow at their
+turn the same pattern.
 
 %%%%%%%%%%%%%%%
 %% FIXME:

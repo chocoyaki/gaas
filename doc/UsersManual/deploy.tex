@@ -8,6 +8,13 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.11  2005/05/29 13:51:22  ycaniou
+%* Moved the section concerning FAST from description to a new chapter about FAST
+%* and performances prediction.
+%* Moved the section about convertors in the FAST chapter.
+%* Modified the small introduction in chapter 1.
+%* The rest of the changes are purely in the format of .tex files.
+%*
 %* Revision 1.10  2004/10/25 08:59:56  sdahan
 %* add the multi-MA documentation
 %*
@@ -70,9 +77,9 @@ service provided by a name server that must be launched before all
 DIET entities. Then, these DIET entities must be passed a reference to
 the $<$host:port$>$ of this name server.
 
-In this section, we try to give some basic information to start using DIET with
-a basic CORBA configuration. Please refer to the documentation of your ORB if
-you need more details.
+In this section, we try to give some basic information to start using
+DIET with a basic CORBA configuration. Please refer to the
+documentation of your ORB if you need more details.
 
 \subsection{omniNames}
 
@@ -104,12 +111,11 @@ Checkpointing completed.
 \end{verbatim}
 }
 
-This sets an omniORB name server which listens to clients
-connections on default port 2809. If omniNames has already been launched once,
-\emph{ie} there is already some log files in the log directory, using the
-\texttt{-start} option causes an error. The port is actually read from old
-log files:
-{\footnotesize
+This sets an omniORB name server which listens to clients connections
+on default port 2809. If omniNames has already been launched once,
+\emph{ie} there is already some log files in the log directory, using
+the \texttt{-start} option causes an error. The port is actually read
+from old log files: {\footnotesize
 \begin{verbatim}
 ~ > omniNames -start 2810
 
@@ -135,13 +141,14 @@ Checkpointing completed.
 
 \subsubsection{The client}
 
-For every DIET entity, you need to connect to the CORBA name server: it is
-the way services discover each other. The reference to the omniORB
-name server is written in the configuration file, whose path is given
-to omniORB through the environment variable \texttt{OMNIORB\_CONFIG}
-(or, with \textbf{omniORB 4}, at compile time, through the option of
-the configure script: \texttt{--with-omniORB-config} ). Some examples
-of such a configuration file are given in the directory
+For every DIET entity, you need to connect to the CORBA name server:
+it is the way services discover each other. The reference to the
+omniORB name server is written in the configuration file, whose path
+is given to omniORB through the environment variable
+\texttt{OMNIORB\_CONFIG} (or, with \textbf{omniORB 4}, at compile
+time, through the option of the configure script:
+\texttt{--with-omniORB-config} ). Some examples of such a
+configuration file are given in the directory
 \texttt{src/examples/cfgs} of the DIET source files and installed in
 \texttt{$<$install\_dir$>$/etc}. The lines concerning the name server,
 in the omniORB configuration file, are built as follows:
@@ -156,22 +163,24 @@ ORBInitialPort <name server port>
  \item{omniORB 4:}
 {\footnotesize
 \begin{verbatim}
-InitRef = NameService=corbaname::<name server hostname>:<name server port>
+InitRef = NameService=corbaname::<name server hostname>:<name server
+port>
 \end{verbatim}
-}
-The name server port is the one given in argument to the \texttt{-start} option
-of \texttt{omniNames}.
-You also need to update your \texttt{LD\_LIBRARY\_PATH} to point to \texttt{$<$install\_dir$>$/lib}.
-So your \texttt{LD\_LIBRARY\_PATH} environment variable should now be :\\
-\texttt{LD\_LIBRARY\_PATH$= <$omniORB\_home$>$/lib:$<$install\_dir$>$/lib}.
+} The name server port is the one given in argument to the
+\texttt{-start} option of \texttt{omniNames}.  You also need to update
+your \texttt{LD\_LIBRARY\_PATH} to point to
+\texttt{$<$install\_dir$>$/lib}.  So your \texttt{LD\_LIBRARY\_PATH}
+environment variable should now be :\\ \texttt{LD\_LIBRARY\_PATH$=
+<$omniORB\_home$>$/lib:$<$install\_dir$>$/lib}.
 
 \end{description}
 
 \subsubsection{Multi-MA environment}
 
-Each MA can have its own name service. This is possible because there is no
-need for a MA hierarchy to know about another MA hierarchy. But every elements
-of a MA hierarchy must use the same name server to be able to cooperate.
+Each MA can have its own name service. This is possible because there
+is no need for a MA hierarchy to know about another MA hierarchy. But
+every elements of a MA hierarchy must use the same name server to be
+able to cooperate.
 
 %\subsection*{The TAO name server}
 %\subsubsection{The server}
@@ -184,15 +193,15 @@ of a MA hierarchy must use the same name server to be able to cooperate.
 A configuration file is needed to launch a DIET entity. Some fully
 commented examples of such configuration files are given in the
 directory \texttt{src/examples/cfgs} of the DIET source files and
-installed in \texttt{$<$install\_dir$>$/etc} \footnote{if there isn't 
+installed in \texttt{$<$install\_dir$>$/etc} \footnote{if there isn't
 \texttt{$<$install\_dir$>$/etc} directory, please configure DIET with
-\texttt{--enable-examples} and/or run \texttt{make install}
- command in \texttt{src/examples} directory.}. Please note that:
+\texttt{--enable-examples} and/or run \texttt{make install} command in
+\texttt{src/examples} directory.}. Please note that:
 \begin{itemize}
 \item comments start with '\#' and finish at the end of the current
   line,
-\item meaningful lines have the format: \texttt{keyword = value}, following the
-  format of configuration files for omniORB 4,
+\item meaningful lines have the format: \texttt{keyword = value},
+  following the format of configuration files for omniORB 4,
 \item keywords are case sensitive.
 \end{itemize}
 
@@ -220,10 +229,10 @@ This option controls debugging trace output. The following levels are defined:
 \subsection{Client side parameters}
 
 \noindent
-\texttt{MAName} \ \ \emph{default}\texttt{ = }\emph{none}\\
-This is a \textbf{mandatory} parameter that specifies the name of the Master
-Agent to connect to. The MA must have registered with this same name to the
-CORBA name server.
+\texttt{MAName} \ \ \emph{default}\texttt{ = }\emph{none}\\ This is a
+\textbf{mandatory} parameter that specifies the name of the Master
+Agent to connect to. The MA must have registered with this same name
+to the CORBA name server.
 
 
 \subsection{Agent side parameters}
@@ -237,27 +246,27 @@ They have aliases, respectively \texttt{MA} and \texttt{LA}.
 \\
 
 \noindent
-\texttt{name} \ \ \emph{default}\texttt{ = }\emph{none}\\
-This is a \textbf{mandatory} parameter that specifies the name with
-which the agent will register to the CORBA name server.
+\texttt{name} \ \ \emph{default}\texttt{ = }\emph{none}\\ This is a
+\textbf{mandatory} parameter that specifies the name with which the
+agent will register to the CORBA name server.
 
 
 \subsection{LAs and SeD side parameters}
 
 \noindent
-\texttt{parentName} \ \ \emph{default}\texttt{ = }\emph{none}\\
-This is a \textbf{mandatory} parameter for Local Agents only ; it indicates the
-name of the parent (an LA or the MA) to register to.
+\texttt{parentName} \ \ \emph{default}\texttt{ = }\emph{none}\\ This
+is a \textbf{mandatory} parameter for Local Agents only ; it indicates
+the name of the parent (an LA or the MA) to register to.
 
 
 \subsection{FAST options}
 
 \noindent
-\texttt{fastUse} \ \ \emph{default}\texttt{ = 1}\\
-This option activates the requests to FAST. It is ignored if DIET was
-compiled without FAST, and defaults to 1 otherwise. In the latter case, it is
-useful to set it to 0 if one wishes to perform some tests
-without deploying the whole NWS/LDAP platform.
+\texttt{fastUse} \ \ \emph{default}\texttt{ = 1}\\ This option
+activates the requests to FAST. It is ignored if DIET was compiled
+without FAST, and defaults to 1 otherwise. In the latter case, it is
+useful to set it to 0 if one wishes to perform some tests without
+deploying the whole NWS/LDAP platform.
 
 The following options are ignored if DIET was compiled without FAST or if
 \texttt{fastUse} is set to 0.
@@ -265,35 +274,33 @@ The following options are ignored if DIET was compiled without FAST or if
 \subsubsection{LDAP options}
 
 \noindent
-\texttt{ldapUse} \ \ \emph{default}\texttt{ = 0} for agents, \texttt{ = 1} for
-SeDs\\
-This option activates the use of LDAP in FAST requests. It defaults to 0 for
-agents (which do not need to connect to the LDAP base) and to 1 for SeDs.
-\\
+\texttt{ldapUse} \ \ \emph{default}\texttt{ = 0} for agents, \texttt{
+= 1} for SeDs\\ This option activates the use of LDAP in FAST
+requests. It defaults to 0 for agents (which do not need to connect to
+the LDAP base) and to 1 for SeDs.  \\
 
 The following two options are ignored if \texttt{ldapUse} is set to 0.
 \\
 
 \noindent
-\texttt{ldapBase} \ \ \emph{default}\texttt{ = }\emph{none}\\
-Specify the \texttt{host:port} address of the LDAP base where FAST gets the
-results of its benchmarks.
-\\
+\texttt{ldapBase} \ \ \emph{default}\texttt{ = }\emph{none}\\ Specify
+the \texttt{host:port} address of the LDAP base where FAST gets the
+results of its benchmarks.  \\
 
 \noindent
-\texttt{ldapMask} \ \ \emph{default}\texttt{ = }\emph{none}\\
-Specify the mask used for requests to the LDAP base. It must match the one given
-in the \texttt{.ldif} file of the server that was added to the base.
+\texttt{ldapMask} \ \ \emph{default}\texttt{ = }\emph{none}\\ Specify
+the mask used for requests to the LDAP base. It must match the one
+given in the \texttt{.ldif} file of the server that was added to the
+base.
 
 
 \subsubsection{NWS options}
 
 \noindent
-\texttt{nwsUse} \ \ \emph{default}\texttt{ = 1}\\
-This option activates the use of NWS in FAST requests. If 0, FAST will use an
-internal sensor for the performance of the machine, but will not be able to
-evaluate communication times.
-\\
+\texttt{nwsUse} \ \ \emph{default}\texttt{ = 1}\\ This option
+activates the use of NWS in FAST requests. If 0, FAST will use an
+internal sensor for the performance of the machine, but will not be
+able to evaluate communication times.  \\
 
 The following two options are ignored if \texttt{nwsUse} is set to 0.
 \\
@@ -312,79 +319,82 @@ Specify the \texttt{host:port} address of the NWS forecaster.
 \subsection{LogService options}
 
 \noindent
-\texttt{useLogService} \ \ \emph{default}\texttt{ = 0}\\
-This activates the connection to LogService if DIET was compiled with
-\texttt{--enable-logservice}. LogService is disabled by default.
-If this option is set to 1 then the LogCentral must be started
-before any DIET nodes. Agents and SeDs will connect to it to
-deliver their monitoring information and they will refuse to
-start if they cannot establish this connection. See http://graal.ens-lyon.fr/LogService/
-to know how to launch LogCentral.
-\\
+\texttt{useLogService} \ \ \emph{default}\texttt{ = 0}\\ This
+activates the connection to LogService if DIET was compiled with
+\texttt{--enable-logservice}. LogService is disabled by default.  If
+this option is set to 1 then the LogCentral must be started before any
+DIET nodes. Agents and SeDs will connect to it to deliver their
+monitoring information and they will refuse to start if they cannot
+establish this connection. See http://graal.ens-lyon.fr/LogService/ to
+know how to launch LogCentral.  \\
 
 \noindent
 \texttt{lsOutbuffersize} \ \ \emph{default}\texttt{ = 0}\\
 \noindent
-\texttt{lsFlushinterval} \ \ \emph{default}\texttt{ = 10000}\\
-DIETs LogService connection offers to buffer outgoing messages
-and send them asynchronously. This can eventually decrease the network
-load when several messages are sent at one time. It can also be used
-to decouple the generation and the transfer of messages.
-The buffer is specified by it's size (\texttt{lsOutbuffersize},
-number of messages) and the time it is regularly flushed
-(\texttt{lsFlushinterval}, nanoseconds). It is recommended not
-to change the default parameters if you do not encounter
-problems. The buffer options will be ignored if \texttt{useLogService}
-is set to 0.
+\texttt{lsFlushinterval} \ \ \emph{default}\texttt{ = 10000}\\ DIETs
+LogService connection offers to buffer outgoing messages and send them
+asynchronously. This can eventually decrease the network load when
+several messages are sent at one time. It can also be used to decouple
+the generation and the transfer of messages.  The buffer is specified
+by it's size (\texttt{lsOutbuffersize}, number of messages) and the
+time it is regularly flushed (\texttt{lsFlushinterval},
+nanoseconds). It is recommended not to change the default parameters
+if you do not encounter problems. The buffer options will be ignored
+if \texttt{useLogService} is set to 0.
 
 \subsection{Multi-MA options}
 
-To federate the MA, each MA try to contact periodically other MA. Those option
-define how the MA connect to the others.
+To federate the MA, each MA try to contact periodically other
+MA. Those option define how the MA connect to the others.
 
 \noindent
-\texttt{neighbours}\\
-List of known MA separated by commas. The MA will try to connect to the MA
-named by this list. Each MA is describe by the name of it's host followed by
-its bind service port number. For example
+\texttt{neighbours}\\ List of known MA separated by commas. The MA
+will try to connect to the MA named by this list. Each MA is describe
+by the name of it's host followed by its bind service port number. For
+example
 \texttt{host1.domain.com:500,host4.domain.com:500,host.anotherdomain.net:2001}
 is a valid three MA list. By default, an empty list is set into
 \texttt{neighbours}.\\
 
 \noindent
-\texttt{maximumNeighbours} \ \ \emph{default}\texttt{ = 10}\\
-This is the maximum number of MA that can be connected to the MA. If a MA want
+\texttt{maximumNeighbours} \ \ \emph{default}\texttt{ = 10}\\ This is
+the maximum number of MA that can be connected to the MA. If a MA want
 to connect to the MA an the current number of connected MA is equal to
 \texttt{maximumNeighbours}, the request is rejected.\\
 
 \noindent
-\texttt{minimumNeighbours} \ \ \emph{default}\texttt{ = 2}\\
-This is the minimum number of MA that should be connected to the MA. If the
-current number of connected MA is lower than \texttt{minimumNeighbours}, the MA
-try to connect to other MA.\\
+\texttt{minimumNeighbours} \ \ \emph{default}\texttt{ = 2}\\ This is
+the minimum number of MA that should be connected to the MA. If the
+current number of connected MA is lower than
+\texttt{minimumNeighbours}, the MA try to connect to other MA.\\
 
 \noindent
-\texttt{updateLinkPeriod} \ \ \emph{default}\texttt{ = 300}\\
-The MA check if the connected MA are alive every \texttt{updateLinkPeriod}
+\texttt{updateLinkPeriod} \ \ \emph{default}\texttt{ = 300}\\ The MA
+check if the connected MA are alive every \texttt{updateLinkPeriod}
 seconds.\\
 
 \noindent
-\texttt{bindServicePort}\\
-The MA need to use a specific port to be able to federate. This port is only
-used for initialized the connections between MA. \texttt{bindServicePort} has
-no default value. If it is not set, the MA is not able to federate with other
+\texttt{bindServicePort}\\ The MA need to use a specific port to be
+able to federate. This port is only used for initialized the
+connections between MA. \texttt{bindServicePort} has no default
+value. If it is not set, the MA is not able to federate with other
 MA.\\
 
 \subsection{Miscellanous options}
 
 \noindent
-\texttt{dietPort} \ \ \emph{default} \texttt{ = }\emph{2809}\\
-This option specifies the listening port of an agent or SeD. If not specified, let the ORB get a port from the system (if the default 2809 was busy). This option is very useful when a machine is behind a firewall. By default this option is disabled.
+\texttt{dietPort} \ \ \emph{default} \texttt{ = }\emph{2809}\\ This
+option specifies the listening port of an agent or SeD. If not
+specified, let the ORB get a port from the system (if the default 2809
+was busy). This option is very useful when a machine is behind a
+firewall. By default this option is disabled.
 
 \noindent
-\texttt{dietHostname} \ \ \emph{$<$hostname |  IP$>$}\\
-The listening interface of the agent. If not specified,let the ORB get the hostname from the system (the first one if several are available).
-It is very useful when you has more than one network interface, or you don't have a DNS, ...
+\texttt{dietHostname} \ \ \emph{$<$hostname |  IP$>$}\\ The listening
+interface of the agent. If not specified,let the ORB get the hostname
+from the system (the first one if several are available).  It is very
+useful when you has more than one network interface, or you don't have
+a DNS, ...
 
 %====[ Example ]=========================================
 \section{Example}
@@ -393,7 +403,8 @@ It is very useful when you has more than one network interface, or you don't hav
 As shown in Section \ref{init}, the hierarchy is built from top to
 bottom: children register to their parent.
 
-Here is an example of a complete platform deployment. Let us assume that:
+Here is an example of a complete platform deployment. Let us assume
+that:
 
 \begin{itemize}
 \item DIET was compiled with FAST on all machines used,
@@ -507,9 +518,10 @@ For such a platform, an \sed\ configuration file could be:
 \end{center}
 \rm
 
-This \sed\ will register as a son of LA\_example. Run the executable that you
-linked with the DIET SeD library, and do not forget that the first argument of
-\texttt{diet\_SeD} must be the path of the configuration file above.
+This \sed\ will register as a son of LA\_example. Run the executable
+that you linked with the DIET SeD library, and do not forget that the
+first argument of \texttt{diet\_SeD} must be the path of the
+configuration file above.
 
 
 \subsubsection{Launching a client}
@@ -526,7 +538,7 @@ Our client must connect to the MA\_example:
 \end{center}
 \rm
 
-Run the executable that you linked with the DIET client library, and do not
-forget that the first argument of \texttt{diet\_initialize} must be the path of
-the configuration file above.
+Run the executable that you linked with the DIET client library, and
+do not forget that the first argument of \texttt{diet\_initialize}
+must be the path of the configuration file above.
 

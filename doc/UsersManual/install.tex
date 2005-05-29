@@ -10,6 +10,13 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.18  2005/05/29 13:51:22  ycaniou
+%* Moved the section concerning FAST from description to a new chapter about FAST
+%* and performances prediction.
+%* Moved the section about convertors in the FAST chapter.
+%* Modified the small introduction in chapter 1.
+%* The rest of the changes are purely in the format of .tex files.
+%*
 %* Revision 1.17  2005/05/20 19:06:01  mjan
 %* Short description of how to configure DIET for JuxMem
 %*
@@ -100,8 +107,8 @@
 \subsection{Hardware dependencies}
 
 DIET has fully tested on Linux i386 and i686 platforms and has tested
-on Solaris/Sparc, Linux/Sparc, Linux/i64, Linux/amd64 and Linux/Alpha platform and
-seems be supported.
+on Solaris/Sparc, Linux/Sparc, Linux/i64, Linux/amd64 and Linux/Alpha
+platform and seems be supported.
 
 If you found a bug into DIET, please to submit a bug report at
 \url{http://graal.ens-lyon.fr/bugzilla}. If you have multiple bugs to
@@ -111,15 +118,17 @@ multiple bugs in one report.
 \subsection{Software dependencies}
 
 As explained in Section \ref{sec:CORBA}, CORBA is used for all
-communications inside the platform. So all of the three parts depend on it. The
-implementations of CORBA currently supported in DIET are:
+communications inside the platform. So all of the three parts depend
+on it. The implementations of CORBA currently supported in DIET are:
 \begin{itemize}
  \item{\textbf{omniORB 3}} which depends on \textbf{Python 1.5}
- \item{\textbf{omniORB 4}} which depends on \textbf{Python 2.1} or later,
-                           and on \textbf{OpenSSL} if you would like your DIET
-                           platform to be secure.~\footnote{If you want to deploy
-			   a secure DIET platform, SSL support is not yet implemented 
-			   in DIET, but an easy way to do so is to deploy DIET on a VPN.}
+ \item{\textbf{omniORB 4}} which depends on \textbf{Python 2.1} or
+                           later, and on \textbf{OpenSSL} if you would
+                           like your DIET platform to be
+                           secure.~\footnote{If you want to deploy a
+                           secure DIET platform, SSL support is not
+                           yet implemented  in DIET, but an easy way
+                           to do so is to deploy DIET on a VPN.}
 % \item{soon \textbf{TAO 1.3}} which depends on \textbf{ACE} (but TAO is always
 %                           provided with ACE)
 \end{itemize}
@@ -134,32 +143,29 @@ for \textbf{omniORB 4} only, at compile time, with the
 options.
 
 \noindent 
-\textbf{NB:} We have noticed that some problems occur with \textbf{Python 2.3}:
-the C++ code generated could not be compiled. It has been patched in DIET, but
-some warnings still appear.
-\\
+\textbf{NB:} We have noticed that some problems occur with
+\textbf{Python 2.3}: the C++ code generated could not be compiled. It
+has been patched in DIET, but some warnings still appear.  \\
 
-Since omniORB needs a thread-safe management of exception handling, compiling
-DIET with \verb+gcc+ requires at least \verb+gcc-2.96+.
-\\
+Since omniORB needs a thread-safe management of exception handling,
+compiling DIET with \verb+gcc+ requires at least \verb+gcc-2.96+.  \\
 
-The agent and server parts of DIET can depend on FAST (see §\ref{sec:FAST}).
-Although not absolutely compulsory, it is strongly recommended: indeed, all
-communication and computation times are set to infinity if FAST is not
-installed.  FAST depends on:
+The agent and server parts of DIET can depend on FAST (see
+§\ref{sec:FAST}).  Although not absolutely compulsory, it is strongly
+recommended: indeed, all communication and computation times are set
+to infinity if FAST is not installed.  FAST depends on:
 \begin{itemize}
  \item{\textbf{DB 2}} the Berkeley Database routines
  \item{\textbf{GSL}} the GNU Scientific Library
- \item{\textbf{OpenLDAP}} an implementation of the Lightweight Directory Access
-                          Protocol
+ \item{\textbf{OpenLDAP}} an implementation of the Lightweight
+                          Directory Access Protocol
  \item{\textbf{NWS}} the Network Weather Service
 \end{itemize}
 For more details about FAST dependencies, please refer to the FAST
-Reference
-Manual~\footnote{\url{http://graal.ens-lyon.fr/FAST/docs}}.
+Reference Manual~\footnote{\url{http://graal.ens-lyon.fr/FAST/docs}}.
 It is important to understand basically how FAST works, and the role
-of its dependencies, to deactivate the
-ones that are not needed by the user.\\
+of its dependencies, to deactivate the ones that are not needed by the
+user.\\
 
 Finally, some examples provided in the DIET sources depend on the BLAS
 and \scalapack\ libraries. However theses examples do not have to be
@@ -170,10 +176,11 @@ compiled.
 \section{Compiling the platform}
 \label{sec:compil_platform}
 
-Once all dependencies are satisfied, untar the DIET archive and
-change to its root directory. A configure script will prepare DIET for
+Once all dependencies are satisfied, untar the DIET archive and change
+to its root directory. A configure script will prepare DIET for
 compiling: its main options are described below, but please, run
-\texttt{configure --help} to get an up-to-date and complete usage description.\\
+\texttt{configure --help} to get an up-to-date and complete usage
+description.\\
 
 \noindent
 {\footnotesize
@@ -198,18 +205,18 @@ compiling: its main options are described below, but please, run
   --enable-doc            enable the module doc, documentation about DIET
 \end{verbatim}
 }
-\noindent This option activates the compilation and installation of the DIET
-documents, which is disabled by default, because it is very sensitive to the
-version of your \LaTeX\ compiler. The output postscript files are provided in
-the archive.
+\noindent This option activates the compilation and installation of
+the DIET documents, which is disabled by default, because it is very
+sensitive to the version of your \LaTeX\ compiler. The output
+postscript files are provided in the archive.
 
 {\footnotesize
 \begin{verbatim}
   --disable-examples      disable the module examples, basic DIET examples
 \end{verbatim}
 }
-\noindent This option deactivates the compilation of the DIET examples, which is
-enabled by default.
+\noindent This option deactivates the compilation of the DIET
+examples, which is enabled by default.
 
 {\footnotesize
 \begin{verbatim}
@@ -217,20 +224,20 @@ enabled by default.
                           functions through DIET
 \end{verbatim}
 }
-\noindent This option activates the compilation of the DIET BLAS examples, as a
-sub-module of examples (which means that this option has no effect if examples
-are disabled) - disabled by default.
+\noindent This option activates the compilation of the DIET BLAS
+examples, as a sub-module of examples (which means that this option
+has no effect if examples are disabled) - disabled by default.
 
 {\footnotesize
 \begin{verbatim}
   --enable-logservice     enable monitoring through LogService
 \end{verbatim}
 }
-\noindent This option enables the connection from DIET to the LogService
-monitoring software. It will enable DIET to generate monitoring data
-and send it to the LogService. Note that the support of LogService is
-built in. You do not have to install the LogService package to compile
-with this option.
+\noindent This option enables the connection from DIET to the
+LogService monitoring software. It will enable DIET to generate
+monitoring data and send it to the LogService. Note that the support
+of LogService is built in. You do not have to install the LogService
+package to compile with this option.
 
 
 {\footnotesize
@@ -239,27 +246,28 @@ with this option.
                           ScaLAPACK functions through DIET
 \end{verbatim}
 }
-\noindent This option activates the compilation of the DIET \scalapack\ examples,
-as a sub-module of examples (which means that this option has no
-effect if examples are disabled) - disabled by default.
+\noindent This option activates the compilation of the DIET
+\scalapack\ examples, as a sub-module of examples (which means that
+this option has no effect if examples are disabled) - disabled by
+default.
 
 {\footnotesize
 \begin{verbatim}
   --enable-JXTA-mode      enable DIET/JXTA architecture
 \end{verbatim}
 }
-\noindent This option allows the user to deploy DIET$_{JXTA}$ architectures. 
-When this option is activated (disable by default), DIET allows only
-this type of architecture to be deployed.
+\noindent This option allows the user to deploy DIET$_{JXTA}$
+architectures.  When this option is activated (disable by default),
+DIET allows only this type of architecture to be deployed.
 
 {\footnotesize
 \begin{verbatim}
   --enable-multi-MA       enable multi-MA architecture
 \end{verbatim}
 }
-\noindent This option allows the user to connect several MA to be linked
-together. When this option is activated, it allow a MA to looking for a SeD
-into the other MA hierarchies.
+\noindent This option allows the user to connect several MA to be
+linked together. When this option is activated, it allow a MA to
+looking for a SeD into the other MA hierarchies.
 
 {\footnotesize
 \begin{verbatim}
@@ -334,28 +342,30 @@ its use inside DIET.
                           several conftest.c -o conftest)
 \end{verbatim}
 }
-\noindent This group of options lets the user define all necessary paths to
-compile with omniORB. Generally, \texttt{--with-omniORB=DIR} should be enough, and
-the other options are provided for ugly installations of omniORB.\\
-\textbf{NB:} having the executable \texttt{omniidl} in the PATH environment
-variable should be enough in most cases.
+\noindent This group of options lets the user define all necessary
+paths to compile with omniORB. Generally, \texttt{--with-omniORB=DIR}
+should be enough, and the other options are provided for ugly
+installations of omniORB.\\ \textbf{NB:} having the executable
+\texttt{omniidl} in the PATH environment variable should be enough in
+most cases.
 
-\subsubsection{FAST}
+\subsubsection{FAST}\label{fast_compil}
 {\footnotesize
 \begin{verbatim}
   --with-FAST=DIR         installation root directory for FAST (optional)
   --with-FAST-bin=DIR     installation directory for fast-config (optional)
 \end{verbatim}
 }
-\noindent This group of options lets the user define all necessary paths to
-compile with FAST. Generally, \texttt{--with-FAST=DIR} should be enough, and the
-other options are provided for difficult installations of FAST. There is no need to
-specify includes, libraries and extra arguments, since FAST provides a tool
-\texttt{fast-config} that does this job automatically.\\
-\textbf{NB1:} having the executable \texttt{fast-config} in the PATH environment
-variable should be enough in most cases.\\
-\textbf{NB2:} it is possible to specify \texttt{--without-FAST}, which overrides
-\texttt{fast-config} detection.
+\noindent This group of options lets the user define all necessary
+paths to compile with FAST. Generally, \texttt{--with-FAST=DIR} should
+be enough, and the other options are provided for difficult
+installations of FAST. There is no need to specify includes, libraries
+and extra arguments, since FAST provides a tool \texttt{fast-config}
+that does this job automatically.\\ \textbf{NB1:} having the
+executable \texttt{fast-config} in the PATH environment variable
+should be enough in most cases.\\ \textbf{NB2:} it is possible to
+specify \texttt{--without-FAST}, which overrides \texttt{fast-config}
+detection.
 
 \subsubsection{BLAS}
 
@@ -382,11 +392,12 @@ the development of high quality linear algebra software.
                    conftest.c -o conftest)
 \end{verbatim}
 }
-\noindent This group of options lets the user define all necessary paths to
-compile with the BLAS libraries. Generally, \texttt{--with-BLAS=DIR} should be
-enough, and the other options are provided for difficult installation of the BLAS.\\
-\textbf{NB:} these options have no effect if the module example and/or its
-sub-module BLAS are disabled.
+\noindent This group of options lets the user define all necessary
+paths to compile with the BLAS libraries. Generally,
+\texttt{--with-BLAS=DIR} should be enough, and the other options are
+provided for difficult installation of the BLAS.\\ \textbf{NB:} these
+options have no effect if the module example and/or its sub-module
+BLAS are disabled.
 
 \subsubsection{\scalapack}
 
@@ -398,9 +409,9 @@ explicit message passing for interprocessor communication. It assumes
 matrices are laid out in a two-dimensional block cyclic decomposition.
 
 Like LAPACK, the ScaLAPACK routines are based on block-partitioned
-algorithms in order to minimize the frequency of data movements between
-different levels of the memory hierarchy. (For such machines, the
-memory hierarchy includes the off-processor memory of other
+algorithms in order to minimize the frequency of data movements
+between different levels of the memory hierarchy. (For such machines,
+the memory hierarchy includes the off-processor memory of other
 processors, in addition to the hierarchy of registers, cache, and
 local memory on each processor.) The fundamental building blocks of
 the ScaLAPACK library are distributed memory versions (PBLAS) of the
@@ -431,12 +442,13 @@ Users' Guide~\cite{BCC+97}.
 \end{verbatim}
 }
 
-\noindent This group of options lets the user define all necessary paths for compilation with the \scalapack\ libraries. Normally, \texttt{--with-ScaLAPACK=DIR} could be enough, but the other options are provided because the
-installation of the \scalapack\ libraries is often difficult, and thus
-difficult to detect automatically. For instance, the
-\texttt{--with-ScaLAPACK-extra} option is useful to integrate BLACS
-and MPI libraries, which are useful for ScaLAPACK.
-\\
+\noindent This group of options lets the user define all necessary
+paths for compilation with the \scalapack\ libraries. Normally,
+\texttt{--with-ScaLAPACK=DIR} could be enough, but the other options
+are provided because the installation of the \scalapack\ libraries is
+often difficult, and thus difficult to detect automatically. For
+instance, the \texttt{--with-ScaLAPACK-extra} option is useful to
+integrate BLACS and MPI libraries, which are useful for ScaLAPACK.  \\
 \textbf{NB:} these options have no effect if the module example and/or
 its sub-module \scalapack\ are disabled.
 
@@ -448,8 +460,9 @@ specifies where binary files, documents and configuration files will
 be installed. It is important to set this option: it otherwise
 defaults to \texttt{DIET/install}.
 
-The configuration will return with an error if no ORB was found. So please help
-the configure script to find the ORB with the \texttt{--with-omniORB*} options.\\
+The configuration will return with an error if no ORB was found. So
+please help the configure script to find the ORB with the
+\texttt{--with-omniORB*} options.\\
 
 
 If everything went OK, the configuration ends with a summary of the
@@ -489,9 +502,9 @@ please, pay attention to the fact that \texttt{make all} does not
 install DIET in the prefix provided at configuration time. To do this,
 run \texttt{make install}.
 
-\texttt{make install} will run the compilation for all DIET entities before the
-installation itself. Thus, if the user wants to compile only the agent, for
-instance, and install it, he must run:
+\texttt{make install} will run the compilation for all DIET entities
+before the installation itself. Thus, if the user wants to compile
+only the agent, for instance, and install it, he must run:
 {\footnotesize
 \begin{verbatim}
 ~/DIET > cd src/agent
@@ -511,46 +524,48 @@ Four series of examples are provided in the DIET archive:
   profile declares all arguments that may be filled, even if they
   might not be all filled at each request/computation.
 
-\item{\texttt{dmat\_manips}}: the server offers matrix manipulation routines:
-  transposition (\texttt{T}), product (\texttt{MatPROD}) and sum
-  (\texttt{MatSUM}, \texttt{SqMatSUM} for square matrices, and
-  \texttt{SqMatSUM\_opt} for square matrices but re-using the memory space of
-  the second operand for the result). Any subset of these operations can be
-  specified on the command line. The last two of them are given for
-  compatibility with a BLAS server, explained below.
+\item{\texttt{dmat\_manips}}: the server offers matrix manipulation
+  routines: transposition (\texttt{T}), product (\texttt{MatPROD}) and
+  sum (\texttt{MatSUM}, \texttt{SqMatSUM} for square matrices, and
+  \texttt{SqMatSUM\_opt} for square matrices but re-using the memory
+  space of the second operand for the result). Any subset of these
+  operations can be specified on the command line. The last two of
+  them are given for compatibility with a BLAS server, explained below.
   
-\item{\texttt{BLAS}}: the server offers the \texttt{dgemm} BLAS functionality.
-  We plan to offer all BLAS (Basic Linear Algebric Subroutines) in the
-  next DIET version. Since this function computes $C = \alpha AB +
-  \beta C$, it can also compute a matrix-matrix product, a sum of
-  square matrices, etc. All these services are offered by the BLAS
-  server. Two clients are designed to use these services: one
-  (\texttt{dgemm\_client.c}) is designed to use the \texttt{dgemm\_}
-  function only, and the other one (\texttt{client.c}) to use all BLAS
-  functions (but currently only \texttt{dgemm\_}) and sub-services,
-  such as \texttt{MatPROD}.
+\item{\texttt{BLAS}}: the server offers the \texttt{dgemm} BLAS
+  functionality.  We plan to offer all BLAS (Basic Linear Algebric
+  Subroutines) in the next DIET version. Since this function computes
+  $C = \alpha AB + \beta C$, it can also compute a matrix-matrix
+  product, a sum of square matrices, etc. All these services are
+  offered by the BLAS server. Two clients are designed to use these
+  services: one (\texttt{dgemm\_client.c}) is designed to use the
+  \texttt{dgemm\_} function only, and the other one
+  (\texttt{client.c}) to use all BLAS functions (but currently only
+  \texttt{dgemm\_}) and sub-services, such as \texttt{MatPROD}.
   
-\item{\texttt{\scalapack}}: the server is designed to offer all \scalapack\ 
-  (parallel version of the LAPACK library) functions but only manages the
-  \texttt{pdgemm\_} function so far. The \texttt{pdgemm\_} routine is the
-  parallel version of the \texttt{dgemm\_} function, so that the server also
-  offers all the same sub-services. Two clients are designed to use these
-  services: one (\texttt{pdgemm\_client.c}) is designed to use the
-  \texttt{pdgemm\_} function only, and the other one (\texttt{client.c}) to use
-  all \scalapack\ functions and sub-services, such as \texttt{MatPROD}.
+\item{\texttt{\scalapack}}: the server is designed to offer all
+  \scalapack\  (parallel version of the LAPACK library) functions but
+  only manages the \texttt{pdgemm\_} function so far. The
+  \texttt{pdgemm\_} routine is the parallel version of the
+  \texttt{dgemm\_} function, so that the server also offers all the
+  same sub-services. Two clients are designed to use these services:
+  one (\texttt{pdgemm\_client.c}) is designed to use the
+  \texttt{pdgemm\_} function only, and the other one
+  (\texttt{client.c}) to use all \scalapack\ functions and
+  sub-services, such as \texttt{MatPROD}.
 \end{itemize}
 
-Running \texttt{make install} in the \texttt{examples} directory (or in the root
-directory, when DIET is configured with \texttt{--enable-examples}) does not
-copy binary files into \texttt{$<$install\_dir$>$/bin}, but in
-\texttt{examples/bin}: this odd behaviour is due to some limitations of the
-\textsf{automake} tool.
+Running \texttt{make install} in the \texttt{examples} directory (or
+in the root directory, when DIET is configured with
+\texttt{--enable-examples}) does not copy binary files into
+\texttt{$<$install\_dir$>$/bin}, but in \texttt{examples/bin}: this
+odd behaviour is due to some limitations of the \textsf{automake} tool.
 
 Likewise, the samples of configuration files located in
 \texttt{examples/cfgs} are processed by \texttt{make install} to
 create ready-to-use configuration files in \texttt{examples/etc} and
 then copied into \texttt{$<$install\_dir$>$/etc}. Successive calls to
 make install will not erase the configuration files created and copied
-the first time, except if \texttt{make uninstall} is called inbetween ;
-thus the user will not lose the changes to these files.
+the first time, except if \texttt{make uninstall} is called inbetween
+; thus the user will not lose the changes to these files.
 

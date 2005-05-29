@@ -10,6 +10,13 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.11  2005/05/29 13:51:22  ycaniou
+%* Moved the section concerning FAST from description to a new chapter about FAST
+%* and performances prediction.
+%* Moved the section about convertors in the FAST chapter.
+%* Modified the small introduction in chapter 1.
+%* The rest of the changes are purely in the format of .tex files.
+%*
 %* Revision 1.10  2004/07/12 13:26:11  mcolin
 %* Correct the first example service/solve_service : pb of pointer.
 %* There is still a pb with diet_string_get (it exists?) and with
@@ -234,13 +241,12 @@ The parameter \texttt{diet\_solve\_t solve\_func} is the type of the
 \texttt{solve\_service} function: a function pointer used by DIET to launch the
 computation.
 
-The parameter \texttt{diet\_convertor\_t *cvt} is to be used in
-combination with FAST, and is there to allow profile conversion (for
-multiple services, or when differences occur between the DIET and the
-FAST profile). This is not an easy task and will therefore be
-explained separately in the next paragraphs.
-
-
+The parameter \texttt{diet\_convertor\_t *cvt} is to be used in combination
+with FAST (if available). It is there to allow profile conversion (for
+multiple services, or when differences occur between the DIET and the FAST
+profile). This is not an easy task and will therefore be explained
+separately in chapter~\ref{chapter:fast}.
+%the next paragraphs.
 
 \section{Example}
 \label{sec:sv_ex}
@@ -337,112 +343,6 @@ server:   server.o
           $(CC) $< $(CCFLAGS) $(DIET_SERVER_LIBS) -o $@
 \end{verbatim}
 }
-
-\section{Using convertors}
-
-The service profiles offered by DIET are sometimes not
-understandable by the service implementations. To solve this problem,
-a convertor processes each profile before it is passed to the
-implementation. This is mainly used to
-hide the implementation specific profile of a service from
-the user. It allows different servers to declare the same
-service with the same profile using different implementations
-of the service. As FAST relies on the path of the service the
-convertor can also change the path of the declared profile to
-enable a correct evaluation of the incoming requests by FAST.
-If no convertor is passed when declaring a new service, a
-default convertor is assigned to it that does not change its
-profile nor its path.
-
-To translate a profile, the convertor defines a new
-destination profile with a new path. It then chooses for
-each argument of the new profile a predefined function
-to compute this argument from the source profile. This
-allows the following operations:
-
-\begin{description}
-\item{\textbf{Permutation of arguments}}. This is done implicitly by specifying which
-  argument in the source profile corresponds to which argument in the
-  destination profile.
-\item{\textbf{Copy of arguments}}. Arguments can be simply used by applying the
-  \texttt{DIET\_CVT\_IDENTITY} function. If the same source argument
-  corresponds to two destination arguments it is automatically copied.
-\item{\textbf{Creation of new arguments}}. New arguments can either contain static
-  values or the properties of existing arguments. To create a new static
-  value, the index for the source argument must be invalid (e.g. -1) and
-  the arg parameter must be set to the static argument. To extract a
-  property of an existing argument, other functions than
-  \texttt{DIET\_CVT\_IDENTITY} must be applied. The result of this function
-  will then be used as the value for the destination argument.
-  Corresponding to
-  the DIET datatypes, the following functions exist: \\
-\begin{itemize}
-\item{\texttt{DIET\_CVT\_IDENTITY}} Copy the argument
-\item{\texttt{DIET\_CVT\_VECT\_SIZE}} Get the size of a vector
-\item{\texttt{DIET\_CVT\_MAT\_NB\_ROW}} Get the number of rows of a matrix
-\item{\texttt{DIET\_CVT\_MAT\_NB\_COL}} Get the number of columns of a matrix
-\item{\texttt{DIET\_CVT\_MAT\_ORDER}} Get the order of a matrix
-\item{\texttt{DIET\_CVT\_STR\_LEN}} Get the length of the string
-\item{\texttt{DIET\_CVT\_FILE\_SIZE}} Get the size of the file
-\end{itemize}
-Only the \texttt{DIET\_CVT\_IDENTITY} function can be applied to any argument.
-All other functions can only operate on one type of argument but this
-should be self explanation.
-
-\end{description}
-
-\subsection{Example with convertors}
-
-\noindent A short example is available below:
-\footnotesize
-\begin{verbatim}
-
-/**
- * Example 1
- * Assume we declared a profile (INOUT MATRIX) with the path 'solve_T'.
- * This profile will be called by the clients. Our implementation expects
- * a profile (IN INT, IN INT, INOUT MATRIX). This profile is known to
- * FAST with the path 'T_solve'.
- * We will write a convertor that changes the name and extracts the 
- * matrix's dimensions.
- */
-    // declare a new convertor with 2 IN, 1 INOUT and 0 OUT arguments
-    cvt = diet_convertor_alloc("T_solve", 0, 1, 1);
-
-    // apply the function DIET_CVT_MAT_NB_ROW to determine the
-    // 0th argument of the converted profile. The function's
-    // argument is the 0th argument of the source profile. As it
-    // is an IN argument, the last parameter is not important.
-    diet_arg_cvt_set(&(cvt->arg_convs[0]), DIET_CVT_MAT_NB_ROW, 0, NULL, 0);
-
-    // apply the function DIET_CVT_MAT_NB_COL to determine the
-    // 1st argument of the converted profile. The function's
-    // argument is the 0th argument of the source profile. As it
-    // is a IN argument, the last parameter is not important.
-    diet_arg_cvt_set(&(cvt->arg_convs[1]), DIET_CVT_MAT_NB_COL, 0, NULL, 0);
-
-    // apply the function DIET_CVT_IDENTITY to determine the
-    // 2nd argument of the converted profile. The function's
-    // argument is the 0th argument of the source profile and
-    // it will be written back to the 0th argument of the source
-    // profile when the call has finished.
-    diet_arg-cvt_set(&(cvt->arg_convs[2]), DIET_CVT_IDENTITY, 0, NULL, 0);
-
-    // NOTE: The last line could also be written as:
-    //diet_arg_cvt_short_set(&(cvt->arg_convs[2]), 0, NULL);
-
-    // add the service using our convertor
-    diet_service_table_add(profile, cvt, solve_T);
-
-    // free our convertor
-    diet_convertor_free(cvt);
-\end{verbatim}
-\normalsize
-
-\noindent More examples on how to create and use convertors are given in the
-files \\
-'\texttt{examples/dmat\_manips/server.c}' and '\texttt{examples/BLAS/server.c}'.
-
 
 %%% Local Variables: 
 %%% mode: latex
