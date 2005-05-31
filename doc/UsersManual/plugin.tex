@@ -439,10 +439,10 @@ result is that one of the SeDs with the fewest number of database
 mismatches will be selected.
 
 In the \texttt{main} function of the \texttt{server.c} file, the
-following block of code (i)~specifies the use of the priority
-aggregator for this service, (ii)~declares a performance estimation
+following block of code (a)~specifies the use of the priority
+aggregator for this service, (b)~declares a performance estimation
 function to supply the necessary data at request-time, and
-(iii)~defines the order of precedence of the performance values
+(c)~defines the order of precedence of the performance values
 (i.e.,~minimizing the number of database mismatches, and then
 maximizing the elapsed execution time).
 \begin{code}
@@ -452,12 +452,12 @@ maximizing the elapsed execution time).
     agg = diet\_profile\_desc\_aggregator(profile); \\
 \\
     /* point the DIET server code to our custom performance function */ \\
-    diet\_service\_use\_perfmetric(performanceFn); \\
+    diet\_service\_use\_perfmetric(performanceFn);                 /* (b) */ \\
 \\
     /* for this service, use a priority scheduler */ \\
-    diet\_aggregator\_set\_type(agg, DIET\_AGG\_PRIORITY); \\
-    diet\_aggregator\_priority\_minuser(agg, 0); \\
-    diet\_aggregator\_priority\_max(agg, EST\_TIMESINCELASTSOLVE); \\
+    diet\_aggregator\_set\_type(agg, DIET\_AGG\_PRIORITY);         /* (a) */ \\
+    diet\_aggregator\_priority\_minuser(agg, 0);                   /* (c) */ \\
+    diet\_aggregator\_priority\_max(agg, EST\_TIMESINCELASTSOLVE); /* (c) */ \\
   \}
 \end{code}
 The performance function \texttt{performanceFn} is thus defined:
