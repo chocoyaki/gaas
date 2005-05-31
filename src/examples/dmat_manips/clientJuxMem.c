@@ -3,6 +3,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2005/05/31 14:55:05  mjan
+ * Removed uneeded code
+ *
  * Revision 1.3  2005/05/27 15:28:54  mjan
  * Bug fixes inside JuxMem wrapper.
  *
@@ -155,23 +158,10 @@ main(int argc, char* argv[])
   if (!diet_call(profile2)) {
    diet_matrix_get(diet_parameter(profile2,2), &D, NULL, &mA, &nB, &oD);
    print_matrix(D, mA, nB, (oD == DIET_ROW_MAJOR));
-   store_id(profile2->parameters[2].desc.id,"matrice D de doubles");
-   store_id(profile2->parameters[1].desc.id,"matrice E de doubles");
-   //  diet_profile_free(profile2);
   }
   
   time(&t2);
   printf("\n\n COMPUTATION TIME = %d \n\n", (int)(t2-t1));
-
-  //printf ("next....");
-  //scanf("%c",&car);
-  //printf(" \nRemoving all persistent data............" );
-  //diet_free_persistent_data(profile->parameters[0].desc.id);
-  //diet_free_persistent_data(profile->parameters[1].desc.id);
-  //diet_free_persistent_data(profile->parameters[2].desc.id);
-  //diet_free_persistent_data(profile2->parameters[1].desc.id);
-  //diet_free_persistent_data(profile2->parameters[2].desc.id);
-  //printf(" \n...................data removed\n\n");
 
   diet_profile_free(profile);
   diet_profile_free(profile2);
