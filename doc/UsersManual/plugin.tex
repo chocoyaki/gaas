@@ -452,16 +452,18 @@ maximizing the elapsed execution time).
     agg = diet\_profile\_desc\_aggregator(profile); \\
 \\
     /* point the DIET server code to our custom performance function */ \\
-    diet\_service\_use\_perfmetric(performanceFn);                 /* (b) */ \\
+    diet\_service\_use\_perfmetric(performanceFn);~~~~~~~~~~~~~~~~/* (b) */ \\
 \\
     /* for this service, use a priority scheduler */ \\
-    diet\_aggregator\_set\_type(agg, DIET\_AGG\_PRIORITY);         /* (a) */ \\
-    diet\_aggregator\_priority\_minuser(agg, 0);                   /* (c) */ \\
-    diet\_aggregator\_priority\_max(agg, EST\_TIMESINCELASTSOLVE); /* (c) */ \\
+    diet\_aggregator\_set\_type(agg, DIET\_AGG\_PRIORITY);~~~~~~~~~~/* (a) */ \\
+    diet\_aggregator\_priority\_minuser(agg, 0);~~~~~~~~~~~~~~~~~~/* (c) */ \\
+    diet\_aggregator\_priority\_max(agg, EST\_TIMESINCELASTSOLVE);~/* (c) */ \\
   \}
 \end{code}
 The performance function \texttt{performanceFn} is thus defined:
 \begin{code}
+typedef estVector\_t (* diet\_perfmetric\_t)(diet\_profile\_t*); \\
+\\
 static estVector\_t \\
 performanceFn(diet\_profile\_t* pb) \\
 \{ \\
