@@ -26,13 +26,13 @@
 
 \section{Introduction}
 
-With the release of version 2.0 of the DIET toolkit, we introduce a
+We introduce a
 \emph{plugin scheduling} facility, designed to allow DIET service
 developers to define application-specific performance measures and
 to implement corresponding scheduling strategies.  This section
 describes the interface to this facility.
 
-\section{Default Scheduling}
+\section{Default Scheduling Strategy}
 
 The default scheduling strategy of the DIET toolkit is changed subtly
 with the release of the plugin scheduler.  Aside from various bugfixes
@@ -67,8 +67,8 @@ implements the following ordered sequence of tests:
   balance by attempting to assign client requests on a round-robin
   basis.  Essentially each server records a timestamp indicating the
   last time at which it was assigned a job for execution.  Each time a
-  request is recieved, the SeD computes the time elapsed since its
-  last execution, and among the responses it recieves, DIET agents
+  request is received, the SeD computes the time elapsed since its
+  last execution, and among the responses it receives, DIET agents
   favor SeDs with a longer elapsed time.
 \item \textbf{Random}: If for any reason, the SeD is unable to store
   timestamps, the DIET scheduler will chose randomly when
@@ -127,14 +127,25 @@ routines (as described in Section~\ref{sect:est_fn}), the following
 functions are available to facilitate the construction of custom
 performance estimation functions:
 \begin{itemize}
-\item\texttt{int diet\_estimate\_fast(estVector\_t ev, const diet\_profile\_t* const profilePtr)}:
-  store both the FAST- and NWS-based performance estimation metrics
-  (contingent on availability of these packages at compilation time)
-  into the estimation metric vector \texttt{ev}
-\item\texttt{int diet\_estimate\_lastexec(estVector\_t ev,
-                           const diet\_profile\_t* const profilePtr)}:
-  store the time elapsed since the last execution timestamp (to enable
-  the round-robin scheduler) in the estimation metric vector \texttt{ev}
+\item FAST- and NWS-based performance estimation metrics (contingent
+  on availability of these packages at compilation time) are stored in
+  an estimation metric vector by calling
+  \begin{tabbing}
+    \texttt{int diet\_estimate\_fast(}\=\texttt{estVector\_t ev,} \\
+    \> \texttt{const diet\_profile\_t* const profilePtr)}:
+  \end{tabbing}
+   with an appropriate value for \texttt{ev} and the
+   \texttt{profilePtr} corresponding to the current DIET request.
+\item The time elapsed since the last execution timestamp (to enable
+  the round-robin scheduler) is stored in an estimation metric vector
+  by calling
+  \begin{tabbing}
+    \texttt{int diet\_estimate\_lastexec(}\=\texttt{estVector\_t ev,} \\
+    \> \texttt{const diet\_profile\_t* const profilePtr)}:
+  \end{tabbing}
+  with an appropriate value for \texttt{ev} and the
+  \texttt{profilePtr} corresponding to the current DIET request.
+
 \end{itemize}
 
 In the future, we plan to expand the suite of default estimation
@@ -146,7 +157,7 @@ metrics to include other performance estimation systems
 
 Application developers may also define performance values to be
 included in a SeD response to a client request.  For example, a DIET
-SeD that provides a service to examine particular databases may need
+SeD that provides a service to query the data of particular databases may need
 to include information about which databases are currently resident in
 its disk cache, in order that an appropriate server be identified for
 each client request.  To store such values, the SeD developer should
@@ -297,23 +308,30 @@ application developer to specify a series of performance values that
 are to be optimized in succession.  A developer may implement a
 priority scheduler using the following interface:
 \begin{code}
+\begin{tabbing}
 diet\_aggregator\_desc\_t* \\
 diet\_profile\_desc\_aggregator(diet\_profile\_desc\_t* profile); \\
-\\
-int \\
-diet\_aggregator\_set\_type(diet\_aggregator\_desc\_t* agg, diet\_aggregator\_type\_t atype); \\
-\\
-int \\
-diet\_aggregator\_priority\_max(diet\_aggregator\_desc\_t* agg, diet\_est\_tag\_t tag); \\
-\\
-int \\
-diet\_aggregator\_priority\_min(diet\_aggregator\_desc\_t* agg, diet\_est\_tag\_t tag); \\
-\\
-int \\
-diet\_aggregator\_priority\_maxuser(diet\_aggregator\_desc\_t* agg, int val); \\
-\\
-int \\
-diet\_aggregator\_priority\_minuser(diet\_aggregator\_desc\_t* agg, int val); \\
+\end{tabbing}
+\begin{tabbing}
+int diet\_aggregator\_set\_type(\=diet\_aggregator\_desc\_t* agg, \\
+\> diet\_aggregator\_type\_t atype); \\
+\end{tabbing}
+\begin{tabbing}
+int diet\_aggregator\_priority\_max(\=diet\_aggregator\_desc\_t* agg, \\
+\> diet\_est\_tag\_t tag); \\
+\end{tabbing}
+\begin{tabbing}
+int diet\_aggregator\_priority\_min(\=diet\_aggregator\_desc\_t* agg, \\
+\> diet\_est\_tag\_t tag); \\
+\end{tabbing}
+\begin{tabbing}
+int diet\_aggregator\_priority\_maxuser(\=diet\_aggregator\_desc\_t* agg, \\
+\> int val); \\
+\end{tabbing}
+\begin{tabbing}
+int diet\_aggregator\_priority\_minuser(\=diet\_aggregator\_desc\_t* agg, \\
+\> int val); \\
+\end{tabbing}
 \end{code}
 The \texttt{diet\_profile\_desc\_aggregator} and
 \texttt{diet\_aggregator\_set\_type} functions fetch and configure the
@@ -329,8 +347,8 @@ The four
 \texttt{diet\_aggregator\_priority\_*} functions serve to identify the
 estimation values to be optimzed during the aggregation phase.  The
 \texttt{\_min} and \texttt{\_max} forms indicate that a standard
-performance metric (e.g.,~time elapsed since last execution, supplied
-by the \texttt{diet\_estimate\_lastexec} function) to be either
+performance metric (e.g.,~time elapsed since last execution, from the
+\texttt{diet\_estimate\_lastexec} function) to be either
 minimized or maximized, respectively.  Similarly, the
 \texttt{\_minuser} and \texttt{\_maxuser} forms indicate the analogous
 operations on user-supplied estimation values.  Calls to these
@@ -397,8 +415,9 @@ are exhaused (and the responses are judged equivalent).
 
 \section{Example}
 
-A new example has been added to the DIET distribution, in the
-directory
+A new example has been added to the DIET distribution to illustrate
+the usage of the plugin scheduler functionality; this code is
+available in the directory
 \begin{code}
 src/examples/plugin\_example/
 \end{code}
