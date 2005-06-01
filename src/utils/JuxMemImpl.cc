@@ -8,8 +8,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.2  2005/05/27 15:28:54  mjan
- * Bug fixes inside JuxMem wrapper.
+ * Revision 1.3  2005/06/01 20:46:29  mjan
+ * Removed uneeded sharing of object (memory leak fixed)
  *
  *
  ****************************************************************************/
@@ -48,6 +48,7 @@ JuxMemImpl::~JuxMemImpl()
   apr_pool_destroy(this->pool);
 
   /** Stop log facility **/
+  jxta_log_selector_delete(this->log_s);
   jxta_log_file_close(this->log_f);
   jxta_log_terminate();
 } 
@@ -158,7 +159,6 @@ JuxMemImpl::JuxMemMap(char* data_id, int size, apr_hash_t* attributes)
   jxta_data_id_jstring = jstring_new_2(data_id);
   assert(jxta_id_from_jstring(&jxta_data_id, jxta_data_id_jstring) == JXTA_SUCCESS);
 
-  JXTA_OBJECT_SHARE(jxta_data_id);
   status = juxmem_map(this->juxmem_service, jxta_data_id, attributes);
   if (status != JXTA_SUCCESS) {
     ERROR("JuxMemImpl::Failed to call JuxMemMap!\n",1);
@@ -185,7 +185,6 @@ JuxMemImpl::JuxMemRead(char* data_id, void* buffer, int offset, int length)
   jxta_data_id_jstring = jstring_new_2(data_id);
   assert(jxta_id_from_jstring(&jxta_data_id, jxta_data_id_jstring) == JXTA_SUCCESS);
 
-  JXTA_OBJECT_SHARE(jxta_data_id);
   status = juxmem_read(this->juxmem_service, jxta_data_id, buffer, offset, length);
   if (status != JXTA_SUCCESS) {
     ERROR("JuxMemImpl::Failed to call JuxMemRead!\n",1);
@@ -209,7 +208,6 @@ JuxMemImpl::JuxMemWrite(char* data_id, void* buffer, int offset, int length)
   jxta_data_id_jstring = jstring_new_2(data_id);
   assert(jxta_id_from_jstring(&jxta_data_id, jxta_data_id_jstring) == JXTA_SUCCESS);
 
-  JXTA_OBJECT_SHARE(jxta_data_id);
   status = juxmem_write(this->juxmem_service, jxta_data_id, buffer, offset, length);
   if (status != JXTA_SUCCESS) {
     ERROR("JuxMemImpl::Failed to call JuxMemWrite\n!",1);
@@ -233,7 +231,6 @@ JuxMemImpl::JuxMemFlush(char* data_id)
   jxta_data_id_jstring = jstring_new_2(data_id);
   assert(jxta_id_from_jstring(&jxta_data_id, jxta_data_id_jstring) == JXTA_SUCCESS);
 
-  JXTA_OBJECT_SHARE(jxta_data_id);
   status = juxmem_flush(this->juxmem_service, jxta_data_id);
   if (status != JXTA_SUCCESS) {
     ERROR("JuxMemImpl::Failed to call JuxMemFlush!\n",1);
@@ -256,7 +253,6 @@ JuxMemImpl::JuxMemAcquire(char* data_id)
   jxta_data_id_jstring = jstring_new_2(data_id);
   assert(jxta_id_from_jstring(&jxta_data_id, jxta_data_id_jstring) == JXTA_SUCCESS);
 
-  JXTA_OBJECT_SHARE(jxta_data_id);
   status = juxmem_acquire(this->juxmem_service, jxta_data_id);
   if (status != JXTA_SUCCESS) {
     ERROR("JuxMemImpl::Failed to call JuxMemAcquire!\n",1);
@@ -280,7 +276,6 @@ JuxMemImpl::JuxMemAcquireRead(char* data_id)
   jxta_data_id_jstring = jstring_new_2(data_id);
   assert(jxta_id_from_jstring(&jxta_data_id, jxta_data_id_jstring) == JXTA_SUCCESS);
 
-  JXTA_OBJECT_SHARE(jxta_data_id);
   status = juxmem_acquire_read(this->juxmem_service, jxta_data_id);
   if (status != JXTA_SUCCESS) {
     ERROR("JuxMemImpl::Failed to call JuxMemAcquireRead!\n",1);
@@ -304,7 +299,6 @@ JuxMemImpl::JuxMemRelease(char* data_id)
   jxta_data_id_jstring = jstring_new_2(data_id);
   assert(jxta_id_from_jstring(&jxta_data_id, jxta_data_id_jstring) == JXTA_SUCCESS);
 
-  JXTA_OBJECT_SHARE(jxta_data_id);
   status = juxmem_release(this->juxmem_service, jxta_data_id);
   if (status != JXTA_SUCCESS) {
     ERROR("JuxMemImpl::Failed to call JuxMemRelease!\n",1);
