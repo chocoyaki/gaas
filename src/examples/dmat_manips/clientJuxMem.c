@@ -3,11 +3,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.4  2005/05/31 14:55:05  mjan
- * Removed uneeded code
- *
- * Revision 1.3  2005/05/27 15:28:54  mjan
- * Bug fixes inside JuxMem wrapper.
+ * Revision 1.5  2005/06/02 08:05:40  mjan
+ * Updated client for looping requests.
  *
  ****************************************************************************/
 
@@ -41,28 +38,22 @@
     printf("\n");                          \
   }
 
-
-#define NB_PB 2
-static const char* PB[NB_PB] =
-  {"MatPROD", "MatSUM"};
-
-
-/* argv[1]: client config file path
-   argv[2]: one of the strings above */
-
 void
 usage(char* cmd)
 {
-  fprintf(stderr, "Usage: %s <file.cfg>\n", cmd);
+  fprintf(stderr, "Usage: %s %s <file.cfg>\n", cmd, "[<n>] [<n µs>]");
+  fprintf(stderr, "        %s 1000 1000 %s\n", cmd, "client.cfg (1ms between two steps of the loop (1000 iterations))");
   exit(1);
 }
 
 int
 main(int argc, char* argv[])
 {
-  size_t i;
-  size_t mA, nA, nB, mB; // use size_t for 32 / 64 portability
+  int i, pause = 0;
+  int n_loops = 1;
   char* path = NULL;
+  char* path2 = NULL;
+  size_t mA, nA, nB, mB; // use size_t for 32 / 64 portability
   diet_profile_t* profile = NULL;
   diet_profile_t* profile2 = NULL;
   double mat1[15] = {1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0,11.0,12.0,13.0,14.0,15.0};
@@ -75,20 +66,8 @@ main(int argc, char* argv[])
   double *D = NULL;
   double *E = NULL;
   diet_matrix_order_t oA, oB, oC,oD,oE;
-  int   pb[NB_PB] = {0, 0};
-  char car;
 
-  // STATS
-  char* STAT_FILE_NAME = NULL;
-  FILE* STAT_FILE      = NULL;
-  size_t nb_of_requests;
-  time_t t1,t2;
-  srand(time(NULL));
-
-  if (argc != 2) {
-    usage(argv[0]);
-  }
-  path = argv[1];
+  struct timeval tv_pause;
   
   A = mat1;
   B = mat2;
@@ -99,31 +78,27 @@ main(int argc, char* argv[])
   mB= 3;
   nB= 6;
 
-  if (diet_initialize(argv[1], argc, argv)) { 
-    fprintf(stderr, "DIET initialization failed !\n");
-    return 1;
-  }
-  time(&t1);
-  for (i = 0; i < NB_PB; i++) {
-    
-    if ((pb[i] = !strcmp(path, PB[i]))) {
-      printf("pb[%d] = %d",i,pb[i]);
-      break;
-    }
-  }
-  // Square matrix problems:
-  
-
-  if ((STAT_FILE_NAME = getenv("DIET_STAT_FILE_NAME")))
-    STAT_FILE = fopen(STAT_FILE_NAME, "wc");
-  nb_of_requests = 0;
-  
   oA = DIET_ROW_MAJOR ;
   oB = DIET_ROW_MAJOR ;
   oC = DIET_ROW_MAJOR ;
   oD = DIET_ROW_MAJOR;
   oE = DIET_ROW_MAJOR;
+
+  if (argc != 4) {
+    usage(argv[0]);
+  }
   
+  n_loops = atoi(argv[1]);
+  pause = atoi(argv[2]);
+
+  path = (char*) malloc(sizeof(char) * 10);
+  path2 = (char*) malloc(sizeof(char) * 10);
+
+  if (diet_initialize(argv[3], argc, argv)) { 
+    fprintf(stderr, "DIET initialization failed !\n");
+    return 1;
+  }
+
   strcpy(path,"MatPROD");
   profile = diet_profile_alloc(path, 1, 1, 2);
   diet_matrix_set(diet_parameter(profile,0),
@@ -134,37 +109,45 @@ main(int argc, char* argv[])
   print_matrix(B, mB, nB, (oB == DIET_ROW_MAJOR));
   diet_matrix_set(diet_parameter(profile,2),
 		  NULL, DIET_PERSISTENT, DIET_DOUBLE, mA, nB, oC);
-  
-  if (!diet_call(profile)) {
-    diet_matrix_get(diet_parameter(profile,2),&C, NULL, &mA, &nB, &oC);
-    print_matrix(C, mA, nB, (oC == DIET_ROW_MAJOR));
-  }
-     
-  printf ("next....");
-  scanf("%c",&car);
-  printf("second pb\n\n");
-  strcpy(path,"MatSUM");
-  profile2 = diet_profile_alloc(path, 1, 1, 2);
-  diet_matrix_set(diet_parameter(profile2,0),
-		  A, DIET_PERSISTENT, DIET_DOUBLE, mA, nB, oC);
-  diet_use_data(diet_parameter(profile2,0), profile->parameters[2].desc.id);
 
+  strcpy(path2,"MatSUM");
+  profile2 = diet_profile_alloc(path2, 1, 1, 2);
+  diet_matrix_set(diet_parameter(profile2,0),
+		  NULL, DIET_PERSISTENT, DIET_DOUBLE, mA, nB, oC);
+  
   diet_matrix_set(diet_parameter(profile2,1),
 		  E, DIET_PERSISTENT, DIET_DOUBLE, mA, nB, oE);
   print_matrix(E, mA, nB, (oE == DIET_ROW_MAJOR));
   diet_matrix_set(diet_parameter(profile2,2),
 		  NULL, DIET_PERSISTENT, DIET_DOUBLE, mA, nB, oD);
   
-  if (!diet_call(profile2)) {
-   diet_matrix_get(diet_parameter(profile2,2), &D, NULL, &mA, &nB, &oD);
-   print_matrix(D, mA, nB, (oD == DIET_ROW_MAJOR));
+  for (i = 0; i < n_loops; i++) {
+    if (!diet_call(profile)) {
+      diet_matrix_get(diet_parameter(profile,2),&C, NULL, &mA, &nB, &oC);
+      print_matrix(C, mA, nB, (oC == DIET_ROW_MAJOR));
+    }
+
+    /** For giving the JuxMem ID of mat C to profile 2 */
+    if (i == 0) {
+      diet_use_data(diet_parameter(profile2,0), profile->parameters[2].desc.id);
+    }
+    
+    if (pause != 0) {
+      tv_pause.tv_sec = 0;
+      tv_pause.tv_usec = pause;
+      select(0, NULL, NULL, NULL, &tv_pause);
+    }
+
+    if (!diet_call(profile2)) {
+      diet_matrix_get(diet_parameter(profile2,2), &D, NULL, &mA, &nB, &oD);
+      print_matrix(D, mA, nB, (oD == DIET_ROW_MAJOR));
+    }
   }
   
-  time(&t2);
-  printf("\n\n COMPUTATION TIME = %d \n\n", (int)(t2-t1));
-
   diet_profile_free(profile);
   diet_profile_free(profile2);
+  free(path);
+  free(path2);
   diet_finalize();
   
   return 0;
