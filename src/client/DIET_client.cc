@@ -10,11 +10,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.61  2005/05/31 09:53:09  mjan
- * Removing uneeded gettimeofday as no log service is used on client side (JuxMem part)
- *
- * Revision 1.60  2005/05/27 15:28:54  mjan
- * Bug fixes inside JuxMem wrapper.
+ * Revision 1.62  2005/06/02 08:04:28  mjan
+ * Added case where ID is already set for OUT data
  *
  * Revision 1.57  2005/05/15 15:44:46  alsu
  * minor changes from estimation vector reorganization
@@ -694,14 +691,20 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
 #if HAVE_JUXMEM
   for (i = profile->last_inout + 1; i <= profile->last_out; i++) {
     if (profile->parameters[i].desc.generic.type == DIET_MATRIX && 
+	profile->parameters[i].desc.id != NULL &&
 	profile->parameters[i].desc.mode == DIET_PERSISTENT) {
+
+      if (i <= profile->last_inout) {
+	TRACE_TEXT(TRACE_MAIN_STEPS, "Retrieving IN_OUT data with ID = " << profile->parameters[i].desc.id << " from JuxMem ...\n");
+      } else {
+	TRACE_TEXT(TRACE_MAIN_STEPS, "Retrieving OUT data with ID = " << profile->parameters[i].desc.id << " from JuxMem ...\n");
+      }
 
       /** IN_OUT and OUT data must be retrieve from JuxMem */
       JuxMem->JuxMemMap(profile->parameters[i].desc.id, (int) data_sizeof(&(profile->parameters[i].desc)), NULL);
       JuxMem->JuxMemAcquireRead(profile->parameters[i].desc.id);
       JuxMem->JuxMemRead(profile->parameters[i].desc.id, (void*) profile->parameters[i].value, 0, (int) data_sizeof(&(profile->parameters[i].desc)));
       JuxMem->JuxMemRelease(profile->parameters[i].desc.id);
-	
     }
   }
 #endif // HAVE_JUXMEM

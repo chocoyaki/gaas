@@ -9,8 +9,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.50  2005/05/27 15:28:53  mjan
- * Bug fixes inside JuxMem wrapper.
+ * Revision 1.51  2005/06/02 08:04:24  mjan
+ * Added case where ID is already set for OUT data
  *
  * Revision 1.47  2005/05/15 15:38:59  alsu
  * implementing aggregation interface
@@ -503,8 +503,9 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
 	profile.parameters[i].desc.mode == DIET_PERSISTENT) {
       struct timeval t1, t2;
 
-      /** Case of OUT data, a data space must be allocated inside JuxMem */
-      if (i > profile.last_inout) {
+      /** Case of OUT data, a data space must be allocated inside JuxMem only if not ID is specified */
+      /** If an ID is specified use it! */
+      if (i > profile.last_inout && strlen(profile.parameters[i].desc.id) == 0) {
 	gettimeofday(&t1, NULL);
 	this->JuxMem->JuxMemAlloc(&profile.parameters[i].desc.id, data_sizeof(&(profile.parameters[i].desc)), NULL);
 	this->JuxMem->JuxMemMap(profile.parameters[i].desc.id, data_sizeof(&(profile.parameters[i].desc)), NULL);
