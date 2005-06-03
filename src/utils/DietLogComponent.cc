@@ -9,10 +9,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.9  2005/05/27 08:18:17  mjan
- * Moving JuxMem in a more appropriate place (src/utils)
- * Added log messages for VizDIET
- * Added use of JuxMem in the client side
+ * Revision 1.10  2005/06/03 10:55:37  mjan
+ * Added info requested by Raphael for JuxMem support inside VizDIET.
  *
  * Revision 1.8  2005/04/29 15:17:08  ecaron
  * Bug fix for gcc 3.4.x
@@ -200,7 +198,7 @@ DietLogComponent::DietLogComponent(const char* name,
   tagNames[13] = strdup("NEIGHBORS");
 #if HAVE_JUXMEM
   tagNames[14] = strdup("JUXMEM_DATA_STORE");
-  tagNames[15] = strdup("JUXMEM_DATA_USER");
+  tagNames[15] = strdup("JUXMEM_DATA_USE");
 #endif
   CORBA::Object_ptr myLCCptr;
 
@@ -695,10 +693,10 @@ DietLogComponent::logDataEndTransfer(const char* dataID,
 
 #if HAVE_JUXMEM
 void 
-DietLogComponent::logJuxMemDataStore(const char* dataID, const long unsigned int size, const long base_type, const char * type, const float time) {
+DietLogComponent::logJuxMemDataStore(const unsigned long reqID, const char* dataID, const long unsigned int size, const long base_type, const char * type, const float time) {
    char * base = (char *)malloc(10*sizeof(char));
    char* s;
-   s = new char[strlen(dataID) + sizeof(size)+ strlen(type) + strlen(base) + sizeof(time) + 15];
+   s = new char[sizeof(reqID) + strlen(dataID) + sizeof(size)+ strlen(type) + strlen(base) + sizeof(time) + 15];
    if (tagFlags[14]) {
     switch (base_type) {
     case DIET_CHAR: {
@@ -726,7 +724,7 @@ DietLogComponent::logJuxMemDataStore(const char* dataID, const long unsigned int
       break;
     }
     }
-    sprintf(s,"%s %ld %s %s %f",(const char *)(dataID),(long unsigned int)(size), type, base, time);
+    sprintf(s,"%ld %s %ld %s %s %f", (unsigned long) reqID, (const char *)(dataID), (long unsigned int)(size), type, base, time);
     log(tagNames[14], s);
   }
   free(base);
@@ -734,12 +732,42 @@ DietLogComponent::logJuxMemDataStore(const char* dataID, const long unsigned int
 }
 
 void 
-DietLogComponent::logJuxMemDataUse(const char* dataID, const char* access_mode, const float time) {
+DietLogComponent::logJuxMemDataUse(const unsigned long reqID, const char* dataID, const char* access_mode, const long unsigned int size, const long base_type, const char * type, const float time) {
+   char * base = (char *)malloc(10*sizeof(char));
    char* s;
-   s = new char[strlen(dataID) + strlen(access_mode) + sizeof(time) + 10];  
-   sprintf(s,"%s %s %f",(const char *)(dataID),(const char *) access_mode, time);
-   log(tagNames[15], s);
-   //delete(s);
+   s = new char[sizeof(reqID) + strlen(dataID) + strlen(access_mode) + sizeof(size)+ strlen(type) + strlen(base) + sizeof(time) + 15];
+   if (tagFlags[15]) {
+    switch (base_type) {
+    case DIET_CHAR: {
+      strcpy(base,"CHAR");
+      break;
+    }
+    case DIET_SHORT: {
+      strcpy(base,"SHORT");
+      break;
+    }
+    case DIET_INT: {
+      strcpy(base,"INTEGER");
+      break;
+    }
+    case DIET_LONGINT: {
+      strcpy(base,"LONGINT");
+      break;
+    }
+    case DIET_FLOAT: {
+      strcpy(base,"FLOAT");
+      break;
+    }
+    case DIET_DOUBLE: {
+      strcpy(base,"DOUBLE");
+      break;
+    }
+    }
+    sprintf(s,"%ld %s %s %ld %s %s %f", (unsigned long) reqID, (const char *)(dataID), (const char*) access_mode, (long unsigned int)(size), type, base, time);
+    log(tagNames[15], s);
+  }
+  free(base);
+  //delete(s);
 }
 
 #endif // HAVE_JUXMEM

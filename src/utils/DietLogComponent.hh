@@ -9,10 +9,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.5  2005/05/27 08:18:17  mjan
- * Moving JuxMem in a more appropriate place (src/utils)
- * Added log messages for VizDIET
- * Added use of JuxMem in the client side
+ * Revision 1.6  2005/06/03 10:55:37  mjan
+ * Added info requested by Raphael for JuxMem support inside VizDIET.
  *
  * Revision 1.4  2004/12/16 11:16:31  sdahan
  * adds multi-mas informations into the logService
@@ -268,8 +266,8 @@ public:
   /**
    * Track the use of JuxMem inside DIET
    */
-  void logJuxMemDataStore(const char* dataID, const long unsigned int size, const long base_type, const char * type, const float time);
-  void logJuxMemDataUse(const char* dataID, const char* access_mode, const float time);
+  void logJuxMemDataStore(const unsigned long reqID, const char* dataID, const long unsigned int size, const long base_type, const char * type, const float time);
+  void logJuxMemDataUse(const unsigned long reqID, const char* dataID, const char* access_mode, const long unsigned int size, const long base_type, const char * type, const float time);
 #endif // HAVE_JUXMEM
 
   /**

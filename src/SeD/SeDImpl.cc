@@ -9,8 +9,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.51  2005/06/02 08:04:24  mjan
- * Added case where ID is already set for OUT data
+ * Revision 1.52  2005/06/03 10:55:37  mjan
+ * Added info requested by Raphael for JuxMem support inside VizDIET.
  *
  * Revision 1.47  2005/05/15 15:38:59  alsu
  * implementing aggregation interface
@@ -463,7 +463,13 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
       gettimeofday(&t2, NULL);
 
       if (dietLogComponent != NULL) {
-	dietLogComponent->logJuxMemDataUse(profile.parameters[i].desc.id, "READ", ((t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000));
+	dietLogComponent->logJuxMemDataUse(reqID,
+					   profile.parameters[i].desc.id, 
+					   "READ", 
+					   (int) data_sizeof(&(profile.parameters[i].desc)), 
+					   (long) profile.parameters[i].desc.generic.base_type,
+					   "MATRIX",
+					   ((t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000));
       }
     }
   }
@@ -514,7 +520,8 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
 	TRACE_TEXT(TRACE_MAIN_STEPS, "A data space with ID = " << profile.parameters[i].desc.id << " for OUT data has been allocated inside JuxMem!\n");
 	
 	if (dietLogComponent != NULL) {
-	  dietLogComponent->logJuxMemDataStore(profile.parameters[i].desc.id, 
+	  dietLogComponent->logJuxMemDataStore(reqID,
+					       profile.parameters[i].desc.id, 
 					       (int) data_sizeof(&(profile.parameters[i].desc)), 
 					       (long) profile.parameters[i].desc.generic.base_type,
 					       "MATRIX", 
@@ -534,7 +541,13 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
 	gettimeofday(&t2, NULL);
 	
 	if (dietLogComponent != NULL) {
-	  dietLogComponent->logJuxMemDataUse(profile.parameters[i].desc.id, "WRITE", ((t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000));
+	  dietLogComponent->logJuxMemDataUse(reqID,
+					     profile.parameters[i].desc.id, 
+					     "WRITE", 
+					     (int) data_sizeof(&(profile.parameters[i].desc)), 
+					     (long) profile.parameters[i].desc.generic.base_type,
+					     "MATRIX", 
+					     ((t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000));
 	}
 
 	/** Removing all INOUT and OUT data so that it doesn't go back with the client request */
