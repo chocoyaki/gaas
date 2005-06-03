@@ -9,8 +9,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.6  2005/06/03 10:55:37  mjan
- * Added info requested by Raphael for JuxMem support inside VizDIET.
+ * Revision 1.7  2005/06/03 14:05:18  mjan
+ * Fix issue in JuxMem log funtions
  *
  * Revision 1.4  2004/12/16 11:16:31  sdahan
  * adds multi-mas informations into the logService

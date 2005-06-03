@@ -9,8 +9,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.10  2005/06/03 10:55:37  mjan
- * Added info requested by Raphael for JuxMem support inside VizDIET.
+ * Revision 1.11  2005/06/03 14:05:18  mjan
+ * Fix issue in JuxMem log funtions
  *
  * Revision 1.8  2005/04/29 15:17:08  ecaron
  * Bug fix for gcc 3.4.x
@@ -696,7 +696,7 @@ void
 DietLogComponent::logJuxMemDataStore(const unsigned long reqID, const char* dataID, const long unsigned int size, const long base_type, const char * type, const float time) {
    char * base = (char *)malloc(10*sizeof(char));
    char* s;
-   s = new char[sizeof(reqID) + strlen(dataID) + sizeof(size)+ strlen(type) + strlen(base) + sizeof(time) + 15];
+   s = new char[sizeof(reqID) + strlen(dataID) + sizeof(size)+ strlen(type) + (10 * sizeof(char)) + sizeof(time) + 5];
    if (tagFlags[14]) {
     switch (base_type) {
     case DIET_CHAR: {
@@ -735,7 +735,7 @@ void
 DietLogComponent::logJuxMemDataUse(const unsigned long reqID, const char* dataID, const char* access_mode, const long unsigned int size, const long base_type, const char * type, const float time) {
    char * base = (char *)malloc(10*sizeof(char));
    char* s;
-   s = new char[sizeof(reqID) + strlen(dataID) + strlen(access_mode) + sizeof(size)+ strlen(type) + strlen(base) + sizeof(time) + 15];
+   s = new char[sizeof(reqID) + strlen(dataID) + strlen(access_mode) + sizeof(size)+ strlen(type) + (sizeof(char) * 10) + sizeof(time) + 6];
    if (tagFlags[15]) {
     switch (base_type) {
     case DIET_CHAR: {
