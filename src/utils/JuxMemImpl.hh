@@ -8,8 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.2  2005/05/27 15:28:54  mjan
- * Bug fixes inside JuxMem wrapper.
+ * Revision 1.3  2005/06/03 16:25:57  mjan
+ * Adding tricks for using GoDIET with DIET/JuxMem
+ * Using name of DIET SeDs and clients to generate the name of JXTA peers
+ * Client side of DIET no longer generates a warning message when name = client is in .cfg
+ * This is of course not required and optionnal!
  *
  *
  ****************************************************************************/
@@ -35,7 +38,7 @@ public:
 
   ~JuxMemImpl();
   
-  int run();
+  int run(const char * userDefName);
 
   long JuxMemAlloc(char** data_id, int size, apr_hash_t* attributes);
 

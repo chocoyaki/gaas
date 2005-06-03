@@ -8,8 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.3  2005/06/01 20:46:29  mjan
- * Removed uneeded sharing of object (memory leak fixed)
+ * Revision 1.4  2005/06/03 16:25:57  mjan
+ * Adding tricks for using GoDIET with DIET/JuxMem
+ * Using name of DIET SeDs and clients to generate the name of JXTA peers
+ * Client side of DIET no longer generates a warning message when name = client is in .cfg
+ * This is of course not required and optionnal!
  *
  *
  ****************************************************************************/
@@ -55,9 +58,16 @@ JuxMemImpl::~JuxMemImpl()
 
 /** JuxMem Launcher */
 int 
-JuxMemImpl::run()
+JuxMemImpl::run(const char* userDefName)
 {
   Jxta_status status;
+  JString *peer_name = NULL;
+  Jxta_id *peer_id = NULL;
+  JString *peer_group_id_jstring = NULL;
+  Jxta_id *peer_group_id = NULL;
+  Jxta_PA *config_adv;
+  FILE *advfile;
+  JString *advs;
 
   jxta_initialize();
   jxta_log_initialize();
@@ -72,6 +82,50 @@ JuxMemImpl::run()
   jxta_log_file_open(&(this->log_f),"jxta.log");
   jxta_log_using(jxta_log_file_append, this->log_f);
   jxta_log_file_attach_selector(this->log_f, this->log_s, NULL);
+
+  /** Trick for GoDIET: peerID and peer name are generated at run-time */
+  config_adv = jxta_PA_new();
+  assert(config_adv != NULL);
+  advfile = fopen("PlatformConfig", "r");
+  if (advfile == NULL) {
+    JXTA_OBJECT_RELEASE(config_adv);
+    /** There is no PlatformConfig file ! We can't rely on JXTA-C to create our own ... */
+    printf("Since you are using JuxMem for handling data, you must have a PlatformConfig file before launching your SeD or client!\n");
+    printf("Please look at the user manuel of DIET in order to correct this.\n");
+    exit(0);
+  }
+  jxta_PA_parse_file(config_adv, advfile);
+  fclose(advfile);
+  if (config_adv != NULL) {
+    /** Setting the name of the peer */
+    peer_name = jstring_new_2(userDefName);
+    jxta_PA_set_Name(config_adv, peer_name);
+    JXTA_OBJECT_RELEASE(peer_name);
+    
+    /** Setting the id of the peer */
+    peer_group_id_jstring = jstring_new_2("urn:jxta:uuid-3E5B4F7DD63D4212BDC6A63B4A6096C802");
+    jxta_id_from_jstring(&peer_group_id,peer_group_id_jstring);
+    jxta_id_peerid_new_1(&peer_id, peer_group_id);
+    jxta_PA_set_PID(config_adv, peer_id);
+    JXTA_OBJECT_RELEASE(peer_group_id_jstring);
+    JXTA_OBJECT_RELEASE(peer_group_id);
+    JXTA_OBJECT_RELEASE(peer_id);
+
+    /** Writing config file */
+    advfile = fopen("PlatformConfig", "w");
+    assert(advfile != NULL);
+    jxta_PA_get_xml(config_adv, &advs);
+    fwrite(jstring_get_string(advs), jstring_length(advs), 1, advfile);
+
+    JXTA_OBJECT_RELEASE(advs);
+    fclose(advfile);
+  } else {
+    /** There is no PlatformConfig file ! We can't rely on JXTA-C to create our own ... */
+    printf("Since you are using JuxMem for handling data, you must have a PlatformConfig file before launching your SeD or client!\n");
+    printf("Please look at the user manuel of DIET in order to correct this.\n");
+    exit(0);
+  }
+  JXTA_OBJECT_RELEASE(config_adv);
 
   /** Start JXTA */
   status = jxta_PG_new_netpg (&(this->juxmem_group));

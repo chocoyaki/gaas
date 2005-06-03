@@ -10,8 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.62  2005/06/02 08:04:28  mjan
- * Added case where ID is already set for OUT data
+ * Revision 1.63  2005/06/03 16:25:57  mjan
+ * Adding tricks for using GoDIET with DIET/JuxMem
+ * Using name of DIET SeDs and clients to generate the name of JXTA peers
+ * Client side of DIET no longer generates a warning message when name = client is in .cfg
+ * This is of course not required and optionnal!
  *
  * Revision 1.57  2005/05/15 15:44:46  alsu
  * minor changes from estimation vector reorganization
@@ -141,6 +144,7 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   int    myargc(0);
   char** myargv(NULL);
   void*  value(NULL);
+  char*  userDefName;
   
   MA_MUTEX.lock();
   
@@ -175,10 +179,8 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   }
 
   /* Some more checks */
-  value = Parsers::Results::getParamValue(Parsers::Results::NAME);
-  if (value != NULL)
-    WARNING("parsing " << config_file_name
-            << ": it is useless to name a client - ignored");
+  userDefName = (char*) Parsers::Results::getParamValue(Parsers::Results::NAME);
+
   value = Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
   if (value != NULL)
     WARNING("parsing " << config_file_name << ": no need "
@@ -232,7 +234,7 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
 
 #if HAVE_JUXMEM
   JuxMem = new JuxMemImpl();
-  if (JuxMem->run()) {
+  if (JuxMem->run(userDefName)) {
     ERROR("Unable to launch the SeD", 1);
   }
 #endif // HAVE_JUXMEM

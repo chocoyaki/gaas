@@ -8,8 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.38  2005/05/18 14:18:09  mjan
- * Initial adding of JuxMem support inside DIET. dmat_manips examples tested without JuxMem and with JuxMem
+ * Revision 1.39  2005/06/03 16:25:57  mjan
+ * Adding tricks for using GoDIET with DIET/JuxMem
+ * Using name of DIET SeDs and clients to generate the name of JXTA peers
+ * Client side of DIET no longer generates a warning message when name = client is in .cfg
+ * This is of course not required and optionnal!
  *
  * Revision 1.37  2005/05/15 15:38:59  alsu
  * implementing aggregation interface
@@ -751,7 +754,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
 #if HAVE_JUXMEM
   /** JuxMem creation */
   JuxMem = new JuxMemImpl();
-  if (JuxMem->run()) {
+  if (JuxMem->run(userDefName)) {
     ERROR("Unable to launch JuxMem", 1);
   }
   SeD->linkToJuxMem(JuxMem);

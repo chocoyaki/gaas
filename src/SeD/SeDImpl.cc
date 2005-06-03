@@ -9,8 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.52  2005/06/03 10:55:37  mjan
- * Added info requested by Raphael for JuxMem support inside VizDIET.
+ * Revision 1.53  2005/06/03 16:25:57  mjan
+ * Adding tricks for using GoDIET with DIET/JuxMem
+ * Using name of DIET SeDs and clients to generate the name of JXTA peers
+ * Client side of DIET no longer generates a warning message when name = client is in .cfg
+ * This is of course not required and optionnal!
  *
  * Revision 1.47  2005/05/15 15:38:59  alsu
  * implementing aggregation interface
