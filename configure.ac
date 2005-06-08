@@ -8,6 +8,11 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.48  2005/06/08 15:27:08  ycaniou
+#* Renamed JXTA-C in JXTA_C ('-' can not be used in a variable name)
+#* Fixed the errors due to the use of AM_CONDITIONAL where '"' have to be used in
+#*  the test part (for JXTA, JUXMEM and BATCH)
+#*
 #* Revision 1.47  2005/05/25 07:53:31  mjan
 #* Bug fix for JuxMem support. Reported by Eddy. Thx!
 #*
@@ -225,7 +230,7 @@ then
   NA_DETECT_JXTA
 fi
 
-AM_CONDITIONAL(JXTA_MODE, [test $USE_JXTA_MODE = yes])
+AM_CONDITIONAL(JXTA_MODE, [test "x$USE_JXTA_MODE" = "xyes"])
 JXTA=$JXTA_MODE_TRUE
 
 AH_TEMPLATE(HAVE_BATCH, [Define the use of the SeD Batch Submission.])
@@ -238,18 +243,6 @@ dnl ##########################################
 dnl Specific to JuxMem
 dnl ##########################################
 
-AC_ARG_WITH(apr,
-	AC_HELP_STRING([--with-apr], [location of APR to use (needed by JuxMem)]),
-	[with_apr="$withval"],[enable_APR=no])
-
-AC_ARG_WITH(jxta-c,
-	AC_HELP_STRING([--with-jxta-c], [location of JXTA-C to use (needed by JuxMem)]),
-	[with_jxta="$withval"],[enable_JXTA-C=no])
-
-AC_ARG_WITH(juxmem,
-	AC_HELP_STRING([--with-juxmem], [location of JuxMem to use]),
-	[with_juxmem="$withval"],[enable_JUXMEM=no])
-
 AH_TEMPLATE(HAVE_JUXMEM, [Define use of JuxMem by DIET.])
 AC_ARG_ENABLE(JuxMem,
 	      AC_HELP_STRING([--enable-JuxMem],
@@ -258,18 +251,32 @@ AC_ARG_ENABLE(JuxMem,
 
 if test "x$enable_JuxMem" = "xyes"
 then
+
+AC_ARG_WITH(apr,
+	AC_HELP_STRING([--with-apr], [location of APR to use (needed by JuxMem)]),
+	[with_apr="$withval"],[enable_APR=no])
+
+AC_ARG_WITH(jxta-c,
+	AC_HELP_STRING([--with-jxta-c], [location of JXTA-C to use (needed by JuxMem)]),
+	[with_jxta="$withval"],[enable_JXTA_C=no])
+
+AC_ARG_WITH(juxmem,
+	AC_HELP_STRING([--with-juxmem], [location of JuxMem to use]),
+	[with_juxmem="$withval"],[enable_JUXMEM=no])
+
   AC_DEFINE(HAVE_JUXMEM)
   IDLFLAGS="$IDLFLAGS -DHAVE_JUXMEM"
   JUXMEM_CXXFLAGS=" -I$with_jxta/include -I$with_apr/include -I$with_juxmem/include"
   JUXMEM_LDFLAGS=" -L$with_apr/lib -L$with_jxta/lib -L$with_juxmem/lib -lapr-0 -laprutil-0 -ljpr -ljxta -ljuxmem"
-  AC_SUBST(JUXMEM_CXXFLAGS)
-  AC_SUBST(JUXMEM_LDFLAGS)
 else
   JUXMEM_CXXFLAGS=""
   JUXMEM_LDFLAGS=""
 fi
 
-AM_CONDITIONAL(JUXMEM_MODE, [test $enable_JuxMem = yes])
+  AC_SUBST(JUXMEM_CXXFLAGS)
+  AC_SUBST(JUXMEM_LDFLAGS)
+
+AM_CONDITIONAL(JUXMEM_MODE, [test "x$HAVE_JUXMEM" = "xyes"])
 
 dnl ###########################################################################
 dnl Load anything under acmacros/*.m4
@@ -387,7 +394,7 @@ AC_ARG_WITH(Appleseeds,
 	CXXFLAGS_OMNIORB="-DHAVE_BATCH $CXXFLAGS_OMNIORB"
 fi
 # to 
-AM_CONDITIONAL(USE_BATCH, [test $HAVE_BATCH = yes])
+AM_CONDITIONAL(USE_BATCH, [test "x$HAVE_BATCH" = "xyes"])
 
 dnl ###########################################################################
 # Search for the FAST Library
