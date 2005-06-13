@@ -1,15 +1,43 @@
+/****************************************************************************/
+/* plugin_example, server side                                              */
+/*                                                                          */
+/*   This example simulates a database search application, in which         */
+/*   servers have access to a fixed set of databases, and clients           */
+/*   submit queries against these databases.  The servers in this           */
+/*   example make use of DIET's plugin scheduler facility to perform        */
+/*   client request scheduling based on optimization of the                 */
+/*   availability of the requested database(s) at the targeted              */
+/*   server nodes.                                                          */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Alan SU (Alan.Su@ens-lyon.fr)                                       */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.2  2005/06/13 11:35:36  alsu
+ * a few more comments to make the example easier to understand
+ *
+ ****************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "DIET_server.h"
 
+/* forward declarations of private functions */
 static int solveFn(diet_profile_t *pb);
 static estVector_t performanceFn(diet_profile_t* pb);
 
+/* server-level global variables */
 static int numResources = 0;
 static char **resources = NULL;
 
+/*
+** MAIN
+*/
 int
 main(int argc, char **argv)
 {
@@ -27,6 +55,10 @@ main(int argc, char **argv)
     exit (1);
   }
 
+  /*
+  ** the arguments from the second onward represent logical
+  ** databases to which this server has access
+  */
   numResources = argc-2;
   resources = &(argv[2]);
 
@@ -49,6 +81,14 @@ main(int argc, char **argv)
     diet_aggregator_priority_max(agg, EST_TIMESINCELASTSOLVE);
   }
 
+  /*
+  ** the name of the requested database is passed as a
+  ** DIET_PARAMSTRING, indicating that the contents of
+  ** the string represent service parameters.  Thus, the
+  ** contents need to be passed in the DIET profile, in
+  ** order that the server take the value into account
+  ** during the scheduling process.
+  */
   diet_generic_desc_set(diet_param_desc(profile, 0),
                         DIET_PARAMSTRING,
                         DIET_CHAR);
@@ -69,6 +109,10 @@ main(int argc, char **argv)
   exit (0);
 }
 
+/*
+** checkMismatch: determine if the server has access to the next
+**   requested database in a colon-separated list
+*/
 static int
 checkMismatch(const char *str)
 {
@@ -96,6 +140,12 @@ checkMismatch(const char *str)
   return (1);
 }
 
+/*
+** computeMismatch: utility function to calculate the number
+**   of client-requested databases that are *not* available
+**   to this server (based on the list of databases that
+**   are declared available to the server at executino-time).
+*/
 static int
 computeMismatches(const char *scanString)
 {
@@ -113,6 +163,9 @@ computeMismatches(const char *scanString)
   return (numMismatch);
 }
 
+/*
+** solveFn: the main DIET solve function
+*/
 static int
 solveFn(diet_profile_t *pb)
 {
@@ -128,6 +181,10 @@ solveFn(diet_profile_t *pb)
   return (0);
 }
 
+/*
+** performanceFn: the performance function to use in the DIET
+**   plugin scheduling facility
+*/
 static estVector_t
 performanceFn(diet_profile_t* pb)
 {
