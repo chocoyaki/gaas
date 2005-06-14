@@ -109,7 +109,7 @@ echo "bootstrap.sh: libtool version $lt_version (ok)"
 # -----------------------------------------------------------
 AUTOMAKE_VERSION=`automake --version | grep automake | cut -d ')' -f 2 | sed -e 's/^[^0-9]*//g' -e 's/[- ].*//'`
 AUTOMAKE_WANTED_MAJOR=1
-AUTOMAKE_WANTED_MINOR=10
+AUTOMAKE_WANTED_MINOR=7
 
 IFS=.; set $AUTOMAKE_VERSION; IFS=' '
 lt_status="good"
