@@ -8,11 +8,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.4  2005/06/03 16:25:57  mjan
- * Adding tricks for using GoDIET with DIET/JuxMem
- * Using name of DIET SeDs and clients to generate the name of JXTA peers
- * Client side of DIET no longer generates a warning message when name = client is in .cfg
- * This is of course not required and optionnal!
+ * Revision 1.5  2005/06/14 16:17:12  mjan
+ * Added support of DIET_FILE inside JuxMem-DIET for TLSE code
  *
  *
  ****************************************************************************/
@@ -20,6 +17,8 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/mman.h>
+#include <fcntl.h>
 
 #include "JuxMemImpl.hh"
 
@@ -44,16 +43,16 @@ JuxMemImpl::JuxMemImpl()
 
 JuxMemImpl::~JuxMemImpl()
 {
-  /** Stop JXTA **/
-  jxta_module_stop((Jxta_module *) this->juxmem_group);
-  JXTA_OBJECT_RELEASE(this->juxmem_group);
-
   apr_pool_destroy(this->pool);
 
-  /** Stop log facility **/
-  jxta_log_selector_delete(this->log_s);
-  jxta_log_file_close(this->log_f);
-  jxta_log_terminate();
+  jxta_module_stop((Jxta_module*) this->juxmem_group);
+  JXTA_OBJECT_RELEASE(this->juxmem_group);
+
+  /** Stop JXTA **/
+  jxta_log_file_attach_selector(log_f, NULL, &log_s);
+  jxta_log_selector_delete(log_s);
+  jxta_log_file_close(log_f);
+  jxta_terminate();
 } 
 
 /** JuxMem Launcher */
@@ -70,7 +69,6 @@ JuxMemImpl::run(const char* userDefName)
   JString *advs;
 
   jxta_initialize();
-  jxta_log_initialize();
 
   assert(APR_STATUS_IS_SUCCESS(apr_pool_create(&(this->pool), NULL)));
 
@@ -167,7 +165,7 @@ JuxMemImpl::JuxMemAlloc(char** data_id, int size, apr_hash_t* attributes)
   apr_hash_set(attributes, (const void *) CP_TYPE, (apr_ssize_t) strlen(CP_TYPE), (const void *) FLAT_EC_PROTOCOL);
   apr_hash_set(attributes, (const void *) SOG_TYPE, (apr_ssize_t) strlen(SOG_TYPE), (const void *) NO_REPL_SOG);
 
-  status = juxmem_alloc(this->juxmem_service, &jxta_data_id, 10, attributes);
+  status = juxmem_alloc(this->juxmem_service, &jxta_data_id, size, attributes);
   if (status != JXTA_SUCCESS) {
     ERROR("JuxMemImpl::Failed to call JuxMemAlloc!\n",1);
   } 
@@ -175,7 +173,9 @@ JuxMemImpl::JuxMemAlloc(char** data_id, int size, apr_hash_t* attributes)
   jxta_id_to_jstring(jxta_data_id, &jxta_data_id_jstring);
   *data_id = strdup(jstring_get_string(jxta_data_id_jstring));
 
+  apr_hash_set(attributes, (const void *) NUMBER_OF_COPIES, (apr_ssize_t) strlen(NUMBER_OF_COPIES), NULL);
   free(number_of_providers);
+
   JXTA_OBJECT_RELEASE(jxta_data_id_jstring);
   JXTA_OBJECT_RELEASE(jxta_data_id);
 
@@ -218,7 +218,9 @@ JuxMemImpl::JuxMemMap(char* data_id, int size, apr_hash_t* attributes)
     ERROR("JuxMemImpl::Failed to call JuxMemMap!\n",1);
   } 
 
+  apr_hash_set(attributes, (const void *) NUMBER_OF_COPIES, (apr_ssize_t) strlen(NUMBER_OF_COPIES), NULL);
   free(number_of_providers);
+  apr_hash_set(attributes, (const void *) MEMORY_SIZE, (apr_ssize_t) strlen(MEMORY_SIZE), NULL);
   free(data_size_char);
 
   JXTA_OBJECT_RELEASE(jxta_data_id);
@@ -228,18 +230,37 @@ JuxMemImpl::JuxMemMap(char* data_id, int size, apr_hash_t* attributes)
 }
 
 long 
-JuxMemImpl::JuxMemRead(char* data_id, void* buffer, int offset, int length)
+JuxMemImpl::JuxMemRead(diet_arg_s* arg)
 {
   Jxta_status status = JXTA_SUCCESS;
+  int offset = 0; /** In DIET all the data is currently read  */
+  int length = (int) data_sizeof(&(arg->desc));
   Jxta_id *jxta_data_id = NULL;
   JString *jxta_data_id_jstring = NULL;
 
   TRACE_TEXT(TRACE_MAIN_STEPS, "Calling JuxMemRead\n");
   
-  jxta_data_id_jstring = jstring_new_2(data_id);
+  jxta_data_id_jstring = jstring_new_2(arg->desc.id);
   assert(jxta_id_from_jstring(&jxta_data_id, jxta_data_id_jstring) == JXTA_SUCCESS);
 
-  status = juxmem_read(this->juxmem_service, jxta_data_id, buffer, offset, length);
+  if (arg->desc.generic.type == DIET_FILE) {
+    int file = 0;
+    void *pt = NULL;
+
+    file = open((const char*) arg->desc.specific.file.path, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+    assert(file >= 0);
+    ftruncate(file, length);
+    pt = mmap(NULL, length, PROT_WRITE | PROT_READ, MAP_SHARED, file, offset);
+    assert(pt != MAP_FAILED);
+    TRACE_TEXT(TRACE_MAIN_STEPS, "The DIET_FILE " << (char *) arg->desc.specific.file.path << " has been opened and mapped inside JuxMemWrite\n");
+    status = juxmem_read(this->juxmem_service, jxta_data_id, pt, offset, length);
+    assert(msync(pt, length, MS_SYNC) == 0);
+    assert(munmap(pt, length) == 0);
+    assert(close(file) == 0);
+    TRACE_TEXT(TRACE_MAIN_STEPS, "The DIET_FILE " << (char *) arg->desc.specific.file.path << " has been unmapped and closed inside JuxMemWrite\n");
+  } else {
+    status = juxmem_read(this->juxmem_service, jxta_data_id, arg->value, offset, length);
+  }
   if (status != JXTA_SUCCESS) {
     ERROR("JuxMemImpl::Failed to call JuxMemRead!\n",1);
   }
@@ -251,18 +272,35 @@ JuxMemImpl::JuxMemRead(char* data_id, void* buffer, int offset, int length)
 }
 
 long 
-JuxMemImpl::JuxMemWrite(char* data_id, void* buffer, int offset, int length) 
+JuxMemImpl::JuxMemWrite(diet_arg_s* arg)
 {
   Jxta_status status = JXTA_SUCCESS;
+  int offset = 0; /** In DIET all the data is currently written  */
+  int length = (int) data_sizeof(&(arg->desc));
   JString *jxta_data_id_jstring = NULL;
   Jxta_id *jxta_data_id = NULL;
 
   TRACE_TEXT(TRACE_MAIN_STEPS, "Calling JuxMemWrite\n");
   
-  jxta_data_id_jstring = jstring_new_2(data_id);
+  jxta_data_id_jstring = jstring_new_2(arg->desc.id);
   assert(jxta_id_from_jstring(&jxta_data_id, jxta_data_id_jstring) == JXTA_SUCCESS);
 
-  status = juxmem_write(this->juxmem_service, jxta_data_id, buffer, offset, length);
+  if (arg->desc.generic.type == DIET_FILE) {
+    int file = 0;
+    void *pt = NULL;
+
+    file = open((const char*) arg->desc.specific.file.path, O_RDONLY);
+    assert(file >= 0);
+    pt = mmap(NULL, length, PROT_READ, MAP_SHARED, file, offset);
+    assert(pt != MAP_FAILED);
+    TRACE_TEXT(TRACE_MAIN_STEPS, "The DIET_FILE " << (char *) arg->desc.specific.file.path << " has been opened and mapped inside JuxMemWrite\n");
+    status = juxmem_write(this->juxmem_service, jxta_data_id, pt, offset, length);
+    assert(munmap(pt, length) == 0);
+    assert(close(file) == 0);
+    TRACE_TEXT(TRACE_MAIN_STEPS, "The DIET_FILE " << (char *) arg->desc.specific.file.path << " has been unmapped and closed inside JuxMemWrite\n");
+  } else {
+    status = juxmem_write(this->juxmem_service, jxta_data_id, arg->value, offset, length);
+  }
   if (status != JXTA_SUCCESS) {
     ERROR("JuxMemImpl::Failed to call JuxMemWrite\n!",1);
   }

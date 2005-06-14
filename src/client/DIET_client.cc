@@ -10,11 +10,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.63  2005/06/03 16:25:57  mjan
- * Adding tricks for using GoDIET with DIET/JuxMem
- * Using name of DIET SeDs and clients to generate the name of JXTA peers
- * Client side of DIET no longer generates a warning message when name = client is in .cfg
- * This is of course not required and optionnal!
+ * Revision 1.64  2005/06/14 16:17:12  mjan
+ * Added support of DIET_FILE inside JuxMem-DIET for TLSE code
  *
  * Revision 1.57  2005/05/15 15:44:46  alsu
  * minor changes from estimation vector reorganization
@@ -75,6 +72,7 @@ using namespace std;
 #include "DIET_data_internal.hh"
 #if HAVE_JUXMEM
 #include "JuxMemImpl.hh"
+#include <sys/stat.h>
 #endif // HAVE_JUXMEM
 #include "marshalling.hh"
 #include "MasterAgent.hh"
@@ -596,17 +594,16 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
 #if HAVE_JUXMEM 
   int i = 0;
   for (i = 0; i <= profile->last_in; i++) {
-    if (profile->parameters[i].desc.generic.type == DIET_MATRIX && 
-	profile->parameters[i].desc.id == NULL &&
+    if (profile->parameters[i].desc.id == NULL &&
 	profile->parameters[i].desc.mode == DIET_PERSISTENT) {
       
       JuxMem->JuxMemAlloc(&profile->parameters[i].desc.id, (int) data_sizeof(&(profile->parameters[i].desc)), NULL);
-      JuxMem->JuxMemMap(profile->parameters[i].desc.id, (int) data_sizeof(&(profile->parameters[i].desc)), NULL);
       
       TRACE_TEXT(TRACE_MAIN_STEPS, "A data space with ID = " << profile->parameters[i].desc.id << " for IN data has been allocated inside JuxMem!\n");
       
+      JuxMem->JuxMemMap(profile->parameters[i].desc.id, (int) data_sizeof(&(profile->parameters[i].desc)), NULL);
       JuxMem->JuxMemAcquire(profile->parameters[i].desc.id);
-      JuxMem->JuxMemWrite(profile->parameters[i].desc.id, (void*) profile->parameters[i].value, 0, (int) data_sizeof(&(profile->parameters[i].desc)));
+      JuxMem->JuxMemWrite(&profile->parameters[i]);
       JuxMem->JuxMemRelease(profile->parameters[i].desc.id);
       
       profile->parameters[i].value = NULL;
@@ -692,8 +689,7 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
 
 #if HAVE_JUXMEM
   for (i = profile->last_inout + 1; i <= profile->last_out; i++) {
-    if (profile->parameters[i].desc.generic.type == DIET_MATRIX && 
-	profile->parameters[i].desc.id != NULL &&
+    if (profile->parameters[i].desc.id != NULL &&
 	profile->parameters[i].desc.mode == DIET_PERSISTENT) {
 
       if (i <= profile->last_inout) {
@@ -705,7 +701,7 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
       /** IN_OUT and OUT data must be retrieve from JuxMem */
       JuxMem->JuxMemMap(profile->parameters[i].desc.id, (int) data_sizeof(&(profile->parameters[i].desc)), NULL);
       JuxMem->JuxMemAcquireRead(profile->parameters[i].desc.id);
-      JuxMem->JuxMemRead(profile->parameters[i].desc.id, (void*) profile->parameters[i].value, 0, (int) data_sizeof(&(profile->parameters[i].desc)));
+      JuxMem->JuxMemRead(&profile->parameters[i]);
       JuxMem->JuxMemRelease(profile->parameters[i].desc.id);
     }
   }

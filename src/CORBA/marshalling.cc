@@ -9,10 +9,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.49  2005/05/27 08:18:17  mjan
- * Moving JuxMem in a more appropriate place (src/utils)
- * Added log messages for VizDIET
- * Added use of JuxMem in the client side
+ * Revision 1.50  2005/06/14 16:17:11  mjan
+ * Added support of DIET_FILE inside JuxMem-DIET for TLSE code
  *
  * Revision 1.48  2005/05/15 15:32:22  alsu
  * marshalling functions for aggregator
@@ -260,6 +258,8 @@ mrsh_data(corba_data_t* dest, diet_data_t* src, int release)
 
   if (mrsh_data_desc(&(dest->desc), &(src->desc)))
     return 1;
+
+#if ! HAVE_JUXMEM
   if (src->desc.generic.type == DIET_FILE) {
     char* path = src->desc.specific.file.path;
  
@@ -279,10 +279,13 @@ mrsh_data(corba_data_t* dest, diet_data_t* src, int release)
       value[0] = '\0';
     }
   } else {
+#endif // ! HAVE_JUXMEM
     if (src->value != NULL) {
       value = (CORBA::Char*)src->value;
     }
+#if ! HAVE_JUXMEM
   }
+#endif // ! HAVE_JUXMEM
   if(value == NULL)
     dest->value.length(0);
   else
@@ -409,11 +412,17 @@ unmrsh_data_desc(diet_data_desc_t* dest, const corba_data_desc_t* const src)
     break;
   }
   case DIET_FILE: {
-    //  dest->id = id;
+#if HAVE_JUXMEM
+    dest->id = id;
+#endif // HAVE_JUXMEM
     dest->mode = (diet_persistence_mode_t)src->mode;
     diet_generic_desc_set(&(dest->generic), DIET_FILE, DIET_CHAR);
     dest->specific.file.size = src->specific.file().size;
+#if HAVE_JUXMEM
+    dest->specific.file.path = CORBA::string_dup(src->specific.file().path);
+#else
     dest->specific.file.path = NULL;
+#endif // HAVE_JUXMEM
     break;
   }
   default:
@@ -432,6 +441,7 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
   }
   if (unmrsh_data_desc(&(dest->desc), &(src->desc)))
     return 1;
+#if ! HAVE_JUXMEM
   if (src->desc.specific._d() == (long) DIET_FILE) {
     dest->desc.specific.file.size = src->desc.specific.file().size;
     if ((src->desc.specific.file().path != NULL)
@@ -476,6 +486,7 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
       dest->desc.specific.file.path = strdup("");
     }
   } else {
+#endif // ! HAVE_JUXMEM
     if (src->value.length() == 0) {
       // TODO: should be allocated with new x[] to match delete[] used
       // by omniORB.  But ... what is the type?
@@ -499,7 +510,9 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
         dest->value = (char*)src->value.get_buffer(1);
       }
     }
+#if ! HAVE_JUXMEM
   }
+#endif // ! HAVE_JUXMEM
 //   cout << "unmrsh_data: value is " << dest->value << "\n";
   return 0;
 }
@@ -622,7 +635,6 @@ mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src)
   dest->parameters.length(src->last_out + 1);
 
    for (i = 0; i <= src->last_inout; i++) {
-     /** Hack for correctly building CORBA profile. JuxMem does not require a call to the MA */
 #if HAVE_JUXMEM
      if (mrsh_data(&(dest->parameters[i]), &(src->parameters[i]), 0)) {
        return 1;

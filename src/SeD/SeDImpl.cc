@@ -9,11 +9,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.53  2005/06/03 16:25:57  mjan
- * Adding tricks for using GoDIET with DIET/JuxMem
- * Using name of DIET SeDs and clients to generate the name of JXTA peers
- * Client side of DIET no longer generates a warning message when name = client is in .cfg
- * This is of course not required and optionnal!
+ * Revision 1.54  2005/06/14 16:17:12  mjan
+ * Added support of DIET_FILE inside JuxMem-DIET for TLSE code
  *
  * Revision 1.47  2005/05/15 15:38:59  alsu
  * implementing aggregation interface
@@ -446,8 +443,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
   unmrsh_in_args_to_profile(&profile, &pb, cvt);
 
   for (i= 0; i <= profile.last_inout; i++) {
-    if (profile.parameters[i].desc.generic.type == DIET_MATRIX && 
-	profile.parameters[i].desc.mode == DIET_PERSISTENT &&
+    if (profile.parameters[i].desc.mode == DIET_PERSISTENT &&
 	profile.parameters[i].desc.id != NULL &&
 	strlen(profile.parameters[i].desc.id ) != 0) {
 
@@ -461,10 +457,10 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
       gettimeofday(&t1, NULL);
       this->JuxMem->JuxMemMap(profile.parameters[i].desc.id, (int) data_sizeof(&(profile.parameters[i].desc)), NULL);
       this->JuxMem->JuxMemAcquireRead(profile.parameters[i].desc.id);
-      this->JuxMem->JuxMemRead(profile.parameters[i].desc.id, (void*) profile.parameters[i].value, 0, (int) data_sizeof(&(profile.parameters[i].desc)));
+      this->JuxMem->JuxMemRead(&profile.parameters[i]);
       this->JuxMem->JuxMemRelease(profile.parameters[i].desc.id);
       gettimeofday(&t2, NULL);
-
+      
       if (dietLogComponent != NULL) {
 	dietLogComponent->logJuxMemDataUse(reqID,
 					   profile.parameters[i].desc.id, 
@@ -508,8 +504,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
 
 #if HAVE_JUXMEM
   for (i = 0; i <= profile.last_out; i++) {
-    if (profile.parameters[i].desc.generic.type == DIET_MATRIX && 
-	profile.parameters[i].desc.mode == DIET_PERSISTENT) {
+    if (profile.parameters[i].desc.mode == DIET_PERSISTENT) {
       struct timeval t1, t2;
 
       /** Case of OUT data, a data space must be allocated inside JuxMem only if not ID is specified */
@@ -519,7 +514,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
 	this->JuxMem->JuxMemAlloc(&profile.parameters[i].desc.id, data_sizeof(&(profile.parameters[i].desc)), NULL);
 	this->JuxMem->JuxMemMap(profile.parameters[i].desc.id, data_sizeof(&(profile.parameters[i].desc)), NULL);
 	gettimeofday(&t2, NULL);
-
+	
 	TRACE_TEXT(TRACE_MAIN_STEPS, "A data space with ID = " << profile.parameters[i].desc.id << " for OUT data has been allocated inside JuxMem!\n");
 	
 	if (dietLogComponent != NULL) {
@@ -536,10 +531,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
       if (i > profile.last_in) {
 	gettimeofday(&t1, NULL);
 	this->JuxMem->JuxMemAcquire(profile.parameters[i].desc.id);
-	this->JuxMem->JuxMemWrite(profile.parameters[i].desc.id, 
-				  (void*) profile.parameters[i].value, 
-				  0, 
-				  (int) data_sizeof(&(profile.parameters[i].desc)));
+	this->JuxMem->JuxMemWrite(&profile.parameters[i]);
 	this->JuxMem->JuxMemRelease(profile.parameters[i].desc.id);
 	gettimeofday(&t2, NULL);
 	
@@ -554,8 +546,10 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
 	}
 
 	/** Removing all INOUT and OUT data so that it doesn't go back with the client request */
-	free(profile.parameters[i].value);
-	profile.parameters[i].value = NULL;
+	if (profile.parameters[i].desc.generic.type != DIET_STRING) {
+	  free(profile.parameters[i].value);
+	  profile.parameters[i].value = NULL;
+	}
       }
     }
   }

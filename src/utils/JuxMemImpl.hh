@@ -8,17 +8,16 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.3  2005/06/03 16:25:57  mjan
- * Adding tricks for using GoDIET with DIET/JuxMem
- * Using name of DIET SeDs and clients to generate the name of JXTA peers
- * Client side of DIET no longer generates a warning message when name = client is in .cfg
- * This is of course not required and optionnal!
+ * Revision 1.4  2005/06/14 16:17:12  mjan
+ * Added support of DIET_FILE inside JuxMem-DIET for TLSE code
  *
  *
  ****************************************************************************/
 
 #ifndef _JUXMEM_IMPL_HH_
 #define _JUXMEM_IMPL_HH_
+
+#include "DIET_data.h"
 
 #include <jxta_log.h>
 #include <jxta_peergroup.h>
@@ -44,9 +43,9 @@ public:
 
   long JuxMemMap(char* data_id, int size, apr_hash_t* attrib);
   
-  long JuxMemRead(char* data_id, void* buffer, int offset, int length);
+  long JuxMemRead(diet_arg_s* arg);
 
-  long JuxMemWrite(char* data_id, void* buffer, int offset, int length);
+  long JuxMemWrite(diet_arg_s* arg);
 
   long JuxMemFlush(char* data_id);
   
