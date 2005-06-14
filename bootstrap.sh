@@ -105,30 +105,32 @@ fi
 
 echo "bootstrap.sh: libtool version $lt_version (ok)"
 
-# -----------------------------------------------------------
 
-(automake-1.7 --version) < /dev/null > /dev/null 2>&1 || {
+# -----------------------------------------------------------
+AUTOMAKE_VERSION=`automake --version | grep automake | cut -d ')' -f 2 | sed -e 's/^[^0-9]*//g' -e 's/[- ].*//'`
+AUTOMAKE_WANTED_MAJOR=1
+AUTOMAKE_WANTED_MINOR=10
+
+IFS=.; set $AUTOMAKE_VERSION; IFS=' '
+lt_status="good"
+if test "$1" = "$AUTOMAKE_WANTED_MAJOR"; then
+   if test "$2" -lt "$AUTOMAKE_WANTED_MINOR"; then
+      lt_status="bad"
+    fi
+else
+   lt_status="bad"
+fi
+if test $lt_status != "good"; then
   echo
-  echo "**Error**: You must have \`automake\` 1.7 installed to compile $PKG_NAME."
+  echo "**Error**: You must have \`automake\` 1.7 or newer installed to compile $PKG_NAME."
   echo "Get ftp://ftp.gnu.org/pub/gnu/automake-1.7.tar.gz"
   echo "(or a newer version if it is available)"
   DIE=1
   NO_AUTOMAKE=yes
-}
-
-# if no automake, don't bother testing for aclocal
-test -n "$NO_AUTOMAKE" || (aclocal --version) < /dev/null > /dev/null 2>&1 || {
-  echo
-  echo "**Error**: Missing \`aclocal\`.  The version of \`automake\`"
-  echo "installed doesn't appear recent enough."
-  echo "Get ftp://ftp.gnu.org/pub/gnu/automake-1.3.tar.gz"
-  echo "(or a newer version if it is available)"
-  DIE=1
-}
-
-if test "$DIE" -eq 1; then
   exit 1
 fi
+
+echo "bootstrap.sh: automake version $AUTOMAKE_VERSION (ok)"
 
 ###### END of test part
 
@@ -168,14 +170,14 @@ do
 	  			libtoolize --automake --force --copy
 				fi
       fi
-      echo "Running aclocal-1.7 $aclocalinclude..."
-      aclocal-1.7 $aclocalinclude 
+      echo "Running aclocal $aclocalinclude..."
+      aclocal $aclocalinclude 
       if grep "CONFIG_HEADER" configure.ac >/dev/null; then
 				echo "Running autoheader in "`pwd`"..."
 				autoheader
       fi
-      echo "Running automake-1.7 --add-missing --copy $am_opt ..."
-      automake-1.7 --add-missing --copy $am_opt
+      echo "Running automake --add-missing --copy $am_opt ..."
+      automake --add-missing --copy $am_opt
       echo "Running autoconf..."
       autoconf
     )
