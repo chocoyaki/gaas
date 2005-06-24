@@ -9,6 +9,10 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.3  2005/06/24 09:34:08  hdail
+#* Changed to not include a version ... the doc is no longer the same as the
+#* version 1.1 doc.
+#*
 #* Revision 1.2  2004/07/08 18:04:08  rbolze
 #* little change to have distrib name in the ps file name
 #*
@@ -35,8 +39,8 @@ mod = $(shell basename `pwd`)
 
 
 moddir = $(prefix)/doc
-#mod_DATA = DIET_$(mod).ps
-mod_DATA = ${PACKAGE_NAME}-${VERSION}_${mod}.ps
+mod_DATA = DIET_$(mod).ps
+#mod_DATA = ${PACKAGE_NAME}-${VERSION}_${mod}.ps
 
 TEX_FILES = $(notdir $(wildcard $(srcdir)/*.tex))
 FIG_FILES = $(wildcard $(srcdir)/fig/*.fig)
