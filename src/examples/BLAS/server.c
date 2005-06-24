@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2005/06/24 15:03:59  ycaniou
+ * NB_SRV=5 services and diet_service_table_init(3) corrected
+ *
  * Revision 1.9  2003/08/09 17:32:47  pcombes
  * Update to the new diet_profile_desc_t.
  *
@@ -184,7 +187,7 @@ main(int argc, char* argv[])
     return 1;
   }
 
-  diet_service_table_init(3);
+  diet_service_table_init(NB_SRV);
 
   cvt = diet_convertor_alloc("BLAS/dgemm", 3, 4, 4);
 
