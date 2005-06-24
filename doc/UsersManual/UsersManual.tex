@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.20  2005/06/24 11:48:52  hdail
+%* English corrections in introduction.
+%*
 %* Revision 1.19  2005/06/14 08:03:16  ecaron
 %* New organization
 %*
@@ -30,67 +33,6 @@
 %*
 %* Revision 1.14  2005/05/17 14:34:13  alsu
 %* plugin scheduler doc
-%*
-%* Revision 1.13  2004/07/09 14:34:42  rbolze
-%* make changes relative to DIET 1.1 version
-%*
-%* Revision 1.12  2004/06/16 09:06:03  ctedesch
-%* add chapter called P2P DIET extension to the DIET user's manual
-%*
-%* Revision 1.11  2004/06/11 15:45:39  ctedesch
-%* add DIET/JXTA
-%*
-%* Revision 1.10  2004/02/26 10:28:05  ecaron
-%* Latex bug correction
-%*
-%* Revision 1.9  2004/02/25 07:01:28  desprez
-%* Revised version for the introduction
-%*
-%* Revision 1.8  2004/01/29 17:08:47  ecaron
-%* Add suggestions from Frederic Desprez. Thanks !
-%*
-%* Revision 1.7  2004/01/21 23:23:03  ecaron
-%* Add suggestions from Jean-Yves. Thanks !
-%*
-%* Revision 1.6  2004/01/15 23:59:31  ecaron
-%* Add corrections from Holly Dail
-%*
-%* Revision 1.5  2003/12/15 00:13:53  ecaron
-%* New structure for the first sheet
-%*
-%* Revision 1.4  2003/12/12 14:42:44  pkchouha
-%*  define \diet_version in UserManual.tex to be 1.0
-%*
-%* Revision 1.3  2003/12/12 12:36:17  ecaron
-%* Change call to diet_initialize()
-%* Correct some bug
-%*
-%* Revision 1.2  2003/09/17 14:41:28  pcombes
-%* Split the .tex according to its chapters.
-%*
-%* Revision 1.1  2003/09/09 12:38:20  pcombes
-%* Reorganization of doc: UM becomes UsersManual.
-%*
-%* Revision 1.9  2003/06/16 17:40:33  pcombes
-%* Date
-%*
-%* Revision 1.8  2003/05/23 09:23:35  pcombes
-%* Add suggestions from Jean-Yves. Thanks !
-%*
-%* Revision 1.7  2003/05/15 14:17:58  pcombes
-%* UM 0.7
-%*
-%* Revision 1.4  2003/01/22 17:34:53  pcombes
-%* User Manual, v. 0.6.4
-%*
-%* Revision 1.3  2003/01/21 12:17:02  pcombes
-%* Update UM to API 0.6.3, and "hide" data structures.
-%*
-%* Revision 1.2  2003/01/13 12:09:00  pcombes
-%* UM: client part complete for users's day ...
-%*
-%* Revision 1.1.1.1  2002/12/13 17:06:34  pcombes
-%* User's Manual - architecture
 %****************************************************************************%
 \documentclass[12pt,a4paper]{book}
 \makeatletter
@@ -168,7 +110,7 @@
 \small{
 \begin{tabular}{ll}
   \textbf{VERSION}  & \dietversion\\
-  \textbf{DATE}     & July 2004\\
+  \textbf{DATE}     & June 2005\\
   \textbf{PROJECT MANAGER}  & Fr\'ed\'eric \textsc{Desprez}.\\
   \textbf{EDITORIAL STAFF}  & Eddy \textsc{Caron} and Philippe ~\textsc{Combes}.\\
   \textbf{AUTHORS STAFF}    & 
@@ -207,23 +149,25 @@
 
 Resource management is one of the key issues for the development of
 efficient Grid environments. Several approaches co-exist in today's
-middleware platforms. The computation (or communication) grain and the
-dependences between the computations also have a great influence on
-the software choices.
+middleware platforms. The granularity of computation (or communication) and 
+dependencies between computations can have a great influence on the
+software choices.
 
 The first approach provides the user with a uniform view of
 resources. This is the case of GLOBUS~\cite{Globus} which provides
 transparent MPI communications (with MPICH-G2) between distant nodes
 but does not manage load balancing issues between these nodes. It's
 the user's task to develop a code that will take into account the
-heterogeneity of the target architecture. Classical batch processing
-can also be used on the Grid with projects like Condor-G~\cite{Condor}
-or Sun GridEngine~\cite{SunGridEngine}. Finally,
-peer-to-peer~\cite{Oram01} or Global computing~\cite{germain01global}
-can be used for fine grain and loosely coupled applications.
+heterogeneity of the target architecture. Grid extensions to
+classical batch processing provide an alternative approach with
+projects like Condor-G~\cite{Condor} or Sun
+GridEngine~\cite{SunGridEngine}. Finally, peer-to-peer~\cite{Oram01}
+or Global computing~\cite{germain01global} can be used for fine
+grain and loosely coupled applications.
 
 A second approach provides a semi-transparent access to computing
-servers by submitting jobs to dedicated servers. This model is known
+servers by submitting jobs to servers offering specific
+computational services. This model is known
 as the Application Service Provider (ASP) model where providers offer,
 not necessarily for free, computing resources (hardware and software)
 to clients in the same way as Internet providers offer network
@@ -232,15 +176,15 @@ rather coarse. One of the advantages of this approach is that end
 users do not need to be experts in parallel programming to benefit
 from high performance parallel programs and computers. This model is
 closely related to the classical Remote Procedure Call (RPC)
-paradigm. On a Grid platform, the RPC (or
-GridRPC~\cite{MNS+00,NMSDLC02}) offers an easy access to available
-resources to a Web browser, a Problem Solving Environment (PSE), or a
+paradigm. On a Grid platform, RPC (or
+GridRPC~\cite{MNS+00,NMSDLC02}) offers easy access to available
+resources from a Web browser, a Problem Solving Environment (PSE), or a
 simple client program written in C, Fortran, or Java.  It also
-provides more transparency by hiding the search and allocation of
-computing resources. We favour this second approach.
+provides more transparency by hiding the selection and allocation of
+computing resources. We favor this second approach.
 
 In a Grid context, this approach requires the implementation of
-middlewares to facilitate the client access to remote resources. In
+middleware to facilitate client access to remote resources. In
 the ASP approach, a common way for clients to ask for resources to
 solve their problem is to submit a request to the middleware. The
 middleware will find the most appropriate server that will solve the
@@ -258,7 +202,7 @@ monitors and stored in a database.
 DIET stands for Distributed Interactive Engineering Toolbox. It is a
 toolbox for easily developing Application Service Provider systems on
 Grid platforms, based on the Client/Agent/Server scheme. Agents are
-the schedulers of this toolbox. In DIET, user's requests are served
+the schedulers of this toolbox. In DIET, user requests are served
 via RPC.
 
 DIET follows the GridRPC API defined within the Global Grid
