@@ -10,6 +10,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.20  2005/06/24 15:07:29  hdail
+%* Continuing english corrections and updating.
+%*
 %* Revision 1.19  2005/06/14 08:06:20  ecaron
 %* Update ./configure output
 %*
@@ -28,77 +31,7 @@
 %*
 %* Revision 1.15  2004/07/12 08:33:58  rbolze
 %* explain how to copy cfgs file in install_dir/etc directory and correct my english
-%*
-%* Revision 1.14  2004/07/09 14:34:42  rbolze
-%* make changes relative to DIET 1.1 version
-%*
-%* Revision 1.13  2004/07/06 13:40:42  ctedesch
-%* add corrections from Raphael Bolze.
-%*
-%* Revision 1.12  2004/04/09 11:19:32  rbolze
-%* Add the testing platform : Linux/amd64
-%*
-%* Revision 1.11  2004/04/05 11:04:29  rbolze
-%* add instruction to compile with logService
-%*
-%* Revision 1.10  2004/02/10 00:13:55  ecaron
-%* Add bugzilla reference.
-%*
-%* Revision 1.9  2004/01/29 17:08:47  ecaron
-%* Add suggestions from Frederic Desprez. Thanks !
-%*
-%* Revision 1.8  2004/01/21 23:23:03  ecaron
-%* Add suggestions from Jean-Yves. Thanks !
-%*
-%* Revision 1.7  2004/01/21 00:25:13  ecaron
-%* Add suggestions from Holly Dail. Thanks !
-%*
-%* Revision 1.6  2004/01/07 20:25:04  ecaron
-%* Add ScaLAPACK and BLAS introduction
-%*
-%* Revision 1.5  2004/01/06 15:07:46  ecaron
-%* Correct latex bug
-%*
-%* Revision 1.4  2003/12/12 14:42:44  pkchouha
-%*  define \diet_version in UserManual.tex to be 1.0
-%*
-%* Revision 1.3  2003/12/03 11:06:57  pkchouha
-%* 1. change the version of DIET to 1.0
-%* 2. DIET.tgz to DIET_1.0.tgz
-%* 3. added the unlisted options in  section 2.2.1
-%* 4. commented the  all part of section 2.2.2 before the subcetion oniORB
-%* 5. added the unlisted options in section 2.2.2
-%* 6. changed the args to conftest.c -o conftest
-%* 7. changed some words and sentances for simplification
-%*
-%* Revision 1.2  2003/11/28 11:51:36  pcombes
-%* Correction about gcc-2.96 management of exception handling.
-%*
-%* Revision 1.1  2003/09/09 12:38:20  pcombes
-%* Reorganization of doc: UM becomes UsersManual.
-%*
-%* Revision 1.12  2003/06/23 13:14:09  pcombes
-%* Update example to new configuration summary.
-%*
-%* Revision 1.11  2003/06/16 17:39:55  pcombes
-%* One word about gcc-2.96.
-%*
-%* Revision 1.10  2003/06/02 13:47:05  pcombes
-%* Fix footnotesize.
-%*
-%* Revision 1.9  2003/05/23 09:23:35  pcombes
-%* Add suggestions from Jean-Yves. Thanks !
-%*
-%* Revision 1.8  2003/05/15 14:17:58  pcombes
-%* UM 0.7
-%*
-%* Revision 1.6  2003/01/24 16:58:54  pcombes
-%* UM 0.6.4
-%*
-%* Revision 1.5  2003/01/22 17:34:53  pcombes
-%* User Manual, v. 0.6.4
 %****************************************************************************%
-
 
 \chapter{DIET installation}
 \label{ch:installing}
@@ -109,20 +42,20 @@
 
 \subsection{Hardware dependencies}
 
-DIET has fully tested on Linux i386 and i686 platforms and has tested
-on Solaris/Sparc, Linux/Sparc, Linux/i64, Linux/amd64 and Linux/Alpha
-platform and seems be supported.
+DIET has been fully tested on Linux i386 and i686 platforms and has 
+been (at some time) tested on Solaris/Sparc, Linux/Sparc, Linux/i64,
+Linux/amd64 and Linux/Alpha platform and seems/seemed to be supported.
 
-If you found a bug into DIET, please to submit a bug report at
-\url{http://graal.ens-lyon.fr/bugzilla}. If you have multiple bugs to
-report, please make multiple submissions, rather than submitting
+If you found a bug in DIET, please to submit a bug report at
+\url{http://graal.ens-lyon.fr/bugzilla}. If you have multiple bugs
+to report, please make multiple submissions, rather than submitting
 multiple bugs in one report.
 
 \subsection{Software dependencies}
 
-As explained in Section \ref{sec:CORBA}, CORBA is used for all
-communications inside the platform. So all of the three parts depend
-on it. The implementations of CORBA currently supported in DIET are:
+As explained in Section~\ref{sec:CORBA}, CORBA is used for all
+communications inside the platform. The implementations of CORBA
+currently supported in DIET are:
 \begin{itemize}
  \item{\textbf{omniORB 3}} which depends on \textbf{Python 1.5}
  \item{\textbf{omniORB 4}} which depends on \textbf{Python 2.1} or
@@ -135,11 +68,13 @@ on it. The implementations of CORBA currently supported in DIET are:
 % \item{soon \textbf{TAO 1.3}} which depends on \textbf{ACE} (but TAO is always
 %                           provided with ACE)
 \end{itemize}
-We strongly recommend omniORB 4, as it is easier to install, and
-provides SSL support. In order to deploy CORBA services with omniORB,
-a configuration file and a log directory are required: see Section
+We strongly recommend omniORB 4, as it is easier to install,
+provides SSL support, and is the version currently used by our
+developers so support will be better. In order to deploy CORBA
+services with omniORB, a configuration file and a log directory are
+required: see Section
 \ref{sec:CORBA_services} for a complete description of the services.
-Their path can be given to omniORB through environment variables
+Their paths can be given to omniORB through environment variables
 (\texttt{\$OMNIORB\_CONFIG} and \texttt{\$OMNINAMES\_LOGDIR}), and/or,
 for \textbf{omniORB 4} only, at compile time, with the
 \texttt{--with-omniORB-config} and \texttt{--with-omniNames-logdir}
@@ -150,13 +85,16 @@ options.
 \textbf{Python 2.3}: the C++ code generated could not be compiled. It
 has been patched in DIET, but some warnings still appear.  \\
 
-Since omniORB needs a thread-safe management of exception handling,
+Since omniORB needs thread-safe management of exception handling,
 compiling DIET with \verb+gcc+ requires at least \verb+gcc-2.96+.  \\
 
-The agent and server parts of DIET can depend on FAST (see
-§\ref{sec:FAST}).  Although not absolutely compulsory, it is strongly
-recommended: indeed, all communication and computation times are set
-to infinity if FAST is not installed.  FAST depends on:
+When configured to use FAST, DIET servers are able to provide better
+performance prediction including application computation times for
+some application types.  See Section~\ref{sec:FAST} for details.
+
+\fixme{FAST dependencies should be described elsewhere in a
+FAST-specific section!}
+FAST depends on:
 \begin{itemize}
  \item{\textbf{DB 2}} the Berkeley Database routines
  \item{\textbf{GSL}} the GNU Scientific Library
@@ -171,7 +109,7 @@ of its dependencies, to deactivate the ones that are not needed by the
 user.\\
 
 Finally, some examples provided in the DIET sources depend on the BLAS
-and \scalapack\ libraries. However theses examples do not have to be
+and \scalapack\ libraries. However these examples do not have to be
 compiled.
 
 
@@ -231,17 +169,6 @@ examples, which is enabled by default.
 examples, as a sub-module of examples (which means that this option
 has no effect if examples are disabled) - disabled by default.
 
-{\footnotesize
-\begin{verbatim}
-  --enable-logservice     enable monitoring through LogService
-\end{verbatim}
-}
-\noindent This option enables the connection from DIET to the
-LogService monitoring software. It will enable DIET to generate
-monitoring data and send it to the LogService. Note that the support
-of LogService is built in. You do not have to install the LogService
-package to compile with this option.
-
 
 {\footnotesize
 \begin{verbatim}
@@ -249,43 +176,44 @@ package to compile with this option.
                           ScaLAPACK functions through DIET
 \end{verbatim}
 }
-\noindent This option activates the compilation of the DIET
-\scalapack\ examples, as a sub-module of examples (which means that
-this option has no effect if examples are disabled) - disabled by
-default.
+\noindent \textit{Experimental}.  This option activates the
+compilation of the DIET \scalapack\ examples, as a sub-module of
+examples (which means that this option has no effect if examples are
+disabled) - disabled by default.
 
 {\footnotesize
 \begin{verbatim}
   --enable-JXTA-mode      enable DIET/JXTA architecture
 \end{verbatim}
 }
-\noindent This option allows the user to deploy DIET$_{JXTA}$
-architectures.  When this option is activated (disable by default),
-DIET allows only this type of architecture to be deployed.
+\noindent \textit{Experimental}.  This option allows the user to
+deploy DIET$_{JXTA}$ architectures.  When this option is activated
+(disabled by default), DIET allows only this type of architecture to
+be deployed.
 
 {\footnotesize
 \begin{verbatim}
   --enable-multi-MA       enable multi-MA architecture
 \end{verbatim}
 }
-\noindent This option allows the user to connect several MA to be
-linked together. When this option is activated, it allow a MA to
-looking for a SeD into the other MA hierarchies.
+\noindent \textit{Experimental}.  This option allows the user to
+connect several MA to be linked together. When this option is
+activated, it allow a MA to looking for a SeD into the other MA
+hierarchies.
 
 {\footnotesize
 \begin{verbatim}
   --enable-JuxMem       enable the use of JuxMem for managing persistent data
 \end{verbatim}
 }
-\noindent This option allows the user to interact with JuxMem for the
-management of persistent data. When this option is activated (disabled
-by default), a SeD can store data blocks within
-JuxMem. Chapter~\ref{ch:juxmem} describes in more details JuxMem and
-its use inside DIET.
+\noindent \textit{Experimental}.  This option allows the user to
+interact with JuxMem for the management of persistent data. When
+this option is activated (disabled by default), a SeD can store data
+blocks within JuxMem. Chapter~\ref{ch:juxmem} describes in more
+details JuxMem and its use inside DIET.
 
 {\footnotesize
 \begin{verbatim}
-  --enable-Cichlid        enable generation of communication logs for Cichlid
   --enable-stats          enable generation of statistics logs
   --disable-dependency-tracking Speeds up one-time builds
   --enable-dependency-tracking  Do not reject slow dependency extractors
@@ -295,6 +223,16 @@ its use inside DIET.
   --disable-libtool-lock  avoid locking (might break parallel builds)
 \end{verbatim}
 }
+
+{\footnotesize
+\begin{verbatim}
+  --enable-logservice     enable monitoring through LogService
+\end{verbatim}
+}
+\noindent \textit{Deprecated}.  Support for the LogService monitoring
+software is now always compiled in.  Note that support for LogService
+is built-in and you do not have to install LogService to compile
+DIET.
 
 \subsection{Optional packages for configuration}
 
@@ -371,9 +309,9 @@ specify \texttt{--without-FAST}, which overrides \texttt{fast-config}
 detection.
 
 \subsubsection{BLAS}
-
+\fixme{Should we shorten BLAS section or move to examples chapter?}
 The BLAS~\footnote{\url{http://www.netlib.org/blas/}} (Basic Linear
-Algebra Subprograms) are high quality "building block" routines for
+Algebra Subprograms) are high quality ``building block'' routines for
 performing basic vector and matrix operations.  Level 1 BLAS do
 vector-vector operations, Level 2 BLAS do matrix-vector operations,
 and Level 3 BLAS do matrix-matrix operations. Because the BLAS are
@@ -404,6 +342,7 @@ BLAS are disabled.
 
 \subsubsection{\scalapack}
 
+\fixme{Should we shorten ScaLAPACK section or move to examples chapter?}
 The ScaLAPACK\footnote{\url{http://www.netlib.org/scalapack/}} (or
 Scalable LAPACK) library includes a subset of LAPACK routines
 redesigned for distributed memory MIMD parallel computers. It is
@@ -413,10 +352,10 @@ matrices are laid out in a two-dimensional block cyclic decomposition.
 
 Like LAPACK, the ScaLAPACK routines are based on block-partitioned
 algorithms in order to minimize the frequency of data movements
-between different levels of the memory hierarchy. (For such machines,
+between different levels of the memory hierarchy. For such machines,
 the memory hierarchy includes the off-processor memory of other
 processors, in addition to the hierarchy of registers, cache, and
-local memory on each processor.) The fundamental building blocks of
+local memory on each processor.  The fundamental building blocks of
 the ScaLAPACK library are distributed memory versions (PBLAS) of the
 Level 1, 2 and 3 BLAS, and a set of Basic Linear Algebra Communication
 Subprograms (BLACS) for communication tasks that arise frequently in
@@ -455,12 +394,11 @@ integrate BLACS and MPI libraries, which are useful for ScaLAPACK.  \\
 \textbf{NB:} these options have no effect if the module example and/or
 its sub-module \scalapack\ are disabled.
 
-
 \subsection{From configuration to compilation}
 
 An important option for configure scripts is \texttt{--prefix=}, which
 specifies where binary files, documents and configuration files will
-be installed. It is important to set this option: it otherwise
+be installed. It is important to set this option; otherwise it 
 defaults to \texttt{DIET/install}.
 
 The configuration will return with an error if no ORB was found. So
@@ -499,10 +437,10 @@ Please run make help to get compilation instructions.
 \end{verbatim}
 }
 
-This helps the user to choose the DIET parts for installation and
-compilation. It is recommended for beginners to compile the client,
+This helps the user to choose which DIET parts to compile and
+install. It is recommended for beginners to compile the client,
 the SeD and the agent in one single step with \texttt{make all}. But
-please, pay attention to the fact that \texttt{make all} does not
+please pay attention to the fact that \texttt{make all} does not
 install DIET in the prefix provided at configuration time. To do this,
 run \texttt{make install}.
 
@@ -523,10 +461,10 @@ Four series of examples are provided in the DIET archive:
 \begin{itemize}
 \item{\texttt{file\_transfer}}: the server computes the sizes of two
   input files and returns them. A third output parameter may be
-  returned: randomly, the server decides to send back the first file.
-  This is to show how to manage a variable number of arguments: the
-  profile declares all arguments that may be filled, even if they
-  might not be all filled at each request/computation.
+  returned; the server decides randomly whether to send back the
+  first file. This is to show how to manage a variable number of
+  arguments: the profile declares all arguments that may be filled,
+  even if they might not be all filled at each request/computation.
 
 \item{\texttt{dmat\_manips}}: the server offers matrix manipulation
   routines: transposition (\texttt{T}), product (\texttt{MatPROD}) and
@@ -534,11 +472,11 @@ Four series of examples are provided in the DIET archive:
   \texttt{SqMatSUM\_opt} for square matrices but re-using the memory
   space of the second operand for the result). Any subset of these
   operations can be specified on the command line. The last two of
-  them are given for compatibility with a BLAS server, explained below.
+  them are given for compatibility with a BLAS server as explained below.
   
 \item{\texttt{BLAS}}: the server offers the \texttt{dgemm} BLAS
   functionality.  We plan to offer all BLAS (Basic Linear Algebric
-  Subroutines) in the next DIET version. Since this function computes
+  Subroutines) in the future. Since this function computes
   $C = \alpha AB + \beta C$, it can also compute a matrix-matrix
   product, a sum of square matrices, etc. All these services are
   offered by the BLAS server. Two clients are designed to use these
@@ -571,5 +509,5 @@ create ready-to-use configuration files in \texttt{examples/etc} and
 then copied into \texttt{$<$install\_dir$>$/etc}. Successive calls to
 make install will not erase the configuration files created and copied
 the first time, except if \texttt{make uninstall} is called inbetween
-; thus the user will not lose the changes to these files.
+; thus the user will not lose changes to these files.
 
