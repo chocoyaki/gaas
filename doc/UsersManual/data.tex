@@ -8,6 +8,10 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.13  2005/06/27 07:55:06  hdail
+%* Correcting english etc.  Added some fixmes where I didn't know how to correct
+%* old text.
+%*
 %* Revision 1.12  2005/06/14 08:16:06  ecaron
 %* Typo
 %*
@@ -32,46 +36,15 @@
 %*
 %* Revision 1.6  2004/02/10 00:38:25  ecaron
 %* Add suggestions from Jean-Yves L'Excellent. Thanks !
-%*
-%* Revision 1.5  2004/01/29 17:08:47  ecaron
-%* Add suggestions from Frederic Desprez. Thanks !
-%*
-%* Revision 1.3  2004/01/21 00:25:13  ecaron
-%* Add suggestions from Holly Dail. Thanks !
-%*
-%* Revision 1.2  2003/12/12 10:15:29  avernois
-%*
-%* precision :les types DIET_SCOMPLEX et DIET_DCOMPLEX 
-%*            sont encore en status de TODO
-%*
-%* Revision 1.1  2003/09/09 12:38:20  pcombes
-%* Reorganization of doc: UM becomes UsersManual.
-%*
-%* Revision 1.7  2003/06/02 13:47:05  pcombes
-%* Fix footnotesize.
-%*
-%* Revision 1.6  2003/05/23 09:23:35  pcombes
-%* Add suggestions from Jean-Yves. Thanks !
-%*
-%* Revision 1.5  2003/05/15 14:17:58  pcombes
-%* UM 0.7
-%*
-%* Revision 1.2  2003/01/24 16:58:54  pcombes
-%* UM 0.6.4
-%*
-%* Revision 1.1  2003/01/22 17:34:53  pcombes
-%* User Manual, v. 0.6.4
 %****************************************************************************%
 
 \chapter{DIET data}
 \label{ch:data}
 
-It is important that DIET can manipulate data to optimize copies and memory
-allocation, to estimate data transfer and computation time, etc.  Therefore the
-data must be fully described: their types first, then all the attributes
-associated to these types.
-
-
+It is important that DIET can manipulate data to optimize copies and
+memory allocation, to estimate data transfer and computation time,
+etc. Therefore the data must be fully described in terms of their data 
+types and various attributes associated with these types.
 
 \section{Data types}
 \label{sec:types}
@@ -153,6 +126,7 @@ Persistence mode is defined in an enum type \texttt{diet\_persistence\_mode\_t}
 \textsf{DIET\_PERSISTENT\_RETURN} & stored on server, movable and copy back to client\\
 \textsf{DIET\_PERSISTENT} & stored on server and movable\\
 \textsf{DIET\_STICKY} & stored and non movable\\
+\hline\hline
 \textsf{DIET\_STICKY\_RETURN} & stored, non movable and copy back to client\\
 \hline
 \end{tabular}
@@ -243,7 +217,7 @@ first session in the Master Agent \textbf{MA1}.
 The file is stored in the \texttt{/tmp} directory.
 
 \begin{itemize}
-\item[NB:] for the moment, when a data is erased from the platform, the
+\item[NB:] for the moment, when a data item is erased from the platform, the
 file isn't updated.
 \end{itemize}
 
@@ -351,10 +325,10 @@ diet_file_set(diet_arg_t* arg, diet_persistence_mode_t mode, char* path);
         _matrix_get(arg, (void **)value, mode, nb_rows, nb_cols, order)
 /**
  * Type: int diet_string_get((diet_arg_t *), (char **),
- *                           (diet_persistence_mode_t *), (size_t *))
+ *                           (diet_persistence_mode_t *))
  */
 #define diet_string_get(arg, value, mode, length) \
-        _string_get(arg, (char **)value, mode, length)
+        _string_get(arg, (char **)value, mode)
 /**
  * Type: int diet_file_get((diet_arg_t *),
  *                         (diet_persistence_mode_t *), (size_t *), (char **))
@@ -368,15 +342,16 @@ diet_file_set(diet_arg_t* arg, diet_persistence_mode_t mode, char* path);
 \section{Data Management functions}
 
 \begin{itemize}
-\item {The \texttt{store\_id} method} is used to store the identifier of a persistent data.
- It also allows to give a description of the data stored.
- This method has to be called after the \texttt{diet\_call()}
+\item {The \texttt{store\_id} method} is used to store the
+identifier of persistent data. It also accepts a description of
+the data stored. This method has to be called after the
+\texttt{diet\_call()}
 \begin{verbatim}
   store_id(char* argID,char *msg);
 \end{verbatim}
 
-\item the \texttt{diet\_use\_data} method allows the client to use a data
-that is already inside the platform.
+\item The \texttt{diet\_use\_data} method allows the client to use a data
+item that is already stored in the platform.
 \begin{verbatim}
   diet_use_data(diet_arg_t* arg,char* argID);
 \end{verbatim}
@@ -385,15 +360,15 @@ This function replaces the set functions (see Section \ref{sec:setfun}).
 
 
 \begin{itemize}
-\item[NB:] a mecanisms of publication of data identifiers isnt
+\item[NB:] a mechanism for data identifier publication hasn't been 
 implemented yet. So, exchanges of identifiers between end-users that
-want to share data must be explicitly done.
+want to share data must be done explicitly.
 \end{itemize}
 
 
 
 \item {The \texttt{diet\_free\_persistent\_data} method} allows the
-client to remove a persistent data from the platform.
+client to remove a persistent data item from the platform.
 \begin{verbatim}
   diet_free_persistent_data(char *argID);
 \end{verbatim}
@@ -467,11 +442,10 @@ typedef struct {
 \end{verbatim}
 }
 
-%
-% FIXME:
-% as soon as persistency is integrated, this should become the table Eddy
-% prepared to explain the transfer policy, depending on the modes.
-%
+\fixme{FIXME:
+as soon as persistency is integrated, this should become the table Eddy
+prepared to explain the transfer policy, depending on the modes.}
+
 
 The field \emph{parameters} consists of a \texttt{diet\_arg\_t} array of size
 $last\_out + 1$. Arguments can be
@@ -481,19 +455,20 @@ $last\_out + 1$. Arguments can be
 \item{INOUT:} The data are allocated by the user as for the IN
   arguments, then sent to the server and brought back into the same memory zone
   after the computation has completed, without any copy. Thus freeing this
-  memory while the computation is performed on the server would result in a
-  segmentation fault when the data are brought back onto the client.
+  memory at the client while the computation is performed on the
+  server would result in a segmentation fault when the data are
+  brought back onto the client.
 \item{OUT:} The data are created on the server and brought back into a
   newly allocated zone on the client. This allocation is performed by
-  DIET. After the call has returned, the user can find its result in
+  DIET. After the call has returned, the user can find the result in
   the zone pointed at by the \emph{value} field. Of course, DIET
-  cannot guess how long the user needs these data for, so it lets
-  him/her free the memory allocated with \texttt{diet\_free\_data}.
+  cannot guess how long the user will need these data, so the
+  user must free the memory him/herself with \texttt{diet\_free\_data}.
 \end{description}
 
-This behaviour will be modified soon with the introduction of the persistence
-modes that will let the user leave some data on the servers for later
-computations.
+\fixme{This behaviour will be modified soon with the introduction of the
+persistence modes that will let the user leave some data on the
+servers for later computations.}
 
 The fields \emph{last\_in}, \emph{last\_inout} and \emph{last\_out} of the
 \texttt{diet\_profile\_t} structure respectively point at the indexes in the
@@ -513,7 +488,7 @@ int diet_profile_free(diet_profile_t *profile);
 \section{Examples}
 \label{sec:pbex}
 
-\subsection{Example 1 : without persistency}
+\subsection{Example 1: without persistency}
 Let us consider the product of a scalar by a matrix: the matrix must be
 multiplied in-place, and the computation time must be returned.  This
 problem has one IN argument (the scalar factor), one INOUT argument (the matrix)
@@ -540,19 +515,19 @@ Here are the lines of C code to generate such a profile:
 
 \begin{itemize}
 \item[NB1:] If there is no IN argument, \emph{last\_in} must be set to
-  -1, if there is no INOUT argument is needed, \emph{last\_inout} must
+  -1, if there is no INOUT argument, \emph{last\_inout} must
   be equal to \emph{last\_in}, and if there is no OUT argument,
   \emph{last\_out} must be equal to \emph{last\_inout}.
 \item[NB2:] The \emph{value} argument for \texttt{\_set} functions
   (\ref{sec:setfun}) is ignored for OUT arguments, since DIET
   allocates the necessary memory space when the corresponding data are
-  transfered from the server, so set value to NULL.
+  transferred from the server, so set value to NULL.
 \end{itemize}
 
-\subsection{Example 2 : using persistency}
+\subsection{Example 2: using persistency}
 
-
-Let us consider the following problem : $C=A*B$, with A,B and C persistent matrices.
+Let us consider the following problem : $C=A*B$, with A,B and C
+persistent matrices.
 
 
 {\footnotesize
@@ -586,8 +561,8 @@ Let us consider the following problem : $C=A*B$, with A,B and C persistent matri
 \end{verbatim}
 }
 
-Then, a client submits the problem : $D=E+C$ with C already present in the platform.
-We consider that the handle of C is ``id.MA1.1.3''.
+Then, a client submits the problem : $D=E+C$ with C already present
+in the platform. We consider that the handle of C is ``id.MA1.1.3''.
 
 {\footnotesize
 \begin{verbatim}
@@ -608,10 +583,10 @@ We consider that the handle of C is ``id.MA1.1.3''.
                   NULL, DIET_PERSISTENT_RETURN, DIET_DOUBLE, mA, nB, oD);
   
   if (!diet_call(profile2)) {
-    diet_matrix_get(diet_parameter(profile2,2), &D, NULL, &mA, &nB, &oD);
+   diet_matrix_get(diet_parameter(profile2,2), &D, NULL, &mA, &nB, &oD);
    print_matrix(D, mA, nB, (oD == DIET_ROW_MAJOR));
-   store_id(profile2->parameters[2].desc.id,"matrice D de doubles");
-   store_id(profile2->parameters[1].desc.id,"matrice E de doubles");
+   store_id(profile2->parameters[2].desc.id,"matrix D of doubles");
+   store_id(profile2->parameters[1].desc.id,"matrix E of doubles");
   
   }
   diet_profile_free(profile2);
@@ -620,11 +595,12 @@ We consider that the handle of C is ``id.MA1.1.3''.
 \end{verbatim}
 }  
 
-Note that when in the same session, when a data is persistent and used
-twice, we cannot know what will be its identifier. However, the
-identifier is stored in the structure of the first profile use for
-computations. For example, consider a matrix A built with
-\texttt{diet\_matrix\_set()} method as following~: {\footnotesize
+Note that when a single client creates persistent data with a first
+DIET call and uses that data with a second DIET call, we will not
+konw in advance the identifier of the data.  However, the identifier 
+is stored in the structure of the first profile. For example,
+consider a matrix A built with
+\texttt{diet\_matrix\_set()} method as follows: {\footnotesize
 \begin{verbatim}
   ...
   diet_profile_t *profile;
@@ -635,7 +611,7 @@ computations. For example, consider a matrix A built with
 \end{verbatim}
 } After the first \texttt{diet\_call}, the identifier of A is stored in
 the profile (in \texttt{profile->parameters[0].desc.id}). So, for the
-second call, we will have the following instruction in order to use A~:
+second call we will have the following instruction in order to use A:
 {\footnotesize
 \begin{verbatim}
   ...
@@ -648,5 +624,6 @@ second call, we will have the following instruction in order to use A~:
 
 \begin{itemize}
 \item[NB:] when using this method, the first profile (here
-\texttt{profile}) must not be freed before its use. 
+\texttt{profile}) must not be freed before using or making a copy of
+the data identifier.
 \end{itemize}
