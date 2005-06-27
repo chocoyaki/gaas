@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.30  2005/06/27 09:53:10  alsu
+ * corrected comments for the diet_string_get and diet_paramstring_get macros
+ *
  * Revision 1.29  2005/05/27 08:18:16  mjan
  * Moving JuxMem in a more appropriate place (src/utils)
  * Added log messages for VizDIET
@@ -337,7 +340,7 @@ diet_use_data(diet_arg_t* arg, char* id);
   _matrix_get_with_id(arg, id, (void**)value, mode, nb_rows, nb_cols, order)
 /**
  * Type: int diet_string_get((diet_arg_t*), (char**),
- *                           (diet_persistence_mode_t*), (size_t*))
+ *                           (diet_persistence_mode_t*))
  */
 #define diet_string_get(arg, value, mode) \
   _string_get(arg, (char**)value, mode)
@@ -345,8 +348,7 @@ diet_use_data(diet_arg_t* arg, char* id);
 /**
  * Type: int diet_paramstring_get((diet_arg_t*),
  *                                (char**),
- *                                (diet_persistence_mode_t*),
- *                                (size_t*))
+ *                                (diet_persistence_mode_t*))
  */
 #define diet_paramstring_get(arg, value, mode) \
   _paramstring_get(arg, (char**) value, mode)
