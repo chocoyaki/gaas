@@ -10,6 +10,10 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.12  2005/06/27 08:59:41  hdail
+%* Updating interfaces to agree with current versions and adding memory cleanup
+%* to end of example programs.
+%*
 %* Revision 1.11  2005/05/29 13:51:22  ycaniou
 %* Moved the section concerning FAST from description to a new chapter about FAST
 %* and performances prediction.
@@ -42,53 +46,27 @@
 %*
 %* Revision 1.4  2004/01/05 23:17:00  ecaron
 %* Building a server application for DIET 1.0
-%*
-%* Revision 1.3  2003/12/15 13:49:36  ecaron
-%* Pointer correction into the diet_scalar_desc_set call
-%*
-%* Revision 1.2  2003/12/10 17:44:34  ghoesch
-%* added the convertor explanation
-%*
-%* Revision 1.1  2003/09/09 12:38:20  pcombes
-%* Reorganization of doc: UM becomes UsersManual.
-%*
-%* Revision 1.12  2003/06/16 17:41:01  pcombes
-%* Fix some mistakes on file names.
-%*
-%* Revision 1.11  2003/06/02 13:47:05  pcombes
-%* Fix footnotesize.
-%*
-%* Revision 1.10  2003/05/23 09:23:35  pcombes
-%* Add suggestions from Jean-Yves. Thanks !
-%*
-%* Revision 1.9  2003/05/15 14:17:58  pcombes
-%* UM 0.7
-%*
-%* Revision 1.6  2003/01/24 16:58:54  pcombes
-%* UM 0.6.4
-%*
-%* Revision 1.4  2003/01/21 12:17:02  pcombes
-%* Update UM to API 0.6.3, and "hide" data structures.
-%*
-%* Revision 1.2  2003/01/13 12:09:00  pcombes
-%* UM: client part complete for users's day ...
 %****************************************************************************%
 
 \chapter{Building a server application}
 \label{ch:server}
 
-A DIET server program is the link between the DIET Server Deamon (SeD) and the libraries that
-implement the service to offer.
+A DIET server program is the link between the DIET Server Deamon
+(SeD) and the libraries that implement the service to offer.
 
 \section{Structure of the program}
 \label{sec:sv_struct}
 
-As for the client side, the DIET SeD is a library. So the server developer needs
-to define the \texttt{main} function. Within the \texttt{main}, the DIET server
-will be launched with a call to \texttt{diet\_SeD} which will never return
-(except if some errors occur). The complete server side interface is described
-in the \texttt{$<$install\_dir$>$/include} files \texttt{DIET\_data.h} (see
-Chapter \ref{ch:data}) and \texttt{DIET\_server.h}. Do not forget to include the \texttt{DIET\_server.h} (\texttt{DIET\_server.h} includes \texttt{DIET\_data.h}) at the beginning of your server source code:
+As for the client side, the DIET SeD is a library. So the server
+developer needs to define the \texttt{main} function. Within the
+\texttt{main}, the DIET server will be launched with a call to
+\texttt{diet\_SeD} which will never return (except if some errors
+occur). The complete server side interface is described in the files
+\texttt{DIET\_data.h} (see Chapter~\ref{ch:data}) and \texttt{DIET\_server.h}
+found in \texttt{$<$install\_dir$>$/include}. Do not forget to
+include the \texttt{DIET\_server.h} (\texttt{DIET\_server.h}
+includes \texttt{DIET\_data.h}) at the beginning of your server
+source code.
 
 {\footnotesize
 \begin{verbatim}
@@ -121,15 +99,16 @@ int solve_service(diet_profile_t *pb)
    double *arg3;
 
    diet_scalar_get(diet_parameter(pb,0), &arg1, NULL);
-   diet_string_get(diet_parameter(pb,1), &arg2, NULL, NULL);
+   diet_string_get(diet_parameter(pb,1), &arg2, NULL);
    diet_scalar_get(diet_parameter(pb,2), &arg3, NULL);
    return service(*arg1, arg2, arg3);
 }
 \end{verbatim}
 }
 
-Several API functions are useful to help the user write this ``solve''
-function, particularly for getting IN arguments as well as setting OUT ones.
+Several API functions help the user to write this ``solve''
+function, particularly for getting IN arguments as well as setting
+OUT arguments.
 
 \subsubsection*{Getting IN, INOUT and OUT arguments}
 
@@ -143,11 +122,12 @@ to retrieve the pointer to the zone his/her program should write to.
 To set INOUT and OUT arguments, use the \texttt{diet\_*\_desc\_set} defined
 in \texttt{DIET\_server.h}, because they are helpful for writing ``solve''
 functions only. Using these functions, the server developer must keep in
-mind the fact that he cannot alter the memory space pointed by value fields
-on the server. Indeed, this would make DIET confused about how to manage
-the data{\footnote{And the server developer should not be confused by the
-    fact that \texttt{diet\_scalar\_desc\_set} uses a value, since scalar
-    values are copied into the data descriptor.}.
+mind the fact that he cannot alter the memory space pointed to by
+value fields on the server. Indeed, this would make DIET confused
+about how to manage the data{\footnote{And the server developer
+should not be confused by the fact that
+\texttt{diet\_scalar\_desc\_set} uses a value, since scalar values
+are copied into the data descriptor.}.
 
 {\footnotesize
 \begin{verbatim}
@@ -183,12 +163,14 @@ diet_file_desc_set(diet_data_t* data, char* path);
 
 \subsubsection*{Defining services}
 
-First, declare the service(s) that will be offered{\footnote{It is possible to
-  declare several services for one single SeD.}.
-Each service is described by a profile description called \texttt{diet\_profile\_desc\_t}, since the service does not specify the sizes of the data.
-The \texttt{diet\_profile\_desc\_t} type is defined in \texttt{DIET\_server.h},
-and is very similar to \texttt{diet\_profile\_t}. The difference is that the
-prototype is described with the generic parts of \emph{diet\_data\_desc} only,
+First, declare the service(s) that will be offered{\footnote{It is
+possible to declare several services for one single SeD.}.
+Each service is described by a profile description called
+\texttt{diet\_profile\_desc\_t} since the service does not specify
+the sizes of the data. The \texttt{diet\_profile\_desc\_t} type is
+defined in \texttt{DIET\_server.h}, and is very similar to
+\texttt{diet\_profile\_t}. The difference is that the prototype is
+described with the generic parts of \emph{diet\_data\_desc} only,
 whereas the client description uses full \emph{diet\_data}.
 {\footnotesize
 \begin{verbatim}
@@ -224,7 +206,7 @@ profile will then be set with \texttt{diet\_generic\_desc\_set} defined in
 
 \subsubsection*{Declaring services}
 
-Every service defined has to be added in the service table before the server is
+Every service must be added in the service table before the server is
 launched. The complete service table API is defined in \texttt{DIET\_server.h}:
 {\footnotesize
 \begin{verbatim}
@@ -244,16 +226,15 @@ computation.
 The parameter \texttt{diet\_convertor\_t *cvt} is to be used in combination
 with FAST (if available). It is there to allow profile conversion (for
 multiple services, or when differences occur between the DIET and the FAST
-profile). This is not an easy task and will therefore be explained
-separately in chapter~\ref{chapter:fast}.
-%the next paragraphs.
+profile). Profile conversion is complicated and will be treated
+separately in Chapter~\ref{chapter:fast}.
 
 \section{Example}
 \label{sec:sv_ex}
 
 Let us consider the same example as in Chapter \ref{ch:client}, where
 a function \texttt{scal\_mat\_prod} performs the product of a matrix
-by a scalar and times the computation: {\footnotesize
+and a scalar and returns the time required for the computation: {\footnotesize
 \begin{verbatim}
 int scal_mat_prod(double alpha, double *M, int nb_rows, int nb_cols, float *time);
 \end{verbatim}
@@ -281,6 +262,8 @@ int solve_smprod(diet_profile_t *pb)
   res = scal_mat_prod(*alpha, M, m, n, &time);
   /* Set OUT arguments */
   diet_scalar_desc_set(diet_parameter(pb,2), &time);
+  /* Free IN data */
+  diet_free_data(diet_parameter(pb,0));
 
   return res;
 }
@@ -310,17 +293,15 @@ int main(int argc, char* argv[])
 \end{verbatim}
 }
 
-
 \section{Compilation}
 \label{sec:sv_comp}
 
-
 After compiling his/her server program, the user must link it with the DIET
-libraries, the CORBA libraries, and the FAST libraries if DIET was compiled to
-use FAST. The easiest way to compile a program using DIET with all
-necessary flags and link with the right libraries is to trust the
-\texttt{Makefile.inc} available in \texttt{$<$include\_dir$>$/include}, and
-include it at the beginning of the program makefile.
+and CORBA libraries. The easiest way to compile a program using DIET
+with all necessary flags and link with the right libraries is to
+trust the \texttt{Makefile.inc} available in
+\texttt{$<$include\_dir$>$/include}, and include it at the beginning
+of the program makefile.
 
 The \texttt{Makefile.inc} defines the variables:
 \begin{itemize}
