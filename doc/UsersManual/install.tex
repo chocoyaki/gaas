@@ -10,6 +10,13 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.21  2005/06/27 19:26:52  hdail
+%* - Moved introduction to FAST to description section with intro to multi-MA and
+%*   gave both chapter references.
+%* - Changed version number to 2.0.
+%* - Moved info on compiling FAST itself to fast section from install section.
+%*   install section still explains how to configure DIET with FAST.
+%*
 %* Revision 1.20  2005/06/24 15:07:29  hdail
 %* Continuing english corrections and updating.
 %*
@@ -88,27 +95,7 @@ has been patched in DIET, but some warnings still appear.  \\
 Since omniORB needs thread-safe management of exception handling,
 compiling DIET with \verb+gcc+ requires at least \verb+gcc-2.96+.  \\
 
-When configured to use FAST, DIET servers are able to provide better
-performance prediction including application computation times for
-some application types.  See Section~\ref{sec:FAST} for details.
-
-\fixme{FAST dependencies should be described elsewhere in a
-FAST-specific section!}
-FAST depends on:
-\begin{itemize}
- \item{\textbf{DB 2}} the Berkeley Database routines
- \item{\textbf{GSL}} the GNU Scientific Library
- \item{\textbf{OpenLDAP}} an implementation of the Lightweight
-                          Directory Access Protocol
- \item{\textbf{NWS}} the Network Weather Service
-\end{itemize}
-For more details about FAST dependencies, please refer to the FAST
-Reference Manual~\footnote{\url{http://graal.ens-lyon.fr/FAST/docs}}.
-It is important to understand basically how FAST works, and the role
-of its dependencies, to deactivate the ones that are not needed by the
-user.\\
-
-Finally, some examples provided in the DIET sources depend on the BLAS
+Some examples provided in the DIET sources depend on the BLAS
 and \scalapack\ libraries. However these examples do not have to be
 compiled.
 
@@ -298,7 +285,7 @@ most cases.
 \end{verbatim}
 }
 \noindent This group of options lets the user define all necessary
-paths to compile with FAST. Generally, \texttt{--with-FAST=DIR} should
+paths to compile with FAST; Generally, \texttt{--with-FAST=DIR} should
 be enough, and the other options are provided for difficult
 installations of FAST. There is no need to specify includes, libraries
 and extra arguments, since FAST provides a tool \texttt{fast-config}

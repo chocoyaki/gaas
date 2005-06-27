@@ -7,35 +7,33 @@
 %* $LICENSE$                                                                *%
 %****************************************************************************%
 
-\chapter{Performances prediction with FAST}
+\chapter{Performance prediction with FAST}
 \label{chapter:fast}
 
 %\section{Introduction to FAST}
 
-This chapter deals with FAST, the performances prediction module that
-can be interrogated by the DIET system. It is non-mandatory but if you want
-DIET to be able to use the power of FAST estimations, this chapter also
-describes how to build the FAST-enable server.
+This chapter deals with FAST, a performance prediction module that
+can be used by DIET. It is non-mandatory, but can provide SeDs with
+improved performance prediction capability.
 
 %====[ FAST: FAST AGENT'S SYSTEM TIMER ]=======================================
 \section{FAST: Fast Agent's System Timer}
 \label{sec:FAST}
 
-FAST \cite{Qui02} is a tool for dynamic performance forecasting in a
-Grid environment. As shown in Figure~\ref{fig:fast-overview}, FAST is
-composed of several layers and relies on low-level software. First it
-uses a network and CPU monitoring software to handle dynamically
-changing resources, like workload or bandwidth.  FAST uses the Network
-Weather Service (NWS)~\cite{WSH99}, a distributed system that
-periodically monitors and dynamically forecasts the performance of
-various network and computational resources. The resource
-availabilities acquisition module of FAST uses and enhances NWS.
-Indeed, if there is no direct NWS monitoring between two machines,
-FAST automatically searches for the shortest path between them in the
-graph of monitored links. It estimates the bandwidth as the minimum of
-those in the path and the latency as the sum of those measured. This
-allows for the availability of more predictions when DIET is deployed
-over a hierarchical network.
+FAST~\cite{Qui02} is a tool for dynamic performance forecasting in a
+Grid environment. As shown in Figure~\ref{fig:fast-overview}, FAST
+is composed of several layers and relies on a variety of low-level
+software. First, it uses the Network Weather Service
+(NWS)~\cite{WSH99}, a distributed system that periodically monitors
+and dynamically forecasts the performance of various network and
+computational resources. The resource availabilities acquisition
+module of FAST uses and enhances NWS. Indeed, if there is no direct
+NWS monitoring between two machines, FAST automatically searches for
+the shortest path between them in the graph of monitored links. It
+estimates the bandwidth as the minimum of those in the path and the
+latency as the sum of those measured. This allows for the
+availability of more predictions when DIET is deployed over a
+hierarchical network.
 
 \begin{figure}[htb]
   \begin{center}
@@ -45,39 +43,53 @@ over a hierarchical network.
   \end{center}
 \end{figure}
 
-In addition to the system availabilities, FAST can also forecast the
-time and space needs of computational routines, depending on both the
-parameter set and the machine where the computation would take place.
-For this, FAST benchmarks the routines at installation time on each
-machine for a representative set of parameters. After polynomial data
-fitting, the results are stored in an LDAP tree.  The user API of FAST
-is composed of a small set of functions that combine resource
-availabilities and routine needs from low-level software to produce
-ready-to-use values.  These results can be combined into analytical
-models by the parallel extension~\cite{CS02} to forecast execution
-times of parallel routines.
+In addition to system availabilities, FAST can also forecast the
+time and space needs of certain computational routines as a function
+of the problem parameters and the machine where the computation
+would take place.  FAST is particularly suited to numerical algebra
+routines whose performance is not data-dependent and where a clear
+relationship exists between problem size and performance. As a basis
+for predictions, FAST benchmarks the routines at installation time
+on each machine for a representative set of parameters. After
+polynomial data fitting, the results are stored in an LDAP tree. The
+user API of FAST is composed of a small set of functions that
+combine resource availabilities and routine needs from low-level
+software to produce ready-to-use values.  These results can be
+combined into analytical models by the parallel
+extension~\cite{CS02} to forecast execution times of parallel
+routines.
 
-Thus DIET components, as any FAST client, can access information like
-the time needed to move a given amount of data between two SeDs, the
-time to solve a problem with a given set of computational resources
-managed by a SeD, or the combination of these two quantities.\\
+FAST clients can access information like the time needed to move a
+given amount of data between two FAST-enabled machines SeDs, the
+time to solve a problem with a given set of computational resources,
+or the combination of these two quantities.\\
 
-For more details about FAST, please read the FAST Reference
-Manual~\footnote{\url{http://graal.ens-lyon.fr/FAST/docs}}.
+For more details about FAST, please refer to the FAST 
+webpage~\footnote{\url{http://graal.ens-lyon.fr/~mquinson/fast.html}}.
+% the FAST Reference Manual~\footnote{\url{http://graal.ens-lyon.fr/FAST/docs}}.
+
+\section{Building FAST}
+
+The first step is to download and install FAST and its
+dependent programs.  FAST depends on:
+\begin{itemize} 
+ \item{\textbf{NWS}} the Network Weather Service
+ \item{\textbf{GSL}} the GNU Scientific Library
+ \item{\textbf{OpenLDAP}} an implementation of the Lightweight
+                          Directory Access Protocol
+\end{itemize}
+Of course, you also need to install the FAST SDK itself. It is important to
+understand basically how FAST works, and the role of its dependencies, to
+deactivate the ones that are not needed by the user.
 
 \section{Building a server application with FAST}
 
-The performances prediction is performed in the DIET SeD, thus, no
-modification has to be done in the client application part.
+Since performances prediction is performed only in the DIET SeD, 
+no modification is needed to the client code.
 
-If DIET was compiled  with the necessary options to use FAST for
-performances prediction (see page~\pageref{fast_compil}), the server
-part of the application has do be adaptated. As introduced in
-section~\ref{sec:sv_comp}, in that case, the role of convertors is
-important.
-
-In the next subsections, we will explain the convertors and see how it
-should be implemented in an example.
+On the other hand, at the SeD-level the code must sometimes be adapted.  In 
+the next subsection we explain convertors and show how they can be used
+in an example.
 
 \subsection{Using convertors}
 
@@ -88,7 +100,7 @@ implementation. This is mainly used to
 hide the implementation specific profile of a service from
 the user. It allows different servers to declare the same
 service with the same profile using different implementations
-of the service. As FAST relies on the path of the service the
+of the service. As FAST relies on the path of the service, the
 convertor can also change the path of the declared profile to
 enable a correct evaluation of the incoming requests by FAST.
 If no convertor is passed when declaring a new service, a
@@ -128,8 +140,7 @@ allows the following operations:
 \item{\texttt{DIET\_CVT\_FILE\_SIZE}} Get the size of the file
 \end{itemize}
 Only the \texttt{DIET\_CVT\_IDENTITY} function can be applied to any
-argument.  All other functions can only operate on one type of
-argument but this should be self explanation.
+argument; all other functions only operate on one type of argument.
 
 \end{description}
 
@@ -142,7 +153,7 @@ argument but this should be self explanation.
 /**
  * Example 1
  * Assume we declared a profile (INOUT MATRIX) with the path 'solve_T'.
- * This profile will be called by the clients. Our implementation expects
+ * This profile will be called by the client. Our implementation expects
  * a profile (IN INT, IN INT, INOUT MATRIX). This profile is known to
  * FAST with the path 'T_solve'.
  * We will write a convertor that changes the name and extracts the 
@@ -183,5 +194,5 @@ argument but this should be self explanation.
 
 \noindent More examples on how to create and use convertors are given in the
 files \\
-'\texttt{examples/dmat\_manips/server.c}' and '\texttt{examples/BLAS/server.c}'.
+\texttt{examples/dmat\_manips/server.c} and \texttt{examples/BLAS/server.c}.
 

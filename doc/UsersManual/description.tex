@@ -8,6 +8,13 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.11  2005/06/27 19:26:52  hdail
+%* - Moved introduction to FAST to description section with intro to multi-MA and
+%*   gave both chapter references.
+%* - Changed version number to 2.0.
+%* - Moved info on compiling FAST itself to fast section from install section.
+%*   install section still explains how to configure DIET with FAST.
+%*
 %* Revision 1.10  2005/06/24 14:27:07  hdail
 %* Correcting english problems & updating descriptions that are no longer true.
 %*
@@ -137,17 +144,6 @@ a free CORBA implementation that provides good communication
 performance.
 
 
-%====[ Multi-MA ]==============================================================
-\section{Multi-MA}
-\label{init:multima}
-
-The basic organization of DIET is a hierarchical organization of one
-MA, zero or more LAs, and 1 or more SeDs. Several hierarchies can be
-federated by connecting the MAs together. In multi-MA mode, the
-behavior of a DIET hierarchy does not change when a client requests
-a service that is available in the hierarchy.  However, if a request
-arrives at the MA and the requested service can not be found, DIET
-will search for the service in other federated hierarchies.
 
 %====[ DIET INITIALIZATION ]===================================================
 \section{DIET initialization}
@@ -236,9 +232,33 @@ four steps.
   references to the client.
 \end{itemize}
 
-If the multi-MA option is enabled and no server is found, then the MA
-propagates the client request to the other MA(s) which then execute
-the same pattern.
+%====[ Extensions ]============================================================
+\section{DIET Extensions}
+\label{sec:extensions}
+
+%====[ Multi-MA ]==============================================================
+\subsection{Multi-MA}
+\label{init:multima}
+
+The basic organization of DIET is a hierarchical organization of one
+MA, zero or more LAs, and 1 or more SeDs. Several hierarchies can be
+federated by connecting the MAs together. In multi-MA mode, the
+behavior of a DIET hierarchy does not change when a client requests
+a service that is available in the hierarchy.  However, if a request
+arrives at the MA and the requested service can not be found, DIET
+will search for the service in other federated hierarchies.  
+To read more about multi-MA, see Chapter~\ref{ch:p2pextension}. 
+
+%====[ FAST ]==============================================================
+\subsection{FAST}
+\label{sub:fast}
+
+Fast Agent's System Timer (FAST)~\cite{Qui02} is a tool for dynamic
+performance forecasting in a Grid environment.  When DIET is
+compiled with the appropriate options and FAST has been configured
+on the SeD machine, SeDs can access FAST to obtain dynamic
+performance predictions.  See Chapter~\ref{chapter:fast} for details
+on using FAST.
 
 %%%%%%%%%%%%%%%
 %% FIXME:
