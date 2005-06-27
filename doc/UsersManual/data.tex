@@ -8,6 +8,10 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.14  2005/06/27 08:32:52  hdail
+%* fixme for addition of free for user-defined and out parameters at end of sample
+%* code segments.
+%*
 %* Revision 1.13  2005/06/27 07:55:06  hdail
 %* Correcting english etc.  Added some fixmes where I didn't know how to correct
 %* old text.
@@ -560,6 +564,8 @@ persistent matrices.
   diet_finalize();
 \end{verbatim}
 }
+\fixme{Shouldn't we be freeing the user-allocated and OUT data at
+end?}
 
 Then, a client submits the problem : $D=E+C$ with C already present
 in the platform. We consider that the handle of C is ``id.MA1.1.3''.
@@ -594,6 +600,8 @@ in the platform. We consider that the handle of C is ``id.MA1.1.3''.
   diet_finalize();
 \end{verbatim}
 }  
+\fixme{Shouldn't we be freeing the user-allocated and OUT data at
+end?}
 
 Note that when a single client creates persistent data with a first
 DIET call and uses that data with a second DIET call, we will not
