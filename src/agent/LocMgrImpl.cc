@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2005/06/28 15:56:56  hdail
+ * Changing the debug level of messages to make DIET less verbose (and in
+ * agreement with the doc =).
+ *
  * Revision 1.12  2005/04/13 08:49:11  hdail
  * Beginning of adoption of new persistency model: DTM is enabled by default and
  * JuxMem will be supported via configure flags.  DIET will always provide at
@@ -135,7 +139,7 @@ LocMgrImpl::run()
       ERROR("LocMgr: cannot locate my parent " << parentName, 1);
     }
   }
-  TRACE_TEXT(TRACE_MAIN_STEPS,
+  TRACE_TEXT(TRACE_ALL_STEPS,
 	       "\nRoot LocMgr " << this->myName<< " started.\n\n");
   return 0;
 }

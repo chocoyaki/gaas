@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2005/06/28 15:56:56  hdail
+ * Changing the debug level of messages to make DIET less verbose (and in
+ * agreement with the doc =).
+ *
  * Revision 1.21  2005/04/13 08:49:11  hdail
  * Beginning of adoption of new persistency model: DTM is enabled by default and
  * JuxMem will be supported via configure flags.  DIET will always provide at
@@ -243,7 +247,7 @@ main(int argc, char** argv)
   }
 
   if (useLS) {
-    TRACE_TEXT(TRACE_MAIN_STEPS, "LogService enabled\n");
+    TRACE_TEXT(TRACE_ALL_STEPS, "LogService enabled\n");
     char* agtTypeName;
     char* agtParentName;
     char* agtName;
@@ -268,7 +272,7 @@ main(int argc, char** argv)
     }
     free(agtTypeName);
   } else {
-    TRACE_TEXT(TRACE_MAIN_STEPS, "LogService disabled\n");
+    TRACE_TEXT(TRACE_ALL_STEPS, "LogService disabled\n");
     dietLogComponent = NULL;
   }
 

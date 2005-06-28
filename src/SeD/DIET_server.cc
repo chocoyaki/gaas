@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.40  2005/06/28 15:56:43  hdail
+ * Changing the debug level of messages to make DIET less verbose (and in
+ * agreement with the doc =).
+ *
  * Revision 1.39  2005/06/03 16:25:57  mjan
  * Adding tricks for using GoDIET with DIET/JuxMem
  * Using name of DIET SeDs and clients to generate the name of JXTA peers
@@ -670,51 +674,45 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
 
   /* DietLogComponent creation for LogService usage */
   bool useLS;
-    // size_t --> unsigned int
   unsigned int* ULSptr;
   int outBufferSize;
-    // size_t --> unsigned int
   unsigned int* OBSptr;
   int flushTime;
-    // size_t --> unsigned int
   unsigned int* FTptr;
 
-    // size_t --> unsigned int
   ULSptr = (unsigned int*)Parsers::Results::getParamValue(
               Parsers::Results::USELOGSERVICE);
   useLS = false;
-  if (ULSptr == NULL) {
-    cout << "WARNING: useLogService not configured. Disabled by default\n";
-  } else {
+  if (ULSptr != NULL) {
     if (*ULSptr) {
       useLS = true;
     }
   }
 
   if (useLS) {
-    // size_t --> unsigned int
     OBSptr = (unsigned int*)Parsers::Results::getParamValue(
   	       Parsers::Results::LSOUTBUFFERSIZE);
     if (OBSptr != NULL) {
       outBufferSize = (int)(*OBSptr);
     } else {
       outBufferSize = 0;
-      WARNING("lsOutbuffersize not configured, using default");
+      TRACE_TEXT(TRACE_ALL_STEPS,
+            "lsOutbuffersize not configured, using default");
     }
 
-    // size_t --> unsigned int
     FTptr = (unsigned int*)Parsers::Results::getParamValue(
   	       Parsers::Results::LSFLUSHINTERVAL);
     if (FTptr != NULL) {
       flushTime = (int)(*FTptr);
     } else {
       flushTime = 10000;
-      WARNING("lsFlushinterval not configured, using default");
+      TRACE_TEXT(TRACE_ALL_STEPS,
+            "lsFlushinterval not configured, using default");
     }
   }
 
   if (useLS) {
-    TRACE_TEXT(TRACE_MAIN_STEPS, "LogService enabled\n");
+    TRACE_TEXT(TRACE_ALL_STEPS, "LogService enabled\n");
     char* parentName;
     parentName = (char*)Parsers::Results::getParamValue
                           (Parsers::Results::PARENTNAME);
@@ -732,7 +730,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
       dietLogComponent = NULL; // this should never happen;
     }
   } else {
-    TRACE_TEXT(TRACE_MAIN_STEPS, "LogService disabled\n");
+    TRACE_TEXT(TRACE_ALL_STEPS, "LogService disabled\n");
     dietLogComponent = NULL;
   }
 
