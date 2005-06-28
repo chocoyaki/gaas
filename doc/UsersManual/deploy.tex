@@ -11,6 +11,10 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.15  2005/06/28 15:53:02  hdail
+%* Completed corrections for config file examples and text explaining launch of
+%* each component.
+%*
 %* Revision 1.14  2005/06/28 13:57:55  hdail
 %* Described GoDIET and updating section on launching by hand.
 %*
@@ -194,6 +198,7 @@ environment variable should now be :\\ \texttt{LD\_LIBRARY\_PATH$=
 assigned a different name in the nameserver; since they don't have any 
 children, SeDs do not need names assigned to them and they don't register with
 the name server.
+
 \textbf{NB2:} Each DIET hierarchy can use a different name server, or multiple 
 hierarchies can share one name server (assuming all agents are assigned 
 unique names).  In a multi-MA environment, in order for multiple hierarchies
@@ -201,7 +206,7 @@ to be able to cooperate it is necessary that they all share the same
 name server.
 
 %====[ DIET configuration file ]===============================================
-\section{DIET configuration file} 
+\section{DIET configuration file}
 \label{sec:diet_config_files}
 
 A configuration file is needed to launch a DIET entity. Some fully
@@ -216,6 +221,7 @@ installed in \texttt{$<$install\_dir$>$/etc} \footnote{if there isn't
   line,
 \item meaningful lines have the format: \texttt{keyword = value},
   following the format of configuration files for omniORB 4,
+\item for options that accept 0 or 1, 0 means no and 1 means yes, and
 \item keywords are case sensitive.
 \end{itemize}
 
@@ -240,7 +246,7 @@ This option controls debugging trace output. The following levels are defined:
 \end{center}
 
 
-\subsection{Client side parameters}
+\subsection{Client parameters}
 
 \noindent
 \texttt{MAName} \ \ \emph{default}\texttt{ = }\emph{none}\\ This is a
@@ -249,7 +255,7 @@ Agent to connect to. The MA must have registered with this same name
 to the CORBA name server.
 
 
-\subsection{Agent side parameters}
+\subsection{Agent parameters}
 
 \noindent
 \texttt{agentType} \ \ \emph{default}\texttt{ = }\emph{none}\\
@@ -265,22 +271,70 @@ They have aliases, respectively \texttt{MA} and \texttt{LA}.
 agent will register to the CORBA name server.
 
 
-\subsection{LAs and SeD side parameters}
+\subsection{LA and SeD parameters}
 
 \noindent
 \texttt{parentName} \ \ \emph{default}\texttt{ = }\emph{none}\\ This
-is a \textbf{mandatory} parameter for Local Agents only ; it indicates
-the name of the parent (an LA or the MA) to register to.
+is a \textbf{mandatory} parameter for Local Agents and SeDs, but 
+not for the MA.  It indicates the name of the parent (an LA or the
+MA) to register to.
+
+\subsection{Endpoint Options}
+
+\noindent
+\texttt{dietPort} \ \ \emph{default} \texttt{ = none }\\ This
+option specifies the listening port of an agent or SeD. If not
+specified, the ORB gets a port from the system. This option is very
+useful when a machine is behind a firewall. By default this option
+is disabled.\\
+
+\noindent
+\texttt{dietHostname} \ \ \emph{default} \texttt{ = none }\\
+The IP address or hostname at which the entitity can be contacted
+from other machines. If not specified, let the
+ORB get the hostname from the system; by default, omniORB takes the
+first registered network interface, which is not always accessible
+from the exterior.  This option is very useful in a variety of
+complicated networking environments such as when multiple interfaces
+exist or when there is no DNS.
+
+\subsection{LogService options}
+
+\noindent
+\texttt{useLogService} \ \ \emph{default}\texttt{ = 0}\\ This
+activates the connection to LogService. 
+If
+this option is set to 1 then the LogCentral must be started before any
+DIET entities. Agents and SeDs will connect to LogCentral to deliver
+their monitoring information and they will refuse to start if they
+cannot establish this connection. See Section~\ref{sec:LogService} 
+to learn more about LogService.\\
+
+\noindent
+\texttt{lsOutbuffersize} \ \ \emph{default}\texttt{ = 0}\\
+\noindent
+\texttt{lsFlushinterval} \ \ \emph{default}\texttt{ = 10000}\\ DIETs
+LogService connection can buffer outgoing messages and send them
+asynchronously. This can decrease the network load when
+several messages are sent at one time. It can also be used to decouple
+the generation and the transfer of messages.  The buffer is specified
+by it's size (\texttt{lsOutbuffersize}, number of messages) and the
+time it is regularly flushed (\texttt{lsFlushinterval},
+nanoseconds). It is recommended not to change the default parameters
+if you do not encounter problems. The buffer options will be ignored
+if \texttt{useLogService} is set to 0.
 
 
 \subsection{FAST options}
 
 \noindent
-\texttt{fastUse} \ \ \emph{default}\texttt{ = 1}\\ This option
+Currently, FAST is only used at the SeD-level, so these parameters
+will only have an effect in SeD configuration files.\\
+
+\noindent
+\texttt{fastUse} \ \ \emph{default}\texttt{ = 0}\\ This option
 activates the requests to FAST. It is ignored if DIET was compiled
-without FAST, and defaults to 1 otherwise. In the latter case, it is
-useful to set it to 0 if one wishes to perform some tests without
-deploying the whole NWS/LDAP platform.
+without FAST, and defaults to 0 otherwise. \\
 
 The following options are ignored if DIET was compiled without FAST or if
 \texttt{fastUse} is set to 0.
@@ -288,10 +342,9 @@ The following options are ignored if DIET was compiled without FAST or if
 \subsubsection{LDAP options}
 
 \noindent
-\texttt{ldapUse} \ \ \emph{default}\texttt{ = 0} for agents, \texttt{
-= 1} for SeDs\\ This option activates the use of LDAP in FAST
-requests. It defaults to 0 for agents (which do not need to connect to
-the LDAP base) and to 1 for SeDs.  \\
+\texttt{ldapUse} \ \ \emph{default}\texttt{ = 0} \\
+This option activates the use of LDAP in FAST requests.  Only SeDs
+need to connect to the LDAP so the option is ignored at the agent-level. \\
 
 The following two options are ignored if \texttt{ldapUse} is set to 0.
 \\
@@ -311,7 +364,7 @@ base.
 \subsubsection{NWS options}
 
 \noindent
-\texttt{nwsUse} \ \ \emph{default}\texttt{ = 1}\\ This option
+\texttt{nwsUse} \ \ \emph{default}\texttt{ = 0}\\ This option
 activates the use of NWS in FAST requests. If 0, FAST will use an
 internal sensor for the performance of the machine, but will not be
 able to evaluate communication times.  \\
@@ -324,91 +377,46 @@ The following two options are ignored if \texttt{nwsUse} is set to 0.
 Specify the \texttt{host:port} address of the NWS name server.
 \\
 
-\noindent
-\texttt{nwsForecaster} \ \ \emph{default}\texttt{ = }\emph{none}\\
-Specify the \texttt{host:port} address of the NWS forecaster.
-\\
-
-
-\subsection{LogService options}
-
-\noindent
-\texttt{useLogService} \ \ \emph{default}\texttt{ = 0}\\ This
-activates the connection to LogService if DIET was compiled with
-\texttt{--enable-logservice}. LogService is disabled by default.  If
-this option is set to 1 then the LogCentral must be started before any
-DIET nodes. Agents and SeDs will connect to it to deliver their
-monitoring information and they will refuse to start if they cannot
-establish this connection. See http://graal.ens-lyon.fr/LogService/ to
-know how to launch LogCentral.  \\
-
-\noindent
-\texttt{lsOutbuffersize} \ \ \emph{default}\texttt{ = 0}\\
-\noindent
-\texttt{lsFlushinterval} \ \ \emph{default}\texttt{ = 10000}\\ DIETs
-LogService connection offers to buffer outgoing messages and send them
-asynchronously. This can eventually decrease the network load when
-several messages are sent at one time. It can also be used to decouple
-the generation and the transfer of messages.  The buffer is specified
-by it's size (\texttt{lsOutbuffersize}, number of messages) and the
-time it is regularly flushed (\texttt{lsFlushinterval},
-nanoseconds). It is recommended not to change the default parameters
-if you do not encounter problems. The buffer options will be ignored
-if \texttt{useLogService} is set to 0.
-
 \subsection{Multi-MA options}
 
-To federate the MA, each MA try to contact periodically other
-MA. Those option define how the MA connect to the others.
+To federate multiple hierarchies, each MA tries to periodically contact other
+MAs. These options define how the MA connects to the others.\\
 
 \noindent
-\texttt{neighbours}\\ List of known MA separated by commas. The MA
-will try to connect to the MA named by this list. Each MA is describe
+\texttt{neighbours} \ \ \emph{default}\texttt{ = empty list \{\}} \\
+List of known MAs separated by commas. The MA
+will try to connect to the MAs named in this list. Each MA is describe
 by the name of it's host followed by its bind service port number. For
 example
-\texttt{host1.domain.com:500,host4.domain.com:500,host.anotherdomain.net:2001}
+\texttt{host1.domain.com:500,host4.domain.com:500,host.domainB.net:2001}
 is a valid three MA list. By default, an empty list is set into
 \texttt{neighbours}.\\
 
 \noindent
 \texttt{maximumNeighbours} \ \ \emph{default}\texttt{ = 10}\\ This is
-the maximum number of MA that can be connected to the MA. If a MA want
-to connect to the MA an the current number of connected MA is equal to
-\texttt{maximumNeighbours}, the request is rejected.\\
+the maximum number of other MAs that can connect to the current MA.
+If another MA wants to connect and the current number of connected
+MAs is equal to \texttt{maximumNeighbours}, the request is
+rejected.\\
 
 \noindent
 \texttt{minimumNeighbours} \ \ \emph{default}\texttt{ = 2}\\ This is
-the minimum number of MA that should be connected to the MA. If the
+the minimum number of MAs that should be connected to the MA. If the
 current number of connected MA is lower than
-\texttt{minimumNeighbours}, the MA try to connect to other MA.\\
+\texttt{minimumNeighbours}, the MA tries to connect to other MAs.\\
 
 \noindent
 \texttt{updateLinkPeriod} \ \ \emph{default}\texttt{ = 300}\\ The MA
-check if the connected MA are alive every \texttt{updateLinkPeriod}
+checks if the connected MAs are alive every \texttt{updateLinkPeriod}
 seconds.\\
 
 \noindent
-\texttt{bindServicePort}\\ The MA need to use a specific port to be
-able to federate. This port is only used for initialized the
-connections between MA. \texttt{bindServicePort} has no default
-value. If it is not set, the MA is not able to federate with other
-MA.\\
+\texttt{bindServicePort} \ \ \emph{default}\texttt{ = none}\\ 
+The MA needs to use a specific port to be able to federate. This
+port is only used for initializing connections between MAs. If this
+parameter is not set, the MA is not able to federate with other
+MAs.\\
 
-\subsection{Miscellanous options}
-
-\noindent
-\texttt{dietPort} \ \ \emph{default} \texttt{ = }\emph{2809}\\ This
-option specifies the listening port of an agent or SeD. If not
-specified, let the ORB get a port from the system (if the default 2809
-was busy). This option is very useful when a machine is behind a
-firewall. By default this option is disabled.
-
-\noindent
-\texttt{dietHostname} \ \ \emph{$<$hostname |  IP$>$}\\ The listening
-interface of the agent. If not specified,let the ORB get the hostname
-from the system (the first one if several are available).  It is very
-useful when you has more than one network interface, or you don't have
-a DNS, ...
 
 %====[ Example ]=========================================
 \section{Example}
@@ -442,23 +450,23 @@ For such a platform, the MA configuration file could be:
   \multicolumn{4}{l}{\# file MA\_example.cfg, configuration file for an MA}\\
   agentType     &=&DIET\_MASTER\_AGENT&\\
   name          &=&MA\_example        &\\
-  \#traceLevel  &=&5                  &\# default\\
-  \#dietPort    &=&<port>             &\# default\\
-  \#dietHostname&=&<hostname|IP>      &\# default\\
-  \#fastUse     &=&1                  &\# default\\
+  \#traceLevel  &=&1                  &\# default\\
+  \#dietPort    &=&<port>             &\# not needed\\
+  \#dietHostname&=&<hostname|IP>      &\# not needed\\
+  fastUse       &=&1                  &\\
   \#ldapUse     &=&0                  &\# default\\
-  \#nwsUse      &=&1                  &\# default\\
+  nwsUse        &=&1                  &\\
   nwsNameserver &=&nwshost:9001       &\\
-  nwsForecaster &=&nwshost:9002       &\\
-  useLogService &=& 0                 &\\
-  lsOutbuffersize &=& 0               &\\
-  lsFlushinterval &=& 10000           &\\
+  \#useLogService &=& 0               &\# default\\
+  \#lsOutbuffersize &=& 0             &\# default\\
+  \#lsFlushinterval &=& 10000           &\# default\\
  \end{tabular}
 \end{center}
 \rm
 
-This configuration file is the only argument to the executable \texttt{dietAgent},
-that is installed in \texttt{$<$install\_dir$>$/bin}. Provided
+This configuration file is the only argument to the executable
+\texttt{dietAgent}, which is installed in
+\texttt{$<$install\_dir$>$/bin}. Provided
 \texttt{$<$install\_dir$>$/bin} is in your PATH environment variable, run
 {\footnotesize
 \begin{verbatim}
@@ -480,61 +488,60 @@ For such a platform, an LA configuration file could be:
   agentType    &=&DIET\_LOCAL\_AGENT&\\
   name         &=&LA\_example       &\\
   parentName   &=&MA\_example       &\\
-  \#traceLevel &=&5                 &\# default\\
-  \#dietPort    &=&<port>             &\# default\\
-  \#dietHostname&=&<hostname|IP>      &\# default\\
-  \#fastUse    &=&1                 &\# default\\
+  \#traceLevel &=&1                 &\# default\\
+  \#dietPort    &=&<port>             &\# not needed\\
+  \#dietHostname&=&<hostname|IP>      &\# not needed\\
+  fastUse    &=&1                 &\\
   \#ldapUse    &=&0                 &\# default\\
-  \#nwsUse     &=&1                 &\# default\\
+  nwsUse     &=&1                 &\\
   nwsNameserver&=&nwshost:9001      &\\
-  nwsForecaster&=&nwshost:9002      &\\
-  useLogService &=& 0                 &\\
-  lsOutbuffersize &=& 0               &\\
-  lsFlushinterval &=& 10000           &\\
+  \#useLogService &=& 0               &\# default\\
+  \#lsOutbuffersize &=& 0             &\# default\\
+  \#lsFlushinterval &=& 10000           &\# default\\
  \end{tabular}
 \end{center}
 \rm
 
 This configuration file is the only argument to the executable
-\texttt{dietAgent}, that is installed in
+\texttt{dietAgent}, which is installed in
 \texttt{$<$install\_dir$>$/bin}. This LA will register as a child of
 MA\_example. Run {\footnotesize
 \begin{verbatim}
 ~ > dietAgent LA_example.cfg
 
 Local Agent LA_example started.
+
 \end{verbatim}
 }
 
 \subsubsection{Launching a server}
 
-For such a platform, an \sed\ configuration file could be:
+For such a platform, a \sed\ configuration file could be:
 \tt
 \begin{center}
  \footnotesize
  \begin{tabular}{lcll}
-  \multicolumn{4}{l}{\# file SeD\_example.cfg, configuration file for an SeD}\\
+  \multicolumn{4}{l}{\# file SeD\_example.cfg, configuration file for a SeD}\\
   parentName   &=&LA\_example        &\\
-  \#traceLevel &=&5                 &\# default\\
-  \#dietPort    &=&<port>             &\# default\\
-  \#dietHostname&=&<hostname|IP>      &\# default\\
-  \#fastUse    &=&1                 &\# default\\
-  \#ldapUse    &=&1                 &\# default\\
+  \#traceLevel &=&1                 &\# default\\
+  \#dietPort    &=&<port>             &\# not needed\\
+  \#dietHostname&=&<hostname|IP>      &\# not needed\\
+  fastUse    &=&1                 &\\
+  ldapUse    &=&1                 &\\
   ldapBase     &=&ldaphost:9000     &\\
   ldapMask     &=&dc=LIP,dc=ens-lyon,dc=fr&\\
-  \#nwsUse     &=&1                 &\# default\\
+  nwsUse     &=&1                 &\\
   nwsNameserver&=&nwshost:9001      &\\
-  nwsForecaster&=&nwshost:9002      &\\
-  useLogService &=& 0                 &\\
-  lsOutbuffersize &=& 0               &\\
-  lsFlushinterval &=& 10000           &\\
+  \#useLogService &=& 0               &\# default\\
+  \#lsOutbuffersize &=& 0             &\# default\\
+  \#lsFlushinterval &=& 10000           &\# default\\
  \end{tabular}
 \end{center}
 \rm
 
-This \sed\ will register as a son of LA\_example. Run the executable
+The \sed\ will register as a child of LA\_example. Run the executable
 that you linked with the DIET SeD library, and do not forget that the
-first argument of \texttt{diet\_SeD} must be the path of the
+first argument of the method call \texttt{diet\_SeD} must be the path of the
 configuration file above.
 
 
@@ -545,14 +552,14 @@ Our client must connect to the MA\_example:
 \begin{center}
  \footnotesize
  \begin{tabular}{lcll}
-  \multicolumn{4}{l}{\# file SeD\_example.cfg, configuration file for an SeD}\\
+  \multicolumn{4}{l}{\# file client.cfg, configuration file for a client}\\
   MAName       &=&MA\_example        &\\
-  \#traceLevel &=&5                 &\# default\\
+  \#traceLevel &=&1                 &\# default\\
  \end{tabular}
 \end{center}
 \rm
 
 Run the executable that you linked with the DIET client library, and
-do not forget that the first argument of \texttt{diet\_initialize}
-must be the path of the configuration file above.
-
+do not forget that the first argument of the method call
+\texttt{diet\_initialize} must be the path of the configuration
+file above.
