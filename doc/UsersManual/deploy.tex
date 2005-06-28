@@ -2,12 +2,18 @@
 %* DIET User's Manual deploying chapter file                                *%
 %*                                                                          *%
 %*  Author(s):                                                              *%
+%*    - Holly DAIL (Holly.Dail@ens-lyon.fr)                                 *%
+%*    - Raphael BOLZE (Raphael.Bolze@ens-lyon.fr)                           *%
+%*    - Eddy CARON (Eddy Caron@ens-lyon.fr)                                 *%
 %*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *%
 %*                                                                          *%
 %* $LICENSE$                                                                *%
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.14  2005/06/28 13:57:55  hdail
+%* Described GoDIET and updating section on launching by hand.
+%*
 %* Revision 1.13  2005/06/24 14:27:07  hdail
 %* Correcting english problems & updating descriptions that are no longer true.
 %*
@@ -29,87 +35,90 @@
 %*
 %* Revision 1.8  2004/07/12 08:33:58  rbolze
 %* explain how to copy cfgs file in install_dir/etc directory and correct my english
-%*
-%* Revision 1.7  2004/07/09 14:34:42  rbolze
-%* make changes relative to DIET 1.1 version
-%*
-%* Revision 1.6  2004/04/05 11:11:37  rbolze
-%* add instrcution for the config files and LogService
-%*
-%* Revision 1.5  2004/02/10 01:39:50  ecaron
-%* Add suggestions from Frederic Desprez. Thanks !
-%*
-%* Revision 1.4  2004/01/29 17:08:47  ecaron
-%* Add suggestions from Frederic Desprez. Thanks !
-%*
-%* Revision 1.3  2004/01/21 00:25:13  ecaron
-%* Add suggestions from Holly Dail. Thanks !
-%*
-%* Revision 1.2  2004/01/07 10:27:33  cpera
-%* Add asynchronous call example and useAsyncAPI config parameter.
-%*
-%* Revision 1.1  2003/09/09 12:38:20  pcombes
-%* Reorganization of doc: UM becomes UsersManual.
-%*
-%* Revision 1.10  2003/06/02 13:47:05  pcombes
-%* Fix footnotesize.
-%*
-%* Revision 1.9  2003/05/23 09:23:35  pcombes
-%* Add suggestions from Jean-Yves. Thanks !
-%*
-%* Revision 1.8  2003/05/15 14:17:58  pcombes
-%* UM 0.7
-%*
-%* Revision 1.5  2003/01/22 17:34:53  pcombes
-%* User Manual, v. 0.6.4
-%*
-%* Revision 1.4  2003/01/21 12:17:02  pcombes
-%* Update UM to API 0.6.3, and "hide" data structures.
-%*
-%* Revision 1.3  2003/01/13 12:09:00  pcombes
-%* UM: client part complete for users's day ...
 %****************************************************************************%
 
 \chapter{Deploying a DIET platform}
 \label{ch:deploying}
 
-\fixme{Holly: Chapitre GoDIET. The current chapter is an ``has been'' way to deploy DIET.}
+Deployment is the process of launching a DIET platform including agents
+and servers.  For DIET, this process includes writing configuration
+files for each element and launching the elements in the correct
+hierarchical order. There are three primary ways to deploy DIET.
+
+Launching \textbf{by hand} is a reasonable way to deploy DIET for
+small-scale testing and verification. This chapter explains the 
+necessary services, how to write DIET configuration files, and in
+what order DIET elements should be launched.
+
+\textbf{GoDIET} is a Java-based tool for automatic DIET deployment
+that manages configuration file creation, staging of files, launch
+of elements, monitoring and reporting on launch success, and process
+cleanup when the DIET deployment is no longer needed. The user of
+GoDIET describes the desired deployment in an XML file including all
+needed external services (e.g. omniNames and LogService); the
+desired hierarchical organization of agents and servers is expressed
+directly using the hierarchical organization of XML.  The user also
+defines all machines available for the deployment, disk scratch
+space available at each site for storage of configuration files, and
+which machines share the same disk to avoid unecessary copies.
+GoDIET is extremely useful for large deployments (e.g. more than 5
+elements) and for experiments where one needs to deploy and
+shut-down multiple deployments to test different configurations.
+Note that debugging deployment problems when using GoDIET can be
+difficult, especially if you don't fully understand the role of each
+element you are launching.  If you have trouble identifying the
+problem, read the rest of this chapter in full and try launching key
+elements of your deployment by hand.  GoDIET is available for
+download on the web\footnote{http://graal.ens-lyon.fr/DIET/godiet.html}
+and a technical report~\cite{CDa05} provides full details on GoDIET
+including an example XML file with explanations.
+
+\textbf{Writing your own scripts} is a surprisingly popular
+approach.  This approach often looks easy initially, but can
+sometimes take much, much longer than you predict as there are many
+complexities to manage.  Learn GoDIET -- it will save you time!
 
 %====[ Deploying CORBA services ]==============================================
-\section{Deploying CORBA services}
+\section{Using CORBA} 
 \label{sec:CORBA_services}
 
-So far, only one CORBA service is needed: the Naming Service. This
-service provided by a name server that must be launched before all
-DIET entities. Then, these DIET entities must be passed a reference to
-the $<$host:port$>$ of this name server.
+CORBA is used for all communications in DIET and for communications
+between DIET and accessory services such as LogService, VizDIET, and
+GoDIET.  This section gives basic information on how to use DIET
+with CORBA.  Please refer to the documentation of your ORB if you
+need more details.
 
-In this section, we try to give some basic information to start using
-DIET with a basic CORBA configuration. Please refer to the
-documentation of your ORB if you need more details.
+\subsection{The naming service}
 
-\subsection{omniNames}
-
-\subsubsection{The server}
+DIET uses a standard CORBA naming service for translating a
+user-friendly string-based name for an object into an Interoperable
+Object Reference (IOR) that is a globally unique identifier
+incorporating the host and port where the object can be contacted.
+The naming service in omniORB is called \texttt{omniNames} and it
+must be launched before any other DIET entities.  DIET entities can
+then locate each other using only a string-based name and the
+$<$host:port$>$ of the name server.
 
 To launch the omniORB name server, first check that the path of the omniORB
 libraries is in your environment variable \texttt{LD\_LIBRARY\_PATH}, then
 specify the log directory, through the environment variable
 \texttt{OMNINAMES\_LOGDIR} (or, with \textbf{omniORB 4}, at compile time,
 through the \texttt{--with-omniNames-logdir} option of the omniORB configure
-script). If there is no yet log file in this directory, \texttt{omniNames} needs to be intialize. It can be launched as follows:
+script). If there are no log files in this directory,
+\texttt{omniNames} needs to be intialized. It can be launched as
+follows: 
 {\footnotesize
 \begin{verbatim}
 ~ > omniNames -start
 
-Fri Dec 13 14:46:02 2002:
+Tue Jun 28 15:56:50 2005:
 
 Starting omniNames for the first time.
 Wrote initial log file.
 Read log file successfully.
 Root context is IOR:010000002b00000049444c3a6f6d672e6f72672f436f734e616d696e672f4e61
 6d696e67436f6e746578744578743a312e300000010000000000000060000000010102000d0000003134
-302e37372e31332e34360000fa0a0b0000004e616d655365727669636500020000000000000008000000
+302e37372e31332e34390000f90a0b0000004e616d655365727669636500020000000000000008000000
 0100000000545441010000001c0000000100000001000100010000000100010509010100010000000901
 0100
 Checkpointing Phase 1: Prepare.
@@ -118,47 +127,46 @@ Checkpointing completed.
 \end{verbatim}
 }
 
-This sets an omniORB name server which listens to clients connections
-on default port 2809. If omniNames has already been launched once,
-\emph{ie} there is already some log files in the log directory, using
+This sets an omniORB name server which listens for client connections
+on the default port 2809. If omniNames has already been launched once,
+\emph{ie} there are already some log files in the log directory, using
 the \texttt{-start} option causes an error. The port is actually read
 from old log files: {\footnotesize
 \begin{verbatim}
-~ > omniNames -start 2810
+~ > omniNames -start
 
-Fri Dec 13 15:02:36 2002:
+Tue Jun 28 15:57:39 2005:
 
 Error: log file '/tmp/omninames-toto.log' exists.  Can't use -start option.
+
 ~ > omniNames  
 
-Fri Dec 13 15:02:40 2002:
+Tue Jun 28 15:58:08 2005:
 
 Read log file successfully.
 Root context is IOR:010000002b00000049444c3a6f6d672e6f72672f436f734e616d696e672f4e61
 6d696e67436f6e746578744578743a312e300000010000000000000060000000010102000d0000003134
-302e37372e31332e34360000fa0a0b0000004e616d655365727669636500020000000000000008000000
+302e37372e31332e34390000f90a0b0000004e616d655365727669636500020000000000000008000000
 0100000000545441010000001c0000000100000001000100010000000100010509010100010000000901
-0100
 Checkpointing Phase 1: Prepare.
 Checkpointing Phase 2: Commit.
 Checkpointing completed.
 \end{verbatim}
 }
 
+\subsection{CORBA usage for DIET}
 
-\subsubsection{The client}
-
-For every DIET entity, you need to connect to the CORBA name server:
+Every DIET entity must connect to the CORBA name server:
 it is the way services discover each other. The reference to the
-omniORB name server is written in the configuration file, whose path
+omniORB name server is written in a CORBA configuration file, whose path
 is given to omniORB through the environment variable
 \texttt{OMNIORB\_CONFIG} (or, with \textbf{omniORB 4}, at compile
-time, through the option of the configure script:
-\texttt{--with-omniORB-config} ). Some examples of such a
-configuration file are given in the directory
-\texttt{src/examples/cfgs} of the DIET source files and installed in
-\texttt{$<$install\_dir$>$/etc}. The lines concerning the name server,
-in the omniORB configuration file, are built as follows:
+time, through the configure script option:
+\texttt{--with-omniORB-config} ). An example of such a
+configuration file is given in the directory
+\texttt{src/examples/cfgs} of the DIET source tree and installed in
+\texttt{$<$install\_dir$>$/etc}. The lines concerning the name server
+in the omniORB configuration file are built as follows:
 \begin{description}
  \item{omniORB 3:}
 {\footnotesize
@@ -173,26 +181,24 @@ ORBInitialPort <name server port>
 InitRef = NameService=corbaname::<name server hostname>:<name server
 port>
 \end{verbatim}
-} The name server port is the one given in argument to the
+} 
+\end{description}
+The name server port is the port given as an argument to the
 \texttt{-start} option of \texttt{omniNames}.  You also need to update
 your \texttt{LD\_LIBRARY\_PATH} to point to
 \texttt{$<$install\_dir$>$/lib}.  So your \texttt{LD\_LIBRARY\_PATH}
 environment variable should now be :\\ \texttt{LD\_LIBRARY\_PATH$=
 <$omniORB\_home$>$/lib:$<$install\_dir$>$/lib}.
 
-\end{description}
-
-\subsubsection{Multi-MA environment}
-
-Each MA can have its own name service. This is possible because there
-is no need for a MA hierarchy to know about another MA hierarchy. But
-every elements of a MA hierarchy must use the same name server to be
-able to cooperate.
-
-%\subsection*{The TAO name server}
-%\subsubsection{The server}
-%\subsubsection{The client}
-
+\textbf{NB1:} In order to avoid name collision, every agent must be 
+assigned a different name in the nameserver; since they don't have any 
+children, SeDs do not need names assigned to them and they don't register with
+the name server.
+\textbf{NB2:} Each DIET hierarchy can use a different name server, or multiple 
+hierarchies can share one name server (assuming all agents are assigned 
+unique names).  In a multi-MA environment, in order for multiple hierarchies
+to be able to cooperate it is necessary that they all share the same
+name server.
 
 %====[ DIET configuration file ]===============================================
 \section{DIET configuration file} 
