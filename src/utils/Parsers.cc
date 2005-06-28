@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2005/06/28 15:55:06  hdail
+ * Changed default config file settings so that even if FAST is compiled in,
+ * defaults are the same as when its not compiled in.  Users should explicitly
+ * state in config file that they require NWS, LDAP, and/or FAST since
+ * requiring them can cause DIET to hang and/or crash.
+ *
  * Revision 1.22  2004/10/04 13:55:06  hdail
  * - Added AccessController class, an enhanced counting semaphore.
  * - Added config file options for controlling concurrent SeD access.
@@ -233,9 +239,9 @@ Parsers::checkFASTEntries()
 #if HAVE_FAST
 
   if (PARAM(FASTUSE).value == NULL) {
-    PARSERS_WARNING(PARAM(FASTUSE).kwd << " is missing.\n As DIET was compiled"
-		    << " with FAST, I guess " << PARAM(FASTUSE).kwd << " = 1");
-    PARAM(FASTUSE).value = new size_t(1);
+    PARSERS_WARNING(PARAM(FASTUSE).kwd << " is missing.\n I guess "
+		    << PARAM(FASTUSE).kwd << " = 0");
+    PARAM(FASTUSE).value = new size_t(0);
   }
 
     // size_t --> unsigned int
@@ -248,19 +254,15 @@ Parsers::checkFASTEntries()
     if (PARAM(LDAPUSE).value == NULL) {
       // Display warning for SeDs only, when ldapUse is not set
       if (PARAM(AGENTTYPE).value != NULL) {
-	PARSERS_WARNING(PARAM(LDAPUSE).kwd << " is missing.\n As DIET was "
-			<< "compiled with FAST, and " << PARAM(FASTUSE).kwd
-			<< " = 1, I guess " << PARAM(LDAPUSE).kwd << " = 1");
-    // size_t --> unsigned int
-	*((unsigned int*)PARAM(LDAPUSE).value) = 1;
+	PARSERS_WARNING(PARAM(LDAPUSE).kwd << " is missing.\n I guess "
+			<< PARAM(LDAPUSE).kwd << " = 0");
+	*((unsigned int*)PARAM(LDAPUSE).value) = 0;
       } else {
 	// for agents, default is 0
-    // size_t --> unsigned int
 	*((unsigned int*)PARAM(LDAPUSE).value) = 0;
       }
     }
 
-    // size_t --> unsigned int
     use = *((unsigned int*)PARAM(LDAPUSE).value);
     TRACE_TEXT(TRACE_ALL_STEPS,
 	       ' ' << PARAM(LDAPUSE).kwd << " = " << use << ".\n");
@@ -284,14 +286,11 @@ Parsers::checkFASTEntries()
 
     /* Check NWS entries */
     if (PARAM(NWSUSE).value == NULL) {
-      PARSERS_WARNING(PARAM(NWSUSE).kwd << " is missing.\n As DIET was "
-		      << "compiled with FAST, and " << PARAM(FASTUSE).kwd
-		      << " = 1, I guess " << PARAM(NWSUSE).kwd << " = 1");
-    // size_t --> unsigned int
-      *((unsigned int*)PARAM(NWSUSE).value) = 1;
+      PARSERS_WARNING(PARAM(NWSUSE).kwd << " is missing.\n  I guess "
+		      << PARAM(NWSUSE).kwd << " = 0");
+      *((unsigned int*)PARAM(NWSUSE).value) = 0;
     }
 
-    // size_t --> unsigned int
     use = *((unsigned int*)PARAM(NWSUSE).value);
     TRACE_TEXT(TRACE_ALL_STEPS,
 	       ' ' << PARAM(NWSUSE).kwd << " = " << use << ".\n");
@@ -324,12 +323,11 @@ Parsers::checkFASTEntries()
 #else  // HAVE_FAST
 
   if (PARAM(FASTUSE).value != NULL)
-    // size_t --> unsigned int
     use = *((unsigned int*)PARAM(FASTUSE).value);
+
   if (use > 0) {
     PARSERS_WARNING("fastUse is set to 1 at line " << Parsers::noLine
 		    << " but DIET was compiled without FAST - ignored");
-    // size_t --> unsigned int
     *((unsigned int*)PARAM(FASTUSE).value) = 0;
   }
 
@@ -341,7 +339,6 @@ Parsers::checkFASTEntries()
 /**
  * Check for presence of compulsory params, and call checkFASTEntries.
  */
-    // size_t --> unsigned int
 int
 Parsers::checkValidity(bool checkFASTEntries, unsigned int nbCompulsoryParams,
 		       Results::param_type_t* compulsoryParams)
