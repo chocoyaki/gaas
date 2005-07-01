@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2005/07/01 13:00:12  rbolze
+ * Agents send their list of SeD to LogCentral with each value of the estimation vector.
+ *
  * Revision 1.7  2005/06/03 14:05:18  mjan
  * Fix issue in JuxMem log funtions
  *
@@ -319,6 +322,11 @@ public:
    * Implements the ComponentConfigurator class in LogComponent.idl
    */
   void removeTagFilter(const tag_list_t& tagList);
+
+  /**
+   * get a string representation of the v_tag value 
+   */
+  char* getEstimationTags(const int v_tag);
 
 private:
   /**

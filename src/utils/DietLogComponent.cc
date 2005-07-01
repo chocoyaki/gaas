@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2005/07/01 13:00:12  rbolze
+ * Agents send their list of SeD to LogCentral with each value of the estimation vector.
+ *
  * Revision 1.11  2005/06/03 14:05:18  mjan
  * Fix issue in JuxMem log funtions
  *
@@ -41,6 +44,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <iostream>
+#include <string>
 using namespace std;
 
 #include "ORBMgr.hh"
@@ -200,6 +204,8 @@ DietLogComponent::DietLogComponent(const char* name,
   tagNames[14] = strdup("JUXMEM_DATA_STORE");
   tagNames[15] = strdup("JUXMEM_DATA_USE");
 #endif
+
+  
   CORBA::Object_ptr myLCCptr;
 
   try {
@@ -386,6 +392,53 @@ DietLogComponent::removeTagFilter(const tag_list_t& tagList) {
  * Helper functions
  */
 
+/*
+ * This function gives the string corresponding to the v_tag index;
+ * This function must be consitent with typedef diet_est_tag_t in DIET_data.h
+ */
+char* 
+DietLogComponent::getEstimationTags(const int v_tag){
+	char* ret;
+	switch(v_tag){
+		case(-1):
+		ret = strdup("EST_INVALID");
+		break;
+		case(1):
+		ret = strdup("EST_TOTALTIME");
+	        break;
+		case(2):
+		ret = strdup("EST_COMMTIME");
+	        break;
+		case(3):
+		ret = strdup("EST_TCOMP");
+	        break;
+		case(4):
+		ret = strdup("EST_FREECPU");
+	        break;
+		case(5):
+		ret = strdup("EST_FREEMEM");
+	        break;
+		case(6):
+		ret = strdup("EST_NBCPU");
+	        break;
+		case(7):
+		ret = strdup("EST_CPUSPEED");
+	        break;
+		case(8):
+		ret = strdup("EST_TOTALMEM");
+	        break;
+		case(9):
+		ret = strdup("EST_TIMESINCELASTSOLVE");
+	        break;
+		case(10):
+		ret = strdup("EST_USERDEFINED");
+	        break;
+		default:
+		ret = strdup("UNKNOWN");
+	}
+	return ret;
+}
+
 int DietLogComponent::getTagIndex(const char* tag) {
   for (int i=0; i < tagCount; i++) {
     if (strcmp(tag, tagNames[i]) == 0) {
@@ -427,14 +480,21 @@ DietLogComponent::getLocalTime() {
 /**
  * Count the number of Digits in a unsigned long
  */
- 
 static int num_Digits(unsigned long num){
 	if ( num < 10 )
 		return 1;
 	else
 		return 1+num_Digits(num/10);
 }
-
+/**
+ * Count the number of Digits in a double
+ */
+static int num_Digits(int num){
+	        if ( num < 10)
+	    	return 1;
+	        else
+	        return 1+num_Digits(num/10);
+}
 /**
  * "Synchronised" functions with errorhandling
  */
@@ -545,7 +605,7 @@ DietLogComponent::logAskForSeD(const corba_request_t* request) {
     s = new char[strlen(request->pb.path)+num_Digits(request->reqID)+2]; 
     sprintf(s,"%s %ld",(const char *)(request->pb.path),(unsigned long)(request->reqID));
     log(tagNames[1], s);
-    delete s;
+    delete(s);
   }
 }
 
@@ -553,21 +613,35 @@ void
 DietLogComponent::logSedChosen(const corba_request_t* request,
 			       const corba_response_t* response) {
   if (tagFlags[2]) {
-    // FIXME: add the complet list/outline of chosen servers ?
     char* s;
-    //cout << "Number of Server = "<< response->servers.length() << endl;
-    //cout << "Name of Server : "<< response->servers[0].loc.hostName <<endl;
+    unsigned int i,j;
     if (response->servers.length()>0){
+	string estim_string = "";
+    	for ( i=0 ; i < response->servers.length();i++){
+		estim_string.append(" ");
+		estim_string.append(response->servers[i].loc.hostName);
+		for (j=0 ; j < response->servers[i].estim.estValues.length() ; j++){
+			int valTagInt = response->servers[i].estim.estValues[j].v_tag;
+			estim_string.append(";");
+			estim_string.append(getEstimationTags(valTagInt));
+			estim_string.append("=");
+			char* v_value= new char[256];
+			sprintf(v_value,"%f",response->servers[i].estim.estValues[j].v_value);
+			estim_string.append(v_value);
+			delete(v_value); 
+		}
+	}
     s = new char[strlen(request->pb.path)
 	    +num_Digits(request->reqID)
 	    +num_Digits(response->servers.length())
-	    +strlen(response->servers[0].loc.hostName)	    
-	    +4]; 
-    sprintf(s,"%s %ld %ld %s",
-	    (const char *)(request->pb.path),
-	    (unsigned long)(request->reqID),
-	    (unsigned long)(response->servers.length()),
-	    (const char *)(response->servers[0].loc.hostName) );
+	    +estim_string.length()
+	    +5]; 
+    sprintf(s,"%s %ld %ld%s"
+	    ,(const char *)(request->pb.path)
+	    ,(unsigned long)(request->reqID)
+	    ,(unsigned long)(response->servers.length())
+	    ,(const char *)(estim_string.c_str()) 
+	    );
     }else{
      s = new char[strlen(request->pb.path)
 	    +num_Digits(request->reqID)
@@ -579,6 +653,7 @@ DietLogComponent::logSedChosen(const corba_request_t* request,
 	    (unsigned long)(response->servers.length()) );
      }
     log(tagNames[2], s);
+    delete(s);
   }
 }
 
@@ -599,6 +674,7 @@ DietLogComponent::logBeginSolve(const char* path,
     s = new char[strlen(path)+num_Digits(reqID)+2]; 
     sprintf(s,"%s %ld",(const char *)(path),(unsigned long)(reqID));
     log(tagNames[3], s);
+    delete(s);
   }
 }
 
@@ -610,6 +686,7 @@ DietLogComponent::logEndSolve(const char* path,
     s = new char[strlen(path)+num_Digits(reqID)+2]; 
     sprintf(s,"%s %ld",(const char *)(path),(unsigned long)(reqID));
     log(tagNames[4], s);
+    delete(s);
   }
 }
 
@@ -663,6 +740,7 @@ DietLogComponent::logDataStore(const char* dataID, const long unsigned int size,
     }
     }
     log(tagNames[6], s);
+    delete(s);
   }
   free(base);
 }
@@ -728,7 +806,7 @@ DietLogComponent::logJuxMemDataStore(const unsigned long reqID, const char* data
     log(tagNames[14], s);
   }
   free(base);
-  //delete(s);
+  delete(s);
 }
 
 void 
