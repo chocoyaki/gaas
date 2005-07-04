@@ -5,19 +5,6 @@
 #* $Author$
 #* $LICENSE$
 #* $Id$
-#* $Log$
-#* Revision 1.3  2005/05/17 11:58:52  eboix
-#*     Added a Cmake/README for cmake starters.
-#*     First try on compiling the tex documentation.
-#*     Cosmetic changes to CMakeLists.txt.  --- Injay 2461
-#*
-#* Revision 1.2  2005/04/29 16:18:01  eboix
-#*     First example of JXTA dependant compilation.  --- Injay 2461
-#*
-#* Revision 1.1  2005/04/28 12:26:39  eboix
-#*     Adding configuration files (trial version) of CMake building mecanism.
-#*     This will NOT interfere with current autotools.  --- Injay 2461
-#*
 #****************************************************************************#
 
 
@@ -36,10 +23,13 @@ OPTION( DIET_USE_FAST "Build DIET with the FAST support." OFF )
 OPTION( DIET_MAINTAINER_MODE "Build additional documentation..." OFF )
 
 # --------------------- DEPENDENCIES TO EXTERNALS --------------------------
-INCLUDE( ${DIET_SOURCE_DIR}/Cmake/FindOmniORB.cmake )
+INCLUDE( ${DIET_SOURCE_DIR}/Cmake/FindOmniORB.cmake  )
+SET( CMAKE_MODULE_PATH ${DIET_SOURCE_DIR}/Cmake )
 
 IF( DIET_BUILD_DOCUMENTATION )
   FIND_PACKAGE( LATEX )
+  FIND_PACKAGE( Transfig )
+  FIND_PACKAGE( ImageMagick )
   SUBDIRS( doc )
 ENDIF( DIET_BUILD_DOCUMENTATION )
 
