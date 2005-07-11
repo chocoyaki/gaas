@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2005/07/11 16:31:56  hdail
+ * Corrected bug wherein the MA would stop completely if a client requested
+ * a service that didn't exist; this bug was introduced recently, so there should
+ * be no reports of it from outside users.
+ *
  * Revision 1.12  2005/05/15 15:51:15  alsu
  * to indicate sucess/failure, addServices not returns a value
  *
@@ -90,7 +95,8 @@ LocalAgentImpl::run()
   }
 
   TRACE_TEXT(TRACE_MAIN_STEPS,
-	     "\nLocal Agent " << this->myName << " started.");
+	     "\nLocal Agent " << this->myName << " started.\n");
+  fflush(stdout);
 
   return 0;
 } // run()

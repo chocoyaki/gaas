@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2005/07/11 16:31:56  hdail
+ * Corrected bug wherein the MA would stop completely if a client requested
+ * a service that didn't exist; this bug was introduced recently, so there should
+ * be no reports of it from outside users.
+ *
  * Revision 1.19  2005/05/15 15:48:50  alsu
  * minor changes from estimation vector reorganization
  *
@@ -181,7 +186,8 @@ MasterAgentImpl::run()
 #endif // HAVE_MULTI_MA
   /* num_session thread safe*/
   TRACE_TEXT(TRACE_MAIN_STEPS,
-	     "\nMaster Agent " << this->myName << " started.");
+	     "\nMaster Agent " << this->myName << " started.\n");
+  fflush(stdout);
   return 0;
 } // run(char* configFileName)
 
@@ -302,7 +308,7 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
     }
 #endif // HAVE_MULTI_MA
   } catch(...) {
-    WARNING("An exception was catched\n") ;
+    WARNING("An exception was caught\n") ;
   }
 
   if (dietLogComponent != NULL) {
@@ -329,32 +335,47 @@ MasterAgentImpl::submit_local(const corba_request_t& creq)
 
   /* Initialize the request with a global scheduler */
   TRACE_TEXT(TRACE_ALL_STEPS, "Initialize the request " << creq.reqID << ".\n");	    
-  ServiceTable::ServiceReference_t sref =
-    this->SrvT->lookupService(&(creq.pb));
-  assert(sref >= 0);
-  CORBA::Long numProfiles;
-  SeqCorbaProfileDesc_t *profiles = this->SrvT->getProfiles(numProfiles);
-  assert(sref < numProfiles);
-  const corba_profile_desc_t profile = (*profiles)[sref];
-  corba_aggregator_desc_t agg = ((*profiles)[sref]).aggregator;
-  req = new Request(&creq,
+  /* Check that service exists */
+  ServiceTable::ServiceReference_t sref;
+  srvTMutex.lock();
+  sref = this->SrvT->lookupService(&(creq.pb));
+
+  if (sref == -1) {
+    srvTMutex.unlock();
+
+    /* Initialize the response */
+    resp = new corba_response_t;
+    resp->reqID = creq.reqID;
+    resp->servers.length(0);
+
+  } else {
+    CORBA::Long numProfiles;
+    SeqCorbaProfileDesc_t *profiles = this->SrvT->getProfiles(numProfiles);
+    assert(sref < numProfiles);
+    const corba_profile_desc_t profile = (*profiles)[sref];
+    srvTMutex.unlock();
+  
+    req = new Request(&creq,
                     GlobalScheduler::chooseGlobalScheduler(&creq, &profile));
 
-  /* Forward request and schedule the responses */
+    /** Forward request and schedule the responses */
+    resp = findServer(req, creq.max_srv);
 
-  resp = findServer(req, creq.max_srv);
+    delete profiles;
+  }
 
   resp->myID = (ChildID) -1;
+
   // Constructor initializes sequences with length == 0
   if ((resp != NULL) && (resp->servers.length() != 0)) {
     resp->servers.length(MIN(resp->servers.length(),
-			     static_cast<size_t>(creq.max_srv)));
+			      static_cast<size_t>(creq.max_srv)));
     TRACE_TEXT(TRACE_ALL_STEPS, "Decision signaled.\n");
   } else {
     TRACE_TEXT(TRACE_MAIN_STEPS,
-	       "No server found for problem " << creq.pb.path << ".\n");
+	        "No server found for problem " << creq.pb.path << ".\n");
   }
-  
+
   reqList[creq.reqID] = NULL;
   delete req ;
 
