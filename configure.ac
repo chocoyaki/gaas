@@ -8,6 +8,11 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.50  2005/07/12 19:42:41  hdail
+#* Bugzilla Bug #12 corrected.  When building in a separate directory,
+#* src/lib directory should only be copied over when --enable-JXTA-mode flag is
+#* provided at configure time.
+#*
 #* Revision 1.49  2005/07/12 18:10:27  hdail
 #* Remove excess warning messages about the dangers of not using fast.
 #*
@@ -228,9 +233,12 @@ if test "x$enable_JXTA" = "xyes"
 then
   AC_DEFINE(HAVE_JXTA)
   IDLFLAGS="$IDLFLAGS -DHAVE_JXTA"
+  JARDATA="lib/*.jar"
   USE_JXTA_MODE=yes
   NA_DETECT_JAVAC(required)
   NA_DETECT_JXTA
+else
+  JARDATA=""
 fi
 
 AM_CONDITIONAL(JXTA_MODE, [test "x$USE_JXTA_MODE" = "xyes"])
@@ -323,6 +331,14 @@ dnl ###########################################################################
 dnl Detected in AC_OMNIORB_DIET :
 dnl AC_CHECK_LIB([pthread], [pthread_attr_getdetachstate])
 
+
+dnl ###########################################################################
+# Search for the FAST Library
+dnl ###########################################################################
+AM_FAST(FAST_min_version,
+	[HAVE_FAST=yes],
+	[HAVE_FAST=no])
+
 dnl ###########################################################################
 # Search the ORB to use
 dnl ###########################################################################
@@ -399,12 +415,6 @@ fi
 # to 
 AM_CONDITIONAL(USE_BATCH, [test "x$HAVE_BATCH" = "xyes"])
 
-dnl ###########################################################################
-# Search for the FAST Library
-dnl ###########################################################################
-AM_FAST(FAST_min_version,
-	[HAVE_FAST=yes],
-	[HAVE_FAST=no])
 
 dnl ###########################################################################
 dnl ####[ search for the BLAS Library ]
@@ -466,6 +476,8 @@ AC_SUBST(LDFLAGS)
 AC_SUBST(CXXFLAGS_OMNIORB)
 
 AC_SUBST(IDLFLAGS)
+
+AC_SUBST(JARDATA)
 
 AC_SUBST(prefix)
 AC_SUBST(topsrcdir)

@@ -10,6 +10,11 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.5  2005/07/12 19:42:45  hdail
+#* Bugzilla Bug #12 corrected.  When building in a separate directory,
+#* src/lib directory should only be copied over when --enable-JXTA-mode flag is
+#* provided at configure time.
+#*
 #* Revision 1.4  2004/07/09 19:51:58  ctedesch
 #* - javac and javah detected instead of java
 #* - JXTA_LIB automatically set before compilation
@@ -32,4 +37,4 @@ SUBDIRS = CORBA utils @SUBMODULES_src@
 DIST_SUBDIRS = $(SUBDIRS) @DIST_SUBMODULES_src@
 
 jardir = $(prefix)/lib
-jar_DATA = lib/*.jar
+jar_DATA = @JARDATA@
