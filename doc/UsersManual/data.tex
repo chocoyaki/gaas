@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.16  2005/07/12 09:11:32  ecaron
+%* Fix free matrices memory
+%*
 %* Revision 1.15  2005/07/12 08:00:03  ecaron
 %* Swap Schedulin in DIET and FAST section
 %*
@@ -563,6 +566,8 @@ persistent matrices.
       
   }
   diet_profile_free(profile);
+  // free matrices memory
+  ...
   diet_finalize();
 \end{verbatim}
 }
@@ -599,11 +604,11 @@ in the platform. We consider that the handle of C is ``id.MA1.1.3''.
   }
   diet_profile_free(profile2);
   diet_free_persistent_data("id.MA1.1.3");
+  // free matrices memory
+  ...
   diet_finalize();
 \end{verbatim}
 }  
-\fixme{Shouldn't we be freeing the user-allocated and OUT data at
-end?}
 
 Note that when a single client creates persistent data with a first
 DIET call and uses that data with a second DIET call, we will not
