@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.23  2005/07/12 08:00:03  ecaron
+%* Swap Schedulin in DIET and FAST section
+%*
 %* Revision 1.22  2005/06/28 15:52:28  hdail
 %* Changed figure name to agree with figure rename by Eddy.
 %*
@@ -121,16 +124,16 @@
 \begin{tabular}{ll}
   \textbf{VERSION}  & \dietversion\\
   \textbf{DATE}     & June 2005\\
-  \textbf{PROJECT MANAGER}  & Fr\'ed\'eric \textsc{Desprez}.\\
+  \textbf{PROJECT MANAGER}  & Frédéric \textsc{Desprez}.\\
   \textbf{EDITORIAL STAFF}  & Eddy \textsc{Caron} and Philippe ~\textsc{Combes}.\\
   \textbf{AUTHORS STAFF}    & 
 \begin{minipage}[t]{12cm}
-  Rapha\"el \textsc{Bolze}, Yves \textsc{Caniou}, Eddy \textsc{Caron},
+  Raphaël \textsc{Bolze}, Yves \textsc{Caniou}, Eddy \textsc{Caron},
   Pushpinder Kaur \textsc{Chouhan}, Philippe ~\textsc{Combes}, Sylvain
   \textsc{Dahan}, Holly \textsc{Dail}, Bruno \textsc{Delfabro}, Georg
   \textsc{Hoesch}, Mathieu \textsc{Jan}, Jean-Yves
   \textsc{L'Excellent}, Christophe \textsc{Pera}, Cyrille
-  \textsc{Pontvieux}, Alan \textsc{Su}, C\'edric \textsc{Tedeschi},
+  \textsc{Pontvieux}, Alan \textsc{Su}, Cédric \textsc{Tedeschi},
   and Antoine \textsc{Vernois}.
 \end{minipage} \\
   \textbf{Copyright}& INRIA
@@ -248,17 +251,19 @@ Forum~\cite{GridRPC}.
 \newpage
 \input{server.tex}
 
-%
-% plugin scheduler extension
-%
-\newpage
-\input{plugin.tex}
 
 %
 % Preformances prediction with FAST
 %
 \newpage
 \input{fast.tex}
+
+%
+% Scheduling in DIET
+%
+\newpage
+\input{plugin.tex}
+
 
 %
 % Deploying a DIET platform
