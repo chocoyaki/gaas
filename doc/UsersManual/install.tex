@@ -10,6 +10,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.22  2005/07/12 08:54:10  ecaron
+%* fix BLAS and ScaLAPACK (no fixme in fact)
+%*
 %* Revision 1.21  2005/06/27 19:26:52  hdail
 %* - Moved introduction to FAST to description section with intro to multi-MA and
 %*   gave both chapter references.
@@ -296,7 +299,7 @@ specify \texttt{--without-FAST}, which overrides \texttt{fast-config}
 detection.
 
 \subsubsection{BLAS}
-\fixme{Should we shorten BLAS section or move to examples chapter?}
+
 The BLAS~\footnote{\url{http://www.netlib.org/blas/}} (Basic Linear
 Algebra Subprograms) are high quality ``building block'' routines for
 performing basic vector and matrix operations.  Level 1 BLAS do
@@ -329,7 +332,6 @@ BLAS are disabled.
 
 \subsubsection{\scalapack}
 
-\fixme{Should we shorten ScaLAPACK section or move to examples chapter?}
 The ScaLAPACK\footnote{\url{http://www.netlib.org/scalapack/}} (or
 Scalable LAPACK) library includes a subset of LAPACK routines
 redesigned for distributed memory MIMD parallel computers. It is
