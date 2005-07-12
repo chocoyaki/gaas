@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2005/07/12 14:28:40  hdail
+ * Updated displayProfileDesc functions to display aggregator components
+ * of profile description.
+ *
  * Revision 1.23  2005/05/15 15:44:08  alsu
  * minor changes from estimation vector reorganization
  *
@@ -288,8 +292,28 @@ displayProfileDesc(const diet_profile_desc_t* desc, const char* path)
     displayArgDesc(f, desc->param_desc[i].type, desc->param_desc[i].base_type);
   }
   fprintf(f, "\n");
-}
 
+  switch((desc->aggregator).agg_method) {
+    case DIET_AGG_DEFAULT:
+      fprintf(f,"   Aggregator: Default\n");
+      break;
+    case DIET_AGG_PRIORITY:
+      fprintf(f,"   Aggregator: Priority (");
+      diet_aggregator_priority_t prior = 
+          (desc->aggregator).agg_specific.agg_specific_priority;
+      if (prior.p_numPValues == 0) {
+        fprintf(f," No priorities assigned");
+      } else {
+        for (int i = 0; i < prior.p_numPValues; i++) {
+          fprintf(f," %d", prior.p_pValues[i]);
+        }
+      }
+      fprintf(f, " )\n");
+      break;
+    default:
+      fprintf(f,"   Aggregator: ERROR\n");
+  }
+}
 
 void
 displayProfileDesc(const corba_profile_desc_t* desc)
@@ -306,7 +330,31 @@ displayProfileDesc(const corba_profile_desc_t* desc)
     displayArgDesc(f, desc->param_desc[j].type, desc->param_desc[j].base_type);
   }
   fprintf(f, "\n");
-  free(path);
+
+  switch((desc->aggregator).agg_specific._d()) {
+    case DIET_AGG_DEFAULT:
+    {
+      fprintf(f,"   Aggregator: Default\n");
+      break;
+    }
+    case DIET_AGG_PRIORITY:
+    {
+      fprintf(f,"   Aggregator: Priority (");
+      corba_agg_priority_t prior =
+          (desc->aggregator).agg_specific.agg_priority();
+      if (prior.priorityList.length() == 0) {
+        fprintf(f," No priorities assigned");
+      } else {
+        for (unsigned int i = 0; i < prior.priorityList.length(); i++) {
+          fprintf(f," %d", prior.priorityList[i]);
+        }
+      }
+      fprintf(f, " )\n");
+      break;
+    }
+    default:
+      fprintf(f,"   Aggregator: ERROR\n");
+  }
 }
 
 void
