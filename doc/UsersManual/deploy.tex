@@ -11,6 +11,12 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.16  2005/07/12 21:44:28  hdail
+%* - Correcting small problems throughout
+%* - Modified deployment chapter to have a real section for deploying via GoDIET
+%* - Adding short xml example without the comments to make a figure in GoDIET
+%*   section.
+%*
 %* Revision 1.15  2005/06/28 15:53:02  hdail
 %* Completed corrections for config file examples and text explaining launch of
 %* each component.
@@ -52,38 +58,27 @@ hierarchical order. There are three primary ways to deploy DIET.
 Launching \textbf{by hand} is a reasonable way to deploy DIET for
 small-scale testing and verification. This chapter explains the 
 necessary services, how to write DIET configuration files, and in
-what order DIET elements should be launched.
+what order DIET elements should be launched.  See
+Section~\ref{sec:deployBasics} for details.
 
 \textbf{GoDIET} is a Java-based tool for automatic DIET deployment
 that manages configuration file creation, staging of files, launch
 of elements, monitoring and reporting on launch success, and process
-cleanup when the DIET deployment is no longer needed. The user of
-GoDIET describes the desired deployment in an XML file including all
-needed external services (e.g. omniNames and LogService); the
-desired hierarchical organization of agents and servers is expressed
-directly using the hierarchical organization of XML.  The user also
-defines all machines available for the deployment, disk scratch
-space available at each site for storage of configuration files, and
-which machines share the same disk to avoid unecessary copies.
-GoDIET is extremely useful for large deployments (e.g. more than 5
-elements) and for experiments where one needs to deploy and
-shut-down multiple deployments to test different configurations.
-Note that debugging deployment problems when using GoDIET can be
-difficult, especially if you don't fully understand the role of each
-element you are launching.  If you have trouble identifying the
-problem, read the rest of this chapter in full and try launching key
-elements of your deployment by hand.  GoDIET is available for
-download on the web\footnote{http://graal.ens-lyon.fr/DIET/godiet.html}
-and a technical report~\cite{CDa05} provides full details on GoDIET
-including an example XML file with explanations.
+cleanup when the DIET deployment is no longer needed.   See 
+Section~\ref{sec:deployGoDIET} for details.
 
 \textbf{Writing your own scripts} is a surprisingly popular
 approach.  This approach often looks easy initially, but can
 sometimes take much, much longer than you predict as there are many
 complexities to manage.  Learn GoDIET -- it will save you time!
 
+
+
+\section{Deployment basics}
+\label{sec:deployBasics}
+
 %====[ Deploying CORBA services ]==============================================
-\section{Using CORBA} 
+\subsection{Using CORBA} 
 \label{sec:CORBA_services}
 
 CORBA is used for all communications in DIET and for communications
@@ -92,7 +87,7 @@ GoDIET.  This section gives basic information on how to use DIET
 with CORBA.  Please refer to the documentation of your ORB if you
 need more details.
 
-\subsection{The naming service}
+\subsubsection{The naming service}
 
 DIET uses a standard CORBA naming service for translating a
 user-friendly string-based name for an object into an Interoperable
@@ -158,7 +153,7 @@ Checkpointing completed.
 \end{verbatim}
 }
 
-\subsection{CORBA usage for DIET}
+\subsubsection{CORBA usage for DIET}
 
 Every DIET entity must connect to the CORBA name server:
 it is the way services discover each other. The reference to the
@@ -206,7 +201,7 @@ to be able to cooperate it is necessary that they all share the same
 name server.
 
 %====[ DIET configuration file ]===============================================
-\section{DIET configuration file}
+\subsection{DIET configuration file}
 \label{sec:diet_config_files}
 
 A configuration file is needed to launch a DIET entity. Some fully
@@ -225,7 +220,7 @@ installed in \texttt{$<$install\_dir$>$/etc} \footnote{if there isn't
 \item keywords are case sensitive.
 \end{itemize}
 
-\subsection{Tracing API}
+\subsubsection{Tracing API}
 
 \noindent
 \texttt{traceLevel} \ \ \emph{default}\texttt{ = 1}\\
@@ -246,7 +241,7 @@ This option controls debugging trace output. The following levels are defined:
 \end{center}
 
 
-\subsection{Client parameters}
+\subsubsection{Client parameters}
 
 \noindent
 \texttt{MAName} \ \ \emph{default}\texttt{ = }\emph{none}\\ This is a
@@ -255,7 +250,7 @@ Agent to connect to. The MA must have registered with this same name
 to the CORBA name server.
 
 
-\subsection{Agent parameters}
+\subsubsection{Agent parameters}
 
 \noindent
 \texttt{agentType} \ \ \emph{default}\texttt{ = }\emph{none}\\
@@ -271,7 +266,7 @@ They have aliases, respectively \texttt{MA} and \texttt{LA}.
 agent will register to the CORBA name server.
 
 
-\subsection{LA and SeD parameters}
+\subsubsection{LA and SeD parameters}
 
 \noindent
 \texttt{parentName} \ \ \emph{default}\texttt{ = }\emph{none}\\ This
@@ -279,7 +274,7 @@ is a \textbf{mandatory} parameter for Local Agents and SeDs, but
 not for the MA.  It indicates the name of the parent (an LA or the
 MA) to register to.
 
-\subsection{Endpoint Options}
+\subsubsection{Endpoint Options}
 
 \noindent
 \texttt{dietPort} \ \ \emph{default} \texttt{ = none }\\ This
@@ -298,7 +293,7 @@ from the exterior.  This option is very useful in a variety of
 complicated networking environments such as when multiple interfaces
 exist or when there is no DNS.
 
-\subsection{LogService options}
+\subsubsection{LogService options}
 
 \noindent
 \texttt{useLogService} \ \ \emph{default}\texttt{ = 0}\\ This
@@ -325,7 +320,7 @@ if you do not encounter problems. The buffer options will be ignored
 if \texttt{useLogService} is set to 0.
 
 
-\subsection{FAST options}
+\subsubsection{FAST options}
 
 \noindent
 Currently, FAST is only used at the SeD-level, so these parameters
@@ -339,7 +334,8 @@ without FAST, and defaults to 0 otherwise. \\
 The following options are ignored if DIET was compiled without FAST or if
 \texttt{fastUse} is set to 0.
 
-\subsubsection{LDAP options}
+\noindent
+\textbf{LDAP options}
 
 \noindent
 \texttt{ldapUse} \ \ \emph{default}\texttt{ = 0} \\
@@ -361,7 +357,8 @@ given in the \texttt{.ldif} file of the server that was added to the
 base.
 
 
-\subsubsection{NWS options}
+\noindent
+\textbf{NWS options}
 
 \noindent
 \texttt{nwsUse} \ \ \emph{default}\texttt{ = 0}\\ This option
@@ -377,7 +374,8 @@ The following two options are ignored if \texttt{nwsUse} is set to 0.
 Specify the \texttt{host:port} address of the NWS name server.
 \\
 
-\subsection{Multi-MA options}
+\noindent
+\textbf{Multi-MA options}
 
 To federate multiple hierarchies, each MA tries to periodically contact other
 MAs. These options define how the MA connects to the others.\\
@@ -419,7 +417,7 @@ MAs.\\
 
 
 %====[ Example ]=========================================
-\section{Example}
+\subsection{Example}
 \label{sec:deploy_ex}
 
 As shown in Section \ref{init}, the hierarchy is built from top to
@@ -563,3 +561,47 @@ Run the executable that you linked with the DIET client library, and
 do not forget that the first argument of the method call
 \texttt{diet\_initialize} must be the path of the configuration
 file above.
+
+\section{GoDIET}
+\label{sec:deployGoDIET}
+
+GoDIET is a Java-based tool for automatic DIET deployment that
+manages configuration file creation, staging of files, launch of
+elements, monitoring and reporting on launch success, and process
+cleanup when the DIET deployment is no longer needed~\cite{CDa05}.
+The user of GoDIET describes the desired deployment in an XML file
+including all needed external services (e.g. omniNames and
+LogService); the desired hierarchical organization of agents and
+servers is expressed directly using the hierarchical organization of
+XML.  The user also defines all machines available for the
+deployment, disk scratch space available at each site for storage of
+configuration files, and which machines share the same disk to avoid
+unecessary copies. GoDIET is extremely useful for large deployments
+(e.g. more than 5 elements) and for experiments where one needs to
+deploy and shut-down multiple deployments to test different
+configurations. Note that debugging deployment problems when using
+GoDIET can be difficult, especially if you don't fully understand
+the role of each element you are launching.  If you have trouble
+identifying the problem, read the rest of this chapter in full and
+try launching key elements of your deployment by hand.  GoDIET is
+available for download on the
+web\footnote{http://graal.ens-lyon.fr/DIET/godiet.html}.
+
+To launch GoDIET for a given XML file, run:
+
+\begin{verbatim}
+~ > java -jar GoDIET.jar <yourfile.xml>
+\end{verbatim}
+
+An example XML file is shown in Figure~\ref{fig:godietXml}; see
+\cite{CDa05} for a full explanation of all entries in the XML.
+
+\begin{figure}[p]
+\input{xml_example.tex}.
+\caption{Example XML input file for GoDIET.\label{fig:godietXml}}
+\end{figure}
+
+
+
+
+

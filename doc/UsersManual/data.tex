@@ -8,6 +8,12 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.17  2005/07/12 21:44:28  hdail
+%* - Correcting small problems throughout
+%* - Modified deployment chapter to have a real section for deploying via GoDIET
+%* - Adding short xml example without the comments to make a figure in GoDIET
+%*   section.
+%*
 %* Revision 1.16  2005/07/12 09:11:32  ecaron
 %* Fix free matrices memory
 %*
@@ -571,8 +577,6 @@ persistent matrices.
   diet_finalize();
 \end{verbatim}
 }
-\fixme{Shouldn't we be freeing the user-allocated and OUT data at
-end?}
 
 Then, a client submits the problem : $D=E+C$ with C already present
 in the platform. We consider that the handle of C is ``id.MA1.1.3''.

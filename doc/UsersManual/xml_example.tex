@@ -1,0 +1,76 @@
+\lstset{language=XML, 
+        basicstyle=\scriptsize, 
+        keywordstyle=\bfseries,
+        showspaces=false,
+        showtabs=false,
+        emphstyle=\bfseries,
+        morecomment=[s][\mdseries\slshape]{<!--}{-->},
+        breaklines, 
+        postbreak=\space}
+
+\begin{lstlisting}
+<?xml version="1.0" standalone="no"?>
+  <goDiet debug="1" saveStdOut="yes" 
+          saveStdErr="no" useUniqueDirs="yes"/>
+<diet_configuration>
+  <resources>
+    <scratch dir="/tmp/GoDIET_scratch"/>
+    <storage label="disk1">
+      <scratch dir="/tmp/run_scratch"/>
+      <scp server="hostX.site1.fr" login="<your login on this machine>"/>
+    </storage>
+    <storage label="clusterX_disk">
+      <scratch dir="/tmp/run_scratch"/> <scp server="hostX.clusterX.fr"/>
+    </storage>
+    <compute label="host1" disk="disk1">
+      <ssh server="host1.site1.fr" login="<your login>"/>
+      <env path="<bindir1>:<bindir2>:..."
+           LD_LIBRARY_PATH="<libdir1>:<libdir2>:..."/>
+      <end_point contact="192.5.59.198"/>
+    </compute>
+    <compute label="host2" disk="disk1">
+      <ssh server="host2.site1.fr"/>
+      <env path="<bindir1>" LD_LIBRARY_PATH="<libdir1>"/>
+    </compute>
+    <cluster label="clusterX" disk="clusterX_disk" login="<your login>"/>
+      <env path="<bindir1>:<bindir2>:..."
+           LD_LIBRARY_PATH="<libdir1>:<libdir2>:..."/>
+      <node label="clusterX_host1" disk="clusterX_disk">
+        <ssh server="host1.clusterX.fr"/> <end_point contact="192.5.80.103"/>
+      </node>
+      <node label="clusterX_host2" disk="clusterX_disk">
+        <ssh server="host2.clusterX.fr"/>
+      </node>
+    </cluster>
+  </resources>
+ 
+  <diet_services>
+    <omni_names contact="<ip or hostname>" port="2810">
+      <config server="clusterX_host1" trace_level="1" 
+              remote_binary="omniNames"/>
+    </omni_names>
+    <log_central connectDuringLaunch="no|yes">
+      <config server="clusterX_host2" remote_binary="LogCentral"/>
+    </log_central>
+  </diet_services>
+ 
+  <diet_hierarchy>
+    <master_agent label="MyMA">
+      <config server="host1" trace_level="1"
+              remote_binary="<binary name for agent>"/>
+      <local_agent label="MyLA">
+        <config server="host2" trace_level="1" remote_binary="dietAgent"/>
+        <SeD label="MySeD">
+          <config server="clusterX_host2" remote_binary="<binary name for SeD>"/>
+          <parameters string="T"/>
+        </SeD>
+      </local_agent>
+      <SeD label="MySeD">
+        <config server="clusterX_host1" remote_binary="server"/>
+      </SeD>
+    </master_agent>
+  </diet_hierarchy>      
+</diet_configuration>
+\end{lstlisting}
+
+

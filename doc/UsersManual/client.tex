@@ -10,6 +10,12 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.14  2005/07/12 21:44:28  hdail
+%* - Correcting small problems throughout
+%* - Modified deployment chapter to have a real section for deploying via GoDIET
+%* - Adding short xml example without the comments to make a figure in GoDIET
+%*   section.
+%*
 %* Revision 1.13  2005/06/27 08:59:41  hdail
 %* Updating interfaces to agree with current versions and adding memory cleanup
 %* to end of example programs.
@@ -102,15 +108,12 @@ functions.  Both \texttt{diet\_initialize}/\texttt{grpc\_initialize}
 and \texttt{diet\_finalize}/\texttt{grpc\_finalize} belong to the
 GridRPC API. 
  
-\fixme{Holly: The following 2 paragraphs are confusing.  Do we
-support GridRPC interfaces or not?  We no longer have a notion of
-function handles ...}
     A problem is managed through a \emph{function\_handle}, that
-associates a server to a problem name. Please do not use
-\texttt{diet\_function\_handle\_init}, since it assumes that the
-client already knows the server, and DIET is not conceived for such a
-use. This function is only provided for GridRPC compliance. The
-structure allocation is performed through the function
+associates a server to a problem name. For compliance with GridRPC
+DIET accepts \texttt{diet\_function\_handle\_init}, but the server 
+specified in the call will be ignored; DIET is designed to
+automatically select the best server. The structure allocation is
+performed through the function
 \texttt{diet\_function\_handle\_default}.
 
 The \emph{function\_handle} returned is associated to the problem description,
