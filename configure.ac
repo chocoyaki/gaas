@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.49  2005/07/12 18:10:27  hdail
+#* Remove excess warning messages about the dangers of not using fast.
+#*
 #* Revision 1.48  2005/06/08 15:27:08  ycaniou
 #* Renamed JXTA-C in JXTA_C ('-' can not be used in a variable name)
 #* Fixed the errors due to the use of AM_CONDITIONAL where '"' have to be used in
@@ -401,10 +404,7 @@ dnl ###########################################################################
 dnl ###########################################################################
 AM_FAST(FAST_min_version,
 	[HAVE_FAST=yes],
-	[HAVE_FAST=no
-	 AC_MSG_WARN(Use of FAST library is disabled - either by you or)
-         AC_MSG_WARN(because it was not found: all performance evaluations)
-	 AC_MSG_WARN(will be set to infinity.)])
+	[HAVE_FAST=no])
 
 dnl ###########################################################################
 dnl ####[ search for the BLAS Library ]
