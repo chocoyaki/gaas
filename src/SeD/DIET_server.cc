@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.41  2005/07/12 14:27:21  hdail
+ * Initialize aggregator method by default to DIET_AGG_DEFAULT.  Bug #14 in
+ * Bugzilla corrected (second profile was picking up trash for the aggregator
+ * method).
+ *
  * Revision 1.40  2005/06/28 15:56:43  hdail
  * Changing the debug level of messages to make DIET less verbose (and in
  * agreement with the doc =).
@@ -306,6 +311,7 @@ diet_profile_desc_alloc(const char* path,
   desc = new diet_profile_desc_t;
   if (!desc)
     return NULL;
+  desc->aggregator.agg_method = DIET_AGG_DEFAULT;
   desc->path       = strdup(path);
   desc->last_in    = last_in;
   desc->last_inout = last_inout;
