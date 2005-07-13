@@ -20,6 +20,7 @@ diet-2.0
 	on JXTA.  Experimental.
 
 * Bug corrections
+	- file length limits are too small (bug #10 in bugzilla)
 	- dmat_manips clients crash when useAsyncAPI = 0 in config file. 
 	  option not needed, so removed from config files. 
 	  (bug #11 in bugzilla)
@@ -35,9 +36,8 @@ diet-2.0
 	  release 2.0. (bug #14)
 
 * Known bugs but not resolved
-	- INOUT parameters are not changed in asynchronous mode ( bug #9 in
+	- INOUT parameters are not changed in asynchronous mode (bug #9 in
 	  bugzilla)
-	- file length are too short (bug #10 in bugzilla)
 
 diet-1.1
 
