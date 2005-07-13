@@ -1,3 +1,44 @@
+diet-2.0
+
+* Plug-in
+	- add support for user-defined performance metrics at SeD-level,
+	and allow users to specify priorities for metrics to control
+	scheduling process at agents.
+
+* LogService
+	- DIET can now send enhanced log information including tracking 
+	read and write operations in JuxMem and tracking user-defined plug-in
+	scheduler details.
+
+* JuxMem
+	- JuxMem is a distributed memory system based on JXTA peer-to-peer 
+	technologies.  DIET now how the ability to store and retrieve data 
+	in JuxMem.  Experimental.
+
+* Multi-MA
+	- A second type of multi-MA has been integrated that is not based
+	on JXTA.  Experimental.
+
+* Bug corrections
+	- dmat_manips clients crash when useAsyncAPI = 0 in config file. 
+	  option not needed, so removed from config files. 
+	  (bug #11 in bugzilla)
+	- when building in a separate directory make install fails due to 
+	  dependency on src/libs/*.jar.  Dependency removed with not
+	  compiling with JXTA options. (bug #12)
+	- union type embedded in a struct in idl/common_types.idl can not
+	  be compiled by java compiler.  structure re-arranged to correct
+	  the problem (bug #13)
+	- when user re-uses the same profile for multiple service 
+	  declarations without calling free in between, MA crashes.
+	  bug was introduced after release 1.1, and has been corrected for
+	  release 2.0. (bug #14)
+
+* Known bugs but not resolved
+	- INOUT parameters are not changed in asynchronous mode ( bug #9 in
+	  bugzilla)
+	- file length are too short (bug #10 in bugzilla)
+
 diet-1.1
 
 * logService
@@ -6,7 +47,7 @@ diet-1.1
 	--enable--logservice option)
 	
 * Data persistance
-	- add data persistance in DIET, now SeDs can store DATA.
+	- add data persistance with DTM in DIET, now SeDs can store DATA.
 	
 * DIET multi-MA with JXTA
 	- a prototype of multi-MA based on JXTA. ( use configure with :
