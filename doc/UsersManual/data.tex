@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.18  2005/07/13 09:37:39  ecaron
+%* Remove fixme Bruno
+%*
 %* Revision 1.17  2005/07/12 21:44:28  hdail
 %* - Correcting small problems throughout
 %* - Modified deployment chapter to have a real section for deploying via GoDIET
@@ -458,9 +461,9 @@ typedef struct {
 \end{verbatim}
 }
 
-\fixme{FIXME:
-as soon as persistency is integrated, this should become the table Eddy
-prepared to explain the transfer policy, depending on the modes.}
+%%% \fixme{FIXME:
+%%% as soon as persistency is integrated, this should become the table Eddy
+%%% prepared to explain the transfer policy, depending on the modes.}
 
 
 The field \emph{parameters} consists of a \texttt{diet\_arg\_t} array of size
@@ -482,9 +485,9 @@ $last\_out + 1$. Arguments can be
   user must free the memory him/herself with \texttt{diet\_free\_data}.
 \end{description}
 
-\fixme{This behaviour will be modified soon with the introduction of the
-persistence modes that will let the user leave some data on the
-servers for later computations.}
+%\fixme{This behaviour will be modified soon with the introduction of the
+%persistence modes that will let the user leave some data on the
+%servers for later computations.}
 
 The fields \emph{last\_in}, \emph{last\_inout} and \emph{last\_out} of the
 \texttt{diet\_profile\_t} structure respectively point at the indexes in the
