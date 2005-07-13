@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.51  2005/07/13 06:57:31  ecaron
+#* Ready to version 2.0
+#*
 #* Revision 1.50  2005/07/12 19:42:41  hdail
 #* Bugzilla Bug #12 corrected.  When building in a separate directory,
 #* src/lib directory should only be copied over when --enable-JXTA-mode flag is
@@ -92,11 +95,9 @@
 #* add DIET/JXTA
 #****************************************************************************#
 
-define(DIET_version,        1.1)
+define(DIET_version,        2.0)
 define(omniORB_min_version, 3)
 define(FAST_min_version,    0.4.3)
-
-
 
 dnl ##########################################################################
 dnl #### Process this file with autoconf to produce a configure script.
