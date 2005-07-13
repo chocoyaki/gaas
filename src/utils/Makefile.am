@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.16  2005/07/13 09:07:30  rbolze
+#* remove some JUXMEM_MODE tag and add estVector.h into noinst_HEADERS variable
+#*
 #* Revision 1.15  2005/05/27 08:18:17  mjan
 #* Moving JuxMem in a more appropriate place (src/utils)
 #* Added log messages for VizDIET
@@ -56,9 +59,7 @@ libUtilsSeDClt_la_SOURCES  = DIET_mutex.cc AccessController.cc
 libUtilsNodes_la_SOURCES   = Counter.cc ServiceTable.cc FASTMgr.cc \
 			     DietLogComponent.cc MonitoringThread.cc
 libUtilsVector_la_SOURCES  = Vector.c estVector.c
-if JUXMEM_MODE
 libJuxMemWrapper_la_SOURCES = JuxMemImpl.cc
-endif
 
 noinst_HEADERS = Counter.hh debug.hh DIET_data_internal.hh \
 		 FASTMgr.hh LinkedList.hh ms_function.hh Parsers.hh \
@@ -66,10 +67,7 @@ noinst_HEADERS = Counter.hh debug.hh DIET_data_internal.hh \
 		 statistics.hh ts_container/ts_map.hh \
 		 ts_container/ts_set.hh ts_container/ts_vector.hh \
 		 DietLogComponent.hh MonitoringThread.hh KeyString.hh \
-		 AccessController.hh Vector.h
-if JUXMEM_MODE
-noinst_HEADERS += JuxMemImpl.hh
-endif
+		 AccessController.hh Vector.h estVector.h JuxMemImpl.hh
 
 AM_CXXFLAGS = @JUXMEM_CXXFLAGS@ $(CXXFLAGS_OMNIORB) $(CXXFLAGS_FAST) \
 	      -I$(top_srcdir)/src/CORBA -I$(top_builddir)/src/CORBA/idl
