@@ -11,6 +11,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.17  2005/07/13 07:56:15  hdail
+%* Corrected error in xml example and added console instructions to GoDIET section.
+%*
 %* Revision 1.16  2005/07/12 21:44:28  hdail
 %* - Correcting small problems throughout
 %* - Modified deployment chapter to have a real section for deploying via GoDIET
@@ -587,19 +590,110 @@ try launching key elements of your deployment by hand.  GoDIET is
 available for download on the
 web\footnote{http://graal.ens-lyon.fr/DIET/godiet.html}.
 
-To launch GoDIET for a given XML file, run:
+An example input XML file is shown in Figure~\ref{fig:godietXml};
+see \cite{CDa05} for a full explanation of all entries in the XML.
+To launch GoDIET for the simple example XML file provided in the
+GoDIET distribution under examples/example1.xml, run:
 
 \begin{verbatim}
-~ > java -jar GoDIET.jar <yourfile.xml>
+~ > java -jar GoDIET.jar example1.xml
+XmlScanner constructor
+Parsing xml file: example1.xml
+GoDIET>
 \end{verbatim}
 
-An example XML file is shown in Figure~\ref{fig:godietXml}; see
-\cite{CDa05} for a full explanation of all entries in the XML.
+GoDIET reads the XML file and then enters an interactive console mode.
+In this mode you have a number of options:
+
+\begin{verbatim}
+GoDIET> help
+The following commands are available:
+    launch:     launch entire DIET platform
+    stop:       kill entire DIET platform using kill pid
+    status:     print run status of each DIET component
+    history:    print history of commands executed
+    help:       print this message
+    exit:       exit GoDIET, do not change running
+    platform.
+\end{verbatim}
+
+We will now launch this example; note that this example is intentionally very 
+simple with all components running locally to provide initial familiarity 
+with the GoDIET run procedure.  Deployment with GoDIET is especially useful 
+when launching components on multiple remote machines.
+
+\begin{verbatim}
+GoDIET> launch
+* Launching DIET platform at Wed Jul 13 09:57:03 CEST 2005
+
+Local scratch directory ready:
+        /home/hdail/tmp/scratch_godiet
+
+** Launching element OmniNames on localHost
+Writing config file omniORB4.cfg
+Staging file omniORB4.cfg to localDisk
+Executing element OmniNames on resource localHost
+Waiting for 3 seconds after service launch
+
+** Launching element MA_0 on localHost
+Writing config file MA_0.cfg
+Staging file MA_0.cfg to localDisk
+Executing element MA_0 on resource localHost
+Waiting for 2 seconds after launch without log service feedback
+
+** Launching element LA_0 on localHost
+Writing config file LA_0.cfg
+Staging file LA_0.cfg to localDisk
+Executing element LA_0 on resource localHost
+Waiting for 2 seconds after launch without log service feedback
+
+** Launching element SeD_0 on localHost
+Writing config file SeD_0.cfg
+Staging file SeD_0.cfg to localDisk
+Executing element SeD_0 on resource localHost
+Waiting for 2 seconds after launch without log service feedback
+* DIET launch done at Wed Jul 13 09:57:14 CEST 2005 [time= 11.0 sec]
+\end{verbatim}
+
+The \texttt{status} command will print out the run-time status of all launched 
+components.  The \texttt{LaunchState} reports whether GoDIET observed
+any errors during the launch itself.  When the user requests the launch
+of LogService in the input XML file, GoDIET can connect to the LogService 
+after launching it to obtain the state of launched components; when
+available, this state is reported in the \texttt{LogState} column.
+
+\begin{verbatim}
+GoDIET> status
+Status   Element   LaunchState   LogState   Resource     PID
+         OmniNames running       none       localHost    1232
+         MA_0      running       none       localHost    1262
+         LA_0      running       none       localHost    1296
+         SeD_0     running       none       localHost    1329
+\end{verbatim}
+
+Finally, when you are done with your DIET deployment you should always run 
+\texttt{stop}.  To clean-up each element, GoDIET runs a \texttt{kill}
+operation on the appropriate host using the stored PID of that element.
+
+\begin{verbatim}
+GoDIET> stop
+
+* Stopping DIET platform at Wed Jul 13 10:05:42 CEST 2005
+Trying to stop element SeD_0
+Trying to stop element LA_0
+Trying to stop element MA_0
+Trying to stop element OmniNames
+
+* DIET platform stopped at Wed Jul 13 10:05:43 CEST 2005[time= 0.0 sec]
+* Exiting GoDIET. Bye.
+\end{verbatim}
 
 \begin{figure}[p]
 \input{xml_example.tex}.
 \caption{Example XML input file for GoDIET.\label{fig:godietXml}}
 \end{figure}
+
+
 
 
 
