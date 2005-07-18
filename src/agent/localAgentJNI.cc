@@ -5,7 +5,7 @@
 /*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
 /*    - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)                   */
 /*    - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)             */
-/*    - Cedric TEDESCHI (Cedric.Tedeschi@insa-lyon.fr                       */
+/*    - Cedric TEDESCHI (Cedric.Tedeschi@ens-lyon.fr)                       */
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
@@ -20,11 +20,10 @@ using namespace std;
 #include "MasterAgentImpl.hh"
 #include "ORBMgr.hh"
 #include "Parsers.hh"
+#include "DietLogComponent.hh"
 
 #include "jni.h"
 #include "LA.h"
-
-#include "DietLogComponent.hh"
 
 #if ! HAVE_JUXMEM
 #include "LocMgrImpl.hh"
@@ -36,13 +35,13 @@ extern unsigned int TRACE_LEVEL;
 /** The DietLogComponent for use with LogService */
 DietLogComponent* dietLogComponent;
 
-/** The Agent object. */
-AgentImpl* Agt;
-
 #if ! HAVE_JUXMEM
 /** The Data Location Manager Object  */
 LocMgrImpl *Loc;
 #endif // ! HAVE_JUXMEM
+
+/** The Agent object. */
+AgentImpl* Agt;
 
 JNIEXPORT jint JNICALL 
 Java_LA_startDIETLA(JNIEnv *env, 
@@ -145,13 +144,13 @@ Java_LA_startDIETLA(JNIEnv *env,
 
   /* Create the DietLogComponent */
   bool useLS;
-  size_t* ULSptr;
+  unsigned int* ULSptr;
   int outBufferSize;
-  size_t* OBSptr;
+  unsigned int* OBSptr;
   int flushTime;
-  size_t* FTptr;
+  unsigned int* FTptr;
 
-  ULSptr = (size_t*)Parsers::Results::getParamValue(
+  ULSptr = (unsigned int*)Parsers::Results::getParamValue(
               Parsers::Results::USELOGSERVICE);
   useLS = false;
   if (ULSptr == NULL) {
@@ -163,7 +162,7 @@ Java_LA_startDIETLA(JNIEnv *env,
   }
 
   if (useLS) {
-    OBSptr = (size_t*)Parsers::Results::getParamValue(
+    OBSptr = (unsigned int*)Parsers::Results::getParamValue(
   	       Parsers::Results::LSOUTBUFFERSIZE);
     if (OBSptr != NULL) {
       outBufferSize = (int)(*OBSptr);
@@ -172,7 +171,7 @@ Java_LA_startDIETLA(JNIEnv *env,
       WARNING("lsOutbuffersize not configured, using default");
     }
 
-    FTptr = (size_t*)Parsers::Results::getParamValue(
+    FTptr = (unsigned int*)Parsers::Results::getParamValue(
   	       Parsers::Results::LSFLUSHINTERVAL);
     if (FTptr != NULL) {
       flushTime = (int)(*FTptr);

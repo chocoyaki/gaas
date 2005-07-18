@@ -1,3 +1,10 @@
+diet-2.0.1
+
+* JXTA Multi-MA
+	- Changes inside the DIET code caused the JXTA Multi-MA to be broken.
+	It's now repaired. Moreover, the JXTA SeD will be automatically
+	updated when the DIET server API is modified.
+
 diet-2.0
 
 * Plug-in

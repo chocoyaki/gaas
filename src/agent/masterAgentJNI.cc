@@ -5,7 +5,7 @@
 /*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
 /*    - Sylvain DAHAN (Sylvain.Dahan@lifc.univ-fcomte.fr)                   */
 /*    - Frederic LOMBARD (Frederic.Lombard@lifc.univ-fcomte.fr)             */
-/*    - Cedric TEDESCHI (Cedric.Tedeschi@insa-lyon.fr                       */
+/*    - Cedric TEDESCHI (Cedric.Tedeschi@ens-lyon.fr)                       */
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
