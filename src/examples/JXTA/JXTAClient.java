@@ -135,7 +135,7 @@ public class JXTAClient
     }
 
     /* submit */
-    for(int i = 0; i < 10; i++)
+    for(int i = 0; i < 3; i++)
       this.submitPb();
 
   } // run
