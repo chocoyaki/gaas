@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2005/08/02 09:17:07  hdail
+ * Corrected bug in tagNames structure whereby when we don't use JuxMem we have
+ * 2 empty entries at the end and a count that is too high.  This bug was causing
+ * DIET agents and servers to seg fault in one condition: when launched with
+ * GoDIET but only if GoDIET was using LogService for information return.
+ *
  * Revision 1.12  2005/07/01 13:00:12  rbolze
  * Agents send their list of SeD to LogCentral with each value of the estimation vector.
  *
@@ -203,6 +209,9 @@ DietLogComponent::DietLogComponent(const char* name,
 #if HAVE_JUXMEM
   tagNames[14] = strdup("JUXMEM_DATA_STORE");
   tagNames[15] = strdup("JUXMEM_DATA_USE");
+#else
+  tagNames[14] = strdup("NOT_DEFINED1");
+  tagNames[15] = strdup("NOT_DEFINED2");
 #endif
 
   
