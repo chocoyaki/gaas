@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.55  2005/08/04 10:44:40  bdelfabr
+ * fixing persistentce bug for out data in solve async
+ *
  * Revision 1.54  2005/06/14 16:17:12  mjan
  * Added support of DIET_FILE inside JuxMem-DIET for TLSE code
  *
@@ -684,6 +687,15 @@ SeDImpl::solve_batch(const char* path, corba_profile_t& pb, CORBA::Long reqID)
 #endif // ! HAVE_JUXMEM
   
   mrsh_profile_to_out_args(&pb, &profile, cvt);
+for(i=0;i<=pb.last_in;i++){
+    if(diet_is_persistent(pb.parameters[i])) {
+      if (pb.parameters[i].desc.specific._d() != DIET_FILE) {
+        CORBA::Char *p1 (NULL);
+        pb.parameters[i].value.replace(0,0,p1,1);
+      }
+      persistent_data_release(&(pb.parameters[i]));
+    }
+  }
     
 #if ! HAVE_JUXMEM
   for (i = pb.last_inout + 1 ; i <= pb.last_out; i++) {
@@ -790,7 +802,17 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 #endif // HAVE_BATCH
       
 #if ! HAVE_JUXMEM
-      
+
+  for(i=0;i<=pb.last_in;i++){
+    if(diet_is_persistent(pb.parameters[i])) {
+      if (pb.parameters[i].desc.specific._d() != DIET_FILE) {
+        CORBA::Char *p1 (NULL);
+        const_cast<SeqChar&>(pb.parameters[i].value).replace(0,0,p1,1);
+      }
+      persistent_data_release(const_cast<corba_data_t*>(&(pb.parameters[i])));
+    }
+  }
+  
       mrsh_profile_to_out_args(&(const_cast<corba_profile_t&>(pb)), &profile, cvt);
       /*      for (i = profile.last_in + 1 ; i <= profile.last_inout; i++) {
         if ( diet_is_persistent(profile.parameters[i])) {
@@ -798,8 +820,8 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
         }
         }*/
       
-      for (i = profile.last_inout + 1 ; i <= profile.last_out; i++) {
-        if ( diet_is_persistent(profile.parameters[i])) {
+      for (i = pb.last_inout + 1 ; i <= pb.last_out; i++) {
+        if ( diet_is_persistent(pb.parameters[i])) {
           this->dataMgr->addData(const_cast<corba_data_t&>(pb.parameters[i]),
                                  1); 
         }
