@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.51  2005/08/04 09:04:29  alsu
+ * adding an internal warning in the case where a marshalling operation
+ * is requested on an uninitalized diet_aggregator_desc_t object.
+ *
  * Revision 1.50  2005/06/14 16:17:11  mjan
  * Added support of DIET_FILE inside JuxMem-DIET for TLSE code
  *
@@ -549,6 +553,11 @@ int mrsh_aggregator_desc(corba_aggregator_desc_t* dest,
       }
       break;
     }
+  default:
+    INTERNAL_WARNING(__FUNCTION__ <<
+                     ": unrecognized aggregation method (" <<
+                     src->agg_method <<
+                     ")");
   }
   return (0);
 }
