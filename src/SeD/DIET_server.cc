@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.42  2005/08/04 08:59:20  alsu
+ * initializing the aggregator field of the diet_profile_desc_t object to
+ * be a default aggregator.  this object is then marshalled into a
+ * corba_profile_desc_t object, which is used to find the corresponding
+ * service.  although the aggregator is not used in this process, the
+ * lack of initialization causes valgrind to complain during marshalling.
+ *
  * Revision 1.41  2005/07/12 14:27:21  hdail
  * Initialize aggregator method by default to DIET_AGG_DEFAULT.  Bug #14 in
  * Bugzilla corrected (second profile was picking up trash for the aggregator
@@ -264,6 +271,8 @@ diet_service_table_lookup_by_profile(const diet_profile_t* const profile)
       profileDesc.param_desc[argIter] =
         (profile->parameters[argIter]).desc.generic;
     }
+
+    profileDesc.aggregator.agg_method = DIET_AGG_DEFAULT;
   }
 
   mrsh_profile_desc(&corbaProfile, &profileDesc);
