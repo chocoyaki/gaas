@@ -9,6 +9,11 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.4  2005/08/08 08:26:57  ycaniou
+#* Fixed remaining reference to ../UserManual/fig/logo in ProgrammersGuide.tex to ./fig/logo
+#* Addition of a cp of the ../UserManual/fig/logo in the makefile: now it compiles
+#* Addition of a batch section (also contains general remarks which have to be dispatched if pertinent). Not complete!
+#*
 #* Revision 1.3  2004/01/09 15:27:47  cpera
 #* Manage png figures.
 #*
@@ -90,7 +95,7 @@ $(mod).dvi: $(EPS_FILES) $(PS_FILES) $(TEX_FILES)
 $(FIGDIR)/logo_DIET.ps: $(FIGDIR)/logo_DIET.gif
 	@if [ ! -d $(FIGDIR) ]; then mkdir $(FIGDIR); fi
 	convert $^ $@
-
+	@cp $(FIGDIR)/logo_DIET.ps fig/logo_DIET.ps
 
 clean-local:
 	rm -f $(mod_DATA) *.aux *.log *.dvi *.ps $(PS_FILES)

@@ -8,6 +8,11 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.6  2005/08/08 08:26:57  ycaniou
+%* Fixed remaining reference to ../UserManual/fig/logo in ProgrammersGuide.tex to ./fig/logo
+%* Addition of a cp of the ../UserManual/fig/logo in the makefile: now it compiles
+%* Addition of a batch section (also contains general remarks which have to be dispatched if pertinent). Not complete!
+%*
 %* Revision 1.5  2005/07/05 10:59:45  eboix
 %* * doc/ProgrammersGuide/fig/logo_DIET.gif copied from
 %*   doc/UsersManual/fig/logo_DIET.gif
@@ -46,7 +51,8 @@
 \graphicspath{{../UM/fig}}
 
 \newsavebox{\logobox}
-\sbox{\logobox}{\includegraphics[scale=0.3]{../UsersManual/fig/logo_DIET.ps}}
+%\sbox{\logobox}{\includegraphics[scale=0.3]{../UsersManual/fig/logo_DIET.ps}}
+\sbox{\logobox}{\includegraphics[scale=0.3]{fig/logo_DIET.ps}}
 \newcommand{\logo}{\usebox{\logobox}}
 
 %%%%
@@ -161,6 +167,13 @@ the existing code.
 \chapter{Coding Standards}
 \label{ch:CS}
 \input{CS.tex}
+
+%
+% Remarks and Batch jobs
+%
+\chapter{Batch Submission and general remarks}
+\label{ch:Batch}
+\input{batch.tex}
 
 %
 % Autotools
