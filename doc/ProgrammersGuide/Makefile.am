@@ -9,6 +9,11 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.5  2005/08/22 08:06:03  ycaniou
+#* Re-form the source start.tex with no changes.
+#* Correct the Makefile.am so that know it does not only compile by typing
+#*   make in the Programmer's guide but also with the more common make doc
+#*
 #* Revision 1.4  2005/08/08 08:26:57  ycaniou
 #* Fixed remaining reference to ../UserManual/fig/logo in ProgrammersGuide.tex to ./fig/logo
 #* Addition of a cp of the ../UserManual/fig/logo in the makefile: now it compiles
@@ -42,10 +47,11 @@ mod = $(shell basename `pwd`)
 moddir = $(prefix)/doc
 mod_DATA = DIET_$(mod).ps
 
+FIGDIR    = ../UsersManual/fig
 GIF_FILES = $(wildcard $(srcdir)/fig/*.gif)
 PNG_FILES = $(wildcard $(srcdir)/fig/*.png)
 TEX_FILES = $(notdir $(wildcard $(srcdir)/*.tex))
-FIGDIR    = ../UsersManual/fig
+
 FIG_FILES = $(wildcard $(srcdir)/fig/*.fig)
 EPS_FILES = $(foreach file, $(notdir $(FIG_FILES)), \
 			    $(patsubst %.fig, fig/%.eps, $(file)))
@@ -69,6 +75,8 @@ endif
 # commit. That is why $@Id$ and $@Log$ are used, which are to be replaced before
 # the compilation. The source to compile is stored in directory _tmp_.
 $(mod).dvi: $(EPS_FILES) $(PS_FILES) $(TEX_FILES)
+#	Need the logo to compile
+	@cp $(FIGDIR)/logo_DIET.ps fig/logo_DIET.ps
 	@if [ ! -d _tmp_ ]; then mkdir _tmp_; fi
 #	Replace the $@ - to avoid CVS changes - by a true $
 	@sed -e "s/\$$@/\$$/g" $(srcdir)/CS.tex > _tmp_/CS.tex
