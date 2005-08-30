@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.43  2005/08/30 09:20:20  ycaniou
+ * Corrected things in DIET_server.cc (diet_submit_batch...)
+ * Link libDIET with Elagi and Appleseeds only if BATCH is asked in the
+ *   configuration (corrected the Makefile)
+ * Changed things in SeDImpl.[ch] for batch submission to work. Only synchronous
+ *   mode made.
+ *
  * Revision 1.42  2005/08/04 08:59:20  alsu
  * initializing the aggregator field of the diet_profile_desc_t object to
  * be a default aggregator.  this object is then marshalled into a
@@ -136,6 +143,10 @@ using namespace std;
 #include "DataMgrImpl.hh"
 #endif // HAVE_JUXMEM
 
+#if HAVE_BATCH
+#include "strseed.h"
+#endif
+
 #define BEGIN_API extern "C" {
 #define END_API   } // extern "C"
 
@@ -197,9 +208,7 @@ diet_service_table_add(const diet_profile_desc_t* const profile,
     actual_cvt = diet_convertor_alloc(profile->path, profile->last_in,
 				      profile->last_inout, profile->last_out);
 #if HAVE_BATCH
-
-    // Must I add something here ?? -> I guess so
-
+    // Must I add something about convertors ??
 #endif
 
     for (int i = 0; i <= profile->last_out; i++)
@@ -220,30 +229,32 @@ diet_service_table_add(const diet_profile_desc_t* const profile,
   }
   return res;
 }
-
-int
-diet_service_table_lookup(const diet_profile_desc_t* const profile)
-{
-  int refNum;
-  corba_profile_desc_t corbaProfile;
-
-  if (profile == NULL) {
-    ERROR(__FUNCTION__ << ": NULL profile", -1);
-  }
-
-  if (SRVT == NULL) {
-    ERROR(__FUNCTION__ << ": service table not yet initialized", -1);
-  }
-
-  mrsh_profile_desc(&corbaProfile, profile);
-  refNum = SRVT->lookupService(&corbaProfile);
-
-  return (refNum);
-}
+/* Unused !!!
+   int
+   diet_service_table_lookup(const diet_profile_desc_t* const profile)
+   {
+   int refNum;
+   corba_profile_desc_t corbaProfile;
+   
+   if (profile == NULL) {
+   ERROR(__FUNCTION__ << ": NULL profile", -1);
+   }
+   
+   if (SRVT == NULL) {
+   ERROR(__FUNCTION__ << ": service table not yet initialized", -1);
+   }
+   
+   mrsh_profile_desc(&corbaProfile, profile);
+   refNum = SRVT->lookupService(&corbaProfile);
+   
+   return (refNum); 
+   } 
+*/
 
 int
 diet_service_table_lookup_by_profile(const diet_profile_t* const profile)
 {
+  /* Called from diet_estimate_fast */
   int refNum;
   corba_profile_desc_t corbaProfile;
   diet_profile_desc_t profileDesc;
@@ -262,6 +273,7 @@ diet_service_table_lookup_by_profile(const diet_profile_t* const profile)
     profileDesc.last_inout = profile->last_inout;
     profileDesc.last_out = profile->last_out;
 #if HAVE_BATCH
+    /* In case of client explicitly ask for a batch resolution */
     profileDesc.batch_flag = profile->batch_flag ;
 #endif
     int numArgs = profile->last_out + 1;
@@ -619,7 +631,6 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   for (int i = 0; i < argc; i++)
     myargv[i] = argv[i];
 
-
   /* Parsing */
   Parsers::Results::param_type_t compParam[] = {Parsers::Results::PARENTNAME};
 
@@ -644,7 +655,6 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   if (name != NULL)
     WARNING("parsing " << config_file_name
 	    << ": no need to specify an MA name for an SeD - ignored");
-
 
   /* Get listening port & hostname */
 
@@ -877,45 +887,103 @@ int diet_estimate_lastexec(estVector_t ev,
 /****************************************************************************/
 
 #ifdef HAVE_BATCH
+/* Make the script and submit it to the batch scheduler */
 int
-diet_submit_batch(diet_profile_t* profile, const char *command)
+diet_submit_batch(diet_profile_t *profile, const char *command,
+		  diet_submit_call_t call)
 {
   int passed = -1 ;
   ELBASE_SchedulerServiceTypes schedulerID ;
   ELBASE_ComputeServiceTypes ELBASE_service ;
   char **attrs ;
-  ELBASE_Process pid ;
-  char *chaine ;
+  //  ELBASE_Process pid ;
+  char *chaine = NULL ;
+  char *arg = NULL ;
+  char *script = NULL ;
+  char *hostname = NULL ;
   //  int status ;
-      
-  schedulerID = ((SeDImpl*)profile->SeDPtr)->getBatchSchedulerID() ;
-  /* Make the script and submit it to the batch scheduler */
-  ELBASE_service = ELBASE_FORK ;
+
+  schedulerID = ((SeDImpl*)(profile->SeDPtr))->getBatchSchedulerID() ;
   /* Read the walltime and the nbprocs in profile */
+  /* Do we modify them? */
   /* until a correct prediction function is given, fixed values are used */
   profile->walltime=125 ;
   profile->nbprocs=2 ;
   /* Make the correct script */
-  attrs = (char**)malloc(sizeof(char*)*3) ;
-  sprintf(chaine,"host_count=%d",profile->nbprocs) ;
-  attrs[0] = strdup(chaine) ;
-  sprintf(chaine,"max_wall_time=%d:%d:%d",
-	  (int)(profile->nbprocs/3600),
-	  (int)((profile->nbprocs%3600)/60),
-	  profile->nbprocs%60) ;
-  attrs[1] = strdup(chaine) ;
-  attrs[2] = NULL ;
+  //attrs = (char**)malloc(sizeof(char*)*3) ;
+  chaine = (char*)malloc(1000*sizeof(char)) ;
+  sprintf(chaine,"host_count=%d "
+	  "max_wall_time=%d:%d:%d",
+	  profile->nbprocs,
+	  (int)(profile->walltime/3600),
+	  (int)((profile->walltime%3600)/60),
+	  (int)(profile->walltime%60)) ;
+
+  /*  arg = ASSTR_StrAppend(chaine," ", NULL) ;
+      printf("La chaine est %s\n",arg) ; */
   
-  passed = ELBASE_Submit(ELBASE_service, "localhost", schedulerID
-			 , (const char **)attrs,
-			 command, NULL, NULL, NULL, "dietBatchSubmit05"
-			 , NULL, NULL,
-			 &pid) ;
+  //attrs[0] = strdup(chaine) ;
+  /*  sprintf(chaine,"max_wall_time=%d:%d:%d",
+	  (int)(profile->walltime/3600),
+	  (int)((profile->walltime%3600)/60),
+	  (int)(profile->walltime%60)) ;
+	  arg = ASSTR_StrAppend(arg, chaine, " ", NULL) ;*/
+  arg = chaine ;
+  
+  //  attrs[1] = strdup(chaine) ;
+  //attrs[2] = NULL ;
+
+  /* Attention, free memory ! */
+  /*  free(arg) ; arg = NULL ; */
+  
+  // Fork the submission to the batch scheduler
+  ELBASE_service = ELBASE_FORK ;
+  
+  hostname = ((SeDImpl*)profile->SeDPtr)->getLocalHostName() ;
+  attrs = ASSTR_StrSplit(arg, NULL) ;
+  
+  switch(call) {
+  case DIET_Mpich:
+    arg = strdup("mpirun -np BATCH_NBNODES -machinefile BATCH_NODES");
+    break ;
+  case DIET_Lam:
+  case DIET_Pvm:
+  case DIET_Poe: // only available with Loadleveler
+  case DIET_Sequential:
+  case DIET_Submit_COUNT:
+    TRACE_TEXT(TRACE_ALL_STEPS, "FIXME: not done!");
+    exit(1) ;
+    break ;
+  default:
+    TRACE_TEXT(TRACE_ALL_STEPS,
+	       "En error occurs: requested diet_call mode not implemented!");
+    exit(1) ;
+  }
+  arg = ASSTR_StrAppend(arg, " ", command) ;
+  
+//   passed = ELBASE_Submit(ELBASE_service, "localhost", schedulerID
+// 			 , (const char **)attrs,
+// 			 command, NULL, NULL, NULL, "dietBatchSubmit05"
+// 			 , NULL, NULL,
+// 			 &pid) ;
+
+  script = 
+    ELBASE_ScriptForSubmit(ELBASE_service, hostname, schedulerID
+			   , (const char **)attrs
+			   , arg, NULL, NULL, NULL, "dietBatchSubmit05"
+			   , NULL, NULL) ;
+  
+  TRACE_TEXT(TRACE_ALL_STEPS,
+	     "Script : " << script << "\n") ;
+  
   /* Stock the task pid in relation with the profile */
   /*  ((SeDImpl*)profile->SeDPtr)-> ; */
   /* But is the pid the task ID or the submission ID ??? */
 
   /*
+  // synchro can not be defined here, or in the profile...
+  // must take place in SeDImpl::solve_batch()
+
   if( synchro == 1 ) {
     passed = passed  &&
       ELBASE_Poll(pid, 1, &status) &&
@@ -930,9 +998,9 @@ diet_submit_batch(diet_profile_t* profile, const char *command)
       ELBASE_Poll(pid, 1, &status) &&
       status == 0;
   */
-  
+
+  passed = 1 ; // for testing
   return passed ;
-  
 }
 #endif
 

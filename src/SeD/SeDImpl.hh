@@ -9,6 +9,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2005/08/30 09:20:20  ycaniou
+ * Corrected things in DIET_server.cc (diet_submit_batch...)
+ * Link libDIET with Elagi and Appleseeds only if BATCH is asked in the
+ *   configuration (corrected the Makefile)
+ * Changed things in SeDImpl.[ch] for batch submission to work. Only synchronous
+ *   mode made.
+ *
  * Revision 1.19  2005/05/18 14:18:09  mjan
  * Initial adding of JuxMem support inside DIET. dmat_manips examples tested without JuxMem and with JuxMem
  *
@@ -162,6 +169,8 @@ public:
 
   virtual CORBA::Long
   solve_batch(const char* pbName, corba_profile_t& pb,CORBA::Long reqID);
+
+  char* getLocalHostName() ;
 #endif
 
   virtual void
@@ -205,12 +214,12 @@ private:
   ** -> must be initialized with a special call to Elagi */
   ELBASE_SchedulerServiceTypes batchID ;
   /* Correspondance between the Diet reqID and the Batch Job ID */
-  /* Supposes that no more than 100 batch jobs are submitted on one SeD */
+  /* Supposes that no more than 100 batch jobs execute simult. on one SeD */
   typedef struct {
     int dietReqID ;
     int batchJobId ;
   } corresID ;
-  #define MAX_RUNNING_NBSERVICES 100
+#define MAX_RUNNING_NBSERVICES 100
   corresID tabCorresID[MAX_RUNNING_NBSERVICES] ;
   int tabCorresIDIndex ;
 #endif

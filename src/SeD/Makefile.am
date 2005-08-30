@@ -10,6 +10,13 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.17  2005/08/30 09:20:20  ycaniou
+#* Corrected things in DIET_server.cc (diet_submit_batch...)
+#* Link libDIET with Elagi and Appleseeds only if BATCH is asked in the
+#*   configuration (corrected the Makefile)
+#* Changed things in SeDImpl.[ch] for batch submission to work. Only synchronous
+#*   mode made.
+#*
 #* Revision 1.16  2005/05/27 08:18:17  mjan
 #* Moving JuxMem in a more appropriate place (src/utils)
 #* Added log messages for VizDIET
@@ -95,8 +102,12 @@ libDIET_SeD_la_LIBADD = \
 	$(utilsdir)/libUtilsCommon.la $(utilsdir)/libUtilsSeDClt.la	\
 	$(utilsdir)/libUtilsNodes.la $(utilsdir)/libUtilsVector.la	\
 	$(corbadir)/libCorbaCommon.la $(corbadir)/idl/libIDLCommon.la	\
-	$(corbadir)/idl/libIDLAgent.la $(LIBS_OMNIORB) $(LIBS_FAST) \
-	$(ELAGI_LIBS) $(AS_LIBS)
+	$(corbadir)/idl/libIDLAgent.la $(LIBS_OMNIORB) $(LIBS_FAST)
+
+if USE_BATCH
+libDIET_SeD_la_LIBADD += $(ELAGI_LIBS) $(AS_LIBS)
+endif
+
 if JUXMEM_MODE
 libDIET_SeD_la_LIBADD += $(utilsdir)/libJuxMemWrapper.la
 endif
