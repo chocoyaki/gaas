@@ -8,6 +8,10 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.12  2005/08/30 09:36:12  ycaniou
+#* Modified the Makefile in order to take into account examples/Batch directory
+#*   if DIET is configured to use Batch
+#*
 #* Revision 1.11  2005/05/16 15:27:33  alsu
 #* adding plugin_example to the examples lists
 #*
@@ -52,7 +56,12 @@ endif
 
 # DIST_SUBDIRS is forced to all examples, so that it is still possible to build
 # a (user) distribution in user mode.
-DIST_SUBDIRS = Batch BLAS dmat_manips file_transfer ScaLAPACK scalars JXTA plugin_example
+DIST_SUBDIRS = BLAS dmat_manips file_transfer ScaLAPACK scalars JXTA plugin_example
+
+if USE_BATCH
+DIST_SUBDIRS += Batch
+endif
+
 
 .PHONY:	$(DIST_SUBDIRS)
 
