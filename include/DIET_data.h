@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.31  2005/08/30 12:49:57  ycaniou
+ * Added the  diet_submit_call_t in DIET_server.h and the dietJobID field in
+ *   the diet_profile_t
+ * Added some comments in batch.tex
+ *
  * Revision 1.30  2005/06/27 09:53:10  alsu
  * corrected comments for the diet_string_get and diet_paramstring_get macros
  *
@@ -202,7 +207,7 @@ typedef struct {
   unsigned short int batch_flag ;
   int nbprocs ;
   unsigned long walltime ;
-  // Only used in the SeD for batch submission
+  // Used for correspondance batch job ID / DIET job ID
   int dietJobID ;
 #endif
 

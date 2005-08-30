@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2005/08/30 12:49:57  ycaniou
+ * Added the  diet_submit_call_t in DIET_server.h and the dietJobID field in
+ *   the diet_profile_t
+ * Added some comments in batch.tex
+ *
  * Revision 1.20  2005/05/15 15:31:44  alsu
  * - aggregator structures and interfaces
  * - simplified estimation vector interface
@@ -369,7 +374,9 @@ diet_perfmetric_t diet_service_use_perfmetric(diet_perfmetric_t fn);
 int diet_service_table_add(const diet_profile_desc_t* const profile,
                            const diet_convertor_t*    const cvt,
                            diet_solve_t               solve_func);
+  /* Unused !!!
 int diet_service_table_lookup(const diet_profile_desc_t* const profile);
+  */
 int diet_service_table_lookup_by_profile(const diet_profile_t* const profile);
 void diet_print_service_table();
 
@@ -388,8 +395,18 @@ diet_SeD(char* config_file_name, int argc, char* argv[]);
 /* DIET batch submit call                                                   */
 /****************************************************************************/
 #ifdef HAVE_BATCH
+typedef enum {
+  DIET_Lam,
+  DIET_Mpich,
+  DIET_Poe,
+  DIET_Pvm,
+  DIET_Sequential, // copy on all nodes and run
+  DIET_Submit_COUNT, // one copy that runs on all nodes (each have a part of data for example
+} diet_submit_call_t;
+
 int
-diet_submit_batch(diet_profile_t* profile, const char *command) ;
+diet_submit_batch(diet_profile_t* profile, const char *command,
+		  diet_submit_call_t call) ;
 #endif
 
 
