@@ -1,3 +1,13 @@
+The Macro ERROR, on the contrary of WARNING, is not defined with { and
+}, thus when one must be carefull when he uses it. For example, 
+if ( ) ERROR will mostly behave the wrong way...
+Question: Why is it implemented like this ???
+
+ServiceTable prend serivice mais pas mise à jour. A voir. On pourrait
+virer des services d'un serveur qui ne répond pas ou plus.
+
+-------------------------------------------------------
+
 This chapter contains things that must be dispatched along the
 programmer's guide (and even more detailed?). It is actually in
 writing, and contains, for the most, remarks.\\
@@ -174,7 +184,14 @@ structures contains the \verb$batch_flag$.
 Explanation of the test...
 
 \paragraph{How it works.}$ $\\
-In \verb SeDImpl::run() where we obtain the batch scheduler name
+In \verb SeDImpl::run() where we obtain the batch scheduler name. At
+beginning, the SeD reads the config file to know if it is a
+batch/parallel SeD or not by searching for the .  BATCHNAME is defined
+as a field in a enum structure in \verb$src/utils/Parsers.hh$. The
+corresponding string is defined in \verb$src/utils/Parsers.cc$. One
+can read in this file that the string that the SeD is searching in its
+config file is \verb$batchName$. Correct values are: "shell",
+"condor", "dqs", "loadleveler", "lsf", "pbs", "sge", "oar".
 
 \section{Request submission}
 \subsection{Synchronous}
@@ -275,3 +292,19 @@ requested hosts can not be greater than 128.
 
 Elagi always put the sequence \verb$"#@ job_type=parallel\n"$ in the script.
 
+\section{How to run}
+
+Do not forget to specify in the SED.cfg the 
+
+
+\section{Notes diverses}
+
+\begin{itemize}
+\item Add the necessary when solve is called to stock the address of
+the SeDImpl in order to access some information about the SeD from the
+resolution (which consist in batch mode to submit the job the the
+batch scheduler and manage data and executionof the job). This is not
+done in the normal solve !
+\verb$ profile.SeDPtr = (const void*) this ; $
+
+\end{itemize}
