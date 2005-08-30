@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2005/08/30 12:05:15  ycaniou
+ * Added a field dietJobId to make the correspondance between batch ID and
+ *   diet job ID.
+ * Added the corresponding management in marshalling.
+ *
  * Revision 1.10  2005/05/15 15:33:30  alsu
  * CORBA versions of the aggregator (+ some cleanup)
  *
@@ -255,6 +260,8 @@ struct corba_profile_t {
   long   batch_flag ;
   long   nbprocs ;
   long   walltime ;
+
+  unsigned long dietJobID ;
 #endif
 };
 

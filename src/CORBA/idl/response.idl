@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2005/08/30 12:05:15  ycaniou
+ * Added a field dietJobId to make the correspondance between batch ID and
+ *   diet job ID.
+ * Added the corresponding management in marshalling.
+ *
  * Revision 1.4  2004/10/15 08:17:36  hdail
  * Removed sortedIndexes field of corba_response_t -- no longer useful in DIET.
  *
@@ -96,6 +101,11 @@ struct corba_response_t {
   //SeqDataLoc_t        dataLoc;
   // The available servers
   SeqServerEstimation_t servers;
+
+#ifdef HAVE_BATCH
+  // Make client know he has to submit batch or non-batch
+  long batch_flag ;
+#endif
 };
 
 #endif // _RESPONSE_IDL_

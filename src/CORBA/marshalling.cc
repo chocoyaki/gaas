@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.52  2005/08/30 12:05:15  ycaniou
+ * Added a field dietJobId to make the correspondance between batch ID and
+ *   diet job ID.
+ * Added the corresponding management in marshalling.
+ *
  * Revision 1.51  2005/08/04 09:04:29  alsu
  * adding an internal warning in the case where a marshalling operation
  * is requested on an uninitalized diet_aggregator_desc_t object.
@@ -234,7 +239,7 @@ __mrsh_data_desc_type(corba_data_desc_t* dest,
 int
 mrsh_data_desc(corba_data_desc_t* dest, diet_data_desc_t* src)
 {
-   
+
   if (src->id != NULL)
     // deallocates old dest->id.idNumber
     dest->id.idNumber = CORBA::string_dup(src->id);
@@ -249,7 +254,6 @@ mrsh_data_desc(corba_data_desc_t* dest, diet_data_desc_t* src)
   if (__mrsh_data_desc_type(dest, src) != 0) {
     return (1);
   }
-
   return (0);
 }
 
@@ -637,6 +641,7 @@ mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src)
   dest->batch_flag = src->batch_flag ;
   dest->nbprocs    = src->nbprocs ;
   dest->walltime   = src->walltime ;
+  dest->dietJobID  = src->dietJobID ;
 #endif
   dest->last_in    = src->last_in;
   dest->last_inout = src->last_inout;
@@ -759,6 +764,7 @@ unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
   dest->batch_flag = cvt->batch_flag ;
   dest->nbprocs    = cvt->nbprocs ;
   dest->walltime   = cvt->walltime ;
+  // FIXME: same with dietJobID
 #endif
   dest->pb_name    = cvt->path;
   dest->last_in    = cvt->last_in;
