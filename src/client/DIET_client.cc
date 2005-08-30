@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.65  2005/08/30 12:41:37  ycaniou
+ * Some changes. Management of dietJobID.
+ *
  * Revision 1.64  2005/06/14 16:17:12  mjan
  * Added support of DIET_FILE inside JuxMem-DIET for TLSE code
  *
@@ -177,7 +180,8 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   }
 
   /* Some more checks */
-  userDefName = (char*) Parsers::Results::getParamValue(Parsers::Results::NAME);
+  userDefName = (char*) 
+    Parsers::Results::getParamValue(Parsers::Results::NAME);
 
   value = Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
   if (value != NULL)
@@ -321,6 +325,8 @@ END_API
 /**************************************************************** 
  *    get available Services in the DIET Platform
  ***************************************************************/
+
+/* Only return the name of services available on the platform */
 char**
 get_diet_services(int *services_number){
   CORBA::Long length;                
@@ -426,7 +432,7 @@ request_submission(diet_profile_t* profile,
   if (mrsh_pb_desc(&corba_pb, profile)) {
     ERROR("profile is wrongly built", 1);
   }
- 
+
   /* Request submission : try nb_tries times */
 
   stat_in("Client","request_submission");
@@ -557,6 +563,9 @@ request_submission(diet_profile_t* profile,
     }
     sprintf(statMsg, "request_submission %ld", (unsigned long) reqID);
     stat_out("Client",statMsg);
+#ifdef HAVE_BATCH
+    profile->dietJobID = reqID ;
+#endif
   }
 
   return 0;
@@ -611,6 +620,7 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
   }
 #endif // HAVE_JUXMEM
 
+  /* Send Datas */
   if (mrsh_profile_to_in_args(&corba_profile, profile)) {
     ERROR("profile is wrongly built", 1);
   }
@@ -651,21 +661,13 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
   }
 #endif
 
+  /* Computation */
   sprintf(statMsg, "computation %ld", (unsigned long) reqID);
   try {
     stat_in("Client",statMsg);
 
-#if HAVE_BATCH
-    if( profile->batch_flag == 1 )
-      solve_res = chosenServer->solve_batch(profile->pb_name,
-					    corba_profile,reqID);
-    else
-      solve_res = chosenServer->solve(profile->pb_name, corba_profile,reqID);
-#else
     TRACE_TEXT(TRACE_MAIN_STEPS, "Calling the ref Corba of the SeD\n");
     solve_res = chosenServer->solve(profile->pb_name, corba_profile,reqID);
-#endif // HAVE_BATCH
-
     stat_out("Client",statMsg);
    } catch(CORBA::MARSHAL& e) {
     ERROR("got a marchal exception\n"
@@ -728,7 +730,7 @@ diet_call(diet_profile_t* profile)
 diet_error_t
 diet_call_batch(diet_profile_t* profile)
 {
-  profile->batch_flag = 1 ;
+  diet_profile_set_batch(profile) ;
   return diet_call(profile) ;
 }
 #endif
@@ -817,19 +819,8 @@ diet_call_async_common(diet_profile_t* profile,
     }
 
     stat_in("Client","computation_async");
-
-#ifdef HAVE_BATCH
-    if( profile->batch_flag == 1 )
-      /*      chosenServer->solveAsync_batch(profile->pb_name, corba_profile, 
-       *reqID, REF_CALLBACK_SERVER); */
-      ;
-    else
-      chosenServer->solveAsync(profile->pb_name, corba_profile, 
-			       *reqID, REF_CALLBACK_SERVER);
-#else
     chosenServer->solveAsync(profile->pb_name, corba_profile, 
                              *reqID, REF_CALLBACK_SERVER);
-#endif
 
     stat_out("Client","computation_async");
 
@@ -863,7 +854,6 @@ diet_call_async_common(diet_profile_t* profile,
 }
 
 BEGIN_API
-
 /**
  * Request + asynchronous computation submissions.
  */
@@ -873,14 +863,6 @@ diet_call_async(diet_profile_t* profile, diet_reqID_t* reqID)
   SeD_var chosenServer = SeD::_nil();
   return diet_call_async_common(profile, chosenServer, reqID);
 }
-#ifdef HAVE_BATCH
-diet_error_t
-diet_call_async_batch(diet_profile_t* profile, diet_reqID_t* reqID)
-{
-  profile->batch_flag = 1 ;
-  return diet_call_async(profile, reqID);
-}
-#endif
 END_API
 
 
