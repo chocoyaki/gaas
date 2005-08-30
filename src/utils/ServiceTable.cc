@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2005/08/30 07:24:23  ycaniou
+ * Changed the test in profile_match to enable the possibility for DIET to
+ *   decide if a 'normal' job sould be submitted via batch or not.
+ * Add the parsing of 'batchName' in config file.
+ * Some type precisions in estVector (but real code untouched) because of
+ *   compilation warnings I had.
+ *
  * Revision 1.16  2005/05/15 15:43:55  alsu
  * ensure aggregators are equivalent when registering services
  *
@@ -133,6 +140,7 @@ ServiceTable::maxSize()
 ServiceTable::ServiceReference_t
 ServiceTable::lookupService(const corba_profile_desc_t* sv_profile)
 {
+  /* Called from srvt::addService() */
   size_t i(0);
   for (; (i < nb_s) && (!profile_desc_match(&(profiles[i]), sv_profile)); i++);
   return (ServiceReference_t) ((i == nb_s) ? -1 : (int)i);
@@ -141,6 +149,13 @@ ServiceTable::lookupService(const corba_profile_desc_t* sv_profile)
 ServiceTable::ServiceReference_t
 ServiceTable::lookupService(const corba_pb_desc_t* pb_desc)
 {
+  /* Called from MasterAgent::submitLocal(), AgentImpl::findServer()
+  ** SeDImpl::getRequest(), SeDImpl::checkContract()
+  ** DIET_server.diet_service_table_lookup_by_profile
+  ** Thus, the check must be performed in special way concerning batch
+  **  - if batch is asked, strict check
+  **  - if nothing specified, both batch and non-batch must be considered
+  */
   size_t i(0);
   for (; (i < nb_s) && (!profile_match(&(profiles[i]), pb_desc)); i++);
   return (ServiceReference_t) ((i == nb_s) ? -1 : (int)i);
@@ -572,6 +587,10 @@ ServiceTable::dump(FILE* f)
   for (size_t i = 0; i < nb_s; i++) {
     strcpy(path, profiles[i].path);
     fprintf(f, "- Service %s", path);
+#ifdef HAVE_BATCH
+    if( profiles[i].batch_flag )
+      fprintf(f," (batch service) ") ;
+#endif
 
     if (matching_children) {
       fprintf(f, " offered by ");
@@ -600,7 +619,7 @@ ServiceTable::dump(FILE* f)
                      profiles[i].param_desc[j].base_type);
     }
     fprintf(f, "\n");
-    
+
     if (!matching_children)
       displayConvertor(f, &(convertors[i]));
   }

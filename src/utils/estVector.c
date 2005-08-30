@@ -5,6 +5,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2005/08/30 07:24:23  ycaniou
+ * Changed the test in profile_match to enable the possibility for DIET to
+ *   decide if a 'normal' job sould be submitted via batch or not.
+ * Add the parsing of 'batchName' in config file.
+ * Some type precisions in estVector (but real code untouched) because of
+ *   compilation warnings I had.
+ *
  * Revision 1.4  2005/05/15 15:42:41  alsu
  * - minor changes to the interfaces
  * - hiding most of the useless estimation vector stuff from the server
@@ -55,7 +62,8 @@ __estVector_ensureCapacity(estVector_t ev, size_t cap)
   if (ev->ev_cap >= cap) {
     return (1);
   }
-  ev->ev_vect = realloc(ev->ev_vect, cap * sizeof (struct __tagvalpair_s));
+  ev->ev_vect = (__tagvalpair_s*)
+    realloc(ev->ev_vect, cap * sizeof (struct __tagvalpair_s));
   if (ev->ev_vect == NULL) {
     return (0);
   }
@@ -85,7 +93,7 @@ __estVector_grow(estVector_t ev)
 estVector_t
 new_estVector()
 {
-  estVector_t ev = calloc(1, sizeof (struct estVector_s));
+  estVector_t ev = calloc(1, sizeof(struct estVector_s));
   assert(ev != NULL);
   return (ev);
 }
@@ -111,7 +119,7 @@ estVector_setEstimation(estVector_t ev, int tag, double val)
   assert(ev != NULL);
 
   { /* eliminate all instances of this tag */
-    int tvpIter = 0;
+    unsigned int tvpIter = 0;
     while (tvpIter < ev->ev_num) {
       if ((ev->ev_vect[tvpIter]).__tag == tag) {
         ev->ev_vect[tvpIter] = ev->ev_vect[ev->ev_num-1];
@@ -140,8 +148,9 @@ estVector_numEstimations(estVector_t ev)
 int
 estVector_numEstimationsByTag(estVector_t ev, int tag)
 {
-  int tvpIter, count;
-
+  int count;
+  size_t tvpIter ;
+  
   assert(ev != NULL);
 
   for (tvpIter = 0, count = 0 ; tvpIter < ev->ev_num ; tvpIter++) {
@@ -153,7 +162,7 @@ estVector_numEstimationsByTag(estVector_t ev, int tag)
 }
 
 int
-estVector_getEstimationTagByIdx(estVector_t ev, int idx)
+estVector_getEstimationTagByIdx(estVector_t ev, unsigned int idx)
 {
   assert(ev != NULL);
   if (idx >= ev->ev_num) {
@@ -163,10 +172,10 @@ estVector_getEstimationTagByIdx(estVector_t ev, int idx)
 }
 
 double
-estVector_getEstimationValueByIdx(estVector_t ev, int idx, double errVal)
+estVector_getEstimationValueByIdx(estVector_t ev
+				  , unsigned int idx, double errVal)
 {
   assert(ev != NULL);
-  assert(idx >= 0);
 
   if (idx >= ev->ev_num) {
     return (EST_INVALID);
@@ -178,13 +187,12 @@ double
 estVector_getEstimationValueNum(estVector_t ev,
                                 int tag,
                                 double errVal,
-                                int idx)
+                                unsigned int idx)
 {
-  int tvpIter;
-  int found;
+  unsigned int tvpIter;
+  unsigned int found;
 
   assert(ev != NULL);
-  assert(idx >= 0);
 
   for (found = 0, tvpIter = 0 ; tvpIter < ev->ev_num ; tvpIter++) {
     if (ev->ev_vect[tvpIter].__tag != tag) {

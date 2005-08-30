@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.32  2005/08/30 07:24:23  ycaniou
+ * Changed the test in profile_match to enable the possibility for DIET to
+ *   decide if a 'normal' job sould be submitted via batch or not.
+ * Add the parsing of 'batchName' in config file.
+ * Some type precisions in estVector (but real code untouched) because of
+ *   compilation warnings I had.
+ *
  * Revision 1.31  2005/04/27 01:49:41  ycaniou
  * Added the necessary for initialisation of batch profile, for profiles to
  * match
@@ -325,6 +332,8 @@ profile_desc_match(const corba_profile_desc_t* p1,
 /**
  * Return true if sv_profile describes a service that matches the problem that
  * pb_desc describes.
+ * If a batch job is explicitely asked, the server must execute parallel job.
+ *  Else, don't take it into account.
  */
 int
 profile_match(const corba_profile_desc_t* sv_profile,
@@ -335,12 +344,14 @@ profile_match(const corba_profile_desc_t* sv_profile,
   if ( (sv_profile->last_in                != pb_desc->last_in)
        || (sv_profile->last_inout          != pb_desc->last_inout)
        || (sv_profile->last_out            != pb_desc->last_out)
-       || (sv_profile->param_desc.length() != pb_desc->param_desc.length())
-#if HAVE_BATCH
-       || (sv_profile->batch_flag          != pb_desc->batch_flag)
-#endif
-       )
+       || (sv_profile->param_desc.length() != pb_desc->param_desc.length()) )
     return 0;
+#if HAVE_BATCH
+  if( (pb_desc->batch_flag == 1) 
+      && (sv_profile->batch_flag != pb_desc->batch_flag) )
+    return 0 ;
+#endif
+
   for (size_t i = 0; i < sv_profile->param_desc.length(); i++) {
     if ((   (sv_profile->param_desc[i].type
              != pb_desc->param_desc[i].specific._d())

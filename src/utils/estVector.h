@@ -5,6 +5,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2005/08/30 07:24:23  ycaniou
+ * Changed the test in profile_match to enable the possibility for DIET to
+ *   decide if a 'normal' job sould be submitted via batch or not.
+ * Add the parsing of 'batchName' in config file.
+ * Some type precisions in estVector (but real code untouched) because of
+ *   compilation warnings I had.
+ *
  * Revision 1.1  2005/05/15 15:42:41  alsu
  * - minor changes to the interfaces
  * - hiding most of the useless estimation vector stuff from the server
@@ -30,15 +37,15 @@ int estVector_addEstimation(estVector_t ev, int tag, double val);
 int estVector_setEstimation(estVector_t ev, int tag, double val);
 int estVector_numEstimationsByTag(estVector_t ev, int tag);
 int estVector_numEstimations(estVector_t ev);
-int estVector_getEstimationTagByIdx(estVector_t ev, int idx);
+int estVector_getEstimationTagByIdx(estVector_t ev, unsigned int idx);
 double estVector_getEstimationValueByIdx(estVector_t ev,
-                                         int idx,
+                                         unsigned int idx,
                                          double errVal);
 double estVector_getEstimationValue(estVector_t ev, int tag, double errVal);
 double estVector_getEstimationValueNum(estVector_t ev,
                                        int tag,
                                        double errVal,
-                                       int idx);
+                                       unsigned int idx);
 void free_estVector(estVector_t ev);
 
 #ifdef __cplusplus

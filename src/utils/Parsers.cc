@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2005/08/30 07:24:23  ycaniou
+ * Changed the test in profile_match to enable the possibility for DIET to
+ *   decide if a 'normal' job sould be submitted via batch or not.
+ * Add the parsing of 'batchName' in config file.
+ * Some type precisions in estVector (but real code untouched) because of
+ *   compilation warnings I had.
+ *
  * Revision 1.23  2005/06/28 15:55:06  hdail
  * Changed default config file settings so that even if FAST is compiled in,
  * defaults are the same as when its not compiled in.  Users should explicitly
@@ -80,7 +87,11 @@ Parsers::Results::param_t Parsers::Results::params[] =
    /* [21] */ {"updateLinkPeriod", 16, Parsers::parsePort, 0, NULL},
    /* [22] */ {"bindServicePort", 15, Parsers::parsePort, 0, NULL},
    /* [23] */ {"useConcJobLimit", 15, Parsers::parseUse, 0, NULL},
-   /* [24] */ {"maxConcJobs", 11, Parsers::parseInt, 0, NULL}};
+   /* [24] */ {"maxConcJobs", 11, Parsers::parseInt, 0, NULL}
+#if HAVE_BATCH
+   /* [25] */ ,{"batchName", 9, Parsers::parseName, 0, NULL}
+#endif
+  } ;
 
 #define IS_ADDRESS(i) ((i == Results::LDAPBASE) || (i == Results::NWSNAMESERVER) || (i == Results::NWSFORECASTER))
 
