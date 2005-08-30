@@ -28,15 +28,20 @@ int solve_test_mpi(diet_profile_t *pb)
 {
   //  int synchro=1 ;
   char *cmd ;
-  char *chaine ;
-  
+  /*  char *chaine ;*/
+  double* entier = NULL ;
 
-  diet_string_get(diet_parameter(pb,0), &chaine, NULL);
+  printf("YC in solve_test_mpi \n") ;
+  cmd = (char*)malloc(100*sizeof(char)) ;
+    
+  /*  diet_string_get(diet_parameter(pb,0), &chaine, NULL);*/
+  diet_scalar_get(diet_parameter(pb,0), &entier, NULL);
 
   /* Make the command to submit in a script */
-  sprintf(cmd,"/JobMPI/a.out %s",chaine) ;
-  
-  diet_submit_batch(pb,cmd) ;
+  /*  sprintf(cmd,"JobMPI/a.out %s",chaine) ;*/
+  sprintf(cmd,"JobMPI/a.out %.2f",*entier) ;
+ 
+  diet_submit_batch(pb, cmd, DIET_Mpich) ;
   
   /* Must keep an eye until the end of the job
    * to send back the corresponding results */
@@ -69,19 +74,21 @@ main(int argc, char* argv[])
   diet_service_table_init(nb_max_services);
 
   /* Allocate batch profile */
-  profile = diet_profile_desc_alloc("test_mpi",1,1,1);
+  profile = diet_profile_desc_alloc("test_mpi",0,0,0);
 
   /* Set profile parameters */
-  /* string to print */
-  diet_generic_desc_set(diet_param_desc(profile,0), DIET_STRING, DIET_CHAR);
-
   /* This job is a batch one */
   diet_profile_desc_set_batch(profile) ;
-  
-  /* Add the smprod to the service table */
+
+  /* string to print */
+  /*  diet_generic_desc_set(diet_param_desc(profile,0), DIET_STRING, DIET_CHAR); */
+  diet_generic_desc_set(diet_param_desc(profile,0), DIET_SCALAR, DIET_DOUBLE);
+  /* All done */
+
+  /* Add service to the service table */
   diet_service_table_add(profile, NULL, solve_test_mpi);
 
-  /* Free the smprod profile, since it was deep copied */
+  /* Free the profile, since it was deep copied */
   diet_profile_desc_free(profile);
 
   /* Allocate Perf. profile */

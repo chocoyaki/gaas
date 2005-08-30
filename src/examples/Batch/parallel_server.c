@@ -28,13 +28,16 @@ int solve_test_mpi(diet_profile_t *pb)
 {
   char* chaine ;
   char *cmd ;
+  diet_submit_call_t code=DIET_Mpich ;
    
-  diet_string_get(diet_parameter(pb,0), &chaine, NULL);
+  /* diet_string_get(diet_parameter(pb,0), &chaine, NULL); */
+  diet_scalar_get(diet_parameter(pb,0), &entier, NULL);
 
   /* Make the command to submit in a script */
-  sprintf(cmd,"/JobMPI/a.out %s",chaine) ;
+  /*  sprintf(cmd,"/JobMPI/a.out %s",chaine) ; */
+  sprintf(cmd,"JobMPI/a.out %.2f",*entier) ;
   
-  diet_submit_batch(pb,cmd) ;
+  diet_submit_batch(pb,cmd,code) ;
   
   /* Must keep an eye until the end of the job
    * to send back the corresponding results */
@@ -67,11 +70,12 @@ main(int argc, char* argv[])
   diet_service_table_init(nb_max_services);
 
   /* Allocate batch profile */
-  profile = diet_profile_desc_alloc("test_mpi",1,1,1);
+  profile = diet_profile_desc_alloc("test_mpi", 0, 0, 0);
 
   /* Set profile parameters */
   /* string to print */
-  diet_generic_desc_set(diet_param_desc(profile,0), DIET_STRING, DIET_CHAR);
+  /*  diet_generic_desc_set(diet_param_desc(profile,0), DIET_STRING, DIET_CHAR);*/
+  diet_generic_desc_set(diet_param_desc(profile,0), DIET_SCALAR, DIET_DOUBLE);
 
   /* This job is a batch one */
   diet_profile_desc_set_parallel(profile) ;

@@ -27,7 +27,8 @@ main(int argc, char* argv[])
 {
   char* path = NULL;
   diet_profile_t* profile = NULL;
-
+  double entier=4.2 ;
+  
   path = "test_mpi" ;
 
   if (diet_initialize(argv[1], argc, argv)) {
@@ -35,15 +36,19 @@ main(int argc, char* argv[])
     return 1;
   }
 
-  profile = diet_profile_alloc(path, 1, 1, 1);
-  diet_string_set(diet_parameter(profile,0), "Arf! BATCH !!!",DIET_VOLATILE);
+  profile = diet_profile_alloc(path, 0, 0, 0);
+  /*  diet_string_set(diet_parameter(profile,0), "Arf! BATCH !!!",DIET_VOLATILE);*/
+  diet_scalar_set(diet_parameter(profile,0), &entier,
+		  DIET_VOLATILE, DIET_DOUBLE);
+
+  // Ask explicitely for a batch submission
   diet_profile_set_batch(profile) ;
 
   /*********************
    * DIET Call
    *********************/
 
-  if (!diet_call_batch(profile)) {
+  if (!diet_call(profile)) {
     printf("Job correctly submitted!\n\n\n") ;
   }
   

@@ -35,8 +35,11 @@ main(int argc, char* argv[])
     return 1;
   }
 
-  profile = diet_profile_alloc(path, 1, 1, 1);
-  diet_string_set(diet_parameter(profile,0), "Arf! PARALLEL !!",DIET_VOLATILE);
+  profile = diet_profile_alloc(path, 0, 0, 0);
+  /*  diet_string_set(diet_parameter(profile,0), "Arf! PARALLEL !!",DIET_VOLATILE);*/
+  diet_scalar_set(diet_parameter(profile,0), &entier,
+		  DIET_VOLATILE, DIET_DOUBLE);
+
   diet_profile_set_parallel(profile) ;
   
   /*********************
