@@ -10,6 +10,11 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.17  2005/08/31 14:56:13  alsu
+#* New plugin scheduling interface: removal of deprecated estVector.c
+#* source, and addition of est_internal.cc (which provides the
+#* DIET-internal interface to the new estimation vector)
+#*
 #* Revision 1.16  2005/07/13 09:07:30  rbolze
 #* remove some JUXMEM_MODE tag and add estVector.h into noinst_HEADERS variable
 #*
@@ -55,10 +60,11 @@ endif
 
 libUtilsCommon_la_SOURCES  = debug.cc DIET_data.cc ms_function.cc \
 			     Parsers.cc statistics.cc KeyString.cc
-libUtilsSeDClt_la_SOURCES  = DIET_mutex.cc AccessController.cc
+libUtilsSeDClt_la_SOURCES  = DIET_mutex.cc AccessController.cc \
+                             est_internal.cc
 libUtilsNodes_la_SOURCES   = Counter.cc ServiceTable.cc FASTMgr.cc \
 			     DietLogComponent.cc MonitoringThread.cc
-libUtilsVector_la_SOURCES  = Vector.c estVector.c
+libUtilsVector_la_SOURCES  = Vector.c
 libJuxMemWrapper_la_SOURCES = JuxMemImpl.cc
 
 noinst_HEADERS = Counter.hh debug.hh DIET_data_internal.hh \
