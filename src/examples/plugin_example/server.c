@@ -16,6 +16,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2005/08/31 15:03:10  alsu
+ * New plugin scheduling interface: using the new estimation vector
+ * interface
+ *
  * Revision 1.2  2005/06/13 11:35:36  alsu
  * a few more comments to make the example easier to understand
  *
@@ -29,7 +33,7 @@
 
 /* forward declarations of private functions */
 static int solveFn(diet_profile_t *pb);
-static estVector_t performanceFn(diet_profile_t* pb);
+static void performanceFn(diet_profile_t* pb, estVector_t perfValues);
 
 /* server-level global variables */
 static int numResources = 0;
@@ -185,22 +189,19 @@ solveFn(diet_profile_t *pb)
 ** performanceFn: the performance function to use in the DIET
 **   plugin scheduling facility
 */
-static estVector_t
-performanceFn(diet_profile_t* pb)
+static void
+performanceFn(diet_profile_t* pb, estVector_t perfValues)
 {
   const char *targetString;
   int numMismatch;
-  estVector_t perfValues = diet_estimate_new_vector();
 
   /* string value must be fetched from description; value is NULL */
   targetString = (diet_paramstring_get_desc(diet_parameter(pb, 0)))->param;
   numMismatch = computeMismatches(targetString);
 
   /* store the mismatch value in the user estimate space */
-  diet_set_user_estimate(perfValues, 0, numMismatch);
+  diet_est_set(perfValues, 0, numMismatch);
 
   /* also store the timestamp since last execution */
   diet_estimate_lastexec(perfValues, pb);
-
-  return (perfValues);
 }

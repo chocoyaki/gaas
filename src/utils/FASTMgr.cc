@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2005/08/31 14:56:49  alsu
+ * New plugin scheduling interface: using the new estimation vector
+ * interface
+ *
  * Revision 1.11  2005/05/15 15:44:08  alsu
  * minor changes from estimation vector reorganization
  *
@@ -68,7 +72,8 @@
 
 #include "FASTMgr.hh"
 
-#include "estVector.h"
+#include "est_internal.hh"
+
 #include "DIET_config.h"
 #include "debug.hh"
 #include "marshalling.hh"
@@ -316,10 +321,10 @@ FASTMgr::estimate(char* hostName,
 // 	    freeCPU,
 // 	    freeMem,
 // 	    (double) nbCPU);
-    estVector_setEstimation(ev, EST_TCOMP, time);
-    estVector_setEstimation(ev, EST_FREECPU, freeCPU);
-    estVector_setEstimation(ev, EST_FREEMEM, freeMem);
-    estVector_setEstimation(ev, EST_NBCPU, nbCPU);
+    diet_est_set_internal(ev, EST_TCOMP, time);
+    diet_est_set_internal(ev, EST_FREECPU, freeCPU);
+    diet_est_set_internal(ev, EST_FREEMEM, freeMem);
+    diet_est_set_internal(ev, EST_NBCPU, nbCPU);
   }
 }
 

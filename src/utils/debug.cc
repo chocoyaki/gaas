@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2005/08/31 15:00:38  alsu
+ * New plugin scheduling interface: using the new estimation vector
+ * interface
+ *
  * Revision 1.24  2005/07/12 14:28:40  hdail
  * Updated displayProfileDesc functions to display aggregator components
  * of profile description.
@@ -88,7 +92,7 @@
 #include <stdlib.h>
 
 #include "debug.hh"
-#include "estVector.h"
+#include "est_internal.hh"
 #include "marshalling.hh"
 #include "DIET_data_internal.hh"
 #include "DIET_server.h"
@@ -105,8 +109,6 @@ omni_mutex debug_log_mutex ;
 void
 displayResponse(FILE* os, const corba_response_t* resp)
 {
-  size_t i;
-
   fprintf(os, "\n----------------------------------------\n");
   fprintf(os, " Response structure for request %lu :\n\n", resp->reqID);
   if (TRACE_LEVEL >= TRACE_ALL_STEPS)
@@ -118,41 +120,37 @@ displayResponse(FILE* os, const corba_response_t* resp)
   if (resp->servers.length() > 0)
     fprintf(os," Estimated computation time:\n");
 
-  for (i = 0; i < resp->servers.length(); i++) {
-    estVector_t ev = new_estVector();
+  for (size_t i = 0; i < resp->servers.length(); i++) {
+    estVectorConst_t ev = &(resp->servers[i].estim);
 
-    {
-      unmrsh_estimation_to_estVector(&(resp->servers[i].estim), ev);
-      if (estVector_getEstimationValue(ev, EST_TCOMP, HUGE_VAL) != HUGE_VAL) {
-        fprintf(os,
-                "  %ldth server can solve the problem in %g seconds\n",
-                (long) i,
-                estVector_getEstimationValue(ev, EST_TCOMP, HUGE_VAL));
-      }
-      else {
-        fprintf(os,
-                "  %ldth server has %g free CPU and %g free memory\n",
-                (long) i,
-                estVector_getEstimationValue(ev, EST_FREECPU, HUGE_VAL),
-                estVector_getEstimationValue(ev, EST_FREEMEM, HUGE_VAL));
-      }
+    if (diet_est_get_internal(ev, EST_TCOMP, HUGE_VAL) != HUGE_VAL) {
+      fprintf(os,
+              "  %ldth server can solve the problem in %g seconds\n",
+              (long) i,
+              diet_est_get_internal(ev, EST_TCOMP, HUGE_VAL));
+    }
+    else {
+      fprintf(os,
+              "  %ldth server has %g free CPU and %g free memory\n",
+              (long) i,
+              diet_est_get_internal(ev, EST_FREECPU, HUGE_VAL),
+              diet_est_get_internal(ev, EST_FREEMEM, HUGE_VAL));
     }
 
     fprintf(os, "  TComms for each parameter: ");
     for (int commTimeIter = 0 ;
-         commTimeIter < estVector_numEstimationsByTag(ev, EST_COMMTIME) ;
+         commTimeIter < diet_est_array_size_internal(ev, EST_COMMTIME) ;
          commTimeIter++) {
       fprintf(os,
               " %g",
-              estVector_getEstimationValueNum(ev,
-                                              EST_COMMTIME,
-                                              HUGE_VAL,
-                                              commTimeIter));
+              diet_est_array_get_internal(ev,
+                                          EST_COMMTIME,
+                                          commTimeIter,
+                                          HUGE_VAL));
     }
-    fprintf(os,"\n");
-
-    free_estVector(ev);
   }
+  fprintf(os,"\n");
+
   fprintf(os, "----------------------------------------\n");
 }
 
@@ -163,19 +161,16 @@ displayResponseShort(FILE* os, const corba_response_t* resp)
       resp->reqID);
 
   for (size_t i = 0; i < resp->servers.length(); i++){
-    estVector_t ev = new_estVector();
-    unmrsh_estimation_to_estVector(&(resp->servers[i].estim), ev);
+    estVectorConst_t ev = &(resp->servers[i].estim);
 
     fprintf(stdout, 
             "    %d: %s:%ld: tComp %g fCpu %g fMem %g\n",
             i,
             (const char *)(resp->servers[i].loc.hostName),
             resp->servers[i].loc.port,
-            estVector_getEstimationValue(ev, EST_TCOMP, HUGE_VAL),
-            estVector_getEstimationValue(ev, EST_FREECPU, HUGE_VAL),
-            estVector_getEstimationValue(ev, EST_FREEMEM, HUGE_VAL));
-
-    free_estVector(ev);
+            diet_est_get_internal(ev, EST_TCOMP, HUGE_VAL),
+            diet_est_get_internal(ev, EST_FREECPU, HUGE_VAL),
+            diet_est_get_internal(ev, EST_FREEMEM, HUGE_VAL));
   }
 }
 
