@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2005/08/31 14:44:41  alsu
+ * New plugin scheduling interface: minor changes
+ *
  * Revision 1.9  2005/05/16 15:22:52  alsu
  * mostly small stuff, one big (stupid) bug
  *
@@ -56,9 +59,6 @@
 
 
 #include "GlobalSchedulers.hh"
-
-#include "estVector.h"
-
 #include <iostream>
 using namespace std;
 #include <stdio.h>
@@ -246,8 +246,7 @@ GlobalScheduler::aggregate(corba_response_t* aggrResp, size_t max_srv,
     while (! Vector_isEmpty(evCache)) {
       Vector_t respV = (Vector_t) Vector_removeAtPosition(evCache, 0);
       while (! Vector_isEmpty(respV)) {
-        estVector_t ev = (estVector_t) Vector_removeAtPosition(respV, 0);
-        free_estVector(ev);
+        Vector_removeAtPosition(respV, 0);
       }
       free_Vector(respV);
     }
@@ -412,7 +411,7 @@ PriorityGS::serialize(PriorityGS* GS)
 
   SCHED_TRACE_FUNCTION(GS->name);
   sprintf(res, GS->name);
-  cout << "res is " << res << "\n";
+//   cout << "res is " << res << "\n";
   while (iter->hasCurrent()) {
     Scheduler* sched = iter->getCurrent();
     char* tmp = Scheduler::serialize(sched);
@@ -426,7 +425,7 @@ PriorityGS::serialize(PriorityGS* GS)
     } else {
       sprintf((char*)(res+length), ":%s", tmp);
     }
-    cout << "  res is " << res << "\n";
+//     cout << "  res is " << res << "\n";
     length += tmp_length;
     delete [] tmp;
     iter->next();

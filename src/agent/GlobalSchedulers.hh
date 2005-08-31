@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2005/08/31 14:44:41  alsu
+ * New plugin scheduling interface: minor changes
+ *
  * Revision 1.4  2005/05/16 12:27:24  alsu
  * removing hard-coded nameLength fields
  *
@@ -59,8 +62,10 @@ public:
    * @param responses    array of the responses to aggregate.
    */
   int
-  aggregate(corba_response_t* aggrResp, size_t max_srv,
-	    size_t nb_responses, const corba_response_t* responses);
+  aggregate(corba_response_t* aggrResp,
+            size_t max_srv,
+            const size_t nb_responses,
+            const corba_response_t* responses);
 
   /** Return the serialized global scheduler (a string). */
   static char*
