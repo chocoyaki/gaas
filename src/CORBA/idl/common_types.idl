@@ -9,6 +9,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2005/08/31 14:52:54  alsu
+ * New plugin scheduling interface: new data model for the estimation
+ * vector, with each data entry containing three elements:
+ *  - the data tag
+ *  - the data index (>=0 indicating an array value, <0 indicating a
+ *    scalar value)
+ *  - the data value
+ *
  * Revision 1.11  2005/08/30 12:05:15  ycaniou
  * Added a field dietJobId to make the correspondance between batch ID and
  *   diet job ID.
@@ -287,13 +295,14 @@ struct corba_request_t {
  * Custom estimation tags: space of a char, acceptable values
  * defined DIET_data_internal.h
  */
-typedef octet corba_est_tag_storage_t;
+typedef short corba_est_tag_storage_t;
 
 /**
  * Custom estimation value
  */
 struct corba_est_value_t {
   corba_est_tag_storage_t v_tag;
+  short                   v_idx;
   double                  v_value;
 };
 typedef sequence <corba_est_value_t> SeqEstValue_t;
