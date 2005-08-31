@@ -10,6 +10,10 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.18  2005/08/31 15:05:24  alsu
+#* New plugin scheduling interface: removal of lingering reference to
+#* estVector.h
+#*
 #* Revision 1.17  2005/08/31 14:56:13  alsu
 #* New plugin scheduling interface: removal of deprecated estVector.c
 #* source, and addition of est_internal.cc (which provides the
@@ -73,7 +77,7 @@ noinst_HEADERS = Counter.hh debug.hh DIET_data_internal.hh \
 		 statistics.hh ts_container/ts_map.hh \
 		 ts_container/ts_set.hh ts_container/ts_vector.hh \
 		 DietLogComponent.hh MonitoringThread.hh KeyString.hh \
-		 AccessController.hh Vector.h estVector.h JuxMemImpl.hh
+		 AccessController.hh Vector.h JuxMemImpl.hh
 
 AM_CXXFLAGS = @JUXMEM_CXXFLAGS@ $(CXXFLAGS_OMNIORB) $(CXXFLAGS_FAST) \
 	      -I$(top_srcdir)/src/CORBA -I$(top_builddir)/src/CORBA/idl
