@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2005/08/31 14:37:07  alsu
+ * New plugin scheduling interface:
+ *  - prototype of diet_perfmetric_t changed; now takes estVector_t as an
+ *    argument, rather than emitting it as a return value
+ *  - new estimation vector interface, creating separate "tag-spaces" for
+ *    scalar and array data
+ *
  * Revision 1.21  2005/08/30 12:49:57  ycaniou
  * Added the  diet_submit_call_t in DIET_server.h and the dietJobID field in
  *   the diet_profile_t
@@ -331,7 +338,7 @@ typedef int (* diet_solve_t)(diet_profile_t*);
 /* DIET performance metric function prototype                               */
 /****************************************************************************/
 
-typedef estVector_t (* diet_perfmetric_t)(diet_profile_t*);
+typedef void (* diet_perfmetric_t)(diet_profile_t*, estVector_t);
 
 
 /****************************************************************************/
@@ -414,12 +421,16 @@ diet_submit_batch(diet_profile_t* profile, const char *command,
 /****************************************************************************/
 /* DIET standard estimation methods (DIET_server.cc)                        */
 /****************************************************************************/
-estVector_t diet_estimate_new_vector();
-int diet_set_user_estimate(estVector_t ev, int userTag, double value);
-/***/
-/* unclear whether we want to allow users to estimate standard metrics */
-/* int diet_set_estimate(estVector_t ev, diet_est_tag_t tag, double value); */
-/***/
+int diet_est_set(estVector_t ev, int userTag, double value);
+double diet_est_get(estVectorConst_t ev, int userTag, double errVal);
+int diet_est_defined(estVectorConst_t ev, int userTag);
+int diet_est_array_size(estVectorConst_t ev, int userTag);
+int diet_est_array_set(estVector_t ev, int userTag, int idx, double value);
+double diet_est_array_get(estVectorConst_t ev,
+                          int userTag,
+                          int idx,
+                          double errVal);
+int diet_est_array_defined(estVectorConst_t ev, int userTag, int idx);
 int diet_estimate_fast(estVector_t ev, const diet_profile_t* const profilePtr);
 int diet_estimate_lastexec(estVector_t ev,
                            const diet_profile_t* const profilePtr);
