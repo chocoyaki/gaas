@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.57  2005/08/31 14:39:57  alsu
+ * New plugin scheduling interface: adapting estimation vector
+ * manipulation calls to the new interface
+ *
  * Revision 1.56  2005/08/30 09:20:20  ycaniou
  * Corrected things in DIET_server.cc (diet_submit_batch...)
  * Link libDIET with Elagi and Appleseeds only if BATCH is asked in the
@@ -103,13 +107,12 @@ using namespace std;
 #include "Callback.hh"
 #include "common_types.hh"
 #include "debug.hh"
-#include "estVector.h"
+#include "est_internal.hh"
 #include "FASTMgr.hh"
 #include "marshalling.hh"
 #include "ORBMgr.hh"
 #include "Parsers.hh"
 #include "statistics.hh"
-#include "Vector.h"
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
@@ -336,6 +339,7 @@ SeDImpl::getRequest(const corba_request_t& creq)
     resp.servers[0].loc.uuid = CORBA::string_dup(uuid);
 #endif //HAVE_JXTA
     resp.servers[0].loc.port     = this->port;
+    resp.servers[0].estim.estValues.length(0);
 
 #if ! HAVE_BATCH
 /** Commented because we don't have appropriate comm time estimation method
@@ -343,21 +347,17 @@ SeDImpl::getRequest(const corba_request_t& creq)
     for (int i = 0; i <= creq.pb.last_out; i++)
       resp.servers[0].estim.commTimes[i] = 0;
 */
-    estVector_t ev = new_estVector();
+    estVector_t ev = &(resp.servers[0].estim);
     for (int ctIter = 0 ; ctIter < creq.pb.last_out ; ctIter++) {
-      estVector_addEstimation(ev, EST_COMMTIME, 0.0);
+      diet_est_set_internal(ev, EST_COMMTIME, 0.0);
     }
-    mrsh_estVector_to_estimation(&(resp.servers[0].estim), ev);
-    free_estVector(ev);
 #else
     // FIXME: What do I have to do for a batch, non batch, parallel, etc.?
     // for the moment, do the same but..
-    estVector_t ev = new_estVector();
+    estVector_t ev = &(resp.servers[0].estim);
     for (int ctIter = 0 ; ctIter < creq.pb.last_out ; ctIter++) {
-      estVector_addEstimation(ev, EST_COMMTIME, 0.0);
+      diet_est_set_internal(ev, EST_COMMTIME, 0.0);
     }
-    mrsh_estVector_to_estimation(&(resp.servers[0].estim), ev);
-    free_estVector(ev);
 #endif
 
     this->estimate(resp.servers[0].estim, creq.pb, serviceRef);
@@ -1041,7 +1041,7 @@ SeDImpl::estimate(corba_estimation_t& estimation,
                   const ServiceTable::ServiceReference_t ref)
 {
   diet_perfmetric_t perfmetric_fn = SrvT->getPerfMetric(ref);
-  estVector_t eVals = NULL;
+  estVector_t eVals = &(estimation);
 
   diet_profile_t profile;
 
@@ -1067,17 +1067,12 @@ SeDImpl::estimate(corba_estimation_t& estimation,
   }
 
   if (perfmetric_fn == NULL) {
-    /* initialize the estimation value vector */
-    eVals = new_estVector();
-
     /***** START FAST-based metrics *****/
     diet_estimate_fast(eVals, &profile);
 
-    estVector_setEstimation(eVals,
-                            EST_TOTALTIME,
-                            estVector_getEstimationValue(eVals,
-                                                         EST_TCOMP,
-                                                         HUGE_VAL));
+    diet_est_set_internal(eVals,
+                          EST_TOTALTIME,
+                          diet_est_get_internal(eVals, EST_TCOMP, HUGE_VAL));
 
     {
       /*
@@ -1089,30 +1084,26 @@ SeDImpl::estimate(corba_estimation_t& estimation,
       ** TODO: decide if this block should change according to the
       **       above comment
       */
-      if (estVector_getEstimationValue(eVals, EST_TOTALTIME, HUGE_VAL) !=
-          HUGE_VAL) {
-        double newTotalTime;
-        newTotalTime = estVector_getEstimationValue(eVals,
-                                                    EST_TOTALTIME,
-                                                    HUGE_VAL);
+      if (diet_est_get_internal(eVals, EST_TOTALTIME, HUGE_VAL) != HUGE_VAL) {
+        double newTotalTime =
+          diet_est_get_internal(eVals, EST_TOTALTIME, HUGE_VAL);
 
         for (int i = 0; i <= pb.last_out; i++) {
-          if (estVector_getEstimationValueNum(eVals,
-                                              EST_COMMTIME,
-                                              HUGE_VAL,
-                                              i) == HUGE_VAL) {
-            estVector_setEstimation(eVals, EST_TOTALTIME, HUGE_VAL);
+          if (diet_est_array_get_internal(eVals,
+                                          EST_COMMTIME,
+                                          i,
+                                          HUGE_VAL) == HUGE_VAL) {
+            diet_est_set_internal(eVals, EST_TOTALTIME, HUGE_VAL);
             break;
           }
-
 //         estimation.totalTime += estimation.commTimes[i];
-          newTotalTime += estVector_getEstimationValueNum(eVals,
-                                                          EST_COMMTIME,
-                                                          HUGE_VAL,
-                                                          i);
+          newTotalTime += diet_est_array_get_internal(eVals,
+                                                      EST_COMMTIME,
+                                                      i,
+                                                      HUGE_VAL);
         }
 
-        estVector_setEstimation(eVals, EST_TOTALTIME, newTotalTime);
+        diet_est_set_internal(eVals, EST_TOTALTIME, newTotalTime);
       }
     }
     /***** END FAST-based metrics *****/
@@ -1125,7 +1116,7 @@ SeDImpl::estimate(corba_estimation_t& estimation,
     /*
     ** just call the custom performance metric function!
     */
-    eVals = (*perfmetric_fn)(&profile);
+    (*perfmetric_fn)(&profile, eVals);
   }
 
   /* Evaluate comm times for persistent IN arguments only: comm times for
@@ -1138,14 +1129,9 @@ SeDImpl::estimate(corba_estimation_t& estimation,
         && (pb.param_desc[i].mode <= DIET_STICKY)
         && (*(pb.param_desc[i].id.idNumber) != '\0')) {    
 //       estimation.commTimes[i] = 0;  
-      estVector_addEstimation(eVals, EST_COMMTIME, 0.0);
+      diet_est_array_set_internal(eVals, EST_COMMTIME, i, 0.0);
     }
   }
 
-  /* fill in the corba estimation structure */
-  if (eVals == NULL) {
-    eVals = new_estVector();
-  }
-  mrsh_estVector_to_estimation(&(estimation), eVals);
-  free_estVector(eVals);
+//   cout << "AS: [" << __FUNCTION__ << "] num values = " << estimation.estValues.length() << endl;
 }
