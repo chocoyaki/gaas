@@ -11,6 +11,10 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.14  2005/08/31 14:42:54  alsu
+#* New plugin scheduling interface: add dependence on libUtilsSeDClt for
+#* the estimation vector functions
+#*
 #* Revision 1.13  2004/12/08 15:02:52  alsu
 #* plugin scheduler first-pass validation testing complete.  merging into
 #* main CVS trunk; ready for more rigorous testing.
@@ -88,6 +92,7 @@ dietAgent_LDADD = \
 	$(utilsdir)/libUtilsVector.la $(corbadir)/libCorbaCommon.la	\
 	$(corbadir)/idl/libIDLAgent.la $(corbadir)/idl/libIDLCommon.la	\
 	$(corbadir)/idl/libIDLLA.la $(corbadir)/idl/libIDLMA.la		\
+	$(utilsdir)/libUtilsSeDClt.la \
 	$(LIBS_OMNIORB) $(LIBS_FAST)
 
 AM_CXXFLAGS = $(CXXFLAGS_OMNIORB) $(CXXFLAGS_FAST) -I$(top_srcdir)/src/utils \
