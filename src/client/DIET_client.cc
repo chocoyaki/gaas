@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.66  2005/08/31 14:49:17  alsu
+ * New plugin scheduling interface: new estimation vector interface in
+ * the client contract-checking code
+ *
  * Revision 1.65  2005/08/30 12:41:37  ycaniou
  * Some changes. Management of dietJobID.
  *
@@ -71,7 +75,7 @@ using namespace std;
 #include <math.h>
 
 #include "debug.hh"
-#include "estVector.h"
+#include "est_internal.hh"
 #include "DIET_data_internal.hh"
 #if HAVE_JUXMEM
 #include "JuxMemImpl.hh"
@@ -502,12 +506,9 @@ request_submission(diet_profile_t* profile,
             int           idx       = server_OK;
             SeD_ptr       server    = response->servers[idx].loc.ior;
 
-            estVector_t ev = new_estVector();
-            unmrsh_estimation_to_estVector(&(response->servers[idx].estim),
-                                           ev);
+            estVector_t ev = &(response->servers[idx].estim);
             CORBA::Double totalTime =
-              estVector_getEstimationValue(ev, EST_TOTALTIME, HUGE_VAL);
-            free_estVector(ev);
+              diet_est_get_internal(ev, EST_TOTALTIME, HUGE_VAL);
 
             if (server->checkContract(response->servers[idx].estim,
                                       corba_pb)) {
@@ -515,12 +516,9 @@ request_submission(diet_profile_t* profile,
               continue;
             }
 
-            ev = new_estVector();
-            unmrsh_estimation_to_estVector(&(response->servers[idx].estim),
-                                           ev);
+            ev = &(response->servers[idx].estim);
             CORBA::Double newTotalTime =
-              estVector_getEstimationValue(ev, EST_TOTALTIME, HUGE_VAL);
-            free_estVector(ev);
+              diet_est_get_internal(ev, EST_TOTALTIME, HUGE_VAL);
             if ((totalTime == newTotalTime) ||
                 ((newTotalTime - totalTime) <
                  (ERROR_RATE * MAX(totalTime, newTotalTime)))) {
