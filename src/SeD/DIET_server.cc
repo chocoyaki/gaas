@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.44  2005/08/31 14:41:49  alsu
+ * New plugin scheduling interface: implementation of the new public
+ * estimation vector interface functions
+ *
  * Revision 1.43  2005/08/30 09:20:20  ycaniou
  * Corrected things in DIET_server.cc (diet_submit_batch...)
  * Link libDIET with Elagi and Appleseeds only if BATCH is asked in the
@@ -127,7 +131,7 @@ using namespace std;
 #include "DIET_server.h"
 
 #include "debug.hh"
-#include "estVector.h"
+#include "est_internal.hh"
 #include "marshalling.hh"
 #include "ORBMgr.hh"
 #include "Parsers.hh"
@@ -805,32 +809,137 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   return 0;
 }
 
-
-estVector_t
-diet_estimate_new_vector()
-{
-  return (new_estVector());
-}
 int
-diet_set_user_estimate(estVector_t ev, int userTag, double value)
+diet_est_set(estVector_t ev, int userTag, double value)
 {
+  if (ev == NULL) {
+    ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
+  }
   if (userTag < 0) {
     ERROR(__FUNCTION__ <<
           ": userTag must be non-negative (" <<
           userTag <<
-          ")\n", 0);
+          ")\n", -1);
   }
-  if (! estVector_addEstimation(ev, EST_USERDEFINED + userTag, value)) {
-    ERROR(__FUNCTION__ <<
-          ": error adding " <<
-          userTag <<
-          " = " <<
-          value <<
-          "\n", 0);
-  }
-  return (1);
+
+  return (diet_est_set_internal(ev, userTag + EST_USERDEFINED, value));
 }
 
+double
+diet_est_get(estVectorConst_t ev, int userTag, double errVal)
+{
+  if (ev == NULL) {
+    ERROR(__FUNCTION__ << ": NULL estimation vector", errVal);
+  }
+  if (userTag < 0) {
+    ERROR(__FUNCTION__ <<
+          ": userTag must be non-negative (" <<
+          userTag <<
+          ")\n", errVal);
+  }
+
+  return (diet_est_get_internal(ev, userTag + EST_USERDEFINED, errVal));
+}
+
+int
+diet_est_defined(estVectorConst_t ev, int userTag)
+{
+  if (ev == NULL) {
+    ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
+  }
+  if (userTag < 0) {
+    ERROR(__FUNCTION__ <<
+          ": userTag must be non-negative (" <<
+          userTag <<
+          ")\n", -1);
+  }
+
+  return (diet_est_defined_internal(ev, userTag + EST_USERDEFINED));
+}
+
+int
+diet_est_array_size(estVectorConst_t ev, int userTag)
+{
+  if (ev == NULL) {
+    ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
+  }
+  if (userTag < 0) {
+    ERROR(__FUNCTION__ <<
+          ": userTag must be non-negative (" <<
+          userTag <<
+          ")\n", -1);
+  }
+
+  return (diet_est_array_size_internal(ev, userTag + EST_USERDEFINED));
+}
+
+int
+diet_est_array_set(estVector_t ev, int userTag, int idx, double value)
+{
+  if (ev == NULL) {
+    ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
+  }
+  if (userTag < 0) {
+    ERROR(__FUNCTION__ <<
+          ": userTag must be non-negative (" <<
+          userTag <<
+          ")\n", -1);
+  }
+  if (idx < 0) {
+    ERROR(__FUNCTION__ << ": idx must be non-negative (" << idx << ")\n", -1);
+  }
+
+  return (diet_est_array_set_internal(ev,
+                                      userTag + EST_USERDEFINED,
+                                      idx,
+                                      value));
+}
+
+double
+diet_est_array_get(estVectorConst_t ev, int userTag, int idx, double errVal)
+{
+  if (ev == NULL) {
+    ERROR(__FUNCTION__ << ": NULL estimation vector", errVal);
+  }
+  if (userTag < 0) {
+    ERROR(__FUNCTION__ <<
+          ": userTag must be non-negative (" <<
+          userTag <<
+          ")\n", errVal);
+  }
+  if (idx < 0) {
+    ERROR(__FUNCTION__ <<
+          ": idx must be non-negative (" <<
+          idx <<
+          ")\n", errVal);
+  }
+
+  return (diet_est_array_get_internal(ev,
+                                      userTag + EST_USERDEFINED,
+                                      idx,
+                                      errVal));
+}
+
+int
+diet_est_array_defined(estVectorConst_t ev, int userTag, int idx)
+{
+  if (ev == NULL) {
+    ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
+  }
+  if (userTag < 0) {
+    ERROR(__FUNCTION__ <<
+          ": userTag must be non-negative (" <<
+          userTag <<
+          ")\n", -1);
+  }
+  if (idx < 0) {
+    ERROR(__FUNCTION__ << ": idx must be non-negative (" << idx << ")\n", -1);
+  }
+
+  return (diet_est_array_defined_internal(ev,
+                                          userTag + EST_USERDEFINED,
+                                          idx));
+}
 
 int
 diet_estimate_fast(estVector_t ev,
@@ -876,9 +985,8 @@ int diet_estimate_lastexec(estVector_t ev,
                          1000000.0));
 
   /* store the value in the performance data array */
-  estVector_addEstimation(ev,
-                          EST_TIMESINCELASTSOLVE,
-                          timeSinceLastSolve);
+  diet_est_set_internal(ev, EST_TIMESINCELASTSOLVE, timeSinceLastSolve);
+
   return (1);
 }
 
