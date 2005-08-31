@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.32  2005/08/31 14:34:30  alsu
+ * New plugin scheduling interface: estVector_t is no longer a structure
+ * in and of itself; but rather a pointer to a corba_estimation_t
+ * object.
+ *
  * Revision 1.31  2005/08/30 12:49:57  ycaniou
  * Added the  diet_submit_call_t in DIET_server.h and the dietJobID field in
  *   the diet_profile_t
@@ -523,7 +528,8 @@ typedef enum {
 /**
  * estimation vector
  */
-typedef struct estVector_s *estVector_t;
+typedef struct corba_estimation_t *estVector_t;
+typedef const struct corba_estimation_t *estVectorConst_t;
 
 #ifdef __cplusplus
 }
