@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2005/08/31 14:47:41  alsu
+ * New plugin scheduling interface: adapting the various schedulers to
+ * access performance data using the new estimation vector interface
+ *
  * Revision 1.11  2005/05/16 12:27:24  alsu
  * removing hard-coded nameLength fields
  *
@@ -104,7 +108,7 @@ using namespace std;
 #include <string.h>
 #include <time.h>
 
-#include "estVector.h"
+#include "est_internal.hh"
 #include "debug.hh"
 
 /** The trace level. */
@@ -214,7 +218,9 @@ Scheduler::deserialize(const char* serializedScheduler)
     return (RRScheduler::deserialize(serializedScheduler + nameLength));
   }
   else {
-    INTERNAL_WARNING("unable to deserialize scheduler ; "
+    INTERNAL_WARNING("unable to deserialize scheduler \""
+                     << serializedScheduler
+                     << "\" ; "
                      << "reverting to default (random)");
     return (new RandScheduler());
   }
@@ -316,7 +322,7 @@ Scheduler::aggregate(corba_response_t& aggrResp,
     case COMPARE_UNDEFINED:                                                   \
       parent.resp_idx = -1; break;                                            \
     default:                                                                  \
-      INTERNAL_WARNING("compare returned wrong value");                       \
+      INTERNAL_WARNING("compare returned wrong value: " << cmp);              \
       parent.resp_idx = -1;                                                   \
     }                                                                         \
   }
@@ -387,7 +393,7 @@ Scheduler::aggregate(corba_response_t& aggrResp,
     case COMPARE_UNDEFINED:                                                   \
       parent.resp_idx = -1; break;                                            \
     default:                                                                  \
-      INTERNAL_WARNING("compare returned wrong value");                       \
+      INTERNAL_WARNING("compare returned wrong value: " << cmp);              \
       parent.resp_idx = -1;                                                   \
     }                                                                         \
   }
@@ -500,18 +506,14 @@ Scheduler::aggregate(corba_response_t& aggrResp,
 /**
  * Return an estVector for the indicated server estimation
  */
-estVector_t
+estVectorConst_t
 Scheduler::getEstVector(int sIdx,
                         int rIdx,
                         const corba_response_t* responses)
 {
-  const corba_response_t response = responses[rIdx];
-  const SeqServerEstimation_t servers = response.servers;
   const CORBA::Long idx = sIdx;
-  const corba_estimation_t estimation = servers[idx].estim;
 
-  estVector_t eVals = new_estVector();
-  unmrsh_estimation_to_estVector(&(estimation), eVals);
+  estVectorConst_t eVals = &(responses[rIdx].servers[idx].estim);
 
   return (eVals);
 }
@@ -520,7 +522,7 @@ Scheduler::getEstVector(int sIdx,
  * Return an estVector for the indicated server estimation, using
  * the cached value, if available
  */
-estVector_t
+estVectorConst_t
 Scheduler::getEstVector(int sIdx,
                         int rIdx,
                         const corba_response_t* responses,
@@ -530,7 +532,7 @@ Scheduler::getEstVector(int sIdx,
   assert(rIdx < Vector_size(evCache));
 
   Vector_t sv = (Vector_t) Vector_elementAt(evCache, rIdx);
-  estVector_t ev;
+  estVectorConst_t ev;
 
   if (sIdx < Vector_size(sv) &&
       (ev = (estVector_t) Vector_elementAt(sv, sIdx)) != NULL) {
@@ -555,16 +557,16 @@ Scheduler::getEstVector(int sIdx,
 const char*  FASTScheduler::stName     = "FASTScheduler";
 
 static double
-__getAggregateCommTime(estVector_t ev)
+__getAggregateCommTime(estVectorConst_t ev)
 {
   double aggCommTime = 0.0;
-  int numCommTimes = estVector_numEstimationsByTag(ev, EST_COMMTIME);
+  int numCommTimes = diet_est_array_size_internal(ev, EST_COMMTIME);
 
   for (int commTimeIter = 0 ; commTimeIter < numCommTimes ; commTimeIter++) {
-    double val = estVector_getEstimationValueNum(ev,
-                                                 EST_COMMTIME,
-                                                 HUGE_VAL,
-                                                 commTimeIter);
+    double val = diet_est_array_get_internal(ev,
+                                             EST_COMMTIME,
+                                             commTimeIter,
+                                             HUGE_VAL);
     if (val == HUGE_VAL) {
       return (HUGE_VAL);
     }
@@ -593,21 +595,17 @@ int FASTScheduler_compare(int serverIdx1,
   const corba_server_estimation_t est1 = servers1[i1];
   const corba_server_estimation_t est2 = servers2[i2];
 
-  estVector_t s1est = Scheduler::getEstVector(serverIdx1,
-                                              responseIdx1,
-                                              responses,
-                                              evCache);
-  estVector_t s2est = Scheduler::getEstVector(serverIdx2,
-                                              responseIdx2,
-                                              responses,
-                                              evCache);
+  estVectorConst_t s1est = Scheduler::getEstVector(serverIdx1,
+                                                   responseIdx1,
+                                                   responses,
+                                                   evCache);
+  estVectorConst_t s2est = Scheduler::getEstVector(serverIdx2,
+                                                   responseIdx2,
+                                                   responses,
+                                                   evCache);
 
-  double s1tt = estVector_getEstimationValue(s1est,
-                                             EST_TOTALTIME,
-                                             HUGE_VAL);
-  double s2tt = estVector_getEstimationValue(s2est,
-                                             EST_TOTALTIME,
-                                             HUGE_VAL);
+  double s1tt = diet_est_get_internal(s1est, EST_TOTALTIME, HUGE_VAL);
+  double s2tt = diet_est_get_internal(s2est, EST_TOTALTIME, HUGE_VAL);
   double s1ct = __getAggregateCommTime(s1est);
   double s2ct = __getAggregateCommTime(s2est);
 
@@ -653,7 +651,9 @@ FASTScheduler::FASTScheduler(double epsilon)
   this->cmpInfo = NULL;
   if (epsilon < 0.0) {
     INTERNAL_WARNING("attempt to initialize FAST Scheduler with a negative "
-                     << "epsilon.\nSet epsilon to 0.0");
+                     << "epsilon: "
+                     << epsilon
+                     << ".\nSet epsilon to 0.0");
     this->epsilon = 0.0;
   } else {
     this->epsilon = epsilon;
@@ -674,7 +674,9 @@ FASTScheduler::deserialize(const char* serializedScheduler)
   SCHED_TRACE_FUNCTION(serializedScheduler);
   // Add one for the ','
   if (sscanf((char*)(serializedScheduler + 1), "%lg", &epsilon) != 1) {
-    INTERNAL_WARNING("invalid parameters for FAST scheduler, "
+    INTERNAL_WARNING("invalid parameters for FAST scheduler ("
+                     << ((char *)(serializedScheduler + 1))
+                     << "), "
                      << "reverting to default");
   }
   return new FASTScheduler(epsilon);
@@ -701,13 +703,13 @@ FASTScheduler::serialize(FASTScheduler* S)
 #define SCHED_CLASS "NWSScheduler"
 
 #define WEIGHT(ev, wi)                                                        \
-  (((estVector_getEstimationValue(ev, EST_FREECPU, 0.0) == 0.0) ||            \
-    (estVector_getEstimationValue(ev, EST_FREEMEM, 0.0) == 0.0)) ?            \
+  (((diet_est_get_internal(ev, EST_FREECPU, 0.0) == 0.0) ||                   \
+    (diet_est_get_internal(ev, EST_FREEMEM, 0.0) == 0.0)) ?                   \
    HUGE_VAL                                                                  :\
     ( 1.0                                                                    /\
-    pow(estVector_getEstimationValue(ev, EST_FREECPU, 0.0),                   \
+    pow(diet_est_get_internal(ev, EST_FREECPU, 0.0),                          \
         (wi)->CPUPower)                                                      *\
-    pow(estVector_getEstimationValue(ev, EST_FREEMEM, 0.0),                   \
+    pow(diet_est_get_internal(ev, EST_FREEMEM, 0.0),                          \
         (wi)->memPower)))
 
 const char*  NWSScheduler::stName     = "NWSScheduler";
@@ -724,14 +726,14 @@ int NWSScheduler_compare(int serverIdx1,
 {
   NWSScheduler::weight_info_t* wi = (NWSScheduler::weight_info_t*)cmpInfo;
 
-  estVector_t s1est = Scheduler::getEstVector(serverIdx1,
-                                              responseIdx1,
-                                              responses,
-                                              evCache);
-  estVector_t s2est = Scheduler::getEstVector(serverIdx2,
-                                              responseIdx2,
-                                              responses,
-                                              evCache);
+  estVectorConst_t s1est = Scheduler::getEstVector(serverIdx1,
+                                                   responseIdx1,
+                                                   responses,
+                                                   evCache);
+  estVectorConst_t s2est = Scheduler::getEstVector(serverIdx2,
+                                                   responseIdx2,
+                                                   responses,
+                                                   evCache);
 
   double sv1Weight = WEIGHT(s1est, wi);
   double sv2Weight = WEIGHT(s2est, wi);
@@ -853,7 +855,9 @@ NWSScheduler::deserialize(const char* serializedScheduler)
     if (paramIter == nb_mb-1) {
       /* check that this is the last param */
       if (strchr(ptr, ',') != NULL) {
-        INTERNAL_WARNING("too many parameters for NWS scheduler, "
+        INTERNAL_WARNING("too many parameters for NWS scheduler ("
+                         << ((char *)(serializedScheduler + 1))
+                         << "), "
                          << "reverting to default");
         return (new NWSScheduler());
       }
@@ -871,7 +875,9 @@ NWSScheduler::deserialize(const char* serializedScheduler)
     else {
       /* check that this is not the last param */
       if (strchr(ptr, ',') == NULL) {
-        INTERNAL_WARNING("too few parameters for NWS scheduler, "
+        INTERNAL_WARNING("too few parameters for NWS scheduler ("
+                         << ((char *)(serializedScheduler + 1))
+                         << "), "
                          << "reverting to default");
         return (new NWSScheduler());
       }
@@ -1000,33 +1006,27 @@ int RRScheduler_compare(int serverIdx1,
                         const void* useless)
 {
   if (serverIdx1 == serverIdx2 && responseIdx1 == responseIdx2) {
-    estVector_t est = Scheduler::getEstVector(serverIdx1,
-                                              responseIdx1,
-                                              responses,
-                                              evCache);
-    if (estVector_getEstimationValue(est,
-                                     EST_TIMESINCELASTSOLVE,
-                                     -1.0) == -1.0) {
+    estVectorConst_t est = Scheduler::getEstVector(serverIdx1,
+                                                   responseIdx1,
+                                                   responses,
+                                                   evCache);
+    if (diet_est_get_internal(est, EST_TIMESINCELASTSOLVE, -1.0) == -1.0) {
       return (COMPARE_UNDEFINED);
     }
     return (COMPARE_EQUAL);
   }
 
-  estVector_t s1est = Scheduler::getEstVector(serverIdx1,
-                                              responseIdx1,
-                                              responses,
-                                              evCache);
-  estVector_t s2est = Scheduler::getEstVector(serverIdx2,
-                                              responseIdx2,
-                                              responses,
-                                              evCache);
+  estVectorConst_t s1est = Scheduler::getEstVector(serverIdx1,
+                                                   responseIdx1,
+                                                   responses,
+                                                   evCache);
+  estVectorConst_t s2est = Scheduler::getEstVector(serverIdx2,
+                                                   responseIdx2,
+                                                   responses,
+                                                   evCache);
 
-  double tsls_s1 = estVector_getEstimationValue(s1est,
-                                                EST_TIMESINCELASTSOLVE,
-                                                -1.0);
-  double tsls_s2 = estVector_getEstimationValue(s2est,
-                                                EST_TIMESINCELASTSOLVE,
-                                                -1.0);
+  double tsls_s1 = diet_est_get_internal(s1est, EST_TIMESINCELASTSOLVE, -1.0);
+  double tsls_s2 = diet_est_get_internal(s2est, EST_TIMESINCELASTSOLVE, -1.0);
 
   if (tsls_s1 < 0.0) {
     if (tsls_s2 < 0.0) {
@@ -1117,18 +1117,18 @@ int MinScheduler_compare(int serverIdx1,
                          Vector_t evCache,
                          const void* tagvalPtr)
 {
-  int tagval = *((int *) tagvalPtr);
-  estVector_t s1est = Scheduler::getEstVector(serverIdx1,
-                                              responseIdx1,
-                                              responses,
-                                              evCache);
-  estVector_t s2est = Scheduler::getEstVector(serverIdx2,
-                                              responseIdx2,
-                                              responses,
-                                              evCache);
+  diet_est_tag_t tagval = *((diet_est_tag_t *) tagvalPtr);
+  estVectorConst_t s1est = Scheduler::getEstVector(serverIdx1,
+                                                   responseIdx1,
+                                                   responses,
+                                                   evCache);
+  estVectorConst_t s2est = Scheduler::getEstVector(serverIdx2,
+                                                   responseIdx2,
+                                                   responses,
+                                                   evCache);
 
-  double mval_s1 = estVector_getEstimationValue(s1est, tagval, HUGE_VAL);
-  double mval_s2 = estVector_getEstimationValue(s2est, tagval, HUGE_VAL);
+  double mval_s1 = diet_est_get_internal(s1est, tagval, HUGE_VAL);
+  double mval_s2 = diet_est_get_internal(s2est, tagval, HUGE_VAL);
 
   if (mval_s1 == HUGE_VAL) {
     if (mval_s2 == HUGE_VAL) {
@@ -1217,22 +1217,18 @@ int MaxScheduler_compare(int serverIdx1,
                          Vector_t evCache,
                          const void* tagvalPtr)
 {
-  int tagval = *((int *) tagvalPtr);
-  estVector_t s1est = Scheduler::getEstVector(serverIdx1,
-                                              responseIdx1,
-                                              responses,
-                                              evCache);
-  estVector_t s2est = Scheduler::getEstVector(serverIdx2,
-                                              responseIdx2,
-                                              responses,
-                                              evCache);
+  diet_est_tag_t tagval = *((diet_est_tag_t *) tagvalPtr);
+  estVectorConst_t s1est = Scheduler::getEstVector(serverIdx1,
+                                                   responseIdx1,
+                                                   responses,
+                                                   evCache);
+  estVectorConst_t s2est = Scheduler::getEstVector(serverIdx2,
+                                                   responseIdx2,
+                                                   responses,
+                                                   evCache);
 
-  double mval_s1 = estVector_getEstimationValue(s1est,
-                                                tagval,
-                                                -HUGE_VAL);
-  double mval_s2 = estVector_getEstimationValue(s2est,
-                                                tagval,
-                                                -HUGE_VAL);
+  double mval_s1 = diet_est_get_internal(s1est, tagval, -HUGE_VAL);
+  double mval_s2 = diet_est_get_internal(s2est, tagval, -HUGE_VAL);
 
   if (mval_s1 == -HUGE_VAL) {
     if (mval_s2 == -HUGE_VAL) {
@@ -1321,30 +1317,31 @@ int PriorityScheduler_compare(int serverIdx1,
                               Vector_t evCache,
                               const void* pListPtr)
 {
-  const estVector_t s1est = Scheduler::getEstVector(serverIdx1,
-                                                    responseIdx1,
-                                                    responses,
-                                                    evCache);
-  const estVector_t s2est = Scheduler::getEstVector(serverIdx2,
-                                                    responseIdx2,
-                                                    responses,
-                                                    evCache);
+  estVectorConst_t s1est = Scheduler::getEstVector(serverIdx1,
+                                                   responseIdx1,
+                                                   responses,
+                                                   evCache);
+  estVectorConst_t s2est = Scheduler::getEstVector(serverIdx2,
+                                                   responseIdx2,
+                                                   responses,
+                                                   evCache);
 
   const PriorityScheduler::priorityList *pl =
     (PriorityScheduler::priorityList *) pListPtr;
   for (int pvalIter = 0 ; pvalIter < pl->pl_numValues ; pvalIter++) {
     int minimize = 0;
-    int tag = pl->pl_values[pvalIter];
+    int _tag = pl->pl_values[pvalIter];
 
-    if (tag < 0) {
-      tag = -tag;
+    if (_tag < 0) {
+      _tag = -_tag;
       minimize = 1;
     }
 
-    const int exists1 = estVector_numEstimationsByTag(s1est, tag);
-    const int exists2 = estVector_numEstimationsByTag(s2est, tag);
-    const double val1 = estVector_getEstimationValue(s1est, tag, 0);
-    const double val2 = estVector_getEstimationValue(s2est, tag, 0);
+    diet_est_tag_t tag = (diet_est_tag_t) _tag;
+    const int exists1 = diet_est_defined_internal(s1est, tag);
+    const int exists2 = diet_est_defined_internal(s2est, tag);
+    const double val1 = diet_est_get_internal(s1est, tag, 0);
+    const double val2 = diet_est_get_internal(s2est, tag, 0);
 
     if (exists1 == 0 && exists2 == 0) {
       return (COMPARE_UNDEFINED);

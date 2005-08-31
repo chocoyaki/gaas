@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2005/08/31 14:47:41  alsu
+ * New plugin scheduling interface: adapting the various schedulers to
+ * access performance data using the new estimation vector interface
+ *
  * Revision 1.6  2005/05/16 12:27:24  alsu
  * removing hard-coded nameLength fields
  *
@@ -126,18 +130,18 @@ public:
   /**
    * Return an estVector for the indicated server estimation
    */
-  static estVector_t getEstVector(int sIdx,
-                                  int rIdx,
-                                  const corba_response_t* responses);
+  static estVectorConst_t getEstVector(int sIdx,
+                                       int rIdx,
+                                       const corba_response_t* responses);
 
   /**
    * Return an estVector for the indicated server estimation, using
    * the cached value, if available
    */
-  static estVector_t getEstVector(int sIdx,
-                                  int rIdx,
-                                  const corba_response_t* responses,
-                                  Vector_t evCache);
+  static estVectorConst_t getEstVector(int sIdx,
+                                       int rIdx,
+                                       const corba_response_t* responses,
+                                       Vector_t evCache);
   
 
 protected:
