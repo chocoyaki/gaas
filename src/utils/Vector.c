@@ -47,7 +47,7 @@ free_Vector(Vector_t v)
 }
 
 int
-Vector_add(Vector_t v, void* o)
+Vector_add(Vector_t v, const void* o)
 {
   if (v == NULL) {
     fprintf(stderr, "Vector_add: NULL v\n");
@@ -68,7 +68,7 @@ Vector_add(Vector_t v, void* o)
 }
 
 int
-Vector_addAtPosition(Vector_t v, void *o, int idx)
+Vector_addAtPosition(Vector_t v, const void *o, int idx)
 {
   if (v == NULL) {
     fprintf(stderr, "Vector_addAtPosition: NULL v\n");
@@ -167,7 +167,7 @@ Vector_copy(const VectorConst_t v)
 
   copy->v_size = v->v_size;
   copy->v_capacity = v->v_capacity;
-  copy->v_obj = (void**) calloc(v->v_capacity, sizeof (void*));
+  copy->v_obj = (const void**) calloc(v->v_capacity, sizeof (const void*));
   memcpy(copy->v_obj, v->v_obj, v->v_capacity * sizeof (void*));
 
   return (copy);
@@ -217,14 +217,15 @@ Vector_ensureCapacity(Vector_t v, int capacity)
     newCapacity = v->v_capacity * 2;
   }
 
-  v->v_obj = (void**) realloc(v->v_obj, newCapacity * sizeof (void*));
+  v->v_obj = (const void**) realloc(v->v_obj,
+                                    newCapacity * sizeof (const void*));
   if (v->v_obj == NULL) {
     fprintf(stderr, "Vector_ensureCapacity: failed realloc\n");
     return (0);
   }
   else {
     size_t newAreaSize = (newCapacity - v->v_capacity) * sizeof (void *);
-    void **newAreaStart = &((v->v_obj)[v->v_capacity]);
+    const void **newAreaStart = &((v->v_obj)[v->v_capacity]);
     memset(newAreaStart, '\0', newAreaSize);
   }
   v->v_capacity = newCapacity;
@@ -313,7 +314,7 @@ Vector_lastIndexOf(const VectorConst_t v, const void* o)
 }
 
 int
-Vector_remove(Vector_t v, void* o)
+Vector_remove(Vector_t v, const void* o)
 {
   if (v == NULL) {
     fprintf(stderr, "Vector_remove3: NULL v\n");
@@ -324,7 +325,7 @@ Vector_remove(Vector_t v, void* o)
 }
 
 int
-Vector_remove3(Vector_t v, void* o, compfn_t c)
+Vector_remove3(Vector_t v, const void* o, compfn_t c)
 {
   int oidx;
 
@@ -360,7 +361,7 @@ Vector_removeAtPosition(Vector_t v, int idx)
     return (NULL);
   }
 
-  rv = (v->v_obj)[idx];
+  rv = (void *)(v->v_obj)[idx];
   memmove(&((v->v_obj)[idx]),
           &((v->v_obj)[idx+1]),
           (v->v_size - 1 - idx) * sizeof (void *));
@@ -370,10 +371,10 @@ Vector_removeAtPosition(Vector_t v, int idx)
   return (rv);
 }
 
-void*
-Vector_set(Vector_t v, void* o, int idx)
+const void*
+Vector_set(Vector_t v, const void* o, int idx)
 {
-  void* rv = NULL;
+  const void* rv = NULL;
 
   if (v == NULL) {
     fprintf(stderr, "Vector_set: NULL v\n");
@@ -420,7 +421,8 @@ Vector_trimToSize(Vector_t v)
   }
 
   if (v->v_capacity > v->v_size) {
-    v->v_obj = (void**) realloc(v->v_obj, v->v_size * sizeof (void*));
+    v->v_obj = (const void**) realloc(v->v_obj,
+                                      v->v_size * sizeof (const void*));
     v->v_capacity = v->v_size;
   }
 
