@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.53  2005/08/31 14:51:35  alsu
+ * New plugin scheduling interface: marshalling/unmarshalling functions
+ * no longer needed for the estimation vector, since the C structure no
+ * longer exists and the CORBA C++ structure is being used throughout the
+ * DIET code base.
+ *
  * Revision 1.52  2005/08/30 12:05:15  ycaniou
  * Added a field dietJobId to make the correspondance between batch ID and
  *   diet job ID.
@@ -102,7 +108,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "estVector.h"
 #include "marshalling.hh"
 #include "debug.hh"
 
@@ -922,45 +927,3 @@ unmrsh_out_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb)
   }
   return 0;
 }
-
-int
-mrsh_estVector_to_estimation(corba_estimation_t* estPtr, const estVector_t ev)
-{
-  int evIter;
-
-  if (ev == NULL || estPtr == NULL) {
-    return (1);
-  }
-
-  (estPtr->estValues).length(estVector_numEstimations(ev));
-  for (evIter = 0 ; evIter < estVector_numEstimations(ev) ; evIter++) {
-    corba_est_value_t eVal;
-    eVal.v_tag = estVector_getEstimationTagByIdx(ev, evIter);
-    /* assume the value to be transferred is good */
-    eVal.v_value = estVector_getEstimationValueByIdx(ev, evIter, 0.0);
-    (estPtr->estValues)[evIter] = eVal;
-  }
-
-  return (0);
-}
-
-int
-unmrsh_estimation_to_estVector(const corba_estimation_t* estPtr,
-                               estVector_t ev)
-{
-  unsigned int estIter;
-
-  if (ev == NULL || estPtr == NULL) {
-    return (1);
-  }
-
-  for (estIter = 0 ; estIter < (estPtr->estValues).length() ; estIter++) {
-    corba_est_value_t eVal = (estPtr->estValues)[estIter];
-    int valTagInt = eVal.v_tag;
-    diet_est_tag_t valTag = static_cast<diet_est_tag_t> (valTagInt);
-    estVector_addEstimation(ev, valTag, eVal.v_value);
-  }
-
-  return (0);
-}
-

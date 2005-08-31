@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2005/08/31 14:51:35  alsu
+ * New plugin scheduling interface: marshalling/unmarshalling functions
+ * no longer needed for the estimation vector, since the C structure no
+ * longer exists and the CORBA C++ structure is being used throughout the
+ * DIET code base.
+ *
  * Revision 1.22  2004/12/08 15:02:51  alsu
  * plugin scheduler first-pass validation testing complete.  merging into
  * main CVS trunk; ready for more rigorous testing.
@@ -144,12 +150,6 @@ unmrsh_out_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb);
 
 int
 unmrsh_data(diet_data_t* dest, corba_data_t* src);
-
-// to manipulate estimation data vectors
-int mrsh_estVector_to_estimation(corba_estimation_t* estPtr,
-                                 const estVector_t ev);
-int unmrsh_estimation_to_estVector(const corba_estimation_t* estPtr,
-                                   estVector_t ev);
 
 // unmarshall only the data description (needed for custom
 // performance metrics)
