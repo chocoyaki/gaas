@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2005/09/01 14:08:16  hdail
+ * Correction of mismatch int and long int in printf statement.
+ *
  * Revision 1.25  2005/08/31 15:00:38  alsu
  * New plugin scheduling interface: using the new estimation vector
  * interface
@@ -341,7 +344,7 @@ displayProfileDesc(const corba_profile_desc_t* desc)
         fprintf(f," No priorities assigned");
       } else {
         for (unsigned int i = 0; i < prior.priorityList.length(); i++) {
-          fprintf(f," %d", prior.priorityList[i]);
+          fprintf(f," %ld", prior.priorityList[i]);
         }
       }
       fprintf(f, " )\n");
