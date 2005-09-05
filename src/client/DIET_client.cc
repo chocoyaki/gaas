@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.67  2005/09/05 16:07:33  hdail
+ * Addition of hostname and location information to client and in submit call.
+ *
  * Revision 1.66  2005/08/31 14:49:17  alsu
  * New plugin scheduling interface: new estimation vector interface in
  * the client contract-checking code
@@ -128,8 +131,14 @@ static size_t USE_ASYNC_API = 1;
   char* MA_Name;
   
   int num_Session;
-  
-  char file_Name[150];
+
+  char file_Name[256];
+
+#if HAVE_ALTPREDICT
+  /** Location ID and hostname to be used in performance prediction */
+  char *clientHostname;
+  char *clientLocationID;
+#endif
 
 #if HAVE_JUXMEM
   JuxMemImpl* JuxMem;
@@ -191,13 +200,13 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   if (value != NULL)
     WARNING("parsing " << config_file_name << ": no need "
             << "to specify a parent for a client - ignored");
+
   value = Parsers::Results::getParamValue(Parsers::Results::AGENTTYPE);
   if (value != NULL)
     WARNING("parsing " << config_file_name
             << ": agentType is useless for a client - ignored");
     
   /* Get the traceLevel */
-  
   if (TRACE_LEVEL >= TRACE_MAX_VALUE) {
     char *  level = (char *) calloc(48, sizeof(char*)) ;
     int    tmp_argc = myargc + 2;
@@ -207,9 +216,18 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
     myargv[myargc + 1] = (char*)level;
     myargc = tmp_argc;
   }
+
+#if HAVE_ALTPREDICT
+  char *tempLocID = (char*) 
+      Parsers::Results::getParamValue(Parsers::Results::LOCATIONID);
+  if (tempLocID != NULL) {
+    clientLocationID = CORBA::string_dup(tempLocID);
+  } else {
+    clientLocationID = CORBA::string_dup("");
+  }
+#endif // HAVE_ALTPREDICT
   
   /* Get the USE_ASYNC_API flag */
-
   value = Parsers::Results::getParamValue(Parsers::Results::USEASYNCAPI);
   if (value != NULL)
     USE_ASYNC_API = *(size_t *)(value); 
@@ -254,16 +272,31 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   if (CORBA::is_nil(MA)) {
     ERROR("cannot locate Master Agent " << MA_name, 1);
   }
+
   /* Initialize statistics module */
   stat_init();
 
   /* We do not need the parsing results any more */
   Parsers::endParsing();
-  /** get Num session*/
+
+#if HAVE_ALTPREDICT
+  char *tmpHostName = new char[256];
+  /** Get localhost name for performance prediction */
+  if (gethostname(tmpHostName, 256)) {
+    TRACE_TEXT(TRACE_MAIN_STEPS, 
+      "Could not get hostname on client - may affect performance prediction");
+    clientHostname = CORBA::string_dup("");
+  } else {
+    clientHostname = CORBA::string_dup(tmpHostName);
+  }
+#endif // HAVE_ALTPREDICT
 
   //create_file();
   MA_MUTEX.unlock();
-  num_Session=MA->get_session_num();
+
+  /** get Num session*/
+  num_Session = MA->get_session_num();
+
   return 0;
 }
 
@@ -381,7 +414,7 @@ void store_id(char* argID, char* msg)
  
   size_t cpt;
  
-  char* msg1 = new char[strlen(msg)+1];
+  char* msg1 = new char[strlen(msg)+2];
   cpt=strlen(argID);
   ofstream f(file_Name,ios_base::app|ios_base::ate);
   f.write(argID,cpt);
@@ -471,7 +504,12 @@ request_submission(diet_profile_t* profile,
           
       /* Submit to the agent. */
       try {
+#if ! HAVE_ALTPREDICT
         response = MA->submit(corba_pb, MAX_SERVERS);
+#else // HAVE_ALTPREDICT
+        response = MA->submit(corba_pb, MAX_SERVERS,
+                              clientHostname, clientLocationID);
+#endif // HAVE_ALTPREDICT
       } catch (CORBA::Exception& e) {
         CORBA::Any tmp;
         tmp <<= e;
