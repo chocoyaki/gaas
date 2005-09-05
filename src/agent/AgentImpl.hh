@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2005/09/05 16:06:09  hdail
+ * - Addition of method for aggregating parameter location data.
+ * - Handling of alternative performance prediction for parameter transfer
+ *   times by agents. (experimental and protected by HAVE_ALTPREDICT)
+ *
  * Revision 1.14  2005/05/18 14:18:10  mjan
  * Initial adding of JuxMem support inside DIET. dmat_manips examples tested without JuxMem and with JuxMem
  *
@@ -204,6 +209,18 @@ protected:
   corba_response_t*
   aggregate(Request* request, size_t max_srv);
 
+#if HAVE_ALTPREDICT
+  /**
+   * Return a pointer to a new response containing updated information on
+   * data locality.  Changes the request by changing performance predictions
+   * for data transfer costs.
+   * @param request contains pointers to the scheduler and the responses.
+   * @param max_srv the maximum number of servers to aggregate (all if 0).
+   */
+  corba_response_t*
+  aggregateTransferInfo(Request* request);
+#endif // HAVE_ALTPREDICT
+
   /** Get host name of a child (returned string is ms_stralloc'd). */
   char*
   getChildHostName(CORBA::Long childID);
@@ -217,4 +234,3 @@ protected:
 };
 
 #endif // _AGENTIMPL_HH_
-

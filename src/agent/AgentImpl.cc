@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.35  2005/09/05 16:06:09  hdail
+ * - Addition of method for aggregating parameter location data.
+ * - Handling of alternative performance prediction for parameter transfer
+ *   times by agents. (experimental and protected by HAVE_ALTPREDICT)
+ *
  * Revision 1.34  2005/08/11 17:45:02  alsu
  * correcting bug __addCommTime: first argument was a struct, which was
  * copied onto the stack of the function.  changes to this struct were
@@ -112,6 +117,19 @@ using namespace std;
 #include "ORBMgr.hh"
 #include "Parsers.hh"
 #include "statistics.hh"
+#include "est_internal.hh"
+
+#if HAVE_ALTPREDICT
+static double
+__predictTransferTime(corba_data_loc_t *dataLoc, corba_server_t *server);
+static double
+__estimateProximity(corba_data_loc_t *dataLoc, corba_server_t *server);
+bool
+__isTransferWithClient(corba_pb_desc_t* pb, int idx);
+double
+__calculateTransferEffort(estVector_t ev, 
+                          SeqDataLoc_t locations);
+#endif // HAVE_ALTPREDICT
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
@@ -330,7 +348,6 @@ AgentImpl::addServices(CORBA::ULong myID,
   return (0);
 } // addServices(CORBA::ULong myID, const SeqCorbaProfileDesc_t& services)
 
-
 #if ! HAVE_JXTA && HAVE_FAST /* to avoid warning from breaking the
                              ** build in maintainer mode, this
                              ** function needs to defined only in
@@ -480,21 +497,13 @@ AgentImpl::findServer(Request* req, size_t max_srv)
 
     /* The thread is awakened when all responses are gathered */
 
-#if HAVE_JXTA || ! HAVE_FAST
+#if HAVE_JXTA || ! HAVE_FAST || ! HAVE_ALTPREDICT
     /* this part seems to generate JNI problems */
     /* but this part should be removed in the next DIET version */
     /* that explains why we don't fix it */ 
 
     /* in fact, the following code is only useful if one has
-    ** chosen to compile with fast.  furthermore, it causes
-    ** problems in the custom estimators by fiddling with the
-    ** estimation after the SeD has set it.
-    **
-    ** to include this kind of estimation, the plan is to
-    ** either (i) send the transfer time estimation *down*
-    ** the hierarchy as the request descends, or (ii) use a
-    ** CORBA-based ping mechanism from the SeD to the MA (is
-    ** this even possible?
+    ** chosen to compile with fast.  
     */
 #else
     /* Update communication times for all non-persistent parameters:
@@ -559,14 +568,18 @@ AgentImpl::findServer(Request* req, size_t max_srv)
     }
 
     delete [] time;
-#endif // HAVE_JXTA
+#endif // HAVE_JXTA || ! HAVE_FAST || ! HAVE_ALTPREDICT
 
     resp = this->aggregate(req, max_srv);
-    // Just for debugging
+
+#if ! HAVE_ALTPREDICT
     if (TRACE_LEVEL >= TRACE_STRUCTURES){
       //displayResponse(stdout, resp);
       displayResponseShort(stdout,resp);
     }
+#else
+    displayResponseShort(stdout,resp);
+#endif // HAVE_ALTPREDICT
   }
 
   stat_out(this->myName,"findServer");
@@ -797,4 +810,321 @@ AgentImpl::getChildHostName(CORBA::Long childID)
   stat_out(this->myName,"getChildHostName");
   return hostName;
 } // getChildHostName(CORBA::Long childID)
+
+#if HAVE_ALTPREDICT
+corba_response_t*
+AgentImpl::aggregateTransferInfo(Request* request)
+{
+  corba_response_t* aggregResp = new corba_response_t;
+  corba_pb_desc_t pb = request->getRequest()->pb;
+  char *clientLocID = CORBA::string_dup(
+      request->getRequest()->clientLocationID);
+  char *clientHostname = CORBA::string_dup(
+      request->getRequest()->clientHostname);
+  double tmpVal = 0.0;
+  estVector_t ev;
+  
+  corba_response_t* responses = request->getResponses();
+  /* Collect all available data locations */
+  {
+    bool allDataLocKnown = true;    // Do we have complete info on locations 
+    bool thisDataLocKnown = false;  // Per parameter flag
+    unsigned int i, j;
+    corba_data_loc_t* dataLoc;
+    
+    aggregResp->dataLoc.length( responses[0].dataLoc.length() );
+    for (i = 0; i < responses[0].dataLoc.length(); i++) {
+      aggregResp->dataLoc[i].bytes = responses[0].dataLoc[i].bytes;
+      aggregResp->dataLoc[i].idNumber = 
+          CORBA::string_dup(responses[0].dataLoc[i].idNumber);
+
+      /* Check all responses for one that contains the data location */
+      thisDataLocKnown = false;
+      for (j = 0; j < request->getResponsesSize(); j++) {
+        if (strcmp(responses[j].dataLoc[i].hostName, "") != 0) {
+          aggregResp->dataLoc[i].hostName = 
+              CORBA::string_dup(responses[j].dataLoc[i].hostName);
+          aggregResp->dataLoc[i].locationID =
+              CORBA::string_dup(responses[j].dataLoc[i].locationID);
+          thisDataLocKnown = true;
+          break;
+        }
+      } // Check all responses
+
+      /* None of the responses contains info on the data */
+      if (thisDataLocKnown == false) {
+
+        if (__isTransferWithClient(&pb, (int) i)) {
+          aggregResp->dataLoc[i].hostName = CORBA::string_dup(clientHostname);
+          aggregResp->dataLoc[i].locationID = CORBA::string_dup(clientLocID);
+          thisDataLocKnown = true;
+        } else if ( ((int) i > pb.last_inout) &&
+                    ((int) i <= pb.last_out) &&
+                    (DIET_PERSISTENT) ) {
+          // OUT parameter, no return (zero transfer cost)
+          aggregResp->dataLoc[i].hostName = CORBA::string_dup("__InPlace");
+          aggregResp->dataLoc[i].locationID = CORBA::string_dup("__InPlace");
+          thisDataLocKnown = true;
+        } else {
+          /* Check if data exists in my subtree */
+          dataLoc =
+              this->locMgr->getDataLocSubtree(aggregResp->dataLoc[i].idNumber);
+          if (dataLoc != NULL) {
+            aggregResp->dataLoc[i].hostName =
+                        CORBA::string_dup(dataLoc->hostName);
+            aggregResp->dataLoc[i].locationID =
+                        CORBA::string_dup(dataLoc->locationID);
+            thisDataLocKnown = true;
+          } else {
+            /* Data is not in my subtree */
+            allDataLocKnown = false;
+          }
+        } // Check if its a client transfer or a SeD to SeD transfer
+
+        if (thisDataLocKnown) {
+          // Run performance prediction
+          for (int k = 0; k < (int) request->getResponsesSize(); k++) {
+            for (int l = 0; l < (int) responses[k].servers.length(); l++) {
+              ev = &(responses[k].servers[l].estim);
+
+              tmpVal = __predictTransferTime(&(aggregResp->dataLoc[i]),
+                        &(responses[k].servers[l].loc));
+              diet_est_array_set_internal(ev, EST_COMMTIME, i, tmpVal);
+
+              tmpVal = __estimateProximity(&(aggregResp->dataLoc[i]),
+                        &(responses[k].servers[l].loc));
+              diet_est_array_set_internal(ev, EST_COMMPROXIMITY, i, tmpVal);
+            } // Update all servers in response k
+          }   // Update all responses
+        }     // If found data
+      }       // If data remains uknown, search in subtree
+    }   // For each parameter
+    if (allDataLocKnown) {
+      // Make communication cost estimates for those responses that do not
+      // yet have predictions
+
+      // Make estimate of total transfer effort using proximity estimates
+      // i: response #, j: server number in response, k: parameter #
+      double transferEffort;
+      for (i = 0; i < request->getResponsesSize(); i++) {
+        for (int j = 0; j < (int) responses[i].servers.length(); j++) {
+          ev = &(responses[i].servers[j].estim);
+          if (! diet_est_defined_internal(ev, EST_TRANSFEREFFORT)) {
+            // Overall transfer effort not yet predicted ... predict it
+            transferEffort = 
+                __calculateTransferEffort(ev, aggregResp->dataLoc);
+            diet_est_set_internal(ev, EST_TRANSFEREFFORT, transferEffort);
+
+#if 0            
+            double transferEffort = 0.0;
+            transferEffort = 0.0;
+            double proximity;
+            for (int k = 0; k < (int) responses[0].dataLoc.length(); k++) {
+              proximity = __getCommEst(EST_COMMPROXIMITY,
+                &(responses[i].servers[j].estim), k);
+              if (proximity == HUGE_VAL) {
+                // Transfer effort is 0 -- in-place data
+              } else if (proximity < 0) {
+                transferEffort = HUGE_VAL;
+              } else if ((proximity >= 0) && (proximity < 5)) {
+                transferEffort +=
+                    (5 - proximity)*responses[0].dataLoc[k].bytes;
+              } else {
+                // For proximities > 4 and < inf, assume 'close' and use 1
+                transferEffort +=
+                    1*responses[0].dataLoc[k].bytes;
+              }
+            }     /* End search of k (parameter #) */
+            /* Add estimate of transfer effort to est values */
+            size_t currSize =
+                responses[i].servers[j].estim.estValues.length();
+            responses[i].servers[j].estim.estValues.length(currSize + 1);
+            responses[i].servers[j].estim.estValues[currSize].v_tag =
+                EST_TRANSFEREFFORT;
+            responses[i].servers[j].estim.estValues[currSize].v_value =
+                transferEffort;
+#endif
+          }     /* End of if prediction needed */
+        }       /* End search of j (server #) */
+      }         /* End search of i (response #) */
+    }           /* End if we should do final transfer time predictions */
+  }             /* End protected region */
+
+  return aggregResp;
+} // aggregateTransferInfo(Request* request)
+
+
+/** Utility function to predict transfer times.  For now hard-coded 
+ * for debugging purposes.  TODO: link with NWS. */
+static double
+__predictTransferTime(corba_data_loc_t *dataLoc, corba_server_t *server)
+{
+  double time = HUGE_VAL;
+
+  // Error checking
+  if (strcmp(dataLoc->hostName, "") == 0) {
+    WARNING("predictTransferTime called with empty hostname for data location.  Predicting transfer time of inf.\n");
+    time = HUGE_VAL;
+  } else if (strcmp(server->hostName, "") == 0) {
+    WARNING("predictTransferTime called with empty hostname for server.  Predicting transfer time of inf.\n");
+    time = HUGE_VAL;
+  } else if (strcmp(dataLoc->hostName, "__InPlace") == 0) {
+    // No transfer required (e.g. persistent non-returned out argument)
+    time = 0.0;
+  } else {
+    // Hostname given for data location and for server
+    if (strcmp(dataLoc->hostName, "client") == 0) {
+      // Transfer to or from client
+      time = 1.11111;
+    } else {
+      time = 2.22222;
+    }
+  }
+
+  return time;
+}
+
+static double
+__estimateProximity(corba_data_loc_t *dataLoc, corba_server_t *server)
+{
+  double proximity = 0.0;
+
+  // Error checking
+  if (strcmp(dataLoc->locationID, "") == 0) {
+    WARNING("estimateProximity called with empty data location.  Predicting proximity of 0.\n");
+    proximity = 0.0;
+  } else if (strcmp(server->locationID, "") == 0) {
+    WARNING("estimateProximity called with empty server location.  Predicting proximity of 0.0.\n");
+    proximity = 0.0;
+  } else if (strcmp(dataLoc->locationID, "__InPlace") == 0) {
+    // No transfer required (e.g. persistent non-returned out argument)
+    proximity = HUGE_VAL;     // "Infinitely close"
+  } else {
+    // Calculate estimate of proximity
+    char *dataID, *hostID;
+    char *dataToken, *hostToken;
+    size_t dataOffset = 0, hostOffset = 0;
+    size_t dataTokenSize, hostTokenSize;
+
+    dataID = strdup(dataLoc->locationID);
+    hostID = strdup(server->locationID);
+
+    proximity = 0.0;
+    while ( (dataOffset < strlen(dataID)) &&
+            (hostOffset < strlen(hostID)) ) {
+      dataTokenSize = strcspn(
+          dataID + dataOffset*sizeof(char), "_");
+      hostTokenSize = strcspn(
+          hostID + hostOffset*sizeof(char), "_");
+
+      if (dataTokenSize != hostTokenSize) {
+        break;                  // This token does not match
+      }
+
+      dataToken = (char *) strndup(
+            (char *) ((int) dataID + dataOffset*sizeof(char)),
+            dataTokenSize);
+      hostToken = (char *) strndup(
+             (char *) ((int) hostID + hostOffset*sizeof(char)),
+             hostTokenSize);
+
+      //printf("%s Token %f is %s (size %d), dataLoc is %d\n",
+            //dataID, proximity, dataToken, dataTokenSize, dataOffset);
+      //printf("%s Token %f is %s (size %d), hostLoc is %d\n",
+            //hostID, proximity, hostToken, hostTokenSize, hostOffset);
+
+      if (strcmp(dataToken, hostToken) != 0) {
+        free(dataToken);
+        free(hostToken);
+        break;
+      } else {
+        proximity = proximity + 1.0;
+        dataOffset += dataTokenSize + 1;
+        hostOffset += hostTokenSize + 1;
+        free(dataToken);
+        free(hostToken);
+      }
+    }
+    free(dataID);
+    free(hostID);
+  }
+  /*printf("** Proximity of data %s and server %s = %f\n", 
+    (char *) dataLoc->locationID, (char *) server->locationID, proximity);*/
+
+  return proximity;
+}
+
+/** Calculate heuristic estimate for overall transfer effort based on 
+ * proximity estimates */
+double
+__calculateTransferEffort(estVector_t ev, 
+                          SeqDataLoc_t locations) {
+  double transferEffort = 0.0;
+  double proximity;
+
+  for (int k = 0; k < (int) locations.length(); k++) {
+    proximity = diet_est_array_get_internal(ev, EST_COMMPROXIMITY,
+                  k, 0.0);
+
+    if (proximity == HUGE_VAL) {
+      // Transfer effort is 0 (in-place data).  Don't add to estimate.
+    } else if (proximity < 0) {
+      // Uknown proximity for this parameter. Can't estimate transferEffort.
+      transferEffort = HUGE_VAL;
+      break;
+    } else if ((proximity >= 0) && (proximity < 5)) {
+      transferEffort += (5 - proximity)*locations[k].bytes;
+    } else {
+      // For proximities > 4 and < inf, assume 'close' and use 1
+      transferEffort += 1*locations[k].bytes;
+    }
+  } /* End search of all parameters */
+  return (transferEffort);
+}
+
+
+bool
+__isTransferWithClient(corba_pb_desc_t* pb, int idx) {
+  bool isClientTransfer = false;
+
+  // First find whether data will be transferred to or from client
+  if (idx <= pb->last_in) {      // IN
+    if ((pb->param_desc[idx].mode == DIET_VOLATILE) ||
+        (strcmp(pb->param_desc[idx].id.idNumber, "") == 0)) {
+      // IN parameter, either volatile or new persistent
+      isClientTransfer = true;
+    }
+  } else if (idx <= pb->last_inout) { // INOUT
+    if (pb->param_desc[idx].mode == DIET_VOLATILE) {
+      // INOUT parameter, volatile  (transfer in and out)
+      // Note that the cost of the double transfer should be 
+      // accounted for by the SeD marking 2x the data size
+      isClientTransfer = true;
+    } else if (strcmp(pb->param_desc[idx].id.idNumber, "") == 0) {
+      // INOUT parameter, new persistent (transfer in)
+      isClientTransfer = true;
+    } 
+    /*else if (pb.param_desc[idx].mode == DIET_PERSISTENT_RETURN) {
+      * PROBLEM: this type of parameter should include estimation of
+      * both transfer from persistent storage and returned response to 
+      * client =(
+      *
+      // INOUT parameter, old persistent (transfer out)
+      clientData = true;
+    }*/
+  } else if (idx <= pb->last_out) {  // OUT
+    if ( (pb->param_desc[idx].mode == DIET_VOLATILE) ||
+         (pb->param_desc[idx].mode == DIET_PERSISTENT_RETURN)) {
+      // OUT parameter, volatile or OUT parameter, persistent return
+      isClientTransfer = true;
+    }
+  } else {
+    WARNING("AgentImpl aggregate: don't know anything about parameter "
+              << idx << "\n");
+  }
+
+  return isClientTransfer;
+}
+
+#endif // HAVE_ALTPREDICT
 
