@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.33  2005/09/05 16:08:32  hdail
+ * Correction of allocation / deletion mismatch in diet free method.
+ *
  * Revision 1.32  2005/08/30 07:24:23  ycaniou
  * Changed the test in profile_match to enable the possibility for DIET to
  *   decide if a 'normal' job sould be submitted via batch or not.
@@ -882,7 +885,7 @@ int
 diet_free_data(diet_arg_t* arg)
 {
   if (diet_is_persistent(*arg)) {
-    WARNING(" attempt to use " << __FUNCTION__
+    TRACE_TEXT(TRACE_ALL_STEPS, " attempt to use " << __FUNCTION__
             << " on persistent data - IGNORED");
     return 3;
   }
@@ -901,14 +904,20 @@ diet_free_data(diet_arg_t* arg)
       break;
     case DIET_SCALAR:
       arg->desc.specific.scal.value = NULL;
-      // DO NOT BREAK !!!  Want to run delete[] below.
-    default:
-      if (arg->value != NULL){
-        delete[] ((char *) arg->value);
+      if (arg->value != NULL) {
+        delete ((char *) arg->value);
+        arg->value = NULL;
+        break;
       } else {
         return 1;
       }
-      arg->value = NULL;
+    default:
+      if (arg->value != NULL) {
+        delete[] ((char *) arg->value);
+        arg->value = NULL;
+      } else {
+        return 1;
+      }
   }
   return 0;
 }
