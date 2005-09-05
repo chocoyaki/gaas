@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2005/09/05 16:06:56  hdail
+ * Addition of client hostname and location information to submit call.
+ *
  * Revision 1.9  2004/12/16 11:16:44  sdahan
  * adds multi-mas informations into the logService
  *
@@ -81,9 +84,17 @@ public :
   run();
   
   /** Problem submission : remotely called by client. */
+#if ! HAVE_ALTPREDICT
   corba_response_t*
   submit(const corba_pb_desc_t& pb_profile, CORBA::ULong maxServers);
-  
+#else // HAVE_ALTPREDICT
+  corba_response_t*
+  submit(const corba_pb_desc_t& pb_profile,
+         CORBA::ULong maxServers,
+         const char *clientHostname,
+         const char *clientLocID);
+#endif
+
   /** Problem submission. Looking for SeDs that can resolve the
       problem in the local domain. */
   corba_response_t*

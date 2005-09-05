@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2005/09/05 16:06:56  hdail
+ * Addition of client hostname and location information to submit call.
+ *
  * Revision 1.20  2005/07/11 16:31:56  hdail
  * Corrected bug wherein the MA would stop completely if a client requested
  * a service that didn't exist; this bug was introduced recently, so there should
@@ -247,9 +250,17 @@ MasterAgentImpl::get_data_arg(const char* argID)
 }
 
 /** Problem submission : remotely called by client. */
+#if ! HAVE_ALTPREDICT
 corba_response_t*
 MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
 			CORBA::ULong maxServers)
+#else // HAVE_ALTPREDICT
+corba_response_t*
+MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
+			CORBA::ULong maxServers,
+                        const char *clientHostname,
+                        const char *clientLocID)
+#endif
 {
   corba_request_t   creq;
   corba_response_t* decision(NULL);
@@ -265,6 +276,10 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
     creq.reqID = reqIDCounter++; // thread safe
     creq.pb = pb_profile;
     creq.max_srv = maxServers ;
+#if HAVE_ALTPREDICT
+    creq.clientHostname = CORBA::string_dup(clientHostname);
+    creq.clientLocationID = CORBA::string_dup(clientLocID);
+#endif // HAVE_ALTPREDICT
 
     if (dietLogComponent != NULL) {
       dietLogComponent->logAskForSeD(&creq);
@@ -347,6 +362,9 @@ MasterAgentImpl::submit_local(const corba_request_t& creq)
     resp = new corba_response_t;
     resp->reqID = creq.reqID;
     resp->servers.length(0);
+#if HAVE_ALTPREDICT
+    resp->dataLoc.length(0);
+#endif // HAVE_ALTPREDICT
 
   } else {
     CORBA::Long numProfiles;
