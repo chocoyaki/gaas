@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2005/09/05 16:09:41  hdail
+ * Addition of parameter location information to response printout.
+ * (experimental and protected by HAVE_ALTPREDICT).
+ *
  * Revision 1.26  2005/09/01 14:08:16  hdail
  * Correction of mismatch int and long int in printf statement.
  *
@@ -114,18 +118,31 @@ displayResponse(FILE* os, const corba_response_t* resp)
 {
   fprintf(os, "\n----------------------------------------\n");
   fprintf(os, " Response structure for request %lu :\n\n", resp->reqID);
-  if (TRACE_LEVEL >= TRACE_ALL_STEPS)
+  if (TRACE_LEVEL >= TRACE_ALL_STEPS) {
     fprintf(os, " I'm son nb %ld\n", resp->myID);
-  //  fprintf(os, " There are %ld parameters\n", (long)resp->nbIn);
-  fprintf(os, " %ld servers are able to solve the problem\n",
-          (long)resp->servers.length());
+  }
+#if HAVE_ALTPREDICT
+  char *hostName, *locationID, *dataIdNumber;
+  fprintf(os, " There are %ld parameters\n", resp->dataLoc.length());
+  for (size_t i = 0; i < resp->dataLoc.length(); i++) {
+    hostName = strdup(resp->dataLoc[i].hostName);
+    locationID = strdup(resp->dataLoc[i].locationID);
+    dataIdNumber = strdup(resp->dataLoc[i].idNumber);
+    fprintf(os, "    %d %10d bytes on %15s at %6s (%s)\n",
+          i, hostName, locationID, dataIdNumber);
+    free(hostName);
+    free(locationID);
+    free(dataIdNumber);
+  }
+#endif // HAVE_ALTPREDICT
 
-  if (resp->servers.length() > 0)
-    fprintf(os," Estimated computation time:\n");
+  fprintf(os, " %ld servers are able to solve the problem:\n",
+          (long)resp->servers.length());
 
   for (size_t i = 0; i < resp->servers.length(); i++) {
     estVectorConst_t ev = &(resp->servers[i].estim);
 
+#if ! HAVE_ALTPREDICT
     if (diet_est_get_internal(ev, EST_TCOMP, HUGE_VAL) != HUGE_VAL) {
       fprintf(os,
               "  %ldth server can solve the problem in %g seconds\n",
@@ -139,21 +156,45 @@ displayResponse(FILE* os, const corba_response_t* resp)
               diet_est_get_internal(ev, EST_FREECPU, HUGE_VAL),
               diet_est_get_internal(ev, EST_FREEMEM, HUGE_VAL));
     }
+#else // HAVE_ALTPREDICT
+    hostName = strdup(resp->servers[i].loc.hostName);
+    locationID = strdup(resp->servers[i].loc.locationID);
+    fprintf(os, "  server %ld: computation time %g (%s at %s)\n", 
+          (long) i, diet_est_get_internal(ev, EST_TCOMP, HUGE_VAL),
+          hostName, locationID);
+    free(hostName);
+    free(locationID);
 
-    fprintf(os, "  TComms for each parameter: ");
+    fprintf(os, 
+          "       %g free CPU, %g free memory, and %g transfer effort\n",
+          diet_est_get_internal(ev, EST_FREECPU, HUGE_VAL),
+          diet_est_get_internal(ev, EST_FREEMEM, HUGE_VAL),
+          diet_est_get_internal(ev, EST_TRANSFEREFFORT, HUGE_VAL));
+    fprintf(os, "       Parameter proximity estimates:  ");
+    for (int proxIter = 0; 
+         proxIter < diet_est_array_size_internal(ev, EST_COMMPROXIMITY);
+         proxIter++) {
+      fprintf(os,
+              " %g |",
+              diet_est_array_get_internal(ev, EST_COMMPROXIMITY,
+                                  proxIter, HUGE_VAL));
+    } // end for each proximity parameter
+    fprintf(os,"\n");
+#endif  // HAVE_PROXIMITY
+
+    fprintf(os, "       Parameter transfer times (sec): ");
     for (int commTimeIter = 0 ;
          commTimeIter < diet_est_array_size_internal(ev, EST_COMMTIME) ;
          commTimeIter++) {
       fprintf(os,
-              " %g",
+              " %g |",
               diet_est_array_get_internal(ev,
                                           EST_COMMTIME,
                                           commTimeIter,
                                           HUGE_VAL));
-    }
-  }
+    } // end for each comm time parameter
+  }   // end for each server 
   fprintf(os,"\n");
-
   fprintf(os, "----------------------------------------\n");
 }
 
