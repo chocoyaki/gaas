@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.33  2005/09/05 15:53:39  hdail
+ * Addition of estimation tags EST_COMMPROXIMITY and EST_TRANSFEREFFORT.
+ *
  * Revision 1.32  2005/08/31 14:34:30  alsu
  * New plugin scheduling interface: estVector_t is no longer a structure
  * in and of itself; but rather a pointer to a corba_estimation_t
@@ -521,6 +524,8 @@ typedef enum {
   EST_CPUSPEED,
   EST_TOTALMEM,
   EST_TIMESINCELASTSOLVE,
+  EST_COMMPROXIMITY,      
+  EST_TRANSFEREFFORT,     
   EST_USERDEFINED
 } diet_est_tag_t;
 
