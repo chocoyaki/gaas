@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2005/09/05 15:59:20  hdail
+ * - Addition of getDataLocSubtree to obtain information about data w/o getting
+ *   the whole data set (experimental and protected by HAVE_ALTPREDICT)
+ * - Moved subtree search of whereData into whereDataSubtree so whereDataSubtree
+ *   can be used on its own when desired.
+ *
  * Revision 1.5  2004/02/27 10:19:50  bdelfabr
  * description of all methods for data persistency
  *
@@ -29,6 +35,9 @@
 #define _LOCMGR_IDL_
 
 #include "DataMgr.idl"
+#if HAVE_ALTPREDICT
+#include "response.idl"
+#endif // HAVE_ALTPREDICT
 
 /****************************************************************************/
 /* Loc Manager Interface                                                    */
@@ -78,7 +87,13 @@ interface LocMgr {
    * holding the data, or DataMgr::_nil() if not found.
    */
   DataMgr whereData(in string argID);
-  
+
+  /**
+   * Same functionality and interface as whereData, but only searches in 
+   * subtree rooted at this LocMgr.
+   */
+  DataMgr whereDataSubtree(in string argID);
+
   /** 
    * Change property of data (as their occupation flag for example).
    * NB : method not used so far
@@ -102,6 +117,16 @@ interface LocMgr {
       that hold the data identified by id
   */
   string whichSeDOwner(in string argID);
+
+#if HAVE_ALTPREDICT
+  /**
+   * Looking for data localization information. The argument is the id of
+   * the IN or INOUT data which are searched. Returns the reference the Data
+   * Manager holding the data, or DataMgr::_nil() if not found.  Only
+   * searches the subtree rooted at this LocMgr.
+   */
+   corba_data_loc_t getDataLocSubtree(in string argID);
+#endif // HAVE_ALTPREDICT
 
 };
 
