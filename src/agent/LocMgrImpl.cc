@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2005/09/05 16:04:10  hdail
+ * Addition of getDataLocSubtree (experimental and protected by HAVE_ALTPREDICT).
+ * Movement of subtree portion of whereData into separate method call so it can
+ * also be used without searching higher in tree.
+ *
  * Revision 1.13  2005/06/28 15:56:56  hdail
  * Changing the debug level of messages to make DIET less verbose (and in
  * agreement with the doc =).
@@ -417,14 +422,15 @@ LocMgrImpl::printList1()
 	  
 	}
       }
-      cout << "|    " << cur->first << "     |   " << SonName  << endl;
+      cout << "| " << cur->first << " |   " << SonName  << endl;
       cout << "+------------+" << endl; 
       cur++;
     }
     dataLocList.unlock();
     cout << "+------------+----------------------------+" << endl; 
-  }
-  
+  } /*else {
+    cout << "+-----No Data-----+" << endl;
+  }*/
 } // printList1()
 
 
@@ -517,73 +523,124 @@ LocMgrImpl::whichSeDOwner(const char* argID)
 DataMgr_ptr
 LocMgrImpl::whereData(const char* argID)
 {
+  /** Check first if data exists locally or in subtree */
+  DataMgr_ptr dataMgrRef = this->whereDataSubtree(argID);
 
-  if (this->parent == LocMgr::_nil()) {
+  if (dataMgrRef == DataMgr::_nil()) {
     dataLocList.lock();
     dataLocList.begin();
-    if (dataLocList.find(strdup(argID)) != dataLocList.end()) {     
-      dataLocList.unlock();
-      store_desc_child_t &stored_desc = dataLocList[ms_strdup(argID)];
-      ChildID cChildID = stored_desc.childID_owner;
-  
-      if(cChildID < static_cast<CORBA::Long>(locMgrChildren.size())) {
-	locMgrChild theLoc =  locMgrChildren[cChildID];
-	if (theLoc.defined()) {
-	  LocMgr_ptr locChild = theLoc.getIor();
-	  return locChild->whereData(ms_strdup(argID)) ;
-	} else return DataMgr::_nil();
-      } else {
-	if(cChildID < static_cast<CORBA::Long>(dataMgrChildren.size())) {
-	  dataMgrChild theData = dataMgrChildren[cChildID];
-	  if (theData.defined()) {
-	  DataMgr_ptr dataChild = theData.getIor();
-	  return dataChild->whereData(ms_strdup(argID)) ;
-	  } else return DataMgr::_nil();
-	} else {
-	  cerr << "OBJECT UNKNOWN " << endl;
-	  return DataMgr::_nil();
-	}
-      }
-    } else {
-      dataLocList.unlock();
-      cerr << "DATA NOT IN HIERARCHY " << endl;
-      return DataMgr::_nil();
-    }
 
-  } else { 
-     /** I am not root Loc Manager */ 
-    dataLocList.lock();
-    dataLocList.begin();
-    if (dataLocList.find(strdup(argID)) != dataLocList.end()) { /** Data Reference found */
+    /** Not found.  Try looking to parent if not the root node */
+    if (this->parent == LocMgr::_nil()) {
+      /** I am the root Loc Manager */
       dataLocList.unlock();
-     store_desc_child_t &stored_desc = dataLocList[ms_strdup(argID)];  
-      ChildID cChildID = stored_desc.childID_owner;
-      if(cChildID < static_cast<CORBA::Long>(locMgrChildren.size())) {
-	locMgrChild theLoc = locMgrChildren[cChildID];
-	if (theLoc.defined()){
-	  LocMgr_ptr locChild = theLoc.getIor();
-	  return locChild->whereData(ms_strdup(argID)) ;
-	  
-	} else return DataMgr::_nil();
-      } else {
-
-	if(cChildID < static_cast<CORBA::Long>(dataMgrChildren.size())) {
-	  dataMgrChild theData = dataMgrChildren[cChildID];
-	  if (theData.defined()){
-	    DataMgr_ptr dataChild = theData.getIor();
-	    return dataChild->whereData(ms_strdup(argID));
-	  } else return DataMgr::_nil();
-	} else {
-	  return DataMgr::_nil(); 
-	}
-      }
+      WARNING("Data item " << argID << " not found in hierarchy\n");
+      dataMgrRef = DataMgr::_nil();
     } else {
-       dataLocList.unlock(); /** data Reference not found - invoke my parent */
-      return this->parent->whereData(ms_strdup(argID));
+      /** I am not the root.  Try asking my parent. */
+      dataLocList.unlock();
+      dataMgrRef = this->parent->whereData(ms_strdup(argID));
     }
   }
+  return dataMgrRef;
 } // whereData(const char* argID)
 
+/**
+ * Returns the reference to the Data Manager holding the needed data.
+ * Only search for the data locally and in the subtree under this LocMgr.
+ */
+DataMgr_ptr
+LocMgrImpl::whereDataSubtree(const char* argID)
+{
+  dataLocList.lock();
+  dataLocList.begin();
+
+  if (dataLocList.find(strdup(argID)) != dataLocList.end()) {
+    /** Data location found */
+    dataLocList.unlock();
+    store_desc_child_t &stored_desc = dataLocList[ms_strdup(argID)];
+    ChildID cChildID = stored_desc.childID_owner;
+
+    if(cChildID < static_cast<CORBA::Long>(locMgrChildren.size())) {
+      /** Data available with a LocMgr */
+      locMgrChild theLoc =  locMgrChildren[cChildID];
+      if (theLoc.defined()) {
+        LocMgr_ptr locChild = theLoc.getIor();
+        return locChild->whereDataSubtree(ms_strdup(argID)) ;
+      } else {
+        return DataMgr::_nil();
+      }
+
+    } else {
+      /** Data available with a dataMgr */
+      if(cChildID < static_cast<CORBA::Long>(dataMgrChildren.size())) {
+        dataMgrChild theData = dataMgrChildren[cChildID];
+        if (theData.defined()) {
+          DataMgr_ptr dataChild = theData.getIor();
+          return dataChild->whereData(ms_strdup(argID)) ;
+        } else {
+          return DataMgr::_nil();
+        }
+      } else {
+        WARNING("Unknown object cChildID\n");
+        return DataMgr::_nil();
+      }
+    }
+  } else {
+    dataLocList.unlock();
+    TRACE_TEXT(TRACE_STRUCTURES, "Data " << argID << " not in subhierarchy\n");
+    return DataMgr::_nil();
+  }
+
+} // whereDataSubtree(const char* argID)
+
+#if HAVE_ALTPREDICT
+/** look for a data reference in the subtree, but only recover 
+ * some location information about the data */
+corba_data_loc_t*
+LocMgrImpl::getDataLocSubtree(const char* argID) {
+  dataLocList.lock();
+  dataLocList.begin();
+
+  if (dataLocList.find(strdup(argID)) != dataLocList.end()) {
+    /** Data location found */
+    dataLocList.unlock();
+    store_desc_child_t &stored_desc = dataLocList[ms_strdup(argID)];
+    ChildID cChildID = stored_desc.childID_owner;
+
+    if(cChildID < static_cast<CORBA::Long>(locMgrChildren.size())) {
+      /** Data available with a LocMgr */
+      locMgrChild theLoc =  locMgrChildren[cChildID];
+      if (theLoc.defined()) {
+        LocMgr_ptr locChild = theLoc.getIor();
+        return (locChild->getDataLocSubtree(ms_strdup(argID))) ;
+      } else {
+        return NULL;
+      }
+
+    } else {
+      /** Data available with a dataMgr */
+      if(cChildID < static_cast<CORBA::Long>(dataMgrChildren.size())) {
+        dataMgrChild theData = dataMgrChildren[cChildID];
+        if (theData.defined()) {
+          DataMgr_ptr dataChild = theData.getIor();
+          return dataChild->getDataLoc(ms_strdup(argID)) ;
+        } else {
+          return NULL;
+        }
+      } else {
+        WARNING("Unknown object cChildID\n");
+        return NULL;
+      }
+    }
+  } else {
+    dataLocList.unlock();
+    TRACE_TEXT(TRACE_STRUCTURES, "Data " << argID << " not in subhierarchy\n");
+    return NULL;
+  }
+  return NULL;  // should never be reached
+}
+#endif // HAVE_ALTPREDICT
 
 void
 LocMgrImpl::updateDataProp(const char *argID)
