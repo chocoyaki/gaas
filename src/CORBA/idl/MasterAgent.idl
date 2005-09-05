@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2005/09/05 15:59:48  hdail
+ * Addition of client hostname and location information to submit call
+ * (experimental and protected by HAVE_ALTPREDICT).
+ *
  * Revision 1.4  2004/10/06 16:39:14  rbolze
  * add function to get the profile available on its hierarchy
  *
@@ -31,8 +35,15 @@
 interface MasterAgent : Agent {
   
   /** Submission function: called by the clients to submit a problem. */
+#if ! HAVE_ALTPREDICT
   corba_response_t submit(in corba_pb_desc_t pb_profile,
 			  in unsigned long maxServers);
+#else // HAVE_ALTPREDICT
+  corba_response_t submit(in corba_pb_desc_t pb_profile,
+			  in unsigned long maxServers,
+                          in string clientHostname,
+                          in string clientLocID);
+#endif
   
   /** get number of the current session */
   long get_session_num();
