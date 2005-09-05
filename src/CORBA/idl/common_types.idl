@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2005/09/05 15:56:34  hdail
+ * Addition of client hostname and location information to request
+ * (experimental and protected by HAVE_ALTPREDICT)
+ *
  * Revision 1.12  2005/08/31 14:52:54  alsu
  * New plugin scheduling interface: new data model for the estimation
  * vector, with each data entry containing three elements:
@@ -285,6 +289,10 @@ struct corba_request_t {
   corba_pb_desc_t   pb;
   string            serialized_scheduler;
   long              max_srv;
+#if HAVE_ALTPREDICT
+  string            clientLocationID;
+  string            clientHostname;
+#endif // HAVE_ALTPREDICT
 };
 
 
