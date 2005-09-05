@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2005/09/05 16:02:52  hdail
+ * Addition of locationID as member variable and to parsing.  SeD initializes
+ * data location data in response with all locally available information about
+ * parameters. (experimental and protected by HAVE_ALTPREDICT).
+ *
  * Revision 1.20  2005/08/30 09:20:20  ycaniou
  * Corrected things in DIET_server.cc (diet_submit_batch...)
  * Link libDIET with Elagi and Appleseeds only if BATCH is asked in the
@@ -190,7 +195,11 @@ private:
   ChildID childID;
 
   /* (Fully qualified) local host name */
-  char localHostName[257];
+  char localHostName[256];
+#if HAVE_ALTPREDICT
+  /* Artifical location classification for rough distance estimation */
+  char locationID[256];
+#endif
 
   /* Listening port */
   // size_t --> unsigned int

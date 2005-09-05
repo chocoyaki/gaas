@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.58  2005/09/05 16:02:52  hdail
+ * Addition of locationID as member variable and to parsing.  SeD initializes
+ * data location data in response with all locally available information about
+ * parameters. (experimental and protected by HAVE_ALTPREDICT).
+ *
  * Revision 1.57  2005/08/31 14:39:57  alsu
  * New plugin scheduling interface: adapting estimation vector
  * manipulation calls to the new interface
@@ -127,7 +132,11 @@ SeDImpl::SeDImpl()
   this->childID = -1;
   this->parent  = Agent::_nil();
   this->localHostName[0] = '\0';
+#if HAVE_ALTPREDICT
+  this->locationID[0] = '\0';
+#endif
   (this->lastSolveStart).tv_sec = -1;
+  (this->lastSolveStart).tv_usec = -1;
 #if HAVE_FAST
   this->fastUse = 1;
 #endif // HAVE_FAST
@@ -146,8 +155,12 @@ SeDImpl::SeDImpl(const char* uuid = '\0')
   this->childID = -1;
   this->parent  = Agent::_nil();
   this->localHostName[0] = '\0';
+#if HAVE_ALTPREDICT
+  this->locationID[0] = '\0';
+#endif
   this->uuid = uuid;
   (this->lastSolveStart).tv_sec = -1;
+  (this->lastSolveStart).tv_usec = -1;
 #if HAVE_FAST
   this->fastUse = 1;
 #endif // HAVE_FAST
@@ -172,10 +185,10 @@ SeDImpl::run(ServiceTable* services)
   SeqCorbaProfileDesc_t* profiles(NULL);
 
   stat_init();  
-  localHostName[257] = '\0';
   if (gethostname(localHostName, 256)) {
     ERROR("could not get hostname", 1);
   }
+  localHostName[255] = '\0'; // If truncated, ensure null termination 
  
   this->SrvT = services;
 
@@ -248,6 +261,14 @@ SeDImpl::run(ServiceTable* services)
   else
     this->port = *endPoint;
 
+#if HAVE_ALTPREDICT
+  char * tmpName = (char*)
+      Parsers::Results::getParamValue(Parsers::Results::LOCATIONID);
+  if (tmpName != NULL) {
+    strcpy(this->locationID, "");
+  } 
+#endif // HAVE_ALTPREDICT
+
 #if HAVE_QUEUES
   bool* tmpBoolPtr;
   int* tmpIntPtr;
@@ -275,7 +296,7 @@ SeDImpl::run(ServiceTable* services)
     this->accessController = NULL;
   }
 #endif // HAVE_QUEUES
-  
+
   // Init FAST (HAVE_FAST is managed by the FASTMgr class)
   return FASTMgr::init();
 }
@@ -329,36 +350,62 @@ SeDImpl::getRequest(const corba_request_t& creq)
   serviceRef = SrvT->lookupService(&(creq.pb));
   if (serviceRef == -1) {
     resp.servers.length(0);
+#if HAVE_ALTPREDICT
+    resp.dataLoc.length(0);
+#endif
     cout << "service not found ??????????????????????????????????????" << endl;
   } else {
     resp.servers.length(1);
 
     resp.servers[0].loc.ior      = SeD::_duplicate(_this());
-    resp.servers[0].loc.hostName = CORBA::string_dup(localHostName);
+    resp.servers[0].loc.hostName = CORBA::string_dup(this->localHostName);
+    resp.servers[0].loc.port     = this->port;
+    resp.servers[0].estim.estValues.length(0);
 #if HAVE_JXTA
     resp.servers[0].loc.uuid = CORBA::string_dup(uuid);
 #endif //HAVE_JXTA
-    resp.servers[0].loc.port     = this->port;
-    resp.servers[0].estim.estValues.length(0);
+#if HAVE_ALTPREDICT
+    resp.servers[0].loc.locationID = CORBA::string_dup(this->locationID);
+
+    /* Fill in available information about all parameters */
+    resp.dataLoc.length(creq.pb.last_out + 1);
+    for (int i = 0; i <= creq.pb.last_out; i++) {
+      /** Get copy of data ID */
+      resp.dataLoc[i].idNumber = 
+          CORBA::string_dup(creq.pb.param_desc[i].id.idNumber);
+      /** Calculate total amount of data needed for parameter transfer */
+      resp.dataLoc[i].bytes = data_sizeof(&(creq.pb.param_desc[i]));
+      /** If data is local, fill in location info */
+      if (this->dataMgr->dataLookup(resp.dataLoc[i].idNumber)) {
+        resp.dataLoc[i].hostName = CORBA::string_dup(this->localHostName);
+        resp.dataLoc[i].locationID = CORBA::string_dup(this->locationID);
+      } else {
+        resp.dataLoc[i].hostName = CORBA::string_dup("");
+        resp.dataLoc[i].locationID = CORBA::string_dup("");
+      } 
+    }
+#endif
+
 
 #if ! HAVE_BATCH
-/** Commented because we don't have appropriate comm time estimation method
-    resp.servers[0].estim.commTimes.length(creq.pb.last_out + 1);
-    for (int i = 0; i <= creq.pb.last_out; i++)
-      resp.servers[0].estim.commTimes[i] = 0;
-*/
+
+  #if ! HAVE_ALTPREDICT
     estVector_t ev = &(resp.servers[0].estim);
     for (int ctIter = 0 ; ctIter < creq.pb.last_out ; ctIter++) {
       diet_est_set_internal(ev, EST_COMMTIME, 0.0);
     }
-#else
+  #else
+    // Predictions are done at the agents
+  #endif // HAVE_ALTPREDICT
+
+#else // HAVE_BATCH
     // FIXME: What do I have to do for a batch, non batch, parallel, etc.?
     // for the moment, do the same but..
     estVector_t ev = &(resp.servers[0].estim);
     for (int ctIter = 0 ; ctIter < creq.pb.last_out ; ctIter++) {
       diet_est_set_internal(ev, EST_COMMTIME, 0.0);
     }
-#endif
+#endif  // HAVE_BATCH
 
     this->estimate(resp.servers[0].estim, creq.pb, serviceRef);
   }
