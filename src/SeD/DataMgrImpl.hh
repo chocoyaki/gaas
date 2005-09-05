@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2005/09/05 16:01:34  hdail
+ * Addition of locationID information and getDataLoc method call.
+ * (experimental and protected by HAVE_ALTPREDICT).
+ *
  * Revision 1.13  2005/04/08 13:02:43  hdail
  * The code for LogCentral has proven itself stable and it seems bug free.
  * Since no external libraries are required to compile in LogCentral, its now
@@ -85,6 +89,7 @@ class DataMgrImpl : public POA_DataMgr,
 public:                                              
 
   DataMgrImpl();
+
   ~DataMgrImpl();
 
   int
@@ -104,32 +109,41 @@ public:
 
   bool
   dataLookup(char* argID);
+
   /** update add and remove data */
   void
   updateDataRefOrder(corba_data_t& arg);
+
   /** Copy data from list to SeD structure */
   void
   getData(corba_data_t& arg);
+
   /** addData to the dataDescLsit */
   void
   addData(corba_data_t& arg, int inout);
+
   /** invoke remote DataManger, it has to send the data */
   virtual void
   putData(const char* argID, const DataMgr_ptr me);
+
   /** remove data from the list */
   virtual CORBA::Long
   rmDataRef(const char* argID);
+
   /** looking for dataManager localization */
   virtual DataMgr_ptr
   whereData(const char* argID);
+
   /** send data to a DataManager */
   virtual void
   sendData(corba_data_t& arg);
+
   void 
   changePath(corba_data_t &arg, char * newPath);
  
   virtual char *
   setMyName();
+
   /* print list of data owned */
   void 
   printList();
@@ -139,18 +153,29 @@ public:
 
   void
   updateDataProperty(corba_data_t& arg);
+
   void
   updateDataList(corba_data_t& arg);
+
 #if 0
   void
   rmAllData();
 #endif
+
   /** looking for dataManager owner */ 
   virtual char *
   whichSeDOwner(const char * argId);
+
   /** looking for dataManager owner */ 
   char *
   whichDataMgr(const char * argId);
+
+#if HAVE_ALTPREDICT
+  /** look for data reference in the DataManager, but only recover
+   * some location information about the data (for scheduling) */
+  virtual corba_data_loc_t*
+  getDataLoc(const char* argID);
+#endif
   
 private:
  
@@ -159,8 +184,11 @@ private:
   /**************************************************************************/
   
   /** Local host name */
-  char localHostName[257];
-  
+  char localHostName[256];
+#if HAVE_ALTPREDICT
+  char locationID[256];
+#endif // HAVE_ALTPREDICT
+
   /** ID of this DataMgr amongst the children of its parent */
   ChildID childID;
   /* reference of the parent Data Location Manager */

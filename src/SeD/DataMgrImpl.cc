@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2005/09/05 16:01:34  hdail
+ * Addition of locationID information and getDataLoc method call.
+ * (experimental and protected by HAVE_ALTPREDICT).
+ *
  * Revision 1.20  2005/04/27 01:41:34  ycaniou
  * Added the stuff for a correct compilation, for a correct registration of
  * a batch profile, and for its execution.
@@ -123,7 +127,18 @@ DataMgrImpl::run()
    }
 #endif // 0
 
+#if !HAVE_ALTPREDICT
   this->childID = this->parent->dataMgrSubscribe(_this(), localHostName);
+#else
+  /* Get locationID. */
+  name = (char*)Parsers::Results::getParamValue(Parsers::Results::LOCATIONID); 
+  if (name != NULL) {
+    strcpy(this->locationID, name);
+  } else {
+    strcpy(this->locationID, "");
+  }
+  this->childID = this->parent->dataMgrSubscribe(_this(), locationID);
+#endif
 
   return 0;
 }
@@ -135,7 +150,11 @@ DataMgrImpl::setDietLogComponent(DietLogComponent* dietLogComponent) {
 
 char *
 DataMgrImpl::setMyName() {
+#if !HAVE_ALTPREDICT
    return CORBA::string_dup((const char*)(this->localHostName));
+#else
+   return CORBA::string_dup((const char*)(this->locationID));
+#endif
 }
 
 /************************************************************ 
@@ -399,12 +418,14 @@ DataMgrImpl::sendData(corba_data_t& arg)
 char *
 DataMgrImpl::whichSeDOwner(const char* argId)
 {
+#if ! HAVE_ALTPREDICT
   return this->localHostName;
+#else
+  return this->locationID;
+#endif
 }
 
-// whichSeDOwner(const char* argId)
 /** got the owner of the data identified by argID */
-
 char *
 DataMgrImpl::whichDataMgr(const char* argId)
 {
@@ -441,7 +462,7 @@ DataMgrImpl::getData(corba_data_t& cData)
     dataSrc->putData(CORBA::string_dup(cData.desc.id.idNumber), this->_this());
     // copy value to cData that is used by solver
    gettimeofday(&t2, NULL);
-   cout << "TIME TO TRANSFERT = " << ((t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000)  << endl;
+   cout << "MEASURED TRANSFER TIME = " << ((t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000) << " seconds" << endl;
     cpEltListToDataT(&cData);
   
     parent->updateDataRef(cData.desc,childID,0);
@@ -471,18 +492,19 @@ DataMgrImpl::printList1()
       long unsigned int size = (long unsigned int) data_sizeof(&(cur->second.desc));
       value=(double *)malloc(size*sizeof(double));
     
-      p1=(char *) cur->second.value.get_buffer(0);
-      value  = (double*)p1;
-      cout << "|        " << cur->first << "        |" << endl; // cur->first[2]
+      p1 = (char *) cur->second.value.get_buffer(0);
+      value  = (double*) p1;
+      cout << "|    " << cur->first << "    |" << endl; // cur->first[2]
       /*    cout << "--- VALUE ---" << endl;
 	    for(unsigned int i=0; i<size/8;i++) cout << " -  " << value[i] ;*/
-	cout << "+-----------------+" << endl;
+      cout << "+-----------------+" << endl;
       cur++;
     }
     dataDescList.unlock();
-  }
- 
-}// printList1(){
+  } /*else {
+    cout << "+-----No Data-----+" << endl;
+  }*/
+} // printList1(){
 
 void
 DataMgrImpl::printList()
@@ -638,6 +660,29 @@ DataMgrImpl::whereData(const char* argID)
   }
 } // whereData(const char* argID)
 
+#if HAVE_ALTPREDICT
+/***************************************************************
+ * Look for data reference in the DataManager, but only recover*
+ * some location information about the data (for scheduling)   *
+ **************************************************************/
+corba_data_loc_t*
+DataMgrImpl::getDataLoc(const char* argID) {
+  corba_data_loc_t* dataLoc;
+  dataLoc = new corba_data_loc_t;
+
+  if(dataLookup(CORBA::string_dup(argID))){
+    // Data exists locally
+    dataLoc->idNumber = CORBA::string_dup(argID);
+    dataLoc->hostName = CORBA::string_dup(this->localHostName);
+    dataLoc->locationID = CORBA::string_dup(this->locationID);
+    return (dataLoc);
+  } else {
+    WARNING("getDataLoc called on DataMgr for " << argID
+          << " - data doesn't exist!");
+    return NULL;
+  }
+}
+#endif // HAVE_ALTPREDICT
 
 /***************************************************************
  * returns true if data present, false elsewhere               *
