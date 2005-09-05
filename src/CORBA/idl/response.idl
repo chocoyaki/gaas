@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2005/09/05 15:54:51  hdail
+ * Addition of data location information to response (experimental and
+ * protected by HAVE_ALTPREDICT)
+ *
  * Revision 1.5  2005/08/30 12:05:15  ycaniou
  * Added a field dietJobId to make the correspondance between batch ID and
  *   diet job ID.
@@ -43,6 +47,9 @@
 struct corba_server_t {
   SeD    ior;
   string hostName;
+#if HAVE_ALTPREDICT
+  string locationID; // For alternative data transfer prediction
+#endif
 #if HAVE_JXTA
   string uuid;
 #endif // HAVE_JXTA
@@ -53,10 +60,13 @@ struct corba_server_t {
 /**
  * Localization and transfer time of a parameter
  */
-
 struct corba_data_loc_t {
-  corba_server_t loc;
-  double         timeToMe;
+  string idNumber;
+  string hostName;
+  string locationID;
+  unsigned long bytes;
+  //corba_server_t loc;
+  //double         timeToMe;
 };
 typedef sequence <corba_data_loc_t> SeqDataLoc_t;
 
@@ -97,11 +107,12 @@ typedef sequence <corba_server_estimation_t> SeqServerEstimation_t;
 struct corba_response_t {
   unsigned long reqID;
   long myID;
-  // Localization of IN and INOUT parameters
-  //SeqDataLoc_t        dataLoc;
   // The available servers
   SeqServerEstimation_t servers;
-
+#if HAVE_ALTPREDICT
+  // Localization of parameters for agent transfer time predictions 
+  SeqDataLoc_t        dataLoc;
+#endif
 #ifdef HAVE_BATCH
   // Make client know he has to submit batch or non-batch
   long batch_flag ;
