@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2005/09/05 16:09:14  hdail
+ * Addition of locationId to configuration file options.
+ *
  * Revision 1.14  2005/05/02 16:52:50  ycaniou
  * Added code commentaries
  *
@@ -96,13 +99,13 @@ public:
     /** The configuration parameter type. */
     typedef enum {
       TRACELEVEL = 0,
-      MANAME,
-      AGENTTYPE,
-      DIETPORT,
-      DIETHOSTNAME,
-      NAME,
-      PARENTNAME,
-      FASTUSE,
+      MANAME,             // MA for client to attach to
+      AGENTTYPE,          // Is this agent an LA or MA
+      DIETPORT,           // End point definition
+      DIETHOSTNAME,       // End point definition
+      NAME,               // Agent name
+      PARENTNAME,         // Parent to attach to
+      FASTUSE,            
       LDAPUSE, LDAPBASE, LDAPMASK,
       NWSUSE, NWSNAMESERVER, NWSFORECASTER,
       USEASYNCAPI,
@@ -112,6 +115,7 @@ public:
 #if HAVE_BATCH
       BATCHNAME,
 #endif
+      LOCATIONID,         // For alternative transfer cost prediction
       NB_PARAM_TYPE
     } param_type_t;
 

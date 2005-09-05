@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2005/09/05 16:09:14  hdail
+ * Addition of locationId to configuration file options.
+ *
  * Revision 1.24  2005/08/30 07:24:23  ycaniou
  * Changed the test in profile_match to enable the possibility for DIET to
  *   decide if a 'normal' job sould be submitted via batch or not.
@@ -91,6 +94,7 @@ Parsers::Results::param_t Parsers::Results::params[] =
 #if HAVE_BATCH
    /* [25] */ ,{"batchName", 9, Parsers::parseName, 0, NULL}
 #endif
+   /* [26] */ ,{"locationID", 10, Parsers::parseName, 0, NULL}
   } ;
 
 #define IS_ADDRESS(i) ((i == Results::LDAPBASE) || (i == Results::NWSNAMESERVER) || (i == Results::NWSFORECASTER))
@@ -190,8 +194,6 @@ Parsers::endParsing()
  * @param nbCompulsoryParams is the length of the list \c compulsoryParams
  * @param compulsoryParams   is the list of compulsory parameters
  */
-
-    // size_t --> unsigned int
 int
 Parsers::parseCfgFile(bool checkFASTEntries, unsigned int nbCompulsoryParams,
 		      Results::param_type_t* compulsoryParams)
