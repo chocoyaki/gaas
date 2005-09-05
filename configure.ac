@@ -8,6 +8,12 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.52  2005/09/05 15:52:52  hdail
+#* Addition of two configure options to control experimental development:
+#* --enable-windowsched for MA-level window-based scheduling and
+#* --enable-altpredict for an alternative prediction approach based on heuristic
+#* estimates of 'distance'.
+#*
 #* Revision 1.51  2005/07/13 06:57:31  ecaron
 #* Ready to version 2.0
 #*
@@ -214,6 +220,18 @@ AC_ARG_ENABLE(stats,
 	      AC_HELP_STRING([--enable-stats],
 			     [enable generation of statistics logs]),
 	      [AC_DEFINE(HAVE_STATISTICS)][IDLFLAGS="$IDLFLAGS -DHAVE_STATISTICS"])
+
+AH_TEMPLATE(HAVE_WINDOWSCHED, [Define the use of window scheduling features.])
+AC_ARG_ENABLE(windowsched,
+	      AC_HELP_STRING([--enable-windowsched],
+			     [use experimental window scheduling]),
+	      [AC_DEFINE(HAVE_WINDOWSCHED)][IDLFLAGS="$IDLFLAGS -DHAVE_WINDOWSCHED"])
+
+AH_TEMPLATE(HAVE_ALTPREDICT, [Define the use of alternative perf. prediction.])
+AC_ARG_ENABLE(altpredict,
+	      AC_HELP_STRING([--enable-altpredict],
+			     [use alternative performance prediction]),
+	      [AC_DEFINE(HAVE_ALTPREDICT)][IDLFLAGS="$IDLFLAGS -DHAVE_ALTPREDICT"])
 
 AH_TEMPLATE(HAVE_MULTI_MA, [Define the use of a multi MA architecture.])
 AC_ARG_ENABLE(multi-MA,
@@ -660,6 +678,18 @@ fi
 if test "x$enable_stats" = "xyes"
 then
   echo " - statistics log:  yes" | tee -a config.log
+fi
+
+# EXPERIMENTAL WINDOW SCHEDULING 
+if test "x$enable_windowsched" = "xyes"
+then
+  echo " - Window Sched:    yes" | tee -a config.log
+fi
+
+# ALTERNATIVE PERFORMANCE PREDICTION
+if test "x$enable_altpredict" = "xyes"
+then
+  echo " - Alt Predict:     yes" | tee -a config.log
 fi
 
 # PLATFORM
