@@ -5,45 +5,43 @@
 /*    - Georg Hoesch (hoesch@in.tum.de)                                     */
 /*    - Cyrille Pontvieux (cyrille.pontvieux@edu.univ-fcomte.fr)            */
 /*                                                                          */
-/* $LICENSE$                                                                */
+/*  This file is part of DIET 2.0.                                          */
+/*                                                                          */
+/*  Copyright (C) 2000-2003 ENS Lyon, LIFC, INSA and INRIA,                 */
+/*                          all rights reserved.                            */
+/*                                                                          */
+/*  Since DIET is open source, free software, you are free to use, modify,  */
+/*  and distribute the DIET source code and object code produced from the   */
+/*  source, as long as you include this copyright statement along with      */
+/*  code built using DIET.                                                  */
+/*                                                                          */
+/*  Redistribution and use in source and binary forms, with or without      */
+/*  modification, are permitted provided that the following conditions      */
+/*  are met.                                                                */
+/*                                                                          */
+/*  Redistributions of source code must retain the copyright notice below   */
+/*  this list of conditions and the following disclaimer. Redistributions   */
+/*  in binary form must reproduce the copyright notice below, this list     */
+/*  of conditions and the following disclaimer in the documentation         */
+/*  and/or other materials provided with the distribution. Neither the      */
+/*  name of ENS Lyon nor the names of its contributors (LIFC, INSA Lyon,    */
+/*  INRIA) may be used to endorse or promote products derived from this     */
+/*  software without specific prior written permission.                     */
+/*                                                                          */
+/*  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS     */
+/*  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT       */
+/*  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS       */
+/*  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE          */
+/*  REGENTS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,             */
+/*  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,    */
+/*  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES ;       */
+/*  LOSS OF USE, DATA, OR PROFITS ; OR BUSINESS INTERRUPTION) HOWEVER       */
+/*  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT      */
+/*  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY   */
+/*  WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE             */
+/*  POSSIBILITY OF SUCH DAMAGE.                                             */
+/*                                                                          */
 /****************************************************************************/
-/* $Id$
- * $Log$
- * Revision 1.13  2005/08/02 09:17:07  hdail
- * Corrected bug in tagNames structure whereby when we don't use JuxMem we have
- * 2 empty entries at the end and a count that is too high.  This bug was causing
- * DIET agents and servers to seg fault in one condition: when launched with
- * GoDIET but only if GoDIET was using LogService for information return.
- *
- * Revision 1.12  2005/07/01 13:00:12  rbolze
- * Agents send their list of SeD to LogCentral with each value of the estimation vector.
- *
- * Revision 1.11  2005/06/03 14:05:18  mjan
- * Fix issue in JuxMem log funtions
- *
- * Revision 1.8  2005/04/29 15:17:08  ecaron
- * Bug fix for gcc 3.4.x
- *
- * Revision 1.7  2004/12/16 11:16:31  sdahan
- * adds multi-mas informations into the logService
- *
- * Revision 1.6  2004/12/02 15:01:11  bdelfabr
- * good order for base_type and type
- *
- * Revision 1.4  2004/10/04 11:32:04  hdail
- * Modified memory free / delete to agree with variable allocations.
- *
- * Revision 1.3  2004/07/29 18:53:06  rbolze
- * make some change to send more info to the logService.
- *
- * Revision 1.2  2004/03/02 17:38:07  rbolze
- * fix a little inversion between DATA_RELEASED and DATA_STORED in tagNames tab
- *
- * Revision 1.1  2004/03/01 18:55:56  rbolze
- * make Diet objects as LogComponent for LogCentral
- * DietLogComponent objects can contact LogCentral and transmit log message
- *
- ****************************************************************************/
 
 #include <string.h>
 #include <stdlib.h>
@@ -209,9 +207,6 @@ DietLogComponent::DietLogComponent(const char* name,
 #if HAVE_JUXMEM
   tagNames[14] = strdup("JUXMEM_DATA_STORE");
   tagNames[15] = strdup("JUXMEM_DATA_USE");
-#else
-  tagNames[14] = strdup("NOT_DEFINED1");
-  tagNames[15] = strdup("NOT_DEFINED2");
 #endif
 
   
@@ -611,7 +606,8 @@ DietLogComponent::logAskForSeD(const corba_request_t* request) {
   if (tagFlags[1]) {
     // FIXME: add request parameters (size of request arguments?)
     char* s;
-    s = new char[strlen(request->pb.path)+num_Digits(request->reqID)+2]; 
+    s = new char[strlen(request->pb.path) + 
+        num_Digits((unsigned long) request->reqID) + 2]; 
     sprintf(s,"%s %ld",(const char *)(request->pb.path),(unsigned long)(request->reqID));
     log(tagNames[1], s);
     delete(s);
@@ -641,8 +637,8 @@ DietLogComponent::logSedChosen(const corba_request_t* request,
 		}
 	}
     s = new char[strlen(request->pb.path)
-	    +num_Digits(request->reqID)
-	    +num_Digits(response->servers.length())
+	    +num_Digits((unsigned long) request->reqID)
+	    +num_Digits((unsigned long) response->servers.length())
 	    +estim_string.length()
 	    +5]; 
     sprintf(s,"%s %ld %ld%s"
@@ -653,8 +649,8 @@ DietLogComponent::logSedChosen(const corba_request_t* request,
 	    );
     }else{
      s = new char[strlen(request->pb.path)
-	    +num_Digits(request->reqID)
-	    +num_Digits(response->servers.length())
+	    +num_Digits((unsigned long) request->reqID)
+	    +num_Digits((unsigned long) response->servers.length())
 	    +3];	  
      sprintf(s,"%s %ld %ld",
 	    (const char *)(request->pb.path),
