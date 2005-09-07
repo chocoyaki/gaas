@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.59  2005/09/07 07:40:16  hdail
+ * Exclusion of all SeD-level comm time prediction and modification under
+ * HAVE_ALTPREDICT
+ *
  * Revision 1.58  2005/09/05 16:02:52  hdail
  * Addition of locationID as member variable and to parsing.  SeD initializes
  * data location data in response with all locally available information about
@@ -265,6 +269,8 @@ SeDImpl::run(ServiceTable* services)
   char * tmpName = (char*)
       Parsers::Results::getParamValue(Parsers::Results::LOCATIONID);
   if (tmpName != NULL) {
+    strcpy(this->locationID, tmpName);
+  } else {
     strcpy(this->locationID, "");
   } 
 #endif // HAVE_ALTPREDICT
@@ -410,10 +416,13 @@ SeDImpl::getRequest(const corba_request_t& creq)
     this->estimate(resp.servers[0].estim, creq.pb, serviceRef);
   }
 
-  // Just for debugging
+#if ! HAVE_ALTPREDICT
   if (TRACE_LEVEL >= TRACE_STRUCTURES) {
     displayResponse(stdout, &resp);
   }
+#else
+  displayResponse(stdout, &resp);
+#endif // ! HAVE_ALTPREDICT
 
 /** Commented to cut overhead of un-needed log messages
   if (dietLogComponent != NULL) {
@@ -1117,6 +1126,7 @@ SeDImpl::estimate(corba_estimation_t& estimation,
     /***** START FAST-based metrics *****/
     diet_estimate_fast(eVals, &profile);
 
+#if ! HAVE_ALTPREDICT
     diet_est_set_internal(eVals,
                           EST_TOTALTIME,
                           diet_est_get_internal(eVals, EST_TCOMP, HUGE_VAL));
@@ -1153,6 +1163,7 @@ SeDImpl::estimate(corba_estimation_t& estimation,
         diet_est_set_internal(eVals, EST_TOTALTIME, newTotalTime);
       }
     }
+#endif // HAVE_ALTPREDICT
     /***** END FAST-based metrics *****/
 
     /***** START RR metrics *****/
@@ -1166,6 +1177,7 @@ SeDImpl::estimate(corba_estimation_t& estimation,
     (*perfmetric_fn)(&profile, eVals);
   }
 
+#if ! HAVE_ALTPREDICT
   /* Evaluate comm times for persistent IN arguments only: comm times for
      volatile IN and persistent OUT arguments cannot be estimated here, and
      persistent OUT arguments will not move (comm times already set to 0). */
@@ -1179,6 +1191,7 @@ SeDImpl::estimate(corba_estimation_t& estimation,
       diet_est_array_set_internal(eVals, EST_COMMTIME, i, 0.0);
     }
   }
+#endif
 
 //   cout << "AS: [" << __FUNCTION__ << "] num values = " << estimation.estValues.length() << endl;
 }
