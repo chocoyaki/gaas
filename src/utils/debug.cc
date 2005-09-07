@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2005/09/07 07:41:40  hdail
+ * Printout of transfer time/distance estimate lines only when they exist.
+ *
  * Revision 1.27  2005/09/05 16:09:41  hdail
  * Addition of parameter location information to response printout.
  * (experimental and protected by HAVE_ALTPREDICT).
@@ -129,7 +132,7 @@ displayResponse(FILE* os, const corba_response_t* resp)
     locationID = strdup(resp->dataLoc[i].locationID);
     dataIdNumber = strdup(resp->dataLoc[i].idNumber);
     fprintf(os, "    %d %10d bytes on %15s at %6s (%s)\n",
-          i, hostName, locationID, dataIdNumber);
+        i, resp->dataLoc[i].bytes, hostName, locationID, dataIdNumber);
     free(hostName);
     free(locationID);
     free(dataIdNumber);
@@ -170,30 +173,38 @@ displayResponse(FILE* os, const corba_response_t* resp)
           diet_est_get_internal(ev, EST_FREECPU, HUGE_VAL),
           diet_est_get_internal(ev, EST_FREEMEM, HUGE_VAL),
           diet_est_get_internal(ev, EST_TRANSFEREFFORT, HUGE_VAL));
-    fprintf(os, "       Parameter proximity estimates:  ");
-    for (int proxIter = 0; 
-         proxIter < diet_est_array_size_internal(ev, EST_COMMPROXIMITY);
-         proxIter++) {
-      fprintf(os,
-              " %g |",
-              diet_est_array_get_internal(ev, EST_COMMPROXIMITY,
-                                  proxIter, HUGE_VAL));
-    } // end for each proximity parameter
-    fprintf(os,"\n");
+    int numProx = diet_est_array_size_internal(ev, EST_COMMPROXIMITY);
+    if (numProx > 0) {
+      fprintf(os, "       Parameter proximity estimates:  ");
+      for (int proxIter = 0; 
+           proxIter < numProx;
+           proxIter++) {
+        fprintf(os,
+                " %g |",
+                diet_est_array_get_internal(ev, 
+                                          EST_COMMPROXIMITY,
+                                          proxIter, 
+                                          HUGE_VAL));
+      } // end for each proximity parameter
+      fprintf(os,"\n");
+    }
 #endif  // HAVE_PROXIMITY
 
-    fprintf(os, "       Parameter transfer times (sec): ");
-    for (int commTimeIter = 0 ;
-         commTimeIter < diet_est_array_size_internal(ev, EST_COMMTIME) ;
-         commTimeIter++) {
-      fprintf(os,
-              " %g |",
-              diet_est_array_get_internal(ev,
+    int numComms = diet_est_array_size_internal(ev, EST_COMMTIME);
+    if (numComms > 0) {
+      fprintf(os, "       Parameter transfer times (sec): ");
+      for (int commTimeIter = 0 ;
+           commTimeIter < numComms ;
+           commTimeIter++) {
+        fprintf(os,
+                " %g |",
+                diet_est_array_get_internal(ev,
                                           EST_COMMTIME,
                                           commTimeIter,
                                           HUGE_VAL));
-    } // end for each comm time parameter
-  }   // end for each server 
+      } // end for each comm time parameter
+    }   // end check if comm times exist in est vector
+  }     // end for each server 
   fprintf(os,"\n");
   fprintf(os, "----------------------------------------\n");
 }
