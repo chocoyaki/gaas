@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2005/09/07 07:41:02  hdail
+ * Cleanup of alternative prediction handling
+ *
  * Revision 1.15  2005/09/05 16:06:09  hdail
  * - Addition of method for aggregating parameter location data.
  * - Handling of alternative performance prediction for parameter transfer
@@ -191,7 +194,8 @@ protected:
   /** Send the request structure \c req to the child whose ID is \c childID. */
   void
   sendRequest(CORBA::ULong childID, const corba_request_t* req);
-   
+  
+#if ! HAVE_ALTPREDICT
   /**
    * Get communication time between this agent and the child \c childID for a data
    * amount of size \c size. The way of the data transfer can be specified with
@@ -200,6 +204,7 @@ protected:
    */
   inline double
   getCommTime(CORBA::Long childID, unsigned long size, bool to = true);
+#endif // ! HAVE_ALTPREDICT
 
   /**
    * Return a pointer to a unique aggregated response from various responses.
@@ -218,7 +223,7 @@ protected:
    * @param max_srv the maximum number of servers to aggregate (all if 0).
    */
   corba_response_t*
-  aggregateTransferInfo(Request* request);
+  aggregateLocationInfo(Request* request);
 #endif // HAVE_ALTPREDICT
 
   /** Get host name of a child (returned string is ms_stralloc'd). */
