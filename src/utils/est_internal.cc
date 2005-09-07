@@ -92,8 +92,8 @@ diet_est_array_size_internal(estVectorConst_t ev, int tag)
 
   int maxIdx = -1;
   for (unsigned int valIter = 0 ; valIter < EV_LEN(ev) ; valIter++) {
-    if (tag == (EV_ELT(ev, valIter)).v_idx &&
-        (EV_ELT(ev, valIter)).v_idx > maxIdx) {
+    if (tag == (EV_ELT(ev, valIter)).v_tag &&
+        maxIdx < (EV_ELT(ev, valIter)).v_idx) {
       maxIdx = (EV_ELT(ev, valIter)).v_idx;
     }
   }
