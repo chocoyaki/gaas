@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.34  2005/10/04 12:05:39  alsu
+ * minor changes to pacify gcc/g++ 4.0
+ *
  * Revision 1.33  2005/09/05 16:08:32  hdail
  * Correction of allocation / deletion mismatch in diet free method.
  *
@@ -816,7 +819,7 @@ _file_get(diet_arg_t* arg, diet_persistence_mode_t* mode,
   return 0;
 }
 
-diet_scalar_desc_t const
+diet_scalar_desc_t
 diet_scalar_get_desc(diet_arg_t* arg)
 {
   if (arg->desc.generic.type != DIET_SCALAR) {
@@ -825,7 +828,7 @@ diet_scalar_get_desc(diet_arg_t* arg)
   return (&((arg->desc).specific.scal));
 }
 
-diet_vector_desc_t const
+diet_vector_desc_t
 diet_vector_get_desc(diet_arg_t* arg)
 {
   if (arg->desc.generic.type != DIET_VECTOR) {
@@ -834,7 +837,7 @@ diet_vector_get_desc(diet_arg_t* arg)
   return (&((arg->desc).specific.vect));
 }
 
-diet_matrix_desc_t const
+diet_matrix_desc_t
 diet_matrix_get_desc(diet_arg_t* arg)
 {
   if (arg->desc.generic.type != DIET_MATRIX) {
@@ -843,7 +846,7 @@ diet_matrix_get_desc(diet_arg_t* arg)
   return (&((arg->desc).specific.mat));
 }
 
-diet_string_desc_t const
+diet_string_desc_t
 diet_string_get_desc(diet_arg_t* arg)
 {
   if (arg->desc.generic.type != DIET_STRING) {
@@ -852,7 +855,7 @@ diet_string_get_desc(diet_arg_t* arg)
   return (&((arg->desc).specific.str));
 }
 
-diet_paramstring_desc_t const
+diet_paramstring_desc_t
 diet_paramstring_get_desc(diet_arg_t* arg)
 {
   if (arg->desc.generic.type != DIET_PARAMSTRING) {
@@ -861,7 +864,7 @@ diet_paramstring_get_desc(diet_arg_t* arg)
   return (&((arg->desc).specific.pstr));
 }
 
-diet_file_desc_t const
+diet_file_desc_t
 diet_file_get_desc(diet_arg_t* arg)
 {
   if (arg->desc.generic.type != DIET_FILE) {

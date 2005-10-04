@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.34  2005/10/04 12:05:40  alsu
+ * minor changes to pacify gcc/g++ 4.0
+ *
  * Revision 1.33  2005/09/05 15:53:39  hdail
  * Addition of estimation tags EST_COMMPROXIMITY and EST_TRANSFEREFFORT.
  *
@@ -384,12 +387,12 @@ typedef const struct diet_matrix_specific* diet_matrix_desc_t;
 typedef const struct diet_string_specific* diet_string_desc_t;
 typedef const struct diet_paramstring_specific* diet_paramstring_desc_t;
 typedef const struct diet_file_specific* diet_file_desc_t;
-diet_scalar_desc_t const diet_scalar_get_desc(diet_arg_t* arg);
-diet_vector_desc_t const diet_vector_get_desc(diet_arg_t* arg);
-diet_matrix_desc_t const diet_matrix_get_desc(diet_arg_t* arg);
-diet_string_desc_t const diet_string_get_desc(diet_arg_t* arg);
-diet_paramstring_desc_t const diet_paramstring_get_desc(diet_arg_t* arg);
-diet_file_desc_t const diet_file_get_desc(diet_arg_t* arg);
+diet_scalar_desc_t diet_scalar_get_desc(diet_arg_t* arg);
+diet_vector_desc_t diet_vector_get_desc(diet_arg_t* arg);
+diet_matrix_desc_t diet_matrix_get_desc(diet_arg_t* arg);
+diet_string_desc_t diet_string_get_desc(diet_arg_t* arg);
+diet_paramstring_desc_t diet_paramstring_get_desc(diet_arg_t* arg);
+diet_file_desc_t diet_file_get_desc(diet_arg_t* arg);
 
 /****************************************************************************/
 /* Free the amount of data pointed at by the value field of an argument.    */

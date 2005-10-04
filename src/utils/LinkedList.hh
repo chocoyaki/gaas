@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2005/10/04 12:05:39  alsu
+ * minor changes to pacify gcc/g++ 4.0
+ *
  * Revision 1.4  2004/09/29 13:35:32  sdahan
  * Add the Multi-MAs feature.
  *
@@ -166,7 +169,7 @@ public :
     linkedListMutex.lock() ;
     counter = 0 ;
     Node* nodeBuf ;
-    while(nodeBuf = first) { // while ((nodeBuf <- first) != NULL) {
+    while((nodeBuf = first) != NULL) {
       first = nodeBuf->next ;
       delete nodeBuf->element ;
       delete nodeBuf ;
