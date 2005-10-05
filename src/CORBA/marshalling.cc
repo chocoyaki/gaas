@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.54  2005/10/05 09:51:20  ecaron
+ * Fix Warning (Bug in maintainer mode on MacOSX)
+ * uninitialized type in function for DIET_VECTOR and DIET_STRING
+ *
  * Revision 1.53  2005/08/31 14:51:35  alsu
  * New plugin scheduling interface: marshalling/unmarshalling functions
  * no longer needed for the estimation vector, since the C structure no
@@ -186,13 +190,13 @@ __mrsh_data_desc_type(corba_data_desc_t* dest,
     }
     break;
   }
-  case DIET_VECTOR: {
-    corba_vector_specific_t vect;
+    case DIET_VECTOR: {
+      corba_vector_specific_t vect;
 
-    dest->specific.vect(vect);
-    dest->specific.vect().size = src->specific.vect.size;
-    break;
-  }
+	  vect.size = src->specific.vect.size;
+      dest->specific.vect(vect);
+     break;
+      }
   case DIET_MATRIX: {
     corba_matrix_specific_t mat;
 
@@ -202,13 +206,13 @@ __mrsh_data_desc_type(corba_data_desc_t* dest,
     dest->specific.mat().order = src->specific.mat.order;
     break;
   }
-  case DIET_STRING: {
-    corba_string_specific_t str;
+   case DIET_STRING: {
+     corba_string_specific_t str;
 
-    dest->specific.str(str);
-    dest->specific.str().length = src->specific.str.length;
-    break;
-  }
+	 str.length = src->specific.str.length;
+     dest->specific.str(str);
+     break;
+   }
   case DIET_PARAMSTRING: {
     corba_paramstring_specific_t pstr;
 
