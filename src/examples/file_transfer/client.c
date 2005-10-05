@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2005/10/05 14:02:29  alsu
+ * eliminating gcc warning about signedness
+ *
  * Revision 1.9  2003/07/25 20:37:37  pcombes
  * Separate the DIET API (slightly modified) from the GridRPC API (version of
  * the draft dated to 07/21/2003)
@@ -52,7 +55,7 @@ main(int argc, char* argv[])
   diet_profile_t* profile = NULL;
   int *size1 = NULL;
   int *size2 = NULL;
-  int out_size = 0;
+  unsigned int out_size = 0;
 
 
   if (argc != 4) {
