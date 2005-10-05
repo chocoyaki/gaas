@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.55  2005/10/05 10:26:49  ecaron
+ * Fix Warning (Bug in maintainer mode on MacOSX)
+ * remove an internal warning about uninitalized corba_agg_default_t object in mrsh_aggregator_desc function.
+ *
  * Revision 1.54  2005/10/05 09:51:20  ecaron
  * Fix Warning (Bug in maintainer mode on MacOSX)
  * uninitialized type in function for DIET_VECTOR and DIET_STRING
@@ -546,6 +550,8 @@ int mrsh_aggregator_desc(corba_aggregator_desc_t* dest,
   case DIET_AGG_DEFAULT:
     {
       corba_agg_default_t d;
+
+	  d.dummy = 0; /* init value to avoid warning */
       dest->agg_specific.agg_default(d);
       break;
     }
