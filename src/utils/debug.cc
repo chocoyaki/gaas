@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2005/10/05 10:43:31  ecaron
+ * Fix Warning (Bug in maintainer mode on MacOSX)
+ * This function require a cast operation to match a size_t type with int used for fprintf function.
+ *
  * Revision 1.28  2005/09/07 07:41:40  hdail
  * Printout of transfer time/distance estimate lines only when they exist.
  *
@@ -220,7 +224,7 @@ displayResponseShort(FILE* os, const corba_response_t* resp)
 
     fprintf(stdout, 
             "    %d: %s:%ld: tComp %g fCpu %g fMem %g\n",
-            i,
+            (int)i,
             (const char *)(resp->servers[i].loc.hostName),
             resp->servers[i].loc.port,
             diet_est_get_internal(ev, EST_TCOMP, HUGE_VAL),
