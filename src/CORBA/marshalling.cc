@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.56  2005/10/05 11:35:31  ecaron
+ * Fix Warning (Bug in maintainer mode on MacOSX)
+ * mrsh_data_desc_type(corba_data_desc_t*, const diet_data_desc_t*)' was declared 'static' but never defined
+ *
  * Revision 1.55  2005/10/05 10:26:49  ecaron
  * Fix Warning (Bug in maintainer mode on MacOSX)
  * remove an internal warning about uninitalized corba_agg_default_t object in mrsh_aggregator_desc function.
@@ -182,7 +186,7 @@ mrsh_scalar_desc(corba_data_desc_t* dest,
   return 0;
 }
 
-static int
+int
 __mrsh_data_desc_type(corba_data_desc_t* dest,
                       const diet_data_desc_t* const src)
 {

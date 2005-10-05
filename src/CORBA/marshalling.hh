@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2005/10/05 11:35:31  ecaron
+ * Fix Warning (Bug in maintainer mode on MacOSX)
+ * mrsh_data_desc_type(corba_data_desc_t*, const diet_data_desc_t*)' was declared 'static' but never defined
+ *
  * Revision 1.24  2005/10/05 09:51:20  ecaron
  * Fix Warning (Bug in maintainer mode on MacOSX)
  * uninitialized type in function for DIET_VECTOR and DIET_STRING
@@ -114,7 +118,7 @@
 /* but their name and prototype should be relevant enough.                  */
 /*--------------------------------------------------------------------------*/
 
-static int
+int
 __mrsh_data_desc_type(corba_data_desc_t* dest,
                       const diet_data_desc_t* const src);
 
