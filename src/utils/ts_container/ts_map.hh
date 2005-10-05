@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2005/10/05 14:06:47  alsu
+ * elimination of the troubling parameter of the ts_map template that is
+ * different between the various versions STL libraries distributed with
+ * different flavors of gcc 3/4.
+ *
  * Revision 1.6  2004/09/29 13:35:32  sdahan
  * Add the Multi-MAs feature.
  *
@@ -47,10 +52,20 @@
  * @author Sylvain DAHAN : LIFC Besancon (France)
  */
 
+#define LIMIT_MAP_TEMPLATE
 
+#ifdef LIMIT_MAP_TEMPLATE
+template <class Key, class T, class CMP = std::less<Key> >
+class ts_map : private std::map<Key, T, CMP> {
+#else /* LIMIT_MAP_TEMPLATE */
+/*
+** the following definition is specific to gcc-4.0, and it may
+** not work in older versions of GCC!
+*/
 template <class Key, class T, class CMP = std::less<Key>,
-  class A = std::allocator<T> >
+          class A = std::allocator<std::pair<const Key, T> > >
 class ts_map : private std::map<Key, T, CMP, A> {
+#endif /* LIMIT_MAP_TEMPLATE */
 
 private :
 
@@ -71,7 +86,11 @@ private :
   /**
    * A type to avoid to type map<Key, T, CMP, A> each time.
    */
+#ifdef LIMIT_MAP_TEMPLATE
+  typedef std::map<Key, T, CMP> MapType ;
+#else
   typedef std::map<Key, T, CMP, A> MapType ;
+#endif /* LIMIT_MAP_TEMPLATE */
 
 public :
 
