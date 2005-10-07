@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2005/10/07 14:28:30  rbolze
+ * remove num_Digits(int num) function.
+ * We do not need this function anymore.
+ * It fix one bug with some strict compiler.
+ *
  * Revision 1.15  2005/10/05 09:18:09  hdail
  * Last check-in was an error.  Here is a correction.
  *
@@ -494,15 +499,6 @@ static int num_Digits(unsigned long num){
 		return 1;
 	else
 		return 1+num_Digits(num/10);
-}
-/**
- * Count the number of Digits in a double
- */
-static int num_Digits(int num){
-	        if ( num < 10)
-	    	return 1;
-	        else
-	        return 1+num_Digits(num/10);
 }
 /**
  * "Synchronised" functions with errorhandling
