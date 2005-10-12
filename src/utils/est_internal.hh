@@ -2,6 +2,8 @@
 #ifndef _EST_INTERNAL_HH_
 #define _EST_INTERNAL_HH_
 
+#include "DIET_data.h"
+
 /*
 ** Set of #define's for future "rules" for the scalar
 ** values of estimation values.  The first
