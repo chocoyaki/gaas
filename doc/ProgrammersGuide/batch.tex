@@ -307,12 +307,12 @@ batch scheduler and manage data and executionof the job). This is not
 done in the normal solve !
 \verb$ profile.SeDPtr = (const void*) this ; $
 
-\item To do: explain the test in DIET_data.cc::profile_match() (why do
-it only if batch_flag==1). The reason commes from
+\item To do: explain the test in DIET\_data.cc::profile\_match() (why do
+it only if batch\_flag==1). The reason commes from
 ServiceTable::lookupService(), which is called from
 MasterAgent::submitLocal(), AgentImpl::findServer(),
 SeDImpl::getRequest(), SeDImpl::checkContract(),
-DIET_server.diet_service_table_lookup_by_profile.
+DIET\_server.diet\_service\_table\_lookup\_by\_profile.
 
 Thus, the check must be performed in special way concerning batch
 \begin{itemize}
@@ -323,12 +323,12 @@ Thus, the check must be performed in special way concerning batch
 \item Add in src/utils/Parsers.cc the information to parse batchName
 in config file.
 
-\item Added in src/CORBA/idl/common_types.idl, the unsigned long
+\item Added in src/CORBA/idl/common\_types.idl, the unsigned long
 dietJobID. Be sure that it is well managed (see
-mrsh_profile_to_in_args and unmrsh_in_args_to_profile). The dietJobID
-is stocked in the profile (src/client/DIET_client.cc).
+mrsh\_profile\_to\_in\_args and unmrsh\_in\_args\_to\_profile). The dietJobID
+is stocked in the profile (src/client/DIET\_client.cc).
 
-\item Look if src/CORBA/idl/response.idl batch_flag is correctly used
-and where. Same with common_types.idl
+\item Look if src/CORBA/idl/response.idl batch\_flag is correctly used
+and where. Same with common\_types.idl
 
 \end{itemize}
