@@ -2,22 +2,6 @@
 #* DIET cmake local file                                                    *#
 #*                                                                          *#
 #****************************************************************************#
-#* $Author$
-#* $LICENSE$
-#* $Id$
-#* $Log$
-#* Revision 1.3  2005/05/17 11:58:54  eboix
-#*     Added a Cmake/README for cmake starters.
-#*     First try on compiling the tex documentation.
-#*     Cosmetic changes to CMakeLists.txt.  --- Injay 2461
-#*
-#* Revision 1.2  2005/04/29 10:36:38  eboix
-#*     idl generated files are now taken into account.  --- Injay 2461
-#*
-#* Revision 1.1  2005/04/28 13:25:11  eboix
-#*     Added cmake subdir configuration files. --- Injay 2461
-#*
-#****************************************************************************#
 
 INCLUDE_DIRECTORIES(
   ${OMNIORB4_INCLUDE_DIR}
@@ -50,13 +34,13 @@ ADD_LIBRARY( UtilsNodes
 INSTALL_TARGETS( /lib/ UtilsNodes )
 
 ADD_LIBRARY( UtilsSeDClt
-  DIET_mutex.cc 
   AccessController.cc
+  DIET_mutex.cc 
+  est_internal.cc
 )
 INSTALL_TARGETS( /lib/ UtilsSeDClt )
 
 ADD_LIBRARY( UtilsVector
-  estVector.c 
   Vector.c
 )
 INSTALL_TARGETS( /lib/ UtilsVector )
