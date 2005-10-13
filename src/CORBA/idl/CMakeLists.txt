@@ -1,40 +1,19 @@
 #****************************************************************************#
 #* DIET cmake local file                                                    *#
-#*                                                                          *#
-#****************************************************************************#
-#* $Author$
-#* $LICENSE$
-#* $Id$
-#* $Log$
-#* Revision 1.5  2005/05/17 11:58:53  eboix
-#*     Added a Cmake/README for cmake starters.
-#*     First try on compiling the tex documentation.
-#*     Cosmetic changes to CMakeLists.txt.  --- Injay 2461
-#*
-#* Revision 1.4  2005/05/02 15:34:54  eboix
-#*     - Cmake/FindOmniORB.cmake now exposes the OMNIORB4_DIR (no need to
-#*       toggle to advanced mode anymore) and also hides away (to advanced mode)
-#*       the PATHs (include, lib, omniidl) when found.
-#*       Tested on FC2 and graal.ens-lyon.fr: libCOS4.so and libDynamicCOS4.so
-#*       seemed to be allways required...
-#*     - src/examples/cfgs/CMakeLists.txt now generates all the test configuration
-#*       files.   --- Injay 2461
-#*
-#* Revision 1.3  2005/04/29 12:05:22  eboix
-#*      Clean up.  --- Injay 2461
-#*
-#* Revision 1.2  2005/04/29 10:36:37  eboix
-#*     idl generated files are now taken into account.  --- Injay 2461
-#*
-#* Revision 1.1  2005/04/28 13:25:10  eboix
-#*     Added cmake subdir configuration files. --- Injay 2461
-#*
 #****************************************************************************#
 
 # When OMNIORB was found generate the code out of the IDL source files and
 # build the ad-hoc libraries.
 IF( OMNIORB4_FOUND )
-  
+
+  # FIXME: see below on usage of this flag and
+  # http://public.kitware.com/pipermail/cmake/2005-October/007339.html
+  # Define the flags for the IDL compiler
+  # SET( DIET_IDL_FLAGS "-bcxx -Wba -Wbtp")
+  # IF( DIET_USE_JXTA )
+  # SET( DIET_IDL_FLAGS "${DIET_IDL_FLAGS} -DHAVE_JXTA" )
+  # ENDIF( DIET_USE_JXTA )
+
   SET( IDL_SOURCES
     Agent
     Callback
@@ -48,33 +27,45 @@ IF( OMNIORB4_FOUND )
     response
     SeD )
   
-  SET( TARGET_IDL_DIR  ${DIET_BINARY_DIR}/src/CORBA/idl )
-  
   FOREACH( loop_var ${IDL_SOURCES} )
-    ADD_CUSTOM_COMMAND(
-      OUTPUT    ${TARGET_IDL_DIR}/${loop_var}SK.cc
-      COMMAND   ${OMNIORB4_IDL_COMPILER}
-      ARGS      -bcxx -Wba -Wbtp 
-                ${DIET_SOURCE_DIR}/src/CORBA/idl/${loop_var}.idl
-      DEPENDS   ${DIET_SOURCE_DIR}/src/CORBA/idl/${loop_var}.idl
-      COMMENT   "idl generated code"
-    )
+
+    # The following is a kludge (see problem description at 
+    #   http://public.kitware.com/pipermail/cmake/2005-October/007339.html)
+    IF( NOT DIET_USE_JXTA )
+      ADD_CUSTOM_COMMAND(
+        OUTPUT    ${CMAKE_CURRENT_BINARY_DIR}/${loop_var}SK.cc
+        COMMAND   ${OMNIORB4_IDL_COMPILER}
+        ARGS      -bcxx -Wba -Wbtp
+                  ${CMAKE_CURRENT_SOURCE_DIR}/${loop_var}.idl
+        DEPENDS   ${CMAKE_CURRENT_SOURCE_DIR}/${loop_var}.idl
+        COMMENT   "idl generated code"
+      )
+    ELSE( NOT DIET_USE_JXTA )
+      ADD_CUSTOM_COMMAND(
+        OUTPUT    ${CMAKE_CURRENT_BINARY_DIR}/${loop_var}SK.cc
+        COMMAND   ${OMNIORB4_IDL_COMPILER}
+        ARGS      -bcxx -Wba -Wbtp -DHAVE_JXTA
+                  ${CMAKE_CURRENT_SOURCE_DIR}/${loop_var}.idl
+        DEPENDS   ${CMAKE_CURRENT_SOURCE_DIR}/${loop_var}.idl
+        COMMENT   "idl generated code"
+      )
+    ENDIF( NOT DIET_USE_JXTA )
     # Dirty trick to avoid executing twice the IDL compiler which produces
     # multiple outputs ${loop_var}SK.cc, ${loop_var}DynSK.cc and
     # ${loop_var}.hh [refer to
     # http://public.kitware.com/pipermail/cmake/2004-August/005392.html ]
     ADD_CUSTOM_COMMAND(
-      OUTPUT    ${TARGET_IDL_DIR}/${loop_var}DynSK.cc
+      OUTPUT    ${CMAKE_CURRENT_BINARY_DIR}/${loop_var}DynSK.cc
       COMMAND   echo
       ARGS      -n
-      DEPENDS   ${TARGET_IDL_DIR}/${loop_var}SK.cc
+      DEPENDS   ${CMAKE_CURRENT_BINARY_DIR}/${loop_var}SK.cc
       COMMENT   "idl generated code"
     )
     ADD_CUSTOM_COMMAND(
-      OUTPUT    ${TARGET_IDL_DIR}/${loop_var}.hh
+      OUTPUT    ${CMAKE_CURRENT_BINARY_DIR}/${loop_var}.hh
       COMMAND   echo
       ARGS      -n
-      DEPENDS   ${TARGET_IDL_DIR}/${loop_var}SK.cc
+      DEPENDS   ${CMAKE_CURRENT_BINARY_DIR}/${loop_var}SK.cc
       COMMENT   "idl generated code"
     )
   ENDFOREACH(loop_var)
