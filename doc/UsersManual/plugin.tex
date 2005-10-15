@@ -60,7 +60,7 @@ By default, the aggregation phase
 implements the following ordered sequence of tests:
 
 \begin{enumerate}
-\item \textbf{FAST/NWS data}: SeDs compiled properly configured with
+\item \textbf{FAST/NWS data}: SeDs compiled and properly configured with
   FAST~\cite{Qui02} and
   NWS~\cite{WSH99}
   are capable of making dynamic
@@ -118,13 +118,13 @@ needs.
 
 \subsection{Estimation Metric Vector}\label{sect:estvector}
 
-The new type \texttt{estVector\_t} is a structure that can manage a
-dynamic collection of performance estimation values.  Logically, we
-refer to such an object as an \emph{estimation vector}, containing
+The new type \texttt{estVector\_t} represents an
+\emph{estimation vector}, logically a structure that can manage a
+dynamic collection of performance estimation values.  It contains
 values that represent the performance profile provided by a
 SeD in response to a DIET service request.  This collection of values
-may contain either standard performance measures that are available
-through DIET, or developer-defined values that are meaningful in
+may include either standard performance measures that are available
+through DIET, or developer-defined values that are meaningful solely in
 the context of the application being developed.
 
 \subsubsection{Standard Performance Metrics}
@@ -139,7 +139,7 @@ performance estimation functions:
   an estimation metric vector by calling
   \begin{tabbing}
     \texttt{int diet\_estimate\_fast(}\=\texttt{estVector\_t ev,} \\
-    \> \texttt{const diet\_profile\_t* const profilePtr)}:
+    \> \texttt{const diet\_profile\_t* const profilePtr)};
   \end{tabbing}
    with an appropriate value for \texttt{ev} and the
    \texttt{profilePtr} corresponding to the current DIET request.
@@ -148,7 +148,7 @@ performance estimation functions:
   by calling
   \begin{tabbing}
     \texttt{int diet\_estimate\_lastexec(}\=\texttt{estVector\_t ev,} \\
-    \> \texttt{const diet\_profile\_t* const profilePtr)}:
+    \> \texttt{const diet\_profile\_t* const profilePtr)};
   \end{tabbing}
   with an appropriate value for \texttt{ev} and the
   \texttt{profilePtr} corresponding to the current DIET request.
@@ -168,16 +168,18 @@ SeD that provides a service to query particular databases may need
 to include information about which databases are currently resident in
 its disk cache, in order that an appropriate server be identified for
 each client request.  To store such values, the SeD developer should
-utilize the following interface:
+first choose a unique integer identifier, referred to as the
+\emph{tag} to denote each logical datum to be stored.  Values are
+associated with tags using the following interface:
 \begin{code}
-int diet\_set\_user\_estimate(estVector\_t ev, int userTag, double value);
+int diet\_est\_set(estVector\_t ev, int userTag, double value);
 \end{code}
-where the \texttt{userTag} parameter is an arbitrary integer value
-used in the definition of custom server response aggregation
-methods (described in Section~\ref{sect:agg_methods}).
-Such a call instructs DIET to store in the estimation vector
-\texttt{ev} the value \texttt{value} associated with the identifier
-\texttt{userTag}.
+The \texttt{ev} parameter is the estimation vector into which the
+value will be stored, the \texttt{userTag} parameter denotes the
+chosen tag, and \texttt{value} indicates the value to be associated
+with the tag.  Tagged data are used to effect
+scheduling policies by defining custom server response
+aggregation methods, described in Section~\ref{sect:agg_methods}.
 
 \subsection{Estimation Function}\label{sect:est_fn}
 
@@ -207,15 +209,22 @@ Section~\ref{sect:estvector}.
 
 To implement a plugin scheduler, we define an
 interface that admits customizable performance estimation routines:
-\begin{code}
-  typedef estVector\_t (* diet\_perfmetric\_t)(diet\_profile\_t*);\\
-  \\
-  diet\_perfmetric\_t\\
-  diet\_service\_use\_perfmetric(diet\_perfmetric\_t perfmetric\_fn);\\
-\end{code}
+\begin{tabbing}
+  \texttt{typedef void (* diet\_perfmetric\_t)(}
+    \=\texttt{diet\_profile\_t*,} \\
+    \>\texttt{estVector\_t);} \\
+\end{tabbing}
+\begin{tabbing}
+  \texttt{diet\_perfmetric\_t} \\
+  \texttt{diet\_service\_use\_perfmetric(diet\_perfmetric\_t perfmetric\_fn);}\\
+\end{tabbing}
+%% \begin{code}
+%%   diet\_perfmetric\_t\\
+%%   diet\_service\_use\_perfmetric(diet\_perfmetric\_t perfmetric\_fn);\\
+%% \end{code}
 Thus, the type \texttt{diet\_perfmetric\_t} is a function pointer
-that returns a performance estimation (represented by the
-\texttt{est\_vector\_t} object), given a DIET service request
+takes as arguments a performance estimation (represented by the
+\texttt{estVector\_t} object) and a DIET service request
 profile.  The application
 developer can associate such a function, or
 \emph{performance estimation routne}, with DIET services via the
@@ -229,6 +238,10 @@ Additionally, a performance estimation routine so specified will be
 associated with \emph{all} services added into the service table until
 another call to the
 \texttt{diet\_service\_use\_perfmetric} interface is made.
+In the performance estimation routine, the SeD developer should store
+in the provided estimation vector
+any performance data to be used in the server response aggregation
+methods (described in the next section).
 
 \subsection{Aggregation Methods}\label{sect:agg_methods}
 
@@ -337,54 +350,60 @@ function to supply the necessary data at request-time, and
 (c)~defines the order of precedence of the performance values
 (i.e.,~minimizing the number of database mismatches, and then
 maximizing the elapsed execution time).
-\begin{code}
-  \{
-    /* new section of the profile: aggregator */ \\
-    diet\_aggregator\_desc\_t *agg; \\
-    agg = diet\_profile\_desc\_aggregator(profile); \\
-\\
-    /* point the DIET server code to our custom performance function */ \\
-    diet\_service\_use\_perfmetric(performanceFn);~~~~~~~~~~~~~~~~/* (b) */ \\
-\\
-    /* for this service, use a priority scheduler */ \\
-    diet\_aggregator\_set\_type(agg, DIET\_AGG\_PRIORITY);~~~~~~~~~~/* (a) */ \\
-    diet\_aggregator\_priority\_minuser(agg, 0);~~~~~~~~~~~~~~~~~~/* (c) */ \\
-    diet\_aggregator\_priority\_max(agg, EST\_TIMESINCELASTSOLVE);~/* (c) */ \\
-  \}
-\end{code}
+\begin{verbatim}
+  {
+    /* new section of the profile: aggregator */
+    diet_aggregator_desc_t *agg;
+    agg = diet_profile_desc_aggregator(profile);
+
+    /* install our custom performance function */
+    diet_service_use_perfmetric(performanceFn);                /* (a) */
+
+    /* for this service, use a priority scheduler */
+    diet_aggregator_set_type(agg, DIET_AGG_PRIORITY);          /* (a) */
+    diet_aggregator_priority_minuser(agg, 0);                  /* (c) */
+    diet_aggregator_priority_max(agg, EST_TIMESINCELASTSOLVE); /* (c) */
+  }
+\end{verbatim}
 The performance function \texttt{performanceFn} is defined as follows:
-\begin{code}
-typedef estVector\_t (* diet\_perfmetric\_t)(diet\_profile\_t*); \\
-\\
-static estVector\_t \\
-performanceFn(diet\_profile\_t* pb) \\
-\{ \\
-  const char *targetString; \\
-  int numMismatch; \\
-  estVector\_t perfValues = diet\_estimate\_new\_vector(); \\
-\\
-  /* string value must be fetched from description; value is NULL */ \\
-  targetString = (diet\_paramstring\_get\_desc(diet\_parameter(pb, 0)))->param; \\
-  numMismatch = computeMismatches(targetString); \\
-\\
-  /* store the mismatch value in the user estimate space */ \\
-  diet\_set\_user\_estimate(perfValues, 0, numMismatch); \\
-\\
-  /* also store the elapsed time since last execution */ \\
-  diet\_estimate\_lastexec(perfValues, pb); \\
-\\
-  return (perfValues); \\
-\}
-\end{code}
+\begin{verbatim}
+static void performanceFn(diet_profile_t* pb, estVector_t perfValues);
+
+[...]
+
+/*
+** performanceFn: the performance function to use in the DIET
+**   plugin scheduling facility
+*/
+static void
+performanceFn(diet_profile_t* pb, estVector_t perfValues)
+{
+  const char *target;
+  int numMismatch;
+
+  /* string value must be fetched from description; value is NULL */
+  target = (diet_paramstring_get_desc(diet_parameter(pb, 0)))->param;
+  numMismatch = computeMismatches(targetString);
+
+  /*
+  ** store the mismatch value in the user estimate space,
+  ** using tag value 0
+  */
+  diet_est_set(perfValues, 0, numMismatch);
+
+  /* also store the timestamp since last execution */
+  diet_estimate_lastexec(perfValues, pb);
+}
+\end{verbatim}
 The function \texttt{computeMismatches} (defined earlier in
 \texttt{server.c}) calculates the number of requested databases that
 are not present on the SeD making the evaluation.
-Together, the \texttt{performanceFn} function and the block of code
-added to \texttt{main} serve to customize the generation of
+Together, these two code segments serve to customize the generation of
 performance information and the treatment of these data in the context
 of the simulated database search.
-Finally, it should be noted that the client code is not affected by
-the introduction of a plugin scheduler.
+Finally, it should be noted that the existence of a plugin scheduler
+is completely transparent to the client, and thus client code need not
+be changed.
 
 \section{Future Work}
 

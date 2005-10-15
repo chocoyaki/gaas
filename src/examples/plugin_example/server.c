@@ -16,6 +16,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2005/10/15 17:10:49  alsu
+ * basic updates to doc/example for plugin scheduler
+ *
  * Revision 1.3  2005/08/31 15:03:10  alsu
  * New plugin scheduling interface: using the new estimation vector
  * interface
@@ -76,7 +79,7 @@ main(int argc, char **argv)
     diet_aggregator_desc_t *agg;
     agg = diet_profile_desc_aggregator(profile);
 
-    /* point the DIET server code to our custom performance function */
+    /* install our custom performance function */
     diet_service_use_perfmetric(performanceFn);
 
     /* for this service, use a priority scheduler */
@@ -192,14 +195,17 @@ solveFn(diet_profile_t *pb)
 static void
 performanceFn(diet_profile_t* pb, estVector_t perfValues)
 {
-  const char *targetString;
+  const char *target;
   int numMismatch;
 
   /* string value must be fetched from description; value is NULL */
-  targetString = (diet_paramstring_get_desc(diet_parameter(pb, 0)))->param;
+  target = (diet_paramstring_get_desc(diet_parameter(pb, 0)))->param;
   numMismatch = computeMismatches(targetString);
 
-  /* store the mismatch value in the user estimate space */
+  /*
+  ** store the mismatch value in the user estimate space,
+  ** using tag value 0
+  */
   diet_est_set(perfValues, 0, numMismatch);
 
   /* also store the timestamp since last execution */
