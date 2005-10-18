@@ -6,13 +6,12 @@
 # build the ad-hoc libraries.
 IF( OMNIORB4_FOUND )
 
-  # FIXME: see below on usage of this flag and
-  # http://public.kitware.com/pipermail/cmake/2005-October/007339.html
   # Define the flags for the IDL compiler
-  # SET( DIET_IDL_FLAGS "-bcxx -Wba -Wbtp")
-  # IF( DIET_USE_JXTA )
-  # SET( DIET_IDL_FLAGS "${DIET_IDL_FLAGS} -DHAVE_JXTA" )
-  # ENDIF( DIET_USE_JXTA )
+  SET( DIET_IDL_FLAGS "-bcxx -Wba -Wbtp")
+  IF( DIET_USE_JXTA )
+     SET( DIET_IDL_FLAGS "${DIET_IDL_FLAGS} -DHAVE_JXTA" )
+  ENDIF( DIET_USE_JXTA )
+  SEPARATE_ARGUMENTS( DIET_IDL_FLAGS )
 
   SET( IDL_SOURCES
     Agent
@@ -29,27 +28,15 @@ IF( OMNIORB4_FOUND )
   
   FOREACH( loop_var ${IDL_SOURCES} )
 
-    # The following is a kludge (see problem description at 
-    #   http://public.kitware.com/pipermail/cmake/2005-October/007339.html)
-    IF( NOT DIET_USE_JXTA )
-      ADD_CUSTOM_COMMAND(
-        OUTPUT    ${CMAKE_CURRENT_BINARY_DIR}/${loop_var}SK.cc
-        COMMAND   ${OMNIORB4_IDL_COMPILER}
-        ARGS      -bcxx -Wba -Wbtp
-                  ${CMAKE_CURRENT_SOURCE_DIR}/${loop_var}.idl
-        DEPENDS   ${CMAKE_CURRENT_SOURCE_DIR}/${loop_var}.idl
-        COMMENT   "idl generated code"
-      )
-    ELSE( NOT DIET_USE_JXTA )
-      ADD_CUSTOM_COMMAND(
-        OUTPUT    ${CMAKE_CURRENT_BINARY_DIR}/${loop_var}SK.cc
-        COMMAND   ${OMNIORB4_IDL_COMPILER}
-        ARGS      -bcxx -Wba -Wbtp -DHAVE_JXTA
-                  ${CMAKE_CURRENT_SOURCE_DIR}/${loop_var}.idl
-        DEPENDS   ${CMAKE_CURRENT_SOURCE_DIR}/${loop_var}.idl
-        COMMENT   "idl generated code"
-      )
-    ENDIF( NOT DIET_USE_JXTA )
+    ADD_CUSTOM_COMMAND(
+      OUTPUT    ${CMAKE_CURRENT_BINARY_DIR}/${loop_var}SK.cc
+      COMMAND   ${OMNIORB4_IDL_COMPILER}
+      ARGS      ${DIET_IDL_FLAGS}
+                ${CMAKE_CURRENT_SOURCE_DIR}/${loop_var}.idl
+      DEPENDS   ${CMAKE_CURRENT_SOURCE_DIR}/${loop_var}.idl
+      COMMENT   "idl generated code"
+    )
+
     # Dirty trick to avoid executing twice the IDL compiler which produces
     # multiple outputs ${loop_var}SK.cc, ${loop_var}DynSK.cc and
     # ${loop_var}.hh [refer to

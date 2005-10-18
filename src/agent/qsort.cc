@@ -10,6 +10,39 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2005/10/18 11:05:43  eboix
+ *  * Cmake/DIET_config.h.in: clean up of flags
+ *  - HAVE_LOGSERVICE no longer used since diet is now allways compiled with
+ *    logservice on (and dynamic checking is performed depending on configuration
+ *    file).
+ *  - HAVE_OMNIORB no longer used since diet is now allways compiled with OmniORB
+ *  - HAVE_JXTA passed as command line flag, cf DIET_USE_JXTA in top CMakeLists.txt
+ *  - HAVE_STATISTICS passed as command line flag, cf DIET_WITH_STATISTICS in top
+ *    CMakeLists.txt
+ *  - HAVE_STAT_EMPTY_STRING_BUG, HAVE_SCALAPACK, LSTAT_FOLLOWS_SLASHED_SYMLINK,
+ *    PACKAGE_BUGREPORT, STDC_HEADERS, HAVE_CICHLID removed (not present in
+ *    sources)
+ *  - HAVE_STDINT_H removed since not used in sources. Dependency not propagated
+ *    since stdint.h is not included directely from DIET sources.
+ *  - HAVE_MEMORY_H removed since not used in sources. Dependency not propagated
+ *    since memory.h is not included directely from DIET sources.
+ *  - HAVE_STDLIB_H removed since not used in sources. Dependency wired in the
+ *    top CMakeLists.txt (see CMAKE_FOUND_STDLIB_HEADER).
+ *  - HAVE_MATH_H removed since not used in sources. Dependency wired in the
+ *    top CMakeLists.txt (see CMAKE_FOUND_MATH_HEADER).
+ *  - HAVE_LIMITS_H removed since not used in sources. Dependency wired in the
+ *    top CMakeLists.txt (see CMAKE_FOUND_LIMITS_HEADER).
+ *  - HAVE_ASSERT_H removed since not used in sources. Dependency wired in the
+ *    top CMakeLists.txt (see CMAKE_FOUND_ASSERT_HEADER).
+ *  - HAVE_DLFCN_H removed (only used by acmacros/libtool.m4 and ltdl.m4)
+ *  - HAVE_STRINGS_H removed (only used by acmacros/libtool.m4 and ltdl.m4)
+ *  - HAVE_FSTREAM removed (<fstream> is really standard)
+ *  - HAVE_ALLOCA_H removed (only used in src/agent/qsort.cc and cleaned up).
+ *  * CMakeLists.txt changed accordingly.
+ *  * src/agent/qsort.cc: possible include of alloca.h removed.
+ *  * src/CORBA/idl/CMakeLists.txt: DIET_USE_JXTA and DIET_USE_JXTA now cleanly
+ *    handled (thanks to SEPARATE_ARGUMENTS( ).         ---- Injay 2461
+ *
  * Revision 1.2  2003/05/05 14:50:52  pcombes
  * alloca.h does not exist on all platforms ...
  *
@@ -18,9 +51,6 @@
  *
  ****************************************************************************/
 
-#if HAVE_ALLOCA_H
-#include <alloca.h>
-#endif // HAVE_ALLOCA_H
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
