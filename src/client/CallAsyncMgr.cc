@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2005/10/18 19:44:51  ecaron
+ * Fix a MacOSX bug/warning: 'j$_M_node' may be used uninitialized in CallAsyncMgr::addWaitRule(Rule * rule)
+ *
  * Revision 1.14  2004/04/22 11:27:34  rbolze
  * make change in addWaitRule function to manage the case
  *  where a server has answered before the addWaitRule is done.
@@ -312,7 +315,8 @@ int CallAsyncMgr::addWaitRule(Rule * rule)
     WARNING("exception caught in " << __FUNCTION__ << " , what=" << e.what());
     fflush(stderr);
     WriterLockGuard r(callAsyncListLock);
-    RulesReqIDMap::iterator j;
+	
+    RulesReqIDMap::iterator j = rulesIDs.begin();
     for (int k = 0; k < rule->length; k++){
       while ( j != rulesIDs.end()){
         j = rulesIDs.find((rule->ruleElts[k]).reqID);	
