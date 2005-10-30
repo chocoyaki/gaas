@@ -16,6 +16,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2005/10/30 01:58:41  alsu
+ * correcting problems with the last checkin of plugin scheduler example/doc
+ *
  * Revision 1.4  2005/10/15 17:10:49  alsu
  * basic updates to doc/example for plugin scheduler
  *
@@ -176,14 +179,14 @@ computeMismatches(const char *scanString)
 static int
 solveFn(diet_profile_t *pb)
 {
-  const char *targetString;
+  const char *target;
   diet_persistence_mode_t strMode;
   int numMismatch;
 
-  diet_paramstring_get(diet_parameter(pb, 0), &targetString, &strMode);
-  numMismatch = computeMismatches(targetString);
+  diet_paramstring_get(diet_parameter(pb, 0), &target, &strMode);
+  numMismatch = computeMismatches(target);
 
-  printf("%d mismatches on string %s\n", numMismatch, targetString);
+  printf("%d mismatches on string %s\n", numMismatch, target);
 
   return (0);
 }
@@ -200,7 +203,7 @@ performanceFn(diet_profile_t* pb, estVector_t perfValues)
 
   /* string value must be fetched from description; value is NULL */
   target = (diet_paramstring_get_desc(diet_parameter(pb, 0)))->param;
-  numMismatch = computeMismatches(targetString);
+  numMismatch = computeMismatches(target);
 
   /*
   ** store the mismatch value in the user estimate space,

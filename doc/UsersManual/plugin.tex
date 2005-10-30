@@ -383,7 +383,7 @@ performanceFn(diet_profile_t* pb, estVector_t perfValues)
 
   /* string value must be fetched from description; value is NULL */
   target = (diet_paramstring_get_desc(diet_parameter(pb, 0)))->param;
-  numMismatch = computeMismatches(targetString);
+  numMismatch = computeMismatches(target);
 
   /*
   ** store the mismatch value in the user estimate space,
