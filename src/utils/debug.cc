@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.31  2005/11/09 23:01:33  alsu
+ * defining scope of a local variable explicitly
+ *
  * Revision 1.30  2005/10/05 13:40:03  ecaron
  * Fix Warning (Bug in maintainer mode on MacOSX)
  * Function require a cast operation to match a size_t type with long used for fprintf function.
@@ -354,13 +357,15 @@ displayProfileDesc(const diet_profile_desc_t* desc, const char* path)
       break;
     case DIET_AGG_PRIORITY:
       fprintf(f,"   Aggregator: Priority (");
-      diet_aggregator_priority_t prior = 
+      {
+        diet_aggregator_priority_t prior = 
           (desc->aggregator).agg_specific.agg_specific_priority;
-      if (prior.p_numPValues == 0) {
-        fprintf(f," No priorities assigned");
-      } else {
-        for (int i = 0; i < prior.p_numPValues; i++) {
-          fprintf(f," %d", prior.p_pValues[i]);
+        if (prior.p_numPValues == 0) {
+          fprintf(f," No priorities assigned");
+        } else {
+          for (int i = 0; i < prior.p_numPValues; i++) {
+            fprintf(f," %d", prior.p_pValues[i]);
+          }
         }
       }
       fprintf(f, " )\n");
