@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2005/11/09 18:39:33  alsu
+ * casting size_t arguments to int to deal with the storage size difference on 64-bit architectures
+ *
  * Revision 1.12  2003/09/27 07:53:38  pcombes
  * Remove unused displayArg function.
  *
@@ -58,7 +61,7 @@ solve_size(diet_profile_t* pb)
   fprintf(stderr, "Solve size ");
   
   diet_file_get(diet_parameter(pb,0), NULL, &arg_size, &path);
-  fprintf(stderr, "on %s (%d) ", path, arg_size);
+  fprintf(stderr, "on %s (%d) ", path, (int) arg_size);
   if ((status = stat(path, &buf)))
     return status;
   if (!(buf.st_mode & S_IFREG))
@@ -68,7 +71,7 @@ solve_size(diet_profile_t* pb)
   diet_free_data(diet_parameter(pb,0));
   
   diet_file_get(diet_parameter(pb,1), NULL, &arg_size, &path);
-  fprintf(stderr, "and %s (%d) ...", path, arg_size);
+  fprintf(stderr, "and %s (%d) ...", path, (int) arg_size);
   if ((status = stat(path, &buf)))
     return status;
   if (!(buf.st_mode & S_IFREG))
