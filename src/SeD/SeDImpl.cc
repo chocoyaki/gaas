@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.60  2005/11/10 14:37:51  eboix
+ *     Clean-up of Cmake/DIET_config.h.in and related changes. --- Injay2461
+ *
  * Revision 1.59  2005/09/07 07:40:16  hdail
  * Exclusion of all SeD-level comm time prediction and modification under
  * HAVE_ALTPREDICT
@@ -104,7 +107,7 @@ using namespace std;
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
-#include <unistd.h>
+#include <unistd.h>   // For gethostname()
 #include <time.h>
 
 #if HAVE_FAST

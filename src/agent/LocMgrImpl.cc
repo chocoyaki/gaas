@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2005/11/10 14:37:51  eboix
+ *     Clean-up of Cmake/DIET_config.h.in and related changes. --- Injay2461
+ *
  * Revision 1.14  2005/09/05 16:04:10  hdail
  * Addition of getDataLocSubtree (experimental and protected by HAVE_ALTPREDICT).
  * Movement of subtree portion of whereData into separate method call so it can
@@ -65,6 +68,7 @@
  * Set all the modules and their interfaces for data persistency.
  ***************************************************************************/
 
+#include <unistd.h>  // For gethostname()
 #include "LocMgrImpl.hh"
 
 #include "Counter.hh"

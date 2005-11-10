@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.68  2005/11/10 14:37:51  eboix
+ *     Clean-up of Cmake/DIET_config.h.in and related changes. --- Injay2461
+ *
  * Revision 1.67  2005/09/05 16:07:33  hdail
  * Addition of hostname and location information to client and in submit call.
  *
@@ -71,7 +74,7 @@
 #include <iostream>
 #include <fstream>
 using namespace std;
-#include <unistd.h>
+#include <unistd.h> // For gethostname()
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

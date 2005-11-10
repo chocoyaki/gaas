@@ -5,6 +5,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.37  2005/11/10 14:37:51  eboix
+ *     Clean-up of Cmake/DIET_config.h.in and related changes. --- Injay2461
+ *
  * Revision 1.36  2005/09/07 07:41:02  hdail
  * Cleanup of alternative prediction handling
  *
@@ -106,7 +109,7 @@ using namespace std;
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
+#include <unistd.h>  // For gethostname()
 
 #include "common_types.hh"
 #include "debug.hh"

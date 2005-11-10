@@ -35,14 +35,14 @@ ADD_EXECUTABLE( dietAgent dietAgent.cc )
 TARGET_LINK_LIBRARIES( dietAgent
   AgentCommon
   CorbaCommon
+  UtilsNodes
+  UtilsCommon
+  UtilsSeDClt
+  UtilsVector
   IDLAgent
   IDLCommon
   IDLLA
   IDLMA
-  UtilsCommon
-  UtilsNodes
-  UtilsSeDClt
-  UtilsVector
   ${OMNIORB4_LIBRARIES}
 )
 INSTALL_TARGETS(/bin/ dietAgent )

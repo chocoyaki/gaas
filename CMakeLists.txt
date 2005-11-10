@@ -26,38 +26,20 @@ OPTION( DIET_MAINTAINER_MODE "Build additional documentation..." OFF )
 # in the configure.ac of the autotools version].
 INCLUDE(${CMAKE_ROOT}/Modules/CheckIncludeFileCXX.cmake)
 
-# CLEANME CLEANME
-# The file alloca.h is only included in src/agent/qsort.cc with the following
-# code (which is either useless or compilation failure prone):
-#    #if HAVE_ALLOCA_H
-#    #include <alloca.h>
-#    #endif // HAVE_ALLOCA_H
-CHECK_INCLUDE_FILE_CXX("alloca.h" CMAKE_FOUND_ALLOCA_HEADER)
-IF (NOT CMAKE_FOUND_ALLOCA_HEADER)
-  MESSAGE(FATAL_ERROR "Missing alloca.h header file.")
-ENDIF(NOT CMAKE_FOUND_ALLOCA_HEADER)
+SET( DIET_INCLUDES_TO_CHECK
+  assert.h limits.h math.h
+  stdlib.h iostream string.h
+  unistd.h
+  sys/stat.h sys/types.h )
 
-CHECK_INCLUDE_FILE_CXX("assert.h" CMAKE_FOUND_ASSERT_HEADER)
-IF (NOT CMAKE_FOUND_ASSERT_HEADER)
-  MESSAGE(FATAL_ERROR "Missing assert.h header file.")
-ENDIF(NOT CMAKE_FOUND_ASSERT_HEADER)
+FOREACH( include_to_check ${DIET_INCLUDES_TO_CHECK} )
+  CHECK_INCLUDE_FILE_CXX( ${include_to_check} found${include_to_check} )
+  IF ( NOT found${include_to_check} )
+    MESSAGE(FATAL_ERROR "Missing ${include_to_check} header file.")
+  ENDIF( NOT found${include_to_check} )
+ENDFOREACH( include_to_check )
 
-CHECK_INCLUDE_FILE_CXX("limits.h" CMAKE_FOUND_LIMITS_HEADER)
-IF (NOT CMAKE_FOUND_LIMITS_HEADER)
-  MESSAGE(FATAL_ERROR "Missing limits.h header file.")
-ENDIF(NOT CMAKE_FOUND_LIMITS_HEADER)
-
-CHECK_INCLUDE_FILE_CXX("math.h" CMAKE_FOUND_MATH_HEADER)
-IF (NOT CMAKE_FOUND_MATH_HEADER)
-  MESSAGE(FATAL_ERROR "Missing math.h header file.")
-ENDIF(NOT CMAKE_FOUND_MATH_HEADER)
-
-CHECK_INCLUDE_FILE_CXX("stdlib.h" CMAKE_FOUND_STDLIB_HEADER)
-IF (NOT CMAKE_FOUND_STDLIB_HEADER)
-  MESSAGE(FATAL_ERROR "Missing stdlib.h header file.")
-ENDIF(NOT CMAKE_FOUND_STDLIB_HEADER)
-
-# --------------------- DEPENDENCIES TO EXTERNAL PACKAGES -------------------
+# --------------------- DEPENDENCIES TOWARDS EXTERNAL PACKAGES -------------
 INCLUDE( ${DIET_SOURCE_DIR}/Cmake/FindOmniORB.cmake  )
 # Path to additional modules (i.e. used by FIND_PACKAGE commands making
 # reference to non CMake defined "standard" modules):

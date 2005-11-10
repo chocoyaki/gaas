@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.45  2005/11/10 14:37:51  eboix
+ *     Clean-up of Cmake/DIET_config.h.in and related changes. --- Injay2461
+ *
  * Revision 1.44  2005/08/31 14:41:49  alsu
  * New plugin scheduling interface: implementation of the new public
  * estimation vector interface functions
@@ -125,7 +128,7 @@
 
 #include <iostream>
 using namespace std;
-#include <unistd.h>
+#include <unistd.h>  // For gethostname()
 #include <stdlib.h>
 
 #include "DIET_server.h"

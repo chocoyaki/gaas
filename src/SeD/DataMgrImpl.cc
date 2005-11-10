@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2005/11/10 14:37:51  eboix
+ *     Clean-up of Cmake/DIET_config.h.in and related changes. --- Injay2461
+ *
  * Revision 1.21  2005/09/05 16:01:34  hdail
  * Addition of locationID information and getDataLoc method call.
  * (experimental and protected by HAVE_ALTPREDICT).
@@ -71,6 +74,7 @@
  ***************************************************************************/
 
 #include <stdlib.h>
+#include <unistd.h>    // For gethostname()
 
 #include "DataMgrImpl.hh"
 

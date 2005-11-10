@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2005/11/10 14:37:51  eboix
+ *     Clean-up of Cmake/DIET_config.h.in and related changes. --- Injay2461
+ *
  * Revision 1.16  2005/10/07 14:28:30  rbolze
  * remove num_Digits(int num) function.
  * We do not need this function anymore.
@@ -55,7 +58,7 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include <unistd.h>
+#include <unistd.h>   // For gethostname()
 #include <time.h>
 #include <iostream>
 #include <string>
