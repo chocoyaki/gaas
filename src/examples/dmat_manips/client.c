@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2005/11/13 05:21:21  ecaron
+ * Cast tv_sec and tv_usec (for Mac)
+ *
  * Revision 1.25  2004/11/26 17:08:12  hdail
  * Correct error in memory management.  We were trying to free an INOUT parameter
  * with diet_free_data, but it can only be used for OUT parameters on the client
@@ -230,7 +233,7 @@ main(int argc, char* argv[])
   
     if ((STAT_FILE) && (tv.tv_sec >= sec + 1)) {
       fprintf(STAT_FILE, "%10ld.%06ld|%s|%zd requests\n", 
-	      tv.tv_sec, tv.tv_usec, "INFO", nb_of_requests);
+	      (long int)tv.tv_sec, (long int)tv.tv_usec, "INFO", nb_of_requests);
       sec = tv.tv_sec;
       nb_of_requests = 0;
     }
