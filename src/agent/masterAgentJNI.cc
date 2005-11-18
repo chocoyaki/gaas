@@ -110,7 +110,8 @@ Java_JXTAMultiMA_startDIETAgent(JNIEnv *env,
 
   /* Get listening port & hostname */
 
-  size_t* port = (size_t*) 
+    // size_t --> unsigned int
+  unsigned int* port = (unsigned int*) 
     (Parsers::Results::getParamValue(Parsers::Results::DIETPORT));
   char* host = (char*)
     (Parsers::Results::getParamValue(Parsers::Results::DIETHOSTNAME));
@@ -147,16 +148,19 @@ Java_JXTAMultiMA_startDIETAgent(JNIEnv *env,
   if (ORBMgr::init(myargc, (char**)myargv)) {
     ERROR("ORB initialization failed", 1);
   }
-
-  /* Create the DietLogComponent */
+  /* Create the DietLogComponent for use with LogService */
   bool useLS;
-  size_t* ULSptr;
+    // size_t --> unsigned int
+  unsigned int* ULSptr;
   int outBufferSize;
-  size_t* OBSptr;
+    // size_t --> unsigned int
+  unsigned int* OBSptr;
   int flushTime;
-  size_t* FTptr;
+    // size_t --> unsigned int
+  unsigned int* FTptr;
 
-  ULSptr = (size_t*)Parsers::Results::getParamValue(
+    // size_t --> unsigned int
+  ULSptr = (unsigned int*)Parsers::Results::getParamValue(
               Parsers::Results::USELOGSERVICE);
   useLS = false;
   if (ULSptr == NULL) {
@@ -168,7 +172,8 @@ Java_JXTAMultiMA_startDIETAgent(JNIEnv *env,
   }
 
   if (useLS) {
-    OBSptr = (size_t*)Parsers::Results::getParamValue(
+    // size_t --> unsigned int
+    OBSptr = (unsigned int*)Parsers::Results::getParamValue(
   	       Parsers::Results::LSOUTBUFFERSIZE);
     if (OBSptr != NULL) {
       outBufferSize = (int)(*OBSptr);
@@ -176,8 +181,8 @@ Java_JXTAMultiMA_startDIETAgent(JNIEnv *env,
       outBufferSize = 0;
       WARNING("lsOutbuffersize not configured, using default");
     }
-
-    FTptr = (size_t*)Parsers::Results::getParamValue(
+    // size_t --> unsigned int
+    FTptr = (unsigned int*)Parsers::Results::getParamValue(
   	       Parsers::Results::LSFLUSHINTERVAL);
     if (FTptr != NULL) {
       flushTime = (int)(*FTptr);
@@ -188,7 +193,7 @@ Java_JXTAMultiMA_startDIETAgent(JNIEnv *env,
   }
 
   if (useLS) {
-    TRACE_TEXT(TRACE_MAIN_STEPS, "LogService enabled\n");
+    TRACE_TEXT(TRACE_ALL_STEPS, "LogService enabled\n");
     char* agtTypeName;
     char* agtParentName;
     char* agtName;
@@ -211,14 +216,14 @@ Java_JXTAMultiMA_startDIETAgent(JNIEnv *env,
       WARNING("Could not initialize DietLogComponent");
       dietLogComponent = NULL; // this should not happen;
     }
-    delete(agtTypeName);
+    free(agtTypeName);
   } else {
-    TRACE_TEXT(TRACE_MAIN_STEPS, "LogService disabled\n");
+    TRACE_TEXT(TRACE_ALL_STEPS, "LogService disabled\n");
     dietLogComponent = NULL;
   }
 
 #if ! HAVE_JUXMEM
-  /* Create the Data Location Manager for DTM */
+  /* Create the DTM Data Location Manager */
   Loc = new LocMgrImpl();
 #endif // ! HAVE_JUXMEM
 
@@ -352,8 +357,8 @@ Java_JXTAMultiMA_submitJXTA(JNIEnv *env,
       uuid_string = env->NewStringUTF(uuid_char);
       env->SetObjectArrayElement(uuid_ret, respCt, uuid_string);
 
-      delete [] reqIDNbr;
-      delete [] uuid_char;
+      // delete [] reqIDNbr;
+//       delete [] uuid_char;
     }
   }
   return (uuid_ret);
