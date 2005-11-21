@@ -1,9 +1,8 @@
-#****************************************************************************#
-#* DIET main cmake entry point                                              *#
-#****************************************************************************#
+#############################################################################
+# DIET main cmake entry point: comment or perish...                         #
+#############################################################################
 
 PROJECT(DIET)
-# Comment or perish
 
 SET(DIET_version 2.0)
 
@@ -15,6 +14,7 @@ OPTION( DIET_BUILD_DOCUMENTATION "Build the users manual documentation." OFF )
 OPTION( DIET_USE_JXTA "Build DIET with the JXTA architecture support." OFF )
 OPTION( DIET_USE_FAST "Build DIET with the FAST support." OFF )
 OPTION( DIET_WITH_STATISTICS "Build DIET with generation of statistics." OFF )
+OPTION( DIET_WITH_MULTI_MA   "Build DIET with MULTI-Master-Agent support." OFF )
 OPTION( DIET_MAINTAINER_MODE "Build additional documentation..." OFF )
 
 # --------------------- DEPENDENCIES TOWARDS "CLASSIC" C++ HEADERS ---------
@@ -27,17 +27,36 @@ OPTION( DIET_MAINTAINER_MODE "Build additional documentation..." OFF )
 INCLUDE(${CMAKE_ROOT}/Modules/CheckIncludeFileCXX.cmake)
 
 SET( DIET_INCLUDES_TO_CHECK
-  assert.h limits.h math.h
-  stdlib.h iostream string.h
-  unistd.h
+  assert.h iostream limits.h math.h
+  stdlib.h string.h unistd.h
   sys/stat.h sys/types.h )
 
 FOREACH( include_to_check ${DIET_INCLUDES_TO_CHECK} )
-  CHECK_INCLUDE_FILE_CXX( ${include_to_check} found${include_to_check} )
-  IF ( NOT found${include_to_check} )
+  CHECK_INCLUDE_FILE_CXX( ${include_to_check} dummyfound${include_to_check} )
+  IF ( NOT dummyfound${include_to_check} )
     MESSAGE(FATAL_ERROR "Missing ${include_to_check} header file.")
-  ENDIF( NOT found${include_to_check} )
+  ENDIF( NOT dummyfound${include_to_check} )
 ENDFOREACH( include_to_check )
+
+# --------------------- DEPENDENCIES TOWARDS SYSTEM FUNCTIONS ------------
+# This is just a convenience to advance the detection of any potential missing
+# external function to the cmake stage. If we were to forget the following
+# tests (and such an external function was missing), things would simply break
+# at linking stage...
+# [Those tests are a translation of the AC_CHECK_FUNCS(...) that were expressed
+# in the configure.ac of the autotools version].
+INCLUDE(${CMAKE_ROOT}/Modules/CheckFunctionExists.cmake)
+
+SET( DIET_FUNCTIONS_TO_CHECK
+  gethostname gettimeofday
+  strdup strtok_r )
+
+FOREACH( function_to_check ${DIET_FUNCTIONS_TO_CHECK} )
+  CHECK_FUNCTION_EXISTS( ${function_to_check} dummyfound${function_to_check} )
+  IF ( NOT dummyfound${function_to_check} )
+    MESSAGE(FATAL_ERROR "Missing ${function_to_check} function.")
+  ENDIF( NOT dummyfound${function_to_check} )
+ENDFOREACH( function_to_check )
 
 # --------------------- DEPENDENCIES TOWARDS EXTERNAL PACKAGES -------------
 INCLUDE( ${DIET_SOURCE_DIR}/Cmake/FindOmniORB.cmake  )
@@ -72,6 +91,11 @@ IF( DIET_WITH_STATISTICS )
   # Enable generation of the statistics log
   ADD_DEFINITIONS(-DHAVE_STATISTICS)
 ENDIF( DIET_WITH_STATISTICS )
+
+IF( DIET_WITH_MULTI_MA )
+  # Enable usage of so called MULTI-Master-Agent
+  ADD_DEFINITIONS(-DHAVE_MULTI_MA)
+ENDIF( DIET_WITH_MULTI_MA )
 
 # --------------------- BUILD THE CONFIGURATION FILE -----------------------
 ### FIXME: consider using ADD_DEFINITIONS cmake feature instead of a configure

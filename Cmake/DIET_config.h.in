@@ -13,9 +13,6 @@
 
 /******************************** DIET COMPILATION OPTIONS */
 
-/* Define the use of a multi MA architecture. */
-/* #undef HAVE_MULTI_MA */
-
 /* Define the use of the omniORB 4.0.x API */
 #define __OMNIORB4__ 
 
@@ -51,24 +48,6 @@
 
 /* Version number of package */
 #define VERSION "1.1"
-
-
-/************************ Plateform functional dependencies */
-
-/* Define to 1 if you have the `gethostname' function. */
-#define HAVE_GETHOSTNAME 1
-
-/* Define to 1 if you have the `gettimeofday' function. */
-#define HAVE_GETTIMEOFDAY 1
-
-/* Define to 1 if you have the `strdup' function. */
-#define HAVE_STRDUP 1
-
-/* Define to 1 if you have the `strrchr' function. */
-#define HAVE_STRRCHR 1
-
-/* Define to 1 if you have the `strtok_r' function. */
-#define HAVE_STRTOK_R 1
 
 /******************************** COMPILER SPECIFICS */
 

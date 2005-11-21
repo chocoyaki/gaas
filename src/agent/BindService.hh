@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2005/11/21 15:48:58  eboix
+ *  - src/agent/BindService.hh: CORBA.h now included as omniORB4/CORBA.h.
+ *  - Clean up of wired in options of Cmake/DIET_config.h.in
+ *  - HAVE_MULTI_MA is now a cmake option.                  --- Injay2461
+ *
  * Revision 1.2  2004/10/04 09:40:43  sdahan
  * warning fix :
  *  - debug.cc : change the printf format from %ul to %lu and from %l to %ld
@@ -32,7 +37,7 @@
 #ifdef HAVE_MULTI_MA
 
 #include "omnithread.h"
-#include <CORBA.h>
+#include <omniORB4/CORBA.h>
 #include "MasterAgent.hh"
 
 class MasterAgentImpl ;

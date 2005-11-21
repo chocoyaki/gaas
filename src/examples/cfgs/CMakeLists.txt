@@ -1,25 +1,5 @@
 #****************************************************************************#
 #* DIET cmake local file                                                    *#
-#*                                                                          *#
-#****************************************************************************#
-#* $Author$
-#* $LICENSE$
-#* $Id$
-#* $Log$
-#* Revision 1.3  2005/05/17 11:58:53  eboix
-#*     Added a Cmake/README for cmake starters.
-#*     First try on compiling the tex documentation.
-#*     Cosmetic changes to CMakeLists.txt.  --- Injay 2461
-#*
-#* Revision 1.2  2005/05/02 15:34:54  eboix
-#*     - Cmake/FindOmniORB.cmake now exposes the OMNIORB4_DIR (no need to
-#*       toggle to advanced mode anymore) and also hides away (to advanced mode)
-#*       the PATHs (include, lib, omniidl) when found.
-#*       Tested on FC2 and graal.ens-lyon.fr: libCOS4.so and libDynamicCOS4.so
-#*       seemed to be allways required...
-#*     - src/examples/cfgs/CMakeLists.txt now generates all the test configuration
-#*       files.   --- Injay 2461
-#*
 #****************************************************************************#
 
 # Build (by configuration) all the configurations files of the examples by
