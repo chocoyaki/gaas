@@ -6,6 +6,10 @@
 #* $LICENSE$
 #* $Id$
 #* $Log$
+#* Revision 1.3  2005/11/28 17:12:53  eboix
+#*    src/examples following subdirs JXTA, dmat_manips, file_transfer and scalars
+#*    are now properly compiled and linked (not tested though) --- Injay2461
+#*
 #* Revision 1.2  2005/04/29 10:36:38  eboix
 #*     idl generated files are now taken into account.  --- Injay 2461
 #*
@@ -42,4 +46,3 @@ TARGET_LINK_LIBRARIES( DIET_client
   UtilsVector
   UtilsSeDClt
   ${OMNIORB4_LIBRARIES} )
-
