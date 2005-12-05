@@ -8,7 +8,8 @@
 #****************************************************************************#
 
 # In order to avoid the painfull process of passing the TEXINPUT environment
-# variable copy all the required files to CMAKE_CURRENT_BINARY_DIR:
+# variable (with "SET( ENV{TEXINPUTS} ...") copy all the required files
+# to CMAKE_CURRENT_BINARY_DIR:
 
 ### Convert the figures (various formats) to eps and places them in the
 # directory CMAKE_CURRENT_BINARY_DIR/fig. Note the PREORDER flag.
