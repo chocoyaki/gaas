@@ -8,7 +8,9 @@ I/ Cmake general information, references and docs:
   Google with the command your are looking for as key (avoid cmake as keyword).
 
 II/ For the impatients:
-  cd GRAAL/devel/diet/diet/Bin
+  cd GRAAL/devel/diet/diet
+  mkdir Bin
+  cd Bin
   cmake .. -DCMAKE_INSTALL_PREFIX:PATH=/tmp -DDIET_USE_JXTA:BOOL=ON
   make
   make install
