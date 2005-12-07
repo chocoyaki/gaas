@@ -18,6 +18,7 @@
 #        http://ac-archive.sourceforge.net/Installed_Packages/acx_blas.htm
 #        This is a partial port (PhiPACK, CXML...are not coded), but this
 #        should be easy to fix...
+# Author: well, I'm doing my best to have a decent social life. ;-)
  
 INCLUDE( ${CMAKE_ROOT}/Modules/CheckLibraryExists.cmake )
 
@@ -29,60 +30,87 @@ SET( BLAS_LIBRARIES "" )
 ############
 # When the ARG_LIBRARY exists this macro checks if the ARG_FUNCTION function
 # exists with this library.
-# RESULT_VAR    - returned result: "YES" when found, "" when unfound.
-# ARG_LIBRARY   - searched library argument
-# ARG_SYMBOL    - searched function
-# ARG_LIB_PATHS - path to the searched library argument
+# ARG_LIB       - searched library argument
+# ARG_FUNCTION  - searched function
+# ARG_LIB_PATHS - path[s] to the searched library argument
+# VARIABLE      - returned result: fully qualified library name (i.e. absolute
+#                 path and library name) when found, "" when unfound.
 # Note: this can be seen as the autoconf AC_CHECK_LIB() equivalent...somehow.
-MACRO( BLAS_CHECK_LIBRARY RESULT_VAR ARG_LIBRARY ARG_FUNCTION ARG_LIB_PATHS )
-  FIND_LIBRARY( LIBRARY_FOUND ${ARG_LIBRARY} PATHS ${ARG_LIB_PATHS} )
-  IF( LIBRARY_FOUND )
-    CHECK_LIBRARY_EXISTS( "${LIBRARY_FOUND}" "${ARG_FUNCTION}" "" RESULT)
-    IF( RESULT )
-      SET( ${RESULT_VAR} "YES" CACHE INTERNAL "Blas library ${LIBRARY_FOUND}" )
-    ELSE( RESULT )
-      SET( ${RESULT_VAR} ""    CACHE INTERNAL "Blas library ${LIBRARY_FOUND}" )
-    ENDIF( RESULT )
-    SET( ${RESULT} "" )
-  ELSE( LIBRARY_FOUND )
-      SET( ${RESULT_VAR} ""    CACHE INTERNAL "Blas library ${LIBRARY_FOUND}" )
-  ENDIF( LIBRARY_FOUND )
-ENDMACRO( BLAS_CHECK_LIBRARY )
+MACRO(BLAS_CHECK_LIBRARY ARG_LIB ARG_FUNCTION ARG_LIB_PATHS VARIABLE)
+  IF("${VARIABLE}" MATCHES "^${VARIABLE}$")
+    FILE( APPEND ${CMAKE_BINARY_DIR}/CMakeOutput.log
+          "FindBlas.cmake: BLAS_CHECK_LIBRARY looking for library ${ARG_LIB} " )
+    FILE( APPEND ${CMAKE_BINARY_DIR}/CMakeOutput.log
+          "with path ${ARG_LIB_PATHS}: " )
+    FIND_LIBRARY( ${VARIABLE} ${ARG_LIB} PATHS ${ARG_LIB_PATHS} )
+    IF( ${VARIABLE} )
+      CHECK_LIBRARY_EXISTS( ${${VARIABLE}} "${ARG_FUNCTION}" "" RESULT)
+      FILE( APPEND ${CMAKE_BINARY_DIR}/CMakeOutput.log
+            "found ${${VARIABLE}}.\n" )
+      IF( RESULT )
+        SET( ${VARIABLE} ${${VARIABLE}} CACHE INTERNAL "boob" FORCE )
+        FILE( APPEND ${CMAKE_BINARY_DIR}/CMakeOutput.log
+              "FindBlas.cmake: BLAS_CHECK_LIBRARY ${ARG_FUNCTION} function " )
+        FILE( APPEND ${CMAKE_BINARY_DIR}/CMakeOutput.log
+              "found within ${${VARIABLE}}.\n" )
+      ELSE( RESULT )
+        FILE( APPEND ${CMAKE_BINARY_DIR}/CMakeOutput.log
+              "FindBlas.cmake: BLAS_CHECK_LIBRARY ${ARG_FUNCTION} function " )
+        FILE( APPEND ${CMAKE_BINARY_DIR}/CMakeOutput.log
+              "NOT found within ${${VARIABLE}}.\n" )
+      ENDIF( RESULT )
+    ELSE( ${VARIABLE} )
+      FILE( APPEND ${CMAKE_BINARY_DIR}/CMakeOutput.log "not found.\n" )
+    ENDIF( ${VARIABLE} )
+  ELSE("${VARIABLE}" MATCHES "^${VARIABLE}$")
+    FILE( APPEND ${CMAKE_BINARY_DIR}/CMakeOutput.log
+          "FindBlas.cmake: passed variable was prepended with a space?\n" )
+  ENDIF("${VARIABLE}" MATCHES "^${VARIABLE}$")
+ENDMACRO(BLAS_CHECK_LIBRARY)
 
 ### BLAS in ATLAS library ?
 IF( NOT BLAS_FOUND )
-  BLAS_CHECK_LIBRARY( FOUND_ATLAS   "atlas"   "ATL_xerbla"  ${BLAS_PATHS} )
-  BLAS_CHECK_LIBRARY( FOUND_f77BLAS "f77blas" "sgemm"       ${BLAS_PATHS} )
-  BLAS_CHECK_LIBRARY( FOUND_CBLAS   "cblas"   "cblas_dgemm" ${BLAS_PATHS} )
+  FILE( APPEND ${CMAKE_BINARY_DIR}/CMakeOutput.log
+        "FindBLAS.cmake: looking for Atlas version: \n" )
+  BLAS_CHECK_LIBRARY( "atlas"   "ATL_xerbla"  "${BLAS_PATHS}" FOUND_ATLAS )
+  BLAS_CHECK_LIBRARY( "f77blas" "sgemm"       "${BLAS_PATHS}" FOUND_f77BLAS )
+  BLAS_CHECK_LIBRARY( "cblas"   "cblas_dgemm" "${BLAS_PATHS}" FOUND_CBLAS )
   IF( FOUND_ATLAS AND FOUND_f77BLAS AND FOUND_CBLAS )
     SET( BLAS_FOUND "YES" )
-    SET( BLAS_LIBRARIES "-lcblas -lf77blas -latlas" )
+    SET( BLAS_LIBRARIES "${FOUND_CBLAS} ${FOUND_f77BLAS} ${FOUND_ATLAS}" )
+    FILE( APPEND ${CMAKE_BINARY_DIR}/CMakeOutput.log 
+        "FindBLAS.cmake: Atlas version found.\n" )
+  ELSE( FOUND_ATLAS AND FOUND_f77BLAS AND FOUND_CBLAS )
+    FILE( APPEND ${CMAKE_BINARY_DIR}/CMakeOutput.log 
+        "FindBLAS.cmake: Atlas version NOT found.\n" )
   ENDIF( FOUND_ATLAS AND FOUND_f77BLAS AND FOUND_CBLAS )
 ENDIF( NOT BLAS_FOUND )
 
 ### Generic BLAS library
 IF( NOT BLAS_FOUND )
-  BLAS_CHECK_LIBRARY( FOUND "blas" "dgemm_" ${BLAS_PATHS} )
-  SET( BLAS_FOUND "YES" )
-  SET( BLAS_LIBRARIES "-lblas" )
+  FILE( APPEND ${CMAKE_BINARY_DIR}/CMakeOutput.log
+        "FindBLAS.cmake: looking for BLAS generic version: \n" )
+  BLAS_CHECK_LIBRARY( "blas" "dgemm_" "${BLAS_PATHS}" FOUND_GENERIC_BLAS )
+  IF( FOUND_GENERIC_BLAS )
+    SET( BLAS_FOUND "YES" )
+    SET( BLAS_LIBRARIES ${FOUND_GENERIC_BLAS} )
+    FILE( APPEND ${CMAKE_BINARY_DIR}/CMakeOutput.log
+          "FindBLAS.cmake: BLAS generic version found.\n" )
+  ELSE( FOUND_GENERIC_BLAS )
+    FILE( APPEND ${CMAKE_BINARY_DIR}/CMakeOutput.log
+          "FindBLAS.cmake: BLAS generic version not found.\n" )
+  ENDIF( FOUND_GENERIC_BLAS )
 ENDIF( NOT BLAS_FOUND )
 
+### Eventually present the result of the search:
 IF( BLAS_FOUND )
   MARK_AS_ADVANCED( BLAS_DIR )
   MARK_AS_ADVANCED( BLAS_FOUND )
   MARK_AS_ADVANCED( BLAS_LIBRARIES )
-ENDIF( BLAS_FOUND )
-
-IF( NOT OMNIORB4_FOUND )
-  MESSAGE("omniORB installation was not found. Please provide OMNIORB4_DIR:")
+ELSE( BLAS_FOUND )
+  MESSAGE("BLAS library was not found. Please provide BLAS_DIR:")
   MESSAGE("  - through the GUI when working with ccmake, ")
   MESSAGE("  - as a command line argument when working with cmake e.g. ")
-  MESSAGE("    cmake .. -DOMNIORB4_DIR:PATH=/usr/local/omniORB-4.0.5 ")
-  MESSAGE("Note: the following message is triggered by cmake on the first ")
-  MESSAGE("    undefined necessary PATH variable (e.g. OMNIORB4_INCLUDE_DIR).")
-  MESSAGE("    Providing OMNIORB4_DIR (as above described) is probably the")
-  MESSAGE("    simplest solution unless you have a really customized/odd")
-  MESSAGE("    omniORB installation...")
-  SET( OMNIORB4_DIR "" CACHE PATH "Root of omniORB instal tree." )
-ENDIF( NOT OMNIORB4_FOUND )
-
+  MESSAGE("    cmake .. -DBLAS_DIR:PATH=/usr/local/omniORB-4.0.5 ")
+  SET( BLAS_DIR "" CACHE PATH "Directory containing the BLAS library(ies)." )
+ENDIF( BLAS_FOUND )
