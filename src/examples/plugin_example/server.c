@@ -16,6 +16,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2005/12/09 14:28:37  pfrauenk
+ * *** empty log message ***
+ *
  * Revision 1.5  2005/10/30 01:58:41  alsu
  * correcting problems with the last checkin of plugin scheduler example/doc
  *
@@ -200,7 +203,6 @@ performanceFn(diet_profile_t* pb, estVector_t perfValues)
 {
   const char *target;
   int numMismatch;
-
   /* string value must be fetched from description; value is NULL */
   target = (diet_paramstring_get_desc(diet_parameter(pb, 0)))->param;
   numMismatch = computeMismatches(target);
