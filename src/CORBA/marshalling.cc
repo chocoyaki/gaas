@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.57  2005/12/10 09:37:36  bdelfabr
+ * fix out persistent file bug
+ *
  * Revision 1.56  2005/10/05 11:35:31  ecaron
  * Fix Warning (Bug in maintainer mode on MacOSX)
  * mrsh_data_desc_type(corba_data_desc_t*, const diet_data_desc_t*)' was declared 'static' but never defined
@@ -848,6 +851,9 @@ mrsh_profile_to_out_args(corba_profile_t* dest, const diet_profile_t* src,
   for (i = cvt->last_in + 1; i <= cvt->last_out; i++) {
     arg_idx = cvt->arg_convs[i].out_arg_idx;
     if ((arg_idx >= 0) && (arg_idx <= dest->last_out)) {
+      if( dest->parameters[i].desc.specific._d() == DIET_FILE && diet_is_persistent(dest->parameters[i])) {
+	src->parameters[i].desc.id = CORBA::string_dup(dest->parameters[i].desc.id.idNumber);
+      }
       dd = src->parameters[i];
       if (!args_filled[arg_idx]) {
         // For IN arguments, reset value fields to NULL, so that the ORB does
