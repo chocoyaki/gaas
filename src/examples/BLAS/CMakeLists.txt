@@ -2,10 +2,9 @@
 #* DIET cmake local file                                                    *#
 #****************************************************************************#
 # BLAS (Basic Linear Algebric Subroutines) example
-FIND_PACKAGE( BLAS )
 
 IF( NOT BLAS_FOUND )
-  MESSAGE( STATUS "BLAS library NOT FOUND" )
+  MESSAGE( STATUS "BLAS example NOT compiled: BLAS library unavailable." )
 ELSE( NOT BLAS_FOUND )
   INCLUDE_DIRECTORIES(
     ${DIET_BINARY_DIR}/include          # FIXME: must preceed source/include
@@ -15,7 +14,7 @@ ELSE( NOT BLAS_FOUND )
 
   ### A single server...
   ADD_EXECUTABLE( server server.c )
-  TARGET_LINK_LIBRARIES( server ${DIET_SERVER_LIBRARIES} )
+  TARGET_LINK_LIBRARIES( server ${DIET_SERVER_LIBRARIES} ${BLAS_LIBRARIES} )
   INSTALL_TARGETS( /bin/examples/BLAS server )
   
   ### ... and many clients
@@ -25,7 +24,8 @@ ELSE( NOT BLAS_FOUND )
   
   FOREACH( loop_var ${C_CLIENT_EXAMPLES} )
     ADD_EXECUTABLE( ${loop_var} ${loop_var}.c )
-    TARGET_LINK_LIBRARIES( ${loop_var} ${DIET_CLIENT_LIBRARIES} )
+    TARGET_LINK_LIBRARIES( ${loop_var}
+                           ${DIET_CLIENT_LIBRARIES} ${BLAS_LIBRARIES} )
     INSTALL_TARGETS( /bin/examples/dmat_manips ${loop_var} )
   ENDFOREACH( loop_var )
 ENDIF( NOT BLAS_FOUND )

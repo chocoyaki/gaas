@@ -25,7 +25,6 @@ INCLUDE( ${CMAKE_ROOT}/Modules/CheckLibraryExists.cmake )
 SET( BLAS_DEFAULT_LIB_PATH /usr/lib /usr/local/lib )
 SET( BLAS_PATHS ${BLAS_DIR} ${BLAS_DEFAULT_LIB_PATH} )
 SET( BLAS_FOUND "" )
-SET( BLAS_LIBRARIES "" )
 
 ############
 # When the ARG_LIBRARY exists this macro checks if the ARG_FUNCTION function
@@ -43,10 +42,13 @@ MACRO(BLAS_CHECK_LIBRARY ARG_LIB ARG_FUNCTION ARG_LIB_PATHS VARIABLE)
     FILE( APPEND ${CMAKE_BINARY_DIR}/CMakeOutput.log
           "with path ${ARG_LIB_PATHS}: " )
     FIND_LIBRARY( ${VARIABLE} ${ARG_LIB} PATHS ${ARG_LIB_PATHS} )
+    # Because FIND_LIBRARY has the side effect of marking it's first argument
+    # as un-advanced:
+    MARK_AS_ADVANCED( ${VARIABLE} )
     IF( ${VARIABLE} )
-      CHECK_LIBRARY_EXISTS( ${${VARIABLE}} "${ARG_FUNCTION}" "" RESULT)
       FILE( APPEND ${CMAKE_BINARY_DIR}/CMakeOutput.log
             "found ${${VARIABLE}}.\n" )
+      CHECK_LIBRARY_EXISTS( ${${VARIABLE}} "${ARG_FUNCTION}" "" RESULT)
       IF( RESULT )
         SET( ${VARIABLE} ${${VARIABLE}} CACHE INTERNAL "boob" FORCE )
         FILE( APPEND ${CMAKE_BINARY_DIR}/CMakeOutput.log
@@ -93,7 +95,7 @@ IF( NOT BLAS_FOUND )
   BLAS_CHECK_LIBRARY( "blas" "dgemm_" "${BLAS_PATHS}" FOUND_GENERIC_BLAS )
   IF( FOUND_GENERIC_BLAS )
     SET( BLAS_FOUND "YES" )
-    SET( BLAS_LIBRARIES ${FOUND_GENERIC_BLAS} )
+    SET( BLAS_LIBRARIES ${FOUND_GENERIC_BLAS} CACHE FILEPATH "BLAS libraries" )
     FILE( APPEND ${CMAKE_BINARY_DIR}/CMakeOutput.log
           "FindBLAS.cmake: BLAS generic version found.\n" )
   ELSE( FOUND_GENERIC_BLAS )
@@ -103,14 +105,10 @@ IF( NOT BLAS_FOUND )
 ENDIF( NOT BLAS_FOUND )
 
 ### Eventually present the result of the search:
-IF( BLAS_FOUND )
-  MARK_AS_ADVANCED( BLAS_DIR )
-  MARK_AS_ADVANCED( BLAS_FOUND )
-  MARK_AS_ADVANCED( BLAS_LIBRARIES )
-ELSE( BLAS_FOUND )
+IF( NOT BLAS_FOUND )
   MESSAGE("BLAS library was not found. Please provide BLAS_DIR:")
   MESSAGE("  - through the GUI when working with ccmake, ")
   MESSAGE("  - as a command line argument when working with cmake e.g. ")
   MESSAGE("    cmake .. -DBLAS_DIR:PATH=/usr/local/omniORB-4.0.5 ")
   SET( BLAS_DIR "" CACHE PATH "Directory containing the BLAS library(ies)." )
-ENDIF( BLAS_FOUND )
+ENDIF( NOT BLAS_FOUND )

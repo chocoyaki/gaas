@@ -97,6 +97,11 @@ IF( DIET_WITH_MULTI_MA )
   ADD_DEFINITIONS(-DHAVE_MULTI_MA)
 ENDIF( DIET_WITH_MULTI_MA )
 
+IF( DIET_BUILD_EXAMPLES )
+  # BLAS (Basic Linear Algebric Subroutines) examples subdir requires...BLAS !
+  FIND_PACKAGE( BLAS )
+ENDIF( DIET_BUILD_EXAMPLES )
+
 # --------------------- BUILD THE CONFIGURATION FILE -----------------------
 ### FIXME: consider using ADD_DEFINITIONS cmake feature instead of a configure
 ###        file !!!!
