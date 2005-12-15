@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.19  2005/12/15 10:12:17  pfrauenk
+#* CoRI functionality added by Peter Frauenkron
+#*
 #* Revision 1.18  2005/08/31 15:05:24  alsu
 #* New plugin scheduling interface: removal of lingering reference to
 #* estVector.h
@@ -67,7 +70,16 @@ libUtilsCommon_la_SOURCES  = debug.cc DIET_data.cc ms_function.cc \
 libUtilsSeDClt_la_SOURCES  = DIET_mutex.cc AccessController.cc \
                              est_internal.cc
 libUtilsNodes_la_SOURCES   = Counter.cc ServiceTable.cc FASTMgr.cc \
-			     DietLogComponent.cc MonitoringThread.cc
+			     DietLogComponent.cc MonitoringThread.cc 
+
+if USING_CORI
+libUtilsNodes_la_SOURCES += Cori_Fast.cc Cori_Data_Easy.cc \
+			    Cori_Metric.cc Cori_Easy_CPU.cc \
+			    Cori_Easy_Memory.cc Cori_Easy_Disk.cc\
+			     CORIMgr.cc  
+endif
+
+
 libUtilsVector_la_SOURCES  = Vector.c
 libJuxMemWrapper_la_SOURCES = JuxMemImpl.cc
 
@@ -77,7 +89,14 @@ noinst_HEADERS = Counter.hh debug.hh DIET_data_internal.hh \
 		 statistics.hh ts_container/ts_map.hh \
 		 ts_container/ts_set.hh ts_container/ts_vector.hh \
 		 DietLogComponent.hh MonitoringThread.hh KeyString.hh \
-		 AccessController.hh Vector.h JuxMemImpl.hh
+		 AccessController.hh Vector.h JuxMemImpl.hh 
+
+if USING_CORI
+noinst_HEADERS += Cori_Fast.hh Cori_Easy_CPU.hh  Cori_Easy_Disk.hh  \
+		  Cori_Easy_Memory.hh Cori_Data_Easy.hh Cori_Metric.hh\
+		 CORIMgr.hh 
+endif
+
 
 AM_CXXFLAGS = @JUXMEM_CXXFLAGS@ $(CXXFLAGS_OMNIORB) $(CXXFLAGS_FAST) \
 	      -I$(top_srcdir)/src/CORBA -I$(top_builddir)/src/CORBA/idl
