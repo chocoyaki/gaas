@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.53  2005/12/15 15:26:57  pfrauenk
+#* CoRI adding flags for compiling by Peter Frauenkron
+#*
 #* Revision 1.52  2005/09/05 15:52:52  hdail
 #* Addition of two configure options to control experimental development:
 #* --enable-windowsched for MA-level window-based scheduling and
@@ -268,6 +271,12 @@ AC_ARG_ENABLE(Batch,
 	AC_HELP_STRING([--enable-Batch],
 			[enable submission of batch jobs]),
 	[enable_batch=yes],[enable_batch=no])
+
+dnl ##########################################
+dnl Specific to CoRI
+dnl ##########################################
+
+AM_CONDITIONAL(USING_CORI, 0)
 
 dnl ##########################################
 dnl Specific to JuxMem
