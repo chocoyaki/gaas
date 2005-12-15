@@ -13,16 +13,12 @@
 #ifndef _CORI_METRIC_HH_
 #define _CORI_METRIC_HH_
 
-#include "DIET_config.h"
-/******************************************
- * add here your collector header file    *
- *****************************************/
-
 #include "Cori_Data_Easy.hh"
 
-#ifdef HAVE_FAST
+#if HAVE_FAST
 #include "Cori_Fast.hh"
 #endif //HAVE_FAST
+#include "DIET_config.h"
 
 class Cori_Metric
 {
@@ -30,12 +26,9 @@ private:
  
   diet_est_collect_tag_t type_collector;
 
-/******************************************
- * add here a collector variable          *
- *****************************************/
   Cori_Data_Easy* cori_easy;
 
-#ifdef HAVE_FAST
+#if HAVE_FAST
   Cori_Fast* cori_fast;
 #endif //HAVE_FAST
 
