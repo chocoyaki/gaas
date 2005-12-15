@@ -30,6 +30,13 @@ ADD_LIBRARY( UtilsNodes
   FASTMgr.cc
   MonitoringThread.cc
   ServiceTable.cc
+  Cori_Data_Easy.cc
+  Cori_Easy_CPU.cc
+  Cori_Easy_Disk.cc
+  Cori_Easy_Memory.cc
+  Cori_Fast.cc
+  Cori_Metric.cc
+  CORIMgr.cc
 )
 INSTALL_TARGETS( /lib/ UtilsNodes )
 

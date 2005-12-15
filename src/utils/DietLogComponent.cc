@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2005/12/15 11:06:55  eboix
+ *      FIXME note --- Injay2461
+ *
  * Revision 1.17  2005/11/10 14:37:51  eboix
  *     Clean-up of Cmake/DIET_config.h.in and related changes. --- Injay2461
  *
@@ -627,8 +630,14 @@ DietLogComponent::logSedChosen(const corba_request_t* request,
 		estim_string.append(" ");
 		estim_string.append(response->servers[i].loc.hostName);
 		for (j=0 ; j < response->servers[i].estim.estValues.length() ; j++){
+                        // FIXME(1): shouldn't valTagInt be of type
+                        // corba_est_tag_storage_t (see definition of
+                        // corba_est_value_t within common_types.hh) ?
 			int valTagInt = response->servers[i].estim.estValues[j].v_tag;
 			estim_string.append(";");
+                        // FIXME(2): in fact valTagInt should be of type
+                        // diet_est_tag_t since getEstimationTags() is basically
+                        // a switch on the enum of type diet_est_tag_t !?
 			estim_string.append(getEstimationTags(valTagInt));
 			estim_string.append("=");
 			char* v_value= new char[256];
