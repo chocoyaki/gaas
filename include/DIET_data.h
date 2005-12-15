@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.35  2005/12/15 12:25:06  pfrauenk
+ * CoRI functionality added by Peter Frauenkron
+ *
  * Revision 1.34  2005/10/04 12:05:40  alsu
  * minor changes to pacify gcc/g++ 4.0
  *
@@ -515,20 +518,31 @@ typedef struct diet_arg_s diet_data_t;
 
 /**
  * estimation tags
+ * /WARNING: dependency changes to this enum must be propagated to 
+ * DietLogComponent::getEstimationTags
  */
 typedef enum {
   EST_INVALID = -1,
   EST_TOTALTIME = 1,
   EST_COMMTIME,
-  EST_TCOMP,
-  EST_FREECPU,
-  EST_FREEMEM,
-  EST_NBCPU,
-  EST_CPUSPEED,
-  EST_TOTALMEM,
+  EST_TCOMP, 
   EST_TIMESINCELASTSOLVE,
   EST_COMMPROXIMITY,      
-  EST_TRANSFEREFFORT,     
+  EST_TRANSFEREFFORT,
+  EST_FREECPU, /* amount of (current?) available cpu in percent */
+  EST_FREEMEM, /* amount of (current?) free memory in ?byte*/
+  EST_NBCPU, /* amount of CPU*/
+  EST_CPUSPEED, /* frequence of CPU in ??hz */
+  EST_TOTALMEM, /* total amount of memory in ?byte */
+  EST_AVGFREEMEM, /* average amount of free memory in Mbyte*/
+  EST_AVGFREECPU, /* average amount of free cpu in percent */
+  EST_BOGOMIPS, /* the bogomips*/
+  EST_CACHECPU, /* amount of cache du CPU in Kbyte */
+  EST_TOTALSIZEDISK, /* size of the partition in Gbyte */
+  EST_FREESIZEDISK, /* current size of the free partition in Gbyte */
+  EST_DISKACCESREAD, /* current time to read on the partition in Mbyte/s */
+  EST_DISKACCESWRITE, /* current time to write on the partition in Mbyte/s */
+  EST_ALLINFOS, /* if you want everything (available in EASY MODE */
   EST_USERDEFINED
 } diet_est_tag_t;
 
@@ -538,6 +552,20 @@ typedef enum {
  */
 typedef struct corba_estimation_t *estVector_t;
 typedef const struct corba_estimation_t *estVectorConst_t;
+
+/**
+ * estimation source tags
+ * 
+ + tags used by the plug-in CoRI to choose the appropriated programm 
+ * for collecting information about the machine
+ */
+
+  typedef enum {
+    EST_COLL_EASY,
+    EST_COLL_FAST,
+    EST_COLL_GANGLIA,
+    EST_COLL_NAGIOS
+  }diet_est_collect_tag_t;
 
 #ifdef __cplusplus
 }

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2005/12/15 12:25:06  pfrauenk
+ * CoRI functionality added by Peter Frauenkron
+ *
  * Revision 1.18  2005/12/15 11:06:55  eboix
  *      FIXME note --- Injay2461
  *
@@ -420,37 +423,70 @@ char*
 DietLogComponent::getEstimationTags(const int v_tag){
 	char* ret;
 	switch(v_tag){
-		case(-1):
+		case(EST_INVALID):
 		ret = strdup("EST_INVALID");
 		break;
-		case(1):
+		case(EST_TOTALTIME):
 		ret = strdup("EST_TOTALTIME");
 	        break;
-		case(2):
+		case(EST_COMMTIME):
 		ret = strdup("EST_COMMTIME");
 	        break;
-		case(3):
+		case(EST_TCOMP):
 		ret = strdup("EST_TCOMP");
 	        break;
-		case(4):
+	        case(EST_TIMESINCELASTSOLVE):
+		ret = strdup("EST_TIMESINCELASTSOLVE");
+	        break;		
+	        case(EST_COMMPROXIMITY):
+		ret = strdup("EST_COMMPROXIMITY");
+	        break;
+	        case(EST_TRANSFEREFFORT):
+		ret = strdup("EST_TRANSFEREFFORT");
+	        break;
+	        case(EST_FREECPU):
 		ret = strdup("EST_FREECPU");
 	        break;
-		case(5):
+		case(EST_FREEMEM):
 		ret = strdup("EST_FREEMEM");
 	        break;
-		case(6):
+		case(EST_NBCPU):
 		ret = strdup("EST_NBCPU");
 	        break;
-		case(7):
+		case(EST_CPUSPEED):
 		ret = strdup("EST_CPUSPEED");
 	        break;
-		case(8):
+		case(EST_TOTALMEM):
 		ret = strdup("EST_TOTALMEM");
 	        break;
-		case(9):
-		ret = strdup("EST_TIMESINCELASTSOLVE");
+		case(EST_AVGFREEMEM):
+		ret = strdup("EST_AVGFREEMEM");
 	        break;
-		case(10):
+		case(EST_AVGFREECPU):
+		ret = strdup("EST_AVGFREECPU");
+	        break;
+		case(EST_BOGOMIPS):
+		ret = strdup("EST_BOGOMIPS");
+	        break;
+		case(EST_CACHECPU):
+		ret = strdup("EST_CACHECPU");
+	        break;
+		case(EST_TOTALSIZEDISK):
+		ret = strdup("EST_TOTALSIZEDISK");
+	        break;
+		case(EST_FREESIZEDISK):
+		ret = strdup("EST_FREESIZEDISK");
+	        break;
+		case(EST_DISKACCESREAD):
+		ret = strdup("EST_DISKACCESREAD");
+	        break;
+		case(EST_DISKACCESWRITE):
+		ret = strdup("EST_DISKACCESWRITE");
+	        break;
+		case(EST_ALLINFOS):
+		ret = strdup("EST_ALLINFOS");
+	        break;
+		case(EST_USERDEFINED):
 		ret = strdup("EST_USERDEFINED");
 	        break;
 		default:
