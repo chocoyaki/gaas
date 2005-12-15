@@ -107,7 +107,6 @@ Cori_Data_Easy::get_Information(diet_est_tag_t type_Info,
     res = get_Information(EST_FREESIZEDISK,info,"./")||res;
     res = get_Information(EST_TOTALMEM,info,NULL)||res;
     res = get_Information(EST_FREEMEM,info,NULL)||res; 
-    diet_est_set_internal(info,EST_TCOMP, HUGE_VAL)); 
     //set all other TAGS to bad values
     diet_est_set_internal(*info, EST_TCOMP, HUGE_VAL);
   }

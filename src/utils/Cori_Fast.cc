@@ -4,6 +4,8 @@
 #include "est_internal.hh"
 #include "debug.hh"
 
+#define HOSTNAME_BUFLEN 256
+
 Cori_Fast::Cori_Fast(){
   FASTMgr::init();
 }
