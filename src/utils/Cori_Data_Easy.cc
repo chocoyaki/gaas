@@ -164,6 +164,7 @@ Cori_Data_Easy::get_Information(diet_est_tag_t type_Info,
     res=cpu->get_CPU_ActualLoad(&temp);
     temp=1-temp;
     convertSimple(temp, info,type_Info);
+    break;
   default: {
     cerr<< "Tag " <<type_Info <<" unknown for information" <<endl;
     res=1;
