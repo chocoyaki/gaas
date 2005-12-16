@@ -32,7 +32,7 @@ CORIMgr::add(diet_est_collect_tag_t collectorName,
 
 
 int
-CORIMgr::diet_estimate_cori(estVector_t *ev,
+CORIMgr::call_cori_mgr(estVector_t *ev,
 			    diet_est_tag_t info_type,
 			    diet_est_collect_tag_t name,
 			    const void * datav)

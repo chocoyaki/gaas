@@ -31,7 +31,7 @@ add(diet_est_collect_tag_t collectorName,
     const void * datav);
 
 static int
-diet_estimate_cori(estVector_t* ev,
+call_cori_mgr(estVector_t* ev,
 		   diet_est_tag_t info_type,
 		   diet_est_collect_tag_t collector_type,	   
 		   const void * data);

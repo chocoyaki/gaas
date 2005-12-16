@@ -60,8 +60,8 @@ Cori_Metric::call_cori_metric(diet_est_tag_t type_Info,
     break; 
   case EST_COLL_FAST:{
 #if HAVE_FAST
-    fast_param_t* fast_param;   
-    fast_param=(fast_param_t*)data;
+
+    fast_param_t* fast_param=(fast_param_t*)data;
     return cori_fast->get_Information(type_Info,
 				      information,
 				      fast_param->initprofilePtr,
