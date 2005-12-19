@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.58  2005/12/19 15:56:00  eboix
+ *     FIX: BLAS and dmat_manips examples were broken since revision 1.57
+ *     (date: 2005/12/10 09:37:36; author: bdelfabr). This "wild guess" fix
+ *     hopefuly restores the examples and is also validated (thanks to
+ *     Raphelkiller) for persistent file arguments.   --- Injay2461
+ *
  * Revision 1.57  2005/12/10 09:37:36  bdelfabr
  * fix out persistent file bug
  *
@@ -851,8 +857,10 @@ mrsh_profile_to_out_args(corba_profile_t* dest, const diet_profile_t* src,
   for (i = cvt->last_in + 1; i <= cvt->last_out; i++) {
     arg_idx = cvt->arg_convs[i].out_arg_idx;
     if ((arg_idx >= 0) && (arg_idx <= dest->last_out)) {
-      if( dest->parameters[i].desc.specific._d() == DIET_FILE && diet_is_persistent(dest->parameters[i])) {
-	src->parameters[i].desc.id = CORBA::string_dup(dest->parameters[i].desc.id.idNumber);
+      if(   dest->parameters[arg_idx].desc.specific._d() == DIET_FILE
+         && diet_is_persistent(dest->parameters[arg_idx]))
+      {
+	src->parameters[i].desc.id = CORBA::string_dup(dest->parameters[arg_idx].desc.id.idNumber);
       }
       dd = src->parameters[i];
       if (!args_filled[arg_idx]) {
