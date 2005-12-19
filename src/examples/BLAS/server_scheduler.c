@@ -1,5 +1,5 @@
 /****************************************************************************/
-/* DIET server for BLAS functions                                           */
+/* DIET server for BLAS functions with plugin-scheduler                     */
 /*                                                                          */
 /*  Author(s):                                                              */
 /*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
@@ -8,35 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2005/12/19 16:58:08  pfrauenk
+ * CoRI Adding a new scheduler to the example
+ *
  * Revision 1.1  2005/12/15 09:42:36  pfrauenk
  * CoRI example added Peter Frauenkron
- *
- * Revision 1.10  2005/06/24 15:03:59  ycaniou
- * NB_SRV=5 services and diet_service_table_init(3) corrected
- *
- * Revision 1.9  2003/08/09 17:32:47  pcombes
- * Update to the new diet_profile_desc_t.
- *
- * Revision 1.8  2003/04/10 13:33:21  pcombes
- * Apply new Coding Standards.
- *
- * Revision 1.7  2003/02/07 17:05:23  pcombes
- * Add SqMatSUM_opt with the new convertor API.
- * Use diet_free_data to properly free user's data.
- *
- * Revision 1.6  2003/01/23 19:13:44  pcombes
- * Update to API 0.6.4
- *
- * Revision 1.5  2003/01/17 18:05:37  pcombes
- * Update to API 0.6.3
- *
- * Revision 1.3  2002/12/18 12:11:42  jylexcel
- * SqMatSUM bug fix related to the use of convertors. Philippe+JY.
- *
- * Revision 1.2  2002/12/12 18:17:04  pcombes
- * Small bug fixes on prints (special thanks to Jean-Yves)
  ****************************************************************************/
-
+#include "DIET_config.h"
 
 #include <string.h>
 #include <unistd.h>
@@ -49,8 +27,8 @@
 
 #if HAVE_CORI
 static void
-performanceFn(diet_profile_t* pb, estVector_t perfValues);
-#endif
+call_scheduler_RR_Modify(diet_profile_t* pb);
+#endif //HAVE_CORI
 
 /**
  * dgemm_ prototype
@@ -343,22 +321,10 @@ main(int argc, char* argv[])
   diet_arg_cvt_short_set(diet_arg_conv(cvt,3),  0, NULL);
   diet_arg_cvt_short_set(diet_arg_conv(cvt,4),  1, NULL);
 
-  /* Add a plugin schedular for this case */
 #if HAVE_CORI
-/* new section of the profile: aggregator */
-    diet_aggregator_desc_t *agg;
-    agg = diet_profile_desc_aggregator(profile);
-
-    /* install our custom performance function */
-    diet_service_use_perfmetric(performanceFn);
-
-    /* for this service, use a priority scheduler */
-    diet_aggregator_set_type(agg, DIET_AGG_PRIORITY);
-    //diet_aggregator_priority_minuser(agg, 0);
-    diet_aggregator_priority_max(agg, 0);
-    
+  /* Add a plugin scheduler for this case */
+  call_scheduler_RR_Modify(profile);
 #endif //HAVE_CORI
-
 
   /* Add */
   if (diet_service_table_add(profile, cvt, solve_dgemm)) return 1;
@@ -395,7 +361,7 @@ void add_new_value(vector <double> *thevector, double valToAdd, int size){
 
 
 /*
-** performanceFn: the performance function to use in the DIET
+** performanceRR_MOD: the performance function to use in the DIET
 **   plugin scheduling facility
 ** The SeD must maintain a vector with the last executions
 ** the scalar of user defined tag must be the value of the eldest
@@ -405,7 +371,7 @@ void add_new_value(vector <double> *thevector, double valToAdd, int size){
 */
 
 static void
-performanceFn(estVector_t perfValues)
+performanceRR_MOD((diet_profile_t* pb,estVector_t perfValues)
 {
 
   CORIMgr::diet_estimate_cori(*perfValues,EST_NBCPU, EST_COLL_EASY,NULL);
@@ -432,4 +398,57 @@ performanceFn(estVector_t perfValues)
   }
 
 }
+
+/** call_scheduler_RR_Modify
+ * define the modified version of round robin: a priority is set to the 
+ * number of processors of the SeD
+ */
+
+void 
+call_scheduler_RR_Modify(diet_profile_t* profile){
+/* new section of the profile: aggregator */
+    diet_aggregator_desc_t *agg;
+    agg = diet_profile_desc_aggregator(profile);
+
+    /* install our custom performance function */
+    diet_service_use_perfmetric(performanceRR_MOD);
+
+    /* for this service, use a priority scheduler */
+    diet_aggregator_set_type(agg, DIET_AGG_PRIORITY);
+    //diet_aggregator_priority_minuser(agg, 0);
+    diet_aggregator_priority_max(agg, 0);
+}
+
+/*
+** performanceLOAD_AVG: the performance function to use in the DIET
+**   plugin scheduling facility
+** A simple call to the CORI_EASY_collector to receive the EST_AVGFREECPU:
+** the load average of the SeD
+*/
+
+static void
+performanceLOAD_AVG(diet_profile_t* pb,estVector_t perfValues)
+{
+  CORIMgr::diet_estimate_cori(*perfValues,EST_AVGFREECPU, EST_COLL_EASY,NULL);
+}
+/**
+ * call_scheduler_loadavg: scheduling criteria is the loadavg: the SeD with the lowest 
+ * load average receive the job
+ */
+void 
+call_scheduler_loadavg(diet_profile_t* profile){
+  /* new section of the profile: aggregator */
+    diet_aggregator_desc_t *agg;
+    agg = diet_profile_desc_aggregator(profile);
+
+    /* install our custom performance function */
+    diet_service_use_perfmetric(performanceLOAD_AVG);
+
+    /* for this service, use a priority scheduler */
+    diet_aggregator_set_type(agg, DIET_AGG_PRIORITY);
+    //diet_aggregator_priority_minuser(agg, 0);
+    diet_aggregator_priority_min(agg, EST_AVGFREECPU);
+}
+
+
 #endif //HAVE_CORI
