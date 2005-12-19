@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2005/12/19 16:59:35  pfrauenk
+ * CoRI Time counter added
+ *
  * Revision 1.1  2005/12/15 09:42:36  pfrauenk
  * CoRI example added Peter Frauenkron
  *
@@ -37,6 +40,7 @@
  * Revision 1.2  2002/12/12 18:17:04  pcombes
  * Small bug fixes on prints (special thanks to Jean-Yves)
  ****************************************************************************/
+#include "DIET_config.h"
 
 #include <string.h>
 #include <unistd.h>
@@ -44,6 +48,9 @@
 #include <stdio.h>
 #include <sys/stat.h>
 #include <time.h>
+#if HAVE_CORI
+#include <sys/time.h>
+#endif //HAVE_CORI
 
 #include "DIET_client.h"
 
@@ -289,7 +296,7 @@ main(int argc, char* argv[])
    * DIET Call
    *********************/
 #if HAVE_CORI
-timeval tim;
+  struct timeval tim;
   gettimeofday(&tim, NULL);
   double t1=tim.tv_sec+(tim.tv_usec/1000000.0);
   //clock started
@@ -319,10 +326,7 @@ timeval tim;
 gettimeofday(&tim, NULL);
   double t2=tim.tv_sec+(tim.tv_usec/1000000.0);
   double elapsed_time= t2-t1;
-  cerr<<"time to accomplish this task: "<<elapsed_time<<endl;
-  ofstream outfile;
-outfile.open ("./results.res", ofstream::out);
- outfile<<elapsed_time<<endl;
+  printf("time to accomplish this task: %d  \n",elapsed_tim);
  
 #endif //HAVE_CORI
   return 0;
