@@ -15,10 +15,11 @@
 
 #include "Cori_Data_Easy.hh"
 
+#include "DIET_config.h" //must be before #if HAVE_FAST
 #if HAVE_FAST
 #include "Cori_Fast.hh"
 #endif //HAVE_FAST
-#include "DIET_config.h"
+
 
 class Cori_Metric
 {
