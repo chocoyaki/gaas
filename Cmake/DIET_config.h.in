@@ -25,9 +25,6 @@
 /* Define use of the FAST 0.8.x API */
 #define __FAST_0_8__ 
 
-/* Defines the availability of BLAS, Basic Linear Algebric Subroutines. */
-#define HAVE_BLAS 1
-
 /******************************** DIET RELATED */
 
 /* Name of package */
@@ -51,11 +48,13 @@
 
 /******************************** COMPILER SPECIFICS */
 
-/* Define to empty if `const' does not conform to ANSI C. */
+/* Define to empty if `const' does not conform to ANSI C.
+   Note: autoconf's macro AC_C_CONST within c.m4 does that job allready !  */
 /* #undef const */
 
 /* Define to `__inline__' or `__inline' if that's what the C compiler
-   calls it, or to nothing if 'inline' is not supported under any name.  */
+   calls it, or to nothing if 'inline' is not supported under any name.
+   Note: autoconf's macro AC_C_INLINE within c.m4 does that job allready !  */
 #ifndef __cplusplus
 /* #undef inline */
 #endif
