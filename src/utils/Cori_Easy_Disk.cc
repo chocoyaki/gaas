@@ -21,20 +21,25 @@ removePath_file(char* path){
   remove (path);
   delete []path;
 }
+void
+createPath(char **path_file,const char* path)
+{
+  char * pid;
+  sprintf(pid, "%i",  getpid());
+  *path_file=new char[strlen(path)+strlen(pid)+9];
+  strcpy(*path_file,path);
+  strcat(*path_file,"testfile");
+  strcat(*path_file,pid);
+}
+
 int 
 Easy_Disk::get_Write_Speed(const char* path, 
 			   double * result)
 {
- 
  *result=0;
  char* path_file;
- path_file=new char[strlen(path)+6];
-  if (path_file==0){
-    *result=0;
-    return 1;
-  }
-  strcpy (path_file,path);
-  strcat(path_file,"dummy");
+ createPath(&path_file,path);
+
   if (!is_Accessible(path_file)){ 
     delete []path_file;
     return 1;
