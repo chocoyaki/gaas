@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2005/12/20 15:42:05  rbolze
+ * the list of SeD return by LA do not exceed the max_srv specified in the client's request
+ *
  * Revision 1.13  2005/07/11 16:31:56  hdail
  * Corrected bug wherein the MA would stop completely if a client requested
  * a service that didn't exist; this bug was introduced recently, so there should
@@ -156,7 +159,7 @@ LocalAgentImpl::getRequest(const corba_request_t& req)
   stat_init();
   stat_in(this->myName,"getRequest");
 
-  corba_response_t& resp = *(this->findServer(currRequest, 0));
+  corba_response_t& resp = *(this->findServer(currRequest, req.max_srv));
   resp.myID = this->childID;
 
   if (dietLogComponent != NULL) {
@@ -173,4 +176,3 @@ LocalAgentImpl::getRequest(const corba_request_t& req)
   stat_out(this->myName,"getRequest");
   stat_flush();
 } // getRequest(const corba_request_t& req)
-
