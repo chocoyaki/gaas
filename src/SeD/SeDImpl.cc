@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.63  2005/12/20 14:26:55  eboix
+ *     Call for Martin Quinson's ruling !
+ *     slimfast_api.h not included anymore in this file   --- Injay2461
+ *
  * Revision 1.62  2005/12/20 09:02:17  pfrauenk
  * CoRI bug fixes thx to Raphaël Bolze
  *
@@ -117,9 +121,22 @@ using namespace std;
 #include <unistd.h>   // For gethostname()
 #include <time.h>
 
-#if HAVE_FAST
-#include "slimfast_api.h"
-#endif // HAVE_FAST
+/* CLEAN ME: this was a hilarious pun except that slimfast_api.h is nowhere
+   to be found. The Changelog file of package fast-0.8.7 simply mentions:
+   - For the LONG CHANGELOG entry of version 0.8.0:
+      - SLiM is dead 
+      - slimfast_api.h renamed to fast.h
+   - For entry 0.2.13:
+      - slimfast_api.h used to be generated from the concatenation of
+        several atomic files.h. [...]
+  Also refer to src/utils/FASTMgr.cc, where the inclusion of slimfast_api.h
+  is bound to the definition of __FAST_0_4__ preprocessing symbol...
+  Hence it really looks like (to me at least) the following include should
+  be simply removed ? Anyone knows better ?   --- Injay2461
+  #if HAVE_FAST
+  #include "slimfast_api.h"
+  #endif // HAVE_FAST
+*/
 
 #include "SeDImpl.hh"
 #include "Callback.hh"
