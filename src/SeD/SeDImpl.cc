@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.61  2005/12/20 07:52:44  pfrauenk
+ * CoRI functionality added: FAST is hided, information about number of processors,
+ * amount of available memory and of free cpu are provided
+ *
  * Revision 1.60  2005/11/10 14:37:51  eboix
  *     Clean-up of Cmake/DIET_config.h.in and related changes. --- Injay2461
  *
@@ -115,12 +119,17 @@ using namespace std;
 #endif // HAVE_FAST
 
 #include "SeDImpl.hh"
-
 #include "Callback.hh"
 #include "common_types.hh"
 #include "debug.hh"
 #include "est_internal.hh"
+
+#if HAVE_CORI
+#include "CORIMgr.hh"
+#else //HAVE_CORI
 #include "FASTMgr.hh"
+#endif //HAVE_CORI
+
 #include "marshalling.hh"
 #include "ORBMgr.hh"
 #include "Parsers.hh"
@@ -144,9 +153,17 @@ SeDImpl::SeDImpl()
 #endif
   (this->lastSolveStart).tv_sec = -1;
   (this->lastSolveStart).tv_usec = -1;
+
 #if HAVE_FAST
   this->fastUse = 1;
 #endif // HAVE_FAST
+
+
+#if HAVE_CORI
+  /**initialize CORI evaluation*/
+  CORIMgr::init();
+#endif //HAVE_CORI
+
   this->dietLogComponent = NULL;
 #if HAVE_BATCH
   this->tabCorresIDIndex = 0 ;
@@ -168,15 +185,23 @@ SeDImpl::SeDImpl(const char* uuid = '\0')
   this->uuid = uuid;
   (this->lastSolveStart).tv_sec = -1;
   (this->lastSolveStart).tv_usec = -1;
+
 #if HAVE_FAST
   this->fastUse = 1;
 #endif // HAVE_FAST
+
+#if HAVE_CORI
+ /**initialize CORI evaluation*/
+  CORIMgr::init(); 
+ #endif //HAVE_CORI
+
   this->dietLogComponent = NULL;
+
 #if HAVE_BATCH
   this->tabCorresIDIndex = 0 ;
   for( int i=0 ; i<MAX_RUNNING_NBSERVICES ; i++ )
     tabCorresID[i].dietReqID = -1 ;
-#endif
+#endif //HAVE_BATCH
 }
 #endif //HAVE_JXTA
 
@@ -190,7 +215,6 @@ int
 SeDImpl::run(ServiceTable* services)
 {
   SeqCorbaProfileDesc_t* profiles(NULL);
-
   stat_init();  
   if (gethostname(localHostName, 256)) {
     ERROR("could not get hostname", 1);
@@ -305,9 +329,22 @@ SeDImpl::run(ServiceTable* services)
     this->accessController = NULL;
   }
 #endif // HAVE_QUEUES
+ 
+  
 
-  // Init FAST (HAVE_FAST is managed by the FASTMgr class)
+#if HAVE_CORI
+  this->fastUse=*((size_t*)Parsers::Results::getParamValue(Parsers::Results::FASTUSE));
+#if HAVE_FAST
+  if (this->fastUse)
+    CORIMgr::add(EST_COLL_FAST,NULL);
+#endif //HAVE_FAST
+  CORIMgr::add(EST_COLL_EASY,NULL);
+#else
+   // Init FAST (HAVE_FAST is managed by the FASTMgr class)
   return FASTMgr::init();
+#endif //HAVE_CORI  
+
+  return 0;
 }
 
 #if ! HAVE_JUXMEM
@@ -1125,9 +1162,31 @@ SeDImpl::estimate(corba_estimation_t& estimation,
     unmrsh_data_desc(ddd, cdd);
   }
 
-  if (perfmetric_fn == NULL) {
-    /***** START FAST-based metrics *****/
-    diet_estimate_fast(eVals, &profile);
+  if (perfmetric_fn == NULL){ 
+    /***** START CoRI-based metrics *****/
+
+#if HAVE_CORI 
+#if HAVE_FAST  
+    if (this->fastUse){ 
+      diet_estimate_cori(eVals,EST_ALLINFOS,EST_COLL_FAST,&profile);
+      //fast don't need a tag-> EST_ALLINFOS== dummydiet_in
+    }
+    else{
+#endif // HAVE_FAST
+
+   diet_est_set_internal(eVals,EST_TCOMP, HUGE_VAL); 
+   diet_estimate_cori(eVals,EST_FREEMEM,EST_COLL_EASY,NULL); 
+   diet_estimate_cori(eVals,EST_NBCPU,EST_COLL_EASY,NULL); 
+   diet_estimate_cori(eVals,EST_FREECPU,EST_COLL_EASY,NULL); 
+
+#if HAVE_FAST  
+  }
+#endif // HAVE_FAST
+#else //HAVE_CORI
+   /***** START FAST-based metrics *****/
+   diet_estimate_fast(eVals, &profile);
+#endif  //HAVE_CORI
+
 
 #if ! HAVE_ALTPREDICT
     diet_est_set_internal(eVals,
@@ -1167,7 +1226,7 @@ SeDImpl::estimate(corba_estimation_t& estimation,
       }
     }
 #endif // HAVE_ALTPREDICT
-    /***** END FAST-based metrics *****/
+    /***** END CoRI-based metrics *****/
 
     /***** START RR metrics *****/
     diet_estimate_lastexec(eVals, &profile);
@@ -1198,3 +1257,4 @@ SeDImpl::estimate(corba_estimation_t& estimation,
 
 //   cout << "AS: [" << __FUNCTION__ << "] num values = " << estimation.estValues.length() << endl;
 }
+

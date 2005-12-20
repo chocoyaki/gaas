@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2005/12/20 07:52:44  pfrauenk
+ * CoRI functionality added: FAST is hided, information about number of processors,
+ * amount of available memory and of free cpu are provided
+ *
  * Revision 1.22  2005/08/31 14:37:07  alsu
  * New plugin scheduling interface:
  *  - prototype of diet_perfmetric_t changed; now takes estVector_t as an
@@ -431,7 +435,15 @@ double diet_est_array_get(estVectorConst_t ev,
                           int idx,
                           double errVal);
 int diet_est_array_defined(estVectorConst_t ev, int userTag, int idx);
+
+#if HAVE_CORI
+int diet_estimate_cori(estVector_t ev,
+		       diet_est_tag_t info_type,
+		       diet_est_collect_tag_t collector_type, 
+		       void* data);
+#else //HAVE_CORI
 int diet_estimate_fast(estVector_t ev, const diet_profile_t* const profilePtr);
+#endif //HAV_CORI
 int diet_estimate_lastexec(estVector_t ev,
                            const diet_profile_t* const profilePtr);
 

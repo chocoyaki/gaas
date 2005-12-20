@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.46  2005/12/20 07:52:44  pfrauenk
+ * CoRI functionality added: FAST is hided, information about number of processors,
+ * amount of available memory and of free cpu are provided
+ *
  * Revision 1.45  2005/11/10 14:37:51  eboix
  *     Clean-up of Cmake/DIET_config.h.in and related changes. --- Injay2461
  *
@@ -140,9 +144,14 @@ using namespace std;
 #include "Parsers.hh"
 #include "SeDImpl.hh"
 #include "Vector.h"
-#include "FASTMgr.hh"
 #include "DietLogComponent.hh"
 #include "MonitoringThread.hh"
+
+#if HAVE_CORI
+#include "CORIMgr.hh"
+#else 
+#include "FASTMgr.hh"
+#endif //HAVE_CORI
 
 #if HAVE_JUXMEM
 #include "JuxMemImpl.hh"
@@ -156,11 +165,8 @@ using namespace std;
 
 #define BEGIN_API extern "C" {
 #define END_API   } // extern "C"
-
-#define HOSTNAME_BUFLEN 256
-
+ 
 extern unsigned int TRACE_LEVEL;
-
 
 BEGIN_API
 
@@ -257,6 +263,7 @@ diet_service_table_add(const diet_profile_desc_t* const profile,
    return (refNum); 
    } 
 */
+
 
 int
 diet_service_table_lookup_by_profile(const diet_profile_t* const profile)
@@ -780,7 +787,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   if (SeD->run(SRVT)) {
     ERROR("unable to launch the SeD", 1);
   }
-
+  
 #if HAVE_JUXMEM
   /** JuxMem creation */
   JuxMem = new JuxMemImpl();
@@ -943,16 +950,35 @@ diet_est_array_defined(estVectorConst_t ev, int userTag, int idx)
                                           userTag + EST_USERDEFINED,
                                           idx));
 }
+#if HAVE_CORI
+int
+diet_estimate_cori(estVector_t ev,
+		   diet_est_tag_t info_type,
+		   diet_est_collect_tag_t collector_type,
+		   void * data)
+{
+
+  if (collector_type==EST_COLL_FAST){
+#if HAVE_FAST    
+    fast_param_t fastparam={(diet_profile_t*)data,SRVT};
+    CORIMgr::call_cori_mgr(&ev,info_type,collector_type,&fastparam);
+#endif
+  }
+  else
+    CORIMgr::call_cori_mgr(&ev,info_type,collector_type,data);    
+  return 0;
+}
+#else //HAVE_CORI
 
 int
 diet_estimate_fast(estVector_t ev,
                    const diet_profile_t* const profilePtr)
 //                    int stRef)
 {
-  char hostnameBuf[HOSTNAME_BUFLEN];
+  char hostnameBuf[256]; //was HOSTNAME_BUFLEN initially
   int stRef;
 
-  if (gethostname(hostnameBuf, HOSTNAME_BUFLEN-1)) {
+  if (gethostname(hostnameBuf, 255)) {
     ERROR("error getting hostname", 0);
   }
 
@@ -965,6 +991,7 @@ diet_estimate_fast(estVector_t ev,
                     
   return (1);
 }
+#endif //HAVE_CORI
 
 int diet_estimate_lastexec(estVector_t ev,
                            const diet_profile_t* const profilePtr)
