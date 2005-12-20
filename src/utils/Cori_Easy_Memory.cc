@@ -1,12 +1,12 @@
 #include <DIET_config.h>
 #include <unistd.h> //int getpagesize (void)
-#ifdef HAVE_SYS_SYSINFO
+#ifdef CORI_HAVE_SYS_SYSINFO
 #include <sys/sysinfo.h> // get_phys_pages (),get_avphys_pages ()
 #endif
 #include <stdio.h>
 #include "Cori_Easy_Memory.hh"
 #include <cstdlib> //system()
-
+#include <stdlib.h>//popen - pclose
 #include <iostream>
 #include <fstream>	
 #include <string>
@@ -27,7 +27,6 @@ Easy_Memory::get_Total_Memory(double * result)
       &&(!get_Avail_Memory_byvmstat(&temp2))
       &&(!get_Avail_Memory_bysysinfo(&temp3)))
   {
-    cerr<<temp1<<temp2<<temp3;
     double pagesize= temp2/temp3;
     *result=temp1*pagesize;
     return 0;
@@ -93,37 +92,44 @@ Easy_Memory::get_Avail_Memory_bysysinfo(double * result)
   return 1;
 #endif
 }
-
+int
+test_filename(char ** filename){
+  char* testing=*filename;
+  while (fopen(testing,"r+")!=NULL){
+    char *tmp=new char[strlen(testing)+2];
+    strcpy (tmp,testing);
+    testing=new char[strlen(testing)+2];
+    strcpy (testing,tmp);
+    strcat(testing,"_");
+  }
+  filename=&testing;
+  return 0;
+}  
 int 
 Easy_Memory::get_Avail_Memory_byvmstat(double * result)
-{
-  remove ("memtmp.tmp");
-  char *command ="vmstat >> memtmp.tmp";
+{ 
   int returnval=1;
-  if (system(command)!=-1){
-    fstream myfile ("./memtmp.tmp"); 
-    char word[256];    
-    if ((myfile!=NULL)&&(myfile.is_open())){
-   /*take the 4th word in line 3*/
-      if (!myfile.eof()){
-	  myfile.getline (word,256);
-	  if (!myfile.eof()){
-	    myfile.getline (word,256);
+  FILE * myfile =popen("vmstat","r");
+   char word[256];    
+    if ((myfile!=NULL)){
+      if (!feof(myfile)){
+	fgets(word, 256, myfile);
+	  if (!feof(myfile)){
+	    fgets(word, 256, myfile);
 	    int i=0;
-	    while ((!myfile.eof())&&(i<4)){
-	      myfile>>word;  
+	    while ((!feof(myfile))&&(i<4)){
+	      fscanf (myfile, "%s", word);
 	      i++;  
 	    }    
 	    if (i==4){
-	      *result = atof ( word );  
+	      *result = atof ( word )/1024;  
 	      returnval=0;
-	    }     
-	    myfile.close();
+	    }
+	    else return 1;
 	  }
       }
-    }
+      pclose(myfile);
   }
-  remove ("memtmp.tmp");
   return returnval;
 }
 
@@ -134,7 +140,7 @@ int
 Easy_Memory::get_Info_Memory_byProcMem(double* resultat, 
 				       int freemem)
 {
-#ifdef HAVE_PROCMEM
+#ifdef CORI_HAVE_PROCMEM
        
   	char  word[256];
 	char demanded[256];
@@ -164,7 +170,7 @@ Easy_Memory::get_Info_Memory_byProcMem(double* resultat,
 	  cerr<< "Error on reading file";
 	  return 1;
 	}
-#endif //HAVE_PROCMEM   	
+#endif //CORI_HAVE_PROCMEM   	
  return 1;	
 	
 }
