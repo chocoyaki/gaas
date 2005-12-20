@@ -5,13 +5,13 @@
 #include <string>
 #include <fstream> 
 #include <math.h> //HUGH_VAL
-#ifdef HAVE_SYS_TYPES
+#ifdef CORI_HAVE_SYS_TYPES
 #include <sys/types.h> //sysctl in case of not def HAVE_GET_NPROCS
 #endif
-#ifdef HAVE_SYS_SYSCTL
+#ifdef CORI_HAVE_SYS_SYSCTL
 #include <sys/sysctl.h>//sysctl in case of not def HAVE_GET_NPROCS
 #endif
-#ifdef HAVE_SYS_SYSINFO
+#ifdef CORI_HAVE_SYS_SYSINFO
 #include  <sys/sysinfo.h> // get_nproc
 #endif
 #include "Cori_Easy_CPU.hh"
@@ -266,28 +266,30 @@ Easy_CPU::get_CPU_Number_byNum_Proc(double * result){
 int 
 Easy_CPU::get_CPU_ActualLoad_Byps(double * actualload){
 
-  char *filepath_name="./dummy";
+ //  char *filepath_name="./dummy";
   
-   //delete old file
-  remove (filepath_name);
+//    //delete old file
+//   remove (filepath_name);
  
-  char * commandHeader="ps -e -o pcpu >> ";
+//   char * commandHeader="ps -e -o pcpu >> ";
   
-  char * command=new char[strlen(filepath_name)+19];
+//   char * command=new char[strlen(filepath_name)+19];
  
-  strcpy (command,commandHeader);
-  strcat(command,filepath_name );
+//   strcpy (command,commandHeader);
+//   strcat(command,filepath_name );
  
-  if (system(command)==-1) return 1;
+//   if (system(command)==-1) return 1;
   
   FILE * psfile;
   char buffer [256];
-  psfile=fopen(filepath_name,"rt");
+  //psfile=fopen(filepath_name,"rt");
+  psfile=popen("ps -e -o pcpu","r");
   if (psfile==NULL){
     cerr<<"can't open tmp file"<<endl;
     return 1;
   }
   else 
+  
     fscanf (psfile,"%s",buffer);
   if (strcmp(buffer,"%CPU")!=0){
      cerr<<"Error: ps format not recognized"<<endl;
@@ -300,8 +302,9 @@ Easy_CPU::get_CPU_ActualLoad_Byps(double * actualload){
     loadCPU+=tmp;
   }
  
-  fclose(psfile);
-  remove (filepath_name);
+  //fclose(psfile);
+  pclose(psfile);
+//   remove (filepath_name);
   *actualload=loadCPU/100;
   return 0;
 }
@@ -310,7 +313,7 @@ Easy_CPU::get_CPU_ActualLoad_Byps(double * actualload){
 int 
 Easy_CPU::get_Bogomips_From_Proc(vector <double> * vlist){
   int     ret = 1;
-#ifdef HAVE_PROC 
+#ifdef CORI_HAVE_PROCCPU 
   FILE    *fp;
   char    buf[128];
   double  val=0;
@@ -336,7 +339,7 @@ return ret;
 int 
 Easy_CPU::get_CPU_Cache_From_Proc(vector <double> * vlist){
  int     ret = 1;
-#ifdef HAVE_PROC 
+#ifdef CORI_HAVE_PROCCPU
  FILE    *fp;
   char    buf[128];
   double  val=0;
@@ -362,7 +365,7 @@ Easy_CPU::get_CPU_Cache_From_Proc(vector <double> * vlist){
 int 
 Easy_CPU::get_CPU_Freq_From_Proc(vector <double> * vlist){
  int     ret = 1;
-#ifdef HAVE_PROC   
+#ifdef CORI_HAVE_PROCCPU   
   FILE    *fp;
   char    buf[128];
   double  val=0;

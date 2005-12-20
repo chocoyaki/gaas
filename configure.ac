@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.55  2005/12/20 21:29:55  pfrauenk
+#* CoRI defined symbols renamed
+#*
 #* Revision 1.54  2005/12/20 07:48:43  pfrauenk
 #* CoRI functionality added : new option --enable-cori available to compile
 #* with CoRI
@@ -379,12 +382,12 @@ dnl ###########################################################################
 # Configuration for CoRI Plugin
 dnl ###########################################################################
 
-AC_CHECK_FILE([/proc/cpuinfo],[AC_DEFINE([HAVE_PROC],[1],[blabla])],[HAVE_PROC=no])
-AC_CHECK_FILE([/proc/meminfo],[AC_DEFINE([HAVE_PROCMEM],[1],[blabla])],[HAVE_PROCMEM=no])
+AC_CHECK_FILE([/proc/cpuinfo],[AC_DEFINE([CORI_HAVE_PROCCPU],[1],[blabla])],[CORI_HAVE_PROCCPU=no])
+AC_CHECK_FILE([/proc/meminfo],[AC_DEFINE([CORI_HAVE_PROCMEM],[1],[blabla])],[CORI_HAVE_PROCMEM=no])
 
-AC_CHECK_HEADER([sys/types.h],[AC_DEFINE([HAVE_SYS_TYPES],[1],[blabla])],[HAVE_SYS_TYPES=no])
-AC_CHECK_HEADER([sys/sysctl.h],[AC_DEFINE([HAVE_SYS_SYSCTL],[1],[blabla])],[HAVE_SYS_SYSCTL=no])
-AC_CHECK_HEADER([sys/sysinfo.h],[AC_DEFINE([HAVE_SYS_SYSINFO],[1],[blabla])],[HAVE_SYS_SYSINFO=no])
+AC_CHECK_HEADER([sys/types.h],[AC_DEFINE([CORI_HAVE_SYS_TYPES],[1],[blabla])],[CORI_HAVE_SYS_TYPES=no])
+AC_CHECK_HEADER([sys/sysctl.h],[AC_DEFINE([CORI_HAVE_SYS_SYSCTL],[1],[blabla])],[CORI_HAVE_SYS_SYSCTL=no])
+AC_CHECK_HEADER([sys/sysinfo.h],[AC_DEFINE([CORI_HAVE_SYS_SYSINFO],[1],[blabla])],[CORI_HAVE_SYS_SYSINFO=no])
 
 AC_CHECK_FUNCS([sysconf getloadavg sysctlbyname get_avphys_pages get_phys_pages getpagesize sysctl get_nprocs])
 
