@@ -6,9 +6,6 @@
 #ifndef _DIET_CONFIG_H_
 #define _DIET_CONFIG_H_
 
-/* Define the avaibility of the FAST library. */
-#define HAVE_FAST @CMAKE_HAVE_FAST@
-
 /***************** CMAKE NOT HANDLED YET FIXME *****************************/
 
 /******************************** DIET COMPILATION OPTIONS */
@@ -19,32 +16,9 @@
 /* Define the use of the omniORB 3.0.x API */
 /* #undef __OMNIORB3__ */
 
-/* Define use of the FAST 0.4.x API */
-/* #undef __FAST_0_4__ */
-
-/* Define use of the FAST 0.8.x API */
-#define __FAST_0_8__ 
-
 /******************************** DIET RELATED */
-
 /* Name of package */
 #define PACKAGE "diet"
-
-/* Define to the full name of this package. */
-#define PACKAGE_NAME "DIET"
-
-/* Define to the full name and version of this package. */
-#define PACKAGE_STRING "DIET 1.1"
-
-/* Define to the one symbol short name of this package. */
-/* CLEAN ME: not used anywhere !? */
-#define PACKAGE_TARNAME "diet"
-
-/* Define to the version of this package. */
-#define PACKAGE_VERSION "1.1"
-
-/* Version number of package */
-#define VERSION "1.1"
 
 /******************************** COMPILER SPECIFICS */
 

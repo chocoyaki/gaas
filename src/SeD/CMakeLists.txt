@@ -1,12 +1,11 @@
 #****************************************************************************#
 #* DIET cmake local file                                                    *#
-#*                                                                          *#
 #****************************************************************************#
 
-SET(DIET_SeD_SOURCES
-    DIET_server.cc
-    DataMgrImpl.cc
-    SeDImpl.cc )
+SET( DIET_SeD_SOURCES
+ DIET_server.cc
+ DataMgrImpl.cc
+ SeDImpl.cc )
 
 INCLUDE_DIRECTORIES(
   ${OMNIORB4_INCLUDE_DIR}

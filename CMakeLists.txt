@@ -13,6 +13,7 @@ OPTION( DIET_BUILD_EXAMPLES "Build DIET examples." ON )
 OPTION( DIET_BUILD_DOCUMENTATION "Build the users manual documentation." OFF )
 OPTION( DIET_USE_JXTA "Build DIET with the JXTA architecture support." OFF )
 OPTION( DIET_USE_FAST "Build DIET with the FAST support." OFF )
+OPTION( DIET_USE_BLAS "Build DIET with the BLAS support." OFF )
 OPTION( DIET_WITH_STATISTICS "Build DIET with generation of statistics." OFF )
 OPTION( DIET_WITH_MULTI_MA   "Build DIET with MULTI-Master-Agent support." OFF )
 OPTION( DIET_MAINTAINER_MODE "Build additional documentation..." OFF )
@@ -83,9 +84,15 @@ IF( DIET_USE_JXTA )
 ENDIF( DIET_USE_JXTA )
 
 IF( DIET_USE_FAST )
-  SET( CMAKE_HAVE_FAST 1 )   # for configuration file
-ELSE( DIET_USE_FAST )
-  SET( CMAKE_HAVE_FAST 0 )   # for configuration file
+  FIND_PACKAGE( FAST )
+  IF( FAST_FOUND )
+    ADD_DEFINITIONS( -DHAVE_FAST )
+    ### FIXME: we only ported the FAST 0.8.x API way of doing things.
+    ### Nevertheless the code still makes references to the FAST 0.4.x API
+    ### (search for defines __FAST_0_4__ versus __FAST_0_8__. Should we trash
+    ### the FAST 0.4.x API support ?
+    ADD_DEFINITIONS( -D__FAST_0_8__ )
+  ENDIF( FAST_FOUND )
 ENDIF( DIET_USE_FAST )
 
 IF( DIET_WITH_STATISTICS )
@@ -98,10 +105,10 @@ IF( DIET_WITH_MULTI_MA )
   ADD_DEFINITIONS(-DHAVE_MULTI_MA)
 ENDIF( DIET_WITH_MULTI_MA )
 
-IF( DIET_BUILD_EXAMPLES )
+IF( DIET_BUILD_EXAMPLES AND DIET_USE_BLAS )
   # BLAS (Basic Linear Algebric Subroutines) examples subdir requires...BLAS !
   FIND_PACKAGE( BLAS )
-ENDIF( DIET_BUILD_EXAMPLES )
+ENDIF( DIET_BUILD_EXAMPLES AND DIET_USE_BLAS )
 
 # --------------------- BUILD THE CONFIGURATION FILE -----------------------
 ### FIXME: consider using ADD_DEFINITIONS cmake feature instead of a configure
