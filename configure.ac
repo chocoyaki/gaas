@@ -8,6 +8,11 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.54  2005/12/20 07:48:43  pfrauenk
+#* CoRI functionality added : new option --enable-cori available to compile
+#* with CoRI
+#*
+#*
 #* Revision 1.53  2005/12/15 15:26:57  pfrauenk
 #* CoRI adding flags for compiling by Peter Frauenkron
 #*
@@ -116,9 +121,8 @@ ACI_PREREQ(2003.01.29)
 AC_INIT(DIET, DIET_version, http://graal.ens-lyon.fr/bugzilla)
 AC_CONFIG_SRCDIR([include/DIET_data.h])
 AC_REVISION($Revision$)
-AC_CONFIG_HEADERS([include/DIET_config.h])
+AC_CONFIG_HEADERS([include/acDIET_config.h])
 AC_PREFIX_DEFAULT(`pwd`/install)
-
 
 dnl ##########################################################################
 dnl #### Create templates for config.h.in header.
@@ -276,7 +280,17 @@ dnl ##########################################
 dnl Specific to CoRI
 dnl ##########################################
 
-AM_CONDITIONAL(USING_CORI, 0)
+AH_TEMPLATE([HAVE_CORI],[Define the use of CoRI - Collector of Ressource Information.])
+AC_ARG_ENABLE(cori,
+	      AC_HELP_STRING([--enable-cori],
+			     [enable the Collector of Ressource Information, no scheduling possible. default=disabled]),
+	      [enable_cori=yes],[enable_cori=no])
+
+if test "x$enable_cori" = "xyes"
+then
+  AC_DEFINE(HAVE_CORI)
+fi
+AM_CONDITIONAL(USING_CORI,[test "x$enable_cori" = "xyes"])
 
 dnl ##########################################
 dnl Specific to JuxMem
@@ -316,6 +330,7 @@ fi
   AC_SUBST(JUXMEM_LDFLAGS)
 
 AM_CONDITIONAL(JUXMEM_MODE, [test "x$HAVE_JUXMEM" = "xyes"])
+
 
 dnl ###########################################################################
 dnl Load anything under acmacros/*.m4
@@ -359,6 +374,19 @@ dnl ###########################################################################
 dnl Detected in AC_OMNIORB_DIET :
 dnl AC_CHECK_LIB([pthread], [pthread_attr_getdetachstate])
 
+
+dnl ###########################################################################
+# Configuration for CoRI Plugin
+dnl ###########################################################################
+
+AC_CHECK_FILE([/proc/cpuinfo],[AC_DEFINE([HAVE_PROC],[1],[blabla])],[HAVE_PROC=no])
+AC_CHECK_FILE([/proc/meminfo],[AC_DEFINE([HAVE_PROCMEM],[1],[blabla])],[HAVE_PROCMEM=no])
+
+AC_CHECK_HEADER([sys/types.h],[AC_DEFINE([HAVE_SYS_TYPES],[1],[blabla])],[HAVE_SYS_TYPES=no])
+AC_CHECK_HEADER([sys/sysctl.h],[AC_DEFINE([HAVE_SYS_SYSCTL],[1],[blabla])],[HAVE_SYS_SYSCTL=no])
+AC_CHECK_HEADER([sys/sysinfo.h],[AC_DEFINE([HAVE_SYS_SYSINFO],[1],[blabla])],[HAVE_SYS_SYSINFO=no])
+
+AC_CHECK_FUNCS([sysconf getloadavg sysctlbyname get_avphys_pages get_phys_pages getpagesize sysctl get_nprocs])
 
 dnl ###########################################################################
 # Search for the FAST Library
@@ -581,7 +609,6 @@ then
 		doc/Tutorial/solutions/exercise2/Makefile
 		doc/Tutorial/solutions/exercise3/Makefile])
 fi
-
 AC_OUTPUT
 
 dnl ###########################################################################
@@ -637,6 +664,15 @@ else
   echo "disabled" | tee -a config.log
 fi
 
+#CORI
+printf " - CORI:            " | tee -a config.log
+if test "x$enable_cori" = "xyes"
+then
+  echo "using CoRI " | tee -a config.log
+else
+  echo "disabled " | tee -a config.log
+fi
+
 # ORB
 printf " - ORB:             " | tee -a config.log
 if test "x$HAVE_OMNIORB" = "xyes"
@@ -646,6 +682,8 @@ else if test "x$HAVE_TAO" = "xyes"
 then
   echo "TAO $TAO_VERSION in $TAO_HOME" | tee -a config.log
 fi fi
+
+
 
 # PREFIX
 echo " - prefix:          $prefix" | tee -a config.log
