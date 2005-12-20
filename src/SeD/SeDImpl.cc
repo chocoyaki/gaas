@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.62  2005/12/20 09:02:17  pfrauenk
+ * CoRI bug fixes thx to Raphaël Bolze
+ *
  * Revision 1.61  2005/12/20 07:52:44  pfrauenk
  * CoRI functionality added: FAST is hided, information about number of processors,
  * amount of available memory and of free cpu are provided
@@ -333,8 +336,8 @@ SeDImpl::run(ServiceTable* services)
   
 
 #if HAVE_CORI
-  this->fastUse=*((size_t*)Parsers::Results::getParamValue(Parsers::Results::FASTUSE));
 #if HAVE_FAST
+  this->fastUse=*((size_t*)Parsers::Results::getParamValue(Parsers::Results::FASTUSE));
   if (this->fastUse)
     CORIMgr::add(EST_COLL_FAST,NULL);
 #endif //HAVE_FAST
