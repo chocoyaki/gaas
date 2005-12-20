@@ -16,60 +16,60 @@ print_Metric(estVector_t vector_v,diet_est_tag_t type_Info){
   case EST_ALLINFOS:{
  
 	for (int i=0; i<diet_est_array_size_internal(vector_v,EST_CPUSPEED);i++){
-	  cout << "CPU_frequence="<< diet_est_array_get_internal(vector_v,EST_CPUSPEED,i,errorCode)<< endl;
-	  cout << "CPU_cache="<< diet_est_array_get_internal(vector_v,EST_CACHECPU,i,errorCode)<< endl;
-	  cout << "CPU_Bogomips="<< diet_est_array_get_internal(vector_v,EST_CACHECPU,i,errorCode)<< endl;
+	  cout << "CPU "<<i<<" frequence : "<< diet_est_array_get_internal(vector_v,EST_CPUSPEED,i,errorCode)<< endl;
+	  cout << "CPU "<<i<<" cache : "<< diet_est_array_get_internal(vector_v,EST_CACHECPU,i,errorCode)<< endl;
+	  cout << "CPU "<<i<<" Bogomips : "<< diet_est_array_get_internal(vector_v,EST_CACHECPU,i,errorCode)<< endl;
 	}
 
-	cout << "CPU_num_processors="<< diet_est_get_internal(vector_v,EST_NBCPU,errorCode)<< endl;         
-	cout << "Memory_total="<< diet_est_get_internal(vector_v,EST_TOTALMEM,errorCode) << endl;
-	cout << "disk size = " << diet_est_get_internal(vector_v,EST_TOTALSIZEDISK,errorCode)<<" Mbyte(s)" << endl;
-    	cout <<	"mem avail:"<<diet_est_get_internal(vector_v,EST_FREEMEM, errorCode) <<endl;
-	cout << "cpu avg:"<<diet_est_get_internal(vector_v,EST_AVGFREECPU, errorCode)<<endl;
-	cout << "diskspeedRead:"<<diet_est_get_internal(vector_v,EST_DISKACCESREAD,errorCode)<<" Mbyte/s"<<endl;
-	cout << "diskspeedWrite:"<<diet_est_get_internal(vector_v,EST_DISKACCESWRITE,errorCode)<<" Mbyte/s"<<endl;
-	cout <<	"disk size avail:"<<diet_est_get_internal(vector_v,EST_FREESIZEDISK,errorCode)<<" Mbyte(s)"<<endl;
-	cout << "cpu free:"<<diet_est_get_internal(vector_v,EST_FREECPU, errorCode)<<" %" <<endl;
+	cout << "number of processors : "<< diet_est_get_internal(vector_v,EST_NBCPU,errorCode)<< endl;         
+	cout << "total memory : "<< diet_est_get_internal(vector_v,EST_TOTALMEM,errorCode) << endl;
+	cout << "total disk size : " << diet_est_get_internal(vector_v,EST_TOTALSIZEDISK,errorCode)<<" Mbyte(s)" << endl;
+    	cout <<	"mem avail : "<<diet_est_get_internal(vector_v,EST_FREEMEM, errorCode) <<endl;
+	cout << "cpu average load : "<<diet_est_get_internal(vector_v,EST_AVGFREECPU, errorCode)<<endl;
+	cout << "diskspeed in reading : "<<diet_est_get_internal(vector_v,EST_DISKACCESREAD,errorCode)<<" Mbyte/s"<<endl;
+	cout << "diskspeed in writing : "<<diet_est_get_internal(vector_v,EST_DISKACCESWRITE,errorCode)<<" Mbyte/s"<<endl;
+	cout <<	"available disk size : "<<diet_est_get_internal(vector_v,EST_FREESIZEDISK,errorCode)<<" Mbyte(s)"<<endl;
+	cout << "cpu free : "<<diet_est_get_internal(vector_v,EST_FREECPU, errorCode)<<" %" <<endl;
  }
     break;
   case EST_CPUSPEED: 
     for (int i=0; i<diet_est_array_size_internal(vector_v,EST_CPUSPEED);i++)
-      cout << "CPU_frequence="<< diet_est_array_get_internal(vector_v,EST_CPUSPEED,i,errorCode)<< endl;
+      cout << "CPU "<<i<<" frequence : "<< diet_est_array_get_internal(vector_v,EST_CPUSPEED,i,errorCode)<< endl;
     break;
   case EST_CACHECPU:
     for (int i=0; i<diet_est_array_size_internal(vector_v,EST_CPUSPEED);i++)
-      cout << "CPU_cache="<< diet_est_array_get_internal(vector_v,EST_CACHECPU,i,errorCode)<< endl;
+      cout << "CPU "<<i<<" cache : "<< diet_est_array_get_internal(vector_v,EST_CACHECPU,i,errorCode)<< endl;
     break;	
   case EST_BOGOMIPS:
     for (int i=0; i<diet_est_array_size_internal(vector_v,EST_CPUSPEED);i++)
-      cout << "CPU_Bogomips="<< diet_est_array_get_internal(vector_v,EST_CACHECPU,i,errorCode)<< endl;
+      cout << "CPU "<<i<<" Bogomips : "<< diet_est_array_get_internal(vector_v,EST_CACHECPU,i,errorCode)<< endl;
     break;   
   case EST_AVGFREECPU:  
-    cout << "cpu avg:"<<diet_est_get_internal(vector_v,EST_AVGFREECPU, errorCode)<<endl;
+    cout << "cpu average load : "<<diet_est_get_internal(vector_v,EST_AVGFREECPU, errorCode)<<endl;
     break;
   case EST_NBCPU:
-    cout << "CPU_num_processors="<< diet_est_get_internal(vector_v,EST_NBCPU,errorCode)<< endl;     
+    cout << "number of processors : " << diet_est_get_internal(vector_v,EST_NBCPU,errorCode)<< endl;     
    break;
  case EST_DISKACCESREAD:
-    cout << "diskspeedRead:"<<diet_est_get_internal(vector_v,EST_DISKACCESREAD,errorCode)<<" Mbyte/s"<<endl;
+    cout << "diskspeed in reading : "<<diet_est_get_internal(vector_v,EST_DISKACCESREAD,errorCode)<<" Mbyte/s"<<endl;
     break;
  case EST_DISKACCESWRITE:
-    cout << "diskspeedWrite:"<<diet_est_get_internal(vector_v,EST_DISKACCESWRITE,errorCode)<<" Mbyte/s"<<endl;
+    cout << "diskspeed in writing : "<<diet_est_get_internal(vector_v,EST_DISKACCESWRITE,errorCode)<<" Mbyte/s"<<endl;
     break;
   case EST_TOTALSIZEDISK: 
-    cout << "disk size = " << diet_est_get_internal(vector_v,EST_TOTALSIZEDISK,errorCode)<<" Mbyte(s)" << endl;
+    cout << "total disk size : " << diet_est_get_internal(vector_v,EST_TOTALSIZEDISK,errorCode)<<" Mbyte(s)" << endl;
     break;
   case EST_FREESIZEDISK:
-    cout <<	"disk size avail:"<<diet_est_get_internal(vector_v,EST_FREESIZEDISK,errorCode)<<" Mbyte(s)"<<endl;
+    cout <<	"available disk size  :"<<diet_est_get_internal(vector_v,EST_FREESIZEDISK,errorCode)<<" Mbyte(s)"<<endl;
     break;
   case EST_TOTALMEM: 
-    cout << "Memory_total="<< diet_est_get_internal(vector_v,EST_TOTALMEM,errorCode) << endl;
+    cout << "total memory : "<< diet_est_get_internal(vector_v,EST_TOTALMEM,errorCode) << endl;
     break;
   case EST_FREEMEM:
-    cout << "mem avail:"<<diet_est_get_internal(vector_v,EST_FREEMEM, errorCode) <<endl;
+    cout << "available memory : "<<diet_est_get_internal(vector_v,EST_FREEMEM, errorCode) <<endl;
     break;
   case EST_FREECPU: 
-     cout << "cpu free:"<<diet_est_get_internal(vector_v,EST_FREECPU, errorCode)<<" %"  <<endl;
+     cout << "free cpu: "<<diet_est_get_internal(vector_v,EST_FREECPU, errorCode)<<endl;
     break;
   default: {
     cerr<< "Tag " <<type_Info <<" unknown for information" <<endl;
