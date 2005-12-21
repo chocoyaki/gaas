@@ -11,9 +11,10 @@ SET(DIET_version 2.0)
 OPTION( BUILD_SHARED_LIBS "Build DIET with shared libraries." ON )
 OPTION( DIET_BUILD_EXAMPLES "Build DIET examples." ON )
 OPTION( DIET_BUILD_DOCUMENTATION "Build the users manual documentation." OFF )
-OPTION( DIET_USE_JXTA "Build DIET with the JXTA architecture support." OFF )
-OPTION( DIET_USE_FAST "Build DIET with the FAST support." OFF )
-OPTION( DIET_USE_BLAS "Build DIET with the BLAS support." OFF )
+OPTION( DIET_USE_BLAS "Build DIET with BLAS support." OFF )
+OPTION( DIET_USE_CORI "Build DIET with CORI support." OFF )
+OPTION( DIET_USE_JXTA "Build DIET with JXTA architecture support." OFF )
+OPTION( DIET_USE_FAST "Build DIET with FAST support." OFF )
 OPTION( DIET_WITH_STATISTICS "Build DIET with generation of statistics." OFF )
 OPTION( DIET_WITH_MULTI_MA   "Build DIET with MULTI-Master-Agent support." OFF )
 OPTION( DIET_MAINTAINER_MODE "Build additional documentation..." OFF )
@@ -28,9 +29,15 @@ OPTION( DIET_MAINTAINER_MODE "Build additional documentation..." OFF )
 INCLUDE(${CMAKE_ROOT}/Modules/CheckIncludeFileCXX.cmake)
 
 SET( DIET_INCLUDES_TO_CHECK
-  assert.h iostream limits.h math.h
-  stdlib.h string.h unistd.h
-  sys/stat.h sys/types.h )
+  assert.h
+  iostream
+  limits.h
+  math.h
+  stdlib.h
+  string.h
+  unistd.h
+  sys/stat.h
+  sys/types.h )
 
 FOREACH( include_to_check ${DIET_INCLUDES_TO_CHECK} )
   CHECK_INCLUDE_FILE_CXX( ${include_to_check} dummyfound${include_to_check} )
@@ -49,8 +56,10 @@ ENDFOREACH( include_to_check )
 INCLUDE(${CMAKE_ROOT}/Modules/CheckFunctionExists.cmake)
 
 SET( DIET_FUNCTIONS_TO_CHECK
-  gethostname gettimeofday
-  strdup strtok_r )
+  gethostname
+  gettimeofday
+  strdup
+  strtok_r )
 
 FOREACH( function_to_check ${DIET_FUNCTIONS_TO_CHECK} )
   CHECK_FUNCTION_EXISTS( ${function_to_check} dummyfound${function_to_check} )
@@ -59,8 +68,14 @@ FOREACH( function_to_check ${DIET_FUNCTIONS_TO_CHECK} )
   ENDIF( NOT dummyfound${function_to_check} )
 ENDFOREACH( function_to_check )
 
+### CORI (COllector of Ressource Infomation) system calls probing:
+IF( DIET_USE_CORI )
+  ADD_DEFINITIONS(-DHAVE_CORI)
+  INCLUDE( ${DIET_SOURCE_DIR}/Cmake/ConfigureCORI.cmake )
+ENDIF( DIET_USE_CORI )
+
 # --------------------- DEPENDENCIES TOWARDS EXTERNAL PACKAGES -------------
-INCLUDE( ${DIET_SOURCE_DIR}/Cmake/FindOmniORB.cmake  )
+INCLUDE( ${DIET_SOURCE_DIR}/Cmake/FindOmniORB.cmake )
 # Path to additional modules (i.e. used by FIND_PACKAGE commands making
 # reference to non CMake defined "standard" modules):
 SET( CMAKE_MODULE_PATH ${DIET_SOURCE_DIR}/Cmake )
