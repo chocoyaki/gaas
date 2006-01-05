@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.18  2006/01/05 07:45:17  mjan
+#* Fix bug reported by Eddy.
+#*
 #* Revision 1.17  2005/08/30 09:20:20  ycaniou
 #* Corrected things in DIET_server.cc (diet_submit_batch...)
 #* Link libDIET with Elagi and Appleseeds only if BATCH is asked in the
@@ -85,15 +88,7 @@ endif
 
 libDIET_SeD_la_SOURCES = DIET_server.cc SeDImpl.cc DataMgrImpl.cc
 
-if JUXMEM_MODE
-libDIET_SeD_la_SOURCES += JuxMemImpl.cc
-endif
-
 noinst_HEADERS = SeDImpl.hh DataMgrImpl.hh dmat_jxta_progs.h 
-
-if JUXMEM_MODE
-noinst_HEADERS += JuxMemImpl.hh
-endif
 
 utilsdir = $(top_builddir)/src/utils
 corbadir = $(top_builddir)/src/CORBA
