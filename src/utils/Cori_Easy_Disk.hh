@@ -18,7 +18,7 @@
 #include <fstream>	
 #include <cstdlib>
 using namespace std;
-#define FILESIZE_MB 90 //MB
+#define FILESIZE_MB 10 //MB
 #define KILOBYTE 1024
 #define MEGABYTE KILOBYTE*KILOBYTE
 #define FILESIZE FILESIZE_MB*MEGABYTE
@@ -35,6 +35,21 @@ private:
   gatherSizeDisks(int typeOfInfo,
 		  double * result, 
 		  const char* path);
+
+  int 
+  get_Write_Speed_by_gettimeofday(const char* path, 
+				  double * result);
+
+  int 
+  get_Write_Speed_by_sig_alarm(const char* path, 
+			       double * result);
+  int 
+  get_Read_Speed_by_gettimeofday(const char* path, 
+				 double * result);
+
+  int 
+  get_Read_Speed_by_sig_alarm(const char* path, 
+			      double * result);
 
 public:
   int 

@@ -5,7 +5,7 @@
 #include <string>
 #include <fstream> 
 #include <math.h> //HUGH_VAL
-#ifdef CORI_HAVE_SYS_TYPES
+#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h> //sysctl in case of not def HAVE_GET_NPROCS
 #endif
 #ifdef CORI_HAVE_SYS_SYSCTL

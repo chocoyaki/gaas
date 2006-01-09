@@ -8,6 +8,11 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.56  2006/01/09 21:35:18  pfrauenk
+#* CoRI : bug fixes: Redhat doesn't support the POSIX standard
+#*        	some functions aren't provided
+#* 	(thx to Raphaël Bolze)
+#*
 #* Revision 1.55  2005/12/20 21:29:55  pfrauenk
 #* CoRI defined symbols renamed
 #*
@@ -385,11 +390,11 @@ dnl ###########################################################################
 AC_CHECK_FILE([/proc/cpuinfo],[AC_DEFINE([CORI_HAVE_PROCCPU],[1],[blabla])],[CORI_HAVE_PROCCPU=no])
 AC_CHECK_FILE([/proc/meminfo],[AC_DEFINE([CORI_HAVE_PROCMEM],[1],[blabla])],[CORI_HAVE_PROCMEM=no])
 
-AC_CHECK_HEADER([sys/types.h],[AC_DEFINE([CORI_HAVE_SYS_TYPES],[1],[blabla])],[CORI_HAVE_SYS_TYPES=no])
 AC_CHECK_HEADER([sys/sysctl.h],[AC_DEFINE([CORI_HAVE_SYS_SYSCTL],[1],[blabla])],[CORI_HAVE_SYS_SYSCTL=no])
 AC_CHECK_HEADER([sys/sysinfo.h],[AC_DEFINE([CORI_HAVE_SYS_SYSINFO],[1],[blabla])],[CORI_HAVE_SYS_SYSINFO=no])
+AC_CHECK_HEADER([sys/time.h],[AC_DEFINE([CORI_HAVE_SYS_TIME],[1],[blabla])],[CORI_HAVE_SYS_TIME=no])
 
-AC_CHECK_FUNCS([sysconf getloadavg sysctlbyname get_avphys_pages get_phys_pages getpagesize sysctl get_nprocs])
+AC_CHECK_FUNCS([sysconf getloadavg sysctlbyname get_avphys_pages get_phys_pages getpagesize sysctl get_nprocs alarm signal gettimeofday getpid])
 
 dnl ###########################################################################
 # Search for the FAST Library
