@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.20  2006/01/09 22:17:09  rbolze
+#* this is a little correction for Red Hat compilation when CORI is enable.
+#*
 #* Revision 1.19  2005/12/15 10:12:17  pfrauenk
 #* CoRI functionality added by Peter Frauenkron
 #*
@@ -73,10 +76,7 @@ libUtilsNodes_la_SOURCES   = Counter.cc ServiceTable.cc FASTMgr.cc \
 			     DietLogComponent.cc MonitoringThread.cc 
 
 if USING_CORI
-libUtilsNodes_la_SOURCES += Cori_Fast.cc Cori_Data_Easy.cc \
-			    Cori_Metric.cc Cori_Easy_CPU.cc \
-			    Cori_Easy_Memory.cc Cori_Easy_Disk.cc\
-			     CORIMgr.cc  
+libUtilsNodes_la_SOURCES += Cori_Fast.cc Cori_Data_Easy.cc Cori_Metric.cc Cori_Easy_CPU.cc Cori_Easy_Memory.cc Cori_Easy_Disk.cc CORIMgr.cc  
 endif
 
 
@@ -92,9 +92,7 @@ noinst_HEADERS = Counter.hh debug.hh DIET_data_internal.hh \
 		 AccessController.hh Vector.h JuxMemImpl.hh 
 
 if USING_CORI
-noinst_HEADERS += Cori_Fast.hh Cori_Easy_CPU.hh  Cori_Easy_Disk.hh  \
-		  Cori_Easy_Memory.hh Cori_Data_Easy.hh Cori_Metric.hh\
-		 CORIMgr.hh 
+noinst_HEADERS += Cori_Fast.hh Cori_Easy_CPU.hh  Cori_Easy_Disk.hh Cori_Easy_Memory.hh Cori_Data_Easy.hh Cori_Metric.hh	CORIMgr.hh 
 endif
 
 
