@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.47  2006/01/13 10:40:39  mjan
+ * Updating DIET for next JuxMem (0.2)
+ *
  * Revision 1.46  2005/12/20 07:52:44  pfrauenk
  * CoRI functionality added: FAST is hided, information about number of processors,
  * amount of available memory and of free cpu are provided
@@ -135,6 +138,7 @@ using namespace std;
 #include <unistd.h>  // For gethostname()
 #include <stdlib.h>
 
+#include "acDIET_config.h"
 #include "DIET_server.h"
 
 #include "debug.hh"
@@ -154,7 +158,7 @@ using namespace std;
 #endif //HAVE_CORI
 
 #if HAVE_JUXMEM
-#include "JuxMemImpl.hh"
+#include "JuxMem.hh"
 #else
 #include "DataMgrImpl.hh"
 #endif // HAVE_JUXMEM
@@ -630,7 +634,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   DietLogComponent* dietLogComponent;     /* LogService */
   MonitoringThread* monitoringThread;
 #if HAVE_JUXMEM
-  JuxMemImpl* JuxMem;
+  JuxMem::Wrapper* juxmem;
 #else
   DataMgrImpl* dataMgr; 
 #endif // HAVE_JUXMEM
@@ -790,11 +794,8 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   
 #if HAVE_JUXMEM
   /** JuxMem creation */
-  JuxMem = new JuxMemImpl();
-  if (JuxMem->run(userDefName)) {
-    ERROR("Unable to launch JuxMem", 1);
-  }
-  SeD->linkToJuxMem(JuxMem);
+  juxmem = new JuxMem::Wrapper();
+  SeD->linkToJuxMem(juxmem);
 #else
   /* Set-up and activate Data Manager for DTM usage */
   dataMgr = new DataMgrImpl();

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2006/01/13 10:40:39  mjan
+ * Updating DIET for next JuxMem (0.2)
+ *
  * Revision 1.21  2005/09/05 16:02:52  hdail
  * Addition of locationID as member variable and to parsing.  SeD initializes
  * data location data in response with all locally available information about
@@ -107,7 +110,7 @@
 #include "DietLogComponent.hh"
 
 #if HAVE_JUXMEM
-#include "JuxMemImpl.hh"      // JuxMem header file
+#include "JuxMem.hh"          // JuxMem header file
 #else
 #include "DataMgrImpl.hh"     // DTM header file
 #endif
@@ -143,7 +146,7 @@ public:
 #if HAVE_JUXMEM
   /** Set this->JuxMem */
   int 
-  linkToJuxMem(JuxMemImpl* JuxMem);
+  linkToJuxMem(JuxMem::Wrapper* juxmem);
 #else
   /** Set this->dataMgr for DTM usage */
   int
@@ -209,7 +212,7 @@ private:
   ServiceTable* SrvT;
 
 #if HAVE_JUXMEM
-  JuxMemImpl* JuxMem;
+  JuxMem::Wrapper * juxmem;
 #else
   /* Data Manager associated to this SeD */
   DataMgrImpl* dataMgr;

@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.11  2006/01/13 10:40:53  mjan
+#* Updating DIET for next JuxMem (0.2)
+#*
 #* Revision 1.10  2005/05/27 08:18:17  mjan
 #* Moving JuxMem in a more appropriate place (src/utils)
 #* Added log messages for VizDIET
@@ -68,9 +71,6 @@ libDIET_client_la_LIBADD = \
 	$(corbadir)/libCorbaCommon.la $(corbadir)/idl/libIDLAgent.la	\
 	$(corbadir)/idl/libIDLCommon.la $(corbadir)/idl/libIDLMA.la	\
 	$(LIBS_OMNIORB)
-if JUXMEM_MODE
-libDIET_client_la_LIBADD += $(utilsdir)/libJuxMemWrapper.la
-endif
 
 AM_CXXFLAGS = @JUXMEM_CXXFLAGS@ $(CXXFLAGS_OMNIORB) -I$(top_srcdir)/src/utils \
 	      -I$(top_srcdir)/src/CORBA -I$(corbadir)/idl

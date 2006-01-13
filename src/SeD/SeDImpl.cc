@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.64  2006/01/13 10:40:39  mjan
+ * Updating DIET for next JuxMem (0.2)
+ *
  * Revision 1.63  2005/12/20 14:26:55  eboix
  *     Call for Martin Quinson's ruling !
  *     slimfast_api.h not included anymore in this file   --- Injay2461
@@ -138,6 +141,7 @@ using namespace std;
   #endif // HAVE_FAST
 */
 
+#include "acDIET_config.h"
 #include "SeDImpl.hh"
 #include "Callback.hh"
 #include "common_types.hh"
@@ -380,9 +384,9 @@ SeDImpl::linkToDataMgr(DataMgrImpl* dataMgr)
 #if HAVE_JUXMEM
 /** Set this->JuxMem */
 int
-SeDImpl::linkToJuxMem(JuxMemImpl* JuxMem)
+SeDImpl::linkToJuxMem(JuxMem::Wrapper* juxmem)
 {
-  this->JuxMem = JuxMem;
+  this->juxmem = juxmem;
   return 0;
 }
 #endif // HAVE_JUXMEM
@@ -585,33 +589,36 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
 #if HAVE_JUXMEM
   unmrsh_in_args_to_profile(&profile, &pb, cvt);
 
-  for (i= 0; i <= profile.last_inout; i++) {
-    if (profile.parameters[i].desc.mode == DIET_PERSISTENT &&
-	profile.parameters[i].desc.id != NULL &&
-	strlen(profile.parameters[i].desc.id ) != 0) {
-
+  for (i = 0; i <= profile.last_out; i++) {
+    if (profile.parameters[i].desc.mode == DIET_PERSISTENT ||
+	profile.parameters[i].desc.mode == DIET_PERSISTENT_RETURN) {
+   
+      /* IN case -> acquire the data in read mode */
       if (i <= profile.last_in) {
-	TRACE_TEXT(TRACE_MAIN_STEPS, "Retrieving IN data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
-      } else {
-	TRACE_TEXT(TRACE_MAIN_STEPS, "Retrieving IN_OUT data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
+	assert(profile.parameters[i].desc.id != NULL);
+	profile.parameters[i].value = this->juxmem->mmap(NULL, data_sizeof(&(profile.parameters[i].desc)), profile.parameters[i].desc.id, 0);
+	TRACE_TEXT(TRACE_MAIN_STEPS, "Acquiring IN data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
+	this->juxmem->acquireRead(profile.parameters[i].value, profile.parameters[i].desc.id);
+	continue;
       }
-
-      struct timeval t1, t2;
-      gettimeofday(&t1, NULL);
-      this->JuxMem->JuxMemMap(profile.parameters[i].desc.id, (int) data_sizeof(&(profile.parameters[i].desc)), NULL);
-      this->JuxMem->JuxMemAcquireRead(profile.parameters[i].desc.id);
-      this->JuxMem->JuxMemRead(&profile.parameters[i]);
-      this->JuxMem->JuxMemRelease(profile.parameters[i].desc.id);
-      gettimeofday(&t2, NULL);
-      
-      if (dietLogComponent != NULL) {
-	dietLogComponent->logJuxMemDataUse(reqID,
-					   profile.parameters[i].desc.id, 
-					   "READ", 
-					   (int) data_sizeof(&(profile.parameters[i].desc)), 
-					   (long) profile.parameters[i].desc.generic.base_type,
-					   "MATRIX",
-					   ((t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000));
+      /* INOUT case -> acquire the data in write mode */
+      if (i > profile.last_in && i <= profile.last_inout) {
+	assert(profile.parameters[i].desc.id != NULL);
+	profile.parameters[i].value = this->juxmem->mmap(NULL, data_sizeof(&(profile.parameters[i].desc)), profile.parameters[i].desc.id, 0);
+	TRACE_TEXT(TRACE_MAIN_STEPS, "Acquiring INOUT data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
+	this->juxmem->acquire(profile.parameters[i].value, profile.parameters[i].desc.id);
+	continue;
+      }
+      /* OUT case -> acquire the data in write mode if exists in JuxMem */
+      if (i > profile.last_inout) {
+	if (profile.parameters[i].desc.id == NULL || (strlen(profile.parameters[i].desc.id) == 0)) {
+	  TRACE_TEXT(TRACE_MAIN_STEPS, "New data for OUT\n");
+	} else {
+	  assert(profile.parameters[i].desc.id != NULL);
+	  profile.parameters[i].value = this->juxmem->mmap(NULL, data_sizeof(&(profile.parameters[i].desc)), profile.parameters[i].desc.id, 0);
+	  this->juxmem->acquire(profile.parameters[i].value, profile.parameters[i].desc.id);
+	  TRACE_TEXT(TRACE_MAIN_STEPS, "Acquiring OUT data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
+	}
       }
     }
   }
@@ -646,53 +653,30 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
 
 #if HAVE_JUXMEM
   for (i = 0; i <= profile.last_out; i++) {
-    if (profile.parameters[i].desc.mode == DIET_PERSISTENT) {
-      struct timeval t1, t2;
+    if (profile.parameters[i].desc.mode == DIET_PERSISTENT ||
+	profile.parameters[i].desc.mode == DIET_PERSISTENT_RETURN) {
 
-      /** Case of OUT data, a data space must be allocated inside JuxMem only if not ID is specified */
-      /** If an ID is specified use it! */
-      if (i > profile.last_inout && strlen(profile.parameters[i].desc.id) == 0) {
-	gettimeofday(&t1, NULL);
-	this->JuxMem->JuxMemAlloc(&profile.parameters[i].desc.id, data_sizeof(&(profile.parameters[i].desc)), NULL);
-	this->JuxMem->JuxMemMap(profile.parameters[i].desc.id, data_sizeof(&(profile.parameters[i].desc)), NULL);
-	gettimeofday(&t2, NULL);
-	
-	TRACE_TEXT(TRACE_MAIN_STEPS, "A data space with ID = " << profile.parameters[i].desc.id << " for OUT data has been allocated inside JuxMem!\n");
-	
-	if (dietLogComponent != NULL) {
-	  dietLogComponent->logJuxMemDataStore(reqID,
-					       profile.parameters[i].desc.id, 
-					       (int) data_sizeof(&(profile.parameters[i].desc)), 
-					       (long) profile.parameters[i].desc.generic.base_type,
-					       "MATRIX", 
-					       ((t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000));
+      /** IN and INOUT case */
+      if (i <= profile.last_inout) {
+	TRACE_TEXT(TRACE_MAIN_STEPS, "Releasing data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
+	this->juxmem->release(profile.parameters[i].value, profile.parameters[i].desc.id);
+      } else {       /** OUT case */
+	/** The data does not exist yet */
+	if (strlen(profile.parameters[i].desc.id) == 0) {
+	  /* The local memory is attached inside JuxMem */
+	  profile.parameters[i].desc.id = this->juxmem->attach(profile.parameters[i].value, 
+							       data_sizeof(&(profile.parameters[i].desc)), 
+							       1, 1, EC_PROTOCOL, BASIC_SOG);
+	  TRACE_TEXT(TRACE_MAIN_STEPS, "A data space with ID = " << profile.parameters[i].desc.id << " for OUT data has been attached inside JuxMem!\n");
+	  /* The local memory is flush inside JuxMem */
+	  this->juxmem->msync(profile.parameters[i].value, profile.parameters[i].desc.id);
+	} else { /* Simply release the lock */
+	  this->juxmem->release(profile.parameters[i].value, profile.parameters[i].desc.id);
 	}
       }
-      
-      /** IN_OUT and OUT data must be written inside JuxMem */
-      if (i > profile.last_in) {
-	gettimeofday(&t1, NULL);
-	this->JuxMem->JuxMemAcquire(profile.parameters[i].desc.id);
-	this->JuxMem->JuxMemWrite(&profile.parameters[i]);
-	this->JuxMem->JuxMemRelease(profile.parameters[i].desc.id);
-	gettimeofday(&t2, NULL);
-	
-	if (dietLogComponent != NULL) {
-	  dietLogComponent->logJuxMemDataUse(reqID,
-					     profile.parameters[i].desc.id, 
-					     "WRITE", 
-					     (int) data_sizeof(&(profile.parameters[i].desc)), 
-					     (long) profile.parameters[i].desc.generic.base_type,
-					     "MATRIX", 
-					     ((t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000));
-	}
 
-	/** Removing all INOUT and OUT data so that it doesn't go back with the client request */
-	if (profile.parameters[i].desc.generic.type != DIET_STRING) {
-	  free(profile.parameters[i].value);
-	  profile.parameters[i].value = NULL;
-	}
-      }
+      this->juxmem->unmap(profile.parameters[i].value, profile.parameters[i].desc.id);
+      profile.parameters[i].value = NULL;
     }
   }
   mrsh_profile_to_out_args(&pb, &profile, cvt);
@@ -804,32 +788,35 @@ SeDImpl::solve_batch(const char* path, corba_profile_t& pb, CORBA::Long reqID)
   unmrsh_in_args_to_profile(&profile, &pb, cvt);
 
   for (i= 0; i <= profile.last_inout; i++) {
-    if (profile.parameters[i].desc.mode == DIET_PERSISTENT &&
-	profile.parameters[i].desc.id != NULL &&
-	strlen(profile.parameters[i].desc.id ) != 0) {
-
-      if (i <= profile.last_in) {
-	TRACE_TEXT(TRACE_MAIN_STEPS, "Retrieving IN data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
-      } else {
-	TRACE_TEXT(TRACE_MAIN_STEPS, "Retrieving IN_OUT data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
-      }
-
-      struct timeval t1, t2;
-      gettimeofday(&t1, NULL);
-      this->JuxMem->JuxMemMap(profile.parameters[i].desc.id, (int) data_sizeof(&(profile.parameters[i].desc)), NULL);
-      this->JuxMem->JuxMemAcquireRead(profile.parameters[i].desc.id);
-      this->JuxMem->JuxMemRead(&profile.parameters[i]);
-      this->JuxMem->JuxMemRelease(profile.parameters[i].desc.id);
-      gettimeofday(&t2, NULL);
+    if (profile.parameters[i].desc.mode == DIET_PERSISTENT ||
+	profile.parameters[i].desc.mode == DIET_PERSISTENT_RETURN) {
       
-      if (dietLogComponent != NULL) {
-	dietLogComponent->logJuxMemDataUse(reqID,
-					   profile.parameters[i].desc.id, 
-					   "READ", 
-					   (int) data_sizeof(&(profile.parameters[i].desc)), 
-					   (long) profile.parameters[i].desc.generic.base_type,
-					   "MATRIX",
-					   ((t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000));
+      /* IN case -> acquire the data in read mode */
+      if (i <= profile.last_in) {
+	assert(profile.parameters[i].desc.id != NULL);
+	profile.parameters[i].value = this->juxmem->mmap(NULL, data_sizeof(&(profile.parameters[i].desc)), profile.parameters[i].desc.id, 0);
+	TRACE_TEXT(TRACE_MAIN_STEPS, "Acquiring IN data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
+	this->juxmem->acquireRead(profile.parameters[i].value, profile.parameters[i].desc.id);
+	continue;
+      }
+      /* INOUT case -> acquire the data in write mode */
+      if (i > profile.last_in && i <= profile.last_inout) {
+	assert(profile.parameters[i].desc.id != NULL);
+	profile.parameters[i].value = this->juxmem->mmap(NULL, data_sizeof(&(profile.parameters[i].desc)), profile.parameters[i].desc.id, 0);
+	TRACE_TEXT(TRACE_MAIN_STEPS, "Acquiring INOUT data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
+	this->juxmem->acquire(profile.parameters[i].value, profile.parameters[i].desc.id);
+	continue;
+      }
+      /* OUT case -> acquire the data in write mode if exists in JuxMem */
+      if (i > profile.last_inout) {
+	if (profile.parameters[i].desc.id == NULL || (strlen(profile.parameters[i].desc.id) == 0)) {
+	  TRACE_TEXT(TRACE_MAIN_STEPS, "New data for OUT\n");
+	} else {
+	  assert(profile.parameters[i].desc.id != NULL);
+	  profile.parameters[i].value = this->juxmem->mmap(NULL, data_sizeof(&(profile.parameters[i].desc)), profile.parameters[i].desc.id, 0);
+	  this->juxmem->acquire(profile.parameters[i].value, profile.parameters[i].desc.id);
+	  TRACE_TEXT(TRACE_MAIN_STEPS, "Acquiring OUT data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
+	}
       }
     }
   }
@@ -879,53 +866,29 @@ SeDImpl::solve_batch(const char* path, corba_profile_t& pb, CORBA::Long reqID)
 
 #if HAVE_JUXMEM
   for (i = 0; i <= profile.last_out; i++) {
-    if (profile.parameters[i].desc.mode == DIET_PERSISTENT) {
-      struct timeval t1, t2;
+    if (profile.parameters[i].desc.mode == DIET_PERSISTENT ||
+	profile.parameters[i].desc.mode == DIET_PERSISTENT_RETURN) {
 
-      /** Case of OUT data, a data space must be allocated inside JuxMem only if not ID is specified */
-      /** If an ID is specified use it! */
-      if (i > profile.last_inout && strlen(profile.parameters[i].desc.id) == 0) {
-	gettimeofday(&t1, NULL);
-	this->JuxMem->JuxMemAlloc(&profile.parameters[i].desc.id, data_sizeof(&(profile.parameters[i].desc)), NULL);
-	this->JuxMem->JuxMemMap(profile.parameters[i].desc.id, data_sizeof(&(profile.parameters[i].desc)), NULL);
-	gettimeofday(&t2, NULL);
-	
-	TRACE_TEXT(TRACE_MAIN_STEPS, "A data space with ID = " << profile.parameters[i].desc.id << " for OUT data has been allocated inside JuxMem!\n");
-	
-	if (dietLogComponent != NULL) {
-	  dietLogComponent->logJuxMemDataStore(reqID,
-					       profile.parameters[i].desc.id, 
-					       (int) data_sizeof(&(profile.parameters[i].desc)), 
-					       (long) profile.parameters[i].desc.generic.base_type,
-					       "MATRIX", 
-					       ((t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000));
+      /** IN and INOUT case */
+      if (i <= profile.last_inout) {
+	TRACE_TEXT(TRACE_MAIN_STEPS, "Releasing data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
+	this->juxmem->release(profile.parameters[i].value, profile.parameters[i].desc.id);
+      } else {       /** OUT case */
+	/** The data does not exist yet */
+	if (strlen(profile.parameters[i].desc.id) == 0) {
+	  /* The local memory is attached inside JuxMem */
+	  profile.parameters[i].desc.id = this->juxmem->attach(profile.parameters[i].value, 
+							       data_sizeof(&(profile.parameters[i].desc)), 
+							       1, 1, EC_PROTOCOL, BASIC_SOG);
+	  TRACE_TEXT(TRACE_MAIN_STEPS, "A data space with ID = " << profile.parameters[i].desc.id << " for OUT data has been attached inside JuxMem!\n");
+	  /* The local memory is flush inside JuxMem */
+	  this->juxmem->msync(profile.parameters[i].value, profile.parameters[i].desc.id);
+	} else { /* Simply release the lock */
+	  this->juxmem->release(profile.parameters[i].value, profile.parameters[i].desc.id);
 	}
       }
-      
-      /** IN_OUT and OUT data must be written inside JuxMem */
-      if (i > profile.last_in) {
-	gettimeofday(&t1, NULL);
-	this->JuxMem->JuxMemAcquire(profile.parameters[i].desc.id);
-	this->JuxMem->JuxMemWrite(&profile.parameters[i]);
-	this->JuxMem->JuxMemRelease(profile.parameters[i].desc.id);
-	gettimeofday(&t2, NULL);
-	
-	if (dietLogComponent != NULL) {
-	  dietLogComponent->logJuxMemDataUse(reqID,
-					     profile.parameters[i].desc.id, 
-					     "WRITE", 
-					     (int) data_sizeof(&(profile.parameters[i].desc)), 
-					     (long) profile.parameters[i].desc.generic.base_type,
-					     "MATRIX", 
-					     ((t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000));
-	}
 
-	/** Removing all INOUT and OUT data so that it doesn't go back with the client request */
-	if (profile.parameters[i].desc.generic.type != DIET_STRING) {
-	  free(profile.parameters[i].value);
-	  profile.parameters[i].value = NULL;
-	}
-      }
+      this->juxmem->unmap(profile.parameters[i].value, profile.parameters[i].desc.id);
     }
   }
   mrsh_profile_to_out_args(&pb, &profile, cvt);

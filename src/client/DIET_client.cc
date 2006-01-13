@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.69  2006/01/13 10:40:53  mjan
+ * Updating DIET for next JuxMem (0.2)
+ *
  * Revision 1.68  2005/11/10 14:37:51  eboix
  *     Clean-up of Cmake/DIET_config.h.in and related changes. --- Injay2461
  *
@@ -80,12 +83,12 @@ using namespace std;
 #include <string.h>
 #include <math.h>
 
+#include "acDIET_config.h"
 #include "debug.hh"
 #include "est_internal.hh"
 #include "DIET_data_internal.hh"
 #if HAVE_JUXMEM
-#include "JuxMemImpl.hh"
-#include <sys/stat.h>
+#include "JuxMem.hh"
 #endif // HAVE_JUXMEM
 #include "marshalling.hh"
 #include "MasterAgent.hh"
@@ -144,7 +147,7 @@ static size_t USE_ASYNC_API = 1;
 #endif
 
 #if HAVE_JUXMEM
-  JuxMemImpl* JuxMem;
+  JuxMem::Wrapper * juxmem;
 #endif // HAVE_JUXMEM
 
 /****************************************************************************/
@@ -260,10 +263,7 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   }
 
 #if HAVE_JUXMEM
-  JuxMem = new JuxMemImpl();
-  if (JuxMem->run(userDefName)) {
-    ERROR("Unable to launch the SeD", 1);
-  }
+  juxmem = new JuxMem::Wrapper();
 #endif // HAVE_JUXMEM
 
   /* Find Master Agent */
@@ -324,7 +324,7 @@ diet_finalize()
   MA_MUTEX.unlock();
 
 #if HAVE_JUXMEM
-  delete(JuxMem);
+  delete(juxmem);
 #endif // HAVE_JUXMEM
   
   /* end fileName */
@@ -641,19 +641,21 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
 
 #if HAVE_JUXMEM 
   int i = 0;
-  for (i = 0; i <= profile->last_in; i++) {
+  for (i = 0; i <= profile->last_inout; i++) {
+    /**
+     * If there is no data id (for both IN or INOUT case), this a new
+     * data.  Therefore, attach the user input and do a msync on
+     * JuxMem of the data.  Of course do that only if data are
+     * persistent! Else let CORBA move them
+     */
     if (profile->parameters[i].desc.id == NULL &&
 	profile->parameters[i].desc.mode == DIET_PERSISTENT) {
-      
-      JuxMem->JuxMemAlloc(&profile->parameters[i].desc.id, (int) data_sizeof(&(profile->parameters[i].desc)), NULL);
-      
-      TRACE_TEXT(TRACE_MAIN_STEPS, "A data space with ID = " << profile->parameters[i].desc.id << " for IN data has been allocated inside JuxMem!\n");
-      
-      JuxMem->JuxMemMap(profile->parameters[i].desc.id, (int) data_sizeof(&(profile->parameters[i].desc)), NULL);
-      JuxMem->JuxMemAcquire(profile->parameters[i].desc.id);
-      JuxMem->JuxMemWrite(&profile->parameters[i]);
-      JuxMem->JuxMemRelease(profile->parameters[i].desc.id);
-      
+      profile->parameters[i].desc.id = juxmem->attach(profile->parameters[i].value, 
+						      data_sizeof(&(profile->parameters[i].desc)), 
+						      1, 1, EC_PROTOCOL, BASIC_SOG);
+      TRACE_TEXT(TRACE_MAIN_STEPS, "A data space with ID = " << profile->parameters[i].desc.id << " for IN data has been attached inside JuxMem!\n");
+      /* The local memory is flush inside JuxMem */
+      juxmem->msync(profile->parameters[i].value, profile->parameters[i].desc.id);      
       profile->parameters[i].value = NULL;
     }
   }
@@ -718,9 +720,6 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
     if ((corba_profile.parameters[i].desc.mode > DIET_VOLATILE ) && 
         (corba_profile.parameters[i].desc.mode < DIET_PERSISTENCE_MODE_COUNT)) {
       profile->parameters[i].desc.id = strdup(corba_profile.parameters[i].desc.id.idNumber);
-#if HAVE_JUXMEM
-      corba_profile.parameters[i].value = NULL;
-#endif
     }
   }
 
@@ -730,20 +729,22 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
 
 #if HAVE_JUXMEM
   for (i = profile->last_inout + 1; i <= profile->last_out; i++) {
+    /**
+     * Retrieve INOUT or OUT data only if DIET_PERSISTENT_RETURN.
+     * Note that for INOUT data, the value can be already initialized.
+     * In this case, JuxMem will use this address to store the
+     * data. If value is NULL, a memory area will allocated.
+     */
     if (profile->parameters[i].desc.id != NULL &&
-	profile->parameters[i].desc.mode == DIET_PERSISTENT) {
-
+	profile->parameters[i].desc.mode == DIET_PERSISTENT_RETURN) {
+      juxmem->mmap(profile->parameters[i].value, data_sizeof(&(profile->parameters[i].desc)), profile->parameters[i].desc.id, 0);
       if (i <= profile->last_inout) {
 	TRACE_TEXT(TRACE_MAIN_STEPS, "Retrieving IN_OUT data with ID = " << profile->parameters[i].desc.id << " from JuxMem ...\n");
       } else {
 	TRACE_TEXT(TRACE_MAIN_STEPS, "Retrieving OUT data with ID = " << profile->parameters[i].desc.id << " from JuxMem ...\n");
       }
-
-      /** IN_OUT and OUT data must be retrieve from JuxMem */
-      JuxMem->JuxMemMap(profile->parameters[i].desc.id, (int) data_sizeof(&(profile->parameters[i].desc)), NULL);
-      JuxMem->JuxMemAcquireRead(profile->parameters[i].desc.id);
-      JuxMem->JuxMemRead(&profile->parameters[i]);
-      JuxMem->JuxMemRelease(profile->parameters[i].desc.id);
+      juxmem->acquireRead(profile->parameters[i].value, profile->parameters[i].desc.id);
+      juxmem->release(profile->parameters[i].value, profile->parameters[i].desc.id);
     }
   }
 #endif // HAVE_JUXMEM

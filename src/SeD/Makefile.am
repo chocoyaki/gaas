@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.19  2006/01/13 10:40:39  mjan
+#* Updating DIET for next JuxMem (0.2)
+#*
 #* Revision 1.18  2006/01/05 07:45:17  mjan
 #* Fix bug reported by Eddy.
 #*
@@ -101,10 +104,6 @@ libDIET_SeD_la_LIBADD = \
 
 if USE_BATCH
 libDIET_SeD_la_LIBADD += $(ELAGI_LIBS) $(AS_LIBS)
-endif
-
-if JUXMEM_MODE
-libDIET_SeD_la_LIBADD += $(utilsdir)/libJuxMemWrapper.la
 endif
 
 AM_CXXFLAGS = @JUXMEM_CXXFLAGS@ $(CXXFLAGS_OMNIORB) $(CXXFLAGS_FAST) -I$(top_srcdir)/src/utils \

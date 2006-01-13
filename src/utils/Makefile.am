@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.21  2006/01/13 10:41:27  mjan
+#* Updating DIET for next JuxMem (0.2)
+#*
 #* Revision 1.20  2006/01/09 22:17:09  rbolze
 #* this is a little correction for Red Hat compilation when CORI is enable.
 #*
@@ -64,9 +67,6 @@ include $(top_srcdir)/config.mk.in
 
 noinst_LTLIBRARIES = libUtilsCommon.la libUtilsSeDClt.la \
 		     libUtilsNodes.la libUtilsVector.la
-if JUXMEM_MODE
-noinst_LTLIBRARIES += libJuxMemWrapper.la
-endif
 
 libUtilsCommon_la_SOURCES  = debug.cc DIET_data.cc ms_function.cc \
 			     Parsers.cc statistics.cc KeyString.cc
@@ -81,7 +81,6 @@ endif
 
 
 libUtilsVector_la_SOURCES  = Vector.c
-libJuxMemWrapper_la_SOURCES = JuxMemImpl.cc
 
 noinst_HEADERS = Counter.hh debug.hh DIET_data_internal.hh \
 		 FASTMgr.hh LinkedList.hh ms_function.hh Parsers.hh \
@@ -89,12 +88,11 @@ noinst_HEADERS = Counter.hh debug.hh DIET_data_internal.hh \
 		 statistics.hh ts_container/ts_map.hh \
 		 ts_container/ts_set.hh ts_container/ts_vector.hh \
 		 DietLogComponent.hh MonitoringThread.hh KeyString.hh \
-		 AccessController.hh Vector.h JuxMemImpl.hh 
+		 AccessController.hh Vector.h 
 
 if USING_CORI
 noinst_HEADERS += Cori_Fast.hh Cori_Easy_CPU.hh  Cori_Easy_Disk.hh Cori_Easy_Memory.hh Cori_Data_Easy.hh Cori_Metric.hh	CORIMgr.hh 
 endif
-
 
 AM_CXXFLAGS = @JUXMEM_CXXFLAGS@ $(CXXFLAGS_OMNIORB) $(CXXFLAGS_FAST) \
 	      -I$(top_srcdir)/src/CORBA -I$(top_builddir)/src/CORBA/idl

@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.57  2006/01/13 10:42:16  mjan
+#* Updating DIET for next JuxMem (0.2)
+#*
 #* Revision 1.56  2006/01/09 21:35:18  pfrauenk
 #* CoRI : bug fixes: Redhat doesn't support the POSIX standard
 #*        	some functions aren't provided
@@ -231,7 +234,7 @@ dnl ###########################################################################
 dnl ###########################################################################
 
 AH_TEMPLATE(HAVE_STATISTICS, [Define the use of the statistics tools.])
-AC_ARG_ENABLE(stats,
+AC_ARG_ENABLE(stats,	     
 	      AC_HELP_STRING([--enable-stats],
 			     [enable generation of statistics logs]),
 	      [AC_DEFINE(HAVE_STATISTICS)][IDLFLAGS="$IDLFLAGS -DHAVE_STATISTICS"])
@@ -305,40 +308,52 @@ dnl Specific to JuxMem
 dnl ##########################################
 
 AH_TEMPLATE(HAVE_JUXMEM, [Define use of JuxMem by DIET.])
-AC_ARG_ENABLE(JuxMem,
-	      AC_HELP_STRING([--enable-JuxMem],
+AC_ARG_ENABLE(juxmem,
+	      AC_HELP_STRING([--enable-juxmem],
 			     [to use JuxMem with DIET specify the path of JuxMem.]),
-	      [enable_JuxMem=yes])
+	      [enable_juxmem=yes],[enable_juxmem=no])
 
-if test "x$enable_JuxMem" = "xyes"
+if test "x$enable_juxmem" = "xyes"
 then
-
-AC_ARG_WITH(apr,
+  AC_ARG_WITH(apr,
 	AC_HELP_STRING([--with-apr], [location of APR to use (needed by JuxMem)]),
 	[with_apr="$withval"],[enable_APR=no])
 
-AC_ARG_WITH(jxta-c,
+  AC_ARG_WITH(jxta-c,
 	AC_HELP_STRING([--with-jxta-c], [location of JXTA-C to use (needed by JuxMem)]),
 	[with_jxta="$withval"],[enable_JXTA_C=no])
 
-AC_ARG_WITH(juxmem,
+  AC_ARG_WITH(juxmem,
 	AC_HELP_STRING([--with-juxmem], [location of JuxMem to use]),
 	[with_juxmem="$withval"],[enable_JUXMEM=no])
 
+  AC_PATH_PROG(xml2_config, xml2-config, "")	
+
+  if test -z "$xml2_config"
+  then
+     echo "Cannot find xml2-config, libxml2 must be installed to link with JXTA"
+     exit 0
+  fi 
+
+  xml2_prefix="`$xml2_config --prefix`"
+  xml2_cppflags=" `$xml2_config --cflags` "
+  XML2_CPPFLAGS=$xml2_cppflags
+  xml2_libs=" `$xml2_config --libs` "
+  XML2_LIBS=$xml2_libs
+
+  OPENSSL_CPPFLAGS=" `pkg-config openssl --cflags` "
+  OPENSSL_LIBS=" `pkg-config openssl --libs` "
+
   AC_DEFINE(HAVE_JUXMEM)
-  IDLFLAGS="$IDLFLAGS -DHAVE_JUXMEM"
-  JUXMEM_CXXFLAGS=" -I$with_jxta/include -I$with_apr/include -I$with_juxmem/include"
-  JUXMEM_LDFLAGS=" -L$with_apr/lib -L$with_jxta/lib -L$with_juxmem/lib -lapr-0 -laprutil-0 -ljpr -ljxta -ljuxmem"
+  JUXMEM_CXXFLAGS=" -I$with_jxta/include -I$with_apr/include/apr-1 -I$with_juxmem/include $XML2_CPPFLAGS $OPENSSL_CPPFLAGS"
+  JUXMEM_LDFLAGS=" -L$with_apr/lib -L$with_jxta/lib -L$with_juxmem/lib -lapr-1 -laprutil-1 -ljpr -ljxta -ljuxmem $XML2_LIBS $OPENSSL_LIBS"
 else
   JUXMEM_CXXFLAGS=""
   JUXMEM_LDFLAGS=""
 fi
 
-  AC_SUBST(JUXMEM_CXXFLAGS)
-  AC_SUBST(JUXMEM_LDFLAGS)
-
-AM_CONDITIONAL(JUXMEM_MODE, [test "x$HAVE_JUXMEM" = "xyes"])
-
+AC_SUBST(JUXMEM_CXXFLAGS)
+AC_SUBST(JUXMEM_LDFLAGS)
 
 dnl ###########################################################################
 dnl Load anything under acmacros/*.m4
@@ -722,7 +737,7 @@ fi
 
 # JuxMem
 printf " - JuxMem:          " | tee -a config.log
-if test "x$enable_JuxMem" = "xyes"
+if test "x$enable_juxmem" = "xyes"
 then
   echo "yes" | tee -a config.log
 else

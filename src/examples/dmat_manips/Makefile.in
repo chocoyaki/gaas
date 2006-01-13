@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.23  2006/01/13 10:41:53  mjan
+#* Updating DIET for next JuxMem (0.2)
+#*
 #* Revision 1.22  2005/05/27 08:18:17  mjan
 #* Moving JuxMem in a more appropriate place (src/utils)
 #* Added log messages for VizDIET
@@ -72,12 +75,12 @@ clientWithID: clientWithID.c $(DIET_CLIENT_PREREQ)
 	$(CC) $(CCFLAGS_DIET) $< $(DIET_CLIENT_LIBS) -o $@
 
 clientJuxMem: clientJuxMem.c $(DIET_CLIENT_PREREQ)
-	$(CC) $(CCFLAGS_DIET) $< $(DIET_CLIENT_LIBS) -o $@
+	$(CC) $(CCFLAGS_DIET) -g $< $(DIET_CLIENT_LIBS) -o $@
 
 # As the server uses the __FAST_*__ macros, we must exceptionnally add
 # the flag -I ../../../include.
 server:	server.c $(DIET_SERVER_PREREQ)
-	$(CC) $(CCFLAGS_DIET) -I $(top_builddir)/include $<	\
+	$(CC) $(CCFLAGS_DIET) -g -I $(top_builddir)/include $<	\
 	      $(DIET_SERVER_LIBS)  -o $@
 
 # Implicit rule for all CXX clients

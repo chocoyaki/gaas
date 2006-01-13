@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.35  2006/01/13 10:41:27  mjan
+ * Updating DIET for next JuxMem (0.2)
+ *
  * Revision 1.34  2005/10/04 12:05:39  alsu
  * minor changes to pacify gcc/g++ 4.0
  *
@@ -747,11 +750,11 @@ _matrix_get(diet_arg_t* arg, void** value, diet_persistence_mode_t* mode,
     ERROR(__FUNCTION__ << " misused (wrong type)", 1);
   }   
 
-    if ((res = get_value((diet_data_t*)arg, value))) {
+  if ((res = get_value((diet_data_t*)arg, value))) {
     ERROR(__FUNCTION__
           << " misused (wrong base type or arg pointer is NULL)", res);
-          }
-
+  }
+  
  
   if (mode)
     *mode = arg->desc.mode;

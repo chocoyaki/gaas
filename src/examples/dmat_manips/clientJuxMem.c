@@ -3,6 +3,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2006/01/13 10:41:53  mjan
+ * Updating DIET for next JuxMem (0.2)
+ *
  * Revision 1.5  2005/06/02 08:05:40  mjan
  * Updated client for looping requests.
  *
@@ -108,7 +111,7 @@ main(int argc, char* argv[])
 		  B, DIET_PERSISTENT, DIET_DOUBLE, mB, nB, oB);
   print_matrix(B, mB, nB, (oB == DIET_ROW_MAJOR));
   diet_matrix_set(diet_parameter(profile,2),
-		  NULL, DIET_PERSISTENT, DIET_DOUBLE, mA, nB, oC);
+		  NULL, DIET_PERSISTENT_RETURN, DIET_DOUBLE, mA, nB, oC);
 
   strcpy(path2,"MatSUM");
   profile2 = diet_profile_alloc(path2, 1, 1, 2);
@@ -119,7 +122,7 @@ main(int argc, char* argv[])
 		  E, DIET_PERSISTENT, DIET_DOUBLE, mA, nB, oE);
   print_matrix(E, mA, nB, (oE == DIET_ROW_MAJOR));
   diet_matrix_set(diet_parameter(profile2,2),
-		  NULL, DIET_PERSISTENT, DIET_DOUBLE, mA, nB, oD);
+		  NULL, DIET_PERSISTENT_RETURN, DIET_DOUBLE, mA, nB, oD);
   
   for (i = 0; i < n_loops; i++) {
     if (!diet_call(profile)) {
