@@ -5,6 +5,15 @@ diet-2.0.1
 	It's now repaired. Moreover, the JXTA SeD will be automatically
 	updated when the DIET server API is modified.
 
+* DIET with MacOSX
+	- Bug corrections to compile on MacOSX. 
+	Remark : DIET requires Xcode 1.1 and the CVS version of omniORB 4.1.x
+	         Compilation has been tested on MacOSX 10.4.4 
+	
+* Known bugs but not resolved
+	- INOUT parameters are not changed in asynchronous mode (bug #9 in
+	  bugzilla)
+
 diet-2.0
 
 * Plug-in
