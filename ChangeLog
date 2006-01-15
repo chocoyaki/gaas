@@ -1,4 +1,8 @@
-diet-2.0.1
+diet-2.1
+
+* JuxMem
+	- JuxMem support inside DIET has been updated for JuxMem 0.2.
+	Removed C++ wrapper inside src/utils (included in JuxMem).
 
 * JXTA Multi-MA
 	- Changes inside the DIET code caused the JXTA Multi-MA to be broken.
