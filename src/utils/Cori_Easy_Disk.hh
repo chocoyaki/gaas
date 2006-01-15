@@ -26,11 +26,26 @@ using namespace std;
 #define COUNTPERBUFFER 20
 
 class Easy_Disk{
+
+public:
+  int 
+  get_Read_Speed(const char* path, 
+		 double * result);
+  int 
+  get_Write_Speed(const char* path, 
+		  double * result);
+  int 
+  get_Available_DiskSpace(const char* path, 
+			  double * result);
+  int 
+  get_Total_DiskSpace(const char* path, 
+		      double * result);
+  
 private:
   // int sigalarm;
   // void stop_count(int a);
   int 
-  create_file(const char* path_file);
+  create_file(char** path_file);
   int 
   gatherSizeDisks(int typeOfInfo,
 		  double * result, 
@@ -51,24 +66,14 @@ private:
   get_Read_Speed_by_sig_alarm(const char* path, 
 			      double * result);
 
-public:
-  int 
-  get_Read_Speed(const char* path, 
-		 double * result);
-  int 
-  get_Write_Speed(const char* path, 
-		  double * result);
-  int 
-  get_Available_DiskSpace(const char* path, 
-			  double * result);
-  int 
-  get_Total_DiskSpace(const char* path, 
-		      double * result);
-  double 
-  search_for_percent(ifstream &file,
+ int 
+  openfile(char ** path,
+	   ofstream* outfile);
+ 
+double 
+  search_for_percent(FILE * file,
 		     int typeOfInfo);
-  int 
-  is_Accessible(const char * path);
+
 };
 
 #endif //_CORI_EASY_DISK_HH_
