@@ -4,19 +4,12 @@
 #include "est_internal.hh"
 
 #include <iostream>
+#include "debug.hh"
 
 using namespace std;
 
 
 vector <Cori_Metric>* CORIMgr::collector_v=new vector <Cori_Metric>();
-int CORIMgr::is_initiated=0;
-
-int
-CORIMgr::init(){
-  if (!is_initiated)
-  is_initiated=1;
-  return 0;
-}
 
 int
 CORIMgr::add(diet_est_collect_tag_t collectorName,
@@ -47,5 +40,6 @@ CORIMgr::call_cori_mgr(estVector_t *ev,
     else 
       iter1++;
   }
-  return 0;
+  INTERNAL_WARNING("The collector "<<name<<" is not present in CORIMgr \n ");
+  return 1;
 }

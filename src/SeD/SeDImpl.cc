@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.65  2006/01/15 13:50:11  pfrauenk
+ * CoRI: unused function removed
+ *
  * Revision 1.64  2006/01/13 10:40:39  mjan
  * Updating DIET for next JuxMem (0.2)
  *
@@ -181,12 +184,6 @@ SeDImpl::SeDImpl()
 #if HAVE_FAST
   this->fastUse = 1;
 #endif // HAVE_FAST
-
-
-#if HAVE_CORI
-  /**initialize CORI evaluation*/
-  CORIMgr::init();
-#endif //HAVE_CORI
 
   this->dietLogComponent = NULL;
 #if HAVE_BATCH
@@ -1112,7 +1109,8 @@ SeDImpl::ping()
 /****************************************************************************/
 
 /**
- * Estimate a request, with FAST if available.
+ * Estimate a request, with FAST if available. 
+ * Gather info about SeD by CoRI
  */
 inline void 
 SeDImpl::estimate(corba_estimation_t& estimation,
@@ -1161,7 +1159,7 @@ SeDImpl::estimate(corba_estimation_t& estimation,
    diet_estimate_cori(eVals,EST_FREEMEM,EST_COLL_EASY,NULL); 
    diet_estimate_cori(eVals,EST_NBCPU,EST_COLL_EASY,NULL); 
    diet_estimate_cori(eVals,EST_FREECPU,EST_COLL_EASY,NULL); 
-
+    
 #if HAVE_FAST  
   }
 #endif // HAVE_FAST

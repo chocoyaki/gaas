@@ -24,9 +24,6 @@ class CORIMgr{
 public:
 
 static int
-init();
-
-static int
 add(diet_est_collect_tag_t collectorName,
     const void * datav);
 
@@ -38,6 +35,5 @@ call_cori_mgr(estVector_t* ev,
 
 private :
   static vector <Cori_Metric>* collector_v;
-  static int is_initiated;
 };
 #endif //_CORIMGR_HH__
