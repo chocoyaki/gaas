@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.58  2006/01/15 16:11:35  ecaron
+#* Ready to version 2.1
+#*
 #* Revision 1.57  2006/01/13 10:42:16  mjan
 #* Updating DIET for next JuxMem (0.2)
 #*
@@ -120,7 +123,7 @@
 #* add DIET/JXTA
 #****************************************************************************#
 
-define(DIET_version,        2.0)
+define(DIET_version,        2.1)
 define(omniORB_min_version, 3)
 define(FAST_min_version,    0.4.3)
 
