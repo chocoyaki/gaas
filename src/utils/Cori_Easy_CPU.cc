@@ -16,7 +16,7 @@
 #endif
 #include "Cori_Easy_CPU.hh"
 #include <stdio.h>
-
+#include "debug.hh"
 using namespace std;
 
 int 
@@ -151,8 +151,7 @@ Easy_CPU::get_CPU_Avg_byGetloadavg(int interval,
     break;
   }
   default: {
-    cerr<<"Error - get_CPU_Avg("<<interval<<")doesn't exist!"<<endl;
-    cerr<<"Only 1,10 and 15 minutes intervals are allowed!"<<endl; 
+    INTERNAL_WARNING("CoRI Easy: "<<interval<<" bad value for get_CPU_Avg(int x)!");
     return 1;
   }
   } 
@@ -265,34 +264,17 @@ Easy_CPU::get_CPU_Number_byNum_Proc(double * result){
 
 int 
 Easy_CPU::get_CPU_ActualLoad_Byps(double * actualload){
-
- //  char *filepath_name="./dummy";
-  
-//    //delete old file
-//   remove (filepath_name);
  
-//   char * commandHeader="ps -e -o pcpu >> ";
-  
-//   char * command=new char[strlen(filepath_name)+19];
- 
-//   strcpy (command,commandHeader);
-//   strcat(command,filepath_name );
- 
-//   if (system(command)==-1) return 1;
-  
   FILE * psfile;
   char buffer [256];
-  //psfile=fopen(filepath_name,"rt");
   psfile=popen("ps -e -o pcpu","r");
+
   if (psfile==NULL){
-    cerr<<"can't open tmp file"<<endl;
     return 1;
   }
-  else 
-  
+  else  
     fscanf (psfile,"%s",buffer);
   if (strcmp(buffer,"%CPU")!=0){
-     cerr<<"Error: ps format not recognized"<<endl;
      return 1;
   }  
   float loadCPU=0;
@@ -301,11 +283,10 @@ Easy_CPU::get_CPU_ActualLoad_Byps(double * actualload){
     fscanf (psfile,"%f",&tmp);
     loadCPU+=tmp;
   }
- 
-  //fclose(psfile);
   pclose(psfile);
-//   remove (filepath_name);
   *actualload=loadCPU/100;
+  if (*actualload<0) //error in what kind of manner
+    *actualload=1;
   return 0;
 }
 
@@ -489,58 +470,3 @@ Easy_CPU::get_CPU_Freq_for_NetBSD(vector <double> * vlist)
 #endif
   return 1;
 }
-
-
-
-
-
-/************************************MAIN*******************/
-/*
-int main (int argc, char **argv){
-  double resultat;
-  vector<double> vres;
-  vector<double>::iterator iter1;
-  Easy_CPU easy;
-
-  easy.get_CPU_ActualLoad(&resultat) ;
-  cout<<"actual load: "<<resultat <<endl;
-  easy.get_CPU_Avg(1,&resultat);
-  cout<<"1min avg: "<<resultat<<endl;
-  easy.get_CPU_Avg(10,&resultat);
-  cout<<"10min avg: "<<resultat<<endl;
-  easy.get_CPU_Avg(15,&resultat);
-  cout<<"15min avg: "<<resultat<<endl;
-  cout<< " " <<endl;
-  if (!easy.get_CPU_Frequence(&vres)) {
-    iter1 = vres.begin();
-    while((vres.size()!=0)&&( iter1 != vres.end())) {
-      cout<<"CPU frequence: "<<*iter1  <<endl;    
-      iter1++;
-    }		
-  }
-  else cerr<<"found no info"<<endl;
-
- vector<double> vres2;
-
-
-  if (!easy.get_CPU_Bogomips(&vres2)){
-    while (iter1!=vres2.end()){
-       iter1 = vres2.begin();
-      cout<<"Bogomips: "<<*iter1<<endl;
-      iter1++;
-    }
-  }
- vector<double> vres3;
-  // cout<<"CPU Bogomips: "<< <<endl;
-  if (!easy.get_CPU_Cache(&vres3)){
- while (iter1!=vres3.end()){
-    iter1 = vres3.begin();
-      cout<<"CPU Cache: "<<*iter1<<endl;
-      iter1++;
-    }
-  }
-  else cerr<<"found no info"<<endl;
-  easy.get_CPU_Number(&resultat);
-  cout<<"Number of procs: "<<resultat<<endl;
-}
-*/

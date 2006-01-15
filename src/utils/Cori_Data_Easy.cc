@@ -1,9 +1,12 @@
+#include "Cori_Data_Easy.hh"
+
+#include "debug.hh"
 #include <iostream>
 #include <fstream>	/*file reading*/
 #include <cstdlib>
 #include <string>
 #include <math.h>
-#include "Cori_Data_Easy.hh"
+
  
 using namespace std;
 
@@ -18,7 +21,7 @@ print_Metric(estVector_t vector_v,diet_est_tag_t type_Info){
 	for (int i=0; i<diet_est_array_size_internal(vector_v,EST_CPUSPEED);i++){
 	  cout << "CPU "<<i<<" frequence : "<< diet_est_array_get_internal(vector_v,EST_CPUSPEED,i,errorCode)<< endl;
 	  cout << "CPU "<<i<<" cache : "<< diet_est_array_get_internal(vector_v,EST_CACHECPU,i,errorCode)<< endl;
-	  cout << "CPU "<<i<<" Bogomips : "<< diet_est_array_get_internal(vector_v,EST_CACHECPU,i,errorCode)<< endl;
+	  cout << "CPU "<<i<<" Bogomips : "<< diet_est_array_get_internal(vector_v,EST_BOGOMIPS,i,errorCode)<< endl;
 	}
 
 	cout << "number of processors : "<< diet_est_get_internal(vector_v,EST_NBCPU,errorCode)<< endl;         
@@ -41,8 +44,8 @@ print_Metric(estVector_t vector_v,diet_est_tag_t type_Info){
       cout << "CPU "<<i<<" cache : "<< diet_est_array_get_internal(vector_v,EST_CACHECPU,i,errorCode)<< endl;
     break;	
   case EST_BOGOMIPS:
-    for (int i=0; i<diet_est_array_size_internal(vector_v,EST_CPUSPEED);i++)
-      cout << "CPU "<<i<<" Bogomips : "<< diet_est_array_get_internal(vector_v,EST_CACHECPU,i,errorCode)<< endl;
+    for (int i=0; i<diet_est_array_size_internal(vector_v,EST_BOGOMIPS);i++)
+      cout << "CPU "<<i<<" Bogomips : "<< diet_est_array_get_internal(vector_v,EST_BOGOMIPS,i,errorCode)<< endl;
     break;   
   case EST_AVGFREECPU:  
     cout << "cpu average load : "<<diet_est_get_internal(vector_v,EST_AVGFREECPU, errorCode)<<endl;
@@ -72,7 +75,7 @@ print_Metric(estVector_t vector_v,diet_est_tag_t type_Info){
      cout << "free cpu: "<<diet_est_get_internal(vector_v,EST_FREECPU, errorCode)<<endl;
     break;
   default: {
-    cerr<< "Tag " <<type_Info <<" unknown for information" <<endl;
+    INTERNAL_WARNING( "CoRI: Tag " <<type_Info <<" for printing info");
   }	
  }
 }
@@ -91,9 +94,9 @@ Cori_Data_Easy::get_Information(diet_est_tag_t type_Info,
    int res=0;
    double temp=0;
    int minut;
-   int print_it=1;
+    char * tmp="./";
   switch (type_Info){
-  
+ 
   case EST_ALLINFOS:{
     minut=15;
     res = get_Information(EST_CPUSPEED,info,NULL)||res;
@@ -101,10 +104,10 @@ Cori_Data_Easy::get_Information(diet_est_tag_t type_Info,
     res = get_Information(EST_CACHECPU,info,NULL)||res;
     res = get_Information(EST_NBCPU,info,NULL)||res;
     res = get_Information(EST_BOGOMIPS,info,NULL)||res;
-    res = get_Information(EST_DISKACCESREAD,info,"./")||res;
-    res = get_Information(EST_DISKACCESWRITE,info,"./")||res;
-    res = get_Information(EST_TOTALSIZEDISK,info,"./")||res;
-    res = get_Information(EST_FREESIZEDISK,info,"./")||res;
+    res = get_Information(EST_DISKACCESREAD,info,tmp)||res;
+    res = get_Information(EST_DISKACCESWRITE,info,tmp)||res;
+    res = get_Information(EST_TOTALSIZEDISK,info,tmp)||res;
+    res = get_Information(EST_FREESIZEDISK,info,tmp)||res;
     res = get_Information(EST_TOTALMEM,info,NULL)||res;
     res = get_Information(EST_FREEMEM,info,NULL)||res; 
     //set all other TAGS to bad values
@@ -138,7 +141,7 @@ Cori_Data_Easy::get_Information(diet_est_tag_t type_Info,
      convertSimple(temp, info,type_Info);
     break;
   case EST_DISKACCESWRITE:
-     path=(char *) data;        
+     path=(char *) data;       
      res=disk->get_Write_Speed(path, &temp);
      convertSimple(temp, info,type_Info);
     break;
@@ -166,12 +169,12 @@ Cori_Data_Easy::get_Information(diet_est_tag_t type_Info,
     convertSimple(temp, info,type_Info);
     break;
   default: {
-    cerr<< "Tag " <<type_Info <<" unknown for information" <<endl;
+    INTERNAL_WARNING("CoRI: Tag " <<type_Info <<" unknown for collecting info");
     res=1;
   }
-
 }
-  if (print_it) print_Metric(*info,type_Info); 
+  if (TRACE_LEVEL>=TRACE_ALL_STEPS)
+    print_Metric(*info,type_Info); 
   return res;
 }
 
@@ -201,7 +204,6 @@ Cori_Data_Easy::convertSimple(double value,
 			      diet_est_tag_t typeOfInfo ){
   diet_est_set_internal(*estvect,typeOfInfo,value);
   return 0;
- 
 }
 
 

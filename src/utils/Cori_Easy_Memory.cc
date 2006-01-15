@@ -12,6 +12,8 @@
 #include <string>
 //#include <string.h>//srtcmp
 #include <string>
+#include "debug.hh"
+
 using namespace std;
 
 int 
@@ -167,7 +169,7 @@ Easy_Memory::get_Info_Memory_byProcMem(double* resultat,
 	  file.close();
 	}
   	else{
-	  cerr<< "Error on reading file";
+	  TRACE_TEXT(TRACE_MAX_VALUE,"Error on reading file");
 	  return 1;
 	}
 #endif //CORI_HAVE_PROCMEM   	

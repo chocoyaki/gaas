@@ -1,5 +1,6 @@
 #include "Cori_Metric.hh"
 #include <iostream>
+#include "debug.hh"
 
 using namespace std;
 
@@ -35,7 +36,7 @@ Cori_Metric::Cori_Metric(diet_est_collect_tag_t type,
      * add here your collector constructor call *
      ********************************************/
   default:{
-    cerr<< "Collector called "<<collector_type <<" doesn't exist"<<endl ;
+    INTERNAL_WARNING("Collector called "<<collector_type <<" doesn't exist");
   }
      break;  
   }
@@ -84,3 +85,4 @@ Cori_Metric::call_cori_metric(diet_est_tag_t type_Info,
   }
   return 1;   
 }
+ 
