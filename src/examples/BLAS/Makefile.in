@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.16  2006/01/16 20:56:07  pfrauenk
+#* Plugin-scheduler: new examples are compiled with when CoRI activated
+#*
 #* Revision 1.15  2003/09/26 14:07:01  pcombes
 #* Get the examples out of the automake chain, to make Makefiles more readable.
 #* The generated before.mk includes the right Makefile.inc.
@@ -20,7 +23,7 @@
 #
 srcdir = @srcdir@
 subdir = src/examples/BLAS
-SOURCES = client.c dgemm_client.c server.c
+SOURCES = client.c dgemm_client.c server.c server_scheduler.c client_scheduler.c
 HEADERS = 
 #
 # before.mk includes the right Makefile.inc. Indeed, the user might wish to
@@ -35,7 +38,7 @@ include ../before.mk
 #
 ##
 
-PROGRAMS = BLAS_client BLAS_server dgemm_client
+PROGRAMS = BLAS_client BLAS_server dgemm_client client_scheduler server_scheduler
 
 all: 	$(PROGRAMS)
 
@@ -48,3 +51,8 @@ BLAS_server:	$(srcdir)/server.c $(DIET_SERVER_PREREQ)
 dgemm_client:	$(srcdir)/dgemm_client.c $(DIET_CLIENT_PREREQ)
 	$(CC) $(CCFLAGS_DIET) $< $(DIET_CLIENT_LIBS) -o $@
 
+client_scheduler:	$(srcdir)/client_scheduler.c $(DIET_CLIENT_PREREQ)
+	$(CC) $(CCFLAGS_DIET) $< $(DIET_CLIENT_LIBS) -o $@
+
+server_scheduler:	$(srcdir)/server_scheduler.c $(DIET_SERVER_PREREQ)
+	$(CC) $(CCFLAGS_DIET) $< $(DIET_SERVER_LIBS) @LIBS_BLAS@ -o $@
