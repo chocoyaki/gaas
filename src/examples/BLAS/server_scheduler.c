@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2006/01/16 16:48:16  pfrauenk
+ * CoRI add new performance functions
+ *
  * Revision 1.3  2006/01/16 09:34:14  pfrauenk
  * CoRI: adding again more plug-in schedulers
  *
@@ -73,11 +76,14 @@ void
 performance_All_Hardwarestatic(diet_profile_t* pb,
 			       estVector_t perfValues);
 
-void performance_Total_Disk_Size(diet_profile_t* pb,
+void 
+performance_Total_Disk_Size(diet_profile_t* pb,
 				 estVector_t perfValues);
 
-void performance_Free_Disk_Size(diet_profile_t* pb,
+void 
+performance_Free_Disk_Size(diet_profile_t* pb,
 				estVector_t perfValues);
+
 #endif //HAVE_CORI
 
 /**
@@ -403,7 +409,9 @@ main(int argc, char* argv[])
   // Not reached
   return res;
 }
+
 #if HAVE_CORI
+
 struct liste_t{
    int actual_size;
    double *array;
