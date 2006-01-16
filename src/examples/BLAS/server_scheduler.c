@@ -8,13 +8,16 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2006/01/16 09:34:14  pfrauenk
+ * CoRI: adding again more plug-in schedulers
+ *
  * Revision 1.2  2005/12/19 16:58:08  pfrauenk
  * CoRI Adding a new scheduler to the example
  *
  * Revision 1.1  2005/12/15 09:42:36  pfrauenk
  * CoRI example added Peter Frauenkron
  ****************************************************************************/
-#include "DIET_config.h"
+//#include "DIET_config.h"
 
 #include <string.h>
 #include <unistd.h>
@@ -26,8 +29,55 @@
 #include "DIET_server.h"
 
 #if HAVE_CORI
-static void
-call_scheduler_RR_Modify(diet_profile_t* pb);
+/** void set_up_scheduler
+ * add the scheduler to the profile
+ */
+void
+set_up_scheduler(char * schedulertype,diet_profile_desc_t* profile);
+
+/*
+** performance_RRNBPROC: the performance function to use in the DIET
+**   plugin scheduling facility
+** The SeD must maintain a vector with the last executions
+** the scalar of user defined tag must be the value of the eldest
+** value. The size of the vector is (finally -after enough executions)
+** the number of CPUs. In this manner, scheduling takes care of NBCPU 
+** without occuping only the SeD with the most CPUs
+*/
+void
+performance_RRNBPROC (diet_profile_t* pb,
+		      estVector_t perfValues);
+
+/*
+ * performanceLOAD_AVG: the performance function to use in the DIET
+ *   plugin scheduling facility
+ * A simple call to the CORI_EASY_collector to receive the EST_AVGFREECPU:
+ * the load average of the SeD
+ * scheduling criteria is the loadavg: the SeD with the lowest 
+ * load average receive the job
+ */
+void
+performance_Load_Avg(diet_profile_t* pb,
+		    estVector_t perfValues);
+
+void
+performance_Mem_Free(diet_profile_t* pb,
+		     estVector_t perfValues);
+void
+performance_Disk_Write(diet_profile_t* pb,
+		       estVector_t perfValues);
+void
+performance_Disk_Read(diet_profile_t* pb,
+		      estVector_t perfValues);
+void
+performance_All_Hardwarestatic(diet_profile_t* pb,
+			       estVector_t perfValues);
+
+void performance_Total_Disk_Size(diet_profile_t* pb,
+				 estVector_t perfValues);
+
+void performance_Free_Disk_Size(diet_profile_t* pb,
+				estVector_t perfValues);
 #endif //HAVE_CORI
 
 /**
@@ -168,8 +218,8 @@ main(int argc, char* argv[])
   diet_convertor_t* cvt = NULL;
   diet_arg_t* arg = NULL;
 
-  if (argc != 2) {
-    fprintf(stderr, "Usage: %s <file.cfg>\n", argv[0]);
+  if (argc != 3) {
+    fprintf(stderr, "Usage: %s <file.cfg> <LOADAVG|MEMFREE|WRITE|READ|RRALLHARDWARE|RRNBPROC|NWS>\n", argv[0]);
     return 1;
   }
 
@@ -199,6 +249,10 @@ main(int argc, char* argv[])
   diet_arg_cvt_short_set(diet_arg_conv(cvt,2), 0, NULL);
   diet_arg_cvt_short_set(diet_arg_conv(cvt,3), 3, NULL);
   diet_arg_cvt_short_set(diet_arg_conv(cvt,4), 4, NULL);
+#if HAVE_CORI
+ /* Add a plugin scheduler for this case */
+  set_up_scheduler(argv[2],profile);
+#endif //HAVE_CORI
   /* Add */
   if (diet_service_table_add(profile, cvt, solve_dgemm)) return 1;
   diet_profile_desc_free(profile);
@@ -228,6 +282,10 @@ main(int argc, char* argv[])
   }
   diet_arg_cvt_short_set(diet_arg_conv(cvt,3), -1, arg);
   diet_arg_cvt_short_set(diet_arg_conv(cvt,4),  2, NULL);
+#if HAVE_CORI
+ /* Add a plugin scheduler for this case */
+  set_up_scheduler(argv[2],profile);
+#endif //HAVE_CORI
   /* Add */
   if (diet_service_table_add(profile, cvt, solve_dgemm)) return 1;
   diet_profile_desc_free(profile);
@@ -262,6 +320,10 @@ main(int argc, char* argv[])
   // Use all arguments of diet_arg_cvt_set, since out_arg_idx == 2 (the OUT
   // parameter of the profile) and in_arg_idx == 1 (the second IN parameter).
   diet_arg_cvt_set(diet_arg_conv(cvt,4), DIET_CVT_IDENTITY, 1, NULL, 2);
+#if HAVE_CORI
+ /* Add a plugin scheduler for this case */
+  set_up_scheduler(argv[2],profile);
+#endif //HAVE_CORI
   /* Add */
   if (diet_service_table_add(profile, cvt, solve_dgemm)) return 1;
   diet_profile_desc_free(profile);
@@ -291,6 +353,10 @@ main(int argc, char* argv[])
   // beta is the same
   diet_arg_cvt_short_set(diet_arg_conv(cvt,3), -1, arg);
   diet_arg_cvt_short_set(diet_arg_conv(cvt,4), 1, NULL);
+#if HAVE_CORI
+ /* Add a plugin scheduler for this case */
+  set_up_scheduler(argv[2],profile);
+#endif //HAVE_CORI
   /* Add */
   if (diet_service_table_add(profile, cvt, solve_dgemm)) return 1;
   diet_profile_desc_free(profile);
@@ -322,8 +388,8 @@ main(int argc, char* argv[])
   diet_arg_cvt_short_set(diet_arg_conv(cvt,4),  1, NULL);
 
 #if HAVE_CORI
-  /* Add a plugin scheduler for this case */
-  call_scheduler_RR_Modify(profile);
+ /* Add a plugin scheduler for this case */
+  set_up_scheduler(argv[2],profile);
 #endif //HAVE_CORI
 
   /* Add */
@@ -337,118 +403,209 @@ main(int argc, char* argv[])
   // Not reached
   return res;
 }
-
-
-/***********PLUGIN - CORI *************************/
 #if HAVE_CORI
+struct liste_t{
+   int actual_size;
+   double *array;
+}list_lastexec;
 
-/**
- * thevector: is the vector where to add the new value
- * valToAdd: the val to add
- * POST: the 'valToAdd' must be the last value in 'thevector'
- *       th vector size must be maximum 'size'
-*/
- static vector <double> *vector_values = NULL;
+void 
+set_up_scheduler(char * schedulertype, diet_profile_desc_t* profile){
+  if (strcmp(schedulertype,"NWS")){
+   //NWSScheduler is called by default when FAST doesn't exist-> skip 
+   return;
 
-void add_new_value(vector <double> *thevector, double valToAdd, int size){
-  vector<double>::iterator iter = thevector->begin();
-  
-  thevector->push_back(valToAdd);
-
-  if (thevector->size()>size)
-    thevector->erase(iter);
+  diet_aggregator_desc_t *agg;
+    agg = diet_profile_desc_aggregator(profile);
+    
+  if (strcmp(schedulertype,"LOADAVG")){    
+    diet_service_use_perfmetric(performance_Load_Avg);
+    diet_aggregator_set_type(agg, DIET_AGG_PRIORITY);
+    diet_aggregator_priority_min(agg, EST_AVGFREECPU); 
+  }
+  if (strcmp(schedulertype,"RRALLHARDWARE")){ 
+    list_lastexec.actual_size=0;
+    list_lastexec.array=NULL;
+    diet_service_use_perfmetric(performance_All_Hardware);
+    diet_aggregator_set_type(agg, DIET_AGG_PRIORITY);
+    diet_aggregator_priority_min(agg, EST_USERDEFINED); 
+  }
+  if (strcmp(schedulertype,"MEMFREE")){
+    diet_service_use_perfmetric(performance_Mem_Free);
+    diet_aggregator_set_type(agg, DIET_AGG_PRIORITY);
+    diet_aggregator_priority_max(agg, EST_FREEMEM);
+  }
+  if (strcmp(schedulertype,"WRITE")){
+    diet_service_use_perfmetric(performance_Disk_Write);
+    diet_aggregator_set_type(agg, DIET_AGG_PRIORITY);
+    diet_aggregator_priority_max(agg, EST_DISKACCESWRITE);
+  }
+  if (strcmp(schedulertype,"READ")){
+    diet_service_use_perfmetric(performance_Disk_Read);
+    diet_aggregator_set_type(agg, DIET_AGG_PRIORITY);
+    diet_aggregator_priority_max(agg, EST_DISKACCESWRITE);
+  }
+  if (strcmp(schedulertype,"RRNBPROC")){
+    list_lastexec.actual_size=0;
+    list_lastexec.array=NULL;
+    diet_service_use_perfmetric(performance_RRNBPROC);
+    diet_aggregator_set_type(agg, DIET_AGG_PRIORITY);
+    diet_aggregator_priority_max(agg,EST_USERDEFINED);
+  }
 }
 
+void 
+add_new_value(double valToAdd, int size){
+  if (list_lastexec.actual_size==0){
+    list_lastexec.actual_size=1;
+    list_lastexec.array=(double *)calloc(size,sizeof(double));
+    list_lastexec.array[0]=valToAdd;
+  }
+  else
+    if (size== list_lastexec.actual_size){ //the maximal size is reached
+      int i;
+      for (i=size-1;i<0;i--)
+      list_lastexec.array[i]=list_lastexec.array[i-1];
+    }
+    else{
+      list_lastexec.actual_size++;
+      int i;
+      for (i=list_lastexec.actual_size;i<0;i--)
+      list_lastexec.array[i]=list_lastexec.array[i-1];
+      list_lastexec.array[0]=valToAdd;
+    }
+}
 
-/*
-** performanceRR_MOD: the performance function to use in the DIET
-**   plugin scheduling facility
-** The SeD must maintain a vector with the last executions
-** the scalar of user defined tag must be the value of the eldest
-** value. The size of the vector is (finally -after enough executions)
-** the number of CPUs. In this manner, scheduling takes care of NBCPU 
-** without occuping only the SeD with the most CPUs
-*/
-
-static void
-performanceRR_MOD((diet_profile_t* pb,estVector_t perfValues)
+void
+performance_RRNBPROC(diet_profile_t* pb,estVector_t perfValues)
 {
-
-  CORIMgr::diet_estimate_cori(*perfValues,EST_NBCPU, EST_COLL_EASY,NULL);
+  diet_estimate_cori(perfValues,EST_NBCPU, EST_COLL_EASY,NULL);
   
   /*store the timestamp since last execution */
   diet_estimate_lastexec(perfValues, pb);
-  if (vector_values==NULL)
-    vector_values=new  vector <double>;
 
- // stock the value in vector_values (the most recent is on index 0)
-  add_new_value(vector_values, diet_est_get(perfValues,EST_TIMESINCELASTSOLVE,-1))
-
+ // stock the value in list_lastexec (the most recent is on index 0)
+  add_new_value(diet_est_get(perfValues,EST_TIMESINCELASTSOLVE,0),
+		(int)diet_est_get(perfValues,EST_NBCPU,1));
  
   //if the stocked number of executions is less then the number of CPUs, then
-  // stock in the perfValues on tag userdefine only the number of cpu + 10000
+  // stock in the perfValues on tag userdefine only the number of cpu * 10000
   // this is to prevent that an low number-CPU-SeD receive too fast a new task
-  if (vector_values.size()<diet_est_get(perfValues,EST_NBCPU,1)){
-    diet_est_set(perfValues,0,diet_est_get(perfValues,EST_NBCPU,1)-vector_values.size()+10000);   
+  if (list_lastexec.actual_size<diet_est_get(perfValues,EST_NBCPU,1)){
+    diet_est_set(perfValues,0,diet_est_get(perfValues,EST_NBCPU,1)*100000);
   }
-  else{
-    vector<double>::iterator theIterator = vector_values.begin();
+  else{  
      //stock the last element of vector_values in the scalar of perfValues
-    diet_est_set(perfValues,0,*iter);   
+    diet_est_set(perfValues,0,list_lastexec.array[list_lastexec.actual_size-1]);
   }
-
 }
 
-/** call_scheduler_RR_Modify
- * define the modified version of round robin: a priority is set to the 
- * number of processors of the SeD
- */
-
-void 
-call_scheduler_RR_Modify(diet_profile_t* profile){
-/* new section of the profile: aggregator */
-    diet_aggregator_desc_t *agg;
-    agg = diet_profile_desc_aggregator(profile);
-
-    /* install our custom performance function */
-    diet_service_use_perfmetric(performanceRR_MOD);
-
-    /* for this service, use a priority scheduler */
-    diet_aggregator_set_type(agg, DIET_AGG_PRIORITY);
-    //diet_aggregator_priority_minuser(agg, 0);
-    diet_aggregator_priority_max(agg, 0);
-}
-
-/*
-** performanceLOAD_AVG: the performance function to use in the DIET
-**   plugin scheduling facility
-** A simple call to the CORI_EASY_collector to receive the EST_AVGFREECPU:
-** the load average of the SeD
-*/
-
-static void
-performanceLOAD_AVG(diet_profile_t* pb,estVector_t perfValues)
+void
+performance_Load_Avg(diet_profile_t* pb,
+		    estVector_t perfValues )
 {
-  CORIMgr::diet_estimate_cori(*perfValues,EST_AVGFREECPU, EST_COLL_EASY,NULL);
+  int minute = 15;
+  diet_estimate_cori(perfValues,EST_AVGFREECPU, EST_COLL_EASY,&minute);
 }
+
+void
+performance_Mem_Free(diet_profile_t* pb,
+		     estVector_t perfValues)
+{
+  diet_estimate_cori(perfValues,EST_FREEMEM, EST_COLL_EASY,NULL);
+}
+
+void
+performance_Disk_Write(diet_profile_t* pb,
+		       estVector_t perfValues)
+{
+  char*path="./";
+  diet_estimate_cori(perfValues,EST_DISKACCESWRITE, EST_COLL_EASY,path);
+}
+
+void
+performance_Disk_Read(diet_profile_t* pb,
+		      estVector_t perfValues)
+{
+  char*path="./";
+  diet_estimate_cori(perfValues,EST_DISKACCESREAD, EST_COLL_EASY,path);
+}
+
+void performance_Total_Disk_Size(diet_profile_t* pb,
+				 estVector_t perfValues)
+{
+  char*path="./";
+  diet_estimate_cori(perfValues,EST_TOTALSIZEDISK, EST_COLL_EASY,path);
+}
+
+void performance_Free_Disk_Size(diet_profile_t* pb,
+				estVector_t perfValues)
+{
+  char*path="./";
+  diet_estimate_cori(perfValues,EST_FREESIZEDISK, EST_COLL_EASY,path);
+}
+
+const double MULTIPLICATOR_MEM= 1/1000
+const double MULTIPLICATOR_NBCPU=1
+const double MULTIPLICATOR_FREQUENCE=1/500
+const double MULTIPLICATOR_BOGOMIPS=1/500
+
 /**
- * call_scheduler_loadavg: scheduling criteria is the loadavg: the SeD with the lowest 
- * load average receive the job
+ * like performance_RRNBPROC, the number of last executions in a list 
+ * depends on the a criteria.
  */
-void 
-call_scheduler_loadavg(diet_profile_t* profile){
-  /* new section of the profile: aggregator */
-    diet_aggregator_desc_t *agg;
-    agg = diet_profile_desc_aggregator(profile);
+void
+performance_All_Hardwarestatic(diet_profile_t* pb,
+			       estVector_t perfValues)
+{
 
-    /* install our custom performance function */
-    diet_service_use_perfmetric(performanceLOAD_AVG);
+/*store the timestamp since last execution */
+  diet_estimate_lastexec(perfValues, pb);
 
-    /* for this service, use a priority scheduler */
-    diet_aggregator_set_type(agg, DIET_AGG_PRIORITY);
-    //diet_aggregator_priority_minuser(agg, 0);
-    diet_aggregator_priority_min(agg, EST_AVGFREECPU);
+  diet_estimate_cori(perfValues,EST_CPUSPEED, EST_COLL_EASY,NULL);
+  diet_estimate_cori(perfValues,EST_TOTALMEM, EST_COLL_EASY,NULL);
+  diet_estimate_cori(perfValues,EST_BOGOMIPS, EST_COLL_EASY,NULL);
+  diet_estimate_cori(perfValues,EST_NBCPU, EST_COLL_EASY,NULL);
+  /* the number of entries depends on the Hardware values
+  * each harware information gives 'points' to the SeD*/
+  int nbproc=(int)diet_est_get(perfValues,EST_NBCPU,1);
+  int nbproc_points=nbproc*MULTIPLICATOR_NBCPU;
+  int mem_points= diet_est_get(perfValues,
+			       EST_NBCPU,
+			       0)*MULTIPLICATOR_MEM;
+  int frequence_points=0;
+  for (int i=0, i<=nbproc,i++)
+    frequence_points+=diet_est_get(perfValues,
+				   EST_NBCPU,
+				   i,
+				   0)*MULTIPLICATOR_FREQUENCE;
+  int bogmips_points=0;
+  for (int i=0, i<=nbproc,i++)
+    bogmips_points+=diet_est_get(perfValues,
+				 EST_BOGOMIPS,
+				 i,
+				 0)*MULTIPLICATOR_BOGOMIPS;
+  
+  int total_points=nbproc_points+mem_points+frequence_points+bogmips_points;
+  
+  add_new_value(diet_est_get(perfValues,
+			     EST_TIMESINCELASTSOLVE,
+			     0),
+		total_points);
+ 
+  // if the stocked number of executions is less then the total_points, then
+  // stock in the perfValues on tag userdefine only total_points * 10000
+  // this is to prevent that an low total_points-SeD receive too fast a new task
+  if (list_lastexec.actual_size<diet_est_get(perfValues,EST_NBCPU,1)){
+    diet_est_set(perfValues,0,total_points*100000);
+  }
+  else{  
+     //stock the last element of vector_values in the scalar of perfValues
+    diet_est_set(perfValues,0,list_lastexec.array[list_lastexec.actual_size-1]);
+  }
 }
+
+
 
 
 #endif //HAVE_CORI
