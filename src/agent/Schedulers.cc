@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2006/01/16 16:25:44  pfrauenk
+ * NWSScheduler: bug fixes in WEIGHT function
+ *      very special thanks to Raphaël Bolze
+ *
  * Revision 1.12  2005/08/31 14:47:41  alsu
  * New plugin scheduling interface: adapting the various schedulers to
  * access performance data using the new estimation vector interface
@@ -707,10 +711,11 @@ FASTScheduler::serialize(FASTScheduler* S)
     (diet_est_get_internal(ev, EST_FREEMEM, 0.0) == 0.0)) ?                   \
    HUGE_VAL                                                                  :\
     ( 1.0                                                                    /\
-    pow(diet_est_get_internal(ev, EST_FREECPU, 0.0),                          \
+    (pow(diet_est_get_internal(ev, EST_FREECPU, 0.0),                          \
         (wi)->CPUPower)                                                      *\
     pow(diet_est_get_internal(ev, EST_FREEMEM, 0.0),                          \
-        (wi)->memPower)))
+        (wi)->memPower))))                                                     
+
 
 const char*  NWSScheduler::stName     = "NWSScheduler";
 
@@ -737,12 +742,15 @@ int NWSScheduler_compare(int serverIdx1,
 
   double sv1Weight = WEIGHT(s1est, wi);
   double sv2Weight = WEIGHT(s2est, wi);
-//   fprintf(stderr,
-//           "*****FASTTEST***** NWSScheduler_compare: s1weight = %.4f\n",
-//           sv1Weight);
-//   fprintf(stderr,
-//           "*****FASTTEST***** NWSScheduler_compare: s2weight = %.4f\n",
-//           sv2Weight);
+  fprintf(stderr,
+          "*****FASTTEST***** NWSScheduler_compare: s1weight = %.4f\n",
+          sv1Weight);
+  fprintf(stderr,
+          "*****FASTTEST***** NWSScheduler_compare: s2weight = %.4f\n",
+          sv2Weight);
+
+cerr<<"cpu "<<diet_est_get_internal(s1est, EST_FREECPU, 0.0)<<"^" <<(wi)->CPUPower<<"="<<pow(diet_est_get_internal(s1est, EST_FREECPU, 0.0),(wi)->CPUPower)<<"|| mem " <<diet_est_get_internal(s1est, EST_FREEMEM, 0.0)<<"^"<<(wi)->memPower<<"="<<pow(diet_est_get_internal(s1est, EST_FREEMEM, 0.0),(wi)->memPower)<<endl;
+cerr<<"cpu "<<diet_est_get_internal(s2est, EST_FREECPU, 0.0)<<"^" <<(wi)->CPUPower<<"="<<pow(diet_est_get_internal(s2est, EST_FREECPU, 0.0),(wi)->CPUPower)<<"|| mem " <<diet_est_get_internal(s2est, EST_FREEMEM, 0.0)<<"^"<<(wi)->memPower<<"="<<pow(diet_est_get_internal(s2est, EST_FREEMEM, 0.0),(wi)->memPower)<<endl;
 
   if (sv1Weight == HUGE_VAL) {
     if (sv2Weight == HUGE_VAL) {
@@ -757,6 +765,7 @@ int NWSScheduler_compare(int serverIdx1,
   }
   else {
     if (sv1Weight < sv2Weight) {
+
       return (COMPARE_FIRST_IS_BETTER);
     }
     else if (sv1Weight == sv2Weight) {
