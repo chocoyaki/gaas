@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.36  2006/01/19 21:18:47  pfrauenk
+ * CoRI: adding 2 new functions - correction of some comments
+ *
  * Revision 1.35  2005/12/15 12:25:06  pfrauenk
  * CoRI functionality added by Peter Frauenkron
  *
@@ -529,20 +532,20 @@ typedef enum {
   EST_TIMESINCELASTSOLVE,
   EST_COMMPROXIMITY,      
   EST_TRANSFEREFFORT,
-  EST_FREECPU, /* amount of (current?) available cpu in percent */
-  EST_FREEMEM, /* amount of (current?) free memory in ?byte*/
-  EST_NBCPU, /* amount of CPU*/
-  EST_CPUSPEED, /* frequence of CPU in ??hz */
-  EST_TOTALMEM, /* total amount of memory in ?byte */
-  EST_AVGFREEMEM, /* average amount of free memory in Mbyte*/
-  EST_AVGFREECPU, /* average amount of free cpu in percent */
+  EST_FREECPU, /* amount of available cpu [0..1] */
+  EST_FREEMEM, /* amount of free memory in Mbyte*/
+  EST_NBCPU, /* number of CPU available*/
+  EST_CPUSPEED, /* frequence of CPU in Mhz */
+  EST_TOTALMEM, /* total memory size in Mbyte */
+  EST_AVGFREEMEM, /* average amount of free memory in Mbyte -  not in use!*/
+  EST_AVGFREECPU, /* average amount of free cpu in percent*/
   EST_BOGOMIPS, /* the bogomips*/
-  EST_CACHECPU, /* amount of cache du CPU in Kbyte */
+  EST_CACHECPU, /* cache size of CPU in Kbyte */
   EST_TOTALSIZEDISK, /* size of the partition in Gbyte */
   EST_FREESIZEDISK, /* current size of the free partition in Gbyte */
   EST_DISKACCESREAD, /* current time to read on the partition in Mbyte/s */
   EST_DISKACCESWRITE, /* current time to write on the partition in Mbyte/s */
-  EST_ALLINFOS, /* if you want everything (available in EASY MODE */
+  EST_ALLINFOS, /* if you want everything (available in EASY MODE) */
   EST_USERDEFINED
 } diet_est_tag_t;
 
@@ -556,7 +559,7 @@ typedef const struct corba_estimation_t *estVectorConst_t;
 /**
  * estimation source tags
  * 
- + tags used by the plug-in CoRI to choose the appropriated programm 
+ * tags used by the plug-in CoRI to choose the appropriated programm 
  * for collecting information about the machine
  */
 

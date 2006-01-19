@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2006/01/19 21:18:47  pfrauenk
+ * CoRI: adding 2 new functions - correction of some comments
+ *
  * Revision 1.23  2005/12/20 07:52:44  pfrauenk
  * CoRI functionality added: FAST is hided, information about number of processors,
  * amount of available memory and of free cpu are provided
@@ -436,14 +439,19 @@ double diet_est_array_get(estVectorConst_t ev,
                           double errVal);
 int diet_est_array_defined(estVectorConst_t ev, int userTag, int idx);
 
-#if HAVE_CORI
 int diet_estimate_cori(estVector_t ev,
 		       diet_est_tag_t info_type,
 		       diet_est_collect_tag_t collector_type, 
 		       void* data);
-#else //HAVE_CORI
+
+int 
+diet_estimate_cori_add_collector(diet_est_collect_tag_t collector_type,
+				 void* data);
+void
+diet_estimate_cori_print();
+
 int diet_estimate_fast(estVector_t ev, const diet_profile_t* const profilePtr);
-#endif //HAV_CORI
+
 int diet_estimate_lastexec(estVector_t ev,
                            const diet_profile_t* const profilePtr);
 

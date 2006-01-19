@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.48  2006/01/19 21:18:47  pfrauenk
+ * CoRI: adding 2 new functions - correction of some comments
+ *
  * Revision 1.47  2006/01/13 10:40:39  mjan
  * Updating DIET for next JuxMem (0.2)
  *
@@ -952,6 +955,7 @@ diet_est_array_defined(estVectorConst_t ev, int userTag, int idx)
                                           idx));
 }
 #if HAVE_CORI
+
 int
 diet_estimate_cori(estVector_t ev,
 		   diet_est_tag_t info_type,
@@ -969,6 +973,64 @@ diet_estimate_cori(estVector_t ev,
     CORIMgr::call_cori_mgr(&ev,info_type,collector_type,data);    
   return 0;
 }
+
+int
+diet_estimate_cori_add_collector(diet_est_collect_tag_t collector_type,
+				 void* data){
+  return CORIMgr::add(collector_type,NULL);
+}
+
+void 
+print_message(){
+  cerr<<"=default value used"<<endl;
+  }
+
+void
+diet_estimate_cori_print(){
+  int tmp_int=TRACE_LEVEL;
+  TRACE_LEVEL=15;
+ 
+   cerr<<"start printing CoRI values.."<<endl;
+   estVector_t vec=new corba_estimation_t();
+
+   CORIMgr::add(EST_COLL_EASY,NULL);
+ 
+   int minut=15;
+
+   if  (diet_estimate_cori(vec,EST_AVGFREECPU,EST_COLL_EASY,&minut))
+     print_message();		   
+   
+   if  (diet_estimate_cori(vec,EST_CACHECPU,EST_COLL_EASY,NULL))
+     print_message();	 
+   
+   if  (diet_estimate_cori(vec,EST_NBCPU,EST_COLL_EASY,NULL))
+     print_message();		   
+   
+   if  (diet_estimate_cori(vec,EST_BOGOMIPS,EST_COLL_EASY,NULL))
+     print_message();		   
+   char * tmp="./";
+   if  (diet_estimate_cori(vec,EST_DISKACCESREAD,EST_COLL_EASY,tmp))
+     print_message();		   
+   
+   if  (diet_estimate_cori(vec,EST_DISKACCESWRITE,EST_COLL_EASY,tmp))
+     print_message();		   
+   
+   if  (diet_estimate_cori(vec,EST_TOTALSIZEDISK,EST_COLL_EASY,tmp))
+     print_message();		   
+   
+   if  (diet_estimate_cori(vec,EST_FREESIZEDISK,EST_COLL_EASY,tmp))
+     print_message();		   
+   
+   if  (diet_estimate_cori(vec,EST_TOTALMEM,EST_COLL_EASY,NULL))
+     print_message();		   
+   
+   if  (diet_estimate_cori(vec,EST_FREEMEM,EST_COLL_EASY,NULL))
+     print_message();	
+
+   cerr<<"end printing CoRI values"<<endl;
+   TRACE_LEVEL=tmp_int;
+}
+
 #else //HAVE_CORI
 
 int
@@ -992,6 +1054,7 @@ diet_estimate_fast(estVector_t ev,
                     
   return (1);
 }
+  
 #endif //HAVE_CORI
 
 int diet_estimate_lastexec(estVector_t ev,
