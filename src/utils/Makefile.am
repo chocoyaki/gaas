@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.22  2006/01/19 22:25:52  pfrauenk
+#* CoRI : fixed : CoRI-files now in the correct library
+#*
 #* Revision 1.21  2006/01/13 10:41:27  mjan
 #* Updating DIET for next JuxMem (0.2)
 #*
@@ -72,12 +75,18 @@ libUtilsCommon_la_SOURCES  = debug.cc DIET_data.cc ms_function.cc \
 			     Parsers.cc statistics.cc KeyString.cc
 libUtilsSeDClt_la_SOURCES  = DIET_mutex.cc AccessController.cc \
                              est_internal.cc
-libUtilsNodes_la_SOURCES   = Counter.cc ServiceTable.cc FASTMgr.cc \
+libUtilsNodes_la_SOURCES   = Counter.cc ServiceTable.cc \
 			     DietLogComponent.cc MonitoringThread.cc 
 
 if USING_CORI
-libUtilsNodes_la_SOURCES += Cori_Fast.cc Cori_Data_Easy.cc Cori_Metric.cc Cori_Easy_CPU.cc Cori_Easy_Memory.cc Cori_Easy_Disk.cc CORIMgr.cc  
+libUtilsSeDClt_la_SOURCES += CORIMgr.cc Cori_Metric.cc Cori_Fast.cc  \
+			     Cori_Data_Easy.cc Cori_Easy_CPU.cc \
+			     Cori_Easy_Memory.cc Cori_Easy_Disk.cc \
+			     FASTMgr.cc 
+else
+libUtilsNodes_la_SOURCES  +=  FASTMgr.cc
 endif
+
 
 
 libUtilsVector_la_SOURCES  = Vector.c
