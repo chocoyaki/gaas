@@ -14,23 +14,34 @@ Cori_Fast::Cori_Fast(){
 int 
 Cori_Fast::get_Information(diet_est_tag_t type_Info,       
 			   estVector_t* info,
-			   const diet_profile_t* const initprofilePtr,
-			   ServiceTable* SRVT)
+			   const void* data)
 {
-  char hostnameBuf[HOSTNAME_BUFLEN];
-  int stRef;
-
-  if (gethostname(hostnameBuf, HOSTNAME_BUFLEN-1)) {
-    ERROR("error getting hostname", 0);
+  if (type_Info==EST_COMMTIME){
+    commTime_t* params=(commTime_t *)data;
+    FASTMgr::commTime(params->host1, 
+		      params->host2, 
+		      params->size, 
+		      params->to);
   }
+  else
+    {
+    fast_param_t* fast_param=(fast_param_t*)data;
 
-  stRef = diet_service_table_lookup_by_profile(initprofilePtr,SRVT);
-  FASTMgr::estimate(hostnameBuf,
-                    initprofilePtr,
-                    SRVT,
+				     
+    char hostnameBuf[HOSTNAME_BUFLEN];
+    int stRef;
+    
+    if (gethostname(hostnameBuf, HOSTNAME_BUFLEN-1)) {
+      ERROR("error getting hostname", 0);
+    }
+    stRef = diet_service_table_lookup_by_profile( fast_param->initprofilePtr,fast_param->SRVT);
+    FASTMgr::estimate(hostnameBuf,
+                    fast_param->initprofilePtr,
+                    fast_param->SRVT,
                     (ServiceTable::ServiceReference_t) stRef,
-                    *info);
-                    
+                    *info);                
+  }  
+  
   return (0);
 }
 

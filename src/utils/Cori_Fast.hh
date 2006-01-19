@@ -16,7 +16,14 @@
 
 #include "DIET_data.h"
 #include "ServiceTable.hh"
- 
+
+typedef struct commTime_t{
+  char* host1;
+  char* host2;
+  unsigned long size;
+  bool to;
+};
+
 typedef struct fast_param_t{
   diet_profile_t* initprofilePtr;
   ServiceTable* SRVT;	
@@ -26,11 +33,11 @@ class Cori_Fast{
   
 public:
   Cori_Fast();
+
 int 
 get_Information(diet_est_tag_t type_Info,       
 		estVector_t* info,
-		const diet_profile_t* const initprofilePtr,
-		ServiceTable* SRVT);
+		const void * data);
 int
 diet_service_table_lookup_by_profile(const diet_profile_t* const profile,
 				     ServiceTable* SRVT );

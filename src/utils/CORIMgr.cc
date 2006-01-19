@@ -15,11 +15,8 @@ int
 CORIMgr::add(diet_est_collect_tag_t collectorName,
 	     const void * datav)
 {
-
   Cori_Metric tmp ( collectorName, datav);
   collector_v->push_back(tmp);
-  //#else is no possible to add something
-
   return 0;
 }
 
@@ -40,6 +37,6 @@ CORIMgr::call_cori_mgr(estVector_t *ev,
     else 
       iter1++;
   }
-  INTERNAL_WARNING("The collector "<<name<<" is not present in CORIMgr \n ");
+  INTERNAL_WARNING("The collector "<<name<<" is not present in CORIMgr");
   return 1;
 }

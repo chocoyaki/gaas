@@ -16,31 +16,14 @@ print_Metric(estVector_t vector_v,diet_est_tag_t type_Info){
   double errorCode=0;
  switch (type_Info){
   
-  case EST_ALLINFOS:{
- 
-	for (int i=0; i<diet_est_array_size_internal(vector_v,EST_CPUSPEED);i++){
-	  cout << "CPU "<<i<<" frequence : "<< diet_est_array_get_internal(vector_v,EST_CPUSPEED,i,errorCode)<< endl;
-	  cout << "CPU "<<i<<" cache : "<< diet_est_array_get_internal(vector_v,EST_CACHECPU,i,errorCode)<< endl;
-	  cout << "CPU "<<i<<" Bogomips : "<< diet_est_array_get_internal(vector_v,EST_BOGOMIPS,i,errorCode)<< endl;
-	}
-
-	cout << "number of processors : "<< diet_est_get_internal(vector_v,EST_NBCPU,errorCode)<< endl;         
-	cout << "total memory : "<< diet_est_get_internal(vector_v,EST_TOTALMEM,errorCode) << endl;
-	cout << "total disk size : " << diet_est_get_internal(vector_v,EST_TOTALSIZEDISK,errorCode)<<" Mbyte(s)" << endl;
-    	cout <<	"mem avail : "<<diet_est_get_internal(vector_v,EST_FREEMEM, errorCode) <<endl;
-	cout << "cpu average load : "<<diet_est_get_internal(vector_v,EST_AVGFREECPU, errorCode)<<endl;
-	cout << "diskspeed in reading : "<<diet_est_get_internal(vector_v,EST_DISKACCESREAD,errorCode)<<" Mbyte/s"<<endl;
-	cout << "diskspeed in writing : "<<diet_est_get_internal(vector_v,EST_DISKACCESWRITE,errorCode)<<" Mbyte/s"<<endl;
-	cout <<	"available disk size : "<<diet_est_get_internal(vector_v,EST_FREESIZEDISK,errorCode)<<" Mbyte(s)"<<endl;
-	cout << "cpu free : "<<diet_est_get_internal(vector_v,EST_FREECPU, errorCode)<<" %" <<endl;
- }
-    break;
+  case EST_ALLINFOS:
+     break;
   case EST_CPUSPEED: 
     for (int i=0; i<diet_est_array_size_internal(vector_v,EST_CPUSPEED);i++)
       cout << "CPU "<<i<<" frequence : "<< diet_est_array_get_internal(vector_v,EST_CPUSPEED,i,errorCode)<< endl;
     break;
   case EST_CACHECPU:
-    for (int i=0; i<diet_est_array_size_internal(vector_v,EST_CPUSPEED);i++)
+    for (int i=0; i<diet_est_array_size_internal(vector_v,EST_CACHECPU);i++)
       cout << "CPU "<<i<<" cache : "<< diet_est_array_get_internal(vector_v,EST_CACHECPU,i,errorCode)<< endl;
     break;	
   case EST_BOGOMIPS:
@@ -119,7 +102,11 @@ Cori_Data_Easy::get_Information(diet_est_tag_t type_Info,
 
     break;
   case EST_AVGFREECPU:  
-    minut= *((int*) data);
+    if (data==NULL){
+      minut=15;
+    }
+    else
+      minut= *((int*) data);
     res=cpu->get_CPU_Avg(minut,&temp);
     convertSimple(temp,info,type_Info);
     break;
@@ -136,24 +123,36 @@ Cori_Data_Easy::get_Information(diet_est_tag_t type_Info,
      convertArray(vect,info,type_Info);
     break;
   case EST_DISKACCESREAD: 
-    path= (char *) data;        
+    if (data==NULL)
+      path="./";
+    else
+      path= (char *) data;        
      res=disk->get_Read_Speed(path, &temp);
      convertSimple(temp, info,type_Info);
     break;
   case EST_DISKACCESWRITE:
+    if (data==NULL)
+      path="./";
+    else
      path=(char *) data;       
-     res=disk->get_Write_Speed(path, &temp);
-     convertSimple(temp, info,type_Info);
+    res=disk->get_Write_Speed(path, &temp);
+    convertSimple(temp, info,type_Info);
     break;
   case EST_TOTALSIZEDISK: 
+    if (data==NULL)
+      path="./";
+    else
      path= (char *) data;        
-     res=disk->get_Total_DiskSpace(path,&temp);
-     convertSimple(temp, info,type_Info);
+    res=disk->get_Total_DiskSpace(path,&temp);
+    convertSimple(temp, info,type_Info);
     break;
   case EST_FREESIZEDISK:
-     path= (char *) data;        
-     res=disk->get_Available_DiskSpace(path,&temp);
-     convertSimple(temp, info,type_Info);
+    if (data==NULL)
+      path="./";
+    else
+      path= (char *) data;        
+    res=disk->get_Available_DiskSpace(path,&temp);
+    convertSimple(temp, info,type_Info);
     break;
   case EST_TOTALMEM:
     res=memory->get_Total_Memory(&temp);
