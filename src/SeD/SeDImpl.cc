@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.66  2006/01/19 21:35:42  pfrauenk
+ * CoRI : when --enable-cori - round-robin is the default scheduler -
+ *        CoRI is not called (any more) for collecting information
+ *        (so no FAST possible any more)
+ *
  * Revision 1.65  2006/01/15 13:50:11  pfrauenk
  * CoRI: unused function removed
  *
@@ -144,18 +149,16 @@ using namespace std;
   #endif // HAVE_FAST
 */
 
-#include "acDIET_config.h"
+#include "DIET_config.h"
 #include "SeDImpl.hh"
 #include "Callback.hh"
 #include "common_types.hh"
 #include "debug.hh"
 #include "est_internal.hh"
 
-#if HAVE_CORI
-#include "CORIMgr.hh"
-#else //HAVE_CORI
+#if !HAVE_CORI
 #include "FASTMgr.hh"
-#endif //HAVE_CORI
+#endif //!HAVE_CORI
 
 #include "marshalling.hh"
 #include "ORBMgr.hh"
@@ -181,9 +184,11 @@ SeDImpl::SeDImpl()
   (this->lastSolveStart).tv_sec = -1;
   (this->lastSolveStart).tv_usec = -1;
 
+#if !HAVE_CORI
 #if HAVE_FAST
   this->fastUse = 1;
 #endif // HAVE_FAST
+#endif //!HAVE_CORI
 
   this->dietLogComponent = NULL;
 #if HAVE_BATCH
@@ -207,14 +212,11 @@ SeDImpl::SeDImpl(const char* uuid = '\0')
   (this->lastSolveStart).tv_sec = -1;
   (this->lastSolveStart).tv_usec = -1;
 
+#if !HAVE_CORI
 #if HAVE_FAST
   this->fastUse = 1;
 #endif // HAVE_FAST
-
-#if HAVE_CORI
- /**initialize CORI evaluation*/
-  CORIMgr::init(); 
- #endif //HAVE_CORI
+#endif //HAVE_CORI
 
   this->dietLogComponent = NULL;
 
@@ -268,7 +270,7 @@ SeDImpl::run(ServiceTable* services)
   char* parent_name = (char*)
     Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
   if (parent_name == NULL)
-    return 1;
+    return 1;  
   parent =
     Agent::_duplicate(Agent::_narrow(ORBMgr::getObjReference(ORBMgr::AGENT,
                                                              parent_name)));
@@ -351,21 +353,11 @@ SeDImpl::run(ServiceTable* services)
   }
 #endif // HAVE_QUEUES
  
-  
-
 #if HAVE_CORI
-#if HAVE_FAST
-  this->fastUse=*((size_t*)Parsers::Results::getParamValue(Parsers::Results::FASTUSE));
-  if (this->fastUse)
-    CORIMgr::add(EST_COLL_FAST,NULL);
-#endif //HAVE_FAST
-  CORIMgr::add(EST_COLL_EASY,NULL);
-#else
-   // Init FAST (HAVE_FAST is managed by the FASTMgr class)
-  return FASTMgr::init();
+ return 0;
+#else //!HAVE_CORI  
+ return FASTMgr::init();
 #endif //HAVE_CORI  
-
-  return 0;
 }
 
 #if ! HAVE_JUXMEM
@@ -1144,29 +1136,59 @@ SeDImpl::estimate(corba_estimation_t& estimation,
   }
 
   if (perfmetric_fn == NULL){ 
-    /***** START CoRI-based metrics *****/
+   
+    /** no metrics construction here: only RR Scheduling at 
+	the moment when Cori is installed*/
 
-#if HAVE_CORI 
-#if HAVE_FAST  
-    if (this->fastUse){ 
-      diet_estimate_cori(eVals,EST_ALLINFOS,EST_COLL_FAST,&profile);
-      //fast don't need a tag-> EST_ALLINFOS== dummydiet_in
-    }
-    else{
-#endif // HAVE_FAST
+ /***** START CoRI-based metrics *****/
+    //#if HAVE_CORI 
+// #if HAVE_FAST  
+//     if (this->fastUse){ 
+//       diet_estimate_cori(eVals,EST_ALLINFOS,EST_COLL_FAST,&profile);
+//       //fast don't need a tag-> EST_ALLINFOS== dummydiet_in
+//     }
+//     else{
+// #endif // HAVE_FAST
+//    diet_estimate_cori(eVals,EST_FREEMEM,EST_COLL_EASY,NULL); 
+//    diet_estimate_cori(eVals,EST_NBCPU,EST_COLL_EASY,NULL); 
+//    diet_estimate_cori(eVals,EST_FREECPU,EST_COLL_EASY,NULL);
+//    diet_est_set_internal(eVals,EST_TCOMP, HUGE_VAL); 
+// #if HAVE_FAST  
+//     }
+// #endif // HAVE_FAST
+   
+//    //diet_estimate_cori(eVals,EST_ALLINFOS,EST_COLL_EASY,NULL); 
+//     int tmp_int=15;
+//     char *tmp_char="./";
 
-   diet_est_set_internal(eVals,EST_TCOMP, HUGE_VAL); 
-   diet_estimate_cori(eVals,EST_FREEMEM,EST_COLL_EASY,NULL); 
-   diet_estimate_cori(eVals,EST_NBCPU,EST_COLL_EASY,NULL); 
-   diet_estimate_cori(eVals,EST_FREECPU,EST_COLL_EASY,NULL); 
-    
-#if HAVE_FAST  
-  }
-#endif // HAVE_FAST
+//    if (diet_est_get_internal(eVals, EST_FREECPU, 0.0) == 0.0) 
+//      diet_estimate_cori(eVals,EST_FREECPU,EST_COLL_EASY,NULL); 
+//    if (diet_est_get_internal(eVals, EST_FREEMEM, 0.0) == 0.0)
+//      diet_estimate_cori(eVals,EST_FREEMEM,EST_COLL_EASY,NULL); 
+//    if (diet_est_get_internal(eVals, EST_NBCPU, 0.0) == 0.0)
+//      diet_estimate_cori(eVals,EST_NBCPU,EST_COLL_EASY,NULL);
+   
+//    diet_estimate_cori(eVals,EST_CPUSPEED,EST_COLL_EASY,NULL); 
+//    diet_estimate_cori(eVals,EST_TOTALMEM,EST_COLL_EASY,NULL); 
+//    diet_estimate_cori(eVals,EST_AVGFREECPU,EST_COLL_EASY,&tmp_int); 
+//    diet_estimate_cori(eVals,EST_BOGOMIPS,EST_COLL_EASY,NULL); 
+//    diet_estimate_cori(eVals,EST_CACHECPU,EST_COLL_EASY,NULL); 
+//    diet_estimate_cori(eVals,EST_TOTALSIZEDISK,EST_COLL_EASY,tmp_char); 
+//    diet_estimate_cori(eVals,EST_FREESIZEDISK,EST_COLL_EASY,tmp_char); 
+//    //the next to criterias takes too long: a few seconds
+// //    diet_estimate_cori(eVals,EST_DISKACCESREAD,EST_COLL_EASY,tmp_char); 
+// //    diet_estimate_cori(eVals,EST_DISKACCESWRITE,EST_COLL_EASY,tmp_char); 
+// //EST_AVGFREEMEM is not implemented yet
+   
+#if HAVE_CORI
+    diet_est_set_internal(eVals, EST_TCOMP, HUGE_VAL);
+    diet_est_set_internal(eVals, EST_FREECPU, 0);
+    diet_est_set_internal(eVals, EST_FREEMEM, 0);
+    diet_est_set_internal(eVals, EST_NBCPU, 1);
 #else //HAVE_CORI
    /***** START FAST-based metrics *****/
    diet_estimate_fast(eVals, &profile);
-#endif  //HAVE_CORI
+#endif  //!HAVE_CORI
 
 
 #if ! HAVE_ALTPREDICT

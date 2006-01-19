@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2006/01/19 21:35:42  pfrauenk
+ * CoRI : when --enable-cori - round-robin is the default scheduler -
+ *        CoRI is not called (any more) for collecting information
+ *        (so no FAST possible any more)
+ *
  * Revision 1.10  2005/08/31 14:44:41  alsu
  * New plugin scheduling interface: minor changes
  *
@@ -56,7 +61,7 @@
  * Interface for global schedulers, called by agents and associated to
  * requests. Add an implementation of this interface: StdGS.
  ****************************************************************************/
-
+#include "DIET_config.h"
 
 #include "GlobalSchedulers.hh"
 #include <iostream>
@@ -282,8 +287,10 @@ StdGS::init()
 {
   // schedulers has already been contructed by implicit call to parent class
   // constructor.
+#if !HAVE_CORI
   this->schedulers.addElement(new FASTScheduler());
   this->schedulers.addElement(new NWSScheduler(3.0, 2.0, 1.0));
+#endif// !HAVE_CORI
   this->schedulers.addElement(new RRScheduler());
   this->schedulers.addElement(new RandScheduler());
 }

@@ -5,6 +5,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.38  2006/01/19 21:35:42  pfrauenk
+ * CoRI : when --enable-cori - round-robin is the default scheduler -
+ *        CoRI is not called (any more) for collecting information
+ *        (so no FAST possible any more)
+ *
  * Revision 1.37  2005/11/10 14:37:51  eboix
  *     Clean-up of Cmake/DIET_config.h.in and related changes. --- Injay2461
  *
@@ -102,7 +107,7 @@
  ****************************************************************************/
 
 #include "AgentImpl.hh"
-
+#include "DIET_config.h"
 #include <iostream>
 using namespace std;
 #include <math.h>
@@ -113,7 +118,11 @@ using namespace std;
 
 #include "common_types.hh"
 #include "debug.hh"
+#if !HAVE_CORI
 #include "FASTMgr.hh"
+//#else //HAVE_CORI
+//#include "CORIMgr.hh"
+#endif //!HAVE_CORI
 #include "ms_function.hh"
 #include "ORBMgr.hh"
 #include "Parsers.hh"
@@ -216,9 +225,16 @@ AgentImpl::run()
     ERROR("could not declare myself as " << this->myName, 1);
   }
 
-  // Init FAST (HAVE_FAST is managed by the FASTMgr class)
+#if !HAVE_CORI 
+    // Init FAST (HAVE_FAST is managed by the FASTMgr class)
   return FASTMgr::init();
-
+#else 
+//   int use =
+//     *((size_t*)Parsers::Results::getParamValue(Parsers::Results::FASTUSE));
+//   if (use > 0)
+//     CORIMgr::add(EST_COLL_EASY,NULL);
+  return 0;
+#endif //HAVE_CORI
 } // run()
 
 #if ! HAVE_JUXMEM
@@ -693,7 +709,21 @@ AgentImpl::getCommTime(CORBA::Long childID, unsigned long size, bool to)
 
   AGT_TRACE_FUNCTION(childID <<", " << size);
   stat_in(this->myName,"getCommTime");
-  time = FASTMgr::commTime(this->localHostName, child_name, size, to);
+#if !HAVE_CORI
+ time = FASTMgr::commTime(this->localHostName, child_name, size, to);
+#else //HAVE_CORI
+//   estVector_t ev=new corba_estimation_t();
+// #if HAVE_FAST
+//   commTime_t commTime_param={this->localHostName,child_name,size,to};
+
+//   CORIMgr::call_cori_mgr(&ev,
+// 		EST_COMMTIME,
+// 		EST_COLL_FAST,
+// 		&commTime_param);
+//   time = diet_est_get(ev, EST_COMMTIME, HUGE_VAL);
+// #endif //HAVE_FAST
+  time = HUGE_VAL;
+#endif //HAVE_CORI
 
   ms_strfree(child_name);
 

@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2006/01/19 21:35:42  pfrauenk
+ * CoRI : when --enable-cori - round-robin is the default scheduler -
+ *        CoRI is not called (any more) for collecting information
+ *        (so no FAST possible any more)
+ *
  * Revision 1.7  2005/08/31 14:47:41  alsu
  * New plugin scheduling interface: adapting the various schedulers to
  * access performance data using the new estimation vector interface
@@ -53,6 +58,7 @@
 
 #ifndef _SCHEDULERS_HH_
 #define _SCHEDULERS_HH_
+#include "DIET_config.h"
 
 #include "response.hh"
 #include "DIET_data.h"
@@ -162,6 +168,9 @@ protected:
   void* cmpInfo;
 };
 
+#if !HAVE_CORI 
+// scheduler FAST and NWS will be used in the next DIET version 
+// like all other schedulers: in the scheduler-plugin
 
 /**
  * This scheduler sorts servers that have performed FAST estimations, according
@@ -252,7 +261,7 @@ private:
   double epsilon;
   weight_info_t wi;
 };
-
+#endif //!HAVE_CORI
 
 /**
  * This scheduler randomly sorts all servers that have no information filled in.

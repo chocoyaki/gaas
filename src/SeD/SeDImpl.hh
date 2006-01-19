@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2006/01/19 21:35:42  pfrauenk
+ * CoRI : when --enable-cori - round-robin is the default scheduler -
+ *        CoRI is not called (any more) for collecting information
+ *        (so no FAST possible any more)
+ *
  * Revision 1.22  2006/01/13 10:40:39  mjan
  * Updating DIET for next JuxMem (0.2)
  *
@@ -250,7 +255,7 @@ private:
   /* endoint of JXTA SeD*/
   const char* uuid;
 #endif // HAVE_JXTA
-
+#if !HAVE_CORI
 #if HAVE_FAST
 
   /** Use of FAST */
@@ -258,10 +263,10 @@ private:
   unsigned int fastUse;
 
   /* Fast calls mutex, this should be used until FAST becomes reentrant */
-  omni_mutex fastMutex;
+  omni_mutex fastMutex; //FIXME : is never in use!!
 
 #endif // HAVE_FAST
-
+#endif //!HAVE_CORI
   /**
    * The actual dietLogComponent of this SeD. If it contains NULL,
    * no monitoring information must be gathered, so it must be checked

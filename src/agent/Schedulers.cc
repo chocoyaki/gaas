@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2006/01/19 21:35:42  pfrauenk
+ * CoRI : when --enable-cori - round-robin is the default scheduler -
+ *        CoRI is not called (any more) for collecting information
+ *        (so no FAST possible any more)
+ *
  * Revision 1.13  2006/01/16 16:25:44  pfrauenk
  * NWSScheduler: bug fixes in WEIGHT function
  *      very special thanks to Raphaël Bolze
@@ -152,14 +157,15 @@ char*
 Scheduler::serialize(Scheduler* S)
 {
   SCHED_TRACE_FUNCTION((void*)S->name);
-
+#if !HAVE_CORI
   if (!strncmp(S->name, FASTScheduler::stName, S->nameLength)) {
     return (FASTScheduler::serialize((FASTScheduler*) S));
   }
   else if (!strncmp(S->name, NWSScheduler::stName, S->nameLength)) {
     return (NWSScheduler::serialize((NWSScheduler*) S));
-  }
-  else if (!strncmp(S->name, RandScheduler::stName, S->nameLength)) {
+  }else
+#endif //HAVE_CORI
+  if (!strncmp(S->name, RandScheduler::stName, S->nameLength)) {
     return (RandScheduler::serialize((RandScheduler*) S));
   }
   else if (!strncmp(S->name, MinScheduler::stName, S->nameLength)) {
@@ -197,14 +203,16 @@ Scheduler::deserialize(const char* serializedScheduler)
       nameLength = strlen(serializedScheduler);
     }
   }
-
+#if !HAVE_CORI
   if (!strncmp(serializedScheduler, FASTScheduler::stName, nameLength)) {
     return (FASTScheduler::deserialize(serializedScheduler + nameLength));
   }
   else if (!strncmp(serializedScheduler, NWSScheduler::stName, nameLength)) {
     return (NWSScheduler::deserialize(serializedScheduler + nameLength));
   }
-  else if (!strncmp(serializedScheduler, RandScheduler::stName, nameLength)) {
+  else
+#endif //HAVE_CORI
+    if (!strncmp(serializedScheduler, RandScheduler::stName, nameLength)) {
     return (RandScheduler::deserialize(serializedScheduler + nameLength));
   }
   else if (!strncmp(serializedScheduler, MinScheduler::stName, nameLength)) {
@@ -551,7 +559,7 @@ Scheduler::getEstVector(int sIdx,
 }
 
 
-
+#if !HAVE_CORI
 /****************************************************************************/
 /* FAST Scheduler                                                           */
 /****************************************************************************/
@@ -928,7 +936,7 @@ NWSScheduler::serialize(NWSScheduler* S)
 
 #undef WEIGHT
 
-
+#endif //HAVE_CORI
 /****************************************************************************/
 /* Random Scheduler                                                         */
 /****************************************************************************/

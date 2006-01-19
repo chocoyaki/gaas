@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2006/01/19 21:35:42  pfrauenk
+ * CoRI : when --enable-cori - round-robin is the default scheduler -
+ *        CoRI is not called (any more) for collecting information
+ *        (so no FAST possible any more)
+ *
  * Revision 1.5  2005/08/31 14:44:41  alsu
  * New plugin scheduling interface: minor changes
  *
@@ -95,7 +100,10 @@ protected:
 
 /**
  * This global scheduler gives priority to the servers that gave most
- * information. Thus the ones which have perfromed FAST estimations are placed
+ * information.
+ * if HAVE_CORI: round robin scheduling and if the information is not 
+ * available then random scheduling
+ * else :Thus the ones which have perfromed FAST estimations are placed
  * first, then the ones that have performed NWS estimations, and finally the
  * ones that gave no information at all ordered randomly.
  */
