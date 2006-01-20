@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.70  2006/01/20 10:14:37  eboix
+ *    - Odd references to acDIET_config.h changed to DIET_config.h  --- Injay2461
+ *
  * Revision 1.69  2006/01/13 10:40:53  mjan
  * Updating DIET for next JuxMem (0.2)
  *
@@ -83,7 +86,7 @@ using namespace std;
 #include <string.h>
 #include <math.h>
 
-#include "acDIET_config.h"
+#include "DIET_config.h"
 #include "debug.hh"
 #include "est_internal.hh"
 #include "DIET_data_internal.hh"

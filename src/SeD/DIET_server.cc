@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.49  2006/01/20 10:14:37  eboix
+ *    - Odd references to acDIET_config.h changed to DIET_config.h  --- Injay2461
+ *
  * Revision 1.48  2006/01/19 21:18:47  pfrauenk
  * CoRI: adding 2 new functions - correction of some comments
  *
@@ -141,7 +144,7 @@ using namespace std;
 #include <unistd.h>  // For gethostname()
 #include <stdlib.h>
 
-#include "acDIET_config.h"
+#include "DIET_config.h"
 #include "DIET_server.h"
 
 #include "debug.hh"

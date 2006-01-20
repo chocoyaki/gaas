@@ -18,6 +18,9 @@ diet-2.1
 	- INOUT parameters are not changed in asynchronous mode (bug #9 in
 	  bugzilla)
 
+* CMake
+        - DIET now has a cmake based building process.
+
 diet-2.0
 
 * Plug-in
