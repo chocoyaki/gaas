@@ -26,6 +26,6 @@ ELSE( NOT BLAS_FOUND )
     ADD_EXECUTABLE( ${loop_var} ${loop_var}.c )
     TARGET_LINK_LIBRARIES( ${loop_var}
                            ${DIET_CLIENT_LIBRARIES} ${BLAS_LIBRARIES} )
-    INSTALL_TARGETS( /bin/examples/dmat_manips ${loop_var} )
+    INSTALL_TARGETS( /bin/examples/BLAS ${loop_var} )
   ENDFOREACH( loop_var )
 ENDIF( NOT BLAS_FOUND )
