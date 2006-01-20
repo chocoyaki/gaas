@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.23  2006/01/20 11:16:46  pfrauenk
+#* CoRI : undo last commit : error in the choice of library
+#*
 #* Revision 1.22  2006/01/19 22:25:52  pfrauenk
 #* CoRI : fixed : CoRI-files now in the correct library
 #*
@@ -76,18 +79,14 @@ libUtilsCommon_la_SOURCES  = debug.cc DIET_data.cc ms_function.cc \
 libUtilsSeDClt_la_SOURCES  = DIET_mutex.cc AccessController.cc \
                              est_internal.cc
 libUtilsNodes_la_SOURCES   = Counter.cc ServiceTable.cc \
-			     DietLogComponent.cc MonitoringThread.cc 
+			     DietLogComponent.cc MonitoringThread.cc \
+			     FASTMgr.cc
 
 if USING_CORI
-libUtilsSeDClt_la_SOURCES += CORIMgr.cc Cori_Metric.cc Cori_Fast.cc  \
+libUtilsNodes_la_SOURCES += CORIMgr.cc Cori_Metric.cc Cori_Fast.cc  \
 			     Cori_Data_Easy.cc Cori_Easy_CPU.cc \
-			     Cori_Easy_Memory.cc Cori_Easy_Disk.cc \
-			     FASTMgr.cc 
-else
-libUtilsNodes_la_SOURCES  +=  FASTMgr.cc
+			     Cori_Easy_Memory.cc Cori_Easy_Disk.cc
 endif
-
-
 
 libUtilsVector_la_SOURCES  = Vector.c
 
