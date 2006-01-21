@@ -8,6 +8,11 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.13  2006/01/21 01:05:45  pfrauenk
+#* CoRI : 2 examples are now available: a simple tester for cori_easy and
+#*        one for testing the plug-in scheduler and cori
+#*        + BLAS has now a flag USE_BLAS needed in Makefiles.
+#*
 #* Revision 1.12  2005/08/30 09:36:12  ycaniou
 #* Modified the Makefile in order to take into account examples/Batch directory
 #*   if DIET is configured to use Batch
@@ -54,9 +59,13 @@ if JXTA_MODE
 SUBDIRS += JXTA
 endif
 
+if USING_CORI
+SUBDIRS += cori
+endif
+
 # DIST_SUBDIRS is forced to all examples, so that it is still possible to build
 # a (user) distribution in user mode.
-DIST_SUBDIRS = BLAS dmat_manips file_transfer ScaLAPACK scalars JXTA plugin_example
+DIST_SUBDIRS = BLAS dmat_manips file_transfer ScaLAPACK scalars JXTA plugin_example cori
 
 if USE_BATCH
 DIST_SUBDIRS += Batch

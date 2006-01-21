@@ -8,6 +8,11 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.59  2006/01/21 01:05:45  pfrauenk
+#* CoRI : 2 examples are now available: a simple tester for cori_easy and
+#*        one for testing the plug-in scheduler and cori
+#*        + BLAS has now a flag USE_BLAS needed in Makefiles.
+#*
 #* Revision 1.58  2006/01/15 16:11:35  ecaron
 #* Ready to version 2.1
 #*
@@ -506,6 +511,7 @@ if test "x$enable_BLAS" = "xyes"; then
               [-lcblas -lblas -lblas2 -latlas!-lblas!-llapack!-lm!-lblas!\
                -lcblas!-llapack!-lm!-L/usr/lib/atlas ],,,:)
 fi
+AM_CONDITIONAL(USE_BLAS, [test "x$HAVE_BLAS" = "xyes"])
 
 dnl ###########################################################################
 dnl ####[ search for the ScaLAPACK Library ]
@@ -615,6 +621,7 @@ AC_CONFIG_FILES([config.mk
 		 src/examples/before.mk
 		 src/examples/Batch/Makefile
 		 src/examples/BLAS/Makefile
+		 src/examples/cori/Makefile
 		 src/examples/dmat_manips/Makefile
 		 src/examples/file_transfer/Makefile
 		 src/examples/plugin_example/Makefile
@@ -672,6 +679,10 @@ else
   if test "x$HAVE_BLAS" = "xyes"
   then
     printf ", BLAS" | tee -a config.log
+  fi
+  if test "x$enable_cori" = "xyes"
+  then
+    printf ", cori" | tee -a config.log
   fi
   if test "x$HAVE_ScaLAPACK" = "xyes"
   then
