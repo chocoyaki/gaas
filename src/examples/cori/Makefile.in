@@ -1,0 +1,68 @@
+#****************************************************************************#
+#* Makefile DIET CoRI-plugin schedulers examples                            *#
+#*                                                                          *#
+#*  Author(s):                                                              *#
+#*    - Peter FRAUENKRON (Peter.Frauenkron@gmail.com)                       *#
+#*                                                                          *#
+#* $LICENSE$                                                                *#
+#****************************************************************************#
+#* $Id$
+#* $Log$
+#* Revision 1.1  2006/01/21 00:57:37  pfrauenk
+#* CoRI : 2 examples are now available: a simple tester for cori_easy and
+#*        one for testing the plug-in scheduler and cori
+#*
+#****************************************************************************#
+##
+@USE_BLAS_TRUE@am__append_1 = #sched_BLAS_server  sched_BLAS_client #dgemm_client_nodata server_nodata 
+@USE_BLAS_TRUE@am__append_2 = #sched_BLAS_server.c  sched_BLAS_client.c scheduler_examples.c scheduler_examples.h #dgemm_client_nodata.c server_nodata.c 
+# The following lines are necessary to include this example in the
+# configuration chain of DIET.
+#
+srcdir = @srcdir@
+subdir = src/examples/BLAS
+SOURCES = coriEasyTester.cc sched_dmatmips_client.c sched_dmatmips_server.c $(am__append_2)
+HEADERS = 
+#
+# before.mk includes the right Makefile.inc. Indeed, the user might wish to
+# compile this example without installing actually DIET ; thus we cannot assume
+# that the Makefile.inc is really in $(prefix): if it is not installed, then we
+# will look for it in the build directory.
+# If we could be sure that Makefile.inc is installed before compiling this
+# example, we would simply add the following line, which is what the user should
+# do for his own examples: include $(prefix)/include/Makefile.inc
+#
+include ../before.mk
+#
+##
+
+PROGRAMS= coriEasyTester sched_dmatmips_client sched_dmatmips_server $(am__append_1)
+
+all: 	$(PROGRAMS)
+
+
+#@USE_BLAS_TRUE@dgemm_client_nodata: dgemm_client_nodata.c $(DIET_CLIENT_PREREQ)
+#@USE_BLAS_TRUE@	$(CC) $(CCFLAGS_DIET) $< $(DIET_CLIENT_LIBS) -o $@
+
+#@USE_BLAS_TRUE@server_nodata: server_nodata.c $(DIET_SERVER_PREREQ)
+#@USE_BLAS_TRUE@	$(CC) $(CCFLAGS_DIET) $< $(DIET_SERVER_LIBS) -lblas -o $@
+
+#@USE_BLAS_TRUE@sched_BLAS_client:	sched_BLAS_client.c $(DIET_CLIENT_PREREQ)
+#@USE_BLAS_TRUE@	$(CC) $(CCFLAGS_DIET) $< $(DIET_CLIENT_LIBS) -o $@
+
+#@USE_BLAS_TRUE@sched_BLAS_server:	sched_BLAS_server.c scheduler_examples.o $(DIET_SERVER_PREREQ)
+#@USE_BLAS_TRUE@	$(CC) $(CCFLAGS_DIET) $< $(DIET_SERVER_LIBS) scheduler_examples.o -o $@
+sched_dmatmips_client:	sched_dmatmips_client.c $(DIET_CLIENT_PREREQ)
+		        $(CC) $(CCFLAGS_DIET) $< $(DIET_CLIENT_LIBS) -o $@
+
+# As the server uses the __FAST_*__ macros, we must exceptionnally add
+# the flag -I ../../../include.
+sched_dmatmips_server:	sched_dmatmips_server.c $(DIET_SERVER_PREREQ)
+	$(CC) $(CCFLAGS_DIET) -g -I $(top_builddir)/include $<	\
+	      $(DIET_SERVER_LIBS)  -o $@
+
+coriEasyTester:	coriEasyTester.cc $(DIET_SERVER_PREREQ)
+			$(CC) $(CCFLAGS_DIET) $< $(DIET_SERVER_LIBS) -o $@
+
+#@USE_BLAS_TRUE@scheduler_examples.o:	scheduler_examples.c scheduler_examples.h
+#@USE_BLAS_TRUE@	$(CC) $(CCFLAGS_DIET) -c scheduler_examples.c scheduler_examples.h
