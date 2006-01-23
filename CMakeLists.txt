@@ -19,6 +19,8 @@ OPTION( DIET_WITH_STATISTICS "Build DIET with generation of statistics." OFF )
 OPTION( DIET_WITH_MULTI_MA   "Build DIET with MULTI-Master-Agent support." OFF )
 OPTION( DIET_MAINTAINER_MODE "Build additional documentation..." OFF )
 
+# INCLUDE(${DIET_SOURCE_DIR}/Cmake/CheckCCompiler.cmake)
+
 # --------------------- DEPENDENCIES TOWARDS "CLASSIC" C++ HEADERS ---------
 # This is just a convenience to advance the detection of any potential missing
 # C++ "classic" header to the cmake stage. If we were to forget the following
@@ -124,6 +126,7 @@ IF( DIET_BUILD_EXAMPLES AND DIET_USE_BLAS )
   # BLAS (Basic Linear Algebric Subroutines) examples subdir requires...BLAS !
   FIND_PACKAGE( BLAS )
 ENDIF( DIET_BUILD_EXAMPLES AND DIET_USE_BLAS )
+
 
 # --------------------- BUILD THE CONFIGURATION FILE -----------------------
 ### FIXME: consider using ADD_DEFINITIONS cmake feature instead of a configure
