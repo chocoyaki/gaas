@@ -10,6 +10,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.71  2006/01/24 06:33:53  hdail
+ * Fix made to code to fix bug whereby on certain systems (like Orsay G5K)
+ * client successfully schedules job 3 times in a row but fails at submission
+ * each time.  I have commented out contract checking as it was causing the
+ * problem, adds overhead to job submission, and has not been really used in
+ * DIET for several years.  Can easily be uncommented when someone decides to
+ * do research on contract checking.  Fix tested at Orsay.
+ *
  * Revision 1.70  2006/01/20 10:14:37  eboix
  *    - Odd references to acDIET_config.h changed to DIET_config.h  --- Injay2461
  *
@@ -42,35 +50,6 @@
  * Added the diet_call_batch() and diet_call_async_batch() in the API and
  * modified the respective solve functions if the client wants to perform
  * a batch submission
- *
- * Revision 1.54  2005/04/08 09:55:19  hdail
- * Removing unused cichlid definition and cleaning up client code.
- *
- * Revision 1.53  2004/12/15 13:53:22  sdahan
- * - the trace function are now thread safe.
- * - add "extern unsigned int TRACE_LEVEL" in debug.hh
- *
- * Revision 1.52  2004/12/08 15:02:52  alsu
- * plugin scheduler first-pass validation testing complete.  merging into
- * main CVS trunk; ready for more rigorous testing.
- *
- * Revision 1.51  2004/11/25 11:40:32  hdail
- * Add request ID to statistics output to allow tracing of stats for each request.
- *
- * Revision 1.50.2.3  2004/11/30 20:04:26  alsu
- * math.h needed for HUGE_VAL
- *
- * Revision 1.50.2.2  2004/11/06 16:23:37  alsu
- * - minor bug for a zero-parameter service
- * - changes for new parameter-based default values for estVector access
- *   functions
- *
- * Revision 1.50.2.1  2004/11/02 00:42:03  alsu
- * modifying the "contract checking" code to use new estimation
- * structure.
- *
- * Revision 1.50  2004/10/15 13:04:29  bdelfabr
- * request_submission modified to avoid mismatch data identifers
  ****************************************************************************/
 
 
@@ -542,6 +521,11 @@ request_submission(diet_profile_t* profile,
                        << response->servers[i].loc.port << "\n");
           }
         }
+#if 0
+        /** Contract checking has been commented out in Jan 2006 by Holly
+         * because noone has used it for years.  Leaving code here as 
+         * background info for someone pursuing research in contract
+         * checking. */
 
         /* Check the contracts of the servers answered. */
         server_OK = 0;
@@ -577,6 +561,8 @@ request_submission(diet_profile_t* profile,
         if ((size_t) server_OK == response->servers.length()) {
           server_OK = -1;
         }
+#endif    // Contract checking commented out
+        server_OK = 0;    // Use this when no contract checking
       } // end else  [if (!response || response->servers.length() == 0)]
     } // end if data ok
   } while ((response) && (response->servers.length() > 0) &&
