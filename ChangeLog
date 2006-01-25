@@ -1,5 +1,11 @@
 diet-2.1
 
+* CoRI Collectors of ressource information
+        - This new functionality allows to acces in an easy way to 
+	 information about every SeD. In conjunction with the 
+	 plug-in scheduler, you can now specify your own scheduler 
+	 and your own method to collect the ressource information.
+ 
 * JuxMem
 	- JuxMem support inside DIET has been updated for JuxMem 0.2.
 	Removed C++ wrapper inside src/utils (included in JuxMem).
