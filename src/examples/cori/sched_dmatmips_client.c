@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2006/01/25 21:39:06  pfrauenk
+ * CoRI Example dmatmips replaced by a simple fibonacci example
+ *
  * Revision 1.1  2006/01/21 00:57:37  pfrauenk
  * CoRI : 2 examples are now available: a simple tester for cori_easy and
  *        one for testing the plug-in scheduler and cori
@@ -78,9 +81,9 @@
 static const char* PB[NB_PB] =
   {"T", "MatPROD", "MatSUM", "SqMatSUM", "SqMatSUM_opt"};
 
-#define SCHED_NB 3
+#define SCHED_NB 4
 static const char* SCHED[SCHED_NB] =
-  {"LOADAVG","RRNBPROC","DEFAULT"};
+  {"LOADAVG","RRNBPROC","MEMFREE","DEFAULT"};
 
 /* argv[1]: client config file path
    argv[2]: one of the strings above 
@@ -99,7 +102,7 @@ usage(char* cmd)
 	 fprintf(stderr,">");
        else fprintf(stderr,"|");
    }
-  fprintf(stderr, "    ex: %s client.cfg T LOADAVG\n", cmd);
+  fprintf(stderr, "    ex: %s --repeat 1 client.cfg T LOADAVG\n", cmd);
   fprintf(stderr, "        %s --repeat 1000 client.cfg MatSUM RRNBPROC\n", cmd);
   fprintf(stderr, "        %s --repeat 1000 %s DEFAULT\n",
 	  cmd, "client.cfg MatSUM (1ms between two steps of the loop)");
@@ -195,9 +198,7 @@ main(int argc, char* argv []){
     fprintf(stderr, "DIET initialization failed !\n");
     return 1;
   }
-    printf("fill \n");
   for (cpt = 0; cpt < NB_PB; cpt++) {
-    printf("%i\n",strcmp(path, PB[cpt]));
     if ((pb[cpt] = !strcmp(service_name, srv_sched[cpt]))) break;
   }
   // Square matrix problems:

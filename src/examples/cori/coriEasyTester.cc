@@ -2,6 +2,6 @@
 
 int 
 main (int argc, char * argv []){
- diet_estimate_cori_print();
+ diet_estimate_coriEasy_print();
 }
 
