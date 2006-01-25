@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.12  2006/01/25 20:38:00  pfrauenk
+%* CoRI errata about estVectors reformed
+%*
 %* Revision 1.11  2006/01/25 17:26:04  pfrauenk
 %* CoRI : Some useful information about CoRI now available
 %*
@@ -369,8 +372,7 @@ fast scheduling by the plug-in.
   \fixme{Problems with  the function \texttt{diet\_est\_cori}}
   \begin{itemize}
  \item called twice in the same tag for a scalar values, the second will erase the first
-  \item called twice in the same tag for the array side of the vector, it will append the new information to the old
- \end{itemize} 
+  \end{itemize} 
   %including of the class diagram: source file can be modified by MS visio
  %source file available on /home/CVS/tarballs/sourcefile_coriArchitect.tar on graal 
 %\begin{figure}[htb]
@@ -398,7 +400,7 @@ CoRI Easy will be used to initialize the vector by default. The problem is that 
  FAST will be launched automatically on the MA and LA side.\\
  \fixme{launching only if need?}\\ Would it be interesting to be able to start fast on the MA side dynamicaly?\\
 \fixme{FAST without CoRI}\\ 
-In this case all possible fields of the vector will be filled (i.e. erase old scalars and append new array to the old array!).
+In this case all possible fields of the vector will be filled (i.e. erase old values).
 
   \section{\textsf{src/client}}
   \label{s:client}
