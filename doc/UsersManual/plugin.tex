@@ -81,6 +81,10 @@ implements the following ordered sequence of tests:
   comparing two otherwise equivalent SeD performance estimations.
 \end{enumerate}
 
+\textbf{Attention:} If DIET is compiled with option \texttt{--enable-cori},
+FAST/NWS Scheduling is deactivated. See
+chapter~\ref{chapter:performance} for more information about CoRI.
+
 In principle, this scheduling policy prioritizes servers that are able
 to provide useful performance prediction information (as provided by
 the FAST and NWS facilities).  In general, this approach works well
@@ -88,10 +92,10 @@ when all servers in a given DIET hierarchy are capable of making such
 estimations.  However, in platforms composed of SeDs with varying
 capabilities, load imbalances may occur: since DIET systematically
 prioritizes server responses containing FAST and/or NWS data, servers
-that do not respond with such performance data will be never be
+that do not respond with such performance data will never be
 chosen.
 
-We have designed a plugin scheduler facility to 
+We have designed a plugin scheduler facility to
 enable the application developer to tailor the DIET scheduling to the
 targeted application.
 This functionality provides
@@ -127,22 +131,75 @@ may include either standard performance measures that are available
 through DIET, or developer-defined values that are meaningful solely in
 the context of the application being developed.
 
+\subsection{Standard Estimation Tags}\label{sect:estTags}
+
+To access to the different fields of the \texttt{estVector\_t}, it
+is necessary to specify the tag that correspond to a specific information type.
+The table~\ref{t:tags} describe this correspondance.
+Some tags represent a list of values, use the \texttt{diet\_est\_array\_*} 
+functions to acces to them. In the table~\ref{t:tags}, 
+the second column marks this multi-value tags.
+
+The tag \textit{ALLINFOS} is a special: his field is 
+always empty, but it allows to fill the vector with all known tags 
+by the particular collector.
+ 
+\begin{table}[h]
+ \footnotesize
+ \centering
+ \begin{tabular}[c]{|c|c|c|}\hline
+%FAST ligne
+
+  \texttt{Information tag}  &multi-& \texttt{Explication} \\[5pt]
+ \texttt{starts with EST\_} &value& \\[5pt]
+  \hline
+
+%TAGS lines
+ \textit{TCOMP        }&& the predicted time 
+                       to solve a problem \\[5pt]
+%  \hline
+  \textit{TIMESINCELASTSOLVE} &   & time since last solve has been made (sec) \\[5pt]
+  \hline
+  \textit{FREECPU      }&& amount of free cpu between 0 and 1 \\[5pt]
+  \hline
+  \textit{FREEMEM      }&& amount of free  memory (Mb) \\[5pt]
+  \hline
+  \textit{NBCPU        }&& number of available processors  \\[5pt]
+  \hline
+  \textit{CPUSPEED     }&x& frequence of CPUs (MHz) \\[5pt]
+  \hline
+  \textit{TOTALMEM     }&& total memory size (Mb)  \\[5pt]
+  \hline
+  \textit{AVGFREECPU   }&& average amount of free CPU [0..1] \\[5pt]
+  \hline
+  \textit{BOGOMIPS     }&x& the bogomips \\[5pt]
+  \hline
+  \textit{CACHECPU     }&x& cache size CPUs (Kb) \\[5pt]
+  \hline
+  \textit{TOTALSIZEDISK}&& size of the partition (Mb)\\[5pt]
+  \hline
+  \textit{FREESIZEDISK }&& amount of free place on partition (Mb)\\[5pt]
+  \hline
+  \textit{DISKACCESREAD}&& average time to read on disk (Mb/sec) \\[5pt]
+  \hline
+  \textit{DISKACCESWRITE}&& average time to write to disk (sec) \\[5pt]
+  \hline
+  \textit{ALLINFOS     }&x& [empty] fill all possible fields \\[5pt]
+  \hline
+ \end{tabular}
+ \caption{Explication of the estimation tags}
+ \label{t:tags}
+\end{table}
+
 \subsubsection{Standard Performance Metrics}
 
-To allow users to use the existing default performance estimation
-routines (as described in Section~\ref{sect:est_fn}), the following
+To acces to the existing default performance estimation
+routines (as described in Chapter~\ref{chapter:performance}), the following
 functions are available to facilitate the construction of custom
 performance estimation functions:
 \begin{itemize}
-\item FAST- and NWS-based performance estimation metrics (contingent
-  on availability of these packages at compilation time) are stored in
-  an estimation metric vector by calling
-  \begin{tabbing}
-    \texttt{int diet\_estimate\_fast(}\=\texttt{estVector\_t ev,} \\
-    \> \texttt{const diet\_profile\_t* const profilePtr)};
-  \end{tabbing}
-   with an appropriate value for \texttt{ev} and the
-   \texttt{profilePtr} corresponding to the current DIET request.
+\item FAST- and NWS-based performance estimation metrics can be used in the plugin scheduler. 
+See the section ~\ref{subsection:callFAST} how to use them.
 \item The time elapsed since the last execution (to enable
   the round-robin scheduler) is stored in an estimation metric vector
   by calling
@@ -152,12 +209,13 @@ performance estimation functions:
   \end{tabbing}
   with an appropriate value for \texttt{ev} and the
   \texttt{profilePtr} corresponding to the current DIET request.
+\item CoRI allows to access in an easy way to basic performance 
+prediction. See Chapter~\ref{sec:CORI} to know more about the use of it.
 
 \end{itemize}
 
 In the future, we plan to expand the suite of default estimation
-metrics to include other performance estimation systems
-(e.g.,~ganglia) and dynamic internal DIET system state information
+metrics to include dynamic internal DIET system state information
 (e.g.,~queue lengths).
 
 \subsubsection{Developer-defined Performance Metrics}
@@ -174,7 +232,7 @@ associated with tags using the following interface:
 \begin{code}
 int diet\_est\_set(estVector\_t ev, int userTag, double value);
 \end{code}
-The \texttt{ev} parameter is the estimation vector into which the
+The \texttt{ev} parameter is the estimation vector into the
 value will be stored, the \texttt{userTag} parameter denotes the
 chosen tag, and \texttt{value} indicates the value to be associated
 with the tag.  Tagged data are used to effect
@@ -287,7 +345,7 @@ parameter.
 Recall that from the point of view of an agent, the aggregation phase
 is essentially a sorting of the server responses from its children.
 A priority scheduler logically uses a series of user-specified tags to
-perform the pairwise server comparisons needed to construct the 
+perform the pairwise server comparisons needed to construct the
 sorted list of server responses.
 
 To define the tags and the order in which they should be compared,
@@ -415,9 +473,10 @@ scheduler.
   data concerning the internal state of the DIET server (e.g.,~the
   current length of request queues).  As other performance measurement
   and evaluation tools are developed both within and external to the
-  DIET project, we may also create access functions to enable such
-  information to be incorporated in the context of the plugin
-  scheduler.
+  DIET project (see chapter~\ref{chapter:performance}), some
+  tools are already available to enable such 
+  information to be incorporated
+  in the context of the plugin scheduler.
 \item \textbf{Enhanced aggregation methods}: The plugin scheduler
   implemented in the current release enables the DIET system to
   account for user-defined factors in the server selection process.
@@ -431,3 +490,4 @@ scheduler.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% \end{document}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+

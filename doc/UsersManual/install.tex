@@ -10,6 +10,11 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.24  2006/01/25 16:52:55  pfrauenk
+%* CoRI : renaming of the chapter performance prediction with fast
+%* 	to performance prediction, add of the CoRI Usersmanual,
+%* 	changes in the plugin scheduler
+%*
 %* Revision 1.23  2005/08/26 08:32:42  rbolze
 %* remove --enable-logservice feature.
 %*
@@ -204,6 +209,18 @@ interact with JuxMem for the management of persistent data. When
 this option is activated (disabled by default), a SeD can store data
 blocks within JuxMem. Chapter~\ref{ch:juxmem} describes in more
 details JuxMem and its use inside DIET.
+
+{\footnotesize
+\begin{verbatim}
+  --enable-cori       enable the use of CoRI for collecting information 
+                      about the SeD
+\end{verbatim}
+}
+\noindent \textit{Experimental}.  This option allows the user to
+get hardware and performance information about the SeD. When
+this option is activated (disabled by default), the user can call FAST and other 
+collectors by the interface CoRI. It can be used to improve the plug-in scheduler.
+Chapter~\ref{chapter:performance} describes in more details CoRI and its use inside DIET.
 
 {\footnotesize
 \begin{verbatim}
@@ -408,6 +425,7 @@ DIET successfully configured as follows:
  - documents:       yes
  - examples:        dmat_manips, file_transfer, scalars
  - FAST:            disabled
+ - CORI:            disabled
  - ORB:             omniORB 4 in /usr
  - prefix:          /home/username/DIET/install
  - multi-MA:        no
