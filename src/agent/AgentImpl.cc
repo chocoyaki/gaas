@@ -5,6 +5,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.39  2006/01/25 21:07:59  pfrauenk
+ * CoRI - plugin scheduler: the type diet_est_tag_t est replace by int
+ *        some new fonctions in DIET_server.h to manage the estVector
+ *
  * Revision 1.38  2006/01/19 21:35:42  pfrauenk
  * CoRI : when --enable-cori - round-robin is the default scheduler -
  *        CoRI is not called (any more) for collecting information
@@ -120,8 +124,8 @@ using namespace std;
 #include "debug.hh"
 #if !HAVE_CORI
 #include "FASTMgr.hh"
-//#else //HAVE_CORI
-//#include "CORIMgr.hh"
+#else //HAVE_CORI
+#include "CORIMgr.hh"
 #endif //!HAVE_CORI
 #include "ms_function.hh"
 #include "ORBMgr.hh"
@@ -229,11 +233,12 @@ AgentImpl::run()
     // Init FAST (HAVE_FAST is managed by the FASTMgr class)
   return FASTMgr::init();
 #else 
-//   int use =
-//     *((size_t*)Parsers::Results::getParamValue(Parsers::Results::FASTUSE));
-//   if (use > 0)
-//     CORIMgr::add(EST_COLL_EASY,NULL);
-  return 0;
+   int use =
+     *((size_t*)Parsers::Results::getParamValue(Parsers::Results::FASTUSE));
+  if (use > 0){
+     CORIMgr::add(EST_COLL_FAST,NULL);
+     return CORIMgr::startCollectors();}
+  else return 0;
 #endif //HAVE_CORI
 } // run()
 
@@ -712,16 +717,16 @@ AgentImpl::getCommTime(CORBA::Long childID, unsigned long size, bool to)
 #if !HAVE_CORI
  time = FASTMgr::commTime(this->localHostName, child_name, size, to);
 #else //HAVE_CORI
-//   estVector_t ev=new corba_estimation_t();
-// #if HAVE_FAST
-//   commTime_t commTime_param={this->localHostName,child_name,size,to};
+  estVector_t ev=new corba_estimation_t();
+#if HAVE_FAST
+  commTime_t commTime_param={this->localHostName,child_name,size,to};
 
-//   CORIMgr::call_cori_mgr(&ev,
-// 		EST_COMMTIME,
-// 		EST_COLL_FAST,
-// 		&commTime_param);
-//   time = diet_est_get(ev, EST_COMMTIME, HUGE_VAL);
-// #endif //HAVE_FAST
+  CORIMgr::call_cori_mgr(&ev,
+		EST_COMMTIME,
+		EST_COLL_FAST,	
+		&commTime_param);
+  time = diet_est_get(ev, EST_COMMTIME, HUGE_VAL);
+#endif //HAVE_FAST
   time = HUGE_VAL;
 #endif //HAVE_CORI
 

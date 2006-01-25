@@ -8,11 +8,14 @@
 #define HOSTNAME_BUFLEN 256
 
 Cori_Fast::Cori_Fast(){
-  FASTMgr::init();
 }
 
+int
+Cori_Fast::start(){
+  return FASTMgr::init();
+}
 int 
-Cori_Fast::get_Information(diet_est_tag_t type_Info,       
+Cori_Fast::get_Information(int type_Info,       
 			   estVector_t* info,
 			   const void* data)
 {
@@ -39,6 +42,7 @@ Cori_Fast::get_Information(diet_est_tag_t type_Info,
                     fast_param->initprofilePtr,
                     fast_param->SRVT,
                     (ServiceTable::ServiceReference_t) stRef,
+		     type_Info, 
                     *info);                
   }  
   

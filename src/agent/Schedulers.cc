@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2006/01/25 21:07:59  pfrauenk
+ * CoRI - plugin scheduler: the type diet_est_tag_t est replace by int
+ *        some new fonctions in DIET_server.h to manage the estVector
+ *
  * Revision 1.14  2006/01/19 21:35:42  pfrauenk
  * CoRI : when --enable-cori - round-robin is the default scheduler -
  *        CoRI is not called (any more) for collecting information
@@ -1134,7 +1138,7 @@ int MinScheduler_compare(int serverIdx1,
                          Vector_t evCache,
                          const void* tagvalPtr)
 {
-  diet_est_tag_t tagval = *((diet_est_tag_t *) tagvalPtr);
+  int tagval = *((int *) tagvalPtr);
   estVectorConst_t s1est = Scheduler::getEstVector(serverIdx1,
                                                    responseIdx1,
                                                    responses,
@@ -1234,7 +1238,7 @@ int MaxScheduler_compare(int serverIdx1,
                          Vector_t evCache,
                          const void* tagvalPtr)
 {
-  diet_est_tag_t tagval = *((diet_est_tag_t *) tagvalPtr);
+  int tagval = *((int *) tagvalPtr);
   estVectorConst_t s1est = Scheduler::getEstVector(serverIdx1,
                                                    responseIdx1,
                                                    responses,
@@ -1354,7 +1358,7 @@ int PriorityScheduler_compare(int serverIdx1,
       minimize = 1;
     }
 
-    diet_est_tag_t tag = (diet_est_tag_t) _tag;
+    int tag = (int) _tag;
     const int exists1 = diet_est_defined_internal(s1est, tag);
     const int exists2 = diet_est_defined_internal(s2est, tag);
     const double val1 = diet_est_get_internal(s1est, tag, 0);

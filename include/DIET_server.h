@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2006/01/25 21:07:59  pfrauenk
+ * CoRI - plugin scheduler: the type diet_est_tag_t est replace by int
+ *        some new fonctions in DIET_server.h to manage the estVector
+ *
  * Revision 1.24  2006/01/19 21:18:47  pfrauenk
  * CoRI: adding 2 new functions - correction of some comments
  *
@@ -209,9 +213,9 @@ diet_profile_desc_aggregator(diet_profile_desc_t* profile);
 int diet_aggregator_set_type(diet_aggregator_desc_t* agg,
                              diet_aggregator_type_t atype);
 int diet_aggregator_priority_max(diet_aggregator_desc_t* agg,
-                                 diet_est_tag_t tag);
+                                 int tag);
 int diet_aggregator_priority_min(diet_aggregator_desc_t* agg,
-                                 diet_est_tag_t tag);
+                                 int tag);
 int diet_aggregator_priority_maxuser(diet_aggregator_desc_t* agg, int val);
 int diet_aggregator_priority_minuser(diet_aggregator_desc_t* agg, int val);
 
@@ -430,25 +434,35 @@ diet_submit_batch(diet_profile_t* profile, const char *command,
 /****************************************************************************/
 int diet_est_set(estVector_t ev, int userTag, double value);
 double diet_est_get(estVectorConst_t ev, int userTag, double errVal);
+double diet_est_get_system(estVectorConst_t ev, 
+			     int systemTag, 
+			     double errVal);
 int diet_est_defined(estVectorConst_t ev, int userTag);
+int diet_est_defined_system(estVectorConst_t ev, int systemTag);
 int diet_est_array_size(estVectorConst_t ev, int userTag);
+int diet_est_array_size_system(estVectorConst_t ev, int systemTag);
+
 int diet_est_array_set(estVector_t ev, int userTag, int idx, double value);
 double diet_est_array_get(estVectorConst_t ev,
                           int userTag,
                           int idx,
                           double errVal);
+double diet_est_array_get_system(estVectorConst_t ev,
+                          int systemTag,
+                          int idx,
+                          double errVal);
 int diet_est_array_defined(estVectorConst_t ev, int userTag, int idx);
+int diet_est_array_defined_system(estVectorConst_t ev, int systemTag, int idx);
 
 int diet_estimate_cori(estVector_t ev,
-		       diet_est_tag_t info_type,
+		       int info_type,
 		       diet_est_collect_tag_t collector_type, 
 		       void* data);
 
-int 
-diet_estimate_cori_add_collector(diet_est_collect_tag_t collector_type,
+int diet_estimate_cori_add_collector(diet_est_collect_tag_t collector_type,
 				 void* data);
-void
-diet_estimate_cori_print();
+
+void diet_estimate_coriEasy_print();
 
 int diet_estimate_fast(estVector_t ev, const diet_profile_t* const profilePtr);
 

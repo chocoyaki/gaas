@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2006/01/25 21:08:00  pfrauenk
+ * CoRI - plugin scheduler: the type diet_est_tag_t est replace by int
+ *        some new fonctions in DIET_server.h to manage the estVector
+ *
  * Revision 1.12  2005/08/31 14:56:49  alsu
  * New plugin scheduling interface: using the new estimation vector
  * interface
@@ -118,10 +122,8 @@ FASTMgr::init()
   }
 
   FASTMgr::mutex.lock();
-
-  FASTMgr::use =
-    *((size_t*)Parsers::Results::getParamValue(Parsers::Results::FASTUSE));
-
+ FASTMgr::use =
+   *((size_t*)Parsers::Results::getParamValue(Parsers::Results::FASTUSE));
   if (FASTMgr::use > 0) {
     Parsers::Results::Address* tmp;
     size_t ldapUse, ldapPort, nwsUse, nwsNSPort, nwsFcstPort;
@@ -129,7 +131,6 @@ FASTMgr::init()
     char*  ldapMask = "";
     char*  nwsNSHost = "";
     char*  nwsFcstHost = "";
-    
     ldapUse = 
       *((size_t*)Parsers::Results::getParamValue(Parsers::Results::LDAPUSE));
     if (ldapUse) {
@@ -140,7 +141,6 @@ FASTMgr::init()
       ldapMask = (char*)
 	Parsers::Results::getParamValue(Parsers::Results::LDAPMASK);
     }
-
     nwsUse =
       *((size_t*)Parsers::Results::getParamValue(Parsers::Results::NWSUSE));
     if (nwsUse) {
@@ -155,7 +155,6 @@ FASTMgr::init()
 	nwsFcstPort = tmp->port;
       }
     }
-
     res = fast_init("ldap_use", ldapUse,
 		    "ldap_server", ldapHost, ldapPort, "ldap_binddn", ldapMask,
 		    "nws_use", nwsUse,
@@ -258,6 +257,9 @@ FASTMgr::estimate(char* hostName,
 		  const diet_profile_t* const profilePtr,
                   const ServiceTable* SrvT,
                   ServiceTable::ServiceReference_t ref,
+#ifdef HAVE_CORI
+		  int estTag,
+#endif //HAVE_CORI
                   estVector_t ev)
 {
   double time(HUGE_VAL);
@@ -321,10 +323,25 @@ FASTMgr::estimate(char* hostName,
 // 	    freeCPU,
 // 	    freeMem,
 // 	    (double) nbCPU);
+#ifdef HAVE_CORI
+    if ((estTag==EST_TCOMP)||(estTag==EST_ALLINFOS))
+    diet_est_set_internal(ev, EST_TCOMP, time);
+    if ((estTag==EST_FREECPU)||(estTag==EST_ALLINFOS))
+    diet_est_set_internal(ev, EST_FREECPU, freeCPU);
+    if ((estTag==EST_FREEMEM)||(estTag==EST_ALLINFOS))
+    diet_est_set_internal(ev, EST_FREEMEM, freeMem);
+    if ((estTag==EST_NBCPU)||(estTag==EST_ALLINFOS))
+    diet_est_set_internal(ev, EST_NBCPU, nbCPU);
+    if ((estTag==EST_TCOMP)||(estTag==EST_ALLINFOS))
+    diet_est_set_internal(ev, EST_TCOMP, time);
+
+#else //HAVECORI
     diet_est_set_internal(ev, EST_TCOMP, time);
     diet_est_set_internal(ev, EST_FREECPU, freeCPU);
     diet_est_set_internal(ev, EST_FREEMEM, freeMem);
     diet_est_set_internal(ev, EST_NBCPU, nbCPU);
+    diet_est_set_internal(ev, EST_TCOMP, time);
+#endif //HAVECORI
   }
 }
 

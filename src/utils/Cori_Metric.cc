@@ -10,8 +10,6 @@ Cori_Metric::Cori_Metric(diet_est_collect_tag_t type,
 
  collector_type=type;
 
- //call the desired collector and initialize it
-
  switch(collector_type){
 
   case EST_COLL_EASY:{ 
@@ -19,22 +17,9 @@ Cori_Metric::Cori_Metric(diet_est_collect_tag_t type,
   }
     break; 
   case EST_COLL_FAST:{
-#if HAVE_FAST  
     cori_fast=new Cori_Fast();
-#endif //HAVE_FAST
-
   }
     break;
-  case EST_COLL_GANGLIA:{
-  }
-    break;
-
- case EST_COLL_NAGIOS:{
-  }
-    break;
-    /********************************************
-     * add here your collector constructor call *
-     ********************************************/
   default:{
     INTERNAL_WARNING("Collector called "<<collector_type <<" doesn't exist");
   }
@@ -46,9 +31,31 @@ Cori_Metric::get_Collector_type(){
   return this->collector_type;
 }
 
+int 
+Cori_Metric::start(diet_est_collect_tag_t type){
+   collector_type=type;
+
+ switch(collector_type){
+
+  case EST_COLL_EASY:{ 
+    //no need to start - very synamic functions
+    return 0;
+  }
+    break; 
+  case EST_COLL_FAST:{
+    return cori_fast->start();
+  }
+    break;
+  default:{
+    INTERNAL_WARNING("Collector called "<<collector_type <<" doesn't exist");
+    return 0; //this warnig should not stop the start up of the SeD
+  }
+     break;  
+  }
+}
 
 int 
-Cori_Metric::call_cori_metric(diet_est_tag_t type_Info,       
+Cori_Metric::call_cori_metric(int type_Info,       
 				  estVector_t *information,
 				  const void *data)
 {
@@ -56,27 +63,20 @@ Cori_Metric::call_cori_metric(diet_est_tag_t type_Info,
     
   case EST_COLL_EASY:{ 
     return cori_easy->get_Information(type_Info, 
-				      information,data);   
+				      information,
+				      data);   
   }
     break; 
   case EST_COLL_FAST:{
-#if HAVE_FAST   
     return cori_fast->get_Information(type_Info,
 				      information,
 				      data);
-
-#endif //HAVE_FAST
   }
     break;
-  case EST_COLL_GANGLIA:{
-
-  }
-    break;
-   /********************************************
-    * add here your getInformation call        *
-    * ******************************************/
-  default:{
-    return 1;
+  default:{ 
+    diet_est_set_internal(*information,type_Info,0);
+    ERROR("CoRI: Collector " <<collector_type <<" doesn't exist!",1);
+    //fixme : add the default value to every type_info
   }
      break;  
   }

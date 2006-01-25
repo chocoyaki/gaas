@@ -35,9 +35,14 @@ public:
   Cori_Fast();
 
 int 
-get_Information(diet_est_tag_t type_Info,       
+get_Information(int type_Info,       
 		estVector_t* info,
 		const void * data);
+
+int
+start();
+ 
+private:
 int
 diet_service_table_lookup_by_profile(const diet_profile_t* const profile,
 				     ServiceTable* SRVT );

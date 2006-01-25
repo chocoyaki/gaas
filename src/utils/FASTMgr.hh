@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2006/01/25 21:08:00  pfrauenk
+ * CoRI - plugin scheduler: the type diet_est_tag_t est replace by int
+ *        some new fonctions in DIET_server.h to manage the estVector
+ *
  * Revision 1.2  2004/12/08 15:02:52  alsu
  * plugin scheduler first-pass validation testing complete.  merging into
  * main CVS trunk; ready for more rigorous testing.
@@ -31,7 +35,7 @@
 #include "DIET_server.h"
 #include "common_types.hh"
 #include "ServiceTable.hh"
-
+#include "DIET_config.h"
 
 /**
  * This class gathers all "FASTies"
@@ -66,6 +70,9 @@ public:
            const diet_profile_t* const profilePtr,
            const ServiceTable* SrvT,
            ServiceTable::ServiceReference_t ref,
+#ifdef HAVE_CORI
+		  int estTag,
+#endif //HAVE_CORI
            estVector_t ev);
 
 private:

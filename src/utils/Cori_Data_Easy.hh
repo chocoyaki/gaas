@@ -32,16 +32,16 @@ private :
   int 
   convertArray(vector <double> vect,
 	       estVector_t * estvect,
-	       diet_est_tag_t typeOfInfo );
+	       int typeOfInfo );
 
   int 
   convertSimple(double value,
 		estVector_t * estvect,
-		diet_est_tag_t typeOfInfo );
+		int typeOfInfo );
 public :
   Cori_Data_Easy();
   int 
-  get_Information(diet_est_tag_t type_Info,       
+  get_Information(int type_Info,       
 		  estVector_t* info,
 		  const void * data);
  

@@ -20,10 +20,22 @@ CORIMgr::add(diet_est_collect_tag_t collectorName,
   return 0;
 }
 
+int
+CORIMgr::startCollectors()
+{
+  int res=0;
+  vector <Cori_Metric>::iterator iter1;
+  iter1 = collector_v->begin();
+  while( iter1 != collector_v->end()) { 
+      res=iter1->start(iter1->get_Collector_type())||res;
+      iter1++;
+    }
+  return res;
+}
 
 int
 CORIMgr::call_cori_mgr(estVector_t *ev,
-			    diet_est_tag_t info_type,
+			    int info_type,
 			    diet_est_collect_tag_t name,
 			    const void * datav)
 {
@@ -40,3 +52,4 @@ CORIMgr::call_cori_mgr(estVector_t *ev,
   INTERNAL_WARNING("The collector "<<name<<" is not present in CORIMgr");
   return 1;
 }
+

@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2006/01/25 21:08:00  pfrauenk
+ * CoRI - plugin scheduler: the type diet_est_tag_t est replace by int
+ *        some new fonctions in DIET_server.h to manage the estVector
+ *
  * Revision 1.19  2005/12/15 12:25:06  pfrauenk
  * CoRI functionality added by Peter Frauenkron
  *
@@ -417,7 +421,7 @@ DietLogComponent::removeTagFilter(const tag_list_t& tagList) {
 
 /*
  * This function gives the string corresponding to the v_tag index;
- * This function must be consitent with typedef diet_est_tag_t in DIET_data.h
+ * This function must be consitent with the #define EST_* in DIET_data.h
  */
 char* 
 DietLogComponent::getEstimationTags(const int v_tag){
@@ -666,14 +670,8 @@ DietLogComponent::logSedChosen(const corba_request_t* request,
 		estim_string.append(" ");
 		estim_string.append(response->servers[i].loc.hostName);
 		for (j=0 ; j < response->servers[i].estim.estValues.length() ; j++){
-                        // FIXME(1): shouldn't valTagInt be of type
-                        // corba_est_tag_storage_t (see definition of
-                        // corba_est_value_t within common_types.hh) ?
 			int valTagInt = response->servers[i].estim.estValues[j].v_tag;
 			estim_string.append(";");
-                        // FIXME(2): in fact valTagInt should be of type
-                        // diet_est_tag_t since getEstimationTags() is basically
-                        // a switch on the enum of type diet_est_tag_t !?
 			estim_string.append(getEstimationTags(valTagInt));
 			estim_string.append("=");
 			char* v_value= new char[256];

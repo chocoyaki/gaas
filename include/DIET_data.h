@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.37  2006/01/25 21:07:59  pfrauenk
+ * CoRI - plugin scheduler: the type diet_est_tag_t est replace by int
+ *        some new fonctions in DIET_server.h to manage the estVector
+ *
  * Revision 1.36  2006/01/19 21:18:47  pfrauenk
  * CoRI: adding 2 new functions - correction of some comments
  *
@@ -128,7 +132,7 @@
 extern "C" {
 #endif // __cplusplus
 
-
+#define EST_INVALI2D 1;
 
 /****************************************************************************/
 /* Aggregator types                                                         */
@@ -524,30 +528,31 @@ typedef struct diet_arg_s diet_data_t;
  * /WARNING: dependency changes to this enum must be propagated to 
  * DietLogComponent::getEstimationTags
  */
-typedef enum {
-  EST_INVALID = -1,
-  EST_TOTALTIME = 1,
-  EST_COMMTIME,
-  EST_TCOMP, 
-  EST_TIMESINCELASTSOLVE,
-  EST_COMMPROXIMITY,      
-  EST_TRANSFEREFFORT,
-  EST_FREECPU, /* amount of available cpu [0..1] */
-  EST_FREEMEM, /* amount of free memory in Mbyte*/
-  EST_NBCPU, /* number of CPU available*/
-  EST_CPUSPEED, /* frequence of CPU in Mhz */
-  EST_TOTALMEM, /* total memory size in Mbyte */
-  EST_AVGFREEMEM, /* average amount of free memory in Mbyte -  not in use!*/
-  EST_AVGFREECPU, /* average amount of free cpu in percent*/
-  EST_BOGOMIPS, /* the bogomips*/
-  EST_CACHECPU, /* cache size of CPU in Kbyte */
-  EST_TOTALSIZEDISK, /* size of the partition in Gbyte */
-  EST_FREESIZEDISK, /* current size of the free partition in Gbyte */
-  EST_DISKACCESREAD, /* current time to read on the partition in Mbyte/s */
-  EST_DISKACCESWRITE, /* current time to write on the partition in Mbyte/s */
-  EST_ALLINFOS, /* if you want everything (available in EASY MODE) */
-  EST_USERDEFINED
-} diet_est_tag_t;
+
+//typedef enum {
+#define EST_INVALID -1
+#define EST_TOTALTIME 1
+#define EST_COMMTIME 2
+#define EST_TCOMP 3 
+#define EST_TIMESINCELASTSOLVE 4
+#define EST_COMMPROXIMITY 5
+#define EST_TRANSFEREFFORT 6
+#define EST_FREECPU 7
+#define EST_FREEMEM 8
+#define EST_NBCPU 9 
+#define EST_CPUSPEED 10
+#define EST_TOTALMEM 11
+#define EST_AVGFREEMEM 12 /*not yet implemented*/
+#define EST_AVGFREECPU 13
+#define EST_BOGOMIPS 14 
+#define EST_CACHECPU 15 
+#define EST_TOTALSIZEDISK 16 
+#define EST_FREESIZEDISK 17 
+#define EST_DISKACCESREAD 18 
+#define EST_DISKACCESWRITE 19
+#define EST_ALLINFOS 20 
+#define EST_USERDEFINED 21
+//} diet_est_tag_t;
 
 
 /**

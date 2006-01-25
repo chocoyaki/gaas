@@ -29,9 +29,11 @@ add(diet_est_collect_tag_t collectorName,
 
 static int
 call_cori_mgr(estVector_t* ev,
-		   diet_est_tag_t info_type,
+		   int info_type,
 		   diet_est_collect_tag_t collector_type,	   
 		   const void * data);
+static int
+startCollectors();
 
 private :
   static vector <Cori_Metric>* collector_v;

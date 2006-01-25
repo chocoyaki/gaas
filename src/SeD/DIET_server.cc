@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.50  2006/01/25 21:07:59  pfrauenk
+ * CoRI - plugin scheduler: the type diet_est_tag_t est replace by int
+ *        some new fonctions in DIET_server.h to manage the estVector
+ *
  * Revision 1.49  2006/01/20 10:14:37  eboix
  *    - Odd references to acDIET_config.h changed to DIET_config.h  --- Injay2461
  *
@@ -442,7 +446,7 @@ __diet_agg_pri_add_value(diet_aggregator_priority_t* priority, int value)
 }
 int
 diet_aggregator_priority_max(diet_aggregator_desc_t* agg,
-                             diet_est_tag_t tag)
+                             int tag)
 {
   if (agg == NULL) {
     ERROR(__FUNCTION__ << ": NULL aggregator\n", 0);
@@ -461,7 +465,7 @@ diet_aggregator_priority_max(diet_aggregator_desc_t* agg,
 }
 int
 diet_aggregator_priority_min(diet_aggregator_desc_t* agg,
-                             diet_est_tag_t tag)
+                             int tag)
 {
   if (agg == NULL) {
     ERROR(__FUNCTION__ << ": NULL aggregator\n", 0);
@@ -814,6 +818,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
 #endif // HAVE_JUXMEM
 
   /* We do not need the parsing results any more */
+
   Parsers::endParsing();
 
   /* Wait for RPCs : */
@@ -858,6 +863,27 @@ diet_est_get(estVectorConst_t ev, int userTag, double errVal)
   return (diet_est_get_internal(ev, userTag + EST_USERDEFINED, errVal));
 }
 
+double
+diet_est_get_system(estVectorConst_t ev, int systemTag, double errVal)
+{
+  if (ev == NULL) {
+    ERROR(__FUNCTION__ << ": NULL estimation vector", errVal);
+  }
+  if (systemTag < 0) {
+    ERROR(__FUNCTION__ <<
+          ": systemTag must be non-negative (" <<
+          systemTag <<
+          ")\n", errVal);
+  }
+  if (systemTag >= EST_USERDEFINED) {
+    ERROR(__FUNCTION__ <<
+          ": systemTag "<<systemTag <<" must be smaller than (" <<
+          EST_USERDEFINED<<
+          ")\n", errVal);
+  }
+  return (diet_est_get_internal(ev,systemTag, errVal));
+}
+
 int
 diet_est_defined(estVectorConst_t ev, int userTag)
 {
@@ -872,6 +898,27 @@ diet_est_defined(estVectorConst_t ev, int userTag)
   }
 
   return (diet_est_defined_internal(ev, userTag + EST_USERDEFINED));
+}
+int
+diet_est_defined_system(estVectorConst_t ev, int systemTag)
+{
+  if (ev == NULL) {
+    ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
+  }
+  if (systemTag < 0) {
+    ERROR(__FUNCTION__ <<
+          ": userTag must be non-negative (" <<
+          systemTag <<
+          ")\n", -1);
+  }
+   if (systemTag >= EST_USERDEFINED) {
+    ERROR(__FUNCTION__ <<
+          ": systemTag "<<systemTag <<" must be smaller than (" <<
+          EST_USERDEFINED<<
+          ")\n", -1);
+  }
+
+  return (diet_est_defined_internal(ev, systemTag ));
 }
 
 int
@@ -888,6 +935,27 @@ diet_est_array_size(estVectorConst_t ev, int userTag)
   }
 
   return (diet_est_array_size_internal(ev, userTag + EST_USERDEFINED));
+}
+int
+diet_est_array_size_system(estVectorConst_t ev, int systemTag)
+{
+  if (ev == NULL) {
+    ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
+  }
+  if (systemTag < 0) {
+    ERROR(__FUNCTION__ <<
+          ": userTag must be non-negative (" <<
+          systemTag <<
+          ")\n", -1);
+  }
+   if (systemTag >= EST_USERDEFINED) {
+    ERROR(__FUNCTION__ <<
+          ": systemTag "<<systemTag <<" must be smaller than (" <<
+          EST_USERDEFINED<<
+          ")\n", -1);
+  }
+
+  return (diet_est_array_size_internal(ev, systemTag));
 }
 
 int
@@ -937,6 +1005,37 @@ diet_est_array_get(estVectorConst_t ev, int userTag, int idx, double errVal)
                                       errVal));
 }
 
+double
+diet_est_array_get_system(estVectorConst_t ev, int systemTag, int idx, double errVal)
+{
+  if (ev == NULL) {
+    ERROR(__FUNCTION__ << ": NULL estimation vector", errVal);
+  }
+  if (systemTag < 0) {
+    ERROR(__FUNCTION__ <<
+          ": userTag must be non-negative (" <<
+          systemTag <<
+          ")\n", errVal);
+  }
+  if (idx < 0) {
+    ERROR(__FUNCTION__ <<
+          ": idx must be non-negative (" <<
+          idx <<
+          ")\n", errVal);
+  }
+  if (systemTag >= EST_USERDEFINED) {
+    ERROR(__FUNCTION__ <<
+          ": systemTag "<<systemTag <<" must be smaller than (" <<
+          EST_USERDEFINED<<
+          ")\n", errVal);
+  }
+  return (diet_est_array_get_internal(ev,
+                                      systemTag,
+                                      idx,
+                                      errVal));
+}
+
+
 int
 diet_est_array_defined(estVectorConst_t ev, int userTag, int idx)
 {
@@ -957,23 +1056,60 @@ diet_est_array_defined(estVectorConst_t ev, int userTag, int idx)
                                           userTag + EST_USERDEFINED,
                                           idx));
 }
+
+int
+diet_est_array_defined_system(estVectorConst_t ev, int systemTag, int idx)
+{
+  if (ev == NULL) {
+    ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
+  }
+  if (systemTag < 0) {
+    ERROR(__FUNCTION__ <<
+          ": userTag must be non-negative (" <<
+          systemTag <<
+          ")\n", -1);
+  }
+  if (idx < 0) {
+    ERROR(__FUNCTION__ << ": idx must be non-negative (" << idx << ")\n", -1);
+  }
+  if (systemTag >= EST_USERDEFINED) {
+    ERROR(__FUNCTION__ <<
+          ": systemTag "<<systemTag <<" must be smaller than (" <<
+          EST_USERDEFINED<<
+          ")\n", -1);
+  }
+  return (diet_est_array_defined_internal(ev,
+                                          systemTag,
+                                          idx));
+}
 #if HAVE_CORI
 
 int
 diet_estimate_cori(estVector_t ev,
-		   diet_est_tag_t info_type,
+		   int info_type,
 		   diet_est_collect_tag_t collector_type,
 		   void * data)
 {
 
   if (collector_type==EST_COLL_FAST){
-#if HAVE_FAST    
+    //#if HAVE_FAST    
     fast_param_t fastparam={(diet_profile_t*)data,SRVT};
+    //testing already here, because it is possible that an internal call use tag COMMTIME
+   if ((info_type==EST_TCOMP)||
+	(info_type==EST_FREECPU)||
+	 (info_type==EST_FREEMEM)||
+	  (info_type==EST_NBCPU)||
+        (info_type==EST_ALLINFOS))
     CORIMgr::call_cori_mgr(&ev,info_type,collector_type,&fastparam);
-#endif
+   else {
+      ERROR(__FUNCTION__ << ": info_type must be EST_TCOMP,EST_FREECPU,EST_FREEMEM, EST_NBCPU or EST_ALLINFOS!)\n", -1);
+      diet_est_set_internal(ev,info_type,0);
+      //fixme: set the default values for each type
+   }
+   //#endif //HAVE_FAST
   }
   else
-    CORIMgr::call_cori_mgr(&ev,info_type,collector_type,data);    
+       CORIMgr::call_cori_mgr(&ev,info_type,collector_type,data);   
   return 0;
 }
 
@@ -989,7 +1125,7 @@ print_message(){
   }
 
 void
-diet_estimate_cori_print(){
+diet_estimate_coriEasy_print(){
   int tmp_int=TRACE_LEVEL;
   TRACE_LEVEL=15;
  
@@ -1080,10 +1216,9 @@ int diet_estimate_lastexec(estVector_t ev,
                         (((double) currentTime.tv_usec -
                           (double) lastSolveStartPtr->tv_usec) /
                          1000000.0));
-
   /* store the value in the performance data array */
   diet_est_set_internal(ev, EST_TIMESINCELASTSOLVE, timeSinceLastSolve);
-
+  diet_est_set(ev, EST_TIMESINCELASTSOLVE, timeSinceLastSolve);
   return (1);
 }
 
