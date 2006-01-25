@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.11  2006/01/25 17:26:04  pfrauenk
+%* CoRI : Some useful information about CoRI now available
+%*
 %* Revision 1.10  2004/02/10 16:07:21  rbolze
 %* *** empty log message ***
 %*
@@ -138,7 +141,7 @@ This directory contains documentations that are to be maintained up-to-date,
   way they are applied is fully documented in section \ref{s:CORBA}, since the
   conversions are performed by functions of the file \texttt{marshalling.cc}.
 
-  \subsubsection{\tt DIET\_mutex.h} 
+  \subsubsection{\tt DIET\_mutex.h}
 
   This is intented to be a portable API to the various thread libraries, a bit
   like the \textsf{omnithread} library. But the \textsf{omnithread} library is a
@@ -224,11 +227,16 @@ This directory contains documentations that are to be maintained up-to-date,
   offered cannot be described in the FAST ``language'' accurately enough for a
   valid bench campaign or estimation, etc. The information that the servers can
   give to the scheduler are very heterogeneous, and the old DIET scheduler was
-  dealing with only the FAST estimations.
+  dealing with only the FAST estimations.\\
+  An other tool has been implemented, called CoRI, and will be used to get by 
+  default the information and to get other types of information (total memory,...).
+  At the moment it is not compiled/called by default. This will be change when
+  it is matured. See section \ref{subsection:performance} for more information.
   \item For research aspects on the platform, it would be very interesting to
   have pluggable schedulers. As the old scheduler was integrated to the agent,
   the first step towards pluggable schedulers was building classes responsible
-  for the scheduling.
+  for the scheduling.\\
+\fixme{plugin is made by alan su!}
   \end{itemize}
 
   The heterogeneity of the information given by the servers is due to the fact
@@ -237,6 +245,7 @@ This directory contains documentations that are to be maintained up-to-date,
   \textsf{Scheduler} class deals with one and only one level.
   \begin{enumerate}
   \item No information at all: such servers are not sorted but placed randomly.
+  \item Last solve time: such server are sorted according to the last solve time.
   \item Hardware information (disk space, RAM, CPU speed, etc.): not managed yet.
   \item Dynamic information (CPU load, free memory, given by NWS): such servers
   are sorted according to their weight, which is a polynom of these
@@ -246,9 +255,24 @@ This directory contains documentations that are to be maintained up-to-date,
   time estimated.
   \end{enumerate}
 
-  Actually, there are only three schedulers implemented, because nothing has been
-  done yet for the servers to get static information (level 2).
-  \\
+  Actually, there are only four schedulers implemented, because nothing has been
+  done yet for the servers to get static information (level 3).\\
+  Actually, with the compiling option --enable-cori only scheduling with round
+  robin (last solve time - level 2) and random scheduling (level 1) is possible.
+  There are multiple reasons why no other scheduling is possible:
+\begin{enumerate}
+  \item The NWS scheduling is bogus: the weight for the memory is too
+  heavy in comparison with the free CPU. Fixing is not so easy, so
+  we deciding to test with several plugin schedulers their
+  performance, before implementing a default scheduling.
+  \item To avoid an increasing complexity of the context.
+  \item To avoid a single server equipped with FAST will always be chosen by
+  the agent.
+  \item The plugin scheduler can be used now with all power, it will
+  be possible to define a scheduler for each server. It is very easy to recreate the old 
+fast scheduling by the plug-in.
+  \end{enumerate}
+
 
   Once the schedulers have sorted every group of servers, the most difficult is
   still to do. How to combine the various information of the servers to get a
@@ -265,8 +289,9 @@ This directory contains documentations that are to be maintained up-to-date,
 
   The only \textsf{GlobalScheduler} available so far (\textsf{StdGS}) calls first
   the \textsf{FASTScheduler} onto the list, putting ahead the servers that could
-  estimate the request, then the \textsf{NWSScheduler} (for NWS information) and
-  finally the \textsf{RandScheduler} that add the servers randomly into the list.
+  estimate the request, then the \textsf{NWSScheduler} (for NWS information), then
+  the \textsf{RRScheduler} and finally the \textsf{RandScheduler} that add the
+  servers randomly into the list.
   \\
 
   Several drawbacks can be noticed about such a structure of schedulers:
@@ -289,6 +314,91 @@ This directory contains documentations that are to be maintained up-to-date,
   Despite these drawbacks, it is now much easier to change the scheduler used in
   the agent. But there is still a lot to do to reach the pluggable schedulers, if
   ever it is possible.
+
+  \subsection{Performance prediction}\label{subsection:performance}
+  CoRI is now implemented to get more information about the SeD.
+  It is called by the server's side and (in FAST mode) on the agent's side. 
+  CoRI is a simple super layer that manages multiple sub modules. One module
+  is Cori-Easy; another is FAST.
+
+  \subsubsection{Using Cori}
+  The programmer of DIET services will use the
+  interface proposed in the SeD interface file, \textsf{DIET\_server.h}
+  Using CoRI as programmer DIET, use directly the
+  \textsf{CORIMgr.hh}
+  The starting phase of cori can be described as follow:
+   \begin{itemize}
+  \item All desired collectors will be add by \texttt{add} 
+  \item Launch the \texttt{startCollectors} to initialising some collectors
+    (i.e FAST) on startup of the server
+  \item using the \textsf{call\_cori\_mgr} function on 
+    demand to get a value in the estVector.
+  \end{itemize}
+  
+  Additional to the tags that the programmer of DIET
+  service can use, the DIET programmer can use 
+  the tag EST\_COMMTIME for FAST. It is agent side only. 
+
+  \subsubsection{CoRI-Easy}
+  Cori-Easy is based on basic system calls. There are different
+   levels to obtain this information: 
+  The best way is the most portable way: The standard C library. For examples the
+  functions \texttt{get\_Write\_Speed} and \texttt{get\_Read\_Speed} are written in pure C.
+  OmniORB is used by DIET and it needs the GNU Library C standard, 
+  so this library is the next level.
+  The third level is the POSIX standard. Remark: even if Red Hat 
+  say they follow the POSIX standard, this doesn't mean that you have to include the same file
+  to get the function of the POSIX standard (for example \texttt{getPID()}). 
+  It means you can never be sure to have the function!
+  The fourth level is the distribution of the operating system, 
+  but even here you have to take care(new version-old version conflicts). 
+  System calls are very fragile, point of view accessibility 
+  (they are not always present or you have to be root to execute them)
+  , point of view functionality of the function (``top -n 1'' 
+  in Linux is different to ``top -n 1'' in Mac).
+  and point of view presentation of the output data (is it sure that 
+  he will print it always on the second line?).
+
+  Very important to avoid problems in the compilation is the use of 
+   \texttt{\#ifdef HAVE\_nameFunction}.  
+  The calls to cori-easy are in reality a set of tests. If the first function doesn't work,
+  the next one is tested. In this way we avoid to write for each 
+  distribution a test to identify this distribution and we avoid to 
+  have to find out the right function for this special distribution.
+
+  \fixme{Problems with  the function \texttt{diet\_est\_cori}}
+  \begin{itemize}
+ \item called twice in the same tag for a scalar values, the second will erase the first
+  \item called twice in the same tag for the array side of the vector, it will append the new information to the old
+ \end{itemize} 
+  %including of the class diagram: source file can be modified by MS visio
+ %source file available on /home/CVS/tarballs/sourcefile_coriArchitect.tar on graal 
+%\begin{figure}[htb]
+%  \begin{center}
+%    \resizebox{.75\linewidth}{!}{\includegraphics{fig/FAST.eps}}
+%%    \caption{CoRI architecture}
+%   
+%  \end{center}
+%\end{figure}
+\subsubsection{Availability}
+CoRI Easy will be used to initialize the vector by default. The problem is that even Cori-Easy is not always able to call a function that gives the correct value. That's why it is important to deliver the default value.
+\fixme{set up a table with the default values} 
+  \subsubsection{Extensibility}
+  CoRI is supposed to be extensible, by adding a new API and a new tag
+  of type \texttt{diet\_est\_collect\_tag\_t} in the
+  CoRI class structure.
+  The file \textsf{Cori\_Data\_Easy} is used as interface between
+  CoRI and the Cori-Easy collector. The same architecture is used for FAST: the file
+  \textsf{FASTMgr} is used to interface between Cori\_Fast and the library of
+  FAST.
+ \subsubsection{Examples  with the scheduler}
+ See /home/CVS/tarballs/scheduler\_cori\_examples.tar.gz  on the graal server (perhaps bogus).
+ \subsubsection{FAST as collector of CoRI}
+ Fast will be launched on the server side only on demand of the plugin scheduler.
+ FAST will be launched automatically on the MA and LA side.\\
+ \fixme{launching only if need?}\\ Would it be interesting to be able to start fast on the MA side dynamicaly?\\
+\fixme{FAST without CoRI}\\ 
+In this case all possible fields of the vector will be filled (i.e. erase old scalars and append new array to the old array!).
 
   \section{\textsf{src/client}}
   \label{s:client}
@@ -314,9 +424,9 @@ This directory contains documentations that are to be maintained up-to-date,
   \subsubsection{Architecture}
 
   \emph{omniORB} is chosen because of its performance. But its implementation
-  of standard CORBA specification is not full. For instance, \emph{AMI} 
-  (Asynchronous Message Interface) or sending object by value are not yet 
-  available. According to this lack of services, we must based asynchronous 
+  of standard CORBA specification is not full. For instance, \emph{AMI}
+  (Asynchronous Message Interface) or sending object by value are not yet
+  available. According to this lack of services, we must based asynchronous
   communication architecture on its avalaible services.
   Two basic CORBA mecanisms can allow this asynchronous architecture.
   First is using IDL key word \emph{oneway} which delegates \emph{thread} managing
@@ -328,7 +438,7 @@ This directory contains documentations that are to be maintained up-to-date,
   it (waitting for client get it).
 
   Getting a result from an asynchronous call can be done by \emph{polling} or
-  \emph{callback} mecanism. 
+  \emph{callback} mecanism.
 
   \begin{description}
   \item[\emph{Callback} mecanism] allows SeD process to bind client and send results data.
@@ -338,14 +448,14 @@ This directory contains documentations that are to be maintained up-to-date,
   As soon as results are available, they are sent to client callback CORBA server
   with its request identifier by calling \emph{notifyRst} server's function.
   Data structures sent to SeD server or return to client callback server are like
-  them of synchronous call. Currently, client callback server reference and request 
+  them of synchronous call. Currently, client callback server reference and request
   identifier are volatile.
   \item[\emph{Polling} mecanism] will use next DIET data persistency mecanism.
   Results data will be store locally or exported to a persistency service.
-  They will be avalaible through DIET persistency API. This mecanism is under 
+  They will be avalaible through DIET persistency API. This mecanism is under
   development as polling service. It will replace callback when presistence will
   by critical.
-  \item[DIET release 1.0] provides only asynchronous with callback function. Its 
+  \item[DIET release 1.0] provides only asynchronous with callback function. Its
   implementation is hidden by DIET and GridRPC API on client side. All asynchronous call
   and synchronized waiting results functions are \emph{thread-safe}.
   \end{description}
@@ -367,17 +477,17 @@ This directory contains documentations that are to be maintained up-to-date,
   %\end{figure}
 
   Class constructor is private. It is accessed by a static class function
-  \emph{CallbackImpl::instance} which returns a sole object instance. It 
+  \emph{CallbackImpl::instance} which returns a sole object instance. It
   creates object, initialises its class data and CORBA context, provides a
   client callback CORBA server on network.
   Client code must only give its CORBA reference when calling asynchronous
   function \emph{solveAsync}.s
-  SeD server calls \emph{CORBA} \emph{solveResult} function with this 
+  SeD server calls \emph{CORBA} \emph{solveResult} function with this
   reference to send results to client callback server.
-  Combining  a call to \emph{diet\_initialise} and DIET file option 
+  Combining  a call to \emph{diet\_initialise} and DIET file option
   \emph{useAsyncCall} automates client callback mecanism.
-  A \emph{diet\_finalize} call unactivates callback server, destroys 
-  CallbackImpl object and Object Request Broker data. 
+  A \emph{diet\_finalize} call unactivates callback server, destroys
+  CallbackImpl object and Object Request Broker data.
 
   \paragraph{synchronizing data}
   Synchronising access on data is necessary because of:
@@ -385,7 +495,7 @@ This directory contains documentations that are to be maintained up-to-date,
   \item Threads can together retrieve results data.
   \item CORBA threads pool from client callback server read concurrently
   profil data structure.
-  \item DIET API function \emph{diet\_wait*} stop caller thread until wait 
+  \item DIET API function \emph{diet\_wait*} stop caller thread until wait
   results data are arrived on client.
   \end{itemize}
   Classes from following UML diagram resume these drawbacks.
@@ -400,16 +510,16 @@ This directory contains documentations that are to be maintained up-to-date,
   %\end{figure}
 
   CallAsyncMgr manages synchronising mecanism on wait results. It is a \emph{thread-safe}
-  singleton which locks access on share data and race condition code. A 
+  singleton which locks access on share data and race condition code. A
   \emph{diet\_initialise}/\emph{diet\_finalise} call creates/destroys it. A
   Reader/Writer lock mecanism (exception-safe) manages syncronising between
-  CORBA and DIET client threads. 
+  CORBA and DIET client threads.
 
   \includegraphics{./fig/WaitRulesClassDiagram.ps}
 
   \emph{CallAsyncMgr} register/unregister asynchronous calls, their request
   identifiers and data by \emph{addAsyncCall}/ \emph{deleteAsynCall} methode.
-  It stops client threads with addWait* methodes. These methodes have 
+  It stops client threads with addWait* methodes. These methodes have
   parameters which store conditions on retrieved results to unlock threads.
   A \emph{Rule} structure contains a set of three data (request identifier,logical operator, state).
   Two list of data pair (\emph{RulesConditionMap} and \emph{CallAsyncList}) map \emph{Rule} with a
@@ -419,19 +529,19 @@ This directory contains documentations that are to be maintained up-to-date,
 
   %\subsubsection{Synchronising and interworking}
   \paragraph{Synchronising and interworking}
-  In following scenarios, an UML actor figures user client code with DIET/GridRPC API. 
+  In following scenarios, an UML actor figures user client code with DIET/GridRPC API.
 
-  \subparagraph{Asynchronous call on a SeD:} 
-  This first scenario shows a begining of an asynchronous solve. 
+  \subparagraph{Asynchronous call on a SeD:}
+  This first scenario shows a begining of an asynchronous solve.
 
   %\begin{figure}[h]
   \hspace{-0.9 in}
   \includegraphics{./fig/CallAsyncSequenceDiagram.ps}
   %\end{figure}
 
-  After creating CallbackImpl and callAsyncMgrby a call to 
+  After creating CallbackImpl and callAsyncMgrby a call to
   \emph{diet\_initialize}, client execute submit function specifying DIET
-  problem. Then, \emph{addcallAsync} methode stores a sole request 
+  problem. Then, \emph{addcallAsync} methode stores a sole request
   identifier and managed memory space and \emph{solveAsync} starts
   asynchronous solve.
   CallAsyncList is a C++ container \emph{list} from \emph{Standard Template Library}
@@ -461,10 +571,10 @@ This directory contains documentations that are to be maintained up-to-date,
   \item registers the rule.
   \item creates an \emph{omniORB}  semaphore, maps to the rule, registers it,
   unlocks synchonising mecanism (\emph{WriterLock}) and call its \emph{wait} methode.
-  \item during call to \emph{notifyRst} methode by \emph{Callback} server 
+  \item during call to \emph{notifyRst} methode by \emph{Callback} server
   (\emph{calbackImpl}), finds all rules whose conditions are verified
   and unlock their semaphores.
-  \item frees memory linked to rule data and returns a \emph{STATE} enum 
+  \item frees memory linked to rule data and returns a \emph{STATE} enum
   which defines five state (RESOLVING, WAITING, DONE, CANCEL, ERROR). If
   a calculus is stopped during its executing process (with a call to deleteCallAsync for example),
   CANCEL is returned. If thread catches an error or an exception, ERROR is returned else DONE is returned.
@@ -473,7 +583,7 @@ This directory contains documentations that are to be maintained up-to-date,
 
   \subparagraph{Getting results into callback server and notifying them to waiting threads :}
   This scenario figures notifying available results into client. It completes
-  the previous algorythm about threads using client gridRPC API which is a 
+  the previous algorythm about threads using client gridRPC API which is a
   part of DIET client library.
 
   \begin{center}
@@ -494,11 +604,11 @@ This directory contains documentations that are to be maintained up-to-date,
   \subparagraph{Getting result state by an asynchronous function:}
   Unlike local synchronous call as \emph{addWait*}, client can get results
   state with \emph{getStatusReqId}. This call returns an enum type \emph{STATE}
-  which defines five state (RESOLVING, WAITING, DONE, CANCEL, ERROR). 
+  which defines five state (RESOLVING, WAITING, DONE, CANCEL, ERROR).
   \emph{CallAsyncMgr::addWait*} returns also this enum.
-  RESOLVING announces that calculus goes on, WAITING that is not started, 
+  RESOLVING announces that calculus goes on, WAITING that is not started,
   DONE that is finished and results are availabale, CANCEL that is stopped
-  by user and ERROR that is stopped by an error or an exception. 
+  by user and ERROR that is stopped by an error or an exception.
 
   \begin{center}
   \includegraphics{./fig/CallAsyncProbeSequenceDiagram1.ps}
@@ -517,10 +627,10 @@ This directory contains documentations that are to be maintained up-to-date,
   into GridRPC API.
 
   \subparagraph{Managing memory in asynchronous request:}
-  \emph{CallAsyncMgr::deleteAsyncCall} frees internal data linked to a 
+  \emph{CallAsyncMgr::deleteAsyncCall} frees internal data linked to a
   calculus if it is finished, its results are available and no rule includes
   it into its waiting conditions.
-  If others rules are linked to this result, their state are modified to 
+  If others rules are linked to this result, their state are modified to
   CANCEL as well as calculus state linked. Then synchronising mecanisms
   are unlocks, threads goes on and \emph{CallAsyncMgr::addWait*} returns
   CANCEL state. Finally, memory is free.
@@ -533,7 +643,7 @@ This directory contains documentations that are to be maintained up-to-date,
   \item call of \emph{callAsyncMgr::deletecallAsync}.
   \item lock synchronising mecanism.
   \item verify request identifier.
-  \item look for rules linked to request identifier, 
+  \item look for rules linked to request identifier,
   unlock synchronising items and fix rule state with CANCEl.
   \item free memory alocated to rule data and mutexes.
 \item free data about request (request identifier, state, ...)
@@ -542,7 +652,7 @@ This directory contains documentations that are to be maintained up-to-date,
   \noindent
   \fbox{\textbf{NB}} These algorythms only concern client processus. Next development steps
   will provide direct interactions to SeD server processus using persistence
-  service. 
+  service.
 
   \section{\textsf{src/CORBA}}
   \label{s:CORBA}
@@ -640,7 +750,7 @@ This directory contains documentations that are to be maintained up-to-date,
         checked, and the correspondance with the CORBA types is still to be perfected.
         Actually, the length of the base types has been defined according to the
         NetSolve types, but it would have been more clever to accord them with the CORBA
-        types. 
+        types.
 
         \subsubsection{dmat\_manips}
 
@@ -672,13 +782,13 @@ This directory contains documentations that are to be maintained up-to-date,
 
         %\fixme{Christophe - Please explain the asynchronous clients.}
         \texttt{dmat\_manips} contains also client samples about asynchronous call API. All
-        use \texttt{diet\_call\_async} to start solve on SeD but each example shows 
+        use \texttt{diet\_call\_async} to start solve on SeD but each example shows
         a distinct function of asynchronous DIET API to get results. Like synchronous
-        client, you can ask solving a SUM/PROD/T operation on SeD. Besides, they are 
-        \texttt{multithreaded}. You can specify thread number of a pool and solve number. Each 
+        client, you can ask solving a SUM/PROD/T operation on SeD. Besides, they are
+        \texttt{multithreaded}. You can specify thread number of a pool and solve number. Each
         thread cucurently sends data to SeD(s) and gets results according to its used
         \texttt{diet\_wait\/probe\_*} function.
-        \texttt{parallelclient.cc} retrieves results by a simple \texttt{diet\_wait} function 
+        \texttt{parallelclient.cc} retrieves results by a simple \texttt{diet\_wait} function
         and \texttt{parallelclient2.cc} by a peridical \texttt{diet\_probe} call.
         \texttt{parallelclient3.cc} and \texttt{parallelclient3.cc} are examples about
         respectivly \texttt{diet\_wait\_and} and \texttt{diet\_wait\_or}. Executing
@@ -823,3 +933,4 @@ the ACI\_PACKAGE macros (\texttt{--with-BLAS=}, ...)
   must be implemented with a \texttt{ts\_container} to avoid a simultaneous
   access to it. Read carefully the doxygen documentation to know which one to use
   and how-to use it.
+

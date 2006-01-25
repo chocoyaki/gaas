@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.7  2006/01/25 17:26:04  pfrauenk
+%* CoRI : Some useful information about CoRI now available
+%*
 %* Revision 1.6  2005/08/22 08:06:03  ycaniou
 %* Re-form the source start.tex with no changes.
 %* Correct the Makefile.am so that know it does not only compile by typing
@@ -327,14 +330,14 @@ the directory.  \\
   \end{minipage}                  &
   \textsf{.la} library to add to\\[5pt]
   \hline
-  
+
   % AGENT
   \multicolumn{1}{|l}{\textsf{src/agent}:} &
   \multicolumn{4}{l|}{\texttt{dietAgent}}\\[5pt]
 
   \textit{all files}              & x &   &   & \emph{none}\\[5pt]
   \hline
-  
+
   % CLIENT
   \multicolumn{1}{|l}{\textsf{src/client}:} &
   \multicolumn{4}{l|}{\texttt{libDIET\_client.[a|so]}}\\[5pt]
@@ -377,10 +380,12 @@ the directory.  \\
   % UTILS
 
   \multicolumn{1}{|l}{\textsf{src/utils}:} &
-  \multicolumn{4}{l|}{\texttt{libUtilsCommon.la 
+  \multicolumn{4}{l|}{\texttt{libUtilsCommon.la
                              libUtilsSeDClt.la  libUtilsNodes.la}}\\[5pt]
 
   \texttt{Counter}                & x & x &   & \texttt{libUtilsNodes.la}\\
+  \texttt{Cori*}                  & x & x &   & \texttt{libUtilsNodes.la}\\
+  \texttt{CORIMgr}                & x & x &   & \texttt{libUtilsNodes.la}\\
   \texttt{debug}                  & x & x & x & \texttt{libUtilsCommon.la}\\
   \texttt{DIET\_data}             & x & x & x & \texttt{libUtilsCommon.la}\\
   \texttt{DIET\_mutex}            &   & x & x & \texttt{libUtilsSeDClt.la}\\
@@ -390,7 +395,7 @@ the directory.  \\
   \texttt{ServiceTable}           & x & x &   & \texttt{libUtilsNodes.la}\\
   \texttt{statistics}             & x & x & x & \texttt{libUtilsCommon.la}\\[5pt]
   \hline
- 
+
 
  \end{tabular}
  \caption{Dependencies of the final binaries from the temporary
