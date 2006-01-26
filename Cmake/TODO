@@ -7,9 +7,6 @@
 - 2006-01-20-c Cedric Tedeschi: 
   For ctesting of the JXTA part: just RTFM !
 
-- 2006-01-20-d Raphelkiller: 
-  Default compile mode should be -O2 -g i.e. CMAKE_BUILD_TYPE = RELWITHDEBINFO
-
 - 2006-01-20-e Raphelkiller: 
   How come we get to compile src/utils/Cori_*.cc even when HAVE_CORI is
   not set.

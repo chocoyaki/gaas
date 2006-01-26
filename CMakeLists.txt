@@ -19,6 +19,13 @@ OPTION( DIET_WITH_STATISTICS "Build DIET with generation of statistics." OFF )
 OPTION( DIET_WITH_MULTI_MA   "Build DIET with MULTI-Master-Agent support." OFF )
 OPTION( DIET_MAINTAINER_MODE "Build additional documentation..." OFF )
 
+# Set the default build mode to compile c++ and c code with optimizations
+# and debug info (roughly speaking "-O2 -g" on Un*x):
+SET( CMAKE_BUILD_TYPE
+  RelWithDebInfo CACHE STRING
+  "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel."
+  FORCE)
+
 # INCLUDE(${DIET_SOURCE_DIR}/Cmake/CheckCCompiler.cmake)
 
 # --------------------- DEPENDENCIES TOWARDS "CLASSIC" C++ HEADERS ---------
