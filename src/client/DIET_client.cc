@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.72  2006/01/31 10:07:40  mjan
+ * Update on the API of JuxMem
+ *
  * Revision 1.71  2006/01/24 06:33:53  hdail
  * Fix made to code to fix bug whereby on certain systems (like Orsay G5K)
  * client successfully schedules job 3 times in a row but fails at submission
@@ -644,7 +647,7 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
 						      1, 1, EC_PROTOCOL, BASIC_SOG);
       TRACE_TEXT(TRACE_MAIN_STEPS, "A data space with ID = " << profile->parameters[i].desc.id << " for IN data has been attached inside JuxMem!\n");
       /* The local memory is flush inside JuxMem */
-      juxmem->msync(profile->parameters[i].value, profile->parameters[i].desc.id);      
+      juxmem->msync(profile->parameters[i].value);      
       profile->parameters[i].value = NULL;
     }
   }
@@ -732,8 +735,8 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
       } else {
 	TRACE_TEXT(TRACE_MAIN_STEPS, "Retrieving OUT data with ID = " << profile->parameters[i].desc.id << " from JuxMem ...\n");
       }
-      juxmem->acquireRead(profile->parameters[i].value, profile->parameters[i].desc.id);
-      juxmem->release(profile->parameters[i].value, profile->parameters[i].desc.id);
+      juxmem->acquireRead(profile->parameters[i].value);
+      juxmem->release(profile->parameters[i].value);
     }
   }
 #endif // HAVE_JUXMEM

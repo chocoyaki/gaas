@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.68  2006/01/31 10:07:40  mjan
+ * Update on the API of JuxMem
+ *
  * Revision 1.67  2006/01/25 21:07:59  pfrauenk
  * CoRI - plugin scheduler: the type diet_est_tag_t est replace by int
  *        some new fonctions in DIET_server.h to manage the estVector
@@ -593,7 +596,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
 	assert(profile.parameters[i].desc.id != NULL);
 	profile.parameters[i].value = this->juxmem->mmap(NULL, data_sizeof(&(profile.parameters[i].desc)), profile.parameters[i].desc.id, 0);
 	TRACE_TEXT(TRACE_MAIN_STEPS, "Acquiring IN data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
-	this->juxmem->acquireRead(profile.parameters[i].value, profile.parameters[i].desc.id);
+	this->juxmem->acquireRead(profile.parameters[i].value);
 	continue;
       }
       /* INOUT case -> acquire the data in write mode */
@@ -601,7 +604,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
 	assert(profile.parameters[i].desc.id != NULL);
 	profile.parameters[i].value = this->juxmem->mmap(NULL, data_sizeof(&(profile.parameters[i].desc)), profile.parameters[i].desc.id, 0);
 	TRACE_TEXT(TRACE_MAIN_STEPS, "Acquiring INOUT data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
-	this->juxmem->acquire(profile.parameters[i].value, profile.parameters[i].desc.id);
+	this->juxmem->acquire(profile.parameters[i].value);
 	continue;
       }
       /* OUT case -> acquire the data in write mode if exists in JuxMem */
@@ -609,9 +612,10 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
 	if (profile.parameters[i].desc.id == NULL || (strlen(profile.parameters[i].desc.id) == 0)) {
 	  TRACE_TEXT(TRACE_MAIN_STEPS, "New data for OUT\n");
 	} else {
+	  /** FIXME: not clear if we should handle such a case */
 	  assert(profile.parameters[i].desc.id != NULL);
 	  profile.parameters[i].value = this->juxmem->mmap(NULL, data_sizeof(&(profile.parameters[i].desc)), profile.parameters[i].desc.id, 0);
-	  this->juxmem->acquire(profile.parameters[i].value, profile.parameters[i].desc.id);
+	  this->juxmem->acquire(profile.parameters[i].value);
 	  TRACE_TEXT(TRACE_MAIN_STEPS, "Acquiring OUT data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
 	}
       }
@@ -654,7 +658,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
       /** IN and INOUT case */
       if (i <= profile.last_inout) {
 	TRACE_TEXT(TRACE_MAIN_STEPS, "Releasing data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
-	this->juxmem->release(profile.parameters[i].value, profile.parameters[i].desc.id);
+	this->juxmem->release(profile.parameters[i].value);
       } else {       /** OUT case */
 	/** The data does not exist yet */
 	if (strlen(profile.parameters[i].desc.id) == 0) {
@@ -664,13 +668,14 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
 							       1, 1, EC_PROTOCOL, BASIC_SOG);
 	  TRACE_TEXT(TRACE_MAIN_STEPS, "A data space with ID = " << profile.parameters[i].desc.id << " for OUT data has been attached inside JuxMem!\n");
 	  /* The local memory is flush inside JuxMem */
-	  this->juxmem->msync(profile.parameters[i].value, profile.parameters[i].desc.id);
+	  this->juxmem->msync(profile.parameters[i].value);
 	} else { /* Simply release the lock */
-	  this->juxmem->release(profile.parameters[i].value, profile.parameters[i].desc.id);
+	  /** FIXME: should we handle this case */
+	  this->juxmem->release(profile.parameters[i].value);
 	}
       }
 
-      this->juxmem->unmap(profile.parameters[i].value, profile.parameters[i].desc.id);
+      this->juxmem->unmap(profile.parameters[i].value);
       profile.parameters[i].value = NULL;
     }
   }
