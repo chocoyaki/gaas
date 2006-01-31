@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.51  2006/01/31 16:43:02  mjan
+ * Update on deployment of DIET/JuxMem via GoDIET
+ *
  * Revision 1.50  2006/01/25 21:07:59  pfrauenk
  * CoRI - plugin scheduler: the type diet_est_tag_t est replace by int
  *        some new fonctions in DIET_server.h to manage the estVector
@@ -804,7 +807,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   
 #if HAVE_JUXMEM
   /** JuxMem creation */
-  juxmem = new JuxMem::Wrapper();
+  juxmem = new JuxMem::Wrapper(userDefName);
   SeD->linkToJuxMem(juxmem);
 #else
   /* Set-up and activate Data Manager for DTM usage */

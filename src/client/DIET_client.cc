@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.73  2006/01/31 16:43:03  mjan
+ * Update on deployment of DIET/JuxMem via GoDIET
+ *
  * Revision 1.72  2006/01/31 10:07:40  mjan
  * Update on the API of JuxMem
  *
@@ -248,7 +251,7 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   }
 
 #if HAVE_JUXMEM
-  juxmem = new JuxMem::Wrapper();
+  juxmem = new JuxMem::Wrapper(NULL);
 #endif // HAVE_JUXMEM
 
   /* Find Master Agent */
