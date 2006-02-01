@@ -109,7 +109,7 @@ echo "bootstrap.sh: libtool version $lt_version (ok)"
 # -----------------------------------------------------------
 AUTOMAKE_VERSION=`automake --version | grep automake | cut -d ')' -f 2 | sed -e 's/^[^0-9]*//g' -e 's/[- ].*//'`
 AUTOMAKE_WANTED_MAJOR=1
-AUTOMAKE_WANTED_MINOR=7
+AUTOMAKE_WANTED_MINOR=9
 
 IFS=.; set $AUTOMAKE_VERSION; IFS=' '
 lt_status="good"
@@ -122,8 +122,8 @@ else
 fi
 if test $lt_status != "good"; then
   echo
-  echo "**Error**: You must have \`automake\` 1.7 or newer installed to compile $PKG_NAME."
-  echo "Get ftp://ftp.gnu.org/pub/gnu/automake-1.7.tar.gz"
+  echo "**Error**: You must have \`automake\` 1.9 or newer installed to compile $PKG_NAME."
+  echo "Get ftp://ftp.gnu.org/pub/gnu/automake-1.9.tar.bz2"
   echo "(or a newer version if it is available)"
   DIE=1
   NO_AUTOMAKE=yes
