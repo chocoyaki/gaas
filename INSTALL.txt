@@ -132,6 +132,14 @@ Optional packages for configuration
    NB: having the executable omniidl in the PATH environment variable
    should be enough in most cases.
 
+   CORI
+
+   --enable-cori	  enable the module CoRI 
+			  CoRI is a generic Collectors of Ressource Information
+			  
+   With CoRI you can also call FAST then with --enable-cori option the 
+   previous FAST/NWS scheduling will be deactivate. 
+
   FAST
 
   --with-FAST=DIR         installation root directory for FAST (optional)
