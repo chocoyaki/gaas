@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2006/02/03 01:45:39  ecaron
+ * Take into account the OS for omnithread thus MacOSX compilation is done.
+ *
  * Revision 1.2  2003/06/30 11:15:12  cpera
  * Fix bugs in ReaderWriter and new internal debug macros.
  *
@@ -23,6 +26,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <iostream>
+#include <omniconfig.h>
 #include <omnithread.h>
 
 using namespace std;

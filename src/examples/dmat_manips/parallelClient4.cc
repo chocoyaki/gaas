@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2006/02/03 01:45:39  ecaron
+ * Take into account the OS for omnithread thus MacOSX compilation is done.
+ *
  * Revision 1.2  2004/01/13 10:27:07  cpera
  * Fix a race condition.
  *
@@ -28,8 +31,8 @@ using namespace std;
 #include <time.h>
 #include <unistd.h>
 
-#include "omnithread.h"
 #include "Global_macros.hh"
+#include "omnithread.h"
 #include "DIET_client.h"
 
 
