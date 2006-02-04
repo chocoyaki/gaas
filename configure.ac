@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.60  2006/02/04 16:54:06  ecaron
+#* Update message
+#*
 #* Revision 1.59  2006/01/21 01:05:45  pfrauenk
 #* CoRI : 2 examples are now available: a simple tester for cori_easy and
 #*        one for testing the plug-in scheduler and cori
@@ -364,10 +367,16 @@ AC_SUBST(JUXMEM_CXXFLAGS)
 AC_SUBST(JUXMEM_LDFLAGS)
 
 dnl ###########################################################################
+dnl C++ options for specific platform 
+dnl ###########################################################################
+if test "$plat_name" = "Darwin"; then
+   echo "CXXFLAGS Darwin option activated"
+   CXXFLAGS="-flat_namespace"
+fi
+dnl ###########################################################################
 dnl Load anything under acmacros/*.m4
 dnl ###########################################################################
 ACLOCAL="$ACLOCAL -I acmacros"
-
 
 dnl ###########################################################################
 # Checks for programs.
