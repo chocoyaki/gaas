@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2006/02/06 23:06:05  ecaron
+ * define under condition of MAX and MIN to avoid duplicate declaration
+ * with /usr/include/sys/param.h
+ *
  * Revision 1.20  2004/12/15 13:53:22  sdahan
  * - the trace function are now thread safe.
  * - add "extern unsigned int TRACE_LEVEL" in debug.hh
@@ -88,8 +92,12 @@ extern omni_mutex debug_log_mutex ;
 /**
  * Always useful
  */
-#define MAX(a,b) ((a) < (b)) ? (b) : (a)
-#define MIN(a,b) ((a) > (b)) ? (b) : (a)
+#ifndef MIN
+#define	MIN(a,b) (((a)<(b))?(a):(b))
+#endif /* MIN */
+#ifndef MAX
+#define	MAX(a,b) (((a)>(b))?(a):(b))
+#endif	/* MAX */
 
 /**
  * Error message - return with return_value.
