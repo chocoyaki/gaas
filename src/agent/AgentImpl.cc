@@ -5,6 +5,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.40  2006/02/08 00:13:07  ecaron
+ * Correct wrong usage of HAVE_CORI and HAVE_FAST
+ *
  * Revision 1.39  2006/01/25 21:07:59  pfrauenk
  * CoRI - plugin scheduler: the type diet_est_tag_t est replace by int
  *        some new fonctions in DIET_server.h to manage the estVector
@@ -705,7 +708,7 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req)
  * \c to : if (to), from this agent to the child, else from the child to this
  * agent.
  */
-inline double
+ inline double
 AgentImpl::getCommTime(CORBA::Long childID, unsigned long size, bool to)
 {
 
@@ -715,19 +718,16 @@ AgentImpl::getCommTime(CORBA::Long childID, unsigned long size, bool to)
   AGT_TRACE_FUNCTION(childID <<", " << size);
   stat_in(this->myName,"getCommTime");
 #if !HAVE_CORI
- time = FASTMgr::commTime(this->localHostName, child_name, size, to);
+time = FASTMgr::commTime(this->localHostName, child_name, size, to);
 #else //HAVE_CORI
   estVector_t ev=new corba_estimation_t();
-#if HAVE_FAST
   commTime_t commTime_param={this->localHostName,child_name,size,to};
 
   CORIMgr::call_cori_mgr(&ev,
-		EST_COMMTIME,
-		EST_COLL_FAST,	
-		&commTime_param);
+EST_COMMTIME,
+EST_COLL_FAST,
+&commTime_param);
   time = diet_est_get(ev, EST_COMMTIME, HUGE_VAL);
-#endif //HAVE_FAST
-  time = HUGE_VAL;
 #endif //HAVE_CORI
 
   ms_strfree(child_name);
