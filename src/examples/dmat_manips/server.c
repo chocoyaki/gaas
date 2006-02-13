@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2006/02/13 17:13:55  mjan
+ * Removed uneeded DIET_config.h
+ *
  * Revision 1.25  2005/05/27 08:18:17  mjan
  * Moving JuxMem in a more appropriate place (src/utils)
  * Added log messages for VizDIET
@@ -44,8 +47,6 @@
  * As the services base/mult and base/plus are hardcoded in FAST 0.4.x, we
  * include DIET_config.h here, to access the __FAST_O_4__ macro.
  */
-#include "DIET_config.h"
-
 #include "DIET_server.h"
 #include "progs.h"
 
