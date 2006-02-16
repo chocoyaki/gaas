@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.59  2006/02/16 00:31:53  ecaron
+ * If JUXMEM is available. __mrsh_data_id_desc and __mrsh_data_id are not used.
+ *
  * Revision 1.58  2005/12/19 15:56:00  eboix
  *     FIX: BLAS and dmat_manips examples were broken since revision 1.57
  *     (date: 2005/12/10 09:37:36; author: bdelfabr). This "wild guess" fix
@@ -331,7 +334,7 @@ mrsh_data(corba_data_t* dest, diet_data_t* src, int release)
 /**************************************************************************
  *  Marshall/ Unmarshall data handler                                     *
  *************************************************************************/
-
+#if ! HAVE_JUXMEM
 static int
 __mrsh_data_id_desc(corba_data_desc_t* dest,
                     const diet_data_desc_t* const src){
@@ -344,13 +347,12 @@ __mrsh_data_id_desc(corba_data_desc_t* dest,
   return (0);
 }
 
-
 static void
 __mrsh_data_id(corba_data_t* dest, const diet_data_t* const src) {
   __mrsh_data_id_desc(&(dest->desc), &(src->desc));
   dest->value.length(0); 
 }
-
+#endif
 
 /****************************************************************************/
 /* Data structure unmarshalling                                             */
