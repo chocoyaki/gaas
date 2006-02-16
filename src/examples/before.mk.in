@@ -9,6 +9,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.2  2006/02/16 00:49:24  ecaron
+#* Take into account relative path (avoid -L with space)
+#*
 #* Revision 1.1  2003/09/26 14:07:01  pcombes
 #* Get the examples out of the automake chain, to make Makefiles more readable.
 #* The generated before.mk includes the right Makefile.inc.
@@ -30,8 +33,8 @@ ifeq ($(DIET_INSTALLED), yes)
 MAKEFILE_INC = $(prefix)/include/Makefile.inc
 else
 DIET_INSTALLDIR = $(top_srcdir)
-DIET_CLIENT_LIB = -L $(top_builddir)/src/client/.libs -lDIET_client
-DIET_SED_LIB    = -L $(top_builddir)/src/SeD/.libs -lDIET_SeD
+DIET_CLIENT_LIB = -L$(top_builddir)/src/client/.libs -lDIET_client
+DIET_SED_LIB    = -L$(top_builddir)/src/SeD/.libs -lDIET_SeD
 DIET_CLIENT_BIN_PREREQ = $(top_builddir)/src/client/libDIET_client.la
 DIET_SERVER_BIN_PREREQ = $(top_builddir)/src/SeD/libDIET_SeD.la
 MAKEFILE_INC = $(top_builddir)/include/Makefile.inc
