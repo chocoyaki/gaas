@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.69  2006/02/17 10:03:06  ecaron
+ * warning fix: unitialized variables
+ *
  * Revision 1.68  2006/01/31 10:07:40  mjan
  * Update on the API of JuxMem
  *
@@ -510,12 +513,12 @@ SeDImpl::checkContract(corba_estimation_t& estimation,
 
 void persistent_data_release(corba_data_t* arg){
 
-  switch((diet_data_type_t)(arg->desc.specific._d())) {
+ switch((diet_data_type_t)(arg->desc.specific._d())) {
  case DIET_VECTOR: {
     corba_vector_specific_t vect;
-
-    arg->desc.specific.vect(vect);
-    arg->desc.specific.vect().size = 0;
+	
+    vect.size = 0;
+    arg->desc.specific.vect(vect); 
     break;
   }
   case DIET_MATRIX: {
@@ -530,12 +533,14 @@ void persistent_data_release(corba_data_t* arg){
   case DIET_STRING: {
     corba_string_specific_t str;
 
+	 str.length=0;
      arg->desc.specific.str(str);
      arg->desc.specific.str().length = 0;
     break;
   }
   case DIET_FILE: {
     corba_file_specific_t file;
+
      arg->desc.specific.file(file);
        arg->desc.specific.file().path = CORBA::string_dup("");
        arg->desc.specific.file().size = 0;
