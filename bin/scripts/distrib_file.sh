@@ -9,6 +9,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.4  2006/02/17 10:04:49  ecaron
+#* Don't take into account .png file
+#*
 #* Revision 1.3  2004/07/09 19:51:57  ctedesch
 #* - javac and javah detected instead of java
 #* - JXTA_LIB automatically set before compilation
@@ -96,7 +99,7 @@ case "$FILEBASENAME" in
     SEP_LINE_PAT="^@Comment %\\**\*%$"
     END_CVS_PAT=$SEP_LINE_PAT
     ;;
-  *.ps|*.eps|*.fig|*.gif|*.schema|*.ldif)
+  *.ps|*.eps|*.fig|*.gif|*.png|*.schema|*.ldif)
     exit 0
     ;;
   *)
