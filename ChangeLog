@@ -17,15 +17,18 @@ diet-2.1
 
 * DIET with MacOSX
 	- Bug corrections to compile on MacOSX. 
-	Remark : DIET requires Xcode 1.1 and the CVS version of omniORB 4.1.x
-	         Compilation has been tested on MacOSX 10.4.4 
+	Remark : DIET requires Xcode 2.1 and the CVS version of omniORB 4.1.x
+	         Compilation has been tested on MacOSX 10.4.x
+
+* CMake
+        - DIET now has a cmake based building process.
+
+and gcc 4.x support, few bug fix...
 	
 * Known bugs but not resolved
 	- INOUT parameters are not changed in asynchronous mode (bug #9 in
 	  bugzilla)
 
-* CMake
-        - DIET now has a cmake based building process.
 
 diet-2.0
 
