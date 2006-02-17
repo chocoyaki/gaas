@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2006/02/17 10:03:50  ecaron
+ * warning fix: unitialized variable
+ *
  * Revision 1.22  2005/11/10 14:37:51  eboix
  *     Clean-up of Cmake/DIET_config.h.in and related changes. --- Injay2461
  *
@@ -353,6 +356,7 @@ DataMgrImpl::persistent_data_release(corba_data_t* arg){
   switch((diet_data_type_t)(arg->desc.specific._d())) {
     case DIET_VECTOR: {
       corba_vector_specific_t vect;
+	  vect.size=0;
       arg->desc.specific.vect(vect);
       arg->desc.specific.vect().size = 0;
       break;
@@ -366,6 +370,7 @@ DataMgrImpl::persistent_data_release(corba_data_t* arg){
     }
     case DIET_STRING: {
       corba_string_specific_t str;
+	  str.length=0;
       arg->desc.specific.str(str);
       arg->desc.specific.str().length = 0;
       break;
