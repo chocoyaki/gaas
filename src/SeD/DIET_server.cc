@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.52  2006/02/24 10:47:45  rbolze
+ * remove this line :
+ *   //diet_est_set(ev, EST_TIMESINCELASTSOLVE, timeSinceLastSolve);
+ * diet_est_set() function is reserved for SeD developper
+ *
  * Revision 1.51  2006/01/31 16:43:02  mjan
  * Update on deployment of DIET/JuxMem via GoDIET
  *
@@ -1221,7 +1226,6 @@ int diet_estimate_lastexec(estVector_t ev,
                          1000000.0));
   /* store the value in the performance data array */
   diet_est_set_internal(ev, EST_TIMESINCELASTSOLVE, timeSinceLastSolve);
-  diet_est_set(ev, EST_TIMESINCELASTSOLVE, timeSinceLastSolve);
   return (1);
 }
 
