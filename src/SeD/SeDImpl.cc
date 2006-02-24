@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.70  2006/02/24 01:57:16  hdail
+ * Change setting for time of last solve when using SeD queues -- now round robin
+ * will be based on time last job was enqueued.
+ *
  * Revision 1.69  2006/02/17 10:03:06  ecaron
  * warning fix: unitialized variables
  *
@@ -56,82 +60,6 @@
  * Revision 1.57  2005/08/31 14:39:57  alsu
  * New plugin scheduling interface: adapting estimation vector
  * manipulation calls to the new interface
- *
- * Revision 1.56  2005/08/30 09:20:20  ycaniou
- * Corrected things in DIET_server.cc (diet_submit_batch...)
- * Link libDIET with Elagi and Appleseeds only if BATCH is asked in the
- *   configuration (corrected the Makefile)
- * Changed things in SeDImpl.[ch] for batch submission to work. Only synchronous
- *   mode made.
- *
- * Revision 1.55  2005/08/04 10:44:40  bdelfabr
- * fixing persistentce bug for out data in solve async
- *
- * Revision 1.54  2005/06/14 16:17:12  mjan
- * Added support of DIET_FILE inside JuxMem-DIET for TLSE code
- *
- * Revision 1.47  2005/05/15 15:38:59  alsu
- * implementing aggregation interface
- *
- * Revision 1.46  2005/05/02 16:46:33  ycaniou
- * Added the function diet_submit_batch(), the stuff in the makefile to compile
- *  with appleseeds..
- *
- * Revision 1.45  2005/04/27 01:41:34  ycaniou
- * Added the stuff for a correct compilation, for a correct registration of
- * a batch profile, and for its execution.
- * Added the solve_batch() function
- *
- * Revision 1.44  2005/04/13 08:46:29  hdail
- * Beginning of adoption of new persistency model: DTM is enabled by default and
- * JuxMem will be supported via configure flags.  DIET will always provide at
- * least one type of persistency.  As a first step, persistency across DTM and
- * JuxMem is not supported so all persistency handling should be surrounded by
- *     #if HAVE_JUXMEM
- *       // JuxMem code
- *     #else
- *       // DTM code
- *     #endif
- * This check-in prepares for the JuxMem check-in by cleaning up old
- * DEVELOPPING_DATA_PERSISTENCY flags and surrounding DTM code with
- * #if ! HAVE_JUXMEM / #endif flags to be replaced by above format by Mathieu's
- * check-in.  Currently the HAVE_JUXMEM flag is set in SeDImpl.hh - to be replaced
- * by Mathieu's check-in of a configure system for JuxMem.
- *
- * Revision 1.43  2005/04/08 13:02:43  hdail
- * The code for LogCentral has proven itself stable and it seems bug free.
- * Since no external libraries are required to compile in LogCentral, its now
- * going to be compiled in by default always ... its usage is easily controlled by
- * configuration file.
- *
- * Revision 1.42  2005/03/30 07:41:09  rbolze
- * No more ASK_FOR_SED and SED_CHOSEN message in SeDs
- *
- * Revision 1.41  2004/12/15 18:09:58  alsu
- * cleaner, easier to document interface: changing diet_perfmetric_t back
- * to the simpler one-argument (of type diet_profile_t) version, and
- * hiding a copy of the pointer back to the SeD in the profile.
- *
- * Revision 1.40  2004/12/08 15:02:51  alsu
- * plugin scheduler first-pass validation testing complete.  merging into
- * main CVS trunk; ready for more rigorous testing.
- *
- * Revision 1.39  2004/12/03 09:53:51  bdelfabr
- * cleanup data when persistent
- *
- * Revision 1.38  2004/12/02 09:33:09  bdelfabr
- * cleanup memory management for in persistent data.
- *
- * Revision 1.37  2004/11/25 21:56:37  hdail
- * Among other fixes, use diet_free_data on the IN parameters of the DIET_profile.
- * This seems to resolve the major part of the memory leak problem we have.
- *
- * Revision 1.36  2004/11/25 11:40:32  hdail
- * Add request ID to statistics output to allow tracing of stats for each request.
- *
- * Revision 1.35.2.9  2004/11/30 15:46:50  alsu
- * minor cleanup, adding a note to reconsider an unecessary block of code
- * in the case that contract checking is reworked, as planned.
  ****************************************************************************/
 
 #include <iostream>
@@ -574,6 +502,8 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
 
 #if HAVE_QUEUES
   if (this->useConcJobLimit){
+    /* record the timestamp at which job was enqueued */
+    gettimeofday(&(this->lastSolveStart), NULL);
     this->accessController->waitForResource();
   }
 #endif // HAVE_QUEUES
@@ -650,8 +580,16 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
   }
 #endif // HAVE_JUXMEM 
   
+#if !HAVE_QUEUES
   /* record the timestamp of this solve */
   gettimeofday(&(this->lastSolveStart), NULL);
+#else 
+  if (!(this->useConcJobLimit)){
+    /* record the timestamp of this solve */
+    gettimeofday(&(this->lastSolveStart), NULL);
+  }
+#endif // !HAVE_QUEUES
+
   TRACE_TEXT(TRACE_MAIN_STEPS, "Calling getSolver\n");
   solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
 
