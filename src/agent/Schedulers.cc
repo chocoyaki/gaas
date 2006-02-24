@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2006/02/24 01:59:50  hdail
+ * Commenting out somebody's personal debugging output that was sent to stderr
+ * and caused a performance hit of several orders of magnitude in aggregate
+ * function of DIET.  ALWAYS use trace level controls around your debugging
+ * output!
+ *
  * Revision 1.15  2006/01/25 21:07:59  pfrauenk
  * CoRI - plugin scheduler: the type diet_est_tag_t est replace by int
  *        some new fonctions in DIET_server.h to manage the estVector
@@ -754,15 +760,16 @@ int NWSScheduler_compare(int serverIdx1,
 
   double sv1Weight = WEIGHT(s1est, wi);
   double sv2Weight = WEIGHT(s2est, wi);
+#if 0
   fprintf(stderr,
           "*****FASTTEST***** NWSScheduler_compare: s1weight = %.4f\n",
           sv1Weight);
   fprintf(stderr,
           "*****FASTTEST***** NWSScheduler_compare: s2weight = %.4f\n",
           sv2Weight);
-
 cerr<<"cpu "<<diet_est_get_internal(s1est, EST_FREECPU, 0.0)<<"^" <<(wi)->CPUPower<<"="<<pow(diet_est_get_internal(s1est, EST_FREECPU, 0.0),(wi)->CPUPower)<<"|| mem " <<diet_est_get_internal(s1est, EST_FREEMEM, 0.0)<<"^"<<(wi)->memPower<<"="<<pow(diet_est_get_internal(s1est, EST_FREEMEM, 0.0),(wi)->memPower)<<endl;
 cerr<<"cpu "<<diet_est_get_internal(s2est, EST_FREECPU, 0.0)<<"^" <<(wi)->CPUPower<<"="<<pow(diet_est_get_internal(s2est, EST_FREECPU, 0.0),(wi)->CPUPower)<<"|| mem " <<diet_est_get_internal(s2est, EST_FREEMEM, 0.0)<<"^"<<(wi)->memPower<<"="<<pow(diet_est_get_internal(s2est, EST_FREEMEM, 0.0),(wi)->memPower)<<endl;
+#endif
 
   if (sv1Weight == HUGE_VAL) {
     if (sv2Weight == HUGE_VAL) {
