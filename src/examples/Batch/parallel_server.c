@@ -26,9 +26,10 @@
 
 int solve_test_mpi(diet_profile_t *pb)
 {
-  char* chaine ;
+  /*  char* chaine ; */
   char *cmd ;
   diet_submit_call_t code=DIET_Mpich ;
+  double *entier = NULL ;
    
   /* diet_string_get(diet_parameter(pb,0), &chaine, NULL); */
   diet_scalar_get(diet_parameter(pb,0), &entier, NULL);

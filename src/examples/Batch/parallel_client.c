@@ -27,7 +27,8 @@ main(int argc, char* argv[])
 {
   char* path = NULL;
   diet_profile_t* profile = NULL;
-
+  double entier=4.2 ;
+  
   path = "test_mpi" ;
 
   if (diet_initialize(argv[1], argc, argv)) {
