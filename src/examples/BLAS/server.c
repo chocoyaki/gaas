@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2006/03/03 14:47:46  ycaniou
+ * Change int in size_t to compile well
+ *
  * Revision 1.10  2005/06/24 15:03:59  ycaniou
  * NB_SRV=5 services and diet_service_table_init(3) corrected
  *
@@ -48,9 +51,9 @@
  * dgemm_ prototype
  */
 extern void
-dgemm_(char*   tA,    char* tB,  int* m,   int* n,    int* k,
-       double* alpha, double* A, int* lda, double* B, int* ldb,
-       double* beta,  double* C, int* ldc);
+dgemm_(char*   tA,    char* tB,  size_t* m,   size_t* n,    size_t* k,
+       double* alpha, double* A, size_t* lda, double* B, size_t* ldb,
+       double* beta,  double* C, size_t* ldc);
 
 
 #define print_matrix(mat, m, n, rm)        \
