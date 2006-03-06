@@ -5,7 +5,8 @@
 SET( DIET_SeD_SOURCES
  DIET_server.cc
  DataMgrImpl.cc
- SeDImpl.cc )
+ SeDImpl.cc
+)
 
 INCLUDE_DIRECTORIES(
   ${OMNIORB4_INCLUDE_DIR}
@@ -16,8 +17,12 @@ INCLUDE_DIRECTORIES(
   ${DIET_BINARY_DIR}/include            # FIXME: must preceed source/include
                                         # to take cmake-generated DIET_config.h
   ${DIET_SOURCE_DIR}/include            # FIXME: for DIET_data.h 
-  ${DIET_BINARY_DIR}/src/CORBA/idl      # FIXME: is this a lib ?
+  ${DIET_BINARY_DIR}/src/CORBA/idl
 )
+
+IF( DIET_USE_BATCH )
+  INCLUDE_DIRECTORIES( ${APPLESEEDS_INCLUDE_DIR} )
+ENDIF( DIET_USE_BATCH )
 
 ADD_LIBRARY( DIET_SeD ${DIET_SeD_SOURCES} )
 
@@ -29,7 +34,12 @@ TARGET_LINK_LIBRARIES( DIET_SeD
   UtilsNodes
   UtilsSeDClt
   UtilsVector
-  ${OMNIORB4_LIBRARIES} )
+  ${OMNIORB4_LIBRARIES}
+)
+
+IF( DIET_USE_BATCH )
+  TARGET_LINK_LIBRARIES( DIET_SeD ${APPLESEEDS_LIBRARIES} )
+ENDIF( DIET_USE_BATCH )
 
 ### FIXME: missing
 ###        - the USE_BATCH/ELAGI stuff

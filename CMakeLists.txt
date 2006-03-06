@@ -7,10 +7,9 @@ PROJECT(DIET)
 SET(DIET_version 2.0)
 
 # --------------------- OPTIONS OF THE PROJECT -----------------------------
-# Build dynamic lib by default
-OPTION( BUILD_SHARED_LIBS "Build DIET with shared libraries." ON )
 OPTION( DIET_BUILD_EXAMPLES "Build DIET examples." ON )
 OPTION( DIET_BUILD_DOCUMENTATION "Build the users manual documentation." OFF )
+OPTION( DIET_USE_BATCH "Build DIET with Batch support." OFF )
 OPTION( DIET_USE_BLAS "Build DIET with BLAS support." OFF )
 OPTION( DIET_USE_CORI "Build DIET with CORI support." OFF )
 OPTION( DIET_USE_JXTA "Build DIET with JXTA architecture support." OFF )
@@ -19,14 +18,16 @@ OPTION( DIET_WITH_STATISTICS "Build DIET with generation of statistics." OFF )
 OPTION( DIET_WITH_MULTI_MA   "Build DIET with MULTI-Master-Agent support." OFF )
 OPTION( DIET_MAINTAINER_MODE "Build additional documentation..." OFF )
 
+# --------------------- BUILDING DEFAULT OPTIONS  --------------------------
+# By default build dynamic libraries:
+OPTION( BUILD_SHARED_LIBS "Build DIET with shared libraries." ON )
 # Set the default build mode to compile c++ and c code with optimizations
 # and debug info (roughly speaking "-O2 -g" on Un*x):
-SET( CMAKE_BUILD_TYPE
-  RelWithDebInfo CACHE STRING
-  "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel."
-  FORCE)
-
-# INCLUDE(${DIET_SOURCE_DIR}/Cmake/CheckCCompiler.cmake)
+#FIXME SET( CMAKE_BUILD_TYPE
+#FIXME   RelWithDebInfo CACHE STRING
+#FIXME   "Choose the type of build, options are: None(CMAKE_CXX_FLAGS "
+#FIXME   "or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel."
+#FIXME   FORCE)
 
 # --------------------- DEPENDENCIES TOWARDS "CLASSIC" C++ HEADERS ---------
 # This is just a convenience to advance the detection of any potential missing
@@ -77,9 +78,10 @@ FOREACH( function_to_check ${DIET_FUNCTIONS_TO_CHECK} )
   ENDIF( NOT dummyfound${function_to_check} )
 ENDFOREACH( function_to_check )
 
-### CORI (COllector of Ressource Infomation) system calls probing:
+### CORI (COllector of Ressource Infomation) is heavily dependant on 
+# system calls for probing ressources:
 IF( DIET_USE_CORI )
-  ADD_DEFINITIONS(-DHAVE_CORI)
+  ADD_DEFINITIONS( -DHAVE_CORI )
   INCLUDE( ${DIET_SOURCE_DIR}/Cmake/ConfigureCORI.cmake )
 ENDIF( DIET_USE_CORI )
 
@@ -97,6 +99,16 @@ IF( DIET_BUILD_DOCUMENTATION )
   FIND_PACKAGE( Doxygen )
   SUBDIRS( doc )
 ENDIF( DIET_BUILD_DOCUMENTATION )
+
+IF( DIET_USE_BATCH )
+  FIND_PACKAGE( AppleSeeds )
+  IF( APPLESEEDS_FOUND )
+    # FIXME: This is only used within src/SeD: do it cleaner !
+    ADD_DEFINITIONS( -DHAVE_BATH )
+  ELSE( APPLESEEDS_FOUND )
+    SET( DIET_USE_BATCH OFF )
+  ENDIF( APPLESEEDS_FOUND )
+ENDIF( DIET_USE_BATCH )
 
 IF( DIET_USE_JXTA )
   FIND_PACKAGE( JavaExtended )
@@ -121,12 +133,12 @@ ENDIF( DIET_USE_FAST )
 
 IF( DIET_WITH_STATISTICS )
   # Enable generation of the statistics log
-  ADD_DEFINITIONS(-DHAVE_STATISTICS)
+  ADD_DEFINITIONS( -DHAVE_STATISTICS )
 ENDIF( DIET_WITH_STATISTICS )
 
 IF( DIET_WITH_MULTI_MA )
   # Enable usage of so called MULTI-Master-Agent
-  ADD_DEFINITIONS(-DHAVE_MULTI_MA)
+  ADD_DEFINITIONS( -DHAVE_MULTI_MA )
 ENDIF( DIET_WITH_MULTI_MA )
 
 IF( DIET_BUILD_EXAMPLES AND DIET_USE_BLAS )
@@ -134,6 +146,19 @@ IF( DIET_BUILD_EXAMPLES AND DIET_USE_BLAS )
   FIND_PACKAGE( BLAS )
 ENDIF( DIET_BUILD_EXAMPLES AND DIET_USE_BLAS )
 
+# --------------------- HANDLE COMPILER SPECIFICITIES  --------------------
+INCLUDE(${DIET_SOURCE_DIR}/Cmake/CheckCCompiler.cmake)
+  
+CHECK_C_COMPILER_SUPPORTS_INLINE( INLINE_VALUE INLINE_SUPPORTED )
+MESSAGE( STATUS "Inline C compiler support ${INLINE_SUPPORTED} ${INLINE_VALUE}")
+
+# FIXME: Injay2461 must finalize the following:
+# SET( CMAKE_C_FLAGS
+#   "${CMAKE_C_FLAGS} -Dinline""""""""""""
+#  CACHE STRING
+#   "Choose the type of build, options are: None(CMAKE_CXX_FLAGS "
+#   "or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel."
+#   FORCE)
 
 # --------------------- BUILD THE CONFIGURATION FILE -----------------------
 ### FIXME: consider using ADD_DEFINITIONS cmake feature instead of a configure

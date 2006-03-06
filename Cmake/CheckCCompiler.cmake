@@ -23,22 +23,12 @@ MACRO( CHECK_C_COMPILER_SUPPORTS_INLINE_COMPILE TO_TEST RESULT )
     OUTPUT_VARIABLE DUMMY_OUTPUT_FOR_DEBUG )
 ENDMACRO( CHECK_C_COMPILER_SUPPORTS_INLINE_COMPILE )
 
-# CHECK_C_COMPILER_SUPPORTS_INLINE_COMPILE( "__inline__" TEST )
-# MESSAGE( SEND_ERROR "OUTSIDE: ${TEST}")
-# CHECK_C_COMPILER_SUPPORTS_INLINE_COMPILE( "__inline" TEST )
-# MESSAGE( SEND_ERROR "OUTSIDE: ${TEST}")
-# CHECK_C_COMPILER_SUPPORTS_INLINE_COMPILE( "inline" TEST )
-# MESSAGE( SEND_ERROR "OUTSIDE: ${TEST}")
-# CHECK_C_COMPILER_SUPPORTS_INLINE_COMPILE( "zob" TEST )
-# MESSAGE( SEND_ERROR "OUTSIDE: ${TEST}")
-
-
 MACRO( CHECK_C_COMPILER_SUPPORTS_INLINE INLINE_VALUE INLINE_SUPPORTED )
-  MESSAGE( SEND_ERROR "Checking C compiler for inlining support.")
+  MESSAGE( STATUS "Checking C compiler for inlining support.")
   SET( SUPPORTED FALSE )
 
-  MESSAGE( SEND_ERROR "Checking C compiler for inline.")
-  CHECK_C_COMPILER_SUPPORTS_INLINE_COMPILE( "zinline" TEST_INLINE )
+  MESSAGE( STATUS "Checking C compiler for inline.")
+  CHECK_C_COMPILER_SUPPORTS_INLINE_COMPILE( "inline" TEST_INLINE )
   IF( TEST_INLINE )
     SET( SUPPORTED TRUE )
     SET( ${INLINE_VALUE} "inline" )
@@ -64,16 +54,12 @@ MACRO( CHECK_C_COMPILER_SUPPORTS_INLINE INLINE_VALUE INLINE_SUPPORTED )
 
   IF( SUPPORTED )
     SET( ${INLINE_SUPPORTED} TRUE CACHE INTERNAL "C compiler inlining support")
-    FILE(APPEND ${CMAKE_BINARY_DIR}/CMakeOutput.log
-      "The C compiler was found to support inlining with keyword: "
-      "${INLINE_VALUE}\n\n")
+    FILE( APPEND ${CMAKE_BINARY_DIR}/CMakeOutput.log
+          "The C compiler was found to support inlining with keyword: "
+          "${INLINE_VALUE}\n\n" )
   ELSE( SUPPORTED )
     SET( ${INLINE_SUPPORTED} "" CACHE INTERNAL "C compiler inlining support")
-    FILE(APPEND ${CMAKE_BINARY_DIR}/CMakeOutput.log
-      "The C compiler was found to support inlining with keyword: "
-      "${INLINE_VALUE}\n\n")
+    FILE( APPEND ${CMAKE_BINARY_DIR}/CMakeOutput.log
+          "The C compiler was found not to support inlining.\n\n" )
   ENDIF( SUPPORTED )
 ENDMACRO( CHECK_C_COMPILER_SUPPORTS_INLINE )
-
-CHECK_C_COMPILER_SUPPORTS_INLINE( VALUE ZOB )
-MESSAGE( SEND_ERROR "WAZAAAAAAAAAAAAAAA ${VALUE} ${ZOB}")

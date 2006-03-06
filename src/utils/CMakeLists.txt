@@ -36,6 +36,12 @@ ADD_LIBRARY( UtilsVector
 )
 INSTALL_TARGETS( /lib/ UtilsVector )
 
+IF( DIET_USE_BATCH )
+  INCLUDE_DIRECTORIES( ${APPLESEEDS_INCLUDE_DIR} )
+  ADD_LIBRARY( UtilsSeDBatch batch.c )
+  INSTALL_TARGETS( /lib/ UtilsSeDBatch )
+ENDIF( DIET_USE_BATCH )
+
 ADD_LIBRARY( UtilsNodes
   Counter.cc
   DietLogComponent.cc
