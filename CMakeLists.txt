@@ -7,7 +7,7 @@ PROJECT(DIET)
 SET(DIET_version 2.0)
 
 # --------------------- OPTIONS OF THE PROJECT -----------------------------
-OPTION( DIET_BUILD_EXAMPLES "Build DIET examples." ON )
+OPTION( DIET_BUILD_EXAMPLES "Build DIET examples." OFF )
 OPTION( DIET_BUILD_DOCUMENTATION "Build the users manual documentation." OFF )
 OPTION( DIET_USE_BATCH "Build DIET with Batch support." OFF )
 OPTION( DIET_USE_BLAS "Build DIET with BLAS support." OFF )
@@ -90,6 +90,10 @@ INCLUDE( ${DIET_SOURCE_DIR}/Cmake/FindOmniORB.cmake )
 # Path to additional modules (i.e. used by FIND_PACKAGE commands making
 # reference to non CMake defined "standard" modules):
 SET( CMAKE_MODULE_PATH ${DIET_SOURCE_DIR}/Cmake )
+
+IF( DIET_MAINTAINER_MODE )
+  SET( DIET_BUILD_EXAMPLES ON )
+ENDIF( DIET_MAINTAINER_MODE )
 
 IF( DIET_BUILD_DOCUMENTATION )
   # DIET_MAINTAINER_MODE is used within the doc subdirectory
