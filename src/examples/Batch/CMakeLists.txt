@@ -1,0 +1,38 @@
+#****************************************************************************#
+#* DIET cmake local file                                                    *#
+#****************************************************************************#
+# AppleSeeds related examples
+
+IF( NOT APPLESEEDS_FOUND )
+  MESSAGE( STATUS "AppleSeeds related example NOT compiled." )
+ELSE( NOT APPLESEEDS_FOUND )
+  INCLUDE_DIRECTORIES(
+    ${DIET_BINARY_DIR}/include          # FIXME: must preceed source/include
+                                        # to take cmake-generated DIET_config.h
+    ${DIET_SOURCE_DIR}/include
+  )
+
+  ### Two servers...
+  SET( C_SERVER_EXAMPLES
+    batch_server
+    parallel_server )
+
+  FOREACH( loop_var ${C_SERVER_EXAMPLES} )
+    ADD_EXECUTABLE( ${loop_var} ${loop_var}.c )
+    TARGET_LINK_LIBRARIES( ${loop_var}
+                           ${DIET_SERVER_LIBRARIES} ${APPLESEEDS_LIBRARIES} )
+    INSTALL_TARGETS( /bin/examples/Batch ${loop_var} )
+  ENDFOREACH( loop_var )
+  
+  ### ... and their respective clients
+  SET( C_CLIENT_EXAMPLES
+    batch_client
+    parallel_client )
+  
+  FOREACH( loop_var ${C_CLIENT_EXAMPLES} )
+    ADD_EXECUTABLE( ${loop_var} ${loop_var}.c )
+    TARGET_LINK_LIBRARIES( ${loop_var}
+                           ${DIET_CLIENT_LIBRARIES} ${APPLESEEDS_LIBRARIES} )
+    INSTALL_TARGETS( /bin/examples/Batch ${loop_var} )
+  ENDFOREACH( loop_var )
+ENDIF( NOT APPLESEEDS_FOUND )
