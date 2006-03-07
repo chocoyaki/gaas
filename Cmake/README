@@ -16,7 +16,7 @@ II/ For the impatients:
   make install
 
 III/ Requirements:
-  Obtain and install the current version of cmake from 
+  Obtain and install the current version of cmake (at leat version 2.2) from 
      http://cmake.kitware.org/
   Alltough the various binary packages are not available on this site
   apt-get is generally cmake aware. By default fetching the sources
