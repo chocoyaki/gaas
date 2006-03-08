@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-#include "config.h"
+
 #include <oshseed.h>
 #include <stdio.h>     /* file functions */
 #include <ctype.h>     /* isspace */
@@ -37,6 +37,8 @@ extern "C" {
 */
 #define BATCH_PATH "elagi_batch$$"
 /* FYC */
+
+#define TEMP_PREFIX "/tmp/"
 
 typedef enum {
   NO_ESCAPE, GRAM_ESCAPE, PERL_ESCAPE, RASH_ESCAPE
