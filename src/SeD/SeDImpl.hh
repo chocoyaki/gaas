@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2006/03/08 12:42:48  ycaniou
+ * Compilation against the new libUtilsSeDBatch, compiled with gcc
+ *  -> #include batch.h requires extern "C"
+ *
  * Revision 1.23  2006/01/19 21:35:42  pfrauenk
  * CoRI : when --enable-cori - round-robin is the default scheduler -
  *        CoRI is not called (any more) for collecting information
@@ -127,7 +131,9 @@
 #endif
 
 #if HAVE_BATCH
-#include "elbase.h"
+extern "C" {
+#include "batch.h"
+}
 #endif
 
 /****************************************************************************/
