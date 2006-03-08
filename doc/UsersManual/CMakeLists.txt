@@ -1,21 +1,12 @@
 #****************************************************************************#
 #* DIET cmake local file                                                    *#
-#*                                                                          *#
 #****************************************************************************#
-#* $Author$
-#* $LICENSE$
-#* $Id$
-#****************************************************************************#
+
+ADD_SUBDIRECTORY( fig )
 
 # In order to avoid the painfull process of passing the TEXINPUT environment
 # variable (with "SET( ENV{TEXINPUTS} ...") copy all the required files
 # to CMAKE_CURRENT_BINARY_DIR:
-
-### Convert the figures (various formats) to eps and places them in the
-# directory CMAKE_CURRENT_BINARY_DIR/fig. Note the PREORDER flag.
-SUBDIRS( PREORDER fig )
-
-### Then copy all the tex sources (with additional bibtex file):
 FILE(GLOB DIET_USERS_MANUAL_TEX_GLOB "*.tex")
 FILE(GLOB DIET_USERS_MANUAL_BIB_GLOB "*.bib")
 SET(TO_COPY ${DIET_USERS_MANUAL_TEX_GLOB} ${DIET_USERS_MANUAL_BIB_GLOB})
@@ -56,6 +47,7 @@ ADD_CUSTOM_COMMAND(
 
 ADD_CUSTOM_COMMAND(
   OUTPUT    ${CMAKE_CURRENT_BINARY_DIR}/UsersManual.dvi
+            ${DIET_TARGET_USERS_FIGURES}
   DEPENDS   ${CMAKE_CURRENT_BINARY_DIR}/UsersManual.bbl
   COMMAND   ${LATEX_COMPILER}  
   ARGS      -interaction=batchmode ${CMAKE_CURRENT_BINARY_DIR}/UsersManual
@@ -71,6 +63,12 @@ ADD_CUSTOM_COMMAND(
   COMMENT   "Latex (third pass)"
   )
 
-ADD_CUSTOM_TARGET(LaTeXDocument ALL echo
-   DEPENDS   ${CMAKE_CURRENT_BINARY_DIR}/UsersManual.log
+ADD_CUSTOM_TARGET(LaTeXDocument
+   ALL echo
+   DEPENDS
+      ${CMAKE_CURRENT_BINARY_DIR}/UsersManual.log
+      DIET_TARGET_USERS_FIGURES
    )
+
+### But FIRST, convert the required figures (various formats) to eps:
+ADD_DEPENDENCIES( LaTeXDocument DIET_TARGET_USERS_FIGURES )

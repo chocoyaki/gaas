@@ -3,9 +3,9 @@
 #****************************************************************************#
 # AppleSeeds related examples
 
-IF( NOT APPLESEEDS_FOUND )
+IF( NOT DIET_USE_BATCH )
   MESSAGE( STATUS "AppleSeeds related example NOT compiled." )
-ELSE( NOT APPLESEEDS_FOUND )
+ELSE( NOT DIET_USE_BATCH )
   INCLUDE_DIRECTORIES(
     ${DIET_BINARY_DIR}/include          # FIXME: must preceed source/include
                                         # to take cmake-generated DIET_config.h
@@ -19,8 +19,7 @@ ELSE( NOT APPLESEEDS_FOUND )
 
   FOREACH( loop_var ${C_SERVER_EXAMPLES} )
     ADD_EXECUTABLE( ${loop_var} ${loop_var}.c )
-    TARGET_LINK_LIBRARIES( ${loop_var}
-                           ${DIET_SERVER_LIBRARIES} ${APPLESEEDS_LIBRARIES} )
+    TARGET_LINK_LIBRARIES( ${loop_var} ${DIET_SERVER_LIBRARIES} )
     INSTALL_TARGETS( /bin/examples/Batch ${loop_var} )
   ENDFOREACH( loop_var )
   
@@ -31,8 +30,7 @@ ELSE( NOT APPLESEEDS_FOUND )
   
   FOREACH( loop_var ${C_CLIENT_EXAMPLES} )
     ADD_EXECUTABLE( ${loop_var} ${loop_var}.c )
-    TARGET_LINK_LIBRARIES( ${loop_var}
-                           ${DIET_CLIENT_LIBRARIES} ${APPLESEEDS_LIBRARIES} )
+    TARGET_LINK_LIBRARIES( ${loop_var} ${DIET_CLIENT_LIBRARIES} )
     INSTALL_TARGETS( /bin/examples/Batch ${loop_var} )
   ENDFOREACH( loop_var )
-ENDIF( NOT APPLESEEDS_FOUND )
+ENDIF( NOT DIET_USE_BATCH )

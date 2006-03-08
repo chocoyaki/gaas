@@ -2,19 +2,11 @@
 #* DIET cmake local file                                                    *#
 #*                                                                          *#
 #****************************************************************************#
-#* $Author$
-#* $LICENSE$
-#* $Id$
-#****************************************************************************#
+
+ADD_SUBDIRECTORY( fig )
 
 # In order to avoid the painfull process of passing the TEXINPUT environment
 # variable copy all the required files to CMAKE_CURRENT_BINARY_DIR:
-
-### Convert the figures (various formats) to eps and places them in the
-# directory CMAKE_CURRENT_BINARY_DIR/fig. Note the PREORDER flag.
-SUBDIRS( PREORDER fig )
-
-### Then copy all the tex sources (with additional bibtex file):
 FILE(GLOB DIET_PROGRAMMERS_MANUAL_TEX_GLOB "*.tex")
 FOREACH( filename ${DIET_PROGRAMMERS_MANUAL_TEX_GLOB} )
   GET_FILENAME_COMPONENT( filenameNoPath ${filename} NAME )
@@ -50,6 +42,10 @@ ADD_CUSTOM_COMMAND(
   COMMENT   "Latex (second pass)"
   )
 
-ADD_CUSTOM_TARGET(ProgrammersGuide ALL echo
-   DEPENDS   ${CMAKE_CURRENT_BINARY_DIR}/ProgrammersGuide.dvi
-   )
+ADD_CUSTOM_TARGET(ProgrammersGuide
+  ALL echo
+  DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/ProgrammersGuide.dvi
+)
+
+### But FIRST, convert the required figures (various formats) to eps:
+ADD_DEPENDENCIES( ProgrammersGuide DIET_TARGET_PROGRAMMERSGUIDE_FIGURES )

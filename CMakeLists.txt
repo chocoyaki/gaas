@@ -107,9 +107,13 @@ ENDIF( DIET_BUILD_DOCUMENTATION )
 IF( DIET_USE_BATCH )
   FIND_PACKAGE( AppleSeeds )
   IF( APPLESEEDS_FOUND )
-    # FIXME: This is only used within src/SeD: do it cleaner !
-    ADD_DEFINITIONS( -DHAVE_BATH )
+    # The HAVE_BATCH compiler flags has too many occurences to be cleanly
+    # associated with all the concerned files by using
+    # SET_SOURCE_FILES_PROPERTIES combined with PROPERTIES COMPILE_FLAGS.
+    # [For example ServiceTable.hh gets included in many places...]
+    ADD_DEFINITIONS( -DHAVE_BATCH )
   ELSE( APPLESEEDS_FOUND )
+    MESSAGE( SEND_ERROR "Properly provide the AppleSeeds library.")
     SET( DIET_USE_BATCH OFF )
   ENDIF( APPLESEEDS_FOUND )
 ENDIF( DIET_USE_BATCH )
