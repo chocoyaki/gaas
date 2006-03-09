@@ -101,7 +101,7 @@ IF( DIET_BUILD_DOCUMENTATION )
   FIND_PACKAGE( Transfig )
   FIND_PACKAGE( ImageMagick )
   FIND_PACKAGE( Doxygen )
-  SUBDIRS( doc )
+  ADD_SUBDIRECTORY( doc )
 ENDIF( DIET_BUILD_DOCUMENTATION )
 
 IF( DIET_USE_BATCH )
@@ -156,6 +156,12 @@ ENDIF( DIET_BUILD_EXAMPLES AND DIET_USE_BLAS )
 
 # --------------------- HANDLE COMPILER SPECIFICITIES  --------------------
 INCLUDE(${DIET_SOURCE_DIR}/Cmake/CheckCCompiler.cmake)
+
+# Reset the values before testing:
+SET( CMAKE_C_FLAGS ${CMAKE_C_FLAGS_INIT}
+  CACHE STRING "Flags for C compiler"
+  FORCE
+  )
   
 ### Does the C compiler support inlining option ?
 CHECK_C_COMPILER_SUPPORTS_INLINE( INLINE_VALUE INLINE_SUPPORTED )
@@ -166,13 +172,24 @@ IF( INLINE_SUPPORTED )
     FILE( APPEND ${CMAKE_BINARY_DIR}/CMakeOutput.log
           "Adding exotic C inline support: ${INLINE_VALUE}\n\n" )
     SET( DIET_CMAKE_C_FLAGS "-Dinline=${INLINE_VALUE}")
-    SET(CMAKE_C_FLAGS
-      "${CMAKE_C_FLAGS_INIT} ${DIET_CMAKE_C_FLAGS}"
-      CACHE
-      STRING "Flags for C compiler"
-      FORCE)
   ENDIF( NOT "${INLINE_VALUE}" MATCHES "^inline$" )
 ENDIF( INLINE_SUPPORTED )
+
+### Is the C compiler ANSI C-conforming for const ?
+CHECK_C_COMPILER_SUPPORTS_CONST( CONST_SUPPORTED )
+IF( NOT CONST_SUPPORTED )
+  SET( DIET_CMAKE_C_FLAGS ${DIET_CMAKE_C_FLAGS} "-Dconst=\"\"" )
+ENDIF( NOT CONST_SUPPORTED )
+
+### Pass the results to cmake internal flags:
+IF( DIET_CMAKE_C_FLAGS )
+  SET( CMAKE_C_FLAGS
+    "${CMAKE_C_FLAGS_INIT} ${DIET_CMAKE_C_FLAGS}"
+    CACHE
+    STRING "Flags for C compiler"
+    FORCE
+  )
+ENDIF( DIET_CMAKE_C_FLAGS )
 
 # --------------------- BUILD THE CONFIGURATION FILE -----------------------
 ### FIXME: consider using ADD_DEFINITIONS cmake feature instead of a configure
@@ -180,7 +197,7 @@ ENDIF( INLINE_SUPPORTED )
 CONFIGURE_FILE( ${DIET_SOURCE_DIR}/Cmake/DIET_config.h.in
                 ${DIET_BINARY_DIR}/include/DIET_config.h )
 
-SUBDIRS(src)
+ADD_SUBDIRECTORY(src)
 
 # --------------------------------------------------------------------------
 # QUESTIONS:

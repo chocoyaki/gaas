@@ -21,11 +21,6 @@
 #define PACKAGE "diet"
 
 /******************************** COMPILER SPECIFICS */
-
-/* Define to empty if `const' does not conform to ANSI C.
-   Note: autoconf's macro AC_C_CONST within c.m4 does that job allready !  */
-/* #undef const */
-
 /* Define to `unsigned' if <sys/types.h> does not define. */
 /* #undef size_t */
 

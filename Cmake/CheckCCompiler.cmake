@@ -1,19 +1,19 @@
 #
 # Check the C compiler for unstable features
 #
-# VARIABLE - variable to store the result
+# Translation to cmake of some of GNU's autoconf macros as taken from c.m4.
 #
 
-#           vim /usr/share/autoconf/autoconf/c.m4
-
-# AC_C_INLINE
-# -----------
-# Do nothing if the compiler accepts the inline keyword.
-# Otherwise define inline to __inline__ or __inline if one of those work,
-# otherwise define inline to be empty.
-#
-# HP C version B.11.11.04 doesn't allow a typedef as the return value for an
-# inline function, only builtin types.
+#### Inline support and associated keyword.
+# The following CHECK_C_COMPILER_SUPPORTS_INLINE macro tries to provide 
+# a functional equivalent of autoconf's AC_C_INLINE macro.
+# Usage: CHECK_C_COMPILER_SUPPORTS_INLINE( INLINE_VALUE INLINE_SUPPORTED )
+#       - INLINE_VALUE is a string containing the keyword used for inlining
+#         by the C compiler. When inlining is supported INLINE_VALUE is one
+#         of "inline", "__inline" or "__inline__", otherwise INLINE_VALUE is
+#         set to be empty.
+#       - INLINE_VALUE is set to true when inlining is supported and false
+#         otherwise. 
 #
 MACRO( CHECK_C_COMPILER_SUPPORTS_INLINE_COMPILE TO_TEST RESULT )
   TRY_COMPILE( ${RESULT}
@@ -63,3 +63,17 @@ MACRO( CHECK_C_COMPILER_SUPPORTS_INLINE INLINE_VALUE INLINE_SUPPORTED )
           "The C compiler was found not to support inlining.\n\n" )
   ENDIF( SUPPORTED )
 ENDMACRO( CHECK_C_COMPILER_SUPPORTS_INLINE )
+
+#### Const support
+# The following CHECK_C_COMPILER_SUPPORTS_CONST macro tries to provide 
+# a functional equivalent of autoconf's AC_C_CONST macro.
+# Usage: CHECK_C_COMPILER_SUPPORTS_CONST( CONST_SUPPORTED )
+#     CONST_VALUE is set to true when const is supported and false otherwise. 
+#
+MACRO( CHECK_C_COMPILER_SUPPORTS_CONST CONST_SUPPORTED )
+  MESSAGE( STATUS "Checking C compiler for ANSI C-conforming const.")
+  TRY_COMPILE( ${CONST_SUPPORTED}
+    ${CMAKE_BINARY_DIR}
+    ${CMAKE_SOURCE_DIR}/Cmake/CheckCCompilerConst.c
+    OUTPUT_VARIABLE DUMMY_OUTPUT_FOR_DEBUG )
+ENDMACRO( CHECK_C_COMPILER_SUPPORTS_CONST )
