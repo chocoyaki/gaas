@@ -157,16 +157,22 @@ ENDIF( DIET_BUILD_EXAMPLES AND DIET_USE_BLAS )
 # --------------------- HANDLE COMPILER SPECIFICITIES  --------------------
 INCLUDE(${DIET_SOURCE_DIR}/Cmake/CheckCCompiler.cmake)
   
+### Does the C compiler support inlining option ?
 CHECK_C_COMPILER_SUPPORTS_INLINE( INLINE_VALUE INLINE_SUPPORTED )
-MESSAGE( STATUS "Inline C compiler support ${INLINE_SUPPORTED} ${INLINE_VALUE}")
 
-# FIXME: Injay2461 must finalize the following:
-# SET( CMAKE_C_FLAGS
-#   "${CMAKE_C_FLAGS} -Dinline""""""""""""
-#  CACHE STRING
-#   "Choose the type of build, options are: None(CMAKE_CXX_FLAGS "
-#   "or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel."
-#   FORCE)
+SET( DIET_CMAKE_C_FLAGS "")
+IF( INLINE_SUPPORTED )
+  IF( NOT "${INLINE_VALUE}" MATCHES "^inline$" )
+    FILE( APPEND ${CMAKE_BINARY_DIR}/CMakeOutput.log
+          "Adding exotic C inline support: ${INLINE_VALUE}\n\n" )
+    SET( DIET_CMAKE_C_FLAGS "-Dinline=${INLINE_VALUE}")
+    SET(CMAKE_C_FLAGS
+      "${CMAKE_C_FLAGS_INIT} ${DIET_CMAKE_C_FLAGS}"
+      CACHE
+      STRING "Flags for C compiler"
+      FORCE)
+  ENDIF( NOT "${INLINE_VALUE}" MATCHES "^inline$" )
+ENDIF( INLINE_SUPPORTED )
 
 # --------------------- BUILD THE CONFIGURATION FILE -----------------------
 ### FIXME: consider using ADD_DEFINITIONS cmake feature instead of a configure
