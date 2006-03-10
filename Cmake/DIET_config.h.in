@@ -8,14 +8,6 @@
 
 /***************** CMAKE NOT HANDLED YET FIXME *****************************/
 
-/******************************** DIET COMPILATION OPTIONS */
-
-/* Define the use of the omniORB 4.0.x API */
-#define __OMNIORB4__ 
-
-/* Define the use of the omniORB 3.0.x API */
-/* #undef __OMNIORB3__ */
-
 /******************************** DIET RELATED */
 /* Name of package */
 #define PACKAGE "diet"

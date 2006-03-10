@@ -66,6 +66,8 @@ FIND_PROGRAM(OMNIORB4_IDL_COMPILER
   DOC "What is the path where omniidl (the idl compiler) can be found"
 )
  
+SET( OMNIORB4_FOUND "NO" )
+
 IF( OMNIORB4_INCLUDE_DIR )
 IF( OMNIORB4_LIBRARY_omniORB4 )
 IF( OMNIORB4_LIBRARY_omnithread )
@@ -78,8 +80,6 @@ IF( OMNIORB4_IDL_COMPILER )
   MARK_AS_ADVANCED( OMNIORB4_LIBRARY_omniORB4 )
   MARK_AS_ADVANCED( OMNIORB4_LIBRARY_omnithread )
   MARK_AS_ADVANCED( OMNIORB4_LIBRARY_omniDynamic4 )
-  MARK_AS_ADVANCED( OMNIORB4_LIBRARY_COS4 )
-  MARK_AS_ADVANCED( OMNIORB4_LIBRARY_COSDynamic4 )
   MARK_AS_ADVANCED( OMNIORB4_IDL_COMPILER )
   SET( OMNIORB4_LIBRARIES
     ${OMNIORB4_LIBRARY_omniORB4}
@@ -92,12 +92,14 @@ IF( OMNIORB4_IDL_COMPILER )
   # not in others (e.g. Debian). When present we add them to the list of
   # libraries we link against...
   IF( OMNIORB4_LIBRARY_COS4 )
+    MARK_AS_ADVANCED( OMNIORB4_LIBRARY_COS4 )
     SET( OMNIORB4_LIBRARIES
       ${OMNIORB4_LIBRARIES}
       ${OMNIORB4_LIBRARY_COS4}
     )
   ENDIF( OMNIORB4_LIBRARY_COS4 )
   IF( OMNIORB4_LIBRARY_COSDynamic4 )
+    MARK_AS_ADVANCED( OMNIORB4_LIBRARY_COSDynamic4 )
     SET( OMNIORB4_LIBRARIES
       ${OMNIORB4_LIBRARIES}
       ${OMNIORB4_LIBRARY_COSDynamic4}
@@ -109,17 +111,3 @@ ENDIF( OMNIORB4_LIBRARY_omniDynamic4 )
 ENDIF( OMNIORB4_LIBRARY_omnithread )
 ENDIF( OMNIORB4_LIBRARY_omniORB4 )
 ENDIF( OMNIORB4_INCLUDE_DIR )
-
-IF( NOT OMNIORB4_FOUND )
-  MESSAGE("omniORB installation was not found. Please provide OMNIORB4_DIR:")
-  MESSAGE("  - through the GUI when working with ccmake, ")
-  MESSAGE("  - as a command line argument when working with cmake e.g. ")
-  MESSAGE("    cmake .. -DOMNIORB4_DIR:PATH=/usr/local/omniORB-4.0.5 ")
-  MESSAGE("Note: the following message is triggered by cmake on the first ")
-  MESSAGE("    undefined necessary PATH variable (e.g. OMNIORB4_INCLUDE_DIR).")
-  MESSAGE("    Providing OMNIORB4_DIR (as above described) is probably the")
-  MESSAGE("    simplest solution unless you have a really customized/odd")
-  MESSAGE("    omniORB installation...")
-  SET( OMNIORB4_DIR "" CACHE PATH "Root of omniORB instal tree." )
-ENDIF( NOT OMNIORB4_FOUND )
-

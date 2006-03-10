@@ -1,7 +1,7 @@
 #****************************************************************************#
 #* DIET cmake local file                                                    *#
 #****************************************************************************#
-SUBDIRS( idl )
+ADD_SUBDIRECTORY( idl )
 
 INCLUDE_DIRECTORIES(
   ${OMNIORB4_INCLUDE_DIR}

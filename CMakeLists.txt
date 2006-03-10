@@ -78,7 +78,7 @@ FOREACH( function_to_check ${DIET_FUNCTIONS_TO_CHECK} )
   ENDIF( NOT dummyfound${function_to_check} )
 ENDFOREACH( function_to_check )
 
-### CORI (COllector of Ressource Infomation) is heavily dependant on 
+### CORI (COllector of Ressource Information) is heavily dependant on 
 # system calls for probing ressources:
 IF( DIET_USE_CORI )
   ADD_DEFINITIONS( -DHAVE_CORI )
@@ -86,10 +86,26 @@ IF( DIET_USE_CORI )
 ENDIF( DIET_USE_CORI )
 
 # --------------------- DEPENDENCIES TOWARDS EXTERNAL PACKAGES -------------
-INCLUDE( ${DIET_SOURCE_DIR}/Cmake/FindOmniORB.cmake )
 # Path to additional modules (i.e. used by FIND_PACKAGE commands making
 # reference to non CMake defined "standard" modules):
 SET( CMAKE_MODULE_PATH ${DIET_SOURCE_DIR}/Cmake )
+
+# OmniORB is mandatory:
+FIND_PACKAGE( OmniORB )
+IF( OMNIORB4_FOUND )
+  ADD_DEFINITIONS( -D__OMNIORB4__ )
+ELSE( OMNIORB4_FOUND )
+  MESSAGE("omniORB installation was not found. Please provide OMNIORB4_DIR:")
+  MESSAGE("  - through the GUI when working with ccmake, ")
+  MESSAGE("  - as a command line argument when working with cmake e.g. ")
+  MESSAGE("    cmake .. -DOMNIORB4_DIR:PATH=/usr/local/omniORB-4.0.5 ")
+  MESSAGE("Note: the following message is triggered by cmake on the first ")
+  MESSAGE("    undefined necessary PATH variable (e.g.  OMNIORB4_INCLUDE_DIR).")
+  MESSAGE("    Providing OMNIORB4_DIR (as above described) is probably the")
+  MESSAGE("    simplest solution unless you have a really customized/odd")
+  MESSAGE("    omniORB installation...")
+  SET( OMNIORB4_DIR "" CACHE PATH "Root of omniORB instal tree." )
+ENDIF( OMNIORB4_FOUND )
 
 IF( DIET_MAINTAINER_MODE )
   SET( DIET_BUILD_EXAMPLES ON )
@@ -118,6 +134,18 @@ IF( DIET_USE_BATCH )
   ENDIF( APPLESEEDS_FOUND )
 ENDIF( DIET_USE_BATCH )
 
+# JXTA (see below) is used to provide functionalities similar to the ones
+# of the DIET_WITH_MULTI_MA. For the time being those two extensions
+# are not incompatible at compile time. Yet, requiring both probably
+# means you are either an expert or a lost newbie... Allthough 
+# the flag DIET_MAINTAINER_MODE doesn't convey any expertise semantics
+# we consider the newbie won't set that mode on. Hence when not
+# in MAINTAINER_MODE, we assume the user is newbie and we explicitely
+# require an explicit choice:
+IF( DIET_WITH_MULTI_MA AND DIET_USE_JXTA AND NOT DIET_MAINTAINER_MODE )
+ MESSAGE(SEND_ERROR "Either set DIET_WITH_MULTI_MA or DIET_USE_JXTA. Not both.")
+ENDIF( DIET_WITH_MULTI_MA AND DIET_USE_JXTA AND NOT DIET_MAINTAINER_MODE )
+
 IF( DIET_USE_JXTA )
   FIND_PACKAGE( JavaExtended )
   IF( JAVA_FOUND )
@@ -126,6 +154,12 @@ IF( DIET_USE_JXTA )
     SET( DIET_USE_JXTA OFF )
   ENDIF( JAVA_FOUND )
 ENDIF( DIET_USE_JXTA )
+
+# So called MULTI-Master-Agent
+IF( DIET_WITH_MULTI_MA )
+  ADD_DEFINITIONS( -DHAVE_MULTI_MA )
+ENDIF( DIET_WITH_MULTI_MA )
+
 
 IF( DIET_USE_FAST )
   FIND_PACKAGE( FAST )
@@ -143,11 +177,6 @@ IF( DIET_WITH_STATISTICS )
   # Enable generation of the statistics log
   ADD_DEFINITIONS( -DHAVE_STATISTICS )
 ENDIF( DIET_WITH_STATISTICS )
-
-IF( DIET_WITH_MULTI_MA )
-  # Enable usage of so called MULTI-Master-Agent
-  ADD_DEFINITIONS( -DHAVE_MULTI_MA )
-ENDIF( DIET_WITH_MULTI_MA )
 
 IF( DIET_BUILD_EXAMPLES AND DIET_USE_BLAS )
   # BLAS (Basic Linear Algebric Subroutines) examples subdir requires...BLAS !
@@ -191,11 +220,18 @@ IF( DIET_CMAKE_C_FLAGS )
   )
 ENDIF( DIET_CMAKE_C_FLAGS )
 
-# --------------------- BUILD THE CONFIGURATION FILE -----------------------
-### FIXME: consider using ADD_DEFINITIONS cmake feature instead of a configure
-###        file !!!!
-CONFIGURE_FILE( ${DIET_SOURCE_DIR}/Cmake/DIET_config.h.in
-                ${DIET_BINARY_DIR}/include/DIET_config.h )
+# --------------------- COPY THE CONFIGURATION FILE -----------------------
+### FIXME: this is to avoid conflicting with the autotools generated version
+### of the config file contained in directory ${DIET_SOURCE_DIR}/include
+### and which depends on autoconf generated acDIET_config.h.
+### When we get rid of the autotools stuff (if such thing happens) 
+### simply overwrite ${DIET_SOURCE_DIR}/include/DIET_config.h with
+### Cmake/DIET_config.h.in
+CONFIGURE_FILE(
+  ${DIET_SOURCE_DIR}/Cmake/DIET_config.h.in
+  ${DIET_BINARY_DIR}/include/DIET_config.h
+  COPYONLY
+  IMMEDIATE )
 
 ADD_SUBDIRECTORY(src)
 

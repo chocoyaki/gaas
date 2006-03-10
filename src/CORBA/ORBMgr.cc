@@ -9,6 +9,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2006/03/10 12:33:27  eboix
+ *  * src/CORBA/ORBMgr.cc: code specific to version 3 of omniORB removed
+ *    (in order to remove the __OMNIORB3__ preprocessor flag).
+ *  * Cmake/DIET_config.h.in is now simply copied (as opposed to configured).
+ *    We are now in position of suppressing DIET_config.h.
+ *  * Cmake/FindOmniORB.cmake is now a module (as opposed to an include file).
+ *                                                               --- Injay2461
+ *
  * Revision 1.15  2004/09/29 13:35:31  sdahan
  * Add the Multi-MAs feature.
  *
@@ -69,10 +77,7 @@ sigjmp_buf ORBMgr::buff_int;
 int
 ORBMgr::init(int argc, char** argv, bool init_POA)
 {
-#ifdef __OMNIORB3__
-  ORB = CORBA::ORB_init(argc, argv, "omniORB3");
-  omniORB::scanGranularity(0);
-#elif defined (__OMNIORB4__)
+#if defined (__OMNIORB4__)
   const char* options[][2]
     = {{"inConScanPeriod","0"},{"outConScanPeriod","0"},
        {"maxGIOPConnectionPerServer","50"},
@@ -97,15 +102,12 @@ ORBMgr::init(int argc, char** argv, bool init_POA)
     // Get the POAManager Ref and activate it
     pman = POA->the_POAManager();
 
-    // omniORB3 does not know the bidirectional policy
-#ifndef __OMNIORB3__
     // Create a POA with the Bidirectional policy
     pl.length(1);
     a <<= BiDirPolicy::BOTH;
     pl[0] =
       ORBMgr::ORB->create_policy(BiDirPolicy::BIDIRECTIONAL_POLICY_TYPE, a);
     ORBMgr::POA_BIDIR = ORBMgr::POA->create_POA("bidir", pman, pl);
-#endif
 
     pman->activate();
   }
