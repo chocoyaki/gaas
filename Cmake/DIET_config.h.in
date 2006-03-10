@@ -1,19 +1,11 @@
 /****************************************************************************/
 /* Cmake equivalent of include/DIET_config.h.in                             */
-/*                                                                          */
 /****************************************************************************/
 
 #ifndef _DIET_CONFIG_H_
 #define _DIET_CONFIG_H_
 
-/***************** CMAKE NOT HANDLED YET FIXME *****************************/
-
-/******************************** DIET RELATED */
-/* Name of package */
-#define PACKAGE "diet"
-
-/******************************** COMPILER SPECIFICS */
 /* Define to `unsigned' if <sys/types.h> does not define. */
 /* #undef size_t */
 
-#endif // _DIET_CONFIG_H_
+#endif
