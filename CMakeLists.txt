@@ -220,20 +220,10 @@ IF( DIET_CMAKE_C_FLAGS )
   )
 ENDIF( DIET_CMAKE_C_FLAGS )
 
-# --------------------- COPY THE CONFIGURATION FILE -----------------------
-### FIXME: this is to avoid conflicting with the autotools generated version
-### of the config file contained in directory ${DIET_SOURCE_DIR}/include
-### and which depends on autoconf generated acDIET_config.h.
-### When we get rid of the autotools stuff (if such thing happens) 
-### simply overwrite ${DIET_SOURCE_DIR}/include/DIET_config.h with
-### Cmake/DIET_config.h.in
-CONFIGURE_FILE(
-  ${DIET_SOURCE_DIR}/Cmake/DIET_config.h.in
-  ${DIET_BINARY_DIR}/include/DIET_config.h
-  COPYONLY
-  IMMEDIATE )
-
-ADD_SUBDIRECTORY(src)
+# --------------------------------------------------------------------------
+ADD_SUBDIRECTORY( src )
+ADD_SUBDIRECTORY( include )
+ADD_SUBDIRECTORY( Cmake )
 
 # --------------------------------------------------------------------------
 # QUESTIONS:
