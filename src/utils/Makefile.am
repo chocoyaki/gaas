@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.25  2006/03/16 15:55:58  ecaron
+#* Schedule est_internal.hh for distribution
+#*
 #* Revision 1.24  2006/01/22 14:52:49  rbolze
 #* minor change of indentation, it can cause some problems.
 #*
@@ -97,10 +100,10 @@ noinst_HEADERS = Counter.hh debug.hh DIET_data_internal.hh \
 		 statistics.hh ts_container/ts_map.hh \
 		 ts_container/ts_set.hh ts_container/ts_vector.hh \
 		 DietLogComponent.hh MonitoringThread.hh KeyString.hh \
-		 AccessController.hh Vector.h 
+		 AccessController.hh Vector.h est_internal.hh
 
 if USING_CORI
-noinst_HEADERS += Cori_Fast.hh Cori_Easy_CPU.hh  Cori_Easy_Disk.hh Cori_Easy_Memory.hh Cori_Data_Easy.hh Cori_Metric.hh	CORIMgr.hh 
+noinst_HEADERS += Cori_Fast.hh Cori_Easy_CPU.hh  Cori_Easy_Disk.hh Cori_Easy_Memory.hh Cori_Data_Easy.hh Cori_Metric.hh CORIMgr.hh 
 endif
 
 AM_CXXFLAGS = @JUXMEM_CXXFLAGS@ $(CXXFLAGS_OMNIORB) $(CXXFLAGS_FAST) \
