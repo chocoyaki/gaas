@@ -1,30 +1,17 @@
 Compiling and installing DIET with cmake:
 
-I/ Cmake general information, references and docs:
-  Entry point:   http://www.cmake.org
-  Official docs: http://www.cmake.org/HTML/Documentation.html
-  Wiki docs:     http://www.cmake.org/Wiki/CMake
-  FAQ:           http://www.cmake.org/Wiki/CMake_FAQ
-  Google with the command your are looking for as key (avoid cmake as keyword).
-
-II/ For the impatients:
-  cd GRAAL/devel/diet/diet
-  mkdir Bin
-  cd Bin
-  cmake .. -DCMAKE_INSTALL_PREFIX:PATH=/tmp -DDIET_USE_JXTA:BOOL=ON
+I/ For the (really) impatients:
+  cd ..        [ relative to this README file i.e. cd the home of DIET sources ]
+  mkdir Bin    [ on case independent OSes make it "mkdir bindir" ]
+  cd Bin       [  "   "       "        "    "   "  cd bindir ]
+  ccmake .. -DCMAKE_INSTALL_PREFIX:PATH=/tmp -DDIET_USE_CORI:BOOL=ON
+    [ deal with the interface options: help is at bottom of screen! ]
   make
   make install
 
-III/ Requirements:
-  Obtain and install the current version of cmake (at leat version 2.2) from 
-     http://cmake.kitware.org/
-  Alltough the various binary packages are not available on this site
-  apt-get is generally cmake aware. By default fetching the sources
-  compilation and installation of cmake should be straightfoward.
-
-IV/ Generating the Makefiles:
-  Two ways for setting configuration parameters in order to to generate the
-  Makefiles:
+II/ Generating the Makefiles:
+  CMake provides two ways for setting configuration parameters in order to
+  generate the Makefiles:
    - ccmake [options] <path-to-source>
      specify the parameters interactively through a GUI interface
    - cmake [options] <path-to-source> [-D<var>:<type>=<value>]
@@ -53,7 +40,7 @@ IV/ Generating the Makefiles:
         and their arguments)
    - CMAKE_C[XX]_FLAGS* for customized setting of C/C++ compiler options
 
-V/ the DIET case:
+III/ the DIET case:
    - assume CVS_DIET_HOME refers to the directory GRAAL/devel/diet/diet
      of a cvs checkout of the DIET sources hierarchy. CVS_DIET_HOME is
      the path to the top level directory of the DIET CMakeLists.txt hierarchy,
@@ -78,7 +65,7 @@ V/ the DIET case:
      make
      make install
 
-VI/ DIET specific cmake parameters
+IV/ DIET specific cmake parameters:
   - DIET_BUILD_DOCUMENTATION for ... building LaTeX-based user's guide.
   - DIET_BUILD_EXAMPLES for ... building examples
   - DIET_MAINTAINER_MODE for building additional LaTeX based programmers guide
@@ -94,8 +81,7 @@ VI/ DIET specific cmake parameters
     (only relevant when omniORB4 was not installed in /usr/local).
     Example: cmake .. -DOMNIORB4_DIR:PATH=/usr/local/omniORB-4.0.5
 
-VII/ DIET [c]cmake invocation examples:
-
+V/ DIET [c]cmake invocation example:
  ccmake .. -DDIET_USE_CORI:BOOL=ON 
            -DDIET_USE_BLAS:BOOL=ON -DDIET_USE_FAST:BOOL=ON
            -DDIET_USE_JXTA:BOOL=ON -DDIET_WITH_MULTI_MA:BOOL=ON
@@ -106,3 +92,18 @@ VII/ DIET [c]cmake invocation examples:
            -DDIET_USE_BATCH:BOOL=ON
            -DAPPLESEEDS_DIR:PATH=/home/bozo/tmp/appleseeds-2.2.1/appleseeds
            -DFAST_CONFIG_EXECUTABLE:PATH=/usr/local/fast-0.8.7/bin/fast-config
+
+VI/ Cmake general information, references and docs:
+  Entry point:   http://www.cmake.org
+  Official docs: http://www.cmake.org/HTML/Documentation.html
+  Wiki docs:     http://www.cmake.org/Wiki/CMake
+  FAQ:           http://www.cmake.org/Wiki/CMake_FAQ
+  Google with the command your are looking for as key (avoid cmake as keyword).
+
+VII/ Requirements:
+  Obtain and install the current version of cmake (at leat version 2.2.X) from 
+     http://cmake.kitware.org/
+  Although the various binary packages are not available on this site
+  apt-get is generally cmake aware. By default fetching the sources,
+  compiling and installing them should be straightfoward...
+

@@ -12,16 +12,17 @@ repository and you want to compile, install and maybe use it.
 They are two concurent ways (for the time being) for installing
 the DIET:
 
-1/ The traditional GNU-Autotools way:
-  - start executing ./bootstrap.sh which will generate all
-  the initial makefiles, etc.  
+1/ The CMAKE way (a GNU-Autotools substitute). Refer to the ./Cmake/README
+   file for all the details.
+
+2/ The GNU-Autotools way:
+  - start executing ./bootstrap.sh which will generate all the initial
+    makefiles, etc.  
   - then, read the INSTALL file, which contains the rest of the
-  documentation on the way to build the whole stuff. Note that if you
-  want to go into the DIET code, you may want to add the
-  --enable-maintainer-mode --enable-doc options when doing the
-  configuration (with ./configure). This will add the programmer's
-  manual which is one of the first step to do playing with DIET
-  code. You'll find further explanations there.
+    documentation on the way to build the whole stuff. Note that if you
+    want to go into the DIET code, you may want to add the
+    --enable-maintainer-mode --enable-doc options when doing the
+    configuration (with ./configure). This will add the programmer's
+    manual which is one of the first step to do playing with DIET
+    code. You'll find further explanations there.
  
-2/ The more recent CMAKE way (a GNU-Autotools substitute).
-  Refer to ./Cmake/README for the details.

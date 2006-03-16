@@ -30,6 +30,10 @@ TARGET_LINK_LIBRARIES( DIET_client
   UtilsCommon
   UtilsVector
   UtilsSeDClt
-  UtilsSeDBatch
   ${OMNIORB4_LIBRARIES}
 )
+
+IF( DIET_USE_BATCH )
+  TARGET_LINK_LIBRARIES( DIET_client UtilsSeDBatch )
+ENDIF( DIET_USE_BATCH )
+
