@@ -3,7 +3,7 @@
 #****************************************************************************#
 
 SET( DIET_CLIENT_LIBRARIES DIET_client )
-SET( DIET_SERVER_LIBRARIES DIET_client DIET_SeD )
+SET( DIET_SERVER_LIBRARIES DIET_SeD )
 
 ADD_SUBDIRECTORY( Batch )
 ADD_SUBDIRECTORY( BLAS )

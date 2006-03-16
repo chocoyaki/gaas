@@ -11,8 +11,8 @@ SET( DIET_INCLUDE_DIR "@CMAKE_INSTALL_PREFIX@/include" )
 SET( DIET_LIBRARY_DIR "@CMAKE_INSTALL_PREFIX@/lib" )
 LINK_DIRECTORIES( ${DIET_LIBRARY_DIR} )
 # The DIET libraries to link against
-SET( DIET_CLIENT_LIBRARIES "@DIET_CLIENT_LIBRARIES@" )
-SET( DIET_SERVER_LIBRARIES "@DIET_SERVER_LIBRARIES@" )
+SET( DIET_CLIENT_LIBRARIES DIET_client )
+SET( DIET_SERVER_LIBRARIES DIET_SeD )
 
 # --------------------------------------------------------------------------
 # Version number

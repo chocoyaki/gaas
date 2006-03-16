@@ -79,10 +79,30 @@ V/ the DIET case:
      make install
 
 VI/ DIET specific cmake parameters
-  - Watch out: neither DIET_BUILD_DOCUMENTATION , nor DIET_USE_FAST bolean
-    togles are [yet] effective ! (both defaulted to OFF)
+  - DIET_BUILD_DOCUMENTATION for ... building LaTeX-based user's guide.
   - DIET_BUILD_EXAMPLES for ... building examples
-  - DIET_USE_JXTA for ... compiling with JXTA
+  - DIET_MAINTAINER_MODE for building additional LaTeX based programmers guide
+    and doxygen documentations.
+  - DIET_USE_BATCH for ... Appleseeds based batch extensions.
+  - DIET_USE_BLAS for ... BLAS based examples.
+  - DIET_USE_CORI for ... a built-in low-profile FAST surrogate.
+  - DIET_USE_FAST for ... using FAST a grid aware dynamic forecasting library.
+  - DIET_USE_JXTA for ... using JXTA a distributed data persistence library.
+  - DIET_WITH_MULTI_MA for ... MULTI Master Agent based support.
+  - DIET_WITH_STATISTICS for ... good question, for what ?
   - OMNIORB4_DIR is the path to the omniORB4 installation directory
     (only relevant when omniORB4 was not installed in /usr/local).
     Example: cmake .. -DOMNIORB4_DIR:PATH=/usr/local/omniORB-4.0.5
+
+VII/ DIET [c]cmake invocation examples:
+
+ ccmake .. -DDIET_USE_CORI:BOOL=ON 
+           -DDIET_USE_BLAS:BOOL=ON -DDIET_USE_FAST:BOOL=ON
+           -DDIET_USE_JXTA:BOOL=ON -DDIET_WITH_MULTI_MA:BOOL=ON
+           -DDIET_MAINTAINER_MODE:BOOL=ON -DDIET_BUILD_DOCUMENTATION:BOOL=ON
+           -DDIET_BUILD_EXAMPLES:BOOL=ON 
+           -DOMNIORB4_DIR:PATH=/home/bozo/local/omniORB-4.0.7/
+           -DCMAKE_INSTALL_PREFIX:PATH=/home/bozo/local/diet
+           -DDIET_USE_BATCH:BOOL=ON
+           -DAPPLESEEDS_DIR:PATH=/home/bozo/tmp/appleseeds-2.2.1/appleseeds
+           -DFAST_CONFIG_EXECUTABLE:PATH=/usr/local/fast-0.8.7/bin/fast-config

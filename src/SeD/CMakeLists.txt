@@ -39,8 +39,6 @@ TARGET_LINK_LIBRARIES( DIET_SeD
 
 IF( DIET_USE_BATCH )
   TARGET_LINK_LIBRARIES( DIET_SeD ${APPLESEEDS_LIBRARIES} )
+  TARGET_LINK_LIBRARIES( DIET_SeD UtilsSeDBatch )
 ENDIF( DIET_USE_BATCH )
 
-### FIXME: missing
-###        - the USE_BATCH/ELAGI stuff
-###        - all the JXTA_MODE related stuff...
