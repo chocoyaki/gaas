@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.18  2006/03/16 16:29:07  ecaron
+#* Schedule DIET_config.h for distribution
+#*
 #* Revision 1.17  2005/01/27 10:13:40  ycaniou
 #* Exclude the file README.FIRST from the distrib.
 #*
@@ -65,7 +68,8 @@ include_HEADERS = $(top_builddir)/include/Makefile.inc \
 		  $(top_srcdir)/include/DIET_client.h \
 		  $(top_srcdir)/include/DIET_server.h \
 		  $(top_srcdir)/include/DIET_data.h \
-		  $(top_srcdir)/include/DIET_mutex.h
+		  $(top_srcdir)/include/DIET_mutex.h \
+		  $(top_srcdir)/include/DIET_config.h
 
 # Some files that can be re-built from scratch (with bootstrap.sh)
 MAINTAINERCLEANFILES = $(top_srcdir)/Makefile.in \
