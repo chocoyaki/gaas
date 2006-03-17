@@ -90,21 +90,24 @@ IF( OMNIORB4_IDL_COMPILER )
   # We do not require the existence of the libraries COS4 and COSDynamic4
   # since they exist in some distribution packages (e.g. Fedora Core) and
   # not in others (e.g. Debian). When present we add them to the list of
-  # libraries we link against...
+  # libraries we link against. When absent we hide away (in the advanced
+  # parameters) the NOT-FOUND associated variable in order not to deconcert
+  # the newbie:
   IF( OMNIORB4_LIBRARY_COS4 )
-    MARK_AS_ADVANCED( OMNIORB4_LIBRARY_COS4 )
     SET( OMNIORB4_LIBRARIES
       ${OMNIORB4_LIBRARIES}
       ${OMNIORB4_LIBRARY_COS4}
     )
   ENDIF( OMNIORB4_LIBRARY_COS4 )
+  MARK_AS_ADVANCED( OMNIORB4_LIBRARY_COS4 )
+
   IF( OMNIORB4_LIBRARY_COSDynamic4 )
-    MARK_AS_ADVANCED( OMNIORB4_LIBRARY_COSDynamic4 )
     SET( OMNIORB4_LIBRARIES
       ${OMNIORB4_LIBRARIES}
       ${OMNIORB4_LIBRARY_COSDynamic4}
     )
   ENDIF( OMNIORB4_LIBRARY_COSDynamic4 )
+  MARK_AS_ADVANCED( OMNIORB4_LIBRARY_COSDynamic4 )
 
 ENDIF( OMNIORB4_IDL_COMPILER )
 ENDIF( OMNIORB4_LIBRARY_omniDynamic4 )

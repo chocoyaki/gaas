@@ -19,3 +19,7 @@ CONFIGURE_FILE(
 
 INSTALL_FILES( /include/ FILES ${DIET_BINARY_DIR}/include/DIET_config.h )
 
+# FIXME: wait until cmake disposes of a more powerful INSTALL_FILES
+#        to add the equivalent of the following line (refer to thread
+#        http://public.kitware.com/pipermail/cmake/2006-January/007867.html) :
+# INSTALL_FILES( ${CMAKE_ROOT}/Modules/ FILES FindDiet.cmake )

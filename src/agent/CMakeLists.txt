@@ -25,7 +25,6 @@ INCLUDE_DIRECTORIES(
   ${DIET_SOURCE_DIR}/src/agent          # local dir .
   ${DIET_BINARY_DIR}/include            # for e.g. DIET_config.h
   ${DIET_SOURCE_DIR}/include
-
 )
 
 ADD_LIBRARY( AgentCommon ${AgentCommon_SOURCES} )
@@ -73,6 +72,7 @@ IF( DIET_USE_JXTA )
 
   INCLUDE_DIRECTORIES( ${DIET_BINARY_DIR}/src/agent )  # For LA.h ...
   ADD_LIBRARY( dietLocalAgent ${DIET_SOURCE_DIR}/src/agent/localAgentJNI.cc )
+  INSTALL_TARGETS( /lib/ dietLocalAgent )
 
 ### missing all the dietMasterAgent_la part
 
