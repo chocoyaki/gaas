@@ -1,9 +1,9 @@
-Compiling and installing DIET with cmake:
+Compiling and installing DIET with cmake (version 2.2.X or higher) :
 
 I/ For the (really) impatients:
   cd ..        [ relative to this README file i.e. cd the home of DIET sources ]
-  mkdir Bin    [ on case independent OSes make it "mkdir bindir" ]
-  cd Bin       [  "   "       "        "    "   "  cd bindir ]
+  mkdir bindir [ on case independent OSes make it "mkdir bindir" ]
+  cd bindir    [  "   "       "        "    "   "  cd bindir ]
   ccmake .. -DCMAKE_INSTALL_PREFIX:PATH=/tmp -DDIET_USE_CORI:BOOL=ON
     [ deal with the interface options: help is at bottom of screen! ]
   make
