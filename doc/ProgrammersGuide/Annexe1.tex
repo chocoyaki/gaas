@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.2  2006/03/17 16:42:56  eboix
+%*    Cmake is now briefly commented in the programmer's guide. --- Injay2461
+%*
 %* Revision 1.1  2004/01/09 15:26:53  cpera
 %* Add Annexe on Autotools.
 %*
@@ -24,6 +27,78 @@ in October 2000 by New Riders publishing and freely available online at
 http://sources.redhat.com/autobook/autobook/autobook.html.
 
 %\footnote{"GNU autoconf, automake and libtool" from Gary V. Vaughan, Ben Elliston, Tom Tromey and Ian Lance Taylor {\url{http://sources.redhat.com/autobook/autobook/autobook.html}}}
+
+\section{CMake: managing the build process}
+
+\subsection{Introduction}
+CMake is used to control the software compilation process using simple platform
+and compiler independent configuration files.
+Seen from Diet software developer's point of view, the description of
+Diet's build process is achieved exclusively by writing simple configuration
+files which are placed in each directory (that requires some building action)
+of the source hierarchy.
+Those configuration files called CMakeLists.txt are used to generate standard
+build files (e.g. makefiles on Unix and projects/workspaces in Windows MSVC).
+Each CMakeLists.txt consists of one or more commands, where each command
+has the form \texttt{COMMAND (args...)} where \texttt{COMMAND} is the name
+of the command, and args is a white-space separated list of arguments.
+Among the numerous pre-defined commands of CMake the ones defining a target
+(something to be build e.g. a library, a binary, a documentation...) are of
+particular interest:
+\begin{itemize}
+\item \texttt{ADD\_LIBRARY( )} adds a library to the list of targets,
+\item \texttt{ADD\_EXECUTABLE( )} adds an executable to the list of targets,
+      (Note: source code is compiled first, then libraries are built, and
+       then executables are created.)
+\item \texttt{ADD\_SUBDIRECTORY( )} which enables a directory-based recursive
+      description of the CMakeLists.txt hierarchy, although directories are
+      not targets,
+\item \texttt{ADD\_CUSTOM\_TARGET( )} which adds any specific target required
+      by the developper (e.g. the documentation).
+\end{itemize}
+As for every language, developpers writing CMakeLists.txt configuration
+files should resist the temptation of obfuscation. When exceptional
+CMake's tricks are required please bear in mind that the \texttt{\#}
+character is used to denote a comment line. Comment or perish...
+
+\subsection{Target hierarchy}
+The hierarchy of CMakeLists.txt configuration files describes a hierarchy
+of target dependencies together with the associated commands that need to be
+invoked in order to restore a broken dependency.
+But you should not expect the recursive traversal of the target
+hierarchy to be related in any way to the CMakeLists.txt's hierarchy
+recursive traversal.
+Further than that the relative line order of \texttt{ADD\_SUBDIRECTORY( )}
+occurences within a single CMakeLists.txt is not significative.
+Hence, developpers need to explicitely express all target dependencies 
+at the risk of describing an erroneous building process.
+
+\subsection{External package dependency}
+Diet makes a heavy usage of external functionalities starting with
+compilers (C, C++, Java, TeX, Doxygen), functionalities provided by system
+calls or libraries (OmniOrb, BLAS, JXTA, AppleSeeds...).
+The dependencies toward those external tools are expressed in so-called
+Find modules (and technically realised as CMake MACROs).
+Although CMake already provides many such Find modules, some project 
+packagers do not yet provide their respective Find module (e.g. OmniOrb).
+The directory DIET/Cmake provides all the Find modules required by Diet
+and not yet considered as standard by CMake.
+When a DIET developper adds an new external dependency (say towards a
+library) it is his reponsability to make sure the corresponding 
+Find module is available. When this module is not available the
+developper must provide one and place it in the DIET/Cmake subdirectory.
+
+\subsection{CMake references and documentation}
+Some links worth to mention:
+\begin{itemize}
+\item \url{http://www.cmake.org/HTML/Documentation.html} for the official
+      on-line documentation (including all \texttt{COMMAND} description),
+\item \url{http://www.cmake.org/Wiki/CMake} for CMake users Wiki,
+\item \url{http://www.cmake.org/HTML/MailingLists.html} for searching
+      CMake's very active mailing lists,
+\item "Mastering CMake" book (see
+      \url{http://www.kitware.com/products/cmakebook.html}).
+\end{itemize}
 
 \section{bootstrapping}
 Bootstrap.sh is a shell script calling :
