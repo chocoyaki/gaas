@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.61  2006/03/20 15:00:30  pfrauenk
+#* CoRI: improving comments for auto-generated file acDIET_config.h
+#*
 #* Revision 1.60  2006/02/04 16:54:06  ecaron
 #* Update message
 #*
@@ -419,12 +422,16 @@ dnl ###########################################################################
 # Configuration for CoRI Plugin
 dnl ###########################################################################
 
-AC_CHECK_FILE([/proc/cpuinfo],[AC_DEFINE([CORI_HAVE_PROCCPU],[1],[blabla])],[CORI_HAVE_PROCCPU=no])
-AC_CHECK_FILE([/proc/meminfo],[AC_DEFINE([CORI_HAVE_PROCMEM],[1],[blabla])],[CORI_HAVE_PROCMEM=no])
-
-AC_CHECK_HEADER([sys/sysctl.h],[AC_DEFINE([CORI_HAVE_SYS_SYSCTL],[1],[blabla])],[CORI_HAVE_SYS_SYSCTL=no])
-AC_CHECK_HEADER([sys/sysinfo.h],[AC_DEFINE([CORI_HAVE_SYS_SYSINFO],[1],[blabla])],[CORI_HAVE_SYS_SYSINFO=no])
-AC_CHECK_HEADER([sys/time.h],[AC_DEFINE([CORI_HAVE_SYS_TIME],[1],[blabla])],[CORI_HAVE_SYS_TIME=no])
+AC_CHECK_FILE([/proc/cpuinfo],[AC_DEFINE([CORI_HAVE_PROCCPU],[1],
+		[testing if file cpuinfo exists])],[CORI_HAVE_PROCCPU=no])
+AC_CHECK_FILE([/proc/meminfo],[AC_DEFINE([CORI_HAVE_PROCMEM],[1],
+		[testing if file meminfo exists])],[CORI_HAVE_PROCMEM=no])
+AC_CHECK_HEADER([sys/sysctl.h],[AC_DEFINE([CORI_HAVE_SYS_SYSCTL],[1],
+		[testing if file sysctl exists])],[CORI_HAVE_SYS_SYSCTL=no])
+AC_CHECK_HEADER([sys/sysinfo.h],[AC_DEFINE([CORI_HAVE_SYS_SYSINFO],[1],
+		[testing if file sysinfo exists])],[CORI_HAVE_SYS_SYSINFO=no])
+AC_CHECK_HEADER([sys/time.h],[AC_DEFINE([CORI_HAVE_SYS_TIME],[1],
+		[testing if file time exists])],[CORI_HAVE_SYS_TIME=no])
 
 AC_CHECK_FUNCS([sysconf getloadavg sysctlbyname get_avphys_pages get_phys_pages getpagesize sysctl get_nprocs alarm signal gettimeofday getpid])
 
