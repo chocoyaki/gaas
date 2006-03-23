@@ -43,20 +43,31 @@ IF( DIET_USE_BATCH )
   INSTALL_TARGETS( /lib/ UtilsSeDBatch )
 ENDIF( DIET_USE_BATCH )
 
-ADD_LIBRARY( UtilsNodes
-  Counter.cc
-  DietLogComponent.cc
-  FASTMgr.cc
-  MonitoringThread.cc
-  ServiceTable.cc
-  Cori_Data_Easy.cc
-  Cori_Easy_CPU.cc
-  Cori_Easy_Disk.cc
-  Cori_Easy_Memory.cc
-  Cori_Fast.cc
-  Cori_Metric.cc
-  CORIMgr.cc
-)
+# CORI extensions are only compiled when CORI is required:
+IF( DIET_USE_CORI )
+  ADD_LIBRARY( UtilsNodes
+    Counter.cc
+    DietLogComponent.cc
+    FASTMgr.cc
+    MonitoringThread.cc
+    ServiceTable.cc
+    Cori_Data_Easy.cc
+    Cori_Easy_CPU.cc
+    Cori_Easy_Disk.cc
+    Cori_Easy_Memory.cc
+    Cori_Fast.cc
+    Cori_Metric.cc
+    CORIMgr.cc
+  )
+ELSE( DIET_USE_CORI )
+  ADD_LIBRARY( UtilsNodes
+    Counter.cc
+    DietLogComponent.cc
+    FASTMgr.cc
+    MonitoringThread.cc
+    ServiceTable.cc
+  )
+ENDIF( DIET_USE_CORI )
 INSTALL_TARGETS( /lib/ UtilsNodes )
 
 SET_SOURCE_FILES_PROPERTIES( FASTMgr.cc PROPERTIES
@@ -64,6 +75,7 @@ SET_SOURCE_FILES_PROPERTIES( FASTMgr.cc PROPERTIES
 TARGET_LINK_LIBRARIES( UtilsNodes ${FAST_LIBRARIES} )
 
 IF( DIET_USE_CORI )
+  # Refer to ConfigureCORI.cmake for definition of CORI_HAVE_* variables:
   IF( CORI_HAVE_PROCCPU )
     SET_SOURCE_FILES_PROPERTIES( Cori_Easy_CPU.cc
       PROPERTIES COMPILE_FLAGS "-D CORI_HAVE_PROCCPU" )
