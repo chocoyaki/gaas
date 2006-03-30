@@ -31,6 +31,12 @@ SET( IDL_SOURCES
   response
   SeD )
 
+# Some libraries of the utils directory (e.g. UtilsCommon) need the 
+# idl generated header files. This is a technical variable used to
+# define the target enabling to express this dependency (look below
+# for the DIET_TARGET_IDL_GENERATED_HEADERS definition):
+SET( DIET_TARGET_IDL_GENERATED_HEADER_FILES )
+
 FOREACH( loop_var ${IDL_SOURCES} )
 
   ADD_CUSTOM_COMMAND(
@@ -60,14 +66,37 @@ FOREACH( loop_var ${IDL_SOURCES} )
     DEPENDS   ${CMAKE_CURRENT_BINARY_DIR}/${loop_var}SK.cc
     COMMENT   "idl generated code"
   )
+
+  SET( DIET_TARGET_IDL_GENERATED_HEADER_FILES
+    ${DIET_TARGET_IDL_GENERATED_HEADER_FILES} ${loop_var}.hh )
 ENDFOREACH(loop_var)
+
+# idl generated header files:
+ADD_CUSTOM_TARGET( DIET_TARGET_IDL_GENERATED_HEADERS
+  DEPENDS  ${DIET_TARGET_IDL_GENERATED_HEADER_FILES}
+)
 
 INCLUDE_DIRECTORIES(
   ${OMNIORB4_INCLUDE_DIR}
   ${DIET_BINARY_DIR}/src/CORBA/idl     # Current directory
 )
 
-ADD_LIBRARY( IDLAgent 
+ADD_LIBRARY( IDLCommon
+  CallbackDynSK.cc
+  CallbackSK.cc
+  common_typesSK.cc
+  common_typesDynSK.cc
+  responseDynSK.cc
+  responseSK.cc
+  SeDSK.cc
+  SeDDynSK.cc
+)
+TARGET_LINK_LIBRARIES( IDLCommon
+  ${OMNIORB4_LIBRARIES}
+)
+INSTALL_TARGETS(/lib/ IDLCommon )
+
+ADD_LIBRARY( IDLAgent
   AgentSK.cc
   AgentDynSK.cc
   DataMgrSK.cc
@@ -79,28 +108,29 @@ ADD_LIBRARY( IDLAgent
   LogTypesSK.cc
   LogTypesDynSK.cc 
 )
-INSTALL_TARGETS(/lib/ IDLAgent )
-
-ADD_LIBRARY( IDLCommon 
-  CallbackDynSK.cc
-  CallbackSK.cc
-  common_typesSK.cc
-  common_typesDynSK.cc
-  responseDynSK.cc
-  responseSK.cc
-  SeDSK.cc
-  SeDDynSK.cc
+TARGET_LINK_LIBRARIES( IDLAgent
+  IDLCommon
+  ${OMNIORB4_LIBRARIES}
 )
-INSTALL_TARGETS(/lib/ IDLCommon )
+INSTALL_TARGETS(/lib/ IDLAgent )
 
 ADD_LIBRARY( IDLLA
   LocalAgentSK.cc
   LocalAgentDynSK.cc
  )
+TARGET_LINK_LIBRARIES( IDLLA
+  IDLAgent
+  ${OMNIORB4_LIBRARIES}
+)
 INSTALL_TARGETS(/lib/ IDLLA )
 
 ADD_LIBRARY( IDLMA
   MasterAgentSK.cc
   MasterAgentDynSK.cc
+)
+TARGET_LINK_LIBRARIES( IDLMA
+  IDLAgent
+  IDLCommon
+  ${OMNIORB4_LIBRARIES}
 )
 INSTALL_TARGETS(/lib/ IDLMA )

@@ -14,6 +14,24 @@ INCLUDE_DIRECTORIES(
                                       #        see HOME/CMakeLists.txt
   )
 
+ADD_LIBRARY( UtilsSeDClt
+  AccessController.cc
+  DIET_mutex.cc 
+  est_internal.cc
+)
+TARGET_LINK_LIBRARIES( UtilsSeDClt ${OMNIORB4_LIBRARIES} )
+### FIXME: the following is really of poor taster
+# * AccessControler.cc makes references to TRACE_LEVEL declared in debug.hh
+#   and defined as global in debug.cc
+# * The three binaries (associated to each C source) make references to
+#   debug_log_mutex declared as omni_mutex in debug.hh and defined in debug.cc
+# Hence the following lines:
+IF( APPLE )
+  SET_TARGET_PROPERTIES( UtilsSeDClt
+    PROPERTIES LINK_FLAGS "-flat_namespace -undefined suppress" )
+ENDIF( APPLE )
+INSTALL_TARGETS( /lib/ UtilsSeDClt )
+
 ADD_LIBRARY( UtilsCommon 
   debug.cc
   DIET_data.cc
@@ -22,14 +40,13 @@ ADD_LIBRARY( UtilsCommon
   Parsers.cc
   statistics.cc
 )
+# The following dependency expresses that before compiling UtilsCommon one
+# first needs to generate the header files [like common_types.h] with idl.
+# Track down the definition of the commidity target
+# DIET_TARGET_IDL_GENERATED_HEADER_FILES for more details.
+ADD_DEPENDENCIES( UtilsCommon ALL DIET_TARGET_IDL_GENERATED_HEADER_FILES )
+TARGET_LINK_LIBRARIES( UtilsCommon UtilsSeDClt ${OMNIORB4_LIBRARIES} )
 INSTALL_TARGETS( /lib/ UtilsCommon )
-
-ADD_LIBRARY( UtilsSeDClt
-  AccessController.cc
-  DIET_mutex.cc 
-  est_internal.cc
-)
-INSTALL_TARGETS( /lib/ UtilsSeDClt )
 
 ADD_LIBRARY( UtilsVector
   Vector.c
