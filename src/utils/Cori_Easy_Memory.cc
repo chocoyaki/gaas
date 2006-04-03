@@ -69,7 +69,7 @@ Easy_Memory::get_Total_Memory_bysysinfo(double * result)
   // and
   // int getpagesize (void)
   // Inquire about the virtual memory page size of the machine.
-#if defined HAVE_GET_PHYS_PAGES && defined (HAVE_GETPAGESIZE)
+#if defined CORI_HAVE_get_avphys_pages && defined (CORI_HAVE_getpagesize)
   *result=get_phys_pages ()*getpagesize()/(1024*1024);
   return 0;
 #else
@@ -86,7 +86,7 @@ Easy_Memory::get_Avail_Memory_bysysinfo(double * result)
   // and
   // int getpagesize (void)
   // Inquire about the virtual memory page size of the machine.
-#if defined HAVE_GET_AVPHYS_PAGES && defined (HAVE_GETPAGESIZE)
+#if defined CORI_HAVE_get_avphys_pages && defined (CORI_HAVE_getpagesize)
   *result=get_avphys_pages ()*getpagesize()/(1024*1024);
   return  0;
 #else

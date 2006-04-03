@@ -28,6 +28,7 @@ TARGET_LINK_LIBRARIES( CorbaCommon
   IDLMA
   ${OMNIORB4_LIBRARIES}
 )
+################### MacOS X and unresolved symbol at link time:
 # The following kludge shouldn't seen as a problem with MacOS X. It is just
 # that by default when linking a shared library with gcc, the undefined
 # symbols are NOT reported by default. On MacOS X, undefined symbols at

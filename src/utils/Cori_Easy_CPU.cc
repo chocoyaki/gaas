@@ -1,18 +1,18 @@
 #include <DIET_config.h>
 
-#include <stdlib.h>//getloadavg
+#include <stdlib.h>           // for getloadavg
 #include <iostream>
 #include <string>
 #include <fstream> 
-#include <math.h> //HUGH_VAL
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h> //sysctl in case of not def HAVE_GET_NPROCS
+#include <math.h>             // for HUGH_VAL
+#ifdef CORI_HAVE_SYS_TYPES
+#include <sys/types.h>        // for sysctl on some systems
 #endif
 #ifdef CORI_HAVE_SYS_SYSCTL
-#include <sys/sysctl.h>//sysctl in case of not def HAVE_GET_NPROCS
+#include <sys/sysctl.h>       // for sysctl on some (other) systems
 #endif
 #ifdef CORI_HAVE_SYS_SYSINFO
-#include  <sys/sysinfo.h> // get_nproc
+#include <sys/sysinfo.h>      // for get_nproc
 #endif
 #include "Cori_Easy_CPU.hh"
 #include <stdio.h>
@@ -128,7 +128,7 @@ Easy_CPU::get_CPU_Avg_byGetloadavg(int interval,
 
 // This function is declared in stdlib.h. 
 
-#ifdef HAVE_GETLOADAVG
+#ifdef CORI_HAVE_getloadavg
   switch (interval){
   case 1: {
     double loadavg[1];
@@ -170,7 +170,7 @@ Easy_CPU::get_CPU_Number_byget_nprocs(double * result){
 /* functions to get the information directly. The functions are        */
 /* declared in sys/sysinfo.h This function is a GNU extension.         */
 
-#ifdef HAVE_GET_NPROCS
+#ifdef CORI_HAVE_get_nprocs
  
   *result=get_nprocs ();
   return 0;
@@ -241,12 +241,12 @@ Easy_CPU::get_CPU_Number_byNum_Proc(double * result){
 //   }
 
 
-#if defined NUM_PROC && defined(HAVE_SYSCONF)
+#if defined NUM_PROC && defined(CORI_HAVE_sysconf)
 *result=sysconf(NUM_PROC);
  return 0;
 #endif
 
-#if defined SYSCTL2 && defined(HAVE_SYSCONF)
+#if defined SYSCTL2 && defined(CORI_HAVE_sysconf)
      int mib[2], maxproc;
            size_t len;
 
@@ -383,7 +383,7 @@ Easy_CPU::get_CPU_Freq_From_Proc(vector <double> * vlist){
 int 
 Easy_CPU::get_CPU_Freq_for_FreeBSD(vector <double> * vlist)
 {
-#if HAVE_SYSCTLBYNAME
+#if CORI_HAVE_sysctlbyname
   unsigned  val;
   size_t    size;
   size = sizeof(val);
@@ -409,7 +409,7 @@ Easy_CPU::get_CPU_Freq_for_FreeBSD(vector <double> * vlist)
 int 
 Easy_CPU::get_CPU_Freq_for_Darwin(vector <double> * vlist)
 {
-#if HAVE_SYSCTL && defined (CTL_HW) && defined (HW_CPU_FREQ)
+#if CORI_HAVE_sysctl && defined (CTL_HW) && defined (HW_CPU_FREQ)
   int       mib[2];
   unsigned  val;
   size_t    size;
@@ -434,7 +434,7 @@ Easy_CPU::get_CPU_Freq_for_Darwin(vector <double> * vlist)
 int
 Easy_CPU::get_CPU_Freq_for_NetBSD(vector <double> * vlist)
 {
-#if HAVE_SYSCTL && defined (CTL_HW) && defined (HW_MODEL)
+#if CORI_HAVE_sysctl && defined (CTL_HW) && defined (HW_MODEL)
   int       mib[2];
   char      str[128];
   unsigned  val;

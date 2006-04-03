@@ -28,17 +28,17 @@ IF( CORI_HAVE_PROCMEM )
        "CORI related: does system offers /proc/meminfo feature ?" FORCE )
 ENDIF( CORI_HAVE_PROCMEM )
 
-# Redundant with check in DIET_INCLUDES_TO_CHECK:
-CHECK_INCLUDE_FILE_CXX( "sys/types.h" DUMMY )
-SET( CORI_HAVE_SYS_TYPES ${DUMMY} CACHE BOOL
+# FIXME: Redundant with check in DIET_INCLUDES_TO_CHECK:
+CHECK_INCLUDE_FILE_CXX( "sys/types.h" DUMMY_TYPES )
+SET( CORI_HAVE_SYS_TYPES ${DUMMY_TYPES} CACHE BOOL
        "CORI related: is include file sys/types.h available ?" )
 
-CHECK_INCLUDE_FILE_CXX( "sys/sysctl.h" DUMMY )
-SET( CORI_HAVE_SYS_SYSCTL ${DUMMY} CACHE BOOL
+CHECK_INCLUDE_FILE_CXX( "sys/sysctl.h" DUMMY_SYSCTL )
+SET( CORI_HAVE_SYS_SYSCTL ${DUMMY_SYSCTL} CACHE BOOL
        "CORI related: is include file sys/sysctl.h available ?" )
 
-CHECK_INCLUDE_FILE_CXX( "sys/sysinfo.h" DUMMY )
-SET( CORI_HAVE_SYS_SYSINFO ${DUMMY} CACHE BOOL
+CHECK_INCLUDE_FILE_CXX( "sys/sysinfo.h" DUMMY_SYSINFO )
+SET( CORI_HAVE_SYS_SYSINFO ${DUMMY_SYSINFO} CACHE BOOL
        "CORI related: is include file sys/sysinfo.h available ?" )
 
 MARK_AS_ADVANCED(

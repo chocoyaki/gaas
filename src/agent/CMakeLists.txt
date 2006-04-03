@@ -1,8 +1,17 @@
-#****************************************************************************#
-#* DIET cmake local file                                                    *#
-#*                                                                          *#
-#****************************************************************************#
+# DIET cmake local file
 
+INCLUDE_DIRECTORIES(
+  ${OMNIORB4_INCLUDE_DIR}
+  ${DIET_SOURCE_DIR}/src/utils
+  ${DIET_BINARY_DIR}/src/CORBA/idl
+  ${DIET_SOURCE_DIR}/src/CORBA
+  ${DIET_SOURCE_DIR}/src/agent          # local dir .
+  ${DIET_BINARY_DIR}/include            # for e.g. DIET_config.h
+  ${DIET_SOURCE_DIR}/include
+)
+
+#########################################################################
+### AgentCommon library:
 SET(AgentCommon_SOURCES
     AgentImpl.cc
     BindService.cc
@@ -15,37 +24,25 @@ SET(AgentCommon_SOURCES
     MasterAgentImpl.cc
     ReferenceUpdateThread.cc
     Request.cc
-    Schedulers.cc )
-
-INCLUDE_DIRECTORIES(
-  ${OMNIORB4_INCLUDE_DIR}
-  ${DIET_SOURCE_DIR}/src/utils
-  ${DIET_BINARY_DIR}/src/CORBA/idl
-  ${DIET_SOURCE_DIR}/src/CORBA
-  ${DIET_SOURCE_DIR}/src/agent          # local dir .
-  ${DIET_BINARY_DIR}/include            # for e.g. DIET_config.h
-  ${DIET_SOURCE_DIR}/include
+    Schedulers.cc
 )
-
 ADD_LIBRARY( AgentCommon ${AgentCommon_SOURCES} )
-INSTALL_TARGETS(/lib/ AgentCommon )
-
-ADD_EXECUTABLE( dietAgent dietAgent.cc )
-TARGET_LINK_LIBRARIES( dietAgent
-  AgentCommon
-  CorbaCommon
+TARGET_LINK_LIBRARIES( AgentCommon
   UtilsNodes
-  UtilsCommon
-  UtilsSeDClt
   UtilsVector
-  IDLAgent
-  IDLCommon
+  CorbaCommon
   IDLLA
   IDLMA
   ${OMNIORB4_LIBRARIES}
 )
+INSTALL_TARGETS(/lib/ AgentCommon )
+
+#########################################################################
+ADD_EXECUTABLE( dietAgent dietAgent.cc )
+TARGET_LINK_LIBRARIES( dietAgent AgentCommon)
 INSTALL_TARGETS(/bin/ dietAgent )
 
+#########################################################################
 IF( DIET_USE_JXTA )
   ADD_CUSTOM_COMMAND(
     OUTPUT    ${DIET_BINARY_DIR}/src/agent/LA.class
