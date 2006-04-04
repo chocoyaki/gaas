@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2006/04/04 10:18:58  lphilipp
+ *
+ * Ajout d'un README, avec quelques explications
+ * MIse a jour des IDL
+ * Quelques changements
+ *
  * Revision 1.13  2005/09/05 15:56:34  hdail
  * Addition of client hostname and location information to request
  * (experimental and protected by HAVE_ALTPREDICT)
@@ -226,9 +232,6 @@ struct corba_profile_desc_t {
   long   last_inout;
   long   last_out;
   sequence<corba_arg_desc_t> param_desc;
-#if HAVE_BATCH
-  long batch_flag ;
-#endif
   corba_aggregator_desc_t aggregator;
 };
 typedef sequence<corba_profile_desc_t> SeqCorbaProfileDesc_t;
@@ -255,11 +258,6 @@ struct corba_pb_desc_t {
   long   last_inout;
   long   last_out;
   SeqCorbaDataDesc_t param_desc;
-#if HAVE_BATCH
-  long   batch_flag ;
-  long   nbprocs ;
-  long   walltime ;
-#endif
 };
 
 /** The complete problem, sent from client to server. */
@@ -268,13 +266,6 @@ struct corba_profile_t {
   long   last_inout;
   long   last_out;
   SeqCorbaData_t parameters;
-#if HAVE_BATCH
-  long   batch_flag ;
-  long   nbprocs ;
-  long   walltime ;
-
-  unsigned long dietJobID ;
-#endif
 };
 
 
@@ -289,10 +280,6 @@ struct corba_request_t {
   corba_pb_desc_t   pb;
   string            serialized_scheduler;
   long              max_srv;
-#if HAVE_ALTPREDICT
-  string            clientLocationID;
-  string            clientHostname;
-#endif // HAVE_ALTPREDICT
 };
 
 

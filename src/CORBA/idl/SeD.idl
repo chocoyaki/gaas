@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2006/04/04 10:18:58  lphilipp
+ *
+ * Ajout d'un README, avec quelques explications
+ * MIse a jour des IDL
+ * Quelques changements
+ *
  * Revision 1.15  2005/04/27 01:04:55  ycaniou
  * Added solve_batch() to the SeD API
  * Modified corba profile structures
@@ -78,11 +84,6 @@ interface SeD {
   /** Solve function: all arguments are inout for "const" reasons. */
   long solve(in string path, inout corba_profile_t pb,in long reqID);
 
-#if HAVE_BATCH
-  long solve_batch(in string pbName, inout corba_profile_t pb,
-	in long reqID);
-#endif
-  
   /*--------------------------------------------------------------*/
   /* asyncSolve function:                                         */
   /*   all arguments are in for asynchronous reasons              */

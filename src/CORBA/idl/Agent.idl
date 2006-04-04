@@ -10,6 +10,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2006/04/04 10:18:58  lphilipp
+ *
+ * Ajout d'un README, avec quelques explications
+ * MIse a jour des IDL
+ * Quelques changements
+ *
  * Revision 1.5  2005/05/15 15:34:08  alsu
  * to indicate success/failure, addServices now returns a value
  *
@@ -57,9 +63,6 @@ interface Agent {
    * child amongst the other children of this agent.
    */
   long serverSubscribe(in SeD me,  in string hostname,
-#if HAVE_JXTA
-				in string uuid,
-#endif // HAVE_JXTA
 				in SeqCorbaProfileDesc_t services);
 
 
