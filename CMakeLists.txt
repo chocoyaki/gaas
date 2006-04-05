@@ -197,9 +197,9 @@ ADD_SUBDIRECTORY( Cmake )
 #       valid for gcc.
 SET( CMAKE_BUILD_TYPE_DOCSTRING
   "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel." )
-  
+
 IF( UNIX )
-  # -Wold-style-cast generates too many warning due to omniORB includes
+  # -Wold-style-cast generates too many warnings due to omniORB includes
   # -pedantic generates ISO C++ unsupported 'long long' errors for omniORB
   # includes
   SET( CMAKE_CXX_FLAGS_MAINTAINER
@@ -215,21 +215,21 @@ IF( UNIX )
     FORCE
   )
   SET( CMAKE_EXE_LINKER_FLAGS_MAINTAINER
-    "--no-undefined --unresolved-symbols=report-all --warn-common --warn-once"
+    "-Wl,--unresolved-symbols=report-all,--warn-unresolved-symbols,--warn-once"
     CACHE STRING 
     "Flags used for linking binaries during maintainer builds."
     FORCE
   )
   SET( CMAKE_SHARED_LINKER_FLAGS_MAINTAINER
-    "--unresolved-symbols=report-all --warn-common --warn-once"
+    "-Wl,--unresolved-symbols=report-all,--warn-unresolved-symbols,--warn-once"
     CACHE STRING 
     "Flags used by the shared libraries linker during maintainer builds."
     FORCE
   )
   SET( CMAKE_MODULE_LINKER_FLAGS_MAINTAINER
-    "-total_module_bozo"
+    "-dummy_option_to_see_what_happens"
     CACHE STRING 
-    "What the hack is a module anyhow..."
+    "What the hack is a module anyhow (Apple notion?)..."
     FORCE
   )
   MARK_AS_ADVANCED(

@@ -14,10 +14,10 @@ INCLUDE_DIRECTORIES(
   ${DIET_SOURCE_DIR}/src/utils
   ${DIET_SOURCE_DIR}/src/client         # local dir .
   ${DIET_SOURCE_DIR}/src/CORBA          # for e.g. marshalling.hh
-  ${DIET_BINARY_DIR}/include            # FIXME: must preceed source/include
+  ${DIET_BINARY_DIR}/include            # CLEANME: must preceed source/include
                                         # to take cmake-generated DIET_config.h
-  ${DIET_SOURCE_DIR}/include            # FIXME: for DIET_data.h 
-  ${DIET_BINARY_DIR}/src/CORBA/idl      # FIXME: is this a lib ?
+  ${DIET_SOURCE_DIR}/include            # CLEANME: for DIET_data.h 
+  ${DIET_BINARY_DIR}/src/CORBA/idl
 )
 
 ADD_LIBRARY( DIET_client ${DIET_client_SOURCES} )
