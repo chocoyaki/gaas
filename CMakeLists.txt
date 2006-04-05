@@ -21,13 +21,6 @@ OPTION( DIET_MAINTAINER_MODE "Build additional documentation..." OFF )
 # --------------------- BUILDING DEFAULT OPTIONS  --------------------------
 # By default build dynamic libraries:
 OPTION( BUILD_SHARED_LIBS "Build DIET with shared libraries." ON )
-# Set the default build mode to compile c++ and c code with optimizations
-# and debug info (roughly speaking "-O2 -g" on Un*x):
-#FIXME SET( CMAKE_BUILD_TYPE
-#FIXME   RelWithDebInfo CACHE STRING
-#FIXME   "Choose the type of build, options are: None(CMAKE_CXX_FLAGS "
-#FIXME   "or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel."
-#FIXME   FORCE)
 
 # --------------------- DEPENDENCIES TOWARDS "CLASSIC" C++ HEADERS ---------
 # This is just a convenience to advance the detection of any potential missing
@@ -107,8 +100,16 @@ ELSE( OMNIORB4_FOUND )
   SET( OMNIORB4_DIR "" CACHE PATH "Root of omniORB instal tree." )
 ENDIF( OMNIORB4_FOUND )
 
+# Maintainer mode basically means building the developper's guide
+# documentation and compiling/linking with gobs of found warnings...
 IF( DIET_MAINTAINER_MODE )
   SET( DIET_BUILD_EXAMPLES ON )
+  IF(NOT CMAKE_BUILD_TYPE)
+    SET( CMAKE_BUILD_TYPE Maintainer CACHE STRING
+    "Build mode"
+    FORCE
+  )
+  ENDIF(NOT CMAKE_BUILD_TYPE)
 ENDIF( DIET_MAINTAINER_MODE )
 
 IF( DIET_BUILD_DOCUMENTATION )
@@ -160,7 +161,6 @@ IF( DIET_WITH_MULTI_MA )
   ADD_DEFINITIONS( -DHAVE_MULTI_MA )
 ENDIF( DIET_WITH_MULTI_MA )
 
-
 IF( DIET_USE_FAST )
   FIND_PACKAGE( FAST )
   IF( FAST_FOUND )
@@ -182,6 +182,76 @@ IF( DIET_BUILD_EXAMPLES AND DIET_USE_BLAS )
   # BLAS (Basic Linear Algebric Subroutines) examples subdir requires...BLAS !
   FIND_PACKAGE( BLAS )
 ENDIF( DIET_BUILD_EXAMPLES AND DIET_USE_BLAS )
+
+# --------------------------------------------------------------------------
+ADD_SUBDIRECTORY( src )
+ADD_SUBDIRECTORY( include )
+ADD_SUBDIRECTORY( Cmake )
+
+# --------------- HANDLE BUILD TYPE DEFAULT AND EXTENSIONS  ------------------
+# First offer an extra maintainer build type i.e. a build mode for which
+# the compiler and linker go paranoid and report about most of the warning
+# they are aware of.
+# Note: the real test for offering this option should be against the compiler
+#       and not against the system, since the flags that we set below are only
+#       valid for gcc.
+SET( CMAKE_BUILD_TYPE_DOCSTRING
+  "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel." )
+  
+IF( UNIX )
+  # -Wold-style-cast generates too many warning due to omniORB includes
+  # -pedantic generates ISO C++ unsupported 'long long' errors for omniORB
+  # includes
+  SET( CMAKE_CXX_FLAGS_MAINTAINER
+    "-Wall -Wabi -Wstrict-null-sentinel -Woverloaded-virtual"
+    CACHE STRING 
+    "Flags used by the C++ compiler during maintainer builds."
+    FORCE
+  )
+  SET( CMAKE_C_FLAGS_MAINTAINER
+    "-Wall -pedantic"
+    CACHE STRING 
+    "Flags used by the C compiler during maintainer builds."
+    FORCE
+  )
+  SET( CMAKE_EXE_LINKER_FLAGS_MAINTAINER
+    "--no-undefined --unresolved-symbols=report-all --warn-common --warn-once"
+    CACHE STRING 
+    "Flags used for linking binaries during maintainer builds."
+    FORCE
+  )
+  SET( CMAKE_SHARED_LINKER_FLAGS_MAINTAINER
+    "--unresolved-symbols=report-all --warn-common --warn-once"
+    CACHE STRING 
+    "Flags used by the shared libraries linker during maintainer builds."
+    FORCE
+  )
+  SET( CMAKE_MODULE_LINKER_FLAGS_MAINTAINER
+    "-total_module_bozo"
+    CACHE STRING 
+    "What the hack is a module anyhow..."
+    FORCE
+  )
+  MARK_AS_ADVANCED(
+    CMAKE_CXX_FLAGS_MAINTAINER
+    CMAKE_C_FLAGS_MAINTAINER
+    CMAKE_EXE_LINKER_FLAGS_MAINTAINER
+    CMAKE_SHARED_LINKER_FLAGS_MAINTAINER
+    CMAKE_MODULE_LINKER_FLAGS_MAINTAINER
+  )
+  SET( CMAKE_BUILD_TYPE_DOCSTRING
+    "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel Maintainer." )
+ENDIF( UNIX )
+
+# Set the default build mode to compile c++ and c code with optimizations
+# and debug info (roughly speaking "-O2 -g" on Un*x):
+IF(NOT CMAKE_BUILD_TYPE)
+  SET( CMAKE_BUILD_TYPE
+    RelWithDebInfo CACHE STRING
+    ${CMAKE_BUILD_TYPE_DOCSTRING}
+    FORCE
+  )
+ENDIF(NOT CMAKE_BUILD_TYPE)
 
 # --------------------- HANDLE COMPILER SPECIFICITIES  --------------------
 INCLUDE(${DIET_SOURCE_DIR}/Cmake/CheckCCompiler.cmake)
@@ -219,11 +289,6 @@ IF( DIET_CMAKE_C_FLAGS )
     FORCE
   )
 ENDIF( DIET_CMAKE_C_FLAGS )
-
-# --------------------------------------------------------------------------
-ADD_SUBDIRECTORY( src )
-ADD_SUBDIRECTORY( include )
-ADD_SUBDIRECTORY( Cmake )
 
 # --------------------------------------------------------------------------
 # QUESTIONS:
