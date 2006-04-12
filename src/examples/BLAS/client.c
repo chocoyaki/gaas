@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2006/04/12 16:12:28  ycaniou
+ * Put back the right common_types.idl and made C commentaries from C++
+ *   (discard compilation warnings)
+ *
  * Revision 1.8  2005/04/25 09:03:36  hdail
  * Use hard-coded row and column orderings as input to BLAS service so we obtain
  * dependable performance.  Later we need to add more advanced example that allows
@@ -46,7 +50,7 @@
 
 #define print_matrix(mat, m, n, rm)        \
   {                                        \
-    size_t i, j;                           \
+    int i, j;                           \
     printf("%s (%s-major) = \n", #mat,     \
            (rm) ? "row" : "column");       \
     for (i = 0; i < (m); i++) {            \
@@ -83,7 +87,7 @@ main(int argc, char* argv[])
   char* path = NULL;
   diet_profile_t* profile = NULL;
 
-  size_t i, j, m, n, k;
+  int i, j, m, n, k;
   double alpha, beta;
   double* A = NULL;
   double* B = NULL;
