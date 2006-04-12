@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2006/04/12 16:13:11  ycaniou
+ * Commentaries C++->C to avoid compilation warnings
+ *
  * Revision 1.17  2005/05/02 14:51:53  ycaniou
  * The client API has now the functions diet_call_batch() and diet_call_async_batch(). The client has also the possibility to modify the profile so that it is a batch, parallel or if he wants a special number of procs.
  * Changes in diet_profile_t and diet_profile_desc_t structures
@@ -58,7 +61,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif // __cplusplus
+#endif /* __cplusplus */
 
 
 
@@ -159,7 +162,7 @@ get_diet_services(int *services_number);
 
 #ifdef __cplusplus
 }
-#endif // __cplusplus
+#endif /* __cplusplus */
 
-#endif // _DIET_CLIENT_H_
+#endif /* _DIET_CLIENT_H_ */
 

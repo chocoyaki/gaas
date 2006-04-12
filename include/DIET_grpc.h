@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2006/04/12 16:13:11  ycaniou
+ * Commentaries C++->C to avoid compilation warnings
+ *
  * Revision 1.2  2003/10/13 12:59:21  cpera
  * Change int to int32_t type in order to manage 32-64 bit system without using CORBA::Long into
  * Gridrpc API.
@@ -26,7 +29,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif // __cplusplus
+#endif /* __cplusplus */
 
 
 /****************************************************************************/
@@ -212,6 +215,6 @@ grpc_call_argstack_async(grpc_function_handle_t* handle,
 
 #ifdef __cplusplus
 }
-#endif // __cplusplus
+#endif /* __cplusplus */
 
-#endif // _DIET_GRPC_H_
+#endif /* _DIET_GRPC_H_ */

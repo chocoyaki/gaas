@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.38  2006/04/12 16:13:11  ycaniou
+ * Commentaries C++->C to avoid compilation warnings
+ *
  * Revision 1.37  2006/01/25 21:07:59  pfrauenk
  * CoRI - plugin scheduler: the type diet_est_tag_t est replace by int
  *        some new fonctions in DIET_server.h to manage the estVector
@@ -130,7 +133,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif // __cplusplus
+#endif /* __cplusplus */
 
 #define EST_INVALI2D 1;
 
@@ -187,7 +190,7 @@ typedef enum {
 
 typedef enum {
   DIET_VOLATILE = 0,
-  DIET_PERSISTENT_RETURN, // Saved on the server, and a copy brought back
+  DIET_PERSISTENT_RETURN, /* Saved on the server, and a copy brought back */
   DIET_PERSISTENT,
   DIET_STICKY,
   DIET_PERSISTENCE_MODE_COUNT
@@ -228,7 +231,7 @@ typedef struct {
   unsigned short int batch_flag ;
   int nbprocs ;
   unsigned long walltime ;
-  // Used for correspondance batch job ID / DIET job ID
+  /* Used for correspondance batch job ID / DIET job ID */
   int dietJobID ;
 #endif
 
@@ -502,7 +505,7 @@ struct diet_data_generic {
 
 /*----[ data description ]--------------------------------------------------*/
 typedef struct {
-  char* id;     // allocated at the creation of the encapsulating data_handle
+  char* id;     /* allocated at the creation of the encapsulating data_handle */
   diet_persistence_mode_t  mode;
   struct diet_data_generic generic;
   union {
@@ -529,7 +532,7 @@ typedef struct diet_arg_s diet_data_t;
  * DietLogComponent::getEstimationTags
  */
 
-//typedef enum {
+/*typedef enum {*/
 #define EST_INVALID -1
 #define EST_TOTALTIME 1
 #define EST_COMMTIME 2
@@ -552,7 +555,7 @@ typedef struct diet_arg_s diet_data_t;
 #define EST_DISKACCESWRITE 19
 #define EST_ALLINFOS 20 
 #define EST_USERDEFINED 21
-//} diet_est_tag_t;
+  /*} diet_est_tag_t;*/
 
 
 /**
@@ -577,7 +580,7 @@ typedef const struct corba_estimation_t *estVectorConst_t;
 
 #ifdef __cplusplus
 }
-#endif // __cplusplus
+#endif /* __cplusplus */
 
-#endif // _DIET_DATA_H_
+#endif /* _DIET_DATA_H_*/
 

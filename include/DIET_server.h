@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2006/04/12 16:13:11  ycaniou
+ * Commentaries C++->C to avoid compilation warnings
+ *
  * Revision 1.25  2006/01/25 21:07:59  pfrauenk
  * CoRI - plugin scheduler: the type diet_est_tag_t est replace by int
  *        some new fonctions in DIET_server.h to manage the estVector
@@ -119,7 +122,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif // __cplusplus
+#endif /* __cplusplus */
 
 
 /****************************************************************************/
@@ -253,7 +256,7 @@ typedef enum {
   DIET_CVT_MAT_ORDER,
   DIET_CVT_STR_LEN,
   DIET_CVT_FILE_SIZE,
-  DIET_CVT_COUNT,
+  DIET_CVT_COUNT
 } diet_convertor_function_t;
 
 /**
@@ -369,14 +372,14 @@ typedef void (* diet_perfmetric_t)(diet_profile_t*, estVector_t);
 int
 diet_scalar_desc_set(diet_data_t* data, void* value);
 
-// No use of diet_vector_desc_set: size should not be altered by server
+  /* No use of diet_vector_desc_set: size should not be altered by server */
 
-// You can alter nb_r and nb_c, but the total size must remain the same
+  /* You can alter nb_r and nb_c, but the total size must remain the same */
 int
 diet_matrix_desc_set(diet_data_t* data,
 		     size_t nb_r, size_t nb_c, diet_matrix_order_t order);
 
-// No use of diet_string_desc_set: length should not be altered by server
+  /* No use of diet_string_desc_set: length should not be altered by server */
 
 int
 diet_file_desc_set(diet_data_t* data, char* path);
@@ -418,8 +421,8 @@ typedef enum {
   DIET_Mpich,
   DIET_Poe,
   DIET_Pvm,
-  DIET_Sequential, // copy on all nodes and run
-  DIET_Submit_COUNT, // one copy that runs on all nodes (each have a part of data for example
+  DIET_Sequential, /* copy on all nodes and run */
+  DIET_Submit_COUNT /* one copy that runs on all nodes (each have a part of data for example */
 } diet_submit_call_t;
 
 int
@@ -489,6 +492,6 @@ diet_generic_desc_set(struct diet_data_generic* desc,
 
 #ifdef __cplusplus
 }
-#endif // __cplusplus
+#endif /* __cplusplus */
 
-#endif // _DIET_SERVER_H_
+#endif /* _DIET_SERVER_H_ */
