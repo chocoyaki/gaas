@@ -1,0 +1,48 @@
+/****************************************************************************/
+/* MA DAG IDL description                                                   */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Abdelkader Amar (Abdelkader.Amar@ens-lyon.fr)                       */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.1  2006/04/14 13:41:48  aamar
+ * MA DAG IDL interface.
+ *
+ ****************************************************************************/
+
+#ifndef _MADAG_IDL_
+#define _MADAG_IDL_
+
+#include "common_types.idl"
+#include "response.idl"
+
+/****************************************************************************/
+/* MA DAG interface                                                          */
+/****************************************************************************/
+
+struct wf_node_response {
+  string node_id;
+  corba_response_t response;  
+} ;
+
+typedef sequence<wf_node_response> wf_scheduling_response;
+
+interface MaDag {
+  /** 
+   * Workflow submission function. *
+   * This function returns workflow ordering and mapping*
+   */
+  wf_node_sched_seq_t submit_wf (in corba_wf_desc_t wf_desc);
+
+  /**
+   * Another workflow submission function *
+   * return only the ordering of the nodes execution *
+   */
+  wf_ordering_t get_wf_ordering(in corba_wf_desc_t wf_desc);
+
+};
+
+#endif // _MADAG_IDL_
