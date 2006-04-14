@@ -10,6 +10,18 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.74  2006/04/14 14:18:50  aamar
+ * Two major modifications for workflow support:
+ * a. API extension for workflow support:
+ *        diet_error_t diet_wf_call(diet_wf_desc_t* profile);
+ *        void set_sched (struct AbstractWfSched * sched);
+ *        void diet_wf_free(diet_wf_desc_t * profile);
+ *        void set_madag_sched(int b);
+ *        int _diet_wf_scalar_get(const char * id, void** value);
+ *        int _diet_wf_string_get(const char * id, char** value);
+ * b. Modify the diet_initialize function to get the MA_DAG reference
+ *    is the entry if set in the client config file.
+ *
  * Revision 1.73  2006/01/31 16:43:03  mjan
  * Update on deployment of DIET/JuxMem via GoDIET
  *
@@ -88,6 +100,18 @@ using namespace std;
 #include "CallAsyncMgr.hh"
 #include "CallbackImpl.hh"
 
+// for workflow support
+#ifdef HAVE_WORKFLOW
+#include "MaDag.hh"
+#include "WfExtReader.hh"
+#include "SimpleWfSched.hh"
+static AbstractWfSched * defaultWfSched = NULL;
+static WfExtReader * reader = NULL;
+static Dag * dag = NULL;
+static bool use_ma_dag = false;
+static bool use_ma_dag_sched = true;
+#endif
+//****
 
 #define BEGIN_API extern "C" {
 #define END_API   } // extern "C"
@@ -116,7 +140,10 @@ static char* REF_CALLBACK_SERVER;
 /** Flag for using the asynchronous API (set at configuration time) */
 static size_t USE_ASYNC_API = 1;
 
-
+#ifdef HAVE_WORKFLOW
+/** The MA DAG reference */
+static MaDag_var MA_DAG = MaDag::_nil();
+#endif
 
 /****************************************************************************/
 /* Manage MA name and Session Number for data persistency issue             */
@@ -153,7 +180,11 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   char** myargv(NULL);
   void*  value(NULL);
   char*  userDefName;
-  
+
+#ifdef HAVE_WORKFLOW
+  char*  MA_DAG_name(NULL);
+#endif // HAVE_WORKFLOW
+
   MA_MUTEX.lock();
   
   if (!CORBA::is_nil(MA)) {
@@ -287,6 +318,23 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
 
   /** get Num session*/
   num_Session = MA->get_session_num();
+
+#ifdef HAVE_WORKFLOW
+  // Workflow parsing
+  /* Find the MA_DAG */
+  MA_DAG_name = (char*)
+    Parsers::Results::getParamValue(Parsers::Results::MADAGNAME);
+  if (MA_DAG_name != NULL) {
+    cout << "MA DAG NAME PARSING = " << MA_DAG_name << endl;
+    MA_DAG_name = CORBA::string_dup(MA_DAG_name);
+    MA_DAG = MaDag::_narrow(ORBMgr::getObjReference(ORBMgr::MA_DAG, MA_DAG_name));
+    if (CORBA::is_nil(MA_DAG)) {
+      ERROR("cannot locate MA DAG " << MA_DAG_name, 1);
+    }
+    else
+      use_ma_dag = true;
+  }
+#endif
 
   return 0;
 }
@@ -1099,6 +1147,279 @@ diet_wait_any(diet_reqID_t* IDptr)
 {
   return CallAsyncMgr::Instance()->addWaitAnyRule(IDptr);
 }
+
+// for workflow support
+#ifdef HAVE_WORKFLOW
+/*****************************************/
+/* send a workflow description to the MA */
+/*****************************************/
+diet_error_t
+diet_wf_call_ma(diet_wf_desc_t* profile) {
+  diet_error_t res(0);
+  corba_wf_desc_t  * corba_profile = new corba_wf_desc_t;
+  wf_response_t * response;
+  bool user_sched = true;
+  cout << "marshalling the workflow description ..." ;
+  mrsh_wf_desc(corba_profile, profile);
+  cout << " done" << endl;
+
+  reader = new WfExtReader(profile->abstract_wf);
+  reader->setup();
+
+  // Since the WfExtReader don't allocate profile before execution
+  // we can't use it to ask the Master Agent is the profile set is
+  // executable by the availble services
+  // So a temporary basic reader is used instead
+  WfReader * tmpReader = new WfReader(profile->abstract_wf);
+  tmpReader->setup();
+
+  // create the profile sequence
+  corba_pb_desc_seq_t pb_seq;
+  unsigned int len = 0;
+  tmpReader->pbReset();
+  while (tmpReader->hasPbNext()) {
+    len ++;
+    pb_seq.length(len);
+    pb_seq[len-1] = *(tmpReader->pbNext());
+  }
+
+  // delete the temporary reader
+  delete (tmpReader);
+
+  // call the master agent
+  // and send the workflow description
+  cout << "Try to send the workflow description (as a profile list) to" <<
+    " the master agent ...";
+  if (MA) {
+    //    response = MA->submit_wf(*corba_profile);
+    response = MA->submit_pb_set(pb_seq);
+    cout << " done" << endl;
+    if (! response->complete) {
+      cout << "One ore more services are missing" << endl
+	   << "The Workflow cannot be executed" << endl;
+      return -1;
+    }
+  }
+  else {
+    // 
+    cout << " The MA is unavailable !!! " << endl;
+    return -1;
+  }
+
+  cout<< "Received response length " << response->wfn_seq_resp.length()
+      << endl;
+
+  // Execution du workflow
+  // ...
+  dag = reader->getDag();
+
+  // Not used (TO REMOVE). It is the scheduler which execute the DAG
+  dag->exec();
+
+  cout << "The dag contains " << dag->size() << " nodes" << endl;
+
+  if (defaultWfSched == NULL) {
+    defaultWfSched = new SimpleWfSched();
+    user_sched = false;
+  }
+
+
+  defaultWfSched->setDag (dag);
+  defaultWfSched->setResponse(response);
+  defaultWfSched->execute();
+
+  if (! user_sched) {
+    delete defaultWfSched;
+    defaultWfSched = NULL;
+  }
+
+  return res;
+}
+
+/**
+ * First variant of using MA_DAG approach *
+ * This approach use ordering and mapping provided by the MA_DAG * 
+ */
+diet_error_t
+diet_call_wf_madag_v1(diet_wf_desc_t* profile) {
+  diet_error_t res(0);
+  corba_wf_desc_t  * corba_profile = new corba_wf_desc_t;
+  wf_node_sched_seq_t * response;
+
+  reader = new WfExtReader(profile->abstract_wf);
+  reader->setup();
+
+  dag = reader->getDag();
+
+  cout << "The dag contains " << dag->size() << " nodes" << endl;
+  
+  cout << "marshalling the workflow description ..." ;
+  mrsh_wf_desc(corba_profile, profile);
+  cout << " done" << endl;
+  cout << "corba_profile->abstract_wf = " <<
+    corba_profile->abstract_wf << endl;
+  // call the master agent
+  // and send the workflow description
+  cout << "Try to send the workflow description to the MA_DAG ...";
+  if (MA_DAG)
+    response = MA_DAG->submit_wf(*corba_profile);
+  cout << " done" << endl;
+  // response processing and defining scheduling strategy
+  // ...
+
+  cout << "Received response " << response->length() << endl;
+
+  dag->setSchedResponse(response);
+
+  if (defaultWfSched == NULL) 
+    defaultWfSched = new SimpleWfSched();
+
+
+  defaultWfSched->setDag(dag);
+  defaultWfSched->execute();
+
+  if (defaultWfSched)
+    delete defaultWfSched;
+
+  return res;
+} // end diet_call_wf_madag_v1
+
+
+/**
+ * Second variant of using MA_DAG approach *
+ * This approach use only the ordering provided by the MA_DAG * 
+ * Currently this method is the same as diet_call_wf_madag_v1 except *
+ * the call to dag->setSchedResponse(response); which implie that node *
+ * chosenServer still NULL*
+ */
+
+diet_error_t
+diet_call_wf_madag_v2(diet_wf_desc_t* profile) {
+  diet_error_t res(0);
+  corba_wf_desc_t  * corba_profile = new corba_wf_desc_t;
+  wf_node_sched_seq_t * response;
+
+  reader = new WfExtReader(profile->abstract_wf);
+  reader->setup();
+
+  dag = reader->getDag();
+
+  cout << "The dag contains " << dag->size() << " nodes" << endl;
+  
+  cout << "marshalling the workflow description ..." ;
+  mrsh_wf_desc(corba_profile, profile);
+  cout << " done" << endl;
+  cout << "corba_profile->abstract_wf = " <<
+    corba_profile->abstract_wf << endl;
+  // call the master agent
+  // and send the workflow description
+  cout << "Try to send the workflow description to the MA_DAG ...";
+  if (MA_DAG)
+    response = MA_DAG->submit_wf(*corba_profile);
+  cout << " done" << endl;
+  // response processing and defining scheduling strategy
+  // ...
+
+  cout << "Received response " << response->length() << endl;
+
+  if (defaultWfSched == NULL) 
+    defaultWfSched = new SimpleWfSched();
+
+
+  defaultWfSched->setDag(dag);
+  defaultWfSched->execute();
+
+  if (defaultWfSched)
+    delete defaultWfSched;
+
+  return res;
+}
+
+
+
+diet_error_t
+diet_wf_call_madag(diet_wf_desc_t* profile) {
+  if (use_ma_dag_sched) {
+    return diet_call_wf_madag_v1(profile);
+  }
+  return diet_call_wf_madag_v2(profile);
+}
+
+
+diet_error_t
+diet_wf_call(diet_wf_desc_t* profile) {
+  if (! use_ma_dag) {
+    return diet_wf_call_ma(profile);
+  }
+  return diet_wf_call_madag(profile);
+}
+
+/**
+ * terminate a workflow session *
+ * and free the memory *
+ */
+
+void
+diet_wf_free(diet_wf_desc_t * profile) {
+  diet_wf_profile_free(profile);
+  if (reader) {
+    delete reader;
+    reader = NULL;
+  }
+}
+
+/*
+ * use a custom workflow scheduler *
+ */
+
+void set_sched (struct AbstractWfSched * sched) {
+  defaultWfSched = sched;
+}
+
+
+/*
+ * define if the ma_dag return a *
+ * ordering and a scheduling (b = true) *
+ * or only and ordering (b = false) *
+ */
+void
+set_madag_sched(int b) {
+  use_ma_dag_sched = b;
+}
+
+
+/**
+ * initialize the workflow support *
+ */
+
+diet_error_t
+diet_init_wf(char * config_file) {
+  int    res(0);
+  return res;
+}
+
+
+int
+_diet_wf_scalar_get(const char * id,
+		    void** value) {
+  if (dag != NULL) {
+    return dag->get_scalar_output(id, value);
+  }
+  else
+    return 1;
+}
+
+
+int 
+_diet_wf_string_get(const char * id, 
+		    char** value) {
+  if (dag != NULL) {
+    return dag->get_string_output(id, value);
+  }
+  return 0;
+}
+
+#endif // HAVE_WORKFLOW
 
 END_API
 
