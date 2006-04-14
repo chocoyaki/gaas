@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2006/04/14 14:14:06  aamar
+ * Adding the IDL data structures for workflow support.
+ *
  * Revision 1.6  2005/09/05 15:54:51  hdail
  * Addition of data location information to response (experimental and
  * protected by HAVE_ALTPREDICT)
@@ -118,5 +121,39 @@ struct corba_response_t {
   long batch_flag ;
 #endif
 };
+
+#ifdef HAVE_WORKFLOW
+/*************************************************************************/
+/* for workflow support                                                  */
+/*************************************************************************/
+struct wf_node_response_t {
+  string node_id;
+  corba_response_t response;
+};
+
+typedef sequence <wf_node_response_t> wfn_seq_resp_t;
+
+struct wf_response_t {
+  boolean complete;
+  wfn_seq_resp_t wfn_seq_resp;
+};
+
+typedef sequence<corba_pb_desc_t> corba_pb_desc_seq_t;
+
+struct wf_node_sched_t {
+  string node_id;
+  corba_server_estimation_t server;  
+};
+
+typedef sequence<wf_node_sched_t>  wf_node_sched_seq_t;
+
+struct wf_node_ordering_t {
+  string node_id;
+  long priority;
+};
+
+typedef sequence<wf_node_ordering_t>  wf_ordering_t;
+
+#endif // HAVE_WORKFLOW
 
 #endif // _RESPONSE_IDL_

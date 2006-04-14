@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2006/04/14 14:14:06  aamar
+ * Adding the IDL data structures for workflow support.
+ *
  * Revision 1.15  2006/04/12 16:12:28  ycaniou
  * Put back the right common_types.idl and made C commentaries from C++
  *   (discard compilation warnings)
@@ -331,6 +334,13 @@ struct corba_estimation_t {
   /* dynamic storage for performance estimation values */
   SeqEstValue_t estValues;
 };
+
+#ifdef HAVE_WORKFLOW
+/** The workflow description structure. */
+struct corba_wf_desc_t {
+  string abstract_wf;
+};
+#endif
 
 
 #endif // _COMMON_TYPES_IDL_
