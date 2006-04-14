@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2006/04/14 14:22:28  aamar
+ * Adding the DIET_MA_DAG in agent_type_t enumeration.
+ * Adding MADAGNAME in param_type_t enumeration.
+ * Adding the MADAGNAME parameter for configuration file.
+ *
  * Revision 1.25  2005/09/05 16:09:14  hdail
  * Addition of locationId to configuration file options.
  *
@@ -95,6 +100,7 @@ Parsers::Results::param_t Parsers::Results::params[] =
    /* [25] */ ,{"batchName", 9, Parsers::parseName, 0, NULL}
 #endif
    /* [26] */ ,{"locationID", 10, Parsers::parseName, 0, NULL}
+   /* [27] */ ,{"MADAGNAME", 9, Parsers::parseName, 0, NULL}
   } ;
 
 #define IS_ADDRESS(i) ((i == Results::LDAPBASE) || (i == Results::NWSNAMESERVER) || (i == Results::NWSFORECASTER))
@@ -473,6 +479,9 @@ Parsers::parseAgentType(char* agtType_str, Results::param_type_t type)
    else if ((!strncmp(buf, "MA", 2)) ||
 	    (!strncmp(buf, "DIET_MASTER_AGENT", 17)))
      agtType = Results::DIET_MASTER_AGENT;
+   else if ((strncmp(buf, "MA_DAG", 6)) ||
+	    (strncmp(buf, "DIET_MA_DAG", 11)))
+     agtType = Results::DIET_MA_DAG;
    else
      res = DIET_PARSE_ERROR;
    if (res) {
