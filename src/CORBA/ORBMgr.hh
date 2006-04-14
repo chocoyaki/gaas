@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2006/04/14 14:15:33  aamar
+ * Adding the value MA_DAG in object_type_t enumeration.
+ *
  * Revision 1.12  2005/04/28 13:07:05  eboix
  *     Inclusion of CORBA.h substitued with omniORB4/CORBA.h. --- Injay 2461
  *
@@ -73,6 +76,12 @@ public:
     LOCMGR,
     LOGSERVICE,
     SED
+    /**
+     * Code not secure since the enum is used to index the CONTEXTS array *
+     */
+#ifdef HAVE_WORKFLOW 
+    , MA_DAG
+#endif // HAVE_WORKFLOW
   } object_type_t;
 
   static int
