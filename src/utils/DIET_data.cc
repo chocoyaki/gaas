@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.36  2006/04/14 14:19:40  aamar
+ * Adding the  workflow profiles allocation/freeing methods.
+ *       diet_wf_desc_t* diet_wf_profile_alloc(const char* wf_file_name);
+ *       void diet_wf_profile_free(diet_wf_desc_t * profile);
+ *
  * Revision 1.35  2006/01/13 10:41:27  mjan
  * Updating DIET for next JuxMem (0.2)
  *
@@ -927,6 +932,46 @@ diet_free_data(diet_arg_t* arg)
   }
   return 0;
 }
+
+#ifdef HAVE_WORKFLOW
+
+#define LINE_LENGTH 1024
+/****************************************************************************/
+/* Workflow profile descriptor                                              */
+/****************************************************************************/
+
+/**
+ * Workflow profile allocation method *
+ */
+diet_wf_desc_t*
+diet_wf_profile_alloc(const char* wf_file_name) {
+  diet_wf_desc_t* profile = new diet_wf_desc_t;
+  struct stat stat_p;
+  FILE * file;
+  char line[LINE_LENGTH];
+
+  stat(wf_file_name, &stat_p);
+  profile->abstract_wf = (char*)malloc(stat_p.st_size + 1);
+  strcpy(profile->abstract_wf, "");
+  file = fopen(wf_file_name, "r");
+  while (fgets(line, LINE_LENGTH, file) != NULL) {
+    strcat(profile->abstract_wf, line);
+  }
+  fclose(file);
+
+  return profile;
+}
+
+/**
+ * Free a workflow profile *
+ */
+void
+diet_wf_profile_free(diet_wf_desc_t * profile) {
+  if (profile->abstract_wf)
+    free(profile->abstract_wf);
+  free(profile);
+}
+#endif
 
 } // extern "C"
 
