@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2006/04/14 14:12:11  aamar
+ * API extension for workflow support : adding the following methods
+ *        diet_error_t diet_wf_call(diet_wf_desc_t* profile);
+ *        void set_sched (struct AbstractWfSched * sched);
+ *        void diet_wf_free(diet_wf_desc_t * profile);
+ *        void set_madag_sched(int b);
+ *
  * Revision 1.18  2006/04/12 16:13:11  ycaniou
  * Commentaries C++->C to avoid compilation warnings
  *
@@ -159,6 +166,34 @@ diet_wait_any(diet_reqID_t* IDptr);
 /****************************************************************************/
 char **
 get_diet_services(int *services_number);
+
+#ifdef HAVE_WORKFLOW
+/*****************************************/
+/* send a workflow description to ...... */
+/*****************************************/
+diet_error_t
+diet_wf_call(diet_wf_desc_t* profile);
+/*****************************************/
+/* for workflow scheduling               */
+/*****************************************/
+struct AbstractWfSched;
+void set_sched (struct AbstractWfSched * sched);
+/*****************************************/
+/* terminate a workflow session and      */
+/*        free the memory                */
+/*****************************************/
+void
+diet_wf_free(diet_wf_desc_t * profile);
+/*****************************************/
+/* define if the ma_dag return a         */
+/* ordering and a scheduling (b = true) */
+/* or only and ordering (b = false)      */
+/*****************************************/
+void
+set_madag_sched(int b);
+/*****************************************/
+
+#endif // HAVE_WORKFLOW
 
 #ifdef __cplusplus
 }
