@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2006/04/14 14:26:22  aamar
+ * Adding the MADAGNAME parameter for configuration file.
+ * Adding the DIET_MA_DAG in agent_type_t enumeration.
+ *
  * Revision 1.15  2005/09/05 16:09:14  hdail
  * Addition of locationId to configuration file options.
  *
@@ -116,13 +120,14 @@ public:
       BATCHNAME,
 #endif
       LOCATIONID,         // For alternative transfer cost prediction
+      MADAGNAME,
       NB_PARAM_TYPE
     } param_type_t;
 
     /* Some of these parameters are complex types ... */
     
     /** The agent type: MA or LA. */
-    typedef enum {DIET_LOCAL_AGENT, DIET_MASTER_AGENT} agent_type_t;
+    typedef enum {DIET_LOCAL_AGENT, DIET_MASTER_AGENT, DIET_MA_DAG} agent_type_t;
 
     /** A <host:port> address. */
     class Address {
