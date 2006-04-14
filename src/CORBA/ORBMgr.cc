@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2006/04/14 14:15:07  aamar
+ * Adding the "dietMaDag" value in the CONTEXTS array
+ *
  * Revision 1.16  2006/03/10 12:33:27  eboix
  *  * src/CORBA/ORBMgr.cc: code specific to version 3 of omniORB removed
  *    (in order to remove the __OMNIORB3__ preprocessor flag).
@@ -68,7 +71,11 @@ CORBA::ORB_ptr ORBMgr::ORB = CORBA::ORB::_nil();
 PortableServer::POA_var ORBMgr::POA = PortableServer::POA::_nil();
 PortableServer::POA_var ORBMgr::POA_BIDIR = PortableServer::POA::_nil();
 const char* ORBMgr::CONTEXTS[] =
-  {"dietAgent", "dietDataMgr", "dietLocMgr", "LogService", "dietSeD"};
+  {"dietAgent", "dietDataMgr", "dietLocMgr", "LogService", "dietSeD"
+#ifdef HAVE_WORKFLOW
+   , "dietMaDag"
+#endif
+  };
 
 #if INTERRUPTION_MGR
 sigjmp_buf ORBMgr::buff_int;
