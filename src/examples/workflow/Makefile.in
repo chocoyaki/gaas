@@ -1,0 +1,41 @@
+#****************************************************************************#
+
+##
+# The following lines are necessary to include this example in the
+# configuration chain of DIET.
+#
+srcdir = @srcdir@
+subdir = src/examples/workflow
+SOURCES = client1.c double.c succ.c sum.c
+
+HEADERS = 
+#
+# before.mk includes the right Makefile.inc. Indeed, the user might wish to
+# compile this example without installing actually DIET ; thus we cannot assume
+# that the Makefile.inc is really in $(prefix): if it is not installed, then we
+# will look for it in the build directory.
+# If we could be sure that Makefile.inc is installed before compiling this
+# example, we would simply add the following line, which is what the user should
+# do for his own examples: include $(prefix)/include/Makefile.inc
+#
+include ../before.mk
+#
+##
+
+CCFLAGS_DIET += -DHAVE_WORKFLOW -DDEBUG_WF 
+
+PROGRAMS = client1  succ double sum 
+
+all: 	$(PROGRAMS)
+
+client1: client1.c $(DIET_CLIENT_PREREQ)
+	$(CC) $(CCFLAGS_DIET) $< $(DIET_CLIENT_LIBS) -o $@
+
+double: double.c $(DIET_SERVER_PREREQ)
+	$(CC) $(CCFLAGS_DIET) $< $(DIET_SERVER_LIBS) -o $@
+
+succ: succ.c $(DIET_SERVER_PREREQ)
+	$(CC) $(CCFLAGS_DIET) $< $(DIET_SERVER_LIBS) -o $@
+
+sum: sum.c $(DIET_SERVER_PREREQ)
+	$(CC) $(CCFLAGS_DIET) $< $(DIET_SERVER_LIBS) -o $@
