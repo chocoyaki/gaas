@@ -17,7 +17,7 @@ OPTION( DIET_USE_FAST "Build DIET with FAST support." OFF )
 OPTION( DIET_WITH_STATISTICS "Build DIET with generation of statistics." OFF )
 OPTION( DIET_WITH_MULTI_MA   "Build DIET with MULTI-Master-Agent support." OFF )
 OPTION( DIET_MAINTAINER_MODE "Build additional documentation..." OFF )
-
+OPTION( DIET_USE_WORKFLOW "Build DIET with workflow support..." OFF)
 # --------------------- BUILDING DEFAULT OPTIONS  --------------------------
 # By default build dynamic libraries:
 OPTION( BUILD_SHARED_LIBS "Build DIET with shared libraries." ON )
@@ -182,6 +182,15 @@ IF( DIET_BUILD_EXAMPLES AND DIET_USE_BLAS )
   # BLAS (Basic Linear Algebric Subroutines) examples subdir requires...BLAS !
   FIND_PACKAGE( BLAS )
 ENDIF( DIET_BUILD_EXAMPLES AND DIET_USE_BLAS )
+
+### Workflow support:
+IF( DIET_USE_WORKFLOW )
+  ADD_DEFINITIONS( -DHAVE_WORKFLOW )
+  INCLUDE( ${DIET_SOURCE_DIR}/Cmake/ConfigureWf.cmake )
+  IF (NOT QTXML_FOUND) 
+    MESSAGE( SEND_ERROR "Properly provide the QT4 library.")
+  ENDIF (NOT QTXML_FOUND)
+ENDIF( DIET_USE_WORKFLOW )
 
 # --------------------------------------------------------------------------
 ADD_SUBDIRECTORY( src )

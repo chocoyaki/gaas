@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.62  2006/04/14 14:09:13  aamar
+#* Adding the workflow support compilation rules.
+#*
 #* Revision 1.61  2006/03/20 15:00:30  pfrauenk
 #* CoRI: improving comments for auto-generated file acDIET_config.h
 #*
@@ -369,6 +372,28 @@ fi
 AC_SUBST(JUXMEM_CXXFLAGS)
 AC_SUBST(JUXMEM_LDFLAGS)
 
+dnl ##########################################
+dnl Specific to Workflow support
+dnl ##########################################
+
+AH_TEMPLATE([HAVE_WORKFLOW],[Define the use of workflow support.])
+AC_ARG_ENABLE(workflow,
+	      AC_HELP_STRING([--enable-workflow],
+			     [enable the workflow support. default=disabled]),
+	      [enable_workflow=yes],[enable_workflow=no])
+
+if test "x$enable_workflow" = "xyes"
+then
+  AC_DEFINE(HAVE_WORKFLOW)
+  IDLFLAGS="$IDLFLAGS -DHAVE_WORKFLOW"
+  AM_CPPFLAGS="-DHAVE_WORKFLOW -DDEBUG_WF $AM_CPPFLAGS"
+  AM_CXXFLAGS="-DHAVE_WORKFLOW -DDEBUG_WF $AM_CXXFLAGS"
+  CPPFLAGS_OMNIORB="-DHAVE_WORKFLOW -DDEBUG_WF $CPPFLAGS_OMNIORB"
+  CXXFLAGS_OMNIORB="-DHAVE_WORKFLOW -DDEBUG_WF $CXXFLAGS_OMNIORB"
+
+fi
+AM_CONDITIONAL(USING_WORKFLOW,[test "x$enable_workflow" = "xyes"])
+
 dnl ###########################################################################
 dnl C++ options for specific platform 
 dnl ###########################################################################
@@ -549,6 +574,14 @@ dnl 		[-lldap -lldap!-L$with_OPENLDAP/lib!-I$with_OPENLDAP/include],
 dnl 		[ldap.h])
 
 dnl ###########################################################################
+dnl Workflow support
+dnl search for QT library
+dnl ###########################################################################
+if test "x$enable_workflow" = "xyes"; then
+   AM_QT()
+fi
+
+dnl ###########################################################################
 dnl ####[ check for some programs ]
 dnl ###########################################################################
 AC_CHECK_PROG(BASH, bash, `which bash`, /bin/sh)
@@ -643,7 +676,8 @@ AC_CONFIG_FILES([config.mk
 		 src/examples/plugin_example/Makefile
 		 src/examples/JXTA/Makefile
 		 src/examples/ScaLAPACK/Makefile
-		 src/examples/scalars/Makefile])
+		 src/examples/scalars/Makefile
+		 src/examples/workflow/Makefile])
 AC_CONFIG_FILES([src/examples/bin/local_corba_ns.sh
 		 src/examples/bin/local_ldap.sh
 		 src/examples/bin/local_nws.sh
@@ -699,6 +733,10 @@ else
   if test "x$enable_cori" = "xyes"
   then
     printf ", cori" | tee -a config.log
+  fi
+  if test "x$enable_workflow" = "xyes"
+  then
+    printf ", workflow" | tee -a config.log
   fi
   if test "x$HAVE_ScaLAPACK" = "xyes"
   then
@@ -790,6 +828,15 @@ fi
 if test "x$enable_altpredict" = "xyes"
 then
   echo " - Alt Predict:     yes" | tee -a config.log
+fi
+
+# WORKFLOW SUPPORT
+printf " - Workflow:        " | tee -a config.log
+if test "x$enable_workflow" = "xyes"
+then
+  echo "enabled" | tee -a config.log
+else
+  echo "disabled" | tee -a config.log
 fi
 
 # PLATFORM

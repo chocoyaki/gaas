@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.26  2006/04/14 14:09:14  aamar
+#* Adding the workflow support compilation rules.
+#*
 #* Revision 1.25  2006/03/16 15:55:58  ecaron
 #* Schedule est_internal.hh for distribution
 #*
@@ -80,6 +83,10 @@ include $(top_srcdir)/config.mk.in
 noinst_LTLIBRARIES = libUtilsCommon.la libUtilsSeDClt.la \
 		     libUtilsNodes.la libUtilsVector.la
 
+if USING_WORKFLOW
+noinst_LTLIBRARIES += libDietWorkflow.la
+endif
+
 libUtilsCommon_la_SOURCES  = debug.cc DIET_data.cc ms_function.cc \
 			     Parsers.cc statistics.cc KeyString.cc
 libUtilsSeDClt_la_SOURCES  = DIET_mutex.cc AccessController.cc \
@@ -87,6 +94,12 @@ libUtilsSeDClt_la_SOURCES  = DIET_mutex.cc AccessController.cc \
 libUtilsNodes_la_SOURCES   = Counter.cc ServiceTable.cc \
 			     DietLogComponent.cc MonitoringThread.cc \
 			     FASTMgr.cc
+
+if USING_WORKFLOW
+libDietWorkflow_la_SOURCES = Dag.cc BasicNode.cc Node.cc \
+			WfReader.cc WfExtReader.cc Thread.cc WfUtils.cc \
+			AbstractWfSched.cc SimpleWfSched.cc
+endif
 
 if USING_CORI
 libUtilsNodes_la_SOURCES += CORIMgr.cc Cori_Metric.cc Cori_Fast.cc Cori_Data_Easy.cc Cori_Easy_CPU.cc Cori_Easy_Memory.cc Cori_Easy_Disk.cc
@@ -106,5 +119,16 @@ if USING_CORI
 noinst_HEADERS += Cori_Fast.hh Cori_Easy_CPU.hh  Cori_Easy_Disk.hh Cori_Easy_Memory.hh Cori_Data_Easy.hh Cori_Metric.hh CORIMgr.hh 
 endif
 
+if USING_WORKFLOW
+noinst_HEADERS += Dag.hh BasicNode.hh Node.hh \
+		WfReader.hh WfExtReader.hh Thread.hh WfUtils.hh \
+		AbstractWfSched.hh SimpleWfSched.hh
+endif
+
 AM_CXXFLAGS = @JUXMEM_CXXFLAGS@ $(CXXFLAGS_OMNIORB) $(CXXFLAGS_FAST) \
 	      -I$(top_srcdir)/src/CORBA -I$(top_builddir)/src/CORBA/idl
+
+if USING_WORKFLOW
+AM_CXXFLAGS += -DHAVE_WORKFLOW -DDEBUG_WF \
+		$(CXXFLAGS_QT)
+endif

@@ -187,3 +187,15 @@ IF( DIET_USE_CORI )
      PROPERTIES COMPILE_FLAGS "${CORI_EASY_MEMORY_COMPILE_FLAGS}" )
 ENDIF( DIET_USE_CORI )
 
+########################################################################
+IF ( DIET_USE_WORKFLOW )
+#  TARGET_LINK_LIBRARIES( UtilsSeDBatch ${APPLESEEDS_LIBRARIES} )
+#  INSTALL_TARGETS( /lib/ UtilsSeDBatch )
+   INCLUDE_DIRECTORIES ( ${QT_INC} )
+   ADD_LIBRARY ( DietWorkflow
+	       Dag.cc BasicNode.cc Node.cc
+	       WfReader.cc WfExtReader.cc Thread.cc WfUtils.cc
+	       AbstractWfSched.cc SimpleWfSched.cc )
+   TARGET_LINK_LIBRARIES( DietWorkflow ${QTXML_LIBRARY} )
+ENDIF (DIET_USE_WORKFLOW )
+########################################################################

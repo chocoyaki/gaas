@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.5  2006/04/14 14:09:15  aamar
+#* Adding the workflow support compilation rules.
+#*
 #* Revision 1.4  2003/08/01 19:20:23  pcombes
 #* Reorganize FAST and omniORB flags. Include FASTMgr.
 #*
@@ -39,3 +42,6 @@ noinst_HEADERS = marshalling.hh ORBMgr.hh
 # automake include variables
 AM_CXXFLAGS = $(CXXFLAGS_OMNIORB) -I$(top_srcdir)/src/utils -I./idl
 
+if USING_WORKFLOW
+AM_CXXFLAGS += -DHAVE_WORKFLOW -DDEBUG_WF 
+endif

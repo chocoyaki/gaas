@@ -16,6 +16,11 @@ ENDIF( DIET_WITH_MULTI_MA )
 IF( DIET_USE_BATCH )
    SET( DIET_IDL_FLAGS "${DIET_IDL_FLAGS} -DHAVE_BATCH" )
 ENDIF( DIET_USE_BATCH )
+
+IF( DIET_USE_WORKFLOW )
+   SET( DIET_IDL_FLAGS "${DIET_IDL_FLAGS} -DHAVE_WORKFLOW" )
+ENDIF( DIET_USE_WORKFLOW )
+
 SEPARATE_ARGUMENTS( DIET_IDL_FLAGS )
 
 SET( IDL_SOURCES
@@ -30,6 +35,12 @@ SET( IDL_SOURCES
   MasterAgent
   response
   SeD )
+
+IF ( DIET_USE_WORKFLOW )
+SET ( IDL_SOURCES
+    MaDag
+    ${IDL_SOURCES} )
+ENDIF ( DIET_USE_WORKFLOW )
 
 # Some libraries of the utils directory (e.g. UtilsCommon) need the 
 # idl generated header files. This is a technical variable used to
@@ -134,3 +145,15 @@ TARGET_LINK_LIBRARIES( IDLMA
   ${OMNIORB4_LIBRARIES}
 )
 INSTALL_TARGETS(/lib/ IDLMA )
+##########################################################################
+IF ( DIET_USE_WORKFLOW ) 
+ADD_LIBRARY ( IDLMaDag
+  MaDagSK.cc
+  MaDagDynSK.cc )
+
+TARGET_LINK_LIBRARIES( IDLMaDag
+  ${OMNIORB4_LIBRARIES}
+)
+INSTALL_TARGETS(/lib/ IDLMaDag )
+ENDIF ( DIET_USE_WORKFLOW ) 
+##########################################################################

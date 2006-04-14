@@ -11,6 +11,10 @@ INCLUDE_DIRECTORIES(
 )
 
 #########################################################################
+IF (DIET_USE_WORKFLOW) 
+  INCLUDE_DIRECTORIES( ${QT_INC} )
+ENDIF ( DIET_USE_WORKFLOW)
+#########################################################################
 ### AgentCommon library:
 SET(AgentCommon_SOURCES
     AgentImpl.cc
@@ -40,6 +44,15 @@ INSTALL_TARGETS(/lib/ AgentCommon )
 #########################################################################
 ADD_EXECUTABLE( dietAgent dietAgent.cc )
 TARGET_LINK_LIBRARIES( dietAgent AgentCommon)
+
+IF (DIET_USE_WORKFLOW) 
+  TARGET_LINK_LIBRARIES ( dietAgent DietWorkflow DIET_client )
+  ADD_EXECUTABLE ( maDag maDag.cc MaDag_impl.cc)
+  TARGET_LINK_LIBRARIES ( maDag IDLMaDag AgentCommon DietWorkflow DIET_client )
+  INSTALL_TARGETS(/bin/ maDag )
+
+ENDIF ( DIET_USE_WORKFLOW)
+
 INSTALL_TARGETS(/bin/ dietAgent )
 
 #########################################################################
@@ -74,3 +87,4 @@ IF( DIET_USE_JXTA )
 ### missing all the dietMasterAgent_la part
 
 ENDIF( DIET_USE_JXTA )
+#########################################################################

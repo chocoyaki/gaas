@@ -11,6 +11,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.15  2006/04/14 14:09:14  aamar
+#* Adding the workflow support compilation rules.
+#*
 #* Revision 1.14  2005/08/31 14:42:54  alsu
 #* New plugin scheduling interface: add dependence on libUtilsSeDClt for
 #* the estimation vector functions
@@ -64,6 +67,13 @@ include $(top_srcdir)/config.mk.in
 
 bin_PROGRAMS = dietAgent
 lib_LTLIBRARIES = libAgentCommon.la
+
+if USING_WORKFLOW
+bin_PROGRAMS +=maDag
+lib_LTLIBRARIES +=libMaDag.la
+lib_DAGLIBRARIES = libMaDag.la
+endif
+
 if JXTA_MODE
 lib_LTLIBRARIES += libdietMasterAgent.la libdietLocalAgent.la
 #bin_PROGRAMS +=JXTAMultiMA.class LA.class 
@@ -76,6 +86,11 @@ libAgentCommon_la_SOURCES = AgentImpl.cc ExitClass.cc LocalAgentImpl.cc	     \
 			FloodRequest.cc  FloodRequestsList.cc
 
 dietAgent_SOURCES = dietAgent.cc
+
+if USING_WORKFLOW
+libMaDag_la_SOURCES = MaDag_impl.cc
+maDag_SOURCES	  = maDag.cc
+endif
 
 noinst_HEADERS = AgentImpl.hh ExitClass.hh LocalAgentImpl.hh LocMgrImpl.hh \
 		 MasterAgentImpl.hh ChildID.hh GlobalSchedulers.hh	   \
@@ -95,8 +110,32 @@ dietAgent_LDADD = \
 	$(utilsdir)/libUtilsSeDClt.la \
 	$(LIBS_OMNIORB) $(LIBS_FAST)
 
+if USING_WORKFLOW
+# REDUNDANT libCorbaCommon.la cause it must (maybe) be after libDietWorkflow
+dietAgent_LDADD += \
+	$(utilsdir)/libDietWorkflow.la \
+	$(corbadir)/libCorbaCommon.la	\
+	$(LIBS_QT)
+# TO CHECK (to remove the unused libraries)
+maDag_LDADD = libMaDag.la \
+	libAgentCommon.la	\
+	$(utilsdir)/libUtilsNodes.la $(utilsdir)/libUtilsCommon.la	\
+	$(utilsdir)/libDietWorkflow.la \
+	$(utilsdir)/libUtilsVector.la $(corbadir)/libCorbaCommon.la	\
+	$(corbadir)/idl/libIDLAgent.la $(corbadir)/idl/libIDLCommon.la	\
+	$(corbadir)/idl/libIDLLA.la $(corbadir)/idl/libIDLMA.la		\
+	$(utilsdir)/libUtilsSeDClt.la \
+	$(corbadir)/idl/libIDLMaDag.la \
+	$(LIBS_OMNIORB) $(LIBS_FAST) \
+	$(LIBS_QT) 
+endif
+
 AM_CXXFLAGS = $(CXXFLAGS_OMNIORB) $(CXXFLAGS_FAST) -I$(top_srcdir)/src/utils \
 	      -I$(top_srcdir)/src/CORBA -I$(corbadir)/idl
+
+if USING_WORKFLOW
+AM_CXXFLAGS += -DHAVE_WORKFLOW -DDEBUG_WF $(CXXFLAGS_QT)
+endif
 
 if JXTA_MODE
 

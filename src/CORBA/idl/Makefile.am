@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.10  2006/04/14 14:09:14  aamar
+#* Adding the workflow support compilation rules.
+#*
 #* Revision 1.9  2004/03/01 19:07:27  rbolze
 #* change to take into account the new idl files for logservice
 #*
@@ -39,7 +42,15 @@ BUILT_SOURCES = AgentSK.cc	  AgentDynSK.cc		\
 		LogTypesSK.cc	  LogTypesDynSK.cc	\
 		LogComponentSK.cc LogComponentDynSK.cc
 
+if USING_WORKFLOW
+BUILT_SOURCES += MaDagSK.cc	  MaDagDynSK.cc
+endif
+
 noinst_LTLIBRARIES = libIDLCommon.la libIDLAgent.la libIDLLA.la libIDLMA.la
+
+if USING_WORKFLOW
+noinst_LTLIBRARIES += libIDLMaDag.la
+endif
 
 nodist_libIDLCommon_la_SOURCES = common_typesSK.cc common_typesDynSK.cc \
 				 SeDSK.cc SeDDynSK.cc 			\
@@ -54,6 +65,10 @@ nodist_libIDLAgent_la_SOURCES = AgentSK.cc       AgentDynSK.cc		\
 
 nodist_libIDLLA_la_SOURCES    = LocalAgentSK.cc  LocalAgentDynSK.cc
 nodist_libIDLMA_la_SOURCES    = MasterAgentSK.cc MasterAgentDynSK.cc
+
+if USING_WORKFLOW
+nodist_libIDLMaDag_la_SOURCES = MaDagSK.cc MaDagDynSK.cc
+endif
 
 # automake include variables
 AM_CXXFLAGS = $(CXXFLAGS_OMNIORB) #-Wno-reorder

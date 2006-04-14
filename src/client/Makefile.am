@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.12  2006/04/14 14:09:14  aamar
+#* Adding the workflow support compilation rules.
+#*
 #* Revision 1.11  2006/01/13 10:40:53  mjan
 #* Updating DIET for next JuxMem (0.2)
 #*
@@ -72,6 +75,16 @@ libDIET_client_la_LIBADD = \
 	$(corbadir)/idl/libIDLCommon.la $(corbadir)/idl/libIDLMA.la	\
 	$(LIBS_OMNIORB)
 
-AM_CXXFLAGS = @JUXMEM_CXXFLAGS@ $(CXXFLAGS_OMNIORB) -I$(top_srcdir)/src/utils \
-	      -I$(top_srcdir)/src/CORBA -I$(corbadir)/idl
+if USING_WORKFLOW
+libDIET_client_la_LIBADD += $(corbadir)/idl/libIDLMaDag.la \
+	$(utilsdir)/libDietWorkflow.la	\
+	$(LIBS_QT)
+endif
 
+AM_CXXFLAGS = @JUXMEM_CXXFLAGS@ $(CXXFLAGS_OMNIORB) -I$(top_srcdir)/src/utils \
+		-I$(top_srcdir)/src/CORBA -I$(corbadir)/idl
+
+
+if USING_WORKFLOW
+AM_CXXFLAGS += -DHAVE_WORKFLOW -DDEBUG_WF $(CXXFLAGS_QT)
+endif
