@@ -8,6 +8,17 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.39  2006/04/14 14:11:08  aamar
+ * Adding the C data structures for workflow support and the methods for
+ * their manipulation.
+ * The function diet_wf_profile_free is no longer used -> TO REMOVE
+ * The get methods is to move to DIET_client.h
+ *       struct diet_wf_desc_t;
+ *       diet_wf_desc_t* diet_wf_profile_alloc(const char* wf_file_name);
+ *       void diet_wf_profile_free(diet_wf_desc_t * profile);
+ *       int _diet_wf_scalar_get(const char * id, void** value);
+ *       int _diet_wf_string_get(const char * id, char** value);
+ *
  * Revision 1.38  2006/04/12 16:13:11  ycaniou
  * Commentaries C++->C to avoid compilation warnings
  *
@@ -577,6 +588,43 @@ typedef const struct corba_estimation_t *estVectorConst_t;
     EST_COLL_GANGLIA,
     EST_COLL_NAGIOS
   }diet_est_collect_tag_t;
+
+#ifdef HAVE_WORKFLOW
+
+/**
+ * workflow internal description
+ */
+typedef struct {
+  char * abstract_wf;
+  //  diet_profile_t internal_profile;
+} diet_wf_desc_t;
+
+  
+  /**
+   * Allocate a workflow diet profile *
+   * wf_file_name is the file name that contains the workflow description *
+   */
+diet_wf_desc_t*
+diet_wf_profile_alloc(const char* wf_file_name);
+
+void
+diet_wf_profile_free(diet_wf_desc_t * profile);
+
+#define diet_wf_scalar_get(id, value) \
+  _diet_wf_scalar_get(id, (void**)value)
+
+int
+_diet_wf_scalar_get(const char * id,
+		    void** value);
+
+#define diet_wf_string_get(id, value) \
+  _diet_wf_string_get(id, (char**)value)
+
+int 
+_diet_wf_string_get(const char * id, 
+		    char** value);
+
+#endif // HAVE_WORKFLOW
 
 #ifdef __cplusplus
 }
