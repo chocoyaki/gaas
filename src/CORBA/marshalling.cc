@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.60  2006/04/14 14:16:15  aamar
+ * Adding the marshalling functions between C workflow data types and
+ * the corresponding IDL types.
+ *
  * Revision 1.59  2006/02/16 00:31:53  ecaron
  * If JUXMEM is available. __mrsh_data_id_desc and __mrsh_data_id are not used.
  *
@@ -957,3 +961,16 @@ unmrsh_out_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb)
   }
   return 0;
 }
+
+#ifdef HAVE_WORKFLOW
+/*
+ * Workflow structure marshaling *
+ */
+int
+mrsh_wf_desc(corba_wf_desc_t* dest,
+	     const diet_wf_desc_t* const src)
+{
+  dest->abstract_wf = CORBA::string_dup(src->abstract_wf);
+  return 0;
+}
+#endif

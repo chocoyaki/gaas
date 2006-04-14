@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2006/04/14 14:16:15  aamar
+ * Adding the marshalling functions between C workflow data types and
+ * the corresponding IDL types.
+ *
  * Revision 1.25  2005/10/05 11:35:31  ecaron
  * Fix Warning (Bug in maintainer mode on MacOSX)
  * mrsh_data_desc_type(corba_data_desc_t*, const diet_data_desc_t*)' was declared 'static' but never defined
@@ -168,5 +172,12 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src);
 int unmrsh_data_desc(diet_data_desc_t* dest,
                      const corba_data_desc_t* const src);
 
+
+#ifdef HAVE_WORKFLOW
+// Workflow structure marshaling 
+int
+mrsh_wf_desc(corba_wf_desc_t* dest,
+	     const diet_wf_desc_t* const src);
+#endif
 
 #endif // _MARSHALLING_HH_
