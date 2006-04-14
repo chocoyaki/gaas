@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2006/04/14 14:13:10  aamar
+ * Interface extension for workflow support.
+ * Adding two methods : submit_wf (TO REMOVE) and submit_pb_set.
+ *
  * Revision 1.5  2005/09/05 15:59:48  hdail
  * Addition of client hostname and location information to submit call
  * (experimental and protected by HAVE_ALTPREDICT).
@@ -106,6 +110,19 @@ interface MasterAgent : Agent {
 
 #endif // HAVE_MULTI_MA
 
+#ifdef HAVE_WORKFLOW
+  /** 
+   * Workflow submission function. *
+   * TO REMOVE *
+   */
+  wf_response_t submit_wf (in corba_wf_desc_t wf_desc);
+
+  /** 
+   * Another submission function *
+   * called by the MA_DAG or a client to submit a set of problems *
+   */
+  wf_response_t submit_pb_set (in corba_pb_desc_seq_t seq_pb);
+#endif // HAVE_WORKFLOW
 };
 
 #endif // _MASTER_AGENT_IDL_
