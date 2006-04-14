@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2006/04/14 14:17:38  aamar
+ * Implementing the two methods for workflow support:
+ *   - submit_wf (TO REMOVE)
+ *   - submit_pb_set.
+ *
  * Revision 1.21  2005/09/05 16:06:56  hdail
  * Addition of client hostname and location information to submit call.
  *
@@ -90,6 +95,13 @@
 #include <iostream>
 using namespace std;
 #include <stdio.h>
+
+#ifdef HAVE_WORKFLOW
+/*
+  Workflow utilities header
+ */
+#include "WfReader.hh"
+#endif // HAVE_WORKFLOW
 
 //#define aff_val(x)
 #define aff_val(x) cout << #x << " = " << x << endl;
@@ -694,3 +706,93 @@ MasterAgentImpl::logNeighbors() {
 }
 
 #endif // HAVE_MULTI_MA
+
+#ifdef HAVE_WORKFLOW
+
+/** 
+ * Workflow submission function. *
+ * TO REMOVE * 
+ */
+wf_response_t *
+MasterAgentImpl::submit_wf (const corba_wf_desc_t& wf_desc) {
+  wf_response_t * wf_response = new wf_response_t;
+  cout << "The agent receives a workflow submission!" <<endl;
+  // read the workflow description
+  // transform the description to a data structure
+  //
+  WfReader reader(wf_desc.abstract_wf);
+  reader.setup();
+
+  // check the services
+  //
+  corba_pb_desc_t   pb_desc;
+  corba_response_t * corba_response = NULL;
+  
+  reader.reset();
+  while (reader.hasNext()) {
+    pb_desc = (corba_pb_desc_t)(reader.next()->second);
+    //    if (pb_desc != NULL) {
+      cout<<"pb path : "<< pb_desc.path << endl;
+      corba_response = this->submit(pb_desc, 16);
+      if (!corba_response || corba_response->servers.length() == 0) {
+	cout << "no server found for the service " <<
+	  pb_desc.path << endl;
+      }
+      else {
+	// .....
+	wf_node_response_t * wf_node_resp = new wf_node_response_t;
+	wf_node_resp->node_id = CORBA::string_dup(pb_desc.path);
+	wf_node_resp->response = *corba_response;
+	unsigned int len = wf_response->wfn_seq_resp.length();
+	wf_response->wfn_seq_resp.length(len+1);
+	wf_response->wfn_seq_resp[len] = *wf_node_resp;
+	delete (corba_response);
+      }
+      //    }
+    
+  }
+  // construct the response
+  //
+
+  return wf_response;
+}
+
+/** 
+ * Another submission function *
+ * called by the MA_DAG or a client to submit a set of problems *
+ */
+wf_response_t *
+MasterAgentImpl::  submit_pb_set  (const corba_pb_desc_seq_t& seq_pb) {
+  wf_response_t * wf_response = new wf_response_t;
+  unsigned int len = seq_pb.length();
+  wf_response->wfn_seq_resp.length(0);
+  corba_response_t * corba_response = NULL;
+
+  wf_response->complete = false;
+  TRACE_TEXT (TRACE_MAIN_STEPS, 
+	      "The MasterAgent receives a set of problems\n")
+  for (unsigned int ix=0; ix<len; ix++) {
+    cout << ix << endl;
+    corba_response = this->submit(seq_pb[ix], 1024);
+    if ((corba_response == NULL) || (corba_response->servers.length() == 0)) {
+      TRACE_TEXT (TRACE_MAIN_STEPS, 
+		  "The problem set can't be solved (one or more services are "
+		  << "missing) " << endl);
+
+      return wf_response;
+    }
+    else {
+      wf_response->wfn_seq_resp.length(ix+1);
+      wf_response->wfn_seq_resp[ix].node_id = 
+	CORBA::string_dup(seq_pb[ix].path);    
+      wf_response->wfn_seq_resp[ix].response = *corba_response;    
+    }
+  }
+
+  TRACE_TEXT (TRACE_MAIN_STEPS, 
+	      "The pb set can be solved (all services available) " << endl);
+  wf_response->complete = true;
+  return wf_response;
+}
+
+#endif // HAVE_WORKFLOW

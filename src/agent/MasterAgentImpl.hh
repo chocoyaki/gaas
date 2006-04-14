@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2006/04/14 14:17:38  aamar
+ * Implementing the two methods for workflow support:
+ *   - submit_wf (TO REMOVE)
+ *   - submit_pb_set.
+ *
  * Revision 1.10  2005/09/05 16:06:56  hdail
  * Addition of client hostname and location information to submit call.
  *
@@ -156,6 +161,22 @@ public :
   typedef NodeDescription<MasterAgent, MasterAgent_ptr> MADescription;
   typedef ts_map<KeyString, MADescription> MAList;
 #endif // HAVE_MULTI_MA
+
+#ifdef HAVE_WORKFLOW
+  /** 
+   * Workflow submission function. *
+   * TO REMOVE *
+   */
+  virtual wf_response_t * 
+  submit_wf (const corba_wf_desc_t& wf_desc);
+
+  /** 
+   * Another submission function *
+   * called by the MA_DAG or a client to submit a set of problems *
+   */
+  virtual wf_response_t *
+  submit_pb_set (const corba_pb_desc_seq_t& seq_pb);
+#endif // HAVE_WORKFLOW
 
 private :
   /** ID of next incoming request. */
