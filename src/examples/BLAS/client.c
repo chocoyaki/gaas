@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2006/04/18 13:11:16  ycaniou
+ * Still C++ -> C commentaries
+ *
  * Revision 1.9  2006/04/12 16:12:28  ycaniou
  * Put back the right common_types.idl and made C commentaries from C++
  *   (discard compilation warnings)
@@ -140,7 +143,7 @@ main(int argc, char* argv[])
     while ((fscanf(stdin, "%lf", &beta) != 1) && empty_line())
       printf("beta is a double - Please enter beta: ");
   
-    // Fill A, B and C randomly ...
+    /* Fill A, B and C randomly ... */
     A = calloc(m*k, sizeof(double));
     B = calloc(k*n, sizeof(double));
     C = calloc(m*n, sizeof(double));
@@ -177,7 +180,7 @@ main(int argc, char* argv[])
       printf("m is a positive integer - Please enter m: ");
     n = m;
     
-    // Fill A, B and C randomly ...
+    /* Fill A, B and C randomly ... */
     A = calloc(m*m, sizeof(double));
     C = calloc(m*m, sizeof(double));
     for (i = j = 0; i < m * m; i++) A[i] = 1.0 + j++;
@@ -222,7 +225,7 @@ main(int argc, char* argv[])
 	printf("k is a positive integer - Please enter k: ");
     }
 
-    // Fill A, B and C randomly ...
+    /* Fill A, B and C randomly ... */
     A = calloc(m*k, sizeof(double));
     B = calloc(k*n, sizeof(double));
     for (i = j = 0; i < m * k; i++) A[i] = 1.0 + j++;
@@ -259,7 +262,7 @@ main(int argc, char* argv[])
     while ((fscanf(stdin, "%lf", &alpha) != 1) && empty_line())
       printf("alpha is a double - Please enter alpha: ");
 
-    // Fill A, B and C randomly ...
+    /* Fill A, B and C randomly ... */
     C = calloc(m*n, sizeof(double));
     for (i = j = 0; i < m * n; i++) C[i] = 1.0 + j++;
 
@@ -292,7 +295,7 @@ main(int argc, char* argv[])
 
   if (!diet_call(profile)) {
     if (!(strcmp(path, PB[1]) && strcmp(path, PB[3]))) {
-      // C is OUT and thus must be set
+      /* C is OUT and thus must be set */
       diet_matrix_get(diet_parameter(profile,2), &C, NULL, NULL, NULL, &oC);
       print_matrix(C, m, n, (oC == DIET_ROW_MAJOR));
       diet_free_data(diet_parameter(profile,2));

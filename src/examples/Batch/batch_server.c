@@ -17,7 +17,7 @@
 #include <math.h>
 
 #include "DIET_server.h"
-//#include "DIET_mutex.h"
+/* #include "DIET_mutex.h" */
 
 
 /****************************************************************************
@@ -26,7 +26,7 @@
 
 int solve_test_mpi(diet_profile_t *pb)
 {
-  //  int synchro=1 ;
+  /*  int synchro=1 ; */
   char *cmd ;
   /*  char *chaine ;*/
   double* entier = NULL ;
@@ -51,8 +51,8 @@ int solve_test_mpi(diet_profile_t *pb)
 /*
 int make_perf(diet_profile_t *pb)
 {
-// Must look how to integrate in elagi a convenient way 
-//    to ask the batch scheduler for prediction performances 
+ Must look how to integrate in elagi a convenient way 
+    to ask the batch scheduler for prediction performances 
   int l ;
   
   l=5 ;
@@ -92,7 +92,7 @@ main(int argc, char* argv[])
   diet_profile_desc_free(profile);
 
   /* Allocate Perf. profile */
-  //  profile = diet_profile_desc_alloc("perf",0, 0, 0);
+  /*  profile = diet_profile_desc_alloc("perf",0, 0, 0); */
 
   /* Set profile parameters */
   /*  diet_generic_desc_set(diet_param_desc(profile,0), DIET_SCALAR, DIET_DOUBLE);
@@ -100,12 +100,12 @@ main(int argc, char* argv[])
   diet_generic_desc_set(diet_param_desc(profile,2), DIET_SCALAR, DIET_FLOAT);
   */
   /* Add the smprod to the service table */
-  //diet_service_table_add(profile, NULL, make_perf);
+  /* diet_service_table_add(profile, NULL, make_perf); */
 
-  // Print the table to check
+  /* Print the table to check */
   diet_print_service_table();
 
-  // Launch the server
+  /* Launch the server */
   res = diet_SeD(argv[1], argc, argv);
 
   return res;
