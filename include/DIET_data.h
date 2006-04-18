@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.40  2006/04/18 13:10:17  ycaniou
+ * C++ -> C commentaries to avoid warning
+ *
  * Revision 1.39  2006/04/14 14:11:08  aamar
  * Adding the C data structures for workflow support and the methods for
  * their manipulation.
@@ -596,7 +599,7 @@ typedef const struct corba_estimation_t *estVectorConst_t;
  */
 typedef struct {
   char * abstract_wf;
-  //  diet_profile_t internal_profile;
+  /*  diet_profile_t internal_profile; */
 } diet_wf_desc_t;
 
   
@@ -624,7 +627,7 @@ int
 _diet_wf_string_get(const char * id, 
 		    char** value);
 
-#endif // HAVE_WORKFLOW
+#endif /* HAVE_WORKFLOW */
 
 #ifdef __cplusplus
 }

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2006/04/18 13:10:17  ycaniou
+ * C++ -> C commentaries to avoid warning
+ *
  * Revision 1.19  2006/04/14 14:12:11  aamar
  * API extension for workflow support : adding the following methods
  *        diet_error_t diet_wf_call(diet_wf_desc_t* profile);
@@ -193,7 +196,7 @@ void
 set_madag_sched(int b);
 /*****************************************/
 
-#endif // HAVE_WORKFLOW
+#endif /* HAVE_WORKFLOW */
 
 #ifdef __cplusplus
 }
