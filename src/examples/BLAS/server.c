@@ -3,11 +3,15 @@
 /*                                                                          */
 /*  Author(s):                                                              */
 /*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
+/*    - Yves Caniou (Yves.Caniou@ens-lyon.fr)                               */
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2006/04/22 19:21:33  ecaron
+ * Update fprintf format according to size_t
+ *
  * Revision 1.11  2006/03/03 14:47:46  ycaniou
  * Change int in size_t to compile well
  *
@@ -133,7 +137,7 @@ solve_dgemm(diet_profile_t* pb)
 
   if ((k_ != k) || (m_ != m) || (n_ != n)) {
     fprintf(stderr, "dgemm Error: invalid matrix dimensions: ");
-    fprintf(stderr, "%dx%d = %dx%d * %dx%d\n", m_, n_, m, k, k_, n);
+    fprintf(stderr, "%dx%d = %dx%d * %dx%d\n", (int)m_, (int)n_, (int)m, (int)k, (int)k_, (int)n);
     return 1;
   }
 
@@ -145,7 +149,7 @@ solve_dgemm(diet_profile_t* pb)
     tB = (tB == 'T') ? 'N' : 'T';
     fprintf(stderr,
 	    "dgemm args : m=%d, n=%d, k=%d, alpha=%f, beta=%f, tA=%c, tB=%c\n",
-	    n, m, k, *alpha, *beta, tB, tA);
+	    (int)n, (int)m, (int)k, *alpha, *beta, tB, tA);
     dgemm_(&tB, &tA, &n, &m, &k, alpha,
 	   B, (tB == 'T') ? &k : &n,
 	   A, (tA == 'T') ? &m : &k,
@@ -153,7 +157,7 @@ solve_dgemm(diet_profile_t* pb)
   } else {
     fprintf(stderr,
 	    "dgemm args : m=%d, n=%d, k=%d, alpha=%f, beta=%f, tA=%c, tB=%c\n",
-	    m, n, k, *alpha, *beta, tA, tB);
+	    (int)m, (int)n, (int)k, *alpha, *beta, tA, tB);
     dgemm_(&tA, &tB, &m, &n, &k, alpha,
 	   A, (tA == 'T') ? &k : &m,
 	   B, (tB == 'T') ? &n : &k,
