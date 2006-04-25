@@ -22,13 +22,3 @@ INSTALL_TARGETS( /bin/examples/workflow/bin sum.c )
 ADD_EXECUTABLE( client1 client1.c )
 TARGET_LINK_LIBRARIES( client1 ${DIET_CLIENT_LIBRARIES} )
 INSTALL_TARGETS( /bin/examples/workflow/bin client1 )
-
-ADD_EXECUTABLE( client2 client2.c )
-TARGET_LINK_LIBRARIES( client2 ${DIET_CLIENT_LIBRARIES} )
-INSTALL_TARGETS( /bin/examples/workflow/bin client2 )
-
-ADD_EXECUTABLE( client3 client3.c )
-TARGET_LINK_LIBRARIES( client3 ${DIET_CLIENT_LIBRARIES} )
-INSTALL_TARGETS( /bin/examples/workflow/bin client3 )
-
-
