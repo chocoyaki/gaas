@@ -17,15 +17,9 @@ ADD_LIBRARY( CorbaCommon
   ORBMgr.cc
   marshalling.cc 
 )
-#FIXME: in order to force the idl compiler invocation and generation of
-#       headers it should suffice to write
-# ADD_DEPENDENCIES( CorbaCommon ALL DIET_TARGET_IDL_GENERATED_HEADER_FILES )
-#       but this fails... Instead we link against IDLAgent which will
-#       indirectely triger the idl header generation.
+ADD_DEPENDENCIES( CorbaCommon DIET_TARGET_IDL_GENERATED_HEADERS )
+
 TARGET_LINK_LIBRARIES( CorbaCommon
-  IDLAgent
-  IDLLA
-  IDLMA
   ${OMNIORB4_LIBRARIES}
 )
 ################### MacOS X and unresolved symbol at link time:
