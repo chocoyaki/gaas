@@ -61,8 +61,6 @@ FIND_LIBRARY( OMNIORB4_LIBRARY_COSDynamic4 COSDynamic4 # Optional library
 FIND_PROGRAM(OMNIORB4_IDL_COMPILER
   NAMES omniidl
   PATHS ${OMNIORB4_DIR}/bin
-        /usr/bin
-        /usr/local/bin
   DOC "What is the path where omniidl (the idl compiler) can be found"
 )
  

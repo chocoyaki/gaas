@@ -20,6 +20,7 @@ FOREACH( filename ${DIET_USERS_MANUAL_PS_GLOB} )
   )
 ENDFOREACH( filename )
 
+############# Convert figures to eps for latex target #####################
 ### In order to create a target corresponding to all what's get build
 # within this directory:
 SET( DIET_USERS_FIGURE_POSTSCRIPT_OUTPUTS )
@@ -63,8 +64,29 @@ FOREACH( filename ${DIET_USERS_MANUAL_GIF_GLOB} )
     ${DIET_USERS_FIGURE_POSTSCRIPT_OUTPUTS} ${filenameDest} )
 ENDFOREACH( filename )
 
-### Eventually create the target:
+############# Convert figures to png for html target ######################
+### Convert the (transfig) fig figures to png:
+SET( DIET_USERS_FIGURE_PNG_OUTPUTS )
+FOREACH( filename ${DIET_USERS_MANUAL_FIG_GLOB} )
+  GET_FILENAME_COMPONENT( filenameNoExt ${filename} NAME_WE )
+  SET( filenameDest "${CMAKE_CURRENT_BINARY_DIR}/${filenameNoExt}.png" )
+  ADD_CUSTOM_COMMAND(
+    OUTPUT    ${filenameDest}
+    COMMAND   ${FIG2DEV}
+    ARGS      -L png ${filename} ${filenameDest}
+    DEPENDS   ${filename}
+    )
+  ADD_CUSTOM_TARGET( dummy${filename}_PNG
+      ALL
+      DEPENDS  ${filenameDest}
+    )
+  SET( DIET_USERS_FIGURE_PNG_OUTPUTS
+    ${DIET_USERS_FIGURE_PNG_OUTPUTS} ${filenameDest} )
+ENDFOREACH( filename )
+
+######################### Eventually create the target:
 ADD_CUSTOM_TARGET( DIET_TARGET_USERS_FIGURES
   ALL DEPENDS
   ${DIET_USERS_FIGURE_POSTSCRIPT_OUTPUTS}
+  ${DIET_USERS_FIGURE_PNG_OUTPUTS}
 )
