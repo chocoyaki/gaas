@@ -35,7 +35,7 @@ MACRO( CHECK_C_COMPILER_SUPPORTS_INLINE INLINE_VALUE INLINE_SUPPORTED )
   ENDIF( TEST_INLINE )
 
   IF( NOT SUPPORTED )
-    MESSAGE( SEND_ERROR "Checking C compiler for __inline__.")
+    MESSAGE( STATUS "Checking C compiler for __inline__.")
     CHECK_C_COMPILER_SUPPORTS_INLINE_COMPILE( "__inline__" TEST_INLINE )
     IF( TEST_INLINE )
       SET( SUPPORTED TRUE )
@@ -44,7 +44,7 @@ MACRO( CHECK_C_COMPILER_SUPPORTS_INLINE INLINE_VALUE INLINE_SUPPORTED )
   ENDIF( NOT SUPPORTED )
 
   IF( NOT SUPPORTED )
-    MESSAGE( SEND_ERROR "Checking C compiler for __inline.")
+    MESSAGE( STATUS "Checking C compiler for __inline.")
     CHECK_C_COMPILER_SUPPORTS_INLINE_COMPILE( "__inline" TEST_INLINE )
     IF( TEST_INLINE )
       SET( SUPPORTED TRUE )
@@ -56,7 +56,7 @@ MACRO( CHECK_C_COMPILER_SUPPORTS_INLINE INLINE_VALUE INLINE_SUPPORTED )
     SET( ${INLINE_SUPPORTED} TRUE CACHE INTERNAL "C compiler inlining support")
     FILE( APPEND ${CMAKE_BINARY_DIR}/CMakeOutput.log
           "The C compiler was found to support inlining with keyword: "
-          "${INLINE_VALUE}\n\n" )
+          "${${INLINE_VALUE}}\n\n" )
   ELSE( SUPPORTED )
     SET( ${INLINE_SUPPORTED} "" CACHE INTERNAL "C compiler inlining support")
     FILE( APPEND ${CMAKE_BINARY_DIR}/CMakeOutput.log

@@ -20,6 +20,7 @@ ELSE( NOT DIET_USE_BATCH )
   FOREACH( loop_var ${C_SERVER_EXAMPLES} )
     ADD_EXECUTABLE( ${loop_var} ${loop_var}.c )
     TARGET_LINK_LIBRARIES( ${loop_var} ${DIET_SERVER_LIBRARIES} )
+    SET_TARGET_PROPERTIES( ${loop_var} PROPERTIES LINKER_LANGUAGE CXX )
     INSTALL_TARGETS( /bin/examples/Batch ${loop_var} )
   ENDFOREACH( loop_var )
   
