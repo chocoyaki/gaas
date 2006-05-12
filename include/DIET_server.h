@@ -8,6 +8,16 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2006/05/12 07:42:35  eboix
+ *  * FIX: static libraries and static linking of examples should now be effective
+ *    - include/DIET_server.h: diet_generic_desc_set is now simply defined
+ *      (as opposed to declared AND then further defined) which clarifies
+ *      its inline status.
+ *    - Cmake/ConfigureCCompiler.cmake handling of C compiler specifities now
+ *      leave outside of DIET's central CMakeLists.txt.
+ *    - CMakeLists.txt: now handles the non compliance of GCC to ISO-C99's
+ *      inline semantics.                                      --- Injay2461
+ *
  * Revision 1.26  2006/04/12 16:13:11  ycaniou
  * Commentaries C++->C to avoid compilation warnings
  *
@@ -123,20 +133,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-
-/****************************************************************************/
-/* Utils for setting data descriptors (service construction)                */
-/****************************************************************************/
-/**
- * Every -1 argument implies that the correspunding field is not modified.
- */
-
-int
-diet_generic_desc_set(struct diet_data_generic* desc,
-                      diet_data_type_t type,
-                      diet_base_type_t base_type);
-
 
 /****************************************************************************/
 /* DIET aggregator descriptor                                               */
@@ -473,13 +469,18 @@ int diet_estimate_lastexec(estVector_t ev,
                            const diet_profile_t* const profilePtr);
 
 /****************************************************************************/
-/* Inline definitions of functions declared above                           */
+/* Inline definitions                                                       */
 /****************************************************************************/
 
 
+/** Utils for setting data descriptors (service construction)
+ *
+ * Every -1 argument implies that the correspunding field is not modified.
+ */
 inline int
-diet_generic_desc_set(struct diet_data_generic* desc,
-		      diet_data_type_t type, diet_base_type_t base_type)
+diet_generic_desc_set( struct diet_data_generic* desc,
+		       diet_data_type_t type,
+                       diet_base_type_t base_type )
 {
   if (!desc)
     return 1;

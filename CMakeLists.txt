@@ -262,42 +262,8 @@ IF(NOT CMAKE_BUILD_TYPE)
   )
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
-# --------------------- HANDLE COMPILER SPECIFICITIES  --------------------
-INCLUDE(${DIET_SOURCE_DIR}/Cmake/CheckCCompiler.cmake)
-
-# Reset the values before testing:
-SET( CMAKE_C_FLAGS ${CMAKE_C_FLAGS_INIT}
-  CACHE STRING "Flags for C compiler"
-  FORCE
-  )
-  
-### Does the C compiler support inlining option ?
-CHECK_C_COMPILER_SUPPORTS_INLINE( INLINE_VALUE INLINE_SUPPORTED )
-
-SET( DIET_CMAKE_C_FLAGS "")
-IF( INLINE_SUPPORTED )
-  IF( NOT "${INLINE_VALUE}" MATCHES "^inline$" )
-    FILE( APPEND ${CMAKE_BINARY_DIR}/CMakeOutput.log
-          "Adding exotic C inline support: ${INLINE_VALUE}\n\n" )
-    SET( DIET_CMAKE_C_FLAGS "-Dinline=${INLINE_VALUE}")
-  ENDIF( NOT "${INLINE_VALUE}" MATCHES "^inline$" )
-ENDIF( INLINE_SUPPORTED )
-
-### Is the C compiler ANSI C-conforming for const ?
-CHECK_C_COMPILER_SUPPORTS_CONST( CONST_SUPPORTED )
-IF( NOT CONST_SUPPORTED )
-  SET( DIET_CMAKE_C_FLAGS ${DIET_CMAKE_C_FLAGS} "-Dconst=\"\"" )
-ENDIF( NOT CONST_SUPPORTED )
-
-### Pass the results to cmake internal flags:
-IF( DIET_CMAKE_C_FLAGS )
-  SET( CMAKE_C_FLAGS
-    "${CMAKE_C_FLAGS_INIT} ${DIET_CMAKE_C_FLAGS}"
-    CACHE
-    STRING "Flags for C compiler"
-    FORCE
-  )
-ENDIF( DIET_CMAKE_C_FLAGS )
+# ---------------- HANDLE SPECIFICITIES OF THE C COMPILER ------------------
+INCLUDE( ${DIET_SOURCE_DIR}/Cmake/ConfigureCCompiler.cmake)
 
 # --------------------------------------------------------------------------
 # QUESTIONS:
