@@ -8,6 +8,13 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.14  2006/05/12 12:12:32  sdahan
+%* Add some documentation about multi-MA
+%*
+%* Bug fix:
+%*  - segfault when the neighbours configuration line was empty
+%*  - deadlock when a MA create a link on itself
+%*
 %* Revision 1.13  2006/02/17 00:22:01  ecaron
 %* Ready to release 2.1.0
 %*
@@ -252,14 +259,19 @@ made in four steps.
 \subsection{Multi-MA}
 \label{init:multima}
 
-The basic organization of DIET is a hierarchical organization of one
-MA, zero or more LAs, and 1 or more SeDs. Several hierarchies can be
-federated by connecting the MAs together. In multi-MA mode, the
-behavior of a DIET hierarchy does not change when a client requests
-a service that is available in the hierarchy.  However, if a request
-arrives at the MA and the requested service can not be found, DIET
-will search for the service in other federated hierarchies.
-To read more about multi-MA, see Chapter~\ref{ch:p2pextension}.
+A standard DIET platform gives access to SeD placed under the control of a MA
+as explained at the beginning of this chapter. Sometime, it is useful to
+connect several MA together. This happens when several organizations wish to
+share their resources to offer a larger set of service types and more available
+servers. The Multi-MA extension allows this by creating federation which shares
+resources between several MA.
+
+In multi-MA mode, the behavior of a DIET hierarchy does not change when a
+client requests a service that is available under the queried MA.  However, if
+a request sent to a MA does not found a SeD that can resolve its problem, DIET
+will forward the request to other MAs of the federation.  To read more about
+multi-MA, see Chapter~\ref{ch:multiMAextension} and
+Chapter~\ref{ch:p2pextension}.
 
 %====[ FAST ]==============================================================
 \subsection{FAST}

@@ -10,6 +10,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2006/05/12 12:12:32  sdahan
+ * Add some documentation about multi-MA
+ *
+ * Bug fix:
+ *  - segfault when the neighbours configuration line was empty
+ *  - deadlock when a MA create a link on itself
+ *
  * Revision 1.22  2005/06/28 15:56:56  hdail
  * Changing the debug level of messages to make DIET less verbose (and in
  * agreement with the doc =).
@@ -65,7 +72,6 @@
  * correct a bug in the construction of the corba option for the endPoint :
  * %u replaced by %s
  ****************************************************************************/
-
 
 #include "ExitClass.hh"
 #include <iostream>

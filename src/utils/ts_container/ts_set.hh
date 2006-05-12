@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2006/05/12 12:12:33  sdahan
+ * Add some documentation about multi-MA
+ *
+ * Bug fix:
+ *  - segfault when the neighbours configuration line was empty
+ *  - deadlock when a MA create a link on itself
+ *
  * Revision 1.4  2004/12/15 15:57:20  sdahan
  * rewrite the FloodRequestsList to use a simplest implementation. The previous mut
  * ex bugs does not exist anymore.
@@ -144,9 +151,9 @@ public :
    * locks the access to the container
    */
   inline void lock() const {
-    assert(!accessLocked) ;
     locker.lock() ;
     #ifndef NDEBUG // only used by the assert
+    assert(!accessLocked) ;
     accessLocked = true ;
     #endif // NDEBUG
   }
@@ -155,9 +162,9 @@ public :
    * unlocks the access to the container
    */
   inline void unlock() const {
-    assert(accessLocked) ;
     locker.unlock() ;
     #ifndef NDEBUG // only used by the assert
+    assert(accessLocked) ;
     accessLocked = false ;
     #endif // NDEBUG
   }
@@ -166,7 +173,9 @@ public :
    * Returns an iterator pointing to the beginning of the set.
    */
   inline iterator begin() const {
+    #ifndef NDEBUG // only used by the assert
     assert(accessLocked) ;
+    #endif // NDEBUG
     return SetType::begin() ;
   }
 
@@ -174,7 +183,9 @@ public :
    * Returns an iterator pointing to the end of the set.
    */
   inline iterator end() const {
+    #ifndef NDEBUG // only used by the assert
     assert(accessLocked) ;
+    #endif // NDEBUG
     return SetType::end() ;
   }
 
@@ -182,7 +193,9 @@ public :
    * returns an iterator pointing onto the x elements.
    */
   inline iterator find(const Key & x) {
+    #ifndef NDEBUG // only used by the assert
     assert(accessLocked) ;
+    #endif // NDEBUG
     return SetType::find(x) ;
   }
 
@@ -191,7 +204,9 @@ public :
    * inserted. The set must be lock to use it.
    */
   inline iterator insert(iterator pos, const Key & x) {
+    #ifndef NDEBUG // only used by the assert
     assert(accessLocked) ;
+    #endif // NDEBUG
     return SetType::insert(pos, x) ;
   }
 

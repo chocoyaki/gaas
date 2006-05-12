@@ -9,6 +9,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2006/05/12 12:12:32  sdahan
+ * Add some documentation about multi-MA
+ *
+ * Bug fix:
+ *  - segfault when the neighbours configuration line was empty
+ *  - deadlock when a MA create a link on itself
+ *
  * Revision 1.21  2006/02/06 23:06:05  ecaron
  * define under condition of MAX and MIN to avoid duplicate declaration
  * with /usr/include/sys/param.h
@@ -98,6 +105,12 @@ extern omni_mutex debug_log_mutex ;
 #ifndef MAX
 #define	MAX(a,b) (((a)>(b))?(a):(b))
 #endif	/* MAX */
+
+/**
+ * Print a the name of the file and the line number where this macro
+ * is put to stdout.
+ */
+#define BIP printf("bip - " __FILE__ " %i\n", __LINE__)
 
 /**
  * Error message - return with return_value.

@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2006/05/12 12:12:32  sdahan
+ * Add some documentation about multi-MA
+ *
+ * Bug fix:
+ *  - segfault when the neighbours configuration line was empty
+ *  - deadlock when a MA create a link on itself
+ *
  * Revision 1.4  2004/12/15 15:57:08  sdahan
  * rewrite the FloodRequestsList to use a simplest implementation. The previous mutex bugs does not exist anymore.
  *
@@ -116,7 +123,12 @@ private :
    * Number of responses waited by the current flood.
    */
   int nbOfWaitingResponse ;
-  
+
+  /**
+   * count the number of hop. Used as a failsafe device.
+   */
+  int hop ;
+
   /**
    * mutex used by allResponseReceived
    */

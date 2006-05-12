@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2006/05/12 12:12:32  sdahan
+ * Add some documentation about multi-MA
+ *
+ * Bug fix:
+ *  - segfault when the neighbours configuration line was empty
+ *  - deadlock when a MA create a link on itself
+ *
  * Revision 1.4  2004/12/15 15:57:08  sdahan
  * rewrite the FloodRequestsList to use a simplest implementation. The previous mutex bugs does not exist anymore.
  *
@@ -47,6 +54,7 @@ void FloodRequest::addNewResponse() {
 
 
 FloodRequest::FloodRequest() {
+  hop = 0 ;
   nbOfWaitingResponse = 0 ;
   allResponseReceived = new omni_condition(&locker) ;
 }
@@ -54,6 +62,7 @@ FloodRequest::FloodRequest() {
 
 FloodRequest::FloodRequest(const FloodRequest & request) {
   predecessor = request.predecessor ;
+  hop = 0 ;
   nbOfWaitingResponse = 0 ;
   owner = request.owner ;
   neighbouringMAs = request.neighbouringMAs ;
@@ -68,6 +77,7 @@ FloodRequest::FloodRequest(const MasterAgentImpl::MADescription& predecessor,
 			   const corba_request_t& request,
 			   MasterAgentImpl::MAList& knownMAs) :
   predecessor(predecessor), owner(owner), request(request) {
+  hop = 0 ;
   nbOfWaitingResponse = 0 ;
   knownMAs.lock() ;
   // copy the list of the neighboring MAs but without the MA that had
@@ -111,6 +121,8 @@ RequestID FloodRequest::getId(){
 bool FloodRequest::flooded() {
   //printf("bool FloodRequest::flooded()\n") ;
   bool result = true ;
+  if (hop >= 8)
+    return true ;
   for(NeighbouringMAs::iterator iter = neighbouringMAs.begin() ;
       result && iter != neighbouringMAs.end() ; /* stop if the result
 						    is found or if
@@ -127,6 +139,7 @@ bool FloodRequest::flooded() {
 bool FloodRequest::floodNextStep() {
   //printf("void FloodRequest::floodNextStep()\n") ;
   KeyString ownerId = KeyString(owner->getBindName()) ;
+  hop = hop+1 ;
   nbOfWaitingResponse = 0 ;
   bool completelyFlooded = true ;
 

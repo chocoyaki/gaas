@@ -10,6 +10,13 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.25  2006/05/12 12:12:32  sdahan
+%* Add some documentation about multi-MA
+%*
+%* Bug fix:
+%*  - segfault when the neighbours configuration line was empty
+%*  - deadlock when a MA create a link on itself
+%*
 %* Revision 1.24  2006/01/25 16:52:55  pfrauenk
 %* CoRI : renaming of the chapter performance prediction with fast
 %* 	to performance prediction, add of the CoRI Usersmanual,
@@ -189,6 +196,7 @@ deploy DIET$_{JXTA}$ architectures.  When this option is activated
 (disabled by default), DIET allows only this type of architecture to
 be deployed.
 
+\label{sec:multimainstall}
 {\footnotesize
 \begin{verbatim}
   --enable-multi-MA       enable multi-MA architecture

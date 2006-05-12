@@ -10,6 +10,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2006/05/12 12:12:32  sdahan
+ * Add some documentation about multi-MA
+ *
+ * Bug fix:
+ *  - segfault when the neighbours configuration line was empty
+ *  - deadlock when a MA create a link on itself
+ *
  * Revision 1.22  2006/04/14 14:17:38  aamar
  * Implementing the two methods for workflow support:
  *   - submit_wf (TO REMOVE)
@@ -86,6 +93,7 @@
  * Multi-MA parts are still to be updated.
  ****************************************************************************/
 
+
 #include "MasterAgentImpl.hh"
 #include "debug.hh"
 #include "Parsers.hh"
@@ -137,7 +145,6 @@ int
 MasterAgentImpl::run()
 {
   int res = this->AgentImpl::run();
-  
   if (res)
     return res;
  
@@ -158,18 +165,20 @@ MasterAgentImpl::run()
   }
   reqIDCounter = ((reqIDCounter & 0xFFFFF) ^ ((reqIDCounter >> 12) & 0xFFF))
     * 1000 ;
-
   TRACE_TEXT(TRACE_ALL_STEPS, "Getting MAs references ...\n");
 
   /* get the list of neighbours */
   char* neighbours = static_cast<char*>(Parsers::Results::
 			   getParamValue(Parsers::Results::NEIGHBOURS)) ;
+  if (neighbours == NULL)
+    neighbours = "" ;
   neighbours = ms_strdup(neighbours) ;
   char* comma, *begin_copy ;
   begin_copy = neighbours ;
   while((comma = strchr(neighbours, ',')) != NULL) {
     comma[0] = '\0' ;
-    MAIds.insert(CORBA::string_dup(neighbours)) ;
+    if(neighbours[0] != '\0')
+      MAIds.insert(CORBA::string_dup(neighbours)) ;
     neighbours = comma + 1 ;
   }
   MAIds.insert(CORBA::string_dup(neighbours)) ;
@@ -190,7 +199,6 @@ MasterAgentImpl::run()
     maxMAlinks = 10;
   else
     maxMAlinks = *conf ;
-
   conf = static_cast<unsigned int*>(Parsers::Results::
 	      	     getParamValue(Parsers::Results::UPDATELINKPERIOD)) ;
   if (conf == NULL)
@@ -199,6 +207,7 @@ MasterAgentImpl::run()
     new ReferenceUpdateThread(this, *conf) ;
   TRACE_TEXT(TRACE_ALL_STEPS, "Getting MAs references ... done.\n");
 #endif // HAVE_MULTI_MA
+
   /* num_session thread safe*/
   TRACE_TEXT(TRACE_MAIN_STEPS,
 	     "\nMaster Agent " << this->myName << " started.\n");
@@ -500,6 +509,23 @@ CORBA::Boolean
 MasterAgentImpl::handShake(MasterAgent_ptr me, const char* myName)
 {
   TRACE_TEXT(TRACE_ALL_STEPS, myName << " is shaking my hand (" << knownMAs.size() << "/" << maxMAlinks << ")\n") ;
+
+
+  /* FIXME: There is probably a cleaner way to find if to IOR are equal */
+  char* myior = ORBMgr::getIORString(_this());
+  char* hisior = ORBMgr::getIORString(me);
+  if (!strcmp(myior, hisior)) {
+    TRACE_TEXT(TRACE_ALL_STEPS, "I refuse to handshake with myself\n") ;
+    /* we need to return now, because the knownMA locker is already
+       taken by the updateRefs function which call the handshake
+       one. */
+    /*    free(myior) ;
+	  free(hisior) ;*/
+    return false ;
+  }
+  
+  /*  free(myior) ;
+      free(hisior) ;*/
 
   knownMAs.erase(myName) ;
   

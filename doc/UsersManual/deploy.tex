@@ -11,6 +11,13 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.18  2006/05/12 12:12:32  sdahan
+%* Add some documentation about multi-MA
+%*
+%* Bug fix:
+%*  - segfault when the neighbours configuration line was empty
+%*  - deadlock when a MA create a link on itself
+%*
 %* Revision 1.17  2005/07/13 07:56:15  hdail
 %* Corrected error in xml example and added console instructions to GoDIET section.
 %*
@@ -380,25 +387,25 @@ Specify the \texttt{host:port} address of the NWS name server.
 \noindent
 \textbf{Multi-MA options}
 
-To federate multiple hierarchies, each MA tries to periodically contact other
+\label{sec:multimaconfig}
+
+To federate resources, each MA tries periodically to contact other
 MAs. These options define how the MA connects to the others.\\
 
 \noindent
-\texttt{neighbours} \ \ \emph{default}\texttt{ = empty list \{\}} \\
-List of known MAs separated by commas. The MA
-will try to connect to the MAs named in this list. Each MA is describe
-by the name of it's host followed by its bind service port number. For
-example
-\texttt{host1.domain.com:500,host4.domain.com:500,host.domainB.net:2001}
-is a valid three MA list. By default, an empty list is set into
+\texttt{neighbours} \ \ \emph{default}\texttt{ = empty list \{\}} \\ List of
+known MAs separated by commas. The MA will try to connect itself to the MAs
+named in this list. Each MA is described by the name of its host followed by
+its bind service port number (see \texttt{bindServicePort}). For example
+\texttt{host1.domain.com:500,host4.domain.com:500,host.domainB.net:2001} is a
+valid three MAs list. By default, an empty list is set into
 \texttt{neighbours}.\\
 
 \noindent
-\texttt{maximumNeighbours} \ \ \emph{default}\texttt{ = 10}\\ This is
-the maximum number of other MAs that can connect to the current MA.
-If another MA wants to connect and the current number of connected
-MAs is equal to \texttt{maximumNeighbours}, the request is
-rejected.\\
+\texttt{maximumNeighbours} \ \ \emph{default}\texttt{ = 10}\\ This is the
+maximum number of other MAs that can be connected to the current MA.  If
+another MA wants to connect and the current number of connected MAs is equal to
+\texttt{maximumNeighbours}, the request is rejected.\\
 
 \noindent
 \texttt{minimumNeighbours} \ \ \emph{default}\texttt{ = 2}\\ This is
@@ -413,10 +420,10 @@ seconds.\\
 
 \noindent
 \texttt{bindServicePort} \ \ \emph{default}\texttt{ = none}\\ 
-The MA needs to use a specific port to be able to federate. This
+The MA needs to use a specific port to be able to federate themselves. This
 port is only used for initializing connections between MAs. If this
-parameter is not set, the MA is not able to federate with other
-MAs.\\
+parameter is not set, the MA will not accept incoming connection.\\
+
 
 
 %====[ Example ]=========================================
