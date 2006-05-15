@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2006/05/15 19:43:21  ecaron
+ * Previous version (the previous commit was an error)
+ *
  * Revision 1.7  2006/05/15 19:37:42  ecaron
  * *** empty log message ***
  *
@@ -58,9 +61,7 @@ Request::Request(const corba_request_t* request)
 		     << " has no scheduler associated");
     this->GS = GlobalScheduler::chooseGlobalScheduler();
   } else {
-    TRACE_TEXT(TRACE_MAIN_STEPS, "EDDY CALL to GlobalScheduler::deserialize\n");
     this->GS = GlobalScheduler::deserialize(this->request->serialized_scheduler);
-    TRACE_TEXT(TRACE_MAIN_STEPS, "EDDY END CALL to GlobalScheduler::deserialize\n");
   }  
 } // Request(...)
 
