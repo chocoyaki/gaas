@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2006/05/15 19:45:58  ecaron
+ * Retrieve previous version (Last commit was an error)
+ *
  * Revision 1.17  2006/05/15 19:37:42  ecaron
  * *** empty log message ***
  *
@@ -217,8 +220,6 @@ Scheduler::deserialize(const char* serializedScheduler)
     }
   }
   
-//  printf("EDDY: serializedScheduler = %s de taille %d\n\n",serializedScheduler,nameLength);
-  
 #if !HAVE_CORI
   if (!strncmp(serializedScheduler, FASTScheduler::stName, nameLength)) {
     return (FASTScheduler::deserialize(serializedScheduler + nameLength));
@@ -240,7 +241,6 @@ Scheduler::deserialize(const char* serializedScheduler)
   else if (!strncmp(serializedScheduler,
                     PriorityScheduler::stName,
                     nameLength)) {
-//					printf("EDDY: call3 to PriorityScheduler::deserialize\n");
     return (PriorityScheduler::deserialize(serializedScheduler + nameLength));
   }
   else if (!strncmp(serializedScheduler, RRScheduler::stName, nameLength)) {
@@ -1415,7 +1415,6 @@ int PriorityScheduler_compare(int serverIdx1,
 
 PriorityScheduler::PriorityScheduler(int numValues, int *values)
 {
-//	printf("EDDY: PriorityScheduler constructor\n");
   if (numValues <= 0) {
     INTERNAL_ERROR("Priority scheduler instantiated with <= 0 values", -1);
     return;
@@ -1457,13 +1456,8 @@ PriorityScheduler::serialize(PriorityScheduler* S)
 PriorityScheduler*
 PriorityScheduler::deserialize(const char* serializedScheduler)
 {
-//   printf("EDDY : BEGIN PriorityScheduler\n");
-//   printf("EDDY : serializedScheduler %s\n",serializedScheduler);
-
 	int numValues;
 	const char *strPtr = serializedScheduler+1;
-
-//   printf("EDDY : call to SCHED_TRACE_FUNCTION 2x\n\n");
 
 	SCHED_TRACE_FUNCTION(serializedScheduler);
 
@@ -1471,7 +1465,6 @@ PriorityScheduler::deserialize(const char* serializedScheduler)
     INTERNAL_ERROR("error reading numValues for Priority scheduler", -1);
     return (NULL);
   }
-//	printf("EDDY : numValues (2) = %d\n",numValues);
   if (numValues <= 0) {
     INTERNAL_ERROR("invalid numValues (" <<
                    numValues <<
@@ -1502,7 +1495,6 @@ PriorityScheduler::deserialize(const char* serializedScheduler)
 
   PriorityScheduler *ps = new PriorityScheduler(numValues, values);
   delete [] values;
-//		printf("EDDY : END of PriorityScheduler::deserialize\n");
   return (ps);
 }
 
