@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2006/05/15 19:37:42  ecaron
+ * *** empty log message ***
+ *
  * Revision 1.6  2005/05/15 15:46:40  alsu
  * minor change to the chooseGlobalScheduler method
  *
@@ -36,7 +39,6 @@ using namespace std;
 
 #include "debug.hh"
 
-
 void Request::freeResponses() {
   if (responses != NULL) {
     delete [] responses ;
@@ -56,7 +58,9 @@ Request::Request(const corba_request_t* request)
 		     << " has no scheduler associated");
     this->GS = GlobalScheduler::chooseGlobalScheduler();
   } else {
+    TRACE_TEXT(TRACE_MAIN_STEPS, "EDDY CALL to GlobalScheduler::deserialize\n");
     this->GS = GlobalScheduler::deserialize(this->request->serialized_scheduler);
+    TRACE_TEXT(TRACE_MAIN_STEPS, "EDDY END CALL to GlobalScheduler::deserialize\n");
   }  
 } // Request(...)
 

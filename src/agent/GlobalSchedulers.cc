@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2006/05/15 19:37:42  ecaron
+ * *** empty log message ***
+ *
  * Revision 1.11  2006/01/19 21:35:42  pfrauenk
  * CoRI : when --enable-cori - round-robin is the default scheduler -
  *        CoRI is not called (any more) for collecting information
@@ -124,6 +127,7 @@ GlobalScheduler::deserialize(const char* serializedScheduler)
     return StdGS::deserialize(serializedScheduler);
   }
   else if (!strncmp(serializedScheduler, PriorityGS::stName, nameLength)) {
+	SCHED_TRACE_FUNCTION("EDDY Call to PriorityGS::deserialize\n");
     return PriorityGS::deserialize(serializedScheduler);
   }
   else {
@@ -388,21 +392,26 @@ PriorityGS::init()
 PriorityGS*
 PriorityGS::deserialize(const char* serializedScheduler)
 {
-  char* token(NULL);
-  char* ptr(NULL);
+  char* token;
+  // duplicate the string because of CONST specifier in argument
   char* ser_sched = strdup(serializedScheduler);
+  char* ptr = ser_sched;
   PriorityGS* res = new PriorityGS();
-  
+
   TRACE_TEXT(TRACE_ALL_STEPS,
-	     "PriorityGS::deserialize(" << serializedScheduler << ")\n");
-  token = strtok_r(ser_sched, ":", &ptr);
+             "PriorityGS::deserialize(" << serializedScheduler << ")\n");
+
+  // Eliminate the first token, which is to be stName
+  token = strsep( &ptr, ":" );
   assert(!strcmp(token, PriorityGS::stName));
-  if (*ptr != '\0')
-    ptr[-1] = ':';
-  while ((token = strtok_r(NULL, ":", &ptr)) != NULL) {
+
+  // Then for each token add associated scheduler
+  while (ptr) { // ptr == NULL when the last token is identified (no more ':')
+    // If the string was not duplicated in this function, we should
+    // reset the delimiter with
+    // ptr[-1] = ':';
+    token = strsep( &ptr, ":" );
     res->schedulers.addElement(Scheduler::deserialize(token));
-    if (*ptr != '\0')
-      ptr[-1] = ':';
   }
   free(ser_sched);
   return res;

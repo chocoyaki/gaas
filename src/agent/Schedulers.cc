@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2006/05/15 19:37:42  ecaron
+ * *** empty log message ***
+ *
  * Revision 1.16  2006/02/24 01:59:50  hdail
  * Commenting out somebody's personal debugging output that was sent to stderr
  * and caused a performance hit of several orders of magnitude in aggregate
@@ -133,7 +136,7 @@ using namespace std;
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
 
-// Use SCHED_CLASS for the name of the class
+// Use SCHED_CLASS for the name of the classSCHED_TRACE_FUNCTION
 // (this->name cannot be used in static member functions)
 #define SCHED_TRACE_FUNCTION(formatted_text)      \
   TRACE_TEXT(TRACE_ALL_STEPS, SCHED_CLASS << "::");\
@@ -201,7 +204,7 @@ Scheduler::serialize(Scheduler* S)
 Scheduler*
 Scheduler::deserialize(const char* serializedScheduler)
 {
-  SCHED_TRACE_FUNCTION(serializedScheduler);
+//  SCHED_TRACE_FUNCTION(serializedScheduler);
   int nameLength;
 
   {
@@ -213,6 +216,9 @@ Scheduler::deserialize(const char* serializedScheduler)
       nameLength = strlen(serializedScheduler);
     }
   }
+  
+//  printf("EDDY: serializedScheduler = %s de taille %d\n\n",serializedScheduler,nameLength);
+  
 #if !HAVE_CORI
   if (!strncmp(serializedScheduler, FASTScheduler::stName, nameLength)) {
     return (FASTScheduler::deserialize(serializedScheduler + nameLength));
@@ -234,6 +240,7 @@ Scheduler::deserialize(const char* serializedScheduler)
   else if (!strncmp(serializedScheduler,
                     PriorityScheduler::stName,
                     nameLength)) {
+//					printf("EDDY: call3 to PriorityScheduler::deserialize\n");
     return (PriorityScheduler::deserialize(serializedScheduler + nameLength));
   }
   else if (!strncmp(serializedScheduler, RRScheduler::stName, nameLength)) {
@@ -467,7 +474,7 @@ Scheduler::aggregate(corba_response_t& aggrResp,
   }
 
   if (TRACE_LEVEL >= TRACE_ALL_STEPS) {
-    cout << "Initial tree:" << endl;
+    cout << "Initial tree:" << leaves;
     TRACE_TREE(levels,pow);
   }
 
@@ -1408,6 +1415,7 @@ int PriorityScheduler_compare(int serverIdx1,
 
 PriorityScheduler::PriorityScheduler(int numValues, int *values)
 {
+//	printf("EDDY: PriorityScheduler constructor\n");
   if (numValues <= 0) {
     INTERNAL_ERROR("Priority scheduler instantiated with <= 0 values", -1);
     return;
@@ -1449,16 +1457,21 @@ PriorityScheduler::serialize(PriorityScheduler* S)
 PriorityScheduler*
 PriorityScheduler::deserialize(const char* serializedScheduler)
 {
-  int numValues;
-  const char *strPtr = serializedScheduler + 1;
+//   printf("EDDY : BEGIN PriorityScheduler\n");
+//   printf("EDDY : serializedScheduler %s\n",serializedScheduler);
 
-  SCHED_TRACE_FUNCTION(serializedScheduler);
+	int numValues;
+	const char *strPtr = serializedScheduler+1;
+
+//   printf("EDDY : call to SCHED_TRACE_FUNCTION 2x\n\n");
+
+	SCHED_TRACE_FUNCTION(serializedScheduler);
 
   if (sscanf(strPtr, "%d", &numValues) != 1) {
     INTERNAL_ERROR("error reading numValues for Priority scheduler", -1);
     return (NULL);
   }
-
+//	printf("EDDY : numValues (2) = %d\n",numValues);
   if (numValues <= 0) {
     INTERNAL_ERROR("invalid numValues (" <<
                    numValues <<
@@ -1489,6 +1502,7 @@ PriorityScheduler::deserialize(const char* serializedScheduler)
 
   PriorityScheduler *ps = new PriorityScheduler(numValues, values);
   delete [] values;
+//		printf("EDDY : END of PriorityScheduler::deserialize\n");
   return (ps);
 }
 
