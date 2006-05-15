@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2006/05/15 20:15:28  ecaron
+ * Correct strtok_r bug on MacOSX for stdGS::deserialize (using strsep)
+ *
  * Revision 1.13  2006/05/15 19:56:07  ecaron
  * Correct the bug of wrong usage of strtok_r on MacOSX
  * Update with strsep function (Thanks Alan and Pilou)
@@ -306,20 +309,20 @@ StdGS*
 StdGS::deserialize(const char* serializedScheduler)
 {
   char* token(NULL);
-  char* ptr(NULL);
   char* ser_sched = strdup(serializedScheduler);
+  char* ptr = ser_sched;
   StdGS* res = new StdGS();
   
   TRACE_TEXT(TRACE_ALL_STEPS,
 	     "StdGS::deserialize(" << serializedScheduler << ")\n");
-  token = strtok_r(ser_sched, ":", &ptr);
+  token = strsep( &ptr, ":" );
   assert(!strcmp(token, StdGS::stName));
-  if (*ptr != '\0')
-    ptr[-1] = ':';
-  while ((token = strtok_r(NULL, ":", &ptr)) != NULL) {
+   while (ptr) { // ptr == NULL when the last token is identified (no more ':')
+    // If the string was not duplicated in this function, we should
+    // reset the delimiter with
+    // ptr[-1] = ':';
+    token = strsep( &ptr, ":" );
     res->schedulers.addElement(Scheduler::deserialize(token));
-    if (*ptr != '\0')
-      ptr[-1] = ':';
   }
   free(ser_sched);
   return res;
