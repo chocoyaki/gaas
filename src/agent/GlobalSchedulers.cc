@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2006/05/15 19:56:07  ecaron
+ * Correct the bug of wrong usage of strtok_r on MacOSX
+ * Update with strsep function (Thanks Alan and Pilou)
+ *
  * Revision 1.12  2006/05/15 19:37:42  ecaron
  * *** empty log message ***
  *
@@ -127,7 +131,6 @@ GlobalScheduler::deserialize(const char* serializedScheduler)
     return StdGS::deserialize(serializedScheduler);
   }
   else if (!strncmp(serializedScheduler, PriorityGS::stName, nameLength)) {
-	SCHED_TRACE_FUNCTION("EDDY Call to PriorityGS::deserialize\n");
     return PriorityGS::deserialize(serializedScheduler);
   }
   else {
