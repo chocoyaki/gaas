@@ -33,6 +33,7 @@ int
 Easy_Disk::get_Read_Speed(const char* path, 
 			  double* result)
 {
+
   if ((!get_Read_Speed_by_gettimeofday(path,result))
       ||(!get_Read_Speed_by_sig_alarm(path,result)))
     return 0;
@@ -78,35 +79,34 @@ removePath_file(char** path){
   remove (*path);
   delete[]*path;
 }
+
+bool is_readable( const std::string & file ) 
+{ 
+    std::ifstream fichier( file.c_str() ); 
+    return fichier != 0; 
+} 
+
 void
 createPath(char **path_file,const char* path)
 {
-  char * pid;
- 
-// #if HAVE_GETPID
-//   pid_t pid_int=getpid();
-//   cerr<<"pid="<<pid<<endl;
-//   //  if (pid!=NULL)
-//     sprintf(pid, "%i",  pid_int);
-//     //  else pid="testfile";
-// #else //HAVE_GETPID
-  pid="testfile";
-// #endif //HAVE_GETPID
- 
-//   cerr<<"pathpid=";
-//   cerr<<pid<<endl;
-  *path_file=new char[strlen(path)+strlen(pid)];
+  char * numfile;
+  char *namefile = new char[8];
+  int nombre= (int)((double)rand() / ((double)RAND_MAX + 1) * 9999);
+
+  sprintf(namefile, "%i", nombre);	
+			
+  *path_file=new char[strlen(path)+strlen(namefile)];
   strcpy(*path_file,path);
-  strcat(*path_file,pid);
-
-  int i=1;
-  while (fopen(*path_file,"r")!=NULL){
-    *path_file=new char[strlen(path)+9+i];;
-    i++;
-    strcat(*path_file,"a");
-  } 
+  strcat(*path_file,namefile);
+		
+  while ( is_readable( *path_file ) ) 
+  {		
+	nombre = (int)((double)rand() / ((double)RAND_MAX + 1) * 9999);
+	sprintf(namefile, "%i",  nombre);	
+	strcpy(*path_file,path);
+	strcat(*path_file,namefile);
+  }	
 }
-
 
 double  
 Easy_Disk::search_for_percent(FILE * file,
