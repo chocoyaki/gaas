@@ -96,7 +96,12 @@ connected with the multi-MA extension as shown in Figure~\ref{fig:multima}
 
 \begin{figure}[h]
  \begin{center}
-   \resizebox{.7\linewidth}{!}{\includegraphics{fig/multima.eps}}
+   % FIXME: the following line was replaced with a dummy one (inclusion
+   % of logo_DIET.ps because fir/multima.eps is nowhere to be found (not
+   % even a source under the fig format). This was breaking the compilation
+   % process when working in a cmake generated context. --- Injay2461
+   %\resizebox{.7\linewidth}{!}{\includegraphics{fig/multima.eps}}
+   \resizebox{.7\linewidth}{!}{\includegraphics{fig/logo_DIET.ps}}
    \label{fig:multima}
   \caption{Example of a multi-MA deployment}
  \end{center}
