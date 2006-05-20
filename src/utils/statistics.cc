@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2006/05/20 13:57:03  hdail
+ * Cleaned up statistics error output messages.  Now you will see an error
+ * about missing environment variable only on the first call to log
+ * statistics.
+ *
  * Revision 1.13  2004/06/09 15:10:38  mcolin
  * add stat_flush in statistics API in order to flush write access to
  * statistic file for agent and sed which never end and can't call
@@ -67,28 +72,34 @@ extern unsigned int TRACE_LEVEL;
 
 static char* STAT_FILE_NAME; // We don't need it to be global
 FILE* STAT_FILE = NULL;
+static int USING_STATS = 1;
 
 void
 do_stat_init() 
 {
   if (STAT_FILE != NULL) {
-    TRACE_TEXT(TRACE_MAIN_STEPS,"Warning (do_stat_init): stats module already initialized !\n");
+    TRACE_TEXT(TRACE_STRUCTURES,
+        "do_stat_init() - Stats module already initialized.\n");
   } else {
     STAT_FILE_NAME = getenv("DIET_STAT_FILE_NAME");
 
     if (STAT_FILE_NAME != NULL) {
       STAT_FILE = fopen(STAT_FILE_NAME, "a");
       if (STAT_FILE == NULL) {
-    TRACE_TEXT(TRACE_MAIN_STEPS,"do_stat_init():  Unable to open file " << STAT_FILE_NAME);
-    TRACE_TEXT(TRACE_MAIN_STEPS,"do_stat_init(): (see DIET_STAT_FILE_NAME env variable?)");
-	ERROR("do_stat_init",);
-      }		
-      else {
-	TRACE_TEXT(TRACE_MAIN_STEPS,"stats module is on");
+        TRACE_TEXT(TRACE_MAIN_STEPS,
+            "Warning: do_stat_init() - Unable to open file " << STAT_FILE_NAME
+            << ".\n");
+        ERROR("do_stat_init() - Check DIET_STAT_FILE_NAME env variable?",);
+      }	else {
+	TRACE_TEXT(TRACE_ALL_STEPS,"Stats module has been initialized.\n");
+        USING_STATS = 1;
       }			
-    } else {
-	TRACE_TEXT(TRACE_MAIN_STEPS,"Warning (do_stat_init): stats module not initialized !");
-	TRACE_TEXT(TRACE_MAIN_STEPS,"Please set DIET_STAT_FILE_NAME !");
+    } else if (USING_STATS) {
+      TRACE_TEXT(TRACE_MAIN_STEPS,
+          "Warning (do_stat_init): stats module not initialized.\n");
+      TRACE_TEXT(TRACE_MAIN_STEPS,
+          "\tTo collect statistics, set DIET_STAT_FILE_NAME.\n");
+      USING_STATS = 0;
     }
   }
 }
@@ -96,12 +107,14 @@ do_stat_init()
 void
 do_stat_flush() 
 {
-  if (STAT_FILE == NULL) {
-    TRACE_TEXT(TRACE_MAIN_STEPS, "Warning (do_stat_finalize): stats module is NOT initialized!\n");
-  } else {
-    if (fflush(STAT_FILE) != 0) {
-    TRACE_TEXT(TRACE_MAIN_STEPS, "Unable to flush stat file\n");
-      ERROR("do_stat_flush",);
+  if (USING_STATS) {
+    if (STAT_FILE == NULL) {
+      TRACE_TEXT(TRACE_MAIN_STEPS, 
+        "Warning (do_stat_finalize): stats module is NOT initialized!\n");
+    } else {
+      if (fflush(STAT_FILE) != 0) {
+        ERROR("do_stat_flush() - Unable to flush stat file.",);
+      }
     }
   }
 }
@@ -109,14 +122,16 @@ do_stat_flush()
 void
 do_stat_finalize() 
 {
-  if (STAT_FILE == NULL) {
-    TRACE_TEXT(TRACE_MAIN_STEPS, "Warning (do_stat_finalize): stats module is NOT initialized!\n");
-  } else {
-    if (fclose(STAT_FILE) < 0) {
-    TRACE_TEXT(TRACE_MAIN_STEPS, "Unable to close stat file\n");
-      ERROR("do_stat_finalize",);
+  if (USING_STATS) {
+    if (STAT_FILE == NULL) {
+      TRACE_TEXT(TRACE_MAIN_STEPS, 
+        "Warning (do_stat_finalize): stats module is NOT initialized!\n");
+    } else {
+      if (fclose(STAT_FILE) < 0) {
+        ERROR("do_stat_finalize() - Unable to close stat file.",);
+      }
+      STAT_FILE = NULL;
     }
-    STAT_FILE = NULL;
   }
 }
 
