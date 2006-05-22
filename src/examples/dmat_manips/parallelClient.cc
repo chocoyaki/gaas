@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2006/05/22 18:00:58  hdail
+ * Improved debugging output to make individual calls to DIET easier to
+ * see and interpret.
+ *
  * Revision 1.6  2006/02/03 01:45:39  ecaron
  * Take into account the OS for omnithread thus MacOSX compilation is done.
  *
@@ -47,7 +51,7 @@ using namespace std;
 #define print_matrix(string, reqID, mat, m, n, rm)        \
 {     \
   IO_WRITER_LOCK.lock(); \
-    printf("---------------------------------------------------\n"); \
+    printf("-------------------\n"); \
     printf(string); \
     printf("Matrix linked to Thread -%d- and requestID -%s-:\n",omni_thread::self()->id(), reqID); \
     size_t i, j;                           \
@@ -62,7 +66,7 @@ using namespace std;
       }                                    \
       printf("\n");                        \
     }                                      \
-  printf("---------------------------------------------------\n"); \
+    printf("-------------------\n"); \
     printf("\n");                          \
     IO_WRITER_LOCK.unlock(); \
 }
@@ -115,6 +119,7 @@ class worker : public omni_thread
     char * requestID = new char[10];
     MUTEX_WORKER.lock();
     while ( n_loops > 0){
+      printf("---------------- %ld loops left -------------------\n", n_loops);
       n_loops--;
       MUTEX_WORKER.unlock();
       A = mat1;
@@ -160,13 +165,13 @@ class worker : public omni_thread
 
       }
       else {
-        fprintf(stderr, "Unknown problem: %s !\n", path);
+        fprintf(stderr, "Unknown problem: %s!\n", path);
         rv = -1;
         return;
       }
       diet_reqID_t rst;
       if (diet_call_async(profile, &rst) != 0) printf("error in diet_call_async ...\n");
-      printf("Request ID gotten = -%d- \n", rst);
+      printf("Received request ID = -%d- \n", rst);
       if (rst >= 0){
         // print input data
         sprintf(requestID, "%d", rst);
@@ -186,9 +191,9 @@ class worker : public omni_thread
           print_matrix("-Input data-\n",requestID, A, m, m, (oA == DIET_ROW_MAJOR));
           print_matrix("-Input data-\n",requestID,B, m, m, (oB == DIET_ROW_MAJOR));
         }
-        printf("call of diet_wait ...\n");
+        printf("Calling diet_wait ...\n");
         diet_wait(rst);
-        printf("end of diet_wait ...\n");
+
         //MUTEX_WORKER.lock();
         if (IS_PB[0]) {
           diet_matrix_get(diet_parameter(profile,0), NULL, NULL, (size_t*)&m, (size_t*)&n, &oA);
@@ -222,7 +227,7 @@ class worker : public omni_thread
   // public (otherwise the thread object can be destroyed while the
   // underlying thread is still running).
   ~worker() {
-    printf(" Destroy thread");
+    printf("Destroying thread...\n");
     MUTEX_WORKER.lock();
     if (thread_counter < (n_threads-1)){
       thread_counter++;
@@ -248,7 +253,6 @@ int
 main(int argc, char* argv[])
 {
   int i;
-  printf("Asynchronous client Type 1 begins (diet_wait)");
   srand(time(NULL));
   for (i = 1; i < argc - 2; i++) {
     if (strcmp("--repeat", argv[i]) == 0) {
@@ -257,8 +261,7 @@ main(int argc, char* argv[])
       memcpy(argv + i - 2, argv + i, (argc - i)*sizeof(char*));
       i -= 2;
       argc -= 2;
-    }
-    else if (strcmp("--poolThreadNbr", argv[i]) == 0){
+    } else if (strcmp("--poolThreadNbr", argv[i]) == 0){
       n_threads =  atoi(argv[i + 1]);
       i++;
       memcpy(argv + i - 2, argv + i, (argc - i)*sizeof(char*));
@@ -268,15 +271,17 @@ main(int argc, char* argv[])
       fprintf(stderr, "Unrecognized option %s\n", argv[i]);
       usage(argv[0]);
     }
-
   }
 
   if (argc - i != 2) {
     usage(argv[0]);
   }
+
+  printf("\nBeginning of asynchronous client Type 1 (diet_wait)\n");
+
   path = argv[argc - 1];
   if (diet_initialize(argv[1], argc, argv)) {
-    fprintf(stderr, "DIET initialization failed !\n");
+    fprintf(stderr, "DIET initialization failed!\n");
     return 1;
   }
   // create pool thread and give job ....
@@ -289,6 +294,6 @@ main(int argc, char* argv[])
   //omni_thread::sleep(5);
   END.wait();
   diet_finalize();
-  printf("End of asynchronous client Type 1 (diet_wait)");
+  printf("End of asynchronous client Type 1 (diet_wait)\n");
   return 0;
 }
