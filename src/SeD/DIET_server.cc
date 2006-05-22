@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.53  2006/05/22 19:55:59  hdail
+ * Introduced uniform output format for SeD configuration option output at
+ * launch time.
+ *
  * Revision 1.52  2006/02/24 10:47:45  rbolze
  * remove this line :
  *   //diet_est_set(ev, EST_TIMESINCELASTSOLVE, timeSinceLastSolve);
@@ -46,109 +50,6 @@
  *   configuration (corrected the Makefile)
  * Changed things in SeDImpl.[ch] for batch submission to work. Only synchronous
  *   mode made.
- *
- * Revision 1.42  2005/08/04 08:59:20  alsu
- * initializing the aggregator field of the diet_profile_desc_t object to
- * be a default aggregator.  this object is then marshalled into a
- * corba_profile_desc_t object, which is used to find the corresponding
- * service.  although the aggregator is not used in this process, the
- * lack of initialization causes valgrind to complain during marshalling.
- *
- * Revision 1.41  2005/07/12 14:27:21  hdail
- * Initialize aggregator method by default to DIET_AGG_DEFAULT.  Bug #14 in
- * Bugzilla corrected (second profile was picking up trash for the aggregator
- * method).
- *
- * Revision 1.40  2005/06/28 15:56:43  hdail
- * Changing the debug level of messages to make DIET less verbose (and in
- * agreement with the doc =).
- *
- * Revision 1.39  2005/06/03 16:25:57  mjan
- * Adding tricks for using GoDIET with DIET/JuxMem
- * Using name of DIET SeDs and clients to generate the name of JXTA peers
- * Client side of DIET no longer generates a warning message when name = client is in .cfg
- * This is of course not required and optionnal!
- *
- * Revision 1.37  2005/05/15 15:38:59  alsu
- * implementing aggregation interface
- *
- * Revision 1.36  2005/05/02 16:46:33  ycaniou
- * Added the function diet_submit_batch(), the stuff in the makefile to compile
- *  with appleseeds..
- *
- * Revision 1.35  2005/04/27 01:41:34  ycaniou
- * Added the stuff for a correct compilation, for a correct registration of
- * a batch profile, and for its execution.
- * Added the solve_batch() function
- *
- * Revision 1.34  2005/04/13 08:46:29  hdail
- * Beginning of adoption of new persistency model: DTM is enabled by default and
- * JuxMem will be supported via configure flags.  DIET will always provide at
- * least one type of persistency.  As a first step, persistency across DTM and
- * JuxMem is not supported so all persistency handling should be surrounded by
- *     #if HAVE_JUXMEM
- *       // JuxMem code
- *     #else
- *       // DTM code
- *     #endif
- * This check-in prepares for the JuxMem check-in by cleaning up old
- * DEVELOPPING_DATA_PERSISTENCY flags and surrounding DTM code with
- * #if ! HAVE_JUXMEM / #endif flags to be replaced by above format by Mathieu's
- * check-in.  Currently the HAVE_JUXMEM flag is set in SeDImpl.hh - to be replaced
- * by Mathieu's check-in of a configure system for JuxMem.
- *
- * Revision 1.33  2005/04/08 13:02:43  hdail
- * The code for LogCentral has proven itself stable and it seems bug free.
- * Since no external libraries are required to compile in LogCentral, its now
- * going to be compiled in by default always ... its usage is easily controlled by
- * configuration file.
- *
- * Revision 1.32  2004/12/22 06:49:25  alsu
- * rewriting the diet_service_table_lookup_by_profile to convert the
- * incoming diet_profile_t* parameter to a diet_profile_desc_t to do the
- * lookup.  This works around the behavior of mrsh_pb_desc, which is not
- * sufficient for the service table lookup, as it does not copy the type
- * and base type fields.
- *
- * Revision 1.31  2004/12/15 18:09:58  alsu
- * cleaner, easier to document interface: changing diet_perfmetric_t back
- * to the simpler one-argument (of type diet_profile_t) version, and
- * hiding a copy of the pointer back to the SeD in the profile.
- *
- * Revision 1.30  2004/12/08 15:02:51  alsu
- * plugin scheduler first-pass validation testing complete.  merging into
- * main CVS trunk; ready for more rigorous testing.
- *
- * Revision 1.29.2.3  2004/11/26 15:19:30  alsu
- * - diet_estimate_fast (available to perf metrics) to get and store FAST
- *   performance values
- * - diet_estimate_lastexec (available to perf metrics) to get and store
- *   time elapsed since SeD-level last-solve timestamp (to enable the RR
- *   scheduler)
- * - diet_service_table_lookup functions (C expression of the
- *   SeviceTable::lookupService methods)
- * - various additions of const to enforce const-ness
- *
- * Revision 1.29.2.2  2004/10/27 22:35:50  alsu
- * include
- *
- * Revision 1.29.2.1  2004/10/26 14:12:52  alsu
- * (Tag: AS-plugin-sched)
- *  - branch created to avoid conflicting with release 1.2 (imminent)
- *  - initial commit on branch, new dynamic performance info structure in
- *    the profile
- *
- * Revision 1.29  2004/10/14 15:02:17  hdail
- * Allow user to provide name for SeD.  If provided, name is given to LogService
- * and can be used by GoDIET to verify launch of each SeD.
- *
- * Revision 1.28  2004/09/14 12:39:27  hdail
- * - Changed cleanup of desc->param_desc from free to delete[] to match alloc.
- * - Changed cleanup of desc from free to delete to match alloc.
- *
- * Revision 1.27  2004/07/05 14:56:13  rbolze
- * correct bug on 64 bit plat-form, when parsing cfg file :
- * remplace size_t by unsigned int for config options
  ****************************************************************************/
 
 #include <iostream>
@@ -773,7 +674,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   }
 
   if (useLS) {
-    TRACE_TEXT(TRACE_ALL_STEPS, "LogService enabled\n");
+    TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: enabled\n");
     char* parentName;
     parentName = (char*)Parsers::Results::getParamValue
                           (Parsers::Results::PARENTNAME);
@@ -788,10 +689,11 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
     if (dietLogComponent->run("SeD", parentName, flushTime) != 0) {
       // delete(dietLogComponent); // DLC is activated, do not delete !
       WARNING("Could not initialize DietLogComponent");
+      TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled\n");
       dietLogComponent = NULL; // this should never happen;
     }
   } else {
-    TRACE_TEXT(TRACE_ALL_STEPS, "LogService disabled\n");
+    TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled\n");
     dietLogComponent = NULL;
   }
 
@@ -826,7 +728,6 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
 #endif // HAVE_JUXMEM
 
   /* We do not need the parsing results any more */
-
   Parsers::endParsing();
 
   /* Wait for RPCs : */
