@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2006/05/22 20:01:49  hdail
+ * Introduced uniform output format for SeD configuration option output at launch
+ * time.
+ *
  * Revision 1.14  2006/05/20 13:57:03  hdail
  * Cleaned up statistics error output messages.  Now you will see an error
  * about missing environment variable only on the first call to log
@@ -91,14 +95,14 @@ do_stat_init()
             << ".\n");
         ERROR("do_stat_init() - Check DIET_STAT_FILE_NAME env variable?",);
       }	else {
-	TRACE_TEXT(TRACE_ALL_STEPS,"Stats module has been initialized.\n");
+	TRACE_TEXT(TRACE_ALL_STEPS,"* Statistics collection: enabled "
+            << "(file" << STAT_FILE_NAME << ")\n");
         USING_STATS = 1;
       }			
     } else if (USING_STATS) {
-      TRACE_TEXT(TRACE_MAIN_STEPS,
-          "Warning (do_stat_init): stats module not initialized.\n");
-      TRACE_TEXT(TRACE_MAIN_STEPS,
-          "\tTo collect statistics, set DIET_STAT_FILE_NAME.\n");
+      TRACE_TEXT(TRACE_ALL_STEPS, "* Statistics collection: disabled\n");
+      TRACE_TEXT(TRACE_ALL_STEPS,
+          "\tTo collect statistics, set env variable DIET_STAT_FILE_NAME.\n");
       USING_STATS = 0;
     }
   }
