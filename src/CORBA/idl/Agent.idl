@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2006/05/22 06:32:29  eboix
+ *     Reverting to version 1.5 because of compilation error with JXTA mode
+ *     on. --- Injay2461
+ *
  * Revision 1.6  2006/04/04 10:18:58  lphilipp
  *
  * Ajout d'un README, avec quelques explications
@@ -62,8 +66,12 @@ interface Agent {
    * addServices method. Returns a registration number wich indentifies the
    * child amongst the other children of this agent.
    */
-  long serverSubscribe(in SeD me,  in string hostname,
-				in SeqCorbaProfileDesc_t services);
+  long serverSubscribe(in SeD me,
+                       in string hostname,
+#if HAVE_JXTA
+                       in string uuid,
+#endif // HAVE_JXTA
+                       in SeqCorbaProfileDesc_t services);
 
 
   /**
