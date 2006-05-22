@@ -9,6 +9,17 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2006/05/22 20:00:52  hdail
+ * - Introduced uniform output format for SeD configuration option output at launch
+ *   time.
+ * - Removed HAVE_QUEUES protections at SeD level as all code is protected by
+ *   member variable useConcJobLimit, code has been well-tested, and HAVE_QUEUES
+ *   was hardcoded to 1 anyway.
+ * - Centralized all shared initialization work of the constructors to a private
+ *   method to avoid code duplication and resulting errors.
+ * - Fixed bug reported by Gael where SeD queues didn't work for
+ *   asynchronous calls.
+ *
  * Revision 1.24  2006/03/08 12:42:48  ycaniou
  * Compilation against the new libUtilsSeDBatch, compiled with gcc
  *  -> #include batch.h requires extern "C"
@@ -117,17 +128,12 @@
 #include "response.hh"
 #include "ServiceTable.hh"
 #include "DietLogComponent.hh"
+#include "AccessController.hh"
 
 #if HAVE_JUXMEM
 #include "JuxMem.hh"          // JuxMem header file
 #else
 #include "DataMgrImpl.hh"     // DTM header file
-#endif
-
-#define HAVE_QUEUES 1
-
-#if HAVE_QUEUES
-#include "AccessController.hh"
 #endif
 
 #if HAVE_BATCH
@@ -202,7 +208,6 @@ public:
   const struct timeval* timeSinceLastSolve();
 
 private:
-  
   /** Reference of the parent */
   Agent_var parent;
   /** ID of this agent amongst the children of its parent */
@@ -215,11 +220,10 @@ private:
   char locationID[256];
 #endif
 
-  /* Listening port */
-  // size_t --> unsigned int
+  /** Listening port */
   unsigned int port;
 
-  /* Service table */
+  /** Service table */
   ServiceTable* SrvT;
 
 #if HAVE_JUXMEM
@@ -229,7 +233,8 @@ private:
   DataMgrImpl* dataMgr;
 #endif 
 
-  /* last queue timestamp */
+  /** Time at which last solve started (when not using queues) and when 
+   * last job was enqueued (when using queues) */
   struct timeval lastSolveStart;
 
 #if HAVE_BATCH
@@ -247,32 +252,27 @@ private:
   int tabCorresIDIndex ;
 #endif
 
-#if HAVE_QUEUES
-  /* Should SeD restrict the number of concurrent solves? */
+  /* Queue: should SeD restrict the number of concurrent solves? */
   bool useConcJobLimit;
-  /* If useConcJobLimit == true, how many jobs can run at once? */
+  /* Queue: If useConcJobLimit == true, how many jobs can run at once? */
   int maxConcJobs;
-  /* Enforce limit on concurrent solves with semaphore-like semantics
+  /* Queue: Enforce limit on concurrent solves with semaphore-like semantics 
    * but supporting more features (priority enforcement, count reporting). */
   AccessController* accessController;
-#endif
 
 #if HAVE_JXTA
   /* endoint of JXTA SeD*/
   const char* uuid;
 #endif // HAVE_JXTA
-#if !HAVE_CORI
-#if HAVE_FAST
-
+#if !HAVE_CORI && HAVE_FAST
   /** Use of FAST */
   // size_t --> unsigned int
   unsigned int fastUse;
 
   /* Fast calls mutex, this should be used until FAST becomes reentrant */
   omni_mutex fastMutex; //FIXME : is never in use!!
+#endif //!HAVE_CORI && HAVE_FAST
 
-#endif // HAVE_FAST
-#endif //!HAVE_CORI
   /**
    * The actual dietLogComponent of this SeD. If it contains NULL,
    * no monitoring information must be gathered, so it must be checked
@@ -285,24 +285,14 @@ private:
   /* Private methods                                                        */
   /**************************************************************************/
 
-
+  /** Private method to centralize all shared variable initializations
+   * in various constructors. */
+  virtual void initialize();
 
   inline void 
   estimate(corba_estimation_t& estimation,
 	   const corba_pb_desc_t& pb,
 	   const ServiceTable::ServiceReference_t ref);
-
-#if 0
-  int
-  dataLookup(long dataId);
-  void
-  addVar(diet_server_data_desc_t* data);
-  void
-  rmVar(long dataId);
-  void
-  rmDeprecatedVars();
-#endif // 0
 };
-
 
 #endif // _SED_IMPL_HH_

@@ -9,6 +9,17 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.71  2006/05/22 20:00:52  hdail
+ * - Introduced uniform output format for SeD configuration option output at launch
+ *   time.
+ * - Removed HAVE_QUEUES protections at SeD level as all code is protected by
+ *   member variable useConcJobLimit, code has been well-tested, and HAVE_QUEUES
+ *   was hardcoded to 1 anyway.
+ * - Centralized all shared initialization work of the constructors to a private
+ *   method to avoid code duplication and resulting errors.
+ * - Fixed bug reported by Gael where SeD queues didn't work for
+ *   asynchronous calls.
+ *
  * Revision 1.70  2006/02/24 01:57:16  hdail
  * Change setting for time of last solve when using SeD queues -- now round robin
  * will be based on time last job was enqueued.
@@ -114,51 +125,37 @@ extern unsigned int TRACE_LEVEL;
 
 SeDImpl::SeDImpl()
 {
-  this->SrvT    = NULL;
-  this->childID = -1;
-  this->parent  = Agent::_nil();
-  this->localHostName[0] = '\0';
-#if HAVE_ALTPREDICT
-  this->locationID[0] = '\0';
-#endif
-  (this->lastSolveStart).tv_sec = -1;
-  (this->lastSolveStart).tv_usec = -1;
-
-#if !HAVE_CORI
-#if HAVE_FAST
-  this->fastUse = 1;
-#endif // HAVE_FAST
-#endif //!HAVE_CORI
-
-  this->dietLogComponent = NULL;
-#if HAVE_BATCH
-  this->tabCorresIDIndex = 0 ;
-  for( int i=0 ; i<MAX_RUNNING_NBSERVICES ; i++ )
-    tabCorresID[i].dietReqID = -1 ;
-#endif
+  this->initialize();
 }
 
 #if HAVE_JXTA
 SeDImpl::SeDImpl(const char* uuid = '\0')
 {
+  this->uuid = uuid;
+  this->initialize();
+}
+#endif //HAVE_JXTA
+
+/** Private method to centralize all shared variable initializations from
+ * different constructors.  Call this only from a constructor. */
+void
+SeDImpl::initialize()
+{
   this->SrvT    = NULL;
   this->childID = -1;
   this->parent  = Agent::_nil();
   this->localHostName[0] = '\0';
+  (this->lastSolveStart).tv_sec = -1;
+  (this->lastSolveStart).tv_usec = -1;
+  this->dietLogComponent = NULL;
+
 #if HAVE_ALTPREDICT
   this->locationID[0] = '\0';
 #endif
-  this->uuid = uuid;
-  (this->lastSolveStart).tv_sec = -1;
-  (this->lastSolveStart).tv_usec = -1;
 
-#if !HAVE_CORI
-#if HAVE_FAST
+#if !HAVE_CORI && HAVE_FAST
   this->fastUse = 1;
-#endif // HAVE_FAST
-#endif //HAVE_CORI
-
-  this->dietLogComponent = NULL;
+#endif //!HAVE_CORI && HAVE_FAST
 
 #if HAVE_BATCH
   this->tabCorresIDIndex = 0 ;
@@ -166,7 +163,6 @@ SeDImpl::SeDImpl(const char* uuid = '\0')
     tabCorresID[i].dietReqID = -1 ;
 #endif //HAVE_BATCH
 }
-#endif //HAVE_JXTA
 
 SeDImpl::~SeDImpl()
 {
@@ -209,8 +205,9 @@ SeDImpl::run(ServiceTable* services)
 
   char* parent_name = (char*)
     Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
-  if (parent_name == NULL)
+  if (parent_name == NULL) {
     return 1;  
+  }
   parent =
     Agent::_duplicate(Agent::_narrow(ORBMgr::getObjReference(ORBMgr::AGENT,
                                                              parent_name)));
@@ -226,8 +223,6 @@ SeDImpl::run(ServiceTable* services)
     }
   }
 
-  if (TRACE_LEVEL >= TRACE_STRUCTURES)
-    SrvT->dump(stdout);
   try {
     childID = parent->serverSubscribe(this->_this(), localHostName,
 #if HAVE_JXTA
@@ -250,10 +245,11 @@ SeDImpl::run(ServiceTable* services)
   unsigned int* endPoint = (unsigned int*)
     Parsers::Results::getParamValue(Parsers::Results::DIETPORT);
   // FIXME: How can I get the port used by the ORB ? and is it useful ?
-  if (endPoint == NULL)
+  if (endPoint == NULL) {
     this->port = 0;
-  else
+  } else {
     this->port = *endPoint;
+  }
 
 #if HAVE_ALTPREDICT
   char * tmpName = (char*)
@@ -265,7 +261,6 @@ SeDImpl::run(ServiceTable* services)
   } 
 #endif // HAVE_ALTPREDICT
 
-#if HAVE_QUEUES
   bool* tmpBoolPtr;
   int* tmpIntPtr;
   tmpBoolPtr = (bool*)
@@ -279,6 +274,7 @@ SeDImpl::run(ServiceTable* services)
   tmpIntPtr = (int*)
     Parsers::Results::getParamValue(Parsers::Results::MAXCONCJOBS);
   if(tmpIntPtr == NULL){
+    /* If queues requested, but no limit specified, restrict to 1 */
     this->maxConcJobs = 1;
   } else {
     this->maxConcJobs = *tmpIntPtr;
@@ -286,36 +282,41 @@ SeDImpl::run(ServiceTable* services)
 
   if (this->useConcJobLimit){
     this->accessController = new AccessController(this->maxConcJobs);
-    TRACE_TEXT(TRACE_MAIN_STEPS, "Concurrent jobs restricted to " 
-          << this->maxConcJobs << "\n");
+    TRACE_TEXT(TRACE_ALL_STEPS, "* SeD Queue: enabled "
+        << "(maximum " << this->maxConcJobs << " concurrent solves)\n");
   } else {
     this->accessController = NULL;
+    TRACE_TEXT(TRACE_ALL_STEPS, "* SeD Queue: disabled (no restriction"
+        << " on concurrent solves)\n");
   }
-#endif // HAVE_QUEUES
+
+  /* Print out service table */
+  if (TRACE_LEVEL >= TRACE_STRUCTURES) {
+    SrvT->dump(stdout);
+  }
 
 #if HAVE_CORI  
  return CORIMgr::startCollectors();
 #else //HAVE_CORI  
  return FASTMgr::init();
 #endif //HAVE_CORI  
+
 }
 
-#if ! HAVE_JUXMEM
+#if HAVE_JUXMEM
+/** Set this->juxmem */
+int
+SeDImpl::linkToJuxMem(JuxMem::Wrapper* juxmem)
+{
+  this->juxmem = juxmem;
+  return 0;
+}
+#else
 /** Set this->dataMgr */
 int
 SeDImpl::linkToDataMgr(DataMgrImpl* dataMgr)
 {
   this->dataMgr = dataMgr;
-  return 0;
-}
-#endif // ! HAVE_JUXMEM
-
-#if HAVE_JUXMEM
-/** Set this->JuxMem */
-int
-SeDImpl::linkToJuxMem(JuxMem::Wrapper* juxmem)
-{
-  this->juxmem = juxmem;
   return 0;
 }
 #endif // HAVE_JUXMEM
@@ -500,13 +501,12 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
    ERROR("SeD::" << __FUNCTION__ << ": service not found", 1);
   } 
 
-#if HAVE_QUEUES
+  /* Record time at which solve started (when not using queues) 
+   * and time at which job was enqueued (when using queues). */
+  gettimeofday(&(this->lastSolveStart), NULL);
   if (this->useConcJobLimit){
-    /* record the timestamp at which job was enqueued */
-    gettimeofday(&(this->lastSolveStart), NULL);
     this->accessController->waitForResource();
   }
-#endif // HAVE_QUEUES
 
   sprintf(statMsg, "solve %ld", (unsigned long) reqID);
   stat_in("SeD",statMsg);
@@ -580,16 +580,6 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
   }
 #endif // HAVE_JUXMEM 
   
-#if !HAVE_QUEUES
-  /* record the timestamp of this solve */
-  gettimeofday(&(this->lastSolveStart), NULL);
-#else 
-  if (!(this->useConcJobLimit)){
-    /* record the timestamp of this solve */
-    gettimeofday(&(this->lastSolveStart), NULL);
-  }
-#endif // !HAVE_QUEUES
-
   TRACE_TEXT(TRACE_MAIN_STEPS, "Calling getSolver\n");
   solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
 
@@ -659,11 +649,9 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
     dietLogComponent->logEndSolve(path, &pb,reqID);
   }
 
-#if HAVE_QUEUES
   if (this->useConcJobLimit){
     this->accessController->releaseResource();
   }
-#endif // HAVE_QUEUES
 
   return solve_res;
 }
@@ -709,11 +697,9 @@ SeDImpl::solve_batch(const char* path, corba_profile_t& pb, CORBA::Long reqID)
     ERROR("SeD::" << __FUNCTION__ << ": batch service not found", 1);
   } 
 
-#if HAVE_QUEUES
   if (this->useConcJobLimit){
     this->accessController->waitForResource();
   }
-#endif // HAVE_QUEUES
 
   sprintf(statMsg, "solve %ld", (unsigned long) reqID);
   stat_in("SeD",statMsg);
@@ -871,11 +857,9 @@ SeDImpl::solve_batch(const char* path, corba_profile_t& pb, CORBA::Long reqID)
     dietLogComponent->logEndSolve(path, &pb,reqID);
   }
 
-#if HAVE_QUEUES
   if (this->useConcJobLimit){
     this->accessController->releaseResource();
   }
-#endif // HAVE_QUEUES
 
   return solve_res;
 }
@@ -890,11 +874,6 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
     ERROR("Asynchronous batch resolution not yet implemented",) ;
 #endif
 
-  // TODO: enable RRSolve & Queue handling here to match solveSync
-  if (dietLogComponent != NULL) {
-    dietLogComponent->logBeginSolve(path, &pb,reqID);
-  }
-
   // test validity of volatileclientREF
   // If nil, it is not necessary to solve ...
   try {
@@ -907,16 +886,31 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
       diet_profile_t profile;
       diet_convertor_t* cvt(NULL);
       int solve_res(0);
-
-      stat_in("SeD","solveAsync");
-
-      TRACE_TEXT(TRACE_MAIN_STEPS,
-                 "SeD::solveAsync invoked on pb: " << path << endl);
+      char statMsg[128];
 
       ref = SrvT->lookupService(path, &pb);
       if (ref == -1) {
         ERROR("SeD::" << __FUNCTION__ << ": service not found",);
       }
+
+      /* Record time at which solve started (when not using queues) 
+       * and time at which job was enqueued (when using queues). */
+      gettimeofday(&(this->lastSolveStart), NULL);
+      if (this->useConcJobLimit){
+        this->accessController->waitForResource();
+      }
+
+      sprintf(statMsg, "solveAsync %ld", (unsigned long) reqID);
+      stat_in("SeD",statMsg);
+
+      if (dietLogComponent != NULL) {
+        dietLogComponent->logBeginSolve(path, &pb,reqID);
+      }
+
+      TRACE_TEXT(TRACE_MAIN_STEPS,
+                 "SeD::solveAsync invoked on pb: " << path 
+                 << " (reqID " << reqID << ")" << endl);
+
  
       cvt = SrvT->getConvertor(ref);
 
@@ -938,9 +932,6 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
       
 #endif // ! HAVE_JUXMEM
       
-      /* record the timestamp of this solve */
-      gettimeofday(&(this->lastSolveStart), NULL);
-
 #if HAVE_BATCH
       // Still to be done...
       // nbprocs and walltime are set
@@ -958,15 +949,16 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
       
 #if ! HAVE_JUXMEM
 
-  for(i=0;i<=pb.last_in;i++){
-    if(diet_is_persistent(pb.parameters[i])) {
-      if (pb.parameters[i].desc.specific._d() != DIET_FILE) {
-        CORBA::Char *p1 (NULL);
-        const_cast<SeqChar&>(pb.parameters[i].value).replace(0,0,p1,1);
+      for(i=0;i<=pb.last_in;i++){
+        if(diet_is_persistent(pb.parameters[i])) {
+          if (pb.parameters[i].desc.specific._d() != DIET_FILE) {
+            CORBA::Char *p1 (NULL);
+            const_cast<SeqChar&>(pb.parameters[i].value).replace(0,0,p1,1);
+          }
+          persistent_data_release(
+              const_cast<corba_data_t*>(&(pb.parameters[i])));
+        }
       }
-      persistent_data_release(const_cast<corba_data_t*>(&(pb.parameters[i])));
-    }
-  }
   
       mrsh_profile_to_out_args(&(const_cast<corba_profile_t&>(pb)), &profile, cvt);
       /*      for (i = profile.last_in + 1 ; i <= profile.last_inout; i++) {
@@ -1000,11 +992,17 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
       TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::" << __FUNCTION__ << " complete\n"
                  << "**************************************************\n");
 
-      stat_out("SeD","solveAsync");
+      stat_out("SeD",statMsg);
       stat_flush();
 
       if (dietLogComponent != NULL) {
         dietLogComponent->logEndSolve(path, &pb,reqID);
+      }
+
+      /* Release resource before returning the data.  Caution: this could be a
+       * problem for applications with lots of data. */
+      if (this->useConcJobLimit){
+        this->accessController->releaseResource();
       }
      
       // send result data to client.
@@ -1014,6 +1012,8 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
       cb_var->notifyResults(path, pb, reqID);
       cb_var->solveResults(path, pb, reqID);
 
+      /* FIXME: do we need to use diet_free_data on profile parameters as
+       * we do in the solve(...) method? */
       delete [] profile.parameters; // allocated by unmrsh_in_args_to_profile
     }
   
