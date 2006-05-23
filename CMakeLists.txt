@@ -18,6 +18,7 @@ OPTION( DIET_WITH_STATISTICS "Build DIET with generation of statistics." OFF )
 OPTION( DIET_WITH_MULTI_MA   "Build DIET with MULTI-Master-Agent support." OFF )
 OPTION( DIET_MAINTAINER_MODE "Build additional documentation..." OFF )
 OPTION( DIET_USE_WORKFLOW "Build DIET with workflow support..." OFF)
+OPTION( DIET_USE_DART "Build DIET for dart reporting..." OFF)
 # --------------------- BUILDING DEFAULT OPTIONS  --------------------------
 # By default build dynamic libraries:
 OPTION( BUILD_SHARED_LIBS "Build DIET with shared libraries." ON )
@@ -263,7 +264,13 @@ IF(NOT CMAKE_BUILD_TYPE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
 # ---------------- HANDLE SPECIFICITIES OF THE C COMPILER ------------------
-INCLUDE( ${DIET_SOURCE_DIR}/Cmake/ConfigureCCompiler.cmake)
+INCLUDE( ${DIET_SOURCE_DIR}/Cmake/ConfigureCCompiler.cmake )
+
+# ---------------- OPTIONAL DART SUPPORT -----------------------------------
+IF( DIET_USE_DART )
+  # Refer to http://public.kitware.com/Dart/ for docs on Dart.
+  INCLUDE( ${CMAKE_ROOT}/Modules/Dart.cmake )
+ENDIF( DIET_USE_DART )
 
 # --------------------------------------------------------------------------
 # QUESTIONS:

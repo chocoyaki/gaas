@@ -7,7 +7,7 @@ IF( DIET_MAINTAINER_MODE )
   SUBDIRS( ProgrammersGuide Tutorial )
   IF( DOXYGEN )
     SET( DIET_DOXYGEN_INPUT
-      "${DIET_SOURCE_DIR}/include ${DIET_SOURCE_DIR}/src                               ${DIET_SOURCE_DIR}/doc/source_tree.txt" )
+      "${DIET_SOURCE_DIR}/include                                                      ${DIET_SOURCE_DIR}/src" )
     SET( DIET_DOXYGEN_EXCLUDE
       "${DIET_SOURCE_DIR}/src/examples" )
     SET( DIET_DOXYGEN_IMAGE_PATH
