@@ -148,6 +148,11 @@ IF( DIET_WITH_MULTI_MA AND DIET_USE_JXTA AND NOT DIET_MAINTAINER_MODE )
  MESSAGE(SEND_ERROR "Either set DIET_WITH_MULTI_MA or DIET_USE_JXTA. Not both.")
 ENDIF( DIET_WITH_MULTI_MA AND DIET_USE_JXTA AND NOT DIET_MAINTAINER_MODE )
 
+# Enable dynamic MULTI-Master-Agent support based on JXTA library
+# (refer to http://www.jxta.org/ ). This is similar to functionalities offered
+# the DIET_WITH_MULTI_MA option (see below) except that JXTA is used in place
+# of CORBA. JXTA allows the creation of a new MA on demand and it's
+# integration within the multi-hierarchy of existing MAs.
 IF( DIET_USE_JXTA )
   FIND_PACKAGE( JavaExtended )
   IF( JAVA_FOUND )

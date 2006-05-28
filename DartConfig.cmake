@@ -2,18 +2,19 @@
 # Ssh server to submit results (used by client)
 #
 SET( DROP_METHOD "scp" )
-SET( DROP_SITE "localhost" )
+SET( DROP_SITE "graal.ens-lyon.fr" )
 SET( DROP_LOCATION "ssh-incoming" )
-SET( DROP_SITE_USER "Dart" )
+SET( DROP_SITE_USER "dart" )
 FIND_PROGRAM(
   SCPCOMMAND scp
   DOC "Path to scp command, sometimes used for submitting Dart results."
 )
+SET ( NIGHTLY_START_TIME "21:00:00 EDT" )
 
 #
 # Dart server to submit results (used by client)
 #
-SET (TRIGGER_SITE "http://${DROP_SITE}/Dart/TriggerDart.cgi")
+SET (TRIGGER_SITE "http://${DROP_SITE}/dart/TriggerDart.cgi")
 
 # Project Home Page
 SET( PROJECT_URL "http://graal.ens-lyon.fr/DIET/" )

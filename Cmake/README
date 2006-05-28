@@ -74,7 +74,7 @@ IV/ DIET specific cmake parameters:
   - DIET_USE_BLAS for ... BLAS based examples.
   - DIET_USE_CORI for ... a built-in low-profile FAST surrogate.
   - DIET_USE_FAST for ... using FAST a grid aware dynamic forecasting library.
-  - DIET_USE_JXTA for ... using JXTA a distributed data persistence library.
+  - DIET_USE_JXTA for ... using JXTA for dynamic MULTI Master Agent support.
   - DIET_WITH_MULTI_MA for ... MULTI Master Agent based support.
   - DIET_WITH_STATISTICS for ... good question, for what ?
   - OMNIORB4_DIR is the path to the omniORB4 installation directory
@@ -102,7 +102,7 @@ VI/ Cmake general information, references and docs:
 
 VII/ Requirements:
   Obtain and install the current version of cmake (at leat version 2.2.X) from 
-     http://cmake.kitware.org/
+     http://www.cmake.org/
   Although the various binary packages are not available on this site
   apt-get is generally cmake aware. By default fetching the sources,
   compiling and installing them should be straightfoward...
