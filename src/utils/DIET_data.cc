@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.37  2006/06/01 13:04:21  ycaniou
+ * Correct "File structure is vicious" bug.
+ * BATCH: add explicit test of batch job for matching functions
+ *
  * Revision 1.36  2006/04/14 14:19:40  aamar
  * Adding the  workflow profiles allocation/freeing methods.
  *       diet_wf_desc_t* diet_wf_profile_alloc(const char* wf_file_name);
@@ -313,7 +317,11 @@ file_set_desc(diet_data_desc_t* desc, char* const id,
     if (!(buf.st_mode & S_IFREG))
       return 2;
     desc->specific.file.size = (size_t) buf.st_size;
-  } else desc->specific.file.path = "";
+  } else {
+    desc->specific.file.path = "";
+    desc->specific.file.size = 0 ;
+  }
+  
   return status;
 }
 
@@ -347,7 +355,7 @@ profile_desc_match(const corba_profile_desc_t* p1,
  * Return true if sv_profile describes a service that matches the problem that
  * pb_desc describes.
  * If a batch job is explicitely asked, the server must execute parallel job.
- *  Else, don't take it into account.
+ *   Else, don't take it into account.
  */
 int
 profile_match(const corba_profile_desc_t* sv_profile,
@@ -390,12 +398,15 @@ profile_match(const corba_profile_desc_t* sv_profile,
   if ( (sv_profile->last_in                != pb->last_in)
        || (sv_profile->last_inout          != pb->last_inout)
        || (sv_profile->last_out            != pb->last_out)
-       || (sv_profile->param_desc.length() != pb->parameters.length())
-#if HAVE_BATCH
-       || (sv_profile->batch_flag          != pb->batch_flag)
-#endif
-       )
+       || (sv_profile->param_desc.length() != pb->parameters.length()) )
     return 0;
+
+#if HAVE_BATCH
+  if( (sv_profile->batch_flag == 1) 
+      && (sv_profile->batch_flag != pb->batch_flag) )
+    return 0 ;
+#endif
+
   for (size_t i = 0; i < sv_profile->param_desc.length(); i++) {
     if ((   (sv_profile->param_desc[i].type
              != pb->parameters[i].desc.specific._d())
@@ -432,9 +443,11 @@ diet_profile_alloc(char* pb_name, int last_in, int last_inout, int last_out)
   for (int i = 0; i <= last_out; i++)
     res->parameters[i].desc.id = NULL;
 #if HAVE_BATCH
-  res->batch_flag=0 ;
-  res->nbprocs=1 ;
-  res->walltime=0 ;
+  res->batch_flag= 0 ;
+  res->nbprocs   = 1 ;
+  res->nbprocess = 1 ;
+  res->walltime  = 0 ;
+  res->dietJobID = 0 ;
 #endif
   return res;
 }
@@ -457,12 +470,6 @@ diet_profile_set_batch(diet_profile_t* profile)
   return 0 ;
 }
 int
-diet_profile_set_parallel(diet_profile_t* profile)
-{
-  profile->nbprocs = 2 ;
-  return 0 ;
-}
-int
 diet_profile_set_nbprocs(diet_profile_t* profile, int nbprocs)
 {
   if( nbprocs <= 0 )
@@ -477,13 +484,7 @@ diet_profile_desc_set_batch(diet_profile_desc_t* profile)
   profile->batch_flag = 1 ;
   return 0 ;
 }
-int
-diet_profile_desc_set_parallel(diet_profile_desc_t* profile)
-{
-  profile->nbprocs = 2 ;
-  return 0 ;
-}
-#endif
+#endif // HAVE_BATCH
 
 /****************************************************************************/
 /* Utils functions for setting parameters of a problem description          */
@@ -573,7 +574,7 @@ diet_use_data(diet_arg_t* arg, char* id){
   arg->desc.id=id;
 }
 
-/* Computes the file size */
+/* Computes the file size (stocked in a field of arg) */
 int
 diet_file_set(diet_arg_t* arg, diet_persistence_mode_t mode, char* path)
 {
@@ -821,9 +822,11 @@ _file_get(diet_arg_t* arg, diet_persistence_mode_t* mode,
     *mode = arg->desc.mode;
   if (size)
     *size = arg->desc.specific.file.size;
-  if (path)
+  if (path) {
+    /* Assume that path contains NULL. If not, it's SeD programmer's error */
     *path = arg->desc.specific.file.path;
-
+  }
+  
   return 0;
 }
 
