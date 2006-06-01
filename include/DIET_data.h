@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.41  2006/06/01 13:02:38  ycaniou
+ * BATCH: Add nbprocess field in diet_profile_t
+ *
  * Revision 1.40  2006/04/18 13:10:17  ycaniou
  * C++ -> C commentaries to avoid warning
  *
@@ -244,7 +247,8 @@ typedef struct {
 #ifdef HAVE_BATCH
   unsigned short int batch_flag ;
   int nbprocs ;
-  unsigned long walltime ;
+  int nbprocess ;
+  unsigned long walltime ; /* in minutes */
   /* Used for correspondance batch job ID / DIET job ID */
   int dietJobID ;
 #endif
@@ -271,8 +275,6 @@ diet_profile_free(diet_profile_t* profile);
 #ifdef HAVE_BATCH
 int
 diet_profile_set_batch(diet_profile_t* profile) ;
-int
-diet_profile_set_parallel(diet_profile_t* profile) ;
 int
 diet_profile_set_nbprocs(diet_profile_t* profile, int nbprocs) ;
 #endif
@@ -569,7 +571,7 @@ typedef struct diet_arg_s diet_data_t;
 #define EST_DISKACCESWRITE 19
 #define EST_ALLINFOS 20 
 #define EST_USERDEFINED 21
-  /*} diet_est_tag_t;*/
+/*} diet_est_tag_t;*/
 
 
 /**
@@ -633,5 +635,6 @@ _diet_wf_string_get(const char * id,
 }
 #endif /* __cplusplus */
 
-#endif /* _DIET_DATA_H_*/
+#endif /* _DIET_DATA_H_ */
+
 
