@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2006/06/03 21:13:58  ycaniou
+ * Batch: add nbprocess field to corba structures
+ *
  * Revision 1.16  2006/04/14 14:14:06  aamar
  * Adding the IDL data structures for workflow support.
  *
@@ -265,6 +268,7 @@ struct corba_pb_desc_t {
 #if HAVE_BATCH
   long   batch_flag ;
   long   nbprocs ;
+  long   nbprocess ;
   long   walltime ;
 #endif
 };
@@ -278,8 +282,8 @@ struct corba_profile_t {
 #if HAVE_BATCH
   long   batch_flag ;
   long   nbprocs ;
+  long   nbprocess ;
   long   walltime ;
-
   unsigned long dietJobID ;
 #endif
 };
