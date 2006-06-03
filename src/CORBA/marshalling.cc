@@ -9,6 +9,15 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.61  2006/06/03 21:34:46  ycaniou
+ * Correct DIET_FILE unmarshalling bug:
+ * Put initialization of diet_data_desc_t in unmrsh_data_desc()
+ * in case of DIET_FILE: it was the only case where it wasn't. This id is then
+ * used in mrsh_profile_to_out_args().
+ * -- tkx Gaël, Philippe & Mathieu
+ *
+ * Batch: update (un)marshalling stuff (nbprocess + bugs)
+ *
  * Revision 1.60  2006/04/14 14:16:15  aamar
  * Adding the marshalling functions between C workflow data types and
  * the corresponding IDL types.
@@ -214,13 +223,13 @@ __mrsh_data_desc_type(corba_data_desc_t* dest,
     }
     break;
   }
-    case DIET_VECTOR: {
-      corba_vector_specific_t vect;
-
-	  vect.size = src->specific.vect.size;
-      dest->specific.vect(vect);
-     break;
-      }
+  case DIET_VECTOR: {
+    corba_vector_specific_t vect;
+    
+    vect.size = src->specific.vect.size;
+    dest->specific.vect(vect);
+    break;
+  }
   case DIET_MATRIX: {
     corba_matrix_specific_t mat;
 
@@ -233,7 +242,7 @@ __mrsh_data_desc_type(corba_data_desc_t* dest,
    case DIET_STRING: {
      corba_string_specific_t str;
 
-	 str.length = src->specific.str.length;
+     str.length = src->specific.str.length;
      dest->specific.str(str);
      break;
    }
@@ -272,7 +281,6 @@ __mrsh_data_desc_type(corba_data_desc_t* dest,
 int
 mrsh_data_desc(corba_data_desc_t* dest, diet_data_desc_t* src)
 {
-
   if (src->id != NULL)
     // deallocates old dest->id.idNumber
     dest->id.idNumber = CORBA::string_dup(src->id);
@@ -312,7 +320,6 @@ mrsh_data(corba_data_t* dest, diet_data_t* src, int release)
       }
       for (unsigned int i = 0; i < size; i++) {
         value[i] = infile.get();
-
       }
       infile.close();
     } else {
@@ -452,15 +459,14 @@ unmrsh_data_desc(diet_data_desc_t* dest, const corba_data_desc_t* const src)
     break;
   }
   case DIET_FILE: {
-#if HAVE_JUXMEM
     dest->id = id;
-#endif // HAVE_JUXMEM
     dest->mode = (diet_persistence_mode_t)src->mode;
     diet_generic_desc_set(&(dest->generic), DIET_FILE, DIET_CHAR);
     dest->specific.file.size = src->specific.file().size;
 #if HAVE_JUXMEM
     dest->specific.file.path = CORBA::string_dup(src->specific.file().path);
 #else
+    /* File name is different on SeD than on client. Here, init only */
     dest->specific.file.path = NULL;
 #endif // HAVE_JUXMEM
     break;
@@ -474,12 +480,12 @@ unmrsh_data_desc(diet_data_desc_t* dest, const corba_data_desc_t* const src)
 
 int
 unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
-{
-  if(src->desc.mode == DIET_VOLATILE && upDown == 1){ 
+{  
+  if( (src->desc.mode == DIET_VOLATILE) && (upDown == 1) ){ 
     char *tmp=NULL;
-    src->desc.id.idNumber=CORBA::string_dup(tmp);
+    src->desc.id.idNumber=CORBA::string_dup(tmp); // frees old dest. ptr. mem.
   }
-  if (unmrsh_data_desc(&(dest->desc), &(src->desc)))
+  if ( unmrsh_data_desc(&(dest->desc),&(src->desc)) )
     return 1;
 #if ! HAVE_JUXMEM
   if (src->desc.specific._d() == (long) DIET_FILE) {
@@ -628,7 +634,7 @@ mrsh_profile_desc(corba_profile_desc_t* dest, const diet_profile_desc_t* src)
 
 
 /****************************************************************************/
-/* Problem profile -> corba profile description (for client requests)       */
+/* Problem profile -> corba profile description (client requests to agent)  */
 /****************************************************************************/
 
 int
@@ -640,9 +646,8 @@ mrsh_pb_desc(corba_pb_desc_t* dest, const diet_profile_t* const src)
   dest->last_out   = src->last_out;
   dest->param_desc.length(src->last_out + 1);
   for (int i = 0; i <= src->last_out; i++) {
-    // dest->param_desc[i].id.idNumber = CORBA::string_dup(NULL);
-
-    /** Hack for correctly building CORBA profile. JuxMem does not require a call to the MA */
+    /** Hack for correctly building CORBA profile. 
+	JuxMem does not require a call to the MA */
 #if HAVE_JUXMEM
     mrsh_data_desc(&(dest->param_desc[i]), &(src->parameters[i].desc));
 #else
@@ -656,14 +661,14 @@ mrsh_pb_desc(corba_pb_desc_t* dest, const diet_profile_t* const src)
 #if HAVE_BATCH
   dest->batch_flag = src->batch_flag ;
   dest->nbprocs    = src->nbprocs ;
-  dest->walltime   = src->walltime ;
+  dest->nbprocess  = src->nbprocess ;
 #endif
   return 0;
 }
 
 
 /****************************************************************************/
-/* Client sends its data ...                                                */
+/* Client sends its data to server ...                                      */
 /****************************************************************************/
 
 int
@@ -674,6 +679,7 @@ mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src)
 #if HAVE_BATCH
   dest->batch_flag = src->batch_flag ;
   dest->nbprocs    = src->nbprocs ;
+  dest->nbprocess  = src->nbprocess ;
   dest->walltime   = src->walltime ;
   dest->dietJobID  = src->dietJobID ;
 #endif
@@ -698,8 +704,7 @@ mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src)
          // although it is volatile
          ERROR(__FUNCTION__ << ": IN or INOUT parameter "
                << i << " is volatile but contains no data", 1);
-       }
-       else {
+       } else {
          if (mrsh_data(&(dest->parameters[i]), &(src->parameters[i]), 0)) {
            return 1;
          }
@@ -709,10 +714,13 @@ mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src)
    } 
    
    for (; i <= src->last_out; i++) {
-     if (mrsh_data_desc(&(dest->parameters[i].desc), &(src->parameters[i].desc)))
+     if(mrsh_data_desc(&(dest->parameters[i].desc),&(src->parameters[i].desc)))
        return 1;
      dest->parameters[i].value.replace(0, 0, NULL, 1);
    }
+
+   // YC: for the moment, dest data have id set to ""
+
   return 0;
 }
 
@@ -795,10 +803,11 @@ unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
   }
 
 #if HAVE_BATCH
-  dest->batch_flag = cvt->batch_flag ;
-  dest->nbprocs    = cvt->nbprocs ;
-  dest->walltime   = cvt->walltime ;
-  // FIXME: same with dietJobID
+  dest->batch_flag = src->batch_flag ;
+  dest->nbprocs    = src->nbprocs ;
+  dest->nbprocess  = src->nbprocess ;
+  dest->walltime   = src->walltime ;
+  dest->dietJobID  = src->dietJobID ;
 #endif
   dest->pb_name    = cvt->path;
   dest->last_in    = cvt->last_in;
@@ -828,6 +837,7 @@ unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
       // Duplicate the value field, so that it can be freed by user
       duplicate_value = 1;
     }
+
     if (cvt_arg(&(dest->parameters[i]), dd_tmp,
                 cvt->arg_convs[i].f, duplicate_value)) {
       delete src_params;
@@ -929,6 +939,12 @@ unmrsh_out_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb)
          || (dpb->last_out   != cpb->last_out)
 	 )
     return 1;
+
+#if HAVE_BATCH
+  // if client wants to know how many procs and process have been used
+  dpb->nbprocs = cpb->nbprocs ;
+  dpb->nbprocess = cpb->nbprocess ;
+#endif
 
   // Unmarshal INOUT parameters descriptions only ; indeed, the ORB has filled
   // in the memory zone pointed at by the diet_data value field, since the
