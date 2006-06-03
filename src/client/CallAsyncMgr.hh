@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2006/06/03 21:12:13  ycaniou
+ * Correct warning "'CallAsyncMgr::dex' contains empty classes"
+ * -- tkx Injay
+ *
  * Revision 1.9  2003/12/01 14:49:31  pcombes
  * Rename dietTypes.hh to DIET_data_internal.hh, for more coherency.
  *
@@ -55,7 +59,7 @@
  ****************************************************************************/
 
 
-class DietException {};
+class DietException { int zazoom ; };
 
 typedef enum WAITOPERATOR{
   SOLE = 0,     // Wait rule is about a unique request
