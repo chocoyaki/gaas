@@ -308,8 +308,8 @@ Easy_Disk::get_Write_Speed_by_gettimeofday(const char* path,
     t2=tim.tv_sec+(tim.tv_usec/1000000.0);	
     elapsed_time= t2-t1;
    }
- outfile.close();
-  
+// To avoid std::ios_base::failure from libstdc++ after a remove function close seems not required.   
+// outfile.close();  
  double Mpersec;
  if(elapsed_time==0)
    return 1;
