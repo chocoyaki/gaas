@@ -63,11 +63,11 @@ ADD_CUSTOM_COMMAND(
   COMMENT   "Latex (third pass)"
   )
 
+# Trigger the pipeline by requiring LaTeX's log file:
 ADD_CUSTOM_TARGET(LaTeXDocument
    ALL echo
    DEPENDS
       ${CMAKE_CURRENT_BINARY_DIR}/UsersManual.log
-      DIET_TARGET_USERS_FIGURES
    )
 
 ### But FIRST, convert the required figures (various formats) to eps:
