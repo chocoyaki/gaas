@@ -10,6 +10,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.14  2006/06/06 09:05:30  eboix
+%* FIX. --- Injay2461
+%*
 %* Revision 1.13  2006/01/25 16:52:55  pfrauenk
 %* CoRI : renaming of the chapter performance prediction with fast
 %* 	to performance prediction, add of the CoRI Usersmanual,
@@ -132,7 +135,7 @@ value fields on the server. Indeed, this would make DIET confused
 about how to manage the data{\footnote{And the server developer
 should not be confused by the fact that
 \texttt{diet\_scalar\_desc\_set} uses a value, since scalar values
-are copied into the data descriptor.}.
+are copied into the data descriptor.}}.
 
 {\footnotesize
 \begin{verbatim}
@@ -169,7 +172,7 @@ diet_file_desc_set(diet_data_t* data, char* path);
 \subsubsection*{Defining services}
 
 First, declare the service(s) that will be offered{\footnote{It is
-possible to declare several services for one single SeD.}.
+possible to declare several services for one single SeD.}}.
 Each service is described by a profile description called
 \texttt{diet\_profile\_desc\_t} since the service does not specify
 the sizes of the data. The \texttt{diet\_profile\_desc\_t} type is
