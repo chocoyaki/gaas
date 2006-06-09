@@ -201,11 +201,6 @@ IF( DIET_USE_WORKFLOW )
   ENDIF (NOT QTXML_FOUND)
 ENDIF( DIET_USE_WORKFLOW )
 
-# --------------------------------------------------------------------------
-ADD_SUBDIRECTORY( src )
-ADD_SUBDIRECTORY( include )
-ADD_SUBDIRECTORY( Cmake )
-
 # --------------- HANDLE BUILD TYPE DEFAULT AND EXTENSIONS  ------------------
 # First offer an extra maintainer build type i.e. a build mode for which
 # the compiler and linker go paranoid and report about most of the warning
@@ -274,11 +269,40 @@ ENDIF(NOT CMAKE_BUILD_TYPE)
 # ---------------- HANDLE SPECIFICITIES OF THE C COMPILER ------------------
 INCLUDE( ${DIET_SOURCE_DIR}/Cmake/ConfigureCCompiler.cmake )
 
-# ---------------- OPTIONAL DART SUPPORT -----------------------------------
+# ------------------- CTEST SUPPORT ----------------------------------------
+IF( BUILD_TESTING OR DIET_USE_DART )
+  # Caveat emptor:
+  # 1/ Excerpt from docs about ENABLE_TESTING:
+  #    [...] ctest expects to find a test file in the build directory root.
+  #    Therefore, this command should be in the source directory root.
+  # 2/ ENABLE_TESTING() has to be run prior to any ADD_TEST() command (or
+  #    the ADD_TEST are simply ignored). Since the Testing directory is
+  #    within the src subdir, the ENABLE_TESTING() must occur PRIOR to
+  #    the ADD_SUBDIRECTORY( src ) command (see below).
+  # 3/ Dart2 support also requires the ENABLE_TESTING() to be present
+  #    and invoked prior to the INCLUDE( CTest ) command (see below).
+  ENABLE_TESTING()
+  # For comments on the following CXX_TEST_PATH refer to
+  #   http://public.kitware.com/pipermail/cmake/2002-January/002643.html
+  IF( EXECUTABLE_OUTPUT_PATH )
+    SET( CXX_TEST_PATH ${EXECUTABLE_OUTPUT_PATH} )
+  ELSE( EXECUTABLE_OUTPUT_PATH )
+    SET (CXX_TEST_PATH .)
+  ENDIF (EXECUTABLE_OUTPUT_PATH)
+ENDIF( BUILD_TESTING OR DIET_USE_DART )
+
+# ---------------- OPTIONAL DART2 CLIENT SUPPORT ---------------------------
+# Refer to http://na-mic.org/Wiki/index.php/Dart2Summary
 IF( DIET_USE_DART )
-  # Refer to http://public.kitware.com/Dart/ for docs on Dart.
-  INCLUDE( ${CMAKE_ROOT}/Modules/Dart.cmake )
+  # With the following include you somehow engage yourself in providing
+  # a CTestConfig.cmake file: refer to Modules/CTest.cmake for further details.
+  INCLUDE( CTest )
 ENDIF( DIET_USE_DART )
+
+# --------------------------------------------------------------------------
+ADD_SUBDIRECTORY( src )
+ADD_SUBDIRECTORY( include )
+ADD_SUBDIRECTORY( Cmake )
 
 # --------------------------------------------------------------------------
 # QUESTIONS:
