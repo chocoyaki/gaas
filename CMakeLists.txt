@@ -105,12 +105,6 @@ ENDIF( OMNIORB4_FOUND )
 # documentation and compiling/linking with gobs of found warnings...
 IF( DIET_MAINTAINER_MODE )
   SET( DIET_BUILD_EXAMPLES ON )
-  IF(NOT CMAKE_BUILD_TYPE)
-    SET( CMAKE_BUILD_TYPE Maintainer CACHE STRING
-    "Build mode"
-    FORCE
-  )
-  ENDIF(NOT CMAKE_BUILD_TYPE)
 ENDIF( DIET_MAINTAINER_MODE )
 
 IF( DIET_BUILD_DOCUMENTATION )
@@ -201,70 +195,8 @@ IF( DIET_USE_WORKFLOW )
   ENDIF (NOT QTXML_FOUND)
 ENDIF( DIET_USE_WORKFLOW )
 
-# --------------- HANDLE BUILD TYPE DEFAULT AND EXTENSIONS  ------------------
-# First offer an extra maintainer build type i.e. a build mode for which
-# the compiler and linker go paranoid and report about most of the warning
-# they are aware of.
-# Note: the real test for offering this option should be against the compiler
-#       and not against the system, since the flags that we set below are only
-#       valid for gcc.
-SET( CMAKE_BUILD_TYPE_DOCSTRING
-  "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel." )
-
-IF( UNIX )
-  # -Wold-style-cast generates too many warnings due to omniORB includes
-  # -pedantic generates ISO C++ unsupported 'long long' errors for omniORB
-  # includes
-  SET( CMAKE_CXX_FLAGS_MAINTAINER
-    "-Wall -Wabi -Wstrict-null-sentinel -Woverloaded-virtual"
-    CACHE STRING 
-    "Flags used by the C++ compiler during maintainer builds."
-    FORCE
-  )
-  SET( CMAKE_C_FLAGS_MAINTAINER
-    "-Wall -pedantic"
-    CACHE STRING 
-    "Flags used by the C compiler during maintainer builds."
-    FORCE
-  )
-  SET( CMAKE_EXE_LINKER_FLAGS_MAINTAINER
-    "-Wl,--unresolved-symbols=report-all,--warn-unresolved-symbols,--warn-once"
-    CACHE STRING 
-    "Flags used for linking binaries during maintainer builds."
-    FORCE
-  )
-  SET( CMAKE_SHARED_LINKER_FLAGS_MAINTAINER
-    "-Wl,--unresolved-symbols=report-all,--warn-unresolved-symbols,--warn-once"
-    CACHE STRING 
-    "Flags used by the shared libraries linker during maintainer builds."
-    FORCE
-  )
-  SET( CMAKE_MODULE_LINKER_FLAGS_MAINTAINER
-    "-dummy_option_to_see_what_happens"
-    CACHE STRING 
-    "What the hack is a module anyhow (Apple notion?)..."
-    FORCE
-  )
-  MARK_AS_ADVANCED(
-    CMAKE_CXX_FLAGS_MAINTAINER
-    CMAKE_C_FLAGS_MAINTAINER
-    CMAKE_EXE_LINKER_FLAGS_MAINTAINER
-    CMAKE_SHARED_LINKER_FLAGS_MAINTAINER
-    CMAKE_MODULE_LINKER_FLAGS_MAINTAINER
-  )
-  SET( CMAKE_BUILD_TYPE_DOCSTRING
-    "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel Maintainer." )
-ENDIF( UNIX )
-
-# Set the default build mode to compile c++ and c code with optimizations
-# and debug info (roughly speaking "-O2 -g" on Un*x):
-IF(NOT CMAKE_BUILD_TYPE)
-  SET( CMAKE_BUILD_TYPE
-    RelWithDebInfo CACHE STRING
-    ${CMAKE_BUILD_TYPE_DOCSTRING}
-    FORCE
-  )
-ENDIF(NOT CMAKE_BUILD_TYPE)
+# --------------- OFFER BUILD MODE EXTENSIONS AND DEFAULTS  ----------------
+INCLUDE( ${DIET_SOURCE_DIR}/Cmake/DietDefaultBuildTypes.cmake )
 
 # ---------------- HANDLE SPECIFICITIES OF THE C COMPILER ------------------
 INCLUDE( ${DIET_SOURCE_DIR}/Cmake/ConfigureCCompiler.cmake )
