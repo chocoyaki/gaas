@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2006/06/16 10:37:33  abouteil
+ * Chandra&Toueg&Aguilera fault detector support added
+ *
  * Revision 1.20  2006/01/25 21:08:00  pfrauenk
  * CoRI - plugin scheduler: the type diet_est_tag_t est replace by int
  *        some new fonctions in DIET_server.h to manage the estVector
@@ -210,9 +213,9 @@ DietLogComponent::DietLogComponent(const char* name,
   pingThread=NULL;
 
   // define tags
-  tagCount = 16;
+  tagCount = 18;
   tagFlags = createBoolArrayFalse(tagCount);
-  tagNames = new char*[16];
+  tagNames = new char*[17];
   tagNames[0] = strdup("ADD_SERVICE");
   tagNames[1] = strdup("ASK_FOR_SED");
   tagNames[2] = strdup("SED_CHOSEN");
@@ -231,7 +234,8 @@ DietLogComponent::DietLogComponent(const char* name,
   tagNames[15] = strdup("JUXMEM_DATA_USE");
   tagNames[14] = strdup("NOT_DEFINED1");
   tagNames[15] = strdup("NOT_DEFINED2");
-
+  tagNames[16] = strdup("FAILURE");
+  tagNames[17] = strdup("FD_OBSERVE"); 
   
   CORBA::Object_ptr myLCCptr;
 
@@ -939,3 +943,20 @@ DietLogComponent::logBandwidth(double bandwidth) {
 
 }
 
+#if HAVE_FD
+void DietLogComponent::logFailure(const char *observed) {
+  if (tagFlags[16]) {
+    log(tagNames[16], observed);
+  }
+}
+
+void DietLogComponent::logDetectorParams(const char *observed, double Pl, double Vd, double eta, double alpha) {
+  if (tagFlags[17]) {
+    char *buf;
+    
+    buf = (char *) malloc(strlen(observed) + 84);
+    sprintf(buf, "%s %14.4f %14.4f %14.4f %14.4f", observed, Pl, Vd, eta, alpha);
+    log(tagNames[17], buf);
+  }
+}
+#endif

@@ -1,5 +1,9 @@
 # DIET cmake local file
 
+IF( DIET_USE_FD )
+  SUBDIRS( fd )
+ENDIF (DIET_USE_FD)  
+
 INCLUDE_DIRECTORIES(
   ${OMNIORB4_INCLUDE_DIR}
   ${DIET_BINARY_DIR}/src/CORBA/idl

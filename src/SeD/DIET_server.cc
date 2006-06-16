@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.54  2006/06/16 10:37:32  abouteil
+ * Chandra&Toueg&Aguilera fault detector support added
+ *
  * Revision 1.53  2006/05/22 19:55:59  hdail
  * Introduced uniform output format for SeD configuration option output at
  * launch time.
@@ -81,6 +84,10 @@ using namespace std;
 #else
 #include "DataMgrImpl.hh"
 #endif // HAVE_JUXMEM
+
+#if HAVE_FD
+#include "fd/fd.h"
+#endif
 
 #if HAVE_BATCH
 #include "strseed.h"
@@ -699,6 +706,13 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
 
   // Just start the thread, as it might not be FAST-related
   monitoringThread = new MonitoringThread(dietLogComponent);
+
+#if HAVE_FD
+  /* very simple registration: SeD only is observable by FD, no details on 
+   * services hosted by this sed
+   */
+  fd_register_service(getpid(), 1);
+#endif
 
   /* SeD creation */
   SeD = new SeDImpl();

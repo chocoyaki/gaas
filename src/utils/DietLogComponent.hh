@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2006/06/16 10:37:33  abouteil
+ * Chandra&Toueg&Aguilera fault detector support added
+ *
  * Revision 1.8  2005/07/01 13:00:12  rbolze
  * Agents send their list of SeD to LogCentral with each value of the estimation vector.
  *
@@ -281,6 +284,16 @@ public:
   void logLatency(double latency);
   void logBandwidth(double bandwidth);
 
+
+#if HAVE_FD
+  /** log failure detections */
+  void logFailure(const char *observed);
+  /** log failure detectors reconfigurations (and detected network conditions) */
+  void logDetectorParams(const char *observed, double Pl, double Vd, double eta, double alpha);
+#else 
+#warning PAS DE FD
+
+#endif  
 
   /**
    * No-User functions

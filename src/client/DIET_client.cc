@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.75  2006/06/16 10:37:32  abouteil
+ * Chandra&Toueg&Aguilera fault detector support added
+ *
  * Revision 1.74  2006/04/14 14:18:50  aamar
  * Two major modifications for workflow support:
  * a. API extension for workflow support:
@@ -87,6 +90,9 @@ using namespace std;
 #include "debug.hh"
 #include "est_internal.hh"
 #include "DIET_data_internal.hh"
+#if HAVE_FD
+#include "fd/fd.h"
+#endif
 #if HAVE_JUXMEM
 #include "JuxMem.hh"
 #endif // HAVE_JUXMEM
@@ -99,6 +105,7 @@ using namespace std;
 
 #include "CallAsyncMgr.hh"
 #include "CallbackImpl.hh"
+
 
 // for workflow support
 #ifdef HAVE_WORKFLOW
@@ -116,7 +123,20 @@ static bool use_ma_dag_sched = true;
 #define BEGIN_API extern "C" {
 #define END_API   } // extern "C"
 
+#ifdef HAVE_FD
+#ifndef DIET_DEFAULT_FD_QOS
+/* set a default QoS for fault detector 
+ * 30s detection time, 60s false detection, 1 month between two errors
+ */
+#define DIET_DEFAULT_FD_QOS 30.0, 2678400.0, 60.0
+#endif
 
+/* Recovery after failure func */
+static void diet_call_failure_recover(fd_handle fd)
+{
+
+}
+#endif /* HAVE_FD */
 
 /****************************************************************************/
 /* Global variables                                                         */
@@ -284,6 +304,11 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
 #if HAVE_JUXMEM
   juxmem = new JuxMem::Wrapper(NULL);
 #endif // HAVE_JUXMEM
+
+#if HAVE_CKPT
+
+
+#endif
 
   /* Find Master Agent */
   MA_name = (char*)
@@ -642,6 +667,12 @@ request_submission(diet_profile_t* profile,
     if (server_OK >= 0) {
       chosenServer = response->servers[server_OK].loc.ior;
       reqID = response->reqID;
+#ifdef HAVE_FD
+      fd_handle fd = fd_make_handle();
+      fd_set_qos(fd, DIET_DEFAULT_FD_QOS);
+      fd_set_service(fd, response->servers[server_OK].loc.hostName, 1);
+      fd_observe(fd);
+#endif
     }
     sprintf(statMsg, "request_submission %ld", (unsigned long) reqID);
     stat_out("Client",statMsg);
@@ -751,6 +782,9 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
     stat_in("Client",statMsg);
 
     TRACE_TEXT(TRACE_MAIN_STEPS, "Calling the ref Corba of the SeD\n");
+#if HAVE_FD
+    fd_set_transition_handler(diet_call_failure_recover);
+#endif
     solve_res = chosenServer->solve(profile->pb_name, corba_profile,reqID);
     stat_out("Client",statMsg);
    } catch(CORBA::MARSHAL& e) {

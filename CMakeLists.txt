@@ -19,6 +19,7 @@ OPTION( DIET_WITH_MULTI_MA   "Build DIET with MULTI-Master-Agent support." OFF )
 OPTION( DIET_MAINTAINER_MODE "Build additional documentation..." OFF )
 OPTION( DIET_USE_WORKFLOW "Build DIET with workflow support..." OFF)
 OPTION( DIET_USE_DART "Build DIET for dart reporting..." OFF)
+OPTION( DIET_USE_FD "Use Diet Fault Detector." OFF)
 # --------------------- BUILDING DEFAULT OPTIONS  --------------------------
 # By default build dynamic libraries:
 OPTION( BUILD_SHARED_LIBS "Build DIET with shared libraries." ON )
@@ -163,6 +164,11 @@ ENDIF( DIET_USE_JXTA )
 IF( DIET_WITH_MULTI_MA )
   ADD_DEFINITIONS( -DHAVE_MULTI_MA )
 ENDIF( DIET_WITH_MULTI_MA )
+
+# Define for Fault Detection system
+IF( DIET_USE_FD )
+  ADD_DEFINITIONS( -DHAVE_FD )
+ENDIF( DIET_USE_FD )
 
 IF( DIET_USE_FAST )
   FIND_PACKAGE( FAST )
