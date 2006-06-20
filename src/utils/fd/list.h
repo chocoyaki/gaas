@@ -1,10 +1,17 @@
-
-	/***************************************\
-	 * Linked List                         *
-	 * Aurélien Bouteiller                 *
-	\***************************************/
-
-
+/****************************************************************************/
+/* DIET Fault Detector simple lists headers                                 */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Aurélien Bouteiller (aurelien.bouteiller@inria.fr)                  */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$ 
+ * $Log$
+ * Revision 1.2  2006/06/20 13:18:27  abouteil
+ *
+ * Testing if comments in headers are correct
+ *
+ ****************************************************************************/
 #ifndef _LIST_H_
 #define _LIST_H_
 
