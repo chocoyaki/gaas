@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.76  2006/06/21 23:23:48  ecaron
+ * Taking into account the error code for GRPC_ALREADY_INITIALIZED
+ *
  * Revision 1.75  2006/06/16 10:37:32  abouteil
  * Chandra&Toueg&Aguilera fault detector support added
  *
@@ -210,7 +213,7 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   if (!CORBA::is_nil(MA)) {
     WARNING(__FUNCTION__ << ": diet_finalize has not been called");
     MA_MUTEX.unlock();
-    return 0;
+    return 15;
   }
   
   /* Set arguments for ORBMgr::init */
