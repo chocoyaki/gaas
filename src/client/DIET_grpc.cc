@@ -3,11 +3,19 @@
 /*                                                                          */
 /*  Author(s):                                                              */
 /*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
+/*    - Eddy CARON (Eddy.Caron@ens-lyon.fr)                                 */
+/*    - Cedric Tedeschi (Cedric.Tedeschi@ens-lyon.fr)                       */
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2006/06/21 23:14:11  ecaron
+ * - New structure for grpc_function_handle_s to become compliant with
+ * the client provides by gridrpc-wg to check the interoperability.
+ *
+ * - Add new grpc function : grpc_error_string
+ *
  * Revision 1.1  2003/07/25 20:37:36  pcombes
  * Separate the DIET API (slightly modified) from the GridRPC API (version of
  * the draft dated to 07/21/2003)
@@ -15,9 +23,8 @@
  ****************************************************************************/
 
 #include "DIET_client.h" // includes DIET_grpc.h
-
+#include <ORBMgr.hh>
 #include <stdarg.h>
-
 #include "debug.hh"
 
 
@@ -44,12 +51,7 @@ END_API
 
 BEGIN_API
 
-struct grpc_function_handle_s {
-  char* func_name;
-  SeD_var server;
-};
-#define DIET_DEFAULT_SERVER SeD::_nil()
-
+#define DIET_DEFAULT_SERVER NULL
 
 /* Allocate a function handle and set its server to DIET_DEFAULT_SERVER */
 grpc_error_t
@@ -323,6 +325,8 @@ grpc_call(grpc_function_handle_t* handle, ...)
 {
   va_list ap;
   diet_profile_t* profile;
+  SeD_var server;
+  corba_response_t* response(NULL);
   grpc_error_t res(0);
 
   va_start(ap, handle);
@@ -330,7 +334,8 @@ grpc_call(grpc_function_handle_t* handle, ...)
     return res;
   va_end(ap);
 
-  res = diet_call_common(profile, handle->server);
+  res = diet_call_common(profile, server);
+  handle->server = ORBMgr::getIORString(response->servers[0].loc.ior);
   diet_profile_free(profile);
   return res;
 }
@@ -342,7 +347,9 @@ grpc_call_async(grpc_function_handle_t* handle,
   diet_profile_t* profile;
   va_list ap;
   grpc_error_t res(0);
-
+  CORBA::Object_var chosenObject;
+  SeD_var chosenServer;
+	  
   if (!sessionID) {
     ERROR(__FUNCTION__ << ": 2nd argument has not been allocated", 1);
   }
@@ -350,8 +357,10 @@ grpc_call_async(grpc_function_handle_t* handle,
   if ((res = grpc_build_profile(profile, handle->func_name, ap)))
     return res;
   va_end(ap);
-
-  res = diet_call_async_common(profile, handle->server, sessionID);
+  
+  chosenObject = ORBMgr::stringToObject(handle->server);
+  chosenServer = SeD::_narrow(chosenObject);
+  res = diet_call_async_common(profile,chosenServer, sessionID);
   diet_profile_free(profile);
   return res;
 }
@@ -369,11 +378,15 @@ grpc_call_argstack(grpc_function_handle_t* handle, grpc_arg_stack_t* args)
 {
   grpc_error_t res;
   diet_profile_t* profile;
+  CORBA::Object_var chosenObject;
+  SeD_var chosenServer;
 
   if ((res = grpc_build_profile(profile, handle->func_name, args)))
     return res;
-  
-  res = diet_call_common(profile, handle->server);
+
+  chosenObject = ORBMgr::stringToObject(handle->server);
+  chosenServer = SeD::_narrow(chosenObject);  
+  res = diet_call_common(profile, chosenServer);
   diet_profile_free(profile);
   return res;
 }
@@ -385,14 +398,47 @@ grpc_call_argstack_async(grpc_function_handle_t* handle,
 {
   grpc_error_t res;
   diet_profile_t* profile;
+  CORBA::Object_var chosenObject;
+  SeD_var chosenServer;
 
   if ((res = grpc_build_profile(profile, handle->func_name, args)))
     return res;
   
-  res = diet_call_async_common(profile, handle->server, sessionID);
+  chosenObject = ORBMgr::stringToObject(handle->server);
+  chosenServer = SeD::_narrow(chosenObject);  
+  res = diet_call_async_common(profile, chosenServer, sessionID);
   diet_profile_free(profile);
   return 0;
 }
 
 END_API
 
+/****************************************************************************/
+/* GridRPC Error Reporting Functions                                        */
+/****************************************************************************/
+
+BEGIN_API
+
+char *grpc_error_string(grpc_error_t error_code)
+{
+
+	switch(error_code)
+	{
+		case  0 : return(CORBA::string_dup("GRPC_NO_ERROR"));
+		case  1 : return(CORBA::string_dup("GRPC_NOT_INITIALIZED"));
+		case  2 : return(CORBA::string_dup("GRPC_CONFIGFILE_NOT_FOUND"));
+		case  3 : return(CORBA::string_dup("GRPC_CONFIGFILE_ERROR"));
+		case  4 : return(CORBA::string_dup("GRPC_SERVER_NOT_FOUND"));
+		case  5 : return(CORBA::string_dup("GRPC_FUNCTION_NOT_FOUND"));
+		case  6 : return(CORBA::string_dup("GRPC_INVALID_FUNCTION_HANDLE"));
+		case  7 : return(CORBA::string_dup("GRPC_INVALID_SESSION_ID"));
+		case  8 : return(CORBA::string_dup("GRPC_RPC_REFUSED"));
+		case  9 : return(CORBA::string_dup("GRPC_COMMUNICATION_FAILED"));
+		case 10 : return(CORBA::string_dup("GRPC_SESSION_FAILED"));
+		case 11 : return(CORBA::string_dup("GRPC_NOT_COMPLETED"));
+		case 12 : return(CORBA::string_dup("GRPC_NONE_COMPLETED"));
+		default : return(CORBA::string_dup("GRPC_OTHER_ERROR_CODE"));
+	}	
+}		
+																								
+END_API
