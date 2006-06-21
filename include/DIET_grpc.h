@@ -3,11 +3,18 @@
 /*                                                                          */
 /*  Author(s):                                                              */
 /*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       */
+/*	  - Eddy CARON (Eddy.Caron@ens-lyon.fr)									*/
+/*	  - Cedric Tedeschi (Cedric.Tedeschi@ens-lyon.fr)						*/
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2006/06/21 23:20:33  ecaron
+ * - New structure for grpc_function_handle_s to become compliant with the client provides by gridrpc-wg to check the interoperability.
+ *
+ * - Add GridRPC error code
+ *
  * Revision 1.3  2006/04/12 16:13:11  ycaniou
  * Commentaries C++->C to avoid compilation warnings
  *
@@ -38,7 +45,10 @@ extern "C" {
 /* Variables of this data type represent remote function that has been bound
    to a specific server. Until destroyed, a function handle may be used to
    invoke the remote function as many times as desired.                     */
-typedef struct grpc_function_handle_s grpc_function_handle_t;
+typedef struct grpc_function_handle_s {
+  char* func_name;
+  const char* server;
+} grpc_function_handle_t;
 
 /* Variables of this data type represent a specific non-blocking GridRPC
    call. Session Ids are used to probe or wait for call completion, to
@@ -111,7 +121,6 @@ diet_arg_t*
 diet_grpc_arg_diet_arg(diet_grpc_arg_t* arg);
 
 /* 2. Stack functions */
-
 typedef struct grpc_arg_stack_s grpc_arg_stack_t;
 
 /* Create a new argument stack. maxsize is the maximum number of arguments
@@ -208,10 +217,38 @@ grpc_call_argstack_async(grpc_function_handle_t* handle,
 /* Error Reporting Functions                                                */
 
 #define grpc_perror                   diet_perror
-#define grpc_error_string             diet_error_string
+
+/* This return the error description string, given a GridRPC error code. 
+   If the error code is unrecognized for any reason, the string C
+   GRPC_UNKNOWN_ERROR_CODE is returned										*/
+char *grpc_error_string(grpc_error_t error_code);
+
 #define grpc_get_error                diet_get_error
 #define grpc_get_last_error           diet_get_last_error
 
+/****************************************************************************/
+/* GridRPC Error code														*/
+#define GRPC_NO_ERROR 0
+#define GRPC_NOT_INITIALIZED 1
+#define GRPC_CONFIGFILE_NOT_FOUND 2
+#define GRPC_CONFIGFILE_ERROR 3
+#define GRPC_SERVER_NOT_FOUND 4
+#define GRPC_FUNCTION_NOT_FOUND 5
+#define GRPC_INVALID_FUNCTION_HANDLE 6
+#define GRPC_INVALID_SESSION_ID 7
+#define GRPC_RPC_REFUSED 8
+#define GRPC_COMMUNICATION_FAILED 9
+#define GRPC_SESSION_FAILED 10
+#define GRPC_NOT_COMPLETED 11
+#define GRPC_NONE_COMPLETED 12
+#define GRPC_OTHER_ERROR_CODE 13
+#define GRPC_UNKNOWN_ERROR_CODE 14
+#define GRPC_ALREADY_INITIALIZED 15
+#define GRPC_LAST_ERROR_CODE 16 
+
+/****************************************************************************/
+/* GridRPC Session code														*/
+#define GRPC_SESSIONID_VOID 0
 
 #ifdef __cplusplus
 }
