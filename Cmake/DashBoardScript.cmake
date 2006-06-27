@@ -45,28 +45,28 @@ SET (CTEST_INITIAL_CACHE "
 DIET_USE_DART:BOOL=ON
 
 ///////////////////////////////////////////////// OMNIORB SECTION
-OMNIORB4_DIR:PATH=\"${OMNIORB4}\"
+OMNIORB4_DIR:PATH=${OMNIORB4}
 
 //What is the path where omniidl (the idl compiler) can be found
-OMNIORB4_IDL_COMPILER:FILEPATH=\"${OMNIORB4}/bin/omniidl\"
+OMNIORB4_IDL_COMPILER:FILEPATH=${OMNIORB4}/bin/omniidl
 
 //What is the path where the file omniORB4/CORBA.h can be found
-OMNIORB4_INCLUDE_DIR:PATH=\"${OMNIORB4}/include\"
+OMNIORB4_INCLUDE_DIR:PATH=${OMNIORB4}/include
 
 //Where can the COS4 library be found
-OMNIORB4_LIBRARY_COS4:FILEPATH=\"${OMNIORB4}/lib/libCOS4.so\"
+OMNIORB4_LIBRARY_COS4:FILEPATH=${OMNIORB4}/lib/libCOS4.so
 
 //Where can the COSDynamic4 library be found
-OMNIORB4_LIBRARY_COSDynamic4:FILEPATH=\"${OMNIORB4}/lib/libCOSDynamic4.so\"
+OMNIORB4_LIBRARY_COSDynamic4:FILEPATH=${OMNIORB4}/lib/libCOSDynamic4.so
 
 //Where can the omniDynamic4 library be found
-OMNIORB4_LIBRARY_omniDynamic4:FILEPATH=\"${OMNIORB4}/lib/libomniDynamic4.so\"
+OMNIORB4_LIBRARY_omniDynamic4:FILEPATH=${OMNIORB4}/lib/libomniDynamic4.so
 
 //Where can the omniORB4 library be found
-OMNIORB4_LIBRARY_omniORB4:FILEPATH=\"${OMNIORB4}/lib/libomniORB4.so\"
+OMNIORB4_LIBRARY_omniORB4:FILEPATH=${OMNIORB4}/lib/libomniORB4.so
 
 //Where can the omnithread library be found
-OMNIORB4_LIBRARY_omnithread:FILEPATH=\"${OMNIORB4}/lib/libomnithread.so\"
+OMNIORB4_LIBRARY_omnithread:FILEPATH=${OMNIORB4}/lib/libomnithread.so
 
 ///////////////////////////////////////////////////////////////
 //Build DIET with CORI support.

@@ -18,39 +18,74 @@ SET( CMAKE_BUILD_TYPE_DOCSTRING
   "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel." )
 
 IF( CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX )
-  # -Wold-style-cast generates too many warnings due to omniORB includes
-  # -pedantic generates ISO C++ unsupported 'long long' errors for omniORB
-  # includes
+  # Notes:
+  # * -Wold-style-cast generates too many warnings due to omniORB includes
+  # * -pedantic generates ISO C++ unsupported 'long long' errors for omniORB
+  #    includes
+  # * -Wstrict-null-sentinel is only supported by recent g++ versions (hence
+  #    we check g++ major version number):
+  EXEC_PROGRAM( ${CMAKE_CXX_COMPILER}
+               ARGS -dumpversion
+               OUTPUT_VARIABLE GNUCXX_VERSION )
+  STRING(COMPARE GREATER ${GNUCXX_VERSION} "4.0.0"
+    GNUCXX_MAJOR_VERSION_BIGER_THAN_FOUR
+  )
+
+  IF( GNUCXX_MAJOR_VERSION_BIGER_THAN_FOUR )
+    SET( CMAKE_CXX_FLAGS_MAINTAINER
+       "-Wall -Wabi -Woverloaded-virtual -Wstrict-null-sentinel"
+     )
+  ELSE( GNUCXX_MAJOR_VERSION_BIGER_THAN_FOUR )
+    SET( CMAKE_CXX_FLAGS_MAINTAINER "-Wall -Wabi -Woverloaded-virtual" )
+  ENDIF( GNUCXX_MAJOR_VERSION_BIGER_THAN_FOUR )
   SET( CMAKE_CXX_FLAGS_MAINTAINER
-    "-Wall -Wabi -Wstrict-null-sentinel -Woverloaded-virtual"
+    ${CMAKE_CXX_FLAGS_MAINTAINER}
     CACHE STRING 
     "Flags used by the C++ compiler during maintainer builds."
     FORCE
   )
+
   SET( CMAKE_C_FLAGS_MAINTAINER
     "-Wall -pedantic"
     CACHE STRING 
     "Flags used by the C compiler during maintainer builds."
     FORCE
   )
-  SET( CMAKE_EXE_LINKER_FLAGS_MAINTAINER
+
+  # Some linker options (e.g. --warn-unresolved-symbols) are only known of
+  # recent GNU/ld version. Since ld itself doesn't support the nice
+  # -dumpversion option (as opposed to g++) we will make the strong assumption
+  # that the GNU/ld version is strongly coupled with the one of
+  # CMAKE_CXX_COMPILER (which we know to be GNU's c++ compiler). Hence the
+  # following lazy kludge:
+  IF( GNUCXX_MAJOR_VERSION_BIGER_THAN_FOUR )
+    SET( CMAKE_EXE_LINKER_FLAGS_MAINTAINER
     "-Wl,--unresolved-symbols=report-all,--warn-unresolved-symbols,--warn-once"
+    )
+  ELSE( GNUCXX_MAJOR_VERSION_BIGER_THAN_FOUR )
+    SET( CMAKE_EXE_LINKER_FLAGS_MAINTAINER "-Wl,--warn-once" )
+  ENDIF( GNUCXX_MAJOR_VERSION_BIGER_THAN_FOUR )
+  SET( CMAKE_EXE_LINKER_FLAGS_MAINTAINER
+    ${CMAKE_EXE_LINKER_FLAGS_MAINTAINER}
     CACHE STRING 
     "Flags used for linking binaries during maintainer builds."
     FORCE
   )
+
   SET( CMAKE_SHARED_LINKER_FLAGS_MAINTAINER
     "-Wl,--unresolved-symbols=report-all,--warn-unresolved-symbols,--warn-once"
     CACHE STRING 
     "Flags used by the shared libraries linker during maintainer builds."
     FORCE
   )
+
   SET( CMAKE_MODULE_LINKER_FLAGS_MAINTAINER
     "-dummy_option_to_see_what_happens"
     CACHE STRING 
     "What the hack is a module anyhow (Apple notion?)..."
     FORCE
   )
+
   MARK_AS_ADVANCED(
     CMAKE_CXX_FLAGS_MAINTAINER
     CMAKE_C_FLAGS_MAINTAINER
@@ -58,6 +93,7 @@ IF( CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX )
     CMAKE_SHARED_LINKER_FLAGS_MAINTAINER
     CMAKE_MODULE_LINKER_FLAGS_MAINTAINER
   )
+
   SET( CMAKE_BUILD_TYPE_DOCSTRING
     "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel Maintainer." )
 ENDIF( CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX )
