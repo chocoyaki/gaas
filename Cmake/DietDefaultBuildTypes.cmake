@@ -74,7 +74,7 @@ IF( CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX )
   )
 
   SET( CMAKE_SHARED_LINKER_FLAGS_MAINTAINER
-    "-Wl,--unresolved-symbols=report-all,--warn-unresolved-symbols,--warn-once"
+    ${CMAKE_EXE_LINKER_FLAGS_MAINTAINER}
     CACHE STRING 
     "Flags used by the shared libraries linker during maintainer builds."
     FORCE
