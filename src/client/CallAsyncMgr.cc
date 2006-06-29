@@ -8,6 +8,18 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2006/06/29 12:26:15  aamar
+ * Adding the following functions to the CallAsyncMgr class:
+ *    - deleteAllAsyncCall (to be able to do a diet_cancel_all).
+ *    - setReqErrorCode and getReqErrorCode to set and get the error code
+ *      associated to each asynchronous request.
+ *    - getFailedSession
+ *    - checkSessionID (test if session id is valid)
+ *    - saveHandle and getHandle
+ * To manage these function three data strutures were added:
+ *    - map<diet_reqID_t, diet_error_t>, vector<diet_reqID_t> failedSessions
+ *      and map<diet_reqID_t, grpc_function_handle_t *> handlesMap
+ *
  * Revision 1.15  2005/10/18 19:44:51  ecaron
  * Fix a MacOSX bug/warning: 'j$_M_node' may be used uninitialized in CallAsyncMgr::addWaitRule(Rule * rule)
  *
@@ -96,6 +108,17 @@ int CallAsyncMgr::deleteAsyncCall(diet_reqID_t reqID)
 {
   WriterLockGuard r(callAsyncListLock);
   return deleteAsyncCallWithoutLock(reqID);
+}
+
+int CallAsyncMgr::deleteAllAsyncCall() 
+{
+  WriterLockGuard r(callAsyncListLock);
+  for (CallAsyncList::iterator p = this->caList.begin();
+       p != caList.end();
+       ++p) {
+    deleteAsyncCallWithoutLock(p->first);
+  }
+  return 0;
 }
 
 /*********************************************************************
@@ -393,6 +416,7 @@ int CallAsyncMgr::areThereWaitRules()
  *********************************************************************/ 
 int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp) 
 {
+  setReqErrorCode(reqID, GRPC_NO_ERROR);
   WriterLockGuard r(callAsyncListLock);
   try {
 	cout<< "the service has computed the requestID=" << reqID << " and notify his answer\n";
@@ -455,6 +479,7 @@ int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
     fflush(stderr);
     return -1;
   }
+
   return 0;
 }
 
@@ -470,7 +495,7 @@ int CallAsyncMgr::getStatusReqID(diet_reqID_t reqID)
   if (h == caList.end()){
     WARNING(__FUNCTION__ << ": reqID (" << reqID << ") is not registered.");
     fflush(stderr);  
-    return -1;
+    return GRPC_INVALID_SESSION_ID;
   }
   int rst = h->second->st;
   return rst; 
@@ -522,4 +547,114 @@ int CallAsyncMgr::release()
 CallAsyncMgr::CallAsyncMgr() 
 { 
   //... perform necessary instance initializations 
+}
+
+/**********************************************************************
+ * set the error code of a given request (session)
+ **********************************************************************/
+void
+CallAsyncMgr::setReqErrorCode(const diet_reqID_t reqID, const diet_error_t error) {
+  cout << "debug : setReqErrorCode; reqID =  " << reqID <<
+    ", error = " << error << endl;
+  errorMap[reqID] = error;
+  /*
+#define GRPC_NO_ERROR 0
+#define GRPC_NOT_INITIALIZED 1
+#define GRPC_CONFIGFILE_NOT_FOUND 2
+#define GRPC_CONFIGFILE_ERROR 3
+#define GRPC_SERVER_NOT_FOUND 4
+#define GRPC_FUNCTION_NOT_FOUND 5
+#define GRPC_INVALID_FUNCTION_HANDLE 6
+#define GRPC_INVALID_SESSION_ID 7
+#define GRPC_RPC_REFUSED 8
+#define GRPC_COMMUNICATION_FAILED 9
+#define GRPC_SESSION_FAILED 10
+#define GRPC_NOT_COMPLETED 11
+#define GRPC_NONE_COMPLETED 12
+#define GRPC_OTHER_ERROR_CODE 13
+#define GRPC_UNKNOWN_ERROR_CODE 14
+#define GRPC_ALREADY_INITIALIZED 15
+#define GRPC_LAST_ERROR_CODE 16 
+  */
+
+  // if error represents a failed session, save the request ID in the
+  // failed session vector
+  if (error != GRPC_NO_ERROR ) {
+    failedSessions.push_back(reqID);
+  }
+}
+
+/**********************************************************************
+ * get the error code of a given request (session)
+ * if the request ID is not present (but valid) return -1
+ **********************************************************************/
+diet_error_t
+CallAsyncMgr::getReqErrorCode(const diet_reqID_t reqID) {
+  // check if the request ID is valid
+  if (caList.find(reqID) == caList.end()) {
+    return GRPC_INVALID_SESSION_ID;
+  }
+  // search in the error map, if the request ID is not registred return -1
+  if (errorMap.find(reqID) != errorMap.end()) {
+    return (errorMap.find(reqID)->second);
+  }
+  return -1;
+}
+
+/**********************************************************************
+ * return the failed session 
+ * successive call to this method (by get_failed_session in client API)
+ * return the successives failed sessions
+ **********************************************************************/
+diet_error_t
+CallAsyncMgr::getFailedSession(diet_reqID_t * reqIdPtr) {
+  static int failedSessionIndex = 0;
+  if (failedSessions.size() == 0) {
+    return GRPC_NO_ERROR;
+  }
+  if (failedSessionIndex >= failedSessions.size()) {
+    failedSessionIndex = 0;
+  }
+  *reqIdPtr = failedSessions[failedSessionIndex];
+  return errorMap[failedSessions[failedSessionIndex++]];
+}
+
+/*
+ * check if the request ID is a valid
+ */
+bool
+CallAsyncMgr::checkSessionID(const diet_reqID_t reqID) {
+  if (caList.find(reqID) == caList.end()){
+    return false;
+  }
+  return true;  
+}
+
+/*
+ * Save a handle and associate it to a session ID
+ */
+void
+CallAsyncMgr::saveHandle(diet_reqID_t sessionID, 
+			 grpc_function_handle_t * handle) {
+  handlesMap[sessionID] = handle;
+}
+
+/*
+ * get the handle associated to the provided sessionID
+ */
+diet_error_t
+CallAsyncMgr::getHandle(grpc_function_handle_t* handle,
+			diet_reqID_t sessionID) {
+  if (!checkSessionID(sessionID))
+    return GRPC_INVALID_SESSION_ID;
+
+  if (handlesMap.find(sessionID) == handlesMap.end()) {
+    cout << "Implementation is not complete" << endl
+	 << " The sessionID exists in the sessions map but not in the handles one"
+	 << endl;
+    return GRPC_OTHER_ERROR_CODE;
+  }
+
+  *handle = (*handlesMap[sessionID]);
+  return GRPC_NO_ERROR;
 }

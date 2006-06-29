@@ -8,6 +8,18 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2006/06/29 12:26:15  aamar
+ * Adding the following functions to the CallAsyncMgr class:
+ *    - deleteAllAsyncCall (to be able to do a diet_cancel_all).
+ *    - setReqErrorCode and getReqErrorCode to set and get the error code
+ *      associated to each asynchronous request.
+ *    - getFailedSession
+ *    - checkSessionID (test if session id is valid)
+ *    - saveHandle and getHandle
+ * To manage these function three data strutures were added:
+ *    - map<diet_reqID_t, diet_error_t>, vector<diet_reqID_t> failedSessions
+ *      and map<diet_reqID_t, grpc_function_handle_t *> handlesMap
+ *
  * Revision 1.10  2006/06/03 21:12:13  ycaniou
  * Correct warning "'CallAsyncMgr::dex' contains empty classes"
  * -- tkx Injay
@@ -41,6 +53,7 @@
 #define _CALLASYNCMGR_H_
 
 #include <map>
+#include <vector>
 #include <omnithread.h>
 #include <sys/types.h>
 #include <assert.h>
@@ -115,6 +128,8 @@ class CallAsyncMgr
     // add into internal list a new asynchronized reference
     int addAsyncCall(diet_reqID_t reqID, diet_profile_t* dpt);
     int deleteAsyncCall(diet_reqID_t reqID);
+    // used by gridRPC function cancel_all
+    int deleteAllAsyncCall();
     // add a new wait rule 
     int addWaitRule(Rule *);
     int addWaitAnyRule(diet_reqID_t* IDptr);
@@ -134,6 +149,47 @@ class CallAsyncMgr
     // uninitialise all. end of corba servers ...
     // call when there is 
     int release();
+
+    /*
+     * set the error code of a given request (session)
+     */
+    void
+    setReqErrorCode(const diet_reqID_t reqID, const diet_error_t error);
+
+    /*
+     * get the error code of a given request (session)
+     * if the request ID is not present (but valid) return -1
+     */
+    diet_error_t
+    getReqErrorCode(const diet_reqID_t reqID);
+
+    /*
+     * return the failed session 
+     * successive call to this method (by get_failed_session in client API)
+     * return the successives failed sessions
+     */
+    diet_error_t
+    getFailedSession(diet_reqID_t * reqIdPtr);
+
+    /*
+     * check if the request ID is a valid
+     */
+    bool
+    checkSessionID(const diet_reqID_t reqID);
+
+    /*
+     * Save a handle and associate it to a session ID
+     */
+     void
+     saveHandle(diet_reqID_t sessionID, 
+		grpc_function_handle_t * handle);
+    /*
+     * get the handle associated to the provided sessionID
+     */
+     diet_error_t
+     getHandle(grpc_function_handle_t* handle,
+	       diet_reqID_t sessionID);
+
   protected:
     int deleteAsyncCallWithoutLock(diet_reqID_t reqID);
     // constructors
@@ -148,5 +204,18 @@ class CallAsyncMgr
     DietReadersWriterLock callAsyncListLock;
     DietReadersWriterLock waitRulesReqIDStateLock;
     DietException dex;
+
+    /*
+     * A map to store the error code of the asynchronous requests
+     */
+    std::map<diet_reqID_t, diet_error_t> errorMap;
+    /*
+     * A vector to store the failed session IDs
+     */
+    std::vector<diet_reqID_t> failedSessions;
+    /*
+     * A map to save the function handles indexed by their session ID
+     */
+    std::map<diet_reqID_t, grpc_function_handle_t *> handlesMap;
 };
 #endif //CALLASYNCMGR
