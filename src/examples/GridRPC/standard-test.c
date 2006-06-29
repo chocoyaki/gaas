@@ -1,17 +1,20 @@
-#****************************************************************************#
-#* Interoperability test code of the GridRPC End-User API                   *#
-#*  Author(s):                                                              *#
-#*    - Yusuke Tanimura (yusuke.tanimura@aist.go.jp)                        *#
-#*                                                                          *#
-#*                                                                          *#
-#* $LICENSE$                                                                *#
-#****************************************************************************#
-#* $Id$
-#* $Log$
-#* Revision 1.1  2006/06/29 12:23:26  ecaron
-#* Add client for GridRPC interoperability checking
-#*
-#****************************************************************************#
+/****************************************************************************/
+/* Interoperability test code of the GridRPC End-User API                   */
+/*  Author(s):                                                              */
+/*    - Yusuke Tanimura (yusuke.tanimura@aist.go.jp)                        */
+/*                                                                          */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+/* $Log$
+/* Revision 1.2  2006/06/29 12:29:00  ecaron
+/* Correct header
+/*
+/* Revision 1.1  2006/06/29 12:23:26  ecaron
+/* Add client for GridRPC interoperability checking
+/*
+/****************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <grpc.h>
@@ -1559,7 +1562,7 @@ void probe_test_6(char *config_file, char **func_list)
  * Call grpc_probe_or() with a session ID array which contains
  * an invalid session ID, checking GRPC_INVALID_SESSION_ID
  * returned.
- #*/
+ */
 void probe_test_7(char *config_file)
 {
   grpc_error_t err = GRPC_NO_ERROR;
