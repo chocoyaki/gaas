@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2006/06/29 15:02:41  aamar
+ * Make change to handle the new type definition of grpc_function_handle_t (from a grpc_function_handle_s to grpc_function_handle_s*
+ *
  * Revision 1.11  2006/06/29 12:26:15  aamar
  * Adding the following functions to the CallAsyncMgr class:
  *    - deleteAllAsyncCall (to be able to do a diet_cancel_all).
@@ -182,12 +185,12 @@ class CallAsyncMgr
      */
      void
      saveHandle(diet_reqID_t sessionID, 
-		grpc_function_handle_t * handle);
+		grpc_function_handle_t* handle);
     /*
      * get the handle associated to the provided sessionID
      */
      diet_error_t
-     getHandle(grpc_function_handle_t* handle,
+     getHandle(grpc_function_handle_t** handle,
 	       diet_reqID_t sessionID);
 
   protected:
@@ -216,6 +219,6 @@ class CallAsyncMgr
     /*
      * A map to save the function handles indexed by their session ID
      */
-    std::map<diet_reqID_t, grpc_function_handle_t *> handlesMap;
+    std::map<diet_reqID_t, grpc_function_handle_t*> handlesMap;
 };
 #endif //CALLASYNCMGR

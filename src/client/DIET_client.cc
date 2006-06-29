@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.79  2006/06/29 15:02:41  aamar
+ * Make change to handle the new type definition of grpc_function_handle_t (from a grpc_function_handle_s to grpc_function_handle_s*
+ *
  * Revision 1.78  2006/06/29 13:05:02  aamar
  * Little change of get_handle function prototype (handle* to handle** for parameter 1)
  *
@@ -1313,7 +1316,7 @@ diet_get_handle(grpc_function_handle_t** handle,
  ***************************************************************************/
 void
 diet_save_handle(diet_reqID_t sessionID, 
-		 grpc_function_handle_t * handle) {
+		 grpc_function_handle_t* handle) {
   CallAsyncMgr::Instance()->saveHandle(sessionID, handle);
 }
 

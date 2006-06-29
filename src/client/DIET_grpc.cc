@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2006/06/29 15:02:41  aamar
+ * Make change to handle the new type definition of grpc_function_handle_t (from a grpc_function_handle_s to grpc_function_handle_s*
+ *
  * Revision 1.4  2006/06/29 13:05:43  aamar
  * Little change to handle function prototype (handle* to handle**)
  *
@@ -64,9 +67,9 @@ grpc_error_t
 grpc_function_handle_default(grpc_function_handle_t* handle, char* func_name)
 {
   //  grpc_function_handle_t* handle = new grpc_function_handle_t;
-  handle = new grpc_function_handle_t;
-  handle->func_name = strdup(func_name);
-  handle->server = DIET_DEFAULT_SERVER;
+  *handle = new grpc_function_handle_s;
+  (*handle)->func_name = strdup(func_name);
+  (*handle)->server = DIET_DEFAULT_SERVER;
     //  return handle;
   return 0;
 }
@@ -82,12 +85,12 @@ grpc_function_handle_init(grpc_function_handle_t* handle,
   // host:port into a CORBA IOR: host_portToIOR()
   WARNING(__FUNCTION__ << " is not fully implemented yet:"
 	  << " it is redirected to grpc_handle_default)");
-  handle = new grpc_function_handle_t;
-  handle->func_name = strdup(func_name);
+  (*handle) = new grpc_function_handle_s;
+  (*handle)->func_name = strdup(func_name);
 #if IT_IS_DONE
-  handle->server = ORBMgr::stringToObject(host_portToIOR(server_host_port));
+  (*handle)->server = ORBMgr::stringToObject(host_portToIOR(server_host_port));
 #else  // IT_IS_DONE
-  handle->server = DIET_DEFAULT_SERVER;
+  (*handle)->server = DIET_DEFAULT_SERVER;
 #endif // IT_IS_DONE
   return 0;
 }
@@ -96,8 +99,11 @@ grpc_function_handle_init(grpc_function_handle_t* handle,
 grpc_error_t
 grpc_function_handle_destruct(grpc_function_handle_t* handle)
 {
-  free(handle->func_name);
-  delete handle;
+  if (handle && (*handle) && (*handle)->func_name) {
+    free ((*handle)->func_name);
+    delete (*handle);
+    (*handle) = NULL;
+  }
   return 0;
 }
 
@@ -337,12 +343,12 @@ grpc_call(grpc_function_handle_t* handle, ...)
   grpc_error_t res(0);
 
   va_start(ap, handle);
-  if ((res = grpc_build_profile(profile, handle->func_name, ap)))
+  if ((res = grpc_build_profile(profile, (*handle)->func_name, ap)))
     return res;
   va_end(ap);
 
   res = diet_call_common(profile, server);
-  handle->server = ORBMgr::getIORString(response->servers[0].loc.ior);
+  (*handle)->server = ORBMgr::getIORString(response->servers[0].loc.ior);
   diet_profile_free(profile);
   return res;
 }
@@ -365,13 +371,13 @@ grpc_call_async(grpc_function_handle_t* handle,
   diet_save_handle(*sessionID, handle);
 
   va_start(ap, sessionID);
-  if ((res = grpc_build_profile(profile, handle->func_name, ap))) {
+  if ((res = grpc_build_profile(profile, (*handle)->func_name, ap))) {
     set_req_error(*sessionID, res);
     return res;
   }
   va_end(ap);
   
-  chosenObject = ORBMgr::stringToObject(handle->server);
+  chosenObject = ORBMgr::stringToObject((*handle)->server);
   chosenServer = SeD::_narrow(chosenObject);
   res = diet_call_async_common(profile,chosenServer, sessionID);
   diet_profile_free(profile);
@@ -394,10 +400,10 @@ grpc_call_argstack(grpc_function_handle_t* handle, grpc_arg_stack_t* args)
   CORBA::Object_var chosenObject;
   SeD_var chosenServer;
 
-  if ((res = grpc_build_profile(profile, handle->func_name, args)))
+  if ((res = grpc_build_profile(profile, (*handle)->func_name, args)))
     return res;
 
-  chosenObject = ORBMgr::stringToObject(handle->server);
+  chosenObject = ORBMgr::stringToObject((*handle)->server);
   chosenServer = SeD::_narrow(chosenObject);  
   res = diet_call_common(profile, chosenServer);
   diet_profile_free(profile);
@@ -414,10 +420,10 @@ grpc_call_argstack_async(grpc_function_handle_t* handle,
   CORBA::Object_var chosenObject;
   SeD_var chosenServer;
 
-  if ((res = grpc_build_profile(profile, handle->func_name, args)))
+  if ((res = grpc_build_profile(profile, (*handle)->func_name, args)))
     return res;
   
-  chosenObject = ORBMgr::stringToObject(handle->server);
+  chosenObject = ORBMgr::stringToObject((*handle)->server);
   chosenServer = SeD::_narrow(chosenObject);  
   res = diet_call_async_common(profile, chosenServer, sessionID);
   diet_profile_free(profile);
