@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2006/06/29 12:32:22  aamar
+ * Adding the following functions to be GridRPC compliant :
+ *    - diet_get_handle, diet_get_error, diet_error_string, diet_get_failed_session, diet_probe_or
+ *    - diet_save_handle, set_req_error (These two functions can be removed from the header file
+ *      but the DIET_grpc.cc needs their declaration)
+ *
  * Revision 1.20  2006/04/18 13:10:17  ycaniou
  * C++ -> C commentaries to avoid warning
  *
@@ -147,6 +153,20 @@ diet_probe(diet_reqID_t reqID);
 diet_error_t
 diet_probe_or(diet_reqID_t* IDs, size_t length, diet_reqID_t* IDptr);
 
+/* Get the function handle linked to reqID */
+diet_error_t
+diet_get_handle(grpc_function_handle_t* handle,
+		diet_reqID_t sessionID);
+
+/* Save the specified handle and associate it to a sessionID */
+void
+diet_save_handle(diet_reqID_t sessionID, 
+		 grpc_function_handle_t * handle);
+
+/* Set the error code of the defined session (reqID) */
+void
+set_req_error(diet_reqID_t sessionID,
+	      diet_error_t error);
 /* This function erases all persistent data that are manipulated by the reqID
    request. Do not forget to call diet_get_data_handle on data you would like
    to save.                                                                 */
@@ -164,6 +184,30 @@ diet_wait_all();
 diet_error_t
 diet_wait_any(diet_reqID_t* IDptr);
 
+/* 
+ * return the error code of the asynchronous call identified by reqID
+ */
+diet_error_t
+diet_get_error(diet_reqID_t reqID);
+/*
+ * return the corresponding error string
+ */
+char *
+diet_error_string(diet_error_t error);
+/*
+ * return identifier of the failed session
+ */
+diet_error_t
+diet_get_failed_session(diet_reqID_t* reqIdPtr);
+/*
+ * check if one of the requests contained in the array id reqIdArray has 
+ * completed. 
+ * Return the completed request ID if exist. Otherwise return an error code
+ */
+diet_error_t
+diet_probe_or(diet_reqID_t* reqIdArray,
+	      size_t length,
+	      diet_reqID_t* reqIdPtr);
 /****************************************************************************/
 /*    get available Services in the DIET Platform                           */
 /****************************************************************************/

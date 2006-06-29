@@ -10,6 +10,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.77  2006/06/29 12:32:21  aamar
+ * Adding the following functions to be GridRPC compliant :
+ *    - diet_get_handle, diet_get_error, diet_error_string, diet_get_failed_session, diet_probe_or
+ *    - diet_save_handle, set_req_error (These two functions can be removed from the header file
+ *      but the DIET_grpc.cc needs their declaration)
+ *
  * Revision 1.76  2006/06/21 23:23:48  ecaron
  * Taking into account the error code for GRPC_ALREADY_INITIALIZED
  *
@@ -187,6 +193,30 @@ static MaDag_var MA_DAG = MaDag::_nil();
 #if HAVE_JUXMEM
   JuxMem::Wrapper * juxmem;
 #endif // HAVE_JUXMEM
+
+/*
+ * String representation of error code
+ */
+char * ErrorCodeStr[] = {
+  "GRPC_NO_ERROR",
+  "GRPC_NOT_INITIALIZED",
+  "GRPC_CONFIGFILE_NOT_FOUND",
+  "GRPC_CONFIGFILE_ERROR",
+  "GRPC_SERVER_NOT_FOUND",
+  "GRPC_FUNCTION_NOT_FOUND",
+  "GRPC_INVALID_FUNCTION_HANDLE",
+  "GRPC_INVALID_SESSION_ID",
+  "GRPC_RPC_REFUSED",
+  "GRPC_COMMUNICATION_FAILED",
+  "GRPC_SESSION_FAILED",
+  "GRPC_NOT_COMPLETED",
+  "GRPC_NONE_COMPLETED",
+  "GRPC_OTHER_ERROR_CODE",
+  "GRPC_UNKNOWN_ERROR_CODE",
+  "GRPC_ALREADY_INITIALIZED",
+  "GRPC_LAST_ERROR_CODE"};
+
+
 
 /****************************************************************************/
 /* Initialize and Finalize session                                          */
@@ -587,6 +617,11 @@ request_submission(diet_profile_t* profile,
               << ") while submitting problem", 1);
       }
 
+      /* set the req ID here before checking the errors */
+      if (response != NULL) {
+	reqID = response->reqID;
+      }
+
       /* Check response */
       if (!response || response->servers.length() == 0) {
         WARNING("no server found for problem " << corba_pb.path);
@@ -659,12 +694,12 @@ request_submission(diet_profile_t* profile,
       if (response) {
         delete response;
       }
-      ERROR("unable to find a server", 1);
+      ERROR("unable to find a server", GRPC_SERVER_NOT_FOUND);
     }
     if (server_OK == -1) {
       delete response;
       ERROR("unable to find a server after " << nb_tries << " tries."
-          << "The platform might be overloaded, try again later please", 1);
+          << "The platform might be overloaded, try again later please", GRPC_SERVER_NOT_FOUND);
     }
 
     if (server_OK >= 0) {
@@ -871,10 +906,13 @@ diet_error_t
 diet_call_async_common(diet_profile_t* profile,
                        SeD_var& chosenServer, diet_reqID_t* reqID)
 {
-   corba_profile_t corba_profile;
-   CallAsyncMgr* caMgr;
-   diet_error_t res(0);
+  corba_profile_t corba_profile;
+  CallAsyncMgr* caMgr;
+  diet_error_t res(0);
   
+  // get sole CallAsyncMgr singleton
+  caMgr = CallAsyncMgr::Instance();
+
   if (!reqID) {
     ERROR(__FUNCTION__ << ": 2nd argument has not been allocated", 1);
   }
@@ -885,13 +923,18 @@ diet_call_async_common(diet_profile_t* profile,
   try {
 
     if (CORBA::is_nil(chosenServer)) {
-      if ((res = request_submission(profile, chosenServer, *reqID)))
+      if ((res = request_submission(profile, chosenServer, *reqID))) {
+	caMgr->setReqErrorCode(*reqID, res);
         return res;
-      if (CORBA::is_nil(chosenServer))
+      }
+      if (CORBA::is_nil(chosenServer)) {
+	caMgr->setReqErrorCode(*reqID, GRPC_SERVER_NOT_FOUND);
         return 1;
+      }
     }
     
     if (mrsh_profile_to_in_args(&corba_profile, profile)) {
+      caMgr->setReqErrorCode(*reqID, GRPC_INVALID_FUNCTION_HANDLE);
       ERROR("profile is wrongly built", 1);
     }
 
@@ -931,8 +974,6 @@ diet_call_async_common(diet_profile_t* profile,
       }
     }
     
-    // get sole CallAsyncMgr singleton
-    caMgr = CallAsyncMgr::Instance();
     // create corba client callback server...
     if (caMgr->addAsyncCall(*reqID, profile) != 0) {
       return 1;
@@ -1014,6 +1055,16 @@ diet_cancel(diet_reqID_t reqID)
 {
   return CallAsyncMgr::Instance()->deleteAsyncCall(reqID);
 }
+
+/****************************************************************************  
+ * diet_cancel_all GridRPC function.
+ * This function executes a diet_cancel for every client request.
+ ****************************************************************************/
+int 
+diet_cancel_all() {
+  return CallAsyncMgr::Instance()->deleteAllAsyncCall();
+}
+
 
 int
 diet_wait(diet_reqID_t reqID)
@@ -1183,6 +1234,93 @@ int
 diet_wait_any(diet_reqID_t* IDptr)
 {
   return CallAsyncMgr::Instance()->addWaitAnyRule(IDptr);
+}
+
+
+/***************************************************************************
+ * return the error code of the asynchronous call identified by reqID
+ ***************************************************************************/
+diet_error_t
+diet_get_error(diet_reqID_t reqID) {
+  return CallAsyncMgr::Instance()->getReqErrorCode(reqID);
+}
+/***************************************************************************
+ * return the corresponding error string
+ ***************************************************************************/
+char *
+diet_error_string(diet_error_t error) {
+  if (error<0 || error>16)
+    return "GRPC_UNKNOWN_ERROR CODE";
+  return ErrorCodeStr[error];
+}
+/***************************************************************************
+ * return identifier of the failed session
+ ***************************************************************************/
+diet_error_t
+diet_get_failed_session(diet_reqID_t* reqIdPtr) {
+  return CallAsyncMgr::Instance()->getFailedSession(reqIdPtr);
+}
+/***************************************************************************
+ * check if one of the requests contained in the array id reqIdArray has 
+ * completed. 
+ * Return the completed request ID if exist. Otherwise return an error code
+ ***************************************************************************/
+diet_error_t
+diet_probe_or(diet_reqID_t* reqIdArray,
+	      size_t length,
+	      diet_reqID_t* reqIdPtr) {
+  /*
+typedef enum {
+  STATUS_DONE = 0, // Result is available in local memory 
+  STATUS_WAITING,       // End of solving on Server, result comes 
+  STATUS_RESOLVING,          // Request is currently solving on Server
+  STATUS_CANCEL,	// Cancel is called on a reqID.
+  STATUS_ERROR		// Error caught
+} request_status_t;
+  */
+  int ix;
+  int reqStatus;
+  // check if all request IDs are valid
+  for (ix=0; ix< length; ix++) {
+    if (CallAsyncMgr::Instance()->checkSessionID(reqIdArray[ix]))
+      return GRPC_INVALID_SESSION_ID;
+  }  
+  for (ix=0; ix< length; ix++) {
+    reqStatus = CallAsyncMgr::Instance()->getStatusReqID(reqIdArray[ix]);
+    if  (reqStatus == STATUS_DONE) {
+      *reqIdPtr = reqIdArray[ix];
+      return GRPC_NO_ERROR;
+    }
+  } // end for ix
+
+  return GRPC_NOT_COMPLETED;
+}
+
+/***************************************************************************
+ * Get the function handle linked to reqID 
+ ***************************************************************************/
+diet_error_t
+diet_get_handle(grpc_function_handle_t* handle,
+		diet_reqID_t sessionID) {
+  
+  return CallAsyncMgr::Instance()->getHandle(handle, sessionID);
+}
+/***************************************************************************
+ * Save the specified handle and associate it to a sessionID 
+ ***************************************************************************/
+void
+diet_save_handle(diet_reqID_t sessionID, 
+		 grpc_function_handle_t * handle) {
+  CallAsyncMgr::Instance()->saveHandle(sessionID, handle);
+}
+
+/***************************************************************************
+ * Set the error code of the defined session (reqID) 
+ ***************************************************************************/
+void
+set_req_error(diet_reqID_t sessionID,
+	      diet_error_t error) {
+  CallAsyncMgr::Instance()->setReqErrorCode(sessionID, error);
 }
 
 // for workflow support
