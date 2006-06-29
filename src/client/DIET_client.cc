@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.78  2006/06/29 13:05:02  aamar
+ * Little change of get_handle function prototype (handle* to handle** for parameter 1)
+ *
  * Revision 1.77  2006/06/29 12:32:21  aamar
  * Adding the following functions to be GridRPC compliant :
  *    - diet_get_handle, diet_get_error, diet_error_string, diet_get_failed_session, diet_probe_or
@@ -1300,7 +1303,7 @@ typedef enum {
  * Get the function handle linked to reqID 
  ***************************************************************************/
 diet_error_t
-diet_get_handle(grpc_function_handle_t* handle,
+diet_get_handle(grpc_function_handle_t** handle,
 		diet_reqID_t sessionID) {
   
   return CallAsyncMgr::Instance()->getHandle(handle, sessionID);

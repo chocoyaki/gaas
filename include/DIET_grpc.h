@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2006/06/29 13:05:02  aamar
+ * Little change of get_handle function prototype (handle* to handle** for parameter 1)
+ *
  * Revision 1.6  2006/06/29 12:46:06  aamar
  * Add the define grpc_get_failed_sessionid     diet_get_failed_session
  *
@@ -104,8 +107,8 @@ grpc_function_handle_destruct(grpc_function_handle_t* handle);
 
 /* Return the function handle corresponding to the given session ID.        */
 grpc_error_t
-grpc_get_handle(grpc_function_handle_t* handle,
-			 grpc_sessionid_t sessionID);
+grpc_get_handle(grpc_function_handle_t** handle,
+		grpc_sessionid_t sessionID);
 
 
 /****************************************************************************/
