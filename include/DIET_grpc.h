@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2006/06/29 12:36:52  aamar
+ * Change the name of grpc_get_function_handle to grpc_get_handle
+ *
  * Revision 1.4  2006/06/21 23:20:33  ecaron
  * - New structure for grpc_function_handle_s to become compliant with the client provides by gridrpc-wg to check the interoperability.
  *
@@ -98,7 +101,7 @@ grpc_function_handle_destruct(grpc_function_handle_t* handle);
 
 /* Return the function handle corresponding to the given session ID.        */
 grpc_error_t
-grpc_get_function_handle(grpc_function_handle_t* handle,
+grpc_get_handle(grpc_function_handle_t* handle,
 			 grpc_sessionid_t sessionID);
 
 
