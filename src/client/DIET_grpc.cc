@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2006/06/29 12:35:06  aamar
+ * Change the name of grpc_get_function_handle to grpc_get_handle and link it to diet_get_handle
+ *
  * Revision 1.2  2006/06/21 23:14:11  ecaron
  * - New structure for grpc_function_handle_s to become compliant with
  * the client provides by gridrpc-wg to check the interoperability.
@@ -61,7 +64,7 @@ grpc_function_handle_default(grpc_function_handle_t* handle, char* func_name)
   handle = new grpc_function_handle_t;
   handle->func_name = strdup(func_name);
   handle->server = DIET_DEFAULT_SERVER;
-  //  return handle;
+    //  return handle;
   return 0;
 }
 
@@ -97,11 +100,12 @@ grpc_function_handle_destruct(grpc_function_handle_t* handle)
 
 /* Get the function handle linked to reqID */
 grpc_error_t
-grpc_get_function_handle(grpc_function_handle_t* handle,
-			 grpc_sessionid_t sessionID)
+grpc_get_handle(grpc_function_handle_t* handle,
+		grpc_sessionid_t sessionID)
 {
   // FIXME: Christophe ...
-  ERROR(__FUNCTION__ << " is not implemented yet", 1);
+  //  ERROR(__FUNCTION__ << " is not implemented yet", 1);
+  return diet_get_handle(handle, sessionID);
 }
 
 END_API
@@ -353,9 +357,15 @@ grpc_call_async(grpc_function_handle_t* handle,
   if (!sessionID) {
     ERROR(__FUNCTION__ << ": 2nd argument has not been allocated", 1);
   }
+
+  // Store the allocated handle in the dedicated map
+  diet_save_handle(*sessionID, handle);
+
   va_start(ap, sessionID);
-  if ((res = grpc_build_profile(profile, handle->func_name, ap)))
+  if ((res = grpc_build_profile(profile, handle->func_name, ap))) {
+    set_req_error(*sessionID, res);
     return res;
+  }
   va_end(ap);
   
   chosenObject = ORBMgr::stringToObject(handle->server);
