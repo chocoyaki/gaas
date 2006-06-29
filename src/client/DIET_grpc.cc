@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2006/06/29 13:05:43  aamar
+ * Little change to handle function prototype (handle* to handle**)
+ *
  * Revision 1.3  2006/06/29 12:35:06  aamar
  * Change the name of grpc_get_function_handle to grpc_get_handle and link it to diet_get_handle
  *
@@ -100,7 +103,7 @@ grpc_function_handle_destruct(grpc_function_handle_t* handle)
 
 /* Get the function handle linked to reqID */
 grpc_error_t
-grpc_get_handle(grpc_function_handle_t* handle,
+grpc_get_handle(grpc_function_handle_t** handle,
 		grpc_sessionid_t sessionID)
 {
   // FIXME: Christophe ...
