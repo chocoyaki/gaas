@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2006/06/29 12:46:06  aamar
+ * Add the define grpc_get_failed_sessionid     diet_get_failed_session
+ *
  * Revision 1.5  2006/06/29 12:36:52  aamar
  * Change the name of grpc_get_function_handle to grpc_get_handle
  *
@@ -229,6 +232,7 @@ char *grpc_error_string(grpc_error_t error_code);
 #define grpc_get_error                diet_get_error
 #define grpc_get_last_error           diet_get_last_error
 
+#define grpc_get_failed_sessionid     diet_get_failed_session
 /****************************************************************************/
 /* GridRPC Error code														*/
 #define GRPC_NO_ERROR 0
