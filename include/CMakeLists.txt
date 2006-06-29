@@ -10,6 +10,7 @@ INSTALL_FILES(
     DIET_mutex.h
     DIET_grpc.h
     DIET_server.h
+    grpc.h
 )
 
 # FIXME: DIET_config.h is not installed since it would conflict with cmake's
