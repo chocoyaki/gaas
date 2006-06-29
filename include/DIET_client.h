@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2006/06/29 15:01:51  aamar
+ * Changing the type definition of grpc_function_handle_t from a grpc_function_handle_s to grpc_function_handle_t*
+ *
  * Revision 1.22  2006/06/29 13:05:02  aamar
  * Little change of get_handle function prototype (handle* to handle** for parameter 1)
  *
@@ -164,7 +167,7 @@ diet_get_handle(grpc_function_handle_t** handle,
 /* Save the specified handle and associate it to a sessionID */
 void
 diet_save_handle(diet_reqID_t sessionID, 
-		 grpc_function_handle_t * handle);
+		 grpc_function_handle_t* handle);
 
 /* Set the error code of the defined session (reqID) */
 void

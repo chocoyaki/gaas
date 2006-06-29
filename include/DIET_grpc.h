@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2006/06/29 15:01:51  aamar
+ * Changing the type definition of grpc_function_handle_t from a grpc_function_handle_s to grpc_function_handle_t*
+ *
  * Revision 1.7  2006/06/29 13:05:02  aamar
  * Little change of get_handle function prototype (handle* to handle** for parameter 1)
  *
@@ -54,10 +57,12 @@ extern "C" {
 /* Variables of this data type represent remote function that has been bound
    to a specific server. Until destroyed, a function handle may be used to
    invoke the remote function as many times as desired.                     */
-typedef struct grpc_function_handle_s {
+struct grpc_function_handle_s {
   char* func_name;
   const char* server;
-} grpc_function_handle_t;
+};
+
+typedef struct grpc_function_handle_s * grpc_function_handle_t;
 
 /* Variables of this data type represent a specific non-blocking GridRPC
    call. Session Ids are used to probe or wait for call completion, to
