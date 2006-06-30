@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2006/06/30 15:26:02  ycaniou
+ * C++ commentaries -> C commentaries to remove compilation warnings
+ *
  * Revision 1.12  2006/04/22 19:21:33  ecaron
  * Update fprintf format according to size_t
  *
@@ -141,7 +144,7 @@ solve_dgemm(diet_profile_t* pb)
     return 1;
   }
 
-  // DEBUG
+  /* DEBUG */
   
   printf("Solving dgemm_ ...");
   if (oC == DIET_ROW_MAJOR) {
@@ -205,15 +208,15 @@ main(int argc, char* argv[])
   /* Set profile */
   profile = diet_profile_desc_alloc(SRV[0], 3, 4, 4);
   diet_generic_desc_set(diet_param_desc(profile,0),
-			DIET_SCALAR, DIET_DOUBLE); // alpha
+			DIET_SCALAR, DIET_DOUBLE); /* alpha */
   diet_generic_desc_set(diet_param_desc(profile,1),
-			DIET_MATRIX, DIET_DOUBLE); // A
+			DIET_MATRIX, DIET_DOUBLE); /* A */
   diet_generic_desc_set(diet_param_desc(profile,2),
-			DIET_MATRIX, DIET_DOUBLE); // B
+			DIET_MATRIX, DIET_DOUBLE); /* B */
   diet_generic_desc_set(diet_param_desc(profile,3),
-			DIET_SCALAR, DIET_DOUBLE); // beta
+			DIET_SCALAR, DIET_DOUBLE); /* beta */
   diet_generic_desc_set(diet_param_desc(profile,4),
-			DIET_MATRIX, DIET_DOUBLE); // C
+			DIET_MATRIX, DIET_DOUBLE); /* C */
   /* Set convertor */
   diet_arg_cvt_short_set(diet_arg_conv(cvt,0), 1, NULL);
   diet_arg_cvt_short_set(diet_arg_conv(cvt,1), 2, NULL);
@@ -278,10 +281,11 @@ main(int argc, char* argv[])
     diet_scalar_set(arg, &alpha, DIET_VOLATILE, DIET_DOUBLE);
   }
   diet_arg_cvt_short_set(diet_arg_conv(cvt,2), -1, arg);
-  // beta is the same
+  /* beta is the same */
   diet_arg_cvt_short_set(diet_arg_conv(cvt,3), -1, arg);
-  // Use all arguments of diet_arg_cvt_set, since out_arg_idx == 2 (the OUT
-  // parameter of the profile) and in_arg_idx == 1 (the second IN parameter).
+  /* Use all arguments of diet_arg_cvt_set, since out_arg_idx == 2 (the OUT
+     parameter of the profile) and in_arg_idx == 1 (the second IN parameter).
+  */
   diet_arg_cvt_set(diet_arg_conv(cvt,4), DIET_CVT_IDENTITY, 1, NULL, 2);
   /* Add */
   if (diet_service_table_add(profile, cvt, solve_dgemm)) return 1;
@@ -309,7 +313,7 @@ main(int argc, char* argv[])
     diet_scalar_set(arg, &alpha, DIET_VOLATILE, DIET_DOUBLE);
   }
   diet_arg_cvt_short_set(diet_arg_conv(cvt,2), -1, arg);
-  // beta is the same
+  /* beta is the same */
   diet_arg_cvt_short_set(diet_arg_conv(cvt,3), -1, arg);
   diet_arg_cvt_short_set(diet_arg_conv(cvt,4), 1, NULL);
   /* Add */
@@ -322,13 +326,13 @@ main(int argc, char* argv[])
    */
   /* Set profile */
   profile = diet_profile_desc_alloc(SRV[4], 0, 1, 1);
-  // beta and C
+  /* beta and C */
   diet_generic_desc_set(diet_param_desc(profile,0), DIET_SCALAR, DIET_DOUBLE);
   diet_generic_desc_set(diet_param_desc(profile,1), DIET_MATRIX, DIET_DOUBLE);
   /* Set convertor */
   {
     arg = (diet_arg_t*) calloc(1, sizeof(diet_arg_t));
-    // 1x1 matrix (to force dimensions set, because 0 is ignored)
+    /* 1x1 matrix (to force dimensions set, because 0 is ignored) */
     diet_matrix_set(arg, NULL, DIET_VOLATILE, DIET_DOUBLE, 1, 1, DIET_COL_MAJOR);
   }
   diet_arg_cvt_short_set(diet_arg_conv(cvt,0), -1, arg);
@@ -349,7 +353,7 @@ main(int argc, char* argv[])
   diet_convertor_free(cvt);
   
   res = diet_SeD(argv[1], argc, argv);
-  // Not reached
+  /* Not reached */
   return res;
 }
 

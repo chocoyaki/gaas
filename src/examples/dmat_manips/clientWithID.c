@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2006/06/30 15:26:03  ycaniou
+ * C++ commentaries -> C commentaries to remove compilation warnings
+ *
  * Revision 1.8  2004/10/08 12:19:59  hdail
  * Correcting warnings with mismatched types (size_t and int) on 64-bit.
  *
@@ -104,7 +107,7 @@
 
 
 #define NB_PB 5
-static const char* PB[NB_PB] =
+static const char* PB_NAME[NB_PB] =
   {"*+T", "MatPROD", "MatSUM", "SqMatSUM", "SqMatSUM_opt"};
 
 
@@ -115,7 +118,7 @@ void
 usage(char* cmd)
 {
   fprintf(stderr, "Usage: %s %s <file.cfg> [%s|%s|%s|%s|%s]\n", cmd,
-	  "[--repeat <n>] [--pause <n µs>]", PB[0], PB[1], PB[2], PB[3], PB[4]);
+	  "[--repeat <n>] [--pause <n µs>]", PB_NAME[0], PB_NAME[1], PB_NAME[2], PB_NAME[3], PB_NAME[4]);
   fprintf(stderr, "    ex: %s client.cfg T\n", cmd);
   fprintf(stderr, "        %s --repeat 1000 client.cfg MatSUM\n", cmd);
   fprintf(stderr, "        %s --repeat 1000 --pause 1000 %s\n",
@@ -126,9 +129,9 @@ usage(char* cmd)
 int
 main(int argc, char* argv[])
 {
-  //int i, mA, nA,nB,mB;  // j, k
+  /* int i, mA, nA,nB,mB;  // j, k */
   int i;
-  size_t mA, nA, nB, mB; // use size_t for 32 / 64 portability
+  size_t mA, nA, nB, mB; /* use size_t for 32 / 64 portability */
   int n_loops = 1;
   char* path = NULL;
   diet_profile_t* profile = NULL;
@@ -144,20 +147,20 @@ main(int argc, char* argv[])
   double *D = NULL;
   double *E = NULL;
   diet_matrix_order_t oA, oB, oC,oD,oE;
-  //double a=1.0;
-  //double b=2.5;
-  //double c=1.5;
+  /* double a=1.0; */
+  /* double b=2.5; */
+  /* double c=1.5; */
   int   pb[NB_PB] = {0, 0, 0, 0, 0};
   char car;
 
-  // STATS
+  /* STATS */
   char* STAT_FILE_NAME = NULL;
   FILE* STAT_FILE      = NULL;
-  //struct timeval tv, tv_pause;
+  /* struct timeval tv, tv_pause; */
   size_t nb_of_requests;
-  int pause = 0;   // sec
+  int pause = 0;   /* sec */
   time_t t1,t2;
-    //char *idC, *idD;
+  /* char *idC, *idD; */
   srand(time(NULL));
 
   for (i = 1; i < argc - 2; i++) {
@@ -203,12 +206,12 @@ main(int argc, char* argv[])
   time(&t1);
   for (i = 0; i < NB_PB; i++) {
     
-    if ((pb[i] = !strcmp(path, PB[i]))) {
+    if ((pb[i] = !strcmp(path, PB_NAME[i]))) {
       printf("pb[%d] = %d",i,pb[i]);
       break;
     }
   }
-  // Square matrix problems:
+  /* Square matrix problems: */
   
 
   if ((STAT_FILE_NAME = getenv("DIET_STAT_FILE_NAME")))
@@ -239,7 +242,7 @@ main(int argc, char* argv[])
     store_id(profile->parameters[1].desc.id,"matrice B de doubles");
     store_id(profile->parameters[0].desc.id,"matrice A de doubles");
     print_matrix(C, mA, nB, (oC == DIET_ROW_MAJOR));
-    // diet_profile_free(profile); 
+    /* diet_profile_free(profile); */
     
   }
      
@@ -262,7 +265,7 @@ main(int argc, char* argv[])
    print_matrix(D, mA, nB, (oD == DIET_ROW_MAJOR));
    store_id(profile2->parameters[2].desc.id,"matrice D de doubles");
    store_id(profile2->parameters[1].desc.id,"matrice E de doubles");
-   //  diet_profile_free(profile2);
+   /*  diet_profile_free(profile2); */
   }
   
   printf ("next....");
@@ -277,7 +280,7 @@ main(int argc, char* argv[])
   if (!diet_call(profile1)) {
     diet_matrix_get(diet_parameter(profile1,0), NULL, NULL, &mA, &nA, &oA);
      print_matrix(A, mA, nA, (oA == DIET_ROW_MAJOR));
-     //  diet_profile_free(profile1);
+     /*  diet_profile_free(profile1); */
     }       
   
 
@@ -288,7 +291,7 @@ main(int argc, char* argv[])
   printf ("next....");
   scanf("%c",&car);
   printf(" \nRemoving all persistent data............" );
-  //getchar();
+  /* getchar(); */
   diet_free_persistent_data(profile->parameters[0].desc.id);
   diet_free_persistent_data(profile->parameters[1].desc.id);
   diet_free_persistent_data(profile->parameters[2].desc.id);

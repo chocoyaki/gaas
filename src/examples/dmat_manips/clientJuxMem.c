@@ -3,6 +3,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2006/06/30 15:26:02  ycaniou
+ * C++ commentaries -> C commentaries to remove compilation warnings
+ *
  * Revision 1.6  2006/01/13 10:41:53  mjan
  * Updating DIET for next JuxMem (0.2)
  *
@@ -56,7 +59,7 @@ main(int argc, char* argv[])
   int n_loops = 1;
   char* path = NULL;
   char* path2 = NULL;
-  size_t mA, nA, nB, mB; // use size_t for 32 / 64 portability
+  size_t mA, nA, nB, mB; /* use size_t for 32 / 64 portability */
   diet_profile_t* profile = NULL;
   diet_profile_t* profile2 = NULL;
   double mat1[15] = {1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0,11.0,12.0,13.0,14.0,15.0};

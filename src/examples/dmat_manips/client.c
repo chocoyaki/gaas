@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2006/06/30 15:26:02  ycaniou
+ * C++ commentaries -> C commentaries to remove compilation warnings
+ *
  * Revision 1.26  2005/11/13 05:21:21  ecaron
  * Cast tv_sec and tv_usec (for Mac)
  *
@@ -97,8 +100,8 @@ main(int argc, char* argv[])
   int n_loops = 1;
   char* path = NULL;
   diet_profile_t* profile = NULL;
-  //double mat1[9] = {1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0};
-  //double mat2[9] = {10.0,11.0,12.0,13.0,14.0,15.0,16.0,17.0,18.0};
+  /* double mat1[9] = {1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0}; */
+  /* double mat2[9] = {10.0,11.0,12.0,13.0,14.0,15.0,16.0,17.0,18.0}; */
   double A[9];
   double B[9];
   double* C = NULL;
@@ -106,7 +109,7 @@ main(int argc, char* argv[])
 
   int   pb[NB_PB] = {0, 0, 0, 0, 0};
 
-  // STATS
+  /* STATS */
   char* STAT_FILE_NAME = NULL;
   FILE* STAT_FILE      = NULL;
   struct timeval tv, tv_pause;
@@ -150,7 +153,7 @@ main(int argc, char* argv[])
   for (i = 0; i < NB_PB; i++) {
     if ((pb[i] = !strcmp(path, PB[i]))) break;
   }
-  // Square matrix problems:
+  /* Square matrix problems: */
   if (pb[3] || pb[4])
     n = m;
 
@@ -164,7 +167,7 @@ main(int argc, char* argv[])
                                                   DIET_COL_MAJOR;
   oC = ((double)rand()/(double)RAND_MAX <= 0.5) ? DIET_ROW_MAJOR : 
                                                   DIET_COL_MAJOR;
-  //printf("oA: %d oB: %d oC: %d\n", oA, oB, oC);
+  /* printf("oA: %d oB: %d oC: %d\n", oA, oB, oC); */
 
   A[0] = 1.0; A[1] = 2.0; A[2] = 3.0; A[3] = 4.0; A[4] = 5.0;
   A[5] = 6.0; A[6] = 7.0; A[7] = 8.0; A[8] = 9.0;
@@ -175,13 +178,13 @@ main(int argc, char* argv[])
   C = NULL;
 
   if (pb[0]) { 
-    // Each repetition transposes result of last
-    // Set values only once
+    /* Each repetition transposes result of last */
+    /* Set values only once */
     n = 2; m = 3; 
   }
 
   for (i = 0; i < n_loops; i++) {
-    if (pb[3] || pb[4]){  // Square matrix problems
+    if (pb[3] || pb[4]){  /* Square matrix problems */
       n = 2; m = 2;
     } else if (pb[1] || pb[2]){
       n = 2; m = 3;
@@ -261,7 +264,7 @@ main(int argc, char* argv[])
     diet_profile_free(profile);
   }
 
-  //diet_profile_free(profile);
+  /* diet_profile_free(profile); */
   diet_finalize();
 
   return 0;

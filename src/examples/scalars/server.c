@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2006/06/30 15:26:03  ycaniou
+ * C++ commentaries -> C commentaries to remove compilation warnings
+ *
  * Revision 1.2  2003/09/27 07:53:46  pcombes
  * Fix bugs on floating types
  *
@@ -82,7 +85,8 @@ solve_ADD(diet_profile_t* pb)
       res = 1;
     }
   } else {
-    // For integers, we can use the longest type to store values of smaller types.
+    /* For integers, we can use the longest type to store values 
+       of smaller types. */
     long* l1 = NULL;
     long* l2 = NULL;
     long* l3 = NULL;
@@ -175,6 +179,6 @@ main(int argc, char* argv[])
 
   diet_print_service_table();
   res = diet_SeD(argv[1], argc, argv);
-  // Not reached
+  /* Not reached */
   return res;
 }

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2006/06/30 15:26:02  ycaniou
+ * C++ commentaries -> C commentaries to remove compilation warnings
+ *
  * Revision 1.8  2005/04/25 09:06:01  hdail
  * Use hard-coded row and column orderings as input to BLAS service so we obtain
  * dependable performance.  Later we need to add more advanced example that
@@ -99,14 +102,14 @@ main(int argc, char* argv[])
     return 1;
   }
 
-  // Parsing and preparation of m, n, j, A, B, C, alpha and beta
+  /* Parsing and preparation of m, n, j, A, B, C, alpha and beta */
   m     = (size_t) atoi(argv[2]);
   n     = (size_t) atoi(argv[3]);
   k     = (size_t) atoi(argv[4]);
   alpha = strtod(argv[5], NULL);
   beta  = strtod(argv[6], NULL);
 
-  // Fill A, B and C randomly ...
+  /* Fill A, B and C randomly ... */
   A = calloc(m*k, sizeof(double));
   B = calloc(k*n, sizeof(double));
   C = calloc(m*n, sizeof(double));

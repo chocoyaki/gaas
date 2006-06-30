@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2006/06/30 15:26:03  ycaniou
+ * C++ commentaries -> C commentaries to remove compilation warnings
+ *
  * Revision 1.4  2004/10/08 12:08:05  alsu
  * casting lvalues deprecated, moved casts to the rhs
  *
@@ -149,7 +152,7 @@ main(int argc, char* argv[])
 	printf("After the call: l1=0x%X, l2=0x%X, l3=0x%X\n",
 	       (int)l1, (int)l2, (int)*pl3);
       else if (pb[3])
-#endif // PRETTY_PRINT
+#endif /* PRETTY_PRINT */
       /* When PRETTY_PRINT is 0, we print all results as longs, which lets the
 	 user see how the types are managed. */
 	printf("After the call: l1=0x%lX, l2=0x%lX, l3=0x%lX\n",

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2006/06/30 15:26:03  ycaniou
+ * C++ commentaries -> C commentaries to remove compilation warnings
+ *
  * Revision 1.26  2006/02/13 17:13:55  mjan
  * Removed uneeded DIET_config.h
  *
@@ -82,7 +85,7 @@ solve_T(diet_profile_t* pb)
   if ((res = T(*m, *n, A, (o == DIET_ROW_MAJOR))))
     return res;
   
-  // no need to set order
+  /* no need to set order */
   diet_matrix_desc_set(diet_parameter(pb,2), *n, *m, DIET_MATRIX_ORDER_COUNT);
 
   diet_free_data(diet_parameter(pb,0));
@@ -114,7 +117,7 @@ solve_MatSUM(diet_profile_t* pb)
    */
   arg_idx = 0;
 
-#else  // __FAST_0_4__
+#else  /* __FAST_0_4__ */
   /**
    * In FAST 0.8 and later, base/plus is also declared to the LDIF base with
    * only the two matrix dimensions as arguments. But there is no more
@@ -123,7 +126,7 @@ solve_MatSUM(diet_profile_t* pb)
    */
   arg_idx = 2;
 
-#endif // __FAST_0_4__
+#endif /* __FAST_0_4__ */
 
   diet_matrix_get(diet_parameter(pb,arg_idx), &A, NULL, &mA, &nA, &oA);
   diet_matrix_get(diet_parameter(pb,(arg_idx+1)), &B, NULL, &mB, &nB, &oB);
@@ -152,8 +155,8 @@ solve_MatSUM(diet_profile_t* pb)
 #if !defined(__FAST_0_4__)
   diet_free_data(diet_parameter(pb,2));
   diet_free_data(diet_parameter(pb,3));
-#endif // ! __FAST_0_4__
-#endif // ! HAVE_JUXMEM
+#endif /* ! __FAST_0_4__ */
+#endif /* ! HAVE_JUXMEM */
 
   printf(" done\n");
   return res;
@@ -181,7 +184,7 @@ solve_MatPROD(diet_profile_t* pb)
    */
   arg_idx = 0;
 
-#else  // __FAST_0_4__
+#else  /* __FAST_0_4__ */
   /**
    * In FAST 0.8 and later, base/plus is also declared to the LDIF base with
    * only the three relevant matrix dimensions as arguments. But there is no
@@ -190,7 +193,7 @@ solve_MatPROD(diet_profile_t* pb)
    */
   arg_idx = 3;
 
-#endif // __FAST_0_4__
+#endif /* __FAST_0_4__ */
 
   diet_matrix_get(diet_parameter(pb,arg_idx), &A, NULL, &mA, &nA, &oA);
   diet_matrix_get(diet_parameter(pb,(arg_idx+1)), &B, NULL, &mB, &nB, &oB);
@@ -219,8 +222,8 @@ solve_MatPROD(diet_profile_t* pb)
   diet_free_data(diet_parameter(pb,2));
   diet_free_data(diet_parameter(pb,3));
   diet_free_data(diet_parameter(pb,4));
-#endif // ! __FAST_0_4__
-#endif // ! HAVE_JUXMEM
+#endif /* ! __FAST_0_4__ */
+#endif /* ! HAVE_JUXMEM */
 
   printf(" done\n");
   return res;
@@ -322,7 +325,7 @@ main(int argc, char* argv[])
       }
     }
     
-#else  // __FAST_0_4__
+#else  /* __FAST_0_4__ */
     {
       diet_convertor_t* cvt_SUM = NULL;
       /**
@@ -366,12 +369,12 @@ main(int argc, char* argv[])
 	}
       }
     }
-#endif // __FAST_0_4__
+#endif /* __FAST_0_4__ */
 
     diet_convertor_free(cvt);
     diet_profile_desc_free(profile);
 
-  } // if (services[1] || services[2] || services[3])
+  } /* if (services[1] || services[2] || services[3]) */
 
 
   if (services[4]) {
@@ -383,14 +386,14 @@ main(int argc, char* argv[])
     /* Profile expected by solve_MatSUM: (IN A, IN B, OUT C) */
     cvt = diet_convertor_alloc("base/plus", 1, 1, 2);
     i = 0;
-#else  // __FAST_0_4__
+#else  /* __FAST_0_4__ */
     /* Profile expected by solve_MatSUM: (IN mA, IN nA, IN A, IN B, OUT C)
      * Thus, we must extract the first two dimensions. */
     cvt = diet_convertor_alloc("base/plus", 3, 3, 4);
     diet_arg_cvt_set(&(cvt->arg_convs[0]), DIET_CVT_MAT_NB_ROW, 0, NULL, 0);
     diet_arg_cvt_set(&(cvt->arg_convs[1]), DIET_CVT_MAT_NB_COL, 0, NULL, 0);
     i = 2;
-#endif // __FAST_0_4__
+#endif /* __FAST_0_4__ */
     /**
      * As SqMatSUM_opt is declared with the profile (IN A, INOUT B) (to match a
      * sub-service of the BLAS dgemm), the convertor must tell DIET to
@@ -409,6 +412,6 @@ main(int argc, char* argv[])
 
   diet_print_service_table();
   res = diet_SeD(argv[1], argc, argv);
-  // Not reached
+  /* Not reached */
   return res;
 }
