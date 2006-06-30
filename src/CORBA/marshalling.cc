@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.62  2006/06/30 15:37:34  ycaniou
+ * Code presentation, commentaries (nothing really "touched")
+ *
  * Revision 1.61  2006/06/03 21:34:46  ycaniou
  * Correct DIET_FILE unmarshalling bug:
  * Put initialization of diet_data_desc_t in unmrsh_data_desc()
@@ -873,10 +876,10 @@ mrsh_profile_to_out_args(corba_profile_t* dest, const diet_profile_t* src,
   for (i = cvt->last_in + 1; i <= cvt->last_out; i++) {
     arg_idx = cvt->arg_convs[i].out_arg_idx;
     if ((arg_idx >= 0) && (arg_idx <= dest->last_out)) {
-      if(   dest->parameters[arg_idx].desc.specific._d() == DIET_FILE
-         && diet_is_persistent(dest->parameters[arg_idx]))
-      {
-	src->parameters[i].desc.id = CORBA::string_dup(dest->parameters[arg_idx].desc.id.idNumber);
+      if( dest->parameters[arg_idx].desc.specific._d() == DIET_FILE
+	  && diet_is_persistent(dest->parameters[arg_idx]) ) {
+	src->parameters[i].desc.id = 
+	  CORBA::string_dup(dest->parameters[arg_idx].desc.id.idNumber);
       }
       dd = src->parameters[i];
       if (!args_filled[arg_idx]) {

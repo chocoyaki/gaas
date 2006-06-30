@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2006/06/30 15:37:35  ycaniou
+ * Code presentation, commentaries (nothing really "touched")
+ *
  * Revision 1.2  2004/10/04 09:40:43  sdahan
  * warning fix :
  *  - debug.cc : change the printf format from %ul to %lu and from %l to %ld
@@ -89,7 +92,7 @@ public :
   /**
    * change the value of the key.
    *
-   * @param value the new value of the key.
+   * @param masterAgentId the new value of the key.
    */
   KeyString & operator= (const KeyString & masterAgentId) ;
 

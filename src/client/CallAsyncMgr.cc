@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2006/06/30 15:37:35  ycaniou
+ * Code presentation, commentaries (nothing really "touched")
+ *
  * Revision 1.17  2006/06/29 15:02:41  aamar
  * Make change to handle the new type definition of grpc_function_handle_t (from a grpc_function_handle_s to grpc_function_handle_s*
  *
@@ -422,12 +425,12 @@ int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
   setReqErrorCode(reqID, GRPC_NO_ERROR);
   WriterLockGuard r(callAsyncListLock);
   try {
-	cout<< "the service has computed the requestID=" << reqID << " and notify his answer\n";
+	cout<< "the service has computed the requestID=" << reqID << " and notifies his answer\n";
 	fflush(stdout);
     // update diet_profile datas linked to this reqId
     CallAsyncList::iterator h = caList.find(reqID);
     if (h == caList.end()){
-      WARNING(__FUNCTION__ << ":SeD notify a result linked to a request ID (" << reqID << ") which is not registered");
+      WARNING(__FUNCTION__ << ":SeD notifies a result linked to a request ID (" << reqID << ") which is not registered");
       fflush(stderr);
       return -1;
     } // code de trace et debbug, a virer pour la version CVSise

@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2006/06/30 15:37:34  ycaniou
+ * Code presentation, commentaries (nothing really "touched")
+ *
  * Revision 1.23  2006/05/12 12:12:32  sdahan
  * Add some documentation about multi-MA
  *
@@ -266,8 +269,8 @@ corba_data_desc_t*
 MasterAgentImpl::get_data_arg(const char* argID)
 {
   corba_data_desc_t* resp = new corba_data_desc_t;
-   resp = locMgr->set_data_arg(argID);  
-   return resp;
+  resp = locMgr->set_data_arg(argID);  
+  return resp;
 }
 
 /** Problem submission : remotely called by client. */
