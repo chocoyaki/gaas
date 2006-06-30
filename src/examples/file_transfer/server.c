@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2006/06/30 15:21:09  ycaniou
+ * Commentaries
+ *
  * Revision 1.13  2005/11/09 18:39:33  alsu
  * casting size_t arguments to int to deal with the storage size difference on 64-bit architectures
  *
@@ -54,40 +57,49 @@ int
 solve_size(diet_profile_t* pb)
 {
   size_t arg_size  = 0;
-  char* path = NULL;
+  char* path1 = NULL;
+  char* path2 = NULL;
+  char* path_result = NULL;
   int status = 0;
   struct stat buf;
 
   fprintf(stderr, "Solve size ");
   
-  diet_file_get(diet_parameter(pb,0), NULL, &arg_size, &path);
-  fprintf(stderr, "on %s (%d) ", path, (int) arg_size);
-  if ((status = stat(path, &buf)))
+  diet_file_get(diet_parameter(pb,0), NULL, &arg_size, &path1) ;
+  fprintf(stderr, "on %s (%d) ", path1, (int) arg_size);
+  if ((status = stat(path1, &buf)))
     return status;
+  /* Regular file */
   if (!(buf.st_mode & S_IFREG))
     return 2;
   diet_scalar_desc_set(diet_parameter(pb,2), &buf.st_size);
-  
+  /* Unlink file */
   diet_free_data(diet_parameter(pb,0));
   
-  diet_file_get(diet_parameter(pb,1), NULL, &arg_size, &path);
-  fprintf(stderr, "and %s (%d) ...", path, (int) arg_size);
-  if ((status = stat(path, &buf)))
+  diet_file_get(diet_parameter(pb,1), NULL, &arg_size, &path2);
+  fprintf(stderr, "and %s (%d) ...", path2, (int) arg_size);
+  if ((status = stat(path2, &buf)))
     return status;
   if (!(buf.st_mode & S_IFREG))
     return 2;
   diet_scalar_desc_set(diet_parameter(pb,3), &buf.st_size);
+  /* do not apply diet_free_data on param 1, since it is also the OUT file. */
 
-  // do not apply diet_free_data on param 1, since it is also the OUT file.
-
-  if (diet_file_desc_set(diet_parameter(pb,4), (rand()&1) ? path : NULL)) {
+  /* Choose randomly if returns a NULL file or param 1 */
+  if (diet_file_desc_set(diet_parameter(pb,4), (rand()&1) ? path1 : NULL)) {
     printf("diet_file_desc_set error\n");
     return 1;
   }
   printf(" done\n");
-  diet_file_get(diet_parameter(pb,4), NULL, NULL, &path);
-  if (path)
-    printf("Returned file: %s.\n", path);
+  /* Get the name of the file returned as the result */
+  diet_file_get(diet_parameter(pb,4), NULL, NULL, &path_result);
+  if (path_result)
+    printf("Returned file: %s.\n", path_result);
+
+  /* **************
+     Don't free the string names since they are not replicated from CORBA obj
+  ************** */
+  
   return 0;
 }
 
@@ -123,7 +135,7 @@ main(int argc, char* argv[])
   diet_profile_desc_free(profile);
   diet_print_service_table();
   res = diet_SeD(argv[1], argc, argv);
-  // Not reached
+  /* Not reached */
   return res;
 }
 
