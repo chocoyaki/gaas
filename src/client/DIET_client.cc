@@ -10,6 +10,16 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.80  2006/06/30 15:41:47  ycaniou
+ * DIET is now capable to submit batch Jobs in synchronous mode. Still some
+ *   tuning to do (hard coded NFS path for OAR, tests for synchro between
+ *   SeD and the batch job in regard to delete files.., more examples).
+ *
+ * Put the Data transfer section (JuxMem and DTM) before and after the call to
+ * the SeD solve, in inline functions
+ *   - downloadSyncSeDData()
+ *   - uploadSyncSeDData()
+ *
  * Revision 1.79  2006/06/29 15:02:41  aamar
  * Make change to handle the new type definition of grpc_function_handle_t (from a grpc_function_handle_s to grpc_function_handle_s*
  *
@@ -487,8 +497,8 @@ get_diet_services(int *services_number){
 
 void create_file()
 {
-sprintf(file_Name,"/tmp/ID_FILE.%s.%d",MA_Name,num_Session);
-create_header();
+  sprintf(file_Name,"/tmp/ID_FILE.%s.%d",MA_Name,num_Session);
+  create_header();
 
 }
 
@@ -581,7 +591,7 @@ request_submission(diet_profile_t* profile,
     response = NULL;
 
 #if ! HAVE_JUXMEM
-    /* data property base_type and type retrieval : used for scheduler*/
+    /* data property base_type and type retrieval : used for scheduler */
     int i = 0;
 
     for (i = 0, data_OK = 0 ;
@@ -590,10 +600,11 @@ request_submission(diet_profile_t* profile,
       char* new_id = strdup(corba_pb.param_desc[i].id.idNumber);
  
       if(strlen(new_id) != 0) {
+	/* then data is known. Check that it's still in plaform */
         corba_data_desc_t *arg_desc = new corba_data_desc_t;
         arg_desc = MA->get_data_arg(new_id);
         char *tmp="-1";
-        if( strcmp(CORBA::string_dup(arg_desc->id.idNumber),tmp) ==0) {
+        if( strcmp(CORBA::string_dup(arg_desc->id.idNumber),tmp) == 0 ) {
           bad_id = new_id;
           data_OK = 1;
         } else {
@@ -768,10 +779,13 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
      */
     if (profile->parameters[i].desc.id == NULL &&
 	profile->parameters[i].desc.mode == DIET_PERSISTENT) {
-      profile->parameters[i].desc.id = juxmem->attach(profile->parameters[i].value, 
-						      data_sizeof(&(profile->parameters[i].desc)), 
-						      1, 1, EC_PROTOCOL, BASIC_SOG);
-      TRACE_TEXT(TRACE_MAIN_STEPS, "A data space with ID = " << profile->parameters[i].desc.id << " for IN data has been attached inside JuxMem!\n");
+      profile->parameters[i].desc.id = 
+	juxmem->attach(profile->parameters[i].value, 
+		       data_sizeof(&(profile->parameters[i].desc)), 
+		       1, 1, EC_PROTOCOL, BASIC_SOG);
+      TRACE_TEXT(TRACE_MAIN_STEPS, "A data space with ID = " 
+		 << profile->parameters[i].desc.id 
+		 << " for IN data has been attached inside JuxMem!\n");
       /* The local memory is flush inside JuxMem */
       juxmem->msync(profile->parameters[i].value);      
       profile->parameters[i].value = NULL;
@@ -780,6 +794,7 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
 #endif // HAVE_JUXMEM
 
   /* Send Datas */
+
   if (mrsh_profile_to_in_args(&corba_profile, profile)) {
     ERROR("profile is wrongly built", 1);
   }
@@ -799,7 +814,7 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
 
 #if ! HAVE_JUXMEM
   /* data property base_type and type retrieval : used for scheduler */
-  for(int i = 0;i <= corba_profile.last_out;i++) {
+  for(int i = 0 ; i <= corba_profile.last_out ; i++) {
     char* new_id = strdup(corba_profile.parameters[i].desc.id.idNumber);
     if(strlen(new_id) != 0) {
       corba_data_desc_t* arg_desc = new corba_data_desc_t;
@@ -809,15 +824,16 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
   }  
   
   /* generate new ID for data if not already existant */
-  for(int i = 0;i <= corba_profile.last_out;i++) {
-    if ((corba_profile.parameters[i].desc.mode > DIET_VOLATILE ) && 
-        (corba_profile.parameters[i].desc.mode < DIET_PERSISTENCE_MODE_COUNT) &&
-        (MA->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber))))
-    {
-      char* new_id = MA->get_data_id(); 
-      corba_profile.parameters[i].desc.id.idNumber = new_id;
-    }
+  for(int i = 0 ; i <= corba_profile.last_out ; i++) {
+    if((corba_profile.parameters[i].desc.mode > DIET_VOLATILE ) && 
+       (corba_profile.parameters[i].desc.mode < DIET_PERSISTENCE_MODE_COUNT) &&
+       (MA->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber))))
+      {
+	char* new_id = MA->get_data_id(); 
+	corba_profile.parameters[i].desc.id.idNumber = new_id;
+      }
   }
+
 #endif
 
   /* Computation */

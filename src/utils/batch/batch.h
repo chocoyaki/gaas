@@ -11,7 +11,13 @@
 #ifndef BATCH_H
 #define BATCH_H
 
-#include "DIET_server.h" /* for definition of DIET_MPI... */
+#include "DIET_server.h" /* for definition of DIET_MPI things */
+
+/* Supported file copy infrastructures. */
+typedef enum {
+  ELBASE_CP, ELBASE_FTP, ELBASE_GASS, ELBASE_SCP, ELBASE_SFTP, ELBASE_SRB,
+  ELBASE_STORAGE_SERVICE_COUNT
+} ELBASE_StorageServiceTypes;
 
 /* Supported compute infrastructures. */
 typedef enum {
@@ -28,12 +34,6 @@ typedef enum {
   /* FYC */
   ELBASE_SCHEDULER_SERVICE_COUNT
 } ELBASE_SchedulerServiceTypes;
-
-/* Supported file copy infrastructures. */
-typedef enum {
-  ELBASE_CP, ELBASE_FTP, ELBASE_GASS, ELBASE_SCP, ELBASE_SFTP, ELBASE_SRB,
-  ELBASE_STORAGE_SERVICE_COUNT
-} ELBASE_StorageServiceTypes;
 
 /* A spawned process. */
 typedef void *ELBASE_Process;
@@ -67,6 +67,8 @@ typedef void *ELBASE_Process;
 #define ELBASE_STDOUT    "stdout"
 /* Maximum wall clock minutes */
 #define ELBASE_TIME      "max_wall_time"
+/* Batch file that contains the identities of reserved nodes */
+#define DIET_BATCH_NODESFILE "$DIET_BATCH_NODESFILE"
 
 /*
  * Equivalent to calling ELBASE_SpawnScript with a script constructed by
@@ -147,7 +149,7 @@ ELBASE_ScriptForDelete(ELBASE_StorageServiceTypes service,
  * #workingDirectory#, #arguments# are passed to the execution, and #stdinPath#,
  * #stdoutPath#, and #stderrPath# redirect the standard files to file paths on
  * #server#.  #environment# is a NULL-terminated array of name=value elements
- * indicating local environment variable settings.  Any or all the the last
+ * indicating local environment variable settings.  Any or all the last
  * seven parameters may be NULL.
  */
 char *
@@ -218,7 +220,7 @@ int
 ELBASE_ExistBatchScheduler(const char *batchName, 
 			   ELBASE_SchedulerServiceTypes *batchID) ;
 /* Return a copy of the name of the batch scheduler referenced by ID*/
-char*
+const char*
 ELBASE_GiveBatchName(ELBASE_SchedulerServiceTypes ID) ;
 /* FYC */
 

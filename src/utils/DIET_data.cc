@@ -8,6 +8,16 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.38  2006/06/30 15:41:48  ycaniou
+ * DIET is now capable to submit batch Jobs in synchronous mode. Still some
+ *   tuning to do (hard coded NFS path for OAR, tests for synchro between
+ *   SeD and the batch job in regard to delete files.., more examples).
+ *
+ * Put the Data transfer section (JuxMem and DTM) before and after the call to
+ * the SeD solve, in inline functions
+ *   - downloadSyncSeDData()
+ *   - uploadSyncSeDData()
+ *
  * Revision 1.37  2006/06/01 13:04:21  ycaniou
  * Correct "File structure is vicious" bug.
  * BATCH: add explicit test of batch job for matching functions
@@ -651,7 +661,8 @@ diet_file_desc_set(diet_data_t* data, char* path)
    ERROR(__FUNCTION__ << " misused (wrong type)", 1);
   }   
   if (path != data->desc.specific.file.path)
-    CORBA::string_free(data->desc.specific.file.path);
+    /* data->desc.. bien déf par CORBA ? */
+    CORBA::string_free((char*)data->desc.specific.file.path);
   data->desc.specific.file.path = path;
   return 0;
 }
@@ -910,7 +921,7 @@ diet_free_data(diet_arg_t* arg)
           perror(arg->desc.specific.file.path);
           return 2;
         }
-        free(arg->desc.specific.file.path);
+        free((char*)arg->desc.specific.file.path);
         arg->desc.specific.file.path = NULL;
       } else {
         return 1;

@@ -8,6 +8,9 @@
 /* $LICENSE$                                                                */
 /****************************************************************************/
 
+/* TODO: look at functions ELBASE_Kill and ELBASE_Poll to kill a process
+** on a sequential machine, or to know its status */
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -29,13 +32,14 @@ extern "C" {
 #define ASSTR_SHORT_NAMES
 #include <strseed.h>
 #include "batch.h"
+#include <pthread.h>
 
 /* YC */
-/* Because with OAR, the job must be on NFS to be launched correctly,
-   I redefined BATCH_PATH... 
-   #define BATCH_PATH TEMP_PREFIX "elagi_batch$$"
-*/
-#define BATCH_PATH "elagi_batch$$"
+/** Because with OAR, the job must be on NFS to be launched correctly,
+ * I redefined BATCH_PATH... 
+ *  #define BATCH_PATH TEMP_PREFIX "elagi_batch$$"
+ */
+#define BATCH_PATH "/home/ycaniou/elagi_batch$$"
 /* FYC */
 
 #define TEMP_PREFIX "/tmp/"
@@ -56,23 +60,21 @@ static const char *storageCommands[ELBASE_STORAGE_SERVICE_COUNT] = {
   "cp", "ftp", "globus-url-copy", "scp", "sftp", "Scp"
 };
 
-/* YC */
-/* In order to return the ID of the batch, given the name */
+/** In order to return the ID of the batch, given the name */
 static const char 
-*availableBatchScheduler[ELBASE_SCHEDULER_SERVICE_COUNT] = {
-  "shell","condor","dqs","loadleveler","lsf","pbs","sge","oar"} ;
-/* FYC */
+*availableBatchScheduler[ELBASE_SCHEDULER_SERVICE_COUNT] = 
+  {"shell","condor","dqs","loadleveler","lsf","pbs","sge","oar"} ;
 
 typedef struct _ProcessInfoStruct {
   int gramProcess;
   ASEXEC_ProcessId pid;
 } *ProcessInfo;
 
-/*
- * If #s# is non-null, appends #prefix# to #toWhat#, followed by #s#, then
- * #suffix#.  #prefix# and #suffix# may each be NULL.  Appropriate characters
- * within #s# are escaped as indicated by #escape#.
- */
+  /**
+   * If #s# is non-null, appends #prefix# to #toWhat#, followed by #s#, then
+   * #suffix#.  #prefix# and #suffix# may each be NULL.  Appropriate characters
+   * within #s# are escaped as indicated by #escape#.
+   */
 static void
 AppendIfThere(char **toWhat,
               const char *prefix,
@@ -111,14 +113,14 @@ AppendIfThere(char **toWhat,
 }
 
 
-/*
- * If #s# is non-null, appends #prefix# to #toWhat#, followed by the elements
- * of #s# separated by #separator#, then #suffix#.  #prefix#, #separator# and
- * #suffix# may each be NULL.  If #equalsSub# is non-NULL, elements of #s# are
- * assumed to have the form name=value, and each equal sign is replaced by
- * #equalSub#.  Appropriate characters within #s# are escaped as specified by
- * #escape#.
- */
+  /**
+   * If #s# is non-null, appends #prefix# to #toWhat#, followed by the elements
+   * of #s# separated by #separator#, then #suffix#.  #prefix#, #separator# and
+   * #suffix# may each be NULL. If #equalsSub# is non-NULL, elements of #s# are
+   * assumed to have the form name=value, and each equal sign is replaced by
+   * #equalSub#.  Appropriate characters within #s# are escaped as specified by
+   * #escape#.
+   */
 static void
 AppendListIfThere(char **toWhat,
                   const char *prefix,
@@ -151,10 +153,10 @@ AppendListIfThere(char **toWhat,
 }
 
 
-/*
- * Returns in an allocated string a /bin/sh invocation of (s)ftp that asks
- * #server# to perform #command# on #path1# and, if it is not NULL, #path2#.
- */
+  /**
+   * Returns in an allocated string a /bin/sh invocation of (s)ftp that asks
+   * #server# to perform #command# on #path1# and, if it is not NULL, #path2#.
+   */
 static char *
 FtpScript(int sftp,
           const char *server,
@@ -218,18 +220,18 @@ FtpScript(int sftp,
   free(password);
   free(serverCopy);
   return result;
-
 }
 
 
-/* Returns true iff temp files created by this package should be deleted. */
+  /** Returns true iff temp files created by this package should be deleted. */
 static int
 RemoveTempFiles(void) {
   return getenv("ELAGI_NO_RM") == NULL && getenv("ELBASE_NO_RM") == NULL;
 }
 
 
-/* Returns in an allocated string an invocation of the SSH server #server#. */
+  /** Returns in an allocated string an invocation of the SSH server #server#. 
+   */
 static char *
 SshInvocation(const char *server) {
   char *c;
@@ -282,7 +284,10 @@ ELBASE_DeleteFile(ELBASE_StorageServiceTypes service,
   return result;
 }
 
-
+  /* YC */
+  /* TODO: ELBASE_Process is defined by a void*, like ASEXEC_ProcessId
+  ** then, how can we cast it as a ProcessInfo? */
+  /* FYC */
 int
 ELBASE_Kill(ELBASE_Process process) {
   ProcessInfo p = (ProcessInfo)process;
@@ -450,7 +455,6 @@ ELBASE_ScriptForDelete(ELBASE_StorageServiceTypes service,
 
 }
 
-
 char *
 ELBASE_ScriptForSubmit(ELBASE_ComputeServiceTypes service,
                       const char *server,
@@ -471,19 +475,13 @@ ELBASE_ScriptForSubmit(ELBASE_ComputeServiceTypes service,
   #define ELBASE_SH      "shell"
   #define ELBASE_OTHERS  "insert_unrecognized_attributes_here"
   #define ELBASE_WD      "directory"
-  /* YC */
-  #define ELBASE_NODESFILE "BATCH_NODESFILE"
-  /* FYC */
 
-  /* All known attributes, both external (elbase.h) and internal (above). */
+  /* All known attributes, both external (batch.h) and internal (above). */
   const char *KNOWN_ATTRIBUTES[] = {
     ELBASE_ACCOUNT, ELBASE_ARGS, ELBASE_EMAIL, ELBASE_ENV, ELBASE_MEMORY,
     ELBASE_NODECOPY, ELBASE_NODES, ELBASE_NODESPAWN, ELBASE_NODETYPE,
     ELBASE_NOTIFY, ELBASE_PROCESSES, ELBASE_PROGRAM, ELBASE_QUEUE, ELBASE_SH,
-    ELBASE_STDERR, ELBASE_STDIN, ELBASE_STDOUT, ELBASE_TIME, ELBASE_WD, 
-    /* YC */
-    ELBASE_NODESFILE,
-    /* FYC */
+    ELBASE_STDERR, ELBASE_STDIN, ELBASE_STDOUT, ELBASE_TIME, ELBASE_WD,
     NULL
   };
 
@@ -566,32 +564,122 @@ ELBASE_ScriptForSubmit(ELBASE_ComputeServiceTypes service,
    * Formats common to those batch schedulers where we have to spread the job
    * to allocated nodes ourselves.
    */
+
+/* Le 12.04.06 */
+/*     ELBASE_ENV,       "%s\n", \ */
+/*     ELBASE_WD,        "cd %s\n", \ */
+/*     /\* YC *\/ */
+/*     ELBASE_IS_NFS,    "NFS=%s\n", \ */
+/*     ELBASE_IS_MPI,    "MPI=%s\n", \ */
+/*     "",               "case $NFS in\n", \ */
+/*     "",               "  Nfs)\n", \ */
+/*     "",               "    case $MPI in\n", \ */
+/*     "",               "      None)\n", \ */
+/*     /\* TODO: call the same executable on each machine the same */
+/*     **       way Jim does in Elagi *\/ */
+/*     "",               "      ;;\n", \ */
+/*     "",               "      Mpich_1_2)\n", \ */
+/*     ELBASE_BATCH_NBPROCESSES, "        mpirun.mpich.1.2 -np %s ", \ */
+/*     ELBASE_BATCH_NODESFILE, "-machinefile %s ", \ */
+/*     ELBASE_PROGRAM,         "%s", \ */
+/*     ELBASE_ARGS,            " %s", \ */
+/*     ELBASE_STDIN,           " < %s\n", \ */
+/*     "",               "      ;;\n", \ */
+/*     "",               "      *)\n", \ */
+/*     "",               "        echo \"TODO\" ; exit 1\n",\  */
+/*     /\* TODO: LAM, PVM, etc. *\/ */
+/*     "",               "      ;;\n", \ */
+/*     "",               "    esac\n", \ */
+/*     "",               "  Rename)\n", \ */
+/*     "",               "    case $MPI in\n", \ */
+/*     "",               "      None)\n", \ */
+/*     /\* Then copy script with a different name on the N reserved machines */
+/*     **   and call it ELBASE_PROCESSES/N times, */
+/*     **   with an arg so that it calls the service program *\/ */
+/*     /\* FYC *\/ */
+/*     "",               "        if test $# -eq 0; then\n", \ */
+/*     "",               "          L=`" getHosts " | sort | uniq`\n", \ */
+/*     "",               "          for H in $L; do\n", \ */
+/*     ELBASE_NODECOPY,  "            %s $0 $H:" BATCH_PATH "-$H || exit 7\n", \ */
+/*     "",               "          done\n", \ */
+/*     ELBASE_PROCESSES, "          P=%s\n", \ */
+/*     "",               "          while test $P -gt 0; do\n", \ */
+/*     "",               "            for H in $L; do\n", \ */
+/*     ELBASE_NODESPAWN, "              %s $H /bin/sh " BATCH_PATH "-$H child_process &\n", \ */
+/*     "",               "              P=`expr $P - 1`\n", \ */
+/*     "",               "              if test $P -eq 0; then break; fi\n", \ */
+/*     "",               "            done\n", \ */
+/*     "",               "          done\n", \ */
+/*     "",               "          sleep 15\n", \ */
+/*     "",               "          for H in $L; do\n", \ */
+/*     ELBASE_NODESPAWN, "            %s $H /bin/rm -f " BATCH_PATH "-$H\n", \ */
+/*     "",               "          done\n", \ */
+/*     "",               "          wait\n", \ */
+/*     "",               "          exit 0\n", \ */
+/*     "",               "        fi\n", \ */
+/*     ELBASE_PROGRAM,   "%s", \ */
+/*     ELBASE_ARGS,      " %s", \ */
+/*     ELBASE_STDIN,     " < %s", \ */
+/*     /\* YC *\/ */
+/*     "",               "      ;;\n", \ */
+/*     "",               "      *)\n", \ */
+/*     "",               "        echo \"Not possible\" ; exit 1\n",\  */
+/*     "",               "      ;;\n", \ */
+/*     "",               "    esac\n", \ */
+/*     "",               "    ;;\n", \ */
+/*       "",               "  Copy)\n", \ */
+/*     "",               "    case $MPI in\n", \ */
+/*     "",               "      None)\n", \ */
+/*     "",               "        echo \"TODO\" ; exit 1\n",\  */
+/*     /\* TODO: call code on the all N machines, ELBASE_PROCESSES times *\/ */
+/*     "",               "      ;;\n", \ */
+/*     "",               "      Mpich_1_2)\n", \ */
+/*     "",               "        echo \"TODO\" ; exit 1\n",\  */
+/*     /\* TODO: call mpirun on all N machines with np>n *\/ */
+/*     ELBASE_BATCH_NBPROCESSES, "        mpirun.mpich.1.2 -np %s ", \ */
+/*     ELBASE_BATCH_NODESFILE, "-machinefile %s ", \ */
+/*     ELBASE_PROGRAM,         "%s", \ */
+/*     ELBASE_ARGS,            " %s", \ */
+/*     ELBASE_STDIN,           " < %s", \ */
+/*     "",               "      ;;\n", \ */
+/*     "",               "      *)\n", \ */
+/*     "",               "        echo \"TODO\" ; exit 1\n", \  */
+/*     /\* TODO: LAM, PVM, etc. *\/ */
+/*     "",               "      ;;\n", \ */
+/*     "",               "    esac\n", \ */
+/*     "",               "  ;;\n", \ */
+/*     "",               "esac\n" */
+
+
+/*     "",               "  for H in $L; do\n", \ */
+/*       ELBASE_NODECOPY,  "    %s $0 $H:" BATCH_PATH "-$H || exit 7\n", \ */
+/*     "",               "  done\n", \ */
+/*     ELBASE_PROCESSES, "  P=%s\n", \ */
+/*     "",               "  while test $P -gt 0; do\n", \ */
+/*     "",               "    for H in $L; do\n", \ */
+/*       ELBASE_NODESPAWN, "      %s $H /bin/sh " BATCH_PATH "-$H child_process &\n", \ */
+/*     "",               "      P=`expr $P - 1`\n", \ */
+/*     "",               "      if test $P -eq 0; then break; fi\n", \ */
+/*     "",               "    done\n", \ */
+/*     "",               "  done\n", \ */
+/*     "",               "  sleep 15\n", \ */
+/*     "",               "  for H in $L; do\n", \ */
+/*       ELBASE_NODESPAWN, "    %s $H /bin/rm -f " BATCH_PATH "-$H\n", \ */
+/*     "",               "  done\n", \ */
+/*     "",               "  wait\n", \ */
+/*     "",               "  exit 0\n", \ */
+/*     "",               "fi\n", \ */
+/*     ELBASE_PROGRAM,   "%s", \ */
+/*     ELBASE_ARGS,      " %s", \ */
+/*     ELBASE_STDIN,     " < %s" */
+
+
 #define COMMON_ATTR_FORMATS(getHosts) \
-    ELBASE_ENV,       "%s\n", \
-    ELBASE_WD,        "cd %s\n", \
-    "",               "if test $# -eq 0; then\n", \
-    "",               "  L=`" getHosts " | sort | uniq`\n", \
-    "",               "  for H in $L; do\n", \
-      ELBASE_NODECOPY,  "    %s $0 $H:" BATCH_PATH "-$H || exit 7\n", \
-    "",               "  done\n", \
-    ELBASE_PROCESSES, "  P=%s\n", \
-    "",               "  while test $P -gt 0; do\n", \
-    "",               "    for H in $L; do\n", \
-      ELBASE_NODESPAWN, "      %s $H /bin/sh " BATCH_PATH "-$H child_process &\n", \
-    "",               "      P=`expr $P - 1`\n", \
-    "",               "      if test $P -eq 0; then break; fi\n", \
-    "",               "    done\n", \
-    "",               "  done\n", \
-    "",               "  sleep 15\n", \
-    "",               "  for H in $L; do\n", \
-      ELBASE_NODESPAWN, "    %s $H /bin/rm -f " BATCH_PATH "-$H\n", \
-    "",               "  done\n", \
-    "",               "  wait\n", \
-    "",               "  exit 0\n", \
-    "",               "fi\n", \
-    ELBASE_PROGRAM,   "%s", \
-    ELBASE_ARGS,      " %s", \
-    ELBASE_STDIN,     " < %s"
+  "",    "DIET_BATCH_NODESLIST=`" getHosts " | sort | uniq`\n", \
+  "",    "DIET_BATCH_NBNODES=`echo $DIET_BATCH_NODESLIST | wc -l`\n"
+
+#define COMMON_FILE_FORMATS(getHosts) \
+  "",    "DIET_BATCH_NODESFILE=" getHosts "\n"
 
   /* CONDOR supports all but ACCOUNT, NODETYPE PROCESSES QUEUE SH TIME */
   static const char *CONDOR_ATTR_FORMATS[] = {
@@ -628,9 +716,7 @@ ELBASE_ScriptForSubmit(ELBASE_ComputeServiceTypes service,
     ELBASE_STDOUT,  "#$ -o %s\n",
     ELBASE_OTHERS,  "#$ %s %s\n",
     COMMON_ATTR_FORMATS("cat $HOST_FILE"),
-    /* YC */
-    ELBASE_NODESFILE, "$HOST_FILE",
-    /* FYC */
+    COMMON_FILE_FORMATS("$HOST_FILE"),
     NULL, NULL
   };
 
@@ -657,12 +743,6 @@ ELBASE_ScriptForSubmit(ELBASE_ComputeServiceTypes service,
     "",               "#@ queue\n",
     ELBASE_PROGRAM,   "poe %s",
     ELBASE_ARGS,      " %s",
-    /* YC */
-    /*    COMMON_ATTR_FORMAT("echo $LOADL_PROCESSOR_LIST"), */
-    /* But it can not be, must be a file! */
-    /* ELBASE_NODESFILE, "$LOADL_PROCESSOR_LIST",*/
-    /* Nor this one... */
-    /* FYC */
     NULL, NULL
   };
 
@@ -679,10 +759,8 @@ ELBASE_ScriptForSubmit(ELBASE_ComputeServiceTypes service,
     ELBASE_TIME,    "#BSUB -W %s\n",
     ELBASE_OTHERS,  "#BSUB %s %s\n",
     COMMON_ATTR_FORMATS("for x in $LSB_HOSTS; do echo $x; done"),
-    /* YC */
-    ELBASE_NODESFILE, "$LSB_HOSTS",
-    /* FYC */
-
+    /* The following must be tested */
+    COMMON_FILE_FORMATS("$LSB_HOSTS"),
     NULL, NULL
   };
 
@@ -710,9 +788,7 @@ ELBASE_ScriptForSubmit(ELBASE_ComputeServiceTypes service,
     ELBASE_TIME,    "#PBS -l walltime=%s\n",
     ELBASE_OTHERS,  "#PBS %s %s\n",
     COMMON_ATTR_FORMATS("cat $PBS_NODEFILE"),
-    /* YC */
-    ELBASE_NODESFILE, "$PBS_NODEFILE",
-    /* FYC */
+    COMMON_FILE_FORMATS("$PBS_NODEFILE"),
     NULL, NULL
   };
 
@@ -737,41 +813,28 @@ ELBASE_ScriptForSubmit(ELBASE_ComputeServiceTypes service,
     ELBASE_TIME,    "#$ -l h_rt=%s\n",
     ELBASE_OTHERS,  "#$ %s %s\n",
     COMMON_ATTR_FORMATS("awk ' {print $1;}' $PE_HOSTFILE"),
-    /* YC */
-    ELBASE_NODESFILE, "$PE_HOSTFILE",
-    /* FYC */
-
+    /* The following must be tested */
+    COMMON_FILE_FORMATS("awk ' {print $1;}' $PE_HOSTFILE"),
     NULL, NULL
   };
 
   /* YC
     OAR supports a SQL query option with -p
+    More options with v2.0:
+    --notify, --stdout, stderr, etc.
   */
   static const char *OAR_ATTR_FORMATS[] = {
-    /* 
-       This has to be completed
-     */
-
     "",             "#!/bin/sh\n",
-    /*    ELBASE_ACCOUNT, "#OAR -p %s\n", */
-    /*    ELBASE_EMAIL,   "#OAR -M %s\n", */
-    /*    ELBASE_MEMORY,  "#OAR -l mem=%smb\n", */
     ELBASE_NODES,   "#OAR -l nodes=%s\n",
     /* OAR behaves with SQL scripts to reserve specials nodes */
-    ELBASE_NODETYPE, "-p \"hostname='%s'\"",
-    "",              "\n",
-    /*     ELBASE_NOTIFY,  "#OAR -m %s\n", */
+    /* but the following line is not good enough: too less nodes */
+    /*    ELBASE_NODETYPE,"#OAR -p \"hostname='%s'\"", */
     ELBASE_QUEUE,   "#OAR -q %s\n",
-    /*    ELBASE_SH,      "#OAR -S %s\n", */
-    /*    ELBASE_STDERR,  "#OAR -e %s\n",
-	  ELBASE_STDOUT,  "#OAR -o %s\n", */
     ELBASE_TIME,    "#OAR -l walltime=%s\n",
     ELBASE_OTHERS,  "#OAR %s %s\n",
+    "",              "\n",
     COMMON_ATTR_FORMATS("cat $OAR_NODEFILE"),
-    /* YC */
-    ELBASE_NODESFILE, "$OAR_NODEFILE",
-    /* FYC */
-
+    COMMON_FILE_FORMATS("$OAR_NODEFILE"),
     NULL, NULL
   };
   /* FYC */
@@ -827,10 +890,6 @@ ELBASE_ScriptForSubmit(ELBASE_ComputeServiceTypes service,
     /* FYC */
   };
 
-  /* YC */
-  /* This table is use to know how to wait for a job to complete for each
-     batch scheduler  */
-  /* FYC */
   static const char *WAIT_EXPRS[ELBASE_SCHEDULER_SERVICE_COUNT] = {
     "waitpid($jid, &WNOHANG) == 0",
     "`condor_q` =~ /^$jid\\D/m",
@@ -877,61 +936,61 @@ ELBASE_ScriptForSubmit(ELBASE_ComputeServiceTypes service,
     /* FYC */
     SHELL_ATTR_FORMATS;
 
-  /* Change existing keywords in the executable according to batch scheduler */
-  StrReplaceAll(&executableCommand,"BATCH_NODESFILE",ELBASE_NODESFILE) ;
-  StrReplaceAll(&executableCommand,"BATCH_NBNODES",ELBASE_NODES) ;
-
   /* Get initial properties and set others based on the other fn params. */
   pl = schedulerAttributes == NULL ? PropertyListNew() :
        EnvironToPropertyList(schedulerAttributes);
+  
   if(arguments != NULL && *arguments != NULL) {
     char *args = NULL;
     if(service == ELBASE_GRAM)
       AppendListIfThere
-        (&args, "\"\"", arguments, "\"\" \"\"", "\"\"", NULL, GRAM_ESCAPE);
+	(&args, "\"\"", arguments, "\"\" \"\"", "\"\"", NULL, GRAM_ESCAPE);
     else if(service == ELBASE_NETSOLVE)
-      AppendListIfThere(&args, "\"", arguments, "\" \"", "\"", NULL, NO_ESCAPE);
+      AppendListIfThere(&args, "\"", arguments, "\" \"", "\"", NULL,NO_ESCAPE);
     else if(service == ELBASE_RASH)
       AppendListIfThere
-        (&args, "\"", arguments, "\" \"", "\"", NULL, RASH_ESCAPE);
+	(&args, "\"", arguments, "\" \"", "\"", NULL, RASH_ESCAPE);
     else if(scheduler == ELBASE_CONDOR)
       AppendListIfThere(&args, "", arguments, " ", "", NULL, NO_ESCAPE);
     else if(scheduler == ELBASE_SHELL)
       AppendListIfThere
-        (&args, ", \"", arguments, "\", \"", "\"", NULL, PERL_ESCAPE);
+	(&args, ", \"", arguments, "\", \"", "\"", NULL, PERL_ESCAPE);
     else
-      AppendListIfThere(&args, "\"", arguments, "\" \"", "\"", NULL, NO_ESCAPE);
+      AppendListIfThere(&args, "\"", arguments, "\" \"", "\"", NULL,NO_ESCAPE);
     SetProperty(&pl, ELBASE_ARGS, args);
     free(args);
   }
+
+  /*  DIET case: environment always NULL for the moment! */
   if(environment != NULL && *environment != NULL) {
     char *env = NULL;
     unsigned i;
     if(service == ELBASE_GRAM)
       AppendListIfThere
-        (&env, "(", environment, "\")(", "\")", " \"", GRAM_ESCAPE);
+	(&env, "(", environment, "\")(", "\")", " \"", GRAM_ESCAPE);
     else if(service == ELBASE_RASH)
       AppendListIfThere
-        (&env, "set ", environment, "\"; set ", "\";", " \"", RASH_ESCAPE);
+	(&env, "set ", environment, "\"; set ", "\";", " \"", RASH_ESCAPE);
     else if(scheduler == ELBASE_CONDOR)
       AppendListIfThere(&env, "", environment, ";", "", NULL, NO_ESCAPE);
     else if(scheduler == ELBASE_LOADLEVELER)
       AppendListIfThere(&env, "", environment, "\";", "\"", "=\"", NO_ESCAPE);
     else if(scheduler == ELBASE_SHELL)
       AppendListIfThere
-        (&env, "$ENV{\"", environment, "\";\n$ENV{\"", "\";\n", "\"}=\"",
-         PERL_ESCAPE);
+	(&env, "$ENV{\"", environment, "\";\n$ENV{\"", "\";\n", "\"}=\"",
+	 PERL_ESCAPE);
     else {
       AppendListIfThere
-        (&env, "", environment, "\"\n", "\"\n", "=\"", NO_ESCAPE);
+	(&env, "", environment, "\"\n", "\"\n", "=\"", NO_ESCAPE);
       for(i = 0; environment[i] != NULL; i++) {
-        env = StrAppend(env, "export ", environment[i], "\n", NULL);
-        *strrchr(env, '=') = '\0';
+	env = StrAppend(env, "export ", environment[i], "\n", NULL);
+	*strrchr(env, '=') = '\0';
       }
     }
     SetProperty(&pl, ELBASE_ENV, env);
     free(env);
-  }
+  } 
+
   if(FindPropertyByName(pl, ELBASE_NODECOPY) == NULL)
     SetProperty(&pl, ELBASE_NODECOPY, "scp");
   if(FindPropertyByName(pl, ELBASE_NODES) == NULL)
@@ -944,9 +1003,7 @@ ELBASE_ScriptForSubmit(ELBASE_ComputeServiceTypes service,
     if(scheduler == ELBASE_DQS ||
        scheduler == ELBASE_PBS ||
        scheduler == ELBASE_SGE
-      /* YC */
-       || scheduler == ELBASE_OAR
-       /* FYC */
+       /* TODO: when OAR v2.0 ; || scheduler == ELBASE_OAR */
        ) {
       char *notify = strdup(FindPropertyValueByName(pl, ELBASE_NOTIFY));
       notify[1] = '\0';
@@ -964,9 +1021,9 @@ ELBASE_ScriptForSubmit(ELBASE_ComputeServiceTypes service,
       (&pl, ELBASE_PROCESSES, FindPropertyValueByName(pl, ELBASE_NODES));
   /* Only Condor appends relative exec paths to submission dir; others use wd */
   if(scheduler == ELBASE_CONDOR &&
-     /* YC */
      /*  *executablePath != '/' && */
      *executableCommand != '/' &&
+     /* FYC */
      workingDirectory != NULL) {
     char *fullPath =
       /* YC */
@@ -1010,6 +1067,7 @@ ELBASE_ScriptForSubmit(ELBASE_ComputeServiceTypes service,
     SetProperty(&pl, ELBASE_QUEUE, "*");
 
   submit = NULL;
+  /* Add the attrs given in parameter */ 
   for(attr = formats; *attr != NULL; attr += 2) {
     const char *format = *(attr + 1);
     if(**attr == '\0')
@@ -1035,7 +1093,6 @@ ELBASE_ScriptForSubmit(ELBASE_ComputeServiceTypes service,
       }
     }
   }
-
   PropertyListFree(&pl);
 
   if(service == ELBASE_FORK && scheduler == ELBASE_SHELL) {
@@ -1092,6 +1149,10 @@ ELBASE_ScriptForSubmit(ELBASE_ComputeServiceTypes service,
 			      NULL
 			      );
       AppendIfThere(&withMonitor, NULL, submit, NULL, PERL_ESCAPE);
+
+      /* Add the command to the batch script */
+      AppendIfThere(&withMonitor, NULL, executableCommand, NULL, PERL_ESCAPE) ;
+
       withMonitor = StrAppend(withMonitor,
 			      "\nENDBATCH\n",
 			      "close BSS;\n",
@@ -1145,12 +1206,12 @@ ELBASE_ScriptForSubmit(ELBASE_ComputeServiceTypes service,
     while((c = strstr(submit, "${")) != NULL && strchr(c + 2, '}') != NULL)
       StrReplace(&submit, c + 1 - submit, 0, "ENV");
   }
-
   if(service == ELBASE_FORK || service == ELBASE_SSH) {
     char *targetPath = UniqueFilePath(TEMP_PREFIX "elagi_perl");
     char *withWrapper;
     withWrapper = StrAppend
       (NULL, "cat << 'ENDPERL' > ", targetPath, " || exit $?\n",
+       /* Comment the following to keep perl script in /tmp of frontale node */
        RemoveTempFiles() ? "" : "# ", "unlink($0);\n",
        submit,
        "\nENDPERL", NULL);
@@ -1240,6 +1301,11 @@ ELBASE_SpawnScript(const char *script,
   for(c = toExec + strlen(toExec) - 1; c >= toExec && isspace((int)*c); c--)
     ; /* empty */
   *(c + 1) = '\0';
+  
+  printf("Script transformé à exécuter : \n%s\n\n\n",toExec) ;
+  if( strcmp(script,toExec) == 0 )
+    printf("Les scripts sont identiques !\n") ;
+  
   if(strchr(toExec, '\n') != NULL || strchr(toExec, '|') != NULL) {
     tempPath = UniqueFilePath("elagi_sh");
     if((f = fopen(tempPath, "w")) == NULL) {
@@ -1279,7 +1345,6 @@ ELBASE_SpawnScript(const char *script,
     *process = pi;
   }
   return result;
-
 }
 
 
@@ -1340,13 +1405,14 @@ ELBASE_ExistBatchScheduler(const char *batchName,
      return 0 ; 
 }
 
-char*
+const char*
 ELBASE_GiveBatchName(ELBASE_SchedulerServiceTypes ID)
 {
   if( (ID < 0) || (ID > ELBASE_SCHEDULER_SERVICE_COUNT) )
     return "" ;
   else
-    return strdup(availableBatchScheduler[ID]) ;
+    return availableBatchScheduler[ID] ;
+  /* FIXME: strdup? */
 }
 /* FYC */
 

@@ -9,6 +9,16 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2006/06/30 15:41:47  ycaniou
+ * DIET is now capable to submit batch Jobs in synchronous mode. Still some
+ *   tuning to do (hard coded NFS path for OAR, tests for synchro between
+ *   SeD and the batch job in regard to delete files.., more examples).
+ *
+ * Put the Data transfer section (JuxMem and DTM) before and after the call to
+ * the SeD solve, in inline functions
+ *   - downloadSyncSeDData()
+ *   - uploadSyncSeDData()
+ *
  * Revision 1.25  2006/05/22 20:00:52  hdail
  * - Introduced uniform output format for SeD configuration option output at launch
  *   time.
@@ -185,6 +195,8 @@ public:
   checkContract(corba_estimation_t& estimation,
 		const corba_pb_desc_t& pb);
 
+  /* TODO: when HAVE_BATCH is validated, 3rd arg unnecessary:
+  **   reqID is pb.dietJobID */
   virtual CORBA::Long
   solve(const char* pbName, corba_profile_t& pb,CORBA::Long reqID);
 
@@ -193,9 +205,16 @@ public:
   getBatchSchedulerID() ;
 
   virtual CORBA::Long
-  solve_batch(const char* pbName, corba_profile_t& pb,CORBA::Long reqID);
+  solve_batch(const char* pbName, corba_profile_t& pb,CORBA::Long reqID,
+	      ServiceTable::ServiceReference_t& ref,
+	      diet_profile_t& profile) ;
 
   char* getLocalHostName() ;
+
+  void
+  storeBatchID(int batch_jobID, int diet_reqID) ;
+  int
+  findBatchID(int diet_reqID) ;
 #endif
 
   virtual void
@@ -241,11 +260,12 @@ private:
   /* Correspondance with Elagi
   ** -> must be initialized with a special call to Elagi */
   ELBASE_SchedulerServiceTypes batchID ;
-  /* Correspondance between the Diet reqID and the Batch Job ID */
-  /* Supposes that no more than 100 batch jobs execute simult. on one SeD */
+  /* Correspondance between the Diet reqID and the Batch Job ID
+  ** Supposes that no more than 100 batch jobs execute simultaneously
+  ** on the SeD */
   typedef struct {
     int dietReqID ;
-    int batchJobId ;
+    int batchJobID ;
   } corresID ;
 #define MAX_RUNNING_NBSERVICES 100
   corresID tabCorresID[MAX_RUNNING_NBSERVICES] ;
@@ -293,6 +313,14 @@ private:
   estimate(corba_estimation_t& estimation,
 	   const corba_pb_desc_t& pb,
 	   const ServiceTable::ServiceReference_t ref);
+
+  inline void
+  downloadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
+		      diet_convertor_t* cvt) ;
+  
+  inline void
+  uploadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
+		    diet_convertor_t* cvt) ;
 };
 
 #endif // _SED_IMPL_HH_

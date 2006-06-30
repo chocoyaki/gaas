@@ -8,6 +8,16 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.55  2006/06/30 15:41:46  ycaniou
+ * DIET is now capable to submit batch Jobs in synchronous mode. Still some
+ *   tuning to do (hard coded NFS path for OAR, tests for synchro between
+ *   SeD and the batch job in regard to delete files.., more examples).
+ *
+ * Put the Data transfer section (JuxMem and DTM) before and after the call to
+ * the SeD solve, in inline functions
+ *   - downloadSyncSeDData()
+ *   - uploadSyncSeDData()
+ *
  * Revision 1.54  2006/06/16 10:37:32  abouteil
  * Chandra&Toueg&Aguilera fault detector support added
  *
@@ -90,7 +100,17 @@ using namespace std;
 #endif
 
 #if HAVE_BATCH
+#define ASEXEC_SHORT_NAMES
+#include "execseed.h"
+#define ASSTR_SHORT_NAMES
 #include "strseed.h"
+#include <string.h>
+
+typedef struct _ProcessInfoStruct {
+  int gramProcess;
+  ASEXEC_ProcessId pid;
+} *ProcessInfo;
+
 #endif
 
 #define BEGIN_API extern "C" {
@@ -151,7 +171,7 @@ diet_service_table_add(const diet_profile_desc_t* const profile,
     actual_cvt = diet_convertor_alloc(profile->path, profile->last_in,
 				      profile->last_inout, profile->last_out);
 #if HAVE_BATCH
-    // Must I add something about convertors ??
+    // TODO: Must I add something about convertors ??
 #endif
 
     for (int i = 0; i <= profile->last_out; i++)
@@ -217,7 +237,7 @@ diet_service_table_lookup_by_profile(const diet_profile_t* const profile)
     profileDesc.last_inout = profile->last_inout;
     profileDesc.last_out = profile->last_out;
 #if HAVE_BATCH
-    /* In case of client explicitly ask for a batch resolution */
+    /* In case of a client explicitly asks for a batch resolution */
     profileDesc.batch_flag = profile->batch_flag ;
 #endif
     int numArgs = profile->last_out + 1;
@@ -282,6 +302,10 @@ diet_profile_desc_alloc(const char* path,
   desc->last_inout = last_inout;
   desc->last_out   = last_out;
   desc->param_desc = param_desc;
+#ifdef HAVE_BATCH
+  desc->batch_flag = 0;
+  desc->nbprocs    = 1;
+#endif
   return desc;
 }
 
@@ -446,8 +470,8 @@ diet_aggregator_priority_minuser(diet_aggregator_desc_t* agg, int val)
    Thus, diet_convertors are useful to translate the various declared profiles
    into the actual profile of the underlying routine, ie the profile that is
    used for the FAST benches.
-   Internally, when a client requests for a declared service, the correspunding
-   convertor is used to generate the actual profile : this allows evaluation
+   Internally, when a client requests for a declared service, the corresponding
+   convertor is used to generate the actual profile: this allows evaluation
    (cf. below)
 */
 
@@ -1149,120 +1173,109 @@ int diet_estimate_lastexec(estVector_t ev,
 /****************************************************************************/
 
 #ifdef HAVE_BATCH
-/* Make the script and submit it to the batch scheduler */
 int
-diet_submit_batch(diet_profile_t *profile, const char *command,
-		  diet_submit_call_t call)
+diet_submit_batch(diet_profile_t *profile, const char *command)
 {
-  int passed = -1 ;
+  int result ;
   ELBASE_SchedulerServiceTypes schedulerID ;
-  ELBASE_ComputeServiceTypes ELBASE_service ;
-  char **attrs ;
-  //  ELBASE_Process pid ;
+  char **attrs, **attrs_idx ;
   char *chaine = NULL ;
-  char *arg = NULL ;
+  char *cmd = NULL ;
   char *script = NULL ;
   char *hostname = NULL ;
-  //  int status ;
-
+  char *batchQueue = NULL ;
+  ELBASE_Process *process = NULL ;
+    
   schedulerID = ((SeDImpl*)(profile->SeDPtr))->getBatchSchedulerID() ;
-  /* Read the walltime and the nbprocs in profile */
-  /* Do we modify them? */
-  /* until a correct prediction function is given, fixed values are used */
-  profile->walltime=125 ;
-  profile->nbprocs=2 ;
-  /* Make the correct script */
-  //attrs = (char**)malloc(sizeof(char*)*3) ;
-  chaine = (char*)malloc(1000*sizeof(char)) ;
-  sprintf(chaine,"host_count=%d "
-	  "max_wall_time=%d:%d:%d",
-	  profile->nbprocs,
-	  (int)(profile->walltime/3600),
-	  (int)((profile->walltime%3600)/60),
-	  (int)(profile->walltime%60)) ;
 
-  /*  arg = ASSTR_StrAppend(chaine," ", NULL) ;
-      printf("La chaine est %s\n",arg) ; */
-  
-  //attrs[0] = strdup(chaine) ;
-  /*  sprintf(chaine,"max_wall_time=%d:%d:%d",
-	  (int)(profile->walltime/3600),
-	  (int)((profile->walltime%3600)/60),
-	  (int)(profile->walltime%60)) ;
-	  arg = ASSTR_StrAppend(arg, chaine, " ", NULL) ;*/
-  arg = chaine ;
-  
-  //  attrs[1] = strdup(chaine) ;
-  //attrs[2] = NULL ;
-
-  /* Attention, free memory ! */
-  /*  free(arg) ; arg = NULL ; */
-  
-  // Fork the submission to the batch scheduler
-  ELBASE_service = ELBASE_FORK ;
-  
+  /* We are still on the frontal, whose name must be given to the service
+  ** in case of data transfer or fault tolerance mechanism */  
   hostname = ((SeDImpl*)profile->SeDPtr)->getLocalHostName() ;
-  attrs = ASSTR_StrSplit(arg, NULL) ;
-  
-  switch(call) {
-  case DIET_Mpich:
-    arg = strdup("mpirun -np BATCH_NBNODES -machinefile BATCH_NODES");
-    break ;
-  case DIET_Lam:
-  case DIET_Pvm:
-  case DIET_Poe: // only available with Loadleveler
-  case DIET_Sequential:
-  case DIET_Submit_COUNT:
-    TRACE_TEXT(TRACE_ALL_STEPS, "FIXME: not done!");
-    exit(1) ;
-    break ;
-  default:
-    TRACE_TEXT(TRACE_ALL_STEPS,
-	       "En error occurs: requested diet_call mode not implemented!");
-    exit(1) ;
-  }
-  arg = ASSTR_StrAppend(arg, " ", command) ;
-  
-//   passed = ELBASE_Submit(ELBASE_service, "localhost", schedulerID
-// 			 , (const char **)attrs,
-// 			 command, NULL, NULL, NULL, "dietBatchSubmit05"
-// 			 , NULL, NULL,
-// 			 &pid) ;
 
-  script = 
-    ELBASE_ScriptForSubmit(ELBASE_service, hostname, schedulerID
-			   , (const char **)attrs
-			   , arg, NULL, NULL, NULL, "dietBatchSubmit05"
-			   , NULL, NULL) ;
+  /* At this time, we can, or not, call again the prediction function
+  ** to know on a many processors we launch the job... and then the
+  ** reservation time (or walltime) we have to ask to the batch
+  ** -> maybe this has to be done in batch_server, not by DIET?
+  ** 
+  ** Until a correct prediction function is given (that will fill the 
+  ** corresponding fileds when the request touches the SeD, 
+  ** fixed values are used at the solving time */
+  profile->walltime = 125 ; /* minutes */
+  profile->nbprocs = 2 ;
+  profile->nbprocess = profile->nbprocs ;
   
-  TRACE_TEXT(TRACE_ALL_STEPS,
-	     "Script : " << script << "\n") ;
+  /* TODO we have to read available queues in the SeD configuration file and
+  ** choose accordingly with the estimation time of the job */
+  batchQueue = "queue_9_13" ;
   
-  /* Stock the task pid in relation with the profile */
-  /*  ((SeDImpl*)profile->SeDPtr)-> ; */
-  /* But is the pid the task ID or the submission ID ??? */
+  /* Prepare batch arguments */
+  chaine = (char*)malloc(100*sizeof(char)) ;
+  sprintf(chaine,"host_count=%d "
+	  "max_wall_time=%ld "
+	  "queue=%s",
+	  profile->nbprocs,
+	  profile->walltime,
+	  batchQueue) ;
+  attrs = ASSTR_StrSplit(chaine, NULL) ;
 
-  /*
-  // synchro can not be defined here, or in the profile...
-  // must take place in SeDImpl::solve_batch()
+  /* Replace some stuff in SeD programmer's command */
+  cmd = strdup(command) ;
+  sprintf(chaine,"%d",profile->nbprocs) ;
+  ASSTR_StrReplaceAll(&cmd,"$DIET_BATCH_NBNODES",chaine) ;
+  sprintf(chaine,"%d",profile->nbprocess) ;
+  ASSTR_StrReplaceAll(&cmd,"$DIET_USER_NBPROCS",chaine) ;
+  ASSTR_StrReplaceAll(&cmd,"$DIET_NAME_FRONTALE",hostname) ;
 
-  if( synchro == 1 ) {
-    passed = passed  &&
-      ELBASE_Poll(pid, 1, &status) &&
-      status == 0 ;
-  }
+  TRACE_TEXT(TRACE_ALL_STEPS,"Le 1er script SeD est\n" << cmd
+	     << "########################################\n\n\n") ;
+
+  //   passed = ELBASE_Submit(ELBASE_service, "localhost", schedulerID
+  // 			 , (const char **)attrs,
+  // 			 command, NULL, NULL, NULL, "dietBatchSubmit05"
+  // 			 , NULL, NULL,
+  // 			 &pid) ;
+  
+  /* Submit request with a fork, bacause we are on the frontale
+   *   Note: if process == NULL, then the call will block in SpawnScript()
+   *   until the job is finished. If it is a well defined structure, info
+   *   are returned
+
+   * If this function is for both async and sync, then do it differently!
+   */
+  result = ELBASE_Submit(ELBASE_FORK, hostname, schedulerID,
+			 (const char **)attrs,
+			 cmd, NULL, NULL, NULL, NULL,
+			 NULL, NULL, process) ;
+  
+  /*  Cannot use process info cause NULL!
+      TRACE_TEXT(TRACE_ALL_STEPS, "\n\n\nBatch Job ID : " 
+	     << (int)((ProcessInfo)process)->pid << "\n") ;
   */
-  /*
-      &&
-      ELBASE_Spawn(service, server, "rm", NULL, rmArgs, NULL, NULL,
-		   NULL, NULL, &pid)
-      &&
-      ELBASE_Poll(pid, 1, &status) &&
-      status == 0;
-  */
 
-  passed = 1 ; // for testing
-  return passed ;
+  if( result )
+    return 0 ; // An error occured during the submission
+    
+  /* Store the JobID in correlation with DIET_taskID
+  ** Note that the ID is the ID of the script that does the submission
+  ** of the batch script. There is not a big difference for us as
+  ** we can watch this process which watch the batch job :)
+  */
+  /* For sync call, do not store, for async:
+     ((SeDImpl*)(profile->SeDPtr))->storeBatchID((int)((ProcessInfo)process)->pid,
+     profile->dietJobID) ;
+  */
+  /* Free memory */
+  free(chaine) ;
+  free(cmd) ;
+  free(script) ;
+  attrs_idx = attrs ;
+  while( *attrs_idx != NULL ) {
+    free(*attrs_idx) ;
+    attrs_idx++ ;
+  }
+  free(attrs) ;
+    
+  return 1 ;
 }
 #endif
 

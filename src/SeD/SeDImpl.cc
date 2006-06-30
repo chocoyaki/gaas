@@ -9,6 +9,16 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.74  2006/06/30 15:41:47  ycaniou
+ * DIET is now capable to submit batch Jobs in synchronous mode. Still some
+ *   tuning to do (hard coded NFS path for OAR, tests for synchro between
+ *   SeD and the batch job in regard to delete files.., more examples).
+ *
+ * Put the Data transfer section (JuxMem and DTM) before and after the call to
+ * the SeD solve, in inline functions
+ *   - downloadSyncSeDData()
+ *   - uploadSyncSeDData()
+ *
  * Revision 1.73  2006/06/08 16:46:08  pkchouha
  * Went again from release 1.71 and
  * added lines to obtain getrequest time for Seds
@@ -187,8 +197,8 @@ SeDImpl::run(ServiceTable* services)
   this->SrvT = services;
 
 #if HAVE_BATCH
-  // A SeD can only launch batch or non batch jobs.
-  // Then, all profiles must be either batch or not batch. No mix allowed. 
+  // A SeD can only launch batch or -exclusive- non batch jobs.
+  // Then, all profiles must be either batch or non batch. No mix allowed. 
   if( this->SrvT->testIfAllBatchServices() ) {
     // Read batchName if parallel jobs are to be submitted
     char* batchname = (char*) 
@@ -395,7 +405,6 @@ SeDImpl::getRequest(const corba_request_t& creq)
 
 
 #if ! HAVE_BATCH
-
   #if ! HAVE_ALTPREDICT
     estVector_t ev = &(resp.servers[0].estim);
     for (int ctIter = 0 ; ctIter < creq.pb.last_out ; ctIter++) {
@@ -406,13 +415,13 @@ SeDImpl::getRequest(const corba_request_t& creq)
   #endif // HAVE_ALTPREDICT
 
 #else // HAVE_BATCH
-    // FIXME: What do I have to do for a batch, non batch, parallel, etc.?
+    // TODO: What do I have to do for a batch, non batch, parallel, etc.?
     // for the moment, do the same but..
     estVector_t ev = &(resp.servers[0].estim);
     for (int ctIter = 0 ; ctIter < creq.pb.last_out ; ctIter++) {
       diet_est_set_internal(ev, EST_COMMTIME, 0.0);
     }
-#endif  // HAVE_BATCH
+#endif  // !HAVE_BATCH
 
     this->estimate(resp.servers[0].estim, creq.pb, serviceRef);
   }
@@ -499,11 +508,8 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
   char statMsg[128];
   int i;//, arg_idx;
 
-#if HAVE_BATCH
-  if( pb.batch_flag == 1 ) {
-    return this->solve_batch(path, pb, reqID) ;
-  }
-#endif
+  /* Record the SedImpl address */
+  profile.SeDPtr = (const void*) this ;
 
   ref = SrvT->lookupService(path, &pb);
   if (ref == -1) {
@@ -513,6 +519,13 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
   /* Record time at which solve started (when not using queues) 
    * and time at which job was enqueued (when using queues). */
   gettimeofday(&(this->lastSolveStart), NULL);
+
+#if HAVE_BATCH
+  if( pb.batch_flag == 1 ) {
+    return this->solve_batch(path, pb, reqID, ref, profile) ;
+  }
+#endif
+
   if (this->useConcJobLimit){
     this->accessController->waitForResource();
   }
@@ -528,120 +541,15 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
 
   cvt = SrvT->getConvertor(ref);
 
-#if HAVE_JUXMEM
-  unmrsh_in_args_to_profile(&profile, &pb, cvt);
-
-  for (i = 0; i <= profile.last_out; i++) {
-    if (profile.parameters[i].desc.mode == DIET_PERSISTENT ||
-	profile.parameters[i].desc.mode == DIET_PERSISTENT_RETURN) {
-   
-      /* IN case -> acquire the data in read mode */
-      if (i <= profile.last_in) {
-	assert(profile.parameters[i].desc.id != NULL);
-	profile.parameters[i].value = this->juxmem->mmap(NULL, data_sizeof(&(profile.parameters[i].desc)), profile.parameters[i].desc.id, 0);
-	TRACE_TEXT(TRACE_MAIN_STEPS, "Acquiring IN data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
-	this->juxmem->acquireRead(profile.parameters[i].value);
-	continue;
-      }
-      /* INOUT case -> acquire the data in write mode */
-      if (i > profile.last_in && i <= profile.last_inout) {
-	assert(profile.parameters[i].desc.id != NULL);
-	profile.parameters[i].value = this->juxmem->mmap(NULL, data_sizeof(&(profile.parameters[i].desc)), profile.parameters[i].desc.id, 0);
-	TRACE_TEXT(TRACE_MAIN_STEPS, "Acquiring INOUT data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
-	this->juxmem->acquire(profile.parameters[i].value);
-	continue;
-      }
-      /* OUT case -> acquire the data in write mode if exists in JuxMem */
-      if (i > profile.last_inout) {
-	if (profile.parameters[i].desc.id == NULL || (strlen(profile.parameters[i].desc.id) == 0)) {
-	  TRACE_TEXT(TRACE_MAIN_STEPS, "New data for OUT\n");
-	} else {
-	  /** FIXME: not clear if we should handle such a case */
-	  assert(profile.parameters[i].desc.id != NULL);
-	  profile.parameters[i].value = this->juxmem->mmap(NULL, data_sizeof(&(profile.parameters[i].desc)), profile.parameters[i].desc.id, 0);
-	  this->juxmem->acquire(profile.parameters[i].value);
-	  TRACE_TEXT(TRACE_MAIN_STEPS, "Acquiring OUT data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
-	}
-      }
-    }
-  }
-#else // DTM case
-  // added for data persistence 
-  for (i=0; i <= pb.last_inout; i++) {
- 
-    if(pb.parameters[i].value.length() == 0) { 
-      /* In argument with NULL value : data is present */
-      this->dataMgr->getData(pb.parameters[i]); 
-    } else { /* data is not yet present but is persistent */
-      if(diet_is_persistent(pb.parameters[i])) {
-        this->dataMgr->addData(pb.parameters[i],0);
-      }
-    }
-  }
- 
-  unmrsh_in_args_to_profile(&profile, &pb, cvt);
-  for (i=0; i <= pb.last_inout; i++) {
-    if( diet_is_persistent(pb.parameters[i]) && 
-        (pb.parameters[i].desc.specific._d() == DIET_FILE)) {
-      char* in_path   = CORBA::string_dup(profile.parameters[i].desc.specific.file.path);
-      this->dataMgr->changePath(pb.parameters[i], in_path);
-    }
-  }
-#endif // HAVE_JUXMEM 
+  /* Data transfer */
+  downloadSyncSeDData(profile,pb,cvt) ;
   
   TRACE_TEXT(TRACE_MAIN_STEPS, "Calling getSolver\n");
   solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
 
-#if HAVE_JUXMEM
-  for (i = 0; i <= profile.last_out; i++) {
-    if (profile.parameters[i].desc.mode == DIET_PERSISTENT ||
-	profile.parameters[i].desc.mode == DIET_PERSISTENT_RETURN) {
-
-      /** IN and INOUT case */
-      if (i <= profile.last_inout) {
-	TRACE_TEXT(TRACE_MAIN_STEPS, "Releasing data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
-	this->juxmem->release(profile.parameters[i].value);
-      } else {       /** OUT case */
-	/** The data does not exist yet */
-	if (strlen(profile.parameters[i].desc.id) == 0) {
-	  /* The local memory is attached inside JuxMem */
-	  profile.parameters[i].desc.id = this->juxmem->attach(profile.parameters[i].value, 
-							       data_sizeof(&(profile.parameters[i].desc)), 
-							       1, 1, EC_PROTOCOL, BASIC_SOG);
-	  TRACE_TEXT(TRACE_MAIN_STEPS, "A data space with ID = " << profile.parameters[i].desc.id << " for OUT data has been attached inside JuxMem!\n");
-	  /* The local memory is flush inside JuxMem */
-	  this->juxmem->msync(profile.parameters[i].value);
-	} else { /* Simply release the lock */
-	  /** FIXME: should we handle this case */
-	  this->juxmem->release(profile.parameters[i].value);
-	}
-      }
-
-      this->juxmem->unmap(profile.parameters[i].value);
-      profile.parameters[i].value = NULL;
-    }
-  }
-  mrsh_profile_to_out_args(&pb, &profile, cvt);
-#else // DTM case
-  for(i=0;i<=pb.last_in;i++){
-    if(diet_is_persistent(pb.parameters[i])) {
-      if (pb.parameters[i].desc.specific._d() != DIET_FILE) {
-        CORBA::Char *p1 (NULL);
-        pb.parameters[i].value.replace(0,0,p1,1);
-      }
-      persistent_data_release(&(pb.parameters[i]));
-    }
-  }
-  mrsh_profile_to_out_args(&pb, &profile, cvt);
-  
-  for (i = pb.last_inout + 1 ; i <= pb.last_out; i++) {
-    if ( diet_is_persistent(pb.parameters[i])) {
-      this->dataMgr->addData(pb.parameters[i],1); 
-    }
-  }
-  this->dataMgr->printList();
-#endif // HAVE_JUXMEM 
- 
+  /* Data transfer */
+  uploadSyncSeDData(profile,pb,cvt) ;
+   
   if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
     cout << "SeD::solve complete\n"
          << "************************************************************\n";
@@ -679,33 +587,30 @@ SeDImpl::getBatchSchedulerID()
 }
 
 CORBA::Long
-SeDImpl::solve_batch(const char* path, corba_profile_t& pb, CORBA::Long reqID)
+SeDImpl::solve_batch(const char* path, corba_profile_t& pb,
+		     CORBA::Long reqID, ServiceTable::ServiceReference_t& ref,
+		     diet_profile_t& profile)
 {
   /*************************************************************
    **                  submit a batch job                     **
    **
    ** For the moment, 
    ** datas are received before batch submission. Maybe this has
-   ** to be done after, during the wait in the batch queue
-   ** if we want to be the most efficient?
+   ** to be done in a fork, during the wait in the batch queue
+   ** if we want to be the most efficient, but needs file names
+   ** and perf. pred. from DTM or JuxMem.
 
-   ** FIXME: If a data is not a file, convert it as a file.
-   **  Must I do it here or give the functions to let the Sed programmer
-   **  do it in the profile?
+   ** TODO: If a data is not a file, convert it as a file.
+   **  Must I (can I?) do it here or give the functions to let 
+   **  the Sed programmer do it in the profile?
    *************************************************************/
 
-  ServiceTable::ServiceReference_t ref(-1);
-  diet_profile_t profile;
   diet_convertor_t* cvt(NULL);
   int solve_res(0);
   char statMsg[128];
-  int i;//, arg_idx;
+  int i, status;
 
-  ref = SrvT->lookupService(path, &pb);
-  if (ref == -1) {
-    ERROR("SeD::" << __FUNCTION__ << ": batch service not found", 1);
-  } 
-
+  /* Is there a sens to use Queue with Batch? */
   if (this->useConcJobLimit){
     this->accessController->waitForResource();
   }
@@ -714,7 +619,7 @@ SeDImpl::solve_batch(const char* path, corba_profile_t& pb, CORBA::Long reqID)
   stat_in("SeD",statMsg);
 
   if (dietLogComponent != NULL) {
-    dietLogComponent->logBeginSolve(path, &pb,reqID);
+    dietLogComponent->logBeginSolve(path, &pb, reqID);
   }
 
   TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::batch_solve invoked on pb: " 
@@ -722,133 +627,29 @@ SeDImpl::solve_batch(const char* path, corba_profile_t& pb, CORBA::Long reqID)
   
   cvt = SrvT->getConvertor(ref);
 
-#if HAVE_JUXMEM
-  unmrsh_in_args_to_profile(&profile, &pb, cvt);
-
-  for (i= 0; i <= profile.last_inout; i++) {
-    if (profile.parameters[i].desc.mode == DIET_PERSISTENT ||
-	profile.parameters[i].desc.mode == DIET_PERSISTENT_RETURN) {
-      
-      /* IN case -> acquire the data in read mode */
-      if (i <= profile.last_in) {
-	assert(profile.parameters[i].desc.id != NULL);
-	profile.parameters[i].value = this->juxmem->mmap(NULL, data_sizeof(&(profile.parameters[i].desc)), profile.parameters[i].desc.id, 0);
-	TRACE_TEXT(TRACE_MAIN_STEPS, "Acquiring IN data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
-	this->juxmem->acquireRead(profile.parameters[i].value, profile.parameters[i].desc.id);
-	continue;
-      }
-      /* INOUT case -> acquire the data in write mode */
-      if (i > profile.last_in && i <= profile.last_inout) {
-	assert(profile.parameters[i].desc.id != NULL);
-	profile.parameters[i].value = this->juxmem->mmap(NULL, data_sizeof(&(profile.parameters[i].desc)), profile.parameters[i].desc.id, 0);
-	TRACE_TEXT(TRACE_MAIN_STEPS, "Acquiring INOUT data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
-	this->juxmem->acquire(profile.parameters[i].value, profile.parameters[i].desc.id);
-	continue;
-      }
-      /* OUT case -> acquire the data in write mode if exists in JuxMem */
-      if (i > profile.last_inout) {
-	if (profile.parameters[i].desc.id == NULL || (strlen(profile.parameters[i].desc.id) == 0)) {
-	  TRACE_TEXT(TRACE_MAIN_STEPS, "New data for OUT\n");
-	} else {
-	  assert(profile.parameters[i].desc.id != NULL);
-	  profile.parameters[i].value = this->juxmem->mmap(NULL, data_sizeof(&(profile.parameters[i].desc)), profile.parameters[i].desc.id, 0);
-	  this->juxmem->acquire(profile.parameters[i].value, profile.parameters[i].desc.id);
-	  TRACE_TEXT(TRACE_MAIN_STEPS, "Acquiring OUT data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
-	}
-      }
-    }
-  }
-#else // DTM case
-  // added for data persistence 
-  for (i=0; i <= pb.last_inout; i++) {
- 
-    if(pb.parameters[i].value.length() == 0){ 
-      /* In argument with NULL value : data is present */
-      this->dataMgr->getData(pb.parameters[i]); 
-    } else { /* data is not yet present but is persistent */
-      if( diet_is_persistent(pb.parameters[i])) {
-        this->dataMgr->addData(pb.parameters[i],0);
-      }
-    }
-  }
- 
-  unmrsh_in_args_to_profile(&profile, &pb, cvt);
-  for (i=0; i <= pb.last_inout; i++) {
-    if( diet_is_persistent(pb.parameters[i]) && 
-        (pb.parameters[i].desc.specific._d() == DIET_FILE)) {
-      char* in_path   = 
-	CORBA::string_dup(profile.parameters[i].desc.specific.file.path);
-      this->dataMgr->changePath(pb.parameters[i], in_path);
-    }
-  }
-#endif // HAVE_JUXMEM 
-  
-  /* Record the SedImpl address in order to access batchID and such information
-   */
-  profile.SeDPtr = (const void*) this ;
-  
-  /* record the timestamp of this solve */
-  gettimeofday(&(this->lastSolveStart), NULL);
+  /* Data transfer */
+  downloadSyncSeDData(profile,pb,cvt) ;
+    
   TRACE_TEXT(TRACE_MAIN_STEPS, "Calling getSolver\n");
   solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
 
-  // FIXME: We still have to wait for job completion
-  //   and complete data production. How to implement something
-  //   that could transfer data by given amount once computed?
+  // TODO: We still have to wait for job completion and complete data
+  // production. How implement something that could transfer data by
+  // a given amount once computed several times?
 
-  // while( status != finished )
-  // sleep( 10 )
-  // or better if we can
-  printf("Must wait for job completion !") ;
-  // NOTE: Ok with batch, elagi seems to make it possible, but for //jobs?
+  /* We implement the batch job termination watching by looking if the
+  ** job that have effectively launched the batch script is still alive
 
-#if HAVE_JUXMEM
-  for (i = 0; i <= profile.last_out; i++) {
-    if (profile.parameters[i].desc.mode == DIET_PERSISTENT ||
-	profile.parameters[i].desc.mode == DIET_PERSISTENT_RETURN) {
+  Only for async call!
+  if( ELBASE_Poll((ELBASE_Process)findBatchID(profile.dietJobID), 1, &status) 
+      && status == 0 )
+    ERROR("An error occured during the execution of the batch job", 1);
+  */
 
-      /** IN and INOUT case */
-      if (i <= profile.last_inout) {
-	TRACE_TEXT(TRACE_MAIN_STEPS, "Releasing data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
-	this->juxmem->release(profile.parameters[i].value, profile.parameters[i].desc.id);
-      } else {       /** OUT case */
-	/** The data does not exist yet */
-	if (strlen(profile.parameters[i].desc.id) == 0) {
-	  /* The local memory is attached inside JuxMem */
-	  profile.parameters[i].desc.id = this->juxmem->attach(profile.parameters[i].value, 
-							       data_sizeof(&(profile.parameters[i].desc)), 
-							       1, 1, EC_PROTOCOL, BASIC_SOG);
-	  TRACE_TEXT(TRACE_MAIN_STEPS, "A data space with ID = " << profile.parameters[i].desc.id << " for OUT data has been attached inside JuxMem!\n");
-	  /* The local memory is flush inside JuxMem */
-	  this->juxmem->msync(profile.parameters[i].value, profile.parameters[i].desc.id);
-	} else { /* Simply release the lock */
-	  this->juxmem->release(profile.parameters[i].value, profile.parameters[i].desc.id);
-	}
-      }
+  // TODO: look if still ok for // jobs (normally yes)
 
-      this->juxmem->unmap(profile.parameters[i].value, profile.parameters[i].desc.id);
-    }
-  }
-  mrsh_profile_to_out_args(&pb, &profile, cvt);
-#else // DTM case
-  for(i=0 ; i<=pb.last_in ; i++){
-    if(diet_is_persistent(pb.parameters[i])) {
-      if (pb.parameters[i].desc.specific._d() != DIET_FILE) {
-        CORBA::Char *p1 (NULL);
-        pb.parameters[i].value.replace(0,0,p1,1);
-      }
-      persistent_data_release(&(pb.parameters[i]));
-    }
-  }
-  mrsh_profile_to_out_args(&pb, &profile, cvt);
-
-  for (i = pb.last_inout + 1 ; i <= pb.last_out; i++) {
-    if ( diet_is_persistent(pb.parameters[i])) {
-      this->dataMgr->addData(pb.parameters[i],1); 
-    }
-  }
-  this->dataMgr->printList();
-#endif // HAVE_JUXMEM 
+  /* Data transfer */
+  uploadSyncSeDData(profile,pb,cvt) ;
  
   if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
     cout << "SeD::solve_batch complete\n"
@@ -1184,4 +985,179 @@ SeDImpl::estimate(corba_estimation_t& estimation,
 
 //   cout << "AS: [" << __FUNCTION__ << "] num values = " << estimation.estValues.length() << endl;
 }
+
+inline void
+SeDImpl::downloadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
+			     diet_convertor_t* cvt)
+{
+  int i ;
+
+  TRACE_TEXT(TRACE_MAIN_STEPS, "SeD downloads client datas\n");
+  
+#if HAVE_JUXMEM
+  unmrsh_in_args_to_profile(&profile, &pb, cvt);
+
+  for (i = 0; i <= profile.last_out; i++) {
+    if (profile.parameters[i].desc.mode == DIET_PERSISTENT ||
+	profile.parameters[i].desc.mode == DIET_PERSISTENT_RETURN) {
+   
+      /* IN case -> acquire the data in read mode */
+      if (i <= profile.last_in) {
+	assert(profile.parameters[i].desc.id != NULL);
+	profile.parameters[i].value = this->juxmem->mmap(NULL, data_sizeof(&(profile.parameters[i].desc)), profile.parameters[i].desc.id, 0);
+	TRACE_TEXT(TRACE_MAIN_STEPS, "Acquiring IN data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
+	this->juxmem->acquireRead(profile.parameters[i].value);
+	continue;
+      }
+      /* INOUT case -> acquire the data in write mode */
+      if (i > profile.last_in && i <= profile.last_inout) {
+	assert(profile.parameters[i].desc.id != NULL);
+	profile.parameters[i].value = this->juxmem->mmap(NULL, data_sizeof(&(profile.parameters[i].desc)), profile.parameters[i].desc.id, 0);
+	TRACE_TEXT(TRACE_MAIN_STEPS, "Acquiring INOUT data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
+	this->juxmem->acquire(profile.parameters[i].value);
+	continue;
+      }
+      /* OUT case -> acquire the data in write mode if exists in JuxMem */
+      if (i > profile.last_inout) {
+	if (profile.parameters[i].desc.id == NULL || (strlen(profile.parameters[i].desc.id) == 0)) {
+	  TRACE_TEXT(TRACE_MAIN_STEPS, "New data for OUT\n");
+	} else {
+	  /** FIXME: not clear if we should handle such a case */
+	  assert(profile.parameters[i].desc.id != NULL);
+	  profile.parameters[i].value = this->juxmem->mmap(NULL, data_sizeof(&(profile.parameters[i].desc)), profile.parameters[i].desc.id, 0);
+	  this->juxmem->acquire(profile.parameters[i].value);
+	  TRACE_TEXT(TRACE_MAIN_STEPS, "Acquiring OUT data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
+	}
+      }
+    }
+  }
+#else // DTM case
+
+  // For data persistence
+
+  for (i=0 ; i <= pb.last_inout ; i++) {
+    if(pb.parameters[i].value.length() == 0) { 
+      /* In argument with NULL value : data is present */
+      this->dataMgr->getData(pb.parameters[i]); 
+    } else { /* data is not yet present but is persistent */
+      if(diet_is_persistent(pb.parameters[i])) {
+        this->dataMgr->addData(pb.parameters[i],0);
+      }
+    }
+  }
+  unmrsh_in_args_to_profile(&profile, &pb, cvt);
+  for (i=0 ; i <= pb.last_inout ; i++) {
+    if( diet_is_persistent(pb.parameters[i]) && 
+        (pb.parameters[i].desc.specific._d() == DIET_FILE)) {
+      char* in_path = 
+	CORBA::string_dup(profile.parameters[i].desc.specific.file.path);
+      this->dataMgr->changePath(pb.parameters[i], in_path);
+    }
+  }
+#endif // HAVE_JUXMEM 
+}
+
+inline void
+SeDImpl::uploadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
+			   diet_convertor_t* cvt)
+{
+  int i ;
+
+  TRACE_TEXT(TRACE_MAIN_STEPS, "SeD uploads client datas\n");
+  
+#if HAVE_JUXMEM
+  for (i = 0; i <= profile.last_out; i++) {
+    if (profile.parameters[i].desc.mode == DIET_PERSISTENT ||
+	profile.parameters[i].desc.mode == DIET_PERSISTENT_RETURN) {
+
+      /** IN and INOUT case */
+      if (i <= profile.last_inout) {
+	TRACE_TEXT(TRACE_MAIN_STEPS, "Releasing data with ID = " 
+		   << profile.parameters[i].desc.id << " from JuxMem ...\n");
+	this->juxmem->release(profile.parameters[i].value);
+      } else {       /** OUT case */
+	/** The data does not exist yet */
+	if (strlen(profile.parameters[i].desc.id) == 0) {
+	  /* The local memory is attached inside JuxMem */
+	  profile.parameters[i].desc.id = 
+	    this->juxmem->attach(profile.parameters[i].value, 
+				 data_sizeof(&(profile.parameters[i].desc)), 
+				 1, 1, EC_PROTOCOL, BASIC_SOG);
+	  TRACE_TEXT(TRACE_MAIN_STEPS, "A data space with ID = " 
+		     << profile.parameters[i].desc.id 
+		     << " for OUT data has been attached inside JuxMem!\n");
+	  /* The local memory is flush inside JuxMem */
+	  this->juxmem->msync(profile.parameters[i].value);
+	} else { /* Simply release the lock */
+	  /** FIXME: should we handle this case */
+	  this->juxmem->release(profile.parameters[i].value);
+	}
+      }
+
+      this->juxmem->unmap(profile.parameters[i].value);
+      profile.parameters[i].value = NULL;
+    }
+  }
+  mrsh_profile_to_out_args(&pb, &profile, cvt);
+#else // DTM case
+  for(i=0;i<=pb.last_in;i++){
+    if(diet_is_persistent(pb.parameters[i])) {
+      if (pb.parameters[i].desc.specific._d() != DIET_FILE) {
+        CORBA::Char *p1 (NULL);
+        pb.parameters[i].value.replace(0,0,p1,1);
+      }
+      persistent_data_release(&(pb.parameters[i]));
+    }
+  }
+  mrsh_profile_to_out_args(&pb, &profile, cvt);
+  
+  for (i = pb.last_inout + 1 ; i <= pb.last_out; i++) {
+    if ( diet_is_persistent(pb.parameters[i])) {
+      this->dataMgr->addData(pb.parameters[i],1); 
+    }
+  }
+  this->dataMgr->printList();
+#endif // HAVE_JUXMEM 
+}
+
+
+#ifdef HAVE_BATCH
+  /**
+   * Store the batch job ID of the parallel task just submitted in
+   * correspondance with the DIET request ID
+   */
+void
+SeDImpl::storeBatchID(int batch_jobID, int diet_reqID)
+{
+  /* For the moment, storage done in a table
+  ** TODO: use something like a red/black tree? */
+  int i=0 ;
+  
+  while( (i<tabCorresIDIndex) && (tabCorresID[i].dietReqID != -1) )
+    i++ ;
+  if( tabCorresIDIndex == MAX_RUNNING_NBSERVICES ) {
+    INTERNAL_ERROR("not enough place to insert new batch job", 1);
+  } else if( i == tabCorresIDIndex )
+    tabCorresIDIndex++ ;
+  tabCorresID[i].batchJobID = batch_jobID ;
+  tabCorresID[i].dietReqID = diet_reqID ;
+}
+
+/** 
+ * Return the pid of the script that launched the batch job
+ */
+int
+SeDImpl::findBatchID(int diet_reqID)
+{
+  int i=0 ;
+
+  while( (i<tabCorresIDIndex) && (tabCorresID[i].dietReqID != diet_reqID) )
+    i++ ;
+  if( i == tabCorresIDIndex )
+    INTERNAL_ERROR("incoherence relating with batch job ID and diet request ID"
+		   , 1);
+  return tabCorresID[i].batchJobID ;
+}
+#endif
+
 
