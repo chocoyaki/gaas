@@ -6,7 +6,7 @@ SET( CTEST_SOURCE_DIRECTORY "$ENV{HOME}/cvs/${CVS_MODULE_DIRECTORY}" )
 SET( CTEST_BINARY_DIRECTORY "${CTEST_SOURCE_DIRECTORY}/Bin" )
 
 SET( CTEST_CVS_COMMAND "/usr/bin/cvs" )
-SET( CTEST_CVS_CHECKOUT "${CTEST_CVS_COMMAND} -d:ext:dart@graal.ens-lyon.fr:/home/CVS/graal co \"${CVS_MODULE_DIRECTORY}\" " )
+SET( CTEST_CVS_CHECKOUT "${CTEST_CVS_COMMAND} -d:ext:dart@graal.ens-lyon.fr:/home/CVS/graal co ${CVS_MODULE_DIRECTORY} " )
 
 # Using the script argument (and defaulting to Nightly):
 SET(MODEL Nightly)
@@ -85,7 +85,7 @@ DIET_BUILD_EXAMPLES:BOOL=ON
 CMAKE_BUILD_TYPE:STRING=Maintainer
 
 //Name of the build
-BUILDNAME:STRING=RedHatEnterpriseLinuxES_R3-GCC_3.2.3
+BUILDNAME:STRING=RedhatEnterpriseLinuxES_R3-GCC_3.2.3
 
 //Name of the computer/site where compile is being run
 SITE:STRING=graal.ens-lyon.fr
@@ -93,5 +93,5 @@ SITE:STRING=graal.ens-lyon.fr
 ")
 
 # Set any extra environment variables here:
-# SET( CTEST_ENVIRONMENT "CXX=g++-3.4" )
+SET( CTEST_ENVIRONMENT "CVS_RSH=/usr/bin/ssh" )
 
