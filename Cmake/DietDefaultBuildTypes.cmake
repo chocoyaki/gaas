@@ -137,22 +137,12 @@ IF( CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX )
 ENDIF( CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX )
 
 ############################################################################
-# Set the default build mode:
-#  - to Maintainer when DIET_MAINTAINER_MODE is set.
-#  - by default to RelWithDebInfo [compile c++ and c code with
+# Default the build mode to RelWithDebInfo [compile c++ and c code with
 #    optimizations and debug info i.e.e roughly speaking "-O2 -g" on Un*x]:
 IF( NOT CMAKE_BUILD_TYPE )
-  IF( DIET_MAINTAINER_MODE )
-    SET( CMAKE_BUILD_TYPE
-      Maintainer CACHE STRING
-      ${CMAKE_BUILD_TYPE_DOCSTRING}
-      FORCE
-    )
-  ELSE( DIET_MAINTAINER_MODE )
-    SET( CMAKE_BUILD_TYPE
-      RelWithDebInfo CACHE STRING
-      ${CMAKE_BUILD_TYPE_DOCSTRING}
-      FORCE
-    )
-  ENDIF( DIET_MAINTAINER_MODE )
+  SET( CMAKE_BUILD_TYPE
+    RelWithDebInfo CACHE STRING
+    ${CMAKE_BUILD_TYPE_DOCSTRING}
+    FORCE
+  )
 ENDIF(NOT CMAKE_BUILD_TYPE)

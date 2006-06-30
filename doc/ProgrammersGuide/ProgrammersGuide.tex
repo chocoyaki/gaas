@@ -8,6 +8,17 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.8  2006/06/30 21:20:37  eboix
+%*   Cmake and dart related modifications:
+%*    - [c]cmake's ambiguous option DIET_MAINTAINER_MODE removed. Building the
+%*      documentation is now only controled by DIET_BUILD_DOCUMENTATION (and
+%*      user's, developpers and doxygen docs are handled together). In order
+%*      to use the Maintainer build type add -DCMAKE_BUILD_TYPE:STRING=Maintainer
+%*      as [c]cmake option.
+%*    - Created Cmake/Dart subdir as placeholder for Dart related utilities.
+%*    - Cmake/DashBoardScript.cmake renamed to Cmake/Dart/DashBoardScript.cmake
+%*                                                                 --- Injay2461
+%*
 %* Revision 1.7  2006/01/25 17:26:04  pfrauenk
 %* CoRI : Some useful information about CoRI now available
 %*
@@ -15,16 +26,6 @@
 %* Fixed remaining reference to ../UserManual/fig/logo in ProgrammersGuide.tex to ./fig/logo
 %* Addition of a cp of the ../UserManual/fig/logo in the makefile: now it compiles
 %* Addition of a batch section (also contains general remarks which have to be dispatched if pertinent). Not complete!
-%*
-%* Revision 1.5  2005/07/05 10:59:45  eboix
-%* * doc/ProgrammersGuide/fig/logo_DIET.gif copied from
-%*   doc/UsersManual/fig/logo_DIET.gif
-%* * doc/ProgrammersGuide/ProgrammersGuide.tex doesn't make reference to
-%*   upper directory file ../UsersManual/fig/LOGO_DIET.ps but to copied
-%*   fig/logo_DIET.gif (through ImageMagick conversion).
-%* * doc/ProgrammersGuide is now compiled by CMake by setting
-%*   DIET_MAINTAINER_MODE to on (with DIET_BUILD_DOCUMENTATION to on too)
-%*                                                             --- Injay2461
 %*
 %* Revision 1.4  2004/01/09 15:26:53  cpera
 %* Add Annexe on Autotools.

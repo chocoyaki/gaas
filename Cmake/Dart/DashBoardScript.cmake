@@ -32,8 +32,8 @@ SET( CTEST_CMAKE_COMMAND "/usr/local/bin/cmake" )
 # have them or leave them commented out
 ####################################################################
 
-# Should ctest wipe the binary tree before running:
-#SET( CTEST_START_WITH_EMPTY_BINARY_DIRECTORY TRUE )
+# Ctest should wipe the binary tree before running:
+SET( CTEST_START_WITH_EMPTY_BINARY_DIRECTORY TRUE )
 
 SET( OMNIORB4 $ENV{HOME}/local/omniORB-4.0.7 )
 
@@ -79,7 +79,10 @@ DIET_WITH_MULTI_MA:BOOL=ON
 DIET_BUILD_EXAMPLES:BOOL=ON
 
 //Build additional documentation...
-DIET_MAINTAINER_MODE:BOOL=ON
+// DIET_BUILD_DOCUMENTATION:BOOL=ON
+
+//Build type defaulted to Maintainer...
+CMAKE_BUILD_TYPE:STRING=Maintainer
 
 //Name of the build
 BUILDNAME:STRING=RedHatEnterpriseLinuxES_R3-GCC_3.2.3

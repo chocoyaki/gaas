@@ -2,9 +2,11 @@
 #* DIET cmake local file                                                    *#
 #****************************************************************************#
 
-SUBDIRS( UsersManual )
-IF( DIET_MAINTAINER_MODE )
-  SUBDIRS( ProgrammersGuide Tutorial )
+IF( DIET_BUILD_DOCUMENTATION )
+
+  SUBDIRS( ProgrammersGuide )
+  SUBDIRS( Tutorial )
+  SUBDIRS( UsersManual )
   IF( DOXYGEN )
     SET( DIET_DOXYGEN_INPUT
       "${DIET_SOURCE_DIR}/include                                                      ${DIET_SOURCE_DIR}/src" )
@@ -20,4 +22,4 @@ IF( DIET_MAINTAINER_MODE )
       ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile )
   ENDIF( DOXYGEN )
 
-ENDIF( DIET_MAINTAINER_MODE )
+ENDIF( DIET_BUILD_DOCUMENTATION )

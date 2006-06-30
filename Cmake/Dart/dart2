@@ -1,0 +1,100 @@
+#!/bin/bash
+#
+# dart2:       Manage a dart2 server
+#
+# Author:      Not documented
+#
+# Description: 
+#
+# References: http://na-mic.org/Wiki/index.php/Dart2Summary
+#
+
+##### Configuration section:
+JAVACOMMAND=/usr/bin/java
+
+# Where to find Dart2 installation directory i.e. basically the absolute
+# path to DartServer.jar file
+INSTALLDIR=/home/dart/local/Dart1.0.0/
+
+# The absolute filename of the jar of dart server part:
+DARTSERVER=$INSTALLDIR/DartServer.jar
+
+# The absolute filename of the jar of dart client part:
+DARTCLIENT=$INSTALLDIR/DartClient.jar
+
+# The path to the configuration of the dart server i.e. the directory
+# generated with the "java -jar DartServer.jar --createserver" command:
+SERVERCONF=$INSTALLDIR/DIETServer
+
+# The path to the configuration of the project i.e. the directory
+# generated with the "java -jar DartServer.jar --create" command:
+PROJECTCONF=$INSTALLDIR/DIETcore
+
+# Log file of dart:
+DARTLOG=$INSTALLDIR/dart.log
+
+##### End of configuration section:
+
+if [ ! -d $INSTALLDIR ] ; then
+  echo "Installation directory does not exist."
+  exit 0
+fi
+
+if [ ! -f $DARTSERVER ] ; then
+  echo -n $"DartServer.jar not found. [ Was expecting "
+  echo -n $DARTSERVER
+  echo    "]"
+  exit 0
+fi
+
+if [ ! -f $JAVACOMMAND ] ; then
+  echo -n $JAVACOMMAND
+  echo -n $"expected java command not found."
+  exit 0
+fi
+
+start() {
+  echo $"Starting Dart2 server."
+  $JAVACOMMAND -jar $DARTSERVER $SERVERCONF $PROJECTCONF > $DARTLOG &
+}
+
+stop() {
+  echo $"Halting Dart2 server."
+  $JAVACOMMAND -jar $DARTSERVER $PROJECTCONF >> $DARTLOG 2>&1
+}
+
+status() {
+  if [ ! -f $DARTCLIENT ] ; then
+    echo -n $"DartClient.jar not found. [ Was expecting "
+    echo -n $DARTCLIENT
+    echo    "]"
+    exit 0
+  fi
+  echo -n $"Dart status of project "
+  echo    $PROJECTCONF
+  $JAVACOMMAND -jar $DARTCLIENT --getstatus $PROJECTCONF
+}
+
+
+
+# See how we were called.
+case "$1" in
+  start)
+        start
+        ;;
+  stop)
+        stop
+        ;;
+  status)
+        status
+        ;;
+  restart|reload)
+        stop
+        start
+        ;;
+  *)
+        echo $"Usage: $0 {start|stop|status|restart|reload}"
+        exit 1
+esac
+
+exit 0

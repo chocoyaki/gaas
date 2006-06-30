@@ -66,10 +66,9 @@ III/ the DIET case:
      make install
 
 IV/ DIET specific cmake parameters:
-  - DIET_BUILD_DOCUMENTATION for ... building LaTeX-based user's guide.
+  - DIET_BUILD_DOCUMENTATION for ... building LaTeX-based user's guide,
+    the developper's guide and the doxygenated documentation.
   - DIET_BUILD_EXAMPLES for ... building examples
-  - DIET_MAINTAINER_MODE for building additional LaTeX based programmers guide
-    and doxygen documentations.
   - DIET_USE_BATCH for ... Appleseeds based batch extensions.
   - DIET_USE_BLAS for ... BLAS based examples.
   - DIET_USE_CORI for ... a built-in low-profile FAST surrogate.
@@ -85,7 +84,7 @@ V/ DIET [c]cmake invocation example:
  ccmake .. -DDIET_USE_CORI:BOOL=ON 
            -DDIET_USE_BLAS:BOOL=ON -DDIET_USE_FAST:BOOL=ON
            -DDIET_USE_JXTA:BOOL=ON -DDIET_WITH_MULTI_MA:BOOL=ON
-           -DDIET_MAINTAINER_MODE:BOOL=ON -DDIET_BUILD_DOCUMENTATION:BOOL=ON
+           -DDIET_BUILD_DOCUMENTATION:BOOL=ON
            -DDIET_BUILD_EXAMPLES:BOOL=ON 
            -DOMNIORB4_DIR:PATH=/home/bozo/local/omniORB-4.0.7/
            -DCMAKE_INSTALL_PREFIX:PATH=/home/bozo/local/diet

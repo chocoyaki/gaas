@@ -8,7 +8,7 @@ SET(DIET_version 2.0)
 
 # --------------------- OPTIONS OF THE PROJECT -----------------------------
 OPTION( DIET_BUILD_EXAMPLES "Build DIET examples." OFF )
-OPTION( DIET_BUILD_DOCUMENTATION "Build the users manual documentation." OFF )
+OPTION( DIET_BUILD_DOCUMENTATION "Build the documentation." OFF )
 OPTION( DIET_USE_BATCH "Build DIET with Batch support." OFF )
 OPTION( DIET_USE_BLAS "Build DIET with BLAS support." OFF )
 OPTION( DIET_USE_CORI "Build DIET with CORI support." OFF )
@@ -16,7 +16,6 @@ OPTION( DIET_USE_JXTA "Build DIET with JXTA architecture support." OFF )
 OPTION( DIET_USE_FAST "Build DIET with FAST support." OFF )
 OPTION( DIET_WITH_STATISTICS "Build DIET with generation of statistics." OFF )
 OPTION( DIET_WITH_MULTI_MA   "Build DIET with MULTI-Master-Agent support." OFF )
-OPTION( DIET_MAINTAINER_MODE "Build additional documentation..." OFF )
 OPTION( DIET_USE_WORKFLOW "Build DIET with workflow support..." OFF)
 OPTION( DIET_USE_DART "Build DIET for dart reporting..." OFF)
 OPTION( DIET_USE_FD "Use Diet Fault Detector." OFF)
@@ -102,14 +101,7 @@ ELSE( OMNIORB4_FOUND )
   SET( OMNIORB4_DIR "" CACHE PATH "Root of omniORB instal tree." )
 ENDIF( OMNIORB4_FOUND )
 
-# Maintainer mode basically means building the developper's guide
-# documentation and compiling/linking with gobs of found warnings...
-IF( DIET_MAINTAINER_MODE )
-  SET( DIET_BUILD_EXAMPLES ON )
-ENDIF( DIET_MAINTAINER_MODE )
-
 IF( DIET_BUILD_DOCUMENTATION )
-  # DIET_MAINTAINER_MODE is used within the doc subdirectory
   FIND_PACKAGE( LATEX )
   FIND_PACKAGE( Transfig )
   IF( NOT TRANSFIG_FOUND )
@@ -137,14 +129,12 @@ ENDIF( DIET_USE_BATCH )
 # JXTA (see below) is used to provide functionalities similar to the ones
 # of the DIET_WITH_MULTI_MA. For the time being those two extensions
 # are not incompatible at compile time. Yet, requiring both probably
-# means you are either an expert or a lost newbie... Allthough 
-# the flag DIET_MAINTAINER_MODE doesn't convey any expertise semantics
-# we consider the newbie won't set that mode on. Hence when not
-# in MAINTAINER_MODE, we assume the user is newbie and we explicitely
-# require an explicit choice:
-IF( DIET_WITH_MULTI_MA AND DIET_USE_JXTA AND NOT DIET_MAINTAINER_MODE )
+# means you are either an expert or a lost newbie...
+# In order to prevent trouble, we assume the user is newbie and we
+# explicitely require a disambiguation:
+IF( DIET_WITH_MULTI_MA AND DIET_USE_JXTA )
  MESSAGE(SEND_ERROR "Either set DIET_WITH_MULTI_MA or DIET_USE_JXTA. Not both.")
-ENDIF( DIET_WITH_MULTI_MA AND DIET_USE_JXTA AND NOT DIET_MAINTAINER_MODE )
+ENDIF( DIET_WITH_MULTI_MA AND DIET_USE_JXTA )
 
 # Enable dynamic MULTI-Master-Agent support based on JXTA library
 # (refer to http://www.jxta.org/ ). This is similar to functionalities offered
