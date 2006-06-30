@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2006/06/30 17:27:42  abouteil
+ *
+ * Fixed: useless debug warning
+ *
  * Revision 1.9  2006/06/16 10:37:33  abouteil
  * Chandra&Toueg&Aguilera fault detector support added
  *
@@ -290,9 +294,6 @@ public:
   void logFailure(const char *observed);
   /** log failure detectors reconfigurations (and detected network conditions) */
   void logDetectorParams(const char *observed, double Pl, double Vd, double eta, double alpha);
-#else 
-#warning PAS DE FD
-
 #endif  
 
   /**
