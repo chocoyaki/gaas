@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.42  2006/06/30 15:47:42  ycaniou
+ * Coquilles, and batch stuff
+ *
  * Revision 1.41  2006/06/01 13:02:38  ycaniou
  * BATCH: Add nbprocess field in diet_profile_t
  *
@@ -240,9 +243,7 @@ typedef struct {
 
   const void* SeDPtr; /* pointer to SeD object, to be used in
                       ** performance estimation
-		      ** YC
 		      ** And for batch submission
-		      ** FYC
                       */
 #ifdef HAVE_BATCH
   unsigned short int batch_flag ;

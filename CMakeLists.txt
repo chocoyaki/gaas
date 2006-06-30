@@ -73,7 +73,7 @@ FOREACH( function_to_check ${DIET_FUNCTIONS_TO_CHECK} )
   ENDIF( NOT dummyfound${function_to_check} )
 ENDFOREACH( function_to_check )
 
-### CORI (COllector of Ressource Information) is heavily dependant on 
+### CORI (COllector of Resource Information) is heavily dependant on 
 # system calls for probing ressources:
 IF( DIET_USE_CORI )
   ADD_DEFINITIONS( -DHAVE_CORI )

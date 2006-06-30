@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2006/06/30 15:47:42  ycaniou
+ * Coquilles, and batch stuff
+ *
  * Revision 1.27  2006/05/12 07:42:35  eboix
  *  * FIX: static libraries and static linking of examples should now be effective
  *    - include/DIET_server.h: diet_generic_desc_set is now simply defined
@@ -200,6 +203,11 @@ diet_profile_desc_alloc(const char* path,
 int
 diet_profile_desc_free(diet_profile_desc_t* desc);
 
+#ifdef HAVE_BATCH
+/* Functions for server profile registration */
+int
+diet_profile_desc_set_batch(diet_profile_desc_t* profile) ;
+#endif
 
 
 
@@ -217,19 +225,6 @@ int diet_aggregator_priority_min(diet_aggregator_desc_t* agg,
                                  int tag);
 int diet_aggregator_priority_maxuser(diet_aggregator_desc_t* agg, int val);
 int diet_aggregator_priority_minuser(diet_aggregator_desc_t* agg, int val);
-
-
-
-
-
-#ifdef HAVE_BATCH
-/* Functions for server profile registration */
-int
-diet_profile_desc_set_batch(diet_profile_desc_t* profile) ;
-int
-diet_profile_desc_set_parallel(diet_profile_desc_t* profile) ;
-#endif
-
 
 /****************************************************************************/
 /* DIET problem evaluation                                                  */
@@ -412,18 +407,12 @@ diet_SeD(char* config_file_name, int argc, char* argv[]);
 /* DIET batch submit call                                                   */
 /****************************************************************************/
 #ifdef HAVE_BATCH
-typedef enum {
-  DIET_Lam,
-  DIET_Mpich,
-  DIET_Poe,
-  DIET_Pvm,
-  DIET_Sequential, /* copy on all nodes and run */
-  DIET_Submit_COUNT /* one copy that runs on all nodes (each have a part of data for example */
-} diet_submit_call_t;
-
-int
-diet_submit_batch(diet_profile_t* profile, const char *command,
-		  diet_submit_call_t call) ;
+  /**
+   * @param command is the content of the script that the SeD programmer wants
+   * to submit
+   */
+  int
+  diet_submit_batch(diet_profile_t* profile, const char *command) ;
 #endif
 
 
