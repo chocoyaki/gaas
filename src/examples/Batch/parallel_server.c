@@ -19,7 +19,6 @@
 #include "DIET_server.h"
 /* #include "DIET_mutex.h" */
 
-
 /****************************************************************************
  * SOLVE FUNCTION
  ****************************************************************************/
@@ -28,7 +27,6 @@ int solve_test_mpi(diet_profile_t *pb)
 {
   /*  char* chaine ; */
   char *cmd ;
-  diet_submit_call_t code=DIET_Mpich ;
   double *entier = NULL ;
    
   /* diet_string_get(diet_parameter(pb,0), &chaine, NULL); */
@@ -38,7 +36,7 @@ int solve_test_mpi(diet_profile_t *pb)
   /*  sprintf(cmd,"/JobMPI/a.out %s",chaine) ; */
   sprintf(cmd,"JobMPI/a.out %.2f",*entier) ;
   
-  diet_submit_batch(pb,cmd,code) ;
+  diet_submit_batch(pb,cmd) ;
   
   /* Must keep an eye until the end of the job
    * to send back the corresponding results */
@@ -46,10 +44,11 @@ int solve_test_mpi(diet_profile_t *pb)
   return 0 ;
 }
 /*
-int make_perf(diet_profile_t *pb)
-{
- Must look how to integrate in elagi a convenient way 
-    to ask the batch scheduler for prediction performances
+  int make_perf(diet_profile_t *pb)
+  {
+  Must look how to integrate in elagi a convenient way 
+  to ask the batch scheduler for prediction performances
+  
   int l ;
   
   l=5 ;
@@ -79,7 +78,7 @@ main(int argc, char* argv[])
   diet_generic_desc_set(diet_param_desc(profile,0), DIET_SCALAR, DIET_DOUBLE);
 
   /* This job is a batch one */
-  diet_profile_desc_set_parallel(profile) ;
+  /*  diet_profile_desc_set_parallel(profile) ; */
   
   /* Add the smprod to the service table */
   diet_service_table_add(profile, NULL, solve_test_mpi);

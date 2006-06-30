@@ -15,44 +15,151 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <libgen.h> /* basename() */
 
 #include "DIET_server.h"
 /* #include "DIET_mutex.h" */
+#include <sys/stat.h>
 
 
 /****************************************************************************
  * SOLVE FUNCTION
  ****************************************************************************/
 
-int solve_test_mpi(diet_profile_t *pb)
+int solve_helloMPI(diet_profile_t *pb)
 {
-  /*  int synchro=1 ; */
-  char *cmd ;
-  /*  char *chaine ;*/
-  double* entier = NULL ;
+  size_t arg_size1  = 0 ;
+  size_t arg_size2  = 0 ;
+  char *prologue = NULL ;
+  char *copying = NULL ;
+  char *cmd = NULL ;
+  char *epilogue = NULL ;
+  char *script = NULL ;
+  char *path1 = NULL ;
+  char *path2 = NULL ;
+  char *path_result = NULL ;
+  double* ptr_nbreel = NULL ;
+  int status = 0 ;
+  int result ;
+  struct stat buf;
 
-  printf("YC in solve_test_mpi \n") ;
-  cmd = (char*)malloc(100*sizeof(char)) ;
-    
-  /*  diet_string_get(diet_parameter(pb,0), &chaine, NULL);*/
-  diet_scalar_get(diet_parameter(pb,0), &entier, NULL);
+  printf("Résolution de helloMPI !\n\n") ;
 
-  /* Make the command to submit in a script */
-  /*  sprintf(cmd,"JobMPI/a.out %s",chaine) ;*/
-  sprintf(cmd,"JobMPI/a.out %.2f",*entier) ;
- 
-  diet_submit_batch(pb, cmd, DIET_Mpich) ;
+  /* IN args */  
+  diet_file_get(diet_parameter(pb,0), NULL, &arg_size1, &path1);
+  if ((status = stat(path1, &buf)))
+    return status;
+  if( !(buf.st_mode & S_IFREG) ) /* regular file */
+    return 2;
+  printf("Le nom du fichier est %s\n",path1) ;
   
-  /* Must keep an eye until the end of the job
-   * to send back the corresponding results */
+  diet_scalar_get(diet_parameter(pb,1), &ptr_nbreel, NULL);
+  diet_file_get(diet_parameter(pb,2), NULL, &arg_size2, &path2);
+  if ((status = stat(path2, &buf)))
+    return status;
+  if( !(buf.st_mode & S_IFREG) ) /* regular file */
+    return 2;
+  printf("Le nom du fichier est %s\n",path2) ;
 
+  /* OUT args */
+  path_result = "JobMPI/result.txt" ;
+  if( diet_file_desc_set(diet_parameter(pb,3), path_result) ) {
+    printf("diet_file_desc_set error\n");
+    return 1;
+  }
+  printf("Le nom du fichier est %s\n",path_result) ;
+
+  /******************************************/
+  /* Make the command to submit in a script */
+  /******************************************/
+  printf("Making script...\n\n") ;
+  /* Some unecessary things, only for the example */
+  prologue = (char*)malloc(300*sizeof(char)) ;  
+  sprintf(prologue,
+	  "echo \"Nom de la frontale: $DIET_NAME_FRONTALE\"\n"
+	  "echo \"Reserved Nodes are:\"\n"
+	  "echo $DIET_BATCH_NODESLIST\n"
+	  "echo \"Number of nodes:  $DIET_BATCH_NBNODES\"\n"
+	  "echo \"Nom du fichier batch qui les gère :"
+	  " $DIET_BATCH_NODESFILE\"\n"
+	  "\n") ;
+  
+  /* Data management: scp for file1, NFS for file2 */
+  /* Note: one can do the NFS cp in a C thread (see batch_server_2) */
+  /* mettre dans batch_server_2 un test sur la taille pour s'assurer 
+     que le fichier est copié :
+
+     while ( size != %d ) ; do
+     sleep 1
+     done
+
+  */ 
+  copying = (char*)malloc(400*sizeof(char)) ;  
+  sprintf(copying,
+	  "WORKING_DIRECTORY=/home/ycaniou/JobMPI/\n"
+	  "# Copy the file on reserved nodes\n"
+	  "for i in $DIET_BATCH_NODESLIST ; do\n"
+	  "  scp $DIET_NAME_FRONTALE:%s $i:%s\n"
+	  "done\n"
+	  "input_file1=%s\n"
+	  "\n"
+	  "# Use NFS\n"
+	  "ssh $DIET_NAME_FRONTALE \"cp %s $WORKING_DIRECTORY/\"\n"
+	  "input_file2=%s\n"
+	  "\n"
+	  ,path1,path1,path1,path2,basename(path2)) ; 
+  
+  /* The MPI command itself */
+  cmd = (char*)malloc(300*sizeof(char)) ;  
+  sprintf(cmd,
+	  "# Execution\n"
+	  "cd $WORKING_DIRECTORY\n"
+	  "mpirun.mpich_1_2 -np $DIET_USER_NBPROCS "
+	  "-machinefile $DIET_BATCH_NODESFILE "
+	  "helloMPI %.2f\n"
+	  "\n",*ptr_nbreel) ;
+  
+  /* Put the Output file in the right place */
+  /* Note: if output on NFS, with "ln -s" (see batch_server_2) 
+     or by Diet (see batch_server_3) */
+  epilogue = (char*)malloc(100*sizeof(char)) ;  
+  sprintf(epilogue,
+	  "# Get the result file\n"
+	  "#FIXME\n"
+	  "#scp $DIET_BATCH_STDOUT $DIET_NAME_FRONTALE:%s\n"
+	  ,path_result) ;
+  
+  /* Make Diet submit */
+  script = (char*)malloc( (strlen(prologue)  
+			   + strlen(copying)  
+			   + strlen(cmd) 
+			   + strlen(epilogue)
+			   + 1 ) * sizeof(char) ) ;
+  sprintf(script,"%s%s%s%s",prologue,copying,cmd,epilogue) ;
+
+  result = diet_submit_batch(pb, script) ;
+  if( result )
+    printf("Error when submitting the script\n") ;
+
+  status=120 ;
+  printf("Waiting %d seconds\n",status) ;
+  sleep(status) ;
+  
+  /* Free memory */
+  free(prologue) ;
+  free(copying) ;
+  free(cmd) ;
+  free(epilogue) ;
+  free(script) ;
+
+  /* Don't free path1, path2 and path_result */
   return 0 ;
 }
 /*
-int make_perf(diet_profile_t *pb)
-{
- Must look how to integrate in elagi a convenient way 
-    to ask the batch scheduler for prediction performances 
+  int make_perf(diet_profile_t *pb)
+  {
+  Must look how to integrate in elagi a convenient way 
+  to ask the batch scheduler for prediction performances 
   int l ;
   
   l=5 ;
@@ -70,37 +177,31 @@ main(int argc, char* argv[])
   diet_profile_desc_t* profile = NULL ;
   
   
+  if (argc < 2) {
+    fprintf(stderr, "Usage: %s <file.cfg>\n", argv[0]);
+    return 1;
+  }  
+
   /* Initialize table with maximum services */
   diet_service_table_init(nb_max_services);
 
-  /* Allocate batch profile */
-  profile = diet_profile_desc_alloc("test_mpi",0,0,0);
+  /* Allocate batch profile (IN, INOUT, OUT) */
+  profile = diet_profile_desc_alloc("helloMPI",2,2,3);
 
-  /* Set profile parameters */
-  /* This job is a batch one */
+  /* Set profile parameters : this job is submitted by a batch system */
   diet_profile_desc_set_batch(profile) ;
 
-  /* string to print */
-  /*  diet_generic_desc_set(diet_param_desc(profile,0), DIET_STRING, DIET_CHAR); */
-  diet_generic_desc_set(diet_param_desc(profile,0), DIET_SCALAR, DIET_DOUBLE);
+  diet_generic_desc_set(diet_param_desc(profile,0), DIET_FILE, DIET_CHAR);
+  diet_generic_desc_set(diet_param_desc(profile,1), DIET_SCALAR, DIET_DOUBLE);
+  diet_generic_desc_set(diet_param_desc(profile,2), DIET_FILE, DIET_CHAR);
+  diet_generic_desc_set(diet_param_desc(profile,3), DIET_FILE, DIET_CHAR);
   /* All done */
 
   /* Add service to the service table */
-  diet_service_table_add(profile, NULL, solve_test_mpi);
-
+  if( diet_service_table_add(profile, NULL, solve_helloMPI) ) return 1 ;
+  
   /* Free the profile, since it was deep copied */
   diet_profile_desc_free(profile);
-
-  /* Allocate Perf. profile */
-  /*  profile = diet_profile_desc_alloc("perf",0, 0, 0); */
-
-  /* Set profile parameters */
-  /*  diet_generic_desc_set(diet_param_desc(profile,0), DIET_SCALAR, DIET_DOUBLE);
-  diet_generic_desc_set(diet_param_desc(profile,1), DIET_MATRIX, DIET_DOUBLE);
-  diet_generic_desc_set(diet_param_desc(profile,2), DIET_SCALAR, DIET_FLOAT);
-  */
-  /* Add the smprod to the service table */
-  /* diet_service_table_add(profile, NULL, make_perf); */
 
   /* Print the table to check */
   diet_print_service_table();

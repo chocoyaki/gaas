@@ -41,7 +41,7 @@ main(int argc, char* argv[])
   diet_scalar_set(diet_parameter(profile,0), &entier,
 		  DIET_VOLATILE, DIET_DOUBLE);
 
-  diet_profile_set_parallel(profile) ;
+  /*  diet_profile_set_parallel(profile) ;*/
   
   /*********************
    * DIET Call
