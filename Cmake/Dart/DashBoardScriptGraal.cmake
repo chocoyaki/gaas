@@ -94,7 +94,7 @@ DIET_BUILD_EXAMPLES:BOOL=ON
 CMAKE_BUILD_TYPE:STRING=Maintainer
 
 //Name of the build
-BUILDNAME:STRING=RedhatEnterpriseLinuxES_R3-GCC_3.2.3
+BUILDNAME:STRING=REL_R3-GCC_3.2.3
 
 //Name of the computer/site where compile is being run
 SITE:STRING=graal.ens-lyon.fr
