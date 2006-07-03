@@ -14,6 +14,8 @@ IF(${CTEST_SCRIPT_ARGS} MATCHES Experimental)
   SET(MODEL Experimental)
 ENDIF(${CTEST_SCRIPT_ARGS} MATCHES Experimental)
 
+SET( CTEST_NIGHTLY_START_TIME "22:00:00 MEST" )
+
 # Which ctest command to use for running the dashboard
 SET( CTEST_COMMAND "/usr/local/bin/ctest -D ${MODEL}" )
 # The above could be breaked down to three subtasks:
@@ -77,9 +79,6 @@ DIET_WITH_MULTI_MA:BOOL=ON
 
 //Build DIET examples.
 DIET_BUILD_EXAMPLES:BOOL=ON
-
-//Build additional documentation...
-// DIET_BUILD_DOCUMENTATION:BOOL=ON
 
 //Build type defaulted to Maintainer...
 CMAKE_BUILD_TYPE:STRING=Maintainer
