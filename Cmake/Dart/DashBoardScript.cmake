@@ -9,12 +9,22 @@ SET( CTEST_CVS_COMMAND "/usr/bin/cvs" )
 SET( CTEST_CVS_CHECKOUT "${CTEST_CVS_COMMAND} -d:ext:dart@graal.ens-lyon.fr:/home/CVS/graal co ${CVS_MODULE_DIRECTORY} " )
 
 # Using the script argument (and defaulting to Nightly):
-SET(MODEL Nightly)
-IF(${CTEST_SCRIPT_ARGS} MATCHES Experimental)
-  SET(MODEL Experimental)
-ENDIF(${CTEST_SCRIPT_ARGS} MATCHES Experimental)
+SET( MODEL Nightly )
+IF( ${CTEST_SCRIPT_ARG} MATCHES Nightly )
+  SET( CTEST_NIGHTLY_START_TIME "22:00:00 MEST" )
+ENDIF( ${CTEST_SCRIPT_ARG} MATCHES Nightly )
 
-SET( CTEST_NIGHTLY_START_TIME "22:00:00 MEST" )
+IF( ${CTEST_SCRIPT_ARG} MATCHES Experimental )
+  SET( MODEL Experimental )
+ENDIF( ${CTEST_SCRIPT_ARG} MATCHES Experimental )
+
+IF( ${CTEST_SCRIPT_ARG} MATCHES Continuous )
+  SET( MODEL Continuous )
+  SET ( CTEST_CONTINUOUS_DURATION 600 )
+  SET ( CTEST_CONTINUOUS_MINIMUM_INTERVAL 10 )
+  # SET ( CTEST_START_WITH_EMPTY_BINARY_DIRECTORY_ONCE 1 )
+ENDIF( ${CTEST_SCRIPT_ARG} MATCHES Continuous )
+
 
 # Which ctest command to use for running the dashboard
 SET( CTEST_COMMAND "/usr/local/bin/ctest -D ${MODEL}" )
