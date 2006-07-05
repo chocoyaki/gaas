@@ -1,18 +1,15 @@
 # Set any extra environment variables here:
 SET( CTEST_ENVIRONMENT "export CVS_RSH=/usr/bin/ssh" )
 
-# Which ctest command to use for running the dashboard
-SET( CTEST_COMMAND "/usr/local/bin/ctest -D ${MODEL}" )
-
 # What cmake command to use for configuring this dashboard:
 SET( CTEST_CMAKE_COMMAND "/usr/local/bin/cmake" )
+
+# The name of the module as extracted with cvs:
+SET( CVS_MODULE_DIRECTORY "GRAAL/devel/diet/diet" )
 
 ####################### Source and binary directory:
 SET( CTEST_SOURCE_DIRECTORY "$ENV{HOME}/cvs/${CVS_MODULE_DIRECTORY}" )
 SET( CTEST_BINARY_DIRECTORY "${CTEST_SOURCE_DIRECTORY}/Bin" )
-
-# The name of the module as extracted with cvs:
-SET( CVS_MODULE_DIRECTORY "GRAAL/devel/diet/diet" )
 
 SET( CTEST_CVS_COMMAND "/usr/bin/cvs" )
 
@@ -34,6 +31,9 @@ IF( ${CTEST_SCRIPT_ARG} MATCHES Continuous )
   SET ( CTEST_CONTINUOUS_MINIMUM_INTERVAL 10 )
   # SET ( CTEST_START_WITH_EMPTY_BINARY_DIRECTORY_ONCE 1 )
 ENDIF( ${CTEST_SCRIPT_ARG} MATCHES Continuous )
+
+# Which ctest command to use for running the dashboard
+SET( CTEST_COMMAND "/usr/local/bin/ctest -D ${MODEL}" )
 
 # Ctest should wipe the binary tree before running:
 SET( CTEST_START_WITH_EMPTY_BINARY_DIRECTORY TRUE )
