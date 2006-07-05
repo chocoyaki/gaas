@@ -4,112 +4,115 @@ IF( DIET_USE_FD )
   SUBDIRS( fd )
 ENDIF (DIET_USE_FD)  
 
-INCLUDE_DIRECTORIES(
-  ${OMNIORB4_INCLUDE_DIR}
-  ${DIET_BINARY_DIR}/src/CORBA/idl
-  ${DIET_SOURCE_DIR}/src/CORBA        # for e.g. marshalling.hh
-  ${DIET_SOURCE_DIR}/src/utils        # for DIET_data_internal.hh
-  ${DIET_BINARY_DIR}/include          # CLEANME: must preceed source/include
-                                      # to take cmake-generated DIET_config.h
-  ${DIET_SOURCE_DIR}/include          # CLEANME: generate DIET_config.h
-                                      #        see HOME/CMakeLists.txt
-)
-
-########################################################################
-### UtilsSeDClt library:
-ADD_LIBRARY( UtilsSeDClt
-  AccessController.cc
-  DIET_mutex.cc 
-  est_internal.cc
-)
-TARGET_LINK_LIBRARIES( UtilsSeDClt ${OMNIORB4_LIBRARIES} )
-### FIXME: the following is really of poor taste
-# * AccessControler.cc makes references to TRACE_LEVEL declared in debug.hh
-#   and defined as global in debug.cc
-# * The three binaries (associated to each C source) make references to
-#   debug_log_mutex declared as omni_mutex in debug.hh and defined in debug.cc
-# Hence the following lines:
-IF( APPLE )
-  SET_TARGET_PROPERTIES( UtilsSeDClt
-    PROPERTIES LINK_FLAGS "-flat_namespace -undefined suppress" )
-ENDIF( APPLE )
-INSTALL_TARGETS( /lib/ UtilsSeDClt )
-
-########################################################################
-### UtilsCommon library:
-ADD_LIBRARY( UtilsCommon 
-  debug.cc
-  DIET_data.cc
-  KeyString.cc
-  ms_function.cc
-  Parsers.cc
-  statistics.cc
-)
-# The following dependency expresses that before compiling UtilsCommon one
-# first needs to generate the header files [like common_types.h] with idl.
-# Track down the definition of the commidity target
-# DIET_TARGET_IDL_GENERATED_HEADER_FILES for more details.
-ADD_DEPENDENCIES( UtilsCommon ALL DIET_TARGET_IDL_GENERATED_HEADER_FILES )
-TARGET_LINK_LIBRARIES( UtilsCommon UtilsSeDClt ${OMNIORB4_LIBRARIES} )
-INSTALL_TARGETS( /lib/ UtilsCommon )
-
-########################################################################
-### UtilsVector library:
-ADD_LIBRARY( UtilsVector
-  Vector.c
-)
-INSTALL_TARGETS( /lib/ UtilsVector )
-
-########################################################################
-### UtilsSedBatch library:
-IF( DIET_USE_BATCH )
-  INCLUDE_DIRECTORIES( ${APPLESEEDS_INCLUDE_DIR} )
-  ADD_LIBRARY( UtilsSeDBatch batch.c )
-  TARGET_LINK_LIBRARIES( UtilsSeDBatch ${APPLESEEDS_LIBRARIES} )
-  INSTALL_TARGETS( /lib/ UtilsSeDBatch )
-ENDIF( DIET_USE_BATCH )
-
-########################################################################
-### UtilsNodes library:
-IF( DIET_USE_CORI )
-  # CORI extensions are only compiled when CORI is required:
-  ADD_LIBRARY( UtilsNodes
-    Counter.cc
-    DietLogComponent.cc
-    FASTMgr.cc
-    MonitoringThread.cc
-    ServiceTable.cc
-    Cori_Data_Easy.cc
-    Cori_Easy_CPU.cc
-    Cori_Easy_Disk.cc
-    Cori_Easy_Memory.cc
-    Cori_Fast.cc
-    Cori_Metric.cc
-    CORIMgr.cc
+IF( DIET_BUILD_LIBRARIES )
+  INCLUDE_DIRECTORIES(
+    ${OMNIORB4_INCLUDE_DIR}
+    ${DIET_BINARY_DIR}/src/CORBA/idl
+    ${DIET_SOURCE_DIR}/src/CORBA        # for e.g. marshalling.hh
+    ${DIET_SOURCE_DIR}/src/utils        # for DIET_data_internal.hh
+    ${DIET_BINARY_DIR}/include          # CLEANME: must preceed source/include
+                                        # to take cmake-generated DIET_config.h
+    ${DIET_SOURCE_DIR}/include          # CLEANME: generate DIET_config.h
+                                        #        see HOME/CMakeLists.txt
   )
-ELSE( DIET_USE_CORI )
-  ADD_LIBRARY( UtilsNodes
-    Counter.cc
-    DietLogComponent.cc
-    FASTMgr.cc
-    MonitoringThread.cc
-    ServiceTable.cc
+  
+  ########################################################################
+  ### UtilsSeDClt library:
+  ADD_LIBRARY( UtilsSeDClt
+    AccessController.cc
+    DIET_mutex.cc 
+    est_internal.cc
   )
-ENDIF( DIET_USE_CORI )
-SET_SOURCE_FILES_PROPERTIES( FASTMgr.cc PROPERTIES
-    COMPILE_FLAGS "${FAST_INCLUDE_DIR}")
-TARGET_LINK_LIBRARIES( UtilsNodes
-  UtilsSeDClt
-  UtilsCommon
-  ${OMNIORB4_LIBRARIES}
-)
-INSTALL_TARGETS( /lib/ UtilsNodes )
-### Kludge! See note "MacOS X and unresolved symbol" in src/CORBA/CMakeLists.txt
-IF( APPLE )
-  SET_TARGET_PROPERTIES( UtilsNodes
-    PROPERTIES LINK_FLAGS "-flat_namespace -undefined suppress" )
-ENDIF( APPLE )
-TARGET_LINK_LIBRARIES( UtilsNodes ${FAST_LIBRARIES} )
+  TARGET_LINK_LIBRARIES( UtilsSeDClt ${OMNIORB4_LIBRARIES} )
+  ### FIXME: the following is really of poor taste
+  # * AccessControler.cc makes references to TRACE_LEVEL declared in debug.hh
+  #   and defined as global in debug.cc
+  # * The three binaries (associated to each C source) make references to
+  #   debug_log_mutex declared as omni_mutex in debug.hh and defined in debug.cc
+  # Hence the following lines:
+  IF( APPLE )
+    SET_TARGET_PROPERTIES( UtilsSeDClt
+      PROPERTIES LINK_FLAGS "-flat_namespace -undefined suppress" )
+  ENDIF( APPLE )
+  INSTALL_TARGETS( /lib/ UtilsSeDClt )
+  
+  ########################################################################
+  ### UtilsCommon library:
+  ADD_LIBRARY( UtilsCommon 
+    debug.cc
+    DIET_data.cc
+    KeyString.cc
+    ms_function.cc
+    Parsers.cc
+    statistics.cc
+  )
+  # The following dependency expresses that before compiling UtilsCommon one
+  # first needs to generate the header files [like common_types.h] with idl.
+  # Track down the definition of the commidity target
+  # DIET_TARGET_IDL_GENERATED_HEADER_FILES for more details.
+  ADD_DEPENDENCIES( UtilsCommon ALL DIET_TARGET_IDL_GENERATED_HEADER_FILES )
+  TARGET_LINK_LIBRARIES( UtilsCommon UtilsSeDClt ${OMNIORB4_LIBRARIES} )
+  INSTALL_TARGETS( /lib/ UtilsCommon )
+  
+  ########################################################################
+  ### UtilsVector library:
+  ADD_LIBRARY( UtilsVector
+    Vector.c
+  )
+  INSTALL_TARGETS( /lib/ UtilsVector )
+  
+  ########################################################################
+  ### UtilsSedBatch library:
+  IF( DIET_USE_BATCH )
+    INCLUDE_DIRECTORIES( ${APPLESEEDS_INCLUDE_DIR} )
+    ADD_LIBRARY( UtilsSeDBatch batch.c )
+    TARGET_LINK_LIBRARIES( UtilsSeDBatch ${APPLESEEDS_LIBRARIES} )
+    INSTALL_TARGETS( /lib/ UtilsSeDBatch )
+  ENDIF( DIET_USE_BATCH )
+  
+  ########################################################################
+  ### UtilsNodes library:
+  IF( DIET_USE_CORI )
+    # CORI extensions are only compiled when CORI is required:
+    ADD_LIBRARY( UtilsNodes
+      Counter.cc
+      DietLogComponent.cc
+      FASTMgr.cc
+      MonitoringThread.cc
+      ServiceTable.cc
+      Cori_Data_Easy.cc
+      Cori_Easy_CPU.cc
+      Cori_Easy_Disk.cc
+      Cori_Easy_Memory.cc
+      Cori_Fast.cc
+      Cori_Metric.cc
+      CORIMgr.cc
+    )
+  ELSE( DIET_USE_CORI )
+    ADD_LIBRARY( UtilsNodes
+      Counter.cc
+      DietLogComponent.cc
+      FASTMgr.cc
+      MonitoringThread.cc
+      ServiceTable.cc
+    )
+  ENDIF( DIET_USE_CORI )
+  SET_SOURCE_FILES_PROPERTIES( FASTMgr.cc PROPERTIES
+      COMPILE_FLAGS "${FAST_INCLUDE_DIR}")
+  TARGET_LINK_LIBRARIES( UtilsNodes
+    UtilsSeDClt
+    UtilsCommon
+    ${OMNIORB4_LIBRARIES}
+  )
+  INSTALL_TARGETS( /lib/ UtilsNodes )
+  ### FIXME: the following is kludgy! See note "MacOS X and unresolved symbol"
+  # in src/CORBA/CMakeLists.txt
+  IF( APPLE )
+    SET_TARGET_PROPERTIES( UtilsNodes
+      PROPERTIES LINK_FLAGS "-flat_namespace -undefined suppress" )
+  ENDIF( APPLE )
+  TARGET_LINK_LIBRARIES( UtilsNodes ${FAST_LIBRARIES} )
+ENDIF( DIET_BUILD_LIBRARIES )
 
 ########################################################################
 ### CORI related properties:
@@ -192,7 +195,7 @@ IF( DIET_USE_CORI )
 ENDIF( DIET_USE_CORI )
 
 ########################################################################
-IF ( DIET_USE_WORKFLOW )
+IF ( DIET_BUILD_LIBRARIES AND DIET_USE_WORKFLOW )
 #  TARGET_LINK_LIBRARIES( UtilsSeDBatch ${APPLESEEDS_LIBRARIES} )
 #  INSTALL_TARGETS( /lib/ UtilsSeDBatch )
    INCLUDE_DIRECTORIES ( ${QT_INC} )
@@ -201,5 +204,5 @@ IF ( DIET_USE_WORKFLOW )
 	       WfReader.cc WfExtReader.cc Thread.cc WfUtils.cc
 	       AbstractWfSched.cc SimpleWfSched.cc )
    TARGET_LINK_LIBRARIES( DietWorkflow ${QTXML_LIBRARY} )
-ENDIF (DIET_USE_WORKFLOW )
+ENDIF ( DIET_BUILD_LIBRARIES AND DIET_USE_WORKFLOW )
 ########################################################################

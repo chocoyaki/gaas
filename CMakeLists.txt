@@ -19,9 +19,27 @@ OPTION( DIET_WITH_MULTI_MA   "Build DIET with MULTI-Master-Agent support." OFF )
 OPTION( DIET_USE_WORKFLOW "Build DIET with workflow support..." OFF)
 OPTION( DIET_USE_DART "Build DIET for dart reporting..." OFF)
 OPTION( DIET_USE_FD "Use Diet Fault Detector." OFF)
-# --------------------- BUILDING DEFAULT OPTIONS  --------------------------
-# By default build dynamic libraries:
-OPTION( BUILD_SHARED_LIBS "Build DIET with shared libraries." ON )
+
+# --------------------- OPTIONS SET BY DEFAULT  ----------------------------
+# One might wish not to compile DIET but just to build the docs:
+OPTION( DIET_BUILD_LIBRARIES "Build DIET libraries." ON )
+# Are libraries dynamic libraries as opposed to library archives ? 
+# Note: this variable is a cmake internal, hence not prefixed with DIET_.
+OPTION( BUILD_SHARED_LIBS "Build libraries as shared libraries." ON )
+
+# --------------------- OPTIONS COHERENCE SANITY CHECKS --------------------
+IF( NOT DIET_BUILD_LIBRARIES  AND DIET_BUILD_EXAMPLES )
+  MESSAGE(SEND_ERROR "DIET_BUILD_LIBRARIES must be set for building examples.")
+ENDIF( NOT DIET_BUILD_LIBRARIES AND DIET_BUILD_EXAMPLES )
+# JXTA (see below) is used to provide functionalities similar to the ones
+# of the DIET_WITH_MULTI_MA. For the time being those two extensions
+# are not incompatible at compile time. Yet, requiring both probably
+# means you are either an expert or a lost newbie...
+# In order to prevent trouble, we assume the user is newbie and we
+# explicitely require a disambiguation:
+IF( DIET_WITH_MULTI_MA AND DIET_USE_JXTA )
+ MESSAGE(SEND_ERROR "Either set DIET_WITH_MULTI_MA or DIET_USE_JXTA. Not both.")
+ENDIF( DIET_WITH_MULTI_MA AND DIET_USE_JXTA )
 
 # --------------------- DEPENDENCIES TOWARDS "CLASSIC" C++ HEADERS ---------
 # This is just a convenience to advance the detection of any potential missing
@@ -125,16 +143,6 @@ IF( DIET_USE_BATCH )
     SET( DIET_USE_BATCH OFF )
   ENDIF( APPLESEEDS_FOUND )
 ENDIF( DIET_USE_BATCH )
-
-# JXTA (see below) is used to provide functionalities similar to the ones
-# of the DIET_WITH_MULTI_MA. For the time being those two extensions
-# are not incompatible at compile time. Yet, requiring both probably
-# means you are either an expert or a lost newbie...
-# In order to prevent trouble, we assume the user is newbie and we
-# explicitely require a disambiguation:
-IF( DIET_WITH_MULTI_MA AND DIET_USE_JXTA )
- MESSAGE(SEND_ERROR "Either set DIET_WITH_MULTI_MA or DIET_USE_JXTA. Not both.")
-ENDIF( DIET_WITH_MULTI_MA AND DIET_USE_JXTA )
 
 # Enable dynamic MULTI-Master-Agent support based on JXTA library
 # (refer to http://www.jxta.org/ ). This is similar to functionalities offered
