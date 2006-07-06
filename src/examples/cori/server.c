@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2006/07/06 23:09:32  eboix
+ *    Cori examples are now build (when required). --- Injay2461
+ *
  * Revision 1.1  2006/01/25 21:39:06  pfrauenk
  * CoRI Example dmatmips replaced by a simple fibonacci example
  *
@@ -67,13 +70,14 @@ int
 solve_fib(diet_profile_t* pb)
 {
   int res = 0;
+  long tmp;
   
-  // For integers, we can use the longest type to store values of smaller types.
+  /* For integers, we can use the longest type to store values
+     of smaller types. */
   long* l1 = NULL;
   diet_scalar_get(diet_parameter(pb,0), &l1, NULL);
   printf("Solve fibonacci %ld...\n", *l1);
 
-  long tmp;
   tmp = fibonacci(*l1);
 
   diet_scalar_desc_set(diet_parameter(pb,1), &tmp);
@@ -98,13 +102,14 @@ int
 main(int argc, char* argv[])
 {
   int res;
+  char * scheduler_name;
 
   diet_profile_desc_t* profile = NULL;
 
   if (argc < 3) {
     return usage(argv[0]);
   }
-  char * scheduler_name=argv[2];
+  scheduler_name=argv[2];
   diet_service_table_init(NB_SRV);
 
   profile = diet_profile_desc_alloc(SRV[0], 0, 0, 1);
@@ -119,7 +124,7 @@ main(int argc, char* argv[])
 
   diet_print_service_table();
   res = diet_SeD(argv[1], argc, argv);
-  // Not reached
+  /* Not reached */
   return res;
 }
 /*******************SCHEDULING***********************/
@@ -131,32 +136,36 @@ struct liste_t{
 }list_lastexec;
 
 void 
-set_up_scheduler(char * schedulertype, diet_profile_desc_t* profile){
- 
+set_up_scheduler(char * schedulertype, diet_profile_desc_t* profile)
+{
+  diet_aggregator_desc_t *agg;
+
   if (strcmp(schedulertype, "DEFAULT")==0){  
-    //nothing to do
+    /* nothing to do */
     return;
   }
-   diet_aggregator_desc_t *agg;
-    agg = diet_profile_desc_aggregator(profile);
+  agg = diet_profile_desc_aggregator(profile);
   
-  if (strcmp(schedulertype, "LOADAVG")==0){  
- //initialize your collector: cori_easy
-  diet_estimate_cori_add_collector(EST_COLL_EASY,NULL);
+  if (strcmp(schedulertype, "LOADAVG")==0)
+  {  
+    /* initialize your collector: cori_easy */
+    diet_estimate_cori_add_collector(EST_COLL_EASY,NULL);
     diet_service_use_perfmetric(performance_Load_Avg);
     diet_aggregator_set_type(agg, DIET_AGG_PRIORITY); 
-    diet_aggregator_priority_min(agg,EST_AVGFREECPU); 				 
-  }else
- if (strcmp(schedulertype,"FASTCPU")==0){
- //initialize your collector: cori_fast
-   diet_estimate_cori_add_collector(EST_COLL_FAST,NULL);
+    diet_aggregator_priority_min(agg,EST_AVGFREECPU);
+  } else
+  if (strcmp(schedulertype,"FASTCPU")==0)
+  {
+    /* initialize your collector: cori_fast */
+    diet_estimate_cori_add_collector(EST_COLL_FAST,NULL);
     diet_service_use_perfmetric(performance_FAST_freecpu);
     diet_aggregator_set_type(agg, DIET_AGG_PRIORITY);
     diet_aggregator_priority_max(agg,EST_FREECPU);
-  }else
-  if (strcmp(schedulertype,"RRNBPROC")==0){
- //initialize your collector: cori_easy
-  diet_estimate_cori_add_collector(EST_COLL_EASY,NULL);
+  } else
+  if (strcmp(schedulertype,"RRNBPROC")==0)
+  {
+    /* initialize your collector: cori_easy */
+    diet_estimate_cori_add_collector(EST_COLL_EASY,NULL);
     list_lastexec.actual_size = 0;
     list_lastexec.array       = NULL;
     diet_service_use_perfmetric(performance_RRNBPROC);
@@ -183,27 +192,30 @@ performance_FAST_freecpu(diet_profile_t* pb,estVector_t perfValues){
 void
 performance_RRNBPROC(diet_profile_t* pb,estVector_t perfValues)
 {
-  diet_estimate_cori(perfValues,EST_NBCPU, EST_COLL_EASY,NULL);
-  int nbcpu=(int)diet_est_get_system(perfValues,EST_NBCPU,1);
+  int nbcpu;
 
-  //store the timestamp since last execution
+  diet_estimate_cori(perfValues,EST_NBCPU, EST_COLL_EASY,NULL);
+  nbcpu=(int)diet_est_get_system(perfValues,EST_NBCPU,1);
+
+  /* store the timestamp since last execution */
   diet_estimate_lastexec(perfValues, pb);
 
- // stock the value in list_lastexec (the most recent is on index 0)
+  /* stock the value in list_lastexec (the most recent is on index 0) */
   add_new_value(diet_est_get_system(perfValues,
-				    EST_TIMESINCELASTSOLVE,
-				    HUGE_VAL),
-		nbcpu);
+                EST_TIMESINCELASTSOLVE,
+                HUGE_VAL),
+                nbcpu);
  
-  //if the stocked number of executions is less then the number of CPUs, then
-  // stock in the perfValues on tag userdefine only the number of cpu * 10000
-  // this is to prevent that an low number-CPU-SeD receive too fast a new task
+  /* if the stocked number of executions is less then the number of CPUs, then
+   * stock in the perfValues on tag userdefine only the number of cpu * 10000
+   * this is to prevent that an low number-CPU-SeD receive too fast a new task
+   */
   if (list_lastexec.actual_size<nbcpu)
 {
     diet_est_set(perfValues,0,nbcpu*100000);
   }
   else{
-    // stock the last element of vector_values in the scalar of perfValues
+    /* stock the last element of vector_values in the scalar of perfValues */
   diet_est_set(perfValues,0,list_lastexec.array[list_lastexec.actual_size-1]);
   }
 }
@@ -217,16 +229,18 @@ add_new_value(double valToAdd, int size){
     list_lastexec.array[0]    = valToAdd;
   }
   else
-    if (list_lastexec.maxsize == list_lastexec.actual_size){ //the maximal size is reached
+    if (list_lastexec.maxsize == list_lastexec.actual_size)
+    { /* the maximal size is reached */
       int i;
       for (i=list_lastexec.maxsize-1;i<0;i--)
       list_lastexec.array[i] = list_lastexec.array[i-1];
     }
-    else{
-      list_lastexec.actual_size++;
+    else
+    {
       int i;
+      list_lastexec.actual_size++;
       for (i=list_lastexec.actual_size;i<0;i--)
-	list_lastexec.array[i] = list_lastexec.array[i-1];
+         list_lastexec.array[i] = list_lastexec.array[i-1];
     }
       list_lastexec.array[0] = valToAdd;   
 }
