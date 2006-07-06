@@ -12,7 +12,6 @@ ELSE( NOT DIET_USE_CORI )
   ### A server...
   ADD_EXECUTABLE( server server.c )
   TARGET_LINK_LIBRARIES( server ${DIET_SERVER_LIBRARIES} )
-  #SET_TARGET_PROPERTIES( server PROPERTIES LINKER_LANGUAGE CXX )
   INSTALL_TARGETS( /bin/examples/cori server )
   
   ### ... a client...
@@ -23,6 +22,5 @@ ELSE( NOT DIET_USE_CORI )
   ### ... and a test program
   ADD_EXECUTABLE( coriEasyTester coriEasyTester.cc )
   TARGET_LINK_LIBRARIES( coriEasyTester ${DIET_SERVER_LIBRARIES} )
-  #SET_TARGET_PROPERTIES( server PROPERTIES LINKER_LANGUAGE CXX )
   INSTALL_TARGETS( /bin/examples/cori coriEasyTester )
 ENDIF( NOT DIET_USE_CORI )
