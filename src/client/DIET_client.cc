@@ -10,6 +10,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.81  2006/07/07 09:19:00  aamar
+ * Some changes to be GRPC compliant : cheking session ID, correction of
+ *  error codes.
+ * Add the function:
+ *  - unmrsh_profile_desc (to unmarshall a profile descritpion), maybe this
+ *    function needs to be placed in marshalling.cc file.
+ *  - getProfileDesc to search a profile by its name.
+ *
  * Revision 1.80  2006/06/30 15:41:47  ycaniou
  * DIET is now capable to submit batch Jobs in synchronous mode. Still some
  *   tuning to do (hard coded NFS path for OAR, tests for synchro between
@@ -249,6 +257,7 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   char** myargv(NULL);
   void*  value(NULL);
   char*  userDefName;
+
 
 #ifdef HAVE_WORKFLOW
   char*  MA_DAG_name(NULL);
@@ -951,7 +960,7 @@ diet_call_async_common(diet_profile_t* profile,
       }
       if (CORBA::is_nil(chosenServer)) {
 	caMgr->setReqErrorCode(*reqID, GRPC_SERVER_NOT_FOUND);
-        return 1;
+        return GRPC_SERVER_NOT_FOUND;
       }
     }
     
@@ -1044,7 +1053,9 @@ diet_error_t
 diet_call_async(diet_profile_t* profile, diet_reqID_t* reqID)
 {
   SeD_var chosenServer = SeD::_nil();
-  return diet_call_async_common(profile, chosenServer, reqID);
+  diet_error_t err = diet_call_async_common(profile, chosenServer, reqID);
+  set_req_error(*reqID, err);
+  return err;
 }
 END_API
 
@@ -1063,7 +1074,35 @@ BEGIN_API
 int
 diet_probe(diet_reqID_t reqID)
 {
-  return CallAsyncMgr::Instance()->getStatusReqID(reqID);
+  int err = CallAsyncMgr::Instance()->getStatusReqID(reqID);
+  /**
+   * transform the request status as defined by the CallAsyncMgr to its
+   * equivalent in GridRPC standard
+  STATUS_DONE = 0, // Result is available in local memory 
+  STATUS_WAITING,       // End of solving on Server, result comes 
+  STATUS_RESOLVING,          // Request is currently solving on Server
+  STATUS_CANCEL,	// Cancel is called on a reqID.
+  STATUS_ERROR		// Error caught
+   */
+  switch (err) {
+    case STATUS_DONE:
+      err = GRPC_NO_ERROR;
+      break;
+  case STATUS_WAITING:
+    err = GRPC_NOT_COMPLETED;
+    break;
+  case STATUS_RESOLVING:
+    err = GRPC_NOT_COMPLETED;
+    break;
+  case STATUS_CANCEL:
+    err = GRPC_NO_ERROR;
+    break;
+  case STATUS_ERROR:
+    err = GRPC_OTHER_ERROR_CODE;
+    break;
+  }
+
+  return err;
 }
   
 /****************************************************************************  
@@ -1091,6 +1130,10 @@ diet_cancel_all() {
 int
 diet_wait(diet_reqID_t reqID)
 {
+  // check if all request ID is valid
+  if (!CallAsyncMgr::Instance()->checkSessionID(reqID))
+    return GRPC_INVALID_SESSION_ID;
+
   try {
       // Create ruleElements table ...
     ruleElement * simpleWait = new ruleElement[1];
@@ -1124,6 +1167,7 @@ diet_wait(diet_reqID_t reqID)
     ERROR(__FUNCTION__ << ": unexpected exception (what="
           << e.what() << ')', STATUS_ERROR);
   }
+
   return STATUS_ERROR;
 }
 
@@ -1137,6 +1181,12 @@ diet_wait(diet_reqID_t reqID)
 int
 diet_wait_and(diet_reqID_t* IDs, size_t length)
 {
+  // check if all the session IDs in the array are valid
+  for (int ix=0; ix<length; ix++) {
+    if (!CallAsyncMgr::Instance()->checkSessionID(IDs[ix]))
+      return GRPC_INVALID_SESSION_ID;
+  } 
+
   request_status_t rst = STATUS_ERROR;
   try {
     // Create ruleElements table ...
@@ -1186,6 +1236,13 @@ int
 diet_wait_or(diet_reqID_t* IDs, size_t length, diet_reqID_t* IDptr)
 {
   request_status_t rst = STATUS_ERROR;
+
+  // check if all the session IDs in the array are valid
+  for (int ix=0; ix<length; ix++) {
+    if (!CallAsyncMgr::Instance()->checkSessionID(IDs[ix]))
+      return GRPC_INVALID_SESSION_ID;
+  } 
+
   try {
     // Create ruleElements table ...
     ruleElement * simpleWait = new ruleElement[length];
@@ -1291,20 +1348,11 @@ diet_error_t
 diet_probe_or(diet_reqID_t* reqIdArray,
 	      size_t length,
 	      diet_reqID_t* reqIdPtr) {
-  /*
-typedef enum {
-  STATUS_DONE = 0, // Result is available in local memory 
-  STATUS_WAITING,       // End of solving on Server, result comes 
-  STATUS_RESOLVING,          // Request is currently solving on Server
-  STATUS_CANCEL,	// Cancel is called on a reqID.
-  STATUS_ERROR		// Error caught
-} request_status_t;
-  */
   int ix;
   int reqStatus;
   // check if all request IDs are valid
   for (ix=0; ix< length; ix++) {
-    if (CallAsyncMgr::Instance()->checkSessionID(reqIdArray[ix]))
+    if (!CallAsyncMgr::Instance()->checkSessionID(reqIdArray[ix]))
       return GRPC_INVALID_SESSION_ID;
   }  
   for (ix=0; ix< length; ix++) {
@@ -1315,7 +1363,7 @@ typedef enum {
     }
   } // end for ix
 
-  return GRPC_NOT_COMPLETED;
+  return GRPC_NONE_COMPLETED;
 }
 
 /***************************************************************************
@@ -1619,4 +1667,75 @@ _diet_wf_string_get(const char * id,
 #endif // HAVE_WORKFLOW
 
 END_API
+
+
+// this function place is marshalling.cc file
+// to fix if necessary
+int unmrsh_profile_desc( diet_profile_desc_t* dest, 
+			 const corba_profile_desc_t* src) {
+  dest->path       = strdup(src->path);
+  dest->last_in    = src->last_in;
+  dest->last_inout = src->last_inout;
+  dest->last_out   = src->last_out;
+  dest->param_desc = new diet_arg_desc_t[src->last_out + 1];
+  for (int i = 0; i <= src->last_out; i++) {
+    (dest->param_desc[i]).base_type = (diet_base_type_t)((src->param_desc[i]).base_type);
+    (dest->param_desc[i]).type      = (diet_data_type_t)(src->param_desc[i]).type;
+  }
+#if HAVE_BATCH
+  dest->batch_flag = src->batch_flag ;
+#endif
+
+  // unmarshall the aggregator field 
+  // TO FIX
+  // Since this function is used only by GRPC client lib side, this is not 
+  // necessary
+}
+
+/**
+ * return the list of all available profiles
+ */
+SeqCorbaProfileDesc_t*
+getProfiles() {
+  CORBA::Long len;
+  if (MA) {
+    return MA->getProfiles(len);
+  }
+  return NULL;
+}
+/**
+ * search for a particular service
+ * if the service is found, it is stored in the parameter profiles and the
+ * function return true
+ * otherwise return false, the profile parameter is unchanged
+ */
+bool 
+getProfileDesc(const char * srvName, diet_profile_desc_t& profile) {
+  SeqCorbaProfileDesc_t * allProfiles = getProfiles();
+  if (allProfiles) {
+    for (int ix=0; ix < allProfiles->length(); ix++) {
+      if (!strcmp ( (*allProfiles)[ix].path,
+		    srvName)) {
+	// The service is found
+	cout << "The service " << srvName << " is found " << endl;
+	// this function place is marshalling.cc file
+	// to fix is necessary
+	unmrsh_profile_desc( &profile, 
+			     &((*allProfiles)[ix]));
+	return true;
+      }
+    }
+  }
+  cout << "The service " << srvName << " was not found" << endl;
+  return false;
+}
+
+/*
+ * get all the session IDs
+ * the array must be deleted by the caller
+ */
+diet_reqID_t*
+get_all_session_ids(int& len) {
+  return CallAsyncMgr::Instance()->getAllSessionIDs(len);
+}
 
