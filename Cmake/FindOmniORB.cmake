@@ -12,7 +12,10 @@
 # directories and compiled libraries when omniORB was not installed in the
 # usual/well-known directories (e.g. because you made an in tree-source
 # compilation or because you installed it in an "unusual" directory).
-# Just set OMNIORB4_DIR it to your specific installation directory
+# Just set OMNIORB4_DIR to point to your specific installation directory.
+#
+# Warning: when set OMNIORB4_DIR will TAKE PRECEDENCE over the default
+#          system pathes !
 #
 #### The list of required libraries for omniORB is not so clear. See
 # http://www.omniorb-support.com/pipermail/omniorb-list/2005-May/026666.html
@@ -24,43 +27,58 @@
 # and omniDynamic4 libraries. Optionaly we search for libraries COS4 and
 #
  
-FIND_PATH( OMNIORB4_INCLUDE_DIR omniORB4/CORBA.h
-  PATHS
-  ${OMNIORB4_DIR}/include
-  /usr/include
-  /usr/local/include
+FIND_PATH( OMNIORB4_INCLUDE_DIR
+  NAMES omniORB4/CORBA.h
+  PATHS ${OMNIORB4_DIR}/include
+  NO_DEFAULT_PATH
 )
+FIND_PATH( OMNIORB4_INCLUDE_DIR NAMES omniORB4/CORBA.h )
 
-SET( OMNIORB4_DEFAULT_LIB_PATH /usr/lib /usr/local/lib )
-
-FIND_LIBRARY(  OMNIORB4_LIBRARY_omniORB4 omniORB4
+FIND_LIBRARY( OMNIORB4_LIBRARY_omniORB4
+  NAMES omniORB4
   PATHS ${OMNIORB4_DIR}/lib
-        ${OMNIORB4_DEFAULT_LIB_PATH}
+  NO_DEFAULT_PATH
 )
+FIND_LIBRARY( OMNIORB4_LIBRARY_omniORB4 NAMES omniORB4 )
 
-FIND_LIBRARY( OMNIORB4_LIBRARY_omnithread omnithread
+FIND_LIBRARY( OMNIORB4_LIBRARY_omnithread
+  NAMES omnithread
   PATHS ${OMNIORB4_DIR}/lib
-        ${OMNIORB4_DEFAULT_LIB_PATH}
+  NO_DEFAULT_PATH
 )
+FIND_LIBRARY( OMNIORB4_LIBRARY_omnithread NAMES omnithread )
 
-FIND_LIBRARY( OMNIORB4_LIBRARY_omniDynamic4 omniDynamic4
+FIND_LIBRARY( OMNIORB4_LIBRARY_omniDynamic4
+  NAMES omniDynamic4
   PATHS ${OMNIORB4_DIR}/lib
-        ${OMNIORB4_DEFAULT_LIB_PATH}
+  NO_DEFAULT_PATH
 )
+FIND_LIBRARY( OMNIORB4_LIBRARY_omniDynamic4 NAMES omniDynamic4 )
 
-FIND_LIBRARY( OMNIORB4_LIBRARY_COS4 COS4      # Optional library
+### Optional library
+FIND_LIBRARY( OMNIORB4_LIBRARY_COS4
+  NAMES COS4
   PATHS ${OMNIORB4_DIR}/lib
-        ${OMNIORB4_DEFAULT_LIB_PATH}
+  NO_DEFAULT_PATH 
 )
+FIND_LIBRARY( OMNIORB4_LIBRARY_COS4 NAMES COS4 )
 
-FIND_LIBRARY( OMNIORB4_LIBRARY_COSDynamic4 COSDynamic4 # Optional library
+### Additional optional library
+FIND_LIBRARY( OMNIORB4_LIBRARY_COSDynamic4
+  NAMES COSDynamic4
   PATHS ${OMNIORB4_DIR}/lib
-        ${OMNIORB4_DEFAULT_LIB_PATH}
+  NO_DEFAULT_PATH
 )
+FIND_LIBRARY( OMNIORB4_LIBRARY_COSDynamic4 NAMES COSDynamic4 )
 
-FIND_PROGRAM(OMNIORB4_IDL_COMPILER
+FIND_PROGRAM( OMNIORB4_IDL_COMPILER
   NAMES omniidl
   PATHS ${OMNIORB4_DIR}/bin
+  DOC "What is the path where omniidl (the idl compiler) can be found"
+  NO_DEFAULT_PATH
+)
+FIND_PROGRAM( OMNIORB4_IDL_COMPILER
+  NAMES omniidl
   DOC "What is the path where omniidl (the idl compiler) can be found"
 )
  
