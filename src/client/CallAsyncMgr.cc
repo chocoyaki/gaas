@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2006/07/07 09:27:01  aamar
+ * Modify the addWaitAnyRule function: the previous implementation wait
+ * for any request even if the request is already done. Successive call
+ * to this function returned the same request ID. The new operation
+ * consider only the requests that are not done.
+ * Add the function getAllSessionIDs.
+ *
  * Revision 1.18  2006/06/30 15:37:35  ycaniou
  * Code presentation, commentaries (nothing really "touched")
  *
@@ -68,6 +75,7 @@
 #include "marshalling.hh"
 #include "CallAsyncMgr.hh"
 #include "debug.hh"
+
 using namespace std;
 
 // locking object
@@ -112,6 +120,10 @@ int CallAsyncMgr::addAsyncCall (diet_reqID_t reqID, diet_profile_t* dpt)
 
 int CallAsyncMgr::deleteAsyncCall(diet_reqID_t reqID) 
 {
+  if (caList.find(reqID) == caList.end()) {
+    return GRPC_INVALID_SESSION_ID;
+  }
+
   WriterLockGuard r(callAsyncListLock);
   return deleteAsyncCallWithoutLock(reqID);
 }
@@ -223,6 +235,9 @@ int CallAsyncMgr::addWaitAllRule()
  * ********************************************************************/
 int CallAsyncMgr::addWaitAnyRule(diet_reqID_t* IDptr)
 {
+  // vector of already done requests 
+  //  static
+  vector<diet_reqID_t> doneRequests;
   try {
     Rule * rule = new Rule;
     { //managing Reader lock
@@ -230,13 +245,25 @@ int CallAsyncMgr::addWaitAnyRule(diet_reqID_t* IDptr)
       CallAsyncList::iterator h = caList.begin();
       int size = caList.size();
       // Create ruleElements table ...
-      ruleElement * simpleWait = new ruleElement[size];
+      int doneReqCount = 0;
+      while (h != caList.end()) {
+	if (h->second->st == STATUS_DONE) {
+	  doneReqCount++;
+	  doneRequests.push_back(h->first);
+	}
+	h++;
+      }
+      ruleElement * simpleWait = new ruleElement[size-doneReqCount];
+      h = caList.begin();
+      int ix=0;
       for (int k = 0; k < size; k++){
-        simpleWait[k].reqID = h->first;
-        simpleWait[k].op = WAITOPERATOR(ANY);
+	if (h->second->st != STATUS_DONE) {
+	  simpleWait[ix].reqID = h->first;
+	  simpleWait[ix++].op = WAITOPERATOR(ANY);
+	}
         ++h;
       }
-      rule->length = size;
+      rule->length = size - doneReqCount;
       rule->ruleElts = simpleWait;
       rule->status = STATUS_RESOLVING;
     }
@@ -248,13 +275,40 @@ int CallAsyncMgr::addWaitAnyRule(diet_reqID_t* IDptr)
           ReaderLockGuard r(callAsyncListLock);
           CallAsyncList::iterator h = caList.begin();
           for (unsigned int k = 0; k < caList.size(); k++){
-            if (h->second->st == STATUS_DONE){
+            if ((h->second->st == STATUS_DONE) &&
+		(find(doneRequests.begin(),
+		      doneRequests.end(),
+		      h->first) == doneRequests.end())
+		) {
               *IDptr = h->first;
               return STATUS_DONE;
             }
             ++h;  
           }
           return STATUS_ERROR;
+	  /*
+          ReaderLockGuard r(callAsyncListLock);
+          CallAsyncList::iterator h = caList.begin();
+          for (unsigned int k = 0; k < caList.size(); k++){
+	    cout << "Testing if " << h->first
+		 << "(" << h->second->st << ")" 
+		 << " is in ";
+	    for (unsigned int ix=0; ix<doneRequests.size(); ix++)
+	      cout << doneRequests[ix] << ", ";
+	    cout << endl;
+            if ((h->second->st == STATUS_DONE) &&
+		(find(doneRequests.begin(), 
+		      doneRequests.end(), 
+		      h->first) == doneRequests.end())
+		) {
+              *IDptr = h->first;
+	      doneRequests.push_back(h->first);
+              return STATUS_DONE;
+            }
+            ++h;  
+          }
+          return STATUS_ERROR;
+	  */
         }
       case STATUS_CANCEL:
         return STATUS_CANCEL;
@@ -422,6 +476,7 @@ int CallAsyncMgr::areThereWaitRules()
  *********************************************************************/ 
 int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp) 
 {
+  cout << "notifyRst " << reqID << endl;
   setReqErrorCode(reqID, GRPC_NO_ERROR);
   WriterLockGuard r(callAsyncListLock);
   try {
@@ -444,7 +499,9 @@ int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
     }
     // get rules about this reqID
     RulesReqIDMap::iterator j;
-    if ((j = rulesIDs.lower_bound(reqID)) == rulesIDs.end()) return 1; 
+    if ((j = rulesIDs.lower_bound(reqID)) == rulesIDs.end()) {
+      return 1; 
+    }
     RulesConditionMap::iterator i = rulesConds.begin();
     for(j = rulesIDs.lower_bound(reqID);
         j != rulesIDs.upper_bound(reqID);
@@ -453,8 +510,9 @@ int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
       bool plenty = true;
       for (int k = 0; k < j->second->length; k++){
         h = caList.find(j->second->ruleElts[k].reqID);
-        if (h == caList.end())
+        if (h == caList.end()) {
           continue; // FIXME: must be changed!!
+	}
         else if ((h->second->st != STATUS_DONE) && 
             ((j->second->ruleElts[k].op == WAITOPERATOR(AND)) || 
              (j->second->ruleElts[k].op == WAITOPERATOR(SOLE)) ||
@@ -614,15 +672,14 @@ CallAsyncMgr::getReqErrorCode(const diet_reqID_t reqID) {
  **********************************************************************/
 diet_error_t
 CallAsyncMgr::getFailedSession(diet_reqID_t * reqIdPtr) {
-  static int failedSessionIndex = 0;
   if (failedSessions.size() == 0) {
+    *reqIdPtr = GRPC_SESSIONID_VOID;
     return GRPC_NO_ERROR;
   }
-  if (failedSessionIndex >= failedSessions.size()) {
-    failedSessionIndex = 0;
-  }
-  *reqIdPtr = failedSessions[failedSessionIndex];
-  return errorMap[failedSessions[failedSessionIndex++]];
+  *reqIdPtr = failedSessions[0];
+  diet_error_t err = errorMap[failedSessions[0]];
+  failedSessions.erase(failedSessions.begin());
+  return err;
 }
 
 /*
@@ -656,11 +713,30 @@ CallAsyncMgr::getHandle(grpc_function_handle_t** handle,
 
   if (handlesMap.find(sessionID) == handlesMap.end()) {
     cout << "Implementation is not complete" << endl
-	 << " The sessionID exists in the sessions map but not in the handles one"
+	 << " The sessionID " << sessionID 
+	 << " exists in the sessions map but not in the handles one"
 	 << endl;
     return GRPC_OTHER_ERROR_CODE;
   }
 
   *handle = handlesMap[sessionID];
   return GRPC_NO_ERROR;
+}
+
+/*
+ * get all the session IDs
+ * the array must be deleted by the caller
+ */
+diet_reqID_t*
+CallAsyncMgr::getAllSessionIDs(int& len) {
+  diet_reqID_t * sessions = new diet_reqID_t[caList.size()];
+  len = caList.size();
+  int ix=0;
+  for (CallAsyncList::iterator p = caList.begin();
+       p != caList.end();
+       p++) {
+    sessions[ix++] = p->first;
+  }
+
+  return sessions;
 }
