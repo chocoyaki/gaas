@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2006/07/07 09:20:03  aamar
+ * Adding the public function getAddSessionIDs.
+ *
  * Revision 1.12  2006/06/29 15:02:41  aamar
  * Make change to handle the new type definition of grpc_function_handle_t (from a grpc_function_handle_s to grpc_function_handle_s*
  *
@@ -192,7 +195,12 @@ class CallAsyncMgr
      diet_error_t
      getHandle(grpc_function_handle_t** handle,
 	       diet_reqID_t sessionID);
-
+  
+    /*
+     * get all the session IDs
+     */
+     diet_reqID_t*
+     getAllSessionIDs(int& len);
   protected:
     int deleteAsyncCallWithoutLock(diet_reqID_t reqID);
     // constructors
