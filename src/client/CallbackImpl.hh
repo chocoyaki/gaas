@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2006/07/07 09:29:03  aamar
+ * Modify the solveResults prototype: adding the parameter solve_res
+ * that represents the execution status of the asynchronous request.
+ *
  * Revision 1.3  2003/10/13 13:02:22  cpera
  * Replace long by CORBA::Long.
  *
@@ -34,11 +38,12 @@ public:
   virtual ~CallbackImpl();
   virtual CORBA::Long ping();
   virtual CORBA::Long notifyResults(const char * path,
-                            const corba_profile_t& pb,
-                            CORBA::Long reqID);
+				    const corba_profile_t& pb,
+				    CORBA::Long reqID);
   virtual CORBA::Long solveResults(const char * path, 
-                            const corba_profile_t& pb,
-                            CORBA::Long reqID);
+				   const corba_profile_t& pb,
+				   CORBA::Long reqID,
+				   CORBA::Long solve_res);
 };
 
 #endif
