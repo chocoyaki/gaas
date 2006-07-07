@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.75  2006/07/07 09:40:14  aamar
+ * Change to callback invocation to respect the new interface (return the
+ * execution status).
+ *
  * Revision 1.74  2006/06/30 15:41:47  ycaniou
  * DIET is now capable to submit batch Jobs in synchronous mode. Still some
  *   tuning to do (hard coded NFS path for OAR, tests for synchro between
@@ -820,8 +824,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
                  << ": performing the call-back.\n");
       Callback_var cb_var = Callback::_narrow(cb);
       cb_var->notifyResults(path, pb, reqID);
-      cb_var->solveResults(path, pb, reqID);
-
+      cb_var->solveResults(path, pb, reqID, solve_res);
       /* FIXME: do we need to use diet_free_data on profile parameters as
        * we do in the solve(...) method? */
       delete [] profile.parameters; // allocated by unmrsh_in_args_to_profile
