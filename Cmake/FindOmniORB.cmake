@@ -15,7 +15,10 @@
 # Just set OMNIORB4_DIR to point to your specific installation directory.
 #
 # Warning: when set OMNIORB4_DIR will TAKE PRECEDENCE over the default
-#          system pathes !
+#   system pathes ! This goes against the default behavior of cmake's
+#   FIND_* macros. For more on this debate see e.g.
+#     http://www.mail-archive.com/kde-buildsystem@kde.org/msg00589.html
+#        
 #
 #### The list of required libraries for omniORB is not so clear. See
 # http://www.omniorb-support.com/pipermail/omniorb-list/2005-May/026666.html
