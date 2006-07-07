@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2006/07/07 18:36:31  aamar
+ * Add the diet_cancel_all to the API
+ *
  * Revision 1.23  2006/06/29 15:01:51  aamar
  * Changing the type definition of grpc_function_handle_t from a grpc_function_handle_s to grpc_function_handle_t*
  *
@@ -178,6 +181,9 @@ set_req_error(diet_reqID_t sessionID,
    to save.                                                                 */
 diet_error_t
 diet_cancel(diet_reqID_t reqID);
+
+diet_error_t
+diet_cancel_all();
 
 diet_error_t
 diet_wait(diet_reqID_t reqID);
