@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2006/07/07 09:30:44  aamar
+ * Add the parameter solve_res to solveResults function to get the
+ * execution status.
+ *
  * Revision 1.1  2003/06/02 14:56:26  cpera
  * Applying coding standards.
  *
@@ -43,7 +47,8 @@ interface Callback {
   /*   put results of solve operation on client...              */
   /*--------------------------------------------------------------*/
 
-  long solveResults(in string path, in corba_profile_t pb, in long reqID);
+  long solveResults(in string path, in corba_profile_t pb, in long reqID,
+		    in long result);
 };
 
 
