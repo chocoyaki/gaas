@@ -29,13 +29,13 @@
 # The logic we took is here to impose the detection of omniORB4, omnithread,
 # and omniDynamic4 libraries. Optionaly we search for libraries COS4 and
 #
- 
+
 FIND_PATH( OMNIORB4_INCLUDE_DIR
-  NAMES omniORB4/CORBA.h
+  omniORB4/CORBA.h
   PATHS ${OMNIORB4_DIR}/include
   NO_DEFAULT_PATH
 )
-FIND_PATH( OMNIORB4_INCLUDE_DIR NAMES omniORB4/CORBA.h )
+FIND_PATH( OMNIORB4_INCLUDE_DIR omniORB4/CORBA.h )
 
 FIND_LIBRARY( OMNIORB4_LIBRARY_omniORB4
   NAMES omniORB4
