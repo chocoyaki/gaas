@@ -18,10 +18,19 @@ using namespace std;
 #include "MasterAgent.hh"
 #include "debug.hh"
 
+/*
+#include "DIET_client.h"
+#include "HEFT_Sched.hh"
+*/
+
 int main(int argc, char * argv[]){
   char * config_file_name = argv[1];
   int    res(0);
   /* Parsing */
+
+  // Init the Xerces engine
+  XMLPlatformUtils::Initialize();
+
 
   Parsers::Results::param_type_t compParam[] =
     {Parsers::Results::AGENTTYPE, Parsers::Results::NAME};
@@ -66,6 +75,9 @@ int main(int argc, char * argv[]){
   /* shutdown and destroy the ORB
    * Servants will be deactivated and deleted automatically */
   ORBMgr::destroy();
+
+
+  XMLPlatformUtils::Terminate();
 
   return 0;
 }
