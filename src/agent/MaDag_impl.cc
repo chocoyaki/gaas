@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2006/07/10 10:00:00  aamar
+ * - Adding the function remainingDag to the MA DAG interface
+ * - Round Robbin and HEFT scheduling
+ *
  * Revision 1.1  2006/04/14 13:43:59  aamar
  * source of the MA DAG CORBA object.
  *
@@ -21,10 +25,14 @@
 #include "debug.hh"
 #include "Parsers.hh"
 
+#include "RoundRobbin_MaDag_Sched.hh"
+#include "HEFT_MaDag_Sched.hh"
+
 using namespace std;
 
 MaDag_impl::MaDag_impl(const char * name) :
-  myName(name) {
+  myName(name),
+  mySched(NULL) {
   char* parentName = (char*)
     Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
 
@@ -49,13 +57,18 @@ MaDag_impl::MaDag_impl(const char * name) :
   }
 }
 
+MaDag_impl::~MaDag_impl() {
+  if (mySched != NULL)
+    delete (mySched);
+}
+
 /** Workflow submission function. */
 wf_node_sched_seq_t * 
 MaDag_impl::submit_wf (const corba_wf_desc_t& wf_desc) {
   wf_node_sched_seq_t * sched_seq = new wf_node_sched_seq_t;
   sched_seq->length(0);
-  wf_response_t * wf_response = new wf_response_t;
-  wf_response-> complete = true;
+  wf_response_t * wf_response = NULL; // new wf_response_t;
+  //  wf_response-> complete = true;
   cout << "The MaDag receives a workflow submission!" <<endl;
 
   // read the workflow description
@@ -121,7 +134,15 @@ MaDag_impl::submit_wf (const corba_wf_desc_t& wf_desc) {
     cout << "The " << endl;
     return sched_seq;
   }
+
+  // By default use the Round Robbin scheduler
+  if (mySched == NULL) {
+    mySched = new RoundRobbin_MaDag_Sched();
+  }
+
+  return mySched->schedule(wf_response, reader);
   
+  /*
   len = reader.pbs_list.size();
 
   vector<int> rr;
@@ -153,6 +174,7 @@ MaDag_impl::submit_wf (const corba_wf_desc_t& wf_desc) {
   }
   
   return sched_seq;
+  */
 }
 
 /**
@@ -165,3 +187,33 @@ MaDag_impl::get_wf_ordering(const corba_wf_desc_t& wf_desc) {
   // TO COMPLETE
   return wf_ordering;  
 }
+
+/**
+ * set the remaining dag
+ */
+void
+MaDag_impl::remainingDag(const char * dag_descr) {
+}
+
+/**
+ * set the scheduler for the MA DAG
+ */
+void
+MaDag_impl::set_sched(const madag_sched_t madag_sched) {
+  switch (madag_sched) {
+  case round_robbin_sched:
+    if (mySched != NULL) {
+      delete (mySched);
+    }
+    mySched = new RoundRobbin_MaDag_Sched();
+    break;
+  case heft_sched:
+    if (mySched != NULL) {
+      delete (mySched);
+    }
+    break;
+  default:
+    break;
+  } // end switch 
+}
+
