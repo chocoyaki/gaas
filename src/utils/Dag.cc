@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2006/07/10 11:08:12  aamar
+ * - Adding the toXML function that return the DAG XML
+ * representation
+ * - Adding reordering (rescheduling) management
+ *
  * Revision 1.1  2006/04/14 13:46:51  aamar
  * Direct acyclic graph class (source).
  *
@@ -17,7 +22,9 @@
 
 
 Dag::Dag() {
-  current_node = NULL;
+  this->current_node = NULL;
+  this->nbSec = 5;
+  this->nbNodes = 1;
 }
 
 Dag::~Dag() {
@@ -66,6 +73,41 @@ Dag::checkPrec() {
     }
   }
   
+  for (map<string, Node * >::iterator p = nodes.begin( ); p != nodes.end( ); 
+       ++p ) { 
+    node = (Node*) p->second;
+
+    for (map<string, Node::WfInPort*>::iterator p = node->inports.begin();
+	 p != node->inports.end();
+	 ++p) {
+      // get the port ref
+      Node::WfInPort * in = (Node::WfInPort*)(p->second);
+      // get the linked port id (source id)
+      string lp_id = in->source_port_id;
+      if (lp_id == "")
+	continue;
+      
+      // get the linked node name
+      string linkedNode_name = lp_id.substr(0, lp_id.find("#"));
+      // linked port id
+      lp_id = lp_id.substr(lp_id.find("#")+1);
+      
+      cout << "\tprevious node name : "<< linkedNode_name << endl;
+      // get the linked node ref
+      map<string, Node *>::iterator lnp = nodes.find(linkedNode_name);
+      Node * ln = NULL;
+      if (lnp != nodes.end()) {
+	ln = (Node *)(lnp->second);
+	node->addPrec(ln->getId(), ln);
+      }
+    } // end for in
+
+    for (map<string, Node::WfInOutPort*>::iterator p = node->inoutports.begin();
+	 p != node->inoutports.end();
+	 ++p) {
+    } // end for inout
+
+  }
   return result;
 }
 
@@ -87,6 +129,33 @@ Dag::toString() {
   }
   str += "##############################################################";
   return str;
+}
+
+/**
+ * return an XML representation of the DAG
+ * if b = true, return the complete DAG representation
+ * otherwise (b = false value by default) only the remaining DAG
+ */
+string
+Dag::toXML(bool b) {
+  string xml = "<dag>\n";
+  Node * n = NULL;
+  for (map<string, Node *>::iterator p = nodes.begin();
+       p != nodes.end();
+       ++p) {
+    n = (Node *)(p->second);
+    if (b) {
+      // we need all nodes representation
+      xml += n->toXML(b);
+    }
+    else {
+      // we need only remaining nodes
+      if (!(n->isRunning()) && !(n->isDone())) 
+	xml += n->toXML(b);
+    }
+  }
+  xml += "</dag>\n";
+  return xml;
 }
 
 /*********************************************************************/
@@ -368,4 +437,83 @@ Dag::setTags() {
       }
     }
   }
+}
+
+
+/**
+ * set the reordering parameters
+ * nb_sec is the number of seconds
+ * nb_node is the number of nodes
+ */
+void 
+Dag::set_reordering_delta(const long int nb_sec, 
+			  const unsigned long int nb_nodes) {
+  this->nbSec   = nb_sec;
+  this->nbNodes = nb_nodes;
+}
+
+/**
+ * check the scheduling 
+ */
+bool
+Dag::checkScheduling() {
+  Node * n = NULL;
+  vector<Node*> nodes_with_pb;
+  //  cout << "The DAG checks the schedling" << endl;
+  for (map<string, Node *>::iterator p = nodes.begin();
+       p != nodes.end();
+       ++p) {
+    n = (Node *)(p->second);
+    if ((n != NULL) && (n->isDone()) && (!n->getMark())) {
+      if (
+	  (WfCst::diff(n->getRealCompTime(), this->beginning,		       
+		       n->getEstCompTime())>this->nbSec)
+	  ) {
+	nodes_with_pb.push_back(n);
+      }
+    }
+  }
+  if (nodes_with_pb.size()>0)
+    cout << nodes_with_pb.size() << " node(s) out of predicted time" <<endl;
+  
+  if (nodes_with_pb.size() >= this->nbNodes) {
+    for (unsigned int ix=0; ix<nodes_with_pb.size(); ix++)
+      nodes_with_pb[ix]->setMark(true);
+    return false;
+  }
+  return true;
+}
+
+
+/**
+ * set the client reordering manager
+ */
+void
+Dag::setCltReoMan(CltReoMan_impl * crm) {
+  cout << "---- DAG::setCltReoMan(";
+  if (crm != NULL)
+    cout << "<>NULL)" << endl;
+  else
+    cout << "NULL)" << endl;
+
+  this->myCltReoMan = crm;
+}
+
+/**
+ * set the beginning time of execution
+ */
+void
+Dag::setTheBeginning(struct timeval tv) {
+  this->beginning = tv;
+  cout << "---- The beginning time is " << this->beginning.tv_sec <<
+    endl;
+}
+
+/**
+ * Move a node to the trash vector (called when rescheduling) 
+ */
+void
+Dag::moveToTrash(Node * n) {
+  trash.push_back(n);
+  nodes.erase(n->getId());
 }

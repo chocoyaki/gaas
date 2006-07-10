@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2006/07/10 11:08:12  aamar
+ * - Adding the toXML function that return the DAG XML
+ * representation
+ * - Adding reordering (rescheduling) management
+ *
  * Revision 1.1  2006/04/14 13:46:07  aamar
  * Direct acyclic graph class (header).
  *
@@ -22,6 +27,11 @@
 #include "response.hh"
 
 #include "Node.hh"
+#include "CltReoMan_impl.hh"
+#include <sys/time.h>
+#include <time.h>
+
+class CltReoMan_impl;
 
 class Dag {
 public:
@@ -52,7 +62,15 @@ public:
    */
   string
   toString();
-  
+
+  /**
+   * return an XML representation of the DAG
+   * if b = true, return the complete DAG representation
+   * otherwise (b = false value by default) only the remaining DAG
+   */
+  string
+  toXML(bool b= false);
+
   /*********************************************************************/
   /* the size, begin end end methods are only for testing & debugging  */
   /*********************************************************************/
@@ -140,6 +158,37 @@ public:
   void
   setTags();
 
+  /**
+   * set the reordering parameters
+   * nb_sec is the number of seconds
+   * nb_node is the number of nodes
+   */
+  void 
+  set_reordering_delta(const long int nb_sec, 
+		       const unsigned long int nb_nodes);
+
+  /**
+   * check the scheduling 
+   */
+  bool
+  checkScheduling();
+
+  /**
+   * set the client reordering manager
+   */
+  void setCltReoMan(CltReoMan_impl * crm);
+
+  /**
+   * set the beginning time of execution
+   */
+  void
+  setTheBeginning(struct timeval tv);
+
+  /**
+   * Move a node to the trash vector (called when rescheduling) 
+   */
+  void
+  moveToTrash(Node * n);
 private:
   /*********************************************************************/
   /* private fields                                                    */
@@ -160,6 +209,32 @@ private:
    */
   wf_node_sched_seq_t * response;
 
+  /**
+   * Reordering parameter
+   */
+  long int
+  nbSec;
+
+  /**
+   * Reordering parameter
+   */
+  unsigned long int 
+  nbNodes;
+
+  /**
+   * Client Reordering Manager
+   */
+  CltReoMan_impl * myCltReoMan;
+
+  /**
+   * The time of execution beginning
+   */
+  struct timeval beginning;
+
+  /**
+   * Trash nodes vector
+   */
+  vector<Node *> trash;
 };
 
 
