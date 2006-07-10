@@ -13,7 +13,7 @@ IF( DIET_BUILD_LIBRARIES )
   
   #########################################################################
   IF (DIET_USE_WORKFLOW) 
-    INCLUDE_DIRECTORIES( ${QT_INC} )
+    INCLUDE_DIRECTORIES( ${XERCES_INC} )
   ENDIF ( DIET_USE_WORKFLOW)
   #########################################################################
   ### AgentCommon library:
@@ -47,9 +47,13 @@ IF( DIET_BUILD_LIBRARIES )
   TARGET_LINK_LIBRARIES( dietAgent AgentCommon)
   
   IF (DIET_USE_WORKFLOW) 
-    TARGET_LINK_LIBRARIES ( dietAgent DietWorkflow DIET_client )
-    ADD_EXECUTABLE ( maDag maDag.cc MaDag_impl.cc)
-    TARGET_LINK_LIBRARIES ( maDag IDLMaDag AgentCommon DietWorkflow DIET_client)
+    TARGET_LINK_LIBRARIES ( dietAgent DietWorkflow DIET_client IDLWfLog ${XERCES_LIBRARY} )
+
+    ADD_LIBRARY( MaDag MaDag_impl.cc
+          MaDag_sched.cc RoundRobbin_MaDag_Sched.cc HEFT_MaDag_Sched.cc)
+
+    ADD_EXECUTABLE ( maDag maDag.cc )
+    TARGET_LINK_LIBRARIES ( maDag IDLMaDag MaDag AgentCommon DietWorkflow DIET_client)
     INSTALL_TARGETS(/bin/ maDag )
   
   ENDIF ( DIET_USE_WORKFLOW)
