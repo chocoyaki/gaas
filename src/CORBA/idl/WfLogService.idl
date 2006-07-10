@@ -1,0 +1,36 @@
+/****************************************************************************/
+/* Workflow monitoring interface                                            */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Abdlkader Amar (Abdelkader.Amar@ens-lyon.fr)                        */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id: 
+ * $Log: 
+ ****************************************************************************/
+
+#ifndef _WFLOGSERVICE_IDL_
+#define _WFLOGSERVICE_IDL_
+
+interface WfLogService {
+  void 
+  setWf(in string workflow_description);
+
+  void
+  nodeIsDone(in string node_id);
+
+  void
+  nodeIsRunning(in string node_id);
+
+  void 
+  nodeIsStarting(in string node_id);
+
+  void
+  nodeIsWaiting(in string node_id);
+
+  void 
+  ping();
+};
+
+#endif // _WFLOGSERVICE_IDL_
