@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.19  2006/07/10 11:36:08  aamar
+#* The agent is compiled after the client library
+#*
 #* Revision 1.18  2006/03/16 16:29:07  ecaron
 #* Schedule DIET_config.h for distribution
 #*
@@ -80,7 +83,7 @@ MAINTAINERCLEANFILES = $(top_srcdir)/Makefile.in \
 
 # Some useful selective targets ...
 
-.PHONY: CORBA utils agent SeD client examples doc
+.PHONY: CORBA utils SeD client agent examples doc
 
 help:
 	@echo "===================================================================="
@@ -99,13 +102,13 @@ CORBA:
 utils:	CORBA
 	$(MAKE) -C src/$@
 
-agent:	utils
-	$(MAKE) -C src/$@
-
 SeD:	utils
 	$(MAKE) -C src/$@
 
 client:	utils
+	$(MAKE) -C src/$@
+
+agent:	utils client
 	$(MAKE) -C src/$@
 
 examples:
