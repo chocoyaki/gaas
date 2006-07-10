@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2006/07/10 11:09:41  aamar
+ * - Adding matrix data type
+ * - Adding generic nodes and generic ports parsing
+ * - Now, the parser uses Xerces instead of QT
+ *
  * Revision 1.1  2006/04/14 13:51:55  aamar
  * This class process a Dag textual representation. It is
  * used by the MA DAG (header).
@@ -26,16 +31,50 @@
 #include "DIET_data.h"
 #include "DIET_server.h"
 
-// Qt header 
-#include <Qt/QDomDocument>
+// Xerces header 
+#include <xercesc/util/PlatformUtils.hpp>
+#include <xercesc/parsers/AbstractDOMParser.hpp>
+#include <xercesc/dom/DOMImplementation.hpp>
+#include <xercesc/dom/DOMImplementationLS.hpp>
+#include <xercesc/dom/DOMImplementationRegistry.hpp>
+#include <xercesc/dom/DOMBuilder.hpp>
+#include <xercesc/dom/DOMException.hpp>
+#include <xercesc/dom/DOMDocument.hpp>
+#include <xercesc/dom/DOMNodeList.hpp>
+#include <xercesc/dom/DOMError.hpp>
+#include <xercesc/dom/DOMLocator.hpp>
+#include <xercesc/dom/DOMNamedNodeMap.hpp>
+#include <xercesc/dom/DOMElement.hpp>
+#include <xercesc/dom/DOMAttr.hpp>
+#include <string.h>
+#include <stdlib.h>
 
 // Workflow related headers
 #include "WfUtils.hh"
 #include "BasicNode.hh"
 
+XERCES_CPP_NAMESPACE_USE
+using namespace std;
+
 class WfReader {
 public:
   friend class MaDag_impl;
+
+  /*********************************************************************/
+  /* public attributes                                                    */
+  /*********************************************************************/
+
+  /**
+   * Profiles list
+   */
+  std::vector<corba_pb_desc_t> pbs_list;
+
+  /**
+   * Nodes list
+   */
+  std::map<string, corba_pb_desc_t> nodes_list;
+
+
   /*********************************************************************/
   /* public methods                                                    */
   /*********************************************************************/
@@ -129,6 +168,10 @@ public:
    */
   unsigned int 
   indexOfPb(corba_pb_desc_t& pb);
+
+
+  string
+  getAttributeValue(const char * attr_name, const DOMElement * elt);
   
 protected:
   /*********************************************************************/
@@ -144,18 +187,8 @@ protected:
   /**
    * Xml document
    */
-  QDomDocument document;
+  DOMDocument * document;
 
-
-  /**
-   * Nodes list
-   */
-  std::map<string, corba_pb_desc_t> nodes_list;
-
-  /**
-   * Profiles list
-   */
-  std::vector<corba_pb_desc_t> pbs_list;
 
   /**
    * The current profile (not used)
@@ -182,8 +215,9 @@ protected:
    * parse a node element
    */
   virtual bool 
-  parseNode (const QDomElement & element, 
-	     QString nodeId, QString nodePath);
+  parseNode (const DOMNode * element, 
+	     string nodeId, string nodePath,
+	     long var = -1);
   
   /**
    * parse an argument element
@@ -195,11 +229,12 @@ protected:
    * @param dagNode  node reference in the Dag structure
    */
   virtual bool 
-  checkArg(const QString& name, 
-	   const QString& value, 
-	   const QString& type, 
+  checkArg(const string& name, 
+	   const string& value, 
+	   const string& type, 
 	   diet_profile_t * profile, 
 	   const unsigned int lastArg,
+	   long var = -1,
 	   BasicNode * dagNode = NULL);
 
   /**
@@ -212,11 +247,12 @@ protected:
    * @param dagNode  node reference in the Dag structure
    */
   virtual bool 
-  checkIn(const QString& name, 
-	  const QString& type, 
-	  const QString& source,
+  checkIn(const string& name, 
+	  const string& type, 
+	  const string& source,
 	  diet_profile_t * profile,
 	  unsigned int lastArg,
+	  long var = -1,
 	  BasicNode * dagNode = NULL);
 
   /**
@@ -229,11 +265,12 @@ protected:
    * @param dagNode  node reference in the Dag structure
    */  
   virtual bool
-  checkInout(const QString& name, 
-	     const QString& type, 
-	     const QString& source,
+  checkInout(const string& name, 
+	     const string& type, 
+	     const string& source,
 	     diet_profile_t * profile,
 	     unsigned int lastArg,
+	     long var = -1,
 	     BasicNode * dagNode = NULL);
 
   /**
@@ -246,24 +283,110 @@ protected:
    * @param dagNode  node reference in the Dag structure
    */  
    virtual bool
-  checkOut(const QString& name, 
-	   const QString& type,
-	   const QString& sink,
+  checkOut(const string& name, 
+	   const string& type,
+	   const string& sink,
 	   diet_profile_t * profile,
 	   unsigned int lastArg,
+	   long var = -1,
 	   BasicNode * dagNode = NULL);
 
   /**
    * fill a profile with the appropriate parameter type
+   * The data are NULL
    */  
   virtual bool 
   setParam(const wf_port_t param_type,
-	   const QString& name,
-	   const QString& type,
+	   const string& name,
+	   const string& type,
 	   diet_profile_t * profile,
 	   unsigned int lastArg,
+	   long var = -1,
 	   BasicNode * dagNode = NULL,
-	   const QString * value = NULL);
+	   const string * value = NULL);
+
+  /**
+   * parse a matrix argument
+   * @param id         Port complete id (node id + # + port name)
+   * @param element    Dom node representing a matrix
+   * @param profile  current profile reference
+   * @param lastArg  the output port index in the profile
+   */
+  virtual bool
+  checkMatrixArg(const string& id, const DOMElement * element,
+		 diet_profile_t * profile, unsigned int lastArg,
+		 long int var = -1,
+		 BasicNode * dagNode = NULL);
+
+  /**
+   * parse a matrix input port
+   * @param id         Port complete id (node id + # + port name)
+   * @param element    Dom node representing a matrix
+   * @param profile  current profile reference
+   * @param lastArg  the output port index in the profile
+   */
+  virtual bool
+  checkMatrixIn(const string& id, const DOMElement * element,
+		diet_profile_t * profile, unsigned int lastArg,
+		long int var = -1,
+		BasicNode * dagNode = NULL);
+
+  /**
+   * parse a matrix inout port
+   * @param id         Port complete id (node id + # + port name)
+   * @param element    Dom node representing a matrix
+   * @param profile  current profile reference
+   * @param lastArg  the output port index in the profile
+   */
+  virtual bool
+  checkMatrixInout(const string& id, const DOMElement * element,
+		   diet_profile_t * profile, unsigned int lastArg,
+		   long int var = -1,
+		   BasicNode * dagNode = NULL);
+
+  /**
+   * parse a matrix output port
+   * @param id         Port complete id (node id + # + port name)
+   * @param element    Dom node representing a matrix
+   * @param profile  current profile reference
+   * @param lastArg  the output port index in the profile
+   */
+  virtual bool
+  checkMatrixOut(const string& id, const DOMElement * element,
+		 diet_profile_t * profile, unsigned int lastArg,
+		 long int var = -1,
+		 BasicNode * dagNode = NULL);
+
+  /**
+   * parse a matrix argument. 
+   * Check only the commun attributes of In, Inout and Out ports
+   * @param id         Port complete id (node id + # + port name)
+   * @param element    Dom node representing a matrix
+   * @param profile  current profile reference
+   * @param lastArg  the output port index in the profile
+   */
+  virtual bool
+  checkMatrixCommun(const string& id, const DOMElement * element,
+		    string& base_type, 
+		    string& nb_rows, 
+		    string& nb_cols, 
+		    string& matrix_order);
+
+  /**
+   * fill a profile with matrix parameter type
+   * The data are NULL
+   */  
+  virtual bool 
+  setMatrixParam(const wf_port_t param_type,
+		 const string& name,
+		 const string& base_type,
+		 const string& nb_rows,
+		 const string& nb_cols,
+		 const string& matrix_order,
+		 diet_profile_t * profile,
+		 unsigned int lastArg,
+		 BasicNode * dagNode = NULL,
+		 const string * value = NULL);
 
   /**
    * check if the profile is already in the problems list
