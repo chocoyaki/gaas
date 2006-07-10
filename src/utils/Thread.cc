@@ -8,12 +8,16 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2006/07/10 11:08:43  aamar
+ * Added a missing assert.h header
+ *
  * Revision 1.1  2006/04/14 14:02:41  aamar
  * Provides a C++ thread class (based on pthread, used by Node class).
  *
  ****************************************************************************/
 
 #include <iostream>
+#include <assert.h>
 #include "Thread.hh"
 
 Runnable::~Runnable() {}
