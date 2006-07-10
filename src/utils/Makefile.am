@@ -10,6 +10,11 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.27  2006/07/10 11:21:34  aamar
+#* Adding the new files CltReoMan_impl.cc, HEFT_Sched.cc
+#* and WfConfig.cc
+#* Replace the QT flags by Xerces ones
+#*
 #* Revision 1.26  2006/04/14 14:09:14  aamar
 #* Adding the workflow support compilation rules.
 #*
@@ -98,7 +103,10 @@ libUtilsNodes_la_SOURCES   = Counter.cc ServiceTable.cc \
 if USING_WORKFLOW
 libDietWorkflow_la_SOURCES = Dag.cc BasicNode.cc Node.cc \
 			WfReader.cc WfExtReader.cc Thread.cc WfUtils.cc \
-			AbstractWfSched.cc SimpleWfSched.cc
+			AbstractWfSched.cc SimpleWfSched.cc \
+			CltReoMan_impl.cc \
+			HEFT_Sched.cc \
+			WfConfig.cc
 endif
 
 if USING_CORI
@@ -122,7 +130,9 @@ endif
 if USING_WORKFLOW
 noinst_HEADERS += Dag.hh BasicNode.hh Node.hh \
 		WfReader.hh WfExtReader.hh Thread.hh WfUtils.hh \
-		AbstractWfSched.hh SimpleWfSched.hh
+		AbstractWfSched.hh SimpleWfSched.hh \
+		HEFT_Sched.hh \
+		WfConfig.hh
 endif
 
 AM_CXXFLAGS = @JUXMEM_CXXFLAGS@ $(CXXFLAGS_OMNIORB) $(CXXFLAGS_FAST) \
@@ -130,5 +140,5 @@ AM_CXXFLAGS = @JUXMEM_CXXFLAGS@ $(CXXFLAGS_OMNIORB) $(CXXFLAGS_FAST) \
 
 if USING_WORKFLOW
 AM_CXXFLAGS += -DHAVE_WORKFLOW -DDEBUG_WF \
-		$(CXXFLAGS_QT)
+		$(CXXFLAGS_XERCES)
 endif
