@@ -13,7 +13,7 @@ IF( DIET_BUILD_LIBRARIES )
   
   #########################################################################
   IF (DIET_USE_WORKFLOW) 
-    INCLUDE_DIRECTORIES( ${XERCES_INC} )
+    INCLUDE_DIRECTORIES( ${XERCES_INCLUDE_DIR} )
   ENDIF ( DIET_USE_WORKFLOW)
   #########################################################################
   ### AgentCommon library:
