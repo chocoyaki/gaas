@@ -8,6 +8,10 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.63  2006/07/10 11:35:08  aamar
+#* Compile the client library before the agent one
+#* Replace QT by Xerces (for workflow support)
+#*
 #* Revision 1.62  2006/04/14 14:09:13  aamar
 #* Adding the workflow support compilation rules.
 #*
@@ -229,7 +233,7 @@ dnl ###########################################################################
 
 ACI_MODULE([DIET],,[omniORB FAST],[src doc],force)
   ACI_MODULE([doc],[documentation about DIET],,,no)
-  ACI_MODULE([src],,,[agent client SeD examples],force)
+  ACI_MODULE([src],,,[client agent SeD examples],force)
     ACI_MODULE([agent],[DIET_MA and DIET_LA],,,force)
     ACI_MODULE([client],[the client library],,,force)
     ACI_MODULE([SeD],[the DIET Server Daemon],,,force)
@@ -575,10 +579,10 @@ dnl 		[ldap.h])
 
 dnl ###########################################################################
 dnl Workflow support
-dnl search for QT library
+dnl search for Xerces library
 dnl ###########################################################################
 if test "x$enable_workflow" = "xyes"; then
-   AM_QT()
+   AM_XERCES()
 fi
 
 dnl ###########################################################################
