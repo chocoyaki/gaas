@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2006/07/10 11:10:30  aamar
+ * - Adding some helpful functions for matrix handling and diet
+ * data types manipulation.
+ * - The eval_expr to evaluate arithmetic expressions
+ *
  * Revision 1.1  2006/04/14 14:02:03  aamar
  * Some tools used for workflow support.
  *
@@ -21,9 +26,17 @@
 
 #include <omniconfig.h>
 #include <omnithread.h>
+#include <string>
+#include <map>
+#include <vector>
+
+#include "DIET_data.h"
 
 class WfCst {
 public:
+  /************************************************************/
+  /** STATIC CONSTANTS                                       **/
+  /************************************************************/
   static const char * DIET_CHAR;
   static const char * DIET_SHORT;
   static const char * DIET_INT;
@@ -41,6 +54,38 @@ public:
   static const char * DIET_PARAMSTRING;
   static const char * DIET_FILE;
   static const char * DIET_DATA_TYPE_COUNT;
+
+  /************************************************************/
+  /** FOR MATRIX HANDLING                                     */
+  /************************************************************/
+  static void
+  open_file(const char * fileName, FILE *& myFile);
+
+  static unsigned long
+  readChar(const char * fileName, char * mat, unsigned long mat_size);
+
+  static unsigned long
+  readShort(const char * fileName, short * mat, unsigned long mat_size);
+
+  static unsigned long
+  readInt(const char * fileName, int * mat, unsigned long mat_size);
+
+  static unsigned long
+  readLong(const char * fileName, long * mat, unsigned long mat_size);
+
+  static unsigned long
+  readFloat(const char * fileName, float * mat, unsigned long mat_size);
+
+  static unsigned long
+  readDouble(const char * fileName, double * mat, unsigned long mat_size);
+
+
+  static long
+  eval_expr(std::string& expr, int var = 0);
+
+  static long int
+  diff(struct timeval tv, struct timeval beginning,
+       const long int l);
 private:
 };
 
@@ -77,5 +122,45 @@ extern omni_mutex debug_log_mutex ;
 #endif // DEBUG_WF
 
 /***************************************************************/
+
+/**
+ * get the diet base type by a string 
+ */
+diet_base_type_t
+getBaseType(const std::string base_type);
+
+/**
+ * get the string representation of diet base type  
+ */
+std::string
+getBaseTypeStr(const diet_base_type_t base_type);
+
+/**
+ * get the matrix order by a string 
+ */
+diet_matrix_order_t
+getMatrixOrder(const std::string matrix_order);
+
+
+/**
+ * get the string associated to a matrix order 
+ */
+std::string
+getMatrixOrderStr(const diet_matrix_order_t matrix_order);
+
+
+/**
+ * return a list of token composing a string
+ * used to read the matrix value
+ */
+std::vector<std::string> 
+getStringToken(std::string str);
+
+
+/**
+ * return a string representation on an integer
+ */
+std::string
+itoa(long l);
 
 #endif   /* not defined _WFUTILS_HH_ */
