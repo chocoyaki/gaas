@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2006/07/10 11:07:37  aamar
+ * - Adding Matrix data type support
+ * - The toXML (for Node and Ports) method that return XML
+ * representation
+ * - Some function and attributes used for scheduling and
+ * rescheduling
+ *
  * Revision 1.1  2006/04/14 13:50:16  aamar
  * Class representing a Dag node (header). This is a BasicNode
  * subclass that includes necessary code for execution).
@@ -20,6 +27,10 @@
 #include <iostream>
 #include <string>
 #include <map>
+
+#include <sys/time.h>
+#include <time.h>
+
 // general DIET headers
 #include "DIET_data.h"
 #include "DIET_client.h"
@@ -29,6 +40,7 @@
 #include "BasicNode.hh"
 #include "Thread.hh"
 #include "WfUtils.hh"
+
 
 using namespace std;
 
@@ -57,6 +69,8 @@ class Node : public BasicNode {
   /* friend classes              */
   friend class RunnableNode;
   friend class Dag;
+  friend class WfExtReader;
+  friend class AbstractWfSched;
   /*******************************/
 
   /*******************************/
@@ -105,17 +119,54 @@ class Node : public BasicNode {
     WfPort(Node * parent, string _id, string _type, uint _ind, 
 	   const string& v = "") : 
       myParent(parent), id(_id),type(_type), index(_ind),value(v) {
+      this->nb_r = 0;
+      this->nb_c = 0;
     }
     Node * myParent;
     string id;
     string type;
     unsigned int index;
     string value;
-    
+    // for matrix parameter
+    long nb_r, nb_c;
+    diet_matrix_order_t order;
+    diet_base_type_t base_type;
+    void setMatParams(long nbr, long nbc, 
+		      diet_matrix_order_t o,
+		     diet_base_type_t bt) {
+      this->nb_r = nbr;
+      this->nb_c = nbc;
+      this->order = o;
+      this->base_type = bt;
+    }
+
     diet_profile_t * 
     profile() {
       return myParent->profile;
     }
+
+    /**
+     * return an XML  representation of the port *
+     */
+    string 
+    toXML() {
+      string xml = "";
+      xml += "id=\"" + this->id + "\" type=\"" + this->type +"\" ";
+      if (this->type == "DIET_MATRIX") {
+	/*
+	  base_type  = element.attribute("base_type");
+	  nb_rows  = element.attribute("nb_rows");
+	  nb_cols  = element.attribute("nb_cols");
+	  matrix_order  = element.attribute("matrix_order");
+	*/
+	xml += "base_type=\""+getBaseTypeStr(this->base_type)+"\" ";
+	xml += "nb_rows=\"" + itoa(this->nb_r)+"\" ";
+	xml += "nb_cols=\"" + itoa(this->nb_c)+"\" ";
+	xml += "matrix_order=\"" + getMatrixOrderStr(this->order) + "\" ";
+      }
+      return xml;
+    }
+
   };
 
   /**
@@ -149,6 +200,20 @@ class Node : public BasicNode {
     isResult() {
       return (sink_port == NULL);
     }
+
+    /**
+     * return an XML  representation of the output port *
+     */
+    string 
+    toXML() {
+      string xml = "\t<out ";
+      xml += WfPort::toXML();
+      if (this->sink_port != NULL)
+	xml += "sink=\""+sink_port_id+"\"";
+      
+      xml += " />\n";
+      return xml;
+    }
   };
 
   /**
@@ -173,6 +238,32 @@ class Node : public BasicNode {
     void
     set_source(const string& s) {
       this->source_port_id = s;
+    }
+    
+    bool isInput() {
+      return (source_port == NULL);
+    }
+
+    /**
+     * return an XML  representation of the input port *
+     * if b = false the source port is not included. used to create the
+     * remaining DAG representation
+     */
+    string 
+    toXML(bool b=false) {
+      string xml = "";
+      if (value != "")
+	xml = "\t<arg ";
+      else
+	xml ="\t<in ";
+      xml += WfPort::toXML();
+      if (value != "")
+	xml += "value=\"" + this->value + "\" "; 
+      if ((b) && (this->source_port != NULL))
+	xml += "source=\""+source_port_id+"\"";
+      
+      xml += " />\n";
+      return xml;
     }
   };
 
@@ -222,6 +313,14 @@ public:
   string
   toString();
   
+  /**
+   * display an XML  representation of a node *
+   * if b = false the node representation doesn't include the information
+   * about previous nodes (the source ports of input ports)
+   */
+  string 
+  toXML(bool b = false);
+
   /**
    * set the node profile
    */
@@ -283,12 +382,12 @@ public:
    * set the node priority *
    */
   void
-  setPriority(int priority);
+  setPriority(double priority);
 
   /**
    * get the node priority *
    */
-  int  
+  double
   getPriority();
 
   /**
@@ -324,7 +423,7 @@ public:
   /**
    * create and add a new port to the node *
    */
-  void
+  WfPort *
   newPort(string id, uint ind, wf_port_t type, string diet_type,
 	       const string& v = string(""));
  
@@ -332,6 +431,79 @@ public:
    * set the SeD reference to the node *
    */
   void setSeD(const SeD_var& sed);
+
+  /**
+   * return the number of next nodes
+   */
+  unsigned int 
+  nextNb();
+
+  /**
+   * return  next node 
+   */
+  BasicNode *
+  getNext(unsigned int n);
+
+  /**
+   * return the number of previous nodes
+   */
+  unsigned int 
+  prevNb();
+
+  /**
+   * return  next node 
+   */
+  BasicNode *
+  getPrev(unsigned int n);
+
+  /**
+   * set the estimated completion time
+   */
+  void
+  setEstCompTime(const long int est_comp_time);
+
+  /**
+   * get the estimated completion time
+   */
+  long int
+  getEstCompTime();
+
+  /**
+   * set the real completion time
+   */
+  void
+  setRealCompTime(const struct timeval& real_comp_time);
+
+  /** 
+   * get the real completion time
+   */
+  struct timeval
+  getRealCompTime();
+
+  /**
+   * get the node mark (used for reordering)
+   */
+  bool
+  getMark();
+
+  /**
+   * set the node mark 
+   */
+  void 
+  setMark(bool b);
+
+  /**
+   * test if the node is running *
+   */
+  bool
+  isRunning();
+  
+  /**
+   * test if the execution is done *
+   */
+  bool
+  isDone();
+
 private:
   /*********************************************************************/
   /* private fields                                                    */
@@ -356,12 +528,13 @@ private:
   vector<char *>  stringParams;
   vector<float*>  floatParams;
   vector<double*> doubleParams;
+  //  vector<void *>  matrixParams;
   /*************************/
 
   /**
    * the node priority *
    */
-  int priority;
+  double priority;
 
   /**
    * input ports map<id, reference> *
@@ -387,6 +560,27 @@ private:
    * chosen server *
    */
   SeD_var chosenServer;
+
+  /**
+   * number of immediate next nodes that have end their execution *
+   */
+  unsigned int nextDone;
+
+  /**
+   * Estimated completion time in second 
+   * (time 0 is the beginning of the execution)
+   */
+  long int EstCompTime;
+
+  /**
+   * Real completion time
+   */
+  struct timeval RealCompTime;
+
+  /**
+   * the node mark (used for reordering)
+   */
+  bool myMark;
 
   /*********************************************************************/
   /* private methods                                                   */
@@ -430,7 +624,8 @@ private:
    * @param value   string representation of parameter value *
    */
   void
-  set_profile_param(string type, const int lastArg, const string& value,
+  set_profile_param(WfPort * port, 
+		    string type, const int lastArg, const string& value,
 		    const diet_persistence_mode_t mode);
 
   /**
@@ -438,18 +633,6 @@ private:
    */
   void
   set_as_running();
-
-  /**
-   * test if the node is running *
-   */
-  bool
-  isRunning();
-  
-  /**
-   * test if the execution is done *
-   */
-  bool
-  isDone();
 
   /**
    * called when the node execution is done *
@@ -460,7 +643,8 @@ private:
   /**
    * called when a next node is done *
    */
-  void nextIsDone();
+  virtual void 
+  nextIsDone();
 };
 
 
