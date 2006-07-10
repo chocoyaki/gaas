@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2006/07/10 09:55:27  aamar
+ * Workflow monitoring and client reordering objects added to
+ * the CONTEXT array
+ *
  * Revision 1.17  2006/04/14 14:15:07  aamar
  * Adding the "dietMaDag" value in the CONTEXTS array
  *
@@ -74,6 +78,8 @@ const char* ORBMgr::CONTEXTS[] =
   {"dietAgent", "dietDataMgr", "dietLocMgr", "LogService", "dietSeD"
 #ifdef HAVE_WORKFLOW
    , "dietMaDag"
+   , "CltReoMan"
+   , "WfLogService"
 #endif
   };
 

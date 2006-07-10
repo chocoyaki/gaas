@@ -7,6 +7,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2006/07/10 09:55:27  aamar
+ * Workflow monitoring and client reordering objects added to
+ * the CONTEXT array
+ *
  * Revision 1.13  2006/04/14 14:15:33  aamar
  * Adding the value MA_DAG in object_type_t enumeration.
  *
@@ -81,6 +85,8 @@ public:
      */
 #ifdef HAVE_WORKFLOW 
     , MA_DAG
+    , CLT_REO_MAN
+    , WFLOGSERVICE
 #endif // HAVE_WORKFLOW
   } object_type_t;
 
