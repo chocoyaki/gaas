@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2006/07/10 13:39:46  aamar
+ * Correct some warnings
+ *
  * Revision 1.7  2006/07/07 18:37:20  aamar
  * Correction of memory allocation problem in switch.
  *
@@ -74,7 +77,7 @@ set_req_error(diet_reqID_t sessionID,
  * check if the handle is initialized
  ***************************************************************************/
 bool isInitialized(const grpc_function_handle_t handle) {
-  for (int ix=0; ix < handles.size(); ix++) {
+  for (unsigned int ix=0; ix < handles.size(); ix++) {
     if (handles[ix] == handle) 
       return true;
   }
@@ -143,6 +146,8 @@ set_handle_param(grpc_function_handle_t* handle,
 		 char* server_host_port) {
   // put this handle in the vector of initialized handles
   handles.push_back(*handle);
+
+  return GRPC_NO_ERROR;
 }
 
 #define DIET_DEFAULT_SERVER NULL
@@ -437,6 +442,24 @@ grpc_build_profile(grpc_function_handle_t* handle, diet_profile_t*& profile,
 	break;
       } // end switch scalar
       break;
+    case DIET_VECTOR:
+      // FIXME
+      break;
+    case DIET_MATRIX:
+      // FIXME
+      break;
+    case DIET_STRING:
+      // FIXME
+      break;
+    case DIET_PARAMSTRING:
+      // FIXME
+      break;
+    case DIET_FILE:
+      // FIXME
+      break;
+    case DIET_DATA_TYPE_COUNT:
+      // FIXME
+      break;
     }
   } // end for last_in
 
@@ -493,6 +516,23 @@ grpc_build_profile(grpc_function_handle_t* handle, diet_profile_t*& profile,
 	break;
       } // end switch scalar
       break;
+    case DIET_VECTOR:
+      // FIXME
+      break;
+    case DIET_MATRIX:
+      // FIXME
+      break;
+    case DIET_STRING:
+      // FIXME
+      break;
+    case DIET_PARAMSTRING:
+      break;
+    case DIET_FILE:
+      // FIXME
+      break;
+    case DIET_DATA_TYPE_COUNT:
+      // FIXME
+      break;
     }
   } // end for last_out
   
@@ -542,7 +582,6 @@ grpc_call(grpc_function_handle_t* handle, ...)
   va_list ap;
   diet_profile_t* profile;
   SeD_var server;
-  corba_response_t* response(NULL);
   grpc_error_t res(0);
 
   // check if GRPC is initialized
@@ -565,7 +604,6 @@ grpc_error_t
 grpc_call_async(grpc_function_handle_t* handle,
 		grpc_sessionid_t* sessionID, ...)
 {
-  diet_profile_t* profile;
   va_list ap;
   grpc_error_t res(0);
   CORBA::Object_var chosenObject;
@@ -764,7 +802,7 @@ grpc_wait_and(diet_reqID_t* IDs, size_t length) {
   grpc_error_t err = diet_wait_and(IDs, length);
 
   if (err == GRPC_NO_ERROR) {
-    for (int ix=0; ix<length; ix++) {
+    for (unsigned int ix=0; ix<length; ix++) {
       grpc_get_results(IDs[ix]);
     }
   }

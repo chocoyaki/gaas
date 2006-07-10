@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.83  2006/07/10 13:39:46  aamar
+ * Correct some warnings
+ *
  * Revision 1.82  2006/07/10 11:25:57  aamar
  * Adding the following functions to the API:
  *   - enable_reordering, set_reordering_delta, nodeIsDone,
@@ -1218,7 +1221,7 @@ int
 diet_wait_and(diet_reqID_t* IDs, size_t length)
 {
   // check if all the session IDs in the array are valid
-  for (int ix=0; ix<length; ix++) {
+  for (unsigned int ix=0; ix<length; ix++) {
     if (!CallAsyncMgr::Instance()->checkSessionID(IDs[ix]))
       return GRPC_INVALID_SESSION_ID;
   } 
@@ -1274,7 +1277,7 @@ diet_wait_or(diet_reqID_t* IDs, size_t length, diet_reqID_t* IDptr)
   request_status_t rst = STATUS_ERROR;
 
   // check if all the session IDs in the array are valid
-  for (int ix=0; ix<length; ix++) {
+  for (unsigned int ix=0; ix<length; ix++) {
     if (!CallAsyncMgr::Instance()->checkSessionID(IDs[ix]))
       return GRPC_INVALID_SESSION_ID;
   } 
@@ -1384,7 +1387,7 @@ diet_error_t
 diet_probe_or(diet_reqID_t* reqIdArray,
 	      size_t length,
 	      diet_reqID_t* reqIdPtr) {
-  int ix;
+  unsigned int ix;
   int reqStatus;
   // check if all request IDs are valid
   for (ix=0; ix< length; ix++) {
@@ -1836,6 +1839,8 @@ int unmrsh_profile_desc( diet_profile_desc_t* dest,
   // TO FIX
   // Since this function is used only by GRPC client lib side, this is not 
   // necessary
+
+  return 0;
 }
 
 /**
@@ -1859,7 +1864,7 @@ bool
 getProfileDesc(const char * srvName, diet_profile_desc_t& profile) {
   SeqCorbaProfileDesc_t * allProfiles = getProfiles();
   if (allProfiles) {
-    for (int ix=0; ix < allProfiles->length(); ix++) {
+    for (unsigned int ix=0; ix < allProfiles->length(); ix++) {
       if (!strcmp ( (*allProfiles)[ix].path,
 		    srvName)) {
 	// The service is found
