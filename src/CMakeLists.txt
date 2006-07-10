@@ -3,8 +3,8 @@
 #****************************************************************************#
 ADD_SUBDIRECTORY( CORBA )
 ADD_SUBDIRECTORY( utils )
-ADD_SUBDIRECTORY( agent )
 ADD_SUBDIRECTORY( client )
+ADD_SUBDIRECTORY( agent )
 ADD_SUBDIRECTORY( SeD )
 ADD_SUBDIRECTORY( Testing )
 
