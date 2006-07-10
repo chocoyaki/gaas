@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.11  2006/07/10 09:01:43  aamar
+#* Adding CltReoMan and WfLogService compilation rules.
+#*
 #* Revision 1.10  2006/04/14 14:09:14  aamar
 #* Adding the workflow support compilation rules.
 #*
@@ -43,19 +46,24 @@ BUILT_SOURCES = AgentSK.cc	  AgentDynSK.cc		\
 		LogComponentSK.cc LogComponentDynSK.cc
 
 if USING_WORKFLOW
-BUILT_SOURCES += MaDagSK.cc	  MaDagDynSK.cc
+BUILT_SOURCES += MaDagSK.cc	  MaDagDynSK.cc \
+		WfLogServiceSK.cc WfLogServiceDynSK.cc
 endif
 
 noinst_LTLIBRARIES = libIDLCommon.la libIDLAgent.la libIDLLA.la libIDLMA.la
 
 if USING_WORKFLOW
-noinst_LTLIBRARIES += libIDLMaDag.la
+noinst_LTLIBRARIES += libIDLMaDag.la libIDLWfLog.la
 endif
 
 nodist_libIDLCommon_la_SOURCES = common_typesSK.cc common_typesDynSK.cc \
 				 SeDSK.cc SeDDynSK.cc 			\
 				 responseSK.cc responseDynSK.cc 	\
 				 CallbackSK.cc CallbackDynSK.cc
+
+if USING_WORKFLOW
+nodist_libIDLCommon_la_SOURCES += CltReoManSK.cc CltReoManDynSK.cc
+endif
 
 nodist_libIDLAgent_la_SOURCES = AgentSK.cc       AgentDynSK.cc		\
 				DataMgrSK.cc     DataMgrDynSK.cc	\
@@ -68,6 +76,7 @@ nodist_libIDLMA_la_SOURCES    = MasterAgentSK.cc MasterAgentDynSK.cc
 
 if USING_WORKFLOW
 nodist_libIDLMaDag_la_SOURCES = MaDagSK.cc MaDagDynSK.cc
+nodist_libIDLWfLog_la_SOURCES = WfLogServiceSK.cc WfLogServiceDynSK.cc
 endif
 
 # automake include variables
