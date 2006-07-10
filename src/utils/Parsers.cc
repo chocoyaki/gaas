@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2006/07/10 11:12:05  aamar
+ * Adding the workflow monitoring parameter USEWFLOGSERVICE
+ *
  * Revision 1.26  2006/04/14 14:22:28  aamar
  * Adding the DIET_MA_DAG in agent_type_t enumeration.
  * Adding MADAGNAME in param_type_t enumeration.
@@ -101,6 +104,7 @@ Parsers::Results::param_t Parsers::Results::params[] =
 #endif
    /* [26] */ ,{"locationID", 10, Parsers::parseName, 0, NULL}
    /* [27] */ ,{"MADAGNAME", 9, Parsers::parseName, 0, NULL}
+   /* [28] */ ,{"USEWFLOGSERVICE", 15, Parsers::parseName, 0, NULL}
   } ;
 
 #define IS_ADDRESS(i) ((i == Results::LDAPBASE) || (i == Results::NWSNAMESERVER) || (i == Results::NWSFORECASTER))

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2006/07/10 11:12:05  aamar
+ * Adding the workflow monitoring parameter USEWFLOGSERVICE
+ *
  * Revision 1.16  2006/04/14 14:26:22  aamar
  * Adding the MADAGNAME parameter for configuration file.
  * Adding the DIET_MA_DAG in agent_type_t enumeration.
@@ -121,6 +124,7 @@ public:
 #endif
       LOCATIONID,         // For alternative transfer cost prediction
       MADAGNAME,
+      USEWFLOGSERVICE,
       NB_PARAM_TYPE
     } param_type_t;
 
