@@ -40,6 +40,8 @@ IF( DIET_BUILD_LIBRARIES )
   IF ( DIET_USE_WORKFLOW )
   SET ( IDL_SOURCES
       MaDag
+      CltReoMan
+      WfLogService
       ${IDL_SOURCES} )
   ENDIF ( DIET_USE_WORKFLOW )
   
@@ -93,17 +95,32 @@ IF( DIET_BUILD_LIBRARIES )
     ${OMNIORB4_INCLUDE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
   )
-  
-  ADD_LIBRARY( IDLCommon
-    CallbackDynSK.cc
-    CallbackSK.cc
-    common_typesSK.cc
-    common_typesDynSK.cc
-    responseDynSK.cc
-    responseSK.cc
-    SeDSK.cc
-    SeDDynSK.cc
-  )
+  IF (DIET_USE_WORKFLOW)
+      ADD_LIBRARY( IDLCommon
+         CallbackDynSK.cc
+	 CallbackSK.cc
+	 common_typesSK.cc
+	 common_typesDynSK.cc
+	 responseDynSK.cc
+	 responseSK.cc
+	 SeDSK.cc
+	 SeDDynSK.cc
+	 CltReoManSK.cc
+	 CltReoManDynSK.cc
+	 )
+     ELSE ( DIET_USE_WORKFLOW )
+      ADD_LIBRARY( IDLCommon
+         CallbackDynSK.cc
+	 CallbackSK.cc
+	 common_typesSK.cc
+	 common_typesDynSK.cc
+	 responseDynSK.cc
+	 responseSK.cc
+	 SeDSK.cc
+	 SeDDynSK.cc
+	 )
+  ENDIF (DIET_USE_WORKFLOW)
+
   TARGET_LINK_LIBRARIES( IDLCommon
     ${OMNIORB4_LIBRARIES}
   )
@@ -153,6 +170,10 @@ IF( DIET_BUILD_LIBRARIES )
     MaDagSK.cc
     MaDagDynSK.cc )
   
+  ADD_LIBRARY ( IDLWfLog
+            WfLogServiceSK.cc
+            WfLogServiceDynSK.cc )
+
   TARGET_LINK_LIBRARIES( IDLMaDag
     ${OMNIORB4_LIBRARIES}
   )
