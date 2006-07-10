@@ -11,6 +11,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.16  2006/07/10 10:42:47  aamar
+#* Remove the QT compilation flags
+#*
 #* Revision 1.15  2006/04/14 14:09:14  aamar
 #* Adding the workflow support compilation rules.
 #*
@@ -88,7 +91,8 @@ libAgentCommon_la_SOURCES = AgentImpl.cc ExitClass.cc LocalAgentImpl.cc	     \
 dietAgent_SOURCES = dietAgent.cc
 
 if USING_WORKFLOW
-libMaDag_la_SOURCES = MaDag_impl.cc
+libMaDag_la_SOURCES = MaDag_impl.cc \
+		MaDag_sched.cc RoundRobbin_MaDag_Sched.cc HEFT_MaDag_Sched.cc
 maDag_SOURCES	  = maDag.cc
 endif
 
@@ -115,7 +119,7 @@ if USING_WORKFLOW
 dietAgent_LDADD += \
 	$(utilsdir)/libDietWorkflow.la \
 	$(corbadir)/libCorbaCommon.la	\
-	$(LIBS_QT)
+	$(LIBS_XERCES)
 # TO CHECK (to remove the unused libraries)
 maDag_LDADD = libMaDag.la \
 	libAgentCommon.la	\
@@ -127,14 +131,14 @@ maDag_LDADD = libMaDag.la \
 	$(utilsdir)/libUtilsSeDClt.la \
 	$(corbadir)/idl/libIDLMaDag.la \
 	$(LIBS_OMNIORB) $(LIBS_FAST) \
-	$(LIBS_QT) 
+	$(LIBS_XERCES) 
 endif
 
 AM_CXXFLAGS = $(CXXFLAGS_OMNIORB) $(CXXFLAGS_FAST) -I$(top_srcdir)/src/utils \
 	      -I$(top_srcdir)/src/CORBA -I$(corbadir)/idl
 
 if USING_WORKFLOW
-AM_CXXFLAGS += -DHAVE_WORKFLOW -DDEBUG_WF $(CXXFLAGS_QT)
+AM_CXXFLAGS += -DHAVE_WORKFLOW -DDEBUG_WF
 endif
 
 if JXTA_MODE
