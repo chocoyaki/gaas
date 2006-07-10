@@ -10,6 +10,11 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.13  2006/07/10 11:30:00  aamar
+#* In workflow support:
+#*   - Replace QT by Xerces
+#*   - Add IDLWfLog to DIET_client
+#*
 #* Revision 1.12  2006/04/14 14:09:14  aamar
 #* Adding the workflow support compilation rules.
 #*
@@ -76,9 +81,11 @@ libDIET_client_la_LIBADD = \
 	$(LIBS_OMNIORB)
 
 if USING_WORKFLOW
+
 libDIET_client_la_LIBADD += $(corbadir)/idl/libIDLMaDag.la \
 	$(utilsdir)/libDietWorkflow.la	\
-	$(LIBS_QT)
+	$(corbadir)/idl/libIDLWfLog.la \
+	$(LIBS_XERCES)
 endif
 
 AM_CXXFLAGS = @JUXMEM_CXXFLAGS@ $(CXXFLAGS_OMNIORB) -I$(top_srcdir)/src/utils \
@@ -86,5 +93,5 @@ AM_CXXFLAGS = @JUXMEM_CXXFLAGS@ $(CXXFLAGS_OMNIORB) -I$(top_srcdir)/src/utils \
 
 
 if USING_WORKFLOW
-AM_CXXFLAGS += -DHAVE_WORKFLOW -DDEBUG_WF $(CXXFLAGS_QT)
+AM_CXXFLAGS += -DHAVE_WORKFLOW -DDEBUG_WF
 endif
