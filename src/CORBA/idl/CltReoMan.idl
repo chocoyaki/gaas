@@ -1,0 +1,26 @@
+/****************************************************************************/
+/* CLIENT listener for reordering                                           */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Abdlkader Amar (Abdelkader.Amar@ens-lyon.fr)                        */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id: 
+ * $Log: 
+ ****************************************************************************/
+
+#ifndef _CLTREOMAN_IDL_
+#define _CLTREOMAN_IDL_
+
+#include "response.idl"
+
+interface CltReoMan {
+  void
+  remainingSched(in wf_node_sched_seq_t wf_sched);
+
+  oneway void
+  getremainingDag();
+};
+
+#endif // _CLTREOMAN_IDL_
