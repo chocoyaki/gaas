@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2006/07/10 11:07:04  aamar
+ * - changing the constructor (adding the problem name as parameter)
+ * - adding some helpful function : string getPb(), bool isAnExit(),
+ * void nextIsDone()
+ *
  * Revision 1.1  2006/04/14 13:48:45  aamar
  * Class representing basic dag node (source).
  *
@@ -22,8 +27,9 @@ using namespace std;
 // The manual advise to nose use the ? operator but don't worry about this one
 #define MAX( x, y) ( (x) > (y) ? (x) : (y) )
 
-BasicNode::BasicNode(string id) {
+BasicNode::BasicNode(string id, string pb_name) {
   this->myId = id;
+  this->myPb = pb_name;
   this->prevNodes = 0;
   this->task_done = false;
   this->myTag = 0;
@@ -70,10 +76,13 @@ void BasicNode::addPrecId(string str) {
  * Add a new previous node id and reference *
  */
 void BasicNode::addPrec(string str, BasicNode * node) {
-  cout << "The node " << this->myId << " has a new previous node " << endl;
-  prec[str] = node; 
-  prevNodes--;
-  node->addNext(this);
+  // add the node as a previous one if not already done
+  if (prec.find(str) == prec.end()) {
+    cout << "The node " << this->myId << " has a new previous node " << endl;
+    prec[str] = node; 
+    prevNodes--;
+    node->addNext(this);
+  }
 }
 
 /**
@@ -81,6 +90,13 @@ void BasicNode::addPrec(string str, BasicNode * node) {
  */
 string BasicNode::getId() {
   return this->myId;
+}
+
+/**
+ * To get the node id *
+ */
+string BasicNode::getPb() {
+  return this->myPb;
 }
 
 /**
@@ -170,6 +186,14 @@ BasicNode::prevDone() {
 }
 
 /**
+ * called when a next node is done *
+ * Empty here, reimplemented in subclass Node *
+ */
+void
+BasicNode::nextIsDone() {
+}
+
+/**
  * add a new previous node *
  */
 void 
@@ -237,4 +261,13 @@ BasicNode::setTag(unsigned int t) {
 bool
 BasicNode::isAnInput() {
   return (prec.size()==0);
+}
+
+/**
+ * return true if the node is an input node *
+ * only the nodes with no next node are considered as dag exit  * 
+ */
+bool
+BasicNode::isAnExit() {
+  return (next.size() == 0);
 }

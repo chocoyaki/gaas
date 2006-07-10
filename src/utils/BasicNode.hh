@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2006/07/10 11:07:04  aamar
+ * - changing the constructor (adding the problem name as parameter)
+ * - adding some helpful function : string getPb(), bool isAnExit(),
+ * void nextIsDone()
+ *
  * Revision 1.1  2006/04/14 13:48:13  aamar
  * Class representing basic dag node (header).
  *
@@ -28,7 +33,7 @@ public:
   /* public methods                                                    */
   /*********************************************************************/
 
-  BasicNode (string id);
+  BasicNode (string id, string pb_name);
 
   virtual 
   ~BasicNode();
@@ -71,6 +76,12 @@ public:
    */
   string
   getId();
+
+  /**
+   * To get the node pb *
+   */
+  string
+  getPb();
   
   /**
    * Return a string representation of the node *
@@ -102,6 +113,13 @@ public:
    */
   void
   prevDone();
+
+  /**
+   * called when a next node is done *
+   * Empty here, reimplemented in subclass Node *
+   */
+  virtual void 
+  nextIsDone();
 
   /**
    * add a new previous node *
@@ -150,11 +168,18 @@ public:
   void setTag(unsigned int t);
 
   /**
-   * return if the node is an input node *
+   * return true if the node is an input node *
    * only the nodes with no previous node are considered as dag input  * 
    */
   bool
   isAnInput();
+
+  /**
+   * return true if the node is an input node *
+   * only the nodes with no next node are considered as dag exit  * 
+   */
+  bool
+  isAnExit();
 
 protected:
   /*********************************************************************/
@@ -165,6 +190,11 @@ protected:
    * Node id *
    */
   string myId;
+
+  /**
+   * Node problem
+   */
+  string myPb;
 
   /**
    * The following three maps are TO REMOVE*
