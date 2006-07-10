@@ -10,6 +10,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.82  2006/07/10 11:25:57  aamar
+ * Adding the following functions to the API:
+ *   - enable_reordering, set_reordering_delta, nodeIsDone,
+ *   nodeIsRunning, nodeIsWaiting
+ * Adding the reordering support
+ * Adding the workflow monitoring support
+ *
  * Revision 1.81  2006/07/07 09:19:00  aamar
  * Some changes to be GRPC compliant : cheking session ID, correction of
  *  error codes.
@@ -145,11 +152,17 @@ using namespace std;
 #include "MaDag.hh"
 #include "WfExtReader.hh"
 #include "SimpleWfSched.hh"
+#include "CltReoMan_impl.hh"
+#include "WfLogService.hh"
+#include "WfConfig.hh"
+
 static AbstractWfSched * defaultWfSched = NULL;
 static WfExtReader * reader = NULL;
 static Dag * dag = NULL;
 static bool use_ma_dag = false;
 static bool use_ma_dag_sched = true;
+static bool use_wf_log = false;
+static CltReoMan_impl * myReoMan = NULL;
 #endif
 //****
 
@@ -196,6 +209,7 @@ static size_t USE_ASYNC_API = 1;
 #ifdef HAVE_WORKFLOW
 /** The MA DAG reference */
 static MaDag_var MA_DAG = MaDag::_nil();
+static WfLogService_var myWfLogService = WfLogService::_nil();
 #endif
 
 /****************************************************************************/
@@ -261,6 +275,7 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
 
 #ifdef HAVE_WORKFLOW
   char*  MA_DAG_name(NULL);
+  char*  USE_WF_LOG_SERVICE(NULL);
 #endif // HAVE_WORKFLOW
 
   MA_MUTEX.lock();
@@ -414,9 +429,30 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
     if (CORBA::is_nil(MA_DAG)) {
       ERROR("cannot locate MA DAG " << MA_DAG_name, 1);
     }
-    else
+    else {
       use_ma_dag = true;
+    }
+  } // end if (MA_DAG_name != NULL)
+
+  // check if the Workflow Log Service is used
+  USE_WF_LOG_SERVICE = (char*)
+    Parsers::Results::getParamValue(Parsers::Results::USEWFLOGSERVICE);
+  if (USE_WF_LOG_SERVICE != NULL) {
+    if (!strcmp(USE_WF_LOG_SERVICE, "1")) {
+      myWfLogService = WfLogService::_narrow(ORBMgr::getObjReference(ORBMgr::WFLOGSERVICE, "WfLogService"));
+      if (CORBA::is_nil(myWfLogService)) {
+	ERROR("cannot locate the Workflow Log Service ", 1);
+      }
+      else {
+      use_wf_log = true;
+      WfConfig::useLog(true);
+      }
+    }
   }
+
+  // Init the Xerces engine
+  XMLPlatformUtils::Initialize();
+
 #endif
 
   return 0;
@@ -1454,9 +1490,20 @@ diet_wf_call_ma(diet_wf_desc_t* profile) {
   cout<< "Received response length " << response->wfn_seq_resp.length()
       << endl;
 
+  // Call the Workflow Log Service
+  if ((use_wf_log) && (myWfLogService != NULL)) {
+    myWfLogService->setWf(profile->abstract_wf);
+  } // end if (use_wf_log && myWfLogService)
+
   // Execution du workflow
   // ...
   dag = reader->getDag();
+
+  if (myReoMan != NULL) {
+      cout << "---- link the CltReoMan with the DAG" << endl;
+      dag->setCltReoMan(myReoMan);
+      myReoMan->setDag(dag);
+  }
 
   // Not used (TO REMOVE). It is the scheduler which execute the DAG
   dag->exec();
@@ -1489,7 +1536,7 @@ diet_error_t
 diet_call_wf_madag_v1(diet_wf_desc_t* profile) {
   diet_error_t res(0);
   corba_wf_desc_t  * corba_profile = new corba_wf_desc_t;
-  wf_node_sched_seq_t * response;
+  wf_node_sched_seq_t * response = NULL;
 
   reader = new WfExtReader(profile->abstract_wf);
   reader->setup();
@@ -1519,6 +1566,10 @@ diet_call_wf_madag_v1(diet_wf_desc_t* profile) {
   if (defaultWfSched == NULL) 
     defaultWfSched = new SimpleWfSched();
 
+  // Call the Workflow Log Service
+  if ((use_wf_log) && (myWfLogService != NULL)) {
+    myWfLogService->setWf(profile->abstract_wf);
+  } // end if (use_wf_log && myWfLogService)
 
   defaultWfSched->setDag(dag);
   defaultWfSched->execute();
@@ -1542,7 +1593,7 @@ diet_error_t
 diet_call_wf_madag_v2(diet_wf_desc_t* profile) {
   diet_error_t res(0);
   corba_wf_desc_t  * corba_profile = new corba_wf_desc_t;
-  wf_node_sched_seq_t * response;
+  wf_node_sched_seq_t * response = NULL;
 
   reader = new WfExtReader(profile->abstract_wf);
   reader->setup();
@@ -1570,6 +1621,11 @@ diet_call_wf_madag_v2(diet_wf_desc_t* profile) {
   if (defaultWfSched == NULL) 
     defaultWfSched = new SimpleWfSched();
 
+
+  // Call the Workflow Log Service
+  if ((use_wf_log) && (myWfLogService != NULL)) {
+    myWfLogService->setWf(profile->abstract_wf);
+  } // end if (use_wf_log && myWfLogService)
 
   defaultWfSched->setDag(dag);
   defaultWfSched->execute();
@@ -1611,6 +1667,15 @@ diet_wf_free(diet_wf_desc_t * profile) {
     delete reader;
     reader = NULL;
   }
+  if (myReoMan != NULL) {
+    myReoMan->done();
+  }
+  else
+    diet_finalize();
+
+  XMLPlatformUtils::Terminate();
+
+
 }
 
 /*
@@ -1618,7 +1683,14 @@ diet_wf_free(diet_wf_desc_t * profile) {
  */
 
 void set_sched (struct AbstractWfSched * sched) {
-  defaultWfSched = sched;
+  if (use_ma_dag) {
+    cout << "The provided sheduler is disabled "<< endl;
+    cout << "The client use the MA to get the servers lists" << endl;
+    cout << "You need to modify your client config file " <<
+      "and remove the MA DAG entry" << endl;
+  }
+  else
+    defaultWfSched = sched;
 }
 
 
@@ -1663,6 +1735,80 @@ _diet_wf_string_get(const char * id,
   }
   return 0;
 }
+
+int
+diet_wf_init_reordering() {
+  return 0;
+}
+
+/**
+ * enable/disable the reordering
+ * reordering enablef (b = true)
+ * reordering disabled (b = false)
+*/
+void
+enable_reordering(const char * name, int b) {
+  if (strlen(name)>0 && b) {
+    myReoMan = new CltReoMan_impl(name, MA);
+    myReoMan->activate();
+    if (dag != NULL) {
+      cout << "---- link the CltReoMan with the DAG" << endl;
+      dag->setCltReoMan(myReoMan);
+      myReoMan->setDag(dag);
+    } // end if (dag)
+    if (defaultWfSched != NULL) {
+      cout << "---- link the CltReoMan with the WfScheduler" << endl;
+      defaultWfSched->setCltReoMan(myReoMan);
+      myReoMan->setScheduler(defaultWfSched);
+    }
+  }
+}
+
+/*
+ * fix the reordering delta (time in seconds)
+ * and the number of nodes to trigger the
+ * reordering)
+ * TO FIX (dag is NULL)
+ */
+void
+set_reordering_delta(const long int nb_sec, 
+		     const unsigned long int nb_node) {
+  if (dag != NULL) {
+    dag->set_reordering_delta(nb_sec, nb_node);
+  }
+}
+
+
+void
+nodeIsDone(const char * node_id) {
+  if ((use_wf_log) && (myWfLogService != NULL)) {
+    myWfLogService->nodeIsDone(node_id);
+  } // end if
+  if (WfConfig::logUsed()) {
+  }
+}
+
+void
+nodeIsRunning(const char * node_id) {
+  if ((use_wf_log) && (myWfLogService != NULL)) {
+    myWfLogService->nodeIsRunning(node_id);
+  } // end if
+}
+
+void 
+nodeIsStarting(const char * node_id) {
+  if ((use_wf_log) && (myWfLogService != NULL)) {
+    myWfLogService->nodeIsStarting(node_id);
+  } // end if
+}
+
+void
+nodeIsWaiting(const char * node_id) {
+  if ((use_wf_log) && (myWfLogService != NULL)) {
+    myWfLogService->nodeIsWaiting(node_id);
+  } // end if
+}
+
 
 #endif // HAVE_WORKFLOW
 
