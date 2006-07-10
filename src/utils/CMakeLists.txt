@@ -195,14 +195,16 @@ IF( DIET_USE_CORI )
 ENDIF( DIET_USE_CORI )
 
 ########################################################################
-IF ( DIET_BUILD_LIBRARIES AND DIET_USE_WORKFLOW )
-#  TARGET_LINK_LIBRARIES( UtilsSeDBatch ${APPLESEEDS_LIBRARIES} )
-#  INSTALL_TARGETS( /lib/ UtilsSeDBatch )
-   INCLUDE_DIRECTORIES ( ${QT_INC} )
+IF ( DIET_USE_WORKFLOW )
+   INCLUDE_DIRECTORIES ( ${XERCES_INCLUDE_DIR} )
    ADD_LIBRARY ( DietWorkflow
-	       Dag.cc BasicNode.cc Node.cc
-	       WfReader.cc WfExtReader.cc Thread.cc WfUtils.cc
-	       AbstractWfSched.cc SimpleWfSched.cc )
-   TARGET_LINK_LIBRARIES( DietWorkflow ${QTXML_LIBRARY} )
-ENDIF ( DIET_BUILD_LIBRARIES AND DIET_USE_WORKFLOW )
+               Dag.cc BasicNode.cc Node.cc
+               WfReader.cc WfExtReader.cc Thread.cc WfUtils.cc
+               AbstractWfSched.cc SimpleWfSched.cc
+               CltReoMan_impl.cc
+               HEFT_Sched.cc
+               WfConfig.cc
+               )
+   TARGET_LINK_LIBRARIES( DietWorkflow ${XERCES_LIBRARY} )
+ENDIF (DIET_USE_WORKFLOW )
 ########################################################################
