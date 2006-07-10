@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2006/07/10 13:46:00  aamar
+ * Correcting a warning
+ *
  * Revision 1.6  2006/07/07 09:29:03  aamar
  * Modify the solveResults prototype: adding the parameter solve_res
  * that represents the execution status of the asynchronous request.
@@ -58,6 +61,7 @@ CORBA::Long CallbackImpl::notifyResults(const char * path,
   if (solve_res != GRPC_NO_ERROR)
     CallAsyncMgr::Instance()->setReqErrorCode(reqID, solve_res);
   */
+  return 0;
 }
 
 CORBA::Long
