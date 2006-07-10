@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2006/07/10 11:24:22  aamar
+ * Adding the following functions to the API:
+ *    - enable_reordering, set_reordering_delta, nodeIsDone, nodeIsRunning,
+ *     nodeIsWaiting
+ *
  * Revision 1.24  2006/07/07 18:36:31  aamar
  * Add the diet_cancel_all to the API
  *
@@ -245,12 +250,38 @@ void
 diet_wf_free(diet_wf_desc_t * profile);
 /*****************************************/
 /* define if the ma_dag return a         */
-/* ordering and a scheduling (b = true) */
+/* ordering and a scheduling (b = true)  */
 /* or only and ordering (b = false)      */
 /*****************************************/
 void
 set_madag_sched(int b);
 /*****************************************/
+/* enable/disable the reordering         */
+/* reordering enablef (b = true)         */
+/* reordering disabled (b = false)       */
+/*****************************************/
+void
+enable_reordering(const char * name, int b);
+/***************************************************************/
+/* set the reordering delta (time in seconds)                  */
+/* and the number of nodes to trigger the                      */
+/* reordering)                                                 */
+/***************************************************************/
+void set_reordering_delta(const long int nb_sec, 
+			  const unsigned long int nb_node);
+/***************************************************************/
+void
+nodeIsDone(const char * node_id);
+
+void
+nodeIsRunning(const char * node_id);
+
+void 
+nodeIsStarting(const char * node_id);
+
+void
+nodeIsWaiting(const char * node_id);
+/***************************************************************/
 
 #endif /* HAVE_WORKFLOW */
 
