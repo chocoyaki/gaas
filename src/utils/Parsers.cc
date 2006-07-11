@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2006/07/11 08:59:10  ycaniou
+ * .Batch queue is now read in the serveur config file (only one queue
+ * supported).
+ * .Transfered perf evaluation in diet server (still dummy function)
+ *
  * Revision 1.27  2006/07/10 11:12:05  aamar
  * Adding the workflow monitoring parameter USEWFLOGSERVICE
  *
@@ -101,10 +106,11 @@ Parsers::Results::param_t Parsers::Results::params[] =
    /* [24] */ {"maxConcJobs", 11, Parsers::parseInt, 0, NULL}
 #if HAVE_BATCH
    /* [25] */ ,{"batchName", 9, Parsers::parseName, 0, NULL}
+   /* [26] */ ,{"batchQueue", 10, Parsers::parseName, 0, NULL}
 #endif
-   /* [26] */ ,{"locationID", 10, Parsers::parseName, 0, NULL}
-   /* [27] */ ,{"MADAGNAME", 9, Parsers::parseName, 0, NULL}
-   /* [28] */ ,{"USEWFLOGSERVICE", 15, Parsers::parseName, 0, NULL}
+   /* [27] */ ,{"locationID", 10, Parsers::parseName, 0, NULL}
+   /* [28] */ ,{"MADAGNAME", 9, Parsers::parseName, 0, NULL}
+   /* [29] */ ,{"USEWFLOGSERVICE", 15, Parsers::parseName, 0, NULL}
   } ;
 
 #define IS_ADDRESS(i) ((i == Results::LDAPBASE) || (i == Results::NWSNAMESERVER) || (i == Results::NWSFORECASTER))

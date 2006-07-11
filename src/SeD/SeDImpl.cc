@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.76  2006/07/11 08:59:09  ycaniou
+ * .Batch queue is now read in the serveur config file (only one queue
+ * supported).
+ * .Transfered perf evaluation in diet server (still dummy function)
+ *
  * Revision 1.75  2006/07/07 09:40:14  aamar
  * Change to callback invocation to respect the new interface (return the
  * execution status).
@@ -176,6 +181,7 @@ SeDImpl::initialize()
 #endif //!HAVE_CORI && HAVE_FAST
 
 #if HAVE_BATCH
+  batchQueue = NULL ;
   this->tabCorresIDIndex = 0 ;
   for( int i=0 ; i<MAX_RUNNING_NBSERVICES ; i++ )
     tabCorresID[i].dietReqID = -1 ;
@@ -215,7 +221,15 @@ SeDImpl::run(ServiceTable* services)
       ERROR("Batch scheduler not recognized", 1) ;
     }
     TRACE_TEXT(TRACE_MAIN_STEPS,
-    	       "Batch submission enabled with " << ELBASE_GiveBatchName(this->batchID) << "\n") ;
+    	       "Batch submission enabled with " 
+	       << ELBASE_GiveBatchName(this->batchID) ) ;
+    /* Search for batch queues */
+    batchQueue = (char*)
+      Parsers::Results::getParamValue(Parsers::Results::BATCHQUEUE) ;
+    if( batchQueue != NULL )
+      TRACE_TEXT(TRACE_MAIN_STEPS, " using queue " 
+	       << batchQueue ) ;
+    TRACE_TEXT(TRACE_MAIN_STEPS, "\n" ) ;
   } else if (this->SrvT->existBatchService()) {
     ERROR("SeD is not allowed to launch batch and non batch job", 1) ;
   }
@@ -1160,6 +1174,14 @@ SeDImpl::findBatchID(int diet_reqID)
     INTERNAL_ERROR("incoherence relating with batch job ID and diet request ID"
 		   , 1);
   return tabCorresID[i].batchJobID ;
+}
+/** 
+ * Return the name of the batch queue
+ */
+char*
+SeDImpl::getBatchQueue()
+{
+  return batchQueue ;
 }
 #endif
 

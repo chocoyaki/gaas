@@ -1303,8 +1303,6 @@ ELBASE_SpawnScript(const char *script,
   *(c + 1) = '\0';
   
   printf("Script transformé à exécuter : \n%s\n\n\n",toExec) ;
-  if( strcmp(script,toExec) == 0 )
-    printf("Les scripts sont identiques !\n") ;
   
   if(strchr(toExec, '\n') != NULL || strchr(toExec, '|') != NULL) {
     tempPath = UniqueFilePath("elagi_sh");
@@ -1368,10 +1366,6 @@ ELBASE_Submit(ELBASE_ComputeServiceTypes service,
      environment);
   if(script == NULL)
     return 0;
-
-  /* YC */
-  /*  printf("script : %s\n\nFin Script\n\n",script) ; */
-  /* FYC */
 
   result = ELBASE_SpawnScript(script, process);
   free(script);

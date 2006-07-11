@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.56  2006/07/11 08:59:09  ycaniou
+ * .Batch queue is now read in the serveur config file (only one queue
+ * supported).
+ * .Transfered perf evaluation in diet server (still dummy function)
+ *
  * Revision 1.55  2006/06/30 15:41:46  ycaniou
  * DIET is now capable to submit batch Jobs in synchronous mode. Still some
  *   tuning to do (hard coded NFS path for OAR, tests for synchro between
@@ -1192,30 +1197,22 @@ diet_submit_batch(diet_profile_t *profile, const char *command)
   ** in case of data transfer or fault tolerance mechanism */  
   hostname = ((SeDImpl*)profile->SeDPtr)->getLocalHostName() ;
 
-  /* At this time, we can, or not, call again the prediction function
-  ** to know on a many processors we launch the job... and then the
-  ** reservation time (or walltime) we have to ask to the batch
-  ** -> maybe this has to be done in batch_server, not by DIET?
-  ** 
-  ** Until a correct prediction function is given (that will fill the 
-  ** corresponding fileds when the request touches the SeD, 
-  ** fixed values are used at the solving time */
-  profile->walltime = 125 ; /* minutes */
-  profile->nbprocs = 2 ;
-  profile->nbprocess = profile->nbprocs ;
-  
-  /* TODO we have to read available queues in the SeD configuration file and
-  ** choose accordingly with the estimation time of the job */
-  batchQueue = "queue_9_13" ;
+  batchQueue = ((SeDImpl*)(profile->SeDPtr))->getBatchQueue() ;
   
   /* Prepare batch arguments */
   chaine = (char*)malloc(100*sizeof(char)) ;
-  sprintf(chaine,"host_count=%d "
-	  "max_wall_time=%ld "
-	  "queue=%s",
-	  profile->nbprocs,
-	  profile->walltime,
-	  batchQueue) ;
+  if( batchQueue == NULL )
+    sprintf(chaine,"host_count=%d "
+	    "max_wall_time=%ld ",
+	    profile->nbprocs,
+	    profile->walltime) ;
+  else
+    sprintf(chaine,"host_count=%d "
+	    "max_wall_time=%ld "
+	    "queue=%s",
+	    profile->nbprocs,
+	    profile->walltime,
+	    batchQueue) ;
   attrs = ASSTR_StrSplit(chaine, NULL) ;
 
   /* Replace some stuff in SeD programmer's command */

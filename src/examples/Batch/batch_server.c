@@ -23,6 +23,22 @@
 
 
 /****************************************************************************
+ * PERFORMANCE FUNCTION
+ ****************************************************************************/
+
+void make_perf(diet_profile_t *pb)
+{
+  /* TODO: an API in order to provide the SeD with communication means
+  ** with batch scheduler for prediction performances  */
+  
+  /* For the moment, give arbitrary values */
+  pb->walltime = 125 ;
+  pb->nbprocs = 2 ;
+  pb->nbprocess = pb->nbprocs ;
+}
+
+
+/****************************************************************************
  * SOLVE FUNCTION
  ****************************************************************************/
 
@@ -137,6 +153,11 @@ int solve_helloMPI(diet_profile_t *pb)
 			   + 1 ) * sizeof(char) ) ;
   sprintf(script,"%s%s%s%s",prologue,copying,cmd,epilogue) ;
 
+
+  /* Call performance prediction or not, but fields are to be fullfilled */
+  make_perf(pb) ;
+  
+  /* Submission */
   result = diet_submit_batch(pb, script) ;
   if( result )
     printf("Error when submitting the script\n") ;
@@ -155,16 +176,7 @@ int solve_helloMPI(diet_profile_t *pb)
   /* Don't free path1, path2 and path_result */
   return 0 ;
 }
-/*
-  int make_perf(diet_profile_t *pb)
-  {
-  Must look how to integrate in elagi a convenient way 
-  to ask the batch scheduler for prediction performances 
-  int l ;
-  
-  l=5 ;
-  }
-*/
+
 /****************************************************************************
  * MAIN
  ****************************************************************************/

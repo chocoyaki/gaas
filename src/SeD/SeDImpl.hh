@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2006/07/11 08:59:09  ycaniou
+ * .Batch queue is now read in the serveur config file (only one queue
+ * supported).
+ * .Transfered perf evaluation in diet server (still dummy function)
+ *
  * Revision 1.26  2006/06/30 15:41:47  ycaniou
  * DIET is now capable to submit batch Jobs in synchronous mode. Still some
  *   tuning to do (hard coded NFS path for OAR, tests for synchro between
@@ -215,6 +220,8 @@ public:
   storeBatchID(int batch_jobID, int diet_reqID) ;
   int
   findBatchID(int diet_reqID) ;
+  char*
+  getBatchQueue() ;
 #endif
 
   virtual void
@@ -260,6 +267,8 @@ private:
   /* Correspondance with Elagi
   ** -> must be initialized with a special call to Elagi */
   ELBASE_SchedulerServiceTypes batchID ;
+  char *batchQueue ;
+    
   /* Correspondance between the Diet reqID and the Batch Job ID
   ** Supposes that no more than 100 batch jobs execute simultaneously
   ** on the SeD */

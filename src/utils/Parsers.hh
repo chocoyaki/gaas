@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2006/07/11 08:59:10  ycaniou
+ * .Batch queue is now read in the serveur config file (only one queue
+ * supported).
+ * .Transfered perf evaluation in diet server (still dummy function)
+ *
  * Revision 1.17  2006/07/10 11:12:05  aamar
  * Adding the workflow monitoring parameter USEWFLOGSERVICE
  *
@@ -121,6 +126,7 @@ public:
       BINDSERVICEPORT, USECONCJOBLIMIT, MAXCONCJOBS,
 #if HAVE_BATCH
       BATCHNAME,
+      BATCHQUEUE,
 #endif
       LOCATIONID,         // For alternative transfer cost prediction
       MADAGNAME,
