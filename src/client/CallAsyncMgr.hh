@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2006/07/13 14:40:39  aamar
+ * Adding the doneRequest vector for already tested requests by
+ * grpc_wait_any.
+ *
  * Revision 1.13  2006/07/07 09:20:03  aamar
  * Adding the public function getAddSessionIDs.
  *
@@ -228,5 +232,12 @@ class CallAsyncMgr
      * A map to save the function handles indexed by their session ID
      */
     std::map<diet_reqID_t, grpc_function_handle_t*> handlesMap;
+    /*
+     * A vector of already done requests (that the user do 
+     * a wait_any on)
+     * (may be must be used also for requests that the user
+     * do a wait on)
+     */
+    std::vector<diet_reqID_t> doneRequests;
 };
 #endif //CALLASYNCMGR

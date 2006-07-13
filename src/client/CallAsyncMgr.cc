@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2006/07/13 14:40:39  aamar
+ * Adding the doneRequest vector for already tested requests by
+ * grpc_wait_any.
+ *
  * Revision 1.19  2006/07/07 09:27:01  aamar
  * Modify the addWaitAnyRule function: the previous implementation wait
  * for any request even if the request is already done. Successive call
@@ -235,9 +239,6 @@ int CallAsyncMgr::addWaitAllRule()
  * ********************************************************************/
 int CallAsyncMgr::addWaitAnyRule(diet_reqID_t* IDptr)
 {
-  // vector of already done requests 
-  //  static
-  vector<diet_reqID_t> doneRequests;
   try {
     Rule * rule = new Rule;
     { //managing Reader lock
@@ -245,19 +246,13 @@ int CallAsyncMgr::addWaitAnyRule(diet_reqID_t* IDptr)
       CallAsyncList::iterator h = caList.begin();
       int size = caList.size();
       // Create ruleElements table ...
-      int doneReqCount = 0;
-      while (h != caList.end()) {
-	if (h->second->st == STATUS_DONE) {
-	  doneReqCount++;
-	  doneRequests.push_back(h->first);
-	}
-	h++;
-      }
+      int doneReqCount = doneRequests.size();
       ruleElement * simpleWait = new ruleElement[size-doneReqCount];
-      h = caList.begin();
       int ix=0;
       for (int k = 0; k < size; k++){
-	if (h->second->st != STATUS_DONE) {
+	if (find(doneRequests.begin(),
+		 doneRequests.end(),
+		 h->first) == doneRequests.end()) {
 	  simpleWait[ix].reqID = h->first;
 	  simpleWait[ix++].op = WAITOPERATOR(ANY);
 	}
@@ -281,6 +276,7 @@ int CallAsyncMgr::addWaitAnyRule(diet_reqID_t* IDptr)
 		      h->first) == doneRequests.end())
 		) {
               *IDptr = h->first;
+	      doneRequests.push_back(h->first);
               return STATUS_DONE;
             }
             ++h;  
