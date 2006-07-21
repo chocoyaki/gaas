@@ -7,14 +7,18 @@
 /* $LICENSE$                                                                */
 /****************************************************************************/
 /* $Id$
-/* $Log$
-/* Revision 1.2  2006/06/29 12:29:00  ecaron
-/* Correct header
-/*
-/* Revision 1.1  2006/06/29 12:23:26  ecaron
-/* Add client for GridRPC interoperability checking
-/*
-/****************************************************************************/
+ * $Log$
+ * Revision 1.3  2006/07/21 09:29:22  eboix
+ *  - Added the first brick for test suite [disabled right now].
+ *  - Doxygen related cosmetic changes.  --- Injay2461
+ *
+ * Revision 1.2  2006/06/29 12:29:00  ecaron
+ * Correct header
+ *
+ * Revision 1.1  2006/06/29 12:23:26  ecaron
+ * Add client for GridRPC interoperability checking
+ *
+ ****************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <grpc.h>

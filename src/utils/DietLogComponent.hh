@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2006/07/21 09:29:22  eboix
+ *  - Added the first brick for test suite [disabled right now].
+ *  - Doxygen related cosmetic changes.  --- Injay2461
+ *
  * Revision 1.10  2006/06/30 17:27:42  abouteil
  *
  * Fixed: useless debug warning
@@ -215,6 +219,7 @@ public:
   /**
    * Connect to LogCentral to enable logging. Must be called
    * after activation.
+   * @param agentType  Undocumented
    * @param parentName The name of this agent's parent. Pass
    * NULL or "" if this is a Master agent.
    * @param outBufferTime The maximum time messages stay in the

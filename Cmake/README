@@ -1,4 +1,4 @@
-Compiling and installing DIET with cmake (version 2.2.X or higher) :
+Compiling and installing DIET with cmake (version 2.2.3 or higher) :
 
 I/ For the (really) impatients:
   cd ..        [ relative to this README file i.e. cd the home of DIET sources ]
@@ -100,9 +100,18 @@ VI/ Cmake general information, references and docs:
   Google with the command your are looking for as key (avoid cmake as keyword).
 
 VII/ Requirements:
-  Obtain and install the current version of cmake (at leat version 2.2.X) from 
-     http://www.cmake.org/
+  Obtain and install the lastest stable of cmake from http://www.cmake.org/
+  (take at leat version 2.2.3).
   Although the various binary packages are not available on this site
   apt-get is generally cmake aware. By default fetching the sources,
   compiling and installing them should be straightfoward...
 
+
+------------------------------------------------------------
+Notes:
+ - until realease of 2.4.3 (for more on this matter refer to thread
+   http://public.kitware.com/pipermail/cmake/2006-June/009735.html )
+   the rpath (as gotten from e.g. objdump -x dietAgent | grep RPATH) is NOT
+   set. Hence if you linked against external libraries e.g. omniORB that are
+   NOT in the loader standards path, THEN you will need to set the ad-hoc
+   LD_LIBRARY_PATH.

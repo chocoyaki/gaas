@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2006/07/21 09:29:22  eboix
+ *  - Added the first brick for test suite [disabled right now].
+ *  - Doxygen related cosmetic changes.  --- Injay2461
+ *
  * Revision 1.22  2006/05/12 12:12:32  sdahan
  * Add some documentation about multi-MA
  *
@@ -87,9 +91,9 @@ extern omni_mutex debug_log_mutex ;
 
 
 /**
- * Definition of the EXIT_FUNCTION if it not exists
- * You must put the EXIT_FUNCTION's definition before any
- * #include "xxx" in order to work.
+ * Definition of the EXIT_FUNCTION when not yet defined.
+ * You must place the EXIT_FUNCTION's definition before any
+ * preprocessing inclusion for this to work.
  */
 #ifndef EXIT_FUNCTION
 #define EXIT_FUNCTION cout << "DEBUG WARNING: EXIT_FUNCTION undeclared !\n"

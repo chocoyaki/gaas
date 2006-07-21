@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2006/07/21 09:29:22  eboix
+ *  - Added the first brick for test suite [disabled right now].
+ *  - Doxygen related cosmetic changes.  --- Injay2461
+ *
  * Revision 1.2  2006/07/10 11:07:37  aamar
  * - Adding Matrix data type support
  * - The toXML (for Node and Ports) method that return XML
@@ -619,9 +623,11 @@ private:
 
   /**
    * set the node profile param *
+   * @param port    Undocumented * 
    * @param type    parameter data type * 
    * @param lastArg parameter index *
    * @param value   string representation of parameter value *
+   * @param mode    Undocumented * 
    */
   void
   set_profile_param(WfPort * port, 

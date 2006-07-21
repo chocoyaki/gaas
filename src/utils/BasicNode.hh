@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2006/07/21 09:29:22  eboix
+ *  - Added the first brick for test suite [disabled right now].
+ *  - Doxygen related cosmetic changes.  --- Injay2461
+ *
  * Revision 1.2  2006/07/10 11:07:04  aamar
  * - changing the constructor (adding the problem name as parameter)
  * - adding some helpful function : string getPb(), bool isAnExit(),
@@ -128,7 +132,7 @@ public:
   addPrevNode();
   
   /**
-   * Add <n> new previous nodes *
+   * Add n new previous nodes *
    */
   void
   addPrevNode(int n);

@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2006/07/21 09:29:22  eboix
+ *  - Added the first brick for test suite [disabled right now].
+ *  - Doxygen related cosmetic changes.  --- Injay2461
+ *
  * Revision 1.2  2006/07/10 11:09:41  aamar
  * - Adding matrix data type
  * - Adding generic nodes and generic ports parsing
@@ -226,6 +230,7 @@ protected:
    * @param type     argument data type 
    * @param profile  current profile reference
    * @param lastArg  the argument index in the profile
+   * @param var      Undocumented
    * @param dagNode  node reference in the Dag structure
    */
   virtual bool 
@@ -244,6 +249,7 @@ protected:
    * @param source   linked output port id
    * @param profile  current profile reference
    * @param lastArg  the input port index in the profile
+   * @param var      Undocumented
    * @param dagNode  node reference in the Dag structure
    */
   virtual bool 
@@ -262,6 +268,7 @@ protected:
    * @param source   linked output port id
    * @param profile  current profile reference
    * @param lastArg  the inoutput port index in the profile
+   * @param var      Undocumented
    * @param dagNode  node reference in the Dag structure
    */  
   virtual bool
@@ -280,6 +287,7 @@ protected:
    * @param sink     linked input port id
    * @param profile  current profile reference
    * @param lastArg  the output port index in the profile
+   * @param var      Undocumented
    * @param dagNode  node reference in the Dag structure
    */  
    virtual bool
@@ -301,16 +309,18 @@ protected:
 	   const string& type,
 	   diet_profile_t * profile,
 	   unsigned int lastArg,
-	   long var = -1,
+	   long int var = -1,
 	   BasicNode * dagNode = NULL,
 	   const string * value = NULL);
 
   /**
    * parse a matrix argument
-   * @param id         Port complete id (node id + # + port name)
-   * @param element    Dom node representing a matrix
+   * @param id       Port complete id (node id + # + port name)
+   * @param element  Dom node representing a matrix
    * @param profile  current profile reference
    * @param lastArg  the output port index in the profile
+   * @param var      Undocumented
+   * @param dagNode  Undocumented
    */
   virtual bool
   checkMatrixArg(const string& id, const DOMElement * element,
@@ -320,10 +330,12 @@ protected:
 
   /**
    * parse a matrix input port
-   * @param id         Port complete id (node id + # + port name)
-   * @param element    Dom node representing a matrix
+   * @param id       Port complete id (node id + # + port name)
+   * @param element  Dom node representing a matrix
    * @param profile  current profile reference
    * @param lastArg  the output port index in the profile
+   * @param var      Undocumented
+   * @param dagNode  Undocumented
    */
   virtual bool
   checkMatrixIn(const string& id, const DOMElement * element,
@@ -333,10 +345,12 @@ protected:
 
   /**
    * parse a matrix inout port
-   * @param id         Port complete id (node id + # + port name)
-   * @param element    Dom node representing a matrix
+   * @param id       Port complete id (node id + # + port name)
+   * @param element  Dom node representing a matrix
    * @param profile  current profile reference
    * @param lastArg  the output port index in the profile
+   * @param var      Undocumented
+   * @param dagNode  Undocumented
    */
   virtual bool
   checkMatrixInout(const string& id, const DOMElement * element,
@@ -346,10 +360,12 @@ protected:
 
   /**
    * parse a matrix output port
-   * @param id         Port complete id (node id + # + port name)
-   * @param element    Dom node representing a matrix
+   * @param id       Port complete id (node id + # + port name)
+   * @param element  Dom node representing a matrix
    * @param profile  current profile reference
    * @param lastArg  the output port index in the profile
+   * @param var      Undocumented
+   * @param dagNode  Undocumented
    */
   virtual bool
   checkMatrixOut(const string& id, const DOMElement * element,
@@ -362,8 +378,10 @@ protected:
    * Check only the commun attributes of In, Inout and Out ports
    * @param id         Port complete id (node id + # + port name)
    * @param element    Dom node representing a matrix
-   * @param profile  current profile reference
-   * @param lastArg  the output port index in the profile
+   * @param base_type  Undocumented
+   * @param nb_rows    Undocumented
+   * @param nb_cols    Undocumented
+   * @param matrix_order Undocumented
    */
   virtual bool
   checkMatrixCommun(const string& id, const DOMElement * element,

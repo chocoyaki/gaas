@@ -10,6 +10,7 @@ IF( BUILD_TESTING )
   # you should edit when adding a new test within this directory:
   SET( DIET_TEST_SOURCES
     TestDummy.cxx
+    # TestORBMgrInit.cxx
   )
   
   # Choose a base name for the test driver...
@@ -31,10 +32,25 @@ IF( BUILD_TESTING )
   # DIET_TEST_BASENAME we chose) out of the above constructed list of tests:
   ADD_EXECUTABLE( ${DIET_TEST_NAME} ${GENERATED_DIET_MAIN_TEST} )
   
+  # Some of the test make inclusions:
+  INCLUDE_DIRECTORIES(
+    ${OMNIORB4_INCLUDE_DIR}
+    ${DIET_SOURCE_DIR}/src/CORBA
+    ${DIET_BINARY_DIR}/include   # CLEANME: must preceed source/include
+                                 # to take cmake-generated DIET_config.h
+    ${DIET_SOURCE_DIR}/include   # CLEANME: for DIET_data.h
+  )
+
   # Add each atomic test:
   FOREACH( loop_file ${DIET_TEST_SOURCES} )
     GET_FILENAME_COMPONENT( name ${loop_file} NAME_WE )
     ADD_TEST( ${name} ${DIET_TEST_NAME} ${name} )
   ENDFOREACH( loop_file ${DIET_TEST_SOURCES} )
+
+  TARGET_LINK_LIBRARIES( ${DIET_TEST_NAME}
+    UtilsCommon        # FIXME: this is a dependency of the CorbaCommon
+                       # target and should NOT figure here !
+    CorbaCommon        # Used by TestORBMgrInit.cxx
+  )
   
 ENDIF( BUILD_TESTING )
