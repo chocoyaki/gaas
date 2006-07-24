@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2006/07/24 16:49:43  ycaniou
+ * Added { and } to the macro ERROR. It's the only one implemented that way
+ *   and conducts to hours of debugging if { and } are forgotten around in
+ *   the code using it.
+ *
  * Revision 1.23  2006/07/21 09:29:22  eboix
  *  - Added the first brick for test suite [disabled right now].
  *  - Doxygen related cosmetic changes.  --- Injay2461
@@ -119,11 +124,11 @@ extern omni_mutex debug_log_mutex ;
 /**
  * Error message - return with return_value.
  */
-#define ERROR(formatted_msg,return_value)           \
+#define ERROR(formatted_msg,return_value) {         \
   debug_log_mutex.lock() ;                          \
   cerr << "DIET ERROR: " << formatted_msg << ".\n"; \
   debug_log_mutex.unlock() ;                        \
-  return return_value
+  return return_value ; }
 
 /**
  * Warning message.
@@ -142,7 +147,7 @@ extern omni_mutex debug_log_mutex ;
   cerr << "DIET INTERNAL ERROR: " << formatted_msg << ".\n"   \
        "Please send bug report to diet-usr@ens-lyon.fr\n" ;   \
   debug_log_mutex.unlock() ; }                                \
-  EXIT_FUNCTION; \
+  EXIT_FUNCTION;                                              \
   exit(exit_value)
 
 /**
