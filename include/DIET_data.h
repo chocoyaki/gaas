@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.43  2006/07/25 14:23:17  ycaniou
+ * Changed dietJobID field to dietReqID which is more coherent with the rest
+ *   of the code
+ *
  * Revision 1.42  2006/06/30 15:47:42  ycaniou
  * Coquilles, and batch stuff
  *
@@ -251,7 +255,7 @@ typedef struct {
   int nbprocess ;
   unsigned long walltime ; /* in minutes */
   /* Used for correspondance batch job ID / DIET job ID */
-  int dietJobID ;
+  int dietReqID ;
 #endif
 
 } diet_profile_t;
