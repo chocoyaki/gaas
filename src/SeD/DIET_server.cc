@@ -8,6 +8,16 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.57  2006/07/25 14:34:38  ycaniou
+ * Use TRACE_TIME to precise time of downloading, submitting and uploading
+ *   datas
+ * Use a chained list (and not an array anymore) to manage the correspondance
+ *   between DIET requests and batch jobs.
+ * Changed the prototype of solve_batch: reqID is in the profile when batch mode
+ *   is enabled.
+ *
+ * Batch management for sync. calls is now fully operationnal (at least for oar ;)
+ *
  * Revision 1.56  2006/07/11 08:59:09  ycaniou
  * .Batch queue is now read in the serveur config file (only one queue
  * supported).
@@ -110,12 +120,6 @@ using namespace std;
 #define ASSTR_SHORT_NAMES
 #include "strseed.h"
 #include <string.h>
-
-typedef struct _ProcessInfoStruct {
-  int gramProcess;
-  ASEXEC_ProcessId pid;
-} *ProcessInfo;
-
 #endif
 
 #define BEGIN_API extern "C" {
@@ -1223,44 +1227,26 @@ diet_submit_batch(diet_profile_t *profile, const char *command)
   ASSTR_StrReplaceAll(&cmd,"$DIET_USER_NBPROCS",chaine) ;
   ASSTR_StrReplaceAll(&cmd,"$DIET_NAME_FRONTALE",hostname) ;
 
-  TRACE_TEXT(TRACE_ALL_STEPS,"Le 1er script SeD est\n" << cmd
-	     << "########################################\n\n\n") ;
-
-  //   passed = ELBASE_Submit(ELBASE_service, "localhost", schedulerID
-  // 			 , (const char **)attrs,
-  // 			 command, NULL, NULL, NULL, "dietBatchSubmit05"
-  // 			 , NULL, NULL,
-  // 			 &pid) ;
-  
   /* Submit request with a fork, bacause we are on the frontale
-   *   Note: if process == NULL, then the call will block in SpawnScript()
-   *   until the job is finished. If it is a well defined structure, info
-   *   are returned
-
-   * If this function is for both async and sync, then do it differently!
+   *   Note: if process != NULL, it contains pid info after return
+   *   For sync and async, store the pid of the submitter
    */
+  process = (ELBASE_Process*) malloc (sizeof(ELBASE_Process)) ;
   result = ELBASE_Submit(ELBASE_FORK, hostname, schedulerID,
 			 (const char **)attrs,
 			 cmd, NULL, NULL, NULL, NULL,
 			 NULL, NULL, process) ;
   
-  /*  Cannot use process info cause NULL!
-      TRACE_TEXT(TRACE_ALL_STEPS, "\n\n\nBatch Job ID : " 
-	     << (int)((ProcessInfo)process)->pid << "\n") ;
-  */
-
-  if( result )
-    return 0 ; // An error occured during the submission
-    
+  if( result == 0 ) { // An error occured during the submission
+    ERROR("Error during submission...", 20);
+  }
   /* Store the JobID in correlation with DIET_taskID
   ** Note that the ID is the ID of the script that does the submission
   ** of the batch script. There is not a big difference for us as
   ** we can watch this process which watch the batch job :)
   */
-  /* For sync call, do not store, for async:
-     ((SeDImpl*)(profile->SeDPtr))->storeBatchID((int)((ProcessInfo)process)->pid,
-     profile->dietJobID) ;
-  */
+  ((SeDImpl*)(profile->SeDPtr))->storeBatchID(process, profile->dietReqID) ;
+  
   /* Free memory */
   free(chaine) ;
   free(cmd) ;
@@ -1272,7 +1258,7 @@ diet_submit_batch(diet_profile_t *profile, const char *command)
   }
   free(attrs) ;
     
-  return 1 ;
+  return result ;
 }
 #endif
 

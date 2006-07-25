@@ -9,6 +9,16 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.77  2006/07/25 14:34:39  ycaniou
+ * Use TRACE_TIME to precise time of downloading, submitting and uploading
+ *   datas
+ * Use a chained list (and not an array anymore) to manage the correspondance
+ *   between DIET requests and batch jobs.
+ * Changed the prototype of solve_batch: reqID is in the profile when batch mode
+ *   is enabled.
+ *
+ * Batch management for sync. calls is now fully operationnal (at least for oar ;)
+ *
  * Revision 1.76  2006/07/11 08:59:09  ycaniou
  * .Batch queue is now read in the serveur config file (only one queue
  * supported).
@@ -139,6 +149,13 @@ using namespace std;
 #include "Parsers.hh"
 #include "statistics.hh"
 
+#define DEBUG_YC
+#ifdef DEBUG_YC
+#include <sys/time.h>
+struct timeval tv ;
+struct timezone tz ;
+#endif
+
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
 
@@ -182,9 +199,7 @@ SeDImpl::initialize()
 
 #if HAVE_BATCH
   batchQueue = NULL ;
-  this->tabCorresIDIndex = 0 ;
-  for( int i=0 ; i<MAX_RUNNING_NBSERVICES ; i++ )
-    tabCorresID[i].dietReqID = -1 ;
+  initCorresBatchDietReqID() ;
 #endif //HAVE_BATCH
 }
 
@@ -540,7 +555,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
 
 #if HAVE_BATCH
   if( pb.batch_flag == 1 ) {
-    return this->solve_batch(path, pb, reqID, ref, profile) ;
+    return this->solve_batch(path, pb, ref, profile) ;
   }
 #endif
 
@@ -606,7 +621,7 @@ SeDImpl::getBatchSchedulerID()
 
 CORBA::Long
 SeDImpl::solve_batch(const char* path, corba_profile_t& pb,
-		     CORBA::Long reqID, ServiceTable::ServiceReference_t& ref,
+		     ServiceTable::ServiceReference_t& ref,
 		     diet_profile_t& profile)
 {
   /*************************************************************
@@ -633,11 +648,11 @@ SeDImpl::solve_batch(const char* path, corba_profile_t& pb,
     this->accessController->waitForResource();
   }
 
-  sprintf(statMsg, "solve %ld", (unsigned long) reqID);
+  sprintf(statMsg, "solve %ld", (unsigned long) pb.dietReqID);
   stat_in("SeD",statMsg);
 
   if (dietLogComponent != NULL) {
-    dietLogComponent->logBeginSolve(path, &pb, reqID);
+    dietLogComponent->logBeginSolve(path, &pb, pb.dietReqID);
   }
 
   TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::batch_solve invoked on pb: " 
@@ -651,20 +666,21 @@ SeDImpl::solve_batch(const char* path, corba_profile_t& pb,
   TRACE_TEXT(TRACE_MAIN_STEPS, "Calling getSolver\n");
   solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
 
-  // TODO: We still have to wait for job completion and complete data
-  // production. How implement something that could transfer data by
-  // a given amount once computed several times?
+  TRACE_TIME(TRACE_MAIN_STEPS, "Submitting script for DIET job of ID "
+	     << profile.dietReqID <<
+	     " is of pid " << 
+	     (int)((ProcessInfo)findBatchID(profile.dietReqID))->pid 
+	     << "\n") ;
 
-  /* We implement the batch job termination watching by looking if the
-  ** job that have effectively launched the batch script is still alive
+  /* This waits until the jobs ends
+  ** and remove batchID/DIETreqID correspondance */
+  if( (ELBASE_Poll(findBatchID(profile.dietReqID), 1, &status) == 0)
+      && status == 0 ) {
+    ERROR("An error occured during the execution of the batch job", 21);
+  }
+  removeBatchID(pb.dietReqID) ;
 
-  Only for async call!
-  if( ELBASE_Poll((ELBASE_Process)findBatchID(profile.dietJobID), 1, &status) 
-      && status == 0 )
-    ERROR("An error occured during the execution of the batch job", 1);
-  */
-
-  // TODO: look if still ok for // jobs (normally yes)
+  // TODO: verify it is ok with parallel non batch jobs
 
   /* Data transfer */
   uploadSyncSeDData(profile,pb,cvt) ;
@@ -682,7 +698,7 @@ SeDImpl::solve_batch(const char* path, corba_profile_t& pb,
   stat_flush();
 
   if (dietLogComponent != NULL) {
-    dietLogComponent->logEndSolve(path, &pb,reqID);
+    dietLogComponent->logEndSolve(path, &pb, pb.dietReqID);
   }
 
   if (this->useConcJobLimit){
@@ -1009,7 +1025,7 @@ SeDImpl::downloadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 {
   int i ;
 
-  TRACE_TEXT(TRACE_MAIN_STEPS, "SeD downloads client datas\n");
+  TRACE_TIME(TRACE_MAIN_STEPS, "SeD downloads client datas\n");
   
 #if HAVE_JUXMEM
   unmrsh_in_args_to_profile(&profile, &pb, cvt);
@@ -1080,7 +1096,7 @@ SeDImpl::uploadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 {
   int i ;
 
-  TRACE_TEXT(TRACE_MAIN_STEPS, "SeD uploads client datas\n");
+  TRACE_TIME(TRACE_MAIN_STEPS, "SeD uploads client datas\n");
   
 #if HAVE_JUXMEM
   for (i = 0; i <= profile.last_out; i++) {
@@ -1139,42 +1155,106 @@ SeDImpl::uploadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 
 
 #ifdef HAVE_BATCH
-  /**
-   * Store the batch job ID of the parallel task just submitted in
-   * correspondance with the DIET request ID
-   */
 void
-SeDImpl::storeBatchID(int batch_jobID, int diet_reqID)
+SeDImpl::initCorresBatchDietReqID()
 {
+  this->batchJobQueue = NULL ;
+}
+/**
+ * Store the batch job ID of the parallel task just submitted in
+ * correspondance with the DIET request ID
+ */
+void
+SeDImpl::storeBatchID(ELBASE_Process *batch_jobID, int diet_reqID)
+{
+  SeDImpl::corresID *tmp ;
+
+  tmp = (corresID*)malloc(sizeof(corresID)) ;
+  if( tmp == NULL ) {
+    ERROR("Not enough memory to store new batch information\n",);
+  }
+  tmp->nextStruct = this->batchJobQueue ;
+  
+  this->batchJobQueue = tmp ;
+  this->batchJobQueue->batchJobID = batch_jobID ;
+  this->batchJobQueue->dietReqID = diet_reqID ;
+}
   /* For the moment, storage done in a table
   ** TODO: use something like a red/black tree? */
-  int i=0 ;
+//   int i=0 ;
   
-  while( (i<tabCorresIDIndex) && (tabCorresID[i].dietReqID != -1) )
-    i++ ;
-  if( tabCorresIDIndex == MAX_RUNNING_NBSERVICES ) {
-    INTERNAL_ERROR("not enough place to insert new batch job", 1);
-  } else if( i == tabCorresIDIndex )
-    tabCorresIDIndex++ ;
-  tabCorresID[i].batchJobID = batch_jobID ;
-  tabCorresID[i].dietReqID = diet_reqID ;
-}
+//   while( (i<tabCorresIDIndex) && (tabCorresID[i].dietReqID != -1) )
+//     i++ ;
+//   if( tabCorresIDIndex == MAX_RUNNING_NBSERVICES ) {
+//     INTERNAL_ERROR("not enough place to insert new batch job", 1);
+//   } else if( i == tabCorresIDIndex )
+//     tabCorresIDIndex++ ;
+//   tabCorresID[i].batchJobID = batch_jobID ;
+//   tabCorresID[i].dietReqID = diet_reqID ;
+// }
+/* This function must be called after a ELBASE_Poll, 
+**     which desallocate the ELBASE_Process structure!
+** ( TODO: Look what happens when stop/kill ).
+** It removes the batchJobID/DietReqID correspondance
+*/
+void
+SeDImpl::removeBatchID(int diet_reqID)
+{
+  corresID *tmp=batchJobQueue ;
+  corresID *tmp2 ;
 
+  tmp = batchJobQueue ;
+  if( tmp != NULL ) {
+    if( tmp->dietReqID != diet_reqID ) {
+      while( (tmp->nextStruct != NULL) && 
+	     (tmp->nextStruct->dietReqID != diet_reqID) )
+	tmp = tmp->nextStruct ;
+      if( tmp->nextStruct == NULL ) {
+	INTERNAL_ERROR("incoherence relating with batch job ID"
+		       " and diet request ID"
+		       " when removing batch info"
+		       , 1);
+      }
+      // remove the struct
+      tmp2=tmp->nextStruct ;
+      tmp->nextStruct = tmp2->nextStruct ;
+      free(tmp2) ;
+    } else { // remove the head
+      batchJobQueue=batchJobQueue->nextStruct ;
+      free( tmp ) ;
+    }
+  } else { // tmp == NULL
+    INTERNAL_ERROR("incoherence relating with batch job ID and diet request ID"
+		   " when removing batch info"
+		   , 1);
+  }
+}
 /** 
  * Return the pid of the script that launched the batch job
  */
-int
+ELBASE_Process
 SeDImpl::findBatchID(int diet_reqID)
 {
-  int i=0 ;
-
-  while( (i<tabCorresIDIndex) && (tabCorresID[i].dietReqID != diet_reqID) )
-    i++ ;
-  if( i == tabCorresIDIndex )
-    INTERNAL_ERROR("incoherence relating with batch job ID and diet request ID"
+  corresID *tmp=batchJobQueue ;
+  
+  while( (tmp != NULL) && (tmp->dietReqID != diet_reqID) )
+    tmp=tmp->nextStruct ;
+  
+  if( tmp == NULL) {
+    INTERNAL_ERROR("Incoherence relating with batch job ID and diet request ID"
 		   , 1);
-  return tabCorresID[i].batchJobID ;
+  }
+  return *(tmp->batchJobID) ;
 }
+//   int i=0 ;
+
+//   while( (i<tabCorresIDIndex) && (tabCorresID[i].dietReqID != diet_reqID) )
+//     i++ ;
+//   if( i == tabCorresIDIndex )
+//     INTERNAL_ERROR("incoherence relating with batch job ID and diet request ID"
+// 		   , 1);
+//   return tabCorresID[i].batchJobID ;
+// }
 /** 
  * Return the name of the batch queue
  */

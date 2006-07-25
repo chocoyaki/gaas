@@ -9,6 +9,16 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2006/07/25 14:34:39  ycaniou
+ * Use TRACE_TIME to precise time of downloading, submitting and uploading
+ *   datas
+ * Use a chained list (and not an array anymore) to manage the correspondance
+ *   between DIET requests and batch jobs.
+ * Changed the prototype of solve_batch: reqID is in the profile when batch mode
+ *   is enabled.
+ *
+ * Batch management for sync. calls is now fully operationnal (at least for oar ;)
+ *
  * Revision 1.27  2006/07/11 08:59:09  ycaniou
  * .Batch queue is now read in the serveur config file (only one queue
  * supported).
@@ -210,15 +220,19 @@ public:
   getBatchSchedulerID() ;
 
   virtual CORBA::Long
-  solve_batch(const char* pbName, corba_profile_t& pb,CORBA::Long reqID,
+  solve_batch(const char* pbName, corba_profile_t& pb,
 	      ServiceTable::ServiceReference_t& ref,
 	      diet_profile_t& profile) ;
 
   char* getLocalHostName() ;
 
   void
-  storeBatchID(int batch_jobID, int diet_reqID) ;
-  int
+  initCorresBatchDietReqID() ;
+  void
+  storeBatchID(ELBASE_Process *batch_reqID, int diet_reqID) ;
+  void
+  removeBatchID(int diet_reqID) ;
+  ELBASE_Process
   findBatchID(int diet_reqID) ;
   char*
   getBatchQueue() ;
@@ -269,16 +283,14 @@ private:
   ELBASE_SchedulerServiceTypes batchID ;
   char *batchQueue ;
     
-  /* Correspondance between the Diet reqID and the Batch Job ID
-  ** Supposes that no more than 100 batch jobs execute simultaneously
-  ** on the SeD */
-  typedef struct {
+  /* Correspondance between the Diet reqID and the Batch Job ID 
+     stored as a chained list */
+  typedef struct corresID_def {
     int dietReqID ;
-    int batchJobID ;
+    ELBASE_Process *batchJobID ;
+    struct corresID_def *nextStruct ;
   } corresID ;
-#define MAX_RUNNING_NBSERVICES 100
-  corresID tabCorresID[MAX_RUNNING_NBSERVICES] ;
-  int tabCorresIDIndex ;
+  corresID *batchJobQueue ;
 #endif
 
   /* Queue: should SeD restrict the number of concurrent solves? */
