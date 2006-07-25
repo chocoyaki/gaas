@@ -1,5 +1,5 @@
 /****************************************************************************/
-/* DIET server for Batch submission                                         */
+/* DIET client for Batch submission                                         */
 /*                                                                          */
 /*  Author(s):                                                              */
 /*    - Yves CANIOU (ycaniou@ens-lyon.fr)                                   */
@@ -19,6 +19,7 @@
 
 #include "DIET_client.h"
 
+#include <sys/time.h>
 
 /* argv[1]: client config file path */
 
@@ -29,6 +30,8 @@ main(int argc, char* argv[])
   diet_profile_t* profile = NULL;
   double nbreel=0 ;
   size_t file_size = 0 ;
+  struct timeval tv ;
+  struct timezone tz ;
     
   if (argc != 5) {
     fprintf(stderr, "Usage: %s <file.cfg> <file1> <double> <file2>\n",
@@ -67,6 +70,9 @@ main(int argc, char* argv[])
    * DIET Call
    *********************/
 
+  gettimeofday(&tv, &tz);
+  printf("L'heure de soumission est %ld:%ld\n\n",tv.tv_sec,tv.tv_usec) ;
+
   if (!diet_call(profile)) {
     printf("Job correctly submitted!\n\n\n") ;
     diet_file_get(diet_parameter(profile,3), NULL, &file_size, &path);
@@ -75,10 +81,12 @@ main(int argc, char* argv[])
 	     path, (int) file_size);
     }
   }
+
+  gettimeofday(&tv, &tz);
+  printf("L'heure de terminaison est %ld:%ld\n\n",tv.tv_sec,tv.tv_usec) ;
   
   /* If uncommented, the result file is removed */
   /*  diet_free_data(diet_parameter(profile,4)); */
-
   free(path) ;
   diet_profile_free(profile);
   

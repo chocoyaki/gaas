@@ -78,7 +78,7 @@ int solve_helloMPI(diet_profile_t *pb)
   printf("Le nom du fichier est %s\n",path2) ;
 
   /* OUT args */
-  path_result = "JobMPI/result.txt" ;
+  path_result = "/home/ycaniou/JobMPI/result.txt" ;
   if( diet_file_desc_set(diet_parameter(pb,3), path_result) ) {
     printf("diet_file_desc_set error\n");
     return 1;
@@ -88,7 +88,6 @@ int solve_helloMPI(diet_profile_t *pb)
   /******************************************/
   /* Make the command to submit in a script */
   /******************************************/
-  printf("Making script...\n\n") ;
   /* Some unecessary things, only for the example */
   prologue = (char*)malloc(300*sizeof(char)) ;  
   sprintf(prologue,
@@ -141,8 +140,7 @@ int solve_helloMPI(diet_profile_t *pb)
   epilogue = (char*)malloc(100*sizeof(char)) ;  
   sprintf(epilogue,
 	  "# Get the result file\n"
-	  "#FIXME\n"
-	  "#scp $DIET_BATCH_STDOUT $DIET_NAME_FRONTALE:%s\n"
+	  "#scp nameFile $DIET_NAME_FRONTALE:%s\n"
 	  ,path_result) ;
   
   /* Make Diet submit */
@@ -159,13 +157,9 @@ int solve_helloMPI(diet_profile_t *pb)
   
   /* Submission */
   result = diet_submit_batch(pb, script) ;
-  if( result )
+  if( result == 0 )
     printf("Error when submitting the script\n") ;
 
-  status=120 ;
-  printf("Waiting %d seconds\n",status) ;
-  sleep(status) ;
-  
   /* Free memory */
   free(prologue) ;
   free(copying) ;
