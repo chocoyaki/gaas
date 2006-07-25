@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.63  2006/07/25 14:26:08  ycaniou
+ * Changed dietJobID -> dietReqID
+ *
  * Revision 1.62  2006/06/30 15:37:34  ycaniou
  * Code presentation, commentaries (nothing really "touched")
  *
@@ -684,7 +687,7 @@ mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src)
   dest->nbprocs    = src->nbprocs ;
   dest->nbprocess  = src->nbprocess ;
   dest->walltime   = src->walltime ;
-  dest->dietJobID  = src->dietJobID ;
+  dest->dietReqID  = src->dietReqID ;
 #endif
   dest->last_in    = src->last_in;
   dest->last_inout = src->last_inout;
@@ -810,7 +813,7 @@ unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
   dest->nbprocs    = src->nbprocs ;
   dest->nbprocess  = src->nbprocess ;
   dest->walltime   = src->walltime ;
-  dest->dietJobID  = src->dietJobID ;
+  dest->dietReqID  = src->dietReqID ;
 #endif
   dest->pb_name    = cvt->path;
   dest->last_in    = cvt->last_in;

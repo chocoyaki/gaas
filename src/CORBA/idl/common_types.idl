@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2006/07/25 14:26:08  ycaniou
+ * Changed dietJobID -> dietReqID
+ *
  * Revision 1.17  2006/06/03 21:13:58  ycaniou
  * Batch: add nbprocess field to corba structures
  *
@@ -284,7 +287,7 @@ struct corba_profile_t {
   long   nbprocs ;
   long   nbprocess ;
   long   walltime ;
-  unsigned long dietJobID ;
+  unsigned long dietReqID ;
 #endif
 };
 
