@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.39  2006/07/25 14:37:40  ycaniou
+ * dietJobID changed to dietReqID
+ *
+ * Update batch code
+ *
  * Revision 1.38  2006/06/30 15:41:48  ycaniou
  * DIET is now capable to submit batch Jobs in synchronous mode. Still some
  *   tuning to do (hard coded NFS path for OAR, tests for synchro between
@@ -457,7 +462,7 @@ diet_profile_alloc(char* pb_name, int last_in, int last_inout, int last_out)
   res->nbprocs   = 1 ;
   res->nbprocess = 1 ;
   res->walltime  = 0 ;
-  res->dietJobID = 0 ;
+  res->dietReqID = 0 ;
 #endif
   return res;
 }

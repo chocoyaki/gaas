@@ -22,8 +22,6 @@ extern "C" {
 #include <signal.h>    /* kill */
 #include <stdlib.h>    /* free getenv strtol */
 #include <string.h>    /* string functions */
-#define ASEXEC_SHORT_NAMES
-#include <execseed.h>
 #define ASFILE_SHORT_NAMES
 #include <fileseed.h>
 #include <ipseed.h>
@@ -43,6 +41,11 @@ extern "C" {
 /* FYC */
 
 #define TEMP_PREFIX "/tmp/"
+
+#define DEBUG_YC
+#ifdef DEBUG_YC
+#include <sys/time.h>
+#endif
 
 typedef enum {
   NO_ESCAPE, GRAM_ESCAPE, PERL_ESCAPE, RASH_ESCAPE
@@ -64,11 +67,6 @@ static const char *storageCommands[ELBASE_STORAGE_SERVICE_COUNT] = {
 static const char 
 *availableBatchScheduler[ELBASE_SCHEDULER_SERVICE_COUNT] = 
   {"shell","condor","dqs","loadleveler","lsf","pbs","sge","oar"} ;
-
-typedef struct _ProcessInfoStruct {
-  int gramProcess;
-  ASEXEC_ProcessId pid;
-} *ProcessInfo;
 
   /**
    * If #s# is non-null, appends #prefix# to #toWhat#, followed by #s#, then
@@ -1153,6 +1151,7 @@ ELBASE_ScriptForSubmit(ELBASE_ComputeServiceTypes service,
       /* Add the command to the batch script */
       AppendIfThere(&withMonitor, NULL, executableCommand, NULL, PERL_ESCAPE) ;
 
+      /* TODO: Add here the storage of DIET_ID and batch_id in a file */
       withMonitor = StrAppend(withMonitor,
 			      "\nENDBATCH\n",
 			      "close BSS;\n",
@@ -1231,8 +1230,9 @@ ELBASE_ScriptForSubmit(ELBASE_ComputeServiceTypes service,
         submit, "\n",
         scpScript, "\n",
         "x=$?\n",
-	RemoveTempFiles() ? "" : "#", "/bin/rm -f ", targetPath, "\n",
-        "if test $x -ne 0; then exit $x; fi\n",
+	RemoveTempFiles() ? "" : 
+	"#", "/bin/rm -f ", targetPath, "\n",
+	"if test $x -ne 0; then exit $x; fi\n",
         "exec ", sshCommand,
         NULL);
 
@@ -1302,8 +1302,6 @@ ELBASE_SpawnScript(const char *script,
     ; /* empty */
   *(c + 1) = '\0';
   
-  printf("Script transformé à exécuter : \n%s\n\n\n",toExec) ;
-  
   if(strchr(toExec, '\n') != NULL || strchr(toExec, '|') != NULL) {
     tempPath = UniqueFilePath("elagi_sh");
     if((f = fopen(tempPath, "w")) == NULL) {
@@ -1312,7 +1310,8 @@ ELBASE_SpawnScript(const char *script,
       return 0;
     }
     fprintf(f, "%s%s\n%s\n",
-            RemoveTempFiles() ? "" : "# ", "/bin/rm -f $0", toExec);
+	    RemoveTempFiles() ? "" : 
+	    "# ", "/bin/rm -f $0", toExec);
     fclose(f);
     free(toExec);
     toExec = StrAppend(NULL, "/bin/sh ", tempPath, NULL);
@@ -1360,6 +1359,7 @@ ELBASE_Submit(ELBASE_ComputeServiceTypes service,
               const char **environment,
               ELBASE_Process *process) {
   int result;
+
   char *script = ELBASE_ScriptForSubmit
     (service, server, scheduler, schedulerAttributes, executablePath,
      workingDirectory, arguments, stdinPath, stdoutPath, stderrPath,

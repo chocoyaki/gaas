@@ -13,6 +13,15 @@
 
 #include "DIET_server.h" /* for definition of DIET_MPI things */
 
+/* Used in SeDImpl.cc */
+#define ASEXEC_SHORT_NAMES
+#include <execseed.h>
+
+typedef struct _ProcessInfoStruct {
+  int gramProcess;
+  ASEXEC_ProcessId pid;
+} *ProcessInfo;
+
 /* Supported file copy infrastructures. */
 typedef enum {
   ELBASE_CP, ELBASE_FTP, ELBASE_GASS, ELBASE_SCP, ELBASE_SFTP, ELBASE_SRB,

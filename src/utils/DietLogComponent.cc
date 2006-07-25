@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2006/07/25 14:37:40  ycaniou
+ * dietJobID changed to dietReqID
+ *
+ * Update batch code
+ *
  * Revision 1.21  2006/06/16 10:37:33  abouteil
  * Chandra&Toueg&Aguilera fault detector support added
  *
@@ -720,7 +725,8 @@ DietLogComponent::logNeighbors(const char* list) {
 
 void
 DietLogComponent::logBeginSolve(const char* path,
-				const corba_profile_t* problem, const unsigned long reqID ) {
+				const corba_profile_t* problem,
+				const unsigned long reqID ) {
   if (tagFlags[3]) {
     // FIXME: print problem (argument size?)
     char* s;
@@ -733,7 +739,8 @@ DietLogComponent::logBeginSolve(const char* path,
 
 void
 DietLogComponent::logEndSolve(const char* path,
-				const corba_profile_t* problem, const unsigned long reqID ) {
+			      const corba_profile_t* problem,
+			      const unsigned long reqID ) {
   if (tagFlags[4]) {
     char* s;
     s = new char[strlen(path)+num_Digits(reqID)+2]; 
