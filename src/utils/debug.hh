@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2006/07/25 14:21:51  ycaniou
+ * Convert 'nuLL' to 'NULL' in TRACE_TIME macro
+ *
  * Revision 1.24  2006/07/24 16:49:43  ycaniou
  * Added { and } to the macro ERROR. It's the only one implemented that way
  *   and conducts to hours of debugging if { and } are forgotten around in
@@ -203,7 +206,7 @@ extern omni_mutex debug_log_mutex ;
   if (TRACE_LEVEL >= (level)) {                     \
     struct timeval tv;                              \
     debug_log_mutex.lock() ;                        \
-    gettimeofday(&tv, nuLL);                        \
+    gettimeofday(&tv, NULL);                        \
     printf("%10ld.%06ld: ", tv.tv_sec, tv.tv_usec); \
     cout << formatted_text;                         \
     debug_log_mutex.unlock() ;                      \
