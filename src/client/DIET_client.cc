@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.84  2006/07/25 14:35:36  ycaniou
+ * dietJobID changed to dietReqID
+ *
  * Revision 1.83  2006/07/10 13:39:46  aamar
  * Correct some warnings
  *
@@ -780,7 +783,7 @@ request_submission(diet_profile_t* profile,
     sprintf(statMsg, "request_submission %ld", (unsigned long) reqID);
     stat_out("Client",statMsg);
 #ifdef HAVE_BATCH
-    profile->dietJobID = reqID ;
+    profile->dietReqID = reqID ;
 #endif
   }
 
