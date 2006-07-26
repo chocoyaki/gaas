@@ -55,6 +55,7 @@ IF( DIET_BUILD_LIBRARIES )
     ADD_EXECUTABLE ( maDag maDag.cc )
     TARGET_LINK_LIBRARIES ( maDag IDLMaDag MaDag AgentCommon DietWorkflow DIET_client)
     INSTALL_TARGETS(/bin/ maDag )
+    INSTALL_TARGETS(/lib/ MaDag )
   
   ENDIF ( DIET_USE_WORKFLOW)
   
