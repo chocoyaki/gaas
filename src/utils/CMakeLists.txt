@@ -206,5 +206,6 @@ IF ( DIET_USE_WORKFLOW )
                WfConfig.cc
                )
    TARGET_LINK_LIBRARIES( DietWorkflow ${XERCES_LIBRARY} )
+   INSTALL_TARGETS( /lib/ DietWorkflow )
 ENDIF (DIET_USE_WORKFLOW )
 ########################################################################
