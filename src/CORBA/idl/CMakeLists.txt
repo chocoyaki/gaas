@@ -177,7 +177,7 @@ IF( DIET_BUILD_LIBRARIES )
   TARGET_LINK_LIBRARIES( IDLMaDag
     ${OMNIORB4_LIBRARIES}
   )
-  INSTALL_TARGETS(/lib/ IDLMaDag )
+  INSTALL_TARGETS(/lib/ IDLMaDag IDLWfLog )
   ENDIF ( DIET_USE_WORKFLOW ) 
   ##########################################################################
 ENDIF( DIET_BUILD_LIBRARIES )
