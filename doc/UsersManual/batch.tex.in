@@ -1,0 +1,125 @@
+%****************************************************************************%
+%* DIET User's Manual Performance prediction chapter file                   *%
+%*                                                                          *%
+%*  Author(s):                                                              *%
+%*    - Yves Caniou (yves.caniou@ens-lyon.fr)                               *%
+%*                                                                          *%
+%* $LICENSE$                                                                *%
+%****************************************************************************%
+
+\chapter{Batch and parallel submissions}
+\label{chapter:parallelSubmission}
+\section{Introduction}
+
+Most of the resources in a grid are parallel. Grids are even
+considered as hierachical sets of parallel resources, as in the french
+research grid projet, Grid'5000\cite{grid5000} (for the moment, 9
+sites are involved), or in the
+EGEE\footnote{\url{http://public.eu-egee.org/}} project ({\it Enabling
+Grids for E-science in Europe}), composed of more than a hundred
+centres in 31 countries. Then, in order to provide transparent access
+to resources, grid middleware must supply mechanisms to submit
+parallel jobs.
+
+\section{Batch system management}
+
+\subsection{Batch systems}
+
+Generally, a parallel resource is managed by a batch system, and jobs
+are submitted to a site queue. The batch system is responsible for
+managing parallel jobs: to determine and allocate the resources needed
+for the execution and to schedule each job.
+
+Diagramme batch
+
+\subsection{Compilation and configuration in \diet}
+
+Compilation must necessary be done with \verb!cmake! (you can find
+some information about cmake within \diet in
+\verb!@CMAKE_SOURCE_DIR@/Cmake/README!) because it is not maintained with the
+autotools anymore.
+
+Batch submission mechanisms were first built using two libraries:
+elagi\footnote{\url{http://grail.sdsc.edu/projects/elagi/}} and
+appleseeds\footnote{\url{http://grail.sdsc.edu/projects/appleseeds/}},
+developped in the University of California of San-Diego. It now only
+relies on the appleseeds library, that can be downloaded at the
+download section on the site.
+
+You must enable the batch mechanism and provide the path of the
+appleseeds installation in cmake arguments. Typically, if you build
+\diet from the command line, you can use the following:
+
+\begin{lstlisting}[language=bash,label=dietConfig.sh,basewidth={.5em,.4em},fontadjust]
+
+   ccmake $diet_src_path                          \
+          -DDIET_USE_BATCH:BOOL=ON                \
+          -DAPPLESEEDS_DIR:PATH=$appleseeds_path
+
+\end{lstlisting}
+
+\subsection{Batch schedulers}
+
+\subsection{Presentation of batch submission mechanisms}
+
+pas de modif nec coté client
+
+Diagramme appel sync et async
+
+Prévenu avec au plus 30 secondes
+
+\subsection{Client batch extended API}
+
+\subsection{Server batch extended API and configuration file}
+
+%FIXME: à quel point parle t-on d'elagi ?
+Several batch schedulers can be called to submit parallel jobs:
+"condor","dqs","loadleveler","lsf","pbs","sge","oar".
+% FIXME: do we give shell, condor which are not batch? Do we give all
+% even if only oar is tested?
+These are the names that must be incorporated in \verb!server.config!
+to let the SeD know how to submit a job correctly. 
+
+Furthermore, if there is no default queue, the \diet deployer must
+also provide the queue on which jobs have to be submitted.
+
+For example, the serveur.config file can contain:
+
+\begin{lstlisting}[language=bash,label=dietConfig.sh,basewidth={.5em,.4em},fontadjust]
+
+batchName = oar
+batchQueue = queue_9_13
+
+\end{lstlisting}
+
+
+\begin{lstlisting}[language=bash,label=dietConfig.sh,basewidth={.5em,.4em},fontadjust]
+
+batchName = oar
+batchQueue = queue_9_13
+
+\end{lstlisting}
+
+\subsection{Example}
+
+There is an client/server example in
+\verb!@CMAKE_SOURCE_DIR@/src/examples/Batch! directory. We reproduce them here.
+
+%\parbox[b]{.5\textwidth}{
+{\twocolumn
+  \tiny
+  \lstinputlisting[title={Client code},language=c,label=client.c,basewidth={.5em,.4em},fontadjust]{@CMAKE_SOURCE_DIR@/src/examples/Batch/batch_client.c}
+}
+
+\newpage
+
+{\twocolumn
+  \tiny
+  \lstinputlisting[title={'Server code'},language=c,label=client.c,basewidth={.5em,.4em},fontadjust]{@CMAKE_SOURCE_DIR@/src/examples/Batch/batch_server.c}
+}
+
+\onecolumn
+
+\section{Parallel systems}
+
+Ongoing work.

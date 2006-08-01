@@ -4,6 +4,21 @@
 
 ADD_SUBDIRECTORY( fig )
 
+# Treate file.tex.in 
+FILE( GLOB DIET_USERS_MANUAL_FILES_TO_CONFIG 
+  "${DIET_SOURCE_DIR}/doc/UsersManual/*.tex.in"
+)
+FOREACH( filename ${DIET_USERS_MANUAL_FILES_TO_CONFIG} )
+  GET_FILENAME_COMPONENT( filenameNoPath ${filename} NAME )
+  STRING( REGEX REPLACE "[.]in$" "" filenameNoPath ${filenameNoPath} )
+  SET( filenameDest ${DIET_SOURCE_DIR}/doc/UsersManual/${filenameNoPath} )
+  CONFIGURE_FILE(
+    ${filename}
+    ${filenameDest}
+    IMMEDIATE
+  )
+ENDFOREACH( filename )
+
 # In order to avoid the painfull process of passing the TEXINPUT environment
 # variable (with "SET( ENV{TEXINPUTS} ...") copy all the required files
 # to CMAKE_CURRENT_BINARY_DIR:

@@ -8,6 +8,11 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.29  2006/08/01 09:37:52  ycaniou
+%* Added the beginning of the batch doc, which uses relative path (thus the
+%*   modification of the CMakelist.txt).
+%* Add reference to Grid5000.
+%*
 %* Revision 1.28  2006/05/12 12:12:32  sdahan
 %* Add some documentation about multi-MA
 %*
@@ -85,6 +90,7 @@
 \usepackage{url}
 \usepackage{subfigure}
 \usepackage{listings}
+\usepackage{xspace}
 
 \usepackage{graphicx}
 \graphicspath{{./fig}}
@@ -110,7 +116,7 @@
 \rfoot[\fancyplain{Page~\thepage}{Page~\thepage}]
       {\fancyplain{Page~\thepage}{Page~\thepage}}
 
-
+\newcommand{\diet}{\textsc{Diet}\xspace}
 \newcommand{\ptop}{\textit{Peer-to-Peer}}
 \newcommand{\red}{\textit{Red}}
 \newcommand{\sci}{Scilab}
@@ -284,6 +290,12 @@ Forum~\cite{GridRPC}.
 %
 \newpage
 \input{plugin.tex}
+
+%
+% Scheduling in DIET
+%
+\newpage
+\input{batch.tex}
 
 
 %
