@@ -8,6 +8,12 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.30  2006/08/01 13:42:25  ycaniou
+%* Placed batch submissions between the "build a server" chapter and the
+%*   "scheduling" chapter.
+%*
+%* More things in the doc.
+%*
 %* Revision 1.29  2006/08/01 09:37:52  ycaniou
 %* Added the beginning of the batch doc, which uses relative path (thus the
 %*   modification of the CMakelist.txt).
@@ -122,7 +128,7 @@
 \newcommand{\sci}{Scilab}
 \newcommand{\scip}{Scilab$_{//}$}
 \newcommand{\scalapack}{ScaLAPACK}
-\newcommand{\sed}{\textit{SeD}}
+\newcommand{\sed}{\textit{SeD}\xspace}
 \newcommand{\thread}{\textit{thread}}
 \newcommand{\threads}{\textit{threads}}
 \newcommand{\nsl}{NetSolve}
@@ -284,18 +290,17 @@ Forum~\cite{GridRPC}.
 \newpage
 \input{server.tex}
 
+%
+% Parallel and Batch submission in DIET
+%
+\newpage
+\input{batch.tex}
 
 %
 % Scheduling in DIET
 %
 \newpage
 \input{plugin.tex}
-
-%
-% Scheduling in DIET
-%
-\newpage
-\input{batch.tex}
 
 
 %
