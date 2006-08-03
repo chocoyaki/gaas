@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2006/08/03 11:36:00  ycaniou
+ * Removed a DEBUG_YC forgotten
+ * Placed batch job management between mutexes
+ * First look at async. call
+ *
  * Revision 1.28  2006/07/25 14:34:39  ycaniou
  * Use TRACE_TIME to precise time of downloading, submitting and uploading
  *   datas
@@ -291,6 +296,8 @@ private:
     struct corresID_def *nextStruct ;
   } corresID ;
   corresID *batchJobQueue ;
+
+  omni_mutex corresBatchReqID_mutex ;
 #endif
 
   /* Queue: should SeD restrict the number of concurrent solves? */

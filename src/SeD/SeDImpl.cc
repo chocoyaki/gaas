@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.78  2006/08/03 11:36:00  ycaniou
+ * Removed a DEBUG_YC forgotten
+ * Placed batch job management between mutexes
+ * First look at async. call
+ *
  * Revision 1.77  2006/07/25 14:34:39  ycaniou
  * Use TRACE_TIME to precise time of downloading, submitting and uploading
  *   datas
@@ -148,13 +153,6 @@ using namespace std;
 #include "ORBMgr.hh"
 #include "Parsers.hh"
 #include "statistics.hh"
-
-#define DEBUG_YC
-#ifdef DEBUG_YC
-#include <sys/time.h>
-struct timeval tv ;
-struct timezone tz ;
-#endif
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
@@ -777,15 +775,13 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 #endif // ! HAVE_JUXMEM
       
 #if HAVE_BATCH
-      // Still to be done...
-      // nbprocs and walltime are set
-      if( profile.batch_flag != 1 ) {
-	if( profile.nbprocs == 1 )
-	  solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
-	else
-	  solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE_//
-      } else {
-	solve_res = (*(SrvT->getSolver(ref)))(&profile) ;    // SOLVE_Batch
+      if( profile.batch_flag == 1 ) {
+	solve_res = (*(SrvT->getSolver(ref)))(&profile);
+	TRACE_TIME(TRACE_MAIN_STEPS, "Submitting script for DIET job of ID "
+		   << profile.dietReqID <<
+		   " is of pid " << 
+		   (int)((ProcessInfo)findBatchID(profile.dietReqID))->pid 
+		   << "\n") ;
       }
 #else
       solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
@@ -1173,11 +1169,16 @@ SeDImpl::storeBatchID(ELBASE_Process *batch_jobID, int diet_reqID)
   if( tmp == NULL ) {
     ERROR("Not enough memory to store new batch information\n",);
   }
+
+  corresBatchReqID_mutex.lock() ;
+
   tmp->nextStruct = this->batchJobQueue ;
   
   this->batchJobQueue = tmp ;
   this->batchJobQueue->batchJobID = batch_jobID ;
   this->batchJobQueue->dietReqID = diet_reqID ;
+
+  corresBatchReqID_mutex.unlock() ;
 }
   /* For the moment, storage done in a table
   ** TODO: use something like a red/black tree? */
@@ -1202,6 +1203,8 @@ SeDImpl::removeBatchID(int diet_reqID)
 {
   corresID *tmp=batchJobQueue ;
   corresID *tmp2 ;
+
+  corresBatchReqID_mutex.lock() ;
 
   tmp = batchJobQueue ;
   if( tmp != NULL ) {
@@ -1228,6 +1231,8 @@ SeDImpl::removeBatchID(int diet_reqID)
 		   " when removing batch info"
 		   , 1);
   }
+
+  corresBatchReqID_mutex.unlock() ;
 }
 /** 
  * Return the pid of the script that launched the batch job
@@ -1236,10 +1241,13 @@ ELBASE_Process
 SeDImpl::findBatchID(int diet_reqID)
 {
   corresID *tmp=batchJobQueue ;
+
+  corresBatchReqID_mutex.lock() ;
   
   while( (tmp != NULL) && (tmp->dietReqID != diet_reqID) )
     tmp=tmp->nextStruct ;
-  
+  corresBatchReqID_mutex.unlock() ;  
+
   if( tmp == NULL) {
     INTERNAL_ERROR("Incoherence relating with batch job ID and diet request ID"
 		   , 1);
