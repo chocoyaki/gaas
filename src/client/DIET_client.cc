@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.85  2006/08/09 21:36:29  aamar
+ * Transform status code to GRPC code before returning the result of diet_wait_any
+ *
  * Revision 1.84  2006/07/25 14:35:36  ycaniou
  * dietJobID changed to dietReqID
  *
@@ -261,6 +264,28 @@ char * ErrorCodeStr[] = {
   "GRPC_LAST_ERROR_CODE"};
 
 
+diet_error_t
+status_to_grpc_code(int err) {
+  switch (err) {
+    case STATUS_DONE:
+      err = GRPC_NO_ERROR;
+      break;
+  case STATUS_WAITING:
+    err = GRPC_NOT_COMPLETED;
+    break;
+  case STATUS_RESOLVING:
+    err = GRPC_NOT_COMPLETED;
+    break;
+  case STATUS_CANCEL:
+    err = GRPC_NO_ERROR;
+    break;
+  case STATUS_ERROR:
+    err = GRPC_OTHER_ERROR_CODE;
+    break;
+  }
+
+  return err;
+}
 
 /****************************************************************************/
 /* Initialize and Finalize session                                          */
@@ -1354,7 +1379,9 @@ diet_wait_all()
 int
 diet_wait_any(diet_reqID_t* IDptr)
 {
-  return CallAsyncMgr::Instance()->addWaitAnyRule(IDptr);
+  grpc_error_t err = CallAsyncMgr::Instance()->addWaitAnyRule(IDptr);
+  err = status_to_grpc_code(err);
+  return err;
 }
 
 
