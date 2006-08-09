@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2006/08/09 21:42:23  aamar
+ * Changing the error code of EXIT function to 10 (GRPC_SESSION_FAILED)
+ *
  * Revision 1.1  2006/07/08 23:04:27  aamar
  * Adding the server used for GridRPC test cases.
  *
@@ -68,7 +71,7 @@ int myExit(diet_profile_t* pb) {
   int * i = NULL;
   diet_scalar_get(diet_parameter(pb, 0), &i, NULL);
   printf("Exit with parameter = %d \n", *i);
-  return 2;
+  return 10;
 }
 	
 int
