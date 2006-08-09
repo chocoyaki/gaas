@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2006/08/09 21:39:35  aamar
+ * Notify result before setting the request error code
+ *
  * Revision 1.7  2006/07/10 13:46:00  aamar
  * Correcting a warning
  *
@@ -71,7 +74,8 @@ CallbackImpl::solveResults(const char * path,
 			   CORBA::Long solve_res)
 {
   // notify solve result availability
+  int err = CallAsyncMgr::Instance()->notifyRst(int(reqID), &(const_cast<corba_profile_t&>(pb)));
   if (solve_res != GRPC_NO_ERROR)
     CallAsyncMgr::Instance()->setReqErrorCode(reqID, solve_res);
-  return CallAsyncMgr::Instance()->notifyRst(int(reqID), &(const_cast<corba_profile_t&>(pb)));
+  return err;
 }
