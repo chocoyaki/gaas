@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2006/08/09 21:38:33  aamar
+ * Changing the semantic of get_failed_session. The function return GRPC_NO_ERROR and not the error code of failed session
+ *
  * Revision 1.20  2006/07/13 14:40:39  aamar
  * Adding the doneRequest vector for already tested requests by
  * grpc_wait_any.
@@ -270,11 +273,13 @@ int CallAsyncMgr::addWaitAnyRule(diet_reqID_t* IDptr)
           ReaderLockGuard r(callAsyncListLock);
           CallAsyncList::iterator h = caList.begin();
           for (unsigned int k = 0; k < caList.size(); k++){
+	    cout << "status " << h->second->st << endl; 
             if ((h->second->st == STATUS_DONE) &&
 		(find(doneRequests.begin(),
 		      doneRequests.end(),
 		      h->first) == doneRequests.end())
 		) {
+	      cout << "finding " << h->first << endl;
               *IDptr = h->first;
 	      doneRequests.push_back(h->first);
               return STATUS_DONE;
@@ -673,9 +678,9 @@ CallAsyncMgr::getFailedSession(diet_reqID_t * reqIdPtr) {
     return GRPC_NO_ERROR;
   }
   *reqIdPtr = failedSessions[0];
-  diet_error_t err = errorMap[failedSessions[0]];
+  //  diet_error_t err = errorMap[failedSessions[0]];
   failedSessions.erase(failedSessions.begin());
-  return err;
+  return GRPC_NO_ERROR;
 }
 
 /*
