@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.79  2006/08/09 09:00:00  ycaniou
+ * Conversion of a int to long in a cast of a pointer in order to compile well
+ *   on 64 bits architectures
+ *
  * Revision 1.78  2006/08/03 11:36:00  ycaniou
  * Removed a DEBUG_YC forgotten
  * Placed batch job management between mutexes
@@ -667,7 +671,7 @@ SeDImpl::solve_batch(const char* path, corba_profile_t& pb,
   TRACE_TIME(TRACE_MAIN_STEPS, "Submitting script for DIET job of ID "
 	     << profile.dietReqID <<
 	     " is of pid " << 
-	     (int)((ProcessInfo)findBatchID(profile.dietReqID))->pid 
+	     (long)((ProcessInfo)findBatchID(profile.dietReqID))->pid 
 	     << "\n") ;
 
   /* This waits until the jobs ends
