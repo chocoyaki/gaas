@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.80  2006/08/17 11:04:18  ycaniou
+ * Replaced (int) to (long) in order to compile well under 64 bits architectures
+ *   (the last. Tkx Benjamin)
+ *
  * Revision 1.79  2006/08/09 09:00:00  ycaniou
  * Conversion of a int to long in a cast of a pointer in order to compile well
  *   on 64 bits architectures
@@ -784,7 +788,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 	TRACE_TIME(TRACE_MAIN_STEPS, "Submitting script for DIET job of ID "
 		   << profile.dietReqID <<
 		   " is of pid " << 
-		   (int)((ProcessInfo)findBatchID(profile.dietReqID))->pid 
+		   (long)((ProcessInfo)findBatchID(profile.dietReqID))->pid 
 		   << "\n") ;
       }
 #else
