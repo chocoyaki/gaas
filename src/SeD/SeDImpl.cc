@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.81  2006/08/18 13:46:22  ycaniou
+ * Corrected bug: in async. mode, when HAVE_BATCH was enabled, if pb wasn't
+ *   batch, the solve wasn't made. Tkx Benjamin.
+ *
  * Revision 1.80  2006/08/17 11:04:18  ycaniou
  * Replaced (int) to (long) in order to compile well under 64 bits architectures
  *   (the last. Tkx Benjamin)
@@ -720,8 +724,9 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
                     CORBA::Long reqID, const char* volatileclientREF)
 {
 #if HAVE_BATCH
-  if( pb.batch_flag == 1 )
+  if( pb.batch_flag == 1 ) {
     ERROR("Asynchronous batch resolution not yet implemented",) ;
+  }
 #endif
 
   // test validity of volatileclientREF
@@ -790,7 +795,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 		   " is of pid " << 
 		   (long)((ProcessInfo)findBatchID(profile.dietReqID))->pid 
 		   << "\n") ;
-      }
+      } else
 #else
       solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
 #endif // HAVE_BATCH
