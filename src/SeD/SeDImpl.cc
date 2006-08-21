@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.82  2006/08/21 07:24:34  bdepardo
+ * Corrected bug: in async. mode, when HAVE_BATCH was enabled, if pb wasn't
+ *  batch, the solve was still not made (missed the
+ *  (*(SrvT->getSolver(ref)))(&profile) call).
+ *
  * Revision 1.81  2006/08/18 13:46:22  ycaniou
  * Corrected bug: in async. mode, when HAVE_BATCH was enabled, if pb wasn't
  *   batch, the solve wasn't made. Tkx Benjamin.
@@ -796,6 +801,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 		   (long)((ProcessInfo)findBatchID(profile.dietReqID))->pid 
 		   << "\n") ;
       } else
+      solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
 #else
       solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
 #endif // HAVE_BATCH
