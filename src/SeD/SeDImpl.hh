@@ -9,6 +9,15 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.30  2006/08/27 18:40:10  ycaniou
+ * Modified parallel submission API
+ * - client: diet_call_batch() -> diet_parallel_call()
+ * - SeD: diet_profile_desc_set_batch() -> [...]_parallel()
+ * - from now, internal fields are related to parallel not batch
+ * and corrected a bug:
+ * - 3 types of submission: request among only seq, only parallel, or all
+ *   available services (second wasn't implemented, third bug)
+ *
  * Revision 1.29  2006/08/03 11:36:00  ycaniou
  * Removed a DEBUG_YC forgotten
  * Placed batch job management between mutexes
@@ -225,7 +234,7 @@ public:
   getBatchSchedulerID() ;
 
   virtual CORBA::Long
-  solve_batch(const char* pbName, corba_profile_t& pb,
+  parallel_solve(const char* pbName, corba_profile_t& pb,
 	      ServiceTable::ServiceReference_t& ref,
 	      diet_profile_t& profile) ;
 

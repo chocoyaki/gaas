@@ -9,6 +9,15 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.83  2006/08/27 18:40:10  ycaniou
+ * Modified parallel submission API
+ * - client: diet_call_batch() -> diet_parallel_call()
+ * - SeD: diet_profile_desc_set_batch() -> [...]_parallel()
+ * - from now, internal fields are related to parallel not batch
+ * and corrected a bug:
+ * - 3 types of submission: request among only seq, only parallel, or all
+ *   available services (second wasn't implemented, third bug)
+ *
  * Revision 1.82  2006/08/21 07:24:34  bdepardo
  * Corrected bug: in async. mode, when HAVE_BATCH was enabled, if pb wasn't
  *  batch, the solve was still not made (missed the
@@ -569,9 +578,11 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
   gettimeofday(&(this->lastSolveStart), NULL);
 
 #if HAVE_BATCH
-  if( pb.batch_flag == 1 ) {
-    return this->solve_batch(path, pb, ref, profile) ;
-  }
+  const corba_profile_desc_t & sed_profile = SrvT->getProfile( ref ) ;
+  
+  /* Use parallel_flag of the proposed SeD service */
+  if( sed_profile.parallel_flag == 2 )
+    return this->parallel_solve(path, pb, ref, profile) ;
 #endif
 
   if (this->useConcJobLimit){
@@ -635,12 +646,12 @@ SeDImpl::getBatchSchedulerID()
 }
 
 CORBA::Long
-SeDImpl::solve_batch(const char* path, corba_profile_t& pb,
+SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
 		     ServiceTable::ServiceReference_t& ref,
 		     diet_profile_t& profile)
 {
   /*************************************************************
-   **                  submit a batch job                     **
+   **                  submit a parallel job                  **
    **
    ** For the moment, 
    ** datas are received before batch submission. Maybe this has
@@ -670,7 +681,7 @@ SeDImpl::solve_batch(const char* path, corba_profile_t& pb,
     dietLogComponent->logBeginSolve(path, &pb, pb.dietReqID);
   }
 
-  TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::batch_solve invoked on pb: " 
+  TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::parallel_solve invoked on pb: " 
 	     << path << endl);
   
   cvt = SrvT->getConvertor(ref);
@@ -729,7 +740,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
                     CORBA::Long reqID, const char* volatileclientREF)
 {
 #if HAVE_BATCH
-  if( pb.batch_flag == 1 ) {
+  if( pb.parallel_flag == 1 ) {
     ERROR("Asynchronous batch resolution not yet implemented",) ;
   }
 #endif
@@ -793,7 +804,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 #endif // ! HAVE_JUXMEM
       
 #if HAVE_BATCH
-      if( profile.batch_flag == 1 ) {
+      if( profile.parallel_flag == 2 ) {
 	solve_res = (*(SrvT->getSolver(ref)))(&profile);
 	TRACE_TIME(TRACE_MAIN_STEPS, "Submitting script for DIET job of ID "
 		   << profile.dietReqID <<

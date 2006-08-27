@@ -74,7 +74,7 @@ Cori_Fast::diet_service_table_lookup_by_profile(
     profileDesc.last_out = profile->last_out;
 #if HAVE_BATCH
     /* In case of client explicitly ask for a batch resolution */
-    profileDesc.batch_flag = profile->batch_flag ;
+    profileDesc.parallel_flag = profile->parallel_flag ;
 #endif
     int numArgs = profile->last_out + 1;
     profileDesc.param_desc =

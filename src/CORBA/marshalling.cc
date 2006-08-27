@@ -9,6 +9,15 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.64  2006/08/27 18:40:07  ycaniou
+ * Modified parallel submission API
+ * - client: diet_call_batch() -> diet_parallel_call()
+ * - SeD: diet_profile_desc_set_batch() -> [...]_parallel()
+ * - from now, internal fields are related to parallel not batch
+ * and corrected a bug:
+ * - 3 types of submission: request among only seq, only parallel, or all
+ *   available services (second wasn't implemented, third bug)
+ *
  * Revision 1.63  2006/07/25 14:26:08  ycaniou
  * Changed dietJobID -> dietReqID
  *
@@ -630,7 +639,7 @@ mrsh_profile_desc(corba_profile_desc_t* dest, const diet_profile_desc_t* src)
     (dest->param_desc[i]).type      = (src->param_desc[i]).type;
   }
 #if HAVE_BATCH
-  dest->batch_flag = src->batch_flag ;
+  dest->parallel_flag = src->parallel_flag ;
 #endif
 
   mrsh_aggregator_desc(&(dest->aggregator), &(src->aggregator));
@@ -665,9 +674,10 @@ mrsh_pb_desc(corba_pb_desc_t* dest, const diet_profile_t* const src)
 #endif // HAVE_JUXMEM
   }
 #if HAVE_BATCH
-  dest->batch_flag = src->batch_flag ;
+  dest->parallel_flag = src->parallel_flag ;
   dest->nbprocs    = src->nbprocs ;
   dest->nbprocess  = src->nbprocess ;
+  // No walltime, user has no idea about it
 #endif
   return 0;
 }
@@ -683,7 +693,7 @@ mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src)
   int i;
 
 #if HAVE_BATCH
-  dest->batch_flag = src->batch_flag ;
+  dest->parallel_flag = src->parallel_flag ;
   dest->nbprocs    = src->nbprocs ;
   dest->nbprocess  = src->nbprocess ;
   dest->walltime   = src->walltime ;
@@ -809,7 +819,7 @@ unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
   }
 
 #if HAVE_BATCH
-  dest->batch_flag = src->batch_flag ;
+  dest->parallel_flag = src->parallel_flag ;
   dest->nbprocs    = src->nbprocs ;
   dest->nbprocess  = src->nbprocess ;
   dest->walltime   = src->walltime ;
@@ -948,6 +958,7 @@ unmrsh_out_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb)
 
 #if HAVE_BATCH
   // if client wants to know how many procs and process have been used
+  // but other info like walltime is useless
   dpb->nbprocs = cpb->nbprocs ;
   dpb->nbprocess = cpb->nbprocess ;
 #endif

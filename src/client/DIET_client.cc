@@ -10,6 +10,15 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.86  2006/08/27 18:40:10  ycaniou
+ * Modified parallel submission API
+ * - client: diet_call_batch() -> diet_parallel_call()
+ * - SeD: diet_profile_desc_set_batch() -> [...]_parallel()
+ * - from now, internal fields are related to parallel not batch
+ * and corrected a bug:
+ * - 3 types of submission: request among only seq, only parallel, or all
+ *   available services (second wasn't implemented, third bug)
+ *
  * Revision 1.85  2006/08/09 21:36:29  aamar
  * Transform status code to GRPC code before returning the result of diet_wait_any
  *
@@ -921,7 +930,7 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
 #if HAVE_FD
     fd_set_transition_handler(diet_call_failure_recover);
 #endif
-    solve_res = chosenServer->solve(profile->pb_name, corba_profile,reqID);
+    solve_res = chosenServer->solve(profile->pb_name, corba_profile, reqID);
     stat_out("Client",statMsg);
    } catch(CORBA::MARSHAL& e) {
     ERROR("got a marchal exception\n"
@@ -981,9 +990,15 @@ diet_call(diet_profile_t* profile)
 
 #ifdef HAVE_BATCH
 diet_error_t
-diet_call_batch(diet_profile_t* profile)
+diet_parallel_call(diet_profile_t* profile)
 {
-  diet_profile_set_batch(profile) ;
+  diet_profile_set_parallel(profile) ;
+  return diet_call(profile) ;
+}
+diet_error_t
+diet_sequential_call(diet_profile_t* profile)
+{
+  diet_profile_set_sequential(profile) ;
   return diet_call(profile) ;
 }
 #endif
@@ -1862,7 +1877,7 @@ int unmrsh_profile_desc( diet_profile_desc_t* dest,
     (dest->param_desc[i]).type      = (diet_data_type_t)(src->param_desc[i]).type;
   }
 #if HAVE_BATCH
-  dest->batch_flag = src->batch_flag ;
+  dest->parallel_flag = src->parallel_flag ;
 #endif
 
   // unmarshall the aggregator field 

@@ -9,6 +9,15 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2006/08/27 18:40:10  ycaniou
+ * Modified parallel submission API
+ * - client: diet_call_batch() -> diet_parallel_call()
+ * - SeD: diet_profile_desc_set_batch() -> [...]_parallel()
+ * - from now, internal fields are related to parallel not batch
+ * and corrected a bug:
+ * - 3 types of submission: request among only seq, only parallel, or all
+ *   available services (second wasn't implemented, third bug)
+ *
  * Revision 1.18  2006/07/25 14:26:08  ycaniou
  * Changed dietJobID -> dietReqID
  *
@@ -240,7 +249,7 @@ struct corba_profile_desc_t {
   long   last_out;
   sequence<corba_arg_desc_t> param_desc;
 #if HAVE_BATCH
-  long batch_flag ;
+  long parallel_flag ;
 #endif
   corba_aggregator_desc_t aggregator;
 };
@@ -269,7 +278,7 @@ struct corba_pb_desc_t {
   long   last_out;
   SeqCorbaDataDesc_t param_desc;
 #if HAVE_BATCH
-  long   batch_flag ;
+  long   parallel_flag ;
   long   nbprocs ;
   long   nbprocess ;
   long   walltime ;
@@ -283,7 +292,7 @@ struct corba_profile_t {
   long   last_out;
   SeqCorbaData_t parameters;
 #if HAVE_BATCH
-  long   batch_flag ;
+  long   parallel_flag ;
   long   nbprocs ;
   long   nbprocess ;
   long   walltime ;

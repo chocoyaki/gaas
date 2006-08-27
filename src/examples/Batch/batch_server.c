@@ -195,7 +195,7 @@ main(int argc, char* argv[])
   profile = diet_profile_desc_alloc("helloMPI",2,2,3);
 
   /* Set profile parameters : this job is submitted by a batch system */
-  diet_profile_desc_set_batch(profile) ;
+  diet_profile_desc_set_parallel(profile) ;
 
   diet_generic_desc_set(diet_param_desc(profile,0), DIET_FILE, DIET_CHAR);
   diet_generic_desc_set(diet_param_desc(profile,1), DIET_SCALAR, DIET_DOUBLE);

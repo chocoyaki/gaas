@@ -8,6 +8,15 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.58  2006/08/27 18:40:10  ycaniou
+ * Modified parallel submission API
+ * - client: diet_call_batch() -> diet_parallel_call()
+ * - SeD: diet_profile_desc_set_batch() -> [...]_parallel()
+ * - from now, internal fields are related to parallel not batch
+ * and corrected a bug:
+ * - 3 types of submission: request among only seq, only parallel, or all
+ *   available services (second wasn't implemented, third bug)
+ *
  * Revision 1.57  2006/07/25 14:34:38  ycaniou
  * Use TRACE_TIME to precise time of downloading, submitting and uploading
  *   datas
@@ -246,8 +255,8 @@ diet_service_table_lookup_by_profile(const diet_profile_t* const profile)
     profileDesc.last_inout = profile->last_inout;
     profileDesc.last_out = profile->last_out;
 #if HAVE_BATCH
-    /* In case of a client explicitly asks for a batch resolution */
-    profileDesc.batch_flag = profile->batch_flag ;
+    /* In case of a client explicitly asks for a parallel resolution */
+    profileDesc.parallel_flag = profile->parallel_flag ;
 #endif
     int numArgs = profile->last_out + 1;
     profileDesc.param_desc =
@@ -312,7 +321,8 @@ diet_profile_desc_alloc(const char* path,
   desc->last_out   = last_out;
   desc->param_desc = param_desc;
 #ifdef HAVE_BATCH
-  desc->batch_flag = 0;
+  // O: Diet choose best between parallel and seq, 1: seq, 2: parallel
+  desc->parallel_flag = 0;
   desc->nbprocs    = 1;
 #endif
   return desc;

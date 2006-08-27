@@ -9,6 +9,15 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2006/08/27 18:40:10  ycaniou
+ * Modified parallel submission API
+ * - client: diet_call_batch() -> diet_parallel_call()
+ * - SeD: diet_profile_desc_set_batch() -> [...]_parallel()
+ * - from now, internal fields are related to parallel not batch
+ * and corrected a bug:
+ * - 3 types of submission: request among only seq, only parallel, or all
+ *   available services (second wasn't implemented, third bug)
+ *
  * Revision 1.7  2006/04/14 14:14:06  aamar
  * Adding the IDL data structures for workflow support.
  *
@@ -117,8 +126,8 @@ struct corba_response_t {
   SeqDataLoc_t        dataLoc;
 #endif
 #ifdef HAVE_BATCH
-  // Make client know he has to submit batch or non-batch
-  long batch_flag ;
+  // Make client know he has to submit parallel or non-parallel
+  long parallel_flag ;
 #endif
 };
 

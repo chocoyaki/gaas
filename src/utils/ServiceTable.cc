@@ -8,6 +8,15 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2006/08/27 18:40:11  ycaniou
+ * Modified parallel submission API
+ * - client: diet_call_batch() -> diet_parallel_call()
+ * - SeD: diet_profile_desc_set_batch() -> [...]_parallel()
+ * - from now, internal fields are related to parallel not batch
+ * and corrected a bug:
+ * - 3 types of submission: request among only seq, only parallel, or all
+ *   available services (second wasn't implemented, third bug)
+ *
  * Revision 1.17  2005/08/30 07:24:23  ycaniou
  * Changed the test in profile_match to enable the possibility for DIET to
  *   decide if a 'normal' job sould be submitted via batch or not.
@@ -140,7 +149,11 @@ ServiceTable::maxSize()
 ServiceTable::ServiceReference_t
 ServiceTable::lookupService(const corba_profile_desc_t* sv_profile)
 {
-  /* Called from srvt::addService() */
+  /* Called from ServiceTable::addService(), rmService(), getSolver(),
+     getEvalf(), getConvertor(), getPerfMetric(), getChildren()
+  ** DIET_server::diet_service_table_lookup_by_profile()
+  ** Cori_Fast::diet_service_table_lookup_by_profile() 
+  */
   size_t i(0);
   for (; (i < nb_s) && (!profile_desc_match(&(profiles[i]), sv_profile)); i++);
   return (ServiceReference_t) ((i == nb_s) ? -1 : (int)i);
@@ -151,10 +164,9 @@ ServiceTable::lookupService(const corba_pb_desc_t* pb_desc)
 {
   /* Called from MasterAgent::submitLocal(), AgentImpl::findServer()
   ** SeDImpl::getRequest(), SeDImpl::checkContract()
-  ** DIET_server.diet_service_table_lookup_by_profile
-  ** Thus, the check must be performed in special way concerning batch
-  **  - if batch is asked, strict check
-  **  - if nothing specified, both batch and non-batch must be considered
+  ** Thus, the check must be performed in special way concerning parallel tasks
+  **  - if parallel is asked, strict check
+  **  - if nothing specified, both // and non-// must be considered
   */
   size_t i(0);
   for (; (i < nb_s) && (!profile_match(&(profiles[i]), pb_desc)); i++);
@@ -164,12 +176,13 @@ ServiceTable::lookupService(const corba_pb_desc_t* pb_desc)
 ServiceTable::ServiceReference_t
 ServiceTable::lookupService(const char* path, const corba_profile_t* pb)
 {
+  /* Called from SeDImpl::solve() and solveAsync() */
   size_t i(0);
   for (; (i < nb_s) && (!profile_match(&(profiles[i]), path, pb)); i++);
   return (ServiceReference_t) ((i == nb_s) ? -1 : (int)i);
 }
 
-
+/* Called from DIET_server::diet_service_table_add */
 int
 ServiceTable::addService(const corba_profile_desc_t* profile,
                          const diet_convertor_t* const cvt,
@@ -229,6 +242,7 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
   return 0;
 }
 
+/* Called from AgentImpl::addServices() */
 int
 ServiceTable::addService(const corba_profile_desc_t* profile,
                          CORBA::ULong child)
@@ -413,6 +427,15 @@ ServiceTable::rmChild(const CORBA::ULong child)
   return 0;
 }
 
+#ifdef HAVE_BATCH
+/* This method does NOT test the validity of the range index */
+const corba_profile_desc_t &
+ServiceTable::getProfile( const ServiceReference_t index )
+{
+  return profiles[ index ] ;
+}
+#endif
+
 SeqCorbaProfileDesc_t*
 ServiceTable::getProfiles()
 {
@@ -588,8 +611,8 @@ ServiceTable::dump(FILE* f)
     strcpy(path, profiles[i].path);
     fprintf(f, "- Service %s", path);
 #ifdef HAVE_BATCH
-    if( profiles[i].batch_flag )
-      fprintf(f," (batch service) ") ;
+    if( profiles[i].parallel_flag )
+      fprintf(f," (parallel service) ") ;
 #endif
 
     if (matching_children) {
@@ -674,7 +697,7 @@ ServiceTable::existBatchService()
 {
   size_t i=0 ;
   
-  while( (i<nb_s) && ( profiles[i].batch_flag == 0) )
+  while( (i<nb_s) && ( profiles[i].parallel_flag == 0) )
     i++ ;
   return !(i==nb_s) ;
 }
@@ -683,8 +706,8 @@ ServiceTable::testIfAllBatchServices()
 {
   size_t i=1 ;
   
-  while( (i<nb_s) && (profiles[0].batch_flag == profiles[i].batch_flag) )
+  while( (i<nb_s) && (profiles[0].parallel_flag == profiles[i].parallel_flag) )
     i++ ;
-  return ( (i==nb_s)&&(profiles[0].batch_flag) ) ;
+  return ( (i==nb_s)&&(profiles[0].parallel_flag) ) ;
 }
 #endif

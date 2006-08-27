@@ -8,6 +8,15 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2006/08/27 18:40:11  ycaniou
+ * Modified parallel submission API
+ * - client: diet_call_batch() -> diet_parallel_call()
+ * - SeD: diet_profile_desc_set_batch() -> [...]_parallel()
+ * - from now, internal fields are related to parallel not batch
+ * and corrected a bug:
+ * - 3 types of submission: request among only seq, only parallel, or all
+ *   available services (second wasn't implemented, third bug)
+ *
  * Revision 1.12  2005/04/27 01:49:41  ycaniou
  * Added the necessary for initialisation of batch profile, for profiles to
  * match
@@ -143,6 +152,8 @@ public:
   int
   rmChild(const CORBA::ULong child);
 
+  const corba_profile_desc_t &
+  getProfile( const ServiceReference_t index ) ;
   // Return a pointer to a copy of all profiles.
   // Caller is responsible for freeing the result.
   SeqCorbaProfileDesc_t*

@@ -23,6 +23,8 @@
 
 /* argv[1]: client config file path */
 
+#define EXPLICIT_PARALLEL_SUBMISSION
+
 int
 main(int argc, char* argv[])
 {
@@ -62,9 +64,6 @@ main(int argc, char* argv[])
     return 1;
   }
 
-  /* Ask explicitely for a batch submission */
-  printf("Call explicitly a parallel service\n") ;
-  diet_profile_set_batch(profile) ;
 
   /*********************
    * DIET Call
@@ -73,7 +72,14 @@ main(int argc, char* argv[])
   gettimeofday(&tv, &tz);
   printf("L'heure de soumission est %ld:%ld\n\n",tv.tv_sec,tv.tv_usec) ;
 
+#ifdef EXPLICIT_PARALLEL_SUBMISSION
+  /* To ask explicitely for a parallel submission */
+  printf("Call explicitly a parallel service\n") ;
+  if (!diet_parallel_call(profile)) {
+#else
+    printf("All services, seq and parallel, with the correct name are Ok.\n") ;
   if (!diet_call(profile)) {
+#endif
     printf("Job correctly submitted!\n\n\n") ;
     diet_file_get(diet_parameter(profile,3), NULL, &file_size, &path);
     if (path && (*path != '\0')) {

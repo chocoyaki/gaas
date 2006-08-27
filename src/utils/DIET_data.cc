@@ -8,6 +8,15 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.40  2006/08/27 18:40:11  ycaniou
+ * Modified parallel submission API
+ * - client: diet_call_batch() -> diet_parallel_call()
+ * - SeD: diet_profile_desc_set_batch() -> [...]_parallel()
+ * - from now, internal fields are related to parallel not batch
+ * and corrected a bug:
+ * - 3 types of submission: request among only seq, only parallel, or all
+ *   available services (second wasn't implemented, third bug)
+ *
  * Revision 1.39  2006/07/25 14:37:40  ycaniou
  * dietJobID changed to dietReqID
  *
@@ -353,7 +362,7 @@ profile_desc_match(const corba_profile_desc_t* p1,
        || (p1->last_out            != p2->last_out)
        || (p1->param_desc.length() != p2->param_desc.length())
 #if HAVE_BATCH
-       || (p1->batch_flag          != p2->batch_flag) 
+       || (p1->parallel_flag          != p2->parallel_flag) 
 #endif
        )
     return 0 ;
@@ -384,8 +393,11 @@ profile_match(const corba_profile_desc_t* sv_profile,
        || (sv_profile->param_desc.length() != pb_desc->param_desc.length()) )
     return 0;
 #if HAVE_BATCH
-  if( (pb_desc->batch_flag == 1) 
-      && (sv_profile->batch_flag != pb_desc->batch_flag) )
+  /* The request must explicitely choose sequential or parallel job,
+     else error
+  */
+  if( (pb_desc->parallel_flag != 1) && 
+      (sv_profile->parallel_flag != pb_desc->parallel_flag) )
     return 0 ;
 #endif
 
@@ -417,9 +429,12 @@ profile_match(const corba_profile_desc_t* sv_profile,
     return 0;
 
 #if HAVE_BATCH
-  if( (sv_profile->batch_flag == 1) 
-      && (sv_profile->batch_flag != pb->batch_flag) )
-    return 0 ;
+  /*  if( (sv_profile->parallel_flag == 1) 
+      && (sv_profile->parallel_flag != pb->parallel_flag) )
+      return 0 ;*/
+  /* As the client request this server, and until here, then SeD propose
+     the service. We assume that SeD that was seq or // is still seq or //
+  */
 #endif
 
   for (size_t i = 0; i < sv_profile->param_desc.length(); i++) {
@@ -458,7 +473,8 @@ diet_profile_alloc(char* pb_name, int last_in, int last_inout, int last_out)
   for (int i = 0; i <= last_out; i++)
     res->parameters[i].desc.id = NULL;
 #if HAVE_BATCH
-  res->batch_flag= 0 ;
+  /* By default, sequential task (cf DIET_data.h ) */
+  res->parallel_flag = 1 ;
   res->nbprocs   = 1 ;
   res->nbprocess = 1 ;
   res->walltime  = 0 ;
@@ -479,9 +495,15 @@ diet_profile_free(diet_profile_t* profile)
 #ifdef HAVE_BATCH
 /* Functions for client profile request */
 int
-diet_profile_set_batch(diet_profile_t* profile)
+diet_profile_set_parallel(diet_profile_t* profile)
 {
-  profile->batch_flag = 1 ;
+  profile->parallel_flag = 2 ;
+  return 0 ;
+}
+int
+diet_profile_set_sequential(diet_profile_t* profile)
+{
+  profile->parallel_flag = 1 ;
   return 0 ;
 }
 int
@@ -494,9 +516,9 @@ diet_profile_set_nbprocs(diet_profile_t* profile, int nbprocs)
 }
 /* Functions for server profile registration */
 int
-diet_profile_desc_set_batch(diet_profile_desc_t* profile)
+diet_profile_desc_set_parallel(diet_profile_desc_t* profile)
 {
-  profile->batch_flag = 1 ;
+  profile->parallel_flag = 2 ;
   return 0 ;
 }
 #endif // HAVE_BATCH
