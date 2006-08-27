@@ -13,17 +13,23 @@
 # The extra maintainer build type is a build mode for which the compilers
 # and linkers go paranoid and report about most of the warning they are aware
 # of.
-# Note: this Maintainer mode is only defined for GCC compiler collection.
+# Notes:
+#  - Limitation: this Maintainer mode is only available for GCC.
+#  - Comments on the current choice of flags:
+#     * -Wold-style-cast generates too many warnings due to omniORB includes
+#     * -pedantic generates ISO C++ unsupported 'long long' errors for omniORB
+#        includes
+#     * -Wstrict-null-sentinel used only when supported :-)
+
 SET( CMAKE_BUILD_TYPE_DOCSTRING
   "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel." )
 
 IF( CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX )
-  # Notes:
-  # * -Wold-style-cast generates too many warnings due to omniORB includes
-  # * -pedantic generates ISO C++ unsupported 'long long' errors for omniORB
-  #    includes
-  # * -Wstrict-null-sentinel is only supported by recent g++ versions (hence
-  #    we check g++ major version number):
+  # Some warning flags (e.g. -Wstrict-null-sentinel) were introduced only
+  # recently within GCC. In order to decide wether those flags are available
+  # or not we simply check g++ major version number (as opposed to heavier
+  # solutions like making trial invocations and checking the result). Hence
+  # the following definition of GNUCXX_MAJOR_VERSION_BIGER_THAN_FOUR):
   EXEC_PROGRAM( ${CMAKE_CXX_COMPILER}
                ARGS -dumpversion
                OUTPUT_VARIABLE GNUCXX_VERSION )
@@ -31,6 +37,33 @@ IF( CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX )
     GNUCXX_MAJOR_VERSION_BIGER_THAN_FOUR
   )
 
+  # Allthough we made sure that the compilers (C and CXX) were the GNU ones,
+  # we alas cannot expect the linker to be GNU-ld (as usually packaged in
+  # binutils). For example on Darwin, one encounters c++ as being a
+  # tweaked version of g++, but ld is not GNU-ld (but some Apple's cctools
+  # based thingy).
+  # Since cmake doesn't seem to offer a CMAKE_LINKER_IS_GNU (i.e.
+  # the equivalent of CMAKE_COMPILER_IS_GNUCC for the linker) we need to
+  # provide one. Alas (again) the following strategy fails:
+  #         EXEC_PROGRAM( ${CMAKE_CXX_LINK_EXECUTABLE}
+  #                        ARGS -v
+  #                        OUTPUT_VARIABLE LINKER_VERSION )
+  #         IF( LINKER_VERSION MATCHES "GNU" )
+  #             SET( LINKER_IS_GNULD TRUE )
+  #         ENDIF( ...)
+  # Failure is due to the fact that the linker command is not accessible
+  # from cmake since it is invoked through the compilers (in fact 
+  # CMAKE_CXX_LINK_EXECUTABLE is a rule and not the linker command).
+  #
+  # Hence the following kludgy definition of LINKER_IS_GNULD (which reveals
+  # that proprietary OSes prove to remain hard to use even when they pretend
+  # to deliver the GNU layer):
+  SET( LINKER_IS_GNULD TRUE )
+  IF( APPLE )
+    SET( LINKER_IS_GNULD FALSE )
+  ENDIF( APPLE )
+
+  # Proceed with the definitions:
   IF( GNUCXX_MAJOR_VERSION_BIGER_THAN_FOUR )
     SET( CMAKE_CXX_FLAGS_MAINTAINER
        "-Wall -Wabi -Woverloaded-virtual -Wstrict-null-sentinel"
@@ -53,19 +86,17 @@ IF( CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX )
     FORCE
   )
 
-  # Some linker options (e.g. --warn-unresolved-symbols) are only known of
-  # recent GNU/ld version. Since ld itself doesn't support the nice
-  # -dumpversion option (as opposed to g++) we will make the strong assumption
-  # that the GNU/ld version is strongly coupled with the one of
-  # CMAKE_CXX_COMPILER (which we know to be GNU's c++ compiler). Hence the
-  # following lazy kludge:
-  IF( GNUCXX_MAJOR_VERSION_BIGER_THAN_FOUR )
-    SET( CMAKE_EXE_LINKER_FLAGS_MAINTAINER
-    "-Wl,--unresolved-symbols=report-all,--warn-unresolved-symbols,--warn-once"
-    )
-  ELSE( GNUCXX_MAJOR_VERSION_BIGER_THAN_FOUR )
-    SET( CMAKE_EXE_LINKER_FLAGS_MAINTAINER "-Wl,--warn-once" )
-  ENDIF( GNUCXX_MAJOR_VERSION_BIGER_THAN_FOUR )
+  IF( LINKER_IS_GNULD )
+    IF( GNUCXX_MAJOR_VERSION_BIGER_THAN_FOUR )
+      SET( CMAKE_EXE_LINKER_FLAGS_MAINTAINER
+      "-Wl,--unresolved-symbols=report-all,--warn-unresolved-symbols,--warn-once"
+      )
+    ELSE( GNUCXX_MAJOR_VERSION_BIGER_THAN_FOUR )
+      SET( CMAKE_EXE_LINKER_FLAGS_MAINTAINER "-Wl,--warn-once" )
+    ENDIF( GNUCXX_MAJOR_VERSION_BIGER_THAN_FOUR )
+  ELSE( LINKER_IS_GNULD )
+      SET( CMAKE_EXE_LINKER_FLAGS_MAINTAINER "" )
+  ENDIF( LINKER_IS_GNULD )
   SET( CMAKE_EXE_LINKER_FLAGS_MAINTAINER
     ${CMAKE_EXE_LINKER_FLAGS_MAINTAINER}
     CACHE STRING 
