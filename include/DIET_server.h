@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2006/08/30 11:56:13  ycaniou
+ * Commit the changements on the API for batch/parallel submissions
+ *
  * Revision 1.28  2006/06/30 15:47:42  ycaniou
  * Coquilles, and batch stuff
  *
@@ -170,7 +173,7 @@ typedef struct {
   diet_arg_desc_t* param_desc;
 
 #ifdef HAVE_BATCH
-  unsigned short int batch_flag ;
+  unsigned short int parallel_flag ;
   int nbprocs ; 
   /* if job is parallel but not batch */
 #endif
@@ -206,7 +209,7 @@ diet_profile_desc_free(diet_profile_desc_t* desc);
 #ifdef HAVE_BATCH
 /* Functions for server profile registration */
 int
-diet_profile_desc_set_batch(diet_profile_desc_t* profile) ;
+diet_profile_desc_set_parallel(diet_profile_desc_t* profile) ;
 #endif
 
 

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2006/08/30 11:56:13  ycaniou
+ * Commit the changements on the API for batch/parallel submissions
+ *
  * Revision 1.25  2006/07/10 11:24:22  aamar
  * Adding the following functions to the API:
  *    - enable_reordering, set_reordering_delta, nodeIsDone, nodeIsRunning,
@@ -146,13 +149,13 @@ diet_error_t
 diet_call(diet_profile_t* profile);
 #ifdef HAVE_BATCH
 diet_error_t
-diet_call_batch(diet_profile_t* profile) ;
+diet_parallel_call(diet_profile_t* profile) ;
 #endif
 diet_error_t
 diet_call_async(diet_profile_t* profile, diet_reqID_t* reqID);
 #ifdef HAVE_BATCH
 diet_error_t
-diet_call_async_batch(diet_profile_t* profile, diet_reqID_t* reqID);
+diet_call_parallel_async(diet_profile_t* profile, diet_reqID_t* reqID);
 #endif
 
 /****************************************************************************/

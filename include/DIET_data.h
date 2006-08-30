@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.44  2006/08/30 11:56:13  ycaniou
+ * Commit the changements on the API for batch/parallel submissions
+ *
  * Revision 1.43  2006/07/25 14:23:17  ycaniou
  * Changed dietJobID field to dietReqID which is more coherent with the rest
  *   of the code
@@ -250,7 +253,10 @@ typedef struct {
 		      ** And for batch submission
                       */
 #ifdef HAVE_BATCH
-  unsigned short int batch_flag ;
+  /* if 0, select seq AND parallel tasks for the request
+     if 1, select only seq tasks
+     if 2, parallel only */
+  unsigned short int parallel_flag ;
   int nbprocs ;
   int nbprocess ;
   unsigned long walltime ; /* in minutes */
@@ -279,7 +285,9 @@ diet_profile_free(diet_profile_t* profile);
 
 #ifdef HAVE_BATCH
 int
-diet_profile_set_batch(diet_profile_t* profile) ;
+diet_profile_set_parallel(diet_profile_t* profile) ;
+int
+diet_profile_set_sequential(diet_profile_t* profile) ;
 int
 diet_profile_set_nbprocs(diet_profile_t* profile, int nbprocs) ;
 #endif

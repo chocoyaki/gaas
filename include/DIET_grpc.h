@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2006/08/30 11:56:13  ycaniou
+ * Commit the changements on the API for batch/parallel submissions
+ *
  * Revision 1.9  2006/07/07 09:02:57  aamar
  * Modification of the handle structure : adding the service profile, the problem
  *  profile and the output arguments references to grpc_function_handle_s
@@ -99,7 +102,7 @@ typedef int diet_error_t;
 grpc_error_t
 grpc_initialize(char* config_file_name);
 /* Release any resource being used by GridRPC.                              */
-// #define grpc_finalize                 diet_finalize
+/* #define grpc_finalize                 diet_finalize */
 grpc_error_t
 grpc_finalize();
 
@@ -211,23 +214,23 @@ grpc_call_argstack_async(grpc_function_handle_t* handle,
 /* Asynchronous GridRPC Control Functions                                   */
 
 /* Cancel the specified asynchronous GridRPC call.                          */
-// #define grpc_cancel                   diet_cancel
+/* #define grpc_cancel                   diet_cancel */
 grpc_error_t
 grpc_cancel(grpc_sessionid_t sessionID);
 
 /* Cancel all outstanding asynchronous GridRPC calls.                       */
-//#define grpc_cancel_all               diet_cancel_all
+/* #define grpc_cancel_all               diet_cancel_all */
 grpc_error_t 
 grpc_cancel_all();
 
 /* Check whether the asynchronous GridRPC call has completed.               */
-//#define grpc_probe                    diet_probe
+/* #define grpc_probe                    diet_probe */
 grpc_error_t
 grpc_probe(grpc_sessionid_t sessionID);
 
 
 /* Check an array of session IDs for any GridRPC calls that have completed. */
-//#define grpc_probe_or                 diet_probe_or
+/* #define grpc_probe_or                 diet_probe_or */
 /* Check an array of session IDs for any GridRPC calls that have completed. */
 grpc_error_t
 grpc_probe_or(grpc_sessionid_t* reqIdArray,
@@ -239,32 +242,32 @@ grpc_probe_or(grpc_sessionid_t* reqIdArray,
 /* Asynchronous GridRPC Control Functions                                   */
 
 /* Block until the specified non-blocking request to complete.              */
-//#define grpc_wait                     diet_wait
+/* #define grpc_wait                     diet_wait */
 grpc_error_t
 grpc_wait(grpc_sessionid_t reqID);
 
 /* Block until all of the specified non-blocking requests in a given set
    have completed.                                                          */
-//#define grpc_wait_and                 diet_wait_and
+/* #define grpc_wait_and                 diet_wait_and */
 grpc_error_t
 grpc_wait_and(diet_reqID_t* IDs, size_t length);
 
 /* Block until any of the specified non-blocking requests in a given set
    have completed. Exactly one session ID is returned in idPtr.             */
-//#define grpc_wait_or                  diet_wait_or
+/* #define grpc_wait_or                  diet_wait_or */
 grpc_error_t
 grpc_wait_or(diet_reqID_t* IDs, size_t length, diet_reqID_t* IDptr);
 
 
 /* Block until all previously issued non-blocking requests have completed.  */
-//#define grpc_wait_all                 diet_wait_all
+/* #define grpc_wait_all                 diet_wait_all */
 grpc_error_t
 grpc_wait_all();
 
 
 /* Block until any previously issued non-blocking requests have completed.
    Exactly one session ID is returned in idPtr.                             */
-//#define grpc_wait_any                 diet_wait_any
+/* #define grpc_wait_any                 diet_wait_any */
 grpc_error_t
 grpc_wait_any(diet_reqID_t* IDptr);
 
