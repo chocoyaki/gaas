@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2006/08/30 15:36:08  ycaniou
+ * Correction for the MasterAgent to submit a "real" copy of parallel/sequential
+ *   profile in HAVE_BATCH mode
+ *
  * Revision 1.24  2006/06/30 15:37:34  ycaniou
  * Code presentation, commentaries (nothing really "touched")
  *
@@ -391,10 +395,19 @@ MasterAgentImpl::submit_local(const corba_request_t& creq)
 #endif // HAVE_ALTPREDICT
 
   } else {
+#ifndef HAVE_BATCH
     CORBA::Long numProfiles;
     SeqCorbaProfileDesc_t *profiles = this->SrvT->getProfiles(numProfiles);
     assert(sref < numProfiles);
     const corba_profile_desc_t profile = (*profiles)[sref];
+#else
+    /* I have defined, for batch cases, ServiceTable::getProfile( index )
+       I use it here because of efficiency. Why not replace non batch code? 
+
+    TODO: we can only manipulate reference here... look if we can change
+    chooseGlobalScheduler() prototype */
+    const corba_profile_desc_t profile = this->SrvT->getProfile( sref ) ;
+#endif
     srvTMutex.unlock();
   
     req = new Request(&creq,
@@ -402,8 +415,9 @@ MasterAgentImpl::submit_local(const corba_request_t& creq)
 
     /** Forward request and schedule the responses */
     resp = findServer(req, creq.max_srv);
-
+#ifndef HAVE_BATCH
     delete profiles;
+#endif
   }
 
   resp->myID = (ChildID) -1;
