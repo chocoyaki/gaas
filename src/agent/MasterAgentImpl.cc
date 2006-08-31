@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2006/08/31 05:47:50  ycaniou
+ * Last fix wasn't complete (miss one line)
+ *
  * Revision 1.25  2006/08/30 15:36:08  ycaniou
  * Correction for the MasterAgent to submit a "real" copy of parallel/sequential
  *   profile in HAVE_BATCH mode
@@ -402,11 +405,15 @@ MasterAgentImpl::submit_local(const corba_request_t& creq)
     const corba_profile_desc_t profile = (*profiles)[sref];
 #else
     /* I have defined, for batch cases, ServiceTable::getProfile( index )
-       I use it here because of efficiency. Why not replace non batch code? 
-
+       I use it here because of efficiency. 
+       Can we replace previous non batch code?
+       
     TODO: we can only manipulate reference here... look if we can change
     chooseGlobalScheduler() prototype */
-    const corba_profile_desc_t profile = this->SrvT->getProfile( sref ) ;
+    corba_profile_desc_t profile = this->SrvT->getProfile( sref ) ;
+    /* Copy parallel flag of the client profile (reason why not const
+       anymore) */
+    profile.parallel_flag = creq.pb.parallel_flag ;
 #endif
     srvTMutex.unlock();
   
