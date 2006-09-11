@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2006/09/11 11:12:29  ycaniou
+ * Cosmetic changes: C++ commentaries to C commentaries for to discard warnings
+ *
  * Revision 1.2  2006/08/09 21:42:23  aamar
  * Changing the error code of EXIT function to 10 (GRPC_SESSION_FAILED)
  *
@@ -98,7 +101,7 @@ main(int argc, char* argv[])
   }
   diet_service_table_init(NB_SRV);
   
-  // The succ function
+  /* The succ function */
   profile = diet_profile_desc_alloc("SUCC", 0, 1, 1);
   diet_generic_desc_set(diet_param_desc(profile, 0),
 		  	DIET_SCALAR, DIET_INT);
@@ -108,7 +111,7 @@ main(int argc, char* argv[])
 	 return 1;
   diet_profile_desc_free(profile);
 
-  // The sleep function
+  /* The sleep function */
   profile = diet_profile_desc_alloc("SLEEP", 0, 0, 0);
   diet_generic_desc_set(diet_param_desc(profile, 0),
 		        DIET_SCALAR, DIET_INT);
@@ -116,7 +119,7 @@ main(int argc, char* argv[])
          return 1;
   diet_profile_desc_free(profile);
 	    
-  // The loop function
+  /* The loop function */
   profile = diet_profile_desc_alloc("LOOP", 0, 0, 0);
   diet_generic_desc_set(diet_param_desc(profile, 0),
 		        DIET_SCALAR, DIET_INT);
@@ -124,7 +127,7 @@ main(int argc, char* argv[])
          return 1;
   diet_profile_desc_free(profile);
   
-  // The exit function
+  /* The exit function */
   profile = diet_profile_desc_alloc("EXIT", 0, 0, 0);
   diet_generic_desc_set(diet_param_desc(profile, 0),
 		        DIET_SCALAR, DIET_INT);
@@ -135,6 +138,6 @@ main(int argc, char* argv[])
   diet_print_service_table();
 
   res = diet_SeD(argv[1], argc, argv);
-  // Not reached
+  /* Not reached */
   return res;
 }
