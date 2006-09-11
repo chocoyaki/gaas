@@ -5,6 +5,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.41  2006/09/11 11:09:12  ycaniou
+ * Call ServiceTable::getChildren(corba_pb_desc) in findServer, in order to
+ *   call both parallel and sequential server for a default request that can
+ *   possibly be executed in both modes.
+ *
  * Revision 1.40  2006/02/08 00:13:07  ecaron
  * Correct wrong usage of HAVE_CORI and HAVE_FAST
  *
@@ -423,7 +428,10 @@ AgentImpl::findServer(Request* req, size_t max_srv)
   else { // then the request must be forwarded
 
     int nbChildrenContacted = 0;
-    ServiceTable::matching_children_t *mc, *SrvTmc;
+#ifndef HAVE_BATCH
+    const ServiceTable::matching_children_t * SrvTmc;
+    ServiceTable::matching_children_t * mc ;
+
     SrvTmc = SrvT->getChildren(serviceRef);
 
     /* Contact the children. The responses array will not be ready until all
@@ -448,6 +456,28 @@ AgentImpl::findServer(Request* req, size_t max_srv)
     srvTMutex.lock();
     nbChildrenContacted = SrvTmc->nb_children;
     srvTMutex.unlock();
+
+#else
+    /* Need to know children for parallel and/or seq. tasks if so asked */
+    // research from the profile
+    // this concatenes results
+
+    /* Contact the children. The responses array will not be ready until all
+       children are contacted. Thus lock the responses mutex now.           */
+    const ServiceTable::matching_children_t * mc ;
+
+    req->lock();
+    mc = SrvT->getChildren( &creq.pb ) ;
+    srvTMutex.unlock();
+
+    nbChildrenContacted = mc->nb_children ;
+    for (i = 0; i < (size_t)mc->nb_children; i++) {
+      sendRequest( mc->children[i], &creq, &nbChildrenContacted ) ;
+    }
+
+    delete[] mc->children;
+    delete mc;
+#endif
 
     /* if no alive server can solve the problem, return */
     if (!nbChildrenContacted) {
@@ -612,11 +642,21 @@ AgentImpl::getHostname()
 }
 
 
+#ifndef HAVE_BATCH
 /**
  * Send the request structure \c req to the child whose ID is \c childID.
  */
 void
 AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req)
+#else
+/**
+ * Send the request structure \c req to the child whose ID is \c childID.
+ * Decremente \c nb_children contacted when error.
+*/
+void
+AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req,
+		       int * nb_children_contacted)
+#endif
 {
   bool childFound = false;
   typedef size_t comm_failure_t;
@@ -644,6 +684,9 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req)
                 << " occured - remove it from known children");
             srvTMutex.lock();
             SrvT->rmChild(childID);
+#ifdef HAVE_BATCH
+	    nb_children_contacted-- ;
+#endif
             if (TRACE_LEVEL >= TRACE_STRUCTURES) {
               SrvT->dump(stdout);
             }

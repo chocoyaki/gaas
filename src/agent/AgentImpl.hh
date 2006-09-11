@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2006/09/11 11:09:12  ycaniou
+ * Call ServiceTable::getChildren(corba_pb_desc) in findServer, in order to
+ *   call both parallel and sequential server for a default request that can
+ *   possibly be executed in both modes.
+ *
  * Revision 1.16  2005/09/07 07:41:02  hdail
  * Cleanup of alternative prediction handling
  *
@@ -191,10 +196,21 @@ protected:
   corba_response_t*
   findServer(Request* req, size_t max_srv);
  
+#ifndef HAVE_BATCH
   /** Send the request structure \c req to the child whose ID is \c childID. */
   void
   sendRequest(CORBA::ULong childID, const corba_request_t* req);
-  
+#else
+  /**
+   * Send the request structure \c req to the child whose ID is \c childID.
+   * Decremente \c nb_children_contacted contacted when error.
+   */
+  void
+  sendRequest(CORBA::ULong childID, const corba_request_t* req,
+	      int * nb_children_contacted) ;
+#endif
+
+
 #if ! HAVE_ALTPREDICT
   /**
    * Get communication time between this agent and the child \c childID for a data
