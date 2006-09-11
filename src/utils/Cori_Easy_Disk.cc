@@ -89,23 +89,22 @@ bool is_readable( const std::string & file )
 void
 createPath(char **path_file,const char* path)
 {
-  char * numfile;
   char *namefile = new char[8];
   int nombre= (int)((double)rand() / ((double)RAND_MAX + 1) * 9999);
 
-  sprintf(namefile, "%i", nombre);	
-			
+  sprintf(namefile, "%i", nombre);
+
   *path_file=new char[strlen(path)+strlen(namefile)];
   strcpy(*path_file,path);
   strcat(*path_file,namefile);
-		
+
   while ( is_readable( *path_file ) ) 
-  {		
-	nombre = (int)((double)rand() / ((double)RAND_MAX + 1) * 9999);
-	sprintf(namefile, "%i",  nombre);	
-	strcpy(*path_file,path);
-	strcat(*path_file,namefile);
-  }	
+  {
+  nombre = (int)((double)rand() / ((double)RAND_MAX + 1) * 9999);
+  sprintf(namefile, "%i",  nombre);
+  strcpy(*path_file,path);
+  strcat(*path_file,namefile);
+  }
 }
 
 double  
