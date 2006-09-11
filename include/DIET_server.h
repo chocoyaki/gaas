@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.30  2006/09/11 11:16:58  ycaniou
+ * - client have now 3 kind of submission (default is conserved)
+ * - server can be parallel in addition to batch (not yet tested)
+ *
  * Revision 1.29  2006/08/30 11:56:13  ycaniou
  * Commit the changements on the API for batch/parallel submissions
  *
@@ -412,7 +416,14 @@ diet_SeD(char* config_file_name, int argc, char* argv[]);
 #ifdef HAVE_BATCH
   /**
    * @param command is the content of the script that the SeD programmer wants
-   * to submit
+   * to submit in order to provide the service @param profile
+   */
+  int
+  diet_submit_parallel(diet_profile_t* profile, const char *command) ;
+
+  /**
+   * @param command is the content of the script that the SeD programmer wants
+   * to submit in order to provide the service @param profile
    */
   int
   diet_submit_batch(diet_profile_t* profile, const char *command) ;

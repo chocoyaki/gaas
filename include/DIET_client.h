@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2006/09/11 11:16:58  ycaniou
+ * - client have now 3 kind of submission (default is conserved)
+ * - server can be parallel in addition to batch (not yet tested)
+ *
  * Revision 1.26  2006/08/30 11:56:13  ycaniou
  * Commit the changements on the API for batch/parallel submissions
  *
@@ -150,12 +154,16 @@ diet_call(diet_profile_t* profile);
 #ifdef HAVE_BATCH
 diet_error_t
 diet_parallel_call(diet_profile_t* profile) ;
+diet_error_t
+diet_sequential_call(diet_profile_t* profile) ;
 #endif
 diet_error_t
 diet_call_async(diet_profile_t* profile, diet_reqID_t* reqID);
 #ifdef HAVE_BATCH
-diet_error_t
-diet_call_parallel_async(diet_profile_t* profile, diet_reqID_t* reqID);
+  /* Not yet implemented 
+     diet_error_t
+     diet_parallel_call_async(diet_profile_t* profile, diet_reqID_t* reqID);
+  */
 #endif
 
 /****************************************************************************/
