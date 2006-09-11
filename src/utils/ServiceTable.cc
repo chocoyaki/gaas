@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2006/09/11 11:04:36  ycaniou
+ * - Commented getChildren(const corba_profile_desc_t* profile) which is unused
+ * - Added new function getChildren(const corba_pb_desc_t * pb_desc) used in AgentImpl.cc
+ * - getChildren(const ServiceReference_t ref) becomes const
+ *
  * Revision 1.18  2006/08/27 18:40:11  ycaniou
  * Modified parallel submission API
  * - client: diet_call_batch() -> diet_parallel_call()
@@ -567,21 +572,71 @@ ServiceTable::getPerfMetric(const ServiceReference_t ref)
   return (this->perfmetrics[ref]);
 }
 
-
-ServiceTable::matching_children_t*
-ServiceTable::getChildren(const corba_profile_desc_t* profile)
+/* Unused
+   ServiceTable::matching_children_t*
+   ServiceTable::getChildren(const corba_profile_desc_t* profile)
+   {
+   ServiceReference_t ref(-1);
+   
+   if ((ref = lookupService(profile)) == -1) {
+   SRVT_ERROR("attempting to get children\n"
+   << "  of a service that is not in table");
+   }
+   return getChildren(ref);
+   }
+*/
+#ifdef HAVE_BATCH
+const ServiceTable::matching_children_t *
+ServiceTable::getChildren(const corba_pb_desc_t * pb_desc)
 {
-  ServiceReference_t ref(-1);
+  if (solvers) {
+    SRVT_ERROR("attempting to get children\n"
+               << "  in a table initialized with solvers");
+  }
+
+  int first_found = -1, second_found = -1 ; // at most, two indices: // and seq
+  size_t i(0);
+  ServiceTable::matching_children_t * matching_children_concatenation ;
   
-  if ((ref = lookupService(profile)) == -1) {
+  while( (i < nb_s) && (!profile_match(&(profiles[i]), pb_desc)) )
+    i++ ;
+  if( i >= nb_s ) {
     SRVT_ERROR("attempting to get children\n"
                << "  of a service that is not in table");
   }
-  return getChildren(ref);
+  first_found = i ;
+  matching_children_concatenation = 
+    new ServiceTable::matching_children_t() ;
+ /* FIXME: This leads to a compilation error. Why? 
+    if( matching_children_concatenation == NULL ) {
+    ERROR("Not enough memory", 1) ;
+    }*/
+  i++ ;
+  while( (i < nb_s) && (!profile_match(&(profiles[i]), pb_desc)) )
+    i++ ;
+  if( i>= nb_s )
+    matching_children_concatenation->nb_children = 
+      matching_children[ first_found ].nb_children ;
+  else {
+    second_found = i ;
+    matching_children_concatenation->nb_children = 
+      matching_children[ first_found ].nb_children 
+      + matching_children[ second_found ].nb_children ;
+  }
+  matching_children_concatenation->children =
+    new CORBA::ULong[matching_children_concatenation->nb_children] ;
+  for( i=0; i<matching_children[ first_found ].nb_children ; i++ )
+    matching_children_concatenation->children[ i ] =
+      matching_children[ first_found ].children[ i ] ;
+  if( second_found > 0 )
+    for( i=0; i<matching_children[ second_found ].nb_children ; i++ )
+      matching_children_concatenation->children[ i ] =
+	matching_children[ second_found ].children[ i ] ;
+  
+  return matching_children_concatenation ;
 }
-
-
-ServiceTable::matching_children_t*
+#else
+const ServiceTable::matching_children_t*
 ServiceTable::getChildren(const ServiceReference_t ref)
 {
   if (solvers) {
@@ -593,7 +648,7 @@ ServiceTable::getChildren(const ServiceReference_t ref)
   }
   return &(matching_children[ref]);
 }
-
+#endif
 
 void
 ServiceTable::dump(FILE* f)

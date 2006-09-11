@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2006/09/11 11:04:36  ycaniou
+ * - Commented getChildren(const corba_profile_desc_t* profile) which is unused
+ * - Added new function getChildren(const corba_pb_desc_t * pb_desc) used in AgentImpl.cc
+ * - getChildren(const ServiceReference_t ref) becomes const
+ *
  * Revision 1.13  2006/08/27 18:40:11  ycaniou
  * Modified parallel submission API
  * - client: diet_call_batch() -> diet_parallel_call()
@@ -176,11 +181,20 @@ public:
   getPerfMetric(const corba_profile_desc_t* profile);
   diet_perfmetric_t
   getPerfMetric(const ServiceReference_t ref);
+  /* Unused!
   matching_children_t*
-  getChildren(const corba_profile_desc_t* profile);
-  matching_children_t*
+    getChildren(const corba_profile_desc_t* profile);
+  */
+#ifdef HAVE_BATCH
+  /* Returns the list of children that can solve parallel and/or sequential
+     task, depending on parallel flag of profile
+  -> Caller must desallocate the resulting memory! */
+  const matching_children_t *
+    getChildren(const corba_pb_desc_t * pb_desc);
+#else
+  const matching_children_t*
   getChildren(const ServiceReference_t ref);
-  
+#endif
   void
   dump(FILE* f);
 
