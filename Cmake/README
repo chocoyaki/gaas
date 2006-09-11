@@ -106,6 +106,15 @@ VII/ Requirements:
   apt-get is generally cmake aware. By default fetching the sources,
   compiling and installing them should be straightfoward...
 
+VIII/ Submitting ctest reports to Dashboard:
+  Diet undergoes a nightly rebuild process which report can be found at
+     http://graal.ens-lyon.fr:8081/DIETcore/Dashboard/
+  If you wish to report your building (compile/linking/tests) to this
+  public server, simply run the command (from the building tree):
+     ctest -D Experimental
+  The dashboard should display your report within 15' under the Experimental
+  section...
+
 
 ------------------------------------------------------------
 Notes:
