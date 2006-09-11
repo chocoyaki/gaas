@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.59  2006/09/11 11:06:39  ycaniou
+ * Added new function in API: diet_submit_parallel() which is the pendant to
+ *   diet_submit_batch() for parallel jobs. NOT YET TESTED!
+ *
  * Revision 1.58  2006/08/27 18:40:10  ycaniou
  * Modified parallel submission API
  * - client: diet_call_batch() -> diet_parallel_call()
@@ -1192,6 +1196,69 @@ int diet_estimate_lastexec(estVector_t ev,
 /****************************************************************************/
 
 #ifdef HAVE_BATCH
+int diet_submit_parallel(diet_profile_t *profile, const char *command)
+{
+  int result ;
+  ELBASE_SchedulerServiceTypes schedulerID ;
+  char **attrs, **attrs_idx ;
+  char *chaine = NULL ;
+  char *cmd = NULL ;
+  char *script = NULL ;
+  char *hostname = NULL ;
+  ELBASE_Process *process = NULL ;
+    
+  schedulerID = ELBASE_SHELL ;
+
+  /* We are still on the frontal, whose name must be given to the service
+  ** in case of data transfer or fault tolerance mechanism */  
+  hostname = ((SeDImpl*)profile->SeDPtr)->getLocalHostName() ;
+
+  /* Prepare batch arguments */
+  chaine = (char*)malloc(100*sizeof(char)) ;
+  attrs = NULL ;
+
+  /* Replace some stuff in SeD programmer's command */
+  cmd = strdup(command) ;
+  sprintf(chaine,"%d",profile->nbprocs) ;
+  ASSTR_StrReplaceAll(&cmd,"$DIET_BATCH_NBNODES",chaine) ;
+  sprintf(chaine,"%d",profile->nbprocess) ;
+  ASSTR_StrReplaceAll(&cmd,"$DIET_USER_NBPROCS",chaine) ;
+  ASSTR_StrReplaceAll(&cmd,"$DIET_NAME_FRONTALE",hostname) ;
+
+  /* Submit request with a fork, bacause we are on the frontale
+   *   Note: if process != NULL, it contains pid info after return
+   *   For sync and async, store the pid of the submitter
+   */
+  process = (ELBASE_Process*) malloc (sizeof(ELBASE_Process)) ;
+  result = ELBASE_Submit(ELBASE_FORK, hostname, schedulerID,
+			 (const char **)attrs,
+			 cmd, NULL, NULL, NULL, NULL,
+			 NULL, NULL, process) ;
+  
+  if( result == 0 ) { // An error occured during the submission
+    ERROR("Error during submission...", 21);
+  }
+  /* Store the JobID in correlation with DIET_taskID
+  ** Note that the ID is the ID of the script that does the submission
+  ** of the batch script. There is not a big difference for us as
+  ** we can watch this process which watch the batch job :)
+  */
+  ((SeDImpl*)(profile->SeDPtr))->storeBatchID(process, profile->dietReqID) ;
+  
+  /* Free memory */
+  free(chaine) ;
+  free(cmd) ;
+  free(script) ;
+  attrs_idx = attrs ;
+  while( *attrs_idx != NULL ) {
+    free(*attrs_idx) ;
+    attrs_idx++ ;
+  }
+  free(attrs) ;
+    
+  return result ;
+}
+
 int
 diet_submit_batch(diet_profile_t *profile, const char *command)
 {
