@@ -3,5 +3,5 @@ SET( CTEST_CUSTOM_MAXIMUM_NUMBER_OF_WARNINGS 300 )
 # Warning we want to drop
 SET( TEST_CUSTOM_WARNING_EXCEPTION
   ${CTEST_CUSTOM_WARNING_EXCEPTION}
-  "omniORB4/cdrStream.h:1098: warning: vtable layout for class"
+  "omniORB4/cdrStream.h:1098"
 )
