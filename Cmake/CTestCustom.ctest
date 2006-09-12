@@ -1,7 +1,10 @@
 SET( CTEST_CUSTOM_MAXIMUM_NUMBER_OF_WARNINGS 300 )
 
-# Warning we want to drop
-SET( TEST_CUSTOM_WARNING_EXCEPTION
+# Warnings we want to drop:
+SET( CTEST_CUSTOM_WARNING_EXCEPTION
   ${CTEST_CUSTOM_WARNING_EXCEPTION}
   "omniORB4/cdrStream.h:1098"
+  "omniORB4/callDescriptor.h:319"
+  "stl_function.h:196"
+  "stl_tree.h:645"
 )
