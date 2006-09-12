@@ -1,8 +1,8 @@
 SET( CTEST_CUSTOM_WARNING_EXCEPTION
   ${CTEST_CUSTOM_WARNING_EXCEPTION}
-  "omniORB4"
-  "omniORB4/callDescriptor.h:319"
-  "stl_function.h:196"
+  "omniORB4/cdrStream.h"
+  "omniORB4/callDescriptor.h"
+  "stl_function.h"
   "stl_tree.h"
 )
 
