@@ -5,6 +5,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.42  2006/09/12 08:57:38  bdepardo
+ * When compiling with HAVE_BATCH, if a SeD disappeared from the hierarchy,
+ * when a request was submitted it was blocked, waiting for the missing SeD
+ * response.
+ *
  * Revision 1.41  2006/09/11 11:09:12  ycaniou
  * Call ServiceTable::getChildren(corba_pb_desc) in findServer, in order to
  *   call both parallel and sequential server for a default request that can
@@ -685,7 +690,7 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req,
             srvTMutex.lock();
             SrvT->rmChild(childID);
 #ifdef HAVE_BATCH
-	    nb_children_contacted-- ;
+	    (*nb_children_contacted)-- ;
 #endif
             if (TRACE_LEVEL >= TRACE_STRUCTURES) {
               SrvT->dump(stdout);
@@ -720,6 +725,9 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req,
                 << " occured - remove it from known children");
             srvTMutex.lock();
             SrvT->rmChild(childID);
+#ifdef HAVE_BATCH
+	    (*nb_children_contacted)-- ;
+#endif
             if (TRACE_LEVEL >= TRACE_STRUCTURES) {
               SrvT->dump(stdout);
             }
