@@ -1,0 +1,11 @@
+# This small set of utilities is assembled here in order to provide a small
+# toolbox for troubleshooting [e.g. is some pesky FW in between ? ]
+#   - OmniServerTest.sh launches a small minimalistic omniNames server
+#   - LightClient/ contains a tiny java client for making simple request
+#     on a server:port given with the GUIs
+#     
+# The typical usage goes:
+#   1/ Edit OmniServerTest.sh and provide simple configuration information
+#      [name of the service, ports...]
+#   2/ Launch the client and make requires
+#   3/ CRTL-C on the server
