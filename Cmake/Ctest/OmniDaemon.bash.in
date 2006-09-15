@@ -93,17 +93,17 @@ start()
   # Only for java client interogations
   ARGS="$ARGS -ORBsupportBootstrapAgent 1"
   
-  echo -n "Starting $DESC with pid "
+  OTHER_PID_FILENAME=$OMNINAMES_LOGDIR/$OMNINAMES_BASENAME_COMMAND-other.pid
+  $PIDOF_COMMAND $OMNINAMES_BASENAME_COMMAND > $OTHER_PID_FILENAME
   export LD_LIBRARY_PATH=$OMNIORB_PATH/lib
   nohup $OMNINAMES_COMMAND $ARGS > $LOG_FILENAME 2> $ERROR_FILENAME & 
   sleep 1 &&
-  $PIDOF_COMMAND $OMNINAMES_BASENAME_COMMAND > $PID_FILENAME &&
-  cat $PID_FILENAME
+  $PIDOF_COMMAND -o `cat $OTHER_PID_FILENAME` $OMNINAMES_BASENAME_COMMAND > $PID_FILENAME
+  echo "Started $DESC with pid `cat $PID_FILENAME` "
 }
 
 stop()
 {
-  echo $PID_FILENAME
   if [[ -f $PID_FILENAME ]] ; then
     echo "Stopping: $DESC with pid $(cat $PID_FILENAME)" &&
     kill $(cat $PID_FILENAME) >> /dev/null 2>&1 &&
@@ -126,4 +126,3 @@ case "$1" in
       echo $"Usage: $0 {start|stop|restart}"
       exit 1
 esac
-
