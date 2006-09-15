@@ -7,6 +7,8 @@ using namespace std;
 #define EXIT_SUCCESS 0
 #define EXIT_FAILURE 1
 
+///    export PATH=/usr/local/j2sdk1.4.2_12/bin:$PATH
+
 /* The following crap was massively "inspired" by:
  * - int diet_SeD(char* config_file_name, int argc, char* argv[])
  *   as taken from diet/src/SeD/DIET_server.cc
@@ -24,6 +26,7 @@ char* c_string( const string & s)
   return p;
 }
 
+
 /*
  * Converts the string arguments to C-style arrays and invoke the
  * CORBA::ORB_init() through DIET::ORBMgr::init()
@@ -38,10 +41,10 @@ bool ORBMgrInit( string OmniNamesHost,
   TempArgv = (char**)malloc( TempArgc * sizeof(char*) );
 
   // First argument:
-  TempArgv[ 0 ] = "-ORBendPoint";
+  TempArgv[ 0 ] = "-ORBInitRef";
   
   // Second argument:
-  string EndPointArg = "giop:tcp:";
+  string EndPointArg = "NameService=corbaname::";
   if( OmniNamesHost.length() )
     EndPointArg += OmniNamesHost;
   EndPointArg += ":";
@@ -53,15 +56,42 @@ bool ORBMgrInit( string OmniNamesHost,
   // Eventually try to initialize the ORB server:
   try
   {
-    //std::cout << "HEERRERERER" 
-    //    << CORBA::is_nil( CORBA::ORB_init( TempArgc, TempArgv, "omniORB4"))
-    //    <<  endl;
-//    if( CORBA::is_nil( CORBA::ORB_init( TempArgc, TempArgv, "omniORB4") ) )
-    if( ORBMgr::init( TempArgc, TempArgv ) )
-    {
-      std::cout << "CORBA initialisation failed." <<  endl;
-      return false;
+     const char* options[][2] = { { "traceLevel", "40" }, { 0, 0 } }; 
+    // = {{"inConScanPeriod","0"},{"outConScanPeriod","0"},
+    //    {"maxGIOPConnectionPerServer","50"},
+    //    //{"giopMaxMsgSize","33554432"},
+    //    {0,0}};
+
+    CORBA::ORB_ptr orb =  CORBA::ORB_init( TempArgc, TempArgv, "omniORB4",
+options);
+
+    if( CORBA::is_nil( orb ) ) {
+       std::cout << "Return orb is nil ? :" << std::endl;
+       return false;
     }
+    std::cout << "Return orb is valid." << std::endl;
+
+    CORBA::ORB::ObjectIdList *idlist = orb->list_initial_services();
+    if ( !idlist )
+    {
+       std::cout << "Empty Id list." << std::endl;
+       CORBA::release( orb );
+       return false;
+    }
+    std::cout << "Lenght of Id list: "  << idlist->length() << std::endl;
+    std::cout << "Element of Id list: " <<  std::endl;
+    for( unsigned int i = 0; i < idlist->length(); i++ )
+    {
+       std::cout << "    "  << (*idlist)[i] << std::endl;
+    }
+    
+    std::cout << "ZOOOOOOOOOOO" 
+        << orb->resolve_initial_references((*idlist)[0])
+        <<  endl;
+    std::cout << (*idlist)[1]  << "  " 
+        << orb->resolve_initial_references((*idlist)[1])
+        <<  endl;
+    CORBA::release( orb );
     return true;
   }
   catch( CORBA::INITIALIZE& ex )
@@ -91,8 +121,10 @@ bool ORBMgrInit( string OmniNamesHost,
 
 int TestORBMgrInit( int argc, char* argv[] )
 {
-  std::cout << "Testing the existence of an ORB on localhost." << std::endl;
-  std::cout << ORBMgrInit( "gdsdmi01.ens-lyon.fr", "" ) << std::endl;
+  std::cout << "Testing the existence of an ORB server "
+               " @DIET_CMAKE_FQDN_HOSTNAME@"
+            << std::endl;
+  std::cout << ORBMgrInit( "frog.lip.ens-lyon.fr", "28009" ) << std::endl;
   //std::cout << ORBMgrInit( "localhost", "11112809" ) << std::endl;
 
   return EXIT_SUCCESS;

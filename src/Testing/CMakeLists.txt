@@ -10,7 +10,7 @@ IF( BUILD_TESTING )
   # you should edit when adding a new test within this directory:
   SET( DIET_TEST_SOURCES
     TestDummy.cxx
-    # TestORBMgrInit.cxx
+    TestORBMgrInit.cxx
   )
   
   # Choose a base name for the test driver...

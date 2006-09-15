@@ -19,12 +19,7 @@ CONFIGURE_FILE(
 
 INSTALL_FILES( /include/ FILES ${DIET_BINARY_DIR}/include/DIET_config.h )
 
-# For customizing ctest
-CONFIGURE_FILE(
-  CTestCustom.ctest
-  ${DIET_BINARY_DIR}/CTestCustom.ctest
-  COPYONLY
-  IMMEDIATE )
+ADD_SUBDIRECTORY( Ctest )
 
 # FIXME: wait until cmake disposes of a more powerful INSTALL_FILES
 #        to add the equivalent of the following line (refer to thread

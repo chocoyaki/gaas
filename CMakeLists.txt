@@ -207,6 +207,7 @@ INCLUDE( ${DIET_SOURCE_DIR}/Cmake/ConfigureCCompiler.cmake )
 
 # ------------------- CTEST SUPPORT ----------------------------------------
 IF( BUILD_TESTING OR DIET_USE_DART )
+  INCLUDE( ${DIET_SOURCE_DIR}/Cmake/FindTestingUtils.cmake )
   # Caveat emptor:
   # 1/ Excerpt from docs about ENABLE_TESTING:
   #    [...] ctest expects to find a test file in the build directory root.

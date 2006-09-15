@@ -2,11 +2,14 @@
 # Find the omniORB libraries and include dir
 #
  
+# The following variables are set:
+# OMNIORB4_FOUND        - When false, don't try to use omniORB
 # OMNIORB4_INCLUDE_DIR  - Directories to include to use omniORB
 # OMNIORB4_LIBRARIES    - Files to link against to use omniORB
 # OMNIORB4_IDL_COMPILER
-# OMNIORB4_FOUND        - When false, don't try to use omniORB
+# OMNIORB4_OMNINAMES_COMMAND - the omniNames ORB server command (when found)
 # OMNIORB4_DIR          - (optional) Suggested installation directory to search
+# 
 #
 # OMNIORB4_DIR can be used to make it simpler to find the various include
 # directories and compiled libraries when omniORB was not installed in the
@@ -84,6 +87,17 @@ FIND_PROGRAM( OMNIORB4_IDL_COMPILER
   NAMES omniidl
   DOC "What is the path where omniidl (the idl compiler) can be found"
 )
+
+FIND_PROGRAM( OMNIORB4_OMNINAMES_COMMAND
+  NAMES omniNames
+  PATHS ${OMNIORB4_DIR}/bin
+  DOC "What is the path where omniNames (the ORB server) can be found"
+  NO_DEFAULT_PATH
+)
+FIND_PROGRAM( OMNIORB4_OMNINAMES_COMMAND
+  NAMES omniNames
+  DOC "What is the path where omniNames (the ORB server) can be found"
+)
  
 SET( OMNIORB4_FOUND "NO" )
 
@@ -100,6 +114,7 @@ IF( OMNIORB4_IDL_COMPILER )
   MARK_AS_ADVANCED( OMNIORB4_LIBRARY_omnithread )
   MARK_AS_ADVANCED( OMNIORB4_LIBRARY_omniDynamic4 )
   MARK_AS_ADVANCED( OMNIORB4_IDL_COMPILER )
+  MARK_AS_ADVANCED( OMNIORB4_OMNINAMES_COMMAND )
   SET( OMNIORB4_LIBRARIES
     ${OMNIORB4_LIBRARY_omniORB4}
     ${OMNIORB4_LIBRARY_omnithread}

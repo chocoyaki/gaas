@@ -6,6 +6,8 @@
 # basically substituting with the proper "hostname".
 
 SET( DIET_EXAMPLES_CONFIG_BUILD ON BOOL "Wether the configuration files were build" )
+
+# FIXME: already defined in Cmake/FindTestingUtils.cmake 
 EXEC_PROGRAM( hostname
   OUTPUT_VARIABLE DIET_CMAKE_HOSTNAME
 )
