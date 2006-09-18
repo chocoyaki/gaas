@@ -9,6 +9,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.84  2006/09/18 19:46:07  ycaniou
+ * Corrected a bug in file_transfer:server.c
+ * Corrected memory leaks due to incorrect free of char *
+ * ServiceTable prints if service is sequential or parallel
+ * Fully complete examples, whith a batch, a parallel and a sequential server and
+ *  a unique client
+ *
  * Revision 1.83  2006/08/27 18:40:10  ycaniou
  * Modified parallel submission API
  * - client: diet_call_batch() -> diet_parallel_call()
@@ -246,31 +253,37 @@ SeDImpl::run(ServiceTable* services)
   this->SrvT = services;
 
 #if HAVE_BATCH
-  // A SeD can only launch batch or -exclusive- non batch jobs.
-  // Then, all profiles must be either batch or non batch. No mix allowed. 
-  if( this->SrvT->testIfAllBatchServices() ) {
-    // Read batchName if parallel jobs are to be submitted
+  int only_batch_services = this->SrvT->testIfAllBatchServices() ;
+  // A SeD can only launch parallel/batch or -exclusive- sequential jobs.
+  // Then, all profiles must be either parallel/batch or sequential.
+  // No mix allowed. 
+  if( only_batch_services == 1 ) {
+    // Read "batchName" if parallel jobs are to be submitted
     char* batchname = (char*) 
       Parsers::Results::getParamValue(Parsers::Results::BATCHNAME) ;
     if (batchname == NULL) {
-      ERROR("SeD can not launch batch jobs, no batch scheduler specified"
-	    " in the config file", 1) ;
+      ERROR("SeD can not launch parallel/batch jobs, no parallel/batch"
+	    " scheduler specified in the config file", 1) ;
     }
     if( !(ELBASE_ExistBatchScheduler(batchname,&this->batchID)) ) {
-      ERROR("Batch scheduler not recognized", 1) ;
+      ERROR("Parallel/batch scheduler not recognized", 1) ;
     }
     TRACE_TEXT(TRACE_MAIN_STEPS,
-    	       "Batch submission enabled with " 
+    	       "Parallel/batch submission enabled with " 
 	       << ELBASE_GiveBatchName(this->batchID) ) ;
-    /* Search for batch queues */
-    batchQueue = (char*)
-      Parsers::Results::getParamValue(Parsers::Results::BATCHQUEUE) ;
-    if( batchQueue != NULL )
-      TRACE_TEXT(TRACE_MAIN_STEPS, " using queue " 
-	       << batchQueue ) ;
+    if( this->batchID != ELBASE_SHELL ) {
+      /* Search for batch queues */
+      batchQueue = (char*)
+	Parsers::Results::getParamValue(Parsers::Results::BATCHQUEUE) ;
+      if( batchQueue != NULL )
+	TRACE_TEXT(TRACE_MAIN_STEPS, " using queue " 
+		   << batchQueue ) ;
+    }
     TRACE_TEXT(TRACE_MAIN_STEPS, "\n" ) ;
-  } else if (this->SrvT->existBatchService()) {
-    ERROR("SeD is not allowed to launch batch and non batch job", 1) ;
+  } else if( only_batch_services == -1 ) {
+    ERROR("SeD is not allowed to launch parallel/batch and sequential job"
+	  "at the same time",
+	  1) ;
   }
 #endif
 
@@ -578,9 +591,8 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
   gettimeofday(&(this->lastSolveStart), NULL);
 
 #if HAVE_BATCH
+  /* Use parallel_flag of the proposed SeD service to know what to do */
   const corba_profile_desc_t & sed_profile = SrvT->getProfile( ref ) ;
-  
-  /* Use parallel_flag of the proposed SeD service */
   if( sed_profile.parallel_flag == 2 )
     return this->parallel_solve(path, pb, ref, profile) ;
 #endif
@@ -681,7 +693,7 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
     dietLogComponent->logBeginSolve(path, &pb, pb.dietReqID);
   }
 
-  TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::parallel_solve invoked on pb: " 
+  TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::parallel_solve() invoked on pb: "
 	     << path << endl);
   
   cvt = SrvT->getConvertor(ref);
@@ -702,7 +714,11 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
   ** and remove batchID/DIETreqID correspondance */
   if( (ELBASE_Poll(findBatchID(profile.dietReqID), 1, &status) == 0)
       && status == 0 ) {
-    ERROR("An error occured during the execution of the batch job", 21);
+    if( this->batchID == ELBASE_SHELLSCRIPT ) {
+      ERROR("An error occured during the execution of the parallel job", 21) ;
+    } else {
+      ERROR("An error occured during the execution of the batch job", 21) ;
+    }
   }
   removeBatchID(pb.dietReqID) ;
 
@@ -712,7 +728,7 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
   uploadSyncSeDData(profile,pb,cvt) ;
  
   if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
-    cout << "SeD::solve_batch complete\n"
+    cout << "SeD::parallel_solve() completed\n"
          << "************************************************************\n";
 
   for (i = 0; i <= cvt->last_in; i++) {
@@ -741,7 +757,11 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 {
 #if HAVE_BATCH
   if( pb.parallel_flag == 1 ) {
-    ERROR("Asynchronous batch resolution not yet implemented",) ;
+    if( this->batchID == ELBASE_SHELLSCRIPT ) {
+      ERROR("Asynchronous parallel resolution not yet implemented",) ;
+    } else {
+      ERROR("Asynchronous batch resolution not yet implemented",) ;
+    }
   }
 #endif
 
@@ -1187,8 +1207,8 @@ SeDImpl::initCorresBatchDietReqID()
   this->batchJobQueue = NULL ;
 }
 /**
- * Store the batch job ID of the parallel task just submitted in
- * correspondance with the DIET request ID
+ * Store the batch job ID of the parallel task (in fact the pid of the script)
+ just submitted in correspondance with the DIET request ID
  */
 void
 SeDImpl::storeBatchID(ELBASE_Process *batch_jobID, int diet_reqID)
@@ -1284,15 +1304,6 @@ SeDImpl::findBatchID(int diet_reqID)
   }
   return *(tmp->batchJobID) ;
 }
-//   int i=0 ;
-
-//   while( (i<tabCorresIDIndex) && (tabCorresID[i].dietReqID != diet_reqID) )
-//     i++ ;
-//   if( i == tabCorresIDIndex )
-//     INTERNAL_ERROR("incoherence relating with batch job ID and diet request ID"
-// 		   , 1);
-//   return tabCorresID[i].batchJobID ;
-// }
 /** 
  * Return the name of the batch queue
  */

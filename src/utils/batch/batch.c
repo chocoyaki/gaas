@@ -34,8 +34,8 @@ extern "C" {
 
 /* YC */
 /** Because with OAR, the job must be on NFS to be launched correctly,
- * I redefined BATCH_PATH... 
- *  #define BATCH_PATH TEMP_PREFIX "elagi_batch$$"
+ * define BATCH_PATH to a correct directory...
+ * another possibility is TEMP_PREFIX "elagi_batch$$"
  */
 #define BATCH_PATH "/home/ycaniou/elagi_batch$$"
 /* FYC */
@@ -66,7 +66,8 @@ static const char *storageCommands[ELBASE_STORAGE_SERVICE_COUNT] = {
 /** In order to return the ID of the batch, given the name */
 static const char 
 *availableBatchScheduler[ELBASE_SCHEDULER_SERVICE_COUNT] = 
-  {"shell","condor","dqs","loadleveler","lsf","pbs","sge","oar"} ;
+  {"cmdshell","condor","dqs","loadleveler","lsf","pbs","sge",
+   "oar", "shellscript" } ;
 
   /**
    * If #s# is non-null, appends #prefix# to #toWhat#, followed by #s#, then
@@ -835,6 +836,11 @@ ELBASE_ScriptForSubmit(ELBASE_ComputeServiceTypes service,
     COMMON_FILE_FORMATS("$OAR_NODEFILE"),
     NULL, NULL
   };
+
+  static const char *SHELLSCRIPT_ATTR_FORMATS[] = {
+    "",             "#!/bin/sh\n",
+    NULL, NULL
+  };
   /* FYC */
 
   static const char *JID_EXTRACT_PATTERNS[ELBASE_SCHEDULER_SERVICE_COUNT] = {
@@ -847,14 +853,14 @@ ELBASE_ScriptForSubmit(ELBASE_ComputeServiceTypes service,
     "/job (\\d+)/"
     /* YC */
     /* Result of a oar request : IdJob = 108426 */
-    ,"/IdJob = (\\d+)/"
+    ,"/IdJob = (\\d+)/", "/(\\d+)/"
     /* FYC */
   };
   static const char *KILL_COMMANDS[ELBASE_SCHEDULER_SERVICE_COUNT] = {
     "kill(9, $jid)", "`condor_rm $jid`", "`qdel $jid`", "`llcancel $jid`",
     "`bkill $jid`", "`qdel $jid`", "`qdel $jid`"
     /* YC */
-    ,"oardel $jid"
+    ,"oardel $jid", "kill(9, $jid)"
     /* FYC */
   };
   static const char *SUBMIT_COMMANDS[ELBASE_SCHEDULER_SERVICE_COUNT] = {
@@ -867,7 +873,7 @@ ELBASE_ScriptForSubmit(ELBASE_ComputeServiceTypes service,
     "qsub " BATCH_PATH
     /* YC */
     /* In order to be sure that OAR take PWD and not /bin/pwd: for Grenoble */
-    ,"cd ; oarsub " BATCH_PATH
+    ,"cd ; oarsub " BATCH_PATH, "/bin/bash " BATCH_PATH
     /* FYC */
   };
   /*
@@ -884,7 +890,7 @@ ELBASE_ScriptForSubmit(ELBASE_ComputeServiceTypes service,
     "0",
     "0"
     /* YC */
-    ,"0"
+    ,"0", "$? >> 8",
     /* FYC */
   };
 
@@ -897,7 +903,7 @@ ELBASE_ScriptForSubmit(ELBASE_ComputeServiceTypes service,
     "`qstat $jid 2>&1` =~ /-----/",
     "`qstat 2>&1` =~ /^ *$jid /m"
     /* YC */
-    ,"`oarstat 2>&1` =~ /^ *$jid /m"
+    ,"`oarstat 2>&1` =~ /^ *$jid /m", "waitpid($jid, &WNOHANG) == 0",
     /* FYC */
   };
 
@@ -931,6 +937,7 @@ ELBASE_ScriptForSubmit(ELBASE_ComputeServiceTypes service,
     scheduler == ELBASE_SGE ? SGE_ATTR_FORMATS :
     /* YC */
     scheduler == ELBASE_OAR ? OAR_ATTR_FORMATS : 
+    scheduler == ELBASE_SHELLSCRIPT ? SHELLSCRIPT_ATTR_FORMATS : 
     /* FYC */
     SHELL_ATTR_FORMATS;
 
@@ -1019,23 +1026,14 @@ ELBASE_ScriptForSubmit(ELBASE_ComputeServiceTypes service,
       (&pl, ELBASE_PROCESSES, FindPropertyValueByName(pl, ELBASE_NODES));
   /* Only Condor appends relative exec paths to submission dir; others use wd */
   if(scheduler == ELBASE_CONDOR &&
-     /*  *executablePath != '/' && */
      *executableCommand != '/' &&
-     /* FYC */
      workingDirectory != NULL) {
     char *fullPath =
-      /* YC */
-      /*  StrAppend(NULL, workingDirectory, "/", executablePath, NULL); */
       StrAppend(NULL, workingDirectory, "/", executableCommand, NULL);
-      /* FYC */
     SetProperty(&pl, ELBASE_PROGRAM, fullPath);
     free(fullPath);
-  }
-  else
-  /* YC */
-  /* SetProperty(&pl, ELBASE_PROGRAM, executablePath); */
-  SetProperty(&pl, ELBASE_PROGRAM, executableCommand);
-  /* FYC */
+  } else SetProperty(&pl, ELBASE_PROGRAM, executableCommand);
+  
   SetProperty(&pl, ELBASE_SH, "/bin/sh");
   if(stderrPath != NULL)
     SetProperty(&pl, ELBASE_STDERR, stderrPath);
@@ -1120,7 +1118,7 @@ ELBASE_ScriptForSubmit(ELBASE_ComputeServiceTypes service,
      * approach may fail to kill the application on some systems due to the
      * highly variant output of ps.
      */
-    char *withMonitor;
+    char *withMonitor = NULL ;
     if(scheduler == ELBASE_SHELL) {
       withMonitor = StrAppend(NULL,
         "use POSIX ':sys_wait_h';\n",
@@ -1130,14 +1128,17 @@ ELBASE_ScriptForSubmit(ELBASE_ComputeServiceTypes service,
         "&Done($jid) if $jid < 0;",
         NULL
       );
-    }
-    else {
-      withMonitor = workingDirectory == NULL ? NULL :
-        StrAppend(NULL,
-		  "chdir(\"", workingDirectory, "\");\n",
-		  "$ENV{PWD}=\"", workingDirectory, "\";\n",
-		  NULL
-		  );
+    } else {
+      if( scheduler == ELBASE_SHELLSCRIPT )
+	withMonitor = StrAppend(NULL,
+				"use POSIX ':sys_wait_h';\n",
+				NULL ) ;
+      if( workingDirectory != NULL )
+        withMonitor = StrAppend(NULL,
+				"chdir(\"", workingDirectory, "\");\n",
+				"$ENV{PWD}=\"", workingDirectory, "\";\n",
+				NULL
+				);
       withMonitor = StrAppend(withMonitor,
 			      "# Write the batch submission script.\n",
 			      /* YC */
@@ -1407,6 +1408,12 @@ ELBASE_GiveBatchName(ELBASE_SchedulerServiceTypes ID)
   else
     return availableBatchScheduler[ID] ;
   /* FIXME: strdup? */
+}
+int
+ELBASE_IsEqual(ELBASE_SchedulerServiceTypes id1, 
+	       ELBASE_SchedulerServiceTypes id2)
+{
+  return (id1 == id2) ;
 }
 /* FYC */
 

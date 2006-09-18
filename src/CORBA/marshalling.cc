@@ -9,6 +9,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.65  2006/09/18 19:46:06  ycaniou
+ * Corrected a bug in file_transfer:server.c
+ * Corrected memory leaks due to incorrect free of char *
+ * ServiceTable prints if service is sequential or parallel
+ * Fully complete examples, whith a batch, a parallel and a sequential server and
+ *  a unique client
+ *
  * Revision 1.64  2006/08/27 18:40:07  ycaniou
  * Modified parallel submission API
  * - client: diet_call_batch() -> diet_parallel_call()
@@ -162,6 +169,7 @@
 
 #include "marshalling.hh"
 #include "debug.hh"
+#include "ms_function.hh"
 
 extern unsigned int TRACE_LEVEL;
 
@@ -498,7 +506,7 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
 {  
   if( (src->desc.mode == DIET_VOLATILE) && (upDown == 1) ){ 
     char *tmp=NULL;
-    src->desc.id.idNumber=CORBA::string_dup(tmp); // frees old dest. ptr. mem.
+    src->desc.id.idNumber=CORBA::string_dup(tmp); // CORBA frees old mem
   }
   if ( unmrsh_data_desc(&(dest->desc),&(src->desc)) )
     return 1;
@@ -509,7 +517,8 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
         && strcmp("", src->desc.specific.file().path)) {
       char* in_path   = CORBA::string_dup(src->desc.specific.file().path);
       char* file_name = strrchr(in_path, '/');
-      char* out_path  = new char[256];
+      /* FIXME: erase if ok:   char* out_path  = new char[256]; */
+      char * out_path  = ms_stralloc(256) ;
       pid_t pid = getpid();
     
       if(strncmp(in_path,"/tmp/DIET_",10) != 0) {
@@ -536,15 +545,15 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
 	
 	  dest->desc.specific.file.path = in_path;
 	  
-	  delete[] out_path;
+	  /* FIXME: erase me if of: delete[] out_path; */
+	  CORBA::string_free( out_path ) ;
 	}	
-
       }
-      
     } else if (src->desc.specific.file().size != 0) {
       INTERNAL_WARNING(__FUNCTION__ << ": file structure is vicious");
     } else {
-      dest->desc.specific.file.path = strdup("");
+      /* FIXME: erase me if ok: dest->desc.specific.file.path = strdup(""); */
+      dest->desc.specific.file.path = CORBA::string_dup("");
     }
   } else {
 #endif // ! HAVE_JUXMEM
@@ -957,7 +966,7 @@ unmrsh_out_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb)
     return 1;
 
 #if HAVE_BATCH
-  // if client wants to know how many procs and process have been used
+  // In case client wants to know how many procs and process have been used
   // but other info like walltime is useless
   dpb->nbprocs = cpb->nbprocs ;
   dpb->nbprocess = cpb->nbprocess ;

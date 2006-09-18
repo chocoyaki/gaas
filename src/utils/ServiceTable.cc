@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2006/09/18 19:46:08  ycaniou
+ * Corrected a bug in file_transfer:server.c
+ * Corrected memory leaks due to incorrect free of char *
+ * ServiceTable prints if service is sequential or parallel
+ * Fully complete examples, whith a batch, a parallel and a sequential server and
+ *  a unique client
+ *
  * Revision 1.19  2006/09/11 11:04:36  ycaniou
  * - Commented getChildren(const corba_profile_desc_t* profile) which is unused
  * - Added new function getChildren(const corba_pb_desc_t * pb_desc) used in AgentImpl.cc
@@ -170,7 +177,7 @@ ServiceTable::lookupService(const corba_pb_desc_t* pb_desc)
   /* Called from MasterAgent::submitLocal(), AgentImpl::findServer()
   ** SeDImpl::getRequest(), SeDImpl::checkContract()
   ** Thus, the check must be performed in special way concerning parallel tasks
-  **  - if parallel is asked, strict check
+  **  - if parallel or sequential is asked, strict check
   **  - if nothing specified, both // and non-// must be considered
   */
   size_t i(0);
@@ -595,26 +602,26 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc)
   }
 
   int first_found = -1, second_found = -1 ; // at most, two indices: // and seq
-  size_t i(0);
-  ServiceTable::matching_children_t * matching_children_concatenation ;
+  size_t i(0), j(0) ;
+  ServiceTable::matching_children_t * matching_children_concatenation = NULL ;
   
   while( (i < nb_s) && (!profile_match(&(profiles[i]), pb_desc)) )
     i++ ;
-  if( i >= nb_s ) {
+  if( i == nb_s ) {
     SRVT_ERROR("attempting to get children\n"
                << "  of a service that is not in table");
   }
   first_found = i ;
   matching_children_concatenation = 
     new ServiceTable::matching_children_t() ;
- /* FIXME: This leads to a compilation error. Why? 
-    if( matching_children_concatenation == NULL ) {
-    ERROR("Not enough memory", 1) ;
-    }*/
+  /* FIXME: This leads to a compilation error. Why? 
+  if( matching_children_concatenation == NULL ) {
+  ERROR("Not enough memory", 1) ;
+  } */
   i++ ;
   while( (i < nb_s) && (!profile_match(&(profiles[i]), pb_desc)) )
     i++ ;
-  if( i>= nb_s )
+  if( i== nb_s )
     matching_children_concatenation->nb_children = 
       matching_children[ first_found ].nb_children ;
   else {
@@ -629,9 +636,9 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc)
     matching_children_concatenation->children[ i ] =
       matching_children[ first_found ].children[ i ] ;
   if( second_found > 0 )
-    for( i=0; i<matching_children[ second_found ].nb_children ; i++ )
+    for( j=0 ; j<matching_children[ second_found ].nb_children ; i++, j++ )
       matching_children_concatenation->children[ i ] =
-	matching_children[ second_found ].children[ i ] ;
+	matching_children[ second_found ].children[ j ] ;
   
   return matching_children_concatenation ;
 }
@@ -666,8 +673,11 @@ ServiceTable::dump(FILE* f)
     strcpy(path, profiles[i].path);
     fprintf(f, "- Service %s", path);
 #ifdef HAVE_BATCH
-    if( profiles[i].parallel_flag )
+    if( profiles[i].parallel_flag == 2 )
       fprintf(f," (parallel service) ") ;
+    else if ( profiles[i].parallel_flag == 1 )
+      fprintf(f," (sequential service) ") ;
+    else fprintf(f," Error? ") ;
 #endif
 
     if (matching_children) {
@@ -747,22 +757,27 @@ ServiceTable::ServiceTableInit(CORBA::ULong max_nb_services,
 }
 
 #if HAVE_BATCH
-int
-ServiceTable::existBatchService()
-{
-  size_t i=0 ;
-  
-  while( (i<nb_s) && ( profiles[i].parallel_flag == 0) )
-    i++ ;
-  return !(i==nb_s) ;
-}
+/* Unused
+   int
+   ServiceTable::existBatchService()
+   {
+   size_t i=0 ;
+   
+   while( (i<nb_s) && ( profiles[i].parallel_flag == 1) )
+   i++ ;
+   return !(i==nb_s) ;
+   }
+*/
 int
 ServiceTable::testIfAllBatchServices()
 {
   size_t i=1 ;
-  
+
   while( (i<nb_s) && (profiles[0].parallel_flag == profiles[i].parallel_flag) )
     i++ ;
-  return ( (i==nb_s)&&(profiles[0].parallel_flag) ) ;
+  if( i==nb_s )
+    return ( profiles[0].parallel_flag == 2 ) ;
+  else
+    return -1 ;
 }
 #endif

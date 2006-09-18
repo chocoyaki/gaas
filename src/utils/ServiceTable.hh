@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2006/09/18 19:46:08  ycaniou
+ * Corrected a bug in file_transfer:server.c
+ * Corrected memory leaks due to incorrect free of char *
+ * ServiceTable prints if service is sequential or parallel
+ * Fully complete examples, whith a batch, a parallel and a sequential server and
+ *  a unique client
+ *
  * Revision 1.14  2006/09/11 11:04:36  ycaniou
  * - Commented getChildren(const corba_profile_desc_t* profile) which is unused
  * - Added new function getChildren(const corba_pb_desc_t * pb_desc) used in AgentImpl.cc
@@ -201,8 +208,12 @@ public:
   CORBA::ULong max_nb_children;
 
 #if HAVE_BATCH
-  int
-  existBatchService() ;
+  // int  existBatchService() ;
+  /* Returns:
+     -1 if parallel AND sequential jobs registered
+     0  if only sequential jobs registered
+     1  if only parallel jobs registered
+  */
   int 
   testIfAllBatchServices() ;
 #endif  

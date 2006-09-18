@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.41  2006/09/18 19:46:08  ycaniou
+ * Corrected a bug in file_transfer:server.c
+ * Corrected memory leaks due to incorrect free of char *
+ * ServiceTable prints if service is sequential or parallel
+ * Fully complete examples, whith a batch, a parallel and a sequential server and
+ *  a unique client
+ *
  * Revision 1.40  2006/08/27 18:40:11  ycaniou
  * Modified parallel submission API
  * - client: diet_call_batch() -> diet_parallel_call()
@@ -378,8 +385,6 @@ profile_desc_match(const corba_profile_desc_t* p1,
 /**
  * Return true if sv_profile describes a service that matches the problem that
  * pb_desc describes.
- * If a batch job is explicitely asked, the server must execute parallel job.
- *   Else, don't take it into account.
  */
 int
 profile_match(const corba_profile_desc_t* sv_profile,
@@ -393,10 +398,11 @@ profile_match(const corba_profile_desc_t* sv_profile,
        || (sv_profile->param_desc.length() != pb_desc->param_desc.length()) )
     return 0;
 #if HAVE_BATCH
-  /* The request must explicitely choose sequential or parallel job,
-     else error
+  /*
+  **  - if parallel or sequential is asked, strict check
+  **  - if nothing specified, both // and non-// must be considered
   */
-  if( (pb_desc->parallel_flag != 1) && 
+  if( (pb_desc->parallel_flag != 0) && 
       (sv_profile->parallel_flag != pb_desc->parallel_flag) )
     return 0 ;
 #endif
@@ -460,6 +466,7 @@ extern "C" {
 /* Profile descriptor                                                       */
 /****************************************************************************/
 
+/* Called from client */
 diet_profile_t*
 diet_profile_alloc(char* pb_name, int last_in, int last_inout, int last_out)
 {
@@ -473,10 +480,10 @@ diet_profile_alloc(char* pb_name, int last_in, int last_inout, int last_out)
   for (int i = 0; i <= last_out; i++)
     res->parameters[i].desc.id = NULL;
 #if HAVE_BATCH
-  /* By default, sequential task (cf DIET_data.h ) */
-  res->parallel_flag = 1 ;
-  res->nbprocs   = 1 ;
-  res->nbprocess = 1 ;
+  /* By default, ask for sequential and parallel task (cf DIET_data.h ) */
+  res->parallel_flag = 0 ;
+  res->nbprocs   = 0 ;
+  res->nbprocess = 0 ;
   res->walltime  = 0 ;
   res->dietReqID = 0 ;
 #endif
@@ -515,6 +522,12 @@ diet_profile_set_nbprocs(diet_profile_t* profile, int nbprocs)
   return 0 ;
 }
 /* Functions for server profile registration */
+int
+diet_profile_desc_set_sequential(diet_profile_desc_t* profile)
+{
+  profile->parallel_flag = 1 ;
+  return 0 ;
+}
 int
 diet_profile_desc_set_parallel(diet_profile_desc_t* profile)
 {
@@ -684,12 +697,16 @@ diet_matrix_desc_set(diet_data_t* data,
 int
 diet_file_desc_set(diet_data_t* data, char* path)
 {
-  if (data->desc.generic.type != DIET_FILE) {
+  if( (data->desc.generic.type != DIET_FILE) ) {
    ERROR(__FUNCTION__ << " misused (wrong type)", 1);
   }   
   if (path != data->desc.specific.file.path)
-    /* data->desc.. bien déf par CORBA ? */
-    CORBA::string_free((char*)data->desc.specific.file.path);
+    /* FIXME: erase me if ok:
+       was created with new char[25] in unmarsh_data
+       and released with free((char*)data->desc.specific.file.path);
+       Now, it is CORBA stuff
+    */
+    CORBA::string_free(data->desc.specific.file.path) ;
   data->desc.specific.file.path = path;
   return 0;
 }
@@ -948,7 +965,10 @@ diet_free_data(diet_arg_t* arg)
           perror(arg->desc.specific.file.path);
           return 2;
         }
-        free((char*)arg->desc.specific.file.path);
+	/* FIXME: erase me if ok:
+	   this char* comes from unmrsh_data then CORBA stuff 
+	   free((char*)arg->desc.specific.file.path);*/
+	   CORBA::string_free(arg->desc.specific.file.path);
         arg->desc.specific.file.path = NULL;
       } else {
         return 1;
