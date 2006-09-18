@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.31  2006/09/18 19:41:57  ycaniou
+ * Removed from the server API diet_submit_batch() which is integrated in
+ *   diet_submit_parallel(): it handles parallel AND batch jobs
+ * Added diet_profile_desc_set_sequential(), which is unecessary because the
+ *   default in DIET, but the pendant of diet_profile_desc_set_parallel()
+ *
  * Revision 1.30  2006/09/11 11:16:58  ycaniou
  * - client have now 3 kind of submission (default is conserved)
  * - server can be parallel in addition to batch (not yet tested)
@@ -179,7 +185,6 @@ typedef struct {
 #ifdef HAVE_BATCH
   unsigned short int parallel_flag ;
   int nbprocs ; 
-  /* if job is parallel but not batch */
 #endif
 
   /* aggregator description, used when declaring a service */
@@ -212,6 +217,8 @@ diet_profile_desc_free(diet_profile_desc_t* desc);
 
 #ifdef HAVE_BATCH
 /* Functions for server profile registration */
+int
+diet_profile_desc_set_sequential(diet_profile_desc_t* profile) ;
 int
 diet_profile_desc_set_parallel(diet_profile_desc_t* profile) ;
 #endif
@@ -420,13 +427,6 @@ diet_SeD(char* config_file_name, int argc, char* argv[]);
    */
   int
   diet_submit_parallel(diet_profile_t* profile, const char *command) ;
-
-  /**
-   * @param command is the content of the script that the SeD programmer wants
-   * to submit in order to provide the service @param profile
-   */
-  int
-  diet_submit_batch(diet_profile_t* profile, const char *command) ;
 #endif
 
 
