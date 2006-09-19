@@ -16,7 +16,9 @@ ELSE( NOT DIET_USE_BATCH )
   SET( C_SERVER_EXAMPLES
     batch_server
     parallel_server 
-    sequential_server )
+    # sequential_server corresponding code trashed out by Yves Caniou
+    #                   circa 28/9/2006 (CLEAN ME)
+  )
 
   FOREACH( loop_var ${C_SERVER_EXAMPLES} )
     ADD_EXECUTABLE( ${loop_var} ${loop_var}.c )

@@ -227,11 +227,13 @@ There is a fully commented client/server example in\\
 \verb!@CMAKE_SOURCE_DIR@/src/examples/Batch! directory. We reproduce
 it here.
 
+% Following commented out because batch_client.c seemed to have been trashed
+% out from archived by Yves Caniou circa 18/9/2006    CLEANME
 %\parbox[b]{.5\textwidth}{
-{%\twocolumn
-  \tiny
-  \lstinputlisting[title={\bf Synchronous client code},language=c,label=client.c,basewidth={.5em,.4em},fontadjust]{@CMAKE_SOURCE_DIR@/src/examples/Batch/batch_client.c}
-}
+% {%\twocolumn
+%   \tiny
+%   \lstinputlisting[title={\bf Synchronous client code},language=c,label=client.c,basewidth={.5em,.4em},fontadjust]{@CMAKE_SOURCE_DIR@/src/examples/Batch/batch_client.c}
+% }
 
 \newpage
 
