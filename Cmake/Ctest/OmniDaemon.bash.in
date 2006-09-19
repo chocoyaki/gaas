@@ -87,18 +87,31 @@ start()
     $MV_COMMAND $ERROR_FILENAME $ERROR_FILENAME-$(date +%Y%m%d%H%M%S)
   fi
   
+  ### Setting up the proper arguments:
   ARGS="-start $MAPPER_PORT -ignoreport"
   ARGS="$ARGS -ORBInitRef NameService=corbaname::$SERVER_NAME:$NAMESERVICE_PORT"
   ARGS="$ARGS -ORBendPoint giop:tcp:$SERVER_NAME:$NAMESERVICE_PORT"
   # Only for java client interogations
   ARGS="$ARGS -ORBsupportBootstrapAgent 1"
   
+  ### If we want the stop() function (see below) to be effective we need to
+  # store  the pid of the process we are about to launch (and we store it
+  # in the file $PID_FILENAME). The (tiny) problem is how to get our hands
+  # on the pid of our process, when another omniNames (we are not owner of)
+  # is already running. Our answer is to first collect the list of existing
+  # omniNames pids [and use the -o option of pidof]. So it goes:
   OTHER_PID_FILENAME=$OMNINAMES_LOGDIR/$OMNINAMES_BASENAME_COMMAND-other.pid
   $PIDOF_COMMAND $OMNINAMES_BASENAME_COMMAND > $OTHER_PID_FILENAME
   export LD_LIBRARY_PATH=$OMNIORB_PATH/lib
   nohup $OMNINAMES_COMMAND $ARGS > $LOG_FILENAME 2> $ERROR_FILENAME & 
-  sleep 1 &&
-  $PIDOF_COMMAND -o `cat $OTHER_PID_FILENAME` $OMNINAMES_BASENAME_COMMAND > $PID_FILENAME
+  sleep 1
+  if [ -n "`cat $OTHER_PID_FILENAME`" ]; then
+    # They were other omniNames servers running:
+    $PIDOF_COMMAND -o `cat $OTHER_PID_FILENAME` $OMNINAMES_BASENAME_COMMAND > $PID_FILENAME
+  else
+    # NO other omniNames server previously running:
+    $PIDOF_COMMAND $OMNINAMES_BASENAME_COMMAND > $PID_FILENAME
+  fi
   echo "Started $DESC with pid `cat $PID_FILENAME` "
 }
 
