@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.87  2006/09/21 09:11:31  ycaniou
+ * Preliminary change in cmake to handle a BATCH variable
+ *
  * Revision 1.86  2006/08/27 18:40:10  ycaniou
  * Modified parallel submission API
  * - client: diet_call_batch() -> diet_parallel_call()
@@ -1139,6 +1142,22 @@ diet_call_async(diet_profile_t* profile, diet_reqID_t* reqID)
   set_req_error(*reqID, err);
   return err;
 }
+
+#ifdef HAVE_BATCH
+diet_error_t
+diet_parallel_call_async(diet_profile_t* profile, diet_reqID_t* reqID)
+{
+  diet_profile_set_parallel(profile) ;
+  return diet_call_async(profile, reqID) ;
+}
+diet_error_t
+diet_sequential_call_async(diet_profile_t* profile, diet_reqID_t* reqID)
+{
+  diet_profile_set_sequential(profile) ;
+  return diet_call_async(profile, reqID) ;
+}
+#endif
+
 END_API
 
 

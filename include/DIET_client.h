@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2006/09/21 09:11:31  ycaniou
+ * Preliminary change in cmake to handle a BATCH variable
+ *
  * Revision 1.27  2006/09/11 11:16:58  ycaniou
  * - client have now 3 kind of submission (default is conserved)
  * - server can be parallel in addition to batch (not yet tested)
@@ -160,10 +163,10 @@ diet_sequential_call(diet_profile_t* profile) ;
 diet_error_t
 diet_call_async(diet_profile_t* profile, diet_reqID_t* reqID);
 #ifdef HAVE_BATCH
-  /* Not yet implemented 
-     diet_error_t
-     diet_parallel_call_async(diet_profile_t* profile, diet_reqID_t* reqID);
-  */
+diet_error_t
+diet_parallel_call_async(diet_profile_t* profile, diet_reqID_t* reqID);
+diet_error_t
+diet_sequential_call_async(diet_profile_t* profile, diet_reqID_t* reqID);
 #endif
 
 /****************************************************************************/

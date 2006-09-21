@@ -32,13 +32,7 @@ extern "C" {
 #include "batch.h"
 #include <pthread.h>
 
-/* YC */
-/** Because with OAR, the job must be on NFS to be launched correctly,
- * define BATCH_PATH to a correct directory...
- * another possibility is TEMP_PREFIX "elagi_batch$$"
- */
-#define BATCH_PATH "/home/ycaniou/elagi_batch$$"
-/* FYC */
+#include "batch_configure.h"
 
 #define TEMP_PREFIX "/tmp/"
 

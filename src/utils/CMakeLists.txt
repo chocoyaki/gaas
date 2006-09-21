@@ -64,7 +64,14 @@ IF( DIET_BUILD_LIBRARIES )
   ########################################################################
   ### UtilsSedBatch library:
   IF( DIET_USE_BATCH )
-    INCLUDE_DIRECTORIES( ${APPLESEEDS_INCLUDE_DIR} )
+    CONFIGURE_FILE(
+      batch_configure.h.in
+      ${CMAKE_CURRENT_BINARY_DIR}/batch_configure.h
+      IMMEDIATE
+    )
+
+    INCLUDE_DIRECTORIES( ${APPLESEEDS_INCLUDE_DIR} 
+			 ${CMAKE_CURRENT_BINARY_DIR} )
     ADD_LIBRARY( UtilsSeDBatch batch.c )
     TARGET_LINK_LIBRARIES( UtilsSeDBatch ${APPLESEEDS_LIBRARIES} )
     INSTALL_TARGETS( /lib/ UtilsSeDBatch )

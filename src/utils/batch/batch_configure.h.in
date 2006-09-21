@@ -1,0 +1,17 @@
+/****************************************************************************/
+/* Elagi part used to glue SeD and Batch schedulers (from files elbase.[ch] */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Jim Hayes                                                           */
+/*    - Modified for Diet, Yves Caniou                                      */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+
+/* YC */
+/** Because with OAR, the job must be on NFS to be launched correctly,
+ * define BATCH_PATH to a correct directory...
+ * another possibility is TEMP_PREFIX "elagi_batch$$"
+ */
+#define BATCH_PATH "@DIET_BATCH_WRITING_PATH@/elagi_batch$$"
+/* FYC */

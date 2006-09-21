@@ -142,6 +142,7 @@ IF( DIET_USE_BATCH )
     MESSAGE( SEND_ERROR "Properly provide the AppleSeeds library.")
     SET( DIET_USE_BATCH OFF )
   ENDIF( APPLESEEDS_FOUND )
+  OPTION( DIET_BATCH_WRITING_PATH "Path where DIET can generate scripts." /tmp )
 ENDIF( DIET_USE_BATCH )
 
 # Enable dynamic MULTI-Master-Agent support based on JXTA library
