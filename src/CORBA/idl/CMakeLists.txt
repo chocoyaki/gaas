@@ -96,29 +96,29 @@ IF( DIET_BUILD_LIBRARIES )
     ${CMAKE_CURRENT_BINARY_DIR}
   )
   IF (DIET_USE_WORKFLOW)
-      ADD_LIBRARY( IDLCommon
-         CallbackDynSK.cc
-	 CallbackSK.cc
-	 common_typesSK.cc
-	 common_typesDynSK.cc
-	 responseDynSK.cc
-	 responseSK.cc
-	 SeDSK.cc
-	 SeDDynSK.cc
-	 CltReoManSK.cc
-	 CltReoManDynSK.cc
-	 )
-     ELSE ( DIET_USE_WORKFLOW )
-      ADD_LIBRARY( IDLCommon
-         CallbackDynSK.cc
-	 CallbackSK.cc
-	 common_typesSK.cc
-	 common_typesDynSK.cc
-	 responseDynSK.cc
-	 responseSK.cc
-	 SeDSK.cc
-	 SeDDynSK.cc
-	 )
+    ADD_LIBRARY( IDLCommon
+      CallbackDynSK.cc
+      CallbackSK.cc
+      common_typesSK.cc
+      common_typesDynSK.cc
+      responseDynSK.cc
+      responseSK.cc
+      SeDSK.cc
+      SeDDynSK.cc
+      CltReoManSK.cc
+      CltReoManDynSK.cc
+    )
+  ELSE ( DIET_USE_WORKFLOW )
+    ADD_LIBRARY( IDLCommon
+      CallbackDynSK.cc
+      CallbackSK.cc
+      common_typesSK.cc
+      common_typesDynSK.cc
+      responseDynSK.cc
+      responseSK.cc
+      SeDSK.cc
+      SeDDynSK.cc
+    )
   ENDIF (DIET_USE_WORKFLOW)
 
   TARGET_LINK_LIBRARIES( IDLCommon
