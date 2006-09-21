@@ -32,6 +32,8 @@ extern "C" {
 #include "batch.h"
 #include <pthread.h>
 
+/* The following include is generated from batch_configure.h.in
+   (see CMakelist.txt */
 #include "batch_configure.h"
 
 #define TEMP_PREFIX "/tmp/"
