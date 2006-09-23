@@ -143,7 +143,7 @@ IF( DIET_USE_BATCH )
     SET( DIET_USE_BATCH OFF )
   ENDIF( APPLESEEDS_FOUND )
   SET( DIET_BATCH_WRITING_PATH $ENV{HOME} 
-       CACHE STRING "Directory containing elagi configs." )
+       CACHE STRING "Path where the SeD has writing access." )
 ENDIF( DIET_USE_BATCH )
 
 # Enable dynamic MULTI-Master-Agent support based on JXTA library

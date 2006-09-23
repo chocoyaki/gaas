@@ -97,16 +97,17 @@ the command line, you can use the following:
 
 \end{lstlisting}
 
-For the moment, you have also to modify the \diet code: in
-\verb!<diet_src>/src/utils/batch.c!, you must replace in the following
-line \begin{lstlisting}[language=c,basewidth={.5em,.4em},fontadjust]
-#define BATCH_PATH "/home/ycaniou/elagi_batch$$" \end{lstlisting} the
-directory by one where \diet can read and write data. This is where,
-for example, \diet will store the new built script that is submitted
-to the batch scheduler. In consequence, because certain batch
-schedulers (like OAR) need the script be available on all resources,
-{\it this directory might be on NFS} (remember that \diet cannot
-replicate the script before submission because of access right).
+You also have to provide a directory where the \sed can read and write
+data on the parallel resource. The path is defined by the \verb!cmake!
+variable \verb!DIET_BATCH_WRITING_PATH!, and the \verb!$HOME!
+directory when the compilation is done is provided as default.
+
+Please note that this directory is used by \diet to store the new
+built script that is submitted to the batch scheduler. In consequence,
+because certain batch schedulers (like OAR) need the script be
+available on all resources, {\it this directory might be on NFS}
+(remember that \diet cannot replicate the script before submission
+because of access rights).
 
 %****************************************************************************%
 \section{Parallel systems}
@@ -132,16 +133,20 @@ are submitted to a site queue. The batch system is responsible for
 managing parallel jobs: it schedules each job and, it determines and
 allocates the resources needed for its execution. 
 
-There are many batch system, among which Torque\footnote{FIXME} (a
-fork of PSB\footnote{FIXME}), Loadleveler\footnote{FIXME} (developped
-by IBM), SunGrid Engine\footnote{FIXME} (SGE, developped by Sun),
-OAR\footnote{\url{http://oar.imag.fr}} (developped at the IMAG
-lab). Each one implements its own language syntax (with its own
-mnemonics), as well as its own scheduler. Jobs can generally access
-the identity of the reserved nodes through a file during their
+There are many batch system, among which
+Torque\footnote{\url{http://old.clusterresources.com/products/torque/}}
+(a fork of
+PSB\footnote{\url{http://www.clusterresources.com/pages/products/torque-resource-manager.php}}),
+Loadleveler\footnote{\url{http://www-03.ibm.com/servers/eserver/clusters/software/loadleveler.html}}
+(developped by IBM), SunGrid
+Engine\footnote{\url{http://www.sun.com/software/gridware/}} (SGE,
+developped by Sun), OAR\footnote{\url{http://oar.imag.fr}} (developped
+at the IMAG lab). Each one implements its own language syntax (with
+its own mnemonics), as well as its own scheduler. Jobs can generally
+access the identity of the reserved nodes through a file during their
 execution, and are assured to exclusively possess them.
 
-Diagram batch
+%Diagram batch
 
 %****************************************************************************%
 \section{Client extended API}
