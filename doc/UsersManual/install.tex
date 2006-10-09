@@ -10,6 +10,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.26  2006/10/09 21:17:10  eboix
+%*    First coarse version of cmake documentation. --- Injay2461
+%*
 %* Revision 1.25  2006/05/12 12:12:32  sdahan
 %* Add some documentation about multi-MA
 %*
@@ -65,39 +68,39 @@
 \section{Dependencies}
 \label{sec:dependencies}
 
-\subsection{Hardware dependencies}
+\subsection{Platform dependencies}
 
-DIET has been fully tested on Linux i386 and i686 platforms and has 
-been (at some time) tested on Solaris/Sparc, Linux/Sparc, Linux/i64,
-Linux/amd64 and Linux/Alpha platform and seems/seemed to be supported.
+DIET is fully tested on Linux/i386 and Linux/i686 platforms.
+But DIET also supports other architectures (thanks to users reports or
+to punctual deployments). In particular DIET is known to be effective
+on Linux/Sparc, Linux/i64, Linux/amd64 and Linux/Alpha platforms.
+At some point DIET used to be tested on the Solaris/Sparc platform (although
+it's been a long time).
 
-If you found a bug in DIET, please to submit a bug report at
+If you find a bug in DIET, please don't hesitate to submit a bug report at
 \url{http://graal.ens-lyon.fr/bugzilla}. If you have multiple bugs
 to report, please make multiple submissions, rather than submitting
-multiple bugs in one report.
+multiple bugs in a single report.
+
+As for the supported C++ compilers, DIET undergoes daily regression tests
+(see \url{http://graal.ens-lyon.fr/DietDashboard}) with GCC's g++ (ranging
+from version 3.2.X to 4.1.x).
 
 \subsection{Software dependencies}
+\label{sec:software_dependencies}
 
 As explained in Section~\ref{sec:CORBA}, CORBA is used for all
 communications inside the platform. The implementations of CORBA
-currently supported in DIET are:
-\begin{itemize}
- \item{\textbf{omniORB 3}} which depends on \textbf{Python 1.5}
- \item{\textbf{omniORB 4}} which depends on \textbf{Python 2.1} or
-                           later, and on \textbf{OpenSSL} if you would
-                           like your DIET platform to be
-                           secure.~\footnote{If you want to deploy a
-                           secure DIET platform, SSL support is not
-                           yet implemented  in DIET, but an easy way
-                           to do so is to deploy DIET on a VPN.}
+currently supported in DIET is \textbf{omniORB 4} which depends on
+\textbf{Python 2.1} or later, and on \textbf{OpenSSL} if you wish
+to secure your DIET platform.~\footnote{If you want to deploy a
+secure DIET platform, SSL support is not yet implemented  in DIET, but
+an easy way to do so is to deploy DIET on a VPN.}
 % \item{soon \textbf{TAO 1.3}} which depends on \textbf{ACE} (but TAO is always
 %                           provided with ACE)
-\end{itemize}
-We strongly recommend omniORB 4, as it is easier to install,
-provides SSL support, and is the version currently used by our
-developers so support will be better. In order to deploy CORBA
-services with omniORB, a configuration file and a log directory are
-required: see Section
+
+In order to deploy CORBA services with omniORB, a configuration file
+and a log directory are required: see Section
 \ref{sec:CORBA_services} for a complete description of the services.
 Their paths can be given to omniORB through environment variables
 (\texttt{\$OMNIORB\_CONFIG} and \texttt{\$OMNINAMES\_LOGDIR}), and/or,
@@ -114,16 +117,194 @@ Since omniORB needs thread-safe management of exception handling,
 compiling DIET with \verb+gcc+ requires at least \verb+gcc-2.96+.  \\
 
 Some examples provided in the DIET sources depend on the BLAS
-and \scalapack\ libraries. However these examples do not have to be
-compiled.
+and \scalapack\ libraries. However the compilation of those BLAS dependant
+examples are optional.
 
 
 %====[ Compilation ]===========================================================
 \section{Compiling the platform}
 \label{sec:compil_platform}
 
-Once all dependencies are satisfied, untar the DIET archive and change
-to its root directory. A configure script will prepare DIET for
+DIET compilation process is moving from the traditional \verb+autotools+
+way of things to a tool named \verb+cmake+ (mainly to benefit from
+\verb+cmake+'s builtin regression tests mechanism).
+During a short transitional period both compiling tools will be available. 
+Nevertheless, whenever if possible, \verb+cmake+ should be seen as the
+priviliged (and supported) tool.
+The \verb+autotools+ should be definitively deprecated in the next version.
+The following of this section explains the usage of both tools.
+
+Before compiling DIET itself, first install the above mentioned
+(cf section~\ref{sec:software_dependencies}) dependencies.
+Then untar the DIET archive and change current directory to its root directory.
+
+%====[ Compilation with cmake ]================================================
+\subsection{Compiling DIET with cmake}
+
+%==================
+\subsubsection{Obtaining and installing cmake per se}
+DIET requires using \verb+cmake+ at least version \verb+2.4.3+.
+For many popular distributions \verb+cmake+ is incorporated by
+default or at least \verb+apt-get+ (or whatever your distro package installer
+might be) is \verb+cmake+ aware.
+Still, in case you need to install an up-to-date version \verb+cmake+'s
+official site distributes many binary versions (alas packaged as tarballs)
+as made availabe at 
+\url{http://www.cmake.org/HTML/Download.html}.
+Optionaly, you can download the sources dans recompile them: this simple
+process (\verb+./bootstrap; make; make install+) is described at
+\url{http://www.cmake.org/HTML/Install.html}.
+
+%==================
+\subsubsection{Configuring DIET's compilation: cmake quick introduction}
+If you are already experienced with \verb+cmake+ then using it to compile
+DIET should provide no surprise. 
+DIET respects \verb+cmake+'s best pratices e.g.~by clearly separating the
+source tree from the binary tree (or compile tree), by exposing the main
+configuration optional flag variables prefixed with \verb+DIET_+ (and by
+hiding away the technical variables) and by not postponing configuration
+difficulties (in particular the handling of external dependencies like
+libraries) to compile stage.
+
+\verb+Cmake+ classicaly provides two ways for setting configuration
+parameters in order to generate the makefiles in the form of two
+commands \verb+ccmake+ and \verb+cmake+ (the first one has an extra "c"
+character): use
+\begin{description}
+\item{\verb+ccmake [options] <path-to-source>+}\\
+  in order to specify the parameters interactively through a GUI interface
+\item{\verb+cmake [options] <path-to-source> [-D<var>:<type>=<value>]+}\\
+  in order to define the parameters with the \verb+-D+ flag directly
+  from the command line.
+\end{description}
+In the above syntax description of both commands, {\verb+<path-to-source>+}
+specifes a path to the top level of the source tree (i.e. where the directory
+where the top level CMakeLists.txt file is to be encountered). Also
+the current working directory will be used as the root of the build tree for
+the project (out of source building is generaly encouraged specially
+when working on a CVS tree).
+
+Here is a short list of \verb+cmake+ internal parameters that are worth
+mentioning:
+\begin{itemize}
+\item
+  \verb+CMAKE_BUILD_TYPE+ controls the type of build mode among which 
+  \verb+Debug+ will produce binaries and libraries with the debugging
+   information
+\item
+   \verb+CMAKE_VERBOSE_MAKEFILE+ is a booelan paramater which when set to
+   ON will generate makefiles without the .SILENT directive. This is
+   usefull for watching the invoked commands and their arguments in case
+   things go wrong.
+\item
+   \verb+CMAKE_C[XX]_FLAGS*+ is a familiy of paramaters used for
+   the setting and the customization of various C/C++ compiler options.
+\end{itemize}
+%
+Eventually, here is short list of \verb+ccmake+ interface tips:
+\begin{itemize}
+\item
+  when lost, look at the bottom lines of the interface which always
+  sumarises \verb+ccmake+'s most pertinent options (corresponding
+  keyboard shortcuts) depending on your current context
+\item
+  hitting the "h" key will direct you \verb+ccmake+ embedded tutorial
+  and a list of keyboard shortcuts (as mentioned in the bottom
+  lines, hit "e" to exit)
+\item
+  up/down navigation among paramater items can be achieved with the
+  up/down arrows
+\item
+  when on a parameter item, the line in inverted colors (close above the
+  bottom of the screen) contains a short description of the selected
+  parameter as well as the set of possible/recommended values
+\item
+  toggling of boolean parameters is made with enter
+\item
+  press \verb+enter+ to edit path variables
+\item
+  when editing a \verb+PATH+ typed parameter the \verb+TAB+ keyboard
+  shortcut provides an emacs-like (or bash-like) automatic path completion.
+\item
+  toggling of advanced mode (press "t") reveals hidden parameters
+\end{itemize}
+ 
+%==================
+\subsubsection{DIET's compilation configuration: a ccmake walk-through}
+
+Assume that \verb+CVS_DIET_HOME+ represents a path to the top level
+directory of a tree of DIET sources.
+This directory tree was either obtained by expanding the DIET current
+source level distribution tarball, or for DIET developpers corresponds to
+the directory GRAAL/devel/diet/diet of a cvs checkout of the DIET sources
+hierarchy.
+Additionaly, assume we created a build tree directory and \verb+cd+
+to it (in the example below we chose \verb+CVS_DIET_HOME/Bin+ as
+build tree, but feel free to follow your conventions):
+\begin{itemize}
+\item
+  \verb+cd CVS_DIET_HOME/Bin+
+\item
+  \verb+ccmake ..+ to enter the GUI
+  \begin{itemize}
+  \item press \verb+c+ (equivalent of bootstrap.sh of the autotools)
+  \item toggle the desired options e.g. \verb+DIET_BUILD_EXAMPLES+ or
+     \verb+DIET_USE_JXTA+. 
+  \item specify the \verb+CMAKE_INSTALL_PREFIX+ parameter (if you wish
+     to install in a directory different from \verb+/usr/local+,
+  \item press \verb+c+ again, for checking required dependencies
+  \item check all the paramaters preceeded with the * (star) character
+     whose value was automatically retrieved by \verb+cmake+.
+  \item provide the required information i.e. feel in the proper values
+     for all parameters whose value is terminated by NOT-FOUND
+  \item iterate the above process of parameter checking, toggle/specification
+     and configuration until all configuration information is satisfied
+  \item press \verb+g+ to generate the makefile
+  \item press \verb+q+ to exit ccmake
+  \end{itemize}
+\item
+  \verb+make+ in order to classically launch the compilation process
+\item
+  \verb+make install+ when installation is required
+\end{itemize}
+
+%==================
+\subsubsection{DIET's optional configuration flags}
+
+\begin{itemize}
+\item
+  \verb+OMNIORB4_DIR+ is the path to the omniORB4 installation directory
+  (only relevant when omniORB4 was not installed in /usr/local).
+  Example: \verb+cmake .. -DOMNIORB4_DIR:PATH=$HOME/local/omniORB-4.0.7+
+\item
+  \verb+DIET_BUILD_DOCUMENTATION+ for building LaTeX-based user's guide,
+  the developper's guide and the doxygenated documentation.
+  This option is disabled by default, since it is very sensitive to the
+  version of your \LaTeX\ compiler and it also relies on many subdepencies
+  (e.g. \verb+doxygen+ or \verb+fig2dev+)
+\item
+  \verb+DIET_BUILD_EXAMPLES+ for building various client/server examples
+\item
+  \verb+DIET_USE_BATCH+ for ... Appleseeds based batch extensions.
+\item
+  \verb+DIET_USE_BLAS+ for ... BLAS based examples.
+\item
+  \verb+DIET_USE_CORI+ for ... a built-in low-profile FAST surrogate.
+\item
+  \verb+DIET_USE_FAST+ for ... using FAST a grid aware dynamic
+  forecasting library.
+\item
+  \verb+DIET_USE_JXTA+ for ... using JXTA for dynamic MULTI Master
+  Agent support.
+\item
+  \verb+DIET_WITH_MULTI_MA+ for ... MULTI Master Agent based support.
+\item
+  \verb+DIET_WITH_STATISTICS+ for ... good question, for what ?
+\end{itemize}
+
+%====[ Compilation with the autotools ]========================================
+\subsection{Compiling DIET with the autotools (under deprecation)}
+A configure script will prepare DIET for
 compiling: its main options are described below, but please, run
 \texttt{configure --help} to get an up-to-date and complete usage
 description.\\
@@ -137,7 +318,7 @@ description.\\
 \texttt{...}
 }
 
-\subsection{Optional features for configuration}
+\subsubsection{Optional features for configuration}
 
 {\footnotesize
 \begin{verbatim}
@@ -252,7 +433,7 @@ Chapter~\ref{chapter:performance} describes in more details CoRI and its use ins
 %%is built-in and you do not have to install LogService to compile
 %%DIET.
 
-\subsection{Optional packages for configuration}
+\subsubsection{Optional packages for configuration}
 
 
 {\footnotesize
@@ -287,7 +468,7 @@ Chapter~\ref{chapter:performance} describes in more details CoRI and its use ins
 %% {\footnotesize \texttt{--with-BLAS-extra="-lm -L/home/theuser/lib -lblas -lg2c
 %%   -lm"} }
 
-\subsubsection{omniORB}
+\paragraph{omniORB}
 {\footnotesize
 \begin{verbatim}
   --with-omniORB=DIR      specify the root installation directory of omniORB
@@ -308,7 +489,7 @@ installations of omniORB.\\ \textbf{NB:} having the executable
 \texttt{omniidl} in the PATH environment variable should be enough in
 most cases.
 
-\subsubsection{FAST}\label{fast_compil}
+\paragraph{FAST}\label{fast_compil}
 {\footnotesize
 \begin{verbatim}
   --with-FAST=DIR         installation root directory for FAST (optional)
@@ -326,7 +507,7 @@ should be enough in most cases.\\ \textbf{NB2:} it is possible to
 specify \texttt{--without-FAST}, which overrides \texttt{fast-config}
 detection.
 
-\subsubsection{BLAS}
+\paragraph{BLAS}
 
 The BLAS~\footnote{\url{http://www.netlib.org/blas/}} (Basic Linear
 Algebra Subprograms) are high quality ``building block'' routines for
@@ -358,7 +539,7 @@ provided for difficult installation of the BLAS.\\ \textbf{NB:} these
 options have no effect if the module example and/or its sub-module
 BLAS are disabled.
 
-\subsubsection{\scalapack}
+\paragraph{\scalapack}
 
 The ScaLAPACK\footnote{\url{http://www.netlib.org/scalapack/}} (or
 Scalable LAPACK) library includes a subset of LAPACK routines
@@ -411,7 +592,7 @@ integrate BLACS and MPI libraries, which are useful for ScaLAPACK.  \\
 \textbf{NB:} these options have no effect if the module example and/or
 its sub-module \scalapack\ are disabled.
 
-\subsection{From configuration to compilation}
+\subsubsection{From configuration to compilation}
 
 An important option for configure scripts is \texttt{--prefix=}, which
 specifies where binary files, documents and configuration files will
@@ -514,6 +695,15 @@ Four series of examples are provided in the DIET archive:
   (\texttt{client.c}) to use all \scalapack\ functions and
   sub-services, such as \texttt{MatPROD}.
 \end{itemize}
+
+\subsection{Compiling the examples with cmake}
+\verb+Cmake+ will compile the examples when setting the 
+\verb+DIET_BUILD_EXAMPLES+ to \verb+ON+ which can be achieved by
+toggling the corresponding entry of \verb+ccmake+ GUI's or by adding
+\verb+-DDIET_BUILD_EXAMPLES:BOOL=ON+ to the command line
+arguments of \verb+[c]cmake+ invocation.
+
+\subsection{Compiling the examples with the autotools}
 
 Running \texttt{make install} in the \texttt{examples} directory (or
 in the root directory, when DIET is configured with
