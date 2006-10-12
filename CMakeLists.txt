@@ -244,6 +244,29 @@ IF( DIET_USE_DART )
   INCLUDE( CTest )
 ENDIF( DIET_USE_DART )
 
+# ---------------- STATIC LINKING FIXES ------------------------------------
+# When BUILD_SHARED_LIBS is NOT set, we assume that we not only expect
+# static libraries but also statically linked binaries. Alas as stated by
+#     http://public.kitware.com/pipermail/cmake/2005-March/006157.html
+#   Unfortunately right now there is no variable that is automatically set
+#   with the appropriate flags for the platform, so you need a bunch of IF
+#   conditions (and maybe your own try-compiles) to set it. We should probably
+#   add a target property for executables to specify whether it is linked
+#   statically or shared.
+# For the time being we hence use the following dirty non-portable trick:
+IF( NOT BUILD_SHARED_LIBS )
+  SET( CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} "-static" )
+
+  # For some mysterious, stange and yet unknown reason, the omnithread
+  # library (from omniORB) requires to be linked against the pthread library
+  # when building a static executable. Without further bitching on omniORB
+  # and when we find the pthread library, we simply link against it...
+  FIND_LIBRARY( LIBRARY_PTHREAD NAMES pthread )
+  IF( LIBRARY_PTHREAD )
+    SET( OMNIORB4_LIBRARIES ${OMNIORB4_LIBRARIES} ${LIBRARY_PTHREAD} )
+  ENDIF( LIBRARY_PTHREAD )
+ENDIF( NOT BUILD_SHARED_LIBS )
+
 # --------------------------------------------------------------------------
 ADD_SUBDIRECTORY( src )
 ADD_SUBDIRECTORY( include )

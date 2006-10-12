@@ -115,10 +115,13 @@ IF( OMNIORB4_IDL_COMPILER )
   MARK_AS_ADVANCED( OMNIORB4_LIBRARY_omniDynamic4 )
   MARK_AS_ADVANCED( OMNIORB4_IDL_COMPILER )
   MARK_AS_ADVANCED( OMNIORB4_OMNINAMES_COMMAND )
+  # Note: when linking in static with g++ it looks like omniDynamic4 needs
+  # to appear prior to omniORB4 in order to avoid some undefined references
+  # to e.g. CORBA::Fixed::Fixed(int).
   SET( OMNIORB4_LIBRARIES
+    ${OMNIORB4_LIBRARY_omniDynamic4}
     ${OMNIORB4_LIBRARY_omniORB4}
     ${OMNIORB4_LIBRARY_omnithread}
-    ${OMNIORB4_LIBRARY_omniDynamic4}
   )
 
   # We do not require the existence of the libraries COS4 and COSDynamic4
