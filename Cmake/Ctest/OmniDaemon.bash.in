@@ -4,13 +4,7 @@
 # and an associated mapper server daemons.
 # The requests should be executed on the NAMESERVICE_PORT (see below) port.
 
-#FIXME: neither mv, rm, date, nor nohup commands are tested ! (probably should 
-# be placed in Cmake/FindTestingUtils.cmake
-
 ##### Things you might want to configure:
-PIDOF_COMMAND=@DIET_PIDOF_COMMAND@
-MV_COMMAND=/bin/mv
-RM_COMMAND=/bin/rm
 
 # OmniOrb4 installation directory:
 OMNIORB_PATH=@OMNIORB4_DIR@
@@ -18,19 +12,24 @@ OMNINAMES_BASENAME_COMMAND=omniNames
 
 # The name of the host of the service: usually this is a FQDN (Fully Qualified
 # Domain Name) as given by the shell level command: `hostname`"."`dnsdomainname`
-SERVER_NAME=@DIET_CMAKE_FQDN_HOSTNAME@
+SERVER_NAME=@DIET_CTEST_FQDN_HOSTNAME@
 
 # The primary port on which omniMapper listens fo IIOP requests. This is
 # usually defaulted to 2809. We default it to 20809 to avoid a port bind
 # rejection with a potential system owned server:
-MAPPER_PORT=20809
+MAPPER_PORT=@DIET_CTEST_OMNIORB_MAPPER_PORT@
 
 # The port on which NameService will be available:
-NAMESERVICE_PORT=20810
+NAMESERVICE_PORT=@DIET_CTEST_OMNIORB_NAMESERVICE_PORT@
 
 # Loging related:
 export OMNINAMES_LOGDIR=@DIET_CMAKE_OMNINAMES_LOGDIR@
 
+PIDOF_COMMAND=@DIET_CTEST_PIDOF_COMMAND@
+MV_COMMAND=@DIET_CTEST_MV_COMMAND@
+RM_COMMAND=@DIET_CTEST_RM_COMMAND@
+DATE_COMMAND=@DIET_CTEST_DATE_COMMAND@
+NOHUP_COMMAND=@DIET_CTEST_NOHUP_COMMAND@
 
 ############################################################
 ### Making sure the basic commands are available:
@@ -75,16 +74,16 @@ start()
   
   ### Move any previous logging and error files out of the way:
   if [[ -f $OMNINAMES_LOG ]] ; then
-    $MV_COMMAND $OMNINAMES_LOG $OMNINAMES_LOG-$(date +%Y%m%d%H%M%S)
+    $MV_COMMAND $OMNINAMES_LOG $OMNINAMES_LOG-$($DATE_COMMAND +%Y%m%d%H%M%S)
   fi
   if [[ -f $OMNINAMES_BAK ]] ; then
-    $MV_COMMAND $OMNINAMES_BAK $OMNINAMES_BAK-$(date +%Y%m%d%H%M%S)
+    $MV_COMMAND $OMNINAMES_BAK $OMNINAMES_BAK-$($DATE_COMMAND +%Y%m%d%H%M%S)
   fi
   if [[ -f $LOG_FILENAME ]] ; then
-    $MV_COMMAND $LOG_FILENAME $LOG_FILENAME-$(date +%Y%m%d%H%M%S)
+    $MV_COMMAND $LOG_FILENAME $LOG_FILENAME-$($DATE_COMMAND +%Y%m%d%H%M%S)
   fi
   if [[ -f $ERROR_FILENAME ]] ; then
-    $MV_COMMAND $ERROR_FILENAME $ERROR_FILENAME-$(date +%Y%m%d%H%M%S)
+    $MV_COMMAND $ERROR_FILENAME $ERROR_FILENAME-$($DATE_COMMAND +%Y%m%d%H%M%S)
   fi
   
   ### Setting up the proper arguments:
@@ -103,7 +102,7 @@ start()
   OTHER_PID_FILENAME=$OMNINAMES_LOGDIR/$OMNINAMES_BASENAME_COMMAND-other.pid
   $PIDOF_COMMAND $OMNINAMES_BASENAME_COMMAND > $OTHER_PID_FILENAME
   export LD_LIBRARY_PATH=$OMNIORB_PATH/lib
-  nohup $OMNINAMES_COMMAND $ARGS > $LOG_FILENAME 2> $ERROR_FILENAME & 
+  $NOHUP_COMMAND $OMNINAMES_COMMAND $ARGS > $LOG_FILENAME 2> $ERROR_FILENAME & 
   sleep 1
   if [ -n "`cat $OTHER_PID_FILENAME`" ]; then
     # They were other omniNames servers running:

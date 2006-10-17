@@ -12,6 +12,14 @@ IF( BUILD_TESTING )
     TestDummy.cxx
     TestORBMgrInit.cxx
   )
+
+  # TestORBMgrInit needs to be configured with cmake build flags: 
+  SET( TESTORBMGRINIT_PROPERTIES
+    "-DDIET_CTEST_FQDN_HOSTNAME='\"${DIET_CTEST_FQDN_HOSTNAME}\"'" )
+  SET( TESTORBMGRINIT_PROPERTIES 
+    "${TESTORBMGRINIT_PROPERTIES} -DDIET_CTEST_OMNIORB_MAPPER_PORT='\"${DIET_CTEST_OMNIORB_MAPPER_PORT}\"'" )
+  SET_SOURCE_FILES_PROPERTIES( TestORBMgrInit.cxx PROPERTIES
+          COMPILE_FLAGS "${TESTORBMGRINIT_PROPERTIES}")
   
   # Choose a base name for the test driver...
   SET( DIET_TEST_BASENAME dietTestCentral )
