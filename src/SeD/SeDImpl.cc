@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.85  2006/10/19 21:26:36  mjan
+ * JuxMem support in async mode. Reorganized data management (DTM and JuxMem) into functions in the spirit of last modifs by Yves.
+ *
  * Revision 1.84  2006/09/18 19:46:07  ycaniou
  * Corrected a bug in file_transfer:server.c
  * Corrected memory leaks due to incorrect free of char *
@@ -186,6 +189,11 @@ using namespace std;
 #include "ORBMgr.hh"
 #include "Parsers.hh"
 #include "statistics.hh"
+
+/**
+ * Performance measurement for bw and latency of JuxMem
+ */
+#define JUXMEM_LATENCY_THROUGHPUT 0
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
@@ -805,23 +813,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
  
       cvt = SrvT->getConvertor(ref);
 
-#if ! HAVE_JUXMEM
-      int i;
- 
-      for (i = 0; i <= pb.last_inout; i++) {    
-        if(pb.parameters[i].value.length() == 0){
-          this->dataMgr->getData(const_cast<corba_data_t&>(pb.parameters[i]));
-        } else {
-          if( diet_is_persistent(pb.parameters[i]) ) {
-            this->dataMgr->addData(const_cast<corba_data_t&>(pb.parameters[i]),
-                                   0);
-          }
-        }
-      }
-      unmrsh_in_args_to_profile(&profile, &(const_cast<corba_profile_t&>(pb)), cvt);
-      //      displayProfile(&profile, path);
-      
-#endif // ! HAVE_JUXMEM
+      downloadAsyncSeDData(profile, const_cast<corba_profile_t&>(pb), cvt);
       
 #if HAVE_BATCH
       if( profile.parallel_flag == 2 ) {
@@ -836,48 +828,8 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 #else
       solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
 #endif // HAVE_BATCH
-      
-#if ! HAVE_JUXMEM
 
-      for(i=0;i<=pb.last_in;i++){
-        if(diet_is_persistent(pb.parameters[i])) {
-          if (pb.parameters[i].desc.specific._d() != DIET_FILE) {
-            CORBA::Char *p1 (NULL);
-            const_cast<SeqChar&>(pb.parameters[i].value).replace(0,0,p1,1);
-          }
-          persistent_data_release(
-              const_cast<corba_data_t*>(&(pb.parameters[i])));
-        }
-      }
-  
-      mrsh_profile_to_out_args(&(const_cast<corba_profile_t&>(pb)), &profile, cvt);
-      /*      for (i = profile.last_in + 1 ; i <= profile.last_inout; i++) {
-        if ( diet_is_persistent(profile.parameters[i])) {
-          this->dataMgr->updateDataList(const_cast<corba_data_t&>(pb.parameters[i])); 
-        }
-        }*/
-      
-      for (i = pb.last_inout + 1 ; i <= pb.last_out; i++) {
-        if ( diet_is_persistent(pb.parameters[i])) {
-          this->dataMgr->addData(const_cast<corba_data_t&>(pb.parameters[i]),
-                                 1); 
-        }
-      }
-      
-      /* Free data */
-#if 0
-      for(i=0;i<pb.last_out;i++)
-        if(!diet_is_persistent(profile.parameters[i])) {
-            // FIXME : adding file test
-          CORBA::Char *p1 (NULL);
-          p1 = pbc.parameters[i].value.get_buffer(1);
-          _CORBA_Sequence<unsigned char>::freebuf((_CORBA_Char *)p1);
-          }
-      
-#endif
-      // FIXME: persistent data should not be freed but referenced in the data list.
-      
-#endif // ! HAVE_JUXMEM
+      uploadAsyncSeDData(profile,  const_cast<corba_profile_t&>(pb), cvt);
 
       TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::" << __FUNCTION__ << " complete\n"
                  << "**************************************************\n");
@@ -925,6 +877,142 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
     ERROR("unknown exception caught",);
   }
 }
+
+#if HAVE_JUXMEM
+inline void
+SeDImpl::uploadSeDDataJuxMem(diet_profile_t profile)
+{
+#if JUXMEM_LATENCY_THROUGHPUT
+  float latency = 0;
+  float throughput = 0;
+  /**
+   * To store time
+   */
+  struct timeval t_begin;
+  struct timeval t_end;
+  struct timeval t_result;
+#endif
+  int i = 0;
+
+  for (i = 0; i <= profile.last_out; i++) {
+    if (profile.parameters[i].desc.mode == DIET_PERSISTENT ||
+	profile.parameters[i].desc.mode == DIET_PERSISTENT_RETURN) {
+
+      /** IN and INOUT case */
+      if (i <= profile.last_inout) {
+	TRACE_TEXT(TRACE_MAIN_STEPS, "Releasing data with ID = " << profile.parameters[i].desc.id << " from JuxMem\n");
+#if JUXMEM_LATENCY_THROUGHPUT
+	gettimeofday(&t_begin, NULL);
+#endif
+	this->juxmem->release(profile.parameters[i].value);
+#if JUXMEM_LATENCY_THROUGHPUT
+	gettimeofday(&t_end, NULL);
+	timersub(&t_end, &t_begin, &t_result);
+	latency = (t_result.tv_usec + (t_result.tv_sec * 1000. * 1000)) / 1000.;
+	throughput = (data_sizeof(&(profile.parameters[i].desc)) / (1024. * 1024.)) / (latency / 1000.);
+	fprintf(stderr, "INOUT %s release. Latency: %f, Throughput: %f\n", profile.parameters[i].desc.id, latency, throughput);
+#endif
+      } else {       /** OUT case */
+	/** The data does not exist yet */
+	if (strlen(profile.parameters[i].desc.id) == 0) {
+	  /* The local memory is attached inside JuxMem */
+	  profile.parameters[i].desc.id = 
+	    this->juxmem->attach(profile.parameters[i].value, 
+				 data_sizeof(&(profile.parameters[i].desc)), 
+				 1, 1, EC_PROTOCOL, BASIC_SOG);
+	  TRACE_TEXT(TRACE_MAIN_STEPS, "A data space with ID = " 
+		     << profile.parameters[i].desc.id 
+		     << " for OUT data has been attached inside JuxMem!\n");
+	  /* The local memory is flush inside JuxMem */
+	  this->juxmem->msync(profile.parameters[i].value);
+	} else { /* Simply release the lock */
+	  /** FIXME: should we handle this case */
+	  this->juxmem->release(profile.parameters[i].value);
+	}
+      }
+
+      if (i <= profile.last_in) {
+	this->juxmem->detach(profile.parameters[i].value);
+      } else {
+	this->juxmem->unmap(profile.parameters[i].value);
+      }
+    }
+  }
+}
+#endif
+
+#if HAVE_JUXMEM
+inline void
+SeDImpl::downloadSeDDataJuxMem(diet_profile_t profile)
+{
+#if JUXMEM_LATENCY_THROUGHPUT
+  float latency = 0;
+  float throughput = 0;
+  /**
+   * To store time
+   */
+  struct timeval t_begin;
+  struct timeval t_end;
+  struct timeval t_result;
+#endif
+  int i = 0;
+
+  for (i = 0; i <= profile.last_out; i++) {
+    if (profile.parameters[i].desc.mode == DIET_PERSISTENT ||
+	profile.parameters[i].desc.mode == DIET_PERSISTENT_RETURN) {
+   
+      /* IN case -> acquire the data in read mode */
+      if (i <= profile.last_in) {
+	assert(profile.parameters[i].desc.id != NULL);
+	profile.parameters[i].value = this->juxmem->mmap(NULL, data_sizeof(&(profile.parameters[i].desc)), profile.parameters[i].desc.id, 0);
+	TRACE_TEXT(TRACE_MAIN_STEPS, "Acquiring IN data with ID = " << profile.parameters[i].desc.id << " from JuxMem\n");
+#if JUXMEM_LATENCY_THROUGHPUT
+	gettimeofday(&t_begin, NULL);
+#endif
+	this->juxmem->acquireRead(profile.parameters[i].value);
+#if JUXMEM_LATENCY_THROUGHPUT
+	gettimeofday(&t_end, NULL);
+	timersub(&t_end, &t_begin, &t_result);
+	latency = (t_result.tv_usec + (t_result.tv_sec * 1000. * 1000)) / 1000.;	
+	throughput = (data_sizeof(&(profile.parameters[i].desc)) / (1024. * 1024.)) / (latency / 1000.);
+	fprintf(stderr, "IN %s acquireRead. Latency: %f, Throughput: %f\n", profile.parameters[i].desc.id, latency, throughput);
+#endif
+	continue;
+      }
+      /* INOUT case -> acquire the data in write mode */
+      if (i > profile.last_in && i <= profile.last_inout) {
+	assert(profile.parameters[i].desc.id != NULL);
+	profile.parameters[i].value = this->juxmem->mmap(NULL, data_sizeof(&(profile.parameters[i].desc)), profile.parameters[i].desc.id, 0);
+	TRACE_TEXT(TRACE_MAIN_STEPS, "Acquiring INOUT data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
+#if JUXMEM_LATENCY_THROUGHPUT
+	gettimeofday(&t_begin, NULL);
+#endif
+	this->juxmem->acquire(profile.parameters[i].value);
+#if JUXMEM_LATENCY_THROUGHPUT
+	gettimeofday(&t_end, NULL);
+	timersub(&t_end, &t_begin, &t_result);
+	latency = (t_result.tv_usec + (t_result.tv_sec * 1000. * 1000)) / 1000.;
+	throughput = (data_sizeof(&(profile.parameters[i].desc)) / (1024. * 1024.)) / (latency / 1000.);
+	fprintf(stderr, "IN/INOUT %s acquire. Latency: %f, Throughput: %f\n", profile.parameters[i].desc.id, latency, throughput);
+#endif
+	continue;
+      }
+      /* OUT case -> acquire the data in write mode if exists in JuxMem */
+      if (i > profile.last_inout) {
+	if (profile.parameters[i].desc.id == NULL || (strlen(profile.parameters[i].desc.id) == 0)) {
+	  TRACE_TEXT(TRACE_MAIN_STEPS, "New data for OUT\n");
+	} else {
+	  /** FIXME: not clear if we should handle such a case */
+	  assert(profile.parameters[i].desc.id != NULL);
+	  profile.parameters[i].value = this->juxmem->mmap(NULL, data_sizeof(&(profile.parameters[i].desc)), profile.parameters[i].desc.id, 0);
+	  this->juxmem->acquire(profile.parameters[i].value);
+	  TRACE_TEXT(TRACE_MAIN_STEPS, "Acquiring OUT data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
+	}
+      }
+    }
+  }
+}
+#endif
 
 const struct timeval*
 SeDImpl::timeSinceLastSolve()
@@ -1066,52 +1154,42 @@ SeDImpl::estimate(corba_estimation_t& estimation,
 }
 
 inline void
+SeDImpl::downloadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
+			      diet_convertor_t* cvt)
+{
+  TRACE_TIME(TRACE_MAIN_STEPS, "SeD downloads client datas\n");
+
+#if HAVE_JUXMEM
+  unmrsh_in_args_to_profile(&profile, &(const_cast<corba_profile_t&>(pb)), cvt);
+  downloadSeDDataJuxMem(profile);
+#else
+      int i;
+      for (i = 0; i <= pb.last_inout; i++) {    
+        if(pb.parameters[i].value.length() == 0){
+          this->dataMgr->getData(const_cast<corba_data_t&>(pb.parameters[i]));
+        } else {
+          if( diet_is_persistent(pb.parameters[i]) ) {
+            this->dataMgr->addData(const_cast<corba_data_t&>(pb.parameters[i]),
+                                   0);
+          }
+        }
+      }
+      unmrsh_in_args_to_profile(&profile, &(const_cast<corba_profile_t&>(pb)), cvt);
+      //      displayProfile(&profile, path);
+#endif // ! HAVE_JUXMEM
+}
+
+inline void
 SeDImpl::downloadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 			     diet_convertor_t* cvt)
 {
-  int i ;
-
   TRACE_TIME(TRACE_MAIN_STEPS, "SeD downloads client datas\n");
   
 #if HAVE_JUXMEM
   unmrsh_in_args_to_profile(&profile, &pb, cvt);
-
-  for (i = 0; i <= profile.last_out; i++) {
-    if (profile.parameters[i].desc.mode == DIET_PERSISTENT ||
-	profile.parameters[i].desc.mode == DIET_PERSISTENT_RETURN) {
-   
-      /* IN case -> acquire the data in read mode */
-      if (i <= profile.last_in) {
-	assert(profile.parameters[i].desc.id != NULL);
-	profile.parameters[i].value = this->juxmem->mmap(NULL, data_sizeof(&(profile.parameters[i].desc)), profile.parameters[i].desc.id, 0);
-	TRACE_TEXT(TRACE_MAIN_STEPS, "Acquiring IN data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
-	this->juxmem->acquireRead(profile.parameters[i].value);
-	continue;
-      }
-      /* INOUT case -> acquire the data in write mode */
-      if (i > profile.last_in && i <= profile.last_inout) {
-	assert(profile.parameters[i].desc.id != NULL);
-	profile.parameters[i].value = this->juxmem->mmap(NULL, data_sizeof(&(profile.parameters[i].desc)), profile.parameters[i].desc.id, 0);
-	TRACE_TEXT(TRACE_MAIN_STEPS, "Acquiring INOUT data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
-	this->juxmem->acquire(profile.parameters[i].value);
-	continue;
-      }
-      /* OUT case -> acquire the data in write mode if exists in JuxMem */
-      if (i > profile.last_inout) {
-	if (profile.parameters[i].desc.id == NULL || (strlen(profile.parameters[i].desc.id) == 0)) {
-	  TRACE_TEXT(TRACE_MAIN_STEPS, "New data for OUT\n");
-	} else {
-	  /** FIXME: not clear if we should handle such a case */
-	  assert(profile.parameters[i].desc.id != NULL);
-	  profile.parameters[i].value = this->juxmem->mmap(NULL, data_sizeof(&(profile.parameters[i].desc)), profile.parameters[i].desc.id, 0);
-	  this->juxmem->acquire(profile.parameters[i].value);
-	  TRACE_TEXT(TRACE_MAIN_STEPS, "Acquiring OUT data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
-	}
-      }
-    }
-  }
+  downloadSeDDataJuxMem(profile);
 #else // DTM case
-
+  int i ;
   // For data persistence
 
   for (i=0 ; i <= pb.last_inout ; i++) {
@@ -1137,48 +1215,67 @@ SeDImpl::downloadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 }
 
 inline void
+SeDImpl::uploadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
+			    diet_convertor_t* cvt)
+{
+  TRACE_TIME(TRACE_MAIN_STEPS, "SeD uploads client datas\n");
+
+#if HAVE_JUXMEM
+      uploadSeDDataJuxMem(profile);
+      mrsh_profile_to_out_args(&(const_cast<corba_profile_t&>(pb)), &profile, cvt);
+#else // DTM case
+  int i ;
+      for(i=0;i<=pb.last_in;i++){
+        if(diet_is_persistent(pb.parameters[i])) {
+          if (pb.parameters[i].desc.specific._d() != DIET_FILE) {
+            CORBA::Char *p1 (NULL);
+            const_cast<SeqChar&>(pb.parameters[i].value).replace(0,0,p1,1);
+          }
+          persistent_data_release(
+              const_cast<corba_data_t*>(&(pb.parameters[i])));
+        }
+      }
+
+      mrsh_profile_to_out_args(&(const_cast<corba_profile_t&>(pb)), &profile, cvt);
+      /*      for (i = profile.last_in + 1 ; i <= profile.last_inout; i++) {
+        if ( diet_is_persistent(profile.parameters[i])) {
+          this->dataMgr->updateDataList(const_cast<corba_data_t&>(pb.parameters[i])); 
+        }
+        }*/
+      
+      for (i = pb.last_inout + 1 ; i <= pb.last_out; i++) {
+        if ( diet_is_persistent(pb.parameters[i])) {
+          this->dataMgr->addData(const_cast<corba_data_t&>(pb.parameters[i]),
+                                 1); 
+        }
+      }
+      
+      /* Free data */
+#if 0
+      for(i=0;i<pb.last_out;i++)
+        if(!diet_is_persistent(profile.parameters[i])) {
+            // FIXME : adding file test
+          CORBA::Char *p1 (NULL);
+          p1 = pbc.parameters[i].value.get_buffer(1);
+          _CORBA_Sequence<unsigned char>::freebuf((_CORBA_Char *)p1);
+          }
+      
+#endif
+      // FIXME: persistent data should not be freed but referenced in the data list.
+#endif // HAVE_JUXMEM
+}
+
+inline void
 SeDImpl::uploadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 			   diet_convertor_t* cvt)
 {
-  int i ;
-
   TRACE_TIME(TRACE_MAIN_STEPS, "SeD uploads client datas\n");
   
 #if HAVE_JUXMEM
-  for (i = 0; i <= profile.last_out; i++) {
-    if (profile.parameters[i].desc.mode == DIET_PERSISTENT ||
-	profile.parameters[i].desc.mode == DIET_PERSISTENT_RETURN) {
-
-      /** IN and INOUT case */
-      if (i <= profile.last_inout) {
-	TRACE_TEXT(TRACE_MAIN_STEPS, "Releasing data with ID = " 
-		   << profile.parameters[i].desc.id << " from JuxMem ...\n");
-	this->juxmem->release(profile.parameters[i].value);
-      } else {       /** OUT case */
-	/** The data does not exist yet */
-	if (strlen(profile.parameters[i].desc.id) == 0) {
-	  /* The local memory is attached inside JuxMem */
-	  profile.parameters[i].desc.id = 
-	    this->juxmem->attach(profile.parameters[i].value, 
-				 data_sizeof(&(profile.parameters[i].desc)), 
-				 1, 1, EC_PROTOCOL, BASIC_SOG);
-	  TRACE_TEXT(TRACE_MAIN_STEPS, "A data space with ID = " 
-		     << profile.parameters[i].desc.id 
-		     << " for OUT data has been attached inside JuxMem!\n");
-	  /* The local memory is flush inside JuxMem */
-	  this->juxmem->msync(profile.parameters[i].value);
-	} else { /* Simply release the lock */
-	  /** FIXME: should we handle this case */
-	  this->juxmem->release(profile.parameters[i].value);
-	}
-      }
-
-      this->juxmem->unmap(profile.parameters[i].value);
-      profile.parameters[i].value = NULL;
-    }
-  }
+  uploadSeDDataJuxMem(profile);
   mrsh_profile_to_out_args(&pb, &profile, cvt);
 #else // DTM case
+  int i ;
   for(i=0;i<=pb.last_in;i++){
     if(diet_is_persistent(pb.parameters[i])) {
       if (pb.parameters[i].desc.specific._d() != DIET_FILE) {
@@ -1296,7 +1393,7 @@ SeDImpl::findBatchID(int diet_reqID)
   
   while( (tmp != NULL) && (tmp->dietReqID != diet_reqID) )
     tmp=tmp->nextStruct ;
-  corresBatchReqID_mutex.unlock() ;  
+  corresBatchReqID_mutex.unlock() ;
 
   if( tmp == NULL) {
     INTERNAL_ERROR("Incoherence relating with batch job ID and diet request ID"

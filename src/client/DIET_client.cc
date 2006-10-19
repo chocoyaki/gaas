@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.88  2006/10/19 21:27:32  mjan
+ * JuxMem support in async mode. Reorganized data management (DTM and JuxMem) into functions in the spirit of last modifs by Yves.
+ *
  * Revision 1.87  2006/09/21 09:11:31  ycaniou
  * Preliminary change in cmake to handle a BATCH variable
  *
@@ -197,6 +200,11 @@ static CltReoMan_impl * myReoMan = NULL;
  */
 #define DIET_DEFAULT_FD_QOS 30.0, 2678400.0, 60.0
 #endif
+
+/**
+ * Performance measurement for bw and latency of JuxMem
+ */
+#define JUXMEM_LATENCY_THROUGHPUT 0
 
 /* Recovery after failure func */
 static void diet_call_failure_recover(fd_handle fd)
@@ -643,6 +651,112 @@ diet_free_persistent_data(char* argID)
   }
 }
 
+/******************************************************************
+ *  JuxMem data management functions                              *
+ ******************************************************************/
+#if HAVE_JUXMEM
+inline void
+uploadClientDataJuxMem(diet_profile_t* profile)
+{
+  int i = 0;
+#if JUXMEM_LATENCY_THROUGHPUT
+  float latency = 0;
+  float throughput = 0;
+  /**
+   * To store time
+   */
+  struct timeval t_begin;
+  struct timeval t_end;
+  struct timeval t_result;
+#endif
+      
+  for (i = 0; i <= profile->last_inout; i++) {
+    /**
+     * If there is no data id (for both IN or INOUT case), this a new
+     * data.  Therefore, attach the user input and do a msync on
+     * JuxMem of the data.  Of course do that only if data are
+     * persistent! Else let CORBA move them
+     */
+    if (profile->parameters[i].desc.id == NULL &&
+	profile->parameters[i].desc.mode == DIET_PERSISTENT) {
+      profile->parameters[i].desc.id = 
+	juxmem->attach(profile->parameters[i].value, 
+		       data_sizeof(&(profile->parameters[i].desc)), 
+		       1, 1, EC_PROTOCOL, BASIC_SOG);
+      TRACE_TEXT(TRACE_MAIN_STEPS, "A data space with ID = " 
+		 << profile->parameters[i].desc.id 
+		 << " for IN data has been attached inside JuxMem!\n");
+      /* The local memory is flush inside JuxMem */
+#if JUXMEM_LATENCY_THROUGHPUT
+	gettimeofday(&t_begin, NULL);
+#endif
+      juxmem->msync(profile->parameters[i].value);      
+#if JUXMEM_LATENCY_THROUGHPUT
+	gettimeofday(&t_end, NULL);
+	timersub(&t_end, &t_begin, &t_result);
+	latency = (t_result.tv_usec + (t_result.tv_sec * 1000. * 1000)) / 1000.;
+	throughput = (data_sizeof(&(profile.parameters[i].desc)) / (1024. * 1024.)) / (latency / 1000.);
+	sprintf(statMsg, "IN/INOUT %s msync. Latency: %f, Throughput: %f\n", profile->parameters[i].desc.id, latency, throughput);
+	stat_out("JuxMem", statMsg);
+#endif
+	if (i <= profile->last_in) {
+	  juxmem->detach(profile->parameters[i].value);
+	}
+    }
+  }
+}
+#endif
+
+#if HAVE_JUXMEM
+inline void
+downloadClientDataJuxMem(diet_profile_t* profile)
+{
+  int i = 0;
+#if JUXMEM_LATENCY_THROUGHPUT
+  float latency = 0;
+  float throughput = 0;
+  /**
+   * To store time
+   */
+  struct timeval t_begin;
+  struct timeval t_end;
+  struct timeval t_result;
+#endif
+
+  for (i = profile->last_in + 1; i <= profile->last_out; i++) {
+    /**
+     * Retrieve INOUT or OUT data only if DIET_PERSISTENT_RETURN.
+     * Note that for INOUT data, the value can be already initialized.
+     * In this case, JuxMem will use this address to store the
+     * data. If value is NULL, a memory area will allocated.
+     */
+    if (profile->parameters[i].desc.id != NULL &&
+	profile->parameters[i].desc.mode == DIET_PERSISTENT_RETURN) {
+      if (i <= profile->last_inout) {
+	TRACE_TEXT(TRACE_MAIN_STEPS, "Reading IN_OUT data with ID = " << profile->parameters[i].desc.id << " from JuxMem ...\n");
+      } else {
+	TRACE_TEXT(TRACE_MAIN_STEPS, "Retrieving OUT data with ID = " << profile->parameters[i].desc.id << " from JuxMem ...\n");
+	profile->parameters[i].value = juxmem->mmap(profile->parameters[i].value, data_sizeof(&(profile->parameters[i].desc)), profile->parameters[i].desc.id, 0);
+      }
+#if JUXMEM_LATENCY_THROUGHPUT
+	gettimeofday(&t_begin, NULL);
+#endif
+	juxmem->acquireRead(profile->parameters[i].value);
+	juxmem->release(profile->parameters[i].value);
+#if JUXMEM_LATENCY_THROUGHPUT
+	gettimeofday(&t_end, NULL);
+	timersub(&t_end, &t_begin, &t_result);
+	latency = (t_result.tv_usec + (t_result.tv_sec * 1000. * 1000)) / 1000.;
+	timersub(&t_begin, &(this->t_begin), &t_result);
+	time = (t_result.tv_usec + (t_result.tv_sec * 1000. * 1000)) / 1000.;	
+	throughput = (data_sizeof(&(profile.parameters[i].desc)) / (1024. * 1024.)) / (latency / 1000.);
+	fprintf(stderr, "%f INOUT %s read. Latency: %f, Throughput: %f\n", time, profile.parameters[i].desc.id, latency, throughput);
+#endif
+      juxmem->detach(profile->parameters[i].value);
+    }
+  }
+}
+#endif
 
 /****************************************************************************/
 /* GridRPC call functions                                                   */
@@ -857,28 +971,7 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
   }
 
 #if HAVE_JUXMEM 
-  int i = 0;
-  for (i = 0; i <= profile->last_inout; i++) {
-    /**
-     * If there is no data id (for both IN or INOUT case), this a new
-     * data.  Therefore, attach the user input and do a msync on
-     * JuxMem of the data.  Of course do that only if data are
-     * persistent! Else let CORBA move them
-     */
-    if (profile->parameters[i].desc.id == NULL &&
-	profile->parameters[i].desc.mode == DIET_PERSISTENT) {
-      profile->parameters[i].desc.id = 
-	juxmem->attach(profile->parameters[i].value, 
-		       data_sizeof(&(profile->parameters[i].desc)), 
-		       1, 1, EC_PROTOCOL, BASIC_SOG);
-      TRACE_TEXT(TRACE_MAIN_STEPS, "A data space with ID = " 
-		 << profile->parameters[i].desc.id 
-		 << " for IN data has been attached inside JuxMem!\n");
-      /* The local memory is flush inside JuxMem */
-      juxmem->msync(profile->parameters[i].value);      
-      profile->parameters[i].value = NULL;
-    }
-  }
+  uploadClientDataJuxMem(profile);
 #endif // HAVE_JUXMEM
 
   /* Send Datas */
@@ -886,7 +979,7 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
   if (mrsh_profile_to_in_args(&corba_profile, profile)) {
     ERROR("profile is wrongly built", 1);
   }
-  
+
   int j = 0;
   bool found = false;
   while ((j <= corba_profile.last_out) && (found == false)) {
@@ -953,25 +1046,7 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
   }
 
 #if HAVE_JUXMEM
-  for (i = profile->last_inout + 1; i <= profile->last_out; i++) {
-    /**
-     * Retrieve INOUT or OUT data only if DIET_PERSISTENT_RETURN.
-     * Note that for INOUT data, the value can be already initialized.
-     * In this case, JuxMem will use this address to store the
-     * data. If value is NULL, a memory area will allocated.
-     */
-    if (profile->parameters[i].desc.id != NULL &&
-	profile->parameters[i].desc.mode == DIET_PERSISTENT_RETURN) {
-      juxmem->mmap(profile->parameters[i].value, data_sizeof(&(profile->parameters[i].desc)), profile->parameters[i].desc.id, 0);
-      if (i <= profile->last_inout) {
-	TRACE_TEXT(TRACE_MAIN_STEPS, "Retrieving IN_OUT data with ID = " << profile->parameters[i].desc.id << " from JuxMem ...\n");
-      } else {
-	TRACE_TEXT(TRACE_MAIN_STEPS, "Retrieving OUT data with ID = " << profile->parameters[i].desc.id << " from JuxMem ...\n");
-      }
-      juxmem->acquireRead(profile->parameters[i].value);
-      juxmem->release(profile->parameters[i].value);
-    }
-  }
+  downloadClientDataJuxMem(profile);
 #endif // HAVE_JUXMEM
 
   sprintf(statMsg, "diet_call %ld", (unsigned long) reqID);
@@ -1035,7 +1110,6 @@ diet_call_async_common(diet_profile_t* profile,
 
   stat_in("Client","diet_call_async");
 
-
   try {
 
     if (CORBA::is_nil(chosenServer)) {
@@ -1048,7 +1122,11 @@ diet_call_async_common(diet_profile_t* profile,
         return GRPC_SERVER_NOT_FOUND;
       }
     }
-    
+
+#if HAVE_JUXMEM
+    uploadClientDataJuxMem(profile);
+#endif
+
     if (mrsh_profile_to_in_args(&corba_profile, profile)) {
       caMgr->setReqErrorCode(*reqID, GRPC_INVALID_FUNCTION_HANDLE);
       ERROR("profile is wrongly built", 1);
@@ -1067,9 +1145,11 @@ diet_call_async_common(diet_profile_t* profile,
     if(found == true){
       create_file();
     }
- 
+
+#if ! HAVE_JUXMEM 
+    int i = 0;
     /* data property base_type and type retrieval : used for scheduler */
-    for(int i = 0;i <= corba_profile.last_out;i++) {
+    for(i = 0;i <= corba_profile.last_out;i++) {
       char* new_id = strdup(corba_profile.parameters[i].desc.id.idNumber);
       if(strlen(new_id) != 0) {
         corba_data_desc_t *arg_desc = new corba_data_desc_t;
@@ -1077,10 +1157,11 @@ diet_call_async_common(diet_profile_t* profile,
         const_cast<corba_data_desc_t&>(corba_profile.parameters[i].desc) = *arg_desc;
       }
     }  
-    
-    
+#endif
+
+#if ! HAVE_JUXMEM
     /* generate new ID for data if not already existant */
-    for(int i = 0;i <= corba_profile.last_out;i++) {
+    for(i = 0;i <= corba_profile.last_out;i++) {
       if ((corba_profile.parameters[i].desc.mode > DIET_VOLATILE ) && 
           (corba_profile.parameters[i].desc.mode < DIET_PERSISTENCE_MODE_COUNT) 
      && (MA->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber)))) 
@@ -1089,6 +1170,7 @@ diet_call_async_common(diet_profile_t* profile,
         corba_profile.parameters[i].desc.id.idNumber = new_id;
       }
     }
+#endif
     
     // create corba client callback server...
     if (caMgr->addAsyncCall(*reqID, profile) != 0) {
@@ -1104,7 +1186,12 @@ diet_call_async_common(diet_profile_t* profile,
     if (unmrsh_out_args_to_profile(profile, &corba_profile)) {
       INTERNAL_ERROR("returned profile is wrongly built", 1);
     }
-   
+
+#if HAVE_JUXMEM
+    downloadClientDataJuxMem(profile);
+#endif // HAVE_JUXMEM
+
+
   } catch (const CORBA::Exception &e) {
     // Process any other User exceptions. Use the .id() method to
     // record or display useful information

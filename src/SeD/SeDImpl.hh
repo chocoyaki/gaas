@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.31  2006/10/19 21:26:36  mjan
+ * JuxMem support in async mode. Reorganized data management (DTM and JuxMem) into functions in the spirit of last modifs by Yves.
+ *
  * Revision 1.30  2006/08/27 18:40:10  ycaniou
  * Modified parallel submission API
  * - client: diet_call_batch() -> diet_parallel_call()
@@ -351,6 +354,11 @@ private:
 	   const corba_pb_desc_t& pb,
 	   const ServiceTable::ServiceReference_t ref);
 
+  /**
+   * TODO: if possible merge async and sync function. Currently, the DTM code 
+   * if different
+   */
+
   inline void
   downloadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 		      diet_convertor_t* cvt) ;
@@ -358,6 +366,20 @@ private:
   inline void
   uploadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 		    diet_convertor_t* cvt) ;
+
+  inline void
+  downloadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
+		      diet_convertor_t* cvt) ;
+  
+  inline void
+  uploadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
+		    diet_convertor_t* cvt) ;
+
+  inline void
+  uploadSeDDataJuxMem(diet_profile_t profile);
+
+  inline void
+  downloadSeDDataJuxMem(diet_profile_t profile);
 };
 
 #endif // _SED_IMPL_HH_
