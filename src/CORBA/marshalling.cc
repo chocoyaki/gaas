@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.66  2006/10/19 21:18:39  mjan
+ * Contribute back last modifications for JuxMem use ... code only inside HAVE_JUXMEM
+ *
  * Revision 1.65  2006/09/18 19:46:06  ycaniou
  * Corrected a bug in file_transfer:server.c
  * Corrected memory leaks due to incorrect free of char *
@@ -357,7 +360,7 @@ mrsh_data(corba_data_t* dest, diet_data_t* src, int release)
 #if ! HAVE_JUXMEM
   }
 #endif // ! HAVE_JUXMEM
-  if(value == NULL)
+  if(value == NULL) 
     dest->value.length(0);
   else
     dest->value.replace(size, size, value, release); // 0 if persistent 1 elsewhere
@@ -368,7 +371,6 @@ mrsh_data(corba_data_t* dest, diet_data_t* src, int release)
 /**************************************************************************
  *  Marshall/ Unmarshall data handler                                     *
  *************************************************************************/
-#if ! HAVE_JUXMEM
 static int
 __mrsh_data_id_desc(corba_data_desc_t* dest,
                     const diet_data_desc_t* const src){
@@ -386,7 +388,6 @@ __mrsh_data_id(corba_data_t* dest, const diet_data_t* const src) {
   __mrsh_data_id_desc(&(dest->desc), &(src->desc));
   dest->value.length(0); 
 }
-#endif
 
 /****************************************************************************/
 /* Data structure unmarshalling                                             */
@@ -714,13 +715,14 @@ mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src)
   dest->parameters.length(src->last_out + 1);
 
    for (i = 0; i <= src->last_inout; i++) {
-#if HAVE_JUXMEM
-     if (mrsh_data(&(dest->parameters[i]), &(src->parameters[i]), 0)) {
-       return 1;
-     }
-#else
      if(src->parameters[i].desc.id) {
+#if ! HAVE_JUXMEM
        __mrsh_data_id(&(dest->parameters[i]), &(src->parameters[i]));
+#else 
+       mrsh_data_desc(&(dest->parameters[i].desc), &(src->parameters[i].desc));
+       dest->parameters[i].value.replace(0, 0, NULL, 1);
+       dest->parameters[i].value.length(0);
+#endif
      } else {
        if (src->parameters[i].value == NULL &&
            !diet_is_persistent(src->parameters[i]) &&
@@ -735,7 +737,6 @@ mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src)
          }
        }
      }
-#endif // HAVE_JUXMEM
    } 
    
    for (; i <= src->last_out; i++) {
@@ -895,7 +896,11 @@ mrsh_profile_to_out_args(corba_profile_t* dest, const diet_profile_t* src,
     (int*) calloc(dest->last_out + 1, sizeof(int));
   diet_data_t dd;
 
+#if HAVE_JUXMEM
+  for (i = 0; i <= cvt->last_out; i++) {
+#else
   for (i = cvt->last_in + 1; i <= cvt->last_out; i++) {
+#endif
     arg_idx = cvt->arg_convs[i].out_arg_idx;
     if ((arg_idx >= 0) && (arg_idx <= dest->last_out)) {
       if( dest->parameters[arg_idx].desc.specific._d() == DIET_FILE
@@ -926,9 +931,19 @@ mrsh_profile_to_out_args(corba_profile_t* dest, const diet_profile_t* src,
             }
           }
 	
+#if HAVE_JUXMEM
+	  if (diet_is_persistent(dd)) {
+	    mrsh_data_desc(&(dest->parameters[arg_idx].desc), &(src->parameters[arg_idx].desc));
+	    dest->parameters[arg_idx].value.replace(0, 0, NULL, 1);
+	    dest->parameters[arg_idx].value.length(0);
+	  } else {
+#endif
           if (mrsh_data(&(dest->parameters[arg_idx]), &dd,
                         !diet_is_persistent(dd)))
             return 1;
+#if HAVE_JUXMEM
+	  }
+#endif
         }
         args_filled[arg_idx] = 1;
       }
