@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2006/10/20 08:35:39  aamar
+ * *** empty log message ***
+ *
  * Revision 1.2  2006/07/10 11:10:30  aamar
  * - Adding some helpful functions for matrix handling and diet
  * data types manipulation.
@@ -37,6 +40,10 @@ public:
   /************************************************************/
   /** STATIC CONSTANTS                                       **/
   /************************************************************/
+
+  /************************************************************/
+  /** DIET TYPE                                              **/
+  /************************************************************/
   static const char * DIET_CHAR;
   static const char * DIET_SHORT;
   static const char * DIET_INT;
@@ -56,7 +63,7 @@ public:
   static const char * DIET_DATA_TYPE_COUNT;
 
   /************************************************************/
-  /** FOR MATRIX HANDLING                                     */
+  /** METHODS FOR MATRIX HANDLING                             */
   /************************************************************/
   static void
   open_file(const char * fileName, FILE *& myFile);
