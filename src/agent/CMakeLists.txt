@@ -47,8 +47,6 @@ IF( DIET_BUILD_LIBRARIES )
   TARGET_LINK_LIBRARIES( dietAgent AgentCommon)
   
   IF (DIET_USE_WORKFLOW) 
-    TARGET_LINK_LIBRARIES ( dietAgent DietWorkflow DIET_client IDLWfLog ${XERCES_LIBRARY} )
-
     ADD_LIBRARY( MaDag MaDag_impl.cc
           MaDag_sched.cc RoundRobbin_MaDag_Sched.cc HEFT_MaDag_Sched.cc
           MetaDag.cc 
