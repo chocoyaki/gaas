@@ -21,13 +21,31 @@ public:
 
   virtual ~RoundRobbin_MaDag_Sched();
 
-  virtual wf_node_sched_seq_t * 
+  virtual wf_node_sched_seq_t 
   schedule(const wf_response_t * wf_response,
-	   WfReader& reader);
+	   WfExtReader& reader);
 
-  virtual wf_node_sched_seq_t * 
+  virtual wf_node_sched_seq_t 
+  schedule(const wf_response_t * wf_response,
+	   Dag * dag);
+
+  virtual wf_node_sched_seq_t 
   reSchedule(const wf_response_t * wf_response,
-	     WfReader& reader);
+	     WfExtReader& reader);
+
+  virtual wf_node_sched_seq_t 
+  reSchedule(const wf_response_t * wf_response,
+	     Dag * dag);
+
+  /**
+   * TO COMPLETE
+   */
+  virtual wf_node_sched_t
+  schedule(const wf_response_t * response, 
+	   Node * n);
+
+  virtual double
+  getAFT(string nodeId);
 
 private:
 };
