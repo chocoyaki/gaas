@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2006/10/20 09:51:12  aamar
+ * Adding some workflow code error.
+ *
  * Revision 1.10  2006/08/30 11:56:13  ycaniou
  * Commit the changements on the API for batch/parallel submissions
  *
@@ -304,6 +307,14 @@ char *grpc_error_string(grpc_error_t error_code);
 #define GRPC_UNKNOWN_ERROR_CODE 14
 #define GRPC_ALREADY_INITIALIZED 15
 #define GRPC_LAST_ERROR_CODE 16 
+
+/****************************************************************************/
+/* Workflow error code                                                      */
+/****************************************************************************/
+#ifdef HAVE_WORKFLOW
+#define XML_MALFORMED 17
+#define SRV_MISS      18
+#endif
 
 /****************************************************************************/
 /* GridRPC Session code														*/
