@@ -205,12 +205,11 @@ ENDIF( DIET_USE_CORI )
 IF ( DIET_USE_WORKFLOW )
    INCLUDE_DIRECTORIES ( ${XERCES_INCLUDE_DIR} )
    ADD_LIBRARY ( DietWorkflow
-               Dag.cc BasicNode.cc Node.cc
-               WfReader.cc WfExtReader.cc Thread.cc WfUtils.cc
-               AbstractWfSched.cc SimpleWfSched.cc
+               WfPort.cc Node.cc Dag.cc
+               WfExtReader.cc 
+	       Thread.cc WfUtils.cc WfConfig.cc
+               AbstractWfSched.cc SimpleWfSched.cc HEFT_Sched.cc
                CltReoMan_impl.cc
-               HEFT_Sched.cc
-               WfConfig.cc
                )
    TARGET_LINK_LIBRARIES( DietWorkflow ${XERCES_LIBRARY} )
    INSTALL_TARGETS( /lib/ DietWorkflow )
