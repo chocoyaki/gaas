@@ -1,5 +1,5 @@
 /****************************************************************************/
-/* [Documentation Here!]                                                    */
+/* The MA DAG CORBA object implementation                                   */
 /*                                                                          */
 /* Author(s):                                                               */
 /* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2006/10/20 09:13:55  aamar
+ * Changing the submit_wf prototype (the return type)
+ * Add the following function to the MA DAG interface
+ *   - void setAsDone, setDagAsDone, registerClt
+ * Some changes.
+ *
  * Revision 1.2  2006/07/10 10:00:00  aamar
  * - Adding the function remainingDag to the MA DAG interface
  * - Round Robbin and HEFT scheduling
@@ -20,13 +26,14 @@
 #include <iostream>
 
 #include "MaDag_impl.hh"
-#include "WfReader.hh"
+//#include "WfReader.hh"
 #include "ORBMgr.hh"
 #include "debug.hh"
 #include "Parsers.hh"
 
 #include "RoundRobbin_MaDag_Sched.hh"
 #include "HEFT_MaDag_Sched.hh"
+#include "MultiWfFairness_Sched.hh"
 
 using namespace std;
 
@@ -42,43 +49,63 @@ MaDag_impl::MaDag_impl(const char * name) :
     MasterAgent::_duplicate(MasterAgent::_narrow(ORBMgr::getObjReference(ORBMgr::AGENT,
 							     parentName)));
   if (CORBA::is_nil(this->parent)) {
-    cout << "cannot locate the master agent " << parentName << endl;
+    cerr << "Cannot locate the master agent " << parentName << endl;
+    exit(1);
+  }
+
+  /* Bind the MA DAG to its name in the CORBA Naming Service */
+  if (ORBMgr::bindObjToName(_this(), ORBMgr::MA_DAG, this->myName.c_str())) {
+    cerr << "could not declare myself as " << this->myName << endl;
+    exit(1);
+  }
+  else {
+    TRACE_TEXT(TRACE_MAIN_STEPS, 
+	       "binding MA_DAG "<<this->myName<<" to naming service"<<endl);
   }
 
   TRACE_TEXT(TRACE_MAIN_STEPS,
 	     "\nMA DAG " << this->myName << " created.\n");
 
-  /* Bind the MA DAG to its name in the CORBA Naming Service */
-  if (ORBMgr::bindObjToName(_this(), ORBMgr::MA_DAG, this->myName.c_str())) {
-    cout << "could not declare myself as " << this->myName << endl;
-  }
-  else {
-    cout << "binding MA_DAG "<< this->myName << " to naming service" << endl;
-  }
-}
+  // set the parameters
+  this->multi_wf = false;
+  this->metaSched = NULL;
+} // end MA DAG constructor
 
 MaDag_impl::~MaDag_impl() {
   if (mySched != NULL)
     delete (mySched);
-}
+  if (metaSched != NULL) 
+    delete (metaSched);
+} // end MA DAG destructor
 
-/** Workflow submission function. */
-wf_node_sched_seq_t * 
+/** 
+ * Workflow submission function. 
+ */
+wf_sched_response_t * 
 MaDag_impl::submit_wf (const corba_wf_desc_t& wf_desc) {
-  wf_node_sched_seq_t * sched_seq = new wf_node_sched_seq_t;
-  sched_seq->length(0);
+  // MA DAG delivers odd dag id
+  static int dag_id = -1;
+  dag_id += 2;
+  this->myMutex.lock();
+  if (this->multi_wf) {
+    wf_sched_response_t * tmp = 
+      this->metaSched->submit_wf(wf_desc, dag_id, this->parent);
+    this->myMutex.unlock();
+    return tmp;
+  }
+  wf_sched_response_t * sched_resp = new wf_sched_response_t;
+  sched_resp->dag_id = dag_id;
+  sched_resp->wf_node_sched_seq.length(0);
   wf_response_t * wf_response = NULL; // new wf_response_t;
   //  wf_response-> complete = true;
   cout << "The MaDag receives a workflow submission!" <<endl;
 
   // read the workflow description
   // transform the description to a data structure
-  //
-  WfReader reader(wf_desc.abstract_wf);
+  WfExtReader reader(wf_desc.abstract_wf);
   reader.setup();
 
   // check the services
-  //
   unsigned int len = reader.pbs_list.size();
   corba_pb_desc_seq_t pbs_seq;
   pbs_seq.length(len);
@@ -87,52 +114,15 @@ MaDag_impl::submit_wf (const corba_wf_desc_t& wf_desc) {
   }
 
   cout << "send the problems sequence to the master agent ... " << endl;
-  wf_response = this->parent->submit_pb_set(pbs_seq);
+  wf_response = this->parent->submit_pb_set(pbs_seq, reader.getDagSize());
   cout << "... done" << endl;
 
-#if 0
-  corba_pb_desc_t  * pb_desc = NULL;
-  corba_response_t * corba_response = NULL;
-
-  reader.pbReset();
-  while (reader.hasPbNext()) {
-    pb_desc = reader.pbNext();
-    if (pb_desc != NULL) {
-      cout<<"pb path : "<< pb_desc->path << endl;
-      // TO COMPLETE
-      // submit to the MA
-      corba_response = this->parent->submit(*pb_desc, 16);
-      if (!corba_response || corba_response->servers.length() == 0) {
-	cout << "no server found for the service " <<
-	  pb_desc->path << endl;
-	wf_response->complete = false;
-	return wf_response;
-      }
-      else {
-	// .....
-	cout << corba_response->servers.length() << " were found for the pb "
-	     << pb_desc->path << endl;
-	// TO FIX (memory lack)
-	wf_node_response_t * wf_node_resp = new wf_node_response_t;
-	wf_node_resp->node_id = CORBA::string_dup(pb_desc->path);
-	wf_node_resp->response = *corba_response;
-	unsigned int len = wf_response->wfn_seq_resp.length();
-	wf_response->wfn_seq_resp.length(len+1);
-	wf_response->wfn_seq_resp[len] = *wf_node_resp;
-	delete (corba_response);
-      }
-    }
-    
-  }
-#endif // 0
-
-
   // construct the response/scheduling
-  //
 
   if ( ! wf_response->complete) {
-    cout << "The " << endl;
-    return sched_seq;
+    cout << "The response is incomplete" << endl;
+    this->myMutex.unlock();
+    return sched_resp;
   }
 
   // By default use the Round Robbin scheduler
@@ -140,41 +130,11 @@ MaDag_impl::submit_wf (const corba_wf_desc_t& wf_desc) {
     mySched = new RoundRobbin_MaDag_Sched();
   }
 
-  return mySched->schedule(wf_response, reader);
-  
-  /*
-  len = reader.pbs_list.size();
+  sched_resp->wf_node_sched_seq = mySched->schedule(wf_response, reader);
 
-  vector<int> rr;
-  unsigned int index;
+  this->myMutex.unlock();
 
-  for (unsigned int ix=0; ix<len; ix++) {
-    rr.push_back(0);
-  }
-
-  len = reader.nodes_list.size();  
-  sched_seq->length(len);
-  unsigned int ix = 0;
-  for (map<string, corba_pb_desc_t>::iterator p = reader.nodes_list.begin();
-       p != reader.nodes_list.end();
-       ++p) {
-    string nid = (string)(p->first);
-    (*sched_seq)[ix].node_id = 
-      CORBA::string_dup(nid.c_str());
-
-    index = reader.indexOfPb(reader.nodes_list[nid]);
-    // normally the pb index in pbs_list must be egal to the index in 
-    // the wf_response
-    (*sched_seq)[ix].server  = 
-      wf_response->wfn_seq_resp[index].response.servers[rr[index]];
-
-    rr[index] = 
-      (rr[index] + 1) % wf_response->wfn_seq_resp[index].response.servers.length();
-    ix++;
-  }
-  
-  return sched_seq;
-  */
+  return sched_resp;
 }
 
 /**
@@ -207,13 +167,96 @@ MaDag_impl::set_sched(const madag_sched_t madag_sched) {
     }
     mySched = new RoundRobbin_MaDag_Sched();
     break;
+
   case heft_sched:
     if (mySched != NULL) {
       delete (mySched);
     }
+    mySched = new HEFT_MaDag_Sched();
     break;
+
   default:
     break;
   } // end switch 
 }
 
+
+/**
+ * enable the multi-workflow support
+ * sched is by default set MWF_DEFAULT
+ */
+void
+MaDag_impl::enable_multi_wf(bool enable,
+			    const madag_mwf_sched_t sched) {
+  if (enable)
+    this->multi_wf = true;
+  else
+    return;
+
+  switch (sched) {
+  case MWF_FAIRNESS:
+    this->metaSched = new MultiWfFairness_Sched();
+    break;
+  case MWF_DEFAULT:
+    this->metaSched = new WfMetaSched();
+    break;
+  default:
+    this->metaSched = new WfMetaSched();
+  } // end switch
+}
+
+/*
+ * inform the MA DAG that node execution is done
+ */
+void 
+MaDag_impl::setAsDone(const char* dagId, const char* nodeId) {
+  if ( (this->multi_wf) &&
+       (this->metaSched != NULL) ) {
+    TRACE_TEXT(TRACE_MAIN_STEPS, 
+	       "The node " << nodeId << 
+	       " in the dag " << dagId << " is done" << endl);
+    this->metaSched->setNodeAsDone(dagId, nodeId);
+  }
+}
+
+/**
+ * inform the ma dag that the dag execution is complete
+ */
+void 
+MaDag_impl::setDagAsDone(const char * dag_id) {
+  if ( (this->multi_wf) &&
+       (this->metaSched != NULL) ) {
+    TRACE_TEXT(TRACE_MAIN_STEPS, 
+	       "Remove the dag " << dag_id << " from the clients table" << endl);
+    this->metaSched->removeClient(dag_id);
+  }
+}
+
+/*
+ * register a dag to the ma dag
+ */
+void
+MaDag_impl::registerClt(const char* dag_id, const char* client_ref) {
+  if (this->multi_wf == false)
+    cout << "this->multi_wf  == false" << endl;
+  if (this->metaSched == NULL)
+    cout << "this->metaSched == NULL" << endl;
+  if ( (this->multi_wf) &&
+       (this->metaSched != NULL) ) {
+    CORBA::Object_ptr obj = 
+      ORBMgr::stringToObject(client_ref);
+    if (obj == NULL) {
+      WARNING("The new client reference is not valid, this request is ignored");
+      return;
+    }
+    CltReoMan_var clt = CltReoMan::_narrow(obj);
+    if (clt == NULL) {
+      WARNING("Unable to get a client reference");
+      return;
+    }
+    // store the dag and the client ref in the meta scheduler table
+    TRACE_TEXT(TRACE_MAIN_STEPS, 
+	       "Registring a new dag client: "  << dag_id << endl);
+    this->metaSched->addClient(clt, dag_id);
+  }
+}
