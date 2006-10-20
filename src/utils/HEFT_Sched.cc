@@ -189,20 +189,19 @@ HEFT_WfSched::execute() {
   gettimeofday(&tv, NULL);
   myDag->setTheBeginning(tv);
 
+  CORBA::Long reqID = response->firstReqID;
   while (true) {
     // get the ready nodes
     vector <Node*> readyNodes = myDag->getReadyNodes();
     unsigned len = readyNodes.size();
     for (uint ix=0; ix<len; ix++) {
       n = readyNodes[ix];
-      n->start();
+      n->start(reqID++);
     }
 
-    if (this->myCltReoMan == NULL) {
-      cout << "---- DAG : myCltReoMan == NULL" << endl;
-    }
-
-    if ((this->myCltReoMan != NULL) && (!myDag->checkScheduling())) {
+    if ((this->myCltReoMan != NULL) && 
+	(this->myCltReoMan->isEnabled()) &&
+	(!myDag->checkScheduling())) {
       cout << "the scheduling is incorrect" << endl << 
 	"try to reschedule" << endl;
       this->myCltReoMan->reSchedule();
