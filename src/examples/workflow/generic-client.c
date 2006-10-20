@@ -6,8 +6,8 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/* $@Id$
- * $@Log$
+/* $Id : $
+ * $Log : $
  ****************************************************************************/
 #include <string.h>
 #include <unistd.h>
@@ -60,7 +60,7 @@ main(int argc, char* argv[])
 
   /*  set_heft_sched(); */
 
-  enable_reordering("client1", 0);
+  enable_reordering("generic-client", 0);
   /*  set_reordering_delta(10, 1); */
   
 
