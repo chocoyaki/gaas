@@ -55,10 +55,6 @@ int main(int argc, char * argv[]){
     cout << "MA_DAG type" << endl;
   }
 
-  /*
-  char * MA_name = (char*)
-    Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
-  */
 
   if (ORBMgr::init(argc, argv)) {
     ERROR("ORB initialization failed", 1);
@@ -66,6 +62,16 @@ int main(int argc, char * argv[]){
 
   MaDag_impl * maDag_impl = new MaDag_impl(name);
   ORBMgr::activate((MaDag_impl*)maDag_impl);
+
+  // enable or not the multi-workflow support
+  if ((argc >= 3)  && (!strcmp(argv[2], "--enable-multiwf")))
+    maDag_impl->enable_multi_wf(true);
+
+  if ((argc >= 4)  && (!strcmp(argv[2], "--enable-multiwf"))) {
+    if (!strcmp(argv[3], "--fairness")) {
+      maDag_impl->enable_multi_wf(true, MWF_FAIRNESS);
+    }
+  }
 
   /* Wait for RPCs (blocking call): */
   if (ORBMgr::wait()) {
