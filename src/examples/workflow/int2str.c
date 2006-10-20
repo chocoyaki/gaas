@@ -1,5 +1,5 @@
 /****************************************************************************/
-/* Workflow example : a server computing the double (x2) of an integer      */
+/* Workflow example : a server that convert an integer to a string          */
 /*                                                                          */
 /* Author(s):                                                               */
 /* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
@@ -33,7 +33,9 @@ performance_Exec_Time(diet_profile_t* pb ,estVector_t perfValues )
 void 
 set_up_scheduler(diet_profile_desc_t* profile){ 
   diet_aggregator_desc_t *agg = NULL;
+
   agg = diet_profile_desc_aggregator(profile);
+
   diet_estimate_cori_add_collector(EST_COLL_EASY,NULL);
   diet_service_use_perfmetric(performance_Exec_Time);
   diet_aggregator_set_type(agg, DIET_AGG_PRIORITY); 
@@ -41,19 +43,19 @@ set_up_scheduler(diet_profile_desc_t* profile){
 }
 
 int
-double_int(diet_profile_t* pb)
+int2str(diet_profile_t* pb)
 {
-  int * ix = NULL;
-  int * jx = NULL;
+  char * str = NULL;
+  int  * len = NULL;
 
-  fprintf(stderr, "DOUBLE SOLVING\n");
+  fprintf(stderr, "STRLEN SOLVING\n");
 
-  diet_scalar_get(diet_parameter(pb,0), &ix, NULL);
-  diet_scalar_get(diet_parameter(pb,0), &jx, NULL);
-  fprintf(stderr, "i = %d\n", *(int*)ix);
-  *(int*)jx = *(int*)ix * 2;
-  fprintf(stderr, "j = 2i = %d\n", *(int*)jx);
-  diet_scalar_desc_set(diet_parameter(pb,1), jx);
+  diet_scalar_get(diet_parameter(pb,0), &len, NULL);
+  diet_string_get(diet_parameter(pb,1), &str, NULL);
+  sprintf(str, "%d", *len);
+  fprintf(stderr, "itoa(%d) = %s\n", *len, str);
+
+  diet_string_set(diet_parameter(pb,1), str, DIET_PERSISTENT);
 
   usleep(t*500000);
 
@@ -72,13 +74,13 @@ int main(int argc, char * argv[]) {
   }
 
   diet_service_table_init(1);
-  profile = diet_profile_desc_alloc("double", 0, 0, 1);
+  profile = diet_profile_desc_alloc("int2str", 0, 0, 1);
   diet_generic_desc_set(diet_param_desc(profile,0), DIET_SCALAR, DIET_INT);
-  diet_generic_desc_set(diet_param_desc(profile,1), DIET_SCALAR, DIET_INT);
+  diet_generic_desc_set(diet_param_desc(profile,1), DIET_STRING, DIET_CHAR);
 
-  set_up_scheduler(profile);
+  set_up_scheduler(profile );
 
-  if (diet_service_table_add(profile, NULL, double_int)) return 1;
+  if (diet_service_table_add(profile, NULL, int2str)) return 1;
 
   diet_profile_desc_free(profile);
   diet_print_service_table();
