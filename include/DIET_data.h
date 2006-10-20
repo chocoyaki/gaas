@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.45  2006/10/20 09:51:47  aamar
+ * Add the function get_all_results to the API (workflow).
+ *
  * Revision 1.44  2006/08/30 11:56:13  ycaniou
  * Commit the changements on the API for batch/parallel submissions
  *
@@ -641,6 +644,8 @@ _diet_wf_scalar_get(const char * id,
 int 
 _diet_wf_string_get(const char * id, 
 		    char** value);
+
+void get_all_results();
 
 #endif /* HAVE_WORKFLOW */
 
