@@ -1,5 +1,7 @@
 /****************************************************************************/
-/* Extended Node description                                                */
+/* Node description class                                                   */
+/* This class includes the diet profile, the i/o ports and the execution    */
+/* object                                                                   */
 /*                                                                          */
 /* Author(s):                                                               */
 /* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
@@ -8,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2006/10/20 08:42:14  aamar
+ * Merging the base class BasicNode in Node class.
+ * Adding some functions.
+ * Correcting some bugs.
+ *
  * Revision 1.3  2006/07/21 09:29:22  eboix
  *  - Added the first brick for test suite [disabled right now].
  *  - Doxygen related cosmetic changes.  --- Injay2461
@@ -40,35 +47,50 @@
 #include "DIET_client.h"
 #include "SeD.hh"
 #include "common_types.hh"
+
 // workflow related headers
-#include "BasicNode.hh"
 #include "Thread.hh"
 #include "WfUtils.hh"
-
+#include "WfPort.hh"
 
 using namespace std;
 
 class Node;
 class Dag;
 
-
 /**
- * This class is responible of node execution *
+ * The RunnableNode class is used for node execution *
  */
 class RunnableNode : public Thread {
 public:
-  RunnableNode(Node * parent);
+  /**
+   * The default constructor
+   * @param parent The node reference
+   * @param reqID  The request Id
+   */
+  RunnableNode(Node * parent,
+	       diet_reqID_t reqID);
 private:
+  /**
+   * Node reference
+   */
   Node * myParent;
 
   /**
-   * Node execution methods *
+   * Request ID
+   */
+  diet_reqID_t myReqID;
+
+  /**
+   * Node execution method *
+   * Allocates the profile and executes the call to the SeD *
    */
   void * 
   run();
+
 };
 
-class Node : public BasicNode {
+class Node  {
   /*******************************/
   /* friend classes              */
   friend class RunnableNode;
@@ -77,242 +99,131 @@ class Node : public BasicNode {
   friend class AbstractWfSched;
   /*******************************/
 
-  /*******************************/
-  /* class declarations          */
-  /*******************************/
-  class AbstractInP;
-  class AbstractOutP;
-
-
-  /**
-   * Input port interface *
-   */
-  class AbstractInP {
-  public:
-    virtual 
-    ~AbstractInP() {
-    }
-    virtual void
-    set_source(AbstractOutP * p) = 0;
-    
-    virtual void 
-    set_source(const string& id) = 0;
-  };
-
-  /**
-   * Output port interface *
-   */
-  class AbstractOutP {
-  public:
-    virtual 
-    ~AbstractOutP() {
-    }
-
-    virtual void
-    set_sink(AbstractInP * p) = 0;
-
-    virtual void
-    set_sink(const string& id) = 0;
-  };
-
-  /**
-   * Basic Port *
-   */
-  class WfPort {
-  public:
-    WfPort(Node * parent, string _id, string _type, uint _ind, 
-	   const string& v = "") : 
-      myParent(parent), id(_id),type(_type), index(_ind),value(v) {
-      this->nb_r = 0;
-      this->nb_c = 0;
-    }
-    Node * myParent;
-    string id;
-    string type;
-    unsigned int index;
-    string value;
-    // for matrix parameter
-    long nb_r, nb_c;
-    diet_matrix_order_t order;
-    diet_base_type_t base_type;
-    void setMatParams(long nbr, long nbc, 
-		      diet_matrix_order_t o,
-		     diet_base_type_t bt) {
-      this->nb_r = nbr;
-      this->nb_c = nbc;
-      this->order = o;
-      this->base_type = bt;
-    }
-
-    diet_profile_t * 
-    profile() {
-      return myParent->profile;
-    }
-
-    /**
-     * return an XML  representation of the port *
-     */
-    string 
-    toXML() {
-      string xml = "";
-      xml += "id=\"" + this->id + "\" type=\"" + this->type +"\" ";
-      if (this->type == "DIET_MATRIX") {
-	/*
-	  base_type  = element.attribute("base_type");
-	  nb_rows  = element.attribute("nb_rows");
-	  nb_cols  = element.attribute("nb_cols");
-	  matrix_order  = element.attribute("matrix_order");
-	*/
-	xml += "base_type=\""+getBaseTypeStr(this->base_type)+"\" ";
-	xml += "nb_rows=\"" + itoa(this->nb_r)+"\" ";
-	xml += "nb_cols=\"" + itoa(this->nb_c)+"\" ";
-	xml += "matrix_order=\"" + getMatrixOrderStr(this->order) + "\" ";
-      }
-      return xml;
-    }
-
-  };
-
-  /**
-   * Output port class *
-   */
-  class WfOutPort : public WfPort, 
-		    public AbstractOutP {
-  public:
-    WfOutPort(Node * parent, string _id, string _type, uint _ind,
-	      const string& v) :
-      WfPort(parent, _id, _type, _ind, v) {
-      sink_port = NULL;
-    }
-    AbstractInP *sink_port;
-    string       sink_port_id;
-    
-    void 
-    set_sink(AbstractInP * _sink_port) {
-      this->sink_port = _sink_port;
-    }
-    
-    void 
-    set_sink(const string& s) {
-      this->sink_port_id = s;
-    }
-    
-    /**
-     * return if the output port is a final output port (workflow result) *
-     */
-    bool
-    isResult() {
-      return (sink_port == NULL);
-    }
-
-    /**
-     * return an XML  representation of the output port *
-     */
-    string 
-    toXML() {
-      string xml = "\t<out ";
-      xml += WfPort::toXML();
-      if (this->sink_port != NULL)
-	xml += "sink=\""+sink_port_id+"\"";
-      
-      xml += " />\n";
-      return xml;
-    }
-  };
-
-  /**
-   * Input port class *
-   */
-  class WfInPort : public WfPort,
-		   public AbstractInP {
-  public:
-    WfInPort(Node * parent, string _id, string _type, uint _ind,
-	     const string& v) :
-      WfPort(parent, _id, _type, _ind, v) {
-      source_port = NULL;
-    }
-    AbstractOutP * source_port;
-    string         source_port_id;
-
-    void
-    set_source(AbstractOutP * _src) {
-      this->source_port = _src;
-    }
-
-    void
-    set_source(const string& s) {
-      this->source_port_id = s;
-    }
-    
-    bool isInput() {
-      return (source_port == NULL);
-    }
-
-    /**
-     * return an XML  representation of the input port *
-     * if b = false the source port is not included. used to create the
-     * remaining DAG representation
-     */
-    string 
-    toXML(bool b=false) {
-      string xml = "";
-      if (value != "")
-	xml = "\t<arg ";
-      else
-	xml ="\t<in ";
-      xml += WfPort::toXML();
-      if (value != "")
-	xml += "value=\"" + this->value + "\" "; 
-      if ((b) && (this->source_port != NULL))
-	xml += "source=\""+source_port_id+"\"";
-      
-      xml += " />\n";
-      return xml;
-    }
-  };
-
-  /**
-   * Input/Output port class *
-   */
-  class WfInOutPort : public WfPort, AbstractInP, AbstractOutP {
-  public:
-    WfInOutPort(Node * parent, string _id, string _type, uint _ind,
-		const string& v) :
-      WfPort(parent, _id, _type, _ind, v) {
-    }
-    AbstractOutP * source_port;
-    string source_port_id;
-    AbstractInP  * sink_port;
-    string sink_port_id;
-
-    void
-    set_source(AbstractOutP * _src) {
-      this->source_port = _src;
-    }
-    void
-    set_source(const string& s) {
-      this->source_port_id = s;
-    }
-    void
-    set_sink(AbstractInP * _sink) {
-      this->sink_port = _sink;
-    }
-    void
-    set_sink(const string& s) {
-      this->sink_port_id = s;
-    }
-  };
-
 public:
   /*********************************************************************/
   /* public methods                                                    */
   /*********************************************************************/
+
+  /** 
+   * The Node default constructor
+   * @param id         the node id
+   * @param pb_name    the node service name
+   * @param last_in    last input parameter in diet profile
+   * @param last_inout last inout parameter in diet profile
+   * @param last_out   last out parameter in diet profile
+   */
   Node(string id, string pb_name,
        int last_in, int last_inout, int last_out);
-  ~Node();
 
   /**
-   * display the textual representation of a node *
+   * Node destructor
+   */
+  virtual ~Node();
+
+  /**
+   * add a new previous node id *
+   * @param id previous node id
+   */
+  void 
+  addPrecId(string id);
+  
+  /**
+   * add a new previous node id and reference *
+   * @param s previous node id
+   * @param n previous node reference
+   */
+  void
+  addPrec(string id, Node * n);
+
+  /**
+   * To get the node id *
+   */
+  string
+  getId();
+
+  /**
+   * To get the node pb *
+   */
+  string
+  getPb();
+  
+  /**
+   * Return a string representation of the node *
+   */
+  string
+  toStringBasis();
+
+  /**
+   * Return the number of the previous nodes *
+   */  
+  unsigned int 
+  prec_ids_nb();
+  
+  /**
+   * Get the previous node id by index *
+   * @param n the requested previous node index
+   */
+  string 
+  getPrecId(unsigned int n);
+
+  /**
+   * Add a next node reference *
+   * @param n the next node reference
+   */
+  void
+  addNext(Node * n);
+
+  /**
+   * Called when a previous node execution is done *
+   */
+  void
+  prevDone();
+
+  /**
+   * add a new previous node *
+   * This function change only the number of previous node *
+   */
+  void
+  addPrevNode();
+  
+  /**
+   * Add <n> new previous nodes *
+   */
+  void
+  addPrevNode(int n);
+
+  /**
+   * set the node tag value *
+   * see the myTag attribute *
+   * @param t the tag value
+   */
+  void 
+  setTag(unsigned int t);
+
+  /**
+   * return true if the node is an input node *
+   * only the nodes with no previous node are considered as dag input  * 
+   */
+  bool
+  isAnInput();
+
+  /**
+   * return true if the node is an input node *
+   * only the nodes with no next node are considered as dag exit  * 
+   */
+  bool
+  isAnExit();
+
+  /**
+   * Set the node ID
+   * @param id the new id
+   */
+  void 
+  setId(string id);
+
+
+  /**
+   * display the textual representation of a node  *
    */
   string
   toString();
@@ -327,15 +238,17 @@ public:
 
   /**
    * set the node profile
+   * @param profile the new diet profile
    */
   void
   set_pb_desc(diet_profile_t* profile);
 
   /**
    * start the node execution * 
+   * @param reqUD request id if set by the client manually
    */
   void
-  start();
+  start(diet_reqID_t reqID = -1);
 
   /******************************/
   /* data allocation methods    */
@@ -343,47 +256,62 @@ public:
 
   /**
    * Allocate a new char *
+   * @param value the parameter value as a string
    */
   char *  
-  newChar  (const string value = " ");
+  newChar  (const string value = "");
   /**
    * Allocate a new short *
+   * @param value the parameter value as a string
    */
   short * 
-  newShort (const string value = "0");
+  newShort (const string value = "");
 
   /**
    * Allocate a new int  *
+   * @param value the parameter value as a string
    */
   int *   
-  newInt   (const string value = "0");
+  newInt   (const string value = "");
 
   /**
    * Allocate a new long *
+   * @param value the parameter value as a string
    */
   long *  
-  newLong  (const string value = "0");
+  newLong  (const string value = "");
 
   /**
    * Allocate a new string *
+   * @param value the parameter value as a string
    */
   char * 
-  newString (const string value = "0");
+  newString (const string value = "");
 
   /**
    * Allocate a new float  *
+   * @param value the parameter value as a string
    */
   float *   
-  newFloat  (const string value = "0");
+  newFloat  (const string value = "");
 
   /**
    * Allocate a new double  *
+   * @param value the parameter value as a string
    */
   double *   
-  newDouble (const string value = "0");
+  newDouble (const string value = "");
+
+  /**
+   * Allocate a new filename  *
+   * @param value the parameter value as a string
+   */
+  char *   
+  newFile   (const string value = "");
 
   /**
    * set the node priority *
+   * @param priority the new priority of the node
    */
   void
   setPriority(double priority);
@@ -395,46 +323,61 @@ public:
   getPriority();
 
   /**
-   * get if the node is ready for execution *
+   * Return true if the node is ready for execution, false otherwise
    */
   bool
   isReady();
 
   /**
    * Link input port to output port by id and setting references link *
+   * @param in  the input port identifier
+   * @param out the output port identifier
    */
   virtual void
   link_i2o(const string in, const string out);
   
   /**
    * Link output port to input port by id and setting references link *
+   * @param out the output port identifier
+   * @param in  the input port identifier
    */
   virtual void
   link_o2i(const string out, const string in);
   
   /**
    * Link inoutput port to input port by id and setting references link *
+   * @param io  the inout port identifier
+   * @param in  the input port identifier
    */
   virtual void
   link_io2i(const string io, const string in);
   
   /**
    * Link inoutput port to output port by id and setting references link *
+   * @param io  the inout port identifier
+   * @param out the output port identifier
    */
   virtual void
   link_io2o(const string io, const string out);
 
   /**
    * create and add a new port to the node *
+   * @param id        the port identifier
+   * @param ind       the port index in diet profile
+   * @param type      the port type (in, out, inout)
+   * @param diet_type the diet data type as a string
+   * @param v         the parameter value
    */
   WfPort *
   newPort(string id, uint ind, wf_port_t type, string diet_type,
 	       const string& v = string(""));
  
   /**
-   * set the SeD reference to the node *
+   * set the SeD reference  associated to the Node
+   * @param sed the SeD reference
    */
-  void setSeD(const SeD_var& sed);
+  void 
+  setSeD(const SeD_var& sed);
 
   /**
    * return the number of next nodes
@@ -443,9 +386,10 @@ public:
   nextNb();
 
   /**
-   * return  next node 
+   * return  next node with index n
+   * @param n the next node index
    */
-  BasicNode *
+  Node *
   getNext(unsigned int n);
 
   /**
@@ -457,7 +401,7 @@ public:
   /**
    * return  next node 
    */
-  BasicNode *
+  Node *
   getPrev(unsigned int n);
 
   /**
@@ -486,27 +430,84 @@ public:
 
   /**
    * get the node mark (used for reordering)
+   * if the node mark is false i.e the node was executed within the 
+   * predicted time (+delta)
+   * otherwise the mark is true
    */
   bool
   getMark();
 
   /**
-   * set the node mark 
+   * Set the node mark 
+   * @param b the new node mark (true if execution time greater than
+   * prediction + delta
    */
   void 
   setMark(bool b);
 
   /**
-   * test if the node is running *
+   * Test if the node is running *
    */
   bool
   isRunning();
   
   /**
-   * test if the execution is done *
+   * Test if the execution is done *
    */
   bool
   isDone();
+
+  /**
+   * Return the node profile
+   */
+  diet_profile_t * 
+  getProfile();
+
+protected:
+  /*********************************************************************/
+  /* protected fields                                                  */
+  /*********************************************************************/
+
+  /**
+   * Node id *
+   */
+  string myId;
+
+  /**
+   * Node problem
+   */
+  string myPb;
+
+  /**
+   * the previous nodes ids *
+   */
+  vector<string> prec_ids;
+
+  /**
+   * The previous nods map<id, reference> * 
+   */
+  map <string, Node*>  prec;
+
+  /**
+   * The following nodes reference vector *
+   */
+  vector<Node *> next;
+
+  /**
+   * the number of previous nodes not finished (negative) *
+   */
+  int prevNodes;
+  
+  /**
+   * indicate if the task is done *
+   */
+  bool task_done;
+
+  /**
+   * Node tag*
+   * indicates its level in the Dag *
+   */
+  unsigned int myTag;
 
 private:
   /*********************************************************************/
@@ -532,7 +533,7 @@ private:
   vector<char *>  stringParams;
   vector<float*>  floatParams;
   vector<double*> doubleParams;
-  //  vector<void *>  matrixParams;
+  vector<char*>   fileParams;
   /*************************/
 
   /**
@@ -598,19 +599,26 @@ private:
 
   
   /**
-   * Get the input port references by id *
+   * Get the input port references by id. If not found returns NULL
+   *
+   * @param id the input port id
    */
   WfInPort*    
   getInPort(string id);
 
   /**
-   * Get the output port reference by id *
+   * Get the output port reference by id. If the output port is not found 
+   * the function returns NULL
+   *
+   * @param id the requested output port id
    */
   WfOutPort*   
   getOutPort(string id);
 
   /**
-   * Get the input/output port reference by id *
+   * Get the input/output port reference by id. If not found return NULL
+   *
+   * @param id the requested inout port id
    */
   WfInOutPort* 
   getInOutPort(string id);
@@ -627,7 +635,7 @@ private:
    * @param type    parameter data type * 
    * @param lastArg parameter index *
    * @param value   string representation of parameter value *
-   * @param mode    Undocumented * 
+   * @param mode    The persistent mode * 
    */
   void
   set_profile_param(WfPort * port, 
