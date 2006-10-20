@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2006/10/20 09:52:27  aamar
+ * *** empty log message ***
+ *
  * Revision 1.28  2006/09/21 09:11:31  ycaniou
  * Preliminary change in cmake to handle a BATCH variable
  *
@@ -271,7 +274,7 @@ void
 set_madag_sched(int b);
 /*****************************************/
 /* enable/disable the reordering         */
-/* reordering enablef (b = true)         */
+/* reordering enabled (b = true)         */
 /* reordering disabled (b = false)       */
 /*****************************************/
 void
