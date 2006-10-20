@@ -8,6 +8,15 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2006/10/20 08:40:02  aamar
+ * Adding the following functions to the class:
+ *    - isEnabled(); setEnable; and getRef
+ * Implement the new (modified) function getRemainingDag
+ *
+ * Adding the following function to DAG class
+ *   - getNodes; getId; setId; getInputNodes; getOutputNodes();
+ *   getAllProfiles(); setAsTemp; getEstMakespan();
+ *
  * Revision 1.2  2006/07/10 11:08:12  aamar
  * - Adding the toXML function that return the DAG XML
  * representation
@@ -19,24 +28,30 @@
  ****************************************************************************/
 
 #include "Dag.hh"
+#include "WfExtReader.hh"
 
+using namespace std;
 
 Dag::Dag() {
-  this->current_node = NULL;
-  this->nbSec = 5;
+  this->current_node = this->nodes.end();
+  this->myId    = "";
+  this->nbSec   = 5;
   this->nbNodes = 1;
+  this->tmpDag  = false;
 }
 
 Dag::~Dag() {
-  Node * node = NULL;
-  for (map<string, Node * >::iterator p = nodes.begin( ); p != nodes.end( ); 
-       ++p ) { 
-    node = (Node*) p->second;
-    // TO FIX
-    nodes.erase(p);
-    delete(node);
+  if (! this->tmpDag) {
+    Node * node = NULL;
+    for (map<string, Node * >::iterator p = nodes.begin( ); 
+	 p != nodes.end( ); 
+	 ++p ) { 
+      node = (Node*) p->second;
+      nodes.erase(p);
+      delete(node);
+    }
+    nodes.clear();
   }
-  nodes.clear();
 }
 
 /**
@@ -77,13 +92,13 @@ Dag::checkPrec() {
        ++p ) { 
     node = (Node*) p->second;
 
-    for (map<string, Node::WfInPort*>::iterator p = node->inports.begin();
+    for (map<string, WfInPort*>::iterator p = node->inports.begin();
 	 p != node->inports.end();
 	 ++p) {
       // get the port ref
-      Node::WfInPort * in = (Node::WfInPort*)(p->second);
+      WfInPort * in = (WfInPort*)(p->second);
       // get the linked port id (source id)
-      string lp_id = in->source_port_id;
+      string lp_id = in->getSourceId();
       if (lp_id == "")
 	continue;
       
@@ -102,7 +117,7 @@ Dag::checkPrec() {
       }
     } // end for in
 
-    for (map<string, Node::WfInOutPort*>::iterator p = node->inoutports.begin();
+    for (map<string, WfInOutPort*>::iterator p = node->inoutports.begin();
 	 p != node->inoutports.end();
 	 ++p) {
     } // end for inout
@@ -158,9 +173,6 @@ Dag::toXML(bool b) {
   return xml;
 }
 
-/*********************************************************************/
-/* the size, begin end end methods are only for testing & debugging  */
-/*********************************************************************/
 /**
  * return the size of the Dag (the nodes number)
  */
@@ -172,18 +184,18 @@ Dag::size() {
 
 /**
  * return an iterator on the first node *
- * (according to the std::map and not to the dag structure) *
+ * (according to the map and not to the dag structure) *
  */
-std::map <std::string, Node *>::iterator
+map <string, Node *>::iterator
 Dag::begin() {
   return nodes.begin();
 }
 
 /**
  * return an iterator on the last node *
- * (according to the std::map and not to the dag structure) *
+ * (according to the map and not to the dag structure) *
  */
-std::map <std::string, Node *>::iterator
+map <string, Node *>::iterator
 Dag::end() {
  return nodes.end();
 }
@@ -210,16 +222,16 @@ void
 Dag::linkNodePorts(Node * n) {
   cout << "linkNodePorts : processing node " << n->getId() << endl;
   // link Input ports with output ports
-  for (map<string, Node::WfInPort*>::iterator p = n->inports.begin();
+  for (map<string, WfInPort*>::iterator p = n->inports.begin();
        p != n->inports.end();
        ++p) {
     // get the port ref
-    Node::WfInPort * in = (Node::WfInPort*)(p->second);
+    WfInPort * in = (WfInPort*)(p->second);
     if (in != NULL)
-      cout << "in found" << in->id << endl;
-    string node_name = in->id.substr(0, in->id.find("#"));
+      cout << "in found " << in->getId() << endl;
+    string node_name = in->getId().substr(0, in->getId().find("#"));
     // get the linked port id
-    string lp_id = in->source_port_id;
+    string lp_id = in->getSourceId();
     if (lp_id == "")
       continue;
 
@@ -241,25 +253,26 @@ Dag::linkNodePorts(Node * n) {
 	node_name << endl;
     }
     // get outpur port
-    Node::WfOutPort * out = ln->getOutPort(linkedNode_name + "#" + lp_id); 
+    WfOutPort * out = ln->getOutPort(linkedNode_name + "#" + lp_id); 
 
     // link the input port to the outport
-    cout << "linking the input port " << in->id << " to the output port " <<
-      out->id << endl;
+    cout << "linking the input port " << in->getId() << 
+      " to the output port " <<
+      out->getId() << endl;
     in->set_source(out);
   }
 
   // link output ports with input ports
-  for (map<string, Node::WfOutPort*>::iterator p = n->outports.begin();
+  for (map<string, WfOutPort*>::iterator p = n->outports.begin();
        p != n->outports.end();
        ++p) {
     // get the port ref
-    Node::WfOutPort * out = (Node::WfOutPort*)(p->second);
+    WfOutPort * out = (WfOutPort*)(p->second);
     if (out != NULL)
-      cout << "Out found " << out->id << endl;
-    string node_name = out->id.substr(0, out->id.find("#"));
+      cout << "Out found " << out->getId() << endl;
+    string node_name = out->getId().substr(0, out->getId().find("#"));
     // get the linked port id
-    string lp_id = out->sink_port_id;
+    string lp_id = out->getSinkId();
     if (lp_id == "")
       continue;
 
@@ -281,11 +294,11 @@ Dag::linkNodePorts(Node * n) {
 	node_name << endl;
     }
     // get outpur port
-    Node::WfInPort * in = ln->getInPort(linkedNode_name + "#" + lp_id); 
+    WfInPort * in = ln->getInPort(linkedNode_name + "#" + lp_id); 
 
     // link the input port to the outport
-    cout << "linking the output port " << out->id << " to the input port " <<
-      in->id << endl;
+    cout << "linking the output port " << out->getId() << " to the input port " <<
+      in->getId() << endl;
     out->set_sink(in);
   }    
   // link inout ports with ... <TO DO>
@@ -305,7 +318,7 @@ vector<Node *>
 Dag::getReadyNodes() {
   vector<Node *> rn;
   //  cout << "total nodes : " << nodes.size() << " nodes" << endl;
-  for (map <std::string, Node *>::iterator p = nodes.begin();
+  for (map <string, Node *>::iterator p = nodes.begin();
        p != nodes.end();
        ++p) {
     Node * n = (Node *)p->second;
@@ -349,7 +362,7 @@ Dag::setSchedResponse(wf_node_sched_seq_t * response) {
        ix < response->length(); 
        ix++) {
     string nid((*response)[ix].node_id);
-    map <std::string, Node *>::iterator p = 
+    map <string, Node *>::iterator p = 
       nodes.find(nid);
     if (p != nodes.end()) {
       cout << "the nodes " << ((Node*)(p->second))->getId() << 
@@ -373,15 +386,15 @@ Dag::get_scalar_output(const char * id,
        ++p) {
     n = (Node *)(p->second);
     if (n != NULL) {
-      map<string, Node::WfOutPort*>::iterator outp_iter =
+      map<string, WfOutPort*>::iterator outp_iter =
 	n->outports.find(id);
       if (outp_iter != n->outports.end()) {
 	cout << "\t" << "found an output port with the id " << id << endl;
-	Node::WfOutPort * outp = (Node::WfOutPort *)(outp_iter->second);
+	WfOutPort * outp = (WfOutPort *)(outp_iter->second);
 	if (outp->isResult()) {
 	    cout << "\t" << "return the result" << endl;
 	  //       diet_scalar_get(diet_parameter(profile,2), &pl3, NULL);
-	  return diet_scalar_get(diet_parameter(outp->profile(),outp->index), 
+	  return diet_scalar_get(diet_parameter(outp->profile(),outp->getIndex()), 
 				 value, NULL);
 	}
       }
@@ -402,15 +415,15 @@ Dag::get_string_output(const char * id,
   map<string, Node *>::iterator p = nodes.find(node_id);
   if (p!= nodes.end()) {
     Node * n = (Node *)(p->second);
-      map<string, Node::WfOutPort*>::iterator outp_iter =
+      map<string, WfOutPort*>::iterator outp_iter =
 	n->outports.find(port_id);
       if (outp_iter != n->outports.end()) {
 	cout << "######## found an output port with the id " << id << endl;
-	Node::WfOutPort * outp = (Node::WfOutPort *)(outp_iter->second);
+	WfOutPort * outp = (WfOutPort *)(outp_iter->second);
 	if (outp->isResult()) {
 	  cout << "######## return the result" << endl;
 	  //       diet_scalar_get(diet_parameter(profile,2), &pl3, NULL);
-	  return diet_string_get(diet_parameter(outp->profile(),outp->index), 
+	  return diet_string_get(diet_parameter(outp->profile(),outp->getIndex()), 
 				 value, NULL);
 	}
       }
@@ -515,5 +528,194 @@ Dag::setTheBeginning(struct timeval tv) {
 void
 Dag::moveToTrash(Node * n) {
   trash.push_back(n);
-  nodes.erase(n->getId());
+  if (nodes.find(n->getId())  == nodes.end()) {
+    // The node complete id begin with dag id while the nodes map uses
+    // the simple id of the nodes
+    string id = n->getId();
+    if ( this->myId == (id.substr(0, id.find("-"))) ) {
+      cout << "*********************** ERASING THE NODE " << id << endl;
+      nodes.erase(id.substr(id.find("-")+1));
+    }
+    else {
+      // a priori not used
+      cout << "$$$$$$$$$$$$$$$$$$$$$$$ ERASING THE NODE " << n->getId() << endl;
+      nodes.erase(n->getId());
+    }
+  }
+  else {
+    cout << "####################### The node " << 
+      n->getId() << " was not found!!!" << endl;
+  }
 }
+
+/**
+ * get the dag nodes as a vector of node reference
+ */
+vector<Node*> 
+Dag::getNodes() {
+  vector<Node*> v;
+  Node * node = NULL;
+  for (map<string, Node * >::iterator p = nodes.begin( ); p != nodes.end( ); 
+       ++p ) { 
+    node = (Node*) p->second;
+    if (node != NULL)
+      v.push_back(node);
+  }
+  return v;
+}
+
+/**
+ * get all the results
+ */
+int 
+Dag::get_all_results() {
+  Node * n = NULL;
+  for (map<string, Node *>::iterator p = nodes.begin();
+       p != nodes.end();
+       ++p) {
+    n = (Node *)(p->second);
+    if (n != NULL) {
+      for (map<string, WfOutPort*>::iterator outp_iter = n->outports.begin();
+	   outp_iter != n->outports.end();
+	   outp_iter++) {
+	WfOutPort * outp = (WfOutPort *)(outp_iter->second);
+	if (outp->isResult()) {
+	  if (outp->profile()->parameters[outp->getIndex()].desc.generic.type == DIET_SCALAR) {
+	    long * value;
+	    diet_scalar_get(diet_parameter(outp->profile(),outp->getIndex()), 
+			    &value, NULL);
+	    cout << outp->getId() << " = " << *value << endl;
+	  }
+	} // if isResult
+      } // end for outports
+    } // end if n != NULL
+  } // end for p
+
+  return 0;
+}
+
+/**
+ * get the dag id
+ */
+string
+Dag::getId() {
+  return this->myId;
+}
+
+/**
+ * set the dag id
+ */
+void
+Dag::setId(const string id) {
+  this->myId = id;
+}
+
+/**
+ * get the input nodes
+ */
+vector<Node *>
+Dag::getInputNodes() {
+  vector<Node *> v;
+  Node * node = NULL;
+  for (map<string, Node *>::iterator p = this->nodes.begin();
+       p != this->nodes.end();
+       p++) {
+    node = (Node *)(p->second);
+    if ((node != NULL) && (node->isAnInput()))
+      v.push_back(node);
+  }
+  return v;
+} // end getInputNodes
+
+/**
+ * get the output nodes
+ */
+vector<Node *>
+Dag::getOutputNodes() {
+  vector<Node *> v;
+  Node * node = NULL;
+  for (map<string, Node *>::iterator p = this->nodes.begin();
+       p != this->nodes.end();
+       p++) {
+    node = (Node *)(p->second);
+    if ((node != NULL) && (node->isAnExit()))
+      v.push_back(node);
+  }
+  return v;
+}
+
+/**
+ * get all profiles in the dag
+ */
+
+vector<diet_profile_t *>
+Dag::getAllProfiles() {
+  vector<diet_profile_t*> v;
+  Node * n = NULL;
+  diet_profile_t * profile = NULL;
+  bool found = false;
+
+  for (std::map <std::string, Node *>::iterator p = this->nodes.begin();
+       p != this->nodes.end();
+       p++) {
+    n = (Node*)(p->second);
+    if (n != NULL) {
+      profile = n->profile;
+      if (profile != NULL) {
+	found = false;
+	for (unsigned int ix=0; ix<v.size(); ix++) {
+	  diet_profile_t * another_profile = v[ix];
+	  if ( (*profile) == *(another_profile) ) {
+	    found = true;
+	  }
+	} // end for ix
+	if (!found)
+	  v.push_back(profile);
+      } // end if profile != NULL
+    } // end if n != NULL
+  } // end for iterator
+
+  return v;
+}
+
+/**
+ * set the dag as a temporary object
+ * Used to not delete the nodes of the dag
+ */
+void 
+Dag::setAsTemp(bool b) {
+  this->tmpDag = b;
+}
+
+/**
+ * get the estimated makespan of the DAG
+ */
+double
+Dag::getEstMakespan() {
+  double makespan = -1;
+  Node * n = NULL;
+  for (map<string, Node*>::iterator p = this->nodes.begin();
+       p != this->nodes.end();
+       ++p) {
+    n = (Node*)(p->second);
+    if ( (n != NULL) &&
+	 (n->getEstCompTime() > makespan) )
+      makespan = n->getEstCompTime();
+  }
+  return makespan;
+}
+
+
+/**
+ * Compare two profiles
+ * FIXME : need to be completed by param comparison
+ */
+bool operator == (diet_profile_t& a,   diet_profile_t& b) {
+  if (strcmp(a.pb_name, b.pb_name) ||
+      (a.last_in    != b.last_in) ||
+      (a.last_inout != b.last_inout) ||
+      (a.last_out   != b.last_out))
+    return false;
+  return true;
+}
+

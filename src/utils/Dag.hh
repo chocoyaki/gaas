@@ -8,6 +8,15 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2006/10/20 08:40:02  aamar
+ * Adding the following functions to the class:
+ *    - isEnabled(); setEnable; and getRef
+ * Implement the new (modified) function getRemainingDag
+ *
+ * Adding the following function to DAG class
+ *   - getNodes; getId; setId; getInputNodes; getOutputNodes();
+ *   getAllProfiles(); setAsTemp; getEstMakespan();
+ *
  * Revision 1.2  2006/07/10 11:08:12  aamar
  * - Adding the toXML function that return the DAG XML
  * representation
@@ -39,20 +48,29 @@ public:
   /* public methods                                                    */
   /*********************************************************************/
 
+  /**
+   * Dag constructor
+   */
   Dag();
 
+  /**
+   * Dag destructor
+   */
   ~Dag();
 
   /**
-   * add a node to the dag
+   * Add a node to the dag
+   *
+   * @param nodeId the node to add identifier
+   * @param node   the node to add reference
    */
   void
   addNode (string nodeId, Node * node);
 
   /**
-   * check the precedence between node *
-   * this function check only the precedence between node, it doesn't *
-   * link the ports *
+   * check the precedence between node
+   * this function check only the precedence between node, it doesn't
+   * link the ports
    */
   bool
   checkPrec();
@@ -67,23 +85,20 @@ public:
    * return an XML representation of the DAG
    * if b = true, return the complete DAG representation
    * otherwise (b = false value by default) only the remaining DAG
+   * (without done nodes)
    */
   string
   toXML(bool b= false);
 
-  /*********************************************************************/
-  /* the size, begin end end methods are only for testing & debugging  */
-  /*********************************************************************/
-
   /**
-   * return the size of the Dag (the nodes number)
+   * return the size of the Dag (the nodes number and not the dag length)
    */
   unsigned int 
   size();
 
   /**
-   * return an iterator on the first node *
-   * (according to the std::map and not to the dag structure) *
+   * return an iterator on the first node
+   * (according to the std::map and not to the dag structure)
    */
   std::map <std::string, Node *>::iterator 
   begin();
@@ -98,7 +113,7 @@ public:
 
 
   /**
-   * link all ports of the dag *
+   * link all ports of the dag
    */
   void 
   linkAllPorts();
@@ -130,28 +145,40 @@ public:
 
   /**
    * set the workflow scheduling response *
+   *
+   * @param response sequence of results
    */
   void
   setSchedResponse(wf_node_sched_seq_t * response);
 
   /**
-   * get a scalar result of the workflow *
+   * get a scalar result of the workflow
+   * 
+   * @param id    the port identifier (complete id <node id>#<port id>)
+   * @param value the data to store the returned scalar value
    */
   int 
-  get_scalar_output(const char * id,
-		    void** value);
+  get_scalar_output(const char * id, void** value);
 
   /**
-   * get a string result of the workflow *
+   * get a string result of the workflow
+   *
+   * @param id    the port identifier
+   * @param value the data to store the returned string value
    */
   int 
-  get_string_output(const char * id,
-		    char** value);
-
+  get_string_output(const char * id, char** value);
 
   /**
-   * tag the dag *
-   * the input node will receive a tag equal to zero *
+   * Get all the results and display them. This function doesn't returned
+   * the value.
+   */
+  int 
+  get_all_results();
+
+  /**
+   * Tag the dag by level
+   * The input node will receive a tag equal to zero *
    * so of the level 1 will have a tag equal to 1 and so on *
    * the output nodes will have a tag equal to the length of the dag *
    */
@@ -159,40 +186,105 @@ public:
   setTags();
 
   /**
-   * set the reordering parameters
-   * nb_sec is the number of seconds
-   * nb_node is the number of nodes
+   * Set the reordering parameters
+   *
+   * @param nb_sec is the number of seconds
+   * @param nb_node is the number of nodes
    */
   void 
   set_reordering_delta(const long int nb_sec, 
 		       const unsigned long int nb_nodes);
 
   /**
-   * check the scheduling 
+   * Check the scheduling. 
+   * Test if the completion time of node is greater to the predicted
+   * one
    */
   bool
   checkScheduling();
 
   /**
-   * set the client reordering manager
+   * Set the client reordering manager
+   *
+   * @param crm Client reordering manager reference
    */
-  void setCltReoMan(CltReoMan_impl * crm);
+  void
+  setCltReoMan(CltReoMan_impl * crm);
 
   /**
    * set the beginning time of execution
+   *
+   * @param tv the begining time
    */
   void
   setTheBeginning(struct timeval tv);
 
   /**
    * Move a node to the trash vector (called when rescheduling) 
+   *
+   * @param n the node to remove reference
    */
   void
   moveToTrash(Node * n);
+
+  /**
+   * Get the dag nodes as a vector of node reference
+   */
+  vector<Node*> 
+  getNodes();
+
+  /**
+   * Get the dag id
+   */
+  std::string
+  getId();
+
+  /**
+   * Set the dag id
+   */
+  void
+  setId(const string id);
+
+  /**
+   * Get the input nodes
+   */
+  std::vector<Node *>
+  getInputNodes();
+
+  /**
+   * Get the output nodes
+   */
+  std::vector<Node *>
+  getOutputNodes();
+
+  /**
+   * Get all profiles in the dag
+   */
+  std::vector<diet_profile_t *>
+  getAllProfiles();
+
+  /**
+   * set the dag as a temporary object
+   * Used to not delete the nodes of the dag when destructing the dag
+   */
+  void 
+  setAsTemp(bool b = false);
+
+  /**
+   * get the estimated makespan of the DAG
+   */
+  double
+  getEstMakespan();
+
 private:
   /*********************************************************************/
   /* private fields                                                    */
   /*********************************************************************/
+
+  /**
+   * The dag id
+   */
+  std::string myId;
 
   /**
    * Workflow nodes *
@@ -235,8 +327,15 @@ private:
    * Trash nodes vector
    */
   vector<Node *> trash;
+
+  /**
+   * Temporary dag flag. Used to not delete the nodes of the dag
+   */
+  bool tmpDag;
 };
 
+
+bool operator == (diet_profile_t& a,   diet_profile_t& b);
 
 #endif   /* not defined _DAG_HH. */
 
