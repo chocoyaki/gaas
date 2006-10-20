@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2006/10/20 08:48:59  aamar
+ * Remove the submit_wf function.
+ * Handle the request ID in workflow submission.
+ *
  * Revision 1.26  2006/08/31 05:47:50  ycaniou
  * Last fix wasn't complete (miss one line)
  *
@@ -118,7 +122,9 @@ using namespace std;
 /*
   Workflow utilities header
  */
-#include "WfReader.hh"
+
+omni_mutex reqCount_mutex ;
+
 #endif // HAVE_WORKFLOW
 
 //#define aff_val(x)
@@ -761,59 +767,15 @@ MasterAgentImpl::logNeighbors() {
 
 /** 
  * Workflow submission function. *
- * TO REMOVE * 
- */
-wf_response_t *
-MasterAgentImpl::submit_wf (const corba_wf_desc_t& wf_desc) {
-  wf_response_t * wf_response = new wf_response_t;
-  cout << "The agent receives a workflow submission!" <<endl;
-  // read the workflow description
-  // transform the description to a data structure
-  //
-  WfReader reader(wf_desc.abstract_wf);
-  reader.setup();
-
-  // check the services
-  //
-  corba_pb_desc_t   pb_desc;
-  corba_response_t * corba_response = NULL;
-  
-  reader.reset();
-  while (reader.hasNext()) {
-    pb_desc = (corba_pb_desc_t)(reader.next()->second);
-    //    if (pb_desc != NULL) {
-      cout<<"pb path : "<< pb_desc.path << endl;
-      corba_response = this->submit(pb_desc, 16);
-      if (!corba_response || corba_response->servers.length() == 0) {
-	cout << "no server found for the service " <<
-	  pb_desc.path << endl;
-      }
-      else {
-	// .....
-	wf_node_response_t * wf_node_resp = new wf_node_response_t;
-	wf_node_resp->node_id = CORBA::string_dup(pb_desc.path);
-	wf_node_resp->response = *corba_response;
-	unsigned int len = wf_response->wfn_seq_resp.length();
-	wf_response->wfn_seq_resp.length(len+1);
-	wf_response->wfn_seq_resp[len] = *wf_node_resp;
-	delete (corba_response);
-      }
-      //    }
-    
-  }
-  // construct the response
-  //
-
-  return wf_response;
-}
-
-/** 
- * Another submission function *
  * called by the MA_DAG or a client to submit a set of problems *
  */
 wf_response_t *
-MasterAgentImpl::  submit_pb_set  (const corba_pb_desc_seq_t& seq_pb) {
+MasterAgentImpl::  submit_pb_set  (const corba_pb_desc_seq_t& seq_pb,
+				   const CORBA::Long setSize) {
+  // Master agent deliver even dag_id
+  static CORBA::Long dag_id = 0;
   wf_response_t * wf_response = new wf_response_t;
+  wf_response->firstReqID = reqIDCounter;
   unsigned int len = seq_pb.length();
   wf_response->wfn_seq_resp.length(0);
   corba_response_t * corba_response = NULL;
@@ -828,7 +790,6 @@ MasterAgentImpl::  submit_pb_set  (const corba_pb_desc_seq_t& seq_pb) {
       TRACE_TEXT (TRACE_MAIN_STEPS, 
 		  "The problem set can't be solved (one or more services are "
 		  << "missing) " << endl);
-
       return wf_response;
     }
     else {
@@ -842,6 +803,18 @@ MasterAgentImpl::  submit_pb_set  (const corba_pb_desc_seq_t& seq_pb) {
   TRACE_TEXT (TRACE_MAIN_STEPS, 
 	      "The pb set can be solved (all services available) " << endl);
   wf_response->complete = true;
+
+  reqCount_mutex.lock();
+
+  wf_response->dag_id = dag_id;
+  // increment the dag id
+  dag_id += 2; 
+  // increment the reqIDCounter
+  reqIDCounter = reqIDCounter + (setSize-seq_pb.length());
+
+  wf_response->lastReqID = reqIDCounter - 1;
+  reqCount_mutex.unlock();
+
   return wf_response;
 }
 

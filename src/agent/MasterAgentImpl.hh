@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2006/10/20 08:48:59  aamar
+ * Remove the submit_wf function.
+ * Handle the request ID in workflow submission.
+ *
  * Revision 1.11  2006/04/14 14:17:38  aamar
  * Implementing the two methods for workflow support:
  *   - submit_wf (TO REMOVE)
@@ -165,17 +169,11 @@ public :
 #ifdef HAVE_WORKFLOW
   /** 
    * Workflow submission function. *
-   * TO REMOVE *
-   */
-  virtual wf_response_t * 
-  submit_wf (const corba_wf_desc_t& wf_desc);
-
-  /** 
-   * Another submission function *
    * called by the MA_DAG or a client to submit a set of problems *
    */
   virtual wf_response_t *
-  submit_pb_set (const corba_pb_desc_seq_t& seq_pb);
+  submit_pb_set (const corba_pb_desc_seq_t& seq_pb,
+		 const CORBA::Long setSize);
 #endif // HAVE_WORKFLOW
 
 private :
