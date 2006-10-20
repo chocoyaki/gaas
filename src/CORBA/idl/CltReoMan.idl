@@ -19,7 +19,7 @@ interface CltReoMan {
   void
   remainingSched(in wf_node_sched_seq_t wf_sched);
 
-  oneway void
+  string
   getremainingDag();
 };
 
