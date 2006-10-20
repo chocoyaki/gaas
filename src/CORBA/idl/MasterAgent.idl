@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2006/10/20 08:11:27  aamar
+ * Remove the submit_wf function from Master Agent interface.
+ * Changing the submit_pb_set prototype by adding the set size to handle
+ * the request id in workflow submission.
+ *
  * Revision 1.6  2006/04/14 14:13:10  aamar
  * Interface extension for workflow support.
  * Adding two methods : submit_wf (TO REMOVE) and submit_pb_set.
@@ -113,15 +118,10 @@ interface MasterAgent : Agent {
 #ifdef HAVE_WORKFLOW
   /** 
    * Workflow submission function. *
-   * TO REMOVE *
-   */
-  wf_response_t submit_wf (in corba_wf_desc_t wf_desc);
-
-  /** 
-   * Another submission function *
    * called by the MA_DAG or a client to submit a set of problems *
    */
-  wf_response_t submit_pb_set (in corba_pb_desc_seq_t seq_pb);
+  wf_response_t submit_pb_set (in corba_pb_desc_seq_t seq_pb,
+			       in long set_size);
 #endif // HAVE_WORKFLOW
 };
 
