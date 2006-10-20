@@ -13,12 +13,34 @@
 #include "CltReoMan_impl.hh"
 #include "ORBMgr.hh"
 #include "debug.hh"
-#include "WfReader.hh"
+#include "WfExtReader.hh"
 
 CltReoMan_impl::CltReoMan_impl(const char * name, const MasterAgent_var& MA) :
   myId(name),
   myThread(NULL),
   myMA(MA) {
+  this->enable = false;
+  this->myDag = NULL;
+  this->myWfSched = NULL;
+}
+
+void
+CltReoMan_impl::activate() {
+  ORBMgr::activate(this);
+  
+  /* Bind the Client Reordering Manager to its name 
+     in the CORBA Naming Service */
+  /*
+  if (ORBMgr::bindObjToName(_this(), 
+			    ORBMgr::CLT_REO_MAN, 
+			    this->myId.c_str())) {
+    cout << "could not declare myself as " << this->myId << endl;
+  }
+  else {
+    cout << "binding Client Reordering Manager "<< 
+      this->myId << " to naming service" << endl;
+  }
+  */
 }
 
 CltReoMan_impl::~CltReoMan_impl() {
@@ -28,12 +50,22 @@ CltReoMan_impl::~CltReoMan_impl() {
 
 void
 CltReoMan_impl::remainingSched(const wf_node_sched_seq_t& wf_sched) {
+  this->myDag->setSchedResponse(&((wf_node_sched_seq_t)(wf_sched)));
+}
+
+char *
+CltReoMan_impl::getremainingDag() {
+  if (this->myDag == NULL) {
+    WARNING ("Dag is NULL" << endl);
+    return CORBA::string_dup("");
+  }
+  return CORBA::string_dup(this->myDag->toXML().c_str());
 }
 
 void
-CltReoMan_impl::getremainingDag() {
+CltReoMan_impl::ping() {
+  cout << "CltReoMan::ping" << endl;
 }
-
 /**
  * set the Dag reference
  * called by the DIET_client library when the reordering mechanism
@@ -54,15 +86,6 @@ CltReoMan_impl::setScheduler(AbstractWfSched * sched) {
   this->myWfSched = sched;
 }
 
-/**
- * start the ORB and activate the Client Reordering Manager
- */
-void 
-CltReoMan_impl::activate() {
-  myThread = new ReoManThread(this);
-  myThread->start();
-}
-
 
 void
 CltReoMan_impl::done() {
@@ -78,19 +101,19 @@ CltReoMan_impl::reSchedule() {
   wf_response_t * response = NULL;
   cout << "The ReoMan tries to reschedule to following sub dag" << endl;
   cout << myDag->toXML(false).c_str() << endl;
-  WfReader * tmpReader = new WfReader(myDag->toXML(false).c_str());
+  WfExtReader * tmpReader = new WfExtReader(myDag->toXML(false).c_str());
   tmpReader->setup();
   
   // create the profile sequence
-  corba_pb_desc_seq_t pb_seq;
-  unsigned int len = 0;
-  tmpReader->pbReset();
-  while (tmpReader->hasPbNext()) {
-    len ++;
-    pb_seq.length(len);
-    pb_seq[len-1] = *(tmpReader->pbNext());
+  // create the profile sequence
+  unsigned int len = tmpReader->pbs_list.size();
+  corba_pb_desc_seq_t pbs_seq;
+  pbs_seq.length(len);
+  for (unsigned int ix=0; ix< len; ix++) {
+    pbs_seq[ix] = tmpReader->pbs_list[ix];
   }
 
+  unsigned int dagSize= tmpReader->getDagSize();
   // delete the temporary reader
   delete (tmpReader);
 
@@ -100,7 +123,7 @@ CltReoMan_impl::reSchedule() {
     " the master agent ...";
   if (myMA) {
     //    response = MA->submit_wf(*corba_profile);
-    response = myMA->submit_pb_set(pb_seq);
+    response = myMA->submit_pb_set(pbs_seq, dagSize);
     cout << " done" << endl;
     if (! response->complete) {
       cout << "One ore more services are missing" << endl
@@ -119,6 +142,30 @@ CltReoMan_impl::reSchedule() {
 
   myWfSched->setResponse(response);
   myWfSched->reSchedule();
+}
+
+/**
+ * get if the reordering is enabled in the client side
+ */
+bool
+CltReoMan_impl::isEnabled() {
+  return this->enable;
+}
+
+/**
+ * Enable/Disable the reordering (disabled by default)
+ */
+void 
+CltReoMan_impl::setEnable(bool b) {
+  this->enable = b;
+}
+
+/**
+ * Return the IOR of the CltReoMan
+ */
+const char *
+CltReoMan_impl::getRef() {
+  return ORBMgr::getIORString(_this());
 }
 
 

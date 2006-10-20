@@ -43,8 +43,11 @@ public:
   virtual void
   remainingSched(const wf_node_sched_seq_t& wf_sched);
   
-  virtual void
+  virtual char *
   getremainingDag();
+
+  virtual void
+  ping();
 
   /**
    * set the Dag reference
@@ -76,7 +79,25 @@ public:
    */
   void
   reSchedule();
-  
+
+  /**
+   * get if the reordering is enabled in the client side
+   */
+  bool
+  isEnabled();
+
+  /**
+   * Enable/Disable the reordering (disabled by default)
+   */
+  void 
+  setEnable(bool b);
+
+  /**
+   * Return the IOR of the CltReoMan
+   */
+  const char *
+  getRef();
+
 private:
   /**
    * Client Reordering Manager ID
@@ -102,6 +123,11 @@ private:
    * The Master Agent reference
    */
   MasterAgent_var myMA;
+
+  /**
+   * enabled or not the reordering in the client side
+   */
+  bool enable;
 };
 
 
