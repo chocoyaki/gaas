@@ -1,0 +1,19 @@
+<dag>
+  <node id="n1" path="greyscale" >
+    <arg name="in"  type="DIET_FILE" value="lilly.jpg" />
+    <out name="out" type="DIET_FILE" />
+  </node>
+
+  <node id="n2" path="flip" >
+    <in  name="in"  type="DIET_FILE" source="n1#out" />
+    <out name="out" type="DIET_FILE" />
+  </node>
+
+  <node id="n3" path="duplicate" >
+    <in name="in"  type="DIET_FILE" source="n2#out" />
+    <out name="out1" type="DIET_FILE" />
+    <out name="out2" type="DIET_FILE" />
+  </node>
+
+  
+</dag>
