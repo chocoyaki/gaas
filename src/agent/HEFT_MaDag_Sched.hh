@@ -21,15 +21,44 @@ public:
 
   virtual ~HEFT_MaDag_Sched();
 
-  virtual wf_node_sched_seq_t * 
+  virtual wf_node_sched_seq_t 
   schedule(const wf_response_t * wf_response,
-	   WfReader& reader);
+	   WfExtReader& reader);
 
-  virtual wf_node_sched_seq_t * 
+  virtual wf_node_sched_seq_t 
+  schedule(const wf_response_t * wf_response,
+	   Dag * dag);
+
+  virtual wf_node_sched_seq_t 
   reSchedule(const wf_response_t * wf_response,
-	     WfReader& reader);
+	     WfExtReader& reader);
 
+  virtual wf_node_sched_seq_t 
+  reSchedule(const wf_response_t * wf_response,
+	     Dag* dag);
+
+  virtual wf_node_sched_t
+  schedule(const wf_response_t * response, 
+	   Node * n);
+
+  virtual double
+  getAFT(string nodeId);
 private:
+  /**
+   * rank the node upward 
+   * @param n the top node to rank.
+   */
+  void
+  rank(Node * n);
+
+  // the average wi
+  map<string, double> WI;
+  // the availabilty of SeD
+  map<string, double> avail;
+  // AFT and AST map
+  map<string, double> AFT;
+  map<string, double> AST;
+
 };
 
 
