@@ -14,7 +14,7 @@
 #define MADAG_SCHED_HH
 
 #include "response.hh"
-#include "WfReader.hh"
+#include "WfExtReader.hh"
 
 class MaDag_sched {
 public:  
@@ -22,13 +22,29 @@ public:
 
   virtual ~MaDag_sched();
 
-  virtual wf_node_sched_seq_t * 
+  virtual wf_node_sched_seq_t
   schedule(const wf_response_t * wf_response,
-	   WfReader& reader) = 0;
+	   WfExtReader& reader) = 0;
 
-  virtual wf_node_sched_seq_t * 
+  virtual wf_node_sched_seq_t
+  schedule(const wf_response_t * wf_response,
+	   Dag * dag) = 0;
+
+  virtual wf_node_sched_seq_t 
   reSchedule(const wf_response_t * wf_response,
-	     WfReader& reader) = 0;
+	     WfExtReader& reader) = 0;
+
+  virtual wf_node_sched_seq_t 
+  reSchedule(const wf_response_t * wf_response,
+	     Dag * dag) = 0;
+
+  virtual wf_node_sched_t
+  schedule(const wf_response_t * response, 
+	   Node * n) = 0;
+
+  virtual double
+  getAFT(string nodeId) = 0;
+
 };
 
 #endif
