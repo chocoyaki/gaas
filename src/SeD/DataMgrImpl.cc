@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2006/10/20 08:23:00  aamar
+ * Correct a memory leak in file persistency.
+ *
  * Revision 1.23  2006/02/17 10:03:50  ecaron
  * warning fix: unitialized variable
  *
@@ -338,7 +341,8 @@ DataMgrImpl::rmDataDescFromList(char* argID)
     p1 = the_data.value.get_buffer(1);
     _CORBA_Sequence<unsigned char>::freebuf((_CORBA_Char*)p1);//(_CORBA_SeqChar) cout << "REMOVED --  DATA REFERENCE" << endl;
   } else {
-    char *path = (char *)malloc(sizeof(the_data.desc.specific.file().path)+7);   
+    char *path = (char *)malloc(strlen(the_data.desc.specific.file().path)+7);   
+    //char *path = (char *)malloc(sizeof(the_data.desc.specific.file().path)+7);   
     sprintf(path,"rm -f %s",ms_strdup(the_data.desc.specific.file().path));
     system(path);
   }
@@ -499,7 +503,7 @@ DataMgrImpl::printList1()
       char *p1;
       double *value;
       long unsigned int size = (long unsigned int) data_sizeof(&(cur->second.desc));
-      value=(double *)malloc(size*sizeof(double));
+      //      value=(double *)malloc(size*sizeof(double));
     
       p1 = (char *) cur->second.value.get_buffer(0);
       value  = (double*) p1;
