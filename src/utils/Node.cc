@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2006/10/23 23:50:19  aamar
+ * Coorect a problem with the use of INTERNAL_ERROR macro
+ *
  * Revision 1.3  2006/10/20 08:42:14  aamar
  * Merging the base class BasicNode in Node class.
  * Adding some functions.
@@ -682,9 +685,10 @@ Node::link_i2o(const string in, const string out) {
   WfInPort * inPort = getInPort(in);
   if (inPort != NULL)
     inPort->set_source(out);
-  else
-    INTERNAL_ERROR("The output port " << out << " was not found " << endl <<
-	  "Check your XML file", 1);
+  else {
+    INTERNAL_ERROR ("The output port " << out << " was not found " << endl <<
+		    "Check your XML file", 1);
+  }
 } // end link_i2o
 
 /**
@@ -699,9 +703,10 @@ Node::link_o2i(const string out, const string in) {
   WfOutPort * outPort = getOutPort(out);
   if (outPort != NULL)
     outPort->set_sink(in);
-  else
-    INTERNAL_ERROR("The output port " << out << " was not found " << endl <<
-	  "Check your XML file", 1);
+  else {
+    INTERNAL_ERROR ("The output port " << out << " was not found " << endl <<
+		    "Check your XML file", 1);
+  }
 } // end link_o2i
 
 /**
