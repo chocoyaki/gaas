@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2006/10/24 00:08:24  aamar
+ * DietLogComponent used in submit_pb_set.
+ *
  * Revision 1.27  2006/10/20 08:48:59  aamar
  * Remove the submit_wf function.
  * Handle the request ID in workflow submission.
@@ -772,6 +775,10 @@ MasterAgentImpl::logNeighbors() {
 wf_response_t *
 MasterAgentImpl::  submit_pb_set  (const corba_pb_desc_seq_t& seq_pb,
 				   const CORBA::Long setSize) {
+  struct timeval tbegin;
+  struct timeval tend;
+  gettimeofday(&tbegin, NULL);
+
   // Master agent deliver even dag_id
   static CORBA::Long dag_id = 0;
   wf_response_t * wf_response = new wf_response_t;
@@ -808,12 +815,23 @@ MasterAgentImpl::  submit_pb_set  (const corba_pb_desc_seq_t& seq_pb,
 
   wf_response->dag_id = dag_id;
   // increment the dag id
-  dag_id += 2; 
+  dag_id += 1; 
   // increment the reqIDCounter
   reqIDCounter = reqIDCounter + (setSize-seq_pb.length());
 
   wf_response->lastReqID = reqIDCounter - 1;
   reqCount_mutex.unlock();
+
+  gettimeofday(&tend, NULL);
+  // calculate the processing time in ms
+  time_t ptime = (tend.tv_sec - tbegin.tv_sec)* 1000 +
+    (tend.tv_usec - tbegin.tv_usec)/1000;
+
+  if (dietLogComponent != NULL) {
+    dietLogComponent->logDagSubmit(dag_id-1, 
+				   ptime);
+  }
+  
 
   return wf_response;
 }
