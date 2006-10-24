@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2006/10/24 00:06:40  aamar
+ * Adding statistics to submit workflow method.
+ * The dag id is provided only by the MasterAgent.
+ *
  * Revision 1.3  2006/10/20 09:13:55  aamar
  * Changing the submit_wf prototype (the return type)
  * Add the following function to the MA DAG interface
@@ -30,6 +34,7 @@
 #include "ORBMgr.hh"
 #include "debug.hh"
 #include "Parsers.hh"
+#include "statistics.hh"
 
 #include "RoundRobbin_MaDag_Sched.hh"
 #include "HEFT_MaDag_Sched.hh"
@@ -69,6 +74,9 @@ MaDag_impl::MaDag_impl(const char * name) :
   // set the parameters
   this->multi_wf = false;
   this->metaSched = NULL;
+
+  // init the statistics module
+  stat_init();
 } // end MA DAG constructor
 
 MaDag_impl::~MaDag_impl() {
@@ -83,6 +91,9 @@ MaDag_impl::~MaDag_impl() {
  */
 wf_sched_response_t * 
 MaDag_impl::submit_wf (const corba_wf_desc_t& wf_desc) {
+
+  stat_in("MA DAG","Start workflow request");
+
   // MA DAG delivers odd dag id
   static int dag_id = -1;
   dag_id += 2;
@@ -91,6 +102,7 @@ MaDag_impl::submit_wf (const corba_wf_desc_t& wf_desc) {
     wf_sched_response_t * tmp = 
       this->metaSched->submit_wf(wf_desc, dag_id, this->parent);
     this->myMutex.unlock();
+    stat_out("MA DAG","End workflow request");
     return tmp;
   }
   wf_sched_response_t * sched_resp = new wf_sched_response_t;
@@ -117,11 +129,15 @@ MaDag_impl::submit_wf (const corba_wf_desc_t& wf_desc) {
   wf_response = this->parent->submit_pb_set(pbs_seq, reader.getDagSize());
   cout << "... done" << endl;
 
+  
+
   // construct the response/scheduling
 
   if ( ! wf_response->complete) {
+    sched_resp->dag_id = wf_response->dag_id;
     cout << "The response is incomplete" << endl;
     this->myMutex.unlock();
+    stat_out("MA DAG","End workflow request");
     return sched_resp;
   }
 
@@ -131,8 +147,11 @@ MaDag_impl::submit_wf (const corba_wf_desc_t& wf_desc) {
   }
 
   sched_resp->wf_node_sched_seq = mySched->schedule(wf_response, reader);
+  sched_resp->dag_id = wf_response->dag_id;
 
   this->myMutex.unlock();
+
+  stat_out("MA DAG","End workflow request");
 
   return sched_resp;
 }
