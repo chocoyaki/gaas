@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2006/10/24 00:04:32  aamar
+ * Add the logDagSubmit method.
+ *
  * Revision 1.22  2006/07/25 14:37:40  ycaniou
  * dietJobID changed to dietReqID
  *
@@ -218,9 +221,9 @@ DietLogComponent::DietLogComponent(const char* name,
   pingThread=NULL;
 
   // define tags
-  tagCount = 18;
+  tagCount = 19;
   tagFlags = createBoolArrayFalse(tagCount);
-  tagNames = new char*[17];
+  tagNames = new char*[this->tagCount];
   tagNames[0] = strdup("ADD_SERVICE");
   tagNames[1] = strdup("ASK_FOR_SED");
   tagNames[2] = strdup("SED_CHOSEN");
@@ -241,6 +244,8 @@ DietLogComponent::DietLogComponent(const char* name,
   tagNames[15] = strdup("NOT_DEFINED2");
   tagNames[16] = strdup("FAILURE");
   tagNames[17] = strdup("FD_OBSERVE"); 
+  tagNames[18] = strdup("DAG_SUBMIT");
+
   
   CORBA::Object_ptr myLCCptr;
 
@@ -967,3 +972,17 @@ void DietLogComponent::logDetectorParams(const char *observed, double Pl, double
   }
 }
 #endif
+
+#ifdef HAVE_WORKFLOW
+/**
+ * Send dag identifier and workflow processing time in the MA
+ */
+void
+DietLogComponent::logDagSubmit(CORBA::Long dag_id,
+			       time_t ptime) {
+  char msg[256];
+  sprintf(msg, "DAG_ID=%ld, TIME=%ld", dag_id, ptime);
+  log(tagNames[18], msg);
+}
+	       
+#endif // HAVE_WORKFLOW

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2006/10/24 00:04:32  aamar
+ * Add the logDagSubmit method.
+ *
  * Revision 1.11  2006/07/21 09:29:22  eboix
  *  - Added the first brick for test suite [disabled right now].
  *  - Doxygen related cosmetic changes.  --- Injay2461
@@ -346,6 +349,20 @@ public:
    * get a string representation of the v_tag value 
    */
   char* getEstimationTags(const int v_tag);
+
+#ifdef HAVE_WORKFLOW
+  /**
+   * Send dag identifier and workflow processing time in the MA
+   *
+   * @param dag_id the identifier of the DAG 
+   * @param ptime  the time elapsed by the MA in ms to process the workflow submission
+   *
+   */
+  void
+  logDagSubmit(CORBA::Long dag_id,
+	       time_t ptime);
+	       
+#endif // HAVE_WORKFLOW
 
 private:
   /**
