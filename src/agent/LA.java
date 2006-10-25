@@ -7,11 +7,6 @@
 /* $LICENSE$                                                                */
 /****************************************************************************/
 
-import java.net.*;
-import java.io.IOException;
-import java.io.*;
-import java.util.*;
-
 public class LA
 {
   public native int 
@@ -25,7 +20,7 @@ public class LA
   main (String args[])
   {
     LA la = new LA();
-    int ret = la.startDIETLA(args[0]);
+    la.startDIETLA(args[0]);
     System.exit(0);
   } // main
 } // LA
