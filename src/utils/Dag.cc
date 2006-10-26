@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2006/10/26 13:57:53  aamar
+ * Replace cout/cerr by debug macro TRACE_XXX
+ *
  * Revision 1.3  2006/10/20 08:40:02  aamar
  * Adding the following functions to the class:
  *    - isEnabled(); setEnable; and getRef
@@ -26,6 +29,8 @@
  * Direct acyclic graph class (source).
  *
  ****************************************************************************/
+
+#include "debug.hh"
 
 #include "Dag.hh"
 #include "WfExtReader.hh"
@@ -60,7 +65,8 @@ Dag::~Dag() {
 void 
 Dag::addNode (string nodeName, Node * node) {
   nodes[nodeName] = node;
-  cout << "\t" << "The new size of the dag is " << nodes.size() <<  endl;
+  TRACE_TEXT (TRACE_ALL_STEPS,
+	      "\t" << "The new size of the dag is " << nodes.size() <<  endl);
 }
 
 /**
@@ -107,7 +113,8 @@ Dag::checkPrec() {
       // linked port id
       lp_id = lp_id.substr(lp_id.find("#")+1);
       
-      cout << "\tprevious node name : "<< linkedNode_name << endl;
+      TRACE_FUNCTION (TRACE_ALL_STEPS,
+		      "\tprevious node name : "<< linkedNode_name);
       // get the linked node ref
       map<string, Node *>::iterator lnp = nodes.find(linkedNode_name);
       Node * ln = NULL;
@@ -220,7 +227,8 @@ Dag::linkAllPorts() {
  */
 void
 Dag::linkNodePorts(Node * n) {
-  cout << "linkNodePorts : processing node " << n->getId() << endl;
+  TRACE_TEXT (TRACE_ALL_STEPS,
+	      "linkNodePorts : processing node " << n->getId() << endl);
   // link Input ports with output ports
   for (map<string, WfInPort*>::iterator p = n->inports.begin();
        p != n->inports.end();
@@ -228,7 +236,8 @@ Dag::linkNodePorts(Node * n) {
     // get the port ref
     WfInPort * in = (WfInPort*)(p->second);
     if (in != NULL)
-      cout << "in found " << in->getId() << endl;
+      TRACE_TEXT (TRACE_ALL_STEPS,
+		  "in found " << in->getId() << endl);
     string node_name = in->getId().substr(0, in->getId().find("#"));
     // get the linked port id
     string lp_id = in->getSourceId();
@@ -240,8 +249,9 @@ Dag::linkNodePorts(Node * n) {
     // linked port id
     lp_id = lp_id.substr(lp_id.find("#")+1);
 
-    cout << "linked node name : "<< linkedNode_name << 
-      ", linked port : " << lp_id << endl;
+    TRACE_TEXT (TRACE_ALL_STEPS,
+		"linked node name : "<< linkedNode_name << 
+		", linked port : " << lp_id << endl);
     // get the linked node ref
     map<string, Node *>::iterator lnp = nodes.find(linkedNode_name);
     Node * ln = NULL;
@@ -249,16 +259,18 @@ Dag::linkNodePorts(Node * n) {
       ln = (Node *)(lnp->second);
     }
     else {
-      cout << "FATAL ERROR" << endl << "Unable to find the linked node : " <<
-	node_name << endl;
+      INTERNAL_ERROR("FATAL ERROR" << endl << 
+		     "Unable to find the linked node : " <<
+		     node_name, 1);
     }
     // get outpur port
     WfOutPort * out = ln->getOutPort(linkedNode_name + "#" + lp_id); 
 
     // link the input port to the outport
-    cout << "linking the input port " << in->getId() << 
-      " to the output port " <<
-      out->getId() << endl;
+    TRACE_TEXT (TRACE_ALL_STEPS,
+		"linking the input port " << in->getId() << 
+		" to the output port " <<
+		out->getId() << endl);
     in->set_source(out);
   }
 
@@ -269,7 +281,8 @@ Dag::linkNodePorts(Node * n) {
     // get the port ref
     WfOutPort * out = (WfOutPort*)(p->second);
     if (out != NULL)
-      cout << "Out found " << out->getId() << endl;
+      TRACE_TEXT (TRACE_ALL_STEPS,
+		  "Out found " << out->getId() << endl);
     string node_name = out->getId().substr(0, out->getId().find("#"));
     // get the linked port id
     string lp_id = out->getSinkId();
@@ -281,8 +294,9 @@ Dag::linkNodePorts(Node * n) {
     // linked port id
     lp_id = lp_id.substr(lp_id.find("#")+1);
 
-    cout << "linked node name : "<< linkedNode_name << 
-      ", linked port : " << lp_id << endl;
+    TRACE_TEXT (TRACE_ALL_STEPS,
+		"linked node name : "<< linkedNode_name << 
+		", linked port : " << lp_id << endl);
     // get the linked node ref
     map<string, Node *>::iterator lnp = nodes.find(linkedNode_name);
     Node * ln = NULL;
@@ -290,15 +304,19 @@ Dag::linkNodePorts(Node * n) {
       ln = (Node *)(lnp->second);
     }
     else {
-      cout << "FATAL ERROR" << endl << "Unable to find the linked node : " <<
-	node_name << endl;
+      INTERNAL_ERROR ("FATAL ERROR" << endl << 
+		      "Unable to find the linked node : " <<
+		      node_name << endl,
+		      1);
     }
     // get outpur port
     WfInPort * in = ln->getInPort(linkedNode_name + "#" + lp_id); 
 
     // link the input port to the outport
-    cout << "linking the output port " << out->getId() << " to the input port " <<
-      in->getId() << endl;
+    TRACE_TEXT (TRACE_ALL_STEPS,
+		"linking the output port " << out->getId() << 
+		" to the input port " <<
+		in->getId() << endl);
     out->set_sink(in);
   }    
   // link inout ports with ... <TO DO>
@@ -354,8 +372,9 @@ Dag::setSchedResponse(wf_node_sched_seq_t * response) {
   this->response = response;
   
   if (response->length() != nodes.size()) {
-    cout << "the scheduling response length is different from dag length " 
-	 << endl;
+    TRACE_TEXT (TRACE_ALL_STEPS,
+		"the scheduling response length is different from dag length " 
+		<< endl);
   }
 
   for (unsigned int ix=0; 
@@ -365,8 +384,9 @@ Dag::setSchedResponse(wf_node_sched_seq_t * response) {
     map <string, Node *>::iterator p = 
       nodes.find(nid);
     if (p != nodes.end()) {
-      cout << "the nodes " << ((Node*)(p->second))->getId() << 
-	" is mapped to a SeD"  << endl;
+      TRACE_TEXT (TRACE_ALL_STEPS,
+		  "The nodes " << ((Node*)(p->second))->getId() << 
+		  " is mapped to a SeD"  << endl);
       ((Node*)(p->second))->setSeD((*response)[ix].server.loc.ior);
     }
   }
@@ -379,7 +399,8 @@ Dag::setSchedResponse(wf_node_sched_seq_t * response) {
 int
 Dag::get_scalar_output(const char * id,
 		    void** value) {
-  cout << "\t" << "get_scalar_output : searching for " << id << endl;
+  TRACE_TEXT (TRACE_ALL_STEPS,
+	      "\t" << "get_scalar_output : searching for " << id << endl);
   Node * n = NULL;
   for (map<string, Node *>::iterator p = nodes.begin();
        p != nodes.end();
@@ -389,10 +410,12 @@ Dag::get_scalar_output(const char * id,
       map<string, WfOutPort*>::iterator outp_iter =
 	n->outports.find(id);
       if (outp_iter != n->outports.end()) {
-	cout << "\t" << "found an output port with the id " << id << endl;
+	TRACE_TEXT (TRACE_ALL_STEPS,
+		    "\t" << "found an output port with the id " << id << endl);
 	WfOutPort * outp = (WfOutPort *)(outp_iter->second);
 	if (outp->isResult()) {
-	    cout << "\t" << "return the result" << endl;
+	    TRACE_TEXT (TRACE_ALL_STEPS,
+			"\t" << "return the result" << endl);
 	  //       diet_scalar_get(diet_parameter(profile,2), &pl3, NULL);
 	  return diet_scalar_get(diet_parameter(outp->profile(),outp->getIndex()), 
 				 value, NULL);
@@ -418,10 +441,12 @@ Dag::get_string_output(const char * id,
       map<string, WfOutPort*>::iterator outp_iter =
 	n->outports.find(port_id);
       if (outp_iter != n->outports.end()) {
-	cout << "######## found an output port with the id " << id << endl;
+	TRACE_TEXT (TRACE_ALL_STEPS,
+		    "######## found an output port with the id " << id << endl);
 	WfOutPort * outp = (WfOutPort *)(outp_iter->second);
 	if (outp->isResult()) {
-	  cout << "######## return the result" << endl;
+	  TRACE_TEXT (TRACE_ALL_STEPS,
+		      "######## return the result" << endl);
 	  //       diet_scalar_get(diet_parameter(profile,2), &pl3, NULL);
 	  return diet_string_get(diet_parameter(outp->profile(),outp->getIndex()), 
 				 value, NULL);
@@ -487,7 +512,8 @@ Dag::checkScheduling() {
     }
   }
   if (nodes_with_pb.size()>0)
-    cout << nodes_with_pb.size() << " node(s) out of predicted time" <<endl;
+    TRACE_TEXT (TRACE_ALL_STEPS,
+		nodes_with_pb.size() << " node(s) out of predicted time" <<endl);
   
   if (nodes_with_pb.size() >= this->nbNodes) {
     for (unsigned int ix=0; ix<nodes_with_pb.size(); ix++)
@@ -503,11 +529,14 @@ Dag::checkScheduling() {
  */
 void
 Dag::setCltReoMan(CltReoMan_impl * crm) {
-  cout << "---- DAG::setCltReoMan(";
-  if (crm != NULL)
-    cout << "<>NULL)" << endl;
-  else
-    cout << "NULL)" << endl;
+  TRACE_TEXT (TRACE_ALL_STEPS,
+	      "---- DAG::setCltReoMan(");
+  if (crm != NULL) {
+    TRACE_TEXT (TRACE_ALL_STEPS, " <> NULL)" << endl);
+  }
+  else {
+    TRACE_TEXT (TRACE_ALL_STEPS, " == NULL)" << endl);
+  }
 
   this->myCltReoMan = crm;
 }
@@ -518,8 +547,9 @@ Dag::setCltReoMan(CltReoMan_impl * crm) {
 void
 Dag::setTheBeginning(struct timeval tv) {
   this->beginning = tv;
-  cout << "---- The beginning time is " << this->beginning.tv_sec <<
-    endl;
+  TRACE_TEXT (TRACE_ALL_STEPS,
+	      "---- The beginning time is " << this->beginning.tv_sec <<
+	      endl);
 }
 
 /**
@@ -533,18 +563,21 @@ Dag::moveToTrash(Node * n) {
     // the simple id of the nodes
     string id = n->getId();
     if ( this->myId == (id.substr(0, id.find("-"))) ) {
-      cout << "*********************** ERASING THE NODE " << id << endl;
+      TRACE_TEXT (TRACE_ALL_STEPS,
+		  "*********************** ERASING THE NODE " << id << endl);
       nodes.erase(id.substr(id.find("-")+1));
     }
     else {
       // a priori not used
-      cout << "$$$$$$$$$$$$$$$$$$$$$$$ ERASING THE NODE " << n->getId() << endl;
+      TRACE_TEXT (TRACE_ALL_STEPS,
+		  "$$$$$$$$$$$$$$$$$$$$$$$ ERASING THE NODE " << n->getId() << endl);
       nodes.erase(n->getId());
     }
   }
   else {
-    cout << "####################### The node " << 
-      n->getId() << " was not found!!!" << endl;
+    TRACE_TEXT (TRACE_ALL_STEPS,
+		"####################### The node " << 
+		n->getId() << " was not found!!!" << endl);
   }
 }
 
@@ -584,7 +617,8 @@ Dag::get_all_results() {
 	    long * value;
 	    diet_scalar_get(diet_parameter(outp->profile(),outp->getIndex()), 
 			    &value, NULL);
-	    cout << outp->getId() << " = " << *value << endl;
+	    TRACE_TEXT (TRACE_ALL_STEPS,
+			outp->getId() << " = " << *value << endl);
 	  }
 	} // if isResult
       } // end for outports
