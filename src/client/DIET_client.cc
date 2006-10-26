@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.90  2006/10/26 14:00:07  aamar
+ * Workflow support: check the returned result of xml reader in all cases
+ *
  * Revision 1.89  2006/10/20 09:39:35  aamar
  * Some changes for workflow call methods.
  *
@@ -482,7 +485,7 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
     MA_DAG_name = CORBA::string_dup(MA_DAG_name);
     MA_DAG = MaDag::_narrow(ORBMgr::getObjReference(ORBMgr::MA_DAG, MA_DAG_name));
     if (CORBA::is_nil(MA_DAG)) {
-      ERROR("cannot locate MA DAG " << MA_DAG_name, 1);
+      ERROR("Cannot locate MA DAG " << MA_DAG_name, 1);
     }
     else {
       use_ma_dag = true;
@@ -1715,6 +1718,9 @@ diet_call_wf_madag_v1(diet_wf_desc_t* profile) {
   reader = new WfExtReader(profile->abstract_wf, true);
   reader->setup();
 
+  if (! reader->setup())
+    return XML_MALFORMED;  
+
   dag = reader->getDag();
 
   TRACE_TEXT (TRACE_ALL_STEPS,
@@ -1801,6 +1807,9 @@ diet_call_wf_madag_v2(diet_wf_desc_t* profile) {
 
   reader = new WfExtReader(profile->abstract_wf, true);
   reader->setup();
+
+  if (! reader->setup())
+    return XML_MALFORMED;  
 
   dag = reader->getDag();
 
