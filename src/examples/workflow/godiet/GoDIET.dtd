@@ -1,0 +1,107 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<!ELEMENT diet_configuration (goDiet?,resources,diet_services,diet_hierarchy)>
+
+<!--- Define behavior of GoDIET -->
+<!ELEMENT goDiet EMPTY>
+<!ATTLIST goDiet
+    debug CDATA #IMPLIED
+    saveStdOut CDATA #IMPLIED
+    saveStdErr CDATA #IMPLIED
+    useUniqueDirs CDATA #IMPLIED
+  >
+
+<!--- Define resources available for data storage and compution -->
+<!--- Must define local scratch directory for use before launch -->
+<!ELEMENT resources (scratch,storage+,compute*,cluster*)>
+
+<!ELEMENT storage (scratch,scp)>
+<!ATTLIST storage
+    label CDATA #REQUIRED
+  >
+<!ELEMENT scratch EMPTY>
+<!ATTLIST scratch 
+    dir CDATA #REQUIRED
+  > 
+<!ELEMENT scp EMPTY>
+<!ATTLIST scp
+    login CDATA #IMPLIED
+    server CDATA #REQUIRED
+  >
+
+<!ELEMENT compute (ssh,env?,end_point?)>
+<!ATTLIST compute
+    disk CDATA #REQUIRED
+    label CDATA #REQUIRED
+    login CDATA #IMPLIED
+  >
+<!ELEMENT cluster (env,node+)>
+<!ATTLIST cluster
+    disk CDATA #REQUIRED
+    label CDATA #REQUIRED
+    login CDATA #IMPLIED
+  >
+<!ELEMENT node (ssh,end_point?)>
+<!ATTLIST node
+    label CDATA #REQUIRED
+  >
+<!ELEMENT ssh EMPTY>
+<!ATTLIST ssh
+    server CDATA #REQUIRED
+  >
+<!ELEMENT env EMPTY>
+<!ATTLIST env
+    path CDATA #IMPLIED
+    LD_LIBRARY_PATH CDATA #IMPLIED
+  >
+<!ELEMENT end_point EMPTY>
+<!ATTLIST end_point
+    contact CDATA #IMPLIED
+    startPort CDATA #IMPLIED
+    endPort CDATA #IMPLIED
+  >
+  
+<!--- Define other DIET services to run alongside hierarchy -->
+<!ELEMENT diet_services (omni_names,log_central?,log_tool?,diet_statistics?)>
+<!ELEMENT omni_names (config)>
+<!ATTLIST omni_names
+    contact CDATA #REQUIRED
+    port CDATA #IMPLIED
+  >
+<!ELEMENT log_central (config)>
+<!ATTLIST log_central
+    connectDuringLaunch CDATA #IMPLIED
+  >
+<!ELEMENT log_tool (config)>
+<!ELEMENT diet_statistics EMPTY>
+
+<!--- Define hierarchy of agents and SeDs -->
+<!ELEMENT diet_hierarchy (master_agent+)>
+
+<!ELEMENT master_agent (config,local_agent*,SeD*)>
+<!ATTLIST master_agent
+    label CDATA #IMPLIED
+  >
+
+<!ELEMENT local_agent (config,local_agent*,SeD*)>
+<!ATTLIST local_agent
+    label CDATA #IMPLIED
+  >
+
+<!ELEMENT SeD (config,parameters?)>
+<!ATTLIST SeD 
+    label CDATA #IMPLIED
+    maxConcurrentJobs CDATA #IMPLIED
+  >
+
+<!--- Configuration for agents and seds -->
+<!ELEMENT config EMPTY>
+<!ATTLIST config
+    remote_binary CDATA #REQUIRED
+    trace_level CDATA #IMPLIED
+    server CDATA #REQUIRED
+  >
+<!ELEMENT parameters EMPTY>
+<!ATTLIST parameters 
+    string CDATA #REQUIRED
+  >  

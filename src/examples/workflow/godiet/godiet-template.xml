@@ -1,0 +1,35 @@
+<?xml version="1.0" standalone="no"?>
+
+<!DOCTYPE diet_configuration SYSTEM "GoDIET.dtd">
+
+<diet_configuration>
+    <goDiet debug="1"
+            saveStdOut="no"
+            saveStdErr="no"
+            useUniqueDirs="no"/>
+
+    <resources>
+        <scratch dir="$HOME/tmp/scratch_godiet"/>
+
+        <storage label="localDisk">
+            <scratch dir="$HOME/tmp/scratch_runtime"/>
+            <scp server="localhost"/>
+        </storage>
+
+        <compute label="localHost" disk="localDisk">
+            <ssh server="localhost"/>
+            <env path="$OMNIORB_HOME/bin:$DIET_DIR/bin:$DIET_DIR/bin/examples/workflow/bin"
+                 LD_LIBRARY_PATH="$DIET_DIR/lib:$OMNIORB_HOME/lib"/>
+        </compute>
+    </resources>
+
+    <diet_services>
+        <omni_names contact="localhost" port="2810">
+            <config server="localHost" remote_binary="omniNames"/>
+        </omni_names>
+    </diet_services>
+
+    <diet_hierarchy>
+        <master_agent>
+            <config server="localHost" remote_binary="dietAgent"/>
+
