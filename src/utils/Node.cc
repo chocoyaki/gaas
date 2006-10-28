@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2006/10/28 23:17:08  aamar
+ * Free the persistent data when they are not needed anymore.
+ * Replace cout/cerr debug message by debug.hh macros.
+ *
  * Revision 1.4  2006/10/23 23:50:19  aamar
  * Coorect a problem with the use of INTERNAL_ERROR macro
  *
@@ -123,7 +127,8 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer,
 #if HAVE_FD
     fd_set_transition_handler(diet_call_failure_recover);
 #endif
-    cout << "Calling the service " << profile->pb_name << endl;
+      TRACE_TEXT (TRACE_ALL_STEPS,
+		  "Calling the service " << profile->pb_name << endl);
     display(corba_profile);
     solve_res = chosenServer->solve(profile->pb_name, corba_profile, reqID);
     stat_out("Client",statMsg);
@@ -165,46 +170,49 @@ RunnableNode::RunnableNode(Node * parent,
  */
 void * 
 RunnableNode::run() {
-  cout << "RunnableNode tries to a execute a service "<< endl;
+  TRACE_TEXT (TRACE_ALL_STEPS,
+	      "RunnableNode tries to a execute a service "<< endl);
   // create the node diet profile
-  cout << "create the node diet profile" << endl;
+    TRACE_TEXT (TRACE_ALL_STEPS, "create the node diet profile" << endl);
   myParent->createProfile();
-  cout << "profile creation ... done" << endl;
-  cout << "Init the ports " << endl;
+  TRACE_TEXT (TRACE_ALL_STEPS, "profile creation ... done" << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS, "Init the ports " << endl);
   for (map<string, WfInPort*>::iterator p = myParent->inports.begin();
        p != myParent->inports.end();
        ++p) {
     WfInPort * in = (WfInPort*)(p->second);
     if (in->source_port) {
       WfOutPort * out = (WfOutPort*)(in->source_port);
-      cout << "using the persistent data for " << in->index << 
-	" (out = " << out->index << ")" << endl;
+        TRACE_TEXT (TRACE_ALL_STEPS,
+		    "using the persistent data for " << in->index << 
+		    " (out = " << out->index << ")" << endl);
       
       diet_use_data(diet_parameter(myParent->profile, in->index),
 		    out->profile()->parameters[out->index].desc.id);
       
     }
   }
-  cout << "Init ports data ... done " << endl;
+  TRACE_TEXT (TRACE_ALL_STEPS, "Init ports data ... done " << endl);
 
   nodeIsRunning(myParent->getId().c_str());
 
   if (!CORBA::is_nil(myParent->chosenServer)) {
-    cout << "using the scheduling provided by the MA_DAG" << endl <<
-      "call the chosenServer ..." << endl;
+    TRACE_TEXT (TRACE_ALL_STEPS, 
+		"using the scheduling provided by the MA_DAG" << endl <<
+		"call the chosenServer ..." << endl);
     if ( ! diet_call_common(myParent->profile, myParent->chosenServer, 
 			    this->myReqID)) {
       myParent->storePersistentData();
     }
-    cout << "done" << endl;
+    TRACE_TEXT (TRACE_ALL_STEPS, "done" << endl);
   }
   else {
-    cout << "Using the MA to call the SeD"<< endl;
+    TRACE_TEXT (TRACE_ALL_STEPS, "Using the MA to call the SeD"<< endl);
     if (!diet_call(myParent->profile)) {
       myParent->storePersistentData();
     }
   }
-  cout << "RunnableNode call ... done" << endl;
+  TRACE_TEXT (TRACE_ALL_STEPS, "RunnableNode call ... done" << endl);
   myParent->done();
   return NULL;
 } // end RunnableNode::run
@@ -338,8 +346,8 @@ void Node::addPrecId(string str) {
 void Node::addPrec(string str, Node * node) {
   // add the node as a previous one if not already done
   if (prec.find(str) == prec.end()) {
-    cout << "The node " << this->myId << " has a new previous node " << 
-      str << endl;
+    TRACE_TEXT (TRACE_ALL_STEPS, "The node " << this->myId << " has a new previous node " << 
+		str << endl);
     prec[str] = node; 
     prevNodes--;
     node->addNext(this);
@@ -520,13 +528,13 @@ Node::set_pb_desc(diet_profile_t* profile) {
  */
 void
 Node::start(diet_reqID_t reqID) {
-  cout << " create the runnable node " << endl;
+  TRACE_TEXT (TRACE_ALL_STEPS, " create the runnable node " << endl);
   node_running = true;
   nodeIsStarting(myId.c_str());
   myRunnableNode = new RunnableNode(this, reqID+1);
-  cout << "The node " << myId << " tries to launch a RunnableNode "<< endl;
+  TRACE_TEXT (TRACE_ALL_STEPS, "The node " << myId << " tries to launch a RunnableNode "<< endl);
   myRunnableNode->start();
-  cout << "The node " << myId << " launched it RunnableNode" << endl;
+  TRACE_TEXT (TRACE_ALL_STEPS, "The node " << myId << " launched it RunnableNode" << endl);
 } // end start
 
 /**
@@ -534,14 +542,14 @@ Node::start(diet_reqID_t reqID) {
  */
 char *  
 Node::newChar(const string value) {
-  cout << "new char ; value | " << value <<  " |" << endl;
+  TRACE_TEXT (TRACE_ALL_STEPS, "new char ; value | " << value <<  " |" << endl);
   if (value != "") {
     char * cx = new char;
     *cx = value.c_str()[0];
     charParams.push_back(cx);
   }
   else {
-    cout << "$$$$$$$$$$$$$ Add a NULL" << endl;
+    TRACE_TEXT (TRACE_ALL_STEPS, "$$$$$$$$$$$$$ Add a NULL" << endl);
     charParams.push_back(NULL);
   }
   return charParams[charParams.size() - 1];
@@ -552,14 +560,14 @@ Node::newChar(const string value) {
  */
 short * 
 Node::newShort(const string value) {
-  cout << "new short ; value | " << value <<  " |" << endl;
+  TRACE_TEXT (TRACE_ALL_STEPS, "new short ; value | " << value <<  " |" << endl);
   if (value != "") {
     short * sx = new short;
     *sx = atoi(value.c_str());
     shortParams.push_back(sx);
   }
   else {
-    cout << "$$$$$$$$$$$$$ Add a NULL" << endl;
+    TRACE_TEXT (TRACE_ALL_STEPS, "$$$$$$$$$$$$$ Add a NULL" << endl);
     shortParams.push_back(NULL);
   }
   return shortParams[shortParams.size() - 1];
@@ -570,14 +578,16 @@ Node::newShort(const string value) {
  */
 int *   
 Node::newInt(const string value) {
-  cout << "new int ; value | " << value <<  " |" << endl;
+  TRACE_TEXT (TRACE_ALL_STEPS,
+	      "new int ; value | " << value <<  " |" << endl);
   if (value != "") {
     int * ix = new int;
     *ix = atoi(value.c_str());
     intParams.push_back(ix);
   }
   else {
-    cout << "$$$$$$$$$$$$$ Add a NULL" << endl;
+    TRACE_TEXT (TRACE_ALL_STEPS,
+		"$$$$$$$$$$$$$ Add a NULL" << endl);
     intParams.push_back(NULL);
   }
   return intParams[intParams.size() - 1];
@@ -588,14 +598,16 @@ Node::newInt(const string value) {
  */
 long *  
 Node::newLong(const string value) {
-  cout << "new long ; value | " << value <<  " |" << endl;
+  TRACE_TEXT (TRACE_ALL_STEPS,
+	      "new long ; value | " << value <<  " |" << endl);
   if (value != "") {
     long * lx = new long;
     *lx = atoi(value.c_str());
     longParams.push_back(lx);
   }
   else {
-    cout << "$$$$$$$$$$$$$ Add a NULL" << endl;
+    TRACE_TEXT (TRACE_ALL_STEPS,
+		"$$$$$$$$$$$$$ Add a NULL" << endl);
     longParams.push_back(NULL);
   }
   return longParams[longParams.size() - 1];
@@ -609,7 +621,8 @@ Node::newString (const string value) {
   char * str = new char[value.size()+1];
   strcpy(str, value.c_str());
 
-  cout << "----> new string; value = " << value << ", " << str << endl;
+  TRACE_TEXT (TRACE_ALL_STEPS,
+	      "----> new string; value = " << value << ", " << str << endl);
   stringParams.push_back(str);
   return str;
 } // end newString
@@ -622,7 +635,8 @@ Node::newFile (const string value) {
   char * str = new char[value.size()+1];
   strcpy(str, value.c_str());
 
-  cout << "----> new file; value = " << value << ", " << str << endl;
+  TRACE_TEXT (TRACE_ALL_STEPS,
+	      "----> new file; value = " << value << ", " << str << endl);
   fileParams.push_back(str);
   return str;
 } // end newFile
@@ -863,16 +877,18 @@ Node::createProfile() {
   int last_inout = this->profile->last_inout;
   int last_out = this->profile->last_out;
   diet_profile_free(this->profile);
-  cout << "Reallocating a new profile " << myPb.c_str() << ", " <<
-    last_in << ", " <<
-    last_inout << ", " <<
-    last_out << endl;
+  TRACE_TEXT (TRACE_ALL_STEPS,
+	      "Reallocating a new profile " << myPb.c_str() << ", " <<
+	      last_in << ", " <<
+	      last_inout << ", " <<
+	      last_out << endl);
   this->profile =  diet_profile_alloc((char*)(this->myPb.c_str()), 
 					   last_in, last_inout, last_out);
 
   int last = 0;
   // input ports
-  cout << inports.size() << " input ports" << endl;
+  TRACE_TEXT (TRACE_ALL_STEPS,
+	      inports.size() << " input ports" << endl);
   for (map<string, WfInPort*>::iterator p = inports.begin();
        p != inports.end();
        ++p) {
@@ -887,12 +903,14 @@ Node::createProfile() {
     last ++;
   }
   // output ports
-  cout << outports.size() << " output ports" << endl;
+  TRACE_TEXT (TRACE_ALL_STEPS,
+	      outports.size() << " output ports" << endl);
   for (map<string, WfOutPort*>::iterator p = outports.begin();
        p != outports.end();
        ++p) {
     WfOutPort * out = (WfOutPort*)(p->second);
-    cout << "%%%%%%%% " << out->type << endl;
+    TRACE_TEXT (TRACE_ALL_STEPS,
+		"%%%%%%%% " << out->type << endl);
     this->set_profile_param(out, 
 			    out->type, out->index, out->value, 
 			    DIET_PERSISTENT);
@@ -920,11 +938,13 @@ void
 Node::set_profile_param(WfPort * port,
 			string type, const int lastArg, const string& value,
 			const diet_persistence_mode_t mode) {
-  cout << "\tset_profile_param : type = " << type << 
-    ", lastArg = " << lastArg << ", value = " << value << 
-    ", mode = " << mode << endl;
+  TRACE_TEXT (TRACE_ALL_STEPS,
+	      "\tset_profile_param : type = " << type << 
+	      ", lastArg = " << lastArg << ", value = " << value << 
+	      ", mode = " << mode << endl);
   if (type == WfCst::DIET_CHAR) {
-    cout << "char parameter "<< lastArg << endl;
+    TRACE_TEXT (TRACE_ALL_STEPS,
+		"char parameter "<< lastArg << endl);
     if (value != "")
       diet_scalar_set(diet_parameter(profile, lastArg), 
 		      this->newChar(value), 
@@ -937,7 +957,8 @@ Node::set_profile_param(WfPort * port,
 		      DIET_CHAR);      
   }
   if (type == WfCst::DIET_SHORT) {
-    cout << "short parameter "<< lastArg << endl;
+    TRACE_TEXT (TRACE_ALL_STEPS,
+		"short parameter "<< lastArg << endl);
     if (value != "")
       diet_scalar_set(diet_parameter(profile, lastArg), 
 		      this->newShort(value), 
@@ -950,7 +971,8 @@ Node::set_profile_param(WfPort * port,
 		      DIET_SHORT);      
   }
   if (type == WfCst::DIET_INT) {
-    cout << "int parameter "<< lastArg << endl;
+    TRACE_TEXT (TRACE_ALL_STEPS,
+		"int parameter "<< lastArg << endl);
     if (value != "")
       diet_scalar_set(diet_parameter(profile, lastArg), 
 		      this->newInt(value), 
@@ -963,7 +985,8 @@ Node::set_profile_param(WfPort * port,
 		      DIET_INT);
   }
   if (type == WfCst::DIET_LONGINT) {
-    cout << "long parameter "<< lastArg << endl;
+    TRACE_TEXT (TRACE_ALL_STEPS,
+		"long parameter "<< lastArg << endl);
     if (value != "")
       diet_scalar_set(diet_parameter(profile, lastArg), 
 		      this->newLong(value), 
@@ -980,7 +1003,8 @@ Node::set_profile_param(WfPort * port,
     //  diet_string_set(diet_arg_t* arg, 
     //                  char* value, diet_persistence_mode_t mode);
     //
-    cout << "%%%%%%%%% STRING parameter "<< lastArg << endl;
+    TRACE_TEXT (TRACE_ALL_STEPS,
+		"%%%%%%%%% STRING parameter "<< lastArg << endl);
     if (value != "")
       diet_string_set(diet_parameter(profile, lastArg),
 		      this->newString(value),
@@ -1015,7 +1039,8 @@ Node::set_profile_param(WfPort * port,
 		      DIET_DOUBLE);
   }
   if (type == WfCst::DIET_FILE) {
-    cout << "%%%%%%%%% FILE parameter "<< lastArg << endl;
+    TRACE_TEXT (TRACE_ALL_STEPS,
+		"%%%%%%%%% FILE parameter "<< lastArg << endl);
     if (value != "")
       diet_file_set(diet_parameter(profile, lastArg), 
 		    mode,
@@ -1027,7 +1052,8 @@ Node::set_profile_param(WfPort * port,
   }
 
   if (type == WfCst::DIET_MATRIX) {
-    cout << "the profile contain a matrix" << endl;
+    TRACE_TEXT (TRACE_ALL_STEPS,
+		"the profile contain a matrix" << endl);
     void * mat = NULL;
     switch (port->base_type) {
     case DIET_CHAR:
@@ -1057,7 +1083,8 @@ Node::set_profile_param(WfPort * port,
       if (value.substr(0, (string("file->")).size()) == "file->") {
 	string dataFileName = value.substr((string("file->")).size());
 	unsigned len = port->nb_r*port->nb_c;
-	cout << "reading the matrix data file" << endl;
+	TRACE_TEXT (TRACE_ALL_STEPS,
+		    "reading the matrix data file" << endl);
 	switch (port->base_type) {
 	case DIET_CHAR:
 	  //	  char * ptr1 = (char*)(mat);
@@ -1095,7 +1122,8 @@ Node::set_profile_param(WfPort * port,
 	vector<string> v = getStringToken(port->value);
 	unsigned int len = v.size();
 	// fill the matrix with the given data
-	cout << "filling the matrix with the data (" << len << ")" << endl;
+	TRACE_TEXT (TRACE_ALL_STEPS,
+		    "filling the matrix with the data (" << len << ")" << endl);
 	char  * ptr1(NULL);
 	short * ptr2(NULL);
 	int   * ptr3(NULL); 
@@ -1185,17 +1213,20 @@ Node::done() {
   gettimeofday(&tv, NULL);
   this->setRealCompTime(tv);
 
-  cout << "The node terminate, the estimate completion time is " <<
-    EstCompTime << " and the real completion time is " <<
-    RealCompTime.tv_sec << endl;
+  TRACE_TEXT (TRACE_ALL_STEPS,
+	      "The node terminate, the estimate completion time is " <<
+	      EstCompTime << " and the real completion time is " <<
+	      RealCompTime.tv_sec << endl);
 
   Node * n = NULL;
-  cout << "calling the " << next.size() << " next nodes" << endl;
+  TRACE_TEXT (TRACE_ALL_STEPS,
+	      "calling the " << next.size() << " next nodes" << endl);
   for (uint ix=0; ix< next.size(); ix++) {
     n = next[ix];
     n->prevDone();
   }
-  cout << "calling the " << prec.size() << " previous nodes" << endl;
+  TRACE_TEXT (TRACE_ALL_STEPS,
+	      "calling the " << prec.size() << " previous nodes" << endl);
   n = NULL;
   for (map<string, Node*>::iterator p = prec.begin();
        p != prec.end();
@@ -1216,11 +1247,22 @@ void
 Node::nextIsDone() {
   nextDone++;
   if (nextDone == next.size()) {
-    cout << myId << " Now I can free my profile !" << endl;
-/*
+    TRACE_TEXT (TRACE_ALL_STEPS,
+		myId << " Now I can free my profile !" << endl);
+    // Free persistent data
+    for (map<string, WfOutPort*>::iterator p = outports.begin();
+	 p != outports.end();
+	 ++p) {
+      WfOutPort * out = (WfOutPort*)(p->second); 
+      if (!out->isResult()) {
+	TRACE_TEXT (TRACE_ALL_STEPS,
+		    "\tRelease the persistent data " <<
+		    profile->parameters[out->index].desc.id << endl);
+	diet_free_persistent_data(profile->parameters[out->index].desc.id);
+      } // end if
+    } // end for
     diet_profile_free(profile);
     profile = NULL;
-*/
   }
 } // end nextIsDone
 
