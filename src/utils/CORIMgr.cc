@@ -1,3 +1,14 @@
+/****************************************************************************/
+/* CoRI Collectors of ressource information                                 */
+/*                                                                          */
+/* Author(s):                                                               */
+/*    - Frauenkron Peter (Peter.Frauenkron@ens-lyon.fr)                     */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $@Id: $
+ * $@Log: $
+ ****************************************************************************/
 #include "FASTMgr.hh"
 #include "CORIMgr.hh"
 #include <math.h>
