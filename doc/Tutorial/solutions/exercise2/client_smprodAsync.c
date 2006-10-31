@@ -1,3 +1,12 @@
+/************************************************************************************/
+/* DIET tutorial scalar by matrix product example: client (asynchronous version)    */
+/*                                                                                  */
+/*  Author(s):                                                                      */
+/*    - Ludovic BERTSCH           Ludovic.Bertsch@ens-lyon.fr                       */
+/*    - Eddy CARON                Eddy.Caron@ens-lyon.fr                            */
+/*    - Philippe COMBES           Philippe.Combes@ens-lyon.fr                       */
+/*                                                                                  */
+/************************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
