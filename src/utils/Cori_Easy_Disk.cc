@@ -1,3 +1,17 @@
+/****************************************************************************/
+/* CoRI: Collectors for disk ressource                                      */
+/*                                                                          */
+/* Author(s):                                                               */
+/*    - Frauenkron Peter (Peter.Frauenkron@ens-lyon.fr)                     */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.8  2006/10/31 23:01:54  ecaron
+ * CoRI: Disk ressource collector
+ *
+ ****************************************************************************/
 #include "DIET_config.h"
 #if CORI_HAVE_SYS_TIME
 #include <sys/time.h>
