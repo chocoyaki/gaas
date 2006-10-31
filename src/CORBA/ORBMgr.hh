@@ -1,3 +1,4 @@
+/****************************************************************************/
 /* DIET ORB Manager header                                                  */
 /*                                                                          */
 /*  Author(s):                                                              */
@@ -7,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2006/10/31 21:14:04  ecaron
+ * Correct wrong header
+ *
  * Revision 1.14  2006/07/10 09:55:27  aamar
  * Workflow monitoring and client reordering objects added to
  * the CONTEXT array
