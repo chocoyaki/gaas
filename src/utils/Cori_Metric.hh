@@ -1,14 +1,17 @@
 /****************************************************************************/
 /* CoRI Collectors of ressource information                                 */
-/* This is the API Header file to use CoRI                                  */
+/* Metric management                                                        */
 /*                                                                          */
 /* Author(s):                                                               */
 /*    - Frauenkron Peter (Peter.Frauenkron@ens-lyon.fr)                     */
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/* $@Id $
- * $@Log $
+/* $Id$
+ * $Log$
+ * Revision 1.6  2006/10/31 23:14:46  ecaron
+ * CoRI: Metric management
+ *
  ****************************************************************************/
 #ifndef _CORI_METRIC_HH_
 #define _CORI_METRIC_HH_
