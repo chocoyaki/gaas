@@ -1,3 +1,17 @@
+****************************************************************************/
+/* Plug-in Scheduler: Information vector management                         */
+/*                                                                          */
+/* Author(s):                                                               */
+/*    - Alan Su (Alan.Su@ens-lyon.fr)                                       */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.5  2006/10/31 23:25:04  ecaron
+ * Management of vector information used in plug-in scheduler context
+ *
+ ****************************************************************************/
 #include "Vector.h"
 
 
