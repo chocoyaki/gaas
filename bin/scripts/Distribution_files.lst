@@ -17,76 +17,352 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.2  2006/11/01 23:48:20  ecaron
+#* Add files required for release
+#*
 #* Revision 1.1  2006/11/01 23:45:39  ecaron
 #* Script to generate the DIET distribution
 #* Author: Philippe Combes
 #*
 #****************************************************************************#
 
-# C'est pratique de mettre des commentaires si on veut regrouper les différentes
-# parties du soft, surtout qu'on peut définir les sections autant de fois que
-# l'on veut...
-# Je m'explique avec les commentaires ci-dessous...
-
-
-# Section [Templated] :
-#  Fichiers avec template (donc qui doivent passer dans la moulinette de
-#  distrib_file) qui sont dans toute distribution.
-# On peut faire une première section [Templated] pour les docs et les scripts
-# (pour l'exemple)
-
 [Templated]
 doc/Tutorial/Tutorial.tex
-# Evidemment, on peut mettre des commentaires à l'intérieur d'une section.
 bin/scripts/extract.pl
-
-# Section [Untemplated] :
-#  Fichiers sans template qui sont dans toute distribution.
-# Comme on le voit la définition de section est insensible à la casse...
 
 [UNTEMPLATED]
 INSTALL
 
 # Section [Devel_templated] :
 #  Fichiers avec template à mettre dans la distrib pour développeurs seulement.
-
 [devel_templated]
 doc/ProgrammersGuide/batch.tex
 
 # Section [Devel_Untemplated] :
 #  Fichiers sans template à mettre dans la distrib pour développeurs seulement.
 # Comme on le voit la définition de section est VRAIMENT insensible à la casse... ;-)
-
-[dEVel_UnTempLateD]
+[Devel_untemplated]
 doc/Doxyfile
-
-# Et on montre ici qu'on peut rajouter autant de bout de section que l'on veut...
-# Mais c'est vrai que si tout le monde s'y amuse, ça va être un beau bazar...
-# Enfin, ça peut permettre de regrouper les fichiers par thème/module...
-
-[Templated]
-src/agent/AgentImpl.cc
-
-
-
-# Bon, jusqu'ici, c'était la partie démo pour que mon Eddy préféré comprenne
-# bien le bignouet pour mes tests du script... Maintenant, c'est un exemple un
-# peu plus sérieux pour ce qui est de la documentation de DIET. J'y ai ajouté
-# quelques commentaires sur des petites choses qui pourraient être à revoir.
-
-
-[Templated]
-
 bin/scripts/extract.pl
-# Je ne sais pas si c'est utile aux utilisateurs, ça. Sinon, il faut le mettre
-# dans la partie [Devel_templated] et il n'y aura pas de bin/scripts dans la
-# distrib de base.
 
+# CORBA section
+[Templated]
+src/CORBA/CMakeLists.txt
+src/CORBA/ORBMgr.cc
+src/CORBA/ORBMgr.hh
+src/CORBA/marshalling.cc
+src/CORBA/marshalling.hh
+src/CORBA/idl/CMakeLists.txt
+src/CORBA/idl/Agent.idl
+src/CORBA/idl/Callback.idl
+src/CORBA/idl/CltReoMan.idl
+src/CORBA/idl/DataMgr.idl
+src/CORBA/idl/LocMgr.idl
+src/CORBA/idl/LocalAgent.idl
+src/CORBA/idl/LogComponent.idl
+src/CORBA/idl/LogTypes.idl
+src/CORBA/idl/MaDag.idl
+src/CORBA/idl/MasterAgent.idl
+src/CORBA/idl/SeD.idl
+src/CORBA/idl/WfLogService.idl
+src/CORBA/idl/common_types.idl
+src/CORBA/idl/idlRules.mk
+src/CORBA/idl/response.idl
+
+# SeD section
+[Templated]
+src/SeD/CMakeLists.txt
+src/SeD/DIET_server.cc
+src/SeD/DataMgrImpl.cc
+src/SeD/DataMgrImpl.hh
+src/SeD/JXTASeD.java
+src/SeD/SeDImpl.cc
+src/SeD/SeDImpl.hh
+src/SeD/SeDJNI.cc
+src/SeD/dmat_jxta_progs.h
+
+# agent section
+[Templated]
+src/agent/AbsWfMetaSched.cc
+src/agent/AbsWfMetaSched.hh
+src/agent/AgentImpl.cc
+src/agent/AgentImpl.hh
+src/agent/BindService.cc
+src/agent/BindService.hh
+src/agent/CMakeLists.txt
+src/agent/ChildID.hh
+src/agent/ExitClass.cc
+src/agent/ExitClass.hh
+src/agent/FloodRequest.cc
+src/agent/FloodRequest.hh
+src/agent/FloodRequestsList.cc
+src/agent/FloodRequestsList.hh
+src/agent/GlobalSchedulers.cc
+src/agent/GlobalSchedulers.hh
+src/agent/HEFT_MaDag_Sched.cc
+src/agent/HEFT_MaDag_Sched.hh
+src/agent/JXTAMultiMA.java
+src/agent/LA.java
+src/agent/LocMgrImpl.cc
+src/agent/LocMgrImpl.hh
+src/agent/LocalAgentImpl.cc
+src/agent/LocalAgentImpl.hh
+src/agent/MaDag_impl.cc
+src/agent/MaDag_impl.hh
+src/agent/MaDag_sched.cc
+src/agent/MaDag_sched.hh
+src/agent/MasterAgentImpl.cc
+src/agent/MasterAgentImpl.hh
+src/agent/MetaDag.cc
+src/agent/MetaDag.hh
+src/agent/MultiWfFairness_Sched.cc
+src/agent/MultiWfFairness_Sched.hh
+src/agent/NodeDescription.hh
+src/agent/ReferenceUpdateThread.cc
+src/agent/ReferenceUpdateThread.hh
+src/agent/ReqMgr.java
+src/agent/Request.cc
+src/agent/Request.hh
+src/agent/RequestID.hh
+src/agent/RoundRobbin_MaDag_Sched.cc
+src/agent/RoundRobbin_MaDag_Sched.hh
+src/agent/Schedulers.cc
+src/agent/Schedulers.hh
+src/agent/UuidsMgr.java
+src/agent/WfMetaSched.cc
+src/agent/WfMetaSched.hh
+src/agent/dietAgent.cc
+src/agent/localAgentJNI.cc
+src/agent/maDag.cc
+src/agent/masterAgentJNI.cc
+src/agent/qsort.cc
+
+# Client section
+src/client/CMakeLists.txt
+src/client/CallAsyncMgr.cc
+src/client/CallAsyncMgr.hh
+src/client/CallbackImpl.cc
+src/client/CallbackImpl.hh
+src/client/DIET_client.cc
+src/client/DIET_grpc.cc
+
+# examples section
+src/examples/CMakeLists.txt
+src/examples/BLAS/CMakeLists.txt
+src/examples/BLAS/client.c
+src/examples/BLAS/dgemm_client.c
+src/examples/BLAS/server.c
+src/examples/Batch/CMakeLists.txt
+src/examples/Batch/batch_server.c
+src/examples/Batch/client.c
+src/examples/Batch/concatenation.c
+src/examples/Batch/parallel_server.c
+src/examples/Batch/sequential_server.c
+src/examples/GridRPC/CMakeLists.txt
+src/examples/GridRPC/server.c
+src/examples/GridRPC/standard-test.c
+src/examples/JXTA/CMakeLists.txt
+src/examples/JXTA/JXTAClient.java
+src/examples/ScaLAPACK/client.c
+src/examples/ScaLAPACK/job.c
+src/examples/ScaLAPACK/job.h
+src/examples/ScaLAPACK/pdgemm_client.c
+src/examples/ScaLAPACK/server.c
+src/examples/cori/CMakeLists.txt
+src/examples/cori/client.c
+src/examples/cori/coriEasyTester.cc
+src/examples/cori/progs.h
+src/examples/cori/server.c
+src/examples/dmat_manips/CMakeLists.txt
+src/examples/dmat_manips/Global_macros.hh
+src/examples/dmat_manips/client.c
+src/examples/dmat_manips/clientJuxMem.c
+src/examples/dmat_manips/clientWithID.c
+src/examples/dmat_manips/parallelClient.cc
+src/examples/dmat_manips/parallelClient2.cc
+src/examples/dmat_manips/parallelClient3.cc
+src/examples/dmat_manips/parallelClient4.cc
+src/examples/dmat_manips/progs.h
+src/examples/dmat_manips/serialClient.cc
+src/examples/dmat_manips/server.c
+src/examples/file_transfer/CMakeLists.txt
+src/examples/file_transfer/client.c
+src/examples/file_transfer/server.c
+src/examples/plugin_example/client.c
+src/examples/plugin_example/server.c
+src/examples/scalars/CMakeLists.txt
+src/examples/scalars/client.c
+src/examples/scalars/server.c
+src/examples/workflow/CMakeLists.txt
+src/examples/workflow/client1.c
+src/examples/workflow/double.c
+src/examples/workflow/file_manip.c
+src/examples/workflow/generic_client.c
+src/examples/workflow/int2str.c
+src/examples/workflow/mat_op.c
+src/examples/workflow/mul_succ.c
+src/examples/workflow/mul_sum.c
+src/examples/workflow/scalar_server.c
+src/examples/workflow/square.c
+src/examples/workflow/strlen.c
+src/examples/workflow/succ.c
+src/examples/workflow/succ_float.c
+src/examples/workflow/sum.c
+
+[Untemplated]
+src/examples/JXTA/scripts/LA1/LA1_jxta_load.sh
+src/examples/JXTA/scripts/MMA1/MMA1_load.sh
+src/examples/JXTA/scripts/MMA2/MMA2_load.sh
+src/examples/JXTA/scripts/MMA3/MMA3_load.sh
+src/examples/JXTA/scripts/SeD1/SeD1_jxta_load.sh
+src/examples/JXTA/scripts/SeD2/SeD2_jxta_load.sh
+src/examples/JXTA/scripts/SeD3/SeD3_jxta_load.sh
+src/examples/JXTA/scripts/client/client_jxta_load.sh
+src/examples/workflow/godiet/GoDIET.dtd
+src/examples/workflow/godiet/generate.sh
+src/examples/workflow/godiet/godiet-template.xml
+src/examples/workflow/xml/file.xml
+src/examples/workflow/xml/matrix.xml
+src/examples/workflow/xml/scalar.xml
+src/examples/workflow/xml/string.xml
+src/examples/workflow/xml/var_desc.xml
+src/examples/workflow/xml/logo_diet.jpg
+
+# Utils section
+[Templated]
+src/utils/AbstractWfSched.cc
+src/utils/AbstractWfSched.hh
+src/utils/AccessController.cc
+src/utils/AccessController.hh
+src/utils/CMakeLists.txt
+src/utils/CORIMgr.cc
+src/utils/CORIMgr.hh
+src/utils/CltReoMan_impl.cc
+src/utils/CltReoMan_impl.hh
+src/utils/Cori_Data_Easy.cc
+src/utils/Cori_Data_Easy.hh
+src/utils/Cori_Easy_CPU.cc
+src/utils/Cori_Easy_CPU.hh
+src/utils/Cori_Easy_Disk.cc
+src/utils/Cori_Easy_Disk.hh
+src/utils/Cori_Easy_Memory.cc
+src/utils/Cori_Easy_Memory.hh
+src/utils/Cori_Fast.cc
+src/utils/Cori_Fast.hh
+src/utils/Cori_Metric.cc
+src/utils/Cori_Metric.hh
+src/utils/Counter.cc
+src/utils/Counter.hh
+src/utils/DIET_data.cc
+src/utils/DIET_data_internal.hh
+src/utils/DIET_mutex.cc
+src/utils/Dag.cc
+src/utils/Dag.hh
+src/utils/DietLogComponent.cc
+src/utils/DietLogComponent.hh
+src/utils/FASTMgr.cc
+src/utils/FASTMgr.hh
+src/utils/HEFT_Sched.cc
+src/utils/HEFT_Sched.hh
+src/utils/KeyString.cc
+src/utils/KeyString.hh
+src/utils/LinkedList.hh
+src/utils/MonitoringThread.cc
+src/utils/MonitoringThread.hh
+src/utils/Node.cc
+src/utils/Node.hh
+src/utils/Parsers.cc
+src/utils/Parsers.hh
+src/utils/ReadersWriterLock.hh
+src/utils/ServiceTable.cc
+src/utils/ServiceTable.hh
+src/utils/SimpleWfSched.cc
+src/utils/SimpleWfSched.hh
+src/utils/Thread.cc
+src/utils/Thread.hh
+src/utils/Vector.c
+src/utils/Vector.h
+src/utils/WfConfig.cc
+src/utils/WfConfig.hh
+src/utils/WfExtReader.cc
+src/utils/WfExtReader.hh
+src/utils/WfPort.cc
+src/utils/WfPort.hh
+src/utils/WfUtils.cc
+src/utils/WfUtils.hh
+src/utils/batch.c
+src/utils/batch.h
+src/utils/batch_configure.h.in
+src/utils/debug.cc
+src/utils/debug.hh
+src/utils/est_internal.cc
+src/utils/est_internal.hh
+src/utils/ms_function.cc
+src/utils/ms_function.hh
+src/utils/statistics.cc
+src/utils/statistics.hh
+src/utils/fd/CMakeLists.txt
+src/utils/fd/application_watcher.cc
+src/utils/fd/application_watcher.h
+src/utils/fd/fd.h
+src/utils/fd/fd_private.h
+src/utils/fd/fdc.cc
+src/utils/fd/fdd.cc
+src/utils/fd/fdd.h
+src/utils/fd/formulae.cc
+src/utils/fd/formulae.h
+src/utils/fd/hashtable.cc
+src/utils/fd/hashtable.h
+src/utils/fd/heap.cc
+src/utils/fd/heap.h
+src/utils/fd/heartbeat_sender.cc
+src/utils/fd/heartbeat_sender.h
+src/utils/fd/list.cc
+src/utils/fd/list.h
+src/utils/fd/tcp_server.cc
+src/utils/fd/tcp_server.h
+src/utils/fd/threadoverlay.h
+src/utils/fd/udp_server.cc
+src/utils/fd/udp_server.h
+src/utils/ts_container/ts_map.hh
+src/utils/ts_container/ts_set.hh
+src/utils/ts_container/ts_vector.hh
+
+# lib section
+[Untemplated]
+src/lib/bcprov-jdk14.jar
+src/lib/cryptix-asn1.jar
+src/lib/cryptix32.jar
+src/lib/javax.servlet.jar
+src/lib/jaxen-core.jar
+src/lib/jaxen-jdom.jar
+src/lib/jdom.jar
+src/lib/junit.jar
+src/lib/jxta.jar
+src/lib/jxtaSwing.jar
+src/lib/jxtaext.jar
+src/lib/jxtaptls.jar
+src/lib/jxtasecurity.jar
+src/lib/log4j.jar
+src/lib/org.mortbay.jetty.jar
+src/lib/saxpath.jar
+src/lib/licenses/JXTA-license.txt
+src/lib/licenses/bcprov-license.txt
+src/lib/licenses/cryptix-license.txt
+src/lib/licenses/javax-servlet-license.txt
+src/lib/licenses/jaxen-license.txt
+src/lib/licenses/jdom-licenses.txt
+src/lib/licenses/jetty-license.txt
+src/lib/licenses/junit-license.txt
+src/lib/licenses/log4j-license.txt
+src/lib/licenses/saxpath-license.txt
+
+# Doc section
+[Templated]
 doc/Tutorial/exercise2/client_smprod.c
 doc/Tutorial/exercise2/client_smprodAsync.c
 doc/Tutorial/exercise2/client_smprod_file.c
 doc/Tutorial/exercise2/server.c
-doc/Tutorial/Tutorial.bib
 doc/Tutorial/Tutorial.tex
 doc/Tutorial/exercise3/client.c
 doc/Tutorial/exercise3/server.c
@@ -108,15 +384,10 @@ doc/UsersManual/plugin.tex
 doc/UsersManual/prediction.tex
 doc/UsersManual/server.tex
 doc/UsersManual/xml_example.tex
-
-
+doc/CMakeLists.txt
 
 [Untemplated]
-
-doc/CMakeLists.txt
-# Et oui ! Les CMakeLists.txt n'ont jamais d'entête ! Peut-être sont-ils à
-# exclure des distribs non-maintainer ???
-
+doc/Tutorial/Tutorial.bib
 doc/Tutorial/exercise2/matrix1
 doc/Tutorial/solutions/cfgs/client.cfg
 doc/Tutorial/solutions/cfgs/LA1.cfg
@@ -129,8 +400,8 @@ doc/Tutorial/solutions/omniORB.cfg.in
 doc/Tutorial/solutions/exercise2/matrix1
 doc/Tutorial/solutions/exercise3/client.c
 doc/Tutorial/solutions/exercise3/server.c
-
 doc/UsersManual/DIET_UsersManual.ps
+
 # Ici, je mets les sources des documents dans les [Devel_*] pour ne laisser que
 # le ps final dans la distrib normale. Du coup, le répertoire doc/ aura des
 # sous-répertoires avec un seul fichier chacun. Il faut peut-être réfléchir à
@@ -140,39 +411,28 @@ doc/UsersManual/DIET_UsersManual.ps
 # décompressée, et puis que sais-je encore ?
 # Bref, c'est du packaging, de la déco...
 
-
-
 [Devel_templated]
-
 doc/ProgrammersGuide/fig/CMakeLists.txt
 # Là, je me demande si ça pose problème à CMake de supprimer des
 # sous-répertoires. Si oui, il faut remettre le répertoire du PG et le
 # CMakeLists.txt dans une section [(Un)Templated]. Sinon, on peut virer ce PG de
 # la distribution "normale" comme je le fais ici...
-
 doc/ProgrammersGuide/Annexe1.tex
 doc/ProgrammersGuide/CS.tex
 doc/ProgrammersGuide/ProgrammersGuide.tex
 doc/ProgrammersGuide/batch.tex
 doc/ProgrammersGuide/source_tree.tex
 doc/ProgrammersGuide/start.tex
-
 bin/scripts/make_dist.pl
 bin/scripts/distrib_file.sh
 bin/scripts/Distribution_files.lst
 
-
-
-
 [Devel_Untemplated]
-
 bin/scripts/remote-compile.in
 # Untemplated, Ah ! sacré Christophe...
-
 doc/Doxyfile
 doc/Doxyfile.in
 # Lequel des deux doxyfile ? Et les entêtes ?
-
 doc/ProgrammersGuide/CMakeLists.txt
 doc/ProgrammersGuide/fig/CallAsyncProbeSequenceDiagram1.png
 doc/ProgrammersGuide/fig/CallAsyncSequenceDiagram.png
@@ -194,7 +454,6 @@ doc/ProgrammersGuide/fig/logo_DIET.gif
 doc/UsersManual/fig/CMakeLists.txt
 # Il m'étonne celui-là, pourquoi n'y en a-t-il pas dans ProgrammersGuide/fig/ ?
 # Vérifier qu'il est nécessaire...
-
 doc/UsersManual/fig/data.eps
 doc/UsersManual/fig/DIET_arch_request-2.ps
 doc/UsersManual/fig/FAST.fig
