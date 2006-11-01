@@ -1,4 +1,4 @@
-****************************************************************************/
+/****************************************************************************/
 /* Plug-in Scheduler: Information vector management                         */
 /*                                                                          */
 /* Author(s):                                                               */
@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2006/11/01 21:38:04  ecaron
+ * Correction of wrong comment
+ *
  * Revision 1.5  2006/10/31 23:25:04  ecaron
  * Management of vector information used in plug-in scheduler context
  *
