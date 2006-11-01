@@ -1,6 +1,6 @@
 <dag>
   <node id="n1" path="greyscale" >
-    <arg name="in"  type="DIET_FILE" value="lilly.jpg" />
+    <arg name="in"  type="DIET_FILE" value="logo_diet.jpg" />
     <out name="out" type="DIET_FILE" />
   </node>
 
