@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.4  2006/11/01 14:02:25  ecaron
+ * Correct wrong end line character (Ctrl+M)
+ *
  * Revision 1.3  2006/06/20 13:29:16  abouteil
  *
  *
