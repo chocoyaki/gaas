@@ -9,6 +9,10 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.5  2006/11/01 23:45:39  ecaron
+#* Script to generate the DIET distribution
+#* Author: Philippe Combes
+#*
 #* Revision 1.4  2006/02/17 10:04:49  ecaron
 #* Don't take into account .png file
 #*
@@ -50,31 +54,10 @@
 #****************************************************************************#
 
 
-ORG_FILE=$1
+IN_FILE=$1
 FILEDIR=`dirname $1`
 FILEBASENAME=`basename $1`
-
-shift
-
-# Test if $ORG_FILE has to be processed
-for i in $*  # $i can be a regular expression ...
-do
-  if [ "`echo $ORG_FILE | grep $i`" != "" ]; then
-    exit 0;
-  fi
-done
-
-# If $ORG_FILE is a directory, process its contents and exit
-if [ -d "$ORG_FILE" ]; then
-  for f in `ls -A $ORG_FILE`; do
-    shift
-    $0 $ORG_FILE/$f $*
-    status=$?
-    if [ $status -ne 0 ]; then exit $status; fi
-  done
-  exit 0;
-fi
-  
+OUT_FILE=$2
 
 # Select comment syntax depending on the file extension
 # Default is #* ... *#
@@ -109,12 +92,7 @@ case "$FILEBASENAME" in
     END_CVS_PAT=$SEP_LINE_PAT
 esac
 
-printf "Formatting $ORG_FILE for distribution ... "
-
-IN_FILE=$ORG_FILE.org
-OUT_FILE=$ORG_FILE
-# Save original file to return in the same state after the distribution is built
-mv -f $ORG_FILE $IN_FILE
+printf "Formatting $IN_FILE for distribution ... "
 
 # How to match the $LICENSE$ line ...
 OPC_PAT=`echo "$OPC" | sed "s|\*|\\\\\*|g"`
@@ -147,6 +125,8 @@ GREP_CONFIG_MK="grep '^#\*\\ .Log: config.mk.in,v .$' $IN_FILE"
 # Then dump the file tail as is.
 NO_LINE=0
 NO_SEP_LINE=0
+no_sep_line_file=/tmp/distrib_no_sep_line.$$
+echo $NO_SEP_LINE > $no_sep_line_file
 cat $IN_FILE | while read LINE
 do
   
@@ -216,22 +196,10 @@ EOF
         cat_tail=0
       fi
     fi
-    # Is it a Makefile.in that includes config.mk ???
-    if [ "$FILEBASENAME" = "Makefile.in" -a \
-         "`eval $GREP_CONFIG_MK`" != ""  -a "$NO_SEP_LINE" = "3" ]; then
-      while [ "$NO_SEP_LINE" -lt "6" ]
-      do
-	read LINE
-	NO_LINE=`expr $NO_LINE + 1`
-	if [ "`echo \"$LINE\" | sed \"s|${SEP_LINE_PAT}|@@|g\"`" = "@@" ]
-	then
-	  NO_SEP_LINE=`expr $NO_SEP_LINE + 1`
-	fi
-      done
-    fi
     if [ $cat_tail ]; then
       NO_LINE=`expr $NO_LINE + 1`
       tail +$NO_LINE $IN_FILE >> $OUT_FILE
+      echo $NO_SEP_LINE > $no_sep_line_file
       break;
     fi
   # The line must be kept
@@ -240,7 +208,11 @@ EOF
   fi
 done
 
+echo -n "done."
 
-rm -f $IN_FILE
+if [ `cat $no_sep_line_file` -le 1 ]; then
+  echo -n " [!!! WRONG FORMAT !!!] "
+fi
+echo ""
+rm -f $no_sep_line_file
 
-echo "done."

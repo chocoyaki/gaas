@@ -1,0 +1,226 @@
+#****************************************************************************#
+#* List of all files to be added to DIET releases.                          *#
+#* There are 4 types of section:                                            *#
+#*  - [Templated]: Files for all kinds of distribution, with a template     *#
+#*                 header which is to be processed by distrib_file.sh       *#
+#*  - [Untemplated]: File with no template header but to be added in all    *#
+#*                 kinds of distribution.                                   *#
+#*  - [Devel_Templated]: Files with template header for maintainer distri-  *#
+#*                 butions only.                                            *#
+#*  - [Devel_Untemplated]: Files with no template header for maintainer     *#
+#*                 distributions only.                                      *#
+#*                                                                          *#
+#*  Author(s):                                                              *#
+#*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr)                       *#
+#*                                                                          *#
+#* $LICENSE$                                                                *#
+#****************************************************************************#
+#* $Id$
+#* $Log$
+#* Revision 1.1  2006/11/01 23:45:39  ecaron
+#* Script to generate the DIET distribution
+#* Author: Philippe Combes
+#*
+#****************************************************************************#
+
+# C'est pratique de mettre des commentaires si on veut regrouper les différentes
+# parties du soft, surtout qu'on peut définir les sections autant de fois que
+# l'on veut...
+# Je m'explique avec les commentaires ci-dessous...
+
+
+# Section [Templated] :
+#  Fichiers avec template (donc qui doivent passer dans la moulinette de
+#  distrib_file) qui sont dans toute distribution.
+# On peut faire une première section [Templated] pour les docs et les scripts
+# (pour l'exemple)
+
+[Templated]
+doc/Tutorial/Tutorial.tex
+# Evidemment, on peut mettre des commentaires à l'intérieur d'une section.
+bin/scripts/extract.pl
+
+# Section [Untemplated] :
+#  Fichiers sans template qui sont dans toute distribution.
+# Comme on le voit la définition de section est insensible à la casse...
+
+[UNTEMPLATED]
+INSTALL
+
+# Section [Devel_templated] :
+#  Fichiers avec template à mettre dans la distrib pour développeurs seulement.
+
+[devel_templated]
+doc/ProgrammersGuide/batch.tex
+
+# Section [Devel_Untemplated] :
+#  Fichiers sans template à mettre dans la distrib pour développeurs seulement.
+# Comme on le voit la définition de section est VRAIMENT insensible à la casse... ;-)
+
+[dEVel_UnTempLateD]
+doc/Doxyfile
+
+# Et on montre ici qu'on peut rajouter autant de bout de section que l'on veut...
+# Mais c'est vrai que si tout le monde s'y amuse, ça va être un beau bazar...
+# Enfin, ça peut permettre de regrouper les fichiers par thème/module...
+
+[Templated]
+src/agent/AgentImpl.cc
+
+
+
+# Bon, jusqu'ici, c'était la partie démo pour que mon Eddy préféré comprenne
+# bien le bignouet pour mes tests du script... Maintenant, c'est un exemple un
+# peu plus sérieux pour ce qui est de la documentation de DIET. J'y ai ajouté
+# quelques commentaires sur des petites choses qui pourraient être à revoir.
+
+
+[Templated]
+
+bin/scripts/extract.pl
+# Je ne sais pas si c'est utile aux utilisateurs, ça. Sinon, il faut le mettre
+# dans la partie [Devel_templated] et il n'y aura pas de bin/scripts dans la
+# distrib de base.
+
+doc/Tutorial/exercise2/client_smprod.c
+doc/Tutorial/exercise2/client_smprodAsync.c
+doc/Tutorial/exercise2/client_smprod_file.c
+doc/Tutorial/exercise2/server.c
+doc/Tutorial/Tutorial.bib
+doc/Tutorial/Tutorial.tex
+doc/Tutorial/exercise3/client.c
+doc/Tutorial/exercise3/server.c
+doc/Tutorial/solutions/exercise2/client_smprod.c
+doc/Tutorial/solutions/exercise2/client_smprodAsync.c
+doc/Tutorial/solutions/exercise2/client_smprod_file.c
+doc/Tutorial/solutions/exercise2/server.c
+doc/UsersManual/UsersManual.bib
+doc/UsersManual/UsersManual.tex
+doc/UsersManual/client.tex
+doc/UsersManual/dashboard.tex
+doc/UsersManual/data.tex
+doc/UsersManual/deploy.tex
+doc/UsersManual/description.tex
+doc/UsersManual/install.tex
+doc/UsersManual/juxmem.tex
+doc/UsersManual/jxta.tex
+doc/UsersManual/plugin.tex
+doc/UsersManual/prediction.tex
+doc/UsersManual/server.tex
+doc/UsersManual/xml_example.tex
+
+
+
+[Untemplated]
+
+doc/CMakeLists.txt
+# Et oui ! Les CMakeLists.txt n'ont jamais d'entête ! Peut-être sont-ils à
+# exclure des distribs non-maintainer ???
+
+doc/Tutorial/exercise2/matrix1
+doc/Tutorial/solutions/cfgs/client.cfg
+doc/Tutorial/solutions/cfgs/LA1.cfg
+doc/Tutorial/solutions/cfgs/LA2.cfg
+doc/Tutorial/solutions/cfgs/MA1.cfg
+doc/Tutorial/solutions/cfgs/SeD.cfg
+doc/Tutorial/solutions/env_vars.bash.in
+doc/Tutorial/solutions/env_vars.csh.in
+doc/Tutorial/solutions/omniORB.cfg.in
+doc/Tutorial/solutions/exercise2/matrix1
+doc/Tutorial/solutions/exercise3/client.c
+doc/Tutorial/solutions/exercise3/server.c
+
+doc/UsersManual/DIET_UsersManual.ps
+# Ici, je mets les sources des documents dans les [Devel_*] pour ne laisser que
+# le ps final dans la distrib normale. Du coup, le répertoire doc/ aura des
+# sous-répertoires avec un seul fichier chacun. Il faut peut-être réfléchir à
+# mettre tous les documents dans doc/ pour que ce soit plus lisible, et puis
+# éventuellement les transformer en PDF pour la distrib, les compresser pour
+# gagner de la place sur le disque de l'utilisateur une fois l'archive
+# décompressée, et puis que sais-je encore ?
+# Bref, c'est du packaging, de la déco...
+
+
+
+[Devel_templated]
+
+doc/ProgrammersGuide/fig/CMakeLists.txt
+# Là, je me demande si ça pose problème à CMake de supprimer des
+# sous-répertoires. Si oui, il faut remettre le répertoire du PG et le
+# CMakeLists.txt dans une section [(Un)Templated]. Sinon, on peut virer ce PG de
+# la distribution "normale" comme je le fais ici...
+
+doc/ProgrammersGuide/Annexe1.tex
+doc/ProgrammersGuide/CS.tex
+doc/ProgrammersGuide/ProgrammersGuide.tex
+doc/ProgrammersGuide/batch.tex
+doc/ProgrammersGuide/source_tree.tex
+doc/ProgrammersGuide/start.tex
+
+bin/scripts/make_dist.pl
+bin/scripts/distrib_file.sh
+bin/scripts/Distribution_files.lst
+
+
+
+
+[Devel_Untemplated]
+
+bin/scripts/remote-compile.in
+# Untemplated, Ah ! sacré Christophe...
+
+doc/Doxyfile
+doc/Doxyfile.in
+# Lequel des deux doxyfile ? Et les entêtes ?
+
+doc/ProgrammersGuide/CMakeLists.txt
+doc/ProgrammersGuide/fig/CallAsyncProbeSequenceDiagram1.png
+doc/ProgrammersGuide/fig/CallAsyncSequenceDiagram.png
+doc/ProgrammersGuide/fig/CallAsyncWaitSequenceDiagram.png
+doc/ProgrammersGuide/fig/CallBackSynchronisationClassDiagram2.png
+doc/ProgrammersGuide/fig/CallbackSynchronisationSequenceDiagram.png
+doc/ProgrammersGuide/fig/CorbaClientClassDIagram.png
+doc/ProgrammersGuide/fig/DiagrammeAclocal.fig
+doc/ProgrammersGuide/fig/DiagrammeAutoconf.png
+doc/ProgrammersGuide/fig/DiagrammeAutoheader.png
+doc/ProgrammersGuide/fig/DiagrammeAutomakeLibtoolize.png
+doc/ProgrammersGuide/fig/DiagrammeConfigure.png
+doc/ProgrammersGuide/fig/DiagrammeGridRPCDietStructure.fig
+doc/ProgrammersGuide/fig/DietCancelSequenceDiagram.png
+doc/ProgrammersGuide/fig/WaitRulesClassDiagram.png
+doc/ProgrammersGuide/fig/autotools_chain.fig
+doc/ProgrammersGuide/fig/logo_DIET.gif
+
+doc/UsersManual/fig/CMakeLists.txt
+# Il m'étonne celui-là, pourquoi n'y en a-t-il pas dans ProgrammersGuide/fig/ ?
+# Vérifier qu'il est nécessaire...
+
+doc/UsersManual/fig/data.eps
+doc/UsersManual/fig/DIET_arch_request-2.ps
+doc/UsersManual/fig/FAST.fig
+doc/UsersManual/fig/JXTAConfig.ps
+doc/UsersManual/fig/VizDIET.ps
+doc/UsersManual/fig/VizDIET_screenshot_2.gif
+doc/UsersManual/fig/data.fig
+doc/UsersManual/fig/global_platform.fig
+doc/UsersManual/fig/global_platform_jxta.fig
+doc/UsersManual/fig/init.fig
+doc/UsersManual/fig/logo_DIET.gif
+doc/UsersManual/fig/logo_DIET2.gif
+doc/UsersManual/fig/logo_DIET_big.gif
+doc/UsersManual/fig/overviewCori.fig
+doc/UsersManual/fig/smprod.fig
+doc/UsersManual/fig/submit_pb.fig
+doc/UsersManual/fig/FAST.eps
+doc/UsersManual/fig/global_platform.eps
+doc/UsersManual/fig/global_platform_jxta.eps
+doc/UsersManual/fig/init.eps
+doc/UsersManual/fig/overviewCori.eps
+doc/UsersManual/fig/smprod.eps
+doc/UsersManual/fig/submit_pb.eps
+doc/UsersManual/fig/logo_DIET2.ps
+doc/UsersManual/fig/logo_DIET_big.ps
+doc/UsersManual/fig/logo_DIET.ps
+doc/UsersManual/fig/VizDIET_screenshot_2.ps
+doc/UsersManual/CMakeLists.txt
+
