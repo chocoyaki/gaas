@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.91  2006/11/02 17:11:43  rbolze
+ * add some debug info
+ *
  * Revision 1.90  2006/10/26 14:00:07  aamar
  * Workflow support: check the returned result of xml reader in all cases
  *
@@ -1633,7 +1636,8 @@ diet_wf_call_ma(diet_wf_desc_t* profile) {
   // Call the master agent
   // and send the workflow description
   TRACE_TEXT (TRACE_MAIN_STEPS,
-	      "Try to send the workflow description (as a profile list) to" <<
+	      "Try to send the workflow description (as a profile list " 
+	      << len << " ) to" <<
 	      " the master agent ...");
   if (MA) {
     response = MA->submit_pb_set(pbs_seq, dagSize);
@@ -1705,6 +1709,7 @@ diet_call_wf_madag_v1(diet_wf_desc_t* profile) {
   diet_error_t res(0);
   corba_wf_desc_t  * corba_profile = new corba_wf_desc_t;
   wf_sched_response_t * response = NULL;
+  TRACE_TEXT (TRACE_ALL_STEPS,"diet_call_wf_madag_v1 "<< endl);
 
   if (dag != NULL) {
     delete dag;
@@ -1804,7 +1809,7 @@ diet_call_wf_madag_v2(diet_wf_desc_t* profile) {
   diet_error_t res(0);
   corba_wf_desc_t  * corba_profile = new corba_wf_desc_t;
   wf_sched_response_t * response = NULL;
-
+  TRACE_TEXT (TRACE_ALL_STEPS,"diet_call_wf_madag_v2 "<< endl);
   reader = new WfExtReader(profile->abstract_wf, true);
   reader->setup();
 

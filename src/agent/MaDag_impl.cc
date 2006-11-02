@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2006/11/02 17:10:19  rbolze
+ * add some debug info
+ *
  * Revision 1.4  2006/10/24 00:06:40  aamar
  * Adding statistics to submit workflow method.
  * The dag id is provided only by the MasterAgent.
@@ -116,6 +119,7 @@ MaDag_impl::submit_wf (const corba_wf_desc_t& wf_desc) {
   // transform the description to a data structure
   WfExtReader reader(wf_desc.abstract_wf);
   reader.setup();
+  cout << "dagSize ="<<reader.getDagSize() <<endl;
 
   // check the services
   unsigned int len = reader.pbs_list.size();
@@ -125,7 +129,7 @@ MaDag_impl::submit_wf (const corba_wf_desc_t& wf_desc) {
     pbs_seq[ix] = reader.pbs_list[ix];
   }
 
-  cout << "send the problems sequence to the master agent ... " << endl;
+  cout << "send the problems ("<< len << ") sequence to the master agent ... " << endl;
   wf_response = this->parent->submit_pb_set(pbs_seq, reader.getDagSize());
   cout << "... done" << endl;
 
