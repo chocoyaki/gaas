@@ -53,8 +53,17 @@ IF( DIET_BUILD_LIBRARIES )
           AbsWfMetaSched.cc
           WfMetaSched.cc MultiWfFairness_Sched.cc )
 
+    TARGET_LINK_LIBRARIES ( MaDag 
+         IDLMaDag
+         AgentCommon 
+         DietWorkflow 
+         DIET_client
+         ${XERCES_LIBRARY}
+         ${OMNIORB4_LIBRARIES}
+    )
+
     ADD_EXECUTABLE ( maDag maDag.cc )
-    TARGET_LINK_LIBRARIES ( maDag IDLMaDag MaDag AgentCommon DietWorkflow DIET_client)
+    TARGET_LINK_LIBRARIES (maDag MaDag)
     INSTALL_TARGETS(/bin/ maDag )
     INSTALL_TARGETS(/lib/ MaDag )
   
