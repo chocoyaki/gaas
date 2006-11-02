@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2006/11/02 17:13:13  rbolze
+ * dd some debug info
+ *
  * Revision 1.5  2006/10/28 23:17:08  aamar
  * Free the persistent data when they are not needed anymore.
  * Replace cout/cerr debug message by debug.hh macros.
@@ -124,6 +127,7 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer,
     stat_in("Client",statMsg);
 
     TRACE_TEXT(TRACE_MAIN_STEPS, "Calling the ref Corba of the SeD\n");
+    TRACE_TEXT(TRACE_MAIN_STEPS, statMsg << endl);
 #if HAVE_FD
     fd_set_transition_handler(diet_call_failure_recover);
 #endif
@@ -150,6 +154,7 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer,
   }
 
   sprintf(statMsg, "diet_call %ld", (unsigned long) reqID);
+  TRACE_TEXT(TRACE_MAIN_STEPS, statMsg << endl);
   stat_out("Client",statMsg);
   return solve_res;
 
