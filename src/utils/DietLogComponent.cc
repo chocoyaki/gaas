@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2006/11/02 17:12:26  rbolze
+ * change function logDagSubmit
+ *
  * Revision 1.23  2006/10/24 00:04:32  aamar
  * Add the logDagSubmit method.
  *
@@ -978,10 +981,11 @@ void DietLogComponent::logDetectorParams(const char *observed, double Pl, double
  * Send dag identifier and workflow processing time in the MA
  */
 void
-DietLogComponent::logDagSubmit(CORBA::Long dag_id,
+DietLogComponent::logDagSubmit(wf_response_t* wf_response,
 			       time_t ptime) {
   char msg[256];
-  sprintf(msg, "DAG_ID=%ld, TIME=%ld", dag_id, ptime);
+  sprintf(msg, "DAG_ID=%ld FIRST_REQID=%ld LAST_REQID=%ld TIME=%ld", wf_response->dag_id,wf_response->firstReqID,wf_response->lastReqID, ptime);
+  
   log(tagNames[18], msg);
 }
 	       

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2006/11/02 17:12:50  rbolze
+ * change function logDagSubmit
+ *
  * Revision 1.12  2006/10/24 00:04:32  aamar
  * Add the logDagSubmit method.
  *
@@ -359,7 +362,7 @@ public:
    *
    */
   void
-  logDagSubmit(CORBA::Long dag_id,
+  logDagSubmit(wf_response_t* wf_response,
 	       time_t ptime);
 	       
 #endif // HAVE_WORKFLOW
