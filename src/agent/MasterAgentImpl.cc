@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2006/11/02 17:11:17  rbolze
+ * change information send by DietLogComponent
+ *
  * Revision 1.28  2006/10/24 00:08:24  aamar
  * DietLogComponent used in submit_pb_set.
  *
@@ -789,7 +792,7 @@ MasterAgentImpl::  submit_pb_set  (const corba_pb_desc_seq_t& seq_pb,
 
   wf_response->complete = false;
   TRACE_TEXT (TRACE_MAIN_STEPS, 
-	      "The MasterAgent receives a set of problems\n")
+	      "The MasterAgent receives a set of "<< len << " problems" << endl;)
   for (unsigned int ix=0; ix<len; ix++) {
     cout << ix << endl;
     corba_response = this->submit(seq_pb[ix], 1024);
@@ -819,7 +822,7 @@ MasterAgentImpl::  submit_pb_set  (const corba_pb_desc_seq_t& seq_pb,
   // increment the reqIDCounter
   reqIDCounter = reqIDCounter + (setSize-seq_pb.length());
 
-  wf_response->lastReqID = reqIDCounter - 1;
+  wf_response->lastReqID =  wf_response->firstReqID + len - 1 ; // len = seq_pb.length()
   reqCount_mutex.unlock();
 
   gettimeofday(&tend, NULL);
@@ -828,7 +831,7 @@ MasterAgentImpl::  submit_pb_set  (const corba_pb_desc_seq_t& seq_pb,
     (tend.tv_usec - tbegin.tv_usec)/1000;
 
   if (dietLogComponent != NULL) {
-    dietLogComponent->logDagSubmit(dag_id-1, 
+    dietLogComponent->logDagSubmit(wf_response, 
 				   ptime);
   }
   
