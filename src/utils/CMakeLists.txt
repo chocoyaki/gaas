@@ -211,7 +211,16 @@ IF ( DIET_USE_WORKFLOW )
                AbstractWfSched.cc SimpleWfSched.cc HEFT_Sched.cc
                CltReoMan_impl.cc
                )
-   TARGET_LINK_LIBRARIES( DietWorkflow ${XERCES_LIBRARY} )
-   INSTALL_TARGETS( /lib/ DietWorkflow )
+   
+   TARGET_LINK_LIBRARIES( DietWorkflow 
+      ${XERCES_LIBRARY}  ${OMNIORB4_LIBRARIES} 
+   )
+
+  IF( APPLE )
+    SET_TARGET_PROPERTIES( DietWorkflow
+      PROPERTIES LINK_FLAGS "-flat_namespace -undefined suppress" )
+  ENDIF( APPLE )
+
+  INSTALL_TARGETS( /lib/ DietWorkflow )
 ENDIF (DIET_USE_WORKFLOW )
 ########################################################################
