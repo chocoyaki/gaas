@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.4  2006/11/02 01:57:32  ecaron
+#* Get version number for release from CMakeLists.txt file (perl version)
+#*
 #* Revision 1.3  2006/11/02 00:23:26  ecaron
 #* Add root files and Cmake files
 #*
@@ -30,15 +33,15 @@
 #****************************************************************************#
 
 # root section
+[Templated]
+CMakeLists.txt
+
 [UNTEMPLATED]
 README.FIRST
 INSTALL
 ChangeLog
 
 # Cmake Section
-[Templated]
-CMakeLists.txt 
-
 [Untemplated]
 Cmake/CMakeLists.txt
 Cmake/CheckCCompiler.cmake

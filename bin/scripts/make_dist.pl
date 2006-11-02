@@ -12,6 +12,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.3  2006/11/02 01:57:32  ecaron
+#* Get version number for release from CMakeLists.txt file (perl version)
+#*
 #* Revision 1.2  2006/11/02 00:24:43  ecaron
 #* Get version number for release from CMakeLists.txt file
 #*
@@ -28,7 +31,20 @@ use File::Copy "cp";
 # DIET version
 #
 #FIXME: to be set with CMake ? We should have a VERSION file in root directory...
-$diet_ver = `cat ../../CMakeLists.txt | grep "SET(DIET_version" | cut -d " " -f 2 | cut -d ")" -f 1`
+open( CMakeLists, '<', "CMakeLists.txt");
+while (<CMakeLists>) 
+{
+    $lines = $_;
+    chomp $lines;
+    if ($lines =~ /SET\(DIET_version[A-z]*/ )
+    {
+	( $null, $diet_ver) = split / /, $lines;
+	( $diet_ver, $null) = split /\)/, $diet_ver;
+	printf ("DIET Release $diet_ver\n");
+	close(CMakeLists);
+    };
+};
+close(CMakeLists);
 
 #
 # Distribution file list
