@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.3  2006/11/02 00:23:26  ecaron
+#* Add root files and Cmake files
+#*
 #* Revision 1.2  2006/11/01 23:48:20  ecaron
 #* Add files required for release
 #*
@@ -26,24 +29,47 @@
 #*
 #****************************************************************************#
 
-[Templated]
-doc/Tutorial/Tutorial.tex
-bin/scripts/extract.pl
-
+# root section
 [UNTEMPLATED]
+README.FIRST
 INSTALL
+ChangeLog
 
-# Section [Devel_templated] :
-#  Fichiers avec template à mettre dans la distrib pour développeurs seulement.
-[devel_templated]
-doc/ProgrammersGuide/batch.tex
+# Cmake Section
+[Templated]
+CMakeLists.txt 
 
-# Section [Devel_Untemplated] :
-#  Fichiers sans template à mettre dans la distrib pour développeurs seulement.
-# Comme on le voit la définition de section est VRAIMENT insensible à la casse... ;-)
-[Devel_untemplated]
-doc/Doxyfile
-bin/scripts/extract.pl
+[Untemplated]
+Cmake/CMakeLists.txt
+Cmake/CheckCCompiler.cmake
+Cmake/CheckCCompilerConst.c
+Cmake/CheckCCompilerInline.c
+Cmake/ConfigureCCompiler.cmake
+Cmake/ConfigureCORI.cmake
+Cmake/ConfigureWf.cmake
+Cmake/DIET_config.h.in
+Cmake/DietConfig.cmake.in
+Cmake/DietDefaultBuildTypes.cmake
+Cmake/FindAppleSeeds.cmake
+Cmake/FindBLAS.cmake
+Cmake/FindDiet.cmake
+Cmake/FindFAST.cmake
+Cmake/FindJavaExtended.cmake
+Cmake/FindOmniORB.cmake
+Cmake/FindTestingUtils.cmake
+Cmake/FindTransfig.cmake
+Cmake/README
+
+# Include section
+[Templated]
+include/CMakeLists.txt
+include/DIET_client.h
+include/DIET_config.h
+include/DIET_data.h
+include/DIET_grpc.h
+include/DIET_mutex.h
+include/DIET_server.h
+include/grpc.h
 
 # CORBA section
 [Templated]
@@ -359,17 +385,6 @@ src/lib/licenses/saxpath-license.txt
 
 # Doc section
 [Templated]
-doc/Tutorial/exercise2/client_smprod.c
-doc/Tutorial/exercise2/client_smprodAsync.c
-doc/Tutorial/exercise2/client_smprod_file.c
-doc/Tutorial/exercise2/server.c
-doc/Tutorial/Tutorial.tex
-doc/Tutorial/exercise3/client.c
-doc/Tutorial/exercise3/server.c
-doc/Tutorial/solutions/exercise2/client_smprod.c
-doc/Tutorial/solutions/exercise2/client_smprodAsync.c
-doc/Tutorial/solutions/exercise2/client_smprod_file.c
-doc/Tutorial/solutions/exercise2/server.c
 doc/UsersManual/UsersManual.bib
 doc/UsersManual/UsersManual.tex
 doc/UsersManual/client.tex
@@ -387,19 +402,6 @@ doc/UsersManual/xml_example.tex
 doc/CMakeLists.txt
 
 [Untemplated]
-doc/Tutorial/Tutorial.bib
-doc/Tutorial/exercise2/matrix1
-doc/Tutorial/solutions/cfgs/client.cfg
-doc/Tutorial/solutions/cfgs/LA1.cfg
-doc/Tutorial/solutions/cfgs/LA2.cfg
-doc/Tutorial/solutions/cfgs/MA1.cfg
-doc/Tutorial/solutions/cfgs/SeD.cfg
-doc/Tutorial/solutions/env_vars.bash.in
-doc/Tutorial/solutions/env_vars.csh.in
-doc/Tutorial/solutions/omniORB.cfg.in
-doc/Tutorial/solutions/exercise2/matrix1
-doc/Tutorial/solutions/exercise3/client.c
-doc/Tutorial/solutions/exercise3/server.c
 doc/UsersManual/DIET_UsersManual.ps
 
 # Ici, je mets les sources des documents dans les [Devel_*] pour ne laisser que
@@ -483,3 +485,38 @@ doc/UsersManual/fig/logo_DIET.ps
 doc/UsersManual/fig/VizDIET_screenshot_2.ps
 doc/UsersManual/CMakeLists.txt
 
+# Section [Devel_templated] :
+#  Fichiers avec template à mettre dans la distrib pour développeurs seulement.
+[devel_templated]
+doc/ProgrammersGuide/batch.tex
+doc/Tutorial/Tutorial.tex
+doc/Tutorial/exercise2/client_smprod.c
+doc/Tutorial/exercise2/client_smprodAsync.c
+doc/Tutorial/exercise2/client_smprod_file.c
+doc/Tutorial/exercise2/server.c
+doc/Tutorial/Tutorial.tex
+doc/Tutorial/exercise3/client.c
+doc/Tutorial/exercise3/server.c
+doc/Tutorial/solutions/exercise2/client_smprod.c
+doc/Tutorial/solutions/exercise2/client_smprodAsync.c
+doc/Tutorial/solutions/exercise2/client_smprod_file.c
+doc/Tutorial/solutions/exercise2/server.c
+
+# Section [Devel_Untemplated] :
+[Devel_untemplated]
+doc/Doxyfile
+bin/scripts/extract.pl
+doc/Tutorial/Tutorial.bib
+doc/Tutorial/exercise2/matrix1
+doc/Tutorial/solutions/cfgs/client.cfg
+doc/Tutorial/solutions/cfgs/LA1.cfg
+doc/Tutorial/solutions/cfgs/LA2.cfg
+doc/Tutorial/solutions/cfgs/MA1.cfg
+doc/Tutorial/solutions/cfgs/SeD.cfg
+doc/Tutorial/solutions/env_vars.bash.in
+doc/Tutorial/solutions/env_vars.csh.in
+doc/Tutorial/solutions/omniORB.cfg.in
+doc/Tutorial/solutions/exercise2/matrix1
+doc/Tutorial/solutions/exercise3/client.c
+doc/Tutorial/solutions/exercise3/server.c
+Cmake/TODO
