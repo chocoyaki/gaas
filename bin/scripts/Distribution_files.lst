@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.5  2006/11/02 21:37:34  ecaron
+#* Add Ctest files
+#*
 #* Revision 1.4  2006/11/02 01:57:32  ecaron
 #* Get version number for release from CMakeLists.txt file (perl version)
 #*
@@ -62,6 +65,9 @@ Cmake/FindOmniORB.cmake
 Cmake/FindTestingUtils.cmake
 Cmake/FindTransfig.cmake
 Cmake/README
+Cmake/Ctest/CTestCustom.ctest.in
+Cmake/Ctest/OmniDaemon.bash.in
+Cmake/Ctest/CMakeLists.txt
 
 # Include section
 [Templated]
