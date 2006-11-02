@@ -4,7 +4,7 @@
 
 PROJECT(DIET)
 
-SET(DIET_version 2.0)
+SET(DIET_version 2.2)
 
 # --------------------- OPTIONS OF THE PROJECT -----------------------------
 OPTION( DIET_BUILD_EXAMPLES "Build DIET examples." OFF )
