@@ -12,6 +12,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.2  2006/11/02 00:24:43  ecaron
+#* Get version number for release from CMakeLists.txt file
+#*
 #* Revision 1.1  2006/11/01 23:45:39  ecaron
 #* Script to generate the DIET distribution
 #* Author: Philippe Combes
@@ -25,7 +28,7 @@ use File::Copy "cp";
 # DIET version
 #
 #FIXME: to be set with CMake ? We should have a VERSION file in root directory...
-$diet_ver = 2.1;
+$diet_ver = `cat ../../CMakeLists.txt | grep "SET(DIET_version" | cut -d " " -f 2 | cut -d ")" -f 1`
 
 #
 # Distribution file list
