@@ -537,9 +537,9 @@ WfExtReader::parseNode (const DOMNode * element,
     nodes_list[nodeId] = (*corba_profile);
 
     // add the corba profile to problem list if it is a new one
-    if (! pbAlreadyRegistred(*corba_profile) ) {
+    //if (! pbAlreadyRegistred(*corba_profile) ) {
       pbs_list.push_back(*corba_profile);
-    }
+    //}
   } // end if (! alloc)
 
   myDag->addNode(nodeId, dagNode);
