@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2006/11/02 17:13:53  rbolze
+ * add some commented code to be change
+ *
  * Revision 1.2  2006/07/10 11:11:08  aamar
  * Adding time and rescheduling management
  *
@@ -67,6 +70,7 @@ SimpleWfSched::execute() {
   struct timeval tv;
   gettimeofday(&tv, NULL);
   myDag->setTheBeginning(tv);
+  //CORBA::Long reqID = response->firstReqID;
 
   while (true) {
     // get the ready nodes
@@ -75,6 +79,7 @@ SimpleWfSched::execute() {
     for (uint ix=0; ix<len; ix++) {
       n = readyNodes[ix];
       n->start();
+      //n->start(reqID++);
     }
     /*
     cout << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << endl;
