@@ -17,6 +17,10 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.6  2006/11/03 00:09:34  ecaron
+#* - Add Testing section (temporally)
+#* - Add cfg files (for examples)
+#*
 #* Revision 1.5  2006/11/02 21:37:34  ecaron
 #* Add Ctest files
 #*
@@ -38,6 +42,7 @@
 # root section
 [Templated]
 CMakeLists.txt
+src/CMakeLists.txt
 
 [UNTEMPLATED]
 README.FIRST
@@ -245,6 +250,27 @@ src/examples/workflow/succ_float.c
 src/examples/workflow/sum.c
 
 [Untemplated]
+src/examples/cfgs/CMakeLists.txt
+src/examples/cfgs/LA1.cfg.in
+src/examples/cfgs/LA2.cfg.in
+src/examples/cfgs/LA3.cfg.in
+src/examples/cfgs/MA1.cfg.in
+src/examples/cfgs/MA2.cfg.in
+src/examples/cfgs/MA3.cfg.in
+src/examples/cfgs/SeD.cfg.in
+src/examples/cfgs/SeD1.cfg.in
+src/examples/cfgs/SeD2.cfg.in
+src/examples/cfgs/SeD3.cfg.in
+src/examples/cfgs/base.ldif
+src/examples/cfgs/client.cfg
+src/examples/cfgs/omniORB3.cfg
+src/examples/cfgs/omniORB4.cfg.in
+src/examples/cfgs/plus_mult_dgemm.ldif.in
+src/examples/cfgs/slapd.cfg
+src/examples/cfgs/ldap_schema/core.schema
+src/examples/cfgs/ldap_schema/cosine.schema
+src/examples/cfgs/ldap_schema/inetorgperson.schema
+src/examples/cfgs/ldap_schema/nis.schema
 src/examples/JXTA/scripts/LA1/LA1_jxta_load.sh
 src/examples/JXTA/scripts/MMA1/MMA1_load.sh
 src/examples/JXTA/scripts/MMA2/MMA2_load.sh
@@ -391,6 +417,18 @@ src/lib/licenses/jetty-license.txt
 src/lib/licenses/junit-license.txt
 src/lib/licenses/log4j-license.txt
 src/lib/licenses/saxpath-license.txt
+
+# Ajout Section TESTING en attendant que ça disparaisse de la release user
+[Templated]
+src/Testing/CMakeLists.txt
+src/Testing/TestDummy.cxx
+src/Testing/TestORBMgrInit.cxx
+src/Testing/Utilities/README
+src/Testing/Utilities/LightClient/MainFrame.form
+src/Testing/Utilities/LightClient/MainFrame.java
+src/Testing/Utilities/LightClient/Makefile
+src/Testing/Utilities/LightClient/README
+
 
 # Doc section
 [Templated]
