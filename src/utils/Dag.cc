@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2006/11/06 11:56:42  aamar
+ * Workflow support:
+ *    - Adding get_file_output and get_matrix_output (to get workflow file
+ *      and matrix results)
+ *
  * Revision 1.4  2006/10/26 13:57:53  aamar
  * Replace cout/cerr by debug macro TRACE_XXX
  *
@@ -272,6 +277,7 @@ Dag::linkNodePorts(Node * n) {
 		" to the output port " <<
 		out->getId() << endl);
     in->set_source(out);
+    out->set_sink(in);
   }
 
   // link output ports with input ports
@@ -318,6 +324,7 @@ Dag::linkNodePorts(Node * n) {
 		" to the input port " <<
 		in->getId() << endl);
     out->set_sink(in);
+    in->set_source(out);
   }    
   // link inout ports with ... <TO DO>
 }
@@ -438,23 +445,86 @@ Dag::get_string_output(const char * id,
   map<string, Node *>::iterator p = nodes.find(node_id);
   if (p!= nodes.end()) {
     Node * n = (Node *)(p->second);
-      map<string, WfOutPort*>::iterator outp_iter =
-	n->outports.find(port_id);
-      if (outp_iter != n->outports.end()) {
+    map<string, WfOutPort*>::iterator outp_iter =
+      n->outports.find(port_id);
+    if (outp_iter != n->outports.end()) {
+      TRACE_TEXT (TRACE_ALL_STEPS,
+		  "######## found an output port with the id " << id << endl);
+      WfOutPort * outp = (WfOutPort *)(outp_iter->second);
+      if (outp->isResult()) {
 	TRACE_TEXT (TRACE_ALL_STEPS,
-		    "######## found an output port with the id " << id << endl);
-	WfOutPort * outp = (WfOutPort *)(outp_iter->second);
-	if (outp->isResult()) {
-	  TRACE_TEXT (TRACE_ALL_STEPS,
-		      "######## return the result" << endl);
-	  //       diet_scalar_get(diet_parameter(profile,2), &pl3, NULL);
-	  return diet_string_get(diet_parameter(outp->profile(),outp->getIndex()), 
-				 value, NULL);
-	}
+		    "######## return the result" << endl);
+	return diet_string_get(diet_parameter(outp->profile(),outp->getIndex()), 
+			       value, NULL);
       }
+    }
   }
   return 1;
 }
+
+/**
+ * Get a file result of the workflow
+ *
+ */
+int
+Dag::get_file_output (const char * id,
+		      size_t* size, char** path) {
+  string port_id(id);
+  string node_id = port_id.substr(0, port_id.find("#"));
+  map<string, Node *>::iterator p = nodes.find(node_id);
+  if (p!= nodes.end()) {
+    Node * n = (Node *)(p->second);
+    map<string, WfOutPort*>::iterator outp_iter =
+      n->outports.find(port_id);
+    if (outp_iter != n->outports.end()) {
+      TRACE_TEXT (TRACE_ALL_STEPS,
+		  "######## found an output port with the id " << id << endl);
+      WfOutPort * outp = (WfOutPort *)(outp_iter->second);
+      if (outp->isResult()) {
+	TRACE_TEXT (TRACE_ALL_STEPS,
+		    "######## return the result" << endl);
+	return diet_file_get(diet_parameter(outp->profile(), outp->getIndex()), 
+					    NULL, size, path);
+      }
+    }
+  }
+  return 1;
+} // end get_file_output
+
+/**
+ * Get a matrix result of the workflow
+ */
+int
+Dag::get_matrix_output (const char * id, void** value,
+			size_t* nb_rows, size_t *nb_cols, 
+			diet_matrix_order_t* order) {
+  string port_id(id);
+  string node_id = port_id.substr(0, port_id.find("#"));
+  map<string, Node *>::iterator p = nodes.find(node_id);
+  if (p!= nodes.end()) {
+    Node * n = (Node *)(p->second);
+    map<string, WfOutPort*>::iterator outp_iter =
+      n->outports.find(port_id);
+    if (outp_iter != n->outports.end()) {
+      TRACE_TEXT (TRACE_ALL_STEPS,
+		  "######## found an output port with the id " << id << endl);
+      WfOutPort * outp = (WfOutPort *)(outp_iter->second);
+      if (outp->isResult()) {
+	TRACE_TEXT (TRACE_ALL_STEPS,
+		    "######## return the result" << endl);
+	/**
+int
+_matrix_get(diet_arg_t* arg, void** value, diet_persistence_mode_t* mode,
+	    size_t* nb_rows, size_t *nb_cols, diet_matrix_order_t* order);
+	*/
+	return diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()), 
+			       value, NULL,
+			       nb_rows, nb_cols, order);
+      }
+    }
+  }
+  return 1;
+} // end get_matrix_output
 
 /**
  * tag the dag *

@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2006/11/06 11:56:42  aamar
+ * Workflow support:
+ *    - Adding get_file_output and get_matrix_output (to get workflow file
+ *      and matrix results)
+ *
  * Revision 1.3  2006/10/20 08:40:02  aamar
  * Adding the following functions to the class:
  *    - isEnabled(); setEnable; and getRef
@@ -169,6 +174,32 @@ public:
   int 
   get_string_output(const char * id, char** value);
 
+
+  /**
+   * Get a file result of the workflow
+   *
+   * @param id    the output port id (prefixed with the node id)
+   * @param size  the size of the returned file
+   * @param path  the file name
+   */
+  int
+  get_file_output (const char * id,
+		   size_t* size, char** path);
+
+  /**
+   * Get a matrix result of the workflow
+   *
+   * @param id      the output port id (prefixed with the node id)
+   * @param value   the matrix reference
+   * @param nb_rows the matrix rows count
+   * @param nb_cols the matrix columns count
+   * @param order   the matrix order
+   */
+  int
+  get_matrix_output (const char * id, void** value,
+		     size_t* nb_rows, size_t *nb_cols, 
+		     diet_matrix_order_t* order);
+    
   /**
    * Get all the results and display them. This function doesn't returned
    * the value.
