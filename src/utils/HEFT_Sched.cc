@@ -76,19 +76,19 @@ HEFT_WfSched::execute() {
     n = (Node *)(p->second);
     WI[n->getId()] = 0;
     // found the corresponding response in wf_response
-    for (unsigned int ix=0; ix<response->wfn_seq_resp.length(); ix++) {
-      if (!strcmp(n->getPb().c_str(), response->wfn_seq_resp[ix].node_id)) {
+    for (unsigned int ix=0; ix<response.wfn_seq_resp.length(); ix++) {
+      if (!strcmp(n->getPb().c_str(), response.wfn_seq_resp[ix].node_id)) {
 	// compute WI[ix]
 	double w = 0;
 	for (unsigned int jx=0; 
-	     jx<response->wfn_seq_resp[ix].response.servers.length(); 
+	     jx<response.wfn_seq_resp[ix].response.servers.length(); 
 	     jx++) {
 	  cout << "estValues.length() " << 
-	    response->wfn_seq_resp[ix].response.servers[jx].estim.estValues.length() 
+	    response.wfn_seq_resp[ix].response.servers[jx].estim.estValues.length() 
 	       << endl;
-	  w += response->wfn_seq_resp[ix].response.servers[jx].estim.estValues[1].v_value;
+	  w += response.wfn_seq_resp[ix].response.servers[jx].estim.estValues[1].v_value;
 	} // end for jx
-	WI[n->getId()] = w/response->wfn_seq_resp[ix].response.servers.length();
+	WI[n->getId()] = w/response.wfn_seq_resp[ix].response.servers.length();
       }
     }
     if (n->isAnExit())
@@ -104,12 +104,12 @@ HEFT_WfSched::execute() {
   }
   // init the availability map
   for (unsigned int ix=0;
-       ix < response->wfn_seq_resp.length();
+       ix < response.wfn_seq_resp.length();
        ix++) {
     for (unsigned int jx=0;
-	 jx < response->wfn_seq_resp[ix].response.servers.length(); 
+	 jx < response.wfn_seq_resp[ix].response.servers.length(); 
 	 jx++) {
-      avail[response->wfn_seq_resp[ix].response.servers[jx].loc.ior] = 0;
+      avail[response.wfn_seq_resp[ix].response.servers[jx].loc.ior] = 0;
     }
   }
 
@@ -151,32 +151,32 @@ HEFT_WfSched::execute() {
     n = sorted_list[0];
     sorted_list.erase(sorted_list.begin());
     // found the problem index
-    for (unsigned int ix=0; ix<response->wfn_seq_resp.length(); ix++) {
-      if (!strcmp(n->getPb().c_str(), response->wfn_seq_resp[ix].node_id))
+    for (unsigned int ix=0; ix<response.wfn_seq_resp.length(); ix++) {
+      if (!strcmp(n->getPb().c_str(), response.wfn_seq_resp[ix].node_id))
 	pb_index = ix;
     } // end for ix
     unsigned int sed_ind = 0;
     double EFT = 0;
     for (unsigned int ix=0; 
-	 ix<response->wfn_seq_resp[pb_index].response.servers.length(); 
+	 ix<response.wfn_seq_resp[pb_index].response.servers.length(); 
 	 ix++) {
       double EST = 
-	avail[response->wfn_seq_resp[pb_index].response.servers[ix].loc.ior];
+	avail[response.wfn_seq_resp[pb_index].response.servers[ix].loc.ior];
       for (unsigned int jx=0;
 	   jx < n->prevNb();
 	   jx++) {
 	EST = max(EST, AFT[n->getPrev(jx)->getId()]);
       } // end for jx
       if ( (
-	    EST + response->wfn_seq_resp[pb_index].response.servers[ix].estim.estValues[1].v_value < EFT ) 
+	    EST + response.wfn_seq_resp[pb_index].response.servers[ix].estim.estValues[1].v_value < EFT ) 
 	   || (EFT == 0)) {
 	EFT = 
-	  EST + response->wfn_seq_resp[pb_index].response.servers[ix].estim.estValues[1].v_value;
+	  EST + response.wfn_seq_resp[pb_index].response.servers[ix].estim.estValues[1].v_value;
 	sed_ind = ix;
       }
     } // end for ix
-    n->setSeD(response->wfn_seq_resp[pb_index].response.servers[sed_ind].loc.ior);
-    avail[response->wfn_seq_resp[pb_index].response.servers[sed_ind].loc.ior] = EFT;
+    n->setSeD(response.wfn_seq_resp[pb_index].response.servers[sed_ind].loc.ior);
+    avail[response.wfn_seq_resp[pb_index].response.servers[sed_ind].loc.ior] = EFT;
     AFT[n->getId()] = EFT;
     AST[n->getId()] = EFT;
     n->setEstCompTime((long int)EFT);
@@ -189,7 +189,7 @@ HEFT_WfSched::execute() {
   gettimeofday(&tv, NULL);
   myDag->setTheBeginning(tv);
 
-  CORBA::Long reqID = response->firstReqID;
+  CORBA::Long reqID = response.firstReqID;
   while (true) {
     // get the ready nodes
     vector <Node*> readyNodes = myDag->getReadyNodes();
@@ -270,17 +270,17 @@ HEFT_WfSched::init() {
     n = (Node *)(p->second);
     WI[n->getId()] = 0;
     // found the corresponding response in wf_response
-    for (unsigned int ix=0; ix<response->wfn_seq_resp.length(); ix++) {
-      if (!strcmp(n->getPb().c_str(), response->wfn_seq_resp[ix].node_id)) {
+    for (unsigned int ix=0; ix<response.wfn_seq_resp.length(); ix++) {
+      if (!strcmp(n->getPb().c_str(), response.wfn_seq_resp[ix].node_id)) {
 	// compute WI[ix]
 	cout << "compute WI[" << ix << "]" << endl;
 	double w = 0;
 	for (unsigned int jx=0; 
-	     jx<response->wfn_seq_resp[ix].response.servers.length(); 
+	     jx<response.wfn_seq_resp[ix].response.servers.length(); 
 	     jx++) {
-	  w += response->wfn_seq_resp[ix].response.servers[jx].estim.estValues[1].v_value;
+	  w += response.wfn_seq_resp[ix].response.servers[jx].estim.estValues[1].v_value;
 	} // end for jx
-	WI[n->getId()] = w/response->wfn_seq_resp[ix].response.servers.length();
+	WI[n->getId()] = w/response.wfn_seq_resp[ix].response.servers.length();
       }
     }
     if (n->isAnExit())
@@ -296,12 +296,12 @@ HEFT_WfSched::init() {
   }
   // init the availability map
   for (unsigned int ix=0;
-       ix < response->wfn_seq_resp.length();
+       ix < response.wfn_seq_resp.length();
        ix++) {
     for (unsigned int jx=0;
-	 jx < response->wfn_seq_resp[ix].response.servers.length(); 
+	 jx < response.wfn_seq_resp[ix].response.servers.length(); 
 	 jx++) {
-      avail[response->wfn_seq_resp[ix].response.servers[jx].loc.ior] = 0;
+      avail[response.wfn_seq_resp[ix].response.servers[jx].loc.ior] = 0;
     }
   }
 
@@ -343,32 +343,32 @@ HEFT_WfSched::init() {
     n = sorted_list[0];
     sorted_list.erase(sorted_list.begin());
     // found the problem index
-    for (unsigned int ix=0; ix<response->wfn_seq_resp.length(); ix++) {
-      if (!strcmp(n->getPb().c_str(), response->wfn_seq_resp[ix].node_id))
+    for (unsigned int ix=0; ix<response.wfn_seq_resp.length(); ix++) {
+      if (!strcmp(n->getPb().c_str(), response.wfn_seq_resp[ix].node_id))
 	pb_index = ix;
     } // end for ix
     unsigned int sed_ind = 0;
     double EFT = 0;
     for (unsigned int ix=0; 
-	 ix<response->wfn_seq_resp[pb_index].response.servers.length(); 
+	 ix<response.wfn_seq_resp[pb_index].response.servers.length(); 
 	 ix++) {
       double EST = 
-	avail[response->wfn_seq_resp[pb_index].response.servers[ix].loc.ior];
+	avail[response.wfn_seq_resp[pb_index].response.servers[ix].loc.ior];
       for (unsigned int jx=0;
 	   jx < n->prevNb();
 	   jx++) {
 	EST = max(EST, AFT[n->getPrev(jx)->getId()]);
       } // end for jx
       if ( (
-	    EST + response->wfn_seq_resp[pb_index].response.servers[ix].estim.estValues[1].v_value < EFT ) 
+	    EST + response.wfn_seq_resp[pb_index].response.servers[ix].estim.estValues[1].v_value < EFT ) 
 	   || (EFT == 0)) {
 	EFT = 
-	  EST + response->wfn_seq_resp[pb_index].response.servers[ix].estim.estValues[1].v_value;
+	  EST + response.wfn_seq_resp[pb_index].response.servers[ix].estim.estValues[1].v_value;
 	sed_ind = ix;
       }
     } // end for ix
-    n->setSeD(response->wfn_seq_resp[pb_index].response.servers[sed_ind].loc.ior);
-    avail[response->wfn_seq_resp[pb_index].response.servers[sed_ind].loc.ior] = EFT;
+    n->setSeD(response.wfn_seq_resp[pb_index].response.servers[sed_ind].loc.ior);
+    avail[response.wfn_seq_resp[pb_index].response.servers[sed_ind].loc.ior] = EFT;
     AFT[n->getId()] = EFT;
     AST[n->getId()] = EFT;
     n->setEstCompTime((long int)EFT);
