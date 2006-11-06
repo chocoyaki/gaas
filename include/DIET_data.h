@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.46  2006/11/06 12:09:40  aamar
+ * Workflow support:
+ *   - Add diet_wf_file_get and diet_wf_matrix_get methods.
+ *
  * Revision 1.45  2006/10/20 09:51:47  aamar
  * Add the function get_all_results to the API (workflow).
  *
@@ -644,6 +648,21 @@ _diet_wf_scalar_get(const char * id,
 int 
 _diet_wf_string_get(const char * id, 
 		    char** value);
+
+#define diet_wf_file_get(id, size, path) \
+  _diet_wf_file_get(id, size, (char**)path)
+
+int
+_diet_wf_file_get(const char * id,
+		  size_t* size, char** path);
+
+#define diet_wf_matrix_get(id, value, nb_rows, nb_cols, order) \
+  _diet_wf_matrix_get(id, (void**)value, nb_rows, nb_cols, order)
+
+int
+_diet_wf_matrix_get(const char * id, void** value,
+		    size_t* nb_rows, size_t *nb_cols, 
+		    diet_matrix_order_t* order);
 
 void get_all_results();
 
