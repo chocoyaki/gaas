@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.92  2006/11/06 12:04:09  aamar
+ * Workflow:
+ *   - Add _diet_wf_file_get and _diet_wf_matrix_get functions.
+ *   - Correct a problem with WfExtReader.setup call.
+ *
  * Revision 1.91  2006/11/02 17:11:43  rbolze
  * add some debug info
  *
@@ -1688,10 +1693,14 @@ diet_wf_call_ma(diet_wf_desc_t* profile) {
     defaultWfSched = NULL;
   }
 
+  /**
+   * Dont delete the DAG since it can be used to retrieve result
   if (dag != NULL) {
     delete dag;
     dag = NULL;
   }
+  */
+
   if (reader != NULL) {
     delete reader;
     reader = NULL;
@@ -1721,8 +1730,6 @@ diet_call_wf_madag_v1(diet_wf_desc_t* profile) {
   }
 
   reader = new WfExtReader(profile->abstract_wf, true);
-  reader->setup();
-
   if (! reader->setup())
     return XML_MALFORMED;  
 
@@ -1774,6 +1781,7 @@ diet_call_wf_madag_v1(diet_wf_desc_t* profile) {
   } // end if (use_wf_log && myWfLogService)
 
   defaultWfSched->setDag(dag);
+  defaultWfSched->setResponse(response);
   defaultWfSched->execute();
 
   if (defaultWfSched)
@@ -1783,10 +1791,14 @@ diet_call_wf_madag_v1(diet_wf_desc_t* profile) {
     MA_DAG->setDagAsDone(dag->getId().c_str());
   }
 
+  /**
+   * Dont delete the DAG since it can be used to retrieve result
   if (dag != NULL) {
     delete dag;
     dag = NULL;
   }
+  */
+
   if (reader != NULL) {
     delete reader;
     reader = NULL;
@@ -1811,7 +1823,6 @@ diet_call_wf_madag_v2(diet_wf_desc_t* profile) {
   wf_sched_response_t * response = NULL;
   TRACE_TEXT (TRACE_ALL_STEPS,"diet_call_wf_madag_v2 "<< endl);
   reader = new WfExtReader(profile->abstract_wf, true);
-  reader->setup();
 
   if (! reader->setup())
     return XML_MALFORMED;  
@@ -1851,6 +1862,7 @@ diet_call_wf_madag_v2(diet_wf_desc_t* profile) {
   } // end if (use_wf_log && myWfLogService)
 
   defaultWfSched->setDag(dag);
+  defaultWfSched->setResponse(response);
   defaultWfSched->execute();
 
   if (defaultWfSched)
@@ -1860,10 +1872,14 @@ diet_call_wf_madag_v2(diet_wf_desc_t* profile) {
     MA_DAG->setDagAsDone(dag->getId().c_str());
   }
 
+  /**
+   * Dont delete the DAG since it can be used to retrieve result
   if (dag != NULL) {
     delete dag;
     dag = NULL;
   }
+  */
+
   if (reader != NULL) {
     delete reader;
     reader = NULL;
@@ -1982,8 +1998,28 @@ _diet_wf_string_get(const char * id,
   if (dag != NULL) {
     return dag->get_string_output(id, value);
   }
-  return 0;
+  return 1;
 } // end _diet_wf_string_get
+
+
+int
+_diet_wf_file_get(const char * id,
+		  size_t* size, char** path) {
+  if (dag != NULL) {
+    return dag->get_file_output(id, size, path);
+  }
+  return 1;
+}
+
+int
+_diet_wf_matrix_get(const char * id, void** value,
+		    size_t* nb_rows, size_t *nb_cols, 
+		    diet_matrix_order_t* order) {
+  if (dag != NULL) {
+    return dag->get_matrix_output(id, value, nb_rows, nb_cols, order);
+  }
+  return 1;
+}
 
 /**
  * Print the value of all workflow exit ports
