@@ -79,6 +79,10 @@ MultiWfFairness_Sched::submit_wf (const corba_wf_desc_t& wf_desc, int dag_id,
   TRACE_FUNCTION(TRACE_ALL_STEPS,
 		 "... submit_pb_set done" << endl);
 
+  wf_resp->dag_id = wf_response->dag_id;
+  wf_resp->firstReqID = wf_response->firstReqID;
+  wf_resp->lastReqID = wf_response->lastReqID;
+  wf_resp->ma_response = *wf_response;
 
   // construct the response/scheduling
   if ( ! wf_response->complete) {
