@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2006/11/06 15:45:53  aamar
+ * Workflow support: modify submit_pb_set prototype to manage the reqID.
+ *
  * Revision 1.7  2006/10/20 08:11:27  aamar
  * Remove the submit_wf function from Master Agent interface.
  * Changing the submit_pb_set prototype by adding the set size to handle
@@ -121,7 +124,8 @@ interface MasterAgent : Agent {
    * called by the MA_DAG or a client to submit a set of problems *
    */
   wf_response_t submit_pb_set (in corba_pb_desc_seq_t seq_pb,
-			       in long set_size);
+			       in long set_size,
+			       in boolean used);
 #endif // HAVE_WORKFLOW
 };
 
