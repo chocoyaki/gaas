@@ -5,9 +5,9 @@
 IF( DIET_BUILD_DOCUMENTATION )
 
   # The programmer's guide is not part of the User's distribution:
-  IF( IS_DIRECTORY ProgrammersGuide )
+  IF( IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ProgrammersGuide )
     SUBDIRS( ProgrammersGuide )
-  ENDIF( IS_DIRECTORY ProgrammersGuide )
+  ENDIF( IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ProgrammersGuide )
 
   SUBDIRS( Tutorial )
   SUBDIRS( UsersManual )
