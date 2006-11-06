@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2006/11/06 15:16:06  aamar
+ * Workflow support: some correction about reqID.
+ *
  * Revision 1.4  2006/11/06 12:00:26  aamar
  * *** empty log message ***
  *
@@ -64,7 +67,6 @@ SimpleWfSched::execute() {
   } // end if
 
   cout << "---------------------" << endl;
-  Node * n = NULL;
   cout << "The simple scheduler starts execution " << endl;
   cout << "Linking the dag nodes ... " << endl;
   myDag->linkAllPorts();
@@ -74,6 +76,25 @@ SimpleWfSched::execute() {
   gettimeofday(&tv, NULL);
   myDag->setTheBeginning(tv);
   CORBA::Long reqID = response.firstReqID;
+
+  // Map the results 
+  // After the changes recommanded by Raph, we have a response by node
+  // So the mapping done by the MA and we choose the first server
+  // Normally the node in the dag and the response are ordered
+  Node * n = NULL;
+  for (unsigned int ix=0; ix<this->response.wfn_seq_resp.length(); ix++) {
+    for (std::map <std::string, Node *>::iterator p = myDag->begin();
+	 p != myDag->end();
+	 p++) {
+      Node * n = (Node*)(p->second);
+      if (( n->getSeD() == SeD::_nil()) &&
+	  (!strcmp(n->getPb().c_str(), 
+		   this->response.wfn_seq_resp[ix].node_id))) {
+	n->setSeD(this->response.wfn_seq_resp[ix].response.servers[0].loc.ior);
+	break;
+      }
+    }    
+  }
 
   while (true) {
     // get the ready nodes

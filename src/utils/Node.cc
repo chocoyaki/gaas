@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2006/11/06 15:16:06  aamar
+ * Workflow support: some correction about reqID.
+ *
  * Revision 1.8  2006/11/06 12:23:59  aamar
  * Workflow support: correct the value of reqID passed to RunnableNode.
  *
@@ -53,6 +56,7 @@
 #include "Node.hh"
 
 MasterAgent_var getMA();
+bool useMaDagSched();
 
 /**
  * Display a textual representation of a corba profile
@@ -60,15 +64,22 @@ MasterAgent_var getMA();
  * @param pb the corba profile to display
  */
 void display(const corba_profile_t& pb) {
-  cout << "  - last_in    : " << pb.last_in << endl;
-  cout << "  - last inout : " << pb.last_inout << endl;
-  cout << "  - last out   : " << pb.last_out << endl;
-  cout << "  - param : " << pb.last_out << endl;
+  TRACE_TEXT (TRACE_ALL_STEPS,
+		  "  - last_in    : " << pb.last_in << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS,
+	      "  - last inout : " << pb.last_inout << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS,
+	      "  - last out   : " << pb.last_out << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS,
+	      "  - param : " << pb.last_out << endl);
   for (unsigned int ix=0; ix < pb.parameters.length(); ix++) {
-    cout << "     - base_type = " << pb.parameters[ix].desc.base_type << 
-      ", specific = " << pb.parameters[ix].desc.specific._d() << endl;
+    TRACE_TEXT (TRACE_ALL_STEPS,
+		"     - base_type = " << pb.parameters[ix].desc.base_type << 
+		", specific = " << pb.parameters[ix].desc.specific._d() <<
+		endl);
   }
-  cout << "*************************" << endl;
+  TRACE_TEXT (TRACE_ALL_STEPS,
+	      "*************************" << endl);
 }
 
 /**
@@ -138,7 +149,7 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer,
 #if HAVE_FD
     fd_set_transition_handler(diet_call_failure_recover);
 #endif
-      TRACE_TEXT (TRACE_ALL_STEPS,
+    TRACE_TEXT (TRACE_ALL_STEPS,
 		  "Calling the service " << profile->pb_name << endl);
     display(corba_profile);
     solve_res = chosenServer->solve(profile->pb_name, corba_profile, reqID);
@@ -208,9 +219,11 @@ RunnableNode::run() {
 
   nodeIsRunning(myParent->getId().c_str());
 
-  if (!CORBA::is_nil(myParent->chosenServer)) {
-    TRACE_TEXT (TRACE_ALL_STEPS, 
-		"using the scheduling provided by the MA_DAG" << endl <<
+  if (!CORBA::is_nil(myParent->chosenServer) 
+      &&
+      useMaDagSched()) {
+    TRACE_TEXT (TRACE_MAIN_STEPS, 
+		"Using the scheduling of the mapped SeD" << endl <<
 		"call the chosenServer ..." << endl);
     if ( ! diet_call_common(myParent->profile, myParent->chosenServer, 
 			    this->myReqID)) {
@@ -219,7 +232,7 @@ RunnableNode::run() {
     TRACE_TEXT (TRACE_ALL_STEPS, "done" << endl);
   }
   else {
-    TRACE_TEXT (TRACE_ALL_STEPS, "Using the MA to call the SeD"<< endl);
+    TRACE_TEXT (TRACE_MAIN_STEPS, "Using the MA to call the SeD"<< endl);
     if (!diet_call(myParent->profile)) {
       myParent->storePersistentData();
     }
@@ -790,6 +803,14 @@ void
 Node::setSeD(const SeD_var& sed) {
   this->chosenServer = sed;
 } // end setSeD
+
+/**
+ * return the SeD affected to the node
+ */ 
+SeD_var
+Node::getSeD() {
+  return this->chosenServer;
+} // end getSeD
 
 /**
  * return the number of next nodes

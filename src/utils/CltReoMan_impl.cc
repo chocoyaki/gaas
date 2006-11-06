@@ -123,7 +123,7 @@ CltReoMan_impl::reSchedule() {
     " the master agent ...";
   if (myMA) {
     //    response = MA->submit_wf(*corba_profile);
-    response = myMA->submit_pb_set(pbs_seq, dagSize);
+    response = myMA->submit_pb_set(pbs_seq, dagSize, true);
     cout << " done" << endl;
     if (! response->complete) {
       cout << "One ore more services are missing" << endl

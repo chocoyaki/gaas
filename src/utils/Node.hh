@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2006/11/06 15:16:06  aamar
+ * Workflow support: some correction about reqID.
+ *
  * Revision 1.4  2006/10/20 08:42:14  aamar
  * Merging the base class BasicNode in Node class.
  * Adding some functions.
@@ -378,6 +381,12 @@ public:
    */
   void 
   setSeD(const SeD_var& sed);
+
+  /**
+   * return the SeD affected to the node
+   */ 
+  SeD_var
+  getSeD();
 
   /**
    * return the number of next nodes
