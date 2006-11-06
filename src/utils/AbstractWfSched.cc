@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2006/11/06 11:53:48  aamar
+ * Workflow support:
+ *   - Add a new setResponse function.
+ *   - Changing the response attribute type.
+ *
  * Revision 1.2  2006/07/10 11:15:29  aamar
  * Adding the rescheduling management
  *
@@ -22,7 +27,7 @@
 
 AbstractWfSched::AbstractWfSched() {
   this->myDag = NULL;
-  this->response = NULL;
+  //  this->response = NULL;
   this->myCltReoMan = NULL;
 }
 
@@ -36,7 +41,7 @@ AbstractWfSched::~AbstractWfSched() {
 void
 AbstractWfSched::setDag(Dag * dag) {
   this->myDag = dag;
-  this->response = NULL;
+  //  this->response = NULL;
   //
 }
 
@@ -47,9 +52,18 @@ AbstractWfSched::setDag(Dag * dag) {
  */
 void 
 AbstractWfSched::setResponse(wf_response_t *response) {
-  this->response = response;
+  this->response = *response;
 }
 
+
+/**
+ * Another version of the above function *
+ * Used when we use the MA DAG
+ */
+void 
+AbstractWfSched::setResponse(wf_sched_response_t * response) {
+  this->response = response->ma_response;
+}
 /**
  * set the client reordering manager
  */

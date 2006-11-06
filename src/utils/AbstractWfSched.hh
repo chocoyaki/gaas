@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2006/11/06 11:53:48  aamar
+ * Workflow support:
+ *   - Add a new setResponse function.
+ *   - Changing the response attribute type.
+ *
  * Revision 1.2  2006/07/10 11:15:29  aamar
  * Adding the rescheduling management
  *
@@ -62,6 +67,13 @@ public:
   setResponse(wf_response_t * response);
 
   /**
+   * Another version of the above function *
+   * Used when we use the MA DAG
+   */
+  void 
+  setResponse(wf_sched_response_t * response);
+  
+  /**
    * set the client reordering manager
    */
   void setCltReoMan(CltReoMan_impl * crm);
@@ -85,7 +97,7 @@ protected:
   /**
    * Workflow submission response *
    */
-  wf_response_t * response;
+  wf_response_t response;
 
   /**
    * Client Reordering Manager
