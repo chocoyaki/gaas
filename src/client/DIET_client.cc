@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.93  2006/11/06 15:15:20  aamar
+ * Workflow support: some correction
+ *
  * Revision 1.92  2006/11/06 12:04:09  aamar
  * Workflow:
  *   - Add _diet_wf_file_get and _diet_wf_matrix_get functions.
@@ -1624,7 +1627,7 @@ diet_wf_call_ma(diet_wf_desc_t* profile) {
   mrsh_wf_desc(corba_profile, profile);
   TRACE_TEXT (TRACE_ALL_STEPS, " done" << endl);
 
-  reader = new WfExtReader(profile->abstract_wf, true);
+  reader = new WfExtReader(profile->abstract_wf, false);
   if (! reader->setup())
     return XML_MALFORMED;  
 
@@ -1645,7 +1648,7 @@ diet_wf_call_ma(diet_wf_desc_t* profile) {
 	      << len << " ) to" <<
 	      " the master agent ...");
   if (MA) {
-    response = MA->submit_pb_set(pbs_seq, dagSize);
+    response = MA->submit_pb_set(pbs_seq, dagSize, true);
     cout << " done" << endl;
     if (! response->complete) {
       ERROR ("One ore more services are missing" << endl
@@ -1729,7 +1732,7 @@ diet_call_wf_madag_v1(diet_wf_desc_t* profile) {
     reader = NULL;
   }
 
-  reader = new WfExtReader(profile->abstract_wf, true);
+  reader = new WfExtReader(profile->abstract_wf, false);
   if (! reader->setup())
     return XML_MALFORMED;  
 
@@ -1748,7 +1751,7 @@ diet_call_wf_madag_v1(diet_wf_desc_t* profile) {
   TRACE_TEXT (TRACE_ALL_STEPS,
 	      "Try to send the workflow description to the MA_DAG ...");
   if (MA_DAG) {
-    response = MA_DAG->submit_wf(*corba_profile);
+    response = MA_DAG->submit_wf(*corba_profile, true);
   }
   TRACE_TEXT (TRACE_ALL_STEPS, " done" << endl);
 
@@ -1822,7 +1825,7 @@ diet_call_wf_madag_v2(diet_wf_desc_t* profile) {
   corba_wf_desc_t  * corba_profile = new corba_wf_desc_t;
   wf_sched_response_t * response = NULL;
   TRACE_TEXT (TRACE_ALL_STEPS,"diet_call_wf_madag_v2 "<< endl);
-  reader = new WfExtReader(profile->abstract_wf, true);
+  reader = new WfExtReader(profile->abstract_wf, false);
 
   if (! reader->setup())
     return XML_MALFORMED;  
@@ -1842,7 +1845,7 @@ diet_call_wf_madag_v2(diet_wf_desc_t* profile) {
   TRACE_TEXT (TRACE_ALL_STEPS,
 	      "Try to send the workflow description to the MA_DAG ...");
   if (MA_DAG)
-    response = MA_DAG->submit_wf(*corba_profile);
+    response = MA_DAG->submit_wf(*corba_profile, false);
   TRACE_TEXT (TRACE_ALL_STEPS, " done" << endl);
   // response processing and defining scheduling strategy
   // ...
@@ -2196,3 +2199,9 @@ MasterAgent_var
 getMA() {
   return MA;
 }
+
+bool 
+useMaDagSched() {
+  return use_ma_dag_sched;
+}
+
