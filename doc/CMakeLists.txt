@@ -4,13 +4,17 @@
 
 IF( DIET_BUILD_DOCUMENTATION )
 
-  # The programmer's guide is not part of the User's distribution:
+  # The sources of the programmer's guide and the user's manual are
+  # not part of the distributions:
   IF( IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ProgrammersGuide )
     SUBDIRS( ProgrammersGuide )
   ENDIF( IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ProgrammersGuide )
+  IF( IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/UsersManual )
+    SUBDIRS( UsersManual )
+  ENDIF( IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/UsersManual )
 
-  SUBDIRS( Tutorial )
-  SUBDIRS( UsersManual )
+  # FIXME: following Tutorial subdir is not yet translated to cmake:
+  # SUBDIRS( Tutorial )
   IF( DOXYGEN )
     SET( DIET_DOXYGEN_INPUT
       "${DIET_SOURCE_DIR}/include                                                      ${DIET_SOURCE_DIR}/src" )
