@@ -4,7 +4,11 @@
 
 IF( DIET_BUILD_DOCUMENTATION )
 
-  SUBDIRS( ProgrammersGuide )
+  # The programmer's guide is not part of the User's distribution:
+  IF( IS_DIRECTORY ProgrammersGuide )
+    SUBDIRS( ProgrammersGuide )
+  ENDIF( IS_DIRECTORY ProgrammersGuide )
+
   SUBDIRS( Tutorial )
   SUBDIRS( UsersManual )
   IF( DOXYGEN )
