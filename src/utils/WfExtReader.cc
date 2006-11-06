@@ -16,10 +16,10 @@
 #include <xercesc/framework/Wrapper4InputSource.hpp>
 #include <xercesc/util/XMLString.hpp>
 
+#include "debug.hh"
 #include "marshalling.hh"
 #include "WfExtReader.hh"
 #include "WfUtils.hh"
-#include "debug.hh"
 
 
 using namespace std;
@@ -29,14 +29,14 @@ using namespace std;
  */
 WfExtReader::WfExtReader(const char * wf_desc) :
   content(wf_desc) {
-  dagSize = 0;
+  this->dagSize = 0;
   this->myDag = new Dag();
   this->alloc = false;
 } // end constructor WfExtReader::WfExtReader(const char *)
 
 WfExtReader::WfExtReader(const char * wf_desc, bool alloc) :
   content(wf_desc) {
-  dagSize = 0;
+  this->dagSize = 0;
   this->myDag = new Dag();
   this->alloc = alloc;
 } // end constructor WfExtReader::WfExtReader(const char *, bool)
@@ -105,7 +105,7 @@ WfExtReader::parseXml() {
 
   Wrapper4InputSource * wrapper = new Wrapper4InputSource(memBufIS);
 
-  TRACE_TEXT (TRACE_ALL_STEPS, "wrapper created" << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS, "Xml wrapper created" << endl);
 
   this->document = parser->parse(*wrapper);
 
@@ -130,6 +130,9 @@ WfExtReader::parseXml() {
       char * _nodeName = XMLString::transcode(child_elt->getNodeName());
       string nodeName(_nodeName);
       XMLString::release(&_nodeName);
+
+      TRACE_TEXT (TRACE_ALL_STEPS,
+		  "Parsing the element " << nodeName << endl );
 
       if (nodeName != "node") {
 	WARNING ("Founding an element different from node" << nodeName);
@@ -214,6 +217,8 @@ WfExtReader::parseNode (const DOMNode * element,
   DOMElement * node;
   long int mul_arg =0, mul_in = 0, mul_inout = 0, mul_out = 0; 
   unsigned lastArg = 0;
+
+  this->dagSize++;
 
   DOMNode * child = element->getFirstChild();
   while (child != NULL) {
@@ -535,11 +540,12 @@ WfExtReader::parseNode (const DOMNode * element,
   if (! this->alloc) {
     mrsh_pb_desc(corba_profile, profile);
     nodes_list[nodeId] = (*corba_profile);
+    this->dagSize = nodes_list.size();
 
     // add the corba profile to problem list if it is a new one
     //if (! pbAlreadyRegistred(*corba_profile) ) {
       pbs_list.push_back(*corba_profile);
-    //}
+      //}
   } // end if (! alloc)
 
   myDag->addNode(nodeId, dagNode);
@@ -1172,7 +1178,8 @@ WfExtReader::setMatrixParamDesc(const wf_port_t param_type,
  */
 unsigned int
 WfExtReader::getDagSize() {
-  return dagSize;
+  //  return dagSize;
+  return nodes_list.size();
 } // end getDagSize
 
 
