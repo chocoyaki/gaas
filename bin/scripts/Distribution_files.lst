@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.7  2006/11/06 14:11:58  eboix
+#* CMakeLists.txt should (because sometimes they must) be untemplated. - Injay2461
+#*
 #* Revision 1.6  2006/11/03 00:09:34  ecaron
 #* - Add Testing section (temporally)
 #* - Add cfg files (for examples)
@@ -40,13 +43,9 @@
 #****************************************************************************#
 
 # root section
-[Templated]
-CMakeLists.txt
-src/CMakeLists.txt
-
 [UNTEMPLATED]
+CMakeLists.txt
 README.FIRST
-INSTALL
 ChangeLog
 
 # Cmake Section
@@ -75,8 +74,9 @@ Cmake/Ctest/OmniDaemon.bash.in
 Cmake/Ctest/CMakeLists.txt
 
 # Include section
-[Templated]
+[Untemplated]
 include/CMakeLists.txt
+[Templated]
 include/DIET_client.h
 include/DIET_config.h
 include/DIET_data.h
@@ -85,14 +85,19 @@ include/DIET_mutex.h
 include/DIET_server.h
 include/grpc.h
 
+# Src section
+[Untemplated]
+src/CMakeLists.txt
+
 # CORBA section
-[Templated]
+[Untemplated]
 src/CORBA/CMakeLists.txt
+src/CORBA/idl/CMakeLists.txt
+[Templated]
 src/CORBA/ORBMgr.cc
 src/CORBA/ORBMgr.hh
 src/CORBA/marshalling.cc
 src/CORBA/marshalling.hh
-src/CORBA/idl/CMakeLists.txt
 src/CORBA/idl/Agent.idl
 src/CORBA/idl/Callback.idl
 src/CORBA/idl/CltReoMan.idl
@@ -110,8 +115,9 @@ src/CORBA/idl/idlRules.mk
 src/CORBA/idl/response.idl
 
 # SeD section
-[Templated]
+[Untemplated]
 src/SeD/CMakeLists.txt
+[Templated]
 src/SeD/DIET_server.cc
 src/SeD/DataMgrImpl.cc
 src/SeD/DataMgrImpl.hh
@@ -122,6 +128,8 @@ src/SeD/SeDJNI.cc
 src/SeD/dmat_jxta_progs.h
 
 # agent section
+[Untemplated]
+src/agent/CMakeLists.txt
 [Templated]
 src/agent/AbsWfMetaSched.cc
 src/agent/AbsWfMetaSched.hh
@@ -129,7 +137,6 @@ src/agent/AgentImpl.cc
 src/agent/AgentImpl.hh
 src/agent/BindService.cc
 src/agent/BindService.hh
-src/agent/CMakeLists.txt
 src/agent/ChildID.hh
 src/agent/ExitClass.cc
 src/agent/ExitClass.hh
@@ -178,7 +185,9 @@ src/agent/masterAgentJNI.cc
 src/agent/qsort.cc
 
 # Client section
+[Untemplated]
 src/client/CMakeLists.txt
+[Templated]
 src/client/CallAsyncMgr.cc
 src/client/CallAsyncMgr.hh
 src/client/CallbackImpl.cc
@@ -187,33 +196,50 @@ src/client/DIET_client.cc
 src/client/DIET_grpc.cc
 
 # examples section
+[Untemplated]
 src/examples/CMakeLists.txt
 src/examples/BLAS/CMakeLists.txt
+[Templated]
 src/examples/BLAS/client.c
 src/examples/BLAS/dgemm_client.c
 src/examples/BLAS/server.c
+
+[Untemplated]
 src/examples/Batch/CMakeLists.txt
+[Templated]
 src/examples/Batch/batch_server.c
 src/examples/Batch/client.c
 src/examples/Batch/concatenation.c
 src/examples/Batch/parallel_server.c
 src/examples/Batch/sequential_server.c
+
+[Untemplated]
 src/examples/GridRPC/CMakeLists.txt
+[Templated]
 src/examples/GridRPC/server.c
 src/examples/GridRPC/standard-test.c
+
+[Untemplated]
 src/examples/JXTA/CMakeLists.txt
+[Templated]
 src/examples/JXTA/JXTAClient.java
 src/examples/ScaLAPACK/client.c
 src/examples/ScaLAPACK/job.c
 src/examples/ScaLAPACK/job.h
 src/examples/ScaLAPACK/pdgemm_client.c
 src/examples/ScaLAPACK/server.c
+
+[Untemplated]
 src/examples/cori/CMakeLists.txt
+[Templated]
 src/examples/cori/client.c
 src/examples/cori/coriEasyTester.cc
 src/examples/cori/progs.h
 src/examples/cori/server.c
+
+[Untemplated]
 src/examples/dmat_manips/CMakeLists.txt
+[Templated]
 src/examples/dmat_manips/Global_macros.hh
 src/examples/dmat_manips/client.c
 src/examples/dmat_manips/clientJuxMem.c
@@ -225,15 +251,24 @@ src/examples/dmat_manips/parallelClient4.cc
 src/examples/dmat_manips/progs.h
 src/examples/dmat_manips/serialClient.cc
 src/examples/dmat_manips/server.c
+
+[Untemplated]
 src/examples/file_transfer/CMakeLists.txt
+[Templated]
 src/examples/file_transfer/client.c
 src/examples/file_transfer/server.c
 src/examples/plugin_example/client.c
 src/examples/plugin_example/server.c
+
+[Untemplated]
 src/examples/scalars/CMakeLists.txt
+[Templated]
 src/examples/scalars/client.c
 src/examples/scalars/server.c
+
+[Untemplated]
 src/examples/workflow/CMakeLists.txt
+[Templated]
 src/examples/workflow/client1.c
 src/examples/workflow/double.c
 src/examples/workflow/file_manip.c
@@ -290,12 +325,13 @@ src/examples/workflow/xml/var_desc.xml
 src/examples/workflow/xml/logo_diet.jpg
 
 # Utils section
+[Untemplated]
+src/utils/CMakeLists.txt
 [Templated]
 src/utils/AbstractWfSched.cc
 src/utils/AbstractWfSched.hh
 src/utils/AccessController.cc
 src/utils/AccessController.hh
-src/utils/CMakeLists.txt
 src/utils/CORIMgr.cc
 src/utils/CORIMgr.hh
 src/utils/CltReoMan_impl.cc
@@ -362,7 +398,10 @@ src/utils/ms_function.cc
 src/utils/ms_function.hh
 src/utils/statistics.cc
 src/utils/statistics.hh
+
+[Untemplated]
 src/utils/fd/CMakeLists.txt
+[Templated]
 src/utils/fd/application_watcher.cc
 src/utils/fd/application_watcher.h
 src/utils/fd/fd.h
@@ -418,8 +457,8 @@ src/lib/licenses/junit-license.txt
 src/lib/licenses/log4j-license.txt
 src/lib/licenses/saxpath-license.txt
 
-# Ajout Section TESTING en attendant que ça disparaisse de la release user
-[Templated]
+# Section TESTING (equivalent d'un make test donc dans release user):
+[Untemplated]
 src/Testing/CMakeLists.txt
 src/Testing/TestDummy.cxx
 src/Testing/TestORBMgrInit.cxx
@@ -431,6 +470,8 @@ src/Testing/Utilities/LightClient/README
 
 
 # Doc section
+[Untemplated]
+doc/CMakeLists.txt
 [Templated]
 doc/UsersManual/UsersManual.bib
 doc/UsersManual/UsersManual.tex
@@ -446,10 +487,10 @@ doc/UsersManual/plugin.tex
 doc/UsersManual/prediction.tex
 doc/UsersManual/server.tex
 doc/UsersManual/xml_example.tex
-doc/CMakeLists.txt
 
 [Untemplated]
 doc/UsersManual/DIET_UsersManual.ps
+doc/Doxyfile.in
 
 # Ici, je mets les sources des documents dans les [Devel_*] pour ne laisser que
 # le ps final dans la distrib normale. Du coup, le répertoire doc/ aura des
@@ -460,12 +501,13 @@ doc/UsersManual/DIET_UsersManual.ps
 # décompressée, et puis que sais-je encore ?
 # Bref, c'est du packaging, de la déco...
 
-[Devel_templated]
+[Devel_Untemplated]
 doc/ProgrammersGuide/fig/CMakeLists.txt
 # Là, je me demande si ça pose problème à CMake de supprimer des
 # sous-répertoires. Si oui, il faut remettre le répertoire du PG et le
 # CMakeLists.txt dans une section [(Un)Templated]. Sinon, on peut virer ce PG de
 # la distribution "normale" comme je le fais ici...
+[Devel_templated]
 doc/ProgrammersGuide/Annexe1.tex
 doc/ProgrammersGuide/CS.tex
 doc/ProgrammersGuide/ProgrammersGuide.tex
@@ -567,3 +609,4 @@ doc/Tutorial/solutions/exercise2/matrix1
 doc/Tutorial/solutions/exercise3/client.c
 doc/Tutorial/solutions/exercise3/server.c
 Cmake/TODO
+
