@@ -1,3 +1,9 @@
+diet-2.2
+
+* JuxMem
+      - Added support for asynchronous calls and refactorized implementation
+      - Updated for JuxMem 0.3
+	
 diet-2.1
 
 * CoRI Collectors of ressource information
