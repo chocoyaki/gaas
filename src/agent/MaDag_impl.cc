@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2006/11/06 12:05:15  aamar
+ * Workflow support: correct some bugs.
+ *
  * Revision 1.5  2006/11/02 17:10:19  rbolze
  * add some debug info
  *
@@ -97,9 +100,8 @@ MaDag_impl::submit_wf (const corba_wf_desc_t& wf_desc) {
 
   stat_in("MA DAG","Start workflow request");
 
-  // MA DAG delivers odd dag id
-  static int dag_id = -1;
-  dag_id += 2;
+  static CORBA::Long dag_id = 0;
+
   this->myMutex.lock();
   if (this->multi_wf) {
     wf_sched_response_t * tmp = 
@@ -110,6 +112,7 @@ MaDag_impl::submit_wf (const corba_wf_desc_t& wf_desc) {
   }
   wf_sched_response_t * sched_resp = new wf_sched_response_t;
   sched_resp->dag_id = dag_id;
+  dag_id++;
   sched_resp->wf_node_sched_seq.length(0);
   wf_response_t * wf_response = NULL; // new wf_response_t;
   //  wf_response-> complete = true;
@@ -131,6 +134,11 @@ MaDag_impl::submit_wf (const corba_wf_desc_t& wf_desc) {
 
   cout << "send the problems ("<< len << ") sequence to the master agent ... " << endl;
   wf_response = this->parent->submit_pb_set(pbs_seq, reader.getDagSize());
+
+  sched_resp->dag_id = wf_response->dag_id;
+  sched_resp->firstReqID = wf_response->firstReqID;
+  sched_resp->lastReqID = wf_response->lastReqID;
+  sched_resp->ma_response = *wf_response;
   cout << "... done" << endl;
 
   
@@ -138,7 +146,6 @@ MaDag_impl::submit_wf (const corba_wf_desc_t& wf_desc) {
   // construct the response/scheduling
 
   if ( ! wf_response->complete) {
-    sched_resp->dag_id = wf_response->dag_id;
     cout << "The response is incomplete" << endl;
     this->myMutex.unlock();
     stat_out("MA DAG","End workflow request");
@@ -151,7 +158,6 @@ MaDag_impl::submit_wf (const corba_wf_desc_t& wf_desc) {
   }
 
   sched_resp->wf_node_sched_seq = mySched->schedule(wf_response, reader);
-  sched_resp->dag_id = wf_response->dag_id;
 
   this->myMutex.unlock();
 
