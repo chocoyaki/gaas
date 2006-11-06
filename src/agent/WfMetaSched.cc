@@ -90,6 +90,11 @@ WfMetaSched::submit_wf (const corba_wf_desc_t& wf_desc, int dag_id,
   wf_response_t * wf_response = parent->submit_pb_set(pbs_seq, dag->size());
   cout << "... done" << endl;
 
+  wf_resp->dag_id = wf_response->dag_id;
+  wf_resp->firstReqID = wf_response->firstReqID;
+  wf_resp->lastReqID = wf_response->lastReqID;
+  wf_resp->ma_response = *wf_response;
+
   // construct the response/scheduling
 
   if ( ! wf_response->complete) {
