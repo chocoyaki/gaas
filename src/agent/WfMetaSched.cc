@@ -36,7 +36,8 @@ WfMetaSched::setSched(MaDag_sched * sched) {
  */
 wf_sched_response_t * 
 WfMetaSched::submit_wf (const corba_wf_desc_t& wf_desc, int dag_id,
-			  MasterAgent_var parent) {
+			MasterAgent_var parent,
+			const bool used) {
   CltReoMan_var clt = NULL;
   // get the remaining dags from all the clients
   cout << endl <<
@@ -87,7 +88,8 @@ WfMetaSched::submit_wf (const corba_wf_desc_t& wf_desc, int dag_id,
   }
 
   cout << "WfMetaSched : send the problems sequence to the MA  ... " << endl;
-  wf_response_t * wf_response = parent->submit_pb_set(pbs_seq, dag->size());
+  wf_response_t * wf_response = parent->submit_pb_set(pbs_seq, dag->size(), 
+						      used);
   cout << "... done" << endl;
 
   wf_resp->dag_id = wf_response->dag_id;

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2006/11/06 15:14:53  aamar
+ * Workflow support: Correct some code about reqID
+ *
  * Revision 1.6  2006/11/06 12:05:15  aamar
  * Workflow support: correct some bugs.
  *
@@ -96,7 +99,8 @@ MaDag_impl::~MaDag_impl() {
  * Workflow submission function. 
  */
 wf_sched_response_t * 
-MaDag_impl::submit_wf (const corba_wf_desc_t& wf_desc) {
+MaDag_impl::submit_wf (const corba_wf_desc_t& wf_desc,
+		       const bool used) {
 
   stat_in("MA DAG","Start workflow request");
 
@@ -105,7 +109,7 @@ MaDag_impl::submit_wf (const corba_wf_desc_t& wf_desc) {
   this->myMutex.lock();
   if (this->multi_wf) {
     wf_sched_response_t * tmp = 
-      this->metaSched->submit_wf(wf_desc, dag_id, this->parent);
+      this->metaSched->submit_wf(wf_desc, dag_id, this->parent, used);
     this->myMutex.unlock();
     stat_out("MA DAG","End workflow request");
     return tmp;
@@ -133,7 +137,8 @@ MaDag_impl::submit_wf (const corba_wf_desc_t& wf_desc) {
   }
 
   cout << "send the problems ("<< len << ") sequence to the master agent ... " << endl;
-  wf_response = this->parent->submit_pb_set(pbs_seq, reader.getDagSize());
+  wf_response = this->parent->submit_pb_set(pbs_seq, reader.getDagSize(), 
+					    used);
 
   sched_resp->dag_id = wf_response->dag_id;
   sched_resp->firstReqID = wf_response->firstReqID;

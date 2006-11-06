@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2006/11/06 15:14:53  aamar
+ * Workflow support: Correct some code about reqID
+ *
  * Revision 1.12  2006/10/20 08:48:59  aamar
  * Remove the submit_wf function.
  * Handle the request ID in workflow submission.
@@ -173,7 +176,8 @@ public :
    */
   virtual wf_response_t *
   submit_pb_set (const corba_pb_desc_seq_t& seq_pb,
-		 const CORBA::Long setSize);
+		 const CORBA::Long setSize,
+		 const bool used);
 #endif // HAVE_WORKFLOW
 
 private :

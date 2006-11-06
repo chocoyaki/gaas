@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.31  2006/11/06 15:14:53  aamar
+ * Workflow support: Correct some code about reqID
+ *
  * Revision 1.30  2006/11/06 12:05:47  aamar
  * Workflow support: correct the lastReqID value.
  *
@@ -780,7 +783,8 @@ MasterAgentImpl::logNeighbors() {
  */
 wf_response_t *
 MasterAgentImpl::  submit_pb_set  (const corba_pb_desc_seq_t& seq_pb,
-				   const CORBA::Long setSize) {
+				   const CORBA::Long setSize,
+				   const bool used) {
   struct timeval tbegin;
   struct timeval tend;
   gettimeofday(&tbegin, NULL);
@@ -791,7 +795,7 @@ MasterAgentImpl::  submit_pb_set  (const corba_pb_desc_seq_t& seq_pb,
   unsigned int len = seq_pb.length();
   wf_response->wfn_seq_resp.length(0);
   corba_response_t * corba_response = NULL;
-
+  Counter initialReqIdCounter = this->reqIDCounter;
   wf_response->complete = false;
   TRACE_TEXT (TRACE_MAIN_STEPS, 
 	      "The MasterAgent receives a set of "<< len << " problems" << 
@@ -804,6 +808,8 @@ MasterAgentImpl::  submit_pb_set  (const corba_pb_desc_seq_t& seq_pb,
       TRACE_TEXT (TRACE_MAIN_STEPS, 
 		  "The problem set can't be solved (one or more services are "
 		  << "missing) " << endl);
+      if (!used) 
+	this->reqIDCounter = initialReqIdCounter;
       return wf_response;
     }
     else {
@@ -839,7 +845,8 @@ MasterAgentImpl::  submit_pb_set  (const corba_pb_desc_seq_t& seq_pb,
 				   ptime);
   }
   
-
+  if (!used)
+    this->reqIDCounter =  initialReqIdCounter;
   return wf_response;
 }
 

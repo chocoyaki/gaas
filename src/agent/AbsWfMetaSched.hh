@@ -37,7 +37,8 @@ public:
    */
   virtual wf_sched_response_t * 
   submit_wf (const corba_wf_desc_t& wf_desc, int dag_id,
-	     MasterAgent_var parent) = 0;
+	     MasterAgent_var parent,
+	     const bool used) = 0;
 
   /**
    * Add a new client reference

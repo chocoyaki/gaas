@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2006/11/06 15:14:53  aamar
+ * Workflow support: Correct some code about reqID
+ *
  * Revision 1.3  2006/10/20 09:13:55  aamar
  * Changing the submit_wf prototype (the return type)
  * Add the following function to the MA DAG interface
@@ -53,7 +56,7 @@ public:
 
   /** Workflow submission function. */
   virtual wf_sched_response_t * 
-  submit_wf (const corba_wf_desc_t& wf_desc);
+  submit_wf (const corba_wf_desc_t& wf_desc, const bool used);
 
   /**
    * Another workflow submission function *

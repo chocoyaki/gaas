@@ -42,7 +42,8 @@ MultiWfFairness_Sched::setSched(MaDag_sched * sched) {
  */
 wf_sched_response_t * 
 MultiWfFairness_Sched::submit_wf (const corba_wf_desc_t& wf_desc, int dag_id,
-				  MasterAgent_var parent) {
+				  MasterAgent_var parent,
+				  const bool used) {
   wf_sched_response_t * wf_resp = new wf_sched_response_t;
   wf_resp->dag_id = dag_id;
   // The submited new dag
@@ -75,7 +76,8 @@ MultiWfFairness_Sched::submit_wf (const corba_wf_desc_t& wf_desc, int dag_id,
   TRACE_FUNCTION(TRACE_ALL_STEPS,
 		 "MultiWfFairness contacts the MA  ... " << endl);
   wf_response_t * wf_response = parent->submit_pb_set(pbs_seq, 
-						      len);
+						      len,
+						      used);
   TRACE_FUNCTION(TRACE_ALL_STEPS,
 		 "... submit_pb_set done" << endl);
 
