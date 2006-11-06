@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2006/11/06 12:11:47  aamar
+ * Worklow support: Changing the  wf_sched_response_t structure.
+ *
  * Revision 1.9  2006/10/20 08:09:05  aamar
  * Extending the wf_response_t.
  * Adding the new structure wf_sched_response_t.
@@ -164,8 +167,12 @@ struct wf_node_sched_t {
 typedef sequence<wf_node_sched_t>  wf_node_sched_seq_t;
 
 struct wf_sched_response_t {
+  boolean complete;
+  long firstReqID;
+  long lastReqID;
   long dag_id;
   wf_node_sched_seq_t wf_node_sched_seq;
+  wf_response_t ma_response;
 };
 struct wf_node_ordering_t {
   string node_id;
