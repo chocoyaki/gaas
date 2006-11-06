@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.30  2006/11/06 12:05:47  aamar
+ * Workflow support: correct the lastReqID value.
+ *
  * Revision 1.29  2006/11/02 17:11:17  rbolze
  * change information send by DietLogComponent
  *
@@ -782,7 +785,6 @@ MasterAgentImpl::  submit_pb_set  (const corba_pb_desc_seq_t& seq_pb,
   struct timeval tend;
   gettimeofday(&tbegin, NULL);
 
-  // Master agent deliver even dag_id
   static CORBA::Long dag_id = 0;
   wf_response_t * wf_response = new wf_response_t;
   wf_response->firstReqID = reqIDCounter;
@@ -792,7 +794,9 @@ MasterAgentImpl::  submit_pb_set  (const corba_pb_desc_seq_t& seq_pb,
 
   wf_response->complete = false;
   TRACE_TEXT (TRACE_MAIN_STEPS, 
-	      "The MasterAgent receives a set of "<< len << " problems" << endl;)
+	      "The MasterAgent receives a set of "<< len << " problems" << 
+	      " for " << setSize << " nodes" <<
+	      endl);
   for (unsigned int ix=0; ix<len; ix++) {
     cout << ix << endl;
     corba_response = this->submit(seq_pb[ix], 1024);
@@ -822,7 +826,7 @@ MasterAgentImpl::  submit_pb_set  (const corba_pb_desc_seq_t& seq_pb,
   // increment the reqIDCounter
   reqIDCounter = reqIDCounter + (setSize-seq_pb.length());
 
-  wf_response->lastReqID =  wf_response->firstReqID + len - 1 ; // len = seq_pb.length()
+  wf_response->lastReqID =  wf_response->firstReqID + setSize - 1 ;
   reqCount_mutex.unlock();
 
   gettimeofday(&tend, NULL);
