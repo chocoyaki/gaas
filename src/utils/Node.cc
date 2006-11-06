@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2006/11/06 12:23:59  aamar
+ * Workflow support: correct the value of reqID passed to RunnableNode.
+ *
  * Revision 1.7  2006/11/06 11:57:07  aamar
  * *** empty log message ***
  *
@@ -540,7 +543,7 @@ Node::start(diet_reqID_t reqID) {
   TRACE_TEXT (TRACE_ALL_STEPS, " create the runnable node " << endl);
   node_running = true;
   nodeIsStarting(myId.c_str());
-  myRunnableNode = new RunnableNode(this, reqID+1);
+  myRunnableNode = new RunnableNode(this, reqID);
   TRACE_TEXT (TRACE_ALL_STEPS, "The node " << myId << " tries to launch a RunnableNode "<< endl);
   myRunnableNode->start();
   TRACE_TEXT (TRACE_ALL_STEPS, "The node " << myId << " launched it RunnableNode" << endl);
