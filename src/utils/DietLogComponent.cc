@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2006/11/06 15:43:44  aamar
+ * Checking the memory allocated to log msgs.
+ *
  * Revision 1.24  2006/11/02 17:12:26  rbolze
  * change function logDagSubmit
  *
@@ -773,7 +776,9 @@ void
 DietLogComponent::logDataStore(const char* dataID, const long unsigned int size, const long base_type, const char * type) {
   char * base = (char *)malloc(10*sizeof(char));
   char* s;
-  s = new char[strlen(dataID) + sizeof(size)+ strlen(type) + strlen(base) + 3];
+  //  s = new char[strlen(dataID) + sizeof(size)+ strlen(type) + strlen(base) + 4];
+  s = new char[strlen(dataID) + num_Digits(size)+ strlen(type) + 10 + 4];
+
   if (tagFlags[6]) {
     switch (base_type) {
     case DIET_CHAR: {
@@ -806,7 +811,7 @@ DietLogComponent::logDataStore(const char* dataID, const long unsigned int size,
       sprintf(s,"%s %ld %s %s",(const char *)(dataID),(long unsigned int)(size), type, base);
       break;
     }
-    }
+    } // end switch 
     log(tagNames[6], s);
     delete(s);
   }
@@ -842,7 +847,8 @@ void
 DietLogComponent::logJuxMemDataStore(const unsigned long reqID, const char* dataID, const long unsigned int size, const long base_type, const char * type, const float time) {
    char * base = (char *)malloc(10*sizeof(char));
    char* s;
-   s = new char[sizeof(reqID) + strlen(dataID) + sizeof(size)+ strlen(type) + (10 * sizeof(char)) + sizeof(time) + 5];
+   //   s = new char[sizeof(reqID) + strlen(dataID) + sizeof(size)+ strlen(type) + (10 * sizeof(char)) + sizeof(time) + 5];
+   s = new char[sizeof(reqID) + strlen(dataID) + num_Digits(size)+ strlen(type) + (10 * sizeof(char)) + sizeof(time) + 5];
    if (tagFlags[14]) {
     switch (base_type) {
     case DIET_CHAR: {
