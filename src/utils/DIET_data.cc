@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.42  2006/11/06 11:54:54  aamar
+ * *** empty log message ***
+ *
  * Revision 1.41  2006/09/18 19:46:08  ycaniou
  * Corrected a bug in file_transfer:server.c
  * Corrected memory leaks due to incorrect free of char *
@@ -1032,7 +1035,7 @@ diet_wf_profile_free(diet_wf_desc_t * profile) {
     free(profile->abstract_wf);
   free(profile);
 }
-#endif
+#endif // endif HAVE_WORKFLOW
 
 } // extern "C"
 

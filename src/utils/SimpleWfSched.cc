@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2006/11/06 12:00:26  aamar
+ * *** empty log message ***
+ *
  * Revision 1.3  2006/11/02 17:13:53  rbolze
  * add some commented code to be change
  *
@@ -39,13 +42,13 @@ SimpleWfSched::~SimpleWfSched() {
  */
 void
 SimpleWfSched::execute() {
-  if (response != NULL) { // if the runtime use the MA
+  if (response.wfn_seq_resp.length() != 0) {
     cout << "---------------------" << endl;
     cout << "Display the response " << endl;
     for (unsigned int ix=0; 
-	 ix < (*(this->response)).wfn_seq_resp.length(); 
+	 ix < this->response.wfn_seq_resp.length(); 
 	 ix++) {
-      corba_response_t cr = (*(this->response)).wfn_seq_resp[ix].response;
+      corba_response_t cr = this->response.wfn_seq_resp[ix].response;
       for (unsigned int jx=0; jx < cr.servers.length(); jx++) {
 	corba_server_estimation_t cs_estim = cr.servers[jx];
 	for (unsigned kx =0; kx < cs_estim.estim.estValues.length(); kx++) {
@@ -70,7 +73,7 @@ SimpleWfSched::execute() {
   struct timeval tv;
   gettimeofday(&tv, NULL);
   myDag->setTheBeginning(tv);
-  //CORBA::Long reqID = response->firstReqID;
+  CORBA::Long reqID = response.firstReqID;
 
   while (true) {
     // get the ready nodes
@@ -78,8 +81,8 @@ SimpleWfSched::execute() {
     unsigned len = readyNodes.size();
     for (uint ix=0; ix<len; ix++) {
       n = readyNodes[ix];
-      n->start();
-      //n->start(reqID++);
+      // n->start();
+      n->start(reqID++);
     }
     /*
     cout << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << endl;

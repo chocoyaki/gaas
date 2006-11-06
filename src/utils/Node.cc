@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2006/11/06 11:57:07  aamar
+ * *** empty log message ***
+ *
  * Revision 1.6  2006/11/02 17:13:13  rbolze
  * dd some debug info
  *
@@ -126,7 +129,8 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer,
   try {
     stat_in("Client",statMsg);
 
-    TRACE_TEXT(TRACE_MAIN_STEPS, "Calling the ref Corba of the SeD\n");
+    TRACE_TEXT(TRACE_MAIN_STEPS, 
+	       "Calling the ref Corba of the SeD (reqID = " << reqID << ")\n");
     TRACE_TEXT(TRACE_MAIN_STEPS, statMsg << endl);
 #if HAVE_FD
     fd_set_transition_handler(diet_call_failure_recover);
