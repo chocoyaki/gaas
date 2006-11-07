@@ -6,8 +6,11 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/* $Id: 
- * $Log: 
+/* $Id$
+ * $Log$
+ * Revision 1.3  2006/11/07 12:44:48  aamar
+ * *** empty log message ***
+ *
  ****************************************************************************/
 
 #include <unistd.h>
@@ -155,7 +158,7 @@ duplicate(diet_profile_t* pb)
   strcat(path_result1, "-1.jpg");
 
   strcpy(path_result2, path_without_ext);
-  strcat(path_result2, "-1.jpg");
+  strcat(path_result2, "-2.jpg");
 
   sprintf(cmd, "cp %s.jpg %s-1.jpg",
 	  path_without_ext, path_without_ext);

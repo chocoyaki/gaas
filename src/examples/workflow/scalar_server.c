@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2006/11/07 12:44:48  aamar
+ * *** empty log message ***
+ *
  * Revision 1.2  2006/11/07 11:57:10  rbolze
  * Remove references to CORI.
  *
@@ -72,7 +75,7 @@ succ(diet_profile_t* pb)
   diet_scalar_desc_set(diet_parameter(pb,1), jx);
   diet_scalar_desc_set(diet_parameter(pb,2), kx);
 
-  usleep(t*500000);
+  usleep(t*100000);
   
   return 0;
 }
@@ -95,7 +98,7 @@ double_int(diet_profile_t* pb)
   fprintf(stderr, "j = 2i = %d\n", *(int*)jx);
   diet_scalar_desc_set(diet_parameter(pb,1), jx);
 
-  usleep(t*500000);
+  usleep(t*100000);
 
   return 0;
 }
@@ -120,7 +123,7 @@ sum(diet_profile_t* pb)
   fprintf(stderr, "k = i + j = %d\n", *(int*)kx);
   diet_scalar_desc_set(diet_parameter(pb,2), kx);
 
-  usleep(t*500000);
+  usleep(t*100000);
 
   return 0;
 }
@@ -143,7 +146,7 @@ square(diet_profile_t* pb)
   fprintf(stderr, "sqrt(i) = %f\n", *(double*)jx);
   diet_scalar_desc_set(diet_parameter(pb,1), jx);
 
-  usleep(t*500000);
+  usleep(t*100000);
   
   return 0;
 }

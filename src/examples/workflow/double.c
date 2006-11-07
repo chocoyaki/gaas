@@ -6,8 +6,11 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/* $@Id$
- * $@Log$
+/* $Id$
+ * $Log$
+ * Revision 1.4  2006/11/07 12:44:48  aamar
+ * *** empty log message ***
+ *
  ****************************************************************************/
 #include <unistd.h>
 #include <stdlib.h>
@@ -54,7 +57,7 @@ double_int(diet_profile_t* pb)
   fprintf(stderr, "j = 2i = %d\n", *(int*)jx);
   diet_scalar_desc_set(diet_parameter(pb,1), jx);
 
-  usleep(t*500000);
+  usleep(t*100000);
 
   return 0;
 }

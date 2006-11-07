@@ -6,8 +6,11 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/* $@Id$
- * $@Log$
+/* $Id$
+ * $Log$
+ * Revision 1.4  2006/11/07 12:44:48  aamar
+ * *** empty log message ***
+ *
  ****************************************************************************/
 #include <unistd.h>
 #include <stdlib.h>
@@ -58,7 +61,7 @@ sum(diet_profile_t* pb)
   fprintf(stderr, "k = i + j = %d\n", *(int*)kx);
   diet_scalar_desc_set(diet_parameter(pb,2), kx);
 
-  usleep(t*500000);
+  usleep(t*100000);
 
   return 0;
 }
