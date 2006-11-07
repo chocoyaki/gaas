@@ -40,7 +40,6 @@ void
 set_up_scheduler(diet_profile_desc_t* profile){ 
   diet_aggregator_desc_t *agg = NULL;
   agg = diet_profile_desc_aggregator(profile);
-  diet_estimate_cori_add_collector(EST_COLL_EASY,NULL);
   diet_service_use_perfmetric(performance_Exec_Time);
   diet_aggregator_set_type(agg, DIET_AGG_PRIORITY); 
   diet_aggregator_priority_minuser(agg,0);

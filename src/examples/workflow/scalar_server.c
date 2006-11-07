@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2006/11/07 11:57:10  rbolze
+ * Remove references to CORI.
+ *
  * Revision 1.1  2006/10/26 15:22:45  aamar
  * Replace generic-client.c by generic_client.c and scalar-server.c by
  * scalar_server.c
@@ -42,7 +45,6 @@ void
 set_up_scheduler(diet_profile_desc_t* profile){ 
   diet_aggregator_desc_t *agg = NULL;
   agg = diet_profile_desc_aggregator(profile);
-  diet_estimate_cori_add_collector(EST_COLL_EASY,NULL);
   diet_service_use_perfmetric(performance_Exec_Time);
   diet_aggregator_set_type(agg, DIET_AGG_PRIORITY); 
   diet_aggregator_priority_minuser(agg,0);
