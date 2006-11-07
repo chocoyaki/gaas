@@ -1,3 +1,5 @@
+# Ctest configuration file for a PowerPc running Darwin8.
+
 # Set any extra environment variables here:
 # - CTEST_ENVIRONMENT uses a shell script to use ssh with the -i flag.
 SET( CTEST_ENVIRONMENT "export CVS_RSH=$ENV{HOME}/DashboardDiet/cvs_rsh_dart" )
@@ -29,7 +31,8 @@ ENDIF( ${CTEST_SCRIPT_ARG} MATCHES Experimental )
 IF( ${CTEST_SCRIPT_ARG} MATCHES Continuous )
   SET( MODEL Continuous )
   SET ( CTEST_CONTINUOUS_DURATION 600 )
-  SET ( CTEST_CONTINUOUS_MINIMUM_INTERVAL 10 )
+  # Pomme is really dogish:
+  SET ( CTEST_CONTINUOUS_MINIMUM_INTERVAL 30 )
   # SET ( CTEST_START_WITH_EMPTY_BINARY_DIRECTORY_ONCE 1 )
 ENDIF( ${CTEST_SCRIPT_ARG} MATCHES Continuous )
 
@@ -100,11 +103,11 @@ DIET_USE_BLAS:BOOL=OFF
 DIET_USE_BATCH:BOOL=ON
 
 //////// Appleseed SECTION
-APPLESEEDS_DIR:PATH=/home/eboix/local/appleseeds-2.2.1
+APPLESEEDS_DIR:PATH=$ENV{HOME}/local/appleseeds-2.2.1
 
-APPLESEEDS_INCLUDE_DIR:PATH=/home/eboix/local/appleseeds-2.2.1/include
+APPLESEEDS_INCLUDE_DIR:PATH=$ENV{HOME}/local/appleseeds-2.2.1/include
 
-APPLESEEDS_LIBRARY:FILEPATH=/home/eboix/local/appleseeds-2.2.1/lib/libappleseeds.a
+APPLESEEDS_LIBRARY:FILEPATH=$ENV{HOME}/local/appleseeds-2.2.1/lib/libappleseeds.a
 
 ")
 

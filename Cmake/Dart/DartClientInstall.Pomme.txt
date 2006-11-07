@@ -69,6 +69,15 @@ tar zxvf appleseeds-2.2.1.tar.gz
 cd appleseeds-2.2.1
 more INSTALL
 more Doc/install
+# Now on Darwin one needs to patch AppleSeed or we get an "Undefined symbol
+# _environ" when linking against appleseed's library:
+  1/ Comment out the declaration of environ in envseed.h
+  2/ Edit propertyseed.c and substitue the line
+       extern char **environ;
+     with the lines
+       #include <crt_externs.h>
+       #define environ (*_NSGetEnviron())
+
 ./configure --prefix=$HOME/local/appleseeds-2.2.1
 make
 make install
