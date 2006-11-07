@@ -1,6 +1,13 @@
-Utilities for using dart2 with DIET
+Utilities for using dart2 with DIET:
 
+Server side:
  - dart2 is the service utility to place on the dart server (typically in
    /etc/rc.d/init.d directory)
- - DashBoardScript.cmake : ctest script for dart submission. Invocation
-   example: ctest -S DashBoardScript.cmake 
+
+Clients side:
+ - DartClientInstall.<hostname>.txt : family of mock shell scripts to be
+   used as installation notes for installing Diet and dart framework
+   on <hostname>.
+ - DashBoardScript<hostname>.cmake : family of ctest script for dart
+   submission (or Dart client). Invocation example:
+      ctest -S DashBoardScript.cmake 
