@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.95  2006/11/07 11:56:16  rbolze
+ * Workflow support: make useMaDagSched in the right place.
+ *
  * Revision 1.94  2006/11/07 06:27:15  aamar
  * Workflow support: Move useMaDagSched.
  *
@@ -2119,6 +2122,12 @@ nodeIsWaiting(const char * node_id) {
   } // end if
 }
 
+#endif // HAVE_WORKFLOW
+
+END_API
+
+// for workflow support
+#ifdef HAVE_WORKFLOW
 
 bool 
 useMaDagSched() {
@@ -2126,9 +2135,6 @@ useMaDagSched() {
 }
 
 #endif // HAVE_WORKFLOW
-
-END_API
-
 
 // this function place is marshalling.cc file
 // to fix if necessary
