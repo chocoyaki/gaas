@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.4  2006/11/07 00:37:44  ecaron
+ * Bug fix for MacOSX support
+ *
  * Revision 1.3  2006/06/20 13:29:16  abouteil
  *
  *
@@ -15,10 +18,9 @@
  * A
  *
  ****************************************************************************/
-
 #ifndef __INCLUDE_THREADOVERLAY__
 #define __INCLUDE_THREADOVERLAY__
-
+#include "omniORB4/CORBA.h"
 #include <omnithread.h>
 
 typedef omni_thread *thread_t;

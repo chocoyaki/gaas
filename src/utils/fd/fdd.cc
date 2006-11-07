@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.4  2006/11/07 00:37:44  ecaron
+ * Bug fix for MacOSX support
+ *
  * Revision 1.3  2006/06/20 13:29:16  abouteil
  *
  *
@@ -33,6 +36,11 @@
 #include "tcp_server.h"
 #include "heartbeat_sender.h"
 #include "application_watcher.h"
+
+/* _NGIS under Intel NGIS under PPC */
+#if (defined(__ppc__) || defined(__ppc64__))
+#define _NSIG  NSIG
+#endif
 
 unsigned int next_watched_id = 0;  /* to give unique IDs */
 heap watched;    /* watched applications (we accept the heartbeats) */
