@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.94  2006/11/07 06:27:15  aamar
+ * Workflow support: Move useMaDagSched.
+ *
  * Revision 1.93  2006/11/06 15:15:20  aamar
  * Workflow support: some correction
  *
@@ -2117,6 +2120,11 @@ nodeIsWaiting(const char * node_id) {
 }
 
 
+bool 
+useMaDagSched() {
+  return use_ma_dag_sched;
+}
+
 #endif // HAVE_WORKFLOW
 
 END_API
@@ -2198,10 +2206,5 @@ get_all_session_ids(int& len) {
 MasterAgent_var 
 getMA() {
   return MA;
-}
-
-bool 
-useMaDagSched() {
-  return use_ma_dag_sched;
 }
 
