@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2006/11/08 17:51:37  aamar
+ * Use the get_all_results in the generic workflow client.
+ *
  * Revision 1.1  2006/10/26 15:22:45  aamar
  * Replace generic-client.c by generic_client.c and scalar-server.c by
  * scalar_server.c
@@ -78,6 +81,8 @@ main(int argc, char* argv[])
     printf("The workflow submission failed\n");
   }
 
+  get_all_results();
+  
   diet_wf_free(profile);
 
   return 0;
