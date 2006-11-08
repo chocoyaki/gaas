@@ -2,6 +2,7 @@
 #* Worfklow examples
 #****************************************************************************#
 
+
 SET( DIET_CLIENT_LIBRARIES DIET_client )
 SET( DIET_SERVER_LIBRARIES DIET_SeD )
 
@@ -66,3 +67,5 @@ INSTALL_TARGETS( /bin/examples/workflow client_file )
 ADD_EXECUTABLE( client_matrix client_matrix.c )
 TARGET_LINK_LIBRARIES( client_matrix ${DIET_CLIENT_LIBRARIES} )
 INSTALL_TARGETS( /bin/examples/workflow client_matrix )
+
+ADD_SUBDIRECTORY( xml )
