@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2006/11/08 15:18:58  aamar
+ * Complete get_all_results method to handle matrix and file types.
+ *
  * Revision 1.5  2006/11/06 11:56:42  aamar
  * Workflow support:
  *    - Adding get_file_output and get_matrix_output (to get workflow file
@@ -41,6 +44,60 @@
 #include "WfExtReader.hh"
 
 using namespace std;
+
+#define wf_dag_print_matrix_of_real(mat, m, n, rm)        \
+  {                                        \
+    size_t i, j;                           \
+    printf("## WORKFLOW OUTPUT ## %s (%s-major) = \n", #mat,     \
+           (rm) ? "row" : "column");       \
+    for (i = 0; i < (m); i++) {            \
+      printf("## WORKFLOW OUTPUT ## ");    \
+      for (j = 0; j < (n); j++) {          \
+        if (rm)                            \
+	  printf("%3f ", (mat)[j + i*(n)]);\
+        else                               \
+	  printf("%3f ", (mat)[i + j*(m)]);\
+      }                                    \
+      printf("\n");                        \
+    }                                      \
+    printf("\n");                          \
+  }
+
+#define wf_dag_print_matrix_of_integer(mat, m, n, rm)        \
+  {                                        \
+    size_t i, j;                           \
+    printf("## WORKFLOW OUTPUT ## %s (%s-major) = \n", #mat,     \
+           (rm) ? "row" : "column");       \
+    for (i = 0; i < (m); i++) {            \
+      printf("## WORKFLOW OUTPUT ## ");    \
+      for (j = 0; j < (n); j++) {          \
+        if (rm)                            \
+	  printf("%d ", (mat)[j + i*(n)]);\
+        else                               \
+	  printf("%d ", (mat)[i + j*(m)]);\
+      }                                    \
+      printf("\n");                        \
+    }                                      \
+    printf("\n");                          \
+  }
+
+#define wf_dag_print_matrix_of_longint(mat, m, n, rm)        \
+  {                                        \
+    size_t i, j;                           \
+    printf("%s (%s-major) = \n", #mat,     \
+           (rm) ? "row" : "column");       \
+    for (i = 0; i < (m); i++) {            \
+      for (j = 0; j < (n); j++) {          \
+        if (rm)                            \
+	  printf("%l ", (mat)[j + i*(n)]);\
+        else                               \
+	  printf("%l ", (mat)[i + j*(m)]);\
+      }                                    \
+      printf("\n");                        \
+    }                                      \
+    printf("\n");                          \
+  }
+
 
 Dag::Dag() {
   this->current_node = this->nodes.end();
@@ -677,19 +734,127 @@ Dag::get_all_results() {
        p != nodes.end();
        ++p) {
     n = (Node *)(p->second);
-    if (n != NULL) {
+    if ((n != NULL) && (n->isAnExit())) {
       for (map<string, WfOutPort*>::iterator outp_iter = n->outports.begin();
 	   outp_iter != n->outports.end();
 	   outp_iter++) {
 	WfOutPort * outp = (WfOutPort *)(outp_iter->second);
 	if (outp->isResult()) {
+	  // ******************* SCALAR
 	  if (outp->profile()->parameters[outp->getIndex()].desc.generic.type == DIET_SCALAR) {
-	    long * value;
-	    diet_scalar_get(diet_parameter(outp->profile(),outp->getIndex()), 
+	    // DOUBLE OR FLOAT
+	    if (outp->profile()->parameters[outp->getIndex()].desc.generic.base_type == DIET_DOUBLE) {
+	      double * value = NULL;
+	      diet_scalar_get(diet_parameter(outp->profile(),outp->getIndex()), 
+			      &value, NULL);
+	      TRACE_TEXT (TRACE_MAIN_STEPS,
+			  "## WORKFLOW OUTPUT ## " <<
+			  outp->getId() << " = " << *value << endl);
+	    }
+	    if (outp->profile()->parameters[outp->getIndex()].desc.generic.base_type == DIET_FLOAT) {
+	      float * value = NULL;
+	      diet_scalar_get(diet_parameter(outp->profile(),outp->getIndex()), 
+			      &value, NULL);
+	      TRACE_TEXT (TRACE_MAIN_STEPS,
+			  "## WORKFLOW OUTPUT ## " <<
+			  outp->getId() << " = " << *value << endl);
+	    }
+	    // INTEGER OR CHAR
+	    if ( (outp->profile()->parameters[outp->getIndex()].desc.generic.base_type == DIET_CHAR) ||
+		 (outp->profile()->parameters[outp->getIndex()].desc.generic.base_type == DIET_SHORT) ||
+		 (outp->profile()->parameters[outp->getIndex()].desc.generic.base_type == DIET_INT) ||
+		 (outp->profile()->parameters[outp->getIndex()].desc.generic.base_type == DIET_LONGINT)) {
+	      long * value = NULL;
+	      diet_scalar_get(diet_parameter(outp->profile(),outp->getIndex()), 
+			      &value, NULL);
+	      TRACE_TEXT (TRACE_MAIN_STEPS,
+			  "## WORKFLOW OUTPUT ## " <<
+			  outp->getId() << " = " << *value << endl);
+	    }
+	  // ******************* END SCALAR
+
+	  // ******************* STRING
+	  } // end if SCALAR
+
+	  if (outp->profile()->parameters[outp->getIndex()].desc.generic.type == DIET_STRING) {
+	    char * value;
+	    diet_string_get(diet_parameter(outp->profile(),outp->getIndex()), 
 			    &value, NULL);
-	    TRACE_TEXT (TRACE_ALL_STEPS,
-			outp->getId() << " = " << *value << endl);
+	      TRACE_TEXT (TRACE_MAIN_STEPS,
+			  "## WORKFLOW OUTPUT ## " <<
+			  outp->getId() << " = " << value << endl);
+	  } // end if STRING
+	  // ******************* END STRING
+
+	  // ******************* FILE
+	  if (outp->profile()->parameters[outp->getIndex()].desc.generic.type == DIET_FILE) {
+	    size_t size;
+	    char * path;
+	    diet_file_get(diet_parameter(outp->profile(),outp->getIndex()), 
+			  NULL, &size, &path);
+	    TRACE_TEXT (TRACE_MAIN_STEPS,
+			"## WORKFLOW OUTPUT ## " <<
+			outp->getId() << " type = DIET_FILE, " << 
+			"File name = " << path << ", " <<
+			"File size = " << size  << endl);
+	  } // end if STRING
+	  // ******************* END FILE
+
+	  // ******************* MATRIX
+	  if (outp->profile()->parameters[outp->getIndex()].desc.generic.type == DIET_MATRIX) {
+	      size_t nb_rows, nb_cols;
+	      diet_matrix_order_t order;
+	    if (outp->profile()->parameters[outp->getIndex()].desc.generic.base_type == DIET_DOUBLE) {
+	      double * value;
+	      diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()), 
+			      &value, NULL,
+			      &nb_rows, &nb_cols, &order);
+	      wf_dag_print_matrix_of_real(value, nb_rows, nb_cols, order);
+	    } // end if base_type == DOUBLE
+
+	    if (outp->profile()->parameters[outp->getIndex()].desc.generic.base_type == DIET_FLOAT) {
+	      float * value;
+	      diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()), 
+			      &value, NULL,
+			      &nb_rows, &nb_cols, &order);
+	      wf_dag_print_matrix_of_real(value, nb_rows, nb_cols, order);
+	    } // end if base_type == FLOAT
+
+	    if (outp->profile()->parameters[outp->getIndex()].desc.generic.base_type == DIET_CHAR) {
+	      char * value;
+	      diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()), 
+			      &value, NULL,
+			      &nb_rows, &nb_cols, &order);
+	      wf_dag_print_matrix_of_integer(value, nb_rows, nb_cols, order);
+	    } // end if base_type == CHAR
+
+	    if (outp->profile()->parameters[outp->getIndex()].desc.generic.base_type == DIET_SHORT) {
+	      short * value;
+	      diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()), 
+			      &value, NULL,
+			      &nb_rows, &nb_cols, &order);
+	      wf_dag_print_matrix_of_integer(value, nb_rows, nb_cols, order);
+	    } // end if base_type == SHORT
+
+	    if (outp->profile()->parameters[outp->getIndex()].desc.generic.base_type == DIET_INT) {
+	      int * value;
+	      diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()), 
+			      &value, NULL,
+			      &nb_rows, &nb_cols, &order);
+	      wf_dag_print_matrix_of_integer(value, nb_rows, nb_cols, order);
+	    } // end if base_type == INT
+
+	    if (outp->profile()->parameters[outp->getIndex()].desc.generic.base_type == DIET_LONGINT) {
+	      long * value;
+	      diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()), 
+			      &value, NULL,
+			      &nb_rows, &nb_cols, &order);
+	      wf_dag_print_matrix_of_longint(value, nb_rows, nb_cols, order);
+	    } // end if base_type == LONG
+
+
 	  }
+	  // ******************* MATRIX  
 	} // if isResult
       } // end for outports
     } // end if n != NULL
