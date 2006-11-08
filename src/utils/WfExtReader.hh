@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2006/11/08 01:12:12  aamar
+ * ZZ
+ *
  * Revision 1.4  2006/10/20 08:32:09  aamar
  * Merging the base classe WfReader in WfExtReader.
  * Correct some bugs and memory leak.
@@ -204,7 +207,7 @@ protected:
    * @param child_elt argument DOM element reference
    */
   bool 
-  WfExtReader::parseArg(DOMElement * child_elt);
+  parseArg(DOMElement * child_elt);
 
   /**
    * Parse an input port element
@@ -212,7 +215,7 @@ protected:
    * @param child_elt input port DOM element reference
    */
   bool 
-  WfExtReader::parseIn(DOMElement * child_elt);
+  parseIn(DOMElement * child_elt);
 
   /**
    * Parse an inout port element
@@ -220,7 +223,7 @@ protected:
    * @param child_elt Inout DOM element reference
    */
   bool 
-  WfExtReader::parseInout(DOMElement * child_elt);
+  parseInout(DOMElement * child_elt);
 
   /**
    * Parse an output port element
@@ -228,7 +231,7 @@ protected:
    * @param child_elt Out port DOM element reference
    */
   bool 
-  WfExtReader::parseOut(DOMElement * child_elt);
+  parseOut(DOMElement * child_elt);
 
   /**
    * parse an argument element
