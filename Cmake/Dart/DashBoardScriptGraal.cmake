@@ -1,5 +1,7 @@
+# Ctest configuration file
+
 # Set any extra environment variables here:
-SET( CTEST_ENVIRONMENT "export CVS_RSH=/usr/bin/ssh" )
+SET( CTEST_ENVIRONMENT "CVS_RSH=/usr/bin/ssh" )
 
 # What cmake command to use for configuring this dashboard:
 SET( CTEST_CMAKE_COMMAND "/usr/local/bin/cmake" )
@@ -12,7 +14,6 @@ SET( CTEST_SOURCE_DIRECTORY "$ENV{HOME}/cvs/${CVS_MODULE_DIRECTORY}" )
 SET( CTEST_BINARY_DIRECTORY "${CTEST_SOURCE_DIRECTORY}/Bin" )
 
 SET( CTEST_CVS_COMMAND "/usr/bin/cvs" )
-
 SET( CTEST_CVS_CHECKOUT "${CTEST_CVS_COMMAND} -d:ext:dart@graal.ens-lyon.fr:/home/CVS/graal co ${CVS_MODULE_DIRECTORY} " )
 
 # Using the script argument (and defaulting to Nightly):
@@ -39,15 +40,18 @@ SET( CTEST_COMMAND "/usr/local/bin/ctest -D ${MODEL}" )
 SET( CTEST_START_WITH_EMPTY_BINARY_DIRECTORY TRUE )
 
 ####################################################################
-# This is the initial cache to use for the binary tree, be careful to escape
-# any quotes inside of this string if you use it:
+# The values in this section are optional you can either
+# have them or leave them commented out.
+
 SET( OMNIORB4 $ENV{HOME}/local/omniORB-4.0.7 )
 
-SET( CTEST_INITIAL_CACHE "
+####################################################################
+# This is the initial cache to use for the binary tree, be careful
+# to escape any quotes inside of this string if you use it
+SET (CTEST_INITIAL_CACHE "
 
-/////////////////////////////////////////////// LOCALISATION
 //Name of the build
-BUILDNAME:STRING=REL_R3-GCC_3.2.3
+BUILDNAME:STRING=REL_R3-GCC_3.2.3-Cori-Mma-Workflow
 
 //Name of the computer/site where compile is being run
 SITE:STRING=graal.ens-lyon.fr
@@ -58,9 +62,6 @@ DIET_USE_DART:BOOL=ON
 
 //Build DIET with CORI support.
 DIET_USE_CORI:BOOL=ON
-
-//Build DIET with MULTI-Master-Agent support.
-DIET_WITH_MULTI_MA:BOOL=ON
 
 //Build DIET examples.
 DIET_BUILD_EXAMPLES:BOOL=ON
@@ -91,6 +92,30 @@ OMNIORB4_LIBRARY_omniORB4:FILEPATH=${OMNIORB4}/lib/libomniORB4.so
 
 //Where can the omnithread library be found
 OMNIORB4_LIBRARY_omnithread:FILEPATH=${OMNIORB4}/lib/libomnithread.so
+
+///////////////////////////////////////////////// BLAS SECTION
+DIET_USE_BLAS:BOOL=OFF
+
+///////////////////////////////////////////////// BATCH SECTION
+DIET_USE_BATCH:BOOL=OFF
+
+///////////////////////////////////////////////// MMA SECTION
+//Build DIET with MULTI-Master-Agent support.
+DIET_WITH_MULTI_MA:BOOL=ON
+
+///////////////////////////////////////////////// WORKFLOW SECTION:
+//Build DIET with workflow support...
+DIET_USE_WORKFLOW:BOOL=ON
+
+//No help, variable specified on the command line.
+XERCES_HOME:PATH=$ENV{HOME}/local/xerces-c-2_7_0
+
+//What is the path where the file xercesc/util/PlatformUtils.hpp
+// can be found
+XERCES_INCLUDE_DIR:PATH=$ENV{HOME}/local/xerces-c-2_7_0/include
+
+//Where can the xerces-c library be found
+XERCES_LIBRARY:FILEPATH=$ENV{HOME}/local/xerces-c-2_7_0/lib/libxerces-c.so
 
 ")
 
