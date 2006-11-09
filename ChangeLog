@@ -1,5 +1,12 @@
 diet-2.2
 
+* Fault Tolerance
+      - Added support for Chandra&Aguilera&Toueg failure detector. This failure 
+      detector may be used to observe failures of components and restart them.
+      Failure detector triggers callback upon definitive failure suspicion 
+      of an observed process. Client provide a restart procedure for 
+      failed SeDs.
+
 * JuxMem
       - Added support for asynchronous calls and refactorized implementation
       - Updated for JuxMem 0.3
