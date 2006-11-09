@@ -1,0 +1,13 @@
+This directory contains utilities for packaging DIET. Here are some notes
+for the packager:
+ - obtain the last cvs version under DIET_CVS
+ - Build the documentation with cmake under DIET_CVS/Bin [for the time
+   being this cannot be made on graal because the headings extension of
+   LaTeX's package "fullpage" is not properly installed].
+ - copy the resulting documentations (and included PostScript files) to
+   DIET_CVS,
+ - cd DIET_CVS
+ - ./bin/scripts/make_dist.pl
+ - The result is placed under the cwd with name:
+     diet-<major>.<minor>.tar.gz (e.g. diet-2.2.tar.gz)
+
