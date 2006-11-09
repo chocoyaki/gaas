@@ -62,9 +62,9 @@ IF( DIET_BUILD_LIBRARIES )
          ${OMNIORB4_LIBRARIES}
     )
 
-    ADD_EXECUTABLE ( maDag maDag.cc )
-    TARGET_LINK_LIBRARIES (maDag MaDag)
-    INSTALL_TARGETS(/bin/ maDag )
+    ADD_EXECUTABLE ( maDagAgent maDag.cc )
+    TARGET_LINK_LIBRARIES (maDagAgent MaDag)
+    INSTALL_TARGETS(/bin/ maDagAgent )
     INSTALL_TARGETS(/lib/ MaDag )
   
   ENDIF ( DIET_USE_WORKFLOW)
