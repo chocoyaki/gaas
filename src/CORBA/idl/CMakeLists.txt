@@ -175,8 +175,15 @@ IF( DIET_BUILD_LIBRARIES )
             WfLogServiceDynSK.cc )
 
   TARGET_LINK_LIBRARIES( IDLMaDag
+    IDLCommon
     ${OMNIORB4_LIBRARIES}
   )
+
+  IF( APPLE )
+    SET_TARGET_PROPERTIES( IDLWfLog
+      PROPERTIES LINK_FLAGS "-flat_namespace -undefined suppress" )
+  ENDIF( APPLE )
+
   INSTALL_TARGETS(/lib/ IDLMaDag IDLWfLog )
   ENDIF ( DIET_USE_WORKFLOW ) 
   ##########################################################################
