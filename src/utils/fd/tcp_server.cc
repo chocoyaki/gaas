@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.4  2006/11/09 21:11:13  abouteil
+ * fixed "addr already in use" when starting on the same server more than once
+ *
  * Revision 1.3  2006/06/20 13:29:16  abouteil
  *
  *
@@ -128,6 +131,7 @@ void* process_tcp_query (void* psock)
 void* setup_tcp_server (void *nothing) {
   /* server */
   int server_sock;    /* socket for accepting connexions */
+  int optval = 1;     /* for REUSE_ADDR */
   struct sockaddr_in my_addr;  /* address of this computer */
 
   /* client */
@@ -144,6 +148,10 @@ void* setup_tcp_server (void *nothing) {
     fatal_error ("socket");
   };
 
+  if (setsockopt(server_sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1) {
+    fatal_error ("setsockopt(SO_REUSEADDR)");
+  };
+  
   /* set up my address */
   if (memset (&my_addr, 0, sizeof (struct sockaddr_in)) != &my_addr) {
     fatal_error ("memset");
