@@ -47,7 +47,6 @@ SET( CTEST_START_WITH_EMPTY_BINARY_DIRECTORY TRUE )
 ####################################################################
 # This is the initial cache to use for the binary tree, be careful to escape
 # any quotes inside of this string if you use it:
-SET( OMNIORB4 $ENV{HOME}/local/omniORB-4.0.7 )
 
 SET( CTEST_INITIAL_CACHE "
 
@@ -59,32 +58,8 @@ BUILDNAME:STRING=FIXME
 SITE:STRING=FIXME
 
 //////////////////////////////////////////////// GENERAL SETTING
-//Build type defaulted to Maintainer...
 CMAKE_BUILD_TYPE:STRING=Maintainer
-
-///////////////////////////////////////////////// OMNIORB SECTION
-OMNIORB4_DIR:PATH=${OMNIORB4}
-
-//What is the path where omniidl (the idl compiler) can be found
-OMNIORB4_IDL_COMPILER:FILEPATH=${OMNIORB4}/bin/omniidl
-
-//What is the path where the file omniORB4/CORBA.h can be found
-OMNIORB4_INCLUDE_DIR:PATH=${OMNIORB4}/include
-
-//Where can the COS4 library be found
-OMNIORB4_LIBRARY_COS4:FILEPATH=${OMNIORB4}/lib/libCOS4.so
-
-//Where can the COSDynamic4 library be found
-OMNIORB4_LIBRARY_COSDynamic4:FILEPATH=${OMNIORB4}/lib/libCOSDynamic4.so
-
-//Where can the omniDynamic4 library be found
-OMNIORB4_LIBRARY_omniDynamic4:FILEPATH=${OMNIORB4}/lib/libomniDynamic4.so
-
-//Where can the omniORB4 library be found
-OMNIORB4_LIBRARY_omniORB4:FILEPATH=${OMNIORB4}/lib/libomniORB4.so
-
-//Where can the omnithread library be found
-OMNIORB4_LIBRARY_omnithread:FILEPATH=${OMNIORB4}/lib/libomnithread.so
+OMNIORB4_DIR:PATH=$ENV{HOME}/local/omniORB-4.0.7
 
 ///////////////////////////////////////////////// BUILD_DOCUMENTATION OPTION
 DIET_BUILD_DOCUMENTATION:BOOL=ON
@@ -94,19 +69,11 @@ DIET_BUILD_EXAMPLES:BOOL=ON
 
 ///////////////////////////////////////////////// USE_BATCH OPTION
 DIET_USE_BATCH:BOOL=ON
-
-//////// Appleseed SECTION
 APPLESEEDS_DIR:PATH=$ENV{HOME}/local/appleseeds-2.2.1
-
-APPLESEEDS_INCLUDE_DIR:PATH=$ENV{HOME}/local/appleseeds-2.2.1/include
-
-APPLESEEDS_LIBRARY:FILEPATH=$ENV{HOME}/local/appleseeds-2.2.1/lib/libappleseeds.a
 
 ///////////////////////////////////////////////// USE_BLAS OPTION
 DIET_USE_BLAS:BOOL=ON
-
 FOUND_CBLAS:FILEPATH=/usr/lib/libcblas.so
-
 FOUND_f77BLAS:FILEPATH=/usr/lib/libf77blas.so
 
 ///////////////////////////////////////////////// USE_CORI OPTION
@@ -124,7 +91,6 @@ DIET_USE_FD:BOOL=ON
 ///////////////////////////////////////////////// USE_JUXMEM OPTION
 //Build DIET with JuxMem support.
 DIET_USE_JUXMEM:BOOL=ON
-
 JUXMEM_DIR:PATH=$ENV{HOME}/local/juxmem-0.3
 
 ///////////////////////////////////////////////// USE_JXTA OPTION
@@ -134,7 +100,6 @@ DIET_USE_JXTA:BOOL=ON
 ///////////////////////////////////////////////// USE_WORKFLOW OPTION
 //Build DIET with workflow support...
 DIET_USE_WORKFLOW:BOOL=ON
-
 XERCES_DIR:PATH=$ENV{HOME}/local/xerces-c-2_7_0
 
 ///////////////////////////////////////////////// WITH_MULTI_MA OPTION
