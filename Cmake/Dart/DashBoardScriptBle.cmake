@@ -9,12 +9,12 @@ SET( CTEST_CMAKE_COMMAND "$ENV{HOME}/local/bin/cmake" )
 SET( CVS_MODULE_DIRECTORY "GRAAL/devel/diet/diet" )
 
 ####################### Source and binary directory:
-SET( CTEST_SOURCE_DIRECTORY "$ENV{HOME}/DashboardDiet/cvs/${CVS_MODULE_DIRECTORY}" )
+SET( CTEST_SOURCE_DIRECTORY "$ENV{HOME}/DashboardDiet/ble/cvs/${CVS_MODULE_DIRECTORY}" )
 SET( CTEST_BINARY_DIRECTORY "${CTEST_SOURCE_DIRECTORY}/Bin" )
 
 SET( CTEST_CVS_COMMAND "/usr/bin/cvs" )
 
-SET( CTEST_CVS_CHECKOUT "${CTEST_CVS_COMMAND} -d:ext:dart@graal.ens-lyon.fr:/home/CVS/graal co -N -d$ENV{HOME}/DashboardDiet/cvs ${CVS_MODULE_DIRECTORY}" )
+SET( CTEST_CVS_CHECKOUT "${CTEST_CVS_COMMAND} -d:ext:dart@graal.ens-lyon.fr:/home/CVS/graal co -N -d$ENV{HOME}/DashboardDiet/ble/cvs ${CVS_MODULE_DIRECTORY}" )
 
 # Using the script argument (and defaulting to Nightly):
 SET( MODEL Nightly )
@@ -48,7 +48,7 @@ SET( CTEST_INITIAL_CACHE "
 
 /////////////////////////////////////////////// LOCALISATION
 //Name of the build
-BUILDNAME:STRING=Debian-GCC_3.2.5-Batch-MMA-Docs
+BUILDNAME:STRING=Debian-GCC_3.2.5-Batch-Blas-Cori-Docs-Juxmem-MMA
 
 //Name of the computer/site where compile is being run
 SITE:STRING=ble.ens-lyon.fr
@@ -104,11 +104,14 @@ FOUND_f77BLAS:FILEPATH=/usr/lib/libf77blas.so
 DIET_USE_BATCH:BOOL=ON
 
 //////// Appleseed SECTION
-APPLESEEDS_DIR:PATH=/home/eboix/local/appleseeds-2.2.1
+APPLESEEDS_DIR:PATH=$ENV{HOME}/local/appleseeds-2.2.1
 
-APPLESEEDS_INCLUDE_DIR:PATH=/home/eboix/local/appleseeds-2.2.1/include
+///////////////////////////////////////////////// JUXMEM SECTION
+//Build DIET with JuxMem support.
+DIET_USE_JUXMEM:BOOL=ON
 
-APPLESEEDS_LIBRARY:FILEPATH=/home/eboix/local/appleseeds-2.2.1/lib/libappleseeds.a
+//No help, variable specified on the command line.
+JUXMEM_DIR:PATH=$ENV{HOME}/local/juxmem-0.3
 
 ")
 
