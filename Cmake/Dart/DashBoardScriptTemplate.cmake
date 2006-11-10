@@ -14,12 +14,12 @@ SET( CTEST_CMAKE_COMMAND "$ENV{HOME}/local/bin/cmake" )
 SET( CVS_MODULE_DIRECTORY "GRAAL/devel/diet/diet" )
 
 ####################### Source and binary directory:
-SET( CTEST_SOURCE_DIRECTORY "$ENV{HOME}/DashboardDiet/cvs/${CVS_MODULE_DIRECTORY}" )
+SET( CTEST_SOURCE_DIRECTORY "$ENV{HOME}/DashboardDiet/FIXME/cvs/${CVS_MODULE_DIRECTORY}" )
 SET( CTEST_BINARY_DIRECTORY "${CTEST_SOURCE_DIRECTORY}/Bin" )
 
 SET( CTEST_CVS_COMMAND "/usr/bin/cvs" )
 
-SET( CTEST_CVS_CHECKOUT "${CTEST_CVS_COMMAND} -d:ext:dart@graal.ens-lyon.fr:/home/CVS/graal co -N -d$ENV{HOME}/DashboardDiet/cvs ${CVS_MODULE_DIRECTORY}" )
+SET( CTEST_CVS_CHECKOUT "${CTEST_CVS_COMMAND} -d:ext:dart@graal.ens-lyon.fr:/home/CVS/graal co -N -d$ENV{HOME}/DashboardDiet/FIXME/cvs ${CVS_MODULE_DIRECTORY}" )
 
 # Using the script argument (and defaulting to Nightly):
 SET( MODEL Nightly )
@@ -59,18 +59,6 @@ BUILDNAME:STRING=FIXME
 SITE:STRING=FIXME
 
 //////////////////////////////////////////////// GENERAL SETTING
-//Build DIET for dart reporting...
-DIET_USE_DART:BOOL=ON
-
-//Build DIET with CORI support.
-DIET_USE_CORI:BOOL=ON
-
-//Build DIET with MULTI-Master-Agent support.
-DIET_WITH_MULTI_MA:BOOL=ON
-
-//Build DIET examples.
-DIET_BUILD_EXAMPLES:BOOL=ON
-
 //Build type defaulted to Maintainer...
 CMAKE_BUILD_TYPE:STRING=Maintainer
 
@@ -98,14 +86,13 @@ OMNIORB4_LIBRARY_omniORB4:FILEPATH=${OMNIORB4}/lib/libomniORB4.so
 //Where can the omnithread library be found
 OMNIORB4_LIBRARY_omnithread:FILEPATH=${OMNIORB4}/lib/libomnithread.so
 
-///////////////////////////////////////////////// BLAS SECTION
-DIET_USE_BLAS:BOOL=ON
+///////////////////////////////////////////////// BUILD_DOCUMENTATION OPTION
+DIET_BUILD_DOCUMENTATION:BOOL=ON
 
-FOUND_CBLAS:FILEPATH=/usr/lib/libcblas.so
+///////////////////////////////////////////////// BUILD_EXAMPLES OPTION
+DIET_BUILD_EXAMPLES:BOOL=ON
 
-FOUND_f77BLAS:FILEPATH=/usr/lib/libf77blas.so
-
-///////////////////////////////////////////////// BATCH SECTION
+///////////////////////////////////////////////// USE_BATCH OPTION
 DIET_USE_BATCH:BOOL=ON
 
 //////// Appleseed SECTION
@@ -115,12 +102,44 @@ APPLESEEDS_INCLUDE_DIR:PATH=$ENV{HOME}/local/appleseeds-2.2.1/include
 
 APPLESEEDS_LIBRARY:FILEPATH=$ENV{HOME}/local/appleseeds-2.2.1/lib/libappleseeds.a
 
-///////////////////////////////////////////////// JUXMEM SECTION
+///////////////////////////////////////////////// USE_BLAS OPTION
+DIET_USE_BLAS:BOOL=ON
+
+FOUND_CBLAS:FILEPATH=/usr/lib/libcblas.so
+
+FOUND_f77BLAS:FILEPATH=/usr/lib/libf77blas.so
+
+///////////////////////////////////////////////// USE_CORI OPTION
+//Build DIET with CORI support.
+DIET_USE_CORI:BOOL=ON
+
+///////////////////////////////////////////////// USE_DART OPTION
+//Build DIET for dart reporting...
+DIET_USE_DART:BOOL=ON
+
+///////////////////////////////////////////////// USE_FD OPTION
+//Use Diet Fault Detector.
+DIET_USE_FD:BOOL=ON
+
+///////////////////////////////////////////////// USE_JUXMEM OPTION
 //Build DIET with JuxMem support.
 DIET_USE_JUXMEM:BOOL=ON
 
-//No help, variable specified on the command line.
 JUXMEM_DIR:PATH=$ENV{HOME}/local/juxmem-0.3
+
+///////////////////////////////////////////////// USE_JXTA OPTION
+//Build DIET with JXTA architecture support.
+DIET_USE_JXTA:BOOL=ON
+
+///////////////////////////////////////////////// USE_WORKFLOW OPTION
+//Build DIET with workflow support...
+DIET_USE_WORKFLOW:BOOL=ON
+
+XERCES_DIR:PATH=$ENV{HOME}/local/xerces-c-2_7_0
+
+///////////////////////////////////////////////// WITH_MULTI_MA OPTION
+//Build DIET with MULTI-Master-Agent support.
+DIET_WITH_MULTI_MA:BOOL=ON
 
 ")
 
