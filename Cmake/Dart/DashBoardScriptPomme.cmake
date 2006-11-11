@@ -1,5 +1,3 @@
-# Ctest configuration file for a PowerPc running Darwin8.
-
 # Set any extra environment variables here:
 # - CTEST_ENVIRONMENT uses a shell script to use ssh with the -i flag.
 SET( CTEST_ENVIRONMENT "export CVS_RSH=$ENV{HOME}/DashboardDiet/cvs_rsh_dart" )
@@ -45,69 +43,43 @@ SET( CTEST_START_WITH_EMPTY_BINARY_DIRECTORY TRUE )
 ####################################################################
 # This is the initial cache to use for the binary tree, be careful to escape
 # any quotes inside of this string if you use it:
-SET( OMNIORB4 $ENV{HOME}/local/omniORB-4.0.7 )
 
 SET( CTEST_INITIAL_CACHE "
 
 /////////////////////////////////////////////// LOCALISATION
 //Name of the build
-BUILDNAME:STRING=Powerpc-Darwin8-GCC_4.0.1-Cori-Batch
+BUILDNAME:STRING=Powerpc-Darwin8-GCC_4.0.1-Batch-Fd-Workflow
 
 //Name of the computer/site where compile is being run
 SITE:STRING=pomme.lip.ens-lyon.fr
 
 //////////////////////////////////////////////// GENERAL SETTING
-//Build DIET for dart reporting...
-DIET_USE_DART:BOOL=ON
+CMAKE_BUILD_TYPE:STRING=Maintainer
+OMNIORB4_DIR:PATH=$ENV{HOME}/local/omniORB-4.0.7
 
+///////////////////////////////////////////////// BUILD_EXAMPLES OPTION
+DIET_BUILD_EXAMPLES:BOOL=ON
+
+///////////////////////////////////////////////// USE_BATCH OPTION
+DIET_USE_BATCH:BOOL=ON
+APPLESEEDS_DIR:PATH=$ENV{HOME}/local/appleseeds-2.2.1
+
+///////////////////////////////////////////////// USE_CORI OPTION
 //Build DIET with CORI support.
 DIET_USE_CORI:BOOL=ON
 
-//Build DIET examples.
-DIET_BUILD_EXAMPLES:BOOL=ON
+///////////////////////////////////////////////// USE_DART OPTION
+//Build DIET for dart reporting...
+DIET_USE_DART:BOOL=ON
 
-//Build type defaulted to Maintainer...
-CMAKE_BUILD_TYPE:STRING=Maintainer
+///////////////////////////////////////////////// USE_FD OPTION
+//Use Diet Fault Detector.
+DIET_USE_FD:BOOL=ON
 
-///////////////////////////////////////////////// OMNIORB SECTION
-OMNIORB4_DIR:PATH=${OMNIORB4}
-
-//What is the path where omniidl (the idl compiler) can be found
-OMNIORB4_IDL_COMPILER:FILEPATH=${OMNIORB4}/bin/omniidl
-
-//What is the path where the file omniORB4/CORBA.h can be found
-OMNIORB4_INCLUDE_DIR:PATH=${OMNIORB4}/include
-
-//Where can the COS4 library be found
-OMNIORB4_LIBRARY_COS4:FILEPATH=${OMNIORB4}/lib/libCOS4.dylib
-
-//Where can the COSDynamic4 library be found
-OMNIORB4_LIBRARY_COSDynamic4:FILEPATH=${OMNIORB4}/lib/libCOSDynamic4.dylib
-
-//Where can the omniDynamic4 library be found
-OMNIORB4_LIBRARY_omniDynamic4:FILEPATH=${OMNIORB4}/lib/libomniDynamic4.dylib
-
-//Where can the omniORB4 library be found
-OMNIORB4_LIBRARY_omniORB4:FILEPATH=${OMNIORB4}/lib/libomniORB4.dylib
-
-//Where can the omnithread library be found
-OMNIORB4_LIBRARY_omnithread:FILEPATH=${OMNIORB4}/lib/libomnithread.dylib
-
-//What is the path where omniNames (the ORB server) can be found
-OMNIORB4_OMNINAMES_COMMAND:FILEPATH=${OMNIORB4}/local/omniORB-4.0.7/bin/omniNames
-
-///////////////////////////////////////////////// BLAS SECTION
-DIET_USE_BLAS:BOOL=OFF
-
-///////////////////////////////////////////////// BATCH SECTION
-DIET_USE_BATCH:BOOL=ON
-
-//////// Appleseed SECTION
-APPLESEEDS_DIR:PATH=$ENV{HOME}/local/appleseeds-2.2.1
-
-APPLESEEDS_INCLUDE_DIR:PATH=$ENV{HOME}/local/appleseeds-2.2.1/include
-
-APPLESEEDS_LIBRARY:FILEPATH=$ENV{HOME}/local/appleseeds-2.2.1/lib/libappleseeds.a
+///////////////////////////////////////////////// USE_WORKFLOW OPTION
+//Build DIET with workflow support...
+DIET_USE_WORKFLOW:BOOL=ON
+XERCES_DIR:PATH=$ENV{HOME}/local/xerces-c-2_7_0
 
 ")
 
