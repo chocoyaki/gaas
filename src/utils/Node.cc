@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2006/11/13 12:31:58  aamar
+ * Remove reference to FD (not used).
+ *
  * Revision 1.9  2006/11/06 15:16:06  aamar
  * Workflow support: some correction about reqID.
  *
@@ -54,6 +57,7 @@
 #include "MasterAgent.hh"
 
 #include "Node.hh"
+
 
 MasterAgent_var getMA();
 bool useMaDagSched();
@@ -146,9 +150,7 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer,
     TRACE_TEXT(TRACE_MAIN_STEPS, 
 	       "Calling the ref Corba of the SeD (reqID = " << reqID << ")\n");
     TRACE_TEXT(TRACE_MAIN_STEPS, statMsg << endl);
-#if HAVE_FD
-    fd_set_transition_handler(diet_call_failure_recover);
-#endif
+
     TRACE_TEXT (TRACE_ALL_STEPS,
 		  "Calling the service " << profile->pb_name << endl);
     display(corba_profile);
