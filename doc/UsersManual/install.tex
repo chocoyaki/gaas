@@ -10,6 +10,12 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.28  2006/11/13 19:44:11  eboix
+%*    - cmake now generates an Bin/include/Makefile.inc for make inclusion
+%*    - DIET_USE_BLAS option renamed to DIET_BUILD_BLAS_EXAMPLES
+%*    - DIET_WITH_ALTPREDICT option added (and apparently the code seems
+%*      bugged when this options is turned on). --- Injay2461
+%*
 %* Revision 1.27  2006/10/12 09:10:28  eboix
 %*   More cmake's docs. --- Injay2461
 %*
@@ -289,8 +295,8 @@ Here are the main configuration flags:
 \item
   \verb+DIET_BUILD_EXAMPLES+ activates the compilation of a set of
   general client/server examples. Note that some specific examples
-  (e.g. \verb+DIET_USE_BLAS+) require some additional flag to be activated
-  too.
+  (e.g. \verb+DIET_BUILD_BLAS_EXAMPLES+) require some additional flag
+  to be activated too.
 
 \item
   \verb+DIET_BUILD_LIBRARIES+ which is enabled by default, activates the
@@ -310,8 +316,8 @@ the desired extensions.
 
 \begin{itemize}
 \item
-  \verb+DIET_USE_BLAS+ option activates the compilation of
-  the DIET BLAS examples, as a sub-module of examples.
+  \verb+DIET_BUILD_BLAS_EXAMPLES+ option activates the compilation of
+  the BLAS based DIET examples, as a sub-module of examples.
   The BLAS~\footnote{\url{http://www.netlib.org/blas/}} (Basic Linear
   Algebra Subprograms) are high quality ``building block'' routines for
   performing basic vector and matrix operations.
@@ -321,9 +327,9 @@ the desired extensions.
   they're commonly used in the development of high quality linear algebra
   software.
   DIET uses BLAS to build demonstration examples of client/server.
-  Note that the  \verb+DIET_USE_BLAS+ can only be effective when 
+  Note that the  \verb+DIET_BUILD_BLAS_EXAMPLES+ can only be effective when 
   \verb+DIET_BUILD_EXAMPLES+ is enabled.
-  \verb+DIET_USE_BLAS+ is disabled by default.
+  \verb+DIET_BUILD_BLAS_EXAMPLES+ is disabled by default.
 
 \item
   \verb+DIET_USE_CORI+ CoRI, which stands for COllector of Resource

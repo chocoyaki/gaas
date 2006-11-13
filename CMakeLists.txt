@@ -7,19 +7,20 @@ PROJECT(DIET)
 SET(DIET_version 2.2)
 
 # --------------------- OPTIONS OF THE PROJECT -----------------------------
-OPTION( DIET_BUILD_EXAMPLES "Build DIET examples." OFF )
+OPTION( DIET_BUILD_BLAS_EXAMPLES "Build BLAS based DIET examples." OFF )
+OPTION( DIET_BUILD_EXAMPLES      "Build DIET examples." OFF )
 OPTION( DIET_BUILD_DOCUMENTATION "Build the documentation." OFF )
-OPTION( DIET_USE_BATCH "Build DIET with Batch support." OFF )
-OPTION( DIET_USE_BLAS "Build DIET with BLAS support." OFF )
-OPTION( DIET_USE_CORI "Build DIET with CORI support." OFF )
-OPTION( DIET_USE_JXTA "Build DIET with JXTA architecture support." OFF )
+OPTION( DIET_USE_BATCH  "Build DIET with Batch support." OFF )
+OPTION( DIET_USE_CORI   "Build DIET with CORI support." OFF )
+OPTION( DIET_USE_DART   "Build DIET with dart reporting support." OFF)
+OPTION( DIET_USE_FAST   "Build DIET with FAST support." OFF )
+OPTION( DIET_USE_FD     "Build DIET with Fault Detector support." OFF)
 OPTION( DIET_USE_JUXMEM "Build DIET with JuxMem support." OFF )
-OPTION( DIET_USE_FAST "Build DIET with FAST support." OFF )
+OPTION( DIET_USE_JXTA   "Build DIET with JXTA architecture support." OFF )
+OPTION( DIET_USE_WORKFLOW    "Build DIET with workflow support..." OFF)
 OPTION( DIET_WITH_STATISTICS "Build DIET with generation of statistics." OFF )
 OPTION( DIET_WITH_MULTI_MA   "Build DIET with MULTI-Master-Agent support." OFF )
-OPTION( DIET_USE_WORKFLOW "Build DIET with workflow support..." OFF)
-OPTION( DIET_USE_DART "Build DIET for dart reporting..." OFF)
-OPTION( DIET_USE_FD "Use Diet Fault Detector." OFF)
+OPTION( DIET_WITH_ALTPREDICT "Build DIET with ALTernative performance PREDICTion support." OFF )
 
 # --------------------- OPTIONS SET BY DEFAULT  ----------------------------
 # One might wish not to compile DIET but just to build the docs:
@@ -195,14 +196,19 @@ IF( DIET_USE_JUXMEM )
 ENDIF( DIET_USE_JUXMEM )
 
 IF( DIET_WITH_STATISTICS )
-  # Enable generation of the statistics log
+  # Enable generation of the statistics log:
   ADD_DEFINITIONS( -DHAVE_STATISTICS )
 ENDIF( DIET_WITH_STATISTICS )
 
-IF( DIET_BUILD_EXAMPLES AND DIET_USE_BLAS )
+IF( DIET_WITH_ALTPREDICT )
+  # Enable experimental ALTernative performance PREDICTion support:
+  ADD_DEFINITIONS( -DHAVE_ALTPREDICT )
+ENDIF( DIET_WITH_ALTPREDICT )
+
+IF( DIET_BUILD_EXAMPLES AND DIET_BUILD_BLAS_EXAMPLES )
   # BLAS (Basic Linear Algebric Subroutines) examples subdir requires...BLAS !
   FIND_PACKAGE( BLAS )
-ENDIF( DIET_BUILD_EXAMPLES AND DIET_USE_BLAS )
+ENDIF( DIET_BUILD_EXAMPLES AND DIET_BUILD_BLAS_EXAMPLES )
 
 ### Workflow support:
 IF( DIET_USE_WORKFLOW )

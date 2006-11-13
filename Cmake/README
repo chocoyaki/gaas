@@ -69,8 +69,8 @@ IV/ DIET specific cmake parameters:
   - DIET_BUILD_DOCUMENTATION for ... building LaTeX-based user's guide,
     the developper's guide and the doxygenated documentation.
   - DIET_BUILD_EXAMPLES for ... building examples
+  - DIET_BUILD_BLAS_EXAMPLES for ... BLAS based examples.
   - DIET_USE_BATCH for ... Appleseeds based batch extensions.
-  - DIET_USE_BLAS for ... BLAS based examples.
   - DIET_USE_CORI for ... a built-in low-profile FAST surrogate.
   - DIET_USE_FAST for ... using FAST a grid aware dynamic forecasting library.
   - DIET_USE_JXTA for ... using JXTA for dynamic MULTI Master Agent support.
@@ -82,7 +82,7 @@ IV/ DIET specific cmake parameters:
 
 V/ DIET [c]cmake invocation example:
  ccmake .. -DDIET_USE_CORI:BOOL=ON 
-           -DDIET_USE_BLAS:BOOL=ON -DDIET_USE_FAST:BOOL=ON
+           -DDIET_BUILD_BLAS_EXAMPLES:BOOL=ON -DDIET_USE_FAST:BOOL=ON
            -DDIET_USE_JXTA:BOOL=ON -DDIET_WITH_MULTI_MA:BOOL=ON
            -DDIET_BUILD_DOCUMENTATION:BOOL=ON
            -DDIET_BUILD_EXAMPLES:BOOL=ON 

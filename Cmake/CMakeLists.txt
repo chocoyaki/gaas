@@ -1,8 +1,21 @@
-### Build the configuration file for external projects using DIET:
+### Build the configuration file for external projects using DIET and cmake:
 CONFIGURE_FILE( DietConfig.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/DietConfig.cmake
   @ONLY )
 INSTALL_FILES( /share/ FILES DietConfig.cmake )
+
+### Build the configuration file for external projects using DIET and make:
+CONFIGURE_FILE(
+  ${CMAKE_CURRENT_SOURCE_DIR}/Makefile.inc.in
+  ${CMAKE_BINARY_DIR}/include/Makefile.inc
+  IMMEDIATE
+)
+INSTALL_FILES(
+  /include/
+  FILES
+  ${CMAKE_BINARY_DIR}/include/Makefile.inc
+)
+
 
 # --------------------- COPY THE CONFIGURATION FILE -----------------------
 ### FIXME: this is to avoid conflicting with the autotools generated version

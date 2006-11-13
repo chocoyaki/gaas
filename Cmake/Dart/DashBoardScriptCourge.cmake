@@ -67,7 +67,7 @@ DIET_USE_BATCH:BOOL=ON
 APPLESEEDS_DIR:PATH=$ENV{HOME}/local/appleseeds-2.2.1
 
 ///////////////////////////////////////////////// USE_BLAS OPTION
-DIET_USE_BLAS:BOOL=ON
+DIET_BUILD_BLAS_EXAMPLES:BOOL=ON
 FOUND_CBLAS:FILEPATH=/usr/lib/libcblas.so
 FOUND_f77BLAS:FILEPATH=/usr/lib/libf77blas.so
 
