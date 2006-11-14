@@ -231,7 +231,7 @@ INCLUDE( ${DIET_SOURCE_DIR}/Cmake/ConfigureCCompiler.cmake )
 SET( CMAKE_INSTALL_RPATH_USE_LINK_PATH ON
      CACHE BOOL "Wether to set an rpath for dynamic libraries." )
 SET( CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib
-     CACHE STRING "Rpath set at install stage." )
+     CACHE STRING "Rpath set at install stage." FORCE )
 
 # ------------------- CTEST SUPPORT ----------------------------------------
 IF( BUILD_TESTING OR DIET_USE_DART )
