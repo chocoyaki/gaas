@@ -10,6 +10,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.16  2006/11/15 22:36:50  eboix
+%*   Documentation concerning user compilation updated. --- Injay2461
+%*
 %* Revision 1.15  2006/09/11 11:15:00  ycaniou
 %* - Up to date documentation for parallel/batch submission
 %* - Corrected wrong references
@@ -309,45 +312,6 @@ int main(int argc, char* argv[])
 \label{sec:sv_comp}
 
 After compiling his/her server program, the user must link it with the DIET
-and CORBA libraries. The easiest way to compile a program using DIET
-with all necessary flags and link with the right libraries is to
-trust the \texttt{Makefile.inc} available in
-\texttt{$<$include\_dir$>$/include}, and include it at the beginning
-of the program makefile.
-
-The \texttt{Makefile.inc} defines the variables:
-\begin{itemize}
-\item \texttt{CC} and \texttt{CCFLAGS} that are to be used if you compile C
- code,
-\item \texttt{CXX} and \texttt{CXXFLAGS} that are to be used if you compile C++
-  code,
-\item \texttt{DIET\_SERVER\_LIBS} that defines the CORBA and DIET SeD libraries.
-\end{itemize}
-
-For our C example, the Makefile should be something like:
-{\footnotesize
-\begin{verbatim}
-include <install_dir>/Makefile.inc
-
-server.o: server.c
-          $(CC) -c $< $(CCFLAGS) -o $@
-
-server:   server.o
-          $(CC) $< $(CCFLAGS) $(DIET_SERVER_LIBS) -o $@
-\end{verbatim}
-}
-
-%%% Local Variables: 
-%%% mode: latex
-%%% TeX-master: t
-%%% fill-column: 75
-%%% ispell-dictionary: american
-%%% mode: flyspell
-%%% End: 
-
-% LaTeX keywords :
-% LocalWords:  itemize Macros plain utils setspace url wrapfig
-% LocalWords:  inputenc fontenc french babel dvips epsfig twoside enumerate
-% LocalWords:  LocalWords LaTeX keywords fill-column TeX-master End flyspell
-% LocalWords:  american
-
+and CORBA libraries. This process is very similar to the one described
+for the client in section \ref{sec:cl_comp}. Please refer to this section
+for details.

@@ -10,6 +10,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.15  2006/11/15 22:36:50  eboix
+%*   Documentation concerning user compilation updated. --- Injay2461
+%*
 %* Revision 1.14  2005/07/12 21:44:28  hdail
 %* - Correcting small problems throughout
 %* - Modified deployment chapter to have a real section for deploying via GoDIET
@@ -291,32 +294,95 @@ int main(int argc, char **argv)
 \label{sec:cl_comp}
 
 After compiling the client program, the user must link it with the
-DIET libraries and the CORBA libraries. The easiest way to compile a
-program using DIET with all necessary flags and link it with the
-right libraries is to trust the \texttt{Makefile.inc} available in
-\texttt{$<$include\_dir$>$/include}, and include it at the beginning
+DIET libraries and the CORBA libraries.
+
+\subsection{Compilation when using Makefiles}
+
+When using Makefiles, the easiest way to compile a program using DIET
+with all necessary flags and link it with the proper libraries is to
+trust the \texttt{Makefile.inc} available in 
+\texttt{$<$include\_dir$>$/include} by including it at the beginning
 of the program makefile.
 
 The \texttt{Makefile.inc} defines the variables:
 \begin{itemize}
-\item \texttt{CC} and \texttt{CCFLAGS} that are to be used if you compile C
- code,
-\item \texttt{CXX} and \texttt{CXXFLAGS} that are to be used if you compile C++
-  code,
-\item \texttt{DIET\_CLIENT\_LIBS} that link the program to the CORBA and DIET
-  client libraries.
+\item \texttt{CCFLAGS\_DIET} which contains pre-processing instructions 
+to be used when you compile C code,
+\item \texttt{CXXFLAGS\_DIET} which contains pre-processing instructions
+to be used when you compile C++ code,
+\item \texttt{DIET\_CLIENT\_LIBS} which contains the linker instructions
+in otder to link your program against the DIET client library.
+\item \texttt{CC} and \texttt{CXX} which contains the name of the C compiler,
+respectively C++ compiler, used to compiled DIET itself and which you
+might choose to compile your own programs (in order to guarantee the 
+compatibility of the compilers).
 \end{itemize}
-
-For our C example, the Makefile should be something like:
+\noindent
+The \texttt{doc/ExternalExample} directory contains an example of
+such a user Makefile, which goes:
 {\footnotesize
 \begin{verbatim}
-include <install_dir>/Makefile.inc
+# The following inclusion provides convenient make variables for compiling
+# and linking against the DIET library (DIET_HOME is an environment variable
+# containing the path to a DIET installation directory):
+include ${DIET_HOME}/include/Makefile.inc
 
-client.o:  client.c
-           $(CC) -c $< $(CCFLAGS) -o $@
+all: simple_client simple_server
 
-client:    client.o
-           $(CC) $< $(CCFLAGS) $(DIET_CLIENT_LIBS) -o $@
+simple_client: simple_client.c $(DIET_CLIENT_PREREQ)
+        $(CXX) -g $(CXXFLAGS_DIET) $< $(DIET_CLIENT_LIBS) -o $@
+simple_server: simple_server.c  $(DIET_SERVER_PREREQ)
+        $(CC) -g $(CCFLAGS_DIET) $< $(DIET_SERVER_LIBS) -o $@
+clean:
+        rm -f simple_client simple_server
+
 \end{verbatim}
 }
 
+Since the \texttt{doc/ExternalExample} directory also contains the
+cited \texttt{simple\_server.c} and \texttt{simple\_client.c}, one
+can easily test this Makefile.
+
+\subsection{Compilation when using cmake}
+
+The \texttt{doc/ExternalExample} directory also contains a
+\texttt{CMakeFile.txt} file which illustrates the cmake way of compiling
+this simple client/server example:
+{\footnotesize
+\begin{verbatim}
+PROJECT( DIETSIMPLEEXAMPLE )
+
+SET( CMAKE_MODULE_PATH ${DIETSIMPLEEXAMPLE_SOURCE_DIR}/Cmake )
+FIND_PACKAGE( Diet )
+
+# On success use the information we just recovered:
+INCLUDE_DIRECTORIES( ${DIET_INCLUDE_DIR} )
+LINK_DIRECTORIES( ${DIET_LIBRARY_DIR} )
+
+### Define a simple server...
+ADD_EXECUTABLE( simple_server simple_server.c )
+TARGET_LINK_LIBRARIES( simple_server ${DIET_SERVER_LIBRARIES} )
+INSTALL_TARGETS( /bin simple_server )
+
+### ... and it's associated simple client.
+ADD_EXECUTABLE( simple_client simple_client.c )
+TARGET_LINK_LIBRARIES( simple_client ${DIET_CLIENT_LIBRARIES} )
+INSTALL_TARGETS( /bin simple_client )
+\end{verbatim}
+}
+
+In order to test drive the cmake configuration of this example, and
+assuming the \texttt{DIET\_HOME} points to a directory containing
+an installation of DIET, simply try:
+
+{\footnotesize
+\begin{verbatim}
+export DIET_HOME=<path_to_a_DIET_instal_directory>
+cd doc/ExternalExample
+mkdir Bin
+cd Bin
+cmake -DDIET_DIR:PATH=$DIET_HOME -DCMAKE_INSTALL_PREFIX:PATH=/tmp/DIETSimple ..
+make
+make install
+\end{verbatim}
+}
