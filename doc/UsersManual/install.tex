@@ -10,62 +10,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
-%* Revision 1.28  2006/11/13 19:44:11  eboix
-%*    - cmake now generates an Bin/include/Makefile.inc for make inclusion
-%*    - DIET_USE_BLAS option renamed to DIET_BUILD_BLAS_EXAMPLES
-%*    - DIET_WITH_ALTPREDICT option added (and apparently the code seems
-%*      bugged when this options is turned on). --- Injay2461
+%* Revision 1.29  2006/11/15 13:55:16  eboix
+%*   Separation from cmake and autotools.  --- Injay2461
 %*
-%* Revision 1.27  2006/10/12 09:10:28  eboix
-%*   More cmake's docs. --- Injay2461
-%*
-%*
-%* Revision 1.25  2006/05/12 12:12:32  sdahan
-%* Add some documentation about multi-MA
-%*
-%* Bug fix:
-%*  - segfault when the neighbours configuration line was empty
-%*  - deadlock when a MA create a link on itself
-%*
-%* Revision 1.24  2006/01/25 16:52:55  pfrauenk
-%* CoRI : renaming of the chapter performance prediction with fast
-%* 	to performance prediction, add of the CoRI Usersmanual,
-%* 	changes in the plugin scheduler
-%*
-%* Revision 1.23  2005/08/26 08:32:42  rbolze
-%* remove --enable-logservice feature.
-%*
-%* Revision 1.22  2005/07/12 08:54:10  ecaron
-%* fix BLAS and ScaLAPACK (no fixme in fact)
-%*
-%* Revision 1.21  2005/06/27 19:26:52  hdail
-%* - Moved introduction to FAST to description section with intro to multi-MA and
-%*   gave both chapter references.
-%* - Changed version number to 2.0.
-%* - Moved info on compiling FAST itself to fast section from install section.
-%*   install section still explains how to configure DIET with FAST.
-%*
-%* Revision 1.20  2005/06/24 15:07:29  hdail
-%* Continuing english corrections and updating.
-%*
-%* Revision 1.19  2005/06/14 08:06:20  ecaron
-%* Update ./configure output
-%*
-%* Revision 1.18  2005/05/29 13:51:22  ycaniou
-%* Moved the section concerning FAST from description to a new chapter about FAST
-%* and performances prediction.
-%* Moved the section about convertors in the FAST chapter.
-%* Modified the small introduction in chapter 1.
-%* The rest of the changes are purely in the format of .tex files.
-%*
-%* Revision 1.17  2005/05/20 19:06:01  mjan
-%* Short description of how to configure DIET for JuxMem
-%*
-%* Revision 1.16  2004/10/25 08:59:56  sdahan
-%* add the multi-MA documentation
-%*
-%* Revision 1.15  2004/07/12 08:33:58  rbolze
-%* explain how to copy cfgs file in install_dir/etc directory and correct my english
 %****************************************************************************%
 
 \chapter{DIET installation}
@@ -75,53 +22,76 @@
 \section{Dependencies}
 \label{sec:dependencies}
 
-\subsection{Platform dependencies}
+\subsection{General remarks on DIET platform dependencies}
 
-DIET is fully tested on Linux/i386 and Linux/i686 platforms.
-But DIET also supports other architectures (thanks to users reports or
-to punctual deployments). In particular DIET is known to be effective
-on Linux/Sparc, Linux/i64, Linux/amd64 and Linux/Alpha platforms.
-At some point DIET used to be tested on the Solaris/Sparc platform (although
-it's been a long time).
+DIET is itself written in C/C++ and for limited parts in java. DIET is
+based on CORBA and thus depends on the chosen CORBA implementation.
+Additionaly, some of DIET extesions make a strong use of libraries
+themselves written in C/C++ and java.
+Thus, we could expect DIET to be effective on any platform offering
+decent version of such compilers.
 
-If you find a bug in DIET, please don't hesitate to submit a bug report at
+DIET undergoes daily regression tests
+(see \url{http://graal.ens-lyon.fr/DietDashboard})
+on various hardwares, a couple of Un*x based operating systems (under
+different distributions) and mainly with GCC.
+But, thanks to users reports (punctual deployments and spetial tests
+conduced before every release), DIET is known to be effective on a
+range of platforms.
+
+Nevertheless, if you encounter installation difficulties don't hesitate
+to post on DIET's users mailing list: \verb+diet-usr@listes.ens-lyon.fr+
+(for the archives refer to \url{http://graal.ens-lyon.fr/DIET/mail-lists.html}).
+If you find a bug in DIET, please don't hesitate to submit a bug report on
 \url{http://graal.ens-lyon.fr/bugzilla}. If you have multiple bugs
 to report, please make multiple submissions, rather than submitting
 multiple bugs in a single report.
 
-As for the supported C++ compilers, DIET undergoes daily regression tests
-(see \url{http://graal.ens-lyon.fr/DietDashboard}) with GCC's g++ (ranging
-from version 3.2.X to 4.1.x).
+\subsection{Hardware dependencies}
+DIET is fully tested on Linux/i386 and Linux/i686 platforms.
+DIET is known to be effective on Linux/Sparc, Linux/i64, Linux/amd64,
+Linux/Alpha and MacOS/PowerPC platforms.
+At some point in DIET history, DIET used to be tested on the Solaris/Sparc
+platform...
+
+\subsection{Supported compilers}
+DIET is supported on GCC with versions ranging from 3.2.X to 4.1.x.
+Note that due to omniORB 4 (see \ref{sec:software_dependencies}) requirements
+towards thread-safe management of exception handling, compiling DIET with
+\verb+gcc+ requires at least \verb+gcc-2.96+.
+
+\subsection{Operating system dependencies}
+DIET is fully tested on Linux [with varying distributions like Debian,
+Red Hat Enterprise Linux (REL-ES-3), Fedora Core (5)] and on MacOSX
+(Darwin 8).
 
 \subsection{Software dependencies}
 \label{sec:software_dependencies}
 
 As explained in Section~\ref{sec:CORBA}, CORBA is used for all
-communications inside the platform. The implementations of CORBA
-currently supported in DIET is \textbf{omniORB 4} which depends on
-\textbf{Python 2.1} or later, and on \textbf{OpenSSL} if you wish
-to secure your DIET platform.~\footnote{If you want to deploy a
-secure DIET platform, SSL support is not yet implemented  in DIET, but
-an easy way to do so is to deploy DIET on a VPN.}
-% \item{soon \textbf{TAO 1.3}} which depends on \textbf{ACE} (but TAO is always
-%                           provided with ACE)
+communications inside the platform.
+The implementations of CORBA currently supported in DIET is
+\textbf{omniORB 4} which itself depends on \textbf{Python}.
+
+\noindent 
+\textbf{NB:} We have noticed that some problems occur with
+\textbf{Python 2.3}: the C++ code generated by idl could not be compiled.
+It has been patched in DIET, but some warnings may still appear.
+
+\textbf{omniORB 4} itself also depends on \textbf{OpenSSL} in case
+you wish to secure your DIET platform.
+If you want to deploy a secure DIET platform, SSL support is not yet
+implemented  in DIET, but an easy way to do so is to deploy DIET over
+a VPN.
 
 In order to deploy CORBA services with omniORB, a configuration file
 and a log directory are required: see Section
 \ref{sec:CORBA_services} for a complete description of the services.
-Their paths can be given to omniORB through environment variables
-(\texttt{\$OMNIORB\_CONFIG} and \texttt{\$OMNINAMES\_LOGDIR}), and/or,
-for \textbf{omniORB 4} only, at compile time, with the
+Their paths can be given to omniORB either at runtime (through the well-known
+environment variables \texttt{\$OMNIORB\_CONFIG} and 
+\texttt{\$OMNINAMES\_LOGDIR}), and/or at omniORB compile time (with the
 \texttt{--with-omniORB-config} and \texttt{--with-omniNames-logdir}
-options.
-
-\noindent 
-\textbf{NB:} We have noticed that some problems occur with
-\textbf{Python 2.3}: the C++ code generated could not be compiled. It
-has been patched in DIET, but some warnings still appear.  \\
-
-Since omniORB needs thread-safe management of exception handling,
-compiling DIET with \verb+gcc+ requires at least \verb+gcc-2.96+.  \\
+options).
 
 Some examples provided in the DIET sources depend on the BLAS
 and \scalapack\ libraries. However the compilation of those BLAS dependent
@@ -132,24 +102,16 @@ examples are optional.
 \section{Compiling the platform}
 \label{sec:compil_platform}
 
-DIET compilation process is moving from the traditional \verb+autotools+
+DIET compilation process moved away from the traditional \verb+autotools+
 way of things to a tool named \verb+cmake+ (mainly to benefit from
 \verb+cmake+'s built-in regression tests mechanism).
-During a short transitional period both compiling tools will be available. 
-Nevertheless, whenever if possible, \verb+cmake+ should be seen as the
-privileged (and supported) tool.
-The \verb+autotools+ should be definitively deprecated in the next version.
-The following of this section explains the usage of both tools.
 
 Before compiling DIET itself, first install the above mentioned
 (cf section~\ref{sec:software_dependencies}) dependencies.
 Then untar the DIET archive and change current directory to its root directory.
 
-%====[ Compilation with cmake ]================================================
-\subsection{Compiling DIET with cmake}
-
 %==================
-\subsubsection{Obtaining and installing cmake per se}
+\subsection{Obtaining and installing cmake per se}
 DIET requires using \verb+cmake+ at least version \verb+2.4.3+.
 For many popular distributions \verb+cmake+ is incorporated by
 default or at least \verb+apt-get+ (or whatever your distro package installer
@@ -163,7 +125,7 @@ process (\verb+./bootstrap; make; make install+) is described at
 \url{http://www.cmake.org/HTML/Install.html}.
 
 %==================
-\subsubsection{Configuring DIET's compilation: cmake quick introduction}
+\subsection{Configuring DIET's compilation: cmake quick introduction}
 If you are already experienced with \verb+cmake+ then using it to compile
 DIET should provide no surprise. 
 DIET respects \verb+cmake+'s best practices e.g.~by clearly separating the
@@ -191,6 +153,7 @@ the current working directory will be used as the root of the build tree for
 the project (out of source building is generally encouraged specially
 when working on a CVS tree).
 
+\noindent
 Here is a short list of \verb+cmake+ internal parameters that are worth
 mentioning:
 \begin{itemize}
@@ -206,6 +169,11 @@ mentioning:
 \item
    \verb+CMAKE_C[XX]_FLAGS*+ is a family of parameters used for
    the setting and the customization of various C/C++ compiler options.
+\item
+   \verb+CMAKE_INSTALL_PREFIX+ variable defines the location
+   of the install directory (defaulted to \verb+/usr/local+ on un*x).
+   This is cmake's portable equivalent of the autotools configure's
+   \texttt{--prefix=} option.
 \end{itemize}
 %
 Eventually, here is short list of \verb+ccmake+ interface tips:
@@ -237,7 +205,7 @@ Eventually, here is short list of \verb+ccmake+ interface tips:
 \end{itemize}
  
 %==================
-\subsubsection{DIET's compilation configuration: a ccmake walk-through}
+\subsection{A ccmake walk-through for the impatients}
 
 Assume that \verb+CVS_DIET_HOME+ represents a path to the top level
 directory of a tree of DIET sources.
@@ -276,7 +244,7 @@ build tree, but feel free to follow your conventions):
 \end{itemize}
 
 %==================
-\subsubsection{DIET's main optional configuration flags}
+\subsection{DIET's main configuration flags}
 
 Here are the main configuration flags:
 \begin{itemize}
@@ -302,12 +270,11 @@ Here are the main configuration flags:
   \verb+DIET_BUILD_LIBRARIES+ which is enabled by default, activates the
   compilation of the DIET libraries. This option is only useful if you 
   wish to restrict the compilation to the construction of the documentation.
-
-\item
-  \verb+DIET_WITH_STATISTICS+ enables the generation of statistics logs
 \end{itemize}
 
-\noindent
+%==================
+\subsection{DIET's extensions configuration flags}
+
 DIET has many extensions (some of them are still) experimental. These
 extensions most often rely on external packages than need to be pre-installed
 and some of those extensions offer concurrent functionalities. This explains
@@ -315,6 +282,11 @@ the usage of configuration flags in order to obtain the compilation of
 the desired extensions.
 
 \begin{itemize}
+\item
+  \verb+DIET_USE_BATCH+ activates DIET support of Appleseeds (refer to
+  \url{http://grail.sdsc.edu/projects/appleseeds/}) based batch
+  extensions.
+
 \item
   \verb+DIET_BUILD_BLAS_EXAMPLES+ option activates the compilation of
   the BLAS based DIET examples, as a sub-module of examples.
@@ -327,8 +299,8 @@ the desired extensions.
   they're commonly used in the development of high quality linear algebra
   software.
   DIET uses BLAS to build demonstration examples of client/server.
-  Note that the  \verb+DIET_BUILD_BLAS_EXAMPLES+ can only be effective when 
-  \verb+DIET_BUILD_EXAMPLES+ is enabled.
+  Note that the option \verb+DIET_BUILD_BLAS_EXAMPLES+ can only be
+  effective when \verb+DIET_BUILD_EXAMPLES+ is enabled.
   \verb+DIET_BUILD_BLAS_EXAMPLES+ is disabled by default.
 
 \item
@@ -348,36 +320,65 @@ the desired extensions.
 \item
   \verb+DIET_USE_FAST+ activates DIET support of FAST (refer to
   \url{http://graal.ens-lyon.fr/FAST/} a grid aware dynamic forecasting
-  library. FAST in turn relies on many sub-libraries (GSL, BDB, NWS, LDAP).
+  library.
+  Although the detection of FAST should be correctly handled by cmake
+  (since detection is based on the FAST provided \verb+fast-config+ utility)
+  the installation of FAST can be a lenghty process (and, depending on you
+  plateform, potentialy quite difficult).
+  This is due to the dependency of FAST towards numerous sub-libraries on
+  which it relies (GSL, BDB, NWS, LDAP).
   Thus, the activation of this option can only be recommended for advanced
   users...
-
-\item
-  \verb+DIET_USE_BATCH+ activates DIET support of Appleseeds (refer to
-  \url{http://grail.sdsc.edu/projects/appleseeds/}) based batch
-  extensions.
-
-\item
-  \verb+DIET_USE_JXTA+ activates the so called MULTI-Master-Agent
-  support. This support is based on the JXTA layer (refer to
-  \url{http://www.jxta.org/}). This is to be opposed with
-  \verb+DIET_WITH_MULTI_MA+ which offers similar functionalities
-  but based on CORBA.
-
-\item
-  \verb+DIET_WITH_MULTI_MA+ activates the so called MULTI Master Agent
-  support. This support is based on the CORBA layer (which is to be
-  opposed with \verb+DIET_USE_JXTA+ which offers similar functionalities
-  but based on JXTA.
+  As already mentioned, on activation of the \verb+DIET_USE_FAST+ option
+  cmake will search among the well known system path for the
+  \verb+fast-config+ command and set the \verb+FAST_CONFIG_EXECUTABLE+ 
+  with the result. Upon failure, it is up to the user to manually set the
+  full path name to this command (e.g. with [c]cmake command line argument
+  \verb+-DFAST_CONFIG_EXECUTABLE:PATH=$HOME/local/bin/fast-config+.
 
 \item
   \verb+DIET_USE_FD+ for activating Fault Detector.
 
+\item 
+  \verb+DIET_USE_JUXMEM+ activates DIET support of JuxMem which allows
+  the user to manage persistent data.
+  When this option is activated (disabled by default), a SeD can store
+  data blocks within JuxMem.
+  Chapter~\ref{ch:juxmem} describes in more details JuxMem and its use
+  inside DIET.
+
+\item
+  \verb+DIET_USE_JXTA+ activates the so called MULTI-Master-Agent
+  support.
+  This option is which is based on the JXTA layer (refer to
+  \url{http://www.jxta.org/}) allows the user to deploy DIET\_JXTA
+  architectures.
+  Note that this is to be opposed with
+  \verb+DIET_WITH_MULTI_MA+ (see \ref{sec:multimainstall} below)
+  which offers similar functionalities but based on CORBA.
+
+\item
+  \label{sec:multimainstall}
+  \verb+DIET_WITH_MULTI_MA+ activates the so called MULTI Master Agent
+  support which allows the user to connect several MA for them to
+  act as bounded.
+  When this option is activated, such a bounded MA is allowed to search
+  for a SeD into the MA hierarchies it is connected to.
+  Note that MULTI-Master-Agent support is based on the CORBA layer
+  which is to be opposed with \verb+DIET_USE_JXTA+ which offers similar
+  functionalities but based on JXTA.
+
 \item
   \verb+DIET_USE_WORKFLOW+ enables the support of workflow.
+
+\item
+  \verb+DIET_WITH_STATISTICS+ enables the generation of statistics logs
 \end{itemize}
 
+%==================
+\subsection{DIET's advanced configuration flags}
 \noindent
+
 Eventually, some configuration flags control the general result of the
 compilation or some developers extensions:
 \begin{itemize}
@@ -389,7 +390,84 @@ compilation or some developers extensions:
   \verb+DIET_USE_DART+ enables DART reporting system (refer to 
   \url{http://public.kitware.com/Dart}) which is used for constructing
   DIET's dashboard (see \url{http://graal.ens-lyon.fr/DietDashboard}).
+
+\item
+  \verb+Maintainer+ By default cmake offers four different build modes
+  that one toggles by positioning \verb+CMAKE_BUILD_TYPE+ built-in
+  variable (to \verb+Debug+, \verb+Release+, \verb+RelWithDebInfo+
+  and \verb+MinSizeRel+).
+  \verb+Maintainer+ is an additional mode which fulfills two basic needs
+  of the task of the maintainer of Diet.
+  The first preventive task is to provide code free from any compilation
+  and link warnings.
+  The second corresponds to the snafu stage which is to debug the code.
+  For reaching those goals the \verb+Maintainer+ build type sets the
+  compilers flags, respectively the linker flags, with all the possible
+  warning flags activated, resp. with the additional debug flags.
 \end{itemize}
+
+%==============================================================================
+\section{Compiling the examples}
+
+A set of various examples of DIET server/client are provided within
+the DIET archive:
+\begin{itemize}
+\item{\texttt{file\_transfer}}: the server computes the sizes of two
+  input files and returns them. A third output parameter may be
+  returned; the server decides randomly whether to send back the
+  first file. This is to show how to manage a variable number of
+  arguments: the profile declares all arguments that may be filled,
+  even if they might not be all filled at each request/computation.
+
+\item{\texttt{dmat\_manips}}: the server offers matrix manipulation
+  routines: transposition (\texttt{T}), product (\texttt{MatPROD}) and
+  sum (\texttt{MatSUM}, \texttt{SqMatSUM} for square matrices, and
+  \texttt{SqMatSUM\_opt} for square matrices but re-using the memory
+  space of the second operand for the result). Any subset of these
+  operations can be specified on the command line. The last two of
+  them are given for compatibility with a BLAS server as explained below.
+  
+\item{\texttt{BLAS}}: the server offers the \texttt{dgemm} BLAS
+  functionality.  We plan to offer all BLAS (Basic Linear Algebric
+  Subroutines) in the future. Since this function computes
+  $C = \alpha AB + \beta C$, it can also compute a matrix-matrix
+  product, a sum of square matrices, etc. All these services are
+  offered by the BLAS server. Two clients are designed to use these
+  services: one (\texttt{dgemm\_client.c}) is designed to use the
+  \texttt{dgemm\_} function only, and the other one
+  (\texttt{client.c}) to use all BLAS functions (but currently only
+  \texttt{dgemm\_}) and sub-services, such as \texttt{MatPROD}.
+  
+\item{\texttt{\scalapack}}: the server is designed to offer all
+  \scalapack\  (parallel version of the LAPACK library) functions but
+  only manages the \texttt{pdgemm\_} function so far. The
+  \texttt{pdgemm\_} routine is the parallel version of the
+  \texttt{dgemm\_} function, so that the server also offers all the
+  same sub-services. Two clients are designed to use these services:
+  one (\texttt{pdgemm\_client.c}) is designed to use the
+  \texttt{pdgemm\_} function only, and the other one
+  (\texttt{client.c}) to use all \scalapack\ functions and
+  sub-services, such as \texttt{MatPROD}.
+
+\item{\texttt{workflow}}: The programs in this directory are examples that
+  demonstrate how to use the workflow feature of diet.
+  The files representing the workflows that can be tested are stored in
+  xml sub-directory.
+  For each workflow, you can fin the required services in the corresponding
+  xml file (check the path attribute of each node element).
+  For the scalar manipulation example, you can use \texttt{scalar\_server}
+  that gathers the four different services of four different servers.
+\end{itemize}
+
+\subsection{Compiling the examples}
+
+\label{section:compiling-examples}
+\verb+Cmake+ will compile the examples when setting the 
+\verb+DIET_BUILD_EXAMPLES+ to \verb+ON+ which can be achieved by
+toggling the corresponding entry of \verb+ccmake+ GUI's or by adding
+\verb+-DDIET_BUILD_EXAMPLES:BOOL=ON+ to the command line
+arguments of \verb+[c]cmake+ invocation.
+Note that this option is disabled by default.
 
 %====[ Compilation with the autotools ]========================================
 \subsection{Compiling DIET with the autotools (under deprecation)}
@@ -407,155 +485,8 @@ description.\\
 \texttt{...}
 }
 
-\subsubsection{Optional features for configuration}
-
-{\footnotesize
-\begin{verbatim}
-  --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
-  --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
-  --enable-maintainer-mode enable make rules and dependencies not useful
-                          (and sometimes confusing) to the casual installer
-\end{verbatim}
-
-\begin{verbatim}
-  --enable-doc            enable the module doc, documentation about DIET
-\end{verbatim}
-}
-\noindent This option activates the compilation and installation of
-the DIET documents, which is disabled by default, because it is very
-sensitive to the version of your \LaTeX\ compiler. The output
-postscript files are provided in the archive.
-
-{\footnotesize
-\begin{verbatim}
-  --disable-examples      disable the module examples, basic DIET examples
-\end{verbatim}
-}
-\noindent This option deactivates the compilation of the DIET
-examples, which is enabled by default.
-
-{\footnotesize
-\begin{verbatim}
-  --enable-BLAS           enable the module BLAS, an example for calling BLAS
-                          functions through DIET
-\end{verbatim}
-}
-\noindent This option activates the compilation of the DIET BLAS
-examples, as a sub-module of examples (which means that this option
-has no effect if examples are disabled) - disabled by default.
-
-
-{\footnotesize
-\begin{verbatim}
- --enable-ScaLAPACK      enable the module ScaLAPACK, an example for calling
-                          ScaLAPACK functions through DIET
-\end{verbatim}
-}
-\noindent \textit{Experimental}.  This option activates the
-compilation of the DIET \scalapack\ examples, as a sub-module of
-examples (which means that this option has no effect if examples are
-disabled) - disabled by default.
-
-{\footnotesize
-\begin{verbatim}
-  --enable-JXTA-mode      enable DIET/JXTA architecture
-\end{verbatim}
-}
-\noindent \textit{Experimental}.  This option allows the user to
-deploy DIET$_{JXTA}$ architectures.  When this option is activated
-(disabled by default), DIET allows only this type of architecture to
-be deployed.
-
-\label{sec:multimainstall}
-{\footnotesize
-\begin{verbatim}
-  --enable-multi-MA       enable multi-MA architecture
-\end{verbatim}
-}
-\noindent \textit{Experimental}.  This option allows the user to
-connect several MA to be linked together. When this option is
-activated, it allow a MA to looking for a SeD into the other MA
-hierarchies.
-
-{\footnotesize
-\begin{verbatim}
-  --enable-JuxMem       enable the use of JuxMem for managing persistent data
-\end{verbatim}
-}
-\noindent \textit{Experimental}.  This option allows the user to
-interact with JuxMem for the management of persistent data. When
-this option is activated (disabled by default), a SeD can store data
-blocks within JuxMem. Chapter~\ref{ch:juxmem} describes in more
-details JuxMem and its use inside DIET.
-
-{\footnotesize
-\begin{verbatim}
-  --enable-cori       enable the use of CoRI for collecting information 
-                      about the SeD
-\end{verbatim}
-}
-\noindent \textit{Experimental}.  This option allows the user to
-get hardware and performance information about the SeD. When
-this option is activated (disabled by default), the user can call FAST and other 
-collectors by the interface CoRI. It can be used to improve the plug-in scheduler.
-Chapter~\ref{chapter:performance} describes in more details CoRI and its use inside DIET.
-
-{\footnotesize
-\begin{verbatim}
-  --enable-stats          enable generation of statistics logs
-  --disable-dependency-tracking Speeds up one-time builds
-  --enable-dependency-tracking  Do not reject slow dependency extractors
-  --enable-shared=PKGS    build shared libraries default=yes
-  --enable-static=PKGS    build static libraries default=yes
-  --enable-fast-install=PKGS optimize for fast installation default=yes
-  --disable-libtool-lock  avoid locking (might break parallel builds)
-\end{verbatim}
-}
-
-%%{\footnotesize
-%%\begin{verbatim}
-%%  --enable-logservice     enable monitoring through LogService
-%%\end{verbatim}
-%%}
-%%\noindent \textit{Deprecated}.  Support for the LogService monitoring
-%%software is now always compiled in.  Note that support for LogService
-%%is built-in and you do not have to install LogService to compile
-%%DIET.
-
 \subsubsection{Optional packages for configuration}
 
-
-{\footnotesize
-\begin{verbatim}
-  --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
-  --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
-  --with-gnu-ld           assume the C compiler uses GNU ld default=no
-  --with-pic              try to use only PIC/non-PIC objects default=use both
-\end{verbatim}
-}
-
-%% \subsubsection{The \texttt{--with-PKG-extra} option}
-
-%% For all packages that DIET depends on, the \texttt{configure} script provides an
-%% option that let the user define the arguments needed to compile with the
-%% libraries of the package PKG: \texttt{--with-PKG-extra}. This is useful when
-%% the \texttt{configure} script does not succeed on its own to get necessary
-%% compilation option.
-
-%% Let us take the example of a user who wishes to compile the BLAS examples (see
-%% the BLAS subsection below). On the platform he/she uses, it is necessary to
-%% specify the following arguments to compile with the BLAS library:
-
-%% {\footnotesize \texttt{-lm -L/home/theuser/lib -lblas -lg2c -lm} }
-
-%% \noindent
-%% Let us assume that specifying the option
-%% \texttt{--with-BLAS-libraries=/home/theuser/lib} is not enough for the
-%% \texttt{configure} script to compile DIET examples. Then, the user will have to
-%% add the following arguments to his/her \texttt{configure} command line:
-
-%% {\footnotesize \texttt{--with-BLAS-extra="-lm -L/home/theuser/lib -lblas -lg2c
-%%   -lm"} }
 
 \paragraph{omniORB}
 {\footnotesize
@@ -578,57 +509,19 @@ installations of omniORB.\\ \textbf{NB:} having the executable
 \texttt{omniidl} in the PATH environment variable should be enough in
 most cases.
 
-\paragraph{FAST}\label{fast_compil}
-{\footnotesize
-\begin{verbatim}
-  --with-FAST=DIR         installation root directory for FAST (optional)
-  --with-FAST-bin=DIR     installation directory for fast-config (optional)
-\end{verbatim}
-}
-\noindent This group of options lets the user define all necessary
-paths to compile with FAST; Generally, \texttt{--with-FAST=DIR} should
-be enough, and the other options are provided for difficult
-installations of FAST. There is no need to specify includes, libraries
-and extra arguments, since FAST provides a tool \texttt{fast-config}
-that does this job automatically.\\ \textbf{NB1:} having the
-executable \texttt{fast-config} in the PATH environment variable
-should be enough in most cases.\\ \textbf{NB2:} it is possible to
-specify \texttt{--without-FAST}, which overrides \texttt{fast-config}
-detection.
-
-\paragraph{BLAS}
-
-The BLAS~\footnote{\url{http://www.netlib.org/blas/}} (Basic Linear
-Algebra Subprograms) are high quality ``building block'' routines for
-performing basic vector and matrix operations.  Level 1 BLAS do
-vector-vector operations, Level 2 BLAS do matrix-vector operations,
-and Level 3 BLAS do matrix-matrix operations. Because the BLAS are
-efficient, portable, and widely available, they're commonly used in
-the development of high quality linear algebra software.
-
-{\footnotesize
-\begin{verbatim}
-  --with-BLAS=DIR  specify the root installation directory of BLAS (Basic
-                   Linear Algebric Subroutines)
-
-  --with-BLAS-includes=DIR
-                   specify exact header directory for BLAS
-  --with-BLAS-libraries=DIR
-                   specify exact library directory for BLAS
-  --with-BLAS-extra=ARG|"ARG1 ARG2 ..."
-                   specify extra conftest.c -o conftest for the linker to find
-                   the BLAS libraries (use "" in case of several 
-                   conftest.c -o conftest)
-\end{verbatim}
-}
-\noindent This group of options lets the user define all necessary
-paths to compile with the BLAS libraries. Generally,
-\texttt{--with-BLAS=DIR} should be enough, and the other options are
-provided for difficult installation of the BLAS.\\ \textbf{NB:} these
-options have no effect if the module example and/or its sub-module
-BLAS are disabled.
-
 \paragraph{\scalapack}
+
+{\footnotesize
+\begin{verbatim}
+ --enable-ScaLAPACK      enable the module ScaLAPACK, an example for calling
+                          ScaLAPACK functions through DIET
+\end{verbatim}
+}
+\noindent \textit{Experimental}.  This option activates the
+compilation of the DIET \scalapack\ examples, as a sub-module of
+examples (which means that this option has no effect if examples are
+disabled) - disabled by default.
+
 
 The ScaLAPACK\footnote{\url{http://www.netlib.org/scalapack/}} (or
 Scalable LAPACK) library includes a subset of LAPACK routines
@@ -683,11 +576,6 @@ its sub-module \scalapack\ are disabled.
 
 \subsubsection{From configuration to compilation}
 
-An important option for configure scripts is \texttt{--prefix=}, which
-specifies where binary files, documents and configuration files will
-be installed. It is important to set this option; otherwise it 
-defaults to \texttt{DIET/install}.
-
 The configuration will return with an error if no ORB was found. So
 please help the configure script to find the ORB with the
 \texttt{--with-omniORB*} options.\\
@@ -741,56 +629,6 @@ only the agent, for instance, and install it, he must run:
 ~DIET/src/agent > make install
 \end{verbatim}
 }
-
-
-\section{Compiling the examples}
-
-Four series of examples are provided in the DIET archive:
-\begin{itemize}
-\item{\texttt{file\_transfer}}: the server computes the sizes of two
-  input files and returns them. A third output parameter may be
-  returned; the server decides randomly whether to send back the
-  first file. This is to show how to manage a variable number of
-  arguments: the profile declares all arguments that may be filled,
-  even if they might not be all filled at each request/computation.
-
-\item{\texttt{dmat\_manips}}: the server offers matrix manipulation
-  routines: transposition (\texttt{T}), product (\texttt{MatPROD}) and
-  sum (\texttt{MatSUM}, \texttt{SqMatSUM} for square matrices, and
-  \texttt{SqMatSUM\_opt} for square matrices but re-using the memory
-  space of the second operand for the result). Any subset of these
-  operations can be specified on the command line. The last two of
-  them are given for compatibility with a BLAS server as explained below.
-  
-\item{\texttt{BLAS}}: the server offers the \texttt{dgemm} BLAS
-  functionality.  We plan to offer all BLAS (Basic Linear Algebric
-  Subroutines) in the future. Since this function computes
-  $C = \alpha AB + \beta C$, it can also compute a matrix-matrix
-  product, a sum of square matrices, etc. All these services are
-  offered by the BLAS server. Two clients are designed to use these
-  services: one (\texttt{dgemm\_client.c}) is designed to use the
-  \texttt{dgemm\_} function only, and the other one
-  (\texttt{client.c}) to use all BLAS functions (but currently only
-  \texttt{dgemm\_}) and sub-services, such as \texttt{MatPROD}.
-  
-\item{\texttt{\scalapack}}: the server is designed to offer all
-  \scalapack\  (parallel version of the LAPACK library) functions but
-  only manages the \texttt{pdgemm\_} function so far. The
-  \texttt{pdgemm\_} routine is the parallel version of the
-  \texttt{dgemm\_} function, so that the server also offers all the
-  same sub-services. Two clients are designed to use these services:
-  one (\texttt{pdgemm\_client.c}) is designed to use the
-  \texttt{pdgemm\_} function only, and the other one
-  (\texttt{client.c}) to use all \scalapack\ functions and
-  sub-services, such as \texttt{MatPROD}.
-\end{itemize}
-
-\subsection{Compiling the examples with cmake}
-\verb+Cmake+ will compile the examples when setting the 
-\verb+DIET_BUILD_EXAMPLES+ to \verb+ON+ which can be achieved by
-toggling the corresponding entry of \verb+ccmake+ GUI's or by adding
-\verb+-DDIET_BUILD_EXAMPLES:BOOL=ON+ to the command line
-arguments of \verb+[c]cmake+ invocation.
 
 \subsection{Compiling the examples with the autotools}
 
