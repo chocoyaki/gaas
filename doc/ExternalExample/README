@@ -1,0 +1,37 @@
+# This directory contains a very simple client/server example for DIET.
+# The purpose is here not to demonstrate DIET features, but to illustate
+# how a DIET user can compile and link against an installation of DIET.
+ 
+# In the following we assume a DIET installation was made and that
+# the DIET_HOME environment variable designates the corresponding directory:
+export DIET_HOME=/home/<your_login>/local/diet
+
+# Check that DIET_HOME was properly set:
+ls $DIET_HOME/include/DIET_client.h
+
+# We here illustrate to ways for installing our simple client/server example.
+
+######################################################################
+# First the classical "make way" simply uses the Makefile file that includes
+# a generated Makefile.inc:
+make
+# That's it with make.
+
+######################################################################
+# Then the more elaborate cmake way which also provides an install.
+# Create a building tree:
+mkdir Bin
+cd Bin
+
+# Configure the installation in a non interactive way (if you want to 
+# fool around with the GUI version simply use ccmake in place of cmake):
+cmake -DDIET_DIR:PATH=$DIET_HOME -DCMAKE_INSTALL_PREFIX:PATH=/tmp/DIETSimple ..
+
+# Compile dans link:
+make 
+
+# Install in /tmp/DIETSimple directory:
+make install
+
+# Notice that the resulting binaries have an rpath nicely set:
+ldd /tmp/DIETSimple/bin/simple_server

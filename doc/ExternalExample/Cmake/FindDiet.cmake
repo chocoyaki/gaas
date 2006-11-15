@@ -70,10 +70,7 @@ ELSE( NOT DIET_DIR )
   ENDIF( EXISTS ${DIET_DIR}/share/DietConfig.cmake )
 ENDIF( NOT DIET_DIR )
 
-MESSAGE("XXXXXXXXXXXXXXXXXXX ${DIET_DIR}")
-
 IF( DIET_FOUND )
-  MESSAGE("YYYYYYYYYYYYYYYYYYYYYYYYYY")
   MARK_AS_ADVANCED( DIET_FOUND )
   SET( DIET_USE_FILE ${DIET_DIR}/share/DietConfig.cmake
        CACHE STRING "Full (with path) filename of DietConfig.cmake."  )
