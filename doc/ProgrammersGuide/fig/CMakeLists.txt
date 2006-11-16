@@ -18,11 +18,16 @@ FOREACH( filename ${DIET_PROGRAMMERS_MANUAL_FIG_GLOB} )
     COMMAND   ${FIG2DEV}
     ARGS      -L eps ${filename} ${filenameDest}
     DEPENDS   ${filename}
-    )
-  ADD_CUSTOM_TARGET(dummy${filename}_EPS
-      ALL
-      DEPENDS  ${filenameDest}
-    )
+  )
+  ADD_CUSTOM_TARGET(
+    dummy${filename}_EPS
+    ALL
+    DEPENDS  ${filenameDest}
+  )
+  INSTALL(
+    FILES ${filenameDest}
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/doc/ProgrammersGuide/fig
+  )
   SET( DIET_PROGRAMMERSGUIDE_FIGURE_POSTSCRIPT_OUTPUTS
     ${DIET_PROGRAMMERSGUIDE_FIGURE_POSTSCRIPT_OUTPUTS} ${filenameDest} )
 ENDFOREACH( filename )
@@ -44,11 +49,15 @@ FOREACH( filename ${DIET_PROGRAMMER_MANUAL_PNG_GIF_GLOB} )
     COMMAND   ${IMAGEMAGICK_CONVERT_EXECUTABLE}
     ARGS      ${filename} ${filenameDest}
     DEPENDS   ${filename}
-    )
+  )
   ADD_CUSTOM_TARGET(dummy${filename}_PS
     ALL
     DEPENDS  ${filenameDest}
-    )
+  )
+  INSTALL(
+    FILES ${filenameDest}
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/doc/ProgrammersGuide/fig
+  )
   SET( DIET_PROGRAMMERSGUIDE_FIGURE_POSTSCRIPT_OUTPUTS
     ${DIET_PROGRAMMERSGUIDE_FIGURE_POSTSCRIPT_OUTPUTS} ${filenameDest} )
 ENDFOREACH( filename )

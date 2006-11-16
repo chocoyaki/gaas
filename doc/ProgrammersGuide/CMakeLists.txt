@@ -31,7 +31,7 @@ ADD_CUSTOM_COMMAND(
   COMMAND   ${LATEX_COMPILER}  
   ARGS      -interaction=batchmode ${CMAKE_CURRENT_BINARY_DIR}/ProgrammersGuide
   COMMENT   "Latex (first pass)"
-  )
+)
 
 ADD_CUSTOM_COMMAND(
   OUTPUT    ${CMAKE_CURRENT_BINARY_DIR}/ProgrammersGuide.dvi
@@ -40,12 +40,42 @@ ADD_CUSTOM_COMMAND(
   COMMAND   ${LATEX_COMPILER}  
   ARGS      -interaction=batchmode ${CMAKE_CURRENT_BINARY_DIR}/ProgrammersGuide
   COMMENT   "Latex (second pass)"
-  )
+)
 
-ADD_CUSTOM_TARGET(ProgrammersGuide
+INSTALL(
+  FILES ${CMAKE_CURRENT_BINARY_DIR}/ProgrammersGuide.dvi
+  DESTINATION ${CMAKE_INSTALL_PREFIX}/doc/ProgrammersGuide
+)
+
+ADD_CUSTOM_TARGET(
+  ProgrammersGuideDocument
   ALL echo
   DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/ProgrammersGuide.dvi
 )
 
+# Whenever if possible also generate the pdf document:
+IF( DVIPDF_CONVERTER )
+  ADD_CUSTOM_COMMAND(
+    OUTPUT   ${CMAKE_CURRENT_BINARY_DIR}/ProgrammersGuide.pdf
+    DEPENDS  ${CMAKE_CURRENT_BINARY_DIR}/ProgrammersGuide.log
+    COMMAND  ${DVIPDF_CONVERTER}
+    ARGS     -o ${CMAKE_CURRENT_BINARY_DIR}/ProgrammersGuide.pdf
+             ${CMAKE_CURRENT_BINARY_DIR}/ProgrammersGuide.dvi
+    COMMENT  "Generating pdf version of ProgrammersGuide."
+  )
+  ADD_CUSTOM_TARGET(
+    ProgrammersGuidePdfDocument
+    ALL echo
+    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/ProgrammersGuide.pdf
+  )
+  INSTALL(
+    FILES ${CMAKE_CURRENT_BINARY_DIR}/ProgrammersGuide.pdf
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/doc/ProgrammersGuide
+  )
+ENDIF( DVIPDF_CONVERTER )
+
 ### But FIRST, convert the required figures (various formats) to eps:
-ADD_DEPENDENCIES( ProgrammersGuide DIET_TARGET_PROGRAMMERSGUIDE_FIGURES )
+ADD_DEPENDENCIES(
+  ProgrammersGuideDocument
+  DIET_TARGET_PROGRAMMERSGUIDE_FIGURES
+  )

@@ -37,15 +37,20 @@ FOREACH( filename ${DIET_USERS_MANUAL_FIG_GLOB} )
     ARGS      -L eps ${filename} ${filenameDest}
     DEPENDS   ${filename}
     )
-  ADD_CUSTOM_TARGET(dummy${filename}_EPS
-      ALL
-      DEPENDS  ${filenameDest}
+  ADD_CUSTOM_TARGET(
+    dummy${filename}_EPS
+    ALL
+    DEPENDS  ${filenameDest}
+    )
+  INSTALL(
+    FILES ${filenameDest}
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/doc/UsersManual/fig
     )
   SET( DIET_USERS_FIGURE_POSTSCRIPT_OUTPUTS
     ${DIET_USERS_FIGURE_POSTSCRIPT_OUTPUTS} ${filenameDest} )
 ENDFOREACH( filename )
 
-### Convert the fig figures to eps:
+### Convert the gif figures to eps:
 FILE(GLOB DIET_USERS_MANUAL_GIF_GLOB "*.gif")
 FOREACH( filename ${DIET_USERS_MANUAL_GIF_GLOB} )
   GET_FILENAME_COMPONENT( filenameNoExt ${filename} NAME_WE )
@@ -59,6 +64,10 @@ FOREACH( filename ${DIET_USERS_MANUAL_GIF_GLOB} )
   ADD_CUSTOM_TARGET(dummy${filename}_PS
     ALL
     DEPENDS  ${filenameDest}
+    )
+  INSTALL(
+    FILES ${filenameDest}
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/doc/UsersManual/fig
     )
   SET( DIET_USERS_FIGURE_POSTSCRIPT_OUTPUTS
     ${DIET_USERS_FIGURE_POSTSCRIPT_OUTPUTS} ${filenameDest} )

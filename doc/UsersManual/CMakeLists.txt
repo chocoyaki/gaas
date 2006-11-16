@@ -69,6 +69,11 @@ ADD_CUSTOM_COMMAND(
   COMMENT   "Latex (second pass)"
   )
 
+INSTALL(
+  FILES ${CMAKE_CURRENT_BINARY_DIR}/UsersManual.dvi
+  DESTINATION ${CMAKE_INSTALL_PREFIX}/doc/UsersManual
+  )
+
 ADD_CUSTOM_COMMAND(
   OUTPUT    ${CMAKE_CURRENT_BINARY_DIR}/UsersManual.log
   DEPENDS   ${CMAKE_CURRENT_BINARY_DIR}/UsersManual.bbl
@@ -79,11 +84,32 @@ ADD_CUSTOM_COMMAND(
   )
 
 # Trigger the pipeline by requiring LaTeX's log file:
-ADD_CUSTOM_TARGET(LaTeXDocument
-   ALL echo
-   DEPENDS
-      ${CMAKE_CURRENT_BINARY_DIR}/UsersManual.log
-   )
+ADD_CUSTOM_TARGET(
+  UsersManualDocument
+  ALL echo
+  DEPENDS  ${CMAKE_CURRENT_BINARY_DIR}/UsersManual.log
+  )
+
+# Whenever if possible also generate the pdf document:
+IF( DVIPDF_CONVERTER )
+  ADD_CUSTOM_COMMAND(
+    OUTPUT    ${CMAKE_CURRENT_BINARY_DIR}/UsersManual.pdf
+    DEPENDS   ${CMAKE_CURRENT_BINARY_DIR}/UsersManual.log
+    COMMAND   ${DVIPDF_CONVERTER}
+    ARGS      -o ${CMAKE_CURRENT_BINARY_DIR}/UsersManual.pdf
+              ${CMAKE_CURRENT_BINARY_DIR}/UsersManual.dvi
+    COMMENT   "Generating pdf version of UserManual."
+  )
+  ADD_CUSTOM_TARGET(
+    UsersManualPdfDocument
+    ALL echo
+    DEPENDS  ${CMAKE_CURRENT_BINARY_DIR}/UsersManual.pdf
+  )
+  INSTALL(
+    FILES ${CMAKE_CURRENT_BINARY_DIR}/UsersManual.pdf
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/doc/UsersManual
+  )
+ENDIF( DVIPDF_CONVERTER )
 
 ### But FIRST, convert the required figures (various formats) to eps:
-ADD_DEPENDENCIES( LaTeXDocument DIET_TARGET_USERS_FIGURES )
+ADD_DEPENDENCIES( UsersManualDocument DIET_TARGET_USERS_FIGURES )
