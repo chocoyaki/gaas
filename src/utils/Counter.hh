@@ -8,14 +8,15 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2006/11/16 09:55:55  eboix
+ *   DIET_config.h is no longer used. --- Injay2461
+ *
  * Revision 1.6  2005/04/28 13:14:32  eboix
  *    Inclusion of CORBA.h substituted with omniORB4/CORBA.h --- Injay 2461
  *
  * Revision 1.5  2003/04/10 12:45:10  pcombes
  * Apply Coding Standards.
  *
- * Revision 1.4  2003/01/22 17:11:19  pcombes
- * #include "DIET_config.h" is better than #include "omniorb.hh"
  ****************************************************************************/
 
 
@@ -27,8 +28,6 @@
 #include <omnithread.h>
 #include <sys/types.h>
 #include <assert.h>
-
-#include "DIET_config.h"
 
 /**
  * This is a thread safe counter. The operators ++, -- and = are

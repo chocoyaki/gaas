@@ -9,20 +9,15 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2006/11/16 09:55:50  eboix
+ *   DIET_config.h is no longer used. --- Injay2461
+ *
  * Revision 1.18  2006/07/10 09:55:27  aamar
  * Workflow monitoring and client reordering objects added to
  * the CONTEXT array
  *
  * Revision 1.17  2006/04/14 14:15:07  aamar
  * Adding the "dietMaDag" value in the CONTEXTS array
- *
- * Revision 1.16  2006/03/10 12:33:27  eboix
- *  * src/CORBA/ORBMgr.cc: code specific to version 3 of omniORB removed
- *    (in order to remove the __OMNIORB3__ preprocessor flag).
- *  * Cmake/DIET_config.h.in is now simply copied (as opposed to configured).
- *    We are now in position of suppressing DIET_config.h.
- *  * Cmake/FindOmniORB.cmake is now a module (as opposed to an include file).
- *                                                               --- Injay2461
  *
  * Revision 1.15  2004/09/29 13:35:31  sdahan
  * Add the Multi-MAs feature.

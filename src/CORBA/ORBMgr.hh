@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2006/11/16 09:55:51  eboix
+ *   DIET_config.h is no longer used. --- Injay2461
+ *
  * Revision 1.15  2006/10/31 21:14:04  ecaron
  * Correct wrong header
  *
@@ -52,7 +55,6 @@
 
 #include <omniORB4/CORBA.h>
 #include <setjmp.h>
-#include "DIET_config.h"
 
 #define INTERRUPTION_MGR 0
 

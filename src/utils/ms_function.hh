@@ -8,14 +8,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2006/11/16 09:55:56  eboix
+ *   DIET_config.h is no longer used. --- Injay2461
+ *
  * Revision 1.9  2005/04/28 13:07:05  eboix
  *     Inclusion of CORBA.h substitued with omniORB4/CORBA.h. --- Injay 2461
  *
  * Revision 1.8  2003/04/10 12:45:10  pcombes
  * Apply Coding Standards.
- *
- * Revision 1.7  2003/01/22 17:11:19  pcombes
- * #include "DIET_config.h" is better than #include "omniorb.hh"
  *
  * Revision 1.6  2003/01/22 15:48:54  sdahan
  * add #include "omniorb.hh"
@@ -47,8 +47,6 @@
 #define _MS_FUNCTION_HH_
 
 #include <omniORB4/CORBA.h>
-
-//#include "DIET_config.h"
 
 /**
  * Duplicates the string given in argument with the \c

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2006/11/16 09:55:54  eboix
+ *   DIET_config.h is no longer used. --- Injay2461
+ *
  * Revision 1.8  2006/01/19 21:35:42  pfrauenk
  * CoRI : when --enable-cori - round-robin is the default scheduler -
  *        CoRI is not called (any more) for collecting information
@@ -58,7 +61,6 @@
 
 #ifndef _SCHEDULERS_HH_
 #define _SCHEDULERS_HH_
-#include "DIET_config.h"
 
 #include "response.hh"
 #include "DIET_data.h"

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2006/11/16 09:55:55  eboix
+ *   DIET_config.h is no longer used. --- Injay2461
+ *
  * Revision 1.2  2005/04/28 13:07:05  eboix
  *     Inclusion of CORBA.h substitued with omniORB4/CORBA.h. --- Injay 2461
  *
@@ -26,8 +29,6 @@
 #include <omnithread.h>
 #include <sys/types.h>
 #include <assert.h>
-
-#include "DIET_config.h"
 
 /**
  * The AccessController class coordinates access to a resource between

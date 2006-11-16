@@ -6,11 +6,7 @@
 IF( NOT BLAS_FOUND )
   MESSAGE( STATUS "BLAS example NOT compiled: BLAS library unavailable." )
 ELSE( NOT BLAS_FOUND )
-  INCLUDE_DIRECTORIES(
-    ${DIET_BINARY_DIR}/include          # FIXME: must preceed source/include
-                                        # to take cmake-generated DIET_config.h
-    ${DIET_SOURCE_DIR}/include
-  )
+  INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/include )
 
   ### A single server...
   ADD_EXECUTABLE( server server.c )

@@ -2,11 +2,7 @@
 #* DIET cmake local file                                                    *#
 #****************************************************************************#
 
-INCLUDE_DIRECTORIES(
-  ${DIET_BINARY_DIR}/include          # FIXME: must preceed source/include
-                                      # to take cmake-generated DIET_config.h
-  ${DIET_SOURCE_DIR}/include
-  )
+INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/include )
 
 ####################################### C written examples
 ### A single server...

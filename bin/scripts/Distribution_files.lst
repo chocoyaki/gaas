@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.9  2006/11/16 09:55:50  eboix
+#*   DIET_config.h is no longer used. --- Injay2461
+#*
 #* Revision 1.8  2006/11/16 08:57:17  eboix
 #* Removed presumably all autotools related files. Cmake rulez ? --- Injay2461
 #*
@@ -60,7 +63,6 @@ Cmake/CheckCCompilerInline.c
 Cmake/ConfigureCCompiler.cmake
 Cmake/ConfigureCORI.cmake
 Cmake/ConfigureWf.cmake
-Cmake/DIET_config.h.in
 Cmake/DietConfig.cmake.in
 Cmake/DietDefaultBuildTypes.cmake
 Cmake/FindAppleSeeds.cmake
@@ -81,7 +83,6 @@ Cmake/Ctest/CMakeLists.txt
 include/CMakeLists.txt
 [Templated]
 include/DIET_client.h
-include/DIET_config.h
 include/DIET_data.h
 include/DIET_grpc.h
 include/DIET_mutex.h

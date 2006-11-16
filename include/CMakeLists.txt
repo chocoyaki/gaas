@@ -12,6 +12,3 @@ INSTALL_FILES(
     DIET_server.h
     grpc.h
 )
-
-# FIXME: DIET_config.h is not installed since it would conflict with cmake's
-#        generated one...

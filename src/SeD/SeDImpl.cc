@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.86  2006/11/16 09:55:52  eboix
+ *   DIET_config.h is no longer used. --- Injay2461
+ *
  * Revision 1.85  2006/10/19 21:26:36  mjan
  * JuxMem support in async mode. Reorganized data management (DTM and JuxMem) into functions in the spirit of last modifs by Yves.
  *
@@ -172,7 +175,6 @@ using namespace std;
   #endif // HAVE_FAST
 */
 
-#include "DIET_config.h"
 #include "SeDImpl.hh"
 #include "Callback.hh"
 #include "common_types.hh"

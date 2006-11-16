@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2006/11/16 09:55:56  eboix
+ *   DIET_config.h is no longer used. --- Injay2461
+ *
  * Revision 1.12  2004/06/09 15:10:38  mcolin
  * add stat_flush in statistics API in order to flush write access to
  * statistic file for agent and sed which never end and can't call
@@ -48,9 +51,6 @@
 
 #include <stdio.h>
 #include <sys/time.h>
-
-#include "DIET_config.h"
-
 
 #if HAVE_STATISTICS
 

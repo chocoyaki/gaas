@@ -9,12 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2006/11/16 09:55:55  eboix
+ *   DIET_config.h is no longer used. --- Injay2461
+ *
  * Revision 1.1  2006/10/20 09:26:20  aamar
  * Adding the servers scalar, string, file and matrix examples.
  * Adding a generic client.
- *
- * Revision 1.26  2006/02/13 17:13:55  mjan
- * Removed uneeded DIET_config.h
  *
  * Revision 1.25  2005/05/27 08:18:17  mjan
  * Moving JuxMem in a more appropriate place (src/utils)
@@ -47,10 +47,6 @@
 #include <stdio.h>
 #include <string.h>
 
-/**
- * As the services base/mult and base/plus are hardcoded in FAST 0.4.x, we
- * include DIET_config.h here, to access the __FAST_O_4__ macro.
- */
 #include "DIET_server.h"
 #include "progs.h"
 

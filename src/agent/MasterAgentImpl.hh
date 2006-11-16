@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2006/11/16 09:55:54  eboix
+ *   DIET_config.h is no longer used. --- Injay2461
+ *
  * Revision 1.13  2006/11/06 15:14:53  aamar
  * Workflow support: Correct some code about reqID
  *
@@ -64,7 +67,6 @@
 #define _MASTERAGENTIMPL_HH_
 
 #include "MasterAgent.hh"
-#include "DIET_config.h"
 #include "AgentImpl.hh"
 #include "LinkedList.hh"
 #include "Parsers.hh"

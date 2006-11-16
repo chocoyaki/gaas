@@ -12,12 +12,10 @@ IF( DIET_BUILD_LIBRARIES )
   INCLUDE_DIRECTORIES(
     ${OMNIORB4_INCLUDE_DIR}
     ${DIET_SOURCE_DIR}/src/utils
-    ${DIET_SOURCE_DIR}/src/Sed          # local dir .
+    ${CMAKE_CURRENT_SOURCE_DIR}
     ${DIET_SOURCE_DIR}/src/agent        # for e.g. ChildID.hh
     ${DIET_SOURCE_DIR}/src/CORBA        # for e.g. marshalling.hh
-    ${DIET_BINARY_DIR}/include          # FIXME: must preceed source/include
-                                        # to take cmake-generated DIET_config.h
-    ${DIET_SOURCE_DIR}/include          # FIXME: for DIET_data.h 
+    ${DIET_SOURCE_DIR}/include          # for DIET_data.h 
     ${DIET_BINARY_DIR}/src/CORBA/idl
   )
   

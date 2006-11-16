@@ -5,6 +5,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.43  2006/11/16 09:55:54  eboix
+ *   DIET_config.h is no longer used. --- Injay2461
+ *
  * Revision 1.42  2006/09/12 08:57:38  bdepardo
  * When compiling with HAVE_BATCH, if a SeD disappeared from the hierarchy,
  * when a request was submitted it was blocked, waiting for the missing SeD
@@ -26,9 +29,6 @@
  * CoRI : when --enable-cori - round-robin is the default scheduler -
  *        CoRI is not called (any more) for collecting information
  *        (so no FAST possible any more)
- *
- * Revision 1.37  2005/11/10 14:37:51  eboix
- *     Clean-up of Cmake/DIET_config.h.in and related changes. --- Injay2461
  *
  * Revision 1.36  2005/09/07 07:41:02  hdail
  * Cleanup of alternative prediction handling
@@ -124,7 +124,6 @@
  ****************************************************************************/
 
 #include "AgentImpl.hh"
-#include "DIET_config.h"
 #include <iostream>
 using namespace std;
 #include <math.h>

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2006/11/16 09:55:54  eboix
+ *   DIET_config.h is no longer used. --- Injay2461
+ *
  * Revision 1.4  2004/12/15 15:57:08  sdahan
  * rewrite the FloodRequestsList to use a simplest implementation. The previous mutex bugs does not exist anymore.
  *
@@ -33,7 +36,6 @@
 #define _FLOOD_REQUESTS_LIST_HH_
 
 #include "FloodRequest.hh"
-#include "DIET_config.h"
 
 #ifdef HAVE_MULTI_MA
 

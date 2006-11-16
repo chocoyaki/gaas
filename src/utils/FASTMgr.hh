@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2006/11/16 09:55:56  eboix
+ *   DIET_config.h is no longer used. --- Injay2461
+ *
  * Revision 1.3  2006/01/25 21:08:00  pfrauenk
  * CoRI - plugin scheduler: the type diet_est_tag_t est replace by int
  *        some new fonctions in DIET_server.h to manage the estVector
@@ -35,7 +38,6 @@
 #include "DIET_server.h"
 #include "common_types.hh"
 #include "ServiceTable.hh"
-#include "DIET_config.h"
 
 /**
  * This class gathers all "FASTies"

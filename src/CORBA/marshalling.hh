@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2006/11/16 09:55:51  eboix
+ *   DIET_config.h is no longer used. --- Injay2461
+ *
  * Revision 1.26  2006/04/14 14:16:15  aamar
  * Adding the marshalling functions between C workflow data types and
  * the corresponding IDL types.
@@ -103,9 +106,6 @@
 
 #include "DIET_data_internal.hh"
 #include "common_types.hh"
-
-#include "DIET_config.h"
-
 
 /*--------------------------------------------------------------------------*/
 /* <FIXME: This comments should be updated>                                 */

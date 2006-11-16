@@ -8,14 +8,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2006/11/16 09:55:52  eboix
+ *   DIET_config.h is no longer used. --- Injay2461
+ *
  * Revision 1.24  2006/10/20 08:23:00  aamar
  * Correct a memory leak in file persistency.
  *
  * Revision 1.23  2006/02/17 10:03:50  ecaron
  * warning fix: unitialized variable
- *
- * Revision 1.22  2005/11/10 14:37:51  eboix
- *     Clean-up of Cmake/DIET_config.h.in and related changes. --- Injay2461
  *
  * Revision 1.21  2005/09/05 16:01:34  hdail
  * Addition of locationID information and getDataLoc method call.

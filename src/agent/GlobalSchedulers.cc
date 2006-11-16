@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2006/11/16 09:55:54  eboix
+ *   DIET_config.h is no longer used. --- Injay2461
+ *
  * Revision 1.14  2006/05/15 20:15:28  ecaron
  * Correct strtok_r bug on MacOSX for stdGS::deserialize (using strsep)
  *
@@ -71,8 +74,6 @@
  * Interface for global schedulers, called by agents and associated to
  * requests. Add an implementation of this interface: StdGS.
  ****************************************************************************/
-#include "DIET_config.h"
-
 #include "GlobalSchedulers.hh"
 #include <iostream>
 using namespace std;

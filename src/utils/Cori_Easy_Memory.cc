@@ -1,4 +1,3 @@
-#include <DIET_config.h>
 #include <unistd.h> //int getpagesize (void)
 #ifdef CORI_HAVE_SYS_SYSINFO
 #include <sys/sysinfo.h> // get_phys_pages (),get_avphys_pages ()

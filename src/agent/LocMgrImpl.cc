@@ -8,8 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.15  2005/11/10 14:37:51  eboix
- *     Clean-up of Cmake/DIET_config.h.in and related changes. --- Injay2461
+ * Revision 1.16  2006/11/16 09:55:54  eboix
+ *   DIET_config.h is no longer used. --- Injay2461
+ *
  *
  * Revision 1.14  2005/09/05 16:04:10  hdail
  * Addition of getDataLocSubtree (experimental and protected by HAVE_ALTPREDICT).

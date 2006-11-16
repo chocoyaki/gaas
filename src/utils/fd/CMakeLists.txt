@@ -9,10 +9,7 @@ IF( DIET_BUILD_LIBRARIES )
     ${DIET_BINARY_DIR}/src/CORBA/idl
     ${DIET_SOURCE_DIR}/src/CORBA        # for e.g. marshalling.hh
     ${DIET_SOURCE_DIR}/src/utils        # for DIET_data_internal.hh
-    ${DIET_BINARY_DIR}/include          # FIXME: must preceed source/include
-                                        # to take cmake-generated DIET_config.h
-    ${DIET_SOURCE_DIR}/include          # FIXME: generate DIET_config.h
-                                        #        see HOME/CMakeLists.txt
+    ${DIET_SOURCE_DIR}/include
     )
   
   ADD_LIBRARY( fd

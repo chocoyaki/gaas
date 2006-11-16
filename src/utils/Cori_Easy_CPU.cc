@@ -8,12 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2006/11/16 09:55:55  eboix
+ *   DIET_config.h is no longer used. --- Injay2461
+ *
  * Revision 1.6  2006/10/31 22:51:01  ecaron
  * Collector for CPU Information (default mode)
  *
  ****************************************************************************/
-#include <DIET_config.h>
-
 #include <stdlib.h>           // for getloadavg
 #include <iostream>
 #include <string>

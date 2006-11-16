@@ -10,6 +10,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.2  2006/11/16 09:55:55  eboix
+#*   DIET_config.h is no longer used. --- Injay2461
+#*
 #* Revision 1.1  2003/09/26 14:05:39  pcombes
 #* Local platform scripts are managed by configure.
 #*
@@ -120,7 +123,10 @@ SEN_PORT_2=9051
 
 # There is no need for the forecaster in FAST 0.8 and later ...
 # the short version of FAST is extracted from DIET_config.h
+# DIET_config.h is no longer used so I guess this dirty kludge won't get
+# you nowhere anymore: next time, wise up ! [ the masked cucumber avenger :]
 CONFIG_H=`dirname $0`/../../../include/DIET_config.h
+
 FAST_SHORT_VERSION=`grep "#define __FAST_" $CONFIG_H \
 		   | sed "s|#define __FAST_\([0-9_]*\)__|\1|g"`
 PORTS="$SEN_PORT $MEM_PORT $NS_PORT"

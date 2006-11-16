@@ -6,8 +6,7 @@ IF( DIET_BUILD_LIBRARIES )
     ${DIET_SOURCE_DIR}/src/utils
     ${DIET_BINARY_DIR}/src/CORBA/idl
     ${DIET_SOURCE_DIR}/src/CORBA
-    ${DIET_SOURCE_DIR}/src/agent          # local dir .
-    ${DIET_BINARY_DIR}/include            # for e.g. DIET_config.h
+    ${CMAKE_CURRENT_SOURCE_DIR}
     ${DIET_SOURCE_DIR}/include
   )
   

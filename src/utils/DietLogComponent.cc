@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2006/11/16 09:55:55  eboix
+ *   DIET_config.h is no longer used. --- Injay2461
+ *
  * Revision 1.25  2006/11/06 15:43:44  aamar
  * Checking the memory allocated to log msgs.
  *
@@ -32,12 +35,6 @@
  *
  * Revision 1.19  2005/12/15 12:25:06  pfrauenk
  * CoRI functionality added by Peter Frauenkron
- *
- * Revision 1.18  2005/12/15 11:06:55  eboix
- *      FIXME note --- Injay2461
- *
- * Revision 1.17  2005/11/10 14:37:51  eboix
- *     Clean-up of Cmake/DIET_config.h.in and related changes. --- Injay2461
  *
  * Revision 1.16  2005/10/07 14:28:30  rbolze
  * remove num_Digits(int num) function.

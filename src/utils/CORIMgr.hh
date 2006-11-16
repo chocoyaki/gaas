@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2006/11/16 09:55:55  eboix
+ *   DIET_config.h is no longer used. --- Injay2461
+ *
  * Revision 1.5  2006/10/31 23:18:33  ecaron
  * Correct wrong header
  *
@@ -16,7 +19,6 @@
 #ifndef _CORIMGR_HH__
 #define _CORIMGR_HH__
 
-#include "DIET_config.h"
 #include "Cori_Metric.hh"
 
 #include <vector>

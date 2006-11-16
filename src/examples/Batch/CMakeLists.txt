@@ -6,11 +6,8 @@
 IF( NOT DIET_USE_BATCH )
   MESSAGE( STATUS "AppleSeeds related example NOT compiled." )
 ELSE( NOT DIET_USE_BATCH )
-  INCLUDE_DIRECTORIES(
-    ${DIET_BINARY_DIR}/include          # FIXME: must preceed source/include
-                                        # to take cmake-generated DIET_config.h
-    ${DIET_SOURCE_DIR}/include
-  )
+
+  INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/include )
 
   ### Two servers...
   SET( C_SERVER_EXAMPLES
@@ -26,9 +23,7 @@ ELSE( NOT DIET_USE_BATCH )
   ENDFOREACH( loop_var )
   
   ### ... and their respective clients
-  SET( C_CLIENT_EXAMPLES
-    client
-     )
+  SET( C_CLIENT_EXAMPLES client )
   
   FOREACH( loop_var ${C_CLIENT_EXAMPLES} )
     ADD_EXECUTABLE( ${loop_var} ${loop_var}.c )

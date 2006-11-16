@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2006/11/16 09:55:55  eboix
+ *   DIET_config.h is no longer used. --- Injay2461
+ *
  * Revision 1.6  2006/10/31 23:14:46  ecaron
  * CoRI: Metric management
  *
@@ -17,11 +20,7 @@
 #define _CORI_METRIC_HH_
 
 #include "Cori_Data_Easy.hh"
-
-#include "DIET_config.h" 
-
 #include "Cori_Fast.hh"
-
 
 
 class Cori_Metric

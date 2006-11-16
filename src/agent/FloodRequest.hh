@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2006/11/16 09:55:54  eboix
+ *   DIET_config.h is no longer used. --- Injay2461
+ *
  * Revision 1.5  2006/05/12 12:12:32  sdahan
  * Add some documentation about multi-MA
  *
@@ -40,7 +43,6 @@
 #define _FLOOD_REQUEST_HH_
 
 #include "MasterAgentImpl.hh"
-#include "DIET_config.h"
 
 #ifdef HAVE_MULTI_MA
 

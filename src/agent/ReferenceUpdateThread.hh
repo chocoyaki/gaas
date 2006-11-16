@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2006/11/16 09:55:54  eboix
+ *   DIET_config.h is no longer used. --- Injay2461
+ *
  * Revision 1.2  2004/10/04 09:40:43  sdahan
  * warning fix :
  *  - debug.cc : change the printf format from %ul to %lu and from %l to %ld
@@ -26,8 +29,6 @@
 
 #ifndef _REFERENCE_UPDATE_THREAD_HH_
 #define _REFERENCE_UPDATE_THREAD_HH_
-
-#include "DIET_config.h"
 
 #ifdef HAVE_MULTI_MA
 

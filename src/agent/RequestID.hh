@@ -8,14 +8,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2006/11/16 09:55:54  eboix
+ *   DIET_config.h is no longer used. --- Injay2461
+ *
  * Revision 1.5  2005/04/28 13:14:31  eboix
  *    Inclusion of CORBA.h substituted with omniORB4/CORBA.h --- Injay 2461
  *
  * Revision 1.4  2003/04/10 13:03:01  pcombes
  * Apply Coding Standards.
- *
- * Revision 1.3  2003/01/22 17:12:48  pcombes
- * #include "DIET_config.h" is better than #include "omniorb.hh"
  *
  * Revision 1.2  2003/01/22 14:56:30  pcombes
  * Add omniORB3 compatibility
@@ -28,7 +28,6 @@
 #define _REQUEST_ID_
 
 #include <omniORB4/CORBA.h>
-#include "DIET_config.h"
 
 /**
  * This is the identifier type for a request.

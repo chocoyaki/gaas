@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2006/11/16 09:55:56  eboix
+ *   DIET_config.h is no longer used. --- Injay2461
+ *
  * Revision 1.28  2006/07/11 08:59:10  ycaniou
  * .Batch queue is now read in the serveur config file (only one queue
  * supported).
@@ -70,7 +73,6 @@ using namespace std;
 #include "Parsers.hh"
 #include "assert.h"
 #include "debug.hh"
-#include "DIET_config.h"
 #include "ms_function.hh"
 
 /** The trace level. */

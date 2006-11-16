@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.96  2006/11/16 09:55:54  eboix
+ *   DIET_config.h is no longer used. --- Injay2461
+ *
  * Revision 1.95  2006/11/07 11:56:16  rbolze
  * Workflow support: make useMaDagSched in the right place.
  *
@@ -126,14 +129,8 @@
  * DIET for several years.  Can easily be uncommented when someone decides to
  * do research on contract checking.  Fix tested at Orsay.
  *
- * Revision 1.70  2006/01/20 10:14:37  eboix
- *    - Odd references to acDIET_config.h changed to DIET_config.h  --- Injay2461
- *
  * Revision 1.69  2006/01/13 10:40:53  mjan
  * Updating DIET for next JuxMem (0.2)
- *
- * Revision 1.68  2005/11/10 14:37:51  eboix
- *     Clean-up of Cmake/DIET_config.h.in and related changes. --- Injay2461
  *
  * Revision 1.67  2005/09/05 16:07:33  hdail
  * Addition of hostname and location information to client and in submit call.
@@ -173,7 +170,6 @@ using namespace std;
 #include <string.h>
 #include <math.h>
 
-#include "DIET_config.h"
 #include "debug.hh"
 #include "est_internal.hh"
 #include "DIET_data_internal.hh"

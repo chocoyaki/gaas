@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2006/11/16 09:55:54  eboix
+ *   DIET_config.h is no longer used. --- Injay2461
+ *
  * Revision 1.3  2005/11/21 15:48:58  eboix
  *  - src/agent/BindService.hh: CORBA.h now included as omniORB4/CORBA.h.
  *  - Clean up of wired in options of Cmake/DIET_config.h.in
@@ -31,8 +34,6 @@
 
 #ifndef _BIND_SERVICE_HH_
 #define _BIND_SERVICE_HH_ 1
-
-#include "DIET_config.h"
 
 #ifdef HAVE_MULTI_MA
 

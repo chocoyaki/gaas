@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2006/11/16 09:55:56  eboix
+ *   DIET_config.h is no longer used. --- Injay2461
+ *
  * Revision 1.13  2006/01/25 21:08:00  pfrauenk
  * CoRI - plugin scheduler: the type diet_est_tag_t est replace by int
  *        some new fonctions in DIET_server.h to manage the estVector
@@ -78,7 +81,6 @@
 
 #include "est_internal.hh"
 
-#include "DIET_config.h"
 #include "debug.hh"
 #include "marshalling.hh"
 #include "Parsers.hh"

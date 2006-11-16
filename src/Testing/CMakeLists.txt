@@ -44,9 +44,7 @@ IF( BUILD_TESTING )
   INCLUDE_DIRECTORIES(
     ${OMNIORB4_INCLUDE_DIR}
     ${DIET_SOURCE_DIR}/src/CORBA
-    ${DIET_BINARY_DIR}/include   # CLEANME: must preceed source/include
-                                 # to take cmake-generated DIET_config.h
-    ${DIET_SOURCE_DIR}/include   # CLEANME: for DIET_data.h
+    ${DIET_SOURCE_DIR}/include   # for DIET_data.h
   )
 
   # Add each atomic test:

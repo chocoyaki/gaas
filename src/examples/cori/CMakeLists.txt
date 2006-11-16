@@ -3,11 +3,8 @@
 IF( NOT DIET_USE_CORI )
   MESSAGE( STATUS "Cori related example NOT compiled." )
 ELSE( NOT DIET_USE_CORI )
-  INCLUDE_DIRECTORIES(
-    ${DIET_BINARY_DIR}/include          # FIXME: must preceed source/include
-                                        # to take cmake-generated DIET_config.h
-    ${DIET_SOURCE_DIR}/include
-  )
+
+  INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/include )
 
   ### A server...
   ADD_EXECUTABLE( server server.c )

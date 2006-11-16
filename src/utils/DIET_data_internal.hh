@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2006/11/16 09:55:55  eboix
+ *   DIET_config.h is no longer used. --- Injay2461
+ *
  * Revision 1.3  2005/04/08 13:08:12  hdail
  * Remove very old sections of code surrounded by DEVELOPPING_DATA_PERSISTENCY
  * but where top of file has included #define DEVELOPPING_DATA_PERSISTENCY 0
@@ -42,7 +45,6 @@
 #define _DIET_DATA_INTERNAL_HH_
 
 #include "common_types.hh"
-#include "DIET_config.h"
 #include "DIET_data.h"
 #include "DIET_server.h"
 

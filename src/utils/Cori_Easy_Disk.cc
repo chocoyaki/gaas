@@ -8,11 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2006/11/16 09:55:55  eboix
+ *   DIET_config.h is no longer used. --- Injay2461
+ *
  * Revision 1.8  2006/10/31 23:01:54  ecaron
  * CoRI: Disk ressource collector
  *
  ****************************************************************************/
-#include "DIET_config.h"
 #if CORI_HAVE_SYS_TIME
 #include <sys/time.h>
 #endif //CORI_HAVE_SYS_TIME

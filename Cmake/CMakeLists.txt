@@ -16,22 +16,6 @@ INSTALL_FILES(
   ${CMAKE_BINARY_DIR}/include/Makefile.inc
 )
 
-
-# --------------------- COPY THE CONFIGURATION FILE -----------------------
-### FIXME: this is to avoid conflicting with the autotools generated version
-### of the config file contained in directory ${DIET_SOURCE_DIR}/include
-### and which depends on autoconf generated acDIET_config.h.
-### When we get rid of the autotools stuff (if such thing happens)
-### simply overwrite ${DIET_SOURCE_DIR}/include/DIET_config.h with
-### Cmake/DIET_config.h.in
-CONFIGURE_FILE(
-  DIET_config.h.in
-  ${DIET_BINARY_DIR}/include/DIET_config.h
-  COPYONLY
-  IMMEDIATE )
-
-INSTALL_FILES( /include/ FILES ${DIET_BINARY_DIR}/include/DIET_config.h )
-
 ADD_SUBDIRECTORY( Ctest )
 
 # FIXME: wait until cmake disposes of a more powerful INSTALL_FILES

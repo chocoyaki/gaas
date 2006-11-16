@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.61  2006/11/16 09:55:52  eboix
+ *   DIET_config.h is no longer used. --- Injay2461
+ *
  * Revision 1.60  2006/09/18 19:46:06  ycaniou
  * Corrected a bug in file_transfer:server.c
  * Corrected memory leaks due to incorrect free of char *
@@ -72,9 +75,6 @@
  * CoRI - plugin scheduler: the type diet_est_tag_t est replace by int
  *        some new fonctions in DIET_server.h to manage the estVector
  *
- * Revision 1.49  2006/01/20 10:14:37  eboix
- *    - Odd references to acDIET_config.h changed to DIET_config.h  --- Injay2461
- *
  * Revision 1.48  2006/01/19 21:18:47  pfrauenk
  * CoRI: adding 2 new functions - correction of some comments
  *
@@ -84,9 +84,6 @@
  * Revision 1.46  2005/12/20 07:52:44  pfrauenk
  * CoRI functionality added: FAST is hided, information about number of processors,
  * amount of available memory and of free cpu are provided
- *
- * Revision 1.45  2005/11/10 14:37:51  eboix
- *     Clean-up of Cmake/DIET_config.h.in and related changes. --- Injay2461
  *
  * Revision 1.44  2005/08/31 14:41:49  alsu
  * New plugin scheduling interface: implementation of the new public
@@ -105,7 +102,6 @@ using namespace std;
 #include <unistd.h>  // For gethostname()
 #include <stdlib.h>
 
-#include "DIET_config.h"
 #include "DIET_server.h"
 
 #include "debug.hh"
