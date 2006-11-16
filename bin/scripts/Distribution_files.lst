@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.8  2006/11/16 08:57:17  eboix
+#* Removed presumably all autotools related files. Cmake rulez ? --- Injay2461
+#*
 #* Revision 1.7  2006/11/06 14:11:58  eboix
 #* CMakeLists.txt should (because sometimes they must) be untemplated. - Injay2461
 #*
@@ -491,6 +494,14 @@ doc/UsersManual/xml_example.tex
 [Untemplated]
 doc/UsersManual/DIET_UsersManual.ps
 doc/Doxyfile.in
+
+# Doc/ExternalExample section
+[Untemplated]
+doc/ExternalExample/README
+doc/ExternalExample/simple_client.c
+doc/ExternalExample/simple_server.c
+doc/ExternalExample/Makefile
+doc/ExternalExample/CMakeLists.txt
 
 # Ici, je mets les sources des documents dans les [Devel_*] pour ne laisser que
 # le ps final dans la distrib normale. Du coup, le répertoire doc/ aura des

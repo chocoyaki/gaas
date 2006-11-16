@@ -1,0 +1,2 @@
+The include files present in this directory represent DIET API except for
+grpc.h (which is a kludge for respecting the Grid RPC API).
