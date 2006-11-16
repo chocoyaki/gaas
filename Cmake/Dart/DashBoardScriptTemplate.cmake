@@ -34,7 +34,7 @@ ENDIF( ${CTEST_SCRIPT_ARG} MATCHES Experimental )
 IF( ${CTEST_SCRIPT_ARG} MATCHES Continuous )
   SET( MODEL Continuous )
   SET ( CTEST_CONTINUOUS_DURATION 600 )
-  SET ( CTEST_CONTINUOUS_MINIMUM_INTERVAL 10 )
+  SET ( CTEST_CONTINUOUS_MINIMUM_INTERVAL 60 )
   # SET ( CTEST_START_WITH_EMPTY_BINARY_DIRECTORY_ONCE 1 )
 ENDIF( ${CTEST_SCRIPT_ARG} MATCHES Continuous )
 
@@ -101,6 +101,10 @@ DIET_USE_JXTA:BOOL=ON
 //Build DIET with workflow support...
 DIET_USE_WORKFLOW:BOOL=ON
 XERCES_DIR:PATH=$ENV{HOME}/local/xerces-c-2_7_0
+
+///////////////////////////////////////////////// WITH_ALTPREDICT OPTION
+//Build DIET with ALTernative performance PREDICTion support.
+DIET_WITH_ALTPREDICT:BOOL=ON
 
 ///////////////////////////////////////////////// WITH_MULTI_MA OPTION
 //Build DIET with MULTI-Master-Agent support.

@@ -9,12 +9,12 @@ SET( CTEST_CMAKE_COMMAND "$ENV{HOME}/local/bin/cmake" )
 SET( CVS_MODULE_DIRECTORY "GRAAL/devel/diet/diet" )
 
 ####################### Source and binary directory:
-SET( CTEST_SOURCE_DIRECTORY "$ENV{HOME}/DashboardDiet/ble/cvs/${CVS_MODULE_DIRECTORY}" )
+SET( CTEST_SOURCE_DIRECTORY "$ENV{HOME}/DashboardDiet/milJuxmem/cvs/${CVS_MODULE_DIRECTORY}" )
 SET( CTEST_BINARY_DIRECTORY "${CTEST_SOURCE_DIRECTORY}/Bin" )
 
 SET( CTEST_CVS_COMMAND "/usr/bin/cvs" )
 
-SET( CTEST_CVS_CHECKOUT "${CTEST_CVS_COMMAND} -d:ext:dart@graal.ens-lyon.fr:/home/CVS/graal co -N -d$ENV{HOME}/DashboardDiet/ble/cvs ${CVS_MODULE_DIRECTORY}" )
+SET( CTEST_CVS_CHECKOUT "${CTEST_CVS_COMMAND} -d:ext:dart@graal.ens-lyon.fr:/home/CVS/graal co -N -d$ENV{HOME}/DashboardDiet/milJuxmem/cvs ${CVS_MODULE_DIRECTORY}" )
 
 # Using the script argument (and defaulting to Nightly):
 SET( MODEL Nightly )
@@ -47,29 +47,17 @@ SET( CTEST_INITIAL_CACHE "
 
 /////////////////////////////////////////////// LOCALISATION
 //Name of the build
-BUILDNAME:STRING=Debian-GCC_3.3.5-Docs-Batch-Blas-Fd-Juxmem-Mma-Workflow
+BUILDNAME:STRING=Debian-GCC_3.3.5-Juxmem
 
 //Name of the computer/site where compile is being run
-SITE:STRING=ble.ens-lyon.fr
+SITE:STRING=mil.ens-lyon.fr
 
 //////////////////////////////////////////////// GENERAL SETTING
 CMAKE_BUILD_TYPE:STRING=Maintainer
 OMNIORB4_DIR:PATH=$ENV{HOME}/local/omniORB-4.0.7
 
-///////////////////////////////////////////////// BUILD_DOCUMENTATION OPTION
-DIET_BUILD_DOCUMENTATION:BOOL=ON
-
 ///////////////////////////////////////////////// BUILD_EXAMPLES OPTION
 DIET_BUILD_EXAMPLES:BOOL=ON
-
-///////////////////////////////////////////////// USE_BATCH OPTION
-DIET_USE_BATCH:BOOL=ON
-APPLESEEDS_DIR:PATH=$ENV{HOME}/local/appleseeds-2.2.1
-
-///////////////////////////////////////////////// USE_BLAS OPTION
-DIET_BUILD_BLAS_EXAMPLES:BOOL=ON
-FOUND_CBLAS:FILEPATH=/usr/lib/libcblas.so
-FOUND_f77BLAS:FILEPATH=/usr/lib/libf77blas.so
 
 ///////////////////////////////////////////////// USE_CORI OPTION
 //Build DIET with CORI support.
@@ -79,23 +67,10 @@ DIET_USE_CORI:BOOL=ON
 //Build DIET for dart reporting...
 DIET_USE_DART:BOOL=ON
 
-///////////////////////////////////////////////// USE_FD OPTION
-//Use Diet Fault Detector.
-DIET_USE_FD:BOOL=ON
-
 ///////////////////////////////////////////////// USE_JUXMEM OPTION
 //Build DIET with JuxMem support.
 DIET_USE_JUXMEM:BOOL=ON
 JUXMEM_DIR:PATH=$ENV{HOME}/local/juxmem-0.3
-
-///////////////////////////////////////////////// USE_WORKFLOW OPTION
-//Build DIET with workflow support...
-DIET_USE_WORKFLOW:BOOL=ON
-XERCES_DIR:PATH=$ENV{HOME}/local/xerces-c-2_7_0
-
-///////////////////////////////////////////////// WITH_MULTI_MA OPTION
-//Build DIET with MULTI-Master-Agent support.
-DIET_WITH_MULTI_MA:BOOL=ON
 
 ")
 
