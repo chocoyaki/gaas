@@ -8,6 +8,10 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.13  2006/11/16 14:09:20  eboix
+%* - Programmers guide converted from autotools to cmake.
+%* - cmake summary deported to Cmake sub-dir.   --- Injay2461
+%*
 %* Revision 1.12  2006/01/25 20:38:00  pfrauenk
 %* CoRI errata about estVectors reformed
 %*
@@ -56,35 +60,32 @@ the \textsf{doc} directory.
 \label{s:doc}
 
 This directory contains documentations that are to be maintained up-to-date,
-  even in CVS, (\emph{ie} \textbf{not only for releases !}):
+even in CVS, (\emph{ie} \textbf{not only for releases !}):
 
   \begin{itemize}
-  \item The \textit{User's Manual}, in \textsf{UsersManual}. Its output file is
-  \texttt{DIET\_UsersManual.ps}, which is intalled in
-  \texttt{$<$install\_dir$>$/doc}.
-  \item This \textit{Programmer's Guide}, in \textsf{ProgrammersGuide}. Its output
-  file is \texttt{DIET\_ProgrammersGuide.ps}, which is intalled in
-  \texttt{$<$install\_dir$>$/doc}, \textbf{if} DIET has been configured in
-  maintainer mode.
-  \item A tutorial, but only in the CVS version, since the distribution of this
-  tutorial is apart from the distribution of the source code.
+  \item \textsf{doc/UsersManual} contains the \textit{User's Manual}. 
+     Its output file is \texttt{DIET\_UsersManual.ps}, which is intalled in
+     \texttt{$<$install\_dir$>$/doc}.
+  \item \textsf{doc/ProgrammersGuide} holds the \textit{Programmer's Guide}.
+     Its output file is \texttt{DIET\_ProgrammersGuide.ps}, which is intalled
+     in \texttt{$<$install\_dir$>$/doc}, \textbf{if} DIET has been configured
+     in maintainer mode.
+  \item \textsf{doc/Tutorial} holds a tutorial, which is only available
+     in the CVS version, since the distribution of this tutorial is apart
+     from the distribution of the source code.
+  \item \textsf{doc/ExternalExample} contains a minimal set of files
+     that enable to illustate how a DIET user can compile and link
+     against an installation of DIET.
+     This can be done both with \verb+make+ and \verb+cmake+.
+     Note that the purpose of this directory is not to demonstrate
+     DIET features.
+     Nevertheless, the very simple DIET client/server example is effective
+     DIET code.
   \end{itemize}
 
-  The compilation of this documentation may require too recent versions of \LaTeX
-  and of various converters for the figures. That is why, the output \textsf{.ps}
-  files are included in the distributions.
-
-
-  The \makeam\ of the distributed documents have this particular that they build
-  the names of the initial \textsf{.tex} to compile and the \textsf{.ps} file to
-  generate from the name of the directory (stored in the variable \verb+$(mod)+).
-  %$
-
-  Finally, to avoid having several copies of the same figure, the
-  \textit{Programmer's Guide} uses the DIET logo of the \textit{User's Manual},
-  which complicates a bit the \makeam.
-
-
+  The compilation of this documentation may require too recent versions of
+  \LaTeX and of various converters for the figures.
+  This is why, the output \textsf{.ps} files are included in the distributions.
 
   \section{\textsf{include}}
   \label{s:include}
@@ -95,9 +96,11 @@ This directory contains documentations that are to be maintained up-to-date,
   complete API of DIET, for the client side as well as for the server side.
 
   Nevertheless, there is also a \texttt{Makefile.inc.in} which will be configured
-  into a \texttt{Makefile.inc}. The latter is to be included by the \make\ of the
-  DIET user, to set all options and variables necessary for compiling and linking
-  with the DIET libraries. It may be noticed that some variables are affected with
+  into a \texttt{Makefile.inc}.
+  The latter is to be included by the \texttt{Makefile} of the
+  DIET user, to set all options and variables necessary for compiling and
+  linking with the DIET libraries.
+  It may be noticed that some variables are affected with
   \texttt{?=} ; it is because the \texttt{Makefile.inc} is also included by the
   DIET examples, which need to define a different prefix as long as the
   \texttt{make install} has not been invoked.
@@ -936,3 +939,8 @@ the ACI\_PACKAGE macros (\texttt{--with-BLAS=}, ...)
   access to it. Read carefully the doxygen documentation to know which one to use
   and how-to use it.
 
+\section{\textsf{Cmake}}
+\label{s:Cmake}
+
+This directory gathers the cmake related scripts that cmake authorizes to
+be deported here.

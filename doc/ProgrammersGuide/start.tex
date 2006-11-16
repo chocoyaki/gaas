@@ -8,6 +8,10 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.8  2006/11/16 14:09:20  eboix
+%* - Programmers guide converted from autotools to cmake.
+%* - cmake summary deported to Cmake sub-dir.   --- Injay2461
+%*
 %* Revision 1.7  2006/01/25 17:26:04  pfrauenk
 %* CoRI : Some useful information about CoRI now available
 %*
@@ -75,118 +79,36 @@ into the files headers.
 \section{Bootstrapping}
 
 The compilation of DIET is managed by Makefiles generated and
-configured with the autotools. \textsf{automake} generates a \makein\
-in each directory where there is a \makeam. \textsf{autoconf}
-generates a \configure\ script from a \texttt{configure.ac} and all m4
-macros in \texttt{acmacro}. This script fills in all
-configuration-dependent fields of the \makein\ files to generate the
-final Makefiles - see Figure \ref{fig:autochain}.
+configured with \cmake.
+\cmake generates a Makefile in each directory where there is a
+\CMakeLists\ file.
 
 If you have to add a file, or if you have to modify the compilation
 dependence of an existing file in DIET, then you will have to modify a
-\makeam, and this requires \textsf{automake 1.7} or higher. Please
-make sure you have it installed on your system.
-
-
-\begin{figure}[hbt]
-\begin{center}
-\includegraphics[scale=.65]{fig/autotools_chain.eps}
-\end{center}
-\caption{The autotools chain}\label{fig:autochain}
-\end{figure}
-
-We have added to the root of the source code tree a short script that
-performs the most part of the chain: \textsf{bootstrap.sh}. As long as
-you have the right version of the autotools (\textsf{automake} is the
-reference), \textsf{bootstrap.sh} will do everything but the
-configuration of the \makein\ files.\\
-
-%\fixme{Christophe - Tell more about the versions and the libtool}\\
-
-You will find more details about Autotools and Bootstrap.sh shell
-script  (which contains calls to libtoolize, aclocal, autoheader,
-automake and  autoconf) in Annexe 1.
-
-
-\noindent
-\fbox{\textbf{NB}} In the maintainer distribution, the bootstrapping
-has been already performed, so that there is no need for
-\textsf{automake 1.7} if you simply intent to modify a
-file. Nevertheless, there are also all the files necessary for
-regenerating the autotools chain as long as you have \textsf{automake
-1.7} installed. So that you can also alter the \makeam.
-
-\noindent
-\fbox{\textbf{NB}} Currently, DIET is developped with at least libtool
-1.4.3, automake 1.7.3 and autoconf 2.57. Previous version of these
-tools can generate misbehavior or cannot collaborate correctly.
+\CMakeLists. 
 
 \section{Configuring and compiling as a programmer}
 
-Among the numerous options of the \configure\ script, there is a
-feature that a programmer should enable:
-\texttt{--enable-maintainer-mode}. Enabling this feature
-\begin{description}
-\item{}makes the \make\ and \makein\ files dependent from the
-    associated \makeam, i.e., when executing \texttt{make} in the
-    directory where a \makeam\ is changed (directly, or through an
-    upper-level \texttt{make}), the \makein\ is first regenerated and
-    then configured into the \make\ with the options used at the first
-    configuration~;
-\item{}activates all the parts of the \makeam\ files enclosed between
-    the instrutions \texttt{\footnotesize if MAINTAINER\_MODE} and the
-    matching \texttt{\footnotesize else or endif}, such as:
-    \begin{itemize}
-    \item{combined with \texttt{--enable-doc}, the compilation of this
-        Programmer's Guide and the generation of the Doxygen
-        documentation (in doc/API);}
-    \item{the files to remove or add to the distribution archive: in
-        maintainer mode, the target \texttt{distrib} of the root \make
-        generated a maintainer mode archive;}
-    \item{the addition of the flag \texttt{-g} in the compilations
-        (instead of \texttt{-O2} in the user version;}
-    \item{the compilation of the classical examples (see section
-        \ref{s:examples}) which is disabled by default in user mode.}
-    \end{itemize}
-\end{description}
+Among the numerous options provided by the top \CMakeLists\ a
+programmer should set the \verb+CMAKE_BUILD_TYPE+ to \verb+Maintainer+.
+When doing so the compilers and linkers go paranoid and try to report
+about most of the warning they are aware of.
+Since the warning flags are compiler dependent this Maintainer build mode
+is alas only available for GCC.
 
-As the maintainer mode option alters significantly the behaviour of
-the compilation, we strongly recommend to configure and compile in a
-different directory than the root of the source code tree. This has
-got two main advantages:
-\begin{enumerate}
-\item{the CVS operations, such as diffing or committing, are greatly
-    eased in the source code tree (no need to worry about the
-    generated files, except \makein)~;}
-\item{as it is important that the programmer knows exactly how his
-  modifications will behave from the user point of view, it is better
-  to keep a directory configured whithout the maintainer mode option,
-  and to test the changes in the user mode as well as in the developer
-  mode. But, it is not possible to configure with maintainer mode in
-  the source code tree, and without in another tree (the presence of
-  the \make\ in the root directory will make the second configuration
-  fail.}
-\end{enumerate}
-The other options for the \configure\ script are described in its help
-(\texttt{--help} option). Here is the example of my source tree, got
-from the CVS server:
+Here is the example of my source tree, got from the CVS server:
 \begin{verbatim}
 ~ > cvs checkout GRAAL/devel/diet
 ~ > cd GRAAL/devel/diet
-~/GRAAL/devel/diet > mkdir build_dev build_usr
-~/GRAAL/devel/diet > cd build_usr
-~/GRAAL/devel/diet/build_usr > ../configure --srcdir=.. <options>
-...
-~/GRAAL/devel/diet/build_usr > cd ../build_dev
-~/GRAAL/devel/diet/build_usr > ./configure --srcdir=.. --enable-maintainer-mode
-<same options>
+~ > mkdir Build ; cd Build
+~ > cmake -DCMAKE_BUILD_TYPE:STRING=Maintainer <options> ..
 ...
 \end{verbatim}
 
-Finally, it is also strongly recommended to make your modifications
-using FAST, or at least to test them with a whole platform before
-submitting them. A script \texttt{local\_platform} is given with the
-distrbution (in \textsf{bin/scripts}), which launches
+Finally, it is also strongly recommended to test your modifications
+with a whole platform before submitting them.
+A script \texttt{local\_platform} is given with the distribution
+(in \textsf{bin/scripts}), which launches
 \begin{itemize}
 \item a mini LDAP base with the services \textsf{base/mult},
   \textsf{base/plus}, and \textsf{dgemm}, with the output of the FAST
@@ -225,11 +147,11 @@ about the way DIET is structured, please respect the following steps:
 
 %\fixme{Christophe - please check up and complete this part}\\
 
-Understanding the conception of a \makeam\ in DIET is not that
-easy. The problem is that we have to build two libraries
-(\textsf{DIET\_client} and \textsf{DIET\_SeD}) and one binary
-executable (\textsf{dietAgent}) using great amount of common source
-code.
+Understanding the conception of a \CMakeLists\ in DIET is quite
+straightfoward.
+Basically, we have to build two libraries (\textsf{DIET\_client}
+and \textsf{DIET\_SeD}) and one binary executable (\textsf{dietAgent})
+using great amount of common source code.
 
 \subsection{Adding a file in a ``terminal'' directory}
 
@@ -237,59 +159,52 @@ A ``terminal'' directory is a directory where a library or an
 executable is generated.\\
 
 Let us take the example of the generation of the executable
-\textsf{dietAgent}.  It is declared in the Makefile variable
-\texttt{bin\_PROGRAMS}, and the corresponding variable
-\texttt{dietAgent\_SOURCES} lists all source files of the current
-diectory involved in this executable. The names of the variables are
-important, since they tell \textsf{automake} what to compile and how.
+\textsf{dietAgent}.
+It is defined in the \texttt{src/agent/CMakeLists.txt}
+with the following \cmake instructions:
 \begin{verbatim}
-bin_PROGRAMS = dietAgent
-dietAgent_SOURCES = dietAgent.cc AgentImpl.cc ...
+ADD_EXECUTABLE( dietAgent dietAgent.cc )
+TARGET_LINK_LIBRARIES( dietAgent AgentCommon)
 \end{verbatim}
+
 For the \textsf{DIET\_SeD} library, for instance, it would be:
 \begin{verbatim}
-lib_LTLIBRARIES = libDIET_SeD.la
-libDIET_SeD_la_SOURCES = DIET_server.cc SeDImpl.cc
+SET( DIET_SeD_SOURCES
+  DIET_server.cc
+  DataMgrImpl.cc
+  SeDImpl.cc
+)
+ADD_LIBRARY( DIET_SeD ${DIET_SeD_SOURCES} )
+TARGET_LINK_LIBRARIES( DIET_SeD
+  CorbaCommon
+  IDLAgent IDLCommon
+  UtilsCommon UtilsNodes UtilsSeDClt UtilsVector
+  ${OMNIORB4_LIBRARIES}
+)
 \end{verbatim}
 
-The source files in the other directories are not included directly,
-but as temporary libraries (\textsf{.la}). They are taken into account
-thanks to the Makefile variable \texttt{dietAgent\_LDADD} (or
-\texttt{libDIET\_SeD\_la\_LIBADD}) that lists all the temporary
-libraries to include in the generation of \textsf{dietAgent}
-(resp. \textsf{libDIET\_SeD.a} and \textsf{libDIET\_SeD.so}).\\
-
 Thus, adding a \texttt{.cc} file in a ``terminal'' directory implies
-only adding its name in the \texttt{*\_SOURCES} variable. If there is
-an associated \texttt{.hh} (or a header file alone), it has to be
-added in the variable \texttt{noinst\_HEADERS} (the headers that we do
-not want to copy in the \texttt{$<$install\_dir$>$/include} directory
-- see section \ref{s:include})
-
+only adding its name in the \texttt{*\_SOURCES} variable.
 
 \subsection{Adding a file in a ``non-terminal'' directory}
 
 In a ``non-terminal'' directory, we have to generate temporary
-libraries (\textsf{.la}) that will be included in the final libraries
+libraries that will be included in the final libraries
 or executables. Of course it is possible to group all files of the
-directory in a big library: \\
-\begin{tabular}{l}
-\tt
-noinst\_LTLIBRARIES = libBIGLIBRARY.la\\
-\tt
-libBIGLIBRARY\_la\_SOURCES = \$(wildcard *.cc)\\
-\end{tabular}
-\\ But this will make the final libraries and executables much bigger
-than necessary, since they would include dead code (code that they
-would never use) That is why we decided to group the files of each
-directory into different libraries, depending on the ``destinations''
-of the modules\footnote{A module consists of a \textsf{.h} or
-\textsf{.hh} and its associated \textsf{.c} or \textsf{.cc}. For
-instance, the header and the implementation of a class.},
-i.e. depending on the final binaries that use them. Please refer to
-the dependency table \ref{t:dep}, which every DIET programmer is asked
-to maintain whereas he alters the repartition of these libraries,
-because of new files or modifications that change the dependencies.  \\
+directory in a big library, but this would make the final libraries
+and executables much bigger than necessary, since they would include
+dead code (code that they would never use).
+This is why we decided to group the files of each directory into
+different libraries, depending on the ``destinations''
+of the modules
+\footnote{A module consists of a \textsf{.h} or
+\textsf{.hh} and its associated \textsf{.c} or \textsf{.cc}.
+For instance, the header and the implementation of a class.},
+i.e.~depending on the final binaries that use them.
+Please refer to the dependency table \ref{t:dep}, which every
+DIET programmer is asked to maintain whereas he alters the repartition
+of these libraries, because of new files or modifications that
+change the dependencies.  \\
 
 \noindent
 To add a new module in a non-terminal directory,
@@ -300,16 +215,8 @@ To add a new module in a non-terminal directory,
   the library that matches the same combination of 'x' in the table,
   or if none, a new one.
 \item Add the \textsf{.cc} file in the corresponding
-  \texttt{*\_SOURCES} variable of the \makeam\ in the directory. For
-  instance:\\ \texttt{libCorbaCommon\_la\_SOURCES = ORBMgr.cc
-  marshalling.cc}
-\item If you have created a new temporary library, just add its
-  relative path and name in the \texttt{*\_LDADD} Makefile variables
-  of the binaries that need it.
+  \texttt{*\_SOURCES} variable of the \CMakeLists\ in the directory.
 \end{enumerate}
-To add a header only (such as \texttt{src/agent/NodeDescription.hh}),
-just complete the variable \texttt{noinst\_HEADERS} in the \makeam\ of
-the directory.  \\
 
 \begin{table}[h]
  \footnotesize
@@ -424,13 +331,6 @@ add the directory in the CVS repository, since this has nothing to do
 here.
 
 Once it has been decided to add a new directory, and once its own
-\makeam\ is written, then it has to be reported
-\begin{itemize}
-\item in the \makeam\ of its parent directory: it must be added in the
-  variable \texttt{SUBDIRS}, and also in \texttt{DIST\_SUBDIRS} if it
-  is expected to appear in the final distribution;
-\item in the root \texttt{configure.ac}, where all the \makein to
-  create (and to configure) are listed - macro
-  \texttt{AC\_CONFIG\_FILES}.
-\end{itemize}
-
+\CMakeLists\ is written, then it has to be reported
+in the \CMakeLists\ of its parent directory.
+It should be added with a \texttt{ADD\_SUBDIRECTORY} command.
