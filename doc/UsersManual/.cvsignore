@@ -1,10 +1,8 @@
-DIET-1.1_UsersManual.ps
-Makefile
-Makefile.in
 UsersManual.aux
 UsersManual.bbl
 UsersManual.blg
 UsersManual.dvi
 UsersManual.log
 UsersManual.toc
+UsersManual.pdf
 batch.tex
