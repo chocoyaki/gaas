@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.13  2006/11/17 17:50:11  dart
+#* and more packaging fixes... ---Injay2461
+#*
 #* Revision 1.12  2006/11/17 17:01:35  dart
 #* *** empty log message ***
 #*
@@ -64,6 +67,7 @@ Cmake/ConfigureCCompiler.cmake
 Cmake/ConfigureCORI.cmake
 Cmake/DietConfig.cmake.in
 Cmake/DietDefaultBuildTypes.cmake
+Cmake/DisplaySummary.cmake
 Cmake/FindAppleSeeds.cmake
 Cmake/FindBLAS.cmake
 Cmake/FindDiet.cmake
@@ -275,6 +279,10 @@ src/examples/scalars/server.c
 [Untemplated]
 src/examples/workflow/CMakeLists.txt
 [Templated]
+src/examples/workflow/client_file.c
+src/examples/workflow/client_matrix.c
+src/examples/workflow/client_scalar.c
+src/examples/workflow/client_string.c
 src/examples/workflow/double.c
 src/examples/workflow/file_manip.c
 src/examples/workflow/generic_client.c
@@ -282,6 +290,7 @@ src/examples/workflow/int2str.c
 src/examples/workflow/mat_op.c
 src/examples/workflow/mul_succ.c
 src/examples/workflow/mul_sum.c
+src/examples/workflow/progs.h
 src/examples/workflow/scalar_server.c
 src/examples/workflow/square.c
 src/examples/workflow/strlen.c
