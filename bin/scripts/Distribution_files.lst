@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.12  2006/11/17 17:01:35  dart
+#* *** empty log message ***
+#*
 #* Revision 1.11  2006/11/17 16:59:30  eboix
 #*  Packaging fixes. --- Injay2461
 #*
@@ -315,9 +318,6 @@ src/examples/JXTA/scripts/SeD1/SeD1_jxta_load.sh
 src/examples/JXTA/scripts/SeD2/SeD2_jxta_load.sh
 src/examples/JXTA/scripts/SeD3/SeD3_jxta_load.sh
 src/examples/JXTA/scripts/client/client_jxta_load.sh
-src/examples/workflow/godiet/
-src/examples/workflow/godiet/
-src/examples/workflow/godiet/
 src/examples/workflow/xml/file.xml
 src/examples/workflow/xml/matrix.xml
 src/examples/workflow/xml/scalar.xml
