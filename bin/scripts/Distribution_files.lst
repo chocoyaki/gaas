@@ -17,17 +17,11 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.11  2006/11/17 16:59:30  eboix
+#*  Packaging fixes. --- Injay2461
+#*
 #* Revision 1.10  2006/11/17 10:10:54  eboix
 #* Packing stage fixes. --- Injay2461
-#*
-#* Revision 1.9  2006/11/16 09:55:50  eboix
-#*   DIET_config.h is no longer used. --- Injay2461
-#*
-#* Revision 1.8  2006/11/16 08:57:17  eboix
-#* Removed presumably all autotools related files. Cmake rulez ? --- Injay2461
-#*
-#* Revision 1.7  2006/11/06 14:11:58  eboix
-#* CMakeLists.txt should (because sometimes they must) be untemplated. - Injay2461
 #*
 #* Revision 1.6  2006/11/03 00:09:34  ecaron
 #* - Add Testing section (temporally)
@@ -72,13 +66,16 @@ Cmake/FindBLAS.cmake
 Cmake/FindDiet.cmake
 Cmake/FindFAST.cmake
 Cmake/FindJavaExtended.cmake
+Cmake/FindJuxmem.cmake
 Cmake/FindOmniORB.cmake
 Cmake/FindTestingUtils.cmake
 Cmake/FindTransfig.cmake
+Cmake/FindXerces.cmake
+Cmake/Makefile.inc.in
 Cmake/README
+Cmake/Ctest/CMakeLists.txt
 Cmake/Ctest/CTestCustom.ctest.in
 Cmake/Ctest/OmniDaemon.bash.in
-Cmake/Ctest/CMakeLists.txt
 
 # Include section
 [Untemplated]
