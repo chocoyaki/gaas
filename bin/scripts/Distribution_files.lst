@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.10  2006/11/17 10:10:54  eboix
+#* Packing stage fixes. --- Injay2461
+#*
 #* Revision 1.9  2006/11/16 09:55:50  eboix
 #*   DIET_config.h is no longer used. --- Injay2461
 #*
@@ -62,7 +65,6 @@ Cmake/CheckCCompilerConst.c
 Cmake/CheckCCompilerInline.c
 Cmake/ConfigureCCompiler.cmake
 Cmake/ConfigureCORI.cmake
-Cmake/ConfigureWf.cmake
 Cmake/DietConfig.cmake.in
 Cmake/DietDefaultBuildTypes.cmake
 Cmake/FindAppleSeeds.cmake
@@ -273,7 +275,6 @@ src/examples/scalars/server.c
 [Untemplated]
 src/examples/workflow/CMakeLists.txt
 [Templated]
-src/examples/workflow/client1.c
 src/examples/workflow/double.c
 src/examples/workflow/file_manip.c
 src/examples/workflow/generic_client.c
@@ -285,7 +286,6 @@ src/examples/workflow/scalar_server.c
 src/examples/workflow/square.c
 src/examples/workflow/strlen.c
 src/examples/workflow/succ.c
-src/examples/workflow/succ_float.c
 src/examples/workflow/sum.c
 
 [Untemplated]
@@ -318,9 +318,9 @@ src/examples/JXTA/scripts/SeD1/SeD1_jxta_load.sh
 src/examples/JXTA/scripts/SeD2/SeD2_jxta_load.sh
 src/examples/JXTA/scripts/SeD3/SeD3_jxta_load.sh
 src/examples/JXTA/scripts/client/client_jxta_load.sh
-src/examples/workflow/godiet/GoDIET.dtd
-src/examples/workflow/godiet/generate.sh
-src/examples/workflow/godiet/godiet-template.xml
+src/examples/workflow/godiet/
+src/examples/workflow/godiet/
+src/examples/workflow/godiet/
 src/examples/workflow/xml/file.xml
 src/examples/workflow/xml/matrix.xml
 src/examples/workflow/xml/scalar.xml
@@ -493,7 +493,7 @@ doc/UsersManual/server.tex
 doc/UsersManual/xml_example.tex
 
 [Untemplated]
-doc/UsersManual/DIET_UsersManual.ps
+doc/UsersManual/UsersManual.pdf
 doc/Doxyfile.in
 
 # Doc/ExternalExample section
@@ -515,6 +515,7 @@ doc/ExternalExample/CMakeLists.txt
 
 [Devel_Untemplated]
 doc/ProgrammersGuide/fig/CMakeLists.txt
+doc/ProgrammersGuide/ProgrammersGuide.pdf
 # Là, je me demande si ça pose problème à CMake de supprimer des
 # sous-répertoires. Si oui, il faut remettre le répertoire du PG et le
 # CMakeLists.txt dans une section [(Un)Templated]. Sinon, on peut virer ce PG de
@@ -551,7 +552,6 @@ doc/ProgrammersGuide/fig/DiagrammeConfigure.png
 doc/ProgrammersGuide/fig/DiagrammeGridRPCDietStructure.fig
 doc/ProgrammersGuide/fig/DietCancelSequenceDiagram.png
 doc/ProgrammersGuide/fig/WaitRulesClassDiagram.png
-doc/ProgrammersGuide/fig/autotools_chain.fig
 doc/ProgrammersGuide/fig/logo_DIET.gif
 
 doc/UsersManual/fig/CMakeLists.txt
