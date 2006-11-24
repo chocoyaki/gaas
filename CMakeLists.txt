@@ -30,9 +30,15 @@ OPTION( DIET_BUILD_LIBRARIES "Build DIET libraries." ON )
 OPTION( BUILD_SHARED_LIBS "Build libraries as shared libraries." ON )
 
 # --------------------- OPTIONS COHERENCE SANITY CHECKS --------------------
+  
+IF( DIET_BUILD_BLAS_EXAMPLES AND NOT DIET_BUILD_EXAMPLES )
+  MESSAGE( SEND_ERROR "For DIET_BUILD_BLAS_EXAMPLES to be effective you MUST also set DIET_BUILD_EXAMPLES" )
+ENDIF( DIET_BUILD_BLAS_EXAMPLES AND NOT DIET_BUILD_EXAMPLES )
+
 IF( NOT DIET_BUILD_LIBRARIES  AND DIET_BUILD_EXAMPLES )
   MESSAGE(SEND_ERROR "DIET_BUILD_LIBRARIES must be set for building examples.")
 ENDIF( NOT DIET_BUILD_LIBRARIES AND DIET_BUILD_EXAMPLES )
+
 # JXTA (see below) is used to provide functionalities similar to the ones
 # of the DIET_WITH_MULTI_MA. For the time being those two extensions
 # are not incompatible at compile time. Yet, requiring both probably

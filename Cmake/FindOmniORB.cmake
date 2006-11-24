@@ -17,9 +17,16 @@
 # compilation or because you installed it in an "unusual" directory).
 # Just set OMNIORB4_DIR to point to your specific installation directory.
 #
-# Warning: when set OMNIORB4_DIR will TAKE PRECEDENCE over the default
-#   system pathes ! This goes against the default behavior of cmake's
-#   FIND_* macros. For more on this debate see e.g.
+# $ENV{OMNIORB4_DIR} i.e. the environment variable (as opposed to OMNIORB4_DIR
+# which is the cmake variable with the same name) is also used to search for
+# an omniORB installation.
+#
+# WARNING: The order of precedence is the following
+#    1/ when set OMNIORB4_DIR (the cmake variable)
+#    2/ when set $ENV{OMNIORB4_DIR} (the environment variable)
+#    3/ the default system pathes !
+# This precedence order goes against the usual pratice and default behavior
+# of cmake's FIND_* macros. For more on this debate see e.g.
 #     http://www.mail-archive.com/kde-buildsystem@kde.org/msg00589.html
 #        
 #
@@ -31,32 +38,34 @@
 # but doesn't seem that obvious to newbies.
 # The logic we took is here to impose the detection of omniORB4, omnithread,
 # and omniDynamic4 libraries. Optionaly we search for libraries COS4 and
+# COSDynamic4 and when present we add them to list of required libraries.
+# [the logic is here: the installer of omniORB knows better...]
 #
 
 FIND_PATH( OMNIORB4_INCLUDE_DIR
   omniORB4/CORBA.h
-  PATHS ${OMNIORB4_DIR}/include
+  PATHS ${OMNIORB4_DIR}/include $ENV{OMNIORB4_DIR}/include
   NO_DEFAULT_PATH
 )
 FIND_PATH( OMNIORB4_INCLUDE_DIR omniORB4/CORBA.h )
 
 FIND_LIBRARY( OMNIORB4_LIBRARY_omniORB4
   NAMES omniORB4
-  PATHS ${OMNIORB4_DIR}/lib
+  PATHS ${OMNIORB4_DIR}/lib $ENV{OMNIORB4_DIR}/lib
   NO_DEFAULT_PATH
 )
 FIND_LIBRARY( OMNIORB4_LIBRARY_omniORB4 NAMES omniORB4 )
 
 FIND_LIBRARY( OMNIORB4_LIBRARY_omnithread
   NAMES omnithread
-  PATHS ${OMNIORB4_DIR}/lib
+  PATHS ${OMNIORB4_DIR}/lib $ENV{OMNIORB4_DIR}/lib
   NO_DEFAULT_PATH
 )
 FIND_LIBRARY( OMNIORB4_LIBRARY_omnithread NAMES omnithread )
 
 FIND_LIBRARY( OMNIORB4_LIBRARY_omniDynamic4
   NAMES omniDynamic4
-  PATHS ${OMNIORB4_DIR}/lib
+  PATHS ${OMNIORB4_DIR}/lib $ENV{OMNIORB4_DIR}/lib
   NO_DEFAULT_PATH
 )
 FIND_LIBRARY( OMNIORB4_LIBRARY_omniDynamic4 NAMES omniDynamic4 )
@@ -64,7 +73,7 @@ FIND_LIBRARY( OMNIORB4_LIBRARY_omniDynamic4 NAMES omniDynamic4 )
 ### Optional library
 FIND_LIBRARY( OMNIORB4_LIBRARY_COS4
   NAMES COS4
-  PATHS ${OMNIORB4_DIR}/lib
+  PATHS ${OMNIORB4_DIR}/lib $ENV{OMNIORB4_DIR}/lib
   NO_DEFAULT_PATH 
 )
 FIND_LIBRARY( OMNIORB4_LIBRARY_COS4 NAMES COS4 )
@@ -72,14 +81,14 @@ FIND_LIBRARY( OMNIORB4_LIBRARY_COS4 NAMES COS4 )
 ### Additional optional library
 FIND_LIBRARY( OMNIORB4_LIBRARY_COSDynamic4
   NAMES COSDynamic4
-  PATHS ${OMNIORB4_DIR}/lib
+  PATHS ${OMNIORB4_DIR}/lib $ENV{OMNIORB4_DIR}/lib
   NO_DEFAULT_PATH
 )
 FIND_LIBRARY( OMNIORB4_LIBRARY_COSDynamic4 NAMES COSDynamic4 )
 
 FIND_PROGRAM( OMNIORB4_IDL_COMPILER
   NAMES omniidl
-  PATHS ${OMNIORB4_DIR}/bin
+  PATHS ${OMNIORB4_DIR}/bin $ENV{OMNIORB4_DIR}/bin
   DOC "What is the path where omniidl (the idl compiler) can be found"
   NO_DEFAULT_PATH
 )
@@ -90,7 +99,7 @@ FIND_PROGRAM( OMNIORB4_IDL_COMPILER
 
 FIND_PROGRAM( OMNIORB4_OMNINAMES_COMMAND
   NAMES omniNames
-  PATHS ${OMNIORB4_DIR}/bin
+  PATHS ${OMNIORB4_DIR}/bin $ENV{OMNIORB4_DIR}/bin
   DOC "What is the path where omniNames (the ORB server) can be found"
   NO_DEFAULT_PATH
 )
