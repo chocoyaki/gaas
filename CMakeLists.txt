@@ -43,6 +43,12 @@ IF( DIET_WITH_MULTI_MA AND DIET_USE_JXTA )
  MESSAGE(SEND_ERROR "Either set DIET_WITH_MULTI_MA or DIET_USE_JXTA. Not both.")
 ENDIF( DIET_WITH_MULTI_MA AND DIET_USE_JXTA )
 
+# ALTPREDICT use DTM structure and don't support the JuxMEM add-on. 
+IF( DIET_WITH_ALTPREDICT AND DIET_USE_JUXMEM )
+ MESSAGE(SEND_ERROR "Either set DIET_WITH_ALTPREDICT or DIET_USE_JUXMEM. Not both.")
+ENDIF( DIET_WITH_ALTPREDICT AND DIET_USE_JUXMEM )
+
+
 # --------------------- DEPENDENCIES TOWARDS "CLASSIC" C++ HEADERS ---------
 # This is just a convenience to advance the detection of any potential missing
 # C++ "classic" header to the cmake stage. If we were to forget the following
