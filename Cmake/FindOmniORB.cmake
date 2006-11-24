@@ -6,7 +6,8 @@
 # OMNIORB4_FOUND        - When false, don't try to use omniORB
 # OMNIORB4_INCLUDE_DIR  - Directories to include to use omniORB
 # OMNIORB4_LIBRARIES    - Files to link against to use omniORB
-# OMNIORB4_IDL_COMPILER
+# OMNIORB4_IDL_COMPILER - The idl compiler command (when found)
+# OMNIORB4_VERSION      - A string of the form X.Y.Z representing the version
 # OMNIORB4_OMNINAMES_COMMAND - the omniNames ORB server command (when found)
 # OMNIORB4_DIR          - (optional) Suggested installation directory to search
 # 
@@ -155,8 +156,21 @@ IF( OMNIORB4_IDL_COMPILER )
   ENDIF( OMNIORB4_LIBRARY_COSDynamic4 )
   MARK_AS_ADVANCED( OMNIORB4_LIBRARY_COSDynamic4 )
 
+  # Optionaly, extract the the version number from the acconfig.h file:
+  IF( EXISTS ${OMNIORB4_INCLUDE_DIR}/omniORB4/acconfig.h )
+    FILE( READ ${OMNIORB4_INCLUDE_DIR}/omniORB4/acconfig.h OMNIORB_ACCONFIG_H )
+    STRING( REGEX MATCH "#define[\t ]+PACKAGE_VERSION[\t ]+\"([0-9]+.[0-9]+.[0-9]+)\"" OMNIORB_ACCONFIG_H "${OMNIORB_ACCONFIG_H}" )
+    STRING( REGEX REPLACE ".*\"([0-9]+.[0-9]+.[0-9]+)\".*" "\\1" OMNIORB4_VERSION "${OMNIORB_ACCONFIG_H}" )
+  ELSE( EXISTS ${OMNIORB4_INCLUDE_DIR}/omniORB4/acconfig.h )
+    SET( OMNIORB4_VERSION "NOT-FOUND" )
+  ENDIF( EXISTS ${OMNIORB4_INCLUDE_DIR}/omniORB4/acconfig.h )
+  SET( OMNIORB4_VERSION ${OMNIORB4_VERSION}
+      CACHE STRING "OmniORB version number." )
+  MARK_AS_ADVANCED( OMNIORB4_VERSION )
+
 ENDIF( OMNIORB4_IDL_COMPILER )
 ENDIF( OMNIORB4_LIBRARY_omniDynamic4 )
 ENDIF( OMNIORB4_LIBRARY_omnithread )
 ENDIF( OMNIORB4_LIBRARY_omniORB4 )
 ENDIF( OMNIORB4_INCLUDE_DIR )
+
