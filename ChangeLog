@@ -1,5 +1,9 @@
 diet-2.2
 
+* Workflow 
+    - Workflow support added to DIET. A workflow engine and a special agent
+    (the maDagAgent) were added to manage and schedule workflow submissions.
+    
 * Fault Tolerance
       - Added support for Chandra&Aguilera&Toueg failure detector. This failure 
       detector may be used to observe failures of components and restart them.
