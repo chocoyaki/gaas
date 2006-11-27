@@ -12,6 +12,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.4  2006/11/27 11:41:35  pcombes
+#* Do not test file presence if not needed in distribution
+#*
 #* Revision 1.3  2006/11/02 01:57:32  ecaron
 #* Get version number for release from CMakeLists.txt file (perl version)
 #*
@@ -136,16 +139,16 @@ while( <FILE> ){
       last SWITCH;
     }
 
-    $file = $_;
-    die( "Cannot access $file ($file_list:$no_line)" ) unless -e $file;
-    die( "No section defined before line $no_line" ) if( $file_type == -1 );
-
     #
     # OK, we got a file to process
     #
     if( $file_type >= 2 && $maintainer_mode == 0 ) {
       last SWITCH;
     }
+
+    $file = $_;
+    die( "Cannot access $file ($file_list:$no_line)" ) unless -e $file;
+    die( "No section defined before line $no_line" ) if( $file_type == -1 );
     
     # Get path and base names
     ( $file_dir, $file_base ) = $file =~ /(.*)\/(.*)/;
