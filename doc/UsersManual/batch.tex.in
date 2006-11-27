@@ -1,10 +1,16 @@
 %****************************************************************************%
-%* DIET User's Manual Performance prediction chapter file                   *%
+%* DIET User's Manual, batch/parallel submissions                           *%
 %*                                                                          *%
 %*  Author(s):                                                              *%
 %*    - Yves Caniou (yves.caniou@ens-lyon.fr)                               *%
 %*                                                                          *%
 %* $LICENSE$                                                                *%
+%****************************************************************************%
+%* $Id$
+%* $Log$
+%* Revision 1.7  2006/11/27 08:13:58  ycaniou
+%* Added missing fields Id and Log in headers
+%*
 %****************************************************************************%
 
 \chapter{Batch and parallel submissions}

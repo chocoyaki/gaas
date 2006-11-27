@@ -1,47 +1,93 @@
-ServiceTable prend serivice mais pas mise à jour. A voir. On pourrait
-virer des services d'un serveur qui ne répond pas ou plus.
-
--------------------------------------------------------
+%****************************************************************************%
+%* DIET Programmer' guide, batch/parallel submissions                       *%
+%*                                                                          *%
+%*  Author(s):                                                              *%
+%*    - Yves Caniou (yves.caniou@ens-lyon.fr)                               *%
+%*                                                                          *%
+%* $LICENSE$                                                                *%
+%****************************************************************************%
+%* $Id$
+%* $Log$
+%* Revision 1.6  2006/11/27 08:13:58  ycaniou
+%* Added missing fields Id and Log in headers
+%*
+%****************************************************************************%
 
 This chapter contains things that must be dispatched along the
 programmer's guide (and even more detailed?). It is actually in
 writing, and contains, for the most, remarks.\\
 
-The concern of this chapter is batch submission and how we achieve to
-do it in \textsc{Diet}. In consequence, it deals with all the
-structures that are used in the recording of problems and the
-submission of jobs. Mechanisms are explained. Tools on which we rely,
-like Elagi and Appleseeds are also mentionned.
+The concern of this chapter is parallel and batch submission and how
+we achieve to do it in \textsc{Diet}. In consequence, it deals with
+choices made for the API, with all the structures which are used in
+the recording of problems and the submission of jobs, and with all the
+mechanisms which are involved. Tools on which we rely, like Elagi and
+Appleseeds are also mentionned.
 
-Note that in the following, a {\it task} refers to the {\it resolution
-of a problem} which has been {\it requested} by the client.
+%****************************************************************************%
+\section{Notations in pseudo code parts and terminology}
+%****************************************************************************%
 
-\section{Notations in this chapter in pseudo code parts}
+\subsection{Notations in pseudo-code}
 
 ``.fonction()'' is written to know rapidly it is a call. If a
 tabulation appears after, then the following describes the called
 fonction. Should be replaced by UML graphs.
 
+\subsection{Terminology (taken from the User manual)}
+
+Because a good understanding comes with correct terms, we provide here
+the definition of the terms that we will use thereafter.
+
+Servers provide {\it services}, e.g instanciation of {problems} that a
+server can solve: for example, two services can provide the resolution
+of the same problem, one being sequential the other parallel. A \diet
+{\it task}, also called a {\it job}, is created by the {\it request}
+of a client: it refers to the resolution of a service on a given
+server.
+
+A service can be sequential or (exclusive) parallel, in which case its
+resolution requires numerous processors of a parallel resource (a
+parallel machine or a cluster of workstation). If parallel, the task
+can be modeled with the MPI standard, or composed of multiple
+sequential tasks (deployed for example with \verb!ssh!) resolving a
+single service: it is often the case with data parallelism problems.
+
+Note that when dealing with batch reservation systems, we will likely
+speak about {\it jobs} rather than about {\it tasks}.
+
+%****************************************************************************%
 \section{Notes on structures}
+%****************************************************************************%
 
 \subsection{Generalities}
 \begin{itemize}
-\item A changement in a structure which has to be transfered : CORBA
+\item A changement in a structure which has to be transfered: CORBA
 Must look in idl, etc.
 
-\item Conversion between structures is done in CORBA/marchalling
+\item Conversion between structures is partly done in CORBA/marchalling.cc
 \end{itemize}
 
-\subsection{About batch}
+\section{About parallel and batch jobs}
 
-\paragraph{Configuration and compilation.}$ $\\
-Brief explanations about stuff in Makefile and in configure.in...\\
+\subsection{Definition}
 
-Note that to compile \textsc{Diet} with the batch availability, one
-must use the \verb$--enable-Batch$ , \verb$--with-Elagi=$ and
-\verb$--with-Appleseeds=$ options.
+The executable of a parallel job is found on the nodes where it has to
+be executed, either with the NFS filesystem or because the user has
+copied it to all nodes with \verb!scp! for example.
 
-\paragraph{Implementation.}$ $\\
+In High Computing, parallel jobs are usually MPI codes, but they can
+also be several independent communicant codes. We consider here that
+it can be launched by using the correct MPI sequence (depending on the
+implementation - MPICH or LAM for example) or by calling one of the
+code, which will do the necessary thereafter.
+
+\subsection{Objectives}
+
+
+\subsection{Configuration and compilation (complementary of the User Manual.}
+
+\subsection{Implementation.}$ $\\
 We must put a \textsc{Diet} reqID in the profile because we only know
 the batch ID when submitting the script which is built when calling
 the function given in the programmer SeD. We need to establish a
@@ -137,7 +183,9 @@ struct corba_profile_t {
 \end{center}
 \end{figure}
 
+%****************************************************************************%
 \section{Notes on recording of services}
+%****************************************************************************%
 
 \subsection{Generalities}
 
@@ -188,7 +236,9 @@ can read in this file that the string that the SeD is searching in its
 config file is \verb$batchName$. Correct values are: "shell",
 "condor", "dqs", "loadleveler", "lsf", "pbs", "sge", "oar".
 
+%****************************************************************************%
 \section{Request submission}
+%****************************************************************************%
 \subsection{Synchronous}
 \verb$diet_call$, \verb$diet_call_batch$ (no in official API)
 
@@ -245,7 +295,9 @@ in its \$\verb$LD_LIBRAY_PATH$ the {\bf right path to the
 implementation} he wants to use, as well as the executable compiled
 and ready to use where the SeD is deployed.
 
+%****************************************************************************%
 \section{General Remarks}
+%****************************************************************************%
 
 \subsection{Howto refer to batch reserved nodes?}
 You can use the macro \verb$BATCH_NBNODES$ and \verb$BATCH_NODESFILE$
@@ -287,12 +339,15 @@ requested hosts can not be greater than 128.
 
 Elagi always put the sequence \verb$"#@ job_type=parallel\n"$ in the script.
 
+%****************************************************************************%
 \section{How to run}
+%****************************************************************************%
 
 Do not forget to specify in the SED.cfg the 
 
-
+%****************************************************************************%
 \section{Notes diverses and TODO}
+%****************************************************************************%
 
 \begin{itemize}
 \item Add the necessary when solve is called to stock the address of
@@ -327,3 +382,12 @@ is stocked in the profile (src/client/DIET\_client.cc).
 and where. Same with common\_types.idl
 
 \end{itemize}
+
+
+
+
+ServiceTable prend serivice mais pas mise à jour. A voir. On pourrait
+virer des services d'un serveur qui ne répond pas ou plus.
+
+-------------------------------------------------------
+
