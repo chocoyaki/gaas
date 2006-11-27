@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2006/11/27 13:25:45  aamar
+ * Unmarshall inout parameters for asynchronous call.
+ *
  * Revision 1.21  2006/08/09 21:38:33  aamar
  * Changing the semantic of get_failed_session. The function return GRPC_NO_ERROR and not the error code of failed session
  *
@@ -498,6 +501,14 @@ int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
       fflush(stderr);
       return -1;
     }
+
+    if (unmrsh_inout_args_to_profile(h->second->profile, dp)){
+      INTERNAL_WARNING(__FUNCTION__ << ":unmrsh_inout_args_to_profile failed");
+      fflush(stderr);
+      return -1;
+    }
+
+
     // get rules about this reqID
     RulesReqIDMap::iterator j;
     if ((j = rulesIDs.lower_bound(reqID)) == rulesIDs.end()) {
