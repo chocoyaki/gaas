@@ -1,5 +1,5 @@
 /****************************************************************************/
-/* Main function of the MA DAG                                              */
+/* Main function of the MA DAG agent                                        */
 /*                                                                          */
 /* Author(s):                                                               */
 /* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
@@ -7,7 +7,10 @@
 /* $LICENSE$                                                                */
 /****************************************************************************/
 /* $Id$
- * $Logi: $
+ * $Log$
+ * Revision 1.4  2006/11/27 09:53:00  aamar
+ * Correct headers of source files used in workflow support.
+ *
  ****************************************************************************/
 
 #include <iostream>

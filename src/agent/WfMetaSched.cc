@@ -1,13 +1,17 @@
 /****************************************************************************/
-/* [Documentation Here!]                                                    */
+/* The Workflow Meta-scheduler                                              */
+/* This scheduler is used when multi-workflow support is enabled            */
 /*                                                                          */
 /* Author(s):                                                               */
 /* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/* $Id : 
- * $Log : 
+/* $Id$
+ * $Log$
+ * Revision 1.4  2006/11/27 09:53:00  aamar
+ * Correct headers of source files used in workflow support.
+ *
  ****************************************************************************/
 
 #include "WfMetaSched.hh"

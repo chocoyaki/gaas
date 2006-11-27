@@ -1,13 +1,18 @@
 /****************************************************************************/
 /* Meta Dag class                                                           */
+/* This class is used in multi-workflow support to manipulate more than     */
+/* than one DAG                                                             */
 /*                                                                          */
 /* Author(s):                                                               */
 /* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/* $Id : 
- * $Log : 
+/* $Id$
+ * $Log$
+ * Revision 1.2  2006/11/27 09:53:00  aamar
+ * Correct headers of source files used in workflow support.
+ *
  ****************************************************************************/
 
 #ifndef METADAG_HH

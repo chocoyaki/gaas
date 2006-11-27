@@ -1,5 +1,5 @@
 /****************************************************************************/
-/* [Documentation Here!]                                                    */
+/* The MA DAG CORBA object implementation header                            */
 /*                                                                          */
 /* Author(s):                                                               */
 /* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2006/11/27 09:53:00  aamar
+ * Correct headers of source files used in workflow support.
+ *
  * Revision 1.4  2006/11/06 15:14:53  aamar
  * Workflow support: Correct some code about reqID
  *

@@ -6,8 +6,11 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/* $Id: 
- * $Log: 
+/* $Id$
+ * $Log$
+ * Revision 1.3  2006/11/27 09:53:00  aamar
+ * Correct headers of source files used in workflow support.
+ *
  ****************************************************************************/
 
 #include "HEFT_MaDag_Sched.hh"
