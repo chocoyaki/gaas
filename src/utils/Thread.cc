@@ -1,5 +1,5 @@
 /****************************************************************************/
-/* C++ Thread                                                               */
+/* C++ Thread class implementation                                          */
 /*                                                                          */
 /* Author(s):                                                               */
 /* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2006/11/27 10:15:12  aamar
+ * Correct headers of files used in workflow support.
+ *
  * Revision 1.2  2006/07/10 11:08:43  aamar
  * Added a missing assert.h header
  *

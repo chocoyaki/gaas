@@ -1,13 +1,17 @@
 /****************************************************************************/
 /* The port classes used in workflow node                                   */
+/* The main classes are WfPort, WfOutPort and WfInPort                      */
 /*                                                                          */
 /* Author(s):                                                               */
 /* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/* $Id :
- * $Log :
+/* $Id$
+ * $Log$
+ * Revision 1.2  2006/11/27 10:15:12  aamar
+ * Correct headers of files used in workflow support.
+ *
  ****************************************************************************/
 
 #ifndef _WFPORT_HH_

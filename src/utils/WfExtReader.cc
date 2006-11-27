@@ -1,13 +1,18 @@
 /****************************************************************************/
-/* Extended workflow description Reader                                     */
+/* Workflow description Reader class implementation                         */
+/* This class read a textual representation of workflow and return the      */
+/* corresponding DAG object                                                 */
 /*                                                                          */
 /* Author(s):                                                               */
 /* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/* $@Id: $
- * $@Log: $
+/* $Id$
+ * $Log$
+ * Revision 1.6  2006/11/27 10:15:12  aamar
+ * Correct headers of files used in workflow support.
+ *
  ****************************************************************************/
 
 #include <iostream>

@@ -1,6 +1,6 @@
 /****************************************************************************/
 /* Workflow scheduler (Abstract class)                                      */
-/* This abstract class must be implemented to write other workflow          */ 
+/* This abstract class must be implemented to write other workflow          */
 /* schedulers                                                               */
 /*                                                                          */
 /* Author(s):                                                               */
@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2006/11/27 10:15:12  aamar
+ * Correct headers of files used in workflow support.
+ *
  * Revision 1.3  2006/11/06 11:53:48  aamar
  * Workflow support:
  *   - Add a new setResponse function.

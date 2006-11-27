@@ -1,5 +1,7 @@
 /****************************************************************************/
-/* Extended Node description                                                */
+/* Node description class                                                   */
+/* This class contains the diet profile, the i/o ports and the execution    */
+/* object                                                                   */
 /*                                                                          */
 /* Author(s):                                                               */
 /* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
@@ -8,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2006/11/27 10:15:12  aamar
+ * Correct headers of files used in workflow support.
+ *
  * Revision 1.10  2006/11/13 12:31:58  aamar
  * Remove reference to FD (not used).
  *

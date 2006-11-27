@@ -1,5 +1,5 @@
 /****************************************************************************/
-/* C++ Thread                                                               */
+/* C++ Thread class description                                             */
 /*                                                                          */
 /* Author(s):                                                               */
 /* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2006/11/27 10:15:12  aamar
+ * Correct headers of files used in workflow support.
+ *
  * Revision 1.1  2006/04/14 14:02:41  aamar
  * Provides a C++ thread class (based on pthread, used by Node class).
  *

@@ -1,6 +1,6 @@
 /****************************************************************************/
 /* Node description class                                                   */
-/* This class includes the diet profile, the i/o ports and the execution    */
+/* This class contains the diet profile, the i/o ports and the execution    */
 /* object                                                                   */
 /*                                                                          */
 /* Author(s):                                                               */
@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2006/11/27 10:15:12  aamar
+ * Correct headers of files used in workflow support.
+ *
  * Revision 1.5  2006/11/06 15:16:06  aamar
  * Workflow support: some correction about reqID.
  *
