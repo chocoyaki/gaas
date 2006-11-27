@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2006/11/27 13:27:53  aamar
+ * Force the unmarshalling of inout parameters for the asynchronous mode.
+ *
  * Revision 1.27  2006/11/16 09:55:51  eboix
  *   DIET_config.h is no longer used. --- Injay2461
  *
@@ -163,6 +166,10 @@ mrsh_profile_to_out_args(corba_profile_t* dest, const diet_profile_t* src,
 // To receive output data on the client
 int
 unmrsh_out_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb);
+
+// Force the unmarshalling of INOUT parameters (useful in async mdode)
+int
+unmrsh_inout_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb);
 
 int
 unmrsh_data(diet_data_t* dest, corba_data_t* src);

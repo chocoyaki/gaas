@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.67  2006/11/27 13:27:53  aamar
+ * Force the unmarshalling of inout parameters for the asynchronous mode.
+ *
  * Revision 1.66  2006/10/19 21:18:39  mjan
  * Contribute back last modifications for JuxMem use ... code only inside HAVE_JUXMEM
  *
@@ -1018,6 +1021,31 @@ unmrsh_out_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb)
   }
   return 0;
 }
+
+// Dec 2006: In async mode, INOUT parameters are not changed
+// Force the unmarshalling of such parameters
+// We suppose that the previous function (unmrsh_out_args_to_profile) was
+// already called
+int
+unmrsh_inout_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb)
+{
+  int i;
+
+  if (   (dpb->last_in       != cpb->last_in)
+         || (dpb->last_inout != cpb->last_inout)
+         || (dpb->last_out   != cpb->last_out)
+	 )
+    return 1;
+
+
+  // Unmarshal INOUT parameters
+  for (i = dpb->last_in + 1; i <= dpb->last_inout; i++) {
+    unmrsh_data(&(dpb->parameters[i]), &(cpb->parameters[i]),1);
+  }
+
+  return 0;
+} // end unmrsh_inout_args_to_profile
+
 
 #ifdef HAVE_WORKFLOW
 /*
