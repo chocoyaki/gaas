@@ -1,3 +1,17 @@
+#****************************************************************************#
+#* JXTA MA loader script                                                    *#
+#*                                                                          *#
+#*  Author(s):                                                              *#
+#*    - Cedric Tedeschi cedric.tedeschi@ens-lyon.fr                         *#
+#*                                                                          *#
+#* $LICENSE$                                                                *#
+#****************************************************************************#
+#* $Id$
+#* $Log$
+#* Revision 1.4  2006/11/28 17:30:11  ctedesch
+#* header
+#*
+#****************************************************************************#
 #!/bin/sh
 # Launch a JXTA MA with MA3.cfg as configuration file for the DIET MA
 
