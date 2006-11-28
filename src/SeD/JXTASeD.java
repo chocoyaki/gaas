@@ -8,9 +8,32 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2006/11/28 13:54:48  ctedesch
+ * old logs in header
+ *
  * Revision 1.5  2006/11/28 13:39:36  ctedesch
  * Add header
  *
+ * Revision 1.4
+ * date: 2004/08/23 20:25:00  ctedesch
+ * Update DIET_J to take into accout the use of the request ID in the log service
+ *
+ * Revision 1.3
+ * date: 2004/07/09 19:51:58  ctedesch
+ * - javac and javah detected instead of java
+ * - JXTA_LIB automatically set before compilation
+ * - JXTA libraries copied into install_dir/lib
+ * - DIET license added in the java files
+ * - JXTA loaders scripts modified: set JXTA_LIB for execution
+ * - update doc
+ *
+ * Revision 1.2
+ * date: 2004/06/16 18:49:58  ctedesch
+ * update JXTA components of DIET to use JXTA 2.3 and remove useless code
+ * 
+ * Revision 1.1
+ * date: 2004/06/11 15:45:39  ctedesch
+ * add DIET/JXTA
 /****************************************************************************/
 
 import java.io.*;
