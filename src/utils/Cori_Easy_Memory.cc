@@ -1,5 +1,5 @@
 /****************************************************************************/
-/* CoRI Collectors of ressource information                                 */
+/* CoRI Collectors of ressource information (Memory part)                   */
 /*                                                                          */
 /* Author(s):                                                               */
 /*    - Frauenkron Peter (Peter.Frauenkron@ens-lyon.fr)                     */
@@ -8,11 +8,19 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.6  2006/11/28 13:20:02  ecaron
- * Add header
+ * Revision 1.7  2006/11/28 13:30:31  ecaron
+ * Add $Log: from cvs log
  *
+ *
+ * Revision 1.3 2006/01/15 15:37:07 pfrauenk
+ * CoRI: debug.hh is used now, cleanup, minor changes
+ *
+ * Revision 1.2 2005/12/20 21:48:46 pfrauenk
+ * CoRI defined symbols renamed - bug fixes thx to Raphael Bolze
+ * 
+ * Revision 1.1 2005/12/15 10:12:17 pfrauenk
+ * CoRI functionality added by Peter Frauenkron
 /****************************************************************************/
-
 #include <unistd.h> //int getpagesize (void)
 #ifdef CORI_HAVE_SYS_SYSINFO
 #include <sys/sysinfo.h> // get_phys_pages (),get_avphys_pages ()
