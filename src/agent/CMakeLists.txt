@@ -72,13 +72,14 @@ IF( DIET_BUILD_LIBRARIES )
   
   #########################################################################
   IF( DIET_USE_JXTA )
+
     ADD_CUSTOM_COMMAND(
       OUTPUT    ${DIET_BINARY_DIR}/src/agent/LA.class
       COMMAND   ${JAVA_COMPILE}
       ARGS      -d ${DIET_BINARY_DIR}/src/agent
                 ${DIET_SOURCE_DIR}/src/agent/LA.java
       DEPENDS   ${DIET_SOURCE_DIR}/src/agent/LA.java
-      COMMENT   "java compile"
+      COMMENT   "java compile local agent"
     )
     ADD_CUSTOM_COMMAND(
       OUTPUT    ${DIET_BINARY_DIR}/src/agent/LA.h
@@ -87,19 +88,73 @@ IF( DIET_BUILD_LIBRARIES )
                 -d ${DIET_BINARY_DIR}/src/agent
                 LA
       DEPENDS   ${DIET_BINARY_DIR}/src/agent/LA.class
-      COMMENT   "java header compile"
+      COMMENT   "java header compile local agent"
     )
     SET_SOURCE_FILES_PROPERTIES( 
       ${DIET_SOURCE_DIR}/src/agent/localAgentJNI.cc
       PROPERTIES
       OBJECT_DEPENDS ${DIET_BINARY_DIR}/src/agent/LA.h
     )
-  
     INCLUDE_DIRECTORIES( ${DIET_BINARY_DIR}/src/agent )  # For LA.h ...
     ADD_LIBRARY( dietLocalAgent ${DIET_SOURCE_DIR}/src/agent/localAgentJNI.cc )
+
+    TARGET_LINK_LIBRARIES( dietLocalAgent
+	UtilsNodes
+	UtilsVector
+	CorbaCommon
+	IDLLA
+	IDLMA
+	AgentCommon	
+	${OMNIORB4_LIBRARIES}
+  )
+
     INSTALL_TARGETS( /lib/ dietLocalAgent )
   
-  ### missing all the dietMasterAgent_la part
+    ADD_CUSTOM_COMMAND(
+      OUTPUT    ${DIET_BINARY_DIR}/src/agent/JXTAMultiMA.class
+		${DIET_BINARY_DIR}/src/agent/ReqMgr.class
+		${DIET_BINARY_DIR}/src/agent/UuidsMgr.class
+      COMMAND   ${JAVA_COMPILE}
+      ARGS      -d ${DIET_BINARY_DIR}/src/agent
+		-classpath ${DIET_SOURCE_DIR}/src/agent:${DIET_SOURCE_DIR}/src/lib/jxta.jar
+                ${DIET_SOURCE_DIR}/src/agent/JXTAMultiMA.java
+                ${DIET_SOURCE_DIR}/src/agent/ReqMgr.java
+                ${DIET_SOURCE_DIR}/src/agent/UuidsMgr.java
+      DEPENDS   ${DIET_SOURCE_DIR}/src/agent/JXTAMultiMA.java
+                ${DIET_SOURCE_DIR}/src/agent/ReqMgr.java
+                ${DIET_SOURCE_DIR}/src/agent/UuidsMgr.java
+      COMMENT   "java compile multi master agent"
+    )
+
+    ADD_CUSTOM_COMMAND(
+      OUTPUT    ${DIET_BINARY_DIR}/src/agent/JXTAMultiMA.h
+      COMMAND   ${JAVA_HEADER_COMPILE}
+      ARGS      -classpath ${DIET_BINARY_DIR}/src/agent
+                -d ${DIET_BINARY_DIR}/src/agent
+                JXTAMultiMA
+      DEPENDS   ${DIET_BINARY_DIR}/src/agent/JXTAMultiMA.class
+      COMMENT   "java header compile master agent"
+    )
+    SET_SOURCE_FILES_PROPERTIES( 
+      ${DIET_SOURCE_DIR}/src/agent/masterAgentJNI.cc
+      PROPERTIES
+      OBJECT_DEPENDS ${DIET_BINARY_DIR}/src/agent/JXTAMultiMA.h
+    )
+  
+    INCLUDE_DIRECTORIES( ${DIET_BINARY_DIR}/src/agent )
+    ADD_LIBRARY( dietMasterAgent ${DIET_SOURCE_DIR}/src/agent/masterAgentJNI.cc )
+
+    TARGET_LINK_LIBRARIES( dietMasterAgent
+	UtilsNodes
+	UtilsVector
+	CorbaCommon
+	IDLLA
+	IDLMA
+	AgentCommon	
+	${OMNIORB4_LIBRARIES}
+  )
+
+    INSTALL_TARGETS( /lib/ dietMasterAgent )
   
   ENDIF( DIET_USE_JXTA )
 #########################################################################
