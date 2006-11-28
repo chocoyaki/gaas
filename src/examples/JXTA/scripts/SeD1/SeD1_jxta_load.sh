@@ -1,5 +1,5 @@
 #****************************************************************************#
-#* JXTA MA loader script                                                    *#
+#* JXTA SeD loader script                                                   *#
 #*                                                                          *#
 #*  Author(s):                                                              *#
 #*    - Cedric Tedeschi cedric.tedeschi@ens-lyon.fr                         *#
@@ -8,6 +8,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.6  2006/11/28 17:49:29  ctedesch
+#* minor
+#*
 #* Revision 1.5  2006/11/28 17:48:12  ctedesch
 #* add old logs in header
 #*
