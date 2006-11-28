@@ -11,9 +11,45 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2006/11/28 16:13:40  ctedesch
+ * add old logs in header
+ *
  * Revision 1.5  2006/11/28 15:42:42  ctedesch
  * header
  *
+ * Revision 1.4
+ * date: 2005/07/18 13:01:48;  author: ctedesch;  state: Exp;  lines: +11 -12
+ * Changes inside the DIET code caused the JXTA Multi-MA to be broken. It's 
+ * now repaired. Moreover, the JXTA SeD will be automatically updated when 
+ * the DIET server API is modified.
+ * 
+ * Revision 1.3
+ * date: 2005/04/13 08:49:11  hdail
+ * Beginning of adoption of new persistency model: DTM is enabled by default and
+ * JuxMem will be supported via configure flags.  DIET will always provide at
+ * least one type of persistency.  As a first step, persistency across DTM and
+ * JuxMem is not supported so all persistency handling should be surrounded by
+ *    #if HAVE_JUXMEM
+ *       // JuxMem code
+ *   #else
+ *       // DTM code
+ *   #endif
+ * This check-in prepares for the JuxMem check-in by cleaning up old
+ * DEVELOPPING_DATA_PERSISTENCY flags and surrounding DTM code with
+ * #if ! HAVE_JUXMEM / #endif flags to be replaced by above format by Mathieu's
+ * check-in.  Currently the HAVE_JUXMEM flag is set in AgentImpl.hh - to be
+ * replaced by Mathieu's check-in of a configure system for JuxMem.
+ * 
+ * Revision 1.2
+ * date: 2005/04/08 13:02:43  hdail
+ * The code for LogCentral has proven itself stable and it seems bug free.
+ * Since no external libraries are required to compile in LogCentral, its now
+ * going to be compiled in by default always ... its usage is easily controlled by
+ * configuration file.
+ *
+ * Revision 1.1
+ * date: 2004/06/11 15:45:39  ctedesch
+ * add DIET/JXTA
 /****************************************************************************/
 #include "ExitClass.hh"
 #include <stdlib.h>
