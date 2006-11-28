@@ -8,9 +8,11 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.8  2006/11/28 20:40:31  ycaniou
+%* Only headers
+%*
 %* Revision 1.7  2006/11/27 08:13:58  ycaniou
 %* Added missing fields Id and Log in headers
-%*
 %****************************************************************************%
 
 \chapter{Batch and parallel submissions}

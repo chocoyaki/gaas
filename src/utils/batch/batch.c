@@ -9,10 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2006/11/28 20:40:31  ycaniou
+ * Only headers
+ *
  * Revision 1.9  2006/11/27 08:13:59  ycaniou
  * Added missing fields Id and Log in headers
- *
-****************************************************************************/
+ ****************************************************************************/
 
 /* TODO: look at functions ELBASE_Kill and ELBASE_Poll to kill a process
 ** on a sequential machine, or to know its status */
