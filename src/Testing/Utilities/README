@@ -1,11 +1,15 @@
 # This small set of utilities is assembled here in order to provide a small
 # toolbox for troubleshooting [e.g. is some pesky FW in between ? ]
-#   - OmniServerTest.sh launches a small minimalistic omniNames server
 #   - LightClient/ contains a tiny java client for making simple request
 #     on a server:port given with the GUIs
 #     
 # The typical usage goes:
-#   1/ Edit OmniServerTest.sh and provide simple configuration information
-#      [name of the service, ports...]
-#   2/ Launch the client and make requires
-#   3/ CRTL-C on the server
+#   1/ configure cmake with USE_DART option on.
+#   2/ compile diet
+#   3/ trigger a minimalistic omniNames servers by lauching (from cmake
+#      build directory):
+#       src/Testing/OmniDaemon.bash start
+#   4/ Launch the java LightClient and make requests
+#   5/ Halt the omniNames server (again from cmake build directory):
+#       src/Testing/OmniDaemon.bash stop
+

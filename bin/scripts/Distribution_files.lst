@@ -17,6 +17,15 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.14  2006/11/28 14:08:51  eboix
+#*   - Clean-up of src/Testing/Utilities directory:
+#*     * LightClient/MainFrame.form removed (was never used)
+#*     * src/Testing/Utilities/README now cleanly refers to
+#*       <cmake_build_dir>/src/Testing/OmniDaemon.bash instead of deprecated
+#*       OmniServerTest.sh
+#*     * the content of src/Testing/Utilities/LightClient is no longer part
+#*       of the user distribution, but only of the developper's one. - Injay2461
+#*
 #* Revision 1.13  2006/11/17 17:50:11  dart
 #* and more packaging fixes... ---Injay2461
 #*
@@ -472,11 +481,6 @@ src/lib/licenses/saxpath-license.txt
 src/Testing/CMakeLists.txt
 src/Testing/TestDummy.cxx
 src/Testing/TestORBMgrInit.cxx
-src/Testing/Utilities/README
-src/Testing/Utilities/LightClient/MainFrame.form
-src/Testing/Utilities/LightClient/MainFrame.java
-src/Testing/Utilities/LightClient/Makefile
-src/Testing/Utilities/LightClient/README
 
 
 # Doc section
@@ -628,3 +632,10 @@ doc/Tutorial/solutions/exercise3/client.c
 doc/Tutorial/solutions/exercise3/server.c
 Cmake/TODO
 
+# Section TESTING:
+# Les utilitaires servant a mettre en place et a developper la test suite
+# sont reserve aux developpeurs:
+src/Testing/Utilities/README
+src/Testing/Utilities/LightClient/MainFrame.java
+src/Testing/Utilities/LightClient/Makefile
+src/Testing/Utilities/LightClient/README
