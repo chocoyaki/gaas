@@ -8,9 +8,24 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.5  2006/11/28 17:31:48  ctedesch
+#* add old logs in header
+#*
 #* Revision 1.4  2006/11/28 17:30:11  ctedesch
 #* header
 #*
+#* Revision 1.3 2004/07/09 19:51:58  ctedesch
+#* - javac and javah detected instead of java
+#* - JXTA_LIB automatically set before compilation
+#* - JXTA libraries copied into install_dir/lib
+#* - DIET license added in the java files
+#* - JXTA loaders scripts modified: set JXTA_LIB for execution
+#* - update doc
+#* 
+#* Revision 1.2 2004/07/06 13:52:27  ctedesch
+#* modify the scripts loading JXTA components (useless settings)
+#* Revision 1.1 2004/06/11 15:45:39  ctedesch
+#* add DIET/JXTA
 #****************************************************************************#
 #!/bin/sh
 # Launch a JXTA MA with MA3.cfg as configuration file for the DIET MA
