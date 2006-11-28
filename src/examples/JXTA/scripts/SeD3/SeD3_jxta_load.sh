@@ -8,9 +8,17 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.3  2006/11/28 17:55:56  ctedesch
+#* add old logs in header
+#*
 #* Revision 1.2  2006/11/28 17:52:27  ctedesch
 #*  header
 #*
+#* Revision 1.1 2004/08/27 16:28:18  ctedesch
+#* - Use of the asynchronous PIF scheme for propagation of the requests inside
+#* the DIET J multi-hierarchy
+#* - DIET/JXTA -> DIET J
+#* - Change the JXTA examples scripts to build a whole multi-hierarchy
 #****************************************************************************#
 
 #!/bin/sh
