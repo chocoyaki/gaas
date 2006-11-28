@@ -1,3 +1,17 @@
+#****************************************************************************#
+#* JXTA SeD loader script                                                   *#
+#*                                                                          *#
+#*  Author(s):                                                              *#
+#*    - Cedric Tedeschi cedric.tedeschi@ens-lyon.fr                         *#
+#*                                                                          *#
+#* $LICENSE$                                                                *#
+#****************************************************************************#
+#* $Id$
+#* $Log$
+#* Revision 1.4  2006/11/28 17:49:59  ctedesch
+#* header
+#*
+#****************************************************************************#
 #!/bin/sh
 # Launch a JXTA SeD providing MatPROD with SeD2.cfg as configuration file for the DIET SeD
 
