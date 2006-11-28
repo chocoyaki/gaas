@@ -2,12 +2,15 @@
 /* Workflow monitoring interface                                            */
 /*                                                                          */
 /*  Author(s):                                                              */
-/*    - Abdlkader Amar (Abdelkader.Amar@ens-lyon.fr)                        */
+/*    - Abdlekader Amar (Abdelkader.Amar@ens-lyon.fr)                        */
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/* $Id: 
- * $Log: 
+/* $Id$ 
+ * $Log$
+ * Revision 1.2  2006/11/28 15:10:18  aamar
+ * Correct headers
+ *
  ****************************************************************************/
 
 #ifndef _WFLOGSERVICE_IDL_
