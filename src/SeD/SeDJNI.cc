@@ -3,11 +3,17 @@
 /*                                                                          */
 /*  Author(s):                                                              */
 /*    - Philippe COMBES (Philippe.Combes@ens-lyon.fr                        */
-/*    - Cedric TEDESCHI (Cedric.Tedeschi@ens-lyon.fr)                      */
+/*    - Cedric TEDESCHI (Cedric.Tedeschi@ens-lyon.fr)                       */
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-
+/* $Id$
+ * $Log$
+ * Revision 1.6  2006/11/28 13:56:38  ctedesch
+ * Add header
+ *
+ *
+/****************************************************************************/
 #include <string.h>
 #include "DIET_server.cc"
 #include "dmat_jxta_progs.h"
