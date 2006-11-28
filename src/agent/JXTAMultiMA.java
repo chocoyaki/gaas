@@ -8,9 +8,43 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2006/11/28 14:35:20  ctedesch
+ * add old logs in header
+ *
  * Revision 1.7  2006/11/28 14:32:11  ctedesch
  * header
  *
+ * Revision 1.6
+ * date: 2004/08/27 16:28:18;  ctedesch
+ * - Use of the asynchronous PIF scheme for propagation of the requests inside
+ * the DIET J multi-hierarchy
+ * - DIET/JXTA -> DIET J
+ * - Change the JXTA examples scripts to build a whole multi-hierarchy
+ *
+ * Revision 1.5
+ * date: 2004/08/23 20:25:00 ctedesch
+ * Update DIET_J to take into accout the use of the request ID in the log service
+ * 
+ * Revision 1.4
+ * date: 2004/07/09 19:51:58  ctedesch
+ * - javac and javah detected instead of java
+ * - JXTA_LIB automatically set before compilation
+ * - JXTA libraries copied into install_dir/lib
+ * - DIET license added in the java files
+ * - JXTA loaders scripts modified: set JXTA_LIB for execution
+ * - update doc
+ * 
+ * Revision 1.3
+ * date: 2004/06/23 17:03:23  ctedesch
+ * fix bug dealing with MA discovery when forwarding query
+ *
+ * revision 1.2
+ * date: 2004/06/16 18:49:58  ctedesch
+ * update JXTA components of DIET to use JXTA 2.3 and remove useless code
+ * 
+ * revision 1.1
+ * date: 2004/06/11 15:45:39  ctedesch
+ * add DIET/JXTA
 /****************************************************************************/
 import java.io.*;
 import java.net.*;
