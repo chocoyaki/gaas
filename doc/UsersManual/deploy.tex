@@ -11,6 +11,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.19  2006/11/29 16:55:49  dloureir
+%* minor corrections
+%*
 %* Revision 1.18  2006/05/12 12:12:32  sdahan
 %* Add some documentation about multi-MA
 %*
@@ -99,7 +102,7 @@ need more details.
 
 \subsubsection{The naming service}
 
-DIET uses a standard CORBA naming service for translating a
+DIET uses a standard CORBA naming service for translating an
 user-friendly string-based name for an object into an Interoperable
 Object Reference (IOR) that is a globally unique identifier
 incorporating the host and port where the object can be contacted.
@@ -166,7 +169,7 @@ Checkpointing completed.
 \subsubsection{CORBA usage for DIET}
 
 Every DIET entity must connect to the CORBA name server:
-it is the way services discover each other. The reference to the
+it is the way services discover each others. The reference to the
 omniORB name server is written in a CORBA configuration file, whose path
 is given to omniORB through the environment variable
 \texttt{OMNIORB\_CONFIG} (or, with \textbf{omniORB 4}, at compile
@@ -200,7 +203,7 @@ environment variable should now be :\\ \texttt{LD\_LIBRARY\_PATH$=
 <$omniORB\_home$>$/lib:$<$install\_dir$>$/lib}.
 
 \textbf{NB1:} In order to avoid name collision, every agent must be 
-assigned a different name in the nameserver; since they don't have any 
+assigned a different name in the name server; since they don't have any 
 children, SeDs do not need names assigned to them and they don't register with
 the name server.
 
@@ -376,7 +379,7 @@ activates the use of NWS in FAST requests. If 0, FAST will use an
 internal sensor for the performance of the machine, but will not be
 able to evaluate communication times.  \\
 
-The following two options are ignored if \texttt{nwsUse} is set to 0.
+The following option is ignored if \texttt{nwsUse} is set to 0.
 \\
 
 \noindent
@@ -420,7 +423,7 @@ seconds.\\
 
 \noindent
 \texttt{bindServicePort} \ \ \emph{default}\texttt{ = none}\\ 
-The MA needs to use a specific port to be able to federate themselves. This
+The MAs need to use a specific port to be able to federate themselves. This
 port is only used for initializing connections between MAs. If this
 parameter is not set, the MA will not accept incoming connection.\\
 
@@ -603,7 +606,7 @@ To launch GoDIET for the simple example XML file provided in the
 GoDIET distribution under examples/example1.xml, run:
 
 \begin{verbatim}
-~ > java -jar GoDIET.jar example1.xml
+~ > java -jar GoDIET-x.x.x.jar example1.xml
 XmlScanner constructor
 Parsing xml file: example1.xml
 GoDIET>
