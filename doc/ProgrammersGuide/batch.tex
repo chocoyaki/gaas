@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.9  2006/11/30 14:14:16  ycaniou
+%* diet -> textsc{Diet} (Tkx Abdelkader)
+%*
 %* Revision 1.8  2006/11/30 13:58:07  aamar
 %* Remove an extra \
 %*
@@ -46,10 +49,10 @@ the definition of the terms that we will use thereafter.
 
 Servers provide {\it services}, e.g instanciation of {problems} that a
 server can solve: for example, two services can provide the resolution
-of the same problem, one being sequential the other parallel. A diet
-{\it task}, also called a {\it job}, is created by the {\it request}
-of a client: it refers to the resolution of a service on a given
-server.
+of the same problem, one being sequential the other parallel. A
+\textsc{Diet} {\it task}, also called a {\it job}, is created by the
+{\it request} of a client: it refers to the resolution of a service on
+a given server.
 
 A service can be sequential or (exclusive) parallel, in which case its
 resolution requires numerous processors of a parallel resource (a
@@ -306,8 +309,8 @@ and ready to use where the SeD is deployed.
 
 \subsection{Howto refer to batch reserved nodes?}
 You can use the macro \verb$BATCH_NBNODES$ and \verb$BATCH_NODESFILE$
-in the command elaborated in the SeD. Diet will replace them by the
-corresponding batch macro where the job is executed.
+in the command elaborated in the SeD. \textsc{Diet} will replace them
+by the corresponding batch macro where the job is executed.
 
 The SeD programmer does not have to precise MPI commands and options
 (typically,
