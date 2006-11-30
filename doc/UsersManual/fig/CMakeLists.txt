@@ -38,7 +38,7 @@ FOREACH( filename ${DIET_USERS_MANUAL_FIG_GLOB} )
     DEPENDS   ${filename}
     )
   ADD_CUSTOM_TARGET(
-    dummy${filename}_EPS
+    dummy${filenameNoExt}_EPS
     ALL
     DEPENDS  ${filenameDest}
     )
@@ -61,7 +61,8 @@ FOREACH( filename ${DIET_USERS_MANUAL_GIF_GLOB} )
     ARGS      ${filename} ${filenameDest}
     DEPENDS   ${filename}
     )
-  ADD_CUSTOM_TARGET(dummy${filename}_PS
+  ADD_CUSTOM_TARGET(
+    dummy${filenameNoExt}_PS
     ALL
     DEPENDS  ${filenameDest}
     )
@@ -85,7 +86,8 @@ FOREACH( filename ${DIET_USERS_MANUAL_FIG_GLOB} )
     ARGS      -L png ${filename} ${filenameDest}
     DEPENDS   ${filename}
     )
-  ADD_CUSTOM_TARGET( dummy${filename}_PNG
+  ADD_CUSTOM_TARGET( 
+      dummy${filenameNoExt}_PNG
       ALL
       DEPENDS  ${filenameDest}
     )

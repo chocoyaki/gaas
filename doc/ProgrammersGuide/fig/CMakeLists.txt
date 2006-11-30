@@ -20,7 +20,7 @@ FOREACH( filename ${DIET_PROGRAMMERS_MANUAL_FIG_GLOB} )
     DEPENDS   ${filename}
   )
   ADD_CUSTOM_TARGET(
-    dummy${filename}_EPS
+    dummy${filenameNoExt}_EPS
     ALL
     DEPENDS  ${filenameDest}
   )
@@ -50,7 +50,7 @@ FOREACH( filename ${DIET_PROGRAMMER_MANUAL_PNG_GIF_GLOB} )
     ARGS      ${filename} ${filenameDest}
     DEPENDS   ${filename}
   )
-  ADD_CUSTOM_TARGET(dummy${filename}_PS
+  ADD_CUSTOM_TARGET(dummy${filenameNoExt}_PS
     ALL
     DEPENDS  ${filenameDest}
   )
