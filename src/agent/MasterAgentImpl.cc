@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.32  2006/12/01 10:14:07  aamar
+ * Workflow support: add a test to check if ALTPREDICT is activated.
+ *   Workflow support still not working when use altpredict but diet
+ *   compilation will not fail when combining these two options.
+ *
  * Revision 1.31  2006/11/06 15:14:53  aamar
  * Workflow support: Correct some code about reqID
  *
@@ -802,8 +807,9 @@ MasterAgentImpl::  submit_pb_set  (const corba_pb_desc_seq_t& seq_pb,
 	      " for " << setSize << " nodes" <<
 	      endl);
   for (unsigned int ix=0; ix<len; ix++) {
-    cout << ix << endl;
+#if ! HAVE_ALTPREDICT
     corba_response = this->submit(seq_pb[ix], 1024);
+#endif
     if ((corba_response == NULL) || (corba_response->servers.length() == 0)) {
       TRACE_TEXT (TRACE_MAIN_STEPS, 
 		  "The problem set can't be solved (one or more services are "
