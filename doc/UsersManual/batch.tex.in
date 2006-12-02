@@ -8,6 +8,11 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.9  2006/12/02 10:49:25  ycaniou
+%* Changed the version -> 2.2, and the month
+%*
+%* Taken into account Cedric remarks
+%*
 %* Revision 1.8  2006/11/28 20:40:31  ycaniou
 %* Only headers
 %*
@@ -19,20 +24,20 @@
 \label{chapter:parallelSubmission}
 \section{Introduction}
 
-Most of resources in a grid is a parallel one. Computationnal grids
+Most of resources in a grid are a parallel one. Computational grids
 are even considered as hierachical sets of parallel resources, as we
 can see in ongoing project like the french research grid project,
 Grid'5000\cite{grid5000} (for the moment, 9 sites are involved), or
 like the EGEE\footnote{\url{http://public.eu-egee.org/}} project ({\it
 Enabling Grids for E-science in Europe}), composed of more than a
-hundred centres in 31 countries. Then, in order to provide transparent
+hundred centers in 31 countries. Then, in order to provide transparent
 access to resources, grid middleware must supply efficient mechanisms
 to provide parallel services.
 
 Because parallel resources are managed differently on each site, it is
-not the purpose of \diet to deal with the deployment of parallel tasks
-inside the site, nor manage copies of data which can possibly be on
-NFS. \diet implements mechanisms for a \sed programmer to easily
+neither the purpose of \diet to deal with the deployment of parallel
+tasks inside the site, nor manage copies of data which can possibly be
+on NFS. \diet implements mechanisms for a \sed programmer to easily
 provide a service that can be portable on different sites; for clients
 to request services which can be explicitly sequential, parallel or
 solved in the real transparent and efficient metacomputing way: only
@@ -48,14 +53,14 @@ the definition of the terms that we will use thereafter.
 
 Servers provide {\it services}, e.g instanciation of {problems} that a
 server can solve: for example, two services can provide the resolution
-of the same problem, one being sequential the other parallel. A \diet
+of the same problem, one being sequential the other parallel. A \diet~
 {\it task}, also called a {\it job}, is created by the {\it request}
 of a client: it refers to the resolution of a service on a given
 server.
 
 A service can be sequential or (exclusive) parallel, in which case its
 resolution requires numerous processors of a parallel resource (a
-parallel machine or a cluster of workstation). If parallel, the task
+parallel machine or a cluster of workstations). If parallel, the task
 can be modeled with the MPI standard, or composed of multiple
 sequential tasks (deployed for example with \verb!ssh!) resolving a
 single service: it is often the case with data parallelism problems.
@@ -106,13 +111,14 @@ the command line, you can use the following:
 \end{lstlisting}
 
 You also have to provide a directory where the \sed can read and write
-data on the parallel resource. The path is defined by the \verb!cmake!
-variable \verb!DIET_BATCH_WRITING_PATH!, and the \verb!$HOME!
-directory when the compilation is done is provided as default.
+data on the parallel resource. Its path is defined within the
+\verb!cmake! variable \verb!DIET_BATCH_WRITING_PATH!. Note that the
+\verb!$HOME! directory when the compilation is done is provided as
+default.
 
 Please note that this directory is used by \diet to store the new
 built script that is submitted to the batch scheduler. In consequence,
-because certain batch schedulers (like OAR) need the script be
+because certain batch schedulers (like OAR) need the script to be
 available on all resources, {\it this directory might be on NFS}
 (remember that \diet cannot replicate the script before submission
 because of access rights).
@@ -125,7 +131,7 @@ Single parallel systems are surely the less deployed in actual
 computing grids. They are usually composed of a frontale node where
 clients log in, and from which they can log on numerous nodes and
 execute their parallel jobs, without any kind of reservation. Some
-problems occurs with such a use of parallel resources: multiple
+problems occur with such a use of parallel resources: multiple
 parallel tasks can share a single processor, hence delaying the
 execution of all applications using it; during the deployment, the
 application must at least check the connectivity of the resources; if
@@ -210,7 +216,7 @@ void diet_profile_desc_set_sequential(diet_profile_desc_t* profile)
 
 \underline{\bf Note:} a \sed only launches parallel services or none
 at all, in which case it solves exclusively sequential problems. If
-both kind of jobs are tried to be recorded in a unique \sed, \diet
+both kinds of jobs are tried to be recorded in a unique \sed, \diet
 reports an error.
 
 \subsection{Server configuration file}
@@ -247,7 +253,7 @@ batchQueue = queue_9_13
 \subsubsection{\bf Parallel server}
 
 With the aim to not extend the \diet API too much, we consider that a
-parallel server corresponds to an ordinary shell that submit the
+parallel server corresponds to an ordinary shell that submits the
 generated script. In consequence, the server configuration file should
 contain the following line
 
