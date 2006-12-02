@@ -8,6 +8,11 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.33  2006/12/02 11:16:22  ycaniou
+%* Added Abdelkader in author staff
+%*
+%* Introduction ok for me now
+%*
 %* Revision 1.32  2006/12/02 10:49:25  ycaniou
 %* Changed the version -> 2.2, and the month
 %*
@@ -175,10 +180,11 @@
   \textbf{EDITORIAL STAFF}  & Rapha\"el \textsc{Bolze}, Eddy \textsc{Caron} and Holly ~\textsc{Dail}.\\
   \textbf{AUTHORS STAFF}    & 
 \begin{minipage}[t]{12cm}
-  Rapha\"el \textsc{Bolze}, Yves \textsc{Caniou}, Eddy \textsc{Caron},
-  Pushpinder Kaur \textsc{Chouhan}, Philippe ~\textsc{Combes}, Sylvain
-  \textsc{Dahan}, Holly \textsc{Dail}, Bruno \textsc{Delfabro}, Peter
-  \textsc{Frauenkron}, Georg  \textsc{Hoesch}, Mathieu \textsc{Jan}, 
+  Abdelkader \textsc{Amar}, Rapha\"el \textsc{Bolze}, Yves
+  \textsc{Caniou}, Eddy \textsc{Caron}, Pushpinder Kaur
+  \textsc{Chouhan}, Philippe ~\textsc{Combes}, Sylvain \textsc{Dahan},
+  Holly \textsc{Dail}, Bruno \textsc{Delfabro}, Peter
+  \textsc{Frauenkron}, Georg  \textsc{Hoesch}, Mathieu \textsc{Jan},
   Jean-Yves \textsc{L'Excellent}, Christophe \textsc{Pera}, Cyrille
   \textsc{Pontvieux}, Alan \textsc{Su}, C\'edric \textsc{Tedeschi},
   and Antoine \textsc{Vernois}.
@@ -244,28 +250,28 @@ provides more transparency by hiding the selection and allocation of
 computing resources. We favor this second approach.
 
 In a Grid context, this approach requires the implementation of
-middleware to facilitate client access to remote resources. In
-the ASP approach, a common way for clients to ask for resources to
-solve their problem is to submit a request to the middleware. The
-middleware will find the most appropriate server that will solve the
-problem on behalf of the client using a specific software. Several
-environments, usually called Network Enabled Servers (NES), have
-developed such a paradigm: NetSolve~\cite{nug}, Ninf~\cite{NSS99},
-NEOS~\cite{FMM00}, OmniRPC~\cite{SHTS01}, and more recently DIET
-developed in the GRAAL project. A common feature of these environments
-is that they are built on top of five components: clients, servers,
-databases, monitors and schedulers. Clients solve computational
-requests on servers found by the NES. The NES schedules the requests
-on the different servers using performance information obtained by
-monitors and stored in a database.
+middleware to facilitate client access to remote resources. In the ASP
+approach, a common way for clients to ask for resources to solve their
+problem is to submit a request to the middleware. The middleware will
+find the most appropriate server that will solve the problem on behalf
+of the client using a specific software. Several environments, usually
+called Network Enabled Servers (NES), have developed such a paradigm:
+NetSolve~\cite{nug}, Ninf~\cite{NSS99}, NEOS~\cite{FMM00},
+OmniRPC~\cite{SHTS01}, and more recently \diet developed in the
+\textsc{Graal} project. A common feature of these environments is that
+they are built on top of five components: clients, servers, databases,
+monitors and schedulers. Clients solve computational requests on
+servers found by the NES. The NES schedules the requests on the
+different servers using performance information obtained by monitors
+and stored in a database.
 
-DIET stands for Distributed Interactive Engineering Toolbox. It is a
-toolbox for easily developing Application Service Provider systems on
-Grid platforms, based on the Client/Agent/Server scheme. Agents are
-the schedulers of this toolbox. In DIET, user requests are served
-via RPC.
+\textsc{Diet} stands for Distributed Interactive Engineering
+Toolbox. It is a toolbox for easily developing Application Service
+Provider systems on Grid platforms, based on the Client/Agent/Server
+scheme. Agents are the schedulers of this toolbox. In \textsc{Diet},
+user requests are served via RPC.
 
-DIET follows the GridRPC API defined within the Global Grid
+\textsc{Diet} follows the GridRPC API defined within the Global Grid
 Forum~\cite{GridRPC}.
 
 %
