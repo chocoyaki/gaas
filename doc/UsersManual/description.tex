@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.16  2006/12/02 12:01:18  ycaniou
+%* Some modifications: lecture terminée pour cette partie
+%*
 %* Revision 1.15  2006/09/11 11:15:00  ycaniou
 %* - Up to date documentation for parallel/batch submission
 %* - Corrected wrong references
@@ -60,26 +63,26 @@
 \chapter{A DIET platform}
 \label{ch:description}
 
-\textsc{DIET} is built upon \emph{Server Daemons}. The process of
+\textsc{Diet} is built upon \emph{Server Daemons}. The process of
 scheduling the requests is distributed amongst a hierarchy of
 \emph{Local Agents} and \emph{Master Agents}. The scheduler can use
-resource availability information collected from three different tools:
-from NWS~\cite{WSH99} sensors which are placed on every node of the hierarchy,
-from the application-centric performance prediction tool \textsc{FAST}
-\cite{Qui02}, which relies on NWS information,
-or from CoRI Easy, which is based on simple system calls and some basic
-performance tests. (see Chapter~\ref{chapter:performance}).
+resource availability information collected from three different
+tools: from NWS~\cite{WSH99} sensors which are placed on every node of
+the hierarchy, from the application-centric performance prediction
+tool \textsc{FAST} \cite{Qui02}, which relies on NWS information, or
+from CoRI Easy, which is based on simple system calls and some basic
+performance tests (see Chapter~\ref{chapter:performance}).
 Figure~\ref{fig:platform} shows the hierarchical organization of
-DIET.
+\textsc{Diet}.
 
 \begin{figure}[htb]
  \begin{center}
   \resizebox{.7\linewidth}{!}{\includegraphics{fig/global_platform.eps}}
-  \caption{\label{fig:platform}A hierarchy of DIET agents}
+  \caption{\label{fig:platform}A hierarchy of \textsc{Diet} agents}
  \end{center}
 \end{figure}
 
-%====[ DIET components ]=======================================================
+%====[ \textsc{Diet} components ]=======================================================
 \section{DIET components}
 \label{sec:components}
 
@@ -87,14 +90,14 @@ The different components of our software architecture are the following:
 
 \begin{description}
 %....[ Client ]................................................................
-\item \textbf{Client}\\
-  A client is an application which uses DIET to solve problems.  Many
-  types of clients are able to connect to DIET from a web page, a PSE
-  such as Matlab or \sci, or from a compiled program.
+\item \textbf{Client}\\ A client is an application which uses
+  \textsc{Diet} to solve problems.  Many types of clients are able to
+  connect to \textsc{Diet}, from a web page, a PSE such as Matlab or
+  \sci, or from a compiled program.
 %....[ Master Agent (MA) ].....................................................
-\item \textbf{Master Agent (MA)}\\
-  An MA receives computation requests from clients. These requests
-  refer to some DIET problems listed on a reference web
+\item \textbf{Master Agent (MA)}\\ An MA receives computation requests
+  from clients. These requests refer to some \textsc{Diet} problems
+  listed on a reference web
   page~\footnote{http://graal.ens-lyon.fr/DIET/diet\_services.html}.
   Then the MA collects computation abilities from the servers and
   chooses the best one. The reference of the chosen server is returned
@@ -104,29 +107,27 @@ The different components of our software architecture are the following:
   which stores the various MA locations.
 
 %....[ Local Agent (LA) ]......................................................
-\item \textbf{Local Agent (LA)}\\
-  An LA transmits requests and information between MAs and servers.
-  The information stored on an LA is the list of services available
-  in the subtree rooted at the LA; for each service, LAs store a
-  list of children (agents or servers) that can be contacted to find
-  the service. Depending on the underlying
-  network topology, a hierarchy of LAs may be deployed between an MA
-  and the servers. Of course, the function of an LA is to do a partial
-  scheduling on its subtree, which reduces the workload at the MA.
+\item \textbf{Local Agent (LA)}\\ An LA transmits requests and
+  information between MAs and servers.  The information stored on an
+  LA is the list of services available in the subtree rooted at the
+  LA; for each service, LAs store a list of children (agents or
+  servers) that can be contacted to find the service. Depending on the
+  underlying network topology, a hierarchy of LAs may be deployed
+  between an MA and the servers. Of course, the function of an LA is
+  to do a partial scheduling on its subtree, which reduces the
+  workload at the MA.
 
 %....[ Server Daemon (SeD) ]...................................................
-\item \textbf{Server Daemon (SeD)}\\
-  A SeD encapsulates a computational server. For instance it can be
-  located on the entry point of a parallel computer. The information
-  stored on a SeD is a list of the data available locally (i.e. on
-  the server), the list of problems
-  that can be solved on it, and performance-related information such
-  as the amount of available memory or the number of resources
-  available. When it registers, a SeD declares the problems it can
-  solve to its parent LA or MA.  A SeD can give perfomance and hardware
-  information by using the module CoRI or performance
-  predictions for some types of
-  problems by using the module FAST.
+\item \textbf{Server Daemon (SeD)}\\ A SeD encapsulates a
+  computational server. For instance it can be located on the entry
+  point of a parallel computer. The information stored on a SeD is a
+  list of the data available locally ({\it i.e.}, on the server), the
+  list of problems that can be solved on it, and performance-related
+  information such as the amount of available memory or the number of
+  resources available. When it registers, a SeD declares the problems
+  it can solve to its parent LA or MA.  A SeD can give perfomance and
+  hardware information by using the module CoRI or performance
+  predictions for some types of problems by using the module FAST.
   Both modules are described in chapter~\ref{chapter:performance}.
 
 \end{description}
@@ -135,7 +136,7 @@ The different components of our software architecture are the following:
 % \begin{center}
 %  \resizebox{.6\linewidth}{!}{\includegraphics{fig/global_platform.eps}}
 %  \label{fig:platform}
-%  \caption{A hierarchy of DIET agents}
+%  \caption{A hierarchy of \textsc{Diet} agents}
 % \end{center}
 %\end{figure}
 
@@ -145,23 +146,22 @@ The different components of our software architecture are the following:
 
 NES environments can be implemented using a classic socket
 communication layer.  Several problems to this approach have been
-pointed out such as the lack of portability or limits on the
-number of sockets that can be open concurrently.
-Our aim is to implement and deploy a distributed NES
-environment that works at a wider scale. Distributed object
-environments, such as \emph{Java}, \emph{DCOM} or CORBA have proven to
-be a good base for building applications that manage access to
-distributed services. They not only provide transparent communications
-in heterogeneous networks, but they also offer a framework for the
-large scale deployment of distributed applications. Being open and
-language independent, CORBA was chosen as the communication layer in
-DIET.
+pointed out such as the lack of portability or limits on the number of
+sockets that can be opened concurrently.  Our aim is to implement and
+deploy a distributed NES environment that works at a wider
+scale. Distributed object environments, such as \emph{Java},
+\emph{DCOM} or CORBA have proven to be a good base for building
+applications that manage access to distributed services. They not only
+provide transparent communications in heterogeneous networks, but they
+also offer a framework for the large scale deployment of distributed
+applications. Being open and language independent, CORBA was chosen as
+the communication layer in \textsc{Diet}.
 
 As recent implementations of CORBA provide communication times close to
 that of sockets, CORBA is well suited to support distributed
 applications in a large scale Grid environment. New specialized
 services can be easily published and existing services can also be
-used.  DIET is based upon \emph{OmniORB 3}~\cite{OMNIORB} or later,
+used.  \textsc{Diet} is based upon \emph{OmniORB 3}~\cite{OMNIORB} or later,
 a free CORBA implementation that provides good communication
 performance.
 
@@ -180,7 +180,7 @@ clients.
 \begin{figure}[hbt]
   \begin{center}
     \resizebox{9cm}{!}{\includegraphics{fig/init.eps}}
-    \caption{Initialization of a DIET system.}
+    \caption{Initialization of a \textsc{Diet} system.}
     \label{fig:init}
   \end{center}
 \end{figure}
@@ -241,7 +241,7 @@ made in four steps.
 
 \begin{itemize}
 \item The MA propagates the client request through its subtrees down
-  to the capable servers~; actually, the agents only forward the
+  to the capable servers; actually, the agents only forward the
   request on those subtrees offering the service.
 \item Each server that can satisfy the request can send his 
   performance and hardware information or  an estimation of  the 
@@ -263,16 +263,17 @@ made in four steps.
 \subsection{Multi-MA}
 \label{init:multima}
 
-A standard DIET platform gives access to SeD placed under the control of a MA
-as explained at the beginning of this chapter. Sometime, it is useful to
-connect several MA together. This happens when several organizations wish to
-share their resources to offer a larger set of service types and more available
-servers. The Multi-MA extension allows this by creating federation which shares
+A standard \textsc{Diet} platform gives access to SeDs placed under
+the control of a MA as explained at the beginning of this
+chapter. Sometime, it is useful to connect several MA together. This
+happens when several organizations wish to share their resources to
+offer a larger set of service types and more available servers. The
+Multi-MA extension allows this by creating a federation which shares
 resources between several MA.
 
-In multi-MA mode, the behavior of a DIET hierarchy does not change when a
+In multi-MA mode, the behavior of a \textsc{Diet} hierarchy does not change when a
 client requests a service that is available under the queried MA.  However, if
-a request sent to a MA does not found a SeD that can resolve its problem, DIET
+a request sent to a MA does not found a SeD that can resolve its problem, \textsc{Diet}
 will forward the request to other MAs of the federation.  To read more about
 multi-MA, see Chapter~\ref{ch:multiMAextension} and
 Chapter~\ref{ch:p2pextension}.
@@ -282,7 +283,7 @@ Chapter~\ref{ch:p2pextension}.
 \label{sub:fast}
 
 Fast Agent's System Timer (FAST)~\cite{Qui02} is a tool for dynamic
-performance forecasting in a Grid environment.  When DIET is
+performance forecasting in a Grid environment.  When \textsc{Diet} is
 compiled with the appropriate options and FAST has been configured
 on the SeD machine, SeDs can access FAST to obtain dynamic
 performance predictions.  See Chapter~\ref{chapter:performance} for details
@@ -293,7 +294,7 @@ on using FAST.
 \label{sub:cori}
 
 Collector of Resource Information (CoRI) is a manager for collecting
-hardware and performance information.  When DIET is compiled with
+hardware and performance information.  When \textsc{Diet} is compiled with
 the appropriate option, it is possible to get this information via
 different sub-modules like FAST* or CoRI-Easy. (* if compiled and
 configured on the SeD machine). See Chapter~\ref{chapter:performance}
