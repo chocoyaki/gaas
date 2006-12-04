@@ -1,3 +1,18 @@
+/****************************************************************************/
+/* CoRI Collectors of ressource information (Data part)                     */
+/*                                                                          */
+/* Author(s):                                                               */
+/*    - Frauenkron Peter (Peter.Frauenkron@ens-lyon.fr)                     */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.8  2006/12/04 21:53:12  ecaron
+ * Add header
+ *
+/****************************************************************************/
+
 #include "Cori_Data_Easy.hh"
 
 #include "debug.hh"
