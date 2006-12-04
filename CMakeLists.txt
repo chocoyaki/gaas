@@ -20,7 +20,6 @@ OPTION( DIET_USE_JXTA   "Build DIET with JXTA architecture support." OFF )
 OPTION( DIET_USE_WORKFLOW    "Build DIET with workflow support..." OFF)
 OPTION( DIET_WITH_STATISTICS "Build DIET with generation of statistics." OFF )
 OPTION( DIET_WITH_MULTI_MA   "Build DIET with MULTI-Master-Agent support." OFF )
-OPTION( DIET_WITH_ALTPREDICT "Build DIET with ALTernative performance PREDICTion support." OFF )
 
 # --------------------- OPTIONS SET BY DEFAULT  ----------------------------
 # One might wish not to compile DIET but just to build the docs:
@@ -48,12 +47,6 @@ ENDIF( NOT DIET_BUILD_LIBRARIES AND DIET_BUILD_EXAMPLES )
 IF( DIET_WITH_MULTI_MA AND DIET_USE_JXTA )
  MESSAGE(SEND_ERROR "Either set DIET_WITH_MULTI_MA or DIET_USE_JXTA. Not both.")
 ENDIF( DIET_WITH_MULTI_MA AND DIET_USE_JXTA )
-
-# ALTPREDICT use DTM structure and don't support the JuxMEM add-on. 
-IF( DIET_WITH_ALTPREDICT AND DIET_USE_JUXMEM )
- MESSAGE(SEND_ERROR "Either set DIET_WITH_ALTPREDICT or DIET_USE_JUXMEM. Not both.")
-ENDIF( DIET_WITH_ALTPREDICT AND DIET_USE_JUXMEM )
-
 
 # --------------------- DEPENDENCIES TOWARDS "CLASSIC" C++ HEADERS ---------
 # This is just a convenience to advance the detection of any potential missing
@@ -211,11 +204,6 @@ IF( DIET_WITH_STATISTICS )
   # Enable generation of the statistics log:
   ADD_DEFINITIONS( -DHAVE_STATISTICS )
 ENDIF( DIET_WITH_STATISTICS )
-
-IF( DIET_WITH_ALTPREDICT )
-  # Enable experimental ALTernative performance PREDICTion support:
-  ADD_DEFINITIONS( -DHAVE_ALTPREDICT )
-ENDIF( DIET_WITH_ALTPREDICT )
 
 IF( DIET_BUILD_EXAMPLES AND DIET_BUILD_BLAS_EXAMPLES )
   # BLAS (Basic Linear Algebric Subroutines) examples subdir requires...BLAS !

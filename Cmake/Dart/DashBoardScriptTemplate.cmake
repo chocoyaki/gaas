@@ -102,10 +102,6 @@ DIET_USE_JXTA:BOOL=ON
 DIET_USE_WORKFLOW:BOOL=ON
 XERCES_DIR:PATH=$ENV{HOME}/local/xerces-c-2_7_0
 
-///////////////////////////////////////////////// WITH_ALTPREDICT OPTION
-//Build DIET with ALTernative performance PREDICTion support.
-DIET_WITH_ALTPREDICT:BOOL=ON
-
 ///////////////////////////////////////////////// WITH_MULTI_MA OPTION
 //Build DIET with MULTI-Master-Agent support.
 DIET_WITH_MULTI_MA:BOOL=ON

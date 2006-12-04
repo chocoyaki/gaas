@@ -31,3 +31,13 @@ OpenSSL communications should be enabled for all CORBA communications.
 Client should be able to submit job to server via a designated agent in the
 hierarchy (who would act as a proxy).  This approach could help avoid a lot of
 firewall problems between the client and the server.
+
+[2006-12-4 ALTPREDICT removal]
+   The ALTPREDICT (Alternative performance PREDICTion) related code should be
+   deprecated according to both Holly Grail and Eddy Carron. This code not
+   only seems no longer maintained (read dead) but it also collides with
+   JuXMEM: ALTPREDICT uses the DTM data structure and doesn't support the
+   JuxMEM extension.
+   Note: the ALTPREDICT code is delimited by the HAVE_ALTPREDICT
+         C-preprocessing flag. Watch out for the occurences within de idl
+         sections of code (src/CORBA/idl/*.idl files).

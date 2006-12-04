@@ -72,9 +72,5 @@ DIET_USE_DART:BOOL=ON
 DIET_USE_JUXMEM:BOOL=ON
 JUXMEM_DIR:PATH=$ENV{HOME}/local/juxmem-0.3
 
-///////////////////////////////////////////////// WITH_ALTPREDICT OPTION
-//Build DIET with ALTernative performance PREDICTion support.
-DIET_WITH_ALTPREDICT:BOOL=ON
-
 ")
 
