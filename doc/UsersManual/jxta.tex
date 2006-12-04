@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.11  2006/12/04 12:18:35  dloureir
+%* minor corrections
+%*
 %* Revision 1.10  2006/12/04 10:10:36  ctedesch
 %* correct typos and update for cmake
 %*
@@ -63,7 +66,7 @@ first submission failed.
 
 One way to implement the Multi-MA is to use peer-to-peer technology,
 and thus have a distributed Multi-Agent system where MAs dynamically
-discover each other and cooperate in order to give clients the largest
+discover each others and cooperate in order to give clients the largest
 possible area of search in a transparent manner.
 
 JXTA~\cite{JXTA} is a technology written with java~\cite{java}. It
@@ -142,7 +145,7 @@ The behaviour of the JXTA client is:
 The role of the SeD$_{J}$ is to allow the clients$_{J}$ to send
 computation requests to the SeD$_{DIET}$. The SeD$_{DIET}$ receives
 the requests sent by clients$_{J}$, calls the SeD$_{DIET}$ (that
-returns the response),then sends the result to the client.
+returns the response) and then sends the result to the client.
 
 The general behaviour of the SeD$_{J}$ is written below:
 
@@ -164,8 +167,8 @@ The general behaviour of the SeD$_{J}$ is written below:
 \label{sssec:jxtamultima}
 
 The Multi-MA$_{J}$ is composed of all MAs$_{J}$ running at the same
-time. The MA$_{J}$ is able to connect the clients$_{J}$ and to others
-running MA$_{J}$. Thus, each client knows only one MA$_{J}$, that is
+time. The MA$_{J}$ is able to connect the clients$_{J}$ to others
+running MAs$_{J}$. Thus, each client knows only one MA$_{J}$, that is
 its access to the Multi-MA. Each MA$_{J}$ publishes an advertisement
 with a lifetime in order to avoid clients or other MA$_{J}$ to connect
 to a stopped MA$_{J}$. When it receives a request coming from a
@@ -224,7 +227,7 @@ and the SeD.
 
 To submit the client's requests to DIET, the MA$_{J}$ needs to call
 the MA$_{DIET}$  \texttt{submit} function. To allow this, the MA$_{J}$
-launches a MA$_{DIET}$ via a  native method and calls the
+launches a MA$_{DIET}$ via a native method and calls the
 \texttt{submit} function via another.
 
 The MA$_{DIET}$ contains:
@@ -303,7 +306,7 @@ The SeD$_{DIET}$ contains:
 \item{You need a JDK1.4.1 or later release from for instance:\\
     \noindent
     {\footnotesize
-      \texttt{http://java.sun.com/j2se/1.4.2/download.html} }\\
+      \texttt{http://java.sun.com/javase/downloads/index.jsp} }\\
       (Previous JDKs and other java compiler are known to generate
       errors) Ensure that environment variable PATH contains the javac
       and javah binaries location.}
@@ -331,7 +334,7 @@ things to do before deploying the platform.
     \begin{itemize}
       \item{Set an environment variable called \texttt{JXTA\_LIB}
       containing the path to the JXTA JAR files. They are by default
-      provided in the \texttt{<diet\_root>/src/lib} directory.
+      provided in the \texttt{<diet\_root>/src/lib} directory.}
 
   \item{At last, the command to be launched to run a MA$_{J}$ is:\\
       \noindent
