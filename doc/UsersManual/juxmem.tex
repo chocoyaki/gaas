@@ -12,7 +12,7 @@
 
 \section{Introduction}
 
-With the release of version 2.0 of the DIET toolkit, we introduce the
+With the release of version 2.0 of the DIET toolkit, we have introduced the
 ability to use JuxMem for managing persistent data blocks. This
 section shortly describes how to use JuxMem inside DIET, as it is an
 on going work.
@@ -30,15 +30,15 @@ the web site of JuxMem~\cite{JuxMem}.
 
 \section{How to configure DIET to use JuxMem?}
 
-DIET currently needs JuxMem version 0.2 to work. This version can be
+DIET currently needs JuxMem version 0.3 to work. This version can be
 downloaded on the web site of JuxMem~\cite{JuxMem}. For configuring
 and building JuxMem, please check the README file included in this
-0.2 release of JuxMem. When the \texttt{--enable-JuxMem} option is
+0.3 release of JuxMem. When the \texttt{-DDIET_USE_JUXMEM} option is
 activated, you need to have JuxMem-C build, so please read the
 documentation for building JuxMem-C. Currently, for configuring DIET
-in order to use JuxMem you need to specify the build path of JuxMem,
-JXTA-C and APR using respectively the \texttt{--with-juxmem},
-\texttt{--with-jxta-c} and \texttt{--with-apr} options.
+in order to use JuxMem you need to specify the build path of JuxMem with
+the \texttt{-DJUXMEM_DIR} option. A JuxMem canonical installation is
+ supposed (with JXTA-C and APR installed).
 Note that APR (Apache Portable Runtime) is a requirement of both
 JuxMem-C and JXTA-C.
 
@@ -48,7 +48,7 @@ have a JuxMem platform deployed and usable!  In a first step, you must
 deploy a JuxMem platform as described in the documentations of
 JuxMem. This JuxMem platform is currently based on JuxMem-J2SE,
 JuxMem-C is only used to play the role of a JuxMem client within a
-DIET SeD. Please read the README file of JuxMem to build and deployed
+DIET SeD. Please read the README file of JuxMem to build and deploy
 a JuxMem platform.
 
 \section{Example}
