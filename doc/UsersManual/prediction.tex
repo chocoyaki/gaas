@@ -23,8 +23,8 @@ the SeD (the charge of the CPU, of the memory,...) or an advanced
 performance prediction that combines a set of basic performance
 predictions. It is possible to use
 FAST in the plug-in scheduler that gives advanced performance predictions. A
-second possibility to get performance prediction is now available,
-called CoRI. The aim of CoRI is to simplify
+second possibility to get performance prediction, called CoRI, is now available.
+ The aim of CoRI is to simplify
 the access to the information. Inside of CoRI, FAST can be called,
 but it is only one source of information among other sources (for
 example Cori-Easy). \\
@@ -40,17 +40,17 @@ information is available with which compiling option.
  \begin{tabular}[c]{|l|c|c||c||c|}\hline
 %Cori ligne
    &
-  \multicolumn{2}{|c||}{\textbf{no cori}} &
-  \multicolumn{2}{|c|}{\textbf{-}\textbf{-enable-cori}}\\[5pt]
+  \multicolumn{4}{|c|}{\textbf{-DDIET\_USE\_CORI:}} \\[5pt]
+   &
+  \multicolumn{2}{|c||}{\textbf{BOOL=OFF}} &
+  \multicolumn{2}{|c|}{\textbf{BOOL=ON}}\\[5pt]
   \hline
   \hline
 %FAST ligne
 
   \texttt{Information tag} 
-  & no FAST & \texttt{--with-FAST} &  no FAST & 
-  \texttt{--with-FAST} \\
-
- \texttt{starts with EST\_} & & & & \\[5pt]
+  & \multicolumn{4}{|c|}{\textbf{-DDIET\_USE\_FAST:}} \\[5pt]
+ \texttt{starts with EST\_} & BOOL=OFF & BOOL=ON  & BOOL=OFF & BOOL=ON \\[5pt]
   \hline
 
 %TAGS lines
@@ -85,8 +85,8 @@ information is available with which compiling option.
   \textit{ALLINFOS     }      &   &   & x & x  \\[5pt]
   \hline
  \end{tabular}
- \caption{Dependencies of the available information from the
- compile options}
+ \caption{Dependencies of the available information on the
+ compiling options}
  \label{t:depcompil}
 \end{table}
 
@@ -104,13 +104,13 @@ Grid environment. As shown in Figure~\ref{fig:fast-overview}, FAST
 is composed of several layers and relies on a variety of low-level
 software. First, it uses the Network Weather Service
 (NWS)~\cite{WSH99}, a distributed system that periodically monitors
-and dynamically forecasts the performance of various network and
+and dynamically forecasts the performances of various network and
 computational resources. The resource availabilities acquisition
 module of FAST uses and enhances NWS. Indeed, if there is no direct
 NWS monitoring between two machines, FAST automatically searches for
 the shortest path between them in the graph of monitored links. It
 estimates the bandwidth as the minimum of those in the path and the
-latency as the sum of those measured. This allows for the
+latency as the sum of those measured. This allows the
 availability of more predictions when DIET is deployed over a
 hierarchical network.
 
@@ -124,7 +124,7 @@ hierarchical network.
 
 In addition to system availabilities, FAST can also forecast the
 time and space needs of certain computational routines as a function
-of the problem parameters and the machine where the computation
+of the problem parameters and the machines where the computations
 would take place.  FAST is particularly suited to numerical algebra
 routines whose performance is not data-dependent and where a clear
 relationship exists between problem size and performance. As a basis
@@ -161,7 +161,7 @@ Of course, you also need to install the FAST SDK itself. It is important to
 understand basically how FAST works, and the role of its dependencies, to
 deactivate the ones that are not needed by the user.
 
-\subsection{Using FAST in  the plug-in scheduler}\label{subsection:callFAST}
+\subsection{Using FAST in the plug-in scheduler}\label{subsection:callFAST}
 
 FAST- and NWS-based performance estimation metrics are stored in
   an estimation metric vector (see chapter~\ref{ch:plugin} for more details) by calling
@@ -173,7 +173,7 @@ FAST- and NWS-based performance estimation metrics are stored in
    \texttt{profilePtr} corresponding to the current DIET request.
 
    \textbf{Attention: } this option it not available when compiling 
-   with the option \texttt{--enable-cori}, 
+   with the option \texttt{-DDIET\_USE\_CORI} set to \texttt{OFF}, 
    To access to this information use CoRI.
    (see section~\ref{sec:CORI}).
 
@@ -294,7 +294,7 @@ files \\
 \section{CoRI: Collectors of Ressource Information}
 \label{sec:CORI}
 
-CoRI is a manager to access to different tools for collecting information about the SeD. At present, two tools, called collectors, are implemented: FAST and the Easy-Mode. The user can choose which collector will provide the information.
+CoRI manages the access to different tools for collecting information about the SeD. At present, two tools, called collectors, are implemented: FAST and the Easy-Mode. The user can choose which collector will provide the information.
 
 \begin{figure}[h]
   \begin{center}
@@ -312,7 +312,7 @@ which will provide the information: \texttt{EST\_COLL\_EASY} or
 \texttt{EST\_COLL\_FAST}. Three different functions are provided
 with CoRI.
 
-The first function is to initialize a specific collector.
+The first function initializes a specific collector.
 
 \footnotesize
 \begin{verbatim}
@@ -321,10 +321,10 @@ The first function is to initialize a specific collector.
                                    void* data);
 \end{verbatim}
 \normalsize
-The second parameter is reserved for initializing collectors which needs additional information on  initialization. At present, this field is not used.
+The second parameter is reserved for initializing collectors which need additional information on  initialization. At that time, this field is not used.
 
-After the initialisation, accessing to the information is done by specifying the
-collector and the information type
+After the initialization, accessing to the information is done by specifying the
+collector and the information type.
 \footnotesize
 \begin{verbatim}
   int
@@ -334,10 +334,10 @@ collector and the information type
                      void* data);
 \end{verbatim}
 \normalsize 
-Cori-Easy don't need more information, but FAST need a
+Cori-Easy doesn't need more information, but FAST needs a
 profile of type ``diet\_profile\_t''. The last
 parameter is reserved for it. \\
-The last function is used for testing Cori-Easy. It
+The last function is used to test Cori-Easy. It
 prints all information Cori-Easy finds to the standard output.
 
 \footnotesize
@@ -371,13 +371,13 @@ provide.
 
 \subsection{CoRI-Easy}
 The CoRI-Easy collector makes some basic system calls to gather the
-information. CoRI-Easy is only available if DIET is compiled with option
-\texttt{--enable-cori}. The last collumn of the table~\ref{t:depcompil}
-correspond to the CoRI-Easy's functionality. .
+information. CoRI-Easy is only available if DIET is compiled with the option
+\texttt{-DDIET\_USE\_CORI} set to \texttt{ON}. The last collumn of the table~\ref{t:depcompil}
+corresponds to the CoRI-Easy's functionality.
 
 \section{Future Work}
 
-There are two primary efforts for the CoRI manager.
+There are two primary efforts for the CoRI manager:
 \begin{itemize}
 \item \textbf{Improving Cori-Easy}: Some evaluation functions are very basic and
   should be revised to increase their response time speed and the
