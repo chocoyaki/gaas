@@ -8,8 +8,30 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.8  2006/12/04 21:53:12  ecaron
- * Add header
+ * Revision 1.9  2006/12/04 21:59:27  ecaron
+ * Full header from cvs log
+ *
+ *
+ * Revision 1.7 2006/01/25 20:55:37 pfrauenk
+ * CoRI : printing approved
+ * 
+ * Revision 1.6 2006/01/19 21:45:55 pfrauenk
+ * CoRI : small bugs fixed - Cori in FAST-Mode now with EST_COMMTIME
+ * 
+ * Revision 1.5 2006/01/15 15:37:07 pfrauenk
+ * CoRI: debug.hh is used now, cleanup, minor changes
+ * 
+ * Revision 1.4 2005/12/20 21:53:28 pfrauenk
+ * CoRI print function improved
+ *
+ * Revision 1.3 2005/12/16 07:31:34 pfrauenk
+ * CoRI bug fixes
+ * 
+ * Revision 1.2 2005/12/15 14:00:37 pfrauenk
+ * Cori fixes
+ *
+ * Revision 1.1 2005/12/15 10:12:17 pfrauenk
+ * CoRI functionality added by Peter Frauenkron
  *
 /****************************************************************************/
 
