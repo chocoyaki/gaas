@@ -47,7 +47,7 @@ SET( CTEST_INITIAL_CACHE "
 
 /////////////////////////////////////////////// LOCALISATION
 //Name of the build
-BUILDNAME:STRING=Debian-GCC_3.3.5-Altpredict-Juxmem
+BUILDNAME:STRING=Debian-GCC_3.3.5-NOCori-Fd-Juxmem-Jxta-WorkFlow
 
 //Name of the computer/site where compile is being run
 SITE:STRING=avoine.ens-lyon.fr
@@ -56,21 +56,31 @@ SITE:STRING=avoine.ens-lyon.fr
 CMAKE_BUILD_TYPE:STRING=Maintainer
 OMNIORB4_DIR:PATH=$ENV{HOME}/local/omniORB-4.0.7
 
-///////////////////////////////////////////////// BUILD_EXAMPLES OPTION
-DIET_BUILD_EXAMPLES:BOOL=ON
-
 ///////////////////////////////////////////////// USE_CORI OPTION
 //Build DIET with CORI support.
-DIET_USE_CORI:BOOL=ON
+DIET_USE_CORI:BOOL=OFF
 
 ///////////////////////////////////////////////// USE_DART OPTION
 //Build DIET for dart reporting...
 DIET_USE_DART:BOOL=ON
 
+///////////////////////////////////////////////// USE_FD OPTION
+//Use Diet Fault Detector.
+DIET_USE_FD:BOOL=ON
+
 ///////////////////////////////////////////////// USE_JUXMEM OPTION
 //Build DIET with JuxMem support.
 DIET_USE_JUXMEM:BOOL=ON
 JUXMEM_DIR:PATH=$ENV{HOME}/local/juxmem-0.3
+
+///////////////////////////////////////////////// USE_JXTA OPTION
+//Build DIET with JXTA architecture support.
+DIET_USE_JXTA:BOOL=ON
+
+///////////////////////////////////////////////// USE_WORKFLOW OPTION
+//Build DIET with workflow support...
+DIET_USE_WORKFLOW:BOOL=ON
+XERCES_DIR:PATH=$ENV{HOME}/local/xerces-c-2_7_0
 
 ")
 
