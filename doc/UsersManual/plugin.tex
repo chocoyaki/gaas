@@ -3,7 +3,7 @@
 %*                                                                          *%
 %*  Author(s):                                                              *%
 %*    - Alan SU (Alan.SU@ens-lyon.fr)                                       *%
-%*                                                                          *%
+Sa%*                                                                          *%
 %* $LICENSE$                                                                *%
 %****************************************************************************%
 
@@ -81,9 +81,9 @@ implements the following ordered sequence of tests:
   comparing two otherwise equivalent SeD performance estimations.
 \end{enumerate}
 
-\textbf{Attention:} If DIET is compiled with option \texttt{--enable-cori},
-FAST/NWS Scheduling is deactivated. See
-chapter~\ref{chapter:performance} for more information about CoRI.
+\textbf{Warning:} If DIET is compiled with option \texttt{DIET\_USE\_CORI},
+FAST/NWS Scheduling is deactivated (See
+Chapter~\ref{chapter:performance} for more information about CoRI.
 
 In principle, this scheduling policy prioritizes servers that are able
 to provide useful performance prediction information (as provided by
@@ -135,9 +135,9 @@ the context of the application being developed.
 
 To access to the different fields of the \texttt{estVector\_t}, it
 is necessary to specify the tag that correspond to a specific information type.
-The table~\ref{t:tags} describe this correspondance.
+The Table~\ref{t:tags} describe this correspondance.
 Some tags represent a list of values, use the \texttt{diet\_est\_array\_*} 
-functions to acces to them. In the table~\ref{t:tags}, 
+functions to acces to them. In the Table~\ref{t:tags}, 
 the second column marks this multi-value tags.
 
 The tag \textit{ALLINFOS} is a special: his field is 
@@ -199,7 +199,7 @@ functions are available to facilitate the construction of custom
 performance estimation functions:
 \begin{itemize}
 \item FAST- and NWS-based performance estimation metrics can be used in the plugin scheduler. 
-See the section ~\ref{subsection:callFAST} how to use them.
+See the Section~\ref{subsection:callFAST} how to use them.
 \item The time elapsed since the last execution (to enable
   the round-robin scheduler) is stored in an estimation metric vector
   by calling
@@ -473,7 +473,7 @@ scheduler.
   data concerning the internal state of the DIET server (e.g.,~the
   current length of request queues).  As other performance measurement
   and evaluation tools are developed both within and external to the
-  DIET project (see chapter~\ref{chapter:performance}), some
+  DIET project (see Chapter~\ref{chapter:performance}), some
   tools are already available to enable such 
   information to be incorporated
   in the context of the plugin scheduler.
