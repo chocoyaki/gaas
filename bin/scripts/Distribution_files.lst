@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.15  2006/12/05 21:34:50  ecaron
+#* Doc source file not require for user distrib
+#*
 #* Revision 1.14  2006/11/28 14:08:51  eboix
 #*   - Clean-up of src/Testing/Utilities directory:
 #*     * LightClient/MainFrame.form removed (was never used)
@@ -486,7 +489,7 @@ src/Testing/TestORBMgrInit.cxx
 # Doc section
 [Untemplated]
 doc/CMakeLists.txt
-[Templated]
+[Devel_Templated]
 doc/UsersManual/UsersManual.bib
 doc/UsersManual/UsersManual.tex
 doc/UsersManual/client.tex
