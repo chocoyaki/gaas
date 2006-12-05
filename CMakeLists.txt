@@ -159,12 +159,19 @@ ENDIF( DIET_USE_BATCH )
 # of CORBA. JXTA allows the creation of a new MA on demand and it's
 # integration within the multi-hierarchy of existing MAs.
 IF( DIET_USE_JXTA )
+  # Looking for the java compiler, javac, javah...
   FIND_PACKAGE( JavaExtended )
   IF( JAVA_FOUND )
     ADD_DEFINITIONS(-DHAVE_JXTA)
   ELSE( JAVA_FOUND )
     SET( DIET_USE_JXTA OFF )
   ENDIF( JAVA_FOUND )
+  # For locating the jni.h:
+  FIND_PACKAGE( JNI )
+  IF( NOT JAVA_INCLUDE_PATH )
+    MESSAGE( SEND_ERROR "JXTA exension: could not find jni.h.")
+    SET( DIET_USE_JXTA OFF )
+  ENDIF( NOT JAVA_INCLUDE_PATH )
 ENDIF( DIET_USE_JXTA )
 
 # So called MULTI-Master-Agent

@@ -74,85 +74,89 @@ IF( DIET_BUILD_LIBRARIES )
   IF( DIET_USE_JXTA )
 
     ADD_CUSTOM_COMMAND(
-      OUTPUT    ${DIET_BINARY_DIR}/src/agent/LA.class
+      OUTPUT    ${CMAKE_CURRENT_BINARY_DIR}/LA.class
       COMMAND   ${JAVA_COMPILE}
-      ARGS      -d ${DIET_BINARY_DIR}/src/agent
-                ${DIET_SOURCE_DIR}/src/agent/LA.java
-      DEPENDS   ${DIET_SOURCE_DIR}/src/agent/LA.java
+      ARGS      -d ${CMAKE_CURRENT_BINARY_DIR}
+                ${CMAKE_CURRENT_SOURCE_DIR}/LA.java
+      DEPENDS   ${CMAKE_CURRENT_SOURCE_DIR}/LA.java
       COMMENT   "java compile local agent"
     )
     ADD_CUSTOM_COMMAND(
-      OUTPUT    ${DIET_BINARY_DIR}/src/agent/LA.h
+      OUTPUT    ${CMAKE_CURRENT_BINARY_DIR}/LA.h
       COMMAND   ${JAVA_HEADER_COMPILE}
-      ARGS      -classpath ${DIET_BINARY_DIR}/src/agent
-                -d ${DIET_BINARY_DIR}/src/agent
+      ARGS      -classpath ${CMAKE_CURRENT_BINARY_DIR}
+                -d ${CMAKE_CURRENT_BINARY_DIR}
                 LA
-      DEPENDS   ${DIET_BINARY_DIR}/src/agent/LA.class
+      DEPENDS   ${CMAKE_CURRENT_BINARY_DIR}/LA.class
       COMMENT   "java header compile local agent"
     )
     SET_SOURCE_FILES_PROPERTIES( 
-      ${DIET_SOURCE_DIR}/src/agent/localAgentJNI.cc
+      ${CMAKE_CURRENT_SOURCE_DIR}/localAgentJNI.cc
       PROPERTIES
-      OBJECT_DEPENDS ${DIET_BINARY_DIR}/src/agent/LA.h
+        OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/LA.h
+        COMPILE_FLAGS "-I${JAVA_INCLUDE_PATH}"
     )
-    INCLUDE_DIRECTORIES( ${DIET_BINARY_DIR}/src/agent )  # For LA.h ...
-    ADD_LIBRARY( dietLocalAgent ${DIET_SOURCE_DIR}/src/agent/localAgentJNI.cc )
+
+    INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )  # For LA.h ...
+    ADD_LIBRARY( dietLocalAgent ${CMAKE_CURRENT_SOURCE_DIR}/localAgentJNI.cc )
 
     TARGET_LINK_LIBRARIES( dietLocalAgent
-	UtilsNodes
-	UtilsVector
-	CorbaCommon
-	IDLLA
-	IDLMA
-	AgentCommon	
-	${OMNIORB4_LIBRARIES}
-  )
+      UtilsNodes
+      UtilsVector
+      CorbaCommon
+      IDLLA
+      IDLMA
+      AgentCommon
+      ${OMNIORB4_LIBRARIES}
+    )
 
     INSTALL_TARGETS( /lib/ dietLocalAgent )
   
     ADD_CUSTOM_COMMAND(
-      OUTPUT    ${DIET_BINARY_DIR}/src/agent/JXTAMultiMA.class
-		${DIET_BINARY_DIR}/src/agent/ReqMgr.class
-		${DIET_BINARY_DIR}/src/agent/UuidsMgr.class
+      OUTPUT    ${CMAKE_CURRENT_BINARY_DIR}/JXTAMultiMA.class
+                ${CMAKE_CURRENT_BINARY_DIR}/ReqMgr.class
+                ${CMAKE_CURRENT_BINARY_DIR}/UuidsMgr.class
       COMMAND   ${JAVA_COMPILE}
-      ARGS      -d ${DIET_BINARY_DIR}/src/agent
-		-classpath ${DIET_SOURCE_DIR}/src/agent:${DIET_SOURCE_DIR}/src/lib/jxta.jar
-                ${DIET_SOURCE_DIR}/src/agent/JXTAMultiMA.java
-                ${DIET_SOURCE_DIR}/src/agent/ReqMgr.java
-                ${DIET_SOURCE_DIR}/src/agent/UuidsMgr.java
-      DEPENDS   ${DIET_SOURCE_DIR}/src/agent/JXTAMultiMA.java
-                ${DIET_SOURCE_DIR}/src/agent/ReqMgr.java
-                ${DIET_SOURCE_DIR}/src/agent/UuidsMgr.java
+      ARGS      -d ${CMAKE_CURRENT_BINARY_DIR}
+      -classpath ${CMAKE_CURRENT_SOURCE_DIR}:${DIET_SOURCE_DIR}/src/lib/jxta.jar
+                ${CMAKE_CURRENT_SOURCE_DIR}/JXTAMultiMA.java
+                ${CMAKE_CURRENT_SOURCE_DIR}/ReqMgr.java
+                ${CMAKE_CURRENT_SOURCE_DIR}/UuidsMgr.java
+      DEPENDS   ${CMAKE_CURRENT_SOURCE_DIR}/JXTAMultiMA.java
+                ${CMAKE_CURRENT_SOURCE_DIR}/ReqMgr.java
+                ${CMAKE_CURRENT_SOURCE_DIR}/UuidsMgr.java
       COMMENT   "java compile multi master agent"
     )
 
     ADD_CUSTOM_COMMAND(
-      OUTPUT    ${DIET_BINARY_DIR}/src/agent/JXTAMultiMA.h
+      OUTPUT    ${CMAKE_CURRENT_BINARY_DIR}/JXTAMultiMA.h
       COMMAND   ${JAVA_HEADER_COMPILE}
-      ARGS      -classpath ${DIET_BINARY_DIR}/src/agent
-                -d ${DIET_BINARY_DIR}/src/agent
+      ARGS      -classpath ${CMAKE_CURRENT_BINARY_DIR}
+                -d ${CMAKE_CURRENT_BINARY_DIR}
                 JXTAMultiMA
-      DEPENDS   ${DIET_BINARY_DIR}/src/agent/JXTAMultiMA.class
+      DEPENDS   ${CMAKE_CURRENT_BINARY_DIR}/JXTAMultiMA.class
       COMMENT   "java header compile master agent"
     )
+
     SET_SOURCE_FILES_PROPERTIES( 
-      ${DIET_SOURCE_DIR}/src/agent/masterAgentJNI.cc
+      ${CMAKE_CURRENT_SOURCE_DIR}/masterAgentJNI.cc
       PROPERTIES
-      OBJECT_DEPENDS ${DIET_BINARY_DIR}/src/agent/JXTAMultiMA.h
+        OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/JXTAMultiMA.h
+        COMPILE_FLAGS "-I${JAVA_INCLUDE_PATH}"
     )
   
-    INCLUDE_DIRECTORIES( ${DIET_BINARY_DIR}/src/agent )
-    ADD_LIBRARY( dietMasterAgent ${DIET_SOURCE_DIR}/src/agent/masterAgentJNI.cc )
+    INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
+    ADD_LIBRARY( dietMasterAgent ${CMAKE_CURRENT_SOURCE_DIR}/masterAgentJNI.cc )
 
     TARGET_LINK_LIBRARIES( dietMasterAgent
-	UtilsNodes
-	UtilsVector
-	CorbaCommon
-	IDLLA
-	IDLMA
-	AgentCommon	
-	${OMNIORB4_LIBRARIES}
-  )
+      UtilsNodes
+      UtilsVector
+      CorbaCommon
+      IDLLA
+      IDLMA
+      AgentCommon
+      ${OMNIORB4_LIBRARIES}
+    )
 
     INSTALL_TARGETS( /lib/ dietMasterAgent )
   

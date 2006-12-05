@@ -60,37 +60,38 @@ IF( DIET_BUILD_LIBRARIES )
   IF( DIET_USE_JXTA )
 
     ADD_CUSTOM_COMMAND(
-      OUTPUT    ${DIET_BINARY_DIR}/src/SeD/JXTASeD.class
+      OUTPUT    ${CMAKE_CURRENT_BINARY_DIR}/JXTASeD.class
       COMMAND   ${JAVA_COMPILE}
-      ARGS      -d ${DIET_BINARY_DIR}/src/SeD
-		-classpath ${DIET_SOURCE_DIR}/src/SeD:${DIET_SOURCE_DIR}/src/lib/jxta.jar
-                ${DIET_SOURCE_DIR}/src/SeD/JXTASeD.java
-      DEPENDS   ${DIET_SOURCE_DIR}/src/SeD/JXTASeD.java
+      ARGS      -d ${CMAKE_CURRENT_BINARY_DIR}
+      -classpath ${CMAKE_CURRENT_SOURCE_DIR}:${DIET_SOURCE_DIR}/src/lib/jxta.jar
+                ${CMAKE_CURRENT_SOURCE_DIR}/JXTASeD.java
+      DEPENDS   ${CMAKE_CURRENT_SOURCE_DIR}/JXTASeD.java
       COMMENT   "java compile SeD"
     )
 
     ADD_CUSTOM_COMMAND(
-      OUTPUT    ${DIET_BINARY_DIR}/src/SeD/JXTASeD.h
+      OUTPUT    ${CMAKE_CURRENT_BINARY_DIR}/JXTASeD.h
       COMMAND   ${JAVA_HEADER_COMPILE}
-      ARGS      -classpath ${DIET_BINARY_DIR}/src/SeD
-                -d ${DIET_BINARY_DIR}/src/SeD
+      ARGS      -classpath ${CMAKE_CURRENT_BINARY_DIR}
+                -d ${CMAKE_CURRENT_BINARY_DIR}
                 JXTASeD
-      DEPENDS   ${DIET_BINARY_DIR}/src/SeD/JXTASeD.class
+      DEPENDS   ${CMAKE_CURRENT_BINARY_DIR}/JXTASeD.class
       COMMENT   "java header compile SeD"
     )
     SET_SOURCE_FILES_PROPERTIES( 
-      ${DIET_SOURCE_DIR}/src/SeD/SeDJNI.cc
+      ${CMAKE_CURRENT_SOURCE_DIR}/SeDJNI.cc
       PROPERTIES
-      OBJECT_DEPENDS ${DIET_BINARY_DIR}/src/SeD/JXTASeD.h
+        OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/JXTASeD.h
+        COMPILE_FLAGS "-I${JAVA_INCLUDE_PATH}"
     )
-  
-    INCLUDE_DIRECTORIES( ${DIET_BINARY_DIR}/src/SeD )
-    ADD_LIBRARY( SeDJNI ${DIET_SOURCE_DIR}/src/SeD/SeDJNI.cc )
+
+    INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
+    ADD_LIBRARY( SeDJNI ${CMAKE_CURRENT_SOURCE_DIR}/SeDJNI.cc )
 
     TARGET_LINK_LIBRARIES( SeDJNI
-	DIET_SeD			   
-	${OMNIORB4_LIBRARIES}
-  )
+      DIET_SeD
+      ${OMNIORB4_LIBRARIES}
+    )
 
     INSTALL_TARGETS( /lib/ SeDJNI )
 
