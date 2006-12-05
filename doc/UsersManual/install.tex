@@ -10,6 +10,10 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.31  2006/12/05 13:25:20  eboix
+%*  FIX: Chapter 2 of User's manual typos and errors removed (many thanks to
+%*       Abdelkader for reading and suggesting fixes).  --- Injay2461
+%*
 %* Revision 1.30  2006/11/15 14:58:16  eboix
 %*    First autotools free version. --- Injay2461
 %*
@@ -97,9 +101,8 @@ environment variables \texttt{\$OMNIORB\_CONFIG} and
 options).
 
 Some examples provided in the DIET sources depend on the BLAS
-and \scalapack\ libraries. However the compilation of those BLAS dependent
-examples are optional.
-
+and \scalapack\ libraries. However the compilation of those BLAS and
+\scalapack\ dependent examples are optional.
 
 %====[ Compilation ]===========================================================
 \section{Compiling the platform}
@@ -121,7 +124,7 @@ default or at least \verb+apt-get+ (or whatever your distro package installer
 might be) is \verb+cmake+ aware.
 Still, in case you need to install an up-to-date version \verb+cmake+'s
 official site distributes many binary versions (alas packaged as tarballs)
-as made available at 
+which are made available at 
 \url{http://www.cmake.org/HTML/Download.html}.
 Optionally, you can download the sources and recompile them: this simple
 process (\verb+./bootstrap; make; make install+) is described at
@@ -141,7 +144,7 @@ libraries) to compile stage.
 \verb+Cmake+ classically provides two ways for setting configuration
 parameters in order to generate the makefiles in the form of two
 commands \verb+ccmake+ and \verb+cmake+ (the first one has an extra "c"
-character): use
+character):
 \begin{description}
 \item{\verb+ccmake [options] <path-to-source>+}\\
   in order to specify the parameters interactively through a GUI interface
@@ -150,10 +153,10 @@ character): use
   from the command line.
 \end{description}
 In the above syntax description of both commands, {\verb+<path-to-source>+}
-specifies a path to the top level of the source tree (i.e. where the directory
+specifies a path to the top level of the source tree (i.e. the directory
 where the top level CMakeLists.txt file is to be encountered). Also
 the current working directory will be used as the root of the build tree for
-the project (out of source building is generally encouraged specially
+the project (out of source building is generally encouraged especially
 when working on a CVS tree).
 
 \noindent
@@ -179,7 +182,7 @@ mentioning:
    \texttt{--prefix=} option.
 \end{itemize}
 %
-Eventually, here is short list of \verb+ccmake+ interface tips:
+Eventually, here is a short list of \verb+ccmake+ interface tips:
 \begin{itemize}
 \item
   when lost, look at the bottom lines of the interface which always
@@ -211,9 +214,10 @@ Eventually, here is short list of \verb+ccmake+ interface tips:
 \subsection{A ccmake walk-through for the impatients}
 
 Assume that \verb+CVS_DIET_HOME+ represents a path to the top level
-directory of a tree of DIET sources.
-This directory tree was either obtained by expanding the DIET current
-source level distribution tarball, or for DIET developers corresponds to
+directory of DIET sources.
+This DIET sources directories tree can be obtained by DIET users by
+expanding the DIET current source level distribution tarball.
+But for the DIET developers this directories tree simply corresponds to
 the directory GRAAL/devel/diet/diet of a cvs checkout of the DIET sources
 hierarchy.
 Additionally, assume we created a build tree directory and \verb+cd+
@@ -271,18 +275,20 @@ Here are the main configuration flags:
 
 \item
   \verb+DIET_BUILD_LIBRARIES+ which is enabled by default, activates the
-  compilation of the DIET libraries. This option is only useful if you 
-  wish to restrict the compilation to the construction of the documentation.
+  compilation of the DIET libraries.
+  Disabling this option is only useful if you wish to restrict the
+  compilation to the construction of the documentation.
 \end{itemize}
 
 %==================
 \subsection{DIET's extensions configuration flags}
 
 DIET has many extensions (some of them are still) experimental. These
-extensions most often rely on external packages than need to be pre-installed
-and some of those extensions offer concurrent functionalities. This explains
-the usage of configuration flags in order to obtain the compilation of
-the desired extensions.
+extensions most often rely on external packages that need to be pre-installed.
+One should notice that some of those extensions offer concurrent
+functionalities.
+This explains the usage of configuration flags in order to obtain
+the compilation of the desired extensions.
 
 \begin{itemize}
 \item
@@ -322,8 +328,8 @@ the desired extensions.
 
 \item
   \verb+DIET_USE_FAST+ activates DIET support of FAST (refer to
-  \url{http://graal.ens-lyon.fr/FAST/} a grid aware dynamic forecasting
-  library.
+  \url{http://www.loria.fr/~quinson/fast.html} a grid aware dynamic
+  forecasting library.
   Although the detection of FAST should be correctly handled by cmake
   (since detection is based on the FAST provided \verb+fast-config+ utility)
   the installation of FAST can be a lengthy process (and, depending on you
@@ -476,7 +482,8 @@ After compiling (linking, and testing) you can optionally proceed with
 the installation stage with the \verb+make install+ command.
 
 %==============================================================================
-\section{Compiling the examples}
+\section{Diet client/server examples}
+\label{section:diet-examples}
 
 A set of various examples of DIET server/client are provided within
 the DIET archive:
@@ -525,12 +532,12 @@ the DIET archive:
   For each workflow, you can fin the required services in the corresponding
   xml file (check the path attribute of each node element).
   For the scalar manipulation example, you can use \texttt{scalar\_server}
-  that gathers the four different services of four different servers.
+  that gathers four different elementary services.
 \end{itemize}
 
 \subsection{Compiling the examples}
+\label{subsection:compiling-examples}
 
-\label{section:compiling-examples}
 \verb+Cmake+ will set the examples to be compiled when setting the 
 \verb+DIET_BUILD_EXAMPLES+ to \verb+ON+ which can be achieved by
 toggling the corresponding entry of \verb+ccmake+ GUI's or by adding
