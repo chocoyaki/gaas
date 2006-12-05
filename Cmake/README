@@ -78,7 +78,7 @@ IV/ DIET specific cmake parameters:
   - DIET_WITH_STATISTICS for ... good question, for what ?
   - OMNIORB4_DIR is the path to the omniORB4 installation directory
     (only relevant when omniORB4 was not installed in /usr/local).
-    Example: cmake .. -DOMNIORB4_DIR:PATH=/usr/local/omniORB-4.0.5
+    Example: cmake .. -DOMNIORB4_DIR:PATH=/usr/local/omniORB-4.0.7
 
 V/ DIET [c]cmake invocation example:
  ccmake .. -DDIET_USE_CORI:BOOL=ON 
