@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.16  2006/12/05 21:44:48  ecaron
+#* Remove comment
+#*
 #* Revision 1.15  2006/12/05 21:34:50  ecaron
 #* Doc source file not require for user distrib
 #*
@@ -529,10 +532,7 @@ doc/ExternalExample/CMakeLists.txt
 [Devel_Untemplated]
 doc/ProgrammersGuide/fig/CMakeLists.txt
 doc/ProgrammersGuide/ProgrammersGuide.pdf
-# Là, je me demande si ça pose problème à CMake de supprimer des
-# sous-répertoires. Si oui, il faut remettre le répertoire du PG et le
-# CMakeLists.txt dans une section [(Un)Templated]. Sinon, on peut virer ce PG de
-# la distribution "normale" comme je le fais ici...
+
 [Devel_templated]
 doc/ProgrammersGuide/Annexe1.tex
 doc/ProgrammersGuide/CS.tex
@@ -568,8 +568,6 @@ doc/ProgrammersGuide/fig/WaitRulesClassDiagram.png
 doc/ProgrammersGuide/fig/logo_DIET.gif
 
 doc/UsersManual/fig/CMakeLists.txt
-# Il m'étonne celui-là, pourquoi n'y en a-t-il pas dans ProgrammersGuide/fig/ ?
-# Vérifier qu'il est nécessaire...
 doc/UsersManual/fig/data.eps
 doc/UsersManual/fig/DIET_arch_request-2.ps
 doc/UsersManual/fig/FAST.fig
