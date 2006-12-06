@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2006/12/06 22:14:25  ecaron
+ * Header bug fix
+ *
  * Revision 1.7  2006/11/28 13:30:31  ecaron
  * Add $Log: from cvs log
  *
@@ -20,7 +23,7 @@
  * 
  * Revision 1.1 2005/12/15 10:12:17 pfrauenk
  * CoRI functionality added by Peter Frauenkron
-/****************************************************************************/
+ ****************************************************************************/
 #include <unistd.h> //int getpagesize (void)
 #ifdef CORI_HAVE_SYS_SYSINFO
 #include <sys/sysinfo.h> // get_phys_pages (),get_avphys_pages ()
