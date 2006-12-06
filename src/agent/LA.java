@@ -8,19 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.4  2006/11/28 14:30:48  ctedesch
- * add old logs in header
+ * Revision 1.5  2006/12/06 00:34:34  ecaron
+ * wrong header generation
  *
- * Revision 1.3  2006/11/28 14:29:22  ctedesch
- * Header
- *
- * Revision 1.2
- * date: 2006/10/25 21:33:52  eboix
- * Fixed compile time warnings. --- Injay2461
- *
- * Revision 1.1
- * date: 2004/06/11 15:45:39  ctedesch
- * add DIET/JXTA
 /****************************************************************************/
 public class LA
 {
