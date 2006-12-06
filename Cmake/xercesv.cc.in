@@ -1,0 +1,9 @@
+#include "@XERCES_INCLUDE_DIR@/xercesc/util/XercesVersion.hpp"
+#include <stdio.h>
+
+int main( int argc, char* argv[] )
+{
+   printf( "%d%d", XERCES_VERSION_MAJOR, XERCES_VERSION_MINOR);
+   return 0;
+}
+

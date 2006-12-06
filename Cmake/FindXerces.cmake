@@ -64,28 +64,37 @@ IF(NOT XERCES_FOUND )
 ENDIF( NOT XERCES_FOUND )
 
 IF( XERCES_INCLUDE_DIR )
-  FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/xercesv.cc
-    "#include \"${XERCES_INCLUDE_DIR}/xercesc/util/XercesVersion.hpp\"\n"
-    "#include <stdio.h>\n"
-    "int main(int argc, char ** argv) {\n"
-    "        printf(\"%d%d\", XERCES_VERSION_MAJOR, XERCES_VERSION_MINOR);\n"
-    "        return 0;}\n")
+  # We can't use CMAKE_CURRENT_SOURCE_DIR because this script is invoked
+  # from the top-level cmake:
+  SET( WORKING_DIR ${DIET_BINARY_DIR}/Cmake )
+  SET( XERCES_VERSION_SOURCE_FILE ${WORKING_DIR}/xercesv.cc )
+  CONFIGURE_FILE(
+    ${DIET_SOURCE_DIR}/Cmake/xercesv.cc.in
+    ${XERCES_VERSION_SOURCE_FILE}
+    IMMEDIATE
+  )
   TRY_RUN (COMPILE_RESULT RUN_RESULT 
     ${CMAKE_CURRENT_BINARY_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}/xercesv.cc
-    OUTPUT_VARIABLE OUTPUT)
+    ${XERCES_VERSION_SOURCE_FILE}
+    OUTPUT_VARIABLE OUTPUT
+  )
 
   IF ( RUN_RESULT )
     EXECUTE_PROCESS ( COMMAND ${CMAKE_CXX_COMPILER} 
-      ${CMAKE_CURRENT_BINARY_DIR}/xercesv.cc
-      -o ${CMAKE_CURRENT_BINARY_DIR}/xercesv)
-    EXECUTE_PROCESS ( COMMAND ${CMAKE_CURRENT_BINARY_DIR}/xercesv
-      OUTPUT_VARIABLE XERCES_VERSION)
-
+      ${XERCES_VERSION_SOURCE_FILE}
+      -o ${WORKING_DIR}/xercesv
+    )
+    EXECUTE_PROCESS ( COMMAND ${WORKING_DIR}/xercesv
+      OUTPUT_VARIABLE XERCES_VERSION
+    )
     STRING (REGEX REPLACE "^([0-9])[0-9]" "\\1"
       XERCES_VERSION_MAJOR "${XERCES_VERSION}")
     STRING (REGEX REPLACE "^[0-9]([0-9])" "\\1"
       XERCES_VERSION_MINOR "${XERCES_VERSION}")
+    FILE( APPEND ${CMAKE_BINARY_DIR}/CMakeOutput.log
+      "FindXerces.cmake: major version number = ${XERCES_VERSION_MAJOR}\n" )
+    FILE( APPEND ${CMAKE_BINARY_DIR}/CMakeOutput.log
+      "FindXerces.cmake: minor version number = ${XERCES_VERSION_MINOR}\n" )
   ELSE ( RUN_RESULT )
     SET( XERCES_VERSION "0" )
     SET( XERCES_VERSION_MAJOR "NOT-FOUND" )
