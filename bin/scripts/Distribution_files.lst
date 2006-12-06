@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.17  2006/12/06 23:43:21  ecaron
+#* Update list of files for DIET 2.2
+#*
 #* Revision 1.16  2006/12/05 21:44:48  ecaron
 #* Remove comment
 #*
@@ -93,11 +96,13 @@ Cmake/FindOmniORB.cmake
 Cmake/FindTestingUtils.cmake
 Cmake/FindTransfig.cmake
 Cmake/FindXerces.cmake
+Cmake/xercesv.cc.in
 Cmake/Makefile.inc.in
 Cmake/README
 Cmake/Ctest/CMakeLists.txt
 Cmake/Ctest/CTestCustom.ctest.in
 Cmake/Ctest/OmniDaemon.bash.in
+
 
 # Include section
 [Untemplated]
@@ -302,7 +307,6 @@ src/examples/workflow/double.c
 src/examples/workflow/file_manip.c
 src/examples/workflow/generic_client.c
 src/examples/workflow/int2str.c
-src/examples/workflow/mat_op.c
 src/examples/workflow/mul_succ.c
 src/examples/workflow/mul_sum.c
 src/examples/workflow/progs.h
