@@ -1,21 +1,36 @@
-diet-2.2
++----------+
+| diet 2.2 |
++----------+ 
+	
+* Workflow
 
-* Workflow 
-    - Workflow support added to DIET. A workflow engine and a special agent
-    (the maDagAgent) were added to manage and schedule workflow submissions.
+	- Workflow support added to DIET. A workflow engine and a special
+	agent the maDagAgent) were added to manage and schedule workflow
+	submissions.
     
 * Fault Tolerance
-      - Added support for Chandra&Aguilera&Toueg failure detector. This failure 
-      detector may be used to observe failures of components and restart them.
-      Failure detector triggers callback upon definitive failure suspicion 
-      of an observed process. Client provide a restart procedure for 
-      failed SeDs.
+	
+	- Added support for Chandra&Aguilera&Toueg failure detector. This
+	failure detector may be used to observe failures of components and
+	restart them.  Failure detector triggers callback upon definitive
+	failure suspicion of an observed process. Client provide a restart
+	procedure for failed SeDs.
 
 * JuxMem
-      - Added support for asynchronous calls and refactorized implementation
-      - Updated for JuxMem 0.3
 	
-diet-2.1
+	- Added support for asynchronous calls and refactorized implementation
+	- Updated for JuxMem 0.3
+
+* CMake
+        - DIET used a cmake based building process 
+	(autotool version was abandoned)
+
+* All bug was resolved. If you found a new one please refer to  
+  http://graal.ens-lyon.fr/bugzilla
+
++----------+
+| diet 2.1 |
++----------+ 
 
 * CoRI Collectors of ressource information
         - This new functionality allows to acces in an easy way to 
@@ -46,8 +61,9 @@ and gcc 4.x support, few bug fix...
 	- INOUT parameters are not changed in asynchronous mode (bug #9 in
 	  bugzilla)
 
-
-diet-2.0
++----------+
+| diet 2.0 |
++----------+ 
 
 * Plug-in
 	- add support for user-defined performance metrics at SeD-level,
@@ -88,7 +104,9 @@ diet-2.0
 	- INOUT parameters are not changed in asynchronous mode (bug #9 in
 	  bugzilla)
 
-diet-1.1
++----------+
+| diet 1.1 |
++----------+ 
 
 * logService
 	- add LogManager to DIET component (MAs, LAs and SeDs) to enable DIET
@@ -121,8 +139,9 @@ diet-1.1
 	- dmat_manips clients crash when useAsyncAPI = 0 ( bug #11 in
 	bugzilla)
 
-
-diet (1.0 beta)  
++----------+
+| diet 1.0 |
++----------+ 
 
 * GNU autotools: automake and autoconf.
   - Apparition of this ChangeLog.
