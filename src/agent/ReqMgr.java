@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2006/12/06 17:59:21  ecaron
+ * Header bug fix
+ *
  * Revision 1.3  2006/11/28 16:23:10  ctedesch
  * add old logs in header
  *
@@ -20,7 +23,7 @@
  * the DIET J multi-hierarchy
  * - DIET/JXTA -> DIET J
  * - Change the JXTA examples scripts to build a whole multi-hierarchy
-/****************************************************************************/
+ ****************************************************************************/
 import java.io.*;
 
 
