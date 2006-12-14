@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.62  2006/12/14 11:41:15  aamar
+ * Making the SeD display its IOR when starting.
+ *
  * Revision 1.61  2006/11/16 09:55:52  eboix
  *   DIET_config.h is no longer used. --- Injay2461
  *
@@ -763,6 +766,10 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
 
   /* SeD creation */
   SeD = new SeDImpl();
+  TRACE_TEXT(NO_TRACE, 
+	     "## SED_IOR " << ORBMgr::getIORString(SeD->_this()) << endl);
+  fsync(1);
+  fflush(NULL);
 
   /* Set SeD to use LogService object */
   SeD->setDietLogComponent(dietLogComponent);
