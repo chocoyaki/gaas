@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2006/12/14 11:40:12  aamar
+ * Making the agent (MA or LA) display its IOR when starting.
+ *
  * Revision 1.23  2006/05/12 12:12:32  sdahan
  * Add some documentation about multi-MA
  *
@@ -291,11 +294,21 @@ main(int argc, char** argv)
 
   if (agtType == Parsers::Results::DIET_LOCAL_AGENT) {
     Agt = new LocalAgentImpl();
+    TRACE_TEXT(NO_TRACE, 
+	       "## LA_IOR " << ORBMgr::getIORString(Agt->_this()) << endl);
+    fsync(1);
+    fflush(NULL);
+
     ORBMgr::activate((LocalAgentImpl*)Agt);
     Agt->setDietLogComponent(dietLogComponent);   /* LogService */
     res = ((LocalAgentImpl*)Agt)->run();
   } else {
     Agt = new MasterAgentImpl();
+    TRACE_TEXT(NO_TRACE, 
+	     "## MA_IOR " << ORBMgr::getIORString(Agt->_this()) << endl);
+    fsync(1);
+    fflush(NULL);
+
     ORBMgr::activate((MasterAgentImpl*)Agt);
     Agt->setDietLogComponent(dietLogComponent);   /* LogService */
     res = ((MasterAgentImpl*)Agt)->run();
