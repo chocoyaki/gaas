@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2006/12/27 22:45:02  ecaron
+ * Fix warning (remove unused variable)
+ *
  * Revision 1.3  2006/11/28 20:40:31  ycaniou
  * Only headers
  *
@@ -41,7 +44,6 @@ int solve_concatenation(diet_profile_t *pb)
   double * ptr_nbreel = NULL ;
   FILE * file, * output_file ;
   int status = 0 ;
-  int result ;
   size_t count ;
   char chaine[ MAX_STRING_LENGTH ] ;
   struct stat buf;
