@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2006/12/27 22:41:53  ecaron
+ * Clean code (remove warning due to unused variable)
+ *
  * Revision 1.25  2006/11/16 09:55:52  eboix
  *   DIET_config.h is no longer used. --- Injay2461
  *
@@ -502,21 +505,15 @@ DataMgrImpl::printList1()
      
       char *p1;
       double *value;
-      long unsigned int size = (long unsigned int) data_sizeof(&(cur->second.desc));
-      //      value=(double *)malloc(size*sizeof(double));
     
       p1 = (char *) cur->second.value.get_buffer(0);
       value  = (double*) p1;
       cout << "|    " << cur->first << "    |" << endl; // cur->first[2]
-      /*    cout << "--- VALUE ---" << endl;
-	    for(unsigned int i=0; i<size/8;i++) cout << " -  " << value[i] ;*/
       cout << "+-----------------+" << endl;
       cur++;
     }
     dataDescList.unlock();
-  } /*else {
-    cout << "+-----No Data-----+" << endl;
-  }*/
+  }
 } // printList1(){
 
 void
