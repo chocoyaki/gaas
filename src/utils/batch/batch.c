@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2007/01/08 13:43:23  ycaniou
+ * Changelog now incorporates batch stuff for diet 2.3
+ * Missing ')' in .tex
+ * Minor change in batch.c
+ *
  * Revision 1.10  2006/11/28 20:40:31  ycaniou
  * Only headers
  *
@@ -75,14 +80,14 @@ static const char
 
   /**
    * If #s# is non-null, appends #prefix# to #toWhat#, followed by #s#, then
-   * #suffix#.  #prefix# and #suffix# may each be NULL.  Appropriate characters
+   * #suffix#.  #prefix# and #suffix# may each be NULL. Appropriate characters
    * within #s# are escaped as indicated by #escape#.
    */
 static void
-AppendIfThere(char **toWhat,
-              const char *prefix,
-              const char *s,
-              const char *suffix,
+AppendIfThere(char ** toWhat,
+              const char * prefix,
+              const char * s,
+              const char * suffix,
               EscapeTypes escape) {
   char *c;
   char *escaped;

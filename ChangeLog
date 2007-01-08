@@ -1,4 +1,14 @@
 +----------+
+| diet 2.3 |
++----------+ 
+
+* Parallel Subsmission
+
+	- The server API has been extended to provide transparent submission
+	for parallel tasks on parallel resources, eventually managed by Batch
+	systems.
+	
++----------+
 | diet 2.2 |
 +----------+ 
 	
