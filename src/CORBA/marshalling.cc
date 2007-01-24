@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.68  2007/01/24 20:16:30  ycaniou
+ * Changed the name of the file received by a SeD: DIET_pid.uniqID.random.ficName
+ * Indeed, when a client receives a file from a SeD, it keeps the SeD ficName.
+ * Hence, if two SeD have the same pid, and use the same uniqID, we hope that the
+ * seed will do it ;)
+ *
  * Revision 1.67  2006/11/27 13:27:53  aamar
  * Force the unmarshalling of inout parameters for the asynchronous mode.
  *
@@ -508,6 +514,9 @@ unmrsh_data_desc(diet_data_desc_t* dest, const corba_data_desc_t* const src)
 int
 unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
 {  
+  static int uniqDataID=0 ;
+  static omni_mutex uniqDataIDMutex ;
+  
   if( (src->desc.mode == DIET_VOLATILE) && (upDown == 1) ){ 
     char *tmp=NULL;
     src->desc.id.idNumber=CORBA::string_dup(tmp); // CORBA frees old mem
@@ -524,11 +533,17 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
       /* FIXME: erase if ok:   char* out_path  = new char[256]; */
       char * out_path  = ms_stralloc(256) ;
       pid_t pid = getpid();
-    
+      int temp ;
+      
       if(strncmp(in_path,"/tmp/DIET_",10) != 0) {
-        sprintf(out_path, "/tmp/DIET_%d_%s", pid,
-                (file_name) ? (char*)(1 + file_name) : in_path);
-        ofstream outfile(out_path);
+	uniqDataIDMutex.lock() ;
+	uniqDataID++ ;
+	temp = uniqDataID ;
+	uniqDataIDMutex.unlock() ;
+	
+	sprintf(out_path, "/tmp/DIET_%d.%d.%ld_%s",pid,temp, random()
+		,(file_name) ? (char*)(1 + file_name) : in_path);
+	ofstream outfile(out_path);
 
         for (int i = 0; i < src->desc.specific.file().size; i++) {
           outfile.put(src->value[i]);
@@ -749,7 +764,6 @@ mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src)
    }
 
    // YC: for the moment, dest data have id set to ""
-
   return 0;
 }
 
@@ -1036,7 +1050,6 @@ unmrsh_inout_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb)
          || (dpb->last_out   != cpb->last_out)
 	 )
     return 1;
-
 
   // Unmarshal INOUT parameters
   for (i = dpb->last_in + 1; i <= dpb->last_inout; i++) {
