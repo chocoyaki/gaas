@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.97  2007/01/24 20:35:20  ycaniou
+ * Commentary only
+ *
  * Revision 1.96  2006/11/16 09:55:54  eboix
  *   DIET_config.h is no longer used. --- Injay2461
  *
@@ -994,8 +997,7 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
   uploadClientDataJuxMem(profile);
 #endif // HAVE_JUXMEM
 
-  /* Send Datas */
-
+  /* Convert profile (with data) in corba_profile (with data) */
   if (mrsh_profile_to_in_args(&corba_profile, profile)) {
     ERROR("profile is wrongly built", 1);
   }
@@ -1014,7 +1016,7 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
   }
 
 #if ! HAVE_JUXMEM
-  /* data property base_type and type retrieval : used for scheduler */
+  /* data property base_type and type retrieval: used for scheduler */
   for(int i = 0 ; i <= corba_profile.last_out ; i++) {
     char* new_id = strdup(corba_profile.parameters[i].desc.id.idNumber);
     if(strlen(new_id) != 0) {
