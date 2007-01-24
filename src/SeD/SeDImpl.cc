@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.87  2007/01/24 20:33:47  ycaniou
+ * Indentation
+ *
  * Revision 1.86  2006/11/16 09:55:52  eboix
  *   DIET_config.h is no longer used. --- Injay2461
  *
@@ -551,26 +554,26 @@ void persistent_data_release(corba_data_t* arg){
   case DIET_MATRIX: {
     corba_matrix_specific_t mat;
 
-     arg->desc.specific.mat(mat);
-     arg->desc.specific.mat().nb_r  = 0;
-     arg->desc.specific.mat().nb_c  = 0;
+    arg->desc.specific.mat(mat);
+    arg->desc.specific.mat().nb_r  = 0;
+    arg->desc.specific.mat().nb_c  = 0;
   
     break;
   }
   case DIET_STRING: {
     corba_string_specific_t str;
 
-	 str.length=0;
-     arg->desc.specific.str(str);
-     arg->desc.specific.str().length = 0;
+    str.length=0;
+    arg->desc.specific.str(str);
+    arg->desc.specific.str().length = 0;
     break;
   }
   case DIET_FILE: {
     corba_file_specific_t file;
 
-     arg->desc.specific.file(file);
-       arg->desc.specific.file().path = CORBA::string_dup("");
-       arg->desc.specific.file().size = 0;
+    arg->desc.specific.file(file);
+    arg->desc.specific.file().path = CORBA::string_dup("");
+    arg->desc.specific.file().size = 0;
     break;
   }
   default:
@@ -1162,7 +1165,8 @@ SeDImpl::downloadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
   TRACE_TIME(TRACE_MAIN_STEPS, "SeD downloads client datas\n");
 
 #if HAVE_JUXMEM
-  unmrsh_in_args_to_profile(&profile, &(const_cast<corba_profile_t&>(pb)), cvt);
+  unmrsh_in_args_to_profile(&profile, &(const_cast<corba_profile_t&>(pb)),
+			    cvt);
   downloadSeDDataJuxMem(profile);
 #else
       int i;
@@ -1176,7 +1180,8 @@ SeDImpl::downloadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
           }
         }
       }
-      unmrsh_in_args_to_profile(&profile, &(const_cast<corba_profile_t&>(pb)), cvt);
+      unmrsh_in_args_to_profile(&profile, &(const_cast<corba_profile_t&>(pb)),
+				cvt);
       //      displayProfile(&profile, path);
 #endif // ! HAVE_JUXMEM
 }
