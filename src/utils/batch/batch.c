@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2007/01/24 20:37:28  ycaniou
+ * Commentaries Doxygen compliant
+ *
  * Revision 1.11  2007/01/08 13:43:23  ycaniou
  * Changelog now incorporates batch stuff for diet 2.3
  * Missing ')' in .tex
@@ -79,9 +82,13 @@ static const char
    "oar", "shellscript" } ;
 
   /**
-   * If #s# is non-null, appends #prefix# to #toWhat#, followed by #s#, then
-   * #suffix#.  #prefix# and #suffix# may each be NULL. Appropriate characters
-   * within #s# are escaped as indicated by #escape#.
+   * If @param s is non-null, appends 
+   *   @param prefix to 
+   *   @param toWhat followed 
+   *   by \c s, then
+   *   @param suffix . \c prefix and \c suffix may each be NULL. 
+   * Appropriate characters
+   * within \c s are escaped as indicated by @param escape .
    */
 static void
 AppendIfThere(char ** toWhat,
@@ -122,12 +129,15 @@ AppendIfThere(char ** toWhat,
 
 
   /**
-   * If #s# is non-null, appends #prefix# to #toWhat#, followed by the elements
-   * of #s# separated by #separator#, then #suffix#.  #prefix#, #separator# and
-   * #suffix# may each be NULL. If #equalsSub# is non-NULL, elements of #s# are
+   * If @param s is non-null, appends @param prefix to @param toWhat 
+   * followed by the elements of \c s separated by @param separator
+   * then \c suffix.  
+   * \c prefix, \c separator and @param suffix may each be NULL. If 
+   * @param equalsSub is non-NULL, elements of \c s are
    * assumed to have the form name=value, and each equal sign is replaced by
-   * #equalSub#.  Appropriate characters within #s# are escaped as specified by
-   * #escape#.
+   * \c equalSub . 
+   * Appropriate characters within \c s are escaped as specified
+   * by @param escape .
    */
 static void
 AppendListIfThere(char **toWhat,
@@ -162,8 +172,9 @@ AppendListIfThere(char **toWhat,
 
 
   /**
-   * Returns in an allocated string a /bin/sh invocation of (s)ftp that asks
-   * #server# to perform #command# on #path1# and, if it is not NULL, #path2#.
+   * Returns in an allocated string a /bin/sh invocation of @param sftp 
+   * that asks @param server to perform @param command on @param path1 and, 
+   * if it is not NULL, @param path2 .
    */
 static char *
 FtpScript(int sftp,
@@ -238,7 +249,8 @@ RemoveTempFiles(void) {
 }
 
 
-  /** Returns in an allocated string an invocation of the SSH server #server#. 
+  /** Returns in an allocated string an invocation of the SSH server 
+      @param server . 
    */
 static char *
 SshInvocation(const char *server) {
