@@ -30,4 +30,8 @@ ELSE( NOT DIET_USE_BATCH )
     TARGET_LINK_LIBRARIES( ${loop_var} ${DIET_CLIENT_LIBRARIES} )
     INSTALL_TARGETS( /bin/examples/Batch ${loop_var} )
   ENDFOREACH( loop_var )
+
+  ### Do Lammps example
+  ADD_SUBDIRECTORY( Lammps )
+
 ENDIF( NOT DIET_USE_BATCH )

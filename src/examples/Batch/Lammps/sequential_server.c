@@ -18,8 +18,8 @@
 #include "DIET_server.h"
 
 #include <sys/stat.h>
-#include <sys/time.h> /* For gettimeofday() */
-#include <string.h> /* For strlen */
+#include <sys/time.h> /* gettimeofday() */
+#include <string.h> /* strlen */
 
 /* For fork() and wait() */
 #include <sys/types.h>
@@ -42,13 +42,15 @@ int solve_lammps(diet_profile_t *pb)
   struct stat buf;
   struct timeval uur70 ;
   char ** options ;
+  pid_t pid ;
   
-  printf("Resolving sequential service 'lammps'!\n\n") ;
+  printf("Resolving sequential service 'lammps'") ;
   /* Lammps binary dependant of installation. We suppose no renaming but
      an environment variable set within ~/.bash_profile for example */
   lammpsName = getenv("LAMMPS_NAME") ;
   if( lammpsName == NULL )
     lammpsName = "lammps_diet" ;
+  printf("by calling '%s' binary\n\n",lammpsName) ;
   
   /* IN args */
   diet_file_get(diet_parameter(pb,0), NULL, &arg_size1, &path1);
@@ -60,7 +62,7 @@ int solve_lammps(diet_profile_t *pb)
   
   /* OUT args */
   if( gettimeofday( &uur70, NULL ) == 0 ) {
-    sprintf(&chaine,"/tmp/lammps_%d.txt", uur70.tv_sec) ;
+    sprintf(chaine,"/tmp/lammps_%ld.txt",uur70.tv_sec) ;
     path_result = strdup(chaine) ; 
   } else {
     perror("Cannot access time on server. Use a static name\n") ;
@@ -76,17 +78,17 @@ int solve_lammps(diet_profile_t *pb)
   if( (pid=fork()) == 0 ) { /* son */
     options = (char**)malloc(3*sizeof(char*)) ;
     options[1]=(char*)malloc((strlen(path1)+2)*sizeof(char)) ;
-    sprintf(option[1],"< %s",path1) ;
+    sprintf(options[1],"< %s",path1) ;
     options[2]=(char*)malloc((strlen(path_result)+2)*sizeof(char)) ;
     sprintf(options[2],"> %s",path_result) ;
     options[3]=NULL ;
 
     /* Submission, that never returns */    
-    if( execve(lammpsName, options, NULL)==-1 ) {
-      perror("Error executing Lammps\n") ;
+    if( execve(lammpsName, options, NULL) == -1 ) {
+      perror("Error executing Lammps") ;
     }
   } else /* father */
-    wait() ;
+    wait(NULL) ;
   
   /* Free memory */
         
@@ -127,7 +129,7 @@ main(int argc, char* argv[])
   /* All done */
 
   /* Add service to the service table */
-  if( diet_service_table_add(profile, NULL, solve_concatenation) ) return 1 ;
+  if( diet_service_table_add(profile, NULL, solve_lammps) ) return 1 ;
   
   /* Free the profile, since it was deep copied */
   diet_profile_desc_free(profile);

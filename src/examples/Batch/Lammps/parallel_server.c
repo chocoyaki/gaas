@@ -20,6 +20,9 @@
 #include "DIET_server.h"
 #include <sys/stat.h>
 
+#include <sys/time.h> /* For gettimeofday() */
+#include <string.h> /* For strlen */
+
 ssize_t	writen(int fd, const void *vptr, size_t n) ;
 
 int
@@ -60,7 +63,6 @@ void make_perf(diet_profile_t *pb)
 int solve_lammps(diet_profile_t *pb)
 {
   size_t arg_size1  = 0 ;
-  size_t arg_size2  = 0 ;
   char * prologue = NULL ;
   char * copying = NULL ;
   char * cmd = NULL ;
@@ -76,13 +78,17 @@ int solve_lammps(diet_profile_t *pb)
   char * machine_filename ;
   int machine_file_descriptor ;
   struct stat buf;
-
-  printf("Resolving parallel service 'concatenation'!\n\n") ;
+  char * lammpsName ;
+  struct timeval uur70 ;
+  char chaine[5] ;
+  
+  printf("Resolving sequential service 'lammps'") ;
   /* Lammps binary dependant of installation. We suppose no renaming but
      an environment variable set within ~/.bash_profile for example */
   lammpsName = getenv("LAMMPS_NAME") ;
   if( lammpsName == NULL )
     lammpsName = "lammps_diet" ;
+  printf("by calling '%s' binary\n\n",lammpsName) ;
   
   /* IN args */
   diet_file_get(diet_parameter(pb,0), NULL, &arg_size1, &path1);
@@ -95,16 +101,17 @@ int solve_lammps(diet_profile_t *pb)
   /* OUT args */
   if( gettimeofday( &uur70, NULL ) == 0 ) {
     sprintf(&chaine,"/tmp/lammps_%d.txt", uur70.tv_sec) ;
-    path_result = strdup(chaine) ; 
+    local_output_filename = strdup(chaine) ; 
   } else {
     perror("Cannot access time on server. Use a static name\n") ;
-    path_result = strdup("/tmp/lammps.txt") ; /*MUST NOT BE A CONSTANT STRING*/
+    local_output_filename = strdup("/tmp/lammps.txt") ;
+    /*MUST NOT BE A CONSTANT STRING*/
   }
-  if( diet_file_desc_set(diet_parameter(pb,1), path_result) ) {
+  if( diet_file_desc_set(diet_parameter(pb,1), local_output_filename) ) {
       printf("diet_file_desc_set() error\n");
       return 1;
     }
-  printf("Name of result file: %s\n",path_result) ;
+  printf("Name of result file: %s\n",local_output_filename) ;
 
   /*******************************************/
   /* Put the command to submit into a script */
@@ -141,21 +148,22 @@ int solve_lammps(diet_profile_t *pb)
 	  "######################################### \n"
 	  "user_machinefile=%s \n"
 	  "######################################### \n"
-	  "# Copy the files on reserved nodes \n"
-	  "for i in `cat $user_machinefile` ; do \n"
-	  "  scp $DIET_NAME_FRONTALE:%s $i:/tmp/%s_local \n"
-	  "  scp $DIET_NAME_FRONTALE:%s $i:$WORKING_DIRECTORY/ \n"
-	  "done \n"
-	  "input_file1=/tmp/%s_local \n"
-	  "input_file2=%s \n",
+	  "# Use NFS, and suppose we 'cd' to WORKING_DIRECTORY after.. \n"
+	  "ssh $DIET_NAME_FRONTALE \"cp %s $WORKING_DIRECTORY/\"\n"
+	  "input_file=%s\n\n",
 	  machine_filename,
-	  path1,basename(path1),
-	  path2,
-	  basename(path1),
-	  basename(path2)) ; 
+	  path1,basename(path1)) ; 
   
   /* The MPI command itself */
-  local_output_filename = "/tmp/result.txt" ;
+  if( gettimeofday( &uur70, NULL ) == 0 ) {
+    sprintf(chaine,"/tmp/lammps_%d.txt", uur70.tv_sec) ;
+    path_result = strdup(chaine) ; 
+  } else {
+    perror("Cannot access time on server. Use a static name\n") ;
+    path_result = strdup("/tmp/lammps.txt") ; /*MUST NOT BE A CONSTANT STRING*/
+  }
+  printf("Name of result file: %s\n",path_result) ;
+
   cmd = (char*)malloc(500*sizeof(char)) ;
   if( cmd == NULL ) {
     fprintf(stderr,"Memory allocation problem.. not solving the service\n\n") ;
@@ -167,9 +175,10 @@ int solve_lammps(diet_profile_t *pb)
 	  "local_output_filename=%s \n"
 	  "mpirun.mpich_1_2 -np $DIET_USER_NBPROCS "
 	  "-machinefile $user_machinefile "
-	  "concatenation $input_file1 %.2f $input_file2 "
+	  "%s -in $input_file1 -screen "
 	  "$local_output_filename \n"
-	  "\n",local_output_filename, *ptr_nbreel) ;
+	  "\n",
+	  local_output_filename) ;
   
   /* Put the Output file in the right place */
   /* Note: if output on NFS, with "ln -s" (see batch_server_2) 
@@ -252,7 +261,7 @@ main(int argc, char* argv[])
   /* All done */
 
   /* Add service to the service table */
-  if( diet_service_table_add(profile, NULL, solve_concatenation) ) return 1 ;
+  if( diet_service_table_add(profile, NULL, solve_lammps) ) return 1 ;
   
   /* Free the profile, since it was deep copied */
   diet_profile_desc_free(profile);
