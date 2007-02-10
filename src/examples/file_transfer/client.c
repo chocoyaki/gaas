@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2007/02/10 13:10:25  ycaniou
+ * Memory weirdos: data were freed but CORBA managed
+ * + comments
+ *
  * Revision 1.11  2005/11/09 18:39:33  alsu
  * casting size_t arguments to int to deal with the storage size difference on 64-bit architectures
  *
@@ -93,8 +97,7 @@ main(int argc, char* argv[])
     diet_scalar_get(diet_parameter(profile,3), &size2, NULL);
     if (size1 && size2) {
       printf("Answered sizes are %d and %d.\n", *size1, *size2);
-      free(size1);
-      free(size2);
+      // No need to free size1 and size2: CORBA takes care of them
     } else {
       fprintf(stderr, "Error: Cannot get answered sizes !\n");
     }
@@ -102,7 +105,8 @@ main(int argc, char* argv[])
     if (path && (*path != '\0')) {
       printf("Location of returned file is %s, its size is %d.\n",
 	     path, (int) out_size);
-      diet_free_data(diet_parameter(profile,4));
+      // If uncommented, next line unlink file
+      // diet_free_data(diet_parameter(profile,4));
     }
   }
   
