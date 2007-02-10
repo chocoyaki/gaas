@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.69  2007/02/10 13:32:38  ycaniou
+ * Memory leaks in unmrsh_scalar_desc()
+ *
  * Revision 1.68  2007/01/24 20:16:30  ycaniou
  * Changed the name of the file received by a SeD: DIET_pid.uniqID.random.ficName
  * Indeed, when a client receives a file from a SeD, it keeps the SeD ficName.
@@ -416,30 +419,35 @@ unmrsh_scalar_desc(diet_data_desc_t* dest, const corba_data_desc_t* src)
     value = (void*) new short;
     src->specific.scal().value >>= *((CORBA::Short*)(value));
     scalar_set_desc(dest, id, (diet_persistence_mode_t)src->mode, bt, value);
+    delete(value) ;
     break;
   }
   case DIET_INT: {
     value = (void*) new int;
     src->specific.scal().value >>= *((CORBA::Long*)(value));
     scalar_set_desc(dest, id, (diet_persistence_mode_t)src->mode, bt, value);
+    delete(value) ;
     break;
   }
   case DIET_LONGINT: {
     value = (void*) new long long int;
     src->specific.scal().value >>= *((CORBA::Long*)(value));
     scalar_set_desc(dest, id, (diet_persistence_mode_t)src->mode, bt, value);
+    delete(value) ;
     break;
   }
   case DIET_FLOAT: {
     value = (void*) new float;
     src->specific.scal().value >>= *((CORBA::Float*)(value));
     scalar_set_desc(dest, id, (diet_persistence_mode_t)src->mode, bt, value);
+    delete(value) ;
     break;
   }
   case DIET_DOUBLE: {
     value = (void*) new double;
     src->specific.scal().value >>= *((CORBA::Double*)(value));
     scalar_set_desc(dest, id, (diet_persistence_mode_t)src->mode, bt, value);
+    delete(value) ;
     break;
   }
 #if HAVE_COMPLEX
