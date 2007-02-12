@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.70  2007/02/12 07:37:25  ycaniou
+ * Undo last modifs
+ *
  * Revision 1.69  2007/02/10 13:32:38  ycaniou
  * Memory leaks in unmrsh_scalar_desc()
  *
@@ -320,7 +323,7 @@ int
 mrsh_data_desc(corba_data_desc_t* dest, diet_data_desc_t* src)
 {
   if (src->id != NULL)
-    // deallocates old dest->id.idNumber
+    // nxt line also deallocates old dest->id.idNumber
     dest->id.idNumber = CORBA::string_dup(src->id);
   else 
     dest->id.idNumber = CORBA::string_dup("");
@@ -416,38 +419,39 @@ unmrsh_scalar_desc(diet_data_desc_t* dest, const corba_data_desc_t* src)
   switch(bt) {
   case DIET_CHAR: // Impossible to extract a Char or an Octet from an Any.
   case DIET_SHORT: {
+    // must be done C fashion, because freed in a C client?
     value = (void*) new short;
     src->specific.scal().value >>= *((CORBA::Short*)(value));
     scalar_set_desc(dest, id, (diet_persistence_mode_t)src->mode, bt, value);
-    delete(value) ;
+    //    delete((short*)value) ;
     break;
   }
   case DIET_INT: {
     value = (void*) new int;
     src->specific.scal().value >>= *((CORBA::Long*)(value));
     scalar_set_desc(dest, id, (diet_persistence_mode_t)src->mode, bt, value);
-    delete(value) ;
+    //    delete((int*)value) ;
     break;
   }
   case DIET_LONGINT: {
     value = (void*) new long long int;
     src->specific.scal().value >>= *((CORBA::Long*)(value));
     scalar_set_desc(dest, id, (diet_persistence_mode_t)src->mode, bt, value);
-    delete(value) ;
+    //    delete((long long int*)value) ;
     break;
   }
   case DIET_FLOAT: {
     value = (void*) new float;
     src->specific.scal().value >>= *((CORBA::Float*)(value));
     scalar_set_desc(dest, id, (diet_persistence_mode_t)src->mode, bt, value);
-    delete(value) ;
+    //    delete((float*)value) ;
     break;
   }
   case DIET_DOUBLE: {
     value = (void*) new double;
     src->specific.scal().value >>= *((CORBA::Double*)(value));
     scalar_set_desc(dest, id, (diet_persistence_mode_t)src->mode, bt, value);
-    delete(value) ;
+    //    delete((double*)value) ;
     break;
   }
 #if HAVE_COMPLEX
