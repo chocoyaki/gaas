@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2007/02/16 20:43:17  ycaniou
+ * Add type to parsed value to correct memory leaks
+ *
  * Revision 1.18  2006/07/11 08:59:10  ycaniou
  * .Batch queue is now read in the serveur config file (only one queue
  * supported).
@@ -134,6 +137,15 @@ public:
       NB_PARAM_TYPE
     } param_type_t;
 
+    /* To store parameter C type, to free memory after use */
+    typedef enum {
+      NONE_PARAMETER,
+      INT_PARAMETER,
+      STRING_PARAMETER,
+      ADDRESS_PARAMETER,
+      AGENT_PARAMETER // like int
+    } param_C_type_t ;
+
     /* Some of these parameters are complex types ... */
     
     /** The agent type: MA or LA. */
@@ -205,6 +217,8 @@ public:
       unsigned int noLine;
       /** pointer to the value of the parameter */
       void* value;
+      /** C type of parameter, in order to correctly free memory **/
+      Results::param_C_type_t type ;
     } param_t;
     /** All keywords and their lengths */
     static param_t params[];

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.30  2007/02/16 20:43:17  ycaniou
+ * Add type to parsed value to correct memory leaks
+ *
  * Revision 1.29  2006/11/16 09:55:56  eboix
  *   DIET_config.h is no longer used. --- Injay2461
  *
@@ -190,12 +193,27 @@ Parsers::endParsing()
     // size_t --> unsigned int
   for (unsigned int i = Results::TRACELEVEL; i < Results::NB_PARAM_TYPE; i++) {
     if (Results::params[i].value != NULL) {
-      if (IS_ADDRESS(i)) {
-	delete((Results::Address*)Results::params[i].value);
-      } else {
-        // TODO: should be deleted with delete, but delete can not be  
-        // used with void*.  Identify pointer type and delete.
-	//free(Results::params[i].value);
+	switch( Results::params[i].type ) {
+	case Results::INT_PARAMETER:
+	  delete((int*)(Results::params[i].value)) ;
+	  break ;
+	case Results::STRING_PARAMETER:
+	  free((char*)(Results::params[i].value)) ;
+	  break ;
+	case Results::ADDRESS_PARAMETER:
+	  delete((Results::Address*)(Results::params[i].value)) ;
+	  break ;
+	case Results::AGENT_PARAMETER:
+	  delete((Parsers::Results::agent_type_t*)(Results::params[i].value)) ;
+	  break ;
+	default:
+	  break ;
+//       if (IS_ADDRESS(i)) {
+// 	delete((Results::Address*)Results::params[i].value);
+//       } else {
+//         // TODO: should be deleted with delete, but delete can not be  
+//         // used with void*.  Identify pointer type and delete.
+// 	//free(Results::params[i].value);
       }
     }
     Results::params[i].noLine = 0;
@@ -467,6 +485,7 @@ Parsers::parseAddress(char* address, Results::param_type_t type)
   }
   Results::params[type].noLine = Parsers::noLine;
   Results::params[type].value = new Results::Address((char*)buf, port);
+  Results::params[type].type = Results::ADDRESS_PARAMETER ;
   return 0;
 }
 
@@ -503,6 +522,7 @@ Parsers::parseAgentType(char* agtType_str, Results::param_type_t type)
      Results::params[type].noLine = Parsers::noLine;
      Results::params[type].value =
        new Parsers::Results::agent_type_t(agtType);
+     Results::params[type].type = Results::AGENT_PARAMETER ;
    }
    return res;
 }
@@ -521,6 +541,7 @@ Parsers::parseName(char* name, Results::param_type_t type)
   }
   Results::params[type].noLine = Parsers::noLine;
   Results::params[type].value = strdup(buf);
+  Results::params[type].type = Results::STRING_PARAMETER ;
   return 0;
 }
 
@@ -540,6 +561,7 @@ Parsers::parsePort(char* port_str, Results::param_type_t type)
   Results::params[type].noLine = Parsers::noLine;
   // size_t --> unsigned int
   Results::params[type].value = new unsigned int(port);
+  Results::params[type].type = Results::INT_PARAMETER ;
   return 0;
 }
 
@@ -559,6 +581,7 @@ Parsers::parseTraceLevel(char* traceLevel, Results::param_type_t type)
   } else { // TRACE_LEVEL is set
     Results::params[type].noLine = Parsers::noLine;
   }
+  Results::params[type].type = Results::NONE_PARAMETER ;
   return 0;
 }
 
@@ -578,6 +601,7 @@ Parsers::parseInt(char* intString, Results::param_type_t type)
   } else {
     Results::params[type].value = new int(value);
   }
+  Results::params[type].type = Results::INT_PARAMETER ;
   return 0;
 } 
 
@@ -598,6 +622,7 @@ Parsers::parseUse(char* use_str, Results::param_type_t type)
   Results::params[type].noLine = Parsers::noLine;
   // size_t --> unsigned int
   Results::params[type].value  = new unsigned int(use);
+  Results::params[type].type = Results::INT_PARAMETER ;
   return 0;
 }
 
