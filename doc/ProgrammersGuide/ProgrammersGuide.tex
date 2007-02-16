@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.10  2007/02/16 10:27:35  ycaniou
+%* Beginning of a chapter on the Diet debugging (here, valgrind).
+%*
 %* Revision 1.9  2006/11/16 14:09:19  eboix
 %* - Programmers guide converted from autotools to cmake.
 %* - cmake summary deported to Cmake sub-dir.   --- Injay2461
@@ -137,18 +140,17 @@
 \addcontentsline{toc}{chapter}{Introduction}
 \chapter*{Introduction}
 
-This documents aims at giving to the new programmers of DIET a global view of the
-software and it source code, so that they can quickly (and cleanly) change it to
-fix bugs or to add new features.
+This documents aims at giving to the new programmers of DIET a global
+view of the software and it source code, so that they can quickly (and
+cleanly) change it to fix bugs or to add new features.
 
-The first chapter is dedicated to the installation of DIET as a developer, to
-the use of CVS and the autotools.
-The second chapter describes the source tree, the roles of the various
-subdirectories and some explanations about some very sensitive parts of the code
-(choices for implementation, etc.)
-In the last chapter, you will find the DIET coding standards, in which we have
-collected a few guidelines to follow when adding new source code or modifying
-the existing code.
+The first chapter is dedicated to the installation of DIET as a
+developer, to the use of CVS and the autotools.  The second chapter
+describes the source tree, the roles of the various subdirectories and
+some explanations about some very sensitive parts of the code (choices
+for implementation, etc.)  In the last chapter, you will find the DIET
+coding standards, in which we have collected a few guidelines to
+follow when adding new source code or modifying the existing code.
 
 
 %
@@ -180,6 +182,13 @@ the existing code.
 \chapter{Batch Submission and general remarks}
 \label{ch:Batch}
 \input{batch.tex}
+
+% Debugging
+%
+\chapter{Debugging}
+\label{ch:Debug}
+\input{debug.tex}
+
 
 %
 % Autotools

@@ -1,0 +1,41 @@
+%****************************************************************************%
+%* DIET Programmer' guide, Debug things                                     *%
+%*                                                                          *%
+%*  Author(s):                                                              *%
+%*    - Yves Caniou (yves.caniou@ens-lyon.fr)                               *%
+%*                                                                          *%
+%* $LICENSE$                                                                *%
+%****************************************************************************%
+%* $Id: 
+%* $Log: 
+%****************************************************************************%
+
+Chapter actually in writing. It mostly contains remarks.
+
+\section{Using \diet using Valgrind}
+
+When using Valgrind on the client of the file\_transfer example, you
+will certainly see things like the following:
+
+\begin{verbatim}
+==18832== Syscall param socketcall.sendto(msg) points to uninitialised byte(s)
+==18832==    at 0x458683C: sendto (in /lib/tls/libc-2.3.6.so)
+==18832==    by 0x45A43DE: getifaddrs (in /lib/tls/libc-2.3.6.so)
+==18832==    by 0x44568C7: omni::tcpTransportImpl::initialise() (in /usr/lib/libomniORB4.so.0.6)
+==18832==    by 0x440B887: omni::omni_giopEndpoint_initialiser::attach() (in /usr/lib/libomniORB4.so.0.6)
+==18832==    by 0x43A984F: CORBA::ORB_init(int&, char**, char const*, char const* (*) [2]) (in /usr/lib/libomniORB4.so.0.6)
+==18832==    by 0x405EB4F: ORBMgr::init(int, char**, bool) (ORBMgr.cc:94)
+==18832==    by 0x404799A: diet_initialize (DIET_client.cc:429)
+==18832==    by 0x804899D: main (client.c:74)
+==18832==  Address 0xBEF612B9 is on thread 1's stack
+\end{verbatim}
+
+Do not be afraid of such, the response lies at
+\url{http://www.omniorb-support.com/pipermail/omniorb-list/2005-September/027043.html},
+where you can find:
+
+\verb!``OmniORB does not initialise padding bytes in messages,!
+
+\verb!which causes valgrind warnings such as these.!
+
+\verb!This is normal[..]''!
