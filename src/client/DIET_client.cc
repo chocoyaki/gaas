@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.98  2007/03/01 15:55:08  ycaniou
+ * Added the updateTimeSinceLastSolve() feature
+ *
  * Revision 1.97  2007/01/24 20:35:20  ycaniou
  * Commentary only
  *
@@ -993,6 +996,9 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
     }
   }
 
+  // Server is chosen, update its timeSinceLastSolve
+  chosenServer->updateTimeSinceLastSolve() ;
+  
 #if HAVE_JUXMEM 
   uploadClientDataJuxMem(profile);
 #endif // HAVE_JUXMEM

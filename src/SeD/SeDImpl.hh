@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.32  2007/03/01 15:55:07  ycaniou
+ * Added the updateTimeSinceLastSolve() feature
+ *
  * Revision 1.31  2006/10/19 21:26:36  mjan
  * JuxMem support in async mode. Reorganized data management (DTM and JuxMem) into functions in the spirit of last modifs by Yves.
  *
@@ -227,6 +230,9 @@ public:
   checkContract(corba_estimation_t& estimation,
 		const corba_pb_desc_t& pb);
 
+  virtual void
+  updateTimeSinceLastSolve() ;
+  
   /* TODO: when HAVE_BATCH is validated, 3rd arg unnecessary:
   **   reqID is pb.dietJobID */
   virtual CORBA::Long

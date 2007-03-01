@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.88  2007/03/01 15:55:07  ycaniou
+ * Added the updateTimeSinceLastSolve() feature
+ *
  * Revision 1.87  2007/01/24 20:33:47  ycaniou
  * Indentation
  *
@@ -579,6 +582,13 @@ void persistent_data_release(corba_data_t* arg){
   default:
     break;
   }
+}
+/** Called from client immediatly after knowing which server is selected
+ ** before data transfer */
+void
+SeDImpl::updateTimeSinceLastSolve() 
+{
+  gettimeofday(&(this->lastSolveStart), NULL) ;
 }
 
 CORBA::Long

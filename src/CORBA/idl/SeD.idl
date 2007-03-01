@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2007/03/01 15:55:06  ycaniou
+ * Added the updateTimeSinceLastSolve() feature
+ *
  * Revision 1.16  2006/04/04 10:18:58  lphilipp
  *
  * Ajout d'un README, avec quelques explications
@@ -80,6 +83,9 @@ interface SeD {
    */
   long checkContract(inout corba_estimation_t estimation,
 		     in corba_pb_desc_t pb);
+
+ /** update TIME_SINCE_LAST_SOLVE before client sends data */
+  void updateTimeSinceLastSolve() ;	
 
   /** Solve function: all arguments are inout for "const" reasons. */
   long solve(in string path, inout corba_profile_t pb,in long reqID);
