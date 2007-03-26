@@ -25,6 +25,19 @@ IF( DIET_BUILD_LIBRARIES )
      SET( DIET_IDL_FLAGS "${DIET_IDL_FLAGS} -DHAVE_MULTI_MA" )
   ENDIF( DIET_WITH_MULTI_MA )
 
+## New : User scheduler support ------------------------------
+## Install the files needed for scheduler development.
+  IF( DIET_USE_USERSCHED )
+     SET( DIET_IDL_FLAGS "${DIET_IDL_FLAGS} -DUSERSCHED" )
+     INSTALL_FILES(
+       /include/scheduler
+       FILES
+         response.hh
+	 common_types.hh
+	 SeD.hh
+     )
+  ENDIF( DIET_USE_USERSCHED )
+# ------------------------------------------------------------
   
   SEPARATE_ARGUMENTS( DIET_IDL_FLAGS )
   
