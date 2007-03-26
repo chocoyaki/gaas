@@ -221,3 +221,21 @@ IF ( DIET_USE_WORKFLOW )
   INSTALL_TARGETS( /lib/ DietWorkflow )
 ENDIF (DIET_USE_WORKFLOW )
 ########################################################################
+## New : For scheduler load support.
+## Install the files needed for scheduler development.
+IF( DIET_USE_USERSCHED )
+    INSTALL_FILES(
+      /include/scheduler
+      FILES
+        est_internal.hh
+	debug.hh
+	LinkedList.hh
+	DIET_data_internal.hh
+	Vector.h
+	Parsers.hh
+	ms_function.hh
+    )
+    INSTALL_FILES(
+      /include/scheduler/ts_container FILES ts_container/ts_set.hh )
+ENDIF( DIET_USE_USERSCHED )
+
