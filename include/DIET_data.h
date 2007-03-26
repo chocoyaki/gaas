@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.47  2007/03/26 13:10:42  glemahec
+ * Adds the aggregator type DIET_AGG_USER for user agent scheduler.
+ *
  * Revision 1.46  2006/11/06 12:09:40  aamar
  * Workflow support:
  *   - Add diet_wf_file_get and diet_wf_matrix_get methods.
@@ -178,6 +181,10 @@ extern "C" {
 typedef enum {
   DIET_AGG_DEFAULT = 0,
   DIET_AGG_PRIORITY
+/* New : The aggregator to use DIET agents scheduler dynamic loading. */
+#ifdef USERSCHED
+  , DIET_AGG_USER
+#endif
 } diet_aggregator_type_t;
 
 /****************************************************************************/
