@@ -69,6 +69,19 @@ IF( DIET_BUILD_LIBRARIES )
     SET_TARGET_PROPERTIES( CorbaCommon
       PROPERTIES LINK_FLAGS "-flat_namespace -undefined suppress" )
   ENDIF( APPLE )
+
+  ## ------------- New : For scheduler load support. ---------------
+  # Install the files needed for a scheduler creation.
+
+  IF( DIET_USE_USERSCHED )
+    INSTALL_FILES(
+       /include/scheduler
+       FILES
+         marshalling.hh
+    )
+  ENDIF( DIET_USE_USERSCHED )
+# ------------------------------------------------------------------
+
   
   INSTALL_TARGETS(/lib/ CorbaCommon )
 ENDIF( DIET_BUILD_LIBRARIES )
