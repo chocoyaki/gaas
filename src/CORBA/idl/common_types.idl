@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2007/03/26 13:25:17  glemahec
+ * Adds the definition of corba_agg_user_t aggregator type and modification of the corba_agg_specific_t type. Conditioned to USERSCHED definition.
+ *
  * Revision 1.19  2006/08/27 18:40:10  ycaniou
  * Modified parallel submission API
  * - client: diet_call_batch() -> diet_parallel_call()
@@ -231,11 +234,25 @@ struct corba_agg_default_t {
 struct corba_agg_priority_t {
   sequence<long> priorityList;
 };
+/** New : The aggregator for user scheduler support.      */
+/** The same as the default aggregator. Maybe not needed. */
+#ifdef USERSCHED
+struct corba_agg_user_t {
+  octet dummy;
+};
+#endif
+/**********************************************************/
 union corba_agg_specific_t switch (long) {
  case 0:
    corba_agg_default_t agg_default;
  case 1:
    corba_agg_priority_t agg_priority;
+/** New : The aggregator for user scheduler support. */
+#ifdef USERSCHED
+ case 2:
+   corba_agg_user_t agg_user;
+#endif
+/*****************************************************/
 };
 struct corba_aggregator_desc_t {
   corba_agg_specific_t agg_specific;
