@@ -30,6 +30,23 @@ IF( DIET_BUILD_LIBRARIES )
       Request.cc
       Schedulers.cc
   )
+  #########################################################################
+  ### New : When the DIET_USE_USERSCHED option is set, add the source code
+  ###       for dynamic library load at agent level.
+  ###       Install the needed files for user scheduler development.
+  IF( DIET_USE_USERSCHED )
+    SET( AgentCommon_SOURCES ${AgentCommon_SOURCES} UserScheduler.cc)
+    SET(DynamicLoadingLibrary dl)
+    INSTALL_FILES(
+      /include/scheduler
+      FILES
+        GlobalSchedulers.hh
+	UserScheduler.hh
+	Schedulers.hh
+    )
+  ENDIF( DIET_USE_USERSCHED )
+  #########################################################################
+
   ADD_LIBRARY( AgentCommon ${AgentCommon_SOURCES} )
   TARGET_LINK_LIBRARIES( AgentCommon
     UtilsNodes
@@ -38,6 +55,9 @@ IF( DIET_BUILD_LIBRARIES )
     IDLLA
     IDLMA
     ${OMNIORB4_LIBRARIES}
+  ## New : This variable is only set when DIET_USE_USERSCHED is on. Seems
+  ##       to be useless on MacOS X...
+    ${DynamicLoadingLibrary}
   )
   INSTALL_TARGETS(/lib/ AgentCommon )
   
