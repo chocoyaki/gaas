@@ -20,6 +20,8 @@ OPTION( DIET_USE_JXTA   "Build DIET with JXTA architecture support." OFF )
 OPTION( DIET_USE_WORKFLOW    "Build DIET with workflow support..." OFF)
 OPTION( DIET_WITH_STATISTICS "Build DIET with generation of statistics." OFF )
 OPTION( DIET_WITH_MULTI_MA   "Build DIET with MULTI-Master-Agent support." OFF )
+# New : User scheduler at agents level support.
+OPTION( DIET_USE_USERSCHED    "Build DIET with user scheduler support (Experimental)." OFF )
 
 # --------------------- OPTIONS SET BY DEFAULT  ----------------------------
 # One might wish not to compile DIET but just to build the docs:
@@ -249,6 +251,11 @@ IF( DIET_USE_WORKFLOW )
          CACHE BOOL "Build DIET with workflow support..." )
   ENDIF( XERCES_FOUND ) 
 ENDIF( DIET_USE_WORKFLOW )
+
+# --------------- New : For users agents scheduler support ------------------
+IF( DIET_USE_USERSCHED )
+  ADD_DEFINITIONS( -DUSERSCHED )
+ENDIF( DIET_USE_USERSCHED )
 
 # --------------- OFFER BUILD MODE EXTENSIONS AND DEFAULTS  ----------------
 INCLUDE( ${DIET_SOURCE_DIR}/Cmake/DietDefaultBuildTypes.cmake )
