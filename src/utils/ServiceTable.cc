@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2007/03/26 13:44:48  glemahec
+ * Adds the DIET_AGG_USER case to the "addService" method.
+ * Very little change.
+ *
  * Revision 1.20  2006/09/18 19:46:08  ycaniou
  * Corrected a bug in file_transfer:server.c
  * Corrected memory leaks due to incorrect free of char *
@@ -295,6 +299,11 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
         ERROR(__FUNCTION__ << ": aggregator type mismatch\n", -2);
       }
       switch (a1->agg_specific._d()) {
+/* New : The user aggregator case.                           */
+/*       It doesn't need more than the default aggregator... */
+#ifdef USERSCHED
+	  case DIET_AGG_USER:
+#endif
       case DIET_AGG_DEFAULT:
         break;
       case DIET_AGG_PRIORITY:
