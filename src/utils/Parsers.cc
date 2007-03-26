@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.31  2007/03/26 13:41:20  glemahec
+ * Adds the options "schedulerModule" and "moduleConfigFile" to the allowed options of a DIET config file.
+ *
  * Revision 1.30  2007/02/16 20:43:17  ycaniou
  * Add type to parsed value to correct memory leaks
  *
@@ -116,6 +119,13 @@ Parsers::Results::param_t Parsers::Results::params[] =
    /* [27] */ ,{"locationID", 10, Parsers::parseName, 0, NULL}
    /* [28] */ ,{"MADAGNAME", 9, Parsers::parseName, 0, NULL}
    /* [29] */ ,{"USEWFLOGSERVICE", 15, Parsers::parseName, 0, NULL}
+/* New : For user scheduler support. */
+/*       schedulerModule  : The path to the scheduler library file. */
+/*       moduleConfigFile : Optionnal configuration file for the module. */
+#ifdef USERSCHED
+   /* [30] */ ,{"schedulerModule", 15, Parsers::parseName, 0, NULL}
+   /* [31] */ ,{"moduleConfigFile", 16, Parsers::parseName, 0, NULL}
+#endif
   } ;
 
 #define IS_ADDRESS(i) ((i == Results::LDAPBASE) || (i == Results::NWSNAMESERVER) || (i == Results::NWSFORECASTER))

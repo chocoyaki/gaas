@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2007/03/26 13:41:21  glemahec
+ * Adds the options "schedulerModule" and "moduleConfigFile" to the allowed options of a DIET config file.
+ *
  * Revision 1.19  2007/02/16 20:43:17  ycaniou
  * Add type to parsed value to correct memory leaks
  *
@@ -134,6 +137,11 @@ public:
       LOCATIONID,         // For alternative transfer cost prediction
       MADAGNAME,
       USEWFLOGSERVICE,
+/* New : For user scheduler support. */
+#ifdef USERSCHED
+	  MODULENAME,
+	  MODULECFG,
+#endif
       NB_PARAM_TYPE
     } param_type_t;
 
