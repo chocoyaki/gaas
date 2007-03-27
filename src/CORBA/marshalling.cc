@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.71  2007/03/27 07:55:58  glemahec
+ * Adds the support of the new aggregator type (DIET_AGG_USER) in marshalling.cc
+ *
  * Revision 1.70  2007/02/12 07:37:25  ycaniou
  * Undo last modifs
  *
@@ -652,6 +655,18 @@ int mrsh_aggregator_desc(corba_aggregator_desc_t* dest,
       }
       break;
     }
+/* New : For scheduler load support. */
+#ifdef USERSCHED
+  case DIET_AGG_USER:
+    {
+      corba_agg_user_t d;
+      d.dummy = 0;
+      dest->agg_specific.agg_user(d);
+      break;
+    }
+
+#endif
+/*************************************/
   default:
     INTERNAL_WARNING(__FUNCTION__ <<
                      ": unrecognized aggregation method (" <<
