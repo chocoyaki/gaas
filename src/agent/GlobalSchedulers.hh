@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2007/03/27 08:53:30  glemahec
+ * Adds the "virtual" qualifier to the aggregate method to allow to override it in the user defined class.
+ *
  * Revision 1.6  2006/01/19 21:35:42  pfrauenk
  * CoRI : when --enable-cori - round-robin is the default scheduler -
  *        CoRI is not called (any more) for collecting information
@@ -66,6 +69,11 @@ public:
    * @param nb_responses number of responses to aggregate.
    * @param responses    array of the responses to aggregate.
    */
+/* New : For scheduler load support. Allows to overload the aggregate method.*/
+#ifdef USERSCHED
+  virtual
+#endif
+/*************************************/
   int
   aggregate(corba_response_t* aggrResp,
             size_t max_srv,
