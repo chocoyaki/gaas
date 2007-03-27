@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2007/03/27 08:49:27  glemahec
+ * deserialize and chooseGlobalScheduler methods now return an instance of a dynamically loaded class if the aggregator is DIET_AGG_USER.
+ *
  * Revision 1.15  2006/11/16 09:55:54  eboix
  *   DIET_config.h is no longer used. --- Injay2461
  *
@@ -83,6 +86,12 @@ using namespace std;
 #include "debug.hh"
 #include "Vector.h"
 
+/* New : For scheduler load support. */
+#ifdef USERSCHED
+#include "UserScheduler.hh"
+#include "Parsers.hh"
+#endif
+
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
 
@@ -137,7 +146,30 @@ GlobalScheduler::deserialize(const char* serializedScheduler)
   else if (!strncmp(serializedScheduler, PriorityGS::stName, nameLength)) {
     return PriorityGS::deserialize(serializedScheduler);
   }
-  else {
+  else
+/* New : For scheduler load support. */
+#ifdef USERSCHED
+  if (!strncmp(serializedScheduler, UserScheduler::stName,nameLength)) {
+    char* moduleName = (char*)
+      Parsers::Results::getParamValue(Parsers::Results::MODULENAME);
+    if (!moduleName) {
+      WARNING("moduleName parameter is not set in the configuration file ; "
+	      << "reverting to default (StdGS)" << endl);
+      return new StdGS();
+    }
+    try {
+      return UserScheduler::deserialize(serializedScheduler, moduleName);
+    }
+    catch (InstanciationError &error) {
+      WARNING("unable to load module " << moduleName << " ; "
+	      << "reverting to default (StdGS)" << endl <<
+	      "Message : " << error.message() << endl);
+      return new StdGS();
+    }
+  } else
+#endif
+/***********************************/
+  {
     WARNING("unable to deserialize global scheduler ; "
 	    << "reverting to default (StdGS)");
     cout << "scheduler was \"" << serializedScheduler << "\"\n";
@@ -157,6 +189,13 @@ GlobalScheduler::serialize(GlobalScheduler* GS)
   else if (!strncmp(GS->name, PriorityGS::stName, GS->nameLength)) {
     return PriorityGS::serialize((PriorityGS*) GS);
   }
+/* New : For scheduler load support. */
+#ifdef USERSCHED
+  else if (!strncmp(GS->name, UserScheduler::stName, GS->nameLength)) {
+    return UserScheduler::serialize(GS);
+  }
+#endif
+/*************************************/
   else {
     ERROR("unable to serialize global scheduler named " << GS->name, NULL);
   }
@@ -178,6 +217,12 @@ GlobalScheduler::chooseGlobalScheduler(const corba_request_t* req,
                                        const corba_profile_desc_t* profile)
 {
   corba_aggregator_desc_t agg = profile->aggregator;
+  
+/* New : For scheduler load support. */  
+#ifdef USERSCHED
+  GlobalScheduler * loaded;
+#endif
+/*************************************/
 
   switch (agg.agg_specific._d()) {
   case DIET_AGG_DEFAULT:
@@ -187,9 +232,33 @@ GlobalScheduler::chooseGlobalScheduler(const corba_request_t* req,
     PriorityGS* ps = new PriorityGS(agg.agg_specific.agg_priority());
     ps->init();
     return (ps);
-    break;
-  }
+    break;	
+/* New : For scheduler load support. */  
+#ifdef USERSCHED
+  case DIET_AGG_USER:
+    char* moduleName = (char*)
+      Parsers::Results::getParamValue(Parsers::Results::MODULENAME);
 
+    if (!moduleName) {
+      WARNING("moduleName parameter is not set in the configuration file ; "
+	      << "reverting to default (StdGS)" << endl);
+      return new StdGS();
+    }
+    try {
+      loaded = UserScheduler::instanciate(moduleName);
+    }
+    catch (InstanciationError &error) {
+      WARNING("unable to load module " << moduleName << " ; "
+	      << "reverting to default (StdGS)" << endl
+	      << "Error : " << error.message() << endl);
+      return new StdGS();
+    }
+    SCHED_TRACE_FUNCTION("Module " << moduleName << " loaded.");
+    return loaded;
+    break;
+#endif
+/*************************************/
+  }
   ERROR(__FUNCTION__ <<
         ": unhandled aggregator (" <<
         agg.agg_specific._d() <<
