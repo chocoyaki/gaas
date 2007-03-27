@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.63  2007/03/27 08:01:54  glemahec
+ * Adds the support of the new aggregator type (DIET_AGG_USER) in the diet_aggregator_set_type method (precedently was controlling if the type was DIET_AGG_DEFAULT or DIET_AGG_PRIORITY. Just adds DIET_AGG_USER in the test).
+ *
  * Revision 1.62  2006/12/14 11:41:15  aamar
  * Making the SeD display its IOR when starting.
  *
@@ -374,7 +377,13 @@ diet_aggregator_set_type(diet_aggregator_desc_t* agg,
     ERROR(__FUNCTION__ << ": NULL aggregator\n", 0);
   }
   if (atype != DIET_AGG_DEFAULT &&
-      atype != DIET_AGG_PRIORITY) {
+      atype != DIET_AGG_PRIORITY
+/* New : For scheduler load support. */
+#ifdef USERSCHED
+      && atype != DIET_AGG_USER
+#endif
+/*************************************/
+	  ) {
     ERROR(__FUNCTION__ << ": unknown aggregation type (" << atype << ")\n", 0);
   }
   if (agg->agg_method != DIET_AGG_DEFAULT) {
