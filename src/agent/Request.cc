@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2007/03/27 08:59:05  glemahec
+ * Adapts the Request destructor to a dynamically loaded class.
+ *
  * Revision 1.8  2006/05/15 19:43:21  ecaron
  * Previous version (the previous commit was an error)
  *
@@ -41,6 +44,12 @@ using namespace std;
 #include <stdio.h>
 
 #include "debug.hh"
+
+/* New : For scheduler load support. */
+#ifdef USERSCHED
+#include "UserScheduler.hh"
+#endif
+/*************************************/
 
 void Request::freeResponses() {
   if (responses != NULL) {
@@ -85,7 +94,19 @@ Request::Request(const corba_request_t* request, GlobalScheduler* GS)
 
 Request::~Request() {
   freeResponses() ;
+/* New : For scheduler load support. */
+/* A loaded scheduler is not deleted in the same way than a normal scheduler.*/
+#ifdef USERSCHED
+  char * serializedScheduler = GlobalScheduler::serialize(this->GS);
+
+  int nameLength = strlen(serializedScheduler);
+  if (!strncmp(serializedScheduler, UserScheduler::stName,nameLength)) {
+    (dynamic_cast<UserScheduler*> (this->GS))->destroy(this->GS);
+  } else
+#else
   delete this->GS;
+#endif
+/*************************************/
   delete gatheringEnded ;
 } // ~Request()
 
