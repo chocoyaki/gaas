@@ -83,8 +83,7 @@ DIET_USE_DART:BOOL=ON
 
 ///////////////////////////////////////////////// USE_FD OPTION
 //Use Diet Fault Detector.
-//Set to OFF during DART preliminary investigation
-DIET_USE_FD:BOOL=OFF
+DIET_USE_FD:BOOL=ON
 
 ///////////////////////////////////////////////// USE_WORKFLOW OPTION
 //Build DIET with workflow support...
