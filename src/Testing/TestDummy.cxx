@@ -1,8 +1,13 @@
 // Litte dummy example to demonstrate ctest mechanisms.
 #include <iostream>
 
+#ifndef EXIT_SUCCESS
 #define EXIT_SUCCESS 0
+#endif
+
+#ifndef EXIT_FAILURE
 #define EXIT_FAILURE 1
+#endif
 
 int TestDummy(int argc, char* argv[])
 {

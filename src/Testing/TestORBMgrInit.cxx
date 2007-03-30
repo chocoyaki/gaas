@@ -24,8 +24,14 @@
 #include <string>
 #include "ORBMgr.hh"
 
+#ifndef EXIT_SUCCESS
 #define EXIT_SUCCESS 0
+#endif
+
+#ifndef EXIT_FAILURE
 #define EXIT_FAILURE 1
+#endif
+
 #define DIET_CTEST_INDENT " Diet: "
 
 /**
