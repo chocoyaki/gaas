@@ -7,6 +7,12 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.5  2007/03/30 15:48:34  dart
+ * - Add <sys/socket.h> to compile under AIX with XLC v8.0
+ * - Change h_addr to http_addr in udp_server.cc to avoid the error message
+ *   "The array bound cannot be zero" (visibly, h_addr already exists in
+ *   /usr/include/isode/internet.h", is it the real reason ?)
+ *
  * Revision 1.4  2006/11/09 21:11:13  abouteil
  * fixed "addr already in use" when starting on the same server more than once
  *
@@ -20,6 +26,7 @@
  ****************************************************************************/
  
 #include <sys/time.h>
+#include <sys/socket.h>
 #include <sys/msg.h>
 
 #include <stdio.h>
@@ -38,9 +45,9 @@ void* setup_udp_server (void *nothing) {
   int server_sock;    /* socket for accepting connexions */
   int optval = 1;     /* for REUSE_ADDR */
   struct sockaddr_in my_addr;  /* address of this computer */
-  char buffer[1+HEARTBEAT_LENGTH];/* buffer for network communication */
+  char buffer[1+HEARTBEAT_LENGTH]; /* buffer for network communication */
   struct sockaddr_in client_addr;  /* client's address */
-  socklen_t client_address_length;/* client's address length */
+  socklen_t client_address_length; /* client's address length */
   int received;      /* number of bytes received */
 
   struct timeval tv;
@@ -57,7 +64,7 @@ void* setup_udp_server (void *nothing) {
   unsigned int h_id;
   int h_request_len;
   int h_sock;
-  struct sockaddr_in h_addr;
+  struct sockaddr_in http_addr;
 
   /* socket creation */
   server_sock = socket (PF_INET, SOCK_DGRAM, 0);
@@ -158,15 +165,15 @@ void* setup_udp_server (void *nothing) {
             };
   
             /* set up address */
-            if (memset (&h_addr, 0, sizeof
-              (struct sockaddr_in)) != &h_addr) {
+            if (memset (&http_addr, 0, sizeof
+              (struct sockaddr_in)) != &http_addr) {
               fatal_error ("memset");
             };
-            h_addr.sin_family = PF_INET;
-            h_addr.sin_port = htons(fd_TCP_port);
-            h_addr.sin_addr.s_addr = p->addr;
-            if (connect (h_sock, (struct sockaddr *)&h_addr,
-              sizeof (h_addr)) != -1) {
+            http_addr.sin_family = PF_INET;
+            http_addr.sin_port = htons(fd_TCP_port);
+            http_addr.sin_addr.s_addr = p->addr;
+            if (connect (h_sock, (struct sockaddr *)&http_addr,
+              sizeof (http_addr)) != -1) {
               /* send request */
               write (h_sock, h_buffer, h_request_len+1);
             }

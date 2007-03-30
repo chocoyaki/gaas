@@ -7,6 +7,12 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.4  2007/03/30 15:48:34  dart
+ * - Add <sys/socket.h> to compile under AIX with XLC v8.0
+ * - Change h_addr to http_addr in udp_server.cc to avoid the error message
+ *   "The array bound cannot be zero" (visibly, h_addr already exists in
+ *   /usr/include/isode/internet.h", is it the real reason ?)
+ *
  * Revision 1.3  2006/06/20 13:29:16  abouteil
  *
  *
@@ -17,6 +23,7 @@
  ****************************************************************************/
 #include <sys/time.h>
 #include <sys/msg.h>
+#include <sys/socket.h>
 
 #include <stdio.h>
 #include <stdlib.h>
