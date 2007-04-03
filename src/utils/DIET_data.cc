@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.43  2007/04/03 11:38:48  ycaniou
+ * Error when the client wants to transfer a zero size file
+ * ( if not, there is an omniorb error, then now, it is "clean")
+ *
  * Revision 1.42  2006/11/06 11:54:54  aamar
  * *** empty log message ***
  *
@@ -350,6 +354,9 @@ file_set_desc(diet_data_desc_t* desc, char* const id,
       return status;
     if (!(buf.st_mode & S_IFREG))
       return 2;
+    if( buf.st_size == 0 ) {
+      ERROR("One of the file that you want to transfer is of zero size ", 1);
+    }
     desc->specific.file.size = (size_t) buf.st_size;
   } else {
     desc->specific.file.path = "";
