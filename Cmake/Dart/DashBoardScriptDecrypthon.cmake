@@ -66,8 +66,8 @@ CMAKE_MAKE_PROGRAM:FILEPATH=/opt/freeware/bin/gmake
 OMNIORB4_DIR:PATH=$ENV{HOME}/root/OmniORB
 
 ///////////////////////////////////////////////// BUILD_EXAMPLES OPTION
-// Disactivated during BLAS AIX integration
-DIET_BUILD_EXAMPLES:BOOL=OFF
+DIET_BUILD_EXAMPLES:BOOL=ON
+DIET_BUILD_BLAS_EXAMPLES:BOOL=OFF
 
 ///////////////////////////////////////////////// USE_BATCH OPTION
 DIET_USE_BATCH:BOOL=ON
