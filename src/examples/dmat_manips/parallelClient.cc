@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2007/04/04 15:25:15  dart
+ * Comment the "#include <getopt.h>" lines in order to compile under AIX.
+ * The prototypes in getopt.h seem not to be used in sources.
+ *
  * Revision 1.7  2006/05/22 18:00:58  hdail
  * Improved debugging output to make individual calls to DIET easier to
  * see and interpret.
@@ -34,7 +38,7 @@
  * Move the examples using the asynchronous API into this directory.
  ****************************************************************************/
 
-#include <getopt.h>
+/* #include <getopt.h> */
 #include <iostream>
 using namespace std;
 #include <list>

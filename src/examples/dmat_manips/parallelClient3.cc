@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2007/04/04 15:25:15  dart
+ * Comment the "#include <getopt.h>" lines in order to compile under AIX.
+ * The prototypes in getopt.h seem not to be used in sources.
+ *
  * Revision 1.7  2006/02/03 01:45:39  ecaron
  * Take into account the OS for omnithread thus MacOSX compilation is done.
  *
@@ -34,7 +38,7 @@
  ****************************************************************************/
 
 
-#include <getopt.h>
+/* #include <getopt.h> */
 #include <iostream>
 using namespace std;
 #include <list>
