@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2007/04/11 09:43:36  aamar
+ * Add <algorithm> header. Needs to be explicitly included in AIX.
+ *
  * Revision 1.22  2006/11/27 13:25:45  aamar
  * Unmarshall inout parameters for asynchronous call.
  *
@@ -85,6 +88,7 @@
 #include "marshalling.hh"
 #include "CallAsyncMgr.hh"
 #include "debug.hh"
+#include <algorithm>
 
 using namespace std;
 
