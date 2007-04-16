@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2007/04/16 11:00:50  ycaniou
+ * Coquille
+ *
  * Revision 1.8  2007/04/04 15:25:15  dart
  * Comment the "#include <getopt.h>" lines in order to compile under AIX.
  * The prototypes in getopt.h seem not to be used in sources.
@@ -172,8 +175,9 @@ class worker : public omni_thread
         return;
       }
       diet_reqID_t rst;
-      if (diet_call_async(profile, &rst) != 0) printf("Error in diet_call_async\n");
-      printf("reqeuest ID value = -%d- \n", rst);
+      if (diet_call_async(profile, &rst) != 0)
+	printf("Error in diet_call_async\n");
+      printf("request ID value = -%d- \n", rst);
       if (rst >= 0){
         // print input data
         sprintf(requestID, "%d", rst);
