@@ -7,7 +7,7 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.4  2007/04/16 22:29:02  ycaniou
+ * Revision 1.1  2007/04/16 22:29:02  ycaniou
  * Added an async client
  * Improved batch example
  *
@@ -43,7 +43,8 @@ main(int argc, char* argv[])
   struct timeval tv ;
   struct timezone tz ;
   int server_found = 0 ;
-      
+  diet_reqID_t rst ;
+  
   if (argc != 5) {
     fprintf(stderr, "Usage: %s <file.cfg> <file1> <double> <file2>\n",
 	    argv[0]);
@@ -84,7 +85,7 @@ main(int argc, char* argv[])
   if( SUBMISSION_TYPE == 1 ) {
     /* To ask explicitely for a parallel submission */
     printf("Call explicitly a parallel service\n") ;
-    if (!diet_parallel_call(profile)) {
+    if (!diet_parallel_call_async(profile, &rst)) {
       printf("Job correctly submitted!\n\n\n") ;
       server_found = 1 ;
       diet_file_get(diet_parameter(profile,3), NULL, &file_size, &path);
@@ -92,10 +93,10 @@ main(int argc, char* argv[])
 	printf("Location of returned file is %s, its size is %d.\n",
 	       path, (int) file_size);
       }
-    } else printf("Error in diet_parallel_call()\n") ;
+    } else printf("Error in diet_parallel_call_async()\n");
   } else if ( SUBMISSION_TYPE == 0 ) {
     printf("All services, seq and parallel, with the correct name are Ok.\n") ;
-    if (!diet_call(profile)) {
+    if (!diet_call_async(profile, &rst)) {
       printf("Job correctly submitted!\n\n\n") ;
       server_found = 1 ;
       diet_file_get(diet_parameter(profile,3), NULL, &file_size, &path);
@@ -103,10 +104,10 @@ main(int argc, char* argv[])
 	printf("Location of returned file is %s, its size is %d.\n",
 	       path, (int) file_size);
       }
-    } else printf("Error in diet_call()\n") ;
+    } else printf("Error in diet_call_async()\n");
   } else { /* only sequential servers are considered */
     printf("Only proposed sequential services can be selected.\n") ;
-    if (!diet_sequential_call(profile)) {
+    if (!diet_sequential_call_async(profile, &rst)) {
       printf("Job correctly submitted!\n\n\n") ;
       server_found = 1 ;
       diet_file_get(diet_parameter(profile,3), NULL, &file_size, &path);
@@ -114,11 +115,17 @@ main(int argc, char* argv[])
 	printf("Location of returned file is %s, its size is %d.\n",
 	       path, (int) file_size);
       }
-    } else printf("Error in diet_sequential_call()\n") ;
+    } else printf("Error in diet_sequential_call_async()\n");
   }
 
   gettimeofday(&tv, &tz);
-  printf("L'heure de terminaison est %ld:%ld\n\n",tv.tv_sec,tv.tv_usec) ;
+  printf("Return of the call is %ld:%ld\n\n",tv.tv_sec,tv.tv_usec) ;
+  
+  printf("request ID value = %d\n", rst);
+  diet_wait(rst) ;
+
+  gettimeofday(&tv, &tz);
+  printf("Completion time is %ld:%ld\n\n",tv.tv_sec,tv.tv_usec) ;
   
   if( server_found == 1 ) {
     /* If uncommented, the result file is removed */

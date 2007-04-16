@@ -7,6 +7,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2007/04/16 22:29:02  ycaniou
+ * Added an async client
+ * Improved batch example
+ *
  * Revision 1.10  2006/11/28 20:40:31  ycaniou
  * Only headers
  *
@@ -181,8 +185,6 @@ int solve_concatenation(diet_profile_t *pb)
   
   /* Submission */
   result = diet_submit_parallel(pb, script) ;
-  if( result == 0 )
-    printf("Error when submitting the script\n") ;
 
   /* Free memory */
   free(prologue) ;
@@ -192,7 +194,9 @@ int solve_concatenation(diet_profile_t *pb)
   free(script) ;
 
   /* Don't free path1, path2 and path_result */
-  return 0 ;
+  if( result == -1 )
+    printf("Error when submitting the script\n") ;
+  return result ;
 }
 
 /****************************************************************************
