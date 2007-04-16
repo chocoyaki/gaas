@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2007/04/16 22:33:03  ycaniou
+ * Added new macro: ERROR_EXIT for void functions
+ *
  * Revision 1.25  2006/07/25 14:21:51  ycaniou
  * Convert 'nuLL' to 'NULL' in TRACE_TIME macro
  *
@@ -132,6 +135,12 @@ extern omni_mutex debug_log_mutex ;
   cerr << "DIET ERROR: " << formatted_msg << ".\n"; \
   debug_log_mutex.unlock() ;                        \
   return return_value ; }
+
+#define ERROR_EXIT(formatted_msg) {                 \
+  debug_log_mutex.lock() ;                          \
+  cerr << "DIET ERROR: " << formatted_msg << ".\n"; \
+  debug_log_mutex.unlock() ;                        \
+  exit(1) ; }
 
 /**
  * Warning message.
