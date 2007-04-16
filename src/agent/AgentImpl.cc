@@ -5,6 +5,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.44  2007/04/16 22:43:43  ycaniou
+ * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
+ * This is indented to replace HAVE_BATCH.
+ *
+ * First draw to manage batch systems with a new Cori plug-in.
+ *
  * Revision 1.43  2006/11/16 09:55:54  eboix
  *   DIET_config.h is no longer used. --- Injay2461
  *
@@ -432,7 +438,7 @@ AgentImpl::findServer(Request* req, size_t max_srv)
   else { // then the request must be forwarded
 
     int nbChildrenContacted = 0;
-#ifndef HAVE_BATCH
+#if not defined HAVE_BATCH && not defined HAVE_ALT_BATCH
     const ServiceTable::matching_children_t * SrvTmc;
     ServiceTable::matching_children_t * mc ;
 
@@ -646,7 +652,7 @@ AgentImpl::getHostname()
 }
 
 
-#ifndef HAVE_BATCH
+#if not defined HAVE_BATCH && not defined HAVE_ALT_BATCH
 /**
  * Send the request structure \c req to the child whose ID is \c childID.
  */
@@ -688,7 +694,7 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req,
                 << " occured - remove it from known children");
             srvTMutex.lock();
             SrvT->rmChild(childID);
-#ifdef HAVE_BATCH
+#if defined HAVE_BATCH && defined HAVE_ALT_BATCH
 	    (*nb_children_contacted)-- ;
 #endif
             if (TRACE_LEVEL >= TRACE_STRUCTURES) {
@@ -724,7 +730,7 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req,
                 << " occured - remove it from known children");
             srvTMutex.lock();
             SrvT->rmChild(childID);
-#ifdef HAVE_BATCH
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
 	    (*nb_children_contacted)-- ;
 #endif
             if (TRACE_LEVEL >= TRACE_STRUCTURES) {

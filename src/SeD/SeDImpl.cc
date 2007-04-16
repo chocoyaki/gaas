@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.89  2007/04/16 22:43:43  ycaniou
+ * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
+ * This is indented to replace HAVE_BATCH.
+ *
+ * First draw to manage batch systems with a new Cori plug-in.
+ *
  * Revision 1.88  2007/03/01 15:55:07  ycaniou
  * Added the updateTimeSinceLastSolve() feature
  *
@@ -198,6 +204,10 @@ using namespace std;
 #include "Parsers.hh"
 #include "statistics.hh"
 
+#if defined HAVE_ALT_BATCH
+#include "BatchCreator.hh"
+#endif
+
 /**
  * Performance measurement for bw and latency of JuxMem
  */
@@ -244,7 +254,7 @@ SeDImpl::initialize()
   this->fastUse = 1;
 #endif //!HAVE_CORI && HAVE_FAST
 
-#if HAVE_BATCH
+#if defined HAVE_BATCH
   batchQueue = NULL ;
   initCorresBatchDietReqID() ;
 #endif //HAVE_BATCH
@@ -268,14 +278,14 @@ SeDImpl::run(ServiceTable* services)
  
   this->SrvT = services;
 
-#if HAVE_BATCH
+#if defined HAVE_BATCH
   int only_batch_services = this->SrvT->testIfAllBatchServices() ;
   // A SeD can only launch parallel/batch or -exclusive- sequential jobs.
   // Then, all profiles must be either parallel/batch or sequential.
   // No mix allowed. 
   if( only_batch_services == 1 ) {
     // Read "batchName" if parallel jobs are to be submitted
-    char* batchname = (char*) 
+    char * batchname = (char*) 
       Parsers::Results::getParamValue(Parsers::Results::BATCHNAME) ;
     if (batchname == NULL) {
       ERROR("SeD can not launch parallel/batch jobs, no parallel/batch"
@@ -302,7 +312,38 @@ SeDImpl::run(ServiceTable* services)
 	  1) ;
   }
 #endif
-
+#if defined HAVE_ALT_BATCH
+  int only_batch_services = this->SrvT->testIfAllParallelServices() ;
+  // A SeD can only launch parallel/batch or -exclusive- sequential jobs.
+  // Then, all profiles must be either parallel/batch or sequential.
+  // No mix allowed. 
+  if( only_batch_services == 1 ) {
+    // Read "batchName" if parallel jobs are to be submitted
+    char * batchname = (char*) 
+      Parsers::Results::getParamValue(Parsers::Results::BATCHNAME) ;
+    if (batchname == NULL) {
+      ERROR("SeD can not launch parallel/batch jobs, no parallel/batch"
+	    " scheduler specified in the config file", 1) ;
+    }
+    batch = BatchCreator::getBatchSystem(batchname) ;
+    if( batch == NULL ) {
+      ERROR("Parallel/batch scheduler not recognized", 1) ;
+    }
+    TRACE_TEXT(TRACE_MAIN_STEPS,
+    	       "Parallel/batch submission enabled with " 
+	       << batch->getBatchName()) ;
+    if( batch->getBatchQueueName() != NULL )
+      TRACE_TEXT(TRACE_MAIN_STEPS, " using queue " 
+		 << batch->getBatchQueueName() ) ;
+    TRACE_TEXT(TRACE_MAIN_STEPS, "\n" ) ;
+    TRACE_TEXT(TRACE_MAIN_STEPS,"pathToNFS: " << batch->getNFSPath() << "\n") ;
+    TRACE_TEXT(TRACE_MAIN_STEPS,"pathToTmp: " << batch->getTmpPath() << "\n") ;
+  } else if( only_batch_services == -1 ) {
+    ERROR("SeD is not allowed to launch parallel/batch and sequential job"
+	  "at the same time",
+	  1) ;
+  }
+#endif
   char* parent_name = (char*)
     Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
   if (parent_name == NULL) {
@@ -490,7 +531,7 @@ SeDImpl::getRequest(const corba_request_t& creq)
 #endif
 
 
-#if ! HAVE_BATCH
+#if not defined HAVE_BATCH && not defined HAVE_ALT_BATCH
   #if ! HAVE_ALTPREDICT
     estVector_t ev = &(resp.servers[0].estim);
     for (int ctIter = 0 ; ctIter < creq.pb.last_out ; ctIter++) {
@@ -591,6 +632,8 @@ SeDImpl::updateTimeSinceLastSolve()
   gettimeofday(&(this->lastSolveStart), NULL) ;
 }
 
+/* TODO: When HAVE_ALT_BATCH is enabled by default, change the prototype
+   because reqID is integrated in the profile */
 CORBA::Long
 SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
 {
@@ -613,7 +656,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
    * and time at which job was enqueued (when using queues). */
   gettimeofday(&(this->lastSolveStart), NULL);
 
-#if HAVE_BATCH
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
   /* Use parallel_flag of the proposed SeD service to know what to do */
   const corba_profile_desc_t & sed_profile = SrvT->getProfile( ref ) ;
   if( sed_profile.parallel_flag == 2 )
@@ -667,7 +710,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
   return solve_res;
 }
 
-#if HAVE_BATCH
+#if defined HAVE_BATCH 
 char*
 SeDImpl::getLocalHostName()
 {
@@ -679,7 +722,9 @@ SeDImpl::getBatchSchedulerID()
 {
   return this->batchID ;
 }
+#endif
 
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
 CORBA::Long
 SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
 		     ServiceTable::ServiceReference_t& ref,
@@ -702,7 +747,7 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
   diet_convertor_t* cvt(NULL);
   int solve_res(0);
   char statMsg[128];
-  int i, status;
+  int i ;
 
   /* Is there a sens to use Queue with Batch? */
   if (this->useConcJobLimit){
@@ -727,12 +772,24 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
   TRACE_TEXT(TRACE_MAIN_STEPS, "Calling getSolver\n");
   solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
 
+#if defined HAVE_ALT_BATCH
+  TRACE_TIME(TRACE_MAIN_STEPS, "Submitting DIET job of ID "
+	     << profile.dietReqID <<
+	     " on batch system with ID " <<
+	     batch->getBatchJobID(profile.dietReqID)
+	     << "\n") ;
+  if( batch->wait4BatchJobCompletion(batch->getBatchJobID(profile.dietReqID)) 
+      < 0 ) {
+    ERROR("An error occured during the execution of the parallel job", 21) ;
+  }
+  batch->removeBatchJobID(profile.dietReqID) ;
+#else  
+  int status ;
   TRACE_TIME(TRACE_MAIN_STEPS, "Submitting script for DIET job of ID "
 	     << profile.dietReqID <<
 	     " is of pid " << 
 	     (long)((ProcessInfo)findBatchID(profile.dietReqID))->pid 
 	     << "\n") ;
-
   /* This waits until the jobs ends
   ** and remove batchID/DIETreqID correspondance */
   if( (ELBASE_Poll(findBatchID(profile.dietReqID), 1, &status) == 0)
@@ -744,8 +801,7 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
     }
   }
   removeBatchID(pb.dietReqID) ;
-
-  // TODO: verify it is ok with parallel non batch jobs
+#endif
 
   /* Data transfer */
   uploadSyncSeDData(profile,pb,cvt) ;
@@ -774,19 +830,12 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
 }
 #endif //HAVE_BATCH
 
+/* TODO: When HAVE_ALT_BATCH is enabled by default, change the prototype 
+   because reqID is integrated in the profile */
 void
 SeDImpl::solveAsync(const char* path, const corba_profile_t& pb, 
                     CORBA::Long reqID, const char* volatileclientREF)
 {
-#if HAVE_BATCH
-  if( pb.parallel_flag == 1 ) {
-    if( this->batchID == ELBASE_SHELLSCRIPT ) {
-      ERROR("Asynchronous parallel resolution not yet implemented",) ;
-    } else {
-      ERROR("Asynchronous batch resolution not yet implemented",) ;
-    }
-  }
-#endif
 
   // test validity of volatileclientREF
   // If nil, it is not necessary to solve ...
@@ -802,6 +851,9 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
       int solve_res(0);
       char statMsg[128];
 
+      /* Record the SedImpl address */
+      profile.SeDPtr = (const void*) this ;
+
       ref = SrvT->lookupService(path, &pb);
       if (ref == -1) {
         ERROR("SeD::" << __FUNCTION__ << ": service not found",);
@@ -810,69 +862,68 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
       /* Record time at which solve started (when not using queues) 
        * and time at which job was enqueued (when using queues). */
       gettimeofday(&(this->lastSolveStart), NULL);
-      if (this->useConcJobLimit){
-        this->accessController->waitForResource();
-      }
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+      /* Use parallel_flag of the proposed SeD service to know what to do */
+      const corba_profile_desc_t & sed_profile = SrvT->getProfile( ref ) ;
+      if( sed_profile.parallel_flag == 2 )
+	this->parallel_AsyncSolve(path, pb, ref,
+				  cb, profile) ;
+      else {
+#endif
 
-      sprintf(statMsg, "solveAsync %ld", (unsigned long) reqID);
-      stat_in("SeD",statMsg);
-
-      if (dietLogComponent != NULL) {
-        dietLogComponent->logBeginSolve(path, &pb,reqID);
-      }
-
-      TRACE_TEXT(TRACE_MAIN_STEPS,
-                 "SeD::solveAsync invoked on pb: " << path 
-                 << " (reqID " << reqID << ")" << endl);
-
- 
-      cvt = SrvT->getConvertor(ref);
-
-      downloadAsyncSeDData(profile, const_cast<corba_profile_t&>(pb), cvt);
-      
-#if HAVE_BATCH
-      if( profile.parallel_flag == 2 ) {
-	solve_res = (*(SrvT->getSolver(ref)))(&profile);
-	TRACE_TIME(TRACE_MAIN_STEPS, "Submitting script for DIET job of ID "
-		   << profile.dietReqID <<
-		   " is of pid " << 
-		   (long)((ProcessInfo)findBatchID(profile.dietReqID))->pid 
-		   << "\n") ;
-      } else
-      solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
-#else
-      solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
-#endif // HAVE_BATCH
-
-      uploadAsyncSeDData(profile,  const_cast<corba_profile_t&>(pb), cvt);
-
-      TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::" << __FUNCTION__ << " complete\n"
-                 << "**************************************************\n");
-
-      stat_out("SeD",statMsg);
-      stat_flush();
-
-      if (dietLogComponent != NULL) {
-        dietLogComponent->logEndSolve(path, &pb,reqID);
-      }
-
-      /* Release resource before returning the data.  Caution: this could be a
-       * problem for applications with lots of data. */
-      if (this->useConcJobLimit){
-        this->accessController->releaseResource();
-      }
+	if (this->useConcJobLimit){
+	  this->accessController->waitForResource();
+	}
+	
+	sprintf(statMsg, "solveAsync %ld", (unsigned long) reqID);
+	stat_in("SeD",statMsg);
+	
+	if (dietLogComponent != NULL) {
+	  dietLogComponent->logBeginSolve(path, &pb,reqID);
+	}
+	
+	TRACE_TEXT(TRACE_MAIN_STEPS,
+		   "SeD::solveAsync invoked on pb: " << path 
+		   << " (reqID " << reqID << ")" << endl);
+	
+	
+	cvt = SrvT->getConvertor(ref);
+	
+	downloadAsyncSeDData(profile, const_cast<corba_profile_t&>(pb), cvt);
+	
+	solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
+	
+	uploadAsyncSeDData(profile,  const_cast<corba_profile_t&>(pb), cvt);
+	
+	TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::" << __FUNCTION__ << " complete\n"
+		   << "**************************************************\n");
+	
+	stat_out("SeD",statMsg);
+	stat_flush();
+	
+	if (dietLogComponent != NULL) {
+	  dietLogComponent->logEndSolve(path, &pb,reqID);
+	}
+	
+	/* Release resource before returning the data.  Caution: this could be a
+	 * problem for applications with lots of data. */
+	if (this->useConcJobLimit){
+	  this->accessController->releaseResource();
+	}
      
-      // send result data to client.
-      TRACE_TEXT(TRACE_ALL_STEPS, "SeD::" << __FUNCTION__
-                 << ": performing the call-back.\n");
-      Callback_var cb_var = Callback::_narrow(cb);
-      cb_var->notifyResults(path, pb, reqID);
-      cb_var->solveResults(path, pb, reqID, solve_res);
-      /* FIXME: do we need to use diet_free_data on profile parameters as
-       * we do in the solve(...) method? */
-      delete [] profile.parameters; // allocated by unmrsh_in_args_to_profile
+	// send result data to client.
+	TRACE_TEXT(TRACE_ALL_STEPS, "SeD::" << __FUNCTION__
+		   << ": performing the call-back.\n");
+	Callback_var cb_var = Callback::_narrow(cb);
+	cb_var->notifyResults(path, pb, reqID);
+	cb_var->solveResults(path, pb, reqID, solve_res);
+	/* FIXME: do we need to use diet_free_data on profile parameters as
+	 * we do in the solve(...) method? */
+	delete [] profile.parameters; // allocated by unmrsh_in_args_to_profile
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+      }
+#endif
     }
-  
   } catch (const CORBA::Exception &e) {
     // Process any other User exceptions. Use the .id() method to
     // record or display useful information
@@ -884,7 +935,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
       ERROR("exception caught in SeD::" << __FUNCTION__ << '(' << p << ')',);
     } else {
       ERROR("exception caught in SeD::" << __FUNCTION__
-            << '(' << tc->id() << ')',);
+	    << '(' << tc->id() << ')',);
     }
   } catch (...) {
     // Process any other exceptions. This would catch any other C++
@@ -892,6 +943,146 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
     ERROR("unknown exception caught",);
   }
 }
+
+/* Note: ref is useful for convertors */
+#if defined HAVE_ALT_BATCH
+void
+SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb, 
+			     ServiceTable::ServiceReference_t ref,
+			     CORBA::Object_var & cb,
+			     diet_profile_t & profile)
+{
+  /*************************************************************
+   **                  submit a parallel job                  **
+   **
+   ** For the moment, 
+   ** datas are received before batch submission. Maybe this has
+   ** to be done in a fork, during the wait in the batch queue
+   ** if we want to be the most efficient, but needs file names
+   ** and perf. pred. from DTM or JuxMem.
+
+   ** TODO: If a data is not a file, convert it as a file.
+   **  Must I (can I?) do it here or give the functions to let 
+   **  the Sed programmer do it in the profile?
+   *************************************************************/
+
+  try {
+    if (CORBA::is_nil(cb)) {
+      ERROR("SeD::" << __FUNCTION__ << ": received a nil callback",);
+    } else {
+      diet_convertor_t* cvt(NULL);
+      int solve_res(0);
+      char statMsg[128];
+    
+      /* This can be useful for parallel resolutions */
+      if (this->useConcJobLimit){
+        this->accessController->waitForResource();
+      }
+
+      sprintf(statMsg, "solve_AsyncParallel %ld", (unsigned long) pb.dietReqID);
+      stat_in("SeD",statMsg);
+    
+      if (dietLogComponent != NULL) {
+	dietLogComponent->logBeginSolve(path, &pb,pb.dietReqID);
+      }
+    
+      TRACE_TEXT(TRACE_MAIN_STEPS,
+		 "SeD::solve_AsyncParallel invoked on pb: " << path 
+		 << " (reqID " << pb.dietReqID << ")" << endl);
+    
+    
+      cvt = SrvT->getConvertor(ref);
+    
+      downloadAsyncSeDData(profile, const_cast<corba_profile_t&>(pb), cvt);
+    
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+      solve_res = (*(SrvT->getSolver(ref)))(&profile);
+#if defined HAVE_ALT_BATCH
+      TRACE_TIME(TRACE_MAIN_STEPS, "Submitting DIET job of ID "
+		 << profile.dietReqID <<
+		 " on batch system with ID " <<
+		 batch->getBatchJobID(profile.dietReqID)
+		 << "\n") ;
+      if( 
+	 batch->wait4BatchJobCompletion(batch->getBatchJobID(profile.dietReqID)
+					) 
+	 < 0 ) {
+	ERROR_EXIT("An error occured during the execution of the parallel job") ;
+      }
+      batch->removeBatchJobID(profile.dietReqID) ;
+#else
+      TRACE_TIME(TRACE_MAIN_STEPS, "Submitting script for DIET job of ID "
+		 << profile.dietReqID <<
+		 " is of pid " << 
+		 (long)((ProcessInfo)findBatchID(profile.dietReqID))->pid 
+		 << "\n") ;
+      /* This waits until the jobs ends
+      ** and remove batchID/DIETreqID correspondance */
+      if( (ELBASE_Poll(findBatchID(profile.dietReqID), 1, &status) == 0)
+	  && status == 0 ) {
+	if( this->batchID == ELBASE_SHELLSCRIPT ) {
+	  ERROR_EXIT("An error occured during the execution of "
+		     "the parallel job", 21) ;
+	} else {
+	  ERROR_EXIT("An error occured during the execution"
+		     " of the batch job", 21) ;
+	}
+      }
+      removeBatchID(pb.dietReqID) ;
+#endif // HAVE_ALT_BATCH
+#endif // HAVE_BATCH || ALT_BATCH
+
+      uploadAsyncSeDData(profile,  const_cast<corba_profile_t&>(pb), cvt);
+
+      TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::" << __FUNCTION__ << " complete\n"
+		 << "**************************************************\n");
+
+      stat_out("SeD",statMsg);
+      stat_flush();
+    
+      if (dietLogComponent != NULL) {
+	dietLogComponent->logEndSolve(path, &pb,pb.dietReqID);
+      }
+
+      /* Release resource before returning the data.  Caution: this could be a
+       * problem for applications with lots of data. */
+      if (this->useConcJobLimit){
+	this->accessController->releaseResource();
+      }
+
+      // send result data to client.
+      TRACE_TEXT(TRACE_ALL_STEPS, "SeD::" << __FUNCTION__
+		 << ": performing the call-back.\n");
+      Callback_var cb_var = Callback::_narrow(cb);
+      cb_var->notifyResults(path, pb, pb.dietReqID);
+      cb_var->solveResults(path, pb, pb.dietReqID, solve_res);
+      /* FIXME: do we need to use diet_free_data on profile parameters as
+       * we do in the solve(...) method? */
+      delete [] profile.parameters; // allocated by unmrsh_in_args_to_profile
+    }
+  } catch (const CORBA::Exception &e) {
+    
+//     // Process any other User exceptions. Use the .id() method to
+//     // record or display useful information
+//     CORBA::Any tmp;
+//     tmp <<= e;
+//     CORBA::TypeCode_var tc = tmp.type();
+//     const char * p = tc->name();
+//     if (*p != '\0') {
+//       ERROR("exception caught in SeD::" << __FUNCTION__ << '(' << p << ')',);
+//     } else {
+//       ERROR("exception caught in SeD::" << __FUNCTION__
+//             << '(' << tc->id() << ')',);
+//     }
+//   } catch (...) {
+//     // Process any other exceptions. This would catch any other C++
+//     // exceptions and should probably never occur
+//     ERROR("unknown exception caught",);
+  }
+}
+#endif // HAVE_ALT_BATCH
+
+/******************************** Data Management ***************************/
 
 #if HAVE_JUXMEM
 inline void
@@ -1314,7 +1505,7 @@ SeDImpl::uploadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 }
 
 
-#ifdef HAVE_BATCH
+#if defined HAVE_BATCH
 void
 SeDImpl::initCorresBatchDietReqID()
 {
@@ -1428,4 +1619,23 @@ SeDImpl::getBatchQueue()
 }
 #endif
 
+#if defined HAVE_ALT_BATCH
+BatchSystem * // should be const
+SeDImpl::getBatch() 
+{
+  return batch ;
+}
 
+// int
+// diet_submit_parallel(diet_profile_t * profile, const char * command)
+// { 
+//   return batch->diet_submit_parallel(profile, command) ;
+// }
+// int
+// diet_concurrent_submit_parallel(int batchJobID, diet_profile_t * profile,
+// 			const char * command)
+// {
+//   return batch->diet_submit_parallel(batchJobID, profile,
+// 				     command) ;
+// }
+#endif

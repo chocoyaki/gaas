@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2007/04/16 22:43:44  ycaniou
+ * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
+ * This is indented to replace HAVE_BATCH.
+ *
+ * First draw to manage batch systems with a new Cori plug-in.
+ *
  * Revision 1.21  2007/03/26 13:44:48  glemahec
  * Adds the DIET_AGG_USER case to the "addService" method.
  * Very little change.
@@ -448,7 +454,7 @@ ServiceTable::rmChild(const CORBA::ULong child)
   return 0;
 }
 
-#ifdef HAVE_BATCH
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
 /* This method does NOT test the validity of the range index */
 const corba_profile_desc_t &
 ServiceTable::getProfile( const ServiceReference_t index )
@@ -601,7 +607,7 @@ ServiceTable::getPerfMetric(const ServiceReference_t ref)
    return getChildren(ref);
    }
 */
-#ifdef HAVE_BATCH
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
 const ServiceTable::matching_children_t *
 ServiceTable::getChildren(const corba_pb_desc_t * pb_desc)
 {
@@ -681,7 +687,7 @@ ServiceTable::dump(FILE* f)
   for (size_t i = 0; i < nb_s; i++) {
     strcpy(path, profiles[i].path);
     fprintf(f, "- Service %s", path);
-#ifdef HAVE_BATCH
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
     if( profiles[i].parallel_flag == 2 )
       fprintf(f," (parallel service) ") ;
     else if ( profiles[i].parallel_flag == 1 )
@@ -765,7 +771,7 @@ ServiceTable::ServiceTableInit(CORBA::ULong max_nb_services,
   return 0;
 }
 
-#if HAVE_BATCH
+#if defined HAVE_BATCH
 /* Unused
    int
    ServiceTable::existBatchService()
@@ -779,6 +785,20 @@ ServiceTable::ServiceTableInit(CORBA::ULong max_nb_services,
 */
 int
 ServiceTable::testIfAllBatchServices()
+{
+  size_t i=1 ;
+
+  while( (i<nb_s) && (profiles[0].parallel_flag == profiles[i].parallel_flag) )
+    i++ ;
+  if( i==nb_s )
+    return ( profiles[0].parallel_flag == 2 ) ;
+  else
+    return -1 ;
+}
+#endif
+#if defined HAVE_ALT_BATCH
+int
+ServiceTable::testIfAllParallelServices()
 {
   size_t i=1 ;
 

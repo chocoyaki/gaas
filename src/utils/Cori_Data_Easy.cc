@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2007/04/16 22:43:44  ycaniou
+ * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
+ * This is indented to replace HAVE_BATCH.
+ *
+ * First draw to manage batch systems with a new Cori plug-in.
+ *
  * Revision 1.10  2006/12/06 21:57:15  ecaron
  * Header bug fix
  *
@@ -110,8 +116,8 @@ Cori_Data_Easy::Cori_Data_Easy(){
 
 int 
 Cori_Data_Easy::get_Information(int type_Info,       
-				      estVector_t* info,
-				      const void * data){
+				estVector_t* info,
+				const void * data){
   char * path;
    vector<double> vect;
    int res=0;

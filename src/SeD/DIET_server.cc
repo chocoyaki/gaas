@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.64  2007/04/16 22:43:43  ycaniou
+ * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
+ * This is indented to replace HAVE_BATCH.
+ *
+ * First draw to manage batch systems with a new Cori plug-in.
+ *
  * Revision 1.63  2007/03/27 08:01:54  glemahec
  * Adds the support of the new aggregator type (DIET_AGG_USER) in the diet_aggregator_set_type method (precedently was controlling if the type was DIET_AGG_DEFAULT or DIET_AGG_PRIORITY. Just adds DIET_AGG_USER in the test).
  *
@@ -201,8 +207,8 @@ diet_service_table_add(const diet_profile_desc_t* const profile,
   } else {
     actual_cvt = diet_convertor_alloc(profile->path, profile->last_in,
 				      profile->last_inout, profile->last_out);
-#if HAVE_BATCH
-    // TODO: Must I add something about convertors ??
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+     // TODO: Must I add something about convertors ??
 #endif
 
     for (int i = 0; i <= profile->last_out; i++)
@@ -267,7 +273,7 @@ diet_service_table_lookup_by_profile(const diet_profile_t* const profile)
     profileDesc.last_in = profile->last_in;
     profileDesc.last_inout = profile->last_inout;
     profileDesc.last_out = profile->last_out;
-#if HAVE_BATCH
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
     profileDesc.parallel_flag = profile->parallel_flag ;
 #endif
     int numArgs = profile->last_out + 1;
@@ -331,7 +337,7 @@ diet_profile_desc_alloc(const char* path,
   desc->last_inout = last_inout;
   desc->last_out   = last_out;
   desc->param_desc = param_desc;
-#ifdef HAVE_BATCH
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
   // By default, the profile is registered in the server as sequential
   diet_profile_desc_set_sequential( desc ) ;
 #endif
@@ -1093,6 +1099,8 @@ diet_estimate_cori(estVector_t ev,
       //fixme: set the default values for each type
    }
    //#endif //HAVE_FAST
+  } else if( collector_type == EST_COLL_BATCH ) {
+    // TODO: YC
   }
   else
        CORIMgr::call_cori_mgr(&ev,info_type,collector_type,data);   
@@ -1298,6 +1306,21 @@ diet_submit_parallel(diet_profile_t *profile, const char *command)
   }
   
   return result ;
+}
+#endif
+
+#ifdef HAVE_ALT_BATCH
+int
+diet_submit_parallel(diet_profile_t * profile, const char * command)
+{
+  return ((((SeDImpl*)profile->SeDPtr)->getBatch())->diet_submit_parallel(profile,command)) ;
+}
+int
+diet_concurrent_submit_parallel(int batchJobID, diet_profile_t * profile,
+				const char * command)
+{
+  return (((SeDImpl*)profile->SeDPtr)->getBatch())->
+    diet_submit_parallel(batchJobID,profile,command) ;
 }
 #endif
 

@@ -11,6 +11,7 @@ OPTION( DIET_BUILD_BLAS_EXAMPLES "Build BLAS based DIET examples." OFF )
 OPTION( DIET_BUILD_EXAMPLES      "Build DIET examples." OFF )
 OPTION( DIET_BUILD_DOCUMENTATION "Build the documentation." OFF )
 OPTION( DIET_USE_BATCH  "Build DIET with Batch support." OFF )
+OPTION( DIET_USE_ALT_BATCH  "Build DIET with alt Batch support." OFF )
 OPTION( DIET_USE_CORI   "Build DIET with CORI support." OFF )
 OPTION( DIET_USE_DART   "Build DIET with dart reporting support." OFF)
 OPTION( DIET_USE_FAST   "Build DIET with FAST support." OFF )
@@ -170,6 +171,14 @@ IF( DIET_USE_BATCH )
   SET( DIET_BATCH_WRITING_PATH $ENV{HOME} 
        CACHE STRING "Path where the SeD has writing access." )
 ENDIF( DIET_USE_BATCH )
+
+IF( DIET_USE_ALT_BATCH )
+    # The HAVE_BATCH compiler flags has too many occurences to be cleanly
+    # associated with all the concerned files by using
+    # SET_SOURCE_FILES_PROPERTIES combined with PROPERTIES COMPILE_FLAGS.
+    # [For example ServiceTable.hh gets included in many places...]
+    ADD_DEFINITIONS( -DHAVE_ALT_BATCH )
+ENDIF( DIET_USE_ALT_BATCH )
 
 # Enable dynamic MULTI-Master-Agent support based on JXTA library
 # (refer to http://www.jxta.org/ ). This is similar to functionalities offered

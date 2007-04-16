@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.48  2007/04/16 22:43:42  ycaniou
+ * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
+ * This is indented to replace HAVE_BATCH.
+ *
+ * First draw to manage batch systems with a new Cori plug-in.
+ *
  * Revision 1.47  2007/03/26 13:10:42  glemahec
  * Adds the aggregator type DIET_AGG_USER for user agent scheduler.
  *
@@ -266,7 +272,7 @@ typedef struct {
                       ** performance estimation
 		      ** And for batch submission
                       */
-#ifdef HAVE_BATCH
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
   /* if 0, select seq AND parallel tasks for the request
      if 1, select only seq tasks
      if 2, parallel only */
@@ -277,7 +283,6 @@ typedef struct {
   /* Used for correspondance batch job ID / DIET job ID */
   int dietReqID ;
 #endif
-
 } diet_profile_t;
 
 /* Allocate a DIET profile with memory space for its arguments.
@@ -297,7 +302,7 @@ diet_profile_alloc(char* pb_name, int last_in, int last_inout, int last_out);
 int
 diet_profile_free(diet_profile_t* profile);
 
-#ifdef HAVE_BATCH
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
 int
 diet_profile_set_parallel(diet_profile_t* profile) ;
 int
@@ -463,11 +468,6 @@ diet_file_desc_t diet_file_get_desc(diet_arg_t* arg);
 int
 diet_free_data(diet_arg_t* arg);
 
-
-
-
-
-
 /****************************************************************************/
 /* The following part is useless for users, but may be read for more        */
 /* information on data structures.                                          */
@@ -619,6 +619,9 @@ typedef const struct corba_estimation_t *estVectorConst_t;
     EST_COLL_FAST,
     EST_COLL_GANGLIA,
     EST_COLL_NAGIOS
+#ifdef HAVE_ALT_BATCH
+    ,EST_COLL_BATCH
+#endif
   }diet_est_collect_tag_t;
 
 #ifdef HAVE_WORKFLOW

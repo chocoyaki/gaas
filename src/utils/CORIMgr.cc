@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2007/04/16 22:43:44  ycaniou
+ * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
+ * This is indented to replace HAVE_BATCH.
+ *
+ * First draw to manage batch systems with a new Cori plug-in.
+ *
  * Revision 1.8  2006/10/31 22:46:49  ecaron
  * CORI Manager
  *
@@ -49,9 +55,9 @@ CORIMgr::startCollectors()
 
 int
 CORIMgr::call_cori_mgr(estVector_t *ev,
-			    int info_type,
-			    diet_est_collect_tag_t name,
-			    const void * datav)
+		       int info_type,
+		       diet_est_collect_tag_t name,
+		       const void * datav)
 {
   vector <Cori_Metric>::iterator iter1;
   iter1 = collector_v->begin();

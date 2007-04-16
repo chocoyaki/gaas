@@ -10,6 +10,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.99  2007/04/16 22:43:43  ycaniou
+ * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
+ * This is indented to replace HAVE_BATCH.
+ *
+ * First draw to manage batch systems with a new Cori plug-in.
+ *
  * Revision 1.98  2007/03/01 15:55:08  ycaniou
  * Added the updateTimeSinceLastSolve() feature
  *
@@ -959,7 +965,7 @@ request_submission(diet_profile_t* profile,
     }
     sprintf(statMsg, "request_submission %ld", (unsigned long) reqID);
     stat_out("Client",statMsg);
-#ifdef HAVE_BATCH
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
     profile->dietReqID = reqID ;
 #endif
   }
@@ -1094,7 +1100,7 @@ diet_call(diet_profile_t* profile)
   return diet_call_common(profile, chosenServer);
 }
 
-#ifdef HAVE_BATCH
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
 diet_error_t
 diet_parallel_call(diet_profile_t* profile)
 {
@@ -1258,7 +1264,7 @@ diet_call_async(diet_profile_t* profile, diet_reqID_t* reqID)
   return err;
 }
 
-#ifdef HAVE_BATCH
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
 diet_error_t
 diet_parallel_call_async(diet_profile_t* profile, diet_reqID_t* reqID)
 {
@@ -2153,7 +2159,7 @@ int unmrsh_profile_desc( diet_profile_desc_t* dest,
     (dest->param_desc[i]).base_type = (diet_base_type_t)((src->param_desc[i]).base_type);
     (dest->param_desc[i]).type      = (diet_data_type_t)(src->param_desc[i]).type;
   }
-#if HAVE_BATCH
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
   dest->parallel_flag = src->parallel_flag ;
 #endif
 

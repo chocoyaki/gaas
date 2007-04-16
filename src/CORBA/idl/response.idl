@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2007/04/16 22:43:43  ycaniou
+ * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
+ * This is indented to replace HAVE_BATCH.
+ *
+ * First draw to manage batch systems with a new Cori plug-in.
+ *
  * Revision 1.10  2006/11/06 12:11:47  aamar
  * Worklow support: Changing the  wf_sched_response_t structure.
  *
@@ -133,6 +139,10 @@ struct corba_response_t {
   SeqDataLoc_t        dataLoc;
 #endif
 #ifdef HAVE_BATCH
+  // Make client know he has to submit parallel or non-parallel
+  long parallel_flag ;
+#endif
+#ifdef HAVE_ALT_BATCH
   // Make client know he has to submit parallel or non-parallel
   long parallel_flag ;
 #endif

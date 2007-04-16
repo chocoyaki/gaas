@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.32  2007/04/16 22:43:44  ycaniou
+ * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
+ * This is indented to replace HAVE_BATCH.
+ *
+ * First draw to manage batch systems with a new Cori plug-in.
+ *
  * Revision 1.31  2007/03/26 13:41:20  glemahec
  * Adds the options "schedulerModule" and "moduleConfigFile" to the allowed options of a DIET config file.
  *
@@ -112,19 +118,25 @@ Parsers::Results::param_t Parsers::Results::params[] =
    /* [22] */ {"bindServicePort", 15, Parsers::parsePort, 0, NULL},
    /* [23] */ {"useConcJobLimit", 15, Parsers::parseUse, 0, NULL},
    /* [24] */ {"maxConcJobs", 11, Parsers::parseInt, 0, NULL}
-#if HAVE_BATCH
-   /* [25] */ ,{"batchName", 9, Parsers::parseName, 0, NULL}
-   /* [26] */ ,{"batchQueue", 10, Parsers::parseName, 0, NULL}
-#endif
-   /* [27] */ ,{"locationID", 10, Parsers::parseName, 0, NULL}
-   /* [28] */ ,{"MADAGNAME", 9, Parsers::parseName, 0, NULL}
-   /* [29] */ ,{"USEWFLOGSERVICE", 15, Parsers::parseName, 0, NULL}
+   /* [25] */ ,{"locationID", 10, Parsers::parseName, 0, NULL}
+   /* [26] */ ,{"MADAGNAME", 9, Parsers::parseName, 0, NULL}
+   /* [27] */ ,{"USEWFLOGSERVICE", 15, Parsers::parseName, 0, NULL}
 /* New : For user scheduler support. */
 /*       schedulerModule  : The path to the scheduler library file. */
 /*       moduleConfigFile : Optionnal configuration file for the module. */
 #ifdef USERSCHED
-   /* [30] */ ,{"schedulerModule", 15, Parsers::parseName, 0, NULL}
-   /* [31] */ ,{"moduleConfigFile", 16, Parsers::parseName, 0, NULL}
+   /* [28] */ ,{"schedulerModule", 15, Parsers::parseName, 0, NULL}
+   /* [29] */ ,{"moduleConfigFile", 16, Parsers::parseName, 0, NULL}
+#endif
+#if HAVE_BATCH
+   /* [30] */ ,{"batchName", 9, Parsers::parseName, 0, NULL}
+   /* [31] */ ,{"batchQueue", 10, Parsers::parseName, 0, NULL}
+#endif
+#if HAVE_ALT_BATCH
+   /* [30] */ ,{"batchName", 9, Parsers::parseName, 0, NULL}
+   /* [31] */ ,{"batchQueue", 10, Parsers::parseName, 0, NULL}
+   /* [32] */ ,{"pathToNFS", 9, Parsers::parseName, 0, NULL}
+   /* [33] */ ,{"pathToTmp", 9, Parsers::parseName, 0, NULL}
 #endif
   } ;
 

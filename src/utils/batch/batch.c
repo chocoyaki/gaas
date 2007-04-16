@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2007/04/16 22:43:44  ycaniou
+ * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
+ * This is indented to replace HAVE_BATCH.
+ *
+ * First draw to manage batch systems with a new Cori plug-in.
+ *
  * Revision 1.12  2007/01/24 20:37:28  ycaniou
  * Commentaries Doxygen compliant
  *
@@ -894,7 +900,8 @@ ELBASE_ScriptForSubmit(ELBASE_ComputeServiceTypes service,
     "qsub " BATCH_PATH
     /* YC */
     /* In order to be sure that OAR take PWD and not /bin/pwd: for Grenoble */
-    ,"cd ; oarsub " BATCH_PATH, "/bin/bash " BATCH_PATH
+    ,"cd ; oarsub " BATCH_PATH, 
+    "/bin/bash " BATCH_PATH
     /* FYC */
   };
   /*

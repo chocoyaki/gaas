@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.44  2007/04/16 22:43:44  ycaniou
+ * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
+ * This is indented to replace HAVE_BATCH.
+ *
+ * First draw to manage batch systems with a new Cori plug-in.
+ *
  * Revision 1.43  2007/04/03 11:38:48  ycaniou
  * Error when the client wants to transfer a zero size file
  * ( if not, there is an omniorb error, then now, it is "clean")
@@ -355,7 +361,7 @@ file_set_desc(diet_data_desc_t* desc, char* const id,
     if (!(buf.st_mode & S_IFREG))
       return 2;
     if( buf.st_size == 0 ) {
-      ERROR("One of the file that you want to transfer is of zero size ", 1);
+      ERROR("One of the file that you want to transfer is of zero size", 1);
     }
     desc->specific.file.size = (size_t) buf.st_size;
   } else {
@@ -378,7 +384,7 @@ profile_desc_match(const corba_profile_desc_t* p1,
        || (p1->last_inout          != p2->last_inout)
        || (p1->last_out            != p2->last_out)
        || (p1->param_desc.length() != p2->param_desc.length())
-#if HAVE_BATCH
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
        || (p1->parallel_flag          != p2->parallel_flag) 
 #endif
        )
@@ -407,7 +413,7 @@ profile_match(const corba_profile_desc_t* sv_profile,
        || (sv_profile->last_out            != pb_desc->last_out)
        || (sv_profile->param_desc.length() != pb_desc->param_desc.length()) )
     return 0;
-#if HAVE_BATCH
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
   /*
   **  - if parallel or sequential is asked, strict check
   **  - if nothing specified, both // and non-// must be considered
@@ -444,7 +450,7 @@ profile_match(const corba_profile_desc_t* sv_profile,
        || (sv_profile->param_desc.length() != pb->parameters.length()) )
     return 0;
 
-#if HAVE_BATCH
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
   /*  if( (sv_profile->parallel_flag == 1) 
       && (sv_profile->parallel_flag != pb->parallel_flag) )
       return 0 ;*/
@@ -489,7 +495,7 @@ diet_profile_alloc(char* pb_name, int last_in, int last_inout, int last_out)
   res->parameters = new diet_arg_t[last_out + 1];
   for (int i = 0; i <= last_out; i++)
     res->parameters[i].desc.id = NULL;
-#if HAVE_BATCH
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
   /* By default, ask for sequential and parallel task (cf DIET_data.h ) */
   res->parallel_flag = 0 ;
   res->nbprocs   = 0 ;
@@ -509,7 +515,7 @@ diet_profile_free(diet_profile_t* profile)
   return 0;
 }
 
-#ifdef HAVE_BATCH
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
 /* Functions for client profile request */
 int
 diet_profile_set_parallel(diet_profile_t* profile)

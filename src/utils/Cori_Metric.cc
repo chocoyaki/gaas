@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2007/04/16 22:43:44  ycaniou
+ * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
+ * This is indented to replace HAVE_BATCH.
+ *
+ * First draw to manage batch systems with a new Cori plug-in.
+ *
  * Revision 1.6  2006/10/31 23:14:46  ecaron
  * CoRI: Metric management
  *
@@ -36,6 +42,11 @@ Cori_Metric::Cori_Metric(diet_est_collect_tag_t type,
     cori_fast=new Cori_Fast();
   }
     break;
+#if HAVE_ALT_BATCH
+ case EST_COLL_BATCH:
+   cori_batch = new Cori_batch() ;
+   break ;
+#endif
   default:{
     INTERNAL_WARNING("Collector called "<<collector_type <<" doesn't exist");
   }
@@ -52,7 +63,12 @@ Cori_Metric::start(diet_est_collect_tag_t type){
    collector_type=type;
 
  switch(collector_type){
-
+#if HAVE_ALT_BATCH
+ case EST_COLL_BATCH:
+   // do I init some Batch things?
+   // I think not: all has to be done in the SeD_batch init
+   return 0 ;
+#endif
   case EST_COLL_EASY:{ 
     //no need to start - very synamic functions
     return 0;
@@ -76,7 +92,13 @@ Cori_Metric::call_cori_metric(int type_Info,
 				  const void *data)
 {
   switch(collector_type){
-    
+#if HAVE_ALT_BATCH
+  case EST_COLL_BATCH:
+    return cori_batch->get_Information(type_Info, 
+				       information,
+				       data);   
+    break; 
+#endif
   case EST_COLL_EASY:{ 
     return cori_easy->get_Information(type_Info, 
 				      information,

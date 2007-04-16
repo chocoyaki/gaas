@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2007/04/16 22:43:44  ycaniou
+ * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
+ * This is indented to replace HAVE_BATCH.
+ *
+ * First draw to manage batch systems with a new Cori plug-in.
+ *
  * Revision 1.15  2006/09/18 19:46:08  ycaniou
  * Corrected a bug in file_transfer:server.c
  * Corrected memory leaks due to incorrect free of char *
@@ -192,7 +198,7 @@ public:
   matching_children_t*
     getChildren(const corba_profile_desc_t* profile);
   */
-#ifdef HAVE_BATCH
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
   /* Returns the list of children that can solve parallel and/or sequential
      task, depending on parallel flag of profile
   -> Caller must desallocate the resulting memory! */
@@ -216,7 +222,11 @@ public:
   */
   int 
   testIfAllBatchServices() ;
-#endif  
+#endif
+#if HAVE_ALT_BATCH
+  int 
+  testIfAllParallelServices() ;
+#endif
 
 private:
   

@@ -73,6 +73,16 @@ IF( DIET_BUILD_LIBRARIES )
     TARGET_LINK_LIBRARIES( UtilsSeDBatch ${APPLESEEDS_LIBRARIES} -lpthread )
     INSTALL_TARGETS( /lib/ UtilsSeDBatch )
   ENDIF( DIET_USE_BATCH )
+
+  IF( DIET_USE_ALT_BATCH )
+    INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
+    ADD_LIBRARY( UtilsSeDBatch 
+    BatchCreator.cc
+    BatchSystem.cc
+    OAR1_6BatchSystem.cc )
+    TARGET_LINK_LIBRARIES( UtilsSeDBatch -lpthread )
+    INSTALL_TARGETS( /lib/ UtilsSeDBatch )
+  ENDIF( DIET_USE_ALT_BATCH )
   
   ########################################################################
   ### UtilsNodes library:

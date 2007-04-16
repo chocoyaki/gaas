@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.32  2007/04/16 22:43:42  ycaniou
+ * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
+ * This is indented to replace HAVE_BATCH.
+ *
+ * First draw to manage batch systems with a new Cori plug-in.
+ *
  * Revision 1.31  2006/09/18 19:41:57  ycaniou
  * Removed from the server API diet_submit_batch() which is integrated in
  *   diet_submit_parallel(): it handles parallel AND batch jobs
@@ -182,7 +188,7 @@ typedef struct {
   int              last_in, last_inout, last_out;
   diet_arg_desc_t* param_desc;
 
-#ifdef HAVE_BATCH
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
   unsigned short int parallel_flag ;
   int nbprocs ; 
 #endif
@@ -215,7 +221,7 @@ diet_profile_desc_alloc(const char* path,
 int
 diet_profile_desc_free(diet_profile_desc_t* desc);
 
-#ifdef HAVE_BATCH
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
 /* Functions for server profile registration */
 int
 diet_profile_desc_set_sequential(diet_profile_desc_t* profile) ;
@@ -306,7 +312,7 @@ typedef struct {
   char*                 path;
   int                   last_in, last_inout, last_out;
   diet_arg_convertor_t* arg_convs;
-#ifdef HAVE_BATCH
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
   unsigned short int batch_flag ;
   int nbprocs ;
   unsigned long walltime ;
@@ -420,7 +426,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[]);
 /****************************************************************************/
 /* DIET batch submit call                                                   */
 /****************************************************************************/
-#ifdef HAVE_BATCH
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
   /**
    * @param command is the content of the script that the SeD programmer wants
    * to submit in order to provide the service @param profile

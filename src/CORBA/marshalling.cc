@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.72  2007/04/16 22:43:42  ycaniou
+ * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
+ * This is indented to replace HAVE_BATCH.
+ *
+ * First draw to manage batch systems with a new Cori plug-in.
+ *
  * Revision 1.71  2007/03/27 07:55:58  glemahec
  * Adds the support of the new aggregator type (DIET_AGG_USER) in marshalling.cc
  *
@@ -191,6 +197,7 @@
 #include "marshalling.hh"
 #include "debug.hh"
 #include "ms_function.hh"
+#include "DIET_data_internal.hh"     // for data_sizeof()
 
 extern unsigned int TRACE_LEVEL;
 
@@ -693,7 +700,7 @@ mrsh_profile_desc(corba_profile_desc_t* dest, const diet_profile_desc_t* src)
     (dest->param_desc[i]).base_type = (src->param_desc[i]).base_type;
     (dest->param_desc[i]).type      = (src->param_desc[i]).type;
   }
-#if HAVE_BATCH
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
   dest->parallel_flag = src->parallel_flag ;
 #endif
 
@@ -728,7 +735,7 @@ mrsh_pb_desc(corba_pb_desc_t* dest, const diet_profile_t* const src)
     }
 #endif // HAVE_JUXMEM
   }
-#if HAVE_BATCH
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
   dest->parallel_flag = src->parallel_flag ;
   dest->nbprocs    = src->nbprocs ;
   dest->nbprocess  = src->nbprocess ;
@@ -747,7 +754,7 @@ mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src)
 {
   int i;
 
-#if HAVE_BATCH
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH 
   dest->parallel_flag = src->parallel_flag ;
   dest->nbprocs    = src->nbprocs ;
   dest->nbprocess  = src->nbprocess ;
@@ -872,7 +879,7 @@ unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
     src_params[i] = NULL;
   }
 
-#if HAVE_BATCH
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
   dest->parallel_flag = src->parallel_flag ;
   dest->nbprocs    = src->nbprocs ;
   dest->nbprocess  = src->nbprocess ;
@@ -1024,7 +1031,7 @@ unmrsh_out_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb)
 	 )
     return 1;
 
-#if HAVE_BATCH
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
   // In case client wants to know how many procs and process have been used
   // but other info like walltime is useless
   dpb->nbprocs = cpb->nbprocs ;

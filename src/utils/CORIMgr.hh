@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2007/04/16 22:43:44  ycaniou
+ * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
+ * This is indented to replace HAVE_BATCH.
+ *
+ * First draw to manage batch systems with a new Cori plug-in.
+ *
  * Revision 1.6  2006/11/16 09:55:55  eboix
  *   DIET_config.h is no longer used. --- Injay2461
  *
@@ -34,9 +40,9 @@ add(diet_est_collect_tag_t collectorName,
 
 static int
 call_cori_mgr(estVector_t* ev,
-		   int info_type,
-		   diet_est_collect_tag_t collector_type,	   
-		   const void * data);
+	      int info_type,
+	      diet_est_collect_tag_t collector_type,	   
+	      const void * data);
 static int
 startCollectors();
 

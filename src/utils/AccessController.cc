@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2007/04/16 22:43:44  ycaniou
+ * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
+ * This is indented to replace HAVE_BATCH.
+ *
+ * First draw to manage batch systems with a new Cori plug-in.
+ *
  * Revision 1.3  2005/04/25 09:08:12  hdail
  * Print warning if jobs exit SeD-level queue out of order, but don't re-insert
  * them.  This approach needs to be redone later.
@@ -34,8 +40,8 @@
 using namespace std;
 #include <stdlib.h>
 
-#include "debug.hh"
 #include "omnithread.h"
+#include "debug.hh"
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;

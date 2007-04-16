@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2007/04/16 22:43:44  ycaniou
+ * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
+ * This is indented to replace HAVE_BATCH.
+ *
+ * First draw to manage batch systems with a new Cori plug-in.
+ *
  * Revision 1.20  2007/03/26 13:41:21  glemahec
  * Adds the options "schedulerModule" and "moduleConfigFile" to the allowed options of a DIET config file.
  *
@@ -130,10 +136,6 @@ public:
       USELOGSERVICE, LSOUTBUFFERSIZE, LSFLUSHINTERVAL,
       NEIGHBOURS, MAXNEIGHBOURS, MINNEIGHBOURS, UPDATELINKPERIOD,
       BINDSERVICEPORT, USECONCJOBLIMIT, MAXCONCJOBS,
-#if HAVE_BATCH
-      BATCHNAME,
-      BATCHQUEUE,
-#endif
       LOCATIONID,         // For alternative transfer cost prediction
       MADAGNAME,
       USEWFLOGSERVICE,
@@ -142,6 +144,17 @@ public:
 	  MODULENAME,
 	  MODULECFG,
 #endif
+#if HAVE_BATCH
+      BATCHNAME,
+      BATCHQUEUE,
+#endif
+#if HAVE_ALT_BATCH
+      BATCHNAME,
+      BATCHQUEUE,
+      PATHTONFS,
+      PATHTOTMP,
+#endif
+
       NB_PARAM_TYPE
     } param_type_t;
 

@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2007/04/16 22:43:44  ycaniou
+ * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
+ * This is indented to replace HAVE_BATCH.
+ *
+ * First draw to manage batch systems with a new Cori plug-in.
+ *
  * Revision 1.7  2006/10/31 23:02:51  ecaron
  * CoRI: FAST module
  *
@@ -86,7 +92,7 @@ Cori_Fast::diet_service_table_lookup_by_profile(
     profileDesc.last_in = profile->last_in;
     profileDesc.last_inout = profile->last_inout;
     profileDesc.last_out = profile->last_out;
-#if HAVE_BATCH
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
     /* In case of client explicitly ask for a batch resolution */
     profileDesc.parallel_flag = profile->parallel_flag ;
 #endif

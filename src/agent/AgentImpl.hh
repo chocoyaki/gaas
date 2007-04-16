@@ -10,6 +10,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2007/04/16 22:43:43  ycaniou
+ * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
+ * This is indented to replace HAVE_BATCH.
+ *
+ * First draw to manage batch systems with a new Cori plug-in.
+ *
  * Revision 1.17  2006/09/11 11:09:12  ycaniou
  * Call ServiceTable::getChildren(corba_pb_desc) in findServer, in order to
  *   call both parallel and sequential server for a default request that can
@@ -196,7 +202,7 @@ protected:
   corba_response_t*
   findServer(Request* req, size_t max_srv);
  
-#ifndef HAVE_BATCH
+#if not defined HAVE_BATCH && not defined HAVE_ALT_BATCH
   /** Send the request structure \c req to the child whose ID is \c childID. */
   void
   sendRequest(CORBA::ULong childID, const corba_request_t* req);

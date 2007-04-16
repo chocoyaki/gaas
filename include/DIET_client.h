@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.30  2007/04/16 22:43:42  ycaniou
+ * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
+ * This is indented to replace HAVE_BATCH.
+ *
+ * First draw to manage batch systems with a new Cori plug-in.
+ *
  * Revision 1.29  2006/10/20 09:52:27  aamar
  * *** empty log message ***
  *
@@ -157,7 +163,7 @@ diet_free_persistent_data(char *id);
 
 diet_error_t
 diet_call(diet_profile_t* profile);
-#ifdef HAVE_BATCH
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
 diet_error_t
 diet_parallel_call(diet_profile_t* profile) ;
 diet_error_t
@@ -165,7 +171,7 @@ diet_sequential_call(diet_profile_t* profile) ;
 #endif
 diet_error_t
 diet_call_async(diet_profile_t* profile, diet_reqID_t* reqID);
-#ifdef HAVE_BATCH
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
 diet_error_t
 diet_parallel_call_async(diet_profile_t* profile, diet_reqID_t* reqID);
 diet_error_t

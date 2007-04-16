@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2007/04/16 22:43:44  ycaniou
+ * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
+ * This is indented to replace HAVE_BATCH.
+ *
+ * First draw to manage batch systems with a new Cori plug-in.
+ *
  * Revision 1.7  2006/11/16 09:55:55  eboix
  *   DIET_config.h is no longer used. --- Injay2461
  *
@@ -21,7 +27,9 @@
 
 #include "Cori_Data_Easy.hh"
 #include "Cori_Fast.hh"
-
+#if HAVE_ALT_BATCH
+#include "Cori_batch.hh"
+#endif
 
 class Cori_Metric
 {
@@ -31,7 +39,9 @@ private:
 
   Cori_Data_Easy* cori_easy;
   Cori_Fast* cori_fast;
-
+#if HAVE_ALT_BATCH  
+  Cori_batch * cori_batch ;
+#endif
 
 public:
    /**

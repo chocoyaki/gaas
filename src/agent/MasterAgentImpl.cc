@@ -10,6 +10,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.33  2007/04/16 22:43:43  ycaniou
+ * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
+ * This is indented to replace HAVE_BATCH.
+ *
+ * First draw to manage batch systems with a new Cori plug-in.
+ *
  * Revision 1.32  2006/12/01 10:14:07  aamar
  * Workflow support: add a test to check if ALTPREDICT is activated.
  *   Workflow support still not working when use altpredict but diet
@@ -421,7 +427,7 @@ MasterAgentImpl::submit_local(const corba_request_t& creq)
 #endif // HAVE_ALTPREDICT
 
   } else {
-#ifndef HAVE_BATCH
+#if not defined HAVE_BATCH && not defined HAVE_ALT_BATCH
     CORBA::Long numProfiles;
     SeqCorbaProfileDesc_t *profiles = this->SrvT->getProfiles(numProfiles);
     assert(sref < numProfiles);
@@ -445,7 +451,7 @@ MasterAgentImpl::submit_local(const corba_request_t& creq)
 
     /** Forward request and schedule the responses */
     resp = findServer(req, creq.max_srv);
-#ifndef HAVE_BATCH
+#if not defined HAVE_BATCH && not defined HAVE_ALT_BATCH
     delete profiles;
 #endif
   }

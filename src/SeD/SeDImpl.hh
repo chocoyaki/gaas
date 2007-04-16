@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.33  2007/04/16 22:43:43  ycaniou
+ * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
+ * This is indented to replace HAVE_BATCH.
+ *
+ * First draw to manage batch systems with a new Cori plug-in.
+ *
  * Revision 1.32  2007/03/01 15:55:07  ycaniou
  * Added the updateTimeSinceLastSolve() feature
  *
@@ -182,9 +188,13 @@
 #endif
 
 #if HAVE_BATCH
+#include <omnithread.h>       // For omni_mutex
 extern "C" {
 #include "batch.h"
 }
+#endif
+#if HAVE_ALT_BATCH
+#include "BatchSystem.hh"
 #endif
 
 /****************************************************************************/
@@ -242,13 +252,6 @@ public:
   ELBASE_SchedulerServiceTypes
   getBatchSchedulerID() ;
 
-  virtual CORBA::Long
-  parallel_solve(const char* pbName, corba_profile_t& pb,
-	      ServiceTable::ServiceReference_t& ref,
-	      diet_profile_t& profile) ;
-
-  char* getLocalHostName() ;
-
   void
   initCorresBatchDietReqID() ;
   void
@@ -260,6 +263,33 @@ public:
   char*
   getBatchQueue() ;
 #endif
+
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+  virtual CORBA::Long
+  parallel_solve(const char* pbName, corba_profile_t& pb,
+	      ServiceTable::ServiceReference_t& ref,
+	      diet_profile_t& profile) ;
+
+  void
+  parallel_AsyncSolve(const char* path, const corba_profile_t& pb, 
+		      ServiceTable::ServiceReference_t ref,
+		      CORBA::Object_var & cb,
+		      diet_profile_t& profile) ;
+  
+  char* getLocalHostName() ;
+#endif
+#if HAVE_ALT_BATCH
+  BatchSystem * // should be const
+  getBatch() ;
+
+//   int
+//   diet_submit_parallel(diet_profile_t * profile, const char * command) ;
+  
+//   int
+//   diet_concurrent_submit_parallel(int batchJobID, diet_profile_t * profile,
+// 			             const char * command) ;
+#endif
+
 
   virtual void
   solveAsync(const char* pb_name, const corba_profile_t& pb,
@@ -316,6 +346,12 @@ private:
   corresID *batchJobQueue ;
 
   omni_mutex corresBatchReqID_mutex ;
+#endif
+
+#if HAVE_ALT_BATCH
+
+  BatchSystem * batch ;
+  
 #endif
 
   /* Queue: should SeD restrict the number of concurrent solves? */
