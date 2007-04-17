@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2007/04/17 13:34:54  ycaniou
+ * Error in debug.tex header
+ * Removes some warnings during doc generation
+ *
  * Revision 1.4  2006/11/06 11:56:42  aamar
  * Workflow support:
  *    - Adding get_file_output and get_matrix_output (to get workflow file
@@ -220,7 +224,7 @@ public:
    * Set the reordering parameters
    *
    * @param nb_sec is the number of seconds
-   * @param nb_node is the number of nodes
+   * @param nb_nodes is the number of nodes
    */
   void 
   set_reordering_delta(const long int nb_sec, 

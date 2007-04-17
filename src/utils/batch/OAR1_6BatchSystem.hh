@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2007/04/17 13:34:54  ycaniou
+ * Error in debug.tex header
+ * Removes some warnings during doc generation
+ *
  * Revision 1.1  2007/04/16 22:35:55  ycaniou
  * Added the class for DIET to manage OAR v1.6
  *
@@ -29,7 +33,7 @@ public :
   ~OAR1_6BatchSystem() ;
 
   /** If job not terminated, ask the batch system for the status of job
-      whose ID is @param batchJobID.
+      whose ID is @param batchJobID .
       Updates the internal structure.
       Returns NB_STATUS on error, the status otherwise.
   */

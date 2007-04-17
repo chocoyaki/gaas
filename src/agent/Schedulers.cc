@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2007/04/17 13:34:54  ycaniou
+ * Error in debug.tex header
+ * Removes some warnings during doc generation
+ *
  * Revision 1.18  2006/05/15 19:45:58  ecaron
  * Retrieve previous version (Last commit was an error)
  *
@@ -146,7 +150,7 @@ extern unsigned int TRACE_LEVEL;
   TRACE_FUNCTION(TRACE_ALL_STEPS,formatted_text)
 
 
-/**
+/*
  * Random permutation of the sub-sequence [\c first_idx, ..., \c last_idx] of
  * \c seq.
  */

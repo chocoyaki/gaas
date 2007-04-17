@@ -7,6 +7,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2007/04/17 13:34:54  ycaniou
+ * Error in debug.tex header
+ * Removes some warnings during doc generation
+ *
  * Revision 1.2  2006/07/10 11:10:30  aamar
  * - Adding some helpful functions for matrix handling and diet
  * data types manipulation.
@@ -153,7 +157,7 @@ WfCst::readDouble(const char * fileName, double * mat, unsigned long mat_size) {
 
 
 long
-WfCst::eval_expr(string& expr, int var) {
+WfCst::eval_expr(std::string& expr, int var) {
   map<string, int> op_priority;
   op_priority["+"] = 0;
   op_priority["-"] = 0;

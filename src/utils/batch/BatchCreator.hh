@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2007/04/17 13:34:54  ycaniou
+ * Error in debug.tex header
+ * Removes some warnings during doc generation
+ *
  * Revision 1.1  2007/04/16 22:34:39  ycaniou
  * Added the class to create the correct batch system
  *
@@ -36,7 +40,7 @@ public :
   BatchCreator() ;
 
   /** Returns a new inherited instance of the class BatchSystem corresponding
-      to the name @param batchName.
+      to the name @param batchName .
       Returns NULL if batch system is not managed.
   */
   static BatchSystem *

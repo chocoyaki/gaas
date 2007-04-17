@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2007/04/17 13:34:54  ycaniou
+ * Error in debug.tex header
+ * Removes some warnings during doc generation
+ *
  * Revision 1.6  2006/11/27 10:15:12  aamar
  * Correct headers of files used in workflow support.
  *
@@ -135,7 +139,7 @@ public:
   
   /**
    * add a new previous node id and reference *
-   * @param s previous node id
+   * @param id previous node id
    * @param n previous node reference
    */
   void
@@ -193,7 +197,7 @@ public:
   addPrevNode();
   
   /**
-   * Add <n> new previous nodes *
+   * Add @param n new previous nodes *
    */
   void
   addPrevNode(int n);
@@ -251,7 +255,7 @@ public:
 
   /**
    * start the node execution * 
-   * @param reqUD request id if set by the client manually
+   * @param reqID request id if set by the client manually
    */
   void
   start(diet_reqID_t reqID = -1);

@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2007/04/17 13:34:54  ycaniou
+ * Error in debug.tex header
+ * Removes some warnings during doc generation
+ *
  * Revision 1.3  2006/11/27 09:53:00  aamar
  * Correct headers of source files used in workflow support.
  *
@@ -95,7 +99,7 @@ protected:
   /**
    * extract only the response for the specified dag
    * @param dag_id the dag identifier
-   * @param wf_respon the global scheduling for all the meta-dag
+   * @param wf_resp the global scheduling for all the meta-dag
    */
   static wf_sched_response_t * 
   extract(int dag_id, wf_sched_response_t * wf_resp);

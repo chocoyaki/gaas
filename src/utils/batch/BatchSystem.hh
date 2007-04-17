@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2007/04/17 13:34:54  ycaniou
+ * Error in debug.tex header
+ * Removes some warnings during doc generation
+ *
  * Revision 1.1  2007/04/16 22:35:19  ycaniou
  * Added the generic class for batch systems
  *
@@ -79,8 +83,8 @@ public :
   int
   checkIfDietJobCompleted(diet_profile_t * profile) ;
   
-  /** Submit a job partially defined by a script contained in the string
-      @param command.
+  /** Submit a job corresponding to given @param profile problem with a
+      partially defined script contained in the string @param command .
       Returns -1 if error, 0 on succes.
   */
   int
@@ -116,41 +120,41 @@ public :
   storeBatchJobID(int batchJobID, int dietReqID, char * filename) ;
 
   /** Removes from the internal structure informations corresponding to the
-      DIET request @param dietReqID.
+      DIET request @param dietReqID .
       Returns -1 if not found.
   */
   int
   removeBatchJobID(int dietReqID) ;
 
   /** Returns the ID of batch job corresponding to the DIET
-      request @param dietReqID.
+      request @param dietReqID .
       Returns -1 on error.
   */
   int
   getBatchJobID(int dietReqID) ;
   
   /** Waits for the completion of batch Job corresponding to Diet Request
-      @param dietReqID. Checks all WAITING_BATCH_JOB_COMPLETION seconds.
+      @param dietReqID . Checks all WAITING_BATCH_JOB_COMPLETION seconds.
   */
   int
   wait4BatchJobCompletion(int dietReqID) ;
 
   /** Reads the internal structure and give the state of batch job 
-      @param batchJobID.
+      @param batchJobID .
       Returns NB_STATUS on error.
   */
   batchJobState
   getRecordedBatchJobStatus(int batchJobID) ;
 
   /** Updates internal structure for the batch job whose ID is 
-      @param batchJobID with the state @param job_status.
+      @param batchJobID with the state @param job_status .
       Returns -1 if job has not been found.
   */
   int
   updateBatchJobStatus(int batchJobID, batchJobState job_status) ;
     
   /** If job not terminated, ask the batch system for the status of job
-      whose ID is @param batchJobID.
+      whose ID is @param batchJobID .
       Updates the internal structure (status and unlink script file).
       Returns NB_STATUS on error, the status otherwise.
   */
@@ -183,7 +187,7 @@ protected :
   /********** These should go in another class *************/
 
   /** Replace all occurences of @param occurence with @param by
-      in the string @param input.
+      in the string @param input .
       Returns 1 if some replacement has been done, 0 if not, -1 on error.
   */
   int
@@ -192,8 +196,8 @@ protected :
 			       const char * by) ;
   
   /**
-     Write @param n bytes of string @param vptr to the file 
-     descriptor @param fd.
+     Write @param n bytes of string @param buffer to the file 
+     descriptor @param fd .
      Returns 0 if error or the number of bytes writen (which can be 0).
   */
 
@@ -202,7 +206,7 @@ protected :
   
   /** 
       Read at most @param n bytes from descriptor file @param fd to store
-      them in @param buffer.
+      them in @param buffer .
       Returns the number of bytes read (0 if error or no byte read).
   */
   int
