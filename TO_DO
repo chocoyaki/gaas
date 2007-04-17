@@ -1,20 +1,31 @@
 Client
 ------
 
-Modify the SeD contract check phase.  Either remove the check or perform a check
-that is more useful.
+Modify the SeD contract check phase.  Either remove the check or
+perform a check that is more useful.
+
+When canceled, the client should contact the SeD to abort the execution.
+
+If client submits a data stored in RAM, and if DIET has chosen a
+parallel or a batch SeD to execute the job, store data in a file then
+make the call.
 
 SeD
 ----
 
-Modify the SeD contract check phase.  Either remove the check or perform a check
-that is more useful.
+Modify the SeD contract check phase.  Either remove the check or
+perform a check that is more useful.
 
 Implement a batch system API.       [in process by Yves Caniou]
+Implement a batch prediction perf.  [in process by Yves Caniou]
 
 Modify resource information collection.  Adopt useful aspects of FAST directly
 in DIET, add separate interfaces to collect NWS data, and augment collection
 with other info systems like Ganglia.
+
+If possible, make a client request a job to a SeD in parallel of the
+data submission, not after like it is done now. This can be useful for
+batch SeD.
 
 MA
 ---
