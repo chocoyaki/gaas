@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.32  2007/04/17 20:44:58  dart
+ * - move #define from Parsers.cc to Parsers.hh
+ * - define the maximum length of getline as MAXCFGLINE
+ * - change tests about config file
+ * - insert HUGE_VAL definition if not defined to compile under AIX
+ *
  * Revision 1.31  2005/11/09 23:01:33  alsu
  * defining scope of a local variable explicitly
  *
@@ -114,8 +120,6 @@
 #include "marshalling.hh"
 #include "DIET_data_internal.hh"
 #include "DIET_server.h"
-
-
 /**
  * The trace level itself: it must be set by the Parsers.
  */

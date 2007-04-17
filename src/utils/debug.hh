@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2007/04/17 20:44:58  dart
+ * - move #define from Parsers.cc to Parsers.hh
+ * - define the maximum length of getline as MAXCFGLINE
+ * - change tests about config file
+ * - insert HUGE_VAL definition if not defined to compile under AIX
+ *
  * Revision 1.26  2007/04/16 22:33:03  ycaniou
  * Added new macro: ERROR_EXIT for void functions
  *
@@ -100,6 +106,9 @@ extern omni_mutex debug_log_mutex ;
 #define TRACE_MAX_VALUE    TRACE_STRUCTURES
 #define TRACE_DEFAULT      TRACE_MAIN_STEPS
 
+#ifndef HUGE_VAL
+#define HUGE_VAL (*((double *) (_DBLINF)))
+#endif
 
 /**
  * Definition of the EXIT_FUNCTION when not yet defined.

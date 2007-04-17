@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2007/04/17 20:44:58  dart
+ * - move #define from Parsers.cc to Parsers.hh
+ * - define the maximum length of getline as MAXCFGLINE
+ * - change tests about config file
+ * - insert HUGE_VAL definition if not defined to compile under AIX
+ *
  * Revision 1.21  2007/04/16 22:43:44  ycaniou
  * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
  * This is indented to replace HAVE_BATCH.
@@ -103,6 +109,34 @@
 #include "ts_container/ts_set.hh"
 #include "ms_function.hh"
 
+// Added by EQ for EC from Parsers.cc
+#define DIET_PARSE_ERROR        1
+#define DIET_FILE_IO_ERROR      2
+#define DIET_MISSING_PARAMETERS 3
+
+#define PARSERS_ERROR(formatted_msg,return_value)                          \
+  ERROR("Parsers::" << __FUNCTION__ << ": " << formatted_msg, return_value)
+
+#define PARSERS_INTERNAL_ERROR(formatted_msg,return_value)             \
+  INTERNAL_ERROR("Parsers::" << __FUNCTION__ << ": " << formatted_msg, \
+		 return_value)
+
+#define PARSERS_WARNING(formatted_msg)                         \
+  WARNING("Parsers::" << __FUNCTION__ << ": " << formatted_msg)
+
+#define PARSERS_INTERNAL_WARNING(formatted_msg)                         \
+  INTERNAL_WARNING("Parsers::" << __FUNCTION__ << ": " << formatted_msg)
+
+#define PARAM(type) Results::params[Results::type]
+
+#define CHECK_PARAM(type)                                                 \
+  if (Results::params[(type)].noLine > 0) {                               \
+    PARSERS_WARNING(Results::params[(type)].kwd << " already set at line "\
+	            << Results::params[(type)].noLine << " - ignored");   \
+    return 0;                                                             \
+  }
+
+#define MAXCFGLINE 512
 
 /**
  * Tool which aims at make file parsing simpler in DIET.

@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.33  2007/04/17 20:44:58  dart
+ * - move #define from Parsers.cc to Parsers.hh
+ * - define the maximum length of getline as MAXCFGLINE
+ * - change tests about config file
+ * - insert HUGE_VAL definition if not defined to compile under AIX
+ *
  * Revision 1.32  2007/04/16 22:43:44  ycaniou
  * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
  * This is indented to replace HAVE_BATCH.
@@ -80,12 +86,14 @@
  ****************************************************************************/
 
 #include <iostream>
+#include <fstream>
 using namespace std;
 
 #include "Parsers.hh"
 #include "assert.h"
 #include "debug.hh"
 #include "ms_function.hh"
+
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
@@ -148,32 +156,33 @@ char*    Parsers::path = "";
 // size_t --> unsigned int
 unsigned int   Parsers::noLine = 0;
 
+// Moved by EQ for EC in Parsers.hh
+//
+// #define DIET_PARSE_ERROR        1
+// #define DIET_FILE_IO_ERROR      2
+// #define DIET_MISSING_PARAMETERS 3
 
-#define DIET_PARSE_ERROR        1
-#define DIET_FILE_IO_ERROR      2
-#define DIET_MISSING_PARAMETERS 3
+// #define PARSERS_ERROR(formatted_msg,return_value)                          \
+//   ERROR("Parsers::" << __FUNCTION__ << ": " << formatted_msg, return_value)
 
-#define PARSERS_ERROR(formatted_msg,return_value)                          \
-  ERROR("Parsers::" << __FUNCTION__ << ": " << formatted_msg, return_value)
+// #define PARSERS_INTERNAL_ERROR(formatted_msg,return_value)             \
+//   INTERNAL_ERROR("Parsers::" << __FUNCTION__ << ": " << formatted_msg, \
+// 		 return_value)
 
-#define PARSERS_INTERNAL_ERROR(formatted_msg,return_value)             \
-  INTERNAL_ERROR("Parsers::" << __FUNCTION__ << ": " << formatted_msg, \
-		 return_value)
+// #define PARSERS_WARNING(formatted_msg)                         \
+//   WARNING("Parsers::" << __FUNCTION__ << ": " << formatted_msg)
 
-#define PARSERS_WARNING(formatted_msg)                         \
-  WARNING("Parsers::" << __FUNCTION__ << ": " << formatted_msg)
+// #define PARSERS_INTERNAL_WARNING(formatted_msg)                         \
+//   INTERNAL_WARNING("Parsers::" << __FUNCTION__ << ": " << formatted_msg)
 
-#define PARSERS_INTERNAL_WARNING(formatted_msg)                         \
-  INTERNAL_WARNING("Parsers::" << __FUNCTION__ << ": " << formatted_msg)
+// #define PARAM(type) Results::params[Results::type]
 
-#define PARAM(type) Results::params[Results::type]
-
-#define CHECK_PARAM(type)                                                 \
-  if (Results::params[(type)].noLine > 0) {                               \
-    PARSERS_WARNING(Results::params[(type)].kwd << " already set at line "\
-	            << Results::params[(type)].noLine << " - ignored");   \
-    return 0;                                                             \
-  }
+// #define CHECK_PARAM(type)                                                 \
+//   if (Results::params[(type)].noLine > 0) {                               \
+//     PARSERS_WARNING(Results::params[(type)].kwd << " already set at line "\
+// 	            << Results::params[(type)].noLine << " - ignored");   \
+//     return 0;                                                             \
+//   }
 
 
 /**
@@ -183,18 +192,22 @@ unsigned int   Parsers::noLine = 0;
 int
 Parsers::beginParsing(char* filePath)
 {
+  int value;
+
   if ((filePath == NULL) || (*filePath == '\0')) {
     PARSERS_ERROR("no file to parse", DIET_FILE_IO_ERROR);
   }
   Parsers::path = filePath;
   Parsers::file.open(filePath);
-  // FIXME: this test might be wrong !!!
-  if (Parsers::file == NULL) {
+  if (! Parsers::file.good()) {
     PARSERS_ERROR("could not open " << filePath, DIET_FILE_IO_ERROR);
   }
   Parsers::noLine = 0;
+  // printf("begin Parsing %i\n",Parsers::file.good());
+  
   return 0;
 }
+
 
 /**
  * Free the parameters structures: all calls to Results::getParamValue must
@@ -203,14 +216,15 @@ Parsers::beginParsing(char* filePath)
 int
 Parsers::endParsing()
 {
-//   if (Parsers::file == NULL)
-//     PARSERS_WARNING("file was already closed");
-//   else {
+  if (! Parsers::file.is_open()) {
+    PARSERS_WARNING("file was already closed");
+  }
+  else {
     Parsers::file.close();
     // FIXME: this test is wrong
-    // if (Parsers::file != NULL)
-    //   PARSERS_WARNING("could not close file");
-//  }
+    //if (! Parsers::file.is_open())
+    //  PARSERS_WARNING("could not close file");
+  }
 
     // size_t --> unsigned int
   for (unsigned int i = Results::TRACELEVEL; i < Results::NB_PARAM_TYPE; i++) {
@@ -256,17 +270,16 @@ int
 Parsers::parseCfgFile(bool checkFASTEntries, unsigned int nbCompulsoryParams,
 		      Results::param_type_t* compulsoryParams)
 {
-  static char full_line[512];
-  char* ptr;
-  int parse_res;
+  static char full_line[MAXCFGLINE];
+  char* ptr=NULL;
+  int parse_res=0;
 
-  if (Parsers::file == NULL) {
+  if (! Parsers::file.is_open() || ! Parsers::file.good()) {
     PARSERS_INTERNAL_ERROR("no file has been opened. Please consider calling "
 			   << "Parsers::beginParsing first",
 			   DIET_FILE_IO_ERROR);
   }
-
-  while (Parsers::file.getline(full_line, 512)) {
+  while (Parsers::file.getline(full_line, MAXCFGLINE)) {
 
     Parsers::noLine++;
 
