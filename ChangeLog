@@ -1,12 +1,16 @@
 +----------+
 | diet 2.3 |
 +----------+ 
-
+	
 * Parallel Subsmission
 
 	- The server API has been extended to provide transparent submission
 	for parallel tasks on parallel resources, eventually managed by Batch
 	systems.
+
+* All bug was resolved. If you found a new one please refer to  
+  http://graal.ens-lyon.fr/bugzilla
+
 	
 +----------+
 | diet 2.2 |
