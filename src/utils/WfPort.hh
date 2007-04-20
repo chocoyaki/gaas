@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2007/04/20 09:43:28  ycaniou
+ * Cosmetic changements for less warnings when compiling with doc.
+ * Still some errors to correct (parameters to detail) that I cannot do.
+ *
  * Revision 1.2  2006/11/27 10:15:12  aamar
  * Correct headers of files used in workflow support.
  *
@@ -77,7 +81,7 @@ public:
   /**
    * Basic Port constructor *
    * @param parent The node of the port
-   * @param _id    The id of the port (<node id>#<port id>)
+   * @param _id    The id of the port ('node id'#'port id')
    * @param _type  The port data type
    * @param _ind   The index of the parameter in the diet profile
    * @param v      The value of the parameter if it's an argument
@@ -130,7 +134,7 @@ protected:
   Node * myParent;
   
   /**
-   * The complete id of the port (<node id>#<port id>)
+   * The complete id of the port ('node id'#'port id')
    */
   string id;
 
@@ -183,7 +187,7 @@ public:
   /**
    * Output port constructor *
    * @param parent The node of the port
-   * @param _id    The id of the port (<node id>#<port id>)
+   * @param _id    The id of the port ('node id'#'port id')
    * @param _type  The port data type
    * @param _ind   The index of the parameter in the diet profile
    * @param v      The value of the parameter if it's an argument
@@ -257,7 +261,7 @@ public:
   /**
    * Input port constructor *
    * @param parent The node of the port
-   * @param _id    The id of the port (<node id>#<port id>)
+   * @param _id    The id of the port ('node id'#'port id')
    * @param _type  The port data type
    * @param _ind   The index of the parameter in the diet profile
    * @param v      The value of the parameter if it's an argument
@@ -276,7 +280,7 @@ public:
 
   /**
    * Set the source of the input port
-   * @param _src_port The source port (output port) reference
+   * @param s The source port (output port) reference
    */
   void
   set_source(const string& s);
@@ -336,7 +340,7 @@ public:
   /**
    * Input/Output port constructor *
    * @param parent The node of the port
-   * @param _id    The id of the port (<node id>#<port id>)
+   * @param _id    The id of the port ('node id'#'port id')
    * @param _type  The port data type
    * @param _ind   The index of the parameter in the diet profile
    * @param v      The value of the parameter if it's an argument

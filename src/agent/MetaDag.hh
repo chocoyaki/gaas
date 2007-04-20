@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2007/04/20 09:43:27  ycaniou
+ * Cosmetic changements for less warnings when compiling with doc.
+ * Still some errors to correct (parameters to detail) that I cannot do.
+ *
  * Revision 1.2  2006/11/27 09:53:00  aamar
  * Correct headers of source files used in workflow support.
  *
@@ -157,7 +161,7 @@ private:
 
   /**
    * Create the links between meta-dag input/output and the dag input/output
-   * @param the dag to link
+   * @param dag the dag to link
    */
   void
   linkDag(Dag * dag);

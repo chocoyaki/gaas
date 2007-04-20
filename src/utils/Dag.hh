@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2007/04/20 09:43:28  ycaniou
+ * Cosmetic changements for less warnings when compiling with doc.
+ * Still some errors to correct (parameters to detail) that I cannot do.
+ *
  * Revision 1.5  2007/04/17 13:34:54  ycaniou
  * Error in debug.tex header
  * Removes some warnings during doc generation
@@ -163,7 +167,7 @@ public:
   /**
    * get a scalar result of the workflow
    * 
-   * @param id    the port identifier (complete id <node id>#<port id>)
+   * @param id    the port identifier (complete id 'node id'#'port id')
    * @param value the data to store the returned scalar value
    */
   int 

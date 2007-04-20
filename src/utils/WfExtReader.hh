@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2007/04/20 09:43:28  ycaniou
+ * Cosmetic changements for less warnings when compiling with doc.
+ * Still some errors to correct (parameters to detail) that I cannot do.
+ *
  * Revision 1.6  2006/11/27 10:15:12  aamar
  * Correct headers of files used in workflow support.
  *
@@ -175,7 +179,7 @@ protected:
   /** 
    * utility method to get the attribute value in a DOM element
    *
-   * @param attrName the attribute name
+   * @param attr_name the attribute name
    * @param elt      the DOM element
    */
   string
@@ -196,7 +200,7 @@ protected:
   /**
    * parse a node element
    *
-   * @param elt      the DOM node
+   * @param element      the DOM node
    * @param nodeId   the node identifier
    * @param nodePath the node path (or service)
    * @param var_node indicates if it is a variable node
