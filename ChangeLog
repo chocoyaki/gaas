@@ -8,6 +8,12 @@
 	for parallel tasks on parallel resources, eventually managed by Batch
 	systems.
 
+* Loadable Schedulers
+
+	- Added support for scheduler module at agent level. The user can
+	define his own scheduler class to be loaded by the agent and used to
+	select the SeD(s) returned to the client.
+
 * All bug was resolved. If you found a new one please refer to  
   http://graal.ens-lyon.fr/bugzilla
 
