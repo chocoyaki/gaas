@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2007/04/30 13:31:09  ycaniou
+ * Cosmetic changes
+ *
  * Revision 1.14  2006/11/16 09:55:56  eboix
  *   DIET_config.h is no longer used. --- Injay2461
  *
@@ -124,8 +127,8 @@ FASTMgr::init()
   }
 
   FASTMgr::mutex.lock();
- FASTMgr::use =
-   *((size_t*)Parsers::Results::getParamValue(Parsers::Results::FASTUSE));
+  FASTMgr::use =
+    *((size_t*)Parsers::Results::getParamValue(Parsers::Results::FASTUSE));
   if (FASTMgr::use > 0) {
     Parsers::Results::Address* tmp;
     size_t ldapUse, ldapPort, nwsUse, nwsNSPort, nwsFcstPort;
