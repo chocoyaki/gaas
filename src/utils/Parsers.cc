@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.34  2007/04/30 13:30:25  ycaniou
+ * Moved C++ commentaries to C commentaries because they were on multiple lines
+ *   then the C compiler complained
+ *
  * Revision 1.33  2007/04/17 20:44:58  dart
  * - move #define from Parsers.cc to Parsers.hh
  * - define the maximum length of getline as MAXCFGLINE
@@ -156,34 +160,35 @@ char*    Parsers::path = "";
 // size_t --> unsigned int
 unsigned int   Parsers::noLine = 0;
 
-// Moved by EQ for EC in Parsers.hh
-//
-// #define DIET_PARSE_ERROR        1
-// #define DIET_FILE_IO_ERROR      2
-// #define DIET_MISSING_PARAMETERS 3
+/*
+Moved by EQ for EC in Parsers.hh
 
-// #define PARSERS_ERROR(formatted_msg,return_value)                          \
-//   ERROR("Parsers::" << __FUNCTION__ << ": " << formatted_msg, return_value)
+#define DIET_PARSE_ERROR        1
+#define DIET_FILE_IO_ERROR      2
+#define DIET_MISSING_PARAMETERS 3
 
-// #define PARSERS_INTERNAL_ERROR(formatted_msg,return_value)             \
-//   INTERNAL_ERROR("Parsers::" << __FUNCTION__ << ": " << formatted_msg, \
-// 		 return_value)
+#define PARSERS_ERROR(formatted_msg,return_value)                          \
+  ERROR("Parsers::" << __FUNCTION__ << ": " << formatted_msg, return_value)
 
-// #define PARSERS_WARNING(formatted_msg)                         \
-//   WARNING("Parsers::" << __FUNCTION__ << ": " << formatted_msg)
+#define PARSERS_INTERNAL_ERROR(formatted_msg,return_value)             \
+  INTERNAL_ERROR("Parsers::" << __FUNCTION__ << ": " << formatted_msg, \
+		 return_value)
 
-// #define PARSERS_INTERNAL_WARNING(formatted_msg)                         \
-//   INTERNAL_WARNING("Parsers::" << __FUNCTION__ << ": " << formatted_msg)
+#define PARSERS_WARNING(formatted_msg)                         \
+  WARNING("Parsers::" << __FUNCTION__ << ": " << formatted_msg)
 
-// #define PARAM(type) Results::params[Results::type]
+#define PARSERS_INTERNAL_WARNING(formatted_msg)                         \
+  INTERNAL_WARNING("Parsers::" << __FUNCTION__ << ": " << formatted_msg)
 
-// #define CHECK_PARAM(type)                                                 \
-//   if (Results::params[(type)].noLine > 0) {                               \
-//     PARSERS_WARNING(Results::params[(type)].kwd << " already set at line "\
-// 	            << Results::params[(type)].noLine << " - ignored");   \
-//     return 0;                                                             \
-//   }
+#define PARAM(type) Results::params[Results::type]
 
+#define CHECK_PARAM(type)                                                 \
+  if (Results::params[(type)].noLine > 0) {                               \
+    PARSERS_WARNING(Results::params[(type)].kwd << " already set at line "\
+	            << Results::params[(type)].noLine << " - ignored");   \
+    return 0;                                                             \
+  }
+*/
 
 /**
  * Prepare the parsing of the file \c filePath (open the file and initialize
