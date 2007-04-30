@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2007/04/30 13:53:22  ycaniou
+ * Cosmetic changes (indentation) and small changes for Cori_Batch
+ *
  * Revision 1.7  2007/04/16 22:43:44  ycaniou
  * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
  * This is indented to replace HAVE_BATCH.
@@ -30,12 +33,12 @@ Cori_Metric::Cori_Metric(diet_est_collect_tag_t type,
 			 const void *data)
 {
 
- collector_type=type;
+  collector_type=type;
 
- switch(collector_type){
+  switch(collector_type){
 
   case EST_COLL_EASY:{ 
-   cori_easy=new Cori_Data_Easy();
+    cori_easy=new Cori_Data_Easy();
   }
     break; 
   case EST_COLL_FAST:{
@@ -43,14 +46,14 @@ Cori_Metric::Cori_Metric(diet_est_collect_tag_t type,
   }
     break;
 #if HAVE_ALT_BATCH
- case EST_COLL_BATCH:
-   cori_batch = new Cori_batch() ;
-   break ;
+  case EST_COLL_BATCH:
+    cori_batch = new Cori_batch() ;
+    break ;
 #endif
   default:{
     INTERNAL_WARNING("Collector called "<<collector_type <<" doesn't exist");
   }
-     break;  
+    break;  
   }
 }
 diet_est_collect_tag_t 
@@ -59,18 +62,19 @@ Cori_Metric::get_Collector_type(){
 }
 
 int 
-Cori_Metric::start(diet_est_collect_tag_t type){
-   collector_type=type;
+Cori_Metric::start(diet_est_collect_tag_t type)
+{
+  collector_type=type;
 
- switch(collector_type){
+  switch(collector_type){
 #if HAVE_ALT_BATCH
- case EST_COLL_BATCH:
-   // do I init some Batch things?
-   // I think not: all has to be done in the SeD_batch init
-   return 0 ;
+  case EST_COLL_BATCH:
+    // do I need to 'start' some Batch things?
+    // I think not: all has to be done in the SeD_batch init
+    return 0 ;
 #endif
   case EST_COLL_EASY:{ 
-    //no need to start - very synamic functions
+    //no need to start - very dynamic functions
     return 0;
   }
     break; 

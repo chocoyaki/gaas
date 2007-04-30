@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2007/04/30 13:53:22  ycaniou
+ * Cosmetic changes (indentation) and small changes for Cori_Batch
+ *
  * Revision 1.7  2006/11/16 09:55:55  eboix
  *   DIET_config.h is no longer used. --- Injay2461
  *
@@ -19,7 +22,7 @@
 #include <iostream>
 #include <string>
 #include <fstream> 
-#include <math.h>             // for HUGH_VAL
+#include <math.h>             // for HUGE_VAL
 #ifdef CORI_HAVE_SYS_TYPES
 #include <sys/types.h>        // for sysctl on some systems
 #endif
@@ -49,26 +52,26 @@ Easy_CPU::get_CPU_Avg(int interval,
 
 int 
 Easy_CPU::get_CPU_Frequence(vector <double> * vlist)
- {
+{
  
   vector<double> temp;
  
-   if (!get_CPU_Freq_From_Proc(&temp)||
-       !get_CPU_Freq_for_FreeBSD(&temp)||
-       !get_CPU_Freq_for_Darwin(&temp)||
-       !get_CPU_Freq_for_NetBSD(&temp)
-       ){
-     
-     //found it in a manner
-       *vlist=temp;
-       return 0;
-   }
-   else{
-         //rechercher autres solutions...
-      temp.push_back( 0 );
-      *vlist=temp;
-      return 1;
-   }
+  if (!get_CPU_Freq_From_Proc(&temp)||
+      !get_CPU_Freq_for_FreeBSD(&temp)||
+      !get_CPU_Freq_for_Darwin(&temp)||
+      !get_CPU_Freq_for_NetBSD(&temp)
+      ){
+    
+    //found it in a manner
+    *vlist=temp;
+    return 0;
+  }
+  else{
+    //rechercher autres solutions...
+    temp.push_back( 0 );
+    *vlist=temp;
+    return 1;
+  }
 }
 
 int 
@@ -76,35 +79,34 @@ Easy_CPU::get_CPU_Cache(vector <double> * vlist){
   vector<double> temp;
   
   if (!get_CPU_Cache_From_Proc(&temp)){
-      //using /proc succesful
+    //using /proc succesful
     *vlist=temp;
     return 0;
   }
   else{
-      //rechercher autres solutions...
-   temp.push_back( 0 );
-   *vlist=temp;
-      return 1;
+    //rechercher autres solutions...
+    temp.push_back( 0 );
+    *vlist=temp;
+    return 1;
   }
 }
 
 
 int 
 Easy_CPU::get_CPU_Bogomips(vector <double> * vlist){
-   vector<double> temp;
+  vector<double> temp;
 
-   if (!get_Bogomips_From_Proc(&temp)){
+  if (!get_Bogomips_From_Proc(&temp)){
     //using /proc/
-     *vlist=temp;
-     return 0;
-   }
-   else{
-      //rechercher autres solutions...
-     
-     temp.push_back( 0 );
-     *vlist=temp;
-     return 1;
-   }
+    *vlist=temp;
+    return 0;
+  }
+  else{
+    //rechercher autres solutions...
+    temp.push_back( 0 );
+    *vlist=temp;
+    return 1;
+  }
 }
   
 int 

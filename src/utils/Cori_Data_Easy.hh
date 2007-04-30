@@ -9,12 +9,18 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2007/04/30 13:53:22  ycaniou
+ * Cosmetic changes (indentation) and small changes for Cori_Batch
+ *
  * Revision 1.3  2006/10/31 23:18:33  ecaron
  * Correct wrong header
  *
  *****************************************************************************/
 #ifndef _CORI_DATA_EASY_HH_
 #define _CORI_DATA_EASY_HH_
+
+#include <vector>
+using namespace std;
 
 #include "DIET_data.h" 
 #include "est_internal.hh"

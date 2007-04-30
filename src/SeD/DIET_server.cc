@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.65  2007/04/30 13:53:22  ycaniou
+ * Cosmetic changes (indentation) and small changes for Cori_Batch
+ *
  * Revision 1.64  2007/04/16 22:43:43  ycaniou
  * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
  * This is indented to replace HAVE_BATCH.
@@ -1087,23 +1090,30 @@ diet_estimate_cori(estVector_t ev,
     //#if HAVE_FAST    
     fast_param_t fastparam={(diet_profile_t*)data,SRVT};
     //testing already here, because it is possible that an internal call use tag COMMTIME
-   if ((info_type==EST_TCOMP)||
+    if ((info_type==EST_TCOMP)||
 	(info_type==EST_FREECPU)||
-	 (info_type==EST_FREEMEM)||
-	  (info_type==EST_NBCPU)||
-        (info_type==EST_ALLINFOS))
-    CORIMgr::call_cori_mgr(&ev,info_type,collector_type,&fastparam);
-   else {
+	(info_type==EST_FREEMEM)||
+	(info_type==EST_NBCPU)||
+	(info_type==EST_ALLINFOS))
+      CORIMgr::call_cori_mgr(&ev,info_type,collector_type,&fastparam);
+    else {
+      // FIXME: set the default values for each type
+      double value ;
+      switch( info_type ) {
+      case EST_TCOMP:
+      case EST_FREECPU:
+      case EST_FREEMEM:
+      case EST_NBCPU:
+      case EST_ALLINFOS:
+      default:
+	value = 0 ;
+      }
+      diet_est_set_internal(ev,info_type,value);
       ERROR(__FUNCTION__ << ": info_type must be EST_TCOMP,EST_FREECPU,EST_FREEMEM, EST_NBCPU or EST_ALLINFOS!)\n", -1);
-      diet_est_set_internal(ev,info_type,0);
-      //fixme: set the default values for each type
-   }
-   //#endif //HAVE_FAST
-  } else if( collector_type == EST_COLL_BATCH ) {
-    // TODO: YC
-  }
-  else
-       CORIMgr::call_cori_mgr(&ev,info_type,collector_type,data);   
+    }
+    //#endif //HAVE_FAST
+  } else
+    CORIMgr::call_cori_mgr(&ev,info_type,collector_type,data);   
   return 0;
 }
 
@@ -1313,7 +1323,8 @@ diet_submit_parallel(diet_profile_t *profile, const char *command)
 int
 diet_submit_parallel(diet_profile_t * profile, const char * command)
 {
-  return ((((SeDImpl*)profile->SeDPtr)->getBatch())->diet_submit_parallel(profile,command)) ;
+  return ((((SeDImpl*)profile->SeDPtr)->getBatch())->
+	  diet_submit_parallel(profile,command)) ;
 }
 int
 diet_concurrent_submit_parallel(int batchJobID, diet_profile_t * profile,

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2007/04/30 13:53:22  ycaniou
+ * Cosmetic changes (indentation) and small changes for Cori_Batch
+ *
  * Revision 1.11  2007/04/16 22:43:44  ycaniou
  * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
  * This is indented to replace HAVE_BATCH.
@@ -119,11 +122,11 @@ Cori_Data_Easy::get_Information(int type_Info,
 				estVector_t* info,
 				const void * data){
   char * path;
-   vector<double> vect;
-   int res=0;
-   double temp=0;
-   int minut;
-    char * tmp="./";
+  vector<double> vect;
+  int res=0;
+  double temp=0;
+  int minut;
+  char * tmp="./";
   switch (type_Info){
  
   case EST_ALLINFOS:{

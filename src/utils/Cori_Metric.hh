@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2007/04/30 13:53:22  ycaniou
+ * Cosmetic changes (indentation) and small changes for Cori_Batch
+ *
  * Revision 1.8  2007/04/16 22:43:44  ycaniou
  * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
  * This is indented to replace HAVE_BATCH.
@@ -46,10 +49,12 @@ private:
 public:
    /**
    * Initialize the CoRI Metric of this SeD
-   * type_collector is the program where you get the information from
+   * @param type_collector is the program where you get the information from
    *                for exemple EASY,FAST,GANGLIA,NAGIOS
-   *                ={EASY,FAST*} are the supported programs 
+   *                ={EASY,FAST*,BATCH*} are the supported programs 
    *                                    (*only if installed)
+   * @param data can be used to help initialize the collector.
+   *        Not used for the moment in any collector
    */
 
   Cori_Metric(diet_est_collect_tag_t type_collector, 
