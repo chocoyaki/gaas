@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2007/04/30 13:55:18  ycaniou
+ * Removed compilation warnings by adding Cori_Batch in the lib and modifs
+ *   in files
+ *
  * Revision 1.1  2007/04/16 22:37:20  ycaniou
  * Added the class to make perf prediction with batch systems.
  * First draw. Not operational for the moment.
@@ -17,6 +21,9 @@
 #ifndef _CORI_BATCH_HH_
 #define _CORI_BATCH_HH_
 
+#include <vector>
+using namespace std;
+
 #include "DIET_data.h" 
 #include "est_internal.hh"
 
@@ -25,9 +32,9 @@
 class Cori_batch {
 
 private :
-  Easy_CPU*  cpu;
-  Easy_Disk* disk;
-  Easy_Memory* memory;
+//   Easy_CPU*  cpu;
+//   Easy_Disk* disk;
+//   Easy_Memory* memory;
 
   int 
   convertArray(vector <double> vect,

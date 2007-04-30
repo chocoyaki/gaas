@@ -87,21 +87,40 @@ IF( DIET_BUILD_LIBRARIES )
   ########################################################################
   ### UtilsNodes library:
   IF( DIET_USE_CORI )
-    # CORI extensions are only compiled when CORI is required:
-    ADD_LIBRARY( UtilsNodes
-      Counter.cc
-      DietLogComponent.cc
-      FASTMgr.cc
-      MonitoringThread.cc
-      ServiceTable.cc
-      Cori_Data_Easy.cc
-      Cori_Easy_CPU.cc
-      Cori_Easy_Disk.cc
-      Cori_Easy_Memory.cc
-      Cori_Fast.cc
-      Cori_Metric.cc
-      CORIMgr.cc
-    )
+      IF( DIET_USE_ALT_BATCH )
+          # CORI extensions are only compiled when CORI is required:
+	  ADD_LIBRARY( UtilsNodes
+		       Counter.cc
+		       DietLogComponent.cc
+		       FASTMgr.cc
+		       MonitoringThread.cc
+		       ServiceTable.cc
+		       Cori_Data_Easy.cc
+		       Cori_Easy_CPU.cc
+		       Cori_Easy_Disk.cc
+		       Cori_Easy_Memory.cc
+		       Cori_Fast.cc
+		       Cori_Metric.cc
+		       CORIMgr.cc
+		       Cori_batch.cc
+		     )
+      ELSE( DIET_USE_ALT_BATCH )
+          # CORI extensions are only compiled when CORI is required:
+	  ADD_LIBRARY( UtilsNodes
+		       Counter.cc
+		       DietLogComponent.cc
+		       FASTMgr.cc
+		       MonitoringThread.cc
+		       ServiceTable.cc
+		       Cori_Data_Easy.cc
+		       Cori_Easy_CPU.cc
+		       Cori_Easy_Disk.cc
+		       Cori_Easy_Memory.cc
+		       Cori_Fast.cc
+		       Cori_Metric.cc
+		       CORIMgr.cc
+		     )
+      ENDIF( DIET_USE_ALT_BATCH )
   ELSE( DIET_USE_CORI )
     ADD_LIBRARY( UtilsNodes
       Counter.cc

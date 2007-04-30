@@ -8,11 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2007/04/30 13:55:18  ycaniou
+ * Removed compilation warnings by adding Cori_Batch in the lib and modifs
+ *   in files
+ *
  * Revision 1.1  2007/04/16 22:37:20  ycaniou
  * Added the class to make perf prediction with batch systems.
  * First draw. Not operational for the moment.
- *
- *
  ****************************************************************************/
 
 #include "Cori_batch.hh"
@@ -24,17 +26,17 @@
 #include <string>
 #include <math.h>
 
- 
 using namespace std;
 
+/*
 void
 print_Metric(estVector_t vector_v,int type_Info){
 
   double errorCode=0;
- switch (type_Info){
+  switch (type_Info){
   
   case EST_ALLINFOS:
-     break;
+    break;
   case EST_CPUSPEED: 
     for (int i=0; i<diet_est_array_size_internal(vector_v,EST_CPUSPEED);i++)
       cout << "CPU "<<i<<" frequence : "<< diet_est_array_get_internal(vector_v,EST_CPUSPEED,i,errorCode)<<" Mhz"<< endl;
@@ -72,13 +74,14 @@ print_Metric(estVector_t vector_v,int type_Info){
     cout << "available memory : "<<diet_est_get_internal(vector_v,EST_FREEMEM, errorCode)<<" Mb" <<endl;
     break;
   case EST_FREECPU: 
-     cout << "free cpu: "<<diet_est_get_internal(vector_v,EST_FREECPU, errorCode)<<endl;
+    cout << "free cpu: "<<diet_est_get_internal(vector_v,EST_FREECPU, errorCode)<<endl;
     break;
   default: {
     INTERNAL_WARNING( "CoRI: Tag " <<type_Info <<" for printing info");
   }	
- }
+  }
 }
+*/
 Cori_batch::Cori_batch(){
    // cpu=new Cori_Easy_CPU();
 //    memory=new Cori_Easy_Memory();
@@ -87,14 +90,16 @@ Cori_batch::Cori_batch(){
 
 int 
 Cori_batch::get_Information(int type_Info,       
-				estVector_t* info,
-				const void * data){
+			    estVector_t* info,
+			    const void * data){
   char * path;
-   vector<double> vect;
-   int res=0;
-   double temp=0;
-   int minut;
-    char * tmp="./";
+  vector<double> vect;
+  int res=0;
+  double temp=0;
+  int minut;
+  char * tmp="./";
+
+  /*
   switch (type_Info){
  
   case EST_ALLINFOS:{
@@ -192,18 +197,20 @@ Cori_batch::get_Information(int type_Info,
   if (TRACE_LEVEL>=TRACE_ALL_STEPS)
     print_Metric(*info,type_Info); 
   return res;
+  */
+  return 0 ;
 }
 
 /****************************************************************************/
 /* Private methods                                                          */
 /****************************************************************************/
 
-
- int  
+int  
 Cori_batch::convertArray(vector <double> vect,
 			     estVector_t * estvect,
-			     int typeOfInfo ){
-  vector<double>::iterator iter1;
+			     int typeOfInfo )
+{
+   /*  vector<double>::iterator iter1;
   iter1 = vect.begin();
   int i=0;
   while( iter1 != vect.end()) {
@@ -212,6 +219,8 @@ Cori_batch::convertArray(vector <double> vect,
     iter1++;
   }
   return 0;
+   */
+  return 0 ;
 }
 
 int  
