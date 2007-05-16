@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.34  2007/05/16 08:39:33  mjan
+ * Quelques ajustements avec JuxMem
+ *
  * Revision 1.33  2007/04/16 22:43:43  ycaniou
  * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
  * This is indented to replace HAVE_BATCH.
@@ -418,10 +421,10 @@ private:
 		    diet_convertor_t* cvt) ;
 
   inline void
-  uploadSeDDataJuxMem(diet_profile_t profile);
+  uploadSeDDataJuxMem(diet_profile_t* profile);
 
   inline void
-  downloadSeDDataJuxMem(diet_profile_t profile);
+  downloadSeDDataJuxMem(diet_profile_t* profile);
 };
 
 #endif // _SED_IMPL_HH_

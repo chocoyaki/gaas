@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.90  2007/05/16 08:39:32  mjan
+ * Quelques ajustements avec JuxMem
+ *
  * Revision 1.89  2007/04/16 22:43:43  ycaniou
  * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
  * This is indented to replace HAVE_BATCH.
@@ -1086,7 +1089,7 @@ SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb,
 
 #if HAVE_JUXMEM
 inline void
-SeDImpl::uploadSeDDataJuxMem(diet_profile_t profile)
+SeDImpl::uploadSeDDataJuxMem(diet_profile_t* profile)
 {
 #if JUXMEM_LATENCY_THROUGHPUT
   float latency = 0;
@@ -1100,48 +1103,44 @@ SeDImpl::uploadSeDDataJuxMem(diet_profile_t profile)
 #endif
   int i = 0;
 
-  for (i = 0; i <= profile.last_out; i++) {
-    if (profile.parameters[i].desc.mode == DIET_PERSISTENT ||
-	profile.parameters[i].desc.mode == DIET_PERSISTENT_RETURN) {
+  for (i = 0; i <= profile->last_out; i++) {
+    if (profile->parameters[i].desc.mode == DIET_PERSISTENT ||
+	profile->parameters[i].desc.mode == DIET_PERSISTENT_RETURN) {
 
       /** IN and INOUT case */
-      if (i <= profile.last_inout) {
-	TRACE_TEXT(TRACE_MAIN_STEPS, "Releasing data with ID = " << profile.parameters[i].desc.id << " from JuxMem\n");
+      if (i <= profile->last_inout) {
+	TRACE_TEXT(TRACE_MAIN_STEPS, "Releasing data with ID = " << profile->parameters[i].desc.id << " from JuxMem\n");
 #if JUXMEM_LATENCY_THROUGHPUT
 	gettimeofday(&t_begin, NULL);
 #endif
-	this->juxmem->release(profile.parameters[i].value);
+	this->juxmem->release(profile->parameters[i].value);
 #if JUXMEM_LATENCY_THROUGHPUT
 	gettimeofday(&t_end, NULL);
 	timersub(&t_end, &t_begin, &t_result);
 	latency = (t_result.tv_usec + (t_result.tv_sec * 1000. * 1000)) / 1000.;
-	throughput = (data_sizeof(&(profile.parameters[i].desc)) / (1024. * 1024.)) / (latency / 1000.);
-	fprintf(stderr, "INOUT %s release. Latency: %f, Throughput: %f\n", profile.parameters[i].desc.id, latency, throughput);
+	throughput = (data_sizeof(&(profile->parameters[i].desc)) / (1024. * 1024.)) / (latency / 1000.);
+	fprintf(stderr, "INOUT %s release. Latency: %f, Throughput: %f\n", profile->parameters[i].desc.id, latency, throughput);
 #endif
       } else {       /** OUT case */
 	/** The data does not exist yet */
-	if (strlen(profile.parameters[i].desc.id) == 0) {
+	if (strlen(profile->parameters[i].desc.id) == 0) {
 	  /* The local memory is attached inside JuxMem */
-	  profile.parameters[i].desc.id = 
-	    this->juxmem->attach(profile.parameters[i].value, 
-				 data_sizeof(&(profile.parameters[i].desc)), 
+	  profile->parameters[i].desc.id = 
+	    this->juxmem->attach(profile->parameters[i].value, 
+				 data_sizeof(&(profile->parameters[i].desc)), 
 				 1, 1, EC_PROTOCOL, BASIC_SOG);
 	  TRACE_TEXT(TRACE_MAIN_STEPS, "A data space with ID = " 
-		     << profile.parameters[i].desc.id 
+		     << profile->parameters[i].desc.id 
 		     << " for OUT data has been attached inside JuxMem!\n");
 	  /* The local memory is flush inside JuxMem */
-	  this->juxmem->msync(profile.parameters[i].value);
+	  this->juxmem->msync(profile->parameters[i].value);
 	} else { /* Simply release the lock */
 	  /** FIXME: should we handle this case */
-	  this->juxmem->release(profile.parameters[i].value);
+	  this->juxmem->release(profile->parameters[i].value);
 	}
       }
 
-      if (i <= profile.last_in) {
-	this->juxmem->detach(profile.parameters[i].value);
-      } else {
-	this->juxmem->unmap(profile.parameters[i].value);
-      }
+      this->juxmem->unmap(profile->parameters[i].value);
     }
   }
 }
@@ -1149,7 +1148,7 @@ SeDImpl::uploadSeDDataJuxMem(diet_profile_t profile)
 
 #if HAVE_JUXMEM
 inline void
-SeDImpl::downloadSeDDataJuxMem(diet_profile_t profile)
+SeDImpl::downloadSeDDataJuxMem(diet_profile_t* profile)
 {
 #if JUXMEM_LATENCY_THROUGHPUT
   float latency = 0;
@@ -1163,56 +1162,56 @@ SeDImpl::downloadSeDDataJuxMem(diet_profile_t profile)
 #endif
   int i = 0;
 
-  for (i = 0; i <= profile.last_out; i++) {
-    if (profile.parameters[i].desc.mode == DIET_PERSISTENT ||
-	profile.parameters[i].desc.mode == DIET_PERSISTENT_RETURN) {
+  for (i = 0; i <= profile->last_out; i++) {
+    if (profile->parameters[i].desc.mode == DIET_PERSISTENT ||
+	profile->parameters[i].desc.mode == DIET_PERSISTENT_RETURN) {
    
       /* IN case -> acquire the data in read mode */
-      if (i <= profile.last_in) {
-	assert(profile.parameters[i].desc.id != NULL);
-	profile.parameters[i].value = this->juxmem->mmap(NULL, data_sizeof(&(profile.parameters[i].desc)), profile.parameters[i].desc.id, 0);
-	TRACE_TEXT(TRACE_MAIN_STEPS, "Acquiring IN data with ID = " << profile.parameters[i].desc.id << " from JuxMem\n");
+      if (i <= profile->last_in) {
+	assert(profile->parameters[i].desc.id != NULL);
+	profile->parameters[i].value = this->juxmem->mmap(NULL, data_sizeof(&(profile->parameters[i].desc)), profile->parameters[i].desc.id, 0);
+	TRACE_TEXT(TRACE_MAIN_STEPS, "Acquiring IN data with ID = " << profile->parameters[i].desc.id << " from JuxMem\n");
 #if JUXMEM_LATENCY_THROUGHPUT
 	gettimeofday(&t_begin, NULL);
 #endif
-	this->juxmem->acquireRead(profile.parameters[i].value);
+	this->juxmem->acquireRead(profile->parameters[i].value);
 #if JUXMEM_LATENCY_THROUGHPUT
 	gettimeofday(&t_end, NULL);
 	timersub(&t_end, &t_begin, &t_result);
 	latency = (t_result.tv_usec + (t_result.tv_sec * 1000. * 1000)) / 1000.;	
-	throughput = (data_sizeof(&(profile.parameters[i].desc)) / (1024. * 1024.)) / (latency / 1000.);
-	fprintf(stderr, "IN %s acquireRead. Latency: %f, Throughput: %f\n", profile.parameters[i].desc.id, latency, throughput);
+	throughput = (data_sizeof(&(profile->parameters[i].desc)) / (1024. * 1024.)) / (latency / 1000.);
+	fprintf(stderr, "IN %s acquireRead. Latency: %f, Throughput: %f\n", profile->parameters[i].desc.id, latency, throughput);
 #endif
 	continue;
       }
       /* INOUT case -> acquire the data in write mode */
-      if (i > profile.last_in && i <= profile.last_inout) {
-	assert(profile.parameters[i].desc.id != NULL);
-	profile.parameters[i].value = this->juxmem->mmap(NULL, data_sizeof(&(profile.parameters[i].desc)), profile.parameters[i].desc.id, 0);
-	TRACE_TEXT(TRACE_MAIN_STEPS, "Acquiring INOUT data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
+      if (i > profile->last_in && i <= profile->last_inout) {
+	assert(profile->parameters[i].desc.id != NULL);
+	profile->parameters[i].value = this->juxmem->mmap(NULL, data_sizeof(&(profile->parameters[i].desc)), profile->parameters[i].desc.id, 0);
+	TRACE_TEXT(TRACE_MAIN_STEPS, "Acquiring INOUT data with ID = " << profile->parameters[i].desc.id << " from JuxMem ...\n");
 #if JUXMEM_LATENCY_THROUGHPUT
 	gettimeofday(&t_begin, NULL);
 #endif
-	this->juxmem->acquire(profile.parameters[i].value);
+	this->juxmem->acquire(profile->parameters[i].value);
 #if JUXMEM_LATENCY_THROUGHPUT
 	gettimeofday(&t_end, NULL);
 	timersub(&t_end, &t_begin, &t_result);
 	latency = (t_result.tv_usec + (t_result.tv_sec * 1000. * 1000)) / 1000.;
-	throughput = (data_sizeof(&(profile.parameters[i].desc)) / (1024. * 1024.)) / (latency / 1000.);
-	fprintf(stderr, "IN/INOUT %s acquire. Latency: %f, Throughput: %f\n", profile.parameters[i].desc.id, latency, throughput);
+	throughput = (data_sizeof(&(profile->parameters[i].desc)) / (1024. * 1024.)) / (latency / 1000.);
+	fprintf(stderr, "IN/INOUT %s acquire. Latency: %f, Throughput: %f\n", profile->parameters[i].desc.id, latency, throughput);
 #endif
 	continue;
       }
       /* OUT case -> acquire the data in write mode if exists in JuxMem */
-      if (i > profile.last_inout) {
-	if (profile.parameters[i].desc.id == NULL || (strlen(profile.parameters[i].desc.id) == 0)) {
+      if (i > profile->last_inout) {
+	if (profile->parameters[i].desc.id == NULL || (strlen(profile->parameters[i].desc.id) == 0)) {
 	  TRACE_TEXT(TRACE_MAIN_STEPS, "New data for OUT\n");
 	} else {
 	  /** FIXME: not clear if we should handle such a case */
-	  assert(profile.parameters[i].desc.id != NULL);
-	  profile.parameters[i].value = this->juxmem->mmap(NULL, data_sizeof(&(profile.parameters[i].desc)), profile.parameters[i].desc.id, 0);
-	  this->juxmem->acquire(profile.parameters[i].value);
-	  TRACE_TEXT(TRACE_MAIN_STEPS, "Acquiring OUT data with ID = " << profile.parameters[i].desc.id << " from JuxMem ...\n");
+	  assert(profile->parameters[i].desc.id != NULL);
+	  profile->parameters[i].value = this->juxmem->mmap(NULL, data_sizeof(&(profile->parameters[i].desc)), profile->parameters[i].desc.id, 0);
+	  this->juxmem->acquire(profile->parameters[i].value);
+	  TRACE_TEXT(TRACE_MAIN_STEPS, "Acquiring OUT data with ID = " << profile->parameters[i].desc.id << " from JuxMem ...\n");
 	}
       }
     }
@@ -1366,9 +1365,8 @@ SeDImpl::downloadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
   TRACE_TIME(TRACE_MAIN_STEPS, "SeD downloads client datas\n");
 
 #if HAVE_JUXMEM
-  unmrsh_in_args_to_profile(&profile, &(const_cast<corba_profile_t&>(pb)),
-			    cvt);
-  downloadSeDDataJuxMem(profile);
+  unmrsh_in_args_to_profile(&profile, &(const_cast<corba_profile_t&>(pb)), cvt);
+  downloadSeDDataJuxMem(&profile);
 #else
       int i;
       for (i = 0; i <= pb.last_inout; i++) {    
@@ -1395,7 +1393,7 @@ SeDImpl::downloadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
   
 #if HAVE_JUXMEM
   unmrsh_in_args_to_profile(&profile, &pb, cvt);
-  downloadSeDDataJuxMem(profile);
+  downloadSeDDataJuxMem(&profile);
 #else // DTM case
   int i ;
   // For data persistence
@@ -1429,7 +1427,7 @@ SeDImpl::uploadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
   TRACE_TIME(TRACE_MAIN_STEPS, "SeD uploads client datas\n");
 
 #if HAVE_JUXMEM
-      uploadSeDDataJuxMem(profile);
+      uploadSeDDataJuxMem(&profile);
       mrsh_profile_to_out_args(&(const_cast<corba_profile_t&>(pb)), &profile, cvt);
 #else // DTM case
   int i ;
@@ -1480,7 +1478,7 @@ SeDImpl::uploadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
   TRACE_TIME(TRACE_MAIN_STEPS, "SeD uploads client datas\n");
   
 #if HAVE_JUXMEM
-  uploadSeDDataJuxMem(profile);
+  uploadSeDDataJuxMem(&profile);
   mrsh_profile_to_out_args(&pb, &profile, cvt);
 #else // DTM case
   int i ;
@@ -1535,6 +1533,7 @@ SeDImpl::storeBatchID(ELBASE_Process *batch_jobID, int diet_reqID)
 
   corresBatchReqID_mutex.unlock() ;
 }
+
   /* For the moment, storage done in a table
   ** TODO: use something like a red/black tree? */
 //   int i=0 ;
