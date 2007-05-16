@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.73  2007/05/16 07:46:14  mjan
+ * Bug fix for JuxMem use and remove uneeded HAVE_JUXMEM
+ *
  * Revision 1.72  2007/04/16 22:43:42  ycaniou
  * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
  * This is indented to replace HAVE_BATCH.
@@ -947,11 +950,7 @@ mrsh_profile_to_out_args(corba_profile_t* dest, const diet_profile_t* src,
     (int*) calloc(dest->last_out + 1, sizeof(int));
   diet_data_t dd;
 
-#if HAVE_JUXMEM
-  for (i = 0; i <= cvt->last_out; i++) {
-#else
   for (i = cvt->last_in + 1; i <= cvt->last_out; i++) {
-#endif
     arg_idx = cvt->arg_convs[i].out_arg_idx;
     if ((arg_idx >= 0) && (arg_idx <= dest->last_out)) {
       if( dest->parameters[arg_idx].desc.specific._d() == DIET_FILE
@@ -984,7 +983,7 @@ mrsh_profile_to_out_args(corba_profile_t* dest, const diet_profile_t* src,
 	
 #if HAVE_JUXMEM
 	  if (diet_is_persistent(dd)) {
-	    mrsh_data_desc(&(dest->parameters[arg_idx].desc), &(src->parameters[arg_idx].desc));
+	    mrsh_data_desc(&(dest->parameters[arg_idx].desc), &(dd.desc));
 	    dest->parameters[arg_idx].value.replace(0, 0, NULL, 1);
 	    dest->parameters[arg_idx].value.length(0);
 	  } else {
