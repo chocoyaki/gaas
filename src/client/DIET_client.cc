@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.100  2007/05/28 12:30:55  aamar
+ * Moving endParsing call to the end of diet_initialize method.
+ *
  * Revision 1.99  2007/04/16 22:43:43  ycaniou
  * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
  * This is indented to replace HAVE_BATCH.
@@ -479,9 +482,6 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   /* Initialize statistics module */
   stat_init();
 
-  /* We do not need the parsing results any more */
-  Parsers::endParsing();
-
 #if HAVE_ALTPREDICT
   char *tmpHostName = new char[256];
   /** Get localhost name for performance prediction */
@@ -537,6 +537,9 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   XMLPlatformUtils::Initialize();
 
 #endif
+
+  /* We do not need the parsing results any more */
+  Parsers::endParsing();
 
   return 0;
 }
