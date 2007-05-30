@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2007/05/30 11:16:37  aamar
+ * Updating workflow runtime to support concurrent call (Reordering is not
+ * working now - TO FIX -).
+ *
  * Revision 1.7  2007/04/17 13:34:54  ycaniou
  * Error in debug.tex header
  * Removes some warnings during doc generation
@@ -525,10 +529,28 @@ protected:
    */
   unsigned int myTag;
 
+  /**
+   * set the parent Dag reference
+   */
+  void
+  setDag(Dag * dag);
+
+  /**
+   * get the node Dag reference
+   */
+  Dag *
+  getDag();
+
 private:
   /*********************************************************************/
   /* private fields                                                    */
   /*********************************************************************/
+  
+  /**
+   * Dag reference
+   */
+  Dag * myDag;
+
   /**
    * problem profile *
    */

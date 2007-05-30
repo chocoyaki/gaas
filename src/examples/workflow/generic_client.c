@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2007/05/30 11:16:36  aamar
+ * Updating workflow runtime to support concurrent call (Reordering is not
+ * working now - TO FIX -).
+ *
  * Revision 1.2  2006/11/08 17:51:37  aamar
  * Use the get_all_results in the generic workflow client.
  *
@@ -70,7 +74,7 @@ main(int argc, char* argv[])
 
   /*  set_heft_sched(); */
 
-  enable_reordering("generic-client", 0);
+  enable_reordering(profile, "generic-client", 0);
   /*  set_reordering_delta(10, 1); */
   
   printf("Try to execute the workflow\n");
@@ -81,7 +85,7 @@ main(int argc, char* argv[])
     printf("The workflow submission failed\n");
   }
 
-  get_all_results();
+  get_all_results(profile);
   
   diet_wf_free(profile);
 

@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.31  2007/05/30 11:16:33  aamar
+ * Updating workflow runtime to support concurrent call (Reordering is not
+ * working now - TO FIX -).
+ *
  * Revision 1.30  2007/04/16 22:43:42  ycaniou
  * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
  * This is indented to replace HAVE_BATCH.
@@ -284,17 +288,19 @@ set_madag_sched(int b);
 /* reordering disabled (b = false)       */
 /*****************************************/
 void
-enable_reordering(const char * name, int b);
+enable_reordering(diet_wf_desc_t * profile,
+                  const char * name, int b);
 /***************************************************************/
 /* set the reordering delta (time in seconds)                  */
 /* and the number of nodes to trigger the                      */
 /* reordering)                                                 */
 /***************************************************************/
-void set_reordering_delta(const long int nb_sec, 
+void set_reordering_delta(diet_wf_desc_t * profile,
+                          const long int nb_sec, 
 			  const unsigned long int nb_node);
 /***************************************************************/
 void
-nodeIsDone(const char * node_id);
+nodeIsDone(const char * node_id, const char * dag_id);
 
 void
 nodeIsRunning(const char * node_id);

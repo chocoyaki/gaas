@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2007/05/30 11:16:36  aamar
+ * Updating workflow runtime to support concurrent call (Reordering is not
+ * working now - TO FIX -).
+ *
  * Revision 1.2  2006/11/28 15:09:33  aamar
  * Correct headers
  *
@@ -68,7 +72,7 @@ main(int argc, char* argv[])
 
   /*  set_heft_sched(); */
 
-  enable_reordering("generic-client", 0);
+  enable_reordering(profile, "generic-client", 0);
   /*  set_reordering_delta(10, 1); */
   
   printf("Try to execute the workflow\n");
@@ -81,7 +85,7 @@ main(int argc, char* argv[])
     /*
       diet_wf_matrix_get(id, value, nb_rows, nb_cols, order)
     */
-    diet_wf_matrix_get("n3#out2", &A, &m, &n, &o);
+    diet_wf_matrix_get(profile, "n3#out2", &A, &m, &n, &o);
     print_matrix(A, m, n, (o == DIET_ROW_MAJOR));
   }
   else {

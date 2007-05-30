@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2007/05/30 11:16:37  aamar
+ * Updating workflow runtime to support concurrent call (Reordering is not
+ * working now - TO FIX -).
+ *
  * Revision 1.11  2006/11/27 10:15:12  aamar
  * Correct headers of files used in workflow support.
  *
@@ -63,6 +67,7 @@
 
 #include "Node.hh"
 
+#include "Dag.hh"
 
 MasterAgent_var getMA();
 bool useMaDagSched();
@@ -1247,7 +1252,7 @@ Node::isDone() {
  */
 void
 Node::done() {
-  nodeIsDone(myId.c_str());
+  nodeIsDone(myId.c_str(), this->myDag->getId().c_str());
   // get the current time and set the real time variable
   struct timeval tv;
   gettimeofday(&tv, NULL);
@@ -1361,4 +1366,21 @@ diet_profile_t *
 Node::getProfile() {
   return this->profile;
 } // end getProfile
+
+
+/**
+ * set the parent Dag reference
+ */
+void
+Node::setDag(Dag * dag) {
+  this->myDag = dag;
+}
+
+/**
+ * get the node Dag reference
+ */
+Dag *
+Node::getDag() {
+  return this->myDag;
+}
 

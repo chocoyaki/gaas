@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.49  2007/05/30 11:16:33  aamar
+ * Updating workflow runtime to support concurrent call (Reordering is not
+ * working now - TO FIX -).
+ *
  * Revision 1.48  2007/04/16 22:43:42  ycaniou
  * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
  * This is indented to replace HAVE_BATCH.
@@ -645,36 +649,40 @@ diet_wf_profile_alloc(const char* wf_file_name);
 void
 diet_wf_profile_free(diet_wf_desc_t * profile);
 
-#define diet_wf_scalar_get(id, value) \
-  _diet_wf_scalar_get(id, (void**)value)
+#define diet_wf_scalar_get(profile, id, value) \
+  _diet_wf_scalar_get(profile, id, (void**)value)
 
 int
-_diet_wf_scalar_get(const char * id,
+_diet_wf_scalar_get(diet_wf_desc_t * profile,
+                    const char * id,
 		    void** value);
 
-#define diet_wf_string_get(id, value) \
-  _diet_wf_string_get(id, (char**)value)
+#define diet_wf_string_get(profile, id, value) \
+  _diet_wf_string_get(profile, id, (char**)value)
 
 int 
-_diet_wf_string_get(const char * id, 
+_diet_wf_string_get(diet_wf_desc_t * profile,
+                    const char * id, 
 		    char** value);
 
-#define diet_wf_file_get(id, size, path) \
-  _diet_wf_file_get(id, size, (char**)path)
+#define diet_wf_file_get(profile, id, size, path) \
+  _diet_wf_file_get(profile, id, size, (char**)path)
 
 int
-_diet_wf_file_get(const char * id,
+_diet_wf_file_get(diet_wf_desc_t * profile,
+                  const char * id,
 		  size_t* size, char** path);
 
-#define diet_wf_matrix_get(id, value, nb_rows, nb_cols, order) \
-  _diet_wf_matrix_get(id, (void**)value, nb_rows, nb_cols, order)
+#define diet_wf_matrix_get(profile, id, value, nb_rows, nb_cols, order) \
+  _diet_wf_matrix_get(profile, id, (void**)value, nb_rows, nb_cols, order)
 
 int
-_diet_wf_matrix_get(const char * id, void** value,
+_diet_wf_matrix_get(diet_wf_desc_t * profile,
+                    const char * id, void** value,
 		    size_t* nb_rows, size_t *nb_cols, 
 		    diet_matrix_order_t* order);
 
-void get_all_results();
+void get_all_results(diet_wf_desc_t * profile);
 
 #endif /* HAVE_WORKFLOW */
 

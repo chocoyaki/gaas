@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2007/05/30 11:16:37  aamar
+ * Updating workflow runtime to support concurrent call (Reordering is not
+ * working now - TO FIX -).
+ *
  * Revision 1.6  2006/11/27 10:15:12  aamar
  * Correct headers of files used in workflow support.
  *
@@ -554,6 +558,7 @@ WfExtReader::parseNode (const DOMNode * element,
   } // end if (! alloc)
 
   myDag->addNode(nodeId, dagNode);
+  dagNode->setDag(myDag);
 
   return true;
 } // end parseNode

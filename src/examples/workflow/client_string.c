@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2007/05/30 11:16:36  aamar
+ * Updating workflow runtime to support concurrent call (Reordering is not
+ * working now - TO FIX -).
+ *
  * Revision 1.2  2006/11/28 15:09:33  aamar
  * Correct headers
  *
@@ -64,13 +68,13 @@ main(int argc, char* argv[])
 
   /*  set_heft_sched(); */
 
-  enable_reordering("generic-client", 0);
+  enable_reordering(profile, "generic-client", 0);
   /*  set_reordering_delta(10, 1); */
   
   printf("Try to execute the workflow\n");
   if (! diet_wf_call(profile)) {
     printf("The workflow submission succeed\n");
-    diet_wf_string_get("n4#out", &result);
+    diet_wf_string_get(profile, "n4#out", &result);
     printf("The results is %s\n", result);
   }
   else {
