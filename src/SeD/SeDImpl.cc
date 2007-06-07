@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.91  2007/06/07 14:20:02  ycaniou
+ * Ajout d'un 'defined HAVE_BATCH' manquant pour parallel_AsyncSolve()
+ * -> corrige un warning/error sur cette fonction undefined pour HAVE_BATCH
+ *
+ * Utilisation correct de Macro ERROR_EXIT
+ *
  * Revision 1.90  2007/05/16 08:39:32  mjan
  * Quelques ajustements avec JuxMem
  *
@@ -948,7 +954,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 }
 
 /* Note: ref is useful for convertors */
-#if defined HAVE_ALT_BATCH
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
 void
 SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb, 
 			     ServiceTable::ServiceReference_t ref,
@@ -1014,6 +1020,7 @@ SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb,
       }
       batch->removeBatchJobID(profile.dietReqID) ;
 #else
+      int status ;
       TRACE_TIME(TRACE_MAIN_STEPS, "Submitting script for DIET job of ID "
 		 << profile.dietReqID <<
 		 " is of pid " << 
@@ -1025,10 +1032,10 @@ SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb,
 	  && status == 0 ) {
 	if( this->batchID == ELBASE_SHELLSCRIPT ) {
 	  ERROR_EXIT("An error occured during the execution of "
-		     "the parallel job", 21) ;
+		     "the parallel job") ;
 	} else {
 	  ERROR_EXIT("An error occured during the execution"
-		     " of the batch job", 21) ;
+		     " of the batch job") ;
 	}
       }
       removeBatchID(pb.dietReqID) ;
