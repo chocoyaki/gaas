@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2007/06/11 09:34:48  ycaniou
+ * Modified the example, so that the default behavior of the server is now
+ *   to return the out file, and not a random behavior
+ *
  * Revision 1.15  2006/09/18 19:46:07  ycaniou
  * Corrected a bug in file_transfer:server.c
  * Corrected memory leaks due to incorrect free of char *
@@ -92,8 +96,12 @@ solve_size(diet_profile_t* pb)
   diet_scalar_desc_set(diet_parameter(pb,3), &buf.st_size);
   /* do not apply diet_free_data on param 1, since it is also the OUT file. */
 
-  /* Choose randomly if returns a NULL file or param 1 */
-  if (diet_file_desc_set(diet_parameter(pb,4), (rand()&1) ? path2 : NULL)) {
+  /* Replace in the following:
+     1) if choose randomly if returns a NULL file or param 1
+     if (diet_file_desc_set(diet_parameter(pb,4), (rand()&1) ? path2 : NULL)) {
+     2) if determinist behavior (for test suite)
+  */
+  if (diet_file_desc_set(diet_parameter(pb,4), path2)) {
     printf("diet_file_desc_set error\n");
     return 1;
   }
