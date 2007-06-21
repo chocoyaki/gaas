@@ -12,7 +12,9 @@ OMNINAMES_BASENAME_COMMAND=omniNames
 
 # The name of the host of the service: usually this is a FQDN (Fully Qualified
 # Domain Name) as given by the shell level command: `hostname`"."`dnsdomainname`
-SERVER_NAME=@DIET_CTEST_FQDN_HOSTNAME@
+#SERVER_NAME=@DIET_CTEST_FQDN_HOSTNAME@
+# Changed by EQ to avoid strange hostname composition on unusual Graal definition
+SERVER_NAME=$HOSTNAME
 
 # The primary port on which omniMapper listens fo IIOP requests. This is
 # usually defaulted to 2809. We default it to 20809 to avoid a port bind
