@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.35  2007/06/28 17:30:25  ycaniou
+ * Better with a cast
+ *
  * Revision 1.34  2007/06/28 17:17:42  ycaniou
  * MAImpl.cc: reqIDCounter feature to begin the count with a given value
  * Parsers.cc: parseInt not a name
@@ -192,7 +195,7 @@ MasterAgentImpl::run()
     return res;
 
   this->reqIDCounter = 
-    *(Parsers::Results::getParamValue(Parsers::Results::DIETPORT));
+    *((int*)(Parsers::Results::getParamValue(Parsers::Results::DIETPORT)));
  
 #ifdef HAVE_MULTI_MA
 
