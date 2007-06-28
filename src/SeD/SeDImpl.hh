@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.35  2007/06/28 18:23:19  rbolze
+ * add dietReqID in the profile.
+ * and propagate this change to all functions that  have both reqID and profile parameters.
+ * TODO : look at the asynchronous mechanism (client->SED) to propage this change.
+ *
  * Revision 1.34  2007/05/16 08:39:33  mjan
  * Quelques ajustements avec JuxMem
  *
@@ -249,7 +254,7 @@ public:
   /* TODO: when HAVE_BATCH is validated, 3rd arg unnecessary:
   **   reqID is pb.dietJobID */
   virtual CORBA::Long
-  solve(const char* pbName, corba_profile_t& pb,CORBA::Long reqID);
+  solve(const char* pbName, corba_profile_t& pb);
 
 #if HAVE_BATCH
   ELBASE_SchedulerServiceTypes
@@ -296,7 +301,7 @@ public:
 
   virtual void
   solveAsync(const char* pb_name, const corba_profile_t& pb,
-	    CORBA::Long reqID, const char * volatileclientIOR);
+	     const char * volatileclientIOR);
 
   virtual CORBA::Long
   ping();

@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.45  2007/06/28 18:23:20  rbolze
+ * add dietReqID in the profile.
+ * and propagate this change to all functions that  have both reqID and profile parameters.
+ * TODO : look at the asynchronous mechanism (client->SED) to propage this change.
+ *
  * Revision 1.44  2007/04/16 22:43:44  ycaniou
  * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
  * This is indented to replace HAVE_BATCH.
@@ -495,13 +500,13 @@ diet_profile_alloc(char* pb_name, int last_in, int last_inout, int last_out)
   res->parameters = new diet_arg_t[last_out + 1];
   for (int i = 0; i <= last_out; i++)
     res->parameters[i].desc.id = NULL;
+  res->dietReqID = 0 ;
 #if defined HAVE_BATCH || defined HAVE_ALT_BATCH
   /* By default, ask for sequential and parallel task (cf DIET_data.h ) */
   res->parallel_flag = 0 ;
   res->nbprocs   = 0 ;
   res->nbprocess = 0 ;
   res->walltime  = 0 ;
-  res->dietReqID = 0 ;
 #endif
   return res;
 }

@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2007/06/28 18:23:20  rbolze
+ * add dietReqID in the profile.
+ * and propagate this change to all functions that  have both reqID and profile parameters.
+ * TODO : look at the asynchronous mechanism (client->SED) to propage this change.
+ *
  * Revision 1.13  2006/11/02 17:12:50  rbolze
  * change function logDagSubmit
  *
@@ -269,8 +274,8 @@ public:
    * Solve a problem
    * (No ID here, ID exists only in async and is client-specific)
    */
-  void logBeginSolve(const char* path, const corba_profile_t* problem, const unsigned long reqID);
-  void logEndSolve(const char* path, const corba_profile_t* problem, const unsigned long reqID);
+  void logBeginSolve(const char* path, const corba_profile_t* problem);
+  void logEndSolve(const char* path, const corba_profile_t* problem);
 
   /**
    * Track data movements

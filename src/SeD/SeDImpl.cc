@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.92  2007/06/28 18:23:19  rbolze
+ * add dietReqID in the profile.
+ * and propagate this change to all functions that  have both reqID and profile parameters.
+ * TODO : look at the asynchronous mechanism (client->SED) to propage this change.
+ *
  * Revision 1.91  2007/06/07 14:20:02  ycaniou
  * Ajout d'un 'defined HAVE_BATCH' manquant pour parallel_AsyncSolve()
  * -> corrige un warning/error sur cette fonction undefined pour HAVE_BATCH
@@ -644,7 +649,7 @@ SeDImpl::updateTimeSinceLastSolve()
 /* TODO: When HAVE_ALT_BATCH is enabled by default, change the prototype
    because reqID is integrated in the profile */
 CORBA::Long
-SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
+SeDImpl::solve(const char* path, corba_profile_t& pb)
 {
   ServiceTable::ServiceReference_t ref(-1);
   diet_profile_t profile;
@@ -676,11 +681,11 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
     this->accessController->waitForResource();
   }
 
-  sprintf(statMsg, "solve %ld", (unsigned long) reqID);
+  sprintf(statMsg, "solve %ld", pb.dietReqID);
   stat_in("SeD",statMsg);
 
   if (dietLogComponent != NULL) {
-    dietLogComponent->logBeginSolve(path, &pb,reqID);
+    dietLogComponent->logBeginSolve(path, &pb);
   }
 
   TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::solve invoked on pb: " << path << endl);
@@ -709,7 +714,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb, CORBA::Long reqID)
   stat_flush();
 
   if (dietLogComponent != NULL) {
-    dietLogComponent->logEndSolve(path, &pb,reqID);
+    dietLogComponent->logEndSolve(path, &pb);
   }
 
   if (this->useConcJobLimit){
@@ -843,7 +848,7 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
    because reqID is integrated in the profile */
 void
 SeDImpl::solveAsync(const char* path, const corba_profile_t& pb, 
-                    CORBA::Long reqID, const char* volatileclientREF)
+                     const char* volatileclientREF)
 {
 
   // test validity of volatileclientREF
@@ -884,16 +889,16 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 	  this->accessController->waitForResource();
 	}
 	
-	sprintf(statMsg, "solveAsync %ld", (unsigned long) reqID);
+	sprintf(statMsg, "solveAsync %ld", pb.dietReqID);
 	stat_in("SeD",statMsg);
 	
 	if (dietLogComponent != NULL) {
-	  dietLogComponent->logBeginSolve(path, &pb,reqID);
+	  dietLogComponent->logBeginSolve(path, &pb);
 	}
 	
 	TRACE_TEXT(TRACE_MAIN_STEPS,
 		   "SeD::solveAsync invoked on pb: " << path 
-		   << " (reqID " << reqID << ")" << endl);
+		   << " (reqID " << profile.dietReqID << ")" << endl);
 	
 	
 	cvt = SrvT->getConvertor(ref);
@@ -911,7 +916,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 	stat_flush();
 	
 	if (dietLogComponent != NULL) {
-	  dietLogComponent->logEndSolve(path, &pb,reqID);
+	  dietLogComponent->logEndSolve(path, &pb);
 	}
 	
 	/* Release resource before returning the data.  Caution: this could be a
@@ -921,11 +926,12 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 	}
      
 	// send result data to client.
+	// TODO : change notifyResults and solveResults signature remove dietReqID
 	TRACE_TEXT(TRACE_ALL_STEPS, "SeD::" << __FUNCTION__
 		   << ": performing the call-back.\n");
 	Callback_var cb_var = Callback::_narrow(cb);
-	cb_var->notifyResults(path, pb, reqID);
-	cb_var->solveResults(path, pb, reqID, solve_res);
+	cb_var->notifyResults(path, pb, pb.dietReqID);
+	cb_var->solveResults(path, pb, pb.dietReqID, solve_res);
 	/* FIXME: do we need to use diet_free_data on profile parameters as
 	 * we do in the solve(...) method? */
 	delete [] profile.parameters; // allocated by unmrsh_in_args_to_profile

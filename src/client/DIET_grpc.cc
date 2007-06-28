@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2007/06/28 18:23:19  rbolze
+ * add dietReqID in the profile.
+ * and propagate this change to all functions that  have both reqID and profile parameters.
+ * TODO : look at the asynchronous mechanism (client->SED) to propage this change.
+ *
  * Revision 1.8  2006/07/10 13:39:46  aamar
  * Correct some warnings
  *
@@ -355,7 +360,7 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer);
 
 extern diet_error_t
 diet_call_async_common(diet_profile_t* profile,
-		       SeD_var& chosenServer, diet_reqID_t* reqID);
+		       SeD_var& chosenServer);
 
 /** [internal] Convert the list of arguments into a diet_profile_t */
 grpc_error_t
@@ -629,7 +634,8 @@ grpc_call_async(grpc_function_handle_t* handle,
   chosenObject = ORBMgr::stringToObject((*handle)->server);
   chosenServer = SeD::_narrow(chosenObject);
   */
-  res = diet_call_async_common((*handle)->pb, chosenServer, sessionID);
+  res = diet_call_async_common((*handle)->pb, chosenServer);
+  *sessionID = (*handle)->pb->dietReqID;
   set_req_error(*sessionID, GRPC_NO_ERROR);
 
   // Store the allocated handle in the dedicated map
@@ -680,7 +686,8 @@ grpc_call_argstack_async(grpc_function_handle_t* handle,
   
   chosenObject = ORBMgr::stringToObject((*handle)->server);
   chosenServer = SeD::_narrow(chosenObject);  
-  res = diet_call_async_common(profile, chosenServer, sessionID);
+  res = diet_call_async_common(profile, chosenServer);
+  *sessionID = profile->dietReqID;
   //  diet_profile_free(profile);
   return 0;
 }

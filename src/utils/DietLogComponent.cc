@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2007/06/28 18:23:20  rbolze
+ * add dietReqID in the profile.
+ * and propagate this change to all functions that  have both reqID and profile parameters.
+ * TODO : look at the asynchronous mechanism (client->SED) to propage this change.
+ *
  * Revision 1.26  2006/11/16 09:55:55  eboix
  *   DIET_config.h is no longer used. --- Injay2461
  *
@@ -733,13 +738,12 @@ DietLogComponent::logNeighbors(const char* list) {
 
 void
 DietLogComponent::logBeginSolve(const char* path,
-				const corba_profile_t* problem,
-				const unsigned long reqID ) {
+				const corba_profile_t* problem) {
   if (tagFlags[3]) {
     // FIXME: print problem (argument size?)
     char* s;
-    s = new char[strlen(path)+num_Digits(reqID)+2]; 
-    sprintf(s,"%s %ld",(const char *)(path),(unsigned long)(reqID));
+    s = new char[strlen(path)+num_Digits(problem->dietReqID)+2]; 
+    sprintf(s,"%s %ld",(const char *)(path),(unsigned long)(problem->dietReqID));
     log(tagNames[3], s);
     delete(s);
   }
@@ -747,12 +751,11 @@ DietLogComponent::logBeginSolve(const char* path,
 
 void
 DietLogComponent::logEndSolve(const char* path,
-			      const corba_profile_t* problem,
-			      const unsigned long reqID ) {
+			      const corba_profile_t* problem) {
   if (tagFlags[4]) {
     char* s;
-    s = new char[strlen(path)+num_Digits(reqID)+2]; 
-    sprintf(s,"%s %ld",(const char *)(path),(unsigned long)(reqID));
+    s = new char[strlen(path)+num_Digits(problem->dietReqID)+2]; 
+    sprintf(s,"%s %ld",(const char *)(path),(unsigned long)(problem->dietReqID));
     log(tagNames[4], s);
     delete(s);
   }

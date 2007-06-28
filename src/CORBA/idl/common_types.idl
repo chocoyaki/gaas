@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2007/06/28 18:23:19  rbolze
+ * add dietReqID in the profile.
+ * and propagate this change to all functions that  have both reqID and profile parameters.
+ * TODO : look at the asynchronous mechanism (client->SED) to propage this change.
+ *
  * Revision 1.21  2007/04/16 22:43:43  ycaniou
  * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
  * This is indented to replace HAVE_BATCH.
@@ -323,19 +328,18 @@ struct corba_profile_t {
   long   last_inout;
   long   last_out;
   SeqCorbaData_t parameters;
+  unsigned long dietReqID ;
 #if HAVE_BATCH
   long   parallel_flag ;
   long   nbprocs ;
   long   nbprocess ;
   long   walltime ;
-  unsigned long dietReqID ;
 #endif
 #if HAVE_ALT_BATCH
   long   parallel_flag ;
   long   nbprocs ;
   long   nbprocess ;
   long   walltime ;
-  unsigned long dietReqID ;
 #endif
 };
 

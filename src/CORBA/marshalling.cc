@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.74  2007/06/28 18:23:19  rbolze
+ * add dietReqID in the profile.
+ * and propagate this change to all functions that  have both reqID and profile parameters.
+ * TODO : look at the asynchronous mechanism (client->SED) to propage this change.
+ *
  * Revision 1.73  2007/05/16 07:46:14  mjan
  * Bug fix for JuxMem use and remove uneeded HAVE_JUXMEM
  *
@@ -762,12 +767,12 @@ mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src)
   dest->nbprocs    = src->nbprocs ;
   dest->nbprocess  = src->nbprocess ;
   dest->walltime   = src->walltime ;
-  dest->dietReqID  = src->dietReqID ;
 #endif
   dest->last_in    = src->last_in;
   dest->last_inout = src->last_inout;
   dest->last_out   = src->last_out;
   dest->parameters.length(src->last_out + 1);
+  dest->dietReqID  = src->dietReqID ;
 
    for (i = 0; i <= src->last_inout; i++) {
      if(src->parameters[i].desc.id) {
@@ -887,13 +892,13 @@ unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
   dest->nbprocs    = src->nbprocs ;
   dest->nbprocess  = src->nbprocess ;
   dest->walltime   = src->walltime ;
-  dest->dietReqID  = src->dietReqID ;
 #endif
   dest->pb_name    = cvt->path;
   dest->last_in    = cvt->last_in;
   dest->last_inout = cvt->last_inout;
   dest->last_out   = cvt->last_out;
   dest->parameters = new diet_data_t[cvt->last_out + 1];
+  dest->dietReqID  = src->dietReqID ;
 
   for (int i = 0; i <= cvt->last_out; i++) {
     diet_data_t* dd_tmp(NULL);

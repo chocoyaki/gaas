@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.50  2007/06/28 18:23:18  rbolze
+ * add dietReqID in the profile.
+ * and propagate this change to all functions that  have both reqID and profile parameters.
+ * TODO : look at the asynchronous mechanism (client->SED) to propage this change.
+ *
  * Revision 1.49  2007/05/30 11:16:33  aamar
  * Updating workflow runtime to support concurrent call (Reordering is not
  * working now - TO FIX -).
@@ -276,6 +281,7 @@ typedef struct {
                       ** performance estimation
 		      ** And for batch submission
                       */
+  int dietReqID ;
 #if defined HAVE_BATCH || defined HAVE_ALT_BATCH
   /* if 0, select seq AND parallel tasks for the request
      if 1, select only seq tasks
@@ -285,7 +291,6 @@ typedef struct {
   int nbprocess ;
   unsigned long walltime ; /* in minutes */
   /* Used for correspondance batch job ID / DIET job ID */
-  int dietReqID ;
 #endif
 } diet_profile_t;
 

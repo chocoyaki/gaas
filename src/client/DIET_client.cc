@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.102  2007/06/28 18:23:19  rbolze
+ * add dietReqID in the profile.
+ * and propagate this change to all functions that  have both reqID and profile parameters.
+ * TODO : look at the asynchronous mechanism (client->SED) to propage this change.
+ *
  * Revision 1.101  2007/05/30 11:16:36  aamar
  * Updating workflow runtime to support concurrent call (Reordering is not
  * working now - TO FIX -).
@@ -822,16 +827,15 @@ downloadClientDataJuxMem(diet_profile_t* profile)
 
 diet_error_t
 request_submission(diet_profile_t* profile,
-                   SeD_var& chosenServer,
-                   diet_reqID_t& reqID)
+                   SeD_var& chosenServer)
 {
   static int nb_tries(3);
   int server_OK(0), subm_count, data_OK(0);
   corba_pb_desc_t corba_pb;
   corba_response_t* response(NULL);
   char* bad_id(NULL);
+  diet_reqID_t reqID;
   char statMsg[128];
-
   chosenServer = SeD::_nil();
  
   if (mrsh_pb_desc(&corba_pb, profile)) {
@@ -986,9 +990,7 @@ request_submission(diet_profile_t* profile,
     }
     sprintf(statMsg, "request_submission %ld", (unsigned long) reqID);
     stat_out("Client",statMsg);
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
     profile->dietReqID = reqID ;
-#endif
   }
 
   return 0;
@@ -1008,14 +1010,13 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
 {
   diet_error_t res(0);
   int solve_res(0);
-  diet_reqID_t reqID;
   corba_profile_t corba_profile;
-
+  diet_reqID_t reqID;
   char statMsg[128];
   stat_in("Client","diet_call");
 
   if (CORBA::is_nil(chosenServer)) {
-    if ((res = request_submission(profile, chosenServer, reqID))) {
+    if ((res = request_submission(profile, chosenServer))) {
       return res;
     }
     if (CORBA::is_nil(chosenServer)) {
@@ -1025,7 +1026,7 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
 
   // Server is chosen, update its timeSinceLastSolve
   chosenServer->updateTimeSinceLastSolve() ;
-  
+  reqID = profile->dietReqID;  
 #if HAVE_JUXMEM 
   uploadClientDataJuxMem(profile);
 #endif // HAVE_JUXMEM
@@ -1081,7 +1082,7 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
 #if HAVE_FD
     fd_set_transition_handler(diet_call_failure_recover);
 #endif
-    solve_res = chosenServer->solve(profile->pb_name, corba_profile, reqID);
+    solve_res = chosenServer->solve(profile->pb_name, corba_profile);
     stat_out("Client",statMsg);
    } catch(CORBA::MARSHAL& e) {
     ERROR("got a marchal exception\n"
@@ -1150,30 +1151,25 @@ END_API
  */
 diet_error_t
 diet_call_async_common(diet_profile_t* profile,
-                       SeD_var& chosenServer, diet_reqID_t* reqID)
+                       SeD_var& chosenServer)
 {
   corba_profile_t corba_profile;
   CallAsyncMgr* caMgr;
   diet_error_t res(0);
-  
   // get sole CallAsyncMgr singleton
   caMgr = CallAsyncMgr::Instance();
-
-  if (!reqID) {
-    ERROR(__FUNCTION__ << ": 2nd argument has not been allocated", 1);
-  }
 
   stat_in("Client","diet_call_async");
 
   try {
 
     if (CORBA::is_nil(chosenServer)) {
-      if ((res = request_submission(profile, chosenServer, *reqID))) {
-	caMgr->setReqErrorCode(*reqID, res);
+      if ((res = request_submission(profile, chosenServer))) {
+        caMgr->setReqErrorCode(profile->dietReqID, res);
         return res;
       }
       if (CORBA::is_nil(chosenServer)) {
-	caMgr->setReqErrorCode(*reqID, GRPC_SERVER_NOT_FOUND);
+	caMgr->setReqErrorCode(profile->dietReqID, GRPC_SERVER_NOT_FOUND);
         return GRPC_SERVER_NOT_FOUND;
       }
     }
@@ -1183,7 +1179,7 @@ diet_call_async_common(diet_profile_t* profile,
 #endif
 
     if (mrsh_profile_to_in_args(&corba_profile, profile)) {
-      caMgr->setReqErrorCode(*reqID, GRPC_INVALID_FUNCTION_HANDLE);
+      caMgr->setReqErrorCode(profile->dietReqID, GRPC_INVALID_FUNCTION_HANDLE);
       ERROR("profile is wrongly built", 1);
     }
 
@@ -1228,13 +1224,14 @@ diet_call_async_common(diet_profile_t* profile,
 #endif
     
     // create corba client callback server...
-    if (caMgr->addAsyncCall(*reqID, profile) != 0) {
+    // TODO : modify addAsyncCall function because profile has the reqID
+    if (caMgr->addAsyncCall(profile->dietReqID, profile) != 0) {
       return 1;
     }
 
     stat_in("Client","computation_async");
     chosenServer->solveAsync(profile->pb_name, corba_profile, 
-                             *reqID, REF_CALLBACK_SERVER);
+                             REF_CALLBACK_SERVER);
 
     stat_out("Client","computation_async");
 
@@ -1259,12 +1256,12 @@ diet_call_async_common(diet_profile_t* profile,
     } else {
       WARNING("exception caught in " << __FUNCTION__ << '(' << tc->id() << ')');
     }
-    *reqID = -1;
+    profile->dietReqID = -1;
     return 1;
   }
   catch (...) {
     WARNING("exception caught in " << __FUNCTION__);
-    *reqID = -1;
+    profile->dietReqID = -1;
     return 1;
   }
   
@@ -1280,7 +1277,8 @@ diet_error_t
 diet_call_async(diet_profile_t* profile, diet_reqID_t* reqID)
 {
   SeD_var chosenServer = SeD::_nil();
-  diet_error_t err = diet_call_async_common(profile, chosenServer, reqID);
+  diet_error_t err = diet_call_async_common(profile, chosenServer);
+  *reqID = profile->dietReqID;
   set_req_error(*reqID, err);
   return err;
 }
