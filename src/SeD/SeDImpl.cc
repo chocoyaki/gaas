@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.93  2007/06/28 20:11:08  ycaniou
+ * Changed the call to logBeginSolve() in accordance to the remove of
+ * the dietReqID paramater which is now included in the profile as the
+ * prototype defines it
+ *
  * Revision 1.92  2007/06/28 18:23:19  rbolze
  * add dietReqID in the profile.
  * and propagate this change to all functions that  have both reqID and profile parameters.
@@ -772,7 +777,7 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
   stat_in("SeD",statMsg);
 
   if (dietLogComponent != NULL) {
-    dietLogComponent->logBeginSolve(path, &pb, pb.dietReqID);
+    dietLogComponent->logBeginSolve(path, &pb);
   }
 
   TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::parallel_solve() invoked on pb: "
@@ -833,7 +838,7 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
   stat_flush();
 
   if (dietLogComponent != NULL) {
-    dietLogComponent->logEndSolve(path, &pb, pb.dietReqID);
+    dietLogComponent->logEndSolve(path, &pb);
   }
 
   if (this->useConcJobLimit){
@@ -998,7 +1003,7 @@ SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb,
       stat_in("SeD",statMsg);
     
       if (dietLogComponent != NULL) {
-	dietLogComponent->logBeginSolve(path, &pb,pb.dietReqID);
+	dietLogComponent->logBeginSolve(path, &pb);
       }
     
       TRACE_TEXT(TRACE_MAIN_STEPS,
@@ -1057,7 +1062,7 @@ SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb,
       stat_flush();
     
       if (dietLogComponent != NULL) {
-	dietLogComponent->logEndSolve(path, &pb,pb.dietReqID);
+	dietLogComponent->logEndSolve(path, &pb);
       }
 
       /* Release resource before returning the data.  Caution: this could be a
