@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2007/06/28 19:04:50  ycaniou
+ * C++ commentaries into C ones
+ *
  * Revision 1.12  2007/02/10 13:10:25  ycaniou
  * Memory weirdos: data were freed but CORBA managed
  * + comments
@@ -97,7 +100,7 @@ main(int argc, char* argv[])
     diet_scalar_get(diet_parameter(profile,3), &size2, NULL);
     if (size1 && size2) {
       printf("Answered sizes are %d and %d.\n", *size1, *size2);
-      // No need to free size1 and size2: CORBA takes care of them
+      /* No need to free size1 and size2: CORBA takes care of them */
     } else {
       fprintf(stderr, "Error: Cannot get answered sizes !\n");
     }
@@ -105,8 +108,8 @@ main(int argc, char* argv[])
     if (path && (*path != '\0')) {
       printf("Location of returned file is %s, its size is %d.\n",
 	     path, (int) out_size);
-      // If uncommented, next line unlink file
-      // diet_free_data(diet_parameter(profile,4));
+      /* If uncommented, next line unlink file */
+      /* diet_free_data(diet_parameter(profile,4)); */
     }
   }
   
