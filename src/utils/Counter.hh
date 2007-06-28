@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2007/06/28 14:55:05  ycaniou
+ * Rien dans Counter.cc
+ *
+ * Ajout en inline de += et de -= car a = a +/- b n'est pas atomique.
+ *
  * Revision 1.7  2006/11/16 09:55:55  eboix
  *   DIET_config.h is no longer used. --- Injay2461
  *
@@ -97,7 +102,7 @@ public :
   Counter operator--(int) ;
 
   /**
-   * Increments the the counter. An assert check that the counter does
+   * Increments the counter. An assert check that the counter does
    * not overflow its capacity. The argument is not used.
    *
    * @todo replace the assert by an exception.
@@ -111,6 +116,20 @@ public :
   }
 
   /**
+   * Increments the counter by a given value. 
+   * An assert check that the counter does not overflow its capacity.
+   *
+   * @todo replace the assert by an exception.
+   */
+  inline Counter & operator+=(const Counter & aCounter) {
+    assert(value < value + 1) ;
+    valueMutex.lock() ;
+    value = value + static_cast<CORBA::ULong>(aCounter) ;
+    valueMutex.unlock() ;
+    return *this ;
+  }
+
+  /**
    * Decrements the counter. An assert check that the counter is
    * greater than 0. The argument is not used.
    */
@@ -118,6 +137,20 @@ public :
     assert(value > 0) ;
     valueMutex.lock() ;
     value-- ;
+    valueMutex.unlock() ;
+    return *this ;
+  }
+
+  /**
+   * Decrements the counter by a given value. 
+   * An assert check that the counter is greater than 0.
+   *
+   * @todo replace the assert by an exception.
+   */
+  inline Counter & operator-=(const Counter & aCounter) {
+    assert(value > 0) ;
+    valueMutex.lock() ;
+    value = value - static_cast<CORBA::ULong>(aCounter) ;
     valueMutex.unlock() ;
     return *this ;
   }

@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2007/06/28 14:55:05  ycaniou
+ * Rien dans Counter.cc
+ *
+ * Ajout en inline de += et de -= car a = a +/- b n'est pas atomique.
+ *
  * Revision 1.3  2003/09/04 14:49:24  ckochhof
  * CED: fix of an assert bug
  *
@@ -27,7 +32,6 @@ Counter::Counter(const Counter& aCounter) {
   value = static_cast<CORBA::ULong>(aCounter) ;
 }
 
-
 Counter Counter::operator++(int) {
   valueMutex.lock() ;
   assert(value < value + 1) ; // check for overflow
@@ -38,7 +42,6 @@ Counter Counter::operator++(int) {
   return oldValue ;
 }
 
-
 Counter Counter::operator--(int) {
   valueMutex.lock() ;
   assert(value > 0) ;
@@ -48,7 +51,6 @@ Counter Counter::operator--(int) {
   valueMutex.unlock() ;
   return oldValue ;
 }
-
 
 Counter & Counter::operator=(const Counter & aCounter) {
   value = static_cast<CORBA::ULong>(aCounter) ;
