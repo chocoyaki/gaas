@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2007/06/28 14:59:22  ycaniou
+ * Add the parsing of the keyword initRequestID from which request counter
+ * will begin.
+ *
  * Revision 1.22  2007/04/17 20:44:58  dart
  * - move #define from Parsers.cc to Parsers.hh
  * - define the maximum length of getline as MAXCFGLINE
@@ -188,6 +192,8 @@ public:
       PATHTONFS,
       PATHTOTMP,
 #endif
+
+      initRequestID,        // RequestID begins with this value
 
       NB_PARAM_TYPE
     } param_type_t;

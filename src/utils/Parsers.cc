@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.35  2007/06/28 14:59:22  ycaniou
+ * Add the parsing of the keyword initRequestID from which request counter
+ * will begin.
+ *
  * Revision 1.34  2007/04/30 13:30:25  ycaniou
  * Moved C++ commentaries to C commentaries because they were on multiple lines
  *   then the C compiler complained
@@ -150,6 +154,7 @@ Parsers::Results::param_t Parsers::Results::params[] =
    /* [32] */ ,{"pathToNFS", 9, Parsers::parseName, 0, NULL}
    /* [33] */ ,{"pathToTmp", 9, Parsers::parseName, 0, NULL}
 #endif
+   /* [34] */ ,{"initRequestID", 13, Parsers::parseName, 0, NULL}
   } ;
 
 #define IS_ADDRESS(i) ((i == Results::LDAPBASE) || (i == Results::NWSNAMESERVER) || (i == Results::NWSFORECASTER))
