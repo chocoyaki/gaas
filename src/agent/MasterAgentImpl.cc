@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.34  2007/06/28 17:17:42  ycaniou
+ * MAImpl.cc: reqIDCounter feature to begin the count with a given value
+ * Parsers.cc: parseInt not a name
+ *
  * Revision 1.33  2007/04/16 22:43:43  ycaniou
  * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
  * This is indented to replace HAVE_BATCH.
@@ -186,6 +190,9 @@ MasterAgentImpl::run()
   int res = this->AgentImpl::run();
   if (res)
     return res;
+
+  this->reqIDCounter = 
+    *(Parsers::Results::getParamValue(Parsers::Results::DIETPORT));
  
 #ifdef HAVE_MULTI_MA
 
@@ -204,6 +211,8 @@ MasterAgentImpl::run()
   }
   reqIDCounter = ((reqIDCounter & 0xFFFFF) ^ ((reqIDCounter >> 12) & 0xFFF))
     * 1000 ;
+  /* FIXME: initRequestID is not managed in the .cfg yet */
+
   TRACE_TEXT(TRACE_ALL_STEPS, "Getting MAs references ...\n");
 
   /* get the list of neighbours */

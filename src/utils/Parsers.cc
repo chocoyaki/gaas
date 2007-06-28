@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.36  2007/06/28 17:17:42  ycaniou
+ * MAImpl.cc: reqIDCounter feature to begin the count with a given value
+ * Parsers.cc: parseInt not a name
+ *
  * Revision 1.35  2007/06/28 14:59:22  ycaniou
  * Add the parsing of the keyword initRequestID from which request counter
  * will begin.
@@ -154,7 +158,7 @@ Parsers::Results::param_t Parsers::Results::params[] =
    /* [32] */ ,{"pathToNFS", 9, Parsers::parseName, 0, NULL}
    /* [33] */ ,{"pathToTmp", 9, Parsers::parseName, 0, NULL}
 #endif
-   /* [34] */ ,{"initRequestID", 13, Parsers::parseName, 0, NULL}
+   /* [34] */ ,{"initRequestID", 13, Parsers::parseInt, 0, NULL}
   } ;
 
 #define IS_ADDRESS(i) ((i == Results::LDAPBASE) || (i == Results::NWSNAMESERVER) || (i == Results::NWSFORECASTER))
