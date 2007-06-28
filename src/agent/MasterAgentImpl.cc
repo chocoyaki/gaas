@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.36  2007/06/28 18:03:46  ycaniou
+ * Take into account the possibility of initReqID not defined in the .cfg
+ *
  * Revision 1.35  2007/06/28 17:30:25  ycaniou
  * Better with a cast
  *
@@ -194,9 +197,14 @@ MasterAgentImpl::run()
   if (res)
     return res;
 
-  this->reqIDCounter = 
-    *((int*)(Parsers::Results::getParamValue(Parsers::Results::DIETPORT)));
- 
+  int * tmp_val= 
+    ((int*)(Parsers::Results::getParamValue(Parsers::Results::initRequestID)));
+
+  if( tmp_val == NULL )
+    this->reqIDCounter = 0 ;
+  else
+    this->reqIDCounter = *tmp_val ;
+
 #ifdef HAVE_MULTI_MA
 
   /* launch the bind service */
