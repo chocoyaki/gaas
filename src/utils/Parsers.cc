@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.37  2007/06/29 15:13:19  ycaniou
+ * Unused variable (warning--)
+ *
  * Revision 1.36  2007/06/28 17:17:42  ycaniou
  * MAImpl.cc: reqIDCounter feature to begin the count with a given value
  * Parsers.cc: parseInt not a name
@@ -206,8 +209,6 @@ Moved by EQ for EC in Parsers.hh
 int
 Parsers::beginParsing(char* filePath)
 {
-  int value;
-
   if ((filePath == NULL) || (*filePath == '\0')) {
     PARSERS_ERROR("no file to parse", DIET_FILE_IO_ERROR);
   }
@@ -221,7 +222,6 @@ Parsers::beginParsing(char* filePath)
   
   return 0;
 }
-
 
 /**
  * Free the parameters structures: all calls to Results::getParamValue must
