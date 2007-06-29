@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2007/06/29 14:28:19  rbolze
+ * update code following the change of the function diet_call_common
+ * now the dietReqID is in the diet_profile
+ *
  * Revision 1.12  2007/05/30 11:16:37  aamar
  * Updating workflow runtime to support concurrent call (Reordering is not
  * working now - TO FIX -).
@@ -103,8 +107,7 @@ void display(const corba_profile_t& pb) {
  * To keep the code short, the JUXMEM part was removed
  */
 diet_error_t
-diet_call_common(diet_profile_t* profile, SeD_var& chosenServer, 
-		 diet_reqID_t reqID) {
+diet_call_common(diet_profile_t* profile, SeD_var& chosenServer) {
   int solve_res(0);
   corba_profile_t corba_profile;
 
@@ -153,18 +156,18 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer,
 
 
   /* Computation */
-  sprintf(statMsg, "computation %ld", (unsigned long) reqID);
+  sprintf(statMsg, "computation %ld", (unsigned long) profile->dietReqID);
   try {
     stat_in("Client",statMsg);
 
     TRACE_TEXT(TRACE_MAIN_STEPS, 
-	       "Calling the ref Corba of the SeD (reqID = " << reqID << ")\n");
+	       "Calling the ref Corba of the SeD (reqID = " << profile->dietReqID << ")\n");
     TRACE_TEXT(TRACE_MAIN_STEPS, statMsg << endl);
 
     TRACE_TEXT (TRACE_ALL_STEPS,
 		  "Calling the service " << profile->pb_name << endl);
     display(corba_profile);
-    solve_res = chosenServer->solve(profile->pb_name, corba_profile, reqID);
+    solve_res = chosenServer->solve(profile->pb_name, corba_profile);
     stat_out("Client",statMsg);
    } catch(CORBA::MARSHAL& e) {
     ERROR("got a marchal exception\n"
@@ -183,7 +186,7 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer,
     INTERNAL_ERROR("returned profile is wrongly built", 1);
   }
 
-  sprintf(statMsg, "diet_call %ld", (unsigned long) reqID);
+  sprintf(statMsg, "diet_call %ld", (unsigned long) profile->dietReqID);
   TRACE_TEXT(TRACE_MAIN_STEPS, statMsg << endl);
   stat_out("Client",statMsg);
   return solve_res;
@@ -237,8 +240,7 @@ RunnableNode::run() {
     TRACE_TEXT (TRACE_MAIN_STEPS, 
 		"Using the scheduling of the mapped SeD" << endl <<
 		"call the chosenServer ..." << endl);
-    if ( ! diet_call_common(myParent->profile, myParent->chosenServer, 
-			    this->myReqID)) {
+    if ( ! diet_call_common(myParent->profile, myParent->chosenServer)) {
       myParent->storePersistentData();
     }
     TRACE_TEXT (TRACE_ALL_STEPS, "done" << endl);
