@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2007/07/04 15:55:02  ycaniou
+ * Cosmetic change
+ *
  * Revision 1.13  2007/04/16 22:43:44  ycaniou
  * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
  * This is indented to replace HAVE_BATCH.
@@ -931,7 +934,8 @@ ELBASE_ScriptForSubmit(ELBASE_ComputeServiceTypes service,
     "`qstat $jid 2>&1` =~ /-----/",
     "`qstat 2>&1` =~ /^ *$jid /m"
     /* YC */
-    ,"`oarstat 2>&1` =~ /^ *$jid /m", "waitpid($jid, &WNOHANG) == 0",
+    ,"`oarstat 2>&1` =~ /^ *$jid /m"
+    ,"waitpid($jid, &WNOHANG) == 0",
     /* FYC */
   };
 
