@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.94  2007/07/04 15:11:52  ycaniou
+ * Correction of bug: when HAVE_BATCH, batchQueue was lost. strdup() and ok.
+ *
  * Revision 1.93  2007/06/28 20:11:08  ycaniou
  * Changed the call to logBeginSolve() in accordance to the remove of
  * the dietReqID paramater which is now included in the profile as the
@@ -281,6 +284,10 @@ SeDImpl::initialize()
 
 SeDImpl::~SeDImpl()
 {
+#if defined HAVE_BATCH
+  free(batchQueue) ;
+#endif //HAVE_BATCH
+  
   /* FIXME: Tables should be destroyed. */
   stat_finalize();  
 }
@@ -318,8 +325,8 @@ SeDImpl::run(ServiceTable* services)
 	       << ELBASE_GiveBatchName(this->batchID) ) ;
     if( this->batchID != ELBASE_SHELL ) {
       /* Search for batch queues */
-      batchQueue = (char*)
-	Parsers::Results::getParamValue(Parsers::Results::BATCHQUEUE) ;
+      this->batchQueue = strdup((char*)
+	Parsers::Results::getParamValue(Parsers::Results::BATCHQUEUE)) ;
       if( batchQueue != NULL )
 	TRACE_TEXT(TRACE_MAIN_STEPS, " using queue " 
 		   << batchQueue ) ;
