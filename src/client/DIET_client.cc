@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.103  2007/07/09 18:54:49  aamar
+ * Adding Endianness support (CMake option).
+ *
  * Revision 1.102  2007/06/28 18:23:19  rbolze
  * add dietReqID in the profile.
  * and propagate this change to all functions that  have both reqID and profile parameters.
@@ -213,6 +216,13 @@ using namespace std;
 #include "CallAsyncMgr.hh"
 #include "CallbackImpl.hh"
 
+#ifdef HAVE_CSS
+/** Custom client scheduling */
+#include "SpecificClientScheduler.hh"
+
+// Custom client scheduling identifier
+string ccsId;
+#endif // HAVE_CSS
 
 // for workflow support
 #ifdef HAVE_WORKFLOW
@@ -266,6 +276,9 @@ static void diet_call_failure_recover(fd_handle fd)
 }
 #endif /* HAVE_FD */
 
+#ifdef WITH_ENDIANNESS
+extern bool little_endian;
+#endif // WITH_ENDIANNESS
 /****************************************************************************/
 /* Global variables                                                         */
 /****************************************************************************/
@@ -554,6 +567,15 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   // Init the Xerces engine
   XMLPlatformUtils::Initialize();
 
+#endif
+
+#ifdef HAVE_CSS
+  char * specific_scheduling = (char*)
+    Parsers::Results::getParamValue(Parsers::Results::USE_SPECIFIC_SCHEDULING);
+  if ( (specific_scheduling != NULL) && (strlen(specfic_scheduling) > 1))
+    cssId = specific_scheduling;
+  else
+    cssId = "";
 #endif
 
   /* We do not need the parsing results any more */
@@ -987,6 +1009,11 @@ request_submission(diet_profile_t* profile,
       fd_set_service(fd, response->servers[server_OK].loc.hostName, 1);
       fd_observe(fd);
 #endif
+
+#ifdef HAVE_CCS
+      
+#endif // HAVE CCS
+
     }
     sprintf(statMsg, "request_submission %ld", (unsigned long) reqID);
     stat_out("Client",statMsg);
@@ -1119,7 +1146,14 @@ diet_error_t
 diet_call(diet_profile_t* profile)
 {
   SeD_var chosenServer = SeD::_nil();
-  return diet_call_common(profile, chosenServer);
+  diet_error_t err = diet_call_common(profile, chosenServer);
+#ifdef WITH_ENDIANNESS
+  // reswap  in and inout parameter
+  if (!little_endian) {
+    post_call(profile);
+  }
+#endif // WITH_ENDIANNESS
+  return err;
 }
 
 #if defined HAVE_BATCH || defined HAVE_ALT_BATCH

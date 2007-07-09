@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2007/07/09 18:54:48  aamar
+ * Adding Endianness support (CMake option).
+ *
  * Revision 1.3  2006/11/27 09:53:00  aamar
  * Correct headers of source files used in workflow support.
  *
@@ -165,8 +168,9 @@ HEFT_MaDag_Sched::schedule(const wf_response_t * response,
     for (unsigned int ix=0; 
 	 ix<response->wfn_seq_resp[pb_index].response.servers.length(); 
 	 ix++) {
+      string ss(CORBA::string_dup(response->wfn_seq_resp[pb_index].response.servers[ix].loc.hostName));
       double EST = 
-	avail[CORBA::string_dup(response->wfn_seq_resp[pb_index].response.servers[ix].loc.hostName)];
+	avail[ss];
       for (unsigned int jx=0;
 	   jx < n->prevNb();
 	   jx++) {
@@ -188,7 +192,8 @@ HEFT_MaDag_Sched::schedule(const wf_response_t * response,
       response->wfn_seq_resp[pb_index].response.servers[sed_ind];
     response_index++;
 
-    avail[CORBA::string_dup(response->wfn_seq_resp[pb_index].response.servers[sed_ind].loc.hostName)] = EFT;
+    string str(CORBA::string_dup(response->wfn_seq_resp[pb_index].response.servers[sed_ind].loc.hostName));
+    avail[str] = EFT;
     AFT[n->getId()] = EFT;
     AST[n->getId()] = EFT;
     n->setEstCompTime((long int)EFT);
@@ -234,8 +239,9 @@ HEFT_MaDag_Sched::schedule(const wf_response_t * response,
   for (unsigned int ix=0; 
        ix<response->wfn_seq_resp[pb_index].response.servers.length(); 
        ix++) {
+    string ss(CORBA::string_dup(response->wfn_seq_resp[pb_index].response.servers[ix].loc.hostName));
     double EST = 
-      avail[CORBA::string_dup(response->wfn_seq_resp[pb_index].response.servers[ix].loc.hostName)];
+      avail[ss];
     for (unsigned int jx=0;
 	 jx < n->prevNb();
 	 jx++) {
@@ -256,8 +262,8 @@ HEFT_MaDag_Sched::schedule(const wf_response_t * response,
     CORBA::string_dup(n->getId().c_str());
   node_sched.server = 
     response->wfn_seq_resp[pb_index].response.servers[sed_ind];
-  
-  avail[CORBA::string_dup(response->wfn_seq_resp[pb_index].response.servers[sed_ind].loc.hostName)] = EFT;
+  string ss(CORBA::string_dup(response->wfn_seq_resp[pb_index].response.servers[sed_ind].loc.hostName));
+  avail[ss] = EFT;
   AFT[n->getId()] = EFT;
   AST[n->getId()] = EFT;
   n->setEstCompTime((long int)EFT);

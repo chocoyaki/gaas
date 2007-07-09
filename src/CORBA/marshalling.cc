@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.75  2007/07/09 18:54:48  aamar
+ * Adding Endianness support (CMake option).
+ *
  * Revision 1.74  2007/06/28 18:23:19  rbolze
  * add dietReqID in the profile.
  * and propagate this change to all functions that  have both reqID and profile parameters.
@@ -212,6 +215,15 @@ extern unsigned int TRACE_LEVEL;
 #define MRSH_ERROR(formatted_msg,return_value)                       \
   INTERNAL_ERROR(__FUNCTION__ << ": " << formatted_msg, return_value)
 
+
+#ifdef WITH_ENDIANNESS
+
+extern bool little_endian;
+extern inline void
+endian_swap(void * value, size_t size, size_t base_type_size);
+
+#endif
+
 /****************************************************************************/
 /* Data structure marshalling                                               */
 /****************************************************************************/
@@ -395,8 +407,21 @@ mrsh_data(corba_data_t* dest, diet_data_t* src, int release)
 #endif // ! HAVE_JUXMEM
   if(value == NULL) 
     dest->value.length(0);
-  else
+  else {
+#ifdef WITH_ENDIANNESS
+    /*
+     * Manage endianness
+     */
+    if ((!little_endian) && 
+        (src->desc.generic.type != DIET_FILE) && 
+        (src->desc.generic.type != DIET_STRING) && 
+        (src->desc.generic.type != DIET_PARAMSTRING)
+        ) {
+      endian_swap(value, size, type_sizeof(src->desc.generic.base_type) );
+    } // end if
+#endif // WITH_ENDIANNESS
     dest->value.replace(size, size, value, release); // 0 if persistent 1 elsewhere
+  }
 //   cout << "mrsh_data: value is " << dest->value.get_buffer() << "\n";
   return 0;
 }
@@ -621,12 +646,53 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
           //  p[i] = src->value[i];
           //  dest->value = p; //memcopy
           dest->value = (char*)src->value.get_buffer(0);
-        } else {
+#ifdef WITH_ENDIANNESS
+          /** 
+           * Manage endianness
+           */
+          dest->value = (char*)src->value.get_buffer(0);
+          if ( (!little_endian) && 
+               (src->desc.specific._d() != DIET_FILE) && 
+               (src->desc.specific._d() != DIET_STRING) && 
+               (src->desc.specific._d() != DIET_PARAMSTRING)
+               ) {
+            endian_swap(dest->value, src->value.length(), 
+                        type_sizeof(dest->desc.generic.base_type) );
+          } // end if
+#endif // WITH_ENDIANNESS
+       } else {
           CORBA::Boolean orphan = (src->desc.mode == DIET_VOLATILE);
           dest->value = (char*)src->value.get_buffer(orphan);
-        } 
+#ifdef WITH_ENDIANNESS
+          size_t lenx =  src->value.length();
+          if ((!little_endian) && 
+              (src->desc.specific._d() != DIET_FILE) && 
+              (src->desc.specific._d() != DIET_STRING) && 
+              (src->desc.specific._d() != DIET_PARAMSTRING)
+              ) {
+            endian_swap(dest->value, lenx, 
+                        type_sizeof(dest->desc.generic.base_type) );
+          } // end if
+#endif // WITH_ENDIANNESS
+       } 
       } else { // for out args when send to client
+#ifndef WITH_ENDIANNESS
         dest->value = (char*)src->value.get_buffer(1);
+#else
+        /** 
+         * Manage endianness
+         */
+        size_t lenx =  src->value.length();
+        dest->value = (char*)src->value.get_buffer(1);
+        if ((!little_endian) &&
+            (src->desc.specific._d() != DIET_FILE) && 
+            (src->desc.specific._d() != DIET_STRING) && 
+            (src->desc.specific._d() != DIET_PARAMSTRING)
+            ) {
+          endian_swap(dest->value, lenx, 
+                      type_sizeof(dest->desc.generic.base_type) );
+        } // end if
+#endif
       }
     }
 #if ! HAVE_JUXMEM
@@ -824,6 +890,19 @@ cvt_arg(diet_data_t* dest, diet_data_t* src,
     if (duplicate_value && src->value) {
       size_t size = data_sizeof(&(src->desc));
       dest->value = new char[size]; 
+#ifdef WITH_ENDIANNESS
+      /** 
+       * Manage endianness
+       */    
+      if ((!little_endian) &&
+          (src->desc.generic.type != DIET_FILE) && 
+          (src->desc.generic.type != DIET_STRING) && 
+          (src->desc.generic.type != DIET_PARAMSTRING)
+          ) {
+        // Not necessary ?
+        //        endian_swap(src->value, size, type_sizeof(src->desc.generic.base_type) );
+      } // end if
+#endif // WITH_ENDIANNESS
       memcpy(dest->value, src->value, size);
       if (dest->desc.generic.type == DIET_SCALAR)
         dest->desc.specific.scal.value = dest->value;
@@ -1109,4 +1188,23 @@ mrsh_wf_desc(corba_wf_desc_t* dest,
   dest->abstract_wf = CORBA::string_dup(src->abstract_wf);
   return 0;
 }
+#endif
+
+#ifdef WITH_ENDIANNESS
+/**
+ * For big endian architecture, reswap in and inout parameters
+ */
+int 
+post_call(diet_profile_t * profile) {
+  for (unsigned int ix=0; ix<=profile->last_inout; ix++) {
+    if ( (profile->parameters[ix].desc.generic.type != DIET_FILE) && 
+         (profile->parameters[ix].desc.generic.type != DIET_STRING) && 
+         (profile->parameters[ix].desc.generic.type != DIET_PARAMSTRING) ) {
+      endian_swap(profile->parameters[ix].value, 
+                  data_sizeof(&(profile->parameters[ix].desc)), 
+                  type_sizeof(profile->parameters[ix].desc.generic.base_type) );
+    } // end if
+  } // end for
+} // end post_call
+
 #endif

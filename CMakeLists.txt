@@ -22,7 +22,9 @@ OPTION( DIET_USE_WORKFLOW    "Build DIET with workflow support..." OFF)
 OPTION( DIET_WITH_STATISTICS "Build DIET with generation of statistics." OFF )
 OPTION( DIET_WITH_MULTI_MA   "Build DIET with MULTI-Master-Agent support." OFF )
 # New : User scheduler at agents level support.
-OPTION( DIET_USE_USERSCHED    "Build DIET with user scheduler support (Experimental)." OFF )
+OPTION( DIET_USE_USERSCHED   "Build DIET with user scheduler support (Experimental)." OFF )
+OPTION( DIET_USE_ENDIANNESS  "Build DIET with endianness management  (Experimental)." OFF )
+OPTION( DIET_USE_CCS         "Build DIET with client custom scheduling  (Experimental)." OFF )
 
 # --------------------- OPTIONS SET BY DEFAULT  ----------------------------
 # One might wish not to compile DIET but just to build the docs:
@@ -265,6 +267,16 @@ ENDIF( DIET_USE_WORKFLOW )
 IF( DIET_USE_USERSCHED )
   ADD_DEFINITIONS( -DUSERSCHED )
 ENDIF( DIET_USE_USERSCHED )
+
+# --------------- DIET Endianness support  ------------------
+IF( DIET_USE_ENDIANNESS )
+  ADD_DEFINITIONS( -DWITH_ENDIANNESS )
+ENDIF( DIET_USE_ENDIANNESS )
+
+# --------------- DIET custom client scheduling support  ------------------
+IF( DIET_USE_CCS )
+  ADD_DEFINITIONS( -DWITH_CCS )
+ENDIF( DIET_USE_CCS )
 
 # --------------- OFFER BUILD MODE EXTENSIONS AND DEFAULTS  ----------------
 INCLUDE( ${DIET_SOURCE_DIR}/Cmake/DietDefaultBuildTypes.cmake )

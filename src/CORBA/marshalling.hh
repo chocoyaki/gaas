@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2007/07/09 18:54:48  aamar
+ * Adding Endianness support (CMake option).
+ *
  * Revision 1.28  2006/11/27 13:27:53  aamar
  * Force the unmarshalling of inout parameters for the asynchronous mode.
  *
@@ -186,5 +189,15 @@ int
 mrsh_wf_desc(corba_wf_desc_t* dest,
 	     const diet_wf_desc_t* const src);
 #endif
+
+#ifdef WITH_ENDIANNESS
+
+/**
+ * For big endian architecture, reswap in and inout parameters
+ */
+int
+post_call(diet_profile_t * profile);
+
+#endif // WITH_ENDIANNESS
 
 #endif // _MARSHALLING_HH_

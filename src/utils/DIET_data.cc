@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.46  2007/07/09 18:54:49  aamar
+ * Adding Endianness support (CMake option).
+ *
  * Revision 1.45  2007/06/28 18:23:20  rbolze
  * add dietReqID in the profile.
  * and propagate this change to all functions that  have both reqID and profile parameters.
@@ -1058,3 +1061,40 @@ diet_wf_profile_free(diet_wf_desc_t * profile) {
 } // extern "C"
 
 
+#ifdef WITH_ENDIANNESS
+/****************************************************************************/
+/* Swapping from Big Endian to Little Endian and vice-versa                 */
+/****************************************************************************/
+/**
+ * Test the memory model (little or big endian)
+ */
+bool Little_Endian (void) {
+   int x = 1;
+   int r = *((char *)&x); /* return 1 if Little endian, otherwise it's Big endian */
+   return (r == 1);
+}
+
+bool little_endian = Little_Endian();
+
+void endian_swap(void * value, size_t size) {
+  char * p = (char *)value;
+  char c;
+  for (size_t i = 0; i<size/2; i++) {
+    c = *(p+i);
+    *(p+i) = *(p-i+size-1);
+    *(p-i+size-1) = c;
+  } // end for
+}
+
+void endian_swap(void * value, size_t size, size_t base_type_size) {
+  char * p = (char *)value;
+  if (p == NULL)
+    return;
+  size_t ix = 0;
+  while (ix<size) {
+    endian_swap(p + ix, base_type_size);
+    ix += base_type_size;
+  }
+}
+
+#endif // WITH_ENDIANNESS
