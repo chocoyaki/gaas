@@ -9,6 +9,13 @@ IF( DIET_BUILD_LIBRARIES )
     DIET_client.cc
     DIET_grpc.cc
   )
+
+  IF (DIET_USE_CCS)
+    SET(DIET_client_SOURCES
+      SpecificClientScheduler.cc
+      ${DIET_client_SOURCES}
+      )
+  ENDIF (DIET_USE_CCS)
   
   INCLUDE_DIRECTORIES(
     ${OMNIORB4_INCLUDE_DIR}
@@ -67,5 +74,5 @@ IF( DIET_BUILD_LIBRARIES )
   ENDIF (DIET_USE_FD)
   
   INSTALL_TARGETS( /lib/ DIET_client )
-  
+
 ENDIF( DIET_BUILD_LIBRARIES )

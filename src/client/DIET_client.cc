@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.104  2007/07/11 08:42:09  aamar
+ * Adding "custom client scheduling" mode (known as Burst mode). Need to be
+ * activated in cmake.
+ *
  * Revision 1.103  2007/07/09 18:54:49  aamar
  * Adding Endianness support (CMake option).
  *
@@ -216,13 +220,10 @@ using namespace std;
 #include "CallAsyncMgr.hh"
 #include "CallbackImpl.hh"
 
-#ifdef HAVE_CSS
+#ifdef HAVE_CCS
 /** Custom client scheduling */
 #include "SpecificClientScheduler.hh"
-
-// Custom client scheduling identifier
-string ccsId;
-#endif // HAVE_CSS
+#endif // HAVE_CCS
 
 // for workflow support
 #ifdef HAVE_WORKFLOW
@@ -569,14 +570,13 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
 
 #endif
 
-#ifdef HAVE_CSS
+#ifdef HAVE_CCS
   char * specific_scheduling = (char*)
     Parsers::Results::getParamValue(Parsers::Results::USE_SPECIFIC_SCHEDULING);
-  if ( (specific_scheduling != NULL) && (strlen(specfic_scheduling) > 1))
-    cssId = specific_scheduling;
-  else
-    cssId = "";
-#endif
+  if ( (specific_scheduling != NULL) && (strlen(specfic_scheduling) > 1)) {
+    SpecificClientScheduler::setSchedulingId(specific_scheduling);
+  }
+#endif // HAVE_CCS
 
   /* We do not need the parsing results any more */
   Parsers::endParsing();
@@ -1146,7 +1146,21 @@ diet_error_t
 diet_call(diet_profile_t* profile)
 {
   SeD_var chosenServer = SeD::_nil();
+
+#ifdef HAVE_CCS
+  if (SpecificClientScheduler::isEnabled()) {
+    SpecificClientScheduler::pre_diet_call();
+  }
+#endif // HAVE_CCS
+
   diet_error_t err = diet_call_common(profile, chosenServer);
+
+#ifdef HAVE_CCS
+ if (SpecificClientScheduler::isEnabled()) {
+    SpecificClientScheduler::post_diet_call();
+  }
+#endif // HAVE_CCS
+
 #ifdef WITH_ENDIANNESS
   // reswap  in and inout parameter
   if (!little_endian) {
