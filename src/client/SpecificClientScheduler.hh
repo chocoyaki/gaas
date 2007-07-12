@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2007/07/12 08:43:49  aamar
+ * Correct prototype (virtual void) of pre/post diet_call functions.
+ *
  * Revision 1.1  2007/07/11 08:42:09  aamar
  * Adding "custom client scheduling" mode (known as Burst mode). Need to be
  * activated in cmake.
@@ -70,10 +73,10 @@ public:
   static void
   post_diet_call();
 
-  void
+  virtual void
   preCall();
 
-  void
+  virtual void
   postCall();
 
   /*
