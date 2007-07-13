@@ -8,12 +8,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2007/07/13 10:00:25  ecaron
+ * Remove deprecated code (ALTPREDICT part)
+ *
  * Revision 1.16  2006/11/16 09:55:54  eboix
  *   DIET_config.h is no longer used. --- Injay2461
  *
  *
  * Revision 1.14  2005/09/05 16:04:10  hdail
- * Addition of getDataLocSubtree (experimental and protected by HAVE_ALTPREDICT).
  * Movement of subtree portion of whereData into separate method call so it can
  * also be used without searching higher in tree.
  *
@@ -596,56 +598,8 @@ LocMgrImpl::whereDataSubtree(const char* argID)
     TRACE_TEXT(TRACE_STRUCTURES, "Data " << argID << " not in subhierarchy\n");
     return DataMgr::_nil();
   }
-
 } // whereDataSubtree(const char* argID)
 
-#if HAVE_ALTPREDICT
-/** look for a data reference in the subtree, but only recover 
- * some location information about the data */
-corba_data_loc_t*
-LocMgrImpl::getDataLocSubtree(const char* argID) {
-  dataLocList.lock();
-  dataLocList.begin();
-
-  if (dataLocList.find(strdup(argID)) != dataLocList.end()) {
-    /** Data location found */
-    dataLocList.unlock();
-    store_desc_child_t &stored_desc = dataLocList[ms_strdup(argID)];
-    ChildID cChildID = stored_desc.childID_owner;
-
-    if(cChildID < static_cast<CORBA::Long>(locMgrChildren.size())) {
-      /** Data available with a LocMgr */
-      locMgrChild theLoc =  locMgrChildren[cChildID];
-      if (theLoc.defined()) {
-        LocMgr_ptr locChild = theLoc.getIor();
-        return (locChild->getDataLocSubtree(ms_strdup(argID))) ;
-      } else {
-        return NULL;
-      }
-
-    } else {
-      /** Data available with a dataMgr */
-      if(cChildID < static_cast<CORBA::Long>(dataMgrChildren.size())) {
-        dataMgrChild theData = dataMgrChildren[cChildID];
-        if (theData.defined()) {
-          DataMgr_ptr dataChild = theData.getIor();
-          return dataChild->getDataLoc(ms_strdup(argID)) ;
-        } else {
-          return NULL;
-        }
-      } else {
-        WARNING("Unknown object cChildID\n");
-        return NULL;
-      }
-    }
-  } else {
-    dataLocList.unlock();
-    TRACE_TEXT(TRACE_STRUCTURES, "Data " << argID << " not in subhierarchy\n");
-    return NULL;
-  }
-  return NULL;  // should never be reached
-}
-#endif // HAVE_ALTPREDICT
 
 void
 LocMgrImpl::updateDataProp(const char *argID)

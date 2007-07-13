@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.105  2007/07/13 10:00:26  ecaron
+ * Remove deprecated code (ALTPREDICT part)
+ *
  * Revision 1.104  2007/07/11 08:42:09  aamar
  * Adding "custom client scheduling" mode (known as Burst mode). Need to be
  * activated in cmake.
@@ -318,12 +321,6 @@ static WfLogService_var myWfLogService = WfLogService::_nil();
 
   char file_Name[256];
 
-#if HAVE_ALTPREDICT
-  /** Location ID and hostname to be used in performance prediction */
-  char *clientHostname;
-  char *clientLocationID;
-#endif
-
 #if HAVE_JUXMEM
   JuxMem::Wrapper * juxmem;
 #endif // HAVE_JUXMEM
@@ -453,15 +450,6 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
     myargc = tmp_argc;
   }
 
-#if HAVE_ALTPREDICT
-  char *tempLocID = (char*) 
-      Parsers::Results::getParamValue(Parsers::Results::LOCATIONID);
-  if (tempLocID != NULL) {
-    clientLocationID = CORBA::string_dup(tempLocID);
-  } else {
-    clientLocationID = CORBA::string_dup("");
-  }
-#endif // HAVE_ALTPREDICT
   
   /* Get the USE_ASYNC_API flag */
   value = Parsers::Results::getParamValue(Parsers::Results::USEASYNCAPI);
@@ -514,17 +502,6 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   /* Initialize statistics module */
   stat_init();
 
-#if HAVE_ALTPREDICT
-  char *tmpHostName = new char[256];
-  /** Get localhost name for performance prediction */
-  if (gethostname(tmpHostName, 256)) {
-    TRACE_TEXT(TRACE_MAIN_STEPS, 
-      "Could not get hostname on client - may affect performance prediction");
-    clientHostname = CORBA::string_dup("");
-  } else {
-    clientHostname = CORBA::string_dup(tmpHostName);
-  }
-#endif // HAVE_ALTPREDICT
 
   //create_file();
   MA_MUTEX.unlock();
@@ -899,12 +876,7 @@ request_submission(diet_profile_t* profile,
           
       /* Submit to the agent. */
       try {
-#if ! HAVE_ALTPREDICT
         response = MA->submit(corba_pb, MAX_SERVERS);
-#else // HAVE_ALTPREDICT
-        response = MA->submit(corba_pb, MAX_SERVERS,
-                              clientHostname, clientLocationID);
-#endif // HAVE_ALTPREDICT
       } catch (CORBA::Exception& e) {
         CORBA::Any tmp;
         tmp <<= e;

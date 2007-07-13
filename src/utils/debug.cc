@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.33  2007/07/13 10:00:25  ecaron
+ * Remove deprecated code (ALTPREDICT part)
+ *
  * Revision 1.32  2007/04/17 20:44:58  dart
  * - move #define from Parsers.cc to Parsers.hh
  * - define the maximum length of getline as MAXCFGLINE
@@ -25,10 +28,6 @@
  *
  * Revision 1.28  2005/09/07 07:41:40  hdail
  * Printout of transfer time/distance estimate lines only when they exist.
- *
- * Revision 1.27  2005/09/05 16:09:41  hdail
- * Addition of parameter location information to response printout.
- * (experimental and protected by HAVE_ALTPREDICT).
  *
  * Revision 1.26  2005/09/01 14:08:16  hdail
  * Correction of mismatch int and long int in printf statement.
@@ -136,20 +135,6 @@ displayResponse(FILE* os, const corba_response_t* resp)
   if (TRACE_LEVEL >= TRACE_ALL_STEPS) {
     fprintf(os, " I'm son nb %ld\n", resp->myID);
   }
-#if HAVE_ALTPREDICT
-  char *hostName, *locationID, *dataIdNumber;
-  fprintf(os, " There are %ld parameters\n", resp->dataLoc.length());
-  for (size_t i = 0; i < resp->dataLoc.length(); i++) {
-    hostName = strdup(resp->dataLoc[i].hostName);
-    locationID = strdup(resp->dataLoc[i].locationID);
-    dataIdNumber = strdup(resp->dataLoc[i].idNumber);
-    fprintf(os, "    %d %10d bytes on %15s at %6s (%s)\n",
-        i, resp->dataLoc[i].bytes, hostName, locationID, dataIdNumber);
-    free(hostName);
-    free(locationID);
-    free(dataIdNumber);
-  }
-#endif // HAVE_ALTPREDICT
 
   fprintf(os, " %ld servers are able to solve the problem:\n",
           (long)resp->servers.length());
@@ -157,7 +142,6 @@ displayResponse(FILE* os, const corba_response_t* resp)
   for (size_t i = 0; i < resp->servers.length(); i++) {
     estVectorConst_t ev = &(resp->servers[i].estim);
 
-#if ! HAVE_ALTPREDICT
     if (diet_est_get_internal(ev, EST_TCOMP, HUGE_VAL) != HUGE_VAL) {
       fprintf(os,
               "  %ldth server can solve the problem in %g seconds\n",
@@ -171,36 +155,6 @@ displayResponse(FILE* os, const corba_response_t* resp)
               diet_est_get_internal(ev, EST_FREECPU, HUGE_VAL),
               diet_est_get_internal(ev, EST_FREEMEM, HUGE_VAL));
     }
-#else // HAVE_ALTPREDICT
-    hostName = strdup(resp->servers[i].loc.hostName);
-    locationID = strdup(resp->servers[i].loc.locationID);
-    fprintf(os, "  server %ld: computation time %g (%s at %s)\n", 
-          (long) i, diet_est_get_internal(ev, EST_TCOMP, HUGE_VAL),
-          hostName, locationID);
-    free(hostName);
-    free(locationID);
-
-    fprintf(os, 
-          "       %g free CPU, %g free memory, and %g transfer effort\n",
-          diet_est_get_internal(ev, EST_FREECPU, HUGE_VAL),
-          diet_est_get_internal(ev, EST_FREEMEM, HUGE_VAL),
-          diet_est_get_internal(ev, EST_TRANSFEREFFORT, HUGE_VAL));
-    int numProx = diet_est_array_size_internal(ev, EST_COMMPROXIMITY);
-    if (numProx > 0) {
-      fprintf(os, "       Parameter proximity estimates:  ");
-      for (int proxIter = 0; 
-           proxIter < numProx;
-           proxIter++) {
-        fprintf(os,
-                " %g |",
-                diet_est_array_get_internal(ev, 
-                                          EST_COMMPROXIMITY,
-                                          proxIter, 
-                                          HUGE_VAL));
-      } // end for each proximity parameter
-      fprintf(os,"\n");
-    }
-#endif  // HAVE_PROXIMITY
 
     int numComms = diet_est_array_size_internal(ev, EST_COMMTIME);
     if (numComms > 0) {

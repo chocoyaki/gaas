@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2007/07/13 10:00:25  ecaron
+ * Remove deprecated code (ALTPREDICT part)
+ *
  * Revision 1.14  2006/11/16 09:55:54  eboix
  *   DIET_config.h is no longer used. --- Injay2461
  *
@@ -98,16 +101,8 @@ public :
   run();
   
   /** Problem submission : remotely called by client. */
-#if ! HAVE_ALTPREDICT
   corba_response_t*
   submit(const corba_pb_desc_t& pb_profile, CORBA::ULong maxServers);
-#else // HAVE_ALTPREDICT
-  corba_response_t*
-  submit(const corba_pb_desc_t& pb_profile,
-         CORBA::ULong maxServers,
-         const char *clientHostname,
-         const char *clientLocID);
-#endif
 
   /** Problem submission. Looking for SeDs that can resolve the
       problem in the local domain. */

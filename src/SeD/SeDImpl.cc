@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.95  2007/07/13 10:00:26  ecaron
+ * Remove deprecated code (ALTPREDICT part)
+ *
  * Revision 1.94  2007/07/04 15:11:52  ycaniou
  * Correction of bug: when HAVE_BATCH, batchQueue was lost. strdup() and ok.
  *
@@ -170,15 +173,6 @@
  * Revision 1.60  2005/11/10 14:37:51  eboix
  *     Clean-up of Cmake/DIET_config.h.in and related changes. --- Injay2461
  *
- * Revision 1.59  2005/09/07 07:40:16  hdail
- * Exclusion of all SeD-level comm time prediction and modification under
- * HAVE_ALTPREDICT
- *
- * Revision 1.58  2005/09/05 16:02:52  hdail
- * Addition of locationID as member variable and to parsing.  SeD initializes
- * data location data in response with all locally available information about
- * parameters. (experimental and protected by HAVE_ALTPREDICT).
- *
  * Revision 1.57  2005/08/31 14:39:57  alsu
  * New plugin scheduling interface: adapting estimation vector
  * manipulation calls to the new interface
@@ -267,10 +261,6 @@ SeDImpl::initialize()
   (this->lastSolveStart).tv_sec = -1;
   (this->lastSolveStart).tv_usec = -1;
   this->dietLogComponent = NULL;
-
-#if HAVE_ALTPREDICT
-  this->locationID[0] = '\0';
-#endif
 
 #if !HAVE_CORI && HAVE_FAST
   this->fastUse = 1;
@@ -418,16 +408,6 @@ SeDImpl::run(ServiceTable* services)
     this->port = *endPoint;
   }
 
-#if HAVE_ALTPREDICT
-  char * tmpName = (char*)
-      Parsers::Results::getParamValue(Parsers::Results::LOCATIONID);
-  if (tmpName != NULL) {
-    strcpy(this->locationID, tmpName);
-  } else {
-    strcpy(this->locationID, "");
-  } 
-#endif // HAVE_ALTPREDICT
-
   bool* tmpBoolPtr;
   int* tmpIntPtr;
   tmpBoolPtr = (bool*)
@@ -520,9 +500,6 @@ SeDImpl::getRequest(const corba_request_t& creq)
   serviceRef = SrvT->lookupService(&(creq.pb));
   if (serviceRef == -1) {
     resp.servers.length(0);
-#if HAVE_ALTPREDICT
-    resp.dataLoc.length(0);
-#endif
     cout << "service not found ??????????????????????????????????????" << endl;
   } else {
     resp.servers.length(1);
@@ -534,39 +511,13 @@ SeDImpl::getRequest(const corba_request_t& creq)
 #if HAVE_JXTA
     resp.servers[0].loc.uuid = CORBA::string_dup(uuid);
 #endif //HAVE_JXTA
-#if HAVE_ALTPREDICT
-    resp.servers[0].loc.locationID = CORBA::string_dup(this->locationID);
-
-    /* Fill in available information about all parameters */
-    resp.dataLoc.length(creq.pb.last_out + 1);
-    for (int i = 0; i <= creq.pb.last_out; i++) {
-      /** Get copy of data ID */
-      resp.dataLoc[i].idNumber = 
-          CORBA::string_dup(creq.pb.param_desc[i].id.idNumber);
-      /** Calculate total amount of data needed for parameter transfer */
-      resp.dataLoc[i].bytes = data_sizeof(&(creq.pb.param_desc[i]));
-      /** If data is local, fill in location info */
-      if (this->dataMgr->dataLookup(resp.dataLoc[i].idNumber)) {
-        resp.dataLoc[i].hostName = CORBA::string_dup(this->localHostName);
-        resp.dataLoc[i].locationID = CORBA::string_dup(this->locationID);
-      } else {
-        resp.dataLoc[i].hostName = CORBA::string_dup("");
-        resp.dataLoc[i].locationID = CORBA::string_dup("");
-      } 
-    }
-#endif
 
 
 #if not defined HAVE_BATCH && not defined HAVE_ALT_BATCH
-  #if ! HAVE_ALTPREDICT
     estVector_t ev = &(resp.servers[0].estim);
     for (int ctIter = 0 ; ctIter < creq.pb.last_out ; ctIter++) {
       diet_est_set_internal(ev, EST_COMMTIME, 0.0);
     }
-  #else
-    // Predictions are done at the agents
-  #endif // HAVE_ALTPREDICT
-
 #else // HAVE_BATCH
     // TODO: What do I have to do for a batch, non batch, parallel, etc.?
     // for the moment, do the same but..
@@ -579,13 +530,9 @@ SeDImpl::getRequest(const corba_request_t& creq)
     this->estimate(resp.servers[0].estim, creq.pb, serviceRef);
   }
 
-#if ! HAVE_ALTPREDICT
   if (TRACE_LEVEL >= TRACE_STRUCTURES) {
     displayResponse(stdout, &resp);
   }
-#else
-  displayResponse(stdout, &resp);
-#endif // ! HAVE_ALTPREDICT
 
 /** Commented to cut overhead of un-needed log messages
   if (dietLogComponent != NULL) {
@@ -1313,7 +1260,6 @@ SeDImpl::estimate(corba_estimation_t& estimation,
 #endif  //!HAVE_CORI
 
 
-#if ! HAVE_ALTPREDICT
     diet_est_set_internal(eVals,
                           EST_TOTALTIME,
                           diet_est_get_internal(eVals, EST_TCOMP, HUGE_VAL));
@@ -1350,7 +1296,6 @@ SeDImpl::estimate(corba_estimation_t& estimation,
         diet_est_set_internal(eVals, EST_TOTALTIME, newTotalTime);
       }
     }
-#endif // HAVE_ALTPREDICT
     /***** END CoRI-based metrics *****/
 
     /***** START RR metrics *****/
@@ -1364,7 +1309,7 @@ SeDImpl::estimate(corba_estimation_t& estimation,
     (*perfmetric_fn)(&profile, eVals);
   }
 
-#if ! HAVE_ALTPREDICT
+
   /* Evaluate comm times for persistent IN arguments only: comm times for
      volatile IN and persistent OUT arguments cannot be estimated here, and
      persistent OUT arguments will not move (comm times already set to 0). */
@@ -1378,7 +1323,6 @@ SeDImpl::estimate(corba_estimation_t& estimation,
       diet_est_array_set_internal(eVals, EST_COMMTIME, i, 0.0);
     }
   }
-#endif
 
 //   cout << "AS: [" << __FUNCTION__ << "] num values = " << estimation.estValues.length() << endl;
 }

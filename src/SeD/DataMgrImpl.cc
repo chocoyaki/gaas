@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2007/07/13 10:00:26  ecaron
+ * Remove deprecated code (ALTPREDICT part)
+ *
  * Revision 1.26  2006/12/27 22:41:53  ecaron
  * Clean code (remove warning due to unused variable)
  *
@@ -19,10 +22,6 @@
  *
  * Revision 1.23  2006/02/17 10:03:50  ecaron
  * warning fix: unitialized variable
- *
- * Revision 1.21  2005/09/05 16:01:34  hdail
- * Addition of locationID information and getDataLoc method call.
- * (experimental and protected by HAVE_ALTPREDICT).
  *
  * Revision 1.20  2005/04/27 01:41:34  ycaniou
  * Added the stuff for a correct compilation, for a correct registration of
@@ -140,19 +139,7 @@ DataMgrImpl::run()
    }
 #endif // 0
 
-#if !HAVE_ALTPREDICT
   this->childID = this->parent->dataMgrSubscribe(_this(), localHostName);
-#else
-  /* Get locationID. */
-  name = (char*)Parsers::Results::getParamValue(Parsers::Results::LOCATIONID); 
-  if (name != NULL) {
-    strcpy(this->locationID, name);
-  } else {
-    strcpy(this->locationID, "");
-  }
-  this->childID = this->parent->dataMgrSubscribe(_this(), locationID);
-#endif
-
   return 0;
 }
 
@@ -163,11 +150,7 @@ DataMgrImpl::setDietLogComponent(DietLogComponent* dietLogComponent) {
 
 char *
 DataMgrImpl::setMyName() {
-#if !HAVE_ALTPREDICT
-   return CORBA::string_dup((const char*)(this->localHostName));
-#else
-   return CORBA::string_dup((const char*)(this->locationID));
-#endif
+return CORBA::string_dup((const char*)(this->localHostName));
 }
 
 /************************************************************ 
@@ -434,11 +417,7 @@ DataMgrImpl::sendData(corba_data_t& arg)
 char *
 DataMgrImpl::whichSeDOwner(const char* argId)
 {
-#if ! HAVE_ALTPREDICT
   return this->localHostName;
-#else
-  return this->locationID;
-#endif
 }
 
 /** got the owner of the data identified by argID */
