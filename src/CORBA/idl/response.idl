@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2007/07/13 16:44:40  ecaron
+ * Remove deprecated code (ALTPREDICT part)
+ *
  * Revision 1.11  2007/04/16 22:43:43  ycaniou
  * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
  * This is indented to replace HAVE_BATCH.
@@ -33,10 +36,6 @@
  *
  * Revision 1.7  2006/04/14 14:14:06  aamar
  * Adding the IDL data structures for workflow support.
- *
- * Revision 1.6  2005/09/05 15:54:51  hdail
- * Addition of data location information to response (experimental and
- * protected by HAVE_ALTPREDICT)
  *
  * Revision 1.5  2005/08/30 12:05:15  ycaniou
  * Added a field dietJobId to make the correspondance between batch ID and
@@ -72,9 +71,6 @@
 struct corba_server_t {
   SeD    ior;
   string hostName;
-#if HAVE_ALTPREDICT
-  string locationID; // For alternative data transfer prediction
-#endif
 #if HAVE_JXTA
   string uuid;
 #endif // HAVE_JXTA
@@ -134,10 +130,6 @@ struct corba_response_t {
   long myID;
   // The available servers
   SeqServerEstimation_t servers;
-#if HAVE_ALTPREDICT
-  // Localization of parameters for agent transfer time predictions 
-  SeqDataLoc_t        dataLoc;
-#endif
 #ifdef HAVE_BATCH
   // Make client know he has to submit parallel or non-parallel
   long parallel_flag ;

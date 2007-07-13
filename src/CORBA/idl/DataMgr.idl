@@ -8,9 +8,8 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.6  2005/09/05 15:57:41  hdail
- * Addition of method call getDataLoc to obtain just information about data w/o
- * the dataset  (experimental and protected by HAVE_ALTPREDICT).
+ * Revision 1.7  2007/07/13 16:44:39  ecaron
+ * Remove deprecated code (ALTPREDICT part)
  *
  * Revision 1.5  2004/02/27 10:19:50  bdelfabr
  * description of all methods for data persistency
@@ -34,9 +33,6 @@
 
 #include "common_types.idl"
 
-#if HAVE_ALTPREDICT
-#include "response.idl"
-#endif // HAVE_ALTPREDICT
 
 /****************************************************************************/
 /* Data Manager Interface                                                   */
@@ -78,11 +74,6 @@ interface DataMgr {
    */
   string
   whichSeDOwner(in string argID);
-
-#if HAVE_ALTPREDICT
-  corba_data_loc_t
-  getDataLoc(in string argID);
-#endif // HAVE_ALTPREDICT
 
 };
 

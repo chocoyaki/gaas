@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2007/07/13 16:44:40  ecaron
+ * Remove deprecated code (ALTPREDICT part)
+ *
  * Revision 1.22  2007/06/28 18:23:19  rbolze
  * add dietReqID in the profile.
  * and propagate this change to all functions that  have both reqID and profile parameters.
@@ -44,10 +47,6 @@
  * Revision 1.15  2006/04/12 16:12:28  ycaniou
  * Put back the right common_types.idl and made C commentaries from C++
  *   (discard compilation warnings)
- *
- * Revision 1.13  2005/09/05 15:56:34  hdail
- * Addition of client hostname and location information to request
- * (experimental and protected by HAVE_ALTPREDICT)
  *
  * Revision 1.12  2005/08/31 14:52:54  alsu
  * New plugin scheduling interface: new data model for the estimation
@@ -355,10 +354,6 @@ struct corba_request_t {
   corba_pb_desc_t   pb;
   string            serialized_scheduler;
   long              max_srv;
-#if HAVE_ALTPREDICT
-  string            clientLocationID;
-  string            clientHostname;
-#endif // HAVE_ALTPREDICT
 };
 
 

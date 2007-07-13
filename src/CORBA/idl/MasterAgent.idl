@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2007/07/13 16:44:40  ecaron
+ * Remove deprecated code (ALTPREDICT part)
+ *
  * Revision 1.8  2006/11/06 15:45:53  aamar
  * Workflow support: modify submit_pb_set prototype to manage the reqID.
  *
@@ -47,15 +50,8 @@
 interface MasterAgent : Agent {
   
   /** Submission function: called by the clients to submit a problem. */
-#if ! HAVE_ALTPREDICT
   corba_response_t submit(in corba_pb_desc_t pb_profile,
 			  in unsigned long maxServers);
-#else // HAVE_ALTPREDICT
-  corba_response_t submit(in corba_pb_desc_t pb_profile,
-			  in unsigned long maxServers,
-                          in string clientHostname,
-                          in string clientLocID);
-#endif
   
   /** get number of the current session */
   long get_session_num();
