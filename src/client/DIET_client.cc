@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.106  2007/07/20 13:04:56  ycaniou
+ * Remove the use of a temporary variable (reqID is now in the profile) to
+ *   avoid later potential bugs
+ *
  * Revision 1.105  2007/07/13 10:00:26  ecaron
  * Remove deprecated code (ALTPREDICT part)
  *
@@ -873,7 +877,6 @@ request_submission(diet_profile_t* profile,
 #endif // ! HAVE_JUXMEM
 
     if(data_OK == 0) {
-          
       /* Submit to the agent. */
       try {
         response = MA->submit(corba_pb, MAX_SERVERS);
@@ -1010,7 +1013,6 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
   diet_error_t res(0);
   int solve_res(0);
   corba_profile_t corba_profile;
-  diet_reqID_t reqID;
   char statMsg[128];
   stat_in("Client","diet_call");
 
@@ -1025,7 +1027,6 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
 
   // Server is chosen, update its timeSinceLastSolve
   chosenServer->updateTimeSinceLastSolve() ;
-  reqID = profile->dietReqID;  
 #if HAVE_JUXMEM 
   uploadClientDataJuxMem(profile);
 #endif // HAVE_JUXMEM
@@ -1073,7 +1074,7 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
 #endif
 
   /* Computation */
-  sprintf(statMsg, "computation %ld", (unsigned long) reqID);
+  sprintf(statMsg, "computation %ld", (unsigned long) profile->dietReqID);
   try {
     stat_in("Client",statMsg);
 
@@ -1104,7 +1105,7 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
   downloadClientDataJuxMem(profile);
 #endif // HAVE_JUXMEM
 
-  sprintf(statMsg, "diet_call %ld", (unsigned long) reqID);
+  sprintf(statMsg, "diet_call %ld", (unsigned long) profile->dietReqID);
   stat_out("Client",statMsg);
   return solve_res;
 }
