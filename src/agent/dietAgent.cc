@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2007/07/31 14:26:35  bdepardo
+ * Added the support for the option ackFile to touch a file at the end of the initialization.
+ * Currently needs to use -D ADAGE when compiling in order to use this feature.
+ *
  * Revision 1.24  2006/12/14 11:40:12  aamar
  * Making the agent (MA or LA) display its IOR when starting.
  *
@@ -330,6 +334,23 @@ main(int argc, char** argv)
   }
   Agt->linkToLocMgr(Loc);
 #endif // ! HAVE_JUXMEM
+
+
+#ifdef ADAGE
+  /* Touch a file to notify the end of the initialization */
+  char* ackFile = (char*)
+    Parsers::Results::getParamValue(Parsers::Results::ACKFILE);
+  if (ackFile == NULL) {
+    WARNING("parsing " << config_file_name << ": no ackFile specified");
+  }
+  else
+  { 
+    cerr << "Open OutFile: "<< ackFile <<endl;
+    ofstream out (ackFile);
+    out << "ok\n" << endl;
+    out.close();
+  } 
+#endif
 
   /* Wait for RPCs (blocking call): */
   if (ORBMgr::wait()) {
