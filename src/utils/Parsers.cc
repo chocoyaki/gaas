@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.38  2007/07/31 14:25:11  bdepardo
+ * Added option ackFile in the configuration file, in order for the agents to touch a file at the end of their initialization.
+ * Currently needs to use -D ADAGE when compiling to support this feature.
+ *
  * Revision 1.37  2007/06/29 15:13:19  ycaniou
  * Unused variable (warning--)
  *
@@ -162,6 +166,9 @@ Parsers::Results::param_t Parsers::Results::params[] =
    /* [33] */ ,{"pathToTmp", 9, Parsers::parseName, 0, NULL}
 #endif
    /* [34] */ ,{"initRequestID", 13, Parsers::parseInt, 0, NULL}
+#ifdef ADAGE
+   /* [35] */ ,{"ackFile", 7, Parsers::parseName, 0, NULL}
+#endif
   } ;
 
 #define IS_ADDRESS(i) ((i == Results::LDAPBASE) || (i == Results::NWSNAMESERVER) || (i == Results::NWSFORECASTER))

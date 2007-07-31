@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2007/07/31 14:25:11  bdepardo
+ * Added option ackFile in the configuration file, in order for the agents to touch a file at the end of their initialization.
+ * Currently needs to use -D ADAGE when compiling to support this feature.
+ *
  * Revision 1.23  2007/06/28 14:59:22  ycaniou
  * Add the parsing of the keyword initRequestID from which request counter
  * will begin.
@@ -194,6 +198,10 @@ public:
 #endif
 
       initRequestID,        // RequestID begins with this value
+
+#ifdef ADAGE
+      ACKFILE,              // file to touch at the end of the initialization
+#endif
 
       NB_PARAM_TYPE
     } param_type_t;
