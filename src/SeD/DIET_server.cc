@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.66  2007/07/31 14:36:51  bdepardo
+ * Added the support for the option ackFile to touch a file at the end of the initialization.
+ * Currently needs to use -D ADAGE when compiling in order to use this feature.
+ *
  * Revision 1.65  2007/04/30 13:53:22  ycaniou
  * Cosmetic changes (indentation) and small changes for Cori_Batch
  *
@@ -813,8 +817,21 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   SeD->linkToDataMgr(dataMgr);
 #endif // HAVE_JUXMEM
 
+#ifdef ADAGE
+  /* Touch a file to notify the end of the initialization */
+  char* ackFile = (char*)
+    Parsers::Results::getParamValue(Parsers::Results::ACKFILE);
+  if (ackFile != NULL) {
+    cerr << "Open OutFile: "<< ackFile <<endl;
+    ofstream out (ackFile);
+    out << "ok\n" << endl;
+    out.close();
+  } 
+#endif
+
   /* We do not need the parsing results any more */
   Parsers::endParsing();
+
 
   /* Wait for RPCs : */
   ORBMgr::wait();
