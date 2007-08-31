@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2007/08/31 16:52:26  bdepardo
+ * Implemented the new test() method in LogCentralComponent.
+ * Used to check whether or not a component is reachable.
+ *
  * Revision 1.27  2007/06/28 18:23:20  rbolze
  * add dietReqID in the profile.
  * and propagate this change to all functions that  have both reqID and profile parameters.
@@ -435,6 +439,11 @@ DietLogComponent::removeTagFilter(const tag_list_t& tagList) {
     }
   }
   dlcMutex.unlock();
+}
+
+
+void
+DietLogComponent::test() {
 }
 
 /**
