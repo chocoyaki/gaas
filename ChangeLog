@@ -17,6 +17,7 @@
 * All bug was resolved. If you found a new one please refer to  
   http://graal.ens-lyon.fr/bugzilla
 
+* DietLogComponents now implement the test() method, in order to allow LogCentral to test if an old component is reachable when a new component tries to sign in with the same name.
 	
 +----------+
 | diet 2.2 |
