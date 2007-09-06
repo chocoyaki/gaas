@@ -10,6 +10,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.32  2007/09/06 13:51:37  dloureir
+%* Addition of the Linux AIX support and correction of some faults.
+%*
 %* Revision 1.31  2006/12/05 13:25:20  eboix
 %*  FIX: Chapter 2 of User's manual typos and errors removed (many thanks to
 %*       Abdelkader for reading and suggesting fixes).  --- Injay2461
@@ -41,7 +44,7 @@ decent version of such compilers.
 DIET undergoes daily regression tests
 (see \url{http://graal.ens-lyon.fr/DietDashboard})
 on various hardwares, a couple of Un*x based operating systems (under
-different distributions) and mainly with GCC.
+different distributions), MacOSX and AIX, and mainly with GCC.
 But, thanks to users reports (punctual deployments and special tests
 conduced before every release), DIET is known to be effective on a
 range of platforms.
@@ -57,7 +60,7 @@ multiple bugs in a single report.
 \subsection{Hardware dependencies}
 DIET is fully tested on Linux/i386 and Linux/i686 platforms.
 DIET is known to be effective on Linux/Sparc, Linux/i64, Linux/amd64,
-Linux/Alpha and MacOS/PowerPC platforms.
+Linux/Alpha, Linux/PowerPC, AIX/PowerPC and MacOS/PowerPC platforms.
 At some point in DIET history, DIET used to be tested on the Solaris/Sparc
 platform...
 
@@ -69,7 +72,7 @@ towards thread-safe management of exception handling, compiling DIET with
 
 \subsection{Operating system dependencies}
 DIET is fully tested on Linux [with varying distributions like Debian,
-Red Hat Enterprise Linux (REL-ES-3), Fedora Core (5)] and on MacOSX
+Red Hat Enterprise Linux (REL-ES-3), Fedora Core (5)], on AIX (5.3) and on MacOSX
 (Darwin 8).
 
 \subsection{Software dependencies}
@@ -237,7 +240,7 @@ build tree, but feel free to follow your conventions):
   \item press \verb+c+ again, for checking required dependencies
   \item check all the parameters preceded with the * (star) character
      whose value was automatically retrieved by \verb+cmake+.
-  \item provide the required information i.e. feel in the proper values
+  \item provide the required information i.e. fill in the proper values
      for all parameters whose value is terminated by NOT-FOUND
   \item iterate the above process of parameter checking, toggle/specification
      and configuration until all configuration information is satisfied
@@ -332,7 +335,7 @@ the compilation of the desired extensions.
   forecasting library.
   Although the detection of FAST should be correctly handled by cmake
   (since detection is based on the FAST provided \verb+fast-config+ utility)
-  the installation of FAST can be a lengthy process (and, depending on you
+  the installation of FAST can be a lengthy process (and, depending on your
   platform, potentially quite difficult).
   This is due to the dependency of FAST towards numerous sub-libraries on
   which it relies (GSL, BDB, NWS, LDAP).
