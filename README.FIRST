@@ -9,20 +9,4 @@ Welcome in using DIET.
 If you read this file, then you have downloaded DIET from the CVS
 repository and you want to compile, install and maybe use it.
  
-They are two concurent ways (for the time being) for installing
-the DIET:
-
-1/ The CMAKE way (a GNU-Autotools substitute). Refer to the ./Cmake/README
-   file for all the details.
-
-2/ The GNU-Autotools way:
-  - start executing ./bootstrap.sh which will generate all the initial
-    makefiles, etc.  
-  - then, read the INSTALL file, which contains the rest of the
-    documentation on the way to build the whole stuff. Note that if you
-    want to go into the DIET code, you may want to add the
-    --enable-maintainer-mode --enable-doc options when doing the
-    configuration (with ./configure). This will add the programmer's
-    manual which is one of the first step to do playing with DIET
-    code. You'll find further explanations there.
- 
+To install DIET,  you must use CMAKE (a GNU-Autotools substitute). Refer to the ./Cmake/README or the INSTALL.txt file for all the details. 
