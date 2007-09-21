@@ -31,10 +31,10 @@ IF( DIET_BUILD_LIBRARIES )
   
   TARGET_LINK_LIBRARIES( DIET_SeD
     CorbaCommon
+    UtilsNodes
     IDLAgent
     IDLCommon
     UtilsCommon
-    UtilsNodes
     UtilsSeDClt
     UtilsVector
     ${OMNIORB4_LIBRARIES}
@@ -57,6 +57,11 @@ IF( DIET_BUILD_LIBRARIES )
   IF( DIET_USE_JUXMEM )
     TARGET_LINK_LIBRARIES( DIET_SeD ${JUXMEM_LIBRARIES} )
   ENDIF( DIET_USE_JUXMEM )
+
+  IF( NOT BUILD_SHARED_LIBS )
+    TARGET_LINK_LIBRARIES( DIET_SeD stdc++ )
+  ENDIF( NOT BUILD_SHARED_LIBS )
+      
   
   INSTALL_TARGETS( /lib/ DIET_SeD )
 ###################################
