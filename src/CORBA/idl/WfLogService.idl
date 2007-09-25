@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.5  2007/09/25 09:37:21  aamar
+ * Nodes can notify the wf log service with the chosen hostname.
+ *
  * Revision 1.4  2006/11/28 15:17:54  aamar
  * Remove a space\!
  *
@@ -30,7 +33,7 @@ interface WfLogService {
   nodeIsDone(in string node_id);
 
   void
-  nodeIsRunning(in string node_id);
+  nodeIsRunning(in string node_id, in string hostname);
 
   void 
   nodeIsStarting(in string node_id);

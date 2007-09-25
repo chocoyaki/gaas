@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.107  2007/09/25 09:37:21  aamar
+ * Nodes can notify the wf log service with the chosen hostname.
+ *
  * Revision 1.106  2007/07/20 13:04:56  ycaniou
  * Remove the use of a temporary variable (reqID is now in the profile) to
  *   avoid later potential bugs
@@ -2215,9 +2218,9 @@ nodeIsDone(const char * node_id, const char * dag_id) {
 }
 
 void
-nodeIsRunning(const char * node_id) {
+nodeIsRunning(const char * node_id, const char * hostname) {
   if ((use_wf_log) && (myWfLogService != NULL)) {
-    myWfLogService->nodeIsRunning(node_id);
+    myWfLogService->nodeIsRunning(node_id, hostname);
   } // end if
 }
 

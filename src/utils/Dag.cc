@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2007/09/25 09:37:22  aamar
+ * Nodes can notify the wf log service with the chosen hostname.
+ *
  * Revision 1.6  2006/11/08 15:18:58  aamar
  * Complete get_all_results method to handle matrix and file types.
  *
@@ -451,7 +454,8 @@ Dag::setSchedResponse(wf_node_sched_seq_t * response) {
       TRACE_TEXT (TRACE_ALL_STEPS,
 		  "The nodes " << ((Node*)(p->second))->getId() << 
 		  " is mapped to a SeD"  << endl);
-      ((Node*)(p->second))->setSeD((*response)[ix].server.loc.ior);
+      ((Node*)(p->second))->setSeD((*response)[ix].server.loc.ior,
+                                   (*response)[ix].server.loc.hostName);
     }
   }
 }

@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2007/09/25 09:37:23  aamar
+ * Nodes can notify the wf log service with the chosen hostname.
+ *
  * Revision 1.8  2007/05/30 11:16:37  aamar
  * Updating workflow runtime to support concurrent call (Reordering is not
  * working now - TO FIX -).
@@ -391,7 +394,8 @@ public:
    * @param sed the SeD reference
    */
   void 
-  setSeD(const SeD_var& sed);
+  setSeD(const SeD_var& sed,
+         const char * hostName);
 
   /**
    * return the SeD affected to the node
@@ -603,6 +607,11 @@ private:
    * chosen server *
    */
   SeD_var chosenServer;
+
+  /**
+   * Chosen server hostname
+   */
+  std::string chosenHostname;
 
   /**
    * number of immediate next nodes that have end their execution *

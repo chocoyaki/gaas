@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.32  2007/09/25 09:37:21  aamar
+ * Nodes can notify the wf log service with the chosen hostname.
+ *
  * Revision 1.31  2007/05/30 11:16:33  aamar
  * Updating workflow runtime to support concurrent call (Reordering is not
  * working now - TO FIX -).
@@ -303,7 +306,7 @@ void
 nodeIsDone(const char * node_id, const char * dag_id);
 
 void
-nodeIsRunning(const char * node_id);
+nodeIsRunning(const char * node_id, const char * hostname);
 
 void 
 nodeIsStarting(const char * node_id);

@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2007/09/25 09:37:23  aamar
+ * Nodes can notify the wf log service with the chosen hostname.
+ *
  * Revision 1.4  2006/11/06 12:00:01  aamar
  * *** empty log message ***
  * 
@@ -178,7 +181,8 @@ HEFT_WfSched::execute() {
 	sed_ind = ix;
       }
     } // end for ix
-    n->setSeD(response.wfn_seq_resp[pb_index].response.servers[sed_ind].loc.ior);
+    n->setSeD(response.wfn_seq_resp[pb_index].response.servers[sed_ind].loc.ior,
+              response.wfn_seq_resp[pb_index].response.servers[sed_ind].loc.hostName);
     avail[response.wfn_seq_resp[pb_index].response.servers[sed_ind].loc.ior] = EFT;
     AFT[n->getId()] = EFT;
     AST[n->getId()] = EFT;
@@ -370,7 +374,8 @@ HEFT_WfSched::init() {
 	sed_ind = ix;
       }
     } // end for ix
-    n->setSeD(response.wfn_seq_resp[pb_index].response.servers[sed_ind].loc.ior);
+    n->setSeD(response.wfn_seq_resp[pb_index].response.servers[sed_ind].loc.ior,
+              response.wfn_seq_resp[pb_index].response.servers[sed_ind].loc.hostName);
     avail[response.wfn_seq_resp[pb_index].response.servers[sed_ind].loc.ior] = EFT;
     AFT[n->getId()] = EFT;
     AST[n->getId()] = EFT;

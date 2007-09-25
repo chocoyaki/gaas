@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2007/09/25 09:37:23  aamar
+ * Nodes can notify the wf log service with the chosen hostname.
+ *
  * Revision 1.5  2006/11/06 15:16:06  aamar
  * Workflow support: some correction about reqID.
  *
@@ -90,7 +93,8 @@ SimpleWfSched::execute() {
       if (( n->getSeD() == SeD::_nil()) &&
 	  (!strcmp(n->getPb().c_str(), 
 		   this->response.wfn_seq_resp[ix].node_id))) {
-	n->setSeD(this->response.wfn_seq_resp[ix].response.servers[0].loc.ior);
+	n->setSeD(this->response.wfn_seq_resp[ix].response.servers[0].loc.ior,
+                  this->response.wfn_seq_resp[ix].response.servers[0].loc.hostName);
 	break;
       }
     }    

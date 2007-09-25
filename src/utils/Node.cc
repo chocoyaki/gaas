@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2007/09/25 09:37:23  aamar
+ * Nodes can notify the wf log service with the chosen hostname.
+ *
  * Revision 1.13  2007/06/29 14:28:19  rbolze
  * update code following the change of the function diet_call_common
  * now the dietReqID is in the diet_profile
@@ -232,7 +235,8 @@ RunnableNode::run() {
   }
   TRACE_TEXT (TRACE_ALL_STEPS, "Init ports data ... done " << endl);
 
-  nodeIsRunning(myParent->getId().c_str());
+  nodeIsRunning(myParent->getId().c_str(),
+                myParent->chosenHostname.c_str());
 
   if (!CORBA::is_nil(myParent->chosenServer) 
       &&
@@ -814,8 +818,9 @@ Node::newPort(string id, uint ind, wf_port_t type, string diet_type,
  * set the SeD reference to the node *
  */
 void
-Node::setSeD(const SeD_var& sed) {
+Node::setSeD(const SeD_var& sed, const char * hostName) {
   this->chosenServer = sed;
+  this->chosenHostname = hostName;
 } // end setSeD
 
 /**
