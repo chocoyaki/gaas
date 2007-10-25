@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2007/10/25 11:02:35  aamar
+ * Restoring scheduler setting from command line arguments
+ *
  * Revision 1.4  2006/11/27 09:53:00  aamar
  * Correct headers of source files used in workflow support.
  *
@@ -66,12 +69,22 @@ int main(int argc, char * argv[]){
   MaDag_impl * maDag_impl = new MaDag_impl(name);
   ORBMgr::activate((MaDag_impl*)maDag_impl);
 
+  // Set up the scheduler, by default use heft
+  if ( (argc >= 3) && 
+       (!strcmp(argv[2], "--rr")) ) {
+    maDag_impl->set_sched(round_robbin_sched);
+  }
+  // last else
+  else {
+    maDag_impl->set_sched(heft_sched);
+  }
+
   // enable or not the multi-workflow support
-  if ((argc >= 3)  && (!strcmp(argv[2], "--enable-multiwf")))
+  if ((argc >= 4)  && (!strcmp(argv[3], "--enable-multiwf")))
     maDag_impl->enable_multi_wf(true);
 
-  if ((argc >= 4)  && (!strcmp(argv[2], "--enable-multiwf"))) {
-    if (!strcmp(argv[3], "--fairness")) {
+  if ((argc >= 5)  && (!strcmp(argv[3], "--enable-multiwf"))) {
+    if (!strcmp(argv[4], "--fairness")) {
       maDag_impl->enable_multi_wf(true, MWF_FAIRNESS);
     }
   }
