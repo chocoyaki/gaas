@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2007/10/25 14:32:17  aamar
+ * Updating the Round Robbin scheduler. The scheduling provided by the MA is no
+ * longer used.
+ *
  * Revision 1.6  2007/09/25 09:37:23  aamar
  * Nodes can notify the wf log service with the chosen hostname.
  *
@@ -80,22 +84,51 @@ SimpleWfSched::execute() {
   myDag->setTheBeginning(tv);
   CORBA::Long reqID = response.firstReqID;
 
-  // Map the results 
+  // Map the results
+  // Next comments may be incorrect in the future
   // After the changes recommanded by Raph, we have a response by node
   // So the mapping done by the MA and we choose the first server
   // Normally the node in the dag and the response are ordered
-  Node * n = NULL;
+  
+  map<string, unsigned long> hostUse;
   for (unsigned int ix=0; ix<this->response.wfn_seq_resp.length(); ix++) {
-    for (std::map <std::string, Node *>::iterator p = myDag->begin();
-	 p != myDag->end();
-	 p++) {
-      Node * n = (Node*)(p->second);
+    for (unsigned int jx=0;
+         jx < this->response.wfn_seq_resp[ix].response.servers.length();
+         jx++) {
+      string hn(this->response.wfn_seq_resp[ix].response.servers[jx].loc.hostName);
+      hostUse[hn] = 0;
+    } 
+  }
+  Node * n = NULL;
+  for (std::map <std::string, Node *>::iterator p = myDag->begin();
+       p != myDag->end();
+       p++) {
+    Node * n = (Node*)(p->second);
+    for (unsigned int ix=0; ix<this->response.wfn_seq_resp.length(); ix++) {
       if (( n->getSeD() == SeD::_nil()) &&
-	  (!strcmp(n->getPb().c_str(), 
-		   this->response.wfn_seq_resp[ix].node_id))) {
-	n->setSeD(this->response.wfn_seq_resp[ix].response.servers[0].loc.ior,
-                  this->response.wfn_seq_resp[ix].response.servers[0].loc.hostName);
-	break;
+          (!strcmp(n->getPb().c_str(), 
+                   this->response.wfn_seq_resp[ix].node_id))) {
+
+        // Looking for the less used host
+        unsigned long rank = 0;
+        string chosenHost(this->response.wfn_seq_resp[ix].response.servers[0].loc.hostName);
+        for (unsigned int jx = 1;
+             jx < this->response.wfn_seq_resp[ix].response.servers.length();
+             jx++) {
+          string hn(this->response.wfn_seq_resp[ix].response.servers[jx].loc.hostName);
+          if (hostUse[hn] < hostUse[chosenHost]) {
+            rank = jx;
+            chosenHost = hn;
+          } // end if
+        } // end jx
+
+        n->setSeD(this->response.wfn_seq_resp[ix].response.servers[rank].loc.ior,
+                  this->response.wfn_seq_resp[ix].response.servers[rank].loc.hostName);
+        cout << "rank = " << rank 
+             << ", pb = " << n->getPb() 
+             << ", use = " << hostUse[chosenHost] << endl;
+        hostUse[chosenHost] ++;
+        break;
       }
     }    
   }
