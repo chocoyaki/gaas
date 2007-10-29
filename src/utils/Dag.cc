@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2007/10/29 11:09:13  aamar
+ * Workflow support: setting reqID of the profile and adding the
+ * updateTimeSinceLastSolve call.
+ *
  * Revision 1.7  2007/09/25 09:37:22  aamar
  * Nodes can notify the wf log service with the chosen hostname.
  *
@@ -978,6 +982,24 @@ Dag::getEstMakespan() {
   return makespan;
 }
 
+/**
+ * Provide a request ID for a node
+ */
+diet_reqID_t
+Dag::getReqId() {
+  this->myMutex.lock();
+  diet_reqID_t id = this->myFirstReqID++;
+  this->myMutex.unlock();
+  return id;
+} // end getId
+
+/**
+ * Set the first request ID to be used by the DAG
+ */
+void
+Dag::setFirstReqID(diet_reqID_t reqID) {
+  this->myFirstReqID = reqID;
+} // end setFirstReqID
 
 /**
  * Compare two profiles

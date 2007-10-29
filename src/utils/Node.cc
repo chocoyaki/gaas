@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2007/10/29 11:09:13  aamar
+ * Workflow support: setting reqID of the profile and adding the
+ * updateTimeSinceLastSolve call.
+ *
  * Revision 1.14  2007/09/25 09:37:23  aamar
  * Nodes can notify the wf log service with the chosen hostname.
  *
@@ -117,8 +121,10 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer) {
   char statMsg[128];
   stat_in("Client","diet_call");
 
-  /* Send Datas */
+  // Server is chosen, update its timeSinceLastSolve
+  chosenServer->updateTimeSinceLastSolve() ;
 
+  /* Send Datas */
   if (mrsh_profile_to_in_args(&corba_profile, profile)) {
     ERROR("profile is wrongly built", 1);
   }
@@ -156,7 +162,6 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer) {
 	corba_profile.parameters[i].desc.id.idNumber = new_id;
       }
   }
-
 
   /* Computation */
   sprintf(statMsg, "computation %ld", (unsigned long) profile->dietReqID);
@@ -244,6 +249,7 @@ RunnableNode::run() {
     TRACE_TEXT (TRACE_MAIN_STEPS, 
 		"Using the scheduling of the mapped SeD" << endl <<
 		"call the chosenServer ..." << endl);
+    myParent->profile->dietReqID = myParent->myDag->getReqId();
     if ( ! diet_call_common(myParent->profile, myParent->chosenServer)) {
       myParent->storePersistentData();
     }

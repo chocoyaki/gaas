@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.108  2007/10/29 11:09:13  aamar
+ * Workflow support: setting reqID of the profile and adding the
+ * updateTimeSinceLastSolve call.
+ *
  * Revision 1.107  2007/09/25 09:37:21  aamar
  * Nodes can notify the wf log service with the chosen hostname.
  *
@@ -1750,6 +1754,8 @@ diet_wf_call_ma(diet_wf_desc_t* profile) {
     user_sched = false;
   }
 
+  ext.dag->setFirstReqID(response->firstReqID);
+
   defaultWfSched->setDag (ext.dag);
   defaultWfSched->setResponse(response);
   defaultWfSched->execute();
@@ -1855,6 +1861,9 @@ diet_call_wf_madag_v1(diet_wf_desc_t* profile) {
     myWfLogService->setWf(profile->abstract_wf);
   } // end if (use_wf_log && myWfLogService)
 
+  
+  ext.dag->setFirstReqID(response->firstReqID);
+
   defaultWfSched->setDag(ext.dag);
   defaultWfSched->setResponse(response);
   defaultWfSched->execute();
@@ -1944,6 +1953,8 @@ diet_call_wf_madag_v2(diet_wf_desc_t* profile) {
   if ((use_wf_log) && (myWfLogService != NULL)) {
     myWfLogService->setWf(profile->abstract_wf);
   } // end if (use_wf_log && myWfLogService)
+
+  ext.dag->setFirstReqID(response->firstReqID);
 
   defaultWfSched->setDag(ext.dag);
   defaultWfSched->setResponse(response);

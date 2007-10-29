@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2007/10/29 11:09:13  aamar
+ * Workflow support: setting reqID of the profile and adding the
+ * updateTimeSinceLastSolve call.
+ *
  * Revision 1.6  2007/04/20 09:43:28  ycaniou
  * Cosmetic changements for less warnings when compiling with doc.
  * Still some errors to correct (parameters to detail) that I cannot do.
@@ -315,6 +319,18 @@ public:
   double
   getEstMakespan();
 
+  /**
+   * provide a request ID for a node
+   */
+  diet_reqID_t
+  getReqId();
+
+  /**
+   * Set the first request ID to be used by the DAG
+   */
+  void
+  setFirstReqID(diet_reqID_t reqID);
+
 private:
   /*********************************************************************/
   /* private fields                                                    */
@@ -371,6 +387,17 @@ private:
    * Temporary dag flag. Used to not delete the nodes of the dag
    */
   bool tmpDag;
+
+  /**
+   * First request ID to be used by the DAG
+   */
+  diet_reqID_t myFirstReqID;
+
+  /**
+   * Mutex on myFirstReqId
+   */
+  omni_mutex myMutex;
+
 };
 
 
