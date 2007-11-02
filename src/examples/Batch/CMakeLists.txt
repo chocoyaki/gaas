@@ -1,12 +1,11 @@
 #****************************************************************************#
 #* DIET cmake local file                                                    *#
 #****************************************************************************#
-# AppleSeeds related examples
+# TODO (YC): when no appleseeds anymore, DIET_USE_ALT_BATCH only!
 
 IF( NOT DIET_USE_BATCH AND NOT DIET_USE_ALT_BATCH )
   MESSAGE( STATUS "Batch related example NOT compiled." )
 ELSE( NOT DIET_USE_BATCH AND NOT DIET_USE_ALT_BATCH )
-
 
 IF( DIET_USE_BATCH )
 
@@ -35,7 +34,7 @@ IF( DIET_USE_BATCH )
   ENDFOREACH( loop_var )
 
   ### Do Lammps example
-  ADD_SUBDIRECTORY( Lammps )
+  #  ADD_SUBDIRECTORY( Lammps )
 
 ELSE( DIET_USE_BATCH )
 
@@ -62,8 +61,8 @@ ELSE( DIET_USE_BATCH )
     INSTALL_TARGETS( /bin/examples/Batch ${loop_var} )
   ENDFOREACH( loop_var )
 
-  ### Do Lammps example
-  ADD_SUBDIRECTORY( Lammps )
+  ### Do Lammps example, and Decrypthon suites
+  ADD_SUBDIRECTORY( Lammps TestAllBatch )
 
 ENDIF( DIET_USE_BATCH )
 
