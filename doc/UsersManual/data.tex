@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.21  2007/11/22 20:58:15  mimbert
+%* correction on the description of struct diet_profile_t and function diet_profile_alloc
+%*
 %* Revision 1.20  2006/12/05 09:11:29  rbolze
 %* some corrections
 %*
@@ -461,6 +464,7 @@ profile with the type \texttt{diet\_profile\_t}:
 {\footnotesize
 \begin{verbatim}
 typedef struct {
+  char*       pb_name;
   int         last_in, last_inout, last_out;
   diet_arg_t *parameters;
 } diet_profile_t;
@@ -503,7 +507,7 @@ Functions to create and destroy such profiles are defined with the prototypes
 below:
 {\footnotesize
 \begin{verbatim}
-diet_profile_t *diet_profile_alloc(int last_in, int last_inout, int last_out);
+diet_profile_t *diet_profile_alloc(char* pb_name, int last_in, int last_inout, int last_out);
 int diet_profile_free(diet_profile_t *profile);
 \end{verbatim}
 }
