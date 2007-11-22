@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.12  2007/11/22 21:07:02  mimbert
+%* use latex package fancyhdr instead of fancyheadings which seems deprecated in some recent latex distributions
+%*
 %* Revision 1.11  2007/04/17 13:34:52  ycaniou
 %* Error in debug.tex header
 %* Removes some warnings during doc generation
@@ -54,7 +57,7 @@
 \documentclass[11pt,a4paper]{report}
 \makeatletter
 %\makeatother
-\usepackage{fancyheadings}
+\usepackage{fancyhdr}
 %\usepackage[french]{babel}
 %\usepackage[latin1]{inputenc}
 \usepackage{multicol}
