@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2007/11/29 13:04:19  glemahec
+ * Bug correction: with gcc >=4.1 cross compilation error when creating an object
+ * in a case statement which is not the last one. The error appears only with
+ * USERSCHED option activated.
+ *
  * Revision 1.16  2007/03/27 08:49:27  glemahec
  * deserialize and chooseGlobalScheduler methods now return an instance of a dynamically loaded class if the aggregator is DIET_AGG_USER.
  *
@@ -228,14 +233,15 @@ GlobalScheduler::chooseGlobalScheduler(const corba_request_t* req,
   case DIET_AGG_DEFAULT:
     return (GlobalScheduler::chooseGlobalScheduler());
     break;
-  case DIET_AGG_PRIORITY:
+  case DIET_AGG_PRIORITY: {
     PriorityGS* ps = new PriorityGS(agg.agg_specific.agg_priority());
     ps->init();
     return (ps);
+  }
     break;	
 /* New : For scheduler load support. */  
 #ifdef USERSCHED
-  case DIET_AGG_USER:
+  case DIET_AGG_USER: {
     char* moduleName = (char*)
       Parsers::Results::getParamValue(Parsers::Results::MODULENAME);
 
@@ -255,6 +261,7 @@ GlobalScheduler::chooseGlobalScheduler(const corba_request_t* req,
     }
     SCHED_TRACE_FUNCTION("Module " << moduleName << " loaded.");
     return loaded;
+  }
     break;
 #endif
 /*************************************/
