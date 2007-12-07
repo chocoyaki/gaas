@@ -25,6 +25,9 @@ OPTION( DIET_WITH_MULTI_MA   "Build DIET with MULTI-Master-Agent support." OFF )
 OPTION( DIET_USE_USERSCHED   "Build DIET with user scheduler support (Experimental)." OFF )
 OPTION( DIET_USE_ENDIANNESS  "Build DIET with endianness management  (Experimental)." OFF )
 OPTION( DIET_USE_CCS         "Build DIET with client custom scheduling  (Experimental)." OFF )
+# Ackfile support
+OPTION( DIET_USE_ACKFILE     "Build DIET with acknowledge file." OFF)
+
 
 # --------------------- OPTIONS SET BY DEFAULT  ----------------------------
 # One might wish not to compile DIET but just to build the docs:
@@ -262,6 +265,11 @@ IF( DIET_USE_WORKFLOW )
          CACHE BOOL "Build DIET with workflow support..." )
   ENDIF( XERCES_FOUND ) 
 ENDIF( DIET_USE_WORKFLOW )
+
+# --------------------------- Ackfile support ------------------------
+IF( DIET_USE_ACKFILE )
+  ADD_DEFINITIONS( -DHAVE_ACKFILE )
+ENDIF( DIET_USE_ACKFILE )
 
 # --------------- New : For users agents scheduler support ------------------
 IF( DIET_USE_USERSCHED )

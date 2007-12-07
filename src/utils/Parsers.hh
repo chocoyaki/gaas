@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2007/12/07 08:44:42  bdepardo
+ * Added AckFile support in CMake files.
+ * No longer need to add -DADAGE to use it, instead -DHAVE_ACKFILE is automatically added when the option is selected.
+ * /!\ Parsing problem on Mac: do not recognize the parameter ackFile within the configuration file.
+ *
  * Revision 1.24  2007/07/31 14:25:11  bdepardo
  * Added option ackFile in the configuration file, in order for the agents to touch a file at the end of their initialization.
  * Currently needs to use -D ADAGE when compiling to support this feature.
@@ -199,7 +204,7 @@ public:
 
       initRequestID,        // RequestID begins with this value
 
-#ifdef ADAGE
+#ifdef HAVE_ACKFILE
       ACKFILE,              // file to touch at the end of the initialization
 #endif
 

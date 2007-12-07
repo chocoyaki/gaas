@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.67  2007/12/07 08:44:41  bdepardo
+ * Added AckFile support in CMake files.
+ * No longer need to add -DADAGE to use it, instead -DHAVE_ACKFILE is automatically added when the option is selected.
+ * /!\ Parsing problem on Mac: do not recognize the parameter ackFile within the configuration file.
+ *
  * Revision 1.66  2007/07/31 14:36:51  bdepardo
  * Added the support for the option ackFile to touch a file at the end of the initialization.
  * Currently needs to use -D ADAGE when compiling in order to use this feature.
@@ -817,7 +822,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   SeD->linkToDataMgr(dataMgr);
 #endif // HAVE_JUXMEM
 
-#ifdef ADAGE
+#ifdef HAVE_ACKFILE
   /* Touch a file to notify the end of the initialization */
   char* ackFile = (char*)
     Parsers::Results::getParamValue(Parsers::Results::ACKFILE);
