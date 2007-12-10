@@ -112,6 +112,41 @@ IF( DIET_USE_CORI )
   INCLUDE( ${DIET_SOURCE_DIR}/Cmake/ConfigureCORI.cmake )
 ENDIF( DIET_USE_CORI )
 
+
+#-------------- PLATFORM SPECIFIC COMPILATION FLAGS -----------------------
+# Requires CMake >= 2.4.7
+# Used within omniORB, when set remove some warnings/errors
+# Not tested under SunOS & FreeBSD
+#
+STRING( COMPARE EQUAL ${CMAKE_SYSTEM_NAME} "AIX" AIX )
+STRING( COMPARE EQUAL ${CMAKE_SYSTEM_NAME} "Darwin" APPLE )
+STRING( COMPARE EQUAL ${CMAKE_SYSTEM_NAME} "Linux" LINUX )
+STRING( COMPARE EQUAL ${CMAKE_SYSTEM_NAME} "SunOS" SUNOS )
+STRING( COMPARE EQUAL ${CMAKE_SYSTEM_NAME} "FreeBSD" FREEBSD )
+ 
+IF( AIX )
+  MESSAGE( STATUS "XXX System name Aix" )
+  ADD_DEFINITIONS( -D__aix__ )
+
+ELSEIF( APPLE )
+  MESSAGE( STATUS "XXX System name Darwin" )
+  ADD_DEFINITIONS( -D__darwin__ )
+
+ELSEIF( LINUX )
+  MESSAGE( STATUS "XXX System name Linux" )
+  ADD_DEFINITIONS( -D__linux__ )
+
+ELSEIF( SUNOS )
+  MESSAGE( STATUS "XXX System name SunOS" )
+  ADD_DEFINITIONS( -D__sunos__ )
+
+ELSEIF( FREEBSD )
+  MESSAGE( STATUS "XXX System name FreeBSD" )
+  ADD_DEFINITIONS( -D__freebsd__ )
+ENDIF( AIX )
+
+
+
 # --------------------- DEPENDENCIES TOWARDS EXTERNAL PACKAGES -------------
 # Path to additional modules (i.e. used by FIND_PACKAGE commands making
 # reference to non CMake defined "standard" modules):
