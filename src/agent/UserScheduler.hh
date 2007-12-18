@@ -87,7 +87,6 @@ private:
 #define HOSTNAME(server) ((server).loc.hostName.in())
 #define SED_REF(server) ((server).loc.ior)
 
-#if HAVE_CORI
 /* Estimation values macros. */
 #define TOTALTIME(server) (diet_est_get_internal(&(server).estim,	\
 						 EST_TOTALTIME, 0))
@@ -124,7 +123,6 @@ private:
 						      EST_DISKACCESREAD, 0))
 #define DISKACCESSWRITE(server) (diet_est_get_internal(&(server).estim,	\
 						       EST_DISKACCESWRITE, 0))
-#endif // HAVE_CORI
 #define USERDEFINED(server, nb) (diet_est_get_internal(&(server).estim,	\
 						     EST_USERDEFINED+(nb), 0))
 
