@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.77  2007/12/18 11:35:54  aamar
+ * Correcting a bug with endianess management
+ *
  * Revision 1.76  2007/07/11 08:42:08  aamar
  * Adding "custom client scheduling" mode (known as Burst mode). Need to be
  * activated in cmake.
@@ -236,6 +239,7 @@ bool Little_Endian (void) {
 bool little_endian = Little_Endian();
 
 void endian_swap(void * value, size_t size) {
+  cout << "Swapping value of size " << size << endl;
   char * p = (char *)value;
   char c;
   for (size_t i = 0; i<size/2; i++) {
@@ -451,6 +455,7 @@ mrsh_data(corba_data_t* dest, diet_data_t* src, int release)
         (src->desc.generic.type != DIET_STRING) && 
         (src->desc.generic.type != DIET_PARAMSTRING)
         ) {
+      cout << "  ** endian_swap 1" << endl;
       endian_swap(value, size, type_sizeof(src->desc.generic.base_type) );
     } // end if
 #endif // WITH_ENDIANNESS
@@ -690,20 +695,24 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
                (src->desc.specific._d() != DIET_STRING) && 
                (src->desc.specific._d() != DIET_PARAMSTRING)
                ) {
+            cout << "  ** endian_swap 2" << endl;
             endian_swap(dest->value, src->value.length(), 
                         type_sizeof(dest->desc.generic.base_type) );
           } // end if
 #endif // WITH_ENDIANNESS
        } else {
           CORBA::Boolean orphan = (src->desc.mode == DIET_VOLATILE);
-          dest->value = (char*)src->value.get_buffer(orphan);
 #ifdef WITH_ENDIANNESS
           size_t lenx =  src->value.length();
+#endif // WITH_ENDIANNESS
+          dest->value = (char*)src->value.get_buffer(orphan);
+#ifdef WITH_ENDIANNESS
           if ((!little_endian) && 
               (src->desc.specific._d() != DIET_FILE) && 
               (src->desc.specific._d() != DIET_STRING) && 
               (src->desc.specific._d() != DIET_PARAMSTRING)
               ) {
+            cout << "  ** endian_swap 3" << lenx << endl;
             endian_swap(dest->value, lenx, 
                         type_sizeof(dest->desc.generic.base_type) );
           } // end if
@@ -723,6 +732,7 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
             (src->desc.specific._d() != DIET_STRING) && 
             (src->desc.specific._d() != DIET_PARAMSTRING)
             ) {
+          cout << "  ** endian_swap 4" << endl;
           endian_swap(dest->value, lenx, 
                       type_sizeof(dest->desc.generic.base_type) );
         } // end if
