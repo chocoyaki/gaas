@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.78  2007/12/18 12:30:13  aamar
+ * Using debug macros instead of cout
+ *
  * Revision 1.77  2007/12/18 11:35:54  aamar
  * Correcting a bug with endianess management
  *
@@ -239,7 +242,7 @@ bool Little_Endian (void) {
 bool little_endian = Little_Endian();
 
 void endian_swap(void * value, size_t size) {
-  cout << "Swapping value of size " << size << endl;
+  TRACE_TEXT (TRACE_ALL_STEPS, "Swapping value of size " << size << endl);
   char * p = (char *)value;
   char c;
   for (size_t i = 0; i<size/2; i++) {
@@ -455,7 +458,7 @@ mrsh_data(corba_data_t* dest, diet_data_t* src, int release)
         (src->desc.generic.type != DIET_STRING) && 
         (src->desc.generic.type != DIET_PARAMSTRING)
         ) {
-      cout << "  ** endian_swap 1" << endl;
+      TRACE_TEXT (TRACE_ALL_STEPS, "  ** endian_swap 1" << endl);
       endian_swap(value, size, type_sizeof(src->desc.generic.base_type) );
     } // end if
 #endif // WITH_ENDIANNESS
@@ -695,7 +698,7 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
                (src->desc.specific._d() != DIET_STRING) && 
                (src->desc.specific._d() != DIET_PARAMSTRING)
                ) {
-            cout << "  ** endian_swap 2" << endl;
+            TRACE_TEXT (TRACE_ALL_STEPS, "  ** endian_swap 2" << endl);
             endian_swap(dest->value, src->value.length(), 
                         type_sizeof(dest->desc.generic.base_type) );
           } // end if
@@ -712,7 +715,7 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
               (src->desc.specific._d() != DIET_STRING) && 
               (src->desc.specific._d() != DIET_PARAMSTRING)
               ) {
-            cout << "  ** endian_swap 3" << lenx << endl;
+            TRACE_TEXT (TRACE_ALL_STEPS, "  ** endian_swap 3" << lenx << endl);
             endian_swap(dest->value, lenx, 
                         type_sizeof(dest->desc.generic.base_type) );
           } // end if
@@ -732,7 +735,7 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
             (src->desc.specific._d() != DIET_STRING) && 
             (src->desc.specific._d() != DIET_PARAMSTRING)
             ) {
-          cout << "  ** endian_swap 4" << endl;
+          TRACE_TEXT (TRACE_ALL_STEPS, "  ** endian_swap 4" << endl);
           endian_swap(dest->value, lenx, 
                       type_sizeof(dest->desc.generic.base_type) );
         } // end if
