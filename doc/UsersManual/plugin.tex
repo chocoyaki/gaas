@@ -209,6 +209,11 @@ See the Section~\ref{subsection:callFAST} how to use them.
   \end{tabbing}
   with an appropriate value for \texttt{ev} and the
   \texttt{profilePtr} corresponding to the current DIET request.
+\item The number of waiting jobs when using the maximum concurrent jobs
+  limit is stored in an estimation metric vector by calling
+  \begin{tabbing}
+    \texttt{int diet\_estimate\_waiting_jobs(}\=\texttt{estVector\_t ev)};
+  \end{tabbing}
 \item CoRI allows to access in an easy way to basic performance 
 prediction. See Chapter~\ref{sec:CORI} to know more about the use of it.
 

@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.68  2007/12/18 13:04:27  glemahec
+ * This commit adds the "diet_estimate_waiting_jobs" function to obtain the
+ * number of jobs waiting in the FIFO queue when using the max concurrent
+ * jobs limit. This function has to be used in the SeD plugin schedulers.
+ *
  * Revision 1.67  2007/12/07 08:44:41  bdepardo
  * Added AckFile support in CMake files.
  * No longer need to add -DADAGE to use it, instead -DHAVE_ACKFILE is automatically added when the option is selected.
@@ -621,6 +626,9 @@ diet_convertor_check(const diet_convertor_t* const cvt,
   return res;
 }
 
+/* To obtain the number of waiting jobs in the FIFO queue, we need a ref to */
+/* the SeD object. */
+SeDImpl* SeDObject = NULL;
 /****************************************************************************/
 /* DIET server call                                                         */
 /****************************************************************************/
@@ -793,6 +801,8 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
 
   /* SeD creation */
   SeD = new SeDImpl();
+  /* Initiliaze the object reference. */
+  SeDObject = SeD;
   TRACE_TEXT(NO_TRACE, 
 	     "## SED_IOR " << ORBMgr::getIORString(SeD->_this()) << endl);
   fsync(1);
@@ -1245,6 +1255,14 @@ int diet_estimate_lastexec(estVector_t ev,
   /* store the value in the performance data array */
   diet_est_set_internal(ev, EST_TIMESINCELASTSOLVE, timeSinceLastSolve);
   return (1);
+}
+
+/* Get the number of waiting jobs in the queue. */
+/* TODO : Add to the documentation. */
+int diet_estimate_waiting_jobs(estVector_t ev) {
+  if (SeDObject!=NULL)
+    diet_est_set_internal(ev, EST_NUMWAITINGJOBS,
+	                      SeDObject->getNumJobsWaiting());
 }
 
 /****************************************************************************/

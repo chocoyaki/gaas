@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.96  2007/12/18 13:04:28  glemahec
+ * This commit adds the "diet_estimate_waiting_jobs" function to obtain the
+ * number of jobs waiting in the FIFO queue when using the max concurrent
+ * jobs limit. This function has to be used in the SeD plugin schedulers.
+ *
  * Revision 1.95  2007/07/13 10:00:26  ecaron
  * Remove deprecated code (ALTPREDICT part)
  *
@@ -270,6 +275,13 @@ SeDImpl::initialize()
   batchQueue = NULL ;
   initCorresBatchDietReqID() ;
 #endif //HAVE_BATCH
+}
+
+int
+SeDImpl::getNumJobsWaiting() {
+  if (accessController)
+    return accessController->getNumWaiting();
+  return 0;
 }
 
 SeDImpl::~SeDImpl()

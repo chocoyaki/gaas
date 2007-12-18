@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.33  2007/12/18 13:04:27  glemahec
+ * This commit adds the "diet_estimate_waiting_jobs" function to obtain the
+ * number of jobs waiting in the FIFO queue when using the max concurrent
+ * jobs limit. This function has to be used in the SeD plugin schedulers.
+ *
  * Revision 1.32  2007/04/16 22:43:42  ycaniou
  * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
  * This is indented to replace HAVE_BATCH.
@@ -476,6 +481,9 @@ int diet_estimate_fast(estVector_t ev, const diet_profile_t* const profilePtr);
 
 int diet_estimate_lastexec(estVector_t ev,
                            const diet_profile_t* const profilePtr);
+
+/* To obtain the queue size. */
+int diet_estimate_waiting_jobs(estVector_t ev);
 
 /****************************************************************************/
 /* Inline definitions                                                       */

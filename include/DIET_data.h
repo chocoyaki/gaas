@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.51  2007/12/18 13:04:27  glemahec
+ * This commit adds the "diet_estimate_waiting_jobs" function to obtain the
+ * number of jobs waiting in the FIFO queue when using the max concurrent
+ * jobs limit. This function has to be used in the SeD plugin schedulers.
+ *
  * Revision 1.50  2007/06/28 18:23:18  rbolze
  * add dietReqID in the profile.
  * and propagate this change to all functions that  have both reqID and profile parameters.
@@ -606,7 +611,9 @@ typedef struct diet_arg_s diet_data_t;
 #define EST_DISKACCESREAD 18 
 #define EST_DISKACCESWRITE 19
 #define EST_ALLINFOS 20 
-#define EST_USERDEFINED 21
+/* Added to obtain the queue size from the SeD. */
+#define EST_NUMWAITINGJOBS 21
+#define EST_USERDEFINED 22
 /*} diet_est_tag_t;*/
 
 

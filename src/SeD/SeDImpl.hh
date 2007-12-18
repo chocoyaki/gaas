@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.36  2007/12/18 13:04:28  glemahec
+ * This commit adds the "diet_estimate_waiting_jobs" function to obtain the
+ * number of jobs waiting in the FIFO queue when using the max concurrent
+ * jobs limit. This function has to be used in the SeD plugin schedulers.
+ *
  * Revision 1.35  2007/06/28 18:23:19  rbolze
  * add dietReqID in the profile.
  * and propagate this change to all functions that  have both reqID and profile parameters.
@@ -307,7 +312,10 @@ public:
   ping();
 
   const struct timeval* timeSinceLastSolve();
-
+  
+  /* Access to the queue size in the AccessController object. */
+  int getNumJobsWaiting();
+  
 private:
   /** Reference of the parent */
   Agent_var parent;
