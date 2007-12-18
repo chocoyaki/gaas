@@ -123,6 +123,8 @@ private:
 						      EST_DISKACCESREAD, 0))
 #define DISKACCESSWRITE(server) (diet_est_get_internal(&(server).estim,	\
 						       EST_DISKACCESWRITE, 0))
+#define NUMWAITINGJOBS(server) (diet_est_get_internal((&(server).estim, \
+							  EST_NUMWAITINGJOBS, 0))
 #define USERDEFINED(server, nb) (diet_est_get_internal(&(server).estim,	\
 						     EST_USERDEFINED+(nb), 0))
 
