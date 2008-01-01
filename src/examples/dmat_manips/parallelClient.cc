@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2008/01/01 18:54:20  ycaniou
+ * Add a cast to avoid warning
+ *
  * Revision 1.8  2007/04/04 15:25:15  dart
  * Comment the "#include <getopt.h>" lines in order to compile under AIX.
  * The prototypes in getopt.h seem not to be used in sources.
@@ -123,7 +126,8 @@ class worker : public omni_thread
     char * requestID = new char[10];
     MUTEX_WORKER.lock();
     while ( n_loops > 0){
-      printf("---------------- %ld loops left -------------------\n", n_loops);
+      printf("---------------- %ld loops left -------------------\n",
+	     (unsigned int) n_loops);
       n_loops--;
       MUTEX_WORKER.unlock();
       A = mat1;
