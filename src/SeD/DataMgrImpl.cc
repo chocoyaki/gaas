@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2008/01/01 19:39:23  ycaniou
+ * Prevent a segfault
+ *
  * Revision 1.27  2007/07/13 10:00:26  ecaron
  * Remove deprecated code (ALTPREDICT part)
  *
@@ -115,8 +118,8 @@ DataMgrImpl::run()
   char parentName[260];
 
   /* Set host name */
-  this->localHostName[257] = '\0';
-  if (gethostname(this->localHostName, 256)) {
+  this->localHostName[255] = '\0';
+  if (gethostname(this->localHostName, 255)) {
     ERROR("could not get hostname", 1);
   }
   
