@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.34  2008/01/01 19:45:22  ycaniou
+ * Modifications for batch management. Loadleveler is now ok.
+ *
  * Revision 1.33  2007/12/18 13:04:27  glemahec
  * This commit adds the "diet_estimate_waiting_jobs" function to obtain the
  * number of jobs waiting in the FIFO queue when using the max concurrent
@@ -438,6 +441,15 @@ diet_SeD(char* config_file_name, int argc, char* argv[]);
    */
   int
   diet_submit_parallel(diet_profile_t* profile, const char *command) ;
+
+  typedef enum {
+    SERIAL,
+    BATCH,
+    NB_SERVER_STATUS
+  } diet_server_status_t ;
+  
+  void
+  diet_set_server_status( diet_server_status_t status ) ;
 #endif
 
 

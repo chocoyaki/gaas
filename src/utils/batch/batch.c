@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2008/01/01 19:43:49  ycaniou
+ * Modifications for batch management. Loadleveler is now ok.
+ *
  * Revision 1.14  2007/07/04 15:55:02  ycaniou
  * Cosmetic change
  *
@@ -63,7 +66,6 @@ extern "C" {
 
 #define TEMP_PREFIX "/tmp/"
 
-#define DEBUG_YC
 #ifdef DEBUG_YC
 #include <sys/time.h>
 #endif

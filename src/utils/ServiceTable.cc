@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2008/01/01 19:43:49  ycaniou
+ * Modifications for batch management. Loadleveler is now ok.
+ *
  * Revision 1.22  2007/04/16 22:43:44  ycaniou
  * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
  * This is indented to replace HAVE_BATCH.
@@ -619,7 +622,8 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc)
   int first_found = -1, second_found = -1 ; // at most, two indices: // and seq
   size_t i(0), j(0) ;
   ServiceTable::matching_children_t * matching_children_concatenation = NULL ;
-  
+
+  /* Search for 1rst occurence of service in table */  
   while( (i < nb_s) && (!profile_match(&(profiles[i]), pb_desc)) )
     i++ ;
   if( i == nb_s ) {
@@ -627,13 +631,12 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc)
                << "  of a service that is not in table");
   }
   first_found = i ;
-  matching_children_concatenation = 
-    new ServiceTable::matching_children_t() ;
-  /* FIXME: This leads to a compilation error. Why? 
+  matching_children_concatenation = new ServiceTable::matching_children_t() ;
   if( matching_children_concatenation == NULL ) {
-  ERROR("Not enough memory", 1) ;
-  } */
+    SRVT_ERROR("Not enough memory") ;
+  }
   i++ ;
+  /* Search for 2nd occurence of service in table */  
   while( (i < nb_s) && (!profile_match(&(profiles[i]), pb_desc)) )
     i++ ;
   if( i== nb_s )

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/01/01 19:43:49  ycaniou
+ * Modifications for batch management. Loadleveler is now ok.
+ *
  * Revision 1.2  2007/04/17 13:34:54  ycaniou
  * Error in debug.tex header
  * Removes some warnings during doc generation
@@ -48,6 +51,7 @@ public :
     RUNNING,
     WAITING,
     SUBMITTED,
+    PREEMPTED, // Is this useful?
     NB_STATUS
   } batchJobState ;
 
@@ -217,7 +221,7 @@ protected :
   char frontalName[256];
     
   int batch_ID ;
-  const char * batchName ;
+  const char * batchName ; // The name of the batch system
     
   const char * batchQueueName ; // Only one queue managed
 
@@ -226,31 +230,39 @@ protected :
   const char * pathToTmp ; 
   
   /************ Batch Commands ************/
+  const char * shell ; /* shell demandé pour lancer le script distant */
   const char * prefixe ;
-  
-  const char * nodesNumber ;
-  const char * nodeFileName ;
-  const char * nodeIdentities ; // given by a string separated by a blank
+  const char * postfixe ;
+
+  /* The 2 following lines are LL tricks, for MPI or non-MPI jobs:
+     LL needs to know if job is serial or //, but // can mean MPI with 1 proc.
+  */
+  const char * nodesNumber ; // If more than 1 proc
+  const char * serial ;      // If serial, proc == 1, DONT use nodesNumber!
   const char * walltime ;
   const char * submittingQueue ;
   const char * minimumMemoryUsed ; // not managed for the moment
   
   const char * mail ;
   const char * account ; // not used until so implements accounting in DIET
-  const char * setSTDOUT ;
-  const char * setSTDIN ;
-  const char * setSTDERR ;
 
-  const char * hostFile ;
-    
+  const char * setSTDOUT ; // These are in place but not used
+  const char * setSTDIN ;  // -> I must define a DIET META VARIABLE which
+  const char * setSTDERR ; // must be informed to take place after this line
+
   char * submitCommand ;
   char * killCommand ;
-  char * wait4Command ;
-  char * waitFilter ;
+  char * wait4Command ; /* Command to have info about a given jobID */
+  char * waitFilter ;   /* Filter to access jobs status */
   char * exitCode ;
   
   char * jid_extract_patterns ;
 
+  /************ Batch META-VARIABLES ************/
+  const char * batchJobID ; // The script variable containing job ID 
+  const char * nodeFileName ;
+  const char * nodeIdentities ; // given by a string separated by a blank
+  
   /* Correspondance between Diet reqIDs and Batch Job IDs stored as 
      a chained list */
 

@@ -8,12 +8,16 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/01/01 19:43:49  ycaniou
+ * Modifications for batch management. Loadleveler is now ok.
+ *
  * Revision 1.1  2007/04/16 22:35:19  ycaniou
  * Added the generic class for batch systems
  *
  *
  ****************************************************************************/
 
+using namespace std ;
 #include <string.h>
 #include <stdlib.h>
 #include <sys/types.h>   // for chmod()
@@ -26,8 +30,6 @@
 #include "Parsers.hh"
 #include "BatchSystem.hh"
 
-using namespace std ;
-
 #define WAITING_BATCH_JOB_COMPLETION 30 //test all W_B_J_C sec if job completed
 
 const char * BatchSystem::emptyString = "" ;
@@ -39,6 +41,7 @@ const char * BatchSystem::emptyString = "" ;
 BatchSystem::BatchSystem()
 {
   char * tmpString = NULL ;
+  char * tmpChaine = NULL ;
   
   batchJobQueue = NULL ;
   
@@ -57,18 +60,32 @@ BatchSystem::BatchSystem()
   if( tmpString == NULL )
     batchQueueName = emptyString ;
   else batchQueueName = strdup(tmpString) ;
-  
+
   tmpString = (char*)
     Parsers::Results::getParamValue(Parsers::Results::PATHTONFS) ;
   if(  tmpString == NULL )
     pathToNFS = NULL ;
-  else pathToNFS = strdup(tmpString) ;
+  else if( tmpString[strlen(tmpString)] == '/' )
+    pathToNFS = strdup(tmpString) ;
+  else {
+    tmpChaine = (char*)malloc(strlen(tmpString+1) * sizeof(char)) ;
+    sprintf(tmpChaine,"%s/",tmpString) ;
+    pathToNFS = tmpChaine ;
+  }
   
   tmpString = (char*)
     Parsers::Results::getParamValue(Parsers::Results::PATHTOTMP) ;   
   if( tmpString == NULL ) {
-    ERROR_EXIT("Please set a correct path to a tmp directory") ;
-  } else pathToTmp = strdup(tmpString) ;
+    //    ERROR_EXIT("Please set a correct path to a tmp directory") ;
+    WARNING("Assume /tmp/ as temporary file directory!") ;
+    pathToTmp = strdup("/tmp/") ;
+  } else if( tmpString[strlen(tmpString)] == '/' )
+    pathToTmp = strdup(tmpString) ;
+  else {
+    tmpChaine = (char*)malloc(strlen(tmpString+1) * sizeof(char)) ;
+    sprintf(tmpChaine,"%s/",tmpString) ;
+    pathToTmp = tmpChaine ;
+  }
 }
 
 BatchSystem::~BatchSystem()
@@ -129,10 +146,10 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
 				  const char * command)
 {
   int nbread ;
-  char * options = NULL ;
   char * script = NULL ;
   char small_chaine[50] ; // This must be gt NBDIGITS_MAX_BATCH_ID
   char * chaine ; 
+  char * options ;
   int file_descriptor ;
   int file_descriptor_2 ;
   char * filename ;
@@ -147,29 +164,55 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
      stdout
      stderr
   */
-  options = (char*)malloc(500*sizeof(char)) ;
-  sprintf(options,
-	  "%s %d\n"
-	  "%s %ld\n"
-	  "%s %s\n"
-	  "%s\n"
-	  "%s %s\n"
-	  "%s %s\n"
-	  "%s %s\n"
-	  "%s %s\n",
-	  this->nodesNumber, profile->nbprocs,
-	  this->walltime, profile->walltime,
-	  submittingQueue, batchQueueName,
-	  minimumMemoryUsed,
-	  mail, emptyString,
-	  setSTDIN, emptyString,
-	  setSTDOUT, emptyString,
-	  setSTDERR, this->emptyString) ;
+  options = (char*)calloc(9000,sizeof(char)) ; /* FIXME: Reduce size */
+  if( options == NULL )  {
+    ERROR("error allocating memory when building script (options)... \n"
+	  "Service not launched\n\n", -1);
+  }
   
+  if( profile->parallel_flag == 1 )
+    sprintf(options,
+	    "%s\n"
+	    "%s %ld\n",
+	    this->serial,
+	    this->walltime, profile->walltime) ;
+  else
+    sprintf(options,
+	    "%s %d\n"
+	    "%s %ld\n",
+	    this->nodesNumber, profile->nbprocs,
+	    this->walltime, profile->walltime) ;
+  sprintf(options+strlen(options),
+	  "%s %s\n",
+	  submittingQueue, batchQueueName) ;
+
+  /* TODO: the user will be able to set the shell, mail, stdin, etc. */
+  // Shell semble ne pas marcher... :?
+  //  if( shell != emptyString ) /* & if user hasnt specified one or set to user */
+  //  sprintf(options+strlen(options),
+  //	    "%s bash\n",
+  //	    shell ) ;
+
+  if( setSTDERR != emptyString ) /* FIXME: only for ldl.. */
+    sprintf(options+strlen(options),
+	    "%s $(job_name).err\n",
+	    setSTDERR ) ;
+  if( setSTDOUT != emptyString ) /* FIXME: only for ldl.. */
+    sprintf(options+strlen(options),
+	    "%s $(job_name).out\n",
+	    setSTDOUT ) ;
+  /*
+  if( setSTDIN != emptyString ) ** & if user has set one entry
+  sprintf(options+strlen(options),
+  "%s %s
+  */
+
   // Build Script, copy it on the NFS path and launch in a system()
   // record the pid of the batch job
   script = (char*)malloc(sizeof(char)*(100
+				       + strlen(prefixe)
 				       + strlen(options)
+				       + strlen(postfixe)
 				       + 300
 				       + strlen(command))) ;
   if( script == NULL ) {
@@ -177,40 +220,55 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
 	  "Service not launched\n\n", -1);
   }
 
-  sprintf(script,
-	  "%s\n"
-	  "%s\n"
-	  "DIET_BATCH_NODESFILE=%s\n"
-	  "DIET_BATCH_NODESLIST=`cat %s | sort | uniq`\n"
-	  "DIET_BATCH_NBNODES=`echo $DIET_BATCH_NODESLIST | wc -l`\n"
-	  "\n%s\n"
-	  ,prefixe
-	  ,options
-	  ,hostFile
-	  ,hostFile
-	  ,command
-	  ) ;
+  if( batch_ID == 1 ) // Loadlever.. should be better coded
+    sprintf(script,
+	    "%s\n"
+	    "%s\n"
+	    "%s\n"
+	    "\n%s\n"
+	    ,prefixe
+	    ,options
+	    ,postfixe
+	    ,command
+	    ) ;
+  else
+    sprintf(script,
+	    "%s\n"
+	    "%s\n"
+	    "%s\n"
+	    "DIET_BATCH_NODESFILE=%s\n"
+	    "DIET_BATCH_NODESLIST=`cat %s | sort | uniq`\n"
+	    "DIET_BATCH_NBNODES=`echo $DIET_BATCH_NODESLIST | wc -l`\n"
+	    "\n%s\n"
+	    ,prefixe
+	    ,options
+	    ,postfixe
+	    ,nodeFileName
+	    ,nodeFileName
+	    ,command
+	    ) ;
   
   /* Replace DIET meta-variable in SeD programmer's command */
-  
   sprintf(small_chaine,"%d",profile->nbprocs) ;
   replaceAllOccurencesInString(&script,"$DIET_BATCH_NBNODES",small_chaine) ;
   sprintf(small_chaine,"%d",profile->nbprocess) ;
   replaceAllOccurencesInString(&script,"$DIET_USER_NBPROCS",small_chaine) ;
   replaceAllOccurencesInString(&script,"$DIET_NAME_FRONTALE",frontalName) ;
+  replaceAllOccurencesInString(&script,"$DIET_BATCH_JOB_ID",batchJobID) ;
+  replaceAllOccurencesInString(&script,"$DIET_BATCHNAME",batchName) ;
 
   /* Create temporary file to save the script, and submit it */
   filename = (char*)malloc(sizeof(char)*strlen(pathToNFS) + 30 ) ;
   sprintf(filename, "%sDIET_batch_script.XXXXXX", pathToNFS) ;
 
-#if defined YC_DEBUG
-  TRACE_TEXT(TRACE_ALL_STEPS,"Nom script: " << filename << "\n") ;
-#endif
-  			   
   file_descriptor = mkstemp( filename ) ;
   if( file_descriptor == -1 ) {
     ERROR("Cannot create batch file", -1) ;
   }
+
+#if defined YC_DEBUG
+  TRACE_TEXT(TRACE_MAIN_STEPS,"Nom script: " << filename << "\n") ;
+#endif
   
   if( writen(file_descriptor, script, strlen(script)) != strlen(script) ) {
     ERROR("Cannot write the batch script on the filesystem",-1) ;
@@ -232,7 +290,7 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
   }
 
 #if defined YC_DEBUG
-  TRACE_TEXT(TRACE_ALL_STEPS,
+  TRACE_TEXT(TRACE_MAIN_STEPS,
 	     "Fichier pour l'ID du job batch : " << filename_2 << "\n") ; 
 #endif
   /* Submit and grep the jobID */
@@ -244,7 +302,7 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
   sprintf(chaine,"%s %s | %s > %s",
 	  submitCommand,filename,jid_extract_patterns,filename_2) ;
 #if defined YC_DEBUG
-  TRACE_TEXT(TRACE_ALL_STEPS,
+  TRACE_TEXT(TRACE_MAIN_STEPS,
 	     "Submit avec la ligne :\n" << chaine << "\n\n") ;
 #endif
 

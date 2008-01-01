@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.40  2008/01/01 19:43:49  ycaniou
+ * Modifications for batch management. Loadleveler is now ok.
+ *
  * Revision 1.39  2007/12/07 08:44:42  bdepardo
  * Added AckFile support in CMake files.
  * No longer need to add -DADAGE to use it, instead -DHAVE_ACKFILE is automatically added when the option is selected.
@@ -213,6 +216,13 @@ Moved by EQ for EC in Parsers.hh
     return 0;                                                             \
   }
 */
+
+void *
+Parsers::Results::getParamValue(Results::param_type_t param_type)
+{
+  return Parsers::Results::params[param_type].value;
+};
+
 
 /**
  * Prepare the parsing of the file \c filePath (open the file and initialize

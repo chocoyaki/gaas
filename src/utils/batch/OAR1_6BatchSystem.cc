@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/01/01 19:43:49  ycaniou
+ * Modifications for batch management. Loadleveler is now ok.
+ *
  * Revision 1.1  2007/04/16 22:35:55  ycaniou
  * Added the class for DIET to manage OAR v1.6
  *
@@ -38,11 +41,12 @@ OAR1_6BatchSystem::OAR1_6BatchSystem(int ID, const char * batchname)
   batch_ID = ID ;
   batchName = batchname ;
   
+  shell = BatchSystem::emptyString ;
   prefixe = "#!/bin/sh\n" ;
+  postfixe = BatchSystem::emptyString ;
 
   nodesNumber = "#OAR -l nodes=" ;
-  nodeFileName = "$OAR_NODEFILE" ;
-  nodeIdentities = "cat $OAR_NODEFILE" ;  
+  serial = "#OAR -l nodes=1" ;
   walltime = "#OAR -l walltime=" ;
   submittingQueue = "#OAR -q " ;
   minimumMemoryUsed = BatchSystem::emptyString ;
@@ -52,9 +56,7 @@ OAR1_6BatchSystem::OAR1_6BatchSystem(int ID, const char * batchname)
   setSTDOUT = BatchSystem::emptyString ;
   setSTDIN = BatchSystem::emptyString ;
   setSTDERR = BatchSystem::emptyString ;
-
-  hostFile="$OAR_NODEFILE" ;
-    
+ 
   /* cd, to be sure that OAR takes PWD and not /bin/pwd: for Grenoble */
   submitCommand = "cd . ; oarsub " ;
   killCommand = "oardel " ;
@@ -67,6 +69,11 @@ OAR1_6BatchSystem::OAR1_6BatchSystem(int ID, const char * batchname)
   /* OAR behaves with SQL scripts to reserve specials nodes */
   /* but the following line is not good enough: too less nodes */
   /*    ELBASE_NODETYPE,"#OAR -p \"hostname='%s'\"", */
+
+  /* Information for META_VARIABLES */
+  batchJobID = "$OAR_JOBID" ;
+  nodeFileName = "$OAR_NODEFILE" ;
+  nodeIdentities = "cat $OAR_NODEFILE" ;  
 }
 
 OAR1_6BatchSystem::~OAR1_6BatchSystem()
@@ -98,7 +105,7 @@ OAR1_6BatchSystem::askBatchJobStatus(int batchJobID)
     ERROR("Cannot create batch I/O redirection file", NB_STATUS) ;
   }
 #if defined YC_DEBUG
-  TRACE_TEXT(TRACE_ALL_STEPS,"Fichier_finish: " << filename << "\n") ;
+  TRACE_TEXT(TRACE_MAIN_STEPS,"Fichier_finish: " << filename << "\n") ;
 #endif
 
   /* Ask batch system the job status */      
@@ -109,6 +116,9 @@ OAR1_6BatchSystem::askBatchJobStatus(int batchJobID)
 				       + 7 + 1) ) ;
   sprintf(chaine,"%s %d | %s > %s",
 	  wait4Command,batchJobID,waitFilter,filename) ;
+#if defined YC_DEBUG
+  TRACE_TEXT(TRACE_ALL_STEPS,"Execute:\n " << chaine << "\n") ;
+#endif
   if( system(chaine) != 0 ) {
     ERROR("Cannot submit script", NB_STATUS) ;
   }

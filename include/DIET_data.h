@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.52  2008/01/01 19:45:22  ycaniou
+ * Modifications for batch management. Loadleveler is now ok.
+ *
  * Revision 1.51  2007/12/18 13:04:27  glemahec
  * This commit adds the "diet_estimate_waiting_jobs" function to obtain the
  * number of jobs waiting in the FIFO queue when using the max concurrent
@@ -295,7 +298,6 @@ typedef struct {
   int nbprocs ;
   int nbprocess ;
   unsigned long walltime ; /* in minutes */
-  /* Used for correspondance batch job ID / DIET job ID */
 #endif
 } diet_profile_t;
 

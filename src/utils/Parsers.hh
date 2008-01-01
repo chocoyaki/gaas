@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2008/01/01 19:43:49  ycaniou
+ * Modifications for batch management. Loadleveler is now ok.
+ *
  * Revision 1.25  2007/12/07 08:44:42  bdepardo
  * Added AckFile support in CMake files.
  * No longer need to add -DADAGE to use it, instead -DHAVE_ACKFILE is automatically added when the option is selected.
@@ -266,11 +269,11 @@ public:
     /**
      * Return a pointer to the value parsed for the parameter of type \c type.
      */
-    static inline void*
-    getParamValue(param_type_t param_type) {
-      return Results::params[param_type].value;
-    };
-    
+//     static inline void*
+//     getParamValue(Results::param_type_t param_type) {
+//       return Parsers::Results::params[param_type].value;
+//     };
+    static void * getParamValue(Results::param_type_t param_type) ;
     
   protected:
 

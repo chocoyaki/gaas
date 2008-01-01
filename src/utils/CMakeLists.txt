@@ -20,7 +20,7 @@ IF( DIET_BUILD_LIBRARIES )
     DIET_mutex.cc 
     est_internal.cc
   )
-  TARGET_LINK_LIBRARIES( UtilsSeDClt ${OMNIORB4_LIBRARIES} )
+  TARGET_LINK_LIBRARIES( UtilsSeDClt IDLCommon ${OMNIORB4_LIBRARIES} )
   ### FIXME: the following is really of poor taste
   # * AccessControler.cc makes references to TRACE_LEVEL declared in debug.hh
   #   and defined as global in debug.cc
@@ -79,8 +79,10 @@ IF( DIET_BUILD_LIBRARIES )
     ADD_LIBRARY( UtilsSeDBatch 
     BatchCreator.cc
     BatchSystem.cc
-    OAR1_6BatchSystem.cc )
-    TARGET_LINK_LIBRARIES( UtilsSeDBatch -lpthread )
+    OAR1_6BatchSystem.cc 
+    Loadleveler_BatchSystem.cc
+    SGE_BatchSystem.cc )
+    TARGET_LINK_LIBRARIES( UtilsSeDBatch -lpthread UtilsCommon )
     INSTALL_TARGETS( /lib/ UtilsSeDBatch )
   ENDIF( DIET_USE_ALT_BATCH )
   

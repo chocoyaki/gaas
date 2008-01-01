@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/01/01 19:43:49  ycaniou
+ * Modifications for batch management. Loadleveler is now ok.
+ *
  * Revision 1.2  2007/04/17 13:34:54  ycaniou
  * Error in debug.tex header
  * Removes some warnings during doc generation
@@ -32,8 +35,10 @@ public :
     // SHELL, 
     //CONDOR, DQS, LOADLEVELER, LSF, PBS, SGE, 
     OAR1_6, 
+    LOADLEVELER,
+    SGE,
     NUMBER_OF_SUPPORTED_BATCH
-  } batchType ;
+  } batchID_t ;
 
   static char * batchNames[NUMBER_OF_SUPPORTED_BATCH] ;
 
@@ -48,7 +53,7 @@ public :
 
   /** Returns 1 if the batch system is managed by DIET, o otherwise */
   static int
-  existBatchScheduler(const char * batchName, batchType * batchID) ;
+  existBatchScheduler(const char * batchName, batchID_t * batchID) ;
       
 } ;
 
