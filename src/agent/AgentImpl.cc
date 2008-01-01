@@ -5,6 +5,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.46  2008/01/01 19:04:46  ycaniou
+ * Only cosmetic
+ *
  * Revision 1.45  2007/07/13 10:00:25  ecaron
  * Remove deprecated code (ALTPREDICT part)
  *
@@ -202,7 +205,7 @@ AgentImpl::~AgentImpl()
 /**
  * Launch this agent (initialization + registration in the hierarchy).
  */
-  int
+int
 AgentImpl::run()
 {
   char* name;
@@ -292,7 +295,6 @@ AgentImpl::agentSubscribe(Agent_ptr me, const char* hostName,
 /**
  * Subscribe a server as a SeD child. Remotely called by an SeD.
  */
-
 CORBA::Long
 AgentImpl::serverSubscribe(SeD_ptr me, const char* hostName,
 #if HAVE_JXTA
@@ -581,7 +583,6 @@ AgentImpl::findServer(Request* req, size_t max_srv)
   return resp;
 } // findServer(Request* req)
 
-
 /****************************************************************************/
 /* getResponse                                                              */
 /****************************************************************************/
@@ -606,7 +607,6 @@ AgentImpl::getResponse(const corba_response_t& resp)
   stat_out(this->myName,"getResponse");
 } // getResponse(const corba_response_t & resp)
 
-
 /**
  * Used to test if this agent is alive.
  */
@@ -617,13 +617,11 @@ AgentImpl::ping()
   return 0;
 } // ping()
 
-
 char*
 AgentImpl::getHostname()
 {
   return CORBA::string_dup(localHostName) ;
 }
-
 
 #if not defined HAVE_BATCH && not defined HAVE_ALT_BATCH
 /**
@@ -683,7 +681,7 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req,
         childFound = true;
       }
     }
-    if (!childFound && childID < static_cast<CORBA::ULong>(SeDChildren.size())) {
+    if(!childFound && childID < static_cast<CORBA::ULong>(SeDChildren.size())){
       /* Then it must be a server */
       SeDChild& childDesc = SeDChildren[childID];
       if (childDesc.defined()) {
@@ -729,12 +727,11 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req,
   stat_out(this->myName,"sendRequest");
 } // sendRequest(CORBA::Long childID, const corba_request_t* req)
 
-
 /**
- * Get communication time between this agent and the child \c childID for a data
- * amount of size \c size. The way of the data transfer can be specified with
- * \c to : if (to), from this agent to the child, else from the child to this
- * agent.
+ * Get communication time between this agent and the child \c childID for a 
+ * data amount of size \c size. The way of the data transfer can be specified
+ * with \c to : if (to), from this agent to the child, else from the child to
+ * this agent.
  */
  inline double
 AgentImpl::getCommTime(CORBA::Long childID, unsigned long size, bool to)
@@ -784,7 +781,6 @@ AgentImpl::aggregate(Request* request, size_t max_srv)
   stat_out(this->myName,"aggregate");
   return aggregResp;
 } // aggregate(Request* request, size_t max_srv)
-
 
 /** Get host name of a child (returned string is ms_stralloc'd). */
 char*

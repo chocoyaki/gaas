@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2008/01/01 19:04:46  ycaniou
+ * Only cosmetic
+ *
  * Revision 1.17  2007/11/29 13:04:19  glemahec
  * Bug correction: with gcc >=4.1 cross compilation error when creating an object
  * in a case statement which is not the last one. The error appears only with
@@ -215,7 +218,10 @@ GlobalScheduler::chooseGlobalScheduler()
   return res;
 }
 
-
+/* Let the corba_request be a parameter in order to have the possibility
+   of a globalScheduler being function for example from where the request
+   comes from, etc.
+*/
 
 GlobalScheduler*
 GlobalScheduler::chooseGlobalScheduler(const corba_request_t* req,

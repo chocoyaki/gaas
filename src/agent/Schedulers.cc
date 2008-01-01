@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2008/01/01 19:04:46  ycaniou
+ * Only cosmetic
+ *
  * Revision 1.19  2007/04/17 13:34:54  ycaniou
  * Error in debug.tex header
  * Removes some warnings during doc generation
@@ -202,6 +205,8 @@ Scheduler::serialize(Scheduler* S)
   }
   else {
     INTERNAL_ERROR("unable to serialize scheduler named " << S->name, 1);
+    /* this line never executes, but exists to avoid  warning */
+    return NULL ;
   }
 }
 

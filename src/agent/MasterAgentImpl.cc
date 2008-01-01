@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.37  2008/01/01 19:04:46  ycaniou
+ * Only cosmetic
+ *
  * Revision 1.36  2007/06/28 18:03:46  ycaniou
  * Take into account the possibility of initReqID not defined in the .cfg
  *
@@ -467,7 +470,7 @@ MasterAgentImpl::submit_local(const corba_request_t& creq)
     srvTMutex.unlock();
   
     req = new Request(&creq,
-                    GlobalScheduler::chooseGlobalScheduler(&creq, &profile));
+		      GlobalScheduler::chooseGlobalScheduler(&creq, &profile));
 
     /** Forward request and schedule the responses */
     resp = findServer(req, creq.max_srv);
@@ -476,16 +479,16 @@ MasterAgentImpl::submit_local(const corba_request_t& creq)
 #endif
   }
 
-  resp->myID = (ChildID) -1;
+  resp->myID = (ChildID) - 1;
 
   // Constructor initializes sequences with length == 0
   if ((resp != NULL) && (resp->servers.length() != 0)) {
     resp->servers.length(MIN(resp->servers.length(),
-			      static_cast<size_t>(creq.max_srv)));
+			     static_cast<size_t>(creq.max_srv)));
     TRACE_TEXT(TRACE_ALL_STEPS, "Decision signaled.\n");
   } else {
     TRACE_TEXT(TRACE_MAIN_STEPS,
-	        "No server found for problem " << creq.pb.path << ".\n");
+	       "No server found for problem " << creq.pb.path << ".\n");
   }
 
   reqList[creq.reqID] = NULL;

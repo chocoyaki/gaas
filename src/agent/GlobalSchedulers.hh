@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2008/01/01 19:04:46  ycaniou
+ * Only cosmetic
+ *
  * Revision 1.7  2007/03/27 08:53:30  glemahec
  * Adds the "virtual" qualifier to the aggregate method to allow to override it in the user defined class.
  *
@@ -111,7 +114,7 @@ protected:
  * information.
  * if HAVE_CORI: round robin scheduling and if the information is not 
  * available then random scheduling
- * else :Thus the ones which have perfromed FAST estimations are placed
+ * else :Thus the ones which have performed FAST estimations are placed
  * first, then the ones that have performed NWS estimations, and finally the
  * ones that gave no information at all ordered randomly.
  */
