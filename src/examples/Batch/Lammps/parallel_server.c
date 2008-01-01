@@ -80,7 +80,7 @@ int solve_lammps(diet_profile_t *pb)
   struct stat buf;
   char * lammpsName ;
   struct timeval uur70 ;
-  char chaine[5] ;
+  char chaine[50] ;
   
   printf("Resolving sequential service 'lammps'") ;
   /* Lammps binary dependant of installation. We suppose no renaming but
