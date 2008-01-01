@@ -4,12 +4,26 @@
 ADD_SUBDIRECTORY( idl )
 
 IF( DIET_BUILD_LIBRARIES )
+
   INCLUDE_DIRECTORIES(
     ${OMNIORB4_INCLUDE_DIR}
     ${DIET_BINARY_DIR}/src/CORBA/idl
     ${DIET_SOURCE_DIR}/src/utils        # for DIET_data_internal.hh
     ${DIET_SOURCE_DIR}/include
   )
+
+IF( DIET_USE_ALT_BATCH )
+  INCLUDE_DIRECTORIES(
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${DIET_BINARY_DIR}/src/CORBA        # for ORBMgr (for DietLogComponent)
+    ${DIET_SOURCE_DIR}/src/utils        # for DIET_data_internal.hh
+    ${DIET_SOURCE_DIR}/src/agent        # for e.g. ChildID.hh (for SeDImpl)
+    ${DIET_SOURCE_DIR}/src/SeD          # for SeDImpl and batch
+  )
+  IF( DIET_USE_JUXMEM )
+    INCLUDE_DIRECTORIES( ${JUXMEM_INCLUDE_DIR} )
+  ENDIF( DIET_USE_JUXMEM )
+ENDIF( DIET_USE_ALT_BATCH )
   
   # Note concerning unresolved symbols in CorbaCommon library:
   # CorbaCommon uses some "stuff" defined in src/utils/DIET_data.cc [e.g.
@@ -51,11 +65,23 @@ IF( DIET_BUILD_LIBRARIES )
     ORBMgr.cc
     marshalling.cc 
   )
-  ADD_DEPENDENCIES( CorbaCommon DIET_TARGET_IDL_GENERATED_HEADERS )
-  
+
+IF( DIET_USE_ALT_BATCH )
+  ADD_DEPENDENCIES( CorbaCommon 
+		    DIET_TARGET_IDL_GENERATED_HEADERS 
+		    BatchSystem.hh )
+  TARGET_LINK_LIBRARIES( CorbaCommon
+    UtilsSeDBatch
+  )
+ELSE( DIET_USE_ALT_BATCH )
+  ADD_DEPENDENCIES( CorbaCommon 
+		    DIET_TARGET_IDL_GENERATED_HEADERS )
+ENDIF( DIET_USE_ALT_BATCH )
+
   TARGET_LINK_LIBRARIES( CorbaCommon
     ${OMNIORB4_LIBRARIES}
   )
+  
   ################### MacOS X and unresolved symbol at link time:
   # The following kludge doesn't imply there is something wrong with MacOS X
   # (well, at least in this case). It is just that by default when linking

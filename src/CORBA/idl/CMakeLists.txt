@@ -65,7 +65,7 @@ IF( DIET_BUILD_LIBRARIES )
       WfLogService
       ${IDL_SOURCES} )
   ENDIF ( DIET_USE_WORKFLOW )
-  
+
   # Some libraries of the utils directory (e.g. UtilsCommon) need the 
   # idl generated header files. This is a technical variable used to
   # define the target enabling to express this dependency (look below
@@ -106,7 +106,7 @@ IF( DIET_BUILD_LIBRARIES )
       ${DIET_TARGET_IDL_GENERATED_HEADER_FILES}
          ${CMAKE_CURRENT_BINARY_DIR}/${loop_var}.hh )
   ENDFOREACH(loop_var)
-  
+
   # idl generated header files:
   ADD_CUSTOM_TARGET( DIET_TARGET_IDL_GENERATED_HEADERS
     DEPENDS  ${DIET_TARGET_IDL_GENERATED_HEADER_FILES}

@@ -9,6 +9,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.79  2008/01/01 19:02:49  ycaniou
+ * Make modifications in order for pathToTmp and pathToNFS set in the SeD.cfg
+ *   to be taken into account when transfering data.
+ *
+ * Important Note: it compiles and runs well under Linux, but compiles and does
+ *   not run on AIX: client and agent must have a reference to getBatch() which is
+ *   in a lib only linked to the SeD. Should be ok when Dagda will be commited.
+ *
  * Revision 1.78  2007/12/18 12:30:13  aamar
  * Using debug macros instead of cout
  *
@@ -219,6 +227,11 @@
 #include "debug.hh"
 #include "ms_function.hh"
 #include "DIET_data_internal.hh"     // for data_sizeof()
+
+#if defined HAVE_ALT_BATCH
+#include "SeDImpl.hh"
+#include "BatchSystem.hh"
+#endif
 
 extern unsigned int TRACE_LEVEL;
 
@@ -607,9 +620,14 @@ unmrsh_data_desc(diet_data_desc_t* dest, const corba_data_desc_t* const src)
   return 0;
 }
 
-
+#if defined HAVE_ALT_BATCH
+int
+unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown,
+	    const char * tmpDir)
+#else
 int
 unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
+#endif
 {  
   static int uniqDataID=0 ;
   static omni_mutex uniqDataIDMutex ;
@@ -631,15 +649,21 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
       char * out_path  = ms_stralloc(256) ;
       pid_t pid = getpid();
       int temp ;
-      
+
       if(strncmp(in_path,"/tmp/DIET_",10) != 0) {
 	uniqDataIDMutex.lock() ;
 	uniqDataID++ ;
 	temp = uniqDataID ;
 	uniqDataIDMutex.unlock() ;
-	
+
+#if defined HAVE_ALT_BATCH
+	/* use path2tmp defined in server config file */
+	sprintf(out_path, "%sDIET_%d.%d.%ld_%s",tmpDir, pid,temp, random()
+		,(file_name) ? (char*)(1 + file_name) : in_path);
+#else
 	sprintf(out_path, "/tmp/DIET_%d.%d.%ld_%s",pid,temp, random()
 		,(file_name) ? (char*)(1 + file_name) : in_path);
+#endif
 	ofstream outfile(out_path);
 
         for (int i = 0; i < src->desc.specific.file().size; i++) {
@@ -1037,8 +1061,16 @@ unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
       if (src_params[arg_idx] == NULL) {
         src_params[arg_idx] = new diet_data_t;
 
-        unmrsh_data(src_params[arg_idx], &(src->parameters[arg_idx]),0); 
-
+#if defined HAVE_ALT_BATCH
+	if( ((SeDImpl*)dest->SeDPtr)->getBatch() != NULL )
+	  unmrsh_data(src_params[arg_idx], &(src->parameters[arg_idx]),0,
+		      ((SeDImpl*)dest->SeDPtr)->getBatch()->getTmpPath()) ;
+	else // Should be removed when all classes managed within SeD
+	  unmrsh_data(src_params[arg_idx], &(src->parameters[arg_idx]),0,
+		      "/tmp/") ; 
+#else
+        unmrsh_data(src_params[arg_idx], &(src->parameters[arg_idx]),0);
+#endif
       } else if (cvt->arg_convs[i].f == DIET_CVT_IDENTITY) {
         duplicate_value = 1;
       }
@@ -1195,7 +1227,14 @@ unmrsh_out_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb)
 
   // Unmarshal OUT parameters
   for (; i <= dpb->last_out; i++) {
+#if defined HAVE_ALT_BATCH
+    /* YC: for the moment, client always receives in /tmp/
+       -> see with Gael if can be changed with DagDA */
+    unmrsh_data(&(dpb->parameters[i]), &(cpb->parameters[i]),1,
+		"/tmp/");
+#else
     unmrsh_data(&(dpb->parameters[i]), &(cpb->parameters[i]),1);
+#endif
   }
   return 0;
 }
@@ -1217,7 +1256,16 @@ unmrsh_inout_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb)
 
   // Unmarshal INOUT parameters
   for (i = dpb->last_in + 1; i <= dpb->last_inout; i++) {
+#if defined HAVE_ALT_BATCH
+    if( ((SeDImpl*)dpb->SeDPtr)->getBatch() != NULL)
+      unmrsh_data(&(dpb->parameters[i]), &(cpb->parameters[i]),1,
+		  ((SeDImpl*)dpb->SeDPtr)->getBatch()->getTmpPath());
+    else // Should be removed when all classes managed within SeD
+      unmrsh_data(&(dpb->parameters[i]), &(cpb->parameters[i]),1,
+		  "/tmp/") ;
+#else
     unmrsh_data(&(dpb->parameters[i]), &(cpb->parameters[i]),1);
+#endif
   }
 
   return 0;

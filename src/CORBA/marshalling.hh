@@ -9,6 +9,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.30  2008/01/01 19:02:49  ycaniou
+ * Make modifications in order for pathToTmp and pathToNFS set in the SeD.cfg
+ *   to be taken into account when transfering data.
+ *
+ * Important Note: it compiles and runs well under Linux, but compiles and does
+ *   not run on AIX: client and agent must have a reference to getBatch() which is
+ *   in a lib only linked to the SeD. Should be ok when Dagda will be commited.
+ *
  * Revision 1.29  2007/07/09 18:54:48  aamar
  * Adding Endianness support (CMake option).
  *
@@ -174,8 +182,14 @@ unmrsh_out_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb);
 int
 unmrsh_inout_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb);
 
+// tmpDir is the prefix of where data are stored on server
+#if defined HAVE_ALT_BATCH
 int
-unmrsh_data(diet_data_t* dest, corba_data_t* src);
+unmrsh_data(diet_data_t* dest, corba_data_t* src, int, const char * tmpDir);
+#else
+int
+unmrsh_data(diet_data_t* dest, corba_data_t* src, int);
+#endif
 
 // unmarshall only the data description (needed for custom
 // performance metrics)
