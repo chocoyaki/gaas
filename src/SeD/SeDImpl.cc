@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.97  2008/01/01 19:40:35  ycaniou
+ * Modifications for batch management
+ *
  * Revision 1.96  2007/12/18 13:04:28  glemahec
  * This commit adds the "diet_estimate_waiting_jobs" function to obtain the
  * number of jobs waiting in the FIFO queue when using the max concurrent
@@ -271,6 +274,14 @@ SeDImpl::initialize()
   this->fastUse = 1;
 #endif //!HAVE_CORI && HAVE_FAST
 
+#if defined HAVE_ALT_BATCH
+  this->server_status = SERIAL ;
+  this->batch = NULL ; /* This has to be removed when all SeD will instanciate
+			  a class corresponding to what it is read in the .cfg
+			  file: FIFO, batch, etc
+			  For the moment, NULL is like FIFO
+		       */
+#endif
 #if defined HAVE_BATCH
   batchQueue = NULL ;
   initCorresBatchDietReqID() ;
@@ -341,11 +352,7 @@ SeDImpl::run(ServiceTable* services)
   }
 #endif
 #if defined HAVE_ALT_BATCH
-  int only_batch_services = this->SrvT->testIfAllParallelServices() ;
-  // A SeD can only launch parallel/batch or -exclusive- sequential jobs.
-  // Then, all profiles must be either parallel/batch or sequential.
-  // No mix allowed. 
-  if( only_batch_services == 1 ) {
+  if( this->server_status == BATCH ) {
     // Read "batchName" if parallel jobs are to be submitted
     char * batchname = (char*) 
       Parsers::Results::getParamValue(Parsers::Results::BATCHNAME) ;
@@ -360,16 +367,16 @@ SeDImpl::run(ServiceTable* services)
     TRACE_TEXT(TRACE_MAIN_STEPS,
     	       "Parallel/batch submission enabled with " 
 	       << batch->getBatchName()) ;
+    /* TODO: Queues should be provided in the SeD.cfg, or
+       should be recognized automatically
+       -> for the moment, only one queue specified in the file
+    */
     if( batch->getBatchQueueName() != NULL )
       TRACE_TEXT(TRACE_MAIN_STEPS, " using queue " 
 		 << batch->getBatchQueueName() ) ;
     TRACE_TEXT(TRACE_MAIN_STEPS, "\n" ) ;
     TRACE_TEXT(TRACE_MAIN_STEPS,"pathToNFS: " << batch->getNFSPath() << "\n") ;
     TRACE_TEXT(TRACE_MAIN_STEPS,"pathToTmp: " << batch->getTmpPath() << "\n") ;
-  } else if( only_batch_services == -1 ) {
-    ERROR("SeD is not allowed to launch parallel/batch and sequential job"
-	  "at the same time",
-	  1) ;
   }
 #endif
   char* parent_name = (char*)
@@ -569,7 +576,6 @@ SeDImpl::checkContract(corba_estimation_t& estimation,
   return 0;
 }
 
-
 void persistent_data_release(corba_data_t* arg){
 
  switch((diet_data_type_t)(arg->desc.specific._d())) {
@@ -609,16 +615,20 @@ void persistent_data_release(corba_data_t* arg){
     break;
   }
 }
+
 /** Called from client immediatly after knowing which server is selected
- ** before data transfer */
+ ** and will be called by the client, before data transfer.
+ 
+ ** Should disappear when data management by Gaël is fully tested, because
+ ** by default, data will be managed inside the solve() function and not inside
+ ** the call.
+ **/
 void
 SeDImpl::updateTimeSinceLastSolve() 
 {
   gettimeofday(&(this->lastSolveStart), NULL) ;
 }
 
-/* TODO: When HAVE_ALT_BATCH is enabled by default, change the prototype
-   because reqID is integrated in the profile */
 CORBA::Long
 SeDImpl::solve(const char* path, corba_profile_t& pb)
 {
@@ -641,10 +651,14 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
    * and time at which job was enqueued (when using queues). */
   gettimeofday(&(this->lastSolveStart), NULL);
 
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_BATCH
   /* Use parallel_flag of the proposed SeD service to know what to do */
   const corba_profile_desc_t & sed_profile = SrvT->getProfile( ref ) ;
   if( sed_profile.parallel_flag == 2 )
+    return this->parallel_solve(path, pb, ref, profile) ;
+#endif
+#if defined HAVE_ALT_BATCH
+  if( server_status == BATCH )
     return this->parallel_solve(path, pb, ref, profile) ;
 #endif
 
@@ -694,6 +708,14 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
 
   return solve_res;
 }
+
+#if defined HAVE_ALT_BATCH
+void
+SeDImpl::setServerStatus( diet_server_status_t status )
+{
+  this->server_status = status ;
+}
+#endif
 
 #if defined HAVE_BATCH 
 char*
@@ -815,8 +837,6 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
 }
 #endif //HAVE_BATCH
 
-/* TODO: When HAVE_ALT_BATCH is enabled by default, change the prototype 
-   because reqID is integrated in the profile */
 void
 SeDImpl::solveAsync(const char* path, const corba_profile_t& pb, 
                      const char* volatileclientREF)
@@ -975,7 +995,6 @@ SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb,
       TRACE_TEXT(TRACE_MAIN_STEPS,
 		 "SeD::solve_AsyncParallel invoked on pb: " << path 
 		 << " (reqID " << pb.dietReqID << ")" << endl);
-    
     
       cvt = SrvT->getConvertor(ref);
     
@@ -1490,6 +1509,7 @@ SeDImpl::initCorresBatchDietReqID()
 {
   this->batchJobQueue = NULL ;
 }
+
 /**
  * Store the batch job ID of the parallel task (in fact the pid of the script)
  just submitted in correspondance with the DIET request ID
@@ -1569,6 +1589,7 @@ SeDImpl::removeBatchID(int diet_reqID)
 
   corresBatchReqID_mutex.unlock() ;
 }
+
 /** 
  * Return the pid of the script that launched the batch job
  */
@@ -1589,6 +1610,7 @@ SeDImpl::findBatchID(int diet_reqID)
   }
   return *(tmp->batchJobID) ;
 }
+
 /** 
  * Return the name of the batch queue
  */

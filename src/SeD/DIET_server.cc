@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.69  2008/01/01 19:40:35  ycaniou
+ * Modifications for batch management
+ *
  * Revision 1.68  2007/12/18 13:04:27  glemahec
  * This commit adds the "diet_estimate_waiting_jobs" function to obtain the
  * number of jobs waiting in the FIFO queue when using the max concurrent
@@ -179,6 +182,9 @@ BEGIN_API
 /****************************************************************************/
 
 static ServiceTable* SRVT;
+#ifdef HAVE_ALT_BATCH
+static diet_server_status_t st=SERIAL ;
+#endif
 
 int
 diet_service_table_init(int maxsize)
@@ -808,6 +814,12 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   fsync(1);
   fflush(NULL);
 
+#ifdef HAVE_ALT_BATCH
+  /* Define the role of the SeD: batch, serial, etc. */
+  SeD->setServerStatus( st ) ;
+  TRACE_TEXT(TRACE_MAIN_STEPS, "setServerStatus " << (int)st << "\n");
+#endif  
+
   /* Set SeD to use LogService object */
   SeD->setDietLogComponent(dietLogComponent);
 
@@ -1268,6 +1280,30 @@ int diet_estimate_waiting_jobs(estVector_t ev) {
 /****************************************************************************/
 /* DIET batch submit call                                                   */
 /****************************************************************************/
+
+#ifdef HAVE_ALT_BATCH
+/* TODO (YC): put me in right place in this file */
+void
+diet_set_server_status( diet_server_status_t status )
+{
+  TRACE_TEXT(TRACE_MAIN_STEPS,"SeD is...\n") ;
+  if( (status > -1) && (status<NB_SERVER_STATUS) ) {
+    st = status ;
+    //#if defined YC_DEBUG
+    switch((int)st) {
+    case BATCH:
+      TRACE_TEXT(TRACE_MAIN_STEPS,"SeD is batch\n") ;
+      break ;
+    case SERIAL:
+      TRACE_TEXT(TRACE_MAIN_STEPS,"SeD is sequential\n") ;
+      break ;
+    default:
+      TRACE_TEXT(TRACE_MAIN_STEPS,"Server status list to update\n") ;
+    }
+  //#endif  
+  } else ERROR_EXIT("Server status not recognized") ;
+}
+#endif
 
 #ifdef HAVE_BATCH
 int

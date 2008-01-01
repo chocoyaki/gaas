@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.37  2008/01/01 19:40:35  ycaniou
+ * Modifications for batch management
+ *
  * Revision 1.36  2007/12/18 13:04:28  glemahec
  * This commit adds the "diet_estimate_waiting_jobs" function to obtain the
  * number of jobs waiting in the FIFO queue when using the max concurrent
@@ -207,8 +210,15 @@ extern "C" {
 }
 #endif
 #if HAVE_ALT_BATCH
+extern "C" {
+#include "DIET_server.h" /* For inclusion of diet_server_status_t */
+}
 #include "BatchSystem.hh"
 #endif
+#if HAVE_SEDSCHEDULER
+#include "SeDScheduler.hh"
+#endif
+
 
 /****************************************************************************/
 /* SeD class                                                                */
@@ -256,8 +266,6 @@ public:
   virtual void
   updateTimeSinceLastSolve() ;
   
-  /* TODO: when HAVE_BATCH is validated, 3rd arg unnecessary:
-  **   reqID is pb.dietJobID */
   virtual CORBA::Long
   solve(const char* pbName, corba_profile_t& pb);
 
@@ -278,6 +286,10 @@ public:
 #endif
 
 #if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+  /* Set if server is SERIAL, BATCH,.. */
+  void
+  setServerStatus( diet_server_status_t status ) ;
+  
   virtual CORBA::Long
   parallel_solve(const char* pbName, corba_profile_t& pb,
 	      ServiceTable::ServiceReference_t& ref,
@@ -317,6 +329,11 @@ public:
   int getNumJobsWaiting();
   
 private:
+#ifdef HAVE_ALT_BATCH
+  /* Status of SeD: Batch, Serial, other? */
+  diet_server_status_t server_status ;
+#endif
+
   /** Reference of the parent */
   Agent_var parent;
   /** ID of this agent amongst the children of its parent */
@@ -365,9 +382,11 @@ private:
 #endif
 
 #if HAVE_ALT_BATCH
-
   BatchSystem * batch ;
-  
+#endif
+
+#if HAVE_SEDSCHEDULER
+  SeDScheduler * sched ;
 #endif
 
   /* Queue: should SeD restrict the number of concurrent solves? */
