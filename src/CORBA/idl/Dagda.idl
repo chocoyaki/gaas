@@ -1,0 +1,129 @@
+#ifndef _DAGDA_IDL_
+#define _DAGDA_IDL_
+
+#include "common_types.idl"
+
+/* - "lcl" prefix means "local".
+   - "lvl" prefix means "from this level".
+   - "pfm" prefix means "in the platform".
+   - "dtm" prefix means "on this data manager".
+
+   The "dtm*" methods are necessary if we plan to use the hierarchy to
+   access a node. Otherwise, node->lcl* is sufficient. By overriding these
+   methods, we can choose a routing strategy taking into account the network
+   limitations like firewalls, network interface etc.
+
+   To make different protocols wrappers, we can use methods override. Each node
+   should execute its own DAGDA implementation taking into account its
+   capabilities.
+*/
+
+interface Dagda {
+  exception DataNotFound {
+    string dataID;
+  };
+  exception InvalidPathName {
+    string dataID;
+    string path;
+  };
+  exception ReadError {
+    long error;
+  };
+  exception WriteError {
+    long error;
+  };
+  exception NotEnoughSpace {
+    long available;
+  };
+  exception UnreachableFile {
+    string path;
+  };
+  exception PermissionDenied {
+	long error;
+  };
+  /* Is the data using dataID is present. */
+  boolean lclIsDataPresent(in string dataID);
+  boolean lvlIsDataPresent(in string dataID);
+  boolean pfmIsDataPresent(in string dataID);
+
+  /* To obtain the data using dataID. */
+  corba_data_t lclGetData(in Dagda dest, in string dataID)
+    raises(DataNotFound, InvalidPathName, ReadError, WriteError,
+	   NotEnoughSpace);
+  corba_data_t lvlGetData(in Dagda dest, in string dataID)
+    raises(DataNotFound, InvalidPathName, ReadError, WriteError,
+	   NotEnoughSpace);
+  corba_data_t pfmGetData(in Dagda dest, in string dataID)
+    raises(DataNotFound, InvalidPathName, ReadError, WriteError,
+	   NotEnoughSpace);
+
+  /* Add a data. */
+  void lclAddData(in Dagda src, in corba_data_t data)
+    raises(InvalidPathName, ReadError, WriteError, NotEnoughSpace);
+  void lvlAddData(in Dagda src, in corba_data_t data)
+    raises(InvalidPathName, ReadError, WriteError, NotEnoughSpace);
+  void pfmAddData(in Dagda src, in corba_data_t data)
+    raises(InvalidPathName, ReadError, WriteError, NotEnoughSpace);
+  /* Register a file. (without copying it. Used to declare a file present at
+     launching time or shared by SeDs.) */
+  void registerFile(in corba_data_t data)
+    raises(InvalidPathName, UnreachableFile);
+
+  /* Remove a data. */
+  void lclRemData(in string dataID);
+  void lvlRemData(in string dataID);
+  void pfmRemData(in string dataID);
+
+  /* Update a data. */
+  void lclUpdateData(in Dagda src, in corba_data_t data);
+  void lvlUpdateData(in Dagda src, in corba_data_t data);
+  void pfmUpdateData(in Dagda src, in corba_data_t data);
+
+  /* Get the data description list. */
+  SeqCorbaDataDesc_t lclGetDataDescList();
+  SeqCorbaDataDesc_t lvlGetDataDescList();
+  SeqCorbaDataDesc_t pfmGetDataDescList();
+
+  /* Get The description of a data. */
+  corba_data_desc_t lclGetDataDesc(in string dataID)
+    raises(DataNotFound);
+  corba_data_desc_t lvlGetDataDesc(in string dataID)
+    raises(DataNotFound);
+  corba_data_desc_t pfmGetDataDesc(in string dataID)
+    raises(DataNotFound);
+
+  /* Write a file on the node storage ressource. If "replace" is true, 
+     the file is opened at the beginning, otherwise the data are added at
+     the end of the file. Returns the path where the file was stored. */
+  string writeFile(in SeqChar data, in string basename, in boolean replace)
+    raises(InvalidPathName, WriteError, NotEnoughSpace);
+  /* Send a file to a node. */
+  string sendFile(in corba_data_t data, in Dagda dest)
+    raises(InvalidPathName, ReadError, WriteError);
+  /* Record a data into memory. If "replace" is true,
+     the data is erased or created and replaced by the new one.
+     Returns the id of the data. */
+  string recordData(in SeqChar data, in corba_data_desc_t dataDesc,
+		    in boolean replace)
+    raises(NotEnoughSpace);
+  /* Send a data to a node. */
+  string sendData(in string ID, in Dagda dest)
+    raises(DataNotFound);
+
+  /* Get the managers of a data. */
+  typedef sequence<Dagda> SeqDagda_t;
+  SeqDagda_t lvlGetDataManagers(in string dataID);
+  SeqDagda_t pfmGetDataManagers(in string dataID);
+
+  /* Ask to this node to become its child. */
+  void subscribe(in Dagda me);
+  /* Unsubscribe. */
+  void unsubscribe(in Dagda me);
+
+  /* To identify the data manager node. */
+  string getID();
+  string getHostname();
+};
+
+typedef Dagda::SeqDagda_t SeqDagda_t;
+#endif
