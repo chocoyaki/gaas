@@ -1,0 +1,173 @@
+#ifndef _DTMIMPL_HH_
+#define _DTMIMPL_HH_
+#define MAXBUFFSIZE  (getMaxMsgSize()==0 ? 4294967295U:getMaxMsgSize())
+
+#include "Dagda.hh"
+#include "common_types.hh"
+
+#include <unistd.h>
+
+#include <list>
+#include <map>
+#include <iterator>
+#include <sstream>
+
+class DagdaImpl : public POA_Dagda, public PortableServer::RefCountServantBase {
+public:
+  DagdaImpl() : parent(NULL), ID("NoID"), data() {}
+  ~DagdaImpl();
+
+  /* CORBA part. To be remotely called. */
+  //virtual char* managerID();
+  virtual char* getID();
+  virtual char* getHostname();
+  virtual void subscribe(Dagda_ptr me) = 0;
+  virtual void unsubscribe(Dagda_ptr me) = 0;
+  //virtual void managerID(const char* _v);
+
+  virtual CORBA::Boolean lclIsDataPresent(const char* dataID) = 0;
+  virtual CORBA::Boolean lvlIsDataPresent(const char* dataID) = 0;
+  virtual CORBA::Boolean pfmIsDataPresent(const char* dataID) = 0;
+
+  virtual corba_data_t* lclGetData(Dagda_ptr dest, const char* dataID) = 0;
+  virtual corba_data_t* lvlGetData(Dagda_ptr dest, const char* dataID) = 0;
+  virtual corba_data_t* pfmGetData(Dagda_ptr dest, const char* dataID) = 0;
+
+  virtual void lclAddData(Dagda_ptr src, const corba_data_t& data) = 0;
+  virtual void lvlAddData(Dagda_ptr src, const corba_data_t& data) = 0;
+  virtual void pfmAddData(Dagda_ptr src, const corba_data_t& data) = 0;
+  virtual void registerFile(const corba_data_t& data) = 0;
+
+  virtual void lclRemData(const char* dataID) = 0;
+  virtual void lvlRemData(const char* dataID) = 0;
+  virtual void pfmRemData(const char* dataID) = 0;
+
+  virtual void lclUpdateData(Dagda_ptr src, const corba_data_t& data) = 0;
+  virtual void lvlUpdateData(Dagda_ptr src, const corba_data_t& data) = 0;
+  virtual void pfmUpdateData(Dagda_ptr src, const corba_data_t& data) = 0;
+
+  virtual SeqCorbaDataDesc_t* lclGetDataDescList() = 0;
+  virtual SeqCorbaDataDesc_t* lvlGetDataDescList() = 0;
+  virtual SeqCorbaDataDesc_t* pfmGetDataDescList() = 0;
+
+  virtual corba_data_desc_t* lclGetDataDesc(const char* dataID) = 0;
+  virtual corba_data_desc_t* lvlGetDataDesc(const char* dataID) = 0;
+  virtual corba_data_desc_t* pfmGetDataDesc(const char* dataID) = 0;
+
+  virtual Dagda::SeqDagda_t* lvlGetDataManagers(const char* dataID) = 0;
+  virtual Dagda::SeqDagda_t* pfmGetDataManagers(const char* dataID) = 0;
+
+  virtual char* writeFile(const SeqChar& data, const char* basename,
+			  CORBA::Boolean replace);
+  virtual char* sendFile(const corba_data_t &data, Dagda_ptr dest);
+  virtual char* recordData(const SeqChar& data, const corba_data_desc_t& dataDesc,
+			   CORBA::Boolean replace);
+  virtual char* sendData(const char* ID, Dagda_ptr dest);
+
+  virtual char* downloadData(Dagda_ptr src, const corba_data_t& data) = 0;
+
+  /* Local part. */
+  void setDataPath(const char* path);
+  const char* getDataPath();
+  void setMaxMsgSize(const unsigned long maxMsgSize);
+  const unsigned long getMaxMsgSize();
+  void setDiskMaxSpace(const unsigned long diskMaxSpace);
+  const unsigned long getDiskMaxSpace();
+  void setMemMaxSpace(const unsigned long memMaxSpace);
+  const unsigned long getMemMaxSpace();
+  
+  /* Implementation dependent functions. */
+  virtual bool isDataPresent(const char* dataID) = 0;
+  virtual corba_data_t* getData(const char* dataID) = 0;
+  virtual void addData(const corba_data_t& data) = 0;
+  virtual void remData(const char* dataID) = 0;
+  virtual SeqCorbaDataDesc_t* getDataDescList() = 0;
+  virtual int init(const char* ID, const char* parentID,
+		   const char* dataPath, const unsigned long maxMsgSize,
+		   const unsigned long diskMaxSpace,
+		   const unsigned long memMaxSpace) = 0;
+protected:
+  Dagda_ptr parent;
+  std::string dataPath;
+  char* ID;
+  char* hostname;
+  unsigned long maxMsgSize;
+  unsigned long diskMaxSpace;
+  unsigned long memMaxSpace;
+
+  std::map<std::string, Dagda_ptr> children;
+  std::map<std::string, corba_data_t> data;
+};
+
+class SimpleDagdaImpl : public DagdaImpl {
+public:
+  SimpleDagdaImpl() : DagdaImpl() { }
+  ~SimpleDagdaImpl();
+
+  virtual void subscribe(Dagda_ptr me);
+  virtual void unsubscribe(Dagda_ptr me);
+
+  virtual CORBA::Boolean lclIsDataPresent(const char* dataID);
+  virtual CORBA::Boolean lvlIsDataPresent(const char* dataID);
+  virtual CORBA::Boolean pfmIsDataPresent(const char* dataID);
+
+  virtual corba_data_t* lclGetData(Dagda_ptr dest, const char* dataID);
+  virtual corba_data_t* lvlGetData(Dagda_ptr dest, const char* dataID);
+  virtual corba_data_t* pfmGetData(Dagda_ptr dest, const char* dataID);
+
+  virtual void lclAddData(Dagda_ptr src, const corba_data_t& data);
+  virtual void lvlAddData(Dagda_ptr src, const corba_data_t& data);
+  virtual void pfmAddData(Dagda_ptr src, const corba_data_t& data);
+  virtual void registerFile(const corba_data_t& data);
+
+  virtual void lclRemData(const char* dataID);
+  virtual void lvlRemData(const char* dataID);
+  virtual void pfmRemData(const char* dataID);
+
+  virtual void lclUpdateData(Dagda_ptr src, const corba_data_t& data);
+  virtual void lvlUpdateData(Dagda_ptr src, const corba_data_t& data);
+  virtual void pfmUpdateData(Dagda_ptr src, const corba_data_t& data);
+
+  virtual SeqCorbaDataDesc_t* lclGetDataDescList();
+  virtual SeqCorbaDataDesc_t* lvlGetDataDescList();
+  virtual SeqCorbaDataDesc_t* pfmGetDataDescList();
+
+  virtual corba_data_desc_t* lclGetDataDesc(const char* dataID);
+  virtual corba_data_desc_t* lvlGetDataDesc(const char* dataID);
+  virtual corba_data_desc_t* pfmGetDataDesc(const char* dataID);
+
+  virtual Dagda::SeqDagda_t* lvlGetDataManagers(const char* dataID);
+  virtual Dagda::SeqDagda_t* pfmGetDataManagers(const char* dataID);
+
+  /* Local part. */
+  /* Implementation dependent functions. */
+  virtual bool isDataPresent(const char* data);
+  virtual corba_data_t* getData(const char* data);
+  virtual void addData(const corba_data_t& data);
+  virtual void remData(const char* dataID);
+  virtual SeqCorbaDataDesc_t* getDataDescList();
+  virtual char* downloadData(Dagda_ptr src, const corba_data_t& data);
+  
+  std::map<std::string, Dagda_ptr> getChildren() { return children; }
+  std::map<std::string, corba_data_t> getData() { return data; }  
+  
+  /* Get an iterator over children. */
+  std::map<std::string, Dagda_ptr>::iterator childIterator() {
+    return children.begin();
+  }
+
+  /* Get an iterator over data. */
+  std::map<std::string, corba_data_t>::iterator dataIterator() {
+    return data.begin();
+  }
+
+  /* Initialisation. */
+  virtual int init(const char* ID, const char* parentID,
+		   const char* dataPath, const unsigned long maxMsgSize,
+		   const unsigned long diskMaxSpace,
+		   const unsigned long memMaxSpace);
+
+};
+
+
+#endif
