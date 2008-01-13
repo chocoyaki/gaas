@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.70  2008/01/13 21:20:39  glemahec
+ * Adds a return in diet_estimate_waiting_jobs function to avoid a warning.
+ *
  * Revision 1.69  2008/01/01 19:40:35  ycaniou
  * Modifications for batch management
  *
@@ -1275,6 +1278,7 @@ int diet_estimate_waiting_jobs(estVector_t ev) {
   if (SeDObject!=NULL)
     diet_est_set_internal(ev, EST_NUMWAITINGJOBS,
 	                      SeDObject->getNumJobsWaiting());
+  return 0;
 }
 
 /****************************************************************************/
