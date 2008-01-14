@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.31  2008/01/14 11:08:26  glemahec
+ * marshalling modifications to allow the use of dagda as data manager.
+ * v1.0: A lot of modifications will be added in the v1.2 version (coming soon)
+ *
  * Revision 1.30  2008/01/01 19:02:49  ycaniou
  * Make modifications in order for pathToTmp and pathToNFS set in the SeD.cfg
  *   to be taken into account when transfering data.
@@ -168,6 +172,16 @@ mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src);
 int
 unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
 			  const diet_convertor_t* cvt);
+#if HAVE_DAGDA
+int
+unmrsh_to_profile_dagda(diet_profile_t* dest, corba_profile_t* src,
+	const diet_convertor_t* cvt);
+
+int unmrsh_to_profile_dagda(diet_profile_t* dest, corba_profile_t* src);
+
+int
+mrsh_data_desc(corba_data_desc_t* dest, diet_data_desc_t* src);
+#endif
 
 // To reconvert service output data to client data profile
 int

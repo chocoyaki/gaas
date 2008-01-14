@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.80  2008/01/14 11:08:26  glemahec
+ * marshalling modifications to allow the use of dagda as data manager.
+ * v1.0: A lot of modifications will be added in the v1.2 version (coming soon)
+ *
  * Revision 1.79  2008/01/01 19:02:49  ycaniou
  * Make modifications in order for pathToTmp and pathToNFS set in the SeD.cfg
  *   to be taken into account when transfering data.
@@ -433,7 +437,7 @@ mrsh_data(corba_data_t* dest, diet_data_t* src, int release)
   if (mrsh_data_desc(&(dest->desc), &(src->desc)))
     return 1;
 
-#if ! HAVE_JUXMEM
+#if ! HAVE_JUXMEM && ! HAVE_DAGDA
   if (src->desc.generic.type == DIET_FILE) {
     char* path = src->desc.specific.file.path;
  
@@ -452,13 +456,13 @@ mrsh_data(corba_data_t* dest, diet_data_t* src, int release)
       value[0] = '\0';
     }
   } else {
-#endif // ! HAVE_JUXMEM
+#endif // ! HAVE_JUXMEM && ! HAVE_DAGDA
     if (src->value != NULL) {
       value = (CORBA::Char*)src->value;
     }
-#if ! HAVE_JUXMEM
+#if ! HAVE_JUXMEM && ! HAVE_DAGDA
   }
-#endif // ! HAVE_JUXMEM
+#endif // ! HAVE_JUXMEM && ! HAVE_DAGDA
   if(value == NULL) 
     dest->value.length(0);
   else {
@@ -606,12 +610,12 @@ unmrsh_data_desc(diet_data_desc_t* dest, const corba_data_desc_t* const src)
     dest->mode = (diet_persistence_mode_t)src->mode;
     diet_generic_desc_set(&(dest->generic), DIET_FILE, DIET_CHAR);
     dest->specific.file.size = src->specific.file().size;
-#if HAVE_JUXMEM
+#if HAVE_JUXMEM || HAVE_DAGDA
     dest->specific.file.path = CORBA::string_dup(src->specific.file().path);
 #else
     /* File name is different on SeD than on client. Here, init only */
     dest->specific.file.path = NULL;
-#endif // HAVE_JUXMEM
+#endif // HAVE_JUXMEM || HAVE_DAGDA
     break;
   }
   default:
@@ -638,7 +642,7 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
   }
   if ( unmrsh_data_desc(&(dest->desc),&(src->desc)) )
     return 1;
-#if ! HAVE_JUXMEM
+#if ! HAVE_JUXMEM && ! HAVE_DAGDA
   if (src->desc.specific._d() == (long) DIET_FILE) {
     dest->desc.specific.file.size = src->desc.specific.file().size;
     if ((src->desc.specific.file().path != NULL)
@@ -696,7 +700,7 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
       dest->desc.specific.file.path = CORBA::string_dup("");
     }
   } else {
-#endif // ! HAVE_JUXMEM
+#endif // ! HAVE_JUXMEM && ! HAVE_DAGDA
     if (src->value.length() == 0) {
       // TODO: should be allocated with new x[] to match delete[] used
       // by omniORB.  But ... what is the type?
@@ -766,9 +770,9 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
 #endif
       }
     }
-#if ! HAVE_JUXMEM
+#if ! HAVE_JUXMEM && ! HAVE_DAGDA
   }
-#endif // ! HAVE_JUXMEM
+#endif // ! HAVE_JUXMEM && ! HAVE_DAGDA
 //   cout << "unmrsh_data: value is " << dest->value << "\n";
   return 0;
 }
@@ -912,6 +916,7 @@ mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src)
   dest->dietReqID  = src->dietReqID ;
 
    for (i = 0; i <= src->last_inout; i++) {
+#if ! HAVE_DAGDA
      if(src->parameters[i].desc.id) {
 #if ! HAVE_JUXMEM
        __mrsh_data_id(&(dest->parameters[i]), &(src->parameters[i]));
@@ -935,7 +940,11 @@ mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src)
        }
      }
    } 
-   
+#else // ! HAVE_DAGDA
+	// With Dagda, only the descriptions are sent to the server.
+	mrsh_data_desc(&(dest->parameters[i].desc), &(src->parameters[i].desc));
+    dest->parameters[i].value.length(0);
+#endif // ! HAVE_DAGDA
    for (; i <= src->last_out; i++) {
      if(mrsh_data_desc(&(dest->parameters[i].desc),&(src->parameters[i].desc)))
        return 1;
@@ -1099,6 +1108,52 @@ unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
   return 0;
 }
 
+#if HAVE_DAGDA
+// TODO : What is exactly done by the diet convertor used in the standard unmrsh
+//        method ???
+// TODO : The endianess control of Abdelkader have to be added somewhere here now. !!!
+
+int unmrsh_to_profile_dagda(diet_profile_t* dest, corba_profile_t* src,
+	const diet_convertor_t* cvt) {
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+  dest->parallel_flag = src->parallel_flag ;
+  dest->nbprocs    = src->nbprocs ;
+  dest->nbprocess  = src->nbprocess ;
+  dest->walltime   = src->walltime ;
+#endif
+  dest->pb_name    = cvt->path;
+  dest->last_in    = cvt->last_in;
+  dest->last_inout = cvt->last_inout;
+  dest->last_out   = cvt->last_out;
+  dest->parameters = new diet_data_t[src->last_out + 1];
+  dest->dietReqID  = src->dietReqID ;
+  
+  for (int i=0; i<=src->last_out; ++i) {
+    unmrsh_data_desc(&dest->parameters[i].desc, &src->parameters[i].desc);
+	dest->parameters[i].value = src->parameters[i].value.get_buffer();
+  }
+}
+
+int unmrsh_to_profile_dagda(diet_profile_t* dest, corba_profile_t* src) {
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+  dest->parallel_flag = src->parallel_flag ;
+  dest->nbprocs    = src->nbprocs ;
+  dest->nbprocess  = src->nbprocess ;
+  dest->walltime   = src->walltime ;
+#endif
+  dest->pb_name    = NULL;
+  dest->last_in    = src->last_in;
+  dest->last_inout = src->last_inout;
+  dest->last_out   = src->last_out;
+  dest->parameters = new diet_data_t[src->last_out + 1];
+  dest->dietReqID  = src->dietReqID ;
+  
+  for (int i=0; i<=src->last_out; ++i) {
+    unmrsh_data_desc(&dest->parameters[i].desc, &src->parameters[i].desc);
+	dest->parameters[i].value = src->parameters[i].value.get_buffer();
+  }
+}
+#endif // HAVE_DAGDA
 
 /****************************************************************************/
 /* Server sends results ...                                                 */
