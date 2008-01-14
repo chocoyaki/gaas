@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.110  2008/01/14 13:55:28  glemahec
+ * Correction of a Warning in DIET_client.cc
+ *
  * Revision 1.109  2008/01/14 10:25:48  glemahec
  * The client can now use DAGDA instead of DTM to manage the data.
  *
@@ -577,7 +580,7 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   // Dagda component activation.
   DagdaImpl* tmpDataManager = DagdaFactory::getClientDataManager();
   ORBMgr::activate(tmpDataManager);
-#endif HAVE_DAGDA
+#endif // HAVE_DAGDA
 
 
   /* We do not need the parsing results any more */
