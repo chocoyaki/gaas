@@ -5,6 +5,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.47  2008/01/14 09:35:48  glemahec
+ * AgentImpl.cc/hh modifications to allow the use of DAGDA.
+ *
  * Revision 1.46  2008/01/01 19:04:46  ycaniou
  * Only cosmetic
  *
@@ -168,7 +171,11 @@ AgentImpl::AgentImpl()
   this->nbSeDChildren        = 0;
   this->SrvT                 = new ServiceTable();
   this->reqList.clear();
+#if ! HAVE_DAGDA
   this->locMgr               = NULL;
+#else
+  this->dataManager          = NULL;
+#endif // ! HAVE_DAGDA
   this->myName               = NULL;
   this->localHostName        = NULL; 
   this->dietLogComponent     = NULL;
@@ -246,7 +253,9 @@ AgentImpl::run()
 #endif //HAVE_CORI
 } // run()
 
-#if ! HAVE_JUXMEM
+
+
+#if ! HAVE_JUXMEM && ! HAVE_DAGDA
 /** Set this->locMgr for DTM usage */
 int
 AgentImpl::linkToLocMgr(LocMgrImpl* locMgr)
@@ -254,7 +263,18 @@ AgentImpl::linkToLocMgr(LocMgrImpl* locMgr)
   this->locMgr = locMgr;
   return 0;
 }
-#endif // ! HAVE_JUXMEM
+#endif // ! HAVE_JUXMEM && ! HAVE_DAGDA
+
+#if HAVE_DAGDA
+// Accessors for dataManager.
+void AgentImpl::setDataManager(DagdaImpl* dataManager) {
+  this->dataManager=dataManager;
+}
+
+DagdaImpl* AgentImpl::getDataManager() {
+  return dataManager;
+}
+#endif // HAVE_DAGDA
 
 void
 AgentImpl::setDietLogComponent(DietLogComponent* dietLogComponent) {

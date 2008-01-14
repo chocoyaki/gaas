@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2008/01/14 09:35:48  glemahec
+ * AgentImpl.cc/hh modifications to allow the use of DAGDA.
+ *
  * Revision 1.18  2007/04/16 22:43:43  ycaniou
  * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
  * This is indented to replace HAVE_BATCH.
@@ -81,7 +84,11 @@
 #include "Counter.hh"
 #include "ChildID.hh"
 #include "DIET_data_internal.hh"
+#if ! HAVE_DAGDA
 #include "LocMgrImpl.hh"
+#else
+#include "DagdaImpl.hh"
+#endif
 #include "NodeDescription.hh"
 #include "RequestID.hh"
 #include "Request.hh"
@@ -109,9 +116,18 @@ public:
   virtual int
   run();
 
+  // Dagda doesn't use the DTM Location Manager.
+#if ! HAVE_DAGDA
   /** Set this->locMgr */
   int
   linkToLocMgr(LocMgrImpl* locMgr);
+#else
+  void
+  setDataManager(DagdaImpl* dataManager);
+
+  DagdaImpl*
+  getDataManager();
+#endif // ! HAVE_DAGDA
 
   /**
    * Set the DietLogManager. If the dietLogManager is NULL, no
@@ -187,8 +203,12 @@ protected:
   ts_map<RequestID, Request*> reqList;
  
   /** Data Location Manager associated to this agent */
+  // Dagda doesn't require this.
+#if ! HAVE_DAGDA
   LocMgrImpl* locMgr;
-
+#else
+  DagdaImpl* dataManager;
+#endif // ! HAVE_DAGDA
 
   /**************************************************************************/
   /* Private methods                                                        */
