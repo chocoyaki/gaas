@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.38  2008/01/14 10:02:56  glemahec
+ * MasterAgentImpl.cc, the implementation of the CORBA object MasterAgent can
+ * now use DAGDA instead of DTM to manage the data.
+ *
  * Revision 1.37  2008/01/01 19:04:46  ycaniou
  * Only cosmetic
  *
@@ -312,24 +316,35 @@ SeqCorbaProfileDesc_t*
 
 /**
  * Invoke Loc Manager method to get data presence information (call by client)
+ * When using DAGDA instead of DTM, uses the search of data on the platform.
  */
 CORBA::ULong 
 MasterAgentImpl::dataLookUp(const char* argID){
+#if ! HAVE_DAGDA
   if(locMgr->dataLookUp(strdup(argID))==0)
     return 0;
   else
     return 1;
+#else
+  return getDataManager()->pfmIsDataPresent(argID);
+#endif // ! HAVE_DAGDA
 } // dataLookUp(const char* argID)
 
 /**
  * invoke loc Manager method to get data descriptor of the data identified by argID 
+ * When using DAGDA, the description is obtained from DAGDA instead of DTM.
  */
 corba_data_desc_t* 
 MasterAgentImpl::get_data_arg(const char* argID)
 {
+#if ! HAVE_DAGDA
+  /* Memory leak ??? resp is instanciated with a new and forgotten on the following line... */
   corba_data_desc_t* resp = new corba_data_desc_t;
   resp = locMgr->set_data_arg(argID);  
   return resp;
+#else
+  return getDataManager()->pfmGetDataDesc(argID);
+#endif // ! HAVE_DAGDA
 }
 
 /** Problem submission : remotely called by client. */
@@ -512,12 +527,19 @@ MasterAgentImpl::get_session_num()
 CORBA::Long
 MasterAgentImpl::diet_free_pdata(const char* argID)
 {
+#if ! HAVE_DAGDA
   if(this->dataLookUp(ms_strdup(argID)) == 0) {
     locMgr->rm_pdata(ms_strdup(argID));
     return 1;
   }
   else 
     return 0;
+#else
+  if (!getDataManager()->pfmIsDataPresent(argID))
+    return NULL;
+  getDataManager()->pfmRemData(argID);
+  return 1;
+#endif // ! HAVE_DAGDA
 } //diet_free_pdata(const char* argID)
 
 
