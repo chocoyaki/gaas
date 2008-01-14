@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2008/01/14 09:44:14  glemahec
+ * dietAgent.cc modifications to allow the use of DAGDA.
+ *
  * Revision 1.26  2007/12/07 08:44:42  bdepardo
  * Added AckFile support in CMake files.
  * No longer need to add -DADAGE to use it, instead -DHAVE_ACKFILE is automatically added when the option is selected.
@@ -97,9 +100,14 @@ using namespace std;
 #include "Parsers.hh"
 #include "DietLogComponent.hh"
 
-#if ! HAVE_JUXMEM
+#if ! HAVE_JUXMEM && ! HAVE_DAGDA
 #include "LocMgrImpl.hh"    // DTM header file
-#endif // ! HAVE_JUXMEM
+#endif // ! HAVE_JUXMEM && ! HAVE_DAGDA
+
+#if HAVE_DAGDA
+#include "DagdaImpl.hh"
+#include "DagdaFactory.hh"
+#endif // HAVE_DAGDA
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
@@ -110,10 +118,10 @@ DietLogComponent* dietLogComponent;
 /** The Agent object. */
 AgentImpl* Agt;
 
-#if ! HAVE_JUXMEM
+#if ! HAVE_JUXMEM && ! HAVE_DAGDA
 /** The DTM Data Location Manager Object  */
 LocMgrImpl *Loc;
-#endif // ! HAVE_JUXMEM
+#endif // ! HAVE_JUXMEM && ! HAVE_DAGDA
 
 int
 main(int argc, char** argv)
@@ -294,10 +302,13 @@ main(int argc, char** argv)
     dietLogComponent = NULL;
   }
 
-#if ! HAVE_JUXMEM
+#if ! HAVE_JUXMEM && ! HAVE_DAGDA
   /* Create the DTM Data Location Manager */
   Loc = new LocMgrImpl();
-#endif // ! HAVE_JUXMEM
+#endif // ! HAVE_JUXMEM && ! HAVE_DAGDA
+#if HAVE_DAGDA
+  DagdaImpl* dataManager = DagdaFactory::getAgentDataManager();
+#endif // HAVE_DAGDA
 
   /* Create, activate, and launch the agent */
 
@@ -332,12 +343,18 @@ main(int argc, char** argv)
   }
 
 #if ! HAVE_JUXMEM
+  // Use Dagda instead of DTM.
+#if ! HAVE_DAGDA
   /* Launch the DTM LocMgr */
   ORBMgr::activate(Loc);
   if (Loc->run()) {
     ERROR("unable to launch the LocMgr", 1);
   }
   Agt->linkToLocMgr(Loc);
+#else
+  ORBMgr::activate(dataManager);
+  Agt->setDataManager(dataManager);
+#endif // ! HAVE_DAGDA
 #endif // ! HAVE_JUXMEM
 
 
