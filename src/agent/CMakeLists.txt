@@ -46,6 +46,14 @@ IF( DIET_BUILD_LIBRARIES )
     )
   ENDIF( DIET_USE_USERSCHED )
   #########################################################################
+  # To use Dagda instead of DTM.
+  IF( DIET_USE_DAGDA )
+    INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/src/utils/DAGDA )
+    SET( DAGDA_LIBRARIES
+      Dagda
+      IDLDagda
+    )
+  ENDIF( DIET_USE_DAGDA )
 
   ADD_LIBRARY( AgentCommon ${AgentCommon_SOURCES} )
   TARGET_LINK_LIBRARIES( AgentCommon
@@ -58,6 +66,8 @@ IF( DIET_BUILD_LIBRARIES )
   ## New : This variable is only set when DIET_USE_USERSCHED is on. Seems
   ##       to be useless on MacOS X...
     ${DynamicLoadingLibrary}
+  ## Only set when DIET_USE_DAGDA is on.
+    ${DAGDA_LIBRARIES}
   )
   INSTALL_TARGETS(/lib/ AgentCommon )
   

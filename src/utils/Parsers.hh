@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2008/01/14 13:49:28  glemahec
+ * CMakeLists.txt files modified to compile DIET with DAGDA.
+ * Bugs corrections.
+ *
  * Revision 1.27  2008/01/14 11:46:52  glemahec
  * Adds the DAGDA parameters to the possible ones in the config files.
  *
@@ -348,7 +352,7 @@ private:
   /** Path of the file to parse */
   static char* path;
   /** Stream of the file to parse */
-  static ifstream file;
+  static std::ifstream file;
   /** Current line number */
     // size_t --> unsigned int
   static unsigned int noLine;

@@ -27,6 +27,8 @@ OPTION( DIET_USE_ENDIANNESS  "Build DIET with endianness management  (Experiment
 OPTION( DIET_USE_CCS         "Build DIET with client custom scheduling  (Experimental)." OFF )
 # Ackfile support
 OPTION( DIET_USE_ACKFILE     "Build DIET with acknowledge file." OFF)
+## Use Dagda as data manager.
+OPTION( DIET_USE_DAGDA "Build DIET with Dagda as data manager. (In developpment)." OFF )
 
 
 # --------------------- OPTIONS SET BY DEFAULT  ----------------------------
@@ -310,6 +312,11 @@ ENDIF( DIET_USE_ACKFILE )
 IF( DIET_USE_USERSCHED )
   ADD_DEFINITIONS( -DUSERSCHED )
 ENDIF( DIET_USE_USERSCHED )
+
+# --------------- New : Dagda as data manager support ---------------
+IF( DIET_USE_DAGDA )
+  ADD_DEFINITIONS( -DHAVE_DAGDA )
+ENDIF( DIET_USE_DAGDA )
 
 # --------------- DIET Endianness support  ------------------
 IF( DIET_USE_ENDIANNESS )

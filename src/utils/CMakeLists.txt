@@ -1,4 +1,8 @@
 # DIET cmake local file
+## Use Dagda as data manager.
+IF( DIET_USE_DAGDA )
+  ADD_SUBDIRECTORY( DAGDA )
+ENDIF( DIET_USE_DAGDA )
 
 IF( DIET_USE_FD )
   SUBDIRS( fd )

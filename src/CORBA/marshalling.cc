@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.81  2008/01/14 13:49:26  glemahec
+ * CMakeLists.txt files modified to compile DIET with DAGDA.
+ * Bugs corrections.
+ *
  * Revision 1.80  2008/01/14 11:08:26  glemahec
  * marshalling modifications to allow the use of dagda as data manager.
  * v1.0: A lot of modifications will be added in the v1.2 version (coming soon)
@@ -939,12 +943,12 @@ mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src)
          }
        }
      }
-   } 
 #else // ! HAVE_DAGDA
 	// With Dagda, only the descriptions are sent to the server.
 	mrsh_data_desc(&(dest->parameters[i].desc), &(src->parameters[i].desc));
     dest->parameters[i].value.length(0);
 #endif // ! HAVE_DAGDA
+   }
    for (; i <= src->last_out; i++) {
      if(mrsh_data_desc(&(dest->parameters[i].desc),&(src->parameters[i].desc)))
        return 1;

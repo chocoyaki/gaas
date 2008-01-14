@@ -29,7 +29,11 @@ IF( DIET_BUILD_LIBRARIES )
      SET( DIET_IDL_FLAGS "${DIET_IDL_FLAGS} -DHAVE_MULTI_MA" )
   ENDIF( DIET_WITH_MULTI_MA )
 
-## New : User scheduler support ------------------------------
+  ## Dagda compilation
+  IF( DIET_USE_DAGDA )
+    SET( DIET_IDL_FLAGS "${DIET_IDL_FLAGS} -DHAVE_DAGDA" )
+  ENDIF( DIET_USE_DAGDA )
+
 ## Install the files needed for scheduler development.
   IF( DIET_USE_USERSCHED )
      SET( DIET_IDL_FLAGS "${DIET_IDL_FLAGS} -DUSERSCHED" )
@@ -65,6 +69,13 @@ IF( DIET_BUILD_LIBRARIES )
       WfLogService
       ${IDL_SOURCES} )
   ENDIF ( DIET_USE_WORKFLOW )
+
+  ## Use Dagda as data manager.
+  IF( DIET_USE_DAGDA )
+  SET( IDL_SOURCES
+     Dagda
+     ${IDL_SOURCES} )
+  ENDIF( DIET_USE_DAGDA )
 
   # Some libraries of the utils directory (e.g. UtilsCommon) need the 
   # idl generated header files. This is a technical variable used to
@@ -185,6 +196,17 @@ IF( DIET_BUILD_LIBRARIES )
     ${OMNIORB4_LIBRARIES}
   )
   INSTALL_TARGETS(/lib/ IDLMA )
+
+  ## Use Dagda as data manager.
+  IF( DIET_USE_DAGDA )
+    ADD_LIBRARY( IDLDagda
+      DagdaSK.cc )
+    TARGET_LINK_LIBRARIES( IDLDagda
+      IDLCommon
+      ${OMNIORB4_LIBRARIES} )
+    INSTALL_TARGETS(/lib/ IDLDagda )
+  ENDIF( DIET_USE_DAGDA )
+
   ##########################################################################
   IF ( DIET_USE_WORKFLOW ) 
   ADD_LIBRARY ( IDLMaDag
