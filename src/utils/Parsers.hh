@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2008/01/14 11:46:52  glemahec
+ * Adds the DAGDA parameters to the possible ones in the config files.
+ *
  * Revision 1.26  2008/01/01 19:43:49  ycaniou
  * Modifications for batch management. Loadleveler is now ok.
  *
@@ -210,6 +213,12 @@ public:
 #ifdef HAVE_ACKFILE
       ACKFILE,              // file to touch at the end of the initialization
 #endif
+#if HAVE_DAGDA
+	  MAXMSGSIZE,
+	  MAXDISKSPACE,
+	  MAXMEMSPACE,
+	  STORAGEDIR,
+#endif // HAVE_DAGDA
 
       NB_PARAM_TYPE
     } param_type_t;
@@ -221,6 +230,9 @@ public:
       STRING_PARAMETER,
       ADDRESS_PARAMETER,
       AGENT_PARAMETER // like int
+#if HAVE_DAGDA
+	 ,ULONG_PARAMETER
+#endif // HAVE_DAGDA
     } param_C_type_t ;
 
     /* Some of these parameters are complex types ... */
@@ -409,6 +421,15 @@ private:
    */
   static int
   parseUse(char* use_str, Results::param_type_t type);
+
+#if HAVE_DAGDA
+  /**
+   * Parse an unsigned long int. If the conversion did not succeed,
+   * the result is set to 0.
+   */
+   static int
+   parseULong(char* ulongString, Results::param_type_t type);
+#endif // HAVE_DAGDA
 
 };
 

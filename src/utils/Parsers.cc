@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.41  2008/01/14 11:46:52  glemahec
+ * Adds the DAGDA parameters to the possible ones in the config files.
+ *
  * Revision 1.40  2008/01/01 19:43:49  ycaniou
  * Modifications for batch management. Loadleveler is now ok.
  *
@@ -121,6 +124,9 @@ using namespace std;
 #include "debug.hh"
 #include "ms_function.hh"
 
+#if HAVE_DAGDA
+#include <sstream>
+#endif // HAVE_DAGDA
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
@@ -177,6 +183,12 @@ Parsers::Results::param_t Parsers::Results::params[] =
 #ifdef HAVE_ACKFILE
    /* [35] */ ,{"ackFile", 7, Parsers::parseName, 0, NULL}
 #endif
+#if HAVE_DAGDA
+   /* [36] */ ,{"maxMsgSize", 10, Parsers::parseULong, 0, NULL}
+   /* [37] */ ,{"maxDiskSpace", 12, Parsers::parseULong, 0, NULL}
+   /* [38] */ ,{"maxMemSpace", 11, Parsers::parseULong, 0, NULL}
+   /* [39] */ ,{"storageDirectory", 16, Parsers::parseName, 0, NULL}
+#endif // HAVE_DAGDA
   } ;
 
 #define IS_ADDRESS(i) ((i == Results::LDAPBASE) || (i == Results::NWSNAMESERVER) || (i == Results::NWSFORECASTER))
@@ -278,6 +290,11 @@ Parsers::endParsing()
 	case Results::AGENT_PARAMETER:
 	  delete((Parsers::Results::agent_type_t*)(Results::params[i].value)) ;
 	  break ;
+#if HAVE_DAGDA
+    case Results::ULONG_PARAMETER:
+	  delete((unsigned long*)(Results::params[i].value));
+	  break;
+#endif
 	default:
 	  break ;
 //       if (IS_ADDRESS(i)) {
@@ -697,3 +714,22 @@ Parsers::parseUse(char* use_str, Results::param_type_t type)
   return 0;
 }
 
+#if HAVE_DAGDA
+/**
+ * Parse an unsigned long int. If the conversion did not succeed,
+ * the result is set to 0.
+ */
+int
+Parsers::parseULong(char* ulongString, Results::param_type_t type) {
+  unsigned long value;
+  std::istringstream str(ulongString);
+  str >> value;
+  if (str.fail()) {
+	PARSERS_WARNING("Could not read unsigned long int from " << ulongString);
+    value=0;
+  }
+  Results::params[type].value = new unsigned long(value);
+  Results::params[type].type = Results::ULONG_PARAMETER ;
+  return 0;
+}
+#endif

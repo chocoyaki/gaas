@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.48  2008/01/14 11:46:52  glemahec
+ * Adds the DAGDA parameters to the possible ones in the config files.
+ *
  * Revision 1.47  2007/07/11 08:42:10  aamar
  * Adding "custom client scheduling" mode (known as Burst mode). Need to be
  * activated in cmake.
@@ -674,6 +677,9 @@ diet_file_set(diet_arg_t* arg, diet_persistence_mode_t mode, char* path)
 int
 diet_scalar_desc_set(diet_data_t* data, void* value)
 {
+#if HAVE_DAGDA
+  return diet_scalar_set(data, value, data->desc.mode, data->desc.generic.base_type);
+#endif
   if (data->desc.generic.type != DIET_SCALAR) {
     ERROR(__FUNCTION__ << " misused (wrong type)", 1);
   }   
