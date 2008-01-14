@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2008/01/14 09:51:05  glemahec
+ * localAgentJNI.cc modifications to allow the use of DAGDA.
+ *
  * Revision 1.7  2006/12/06 18:04:59  ecaron
  * Header bug fix
  *
@@ -69,9 +72,14 @@ using namespace std;
 #include "jni.h"
 #include "LA.h"
 
-#if ! HAVE_JUXMEM
+#if ! HAVE_JUXMEM && ! HAVE_DAGDA
 #include "LocMgrImpl.hh"
-#endif // ! HAVE_JUXMEM
+#endif // ! HAVE_JUXMEM && ! HAVE_DAGDA
+
+#if HAVE_DAGDA
+#include "DagdaImpl.hh"
+#include "DagdaFactory.hh"
+#endif // HAVE_DAGDA
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
@@ -79,10 +87,10 @@ extern unsigned int TRACE_LEVEL;
 /** The DietLogComponent for use with LogService */
 DietLogComponent* dietLogComponent;
 
-#if ! HAVE_JUXMEM
+#if ! HAVE_JUXMEM && ! HAVE_DAGDA
 /** The Data Location Manager Object  */
 LocMgrImpl *Loc;
-#endif // ! HAVE_JUXMEM
+#endif // ! HAVE_JUXMEM && ! HAVE_DAGDA
 
 /** The Agent object. */
 AgentImpl* Agt;
@@ -255,10 +263,13 @@ Java_LA_startDIETLA(JNIEnv *env,
     dietLogComponent = NULL;
   }
 
-#if ! HAVE_JUXMEM
+#if ! HAVE_JUXMEM && ! HAVE_DAGDA
   /* Create the Data Location Manager */
   Loc = new LocMgrImpl();
-#endif // ! HAVE_JUXMEM
+#endif // ! HAVE_JUXMEM && ! HAVE_DAGDA
+#if HAVE_DAGDA
+  DagdaImpl* dataManager = DagdaFactory::getAgentDataManager();
+#endif // HAVE_DAGDA
 
   /* Create, activate, and launch the agent */
 
@@ -284,12 +295,17 @@ Java_LA_startDIETLA(JNIEnv *env,
   }
 
 #if ! HAVE_JUXMEM
+#if ! HAVE_DAGDA
   /* Launch the LocMgr */
   ORBMgr::activate(Loc);
   if (Loc->run()) {
     ERROR("unable to launch the LocMgr", 1);
   }
   Agt->linkToLocMgr(Loc);
+#else
+  ORBMgr::activate(dataManager);  
+  Agt->setDataManager(dataManager);
+#endif // ! HAVE_DAGDA
 #endif // ! HAVE_JUXMEM
 
   /* Wait for RPCs (blocking call): */
