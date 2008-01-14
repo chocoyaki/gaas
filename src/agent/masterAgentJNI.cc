@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2008/01/14 10:08:19  glemahec
+ * masterAgentJNI.cc modifications to allow the use of DAGDA.
+ *
  * Revision 1.10  2006/12/06 18:07:43  ecaron
  * Header bug fix
  *
@@ -85,9 +88,14 @@ using namespace std;
 #include "jni.h"
 #include "JXTAMultiMA.h"
 
-#if ! HAVE_JUXMEM
+#if ! HAVE_JUXMEM && ! HAVE_DAGDA
 #include "LocMgrImpl.hh"    // DTM header file
-#endif // ! HAVE_JUXMEM
+#endif // ! HAVE_JUXMEM && ! HAVE_DAGDA
+
+#if HAVE_DAGDA
+#include "DagdaImpl.hh"
+#include "DagdaFactory.hh"
+#endif // HAVE_DAGDA
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
@@ -98,10 +106,10 @@ DietLogComponent* dietLogComponent;
 /** The Master Agent object */
 MasterAgentImpl* MasterAgt;
 
-#if ! HAVE_JUXMEM
+#if ! HAVE_JUXMEM && ! HAVE_DAGDA
 /** The Data Location Manager Object for DTM */
 LocMgrImpl *Loc;
-#endif // ! HAVE_JUXMEM
+#endif // ! HAVE_JUXMEM && ! HAVE_DAGDA
 
 void RPCsWait (void* args);
 
@@ -283,10 +291,13 @@ Java_JXTAMultiMA_startDIETAgent(JNIEnv *env,
     dietLogComponent = NULL;
   }
 
-#if ! HAVE_JUXMEM
+#if ! HAVE_JUXMEM && ! HAVE_DAGDA
   /* Create the DTM Data Location Manager */
   Loc = new LocMgrImpl();
-#endif // ! HAVE_JUXMEM
+#endif // ! HAVE_JUXMEM && ! HAVE_DAGDA
+#if HAVE_DAGDA
+  DagdaImpl* dataManager = DagdaFactory::getAgentDataManager();
+#endif // HAVE_DAGDA
 
   /* Create and activate the Master Agent */
   MasterAgt = new MasterAgentImpl();
@@ -303,12 +314,18 @@ Java_JXTAMultiMA_startDIETAgent(JNIEnv *env,
   ExitClass::init(MasterAgt);
 
 #if ! HAVE_JUXMEM
+  // Use Dagda instead of DTM.
+#if ! HAVE_DAGDA
   /* Launch the LocMgr for DTM */
   ORBMgr::activate(Loc);
   if (Loc->run()) {
     ERROR("unable to launch the LocMgr", 1);
   }
   MasterAgt->linkToLocMgr(Loc);
+#else
+  ORBMgr::activate(dataManager);
+  MasterAgt->setDataManager(dataManager);
+#endif // ! HAVE_DAGDA
 #endif // ! HAVE_JUXMEM
 
   /* Wait for RPCs (blocking call): */
