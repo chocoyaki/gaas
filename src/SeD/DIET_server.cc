@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.71  2008/01/14 11:16:33  glemahec
+ * The servers can now use DAGDA as data manager.
+ *
  * Revision 1.70  2008/01/13 21:20:39  glemahec
  * Adds a return in diet_estimate_waiting_jobs function to avoid a warning.
  *
@@ -155,11 +158,16 @@ using namespace std;
 #include "FASTMgr.hh"
 #endif //HAVE_CORI
 
-#if HAVE_JUXMEM
-#include "JuxMem.hh"
-#else
+#if ! HAVE_JUXMEM
+#if ! HAVE_DAGDA
 #include "DataMgrImpl.hh"
-#endif // HAVE_JUXMEM
+#else
+#include "DagdaImpl.hh"
+#include "DagdaFactory.hh"
+#endif // ! HAVE_DAGDA
+#else
+#include "JuxMem.hh"
+#endif // ! HAVE_JUXMEM
 
 #if HAVE_FD
 #include "fd/fd.h"
@@ -656,7 +664,11 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
 #if HAVE_JUXMEM
   JuxMem::Wrapper* juxmem;
 #else
-  DataMgrImpl* dataMgr; 
+#if ! HAVE_DAGDA
+  DataMgrImpl* dataMgr;
+#else
+  DagdaImpl* dataManager;
+#endif // ! HAVE_DAGDA
 #endif // HAVE_JUXMEM
 
   if (SRVT == NULL) {
@@ -837,6 +849,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   juxmem = new JuxMem::Wrapper(userDefName);
   SeD->linkToJuxMem(juxmem);
 #else
+#if ! HAVE_DAGDA
   /* Set-up and activate Data Manager for DTM usage */
   dataMgr = new DataMgrImpl();
   dataMgr->setDietLogComponent(dietLogComponent);
@@ -845,6 +858,12 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
     ERROR("unable to launch the DataManager", 1);
   }
   SeD->linkToDataMgr(dataMgr);
+#else
+  dataManager = DagdaFactory::getSeDDataManager();
+
+  ORBMgr::activate(dataManager);
+  SeD->setDataManager(dataManager);
+#endif // ! HAVE_DAGDA
 #endif // HAVE_JUXMEM
 
 #ifdef HAVE_ACKFILE
