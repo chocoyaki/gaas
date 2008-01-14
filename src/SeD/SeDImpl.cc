@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.98  2008/01/14 11:32:15  glemahec
+ * SeDImpl, the SeD object implementation can now use Dagda as data manager.
+ *
  * Revision 1.97  2008/01/01 19:40:35  ycaniou
  * Modifications for batch management
  *
@@ -231,6 +234,10 @@ using namespace std;
 #if defined HAVE_ALT_BATCH
 #include "BatchCreator.hh"
 #endif
+
+#if HAVE_DAGDA
+#include "DagdaFactory.hh"
+#endif // HAVE_DAGDA
 
 /**
  * Performance measurement for bw and latency of JuxMem
@@ -477,7 +484,8 @@ SeDImpl::linkToJuxMem(JuxMem::Wrapper* juxmem)
   this->juxmem = juxmem;
   return 0;
 }
-#else
+#endif // HAVE_JUXMEM
+#if ! HAVE_JUXMEM && ! HAVE_DAGDA
 /** Set this->dataMgr */
 int
 SeDImpl::linkToDataMgr(DataMgrImpl* dataMgr)
@@ -485,7 +493,13 @@ SeDImpl::linkToDataMgr(DataMgrImpl* dataMgr)
   this->dataMgr = dataMgr;
   return 0;
 }
-#endif // HAVE_JUXMEM
+#endif // ! HAVE_JUXMEM && ! HAVE_DAGDA
+#if ! HAVE_JUXMEM && HAVE_DAGDA
+void
+SeDImpl::setDataManager(DagdaImpl* dataManager) {
+  this->dataManager=dataManager;
+}
+#endif
 
 void
 SeDImpl::setDietLogComponent(DietLogComponent* dietLogComponent) {
@@ -1368,6 +1382,7 @@ SeDImpl::downloadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
   unmrsh_in_args_to_profile(&profile, &(const_cast<corba_profile_t&>(pb)), cvt);
   downloadSeDDataJuxMem(&profile);
 #else
+#if ! HAVE_DAGDA
       int i;
       for (i = 0; i <= pb.last_inout; i++) {    
         if(pb.parameters[i].value.length() == 0){
@@ -1382,7 +1397,26 @@ SeDImpl::downloadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
       unmrsh_in_args_to_profile(&profile, &(const_cast<corba_profile_t&>(pb)),
 				cvt);
       //      displayProfile(&profile, path);
-#endif // ! HAVE_JUXMEM
+#else
+  for (int i=0; i<= pb.last_inout; ++i) {
+    corba_data_t data = const_cast<corba_data_t&>(pb.parameters[i]);
+
+    if (dataManager->pfmIsDataPresent(data.desc.id.idNumber)) {
+      pb.parameters[i] = 
+	    *(dataManager->pfmGetData(dataManager->_this(), data.desc.id.idNumber));
+    }
+
+    Dagda_var remoteManager =
+      Dagda::_narrow(ORBMgr::stringToObject(data.desc.dataManager));
+    
+	if (!dataManager->lclIsDataPresent(data.desc.id.idNumber))
+	  dataManager->lclAddData(remoteManager, data);
+    corba_data_t* inserted =  dataManager->getData(data.desc.id.idNumber);
+    pb.parameters[i]=*inserted;
+  }
+  unmrsh_to_profile_dagda(&profile, &pb, cvt);
+#endif // ! HAVE_DAGDA
+#endif // HAVE_JUXMEM
 }
 
 inline void
@@ -1394,7 +1428,8 @@ SeDImpl::downloadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 #if HAVE_JUXMEM
   unmrsh_in_args_to_profile(&profile, &pb, cvt);
   downloadSeDDataJuxMem(&profile);
-#else // DTM case
+#else
+#if ! HAVE_DAGDA
   int i ;
   // For data persistence
 
@@ -1417,6 +1452,25 @@ SeDImpl::downloadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
       this->dataMgr->changePath(pb.parameters[i], in_path);
     }
   }
+#else
+  for (int i=0; i<= pb.last_inout; ++i) {
+    corba_data_t data = const_cast<corba_data_t&>(pb.parameters[i]);
+
+    if (dataManager->pfmIsDataPresent(data.desc.id.idNumber)) {
+      pb.parameters[i] = 
+	    *(dataManager->pfmGetData(dataManager->_this(), data.desc.id.idNumber));
+    }
+
+    Dagda_var remoteManager =
+      Dagda::_narrow(ORBMgr::stringToObject(data.desc.dataManager));
+    
+	if (!dataManager->lclIsDataPresent(data.desc.id.idNumber))
+	  dataManager->lclAddData(remoteManager, data);
+    corba_data_t* inserted =  dataManager->getData(data.desc.id.idNumber);
+    pb.parameters[i]=*inserted;
+  }
+  unmrsh_to_profile_dagda(&profile, &pb, cvt);
+#endif // ! HAVE_DAGDA
 #endif // HAVE_JUXMEM 
 }
 
@@ -1429,7 +1483,8 @@ SeDImpl::uploadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 #if HAVE_JUXMEM
       uploadSeDDataJuxMem(&profile);
       mrsh_profile_to_out_args(&(const_cast<corba_profile_t&>(pb)), &profile, cvt);
-#else // DTM case
+#else
+#if ! HAVE_DAGDA
   int i ;
       for(i=0;i<=pb.last_in;i++){
         if(diet_is_persistent(pb.parameters[i])) {
@@ -1455,6 +1510,27 @@ SeDImpl::uploadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
                                  1); 
         }
       }
+#else // ! HAVE_DAGDA
+  // Dagda part.
+  for (int i=cvt->last_in+1; i<= cvt->last_out; ++i) {
+	// marshalling of the data
+	mrsh_data_desc(&pb.parameters[i].desc, &profile.parameters[i].desc);
+	pb.parameters[i].value.length(0);
+
+	corba_data_t storeData(pb.parameters[i]);
+	
+	DagdaFactory::getSeDDataManager()->addData(storeData);
+	corba_data_t* stored = DagdaFactory::getSeDDataManager()->getData(storeData.desc.id.idNumber);
+	pb.parameters[i]=*stored;
+
+	int size = data_sizeof(&profile.parameters[i].desc);
+	if (profile.parameters[i].desc.generic.type==DIET_FILE) size=0;
+	CORBA::Char* value = (CORBA::Char*) profile.parameters[i].value;
+	
+	if (value!=NULL)
+	  stored->value.replace(size, size, value, 0);
+  }
+#endif // ! HAVE_DAGDA
       
       /* Free data */
 #if 0
@@ -1480,7 +1556,8 @@ SeDImpl::uploadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 #if HAVE_JUXMEM
   uploadSeDDataJuxMem(&profile);
   mrsh_profile_to_out_args(&pb, &profile, cvt);
-#else // DTM case
+#else
+#if ! HAVE_DAGDA // DTM case
   int i ;
   for(i=0;i<=pb.last_in;i++){
     if(diet_is_persistent(pb.parameters[i])) {
@@ -1499,6 +1576,26 @@ SeDImpl::uploadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
     }
   }
   this->dataMgr->printList();
+#else
+  for (int i=cvt->last_in+1; i<= cvt->last_out; ++i) {
+	// marshalling of the data
+	mrsh_data_desc(&pb.parameters[i].desc, &profile.parameters[i].desc);
+	pb.parameters[i].value.length(0);
+
+	corba_data_t storeData(pb.parameters[i]);
+	
+	DagdaFactory::getSeDDataManager()->addData(storeData);
+	corba_data_t* stored = DagdaFactory::getSeDDataManager()->getData(storeData.desc.id.idNumber);
+	pb.parameters[i]=*stored;
+
+	int size = data_sizeof(&profile.parameters[i].desc);
+	if (profile.parameters[i].desc.generic.type==DIET_FILE) size=0;
+	CORBA::Char* value = (CORBA::Char*) profile.parameters[i].value;
+	
+	if (value!=NULL)
+	  stored->value.replace(size, size, value, 0);
+  }
+#endif // ! HAVE_DAGDA
 #endif // HAVE_JUXMEM 
 }
 

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.38  2008/01/14 11:32:15  glemahec
+ * SeDImpl, the SeD object implementation can now use Dagda as data manager.
+ *
  * Revision 1.37  2008/01/01 19:40:35  ycaniou
  * Modifications for batch management
  *
@@ -197,11 +200,15 @@
 #include "DietLogComponent.hh"
 #include "AccessController.hh"
 
-#if HAVE_JUXMEM
-#include "JuxMem.hh"          // JuxMem header file
-#else
+#if ! HAVE_JUXMEM
+#if ! HAVE_DAGDA
 #include "DataMgrImpl.hh"     // DTM header file
-#endif
+#else
+#include "DagdaImpl.hh"
+#endif // ! HAVE_DAGDA
+#else
+#include "JuxMem.hh"          // JuxMem header file
+#endif // ! HAVE_JUXMEM
 
 #if HAVE_BATCH
 #include <omnithread.h>       // For omni_mutex
@@ -237,16 +244,21 @@ public:
   
   int
   run(ServiceTable* services);
- 
-#if HAVE_JUXMEM
-  /** Set this->JuxMem */
-  int 
-  linkToJuxMem(JuxMem::Wrapper* juxmem);
-#else
+
+#if ! HAVE_JUXMEM
+#if ! HAVE_DAGDA
   /** Set this->dataMgr for DTM usage */
   int
   linkToDataMgr(DataMgrImpl* dataMgr);
-#endif 
+#else
+  void
+  setDataManager(DagdaImpl* dataManager);
+#endif // ! HAVE_DAGDA
+#else
+  /** Set this->JuxMem */
+  int 
+  linkToJuxMem(JuxMem::Wrapper* juxmem);
+#endif // ! HAVE_JUXMEM
 
   /**
    * Set the DietLogComponent of this SeD. If this function is not
@@ -352,12 +364,16 @@ private:
   /** Service table */
   ServiceTable* SrvT;
 
-#if HAVE_JUXMEM
-  JuxMem::Wrapper * juxmem;
-#else
+#if ! HAVE_JUXMEM
+#if ! HAVE_DAGDA
   /* Data Manager associated to this SeD */
   DataMgrImpl* dataMgr;
-#endif 
+#else
+  DagdaImpl* dataManager;
+#endif // ! HAVE_DAGDA
+#else
+  JuxMem::Wrapper * juxmem;
+#endif // ! HAVE_JUXMEM
 
   /** Time at which last solve started (when not using queues) and when 
    * last job was enqueued (when using queues) */
