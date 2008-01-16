@@ -26,8 +26,8 @@ unsigned long DagdaFactory::defaultMaxMsgSize =
 unsigned long DagdaFactory::defaultMaxDiskSpace = 0;
 unsigned long DagdaFactory::defaultMaxMemSpace = 0;
 
-DagdaImpl* DagdaFactory::createDataManager() {
-  return new SimpleDagdaImpl();
+DagdaImpl* DagdaFactory::createDataManager(dagda_manager_type_t type) {
+  return new SimpleDagdaImpl(type);
 }
 
 const char* DagdaFactory::getStorageDir() {
@@ -118,7 +118,7 @@ const char* DagdaFactory::getDefaultName() {
 
 DagdaImpl* DagdaFactory::getClientDataManager() {
   if (clientDataManager==NULL) {
-    clientDataManager = createDataManager();
+    clientDataManager = createDataManager(DGD_CLIENT_MNGR);
 	
     clientDataManager->init(getClientName(), NULL, getStorageDir(),
 							getMaxMsgSize(), getMaxDiskSpace(),
@@ -135,7 +135,7 @@ DagdaImpl* DagdaFactory::getSeDDataManager() {
 	  WARNING("SeD data manager didn't find the name of the agent in the configuration file.");
 	}
 	
-	sedDataManager = createDataManager();
+	sedDataManager = createDataManager(DGD_SED_MNGR);
 	
 	sedDataManager->init(getSeDName(), parentName, getStorageDir(),
 	                     getMaxMsgSize(), getMaxDiskSpace(),
@@ -154,7 +154,7 @@ DagdaImpl* DagdaFactory::getAgentDataManager() {
 	  name = getDefaultName();
 	}
 	cout << "name = " << name << endl;
-	agentDataManager = createDataManager();
+	agentDataManager = createDataManager(DGD_AGENT_MNGR);
 	
 	agentDataManager->init(name, parentName, getStorageDir(),
 	                       getMaxMsgSize(), getMaxDiskSpace(),

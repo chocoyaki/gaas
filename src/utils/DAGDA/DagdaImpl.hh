@@ -12,6 +12,8 @@
 #include <iterator>
 #include <sstream>
 
+typedef enum {DGD_CLIENT_MNGR, DGD_AGENT_MNGR, DGD_SED_MNGR} dagda_manager_type_t;
+
 class DagdaImpl : public POA_Dagda, public PortableServer::RefCountServantBase {
 public:
   DagdaImpl() : parent(NULL), ID("NoID"), data() {}
@@ -100,8 +102,10 @@ protected:
 };
 
 class SimpleDagdaImpl : public DagdaImpl {
+private:
+  dagda_manager_type_t type;
 public:
-  SimpleDagdaImpl() : DagdaImpl() { }
+  SimpleDagdaImpl(dagda_manager_type_t t) : DagdaImpl(), type(t) { }
   ~SimpleDagdaImpl();
 
   virtual void subscribe(Dagda_ptr me);
@@ -159,6 +163,11 @@ public:
   /* Get an iterator over data. */
   std::map<std::string, corba_data_t>::iterator dataIterator() {
     return data.begin();
+  }
+  
+  /* Return the type of this data manager. */
+  dagda_manager_type_t getType() {
+	return type;
   }
 
   /* Initialisation. */

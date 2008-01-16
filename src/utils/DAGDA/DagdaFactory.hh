@@ -11,7 +11,7 @@ private:
   static DagdaImpl* agentDataManager;
   static DagdaImpl* localDataManager;
   static std::string storageDir;
-  static DagdaImpl* createDataManager();
+  static DagdaImpl* createDataManager(dagda_manager_type_t type);
 
   static unsigned long defaultMaxMsgSize;
   static unsigned long defaultMaxDiskSpace;
