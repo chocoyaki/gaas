@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2008/01/18 15:28:34  glemahec
+ * Bug correction:
+ * 	"long" => "unsigned long long" (<=> size_t) for all the data sizes
+ * 	fields.
+ *
  * Revision 1.24  2008/01/14 10:31:22  glemahec
  * Adds the "dataManager" field in the corba_data_desc_t object to differentiate
  * the replicas of a data.
@@ -173,30 +178,30 @@ struct corba_scalar_specific_t {
 
 /** Mapping for struct diet_vector_specific */
 struct corba_vector_specific_t {
-  long size;
+  unsigned long long size;
 };
 
 /** Mapping fo structr diet_matrix_specific */
 struct corba_matrix_specific_t {
-  long nb_r;
-  long nb_c;
-  long order;
+  unsigned long long nb_r;
+  unsigned long long nb_c;
+  unsigned long order;
 };
 
 /** Mapping for struct diet_string_specific */
 struct corba_string_specific_t {
-  long length;
+  unsigned long length;
 };
 
 /** Mapping for struct diet_paramstring_specific */
 struct corba_paramstring_specific_t {
-  long length;
+  unsigned long length;
   string param;
 };
 
 /** Mapping for struct diet_file_specific */
 struct corba_file_specific_t {
-  long size;
+  unsigned long long size;
   string path;
 };
 
