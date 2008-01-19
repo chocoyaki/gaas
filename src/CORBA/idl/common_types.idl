@@ -9,6 +9,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2008/01/19 01:40:35  glemahec
+ * Reverting the previous commit for DTM. DTM doesn't seem to support the
+ * bug correction...
+ * Warning : When using DTM, undefined result may appear when using data of
+ * size > 2GB...
+ * DAGDA still uses the correction.
+ *
  * Revision 1.25  2008/01/18 15:28:34  glemahec
  * Bug correction:
  * 	"long" => "unsigned long long" (<=> size_t) for all the data sizes
@@ -178,30 +185,52 @@ struct corba_scalar_specific_t {
 
 /** Mapping for struct diet_vector_specific */
 struct corba_vector_specific_t {
+#if HAVE_DAGDA
   unsigned long long size;
+#else
+  long size;
+#endif
 };
 
 /** Mapping fo structr diet_matrix_specific */
 struct corba_matrix_specific_t {
+#if HAVE_DAGDA
   unsigned long long nb_r;
   unsigned long long nb_c;
   unsigned long order;
+#else
+  long nb_r;
+  long nb_c;
+  long order;
+#endif
 };
 
 /** Mapping for struct diet_string_specific */
 struct corba_string_specific_t {
+#if HAVE_DAGDA
   unsigned long length;
+#else
+  long length;
+#endif
 };
 
 /** Mapping for struct diet_paramstring_specific */
 struct corba_paramstring_specific_t {
+#if HAVE_DAGDA
   unsigned long length;
+#else
+  long length;
+#endif
   string param;
 };
 
 /** Mapping for struct diet_file_specific */
 struct corba_file_specific_t {
+#if HAVE_DAGDA
   unsigned long long size;
+#else
+  long size;
+#endif
   string path;
 };
 
