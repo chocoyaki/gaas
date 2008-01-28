@@ -6,7 +6,9 @@
 
 Welcome in using DIET.
 
-If you read this file, then you have downloaded DIET from the CVS
-repository and you want to compile, install and maybe use it.
+If you read this file, then you have downloaded DIET, want to compile
+and install it, and maybe use it.
  
-To install DIET,  you must use CMAKE (a GNU-Autotools substitute). Refer to the ./Cmake/README or the INSTALL.txt file for all the details. 
+To install DIET, you must use CMAKE (a GNU-Autotools
+substitute). Refer to the ./Cmake/README or the INSTALL.txt file for
+all the details.
