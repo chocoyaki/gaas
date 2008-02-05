@@ -325,7 +325,7 @@ ENDIF( DIET_USE_ENDIANNESS )
 
 # --------------- DIET custom client scheduling support  ------------------
 IF( DIET_USE_CCS )
-  ADD_DEFINITIONS( -DWITH_CCS )
+  ADD_DEFINITIONS( -DHAVE_CCS )
 ENDIF( DIET_USE_CCS )
 
 # --------------- OFFER BUILD MODE EXTENSIONS AND DEFAULTS  ----------------
