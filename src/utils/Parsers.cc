@@ -8,6 +8,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.42  2008/02/12 11:38:13  glemahec
+ * Les references aux SeDs sont sorties du marshalling. Le parametre
+ * "storageDirectory" est maintenant partage par DAGDA et les batchs.
+ *
+ * !!! Attention : Il faut donc remplacer le parametre "pathToTmp" par
+ * "storageDirectory" dans les fichiers de configuration pour les SeDs
+ * batchs !!!
+ *
  * Revision 1.41  2008/01/14 11:46:52  glemahec
  * Adds the DAGDA parameters to the possible ones in the config files.
  *
@@ -187,8 +195,10 @@ Parsers::Results::param_t Parsers::Results::params[] =
    /* [36] */ ,{"maxMsgSize", 10, Parsers::parseULong, 0, NULL}
    /* [37] */ ,{"maxDiskSpace", 12, Parsers::parseULong, 0, NULL}
    /* [38] */ ,{"maxMemSpace", 11, Parsers::parseULong, 0, NULL}
-   /* [39] */ ,{"storageDirectory", 16, Parsers::parseName, 0, NULL}
 #endif // HAVE_DAGDA
+#if HAVE_DAGDA || HAVE_ALT_BATCH
+   /* [39] */ ,{"storageDirectory", 16, Parsers::parseName, 0, NULL}
+#endif
   } ;
 
 #define IS_ADDRESS(i) ((i == Results::LDAPBASE) || (i == Results::NWSNAMESERVER) || (i == Results::NWSFORECASTER))

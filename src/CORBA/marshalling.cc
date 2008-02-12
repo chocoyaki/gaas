@@ -9,6 +9,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.82  2008/02/12 11:37:10  glemahec
+ * Les references aux SeDs sont sorties du marshalling. Le parametre
+ * "storageDirectory" est maintenant partage par DAGDA et les batchs.
+ *
+ * !!! Attention : Il faut donc remplacer le parametre "pathToTmp" par
+ * "storageDirectory" dans les fichiers de configuration pour les SeDs
+ * batchs !!!
+ *
  * Revision 1.81  2008/01/14 13:49:26  glemahec
  * CMakeLists.txt files modified to compile DIET with DAGDA.
  * Bugs corrections.
@@ -237,7 +245,10 @@
 #include "DIET_data_internal.hh"     // for data_sizeof()
 
 #if defined HAVE_ALT_BATCH
-#include "SeDImpl.hh"
+// -- GLM: Bug correction --
+//#include "SeDImpl.hh"
+#include "Parsers.hh"
+// ----
 #include "BatchSystem.hh"
 #endif
 
@@ -1075,15 +1086,21 @@ unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
         src_params[arg_idx] = new diet_data_t;
 
 #if defined HAVE_ALT_BATCH
-	if( ((SeDImpl*)dest->SeDPtr)->getBatch() != NULL )
+// -- GLM : Bug correction --
+/*	if( ((SeDImpl*)dest->SeDPtr)->getBatch() != NULL )
 	  unmrsh_data(src_params[arg_idx], &(src->parameters[arg_idx]),0,
 		      ((SeDImpl*)dest->SeDPtr)->getBatch()->getTmpPath()) ;
 	else // Should be removed when all classes managed within SeD
 	  unmrsh_data(src_params[arg_idx], &(src->parameters[arg_idx]),0,
-		      "/tmp/") ; 
+		      "/tmp/") ; */
+	char* dataPath = (char*) Parsers::Results::getParamValue(Parsers::Results::STORAGEDIR);
+	if (dataPath==NULL) dataPath = "/tmp/";
+	  unmrsh_data(src_params[arg_idx], &(src->parameters[arg_idx]),0,
+		      dataPath);
 #else
         unmrsh_data(src_params[arg_idx], &(src->parameters[arg_idx]),0);
 #endif
+
       } else if (cvt->arg_convs[i].f == DIET_CVT_IDENTITY) {
         duplicate_value = 1;
       }
@@ -1316,12 +1333,17 @@ unmrsh_inout_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb)
   // Unmarshal INOUT parameters
   for (i = dpb->last_in + 1; i <= dpb->last_inout; i++) {
 #if defined HAVE_ALT_BATCH
-    if( ((SeDImpl*)dpb->SeDPtr)->getBatch() != NULL)
+  // -- GLM : bug correction --
+  /*  if( ((SeDImpl*)dpb->SeDPtr)->getBatch() != NULL)
       unmrsh_data(&(dpb->parameters[i]), &(cpb->parameters[i]),1,
 		  ((SeDImpl*)dpb->SeDPtr)->getBatch()->getTmpPath());
     else // Should be removed when all classes managed within SeD
       unmrsh_data(&(dpb->parameters[i]), &(cpb->parameters[i]),1,
-		  "/tmp/") ;
+		  "/tmp/") ;*/
+  char* dataPath = (char*) Parsers::Results::getParamValue(Parsers::Results::STORAGEDIR);
+	if (dataPath==NULL) dataPath = "/tmp/";
+	  unmrsh_data(&(dpb->parameters[i]), &(cpb->parameters[i]),1,
+		      dataPath);
 #else
     unmrsh_data(&(dpb->parameters[i]), &(cpb->parameters[i]),1);
 #endif

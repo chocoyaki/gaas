@@ -8,6 +8,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2008/02/12 11:38:13  glemahec
+ * Les references aux SeDs sont sorties du marshalling. Le parametre
+ * "storageDirectory" est maintenant partage par DAGDA et les batchs.
+ *
+ * !!! Attention : Il faut donc remplacer le parametre "pathToTmp" par
+ * "storageDirectory" dans les fichiers de configuration pour les SeDs
+ * batchs !!!
+ *
  * Revision 1.28  2008/01/14 13:49:28  glemahec
  * CMakeLists.txt files modified to compile DIET with DAGDA.
  * Bugs corrections.
@@ -221,9 +229,10 @@ public:
 	  MAXMSGSIZE,
 	  MAXDISKSPACE,
 	  MAXMEMSPACE,
-	  STORAGEDIR,
 #endif // HAVE_DAGDA
-
+#if HAVE_DAGDA || HAVE_ALT_BATCH
+	  STORAGEDIR,
+#endif
       NB_PARAM_TYPE
     } param_type_t;
 
