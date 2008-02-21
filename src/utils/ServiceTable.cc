@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2008/02/21 12:05:20  rbolze
+ * add tips info in order to help for debugging :)
+ *
  * Revision 1.23  2008/01/01 19:43:49  ycaniou
  * Modifications for batch management. Loadleveler is now ok.
  *
@@ -338,7 +341,8 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
                     p1->priorityList[pvIter] <<
                     " != " <<
                     p2->priorityList[pvIter] <<
-                    ")\n", -2);
+                    ")\n" <<
+		    "TIPS : check diet_aggregator_priority_ function in all SeD", -2);
             }
           }
         }
