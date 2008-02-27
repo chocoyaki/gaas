@@ -5,6 +5,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.48  2008/02/27 14:32:06  rbolze
+ * the function ping() return getpid value instead of 0.
+ * Add Trace information when calling the function ping
+ *
  * Revision 1.47  2008/01/14 09:35:48  glemahec
  * AgentImpl.cc/hh modifications to allow the use of DAGDA.
  *
@@ -633,8 +637,9 @@ AgentImpl::getResponse(const corba_response_t& resp)
 CORBA::Long
 AgentImpl::ping()
 {
-  AGT_TRACE_FUNCTION("");
-  return 0;
+  TRACE_TEXT(TRACE_ALL_STEPS, "ping()\n");
+  fflush(stdout); 
+  return getpid();
 } // ping()
 
 char*

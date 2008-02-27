@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.99  2008/02/27 14:32:04  rbolze
+ * the function ping() return getpid value instead of 0.
+ * Add Trace information when calling the function ping
+ *
  * Revision 1.98  2008/01/14 11:32:15  glemahec
  * SeDImpl, the SeD object implementation can now use Dagda as data manager.
  *
@@ -633,7 +637,7 @@ void persistent_data_release(corba_data_t* arg){
 /** Called from client immediatly after knowing which server is selected
  ** and will be called by the client, before data transfer.
  
- ** Should disappear when data management by Gaël is fully tested, because
+ ** Should disappear when data management by Gaï¿½l is fully tested, because
  ** by default, data will be managed inside the solve() function and not inside
  ** the call.
  **/
@@ -1245,8 +1249,9 @@ SeDImpl::timeSinceLastSolve()
 CORBA::Long
 SeDImpl::ping()
 {
-  SED_TRACE_FUNCTION("");
-  return 0;
+  TRACE_TEXT(TRACE_ALL_STEPS, "ping()\n");
+  fflush(stdout); 
+  return getpid();
 }
 
 /****************************************************************************/
