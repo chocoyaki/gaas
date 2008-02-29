@@ -5,6 +5,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.49  2008/02/29 10:47:44  bdepardo
+ * Fixed a bug leading to a segfault when using CORI.
+ *
  * Revision 1.48  2008/02/27 14:32:06  rbolze
  * the function ping() return getpid value instead of 0.
  * Add Trace information when calling the function ping
@@ -248,9 +251,9 @@ AgentImpl::run()
     // Init FAST (HAVE_FAST is managed by the FASTMgr class)
   return FASTMgr::init();
 #else 
-   int use =
-     *((size_t*)Parsers::Results::getParamValue(Parsers::Results::FASTUSE));
-  if (use > 0){
+   size_t* use =
+     (size_t*)Parsers::Results::getParamValue(Parsers::Results::FASTUSE);
+  if (use != NULL && *use > 0){
      CORIMgr::add(EST_COLL_FAST,NULL);
      return CORIMgr::startCollectors();}
   else return 0;
