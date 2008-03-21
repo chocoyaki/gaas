@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2008/03/21 10:22:04  rbolze
+ *  - add ping() function to the MaDag in order to be able test this component.
+ * this is use by goDIET.
+ *  - print IOR in stdout in the constructor of the MaDag.
+ *
  * Revision 1.7  2006/11/06 15:14:53  aamar
  * Workflow support: Correct some code about reqID
  *
@@ -79,6 +84,11 @@ MaDag_impl::MaDag_impl(const char * name) :
 
   TRACE_TEXT(TRACE_MAIN_STEPS,
 	     "\nMA DAG " << this->myName << " created.\n");
+
+   TRACE_TEXT(NO_TRACE, 
+	       "## MADAG_IOR " << ORBMgr::getIORString(this->_this()) << endl);
+    fsync(1);
+    fflush(NULL);
 
   // set the parameters
   this->multi_wf = false;
@@ -294,3 +304,13 @@ MaDag_impl::registerClt(const char* dag_id, const char* client_ref) {
     this->metaSched->addClient(clt, dag_id);
   }
 }
+/**
+ * Used to test if it is alive.
+ */
+CORBA::Long
+MaDag_impl::ping()
+{
+  TRACE_TEXT(TRACE_ALL_STEPS, "ping()\n");
+  fflush(stdout); 
+  return getpid();
+} // ping()

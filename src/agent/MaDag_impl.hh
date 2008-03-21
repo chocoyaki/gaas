@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/03/21 10:22:04  rbolze
+ *  - add ping() function to the MaDag in order to be able test this component.
+ * this is use by goDIET.
+ *  - print IOR in stdout in the constructor of the MaDag.
+ *
  * Revision 1.5  2006/11/27 09:53:00  aamar
  * Correct headers of source files used in workflow support.
  *
@@ -91,6 +96,10 @@ public:
    */
   virtual void
   registerClt(const char* dag_id, const char* client_ref);
+
+  /** Used to test if it is alive. */
+  virtual CORBA::Long
+  ping();
 
   /**
    * set the scheduler for the MA DAG
