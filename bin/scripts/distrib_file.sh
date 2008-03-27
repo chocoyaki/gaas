@@ -9,6 +9,10 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.6  2008/03/27 18:47:03  rbolze
+#* update scripts and list of distrib. files
+#* exec "./bin/scripts/make_dist.pl -help" for usage
+#*
 #* Revision 1.5  2006/11/01 23:45:39  ecaron
 #* Script to generate the DIET distribution
 #* Author: Philippe Combes
@@ -198,7 +202,7 @@ EOF
     fi
     if [ $cat_tail ]; then
       NO_LINE=`expr $NO_LINE + 1`
-      tail +$NO_LINE $IN_FILE >> $OUT_FILE
+      tail -n +$NO_LINE $IN_FILE >> $OUT_FILE
       echo $NO_SEP_LINE > $no_sep_line_file
       break;
     fi

@@ -17,6 +17,10 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.19  2008/03/27 18:47:03  rbolze
+#* update scripts and list of distrib. files
+#* exec "./bin/scripts/make_dist.pl -help" for usage
+#*
 #* Revision 1.18  2007/04/20 08:43:18  glemahec
 #* Comments for loadable scheduler at agent level in ChangeLog + UserScheduler.cc & UserScheduler.hh ref in bin/scripts/Distribution_files.lst
 #*
@@ -76,6 +80,7 @@
 [UNTEMPLATED]
 CMakeLists.txt
 README.FIRST
+INSTALL.txt
 ChangeLog
 
 # Cmake Section
@@ -577,7 +582,7 @@ doc/ProgrammersGuide/fig/WaitRulesClassDiagram.png
 doc/ProgrammersGuide/fig/logo_DIET.gif
 
 doc/UsersManual/fig/CMakeLists.txt
-doc/UsersManual/fig/data.eps
+doc/UsersManual/fig/data.fig
 doc/UsersManual/fig/DIET_arch_request-2.ps
 doc/UsersManual/fig/FAST.fig
 doc/UsersManual/fig/JXTAConfig.ps
@@ -593,17 +598,17 @@ doc/UsersManual/fig/logo_DIET_big.gif
 doc/UsersManual/fig/overviewCori.fig
 doc/UsersManual/fig/smprod.fig
 doc/UsersManual/fig/submit_pb.fig
-doc/UsersManual/fig/FAST.eps
-doc/UsersManual/fig/global_platform.eps
-doc/UsersManual/fig/global_platform_jxta.eps
-doc/UsersManual/fig/init.eps
-doc/UsersManual/fig/overviewCori.eps
-doc/UsersManual/fig/smprod.eps
-doc/UsersManual/fig/submit_pb.eps
-doc/UsersManual/fig/logo_DIET2.ps
-doc/UsersManual/fig/logo_DIET_big.ps
-doc/UsersManual/fig/logo_DIET.ps
-doc/UsersManual/fig/VizDIET_screenshot_2.ps
+doc/UsersManual/fig/FAST.fig
+doc/UsersManual/fig/global_platform.fig
+doc/UsersManual/fig/global_platform_jxta.fig
+doc/UsersManual/fig/init.fig
+doc/UsersManual/fig/overviewCori.fig
+doc/UsersManual/fig/smprod.fig
+doc/UsersManual/fig/submit_pb.fig
+doc/UsersManual/fig/logo_DIET2.gif
+doc/UsersManual/fig/logo_DIET_big.gif
+doc/UsersManual/fig/logo_DIET.gif
+doc/UsersManual/fig/VizDIET_screenshot_2.gif
 doc/UsersManual/CMakeLists.txt
 
 # Section [Devel_templated] :
