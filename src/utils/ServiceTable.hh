@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2008/03/28 13:17:17  rbolze
+ * update code to avoid warning with the intel compiler
+ *
  * Revision 1.16  2007/04/16 22:43:44  ycaniou
  * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
  * This is indented to replace HAVE_BATCH.
@@ -186,7 +189,7 @@ public:
   getEvalf(const corba_profile_desc_t* profile);
   diet_eval_t
   getEvalf(const ServiceReference_t ref);
-  const diet_convertor_t* const
+  diet_convertor_t*
   getConvertor(const corba_profile_desc_t* profile);
   diet_convertor_t*
   getConvertor(const ServiceReference_t ref);

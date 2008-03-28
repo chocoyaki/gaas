@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2008/03/28 13:17:16  rbolze
+ * update code to avoid warning with the intel compiler
+ *
  * Revision 1.14  2006/07/13 14:40:39  aamar
  * Adding the doneRequest vector for already tested requests by
  * grpc_wait_any.
@@ -91,7 +94,7 @@ typedef enum WAITOPERATOR{
   ANY,          // Wait rule is satisfied whatever request arrived
   ALL           // Wait rule is satisfied if all requests registered when the 
     // rule is created are available
-};
+}WAITOPERATOR;
 
 typedef enum {
   STATUS_DONE = 0, // Result is available in local memory 

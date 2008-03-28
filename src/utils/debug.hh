@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2008/03/28 13:17:17  rbolze
+ * update code to avoid warning with the intel compiler
+ *
  * Revision 1.27  2007/04/17 20:44:58  dart
  * - move #define from Parsers.cc to Parsers.hh
  * - define the maximum length of getline as MAXCFGLINE
@@ -195,7 +198,7 @@ extern omni_mutex debug_log_mutex ;
 // DEBUG trace: print "function(formatted_text)\n", following the iostream
 // format. First argument is the minimum TRACE_LEVEL for the line to be printed.
 #define TRACE_FUNCTION(level,formatted_text)               \
-  if (TRACE_LEVEL >= (level)) {                            \
+  if ((int)TRACE_LEVEL >= (int)(level)) {            \
     debug_log_mutex.lock() ;                               \
     cout << __FUNCTION__ << '(' << formatted_text << ")\n";\
     debug_log_mutex.unlock() ; }
@@ -203,7 +206,7 @@ extern omni_mutex debug_log_mutex ;
 // DEBUG trace: print formatted_text following the iostream format (no '\n'
 // added). First argument is the minimum TRACE_LEVEL for the line to be printed.
 #define TRACE_TEXT(level,formatted_text)             \
-  if (TRACE_LEVEL >= (level)) {                      \
+  if ((int)TRACE_LEVEL >= (int)(level)) {            \
     debug_log_mutex.lock() ;                         \
     cout << formatted_text ;                         \
     debug_log_mutex.unlock() ; }
@@ -212,7 +215,7 @@ extern omni_mutex debug_log_mutex ;
 // (no '\n' added). First argument is the minimum TRACE_LEVEL for the line to be
 // printed.
 #define TRACE_TEXT_POS(level,formatted_text)                      \
-  if (TRACE_LEVEL >= (level)) {                                   \
+  if ((int)TRACE_LEVEL >= (int)(level)) {                         \
     debug_log_mutex.lock() ;                                      \
     cout << __FILE__ << ':' << __LINE__ << ": " << formatted_text;\
     debug_log_mutex.unlock() ; }
@@ -221,7 +224,7 @@ extern omni_mutex debug_log_mutex ;
 // '\n' added). First argument is the minimum TRACE_LEVEL for the line to be
 // printed.
 #define TRACE_TIME(level,formatted_text)            \
-  if (TRACE_LEVEL >= (level)) {                     \
+  if ((int)TRACE_LEVEL >= (int)(level)) {           \
     struct timeval tv;                              \
     debug_log_mutex.lock() ;                        \
     gettimeofday(&tv, NULL);                        \

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2008/03/28 13:17:17  rbolze
+ * update code to avoid warning with the intel compiler
+ *
  * Revision 1.6  2006/11/01 21:38:04  ecaron
  * Correction of wrong comment
  *
@@ -426,7 +429,9 @@ Vector_size(const VectorConst_t v)
 void
 Vector_sort(Vector_t v, int (*sort_fn)(const void* a, const void* b))
 {
-  qsort(v->v_obj, v->v_size, sizeof (void*), sort_fn);
+//   qsort(v->v_obj, v->v_size, sizeof (void*), sort_fn); 
+// this is line has been remplace to avoid warning with intel compiler icc
+   qsort(v->v_obj, v->v_size, sizeof (void*), (__compar_fn_t)sort_fn);
 }
 
 int

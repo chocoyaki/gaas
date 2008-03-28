@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2008/03/28 13:17:17  rbolze
+ * update code to avoid warning with the intel compiler
+ *
  * Revision 1.24  2008/02/21 12:05:20  rbolze
  * add tips info in order to help for debugging :)
  *
@@ -549,7 +552,7 @@ ServiceTable::getEvalf(const ServiceReference_t ref)
 }
 
 
-const diet_convertor_t* const
+diet_convertor_t* 
 ServiceTable::getConvertor(const corba_profile_desc_t* profile)
 {
   ServiceReference_t ref(-1);
@@ -741,9 +744,9 @@ ServiceTable::ServiceTableInit(CORBA::ULong max_nb_services,
                                CORBA::ULong max_nb_children)
 {
   nb_s          = 0;
-  max_nb_s      = (max_nb_services <= 0) ? MAX_NB_SERVICES : max_nb_services;
+  max_nb_s      = (max_nb_services == 0) ? MAX_NB_SERVICES : max_nb_services;
   max_nb_s_step = max_nb_s;
-  this->max_nb_children = (max_nb_children < 0) ? 0 : max_nb_children;
+  this->max_nb_children = max_nb_children;
   profiles.length(max_nb_s);
 
   if (max_nb_children > 0) {
