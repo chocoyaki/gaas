@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2008/04/01 09:13:37  bdepardo
+ * Removed cast of sort_fn which was added to remove warning with intel compiler, but caused an error when compiling on OS X with GCC 4.0.1
+ *
  * Revision 1.7  2008/03/28 13:17:17  rbolze
  * update code to avoid warning with the intel compiler
  *
@@ -429,9 +432,7 @@ Vector_size(const VectorConst_t v)
 void
 Vector_sort(Vector_t v, int (*sort_fn)(const void* a, const void* b))
 {
-//   qsort(v->v_obj, v->v_size, sizeof (void*), sort_fn); 
-// this is line has been remplace to avoid warning with intel compiler icc
-   qsort(v->v_obj, v->v_size, sizeof (void*), (__compar_fn_t)sort_fn);
+   qsort(v->v_obj, v->v_size, sizeof (void*), sort_fn);
 }
 
 int
