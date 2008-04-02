@@ -20,12 +20,9 @@ public:
   ~DagdaImpl();
 
   /* CORBA part. To be remotely called. */
-  //virtual char* managerID();
-  virtual char* getID();
   virtual char* getHostname();
   virtual void subscribe(Dagda_ptr me) = 0;
   virtual void unsubscribe(Dagda_ptr me) = 0;
-  //virtual void managerID(const char* _v);
 
   virtual CORBA::Boolean lclIsDataPresent(const char* dataID) = 0;
   virtual CORBA::Boolean lvlIsDataPresent(const char* dataID) = 0;
@@ -67,16 +64,6 @@ public:
   virtual char* sendData(const char* ID, Dagda_ptr dest);
 
   virtual char* downloadData(Dagda_ptr src, const corba_data_t& data) = 0;
-
-  /* Local part. */
-  void setDataPath(const char* path);
-  const char* getDataPath();
-  void setMaxMsgSize(const unsigned long maxMsgSize);
-  const unsigned long getMaxMsgSize();
-  void setDiskMaxSpace(const unsigned long diskMaxSpace);
-  const unsigned long getDiskMaxSpace();
-  void setMemMaxSpace(const unsigned long memMaxSpace);
-  const unsigned long getMemMaxSpace();
   
   /* Implementation dependent functions. */
   virtual bool isDataPresent(const char* dataID) = 0;
@@ -88,17 +75,34 @@ public:
 		   const char* dataPath, const unsigned long maxMsgSize,
 		   const unsigned long diskMaxSpace,
 		   const unsigned long memMaxSpace) = 0;
-protected:
-  Dagda_ptr parent;
-  std::string dataPath;
+  // Accessors.
+  void setDataPath(const char* path);
+  const char* getDataPath();
+  void setMaxMsgSize(const unsigned long maxMsgSize);
+  const unsigned long getMaxMsgSize();
+  void setDiskMaxSpace(const unsigned long diskMaxSpace);
+  const unsigned long getDiskMaxSpace();
+  void setMemMaxSpace(const unsigned long memMaxSpace);
+  const unsigned long getMemMaxSpace();
+  std::map<std::string, Dagda_ptr>* getChildren() { return &children; }
+  std::map<std::string, corba_data_t>* getData() { return &data; }
+  Dagda_ptr getParent() { return parent; }
+  void setParent(Dagda_ptr parent) { this->parent = parent; }
+  void setID(char* ID) { this->ID = ID; }
+  char* getID() { return CORBA::string_dup(this->ID); } // CORBA
+private:
   char* ID;
   char* hostname;
   unsigned long maxMsgSize;
   unsigned long diskMaxSpace;
   unsigned long memMaxSpace;
-
+  Dagda_ptr parent;
+  std::string dataPath;
   std::map<std::string, Dagda_ptr> children;
   std::map<std::string, corba_data_t> data;
+protected:
+  omni_mutex dataMutex;
+  omni_mutex childrenMutex;
 };
 
 class SimpleDagdaImpl : public DagdaImpl {
@@ -151,19 +155,19 @@ public:
   virtual void remData(const char* dataID);
   virtual SeqCorbaDataDesc_t* getDataDescList();
   virtual char* downloadData(Dagda_ptr src, const corba_data_t& data);
-  
-  std::map<std::string, Dagda_ptr> getChildren() { return children; }
-  std::map<std::string, corba_data_t> getData() { return data; }  
-  
+
   /* Get an iterator over children. */
   std::map<std::string, Dagda_ptr>::iterator childIterator() {
-    return children.begin();
+    return getChildren()->begin();
   }
 
   /* Get an iterator over data. */
   std::map<std::string, corba_data_t>::iterator dataIterator() {
-    return data.begin();
+    return DagdaImpl::getData()->begin();
   }
+  
+  /* To avoid a lot of "DagdaImpl::getData()... */
+  std::map<std::string, corba_data_t>* getData() { return DagdaImpl::getData(); }
   
   /* Return the type of this data manager. */
   dagda_manager_type_t getType() {

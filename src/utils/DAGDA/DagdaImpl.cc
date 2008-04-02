@@ -23,13 +23,11 @@ DagdaImpl::~DagdaImpl() {
   if (parent!=NULL) parent->unsubscribe(_this());
 }
 
-char* DagdaImpl::getID() {
-  return CORBA::string_dup(ID);
-}
-
+/* CORBA */
 char* DagdaImpl::getHostname() {
   return hostname;
 }
+
 
 /* Choose where to store the data. */
 void DagdaImpl::setDataPath(const char* path) {
@@ -66,6 +64,7 @@ const unsigned long DagdaImpl::getMemMaxSpace() {
 }
 
 /* Write the data to a file. Can be done in several time. */
+/* CORBA */
 char* DagdaImpl::writeFile(const SeqChar& data, const char* basename,
 			CORBA::Boolean replace) {
   std::ofstream file;
@@ -89,6 +88,7 @@ char* DagdaImpl::writeFile(const SeqChar& data, const char* basename,
 
 
 /* Send a file to a node. */
+/* CORBA */
 char* DagdaImpl::sendFile(const corba_data_t &data, Dagda_ptr dest) {
   if (data.desc.specific.file().path==NULL) // path not initialized.
     throw Dagda::InvalidPathName(data.desc.id.idNumber, "null");
@@ -131,75 +131,90 @@ char* DagdaImpl::sendFile(const corba_data_t &data, Dagda_ptr dest) {
   return distPath;
 }
 
+/* CORBA */
+/* Warning : access to data MUST be encapsulated in dataMutex.lock()/unlock() */
 char* DagdaImpl::recordData(const SeqChar& data,
 			    const corba_data_desc_t& dataDesc,
 			    CORBA::Boolean replace) {
   unsigned long offset;
 
   string dataId(dataDesc.id.idNumber);
-  if (this->data.find(dataId)==this->data.end()) {
+
+  if (getData()->find(dataId)==getData()->end()) {
     TRACE_TEXT(TRACE_MAIN_STEPS, "Add data " << dataDesc.id.idNumber
 								<< endl);
 	corba_data_t newData;
     newData.desc = dataDesc;
-    this->data[dataId]=newData;
+    (*getData())[dataId]=newData;
   }
   TRACE_TEXT(TRACE_ALL_STEPS, "\tRecord " << data.length() << " bytes for the data "
                         << dataDesc.id.idNumber << endl);
   if (replace) {
-    this->data[dataId].value.length(data.length());
+    (*getData())[dataId].value.length(data.length());
     offset=0;
   } else {
-    offset=this->data[dataId].value.length();
-    this->data[dataId].value.length(data.length()+offset);
+    offset=(*getData())[dataId].value.length();
+    (*getData())[dataId].value.length(data.length()+offset);
   }
   for (int i=0; i<data.length(); ++i) {
-    this->data[dataId].value[i+offset]=data[i];
+    (*getData())[dataId].value[i+offset]=data[i];
   }
 
-  return CORBA::string_dup(this->data[dataId].desc.id.idNumber);
+  return CORBA::string_dup((*getData())[dataId].desc.id.idNumber);
 }
 
+/* CORBA */
 char* DagdaImpl::sendData(const char* dataId, Dagda_ptr dest) {
-  if (data.find(dataId)==data.end())
+  dataMutex.lock();
+  
+  if (getData()->find(dataId)==getData()->end()) {
+    dataMutex.unlock();
     throw Dagda::DataNotFound(dataId);
-
+  }
   TRACE_TEXT(TRACE_MAIN_STEPS, "*** Sending data " << dataId << endl);
 
   unsigned long wrote = 0;
-  unsigned long dataSize = data_sizeof(&data[dataId].desc);
+  unsigned long dataSize = data_sizeof(&(*getData())[dataId].desc);
   unsigned long nBlocks =  dataSize / getMaxMsgSize() + 1;
 
   bool replace = true;
   char* distID=NULL;
+
   for (int i=0; i<nBlocks; ++i) {
     int toSend = (dataSize-wrote > getMaxMsgSize() ?
 		  getMaxMsgSize():(dataSize-wrote));
     TRACE_TEXT(TRACE_ALL_STEPS, "\tSend " <<  toSend << " bytes..." << endl);
-    SeqChar buffer(toSend, toSend, data[dataId].value.get_buffer()+wrote);
+    SeqChar buffer(toSend, toSend, (*getData())[dataId].value.get_buffer()+wrote);
 
     if (distID!=NULL) CORBA::string_free(distID);
-    distID=dest->recordData(buffer, data[dataId].desc, replace);
+    distID=dest->recordData(buffer, (*getData())[dataId].desc, replace);
 
     wrote+=toSend;
     replace=false;
   }
+  dataMutex.unlock();
   return distID;
 }
 
+/* CORBA */
 void SimpleDagdaImpl::subscribe(Dagda_ptr me) {
   string name(me->getID());
-  map<string, Dagda_ptr>::iterator it = getChildren().find(name);
+  childrenMutex.lock();
+  map<string, Dagda_ptr>::iterator it = getChildren()->find(name);
   
-  if (it!=children.end()) children.erase(name);
-  children[name]=Dagda::_duplicate(me);
+  if (it!=getChildren()->end()) getChildren()->erase(name);
+  (*getChildren())[name]=Dagda::_duplicate(me);
+  childrenMutex.unlock();
 }
 
+/* CORBA */
 void SimpleDagdaImpl::unsubscribe(Dagda_ptr me) {
   string name(me->getID());
-  map<string, Dagda_ptr>::iterator it = children.find(name);
+  childrenMutex.lock();
+  map<string, Dagda_ptr>::iterator it = getChildren()->find(name);
 
-  if (it!=children.end()) children.erase(name);
+  if (it!=getChildren()->end()) getChildren()->erase(name);
+  childrenMutex.unlock();
 }
 
 SimpleDagdaImpl::~SimpleDagdaImpl() {
@@ -211,27 +226,26 @@ int SimpleDagdaImpl::init(const char* ID, const char* parentID,
 			  const char* dataPath, const unsigned long maxMsgSize,
 			  const unsigned long diskMaxSpace,
 			  const unsigned long memMaxSpace) {
-  this->ID = CORBA::string_dup(ID);
+  setID(CORBA::string_dup(ID));
 
-  if (ORBMgr::bindObjToName(_this(), ORBMgr::DATAMGR, this->ID)) {
-    ERROR("Dagda: could not declare myself as " << this->ID, 1);
+  if (ORBMgr::bindObjToName(_this(), ORBMgr::DATAMGR, getID())) {
+    ERROR("Dagda: could not declare myself as " << getID(), 1);
   }
-  if (parentID==NULL) parent=NULL;
+  if (parentID==NULL) setParent(NULL);
   else {
 	parentID = CORBA::string_dup(parentID);
 
-    parent =
-      Dagda::_duplicate(Dagda::_narrow(ORBMgr::getObjReference(ORBMgr::DATAMGR,
-							   parentID)));
+    setParent(Dagda::_duplicate(Dagda::_narrow(
+		ORBMgr::getObjReference(ORBMgr::DATAMGR, parentID))));
   }
 
   TRACE_TEXT(TRACE_MAIN_STEPS, 
-	     "## Launch Dagda data manager " << this->ID << endl);
+	     "## Launch Dagda data manager " << getID() << endl);
   TRACE_TEXT(TRACE_ALL_STEPS,
 	     "IOR : " << ORBMgr::getIORString(_this()) << endl);
 		 
 
-  if (parent!=NULL) parent->subscribe(_this());
+  if (getParent()!=NULL) getParent()->subscribe(_this());
 
   setMaxMsgSize(maxMsgSize);
   setDiskMaxSpace(diskMaxSpace);
@@ -241,39 +255,52 @@ int SimpleDagdaImpl::init(const char* ID, const char* parentID,
 }
 
 /* Return true if the data is on the node. */
+/* CORBA */
 CORBA::Boolean SimpleDagdaImpl::lclIsDataPresent(const char* dataID) {
   return isDataPresent(dataID);
 }
 
 /* Return true if the data is present locally. */
+/* CORBA */
 CORBA::Boolean SimpleDagdaImpl::lvlIsDataPresent(const char* dataID) {
   std::map<string,Dagda_ptr>::iterator itch;
 
   if (lclIsDataPresent(dataID)) return true;
-  for (itch=children.begin();itch!=children.end();++itch) {
-    if ((*itch).second->lvlIsDataPresent(dataID)) return true;
-  }
+  childrenMutex.lock();
+  
+  for (itch=getChildren()->begin();itch!=getChildren()->end();)
+    try {
+      if ((*itch).second->lvlIsDataPresent(dataID)) return true;
+	  itch++;
+    } catch (CORBA::COMM_FAILURE& e1) {
+	  getChildren()->erase(itch++);
+    } catch (CORBA::TRANSIENT& e2) {
+      getChildren()->erase(itch++);
+    }
+  childrenMutex.unlock();
   return false;
 }
 
 /* If the data is present locally return true else calls parent to find
    it. */
+/* CORBA */
 CORBA::Boolean SimpleDagdaImpl::pfmIsDataPresent(const char* dataID) {
   if (lclIsDataPresent(dataID)) return true;
-  if (parent==NULL)
+  if (getParent()==NULL)
     return lvlIsDataPresent(dataID);
-  return parent->pfmIsDataPresent(dataID);
+  return getParent()->pfmIsDataPresent(dataID);
 }
 
 // Returns the data from this data manager.
+/* CORBA */
 corba_data_t* SimpleDagdaImpl::lclGetData(Dagda_ptr dest, const char* dataID) {
   corba_data_t* found = getData(dataID);
   
   if (dest==_this()) return found;
-  
+  if (found==NULL) throw Dagda::DataNotFound(dataID);
+
   corba_data_t* result = new corba_data_t();
 
-  if (found==NULL) throw Dagda::DataNotFound(dataID);
   result->desc=found->desc;
 
   if (found->desc.specific._d()==DIET_FILE) {
@@ -289,30 +316,43 @@ corba_data_t* SimpleDagdaImpl::lclGetData(Dagda_ptr dest, const char* dataID) {
 }
 
 // Returns the data from this level.
+/* CORBA */
 corba_data_t* SimpleDagdaImpl::lvlGetData(Dagda_ptr dest, const char* dataID) {
   std::map<string, Dagda_ptr>::iterator itch;
 
   if (lclIsDataPresent(dataID))
     return lclGetData(dest, dataID);
 
-  for (itch=children.begin();itch!=children.end();++itch)
-    if ((*itch).second->lvlIsDataPresent(dataID))
-      return (*itch).second->lvlGetData(dest, dataID);
-
+  childrenMutex.lock();
+  for (itch=getChildren()->begin();itch!=getChildren()->end();)
+    try {
+      if ((*itch).second->lvlIsDataPresent(dataID)) {
+	    childrenMutex.unlock();
+        return (*itch).second->lvlGetData(dest, dataID);
+	  }
+	  itch++;
+	} catch (CORBA::COMM_FAILURE& e1) {
+	  getChildren()->erase(itch++);
+    } catch (CORBA::TRANSIENT& e2) {
+      getChildren()->erase(itch++);
+    }
+  childrenMutex.unlock();
   throw Dagda::DataNotFound(dataID);
 }
 
 // Look if the data is present on this level. Otherwise ask the parent
 // to get it.
 // This is the simplest implementation. There is many way to do that.
+/* CORBA */
 corba_data_t* SimpleDagdaImpl::pfmGetData(Dagda_ptr dest, const char* dataID) {
   if (lvlIsDataPresent(dataID)) return lvlGetData(dest, dataID);
-  if (parent==NULL)
+  if (getParent()==NULL)
     return lvlGetData(dest, dataID);
-  return parent->pfmGetData(dest, dataID);
+  return getParent()->pfmGetData(dest, dataID);
 }
 
 // This method downloads the data from the node src.
+/* CORBA */
 char* SimpleDagdaImpl::downloadData(Dagda_ptr src, const corba_data_t& data) {
   if (data.desc.specific._d()==DIET_FILE)
     return src->sendFile(data, _this());
@@ -321,6 +361,7 @@ char* SimpleDagdaImpl::downloadData(Dagda_ptr src, const corba_data_t& data) {
 }
 
 // Add a data locally.
+/* CORBA */
 void SimpleDagdaImpl::lclAddData(Dagda_ptr src, const corba_data_t& data) {
   TRACE_TEXT(TRACE_ALL_STEPS, "Add the data " << data.desc.id.idNumber
                              << " locally." << endl);
@@ -346,6 +387,7 @@ void SimpleDagdaImpl::lclAddData(Dagda_ptr src, const corba_data_t& data) {
 // * on essaye de copier en local. Si ce n'est pas possible, on essaye sur
 //   les noeuds enfants.
 // * Utilisation d'une heuristique pour choisir le noeud.
+/* CORBA */
 void SimpleDagdaImpl::lvlAddData(Dagda_ptr src, const corba_data_t& data) {
   lclAddData(src, data);
 }
@@ -354,62 +396,92 @@ void SimpleDagdaImpl::lvlAddData(Dagda_ptr src, const corba_data_t& data) {
 // Many way to do that... Ex :
 // * Control if there is enough local storage capacity to store the data.
 //   Otherwise ask to "parent" or "children" to store it. (Recursively).
+/* CORBA */
 void SimpleDagdaImpl::pfmAddData(Dagda_ptr src, const corba_data_t& data) {
   // Control if the data is already on the platform ???
   lvlAddData(src, data);
 }
 
 // Simple implementation.
+/* CORBA */
 void SimpleDagdaImpl::lclRemData(const char* dataID) {
   remData(dataID);
 }
 
 // SeD have no child...
+/* CORBA */
 void SimpleDagdaImpl::lvlRemData(const char* dataID) {
   std::map<string, Dagda_ptr>::iterator itch;
   lclRemData(dataID);
-  for (itch=children.begin();itch!=children.end();++itch)
-    (*itch).second->lvlRemData(dataID);
+  
+  childrenMutex.lock();
+  for (itch=getChildren()->begin();itch!=getChildren()->end();)
+    try {
+	  if ((*itch).second->lvlIsDataPresent(dataID))
+        (*itch).second->lvlRemData(dataID);
+	  itch++;
+	} catch (CORBA::COMM_FAILURE& e1) {
+	  getChildren()->erase(itch++);
+    } catch (CORBA::TRANSIENT& e2) {
+      getChildren()->erase(itch++);
+    }
+  childrenMutex.unlock();
 }
 
 // Simple implementation :
 // Should take into account the previous remove.
+/* CORBA */
 void SimpleDagdaImpl::pfmRemData(const char* dataID) {
-  if (parent==NULL)
+  if (getParent()==NULL)
     lvlRemData(dataID);
   else
-    parent->pfmRemData(dataID);
+    getParent()->pfmRemData(dataID);
 }
 
 // Simple implementation : remove and add.
+/* CORBA */
 void SimpleDagdaImpl::lclUpdateData(Dagda_ptr src, const corba_data_t& data) {
   lclRemData(data.desc.id.idNumber);
   lclAddData(src, data);
 }
 
 // 
+/* CORBA */
 void SimpleDagdaImpl::lvlUpdateData(Dagda_ptr src, const corba_data_t& data) {
   std::map<string,Dagda_ptr>::iterator itch;
   if (lclIsDataPresent(data.desc.id.idNumber))
     lclUpdateData(src, data);
-  for (itch=children.begin();itch!=children.end();++itch)
-    (*itch).second->lvlUpdateData(src, data);
+
+  childrenMutex.lock();
+  for (itch=getChildren()->begin();itch!=getChildren()->end();)
+    try {
+      (*itch).second->lvlUpdateData(src, data);
+	  itch++;
+	} catch (CORBA::COMM_FAILURE& e1) {
+	  getChildren()->erase(itch++);
+    } catch (CORBA::TRANSIENT& e2) {
+      getChildren()->erase(itch++);
+    }
+  childrenMutex.unlock();
 }
 
 // Simple implementation.
+/* CORBA */
 void SimpleDagdaImpl::pfmUpdateData(Dagda_ptr src, const corba_data_t& data) {
-  if (parent==NULL)
+  if (getParent()==NULL)
     lvlUpdateData(src, data);
   else
-    parent->pfmUpdateData(src, data);
+    getParent()->pfmUpdateData(src, data);
 }
 
 // To get the descriptions of the data locally stored.
+/* CORBA */
 SeqCorbaDataDesc_t* SimpleDagdaImpl::lclGetDataDescList() {
   return getDataDescList();
 }
 
 // 
+/* CORBA */
 SeqCorbaDataDesc_t* SimpleDagdaImpl::lvlGetDataDescList() {
   std::map<string,Dagda_ptr>::iterator itch;
   SeqCorbaDataDesc_t* local = lclGetDataDescList();
@@ -420,13 +492,21 @@ SeqCorbaDataDesc_t* SimpleDagdaImpl::lvlGetDataDescList() {
     dataMap[(*local)[i].id.idNumber]=(*local)[i];
   delete local;
 
-  for (itch=children.begin();itch!=children.end();++itch) {
-    SeqCorbaDataDesc_t* childList = (*itch).second->lvlGetDataDescList();
-    for (int j=0; j<childList->length(); ++j)
-      dataMap[(*childList)[j].id.idNumber]=(*childList)[j];
-    delete childList;
-  }
+  childrenMutex.lock();
+  for (itch=getChildren()->begin();itch!=getChildren()->end();)
+    try {
+      SeqCorbaDataDesc_t* childList = (*itch).second->lvlGetDataDescList();
+      for (int j=0; j<childList->length(); ++j)
+        dataMap[(*childList)[j].id.idNumber]=(*childList)[j];
+      delete childList;
+	  itch++;
+    } catch (CORBA::COMM_FAILURE& e1) {
+	  getChildren()->erase(itch++);
+    } catch (CORBA::TRANSIENT& e2) {
+      getChildren()->erase(itch++);
+    }
 
+  childrenMutex.unlock();
   std::map<char*,corba_data_desc_t>::iterator itmap;
 
   result->length(dataMap.size());
@@ -439,54 +519,78 @@ SeqCorbaDataDesc_t* SimpleDagdaImpl::lvlGetDataDescList() {
 
 // Returns the descriptions of all the data stored on the
 // platform. Recursive call to MA's data manager.
+/* CORBA */
 SeqCorbaDataDesc_t* SimpleDagdaImpl::pfmGetDataDescList() {
-  if (parent==NULL) return lvlGetDataDescList();
-  return parent->pfmGetDataDescList();
+  if (getParent()==NULL) return lvlGetDataDescList();
+  return getParent()->pfmGetDataDescList();
 }
 
 // Returns the description of a data. If not present, throws an exception.
+/* CORBA */
 corba_data_desc_t* SimpleDagdaImpl::lclGetDataDesc(const char* dataID) {
   if (lclIsDataPresent(dataID)) {
-    corba_data_desc_t* result = new corba_data_desc_t(data[dataID].desc);
+    corba_data_desc_t* result = new corba_data_desc_t((*getData())[dataID].desc);
 	result->id.idNumber = CORBA::string_dup(dataID);
 	return result;
   }
   throw Dagda::DataNotFound(dataID);
 }
 
+/* CORBA */
 corba_data_desc_t* SimpleDagdaImpl::lvlGetDataDesc(const char* dataID) {
   std::map<string,Dagda_ptr>::iterator itch;
 
   if (lclIsDataPresent(dataID))
     return lclGetDataDesc(dataID);
 
-  for (itch=children.begin();itch!=children.end();++itch) {
-    if ((*itch).second->lvlIsDataPresent(dataID))
-      return (*itch).second->lvlGetDataDesc(dataID);
-  }
+  childrenMutex.lock();
+  for (itch=getChildren()->begin();itch!=getChildren()->end();)
+    try {
+      if ((*itch).second->lvlIsDataPresent(dataID)) {
+	    childrenMutex.unlock();
+        return (*itch).second->lvlGetDataDesc(dataID);
+	  }
+	  itch++;
+    } catch (CORBA::COMM_FAILURE& e1) {
+	  getChildren()->erase(itch++);
+    } catch (CORBA::TRANSIENT& e2) {
+      getChildren()->erase(itch++);
+    }
+  childrenMutex.unlock();
   throw Dagda::DataNotFound(dataID);
 }
 
+/* CORBA */
 corba_data_desc_t* SimpleDagdaImpl::pfmGetDataDesc(const char* dataID) {
   if (lclIsDataPresent(dataID))
     return lclGetDataDesc(dataID);
-  if (parent==NULL)
+  if (getParent()==NULL)
     return lvlGetDataDesc(dataID);
-  return parent->pfmGetDataDesc(dataID);
+  return getParent()->pfmGetDataDesc(dataID);
 }
 
+/* CORBA */
 SeqDagda_t* SimpleDagdaImpl::lvlGetDataManagers(const char* dataID) {
   std::map<string,Dagda_ptr>::iterator itch;
   SeqDagda_t* result = new SeqDagda_t();
   std::list<Dagda_ptr> dtmList;
   if (lclIsDataPresent(dataID))
     dtmList.push_back(Dagda::_duplicate(_this()));
-  for (itch=children.begin();itch!=children.end();++itch) {
-    SeqDagda_t* managers = (*itch).second->lvlGetDataManagers(dataID);
-    for (int j=0; j< managers->length(); ++j)
-      dtmList.push_back(Dagda::_duplicate((*managers)[j]));
-    delete managers;
-  }
+	
+  childrenMutex.lock();
+  for (itch=getChildren()->begin();itch!=getChildren()->end();)
+    try {
+      SeqDagda_t* managers = (*itch).second->lvlGetDataManagers(dataID);
+      for (int j=0; j< managers->length(); ++j)
+        dtmList.push_back(Dagda::_duplicate((*managers)[j]));
+      delete managers;
+	  itch++;
+    } catch (CORBA::COMM_FAILURE& e1) {
+	  getChildren()->erase(itch++);
+    } catch (CORBA::TRANSIENT& e2) {
+      getChildren()->erase(itch++);
+    }
+  childrenMutex.unlock();
     
   std::list<Dagda_ptr>::iterator itlist;
   int i=0;
@@ -499,36 +603,36 @@ SeqDagda_t* SimpleDagdaImpl::lvlGetDataManagers(const char* dataID) {
 }
 
 // Returns all the data managers of a data.
+/* CORBA */
 SeqDagda_t* SimpleDagdaImpl::pfmGetDataManagers(const char* dataID) {
-  if (parent==NULL) return lvlGetDataManagers(dataID);
-  return parent->pfmGetDataManagers(dataID);
+  if (getParent()==NULL) return lvlGetDataManagers(dataID);
+  return getParent()->pfmGetDataManagers(dataID);
 }
 
 /**/
-
 bool SimpleDagdaImpl::isDataPresent(const char* dataID) {
   std::map<string, corba_data_t>::iterator it;
-  it = data.find(dataID);
-  return (it!=data.end());
+  it = getData()->find(dataID);
+  return (it!=getData()->end());
 }
 
 corba_data_t* SimpleDagdaImpl::getData(const char* dataID) {
-  return &data[dataID];
+  return &((*getData())[dataID]);
 }
 
 void SimpleDagdaImpl::addData(const corba_data_t& data) {
   char* dataManager = ORBMgr::getIORString(DagdaFactory::getDataManager()->_this());
   TRACE_TEXT(TRACE_ALL_STEPS, "Adding data " << data.desc.id.idNumber << " to this "
 			 << "data manager." << endl);
-  this->data[string(data.desc.id.idNumber)]=data;
-  this->data[string(data.desc.id.idNumber)].desc.dataManager = CORBA::string_dup(dataManager);
+  (*getData())[string(data.desc.id.idNumber)]=data;
+  (*getData())[string(data.desc.id.idNumber)].desc.dataManager = CORBA::string_dup(dataManager);
 }
 
 void SimpleDagdaImpl::remData(const char* dataID) {
   // !!!!!!! A tester !!!!!!!!!!!!+ Ajouter suppression effective...
   std::map<string, corba_data_t>::iterator it;
-  it = data.find(dataID);
-  if (it!=data.end()) data.erase(it);
+  it = getData()->find(dataID);
+  if (it!=getData()->end()) getData()->erase(it);
 }
 
 SeqCorbaDataDesc_t* SimpleDagdaImpl::getDataDescList() {
@@ -536,13 +640,15 @@ SeqCorbaDataDesc_t* SimpleDagdaImpl::getDataDescList() {
   SeqCorbaDataDesc_t* result = new SeqCorbaDataDesc_t();
   int i=0;
 
-  result->length(data.size());
-  for (it=data.begin(); it!=data.end(); ++it)
+  dataMutex.lock();
+  result->length(getData()->size());
+  for (it=getData()->begin(); it!=getData()->end(); ++it)
     (*result)[i++]=it->second.desc;
-
+  dataMutex.unlock();
   return result;
 }
 
+/* CORBA */
 void SimpleDagdaImpl::registerFile(const corba_data_t& data) {
   //std::InputIterator<corba_data_t> it;
   // Instable pour l'instant... Remis dans DAGDA v1.2 avec
