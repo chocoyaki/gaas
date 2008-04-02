@@ -41,6 +41,9 @@ interface Dagda {
   exception PermissionDenied {
 	long error;
   };
+  exception UnavailableData {
+    string dataID;
+  };
   /* Is the data using dataID is present. */
   boolean lclIsDataPresent(in string dataID);
   boolean lvlIsDataPresent(in string dataID);
@@ -110,8 +113,10 @@ interface Dagda {
   string sendData(in string ID, in Dagda dest)
     raises(DataNotFound);
 
-  /* Get the managers of a data. */
+  
   typedef sequence<Dagda> SeqDagda_t;
+  enum dataStatus { ready, downloading };
+  /* Get the managers of a data. */
   SeqDagda_t lvlGetDataManagers(in string dataID);
   SeqDagda_t pfmGetDataManagers(in string dataID);
 
@@ -123,6 +128,11 @@ interface Dagda {
   /* To identify the data manager node. */
   string getID();
   string getHostname();
+  
+  /* To lock the access to a data. */
+  void lockData(in string dataID);
+  void unlockData(in string dataID);
+  dataStatus getDataStatus(in string dataID);
 };
 
 typedef Dagda::SeqDagda_t SeqDagda_t;

@@ -132,7 +132,7 @@ char* DagdaImpl::sendFile(const corba_data_t &data, Dagda_ptr dest) {
 }
 
 /* CORBA */
-/* Warning : access to data MUST be encapsulated in dataMutex.lock()/unlock() */
+/* Warning : this function MUST be protected by a dataMutex.lock()/unlock() pair. */
 char* DagdaImpl::recordData(const SeqChar& data,
 			    const corba_data_desc_t& dataDesc,
 			    CORBA::Boolean replace) {
@@ -145,6 +145,7 @@ char* DagdaImpl::recordData(const SeqChar& data,
 								<< endl);
 	corba_data_t newData;
     newData.desc = dataDesc;
+	lockData(dataId.c_str());
     (*getData())[dataId]=newData;
   }
   TRACE_TEXT(TRACE_ALL_STEPS, "\tRecord " << data.length() << " bytes for the data "
@@ -166,11 +167,16 @@ char* DagdaImpl::recordData(const SeqChar& data,
 /* CORBA */
 char* DagdaImpl::sendData(const char* dataId, Dagda_ptr dest) {
   dataMutex.lock();
-  
   if (getData()->find(dataId)==getData()->end()) {
     dataMutex.unlock();
     throw Dagda::DataNotFound(dataId);
   }
+  
+  if ((*getDataStatus())[dataId]==Dagda::downloading) {
+	dataMutex.unlock();
+	throw Dagda::UnavailableData(dataId);
+  }
+
   TRACE_TEXT(TRACE_MAIN_STEPS, "*** Sending data " << dataId << endl);
 
   unsigned long wrote = 0;
@@ -192,8 +198,29 @@ char* DagdaImpl::sendData(const char* dataId, Dagda_ptr dest) {
     wrote+=toSend;
     replace=false;
   }
+  dest->unlockData(distID);
   dataMutex.unlock();
   return distID;
+}
+
+void DagdaImpl::lockData(const char* dataID) {
+  dataStatusMutex.lock();
+  (*getDataStatus())[dataID]=Dagda::downloading;
+  dataStatusMutex.unlock();
+}
+
+void DagdaImpl::unlockData(const char* dataID) {
+  dataStatusMutex.lock();
+  (*getDataStatus())[dataID]=Dagda::ready;
+  dataStatusMutex.unlock();
+}
+
+Dagda::dataStatus DagdaImpl::getDataStatus(const char* dataID) {
+  Dagda::dataStatus ret;
+  dataStatusMutex.lock();
+  ret=(*getDataStatus())[dataID];
+  dataStatusMutex.unlock();
+  return ret;
 }
 
 /* CORBA */
@@ -294,10 +321,15 @@ CORBA::Boolean SimpleDagdaImpl::pfmIsDataPresent(const char* dataID) {
 // Returns the data from this data manager.
 /* CORBA */
 corba_data_t* SimpleDagdaImpl::lclGetData(Dagda_ptr dest, const char* dataID) {
+  dataMutex.lock();
   corba_data_t* found = getData(dataID);
+  dataMutex.unlock();
   
   if (dest==_this()) return found;
   if (found==NULL) throw Dagda::DataNotFound(dataID);
+  if ((*getDataStatus())[dataID]==Dagda::downloading) {
+	throw Dagda::UnavailableData(dataID);
+  }
 
   corba_data_t* result = new corba_data_t();
 
@@ -335,7 +367,9 @@ corba_data_t* SimpleDagdaImpl::lvlGetData(Dagda_ptr dest, const char* dataID) {
 	  getChildren()->erase(itch++);
     } catch (CORBA::TRANSIENT& e2) {
       getChildren()->erase(itch++);
-    }
+    } catch (Dagda::UnavailableData &ex) {
+	  itch++;
+	}
   childrenMutex.unlock();
   throw Dagda::DataNotFound(dataID);
 }
@@ -372,11 +406,13 @@ void SimpleDagdaImpl::lclAddData(Dagda_ptr src, const corba_data_t& data) {
 		  corba_data_t newData(data);
 		  newData.desc.specific.file().path=path;
 		  addData(newData);
+		  unlockData(data.desc.id.idNumber); //
         }
 	  } else {
 	    char* dataID;
 		addData(data);
 		dataID = downloadData(src, data);
+		unlockData(dataID);
 	  }
 	}
 }
@@ -612,8 +648,13 @@ SeqDagda_t* SimpleDagdaImpl::pfmGetDataManagers(const char* dataID) {
 /**/
 bool SimpleDagdaImpl::isDataPresent(const char* dataID) {
   std::map<string, corba_data_t>::iterator it;
+  bool ret;
+  dataMutex.lock();
   it = getData()->find(dataID);
-  return (it!=getData()->end());
+  ret = (it!=getData()->end());
+  if (ret) ret = ((*getDataStatus())[dataID]==Dagda::ready);
+  dataMutex.unlock();
+  return ret;
 }
 
 corba_data_t* SimpleDagdaImpl::getData(const char* dataID) {
@@ -624,15 +665,20 @@ void SimpleDagdaImpl::addData(const corba_data_t& data) {
   char* dataManager = ORBMgr::getIORString(DagdaFactory::getDataManager()->_this());
   TRACE_TEXT(TRACE_ALL_STEPS, "Adding data " << data.desc.id.idNumber << " to this "
 			 << "data manager." << endl);
+  dataMutex.lock();
+  lockData(data.desc.id.idNumber);
   (*getData())[string(data.desc.id.idNumber)]=data;
   (*getData())[string(data.desc.id.idNumber)].desc.dataManager = CORBA::string_dup(dataManager);
+  dataMutex.unlock();
 }
 
 void SimpleDagdaImpl::remData(const char* dataID) {
   // !!!!!!! A tester !!!!!!!!!!!!+ Ajouter suppression effective...
   std::map<string, corba_data_t>::iterator it;
+  dataMutex.lock();
   it = getData()->find(dataID);
   if (it!=getData()->end()) getData()->erase(it);
+  dataMutex.unlock();
 }
 
 SeqCorbaDataDesc_t* SimpleDagdaImpl::getDataDescList() {

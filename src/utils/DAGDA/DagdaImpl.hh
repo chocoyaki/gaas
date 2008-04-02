@@ -65,6 +65,10 @@ public:
 
   virtual char* downloadData(Dagda_ptr src, const corba_data_t& data) = 0;
   
+  virtual void lockData(const char* dataID);
+  virtual void unlockData(const char* dataID);
+  virtual Dagda::dataStatus getDataStatus(const char* dataID);
+  
   /* Implementation dependent functions. */
   virtual bool isDataPresent(const char* dataID) = 0;
   virtual corba_data_t* getData(const char* dataID) = 0;
@@ -86,6 +90,7 @@ public:
   const unsigned long getMemMaxSpace();
   std::map<std::string, Dagda_ptr>* getChildren() { return &children; }
   std::map<std::string, corba_data_t>* getData() { return &data; }
+  std::map<std::string, Dagda::dataStatus>* getDataStatus() { return &dataStatus; }
   Dagda_ptr getParent() { return parent; }
   void setParent(Dagda_ptr parent) { this->parent = parent; }
   void setID(char* ID) { this->ID = ID; }
@@ -100,8 +105,10 @@ private:
   std::string dataPath;
   std::map<std::string, Dagda_ptr> children;
   std::map<std::string, corba_data_t> data;
+  std::map<std::string, Dagda::dataStatus> dataStatus;
 protected:
   omni_mutex dataMutex;
+  omni_mutex dataStatusMutex;
   omni_mutex childrenMutex;
 };
 
