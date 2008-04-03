@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.100  2008/04/03 21:18:44  glemahec
+ * Source cleaning, bug correction and headers.
+ *
  * Revision 1.99  2008/02/27 14:32:04  rbolze
  * the function ping() return getpid value instead of 0.
  * Add Trace information when calling the function ping
@@ -1468,7 +1471,7 @@ SeDImpl::downloadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 
     Dagda_var remoteManager =
       Dagda::_narrow(ORBMgr::stringToObject(data.desc.dataManager));
-    
+
 	if (!dataManager->lclIsDataPresent(data.desc.id.idNumber))
 	  dataManager->lclAddData(remoteManager, data);
     corba_data_t* inserted =  dataManager->getData(data.desc.id.idNumber);
@@ -1478,6 +1481,25 @@ SeDImpl::downloadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 #endif // ! HAVE_DAGDA
 #endif // HAVE_JUXMEM 
 }
+
+#if HAVE_DAGDA
+void dagda_async_upload(corba_profile_t& pb) {
+  Dagda_var remoteManager = 
+      Dagda::_narrow(ORBMgr::stringToObject(pb.clientIOR));
+  DagdaImpl* manager = DagdaFactory::getSeDDataManager();
+  
+  try {
+    for (int i=pb.last_in+1; i<=pb.last_out; ++i) {
+      remoteManager->lclAddData(manager->_this(), pb.parameters[i]);
+	  pb.parameters[i].desc=*remoteManager->lclGetDataDesc(pb.parameters[i].desc.id.idNumber);
+	}
+  } catch (CORBA::COMM_FAILURE& e1) {
+	 WARNING("Client disconnected... IOR: " << pb.clientIOR);
+  } catch (CORBA::TRANSIENT& e2) {
+    WARNING("Client disconnected... IOR: " << pb.clientIOR);
+  }
+}
+#endif
 
 inline void
 SeDImpl::uploadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
@@ -1534,6 +1556,7 @@ SeDImpl::uploadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 	
 	if (value!=NULL)
 	  stored->value.replace(size, size, value, 0);
+	dagda_async_upload(pb);
   }
 #endif // ! HAVE_DAGDA
       

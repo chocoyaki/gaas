@@ -1,3 +1,18 @@
+/***********************************************************/
+/* Dagda component factory.                                */
+/* Used to obtain this DIET component data manager easily  */
+/* from everywhere in the DIET source code.                */
+/*                                                         */
+/*  Author(s):                                             */
+/*    - Gael Le Mahec (lemahec@clermont.in2p3.fr)          */
+/*                                                         */
+/* $LICENSE$                                               */
+/***********************************************************/
+/* $Id$													   */
+/* $Log													   */
+/*														   */
+/***********************************************************/
+
 #include "DagdaFactory.hh"
 #include "Parsers.hh"
 #include "debug.hh"
@@ -35,6 +50,7 @@ const char* DagdaFactory::getStorageDir() {
     char* storage = (char*)
 	  Parsers::Results::getParamValue(Parsers::Results::STORAGEDIR);
     if (storage==NULL) storageDir = defaultStorageDir;
+	else storageDir = storage;
   }
   
   return storageDir.c_str();

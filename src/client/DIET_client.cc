@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.111  2008/04/03 21:18:46  glemahec
+ * Source cleaning, bug correction and headers.
+ *
  * Revision 1.110  2008/01/14 13:55:28  glemahec
  * Correction of a Warning in DIET_client.cc
  *
@@ -1036,7 +1039,105 @@ request_submission(diet_profile_t* profile,
   return 0;
 }
   
+#if HAVE_DAGDA
+void dagda_mrsh_profile(corba_profile_t* corba_profile, diet_profile_t* profile) {
+  DagdaImpl* dataManager = DagdaFactory::getClientDataManager();
+  char* dataManagerIOR = ORBMgr::getIORString(dataManager->_this());
   
+  corba_profile->parameters.length(profile->last_out+1);
+  
+#if defined HAVE_BATCH || defined HAVE_ALT_BATCH 
+  corba_profile->parallel_flag = profile->parallel_flag ;
+  corba_profile->nbprocs    = profile->nbprocs ;
+  corba_profile->nbprocess  = profile->nbprocess ;
+  corba_profile->walltime   = profile->walltime ;
+#endif
+  corba_profile->last_in    = profile->last_in;
+  corba_profile->last_inout = profile->last_inout;
+  corba_profile->last_out   = profile->last_out;
+  corba_profile->dietReqID  = profile->dietReqID ;
+  corba_profile->clientIOR = CORBA::string_dup(dataManagerIOR);
+
+  for (int i=0; i<=profile->last_out; ++i) {
+    bool haveID = false;
+	corba_data_t data;
+	CORBA::Char* value = (CORBA::Char*) profile->parameters[i].value;
+
+	// Does the data need an ID ? Yes: Get one from the MA.
+	// Else get the data description from the platform.
+    if (profile->parameters[i].desc.id != NULL)
+	  if (strlen(profile->parameters[i].desc.id)!=0) {
+	    // The data is stored on the platform. Get its description.
+	    data.desc = *MA->get_data_arg(profile->parameters[i].desc.id);
+		haveID = true;
+	  }
+
+	// This is a new data. It needs an ID and its data manager is
+	// this client data manager.
+	if (i<=profile->last_inout && !haveID) {
+	  corba_data_t* storedData;
+	  size_t size;
+	  char* dataID = MA->get_data_id();
+	  
+	  // Set the ID and the data manager IOR.
+	  profile->parameters[i].desc.id = dataID;
+	  data.desc.dataManager = dataManagerIOR;
+	  
+	  // Make a corba_data_t from the parameter.
+	  if (profile->parameters[i].desc.generic.type!=DIET_FILE)
+	    size = data_sizeof(&profile->parameters[i].desc);
+	  else size = 0;
+	  
+	  mrsh_data_desc(&data.desc, &profile->parameters[i].desc);
+	  
+	  // Add the data in the client data manager.
+	  // And get the pointer on it.
+	  dataManager->addData(data);
+	  storedData = dataManager->getData(dataID);
+	  
+	  // Data in the profile and in the data manager share the same
+	  // pointer. The last parameter  of "replace" is the "release"
+	  // parameter. It is set to 0 to avoid  double free.
+	  if (value!=NULL)
+	    storedData->value.replace(size, size, value, 0);
+	  
+	  corba_profile->parameters[i] = *storedData;
+	  continue;
+	}
+	// Out data needing an ID.
+	if (i>profile->last_inout && !haveID) {
+	  char* dataID = MA->get_data_id();
+	  
+	  profile->parameters[i].desc.id = dataID;
+	  mrsh_data_desc(&corba_profile->parameters[i].desc, &profile->parameters[i].desc);
+	}
+	// The data is on the platform. Set its description.
+	if (haveID)
+	  corba_profile->parameters[i].desc=data.desc;
+	corba_profile->parameters[i].desc.dataManager=CORBA::string_dup(dataManagerIOR);
+  }
+}
+
+void dagda_download_SeD_data(diet_profile_t* profile,
+			corba_profile_t* corba_profile) {
+  // Downloads the data from the SeD to the client.
+  for (int i=profile->last_in+1; i<=profile->last_out; ++i) {
+    corba_data_t data = const_cast<corba_data_t&>(corba_profile->parameters[i]);
+    Dagda_var remoteManager = 
+      Dagda::_narrow(ORBMgr::stringToObject(data.desc.dataManager));
+
+	DagdaImpl* manager = DagdaFactory::getClientDataManager();
+	manager->lclAddData(remoteManager, data);
+	corba_data_t* inserted = manager->getData(data.desc.id.idNumber);
+	corba_profile->parameters[i]=*inserted;
+
+	unmrsh_data_desc(&profile->parameters[i].desc, &inserted->desc);
+	profile->parameters[i].value=(char*) corba_profile->parameters[i].value.get_buffer(true);
+	profile->parameters[i].desc.id = strdup(data.desc.id.idNumber);
+  }
+}
+
+#endif HAVE_DAGDA
 /****************************************
  * Synchronous call
  ****************************************/
@@ -1070,46 +1171,13 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
 #endif // HAVE_JUXMEM
 
 #if HAVE_DAGDA
-  // With dagda all the data have an ID. Even the non-persistent ones.
-  for (int i=0; i<=profile->last_out; ++i)
-	if (!profile->parameters[i].desc.id)
-      profile->parameters[i].desc.id = MA->get_data_id();
-#endif // HAVE_DAGDA
-
+  dagda_mrsh_profile(&corba_profile, profile);
+#else
   /* Convert profile (with data) in corba_profile (with data) */
   if (mrsh_profile_to_in_args(&corba_profile, profile)) {
     ERROR("profile is wrongly built", 1);
   }
-#if HAVE_DAGDA
-/*  char* clientDataManager =
-    ORBMgr::getIORString(DagdaFactory::getClientDataManager()->_this());*/
-  for (int i=0; i<=corba_profile.last_inout; ++i) {
-    DagdaImpl* dataManager = DagdaFactory::getClientDataManager();
-    if (!dataManager->lclIsDataPresent(profile->parameters[i].desc.id)) {
-      corba_data_t storeData(corba_profile.parameters[i]);
-	  //corba_profile.parameters[i].desc.dataManager = CORBA::string_dup(clientDataManager);
 
-  	  // Store the data pointer to the registered corba_data_t
-	  // Only the description are copied. The diet_profile and registered data
-	  // share the same data pointer. The last parameter of value.replace()
-	  // is set to 0 to prevent double free when the client call diet_free_data()
-      DagdaFactory::getClientDataManager()->addData(storeData);
-	  corba_data_t* stored = DagdaFactory::getClientDataManager()->getData(storeData.desc.id.idNumber);
-	  corba_profile.parameters[i]=*stored;
-	
-	  int size = data_sizeof(&profile->parameters[i].desc);
-	  if (profile->parameters[i].desc.generic.type==DIET_FILE) size=0;
-	  CORBA::Char* value = (CORBA::Char*) profile->parameters[i].value;
-	
-	  if (value!=NULL)
-	    stored->value.replace(size, size, value, 0);
-	} else {
-	  corba_profile.parameters[i].desc.id.idNumber = CORBA::string_dup(profile->parameters[i].desc.id);
-	}
-  }
-  // Don't really understand what the following code is doing but
-  // it is not needed by Dagda...
-#else // HAVE_DAGDA
   int j = 0;
   bool found = false;
   while ((j <= corba_profile.last_out) && (found == false)) {
@@ -1122,10 +1190,7 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
   if(found == true){
      create_file();
   }
-#endif // HAVE_DAGDA
-
 #if ! HAVE_JUXMEM
-#if ! HAVE_DAGDA
   /* data property base_type and type retrieval: used for scheduler */
   for(int i = 0 ; i <= corba_profile.last_out ; i++) {
     char* new_id = strdup(corba_profile.parameters[i].desc.id.idNumber);
@@ -1146,16 +1211,8 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
 	corba_profile.parameters[i].desc.id.idNumber = new_id;
       }
   }
-#else
-	// The data are allready in the platform.
-    for (int i = 0 ; i <= corba_profile.last_out ; i++) 
-      if (MA->dataLookUp(corba_profile.parameters[i].desc.id.idNumber)) {
-		corba_profile.parameters[i].desc = 
-	  *MA->get_data_arg(corba_profile.parameters[i].desc.id.idNumber);
-      }
-#endif // ! HAVE_DAGDA
 #endif // ! HAVE_JUXMEM
-
+#endif // HAVE_DAGDA
   /* Computation */
   sprintf(statMsg, "computation %ld", (unsigned long) profile->dietReqID);
   try {
@@ -1185,22 +1242,7 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
     INTERNAL_ERROR("returned profile is wrongly built", 1);
   }
 #else
-  /* Downloads the data from the SeD to the client. */
-  for (int i=profile->last_in+1; i<=profile->last_out; ++i) {
-    corba_data_t data = const_cast<corba_data_t&>(corba_profile.parameters[i]);
-    Dagda_var remoteManager = 
-      Dagda::_narrow(ORBMgr::stringToObject(data.desc.dataManager));
-
-	DagdaImpl* manager = DagdaFactory::getClientDataManager();
-	
-	manager->lclAddData(remoteManager, data);
-	corba_data_t* inserted = manager->getData(data.desc.id.idNumber);
-	corba_profile.parameters[i]=*inserted;
-
-	unmrsh_data_desc(&profile->parameters[i].desc, &inserted->desc);
-	profile->parameters[i].value=(char*) corba_profile.parameters[i].value.get_buffer(true);
-	profile->parameters[i].desc.id = strdup(data.desc.id.idNumber);
-  }
+  dagda_download_SeD_data(profile, &corba_profile);
 #endif // ! HAVE_DAGDA
 
 #if HAVE_JUXMEM
@@ -1301,16 +1343,13 @@ diet_call_async_common(diet_profile_t* profile,
     uploadClientDataJuxMem(profile);
 #endif
 
+#if HAVE_DAGDA
+  dagda_mrsh_profile(&corba_profile, profile);
+#else
     if (mrsh_profile_to_in_args(&corba_profile, profile)) {
       caMgr->setReqErrorCode(profile->dietReqID, GRPC_INVALID_FUNCTION_HANDLE);
       ERROR("profile is wrongly built", 1);
     }
-#if HAVE_DAGDA
-    char* clientDataManager =
-      ORBMgr::getIORString(DagdaFactory::getClientDataManager()->_this());
-	for (int i=0; i<corba_profile.last_out; ++i)
-	  corba_profile.parameters[i].desc.dataManager=clientDataManager;
-#endif // HAVE_DAGDA
 
     int j = 0;
     bool found = false;
@@ -1324,6 +1363,7 @@ diet_call_async_common(diet_profile_t* profile,
     if(found == true){
       create_file();
     }
+#endif
 
 #if ! HAVE_JUXMEM
 #if ! HAVE_DAGDA
@@ -1347,15 +1387,6 @@ diet_call_async_common(diet_profile_t* profile,
         corba_profile.parameters[i].desc.id.idNumber = new_id;
       }
     }
-#else
-    for (int i = 0 ; i <= corba_profile.last_out ; i++) 
-      if (MA->dataLookUp(corba_profile.parameters[i].desc.id.idNumber)) {
-	const_cast<corba_data_desc_t&>(corba_profile.parameters[i].desc) =
-	  *MA->get_data_arg(corba_profile.parameters[i].desc.id.idNumber);
-      } else
-	if ((corba_profile.parameters[i].desc.mode > DIET_VOLATILE ) && 
-	    (corba_profile.parameters[i].desc.mode < DIET_PERSISTENCE_MODE_COUNT))
-	  corba_profile.parameters[i].desc.id.idNumber = MA->get_data_id();
 #endif // ! HAVE_DAGDA
 #endif // ! HAVE_JUXMEM
     
@@ -1378,8 +1409,6 @@ diet_call_async_common(diet_profile_t* profile,
 #if HAVE_JUXMEM
     downloadClientDataJuxMem(profile);
 #endif // HAVE_JUXMEM
-
-
   } catch (const CORBA::Exception &e) {
     // Process any other User exceptions. Use the .id() method to
     // record or display useful information

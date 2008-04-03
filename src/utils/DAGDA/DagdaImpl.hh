@@ -1,3 +1,16 @@
+/***********************************************************/
+/* Dagda component implementation.                         */
+/*                                                         */
+/*  Author(s):                                             */
+/*    - Gael Le Mahec (lemahec@clermont.in2p3.fr)          */
+/*                                                         */
+/* $LICENSE$                                               */
+/***********************************************************/
+/* $Id$													   */
+/* $Log													   */
+/*														   */
+/***********************************************************/
+
 #ifndef _DTMIMPL_HH_
 #define _DTMIMPL_HH_
 #define MAXBUFFSIZE  (getMaxMsgSize()==0 ? 4294967295U:getMaxMsgSize())

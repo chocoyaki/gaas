@@ -1,3 +1,16 @@
+/***********************************************************/
+/* Dagda component implementation.                         */
+/*                                                         */
+/*  Author(s):                                             */
+/*    - Gael Le Mahec (lemahec@clermont.in2p3.fr)          */
+/*                                                         */
+/* $LICENSE$                                               */
+/***********************************************************/
+/* $Id$													   */
+/* $Log													   */
+/*														   */
+/***********************************************************/
+
 #include "Dagda.hh"
 #include "common_types.hh"
 
@@ -71,7 +84,7 @@ char* DagdaImpl::writeFile(const SeqChar& data, const char* basename,
   std::string filename(getDataPath());
   filename.append("/");
   filename.append(basename);
-
+  
   if (replace)
     file.open(filename.c_str());
   else
@@ -85,7 +98,6 @@ char* DagdaImpl::writeFile(const SeqChar& data, const char* basename,
                              << filename << endl);
   return CORBA::string_dup(filename.c_str());
 }
-
 
 /* Send a file to a node. */
 /* CORBA */
@@ -297,7 +309,10 @@ CORBA::Boolean SimpleDagdaImpl::lvlIsDataPresent(const char* dataID) {
   
   for (itch=getChildren()->begin();itch!=getChildren()->end();)
     try {
-      if ((*itch).second->lvlIsDataPresent(dataID)) return true;
+      if ((*itch).second->lvlIsDataPresent(dataID)) {
+	    childrenMutex.unlock();
+	    return true;
+	  }
 	  itch++;
     } catch (CORBA::COMM_FAILURE& e1) {
 	  getChildren()->erase(itch++);
