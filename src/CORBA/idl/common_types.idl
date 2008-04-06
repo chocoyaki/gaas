@@ -9,6 +9,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2008/04/06 15:53:10  glemahec
+ * DIET_PERSISTENT_RETURN & DIET_STICKY_RETURN modes are now working.
+ * Warning: The clients have to take into account that an out data declared as
+ * DIET_PERSISTENT or DIET_STICKY is  only stored on the SeDs and not returned
+ * to  the  client. DTM doesn't manage the  DIET_*_RETURN types it and  always
+ * returns the out data to the client: A client which uses this bug should not
+ * work when activating DAGDA.
+ *
  * Revision 1.27  2008/04/03 21:18:41  glemahec
  * Source cleaning, bug correction and headers.
  *
@@ -263,7 +271,7 @@ struct corba_data_desc_t {
   long base_type;
   type specific;
 #if HAVE_DAGDA
-  string dataManager; // The Dagda data manager IOR.
+  string dataManager; // This data Dagda data manager IOR.
 #endif
 };
 typedef sequence<corba_data_desc_t> SeqCorbaDataDesc_t;

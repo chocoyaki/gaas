@@ -148,4 +148,5 @@ interface Dagda {
 };
 
 typedef Dagda::SeqDagda_t SeqDagda_t;
+typedef sequence<string> SeqIOR;
 #endif

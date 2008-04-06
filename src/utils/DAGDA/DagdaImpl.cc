@@ -183,7 +183,7 @@ char* DagdaImpl::sendData(const char* dataId, Dagda_ptr dest) {
     dataMutex.unlock();
     throw Dagda::DataNotFound(dataId);
   }
-  
+
   if ((*getDataStatus())[dataId]==Dagda::downloading) {
 	dataMutex.unlock();
 	throw Dagda::UnavailableData(dataId);
@@ -210,6 +210,7 @@ char* DagdaImpl::sendData(const char* dataId, Dagda_ptr dest) {
     wrote+=toSend;
     replace=false;
   }
+
   dest->unlockData(distID);
   dataMutex.unlock();
   return distID;
@@ -492,6 +493,9 @@ void SimpleDagdaImpl::pfmRemData(const char* dataID) {
 // Simple implementation : remove and add.
 /* CORBA */
 void SimpleDagdaImpl::lclUpdateData(Dagda_ptr src, const corba_data_t& data) {
+  if (strcmp(src->getID(), this->getID())==0) return;
+  cout << "l." << __LINE__ << " file: " << __FILE__ << endl;
+  cout << "src->getID = " << src->getID() << " this->getID = " << this->getID() << endl;
   lclRemData(data.desc.id.idNumber);
   lclAddData(src, data);
 }

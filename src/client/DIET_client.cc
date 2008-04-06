@@ -10,6 +10,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.112  2008/04/06 15:53:10  glemahec
+ * DIET_PERSISTENT_RETURN & DIET_STICKY_RETURN modes are now working.
+ * Warning: The clients have to take into account that an out data declared as
+ * DIET_PERSISTENT or DIET_STICKY is  only stored on the SeDs and not returned
+ * to  the  client. DTM doesn't manage the  DIET_*_RETURN types it and  always
+ * returns the out data to the client: A client which uses this bug should not
+ * work when activating DAGDA.
+ *
  * Revision 1.111  2008/04/03 21:18:46  glemahec
  * Source cleaning, bug correction and headers.
  *
@@ -1043,9 +1051,9 @@ request_submission(diet_profile_t* profile,
 void dagda_mrsh_profile(corba_profile_t* corba_profile, diet_profile_t* profile) {
   DagdaImpl* dataManager = DagdaFactory::getClientDataManager();
   char* dataManagerIOR = ORBMgr::getIORString(dataManager->_this());
-  
+
   corba_profile->parameters.length(profile->last_out+1);
-  
+
 #if defined HAVE_BATCH || defined HAVE_ALT_BATCH 
   corba_profile->parallel_flag = profile->parallel_flag ;
   corba_profile->nbprocs    = profile->nbprocs ;
@@ -1078,36 +1086,38 @@ void dagda_mrsh_profile(corba_profile_t* corba_profile, diet_profile_t* profile)
 	  corba_data_t* storedData;
 	  size_t size;
 	  char* dataID = MA->get_data_id();
-	  
+
 	  // Set the ID and the data manager IOR.
 	  profile->parameters[i].desc.id = dataID;
-	  data.desc.dataManager = dataManagerIOR;
-	  
+	  data.desc.dataManager = CORBA::string_dup(dataManagerIOR);
+
 	  // Make a corba_data_t from the parameter.
 	  if (profile->parameters[i].desc.generic.type!=DIET_FILE)
 	    size = data_sizeof(&profile->parameters[i].desc);
 	  else size = 0;
-	  
+
 	  mrsh_data_desc(&data.desc, &profile->parameters[i].desc);
-	  
+
 	  // Add the data in the client data manager.
 	  // And get the pointer on it.
 	  dataManager->addData(data);
 	  storedData = dataManager->getData(dataID);
-	  
+
 	  // Data in the profile and in the data manager share the same
 	  // pointer. The last parameter  of "replace" is the "release"
 	  // parameter. It is set to 0 to avoid  double free.
 	  if (value!=NULL)
 	    storedData->value.replace(size, size, value, 0);
-	  
+
 	  corba_profile->parameters[i] = *storedData;
+	  dataManager->unlockData(dataID);
+
 	  continue;
 	}
 	// Out data needing an ID.
 	if (i>profile->last_inout && !haveID) {
 	  char* dataID = MA->get_data_id();
-	  
+
 	  profile->parameters[i].desc.id = dataID;
 	  mrsh_data_desc(&corba_profile->parameters[i].desc, &profile->parameters[i].desc);
 	}
@@ -1125,14 +1135,21 @@ void dagda_download_SeD_data(diet_profile_t* profile,
     corba_data_t data = const_cast<corba_data_t&>(corba_profile->parameters[i]);
     Dagda_var remoteManager = 
       Dagda::_narrow(ORBMgr::stringToObject(data.desc.dataManager));
+	if (corba_profile->parameters[i].desc.mode != DIET_PERSISTENT &&
+		corba_profile->parameters[i].desc.mode != DIET_STICKY ||
+		  i <= corba_profile->last_inout) {
+	  DagdaImpl* manager = DagdaFactory::getClientDataManager();
+	  manager->lclAddData(remoteManager, data);
+	  corba_data_t* inserted = manager->getData(data.desc.id.idNumber);
+	  corba_profile->parameters[i]=*inserted;
 
-	DagdaImpl* manager = DagdaFactory::getClientDataManager();
-	manager->lclAddData(remoteManager, data);
-	corba_data_t* inserted = manager->getData(data.desc.id.idNumber);
-	corba_profile->parameters[i]=*inserted;
-
-	unmrsh_data_desc(&profile->parameters[i].desc, &inserted->desc);
-	profile->parameters[i].value=(char*) corba_profile->parameters[i].value.get_buffer(true);
+	  unmrsh_data_desc(&profile->parameters[i].desc, &inserted->desc);
+	  profile->parameters[i].value=(char*) corba_profile->parameters[i].value.get_buffer(true);
+	} else {
+	  unmrsh_data_desc(&profile->parameters[i].desc, &corba_profile->parameters[i].desc);
+	  profile->parameters[i].value=NULL;
+	}
+	
 	profile->parameters[i].desc.id = strdup(data.desc.id.idNumber);
   }
 }

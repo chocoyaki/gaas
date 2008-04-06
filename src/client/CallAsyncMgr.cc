@@ -8,6 +8,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2008/04/06 15:53:10  glemahec
+ * DIET_PERSISTENT_RETURN & DIET_STICKY_RETURN modes are now working.
+ * Warning: The clients have to take into account that an out data declared as
+ * DIET_PERSISTENT or DIET_STICKY is  only stored on the SeDs and not returned
+ * to  the  client. DTM doesn't manage the  DIET_*_RETURN types it and  always
+ * returns the out data to the client: A client which uses this bug should not
+ * work when activating DAGDA.
+ *
  * Revision 1.23  2007/04/11 09:43:36  aamar
  * Add <algorithm> header. Needs to be explicitly included in AIX.
  *
@@ -89,6 +97,10 @@
 #include "CallAsyncMgr.hh"
 #include "debug.hh"
 #include <algorithm>
+
+#if HAVE_DAGDA
+#include "DagdaFactory.hh"
+#endif // HAVE_DAGDA
 
 using namespace std;
 
@@ -487,6 +499,7 @@ int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
   cout << "notifyRst " << reqID << endl;
   setReqErrorCode(reqID, GRPC_NO_ERROR);
   WriterLockGuard r(callAsyncListLock);
+
   try {
 	cout<< "the service has computed the requestID=" << reqID << " and notifies his answer\n";
 	fflush(stdout);
@@ -511,6 +524,18 @@ int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
       fflush(stderr);
       return -1;
     }
+	
+#if HAVE_DAGDA
+	for (int i = dp->last_in + 1; i<=dp->last_out; ++i)
+	  if (dp->parameters[i].desc.mode != DIET_PERSISTENT &&
+	      dp->parameters[i].desc.mode != DIET_STICKY ||
+		  i <= dp->last_inout ) {
+		DagdaImpl* dataManager = DagdaFactory::getClientDataManager();
+		h->second->profile->parameters[i].value = (void *)
+        dataManager->getData(dp->parameters[i].desc.id.idNumber)->value.get_buffer();
+	  }
+
+#endif // HAVE_DAGDA
 
 
     // get rules about this reqID

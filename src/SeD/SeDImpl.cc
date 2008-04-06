@@ -9,6 +9,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.101  2008/04/06 15:53:10  glemahec
+ * DIET_PERSISTENT_RETURN & DIET_STICKY_RETURN modes are now working.
+ * Warning: The clients have to take into account that an out data declared as
+ * DIET_PERSISTENT or DIET_STICKY is  only stored on the SeDs and not returned
+ * to  the  client. DTM doesn't manage the  DIET_*_RETURN types it and  always
+ * returns the out data to the client: A client which uses this bug should not
+ * work when activating DAGDA.
+ *
  * Revision 1.100  2008/04/03 21:18:44  glemahec
  * Source cleaning, bug correction and headers.
  *
@@ -710,10 +718,12 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
   if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
     cout << "SeD::solve complete\n"
          << "************************************************************\n";
-
+#if ! HAVE_DAGDA
   for (i = 0; i <= cvt->last_in; i++) {
+	cout << "l." << __LINE__ << " file: " << __FILE__ << endl;
     diet_free_data(&(profile.parameters[i]));
   }
+#endif // ! HAVE_DAGDA
   delete [] profile.parameters; // allocated by unmrsh_in_args_to_profile
  
   stat_out("SeD",statMsg);
@@ -837,12 +847,13 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
   if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
     cout << "SeD::parallel_solve() completed\n"
          << "************************************************************\n";
-
+#if ! HAVE_DAGDA
   for (i = 0; i <= cvt->last_in; i++) {
     diet_free_data(&(profile.parameters[i]));
   }
   delete [] profile.parameters; // allocated by unmrsh_in_args_to_profile
- 
+#endif // ! HAVE_DAGDA
+
   stat_out("SeD",statMsg);
   stat_flush();
 
@@ -942,8 +953,10 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 	TRACE_TEXT(TRACE_ALL_STEPS, "SeD::" << __FUNCTION__
 		   << ": performing the call-back.\n");
 	Callback_var cb_var = Callback::_narrow(cb);
+	
 	cb_var->notifyResults(path, pb, pb.dietReqID);
 	cb_var->solveResults(path, pb, pb.dietReqID, solve_res);
+		
 	/* FIXME: do we need to use diet_free_data on profile parameters as
 	 * we do in the solve(...) method? */
 	delete [] profile.parameters; // allocated by unmrsh_in_args_to_profile
@@ -1416,9 +1429,10 @@ SeDImpl::downloadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 
     Dagda_var remoteManager =
       Dagda::_narrow(ORBMgr::stringToObject(data.desc.dataManager));
-    
+
 	if (!dataManager->lclIsDataPresent(data.desc.id.idNumber))
 	  dataManager->lclAddData(remoteManager, data);
+
     corba_data_t* inserted =  dataManager->getData(data.desc.id.idNumber);
     pb.parameters[i]=*inserted;
   }
@@ -1484,20 +1498,27 @@ SeDImpl::downloadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 
 #if HAVE_DAGDA
 void dagda_async_upload(corba_profile_t& pb) {
-  Dagda_var remoteManager = 
+  Dagda_var clientManager = 
       Dagda::_narrow(ORBMgr::stringToObject(pb.clientIOR));
   DagdaImpl* manager = DagdaFactory::getSeDDataManager();
   
-  try {
-    for (int i=pb.last_in+1; i<=pb.last_out; ++i) {
-      remoteManager->lclAddData(manager->_this(), pb.parameters[i]);
-	  pb.parameters[i].desc=*remoteManager->lclGetDataDesc(pb.parameters[i].desc.id.idNumber);
-	}
-  } catch (CORBA::COMM_FAILURE& e1) {
-	 WARNING("Client disconnected... IOR: " << pb.clientIOR);
-  } catch (CORBA::TRANSIENT& e2) {
-    WARNING("Client disconnected... IOR: " << pb.clientIOR);
-  }
+
+    for (int i=pb.last_in+1; i<=pb.last_out; ++i)
+	try {
+	  // Only DIET_VOLATILE, DIET_PERSISTENT_RETURN and DIET_STICKY_RETURN data
+	  // need to return back the response to the client for an out parameter.
+	  if (pb.parameters[i].desc.mode != DIET_PERSISTENT &&
+	      pb.parameters[i].desc.mode != DIET_STICKY &&
+		  i > pb.last_inout ) {
+        clientManager->lclAddData(manager->_this(), pb.parameters[i]);
+	    pb.parameters[i].desc=*clientManager->lclGetDataDesc(pb.parameters[i].desc.id.idNumber);
+	  }
+	  manager->pfmUpdateData(manager->_this(), pb.parameters[i]);
+	} catch (CORBA::COMM_FAILURE& e1) {
+	  WARNING("Data manager disconnected... IOR: " << pb.clientIOR);
+    } catch (CORBA::TRANSIENT& e2) {
+      WARNING("Data manager disconnected... IOR: " << pb.clientIOR);
+    }
 }
 #endif
 
@@ -1540,8 +1561,9 @@ SeDImpl::uploadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 #else // ! HAVE_DAGDA
   // Dagda part.
   for (int i=cvt->last_in+1; i<= cvt->last_out; ++i) {
-	// marshalling of the data
+  	// marshalling of the data
 	mrsh_data_desc(&pb.parameters[i].desc, &profile.parameters[i].desc);
+
 	pb.parameters[i].value.length(0);
 
 	corba_data_t storeData(pb.parameters[i]);
@@ -1551,13 +1573,17 @@ SeDImpl::uploadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 	pb.parameters[i]=*stored;
 
 	int size = data_sizeof(&profile.parameters[i].desc);
-	if (profile.parameters[i].desc.generic.type==DIET_FILE) size=0;
+	if (profile.parameters[i].desc.generic.type==DIET_FILE)
+	  size=0;
+
 	CORBA::Char* value = (CORBA::Char*) profile.parameters[i].value;
+	
+	DagdaFactory::getSeDDataManager()->unlockData(storeData.desc.id.idNumber);
 	
 	if (value!=NULL)
 	  stored->value.replace(size, size, value, 0);
-	dagda_async_upload(pb);
   }
+  dagda_async_upload(pb);
 #endif // ! HAVE_DAGDA
       
       /* Free data */
@@ -1619,6 +1645,8 @@ SeDImpl::uploadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 	int size = data_sizeof(&profile.parameters[i].desc);
 	if (profile.parameters[i].desc.generic.type==DIET_FILE) size=0;
 	CORBA::Char* value = (CORBA::Char*) profile.parameters[i].value;
+
+	DagdaFactory::getSeDDataManager()->unlockData(storeData.desc.id.idNumber);
 	
 	if (value!=NULL)
 	  stored->value.replace(size, size, value, 0);

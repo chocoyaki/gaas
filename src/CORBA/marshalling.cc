@@ -9,6 +9,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.83  2008/04/06 15:53:07  glemahec
+ * DIET_PERSISTENT_RETURN & DIET_STICKY_RETURN modes are now working.
+ * Warning: The clients have to take into account that an out data declared as
+ * DIET_PERSISTENT or DIET_STICKY is  only stored on the SeDs and not returned
+ * to  the  client. DTM doesn't manage the  DIET_*_RETURN types it and  always
+ * returns the out data to the client: A client which uses this bug should not
+ * work when activating DAGDA.
+ *
  * Revision 1.82  2008/02/12 11:37:10  glemahec
  * Les references aux SeDs sont sorties du marshalling. Le parametre
  * "storageDirectory" est maintenant partage par DAGDA et les batchs.
@@ -405,7 +413,17 @@ __mrsh_data_desc_type(corba_data_desc_t* dest,
     if (src->specific.file.path) {
    
       dest->specific.file().path = CORBA::string_dup(src->specific.file.path);
+#if ! HAVE_DAGDA
       dest->specific.file().size = src->specific.file.size;
+#else
+	  // Compute the file size.
+	  ifstream file(dest->specific.file().path);
+	  if (file.is_open()) {
+	    file.seekg(0, ios::end);
+	    dest->specific.file().size = file.tellg();
+	    file.close();
+	  }
+#endif // ! HAVE_DAGDA
 
     } else {
      
@@ -1261,6 +1279,11 @@ mrsh_profile_to_out_args(corba_profile_t* dest, const diet_profile_t* src,
 int
 unmrsh_out_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb)
 {
+#if HAVE_DAGDA
+  for (int i=cpb->last_in+1; i<=cpb->last_out;++i)
+    unmrsh_data_desc(&(dpb->parameters[i].desc), &(cpb->parameters[i].desc));
+  return 0;
+#endif // HAVE_DAGDA
   int i;
 
   if (   (dpb->last_in       != cpb->last_in)
@@ -1296,7 +1319,8 @@ unmrsh_out_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb)
       if(cpb->parameters[i].desc.mode == DIET_VOLATILE){ 
         char *tmp=NULL;
         cdd->id.idNumber=CORBA::string_dup(tmp);
-    }
+      }
+
       unmrsh_data_desc(&(dpb->parameters[i].desc), cdd);
     }
   }
