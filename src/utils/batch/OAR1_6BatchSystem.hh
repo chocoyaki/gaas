@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/04/07 13:11:44  ycaniou
+ * Correct "deprecated conversion from string constant to 'char*'" warnings
+ * First attempt to code functions to dynamicaly get batch information
+ * 	(e.g.,  getNbMaxResources(), etc.)
+ *
  * Revision 1.2  2007/04/17 13:34:54  ycaniou
  * Error in debug.tex header
  * Removes some warnings during doc generation
@@ -48,15 +53,22 @@ public :
   int
   isBatchJobCompleted(int batchJobID) ;
 
-  /** TODO
-   */  
+  /****************** Performance Prediction Functions ***************/
+
+  /** Return the dynamic number of available resources, i.e., resources
+      that are up
+  */
   int
-  getNumberOfAvailableComputingResources() ;
+  getNbMaxResources() ;
+
+  /** Return the dynamic number of idle resources */
+  int
+  getNbIdleResources() ;
 
 private :
 
   /* Strings used to filter batch job status if possible */
-  static const char * statusNames[] ;
+  static const char * const statusNames[] ;
 
 } ;
 

@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/04/07 13:11:44  ycaniou
+ * Correct "deprecated conversion from string constant to 'char*'" warnings
+ * First attempt to code functions to dynamicaly get batch information
+ * 	(e.g.,  getNbMaxResources(), etc.)
+ *
  * Revision 1.1  2008/01/01 19:43:49  ycaniou
  * Modifications for batch management. Loadleveler is now ok.
  *
@@ -93,7 +98,6 @@ Loadleveler_BatchSystem::Loadleveler_BatchSystem(int ID, const char * batchname)
 
 Loadleveler_BatchSystem::~Loadleveler_BatchSystem()
 {
-  free( submitCommand ) ;
 }
 
 /*********************** Job Managing ******************************/
@@ -196,11 +200,17 @@ Loadleveler_BatchSystem::isBatchJobCompleted(int batchJobID)
 }
 
 /*************************** Performance Prediction *************************/
+int
+Loadleveler_BatchSystem::getNbMaxResources()
+{
+  {
+    ERROR("This funtion is not implemented yet", 1) ;
+  }
+}
 
 int
-Loadleveler_BatchSystem::getNumberOfAvailableComputingResources()
+Loadleveler_BatchSystem::getNbIdleResources()
 {
-  // oarnodes | grep [^ \t] | wc -l donne le nombre de noeuds
   {
     ERROR("This funtion is not implemented yet", 1) ;
   }

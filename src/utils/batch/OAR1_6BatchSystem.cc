@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/04/07 13:11:44  ycaniou
+ * Correct "deprecated conversion from string constant to 'char*'" warnings
+ * First attempt to code functions to dynamicaly get batch information
+ * 	(e.g.,  getNbMaxResources(), etc.)
+ *
  * Revision 1.2  2008/01/01 19:43:49  ycaniou
  * Modifications for batch management. Loadleveler is now ok.
  *
@@ -19,8 +24,10 @@
 
 #include "debug.hh"
 #include "OAR1_6BatchSystem.hh"
+#include <fcntl.h>       // for O_RDONLY
+#include <unistd.h>      // for read()
 
-const char * OAR1_6BatchSystem::statusNames[] = {
+const char * const OAR1_6BatchSystem::statusNames[] = {
   "Error",
   "Error",
   "Terminated",
@@ -78,7 +85,6 @@ OAR1_6BatchSystem::OAR1_6BatchSystem(int ID, const char * batchname)
 
 OAR1_6BatchSystem::~OAR1_6BatchSystem()
 {
-  free( submitCommand ) ;
 }
 
 /*********************** Job Managing ******************************/
@@ -172,10 +178,143 @@ OAR1_6BatchSystem::isBatchJobCompleted(int batchJobID)
 /*************************** Performance Prediction *************************/
 
 int
-OAR1_6BatchSystem::getNumberOfAvailableComputingResources()
+OAR1_6BatchSystem::getNbMaxResources()
 {
-  // oarnodes | grep [^ \t] | wc -l donne le nombre de noeuds
-  {
-    ERROR("This funtion is not implemented yet", 1) ;
+  char * chaine ;
+  char * filename ;
+  int file_descriptor ;
+  char submitCommand[100] = "oarnodes | grep state | wc -l" ;
+  char small_chaine[10] ; // This must be gt NBDIGITS_MAX_RESOURCES
+  int nbread ;
+    
+  /* create a temporary file */
+  filename = (char*)malloc(sizeof(char)*strlen(pathToTmp) + 30 ) ;
+  sprintf(filename,"%sDIET_info.XXXXXX", pathToTmp) ;
+  file_descriptor = mkstemp( filename ) ;
+  if( file_descriptor == -1 ) {
+    ERROR("Cannot create batch I/O redirection file."
+	  " Verify that tmp path is ok\n",-1) ;
   }
+
+#if defined YC_DEBUG
+  TRACE_TEXT(TRACE_MAIN_STEPS,
+	     "Fichier pour stocker info batch : " << filename << "\n") ; 
+#endif
+
+  chaine = (char*)malloc(sizeof(char)*(strlen(submitCommand)
+				       + strlen(filename)
+				       + 4 ) ) ;
+  sprintf(chaine,"%s > %s",
+	  submitCommand,filename) ;
+#if defined YC_DEBUG
+  TRACE_TEXT(TRACE_MAIN_STEPS,
+	     "Submit avec la ligne :\n" << chaine << "\n\n") ;
+#endif
+
+  if( system(chaine) == -1 ) {
+    ERROR("Cannot submit script", -1) ;
+  }
+
+  file_descriptor = open(filename,O_RDONLY) ;
+  if( file_descriptor == -1 ) {
+    ERROR("Cannot open batch I/O redirection file",-1) ;
+  }
+  /* Get # idle resources */  
+  for( int i = 0 ; i<=NBDIGITS_MAX_RESOURCES ; i++ )
+    small_chaine[i] = '\0' ;
+  if( (nbread=readn(file_descriptor,small_chaine,NBDIGITS_MAX_RESOURCES))
+      == 0 ) {
+    ERROR("Error during submission or with I/O file."
+	  " Cannot read the batch ID", -1) ;
+  }
+
+    /* Just in case */
+  if( small_chaine[nbread-1] == '\n' )
+    small_chaine[nbread-1] = '\0' ;
+
+  /* Remove temporary files by closing them */
+#if REMOVE_BATCH_TEMPORARY_FILE
+  unlink( filename_2 ) ;
+#endif
+  if( close(file_descriptor) != 0 ) {
+    WARNING("Couln't close batch script file") ;
+  }
+
+  /* Free memory */
+  free(chaine) ;
+  free(filename) ;
+
+  return atoi(small_chaine) ;
 }
+
+int
+OAR1_6BatchSystem::getNbIdleResources()
+{
+  char * chaine ;
+  char * filename ;
+  int file_descriptor ;
+  char submitCommand[100] = "oarnodes | grep state | grep free | wc -l" ;
+  char small_chaine[10] ; // This must be gt NBDIGITS_MAX_RESOURCES
+  int nbread ;
+      
+  /* create a temporary file */
+  filename = (char*)malloc(sizeof(char)*strlen(pathToTmp) + 30 ) ;
+  sprintf(filename,"%sDIET_info.XXXXXX", pathToTmp) ;
+  file_descriptor = mkstemp( filename ) ;
+  if( file_descriptor == -1 ) {
+    ERROR("Cannot create batch I/O redirection file."
+	  " Verify that tmp path is ok\n",-1) ;
+  }
+
+#if defined YC_DEBUG
+  TRACE_TEXT(TRACE_MAIN_STEPS,
+	     "Fichier pour stocker info batch : " << filename << "\n") ; 
+#endif
+
+  chaine = (char*)malloc(sizeof(char)*(strlen(submitCommand)
+				       + strlen(filename)
+				       + 4 ) ) ;
+  sprintf(chaine,"%s > %s",
+	  submitCommand,filename) ;
+#if defined YC_DEBUG
+  TRACE_TEXT(TRACE_MAIN_STEPS,
+	     "Submit avec la ligne :\n" << chaine << "\n\n") ;
+#endif
+
+  if( system(chaine) == -1 ) {
+    ERROR("Cannot submit script", -1) ;
+  }
+
+  file_descriptor = open(filename,O_RDONLY) ;
+  if( file_descriptor == -1 ) {
+    ERROR("Cannot open batch I/O redirection file",-1) ;
+  }
+  /* Get # idle resources */  
+  for( int i = 0 ; i<=NBDIGITS_MAX_RESOURCES ; i++ )
+    small_chaine[i] = '\0' ;
+  if( (nbread=readn(file_descriptor,small_chaine,NBDIGITS_MAX_RESOURCES))
+      == 0 ) {
+    ERROR("Error during submission or with I/O file."
+	  " Cannot read the batch ID", -1) ;
+  }
+
+    /* Just in case */
+  if( small_chaine[nbread-1] == '\n' )
+    small_chaine[nbread-1] = '\0' ;
+
+  /* Remove temporary files by closing them */
+#if REMOVE_BATCH_TEMPORARY_FILE
+  unlink( filename_2 ) ;
+#endif
+  if( close(file_descriptor) != 0 ) {
+    WARNING("Couln't close batch script file") ;
+  }
+
+  /* Free memory */
+  free(chaine) ;
+  free(filename) ;
+
+  return atoi(small_chaine) ;
+}
+
+

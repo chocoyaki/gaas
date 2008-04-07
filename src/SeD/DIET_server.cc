@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.72  2008/04/07 13:11:44  ycaniou
+ * Correct "deprecated conversion from string constant to 'char*'" warnings
+ * First attempt to code functions to dynamicaly get batch information
+ * 	(e.g.,  getNbMaxResources(), etc.)
+ *
  * Revision 1.71  2008/01/14 11:16:33  glemahec
  * The servers can now use DAGDA as data manager.
  *
@@ -717,7 +722,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
     char *  endPoint = (char *) calloc(48, sizeof(char*)) ;
     int    tmp_argc = myargc + 2;
     myargv = (char**)realloc(myargv, tmp_argc * sizeof(char*));
-    myargv[myargc] = "-ORBendPoint";
+    myargv[myargc] = strdup("-ORBendPoint") ;
     if (port == NULL) {
 	    sprintf(endPoint, "giop:tcp:%s:", host);
     } else if (host == NULL)  {
@@ -735,7 +740,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
     char *  level = (char *) calloc(48, sizeof(char*)) ;
     int    tmp_argc = myargc + 2;
     myargv = (char**)realloc(myargv, tmp_argc * sizeof(char*));
-    myargv[myargc] = "-ORBtraceLevel";
+    myargv[myargc] = strdup("-ORBtraceLevel") ;
     sprintf(level, "%u", TRACE_LEVEL - TRACE_MAX_VALUE);
     myargv[myargc + 1] = (char*)level;
     myargc = tmp_argc;
@@ -1149,7 +1154,7 @@ int
 diet_estimate_cori(estVector_t ev,
 		   int info_type,
 		   diet_est_collect_tag_t collector_type,
-		   void * data)
+		   const void * data)
 {
 
   if (collector_type==EST_COLL_FAST){
@@ -1217,7 +1222,7 @@ diet_estimate_coriEasy_print(){
    
    if  (diet_estimate_cori(vec,EST_BOGOMIPS,EST_COLL_EASY,NULL))
      print_message();		   
-   char * tmp="./";
+   const char * tmp="./" ;
    if  (diet_estimate_cori(vec,EST_DISKACCESREAD,EST_COLL_EASY,tmp))
      print_message();		   
    
@@ -1431,6 +1436,16 @@ diet_concurrent_submit_parallel(int batchJobID, diet_profile_t * profile,
 {
   return (((SeDImpl*)profile->SeDPtr)->getBatch())->
     diet_submit_parallel(batchJobID,profile,command) ;
+}
+int
+diet_getNbMaxResources(diet_profile_t * profile)
+{
+  return ((SeDImpl *)profile->SeDPtr)->getBatch()->getNbMaxResources() ;
+}
+int
+diet_getNbIdleResources(diet_profile_t * profile)
+{
+  return ((SeDImpl *)profile->SeDPtr)->getBatch()->getNbIdleResources() ;
 }
 #endif
 

@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/04/07 13:11:44  ycaniou
+ * Correct "deprecated conversion from string constant to 'char*'" warnings
+ * First attempt to code functions to dynamicaly get batch information
+ * 	(e.g.,  getNbMaxResources(), etc.)
+ *
  * Revision 1.1  2008/01/04 12:49:46  ycaniou
  * Added those two files, but there is no glue for SGE at the moment
  *
@@ -17,7 +22,7 @@
 #include "debug.hh"
 #include "SGE_BatchSystem.hh"
 
-const char * SGE_BatchSystem::statusNames[] = {
+const char * const SGE_BatchSystem::statusNames[] = {
   "Error", // not OK: sucks, because error or terminated
   "Error", // not OK  it seems that LL reports no info with llq
   "Error", // not OK  so, how to decide if all is ok? Parse the error file?
@@ -74,7 +79,6 @@ SGE_BatchSystem::SGE_BatchSystem(int ID, const char * batchname)
 
 SGE_BatchSystem::~SGE_BatchSystem()
 {
-  free( submitCommand ) ;
 }
 
 /*********************** Job Managing ******************************/

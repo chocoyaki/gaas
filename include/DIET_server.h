@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.35  2008/04/07 13:11:44  ycaniou
+ * Correct "deprecated conversion from string constant to 'char*'" warnings
+ * First attempt to code functions to dynamicaly get batch information
+ * 	(e.g.,  getNbMaxResources(), etc.)
+ *
  * Revision 1.34  2008/01/01 19:45:22  ycaniou
  * Modifications for batch management. Loadleveler is now ok.
  *
@@ -450,6 +455,14 @@ diet_SeD(char* config_file_name, int argc, char* argv[]);
   
   void
   diet_set_server_status( diet_server_status_t status ) ;
+
+  /* FIXME: futur Cori_batch */
+  int
+  diet_getNbMaxResources(diet_profile_t * profile) ;
+  
+  int
+  diet_getNbIdleResources(diet_profile_t * profile) ;
+  
 #endif
 
 
@@ -482,10 +495,10 @@ int diet_est_array_defined_system(estVectorConst_t ev, int systemTag, int idx);
 int diet_estimate_cori(estVector_t ev,
 		       int info_type,
 		       diet_est_collect_tag_t collector_type, 
-		       void* data);
+		       const void * data);
 
 int diet_estimate_cori_add_collector(diet_est_collect_tag_t collector_type,
-				 void* data);
+				     void* data);
 
 void diet_estimate_coriEasy_print();
 

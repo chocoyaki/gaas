@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/04/07 13:11:44  ycaniou
+ * Correct "deprecated conversion from string constant to 'char*'" warnings
+ * First attempt to code functions to dynamicaly get batch information
+ * 	(e.g.,  getNbMaxResources(), etc.)
+ *
  * Revision 1.3  2008/01/01 19:43:49  ycaniou
  * Modifications for batch management. Loadleveler is now ok.
  *
@@ -28,7 +33,8 @@
 #include <omnithread.h>       // For omni_mutex
 #include "DIET_data.h"
 
-#define NBDIGITS_MAX_BATCH_ID 10
+#define NBDIGITS_MAX_RESOURCES 4 // #char to code the # of computing resources
+#define NBDIGITS_MAX_BATCH_ID 10 // #char to code the job ID
 #define NBDIGITS_MAX_JOB_STATUS 15
 
 //#define YC_DEBUG
@@ -174,8 +180,16 @@ public :
   isBatchJobCompleted(int batchJobID) = 0 ;
       
   /****************** Performance Prediction Functions ***************/
-  //  int
-  //getNumberOfAvailableComputingResources()=0 ;
+
+  /** Return the dynamic number of available resources, i.e., resources
+      that are up
+  */
+  virtual int
+  getNbMaxResources() = 0 ;
+
+  /** Return the dynamic number of idle resources */
+  virtual int
+  getNbIdleResources() = 0 ;
 
   /** Get the number of processors and the walltime for a Diet request
       by simulating the batch system.
@@ -250,13 +264,13 @@ protected :
   const char * setSTDIN ;  // -> I must define a DIET META VARIABLE which
   const char * setSTDERR ; // must be informed to take place after this line
 
-  char * submitCommand ;
-  char * killCommand ;
-  char * wait4Command ; /* Command to have info about a given jobID */
-  char * waitFilter ;   /* Filter to access jobs status */
-  char * exitCode ;
+  const char * submitCommand ;
+  const char * killCommand ;
+  const char * wait4Command ; /* Command to have info about a given jobID */
+  const char * waitFilter ;   /* Filter to access jobs status */
+  const char * exitCode ;
   
-  char * jid_extract_patterns ;
+  const char * jid_extract_patterns ;
 
   /************ Batch META-VARIABLES ************/
   const char * batchJobID ; // The script variable containing job ID 

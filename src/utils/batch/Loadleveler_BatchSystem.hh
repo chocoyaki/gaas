@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/04/07 13:11:44  ycaniou
+ * Correct "deprecated conversion from string constant to 'char*'" warnings
+ * First attempt to code functions to dynamicaly get batch information
+ * 	(e.g.,  getNbMaxResources(), etc.)
+ *
  * Revision 1.1  2008/01/01 19:43:49  ycaniou
  * Modifications for batch management. Loadleveler is now ok.
  *
@@ -49,10 +54,17 @@ public :
   int
   isBatchJobCompleted(int batchJobID) ;
 
-  /** TODO
-   */  
+  /****************** Performance Prediction Functions ***************/
+
+  /** Return the dynamic number of available resources, i.e., resources
+      that are up
+  */
   int
-  getNumberOfAvailableComputingResources() ;
+  getNbMaxResources() ;
+
+  /** Return the dynamic number of idle resources */
+  int
+  getNbIdleResources() ;
 
 private :
 

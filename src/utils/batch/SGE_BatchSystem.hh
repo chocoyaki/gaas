@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/04/07 13:11:44  ycaniou
+ * Correct "deprecated conversion from string constant to 'char*'" warnings
+ * First attempt to code functions to dynamicaly get batch information
+ * 	(e.g.,  getNbMaxResources(), etc.)
+ *
  * Revision 1.1  2008/01/04 12:49:46  ycaniou
  * Added those two files, but there is no glue for SGE at the moment
  *
@@ -57,7 +62,7 @@ public :
 private :
 
   /* Strings used to filter batch job status if possible */
-  static const char * statusNames[] ;
+  static const char * const statusNames[] ;
 
 } ;
 
