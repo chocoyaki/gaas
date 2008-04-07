@@ -1,3 +1,4 @@
+
 %****************************************************************************%
 %* DIET User's Manual description chapter file                              *%
 %*                                                                          *%
@@ -8,6 +9,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.18  2008/04/07 22:25:38  ecaron
+%* Updated files to pdflatex compilation
+%*
 %* Revision 1.17  2006/12/02 15:47:22  ycaniou
 %* Re. minus 2 URLs web access et problem descriptions.
 %*
@@ -74,14 +78,12 @@ tools: from NWS~\cite{WSH99} sensors which are placed on every node of
 the hierarchy, from the application-centric performance prediction
 tool \textsc{FAST} \cite{Qui02}, which relies on NWS information, or
 from CoRI Easy, which is based on simple system calls and some basic
-performance tests (see Chapter~\ref{chapter:performance}).
-Figure~\ref{fig:platform} shows the hierarchical organization of
-\textsc{Diet}.
+performance tests (see Chapter~\ref{chapter:performance}). Figure~\ref{fig:platform} shows the hierarchical organization of \textsc{Diet}.
 
 \begin{figure}[htb]
  \begin{center}
-  \resizebox{.7\linewidth}{!}{\includegraphics{fig/global_platform.eps}}
-  \caption{\label{fig:platform}A hierarchy of \textsc{Diet} agents}
+  \resizebox{.7\linewidth}{!}{\includegraphics{fig/global_platform}}
+  \caption{\label{fig:platform} A hierarchy of \textsc{Diet} agents}
  \end{center}
 \end{figure}
 
@@ -132,14 +134,6 @@ The different components of our software architecture are the following:
 
 \end{description}
 
-%\begin{figure}[htb]
-% \begin{center}
-%  \resizebox{.6\linewidth}{!}{\includegraphics{fig/global_platform.eps}}
-%  \label{fig:platform}
-%  \caption{A hierarchy of \textsc{Diet} agents}
-% \end{center}
-%\end{figure}
-
 %====[ CORBA ]=================================================================
 \section{Communications layer}
 \label{sec:CORBA}
@@ -179,7 +173,7 @@ clients.
 
 \begin{figure}[hbt]
   \begin{center}
-    \resizebox{9cm}{!}{\includegraphics{fig/init.eps}}
+    \resizebox{9cm}{!}{\includegraphics{fig/init}}
     \caption{Initialization of a \textsc{Diet} system.}
     \label{fig:init}
   \end{center}
@@ -220,24 +214,6 @@ Assuming that the architecture described in Section
 same problem, the algorithm presented below lets an MA select a
 server for the computation among those available. This decision is
 made in four steps.
-
-
-%%%%%%%%%%%%%%%
-%% FIXME for DIET v1.1
-%%%%%%%%%%%%%%%
-% , and that each operand
-% needed for the computation is available on one single server, the example
-% presented in Figure~\ref{fig:submit_pb} considers the submission of the
-% problem \texttt{F()} involving data \texttt{A} and \texttt{B}.
-%\begin{figure}[hbt]
-%  \begin{center}
-%    \resizebox{8cm}{!}{\includegraphics{fig/submit_pb.eps}}
-%    \caption{Problem submission example}
-%    \label{fig:submit_pb}
-%  \end{center}
-%\end{figure}
-%%%%%%%%%%%%%%%
-
 
 \begin{itemize}
 \item The MA propagates the client request through its subtrees down

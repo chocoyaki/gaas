@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.37  2008/04/07 22:25:38  ecaron
+%* Updated files to pdflatex compilation
+%*
 %* Revision 1.36  2007/11/22 21:07:03  mimbert
 %* use latex package fancyhdr instead of fancyheadings which seems deprecated in some recent latex distributions
 %*
@@ -111,6 +114,34 @@
 %\makeatother
 \usepackage{fancyhdr}
 \usepackage[headings]{fullpage}
+
+\usepackage[pdftex]{graphicx} % Pour l'insertion d'images
+\DeclareGraphicsExtensions{.jpg,.mps,.pdf,.png} % Formats d'images
+
+\usepackage[pdftex]{thumbpdf}      % Vignettes
+
+\usepackage[pdftex,                %
+    bookmarks         = true,%     % Signets
+    bookmarksnumbered = true,%     % Signets numérotés
+    pdfpagemode       = true,%     % Signets/vignettes fermés à l'ouverture
+#    pdfpagemode       = Fullscreen,
+    pdfstartview      = FitV,%     % La page prend toute la hauteur
+    pdfpagelayout     = SinglePage,% Vue par page
+    colorlinks        = true,%     % Liens en couleur
+    linkcolor         = cyan, % Liens internes
+    urlcolor          = blue, %  % Couleur des liens externes
+    pdfborder         = {0 0 0}%   % Style de bordure : ici, pas de bordure
+    ]{hyperref}%                   % Utilisation de HyperTeX
+
+\hypersetup{ % Modifiez la valeur des champs suivants
+    pdfauthor   = {DIET Team},%
+    pdftitle    = {DIET Users Manual},%
+    pdfsubject  = {Manual},%
+    pdfkeywords = {DIET, Grid-RPC},%
+    pdfcreator  = {PDFLaTeX},%
+    pdfproducer = {PDFLaTeX}}
+
+
 %\usepackage[french]{babel}
 %\usepackage[latin1]{inputenc}
 %\usepackage{multicol}
@@ -119,12 +150,10 @@
 \usepackage{subfigure}
 \usepackage{listings}
 \usepackage{xspace}
-
-\usepackage{graphicx}
 \graphicspath{{./fig}}
 
 \newsavebox{\logobox}
-\sbox{\logobox}{\includegraphics[scale=0.4]{fig/logo_DIET.ps}}
+\sbox{\logobox}{\includegraphics[scale=0.4]{fig/logo_DIET}}
 \newcommand{\logo}{\usebox{\logobox}}
 
 
@@ -134,8 +163,9 @@
 %%%%
 
 \pagestyle{fancyplain}
-\lhead[\fancyplain{\title}{\title}]
-      {\fancyplain{\title}{\title}}
+\fancyhead[L]{\title}
+% \lhead[\fancyplain{\title}{\title}]
+%       {\fancyplain{\title}{\title}}
 \chead{}
 \rhead[\fancyplain{\logo}{\logo}]{\fancyplain{\logo}{\logo}}
 
@@ -174,7 +204,7 @@
 \vspace*{3cm}
 
 \begin{center}
-\includegraphics[scale=.5]{fig/logo_DIET_big.ps}\\[2ex]
+\includegraphics[scale=.5]{fig/logo_DIET_big}\\[2ex]
 \textbf{\Huge USER'S MANUAL\\[2ex]}
 \end{center}
 
@@ -221,6 +251,13 @@
 \newpage
 \addcontentsline{toc}{chapter}{Introduction}
 \chapter*{Introduction}
+
+\href{mailto:mail@exemple.com}{Mon mail} % Lien email
+\href{http://exemple.com}{Mon site web}  % Lien web
+\href{fichier.pdf}{Mon fichier}          % Lien vers un fichier
+
+\Acrobatmenu{FullScreen}{Plein écran}    % Plein écran/fenêtré
+
 
 Resource management is one of the key issues for the development of
 efficient Grid environments. Several approaches co-exist in today's
@@ -298,7 +335,7 @@ Forum~\cite{GridRPC}.
 %
 % DIET data
 %
-\newpage
+%\newpage
 \input{data.tex}
 
 %

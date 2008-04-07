@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.14  2008/04/07 22:26:26  ecaron
+%* Updated files to pdflatex compilation
+%*
 %* Revision 1.13  2006/11/16 14:09:20  eboix
 %* - Programmers guide converted from autotools to cmake.
 %* - cmake summary deported to Cmake sub-dir.   --- Injay2461
@@ -376,15 +379,7 @@ fast scheduling by the plug-in.
   \begin{itemize}
  \item called twice in the same tag for a scalar values, the second will erase the first
   \end{itemize} 
-  %including of the class diagram: source file can be modified by MS visio
- %source file available on /home/CVS/tarballs/sourcefile_coriArchitect.tar on graal 
-%\begin{figure}[htb]
-%  \begin{center}
-%    \resizebox{.75\linewidth}{!}{\includegraphics{fig/FAST.eps}}
-%%    \caption{CoRI architecture}
-%   
-%  \end{center}
-%\end{figure}
+
 \subsubsection{Availability}
 CoRI Easy will be used to initialize the vector by default. The problem is that even Cori-Easy is not always able to call a function that gives the correct value. That's why it is important to deliver the default value.
 \fixme{set up a table with the default values} 
@@ -475,9 +470,9 @@ In this case all possible fields of the vector will be filled (i.e. erase old va
   %\begin{figure}[h]
   %\begin{center}
   %\centering
-  \includegraphics{./fig/CorbaClientClassDIagram.ps}
+  \includegraphics{./fig/CorbaClientClassDIagram}
   %\caption{UML Class diagram about Callback mecanism}
-  %\label{fig:CorbaClientClassDIagram}
+  %\label{fig:CorbaClientClassDIagram} 
   %\end{center}
   %\end{figure}
 
@@ -508,7 +503,7 @@ In this case all possible fields of the vector will be filled (i.e. erase old va
   %\begin{figure}[h]
   %\begin{center}
   %\centering
-  \includegraphics{./fig/CallBackSynchronisationClassDiagram2.ps}
+  \includegraphics{./fig/CallBackSynchronisationClassDiagram2}
   %\caption{Diagramme UML class diagram about callbackImpl and GridRPC/DIET asynchronous functions}
   %\label{fig:CallBackSynchronisationClassDiagram2}
   %\end{center}
@@ -520,7 +515,7 @@ In this case all possible fields of the vector will be filled (i.e. erase old va
   Reader/Writer lock mecanism (exception-safe) manages syncronising between
   CORBA and DIET client threads.
 
-  \includegraphics{./fig/WaitRulesClassDiagram.ps}
+  \includegraphics{./fig/WaitRulesClassDiagram}
 
   \emph{CallAsyncMgr} register/unregister asynchronous calls, their request
   identifiers and data by \emph{addAsyncCall}/ \emph{deleteAsynCall} methode.
@@ -541,7 +536,7 @@ In this case all possible fields of the vector will be filled (i.e. erase old va
 
   %\begin{figure}[h]
   \hspace{-0.9 in}
-  \includegraphics{./fig/CallAsyncSequenceDiagram.ps}
+  \includegraphics{./fig/CallAsyncSequenceDiagram}
   %\end{figure}
 
   After creating CallbackImpl and callAsyncMgrby a call to
@@ -561,7 +556,7 @@ In this case all possible fields of the vector will be filled (i.e. erase old va
   Solve is started and client thread can wait for results.
 
   \hspace{-1 in}
-  \includegraphics{./fig/CallAsyncWaitSequenceDiagram.ps}
+  \includegraphics{./fig/CallAsyncWaitSequenceDiagram}
 
   Client code can use synchronising functions like \emph{diet\_wait*}
   in GridRPC/DIET API to wait for results. The following text describes
@@ -592,7 +587,7 @@ In this case all possible fields of the vector will be filled (i.e. erase old va
   part of DIET client library.
 
   \begin{center}
-  \includegraphics{./fig/CallbackSynchronisationSequenceDiagram.ps}
+  \includegraphics{./fig/CallbackSynchronisationSequenceDiagram}
   \end{center}
 
   \begin{itemize}
@@ -616,7 +611,7 @@ In this case all possible fields of the vector will be filled (i.e. erase old va
   by user and ERROR that is stopped by an error or an exception.
 
   \begin{center}
-  \includegraphics{./fig/CallAsyncProbeSequenceDiagram1.ps}
+  \includegraphics{./fig/CallAsyncProbeSequenceDiagram1}
   \end{center}
 
   \begin{itemize}
@@ -641,7 +636,7 @@ In this case all possible fields of the vector will be filled (i.e. erase old va
   CANCEL state. Finally, memory is free.
 
   \begin{center}
-  \includegraphics{./fig/DietCancelSequenceDiagram.ps}
+  \includegraphics{./fig/DietCancelSequenceDiagram}
   \end{center}
 
   \begin{itemize}

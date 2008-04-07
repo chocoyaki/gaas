@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.13  2008/04/07 22:26:26  ecaron
+%* Updated files to pdflatex compilation
+%*
 %* Revision 1.12  2007/11/22 21:07:02  mimbert
 %* use latex package fancyhdr instead of fancyheadings which seems deprecated in some recent latex distributions
 %*
@@ -64,13 +67,11 @@
 \usepackage{verbatim}
 \usepackage[headings]{fullpage}
 \usepackage{url}
-
-\usepackage{graphicx}
+\usepackage[pdftex]{graphicx}
 \graphicspath{{../UM/fig}}
 
 \newsavebox{\logobox}
-%\sbox{\logobox}{\includegraphics[scale=0.3]{../UsersManual/fig/logo_DIET.ps}}
-\sbox{\logobox}{\includegraphics[scale=0.3]{fig/logo_DIET.ps}}
+\sbox{\logobox}{\includegraphics[scale=0.3]{fig/logo_DIET}}
 \newcommand{\logo}{\usebox{\logobox}}
 
 %%%%
@@ -105,7 +106,7 @@
 \vspace*{3cm}
 
 \begin{center}
-\includegraphics[scale=.5]{fig/logo_DIET.ps}\\[2ex]
+\includegraphics[scale=.5]{fig/logo_DIET}\\[2ex]
 \textbf{\Huge PROGRAMMER'S GUIDE\\[2ex]}
 \end{center}
 
