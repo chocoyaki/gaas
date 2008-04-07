@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/04/07 12:19:12  ycaniou
+ * Except for the class Parsers (someone to re-code it? :)
+ *   correct "deprecated conversion from string constant to 'char*'" warnings
+ *
  * Revision 1.2  2007/04/30 13:55:18  ycaniou
  * Removed compilation warnings by adding Cori_Batch in the lib and modifs
  *   in files
@@ -92,12 +96,12 @@ int
 Cori_batch::get_Information(int type_Info,       
 			    estVector_t* info,
 			    const void * data){
-  char * path;
+  const char * path;
   vector<double> vect;
   int res=0;
   double temp=0;
   int minut;
-  char * tmp="./";
+  const char * tmp="./";
 
   /*
   switch (type_Info){

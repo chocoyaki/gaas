@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2008/04/07 12:19:12  ycaniou
+ * Except for the class Parsers (someone to re-code it? :)
+ *   correct "deprecated conversion from string constant to 'char*'" warnings
+ *
  * Revision 1.12  2007/04/30 13:53:22  ycaniou
  * Cosmetic changes (indentation) and small changes for Cori_Batch
  *
@@ -121,12 +125,12 @@ int
 Cori_Data_Easy::get_Information(int type_Info,       
 				estVector_t* info,
 				const void * data){
-  char * path;
+  const char * path;
   vector<double> vect;
   int res=0;
   double temp=0;
   int minut;
-  char * tmp="./";
+  const char * tmp="./";
   switch (type_Info){
  
   case EST_ALLINFOS:{

@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2008/04/07 12:19:12  ycaniou
+ * Except for the class Parsers (someone to re-code it? :)
+ *   correct "deprecated conversion from string constant to 'char*'" warnings
+ *
  * Revision 1.13  2006/11/16 09:55:56  eboix
  *   DIET_config.h is no longer used. --- Injay2461
  *
@@ -62,11 +66,11 @@ enum stat_type {
 
 // Please, don't use those variables
 extern FILE* STAT_FILE;
-extern char* STAT_TYPE_STRING[3];
+extern const char * const STAT_TYPE_STRING[3];
 
 // Don't call this, call stat_in, stat_out & stat_info instead
 inline void
-gen_stat(int type, char* myname, char* message) {
+gen_stat(int type, const char * myname, const char * message) {
   if (STAT_FILE != NULL) {
     struct timeval tv;
     struct timezone tz;

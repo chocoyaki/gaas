@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2008/04/07 12:19:13  ycaniou
+ * Except for the class Parsers (someone to re-code it? :)
+ *   correct "deprecated conversion from string constant to 'char*'" warnings
+ *
  * Revision 1.27  2008/01/14 09:44:14  glemahec
  * dietAgent.cc modifications to allow the use of DAGDA.
  *
@@ -197,7 +201,7 @@ main(int argc, char** argv)
     char *  endPoint = (char *) calloc(48, sizeof(char*)) ;
     int    tmp_argc = myargc + 2;
     myargv = (char**)realloc(myargv, tmp_argc * sizeof(char*));
-    myargv[myargc] = "-ORBendPoint";
+    myargv[myargc] = strdup("-ORBendPoint") ;
     if (port == NULL) {
 	    sprintf(endPoint, "giop:tcp:%s:", host);
     } else if (host == NULL)  {
@@ -215,7 +219,7 @@ main(int argc, char** argv)
     char *  level = (char *) calloc(48, sizeof(char*)) ;
     int    tmp_argc = myargc + 2;
     myargv = (char**)realloc(myargv, tmp_argc * sizeof(char*));
-    myargv[myargc] = "-ORBtraceLevel";
+    myargv[myargc] = strdup("-ORBtraceLevel") ;
     sprintf(level, "%u", TRACE_LEVEL - TRACE_MAX_VALUE);
     myargv[myargc + 1] = (char*)level;
     myargc = tmp_argc;

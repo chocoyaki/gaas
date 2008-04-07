@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.33  2008/04/07 12:19:13  ycaniou
+ * Except for the class Parsers (someone to re-code it? :)
+ *   correct "deprecated conversion from string constant to 'char*'" warnings
+ *
  * Revision 1.32  2007/09/25 09:37:21  aamar
  * Nodes can notify the wf log service with the chosen hostname.
  *
@@ -239,7 +243,7 @@ diet_get_error(diet_reqID_t reqID);
 /*
  * return the corresponding error string
  */
-char *
+const char *
 diet_error_string(diet_error_t error);
 /*
  * return identifier of the failed session

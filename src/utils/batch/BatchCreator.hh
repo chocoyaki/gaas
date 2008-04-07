@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/04/07 12:19:12  ycaniou
+ * Except for the class Parsers (someone to re-code it? :)
+ *   correct "deprecated conversion from string constant to 'char*'" warnings
+ *
  * Revision 1.3  2008/01/01 19:43:49  ycaniou
  * Modifications for batch management. Loadleveler is now ok.
  *
@@ -40,7 +44,7 @@ public :
     NUMBER_OF_SUPPORTED_BATCH
   } batchID_t ;
 
-  static char * batchNames[NUMBER_OF_SUPPORTED_BATCH] ;
+  static const char * const batchNames[NUMBER_OF_SUPPORTED_BATCH] ;
 
   BatchCreator() ;
 

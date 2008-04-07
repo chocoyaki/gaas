@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2008/04/07 12:19:13  ycaniou
+ * Except for the class Parsers (someone to re-code it? :)
+ *   correct "deprecated conversion from string constant to 'char*'" warnings
+ *
  * Revision 1.9  2007/06/28 18:23:19  rbolze
  * add dietReqID in the profile.
  * and propagate this change to all functions that  have both reqID and profile parameters.
@@ -700,8 +704,8 @@ END_API
 
 BEGIN_API
 
-char *
-grpc_error_string(grpc_error_t error_code) {
+const char *
+grpc_error_string(const grpc_error_t error_code) {
   return diet_error_string(error_code);
   /*  
   switch(error_code)

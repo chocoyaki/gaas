@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2008/04/07 12:19:13  ycaniou
+ * Except for the class Parsers (someone to re-code it? :)
+ *   correct "deprecated conversion from string constant to 'char*'" warnings
+ *
  * Revision 1.11  2006/10/20 09:51:12  aamar
  * Adding some workflow code error.
  *
@@ -281,8 +285,8 @@ grpc_wait_any(diet_reqID_t* IDptr);
 
 /* This return the error description string, given a GridRPC error code. 
    If the error code is unrecognized for any reason, the string C
-   GRPC_UNKNOWN_ERROR_CODE is returned										*/
-char *grpc_error_string(grpc_error_t error_code);
+   GRPC_UNKNOWN_ERROR_CODE is returned */
+const char * grpc_error_string(grpc_error_t error_code);
 
 #define grpc_get_error                diet_get_error
 #define grpc_get_last_error           diet_get_last_error

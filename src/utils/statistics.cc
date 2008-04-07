@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2008/04/07 12:19:12  ycaniou
+ * Except for the class Parsers (someone to re-code it? :)
+ *   correct "deprecated conversion from string constant to 'char*'" warnings
+ *
  * Revision 1.15  2006/05/22 20:01:49  hdail
  * Introduced uniform output format for SeD configuration option output at launch
  * time.
@@ -60,7 +64,7 @@
 
 #if HAVE_STATISTICS
 
-char* STAT_TYPE_STRING[] = {
+const char * const STAT_TYPE_STRING[] = {
   "IN  ",
   "OUT ",
   "INFO"
