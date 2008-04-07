@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.113  2008/04/07 12:57:21  ycaniou
+ * Correct "deprecated conversion from string constant to 'char*'" warnings
+ *
  * Revision 1.112  2008/04/06 15:53:10  glemahec
  * DIET_PERSISTENT_RETURN & DIET_STICKY_RETURN modes are now working.
  * Warning: The clients have to take into account that an out data declared as
@@ -360,7 +363,7 @@ static WfLogService_var myWfLogService = WfLogService::_nil();
 /*
  * String representation of error code
  */
-char * ErrorCodeStr[] = {
+const char * const ErrorCodeStr[] = {
   "GRPC_NO_ERROR",
   "GRPC_NOT_INITIALIZED",
   "GRPC_CONFIGFILE_NOT_FOUND",
@@ -415,7 +418,7 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   char*  MA_name;
   int    res(0);
   int    myargc(0);
-  char** myargv(NULL);
+  char ** myargv(NULL);
   void*  value(NULL);
   char*  userDefName;
 
@@ -476,7 +479,7 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
     char *  level = (char *) calloc(48, sizeof(char*)) ;
     int    tmp_argc = myargc + 2;
     myargv = (char**)realloc(myargv, tmp_argc * sizeof(char*));
-    myargv[myargc] = "-ORBtraceLevel";
+    myargv[myargc] = strdup("-ORBtraceLevel");
     sprintf(level, "%u", TRACE_LEVEL - TRACE_MAX_VALUE);
     myargv[myargc + 1] = (char*)level;
     myargc = tmp_argc;
@@ -696,18 +699,18 @@ void create_file()
 
 void create_header()
 {
-  char* header_id = "Data Handle   ";
-  char* header_msg = "Description \n";
+  const char * header_id = "Data Handle   ";
+  const char * header_msg = "Description \n";
  
-    ofstream f(file_Name,ios_base::app|ios_base::ate);
-    int cpt = strlen(header_id);
-    f.write(header_id,cpt);
-    for(int i = 0; i < 10; i++) {
-      f.put(' ');
-    }
-    cpt = strlen(header_msg);
-    f.write(header_msg,cpt);
-    f.close();
+  ofstream f(file_Name,ios_base::app|ios_base::ate);
+  int cpt = strlen(header_id);
+  f.write(header_id,cpt);
+  for(int i = 0; i < 10; i++) {
+    f.put(' ');
+  }
+  cpt = strlen(header_msg);
+  f.write(header_msg,cpt);
+  f.close();
 }
 
 /**************************************************************** 
@@ -899,7 +902,7 @@ request_submission(diet_profile_t* profile,
 	/* then data is known. Check that it's still in plaform */
         corba_data_desc_t *arg_desc = new corba_data_desc_t;
         arg_desc = MA->get_data_arg(new_id);
-        char *tmp="-1";
+        const char * tmp="-1";
         if( strcmp(CORBA::string_dup(arg_desc->id.idNumber),tmp) == 0 ) {
           bad_id = new_id;
           data_OK = 1;
@@ -1153,8 +1156,8 @@ void dagda_download_SeD_data(diet_profile_t* profile,
 	profile->parameters[i].desc.id = strdup(data.desc.id.idNumber);
   }
 }
+#endif // HAVE_DAGDA
 
-#endif HAVE_DAGDA
 /****************************************
  * Synchronous call
  ****************************************/
@@ -1751,7 +1754,7 @@ diet_get_error(diet_reqID_t reqID) {
 /***************************************************************************
  * return the corresponding error string
  ***************************************************************************/
-char *
+const char *
 diet_error_string(diet_error_t error) {
   if (error<0 || error>16)
     return "GRPC_UNKNOWN_ERROR CODE";

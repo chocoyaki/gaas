@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.84  2008/04/07 12:57:20  ycaniou
+ * Correct "deprecated conversion from string constant to 'char*'" warnings
+ *
  * Revision 1.83  2008/04/06 15:53:07  glemahec
  * DIET_PERSISTENT_RETURN & DIET_STICKY_RETURN modes are now working.
  * Warning: The clients have to take into account that an out data declared as
@@ -1111,10 +1114,11 @@ unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
 	else // Should be removed when all classes managed within SeD
 	  unmrsh_data(src_params[arg_idx], &(src->parameters[arg_idx]),0,
 		      "/tmp/") ; */
-	char* dataPath = (char*) Parsers::Results::getParamValue(Parsers::Results::STORAGEDIR);
+	const char * dataPath = 
+	  (char*) Parsers::Results::getParamValue(Parsers::Results::STORAGEDIR);
 	if (dataPath==NULL) dataPath = "/tmp/";
-	  unmrsh_data(src_params[arg_idx], &(src->parameters[arg_idx]),0,
-		      dataPath);
+	unmrsh_data(src_params[arg_idx], &(src->parameters[arg_idx]),0,
+		    dataPath);
 #else
         unmrsh_data(src_params[arg_idx], &(src->parameters[arg_idx]),0);
 #endif
@@ -1364,10 +1368,11 @@ unmrsh_inout_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb)
     else // Should be removed when all classes managed within SeD
       unmrsh_data(&(dpb->parameters[i]), &(cpb->parameters[i]),1,
 		  "/tmp/") ;*/
-  char* dataPath = (char*) Parsers::Results::getParamValue(Parsers::Results::STORAGEDIR);
-	if (dataPath==NULL) dataPath = "/tmp/";
-	  unmrsh_data(&(dpb->parameters[i]), &(cpb->parameters[i]),1,
-		      dataPath);
+    const char * dataPath = 
+      (char*) Parsers::Results::getParamValue(Parsers::Results::STORAGEDIR);
+    if (dataPath==NULL) dataPath = "/tmp/";
+    unmrsh_data(&(dpb->parameters[i]), &(cpb->parameters[i]),1,
+		dataPath);
 #else
     unmrsh_data(&(dpb->parameters[i]), &(cpb->parameters[i]),1);
 #endif
