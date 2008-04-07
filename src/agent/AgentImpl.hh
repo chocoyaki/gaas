@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2008/04/07 15:33:43  ycaniou
+ * This should remove all HAVE_BATCH occurences (still appears in the doc, which
+ *   must be updated.. soon :)
+ * Add the definition of DIET_BATCH_JOBID wariable in batch scripts
+ *
  * Revision 1.19  2008/01/14 09:35:48  glemahec
  * AgentImpl.cc/hh modifications to allow the use of DAGDA.
  *
@@ -222,7 +227,7 @@ protected:
   corba_response_t*
   findServer(Request* req, size_t max_srv);
  
-#if not defined HAVE_BATCH && not defined HAVE_ALT_BATCH
+#if not defined HAVE_ALT_BATCH
   /** Send the request structure \c req to the child whose ID is \c childID. */
   void
   sendRequest(CORBA::ULong childID, const corba_request_t* req);

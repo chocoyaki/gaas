@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.34  2008/04/07 15:33:40  ycaniou
+ * This should remove all HAVE_BATCH occurences (still appears in the doc, which
+ *   must be updated.. soon :)
+ * Add the definition of DIET_BATCH_JOBID wariable in batch scripts
+ *
  * Revision 1.33  2008/04/07 12:19:13  ycaniou
  * Except for the class Parsers (someone to re-code it? :)
  *   correct "deprecated conversion from string constant to 'char*'" warnings
@@ -174,7 +179,7 @@ diet_free_persistent_data(char *id);
 
 diet_error_t
 diet_call(diet_profile_t* profile);
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
 diet_error_t
 diet_parallel_call(diet_profile_t* profile) ;
 diet_error_t
@@ -182,7 +187,7 @@ diet_sequential_call(diet_profile_t* profile) ;
 #endif
 diet_error_t
 diet_call_async(diet_profile_t* profile, diet_reqID_t* reqID);
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
 diet_error_t
 diet_parallel_call_async(diet_profile_t* profile, diet_reqID_t* reqID);
 diet_error_t

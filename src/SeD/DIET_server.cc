@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.73  2008/04/07 15:33:42  ycaniou
+ * This should remove all HAVE_BATCH occurences (still appears in the doc, which
+ *   must be updated.. soon :)
+ * Add the definition of DIET_BATCH_JOBID wariable in batch scripts
+ *
  * Revision 1.72  2008/04/07 13:11:44  ycaniou
  * Correct "deprecated conversion from string constant to 'char*'" warnings
  * First attempt to code functions to dynamicaly get batch information
@@ -178,14 +183,6 @@ using namespace std;
 #include "fd/fd.h"
 #endif
 
-#if HAVE_BATCH
-#define ASEXEC_SHORT_NAMES
-#include "execseed.h"
-#define ASSTR_SHORT_NAMES
-#include "strseed.h"
-#include <string.h>
-#endif
-
 #define BEGIN_API extern "C" {
 #define END_API   } // extern "C"
  
@@ -246,7 +243,7 @@ diet_service_table_add(const diet_profile_desc_t* const profile,
   } else {
     actual_cvt = diet_convertor_alloc(profile->path, profile->last_in,
 				      profile->last_inout, profile->last_out);
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
      // TODO: Must I add something about convertors ??
 #endif
 
@@ -312,7 +309,7 @@ diet_service_table_lookup_by_profile(const diet_profile_t* const profile)
     profileDesc.last_in = profile->last_in;
     profileDesc.last_inout = profile->last_inout;
     profileDesc.last_out = profile->last_out;
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
     profileDesc.parallel_flag = profile->parallel_flag ;
 #endif
     int numArgs = profile->last_out + 1;
@@ -376,7 +373,7 @@ diet_profile_desc_alloc(const char* path,
   desc->last_inout = last_inout;
   desc->last_out   = last_out;
   desc->param_desc = param_desc;
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
   // By default, the profile is registered in the server as sequential
   diet_profile_desc_set_sequential( desc ) ;
 #endif
@@ -1330,96 +1327,6 @@ diet_set_server_status( diet_server_status_t status )
     }
   //#endif  
   } else ERROR_EXIT("Server status not recognized") ;
-}
-#endif
-
-#ifdef HAVE_BATCH
-int
-diet_submit_parallel(diet_profile_t *profile, const char *command)
-{
-  int result ;
-  ELBASE_SchedulerServiceTypes schedulerID ;
-  char ** attrs, ** attrs_idx ;
-  char * chaine = NULL ;
-  char * cmd = NULL ;
-  char * script = NULL ;
-  char * hostname = NULL ;
-  char * batchQueue = NULL ;
-  ELBASE_Process * process = NULL ;
-    
-  schedulerID = ((SeDImpl*)(profile->SeDPtr))->getBatchSchedulerID() ;
-
-  /* We are still on the frontal, whose name must be given to the service
-  ** in case of data transfer or fault tolerance mechanism */  
-  hostname = ((SeDImpl*)profile->SeDPtr)->getLocalHostName() ;
-
-  chaine = (char*)malloc(100*sizeof(char)) ;
-  if( chaine == NULL ) {
-    ERROR("error allocating memory... service not launched\n\n", 1);
-  }
-  if( schedulerID != ELBASE_SHELL ) {     
-    /* Prepare batch arguments */
-    batchQueue = ((SeDImpl*)(profile->SeDPtr))->getBatchQueue() ;
-  
-    if( batchQueue == NULL )
-      sprintf(chaine,"host_count=%d "
-	      "max_wall_time=%ld",
-	      profile->nbprocs,
-	      profile->walltime) ;
-    else
-      sprintf(chaine,"host_count=%d "
-	      "max_wall_time=%ld "
-	      "queue=%s",
-	      profile->nbprocs,
-	      profile->walltime,
-	      batchQueue) ;
-    attrs = ASSTR_StrSplit(chaine, NULL) ;
-  } else attrs = NULL ;
-    
-  /* Replace some stuff in SeD programmer's command */
-  cmd = strdup(command) ;
-  if( schedulerID != ELBASE_SHELL ) {     
-    sprintf(chaine,"%d",profile->nbprocs) ;
-    ASSTR_StrReplaceAll(&cmd,"$DIET_BATCH_NBNODES",chaine) ;
-  }
-  sprintf(chaine,"%d",profile->nbprocess) ;
-  ASSTR_StrReplaceAll(&cmd,"$DIET_USER_NBPROCS",chaine) ;
-  ASSTR_StrReplaceAll(&cmd,"$DIET_NAME_FRONTALE",hostname) ;
-
-  /* Submit request with a fork, because we are on the frontale
-   *   Note: if process != NULL, it contains pid info after return
-   *   For sync and async, store the pid of the submitter
-   */
-  process = (ELBASE_Process*) malloc (sizeof(ELBASE_Process)) ;
-  result = ELBASE_Submit(ELBASE_FORK, hostname, schedulerID,
-			 (const char **)attrs,
-			 cmd, NULL, NULL, NULL, NULL,
-			 NULL, NULL, process) ;
-  
-  if( result == 0 ) { // An error occured during the submission
-    ERROR("Error during submission...", 20);
-  }
-  /* Store the JobID in correlation with DIET_taskID
-  ** Note that the ID is the ID of the script that does the submission
-  ** of the batch script. There is not a big difference for us as
-  ** we can watch this process which watch the batch job
-  */
-  ((SeDImpl*)(profile->SeDPtr))->storeBatchID(process, profile->dietReqID) ;
-  
-  /* Free memory */
-  free(chaine) ;
-  free(cmd) ;
-  free(script) ;
-  if( attrs != NULL ) {
-    attrs_idx = attrs ;
-    while( *attrs_idx != NULL ) {
-      free(*attrs_idx) ;
-      attrs_idx++ ;
-    }
-    free(attrs) ;
-  }
-  
-  return result ;
 }
 #endif
 

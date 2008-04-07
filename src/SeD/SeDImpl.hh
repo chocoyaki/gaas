@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.39  2008/04/07 15:33:42  ycaniou
+ * This should remove all HAVE_BATCH occurences (still appears in the doc, which
+ *   must be updated.. soon :)
+ * Add the definition of DIET_BATCH_JOBID wariable in batch scripts
+ *
  * Revision 1.38  2008/01/14 11:32:15  glemahec
  * SeDImpl, the SeD object implementation can now use Dagda as data manager.
  *
@@ -210,12 +215,6 @@
 #include "JuxMem.hh"          // JuxMem header file
 #endif // ! HAVE_JUXMEM
 
-#if HAVE_BATCH
-#include <omnithread.h>       // For omni_mutex
-extern "C" {
-#include "batch.h"
-}
-#endif
 #if HAVE_ALT_BATCH
 extern "C" {
 #include "DIET_server.h" /* For inclusion of diet_server_status_t */
@@ -281,23 +280,7 @@ public:
   virtual CORBA::Long
   solve(const char* pbName, corba_profile_t& pb);
 
-#if HAVE_BATCH
-  ELBASE_SchedulerServiceTypes
-  getBatchSchedulerID() ;
-
-  void
-  initCorresBatchDietReqID() ;
-  void
-  storeBatchID(ELBASE_Process *batch_reqID, int diet_reqID) ;
-  void
-  removeBatchID(int diet_reqID) ;
-  ELBASE_Process
-  findBatchID(int diet_reqID) ;
-  char*
-  getBatchQueue() ;
-#endif
-
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
   /* Set if server is SERIAL, BATCH,.. */
   void
   setServerStatus( diet_server_status_t status ) ;
@@ -378,24 +361,6 @@ private:
   /** Time at which last solve started (when not using queues) and when 
    * last job was enqueued (when using queues) */
   struct timeval lastSolveStart;
-
-#if HAVE_BATCH
-  /* Correspondance with Elagi
-  ** -> must be initialized with a special call to Elagi */
-  ELBASE_SchedulerServiceTypes batchID ;
-  char *batchQueue ;
-    
-  /* Correspondance between the Diet reqID and the Batch Job ID 
-     stored as a chained list */
-  typedef struct corresID_def {
-    int dietReqID ;
-    ELBASE_Process *batchJobID ;
-    struct corresID_def *nextStruct ;
-  } corresID ;
-  corresID *batchJobQueue ;
-
-  omni_mutex corresBatchReqID_mutex ;
-#endif
 
 #if HAVE_ALT_BATCH
   BatchSystem * batch ;

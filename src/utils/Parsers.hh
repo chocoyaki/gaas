@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.30  2008/04/07 15:33:44  ycaniou
+ * This should remove all HAVE_BATCH occurences (still appears in the doc, which
+ *   must be updated.. soon :)
+ * Add the definition of DIET_BATCH_JOBID wariable in batch scripts
+ *
  * Revision 1.29  2008/02/12 11:38:13  glemahec
  * Les references aux SeDs sont sorties du marshalling. Le parametre
  * "storageDirectory" est maintenant partage par DAGDA et les batchs.
@@ -208,10 +213,6 @@ public:
 #ifdef USERSCHED
 	  MODULENAME,
 	  MODULECFG,
-#endif
-#if HAVE_BATCH
-      BATCHNAME,
-      BATCHQUEUE,
 #endif
 #if HAVE_ALT_BATCH
       BATCHNAME,

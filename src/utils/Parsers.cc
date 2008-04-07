@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.43  2008/04/07 15:33:44  ycaniou
+ * This should remove all HAVE_BATCH occurences (still appears in the doc, which
+ *   must be updated.. soon :)
+ * Add the definition of DIET_BATCH_JOBID wariable in batch scripts
+ *
  * Revision 1.42  2008/02/12 11:38:13  glemahec
  * Les references aux SeDs sont sorties du marshalling. Le parametre
  * "storageDirectory" est maintenant partage par DAGDA et les batchs.
@@ -176,10 +181,6 @@ Parsers::Results::param_t Parsers::Results::params[] =
 #ifdef USERSCHED
    /* [28] */ ,{"schedulerModule", 15, Parsers::parseName, 0, NULL}
    /* [29] */ ,{"moduleConfigFile", 16, Parsers::parseName, 0, NULL}
-#endif
-#if HAVE_BATCH
-   /* [30] */ ,{"batchName", 9, Parsers::parseName, 0, NULL}
-   /* [31] */ ,{"batchQueue", 10, Parsers::parseName, 0, NULL}
 #endif
 #if HAVE_ALT_BATCH
    /* [30] */ ,{"batchName", 9, Parsers::parseName, 0, NULL}

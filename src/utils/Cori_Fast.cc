@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2008/04/07 15:33:44  ycaniou
+ * This should remove all HAVE_BATCH occurences (still appears in the doc, which
+ *   must be updated.. soon :)
+ * Add the definition of DIET_BATCH_JOBID wariable in batch scripts
+ *
  * Revision 1.8  2007/04/16 22:43:44  ycaniou
  * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
  * This is indented to replace HAVE_BATCH.
@@ -92,7 +97,7 @@ Cori_Fast::diet_service_table_lookup_by_profile(
     profileDesc.last_in = profile->last_in;
     profileDesc.last_inout = profile->last_inout;
     profileDesc.last_out = profile->last_out;
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
     /* In case of client explicitly ask for a batch resolution */
     profileDesc.parallel_flag = profile->parallel_flag ;
 #endif

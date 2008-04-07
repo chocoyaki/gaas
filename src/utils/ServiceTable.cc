@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2008/04/07 15:33:44  ycaniou
+ * This should remove all HAVE_BATCH occurences (still appears in the doc, which
+ *   must be updated.. soon :)
+ * Add the definition of DIET_BATCH_JOBID wariable in batch scripts
+ *
  * Revision 1.25  2008/03/28 13:17:17  rbolze
  * update code to avoid warning with the intel compiler
  *
@@ -464,7 +469,7 @@ ServiceTable::rmChild(const CORBA::ULong child)
   return 0;
 }
 
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
 /* This method does NOT test the validity of the range index */
 const corba_profile_desc_t &
 ServiceTable::getProfile( const ServiceReference_t index )
@@ -617,7 +622,7 @@ ServiceTable::getPerfMetric(const ServiceReference_t ref)
    return getChildren(ref);
    }
 */
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
 const ServiceTable::matching_children_t *
 ServiceTable::getChildren(const corba_pb_desc_t * pb_desc)
 {
@@ -697,7 +702,7 @@ ServiceTable::dump(FILE* f)
   for (size_t i = 0; i < nb_s; i++) {
     strcpy(path, profiles[i].path);
     fprintf(f, "- Service %s", path);
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
     if( profiles[i].parallel_flag == 2 )
       fprintf(f," (parallel service) ") ;
     else if ( profiles[i].parallel_flag == 1 )
@@ -781,31 +786,6 @@ ServiceTable::ServiceTableInit(CORBA::ULong max_nb_services,
   return 0;
 }
 
-#if defined HAVE_BATCH
-/* Unused
-   int
-   ServiceTable::existBatchService()
-   {
-   size_t i=0 ;
-   
-   while( (i<nb_s) && ( profiles[i].parallel_flag == 1) )
-   i++ ;
-   return !(i==nb_s) ;
-   }
-*/
-int
-ServiceTable::testIfAllBatchServices()
-{
-  size_t i=1 ;
-
-  while( (i<nb_s) && (profiles[0].parallel_flag == profiles[i].parallel_flag) )
-    i++ ;
-  if( i==nb_s )
-    return ( profiles[0].parallel_flag == 2 ) ;
-  else
-    return -1 ;
-}
-#endif
 #if defined HAVE_ALT_BATCH
 int
 ServiceTable::testIfAllParallelServices()

@@ -8,6 +8,11 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.10  2008/04/07 15:33:40  ycaniou
+%* This should remove all HAVE_BATCH occurences (still appears in the doc, which
+%*   must be updated.. soon :)
+%* Add the definition of DIET_BATCH_JOBID wariable in batch scripts
+%*
 %* Revision 1.9  2006/12/02 10:49:25  ycaniou
 %* Changed the version -> 2.2, and the month
 %*
@@ -281,6 +286,7 @@ the other ones:
 \item \verb!$DIET_BATCH_NBNODES!: number of reserved nodes
 \item \verb!$DIET_BATCH_NODESFILE!: name of the file containing the
 identity of the reserved nodes
+\item \verb!$DIET_BATCH_JOBID!: batch job ID
 \end{itemize}
 
 Once the script written in a string, it is given as an argument to the

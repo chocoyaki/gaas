@@ -5,6 +5,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.50  2008/04/07 15:33:43  ycaniou
+ * This should remove all HAVE_BATCH occurences (still appears in the doc, which
+ *   must be updated.. soon :)
+ * Add the definition of DIET_BATCH_JOBID wariable in batch scripts
+ *
  * Revision 1.49  2008/02/29 10:47:44  bdepardo
  * Fixed a bug leading to a segfault when using CORI.
  *
@@ -447,7 +452,7 @@ AgentImpl::findServer(Request* req, size_t max_srv)
   else { // then the request must be forwarded
 
     int nbChildrenContacted = 0;
-#if not defined HAVE_BATCH && not defined HAVE_ALT_BATCH
+#if not defined HAVE_ALT_BATCH
     const ServiceTable::matching_children_t * SrvTmc;
     ServiceTable::matching_children_t * mc ;
 
@@ -651,7 +656,7 @@ AgentImpl::getHostname()
   return CORBA::string_dup(localHostName) ;
 }
 
-#if not defined HAVE_BATCH && not defined HAVE_ALT_BATCH
+#if not defined HAVE_ALT_BATCH
 /**
  * Send the request structure \c req to the child whose ID is \c childID.
  */
@@ -693,7 +698,7 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req,
                 << " occured - remove it from known children");
             srvTMutex.lock();
             SrvT->rmChild(childID);
-#if defined HAVE_BATCH && defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
 	    (*nb_children_contacted)-- ;
 #endif
             if (TRACE_LEVEL >= TRACE_STRUCTURES) {
@@ -729,7 +734,7 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req,
                 << " occured - remove it from known children");
             srvTMutex.lock();
             SrvT->rmChild(childID);
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
 	    (*nb_children_contacted)-- ;
 #endif
             if (TRACE_LEVEL >= TRACE_STRUCTURES) {

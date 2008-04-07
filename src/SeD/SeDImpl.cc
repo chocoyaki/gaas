@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.102  2008/04/07 15:33:42  ycaniou
+ * This should remove all HAVE_BATCH occurences (still appears in the doc, which
+ *   must be updated.. soon :)
+ * Add the definition of DIET_BATCH_JOBID wariable in batch scripts
+ *
  * Revision 1.101  2008/04/06 15:53:10  glemahec
  * DIET_PERSISTENT_RETURN & DIET_STICKY_RETURN modes are now working.
  * Warning: The clients have to take into account that an out data declared as
@@ -304,10 +309,6 @@ SeDImpl::initialize()
 			  For the moment, NULL is like FIFO
 		       */
 #endif
-#if defined HAVE_BATCH
-  batchQueue = NULL ;
-  initCorresBatchDietReqID() ;
-#endif //HAVE_BATCH
 }
 
 int
@@ -319,10 +320,6 @@ SeDImpl::getNumJobsWaiting() {
 
 SeDImpl::~SeDImpl()
 {
-#if defined HAVE_BATCH
-  free(batchQueue) ;
-#endif //HAVE_BATCH
-  
   /* FIXME: Tables should be destroyed. */
   stat_finalize();  
 }
@@ -339,40 +336,6 @@ SeDImpl::run(ServiceTable* services)
  
   this->SrvT = services;
 
-#if defined HAVE_BATCH
-  int only_batch_services = this->SrvT->testIfAllBatchServices() ;
-  // A SeD can only launch parallel/batch or -exclusive- sequential jobs.
-  // Then, all profiles must be either parallel/batch or sequential.
-  // No mix allowed. 
-  if( only_batch_services == 1 ) {
-    // Read "batchName" if parallel jobs are to be submitted
-    char * batchname = (char*) 
-      Parsers::Results::getParamValue(Parsers::Results::BATCHNAME) ;
-    if (batchname == NULL) {
-      ERROR("SeD can not launch parallel/batch jobs, no parallel/batch"
-	    " scheduler specified in the config file", 1) ;
-    }
-    if( !(ELBASE_ExistBatchScheduler(batchname,&this->batchID)) ) {
-      ERROR("Parallel/batch scheduler not recognized", 1) ;
-    }
-    TRACE_TEXT(TRACE_MAIN_STEPS,
-    	       "Parallel/batch submission enabled with " 
-	       << ELBASE_GiveBatchName(this->batchID) ) ;
-    if( this->batchID != ELBASE_SHELL ) {
-      /* Search for batch queues */
-      this->batchQueue = strdup((char*)
-	Parsers::Results::getParamValue(Parsers::Results::BATCHQUEUE)) ;
-      if( batchQueue != NULL )
-	TRACE_TEXT(TRACE_MAIN_STEPS, " using queue " 
-		   << batchQueue ) ;
-    }
-    TRACE_TEXT(TRACE_MAIN_STEPS, "\n" ) ;
-  } else if( only_batch_services == -1 ) {
-    ERROR("SeD is not allowed to launch parallel/batch and sequential job"
-	  "at the same time",
-	  1) ;
-  }
-#endif
 #if defined HAVE_ALT_BATCH
   if( this->server_status == BATCH ) {
     // Read "batchName" if parallel jobs are to be submitted
@@ -561,19 +524,19 @@ SeDImpl::getRequest(const corba_request_t& creq)
 #endif //HAVE_JXTA
 
 
-#if not defined HAVE_BATCH && not defined HAVE_ALT_BATCH
+#if not defined HAVE_ALT_BATCH
     estVector_t ev = &(resp.servers[0].estim);
     for (int ctIter = 0 ; ctIter < creq.pb.last_out ; ctIter++) {
       diet_est_set_internal(ev, EST_COMMTIME, 0.0);
     }
-#else // HAVE_BATCH
+#else
     // TODO: What do I have to do for a batch, non batch, parallel, etc.?
     // for the moment, do the same but..
     estVector_t ev = &(resp.servers[0].estim);
     for (int ctIter = 0 ; ctIter < creq.pb.last_out ; ctIter++) {
       diet_est_set_internal(ev, EST_COMMTIME, 0.0);
     }
-#endif  // !HAVE_BATCH
+#endif
 
     this->estimate(resp.servers[0].estim, creq.pb, serviceRef);
   }
@@ -680,12 +643,6 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
    * and time at which job was enqueued (when using queues). */
   gettimeofday(&(this->lastSolveStart), NULL);
 
-#if defined HAVE_BATCH
-  /* Use parallel_flag of the proposed SeD service to know what to do */
-  const corba_profile_desc_t & sed_profile = SrvT->getProfile( ref ) ;
-  if( sed_profile.parallel_flag == 2 )
-    return this->parallel_solve(path, pb, ref, profile) ;
-#endif
 #if defined HAVE_ALT_BATCH
   if( server_status == BATCH )
     return this->parallel_solve(path, pb, ref, profile) ;
@@ -748,21 +705,7 @@ SeDImpl::setServerStatus( diet_server_status_t status )
 }
 #endif
 
-#if defined HAVE_BATCH 
-char*
-SeDImpl::getLocalHostName()
-{
-  return strdup(this->localHostName) ;
-}
-
-ELBASE_SchedulerServiceTypes
-SeDImpl::getBatchSchedulerID()
-{
-  return this->batchID ;
-}
-#endif
-
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
 CORBA::Long
 SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
 		     ServiceTable::ServiceReference_t& ref,
@@ -867,7 +810,7 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
 
   return solve_res;
 }
-#endif //HAVE_BATCH
+#endif //HAVE_ALT_BATCH
 
 void
 SeDImpl::solveAsync(const char* path, const corba_profile_t& pb, 
@@ -899,7 +842,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
       /* Record time at which solve started (when not using queues) 
        * and time at which job was enqueued (when using queues). */
       gettimeofday(&(this->lastSolveStart), NULL);
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
       /* Use parallel_flag of the proposed SeD service to know what to do */
       const corba_profile_desc_t & sed_profile = SrvT->getProfile( ref ) ;
       if( sed_profile.parallel_flag == 2 )
@@ -960,7 +903,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 	/* FIXME: do we need to use diet_free_data on profile parameters as
 	 * we do in the solve(...) method? */
 	delete [] profile.parameters; // allocated by unmrsh_in_args_to_profile
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
       }
 #endif
     }
@@ -985,7 +928,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 }
 
 /* Note: ref is useful for convertors */
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
 void
 SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb, 
 			     ServiceTable::ServiceReference_t ref,
@@ -1034,9 +977,8 @@ SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb,
     
       downloadAsyncSeDData(profile, const_cast<corba_profile_t&>(pb), cvt);
     
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
-      solve_res = (*(SrvT->getSolver(ref)))(&profile);
 #if defined HAVE_ALT_BATCH
+      solve_res = (*(SrvT->getSolver(ref)))(&profile);
       TRACE_TIME(TRACE_MAIN_STEPS, "Submitting DIET job of ID "
 		 << profile.dietReqID <<
 		 " on batch system with ID " <<
@@ -1070,7 +1012,6 @@ SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb,
       }
       removeBatchID(pb.dietReqID) ;
 #endif // HAVE_ALT_BATCH
-#endif // HAVE_BATCH || ALT_BATCH
 
       uploadAsyncSeDData(profile,  const_cast<corba_profile_t&>(pb), cvt);
 
@@ -1654,125 +1595,6 @@ SeDImpl::uploadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 #endif // ! HAVE_DAGDA
 #endif // HAVE_JUXMEM 
 }
-
-
-#if defined HAVE_BATCH
-void
-SeDImpl::initCorresBatchDietReqID()
-{
-  this->batchJobQueue = NULL ;
-}
-
-/**
- * Store the batch job ID of the parallel task (in fact the pid of the script)
- just submitted in correspondance with the DIET request ID
- */
-void
-SeDImpl::storeBatchID(ELBASE_Process *batch_jobID, int diet_reqID)
-{
-  SeDImpl::corresID *tmp ;
-
-  tmp = (corresID*)malloc(sizeof(corresID)) ;
-  if( tmp == NULL ) {
-    ERROR("Not enough memory to store new batch information\n",);
-  }
-
-  corresBatchReqID_mutex.lock() ;
-
-  tmp->nextStruct = this->batchJobQueue ;
-  
-  this->batchJobQueue = tmp ;
-  this->batchJobQueue->batchJobID = batch_jobID ;
-  this->batchJobQueue->dietReqID = diet_reqID ;
-
-  corresBatchReqID_mutex.unlock() ;
-}
-
-  /* For the moment, storage done in a table
-  ** TODO: use something like a red/black tree? */
-//   int i=0 ;
-  
-//   while( (i<tabCorresIDIndex) && (tabCorresID[i].dietReqID != -1) )
-//     i++ ;
-//   if( tabCorresIDIndex == MAX_RUNNING_NBSERVICES ) {
-//     INTERNAL_ERROR("not enough place to insert new batch job", 1);
-//   } else if( i == tabCorresIDIndex )
-//     tabCorresIDIndex++ ;
-//   tabCorresID[i].batchJobID = batch_jobID ;
-//   tabCorresID[i].dietReqID = diet_reqID ;
-// }
-/* This function must be called after a ELBASE_Poll, 
-**     which desallocate the ELBASE_Process structure!
-** ( TODO: Look what happens when stop/kill ).
-** It removes the batchJobID/DietReqID correspondance
-*/
-void
-SeDImpl::removeBatchID(int diet_reqID)
-{
-  corresID *tmp=batchJobQueue ;
-  corresID *tmp2 ;
-
-  corresBatchReqID_mutex.lock() ;
-
-  tmp = batchJobQueue ;
-  if( tmp != NULL ) {
-    if( tmp->dietReqID != diet_reqID ) {
-      while( (tmp->nextStruct != NULL) && 
-	     (tmp->nextStruct->dietReqID != diet_reqID) )
-	tmp = tmp->nextStruct ;
-      if( tmp->nextStruct == NULL ) {
-	INTERNAL_ERROR("incoherence relating with batch job ID"
-		       " and diet request ID"
-		       " when removing batch info"
-		       , 1);
-      }
-      // remove the struct
-      tmp2=tmp->nextStruct ;
-      tmp->nextStruct = tmp2->nextStruct ;
-      free(tmp2) ;
-    } else { // remove the head
-      batchJobQueue=batchJobQueue->nextStruct ;
-      free( tmp ) ;
-    }
-  } else { // tmp == NULL
-    INTERNAL_ERROR("incoherence relating with batch job ID and diet request ID"
-		   " when removing batch info"
-		   , 1);
-  }
-
-  corresBatchReqID_mutex.unlock() ;
-}
-
-/** 
- * Return the pid of the script that launched the batch job
- */
-ELBASE_Process
-SeDImpl::findBatchID(int diet_reqID)
-{
-  corresID *tmp=batchJobQueue ;
-
-  corresBatchReqID_mutex.lock() ;
-  
-  while( (tmp != NULL) && (tmp->dietReqID != diet_reqID) )
-    tmp=tmp->nextStruct ;
-  corresBatchReqID_mutex.unlock() ;
-
-  if( tmp == NULL) {
-    INTERNAL_ERROR("Incoherence relating with batch job ID and diet request ID"
-		   , 1);
-  }
-  return *(tmp->batchJobID) ;
-}
-
-/** 
- * Return the name of the batch queue
- */
-char*
-SeDImpl::getBatchQueue()
-{
-  return batchQueue ;
-}
-#endif
 
 #if defined HAVE_ALT_BATCH
 BatchSystem * // should be const

@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.53  2008/04/07 15:33:40  ycaniou
+ * This should remove all HAVE_BATCH occurences (still appears in the doc, which
+ *   must be updated.. soon :)
+ * Add the definition of DIET_BATCH_JOBID wariable in batch scripts
+ *
  * Revision 1.52  2008/01/01 19:45:22  ycaniou
  * Modifications for batch management. Loadleveler is now ok.
  *
@@ -290,7 +295,7 @@ typedef struct {
 		      ** And for batch submission
                       */
   int dietReqID ;
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
   /* if 0, select seq AND parallel tasks for the request
      if 1, select only seq tasks
      if 2, parallel only */
@@ -318,7 +323,7 @@ diet_profile_alloc(char* pb_name, int last_in, int last_inout, int last_out);
 int
 diet_profile_free(diet_profile_t* profile);
 
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
 int
 diet_profile_set_parallel(diet_profile_t* profile) ;
 int

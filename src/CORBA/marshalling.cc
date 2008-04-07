@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.85  2008/04/07 15:33:40  ycaniou
+ * This should remove all HAVE_BATCH occurences (still appears in the doc, which
+ *   must be updated.. soon :)
+ * Add the definition of DIET_BATCH_JOBID wariable in batch scripts
+ *
  * Revision 1.84  2008/04/07 12:57:20  ycaniou
  * Correct "deprecated conversion from string constant to 'char*'" warnings
  *
@@ -885,7 +890,7 @@ mrsh_profile_desc(corba_profile_desc_t* dest, const diet_profile_desc_t* src)
     (dest->param_desc[i]).base_type = (src->param_desc[i]).base_type;
     (dest->param_desc[i]).type      = (src->param_desc[i]).type;
   }
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
   dest->parallel_flag = src->parallel_flag ;
 #endif
 
@@ -920,7 +925,7 @@ mrsh_pb_desc(corba_pb_desc_t* dest, const diet_profile_t* const src)
     }
 #endif // HAVE_JUXMEM
   }
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
   dest->parallel_flag = src->parallel_flag ;
   dest->nbprocs    = src->nbprocs ;
   dest->nbprocess  = src->nbprocess ;
@@ -939,7 +944,7 @@ mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src)
 {
   int i;
 
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH 
+#if defined HAVE_ALT_BATCH 
   dest->parallel_flag = src->parallel_flag ;
   dest->nbprocs    = src->nbprocs ;
   dest->nbprocess  = src->nbprocess ;
@@ -1082,7 +1087,7 @@ unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
     src_params[i] = NULL;
   }
 
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
   dest->parallel_flag = src->parallel_flag ;
   dest->nbprocs    = src->nbprocs ;
   dest->nbprocess  = src->nbprocess ;
@@ -1158,7 +1163,7 @@ unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
 
 int unmrsh_to_profile_dagda(diet_profile_t* dest, corba_profile_t* src,
 	const diet_convertor_t* cvt) {
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
   dest->parallel_flag = src->parallel_flag ;
   dest->nbprocs    = src->nbprocs ;
   dest->nbprocess  = src->nbprocess ;
@@ -1178,7 +1183,7 @@ int unmrsh_to_profile_dagda(diet_profile_t* dest, corba_profile_t* src,
 }
 
 int unmrsh_to_profile_dagda(diet_profile_t* dest, corba_profile_t* src) {
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
   dest->parallel_flag = src->parallel_flag ;
   dest->nbprocs    = src->nbprocs ;
   dest->nbprocess  = src->nbprocess ;
@@ -1296,7 +1301,7 @@ unmrsh_out_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb)
 	 )
     return 1;
 
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
   // In case client wants to know how many procs and process have been used
   // but other info like walltime is useless
   dpb->nbprocs = cpb->nbprocs ;

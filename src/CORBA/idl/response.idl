@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2008/04/07 15:33:41  ycaniou
+ * This should remove all HAVE_BATCH occurences (still appears in the doc, which
+ *   must be updated.. soon :)
+ * Add the definition of DIET_BATCH_JOBID wariable in batch scripts
+ *
  * Revision 1.12  2007/07/13 16:44:40  ecaron
  * Remove deprecated code (ALTPREDICT part)
  *
@@ -130,10 +135,6 @@ struct corba_response_t {
   long myID;
   // The available servers
   SeqServerEstimation_t servers;
-#ifdef HAVE_BATCH
-  // Make client know he has to submit parallel or non-parallel
-  long parallel_flag ;
-#endif
 #ifdef HAVE_ALT_BATCH
   // Make client know he has to submit parallel or non-parallel
   long parallel_flag ;

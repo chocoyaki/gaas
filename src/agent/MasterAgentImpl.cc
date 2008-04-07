@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.39  2008/04/07 15:33:43  ycaniou
+ * This should remove all HAVE_BATCH occurences (still appears in the doc, which
+ *   must be updated.. soon :)
+ * Add the definition of DIET_BATCH_JOBID wariable in batch scripts
+ *
  * Revision 1.38  2008/01/14 10:02:56  glemahec
  * MasterAgentImpl.cc, the implementation of the CORBA object MasterAgent can
  * now use DAGDA instead of DTM to manage the data.
@@ -465,7 +470,7 @@ MasterAgentImpl::submit_local(const corba_request_t& creq)
 #endif // HAVE_ALTPREDICT
 
   } else {
-#if not defined HAVE_BATCH && not defined HAVE_ALT_BATCH
+#if not defined HAVE_ALT_BATCH
     CORBA::Long numProfiles;
     SeqCorbaProfileDesc_t *profiles = this->SrvT->getProfiles(numProfiles);
     assert(sref < numProfiles);
@@ -489,7 +494,7 @@ MasterAgentImpl::submit_local(const corba_request_t& creq)
 
     /** Forward request and schedule the responses */
     resp = findServer(req, creq.max_srv);
-#if not defined HAVE_BATCH && not defined HAVE_ALT_BATCH
+#if not defined HAVE_ALT_BATCH
     delete profiles;
 #endif
   }

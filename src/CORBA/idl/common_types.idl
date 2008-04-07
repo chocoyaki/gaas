@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2008/04/07 15:33:41  ycaniou
+ * This should remove all HAVE_BATCH occurences (still appears in the doc, which
+ *   must be updated.. soon :)
+ * Add the definition of DIET_BATCH_JOBID wariable in batch scripts
+ *
  * Revision 1.28  2008/04/06 15:53:10  glemahec
  * DIET_PERSISTENT_RETURN & DIET_STICKY_RETURN modes are now working.
  * Warning: The clients have to take into account that an out data declared as
@@ -327,9 +332,6 @@ struct corba_profile_desc_t {
   long   last_inout;
   long   last_out;
   sequence<corba_arg_desc_t> param_desc;
-#if HAVE_BATCH
-  long parallel_flag ;
-#endif
 #if HAVE_ALT_BATCH
   long parallel_flag ;
 #endif
@@ -359,12 +361,6 @@ struct corba_pb_desc_t {
   long   last_inout;
   long   last_out;
   SeqCorbaDataDesc_t param_desc;
-#if HAVE_BATCH
-  long   parallel_flag ;
-  long   nbprocs ;
-  long   nbprocess ;
-  long   walltime ;
-#endif
 #if HAVE_ALT_BATCH
   long   parallel_flag ;
   long   nbprocs ;
@@ -380,12 +376,6 @@ struct corba_profile_t {
   long   last_out;
   SeqCorbaData_t parameters;
   unsigned long dietReqID ;
-#if HAVE_BATCH
-  long   parallel_flag ;
-  long   nbprocs ;
-  long   nbprocess ;
-  long   walltime ;
-#endif
 #if HAVE_ALT_BATCH
   long   parallel_flag ;
   long   nbprocs ;

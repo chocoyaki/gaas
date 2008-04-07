@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.36  2008/04/07 15:33:40  ycaniou
+ * This should remove all HAVE_BATCH occurences (still appears in the doc, which
+ *   must be updated.. soon :)
+ * Add the definition of DIET_BATCH_JOBID wariable in batch scripts
+ *
  * Revision 1.35  2008/04/07 13:11:44  ycaniou
  * Correct "deprecated conversion from string constant to 'char*'" warnings
  * First attempt to code functions to dynamicaly get batch information
@@ -201,7 +206,7 @@ typedef struct {
   int              last_in, last_inout, last_out;
   diet_arg_desc_t* param_desc;
 
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
   unsigned short int parallel_flag ;
   int nbprocs ; 
 #endif
@@ -234,7 +239,7 @@ diet_profile_desc_alloc(const char* path,
 int
 diet_profile_desc_free(diet_profile_desc_t* desc);
 
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
 /* Functions for server profile registration */
 int
 diet_profile_desc_set_sequential(diet_profile_desc_t* profile) ;
@@ -325,7 +330,7 @@ typedef struct {
   char*                 path;
   int                   last_in, last_inout, last_out;
   diet_arg_convertor_t* arg_convs;
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
   unsigned short int batch_flag ;
   int nbprocs ;
   unsigned long walltime ;
@@ -439,7 +444,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[]);
 /****************************************************************************/
 /* DIET batch submit call                                                   */
 /****************************************************************************/
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
   /**
    * @param command is the content of the script that the SeD programmer wants
    * to submit in order to provide the service @param profile

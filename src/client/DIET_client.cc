@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.114  2008/04/07 15:33:44  ycaniou
+ * This should remove all HAVE_BATCH occurences (still appears in the doc, which
+ *   must be updated.. soon :)
+ * Add the definition of DIET_BATCH_JOBID wariable in batch scripts
+ *
  * Revision 1.113  2008/04/07 12:57:21  ycaniou
  * Correct "deprecated conversion from string constant to 'char*'" warnings
  *
@@ -1057,7 +1062,7 @@ void dagda_mrsh_profile(corba_profile_t* corba_profile, diet_profile_t* profile)
 
   corba_profile->parameters.length(profile->last_out+1);
 
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH 
+#if defined HAVE_ALT_BATCH 
   corba_profile->parallel_flag = profile->parallel_flag ;
   corba_profile->nbprocs    = profile->nbprocs ;
   corba_profile->nbprocess  = profile->nbprocess ;
@@ -1307,7 +1312,7 @@ diet_call(diet_profile_t* profile)
   return err;
 }
 
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
 diet_error_t
 diet_parallel_call(diet_profile_t* profile)
 {
@@ -1468,7 +1473,7 @@ diet_call_async(diet_profile_t* profile, diet_reqID_t* reqID)
   return err;
 }
 
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
 diet_error_t
 diet_parallel_call_async(diet_profile_t* profile, diet_reqID_t* reqID)
 {
@@ -2433,7 +2438,7 @@ int unmrsh_profile_desc( diet_profile_desc_t* dest,
     (dest->param_desc[i]).base_type = (diet_base_type_t)((src->param_desc[i]).base_type);
     (dest->param_desc[i]).type      = (diet_data_type_t)(src->param_desc[i]).type;
   }
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
   dest->parallel_flag = src->parallel_flag ;
 #endif
 

@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.51  2008/04/07 15:33:44  ycaniou
+ * This should remove all HAVE_BATCH occurences (still appears in the doc, which
+ *   must be updated.. soon :)
+ * Add the definition of DIET_BATCH_JOBID wariable in batch scripts
+ *
  * Revision 1.50  2008/04/07 13:56:27  glemahec
  * Correction of file_set_desc.
  *
@@ -407,7 +412,7 @@ profile_desc_match(const corba_profile_desc_t* p1,
        || (p1->last_inout          != p2->last_inout)
        || (p1->last_out            != p2->last_out)
        || (p1->param_desc.length() != p2->param_desc.length())
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
        || (p1->parallel_flag          != p2->parallel_flag) 
 #endif
        )
@@ -436,7 +441,7 @@ profile_match(const corba_profile_desc_t* sv_profile,
        || (sv_profile->last_out            != pb_desc->last_out)
        || (sv_profile->param_desc.length() != pb_desc->param_desc.length()) )
     return 0;
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
   /*
   **  - if parallel or sequential is asked, strict check
   **  - if nothing specified, both // and non-// must be considered
@@ -473,7 +478,7 @@ profile_match(const corba_profile_desc_t* sv_profile,
        || (sv_profile->param_desc.length() != pb->parameters.length()) )
     return 0;
 
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
   /*  if( (sv_profile->parallel_flag == 1) 
       && (sv_profile->parallel_flag != pb->parallel_flag) )
       return 0 ;*/
@@ -519,7 +524,7 @@ diet_profile_alloc(char* pb_name, int last_in, int last_inout, int last_out)
   for (int i = 0; i <= last_out; i++)
     res->parameters[i].desc.id = NULL;
   res->dietReqID = 0 ;
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
   /* By default, ask for sequential and parallel task (cf DIET_data.h ) */
   res->parallel_flag = 0 ;
   res->nbprocs   = 0 ;
@@ -538,7 +543,7 @@ diet_profile_free(diet_profile_t* profile)
   return 0;
 }
 
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
 /* Functions for client profile request */
 int
 diet_profile_set_parallel(diet_profile_t* profile)
@@ -573,7 +578,7 @@ diet_profile_desc_set_parallel(diet_profile_desc_t* profile)
   profile->parallel_flag = 2 ;
   return 0 ;
 }
-#endif // HAVE_BATCH
+#endif
 
 /****************************************************************************/
 /* Utils functions for setting parameters of a problem description          */

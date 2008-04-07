@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2008/04/07 15:33:44  ycaniou
+ * This should remove all HAVE_BATCH occurences (still appears in the doc, which
+ *   must be updated.. soon :)
+ * Add the definition of DIET_BATCH_JOBID wariable in batch scripts
+ *
  * Revision 1.17  2008/03/28 13:17:17  rbolze
  * update code to avoid warning with the intel compiler
  *
@@ -201,7 +206,7 @@ public:
   matching_children_t*
     getChildren(const corba_profile_desc_t* profile);
   */
-#if defined HAVE_BATCH || defined HAVE_ALT_BATCH
+#if defined HAVE_ALT_BATCH
   /* Returns the list of children that can solve parallel and/or sequential
      task, depending on parallel flag of profile
   -> Caller must desallocate the resulting memory! */
@@ -216,16 +221,6 @@ public:
 
   CORBA::ULong max_nb_children;
 
-#if HAVE_BATCH
-  // int  existBatchService() ;
-  /* Returns:
-     -1 if parallel AND sequential jobs registered
-     0  if only sequential jobs registered
-     1  if only parallel jobs registered
-  */
-  int 
-  testIfAllBatchServices() ;
-#endif
 #if HAVE_ALT_BATCH
   int 
   testIfAllParallelServices() ;
