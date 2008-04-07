@@ -20,25 +20,25 @@ FOREACH( filename ${DIET_USERS_MANUAL_PS_GLOB} )
   )
 ENDFOREACH( filename )
 
-############# Convert figures to eps for latex target #####################
+############# Convert figures to pdf for latex target #####################
 ### In order to create a target corresponding to all what's get build
 # within this directory:
-SET( DIET_USERS_FIGURE_POSTSCRIPT_OUTPUTS )
+SET( DIET_USERS_FIGURE_PDF_OUTPUTS )
 
-### Convert the (transfig) fig figures to eps:
+### Convert the (transfig) fig figures to pdf:
 FILE(GLOB DIET_USERS_MANUAL_FIG_GLOB "*.fig")
 
 FOREACH( filename ${DIET_USERS_MANUAL_FIG_GLOB} )
   GET_FILENAME_COMPONENT( filenameNoExt ${filename} NAME_WE )
-  SET( filenameDest "${CMAKE_CURRENT_BINARY_DIR}/${filenameNoExt}.eps" )
+  SET( filenameDest "${CMAKE_CURRENT_BINARY_DIR}/${filenameNoExt}.pdf" )
   ADD_CUSTOM_COMMAND(
     OUTPUT    ${filenameDest}
-    COMMAND   ${FIG2DEV}
-    ARGS      -L eps ${filename} ${filenameDest}
+    COMMAND   ${FIG2DEV_CONVERT}
+    ARGS      -L pdf ${filename} ${filenameDest}
     DEPENDS   ${filename}
     )
   ADD_CUSTOM_TARGET(
-    dummy${filenameNoExt}_EPS
+    dummy${filenameNoExt}_PDF
     ALL
     DEPENDS  ${filenameDest}
     )
