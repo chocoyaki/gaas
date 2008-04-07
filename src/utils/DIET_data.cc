@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.50  2008/04/07 13:56:27  glemahec
+ * Correction of file_set_desc.
+ *
  * Revision 1.49  2008/04/07 12:19:12  ycaniou
  * Except for the class Parsers (someone to re-code it? :)
  *   correct "deprecated conversion from string constant to 'char*'" warnings
@@ -384,7 +387,8 @@ file_set_desc(diet_data_desc_t* desc, char* const id,
     }
     desc->specific.file.size = (size_t) buf.st_size;
   } else {
-    desc->specific.file.path[0] = '\0';
+    // Should be NULL. Needs some verifications...
+    desc->specific.file.path = "";
     desc->specific.file.size = 0 ;
   }
   
