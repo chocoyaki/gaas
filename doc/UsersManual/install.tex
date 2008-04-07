@@ -10,6 +10,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.34  2008/04/07 23:55:37  ecaron
+%* Fix overfull box
+%*
 %* Revision 1.33  2008/03/28 13:18:14  rbolze
 %* add support for XL compiler (IBM) and intel compiler
 %*
@@ -99,14 +102,12 @@ implemented  in DIET, but an easy way to do so is to deploy DIET over
 a VPN.
 
 In order to deploy CORBA services with omniORB, a configuration file
-and a log directory are required: see Section
-\ref{sec:CORBA_services} for a complete description of the services.
-Their paths can be given to omniORB either at runtime (through the well-known
-environment variables \texttt{\$OMNIORB\_CONFIG} and 
-\texttt{\$OMNINAMES\_LOGDIR}), and/or at omniORB compile time (with the
-\texttt{--with-omniORB-config} and \texttt{--with-omniNames-logdir}
-options).
-
+and a log directory are required: see Section \ref{sec:CORBA_services}
+for a complete description of the services.  Their paths can be given
+to omniORB either at runtime (through the well-known environment
+variables \texttt{\$OMNIORB\_CONFIG} and 
+\texttt{\$OMNINAMES\_LOGDIR}), and/or at omniORB compile time. \\ (with 
+the \texttt{--with-omniORB-config} and \texttt{--with-omniNames-logdir} options)
 Some examples provided in the DIET sources depend on the BLAS
 and \scalapack\ libraries. However the compilation of those BLAS and
 \scalapack\ dependent examples are optional.
@@ -264,7 +265,7 @@ Here are the main configuration flags:
 \begin{itemize}
 \item
   \verb+OMNIORB4_DIR+ is the path to the omniORB4 installation directory
-  (only relevant when omniORB4 was not installed in /usr/local).
+  (only relevant when omniORB4 was not installed in /usr/local).\\
   Example: \verb+cmake .. -DOMNIORB4_DIR:PATH=$HOME/local/omniORB-4.0.7+
 
 \item
@@ -349,7 +350,7 @@ the compilation of the desired extensions.
   cmake will search among the well known system path for the
   \verb+fast-config+ command and set the \verb+FAST_CONFIG_EXECUTABLE+ 
   with the result. Upon failure, it is up to the user to manually set the
-  full path name to this command (e.g. with [c]cmake command line argument
+  full path name to this command (e.g. with [c]cmake command line argument \\
   \verb+-DFAST_CONFIG_EXECUTABLE:PATH=$HOME/local/bin/fast-config+.
 
 \item

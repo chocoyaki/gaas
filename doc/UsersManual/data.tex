@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.23  2008/04/07 23:55:37  ecaron
+%* Fix overfull box
+%*
 %* Revision 1.22  2008/04/07 22:25:38  ecaron
 %* Updated files to pdflatex compilation
 %*
@@ -507,7 +510,7 @@ The fields \emph{last\_in}, \emph{last\_inout} and \emph{last\_out} of the
 \emph{parameters} array of the last IN, INOUT and OUT arguments.
 
 Functions to create and destroy such profiles are defined with the prototypes
-below:
+below: \\
 {\footnotesize
 \begin{verbatim}
 diet_profile_t *diet_profile_alloc(char* pb_name, int last_in, int last_inout, int last_out);
@@ -645,7 +648,7 @@ consider a matrix A built with
   ...
 \end{verbatim}
 } After the first \texttt{diet\_call}, the identifier of A is stored in
-the profile (in \texttt{profile->parameters[0].desc.id}). So, for the
+the profile \\ (in \texttt{profile->parameters[0].desc.id}). So, for the
 second call we will have the following instruction in order to use A:
 {\footnotesize
 \begin{verbatim}
