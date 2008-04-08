@@ -27,7 +27,7 @@ ADD_LATEX_DOCUMENT(UsersManual.tex
 		   IMAGES fig/DIET_arch_request-2.ps
 				fig/FAST.fig
 				fig/JXTAConfig.ps
-				fig/VizDIET.ps
+				fig/VizDIET.pdf
 				fig/VizDIET_screenshot_2.png
 				fig/data.fig
 				fig/global_platform.fig
