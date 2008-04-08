@@ -10,6 +10,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.35  2008/04/08 09:41:40  bdepardo
+%* linebreaks to prevent overfull hbox
+%*
 %* Revision 1.34  2008/04/07 23:55:37  ecaron
 %* Fix overfull box
 %*
@@ -106,8 +109,8 @@ and a log directory are required: see Section \ref{sec:CORBA_services}
 for a complete description of the services.  Their paths can be given
 to omniORB either at runtime (through the well-known environment
 variables \texttt{\$OMNIORB\_CONFIG} and 
-\texttt{\$OMNINAMES\_LOGDIR}), and/or at omniORB compile time. \\ (with 
-the \texttt{--with-omniORB-config} and \texttt{--with-omniNames-logdir} options)
+\texttt{\$OMNINAMES\_LOGDIR}), and/or at omniORB compile time (with 
+the \linebreak\texttt{--with-omniORB-config} and \texttt{--with-omniNames-logdir} options.)
 Some examples provided in the DIET sources depend on the BLAS
 and \scalapack\ libraries. However the compilation of those BLAS and
 \scalapack\ dependent examples are optional.
@@ -413,7 +416,7 @@ compilation or some developers extensions:
   \url{http://public.kitware.com/Dart}) which is used for constructing
   DIET's dashboard (see \url{http://graal.ens-lyon.fr/DietDashboard}).
   Note that setting the \verb+DIET_USE_DART+ will force the option
-  \verb+BUILD_TESTING+ to be set.
+  \linebreak\verb+BUILD_TESTING+ to be set.
 
 \item
   \verb+Maintainer+ By default cmake offers four different build modes
