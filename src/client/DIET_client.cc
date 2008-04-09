@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.115  2008/04/09 12:57:17  gcharrie
+ * Total integration of burst mode
+ *
  * Revision 1.114  2008/04/07 15:33:44  ycaniou
  * This should remove all HAVE_BATCH occurences (still appears in the doc, which
  *   must be updated.. soon :)
@@ -333,6 +336,10 @@ extern unsigned int TRACE_LEVEL;
 /** The Master Agent reference */
 static MasterAgent_var MA = MasterAgent::_nil();
 static omni_mutex      MA_MUTEX;
+#ifdef HAVE_CCS
+static omni_mutex      SCHED_MUTEX;
+#endif
+
 
 /** Error rate for contract checking */
 #define ERROR_RATE 0.1
@@ -590,7 +597,7 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
 #ifdef HAVE_CCS
   char * specific_scheduling = (char*)
     Parsers::Results::getParamValue(Parsers::Results::USE_SPECIFIC_SCHEDULING);
-  if ( (specific_scheduling != NULL) && (strlen(specfic_scheduling) > 1)) {
+  if ((specific_scheduling != NULL) && (strlen(specific_scheduling) > 1)) {
     SpecificClientScheduler::setSchedulingId(specific_scheduling);
   }
 #endif // HAVE_CCS
@@ -1043,7 +1050,11 @@ request_submission(diet_profile_t* profile,
 #endif
 
 #ifdef HAVE_CCS
-      
+      if (SpecificClientScheduler::isEnabled()) {
+	SCHED_MUTEX.lock();
+	SpecificClientScheduler::start(chosenServer, response);
+	SCHED_MUTEX.unlock();
+      }
 #endif // HAVE CCS
 
     }
