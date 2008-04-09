@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.44  2008/04/09 12:52:54  gcharrie
+ * Adding Specific Client Scheduling into the parser to use burst mode
+ *
  * Revision 1.43  2008/04/07 15:33:44  ycaniou
  * This should remove all HAVE_BATCH occurences (still appears in the doc, which
  *   must be updated.. soon :)
@@ -199,6 +202,9 @@ Parsers::Results::param_t Parsers::Results::params[] =
 #endif // HAVE_DAGDA
 #if HAVE_DAGDA || HAVE_ALT_BATCH
    /* [39] */ ,{"storageDirectory", 16, Parsers::parseName, 0, NULL}
+#endif
+#ifdef HAVE_CCS
+   /* [40] */ ,{"USE_SPECIFIC_SCHEDULING", 23, Parsers::parseName, 0, NULL}
 #endif
   } ;
 
