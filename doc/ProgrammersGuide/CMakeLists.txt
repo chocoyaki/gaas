@@ -4,8 +4,8 @@
 
 PROJECT(ProgrammersGuide NONE)
 
-SET (LATEX_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/../gendoc)
-INCLUDE(${DIET_SOURCE_DIR}/Cmake/UseLATEX.cmake)
+SET (LATEX_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR})
+INCLUDE(${DIET_DOC_SOURCE_DIR}/Cmake/UseLATEX.cmake)
 ADD_LATEX_DOCUMENT(ProgrammersGuide.tex 
 		   INPUTS start.tex
 			  source_tree.tex
@@ -13,7 +13,7 @@ ADD_LATEX_DOCUMENT(ProgrammersGuide.tex
 			  batch.tex
 			  debug.tex
 			  Annexe1.tex
-		   IMAGE_DIRS fig/ 
+		   #IMAGE_DIRS fig 
 		   IMAGES fig/DiagrammeGridRPCDietStructure.fig
 			  fig/logo_DIET.png
 			  fig/DiagrammeAclocal.fig
@@ -31,5 +31,5 @@ ADD_LATEX_DOCUMENT(ProgrammersGuide.tex
 			  fig/DietCancelSequenceDiagram.png
 		   DEFAULT_PDF
 		   )
-
+INSTALL_FILES(/doc FILES  ${CMAKE_CURRENT_BINARY_DIR}/ProgrammersGuide.pdf)
 

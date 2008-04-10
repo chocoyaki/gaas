@@ -4,8 +4,8 @@
 
 PROJECT(DIET_UsersManual NONE)
 
-SET ( LATEX_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/../gendoc)
-INCLUDE(${DIET_SOURCE_DIR}/Cmake/UseLATEX.cmake)
+SET ( LATEX_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR})
+INCLUDE(${DIET_DOC_SOURCE_DIR}/Cmake/UseLATEX.cmake)
 ADD_LATEX_DOCUMENT(UsersManual.tex 
 		   INPUTS description.tex 
 		          install.tex 
@@ -44,3 +44,4 @@ ADD_LATEX_DOCUMENT(UsersManual.tex
 				fig/logo_DIET.png
 		   DEFAULT_PDF
 		   )
+INSTALL_FILES(/doc FILES  ${CMAKE_CURRENT_BINARY_DIR}/UsersManual.pdf)
