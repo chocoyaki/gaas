@@ -1,0 +1,48 @@
+/****************************************************************************/
+/* Workflow monitoring interface                                            */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Abdelkader Amar (Abdelkader.Amar@ens-lyon.fr)                       */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$ 
+ * $Log$
+ * Revision 1.1  2008/04/10 08:17:14  bisnard
+ * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
+ *
+ * Revision 1.4  2006/11/28 15:17:54  aamar
+ * Remove a space\!
+ *
+ * Revision 1.3  2006/11/28 15:14:47  aamar
+ * Correct headers
+ *
+ * Revision 1.2  2006/11/28 15:10:18  aamar
+ * Correct headers
+ *
+ ****************************************************************************/
+
+#ifndef _WFLOGSERVICE_IDL_
+#define _WFLOGSERVICE_IDL_
+
+interface WfLogSrv {
+  void 
+  setWf(in string workflow_description);
+
+  void
+  nodeIsDone(in string node_id);
+
+  void
+  nodeIsRunning(in string node_id);
+
+  void 
+  nodeIsStarting(in string node_id);
+
+  void
+  nodeIsWaiting(in string node_id);
+
+  void 
+  ping();
+};
+
+#endif // _WFLOGSERVICE_IDL_

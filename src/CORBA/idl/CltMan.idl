@@ -1,0 +1,35 @@
+/****************************************************************************/
+/* CLIENT Manager Interface (used in workflow support)                     */
+/*                                                                          */
+/*  Author(s):                                                              */
+/*    - Abdelkader Amar (Abdelkader.Amar@ens-lyon.fr)                       */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$ 
+ * $Log$
+ * Revision 1.1  2008/04/10 08:17:14  bisnard
+ * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
+ *
+ ****************************************************************************/
+
+#ifndef _CLTMAN_IDL_
+#define _CLTMAN_IDL_
+
+#include "response.idl"
+#include "SeD.idl"
+
+interface CltMan {
+  void
+  execute(in string node_id, in string dag_id,
+	  in SeD sed_ref);
+
+  
+  void
+  release(in string dag_id);
+
+  void 
+  ping();
+};
+
+#endif // _CLTMAN_IDL_
