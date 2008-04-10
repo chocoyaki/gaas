@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/04/10 10:33:08  rbolze
+ * correct filename_2 to filename
+ *
  * Revision 1.3  2008/04/07 13:11:44  ycaniou
  * Correct "deprecated conversion from string constant to 'char*'" warnings
  * First attempt to code functions to dynamicaly get batch information
@@ -234,7 +237,7 @@ OAR1_6BatchSystem::getNbMaxResources()
 
   /* Remove temporary files by closing them */
 #if REMOVE_BATCH_TEMPORARY_FILE
-  unlink( filename_2 ) ;
+  unlink( filename ) ;
 #endif
   if( close(file_descriptor) != 0 ) {
     WARNING("Couln't close batch script file") ;
@@ -304,7 +307,7 @@ OAR1_6BatchSystem::getNbIdleResources()
 
   /* Remove temporary files by closing them */
 #if REMOVE_BATCH_TEMPORARY_FILE
-  unlink( filename_2 ) ;
+  unlink( filename ) ;
 #endif
   if( close(file_descriptor) != 0 ) {
     WARNING("Couln't close batch script file") ;
