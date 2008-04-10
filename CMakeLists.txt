@@ -18,7 +18,7 @@ SET( DIET_BUILD_VERSION ${BUILD_DATE})
 # --------------------- OPTIONS OF THE PROJECT -----------------------------
 OPTION( DIET_BUILD_BLAS_EXAMPLES "Build BLAS based DIET examples." OFF )
 OPTION( DIET_BUILD_EXAMPLES      "Build DIET examples." OFF )
-OPTION( DIET_BUILD_DOCUMENTATION "Build the documentation." OFF )
+#OPTION( DIET_BUILD_DOCUMENTATION "Build the documentation." OFF ) ## go in the doc dir
 OPTION( DIET_USE_ALT_BATCH  "Build DIET with Batch support." OFF )
 OPTION( DIET_USE_CORI   "Build DIET with CORI support." OFF )
 OPTION( DIET_USE_DART   "Build DIET with dart reporting support." OFF)
@@ -61,7 +61,7 @@ ENDIF( NOT DIET_BUILD_LIBRARIES AND DIET_BUILD_EXAMPLES )
 # are not incompatible at compile time. Yet, requiring both probably
 # means you are either an expert or a lost newbie...
 # In order to prevent trouble, we assume the user is newbie and we
-# explicitely require a disambiguation:
+# explicitely require a disambiguation
 IF( DIET_WITH_MULTI_MA AND DIET_USE_JXTA )
  MESSAGE(SEND_ERROR "Either set DIET_WITH_MULTI_MA or DIET_USE_JXTA. Not both.")
 ENDIF( DIET_WITH_MULTI_MA AND DIET_USE_JXTA )
@@ -179,32 +179,33 @@ ELSE( OMNIORB4_FOUND )
   SET( OMNIORB4_DIR "" CACHE PATH "Root of omniORB instal tree." )
 ENDIF( OMNIORB4_FOUND )
 
-IF( DIET_BUILD_DOCUMENTATION )
-  FIND_PACKAGE( LATEX )
-
-  FIND_PACKAGE( Transfig )
-  IF( NOT TRANSFIG_FOUND )
-    MESSAGE( "Transfig installation was not found. Please provide FIG2DEV." )
-    SET( DIET_BUILD_DOCUMENTATION OFF )
-  ENDIF( NOT TRANSFIG_FOUND )
-
-  FIND_PACKAGE( ImageMagick )
-  IF( NOT IMAGEMAGICK_CONVERT_EXECUTABLE )
-    MESSAGE( "Convert ImageMagick utility was not found." )
-    MESSAGE( "Please provide IMAGEMAGICK_CONVERT_EXECUTABLE." )
-    SET( DIET_BUILD_DOCUMENTATION OFF )
-  ENDIF( NOT IMAGEMAGICK_CONVERT_EXECUTABLE )
-
-  FIND_PACKAGE( Doxygen )
-  IF( NOT DOXYGEN_EXECUTABLE OR NOT DOXYGEN_DOT_EXECUTABLE )
-    MESSAGE( "Doxygen or Dot were not found." )
-    SET( DIET_BUILD_DOCUMENTATION OFF )
-  ENDIF( NOT DOXYGEN_EXECUTABLE OR NOT DOXYGEN_DOT_EXECUTABLE )
-
-  IF( DIET_BUILD_DOCUMENTATION )
-    ADD_SUBDIRECTORY( doc )
-  ENDIF( DIET_BUILD_DOCUMENTATION )
-ENDIF( DIET_BUILD_DOCUMENTATION )
+## No mor
+#IF( DIET_BUILD_DOCUMENTATION )
+#  FIND_PACKAGE( LATEX )
+#
+#  FIND_PACKAGE( Transfig )
+#  IF( NOT TRANSFIG_FOUND )
+#    MESSAGE( "Transfig installation was not found. Please provide FIG2DEV." )
+#    SET( DIET_BUILD_DOCUMENTATION OFF )
+#  ENDIF( NOT TRANSFIG_FOUND )
+#
+#  FIND_PACKAGE( ImageMagick )
+#  IF( NOT IMAGEMAGICK_CONVERT_EXECUTABLE )
+#    MESSAGE( "Convert ImageMagick utility was not found." )
+#    MESSAGE( "Please provide IMAGEMAGICK_CONVERT_EXECUTABLE." )
+#    SET( DIET_BUILD_DOCUMENTATION OFF )
+#  ENDIF( NOT IMAGEMAGICK_CONVERT_EXECUTABLE )
+#
+#  FIND_PACKAGE( Doxygen )
+#  IF( NOT DOXYGEN_EXECUTABLE OR NOT DOXYGEN_DOT_EXECUTABLE )
+#    MESSAGE( "Doxygen or Dot were not found." )
+#    SET( DIET_BUILD_DOCUMENTATION OFF )
+#  ENDIF( NOT DOXYGEN_EXECUTABLE OR NOT DOXYGEN_DOT_EXECUTABLE )
+#
+#  IF( DIET_BUILD_DOCUMENTATION )
+#    ADD_SUBDIRECTORY( doc )
+#  ENDIF( DIET_BUILD_DOCUMENTATION )
+#ENDIF( DIET_BUILD_DOCUMENTATION )
 
 IF( DIET_USE_ALT_BATCH )
     # The HAVE_ALT_BATCH compiler flags has too many occurences to be cleanly
