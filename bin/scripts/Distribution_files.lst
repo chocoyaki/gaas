@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.21  2008/04/10 10:33:47  rbolze
+#* add and delete file from the last commit of the WORKFLOW feature
+#*
 #* Revision 1.20  2008/04/04 10:05:22  rbolze
 #* - add check function in order to help the distrubtion builder to check
 #* - if all file are correctly listed and add in the Distribution_files.lst
@@ -153,10 +156,11 @@ src/CORBA/idl/LogTypes.idl
 src/CORBA/idl/MaDag.idl
 src/CORBA/idl/MasterAgent.idl
 src/CORBA/idl/SeD.idl
-src/CORBA/idl/WfLogService.idl
 src/CORBA/idl/common_types.idl
 src/CORBA/idl/idlRules.mk
 src/CORBA/idl/response.idl
+src/CORBA/idl/CltMan.idl
+src/CORBA/idl/WfLogSrv.idl
 
 # SeD section
 [Untemplated]
@@ -175,8 +179,6 @@ src/SeD/dmat_jxta_progs.h
 [Untemplated]
 src/agent/CMakeLists.txt
 [Templated]
-src/agent/AbsWfMetaSched.cc
-src/agent/AbsWfMetaSched.hh
 src/agent/AgentImpl.cc
 src/agent/AgentImpl.hh
 src/agent/BindService.cc
@@ -190,24 +192,14 @@ src/agent/FloodRequestsList.cc
 src/agent/FloodRequestsList.hh
 src/agent/GlobalSchedulers.cc
 src/agent/GlobalSchedulers.hh
-src/agent/HEFT_MaDag_Sched.cc
-src/agent/HEFT_MaDag_Sched.hh
 src/agent/JXTAMultiMA.java
 src/agent/LA.java
 src/agent/LocMgrImpl.cc
 src/agent/LocMgrImpl.hh
 src/agent/LocalAgentImpl.cc
 src/agent/LocalAgentImpl.hh
-src/agent/MaDag_impl.cc
-src/agent/MaDag_impl.hh
-src/agent/MaDag_sched.cc
-src/agent/MaDag_sched.hh
 src/agent/MasterAgentImpl.cc
 src/agent/MasterAgentImpl.hh
-src/agent/MetaDag.cc
-src/agent/MetaDag.hh
-src/agent/MultiWfFairness_Sched.cc
-src/agent/MultiWfFairness_Sched.hh
 src/agent/NodeDescription.hh
 src/agent/ReferenceUpdateThread.cc
 src/agent/ReferenceUpdateThread.hh
@@ -215,20 +207,69 @@ src/agent/ReqMgr.java
 src/agent/Request.cc
 src/agent/Request.hh
 src/agent/RequestID.hh
-src/agent/RoundRobbin_MaDag_Sched.cc
-src/agent/RoundRobbin_MaDag_Sched.hh
 src/agent/Schedulers.cc
 src/agent/Schedulers.hh
 src/agent/UserScheduler.cc
 src/agent/UserScheduler.hh
 src/agent/UuidsMgr.java
-src/agent/WfMetaSched.cc
-src/agent/WfMetaSched.hh
 src/agent/dietAgent.cc
 src/agent/localAgentJNI.cc
-src/agent/maDag.cc
 src/agent/masterAgentJNI.cc
 src/agent/qsort.cc
+
+# agent workflow section
+[Untemplated]
+src/agent/workflow/CMakeLists.txt
+[Templated]
+src/agent/workflow/HEFTScheduler.cc
+src/agent/workflow/HEFTScheduler.hh
+src/agent/workflow/MaDag_impl.cc
+src/agent/workflow/MaDag_impl.hh
+src/agent/workflow/maDagAgent.cc
+src/agent/workflow/MultiDag.cc
+src/agent/workflow/MultiDag.hh
+src/agent/workflow/MultiWfBasicScheduler.cc
+src/agent/workflow/MultiWfBasicScheduler.hh
+src/agent/workflow/MultiWfFOFT.cc
+src/agent/workflow/MultiWfFOFT.hh
+src/agent/workflow/MultiWfScheduler.cc
+src/agent/workflow/MultiWfScheduler.hh
+src/agent/workflow/RRScheduler.cc
+src/agent/workflow/RRScheduler.hh
+src/agent/workflow/WfScheduler.cc
+src/agent/workflow/WfScheduler.hh
+
+# utils workflow section
+[Untemplated]
+src/utils/workflow/CMakeLists.txt
+[Templated]
+src/utils/workflow/AbstractWfSched.cc
+src/utils/workflow/AbstractWfSched.hh
+src/utils/workflow/BasicWfSched.cc
+src/utils/workflow/BasicWfSched.hh
+src/utils/workflow/CltReoMan_impl.cc
+src/utils/workflow/CltReoMan_impl.hh
+src/utils/workflow/CltWfMgr.cc
+src/utils/workflow/CltWfMgr.hh
+src/utils/workflow/Dag.cc
+src/utils/workflow/Dag.hh
+src/utils/workflow/HEFTWfSched.cc
+src/utils/workflow/HEFTWfSched.hh
+src/utils/workflow/Node.cc
+src/utils/workflow/Node.hh
+src/utils/workflow/SeDSynchro.cc
+src/utils/workflow/SeDSynchro.hh
+src/utils/workflow/Thread.cc
+src/utils/workflow/Thread.hh
+src/utils/workflow/WfConfig.cc
+src/utils/workflow/WfConfig.hh
+src/utils/workflow/WfParser.cc
+src/utils/workflow/WfParser.hh
+src/utils/workflow/WfPort.cc
+src/utils/workflow/WfPort.hh
+src/utils/workflow/WfUtils.cc
+src/utils/workflow/WfUtils.hh
+
 
 # Client section
 [Untemplated]
@@ -316,6 +357,7 @@ src/examples/scalars/server.c
 
 [Untemplated]
 src/examples/workflow/CMakeLists.txt
+src/examples/workflow/xml/CMakeLists.txt
 [Templated]
 src/examples/workflow/client_file.c
 src/examples/workflow/client_matrix.c
@@ -375,8 +417,6 @@ src/examples/workflow/xml/logo_diet.jpg
 [Untemplated]
 src/utils/CMakeLists.txt
 [Templated]
-src/utils/AbstractWfSched.cc
-src/utils/AbstractWfSched.hh
 src/utils/AccessController.cc
 src/utils/AccessController.hh
 src/utils/CORIMgr.cc
@@ -402,40 +442,22 @@ src/utils/Counter.hh
 src/utils/DIET_data.cc
 src/utils/DIET_data_internal.hh
 src/utils/DIET_mutex.cc
-src/utils/Dag.cc
-src/utils/Dag.hh
 src/utils/DietLogComponent.cc
 src/utils/DietLogComponent.hh
 src/utils/FASTMgr.cc
 src/utils/FASTMgr.hh
-src/utils/HEFT_Sched.cc
-src/utils/HEFT_Sched.hh
 src/utils/KeyString.cc
 src/utils/KeyString.hh
 src/utils/LinkedList.hh
 src/utils/MonitoringThread.cc
 src/utils/MonitoringThread.hh
-src/utils/Node.cc
-src/utils/Node.hh
 src/utils/Parsers.cc
 src/utils/Parsers.hh
 src/utils/ReadersWriterLock.hh
 src/utils/ServiceTable.cc
 src/utils/ServiceTable.hh
-src/utils/SimpleWfSched.cc
-src/utils/SimpleWfSched.hh
-src/utils/Thread.cc
-src/utils/Thread.hh
 src/utils/Vector.c
 src/utils/Vector.h
-src/utils/WfConfig.cc
-src/utils/WfConfig.hh
-src/utils/WfExtReader.cc
-src/utils/WfExtReader.hh
-src/utils/WfPort.cc
-src/utils/WfPort.hh
-src/utils/WfUtils.cc
-src/utils/WfUtils.hh
 src/utils/batch.c
 src/utils/batch.h
 src/utils/batch_configure.h.in
@@ -612,7 +634,7 @@ doc/UsersManual/fig/data.fig
 doc/UsersManual/fig/DIET_arch_request-2.ps
 doc/UsersManual/fig/FAST.fig
 doc/UsersManual/fig/JXTAConfig.ps
-doc/UsersManual/fig/VizDIET.ps
+doc/UsersManual/fig/VizDIET.pdf
 doc/UsersManual/fig/VizDIET_screenshot_2.gif
 doc/UsersManual/fig/global_platform.fig
 doc/UsersManual/fig/global_platform_jxta.fig
