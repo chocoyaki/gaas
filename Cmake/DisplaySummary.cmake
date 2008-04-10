@@ -20,7 +20,8 @@ ENDIF( OMNIORB4_FOUND )
 
 ##############
 MESSAGE( STATUS "XXX - General options: " ) 
-MESSAGE( STATUS "XXX   * Documentation: ${DIET_BUILD_DOCUMENTATION} " ) 
+# not more doc compilation in DIET
+#MESSAGE( STATUS "XXX   * Documentation: ${DIET_BUILD_DOCUMENTATION} " ) 
 IF( DIET_BUILD_LIBRARIES )
   IF( BUILD_SHARED_LIBS )
      MESSAGE( STATUS "XXX   * Dynamics Libraries: ON " ) 
