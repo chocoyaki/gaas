@@ -223,12 +223,6 @@ DIET's main configuration flags
 
    Example: cmake .. -DOMNIORB4_DIR:PATH=$HOME/local/omniORB-4.0.7
 
-   -- DIET_BUILD_DOCUMENTATION for building LaTeX-based user's guide, the 
-   developer's guide and the doxygenated documentation.
-   This option is disabled by default, since it is very sensitive to the version 
-   of your LaTeX compiler and it also relies on many sub-dependencies (e.g. doxygen
-   or fig2dev)
-
    -- DIET_BUILD_EXAMPLES activates the compilation of a set of general 
    client/server examples. Note that some specific examples (e.g. 
    DIET_BUILD_BLAS_EXAMPLES) require some additional flag to be activated too.
