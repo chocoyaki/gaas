@@ -1,12 +1,12 @@
 <dag>
   <node id="n1" path="strlen" >
     <arg name="in" type="DIET_STRING" value="diet" />
-    <out name="out" type="DIET_INT" sink="n3#in1"/> 
+    <out name="out" type="DIET_INT" /> 
   </node>
 
   <node id="n2" path="strlen" >
     <arg name="in" type="DIET_STRING" value="middleware" />
-    <out name="out" type="DIET_INT" sink="n3#in2"/> 
+    <out name="out" type="DIET_INT" /> 
   </node>
 
   <node id="n3" path="sum">
@@ -14,7 +14,7 @@
     <prec id="n2"/>
     <in name="in1" type="DIET_INT" source="n1#out"/>
     <in name="in2" type="DIET_INT" source="n2#out"/>
-    <out name="out" type="DIET_INT" sink="n4#in"/>
+    <out name="out" type="DIET_INT"/>
   </node>
 
   <node id="n4" path="int2str" >

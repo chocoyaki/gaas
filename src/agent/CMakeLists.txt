@@ -75,27 +75,8 @@ IF( DIET_BUILD_LIBRARIES )
   ADD_EXECUTABLE( dietAgent dietAgent.cc )
   TARGET_LINK_LIBRARIES( dietAgent AgentCommon)
   
-  IF (DIET_USE_WORKFLOW) 
-    ADD_LIBRARY( MaDag MaDag_impl.cc
-          MaDag_sched.cc RoundRobbin_MaDag_Sched.cc HEFT_MaDag_Sched.cc
-          MetaDag.cc 
-          AbsWfMetaSched.cc
-          WfMetaSched.cc MultiWfFairness_Sched.cc )
-
-    TARGET_LINK_LIBRARIES ( MaDag 
-         IDLMaDag
-         AgentCommon 
-         DietWorkflow 
-         DIET_client
-         ${XERCES_LIBRARY}
-         ${OMNIORB4_LIBRARIES}
-    )
-
-    ADD_EXECUTABLE ( maDagAgent maDag.cc )
-    TARGET_LINK_LIBRARIES (maDagAgent MaDag)
-    INSTALL_TARGETS(/bin/ maDagAgent )
-    INSTALL_TARGETS(/lib/ MaDag )
-  
+  IF (DIET_USE_WORKFLOW)
+      SUBDIRS( workflow )
   ENDIF ( DIET_USE_WORKFLOW)
   
   INSTALL_TARGETS(/bin/ dietAgent )

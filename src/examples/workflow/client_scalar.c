@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/04/10 09:17:10  bisnard
+ * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
+ *
  * Revision 1.3  2007/05/30 11:16:36  aamar
  * Updating workflow runtime to support concurrent call (Reordering is not
  * working now - TO FIX -).
@@ -75,7 +78,9 @@ main(int argc, char* argv[])
   if (! diet_wf_call(profile)) {
     printf("The workflow submission succeed\n");
     diet_wf_scalar_get(profile, "n5#out", &result);
-    printf("The results is %f\n", *result);
+    if (result) {
+    	printf("The results is %f\n", *result);
+    }
   }
   else {
     printf("The workflow submission failed\n");

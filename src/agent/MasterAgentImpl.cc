@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.40  2008/04/10 09:13:31  bisnard
+ * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
+ *
  * Revision 1.39  2008/04/07 15:33:43  ycaniou
  * This should remove all HAVE_BATCH occurences (still appears in the doc, which
  *   must be updated.. soon :)
@@ -911,5 +914,65 @@ MasterAgentImpl::  submit_pb_set  (const corba_pb_desc_seq_t& seq_pb,
     this->reqIDCounter =  initialReqIdCounter;
   return wf_response;
 }
+/**
+ * A submission function used to submit a set of problem to the MA
+ *
+ * @param pb_seq     sequence of problems
+ * @param reqCount   number of requests of the client. The request number is at least
+ *                   equal to sequence problem length but it can be greater if a problem
+ *                   has to be executed more than one time
+ * @param complete   indicates if the response is complete. The function return at the first problem
+ *                   that cannot be solved
+ * @param firstReqId the first request identifier to be used by the client
+ * @param seqReqId   an identifier to the submission (each sequence submission 
+ *                   has a unique identifier)
+ */
+response_seq_t* 
+MasterAgentImpl::submit_pb_seq(const corba_pb_desc_seq_t& pb_seq, 
+        CORBA::Long reqCount, 
+        CORBA::Boolean& complete, 
+        CORBA::Long& firstReqId, 
+        CORBA::Long& seqReqId) {
+    
+    struct timeval start, end;
+    gettimeofday(&start, NULL); 
+    static CORBA::Long mySeqReqId = 0;
+    response_seq_t * response_seq = new response_seq_t;
+    corba_response_t * corba_response = NULL;
+    complete = false;
 
+    for (unsigned int ix=0; ix<pb_seq.length(); ix++) {
+      corba_response = this->submit(pb_seq[ix], reqCount);
+      if ((corba_response == NULL) || (corba_response->servers.length() == 0)) {
+        TRACE_TEXT (TRACE_MAIN_STEPS, 
+            "Problem sequence can't be solved: service " << pb_seq[ix].path
+            << " missing) " << endl);
+        return response_seq;
+      } 
+      else {
+        response_seq->length(ix+1);
+        (*response_seq)[ix].problem = pb_seq[ix]; 
+        (*response_seq)[ix].servers = corba_response->servers;    
+      } // end if 
+    } // end for
+
+    TRACE_TEXT (TRACE_MAIN_STEPS, 
+            "Problem sequence can be solved (all services available) " << endl);
+    complete = true;
+    // Update request identifiers
+    reqCount_mutex.lock();
+    seqReqId = mySeqReqId++;
+    reqIDCounter = reqIDCounter + reqCount - pb_seq.length();
+    reqCount_mutex.unlock();
+
+    gettimeofday(&end, NULL);
+    time_t ptime = (end.tv_sec - start.tv_sec)* 1000 +
+      (end.tv_usec - start.tv_usec)/1000;
+    if (dietLogComponent != NULL) {
+        // TO DO: update dietLogComponent with the new data structure
+        // dietLogComponent->logDagSubmit(wf_response, ptime);
+    }
+        
+    return response_seq;
+}
 #endif // HAVE_WORKFLOW

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.52  2008/04/10 09:13:32  bisnard
+ * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
+ *
  * Revision 1.51  2008/04/07 15:33:44  ycaniou
  * This should remove all HAVE_BATCH occurences (still appears in the doc, which
  *   must be updated.. soon :)
@@ -392,8 +395,8 @@ file_set_desc(diet_data_desc_t* desc, char* const id,
     }
     desc->specific.file.size = (size_t) buf.st_size;
   } else {
+    desc->specific.file.path = (char*) "";
     // Should be NULL. Needs some verifications...
-    desc->specific.file.path = "";
     desc->specific.file.size = 0 ;
   }
   
@@ -434,7 +437,7 @@ int
 profile_match(const corba_profile_desc_t* sv_profile,
               const corba_pb_desc_t*      pb_desc)
 {
-  if (strcmp(sv_profile->path, pb_desc->path)) //param_desc[�→].id.idNumber
+  if (strcmp(sv_profile->path, pb_desc->path)) //param_desc[�→].id.idNumber
     return 0;
   if ( (sv_profile->last_in                != pb_desc->last_in)
        || (sv_profile->last_inout          != pb_desc->last_inout)

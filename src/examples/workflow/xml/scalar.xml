@@ -19,7 +19,7 @@
     <prec id="n3"/>
     <in name="in4" type="DIET_INT" source="n2#out3"/>
     <in name="in5" type="DIET_INT" source="n3#out4"/>
-    <out name="out4" type="DIET_INT" sink="n5#in"/>
+    <out name="out4" type="DIET_INT"/>
   </node>
   <node id="n5" path="square">
     <in name="in" type="DIET_INT" source="n4#out4" />

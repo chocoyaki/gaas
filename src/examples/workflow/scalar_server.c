@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/04/10 09:17:10  bisnard
+ * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
+ *
  * Revision 1.3  2006/11/07 12:44:48  aamar
  * *** empty log message ***
  *
@@ -156,7 +159,7 @@ int main(int argc, char * argv[]) {
   int res;
   diet_profile_desc_t* profile = NULL;
 
-  if (argc == 3) {
+  if (argc >= 3) {
     strcpy (time_str, argv[2]);
   }
   else {

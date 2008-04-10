@@ -9,7 +9,7 @@
     value = "10.0 11.0 12.0 13.0"
     />
     <out name="out1" type="DIET_MATRIX" base_type="DIET_DOUBLE" 
-    nb_rows="2" nb_cols="2" matrix_order="DIET_COL_MAJOR" sink="n3#in3"
+    nb_rows="2" nb_cols="2" matrix_order="DIET_COL_MAJOR"
     />
   </node>
 
@@ -23,7 +23,7 @@
     value = "file->matrix.dat"
     />
     <out name="out1" type="DIET_MATRIX" base_type="DIET_DOUBLE" 
-    nb_rows="2" nb_cols="2" matrix_order="DIET_COL_MAJOR" sink="n3#in4"
+    nb_rows="2" nb_cols="2" matrix_order="DIET_COL_MAJOR"
     />
   </node>
 

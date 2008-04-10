@@ -65,9 +65,8 @@ IF( DIET_BUILD_LIBRARIES )
   
   IF (DIET_USE_WORKFLOW) 
     TARGET_LINK_LIBRARIES( DIET_client
-      DietWorkflow
-      IDLMaDag 
-      IDLWfLog
+      UtilsWf
+      IDLWf
       ${XERCES_LIBRARY}
     )
   ENDIF ( DIET_USE_WORKFLOW)

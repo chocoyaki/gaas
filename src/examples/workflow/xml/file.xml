@@ -1,12 +1,12 @@
 <dag>
   <node id="n1" path="greyscale" >
     <arg name="in"  type="DIET_FILE" value="logo_diet.jpg" />
-    <out name="out" type="DIET_FILE" sink="n2#in"/>
+    <out name="out" type="DIET_FILE" />
   </node>
 
   <node id="n2" path="flip" >
     <in  name="in"  type="DIET_FILE" source="n1#out" />
-    <out name="out" type="DIET_FILE" sink="n3#in"/>
+    <out name="out" type="DIET_FILE" />
   </node>
 
   <node id="n3" path="duplicate" >

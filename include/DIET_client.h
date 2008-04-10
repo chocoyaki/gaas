@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.35  2008/04/10 09:13:30  bisnard
+ * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
+ *
  * Revision 1.34  2008/04/07 15:33:40  ycaniou
  * This should remove all HAVE_BATCH occurences (still appears in the doc, which
  *   must be updated.. soon :)
@@ -248,7 +251,7 @@ diet_get_error(diet_reqID_t reqID);
 /*
  * return the corresponding error string
  */
-const char *
+char *
 diet_error_string(diet_error_t error);
 /*
  * return identifier of the failed session
@@ -315,7 +318,7 @@ void
 nodeIsDone(const char * node_id, const char * dag_id);
 
 void
-nodeIsRunning(const char * node_id, const char * hostname);
+nodeIsRunning(const char * node_id);
 
 void 
 nodeIsStarting(const char * node_id);
@@ -323,6 +326,8 @@ nodeIsStarting(const char * node_id);
 void
 nodeIsWaiting(const char * node_id);
 /***************************************************************/
+
+typedef enum {MA_MODE, MADAG_MODE, MULTIWF_MODE} wf_sub_mode_t;
 
 #endif /* HAVE_WORKFLOW */
 

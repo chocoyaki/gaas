@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2008/04/10 09:17:09  bisnard
+ * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
+ *
  * Revision 1.15  2007/07/13 10:00:25  ecaron
  * Remove deprecated code (ALTPREDICT part)
  *
@@ -175,6 +178,27 @@ public :
   submit_pb_set (const corba_pb_desc_seq_t& seq_pb,
 		 const CORBA::Long setSize,
 		 const bool used);
+ 
+  /**
+   * A submission function used to submit a set of problem to the MA
+   *
+   * @param pb_seq     sequence of problems
+   * @param reqCount   number of requests of the client. The request number is at least
+   *                   equal to sequence problem length but it can be greater if a problem
+   *                   has to be executed more than one time
+   * @param complete   indicates if the response is complete. The function return at the first problem
+   *                   that cannot be solved
+   * @param firstReqId the first request identifier to be used by the client
+   * @param seqReqId   an identifier to the submission (each sequence submission 
+   *                   has a unique identifier)
+   */
+  virtual response_seq_t* 
+  submit_pb_seq(const corba_pb_desc_seq_t& pb_seq, 
+          CORBA::Long reqCount, 
+          CORBA::Boolean& complete, 
+          CORBA::Long& firstReqId, 
+          CORBA::Long& seqReqId);
+
 #endif // HAVE_WORKFLOW
 
 private :

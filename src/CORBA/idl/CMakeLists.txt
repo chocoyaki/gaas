@@ -61,8 +61,9 @@ IF( DIET_BUILD_LIBRARIES )
   IF ( DIET_USE_WORKFLOW )
   SET ( IDL_SOURCES
       MaDag
+      CltMan
+      WfLogSrv
       CltReoMan
-      WfLogService
       ${IDL_SOURCES} )
   ENDIF ( DIET_USE_WORKFLOW )
 
@@ -205,25 +206,29 @@ IF( DIET_BUILD_LIBRARIES )
 
   ##########################################################################
   IF ( DIET_USE_WORKFLOW ) 
-  ADD_LIBRARY ( IDLMaDag
+  ADD_LIBRARY ( IDLWf
     MaDagSK.cc
-    MaDagDynSK.cc )
+    MaDagDynSK.cc 
+    WfLogSrvSK.cc
+    WfLogSrvDynSK.cc
+    CltManSK.cc
+    CltManDynSK.cc
+    CltReoManSK.cc
+    CltReoManDynSK.cc
+    )
   
-  ADD_LIBRARY ( IDLWfLog
-            WfLogServiceSK.cc
-            WfLogServiceDynSK.cc )
 
-  TARGET_LINK_LIBRARIES( IDLMaDag
+  TARGET_LINK_LIBRARIES( IDLWf
     IDLCommon
     ${OMNIORB4_LIBRARIES}
   )
 
   IF( APPLE )
-    SET_TARGET_PROPERTIES( IDLWfLog
+    SET_TARGET_PROPERTIES( IDLWf
       PROPERTIES LINK_FLAGS "-flat_namespace -undefined suppress" )
   ENDIF( APPLE )
 
-  INSTALL_TARGETS(/lib/ IDLMaDag IDLWfLog )
+  INSTALL_TARGETS(/lib/ IDLWf )
   ENDIF ( DIET_USE_WORKFLOW ) 
   ##########################################################################
 ENDIF( DIET_BUILD_LIBRARIES )

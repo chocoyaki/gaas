@@ -331,6 +331,7 @@ SET( CMAKE_INSTALL_RPATH_USE_LINK_PATH ON
      CACHE BOOL "Whether to set an rpath for dynamic libraries." )
 SET( CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib
      CACHE STRING "Rpath set at install stage." FORCE )
+SET(CMAKE_INSTALL_NAME_DIR ${CMAKE_INSTALL_PREFIX}/lib)
 
 # ------------------- CTEST SUPPORT ----------------------------------------
 IF( BUILD_TESTING OR DIET_USE_DART )

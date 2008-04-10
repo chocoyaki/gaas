@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.54  2008/04/10 09:13:30  bisnard
+ * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
+ *
  * Revision 1.53  2008/04/07 15:33:40  ycaniou
  * This should remove all HAVE_BATCH occurences (still appears in the doc, which
  *   must be updated.. soon :)
@@ -303,6 +306,7 @@ typedef struct {
   int nbprocs ;
   int nbprocess ;
   unsigned long walltime ; /* in minutes */
+  /* Used for correspondance batch job ID / DIET job ID */
 #endif
 } diet_profile_t;
 
@@ -649,11 +653,14 @@ typedef const struct corba_estimation_t *estVectorConst_t;
 
 #ifdef HAVE_WORKFLOW
 
+typedef enum {basic, rr, heft} wf_scheduler_t;
+
 /**
  * workflow internal description
  */
 typedef struct {
   char * abstract_wf;
+  wf_scheduler_t scheduler;
   /*  diet_profile_t internal_profile; */
 } diet_wf_desc_t;
 
