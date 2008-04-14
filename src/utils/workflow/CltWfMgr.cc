@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.3  2008/04/14 13:45:11  bisnard
+ * - Removed wf mono-mode submit
+ * - Renamed submit_wf in processDagWf
+ *
  * Revision 1.2  2008/04/14 09:10:40  bisnard
  *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
  *  - AbstractWfSched and derived classes no longer used with MaDag v2
@@ -131,7 +135,6 @@ CltWfMgr::wf_call_madag(diet_wf_desc_t * profile,
                         bool mapping) {
   diet_error_t res(0);
   corba_wf_desc_t  * corba_profile = new corba_wf_desc_t;
-  wf_sched_response_t * response = NULL;
 
   TRACE_TEXT (TRACE_ALL_STEPS,"Calling the MA DAG "<< endl);
 
@@ -152,31 +155,20 @@ CltWfMgr::wf_call_madag(diet_wf_desc_t * profile,
     CORBA::Long dagId = this->myMaDag->getDagId();
     string dag_id = itoa(dagId);
     dag->setId(dag_id);
-    response = this->myMaDag->submit_wf(*corba_profile, mapping, true,
-                                        myIOR(), dagId);
-  }
-  TRACE_TEXT (TRACE_ALL_STEPS, " done" << endl);
-
-  if (response->complete) {
+    if (this->myMaDag->processDagWf(*corba_profile, myIOR(), dagId)) {
+	TRACE_TEXT (TRACE_ALL_STEPS, " done" << endl);
 	// Build the dag connexions to allow retrieval of input data
   	dag->linkAllPorts();
   	this->myProfiles[profile] = dag;
   	cout << "Dag ID " << dag->getId() << endl;
   	this->mySem.wait();
-  } else {
-	TRACE_TEXT (TRACE_ALL_STEPS,
-	      "MA DAG cancelled the request ...");
+    } else {
+	TRACE_TEXT (TRACE_ALL_STEPS, "MA DAG cancelled the request ...");
 	res = 1;
+    }
   }
-  // response processing and defining scheduling strategy
-  // ...
-//   TRACE_TEXT (TRACE_ALL_STEPS,
-// 	      "Received response length " << 
-// 	      response->wf_node_sched_seq.length() << endl);
-// 
-//   dag->setSchedResponse(&(response->wf_node_sched_seq));
-/*
 
+  /*
   // Call the Workflow Log Service
   if (this->myWfLogSrv != WfLogSrv::_nil()) {
     this->myWfLogSrv->setWf(profile->abstract_wf);

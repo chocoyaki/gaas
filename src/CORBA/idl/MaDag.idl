@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2008/04/14 13:45:11  bisnard
+ * - Removed wf mono-mode submit
+ * - Renamed submit_wf in processDagWf
+ *
  * Revision 1.7  2008/04/14 09:14:30  bisnard
  *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
  *  - AbstractWfSched and derived classes no longer used with MaDag v2
@@ -40,51 +44,25 @@
 #define _MADAG_IDL_
 
 #include "common_types.idl"
-#include "response.idl"
 
 /****************************************************************************/
 /* MA DAG interface                                                          */
 /****************************************************************************/
 
-struct wf_node_response {
-  string node_id;
-  corba_response_t response;  
-} ;
-
-typedef sequence<wf_node_response> wf_scheduling_response;
-
 interface MaDag {
-    /**
-     * Workflow submission function
-     *
-     * @param dag_desc     workflow textual description
-     * @param firstReqId   first request identifier 
-     * @return             a dag scheduling
-     */
-    dag_response_t
-    submit_dag(in corba_wf_desc_t dag_desc, out long firstReqId); 
 
-    /**
-     * Workflow submission in multi-workflow mode
-     *
-     * @param  dag_desc   workflow textual description
-     * @param  cltMgrRef  client workflow manager reference
-     * @param  dag_id     submitted workflow identifier (obtained by getDagId function)
-     * @return true if workflow submission succeed, otherwise false
-     */
-     boolean
-     submit_dag_in_multi(in corba_wf_desc_t dag_desc,
+ /**
+  * DAG Workflow processing
+  *
+  * @param  dag_desc   workflow textual description
+  * @param  cltMgrRef  client workflow manager reference
+  * @param  dag_id     submitted workflow identifier (obtained by getDagId function)
+  * @return true if workflow submission succeed, otherwise false
+  */
+  boolean
+  processDagWf(in corba_wf_desc_t dag_desc,
                         in string cltMgrRef,
                         in long dag_id); 
-  /** 
-   * Workflow submission function. *
-   * This function returns workflow ordering and mapping*
-   */
-  wf_sched_response_t submit_wf (in corba_wf_desc_t wf_desc,
-				 in boolean used,
-				 in boolean multi_mode,
-				 in string cltMgrRef,
-				 in long dag_id);
 
 
   /**

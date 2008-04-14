@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/04/14 13:45:10  bisnard
+ * - Removed wf mono-mode submit
+ * - Renamed submit_wf in processDagWf
+ *
  * Revision 1.2  2008/04/14 09:14:29  bisnard
  *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
  *  - AbstractWfSched and derived classes no longer used with MaDag v2
@@ -74,19 +78,11 @@ public:
   MaDag_impl(const char * name);
 
   virtual ~MaDag_impl();
-
-  /**
-   * Workflow submission function
-   *
-   * @param dag_desc     workflow textual description
-   * @param firstReqId   first request identifier 
-   * @return             a dag scheduling
-   */
-  virtual dag_response_t* 
-  submit_dag(const corba_wf_desc_t& dag_desc, CORBA::Long& firstReqId);
   
   /**
-   * Workflow submission in multi-workflow mode
+   * DAG Workflow processing
+   * Manages the scheduling and orchestration of the submitted DAG
+   * Delegates the execution of each individual task to the client workflow mgr
    *
    * @param  dag_desc   workflow textual description
    * @param  cltMgrRef  client workflow manager reference
@@ -95,22 +91,7 @@ public:
    */
   
   virtual CORBA::Boolean
-  submit_dag_in_multi(const corba_wf_desc_t& dag_desc, const char* cltMgrRef, CORBA::Long dag_id);
-
-  /** 
-   * Workflow submission function.
-   * 
-   * @param wf_desc submited workflow description
-   * @param used  
-   * @param multi_mode set if workflow is submited in multiworkflow mode
-   * @return the scheduling response or execute the workflow if multiworkflow
-   *         mode is selected
-   */
-  virtual wf_sched_response_t * 
-  submit_wf (const corba_wf_desc_t& wf_desc, CORBA::Boolean used,
-             CORBA::Boolean multi_mode,
-             const char * cltMgrRef,
-             CORBA::Long dag_id);
+  processDagWf(const corba_wf_desc_t& dag_desc, const char* cltMgrRef, CORBA::Long dag_id);
 
   /**
    * Get a new DAG identifier
@@ -136,29 +117,6 @@ public:
   void
   setMultiWfScheduler(const madag_mwf_sched_t madag_multi_sched);
 
-
-protected:
-  /**
-   * Schedule workflow in a normal mode
-   * @deprecated
-   *
-   * @param wf_desc submited workflow description
-   */
-  virtual wf_sched_response_t *
-  monoMode_wf_sub(const corba_wf_desc_t& wf_desc,
-                  const bool used,
-                  const long dag_id);
-
-  /**
-   * Schedule workflow in multi-workflow mode
-   *
-   * @param wf_desc submited workflow description
-   */
-  bool
-  multiMode_wf_sub(const corba_wf_desc_t& wf_desc,
-                   const bool used,
-                   CltMan_ptr cltMan,
-                   const long dag_id);
 
 private:
   /**
