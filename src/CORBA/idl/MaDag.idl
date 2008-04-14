@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2008/04/14 09:14:30  bisnard
+ *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
+ *  - AbstractWfSched and derived classes no longer used with MaDag v2
+ *
  * Revision 1.6  2008/04/10 08:17:14  bisnard
  * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
  *
@@ -89,34 +93,6 @@ interface MaDag {
   long
   getDagId();
 
-  /**
-   * Another workflow submission function *
-   * return only the ordering of the nodes execution *
-   */
-  wf_ordering_t get_wf_ordering(in corba_wf_desc_t wf_desc);
-
-  /**
-   * set the remaining dag
-   */
-  void remainingDag(in string dag_descr);
-
-  /*
-   * inform the MA DAG that node execution is done
-   */
-  void 
-  setAsDone(in string dag_id, in string nodeId);
-
-  /**
-   * inform the ma dag that the dag execution is complete
-   */
-  void 
-  setDagAsDone(in string dag_id);
-
-  /*
-   * register a dag to the ma dag
-   */
-  void
-  registerClt(in string dag_id, in string client_ref);
 
   /** Used to test if this process is alive. */
   long ping();

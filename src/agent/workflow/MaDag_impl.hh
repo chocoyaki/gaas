@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/04/14 09:14:29  bisnard
+ *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
+ *  - AbstractWfSched and derived classes no longer used with MaDag v2
+ *
  * Revision 1.1  2008/04/10 09:13:29  bisnard
  * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
  *
@@ -114,37 +118,6 @@ public:
   virtual CORBA::Long
   getDagId();
 
-  /**
-   * Another workflow submission function *
-   * return only the ordering of the nodes execution *
-   */
-  virtual wf_ordering_t *
-  get_wf_ordering(const corba_wf_desc_t& wf_desc);
-
-  /**
-   * set the remaining dag
-   */
-  virtual void
-  remainingDag(const char * dag_descr);
-
-  /*
-   * inform the MA DAG that node execution is done
-   */
-  virtual void 
-  setAsDone(const char* dag_id, const char* nodeId);
-
-  /**
-   * inform the ma dag that the dag execution is complete
-   */
-  virtual void 
-  setDagAsDone(const char * dag_id);
-
-  /*
-   * register a dag to the ma dag
-   */
-  virtual void
-  registerClt(const char* dag_id, const char* client_ref);
-
   /** Used to test if it is alive. */
   virtual CORBA::Long
   ping();
@@ -167,6 +140,7 @@ public:
 protected:
   /**
    * Schedule workflow in a normal mode
+   * @deprecated
    *
    * @param wf_desc submited workflow description
    */

@@ -8,13 +8,10 @@ IF( DIET_BUILD_LIBRARIES )
     ${XERCES_INCLUDE_DIR} 
     )
   ADD_LIBRARY ( UtilsWf
-    SeDSynchro.cc
     CltWfMgr.cc
     WfPort.cc Node.cc Dag.cc
     WfParser.cc 
     Thread.cc WfUtils.cc WfConfig.cc
-    AbstractWfSched.cc BasicWfSched.cc HEFTWfSched.cc
-    CltReoMan_impl.cc
     )
    
   TARGET_LINK_LIBRARIES( UtilsWf 

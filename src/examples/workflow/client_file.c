@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.4  2008/04/14 09:10:39  bisnard
+ *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
+ *  - AbstractWfSched and derived classes no longer used with MaDag v2
+ *
  * Revision 1.3  2007/05/30 11:16:36  aamar
  * Updating workflow runtime to support concurrent call (Reordering is not
  * working now - TO FIX -).
@@ -28,19 +32,12 @@
    argv[2]: path of the worflow description file */
 
 void usage(char * s) {
-  fprintf(stderr, "Usage: %s <file.cfg> <wf_file> [option]\n", s);
-  fprintf(stderr, "option = -madag_sched | -notmadag_sched\n");
+  fprintf(stderr, "Usage: %s <file.cfg> <wf_file>\n", s);
   exit(1);
 }
 int checkUsage(int argc, char ** argv) {
   if ((argc != 3) && (argc != 4)) {
     usage(argv[0]);
-  }
-  if (argc == 4) {
-    if (strcmp(argv[3], "-madag_sched") && 
-	strcmp(argv[3], "-notmadag_sched")) {
-      usage(argv[0]);
-    }
   }
   return 0;
 }
@@ -62,15 +59,7 @@ main(int argc, char* argv[])
 
   fileName = argv[2];
 
-  if (argc == 4)
-    set_madag_sched(!strcmp(argv[3], "-madag_sched"));
-
   profile = diet_wf_profile_alloc(fileName);
-
-  /*  set_heft_sched(); */
-
-  enable_reordering(profile, "generic-client", 0);
-  /*  set_reordering_delta(10, 1); */
   
   printf("Try to execute the workflow\n");
   if (! diet_wf_call(profile)) {

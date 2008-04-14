@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/04/14 09:10:37  bisnard
+ *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
+ *  - AbstractWfSched and derived classes no longer used with MaDag v2
+ *
  * Revision 1.1  2008/04/10 09:13:29  bisnard
  * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
  *
@@ -19,7 +23,6 @@
 
 #include "WfScheduler.hh"
 #include "MultiDag.hh"
-#include "CltReoMan.hh"
 #include "MultiWfScheduler.hh"
 
 namespace madag {

@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.2  2008/04/14 09:10:40  bisnard
+ *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
+ *  - AbstractWfSched and derived classes no longer used with MaDag v2
+ *
  * Revision 1.1  2008/04/10 08:38:50  bisnard
  * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
  *
@@ -19,8 +23,6 @@
 
 #include "CltWfMgr.hh"
 #include "debug.hh"
-#include "BasicWfSched.hh"
-#include "HEFTWfSched.hh"
 #include "ORBMgr.hh"
 #include "WfParser.hh"
 
@@ -58,7 +60,6 @@ CltWfMgr::CltWfMgr() : mySem(0) {
   this->myMA = MasterAgent::_nil();;
   this->myMaDag = MaDag::_nil();;
   this->myWfLogSrv = WfLogSrv::_nil();;
-  this->useMaDagSched = true;
 } // end CltWfMgr constructor
 
 CltWfMgr * 
@@ -122,66 +123,6 @@ CltWfMgr::init_wf_call(diet_wf_desc_t * profile,
 } // end init_wf_call
 
 /**
- * Execute workflow using the Master Agent
- */
-diet_error_t
-CltWfMgr::wf_call_ma(diet_wf_desc_t * profile) {
-  diet_error_t res(0);
-  wf_response_t * response = NULL;  
-  corba_pb_desc_seq_t pbs_seq;
-  unsigned int dagSize;
-
-  Dag * dag = this->init_wf_call(profile, pbs_seq, dagSize);
-  if (dag == NULL) {
-    ERROR ("Cannot create dag", 1);
-  }
-  // Call the master agent
-  // and send the workflow description
-  TRACE_TEXT (TRACE_MAIN_STEPS,
-	      "Try to send the workflow description (as a profile list to " <<
-	      " the master agent ...");
-  if (this->myMA != MasterAgent::_nil()) {
-    response = this->myMA->submit_pb_set(pbs_seq, dagSize, true);
-    TRACE_TEXT (TRACE_MAIN_STEPS, " done" << endl);
-    if (! response->complete) {
-      ERROR ("One ore more services are missing" << endl
-	     << "The Workflow cannot be executed", 
-	     SRV_MISS);
-    }
-  }
-  else {
-    ERROR (" The MA is unavailable !!! ", -1);
-  }
-
-  TRACE_TEXT (TRACE_MAIN_STEPS,
-              "Received response length " << response->wfn_seq_resp.length()
-              << endl);
-  
-  // Call the Workflow Log Service if used
-  if (this->myWfLogSrv != WfLogSrv::_nil()) {
-    myWfLogSrv->setWf(profile->abstract_wf);
-  } // end if (use_wf_log && myWfLogService)
-
-  // Getting Dag identifier from the response
-  string dag_id = itoa(response->dag_id);
-  dag->setId(dag_id);
-  
-  this->myProfiles[profile] = dag;
-
-  AbstractWfSched * wfScheduler = createScheduler(profile->scheduler);
-  if (wfScheduler == NULL) {
-    ERROR ("Cannot create the scheduler" << endl, 1);
-  }
-  wfScheduler->setDag (dag);
-  wfScheduler->setResponse(response);
-  wfScheduler->execute();
-
-  delete wfScheduler;
-
-  return res;
-} // end wf_call_ma
-
-/**
  * Execute a workflow using the MA DAG. 
  *
  */
@@ -242,33 +183,8 @@ CltWfMgr::wf_call_madag(diet_wf_desc_t * profile,
   } // end if (this->myWfLogSrv)*/
 
   return res;
-  
-  /*
-  AbstractWfSched * wfScheduler = createScheduler(profile->scheduler);
-  if (wfScheduler == NULL) {
-    ERROR ("Cannot create the scheduler" << endl, 1);
-  }
-
-  
-  wfScheduler->setDag(dag);
-  wfScheduler->setResponse(response);
-  wfScheduler->execute();
-
-  delete wfScheduler;
-
-
-  return res; */
 
 } // end wf_call_madag
-
-/**
- * define if the ma_dag return a ordering and a scheduling (b = true)
- * or only and ordering (b = false)
- */
-void
-CltWfMgr::setMaDagSched(bool b) {
-  this->useMaDagSched = b;
-} // end setMaDagSched
 
 /**
  * Execute the workflow
@@ -280,9 +196,9 @@ CltWfMgr::wf_call(diet_wf_desc_t* profile) {
   if (this->myMaDag != MaDag::_nil()) {
     return this->wf_call_madag(profile, true);
   }
-  else {
-    return this->wf_call_ma(profile);
-  }
+//   else {
+//     return this->wf_call_ma(profile);
+//   }
   return res;
 } // end wf_call
 
@@ -363,33 +279,6 @@ CltWfMgr::wf_free(diet_wf_desc_t * profile) {
     delete profile;
   }
 } // end wf_free
-
-/**
- * Return if use the MA DAG scheduling
- */
-bool
-CltWfMgr::useMaDagScheduling() {
-  return this->useMaDagSched;
-} // end useMaDagScheduling
-
-/**
- * Create a return a scheduler 
- */
-AbstractWfSched *
-CltWfMgr::createScheduler(wf_scheduler_t scheduler) {
-  AbstractWfSched * wfScheduler = NULL;
-  switch (scheduler) {
-  case basic:
-    cout << "Creating a basic scheduler" << endl;
-    wfScheduler = new BasicWfSched();
-    break;
-  case heft:
-    wfScheduler = new HEFTWfSched();
-    break;
-  } // end switch
-
-  return wfScheduler;
-} // end createScheduler
 
 /**
  * Return the object IOR

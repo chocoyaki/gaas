@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/04/14 09:10:37  bisnard
+ *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
+ *  - AbstractWfSched and derived classes no longer used with MaDag v2
+ *
  * Revision 1.1  2008/04/10 09:13:29  bisnard
  * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
  *
@@ -20,8 +24,8 @@
 
 #include "WfScheduler.hh"
 #include "MultiDag.hh"
-#include "CltReoMan.hh"
 #include "CltMan.hh"
+#include "MasterAgent.hh"
 #include "workflow/Thread.hh"
 #include "SeD.hh"
 
@@ -52,29 +56,6 @@ namespace madag {
                CltMan_var cltMan) = 0;
 
     /**
-     * Add a new client reference
-     * @param clt the new client.
-     * @param dag the dag identifier.
-     */
-    virtual void
-    addClient(CltReoMan_var clt, const string dag);
-
-    /**
-     * Remove a client from myClients map
-     * @param dag id
-     */
-    virtual void
-    removeClient(const string dag);
-
-    /**
-     * Set the node state as done
-     * @param dagId the DAG identifier
-     * @param nodeId the node identifier in the DAG
-     */
-    virtual void 
-    setNodeAsDone(const char* dagId, const char* nodeId);
-
-    /**
      * Execution method
      */
     virtual
@@ -93,17 +74,12 @@ namespace madag {
     wakeUp() = 0;
 
     /**
-     * Get the corresponding client manager
+     * Get the corresponding workflow client manager
      */
     CltMan_ptr
     getCltMan(string dag_id);
 
   protected:
-
-    /**
-     * A map of dag with corresponding client ref
-     */
-    std::map<string, CltReoMan_var> myClients;
 
     /**
      * The Meta-Dag

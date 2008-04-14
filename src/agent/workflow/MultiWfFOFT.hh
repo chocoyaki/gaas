@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/04/14 09:10:37  bisnard
+ *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
+ *  - AbstractWfSched and derived classes no longer used with MaDag v2
+ *
  * Revision 1.1  2008/04/10 09:13:29  bisnard
  * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
  *
@@ -59,16 +63,16 @@ namespace madag {
      * Remove a client from myClients map
      * @param dag id
      */
-    virtual void
-    removeClient(const string dag);
+//     virtual void
+//     removeClient(const string dag);
 
     /**
      * Set the node state as done
      * @param dagId the DAG identifier
      * @param nodeId the node identifier in the DAG
      */
-    virtual void 
-    setNodeAsDone(const char* dagId, const char* nodeId);
+//     virtual void 
+//     setNodeAsDone(const char* dagId, const char* nodeId);
 
     /**
      * 

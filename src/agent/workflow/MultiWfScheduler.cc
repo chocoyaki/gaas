@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/04/14 09:10:37  bisnard
+ *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
+ *  - AbstractWfSched and derived classes no longer used with MaDag v2
+ *
  * Revision 1.1  2008/04/10 09:13:29  bisnard
  * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
  *
@@ -23,46 +27,6 @@ MultiWfScheduler::MultiWfScheduler() {
 }
 
 MultiWfScheduler::~MultiWfScheduler() {
-}
-
-/**
- * Add a new client reference
- */
-void
-MultiWfScheduler::addClient(CltReoMan_var clt, const string dag) {
-  
-  this->myClients[dag] = clt;
-}
-
-/**
- * Remove a client from myClients map
- */
-void
-MultiWfScheduler::removeClient(const string dag) {
-  std::map<string, CltReoMan_var>::iterator p =
-    this->myClients.find(dag);
-  if (p !=  this->myClients.end()) {
-    this->myClients.erase(p);
-    cout << "+++++++++++++ " <<
-      __FUNCTION__ << " remove the dag " << dag << " from the meta dag " << 
-      endl;
-    this->myMetaDag->removeDag(dag);
-    cout << "+++++++++++++ " <<
-      __FUNCTION__ << " the new size of the meta-dag is " <<
-      this->myMetaDag->getLength() << endl;
-  }
-  else {
-    cout << "+++++++++++++ " <<
-      __FUNCTION__ << " can't find the client associated to " << dag << endl;
-  }
-}
-
-/**
- * Set the node state as done
- */
-void 
-MultiWfScheduler::setNodeAsDone(const char* dagId, const char* nodeId) {
-  this->myMetaDag->setNodeAsDone(dagId, nodeId);
 }
 
 /**

@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/04/14 09:10:40  bisnard
+ *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
+ *  - AbstractWfSched and derived classes no longer used with MaDag v2
+ *
  * Revision 1.1  2008/04/10 08:38:50  bisnard
  * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
  *
@@ -29,7 +33,6 @@
 #include "DIET_data.h"
 #include "DIET_client.h"
 #include "marshalling.hh"
-#include "AbstractWfSched.hh"
 
 #include "WfParser.hh"
 
@@ -132,15 +135,6 @@ public:
 		   size_t *nb_cols, 
 		   diet_matrix_order_t* order);
 
-  /**
-   * Set the workflow scheduler
-   *
-   * @param profile   profile associated to the scheduler
-   * @param scheduler scheduler reference
-   */
-  void
-  setWfSched (diet_wf_desc_t * profile,
-              AbstractWfSched * scheduler);
 
   /**
    * terminate a workflow session and free the memory
@@ -150,51 +144,6 @@ public:
   void
   wf_free(diet_wf_desc_t * profile);
   
-  /**
-   * define if the ma_dag return a ordering and a scheduling (b = true)
-   * or only and ordering (b = false)
-   *
-   * @param b Scheduling mode
-   */
-  void
-  setMaDagSched(bool b);
-  
-  /**
-   * enable/disable the reordering
-   *
-   * @param profile workflow profile
-   * @param b       reordering mode (enabled if true otherwise disabled)
-   */
-  void
-  enable_reordering(diet_wf_desc_t * profile, bool b);
-
-  /**
-   * set the reordering delta (time in seconds)
-   * and the number of nodes to trigger the reordering)
-   *
-   * @param profile   workflow profile
-   * @param sec       number of seconds 
-   * @param nodeCount node count
-   */
-  void
-  set_reordering_delta(diet_wf_desc_t * profile,
-                       const long int sec, 
-                       const unsigned long int nodeCount);
-
-
-  /**
-   * Return if use the MA DAG scheduling
-   */
-  bool
-  useMaDagScheduling();
-
-  /**
-   * Create a return a scheduler 
-   * @param scheduler workflow scheduler type 
-   */
-  static AbstractWfSched *
-  createScheduler(wf_scheduler_t scheduler);
-
 
 protected:
   /**
@@ -213,14 +162,6 @@ protected:
   init_wf_call(diet_wf_desc_t * profile,
                corba_pb_desc_seq_t& pbs_seq,
                unsigned int& dagSize);
-
-  /**
-   * Execute a workflow using the Master Agent
-   *
-   * @param profile workflow reference
-   */
-  virtual diet_error_t
-  wf_call_ma(diet_wf_desc_t * profile);
 
   /**
    * Execute a workflow using the MA DAG. 
@@ -272,7 +213,7 @@ private:
   /**
    * Defines if use or not MA DAG Scheduling
    */
-  bool useMaDagSched;
+//   bool useMaDagSched;
 
   /**
    * Private constructor

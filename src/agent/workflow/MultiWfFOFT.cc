@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.2  2008/04/14 09:10:37  bisnard
+ *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
+ *  - AbstractWfSched and derived classes no longer used with MaDag v2
+ *
  * Revision 1.1  2008/04/10 09:13:29  bisnard
  * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
  *
@@ -166,20 +170,20 @@ MultiWfFOFT::submit_wf (const corba_wf_desc_t& wf_desc, int dag_id,
       this->sMulti[node].server;
   }
   // Send the scheduling to the other clients
-  CltReoMan_var clt = NULL;
-  for (map<string, CltReoMan_var>::iterator p = this->myClients.begin();
-       p != this->myClients.end();
-       ++p) {
-    dagId = p->first;
-    clt = (CltReoMan_var)(p->second);
-    map<string, wf_node_sched_seq_t>::iterator q = 
-      remainingSched.find(dagId);
-    if ( (q != remainingSched.end()) &&
-	 (clt != NULL)) {
-      cout << "$$$$$$$$$$$$$$$$$$$$$$$$$$ Sending a new Scheduling " << endl;
-      clt->remainingSched(q->second);
-    }
-  }
+//   CltReoMan_var clt = NULL;
+//   for (map<string, CltReoMan_var>::iterator p = this->myClients.begin();
+//        p != this->myClients.end();
+//        ++p) {
+//     dagId = p->first;
+//     clt = (CltReoMan_var)(p->second);
+//     map<string, wf_node_sched_seq_t>::iterator q = 
+//       remainingSched.find(dagId);
+//     if ( (q != remainingSched.end()) &&
+// 	 (clt != NULL)) {
+//       cout << "$$$$$$$$$$$$$$$$$$$$$$$$$$ Sending a new Scheduling " << endl;
+//       clt->remainingSched(q->second);
+//     }
+//   }
   
   //  metaDag->mapSeDs(sched_seq);
 
@@ -389,41 +393,41 @@ NodeState::NodeState() {
 /**
  * Remove a client from myClients map
  */
-void
-MultiWfFOFT::removeClient(const string dagId) {
-  // get the dag reference before the dag is remove from the meta-dag (next instruction)
-  Dag * dag = this->myMetaDag->getDag(dagId);
-  MultiWfScheduler::removeClient(dagId);
-  cout << "MultiWfFOFT::removeClient" << dag->getId() <<
-    endl;
-  vector<Dag*>::iterator p = find(this->U.begin(),
-				  this->U.end(),
-				  dag);
-  if (p != this->U.end())
-    this->U.erase(p);
-  else 
-    cerr << "Can't find the DAG " << dagId << endl;
-  
-  if (this->sOwn.find(dag) != this->sOwn.end())
-    this->sOwn.erase(this->sOwn.find(dag));
-  else 
-    cerr << "Can't find the DAG  " << dagId << 
-      " in sOwn" << endl;
-  
-  if (this->dagsState.find(dag) != this->dagsState.end())
-    this->dagsState.erase(this->dagsState.find(dag));
-  else 
-    cerr << "Can't find the DAG " << dagId << 
-      " in dagsState " << endl;
-}
+// void
+// MultiWfFOFT::removeClient(const string dagId) {
+//   // get the dag reference before the dag is remove from the meta-dag (next instruction)
+//   Dag * dag = this->myMetaDag->getDag(dagId);
+//   MultiWfScheduler::removeClient(dagId);
+//   cout << "MultiWfFOFT::removeClient" << dag->getId() <<
+//     endl;
+//   vector<Dag*>::iterator p = find(this->U.begin(),
+// 				  this->U.end(),
+// 				  dag);
+//   if (p != this->U.end())
+//     this->U.erase(p);
+//   else 
+//     cerr << "Can't find the DAG " << dagId << endl;
+//   
+//   if (this->sOwn.find(dag) != this->sOwn.end())
+//     this->sOwn.erase(this->sOwn.find(dag));
+//   else 
+//     cerr << "Can't find the DAG  " << dagId << 
+//       " in sOwn" << endl;
+//   
+//   if (this->dagsState.find(dag) != this->dagsState.end())
+//     this->dagsState.erase(this->dagsState.find(dag));
+//   else 
+//     cerr << "Can't find the DAG " << dagId << 
+//       " in dagsState " << endl;
+// }
 
 /**
  * Set the node state as done
  */
-void 
-MultiWfFOFT::setNodeAsDone(const char* dagId, const char* nodeId) {
-  MultiWfScheduler::setNodeAsDone(dagId, nodeId);
-}
+// void 
+// MultiWfFOFT::setNodeAsDone(const char* dagId, const char* nodeId) {
+//   MultiWfScheduler::setNodeAsDone(dagId, nodeId);
+// }
 
 /**
    TO DO

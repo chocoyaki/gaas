@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2008/04/14 09:10:38  bisnard
+ *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
+ *  - AbstractWfSched and derived classes no longer used with MaDag v2
+ *
  * Revision 1.19  2006/11/16 09:55:50  eboix
  *   DIET_config.h is no longer used. --- Injay2461
  *
@@ -73,7 +77,6 @@ const char* ORBMgr::CONTEXTS[] =
   {"dietAgent", "dietDataMgr", "dietLocMgr", "LogService", "dietSeD"
 #ifdef HAVE_WORKFLOW
    , "dietMaDag"
-   , "CltReoMan"
    , "WfLogService"
 #endif
   };

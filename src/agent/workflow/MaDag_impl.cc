@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/04/14 09:10:37  bisnard
+ *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
+ *  - AbstractWfSched and derived classes no longer used with MaDag v2
+ *
  * Revision 1.1  2008/04/10 09:13:29  bisnard
  * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
  *
@@ -217,6 +221,8 @@ MaDag_impl::setMultiWfScheduler(const madag_mwf_sched_t madag_multi_sched) {
 
 /**
  * Schedule workflow in a normal mode
+ * @deprecated
+ * TODO Remove wf submission in Mono mode and change return type of submit_wf
  */
 wf_sched_response_t *
 MaDag_impl::monoMode_wf_sub(const corba_wf_desc_t& wf_desc,
@@ -272,87 +278,6 @@ MaDag_impl::multiMode_wf_sub(const corba_wf_desc_t& wf_desc,
                                   this->parent, used,
                                   cltMan);
 } // end multiMode_wf_sub
-
-/**
- * Another workflow submission function *
- * return only the ordering of the nodes execution *
- */
-wf_ordering_t *
-MaDag_impl::get_wf_ordering(const corba_wf_desc_t& wf_desc) {
-  wf_ordering_t * wf_ordering = new wf_ordering_t;
-  // TO COMPLETE
-  return wf_ordering;  
-}
-
-/**
- * set the remaining dag
- */
-void
-MaDag_impl::remainingDag(const char * dag_descr) {
-}
-
-
-/*
- * inform the MA DAG that node execution is done
- */
-void 
-MaDag_impl::setAsDone(const char* dagId, const char* nodeId) {
-  /*
-  if ( (this->multi_wf) &&
-       (this->myMultiWfSched != NULL) ) {
-    TRACE_TEXT(TRACE_MAIN_STEPS, 
-	       "The node " << nodeId << 
-	       " in the dag " << dagId << " is done" << endl);
-    this->myMultiWfSched->setNodeAsDone(dagId, nodeId);
-  }
-  */
-}
-
-/**
- * inform the ma dag that the dag execution is complete
- */
-void 
-MaDag_impl::setDagAsDone(const char * dag_id) {
-  /*
-  if ( (this->multi_wf) &&
-       (this->myMultiWfSched != NULL) ) {
-    TRACE_TEXT(TRACE_MAIN_STEPS, 
-	       "Remove the dag " << dag_id << " from the clients table" << endl);
-    this->myMultiWfSched->removeClient(dag_id);
-  }
-  */
-}
-
-/*
- * register a dag to the ma dag
- */
-void
-MaDag_impl::registerClt(const char* dag_id, const char* client_ref) {
-  /*
-  if (this->multi_wf == false)
-    cout << "this->multi_wf  == false" << endl;
-  if (this->myMultiWfSched == NULL)
-    cout << "this->myMultiWfSched == NULL" << endl;
-  if ( (this->multi_wf) &&
-       (this->myMultiWfSched != NULL) ) {
-    CORBA::Object_ptr obj = 
-      ORBMgr::stringToObject(client_ref);
-    if (obj == NULL) {
-      WARNING("The new client reference is not valid, this request is ignored");
-      return;
-    }
-    CltReoMan_var clt = CltReoMan::_narrow(obj);
-    if (clt == NULL) {
-      WARNING("Unable to get a client reference");
-      return;
-    }
-    // store the dag and the client ref in the meta scheduler table
-    TRACE_TEXT(TRACE_MAIN_STEPS, 
-	       "Registring a new dag client: "  << dag_id << endl);
-    this->myMultiWfSched->addClient(clt, dag_id);
-  }
-  */
-}
 
 /**
  * Get a new DAG identifier

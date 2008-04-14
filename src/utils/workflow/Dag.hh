@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/04/14 09:10:40  bisnard
+ *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
+ *  - AbstractWfSched and derived classes no longer used with MaDag v2
+ *
  * Revision 1.1  2008/04/10 08:38:50  bisnard
  * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
  *
@@ -22,11 +26,8 @@
 #include "response.hh"
 
 #include "Node.hh"
-#include "CltReoMan_impl.hh"
 #include <sys/time.h>
 #include <time.h>
-
-class CltReoMan_impl;
 
 class Dag {
 public:
@@ -200,16 +201,6 @@ public:
   setTags();
 
   /**
-   * Set the reordering parameters
-   *
-   * @param nb_sec is the number of seconds
-   * @param nb_nodes is the number of nodes
-   */
-  void 
-  set_reordering_delta(const long int nb_sec, 
-		       const unsigned long int nb_nodes);
-
-  /**
    * Check the scheduling. 
    * Test if the completion time of node is greater to the predicted
    * one
@@ -218,15 +209,8 @@ public:
   checkScheduling();
 
   /**
-   * Set the client reordering manager
-   *
-   * @param crm Client reordering manager reference
-   */
-  void
-  setCltReoMan(CltReoMan_impl * crm);
-
-  /**
    * set the beginning time of execution
+   * TODO check if deprecated
    *
    * @param tv the begining time
    */
@@ -334,11 +318,6 @@ private:
    */
   unsigned long int 
   nbNodes;
-
-  /**
-   * Client Reordering Manager
-   */
-  CltReoMan_impl * myCltReoMan;
 
   /**
    * The time of execution beginning

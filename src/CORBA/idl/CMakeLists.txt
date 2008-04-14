@@ -63,7 +63,6 @@ IF( DIET_BUILD_LIBRARIES )
       MaDag
       CltMan
       WfLogSrv
-      CltReoMan
       ${IDL_SOURCES} )
   ENDIF ( DIET_USE_WORKFLOW )
 

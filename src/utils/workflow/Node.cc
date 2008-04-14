@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/04/14 09:10:40  bisnard
+ *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
+ *  - AbstractWfSched and derived classes no longer used with MaDag v2
+ *
  * Revision 1.1  2008/04/10 08:38:50  bisnard
  * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
  *
@@ -75,10 +79,8 @@
 
 #include "Node.hh"
 #include "Dag.hh"
-#include "AbstractWfSched.hh"
 
 MasterAgent_var getMA();
-bool useMaDagSched();
 
 /**
  * Display a textual representation of a corba profile
@@ -236,11 +238,9 @@ RunnableNode::run() {
   }
   TRACE_TEXT (TRACE_ALL_STEPS, "Init ports data ... done " << endl);
 
-  nodeIsRunning(myParent->getId().c_str());
+//  nodeIsRunning(myParent->getId().c_str());
 
-  if (!CORBA::is_nil(myParent->chosenServer) 
-      &&
-      useMaDagSched()) {
+  if (!CORBA::is_nil(myParent->chosenServer)) {
     TRACE_TEXT (TRACE_MAIN_STEPS, 
 		"Using the scheduling of the mapped SeD" << endl <<
 		"call the chosenServer ..." << endl);
@@ -586,13 +586,13 @@ void
 Node::start(diet_reqID_t reqID, bool join) {
   TRACE_TEXT (TRACE_ALL_STEPS, " create the runnable node " << endl);
   node_running = true;
-  nodeIsStarting(myId.c_str());
+//  nodeIsStarting(myId.c_str());
 
   myRunnableNode = new RunnableNode(this, reqID);
   TRACE_TEXT (TRACE_ALL_STEPS, "The node " << myId << " tries to launch a RunnableNode "<< endl);
   myRunnableNode->start();
   TRACE_TEXT (TRACE_ALL_STEPS, "The node " << myId << " launched it RunnableNode" << endl);
-  AbstractWfSched::pop(this->myId);
+//   AbstractWfSched::pop(this->myId);
   if (join)
     this->myRunnableNode->join();
 } // end start
@@ -857,7 +857,7 @@ void
 Node::setSeD(const SeD_var& sed, std::string hostName) {
   this->chosenServer = sed;
   if (hostName != "") {
-	  AbstractWfSched::allocateToSeD(this->myId, hostName);
+// 	  AbstractWfSched::allocateToSeD(this->myId, hostName);
   }
 } // end setSeD
 
@@ -1313,7 +1313,7 @@ Node::setAsDone() {
  */
 void
 Node::done() {
-  nodeIsDone(myId.c_str(), this->myDag->getId().c_str());
+  // nodeIsDone(myId.c_str(), this->myDag->getId().c_str());
   // get the current time and set the real time variable
   struct timeval tv;
   gettimeofday(&tv, NULL);
