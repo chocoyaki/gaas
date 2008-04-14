@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.36  2008/04/14 09:07:21  bisnard
+ *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
+ *  - diet_wf_call* functions no longer used with MaDag v2
+ *
  * Revision 1.35  2008/04/10 09:13:30  bisnard
  * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
  *
@@ -279,52 +283,25 @@ get_diet_services(int *services_number);
 /*****************************************/
 diet_error_t
 diet_wf_call(diet_wf_desc_t* profile);
-/*****************************************/
-/* for workflow scheduling               */
-/*****************************************/
-struct AbstractWfSched;
-void set_sched (struct AbstractWfSched * sched);
+
 /*****************************************/
 /* terminate a workflow session and      */
 /*        free the memory                */
 /*****************************************/
 void
 diet_wf_free(diet_wf_desc_t * profile);
-/*****************************************/
-/* define if the ma_dag return a         */
-/* ordering and a scheduling (b = true)  */
-/* or only and ordering (b = false)      */
-/*****************************************/
-void
-set_madag_sched(int b);
-/*****************************************/
-/* enable/disable the reordering         */
-/* reordering enabled (b = true)         */
-/* reordering disabled (b = false)       */
-/*****************************************/
-void
-enable_reordering(diet_wf_desc_t * profile,
-                  const char * name, int b);
-/***************************************************************/
-/* set the reordering delta (time in seconds)                  */
-/* and the number of nodes to trigger the                      */
-/* reordering)                                                 */
-/***************************************************************/
-void set_reordering_delta(diet_wf_desc_t * profile,
-                          const long int nb_sec, 
-			  const unsigned long int nb_node);
-/***************************************************************/
-void
-nodeIsDone(const char * node_id, const char * dag_id);
 
-void
-nodeIsRunning(const char * node_id);
-
-void 
-nodeIsStarting(const char * node_id);
-
-void
-nodeIsWaiting(const char * node_id);
+// void
+// nodeIsDone(const char * node_id, const char * dag_id);
+// 
+// void
+// nodeIsRunning(const char * node_id);
+// 
+// void 
+// nodeIsStarting(const char * node_id);
+// 
+// void
+// nodeIsWaiting(const char * node_id);
 /***************************************************************/
 
 typedef enum {MA_MODE, MADAG_MODE, MULTIWF_MODE} wf_sub_mode_t;

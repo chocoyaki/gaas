@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.117  2008/04/14 09:07:22  bisnard
+ *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
+ *  - diet_wf_call* functions no longer used with MaDag v2
+ *
  * Revision 1.116  2008/04/10 09:13:31  bisnard
  * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
  *
@@ -1830,336 +1834,6 @@ set_req_error(diet_reqID_t sessionID,
 // for workflow support
 #ifdef HAVE_WORKFLOW
 /**
- * Send a workflow description to the MA 
- */
-diet_error_t
-diet_wf_call_ma(diet_wf_desc_t* profile) {
-  diet_error_t res(0);
-//  corba_wf_desc_t  * corba_profile = new corba_wf_desc_t;
-//  wf_response_t * response;
-//  bool user_sched = true;
-//  AbstractWfSched * defaultWfSched = NULL;
-//  
-//  /*
-//  if (dag != NULL) {
-//    delete dag;
-//    dag = NULL;
-//  }
-//  if (reader != NULL) {
-//    delete reader;
-//    reader = NULL;
-//  }
-//  */
-//  ext_wf_desc_t ext;
-//
-//  TRACE_TEXT (TRACE_ALL_STEPS, 
-//		   "Marshalling the workflow description ..." );
-//  mrsh_wf_desc(corba_profile, profile);
-//  TRACE_TEXT (TRACE_ALL_STEPS, " done" << endl);
-//
-//  ext.reader = new WfExtReader(profile->abstract_wf, false);
-//  if (! ext.reader->setup())
-//    return XML_MALFORMED;  
-//
-//  // create the profile sequence
-//  unsigned int len = ext.reader->pbs_list.size();
-//  corba_pb_desc_seq_t pbs_seq;
-//  pbs_seq.length(len);
-//  for (unsigned int ix=0; ix< len; ix++) {
-//    pbs_seq[ix] = ext.reader->pbs_list[ix];
-//  }
-//
-//  unsigned int dagSize = ext.reader->getDagSize();
-//
-//  // Call the master agent
-//  // and send the workflow description
-//  TRACE_TEXT (TRACE_MAIN_STEPS,
-//	      "Try to send the workflow description (as a profile list " 
-//	      << len << " ) to" <<
-//	      " the master agent ...");
-//  if (MA) {
-//    response = MA->submit_pb_set(pbs_seq, dagSize, true);
-//    cout << " done" << endl;
-//    if (! response->complete) {
-//      ERROR ("One ore more services are missing" << endl
-//	     << "The Workflow cannot be executed", 
-//	     SRV_MISS);
-//    }
-//  }
-//  else {
-//    ERROR (" The MA is unavailable !!! ", -1);
-//  }
-//
-//  cout<< "Received response length " << response->wfn_seq_resp.length()
-//      << endl;
-//
-//  // Call the Workflow Log Service
-//  if ((use_wf_log) && (myWfLogService != NULL)) {
-//    myWfLogService->setWf(profile->abstract_wf);
-//  } // end if (use_wf_log && myWfLogService)
-//
-//  // Workflow execution
-//  ext.dag = ext.reader->getDag();
-//  ext.dag_id = itoa(response->dag_id);
-//  ext.dag->setId(ext.dag_id);
-//
-//  if (myReoMan != NULL) {
-//    TRACE_TEXT (TRACE_ALL_STEPS, "Link the CltReoMan with the DAG" << endl);
-//    ext.dag->setCltReoMan(myReoMan);
-//    myReoMan->setDag(ext.dag);
-//  }
-//
-//  TRACE_TEXT(TRACE_ALL_STEPS, 
-//	     "The dag contains " << ext.dag->size() << " nodes" << endl);
-//
-//  if (defaultWfSched == NULL) {
-//    defaultWfSched = new SimpleWfSched();
-//    user_sched = false;
-//  }
-//
-//  ext.dag->setFirstReqID(response->firstReqID);
-//
-//  defaultWfSched->setDag (ext.dag);
-//  defaultWfSched->setResponse(response);
-//  defaultWfSched->execute();
-//
-//  if (! user_sched) {
-//    delete defaultWfSched;
-//    defaultWfSched = NULL;
-//  }
-//
-//  /**
-//   * Dont delete the DAG since it can be used to retrieve result
-//  if (dag != NULL) {
-//    delete dag;
-//    dag = NULL;
-//  }
-//  */
-//
-//  if (ext.reader != NULL) {
-//    delete ext.reader;
-//    ext.reader = NULL;
-//  }
-//
-//  all_wf_profiles[profile] = ext;
-//
-  return res;
-} // end diet_wf_call_ma
-
-/**
- * First variant of using MA_DAG approach *
- * This approach use ordering and mapping provided by the MA_DAG * 
- */
-diet_error_t
-diet_call_wf_madag_v1(diet_wf_desc_t* profile) {
-  diet_error_t res(0);
-//  corba_wf_desc_t  * corba_profile = new corba_wf_desc_t;
-//  wf_sched_response_t * response = NULL;
-//  AbstractWfSched * defaultWfSched = NULL;
-//
-//  TRACE_TEXT (TRACE_ALL_STEPS,"diet_call_wf_madag_v1 "<< endl);
-//
-//  /*
-//  if (dag != NULL) {
-//    delete dag;
-//    dag = NULL;
-//  }
-//  if (reader != NULL) {
-//    delete reader;
-//    reader = NULL;
-//  }
-//  */
-//
-//  ext_wf_desc_t ext;
-//
-//
-//  ext.reader = new WfExtReader(profile->abstract_wf, false);
-//  if (! ext.reader->setup())
-//    return XML_MALFORMED;  
-//
-//  ext.dag = ext.reader->getDag();
-//
-//  TRACE_TEXT (TRACE_ALL_STEPS,
-//	      "The dag contains " << ext.dag->size() << " nodes" << endl);
-//  
-//  TRACE_TEXT (TRACE_ALL_STEPS,
-//	      "Marshalling the workflow description ...");
-//  mrsh_wf_desc(corba_profile, profile);
-//  TRACE_TEXT (TRACE_ALL_STEPS, " done" << endl);
-//
-//  // call the MA DAG
-//  // and send the workflow description
-//  TRACE_TEXT (TRACE_ALL_STEPS,
-//	      "Try to send the workflow description to the MA_DAG ...");
-//  if (MA_DAG) {
-//    response = MA_DAG->submit_wf(*corba_profile, true);
-//  }
-//  TRACE_TEXT (TRACE_ALL_STEPS, " done" << endl);
-//
-//  // response processing and defining scheduling strategy
-//  // ...
-//  TRACE_TEXT (TRACE_ALL_STEPS,
-//	      "Received response length " << 
-//	      response->wf_node_sched_seq.length() << endl);
-//
-//  ext.dag_id = itoa(response->dag_id);
-//  ext.dag->setId(ext.dag_id);
-//  ext.dag->setSchedResponse(&(response->wf_node_sched_seq));
-//
-//  // if CltReoMan created register to the MA DAG
-//  if (myReoMan != NULL) {
-//    MA_DAG->registerClt(CORBA::string_dup(ext.dag_id.c_str()),
-//			myReoMan->getRef());
-//    TRACE_TEXT (TRACE_ALL_STEPS,
-//		"Link the CltReoMan with the DAG" << endl);
-//    ext.dag->setCltReoMan(myReoMan);
-//    myReoMan->setDag(ext.dag);
-//  }
-//
-//  if (defaultWfSched == NULL) 
-//    defaultWfSched = new SimpleWfSched();
-//
-//  // Call the Workflow Log Service
-//  if ((use_wf_log) && (myWfLogService != NULL)) {
-//    myWfLogService->setWf(profile->abstract_wf);
-//  } // end if (use_wf_log && myWfLogService)
-//
-//  
-//  ext.dag->setFirstReqID(response->firstReqID);
-//
-//  defaultWfSched->setDag(ext.dag);
-//  defaultWfSched->setResponse(response);
-//  defaultWfSched->execute();
-//
-//  if (defaultWfSched) {
-//    delete defaultWfSched;
-//    defaultWfSched = NULL;
-//  }
-//
-//  if (myReoMan) {
-//    MA_DAG->setDagAsDone(ext.dag->getId().c_str());
-//  }
-//
-//  /**
-//   * Dont delete the DAG since it can be used to retrieve result
-//  if (dag != NULL) {
-//    delete dag;
-//    dag = NULL;
-//  }
-//  */
-//
-//  if (ext.reader != NULL) {
-//    delete ext.reader;
-//    ext.reader = NULL;
-//  }
-//
-//  all_wf_profiles[profile] = ext;
-
-  return res;
-} // end diet_call_wf_madag_v1
-
-
-/**
- * Second variant of using MA_DAG approach *
- * This approach use only the ordering provided by the MA_DAG * 
- * Currently this method is the same as diet_call_wf_madag_v1 except *
- * the call to dag->setSchedResponse(response); which implie that node *
- * chosenServer still NULL*
- */
-
-diet_error_t
-diet_call_wf_madag_v2(diet_wf_desc_t* profile) {
-  diet_error_t res(0);
-//  corba_wf_desc_t  * corba_profile = new corba_wf_desc_t;
-//  wf_sched_response_t * response = NULL;
-//  AbstractWfSched * defaultWfSched = NULL;
-//  
-//  TRACE_TEXT (TRACE_ALL_STEPS,"diet_call_wf_madag_v2 "<< endl);
-//  
-//  ext_wf_desc_t ext;
-//
-//  ext.reader = new WfExtReader(profile->abstract_wf, false);
-//
-//  if (! ext.reader->setup())
-//    return XML_MALFORMED;  
-//
-//  ext.dag = ext.reader->getDag();
-//
-//  TRACE_TEXT (TRACE_ALL_STEPS, 
-//	      "The dag contains " << ext.dag->size() << " nodes" << endl);
-//  
-//  TRACE_TEXT (TRACE_ALL_STEPS,
-//	      "Marshalling the workflow description ...");
-//  mrsh_wf_desc(corba_profile, profile);
-//  TRACE_TEXT (TRACE_ALL_STEPS, " done" << endl);
-//
-//  // call the master agent
-//  // and send the workflow description
-//  TRACE_TEXT (TRACE_ALL_STEPS,
-//	      "Try to send the workflow description to the MA_DAG ...");
-//  if (MA_DAG)
-//    response = MA_DAG->submit_wf(*corba_profile, false);
-//  TRACE_TEXT (TRACE_ALL_STEPS, " done" << endl);
-//  // response processing and defining scheduling strategy
-//  // ...
-//
-//  TRACE_TEXT (TRACE_ALL_STEPS, "Received response " << 
-//	      response->wf_node_sched_seq.length() << endl);
-//
-//  if (defaultWfSched == NULL) 
-//    defaultWfSched = new SimpleWfSched();
-//
-//  ext.dag_id = itoa(response->dag_id);
-//  ext.dag->setId(ext.dag_id);
-//
-//  // Call the Workflow Log Service
-//  if ((use_wf_log) && (myWfLogService != NULL)) {
-//    myWfLogService->setWf(profile->abstract_wf);
-//  } // end if (use_wf_log && myWfLogService)
-//
-//  ext.dag->setFirstReqID(response->firstReqID);
-//
-//  defaultWfSched->setDag(ext.dag);
-//  defaultWfSched->setResponse(response);
-//  defaultWfSched->execute();
-//
-//  if (defaultWfSched)
-//    delete defaultWfSched;
-//
-//  if (myReoMan) {
-//    MA_DAG->setDagAsDone(ext.dag->getId().c_str());
-//  }
-//
-//  /**
-//   * Dont delete the DAG since it can be used to retrieve result
-//  if (dag != NULL) {
-//    delete dag;
-//    dag = NULL;
-//  }
-//  */
-//
-//  if (ext.reader != NULL) {
-//    delete ext.reader;
-//    ext.reader = NULL;
-//  }
-//  all_wf_profiles[profile] = ext;
-
-  return res;
-} // end diet_call_wf_madag_v2
-
-/**
- * Call the MA DAG to execute a workflow
- */
-diet_error_t
-diet_wf_call_madag(diet_wf_desc_t* profile) {
-//  if (use_ma_dag_sched) {
-//    return diet_call_wf_madag_v1(profile);
-//  }
-//  return diet_call_wf_madag_v2(profile);
-  return 0;
-} // end diet_wf_call_madag
-
-/**
  * Workflow execution method
  */
 diet_error_t
@@ -2175,72 +1849,7 @@ diet_wf_call(diet_wf_desc_t* profile) {
 void
 diet_wf_free(diet_wf_desc_t * profile) {
   CltWfMgr::instance()->wf_free(profile);
-
-//  if (all_wf_profiles.find(profile) != all_wf_profiles.end()) {
-//    ext_wf_desc_t ext = all_wf_profiles.find(profile)->second;
-//    if (ext.dag != NULL) {
-//      delete ext.dag;
-//    }
-//    if (ext.reader != NULL) {
-//      delete ext.reader;
-//    }
-//    all_wf_profiles.erase(profile);
-//  }
-
-  /*
-  if (dag != NULL) {
-    delete dag;
-    dag = NULL;
-  }
-  if (reader) {
-    delete reader;
-    reader = NULL;
-  }
-  diet_wf_profile_free(profile);
-  if (myReoMan != NULL) {
-    myReoMan->done();
-  }
-  */
 }
-
-/*
- * use a custom workflow scheduler *
- */
-
-void 
-set_sched (struct AbstractWfSched * sched) {
-//  if (use_ma_dag) {
-//    TRACE_TEXT (TRACE_MAIN_STEPS,
-//		"The provided sheduler is disabled "<< endl <<
-//		"The client use the MA to get the servers lists" << endl <<
-//		"You need to modify your client config file " <<
-//		"and remove the MA DAG entry" << endl);
-//  }
-//  else {
-//    //    defaultWfSched = sched;
-//  }
-} // end set_sched
-
-
-/*
- * define if the ma_dag return a *
- * ordering and a scheduling (b = true) *
- * or only and ordering (b = false) *
- */
-void
-set_madag_sched(int b) {
-  CltWfMgr::instance()->setMaDagSched(b);
-} // end set_madag_sched
-
-
-/**
- * initialize the workflow support *
- */
-diet_error_t
-diet_init_wf(char * config_file) {
-  int    res(0);
-  return res;
-} // end diet_init_wf
 
 
 /**
@@ -2293,65 +1902,8 @@ get_all_results(diet_wf_desc_t * profile) {
 //  }
 } // end get_all_results
 
-int
-diet_wf_init_reordering() {
-  return 0;
-} // end diet_wf_init_reordering
-
-/**
- * enable/disable the reordering
- * reordering enablef (b = true)
- * reordering disabled (b = false)
-*/
-void
-enable_reordering(diet_wf_desc_t * profile,
-                  const char * name, int b) {
-//  if (all_wf_profiles.find(profile) != all_wf_profiles.end()) {
-//    ext_wf_desc_t ext = all_wf_profiles.find(profile)->second;
-//    myReoMan = new CltReoMan_impl(name, MA);
-//    myReoMan->activate();
-//    if (strlen(name)>0 && b) {
-//      myReoMan->setEnable(true);
-//      if (ext.dag != NULL) {
-//        TRACE_TEXT (TRACE_ALL_STEPS,
-//                    "Link the CltReoMan with the DAG" << endl);
-//        ext.dag->setCltReoMan(myReoMan);
-//        myReoMan->setDag(ext.dag);
-//      } // end if (dag)
-//      /*
-//      if (defaultWfSched != NULL) {
-//        TRACE_TEXT (TRACE_ALL_STEPS,
-//                    "Link the CltReoMan with the WfScheduler" << endl);
-//        defaultWfSched->setCltReoMan(myReoMan);
-//        myReoMan->setScheduler(defaultWfSched);
-//      }
-//      */
-//    }
-//  }
-} // end enable_reordering
-
-/*
- * fix the reordering delta (time in seconds)
- * and the number of nodes to trigger the
- * reordering)
- * TO FIX (dag is NULL)
- */
-void
-set_reordering_delta(diet_wf_desc_t * profile,
-                     const long int nb_sec, 
-		     const unsigned long int nb_node) {
-
-//  if (all_wf_profiles.find(profile) != all_wf_profiles.end()) {
-//    ext_wf_desc_t ext = all_wf_profiles.find(profile)->second;
-//    if (ext.dag != NULL) {
-//      ext.dag->set_reordering_delta(nb_sec, nb_node);
-//    }
-//  }
-} // end set_reordering_delta
-
-
-void
-nodeIsDone(const char * node_id, const char * dag_id) {
+// void
+// nodeIsDone(const char * node_id, const char * dag_id) {
 //  if ((use_wf_log) && (myWfLogService != NULL)) {
 //    myWfLogService->nodeIsDone(node_id);
 //  } // end if
@@ -2363,44 +1915,32 @@ nodeIsDone(const char * node_id, const char * dag_id) {
 //    MA_DAG->setAsDone(CORBA::string_dup(dag_id),
 //		      CORBA::string_dup(node_id));
 //  }
-}
+// }
 
-void
-nodeIsRunning(const char * node_id) {
+// void
+// nodeIsRunning(const char * node_id) {
 //  if ((use_wf_log) && (myWfLogService != NULL)) {
 //    myWfLogService->nodeIsRunning(node_id, hostname);
 //  } // end if
-}
+// }
 
-void 
-nodeIsStarting(const char * node_id) {
+// void 
+// nodeIsStarting(const char * node_id) {
 //  if ((use_wf_log) && (myWfLogService != NULL)) {
 //    myWfLogService->nodeIsStarting(node_id);
 //  } // end if
-}
+// }
 
-void
-nodeIsWaiting(const char * node_id) {
+// void
+// nodeIsWaiting(const char * node_id) {
 //  if ((use_wf_log) && (myWfLogService != NULL)) {
 //    myWfLogService->nodeIsWaiting(node_id);
 //  } // end if
-}
+// }
 
 #endif // HAVE_WORKFLOW
 
 END_API
-
-// for workflow support
-#ifdef HAVE_WORKFLOW
-
-bool 
-useMaDagSched() {
-  //  return use_ma_dag_sched;
-  return CltWfMgr::instance()->useMaDagScheduling();
-
-}
-
-#endif // HAVE_WORKFLOW
 
 // this function place is marshalling.cc file
 // to fix if necessary
