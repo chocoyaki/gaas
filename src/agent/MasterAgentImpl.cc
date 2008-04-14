@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.41  2008/04/14 13:44:29  bisnard
+ * - Parameter 'used' obsoleted in MultiWfScheduler::submit_wf & submit_pb_set
+ *
  * Revision 1.40  2008/04/10 09:13:31  bisnard
  * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
  *
@@ -842,13 +845,11 @@ MasterAgentImpl::logNeighbors() {
 #ifdef HAVE_WORKFLOW
 
 /** 
- * Workflow submission function. *
- * called by the MA_DAG or a client to submit a set of problems *
+ * Workflow submission function.
  */
 wf_response_t *
-MasterAgentImpl::  submit_pb_set  (const corba_pb_desc_seq_t& seq_pb,
-				   const CORBA::Long setSize,
-				   const bool used) {
+MasterAgentImpl::submit_pb_set  (const corba_pb_desc_seq_t& seq_pb,
+				 const CORBA::Long setSize) {
   struct timeval tbegin;
   struct timeval tend;
   gettimeofday(&tbegin, NULL);
@@ -859,28 +860,28 @@ MasterAgentImpl::  submit_pb_set  (const corba_pb_desc_seq_t& seq_pb,
   unsigned int len = seq_pb.length();
   wf_response->wfn_seq_resp.length(0);
   corba_response_t * corba_response = NULL;
-  Counter initialReqIdCounter = this->reqIDCounter;
+//   Counter initialReqIdCounter = this->reqIDCounter;
   wf_response->complete = false;
   TRACE_TEXT (TRACE_MAIN_STEPS, 
 	      "The MasterAgent receives a set of "<< len << " problems" << 
 	      " for " << setSize << " nodes" <<
 	      endl);
   for (unsigned int ix=0; ix<len; ix++) {
-#if ! HAVE_ALTPREDICT
+
+    // Submit one problem to the MA
     corba_response = this->submit(seq_pb[ix], 1024);
-#endif
+
     if ((corba_response == NULL) || (corba_response->servers.length() == 0)) {
       TRACE_TEXT (TRACE_MAIN_STEPS, 
 		  "The problem set can't be solved (one or more services are "
 		  << "missing) " << endl);
-      if (!used) 
-	this->reqIDCounter = initialReqIdCounter;
+//       if (!used) 
+// 	this->reqIDCounter = initialReqIdCounter;
       return wf_response;
     }
     else {
       wf_response->wfn_seq_resp.length(ix+1);
-      wf_response->wfn_seq_resp[ix].node_id = 
-	CORBA::string_dup(seq_pb[ix].path);    
+      wf_response->wfn_seq_resp[ix].node_id = CORBA::string_dup(seq_pb[ix].path);    
       wf_response->wfn_seq_resp[ix].response = *corba_response;    
     }
   }
@@ -909,9 +910,8 @@ MasterAgentImpl::  submit_pb_set  (const corba_pb_desc_seq_t& seq_pb,
     dietLogComponent->logDagSubmit(wf_response, 
 				   ptime);
   }
-  
-  if (!used)
-    this->reqIDCounter =  initialReqIdCounter;
+//   if (!used)
+//     this->reqIDCounter =  initialReqIdCounter;
   return wf_response;
 }
 /**

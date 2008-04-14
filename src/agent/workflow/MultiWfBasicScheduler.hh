@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/04/14 13:44:29  bisnard
+ * - Parameter 'used' obsoleted in MultiWfScheduler::submit_wf & submit_pb_set
+ *
  * Revision 1.2  2008/04/14 09:10:37  bisnard
  *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
  *  - AbstractWfSched and derived classes no longer used with MaDag v2
@@ -47,7 +50,6 @@ namespace madag {
     virtual bool 
     submit_wf (const corba_wf_desc_t& wf_desc, int dag_id,
                MasterAgent_var parent,
-               const bool used,
                CltMan_var cltMan);
 
     /**

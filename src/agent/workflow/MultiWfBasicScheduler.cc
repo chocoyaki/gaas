@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/04/14 13:44:29  bisnard
+ * - Parameter 'used' obsoleted in MultiWfScheduler::submit_wf & submit_pb_set
+ *
  * Revision 1.1  2008/04/10 09:13:29  bisnard
  * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
  *
@@ -47,7 +50,6 @@ MultiWfBasicScheduler::setSched(WfScheduler * sched) {
 bool 
 MultiWfBasicScheduler::submit_wf (const corba_wf_desc_t& wf_desc, int dag_id,
                                   MasterAgent_var parent,
-                                  const bool used,
                                   CltMan_var cltMan) {
   this->myLock.lock();
   wf_sched_response_t * wf_resp = new wf_sched_response_t;
@@ -85,8 +87,7 @@ MultiWfBasicScheduler::submit_wf (const corba_wf_desc_t& wf_desc, int dag_id,
 
   cout << "MultiWfBasicScheduler: send the problems sequence to the MA  ... " 
        << endl;
-  wf_response_t * wf_response = parent->submit_pb_set(pbs_seq, dag->size(), 
-						      used);
+  wf_response_t * wf_response = parent->submit_pb_set(pbs_seq, dag->size());
   cout << "... done" << endl;
 
   wf_resp->dag_id = wf_response->dag_id;

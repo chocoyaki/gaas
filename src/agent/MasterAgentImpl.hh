@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2008/04/14 13:44:29  bisnard
+ * - Parameter 'used' obsoleted in MultiWfScheduler::submit_wf & submit_pb_set
+ *
  * Revision 1.16  2008/04/10 09:17:09  bisnard
  * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
  *
@@ -172,12 +175,13 @@ public :
 #ifdef HAVE_WORKFLOW
   /** 
    * Workflow submission function. *
-   * called by the MA_DAG or a client to submit a set of problems *
+   * called by the MA_DAG or a client to submit a set of problems
+   * @param  seq_pb	list of pb descriptions
+   * @param  setSize	number of pbs
    */
   virtual wf_response_t *
   submit_pb_set (const corba_pb_desc_seq_t& seq_pb,
-		 const CORBA::Long setSize,
-		 const bool used);
+		 const CORBA::Long setSize);
  
   /**
    * A submission function used to submit a set of problem to the MA
