@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.2  2008/04/15 14:20:19  bisnard
+ * - Postpone sed mapping until wf node is executed
+ *
  * Revision 1.1  2008/04/10 08:17:14  bisnard
  * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
  *
@@ -21,10 +24,12 @@
 
 interface CltMan {
   void
-  execute(in string node_id, in string dag_id,
+  execNodeOnSed(in string node_id, in string dag_id,
 	  in SeD sed_ref);
 
-  
+  void
+  execNode(in string node_id, in string dag_id);
+
   void
   release(in string dag_id);
 

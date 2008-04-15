@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/04/15 14:20:19  bisnard
+ * - Postpone sed mapping until wf node is executed
+ *
  * Revision 1.1  2008/04/10 09:13:29  bisnard
  * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
  *
@@ -41,13 +44,13 @@ MultiDag::~MultiDag() {
     delete (this->input);
   if (this->output != NULL)
     delete (this->output);
-  // free the dag map 
+  // free the dag map
   // each dag nodes are realesaed in the dag constructor so there is no need
   // to clear the map myNodes
   Dag * dag = NULL;
-  for (map<string, Dag *>::iterator p = this->myDags.begin( ); 
-       p != this->myDags.end( ); 
-       ++p ) { 
+  for (map<string, Dag *>::iterator p = this->myDags.begin( );
+       p != this->myDags.end( );
+       ++p ) {
     dag = (Dag*) p->second;
     // delete the map entry
     myDags.erase(p);
@@ -72,11 +75,12 @@ MultiDag::addDag(Dag * dag) {
   for (unsigned int ix=0; ix < v.size(); ix++) {
     v[ix]->addPrec(this->input->getId(),
 		   this->input);
-  }  
+  }
 
-  // link the meta-dag output with the dag outputs
+  cout << "link the meta-dag output with the dag outputs" << endl;
   v = dag->getOutputNodes();
   for (unsigned int ix=0; ix < v.size(); ix++) {
+    cout << "  output node found: " <<  v[ix]->getCompleteId() << endl;
     this->output->addPrec(v[ix]->getCompleteId(),
 			  v[ix]);
   }
@@ -105,7 +109,7 @@ MultiDag::addDag(Dag * dag) {
 /**
  * Update an already present dag in the meta-dag
  */
-void 
+void
 MultiDag::updateDag(const string id) {
   // Find the dag
   map<string, Dag*>::iterator p = myDags.find(id);
@@ -121,7 +125,7 @@ MultiDag::updateDag(const string id) {
  * @param id the dag id to update
  * @param doneNodes vector of already done nodes
  */
-void 
+void
 MultiDag::updateDag(const string id, vector<Node*> doneNodes) {
   map<string, Dag*>::iterator p = this->myDags.find(id);
   if (p == this->myDags.end()) {
@@ -129,7 +133,7 @@ MultiDag::updateDag(const string id, vector<Node*> doneNodes) {
     return;
   }
   Dag * dag = (Dag *)(p->second);
-  if (dag == NULL) 
+  if (dag == NULL)
     return;
   for (unsigned int ix=0; ix<doneNodes.size(); ix++) {
     dag->moveToTrash(doneNodes[ix]);
@@ -184,7 +188,7 @@ MultiDag::rebuild() {
     dag = (Dag*)(p->second);
     if (dag != NULL) {
       vector<Node *> nodes = dag->getNodes();
-      cout << "Adding the nodes of " << dag->getId() << 
+      cout << "Adding the nodes of " << dag->getId() <<
 	"(" << nodes.size() << ")" << endl;
       for (unsigned int ix=0; ix<nodes.size(); ix++) {
 	if ( (this->nodesState.find(nodes[ix]) != this->nodesState.end()) &&
@@ -193,7 +197,7 @@ MultiDag::rebuild() {
 	  this->myNodes[nodes[ix]->getCompleteId()] = nodes[ix];
 	} // end if
       } // end for
-    }    
+    }
   }
   cout << "rebuild (end) : myDags.size() =  " << myDags.size() << endl;
   linkDags();
@@ -225,15 +229,15 @@ void
 MultiDag::linkDag(Dag * dag) {
   vector<Node *> ins = dag->getInputNodes();
   vector<Node *> outs = dag->getOutputNodes();
-  
+
   for (unsigned int ix=0; ix<ins.size(); ix++) {
-    ins[ix]->addPrec(this->input->getId(), 
+    ins[ix]->addPrec(this->input->getId(),
 		     this->input);
-    
+
   }
 
   for (unsigned int ix=0; ix<outs.size(); ix++) {
-    this->output->addPrec(outs[ix]->getId(), 
+    this->output->addPrec(outs[ix]->getId(),
 			  outs[ix]);
   }
 } // end linkDag
@@ -292,7 +296,7 @@ MultiDag::getDag() {
  * set the node state as done
  */
 void
-MultiDag::setNodeAsDone(const char * dagId, const char * nodeId, 
+MultiDag::setNodeAsDone(const char * dagId, const char * nodeId,
 		       bool state) {
   this->myMutex.lock();
 
@@ -326,7 +330,7 @@ MultiDag::getAllDags() {
        p != this->myDags.end();
        ++p) {
     dag = (Dag*)(p->second);
-    if (dag != NULL) 
+    if (dag != NULL)
       v.push_back(dag);
   }
   return v;
@@ -355,7 +359,7 @@ MultiDag::getDag(const string id) {
 /**
  * return the number of the DAGs in the meta-dag
  */
-unsigned int 
+unsigned int
 MultiDag::getLength() {
   return this->myDags.size();
 }
@@ -367,34 +371,35 @@ vector<Node *>
 MultiDag::getReadyNodes() {
   vector<Node*> v;
   for (map<string, Node*>::iterator p = this->myNodes.begin();
-       p != this->myNodes.end(); 
+       p != this->myNodes.end();
        p++) {
     if (
-        (p->second->getSeD() != SeD::_nil()) &&
+	(p->second->getId() != "MultiDag_Output") &&    // TO FIX!
         (p->second->allPrevDone()) &&
         (!p->second->isDone()) &&
         (!p->second->isRunning())
-        )
+        ) {
       v.push_back(p->second);
+    }
   } // end for
   return v;
 } // end getReadyNodes
 
 /**
- * Map scheduling 
+ * Map scheduling
  */
 void
 MultiDag::mapSeDs(wf_node_sched_seq_t& sched_seq) {
   for (int ix=0; ix<sched_seq.length(); ix++) {
     string node_id(sched_seq[ix].node_id);
-    if (this->myNodes.find(node_id) != 
+    if (this->myNodes.find(node_id) !=
         this->myNodes.end()) {
-      cout << "  ** mapping " << this->myNodes.find(node_id)->second->getId() 
+      cout << "  ** mapping " << this->myNodes.find(node_id)->second->getId()
            << " to " << sched_seq[ix].server.loc.hostName << endl;
       string hn(sched_seq[ix].server.loc.hostName);
       this->myNodes.find(node_id)->second->setSeD(sched_seq[ix].server.loc.ior,
                                                   hn);
     } // end if
   } // end for
-  
+
 } // end mapSeD

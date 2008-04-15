@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/04/15 14:20:20  bisnard
+ * - Postpone sed mapping until wf node is executed
+ *
  * Revision 1.2  2008/04/14 09:10:40  bisnard
  *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
  *  - AbstractWfSched and derived classes no longer used with MaDag v2
@@ -28,7 +31,7 @@
 #include "MasterAgent.hh"
 #include "MaDag.hh"
 #include "WfLogSrv.hh"
- 
+
 // DIET headers
 #include "DIET_data.h"
 #include "DIET_client.h"
@@ -40,14 +43,24 @@ class CltWfMgr : public POA_CltMan,
                  public PortableServer::RefCountServantBase{
 public:
   /**
-   * Executes a node (CORBA method)
+   * Executes a node on a specified Sed (CORBA method)
+   * (CURRENTLY NOT USED)
    *
    * @param node_id node identifier
    * @param dag_id  dag identifier
    * @param sed     SeD where execute service
-   */ 
+   */
   virtual void
-  execute(const char * node_id, const char * dag_id, _objref_SeD* sed);
+  execNodeOnSed(const char * node_id, const char * dag_id, _objref_SeD* sed);
+
+  /**
+   * Executes a node without specifying the Sed (CORBA method)
+   *
+   * @param node_id node identifier
+   * @param dag_id  dag identifier
+   */
+  virtual void
+  execNode(const char * node_id, const char * dag_id);
 
   /**
    * Release the waiting semaphore. This method is used by the MA DAG when workflow execution
@@ -65,7 +78,7 @@ public:
   /**
    * Give access to unique reference of CltWfMgr
    */
-  static CltWfMgr * 
+  static CltWfMgr *
   instance();
 
   /**
@@ -95,7 +108,7 @@ public:
   /**
    * Execute a workflow
    *
-   * @param profile profile of workflow to execute 
+   * @param profile profile of workflow to execute
    */
   diet_error_t
   wf_call(diet_wf_desc_t* profile);
@@ -132,7 +145,7 @@ public:
                    const char * id,
 		   void** value,
 		   size_t* nb_rows,
-		   size_t *nb_cols, 
+		   size_t *nb_cols,
 		   diet_matrix_order_t* order);
 
 
@@ -143,7 +156,7 @@ public:
    */
   void
   wf_free(diet_wf_desc_t * profile);
-  
+
 
 protected:
   /**
@@ -152,7 +165,7 @@ protected:
   std::map<diet_wf_desc_t *, Dag *> myProfiles;
 
   /**
-   * Init the workflow processing  
+   * Init the workflow processing
    *
    * @param profile workflow profile reference
    * @param pbs_seq problem sequence
@@ -164,7 +177,7 @@ protected:
                unsigned int& dagSize);
 
   /**
-   * Execute a workflow using the MA DAG. 
+   * Execute a workflow using the MA DAG.
    *
    * @param profile workflow reference
    * @param mapping set if the scheduling is complete (priorities and mapping)
@@ -178,7 +191,7 @@ protected:
   /**
    * Return the object IOR
    */
-  const char * 
+  const char *
   myIOR();
 
   /**
@@ -205,7 +218,7 @@ private:
    */
   MasterAgent_var myMA;
 
-  /** 
+  /**
    * Workflow log service CORBA object reference
    */
   WfLogSrv_var myWfLogSrv;

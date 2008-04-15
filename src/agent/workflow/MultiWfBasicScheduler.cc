@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/04/15 14:20:19  bisnard
+ * - Postpone sed mapping until wf node is executed
+ *
  * Revision 1.2  2008/04/14 13:44:29  bisnard
  * - Parameter 'used' obsoleted in MultiWfScheduler::submit_wf & submit_pb_set
  *
@@ -25,7 +28,7 @@
 
 using namespace madag;
 
-MultiWfBasicScheduler::MultiWfBasicScheduler() 
+MultiWfBasicScheduler::MultiWfBasicScheduler()
   : MultiWfScheduler(),
     mySem(1) {
   this->start();
@@ -34,20 +37,20 @@ MultiWfBasicScheduler::MultiWfBasicScheduler()
 MultiWfBasicScheduler::~MultiWfBasicScheduler() {
   if (this->myMetaDag != NULL)
     delete this->myMetaDag;
-  
+
   if (this->mySched != NULL)
     delete this->mySched;
 }
 
-void 
+void
 MultiWfBasicScheduler::setSched(WfScheduler * sched) {
   this->mySched = sched;
 }
 
 /**
- * Workflow submission function. 
+ * Workflow submission function.
  */
-bool 
+bool
 MultiWfBasicScheduler::submit_wf (const corba_wf_desc_t& wf_desc, int dag_id,
                                   MasterAgent_var parent,
                                   CltMan_var cltMan) {
@@ -85,7 +88,7 @@ MultiWfBasicScheduler::submit_wf (const corba_wf_desc_t& wf_desc, int dag_id,
     mrsh_pb_desc(&pbs_seq[ix], v[ix]);
   }
 
-  cout << "MultiWfBasicScheduler: send the problems sequence to the MA  ... " 
+  cout << "MultiWfBasicScheduler: send the problems sequence to the MA  ... "
        << endl;
   wf_response_t * wf_response = parent->submit_pb_set(pbs_seq, dag->size());
   cout << "... done" << endl;
@@ -98,7 +101,8 @@ MultiWfBasicScheduler::submit_wf (const corba_wf_desc_t& wf_desc, int dag_id,
   // construct the response/scheduling
 
   if ( ! wf_response->complete) {
-    cout << "The response is incomplete" << endl;
+    cout << "The response is incomplete - dag is cancelled" << endl;
+    this->myMetaDag->removeDag(itoa(dag_id));
     this->myLock.unlock();
     return false;
   }
@@ -111,8 +115,7 @@ MultiWfBasicScheduler::submit_wf (const corba_wf_desc_t& wf_desc, int dag_id,
 
   wf_node_sched_seq_t sched_seq = mySched->schedule(wf_response, dag);
 
-
-  this->myMetaDag->mapSeDs(sched_seq);
+//  this->myMetaDag->mapSeDs(sched_seq);  // was used to assign sed
 
   this->wakeUp();
 

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/04/15 14:20:19  bisnard
+ * - Postpone sed mapping until wf node is executed
+ *
  * Revision 1.2  2008/04/14 09:10:37  bisnard
  *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
  *  - AbstractWfSched and derived classes no longer used with MaDag v2
@@ -32,7 +35,7 @@ MultiWfScheduler::~MultiWfScheduler() {
 /**
  * extract only the response for the specified dag
  */
-wf_sched_response_t * 
+wf_sched_response_t *
 MultiWfScheduler::extract(int dag_id, wf_sched_response_t * wf_resp) {
   string dagIdStr = itoa(dag_id);
   wf_sched_response_t * response = new wf_sched_response_t;
@@ -47,7 +50,7 @@ MultiWfScheduler::extract(int dag_id, wf_sched_response_t * wf_resp) {
       response->wf_node_sched_seq.length(index+1);
       response->wf_node_sched_seq[index].node_id = CORBA::string_dup(id.substr(id.find("-")+1).c_str());
       response->wf_node_sched_seq[index].server = wf_resp->wf_node_sched_seq[ix].server;
-      cout << "Adding an item " << response->wf_node_sched_seq[index].node_id << 
+      cout << "Adding an item " << response->wf_node_sched_seq[index].node_id <<
 	", mapped to server" << wf_resp->wf_node_sched_seq[ix].server.loc.ior << endl;
       index++;
     }
@@ -74,16 +77,23 @@ public:
 
   virtual void*
   run() {
+    string dag_id = this->myNode->getDag()->getId();
     cout << "NodeRun: running node " << this->myNode->getCompleteId() << endl;
-    CltMan_ptr cltMan = 
-      this->myScheduler->getCltMan(this->myNode->getDag()->getId());
+    CltMan_ptr cltMan = this->myScheduler->getCltMan(dag_id);
     if (cltMan != CltMan::_nil()) {
       cout << "NodeRun: try to call client manager (ping)" << endl;
       cltMan->ping();
-      cout << "NodeRun: try to call client manager (exec)" << endl;
-      cltMan->execute(this->myNode->getId().c_str(),
-                      this->myNode->getDag()->getId().c_str(),
-                      this->mySeD);
+
+      if (!CORBA::is_nil(this->mySeD)) {
+        cout << "NodeRun: try to call client manager (exec on sed)" << endl;
+        cltMan->execNodeOnSed(this->myNode->getId().c_str(),
+                              this->myNode->getDag()->getId().c_str(),
+                              this->mySeD);
+      } else {
+        cout << "NodeRun: try to call client manager (exec without sed)" << endl;
+        cltMan->execNode(this->myNode->getId().c_str(),
+                         this->myNode->getDag()->getId().c_str());
+      }
       cout << "NodeRun: setting node as done" << endl;
       this->myNode->setAsDone();
       if ((this->myNode->getDag() != NULL) &&
@@ -91,7 +101,10 @@ public:
           ) {
         cout << "NodeRun: The Dag " << this->myNode->getDag()->getId().c_str() << "is done " << endl;
         cltMan->release(this->myNode->getDag()->getId().c_str());
-      } 
+      }
+    }
+    else {
+      cout << "NodeRun: ERROR!! cannot contact the Client Wf Mgr" << endl;
     }
     this->myScheduler->wakeUp();
   }
@@ -103,7 +116,7 @@ private:
 /**
  * Execute a node
  */
-Thread * 
+Thread *
 MultiWfScheduler::runNode(Node * node, SeD_var sed) {
   Thread * thread = new NodeRun(node, sed, this);
   thread->start();

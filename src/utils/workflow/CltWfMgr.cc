@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.4  2008/04/15 14:20:20  bisnard
+ * - Postpone sed mapping until wf node is executed
+ *
  * Revision 1.3  2008/04/14 13:45:11  bisnard
  * - Removed wf mono-mode submit
  * - Renamed submit_wf in processDagWf
@@ -39,13 +42,34 @@ CltWfMgr * CltWfMgr::myInstance = NULL;
 /**
  * Executes a node (CORBA method)
  */ 
+// void
+// CltWfMgr::execute(const char * node_id, const char * dag_id,
+//                   _objref_SeD* sed) {
+//   cout << "Executing the node " << node_id << endl;
+//   Dag * dag = this->getDag(dag_id);
+//   if (dag != NULL) {
+//     cout << "  ** Dag " << dag_id << " found!" << endl;
+//     Node * node = dag->getNode(node_id);
+//     if (node != NULL) {
+//       SeD_var sed_var = SeD::_narrow(sed);
+//       node->setSeD(sed_var, "");
+//       node->start(-1, true);
+//     }
+//     else
+//       cerr << "Node " << node_id << " not fount!!!!" << endl;
+//   }
+//   else
+//     cout << "  ** Dag " << dag_id << " not found!" << endl;
+//   sed->ping();
+//   cout << "CltWfMgr: end of execution of node" << endl;   // SED-TEST (to remove)
+// } // end execute
+
+
 void
-CltWfMgr::execute(const char * node_id, const char * dag_id,
+CltWfMgr::execNodeOnSed(const char * node_id, const char * dag_id,
                   _objref_SeD* sed) {
-  cout << "Executing the node " << node_id << endl;
   Dag * dag = this->getDag(dag_id);
   if (dag != NULL) {
-    cout << "  ** Dag " << dag_id << " found!" << endl;
     Node * node = dag->getNode(node_id);
     if (node != NULL) {
       SeD_var sed_var = SeD::_narrow(sed);
@@ -56,9 +80,25 @@ CltWfMgr::execute(const char * node_id, const char * dag_id,
       cerr << "Node " << node_id << " not fount!!!!" << endl;
   }
   else
-    cout << "  ** Dag " << dag_id << " not found!" << endl;
-  sed->ping();  
-} // end execute
+    cout << "  Dag " << dag_id << " not found!" << endl;
+  sed->ping();
+} // end execNodeOnSed
+
+void
+CltWfMgr::execNode(const char * node_id, const char * dag_id) {
+  Dag * dag = this->getDag(dag_id);
+  if (dag != NULL) {
+    Node * node = dag->getNode(node_id);
+    if (node != NULL) {
+      node->start(-1, true);
+    }
+    else
+      cerr << "Node " << node_id << " not fount!!!!" << endl;
+  }
+  else
+    cout << "  Dag " << dag_id << " not found!" << endl;
+} // end execNode
+
 
 CltWfMgr::CltWfMgr() : mySem(0) {
   this->myMA = MasterAgent::_nil();;
