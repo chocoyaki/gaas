@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/04/15 14:19:54  bisnard
+ * - Postpone sed mapping until wf node is executed
+ * - Removed diet_call_common2 function
+ *
  * Revision 1.2  2008/04/14 09:10:40  bisnard
  *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
  *  - AbstractWfSched and derived classes no longer used with MaDag v2
@@ -98,106 +102,13 @@ void display(const corba_profile_t& pb) {
 	      "  - param : " << pb.last_out << endl);
   for (unsigned int ix=0; ix < pb.parameters.length(); ix++) {
     TRACE_TEXT (TRACE_ALL_STEPS,
-		"     - base_type = " << pb.parameters[ix].desc.base_type << 
+		"     - base_type = " << pb.parameters[ix].desc.base_type <<
 		", specific = " << pb.parameters[ix].desc.specific._d() <<
 		endl);
   }
   TRACE_TEXT (TRACE_ALL_STEPS,
 	      "*************************" << endl);
 }
-
-/**
- * This function is based on the function diet_call_common of DIET_client.cc
- * It was added to manage the reqID which are not set if we use the original
- * function
- * To keep the code short, the JUXMEM part was removed
- */
-diet_error_t
-diet_call_common2(diet_profile_t* profile, SeD_var& chosenServer) {
-  int solve_res(0);
-  corba_profile_t corba_profile;
-
-  char statMsg[128];
-  stat_in("Client","diet_call");
-
-  /* Send Datas */
-
-  if (mrsh_profile_to_in_args(&corba_profile, profile)) {
-    ERROR("profile is wrongly built", 1);
-  }
-  
-  int j = 0;
-  bool found = false;
-  while ((j <= corba_profile.last_out) && (found == false)) {
-    if (diet_is_persistent(corba_profile.parameters[j])) {      
-      found = true;
-    }
-    j++;
-  }
-  if(found == true){
-    create_file();
-  }
-
-
-  /* data property base_type and type retrieval : used for scheduler */
-  for(int i = 0 ; i <= corba_profile.last_out ; i++) {
-    char* new_id = strdup(corba_profile.parameters[i].desc.id.idNumber);
-    if(strlen(new_id) != 0) {
-      corba_data_desc_t* arg_desc = new corba_data_desc_t;
-      arg_desc = getMA()->get_data_arg(new_id);
-      const_cast<corba_data_desc_t&>(corba_profile.parameters[i].desc) = *arg_desc;
-    }
-  }  
-  
-  /* generate new ID for data if not already existant */
-  for(int i = 0 ; i <= corba_profile.last_out ; i++) {
-    if((corba_profile.parameters[i].desc.mode > DIET_VOLATILE ) && 
-       (corba_profile.parameters[i].desc.mode < DIET_PERSISTENCE_MODE_COUNT) &&
-       (getMA()->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber))))
-      {
-	char* new_id = getMA()->get_data_id(); 
-	corba_profile.parameters[i].desc.id.idNumber = new_id;
-      }
-  }
-
-
-  /* Computation */
-  sprintf(statMsg, "computation %ld", (unsigned long) profile->dietReqID);
-  try {
-    stat_in("Client",statMsg);
-
-    TRACE_TEXT(TRACE_MAIN_STEPS, 
-	       "Calling the ref Corba of the SeD (reqID = " << profile->dietReqID << ")\n");
-    TRACE_TEXT(TRACE_MAIN_STEPS, statMsg << endl);
-
-    TRACE_TEXT (TRACE_ALL_STEPS,
-		  "Calling the service " << profile->pb_name << endl);
-    display(corba_profile);
-    solve_res = chosenServer->solve(profile->pb_name, corba_profile);
-    stat_out("Client",statMsg);
-   } catch(CORBA::MARSHAL& e) {
-    ERROR("got a marchal exception\n"
-          "Maybe your giopMaxMsgSize is too small",1) ;
-  }
-
-  /* reaffect identifier */
-  for(int i = 0;i <= profile->last_out;i++) {
-    if ((corba_profile.parameters[i].desc.mode > DIET_VOLATILE ) && 
-        (corba_profile.parameters[i].desc.mode < DIET_PERSISTENCE_MODE_COUNT)) {
-      profile->parameters[i].desc.id = strdup(corba_profile.parameters[i].desc.id.idNumber);
-    }
-  }
-
-  if (unmrsh_out_args_to_profile(profile, &corba_profile)) {
-    INTERNAL_ERROR("returned profile is wrongly built", 1);
-  }
-
-  sprintf(statMsg, "diet_call %ld", (unsigned long) profile->dietReqID);
-  TRACE_TEXT(TRACE_MAIN_STEPS, statMsg << endl);
-  stat_out("Client",statMsg);
-  return solve_res;
-
-} // end diet_call_common
 
 /**
  * RunnableNode constructor
@@ -212,12 +123,12 @@ RunnableNode::RunnableNode(Node * parent,
 /**
  * Node execution methods *
  */
-void * 
+void *
 RunnableNode::run() {
   TRACE_TEXT (TRACE_ALL_STEPS,
 	      "RunnableNode tries to a execute a service "<< endl);
   // create the node diet profile
-    TRACE_TEXT (TRACE_ALL_STEPS, "create the node diet profile" << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS, "create the node diet profile" << endl);
   myParent->createProfile();
   TRACE_TEXT (TRACE_ALL_STEPS, "profile creation ... done" << endl);
   TRACE_TEXT (TRACE_ALL_STEPS, "Init the ports " << endl);
@@ -228,33 +139,27 @@ RunnableNode::run() {
     if (in->source_port) {
       WfOutPort * out = (WfOutPort*)(in->source_port);
         TRACE_TEXT (TRACE_ALL_STEPS,
-		    "using the persistent data for " << in->index << 
+		    "using the persistent data for " << in->index <<
 		    " (out = " << out->index << ")" << endl);
-      
+
       diet_use_data(diet_parameter(myParent->profile, in->index),
 		    out->profile()->parameters[out->index].desc.id);
-      
+
     }
   }
   TRACE_TEXT (TRACE_ALL_STEPS, "Init ports data ... done " << endl);
 
 //  nodeIsRunning(myParent->getId().c_str());
 
-  if (!CORBA::is_nil(myParent->chosenServer)) {
-    TRACE_TEXT (TRACE_MAIN_STEPS, 
-		"Using the scheduling of the mapped SeD" << endl <<
-		"call the chosenServer ..." << endl);
-    if ( ! diet_call_common2(myParent->profile, myParent->chosenServer)) {
-      myParent->storePersistentData();
-    }
-    TRACE_TEXT (TRACE_ALL_STEPS, "done" << endl);
+  if (!diet_call(myParent->profile)) {
+    TRACE_TEXT (TRACE_MAIN_STEPS, "diet_call DONE" << endl);
+    myParent->storePersistentData();
   }
   else {
-    TRACE_TEXT (TRACE_MAIN_STEPS, "Using the MA to call the SeD"<< endl);
-    if (!diet_call(myParent->profile)) {
-      myParent->storePersistentData();
-    }
+    TRACE_TEXT (TRACE_MAIN_STEPS, "diet_call FAILED" << endl);
+    // TODO : manage diet_call failure
   }
+
   TRACE_TEXT (TRACE_ALL_STEPS, "RunnableNode call ... done" << endl);
   myParent->done();
   return NULL;
@@ -270,11 +175,11 @@ Node::Node(string id, string pb_name,
   this->prevNodes = 0;
   this->task_done = false;
   this->myTag = 0;
-  this->profile = diet_profile_alloc((char*)pb_name.c_str(), 
+  this->profile = diet_profile_alloc((char*)pb_name.c_str(),
 				     last_in, last_inout, last_out);
   this->node_running = false;
   this->myRunnableNode = NULL;
-  this->chosenServer = SeD::_nil();  
+  this->chosenServer = SeD::_nil();
   this->nextDone = 0;
   this->myMark = false;
   this->priority = 0;
@@ -297,7 +202,7 @@ Node::~Node() {
     // char vector
     char * cx;
     while (charParams.size() != 0) {
-      cx = charParams.back(); 
+      cx = charParams.back();
       charParams.pop_back();
       if (cx)
 	delete (cx);
@@ -357,7 +262,7 @@ Node::~Node() {
   }
 
   {
-    // float vector 
+    // float vector
     float * fx = NULL;
     while (floatParams.size() != 0) {
       fx = floatParams.back();
@@ -392,9 +297,9 @@ void Node::addPrecId(string str) {
 void Node::addPrec(string str, Node * node) {
   // add the node as a previous one if not already done
   if (myPrevNodes.find(str) == myPrevNodes.end()) {
-    TRACE_TEXT (TRACE_ALL_STEPS, "The node " << this->myId << " has a new previous node " << 
+    TRACE_TEXT (TRACE_ALL_STEPS, "The node " << this->myId << " has a new previous node " <<
 		str << endl);
-    myPrevNodes[str] = node; 
+    myPrevNodes[str] = node;
     prevNodes--;
     node->addNext(this);
     addPrecId(str);
@@ -435,7 +340,7 @@ Node::toStringBasis() {
 
 /**
  * Return the number of the previous nodes *
- */  
+ */
 unsigned int
 Node::prec_ids_nb() {
   return prec_ids.size();
@@ -444,7 +349,7 @@ Node::prec_ids_nb() {
 /**
  * Get the previous node id by index *
  */
-string 
+string
 Node::getPrecId(unsigned int n) {
   if (n<prec_ids.size())
     return prec_ids[n];
@@ -463,7 +368,7 @@ Node::addNext(Node * n) {
 /**
  * Called when a previous node execution is done *
  */
-void 
+void
 Node::prevNodeHasDone() {
   prevNodes++;
 } // end prevDone
@@ -471,7 +376,7 @@ Node::prevNodeHasDone() {
 /**
  * add a new previous node *
  */
-void 
+void
 Node::addPrevNode() {
   prevNodes--;
 } // end addPrevNode
@@ -479,7 +384,7 @@ Node::addPrevNode() {
 /**
  * Add n new previous nodes *
  */
-void 
+void
 Node::addPrevNode(int n) {
   prevNodes -= n;
 } // end addPrevNode
@@ -498,7 +403,7 @@ Node::setTag(unsigned int t) {
 
 /**
  * return if the node is an input node *
- * only the nodes with no previous node are considered as dag input  * 
+ * only the nodes with no previous node are considered as dag input  *
  */
 bool
 Node::isAnInput() {
@@ -507,7 +412,7 @@ Node::isAnInput() {
 
 /**
  * return true if the node is an input node *
- * only the nodes with no next node are considered as dag exit  * 
+ * only the nodes with no next node are considered as dag exit  *
  */
 bool
 Node::isAnExit() {
@@ -517,7 +422,7 @@ Node::isAnExit() {
 /**
  * Set the node ID
  */
-void 
+void
 Node::setId(string id) {
   this->myId = id;
 } // end setId
@@ -535,7 +440,7 @@ Node::toString() {
     WfInPort * in = (WfInPort*)(p->second);
     str += "\t\t"+ in->id + "\n";
   }
-    
+
   str += "Output Ports\n";
   for (map<string, WfOutPort*>::iterator p = outports.begin();
        p != outports.end();
@@ -551,7 +456,7 @@ Node::toString() {
  * if b = false (value by default) the node representation doesn't include
  * the information about previous nodes (the source ports of input ports)
  */
-string 
+string
 Node::toXML(bool b) {
   string xml = "<node id=\""+ myId+"\" ";
   xml += "path=\""+ myPb +"\">\n";
@@ -580,7 +485,8 @@ Node::set_pb_desc(diet_profile_t* profile) {
 } // end set_pb_desc
 
 /**
- * start the node execution * 
+ * start the node execution *
+ * Note: the arguments reqID and join are always set to default currently
  */
 void
 Node::start(diet_reqID_t reqID, bool join) {
@@ -591,16 +497,17 @@ Node::start(diet_reqID_t reqID, bool join) {
   myRunnableNode = new RunnableNode(this, reqID);
   TRACE_TEXT (TRACE_ALL_STEPS, "The node " << myId << " tries to launch a RunnableNode "<< endl);
   myRunnableNode->start();
-  TRACE_TEXT (TRACE_ALL_STEPS, "The node " << myId << " launched it RunnableNode" << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS, "The node " << myId << " launched its RunnableNode" << endl);
 //   AbstractWfSched::pop(this->myId);
   if (join)
     this->myRunnableNode->join();
+  TRACE_TEXT (TRACE_ALL_STEPS, "The node " << myId << " joined its RunnableNode" << endl);
 } // end start
 
 /**
  * Allocate a new char *
  */
-char *  
+char *
 Node::newChar(const string value) {
   TRACE_TEXT (TRACE_ALL_STEPS, "new char ; value | " << value <<  " |" << endl);
   if (value != "") {
@@ -618,7 +525,7 @@ Node::newChar(const string value) {
 /**
  * Allocate a new short *
  */
-short * 
+short *
 Node::newShort(const string value) {
   TRACE_TEXT (TRACE_ALL_STEPS, "new short ; value | " << value <<  " |" << endl);
   if (value != "") {
@@ -636,7 +543,7 @@ Node::newShort(const string value) {
 /**
  * Allocate a new int  *
  */
-int *   
+int *
 Node::newInt(const string value) {
   TRACE_TEXT (TRACE_ALL_STEPS,
 	      "new int ; value | " << value <<  " |" << endl);
@@ -656,7 +563,7 @@ Node::newInt(const string value) {
 /**
  * Allocate a new long *
  */
-long *  
+long *
 Node::newLong(const string value) {
   TRACE_TEXT (TRACE_ALL_STEPS,
 	      "new long ; value | " << value <<  " |" << endl);
@@ -676,7 +583,7 @@ Node::newLong(const string value) {
 /**
  * Allocate a new string *
  */
-char * 
+char *
 Node::newString (const string value) {
   char * str = new char[value.size()+1];
   strcpy(str, value.c_str());
@@ -690,7 +597,7 @@ Node::newString (const string value) {
 /**
  * Allocate a new file *
  */
-char * 
+char *
 Node::newFile (const string value) {
   char * str = new char[value.size()+1];
   strcpy(str, value.c_str());
@@ -704,7 +611,7 @@ Node::newFile (const string value) {
 /**
  * Allocate a new float  *
  */
-float *   
+float *
 Node::newFloat  (const string value) {
   float * fx = new float;
   *fx = (float)atof(value.c_str());
@@ -715,7 +622,7 @@ Node::newFloat  (const string value) {
 /**
  * Allocate a new double  *
  */
-double *   
+double *
 Node::newDouble (const string value) {
   double * dx = new double;
   *dx = atof(value.c_str());
@@ -734,16 +641,16 @@ Node::setPriority(double priority) {
 /**
  * get the node priority *
  */
-double  
+double
 Node::getPriority() {
   return this->priority;
 } // end getPriority
 
 /**
- * get if the node is ready for execution 
+ * get if the node is ready for execution
  * @deprecated
  */
-bool 
+bool
 Node::isReady() {
   return (prevNodes == 0);
 } // end isReady
@@ -753,9 +660,9 @@ Node::isReady() {
  *
  * this method loops through all the predecessors of the node to check if they
  * are all done
- * @return bool 
+ * @return bool
  */
-bool 
+bool
 Node::allPrevDone() {
   for (map <string, Node*>::iterator p = this->myPrevNodes.begin();
        p != this->myPrevNodes.end();
@@ -769,12 +676,12 @@ Node::allPrevDone() {
 /**
  * Link input port to output port by id and setting references link *
  */
-void 
+void
 Node::link_i2o(const string in, const string out) {
   // the port is supposed to be present
   if (out == "") {
     return;
-  } 
+  }
   WfInPort * inPort = getInPort(in);
   if (inPort != NULL)
     inPort->set_source(out);
@@ -787,7 +694,7 @@ Node::link_i2o(const string in, const string out) {
 /**
  * Link output port to input port by id and setting references link *
  */
-void 
+void
 Node::link_o2i(const string out, const string in) {
   if (in == "") {
     return;
@@ -805,7 +712,7 @@ Node::link_o2i(const string out, const string in) {
 /**
  * Link inoutput port to input port by id and setting references link *
  */
-void 
+void
 Node::link_io2i(const string io, const string in) {
   // TO FIX
   // the port is supposed to be present
@@ -839,7 +746,7 @@ Node::newPort(string id, uint ind, wf_port_t type, string diet_type,
     inports[id] = (WfInPort *) p;
     break;
   case INOUT_PORT:
-    p = new WfInOutPort(this, id, diet_type, ind, v); 
+    p = new WfInOutPort(this, id, diet_type, ind, v);
     inoutports[id] = (WfInOutPort *) p;
     break;
   case OUT_PORT:
@@ -847,7 +754,7 @@ Node::newPort(string id, uint ind, wf_port_t type, string diet_type,
     outports[id] = (WfOutPort *)p;
     break;
   }
-  return (WfPort*)p;  
+  return (WfPort*)p;
 } // end newPort
 
 /**
@@ -863,7 +770,7 @@ Node::setSeD(const SeD_var& sed, std::string hostName) {
 
 /**
  * return the SeD affected to the node
- */ 
+ */
 SeD_var
 Node::getSeD() {
   return this->chosenServer;
@@ -872,13 +779,13 @@ Node::getSeD() {
 /**
  * return the number of next nodes
  */
-unsigned int 
+unsigned int
 Node::nextNodesCount() {
   return next.size();
 } // end nextNb
 
 /**
- * return  next node 
+ * return  next node
  */
 Node *
 Node::getNext(unsigned int n) {
@@ -891,13 +798,13 @@ Node::getNext(unsigned int n) {
 /**
  * return the number of previous nodes
  */
-unsigned int 
+unsigned int
 Node::prevNodesCount() {
   return myPrevNodes.size();
 } // end prevNb
 
 /**
- * return  next node 
+ * return  next node
  */
 Node *
 Node::getPrev(unsigned int n) {
@@ -911,12 +818,12 @@ Node::getPrev(unsigned int n) {
 /**
  * Store the persistent data of the node profile *
  */
-void 
-Node::storePersistentData() {  
+void
+Node::storePersistentData() {
   for (map<string, WfOutPort*>::iterator p = outports.begin();
        p != outports.end();
        ++p) {
-    WfOutPort * out = (WfOutPort*)(p->second); 
+    WfOutPort * out = (WfOutPort*)(p->second);
     store_id(profile->parameters[out->index].desc.id,
 	     "wf param");
   }
@@ -961,7 +868,7 @@ Node::getInOutPort(string id) {
 /**
  * create the diet profile associated to the node *
  */
-void 
+void
 Node::createProfile() {
   int last_in = this->profile->last_in;
   int last_inout = this->profile->last_inout;
@@ -972,7 +879,7 @@ Node::createProfile() {
 	      last_in << ", " <<
 	      last_inout << ", " <<
 	      last_out << endl);
-  this->profile =  diet_profile_alloc((char*)(this->myPb.c_str()), 
+  this->profile =  diet_profile_alloc((char*)(this->myPb.c_str()),
 					   last_in, last_inout, last_out);
 
   int last = 0;
@@ -984,12 +891,12 @@ Node::createProfile() {
        ++p) {
     WfInPort * in = (WfInPort*)(p->second);
     if (in->isInput())
-      this->set_profile_param(in, 
+      this->set_profile_param(in,
 			      in->type, in->index, in->value, DIET_VOLATILE);
     else
-      this->set_profile_param(in, 
+      this->set_profile_param(in,
 			      in->type, in->index, in->value, DIET_PERSISTENT);
-      
+
     last ++;
   }
   // output ports
@@ -1001,8 +908,8 @@ Node::createProfile() {
     WfOutPort * out = (WfOutPort*)(p->second);
     TRACE_TEXT (TRACE_ALL_STEPS,
 		"%%%%%%%% " << out->type << endl);
-    this->set_profile_param(out, 
-			    out->type, out->index, out->value, 
+    this->set_profile_param(out,
+			    out->type, out->index, out->value,
 			    DIET_PERSISTENT);
     last ++;
   }
@@ -1011,8 +918,8 @@ Node::createProfile() {
        p != inoutports.end();
        ++p) {
     WfInOutPort * inout = (WfInOutPort*)(p->second);
-    this->set_profile_param(inout, 
-			    inout->type, inout->index, 
+    this->set_profile_param(inout,
+			    inout->type, inout->index,
 			    inout->value, DIET_PERSISTENT);
     last ++;
   }
@@ -1020,57 +927,57 @@ Node::createProfile() {
 
 /**
  * set the node profile param *
- * @param type    parameter data type * 
+ * @param type    parameter data type *
  * @param lastArg parameter index *
  * @param value   string representation of parameter value *
  */
-void 
+void
 Node::set_profile_param(WfPort * port,
 			string type, const int lastArg, const string& value,
 			const diet_persistence_mode_t mode) {
   TRACE_TEXT (TRACE_ALL_STEPS,
-	      "\tset_profile_param : type = " << type << 
-	      ", lastArg = " << lastArg << ", value = " << value << 
+	      "\tset_profile_param : type = " << type <<
+	      ", lastArg = " << lastArg << ", value = " << value <<
 	      ", mode = " << mode << endl);
   if (type == WfCst::DIET_CHAR) {
     TRACE_TEXT (TRACE_ALL_STEPS,
 		"char parameter "<< lastArg << endl);
     if (value != "")
-      diet_scalar_set(diet_parameter(profile, lastArg), 
-		      this->newChar(value), 
+      diet_scalar_set(diet_parameter(profile, lastArg),
+		      this->newChar(value),
 		      mode,
 		      DIET_CHAR);
     else
-      diet_scalar_set(diet_parameter(profile, lastArg), 
-		      this->newChar(), 
+      diet_scalar_set(diet_parameter(profile, lastArg),
+		      this->newChar(),
 		      mode,
-		      DIET_CHAR);      
+		      DIET_CHAR);
   }
   if (type == WfCst::DIET_SHORT) {
     TRACE_TEXT (TRACE_ALL_STEPS,
 		"short parameter "<< lastArg << endl);
     if (value != "")
-      diet_scalar_set(diet_parameter(profile, lastArg), 
-		      this->newShort(value), 
+      diet_scalar_set(diet_parameter(profile, lastArg),
+		      this->newShort(value),
 		      mode,
 		      DIET_SHORT);
     else
-      diet_scalar_set(diet_parameter(profile, lastArg), 
-		      this->newShort(), 
+      diet_scalar_set(diet_parameter(profile, lastArg),
+		      this->newShort(),
 		      mode,
-		      DIET_SHORT);      
+		      DIET_SHORT);
   }
   if (type == WfCst::DIET_INT) {
     TRACE_TEXT (TRACE_ALL_STEPS,
 		"int parameter "<< lastArg << endl);
     if (value != "")
-      diet_scalar_set(diet_parameter(profile, lastArg), 
-		      this->newInt(value), 
+      diet_scalar_set(diet_parameter(profile, lastArg),
+		      this->newInt(value),
 		      mode,
 		      DIET_INT);
     else
-      diet_scalar_set(diet_parameter(profile, lastArg), 
-		      this->newInt(), 
+      diet_scalar_set(diet_parameter(profile, lastArg),
+		      this->newInt(),
 		      mode,
 		      DIET_INT);
   }
@@ -1078,19 +985,19 @@ Node::set_profile_param(WfPort * port,
     TRACE_TEXT (TRACE_ALL_STEPS,
 		"long parameter "<< lastArg << endl);
     if (value != "")
-      diet_scalar_set(diet_parameter(profile, lastArg), 
-		      this->newLong(value), 
+      diet_scalar_set(diet_parameter(profile, lastArg),
+		      this->newLong(value),
 		      mode,
 		      DIET_LONGINT);
     else
-      diet_scalar_set(diet_parameter(profile, lastArg), 
-		      this->newLong(), 
+      diet_scalar_set(diet_parameter(profile, lastArg),
+		      this->newLong(),
 		      mode,
-		      DIET_LONGINT);      
+		      DIET_LONGINT);
   }
   if (type == WfCst::DIET_STRING) {
     //
-    //  diet_string_set(diet_arg_t* arg, 
+    //  diet_string_set(diet_arg_t* arg,
     //                  char* value, diet_persistence_mode_t mode);
     //
     TRACE_TEXT (TRACE_ALL_STEPS,
@@ -1132,11 +1039,11 @@ Node::set_profile_param(WfPort * port,
     TRACE_TEXT (TRACE_ALL_STEPS,
 		"%%%%%%%%% FILE parameter "<< lastArg << endl);
     if (value != "")
-      diet_file_set(diet_parameter(profile, lastArg), 
+      diet_file_set(diet_parameter(profile, lastArg),
 		    mode,
-		    this->newFile(value)); 
+		    this->newFile(value));
     else
-      diet_file_set(diet_parameter(profile, lastArg), 
+      diet_file_set(diet_parameter(profile, lastArg),
 		    mode,
 		    NULL);
   }
@@ -1208,7 +1115,7 @@ Node::set_profile_param(WfPort * port,
 
       }
       else {
-	// get the data if included in the XML workflow description	
+	// get the data if included in the XML workflow description
 	vector<string> v = getStringToken(port->value);
 	unsigned int len = v.size();
 	// fill the matrix with the given data
@@ -1216,7 +1123,7 @@ Node::set_profile_param(WfPort * port,
 		    "filling the matrix with the data (" << len << ")" << endl);
 	char  * ptr1(NULL);
 	short * ptr2(NULL);
-	int   * ptr3(NULL); 
+	int   * ptr3(NULL);
 	long  * ptr4(NULL);
 	float * ptr5(NULL);
 	double * ptr6(NULL);
@@ -1256,13 +1163,13 @@ Node::set_profile_param(WfPort * port,
 	  return;
 	  break;
 	} // end switch
-      } // end else 
+      } // end else
     } // end if value
     diet_matrix_set(diet_parameter(profile,lastArg),
-		    mat, mode, 
-		    port->base_type, 
-		    port->nb_r, 
-		    port->nb_c, 
+		    mat, mode,
+		    port->base_type,
+		    port->nb_r,
+		    port->nb_c,
 		    port->order);
     //    matrixParams.push_back(mat);
   }
@@ -1271,7 +1178,7 @@ Node::set_profile_param(WfPort * port,
 /**
  * Set the node as running *
  */
-void 
+void
 Node::set_as_running() {
   node_running = true;
 } // end set_as_running
@@ -1279,7 +1186,7 @@ Node::set_as_running() {
 /**
  * test if the node is running *
  */
-bool 
+bool
 Node::isRunning() {
   return node_running;
 } // end isRunning
@@ -1295,7 +1202,7 @@ Node::setAsRunning() {
 /**
  * test if the execution is done *
  */
-bool 
+bool
 Node::isDone() {
   return task_done;
 } // end isDone
@@ -1359,7 +1266,7 @@ Node::nextIsDone() {
     for (map<string, WfOutPort*>::iterator p = outports.begin();
 	 p != outports.end();
 	 ++p) {
-      WfOutPort * out = (WfOutPort*)(p->second); 
+      WfOutPort * out = (WfOutPort*)(p->second);
       if (!out->isResult()) {
 	TRACE_TEXT (TRACE_ALL_STEPS,
 		    "\tRelease the persistent data " <<
@@ -1396,7 +1303,7 @@ Node::setRealCompTime(const struct timeval& real_comp_time) {
   this->RealCompTime = real_comp_time;
 } // end setRealCompTime
 
-/** 
+/**
  * get the real completion time
  */
 struct timeval
@@ -1413,9 +1320,9 @@ Node::getMark() {
 } // end getMark
 
 /**
- * set the node mark 
+ * set the node mark
  */
-void 
+void
 Node::setMark(bool b) {
   this->myMark = b;
 } // end setMark
@@ -1423,7 +1330,7 @@ Node::setMark(bool b) {
 /**
  * return the node profile
  */
-diet_profile_t * 
+diet_profile_t *
 Node::getProfile() {
   return this->profile;
 } // end getProfile
@@ -1442,7 +1349,12 @@ Node::setDag(Dag * dag) {
  */
 Dag *
 Node::getDag() {
-  return this->myDag;
+  if (this->myDag != NULL)
+    return this->myDag;
+  else {
+    cout << "ERROR: calling getDag() on a node not linked to a dag" << endl;
+    exit(0);
+  }
 }
 
 unsigned int
