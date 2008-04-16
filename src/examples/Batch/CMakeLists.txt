@@ -62,7 +62,7 @@ ELSE( DIET_USE_BATCH )
   ENDFOREACH( loop_var )
 
   ### Do Lammps example, and Decrypthon suites
-  ADD_SUBDIRECTORY( Lammps )
+  # ADD_SUBDIRECTORY( Lammps )
   ADD_SUBDIRECTORY( TestAllBatch )
 
 ENDIF( DIET_USE_BATCH )
