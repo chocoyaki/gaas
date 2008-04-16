@@ -17,6 +17,14 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.22  2008/04/16 07:01:27  ycaniou
+#* Removed utils/batch.[ch] which were used only with USE_BATCH option
+#* Added src/examples/async_client.c
+#*       src/examples/TestAllBatch/batch_server.c
+#*       src/examples/TestAllBatch/client.c
+#*       src/examples/TestAllBatch/concatenation.sh
+#* Tkx Raph
+#*
 #* Revision 1.21  2008/04/10 10:33:47  rbolze
 #* add and delete file from the last commit of the WORKFLOW feature
 #*
@@ -296,11 +304,15 @@ src/examples/BLAS/server.c
 [Untemplated]
 src/examples/Batch/CMakeLists.txt
 [Templated]
+src/examples/Batch/async_client.c
 src/examples/Batch/batch_server.c
 src/examples/Batch/client.c
 src/examples/Batch/concatenation.c
 src/examples/Batch/parallel_server.c
 src/examples/Batch/sequential_server.c
+src/examples/Batch/TestAllBatch/batch_server.c
+src/examples/Batch/TestAllBatch/client.c
+src/examples/Batch/TestAllBatch/concatenation.sh
 
 [Untemplated]
 src/examples/GridRPC/CMakeLists.txt
@@ -458,9 +470,6 @@ src/utils/ServiceTable.cc
 src/utils/ServiceTable.hh
 src/utils/Vector.c
 src/utils/Vector.h
-src/utils/batch.c
-src/utils/batch.h
-src/utils/batch_configure.h.in
 src/utils/debug.cc
 src/utils/debug.hh
 src/utils/est_internal.cc
