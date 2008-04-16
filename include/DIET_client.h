@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.37  2008/04/16 08:27:07  ycaniou
+ * C++ commentaries -> C commentaries to avoid warnings
+ *
  * Revision 1.36  2008/04/14 09:07:21  bisnard
  *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
  *  - diet_wf_call* functions no longer used with MaDag v2
@@ -291,17 +294,18 @@ diet_wf_call(diet_wf_desc_t* profile);
 void
 diet_wf_free(diet_wf_desc_t * profile);
 
-// void
-// nodeIsDone(const char * node_id, const char * dag_id);
-// 
-// void
-// nodeIsRunning(const char * node_id);
-// 
-// void 
-// nodeIsStarting(const char * node_id);
-// 
-// void
-// nodeIsWaiting(const char * node_id);
+  /* void
+     nodeIsDone(const char * node_id, const char * dag_id);
+
+     void
+     nodeIsRunning(const char * node_id);
+ 
+     void 
+     nodeIsStarting(const char * node_id);
+
+     void
+     nodeIsWaiting(const char * node_id);
+  */
 /***************************************************************/
 
 typedef enum {MA_MODE, MADAG_MODE, MULTIWF_MODE} wf_sub_mode_t;
