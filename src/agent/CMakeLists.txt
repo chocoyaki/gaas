@@ -48,7 +48,7 @@ IF( DIET_BUILD_LIBRARIES )
   #########################################################################
   # To use Dagda instead of DTM.
   IF( DIET_USE_DAGDA )
-    INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/src/utils/DAGDA )
+    INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/src/utils/DAGDA ${UUID_PATH} )
     SET( DAGDA_LIBRARIES
       Dagda
       IDLDagda

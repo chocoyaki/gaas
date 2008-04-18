@@ -32,6 +32,10 @@
 #include "DagdaImpl.hh"
 #include "DagdaFactory.hh"
 
+#if HAVE_ADVANCED_UUID
+#include <uuid/uuid.h>
+#endif
+
 DagdaImpl::~DagdaImpl() {
   if (parent!=NULL) parent->unsubscribe(_this());
 }
@@ -84,7 +88,7 @@ char* DagdaImpl::writeFile(const SeqChar& data, const char* basename,
   std::string filename(getDataPath());
   filename.append("/");
   filename.append(basename);
-  
+
   if (replace)
     file.open(filename.c_str());
   else
@@ -97,6 +101,25 @@ char* DagdaImpl::writeFile(const SeqChar& data, const char* basename,
   TRACE_TEXT(TRACE_ALL_STEPS, "Write " << data.length() << " bytes on the file "
                              << filename << endl);
   return CORBA::string_dup(filename.c_str());
+}
+
+string gen_filename(string basename) {
+  int idx = basename.find_last_of('/');
+  if (idx!=string::npos)
+    basename=basename.substr(idx);
+  ostringstream name;
+#if HAVE_ADVANCED_UUID
+  uuid_t uuid;
+  char ID[37];
+  
+  uuid_generate(uuid);
+  uuid_unparse(uuid, ID);
+  
+  name << basename << "-" << ID;
+#else
+  name << basename << "." << getpid();
+#endif
+  return name.str();
 }
 
 /* Send a file to a node. */
@@ -114,12 +137,9 @@ char* DagdaImpl::sendFile(const corba_data_t &data, Dagda_ptr dest) {
   
   unsigned long wrote = 0;
   unsigned long fileSize = data.desc.specific.file().size;
-  std::string basename(data.desc.specific.file().path);
-  int idx = basename.find_last_of('/');
-  if (idx!=std::string::npos)
-    basename=basename.substr(idx);
-  std::ostringstream name;
-  name << basename << "." << getpid();
+  string basename(data.desc.specific.file().path);
+
+  string name = gen_filename(basename);
 
   unsigned long nBlocks =  fileSize / getMaxMsgSize() + 1;
 
@@ -135,7 +155,7 @@ char* DagdaImpl::sendFile(const corba_data_t &data, Dagda_ptr dest) {
     if (file.bad()) throw Dagda::ReadError(errno);
     // Send the data.
     if (distPath!=NULL) CORBA::string_free(distPath);
-    distPath=dest->writeFile(buffer, name.str().c_str(), replace);
+    distPath=dest->writeFile(buffer, name.c_str(), replace);
 
     wrote+=toSend;
     replace=false;

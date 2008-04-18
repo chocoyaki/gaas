@@ -31,6 +31,7 @@ IF( DIET_BUILD_LIBRARIES )
     IDLDagda
     UtilsCommon
     ${OMNIORB4_LIBRARIES}
+    ${UUIDLIB}
   )
 
   TARGET_LINK_LIBRARIES( DIET_Dagda

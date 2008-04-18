@@ -309,6 +309,25 @@ ENDIF( DIET_USE_USERSCHED )
 # --------------- New : Dagda as data manager support ---------------
 IF( DIET_USE_DAGDA )
   ADD_DEFINITIONS( -DHAVE_DAGDA )
+  # Advance data ID depending on the uuid lib.
+  FIND_FILE( UUIDLIB
+    NAMES uuid.h
+    PATHS /usr/include /usr/include/uuid
+      /include /include/uuid
+      /usr/local/include /usr/local/include/uuid
+      ${UUID_PATH}/uuid
+  )
+  IF ( UUIDLIB )
+    ADD_DEFINITIONS( -DHAVE_ADVANCED_UUID )
+    IF ( NOT APPLE )
+      # This library is not needed on Mac OS X.
+       SET( UUIDLIB uuid )
+    ELSE( NOT APPLE )
+      SET( UUIDLIB "")
+    ENDIF( NOT APPLE )
+  ELSE( UUIDLIB )
+    SET( UUIDLIB "")
+  ENDIF( UUIDLIB )
 ENDIF( DIET_USE_DAGDA )
 
 # --------------- DIET Endianness support  ------------------
