@@ -61,17 +61,6 @@ interface Dagda {
   boolean lvlIsDataPresent(in string dataID);
   boolean pfmIsDataPresent(in string dataID);
 
-  /* To obtain the data using dataID. */
-  corba_data_t lclGetData(in Dagda dest, in string dataID)
-    raises(DataNotFound, InvalidPathName, ReadError, WriteError,
-	   NotEnoughSpace);
-  corba_data_t lvlGetData(in Dagda dest, in string dataID)
-    raises(DataNotFound, InvalidPathName, ReadError, WriteError,
-	   NotEnoughSpace);
-  corba_data_t pfmGetData(in Dagda dest, in string dataID)
-    raises(DataNotFound, InvalidPathName, ReadError, WriteError,
-	   NotEnoughSpace);
-
   /* Add a data. */
   void lclAddData(in Dagda src, in corba_data_t data)
     raises(InvalidPathName, ReadError, WriteError, NotEnoughSpace);
@@ -144,7 +133,11 @@ interface Dagda {
   /* To lock the access to a data. */
   void lockData(in string dataID);
   void unlockData(in string dataID);
+  
   dataStatus getDataStatus(in string dataID);
+  
+  Dagda getBestSource(in Dagda dest, in string dataID)
+    raises(DataNotFound);
 };
 
 typedef Dagda::SeqDagda_t SeqDagda_t;

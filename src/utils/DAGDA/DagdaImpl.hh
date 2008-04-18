@@ -11,8 +11,8 @@
 /*														   */
 /***********************************************************/
 
-#ifndef _DTMIMPL_HH_
-#define _DTMIMPL_HH_
+#ifndef _DAGDAIMPL_HH_
+#define _DAGDAIMPL_HH_
 #define MAXBUFFSIZE  (getMaxMsgSize()==0 ? 4294967295U:getMaxMsgSize())
 
 #include "Dagda.hh"
@@ -41,9 +41,9 @@ public:
   virtual CORBA::Boolean lvlIsDataPresent(const char* dataID) = 0;
   virtual CORBA::Boolean pfmIsDataPresent(const char* dataID) = 0;
 
-  virtual corba_data_t* lclGetData(Dagda_ptr dest, const char* dataID) = 0;
+/*  virtual corba_data_t* lclGetData(Dagda_ptr dest, const char* dataID) = 0;
   virtual corba_data_t* lvlGetData(Dagda_ptr dest, const char* dataID) = 0;
-  virtual corba_data_t* pfmGetData(Dagda_ptr dest, const char* dataID) = 0;
+  virtual corba_data_t* pfmGetData(Dagda_ptr dest, const char* dataID) = 0;*/
 
   virtual void lclAddData(Dagda_ptr src, const corba_data_t& data) = 0;
   virtual void lvlAddData(Dagda_ptr src, const corba_data_t& data) = 0;
@@ -68,6 +68,8 @@ public:
 
   virtual Dagda::SeqDagda_t* lvlGetDataManagers(const char* dataID) = 0;
   virtual Dagda::SeqDagda_t* pfmGetDataManagers(const char* dataID) = 0;
+  
+  virtual Dagda_ptr getBestSource(Dagda_ptr dest, const char* dataID) = 0;
 
   virtual char* writeFile(const SeqChar& data, const char* basename,
 			  CORBA::Boolean replace);
@@ -139,9 +141,9 @@ public:
   virtual CORBA::Boolean lvlIsDataPresent(const char* dataID);
   virtual CORBA::Boolean pfmIsDataPresent(const char* dataID);
 
-  virtual corba_data_t* lclGetData(Dagda_ptr dest, const char* dataID);
+/*  virtual corba_data_t* lclGetData(Dagda_ptr dest, const char* dataID);
   virtual corba_data_t* lvlGetData(Dagda_ptr dest, const char* dataID);
-  virtual corba_data_t* pfmGetData(Dagda_ptr dest, const char* dataID);
+  virtual corba_data_t* pfmGetData(Dagda_ptr dest, const char* dataID);*/
 
   virtual void lclAddData(Dagda_ptr src, const corba_data_t& data);
   virtual void lvlAddData(Dagda_ptr src, const corba_data_t& data);
@@ -166,6 +168,8 @@ public:
 
   virtual Dagda::SeqDagda_t* lvlGetDataManagers(const char* dataID);
   virtual Dagda::SeqDagda_t* pfmGetDataManagers(const char* dataID);
+  
+  virtual Dagda_ptr getBestSource(Dagda_ptr dest, const char* dataID);
 
   /* Local part. */
   /* Implementation dependent functions. */

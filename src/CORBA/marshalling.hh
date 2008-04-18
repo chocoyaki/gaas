@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.32  2008/04/18 13:47:23  glemahec
+ * Everything about DAGDA is now in utils/DAGDA directory.
+ *
  * Revision 1.31  2008/01/14 11:08:26  glemahec
  * marshalling modifications to allow the use of dagda as data manager.
  * v1.0: A lot of modifications will be added in the v1.2 version (coming soon)
@@ -173,12 +176,7 @@ int
 unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
 			  const diet_convertor_t* cvt);
 #if HAVE_DAGDA
-int
-unmrsh_to_profile_dagda(diet_profile_t* dest, corba_profile_t* src,
-	const diet_convertor_t* cvt);
-
-int unmrsh_to_profile_dagda(diet_profile_t* dest, corba_profile_t* src);
-
+/* Needed by DAGDA. */
 int
 mrsh_data_desc(corba_data_desc_t* dest, diet_data_desc_t* src);
 #endif

@@ -33,6 +33,7 @@ IF( DIET_BUILD_LIBRARIES )
     SET( DAGDA_LIBRARIES
       IDLDagda
       Dagda
+      DIET_Dagda
     )
   ENDIF( DIET_USE_DAGDA )
 

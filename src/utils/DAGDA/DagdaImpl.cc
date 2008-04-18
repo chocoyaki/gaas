@@ -162,6 +162,8 @@ char* DagdaImpl::recordData(const SeqChar& data,
   }
   TRACE_TEXT(TRACE_ALL_STEPS, "\tRecord " << data.length() << " bytes for the data "
                         << dataDesc.id.idNumber << endl);
+  /*if (data.length()==0)
+    return CORBA::string_dup((*getData())[dataId].desc.id.idNumber);*/
   if (replace) {
     (*getData())[dataId].value.length(data.length());
     offset=0;
@@ -169,6 +171,7 @@ char* DagdaImpl::recordData(const SeqChar& data,
     offset=(*getData())[dataId].value.length();
     (*getData())[dataId].value.length(data.length()+offset);
   }
+
   for (int i=0; i<data.length(); ++i) {
     (*getData())[dataId].value[i+offset]=data[i];
   }
@@ -191,21 +194,22 @@ char* DagdaImpl::sendData(const char* dataId, Dagda_ptr dest) {
 
   TRACE_TEXT(TRACE_MAIN_STEPS, "*** Sending data " << dataId << endl);
 
-  unsigned long wrote = 0;
-  unsigned long dataSize = data_sizeof(&(*getData())[dataId].desc);
-  unsigned long nBlocks =  dataSize / getMaxMsgSize() + 1;
+  corba_data_t* data = getData(dataId);
+  size_t wrote = 0;
+  size_t dataSize = data_sizeof(&data->desc);
+  size_t nBlocks =  dataSize / getMaxMsgSize() + 1;
 
   bool replace = true;
   char* distID=NULL;
 
-  for (int i=0; i<nBlocks; ++i) {
+  for (size_t i=0; i<nBlocks; ++i) {
     int toSend = (dataSize-wrote > getMaxMsgSize() ?
 		  getMaxMsgSize():(dataSize-wrote));
     TRACE_TEXT(TRACE_ALL_STEPS, "\tSend " <<  toSend << " bytes..." << endl);
-    SeqChar buffer(toSend, toSend, (*getData())[dataId].value.get_buffer()+wrote);
+    SeqChar buffer(toSend, toSend, data->value.get_buffer()+wrote);
 
     if (distID!=NULL) CORBA::string_free(distID);
-    distID=dest->recordData(buffer, (*getData())[dataId].desc, replace);
+    distID=dest->recordData(buffer, data->desc, replace);
 
     wrote+=toSend;
     replace=false;
@@ -336,7 +340,7 @@ CORBA::Boolean SimpleDagdaImpl::pfmIsDataPresent(const char* dataID) {
 
 // Returns the data from this data manager.
 /* CORBA */
-corba_data_t* SimpleDagdaImpl::lclGetData(Dagda_ptr dest, const char* dataID) {
+/*corba_data_t* SimpleDagdaImpl::lclGetData(Dagda_ptr dest, const char* dataID) {
   dataMutex.lock();
   corba_data_t* found = getData(dataID);
   dataMutex.unlock();
@@ -361,11 +365,11 @@ corba_data_t* SimpleDagdaImpl::lclGetData(Dagda_ptr dest, const char* dataID) {
 
   delete data;
   return result;
-}
+}*/
 
 // Returns the data from this level.
 /* CORBA */
-corba_data_t* SimpleDagdaImpl::lvlGetData(Dagda_ptr dest, const char* dataID) {
+/*corba_data_t* SimpleDagdaImpl::lvlGetData(Dagda_ptr dest, const char* dataID) {
   std::map<string, Dagda_ptr>::iterator itch;
 
   if (lclIsDataPresent(dataID))
@@ -388,18 +392,18 @@ corba_data_t* SimpleDagdaImpl::lvlGetData(Dagda_ptr dest, const char* dataID) {
 	}
   childrenMutex.unlock();
   throw Dagda::DataNotFound(dataID);
-}
+}*/
 
 // Look if the data is present on this level. Otherwise ask the parent
 // to get it.
 // This is the simplest implementation. There is many way to do that.
 /* CORBA */
-corba_data_t* SimpleDagdaImpl::pfmGetData(Dagda_ptr dest, const char* dataID) {
+/*corba_data_t* SimpleDagdaImpl::pfmGetData(Dagda_ptr dest, const char* dataID) {
   if (lvlIsDataPresent(dataID)) return lvlGetData(dest, dataID);
   if (getParent()==NULL)
     return lvlGetData(dest, dataID);
   return getParent()->pfmGetData(dest, dataID);
-}
+}*/
 
 // This method downloads the data from the node src.
 /* CORBA */
@@ -415,7 +419,7 @@ char* SimpleDagdaImpl::downloadData(Dagda_ptr src, const corba_data_t& data) {
 void SimpleDagdaImpl::lclAddData(Dagda_ptr src, const corba_data_t& data) {
   TRACE_TEXT(TRACE_ALL_STEPS, "Add the data " << data.desc.id.idNumber
                              << " locally." << endl);
-    if (src!=_this()) {
+    if (strcmp(src->getID(), getID()) != 0) {
 	  if (data.desc.specific._d()==DIET_FILE) {
 		char* path = downloadData(src, data);
         if (path) {
@@ -674,6 +678,18 @@ bool SimpleDagdaImpl::isDataPresent(const char* dataID) {
   if (ret) ret = ((*getDataStatus())[dataID]==Dagda::ready);
   dataMutex.unlock();
   return ret;
+}
+
+// Simple implementation : return the first data manager of the list.
+Dagda_ptr SimpleDagdaImpl::getBestSource(Dagda_ptr dest, const char* dataID) {
+  SeqDagda_t* managers = pfmGetDataManagers(dataID);
+  
+  cout << "l." << __LINE__ << " file: " << __FILE__ << endl;
+  cout << dataID << ": " << managers->length() << " managers found." << endl; 
+  
+  if (managers->length()==0)
+    throw Dagda::DataNotFound(dataID);
+  return (*managers)[0];
 }
 
 corba_data_t* SimpleDagdaImpl::getData(const char* dataID) {

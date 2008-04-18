@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.55  2008/04/18 13:47:22  glemahec
+ * Everything about DAGDA is now in utils/DAGDA directory.
+ *
  * Revision 1.54  2008/04/10 09:13:30  bisnard
  * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
  *
@@ -265,6 +268,9 @@ typedef enum {
   DIET_PERSISTENT_RETURN, /* Saved on the server, and a copy brought back */
   DIET_PERSISTENT,
   DIET_STICKY,
+#if HAVE_DAGDA
+  DIET_STICKY_RETURN,
+#endif
   DIET_PERSISTENCE_MODE_COUNT
 } diet_persistence_mode_t;
 

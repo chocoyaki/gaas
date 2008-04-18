@@ -108,6 +108,12 @@ ENDIF( DIET_USE_ALT_BATCH )
   ENDIF( DIET_USE_USERSCHED )
 # ------------------------------------------------------------------
 
+  IF( DIET_USE_DAGDA )
+    INCLUDE_DIRECTORIES(
+      ${DIET_SOURCE_DIR}/src/utils
+      ${DIET_SOURCE_DIR}/src/utils/DAGDA
+    )
+  ENDIF( DIET_USE_DAGDA )
   
   INSTALL_TARGETS(/lib/ CorbaCommon )
 ENDIF( DIET_BUILD_LIBRARIES )

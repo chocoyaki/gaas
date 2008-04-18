@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.86  2008/04/18 13:47:23  glemahec
+ * Everything about DAGDA is now in utils/DAGDA directory.
+ *
  * Revision 1.85  2008/04/07 15:33:40  ycaniou
  * This should remove all HAVE_BATCH occurences (still appears in the doc, which
  *   must be updated.. soon :)
@@ -266,6 +269,11 @@
 #include "Parsers.hh"
 // ----
 #include "BatchSystem.hh"
+#endif
+
+#if HAVE_DAGDA
+#include "DagdaFactory.hh"
+#include "ORBMgr.hh"
 #endif
 
 extern unsigned int TRACE_LEVEL;
@@ -1155,53 +1163,6 @@ unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
 
   return 0;
 }
-
-#if HAVE_DAGDA
-// TODO : What is exactly done by the diet convertor used in the standard unmrsh
-//        method ???
-// TODO : The endianess control of Abdelkader have to be added somewhere here now. !!!
-
-int unmrsh_to_profile_dagda(diet_profile_t* dest, corba_profile_t* src,
-	const diet_convertor_t* cvt) {
-#if defined HAVE_ALT_BATCH
-  dest->parallel_flag = src->parallel_flag ;
-  dest->nbprocs    = src->nbprocs ;
-  dest->nbprocess  = src->nbprocess ;
-  dest->walltime   = src->walltime ;
-#endif
-  dest->pb_name    = cvt->path;
-  dest->last_in    = cvt->last_in;
-  dest->last_inout = cvt->last_inout;
-  dest->last_out   = cvt->last_out;
-  dest->parameters = new diet_data_t[src->last_out + 1];
-  dest->dietReqID  = src->dietReqID ;
-  
-  for (int i=0; i<=src->last_out; ++i) {
-    unmrsh_data_desc(&dest->parameters[i].desc, &src->parameters[i].desc);
-	dest->parameters[i].value = src->parameters[i].value.get_buffer();
-  }
-}
-
-int unmrsh_to_profile_dagda(diet_profile_t* dest, corba_profile_t* src) {
-#if defined HAVE_ALT_BATCH
-  dest->parallel_flag = src->parallel_flag ;
-  dest->nbprocs    = src->nbprocs ;
-  dest->nbprocess  = src->nbprocess ;
-  dest->walltime   = src->walltime ;
-#endif
-  dest->pb_name    = NULL;
-  dest->last_in    = src->last_in;
-  dest->last_inout = src->last_inout;
-  dest->last_out   = src->last_out;
-  dest->parameters = new diet_data_t[src->last_out + 1];
-  dest->dietReqID  = src->dietReqID ;
-  
-  for (int i=0; i<=src->last_out; ++i) {
-    unmrsh_data_desc(&dest->parameters[i].desc, &src->parameters[i].desc);
-	dest->parameters[i].value = src->parameters[i].value.get_buffer();
-  }
-}
-#endif // HAVE_DAGDA
 
 /****************************************************************************/
 /* Server sends results ...                                                 */

@@ -24,6 +24,7 @@ IF( DIET_BUILD_LIBRARIES )
     ${DIET_SOURCE_DIR}/src/CORBA        # for e.g. marshalling.hh
     ${DIET_SOURCE_DIR}/include          # for DIET_data.h 
     ${DIET_BINARY_DIR}/src/CORBA/idl
+    ${DIET_SOURCE_DIR}/src/agent
   )
   
   ADD_LIBRARY( DIET_client ${DIET_client_SOURCES} )
@@ -41,6 +42,7 @@ IF( DIET_BUILD_LIBRARIES )
     SET( DAGDA_LIBRARIES
          IDLDagda
 	 Dagda
+         DIET_Dagda
     )
   ENDIF( DIET_USE_DAGDA )
   

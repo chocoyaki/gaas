@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2008/04/18 13:47:24  glemahec
+ * Everything about DAGDA is now in utils/DAGDA directory.
+ *
  * Revision 1.24  2008/04/06 15:53:10  glemahec
  * DIET_PERSISTENT_RETURN & DIET_STICKY_RETURN modes are now working.
  * Warning: The clients have to take into account that an out data declared as
@@ -100,6 +103,7 @@
 
 #if HAVE_DAGDA
 #include "DagdaFactory.hh"
+#include "DIET_Dagda.hh"
 #endif // HAVE_DAGDA
 
 using namespace std;
@@ -526,15 +530,7 @@ int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
     }
 	
 #if HAVE_DAGDA
-	for (int i = dp->last_in + 1; i<=dp->last_out; ++i)
-	  if (dp->parameters[i].desc.mode != DIET_PERSISTENT &&
-	      dp->parameters[i].desc.mode != DIET_STICKY ||
-		  i <= dp->last_inout ) {
-		DagdaImpl* dataManager = DagdaFactory::getClientDataManager();
-		h->second->profile->parameters[i].value = (void *)
-        dataManager->getData(dp->parameters[i].desc.id.idNumber)->value.get_buffer();
-	  }
-
+  dagda_download_SeD_data(h->second->profile, dp);
 #endif // HAVE_DAGDA
 
 
