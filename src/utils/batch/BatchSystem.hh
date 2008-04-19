@@ -8,6 +8,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/04/19 09:16:46  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Rewrite (and addition) of the propagation of the response concerning:
+ *   job parallel_flag and serverType (batch or serial for the moment)
+ * Complete debug info with batch stuff
+ *
  * Revision 1.4  2008/04/07 13:11:44  ycaniou
  * Correct "deprecated conversion from string constant to 'char*'" warnings
  * First attempt to code functions to dynamicaly get batch information
@@ -32,6 +40,11 @@
 #include <iostream>
 #include <omnithread.h>       // For omni_mutex
 #include "DIET_data.h"
+
+/* File checking */
+#include <fcntl.h>       /* for O_RDONLY */
+#include <sys/stat.h>
+
 
 #define NBDIGITS_MAX_RESOURCES 4 // #char to code the # of computing resources
 #define NBDIGITS_MAX_BATCH_ID 10 // #char to code the job ID
@@ -230,6 +243,10 @@ protected :
   int
   readn(int fd, char * buffer, int n) ;
 
+  /** Check if @path is a writable directory. Quit the program if not */
+  void
+  errorIfPathNotValid( const char * path) ;
+  
   /************ Batch Configuration ************/
   /* (Fully qualified) frontal host name */
   char frontalName[256];

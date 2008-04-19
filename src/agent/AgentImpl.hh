@@ -10,6 +10,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2008/04/19 09:16:45  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Rewrite (and addition) of the propagation of the response concerning:
+ *   job parallel_flag and serverType (batch or serial for the moment)
+ * Complete debug info with batch stuff
+ *
  * Revision 1.20  2008/04/07 15:33:43  ycaniou
  * This should remove all HAVE_BATCH occurences (still appears in the doc, which
  *   must be updated.. soon :)
@@ -235,10 +243,14 @@ protected:
   /**
    * Send the request structure \c req to the child whose ID is \c childID.
    * Decremente \c nb_children_contacted contacted when error.
+   * Use \c serviceRef to request the correct // or seq profile flag.
    */
   void
-  sendRequest(CORBA::ULong childID, const corba_request_t* req,
-	      int * nb_children_contacted) ;
+  sendRequest(CORBA::ULong * childID, 
+	      size_t numero_child,
+	      const corba_request_t * req,
+	      int * nb_children_contacted,
+	      CORBA::ULong frontier) ;
 #endif
 
 

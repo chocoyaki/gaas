@@ -9,6 +9,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.104  2008/04/19 09:16:45  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Rewrite (and addition) of the propagation of the response concerning:
+ *   job parallel_flag and serverType (batch or serial for the moment)
+ * Complete debug info with batch stuff
+ *
  * Revision 1.103  2008/04/18 13:47:23  glemahec
  * Everything about DAGDA is now in utils/DAGDA directory.
  *
@@ -497,19 +505,37 @@ SeDImpl::getRequest(const corba_request_t& creq)
   corba_response_t resp;
   char statMsg[128];
 
+#ifdef HAVE_ALT_BATCH
+  const char * jobSpec ;
+    
+  if( creq.pb.parallel_flag == 1 )
+    jobSpec = "sequential" ;
+  else
+    jobSpec = "parallel" ;
+
+  sprintf(statMsg, "getRequest %ld (%s)", (unsigned long) creq.reqID,
+	  jobSpec);
+#else
   sprintf(statMsg, "getRequest %ld", (unsigned long) creq.reqID);
+#endif
+
   stat_in("SeD",statMsg);
   TRACE_TEXT(TRACE_MAIN_STEPS,
-             "\n**************************************************\n"
-             << "Got request " << creq.reqID << endl << endl);
+	     "\n**************************************************\n"
+#ifdef HAVE_ALT_BATCH
+	     << "Got " << jobSpec << " request " << creq.reqID << endl
+#else
+	     << "Got request " << creq.reqID << endl
+#endif
+	     << endl);
   resp.reqID = creq.reqID;
   resp.myID  = childID;
 
-/** Commented to cut overhead of un-needed log messages
-   if (dietLogComponent != NULL) {
+  /** Commented to cut overhead of un-needed log messages
+      if (dietLogComponent != NULL) {
       dietLogComponent->logAskForSeD(&creq);
-    }
-*/
+      }
+  */
 
   ServiceTable::ServiceReference_t serviceRef;
   serviceRef = SrvT->lookupService(&(creq.pb));
@@ -534,11 +560,32 @@ SeDImpl::getRequest(const corba_request_t& creq)
       diet_est_set_internal(ev, EST_COMMTIME, 0.0);
     }
 #else
-    // TODO: What do I have to do for a batch, non batch, parallel, etc.?
-    // for the moment, do the same but..
+    resp.servers[0].loc.serverType = server_status ;
+    resp.servers[0].loc.parallel_flag = creq.pb.parallel_flag ;
+
     estVector_t ev = &(resp.servers[0].estim);
-    for (int ctIter = 0 ; ctIter < creq.pb.last_out ; ctIter++) {
-      diet_est_set_internal(ev, EST_COMMTIME, 0.0);
+
+    switch( server_status ) {
+    case BATCH:
+      if( creq.pb.parallel_flag == 1 ) {
+	TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::Have to provide information on sequential resolution" << endl);	
+	for (int ctIter = 0 ; ctIter < creq.pb.last_out ; ctIter++) {
+	  diet_est_set_internal(ev, EST_COMMTIME, 0.0);
+	}
+      } else {
+	// Give information about parallel_job and parallel_resource
+	
+
+	TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::Have to provide information on parallel resolution" << endl);	
+      }
+      break ;
+    case SERIAL: /* Do same as before */
+      for (int ctIter = 0 ; ctIter < creq.pb.last_out ; ctIter++) {
+	diet_est_set_internal(ev, EST_COMMTIME, 0.0);
+      }
+      break ;
+    default:
+      INTERNAL_ERROR("SeD should have been a type!",0) ;
     }
 #endif
 
@@ -681,6 +728,9 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
          << "************************************************************\n";
 #if ! HAVE_DAGDA
   for (i = 0; i <= cvt->last_in; i++) {
+#ifdef DEBUG_DAGDA
+	cout << "l." << __LINE__ << " file: " << __FILE__ << endl;
+#endif
     diet_free_data(&(profile.parameters[i]));
   }
 #endif // ! HAVE_DAGDA
@@ -706,9 +756,7 @@ SeDImpl::setServerStatus( diet_server_status_t status )
 {
   this->server_status = status ;
 }
-#endif
 
-#if defined HAVE_ALT_BATCH
 CORBA::Long
 SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
 		     ServiceTable::ServiceReference_t& ref,
@@ -755,8 +803,6 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
     
   TRACE_TEXT(TRACE_MAIN_STEPS, "Calling getSolver\n");
   solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
-
-#if defined HAVE_ALT_BATCH
   TRACE_TIME(TRACE_MAIN_STEPS, "Submitting DIET job of ID "
 	     << profile.dietReqID <<
 	     " on batch system with ID " <<
@@ -767,25 +813,6 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
     ERROR("An error occured during the execution of the parallel job", 21) ;
   }
   batch->removeBatchJobID(profile.dietReqID) ;
-#else  
-  int status ;
-  TRACE_TIME(TRACE_MAIN_STEPS, "Submitting script for DIET job of ID "
-	     << profile.dietReqID <<
-	     " is of pid " << 
-	     (long)((ProcessInfo)findBatchID(profile.dietReqID))->pid 
-	     << "\n") ;
-  /* This waits until the jobs ends
-  ** and remove batchID/DIETreqID correspondance */
-  if( (ELBASE_Poll(findBatchID(profile.dietReqID), 1, &status) == 0)
-      && status == 0 ) {
-    if( this->batchID == ELBASE_SHELLSCRIPT ) {
-      ERROR("An error occured during the execution of the parallel job", 21) ;
-    } else {
-      ERROR("An error occured during the execution of the batch job", 21) ;
-    }
-  }
-  removeBatchID(pb.dietReqID) ;
-#endif
 
   /* Data transfer */
   uploadSyncSeDData(profile,pb,cvt) ;
@@ -1243,6 +1270,9 @@ SeDImpl::estimate(corba_estimation_t& estimation,
   profile.SeDPtr = (const void*) this;
   profile.parameters = (diet_arg_t*) calloc ((pb.last_out+1),
                                              sizeof (diet_arg_t));
+#ifdef HAVE_ALT_BATCH
+  profile.parallel_flag = pb.parallel_flag ;
+#endif
 
   /* populate the parameter structures */
   for (int i = 0 ; i <= pb.last_out ; i++) {

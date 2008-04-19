@@ -8,6 +8,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2008/04/19 09:16:46  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Rewrite (and addition) of the propagation of the response concerning:
+ *   job parallel_flag and serverType (batch or serial for the moment)
+ * Complete debug info with batch stuff
+ *
  * Revision 1.26  2008/04/07 15:33:44  ycaniou
  * This should remove all HAVE_BATCH occurences (still appears in the doc, which
  *   must be updated.. soon :)
@@ -623,18 +631,20 @@ ServiceTable::getPerfMetric(const ServiceReference_t ref)
    }
 */
 #if defined HAVE_ALT_BATCH
-const ServiceTable::matching_children_t *
-ServiceTable::getChildren(const corba_pb_desc_t * pb_desc)
+ServiceTable::matching_children_t *
+ServiceTable::getChildren(const corba_pb_desc_t * pb_desc,
+			  ServiceTable::ServiceReference_t serviceRef,
+			  CORBA::ULong * frontier)
 {
   if (solvers) {
     SRVT_ERROR("attempting to get children\n"
                << "  in a table initialized with solvers");
   }
-
+  
   int first_found = -1, second_found = -1 ; // at most, two indices: // and seq
   size_t i(0), j(0) ;
-  ServiceTable::matching_children_t * matching_children_concatenation = NULL ;
-
+  ServiceTable::matching_children_t * mc = NULL ;
+  
   /* Search for 1rst occurence of service in table */  
   while( (i < nb_s) && (!profile_match(&(profiles[i]), pb_desc)) )
     i++ ;
@@ -643,34 +653,74 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc)
                << "  of a service that is not in table");
   }
   first_found = i ;
-  matching_children_concatenation = new ServiceTable::matching_children_t() ;
-  if( matching_children_concatenation == NULL ) {
+  mc = new ServiceTable::matching_children_t() ;
+  if( mc == NULL ) {
     SRVT_ERROR("Not enough memory") ;
   }
-  i++ ;
-  /* Search for 2nd occurence of service in table */  
-  while( (i < nb_s) && (!profile_match(&(profiles[i]), pb_desc)) )
+
+  if( pb_desc->parallel_flag == 0 ) { /* Test if there is same profile with
+					 different parallel flag */
     i++ ;
-  if( i== nb_s )
-    matching_children_concatenation->nb_children = 
-      matching_children[ first_found ].nb_children ;
-  else {
-    second_found = i ;
-    matching_children_concatenation->nb_children = 
-      matching_children[ first_found ].nb_children 
-      + matching_children[ second_found ].nb_children ;
-  }
-  matching_children_concatenation->children =
-    new CORBA::ULong[matching_children_concatenation->nb_children] ;
-  for( i=0; i<matching_children[ first_found ].nb_children ; i++ )
-    matching_children_concatenation->children[ i ] =
-      matching_children[ first_found ].children[ i ] ;
-  if( second_found > 0 )
-    for( j=0 ; j<matching_children[ second_found ].nb_children ; i++, j++ )
-      matching_children_concatenation->children[ i ] =
-	matching_children[ second_found ].children[ j ] ;
+    /* Search for 2nd occurence of service in table */  
+    while( (i < nb_s) && (!profile_match(&(profiles[i]), pb_desc)) )
+      i++ ;
+    if( i== nb_s ) /* No new occurence */
+      mc->nb_children = 
+	matching_children[ first_found ].nb_children ;
+    else {
+      second_found = i ;
+      mc->nb_children = 
+	matching_children[ first_found ].nb_children 
+	+ matching_children[ second_found ].nb_children ;
+    }
+    /* Reserve memory for all children */
+    mc->children =
+      new CORBA::ULong[mc->nb_children] ;
   
-  return matching_children_concatenation ;
+    /* Copy children, ordered parallel flag = 1 first */
+    if( profiles[ serviceRef ].parallel_flag == 1 ) {
+      for( i=0; i<matching_children[ first_found ].nb_children ; i++ )
+	mc->children[ i ] =
+	  matching_children[ first_found ].children[ i ] ;
+      if( second_found > 0 )
+	for( j=0 ; j<matching_children[ second_found ].nb_children ; i++, j++ )
+	  mc->children[ i ] =
+	    matching_children[ second_found ].children[ j ] ;
+      /* set frontier */
+      (*frontier)=matching_children[ first_found ].nb_children ;
+    } else {
+      if( second_found > 0 ) {
+	for( i=0; i<matching_children[ second_found ].nb_children ; i++ )
+	  mc->children[ i ] =
+	    matching_children[ second_found ].children[ i ] ;
+	/* set frontier */
+	(*frontier)=matching_children[ second_found ].nb_children ;
+      } else {
+	for( j=0 ; j<matching_children[ first_found ].nb_children ; i++, j++ )
+	  mc->children[ i ] =
+	    matching_children[ first_found ].children[ j ] ;
+	/* set frontier */
+	(*frontier)=0 ;
+      }
+    }
+  } else { /* Only interested by a given profile ( seq ORexclusive // )
+	      then first match is unique match */
+    mc->nb_children = 
+      matching_children[ first_found ].nb_children ;
+    mc->children =
+      new CORBA::ULong[mc->nb_children] ;
+    
+    for( i=0; i<matching_children[ first_found ].nb_children ; i++ )
+      mc->children[ i ] =
+	matching_children[ first_found ].children[ i ] ;
+    /* set frontier */
+    if( profiles[ serviceRef ].parallel_flag == 1 )
+      (*frontier)= matching_children[ first_found ].nb_children ;
+    else
+      (*frontier)= 0 ;
+  }
+
+  return mc ;
 }
 #else
 const ServiceTable::matching_children_t*

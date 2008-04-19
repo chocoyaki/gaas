@@ -9,6 +9,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2008/04/19 09:16:45  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Rewrite (and addition) of the propagation of the response concerning:
+ *   job parallel_flag and serverType (batch or serial for the moment)
+ * Complete debug info with batch stuff
+ *
  * Revision 1.14  2008/04/10 08:17:14  bisnard
  * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
  *
@@ -71,7 +79,6 @@
 #include "common_types.idl"
 #include "SeD.idl"
 
-
 /**
  * Full reference to a server
  */
@@ -83,6 +90,15 @@ struct corba_server_t {
   string uuid;
 #endif // HAVE_JXTA
   long   port;
+#ifdef HAVE_ALT_BATCH
+  // To add the following, SeDStructures.idl which contains shared structures
+  // between SeD and DIET_server.h has to be created
+  //diet_server_status_t serverType ; /* batch, seq, etc. */
+  long serverType ;
+
+  // Make client know he has to submit parallel or non-parallel
+  long parallel_flag ;
+#endif
 };
 
 
@@ -138,10 +154,6 @@ struct corba_response_t {
   long myID;
   // The available servers
   SeqServerEstimation_t servers;
-#ifdef HAVE_ALT_BATCH
-  // Make client know he has to submit parallel or non-parallel
-  long parallel_flag ;
-#endif
 };
 
 #ifdef HAVE_WORKFLOW

@@ -8,6 +8,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2008/04/19 09:16:47  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Rewrite (and addition) of the propagation of the response concerning:
+ *   job parallel_flag and serverType (batch or serial for the moment)
+ * Complete debug info with batch stuff
+ *
  * Revision 1.18  2008/04/07 15:33:44  ycaniou
  * This should remove all HAVE_BATCH occurences (still appears in the doc, which
  *   must be updated.. soon :)
@@ -209,9 +217,19 @@ public:
 #if defined HAVE_ALT_BATCH
   /* Returns the list of children that can solve parallel and/or sequential
      task, depending on parallel flag of profile
-  -> Caller must desallocate the resulting memory! */
-  const matching_children_t *
-    getChildren(const corba_pb_desc_t * pb_desc);
+     => Caller must desallocate the resulting memory! 
+
+     Returns the concatanation of the
+     matching children corresponding to requested service depending on
+     parallel flag in \c pb_desc. For value strict. inferior to \c frontier,
+     children correspond to profiles with parallel flag equal to 1, which is
+     known with the help of \c serviceRef
+  */
+
+  ServiceTable::matching_children_t *
+  getChildren(const corba_pb_desc_t * pb_desc,
+	      ServiceTable::ServiceReference_t serviceRef,
+	      CORBA::ULong * frontier);
 #else
   const matching_children_t*
   getChildren(const ServiceReference_t ref);

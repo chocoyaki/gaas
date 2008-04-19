@@ -10,6 +10,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.42  2008/04/19 09:16:45  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Rewrite (and addition) of the propagation of the response concerning:
+ *   job parallel_flag and serverType (batch or serial for the moment)
+ * Complete debug info with batch stuff
+ *
  * Revision 1.41  2008/04/14 13:44:29  bisnard
  * - Parameter 'used' obsoleted in MultiWfScheduler::submit_wf & submit_pb_set
  *
@@ -464,9 +472,8 @@ MasterAgentImpl::submit_local(const corba_request_t& creq)
   srvTMutex.lock();
   sref = this->SrvT->lookupService(&(creq.pb));
 
-  if (sref == -1) {
+  if (sref == -1) { /* service does not exist */
     srvTMutex.unlock();
-
     /* Initialize the response */
     resp = new corba_response_t;
     resp->reqID = creq.reqID;

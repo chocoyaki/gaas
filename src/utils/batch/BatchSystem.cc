@@ -8,6 +8,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/04/19 09:16:46  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Rewrite (and addition) of the propagation of the response concerning:
+ *   job parallel_flag and serverType (batch or serial for the moment)
+ * Complete debug info with batch stuff
+ *
  * Revision 1.3  2008/04/07 13:11:44  ycaniou
  * Correct "deprecated conversion from string constant to 'char*'" warnings
  * First attempt to code functions to dynamicaly get batch information
@@ -66,31 +74,34 @@ BatchSystem::BatchSystem()
     batchQueueName = emptyString ;
   else batchQueueName = strdup(tmpString) ;
 
+  /*  "__\0" -> 3 char, strlen=2 and [1] should be '\' */
   tmpString = (char*)
     Parsers::Results::getParamValue(Parsers::Results::PATHTONFS) ;
   if(  tmpString == NULL )
     pathToNFS = NULL ;
-  else if( tmpString[strlen(tmpString)] == '/' )
+  else if( tmpString[strlen(tmpString) - 1] == '/' )
     pathToNFS = strdup(tmpString) ;
   else {
     tmpChaine = (char*)malloc(strlen(tmpString+1) * sizeof(char)) ;
     sprintf(tmpChaine,"%s/",tmpString) ;
     pathToNFS = tmpChaine ;
   }
-  
+  errorIfPathNotValid( pathToNFS ) ;
+    
   tmpString = (char*)
     Parsers::Results::getParamValue(Parsers::Results::PATHTOTMP) ;   
   if( tmpString == NULL ) {
     //    ERROR_EXIT("Please set a correct path to a tmp directory") ;
     WARNING("Assume /tmp/ as temporary file directory!") ;
     pathToTmp = strdup("/tmp/") ;
-  } else if( tmpString[strlen(tmpString)] == '/' )
+  } else if( tmpString[strlen(tmpString) - 1] == '/' )
     pathToTmp = strdup(tmpString) ;
   else {
     tmpChaine = (char*)malloc(strlen(tmpString+1) * sizeof(char)) ;
     sprintf(tmpChaine,"%s/",tmpString) ;
     pathToTmp = tmpChaine ;
   }
+  errorIfPathNotValid( pathToTmp ) ;
 }
 
 BatchSystem::~BatchSystem()
@@ -665,4 +676,28 @@ BatchSystem::readn(int fd, char * buffer, int n)
     ptr += nread;
   }
   return( n-nleft ) ;
+}
+
+void
+BatchSystem::errorIfPathNotValid( const char * path)
+{
+  struct stat buf;
+  char chaine[100] ;
+  
+  if( stat(path, &buf) == -1 ) {
+    snprintf(chaine, 99, "Cannot stat on file %s", path) ;
+    perror(chaine) ;
+    exit(1) ;
+  }
+
+  // TODO: check that if symlink, rights of the pointeur are ok
+  //       and if not, rights on the directory are ok  
+  if( ( S_ISDIR(buf.st_mode) == 1 ) /* directory */
+      //      && ( (buf.st_mode & S_IRWXU) == 1 ) /* can enter, read and write it */
+      )
+    return ;
+
+  snprintf(chaine, 99, "file %s is not a directory", //, or rights problems",
+	   path) ;
+  ERROR_EXIT(chaine) ;
 }

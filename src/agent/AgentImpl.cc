@@ -5,6 +5,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.51  2008/04/19 09:16:45  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Rewrite (and addition) of the propagation of the response concerning:
+ *   job parallel_flag and serverType (batch or serial for the moment)
+ * Complete debug info with batch stuff
+ *
  * Revision 1.50  2008/04/07 15:33:43  ycaniou
  * This should remove all HAVE_BATCH occurences (still appears in the doc, which
  *   must be updated.. soon :)
@@ -325,7 +333,7 @@ AgentImpl::agentSubscribe(Agent_ptr me, const char* hostName,
 
 
 /**
- * Subscribe a server as a SeD child. Remotely called by an SeD.
+ * Subscribe a server as a SeD child. Remotely called by a SeD.
  */
 CORBA::Long
 AgentImpl::serverSubscribe(SeD_ptr me, const char* hostName,
@@ -482,21 +490,24 @@ AgentImpl::findServer(Request* req, size_t max_srv)
     srvTMutex.unlock();
 
 #else
-    /* Need to know children for parallel and/or seq. tasks if so asked */
-    // research from the profile
-    // this concatenes results
+    /* Need to know children for parallel and/or seq.
+       One service can be registered as parallel and as seq on a child.
+       It then appears 2 times.
+       Research from the profile and concatenes results. */
 
     /* Contact the children. The responses array will not be ready until all
-       children are contacted. Thus lock the responses mutex now.           */
-    const ServiceTable::matching_children_t * mc ;
-
+       children are contacted. Thus lock the responses mutex now. */
+    ServiceTable::matching_children_t * mc = NULL ;
+    CORBA::ULong frontier ;
+    
     req->lock();
-    mc = SrvT->getChildren( &creq.pb ) ;
+    mc = SrvT->getChildren( &creq.pb, serviceRef, &frontier ) ;
     srvTMutex.unlock();
 
     nbChildrenContacted = mc->nb_children ;
+    /* Perform requests */
     for (i = 0; i < (size_t)mc->nb_children; i++) {
-      sendRequest( mc->children[i], &creq, &nbChildrenContacted ) ;
+      sendRequest( mc->children, i, &creq, &nbChildrenContacted, frontier ) ;
     }
 
     delete[] mc->children;
@@ -665,15 +676,23 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req)
 #else
 /**
  * Send the request structure \c req to the child whose ID is \c childID.
- * Decremente \c nb_children contacted when error.
+ * Decremente \c nb_children contacted when error
+ * A \c numero_child SeD strictly inférior to \c frontier must been submitted
+   with a request with a parallel flag equal to 1
 */
 void
-AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req,
-		       int * nb_children_contacted)
+AgentImpl::sendRequest(CORBA::ULong * children, 
+		       size_t numero_child,
+		       const corba_request_t* req,
+		       int * nb_children_contacted,
+		       CORBA::ULong frontier)
 #endif
 {
   bool childFound = false;
   typedef size_t comm_failure_t;
+#ifdef HAVE_ALT_BATCH
+  CORBA::ULong childID = children[numero_child] ;
+#endif
 
   AGT_TRACE_FUNCTION(childID << ", " << req->pb.path);
   stat_in(this->myName,"sendRequest");
@@ -722,7 +741,23 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req,
           try {
             /* checks if the child is alive with a ping */
             childDesc->ping();
+#if defined HAVE_ALT_BATCH
+	    /* When requesting to a SeD, the request must be set
+	       to the flag of the registered profile.
+	       Hence, if the profile wants // or seq services,
+	       there will be two requests, so two answers with
+	       the corresponding good flag from SeDs
+	    */
+	    corba_request_t * req_copy = new corba_request_t(*req) ;
+	    if( numero_child < frontier )
+	      req_copy->pb.parallel_flag = 1 ; /* Seq job */
+	    else
+	      req_copy->pb.parallel_flag = 2 ; /* // job */
+	    childDesc->getRequest(*req_copy);
+	    delete req_copy ;
+#else
             childDesc->getRequest(*req);
+#endif
           } catch (CORBA::COMM_FAILURE& ex) {
             throw (comm_failure_t)0;
           } catch (CORBA::TRANSIENT& e) {

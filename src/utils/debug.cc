@@ -9,6 +9,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.34  2008/04/19 09:16:47  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Rewrite (and addition) of the propagation of the response concerning:
+ *   job parallel_flag and serverType (batch or serial for the moment)
+ * Complete debug info with batch stuff
+ *
  * Revision 1.33  2007/07/13 10:00:25  ecaron
  * Remove deprecated code (ALTPREDICT part)
  *
@@ -130,6 +138,11 @@ omni_mutex debug_log_mutex ;
 void
 displayResponse(FILE* os, const corba_response_t* resp)
 {
+#ifdef HAVE_ALT_BATCH
+  const char * serverType ;
+  const char * jobSpec ;
+#endif
+
   fprintf(os, "\n----------------------------------------\n");
   fprintf(os, " Response structure for request %lu :\n\n", resp->reqID);
   if (TRACE_LEVEL >= TRACE_ALL_STEPS) {
@@ -142,6 +155,49 @@ displayResponse(FILE* os, const corba_response_t* resp)
   for (size_t i = 0; i < resp->servers.length(); i++) {
     estVectorConst_t ev = &(resp->servers[i].estim);
 
+#ifdef HAVE_ALT_BATCH
+    /* TODO: Should be called from somewhere in DIET_server.cc */
+    if( resp->servers[i].loc.serverType == BATCH )
+      serverType = "Batch" ;
+    else if( resp->servers[i].loc.serverType == SERIAL )
+      serverType = "serial" ;
+    else {
+      WARNING("Type of server is not well defined!\n");
+      serverType = "" ;
+    }
+    if( resp->servers[i].loc.parallel_flag == 1 )
+      jobSpec = "sequential" ;
+    else if( resp->servers[i].loc.parallel_flag == 2 )
+      jobSpec = "parallel" ;
+    else {
+      WARNING("Type of job is not well defined!\n");
+      jobSpec = "" ;
+    }
+
+
+    // TODO: depending on server type, show pertinant information
+    // -> no need of free CPU for a frontal, but nomber of resources
+    // available or not
+    if (diet_est_get_internal(ev, EST_TCOMP, HUGE_VAL) != HUGE_VAL) {
+      fprintf(os,
+              "  %ldth %s server can solve the %s problem in %g seconds\n",
+              (long) i,
+	      serverType,
+	      jobSpec,
+              diet_est_get_internal(ev, EST_TCOMP, HUGE_VAL));
+    }
+    else {
+      fprintf(os,
+              "  %ldth %s server can solve the %s problem and "
+	      "has %g free CPU and %g free memory\n",
+              (long) i,
+	      serverType,
+	      jobSpec,
+              diet_est_get_internal(ev, EST_FREECPU, HUGE_VAL),
+              diet_est_get_internal(ev, EST_FREEMEM, HUGE_VAL));
+    }
+#else
+
     if (diet_est_get_internal(ev, EST_TCOMP, HUGE_VAL) != HUGE_VAL) {
       fprintf(os,
               "  %ldth server can solve the problem in %g seconds\n",
@@ -150,11 +206,13 @@ displayResponse(FILE* os, const corba_response_t* resp)
     }
     else {
       fprintf(os,
-              "  %ldth server has %g free CPU and %g free memory\n",
+              "  %ldth server can solve the problem and "
+	      "has %g free CPU and %g free memory\n",
               (long) i,
               diet_est_get_internal(ev, EST_FREECPU, HUGE_VAL),
               diet_est_get_internal(ev, EST_FREEMEM, HUGE_VAL));
     }
+#endif
 
     int numComms = diet_est_array_size_internal(ev, EST_COMMTIME);
     if (numComms > 0) {
@@ -178,17 +236,51 @@ displayResponse(FILE* os, const corba_response_t* resp)
 void
 displayResponseShort(FILE* os, const corba_response_t* resp)
 {
+#ifdef HAVE_ALT_BATCH
+
+  const char * serverType ;
+  const char * jobSpec ;
+#endif  
+
   fprintf(os, "\n---------- Responses for request %lu ----------\n",
       resp->reqID);
 
   for (size_t i = 0; i < resp->servers.length(); i++){
     estVectorConst_t ev = &(resp->servers[i].estim);
 
+#ifdef HAVE_ALT_BATCH
+  /* TODO: Should be called from somewhere in DIET_server.cc */
+  if( resp->servers[i].loc.serverType == BATCH )
+    serverType = "Batch" ;
+  else if( resp->servers[i].loc.serverType == SERIAL )
+    serverType = "serial" ;
+  else {
+    WARNING("Type of server is not well defined!\n");
+    serverType = "" ;
+  }
+  if( resp->servers[i].loc.parallel_flag == 1 )
+    jobSpec = "sequential" ;
+  else if( resp->servers[i].loc.parallel_flag == 2 )
+    jobSpec = "parallel" ;
+  else {
+    WARNING("Type of job is not well defined!\n");
+    jobSpec = "" ;
+  }
+#endif
+
     fprintf(stdout, 
+#ifdef HAVE_ALT_BATCH
+            "    %ld: %s:%ld:%s;%s: tComp %g fCpu %g fMem %g\n",
+            (long)i,
+            (const char *)(resp->servers[i].loc.hostName),
+            resp->servers[i].loc.port,
+	    serverType, jobSpec,	    
+#else
             "    %ld: %s:%ld: tComp %g fCpu %g fMem %g\n",
             (long)i,
             (const char *)(resp->servers[i].loc.hostName),
             resp->servers[i].loc.port,
+#endif
             diet_est_get_internal(ev, EST_TCOMP, HUGE_VAL),
             diet_est_get_internal(ev, EST_FREECPU, HUGE_VAL),
             diet_est_get_internal(ev, EST_FREEMEM, HUGE_VAL));
@@ -298,8 +390,26 @@ displayArg(FILE* f, const diet_data_desc_t* arg)
 void
 displayProfileDesc(const diet_profile_desc_t* desc, const char* path)
 {
+#ifdef HAVE_ALT_BATCH
+  const char * jobSpec ;
+  
+  /* TODO: Should be called from somewhere in DIET_server.cc */
+  if( desc->parallel_flag == 1 )
+    jobSpec = "sequential" ;
+  else if( desc->parallel_flag == 2 )
+    jobSpec = "parallel" ;
+  else {
+    WARNING("Type of job is not well defined!\n");
+    jobSpec = "" ;
+  }
+#endif
+
   FILE* f = stdout;
+#ifdef HAVE_ALT_BATCH
+  fprintf(f, " - Service %s (%s)", path, jobSpec);
+#else
   fprintf(f, " - Service %s", path);
+#endif
   for (int i = 0; i <= desc->last_out; i++) {
     fprintf(f, "\n     %s ",
             (i <= desc->last_in) ? "IN   "
@@ -338,7 +448,23 @@ displayProfileDesc(const corba_profile_desc_t* desc)
 {
   FILE* f = stdout;
   char* path = CORBA::string_dup(desc->path);
+#ifdef HAVE_ALT_BATCH
+  const char * jobSpec ;
+  
+  /* TODO: Should be called from somewhere in DIET_server.cc */
+  if( desc->parallel_flag == 1 )
+    jobSpec = "sequential" ;
+  else if( desc->parallel_flag == 2 )
+    jobSpec = "parallel" ;
+  else {
+    WARNING("Type of job is not well defined!\n");
+    jobSpec = "" ;
+  }
+  fprintf(f, " - Service %s (%s)", path, jobSpec);
+#else
   fprintf(f, " - Service %s", path);
+#endif
+
   CORBA::string_free(path);
   for (int j = 0; j <= desc->last_out; j++) {
     fprintf(f, "\n     %s ",
@@ -379,7 +505,24 @@ void
 displayProfile(const diet_profile_t* profile, const char* path)
 {
   FILE* f = stdout;
+
+#ifdef HAVE_ALT_BATCH
+  const char * jobSpec ;
+  
+  /* TODO: Should be called from somewhere in DIET_server.cc */
+  if( profile->parallel_flag == 1 )
+    jobSpec = "sequential" ;
+  else if( profile->parallel_flag == 2 )
+    jobSpec = "parallel" ;
+  else {
+    WARNING("Type of job is not well defined!\n");
+    jobSpec = "" ;
+  }
+  fprintf(f, " - Service %s (%s)", path, jobSpec);
+#else
   fprintf(f, " - Service %s", path);
+#endif
+
   for (int i = 0; i <= profile->last_out; i++) {
     fprintf(f, "\n     %s ",
             (i <= profile->last_in) ? "IN   "
@@ -394,7 +537,24 @@ void
 displayProfile(const corba_profile_t* profile, const char* path)
 {
   FILE* f = stdout;
+
+#ifdef HAVE_ALT_BATCH
+  const char * jobSpec ;
+  
+  /* TODO: Should be called from somewhere in DIET_server.cc */
+  if( profile->parallel_flag == 1 )
+    jobSpec = "sequential" ;
+  else if( profile->parallel_flag == 2 )
+    jobSpec = "parallel" ;
+  else {
+    WARNING("Type of job is not well defined!\n");
+    jobSpec = "" ;
+  }
+  fprintf(f, " - Service %s (%s)", path, jobSpec);
+#else
   fprintf(f, " - Service %s", path);
+#endif
+
   for (int i = 0; i <= profile->last_out; i++) {
     fprintf(f, "\n     %s ",
             (i <= profile->last_in) ? "IN   "
@@ -410,7 +570,24 @@ displayPbDesc(const corba_pb_desc_t* profile)
 {
   FILE* f = stdout;
   char* path = CORBA::string_dup(profile->path);
+
+#ifdef HAVE_ALT_BATCH
+  const char * jobSpec ;
+  
+  /* TODO: Should be called from somewhere in DIET_server.cc */
+  if( profile->parallel_flag == 1 )
+    jobSpec = "sequential" ;
+  else if( profile->parallel_flag == 2 )
+    jobSpec = "parallel" ;
+  else {
+    WARNING("Type of job is not well defined!\n");
+    jobSpec = "" ;
+  }
+  fprintf(f, " - Service %s (%s)", path, jobSpec);
+#else
   fprintf(f, " - Service %s", path);
+#endif
+
   CORBA::string_free(path);
   for (int j = 0; j <= profile->last_out; j++) {
     fprintf(f, "\n     %s ",
