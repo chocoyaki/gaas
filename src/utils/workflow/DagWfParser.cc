@@ -1,24 +1,18 @@
 /****************************************************************************/
-/* Workflow description Reader class implementation                         */
-/* This class read a textual representation of workflow and return the      */
+/* DAG Workflow description Reader class implementation                     */
+/* This class read a textual representation of DAG workflow and return the  */
 /* corresponding DAG object                                                 */
 /*                                                                          */
 /* Author(s):                                                               */
 /* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
+/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.1  2008/04/10 08:38:50  bisnard
- * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
- *
- * Revision 1.7  2007/05/30 11:16:37  aamar
- * Updating workflow runtime to support concurrent call (Reordering is not
- * working now - TO FIX -).
- *
- * Revision 1.6  2006/11/27 10:15:12  aamar
- * Correct headers of files used in workflow support.
+ * Revision 1.1  2008/04/21 14:35:50  bisnard
+ * added NodeQueue and renamed WfParser as DagWfParser
  *
  ****************************************************************************/
 
@@ -30,7 +24,7 @@
 
 #include "debug.hh"
 #include "marshalling.hh"
-#include "WfParser.hh"
+#include "DagWfParser.hh"
 #include "WfUtils.hh"
 
 
@@ -39,37 +33,29 @@ using namespace std;
 /**
  * Constructor
  */
-WfParser::WfParser(const char * wf_desc) :
+DagWfParser::DagWfParser(const char * wf_desc) :
   content(wf_desc) {
   this->dagSize = 0;
   this->myDag = new Dag();
   this->alloc = false;
-} // end constructor WfParser::WfParser(const char *)
+} // end constructor DagWfParser::DagWfParser(const char *)
 
-WfParser::WfParser(const char * wf_desc, bool alloc) :
+DagWfParser::DagWfParser(const char * wf_desc, bool alloc) :
   content(wf_desc) {
   this->dagSize = 0;
   this->myDag = new Dag();
   this->alloc = alloc;
-} // end constructor WfParser::WfParser(const char *, bool)
+} // end constructor DagWfParser::DagWfParser(const char *, bool)
 
-WfParser::~WfParser() {
-  /**
-   * for multi-workflow support we need to keep the dag alive after the
-   * WfParser
-   */
-  /*
-  if (myDag) {
-    delete (myDag);
-  }
-  */
+DagWfParser::~DagWfParser() {
+  // dag is kept alive after parser destruction
 } // end destructor
 
 /**
  * Get the attribute value of a DOM element
  */
 string
-WfParser::getAttributeValue(const char * attr_name, 
+DagWfParser::getAttributeValue(const char * attr_name,
 			       const DOMElement * elt) {
   XMLCh * attr = XMLString::transcode(attr_name);
   const XMLCh * value   = elt->getAttribute(attr);
@@ -86,22 +72,22 @@ WfParser::getAttributeValue(const char * attr_name,
 /**
  * Initialize the processing
  */
-bool 
-WfParser::setup() {
+bool
+DagWfParser::setup() {
   return initXml();
 } // end setup
 
 /**
  * Parse the XML
  */
-bool 
-WfParser::parseXml() {
+bool
+DagWfParser::parseXml() {
   const XMLCh gLS[] = { chLatin_L, chLatin_S, chNull };
 
   DOMImplementation *impl = DOMImplementationRegistry::getDOMImplementation(gLS);
 
 
-  DOMBuilder  *parser = 
+  DOMBuilder  *parser =
     ((DOMImplementationLS*)impl)->createDOMBuilder(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
 
 
@@ -162,7 +148,7 @@ WfParser::parseXml() {
 	return false;
       }
 
-      if (nodeId[0] == '$') {	
+      if (nodeId[0] == '$') {
 	nodeId.erase(0,1);
 	// this is parametrable node
 	string nodeInterval(getAttributeValue("interval", child_elt));
@@ -187,16 +173,16 @@ WfParser::parseXml() {
 } // end parseXml
 
 
-/** 
+/**
  * Init the XML processing
  */
-bool 
-WfParser::initXml() {
+bool
+DagWfParser::initXml() {
   bool result = parseXml();
   if (! result) return result;
   TRACE_TEXT (TRACE_MAIN_STEPS, "Cheking the precedence ..." << endl);
   result = myDag->checkPrec();
-  TRACE_TEXT (TRACE_MAIN_STEPS, "... checking the precedence done" << endl);  
+  TRACE_TEXT (TRACE_MAIN_STEPS, "... checking the precedence done" << endl);
   return result;
 } // end initXml
 
@@ -204,15 +190,15 @@ WfParser::initXml() {
  * get a reference to Dag structure
  */
 Dag *
-WfParser::getDag() {
+DagWfParser::getDag() {
   return this->myDag;
 } // end getDag
 
 /**
  * parse a node element
  */
-bool 
-WfParser::parseNode (const DOMNode * element, 
+bool
+DagWfParser::parseNode (const DOMNode * element,
 			string nodeId, string nodePath,
 			long int var_node) {
   diet_profile_t * profile;
@@ -227,7 +213,7 @@ WfParser::parseNode (const DOMNode * element,
   vector <unsigned int> outVectIndex;
   vector <DOMElement *> precVect;
   DOMElement * node;
-  long int mul_arg =0, mul_in = 0, mul_inout = 0, mul_out = 0; 
+  long int mul_arg =0, mul_in = 0, mul_inout = 0, mul_out = 0;
   unsigned lastArg = 0;
 
   this->dagSize++;
@@ -287,28 +273,28 @@ WfParser::parseNode (const DOMNode * element,
 	}
 	outVect.push_back(child_elt);
 	outVectIndex.push_back(lastArg++);
-	
+
 	string mul_attr = getAttributeValue("mul", child_elt);
 	if (mul_attr != "") {
 	  mul_out += atoi(mul_attr.c_str());
-	} 
+	}
       } // end if (out
-      
+
       if (child_name == "prec") {
 	string prevNodeId = getAttributeValue("id", child_elt);
 	if (prevNodeId == "") {
 	  ERROR ("Precedence element malformed", false);
 	}
-	
+
 	if (child_elt->getFirstChild() != NULL) {
-	  ERROR ("Precedence element doesn't accept a child element" 
+	  ERROR ("Precedence element doesn't accept a child element"
 		 << endl << "May be a </prec> is forgotten", false);
 	}
 	string key = prevNodeId + string("/") + nodeId;
-	
+
 	precVect.push_back(child_elt);
 	// Is the previous node useful ?
-      } // end if (prec      
+      } // end if (prec
     } // end if (ELEMENT_NODE
     child = child->getNextSibling();
   } // end while
@@ -318,15 +304,15 @@ WfParser::parseNode (const DOMNode * element,
     mul_arg = 1;
   if (mul_in == 0)
     mul_in = 1;
-  if (mul_inout == 0)  
+  if (mul_inout == 0)
     mul_inout = 1;
-  if (mul_out == 0)  
+  if (mul_out == 0)
     mul_out = 1;
 
   // last_in last_inout last_out
-  int last_in    = inVect.size() + argVect.size() - 1 + 
+  int last_in    = inVect.size() + argVect.size() - 1 +
     (mul_arg - 1) + (mul_in - 1);
-  int last_inout = last_in + inoutVect.size() + 
+  int last_inout = last_in + inoutVect.size() +
     (mul_inout - 1);
   int last_out   = last_inout + outVect.size() +
     (mul_out - 1);
@@ -339,20 +325,20 @@ WfParser::parseNode (const DOMNode * element,
   // Now that we now the node path and the service argument number we can
   // create the node object and its profile
   Node * dagNode = new Node(nodeId, nodePath,
-			    last_in, last_inout, last_out);  
+			    last_in, last_inout, last_out);
 
-  profile = diet_profile_alloc((char*)nodePath.c_str(), 
+  profile = diet_profile_alloc((char*)nodePath.c_str(),
 				last_in,
 				last_inout,
 				last_out);
 
-  //************************************  
+  //************************************
   //** Parse the arguments once again
   for (uint ix=0; ix < argVect.size(); ix++) {
     node = argVect[ix];
 
     string name = nodeId + "#";
-    /* not necessary since the node id contains already the number 
+    /* not necessary since the node id contains already the number
     if (var != -1) {
       name = nodeId + itoa(var).c_str() + "#";
     }
@@ -373,11 +359,11 @@ WfParser::parseNode (const DOMNode * element,
 	name = name + real_port_name.c_str();
 	if (type != "DIET_MATRIX")
 	  // check the arg attribute and add its description to the profile
-	  checkArg (name, value, type, profile, argVectIndex[ix], 
+	  checkArg (name, value, type, profile, argVectIndex[ix],
 		    var_node, var_port, dagNode);
 	else
 	  // check the matrix argument
-	  checkMatrixArg(name, node, profile, argVectIndex[ix], 
+	  checkMatrixArg(name, node, profile, argVectIndex[ix],
 			 var_node, var_port, dagNode);
 	lastArg++;
       } // end for
@@ -387,18 +373,18 @@ WfParser::parseNode (const DOMNode * element,
       name = name + getAttributeValue("name", node);
       if (type != "DIET_MATRIX")
 	// check the arg attribute and add its description to the profile
-	checkArg (name, value, type, profile, argVectIndex[ix], 
+	checkArg (name, value, type, profile, argVectIndex[ix],
 		  var_node, -1,
 		  dagNode);
       else
 	// check the matrix argument
 	checkMatrixArg(name, node, profile, argVectIndex[ix],
-		       var_node, -1, 
+		       var_node, -1,
 		       dagNode);
       lastArg++;
     }
   }
-  //************************************  
+  //************************************
   // Parse the input parameters once again
   for (uint ix=0; ix < inVect.size(); ix++) {
     node = inVect[ix];
@@ -418,13 +404,13 @@ WfParser::parseNode (const DOMNode * element,
 	name = nodeId + "#" + real_port_name.c_str();
 	if (type != "DIET_MATRIX")
 	  // check in attribute and add its description to the profile
-	  checkIn (name, type, source, profile, inVectIndex[ix], 
-		   var_node, var_port, 
+	  checkIn (name, type, source, profile, inVectIndex[ix],
+		   var_node, var_port,
 		   dagNode);
 	else
 	  // check a matrix input port
-	  checkMatrixIn(name, source, node, profile, inVectIndex[ix], 
-			var_node, var_port, 
+	  checkMatrixIn(name, source, node, profile, inVectIndex[ix],
+			var_node, var_port,
 			dagNode);
 	lastArg++;
       }
@@ -434,18 +420,18 @@ WfParser::parseNode (const DOMNode * element,
       name = nodeId + "#" + getAttributeValue("name", node);
       if (type != "DIET_MATRIX")
 	// check in attribute and add its description to the profile
-	checkIn (name, type, source, profile, inVectIndex[ix], 
+	checkIn (name, type, source, profile, inVectIndex[ix],
 		 var_node, -1,
 		 dagNode);
-      else 
+      else
 	// check a matrix input port
-	checkMatrixIn(name, source, node, profile, inVectIndex[ix], 
+	checkMatrixIn(name, source, node, profile, inVectIndex[ix],
 		      var_node, -1,
 		      dagNode);
       lastArg++;
     }
   }
-  //************************************  
+  //************************************
   // Parse the Inout parameters once again
   // FIXME
   for (uint ix=0; ix < inoutVect.size(); ix++) {
@@ -466,11 +452,11 @@ WfParser::parseNode (const DOMNode * element,
 	name = nodeId + "#" + real_port_name.c_str();
 	if (type != "DIET_MATRIX")
 	  // check the inout attribute and add its description to the profile
-	  checkInout(name, type, sink, profile, inoutVectIndex[ix], 
+	  checkInout(name, type, sink, profile, inoutVectIndex[ix],
 		     var_node, var_port, dagNode);
-	else 
+	else
 	  // check matrix inout port
-	  checkMatrixInout(name, node, profile, inoutVectIndex[ix], 
+	  checkMatrixInout(name, node, profile, inoutVectIndex[ix],
 			   var_node, var_port, dagNode);
 
 	lastArg++;
@@ -481,26 +467,26 @@ WfParser::parseNode (const DOMNode * element,
       name = nodeId + "#" + getAttributeValue("name", node);
       if (type != "DIET_MATRIX")
 	// check the inout attribute and add its description to the profile
-	checkInout(name, type, sink, profile, inoutVectIndex[ix], 
+	checkInout(name, type, sink, profile, inoutVectIndex[ix],
 		   var_node, -1,
 		   dagNode);
-      else 
+      else
 	// check matrix inout port
-	checkMatrixInout(name, node, profile, inoutVectIndex[ix], 
+	checkMatrixInout(name, node, profile, inoutVectIndex[ix],
 			 var_node, -1,
 			 dagNode);
-      
+
       lastArg++;
     }
   }
-  //************************************  
+  //************************************
   // Parse the out parameters once again
   for (uint ix=0; ix < outVect.size(); ix++) {
     node = outVect[ix];
 
     string name("");
     string type  = getAttributeValue("type", node);
-    string sink  = getAttributeValue("sink", node); 
+    string sink  = getAttributeValue("sink", node);
 
     string abs_name = getAttributeValue("name", node);
     if (abs_name[0] == '$') {
@@ -513,13 +499,13 @@ WfParser::parseNode (const DOMNode * element,
 	name = nodeId + "#" + real_port_name.c_str();
 	if (type != "DIET_MATRIX")
 	  // check the out attribute and add its description to the profile
-	  checkOut (name, type, sink, profile, outVectIndex[ix], 
+	  checkOut (name, type, sink, profile, outVectIndex[ix],
 		    var_node, var_port,
 		    dagNode);
 	else
 	  // check matrix output port
-	  checkMatrixOut(name, node, profile, outVectIndex[ix], 
-			 var_node, var_port, 
+	  checkMatrixOut(name, node, profile, outVectIndex[ix],
+			 var_node, var_port,
 			 dagNode);
 	lastArg++;
       } // end for
@@ -529,18 +515,18 @@ WfParser::parseNode (const DOMNode * element,
       name = nodeId + "#" + getAttributeValue("name", node);
       if (type != "DIET_MATRIX")
 	// check the out attribute and add its description to the profile
-	checkOut (name, type, sink, profile, outVectIndex[ix], 
+	checkOut (name, type, sink, profile, outVectIndex[ix],
 		  var_node, -1,
 		  dagNode);
       else
 	// check matrix output port
-	checkMatrixOut(name, node, profile, outVectIndex[ix], 
+	checkMatrixOut(name, node, profile, outVectIndex[ix],
 		       var_node, -1,
 		       dagNode);
       lastArg++;
     }
   }
-  //************************************  
+  //************************************
   for (uint ix=0; ix< precVect.size(); ix++) {
     node = precVect[ix];
     string prev_id  = getAttributeValue("id", node);
@@ -569,8 +555,8 @@ WfParser::parseNode (const DOMNode * element,
 /**
  * Parse an argument element
  */
-bool 
-WfParser::parseArg(DOMElement * child_elt) {
+bool
+DagWfParser::parseArg(DOMElement * child_elt) {
   string argName = getAttributeValue("name", child_elt);
   string argValue = getAttributeValue("value", child_elt);
   if ((argName == "") || (argValue == "")) {
@@ -587,7 +573,7 @@ WfParser::parseArg(DOMElement * child_elt) {
  * Parse an input port element
  */
 bool
-WfParser::parseIn(DOMElement * child_elt) {
+DagWfParser::parseIn(DOMElement * child_elt) {
   if (child_elt->getFirstChild() != NULL) {
     ERROR ("input port element doesn't accept a child element" << endl <<
       "May be a </in> is forgotten", false);
@@ -596,10 +582,10 @@ WfParser::parseIn(DOMElement * child_elt) {
 } // end parseIn
 
 /**
- * parse InOut port element 
+ * parse InOut port element
  */
 bool
-WfParser::parseInout(DOMElement * child_elt) {
+DagWfParser::parseInout(DOMElement * child_elt) {
   if (child_elt->getFirstChild()!=NULL) {
     ERROR ("inOut port element doesn't accept a child element" << endl <<
       "May be a </inOut> is forgotten", false);
@@ -611,7 +597,7 @@ WfParser::parseInout(DOMElement * child_elt) {
  * Parse Out port element
  */
 bool
-WfParser::parseOut(DOMElement * child_elt) {
+DagWfParser::parseOut(DOMElement * child_elt) {
   if (child_elt->getFirstChild() != NULL) {
     ERROR ("output port element doesn't accept a child element" << endl <<
 	   "May be a </out> is forgotten", false);
@@ -622,16 +608,16 @@ WfParser::parseOut(DOMElement * child_elt) {
 /**
  * parse an argument element
  */
-bool 
-WfParser::checkArg(const string& name, 
-		      const string& value, 
+bool
+DagWfParser::checkArg(const string& name,
+		      const string& value,
 		      const string& type,
-		      diet_profile_t * profile, 
+		      diet_profile_t * profile,
 		      unsigned int lastArg,
 		      long int var_node,
 		      long int var_port,
 		      Node * dagNode) {
-  setParam(ARG_PORT, name, type, profile, lastArg, 
+  setParam(ARG_PORT, name, type, profile, lastArg,
 	   var_node, var_port,
 	   dagNode, &value);
   return true;
@@ -640,9 +626,9 @@ WfParser::checkArg(const string& name,
 /**
  * parse an input port element
  */
-bool 
-WfParser::checkIn(const string& name, 
-		     const string& type, 
+bool
+DagWfParser::checkIn(const string& name,
+		     const string& type,
 		     const string& source,
 		     diet_profile_t * profile,
 		     unsigned int lastArg,
@@ -650,7 +636,7 @@ WfParser::checkIn(const string& name,
 		     long int var_port,
 		     Node * dagNode) {
   string real_source_name(source);
-  setParam(IN_PORT, name, type, profile, lastArg, 
+  setParam(IN_PORT, name, type, profile, lastArg,
 	   var_node, var_port,
 	   dagNode);
   if (dagNode) {
@@ -662,26 +648,26 @@ WfParser::checkIn(const string& name,
 
 /**
  * parse an input/output port element
- */  
+ */
 bool
-WfParser::checkInout(const string& name, 
-			const string& type, 
+DagWfParser::checkInout(const string& name,
+			const string& type,
 			const string& source,
 			diet_profile_t * profile,
 			unsigned int lastArg,
 			long int var_node,
 			long int var_port,
 			Node * dagNode) {
-  setParam(INOUT_PORT, name, type, profile, lastArg, 
+  setParam(INOUT_PORT, name, type, profile, lastArg,
 	   var_node, var_port, dagNode);
   return true;
 } // end checkInout
 
 /**
  * parse an output port element
- */  
+ */
 bool
-WfParser::checkOut(const string& name, 
+DagWfParser::checkOut(const string& name,
 		      const string& type,
 		      const string& sink,
 		      diet_profile_t * profile,
@@ -690,7 +676,7 @@ WfParser::checkOut(const string& name,
 		      long int var_port,
 		      Node * dagNode) {
   string real_sink_name(sink);
-  setParam(OUT_PORT, name, type, profile, lastArg, 
+  setParam(OUT_PORT, name, type, profile, lastArg,
 	   var_node, var_port, dagNode);
   if (dagNode) {
     getRealName(real_sink_name, var_node, var_port);
@@ -700,12 +686,12 @@ WfParser::checkOut(const string& name,
 } // end checkOut
 
 /**
- * fill a profile with the appropriate parameter type and create the 
+ * fill a profile with the appropriate parameter type and create the
  * node ports
- */  
+ */
 bool
-WfParser::setParam(const wf_port_t param_type,
-		      const string& name, 
+DagWfParser::setParam(const wf_port_t param_type,
+		      const string& name,
 		      const string& type,
 		      diet_profile_t* profile,
 		      unsigned int lastArg,
@@ -721,12 +707,12 @@ WfParser::setParam(const wf_port_t param_type,
 
   if (type == WfCst::DIET_CHAR) {
     if (dagNode) {
-      if (value) 
-	dagNode->newPort(name, lastArg, param_type, 
+      if (value)
+	dagNode->newPort(name, lastArg, param_type,
 			 string(WfCst::DIET_CHAR),
 			 *value);
       else
-	dagNode->newPort(name, lastArg, param_type, 
+	dagNode->newPort(name, lastArg, param_type,
 			 string(WfCst::DIET_CHAR));
     }
   } // end if DIET_CHAR
@@ -734,11 +720,11 @@ WfParser::setParam(const wf_port_t param_type,
   if (type == WfCst::DIET_SHORT) {
     if (dagNode) {
       if (value)
-	dagNode->newPort(name, lastArg, param_type, 
+	dagNode->newPort(name, lastArg, param_type,
 			 string(WfCst::DIET_SHORT),
 			 *value);
       else
-	dagNode->newPort(name, lastArg, param_type, 
+	dagNode->newPort(name, lastArg, param_type,
 			 string(WfCst::DIET_SHORT));
     }
   } // end if DIET_SHORT
@@ -746,11 +732,11 @@ WfParser::setParam(const wf_port_t param_type,
   if (type == WfCst::DIET_INT) {
     if (dagNode) {
       if (value)
-	dagNode->newPort(name, lastArg, param_type, 
+	dagNode->newPort(name, lastArg, param_type,
 			 string(WfCst::DIET_INT),
 			 *value);
       else
-	dagNode->newPort(name, lastArg, param_type, 
+	dagNode->newPort(name, lastArg, param_type,
 			 string(WfCst::DIET_INT));
     }
   } // end if DIET_INT
@@ -758,11 +744,11 @@ WfParser::setParam(const wf_port_t param_type,
   if (type == WfCst::DIET_LONGINT) {
     if (dagNode) {
       if (value)
-	dagNode->newPort(name, lastArg, param_type, 
+	dagNode->newPort(name, lastArg, param_type,
 			 string(WfCst::DIET_LONGINT),
 			 *value);
       else
-	dagNode->newPort(name, lastArg, param_type, 
+	dagNode->newPort(name, lastArg, param_type,
 			 string(WfCst::DIET_LONGINT));
     }
 
@@ -770,12 +756,12 @@ WfParser::setParam(const wf_port_t param_type,
 
   if (type == WfCst::DIET_FLOAT) {
     if (dagNode) {
-      if (value) 
-	dagNode->newPort(name, lastArg, param_type, 
+      if (value)
+	dagNode->newPort(name, lastArg, param_type,
 			 string(WfCst::DIET_FLOAT),
 			 *value);
       else
-	dagNode->newPort(name, lastArg, param_type, 
+	dagNode->newPort(name, lastArg, param_type,
 			 string(WfCst::DIET_FLOAT));
     }
   } // end if DIET_FLOAT
@@ -784,12 +770,12 @@ WfParser::setParam(const wf_port_t param_type,
 
   if (type == WfCst::DIET_DOUBLE) {
     if (dagNode) {
-      if (value) 
-	dagNode->newPort(name, lastArg, param_type, 
+      if (value)
+	dagNode->newPort(name, lastArg, param_type,
 			 string(WfCst::DIET_DOUBLE),
 			 *value);
       else
-	dagNode->newPort(name, lastArg, param_type, 
+	dagNode->newPort(name, lastArg, param_type,
 			 string(WfCst::DIET_DOUBLE));
     }
   } // end if DIET_DOUBLE
@@ -797,23 +783,23 @@ WfParser::setParam(const wf_port_t param_type,
   if (type == WfCst::DIET_STRING) {
     if (dagNode) {
       if (value)
-	dagNode->newPort(name, lastArg, param_type, 
+	dagNode->newPort(name, lastArg, param_type,
 			 string(WfCst::DIET_STRING),
 			 *value);
       else
-	dagNode->newPort(name, lastArg, param_type, 
+	dagNode->newPort(name, lastArg, param_type,
 			 string(WfCst::DIET_STRING));
-    }	
+    }
   } // end if DIET_STRING
 
   if (type == WfCst::DIET_FILE) {
     if (dagNode) {
       if (value)
-	dagNode->newPort(name, lastArg, param_type, 
+	dagNode->newPort(name, lastArg, param_type,
 			 string(WfCst::DIET_FILE),
 			 *value);
       else
-	dagNode->newPort(name, lastArg, param_type, 
+	dagNode->newPort(name, lastArg, param_type,
 			 string(WfCst::DIET_FILE));
     }
   } // end if DIET_FILE
@@ -825,7 +811,7 @@ WfParser::setParam(const wf_port_t param_type,
  * parse a matrix argument
  */
 bool
-WfParser::checkMatrixArg(const string& id, const DOMElement * element,
+DagWfParser::checkMatrixArg(const string& id, const DOMElement * element,
 			    diet_profile_t * profile, unsigned int lastArg,
 			    long int var_node,
 			    long int var_port,
@@ -853,7 +839,7 @@ WfParser::checkMatrixArg(const string& id, const DOMElement * element,
  * parse a matrix input port
  */
 bool
-WfParser::checkMatrixIn(const string& id, const string& source,
+DagWfParser::checkMatrixIn(const string& id, const string& source,
 			   const DOMElement * element,
 			   diet_profile_t * profile, unsigned int lastArg,
 			   long int var_node,
@@ -865,7 +851,7 @@ WfParser::checkMatrixIn(const string& id, const string& source,
   string nb_cols("");
   string matrix_order("");
 
-  if (!checkMatrixCommun(id, element, 
+  if (!checkMatrixCommun(id, element,
 			 base_type, nb_rows, nb_cols, matrix_order))
     return false;
 
@@ -884,7 +870,7 @@ WfParser::checkMatrixIn(const string& id, const string& source,
  * parse a matrix inout port
  */
 bool
-WfParser::checkMatrixInout(const string& id, const DOMElement * element,
+DagWfParser::checkMatrixInout(const string& id, const DOMElement * element,
 			      diet_profile_t * profile, unsigned int lastArg,
 			      long int var_node,
 			      long int var_port,
@@ -894,7 +880,7 @@ WfParser::checkMatrixInout(const string& id, const DOMElement * element,
   string nb_cols("");
   string matrix_order("");
 
-  if (!checkMatrixCommun(id, element, 
+  if (!checkMatrixCommun(id, element,
 			 base_type, nb_rows, nb_cols, matrix_order))
     return false;
 
@@ -907,7 +893,7 @@ WfParser::checkMatrixInout(const string& id, const DOMElement * element,
  * parse a matrix output port
   */
 bool
-WfParser::checkMatrixOut(const string& id, const DOMElement * element,
+DagWfParser::checkMatrixOut(const string& id, const DOMElement * element,
 			    diet_profile_t * profile, unsigned int lastArg,
 			    long int var_node,
 			    long int var_port,
@@ -926,14 +912,14 @@ WfParser::checkMatrixOut(const string& id, const DOMElement * element,
 } // end checkMatrixOut
 
 /**
- * parse a matrix argument. 
+ * parse a matrix argument.
  * Check only the commun attributes of In, Inout and Out ports
  */
 bool
-WfParser::checkMatrixCommun(const string& id, const DOMElement * element,
-			       string& base_type, 
-			       string& nb_rows, 
-			       string& nb_cols, 
+DagWfParser::checkMatrixCommun(const string& id, const DOMElement * element,
+			       string& base_type,
+			       string& nb_rows,
+			       string& nb_cols,
 			       string& matrix_order) {
   // mandatory attributes
   base_type  = getAttributeValue("base_type", element);
@@ -951,9 +937,9 @@ WfParser::checkMatrixCommun(const string& id, const DOMElement * element,
 /**
  * fill a profile with matrix parameter type
  * The data are NULL
- */  
-bool 
-WfParser::setMatrixParam(const wf_port_t param_type,
+ */
+bool
+DagWfParser::setMatrixParam(const wf_port_t param_type,
 			    const string& name,
 			    const string& base_type_str,
 			    const string& nb_rows_str,
@@ -969,16 +955,16 @@ WfParser::setMatrixParam(const wf_port_t param_type,
   size_t nb_rows = atoi(nb_rows_str.c_str());
   // get the column numbers
   size_t nb_cols = atoi(nb_cols_str.c_str());
-  // get the matrix order  
-  diet_matrix_order_t matrix_order = 
+  // get the matrix order
+  diet_matrix_order_t matrix_order =
     getMatrixOrder(matrix_order_str);
 
   if (! this->alloc) {
-    setMatrixParamDesc(param_type, name, base_type_str, 
+    setMatrixParamDesc(param_type, name, base_type_str,
 		       nb_rows_str, nb_cols_str,
 		       matrix_order_str,
 		       profile, lastArg,
-		       dagNode, 
+		       dagNode,
 		       value);
   }
 
@@ -986,23 +972,23 @@ WfParser::setMatrixParam(const wf_port_t param_type,
   if (dagNode) {
     if (value) {
       WfPort * port = (WfPort *)
-	(dagNode->newPort(name, lastArg, param_type, 
+	(dagNode->newPort(name, lastArg, param_type,
 			  string(WfCst::DIET_MATRIX),
 			  *value));
       port->setMatParams(nb_rows, nb_cols, matrix_order, base_type);
     }
     else {
       WfPort * port = (WfPort *)
-	dagNode->newPort(name, lastArg, param_type, 
+	dagNode->newPort(name, lastArg, param_type,
 			 string(WfCst::DIET_MATRIX));
       port->setMatParams(nb_rows, nb_cols, matrix_order, base_type);
     } // end else
   }
 
   // set the parameter as a matrix
-  /*  
+  /*
   diet_matrix_set(diet_parameter(profile,lastArg),
-                  NULL, DIET_VOLATILE, 
+                  NULL, DIET_VOLATILE,
 		  base_type, nb_rows, nb_cols, matrix_order);
   }
   */
@@ -1011,7 +997,7 @@ WfParser::setMatrixParam(const wf_port_t param_type,
 } // end setMatrixParam
 
 string
-WfParser::getExpr(string& id) {
+DagWfParser::getExpr(string& id) {
   string expr = "";
   string::size_type loc = id.find('{');
   if ((id[id.size()-1] == '}') &&
@@ -1025,7 +1011,7 @@ WfParser::getExpr(string& id) {
  * return the name of source/sink after expansion
  */
 string
-WfParser::getRealName(string& real_name, 
+DagWfParser::getRealName(string& real_name,
 			 long int var_node,
 			 long int var_port) {
   if (real_name == "")
@@ -1051,7 +1037,7 @@ WfParser::getRealName(string& real_name,
     expr1.replace(loc, 2, var_port_str);
     loc = expr1.find("pv");
   }
-  if ((expr1 != "") && 
+  if ((expr1 != "") &&
       ((var_node != -1)||(var_port != -1))) {
     long int value = WfCst::eval_expr(expr1, 0);
     real_name = linked_nid.substr(0, linked_nid.find('{')) +
@@ -1059,7 +1045,7 @@ WfParser::getRealName(string& real_name,
   }
   else
     real_name = linked_nid + "#";
-  
+
   // check if the port id contains an expression
   string expr2 = getExpr(linked_pid);
   // replace pv macro by its value
@@ -1074,7 +1060,7 @@ WfParser::getRealName(string& real_name,
     expr2.replace(loc, 2, var_node_str);
     loc = expr2.find("nv");
   }
-  if ((expr2 != "") && 
+  if ((expr2 != "") &&
       ((var_port != -1)||(var_node != -1))) {
     long int value = WfCst::eval_expr(expr2, 0);
     real_name += linked_pid.substr(0, linked_pid.find('{')) + itoa(value);
@@ -1087,9 +1073,9 @@ WfParser::getRealName(string& real_name,
 
 /**
  * fill a profile with the appropriate parameter type
- */  
-bool 
-WfParser::setParamDesc(const wf_port_t param_type,
+ */
+bool
+DagWfParser::setParamDesc(const wf_port_t param_type,
 			  const string& name,
 			  const string& type,
 			  diet_profile_t * profile,
@@ -1098,26 +1084,26 @@ WfParser::setParamDesc(const wf_port_t param_type,
 			  Node * dagNode,
 			  const string * value) {
   if (type == WfCst::DIET_CHAR) {
-    diet_scalar_set(diet_parameter(profile, lastArg), 
-		    NULL, 
+    diet_scalar_set(diet_parameter(profile, lastArg),
+		    NULL,
 		    DIET_VOLATILE,
 		    DIET_CHAR);
   }
   if (type == WfCst::DIET_SHORT) {
-    diet_scalar_set(diet_parameter(profile, lastArg), 
-		    NULL, 
+    diet_scalar_set(diet_parameter(profile, lastArg),
+		    NULL,
 		    DIET_VOLATILE,
 		    DIET_SHORT);
   }
   if (type == WfCst::DIET_INT) {
-    diet_scalar_set(diet_parameter(profile, lastArg), 
-		    NULL, 
+    diet_scalar_set(diet_parameter(profile, lastArg),
+		    NULL,
 		    DIET_VOLATILE,
 		    DIET_INT);
   }
   if (type == WfCst::DIET_LONGINT) {
-    diet_scalar_set(diet_parameter(profile, lastArg), 
-		    NULL, 
+    diet_scalar_set(diet_parameter(profile, lastArg),
+		    NULL,
 		    DIET_VOLATILE,
 		    DIET_LONGINT);
   }
@@ -1134,15 +1120,15 @@ WfParser::setParamDesc(const wf_port_t param_type,
   }
 
   if (type == WfCst::DIET_FLOAT) {
-    diet_scalar_set(diet_parameter(profile, lastArg), 
-		    NULL, 
+    diet_scalar_set(diet_parameter(profile, lastArg),
+		    NULL,
 		    DIET_VOLATILE,
 		    DIET_FLOAT);
   }
 
   if (type == WfCst::DIET_DOUBLE) {
-    diet_scalar_set(diet_parameter(profile, lastArg), 
-		    NULL, 
+    diet_scalar_set(diet_parameter(profile, lastArg),
+		    NULL,
 		    DIET_VOLATILE,
 		    DIET_DOUBLE);
   }
@@ -1155,9 +1141,9 @@ WfParser::setParamDesc(const wf_port_t param_type,
 /**
  * fill a profile with matrix parameter type
  * The data are NULL
- */  
-bool 
-WfParser::setMatrixParamDesc(const wf_port_t param_type,
+ */
+bool
+DagWfParser::setMatrixParamDesc(const wf_port_t param_type,
 				const string& name,
 				const string& base_type_str,
 				const string& nb_rows_str,
@@ -1173,13 +1159,13 @@ WfParser::setMatrixParamDesc(const wf_port_t param_type,
   size_t nb_rows = atoi(nb_rows_str.c_str());
   // get the column numbers
   size_t nb_cols = atoi(nb_cols_str.c_str());
-  // get the matrix order  
-  diet_matrix_order_t matrix_order = 
+  // get the matrix order
+  diet_matrix_order_t matrix_order =
     getMatrixOrder(matrix_order_str);
 
   // set the parameter as a matrix
   diet_matrix_set(diet_parameter(profile,lastArg),
-		  NULL, DIET_VOLATILE, 
+		  NULL, DIET_VOLATILE,
 		  base_type, nb_rows, nb_cols, matrix_order);
 
 
@@ -1190,7 +1176,7 @@ WfParser::setMatrixParamDesc(const wf_port_t param_type,
  * Get the dag size (number of nodes)
  */
 unsigned int
-WfParser::getDagSize() {
+DagWfParser::getDagSize() {
   //  return dagSize;
   return nodes_list.size();
 } // end getDagSize
@@ -1199,8 +1185,8 @@ WfParser::getDagSize() {
 /**
  * return the index of the provided problem in pbs_list vector
  */
-unsigned int 
-WfParser::indexOfPb(corba_pb_desc_t& pb) {
+unsigned int
+DagWfParser::indexOfPb(corba_pb_desc_t& pb) {
   unsigned int index = pbs_list.size() + 1;
   unsigned int len = pbs_list.size();
   for (unsigned int ix=0; ix < len; ix++) {
@@ -1208,7 +1194,7 @@ WfParser::indexOfPb(corba_pb_desc_t& pb) {
       index = ix;
       return index;
     }
-      
+
   }
   return index;
 } // end indexOfPb
@@ -1218,7 +1204,7 @@ WfParser::indexOfPb(corba_pb_desc_t& pb) {
  * check if the profile is already in the problems list
  */
 bool
-WfParser::pbAlreadyRegistred(corba_pb_desc_t& pb_desc) {
+DagWfParser::pbAlreadyRegistred(corba_pb_desc_t& pb_desc) {
   for (unsigned int ix=0; ix<pbs_list.size(); ix++) {
     if (pbs_list[ix] == pb_desc)
       return true;
@@ -1248,7 +1234,7 @@ bool operator != (corba_data_desc_t& d1,
   return false;
 }
 
-bool operator != (SeqCorbaDataDesc_t& s1, 
+bool operator != (SeqCorbaDataDesc_t& s1,
 		  SeqCorbaDataDesc_t& s2) {
   if (s1.length() != s2.length())
     return true;

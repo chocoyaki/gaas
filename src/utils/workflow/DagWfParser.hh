@@ -1,55 +1,28 @@
 /****************************************************************************/
-/* Workflow description Reader class description                            */
-/* This class read a textual representation of workflow and return the      */
+/* DAG Workflow description Reader class description                        */
+/* This class read a textual representation of DAG workflow and return the  */
 /* corresponding DAG object                                                 */
 /*                                                                          */
 /* Author(s):                                                               */
 /* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
+/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.1  2008/04/10 08:38:50  bisnard
- * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
- *
- * Revision 1.7  2007/04/20 09:43:28  ycaniou
- * Cosmetic changements for less warnings when compiling with doc.
- * Still some errors to correct (parameters to detail) that I cannot do.
- *
- * Revision 1.6  2006/11/27 10:15:12  aamar
- * Correct headers of files used in workflow support.
- *
- * Revision 1.5  2006/11/08 01:12:12  aamar
- * ZZ
- *
- * Revision 1.4  2006/10/20 08:32:09  aamar
- * Merging the base classe WfReader in WfExtReader.
- * Correct some bugs and memory leak.
- * The variable nodes and ports doesn't work anymore (TO FIX).
- *
- * Revision 1.3  2006/07/21 09:29:22  eboix
- *  - Added the first brick for test suite [disabled right now].
- *  - Doxygen related cosmetic changes.  --- Injay2461
- *
- * Revision 1.2  2006/07/10 11:09:41  aamar
- * - Adding matrix data type
- * - Adding generic nodes and generic ports parsing
- * - Now, the parser uses Xerces instead of QT
- *
- * Revision 1.1  2006/04/14 13:56:17  aamar
- * This class process an XML representation of the Dag and create the equivalent
- * data structure. Used in client side (header).
+ * Revision 1.1  2008/04/21 14:35:50  bisnard
+ * added NodeQueue and renamed WfParser as DagWfParser
  *
  ****************************************************************************/
 
-#ifndef _WFPARSER_HH_
-#define _WFPARSER_HH_
+#ifndef _DAGWFPARSER_HH_
+#define _DAGWFPARSER_HH_
 
 #include <vector>
 
 #include "Dag.hh"
-// Xerces header 
+// Xerces header
 #include <xercesc/util/PlatformUtils.hpp>
 #include <xercesc/parsers/AbstractDOMParser.hpp>
 #include <xercesc/dom/DOMImplementation.hpp>
@@ -74,7 +47,7 @@
 XERCES_CPP_NAMESPACE_USE
 using namespace std;
 
-class WfParser {
+class DagWfParser {
 public:
 
   /*********************************************************************/
@@ -99,25 +72,25 @@ public:
    *
    * @param content the workflow description
    */
-  WfParser(const char * content);
+  DagWfParser(const char * content);
 
   /** Reader constructor
    *
    * @param content the workflow description
    * @param alloc   indicates if the profile_desc is allocated  (false, the default value) or not
    */
-  WfParser(const char * content, bool alloc);
-  
+  DagWfParser(const char * content, bool alloc);
+
   /**
    * The destructor
    */
-  virtual 
-  ~WfParser();
+  virtual
+  ~DagWfParser();
 
   /**
    * Initialize the processing
    */
-  virtual bool 
+  virtual bool
   setup();
 
   /**
@@ -134,14 +107,14 @@ public:
    *
    * @param pb the the requested problem index
    */
-  unsigned int 
+  unsigned int
   indexOfPb(corba_pb_desc_t& pb);
 
 protected:
   /*********************************************************************/
   /* protected fields                                                  */
   /*********************************************************************/
-  
+
   /**
    * workflow description
    * contains the content of the workflow description file
@@ -179,7 +152,7 @@ protected:
   /* Xml methods  */
   /****************/
 
-  /** 
+  /**
    * utility method to get the attribute value in a DOM element
    *
    * @param attr_name the attribute name
@@ -194,12 +167,12 @@ protected:
   bool
   parseXml();
 
-  /** 
+  /**
    * Init the XML processing
    */
-  virtual bool 
+  virtual bool
   initXml();
-  
+
   /**
    * parse a node element
    *
@@ -208,8 +181,8 @@ protected:
    * @param nodePath the node path (or service)
    * @param var_node indicates if it is a variable node
    */
-  virtual bool 
-  parseNode (const DOMNode * element, 
+  virtual bool
+  parseNode (const DOMNode * element,
 	     string nodeId, string nodePath,
 	     long int var_node = -1);
 
@@ -218,7 +191,7 @@ protected:
    *
    * @param child_elt argument DOM element reference
    */
-  bool 
+  bool
   parseArg(DOMElement * child_elt);
 
   /**
@@ -226,7 +199,7 @@ protected:
    *
    * @param child_elt input port DOM element reference
    */
-  bool 
+  bool
   parseIn(DOMElement * child_elt);
 
   /**
@@ -234,7 +207,7 @@ protected:
    *
    * @param child_elt Inout DOM element reference
    */
-  bool 
+  bool
   parseInout(DOMElement * child_elt);
 
   /**
@@ -242,25 +215,25 @@ protected:
    *
    * @param child_elt Out port DOM element reference
    */
-  bool 
+  bool
   parseOut(DOMElement * child_elt);
 
   /**
    * parse an argument element
    * @param name     argument id
    * @param value    argument value
-   * @param type     argument data type 
+   * @param type     argument data type
    * @param profile  current profile reference
    * @param lastArg  the argument index in the profile
    * @param var_node Undocumented
    * @param var_port Undocumented
    * @param dagNode  node reference in the Dag structure
    */
-  virtual bool 
-  checkArg(const string& name, 
-	   const string& value, 
-	   const string& type, 
-	   diet_profile_t * profile, 
+  virtual bool
+  checkArg(const string& name,
+	   const string& value,
+	   const string& type,
+	   diet_profile_t * profile,
 	   const unsigned int lastArg,
 	   long int var_node = -1,
 	   long int var_port = -1,
@@ -269,7 +242,7 @@ protected:
   /**
    * parse an input port element
    * @param name     input port id
-   * @param type     input port data type 
+   * @param type     input port data type
    * @param source   linked output port id
    * @param profile  current profile reference
    * @param lastArg  the input port index in the profile
@@ -277,9 +250,9 @@ protected:
    * @param var_port Undocumented
    * @param dagNode  node reference in the Dag structure
    */
-  virtual bool 
-  checkIn(const string& name, 
-	  const string& type, 
+  virtual bool
+  checkIn(const string& name,
+	  const string& type,
 	  const string& source,
 	  diet_profile_t * profile,
 	  unsigned int lastArg,
@@ -290,17 +263,17 @@ protected:
   /**
    * parse an input/output port element
    * @param name     inoutput port id
-   * @param type     inoutput port data type 
+   * @param type     inoutput port data type
    * @param source   linked output port id
    * @param profile  current profile reference
    * @param lastArg  the inoutput port index in the profile
    * @param var_node Undocumented
    * @param var_port Undocumented
    * @param dagNode  node reference in the Dag structure
-   */  
-  virtual bool 
-  checkInout(const string& name, 
-	     const string& type, 
+   */
+  virtual bool
+  checkInout(const string& name,
+	     const string& type,
 	     const string& source,
 	     diet_profile_t * profile,
 	     unsigned int lastArg,
@@ -311,16 +284,16 @@ protected:
   /**
    * parse an output port element
    * @param name     output port id
-   * @param type     output port data type 
+   * @param type     output port data type
    * @param sink     linked input port id
    * @param profile  current profile reference
    * @param lastArg  the output port index in the profile
    * @param var_node Undocumented
    * @param var_port Undocumented
    * @param dagNode  node reference in the Dag structure
-   */  
-  virtual bool 
-  checkOut(const string& name, 
+   */
+  virtual bool
+  checkOut(const string& name,
 	   const string& type,
 	   const string& sink,
 	   diet_profile_t * profile,
@@ -330,10 +303,10 @@ protected:
 	   Node * dagNode = NULL);
 
   /**
-   * fill a profile with the appropriate parameter type and create the 
+   * fill a profile with the appropriate parameter type and create the
    * node ports
-   */  
-  virtual bool 
+   */
+  virtual bool
   setParam(const wf_port_t param_type,
 	   const string& name,
 	   const string& type,
@@ -414,7 +387,7 @@ protected:
 		 Node * dagNode = NULL);
 
   /**
-   * parse a matrix argument. 
+   * parse a matrix argument.
    * Check only the commun attributes of In, Inout and Out ports
    * @param id         Port complete id (node id + # + port name)
    * @param element    Dom node representing a matrix
@@ -425,16 +398,16 @@ protected:
    */
   virtual bool
   checkMatrixCommun(const string& id, const DOMElement * element,
-		    string& base_type, 
-		    string& nb_rows, 
-		    string& nb_cols, 
+		    string& base_type,
+		    string& nb_rows,
+		    string& nb_cols,
 		    string& matrix_order);
 
   /**
    * fill a profile with matrix parameter type
    * The data are NULL
-   */  
-  virtual bool 
+   */
+  virtual bool
   setMatrixParam(const wf_port_t param_type,
 		 const string& name,
 		 const string& base_type,
@@ -484,8 +457,8 @@ protected:
    * @param var        not used
    * @param dagNode    the node reference
    * @param value      the parameter value as a reference
-   */  
-  virtual bool 
+   */
+  virtual bool
   setParamDesc(const wf_port_t param_type,
 	       const string& name,
 	       const string& type,
@@ -509,8 +482,8 @@ protected:
    * @param lastArg      the parameter index
    * @param dagNode      the node reference
    * @param value        the parameter value as a reference
-   */  
-  virtual bool 
+   */
+  virtual bool
   setMatrixParamDesc(const wf_port_t param_type,
 		     const string& name,
 		     const string& base_type,
@@ -526,7 +499,14 @@ protected:
 
 bool operator == (corba_pb_desc_t& a,   corba_pb_desc_t& b);
 
-#endif   /* not defined _WFPARSER_HH */
+class XMLParsingException {
+  public:
+    enum XMLParsingErrorType { eUNKNOWN_TAG, eUNKNOWN_ATTR, eBAD_STRUCT, eINVALID_REF };
+    XMLParsingException(XMLParsingErrorType t) { this->why = t; }
+    XMLParsingErrorType Type() { return this->why; }
+  private:
+    XMLParsingErrorType why;
+};
 
-
+#endif   /* not defined _DAGWFPARSER_HH */
 
