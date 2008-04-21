@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2008/04/21 14:32:46  bisnard
+ * use wf request identifer instead of dagid to reference client
+ *
  * Revision 1.8  2008/04/14 13:45:11  bisnard
  * - Removed wf mono-mode submit
  * - Renamed submit_wf in processDagWf
@@ -56,20 +59,34 @@ interface MaDag {
   *
   * @param  dag_desc   workflow textual description
   * @param  cltMgrRef  client workflow manager reference
-  * @param  dag_id     submitted workflow identifier (obtained by getDagId function)
+  * @param  wfReqId    submitted workflow identifier
   * @return true if workflow submission succeed, otherwise false
   */
   boolean
-  processDagWf(in corba_wf_desc_t dag_desc,
-                        in string cltMgrRef,
-                        in long dag_id); 
-
+      processDagWf(in corba_wf_desc_t dag_desc,
+                   in string cltMgrRef,
+                   in long wfReqId);
 
   /**
-   * Get a new DAG identifier
-   */ 
-  long
-  getDagId();
+   * Multi DAG Workflow processing
+   * Manages the scheduling and orchestration of a set of N identical DAGs
+   * Delegates the execution of each individual task to the client workflow mgr
+   *
+   * @param  dag_desc     workflow textual description
+   * @param  cltMgrRef    client workflow manager reference
+   * @param  wfReqId      submitted workflow identifier
+   * @return true if workflow submission succeed, otherwise false
+   */
+
+  boolean
+      processMultiDagWf(in corba_wf_desc_t dag_desc,
+                        in string cltMgrRef,
+                        in long wfReqId);
+
+  /**
+   * Get a new workflow request identifier
+   */
+  long getWfReqId();
 
 
   /** Used to test if this process is alive. */
