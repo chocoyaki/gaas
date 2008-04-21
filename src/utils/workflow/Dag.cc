@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/04/21 14:36:59  bisnard
+ * use nodeQueue to manage multiwf scheduling
+ * use wf request identifer instead of dagid to reference client
+ * renamed WfParser as DagWfParser
+ *
  * Revision 1.2  2008/04/14 09:10:40  bisnard
  *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
  *  - AbstractWfSched and derived classes no longer used with MaDag v2
@@ -48,7 +53,7 @@
 #include "debug.hh"
 
 #include "Dag.hh"
-#include "WfParser.hh"
+#include "DagWfParser.hh"
 
 using namespace std;
 
@@ -117,9 +122,9 @@ Dag::Dag() {
 Dag::~Dag() {
   if (! this->tmpDag) {
     Node * node = NULL;
-    for (map<string, Node * >::iterator p = nodes.begin( ); 
-	 p != nodes.end( ); 
-	 ++p ) { 
+    for (map<string, Node * >::iterator p = nodes.begin( );
+	 p != nodes.end( );
+	 ++p ) {
       node = (Node*) p->second;
       nodes.erase(p);
       delete(node);
@@ -131,7 +136,7 @@ Dag::~Dag() {
 /**
  * add a node to the dag
  */
-void 
+void
 Dag::addNode (string nodeName, Node * node) {
   nodes[nodeName] = node;
   TRACE_TEXT (TRACE_ALL_STEPS,
@@ -143,28 +148,28 @@ Dag::addNode (string nodeName, Node * node) {
  * this function check only the precedence between node, it doesn't *
  * link the ports *
  */
-bool 
+bool
 Dag::checkPrec() {
   bool result = true;
   Node * node = NULL;
   unsigned int n = 0;
-  for (map<string, Node * >::iterator p = nodes.begin( ); p != nodes.end( ); 
-       ++p ) { 
+  for (map<string, Node * >::iterator p = nodes.begin( ); p != nodes.end( );
+       ++p ) {
     node = (Node*) p->second;
-    n = node->prec_ids_nb();
+    n = node->prevNb();
     for (uint ix = 0; ix < n; ix++) {
       map<string, Node * >::iterator q = nodes.find(node->getPrecId(ix));
       if (q != nodes.end()) {
 	node->addPrec(node->getPrecId(ix),
 		      (Node*)(q->second));
       }
-      else 
+      else
 	return false;
     }
   }
-  
-  for (map<string, Node * >::iterator p = nodes.begin( ); p != nodes.end( ); 
-       ++p ) { 
+
+  for (map<string, Node * >::iterator p = nodes.begin( ); p != nodes.end( );
+       ++p ) {
     node = (Node*) p->second;
 
     for (map<string, WfInPort*>::iterator p = node->inports.begin();
@@ -176,12 +181,12 @@ Dag::checkPrec() {
       string lp_id = in->getSourceId();
       if (lp_id == "")
 	continue;
-      
+
       // get the linked node name
       string linkedNode_name = lp_id.substr(0, lp_id.find("#"));
       // linked port id
       lp_id = lp_id.substr(lp_id.find("#")+1);
-      
+
       TRACE_FUNCTION (TRACE_ALL_STEPS,
 		      "\tprevious node name : "<< linkedNode_name);
       // get the linked node ref
@@ -200,12 +205,12 @@ Dag::checkPrec() {
 
   }
   return result;
-} // end checkPrec 
+} // end checkPrec
 
 /**
  * return a string representation of the Dag *
  */
-string 
+string
 Dag::toString() {
   Node * node = NULL;
   string str;
@@ -213,8 +218,8 @@ Dag::toString() {
   str += "# Dag representation :\n";
   str += "####################\n";
 
-  for (map<string, Node * >::iterator p = nodes.begin( ); p != nodes.end( ); 
-       ++p ) { 
+  for (map<string, Node * >::iterator p = nodes.begin( ); p != nodes.end( );
+       ++p ) {
     node = (Node*) p->second;
     str += node->toString();
   }
@@ -241,7 +246,7 @@ Dag::toXML(bool b) {
     }
     else {
       // we need only remaining nodes
-      if (!(n->isRunning()) && !(n->isDone())) 
+      if (!(n->isRunning()) && !(n->isDone()))
 	xml += n->toXML(b);
     }
   }
@@ -253,7 +258,7 @@ Dag::toXML(bool b) {
  * return the size of the Dag (the nodes number)
  */
 // The four next methods are only for testing
-unsigned int 
+unsigned int
 Dag::size() {
   return nodes.size();
 }
@@ -280,7 +285,7 @@ Dag::end() {
 /**
  * link all ports of the dag *
  */
-void 
+void
 Dag::linkAllPorts() {
   // check every node and link it
   for (map<string, Node*>::iterator p = nodes.begin();
@@ -319,7 +324,7 @@ Dag::linkNodePorts(Node * n) {
     lp_id = lp_id.substr(lp_id.find("#")+1);
 
     TRACE_TEXT (TRACE_ALL_STEPS,
-		"linked node name : "<< linkedNode_name << 
+		"linked node name : "<< linkedNode_name <<
 		", linked port : " << lp_id << endl);
     // get the linked node ref
     map<string, Node *>::iterator lnp = nodes.find(linkedNode_name);
@@ -333,17 +338,17 @@ Dag::linkNodePorts(Node * n) {
         ln = (Node *)(lnp->second);
       }
       else {
-        INTERNAL_ERROR("FATAL ERROR" << endl << 
+        INTERNAL_ERROR("FATAL ERROR" << endl <<
                        "Unable to find the linked node : " <<
                        node_name, 1);
       }
     }
     // get outpur port
-    WfOutPort * out = ln->getOutPort(linkedNode_name + "#" + lp_id); 
+    WfOutPort * out = ln->getOutPort(linkedNode_name + "#" + lp_id);
 
     // link the input port to the outport
     TRACE_TEXT (TRACE_ALL_STEPS,
-		"linking the input port " << in->getId() << 
+		"linking the input port " << in->getId() <<
 		" to the output port " <<
 		out->getId() << endl);
     in->set_source(out);
@@ -371,7 +376,7 @@ Dag::linkNodePorts(Node * n) {
     lp_id = lp_id.substr(lp_id.find("#")+1);
 
     TRACE_TEXT (TRACE_ALL_STEPS,
-		"linked node name : "<< linkedNode_name << 
+		"linked node name : "<< linkedNode_name <<
 		", linked port : " << lp_id << endl);
     // get the linked node ref
     map<string, Node *>::iterator lnp = nodes.find(linkedNode_name);
@@ -380,47 +385,48 @@ Dag::linkNodePorts(Node * n) {
       ln = (Node *)(lnp->second);
     }
     else {
-      INTERNAL_ERROR ("FATAL ERROR" << endl << 
+      INTERNAL_ERROR ("FATAL ERROR" << endl <<
 		      "Unable to find the linked node : " <<
 		      node_name << endl,
 		      1);
     }
     // get outpur port
-    WfInPort * in = ln->getInPort(linkedNode_name + "#" + lp_id); 
+    WfInPort * in = ln->getInPort(linkedNode_name + "#" + lp_id);
 
     // link the input port to the outport
     TRACE_TEXT (TRACE_ALL_STEPS,
-		"linking the output port " << out->getId() << 
+		"linking the output port " << out->getId() <<
 		" to the input port " <<
 		in->getId() << endl);
     out->set_sink(in);
     in->set_source(out);
-  }    
+  }
   // link inout ports with ... <TO DO>
 }
 
 /**
  * execute the workflow *
+ * @deprecated
  */
-void
-Dag::exec() {
-}
+// void
+// Dag::exec() {
+// }
 
 /**
  * Get the ready nodes *
  * @deprecated
  */
-void 
-Dag::getReadyNodes(map<string, Node *>& readyNodes) {
-  for (map <string, Node *>::iterator p = nodes.begin();
-       p != nodes.end();
-       ++p) {
-    Node * n = (Node *)p->second;
-    if ((n) && !(n->isRunning()) && !(n->isDone()) && (n->isReady())) {
-      readyNodes[n->getId()] = n;
-    }
-  }
-} // end getReadyNodes
+// void
+// Dag::getReadyNodes(map<string, Node *>& readyNodes) {
+//   for (map <string, Node *>::iterator p = nodes.begin();
+//        p != nodes.end();
+//        ++p) {
+//     Node * n = (Node *)p->second;
+//     if ((n) && !(n->isRunning()) && !(n->isDone()) && (n->isReady())) {
+//       readyNodes[n->getId()] = n;
+//     }
+//   }
+// } // end getReadyNodes
 
 /**
  * Check if the dag execution is completed
@@ -428,7 +434,7 @@ Dag::getReadyNodes(map<string, Node *>& readyNodes) {
  * this methods loops through all the nodes of the dag to check if they are done
  * @return bool
  */
-bool 
+bool
 Dag::isDone() {
   Node * dagNode = NULL;
   for (map<string, Node *>::iterator p = nodes.begin();
@@ -448,32 +454,32 @@ Dag::isDone() {
 void
 Dag::setSchedResponse(wf_node_sched_seq_t * response) {
   this->response = response;
-  
+
   if (response->length() != nodes.size()) {
     TRACE_TEXT (TRACE_ALL_STEPS,
-		"the scheduling response length is different from dag length " 
+		"the scheduling response length is different from dag length "
 		<< endl);
   }
 
-  for (unsigned int ix=0; 
-       ix < response->length(); 
+  for (unsigned int ix=0;
+       ix < response->length();
        ix++) {
     string nid((*response)[ix].node_id);
-    map <string, Node *>::iterator p = 
+    map <string, Node *>::iterator p =
       nodes.find(nid);
     if (p != nodes.end()) {
       TRACE_TEXT (TRACE_ALL_STEPS,
-		  "The nodes " << ((Node*)(p->second))->getId() << 
+		  "The nodes " << ((Node*)(p->second))->getId() <<
 		  " is mapped to a SeD"  << endl);
       ((Node*)(p->second))->setSeD((*response)[ix].server.loc.ior, "");
-    } 
+    }
     else {
       // Try with complete id
       nid = nid.substr(nid.find("-")+1);
       p = nodes.find(nid);
       if (p != nodes.end()) {
         TRACE_TEXT (TRACE_ALL_STEPS,
-                    "The nodes " << ((Node*)(p->second))->getId() << 
+                    "The nodes " << ((Node*)(p->second))->getId() <<
                     " is mapped to a SeD"  << endl);
         ((Node*)(p->second))->setSeD((*response)[ix].server.loc.ior,
                                      "");
@@ -517,20 +523,20 @@ Dag::get_scalar_output(const char * id,
 	    TRACE_TEXT (TRACE_ALL_STEPS,
 			"\t" << "return the result" << endl);
 	  //       diet_scalar_get(diet_parameter(profile,2), &pl3, NULL);
-	  return diet_scalar_get(diet_parameter(outp->profile(),outp->getIndex()), 
+	  return diet_scalar_get(diet_parameter(outp->profile(),outp->getIndex()),
 				 value, NULL);
 	}
       }
     }
   }
-    
+
   return 1;
 }
 
 /**
  * get a string result of the workflow *
  */
-int 
+int
 Dag::get_string_output(const char * id,
 		       char** value) {
   string port_id(id);
@@ -547,7 +553,7 @@ Dag::get_string_output(const char * id,
       if (outp->isResult()) {
 	TRACE_TEXT (TRACE_ALL_STEPS,
 		    "######## return the result" << endl);
-	return diet_string_get(diet_parameter(outp->profile(),outp->getIndex()), 
+	return diet_string_get(diet_parameter(outp->profile(),outp->getIndex()),
 			       value, NULL);
       }
     }
@@ -576,7 +582,7 @@ Dag::get_file_output (const char * id,
       if (outp->isResult()) {
 	TRACE_TEXT (TRACE_ALL_STEPS,
 		    "######## return the result" << endl);
-	return diet_file_get(diet_parameter(outp->profile(), outp->getIndex()), 
+	return diet_file_get(diet_parameter(outp->profile(), outp->getIndex()),
 					    NULL, size, path);
       }
     }
@@ -589,7 +595,7 @@ Dag::get_file_output (const char * id,
  */
 int
 Dag::get_matrix_output (const char * id, void** value,
-			size_t* nb_rows, size_t *nb_cols, 
+			size_t* nb_rows, size_t *nb_cols,
 			diet_matrix_order_t* order) {
   string port_id(id);
   string node_id = port_id.substr(0, port_id.find("#"));
@@ -610,7 +616,7 @@ int
 _matrix_get(diet_arg_t* arg, void** value, diet_persistence_mode_t* mode,
 	    size_t* nb_rows, size_t *nb_cols, diet_matrix_order_t* order);
 	*/
-	return diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()), 
+	return diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()),
 			       value, NULL,
 			       nb_rows, nb_cols, order);
       }
@@ -625,23 +631,23 @@ _matrix_get(diet_arg_t* arg, void** value, diet_persistence_mode_t* mode,
  * so of the level 1 will have a tag equal to 1 and so on *
  * the output nodes will have a tag equal to the length of the dag *
  */
-void
-Dag::setTags() {
-  Node * n = NULL;
-  for (map<string, Node*>::iterator p = nodes.begin();
-       p != nodes.end();
-       ++p) {
-    n = (Node *)(p->second);
-    if (n != NULL) {
-      if (n->isAnInput()) {
-	n->setTag(0);
-      }
-    }
-  }
-}
+// void
+// Dag::setTags() {
+//   Node * n = NULL;
+//   for (map<string, Node*>::iterator p = nodes.begin();
+//        p != nodes.end();
+//        ++p) {
+//     n = (Node *)(p->second);
+//     if (n != NULL) {
+//       if (n->isAnInput()) {
+// 	n->setTag(0);
+//       }
+//     }
+//   }
+// }
 
 /**
- * check the scheduling 
+ * check the scheduling
  */
 bool
 Dag::checkScheduling() {
@@ -654,7 +660,7 @@ Dag::checkScheduling() {
     n = (Node *)(p->second);
     if ((n != NULL) && (n->isDone()) && (!n->getMark())) {
       if (
-	  (WfCst::diff(n->getRealCompTime(), this->beginning,		       
+	  (WfCst::diff(n->getRealCompTime(), this->beginning,
 		       n->getEstCompTime())>this->nbSec)
 	  ) {
 	nodes_with_pb.push_back(n);
@@ -664,7 +670,7 @@ Dag::checkScheduling() {
   if (nodes_with_pb.size()>0)
     TRACE_TEXT (TRACE_ALL_STEPS,
 		nodes_with_pb.size() << " node(s) out of predicted time" <<endl);
-  
+
   if (nodes_with_pb.size() >= this->nbNodes) {
     for (unsigned int ix=0; ix<nodes_with_pb.size(); ix++)
       nodes_with_pb[ix]->setMark(true);
@@ -685,7 +691,7 @@ Dag::setTheBeginning(struct timeval tv) {
 }
 
 /**
- * Move a node to the trash vector (called when rescheduling) 
+ * Move a node to the trash vector (called when rescheduling)
  */
 void
 Dag::moveToTrash(Node * n) {
@@ -715,12 +721,12 @@ Dag::moveToTrash(Node * n) {
 /**
  * get the dag nodes as a vector of node reference
  */
-vector<Node*> 
+vector<Node*>
 Dag::getNodes() {
   vector<Node*> v;
   Node * node = NULL;
-  for (map<string, Node * >::iterator p = nodes.begin( ); p != nodes.end( ); 
-       ++p ) { 
+  for (map<string, Node * >::iterator p = nodes.begin( ); p != nodes.end( );
+       ++p ) {
     node = (Node*) p->second;
     if (node != NULL)
       v.push_back(node);
@@ -729,13 +735,13 @@ Dag::getNodes() {
 } // end getNodes
 
 /**
- * Get the node with given identifier 
+ * Get the node with given identifier
  *
  */
 Node *
 Dag::getNode(std::string node_id) {
   map<string, Node*>::iterator p = this->nodes.find(node_id);
-  if ( p != this->nodes.end()) 
+  if ( p != this->nodes.end())
     return p->second;
   else
     return NULL;
@@ -744,7 +750,7 @@ Dag::getNode(std::string node_id) {
 /**
  * get all the results
  */
-int 
+int
 Dag::get_all_results() {
   Node * n = NULL;
   for (map<string, Node *>::iterator p = nodes.begin();
@@ -762,7 +768,7 @@ Dag::get_all_results() {
 	    // DOUBLE OR FLOAT
 	    if (outp->profile()->parameters[outp->getIndex()].desc.generic.base_type == DIET_DOUBLE) {
 	      double * value = NULL;
-	      diet_scalar_get(diet_parameter(outp->profile(),outp->getIndex()), 
+	      diet_scalar_get(diet_parameter(outp->profile(),outp->getIndex()),
 			      &value, NULL);
 	      TRACE_TEXT (TRACE_MAIN_STEPS,
 			  "## WORKFLOW OUTPUT ## " <<
@@ -770,7 +776,7 @@ Dag::get_all_results() {
 	    }
 	    if (outp->profile()->parameters[outp->getIndex()].desc.generic.base_type == DIET_FLOAT) {
 	      float * value = NULL;
-	      diet_scalar_get(diet_parameter(outp->profile(),outp->getIndex()), 
+	      diet_scalar_get(diet_parameter(outp->profile(),outp->getIndex()),
 			      &value, NULL);
 	      TRACE_TEXT (TRACE_MAIN_STEPS,
 			  "## WORKFLOW OUTPUT ## " <<
@@ -782,7 +788,7 @@ Dag::get_all_results() {
 		 (outp->profile()->parameters[outp->getIndex()].desc.generic.base_type == DIET_INT) ||
 		 (outp->profile()->parameters[outp->getIndex()].desc.generic.base_type == DIET_LONGINT)) {
 	      long * value = NULL;
-	      diet_scalar_get(diet_parameter(outp->profile(),outp->getIndex()), 
+	      diet_scalar_get(diet_parameter(outp->profile(),outp->getIndex()),
 			      &value, NULL);
 	      TRACE_TEXT (TRACE_MAIN_STEPS,
 			  "## WORKFLOW OUTPUT ## " <<
@@ -795,7 +801,7 @@ Dag::get_all_results() {
 
 	  if (outp->profile()->parameters[outp->getIndex()].desc.generic.type == DIET_STRING) {
 	    char * value;
-	    diet_string_get(diet_parameter(outp->profile(),outp->getIndex()), 
+	    diet_string_get(diet_parameter(outp->profile(),outp->getIndex()),
 			    &value, NULL);
 	      TRACE_TEXT (TRACE_MAIN_STEPS,
 			  "## WORKFLOW OUTPUT ## " <<
@@ -807,11 +813,11 @@ Dag::get_all_results() {
 	  if (outp->profile()->parameters[outp->getIndex()].desc.generic.type == DIET_FILE) {
 	    size_t size;
 	    char * path;
-	    diet_file_get(diet_parameter(outp->profile(),outp->getIndex()), 
+	    diet_file_get(diet_parameter(outp->profile(),outp->getIndex()),
 			  NULL, &size, &path);
 	    TRACE_TEXT (TRACE_MAIN_STEPS,
 			"## WORKFLOW OUTPUT ## " <<
-			outp->getId() << " type = DIET_FILE, " << 
+			outp->getId() << " type = DIET_FILE, " <<
 			"File name = " << path << ", " <<
 			"File size = " << size  << endl);
 	  } // end if STRING
@@ -823,7 +829,7 @@ Dag::get_all_results() {
 	      diet_matrix_order_t order;
 	    if (outp->profile()->parameters[outp->getIndex()].desc.generic.base_type == DIET_DOUBLE) {
 	      double * value;
-	      diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()), 
+	      diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()),
 			      &value, NULL,
 			      &nb_rows, &nb_cols, &order);
 	      wf_dag_print_matrix_of_real(value, nb_rows, nb_cols, order);
@@ -831,7 +837,7 @@ Dag::get_all_results() {
 
 	    if (outp->profile()->parameters[outp->getIndex()].desc.generic.base_type == DIET_FLOAT) {
 	      float * value;
-	      diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()), 
+	      diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()),
 			      &value, NULL,
 			      &nb_rows, &nb_cols, &order);
 	      wf_dag_print_matrix_of_real(value, nb_rows, nb_cols, order);
@@ -839,7 +845,7 @@ Dag::get_all_results() {
 
 	    if (outp->profile()->parameters[outp->getIndex()].desc.generic.base_type == DIET_CHAR) {
 	      char * value;
-	      diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()), 
+	      diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()),
 			      &value, NULL,
 			      &nb_rows, &nb_cols, &order);
 	      wf_dag_print_matrix_of_integer(value, nb_rows, nb_cols, order);
@@ -847,7 +853,7 @@ Dag::get_all_results() {
 
 	    if (outp->profile()->parameters[outp->getIndex()].desc.generic.base_type == DIET_SHORT) {
 	      short * value;
-	      diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()), 
+	      diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()),
 			      &value, NULL,
 			      &nb_rows, &nb_cols, &order);
 	      wf_dag_print_matrix_of_integer(value, nb_rows, nb_cols, order);
@@ -855,7 +861,7 @@ Dag::get_all_results() {
 
 	    if (outp->profile()->parameters[outp->getIndex()].desc.generic.base_type == DIET_INT) {
 	      int * value;
-	      diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()), 
+	      diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()),
 			      &value, NULL,
 			      &nb_rows, &nb_cols, &order);
 	      wf_dag_print_matrix_of_integer(value, nb_rows, nb_cols, order);
@@ -863,7 +869,7 @@ Dag::get_all_results() {
 
 	    if (outp->profile()->parameters[outp->getIndex()].desc.generic.base_type == DIET_LONGINT) {
 	      long * value;
-	      diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()), 
+	      diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()),
 			      &value, NULL,
 			      &nb_rows, &nb_cols, &order);
 	      wf_dag_print_matrix_of_longint(value, nb_rows, nb_cols, order);
@@ -871,7 +877,7 @@ Dag::get_all_results() {
 
 
 	  }
-	  // ******************* MATRIX  
+	  // ******************* MATRIX
 	} // if isResult
       } // end for outports
     } // end if n != NULL
@@ -912,6 +918,20 @@ Dag::getInputNodes() {
   }
   return v;
 } // end getInputNodes
+
+/**
+ * set all input nodes as ready
+ */
+void
+Dag::setInputNodesReady() {
+  vector<Node *> inputs = this->getInputNodes();
+  for (vector<Node *>::iterator p = inputs.begin();
+       p != inputs.end();
+       p++) {
+    Node * node = (Node *) *p;
+    node->setAsReady();
+  }
+}
 
 /**
  * get the output nodes
@@ -968,7 +988,7 @@ Dag::getAllProfiles() {
  * set the dag as a temporary object
  * Used to not delete the nodes of the dag
  */
-void 
+void
 Dag::setAsTemp(bool b) {
   this->tmpDag = b;
 }

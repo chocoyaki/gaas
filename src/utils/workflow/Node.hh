@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/04/21 14:36:59  bisnard
+ * use nodeQueue to manage multiwf scheduling
+ * use wf request identifer instead of dagid to reference client
+ * renamed WfParser as DagWfParser
+ *
  * Revision 1.2  2008/04/14 09:10:40  bisnard
  *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
  *  - AbstractWfSched and derived classes no longer used with MaDag v2
@@ -42,6 +47,7 @@
 
 class Node;
 class Dag;
+class NodeQueue;
 
 using namespace std;
 
@@ -72,7 +78,7 @@ private:
    * Node execution method *
    * Allocates the profile and executes the call to the SeD *
    */
-  void * 
+  void *
   run();
 
 };
@@ -82,7 +88,7 @@ class Node  {
   /* friend classes              */
   friend class RunnableNode;
   friend class Dag;
-  friend class WfParser;
+  friend class DagWfParser;
   /*******************************/
 
 public:
@@ -90,7 +96,7 @@ public:
   /* public methods                                                    */
   /*********************************************************************/
 
-  /** 
+  /**
    * The Node default constructor
    * @param id         the node id
    * @param pb_name    the node service name
@@ -105,7 +111,7 @@ public:
    * Node destructor
    */
   virtual ~Node();
-  
+
   /**
    * add a new previous node id and reference *
    * @param id previous node id
@@ -127,11 +133,29 @@ public:
   getCompleteId();
 
   /**
+   * Get the workflow request ID
+   */
+  int
+  getWfReqId();
+
+  /**
+   * Set the workflow request ID
+   */
+  void
+  setWfReqId(int wfReqId);
+
+  /**
+   * Set the NodeQueue when the node is inserted into it
+   */
+  void
+  setNodeQueue(NodeQueue * nodeQ);
+
+  /**
    * To get the node pb *
    */
   std::string
   getPb();
-  
+
   /**
    * Add a next node reference *
    * @param n the next node reference
@@ -150,19 +174,19 @@ public:
    * see the myTag attribute *
    * @param t the tag value
    */
-  void 
+  void
   setTag(unsigned int t);
 
   /**
    * return true if the node is an input node *
-   * only the nodes with no previous node are considered as dag input  * 
+   * only the nodes with no previous node are considered as dag input  *
    */
   bool
   isAnInput();
 
   /**
    * return true if the node is an input node *
-   * only the nodes with no next node are considered as dag exit  * 
+   * only the nodes with no next node are considered as dag exit  *
    */
   bool
   isAnExit();
@@ -171,7 +195,7 @@ public:
    * Set the node ID
    * @param id the new id
    */
-  void 
+  void
   setId(std::string id);
 
 
@@ -180,13 +204,13 @@ public:
    */
   std::string
   toString();
-  
+
   /**
    * display an XML  representation of a node *
    * if b = false the node representation doesn't include the information
    * about previous nodes (the source ports of input ports)
    */
-  std::string 
+  std::string
   toXML(bool b = false);
 
   /**
@@ -197,7 +221,7 @@ public:
   set_pb_desc(diet_profile_t* profile);
 
   /**
-   * start the node execution * 
+   * start the node execution *
    * @param reqID request id if set by the client manually
    */
   void
@@ -211,55 +235,55 @@ public:
    * Allocate a new char *
    * @param value the parameter value as a string
    */
-  char *  
+  char *
   newChar  (const string value = "");
   /**
    * Allocate a new short *
    * @param value the parameter value as a string
    */
-  short * 
+  short *
   newShort (const string value = "");
 
   /**
    * Allocate a new int  *
    * @param value the parameter value as a string
    */
-  int *   
+  int *
   newInt   (const string value = "");
 
   /**
    * Allocate a new long *
    * @param value the parameter value as a string
    */
-  long *  
+  long *
   newLong  (const string value = "");
 
   /**
    * Allocate a new string *
    * @param value the parameter value as a string
    */
-  char * 
+  char *
   newString (const string value = "");
 
   /**
    * Allocate a new float  *
    * @param value the parameter value as a string
    */
-  float *   
+  float *
   newFloat  (const string value = "");
 
   /**
    * Allocate a new double  *
    * @param value the parameter value as a string
    */
-  double *   
+  double *
   newDouble (const string value = "");
 
   /**
    * Allocate a new filename  *
    * @param value the parameter value as a string
    */
-  char *   
+  char *
   newFile   (const string value = "");
 
   /**
@@ -282,9 +306,15 @@ public:
   isReady();
 
   /**
+   * set the node as ready for execution
+   */
+  void
+  setAsReady();
+
+  /**
    * Another method to get if the node is ready for execution *
    */
-  bool 
+  bool
   allPrevDone();
 
   /**
@@ -294,7 +324,7 @@ public:
    */
   virtual void
   link_i2o(const string in, const string out);
-  
+
   /**
    * Link output port to input port by id and setting references link *
    * @param out the output port identifier
@@ -302,7 +332,7 @@ public:
    */
   virtual void
   link_o2i(const string out, const string in);
-  
+
   /**
    * Link inoutput port to input port by id and setting references link *
    * @param io  the inout port identifier
@@ -310,7 +340,7 @@ public:
    */
   virtual void
   link_io2i(const string io, const string in);
-  
+
   /**
    * Link inoutput port to output port by id and setting references link *
    * @param io  the inout port identifier
@@ -330,24 +360,24 @@ public:
   WfPort *
   newPort(string id, uint ind, wf_port_t type, string diet_type,
 	       const string& v = string(""));
- 
+
   /**
    * set the SeD reference  associated to the Node
    * @param sed the SeD reference
    */
-  void 
+  void
   setSeD(const SeD_var& sed, std::string hostName);
 
   /**
    * return the SeD affected to the node
-   */ 
+   */
   SeD_var
   getSeD();
 
   /**
    * return the number of next nodes
    */
-  unsigned int 
+  unsigned int
   nextNodesCount();
 
   /**
@@ -360,11 +390,11 @@ public:
   /**
    * return the number of previous nodes
    */
-  unsigned int 
+  unsigned int
   prevNodesCount();
 
   /**
-   * return  next node 
+   * return  next node
    */
   Node *
   getPrev(unsigned int n);
@@ -387,7 +417,7 @@ public:
   void
   setRealCompTime(const struct timeval& real_comp_time);
 
-  /** 
+  /**
    * get the real completion time
    */
   struct timeval
@@ -395,7 +425,7 @@ public:
 
   /**
    * get the node mark (used for reordering)
-   * if the node mark is false i.e the node was executed within the 
+   * if the node mark is false i.e the node was executed within the
    * predicted time (+delta)
    * otherwise the mark is true
    */
@@ -403,11 +433,11 @@ public:
   getMark();
 
   /**
-   * Set the node mark 
+   * Set the node mark
    * @param b the new node mark (true if execution time greater than
    * prediction + delta
    */
-  void 
+  void
   setMark(bool b);
 
   /**
@@ -415,7 +445,7 @@ public:
    */
   bool
   isRunning();
-  
+
   /**
    * Set node statuc as running *
    */
@@ -427,7 +457,7 @@ public:
    */
   bool
   isDone();
-  
+
   /**
    * Set the node status as done
    */
@@ -437,7 +467,7 @@ public:
   /**
    * Return the node profile
    */
-  diet_profile_t * 
+  diet_profile_t *
   getProfile();
 
   /**
@@ -453,7 +483,7 @@ public:
   getDag();
 
   void addPrecId(string str);
-  
+
   /**
    * the previous nodes ids *
    */
@@ -479,19 +509,6 @@ public:
   void
   addPrevNode(int n);
 
-
-  /**
-   * Return a string representation of the node *
-   */
-  string
-  toStringBasis();
- 
-  /**
-   * Return the number of the previous nodes *
-   */
-  unsigned int
-  prec_ids_nb();
-
   /**
    * return the number of previous nodes
    */
@@ -514,7 +531,17 @@ protected:
   string myPb;
 
   /**
-   * The previous nods map<id, reference> * 
+   * Workflow request ID
+   */
+  int wfReqId;
+
+  /**
+   * NodeQueue ref (used to notify NodeQueue when state changes)
+   */
+  NodeQueue * myQueue;
+
+  /**
+   * The previous nods map<id, reference> *
    */
   map <string, Node*>  myPrevNodes;
 
@@ -527,7 +554,7 @@ protected:
    * the number of previous nodes not finished (negative) *
    */
   int prevNodes;
-  
+
   /**
    * indicate if the task is done *
    */
@@ -543,7 +570,7 @@ private:
   /*********************************************************************/
   /* private fields                                                    */
   /*********************************************************************/
-  
+
   /**
    * Dag reference
    */
@@ -565,7 +592,7 @@ private:
   vector<char*>   charParams;
   vector<short*>  shortParams;
   vector<int*>    intParams;
-  vector<long*>   longParams; 
+  vector<long*>   longParams;
   vector<char *>  stringParams;
   vector<float*>  floatParams;
   vector<double*> doubleParams;
@@ -608,7 +635,7 @@ private:
   unsigned int nextDone;
 
   /**
-   * Estimated completion time in second 
+   * Estimated completion time in second
    * (time 0 is the beginning of the execution)
    */
   long int EstCompTime;
@@ -633,22 +660,22 @@ private:
   void
   storePersistentData();
 
-  
+
   /**
    * Get the input port references by id. If not found returns NULL
    *
    * @param id the input port id
    */
-  WfInPort*    
+  WfInPort*
   getInPort(string id);
 
   /**
-   * Get the output port reference by id. If the output port is not found 
+   * Get the output port reference by id. If the output port is not found
    * the function returns NULL
    *
    * @param id the requested output port id
    */
-  WfOutPort*   
+  WfOutPort*
   getOutPort(string id);
 
   /**
@@ -656,7 +683,7 @@ private:
    *
    * @param id the requested inout port id
    */
-  WfInOutPort* 
+  WfInOutPort*
   getInOutPort(string id);
 
   /**
@@ -667,22 +694,16 @@ private:
 
   /**
    * set the node profile param *
-   * @param port    Undocumented * 
-   * @param type    parameter data type * 
+   * @param port    Undocumented *
+   * @param type    parameter data type *
    * @param lastArg parameter index *
    * @param value   string representation of parameter value *
-   * @param mode    The persistent mode * 
+   * @param mode    The persistent mode *
    */
   void
-  set_profile_param(WfPort * port, 
+  set_profile_param(WfPort * port,
 		    string type, const int lastArg, const string& value,
 		    const diet_persistence_mode_t mode);
-
-  /**
-   * Set the node as running *
-   */
-  void
-  set_as_running();
 
   /**
    * called when the node execution is done *
@@ -693,7 +714,7 @@ private:
   /**
    * called when a next node is done *
    */
-  virtual void 
+  virtual void
   nextIsDone();
 };
 

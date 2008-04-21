@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/04/21 14:36:59  bisnard
+ * use nodeQueue to manage multiwf scheduling
+ * use wf request identifer instead of dagid to reference client
+ * renamed WfParser as DagWfParser
+ *
  * Revision 1.2  2008/04/14 09:10:40  bisnard
  *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
  *  - AbstractWfSched and derived classes no longer used with MaDag v2
@@ -80,14 +85,14 @@ public:
   /**
    * return the size of the Dag (the nodes number and not the dag length)
    */
-  unsigned int 
+  unsigned int
   size();
 
   /**
    * return an iterator on the first node
    * (according to the std::map and not to the dag structure)
    */
-  std::map <std::string, Node *>::iterator 
+  std::map <std::string, Node *>::iterator
   begin();
 
 
@@ -95,14 +100,14 @@ public:
    * return an iterator on the last node *
    * (according to the std::map and not to the dag structure) *
    */
-  std::map <std::string, Node *>::iterator 
+  std::map <std::string, Node *>::iterator
   end();
 
 
   /**
    * link all ports of the dag
    */
-  void 
+  void
   linkAllPorts();
 
   /**
@@ -115,21 +120,21 @@ public:
   /**
    * execute the workflow *
    */
-  void
-  exec();
-  
+//   void
+//   exec();
+
   /**
    * Get the ready nodes
-   * 
+   *
    * @param readNodes Map that will contain the readyNodes
    */
-  void
-  getReadyNodes(std::map<std::string, Node *>& readyNodes);
-  
+//   void
+//   getReadyNodes(std::map<std::string, Node *>& readyNodes);
+
   /**
    * check if the dag execution is completed *
    */
-  bool 
+  bool
   isDone();
 
   /**
@@ -142,11 +147,11 @@ public:
 
   /**
    * get a scalar result of the workflow
-   * 
+   *
    * @param id    the port identifier (complete id 'node id'#'port id')
    * @param value the data to store the returned scalar value
    */
-  int 
+  int
   get_scalar_output(const char * id, void** value);
 
   /**
@@ -155,7 +160,7 @@ public:
    * @param id    the port identifier
    * @param value the data to store the returned string value
    */
-  int 
+  int
   get_string_output(const char * id, char** value);
 
 
@@ -181,14 +186,14 @@ public:
    */
   int
   get_matrix_output (const char * id, void** value,
-		     size_t* nb_rows, size_t *nb_cols, 
+		     size_t* nb_rows, size_t *nb_cols,
 		     diet_matrix_order_t* order);
-    
+
   /**
    * Get all the results and display them. This function doesn't returned
    * the value.
    */
-  int 
+  int
   get_all_results();
 
   /**
@@ -197,11 +202,11 @@ public:
    * so of the level 1 will have a tag equal to 1 and so on *
    * the output nodes will have a tag equal to the length of the dag *
    */
-  void
-  setTags();
+//   void
+//   setTags();
 
   /**
-   * Check the scheduling. 
+   * Check the scheduling.
    * Test if the completion time of node is greater to the predicted
    * one
    */
@@ -218,7 +223,7 @@ public:
   setTheBeginning(struct timeval tv);
 
   /**
-   * Move a node to the trash vector (called when rescheduling) 
+   * Move a node to the trash vector (called when rescheduling)
    *
    * @param n the node to remove reference
    */
@@ -228,11 +233,11 @@ public:
   /**
    * Get the dag nodes as a vector of node reference
    */
-  std::vector<Node*> 
+  std::vector<Node*>
   getNodes();
 
   /**
-   * Get the node with given identifier 
+   * Get the node with given identifier
    *
    * @param node_id node identifier
    */
@@ -264,6 +269,13 @@ public:
   getOutputNodes();
 
   /**
+   * Set all input nodes as ready
+   * (used to notify node queue)
+   */
+  void
+  setInputNodesReady();
+
+  /**
    * Get all profiles in the dag
    */
   std::vector<diet_profile_t *>
@@ -273,7 +285,7 @@ public:
    * set the dag as a temporary object
    * Used to not delete the nodes of the dag when destructing the dag
    */
-  void 
+  void
   setAsTemp(bool b = false);
 
   /**
@@ -316,7 +328,7 @@ private:
   /**
    * Reordering parameter
    */
-  unsigned long int 
+  unsigned long int
   nbNodes;
 
   /**

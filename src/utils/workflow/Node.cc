@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/04/21 14:36:59  bisnard
+ * use nodeQueue to manage multiwf scheduling
+ * use wf request identifer instead of dagid to reference client
+ * renamed WfParser as DagWfParser
+ *
  * Revision 1.3  2008/04/15 14:19:54  bisnard
  * - Postpone sed mapping until wf node is executed
  * - Removed diet_call_common2 function
@@ -83,6 +88,7 @@
 
 #include "Node.hh"
 #include "Dag.hh"
+#include "NodeQueue.hh"
 
 MasterAgent_var getMA();
 
@@ -184,6 +190,7 @@ Node::Node(string id, string pb_name,
   this->myMark = false;
   this->priority = 0;
   this->myDag = NULL;
+  this->myQueue = NULL;
 } // end Node constructir
 
 /**
@@ -283,6 +290,74 @@ Node::~Node() {
   }
 }
 
+/****************************************************************************/
+/*                              Basic GET/SET                               */
+/****************************************************************************/
+
+/**
+ * Set the node ID
+ */
+void
+Node::setId(string id) {
+  this->myId = id;
+} // end setId
+
+/**
+ * Get the node id *
+ */
+string Node::getId() {
+  return this->myId;
+} // end getId
+
+/**
+ * Get the node complete id *
+ */
+string Node::getCompleteId() {
+  if (this->myDag != NULL)
+    return this->myDag->getId() + "-" + this->myId;
+  return this->myId;
+} // end getCompleteId
+
+/**
+ * Get the workflow request id associated with the node *
+ */
+int Node::getWfReqId() {
+  return this->wfReqId;
+}
+
+/**
+ * Set the workflow request id associated with the node *
+ */
+void Node::setWfReqId(int wfReqId) {
+  this->wfReqId = wfReqId;
+}
+
+/**
+ * Set the NodeQueue ref when the node is inserted into it *
+ * (This is used to notify the NodeQueue when the node state changes *
+ */
+void Node::setNodeQueue(NodeQueue * nodeQ) {
+  this->myQueue = nodeQ;
+}
+
+/**
+ * To get the node problem identifier
+ */
+string Node::getPb() {
+  return this->myPb;
+} // end getPb
+
+/**
+ * set the node profile
+ */
+void Node::set_pb_desc(diet_profile_t* profile) {
+  this->profile = profile;
+} // end set_pb_desc
+
+/****************************************************************************/
+/*                       Predecessor/Successors Mgmt                        */
+/****************************************************************************/
+
 /**
  * add a new previous node id *
  */
@@ -300,51 +375,19 @@ void Node::addPrec(string str, Node * node) {
     TRACE_TEXT (TRACE_ALL_STEPS, "The node " << this->myId << " has a new previous node " <<
 		str << endl);
     myPrevNodes[str] = node;
-    prevNodes--;
+    this->addPrevNode();
     node->addNext(this);
     addPrecId(str);
   }
 } // end addPrec
 
 /**
- * To get the node id *
- */
-string Node::getId() {
-  return this->myId;
-} // end getId
-
-/**
- * Get the node complete id *
- */
-string Node::getCompleteId() {
-  if (this->myDag != NULL)
-    return this->myDag->getId() + "-" + this->myId;
-  return this->myId;
-} // end getCompleteId
-
-/**
- * To get the node id *
- */
-string Node::getPb() {
-  return this->myPb;
-} // end getPb
-
-/**
- * Return a string representation of the node *
- */
-string
-Node::toStringBasis() {
-  string str = "THIS FUNCTION CALL MUST BE REMOVED";
-  return str;
-}
-
-/**
- * Return the number of the previous nodes *
+ * Get the nb of previous nodes *
  */
 unsigned int
-Node::prec_ids_nb() {
+Node::prevNb() {
   return prec_ids.size();
-} // end prec_ids_nb
+} // end prevNb
 
 /**
  * Get the previous node id by index *
@@ -366,14 +409,6 @@ Node::addNext(Node * n) {
 } // end addNext
 
 /**
- * Called when a previous node execution is done *
- */
-void
-Node::prevNodeHasDone() {
-  prevNodes++;
-} // end prevDone
-
-/**
  * add a new previous node *
  */
 void
@@ -389,17 +424,39 @@ Node::addPrevNode(int n) {
   prevNodes -= n;
 } // end addPrevNode
 
+/**
+ * return the number of next nodes
+ */
+unsigned int Node::nextNodesCount() {
+  return next.size();
+} // end nextNb
 
 /**
- * set the node tag value *
+ * return  next node
  */
-void
-Node::setTag(unsigned int t) {
-  this->myTag = MAX(this->myTag, t);
-  for (unsigned int ix=0; ix < next.size(); ix++) {
-    next[ix] -> setTag(1+ (this->myTag));
-  }
-} // end setTag
+Node * Node::getNext(unsigned int n) {
+  if (n< next.size())
+    return next[n];
+  else
+    return NULL;
+} // end getNext
+
+/**
+ * return the number of previous nodes
+ */
+unsigned int Node::prevNodesCount() {
+  return myPrevNodes.size();
+} // end prevNb
+
+/**
+ * return  next node
+ */
+Node * Node::getPrev(unsigned int n) {
+  if (n<myPrevNodes.size())
+    return (Node*)(myPrevNodes.find(prec_ids[n])->second);
+  else
+    return NULL;
+} // end getPrev
 
 /**
  * return if the node is an input node *
@@ -419,13 +476,9 @@ Node::isAnExit() {
   return (next.size() == 0);
 } // end isAnExit
 
-/**
- * Set the node ID
- */
-void
-Node::setId(string id) {
-  this->myId = id;
-} // end setId
+/****************************************************************************/
+/*                          PRINT functions                                 */
+/****************************************************************************/
 
 /**
  * display the textual representation of a node *
@@ -448,7 +501,8 @@ Node::toString() {
     WfOutPort * out = (WfOutPort*)(p->second);
     str += "\t\t"+ out->id + "\n";
   }
-  return str + toStringBasis();
+// return str + toStringBasis();
+  return str;
 } // end toString
 
 /**
@@ -476,33 +530,9 @@ Node::toXML(bool b) {
   return xml;
 } // end toXML
 
-/**
- * set the node profile
- */
-void
-Node::set_pb_desc(diet_profile_t* profile) {
-  this->profile = profile;
-} // end set_pb_desc
-
-/**
- * start the node execution *
- * Note: the arguments reqID and join are always set to default currently
- */
-void
-Node::start(diet_reqID_t reqID, bool join) {
-  TRACE_TEXT (TRACE_ALL_STEPS, " create the runnable node " << endl);
-  node_running = true;
-//  nodeIsStarting(myId.c_str());
-
-  myRunnableNode = new RunnableNode(this, reqID);
-  TRACE_TEXT (TRACE_ALL_STEPS, "The node " << myId << " tries to launch a RunnableNode "<< endl);
-  myRunnableNode->start();
-  TRACE_TEXT (TRACE_ALL_STEPS, "The node " << myId << " launched its RunnableNode" << endl);
-//   AbstractWfSched::pop(this->myId);
-  if (join)
-    this->myRunnableNode->join();
-  TRACE_TEXT (TRACE_ALL_STEPS, "The node " << myId << " joined its RunnableNode" << endl);
-} // end start
+/****************************************************************************/
+/*                          Profile Allocation                              */
+/****************************************************************************/
 
 /**
  * Allocate a new char *
@@ -630,6 +660,10 @@ Node::newDouble (const string value) {
   return dx;
 } // end newDouble
 
+/****************************************************************************/
+/*                        Priority / Scheduling                             */
+/****************************************************************************/
+
 /**
  * set the node priority *
  */
@@ -656,8 +690,71 @@ Node::isReady() {
 } // end isReady
 
 /**
- *  get if the node is ready for execution
- *
+ * set the node as ready for execution
+ * (Notifies the nodequeue if available)
+ */
+void
+Node::setAsReady() {
+  if (this->myQueue != NULL) {
+    TRACE_TEXT (TRACE_ALL_STEPS,
+      "Node " << this->getCompleteId() << " is ready: notify its queue" << endl);
+    this->myQueue->notifyStateChange(this);
+  }
+}
+
+/**
+ * test if the node is running *
+ */
+bool
+Node::isRunning() {
+  return node_running;
+} // end isRunning
+
+/**
+ * Set node statuc as running *
+ */
+void
+Node::setAsRunning() {
+  this->node_running = true;
+} // end isRunning
+
+/**
+ * test if the execution is done *
+ * (still used by HEFTscheduler to rank nodes)
+ */
+bool
+Node::isDone() {
+  return task_done;
+} // end isDone
+
+/**
+ * Set the node status as done
+ */
+void
+Node::setAsDone() {
+  this->task_done = true;
+  Node * n;
+  TRACE_TEXT (TRACE_ALL_STEPS,
+              "calling the " << next.size() << " next nodes" << endl);
+  for (uint ix=0; ix< next.size(); ix++) {
+    n = next[ix];
+    n->prevNodeHasDone();
+  }
+} // end setAsDone
+
+/**
+ * Called when a previous node execution is done *
+ */
+void Node::prevNodeHasDone() {
+  prevNodes++;
+  if (this->isReady()) {
+    this->setAsReady();
+  }
+} // end prevDone
+
+/**
+ * get if the node is ready for execution
+ * @deprecated
  * this method loops through all the predecessors of the node to check if they
  * are all done
  * @return bool
@@ -672,90 +769,6 @@ Node::allPrevDone() {
   }
   return true;
 } // end allPrevDone
-
-/**
- * Link input port to output port by id and setting references link *
- */
-void
-Node::link_i2o(const string in, const string out) {
-  // the port is supposed to be present
-  if (out == "") {
-    return;
-  }
-  WfInPort * inPort = getInPort(in);
-  if (inPort != NULL)
-    inPort->set_source(out);
-  else {
-    INTERNAL_ERROR ("The output port " << out << " was not found " << endl <<
-		    "Check your XML file", 1);
-  }
-} // end link_i2o
-
-/**
- * Link output port to input port by id and setting references link *
- */
-void
-Node::link_o2i(const string out, const string in) {
-  if (in == "") {
-    return;
-  }
-  // the port is supposed to be present
-  WfOutPort * outPort = getOutPort(out);
-  if (outPort != NULL)
-    outPort->set_sink(in);
-  else {
-    INTERNAL_ERROR ("The output port " << out << " was not found " << endl <<
-		    "Check your XML file", 1);
-  }
-} // end link_o2i
-
-/**
- * Link inoutput port to input port by id and setting references link *
- */
-void
-Node::link_io2i(const string io, const string in) {
-  // TO FIX
-  // the port is supposed to be present
-  getInOutPort(io)->set_sink(in);
-} // end link_io2i
-
-/**
- * Link inoutput port to output port by id and setting references link *
- */
-void
-Node::link_io2o(const string io, const string out) {
-  // the port is supposed to be present
-  getInOutPort(io)->set_source(out);
-} // end link_io2o
-
-/**
- * create and add a new port to the node *
- */
-WfPort *
-Node::newPort(string id, uint ind, wf_port_t type, string diet_type,
-	      const string& v) {
-  WfPort * p = NULL;
-  switch (type) {
-  case ARG_PORT:
-    // nothing to do ??
-     p = new WfInPort(this, id, diet_type, ind, v);
-    inports[id] =  (WfInPort *) p;
-    break;
-  case IN_PORT :
-    p = new WfInPort(this, id, diet_type, ind, v);
-    inports[id] = (WfInPort *) p;
-    break;
-  case INOUT_PORT:
-    p = new WfInOutPort(this, id, diet_type, ind, v);
-    inoutports[id] = (WfInOutPort *) p;
-    break;
-  case OUT_PORT:
-    p = new WfOutPort(this, id, diet_type, ind, v);
-    outports[id] = (WfOutPort *)p;
-    break;
-  }
-  return (WfPort*)p;
-} // end newPort
 
 /**
  * set the SeD reference to the node *
@@ -776,44 +789,9 @@ Node::getSeD() {
   return this->chosenServer;
 } // end getSeD
 
-/**
- * return the number of next nodes
- */
-unsigned int
-Node::nextNodesCount() {
-  return next.size();
-} // end nextNb
-
-/**
- * return  next node
- */
-Node *
-Node::getNext(unsigned int n) {
-  if (n< next.size())
-    return next[n];
-  else
-    return NULL;
-} // end getNext
-
-/**
- * return the number of previous nodes
- */
-unsigned int
-Node::prevNodesCount() {
-  return myPrevNodes.size();
-} // end prevNb
-
-/**
- * return  next node
- */
-Node *
-Node::getPrev(unsigned int n) {
-  if (n<myPrevNodes.size())
-    return (Node*)(myPrevNodes.find(prec_ids[n])->second);
-  else
-    return NULL;
-} // end getPrev
-
+/****************************************************************************/
+/*                       Ports & Profile Mgmt                               */
+/****************************************************************************/
 
 /**
  * Store the persistent data of the node profile *
@@ -825,7 +803,7 @@ Node::storePersistentData() {
        ++p) {
     WfOutPort * out = (WfOutPort*)(p->second);
     store_id(profile->parameters[out->index].desc.id,
-	     "wf param");
+	     (char *) "wf param");
   }
 } // end storePersistentData
 
@@ -1175,45 +1153,116 @@ Node::set_profile_param(WfPort * port,
   }
 } // end set_profile_param
 
+/****************************************************************************/
+/*                           Ports linking                                  */
+/****************************************************************************/
+
 /**
- * Set the node as running *
+ * Link input port to output port by id and setting references link *
  */
 void
-Node::set_as_running() {
+Node::link_i2o(const string in, const string out) {
+  // the port is supposed to be present
+  if (out == "") {
+    return;
+  }
+  WfInPort * inPort = getInPort(in);
+  if (inPort != NULL)
+    inPort->set_source(out);
+  else {
+    INTERNAL_ERROR ("The output port " << out << " was not found " << endl <<
+		    "Check your XML file", 1);
+  }
+} // end link_i2o
+
+/**
+ * Link output port to input port by id and setting references link *
+ */
+void
+Node::link_o2i(const string out, const string in) {
+  if (in == "") {
+    return;
+  }
+  // the port is supposed to be present
+  WfOutPort * outPort = getOutPort(out);
+  if (outPort != NULL)
+    outPort->set_sink(in);
+  else {
+    INTERNAL_ERROR ("The output port " << out << " was not found " << endl <<
+		    "Check your XML file", 1);
+  }
+} // end link_o2i
+
+/**
+ * Link inoutput port to input port by id and setting references link *
+ */
+void
+Node::link_io2i(const string io, const string in) {
+  // TO FIX
+  // the port is supposed to be present
+  getInOutPort(io)->set_sink(in);
+} // end link_io2i
+
+/**
+ * Link inoutput port to output port by id and setting references link *
+ */
+void
+Node::link_io2o(const string io, const string out) {
+  // the port is supposed to be present
+  getInOutPort(io)->set_source(out);
+} // end link_io2o
+
+/**
+ * create and add a new port to the node *
+ */
+WfPort *
+Node::newPort(string id, uint ind, wf_port_t type, string diet_type,
+	      const string& v) {
+  WfPort * p = NULL;
+  switch (type) {
+  case ARG_PORT:
+    // nothing to do ??
+     p = new WfInPort(this, id, diet_type, ind, v);
+    inports[id] =  (WfInPort *) p;
+    break;
+  case IN_PORT :
+    p = new WfInPort(this, id, diet_type, ind, v);
+    inports[id] = (WfInPort *) p;
+    break;
+  case INOUT_PORT:
+    p = new WfInOutPort(this, id, diet_type, ind, v);
+    inoutports[id] = (WfInOutPort *) p;
+    break;
+  case OUT_PORT:
+    p = new WfOutPort(this, id, diet_type, ind, v);
+    outports[id] = (WfOutPort *)p;
+    break;
+  }
+  return (WfPort*)p;
+} // end newPort
+
+/****************************************************************************/
+/*                           CLIENT - SIDE                                  */
+/****************************************************************************/
+
+/**
+ * start the node execution *
+ * Note: the arguments reqID and join are always set to default currently
+ */
+void Node::start(diet_reqID_t reqID, bool join) {
+  TRACE_TEXT (TRACE_ALL_STEPS, " create the runnable node " << endl);
   node_running = true;
-} // end set_as_running
+//  nodeIsStarting(myId.c_str());
 
-/**
- * test if the node is running *
- */
-bool
-Node::isRunning() {
-  return node_running;
-} // end isRunning
-
-/**
- * Set node statuc as running *
- */
-void
-Node::setAsRunning() {
-  this->node_running = true;
-} // end isRunning
-
-/**
- * test if the execution is done *
- */
-bool
-Node::isDone() {
-  return task_done;
-} // end isDone
-
-/**
- * Set the node status as done
- */
-void
-Node::setAsDone() {
-  this->task_done = true;
-} // end setAsDone
+  myRunnableNode = new RunnableNode(this, reqID);
+  TRACE_TEXT (TRACE_ALL_STEPS, "The node " << myId << " tries to launch a RunnableNode "<< endl);
+  myRunnableNode->start();
+  TRACE_TEXT (TRACE_ALL_STEPS, "The node " << myId << " launched its RunnableNode" << endl);
+//   AbstractWfSched::pop(this->myId);
+  if (join)
+    this->myRunnableNode->join();
+  TRACE_TEXT (TRACE_ALL_STEPS, "The node " << myId << " joined its RunnableNode" << endl);
+    } // end start
 
 /**
  * called when the node execution is done *
@@ -1357,7 +1406,13 @@ Node::getDag() {
   }
 }
 
-unsigned int
-Node::prevNb() {
-  return prec_ids.size();
-} // end prevNb
+/**
+ * set the node tag value *
+ */
+// void
+// Node::setTag(unsigned int t) {
+//   this->myTag = MAX(this->myTag, t);
+//   for (unsigned int ix=0; ix < next.size(); ix++) {
+//     next[ix] -> setTag(1+ (this->myTag));
+//   }
+// } // end setTag
