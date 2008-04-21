@@ -9,20 +9,20 @@ IF( DIET_BUILD_LIBRARIES )
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${DIET_SOURCE_DIR}/include
     )
-  
+
   INCLUDE_DIRECTORIES( ${XERCES_INCLUDE_DIR} )
 
   ADD_LIBRARY( MaDag
     MaDag_impl.cc
-    WfScheduler.cc RRScheduler.cc HEFTScheduler.cc
-    MultiDag.cc 
+    WfScheduler.cc HEFTScheduler.cc
+    MultiDag.cc
     MultiWfScheduler.cc
     MultiWfBasicScheduler.cc MultiWfFOFT.cc )
-  
-  TARGET_LINK_LIBRARIES ( MaDag 
+
+  TARGET_LINK_LIBRARIES ( MaDag
     IDLWf
-    AgentCommon 
-    UtilsWf 
+    AgentCommon
+    UtilsWf
     DIET_client
     ${XERCES_LIBRARY}
     ${OMNIORB4_LIBRARIES}
@@ -32,5 +32,5 @@ IF( DIET_BUILD_LIBRARIES )
   TARGET_LINK_LIBRARIES (maDagAgent MaDag)
   INSTALL_TARGETS(/bin/ maDagAgent )
   INSTALL_TARGETS(/lib/ MaDag )
-  
+
 ENDIF( DIET_BUILD_LIBRARIES )
