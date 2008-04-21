@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.105  2008/04/21 13:18:34  glemahec
+ * Memory leak and volatile data management corrections.
+ *
  * Revision 1.104  2008/04/19 09:16:45  ycaniou
  * Check that pathToTmp and pathToNFS exist
  * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
@@ -728,9 +731,6 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
          << "************************************************************\n";
 #if ! HAVE_DAGDA
   for (i = 0; i <= cvt->last_in; i++) {
-#ifdef DEBUG_DAGDA
-	cout << "l." << __LINE__ << " file: " << __FILE__ << endl;
-#endif
     diet_free_data(&(profile.parameters[i]));
   }
 #endif // ! HAVE_DAGDA
@@ -824,8 +824,8 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
   for (i = 0; i <= cvt->last_in; i++) {
     diet_free_data(&(profile.parameters[i]));
   }
+#endif
   delete [] profile.parameters; // allocated by unmrsh_in_args_to_profile
-#endif // ! HAVE_DAGDA
 
   stat_out("SeD",statMsg);
   stat_flush();

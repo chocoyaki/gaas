@@ -518,8 +518,8 @@ void SimpleDagdaImpl::pfmRemData(const char* dataID) {
 /* CORBA */
 void SimpleDagdaImpl::lclUpdateData(Dagda_ptr src, const corba_data_t& data) {
   if (strcmp(src->getID(), this->getID())==0) return;
-  cout << "l." << __LINE__ << " file: " << __FILE__ << endl;
-  cout << "src->getID = " << src->getID() << " this->getID = " << this->getID() << endl;
+/*  cout << "l." << __LINE__ << " file: " << __FILE__ << endl;
+  cout << "src->getID = " << src->getID() << " this->getID = " << this->getID() << endl;*/
   lclRemData(data.desc.id.idNumber);
   lclAddData(src, data);
 }
@@ -703,9 +703,8 @@ bool SimpleDagdaImpl::isDataPresent(const char* dataID) {
 // Simple implementation : return the first data manager of the list.
 Dagda_ptr SimpleDagdaImpl::getBestSource(Dagda_ptr dest, const char* dataID) {
   SeqDagda_t* managers = pfmGetDataManagers(dataID);
-  
-  cout << "l." << __LINE__ << " file: " << __FILE__ << endl;
-  cout << dataID << ": " << managers->length() << " managers found." << endl; 
+  TRACE_TEXT(TRACE_ALL_STEPS, "Data " << dataID << " has " <<
+             managers->length() << " replicate(s) on the platform." << endl);
   
   if (managers->length()==0)
     throw Dagda::DataNotFound(dataID);
@@ -728,11 +727,16 @@ void SimpleDagdaImpl::addData(const corba_data_t& data) {
 }
 
 void SimpleDagdaImpl::remData(const char* dataID) {
-  // !!!!!!! A tester !!!!!!!!!!!!+ Ajouter suppression effective...
   std::map<string, corba_data_t>::iterator it;
   dataMutex.lock();
   it = getData()->find(dataID);
-  if (it!=getData()->end()) getData()->erase(it);
+  if (it!=getData()->end()) {
+    TRACE_TEXT(TRACE_ALL_STEPS, "Removing data " << dataID << " from this "
+			 << "data manager." << endl);
+    if (it->second.desc.specific._d()==DIET_FILE)
+	  unlink(it->second.desc.specific.file().path);
+    getData()->erase(it);
+  }
   dataMutex.unlock();
 }
 
