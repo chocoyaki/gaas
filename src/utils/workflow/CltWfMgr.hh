@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/04/21 14:31:45  bisnard
+ * moved common multiwf routines from derived classes to MultiWfScheduler
+ * use wf request identifer instead of dagid to reference client
+ * use nodeQueue to manage multiwf scheduling
+ * renamed WfParser as DagWfParser
+ *
  * Revision 1.3  2008/04/15 14:20:20  bisnard
  * - Postpone sed mapping until wf node is executed
  *
@@ -37,7 +43,7 @@
 #include "DIET_client.h"
 #include "marshalling.hh"
 
-#include "WfParser.hh"
+#include "DagWfParser.hh"
 
 class CltWfMgr : public POA_CltMan,
                  public PortableServer::RefCountServantBase{

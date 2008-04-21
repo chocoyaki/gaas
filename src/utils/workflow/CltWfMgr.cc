@@ -6,8 +6,14 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/* $Id$ 
+/* $Id$
  * $Log$
+ * Revision 1.5  2008/04/21 14:31:45  bisnard
+ * moved common multiwf routines from derived classes to MultiWfScheduler
+ * use wf request identifer instead of dagid to reference client
+ * use nodeQueue to manage multiwf scheduling
+ * renamed WfParser as DagWfParser
+ *
  * Revision 1.4  2008/04/15 14:20:20  bisnard
  * - Postpone sed mapping until wf node is executed
  *
@@ -31,7 +37,7 @@
 #include "CltWfMgr.hh"
 #include "debug.hh"
 #include "ORBMgr.hh"
-#include "WfParser.hh"
+#include "DagWfParser.hh"
 
 using namespace std;
 
@@ -41,7 +47,7 @@ CltWfMgr * CltWfMgr::myInstance = NULL;
 
 /**
  * Executes a node (CORBA method)
- */ 
+ */
 // void
 // CltWfMgr::execute(const char * node_id, const char * dag_id,
 //                   _objref_SeD* sed) {
@@ -106,7 +112,7 @@ CltWfMgr::CltWfMgr() : mySem(0) {
   this->myWfLogSrv = WfLogSrv::_nil();;
 } // end CltWfMgr constructor
 
-CltWfMgr * 
+CltWfMgr *
 CltWfMgr::instance() {
   if (myInstance == NULL) {
     myInstance = new CltWfMgr();
@@ -140,7 +146,7 @@ CltWfMgr::setWfLogSrv(WfLogSrv_var logSrv) {
 }
 
 /**
- * Init the workflow processing  
+ * Init the workflow processing
  */
 Dag *
 CltWfMgr::init_wf_call(diet_wf_desc_t * profile,
@@ -148,12 +154,12 @@ CltWfMgr::init_wf_call(diet_wf_desc_t * profile,
                        unsigned int& dagSize) {
   corba_wf_desc_t  * corba_profile = new corba_wf_desc_t;
   mrsh_wf_desc(corba_profile, profile);
-  TRACE_TEXT (TRACE_ALL_STEPS, 
+  TRACE_TEXT (TRACE_ALL_STEPS,
               "Marshalling the workflow description done" << endl);
 
-  WfParser reader(profile->abstract_wf, false);
+  DagWfParser reader(profile->abstract_wf, false);
   if (! reader.setup())
-    return NULL;  
+    return NULL;
 
   // create the profile sequence
   unsigned int len = reader.pbs_list.size();
@@ -167,7 +173,7 @@ CltWfMgr::init_wf_call(diet_wf_desc_t * profile,
 } // end init_wf_call
 
 /**
- * Execute a workflow using the MA DAG. 
+ * Execute a workflow using the MA DAG.
  *
  */
 diet_error_t
@@ -178,12 +184,12 @@ CltWfMgr::wf_call_madag(diet_wf_desc_t * profile,
 
   TRACE_TEXT (TRACE_ALL_STEPS,"Calling the MA DAG "<< endl);
 
-  WfParser reader(profile->abstract_wf, false);
+  DagWfParser reader(profile->abstract_wf, false);
   if (! reader.setup())
-    return XML_MALFORMED;  
+    return XML_MALFORMED;
 
   Dag * dag = reader.getDag();
-  
+
   mrsh_wf_desc(corba_profile, profile);
   TRACE_TEXT (TRACE_ALL_STEPS,
 	      "Marshalling the workflow description done" << endl);
@@ -192,7 +198,7 @@ CltWfMgr::wf_call_madag(diet_wf_desc_t * profile,
   TRACE_TEXT (TRACE_ALL_STEPS,
 	      "Try to send the workflow description to the MA_DAG ...");
   if (this->myMaDag != MaDag::_nil()) {
-    CORBA::Long dagId = this->myMaDag->getDagId();
+    CORBA::Long dagId = this->myMaDag->getWfReqId();
     string dag_id = itoa(dagId);
     dag->setId(dag_id);
     if (this->myMaDag->processDagWf(*corba_profile, myIOR(), dagId)) {
@@ -284,7 +290,7 @@ CltWfMgr::getWfOutputMatrix(diet_wf_desc_t* profile,
                    const char * id,
 		   void** value,
 		   size_t* nb_rows,
-		   size_t *nb_cols, 
+		   size_t *nb_cols,
 		   diet_matrix_order_t* order) {
   if (this->myProfiles.find(profile) != this->myProfiles.end()) {
     Dag * dag = this->myProfiles.find(profile)->second;
@@ -315,7 +321,7 @@ CltWfMgr::wf_free(diet_wf_desc_t * profile) {
 /**
  * Return the object IOR
  */
-const char * 
+const char *
 CltWfMgr::myIOR() {
   return ORBMgr::getIORString(this->_this());
 } // end ping

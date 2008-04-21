@@ -7,8 +7,14 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/* $Id$ 
+/* $Id$
  * $Log$
+ * Revision 1.4  2008/04/21 14:31:45  bisnard
+ * moved common multiwf routines from derived classes to MultiWfScheduler
+ * use wf request identifer instead of dagid to reference client
+ * use nodeQueue to manage multiwf scheduling
+ * renamed WfParser as DagWfParser
+ *
  * Revision 1.3  2008/04/14 13:44:29  bisnard
  * - Parameter 'used' obsoleted in MultiWfScheduler::submit_wf & submit_pb_set
  *
@@ -25,35 +31,19 @@
 #include "marshalling.hh"
 
 #include "MultiWfFOFT.hh"
-#include "RRScheduler.hh"
-#include "HEFTScheduler.hh"
 
 using namespace madag;
 
-MultiWfFOFT::MultiWfFOFT() {
-  this->mySched = new HEFTScheduler();
+MultiWfFOFT::MultiWfFOFT(MaDag_impl* maDag) : MultiWfScheduler(maDag) {
 }
-  
+
 MultiWfFOFT::~MultiWfFOFT() {
-  if (this->myMetaDag != NULL)
-    delete this->myMetaDag;
-  
-  if (this->mySched != NULL)
-    delete this->mySched;
 }
 
 /**
- * set the scheduler used by the MA DAG
+ * Workflow submission function.
  */
-void 
-MultiWfFOFT::setSched(WfScheduler * sched) {
-  this->mySched = sched;
-}
-
-/**
- * Workflow submission function. 
- */
-bool 
+bool
 MultiWfFOFT::submit_wf (const corba_wf_desc_t& wf_desc, int dag_id,
                       MasterAgent_var parent,
                       CltMan_var cltMan) {
@@ -67,7 +57,7 @@ MultiWfFOFT::submit_wf (const corba_wf_desc_t& wf_desc, int dag_id,
 
   wf_resp->dag_id = dag_id;
   // Parse the XML of the new DAG
-  WfParser reader(wf_desc.abstract_wf);
+  DagWfParser reader(wf_desc.abstract_wf);
   reader.setup();
   newDag = reader.getDag();
   newDag->setId(itoa(dag_id));
@@ -100,18 +90,18 @@ MultiWfFOFT::submit_wf (const corba_wf_desc_t& wf_desc, int dag_id,
 
   // construct the response/scheduling
   if ( ! wf_response->complete) {
-    WARNING("The response of the MA for dag " << dag_id << 
+    WARNING("The response of the MA for dag " << dag_id <<
 	    " is incomplete" << endl);
     this->myLock.unlock();
     return false;
   }
 
   // By default use the Round Robbin scheduler
-  if (this->mySched == NULL) {
-    this->mySched = new RRScheduler();
-  }
+//   if (this->mySched == NULL) {
+//     this->mySched = new RRScheduler();
+//   }
 
-  // Schedule each dag alone 
+  // Schedule each dag alone
   Dag * dag = NULL;
   vector<Dag*> allDags = this->myMetaDag->getAllDags();
   for (unsigned int ix=0; ix<allDags.size(); ix++) {
@@ -144,9 +134,9 @@ MultiWfFOFT::submit_wf (const corba_wf_desc_t& wf_desc, int dag_id,
     string id(node->getId());
     if (id.substr(0, id.find("-")) == dagIdStr) {
       wf_resp->wf_node_sched_seq.length(index+1);
-      wf_resp->wf_node_sched_seq[index].node_id = 
+      wf_resp->wf_node_sched_seq[index].node_id =
 	CORBA::string_dup(id.substr(id.find("-")+1).c_str());
-      wf_resp->wf_node_sched_seq[index].server = 
+      wf_resp->wf_node_sched_seq[index].server =
 	this->sMulti[node].server;
       cout << "++++++++++++++++==" << index << id << endl;
       index++;
@@ -164,9 +154,9 @@ MultiWfFOFT::submit_wf (const corba_wf_desc_t& wf_desc, int dag_id,
     dagId = id.substr(0, id.find("-"));
     len = remainingSched[dagId].length();
     remainingSched[dagId].length(len + 1 );
-    remainingSched[dagId][len].node_id = 
+    remainingSched[dagId][len].node_id =
       CORBA::string_dup(id.substr(id.find("-")+1).c_str());
-    remainingSched[dagId][len].server = 
+    remainingSched[dagId][len].server =
       this->sMulti[node].server;
   }
   // Send the scheduling to the other clients
@@ -176,7 +166,7 @@ MultiWfFOFT::submit_wf (const corba_wf_desc_t& wf_desc, int dag_id,
 //        ++p) {
 //     dagId = p->first;
 //     clt = (CltReoMan_var)(p->second);
-//     map<string, wf_node_sched_seq_t>::iterator q = 
+//     map<string, wf_node_sched_seq_t>::iterator q =
 //       remainingSched.find(dagId);
 //     if ( (q != remainingSched.end()) &&
 // 	 (clt != NULL)) {
@@ -184,7 +174,7 @@ MultiWfFOFT::submit_wf (const corba_wf_desc_t& wf_desc, int dag_id,
 //       clt->remainingSched(q->second);
 //     }
 //   }
-  
+
   //  metaDag->mapSeDs(sched_seq);
 
   // release the Meta Dag
@@ -234,7 +224,7 @@ MultiWfFOFT::init() {
 	    (dag->getEstMakespan() > v[ix]->getEstMakespan()) ) {
       dag = (Dag*)(*p);
       p++;
-    } 
+    }
     this->U.insert(p, v[ix]);
 
   // mark each task in each dag as unexecuted
@@ -246,7 +236,7 @@ MultiWfFOFT::init() {
       this->nodesState[dagNodes[jx]] = nodeInitState;
     }
   } // end for ix
-  
+
   TRACE_FUNCTION(TRACE_ALL_STEPS,
 		 "MultiWfFairness ::init ... done " << endl);
 } // end init
@@ -263,7 +253,7 @@ MultiWfFOFT::fairnessOnFinishTime(const wf_response_t * wf_response) {
     cout << "processing dag " << dag->getId() << endl;
     vector<Node *> dagNodes = dag->getNodes();
     node = get1stReadyNode(dagNodes);
-    
+
     if (node == NULL) {
       cout << "+++++++++++++++++ " << __FUNCTION__ <<
 	" node is NULL for dag " << dag->getId() << " which contains " <<
@@ -276,7 +266,7 @@ MultiWfFOFT::fairnessOnFinishTime(const wf_response_t * wf_response) {
     this->nodesState[node].ownFT =
       this->mySched->getAFT(node->getId());
     // Schedule the node using mySched and construct the response
-    
+
     wf_node_sched_t node_sched = this->mySched->schedule(wf_response,
 							 node);
     // Add the node_sched to S_multi
@@ -285,16 +275,16 @@ MultiWfFOFT::fairnessOnFinishTime(const wf_response_t * wf_response) {
     cout << "dagId = " << dag->getId() <<
       ", this->dagsState[dag].executedNodes = " <<
       this->dagsState[dag].executedNodes <<
-      ", dag->size() = " << 
+      ", dag->size() = " <<
       dag->size() << endl;
     if (this->dagsState[dag].executedNodes >= dag->size()) {
       this->U.erase( this->U.begin());
     }
     else {
-      this->nodesState[node].multiFT = 
+      this->nodesState[node].multiFT =
 	this->mySched->getAFT(node->getId());
       // The FTown is already calculated
-      this->dagsState[dag].slowdown = 
+      this->dagsState[dag].slowdown =
 	this->nodesState[node].ownFT/this->nodesState[node].multiFT;
       cout << "sortU ... " << endl;
       sortU();
@@ -324,7 +314,7 @@ MultiWfFOFT::get1stReadyNode(vector<Node*>& v) {
       for (unsigned int jx=0; jx<nbPrev; jx++) {
 	prevNode = (Node*)(v[ix]->getPrev(jx));
 	cout << "+++++++++++++ " <<
-	  __FUNCTION__ << " checking " << prevNode->getId() << 
+	  __FUNCTION__ << " checking " << prevNode->getId() <<
 	  " (a previous nodes of " <<  v[ix]->getId() << endl;
 	if ( (prevNode != NULL) &&
 	     (this->nodesState.find(prevNode) != this->nodesState.end()) &&
@@ -337,13 +327,13 @@ MultiWfFOFT::get1stReadyNode(vector<Node*>& v) {
 	    prevNode->getId() << " is not ready" << endl;
 	}
       } // end for jx
-      if (ready) {      
+      if (ready) {
 	this->nodesState[v[ix]].executed = true;
 	return v[ix];
       }
     }
   } // end for ix
-  
+
   /** must not be reached since the dag is removed when the last node is
    * schedule */
   return NULL;
@@ -366,11 +356,11 @@ MultiWfFOFT::sortU() {
 	    (dag2->getEstMakespan() < dag->getEstMakespan()) ) {
       dag2 = (Dag*)(*q);
       q++;
-    } 
+    }
     this->U.insert(q, dag);
   }
 } // end sortU
-/** 
+/**
  * DagState default constructor
  */
 DagState::DagState() {
@@ -405,26 +395,26 @@ NodeState::NodeState() {
 // 				  dag);
 //   if (p != this->U.end())
 //     this->U.erase(p);
-//   else 
+//   else
 //     cerr << "Can't find the DAG " << dagId << endl;
-//   
+//
 //   if (this->sOwn.find(dag) != this->sOwn.end())
 //     this->sOwn.erase(this->sOwn.find(dag));
-//   else 
-//     cerr << "Can't find the DAG  " << dagId << 
+//   else
+//     cerr << "Can't find the DAG  " << dagId <<
 //       " in sOwn" << endl;
-//   
+//
 //   if (this->dagsState.find(dag) != this->dagsState.end())
 //     this->dagsState.erase(this->dagsState.find(dag));
-//   else 
-//     cerr << "Can't find the DAG " << dagId << 
+//   else
+//     cerr << "Can't find the DAG " << dagId <<
 //       " in dagsState " << endl;
 // }
 
 /**
  * Set the node state as done
  */
-// void 
+// void
 // MultiWfFOFT::setNodeAsDone(const char* dagId, const char* nodeId) {
 //   MultiWfScheduler::setNodeAsDone(dagId, nodeId);
 // }
@@ -433,7 +423,7 @@ NodeState::NodeState() {
    TO DO
 
    - In Workflow Scheduler : add the following function
-   schedule(const wf_response_t * response, Node * node);   
+   schedule(const wf_response_t * response, Node * node);
         - Added in HEFT scheduler. Need to be implemented in RoundRobbin
 
    - Schedule the node using mySched and construct the response
@@ -444,9 +434,3 @@ NodeState::NodeState() {
 
 */
 
-/**
- * 
- */
-void
-MultiWfFOFT::wakeUp() {
-} // end wakeUp

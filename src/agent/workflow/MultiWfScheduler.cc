@@ -3,11 +3,18 @@
 /*                                                                          */
 /* Author(s):                                                               */
 /* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
+/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/04/21 14:31:45  bisnard
+ * moved common multiwf routines from derived classes to MultiWfScheduler
+ * use wf request identifer instead of dagid to reference client
+ * use nodeQueue to manage multiwf scheduling
+ * renamed WfParser as DagWfParser
+ *
  * Revision 1.3  2008/04/15 14:20:19  bisnard
  * - Postpone sed mapping until wf node is executed
  *
@@ -21,77 +28,236 @@
  ****************************************************************************/
 
 #include "MultiWfScheduler.hh"
+#include "HEFTScheduler.hh"
+#include "MaDag_impl.hh"
+#include "marshalling.hh"
+#include "debug.hh"
 
 using namespace madag;
 
-MultiWfScheduler::MultiWfScheduler() {
+/****************************************************************************/
+/*                         PUBLIC METHODS                                   */
+/****************************************************************************/
+
+MultiWfScheduler::MultiWfScheduler(MaDag_impl* maDag) : mySem(1), myMaDag(maDag) {
   this->myMetaDag = new MultiDag();
-  this->mySched = NULL;
+  this->mySched   = new HEFTScheduler();
 }
 
 MultiWfScheduler::~MultiWfScheduler() {
+  if (this->myMetaDag != NULL)
+    delete this->myMetaDag;
+  if (this->mySched != NULL)
+    delete this->mySched;
+}
+
+long MultiWfScheduler::dagIdCounter = 0;
+
+/**
+ * Change the intra-dag scheduler (by default it is HEFT)
+ */
+void
+MultiWfScheduler::setSched(WfScheduler * sched) {
+  this->mySched = sched;
 }
 
 /**
- * extract only the response for the specified dag
+ * get the MaDag object ref
  */
-wf_sched_response_t *
-MultiWfScheduler::extract(int dag_id, wf_sched_response_t * wf_resp) {
-  string dagIdStr = itoa(dag_id);
-  wf_sched_response_t * response = new wf_sched_response_t;
+MaDag_impl*
+MultiWfScheduler::getMaDag() {
+  return this->myMaDag;
+}
 
-  response->dag_id = dag_id;
-
-  unsigned index = 0;
-  for (unsigned int ix=0; ix<wf_resp->wf_node_sched_seq.length(); ix++) {
-    string id(wf_resp->wf_node_sched_seq[ix].node_id);
-    cout << "testing the response for " << id << endl;
-    if (id.substr(0, id.find("-")) == dagIdStr) {
-      response->wf_node_sched_seq.length(index+1);
-      response->wf_node_sched_seq[index].node_id = CORBA::string_dup(id.substr(id.find("-")+1).c_str());
-      response->wf_node_sched_seq[index].server = wf_resp->wf_node_sched_seq[ix].server;
-      cout << "Adding an item " << response->wf_node_sched_seq[index].node_id <<
-	", mapped to server" << wf_resp->wf_node_sched_seq[ix].server.loc.ior << endl;
-      index++;
-    }
+/**
+ * Process a new dag => when finished the dag is ready for execution
+ */
+bool
+MultiWfScheduler::scheduleNewDag(const corba_wf_desc_t& wf_desc, int wfReqId,
+                                 MasterAgent_var MA)
+{
+  TRACE_TEXT (TRACE_ALL_STEPS, "The meta scheduler receives a new xml dag " << endl);
+  // Dag XML Parsing
+  Dag * newDag;
+  try {
+    newDag = this->parseNewDag(wf_desc);
+  }
+  catch (XMLParsingException& e) {
+    // code to handle XML parsing exceptions
+    return false;
   }
 
-  return response;
-} // end extract
+  // Dag internal scheduling
+  std::vector<Node *> orderedNodes;
+  TRACE_TEXT (TRACE_ALL_STEPS, "Making intra-dag schedule" << endl);
+  try {
+    orderedNodes = this->intraDagSchedule(newDag, MA);
+  }
+  catch (NodeException& e) {
+    // code to handle node scheduling exceptions
+    // destroy dag ?
+    return false;
+  }
+
+  // Node queue creation (to manage ready nodes queueing)
+  TRACE_TEXT (TRACE_ALL_STEPS, "Initializing new node queue" << endl);
+  NodeQueue * nodeQ = this->createNodeQueue(orderedNodes, wfReqId);
+
+  // Init queue by setting input nodes as ready
+  newDag->setInputNodesReady();
+
+  // Beginning of exclusion block
+  this->myLock.lock();
+
+  // Insert node queue into pool of node queues managed by the scheduler
+  TRACE_TEXT (TRACE_ALL_STEPS, "Inserting new node queue into queue pool" << endl);
+  this->insertNodeQueue(nodeQ);
+
+  // Send signal to scheduler thread to inform there are new nodes
+  this->wakeUp();
+
+  // End of exclusion block
+  this->myLock.unlock();
+
+  return true;
+}
+
 
 /**
  * Execution method
  */
 void*
 MultiWfScheduler::run() {
-  return NULL;
+  int nodeCount = 0;
+  while (true) {
+    cout << "\t ** Starting MultiWfScheduler" << endl;
+    this->myLock.lock();
+    nodeCount = 0;
+    for (std::list<NodeQueue *>::iterator qp = myQueues.begin();
+         qp != myQueues.end();
+         qp++) {
+      NodeQueue * q = *qp;
+      Node * n = q->popFirstReadyNode();
+      if (n != NULL) {
+        cout << "Ready node " << n->getCompleteId()
+            << " (request #" << q->getWfReqId() << ")" << endl;
+        n->setAsRunning();
+        runNode(n, n->getSeD());
+        nodeCount++;
+      }
+    }
+    this->myLock.unlock();
+    if (nodeCount == 0) {
+      cout << "No ready nodes" << endl;
+      this->mySem.wait();
+    }
+  }
 }
+
+/**
+ * Execute a post operation on synchronisation semaphore
+ */
+void
+MultiWfScheduler::wakeUp() {
+  cout << "Wake Up" << endl;
+  this->mySem.post();
+}
+
+/****************************************************************************/
+/*                         PROTECTED METHODS                                */
+/****************************************************************************/
+
+/**
+ * Parse dag xml description and create a dag object
+ */
+Dag *
+MultiWfScheduler::parseNewDag(const corba_wf_desc_t& wf_desc)
+    throw (XMLParsingException) {
+  DagWfParser reader(wf_desc.abstract_wf);
+  reader.setup();
+  Dag * newDag = reader.getDag();
+  newDag->setId(itoa(dagIdCounter++));
+  return newDag;
+}
+
+/**
+ * Intra-dag scheduling
+ */
+std::vector<Node *>
+MultiWfScheduler::intraDagSchedule(Dag * dag, MasterAgent_var MA)
+    throw (NodeException) {
+  // Check that all services are available and get the estimations (with MA)
+  vector<diet_profile_t*> v = dag->getAllProfiles();
+  unsigned int len = v.size();
+  corba_pb_desc_seq_t pbs_seq;
+  pbs_seq.length(len);
+  for (unsigned int ix=0; ix< len; ix++) {
+    cout << "marshalling pb " << ix << endl
+        << "pb_name = " << v[ix]->pb_name << endl
+        << "last_in = " << v[ix]->last_in << endl
+        << "last_inout = " << v[ix]->last_inout << endl
+        << "last_out = " << v[ix]->last_out << endl;
+
+    mrsh_pb_desc(&pbs_seq[ix], v[ix]);
+  }
+  cout << "MultiWfScheduler: send the problems sequence to the MA  ... "
+      << endl;
+  wf_response_t * wf_response = MA->submit_pb_set(pbs_seq, dag->size());
+  cout << "... done" << endl;
+  if ( ! wf_response->complete)
+    throw (NodeException(NodeException::eSERVICE_NOT_FOUND));
+
+  // Prioritize the nodes (with intra-dag scheduler)
+  return this->mySched->prioritizeNodes(wf_response, dag);
+}
+
+/**
+ * Create a new node queue based on dag
+ */
+NodeQueue *
+MultiWfScheduler::createNodeQueue(std::vector<Node *> nodes, const int wfReqId)  {
+  NodeQueue * nodeQ = new NodeQueue(wfReqId);
+  nodeQ->pushNodes(nodes);
+  return nodeQ;
+}
+
+/**
+ * Insert new node queue into pool
+ */
+void
+MultiWfScheduler::insertNodeQueue(NodeQueue * nodeQ) {
+  myQueues.push_back(nodeQ);
+}
+
+/****************************************************************************/
+/*                            CLASS NodeRun                                 */
+/****************************************************************************/
 
 class NodeRun: public Thread {
 public:
-  NodeRun(Node * node, SeD_var sed, MultiWfScheduler * scheduler) {
+  NodeRun(Node * node, SeD_var sed, MultiWfScheduler * scheduler, CltMan_ptr cltMan) {
     this->myNode = node;
     this->mySeD = sed;
     this->myScheduler = scheduler;
+    this->myCltMan = cltMan;
   }
 
   virtual void*
   run() {
     string dag_id = this->myNode->getDag()->getId();
     cout << "NodeRun: running node " << this->myNode->getCompleteId() << endl;
-    CltMan_ptr cltMan = this->myScheduler->getCltMan(dag_id);
-    if (cltMan != CltMan::_nil()) {
+    if (myCltMan != CltMan::_nil()) {
       cout << "NodeRun: try to call client manager (ping)" << endl;
-      cltMan->ping();
+      myCltMan->ping();
 
       if (!CORBA::is_nil(this->mySeD)) {
         cout << "NodeRun: try to call client manager (exec on sed)" << endl;
-        cltMan->execNodeOnSed(this->myNode->getId().c_str(),
+        myCltMan->execNodeOnSed(this->myNode->getId().c_str(),
                               this->myNode->getDag()->getId().c_str(),
                               this->mySeD);
       } else {
         cout << "NodeRun: try to call client manager (exec without sed)" << endl;
-        cltMan->execNode(this->myNode->getId().c_str(),
+        myCltMan->execNode(this->myNode->getId().c_str(),
                          this->myNode->getDag()->getId().c_str());
       }
       cout << "NodeRun: setting node as done" << endl;
@@ -100,7 +266,7 @@ public:
           (this->myNode->getDag()->isDone())
           ) {
         cout << "NodeRun: The Dag " << this->myNode->getDag()->getId().c_str() << "is done " << endl;
-        cltMan->release(this->myNode->getDag()->getId().c_str());
+        myCltMan->release(this->myNode->getDag()->getId().c_str());
       }
     }
     else {
@@ -108,27 +274,20 @@ public:
     }
     this->myScheduler->wakeUp();
   }
+
 private:
   Node *  myNode;
   SeD_var mySeD;
   MultiWfScheduler * myScheduler;
+  CltMan_ptr myCltMan;
 };
+
 /**
  * Execute a node
  */
 Thread *
 MultiWfScheduler::runNode(Node * node, SeD_var sed) {
-  Thread * thread = new NodeRun(node, sed, this);
+  Thread * thread = new NodeRun(node, sed, this, this->myMaDag->getCltMan(node->getWfReqId()));
   thread->start();
   return thread;
-}
-
-/**
- * Get the corresponding client manager
- */
-CltMan_ptr
-MultiWfScheduler::getCltMan(string dag_id) {
-  if (this->cltMans.find(dag_id) == this->cltMans.end())
-    return CltMan::_nil();
-  return this->cltMans.find(dag_id)->second;
 }

@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/04/21 14:31:45  bisnard
+ * moved common multiwf routines from derived classes to MultiWfScheduler
+ * use wf request identifer instead of dagid to reference client
+ * use nodeQueue to manage multiwf scheduling
+ * renamed WfParser as DagWfParser
+ *
  * Revision 1.1  2008/04/10 08:15:54  bisnard
  * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
  *
@@ -25,41 +31,125 @@ HEFTScheduler::~HEFTScheduler() {
 }
 
 /**
- * rank the node upward 
+ * Computes the average value of node workload across the Seds
  */
-
 void
-HEFTScheduler::rank(Node * n) {
+HEFTScheduler::computeNodeWeights(const wf_response_t * wf_response,
+                                  Dag * dag) {
+  TRACE_TEXT (TRACE_ALL_STEPS, "HEFT : start computing weights (mean of estimates)" << endl);
+  Node * n = NULL;
+  for (std::map <std::string, Node *>::iterator p = dag->begin();
+       p != dag->end();
+       p++) {
+    n = (Node *)(p->second);
+    WI[n->getCompleteId()] = 0;
+    // found the corresponding response in wf_response
+    for (unsigned int ix=0; ix<wf_response->wfn_seq_resp.length(); ix++) {
+      if (!strcmp(n->getPb().c_str(), wf_response->wfn_seq_resp[ix].node_id)) {
+	// compute WI[ix]
+        double w = 0;
+        for (unsigned int jx=0;
+             jx < wf_response->wfn_seq_resp[ix].response.servers.length();
+             jx++) {
+          /*
+          cout << "\t ** estValues.length() " <<
+          response->wfn_seq_resp[ix].response.servers[jx].estim.estValues.length()
+          << endl;
+          */
+          w += wf_response->wfn_seq_resp[ix].response.servers[jx].estim.estValues[1].v_value;
+        } // end for jx
+        WI[n->getCompleteId()] = w / wf_response->wfn_seq_resp[ix].response.servers.length();
+      }
+    } // end for ix
+  } // end for nodes
+} // end computeNodeWeights
+
+/**
+ * rank the nodes upward
+ */
+void
+HEFTScheduler::rank(Node * n) {  // RECURSIVE
   Node * succ = NULL;
   unsigned len = n->nextNodesCount();
+  // LOOP for all descendant nodes of n
   for (unsigned int ix=0; ix<len; ix++) {
     succ = (Node*)(n->getNext(ix));
+    // add WI of current node and priority of descendant node and compare it to
+    // priority of current node: if higher then change priority of current node
     if ((succ->getPriority() + WI[n->getCompleteId()]) > n->getPriority()) {
       n->setPriority(succ->getPriority() + WI[n->getCompleteId()]);
     }
   }
   len = n->prevNodesCount();
   Node * prev = NULL;
+  // LOOP for         all preceding nodes of n
   for (unsigned int ix=0; ix<len; ix++) {
     prev = (Node*)(n->getPrev(ix));
+    // if preceding node is not already done or running then rank it
     if ((!prev->isDone()) && (!prev->isRunning()))
       rank(prev);
   }
 }
 
-wf_node_sched_seq_t 
-HEFTScheduler::schedule(const wf_response_t * response,
-			   WfParser& reader,
-                           CORBA::Long dag_id) {
-  Dag * myDag = reader.getDag();
-  myDag->setId(itoa(response->dag_id));
-  return this->schedule(response, myDag);
+/**
+ * Order the nodes using b-level algorithm
+*/
+std::vector<Node *>
+HEFTScheduler::prioritizeNodes(const wf_response_t * wf_response, Dag * dag) {
+  // Create links between node ports
+  // dag->linkAllPorts();
+
+  // Initialize the node weights (priority attr)
+  this->computeNodeWeights(wf_response, dag);
+
+  // Ranking
+  Node * n = NULL;
+  for (std::map <std::string, Node *>::iterator p = dag->begin();
+       p != dag->end();
+       p++) {
+         n = (Node *)(p->second);
+         if (n->isAnExit())
+           rank(n);
+  }
+  TRACE_TEXT (TRACE_ALL_STEPS, "HEFT : ranking done" << endl);
+
+  // Sorting
+  std::vector<Node*> sorted_list;
+  Node * n1 = NULL;
+  TRACE_TEXT (TRACE_ALL_STEPS, "HEFT : start sorting list" << endl);
+  for (std::map <std::string, Node *>::iterator p = dag->begin();
+       p != dag->end();
+       p++) {
+    n1 = (Node*)(p->second);
+    // found where insert the node
+    std::vector<Node*>::iterator p = sorted_list.begin();
+    bool b = false;
+    while ((p != sorted_list.end()) && (!b)) {
+      Node * n2 = *p;
+      if (n2->getPriority() < n1->getPriority())
+        b = true;
+      else
+        p++;
+    }
+    sorted_list.insert(p, n1);
+  }
+  TRACE_TEXT (TRACE_ALL_STEPS, "HEFT : sorting list done" << endl);
+  return sorted_list;
 }
 
+// wf_node_sched_seq_t
+// HEFTScheduler::schedule(const wf_response_t * response,
+// 			   DagWfParser& reader,
+//                            CORBA::Long dag_id) {
+//   Dag * myDag = reader.getDag();
+//   myDag->setId(itoa(response->dag_id));
+//   return this->schedule(response, myDag);
+// }
+
 /**
- *
+ * Old scheduling method (deprecated)
  */
-wf_node_sched_seq_t 
+wf_node_sched_seq_t
 HEFTScheduler::schedule(const wf_response_t * response,
 			   Dag * dag) {
   struct timeval current_time;
@@ -95,12 +185,12 @@ HEFTScheduler::schedule(const wf_response_t * response,
       if (!strcmp(n->getPb().c_str(), response->wfn_seq_resp[ix].node_id)) {
 	// compute WI[ix]
 	double w = 0;
-	for (unsigned int jx=0; 
-	     jx<response->wfn_seq_resp[ix].response.servers.length(); 
+	for (unsigned int jx=0;
+	     jx<response->wfn_seq_resp[ix].response.servers.length();
 	     jx++) {
           /*
-	  cout << "\t ** estValues.length() " << 
-	    response->wfn_seq_resp[ix].response.servers[jx].estim.estValues.length() 
+	  cout << "\t ** estValues.length() " <<
+	    response->wfn_seq_resp[ix].response.servers[jx].estim.estValues.length()
 	       << endl;
           */
 	  w += response->wfn_seq_resp[ix].response.servers[jx].estim.estValues[1].v_value;
@@ -122,7 +212,7 @@ HEFTScheduler::schedule(const wf_response_t * response,
        p != myDag->end();
        p++) {
     n = (Node*)(p->second);
-    TRACE_TEXT (TRACE_ALL_STEPS,  "--- Node ID = " << n->getCompleteId() << 
+    TRACE_TEXT (TRACE_ALL_STEPS,  "--- Node ID = " << n->getCompleteId() <<
                 ", node RANK = " << n->getPriority() << endl);
   }
   // init the availability map
@@ -130,7 +220,7 @@ HEFTScheduler::schedule(const wf_response_t * response,
        ix < response->wfn_seq_resp.length();
        ix++) {
     for (unsigned int jx=0;
-	 jx < response->wfn_seq_resp[ix].response.servers.length(); 
+	 jx < response->wfn_seq_resp[ix].response.servers.length();
 	 jx++) {
       string hostname(CORBA::string_dup(response->wfn_seq_resp[ix].response.servers[jx].loc.hostName));
       // if new host init its availability to current time
@@ -184,11 +274,11 @@ HEFTScheduler::schedule(const wf_response_t * response,
     } // end for ix
     unsigned int sed_ind = 0;
     double EFT = 0;
-    for (unsigned int ix=0; 
-	 ix<response->wfn_seq_resp[pb_index].response.servers.length(); 
+    for (unsigned int ix=0;
+	 ix<response->wfn_seq_resp[pb_index].response.servers.length();
 	 ix++) {
       string ss(CORBA::string_dup(response->wfn_seq_resp[pb_index].response.servers[ix].loc.hostName));
-      double EST = 
+      double EST =
 	avail[ss];
       for (unsigned int jx=0;
 	   jx < n->prevNodesCount();
@@ -196,20 +286,20 @@ HEFTScheduler::schedule(const wf_response_t * response,
 	EST = max(EST, AFT[n->getPrev(jx)->getCompleteId()]);
       } // end for jx
       if ( (
-	    EST + response->wfn_seq_resp[pb_index].response.servers[ix].estim.estValues[1].v_value < EFT ) 
+	    EST + response->wfn_seq_resp[pb_index].response.servers[ix].estim.estValues[1].v_value < EFT )
 	   || (EFT == 0)) {
-	EFT = 
+	EFT =
 	  EST + response->wfn_seq_resp[pb_index].response.servers[ix].estim.estValues[1].v_value;
 	sed_ind = ix;
       }
     } // end for ix
     //
     // n->setSeD(response->wfn_seq_resp[pb_index].response.servers[sed_ind].loc.ior);
-    sched_seq[response_index].node_id = 
+    sched_seq[response_index].node_id =
       CORBA::string_dup(n->getCompleteId().c_str());
-    sched_seq[response_index].priority = 
+    sched_seq[response_index].priority =
       n->getPriority();
-    sched_seq[response_index].server = 
+    sched_seq[response_index].server =
       response->wfn_seq_resp[pb_index].response.servers[sed_ind];
     response_index++;
 
@@ -224,43 +314,43 @@ HEFTScheduler::schedule(const wf_response_t * response,
   return sched_seq;
 }
 
-wf_node_sched_seq_t 
-HEFTScheduler::reSchedule(const wf_response_t * wf_response,
-			     WfParser& reader) {
-  wf_node_sched_seq_t sched_seq;
-  sched_seq.length(0);
-  return sched_seq;
-}
+// wf_node_sched_seq_t
+// HEFTScheduler::reSchedule(const wf_response_t * wf_response,
+// 			     DagWfParser& reader) {
+//   wf_node_sched_seq_t sched_seq;
+//   sched_seq.length(0);
+//   return sched_seq;
+// }
 
 
-wf_node_sched_seq_t 
-HEFTScheduler::reSchedule(const wf_response_t * wf_response,
-			     Dag * dag) {
-  wf_node_sched_seq_t sched_seq;
-  sched_seq.length(0);
-  return sched_seq;
-}
+// wf_node_sched_seq_t
+// HEFTScheduler::reSchedule(const wf_response_t * wf_response,
+// 			     Dag * dag) {
+//   wf_node_sched_seq_t sched_seq;
+//   sched_seq.length(0);
+//   return sched_seq;
+// }
 
 
 wf_node_sched_t
-HEFTScheduler::schedule(const wf_response_t * response, 
+HEFTScheduler::schedule(const wf_response_t * response,
 			   Node * n) {
   // found the problem index
   unsigned int pb_index = 0;
   for (unsigned int ix=0; ix<response->wfn_seq_resp.length(); ix++) {
     if (!strcmp(n->getPb().c_str(), response->wfn_seq_resp[ix].node_id)) {
       pb_index = ix;
-      break;    
+      break;
     }
   } // end for ix
 
   unsigned int sed_ind = 0;
   double EFT = 0;
-  for (unsigned int ix=0; 
-       ix<response->wfn_seq_resp[pb_index].response.servers.length(); 
+  for (unsigned int ix=0;
+       ix<response->wfn_seq_resp[pb_index].response.servers.length();
        ix++) {
     string ss(CORBA::string_dup(response->wfn_seq_resp[pb_index].response.servers[ix].loc.hostName));
-    double EST = 
+    double EST =
       avail[ss];
     for (unsigned int jx=0;
 	 jx < n->prevNodesCount();
@@ -268,19 +358,19 @@ HEFTScheduler::schedule(const wf_response_t * response,
       EST = max(EST, AFT[n->getPrev(jx)->getCompleteId()]);
     } // end for jx
     if ( (
-	  EST + response->wfn_seq_resp[pb_index].response.servers[ix].estim.estValues[1].v_value < EFT ) 
+	  EST + response->wfn_seq_resp[pb_index].response.servers[ix].estim.estValues[1].v_value < EFT )
 	 || (EFT == 0)) {
-      EFT = 
+      EFT =
 	EST + response->wfn_seq_resp[pb_index].response.servers[ix].estim.estValues[1].v_value;
       sed_ind = ix;
     }
   } // end for ix
 
-  // 
+  //
   wf_node_sched_t node_sched;
-  node_sched.node_id = 
+  node_sched.node_id =
     CORBA::string_dup(n->getCompleteId().c_str());
-  node_sched.server = 
+  node_sched.server =
     response->wfn_seq_resp[pb_index].response.servers[sed_ind];
   string ss(CORBA::string_dup(response->wfn_seq_resp[pb_index].response.servers[sed_ind].loc.hostName));
   avail[ss] = EFT;

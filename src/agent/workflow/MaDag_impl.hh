@@ -10,6 +10,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/04/21 14:31:45  bisnard
+ * moved common multiwf routines from derived classes to MultiWfScheduler
+ * use wf request identifer instead of dagid to reference client
+ * use nodeQueue to manage multiwf scheduling
+ * renamed WfParser as DagWfParser
+ *
  * Revision 1.3  2008/04/14 13:45:10  bisnard
  * - Removed wf mono-mode submit
  * - Renamed submit_wf in processDagWf
@@ -78,30 +84,58 @@ public:
   MaDag_impl(const char * name);
 
   virtual ~MaDag_impl();
-  
+
   /**
    * DAG Workflow processing
    * Manages the scheduling and orchestration of the submitted DAG
-   * Delegates the execution of each individual task to the client workflow mgr
+   * Delegates the execution of each individual task to the client
+   * workflow mgr
    *
    * @param  dag_desc   workflow textual description
    * @param  cltMgrRef  client workflow manager reference
-   * @param  dag_id     submitted workflow identifier (obtained by getDagId function)
+   * @param  wfReqId    submitted workflow identifier (obtained by
+   * getWfReqId function)
+   * @return true if workflow submission succeed (in this case, the
+   *  calling CltWfMgr thread is blocked until release() is called)
+   */
+
+  virtual CORBA::Boolean
+      processDagWf(const corba_wf_desc_t& dag_desc, const char* cltMgrRef,
+                   CORBA::Long wfReqId);
+  /**
+   * Multi DAG Workflow processing
+   * Manages the scheduling and orchestration of a set of N identical DAGs
+   * Delegates the execution of each individual task to the client workflow mgr
+   *
+   * @param  dag_desc     workflow textual description
+   * @param  cltMgrRef    client workflow manager reference
+   * @param  wfReqId      submitted workflow identifier (obtained by
+   * getWfReqId function)
    * @return true if workflow submission succeed, otherwise false
    */
-  
+
   virtual CORBA::Boolean
-  processDagWf(const corba_wf_desc_t& dag_desc, const char* cltMgrRef, CORBA::Long dag_id);
+      processMultiDagWf(const corba_wf_desc_t& dag_desc, const char* cltMgrRef,
+                        CORBA::Long wfReqId);
 
   /**
-   * Get a new DAG identifier
-   */ 
+   * Get a new workflow request identifier
+   * @return a new identifier to be used for a wf request
+   */
   virtual CORBA::Long
-  getDagId();
+      getWfReqId();
+
+  /**
+   * Get the client mgr for a given wfReqId
+   * @param wfReqId workflow request identifier
+   * @return client manager pointer (CORBA)
+   */
+  virtual CltMan_ptr
+      getCltMan(int wfReqId);
 
   /** Used to test if it is alive. */
   virtual CORBA::Long
-  ping();
+      ping();
 
   /**
    * Set the scheduler for the MA DAG
@@ -113,31 +147,43 @@ public:
 
   /**
    * set the scheduler for multi workflow mode
+   * @deprecated
    */
   void
   setMultiWfScheduler(const madag_mwf_sched_t madag_multi_sched);
 
+protected:
+  /**
+   * set the client manager for a wf request
+   */
+  void
+  setCltMan(int wfReqId, CltMan_ptr cltMan);
 
 private:
   /**
    * The Ma Dag name (used for CORBA naming service binding)
-   */ 
+   */
   std::string myName;
-  
+
   /**
    * The master agent reference
    */
-  MasterAgent_var parent;
-  
+  MasterAgent_var myMA;
+
+  /**
+   * The client wf manager references
+   */
+  map<int, CltMan_ptr> cltMans;
+
   /**
    * The Ma Dag scheduler
    */
-  madag::WfScheduler * mySched; 
- 
+  madag::WfScheduler * mySched;
+
   /**
    * The meta-scheduler (used for multiworkflow support)
    */
-  madag::MultiWfScheduler * myMultiWfSched; 
+  madag::MultiWfScheduler * myMultiWfSched;
 
   /**
    * Lock to prevent concurrent access
@@ -147,7 +193,7 @@ private:
   /**
    * Dag identifier counter
    */
-  CORBA::Long dagId;
+  CORBA::Long wfReqIdCounter;
 };
 
 

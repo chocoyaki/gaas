@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/04/21 14:31:45  bisnard
+ * moved common multiwf routines from derived classes to MultiWfScheduler
+ * use wf request identifer instead of dagid to reference client
+ * use nodeQueue to manage multiwf scheduling
+ * renamed WfParser as DagWfParser
+ *
  * Revision 1.3  2008/04/14 13:44:29  bisnard
  * - Parameter 'used' obsoleted in MultiWfScheduler::submit_wf & submit_pb_set
  *
@@ -31,48 +37,19 @@
 namespace madag {
   class MultiWfBasicScheduler : public MultiWfScheduler {
   public:
-    MultiWfBasicScheduler();
-
+    MultiWfBasicScheduler(MaDag_impl* maDag);
     virtual ~MultiWfBasicScheduler();
 
     /**
-     * set the scheduler used by the MA DAG
-     * @param sched the base scheduler to be used
-     */
-    virtual void 
-    setSched(WfScheduler * sched);
-
-    /**
-     * Workflow submission function. 
+     * Workflow submission function.
      * @param wf_desc workflow string description
      * @param dag_id the dag ID
      */
-    virtual bool 
+    virtual bool
     submit_wf (const corba_wf_desc_t& wf_desc, int dag_id,
                MasterAgent_var parent,
                CltMan_var cltMan);
 
-    /**
-     * Execution method
-     */
-    virtual
-    void* run();
-
-    /**
-     * Execute a post operation on synchronisation semaphore
-     */
-    virtual void
-    wakeUp();
-
-  protected:
-    /**
-     * Synchronisation semaphore
-     */
-    omni_semaphore mySem;
-
-
-
-  private:
   };
 
 }

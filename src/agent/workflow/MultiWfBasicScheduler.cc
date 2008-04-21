@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/04/21 14:31:45  bisnard
+ * moved common multiwf routines from derived classes to MultiWfScheduler
+ * use wf request identifer instead of dagid to reference client
+ * use nodeQueue to manage multiwf scheduling
+ * renamed WfParser as DagWfParser
+ *
  * Revision 1.3  2008/04/15 14:20:19  bisnard
  * - Postpone sed mapping until wf node is executed
  *
@@ -22,29 +28,17 @@
 
 #include "MultiWfBasicScheduler.hh"
 #include "debug.hh"
-#include "RRScheduler.hh"
 #include "HEFTScheduler.hh"
 #include "marshalling.hh"
 
 using namespace madag;
 
-MultiWfBasicScheduler::MultiWfBasicScheduler()
-  : MultiWfScheduler(),
-    mySem(1) {
+MultiWfBasicScheduler::MultiWfBasicScheduler(MaDag_impl* maDag)
+  : MultiWfScheduler(maDag) {
   this->start();
 }
 
 MultiWfBasicScheduler::~MultiWfBasicScheduler() {
-  if (this->myMetaDag != NULL)
-    delete this->myMetaDag;
-
-  if (this->mySched != NULL)
-    delete this->mySched;
-}
-
-void
-MultiWfBasicScheduler::setSched(WfScheduler * sched) {
-  this->mySched = sched;
 }
 
 /**
@@ -61,10 +55,10 @@ MultiWfBasicScheduler::submit_wf (const corba_wf_desc_t& wf_desc, int dag_id,
   cout << "The meta scheduler receive a new dag " << endl
        << wf_desc.abstract_wf << endl;
 
-  WfParser reader(wf_desc.abstract_wf);
+  DagWfParser reader(wf_desc.abstract_wf);
   reader.setup();
   reader.getDag()->setId(itoa(dag_id));
-  this->cltMans[itoa(dag_id)] = cltMan;
+//  this->cltMans[itoa(dag_id)] = cltMan;
   this->myMetaDag->addDag(reader.getDag());
 //   cout << " %%%%%%%%%%%%%%%%%%%%%%%%%% " << endl << endl << endl;
 //   cout << "The Meta Dag XML representation (" << endl;
@@ -73,7 +67,7 @@ MultiWfBasicScheduler::submit_wf (const corba_wf_desc_t& wf_desc, int dag_id,
 
   // check the services
   Dag * dag = this->myMetaDag->getDag(itoa(dag_id));
-  dag->setAsTemp(true);
+  dag->setAsTemp(true); // avoids destruction of the dag
   vector<diet_profile_t*> v = dag->getAllProfiles();
   unsigned int len = v.size();
   corba_pb_desc_seq_t pbs_seq;
@@ -124,36 +118,3 @@ MultiWfBasicScheduler::submit_wf (const corba_wf_desc_t& wf_desc, int dag_id,
   return true;
 }
 
-/**
- * Execution method
- */
-void *
-MultiWfBasicScheduler::run() {
-  while (true) {
-    cout << "\t ** Starting MultiWfBasicScheduler" << endl;
-    this->myLock.lock();
-    vector<Node *> v = this->myMetaDag->getReadyNodes();
-    if (v.size() > 0) {
-      cout << "Ready nodes " << v.size() << endl;
-      for (int ix=0; ix<v.size(); ix++) {
-        v[ix]->setAsRunning();
-        runNode(v[ix], v[ix]->getSeD());
-      }
-      this->myLock.unlock();
-    }
-    else {
-      this->myLock.unlock();
-      cout << "No ready nodes" << endl;
-      this->mySem.wait();
-    }
-  }
-}
-
-/**
- * Execute a post operation on synchronisation semaphore
- */
-void
-MultiWfBasicScheduler::wakeUp() {
-  cout << "Wake Up" << endl;
-  this->mySem.post();
-}

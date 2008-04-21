@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/04/21 14:31:45  bisnard
+ * moved common multiwf routines from derived classes to MultiWfScheduler
+ * use wf request identifer instead of dagid to reference client
+ * use nodeQueue to manage multiwf scheduling
+ * renamed WfParser as DagWfParser
+ *
  * Revision 1.1  2008/04/10 08:16:15  bisnard
  * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
  *
@@ -20,40 +26,51 @@
 #include <string>
 
 #include "response.hh"
-#include "workflow/WfParser.hh"
+#include "workflow/DagWfParser.hh"
 
 namespace madag {
   class WfScheduler {
-  public:  
+  public:
     /**
      * WfScheduler constructor
      */
     WfScheduler();
-    
+
     /**
      * WfScheduler destructor
      */
     virtual ~WfScheduler();
 
-    virtual wf_node_sched_seq_t
-    schedule(const wf_response_t * wf_response,
-             WfParser& parser,
-             CORBA::Long dag_id) = 0;
+    /**
+     * Order the nodes using scheduling algorithm
+     */
+    virtual std::vector<Node *>
+    prioritizeNodes(const wf_response_t * wf_response, Dag * dag) = 0;
+
+    /**
+     * Old scheduling methods
+     * @deprecated
+     */
+
+//     virtual wf_node_sched_seq_t
+//     schedule(const wf_response_t * wf_response,
+//              DagWfParser& parser,
+//              CORBA::Long dag_id) = 0;
 
     virtual wf_node_sched_seq_t
     schedule(const wf_response_t * wf_response,
              Dag * dag) = 0;
 
-    virtual wf_node_sched_seq_t 
-    reSchedule(const wf_response_t * wf_response,
-               WfParser& parser) = 0;
-
-    virtual wf_node_sched_seq_t 
-    reSchedule(const wf_response_t * wf_response,
-               Dag * dag) = 0;
-
+//     virtual wf_node_sched_seq_t
+//     reSchedule(const wf_response_t * wf_response,
+//                DagWfParser& parser) = 0;
+//
+//     virtual wf_node_sched_seq_t
+//     reSchedule(const wf_response_t * wf_response,
+//                Dag * dag) = 0;
+//
     virtual wf_node_sched_t
-    schedule(const wf_response_t * response, 
+    schedule(const wf_response_t * response,
              Node * n) = 0;
 
     virtual double
@@ -61,7 +78,7 @@ namespace madag {
 
   protected:
 
-    // the availabilty of resources
+    // the availabilty of resources (deprecated)
     static map<std::string, double> avail;
 
   };
