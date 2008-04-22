@@ -232,7 +232,6 @@ void dagda_download_data(diet_profile_t& profile, corba_profile_t& pb) {
 	  // The data is not yet registered here.
 	  if (pb.parameters[i].desc.specific._d() != DIET_SCALAR) {
 	    // Data is transmitted from the remote manager.
-		cout << "l." << __LINE__ << " file: " << __FILE__ << endl;
 	    dataManager->lclAddData(remoteManager, pb.parameters[i]);
 	    inserted =  dataManager->getData(pb.parameters[i].desc.id.idNumber);
 	    size = inserted->value.length();

@@ -16,20 +16,65 @@
 
 #include <iostream>
 #include <fstream>
+#include <ctime>
+#include "debug.hh"
 
 using namespace std;
+
+char* AdvancedDagdaComponent::sendFile(const corba_data_t &data, Dagda_ptr dest) {
+  clock_t begin;
+  clock_t end;
+  char* ret;
+  
+  begin = clock();
+  ret = DagdaImpl::sendFile(data, dest);
+  end = clock();
+  
+  double elapsed=end-begin;
+  TRACE_TEXT(TRACE_ALL_STEPS, "Data " << data.desc.id.idNumber <<
+    " transfered in " << elapsed << " time unit(s)." << endl);
+
+  if (stats!=NULL && elapsed!=0) {
+    stats->addStat(string(getID()), string(dest->getID()),
+      ((double) data_sizeof(&data.desc))/elapsed);
+	stats->addStat(string(dest->getID()), string(getID()),
+      ((double) data_sizeof(&data.desc))/elapsed);
+  }
+  return ret;
+}
+
+char* AdvancedDagdaComponent::sendData(const char* ID, Dagda_ptr dest) {
+  clock_t begin;
+  clock_t end;
+  char* ret;
+  corba_data_t* data = getData(ID);
+  size_t dataSize = data_sizeof(&data->desc);
+  
+  begin = clock();
+  ret = DagdaImpl::sendData(ID, dest);
+  end = clock();
+  
+  double elapsed=end-begin;
+  TRACE_TEXT(TRACE_ALL_STEPS, "Data " << data->desc.id.idNumber <<
+    " transfered in " << elapsed << " time unit(s)." << endl);
+
+  if (stats!=NULL && elapsed!=0) {
+    stats->addStat(string(getID()), string(dest->getID()),
+      ((double) dataSize)/elapsed);
+	stats->addStat(string(dest->getID()), string(getID()),
+      ((double) dataSize)/elapsed);
+  }
+  return ret;
+}
 
 void AdvancedDagdaComponent::lclAddData(Dagda_ptr src, const corba_data_t& data) {
   try {
     SimpleDagdaImpl::lclAddData(src, data);
 	registerTime[string(data.desc.id.idNumber)]=clock();
   } catch (Dagda::NotEnoughSpace ex) {
-    cout << "****************************************" << endl;
-	cout << "* Call to the data management function *" << endl;
-	cout << "****************************************" << endl;
+	TRACE_TEXT(TRACE_ALL_STEPS, "Needs more space. Try to call the selected cache "
+	  << "algorithm." << endl);
     if (mngFunction!=NULL) {
-	  cout << "On essaye de trouver " << data_sizeof(&data.desc) << " octets..." << endl;
-	  // !!!! CALCULER LA TAILLE NECESSAIRE !!!!
 	  size_t needed = data_sizeof(&data.desc);
 	  size_t max;
 	  size_t used;
@@ -70,6 +115,27 @@ corba_data_t* AdvancedDagdaComponent::getData(const char* dataID) {
 }
 
 Dagda_ptr AdvancedDagdaComponent::getBestSource(Dagda_ptr dest, const char* dataID) {
+  SeqDagda_t* managers = pfmGetDataManagers(dataID);
+  TRACE_TEXT(TRACE_ALL_STEPS, "Data " << dataID << " has " <<
+             managers->length() << " replica(s) on the platform." << endl);
+  if (managers->length()==0)
+    throw Dagda::DataNotFound(dataID);
+  
+  if (stats!=NULL) {
+    double maxStat=0;
+	Dagda_ptr found = (*managers)[0];
+
+    for (unsigned int i=0; i<managers->length(); ++i) {
+	  Dagda_ptr curMngr = (*managers)[i];
+      double curStat = stats->getStat(string(getID()), string(curMngr->getID()));
+	  if (stats->cmpStats(curStat, maxStat)) {
+	    maxStat = curStat;
+		found = curMngr;
+	  }
+    }
+	return found;
+  }
+  
   return SimpleDagdaImpl::getBestSource(dest, dataID);
 }
 

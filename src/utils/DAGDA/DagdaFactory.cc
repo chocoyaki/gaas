@@ -23,6 +23,7 @@
 
 #include "AdvancedDagdaComponent.hh"
 #include "CacheAlgorithms.hh"
+#include "NetworkStats.hh"
 
 #include <sstream>
 #include <string>

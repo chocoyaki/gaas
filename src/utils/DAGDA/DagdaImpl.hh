@@ -41,10 +41,6 @@ public:
   virtual CORBA::Boolean lvlIsDataPresent(const char* dataID) = 0;
   virtual CORBA::Boolean pfmIsDataPresent(const char* dataID) = 0;
 
-/*  virtual corba_data_t* lclGetData(Dagda_ptr dest, const char* dataID) = 0;
-  virtual corba_data_t* lvlGetData(Dagda_ptr dest, const char* dataID) = 0;
-  virtual corba_data_t* pfmGetData(Dagda_ptr dest, const char* dataID) = 0;*/
-
   virtual void lclAddData(Dagda_ptr src, const corba_data_t& data) = 0;
   virtual void lvlAddData(Dagda_ptr src, const corba_data_t& data) = 0;
   virtual void pfmAddData(Dagda_ptr src, const corba_data_t& data) = 0;

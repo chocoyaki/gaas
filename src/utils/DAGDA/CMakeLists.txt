@@ -7,6 +7,7 @@ IF( DIET_BUILD_LIBRARIES )
     DagdaImpl.cc
     DagdaFactory.cc
     CacheAlgorithms.cc
+    NetworkStats.cc
     AdvancedDagdaComponent.cc
   )
 
