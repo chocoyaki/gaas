@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.87  2008/04/22 08:24:02  glemahec
+ * Cache replacement algorithms for DAGDA + Shared file management.
+ *
  * Revision 1.86  2008/04/18 13:47:23  glemahec
  * Everything about DAGDA is now in utils/DAGDA directory.
  *
@@ -438,7 +441,7 @@ __mrsh_data_desc_type(corba_data_desc_t* dest,
 	    file.seekg(0, ios::end);
 	    dest->specific.file().size = file.tellg();
 	    file.close();
-	  }
+	  } else dest->specific.file().size = 0;
 #endif // ! HAVE_DAGDA
 
     } else {

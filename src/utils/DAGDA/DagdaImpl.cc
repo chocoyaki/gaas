@@ -56,27 +56,27 @@ const char* DagdaImpl::getDataPath() {
   return dataPath.c_str();
 }
 
-void DagdaImpl::setMaxMsgSize(const unsigned long maxMsgSize) {
+void DagdaImpl::setMaxMsgSize(const size_t maxMsgSize) {
   this->maxMsgSize = maxMsgSize;
 }
 
-const unsigned long DagdaImpl::getMaxMsgSize() {
+const size_t DagdaImpl::getMaxMsgSize() {
   return maxMsgSize;
 }
 
-void DagdaImpl::setDiskMaxSpace(const unsigned long diskMaxSpace) {
+void DagdaImpl::setDiskMaxSpace(const size_t diskMaxSpace) {
   this->diskMaxSpace = diskMaxSpace;
 }
 
-const unsigned long DagdaImpl::getDiskMaxSpace() {
+const size_t DagdaImpl::getDiskMaxSpace() {
   return diskMaxSpace;
 }
 
-void DagdaImpl::setMemMaxSpace(const unsigned long memMaxSpace) {
+void DagdaImpl::setMemMaxSpace(const size_t memMaxSpace) {
   this->memMaxSpace = memMaxSpace;
 }
 
-const unsigned long DagdaImpl::getMemMaxSpace() {
+const size_t DagdaImpl::getMemMaxSpace() {
   return memMaxSpace;
 }
 
@@ -287,9 +287,9 @@ SimpleDagdaImpl::~SimpleDagdaImpl() {
 
 // Initialize this data manager.
 int SimpleDagdaImpl::init(const char* ID, const char* parentID,
-			  const char* dataPath, const unsigned long maxMsgSize,
-			  const unsigned long diskMaxSpace,
-			  const unsigned long memMaxSpace) {
+			  const char* dataPath, const size_t maxMsgSize,
+			  const size_t diskMaxSpace,
+			  const size_t memMaxSpace) {
   setID(CORBA::string_dup(ID));
 
   if (ORBMgr::bindObjToName(_this(), ORBMgr::DATAMGR, getID())) {
@@ -437,22 +437,39 @@ char* SimpleDagdaImpl::downloadData(Dagda_ptr src, const corba_data_t& data) {
 // Add a data locally.
 /* CORBA */
 void SimpleDagdaImpl::lclAddData(Dagda_ptr src, const corba_data_t& data) {
+  cout << "l." << __LINE__ << " file: " << __FILE__ << endl;
+//  cout << "data.desc.size = " << data.desc.size << endl;
+  cout << "getDiskMaxSpace = " << getDiskMaxSpace() << endl;
+  cout << "getMemMaxSpace = " << getMemMaxSpace() << endl;
+  cout << "getMaxMsgSize = " << getMaxMsgSize() << endl;
+  cout << "getUsedMemSpace = " << getUsedMemSpace() << endl;
+  cout << "getUsedDiskSpace = " << getUsedDiskSpace() << endl;
+  cout << "data size = " << data_sizeof(&data.desc) << endl;
+  
   TRACE_TEXT(TRACE_ALL_STEPS, "Add the data " << data.desc.id.idNumber
                              << " locally." << endl);
     if (strcmp(src->getID(), getID()) != 0) {
 	  if (data.desc.specific._d()==DIET_FILE) {
+	    if (getDiskMaxSpace()!=0 && getUsedDiskSpace()+data_sizeof(&data.desc)>getDiskMaxSpace())
+		  throw Dagda::NotEnoughSpace(getDiskMaxSpace()-getUsedDiskSpace());
 		char* path = downloadData(src, data);
         if (path) {
 		  corba_data_t newData(data);
 		  newData.desc.specific.file().path=path;
 		  addData(newData);
 		  unlockData(data.desc.id.idNumber); //
+		  useDiskSpace(data.desc.specific.file().size);
         }
 	  } else {
+	    if (getMemMaxSpace()!=0 && getUsedMemSpace()+data_sizeof(&data.desc)>getMemMaxSpace())
+		  throw Dagda::NotEnoughSpace(getMemMaxSpace()-getUsedMemSpace());
 	    char* dataID;
+		corba_data_t* inserted;
 		addData(data);
 		dataID = downloadData(src, data);
 		unlockData(dataID);
+		inserted = getData(data.desc.id.idNumber);
+		useMemSpace(inserted->value.length());
 	  }
 	}
 }
@@ -704,8 +721,7 @@ bool SimpleDagdaImpl::isDataPresent(const char* dataID) {
 Dagda_ptr SimpleDagdaImpl::getBestSource(Dagda_ptr dest, const char* dataID) {
   SeqDagda_t* managers = pfmGetDataManagers(dataID);
   TRACE_TEXT(TRACE_ALL_STEPS, "Data " << dataID << " has " <<
-             managers->length() << " replicate(s) on the platform." << endl);
-  
+             managers->length() << " replica(s) on the platform." << endl);
   if (managers->length()==0)
     throw Dagda::DataNotFound(dataID);
   return (*managers)[0];
@@ -723,6 +739,7 @@ void SimpleDagdaImpl::addData(const corba_data_t& data) {
   lockData(data.desc.id.idNumber);
   (*getData())[string(data.desc.id.idNumber)]=data;
   (*getData())[string(data.desc.id.idNumber)].desc.dataManager = CORBA::string_dup(dataManager);
+  if (data.desc.specific._d()==DIET_SCALAR) useMemSpace(data.value.length());
   dataMutex.unlock();
 }
 
@@ -733,8 +750,13 @@ void SimpleDagdaImpl::remData(const char* dataID) {
   if (it!=getData()->end()) {
     TRACE_TEXT(TRACE_ALL_STEPS, "Removing data " << dataID << " from this "
 			 << "data manager." << endl);
-    if (it->second.desc.specific._d()==DIET_FILE)
+	Dagda::dataStatus status = getDataStatus(dataID);
+    if (it->second.desc.specific._d()==DIET_FILE && status!=Dagda::notOwner) {
 	  unlink(it->second.desc.specific.file().path);
+	  freeDiskSpace(it->second.desc.specific.file().size);
+	} else
+	  if (status!=Dagda::notOwner)
+	    freeMemSpace(it->second.value.length());
     getData()->erase(it);
   }
   dataMutex.unlock();

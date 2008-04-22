@@ -97,15 +97,38 @@ public:
   // Accessors.
   void setDataPath(const char* path);
   const char* getDataPath();
-  void setMaxMsgSize(const unsigned long maxMsgSize);
-  const unsigned long getMaxMsgSize();
-  void setDiskMaxSpace(const unsigned long diskMaxSpace);
-  const unsigned long getDiskMaxSpace();
-  void setMemMaxSpace(const unsigned long memMaxSpace);
-  const unsigned long getMemMaxSpace();
+  void setMaxMsgSize(const size_t maxMsgSize);
+  const size_t getMaxMsgSize();
+  void setDiskMaxSpace(const size_t diskMaxSpace);
+  const size_t getDiskMaxSpace();
+  void setMemMaxSpace(const size_t memMaxSpace);
+  const size_t getMemMaxSpace();
+  const size_t getUsedDiskSpace() { return usedDiskSpace; }
+  const size_t getUsedMemSpace() { return usedMemSpace; }
+  void useDiskSpace(size_t size) {
+    usedDiskSpaceMutex.lock();
+	usedDiskSpace += size;
+	usedDiskSpaceMutex.unlock();
+  }
+  void useMemSpace(size_t size) {
+    usedMemSpaceMutex.lock();
+    usedMemSpace += size;
+	usedMemSpaceMutex.unlock();
+  }
+  void freeDiskSpace(size_t size) {
+    usedDiskSpaceMutex.lock();
+    usedDiskSpace -= size;
+	usedDiskSpaceMutex.unlock();
+  }
+  void freeMemSpace(size_t size) {
+    usedMemSpaceMutex.lock();
+    usedMemSpace -= size;
+	usedMemSpaceMutex.unlock();
+  }
   std::map<std::string, Dagda_ptr>* getChildren() { return &children; }
   std::map<std::string, corba_data_t>* getData() { return &data; }
   std::map<std::string, Dagda::dataStatus>* getDataStatus() { return &dataStatus; }
+
   Dagda_ptr getParent() { return parent; }
   void setParent(Dagda_ptr parent) { this->parent = parent; }
   void setID(char* ID) { this->ID = ID; }
@@ -113,9 +136,11 @@ public:
 private:
   char* ID;
   char* hostname;
-  unsigned long maxMsgSize;
-  unsigned long diskMaxSpace;
-  unsigned long memMaxSpace;
+  size_t maxMsgSize;
+  size_t diskMaxSpace;
+  size_t memMaxSpace;
+  size_t usedDiskSpace;
+  size_t usedMemSpace;
   Dagda_ptr parent;
   std::string dataPath;
   std::map<std::string, Dagda_ptr> children;
@@ -125,6 +150,8 @@ protected:
   omni_mutex dataMutex;
   omni_mutex dataStatusMutex;
   omni_mutex childrenMutex;
+  omni_mutex usedDiskSpaceMutex;
+  omni_mutex usedMemSpaceMutex;
 };
 
 class SimpleDagdaImpl : public DagdaImpl {

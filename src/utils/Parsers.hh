@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.32  2008/04/22 08:24:02  glemahec
+ * Cache replacement algorithms for DAGDA + Shared file management.
+ *
  * Revision 1.31  2008/04/09 12:52:54  gcharrie
  * Adding Specific Client Scheduling into the parser to use burst mode
  *
@@ -233,6 +236,7 @@ public:
 	  MAXMSGSIZE,
 	  MAXDISKSPACE,
 	  MAXMEMSPACE,
+	  CACHEALGORITHM,
 #endif // HAVE_DAGDA
 #if HAVE_DAGDA || HAVE_ALT_BATCH
 	  STORAGEDIR,

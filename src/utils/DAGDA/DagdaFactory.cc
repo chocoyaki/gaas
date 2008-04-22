@@ -19,9 +19,29 @@
 #ifdef __OMNIORB4__
 #include "omniORB4/omniORB.h"
 #endif
+#include "sys/statvfs.h"
+
+#include "AdvancedDagdaComponent.hh"
+#include "CacheAlgorithms.hh"
 
 #include <sstream>
 #include <string>
+
+size_t availableDiskSpace(const char* path) {
+  struct statvfs buffer;
+  
+  if (!statvfs(path, &buffer)) {
+    size_t blksize, blocks, freeblks, disk_size, used, free;
+    blksize = buffer.f_bsize;
+    blocks = buffer.f_blocks;
+    freeblks = buffer.f_bfree;
+    disk_size = blocks * blksize;
+    free = freeblks * blksize;
+    used = disk_size - free;
+	return free;
+  } 
+  return 0;
+}
 
 DagdaImpl* DagdaFactory::clientDataManager = NULL;
 DagdaImpl* DagdaFactory::sedDataManager = NULL;
@@ -38,11 +58,22 @@ unsigned long DagdaFactory::defaultMaxMsgSize =
   1073741824; // (1 GB)
 #endif
 
-unsigned long DagdaFactory::defaultMaxDiskSpace = 0;
-unsigned long DagdaFactory::defaultMaxMemSpace = 0;
+size_t DagdaFactory::defaultMaxDiskSpace = 0;
+size_t DagdaFactory::defaultMaxMemSpace = 0;
 
 DagdaImpl* DagdaFactory::createDataManager(dagda_manager_type_t type) {
-  return new SimpleDagdaImpl(type);
+  char* algorithm = (char*)
+    Parsers::Results::getParamValue(Parsers::Results::CACHEALGORITHM);
+  if (algorithm==NULL)
+    return new AdvancedDagdaComponent(type, NULL);
+  if (strcmp(algorithm, "LRU")==0)
+    return new AdvancedDagdaComponent(type, LRU);
+  if (strcmp(algorithm, "LFU")==0)
+    return new AdvancedDagdaComponent(type, LFU);
+  if (strcmp(algorithm, "FIFO")==0)
+    return new AdvancedDagdaComponent(type, FIFO);
+  WARNING("Warning: " << algorithm << " is not a valid cache management algorithm.");
+  return new AdvancedDagdaComponent(type, NULL);
 }
 
 const char* DagdaFactory::getStorageDir() {
@@ -56,23 +87,26 @@ const char* DagdaFactory::getStorageDir() {
   return storageDir.c_str();
 }
 
-unsigned long DagdaFactory::getMaxMsgSize() {
+size_t DagdaFactory::getMaxMsgSize() {
   unsigned long* maxMsgSize = (unsigned long*)
     Parsers::Results::getParamValue(Parsers::Results::MAXMSGSIZE);
   if (maxMsgSize==NULL) maxMsgSize = &defaultMaxMsgSize;
   return *maxMsgSize;
 }
 
-unsigned long DagdaFactory::getMaxDiskSpace() {
-  unsigned long* maxDiskSpace = (unsigned long*)
+size_t DagdaFactory::getMaxDiskSpace() {
+  size_t* maxDiskSpace = (size_t*)
     Parsers::Results::getParamValue(Parsers::Results::MAXDISKSPACE);
+  //defaultMaxDiskSpace = availableDiskSpace(getStorageDir());
   if (maxDiskSpace==NULL) maxDiskSpace = &defaultMaxDiskSpace;
   return *maxDiskSpace;
 }
 
-unsigned long DagdaFactory::getMaxMemSpace() {
+size_t DagdaFactory::getMaxMemSpace() {
   unsigned long* maxMemSpace = (unsigned long*)
     Parsers::Results::getParamValue(Parsers::Results::MAXMEMSPACE);
+  string storageDir(getStorageDir());
+  defaultMaxMemSpace = availableDiskSpace(storageDir.c_str());
   if (maxMemSpace==NULL) maxMemSpace = &defaultMaxMemSpace;
   return *maxMemSpace;
 }

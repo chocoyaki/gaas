@@ -116,7 +116,7 @@ interface Dagda {
 
   
   typedef sequence<Dagda> SeqDagda_t;
-  enum dataStatus { ready, downloading };
+  enum dataStatus { ready, downloading, notOwner };
   /* Get the managers of a data. */
   SeqDagda_t lvlGetDataManagers(in string dataID);
   SeqDagda_t pfmGetDataManagers(in string dataID);

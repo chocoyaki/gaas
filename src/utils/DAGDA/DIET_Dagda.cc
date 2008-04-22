@@ -232,6 +232,7 @@ void dagda_download_data(diet_profile_t& profile, corba_profile_t& pb) {
 	  // The data is not yet registered here.
 	  if (pb.parameters[i].desc.specific._d() != DIET_SCALAR) {
 	    // Data is transmitted from the remote manager.
+		cout << "l." << __LINE__ << " file: " << __FILE__ << endl;
 	    dataManager->lclAddData(remoteManager, pb.parameters[i]);
 	    inserted =  dataManager->getData(pb.parameters[i].desc.id.idNumber);
 	    size = inserted->value.length();
@@ -262,6 +263,7 @@ void dagda_download_data(diet_profile_t& profile, corba_profile_t& pb) {
 		// See (1) below.
 	    profile.parameters[i].value = inserted->value.get_buffer(i>pb.last_in ? true:false);
 	 	dataManager->unlockData(pb.parameters[i].desc.id.idNumber);
+		dataManager->useMemSpace(size);
 	  }
 	} else {
 	  // Data is present. We use it.
@@ -292,9 +294,18 @@ void dagda_upload_data(diet_profile_t& profile, corba_profile_t& pb) {
 	string origIOR(pb.parameters[i].desc.dataManager);
 	
 	mrsh_data_desc(&data.desc, &profile.parameters[i].desc);
+
+    if (i<=pb.last_inout && data.desc.specific._d()==DIET_FILE) {
+	  // We cannot delete an INOUT file but we have to update the used
+	  // disk space.
+      size_t previousSize;
+	  previousSize =
+	    (manager->getData(data.desc.id.idNumber))->desc.specific.file().size;
+	  manager->freeDiskSpace(previousSize);
+	}
 	manager->addData(data);
 	inserted = manager->getData(data.desc.id.idNumber);
-	
+
     if (data.desc.specific._d()!=DIET_FILE) {
 	  // The data manager obtains the pointer control. (release=true).
       inserted->value.replace(size, size, (CORBA::Char*)profile.parameters[i].value, true);
@@ -306,6 +317,14 @@ void dagda_upload_data(diet_profile_t& profile, corba_profile_t& pb) {
 	  }
     }
     pb.parameters[i].desc = inserted->desc;
+	
+	if (i>pb.last_inout || data.desc.specific._d()==DIET_FILE) {
+	  if (data.desc.specific._d()==DIET_FILE) {
+	    manager->useDiskSpace(inserted->desc.specific.file().size);
+	  }
+	  else
+	    manager->useMemSpace(inserted->value.length());
+	}
 	
 	manager->unlockData(data.desc.id.idNumber);
 
@@ -323,12 +342,3 @@ void dagda_upload_data(diet_profile_t& profile, corba_profile_t& pb) {
   }
 }
 
-void dagda_free_volatile_data(corba_profile_t* pb) {
-  for (int i=0; i<=pb->last_out; ++i) {
-    Dagda_var remoteManager =
-	  Dagda::_narrow(ORBMgr::stringToObject(pb->parameters[i].desc.dataManager));
-    if (pb->parameters[i].desc.mode==DIET_VOLATILE) {
-      remoteManager->lclRemData(pb->parameters[i].desc.id.idNumber);
-    }
-  }
-}

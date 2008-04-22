@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.45  2008/04/22 08:24:02  glemahec
+ * Cache replacement algorithms for DAGDA + Shared file management.
+ *
  * Revision 1.44  2008/04/09 12:52:54  gcharrie
  * Adding Specific Client Scheduling into the parser to use burst mode
  *
@@ -199,12 +202,13 @@ Parsers::Results::param_t Parsers::Results::params[] =
    /* [36] */ ,{"maxMsgSize", 10, Parsers::parseULong, 0, NULL}
    /* [37] */ ,{"maxDiskSpace", 12, Parsers::parseULong, 0, NULL}
    /* [38] */ ,{"maxMemSpace", 11, Parsers::parseULong, 0, NULL}
+   /* [39] */ ,{"cacheAlgorithm", 14, Parsers::parseName, 0, NULL}
 #endif // HAVE_DAGDA
 #if HAVE_DAGDA || HAVE_ALT_BATCH
-   /* [39] */ ,{"storageDirectory", 16, Parsers::parseName, 0, NULL}
+   /* [40] */ ,{"storageDirectory", 16, Parsers::parseName, 0, NULL}
 #endif
 #ifdef HAVE_CCS
-   /* [40] */ ,{"USE_SPECIFIC_SCHEDULING", 23, Parsers::parseName, 0, NULL}
+   /* [41] */ ,{"USE_SPECIFIC_SCHEDULING", 23, Parsers::parseName, 0, NULL}
 #endif
   } ;
 

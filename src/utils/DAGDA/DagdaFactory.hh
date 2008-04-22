@@ -38,9 +38,9 @@ public:
   static DagdaImpl* getAgentDataManager();
   static DagdaImpl* getDataManager();
   static const char* getStorageDir();
-  static unsigned long getMaxMsgSize();
-  static unsigned long getMaxDiskSpace();
-  static unsigned long getMaxMemSpace();
+  static size_t getMaxMsgSize();
+  static size_t getMaxDiskSpace();
+  static size_t getMaxMemSpace();
   static const char* getParentName();
   static const char* getClientName();
   static const char* getSeDName();
