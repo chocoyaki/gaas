@@ -1,0 +1,6 @@
+include @TAU_MAKEFILE@
+
+CXX		= "$(TAU_COMPILER) $(TAU_CXX)"
+
+all:
+	@echo $(CXX)

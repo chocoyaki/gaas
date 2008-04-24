@@ -37,6 +37,8 @@ OPTION( DIET_USE_CCS         "Build DIET with client custom scheduling  (Experim
 OPTION( DIET_USE_ACKFILE     "Build DIET with acknowledge file." OFF)
 ## Use Dagda as data manager.
 OPTION( DIET_USE_DAGDA "Build DIET with Dagda as data manager. (In developpment)." OFF )
+# Profiling, used to add counters with TAU (http://http://www.cs.uoregon.edu/research/tau/home.php)
+OPTION( DIET_TAU_PROFILING "Build DIET with TAU profiling support. (In developpment)." OFF )
 
 
 # --------------------- OPTIONS SET BY DEFAULT  ----------------------------
@@ -65,6 +67,8 @@ ENDIF( NOT DIET_BUILD_LIBRARIES AND DIET_BUILD_EXAMPLES )
 IF( DIET_WITH_MULTI_MA AND DIET_USE_JXTA )
  MESSAGE(SEND_ERROR "Either set DIET_WITH_MULTI_MA or DIET_USE_JXTA. Not both.")
 ENDIF( DIET_WITH_MULTI_MA AND DIET_USE_JXTA )
+
+ 
 
 # --------------------- DEPENDENCIES TOWARDS "CLASSIC" C++ HEADERS ---------
 # This is just a convenience to advance the detection of any potential missing
@@ -178,6 +182,8 @@ ELSE( OMNIORB4_FOUND )
   MESSAGE("    omniORB installation...")
   SET( OMNIORB4_DIR "" CACHE PATH "Root of omniORB instal tree." )
 ENDIF( OMNIORB4_FOUND )
+
+
 
 ## No mor
 #IF( DIET_BUILD_DOCUMENTATION )
@@ -383,6 +389,20 @@ IF( DIET_USE_DART )
   # a CTestConfig.cmake file: refer to Modules/CTest.cmake for further details.
   INCLUDE( CTest )
 ENDIF( DIET_USE_DART )
+
+
+# ---------------- TAU PROFILING SUPPORT -----------------------------------
+# Refer to http://www.cs.uoregon.edu/research/tau/home.php for TAU installation
+IF( DIET_TAU_PROFILING )
+  # Still testing this part
+  # the following include will add the path to the installation of TAU, and
+  # will determine the configuration used in TAU.
+  # The CXX and C compilers will be replaced with the TAU script: tau_compiler.sh
+  OPTION( TAU_KEEP_MOD_SRC "Keep generated instrumented files." OFF )
+  INCLUDE( ${CMAKE_MODULE_PATH}/TAU/TAU_Profiling.cmake )
+ENDIF( DIET_TAU_PROFILING )
+
+
 
 # ---------------- STATIC LINKING FIXES ------------------------------------
 # When BUILD_SHARED_LIBS is NOT set, we assume that we not only expect
