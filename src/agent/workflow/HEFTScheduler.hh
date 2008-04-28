@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/04/28 11:54:52  bisnard
+ * new methods setNodePriorities & setNodesEFT replacing schedule
+ * nodes sort done in separate method in Dag class
+ *
  * Revision 1.2  2008/04/21 14:31:45  bisnard
  * moved common multiwf routines from derived classes to MultiWfScheduler
  * use wf request identifer instead of dagid to reference client
@@ -32,10 +36,24 @@ namespace madag {
     virtual ~HEFTScheduler();
 
     /**
-     * Order the nodes using b-level algorithm
+     * Set the priority of nodes using b-level algorithm
      */
-    virtual std::vector<Node *>
-    prioritizeNodes(const wf_response_t * wf_response, Dag * dag);
+    virtual void
+    setNodesPriority(const wf_response_t * wf_response, Dag * dag);
+
+    /**
+     * Set the EFT of nodes using HEFT algorithm
+     *
+     * @param orderedNodes  vector of nodes ordered by decreasing priority
+     * @param wf_response   the estimates given by the MA
+     * @param dag           the dag
+     * @param initTime      dag starting time (set by method)
+     */
+    virtual void
+    setNodesEFT(std::vector<Node *>& orderedNodes,
+                const wf_response_t * wf_response,
+                Dag * dag,
+                double& initTime);
 
     /**
      * Old scheduling methods
@@ -83,8 +101,10 @@ namespace madag {
     map<string, double> WI;
     // AFT and AST map
     map<string, double> AFT;
-    map<string, double> AST;
+    map<string, double> AST;  // obsolete
 
+    // the availabilty of resources (obsolete)
+    static map<std::string, double> avail;
   };
 
 }

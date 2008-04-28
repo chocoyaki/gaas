@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/04/28 11:54:52  bisnard
+ * new methods setNodePriorities & setNodesEFT replacing schedule
+ * nodes sort done in separate method in Dag class
+ *
  * Revision 1.2  2008/04/21 14:31:45  bisnard
  * moved common multiwf routines from derived classes to MultiWfScheduler
  * use wf request identifer instead of dagid to reference client
@@ -24,6 +28,10 @@
 
 using namespace madag;
 
+/****************************************************************************/
+/*                         PUBLIC METHODS                                   */
+/****************************************************************************/
+
 HEFTScheduler::HEFTScheduler() {
 }
 
@@ -31,7 +39,115 @@ HEFTScheduler::~HEFTScheduler() {
 }
 
 /**
+ * Set the priority of nodes using b-level algorithm
+ */
+void
+HEFTScheduler::setNodesPriority(const wf_response_t * wf_response, Dag * dag) {
+
+  TRACE_TEXT (TRACE_ALL_STEPS, "HEFT : Setting nodes priority" << endl);
+  // Initialize the node weights (priority attr)
+  this->computeNodeWeights(wf_response, dag);
+
+  // Ranking
+  Node * n = NULL;
+  for (std::map <std::string, Node *>::iterator p = dag->begin();
+       p != dag->end();
+       p++) {
+         n = (Node *)(p->second);
+         if (n->isAnExit())
+           rank(n);
+  }
+} // end setNodesPriority
+
+/**
+ * Initialize the Earliest Finish Time for all nodes
+ * This version computes the EFT using the best server found and taking into
+ * account the availability of the servers, considering that the current dag
+ * has exclusive access to them.
+ * Note that if there are many servers available for a given node, the
+ * complexity of this method is <nb_servers> * <nb_predecessors> for each
+ * node.
+ */
+void
+HEFTScheduler::setNodesEFT(std::vector<Node *>& orderedNodes,
+                           const wf_response_t * wf_response,
+                           Dag * dag,
+                           double& initTime) {
+  // to store the availabilty of resources
+  map<std::string, double> avail;
+  // init the availability map (one entry per hostname)
+  struct timeval current_time;
+  gettimeofday(&current_time, NULL);
+  initTime = current_time.tv_sec;
+  for (unsigned int ix=0;
+       ix < wf_response->wfn_seq_resp.length();
+       ix++) {
+    for (unsigned int jx=0;
+	 jx < wf_response->wfn_seq_resp[ix].response.servers.length();
+	 jx++) {
+      string hostname(CORBA::string_dup(wf_response->wfn_seq_resp[ix].response.servers[jx].loc.hostName));
+      // if new host init its availability to current time
+      if (avail.find(hostname) == avail.end())
+	avail[hostname] = current_time.tv_sec;
+    }
+  }
+  TRACE_TEXT (TRACE_ALL_STEPS, "HEFT : start computing nodes EFT" << endl);
+  // LOOP-1: for all dag nodes in the order provided
+  for (std::vector<Node *>::iterator p = orderedNodes.begin();
+       p != orderedNodes.end();
+       p++) {
+    Node *        n = (Node *) *p;
+    unsigned int  pb_index = 0; // index of the service (problem) in the wf_response
+    unsigned int  sed_ind = 0;  // index of the chosen server in the wf_response
+    double        EFT = 0;      // earliest finish time for current node
+
+    // find the problem index
+    for (unsigned int ix=0; ix < wf_response->wfn_seq_resp.length(); ix++) {
+      if (!strcmp(n->getPb().c_str(), wf_response->wfn_seq_resp[ix].node_id))
+	pb_index = ix;
+    } // end for ix
+
+    /* LOOP-2 FOR ONE NODE => CHOOSES THE BEST SERVER & COMPUTES AFT */
+    /* Remark: this loop can be very costly: <nb servers> * <nb predecessors> !! */
+    for (unsigned int ix=0;
+	 ix<wf_response->wfn_seq_resp[pb_index].response.servers.length();
+	 ix++) {
+      string ss(CORBA::string_dup(wf_response->wfn_seq_resp[pb_index].response.servers[ix].loc.hostName));
+      double EST = avail[ss];
+      for (unsigned int jx=0;
+	   jx < n->prevNodesCount();
+	   jx++) {
+	EST = max(EST, AFT[n->getPrev(jx)->getCompleteId()]);
+      } // end for jx
+      if ( (
+	    EST + wf_response->wfn_seq_resp[pb_index].response.servers[ix].estim.estValues[1].v_value < EFT )
+	   || (EFT == 0)) {
+	EFT =
+	  EST + wf_response->wfn_seq_resp[pb_index].response.servers[ix].estim.estValues[1].v_value;
+	sed_ind = ix;
+      }
+    } // end for ix
+
+    /* END OF THE MAIN COMPUTATION LOOP */
+
+    // update availability of chosen server
+    string str(CORBA::string_dup(wf_response->wfn_seq_resp[pb_index].response.servers[sed_ind].loc.hostName));
+    avail[str] = EFT;
+    // update node scheduling info
+    AFT[n->getCompleteId()] = EFT;
+    n->setEstCompTime((long int)EFT);
+    TRACE_TEXT (TRACE_ALL_STEPS, "HEFT : node " << n->getCompleteId()
+        << " : EFT = " << EFT << endl);
+  } // end LOOP-1
+} // end setNodesEFT
+
+/****************************************************************************/
+/*                          PRIVATE METHODS                                 */
+/****************************************************************************/
+
+/**
  * Computes the average value of node workload across the Seds
+ * (result stored in the WI table)
  */
 void
 HEFTScheduler::computeNodeWeights(const wf_response_t * wf_response,
@@ -59,6 +175,8 @@ HEFTScheduler::computeNodeWeights(const wf_response_t * wf_response,
           w += wf_response->wfn_seq_resp[ix].response.servers[jx].estim.estValues[1].v_value;
         } // end for jx
         WI[n->getCompleteId()] = w / wf_response->wfn_seq_resp[ix].response.servers.length();
+        TRACE_TEXT (TRACE_ALL_STEPS, " HEFT : node " << n->getCompleteId() << " weight :"
+            << WI[n->getCompleteId()] << endl);
       }
     } // end for ix
   } // end for nodes
@@ -66,6 +184,7 @@ HEFTScheduler::computeNodeWeights(const wf_response_t * wf_response,
 
 /**
  * rank the nodes upward
+ * (uses the WI table and updates the priority of each node)
  */
 void
 HEFTScheduler::rank(Node * n) {  // RECURSIVE
@@ -80,6 +199,8 @@ HEFTScheduler::rank(Node * n) {  // RECURSIVE
       n->setPriority(succ->getPriority() + WI[n->getCompleteId()]);
     }
   }
+  TRACE_TEXT (TRACE_ALL_STEPS, " HEFT : priority of node " << n->getCompleteId()
+      << " is " << n->getPriority() << endl);
   len = n->prevNodesCount();
   Node * prev = NULL;
   // LOOP for         all preceding nodes of n
@@ -91,51 +212,7 @@ HEFTScheduler::rank(Node * n) {  // RECURSIVE
   }
 }
 
-/**
- * Order the nodes using b-level algorithm
-*/
-std::vector<Node *>
-HEFTScheduler::prioritizeNodes(const wf_response_t * wf_response, Dag * dag) {
-  // Create links between node ports
-  // dag->linkAllPorts();
-
-  // Initialize the node weights (priority attr)
-  this->computeNodeWeights(wf_response, dag);
-
-  // Ranking
-  Node * n = NULL;
-  for (std::map <std::string, Node *>::iterator p = dag->begin();
-       p != dag->end();
-       p++) {
-         n = (Node *)(p->second);
-         if (n->isAnExit())
-           rank(n);
-  }
-  TRACE_TEXT (TRACE_ALL_STEPS, "HEFT : ranking done" << endl);
-
-  // Sorting
-  std::vector<Node*> sorted_list;
-  Node * n1 = NULL;
-  TRACE_TEXT (TRACE_ALL_STEPS, "HEFT : start sorting list" << endl);
-  for (std::map <std::string, Node *>::iterator p = dag->begin();
-       p != dag->end();
-       p++) {
-    n1 = (Node*)(p->second);
-    // found where insert the node
-    std::vector<Node*>::iterator p = sorted_list.begin();
-    bool b = false;
-    while ((p != sorted_list.end()) && (!b)) {
-      Node * n2 = *p;
-      if (n2->getPriority() < n1->getPriority())
-        b = true;
-      else
-        p++;
-    }
-    sorted_list.insert(p, n1);
-  }
-  TRACE_TEXT (TRACE_ALL_STEPS, "HEFT : sorting list done" << endl);
-  return sorted_list;
-}
+/************************ OBSOLETE PART *********************************/
 
 // wf_node_sched_seq_t
 // HEFTScheduler::schedule(const wf_response_t * response,
@@ -145,6 +222,9 @@ HEFTScheduler::prioritizeNodes(const wf_response_t * wf_response, Dag * dag) {
 //   myDag->setId(itoa(response->dag_id));
 //   return this->schedule(response, myDag);
 // }
+
+// Initialize static member
+map<std::string, double> HEFTScheduler::avail;
 
 /**
  * Old scheduling method (deprecated)
@@ -274,6 +354,10 @@ HEFTScheduler::schedule(const wf_response_t * response,
     } // end for ix
     unsigned int sed_ind = 0;
     double EFT = 0;
+
+    /* MAIN COMPUTATION LOOP FOR ONE NODE => CHOOSES THE BEST SERVER & COMPUTES AFT */
+    /* Remark: this loop can be very costly: <nb servers> * <nb predecessors> !! */
+
     for (unsigned int ix=0;
 	 ix<response->wfn_seq_resp[pb_index].response.servers.length();
 	 ix++) {
@@ -293,7 +377,9 @@ HEFTScheduler::schedule(const wf_response_t * response,
 	sed_ind = ix;
       }
     } // end for ix
-    //
+
+    /* END OF THE MAIN COMPUTATION LOOP */
+
     // n->setSeD(response->wfn_seq_resp[pb_index].response.servers[sed_ind].loc.ior);
     sched_seq[response_index].node_id =
       CORBA::string_dup(n->getCompleteId().c_str());
