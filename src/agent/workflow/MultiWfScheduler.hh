@@ -1,5 +1,5 @@
 /****************************************************************************/
-/* The base abstract class for multi-workflow scheduler                     */
+/* The base class for multi-workflow scheduler                     */
 /*                                                                          */
 /* Author(s):                                                               */
 /* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/04/28 12:12:44  bisnard
+ * new NodeQueue implementation for FOFT
+ * manage thread join after node execution
+ * compute slowdown for FOFT
+ *
  * Revision 1.4  2008/04/21 14:31:45  bisnard
  * moved common multiwf routines from derived classes to MultiWfScheduler
  * use wf request identifer instead of dagid to reference client
@@ -43,12 +48,19 @@
 class MaDag_impl;
 
 namespace madag {
+  class NodeRun;
 
   class MultiWfScheduler : public Thread {
   public:
     MultiWfScheduler(MaDag_impl * maDag);
 
     virtual ~MultiWfScheduler();
+
+    /**
+     * Get the MaDag object ref
+     */
+    const MaDag_impl*
+        getMaDag() const;
 
     /**
      * set the intra-dag scheduler used by the MA DAG (by default it is HEFT)
@@ -59,25 +71,16 @@ namespace madag {
 
     /**
      * schedules a new DAG workflow
+     *
      * @param wf_desc   workflow string description
      * @param wfReqId   workflow request identifier
      * @param MA        master agent (CORBA)
+     * @return boolean  true if scheduling successful
      */
     virtual bool
         scheduleNewDag(const corba_wf_desc_t& wf_desc, int wfReqId,
-                       MasterAgent_var MA);
-
-    /**
-     * Workflow submission function
-     * @deprecated
-     *
-     * @param wf_desc workflow string description
-     * @param dag_id the dag ID
-     */
-//     virtual bool
-//         submit_wf (const corba_wf_desc_t& wf_desc, int dag_id,
-//                MasterAgent_var parent,
-//                CltMan_var cltMan) = 0;
+                       MasterAgent_var MA)
+        throw (XMLParsingException, NodeException);
 
     /**
      * Execution method
@@ -87,20 +90,27 @@ namespace madag {
 
     /**
      * Execute a post operation on synchronisation semaphore
+     * and joins the node thread given as parameter
+     */
+    virtual void
+        wakeUp(NodeRun * nodeThread);
+
+    /**
+     * Execute a post operation on synchronisation semaphore
      */
     virtual void
         wakeUp();
 
     /**
-     * Get the MaDag object ref
+     * Updates scheduler when a node has been executed
      */
-    MaDag_impl*
-        getMaDag();
+    virtual void
+        handlerNodeDone(Node * node);
 
   protected:
 
     /**
-     * The Meta-Dag
+     * The Meta-Dag (OBSOLETE - TO REMOVE)
      */
     MultiDag * myMetaDag;
 
@@ -111,15 +121,15 @@ namespace madag {
     WfScheduler * mySched;
 
     /**
-     * Nodes state
-     * true if node is done
-     * false otherwise
+     * Node queues for waiting nodes
+     * (key = ref of ready queue)
      */
-    map<Node *, bool> nodesStates;
+    map<NodeQueue *,ChainedNodeQueue *> waitingQueues;
 
-    // the availabilty of resources
-    static map<string, double> avail;
-
+    /**
+     * Node queues for ready nodes
+     */
+    list<OrderedNodeQueue *> readyQueues;
 
     /**
      * Critical section of the scheduler
@@ -132,48 +142,83 @@ namespace madag {
     omni_semaphore mySem;
 
     /**
+     * Terminating node thread pointer (for join)
+     */
+    NodeRun * termNodeThread;
+
+    /**
+     * Terminating node thread flag (for join)
+     */
+    bool      termNode;
+
+    /**
      * Execute a node
      */
     Thread *
         runNode(Node * node, SeD_var sed);
 
     /**
-     * parse a new dag provided in xml text and create a dag object
+     * Parse a new dag provided in xml text and create a dag object
      *
+     * @param wfReqId   workflow request ID
      * @param wf_desc   workflow string description
      * @return pointer to dag structure (to be destroyed by the caller)
      */
     Dag *
-        parseNewDag(const corba_wf_desc_t& wf_desc)
+        parseNewDag(int wfReqId, const corba_wf_desc_t& wf_desc)
         throw (XMLParsingException);
 
     /**
+     * Call MA to get server estimations for all services
+     */
+    wf_response_t *
+        getProblemEstimates(Dag * dag, MasterAgent_var MA)
+        throw (NodeException);
+
+    /**
      * internal dag scheduling
+     * to set priority of nodes using estimations given by MA and the
+     * algorithm specified by setSched
      *
      * @param dag     pointer to dag object
      * @param MA      ref to the master agent
-     * @return an ordered vector of nodes
      */
-    virtual std::vector<Node *>
+    virtual void
         intraDagSchedule(Dag * dag, MasterAgent_var MA)
         throw (NodeException);
 
     /**
-     * create a new node queue based on a dag
+     * create a new node queue based on a vector of nodes
      *
      * @param nodes   a vector of nodes
-     * @param wfReqId workflow request identifier
      * @return pointer to a nodequeue structure (to be destroyed by the caller)
      */
-    virtual NodeQueue *
-        createNodeQueue(std::vector<Node *> nodes, const int wfReqId);
+    virtual OrderedNodeQueue *
+        createNodeQueue(std::vector<Node *> nodes);
+
+    /**
+     * create a new node queue based on a dag
+     *
+     * @param dag   a dag
+     * @return pointer to a nodequeue structure (to be destroyed by the caller)
+     */
+    virtual OrderedNodeQueue *
+        createNodeQueue(Dag * dag);
+
+    /**
+     * delete the node queue created in createNodeQueue
+     *
+     * @param nodeQ   pointer to the node queue created in createdNodeQueue
+     */
+    virtual void
+        deleteNodeQueue(OrderedNodeQueue * nodeQ);
 
     /**
      * insert a new node queue into the pool of queues managed by the sched
      * @param nodeQ   a node queue
      */
     virtual void
-        insertNodeQueue(NodeQueue * nodeQ);
+        insertNodeQueue(OrderedNodeQueue * nodeQ);
 
   private:
 
@@ -187,12 +232,26 @@ namespace madag {
      */
     static long dagIdCounter;
 
-    /**
-     * Node queues
-     */
-    list<NodeQueue *> myQueues;
-
   }; // end class MultiWfScheduler
+
+
+/****************************************************************************/
+/*                            CLASS NodeRun                                 */
+/****************************************************************************/
+
+  class NodeRun: public Thread {
+    public:
+      NodeRun(Node * node, SeD_var sed, MultiWfScheduler * scheduler, CltMan_ptr cltMan);
+
+      void*
+          run();
+
+    private:
+      Node *  myNode;
+      SeD_var mySeD;
+      MultiWfScheduler * myScheduler;
+      CltMan_ptr myCltMan;
+  }; // end class NodeRun
 
 } // end namespace madag
 

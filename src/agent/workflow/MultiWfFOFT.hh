@@ -4,11 +4,17 @@
 /*                                                                          */
 /* Author(s):                                                               */
 /* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
+/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/04/28 12:12:44  bisnard
+ * new NodeQueue implementation for FOFT
+ * manage thread join after node execution
+ * compute slowdown for FOFT
+ *
  * Revision 1.4  2008/04/21 14:31:45  bisnard
  * moved common multiwf routines from derived classes to MultiWfScheduler
  * use wf request identifer instead of dagid to reference client
@@ -36,7 +42,6 @@
 #include "workflow/Dag.hh"
 #include "MultiWfScheduler.hh"
 
-
 using namespace std;
 
 
@@ -50,7 +55,15 @@ namespace madag {
     virtual ~MultiWfFOFT();
 
     /**
-     * Workflow submission function.
+     * Execution method
+     */
+    virtual void *
+        run();
+
+    /**
+     * Old Workflow submission function.
+     * @deprecated
+     *
      * @param wf_desc workflow string description
      * @param dag_id the dag ID
      */
@@ -59,32 +72,75 @@ namespace madag {
                MasterAgent_var parent,
                CltMan_var cltMan);
 
+    /**
+     * Updates scheduler when a node has been executed
+     */
+    virtual void
+        handlerNodeDone(Node * node);
+
   protected:
+
+    /**
+     * internal dag scheduling
+     */
+    virtual void
+        intraDagSchedule(Dag * dag, MasterAgent_var MA)
+        throw (NodeException);
+
+    /**
+     * Create new node queue
+     */
+    OrderedNodeQueue *
+        createNodeQueue(std::vector<Node *> nodes);
+
+    /**
+     * create a new node queue based on a dag
+     *
+     * @param dag   a dag
+     * @return pointer to a nodequeue structure (to be destroyed by the caller)
+     */
+    OrderedNodeQueue *
+        createNodeQueue(Dag * dag);
+
+    /**
+     * delete the node queue created in createNodeQueue
+     *
+     * @param nodeQ   pointer to the node queue created in createdNodeQueue
+     */
+    void
+        deleteNodeQueue(OrderedNodeQueue * nodeQ);
+
+    /**
+     * Save the state of dags
+     */
+    map<Dag*, DagState> dagsState;
+
+    PriorityNodeQueue execQueue;
+
+    /*************** DEPRECATED ATTRIBUTES & METHODS ******************/
+    /*********** (used by submit_wf) **********************************/
+
+    /**
+     * Save the state of nodes
+     */
+    map<Node*, NodeState> nodesState;
+
     /**
      * The scheduling of each dag using a scheduling algorithm 'R'
+     * @deprecated
      */
     map<Dag*, wf_node_sched_seq_t> sOwn;
 
     /**
      * The scheduling using the multiworkflow algorithm
+     * @deprecated
      */
     map<Node*, wf_node_sched_t> sMulti;
 
     /**
-     * Save the state of dags
-     * See the class DagState
-     */
-    map<Dag*, DagState> dagsState;
-
-    /**
-     * Save the state of nodes
-     * See the class NodeState
-     */
-    map<Node*, NodeState> nodesState;
-
-    /**
      * Vector of unexecuted dags
      * must be sorted
+     * @deprecated
      */
     vector<Dag *> U;
 
@@ -121,12 +177,22 @@ namespace madag {
     bool executed;
 
     /**
+     * the earliest finish time of the DAG scheduled alone
+     */
+    double EFT;
+
+    /**
      * the makespan of the DAG scheduled alone
      */
     double makespan;
 
     /**
-     * Dag slowdown
+     * the estimated global delay for the DAG
+     */
+    double estimatedDelay;
+
+    /**
+     * Dag slowdown (percentage of delay / makespan)
      */
     double slowdown;
 
@@ -136,6 +202,7 @@ namespace madag {
     unsigned int executedNodes;
   };
 
+  // OBSOLETE
   class NodeState {
   public:
     NodeState();

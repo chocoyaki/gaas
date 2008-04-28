@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/04/28 12:12:44  bisnard
+ * new NodeQueue implementation for FOFT
+ * manage thread join after node execution
+ * compute slowdown for FOFT
+ *
  * Revision 1.4  2008/04/21 14:31:45  bisnard
  * moved common multiwf routines from derived classes to MultiWfScheduler
  * use wf request identifer instead of dagid to reference client
@@ -55,7 +60,7 @@ MultiWfBasicScheduler::submit_wf (const corba_wf_desc_t& wf_desc, int dag_id,
   cout << "The meta scheduler receive a new dag " << endl
        << wf_desc.abstract_wf << endl;
 
-  DagWfParser reader(wf_desc.abstract_wf);
+  DagWfParser reader(dag_id,wf_desc.abstract_wf);
   reader.setup();
   reader.getDag()->setId(itoa(dag_id));
 //  this->cltMans[itoa(dag_id)] = cltMan;
