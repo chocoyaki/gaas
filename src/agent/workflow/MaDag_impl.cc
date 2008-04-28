@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/04/28 11:56:51  bisnard
+ * choose wf scheduler type when creating madag
+ *
  * Revision 1.4  2008/04/21 14:31:45  bisnard
  * moved common multiwf routines from derived classes to MultiWfScheduler
  * use wf request identifer instead of dagid to reference client
@@ -80,8 +83,8 @@
 using namespace std;
 using namespace madag;
 
-MaDag_impl::MaDag_impl(const char * name) :
-  myName(name), mySched(NULL), myMultiWfSched(NULL), wfReqIdCounter(0) {
+MaDag_impl::MaDag_impl(const char * name, const MaDagSchedType schedType = HEFT) :
+  myName(name), myMultiWfSched(NULL), wfReqIdCounter(0) {
 
   char* MAName = (char*)
     Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
@@ -107,16 +110,20 @@ MaDag_impl::MaDag_impl(const char * name) :
   TRACE_TEXT(NO_TRACE,
 	       "## MADAG_IOR " << ORBMgr::getIORString(this->_this()) << endl);
   // starting the multiwfscheduler
-  this->myMultiWfSched = new MultiWfScheduler(this);
+  switch (schedType) {
+    case HEFT:
+      this->myMultiWfSched = new MultiWfScheduler(this);
+      break;
+    case FOFT:
+      this->myMultiWfSched = new MultiWfFOFT(this);
+      break;
+  }
   this->myMultiWfSched->start();
   // init the statistics module
   stat_init();
 } // end MA DAG constructor
 
 MaDag_impl::~MaDag_impl() {
-  if (this->mySched != NULL) {
-    delete (this->mySched);
-  }
   if (this->myMultiWfSched != NULL) {
     delete (this->myMultiWfSched);
   }
@@ -161,58 +168,6 @@ MaDag_impl::processMultiDagWf(const corba_wf_desc_t& dag_desc, const char* cltMg
 } // end processMultiDagWf
 
 /**
- * set the scheduler for the MA DAG
- */
-void
-MaDag_impl::setScheduler(const madag_sched_t madag_sched) {
-  switch (madag_sched) {
-//   case madag_rr:
-//     if (this->mySched != NULL) {
-//       delete (this->mySched);
-//     }
-//     this->mySched = new RRScheduler();
-//     break;
-
-  case madag_heft:
-    if (this->mySched != NULL) {
-      delete (this->mySched);
-    }
-    this->mySched = new HEFTScheduler();
-    break;
-
-  default:
-    break;
-  } // end switch
-} // end setScheduler
-
-/**
- * set the scheduler for multi workflow mode
- * @deprecated
- */
-void
-MaDag_impl::setMultiWfScheduler(const madag_mwf_sched_t madag_multi_sched) {
-  switch (madag_multi_sched) {
-  case MWF_DEFAULT:
-    if (this->myMultiWfSched != NULL) {
-      delete (this->myMultiWfSched);
-    }
-    this->myMultiWfSched = new MultiWfScheduler(this);
-    break;
-
-  case MWF_FAIRNESS:
-    if (this->myMultiWfSched != NULL) {
-      delete (this->myMultiWfSched);
-    }
-    this->myMultiWfSched = new MultiWfFOFT(this);
-    break;
-
-  default:
-    break;
-  } // end switch
-} // end setScheduler
-
-
-/**
  * Get a new workflow request identifier
  */
 CORBA::Long
@@ -221,7 +176,7 @@ MaDag_impl::getWfReqId() {
   CORBA::Long res = this->wfReqIdCounter++;
   this->myMutex.unlock();
   return res;
-}
+} // end getWfReqId
 
 /**
  * Used to test if it is alive.
@@ -242,7 +197,7 @@ MaDag_impl::getCltMan(int wfReqId) {
   if (this->cltMans.find(wfReqId) == this->cltMans.end())
     return CltMan::_nil();
   return this->cltMans.find(wfReqId)->second;
-}
+} // end getCltMan
 
 /**
  * Set the client manager for a wf request

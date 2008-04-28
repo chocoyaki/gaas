@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/04/28 11:56:51  bisnard
+ * choose wf scheduler type when creating madag
+ *
  * Revision 1.4  2008/04/21 14:31:45  bisnard
  * moved common multiwf routines from derived classes to MultiWfScheduler
  * use wf request identifer instead of dagid to reference client
@@ -68,20 +71,13 @@
 #include "MultiWfScheduler.hh"
 #include "CltMan.hh"
 
-typedef enum {
-  madag_rr,
-  madag_heft,
-} madag_sched_t;
-
-typedef enum {
-  MWF_DEFAULT,
-  MWF_FAIRNESS
-} madag_mwf_sched_t;
 
 class MaDag_impl : public POA_MaDag,
 		   public PortableServer::RefCountServantBase {
 public:
-  MaDag_impl(const char * name);
+  enum MaDagSchedType { HEFT, FOFT };
+
+  MaDag_impl(const char * name, const MaDagSchedType schedType);
 
   virtual ~MaDag_impl();
 
@@ -137,21 +133,6 @@ public:
   virtual CORBA::Long
       ping();
 
-  /**
-   * Set the scheduler for the MA DAG
-   *
-   * @param madag_sched scheduler identifier
-   */
-  void
-  setScheduler(const madag_sched_t madag_sched);
-
-  /**
-   * set the scheduler for multi workflow mode
-   * @deprecated
-   */
-  void
-  setMultiWfScheduler(const madag_mwf_sched_t madag_multi_sched);
-
 protected:
   /**
    * set the client manager for a wf request
@@ -174,11 +155,6 @@ private:
    * The client wf manager references
    */
   map<int, CltMan_ptr> cltMans;
-
-  /**
-   * The Ma Dag scheduler
-   */
-  madag::WfScheduler * mySched;
 
   /**
    * The meta-scheduler (used for multiworkflow support)
