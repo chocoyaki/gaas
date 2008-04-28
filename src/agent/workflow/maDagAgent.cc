@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/04/28 11:51:43  bisnard
+ * choose wf scheduler type when creating madag
+ *
  * Revision 1.1  2008/04/10 09:13:29  bisnard
  * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
  *
@@ -40,7 +43,7 @@ int main(int argc, char * argv[]){
 
   Parsers::Results::param_type_t compParam[] =
     {Parsers::Results::AGENTTYPE, Parsers::Results::NAME};
-  
+
   if ((res = Parsers::beginParsing(config_file_name)))
     return res;
   if ((res =
@@ -61,27 +64,22 @@ int main(int argc, char * argv[]){
     cout << "MA_DAG type" << endl;
   }
 
+  // choose scheduler type
+
+  MaDag_impl::MaDagSchedType schedType = MaDag_impl::HEFT;
+  if (argc >= 3) {
+    if (!strcmp(argv[2], "--fairness"))
+      schedType = MaDag_impl::FOFT;
+  }
+
+  // INIT ORB and CREATE MADAG CORBA OBJECT
 
   if (ORBMgr::init(argc, argv)) {
     ERROR("ORB initialization failed", 1);
   }
 
-  MaDag_impl * maDag_impl = new MaDag_impl(name);
+  MaDag_impl * maDag_impl = new MaDag_impl(name, schedType);
   ORBMgr::activate((MaDag_impl*)maDag_impl);
-
-  maDag_impl->setScheduler(madag_heft);
-
-  // enable or not the multi-workflow support => deprecated
-  /*
-  if ((argc >= 3)  && (!strcmp(argv[2], "--enable-multiwf")))
-    maDag_impl->enable_multi_wf(true);
-
-  if ((argc >= 4)  && (!strcmp(argv[2], "--enable-multiwf"))) {
-    if (!strcmp(argv[3], "--fairness")) {
-      maDag_impl->enable_multi_wf(true, MWF_FAIRNESS);
-    }
-  }
-  */
 
   /* Wait for RPCs (blocking call): */
   if (ORBMgr::wait()) {
