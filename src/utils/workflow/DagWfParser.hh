@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/04/28 12:06:28  bisnard
+ * changed constructor for Node (new param wfReqId)
+ *
  * Revision 1.1  2008/04/21 14:35:50  bisnard
  * added NodeQueue and renamed WfParser as DagWfParser
  *
@@ -70,16 +73,18 @@ public:
 
   /** Reader constructor
    *
+   * @param wfReqId the workflow request ID
    * @param content the workflow description
    */
-  DagWfParser(const char * content);
+  DagWfParser(int wfReqId, const char * content);
 
   /** Reader constructor
    *
+   * @param wfReqId the workflow request ID
    * @param content the workflow description
    * @param alloc   indicates if the profile_desc is allocated  (false, the default value) or not
    */
-  DagWfParser(const char * content, bool alloc);
+  DagWfParser(int wfReqId, const char * content, bool alloc);
 
   /**
    * The destructor
@@ -495,6 +500,12 @@ protected:
 		     Node * dagNode = NULL,
 		     const string * value = NULL);
 
+  private:
+
+    /**
+     * The workflow request ID
+     */
+    int wfReqId;
 };
 
 bool operator == (corba_pb_desc_t& a,   corba_pb_desc_t& b);

@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/04/28 12:06:28  bisnard
+ * changed constructor for Node (new param wfReqId)
+ *
  * Revision 1.1  2008/04/21 14:35:50  bisnard
  * added NodeQueue and renamed WfParser as DagWfParser
  *
@@ -33,19 +36,19 @@ using namespace std;
 /**
  * Constructor
  */
-DagWfParser::DagWfParser(const char * wf_desc) :
-  content(wf_desc) {
+DagWfParser::DagWfParser(int wfReqId, const char * wf_desc) :
+  wfReqId(wfReqId), content(wf_desc) {
   this->dagSize = 0;
   this->myDag = new Dag();
   this->alloc = false;
-} // end constructor DagWfParser::DagWfParser(const char *)
+} // end constructor DagWfParser::DagWfParser(int, const char *)
 
-DagWfParser::DagWfParser(const char * wf_desc, bool alloc) :
-  content(wf_desc) {
+DagWfParser::DagWfParser(int wfReqId, const char * wf_desc, bool alloc) :
+  wfReqId(wfReqId), content(wf_desc) {
   this->dagSize = 0;
   this->myDag = new Dag();
   this->alloc = alloc;
-} // end constructor DagWfParser::DagWfParser(const char *, bool)
+} // end constructor DagWfParser::DagWfParser(int, const char *, bool)
 
 DagWfParser::~DagWfParser() {
   // dag is kept alive after parser destruction
@@ -324,7 +327,7 @@ DagWfParser::parseNode (const DOMNode * element,
 
   // Now that we now the node path and the service argument number we can
   // create the node object and its profile
-  Node * dagNode = new Node(nodeId, nodePath,
+  Node * dagNode = new Node(this->wfReqId, nodeId, nodePath,
 			    last_in, last_inout, last_out);
 
   profile = diet_profile_alloc((char*)nodePath.c_str(),
