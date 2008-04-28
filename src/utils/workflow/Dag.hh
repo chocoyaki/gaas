@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/04/28 12:15:00  bisnard
+ * new NodeQueue implementation for FOFT
+ * nodes sorting done by Dag instead of scheduler
+ * method to propagate delay at execution (FOFT)
+ *
  * Revision 1.3  2008/04/21 14:36:59  bisnard
  * use nodeQueue to manage multiwf scheduling
  * use wf request identifer instead of dagid to reference client
@@ -142,8 +147,8 @@ public:
    *
    * @param response sequence of results
    */
-  void
-  setSchedResponse(wf_node_sched_seq_t * response);
+//   void
+//   setSchedResponse(wf_node_sched_seq_t * response);
 
   /**
    * get a scalar result of the workflow
@@ -210,21 +215,20 @@ public:
    * Test if the completion time of node is greater to the predicted
    * one
    */
-  bool
-  checkScheduling();
+//   bool
+//   checkScheduling();
 
   /**
    * set the beginning time of execution
-   * TODO check if deprecated
    *
    * @param tv the begining time
    */
-  void
-  setTheBeginning(struct timeval tv);
+//   void
+//   setTheBeginning(struct timeval tv);
 
   /**
    * Move a node to the trash vector (called when rescheduling)
-   *
+   * @deprecated
    * @param n the node to remove reference
    */
   void
@@ -243,6 +247,14 @@ public:
    */
   Node *
   getNode(std::string node_id);
+
+  /**
+   * Get all dag nodes sorted by priority
+   *
+   * @return ref to a vector of nodes (to be deleted by caller)
+   */
+  std::vector<Node*>&
+  getNodesByPriority();
 
   /**
    * Get the dag id
@@ -290,9 +302,36 @@ public:
 
   /**
    * get the estimated makespan of the DAG
+   * @deprecated
    */
   double
   getEstMakespan();
+
+  /**
+   * get the estimated earliest finish time of the DAG
+   */
+  double
+  getEFT();
+
+  /**
+   * get the estimated delay of the DAG
+   */
+  double
+  getEstDelay();
+
+  /**
+   * set the estimated delay of the DAG
+   * (updated by an exit node)
+   */
+  void
+  setEstDelay(double delay);
+
+  /**
+   * recursively updates the estimated delay starting from a node
+   * and applying it to successors
+   */
+  bool
+  updateDelayRec(Node * node, double newDelay);
 
 private:
   /*********************************************************************/
@@ -310,31 +349,36 @@ private:
   std::map <std::string, Node *>   nodes;
 
   /**
-   * current node (not used) *
+   * estimated delay
    */
-  std::map <std::string, Node *>::iterator current_node;
+  double estDelay;
 
   /**
-   * Scheduling response *
+   * current node (not used) - OBSOLETE
    */
-  wf_node_sched_seq_t * response;
+//   std::map <std::string, Node *>::iterator current_node;
 
   /**
-   * Reordering parameter
+   * Scheduling response - OBSOLETE
    */
-  long int
-  nbSec;
+//   wf_node_sched_seq_t * response;
 
   /**
-   * Reordering parameter
+   * Reordering parameter - OBSOLETE
    */
-  unsigned long int
-  nbNodes;
+//   long int
+//   nbSec;
 
   /**
-   * The time of execution beginning
+   * Reordering parameter - OBSOLETE
    */
-  struct timeval beginning;
+//   unsigned long int
+//   nbNodes;
+
+  /**
+   * The time of execution beginning - OBSOLETE
+   */
+//   struct timeval beginning;
 
   /**
    * Trash nodes vector

@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/04/28 12:14:59  bisnard
+ * new NodeQueue implementation for FOFT
+ * nodes sorting done by Dag instead of scheduler
+ * method to propagate delay at execution (FOFT)
+ *
  * Revision 1.3  2008/04/21 14:36:59  bisnard
  * use nodeQueue to manage multiwf scheduling
  * use wf request identifer instead of dagid to reference client
@@ -112,11 +117,12 @@ using namespace std;
 
 
 Dag::Dag() {
-  this->current_node = this->nodes.end();
+//  this->current_node = this->nodes.end();
   this->myId    = "";
-  this->nbSec   = 5;
-  this->nbNodes = 1;
+//   this->nbSec   = 5;
+//   this->nbNodes = 1;
   this->tmpDag  = false;
+  this->estDelay = 0;
 }
 
 Dag::~Dag() {
@@ -433,6 +439,8 @@ Dag::linkNodePorts(Node * n) {
  *
  * this methods loops through all the nodes of the dag to check if they are done
  * @return bool
+ * TODO could be optimized to check only output nodes (this method runs each time
+ * a node is done)
  */
 bool
 Dag::isDone() {
@@ -451,45 +459,45 @@ Dag::isDone() {
  * set the workflow scheduling response *
  * @deprecated
  */
-void
-Dag::setSchedResponse(wf_node_sched_seq_t * response) {
-  this->response = response;
-
-  if (response->length() != nodes.size()) {
-    TRACE_TEXT (TRACE_ALL_STEPS,
-		"the scheduling response length is different from dag length "
-		<< endl);
-  }
-
-  for (unsigned int ix=0;
-       ix < response->length();
-       ix++) {
-    string nid((*response)[ix].node_id);
-    map <string, Node *>::iterator p =
-      nodes.find(nid);
-    if (p != nodes.end()) {
-      TRACE_TEXT (TRACE_ALL_STEPS,
-		  "The nodes " << ((Node*)(p->second))->getId() <<
-		  " is mapped to a SeD"  << endl);
-      ((Node*)(p->second))->setSeD((*response)[ix].server.loc.ior, "");
-    }
-    else {
-      // Try with complete id
-      nid = nid.substr(nid.find("-")+1);
-      p = nodes.find(nid);
-      if (p != nodes.end()) {
-        TRACE_TEXT (TRACE_ALL_STEPS,
-                    "The nodes " << ((Node*)(p->second))->getId() <<
-                    " is mapped to a SeD"  << endl);
-        ((Node*)(p->second))->setSeD((*response)[ix].server.loc.ior,
-                                     "");
-      }
-      else {
-        cout << " *** " << nid << " not found!!!" <<endl;
-      }
-    }
-  }
-}
+// void
+// Dag::setSchedResponse(wf_node_sched_seq_t * response) {
+//   this->response = response;
+//
+//   if (response->length() != nodes.size()) {
+//     TRACE_TEXT (TRACE_ALL_STEPS,
+// 		"the scheduling response length is different from dag length "
+// 		<< endl);
+//   }
+//
+//   for (unsigned int ix=0;
+//        ix < response->length();
+//        ix++) {
+//     string nid((*response)[ix].node_id);
+//     map <string, Node *>::iterator p =
+//       nodes.find(nid);
+//     if (p != nodes.end()) {
+//       TRACE_TEXT (TRACE_ALL_STEPS,
+// 		  "The nodes " << ((Node*)(p->second))->getId() <<
+// 		  " is mapped to a SeD"  << endl);
+//       ((Node*)(p->second))->setSeD((*response)[ix].server.loc.ior, "");
+//     }
+//     else {
+//       // Try with complete id
+//       nid = nid.substr(nid.find("-")+1);
+//       p = nodes.find(nid);
+//       if (p != nodes.end()) {
+//         TRACE_TEXT (TRACE_ALL_STEPS,
+//                     "The nodes " << ((Node*)(p->second))->getId() <<
+//                     " is mapped to a SeD"  << endl);
+//         ((Node*)(p->second))->setSeD((*response)[ix].server.loc.ior,
+//                                      "");
+//       }
+//       else {
+//         cout << " *** " << nid << " not found!!!" <<endl;
+//       }
+//     }
+//   }
+// }
 
 
 /**
@@ -649,46 +657,46 @@ _matrix_get(diet_arg_t* arg, void** value, diet_persistence_mode_t* mode,
 /**
  * check the scheduling
  */
-bool
-Dag::checkScheduling() {
-  Node * n = NULL;
-  vector<Node*> nodes_with_pb;
-  //  cout << "The DAG checks the schedling" << endl;
-  for (map<string, Node *>::iterator p = nodes.begin();
-       p != nodes.end();
-       ++p) {
-    n = (Node *)(p->second);
-    if ((n != NULL) && (n->isDone()) && (!n->getMark())) {
-      if (
-	  (WfCst::diff(n->getRealCompTime(), this->beginning,
-		       n->getEstCompTime())>this->nbSec)
-	  ) {
-	nodes_with_pb.push_back(n);
-      }
-    }
-  }
-  if (nodes_with_pb.size()>0)
-    TRACE_TEXT (TRACE_ALL_STEPS,
-		nodes_with_pb.size() << " node(s) out of predicted time" <<endl);
-
-  if (nodes_with_pb.size() >= this->nbNodes) {
-    for (unsigned int ix=0; ix<nodes_with_pb.size(); ix++)
-      nodes_with_pb[ix]->setMark(true);
-    return false;
-  }
-  return true;
-}
+// bool
+// Dag::checkScheduling() {
+//   Node * n = NULL;
+//   vector<Node*> nodes_with_pb;
+//   //  cout << "The DAG checks the schedling" << endl;
+//   for (map<string, Node *>::iterator p = nodes.begin();
+//        p != nodes.end();
+//        ++p) {
+//     n = (Node *)(p->second);
+//     if ((n != NULL) && (n->isDone()) && (!n->getMark())) {
+//       if (
+// 	  (WfCst::diff(n->getRealCompTime(), this->beginning,
+// 		       n->getEstCompTime())>this->nbSec)
+// 	  ) {
+// 	nodes_with_pb.push_back(n);
+//       }
+//     }
+//   }
+//   if (nodes_with_pb.size()>0)
+//     TRACE_TEXT (TRACE_ALL_STEPS,
+// 		nodes_with_pb.size() << " node(s) out of predicted time" <<endl);
+//
+//   if (nodes_with_pb.size() >= this->nbNodes) {
+//     for (unsigned int ix=0; ix<nodes_with_pb.size(); ix++)
+//       nodes_with_pb[ix]->setMark(true);
+//     return false;
+//   }
+//   return true;
+// }
 
 /**
  * set the beginning time of execution
  */
-void
-Dag::setTheBeginning(struct timeval tv) {
-  this->beginning = tv;
-  TRACE_TEXT (TRACE_ALL_STEPS,
-	      "---- The beginning time is " << this->beginning.tv_sec <<
-	      endl);
-}
+// void
+// Dag::setTheBeginning(struct timeval tv) {
+//   this->beginning = tv;
+//   TRACE_TEXT (TRACE_ALL_STEPS,
+// 	      "---- The beginning time is " << this->beginning.tv_sec <<
+// 	      endl);
+// }
 
 /**
  * Move a node to the trash vector (called when rescheduling)
@@ -746,6 +754,35 @@ Dag::getNode(std::string node_id) {
   else
     return NULL;
 } // end getNode
+
+/**
+ * Get the nodes sorted according to their priority using insertion sort
+ * (output vector must be deleted)
+ */
+std::vector<Node*>&
+Dag::getNodesByPriority() {
+  std::vector<Node*> * sorted_list = new std::vector<Node*>;
+  Node * n1 = NULL;
+  TRACE_TEXT (TRACE_ALL_STEPS, "Sorting dag nodes by priority" << endl);
+  for (std::map <std::string, Node *>::iterator p = this->begin();
+       p != this->end();
+       p++) {
+    n1 = (Node*)(p->second);
+    // found where insert the node
+    std::vector<Node*>::iterator p = sorted_list->begin();
+    bool b = false;
+    Node * n2 = NULL;
+    while ((p != sorted_list->end()) && (!b)) {
+      n2 = *p;
+      if (n2->getPriority() < n1->getPriority())
+        b = true;
+      else
+        p++;
+    }
+    sorted_list->insert(p, n1);
+  }
+  return *sorted_list;
+}
 
 /**
  * get all the results
@@ -995,6 +1032,7 @@ Dag::setAsTemp(bool b) {
 
 /**
  * get the estimated makespan of the DAG
+ * @deprecated
  */
 double
 Dag::getEstMakespan() {
@@ -1011,6 +1049,63 @@ Dag::getEstMakespan() {
   return makespan;
 }
 
+/**
+ * get the estimated earliest finish time of the DAG
+ */
+double
+Dag::getEFT() {
+  double EFT = -1;
+  Node * n = NULL;
+  for (map<string, Node*>::iterator p = this->nodes.begin();
+       p != this->nodes.end();
+       ++p) {
+    n = (Node*)(p->second);
+    if ( (n != NULL) &&
+	 (n->getEstCompTime() > EFT) )
+      EFT = n->getEstCompTime();
+  }
+  return EFT;
+}
+
+/**
+ * get the estimated delay of the DAG
+ */
+double
+Dag::getEstDelay() {
+  return this->estDelay;
+}
+
+/**
+ * set the estimated delay of the DAG
+ * (updated by an exit node)
+ * (can be increased or decreased)
+ */
+void
+Dag::setEstDelay(double delay) {
+  this->estDelay = delay;
+  TRACE_TEXT (TRACE_ALL_STEPS, "Updated est. delay on DAG "
+        << this->getId() << " : delay = " << delay << endl);
+}
+
+/**
+ * RECURSIVE
+ * updates the estDelay of node and propagates it to the successors
+ * returns true if propagation worked well (no pb in getting delay info)
+ */
+
+bool
+Dag::updateDelayRec(Node * node, double newDelay) {
+  if ((newDelay > 0) && (newDelay > node->getEstDelay())) {
+    // the node is/will be late compared to the last estimated delay
+    // so the new delay must be propagated to the successors
+    node->setEstDelay(newDelay);
+    for (unsigned int ix=0; ix < node->nextNodesCount(); ix++) {
+      Node * succ = (Node*)(node->getNext(ix));
+      return this->updateDelayRec(succ, newDelay);
+    }
+  } else if (newDelay == 0)  return true;
+  else return false;  // input is incorrect
+}
 
 /**
  * Compare two profiles
