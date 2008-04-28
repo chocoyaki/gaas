@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/04/28 12:16:23  bisnard
+ * timestamps diff not used anymore
+ *
  * Revision 1.1  2008/04/10 08:38:50  bisnard
  * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
  *
@@ -56,13 +59,13 @@ void
 WfCst::open_file(const char * fileName, FILE *& myFile) {
   myFile = fopen(fileName, "r");
   if (!myFile) {
-    cerr << "FATAL ERROR" << endl << "Data file " << fileName << 
+    cerr << "FATAL ERROR" << endl << "Data file " << fileName <<
       " not found" << endl;
     exit(1);
   }
 }
 
-unsigned long 
+unsigned long
 WfCst::readChar(const char * fileName, char * mat, unsigned long mat_size) {
   FILE * myFile;
   open_file(fileName, myFile);
@@ -78,7 +81,7 @@ WfCst::readChar(const char * fileName, char * mat, unsigned long mat_size) {
   fclose(myFile);
   return p;
 }
-unsigned long 
+unsigned long
 WfCst::readShort(const char * fileName, short * mat, unsigned long mat_size) {
   FILE * myFile;
   open_file(fileName, myFile);
@@ -93,7 +96,7 @@ WfCst::readShort(const char * fileName, short * mat, unsigned long mat_size) {
   fclose(myFile);
   return p;
 }
-unsigned long 
+unsigned long
 WfCst::readInt(const char * fileName, int * mat, unsigned long mat_size) {
   FILE * myFile;
   open_file(fileName, myFile);
@@ -287,7 +290,7 @@ WfCst::eval_expr(std::string& expr, int var) {
 }
 
 /**
- * get the diet base type by a string 
+ * get the diet base type by a string
  */
 diet_base_type_t
 getBaseType(const std::string base_type) {
@@ -302,7 +305,7 @@ getBaseType(const std::string base_type) {
   baseTypeMap["DIET_DCOMPLEX"] = DIET_DCOMPLEX;
   baseTypeMap["DIET_BASE_TYPE_COUNT"] = DIET_BASE_TYPE_COUNT;
 
-  map<string, diet_base_type_t>::iterator p = 
+  map<string, diet_base_type_t>::iterator p =
     baseTypeMap.find(base_type);
 
   if (p == baseTypeMap.end()) {
@@ -315,7 +318,7 @@ getBaseType(const std::string base_type) {
 }
 
 /**
- * get the string representation of diet base type  
+ * get the string representation of diet base type
  */
 string
 getBaseTypeStr(const diet_base_type_t base_type) {
@@ -330,7 +333,7 @@ getBaseTypeStr(const diet_base_type_t base_type) {
   baseTypeMapStr[DIET_DCOMPLEX] = "DIET_DCOMPLEX";
   baseTypeMapStr[DIET_BASE_TYPE_COUNT] = "DIET_BASE_TYPE_COUNT";
 
-  map<diet_base_type_t, string>::iterator p = 
+  map<diet_base_type_t, string>::iterator p =
     baseTypeMapStr.find(base_type);
 
   if (p == baseTypeMapStr.end()) {
@@ -343,7 +346,7 @@ getBaseTypeStr(const diet_base_type_t base_type) {
 
 }
 /**
- * get the matrix order by a string 
+ * get the matrix order by a string
  */
 diet_matrix_order_t
 getMatrixOrder(const std::string matrix_order) {
@@ -352,7 +355,7 @@ getMatrixOrder(const std::string matrix_order) {
   matrixOrderMap["DIET_ROW_MAJOR"] = DIET_ROW_MAJOR;
   matrixOrderMap["DIET_MATRIX_ORDER_COUNT"] = DIET_MATRIX_ORDER_COUNT;
 
-  map<string, diet_matrix_order_t>::iterator p = 
+  map<string, diet_matrix_order_t>::iterator p =
     matrixOrderMap.find(matrix_order);
 
   if (p == matrixOrderMap.end()) {
@@ -366,7 +369,7 @@ getMatrixOrder(const std::string matrix_order) {
 }
 
 /**
- * get the string associated to a matrix order 
+ * get the string associated to a matrix order
  */
 std::string
 getMatrixOrderStr(const diet_matrix_order_t matrix_order) {
@@ -375,7 +378,7 @@ getMatrixOrderStr(const diet_matrix_order_t matrix_order) {
   matrixOrderMapStr[DIET_ROW_MAJOR] = "DIET_ROW_MAJOR";
   matrixOrderMapStr[DIET_MATRIX_ORDER_COUNT] = "DIET_MATRIX_ORDER_COUNT";
 
-  map<diet_matrix_order_t, string>::iterator p = 
+  map<diet_matrix_order_t, string>::iterator p =
     matrixOrderMapStr.find(matrix_order);
 
   if (p == matrixOrderMapStr.end()) {
@@ -392,7 +395,7 @@ getMatrixOrderStr(const diet_matrix_order_t matrix_order) {
  * return a list of token composing a string
  * used to read the matrix value
  */
-vector<string> 
+vector<string>
 getStringToken(string str) {
   vector<string> v ;
   string str2(str);
@@ -404,7 +407,7 @@ getStringToken(string str) {
     while (str[ix] == ' ')
       ix++;
 
-    // remove the read token 
+    // remove the read token
     str2 =  str.substr(ix);
     if (str2 == str)
       b = false;
@@ -428,11 +431,4 @@ itoa(long l) {
   char str[128];
   sprintf(str, "%ld", l);
   return string(str);
-}
-
-long int
-WfCst::diff(struct timeval tv, struct timeval beginning,
-	    const long int l) {
-  cout << "difference " << (tv.tv_sec - beginning.tv_sec) - l << endl;
-  return ((tv.tv_sec - beginning.tv_sec) - l);
 }

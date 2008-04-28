@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/04/28 12:16:23  bisnard
+ * timestamps diff not used anymore
+ *
  * Revision 1.1  2008/04/10 08:38:50  bisnard
  * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
  *
@@ -93,17 +96,8 @@ public:
   static long
   eval_expr(std::string& expr, int var = 0);
 
-  static long int
-  diff(struct timeval tv, struct timeval beginning,
-       const long int l);
 private:
 };
-
-typedef enum {
-  WF_SCHED_SIMPLE, 
-  WF_SCHED_EFT, 
-  WF_SCHED_CUSTOM
-} wf_sched_strat_t;
 
 typedef enum {
   ARG_PORT,
@@ -127,33 +121,33 @@ extern omni_mutex debug_log_mutex ;
     debug_log_mutex.lock();                  \
     cout << formatted_text << endl;          \
     debug_log_mutex.unlock();
-#else 
+#else
 #define debug_wf(formatted_text)
 #endif // DEBUG_WF
 
 /***************************************************************/
 
 /**
- * get the diet base type by a string 
+ * get the diet base type by a string
  */
 diet_base_type_t
 getBaseType(const std::string base_type);
 
 /**
- * get the string representation of diet base type  
+ * get the string representation of diet base type
  */
 std::string
 getBaseTypeStr(const diet_base_type_t base_type);
 
 /**
- * get the matrix order by a string 
+ * get the matrix order by a string
  */
 diet_matrix_order_t
 getMatrixOrder(const std::string matrix_order);
 
 
 /**
- * get the string associated to a matrix order 
+ * get the string associated to a matrix order
  */
 std::string
 getMatrixOrderStr(const diet_matrix_order_t matrix_order);
@@ -163,7 +157,7 @@ getMatrixOrderStr(const diet_matrix_order_t matrix_order);
  * return a list of token composing a string
  * used to read the matrix value
  */
-std::vector<std::string> 
+std::vector<std::string>
 getStringToken(std::string str);
 
 
