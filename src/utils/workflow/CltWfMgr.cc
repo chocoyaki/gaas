@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/04/28 12:08:16  bisnard
+ * obsolete init_wf_call
+ * changed constructor for Node (new param wfReqId)
+ *
  * Revision 1.5  2008/04/21 14:31:45  bisnard
  * moved common multiwf routines from derived classes to MultiWfScheduler
  * use wf request identifer instead of dagid to reference client
@@ -106,7 +110,7 @@ CltWfMgr::execNode(const char * node_id, const char * dag_id) {
 } // end execNode
 
 
-CltWfMgr::CltWfMgr() : mySem(0) {
+CltWfMgr::CltWfMgr() : mySem(0), cltWfReqId(0) {
   this->myMA = MasterAgent::_nil();;
   this->myMaDag = MaDag::_nil();;
   this->myWfLogSrv = WfLogSrv::_nil();;
@@ -148,29 +152,29 @@ CltWfMgr::setWfLogSrv(WfLogSrv_var logSrv) {
 /**
  * Init the workflow processing
  */
-Dag *
-CltWfMgr::init_wf_call(diet_wf_desc_t * profile,
-                       corba_pb_desc_seq_t& pbs_seq,
-                       unsigned int& dagSize) {
-  corba_wf_desc_t  * corba_profile = new corba_wf_desc_t;
-  mrsh_wf_desc(corba_profile, profile);
-  TRACE_TEXT (TRACE_ALL_STEPS,
-              "Marshalling the workflow description done" << endl);
-
-  DagWfParser reader(profile->abstract_wf, false);
-  if (! reader.setup())
-    return NULL;
-
-  // create the profile sequence
-  unsigned int len = reader.pbs_list.size();
-  pbs_seq.length(len);
-  for (unsigned int ix=0; ix< len; ix++) {
-    pbs_seq[ix] = reader.pbs_list[ix];
-  }
-
-  dagSize = reader.getDagSize();
-  return reader.getDag();
-} // end init_wf_call
+// Dag *
+// CltWfMgr::init_wf_call(diet_wf_desc_t * profile,
+//                        corba_pb_desc_seq_t& pbs_seq,
+//                        unsigned int& dagSize) {
+//   corba_wf_desc_t  * corba_profile = new corba_wf_desc_t;
+//   mrsh_wf_desc(corba_profile, profile);
+//   TRACE_TEXT (TRACE_ALL_STEPS,
+//               "Marshalling the workflow description done" << endl);
+//
+//   DagWfParser reader(cltWfReqId++,profile->abstract_wf, false);
+//   if (! reader.setup())
+//     return NULL;
+//
+//   // create the profile sequence
+//   unsigned int len = reader.pbs_list.size();
+//   pbs_seq.length(len);
+//   for (unsigned int ix=0; ix< len; ix++) {
+//     pbs_seq[ix] = reader.pbs_list[ix];
+//   }
+//
+//   dagSize = reader.getDagSize();
+//   return reader.getDag();
+// } // end init_wf_call
 
 /**
  * Execute a workflow using the MA DAG.
@@ -184,7 +188,7 @@ CltWfMgr::wf_call_madag(diet_wf_desc_t * profile,
 
   TRACE_TEXT (TRACE_ALL_STEPS,"Calling the MA DAG "<< endl);
 
-  DagWfParser reader(profile->abstract_wf, false);
+  DagWfParser reader(cltWfReqId++, profile->abstract_wf, false);
   if (! reader.setup())
     return XML_MALFORMED;
 

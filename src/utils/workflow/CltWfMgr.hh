@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/04/28 12:08:16  bisnard
+ * obsolete init_wf_call
+ * changed constructor for Node (new param wfReqId)
+ *
  * Revision 1.4  2008/04/21 14:31:45  bisnard
  * moved common multiwf routines from derived classes to MultiWfScheduler
  * use wf request identifer instead of dagid to reference client
@@ -172,15 +176,15 @@ protected:
 
   /**
    * Init the workflow processing
-   *
+   * @deprecated
    * @param profile workflow profile reference
    * @param pbs_seq problem sequence
    * @param dagSize dag node number
    */
-  Dag *
-  init_wf_call(diet_wf_desc_t * profile,
-               corba_pb_desc_seq_t& pbs_seq,
-               unsigned int& dagSize);
+//   Dag *
+//   init_wf_call(diet_wf_desc_t * profile,
+//                corba_pb_desc_seq_t& pbs_seq,
+//                unsigned int& dagSize);
 
   /**
    * Execute a workflow using the MA DAG.
@@ -213,6 +217,12 @@ private:
    * Unique instance reference
    */
   static CltWfMgr * myInstance;
+
+  /**
+   * Local workflow request ID counter
+   * (different from wf request ID on MaDag)
+   */
+  int cltWfReqId;
 
   /**
    * MaDag CORBA object reference
