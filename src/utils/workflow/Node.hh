@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/04/28 12:06:03  bisnard
+ * changed constructor for Node (new param wfReqId)
+ * Node delay at execution: new attr & methods
+ *
  * Revision 1.3  2008/04/21 14:36:59  bisnard
  * use nodeQueue to manage multiwf scheduling
  * use wf request identifer instead of dagid to reference client
@@ -98,13 +102,14 @@ public:
 
   /**
    * The Node default constructor
+   * @param wfReqId    the workflow request id
    * @param id         the node id
    * @param pb_name    the node service name
    * @param last_in    last input parameter in diet profile
    * @param last_inout last inout parameter in diet profile
    * @param last_out   last out parameter in diet profile
    */
-  Node(string id, string pb_name,
+  Node(int wfReqId, string id, string pb_name,
        int last_in, int last_inout, int last_out);
 
   /**
@@ -137,12 +142,6 @@ public:
    */
   int
   getWfReqId();
-
-  /**
-   * Set the workflow request ID
-   */
-  void
-  setWfReqId(int wfReqId);
 
   /**
    * Set the NodeQueue when the node is inserted into it
@@ -185,7 +184,7 @@ public:
   isAnInput();
 
   /**
-   * return true if the node is an input node *
+   * return true if the node is an output node *
    * only the nodes with no next node are considered as dag exit  *
    */
   bool
@@ -403,28 +402,48 @@ public:
    * set the estimated completion time
    */
   void
-  setEstCompTime(const long int est_comp_time);
+  setEstCompTime(double time);
 
   /**
    * get the estimated completion time
    */
-  long int
+  double
   getEstCompTime();
+
+  /**
+   * set the estimated delay
+   */
+  void
+  setEstDelay(double delay);
+
+  /**
+   * get the estimated delay
+   */
+  double
+  getEstDelay();
 
   /**
    * set the real completion time
    */
   void
-  setRealCompTime(const struct timeval& real_comp_time);
+  setRealCompTime(double time);
 
   /**
    * get the real completion time
    */
-  struct timeval
+  double
   getRealCompTime();
 
   /**
-   * get the node mark (used for reordering)
+   * get the real delay (positive) after execution
+   * or 0 if no delay
+   * or -1 if needed timestamps not set
+   */
+  double
+  getRealDelay();
+
+  /**
+   * get the node mark (used for reordering) - OBSOLETE
    * if the node mark is false i.e the node was executed within the
    * predicted time (+delta)
    * otherwise the mark is true
@@ -433,7 +452,7 @@ public:
   getMark();
 
   /**
-   * Set the node mark
+   * Set the node mark - OBSOLETE
    * @param b the new node mark (true if execution time greater than
    * prediction + delta
    */
@@ -530,10 +549,6 @@ protected:
    */
   string myPb;
 
-  /**
-   * Workflow request ID
-   */
-  int wfReqId;
 
   /**
    * NodeQueue ref (used to notify NodeQueue when state changes)
@@ -570,6 +585,11 @@ private:
   /*********************************************************************/
   /* private fields                                                    */
   /*********************************************************************/
+
+  /**
+   * Workflow request ID
+   */
+  int wfReqId;
 
   /**
    * Dag reference
@@ -635,15 +655,19 @@ private:
   unsigned int nextDone;
 
   /**
-   * Estimated completion time in second
-   * (time 0 is the beginning of the execution)
+   * Estimated completion time (absolute time)
    */
-  long int EstCompTime;
+  double estCompTime;
+
+  /**
+   * Estimated delay (in seconds)
+   */
+  double estDelay;
 
   /**
    * Real completion time
    */
-  struct timeval RealCompTime;
+  double realCompTime;
 
   /**
    * the node mark (used for reordering)

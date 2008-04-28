@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/04/28 12:06:03  bisnard
+ * changed constructor for Node (new param wfReqId)
+ * Node delay at execution: new attr & methods
+ *
  * Revision 1.4  2008/04/21 14:36:59  bisnard
  * use nodeQueue to manage multiwf scheduling
  * use wf request identifer instead of dagid to reference client
@@ -174,8 +178,9 @@ RunnableNode::run() {
 /**
  * The Node constructor
  */
-Node::Node(string id, string pb_name,
+Node::Node(int wfReqId, string id, string pb_name,
 	   int last_in, int last_inout, int last_out) {
+  this->wfReqId = wfReqId;
   this->myId = id;
   this->myPb = pb_name;
   this->prevNodes = 0;
@@ -191,7 +196,9 @@ Node::Node(string id, string pb_name,
   this->priority = 0;
   this->myDag = NULL;
   this->myQueue = NULL;
-} // end Node constructir
+  this->realCompTime = -1;
+  this->estCompTime = -1;
+} // end Node constructor
 
 /**
  * Node destructor
@@ -326,13 +333,6 @@ int Node::getWfReqId() {
 }
 
 /**
- * Set the workflow request id associated with the node *
- */
-void Node::setWfReqId(int wfReqId) {
-  this->wfReqId = wfReqId;
-}
-
-/**
  * Set the NodeQueue ref when the node is inserted into it *
  * (This is used to notify the NodeQueue when the node state changes *
  */
@@ -353,6 +353,36 @@ string Node::getPb() {
 void Node::set_pb_desc(diet_profile_t* profile) {
   this->profile = profile;
 } // end set_pb_desc
+
+/**
+ * return the node profile
+ */
+diet_profile_t *
+Node::getProfile() {
+  return this->profile;
+} // end getProfile
+
+
+/**
+ * set the parent Dag reference
+ */
+void
+Node::setDag(Dag * dag) {
+  this->myDag = dag;
+}
+
+/**
+ * get the node Dag reference
+ */
+Dag *
+Node::getDag() {
+  if (this->myDag != NULL)
+    return this->myDag;
+  else {
+    cout << "ERROR: calling getDag() on a node not linked to a dag" << endl;
+    exit(0);
+  }
+}
 
 /****************************************************************************/
 /*                       Predecessor/Successors Mgmt                        */
@@ -681,8 +711,8 @@ Node::getPriority() {
 } // end getPriority
 
 /**
- * get if the node is ready for execution
- * @deprecated
+ * test if the node is ready for execution *
+ * (check the counter of dependencies)
  */
 bool
 Node::isReady() {
@@ -711,7 +741,7 @@ Node::isRunning() {
 } // end isRunning
 
 /**
- * Set node statuc as running *
+ * Set node status as running *
  */
 void
 Node::setAsRunning() {
@@ -732,7 +762,12 @@ Node::isDone() {
  */
 void
 Node::setAsDone() {
+  // update node scheduling info
   this->task_done = true;
+  struct timeval current_time;
+  gettimeofday(&current_time, NULL);
+  this->setRealCompTime(current_time.tv_sec);
+  // notify the successors
   Node * n;
   TRACE_TEXT (TRACE_ALL_STEPS,
               "calling the " << next.size() << " next nodes" << endl);
@@ -788,6 +823,76 @@ SeD_var
 Node::getSeD() {
   return this->chosenServer;
 } // end getSeD
+
+/**
+ * set the estimated completion time
+ */
+void
+Node::setEstCompTime(double time) {
+  this->estCompTime = time;
+} // end setEstCompTime
+
+/**
+ * get the estimated completion time
+ */
+double
+Node::getEstCompTime() {
+  return this->estCompTime;
+} // end getEstCompTime
+
+/**
+ * set the estimated delay
+ * (can be increased or decreased)
+ */
+void
+Node::setEstDelay(double delay) {
+  // if this is an exit node then eventually updates the dag delay
+  if (this->isAnExit()
+      && (delay > this->estDelay)
+      && (this->getDag() != NULL)) {
+    this->getDag()->setEstDelay(delay);
+  }
+  this->estDelay = delay;
+  TRACE_TEXT (TRACE_ALL_STEPS, "Updated est./real delay on node "
+        << this->getCompleteId() << " : delay = " << delay << endl);
+}
+
+/**
+ * get the estimated delay
+ */
+double
+Node::getEstDelay() {
+  return this->estDelay;
+}
+
+/**
+ * set the real completion time
+ */
+void
+Node::setRealCompTime(double time) {
+  this->realCompTime = time;
+} // end setRealCompTime
+
+/**
+ * get the real completion time
+ */
+double
+Node::getRealCompTime() {
+  return this->realCompTime;
+} // end getRealCompTime
+
+/**
+ * get the real delay (positive) or 0 if no delay
+ * or -1 if needed timestamps not set
+ */
+double
+Node::getRealDelay() {
+  if ((this->realCompTime != -1) && (this->estCompTime != -1)) {
+    double delay = this->realCompTime - this->estCompTime;
+    if (delay > 0) return delay;
+    else return 0;
+  } else return -1;
+}
 
 /****************************************************************************/
 /*                       Ports & Profile Mgmt                               */
@@ -1271,25 +1376,25 @@ void
 Node::done() {
   // nodeIsDone(myId.c_str(), this->myDag->getId().c_str());
   // get the current time and set the real time variable
-  struct timeval tv;
-  gettimeofday(&tv, NULL);
-  this->setRealCompTime(tv);
-
-  TRACE_TEXT (TRACE_ALL_STEPS,
-	      "The node terminate, the estimate completion time is " <<
-	      EstCompTime << " and the real completion time is " <<
-	      RealCompTime.tv_sec << endl);
-
-  Node * n = NULL;
-  TRACE_TEXT (TRACE_ALL_STEPS,
-	      "calling the " << next.size() << " next nodes" << endl);
-  for (uint ix=0; ix< next.size(); ix++) {
-    n = next[ix];
-    n->prevNodeHasDone();
-  }
+//   struct timeval tv;
+//   gettimeofday(&tv, NULL);
+//   this->setRealCompTime(tv.tv_sec);
+//
+//   TRACE_TEXT (TRACE_ALL_STEPS,
+// 	      "The node terminate, the estimate completion time is " <<
+// 	      estCompTime << " and the real completion time is " <<
+// 	      realCompTime << endl);
+//
+//   Node * n = NULL;
+//   TRACE_TEXT (TRACE_ALL_STEPS,
+// 	      "calling the " << next.size() << " next nodes" << endl);
+//   for (uint ix=0; ix< next.size(); ix++) {
+//     n = next[ix];
+//     n->prevNodeHasDone();
+//   }
   TRACE_TEXT (TRACE_ALL_STEPS,
 	      "calling the " << myPrevNodes.size() << " previous nodes" << endl);
-  n = NULL;
+  Node * n = NULL;
   for (map<string, Node*>::iterator p = myPrevNodes.begin();
        p != myPrevNodes.end();
        ++p) {
@@ -1329,38 +1434,6 @@ Node::nextIsDone() {
 } // end nextIsDone
 
 /**
- * set the estimated completion time
- */
-void
-Node::setEstCompTime(const long int est_comp_time) {
-  this->EstCompTime = est_comp_time;
-} // end setEstCompTime
-
-/**
- * get the estimated completion time
- */
-long int
-Node::getEstCompTime() {
-  return this->EstCompTime;
-} // end getEstCompTime
-
-/**
- * set the real completion time
- */
-void
-Node::setRealCompTime(const struct timeval& real_comp_time) {
-  this->RealCompTime = real_comp_time;
-} // end setRealCompTime
-
-/**
- * get the real completion time
- */
-struct timeval
-Node::getRealCompTime() {
-  return this->RealCompTime;
-} // end getRealCompTime
-
-/**
  * get the node mark (used for reordering)
  */
 bool
@@ -1376,35 +1449,7 @@ Node::setMark(bool b) {
   this->myMark = b;
 } // end setMark
 
-/**
- * return the node profile
- */
-diet_profile_t *
-Node::getProfile() {
-  return this->profile;
-} // end getProfile
 
-
-/**
- * set the parent Dag reference
- */
-void
-Node::setDag(Dag * dag) {
-  this->myDag = dag;
-}
-
-/**
- * get the node Dag reference
- */
-Dag *
-Node::getDag() {
-  if (this->myDag != NULL)
-    return this->myDag;
-  else {
-    cout << "ERROR: calling getDag() on a node not linked to a dag" << endl;
-    exit(0);
-  }
-}
 
 /**
  * set the node tag value *
