@@ -70,7 +70,9 @@ char* AdvancedDagdaComponent::sendData(const char* ID, Dagda_ptr dest) {
 void AdvancedDagdaComponent::lclAddData(Dagda_ptr src, const corba_data_t& data) {
   try {
     SimpleDagdaImpl::lclAddData(src, data);
-	registerTime[string(data.desc.id.idNumber)]=clock();
+	setRegisterTime(data.desc.id.idNumber);
+	if (shareFiles && DGD_OBJ_TYPE(data)==DIET_FILE_OBJ)
+	  shareData(data);
   } catch (Dagda::NotEnoughSpace ex) {
 	TRACE_TEXT(TRACE_ALL_STEPS, "Needs more space. Try to call the selected cache "
 	  << "algorithm." << endl);
@@ -90,7 +92,9 @@ void AdvancedDagdaComponent::lclAddData(Dagda_ptr src, const corba_data_t& data)
 	  if (mngFunction(this, needed, DGD_OBJ_TYPE(data)))
 	    throw Dagda::NotEnoughSpace(ex.available);
 	  SimpleDagdaImpl::lclAddData(src, data);
-	  registerTime[string(data.desc.id.idNumber)]=clock();
+	  setRegisterTime(data.desc.id.idNumber);
+	  if (shareFiles && DGD_OBJ_TYPE(data)==DIET_FILE_OBJ)
+	    shareData(data);
 	} else
 	  throw Dagda::NotEnoughSpace(ex.available);
   }
@@ -109,19 +113,23 @@ void AdvancedDagdaComponent::registerFile(const corba_data_t& data) {
 }
 
 corba_data_t* AdvancedDagdaComponent::getData(const char* dataID) {
-  lastUsageTime[string(dataID)]=clock();
-  nbUsage[string(dataID)]++;
+  string id(dataID);
+
+  setUsageTime(id);
+  incNbUsage(dataID);
+
   return SimpleDagdaImpl::getData(dataID);
 }
 
 Dagda_ptr AdvancedDagdaComponent::getBestSource(Dagda_ptr dest, const char* dataID) {
   SeqDagda_t* managers = pfmGetDataManagers(dataID);
-  TRACE_TEXT(TRACE_ALL_STEPS, "Data " << dataID << " has " <<
-             managers->length() << " replica(s) on the platform." << endl);
+
   if (managers->length()==0)
     throw Dagda::DataNotFound(dataID);
-  
+
   if (stats!=NULL) {
+    TRACE_TEXT(TRACE_ALL_STEPS, "Data " << dataID << " has " <<
+             managers->length() << " replica(s) on the platform." << endl);
     double maxStat=0;
 	Dagda_ptr found = (*managers)[0];
 
@@ -135,24 +143,82 @@ Dagda_ptr AdvancedDagdaComponent::getBestSource(Dagda_ptr dest, const char* data
     }
 	return found;
   }
-  
+
   return SimpleDagdaImpl::getBestSource(dest, dataID);
 }
 
-time_t AdvancedDagdaComponent::getRegisterTime(const char* dataID) {
-  if (registerTime.find(dataID)==registerTime.end())
-    return clock();
-  return registerTime[dataID];
+clock_t AdvancedDagdaComponent::getRegisterTime(const char* dataID) {
+  registerMutex.lock();
+  clock_t ret = clock();
+  if (registerTime.find(dataID)!=registerTime.end())
+    ret = registerTime[dataID];
+  registerMutex.unlock();
+  return ret;
 }
 
-time_t AdvancedDagdaComponent::getLastUsageTime(const char* dataID) {
-  if (lastUsageTime.find(dataID)==lastUsageTime.end())
-    return clock();
-  return lastUsageTime[dataID];
+void AdvancedDagdaComponent::setRegisterTime(const char* dataID, clock_t time) {
+  registerMutex.lock();
+  registerTime[dataID] = time;
+  registerMutex.unlock();
+}
+
+void AdvancedDagdaComponent::setRegisterTime(const char* dataID) {
+  setRegisterTime(dataID, clock());
+}
+
+clock_t AdvancedDagdaComponent::getLastUsageTime(const char* dataID) {
+  lastUsageMutex.lock();
+  clock_t ret = clock();
+  if (lastUsageTime.find(dataID)!=lastUsageTime.end()) {
+    ret = lastUsageTime[dataID];
+  }
+  lastUsageMutex.unlock();
+  return ret;
+}
+
+void AdvancedDagdaComponent::setUsageTime(string id, clock_t time) {
+  lastUsageMutex.lock();
+  lastUsageTime[id] = time;
+  lastUsageMutex.unlock();
+}
+
+void AdvancedDagdaComponent::setUsageTime(string id) {
+  setUsageTime(id, clock());
 }
 
 unsigned long AdvancedDagdaComponent::getNbUsage(const char* dataID) {
-  if (nbUsage.find(dataID)==nbUsage.end())
-    return 0;
-  return nbUsage[dataID];
+  nbUsageMutex.lock();
+  unsigned long ret = 0;
+  if (nbUsage.find(dataID)!=nbUsage.end())
+    ret = nbUsage[dataID];
+  nbUsageMutex.unlock();
+  return ret;
+}
+
+void AdvancedDagdaComponent::incNbUsage(const char* dataID) {
+  nbUsageMutex.lock();
+  nbUsage[dataID]++;
+  nbUsageMutex.unlock();
+}
+
+void AdvancedDagdaComponent::shareData(const corba_data_t& data) {
+  std::map<string,Dagda_ptr>::iterator itch;
+  
+  childrenMutex.lock();
+  for (itch=getChildren()->begin();itch!=getChildren()->end();)
+    try {
+      (*itch).second->registerFile(data);
+	  itch++;
+    } catch (CORBA::COMM_FAILURE& e1) {
+	  getChildren()->erase(itch++);
+    } catch (CORBA::TRANSIENT& e2) {
+      getChildren()->erase(itch++);
+    } catch (Dagda::InvalidPathName& e3) {
+	  WARNING("Fail to share the file \"" << e3.path << "\" (invalid path name) on " <<
+			  (*itch).second->getID() << " data manager.");
+	} catch (Dagda::UnreachableFile& e4) {
+	  WARNING("File \"" << e4.path << "\" is unreachable on " << (*itch).second->getID() <<
+	          " data manager.");
+	}
+  childrenMutex.unlock();
 }

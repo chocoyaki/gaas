@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.33  2008/04/28 07:08:31  glemahec
+ * The DAGDA API.
+ *
  * Revision 1.32  2008/04/22 08:24:02  glemahec
  * Cache replacement algorithms for DAGDA + Shared file management.
  *
@@ -237,6 +240,7 @@ public:
 	  MAXDISKSPACE,
 	  MAXMEMSPACE,
 	  CACHEALGORITHM,
+	  SHAREFILES,
 #endif // HAVE_DAGDA
 #if HAVE_DAGDA || HAVE_ALT_BATCH
 	  STORAGEDIR,

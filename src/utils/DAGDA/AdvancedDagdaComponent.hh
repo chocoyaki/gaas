@@ -18,6 +18,7 @@
 #include "NetworkStats.hh"
 
 #include <map>
+#include <string>
 
 #include <ctime>
 
@@ -32,17 +33,51 @@ typedef int (*managementFunc)(AdvancedDagdaComponent* manager, size_t needed,
 class AdvancedDagdaComponent : public SimpleDagdaImpl {
 private:
   managementFunc mngFunction;
-  std::map<std::string, time_t> registerTime;
-  std::map<std::string, time_t> lastUsageTime;
+  std::map<std::string, clock_t> registerTime;
+  std::map<std::string, clock_t> lastUsageTime;
   std::map<std::string, unsigned long> nbUsage;
+  omni_mutex registerMutex;
+  omni_mutex lastUsageMutex;
+  omni_mutex nbUsageMutex;
   NetworkStats* stats;
+  bool shareFiles;
 public:
-  AdvancedDagdaComponent(dagda_manager_type_t t) : SimpleDagdaImpl(t), mngFunction(NULL) {}
-  AdvancedDagdaComponent(dagda_manager_type_t t, managementFunc function) :
-    SimpleDagdaImpl(t), mngFunction(function) {};
-  AdvancedDagdaComponent(dagda_manager_type_t t, managementFunc function,
-    NetworkStats* stats) : SimpleDagdaImpl(t), mngFunction(function), stats(stats) {};
+  AdvancedDagdaComponent(dagda_manager_type_t t) :
+    SimpleDagdaImpl(t), mngFunction(NULL), lastUsageTime(),
+	registerTime(), nbUsage(), stats(NULL), shareFiles(false) {}
 	
+  AdvancedDagdaComponent(dagda_manager_type_t t, managementFunc function) :
+    SimpleDagdaImpl(t), mngFunction(function), lastUsageTime(),
+	registerTime(), nbUsage(), stats(NULL), shareFiles(false) {}
+	
+  AdvancedDagdaComponent(dagda_manager_type_t t, managementFunc function,
+    NetworkStats* stats) :
+	SimpleDagdaImpl(t), mngFunction(function), lastUsageTime(),
+	registerTime(), nbUsage(), stats(stats), shareFiles(false) {}
+	
+  AdvancedDagdaComponent(dagda_manager_type_t t, NetworkStats* stats) :
+    SimpleDagdaImpl(t), mngFunction(NULL), lastUsageTime(),
+	registerTime(), nbUsage(), stats(stats), shareFiles(false) {}
+
+  // With file sharing.
+  AdvancedDagdaComponent(dagda_manager_type_t t, bool shareFiles) :
+    SimpleDagdaImpl(t), mngFunction(NULL), lastUsageTime(),
+	registerTime(), nbUsage(), stats(NULL), shareFiles(shareFiles) {}
+	
+  AdvancedDagdaComponent(dagda_manager_type_t t, managementFunc function, bool shareFiles) :
+    SimpleDagdaImpl(t), mngFunction(function), lastUsageTime(),
+	registerTime(), nbUsage(), stats(NULL), shareFiles(shareFiles) {}
+	
+  AdvancedDagdaComponent(dagda_manager_type_t t, managementFunc function,
+    NetworkStats* stats, bool shareFiles) :
+	SimpleDagdaImpl(t), mngFunction(function), lastUsageTime(),
+	registerTime(), nbUsage(), stats(stats), shareFiles(shareFiles) {}
+	
+  AdvancedDagdaComponent(dagda_manager_type_t t, NetworkStats* stats, bool shareFiles) :
+    SimpleDagdaImpl(t), mngFunction(NULL), lastUsageTime(),
+	registerTime(), nbUsage(), stats(stats), shareFiles(shareFiles) {}
+
+
   virtual char* sendFile(const corba_data_t &data, Dagda_ptr dest);
   virtual char* sendData(const char* ID, Dagda_ptr dest);
 
@@ -53,8 +88,15 @@ public:
 
   virtual Dagda_ptr getBestSource(Dagda_ptr dest, const char* dataID);
   
-  virtual time_t getRegisterTime(const char* dataID);
-  virtual time_t getLastUsageTime(const char* dataID);
+  virtual clock_t getRegisterTime(const char* dataID);
+  virtual clock_t getLastUsageTime(const char* dataID);
   virtual unsigned long getNbUsage(const char* dataID);
+  
+  virtual void setRegisterTime(const char* dataID, clock_t time);
+  virtual void setRegisterTime(const char* dataID);
+  virtual void setUsageTime(std::string id, clock_t time);
+  virtual void setUsageTime(std::string id);
+  virtual void incNbUsage(const char* dataID);
+  virtual void shareData(const corba_data_t& data);
 };
 #endif

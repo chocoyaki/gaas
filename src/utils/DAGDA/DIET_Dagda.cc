@@ -12,7 +12,23 @@
 ************************************************************/
 #include "DIET_Dagda.hh"
 #include "DagdaFactory.hh"
+
+#include "MasterAgent.hh"
+#include "ORBMgr.hh"
+#include "Parsers.hh"
+#include "marshalling.hh"
+#include <omniORB4/CORBA.h>
+#include "debug.hh"
+
 #include <string>
+#include <sstream>
+
+#if HAVE_ADVANCED_UUID
+#include <uuid/uuid.h>
+#endif
+
+#define BEGIN_API extern "C" {
+#define END_API   } // extern "C"
 
 using namespace std;
 
@@ -99,7 +115,6 @@ void dagda_mrsh_profile(corba_profile_t* corba_profile, diet_profile_t* profile,
 	// The data is on the platform. Set its description.
 	if (haveID)
 	  corba_profile->parameters[i].desc=data.desc;
-	//corba_profile->parameters[i].desc.dataManager=CORBA::string_dup(dataManagerIOR);
   }
 }
 
@@ -329,15 +344,193 @@ void dagda_upload_data(diet_profile_t& profile, corba_profile_t& pb) {
 
     if (manager->pfmIsDataPresent(data.desc.id.idNumber))
 	  manager->pfmUpdateData(manager->_this(), data);
-
-/*	cout << "l." << __LINE__ << " file: " << __FILE__ << endl;
-	cout << "IOR origine = " << endl << origIOR << endl;
-	cout << "profile.clientIOR = " << endl << pb.clientIOR << endl;
-	cout << "profile.parameters[" << i << "].desc.dataManager = " << endl <<
-	  pb.parameters[i].desc.dataManager << endl;
-	cout << " clientIOR =? param.dM : " << (strcmp(pb.clientIOR, pb.parameters[i].desc.dataManager) ? "non":"oui") << endl;
-	cout << " origIOR =? param.dM : " <<  (strcmp(origIOR.c_str(), pb.parameters[i].desc.dataManager) ? "non":"oui") << endl;
-	cout << " clientIOR =? origIOR : " << (strcmp(origIOR.c_str(), pb.clientIOR) ? "non":"oui") << endl;*/
   }
 }
 
+Dagda_var entryPoint = NULL;
+
+char * get_data_id()
+{
+#if ! HAVE_ADVANCED_UUID
+  static int num_data = 0;
+  ostringstream id;
+  char* name =
+    (char*) Parsers::Results::getParamValue(Parsers::Results::NAME);
+	
+  if (name!=NULL)
+    id << "DAGDA://id." << name << "." << getpid() << "." << num_data++;
+  else
+    id << "DAGDA://id." << "client." << getpid() << "." << num_data++;
+  
+  return CORBA::string_dup(id.str().c_str());
+#else
+  uuid_t uuid;
+  char ID[37];
+  ostringstream id;
+  char* name =
+    (char*) Parsers::Results::getParamValue(Parsers::Results::NAME);
+
+  uuid_generate(uuid);
+  uuid_unparse(uuid, ID);
+
+  if (name!=NULL)
+    id << "DAGDA://id-" << ID << "-" << name;
+  else
+    id << "DAGDA://id-" << ID << "-client-" << getpid();
+
+  return CORBA::string_dup(id.str().c_str());
+#endif
+}
+
+Dagda_var getEntryPoint() {
+  if (entryPoint!=NULL) return entryPoint;
+  
+  SimpleDagdaImpl* localManager = (SimpleDagdaImpl*) DagdaFactory::getDataManager();
+  Dagda_var manager;
+
+  if (localManager->getType()==DGD_CLIENT_MNGR) {
+    char* MA_name =
+      (char*) Parsers::Results::getParamValue(Parsers::Results::MANAME);
+    MasterAgent_var MA = MasterAgent::_narrow(ORBMgr::getObjReference(ORBMgr::AGENT, MA_name));
+    if (CORBA::is_nil(MA)) {
+      //ERROR("cannot locate Master Agent " << MA_name, 1);
+    }
+    manager = MA->getDataManager();
+    entryPoint = manager;
+    return entryPoint;
+  } else return NULL;
+}
+
+size_t corba_data_init(corba_data_t& data, diet_data_type_t type,
+	diet_base_type_t base_type, diet_persistence_mode_t mode,
+	size_t nb_r, size_t nb_c, diet_matrix_order_t order, void* value, char* path) {
+  diet_data_t diet_data;
+  DagdaImpl*  manager = DagdaFactory::getDataManager();
+  
+  if (mode==DIET_VOLATILE) {
+    WARNING("Trying to add a volatile data to DAGDA... The data is " <<
+	  "will be persistent.");
+	mode=DIET_PERSISTENT;
+  }
+  char* dataManagerIOR = ORBMgr::getIORString(manager->_this());
+  char* dataID = get_data_id();
+
+  diet_data.desc.id = dataID;
+  diet_data.desc.mode = mode;
+  diet_data.desc.generic.type = type;
+  diet_data.desc.generic.base_type = base_type;
+  
+  switch (type) {
+    case DIET_SCALAR:
+      diet_data.desc.specific.scal.value = value;
+	  break;
+    case DIET_VECTOR:
+	  diet_data.desc.specific.vect.size = nb_c;
+      break;
+    case DIET_MATRIX:
+      diet_data.desc.specific.mat.nb_r = nb_r;
+	  diet_data.desc.specific.mat.nb_c = nb_c;
+	  diet_data.desc.specific.mat.order = order;
+	  break;
+    case DIET_STRING:
+    case DIET_PARAMSTRING:
+      diet_data.desc.specific.pstr.length = strlen((char*) value);
+   	  break;
+    case DIET_FILE:
+      diet_data.desc.specific.file.path = path;
+	  break;
+  }
+  
+  mrsh_data_desc(&data.desc, &diet_data.desc);
+  data.desc.dataManager = CORBA::string_dup(dataManagerIOR);
+  return data_sizeof(&diet_data.desc);
+}
+
+BEGIN_API
+int dagda_add_data(void* value, diet_data_type_t type,
+	diet_base_type_t base_type, diet_persistence_mode_t mode,
+	size_t nb_r, size_t nb_c, diet_matrix_order_t order, char* path, char** ID) {
+  Dagda_var entryPoint = getEntryPoint();
+  DagdaImpl*  manager = DagdaFactory::getDataManager();
+  corba_data_t* inserted;
+
+  corba_data_t data;
+  char* dataID;
+  size_t size = corba_data_init(data, type, base_type,
+	mode, nb_r, nb_c, order, value, path);
+  dataID = data.desc.id.idNumber;
+  manager->addData(data);
+  inserted = manager->getData(dataID);
+  if (value!=NULL)
+    inserted->value.replace(size, size, (CORBA::Char*) value, false);
+
+  manager->unlockData(dataID);
+  
+  if (entryPoint!=NULL) {
+    entryPoint->pfmAddData(manager->_this(), data);
+	// Client side. Don't need to keep the data reference.
+	if (type==DIET_FILE) manager->setDataStatus(dataID, Dagda::notOwner);
+	manager->remData(dataID);
+  }	else {
+    manager->pfmAddData(manager->_this(), data);
+  }
+  if (ID!=NULL)
+    *ID=CORBA::string_dup(dataID);
+  return 0;
+}
+
+int dagda_get_data(char* dataID, void** value, diet_data_type_t type,
+	diet_base_type_t* base_type, size_t* nb_r, size_t* nb_c,
+	diet_matrix_order_t* order, char** path) {
+  Dagda_var entryPoint = getEntryPoint();
+  DagdaImpl*  manager = DagdaFactory::getDataManager();
+  Dagda_ptr src;
+  corba_data_t data;
+  corba_data_t* inserted;
+
+  data.desc.id.idNumber = CORBA::string_dup(dataID);
+  
+  if (entryPoint!=NULL)
+    try {
+	  data.desc = *entryPoint->pfmGetDataDesc(dataID);
+      src = entryPoint->getBestSource(manager->_this(), dataID);
+      manager->lclAddData(src, data);
+	  inserted = manager->getData(dataID);
+    } catch (Dagda::DataNotFound& ex) {
+      return 1;
+    }
+  else
+    try {
+	  data.desc = *manager->pfmGetDataDesc(dataID);
+      src = manager->getBestSource(manager->_this(), dataID);
+      manager->lclAddData(src, data);
+	  inserted = manager->getData(dataID);
+	} catch (Dagda::DataNotFound& ex) {
+      return 1;
+    }
+  if (inserted->desc.specific._d()!=type) {
+    return 1;
+  }
+  if (value!=NULL) *value = inserted->value.get_buffer(false);
+  if (base_type!=NULL) *base_type = (diet_base_type_t) inserted->desc.base_type;
+  switch (type) {
+  case DIET_SCALAR:
+	break;
+  case DIET_VECTOR:
+	if (nb_c!=NULL) *nb_c = inserted->desc.specific.vect().size;
+	break;
+  case DIET_MATRIX:
+	if (nb_r!=NULL) *nb_r = inserted->desc.specific.mat().nb_r;
+	if (nb_c!=NULL) *nb_c = inserted->desc.specific.mat().nb_c;
+	if (order!=NULL) *order = (diet_matrix_order_t) inserted->desc.specific.mat().order;
+	break;
+  case DIET_STRING:
+  case DIET_PARAMSTRING:
+    break;
+  case DIET_FILE:
+    if (path!=NULL) *path = inserted->desc.specific.file().path;
+  }
+  return 0;
+}
+
+END_API

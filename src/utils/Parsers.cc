@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.46  2008/04/28 07:08:31  glemahec
+ * The DAGDA API.
+ *
  * Revision 1.45  2008/04/22 08:24:02  glemahec
  * Cache replacement algorithms for DAGDA + Shared file management.
  *
@@ -203,12 +206,13 @@ Parsers::Results::param_t Parsers::Results::params[] =
    /* [37] */ ,{"maxDiskSpace", 12, Parsers::parseULong, 0, NULL}
    /* [38] */ ,{"maxMemSpace", 11, Parsers::parseULong, 0, NULL}
    /* [39] */ ,{"cacheAlgorithm", 14, Parsers::parseName, 0, NULL}
+   /* [40] */ ,{"shareFiles", 10, Parsers::parseUse, 0, NULL}
 #endif // HAVE_DAGDA
 #if HAVE_DAGDA || HAVE_ALT_BATCH
-   /* [40] */ ,{"storageDirectory", 16, Parsers::parseName, 0, NULL}
+   /* [41] */ ,{"storageDirectory", 16, Parsers::parseName, 0, NULL}
 #endif
 #ifdef HAVE_CCS
-   /* [41] */ ,{"USE_SPECIFIC_SCHEDULING", 23, Parsers::parseName, 0, NULL}
+   /* [42] */ ,{"USE_SPECIFIC_SCHEDULING", 23, Parsers::parseName, 0, NULL}
 #endif
   } ;
 

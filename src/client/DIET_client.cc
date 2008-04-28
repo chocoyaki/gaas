@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.119  2008/04/28 07:08:31  glemahec
+ * The DAGDA API.
+ *
  * Revision 1.118  2008/04/18 13:47:24  glemahec
  * Everything about DAGDA is now in utils/DAGDA directory.
  *
@@ -605,9 +608,11 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   ORBMgr::activate(tmpDataManager);
 #endif // HAVE_DAGDA
 
-
+/* DAGDA needs some parameters later... */
+#if ! HAVE_DAGDA
   /* We do not need the parsing results any more */
   Parsers::endParsing();
+#endif
 
   return 0;
 }

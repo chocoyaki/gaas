@@ -5,6 +5,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.52  2008/04/28 07:08:30  glemahec
+ * The DAGDA API.
+ *
  * Revision 1.51  2008/04/19 09:16:45  ycaniou
  * Check that pathToTmp and pathToNFS exist
  * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
@@ -287,11 +290,11 @@ AgentImpl::linkToLocMgr(LocMgrImpl* locMgr)
 
 #if HAVE_DAGDA
 // Accessors for dataManager.
-void AgentImpl::setDataManager(DagdaImpl* dataManager) {
+void AgentImpl::setDataManager(Dagda_ptr dataManager) {
   this->dataManager=dataManager;
 }
 
-DagdaImpl* AgentImpl::getDataManager() {
+Dagda_ptr AgentImpl::getDataManager() {
   return dataManager;
 }
 #endif // HAVE_DAGDA

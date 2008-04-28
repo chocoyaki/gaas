@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2008/04/28 07:08:28  glemahec
+ * The DAGDA API.
+ *
  * Revision 1.11  2008/04/14 13:44:30  bisnard
  * - Parameter 'used' obsoleted in MultiWfScheduler::submit_wf & submit_pb_set
  *
@@ -52,6 +55,9 @@
 
 #include "Agent.idl"
 
+#ifdef HAVE_DAGDA
+#include "Dagda.idl"
+#endif
 
 interface MasterAgent : Agent {
   

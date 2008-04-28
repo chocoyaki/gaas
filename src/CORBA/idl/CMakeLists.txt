@@ -167,9 +167,14 @@ IF( DIET_BUILD_LIBRARIES )
     LogTypesSK.cc
     LogTypesDynSK.cc 
   )
+  IF( DIET_USE_DAGDA )
+    SET( DagdaLibs IDLDagda )
+  ENDIF( DIET_USE_DAGDA )
+
   TARGET_LINK_LIBRARIES( IDLAgent
     IDLCommon
     ${OMNIORB4_LIBRARIES}
+    ${DagdaLibs}
   )
   INSTALL_TARGETS(/lib/ IDLAgent )
   

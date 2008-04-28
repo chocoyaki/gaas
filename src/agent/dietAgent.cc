@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2008/04/28 07:08:30  glemahec
+ * The DAGDA API.
+ *
  * Revision 1.28  2008/04/07 12:19:13  ycaniou
  * Except for the class Parsers (someone to re-code it? :)
  *   correct "deprecated conversion from string constant to 'char*'" warnings
@@ -357,7 +360,7 @@ main(int argc, char** argv)
   Agt->linkToLocMgr(Loc);
 #else
   ORBMgr::activate(dataManager);
-  Agt->setDataManager(dataManager);
+  Agt->setDataManager(dataManager->_this());
 #endif // ! HAVE_DAGDA
 #endif // ! HAVE_JUXMEM
 

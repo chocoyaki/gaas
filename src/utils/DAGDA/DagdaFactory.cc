@@ -65,16 +65,24 @@ size_t DagdaFactory::defaultMaxMemSpace = 0;
 DagdaImpl* DagdaFactory::createDataManager(dagda_manager_type_t type) {
   char* algorithm = (char*)
     Parsers::Results::getParamValue(Parsers::Results::CACHEALGORITHM);
+  unsigned int* shareFiles = (unsigned int*)
+    Parsers::Results::getParamValue(Parsers::Results::SHAREFILES);
+  bool share;
+  NetworkStats* stats = new AvgNetworkStats();
+
+  if (shareFiles==NULL)
+    share = false;
+  else share = (*shareFiles==1);
   if (algorithm==NULL)
-    return new AdvancedDagdaComponent(type, NULL);
+    return new AdvancedDagdaComponent(type, stats, share);
   if (strcmp(algorithm, "LRU")==0)
-    return new AdvancedDagdaComponent(type, LRU);
+    return new AdvancedDagdaComponent(type, LRU, stats, share);
   if (strcmp(algorithm, "LFU")==0)
-    return new AdvancedDagdaComponent(type, LFU);
+    return new AdvancedDagdaComponent(type, LFU, stats, share);
   if (strcmp(algorithm, "FIFO")==0)
-    return new AdvancedDagdaComponent(type, FIFO);
+    return new AdvancedDagdaComponent(type, FIFO, stats, share);
   WARNING("Warning: " << algorithm << " is not a valid cache management algorithm.");
-  return new AdvancedDagdaComponent(type, NULL);
+  return new AdvancedDagdaComponent(type, stats, share);
 }
 
 const char* DagdaFactory::getStorageDir() {

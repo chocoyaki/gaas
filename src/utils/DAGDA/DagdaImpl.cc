@@ -260,6 +260,12 @@ Dagda::dataStatus DagdaImpl::getDataStatus(const char* dataID) {
   return ret;
 }
 
+void DagdaImpl::setDataStatus(const char* dataID, Dagda::dataStatus status) {
+  dataStatusMutex.lock();
+  (*getDataStatus())[dataID] = status;
+  dataStatusMutex.unlock();
+}
+
 /* CORBA */
 void SimpleDagdaImpl::subscribe(Dagda_ptr me) {
   string name(me->getID());
@@ -437,15 +443,6 @@ char* SimpleDagdaImpl::downloadData(Dagda_ptr src, const corba_data_t& data) {
 // Add a data locally.
 /* CORBA */
 void SimpleDagdaImpl::lclAddData(Dagda_ptr src, const corba_data_t& data) {
-  cout << "l." << __LINE__ << " file: " << __FILE__ << endl;
-//  cout << "data.desc.size = " << data.desc.size << endl;
-  cout << "getDiskMaxSpace = " << getDiskMaxSpace() << endl;
-  cout << "getMemMaxSpace = " << getMemMaxSpace() << endl;
-  cout << "getMaxMsgSize = " << getMaxMsgSize() << endl;
-  cout << "getUsedMemSpace = " << getUsedMemSpace() << endl;
-  cout << "getUsedDiskSpace = " << getUsedDiskSpace() << endl;
-  cout << "data size = " << data_sizeof(&data.desc) << endl;
-  
   TRACE_TEXT(TRACE_ALL_STEPS, "Add the data " << data.desc.id.idNumber
                              << " locally." << endl);
     if (strcmp(src->getID(), getID()) != 0) {
@@ -535,8 +532,7 @@ void SimpleDagdaImpl::pfmRemData(const char* dataID) {
 /* CORBA */
 void SimpleDagdaImpl::lclUpdateData(Dagda_ptr src, const corba_data_t& data) {
   if (strcmp(src->getID(), this->getID())==0) return;
-/*  cout << "l." << __LINE__ << " file: " << __FILE__ << endl;
-  cout << "src->getID = " << src->getID() << " this->getID = " << this->getID() << endl;*/
+
   lclRemData(data.desc.id.idNumber);
   lclAddData(src, data);
 }
@@ -736,6 +732,7 @@ void SimpleDagdaImpl::addData(const corba_data_t& data) {
   TRACE_TEXT(TRACE_ALL_STEPS, "Adding data " << data.desc.id.idNumber << " to this "
 			 << "data manager." << endl);
   dataMutex.lock();
+
   lockData(data.desc.id.idNumber);
   (*getData())[string(data.desc.id.idNumber)]=data;
   (*getData())[string(data.desc.id.idNumber)].desc.dataManager = CORBA::string_dup(dataManager);
@@ -777,7 +774,8 @@ SeqCorbaDataDesc_t* SimpleDagdaImpl::getDataDescList() {
 
 /* CORBA */
 void SimpleDagdaImpl::registerFile(const corba_data_t& data) {
-  //std::InputIterator<corba_data_t> it;
-  // Instable pour l'instant... Remis dans DAGDA v1.2 avec
-  // ajout des mécanismes de déclaration auto pour des groupes de SeDs.
+  /* To be reinitialized as pure virtual... This function has moved on
+	 AdvancedDagdaComponent... */
 }
+
+

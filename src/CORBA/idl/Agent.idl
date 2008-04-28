@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2008/04/28 07:08:28  glemahec
+ * The DAGDA API.
+ *
  * Revision 1.7  2006/05/22 06:32:29  eboix
  *     Reverting to version 1.5 because of compilation error with JXTA mode
  *     on. --- Injay2461
@@ -44,7 +47,9 @@
 #include "response.idl"
 #include "SeD.idl"
 
-
+#ifdef HAVE_DAGDA
+#include "Dagda.idl"
+#endif
 
 /****************************************************************************/
 /* Agent interface                                                          */
@@ -96,7 +101,9 @@ interface Agent {
 
   /** Used to get the host name of the Agent */
   string getHostname() ;
-
+#if HAVE_DAGDA
+  Dagda getDataManager();
+#endif
 };
 
 

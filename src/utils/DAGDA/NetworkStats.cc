@@ -12,6 +12,8 @@
 /***********************************************************/
 #include "NetworkStats.hh"
 
+#include <iostream>
+
 double NetworkStats::getStat(std::string src, std::string dest) {
   if (values.find(src)!=values.end())
     return (values[src])[dest];
@@ -29,11 +31,12 @@ bool AvgNetworkStats::cmpStats(double s1, double s2) {
   return false;
 }
 
-void AvgNetworkStats::addStats(std::string src, std::string dest, double value) {
+void AvgNetworkStats::addStat(std::string src, std::string dest, double value) {
   double currentStat=getStat(src, dest);
   if (currentStat==-1)
     (values[src])[dest]=value;
   else
     (values[src])[dest]+=value;
   (nbStats[src])[dest]++;
+  //
 }

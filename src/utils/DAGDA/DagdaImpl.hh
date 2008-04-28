@@ -29,7 +29,7 @@ typedef enum {DGD_CLIENT_MNGR, DGD_AGENT_MNGR, DGD_SED_MNGR} dagda_manager_type_
 
 class DagdaImpl : public POA_Dagda, public PortableServer::RefCountServantBase {
 public:
-  DagdaImpl() : parent(NULL), ID("NoID"), data() {}
+  DagdaImpl() : parent(NULL), ID("NoID"), data(), children(), dataStatus() {}
   ~DagdaImpl();
 
   /* CORBA part. To be remotely called. */
@@ -79,6 +79,7 @@ public:
   virtual void lockData(const char* dataID);
   virtual void unlockData(const char* dataID);
   virtual Dagda::dataStatus getDataStatus(const char* dataID);
+  virtual void setDataStatus(const char* dataID, Dagda::dataStatus status);
   
   /* Implementation dependent functions. */
   virtual bool isDataPresent(const char* dataID) = 0;
@@ -90,6 +91,7 @@ public:
 		   const char* dataPath, const unsigned long maxMsgSize,
 		   const unsigned long diskMaxSpace,
 		   const unsigned long memMaxSpace) = 0;
+
   // Accessors.
   void setDataPath(const char* path);
   const char* getDataPath();

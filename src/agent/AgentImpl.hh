@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2008/04/28 07:08:30  glemahec
+ * The DAGDA API.
+ *
  * Revision 1.21  2008/04/19 09:16:45  ycaniou
  * Check that pathToTmp and pathToNFS exist
  * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
@@ -136,10 +139,10 @@ public:
   linkToLocMgr(LocMgrImpl* locMgr);
 #else
   void
-  setDataManager(DagdaImpl* dataManager);
+  setDataManager(Dagda_ptr dataManager);
 
-  DagdaImpl*
-  getDataManager();
+  /*DagdaImpl* */
+  Dagda_ptr getDataManager();
 #endif // ! HAVE_DAGDA
 
   /**
@@ -220,7 +223,7 @@ protected:
 #if ! HAVE_DAGDA
   LocMgrImpl* locMgr;
 #else
-  DagdaImpl* dataManager;
+  Dagda_ptr dataManager;
 #endif // ! HAVE_DAGDA
 
   /**************************************************************************/
