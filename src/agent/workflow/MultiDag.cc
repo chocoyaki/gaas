@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/04/28 11:59:02  bisnard
+ * changed constructor for Node (new param wfReqId)
+ *
  * Revision 1.2  2008/04/15 14:20:19  bisnard
  * - Postpone sed mapping until wf node is executed
  *
@@ -29,10 +32,14 @@ using namespace madag;
 
 MultiDag::MultiDag() {
   // create the input and output nodes
-  this->input = new Node("MultiDag_Input", "",
-			 -1, -1, -1);
-  this->output = new Node("MultiDag_Output", "",
-			  -1, -1, -1);
+//   this->input = new Node("MultiDag_Input", "",
+// 			 -1, -1, -1);
+//   this->output = new Node("MultiDag_Output", "",
+// 			  -1, -1, -1);
+  this->input = new Node(0,"MultiDag_Input", "",
+			 -1, -1, -1); // for compatibility
+  this->output = new Node(0,"MultiDag_Output", "",
+			  -1, -1, -1);  // for compatibility
   this->myNodes[this->input->getId()] =  this->input;
   this->myNodes[this->output->getId()] =  this->output;
   this->input->setAsDone();
