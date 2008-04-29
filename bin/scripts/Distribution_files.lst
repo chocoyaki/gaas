@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.23  2008/04/29 08:10:03  rbolze
+#* add/remove files
+#*
 #* Revision 1.22  2008/04/16 07:01:27  ycaniou
 #* Removed utils/batch.[ch] which were used only with USE_BATCH option
 #* Added src/examples/async_client.c
@@ -118,7 +121,6 @@ Cmake/FindJavaExtended.cmake
 Cmake/FindJuxmem.cmake
 Cmake/FindOmniORB.cmake
 Cmake/FindTestingUtils.cmake
-Cmake/FindTransfig.cmake
 Cmake/FindXerces.cmake
 Cmake/xercesv.cc.in
 Cmake/Makefile.inc.in
@@ -154,7 +156,6 @@ src/CORBA/marshalling.cc
 src/CORBA/marshalling.hh
 src/CORBA/idl/Agent.idl
 src/CORBA/idl/Callback.idl
-src/CORBA/idl/CltReoMan.idl
 src/CORBA/idl/Dagda.idl
 src/CORBA/idl/DataMgr.idl
 src/CORBA/idl/LocMgr.idl
@@ -242,8 +243,6 @@ src/agent/workflow/MultiWfFOFT.cc
 src/agent/workflow/MultiWfFOFT.hh
 src/agent/workflow/MultiWfScheduler.cc
 src/agent/workflow/MultiWfScheduler.hh
-src/agent/workflow/RRScheduler.cc
-src/agent/workflow/RRScheduler.hh
 src/agent/workflow/WfScheduler.cc
 src/agent/workflow/WfScheduler.hh
 
@@ -251,28 +250,20 @@ src/agent/workflow/WfScheduler.hh
 [Untemplated]
 src/utils/workflow/CMakeLists.txt
 [Templated]
-src/utils/workflow/AbstractWfSched.cc
-src/utils/workflow/AbstractWfSched.hh
-src/utils/workflow/BasicWfSched.cc
-src/utils/workflow/BasicWfSched.hh
-src/utils/workflow/CltReoMan_impl.cc
-src/utils/workflow/CltReoMan_impl.hh
 src/utils/workflow/CltWfMgr.cc
 src/utils/workflow/CltWfMgr.hh
 src/utils/workflow/Dag.cc
 src/utils/workflow/Dag.hh
-src/utils/workflow/HEFTWfSched.cc
-src/utils/workflow/HEFTWfSched.hh
+src/utils/workflow/DagWfParser.cc
+src/utils/workflow/DagWfParser.hh
 src/utils/workflow/Node.cc
 src/utils/workflow/Node.hh
-src/utils/workflow/SeDSynchro.cc
-src/utils/workflow/SeDSynchro.hh
+src/utils/workflow/NodeQueue.cc
+src/utils/workflow/NodeQueue.hh
 src/utils/workflow/Thread.cc
 src/utils/workflow/Thread.hh
 src/utils/workflow/WfConfig.cc
 src/utils/workflow/WfConfig.hh
-src/utils/workflow/WfParser.cc
-src/utils/workflow/WfParser.hh
 src/utils/workflow/WfPort.cc
 src/utils/workflow/WfPort.hh
 src/utils/workflow/WfUtils.cc
@@ -431,10 +422,10 @@ src/utils/CMakeLists.txt
 [Templated]
 src/utils/AccessController.cc
 src/utils/AccessController.hh
+src/utils/batch.c
+src/utils/batch.h
 src/utils/CORIMgr.cc
 src/utils/CORIMgr.hh
-src/utils/CltReoMan_impl.cc
-src/utils/CltReoMan_impl.hh
 src/utils/Cori_batch.cc
 src/utils/Cori_batch.hh
 src/utils/Cori_Data_Easy.cc
@@ -520,10 +511,20 @@ src/utils/ts_container/ts_vector.hh
 [Untemplated]
 src/utils/DAGDA/CMakeLists.txt
 [Templated]
+src/utils/DAGDA/AdvancedDagdaComponent.cc
+src/utils/DAGDA/AdvancedDagdaComponent.hh
 src/utils/DAGDA/DagdaFactory.cc
 src/utils/DAGDA/DagdaFactory.hh
 src/utils/DAGDA/DagdaImpl.cc
 src/utils/DAGDA/DagdaImpl.hh
+src/utils/DAGDA/CacheAlgorithms.cc
+src/utils/DAGDA/CacheAlgorithms.hh
+src/utils/DAGDA/DIET_Dagda.cc
+src/utils/DAGDA/DIET_Dagda.h
+src/utils/DAGDA/DIET_Dagda.hh
+src/utils/DAGDA/NetworkStats.cc
+src/utils/DAGDA/NetworkStats.hh
+
 
 # lib section
 [Untemplated]
