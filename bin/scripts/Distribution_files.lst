@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.24  2008/04/29 22:28:29  glemahec
+#* Distribution_files.lst update.
+#*
 #* Revision 1.23  2008/04/29 08:10:03  rbolze
 #* add/remove files
 #*
@@ -524,7 +527,8 @@ src/utils/DAGDA/DIET_Dagda.h
 src/utils/DAGDA/DIET_Dagda.hh
 src/utils/DAGDA/NetworkStats.cc
 src/utils/DAGDA/NetworkStats.hh
-
+src/utils/DAGDA/DagdaCatalog.cc
+src/utils/DAGDA/DagdaCatalog.hh
 
 # lib section
 [Untemplated]
