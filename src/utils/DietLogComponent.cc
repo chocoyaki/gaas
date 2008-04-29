@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2008/04/29 06:27:50  rbolze
+ * propagate the new estimation tag : EST_NUMWAITINGJOBS
+ *
  * Revision 1.28  2007/08/31 16:52:26  bdepardo
  * Implemented the new test() method in LogCentralComponent.
  * Used to check whether or not a component is reachable.
@@ -458,70 +461,73 @@ char*
 DietLogComponent::getEstimationTags(const int v_tag){
 	char* ret;
 	switch(v_tag){
-		case(EST_INVALID):
+		case(EST_INVALID): // -1
 		ret = strdup("EST_INVALID");
 		break;
-		case(EST_TOTALTIME):
+		case(EST_TOTALTIME): // 1
 		ret = strdup("EST_TOTALTIME");
 	        break;
-		case(EST_COMMTIME):
+		case(EST_COMMTIME): // 2
 		ret = strdup("EST_COMMTIME");
 	        break;
-		case(EST_TCOMP):
+		case(EST_TCOMP): // 3
 		ret = strdup("EST_TCOMP");
 	        break;
-	        case(EST_TIMESINCELASTSOLVE):
+	        case(EST_TIMESINCELASTSOLVE): // 4
 		ret = strdup("EST_TIMESINCELASTSOLVE");
 	        break;		
-	        case(EST_COMMPROXIMITY):
+	        case(EST_COMMPROXIMITY): // 5
 		ret = strdup("EST_COMMPROXIMITY");
 	        break;
-	        case(EST_TRANSFEREFFORT):
+	        case(EST_TRANSFEREFFORT): // 6
 		ret = strdup("EST_TRANSFEREFFORT");
 	        break;
-	        case(EST_FREECPU):
+	        case(EST_FREECPU): // 7
 		ret = strdup("EST_FREECPU");
 	        break;
-		case(EST_FREEMEM):
+		case(EST_FREEMEM): // 8
 		ret = strdup("EST_FREEMEM");
 	        break;
-		case(EST_NBCPU):
+		case(EST_NBCPU): // 9
 		ret = strdup("EST_NBCPU");
 	        break;
-		case(EST_CPUSPEED):
+		case(EST_CPUSPEED): // 10
 		ret = strdup("EST_CPUSPEED");
 	        break;
-		case(EST_TOTALMEM):
+		case(EST_TOTALMEM): // 11
 		ret = strdup("EST_TOTALMEM");
 	        break;
-		case(EST_AVGFREEMEM):
+		case(EST_AVGFREEMEM): // 12
 		ret = strdup("EST_AVGFREEMEM");
 	        break;
-		case(EST_AVGFREECPU):
+		case(EST_AVGFREECPU): // 13
 		ret = strdup("EST_AVGFREECPU");
 	        break;
-		case(EST_BOGOMIPS):
+		case(EST_BOGOMIPS): // 14
 		ret = strdup("EST_BOGOMIPS");
 	        break;
-		case(EST_CACHECPU):
+		case(EST_CACHECPU): // 15
 		ret = strdup("EST_CACHECPU");
 	        break;
-		case(EST_TOTALSIZEDISK):
+		case(EST_TOTALSIZEDISK): // 16
 		ret = strdup("EST_TOTALSIZEDISK");
 	        break;
-		case(EST_FREESIZEDISK):
+		case(EST_FREESIZEDISK): // 17
 		ret = strdup("EST_FREESIZEDISK");
 	        break;
-		case(EST_DISKACCESREAD):
+		case(EST_DISKACCESREAD): // 18
 		ret = strdup("EST_DISKACCESREAD");
 	        break;
-		case(EST_DISKACCESWRITE):
+		case(EST_DISKACCESWRITE): // 19
 		ret = strdup("EST_DISKACCESWRITE");
 	        break;
-		case(EST_ALLINFOS):
+		case(EST_ALLINFOS): // 20
 		ret = strdup("EST_ALLINFOS");
 	        break;
-		case(EST_USERDEFINED):
+		case(EST_NUMWAITINGJOBS): // 21
+		ret = strdup("EST_NUMWAITINGJOBS");
+	        break;
+		case(EST_USERDEFINED): // 22
 		ret = strdup("EST_USERDEFINED");
 	        break;
 		default:
