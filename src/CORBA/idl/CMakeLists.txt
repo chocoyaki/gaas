@@ -134,8 +134,8 @@ IF( DIET_BUILD_LIBRARIES )
       responseSK.cc
       SeDSK.cc
       SeDDynSK.cc
-      CltReoManSK.cc
-      CltReoManDynSK.cc
+      CltManSK.cc
+      CltManDynSK.cc
     )
   ELSE ( DIET_USE_WORKFLOW )
     ADD_LIBRARY( IDLCommon
@@ -218,8 +218,6 @@ IF( DIET_BUILD_LIBRARIES )
     WfLogSrvDynSK.cc
     CltManSK.cc
     CltManDynSK.cc
-    CltReoManSK.cc
-    CltReoManDynSK.cc
     )
   
 
