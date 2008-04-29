@@ -17,6 +17,7 @@
 
 #include "Dagda.hh"
 #include "common_types.hh"
+#include "DIET_data.h"
 
 #include <unistd.h>
 
@@ -24,6 +25,7 @@
 #include <map>
 #include <iterator>
 #include <sstream>
+#include <fstream>
 
 typedef enum {DGD_CLIENT_MNGR, DGD_AGENT_MNGR, DGD_SED_MNGR} dagda_manager_type_t;
 
@@ -131,7 +133,18 @@ public:
   void setParent(Dagda_ptr parent) { this->parent = parent; }
   void setID(char* ID) { this->ID = ID; }
   char* getID() { return CORBA::string_dup(this->ID); } // CORBA
+  std::string getStateFile() { return stateFile; }
+  void setStateFile(std::string path) { stateFile=path; }
+  void saveState();
+  void restoreState();
+  void checkpointState();
 private:
+  size_t make_corba_data(corba_data_t& data, diet_data_type_t type,
+	diet_base_type_t base_type, diet_persistence_mode_t mode,
+	size_t nb_r, size_t nb_c, diet_matrix_order_t order, void* value, char* path);
+  int writeDataDesc(corba_data_t& data, std::ofstream& file);
+  int writeData(corba_data_t& data, std::ofstream& file);
+  int readData(corba_data_t& data, std::ifstream& file);
   char* ID;
   char* hostname;
   size_t maxMsgSize;
@@ -144,6 +157,7 @@ private:
   std::map<std::string, Dagda_ptr> children;
   std::map<std::string, corba_data_t> data;
   std::map<std::string, Dagda::dataStatus> dataStatus;
+  std::string stateFile;
 protected:
   omni_mutex dataMutex;
   omni_mutex dataStatusMutex;

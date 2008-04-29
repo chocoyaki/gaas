@@ -10,6 +10,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2008/04/29 22:22:02  glemahec
+ * DAGDA improvements :
+ *   - Asynchronous API.
+ *   - Data ID alias managing.
+ *   - Data manager state backup and restore.
+ *
  * Revision 1.17  2008/04/14 13:44:29  bisnard
  * - Parameter 'used' obsoleted in MultiWfScheduler::submit_wf & submit_pb_set
  *
@@ -85,6 +91,10 @@
 #include "KeyString.hh"
 #include "ts_container/ts_set.hh"
 class FloodRequestsList ;
+#endif
+
+#if HAVE_DAGDA
+#include "DagdaCatalog.hh"
 #endif
 
 class MasterAgentImpl : public POA_MasterAgent, public AgentImpl
@@ -204,6 +214,10 @@ public :
           CORBA::Long& seqReqId);
 
 #endif // HAVE_WORKFLOW
+#if HAVE_DAGDA
+  SeqString* searchData(const char* request);
+  long insertData(const char* key, const SeqString& values);
+#endif
 
 private :
   /** ID of next incoming request. */
@@ -225,7 +239,9 @@ private :
 #endif // HAVE_MULTI_MA
   void
   cp_arg_to_pb(corba_data_desc_t& pb, corba_data_desc_t arg_desc);
-
+#if HAVE_DAGDA
+  DagdaCatalog* catalog;
+#endif
 }; // MasterAgentImpl
 
 #endif // _MASTERAGENTIMPL_HH_

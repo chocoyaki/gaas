@@ -6,6 +6,7 @@ IF( DIET_BUILD_LIBRARIES )
   SET(DAGDA_SOURCES
     DagdaImpl.cc
     DagdaFactory.cc
+    DagdaCatalog.cc
     CacheAlgorithms.cc
     NetworkStats.cc
     AdvancedDagdaComponent.cc

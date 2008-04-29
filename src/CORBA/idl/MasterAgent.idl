@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2008/04/29 22:22:01  glemahec
+ * DAGDA improvements :
+ *   - Asynchronous API.
+ *   - Data ID alias managing.
+ *   - Data manager state backup and restore.
+ *
  * Revision 1.12  2008/04/28 07:08:28  glemahec
  * The DAGDA API.
  *
@@ -154,6 +160,11 @@ interface MasterAgent : Agent {
                   out long firstReqId,
                   out long seqReqId);
 #endif // HAVE_WORKFLOW
+
+#ifdef HAVE_DAGDA
+  SeqString searchData(in string request);
+  long insertData(in string key, in SeqString values);
+#endif
 };
 
 #endif // _MASTER_AGENT_IDL_

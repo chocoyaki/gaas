@@ -63,26 +63,40 @@ size_t DagdaFactory::defaultMaxDiskSpace = 0;
 size_t DagdaFactory::defaultMaxMemSpace = 0;
 
 DagdaImpl* DagdaFactory::createDataManager(dagda_manager_type_t type) {
+  AdvancedDagdaComponent* result=NULL;
+
   char* algorithm = (char*)
     Parsers::Results::getParamValue(Parsers::Results::CACHEALGORITHM);
   unsigned int* shareFiles = (unsigned int*)
     Parsers::Results::getParamValue(Parsers::Results::SHAREFILES);
   bool share;
+
   NetworkStats* stats = new AvgNetworkStats();
 
   if (shareFiles==NULL)
     share = false;
   else share = (*shareFiles==1);
-  if (algorithm==NULL)
-    return new AdvancedDagdaComponent(type, stats, share);
-  if (strcmp(algorithm, "LRU")==0)
-    return new AdvancedDagdaComponent(type, LRU, stats, share);
-  if (strcmp(algorithm, "LFU")==0)
-    return new AdvancedDagdaComponent(type, LFU, stats, share);
-  if (strcmp(algorithm, "FIFO")==0)
-    return new AdvancedDagdaComponent(type, FIFO, stats, share);
-  WARNING("Warning: " << algorithm << " is not a valid cache management algorithm.");
-  return new AdvancedDagdaComponent(type, stats, share);
+  
+  if (algorithm!=NULL) {
+    if (strcmp(algorithm, "LRU")==0) {
+      result = new AdvancedDagdaComponent(type, LRU, stats, share);
+    }
+    if (strcmp(algorithm, "LFU")==0) {
+      result = new AdvancedDagdaComponent(type, LFU, stats, share);
+    }
+    if (strcmp(algorithm, "FIFO")==0) {
+      result = new AdvancedDagdaComponent(type, FIFO, stats, share);
+    }
+    if (result==NULL) {
+      WARNING("Warning: " << algorithm << " is not a valid (implemented) cache"
+	    << " management algorithm.");
+      result = new AdvancedDagdaComponent(type, stats, share);
+    }
+  } else  {
+    result = new AdvancedDagdaComponent(type, stats, share);
+  }
+
+  return result;
 }
 
 const char* DagdaFactory::getStorageDir() {
@@ -188,6 +202,15 @@ DagdaImpl* DagdaFactory::getClientDataManager() {
 }
 
 DagdaImpl* DagdaFactory::getSeDDataManager() {
+  char* backupFile = (char*)
+    Parsers::Results::getParamValue(Parsers::Results::DATABACKUPFILE);
+  unsigned int* restoreOnStart = (unsigned int*)
+    Parsers::Results::getParamValue(Parsers::Results::RESTOREONSTART);
+  bool restore = false;
+  
+  if (restoreOnStart!=NULL)
+    restore = (*restoreOnStart==1);
+	
   if (sedDataManager == NULL) {
     const char* parentName = getParentName();
 	if (parentName == NULL) {
@@ -201,10 +224,26 @@ DagdaImpl* DagdaFactory::getSeDDataManager() {
 						 getMaxMemSpace());
   }
   localDataManager = sedDataManager;
+
+  if (backupFile!=NULL) {
+    localDataManager->setStateFile(backupFile);
+	if (restore)
+	  localDataManager->restoreState();
+  }
+
   return sedDataManager;
 }
 
 DagdaImpl* DagdaFactory::getAgentDataManager() {
+  char* backupFile = (char*)
+    Parsers::Results::getParamValue(Parsers::Results::DATABACKUPFILE);
+  unsigned int* restoreOnStart = (unsigned int*)
+    Parsers::Results::getParamValue(Parsers::Results::RESTOREONSTART);
+  bool restore = false;
+  
+  if (restoreOnStart!=NULL)
+    restore = (*restoreOnStart==1);
+
   if (agentDataManager == NULL) {
     const char* parentName = getParentName();
 	const char* name = getAgentName();
@@ -212,7 +251,7 @@ DagdaImpl* DagdaFactory::getAgentDataManager() {
 	  WARNING("Agent data manager didn't find a valid name for the agent in the configuration file.");
 	  name = getDefaultName();
 	}
-	cout << "name = " << name << endl;
+	//cout << "name = " << name << endl;
 	agentDataManager = createDataManager(DGD_AGENT_MNGR);
 	
 	agentDataManager->init(name, parentName, getStorageDir(),
@@ -220,6 +259,13 @@ DagdaImpl* DagdaFactory::getAgentDataManager() {
 						   getMaxMemSpace());
   }
   localDataManager = agentDataManager;
+  
+  if (backupFile!=NULL) {
+    localDataManager->setStateFile(backupFile);
+	if (restore)
+	  localDataManager->restoreState();
+  }
+
   return agentDataManager;
 }
 

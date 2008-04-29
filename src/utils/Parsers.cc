@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.47  2008/04/29 22:22:02  glemahec
+ * DAGDA improvements :
+ *   - Asynchronous API.
+ *   - Data ID alias managing.
+ *   - Data manager state backup and restore.
+ *
  * Revision 1.46  2008/04/28 07:08:31  glemahec
  * The DAGDA API.
  *
@@ -207,12 +213,14 @@ Parsers::Results::param_t Parsers::Results::params[] =
    /* [38] */ ,{"maxMemSpace", 11, Parsers::parseULong, 0, NULL}
    /* [39] */ ,{"cacheAlgorithm", 14, Parsers::parseName, 0, NULL}
    /* [40] */ ,{"shareFiles", 10, Parsers::parseUse, 0, NULL}
+   /* [41] */ ,{"dataBackupFile", 14, Parsers::parseName, 0, NULL}
+   /* [42] */ ,{"restoreOnStart", 14, Parsers::parseUse, 0, NULL}
 #endif // HAVE_DAGDA
 #if HAVE_DAGDA || HAVE_ALT_BATCH
-   /* [41] */ ,{"storageDirectory", 16, Parsers::parseName, 0, NULL}
+   /* [43] */ ,{"storageDirectory", 16, Parsers::parseName, 0, NULL}
 #endif
 #ifdef HAVE_CCS
-   /* [42] */ ,{"USE_SPECIFIC_SCHEDULING", 23, Parsers::parseName, 0, NULL}
+   /* [44] */ ,{"USE_SPECIFIC_SCHEDULING", 23, Parsers::parseName, 0, NULL}
 #endif
   } ;
 

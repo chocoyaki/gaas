@@ -18,6 +18,7 @@
 #include "DIET_data.h"
 #include "DIET_data_internal.hh"
 #include "debug.hh"
+#include "marshalling.hh"
 
 #include <unistd.h>
 #include <errno.h>
@@ -779,3 +780,319 @@ void SimpleDagdaImpl::registerFile(const corba_data_t& data) {
 }
 
 
+/* Bytes to write to the backup file. */
+size_t dataSize(corba_data_t& data) {
+  size_t baseSize, nbElt;
+  switch (data.desc.base_type) {
+    case DIET_CHAR:
+	  baseSize=1;
+	  break;
+	case DIET_SHORT:
+	  baseSize=sizeof(short);
+	  break;
+	case DIET_INT:
+	  baseSize=sizeof(int);
+	  break;
+	case DIET_LONGINT:
+	  baseSize=sizeof(long);
+	  break;
+	case DIET_FLOAT:
+	  baseSize=sizeof(float);
+	  break;
+	case DIET_DOUBLE:
+	  baseSize=sizeof(double);
+	  break;
+  }
+  switch (data.desc.specific._d()) {
+    case DIET_SCALAR:
+	  nbElt=1;
+	  break;
+	case DIET_VECTOR:
+	  nbElt=data.desc.specific.vect().size;
+	  break;
+	case DIET_MATRIX:
+	  nbElt=data.desc.specific.mat().nb_r *
+	        data.desc.specific.mat().nb_c;
+	  break;
+	case DIET_STRING:
+	  nbElt=data.desc.specific.str().length+1;
+	  break;
+	case DIET_PARAMSTRING:
+	  nbElt=data.desc.specific.pstr().length+1;
+	  break;
+	case DIET_FILE:
+	  nbElt=strlen(data.desc.specific.file().path)+1;
+	  break;
+  }
+  return baseSize*nbElt;
+}
+
+// Make a corba data from file informations
+size_t DagdaImpl::make_corba_data(corba_data_t& data, diet_data_type_t type,
+	diet_base_type_t base_type, diet_persistence_mode_t mode,
+	size_t nb_r, size_t nb_c, diet_matrix_order_t order, void* value, char* path) {
+  diet_data_t diet_data;
+  
+  char* dataManagerIOR = ORBMgr::getIORString(_this());
+  char* dataID = NULL;
+
+  diet_data.desc.id = dataID;
+  diet_data.desc.mode = mode;
+  diet_data.desc.generic.type = type;
+  diet_data.desc.generic.base_type = base_type;
+  
+  switch (type) {
+    case DIET_SCALAR:
+      diet_data.desc.specific.scal.value = value;
+	  break;
+    case DIET_VECTOR:
+	  diet_data.desc.specific.vect.size = nb_c;
+      break;
+    case DIET_MATRIX:
+      diet_data.desc.specific.mat.nb_r = nb_r;
+	  diet_data.desc.specific.mat.nb_c = nb_c;
+	  diet_data.desc.specific.mat.order = order;
+	  break;
+    case DIET_STRING:
+    case DIET_PARAMSTRING:
+      diet_data.desc.specific.pstr.length = strlen((char*) value);
+   	  break;
+    case DIET_FILE:
+      diet_data.desc.specific.file.path = path;
+	  break;
+  }
+  
+  mrsh_data_desc(&data.desc, &diet_data.desc);
+  data.desc.dataManager = CORBA::string_dup(dataManagerIOR);
+  return data_sizeof(&diet_data.desc);
+}
+
+// Write the data description to the file.
+int DagdaImpl::writeDataDesc(corba_data_t& data, ofstream& file) {
+  size_t size = dataSize(data);
+  long type = data.desc.specific._d();
+  
+  if (!file.is_open()) return -1;
+
+  try {
+    file.write((char*) data.desc.id.idNumber, strlen(data.desc.id.idNumber)+1);
+    file.write((char*) &data.desc.mode, sizeof(long));
+    file.write((char*) &data.desc.base_type, sizeof(long));
+    file.write((char*) &type, sizeof(long));
+	// Temporaire... Il y a un soucis avec l'IOR... Au redémarrage, il aura changé...
+    file.write((char*) data.desc.dataManager, strlen(data.desc.dataManager)+1);
+    file.write((char*) &size, sizeof(size_t));
+  } catch (ios_base::failure &ex) {
+    return -1;
+  }
+  if (file.bad() || file.fail()) return -1;
+  return 0;
+}
+
+// Write the data to the file.
+int DagdaImpl::writeData(corba_data_t& data, ofstream& file) {
+  size_t size = dataSize(data);
+  long type = data.desc.specific._d();
+  
+  if (!file.is_open() || file.bad() || file.fail())
+    return -1;
+
+  try {
+    switch (type) {
+	  case DIET_SCALAR:
+	    file.write((char*) data.value.get_buffer(), size);
+		break;
+	  case DIET_VECTOR:
+	    file.write((char*) &data.desc.specific.vect().size, sizeof(size_t));
+		file.write((char*) data.value.get_buffer(), size);
+		break;
+	  case DIET_MATRIX:
+	    file.write((char*) &data.desc.specific.mat().nb_r, sizeof(size_t));
+		file.write((char*) &data.desc.specific.mat().nb_c, sizeof(size_t));
+		file.write((char*) &data.desc.specific.mat().order, sizeof(size_t));
+		file.write((char*) data.value.get_buffer(), size);
+		break;
+	  case DIET_STRING:
+	    file.write((char*) data.value.get_buffer(), strlen((char*) data.value.get_buffer())+1);
+		break;
+	  case DIET_PARAMSTRING:
+	    file.write((char*) data.value.get_buffer(), strlen((char*) data.value.get_buffer())+1);
+		break;
+	  case DIET_FILE:
+	    bool ownerShip = (getDataStatus(data.desc.id.idNumber)!=Dagda::notOwner);
+	    file.write((char*) &ownerShip, sizeof(bool));
+	    file.write((char*) data.desc.specific.file().path,
+		  strlen((char*) data.desc.specific.file().path)+1);
+	    break;
+	}
+  } catch (ios_base::failure &ex) {
+    return -1;
+  }
+  return 0;
+}
+
+// Read a data from a file.
+int DagdaImpl::readData(corba_data_t& data, ifstream& file) {
+  if (!file.is_open() || file.bad() || file.fail())
+    return -1;
+  string inputString;
+  long inputLong;
+  size_t inputSize;
+  char c;
+
+  diet_data_type_t type;
+  diet_base_type_t base_type;
+  diet_persistence_mode_t mode;
+  size_t nb_r, nb_c;
+  diet_matrix_order_t order;
+  void* value = NULL;
+  char* path = NULL;
+  char* id;
+
+  try {
+    do {
+      file.get(c);
+	  inputString+=c;
+	} while (c!='\0');
+	id = CORBA::string_dup(inputString.c_str());
+	file.read((char*) &inputLong, sizeof(long));
+	mode = (diet_persistence_mode_t) inputLong;
+	file.read((char*) &inputLong, sizeof(long));
+	base_type = (diet_base_type_t) inputLong;
+	file.read((char*) &inputLong, sizeof(long));
+	type = (diet_data_type_t) inputLong;
+	inputString = "";
+	do {
+      file.get(c);
+	  inputString+=c;
+	} while (c!='\0');
+
+	file.read((char*) &inputSize, sizeof(size_t));
+	CORBA::Char* buffer;
+
+	switch (type) {
+	  case DIET_SCALAR:
+	    buffer = new CORBA::Char[inputSize];
+    	file.read((char*) buffer, inputSize);
+	    nb_r=0; nb_c=0;
+		order = (diet_matrix_order_t) 0;
+		value=buffer;
+		path=NULL;
+		break;
+	  case DIET_VECTOR:
+	    file.read((char*) &nb_c, sizeof(size_t));
+		buffer = new CORBA::Char[inputSize];
+    	file.read((char*) buffer, inputSize);
+		nb_r=0;	order = (diet_matrix_order_t) 0;
+		value=NULL;	path=NULL;
+		break;
+	  case DIET_MATRIX:
+	    file.read((char*) &nb_r, sizeof(size_t));
+        file.read((char*) &nb_c, sizeof(size_t));
+		file.read((char*) &inputLong, sizeof(long));
+		buffer = new CORBA::Char[inputSize];
+    	file.read((char*) buffer, inputSize);
+		order = (diet_matrix_order_t) inputLong;
+		value=NULL; path=NULL;
+		break;
+	  case DIET_STRING:
+	  case DIET_PARAMSTRING:
+	    buffer = new CORBA::Char[inputSize];
+    	file.read((char*) buffer, inputSize);
+	    nb_r=0; nb_c=0;
+		order = (diet_matrix_order_t) 0;
+		value = buffer; path = NULL;
+		break;
+	  case DIET_FILE:
+	    bool ownerShip;
+	    file.read((char*) &ownerShip, sizeof(bool));
+		if (!ownerShip) setDataStatus(id, Dagda::notOwner);
+		else setDataStatus(id, Dagda::ready);
+	    buffer = new CORBA::Char[inputSize];
+    	file.read((char*) buffer, inputSize);
+	    nb_r=0; nb_c=0;
+		order = (diet_matrix_order_t) 0;
+		value = NULL;
+		path = (char*) buffer;
+		break;
+	}
+    make_corba_data(data, type, base_type, mode, nb_r, nb_c,
+	  order, buffer, path);
+	data.desc.id.idNumber = id;
+	data.value.replace(inputSize, inputSize, buffer, true);
+  } catch (ios_base::failure &ex) {
+    return -1;
+  }
+
+  return 0;
+}
+
+
+void DagdaImpl::saveState() {
+  if (getStateFile()=="") return;
+  std::map<std::string, corba_data_t>::iterator it;
+  std::ofstream file(getStateFile().c_str(), ios_base::trunc);
+  
+  if (!file.is_open()) {
+    WARNING("Error opening file " << getStateFile() << " to save current data state.");
+	return;
+  }
+  dataMutex.lock();
+  for (it=getData()->begin(); it!=getData()->end(); ++it) {
+    if (writeDataDesc(it->second, file)!=0) {
+	  WARNING("DAGDA state backup failed.");
+	  break;
+	}
+	if (writeData(it->second, file)!=0) {
+	  WARNING("Error while writing the data to " << getStateFile());
+	  break;
+	}
+  }
+  dataMutex.unlock();
+  file.close();
+}
+
+void DagdaImpl::restoreState() {
+  std::ifstream file(getStateFile().c_str());
+  if (!file.is_open()) return;
+  file.exceptions(std::ifstream::eofbit | std::ifstream::failbit | std::ifstream::badbit);
+  corba_data_t dataFromFile;
+  corba_data_t data;
+  corba_data_t* inserted;
+  
+  while (readData(dataFromFile, file)==0) {
+    size_t size = dataFromFile.value.length();
+    data.desc = dataFromFile.desc;
+	addData(data);
+	unlockData(data.desc.id.idNumber);
+	inserted = getData(data.desc.id.idNumber);
+	inserted->value.replace(size, size, dataFromFile.value.get_buffer(true), true);
+	if (inserted->desc.specific._d()!=DIET_FILE)
+      useMemSpace(inserted->value.length());
+	else if (getDataStatus(data.desc.id.idNumber)!=Dagda::notOwner)
+	  useDiskSpace(inserted->desc.specific.file().size);
+  }
+}
+
+void thrdCheckpointChild(void* child) {
+  Dagda_ptr ch = (Dagda_ptr) child;
+  ch->checkpointState();
+}
+
+void DagdaImpl::checkpointState() {
+  std::map<string,Dagda_ptr>::iterator itch;
+  saveState();
+  
+  childrenMutex.lock();
+  for (itch=getChildren()->begin();itch!=getChildren()->end();)
+    try {
+	  omni_thread::create(thrdCheckpointChild, (*itch).second);
+      //(*itch).second->saveState();
+	  itch++;
+    } catch (CORBA::COMM_FAILURE& e1) {
+	  getChildren()->erase(itch++);
+    } catch (CORBA::TRANSIENT& e2) {
+      getChildren()->erase(itch++);
+    }
+  childrenMutex.unlock();
+}

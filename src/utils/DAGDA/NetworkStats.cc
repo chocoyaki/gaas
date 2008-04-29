@@ -38,5 +38,4 @@ void AvgNetworkStats::addStat(std::string src, std::string dest, double value) {
   else
     (values[src])[dest]+=value;
   (nbStats[src])[dest]++;
-  //
 }

@@ -17,11 +17,13 @@
 
 #include "AdvancedDagdaComponent.hh"
 #include "DIET_data_internal.hh"
+#include "debug.hh"
 
 using namespace std;
 
 int LRU(AdvancedDagdaComponent* manager, size_t size, dagda_object_type_t type) {
-  cout << "Needs more space for the data: Tries to remove one using LRU." << endl;
+  TRACE_TEXT(TRACE_ALL_STEPS, "Needs more space for the data:" <<
+    " Tries to remove one using LRU." << endl);
   std::map<std::string, corba_data_t>::iterator it;
   time_t leastRecent = 0;
   std::string found;
@@ -42,7 +44,8 @@ int LRU(AdvancedDagdaComponent* manager, size_t size, dagda_object_type_t type) 
 }
 
 int LFU(AdvancedDagdaComponent* manager, size_t size, dagda_object_type_t type) {
-  cout << "Needs more space for the data: Tries to remove one using LFU policy." << endl;
+  TRACE_TEXT(TRACE_ALL_STEPS, "Needs more space for the data:" <<
+    " Tries to remove one using LFU policy." << endl);
   std::map<std::string, corba_data_t>::iterator it;
   unsigned long usageMin = 0;
   std::string found;
@@ -63,7 +66,8 @@ int LFU(AdvancedDagdaComponent* manager, size_t size, dagda_object_type_t type) 
 }
 
 int FIFO(AdvancedDagdaComponent* manager, size_t size, dagda_object_type_t type) {
-  cout << "Needs more space for the data: Tries to remove one using FIFO policy." << endl;
+  TRACE_TEXT(TRACE_ALL_STEPS, "Needs more space for the data:" <<
+    " Tries to remove one using FIFO policy." << endl);
   std::map<std::string, corba_data_t>::iterator it;
   time_t registerTime = 0;
   std::string found;

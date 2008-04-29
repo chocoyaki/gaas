@@ -138,6 +138,8 @@ interface Dagda {
   
   Dagda getBestSource(in Dagda dest, in string dataID)
     raises(DataNotFound);
+	
+  void checkpointState();
 };
 
 typedef Dagda::SeqDagda_t SeqDagda_t;

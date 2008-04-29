@@ -10,6 +10,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.45  2008/04/29 22:22:02  glemahec
+ * DAGDA improvements :
+ *   - Asynchronous API.
+ *   - Data ID alias managing.
+ *   - Data manager state backup and restore.
+ *
  * Revision 1.44  2008/04/28 07:08:30  glemahec
  * The DAGDA API.
  *
@@ -308,6 +314,9 @@ MasterAgentImpl::run()
   TRACE_TEXT(TRACE_MAIN_STEPS,
 	     "\nMaster Agent " << this->myName << " started.\n");
   fflush(stdout);
+#if HAVE_DAGDA
+  catalog = new MapDagdaCatalog();
+#endif
   return 0;
 } // run(char* configFileName)
 
@@ -319,8 +328,14 @@ MasterAgentImpl::run()
 char * 
 MasterAgentImpl::get_data_id()
 {
+#if ! HAVE_DAGDA
+char* id = new char[100];
+  (this->num_data)++;
+  sprintf(id,"id.%s.%d.%d",myName,(int)(num_session), (int)(num_data));
+  return CORBA::string_dup(id);
+#else
 #if ! HAVE_ADVANCED_UUID
-  char* id = new char[100];
+  char id[100];
   (this->num_data)++;
   sprintf(id,"DAGDA://id.%s.%d.%d",myName,(int)(num_session), (int)(num_data));
   return CORBA::string_dup(id);
@@ -335,6 +350,7 @@ MasterAgentImpl::get_data_id()
   id+="-";
   id+=myName;
   return CORBA::string_dup(id.c_str());
+#endif
 #endif
 } // get_data_id()
  
@@ -1007,3 +1023,27 @@ MasterAgentImpl::submit_pb_seq(const corba_pb_desc_seq_t& pb_seq,
     return response_seq;
 }
 #endif // HAVE_WORKFLOW
+
+#if HAVE_DAGDA
+SeqString* MasterAgentImpl::searchData(const char* request) {
+  SeqString* ret = new SeqString();
+  attributes_t attr = catalog->request(request);
+  attributes_t::iterator it;
+  int i=0;
+  
+  ret->length(attr.size());
+  for (it=attr.begin(); it!=attr.end(); ++it)
+    (*ret)[i++]=CORBA::string_dup(it->c_str());
+  return ret;
+}
+
+long MasterAgentImpl::insertData(const char* key, const SeqString& values) {
+  attributes_t attr;
+  if (catalog->exists(key)) return 1;
+  
+  for (int i=0; i<values.length(); ++i)
+    attr.push_back(string(values[i]));
+  catalog->insert(key, attr);
+  return 0;
+}
+#endif // HAVE_DAGDA

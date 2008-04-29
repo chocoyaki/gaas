@@ -12,7 +12,9 @@
 ************************************************************/
 #include "DIET_Dagda.hh"
 #include "DagdaFactory.hh"
-
+extern "C" {
+#include "DIET_Dagda.h"
+} // extern "C"
 #include "MasterAgent.hh"
 #include "ORBMgr.hh"
 #include "Parsers.hh"
@@ -22,6 +24,7 @@
 
 #include <string>
 #include <sstream>
+#include <map>
 
 #if HAVE_ADVANCED_UUID
 #include <uuid/uuid.h>
@@ -32,6 +35,7 @@
 
 using namespace std;
 
+/* Profile marshalling used by DAGDA on the client side. */
 void dagda_mrsh_profile(corba_profile_t* corba_profile, diet_profile_t* profile,
   MasterAgent_var& MA) {
   DagdaImpl* dataManager = DagdaFactory::getDataManager();
@@ -118,6 +122,7 @@ void dagda_mrsh_profile(corba_profile_t* corba_profile, diet_profile_t* profile,
   }
 }
 
+/* Data download function used by DAGDA. */
 void dagda_download_SeD_data(diet_profile_t* profile,
 			corba_profile_t* pb) {
   DagdaImpl* dataManager = DagdaFactory::getDataManager();
@@ -131,45 +136,51 @@ void dagda_download_SeD_data(diet_profile_t* profile,
 	if (pb->parameters[i].desc.mode==DIET_VOLATILE)
       remoteManager->lclRemData(pb->parameters[i].desc.id.idNumber);
   }
-  // Downloads the data from the SeD to the client.
+  // Downloads the INOUT data from the SeD to the client.
   for (int i=pb->last_in+1; i<=pb->last_inout; ++i) {
+    // Get a reference to the data manager of the data.
     Dagda_var remoteManager =
       Dagda::_narrow(ORBMgr::stringToObject(pb->parameters[i].desc.dataManager));
+	  
     if (pb->parameters[i].desc.mode != DIET_PERSISTENT &&
 	  pb->parameters[i].desc.mode != DIET_STICKY) {
-
+      // The data needs to be downloaded.
 	  if (pb->parameters[i].desc.specific._d() != DIET_SCALAR ) {
 	    inserted = dataManager->getData(pb->parameters[i].desc.id.idNumber);
 	    size = inserted->value.length();
 	    CORBA::Char* value = inserted->value.get_buffer();
 	    char*  path = inserted->desc.specific.file().path;
 	    size_t fileSize = inserted->desc.specific.file().size;
-	  
+	    // Data downloading.
 	    dataManager->lclAddData(remoteManager, pb->parameters[i]);
-	  	  
+
 	    inserted = dataManager->getData(pb->parameters[i].desc.id.idNumber);
-	  
+	    // The files are transmitted separately.
 	    if (pb->parameters[i].desc.specific._d() != DIET_FILE) {
 	      for (int j=0; j<size; ++j)
-		    value[j]=inserted->value[j]; 
+		    value[j]=inserted->value[j];
           inserted->value.replace(size, size, value, 0);
 	    }
 	    else {
+		  // INOUT file: Remove the previous one.
 	      unlink(inserted->desc.specific.file().path);
 	      rename(path, inserted->desc.specific.file().path);
 		  inserted->desc.specific.file().path = path;
 		  inserted->desc.specific.file().size = fileSize;
 	    }
 	  } else {
+   	    // Scalar data: The value is transmitted inside the profile.
 	    inserted = dataManager->getData(pb->parameters[i].desc.id.idNumber);
 	    size = inserted->value.length();
 	    for (int j=0; j<size; ++j)
 	      inserted->value[j]=pb->parameters[i].value[j];
 	  }
     }
+	// Remove the remote volatile data
 	if (pb->parameters[i].desc.mode==DIET_VOLATILE)
       remoteManager->lclRemData(pb->parameters[i].desc.id.idNumber);
   }
+  // Download the OUT data.
   for (int i=pb->last_inout+1; i<=pb->last_out; ++i) {
     Dagda_var remoteManager =
       Dagda::_narrow(ORBMgr::stringToObject(pb->parameters[i].desc.dataManager));
@@ -196,7 +207,6 @@ void dagda_download_SeD_data(diet_profile_t* profile,
 	if (pb->parameters[i].desc.mode==DIET_VOLATILE)
       remoteManager->lclRemData(pb->parameters[i].desc.id.idNumber);
   }
-  //dagda_free_volatile_data(pb);
 }
 
 
@@ -347,8 +357,13 @@ void dagda_upload_data(diet_profile_t& profile, corba_profile_t& pb) {
   }
 }
 
+// The "entry point" to the DAGDA hierarchy.
 Dagda_var entryPoint = NULL;
+// A reference to the MA.
+MasterAgent_var masterAgent = NULL;
 
+// Returns an new ID
+// DAGDA should use the uuid library to avoid id's conflicts.
 char * get_data_id()
 {
 #if ! HAVE_ADVANCED_UUID
@@ -382,6 +397,23 @@ char * get_data_id()
 #endif
 }
 
+MasterAgent_var getMasterAgent() {
+  if (masterAgent!=NULL) return masterAgent;
+  char* MA_name =
+    (char*) Parsers::Results::getParamValue(Parsers::Results::MANAME);
+  if (MA_name==NULL) return NULL;
+
+  MasterAgent_var MA = MasterAgent::_narrow(ORBMgr::getObjReference(ORBMgr::AGENT, MA_name));
+  if (CORBA::is_nil(MA)) {
+    //ERROR("cannot locate Master Agent " << MA_name, 1);
+    return NULL;
+  }
+  masterAgent = MA;
+  return masterAgent;
+}
+
+// The reference to the MA DAGDA component is obtained from the ORB
+// only one time.
 Dagda_var getEntryPoint() {
   if (entryPoint!=NULL) return entryPoint;
   
@@ -391,9 +423,11 @@ Dagda_var getEntryPoint() {
   if (localManager->getType()==DGD_CLIENT_MNGR) {
     char* MA_name =
       (char*) Parsers::Results::getParamValue(Parsers::Results::MANAME);
+	if (MA_name==NULL) return NULL;
     MasterAgent_var MA = MasterAgent::_narrow(ORBMgr::getObjReference(ORBMgr::AGENT, MA_name));
     if (CORBA::is_nil(MA)) {
       //ERROR("cannot locate Master Agent " << MA_name, 1);
+	  return NULL;
     }
     manager = MA->getDataManager();
     entryPoint = manager;
@@ -401,6 +435,7 @@ Dagda_var getEntryPoint() {
   } else return NULL;
 }
 
+// corba_data_t initialization from explicit parameters.
 size_t corba_data_init(corba_data_t& data, diet_data_type_t type,
 	diet_base_type_t base_type, diet_persistence_mode_t mode,
 	size_t nb_r, size_t nb_c, diet_matrix_order_t order, void* value, char* path) {
@@ -408,7 +443,7 @@ size_t corba_data_init(corba_data_t& data, diet_data_type_t type,
   DagdaImpl*  manager = DagdaFactory::getDataManager();
   
   if (mode==DIET_VOLATILE) {
-    WARNING("Trying to add a volatile data to DAGDA... The data is " <<
+    WARNING("Trying to add a volatile data to DAGDA... The data " <<
 	  "will be persistent.");
 	mode=DIET_PERSISTENT;
   }
@@ -446,8 +481,207 @@ size_t corba_data_init(corba_data_t& data, diet_data_type_t type,
   return data_sizeof(&diet_data.desc);
 }
 
+// This structure is used for the omni_thread outputs.
+typedef struct {
+  int returnedValue;
+  // Put results.
+  char* ID;
+  // Get results.
+  void* value;
+  diet_base_type_t base_type;
+  size_t nb_r, nb_c;
+  diet_matrix_order_t order;
+  char* path;
+} DagdaThreadResult;
+
+// DAGDA thread to put a data asynchronously in the DAGDA hierarchy.
+class DagdaPutDataThread : public omni_thread {
+private:
+  void* value;
+  diet_data_type_t type;
+  diet_base_type_t base_type;
+  diet_persistence_mode_t mode;
+  size_t nb_r, nb_c;
+  diet_matrix_order_t order;
+  char* path;
+public:
+  DagdaPutDataThread(void* value, diet_data_type_t type,
+	  diet_base_type_t base_type, diet_persistence_mode_t mode,
+	  size_t nb_r, size_t nb_c, diet_matrix_order_t order, char* path) :
+	value(value), type(type), base_type(base_type), mode(mode), nb_r(nb_r),
+	nb_c(nb_c), order(order), path(path) {
+	
+  }
+
+  void startThread() {
+    start_undetached();
+  }
+protected:
+  void* run_undetached(void* arg) {
+	DagdaThreadResult* result = new DagdaThreadResult;
+	
+    result->returnedValue = 
+      dagda_put_data(value, type, base_type, mode, nb_r, nb_c, order, path, &result->ID);
+	return result;
+  }
+  
+  void run(void* arg) {
+    dagda_put_data(value, type, base_type, mode, nb_r, nb_c, order, path, NULL);
+  }
+};
+
+// DAGDA thread to get a data asynchronously from the DAGDA hierarchy.
+class DagdaGetDataThread : public omni_thread {
+private:
+  char* dataID;
+  diet_data_type_t type;
+public:
+  DagdaGetDataThread(char* dataID, diet_data_type_t type) : dataID(dataID),
+    type(type) {
+  }
+
+  void startThread() {
+    start_undetached();
+  }
+protected:
+  void* run_undetached(void* arg) {
+    DagdaThreadResult* result = new DagdaThreadResult;
+
+	result->returnedValue =
+	  dagda_get_data(dataID, &result->value, type, &result->base_type,
+	    &result->nb_r, &result->nb_c, &result->order, &result->path);
+
+	return result;
+  }
+  
+  void run(void* arg) {
+    dagda_get_data(dataID, NULL, type, NULL, NULL, NULL, NULL, NULL);
+  }
+};
+
+// A thread pool to manage the asynchronous DAGDA operations.
+class DagdaThreadPool {
+private:
+  static DagdaThreadPool* instance;
+  static unsigned int nextID;
+  omni_mutex idMutex;
+  omni_mutex poolMutex;
+
+  map<unsigned int, omni_thread*> pool;
+  
+  DagdaThreadPool() {
+  
+  }
+
+public:
+  static DagdaThreadPool* getInstance() {
+    if (instance==NULL)
+	  instance = new DagdaThreadPool();
+	return instance;
+  }
+  // Creates a thread and records a reference on it.
+  // Put a data.
+  unsigned int newPutDataThread(void* value, diet_data_type_t type,
+	  diet_base_type_t base_type, diet_persistence_mode_t mode,
+	  size_t nb_r, size_t nb_c, diet_matrix_order_t order, char* path) {
+	unsigned int id = getNextID();
+	
+	poolMutex.lock();
+	pool[id] = new DagdaPutDataThread(value, type, base_type, mode, nb_r, nb_c,
+			order, path);
+	((DagdaPutDataThread*) pool[id])->startThread();
+    poolMutex.unlock();
+	
+	return id;
+  }
+  // Get a data.
+  unsigned int newGetDataThread(char* dataID, diet_data_type_t type) {
+	unsigned int id = getNextID();
+
+	poolMutex.lock();
+	pool[id] = new DagdaGetDataThread(dataID, type);
+	((DagdaGetDataThread*) pool[id])->startThread();
+	poolMutex.unlock();
+	
+	return id;
+  }
+  // Waits the end of the transfert from the client.
+  int waitDataPut(unsigned int id, char** ID) {
+    int ret;
+	DagdaThreadResult* result;
+	omni_thread* thread;
+	
+	poolMutex.lock();
+    if (pool.find(id)==pool.end()) {
+	  poolMutex.unlock();
+	  return -1;
+	}
+	  
+	thread = pool[id];
+	poolMutex.unlock();
+	
+	thread->join((void**) &result);
+
+	ret = result->returnedValue;
+	*ID = result->ID;
+	delete result;
+	
+	poolMutex.lock();
+	pool.erase(id);
+	poolMutex.unlock();
+
+	return ret;
+  }
+  // Waits the end of the transfert to the client.
+  int waitDataGet(unsigned int id, void** value, diet_base_type_t* base_type,
+    size_t* nb_r, size_t* nb_c, diet_matrix_order_t* order, char** path) {
+	int ret;
+	DagdaThreadResult* result;
+	omni_thread* thread;
+	
+	poolMutex.lock();
+    if (pool.find(id)==pool.end()) {
+	  poolMutex.unlock();
+	  return -1;
+	}
+	  
+	thread = pool[id];
+	poolMutex.unlock();
+	
+	thread->join((void**) &result);
+	ret = result->returnedValue;
+	if (value!=NULL)
+	  *value = result->value;
+	if (base_type!=NULL)
+	  *base_type = result->base_type;
+	if (nb_r!=NULL)
+      *nb_r = result->nb_r;
+	if (nb_c!=NULL)
+	  *nb_c = result->nb_c;
+	if (order!=NULL)
+	  *order = result->order;
+	if (path!=NULL)
+	  *path = result->path;
+	delete result;
+	poolMutex.lock();
+	pool.erase(id);
+	poolMutex.unlock();
+  }
+  // Returns a new thread id.
+  unsigned int getNextID() {
+    unsigned int ret;
+    idMutex.lock();
+	ret = nextID++;
+	idMutex.unlock();
+	return ret;
+  }
+};
+// The thread pool is a singleton class.
+DagdaThreadPool* DagdaThreadPool::instance = NULL;
+unsigned int DagdaThreadPool::nextID = 0;
+
 BEGIN_API
-int dagda_add_data(void* value, diet_data_type_t type,
+int dagda_put_data(void* value, diet_data_type_t type,
 	diet_base_type_t base_type, diet_persistence_mode_t mode,
 	size_t nb_r, size_t nb_c, diet_matrix_order_t order, char* path, char** ID) {
   Dagda_var entryPoint = getEntryPoint();
@@ -533,4 +767,65 @@ int dagda_get_data(char* dataID, void** value, diet_data_type_t type,
   return 0;
 }
 
+unsigned int dagda_put_data_async(void* value, diet_data_type_t type,
+	  diet_base_type_t base_type, diet_persistence_mode_t mode,
+	  size_t nb_r, size_t nb_c, diet_matrix_order_t order, char* path) {
+  DagdaThreadPool* instance = DagdaThreadPool::getInstance();
+  
+  return instance->newPutDataThread(value, type, base_type, mode, nb_r, nb_c, order, path);
+}
+
+unsigned int dagda_get_data_async(char* ID, diet_data_type_t type) {
+  DagdaThreadPool* instance = DagdaThreadPool::getInstance();
+  
+  return instance->newGetDataThread(ID, type);
+}
+
+int dagda_wait_put(unsigned int threadID, char** ID) {
+  DagdaThreadPool* instance = DagdaThreadPool::getInstance();
+  
+  return instance->waitDataPut(threadID, ID);
+}
+
+int dagda_wait_get(unsigned int threadID, void** value, diet_base_type_t* base_type,
+    size_t* nb_r, size_t* nb_c, diet_matrix_order_t* order, char** path) {
+  DagdaThreadPool* instance = DagdaThreadPool::getInstance();
+  
+  return instance->waitDataGet(threadID, value, base_type, nb_r, nb_c, order, path);
+}
+
+int dagda_save_platform() {
+  if (entryPoint!=NULL) {
+    entryPoint->checkpointState();
+	return 0;
+  }
+  return 1;
+}
+
+int dagda_data_alias(const char* id, const char* alias) {
+  MasterAgent_var MA = getMasterAgent();
+  
+  if (MA==NULL) {
+    WARNING("Try to call " << __FUNCTION__ << " outside a client.");
+	return 1;
+  }
+  SeqString values;
+  values.length(1);
+  values[0] = id;
+  
+  return MA->insertData(alias, values);
+}
+
+int dagda_id_from_alias(const char* alias, char** id) {
+  MasterAgent_var MA = getMasterAgent();
+  
+  if (MA==NULL) {
+    WARNING("Try to call " << __FUNCTION__ << " outside a client.");
+	return 1;
+  }
+  SeqString* attributes = MA->searchData(alias);
+  if (attributes->length()==0) return 1;
+  *id = (*attributes)[0];
+  return 0;
+}
 END_API

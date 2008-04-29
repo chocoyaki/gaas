@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.34  2008/04/29 22:22:02  glemahec
+ * DAGDA improvements :
+ *   - Asynchronous API.
+ *   - Data ID alias managing.
+ *   - Data manager state backup and restore.
+ *
  * Revision 1.33  2008/04/28 07:08:31  glemahec
  * The DAGDA API.
  *
@@ -241,6 +247,8 @@ public:
 	  MAXMEMSPACE,
 	  CACHEALGORITHM,
 	  SHAREFILES,
+	  DATABACKUPFILE,
+	  RESTOREONSTART,
 #endif // HAVE_DAGDA
 #if HAVE_DAGDA || HAVE_ALT_BATCH
 	  STORAGEDIR,
