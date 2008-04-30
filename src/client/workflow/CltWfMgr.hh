@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.1  2008/04/30 07:26:10  bisnard
+ * moved CltWfMgr into agent/workflow directory
+ *
  * Revision 1.5  2008/04/28 12:08:16  bisnard
  * obsolete init_wf_call
  * changed constructor for Node (new param wfReqId)
@@ -47,7 +50,7 @@
 #include "DIET_client.h"
 #include "marshalling.hh"
 
-#include "DagWfParser.hh"
+#include "workflow/DagWfParser.hh"
 
 class CltWfMgr : public POA_CltMan,
                  public PortableServer::RefCountServantBase{

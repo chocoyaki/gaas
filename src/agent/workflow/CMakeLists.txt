@@ -17,12 +17,13 @@ IF( DIET_BUILD_LIBRARIES )
     WfScheduler.cc HEFTScheduler.cc
     MultiDag.cc
     MultiWfScheduler.cc
-    MultiWfBasicScheduler.cc MultiWfFOFT.cc )
+    MultiWfBasicScheduler.cc MultiWfFOFT.cc MultiWfHEFT.cc )
 
   TARGET_LINK_LIBRARIES ( MaDag
     IDLWf
     AgentCommon
     UtilsWf
+    CltWf
     DIET_client
     ${XERCES_LIBRARY}
     ${OMNIORB4_LIBRARIES}

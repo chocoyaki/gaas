@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.1  2008/04/30 07:26:10  bisnard
+ * moved CltWfMgr into agent/workflow directory
+ *
  * Revision 1.6  2008/04/28 12:08:16  bisnard
  * obsolete init_wf_call
  * changed constructor for Node (new param wfReqId)
@@ -41,7 +44,7 @@
 #include "CltWfMgr.hh"
 #include "debug.hh"
 #include "ORBMgr.hh"
-#include "DagWfParser.hh"
+#include "workflow/DagWfParser.hh"
 
 using namespace std;
 
