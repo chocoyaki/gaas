@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/04/30 07:32:24  bisnard
+ * use relative timestamps for estimated and real completion time
+ *
  * Revision 1.3  2008/04/28 11:54:52  bisnard
  * new methods setNodePriorities & setNodesEFT replacing schedule
  * nodes sort done in separate method in Dag class
@@ -72,13 +75,14 @@ void
 HEFTScheduler::setNodesEFT(std::vector<Node *>& orderedNodes,
                            const wf_response_t * wf_response,
                            Dag * dag,
-                           double& initTime) {
+                           double& initTime,
+                           double refTime) {
   // to store the availabilty of resources
   map<std::string, double> avail;
   // init the availability map (one entry per hostname)
   struct timeval current_time;
   gettimeofday(&current_time, NULL);
-  initTime = current_time.tv_sec;
+  initTime = current_time.tv_sec - refTime;
   for (unsigned int ix=0;
        ix < wf_response->wfn_seq_resp.length();
        ix++) {
@@ -88,7 +92,7 @@ HEFTScheduler::setNodesEFT(std::vector<Node *>& orderedNodes,
       string hostname(CORBA::string_dup(wf_response->wfn_seq_resp[ix].response.servers[jx].loc.hostName));
       // if new host init its availability to current time
       if (avail.find(hostname) == avail.end())
-	avail[hostname] = current_time.tv_sec;
+	avail[hostname] = initTime;
     }
   }
   TRACE_TEXT (TRACE_ALL_STEPS, "HEFT : start computing nodes EFT" << endl);

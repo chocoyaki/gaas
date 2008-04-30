@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/04/30 07:32:24  bisnard
+ * use relative timestamps for estimated and real completion time
+ *
  * Revision 1.3  2008/04/28 11:59:02  bisnard
  * changed constructor for Node (new param wfReqId)
  *
@@ -42,7 +45,7 @@ MultiDag::MultiDag() {
 			  -1, -1, -1);  // for compatibility
   this->myNodes[this->input->getId()] =  this->input;
   this->myNodes[this->output->getId()] =  this->output;
-  this->input->setAsDone();
+  this->input->setAsDone(0);
 } // end constructor
 
 MultiDag::~MultiDag() {

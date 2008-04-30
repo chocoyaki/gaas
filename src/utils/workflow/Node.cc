@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/04/30 07:28:56  bisnard
+ * use relative timestamps for estimated and real completion time
+ *
  * Revision 1.5  2008/04/28 12:06:03  bisnard
  * changed constructor for Node (new param wfReqId)
  * Node delay at execution: new attr & methods
@@ -761,12 +764,10 @@ Node::isDone() {
  * Set the node status as done
  */
 void
-Node::setAsDone() {
+Node::setAsDone(double compTime) {
   // update node scheduling info
   this->task_done = true;
-  struct timeval current_time;
-  gettimeofday(&current_time, NULL);
-  this->setRealCompTime(current_time.tv_sec);
+  this->setRealCompTime(compTime);
   // notify the successors
   Node * n;
   TRACE_TEXT (TRACE_ALL_STEPS,

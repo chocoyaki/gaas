@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/04/30 07:28:56  bisnard
+ * use relative timestamps for estimated and real completion time
+ *
  * Revision 1.4  2008/04/28 12:06:03  bisnard
  * changed constructor for Node (new param wfReqId)
  * Node delay at execution: new attr & methods
@@ -479,9 +482,10 @@ public:
 
   /**
    * Set the node status as done
+   * @param compTime  timestamp of node completion
    */
   void
-  setAsDone();
+  setAsDone(double compTime);
 
   /**
    * Return the node profile

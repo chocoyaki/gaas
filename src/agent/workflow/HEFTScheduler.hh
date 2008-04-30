@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/04/30 07:32:24  bisnard
+ * use relative timestamps for estimated and real completion time
+ *
  * Revision 1.3  2008/04/28 11:54:52  bisnard
  * new methods setNodePriorities & setNodesEFT replacing schedule
  * nodes sort done in separate method in Dag class
@@ -48,12 +51,14 @@ namespace madag {
      * @param wf_response   the estimates given by the MA
      * @param dag           the dag
      * @param initTime      dag starting time (set by method)
+     * @param refTime       reference time (all timestamps are relative to this ref)
      */
     virtual void
     setNodesEFT(std::vector<Node *>& orderedNodes,
                 const wf_response_t * wf_response,
                 Dag * dag,
-                double& initTime);
+                double& initTime,
+                double refTime);
 
     /**
      * Old scheduling methods
