@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/04/30 07:37:01  bisnard
+ * use relative timestamps for estimated and real completion time
+ * make MultiWfScheduler abstract and add HEFT MultiWf scheduler
+ *
  * Revision 1.2  2008/04/28 11:51:43  bisnard
  * choose wf scheduler type when creating madag
  *
@@ -32,9 +36,31 @@ using namespace std;
 #include "HEFT_Sched.hh"
 */
 
+void usage(char * s) {
+  fprintf(stderr, "Usage: %s <file.cfg> [option]\n", s);
+  fprintf(stderr, "option = --heft | --fairness\n");
+  exit(1);
+}
+int checkUsage(int argc, char ** argv) {
+  if ((argc != 2) && (argc != 3)) {
+    usage(argv[0]);
+  }
+  if (argc == 3) {
+    if (strcmp(argv[2], "--heft") &&
+	strcmp(argv[2], "--fairness")) {
+      usage(argv[0]);
+    }
+  }
+  return 0;
+}
+
+
 int main(int argc, char * argv[]){
   char * config_file_name = argv[1];
   int    res(0);
+
+  checkUsage(argc,argv);
+
   /* Parsing */
 
   // Init the Xerces engine
@@ -66,10 +92,12 @@ int main(int argc, char * argv[]){
 
   // choose scheduler type
 
-  MaDag_impl::MaDagSchedType schedType = MaDag_impl::HEFT;
+  MaDag_impl::MaDagSchedType schedType = MaDag_impl::BASIC;
   if (argc >= 3) {
     if (!strcmp(argv[2], "--fairness"))
       schedType = MaDag_impl::FOFT;
+    else if (!strcmp(argv[2], "--heft"))
+      schedType = MaDag_impl::HEFT;
   }
 
   // INIT ORB and CREATE MADAG CORBA OBJECT

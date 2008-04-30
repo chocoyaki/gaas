@@ -4,11 +4,16 @@
 /*                                                                          */
 /* Author(s):                                                               */
 /* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
+/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/04/30 07:37:01  bisnard
+ * use relative timestamps for estimated and real completion time
+ * make MultiWfScheduler abstract and add HEFT MultiWf scheduler
+ *
  * Revision 1.4  2008/04/21 14:31:45  bisnard
  * moved common multiwf routines from derived classes to MultiWfScheduler
  * use wf request identifer instead of dagid to reference client
@@ -30,26 +35,44 @@
 #ifndef _MULTIWFBASICSCHEDULER_HH_
 #define _MULTIWFBASICSCHEDULER_HH_
 
-#include "WfScheduler.hh"
-#include "MultiDag.hh"
 #include "MultiWfScheduler.hh"
 
 namespace madag {
+
   class MultiWfBasicScheduler : public MultiWfScheduler {
+
   public:
+
     MultiWfBasicScheduler(MaDag_impl* maDag);
     virtual ~MultiWfBasicScheduler();
 
     /**
-     * Workflow submission function.
-     * @param wf_desc workflow string description
-     * @param dag_id the dag ID
+     * Execution method
      */
-    virtual bool
-    submit_wf (const corba_wf_desc_t& wf_desc, int dag_id,
-               MasterAgent_var parent,
-               CltMan_var cltMan);
+    virtual void *
+        run();
 
+    /**
+     * Updates scheduler when a node has been executed
+     * (does nothing)
+     */
+    virtual void
+        handlerNodeDone(Node * node);
+
+  protected:
+
+    /**
+     * create simple ordered NodeQueue for ready nodes
+     * (does not use priority of nodes)
+     */
+    virtual OrderedNodeQueue *
+        createNodeQueue(Dag * dag);
+
+    /**
+     * delete the node queue created in createNodeQueue
+     */
+    virtual void
+        deleteNodeQueue(OrderedNodeQueue * nodeQ);
   };
 
 }

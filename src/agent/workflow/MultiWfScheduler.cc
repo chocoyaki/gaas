@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/04/30 07:37:01  bisnard
+ * use relative timestamps for estimated and real completion time
+ * make MultiWfScheduler abstract and add HEFT MultiWf scheduler
+ *
  * Revision 1.5  2008/04/28 12:12:44  bisnard
  * new NodeQueue implementation for FOFT
  * manage thread join after node execution
@@ -53,6 +57,11 @@ using namespace madag;
 MultiWfScheduler::MultiWfScheduler(MaDag_impl* maDag) : mySem(1), myMaDag(maDag) {
 //   this->myMetaDag = new MultiDag();
   this->mySched   = new HEFTScheduler();
+  this->execQueue = NULL; // must be initialized in derived class constructor
+  // init reference time
+  struct timeval current_time;
+  gettimeofday(&current_time, NULL);
+  this->refTime = current_time.tv_sec;
 }
 
 MultiWfScheduler::~MultiWfScheduler() {
@@ -121,7 +130,6 @@ MultiWfScheduler::scheduleNewDag(const corba_wf_desc_t& wf_desc, int wfReqId,
   return true;
 }
 
-
 /**
  * Execution method
  */
@@ -129,22 +137,27 @@ void*
 MultiWfScheduler::run() {
   int nodeCount = 0;
   while (true) {
-    cout << "\t ** Starting MultiWfScheduler" << endl;
+    cout << "\t ** Starting Multi-Workflow scheduler" << endl;
     this->myLock.lock();
     // Loop over all nodeQueues and run the first ready node
     // for each queue
     nodeCount = 0;
     std::list<OrderedNodeQueue *>::iterator qp = readyQueues.begin();
     while (qp != readyQueues.end()) {
-      cout << "Checking ready nodes queue" << endl;
+      cout << "Checking ready nodes queue:" << endl;
       OrderedNodeQueue * readyQ = *qp;
       Node * n = readyQ->popFirstNode();
       if (n != NULL) {
-        cout << "Ready node " << n->getCompleteId()
-            << " (request #" << n->getWfReqId() << ")" << endl;
-        // EXECUTE NODE (NEW THREAD)
-        n->setAsRunning();
-        runNode(n, n->getSeD());
+        cout << "  #### Ready node : " << n->getCompleteId()
+            << " / request #" << n->getWfReqId()
+            << " / prio = " << n->getPriority() << endl;
+
+        // set priority of node (depends on choosen algorithm)
+        this->setExecPriority(n);
+
+        // insert node into execution queue
+        execQueue->pushNode(n);
+
         nodeCount++;
         // Destroy queues if both are empty
         ChainedNodeQueue * waitQ = waitingQueues[readyQ];
@@ -157,7 +170,23 @@ MultiWfScheduler::run() {
       }
       ++qp; // go to next queue
     }
+
+    if (nodeCount > 0) {
+      cout << "Executing nodes in priority order:" << endl;
+      while (!execQueue->isEmpty()) {
+        Node *n = execQueue->popFirstNode();
+
+        // EXECUTE NODE (NEW THREAD)
+        n->setAsRunning();
+        cout << "  $$$$ Exec node : " << n->getCompleteId()
+            << " / request #" << n->getWfReqId()
+            << " / prio = " << n->getPriority() << endl;
+        runNode(n, n->getSeD());
+      }
+    }
+
     this->myLock.unlock();
+
     if (nodeCount == 0) {
       cout << "No ready nodes" << endl;
       this->mySem.wait();
@@ -192,11 +221,13 @@ MultiWfScheduler::wakeUp(NodeRun * nodeThread) {
 }
 
 /**
- * Notify the scheduler that a node is done
+ * Get the current time from scheduler reference clock
  */
-void
-MultiWfScheduler::handlerNodeDone(Node * node) {
-  // does nothing by default (to be overriden in derived classes)
+double
+MultiWfScheduler::getRelCurrTime() {
+  struct timeval current_time;
+  gettimeofday(&current_time, NULL);
+  return (current_time.tv_sec - this->refTime);
 }
 
 /****************************************************************************/
@@ -228,18 +259,19 @@ MultiWfScheduler::getProblemEstimates(Dag *dag, MasterAgent_var MA)
   corba_pb_desc_seq_t pbs_seq;
   pbs_seq.length(len);
   for (unsigned int ix=0; ix< len; ix++) {
-    cout << "marshalling pb " << ix << endl
+    TRACE_TEXT (TRACE_ALL_STEPS, "marshalling pb " << ix << endl
         << "pb_name = " << v[ix]->pb_name << endl
         << "last_in = " << v[ix]->last_in << endl
         << "last_inout = " << v[ix]->last_inout << endl
-        << "last_out = " << v[ix]->last_out << endl;
+        << "last_out = " << v[ix]->last_out << endl);
 
     mrsh_pb_desc(&pbs_seq[ix], v[ix]);
   }
-  cout << "MultiWfScheduler: send the problems sequence to the MA  ... "
-      << endl;
+  TRACE_TEXT (TRACE_ALL_STEPS,
+              "MultiWfScheduler: send the problems sequence to the MA  ... "
+                  << endl);
   wf_response_t * wf_response = MA->submit_pb_set(pbs_seq, dag->size());
-  cout << "... done" << endl;
+  TRACE_TEXT (TRACE_ALL_STEPS, "... done" << endl);
   if ( ! wf_response->complete)
     throw (NodeException(NodeException::eSERVICE_NOT_FOUND));
   return wf_response;
@@ -258,24 +290,17 @@ MultiWfScheduler::intraDagSchedule(Dag * dag, MasterAgent_var MA)
   this->mySched->setNodesPriority(wf_response, dag);
 }
 
+
 /**
  * Create two chained node queues and return the ready queue
+ * (uses the priority-based nodequeue)
  *  - WAITING queue => READY queue
  */
-OrderedNodeQueue *
-MultiWfScheduler::createNodeQueue(std::vector<Node *> nodes)  {
-  cout << "Creating new node queues (basic)" << endl;
-  OrderedNodeQueue *  readyQ  = new OrderedNodeQueue();
-  ChainedNodeQueue *  waitQ   = new ChainedNodeQueue(readyQ);
-  waitQ->pushNodes(nodes);
-  this->waitingQueues[readyQ] = waitQ; // used to destroy waiting queue
-  return readyQ;
-}
 
 OrderedNodeQueue *
 MultiWfScheduler::createNodeQueue(Dag * dag)  {
-  cout << "Creating new node queues (basic)" << endl;
-  OrderedNodeQueue *  readyQ  = new OrderedNodeQueue();
+  TRACE_TEXT (TRACE_ALL_STEPS, "Creating new node queues (priority-based)" << endl);
+  OrderedNodeQueue *  readyQ  = new PriorityNodeQueue();
   ChainedNodeQueue *  waitQ   = new ChainedNodeQueue(readyQ);
   for (std::map <std::string, Node *>::iterator nodeIt = dag->begin();
        nodeIt != dag->end();
@@ -292,11 +317,12 @@ MultiWfScheduler::createNodeQueue(Dag * dag)  {
  */
 void
 MultiWfScheduler::deleteNodeQueue(OrderedNodeQueue * nodeQ) {
-  cout << "Deleting node queues" << endl;
+  TRACE_TEXT (TRACE_ALL_STEPS, "Deleting node queues" << endl);
   ChainedNodeQueue *  waitQ = waitingQueues[nodeQ];
   waitingQueues.erase(nodeQ);     // removes from the map
   delete waitQ;
-  delete nodeQ;
+  PriorityNodeQueue * readyQ  = dynamic_cast<PriorityNodeQueue *>(nodeQ);
+  delete readyQ;
 }
 
 /**
@@ -305,6 +331,22 @@ MultiWfScheduler::deleteNodeQueue(OrderedNodeQueue * nodeQ) {
 void
 MultiWfScheduler::insertNodeQueue(OrderedNodeQueue * nodeQ) {
   this->readyQueues.push_back(nodeQ);
+}
+
+/**
+ * set node priority before inserting into execution queue
+ */
+void
+MultiWfScheduler::setExecPriority(Node * node) {
+  // by default does nothing
+}
+
+/**
+ * get reference time
+ */
+double
+MultiWfScheduler::getRefTime() {
+  return this->refTime;
 }
 
 /**
@@ -336,24 +378,27 @@ NodeRun::NodeRun(Node * node, SeD_var sed, MultiWfScheduler * scheduler,
 void*
 NodeRun::run() {
   string dag_id = this->myNode->getDag()->getId();
-  cout << "NodeRun: running node " << this->myNode->getCompleteId() << endl;
+  TRACE_TEXT (TRACE_ALL_STEPS, "NodeRun: running node "
+      << this->myNode->getCompleteId() << endl);
   if (myCltMan != CltMan::_nil()) {
-    cout << "NodeRun: try to call client manager (ping)" << endl;
+    TRACE_TEXT (TRACE_ALL_STEPS, "NodeRun: try to call client manager (ping)"
+        << endl);
     myCltMan->ping();
 
+    TRACE_TEXT (TRACE_ALL_STEPS, "NodeRun: try to call client manager ");
     if (!CORBA::is_nil(this->mySeD)) {
-      cout << "NodeRun: try to call client manager (exec on sed)" << endl;
+      TRACE_TEXT (TRACE_ALL_STEPS, "(exec on sed)" << endl);
       myCltMan->execNodeOnSed(this->myNode->getId().c_str(),
                               this->myNode->getDag()->getId().c_str(),
                                   this->mySeD);
     } else {
-      cout << "NodeRun: try to call client manager (exec without sed)" << endl;
+      TRACE_TEXT (TRACE_ALL_STEPS, "(exec without sed)" << endl);
       myCltMan->execNode(this->myNode->getId().c_str(),
                          this->myNode->getDag()->getId().c_str());
     }
-    cout << "NodeRun: node is done" << endl;
+    TRACE_TEXT (TRACE_ALL_STEPS, "NodeRun: node is done" << endl);
     // update node status (must be called before handlerNodeDone to update realCompTime)
-    this->myNode->setAsDone();
+    this->myNode->setAsDone(this->myScheduler->getRelCurrTime());
     // inform scheduler that node is done (depending on the scheduler, this may trigger
     //  a recursive update of the realCompTime in other nodes)
     this->myScheduler->handlerNodeDone(myNode);

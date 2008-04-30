@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/04/30 07:37:01  bisnard
+ * use relative timestamps for estimated and real completion time
+ * make MultiWfScheduler abstract and add HEFT MultiWf scheduler
+ *
  * Revision 1.5  2008/04/28 12:12:44  bisnard
  * new NodeQueue implementation for FOFT
  * manage thread join after node execution
@@ -45,9 +49,12 @@ using namespace madag;
 /****************************************************************************/
 
 MultiWfFOFT::MultiWfFOFT(MaDag_impl* maDag) : MultiWfScheduler(maDag) {
+  this->execQueue = new PriorityNodeQueue;
+  cout << "Using FOFT multi-workflow scheduler" << endl;
 }
 
 MultiWfFOFT::~MultiWfFOFT() {
+  delete dynamic_cast<PriorityNodeQueue *>(execQueue);
 }
 
 /**
@@ -69,76 +76,6 @@ NodeState::NodeState() {
   this->executed = false;
   this->multiFT = 0;
   this->ownFT = 0;
-}
-
-/**
- * Execution method
- */
-void*
-MultiWfFOFT::run() {
-  int nodeCount = 0;
-  while (true) {
-    cout << "\t ** Starting MultiWfFOFT scheduler" << endl;
-    this->myLock.lock();
-    // Loop over all nodeQueues and run the first ready node
-    // for each queue
-    nodeCount = 0;
-    std::list<OrderedNodeQueue *>::iterator qp = readyQueues.begin();
-    while (qp != readyQueues.end()) {
-      cout << "Checking ready nodes queue" << endl;
-      OrderedNodeQueue * readyQ = *qp;
-      Node * n = readyQ->popFirstNode();
-      if (n != NULL) {
-        cout << "Ready node " << n->getCompleteId()
-            << " (request #" << n->getWfReqId() << ")" << endl;
-
-        // Different from base class
-
-        // set priority of node = slowdown of dag
-        n->setPriority(this->dagsState[n->getDag()].slowdown);
-        cout << "  ==> node has priority: " << n->getPriority() << endl;
-        // insert node into execution queue
-        execQueue.pushNode(n);
-
-        // End of different part
-
-        nodeCount++;
-        // Destroy queues if both are empty
-        ChainedNodeQueue * waitQ = waitingQueues[readyQ];
-        if (waitQ->isEmpty() && readyQ->isEmpty()) {
-          cout << "Node Queues are empty: remove & destroy" << endl;
-          qp = readyQueues.erase(qp);      // removes from the list
-          this->deleteNodeQueue(readyQ);  // deletes both queues
-          continue;
-        }
-      }
-      ++qp; // go to next queue
-    }
-
-    // Different from base class
-    if (nodeCount > 0) {
-      cout << "Executing nodes in FOFT order:" << endl;
-      while (!execQueue.isEmpty()) {
-        Node *n = execQueue.popFirstNode();
-
-        // EXECUTE NODE (NEW THREAD)
-        n->setAsRunning();
-        runNode(n, n->getSeD());
-      }
-    }
-    // End of different part
-
-    this->myLock.unlock();
-
-    if (nodeCount == 0) {
-      cout << "No ready nodes" << endl;
-      this->mySem.wait();
-      if (this->termNode) {
-        this->termNodeThread->join();
-        delete this->termNodeThread;
-      }
-    }
-  }
 }
 
 /**
@@ -186,7 +123,7 @@ MultiWfFOFT::intraDagSchedule(Dag * dag, MasterAgent_var MA)
   // Initialize the earliest finish time for all nodes
   double startTime = 0; // will contain the timestamp for scheduling starting time
   std::vector<Node*>& orderedNodes = dag->getNodesByPriority();
-  this->mySched->setNodesEFT(orderedNodes, wf_response, dag, startTime);
+  this->mySched->setNodesEFT(orderedNodes, wf_response, dag, startTime, this->getRefTime());
   delete &orderedNodes;
 
   // Initialize the earliest finish time and makespan of the dag
@@ -198,48 +135,14 @@ MultiWfFOFT::intraDagSchedule(Dag * dag, MasterAgent_var MA)
 }
 
 /**
- * Create two chained node queues and return the ready queue
- * (uses the priority-based nodequeue)
- *  - WAITING queue => READY queue
- */
-OrderedNodeQueue *
-MultiWfFOFT::createNodeQueue(std::vector<Node *> nodes) {
-  cout << "Creating new node queues (priority-based)" << endl;
-  PriorityNodeQueue *   readyQ  = new PriorityNodeQueue();
-  ChainedNodeQueue *    waitQ   = new ChainedNodeQueue(readyQ);
-  waitQ->pushNodes(nodes);
-  this->waitingQueues[readyQ] = waitQ; // used to destroy waiting queue
-  return readyQ;
-}
-
-OrderedNodeQueue *
-MultiWfFOFT::createNodeQueue(Dag * dag)  {
-  cout << "Creating new node queues (basic)" << endl;
-  OrderedNodeQueue *  readyQ  = new PriorityNodeQueue();
-  ChainedNodeQueue *  waitQ   = new ChainedNodeQueue(readyQ);
-  for (std::map <std::string, Node *>::iterator nodeIt = dag->begin();
-       nodeIt != dag->end();
-       nodeIt++) {
-    waitQ->pushNode(&(*nodeIt->second));
-  }
-  this->waitingQueues[readyQ] = waitQ; // used to destroy waiting queue
-  return readyQ;
-}
-
-/**
- * Delete the two chained node queues
- *  - WAITING queue => READY queue
+ * set node priority before inserting into execution queue
  */
 void
-MultiWfFOFT::deleteNodeQueue(OrderedNodeQueue * nodeQ) {
-  cout << "Deleting node queues" << endl;
-  ChainedNodeQueue *  waitQ = waitingQueues[nodeQ];
-  waitingQueues.erase(nodeQ);     // removes from the map
-  delete waitQ;
-  PriorityNodeQueue * readyQ  = dynamic_cast<PriorityNodeQueue *>(nodeQ);
-  delete readyQ;
+MultiWfFOFT::setExecPriority(Node * node) {
+  node->setPriority(this->dagsState[node->getDag()].slowdown);
+  cout << "     Node priority (slowdown) set to " << node->getPriority()
+      << " before exec. " << endl;
 }
-
 
 /************************ DEPRECATED METHODS *********************************/
 

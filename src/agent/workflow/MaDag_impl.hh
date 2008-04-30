@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/04/30 07:37:01  bisnard
+ * use relative timestamps for estimated and real completion time
+ * make MultiWfScheduler abstract and add HEFT MultiWf scheduler
+ *
  * Revision 1.5  2008/04/28 11:56:51  bisnard
  * choose wf scheduler type when creating madag
  *
@@ -75,7 +79,7 @@
 class MaDag_impl : public POA_MaDag,
 		   public PortableServer::RefCountServantBase {
 public:
-  enum MaDagSchedType { HEFT, FOFT };
+  enum MaDagSchedType { BASIC, HEFT, FOFT };
 
   MaDag_impl(const char * name, const MaDagSchedType schedType);
 

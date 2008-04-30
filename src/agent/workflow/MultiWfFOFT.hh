@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/04/30 07:37:01  bisnard
+ * use relative timestamps for estimated and real completion time
+ * make MultiWfScheduler abstract and add HEFT MultiWf scheduler
+ *
  * Revision 1.5  2008/04/28 12:12:44  bisnard
  * new NodeQueue implementation for FOFT
  * manage thread join after node execution
@@ -55,12 +59,6 @@ namespace madag {
     virtual ~MultiWfFOFT();
 
     /**
-     * Execution method
-     */
-    virtual void *
-        run();
-
-    /**
      * Old Workflow submission function.
      * @deprecated
      *
@@ -88,34 +86,16 @@ namespace madag {
         throw (NodeException);
 
     /**
-     * Create new node queue
+     * set node priority before inserting into execution queue
+     * @param node   the node to insert
      */
-    OrderedNodeQueue *
-        createNodeQueue(std::vector<Node *> nodes);
-
-    /**
-     * create a new node queue based on a dag
-     *
-     * @param dag   a dag
-     * @return pointer to a nodequeue structure (to be destroyed by the caller)
-     */
-    OrderedNodeQueue *
-        createNodeQueue(Dag * dag);
-
-    /**
-     * delete the node queue created in createNodeQueue
-     *
-     * @param nodeQ   pointer to the node queue created in createdNodeQueue
-     */
-    void
-        deleteNodeQueue(OrderedNodeQueue * nodeQ);
+    virtual void
+        setExecPriority(Node * node);
 
     /**
      * Save the state of dags
      */
     map<Dag*, DagState> dagsState;
-
-    PriorityNodeQueue execQueue;
 
     /*************** DEPRECATED ATTRIBUTES & METHODS ******************/
     /*********** (used by submit_wf) **********************************/

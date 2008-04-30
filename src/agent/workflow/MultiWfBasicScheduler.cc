@@ -4,11 +4,16 @@
 /*                                                                          */
 /* Author(s):                                                               */
 /* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
+/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/04/30 07:37:01  bisnard
+ * use relative timestamps for estimated and real completion time
+ * make MultiWfScheduler abstract and add HEFT MultiWf scheduler
+ *
  * Revision 1.5  2008/04/28 12:12:44  bisnard
  * new NodeQueue implementation for FOFT
  * manage thread join after node execution
@@ -33,93 +38,103 @@
 
 #include "MultiWfBasicScheduler.hh"
 #include "debug.hh"
-#include "HEFTScheduler.hh"
 #include "marshalling.hh"
 
 using namespace madag;
 
 MultiWfBasicScheduler::MultiWfBasicScheduler(MaDag_impl* maDag)
   : MultiWfScheduler(maDag) {
-  this->start();
+  cout << "Using BASIC multi-workflow scheduler" << endl;
 }
 
 MultiWfBasicScheduler::~MultiWfBasicScheduler() {
 }
 
 /**
- * Workflow submission function.
+ * Execution method
+ * (does not use execQueue)
  */
-bool
-MultiWfBasicScheduler::submit_wf (const corba_wf_desc_t& wf_desc, int dag_id,
-                                  MasterAgent_var parent,
-                                  CltMan_var cltMan) {
-  this->myLock.lock();
-  wf_sched_response_t * wf_resp = new wf_sched_response_t;
-  wf_resp->dag_id = dag_id;
-
-  cout << "The meta scheduler receive a new dag " << endl
-       << wf_desc.abstract_wf << endl;
-
-  DagWfParser reader(dag_id,wf_desc.abstract_wf);
-  reader.setup();
-  reader.getDag()->setId(itoa(dag_id));
-//  this->cltMans[itoa(dag_id)] = cltMan;
-  this->myMetaDag->addDag(reader.getDag());
-//   cout << " %%%%%%%%%%%%%%%%%%%%%%%%%% " << endl << endl << endl;
-//   cout << "The Meta Dag XML representation (" << endl;
-//   cout << this->myMetaDag->toXML() << endl;
-//   cout << " %%%%%%%%%%%%%%%%%%%%%%%%%% " << endl << endl << endl;
-
-  // check the services
-  Dag * dag = this->myMetaDag->getDag(itoa(dag_id));
-  dag->setAsTemp(true); // avoids destruction of the dag
-  vector<diet_profile_t*> v = dag->getAllProfiles();
-  unsigned int len = v.size();
-  corba_pb_desc_seq_t pbs_seq;
-  pbs_seq.length(len);
-  for (unsigned int ix=0; ix< len; ix++) {
-    cout << "marshalling pb " << ix << endl
-	 << "pb_name = " << v[ix]->pb_name << endl
-	 << "last_in = " << v[ix]->last_in << endl
-	 << "last_inout = " << v[ix]->last_inout << endl
-	 << "last_out = " << v[ix]->last_out << endl;
-
-    mrsh_pb_desc(&pbs_seq[ix], v[ix]);
-  }
-
-  cout << "MultiWfBasicScheduler: send the problems sequence to the MA  ... "
-       << endl;
-  wf_response_t * wf_response = parent->submit_pb_set(pbs_seq, dag->size());
-  cout << "... done" << endl;
-
-  wf_resp->dag_id = wf_response->dag_id;
-  wf_resp->firstReqID = wf_response->firstReqID;
-  wf_resp->lastReqID = wf_response->lastReqID;
-  wf_resp->ma_response = *wf_response;
-
-  // construct the response/scheduling
-
-  if ( ! wf_response->complete) {
-    cout << "The response is incomplete - dag is cancelled" << endl;
-    this->myMetaDag->removeDag(itoa(dag_id));
+void*
+MultiWfBasicScheduler::run() {
+  int nodeCount = 0;
+  while (true) {
+    cout << "\t ** Starting MultiWfBasicScheduler" << endl;
+    this->myLock.lock();
+    // Loop over all nodeQueues and run the first ready node
+    // for each queue
+    nodeCount = 0;
+    std::list<OrderedNodeQueue *>::iterator qp = readyQueues.begin();
+    while (qp != readyQueues.end()) {
+      cout << "Checking ready nodes queue:" << endl;
+      OrderedNodeQueue * readyQ = *qp;
+      Node * n = readyQ->popFirstNode();
+      if (n != NULL) {
+        cout << "  #### Ready node : " << n->getCompleteId()
+            << " (request #" << n->getWfReqId() << ") => execute" << endl;
+        // EXECUTE NODE (NEW THREAD)
+        n->setAsRunning();
+        runNode(n, n->getSeD());
+        nodeCount++;
+        // Destroy queues if both are empty
+        ChainedNodeQueue * waitQ = waitingQueues[readyQ];
+        if (waitQ->isEmpty() && readyQ->isEmpty()) {
+          cout << "Node Queues are empty: remove & destroy" << endl;
+          qp = readyQueues.erase(qp);      // removes from the list
+          this->deleteNodeQueue(readyQ);  // deletes both queues
+          continue;
+        }
+      }
+      ++qp; // go to next queue
+    }
     this->myLock.unlock();
-    return false;
+    if (nodeCount == 0) {
+      cout << "No ready nodes" << endl;
+      this->mySem.wait();
+      if (this->termNode) {
+        this->termNodeThread->join();
+        delete this->termNodeThread;
+      }
+    }
   }
-
-  // By default use the Round Robbin scheduler
-  if (mySched == NULL) {
-    //    mySched = new RoundRobbin_MaDag_Sched();
-    mySched = new HEFTScheduler();
-  }
-
-  wf_node_sched_seq_t sched_seq = mySched->schedule(wf_response, dag);
-
-//  this->myMetaDag->mapSeDs(sched_seq);  // was used to assign sed
-
-  this->wakeUp();
-
-  this->myLock.unlock();
-
-  return true;
 }
 
+/**
+ * Notify the scheduler that a node is done
+ */
+void
+MultiWfBasicScheduler::handlerNodeDone(Node * node) {
+  // does nothing for this class
+}
+
+/**
+ * Create two chained node queues and return the ready queue
+ *  - WAITING queue => READY queue
+ */
+
+OrderedNodeQueue *
+MultiWfBasicScheduler::createNodeQueue(Dag * dag)  {
+  TRACE_TEXT (TRACE_ALL_STEPS, "Creating new node queues (basic)" << endl);
+  OrderedNodeQueue *  readyQ  = new OrderedNodeQueue();
+  ChainedNodeQueue *  waitQ   = new ChainedNodeQueue(readyQ);
+  for (std::map <std::string, Node *>::iterator nodeIt = dag->begin();
+       nodeIt != dag->end();
+       nodeIt++) {
+    waitQ->pushNode(&(*nodeIt->second));
+  }
+  this->waitingQueues[readyQ] = waitQ; // used to destroy waiting queue
+  return readyQ;
+}
+
+
+/**
+ * Delete the two chained node queues
+ *  - WAITING queue => READY queue
+ */
+void
+MultiWfBasicScheduler::deleteNodeQueue(OrderedNodeQueue * nodeQ) {
+  TRACE_TEXT (TRACE_ALL_STEPS, "Deleting node queues" << endl);
+  ChainedNodeQueue *  waitQ = waitingQueues[nodeQ];
+  waitingQueues.erase(nodeQ);     // removes from the map
+  delete waitQ;
+  delete nodeQ;
+}

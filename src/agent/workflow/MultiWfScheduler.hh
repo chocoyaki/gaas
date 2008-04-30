@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/04/30 07:37:01  bisnard
+ * use relative timestamps for estimated and real completion time
+ * make MultiWfScheduler abstract and add HEFT MultiWf scheduler
+ *
  * Revision 1.5  2008/04/28 12:12:44  bisnard
  * new NodeQueue implementation for FOFT
  * manage thread join after node execution
@@ -91,6 +95,7 @@ namespace madag {
     /**
      * Execute a post operation on synchronisation semaphore
      * and joins the node thread given as parameter
+     * @param nodeThread  pointer to the calling thread
      */
     virtual void
         wakeUp(NodeRun * nodeThread);
@@ -105,7 +110,14 @@ namespace madag {
      * Updates scheduler when a node has been executed
      */
     virtual void
-        handlerNodeDone(Node * node);
+        handlerNodeDone(Node * node) = 0;
+
+    /**
+     * Get the current time from scheduler reference clock
+     * @return  current time in sec (from scheduler start)
+     */
+    double
+        getRelCurrTime();
 
   protected:
 
@@ -130,6 +142,11 @@ namespace madag {
      * Node queues for ready nodes
      */
     list<OrderedNodeQueue *> readyQueues;
+
+    /**
+     * Node queue for nodes to be executed
+     */
+    OrderedNodeQueue * execQueue;
 
     /**
      * Critical section of the scheduler
@@ -188,16 +205,8 @@ namespace madag {
         throw (NodeException);
 
     /**
-     * create a new node queue based on a vector of nodes
-     *
-     * @param nodes   a vector of nodes
-     * @return pointer to a nodequeue structure (to be destroyed by the caller)
-     */
-    virtual OrderedNodeQueue *
-        createNodeQueue(std::vector<Node *> nodes);
-
-    /**
      * create a new node queue based on a dag
+     * (by default uses a priority-based nodeQueue)
      *
      * @param dag   a dag
      * @return pointer to a nodequeue structure (to be destroyed by the caller)
@@ -220,6 +229,21 @@ namespace madag {
     virtual void
         insertNodeQueue(OrderedNodeQueue * nodeQ);
 
+    /**
+     * set node priority before inserting into execution queue
+     * (called by run method)
+     * @param node   the node to insert
+     */
+    virtual void
+        setExecPriority(Node * node);
+
+    /**
+     * get the reference time (when scheduler started)
+     * used to compute diff with this time
+     */
+    double
+        getRefTime();
+
   private:
 
     /**
@@ -231,6 +255,11 @@ namespace madag {
      * Dag counter
      */
     static long dagIdCounter;
+
+    /**
+     * Reference time
+     */
+    double refTime;
 
   }; // end class MultiWfScheduler
 

@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2008/04/30 07:37:01  bisnard
+ * use relative timestamps for estimated and real completion time
+ * make MultiWfScheduler abstract and add HEFT MultiWf scheduler
+ *
  * Revision 1.6  2008/04/29 07:25:01  rbolze
  * change stat_out messages
  *
@@ -81,12 +85,13 @@
 #include "HEFTScheduler.hh"
 #include "MultiWfBasicScheduler.hh"
 #include "MultiWfFOFT.hh"
+#include "MultiWfHEFT.hh"
 #include "debug.hh"
 
 using namespace std;
 using namespace madag;
 
-MaDag_impl::MaDag_impl(const char * name, const MaDagSchedType schedType = HEFT) :
+MaDag_impl::MaDag_impl(const char * name, const MaDagSchedType schedType = BASIC) :
   myName(name), myMultiWfSched(NULL), wfReqIdCounter(0) {
 
   char* MAName = (char*)
@@ -114,8 +119,11 @@ MaDag_impl::MaDag_impl(const char * name, const MaDagSchedType schedType = HEFT)
 	       "## MADAG_IOR " << ORBMgr::getIORString(this->_this()) << endl);
   // starting the multiwfscheduler
   switch (schedType) {
+    case BASIC:
+      this->myMultiWfSched = new MultiWfBasicScheduler(this);
+      break;
     case HEFT:
-      this->myMultiWfSched = new MultiWfScheduler(this);
+      this->myMultiWfSched = new MultiWfHEFT(this);
       break;
     case FOFT:
       this->myMultiWfSched = new MultiWfFOFT(this);
