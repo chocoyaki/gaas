@@ -13,6 +13,8 @@
 #ifndef __DIET_DAGDA_H__
 #define __DIET_DAGDA_H__
 
+/* If we don't know the type of the data to download. */
+#define DIET_UNKNOWN_TYPE DIET_DATA_TYPE_COUNT
 /* To add a data to the platform. */
 int dagda_put_data(void* value, diet_data_type_t type,
 	diet_base_type_t base_type, diet_persistence_mode_t mode,
@@ -37,6 +39,13 @@ int dagda_wait_put(unsigned int threadID, char** ID);
 int dagda_wait_get(unsigned int threadID, void** value, diet_base_type_t* base_type,
     size_t* nb_r, size_t* nb_c, diet_matrix_order_t* order, char** path);
 
+/* Add a data asynchronously without waiting possibility. */
+int dagda_add_data(void* value, diet_data_type_t type,
+  diet_base_type_t base_type, diet_persistence_mode_t mode,
+  size_t nb_r, size_t nb_c, diet_matrix_order_t order, char* path);
+/* Load a data asynchronously on this data manager without waiting possibility. */
+int dagda_load_data(char* ID, diet_data_type_t type);
+
 /* Asks to the nodes to save their data on checkpoint file. */
 int dagda_save_platform();
 
@@ -44,6 +53,7 @@ int dagda_save_platform();
 int dagda_data_alias(const char* id, const char* alias);
 /* Get the id of a data from its alias. */
 int dagda_id_from_alias(const char* alias, char** id);
+
 /* Put macros */
 #define dagda_put_scalar(value, base_type, mode, ID) \
   dagda_put_data(value, DIET_SCALAR, base_type, mode, 0, 0, \

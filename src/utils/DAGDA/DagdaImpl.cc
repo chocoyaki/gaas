@@ -105,7 +105,7 @@ char* DagdaImpl::writeFile(const SeqChar& data, const char* basename,
 }
 
 string gen_filename(string basename) {
-  int idx = basename.find_last_of('/');
+  unsigned int idx = basename.find_last_of('/');
   if (idx!=string::npos)
     basename=basename.substr(idx);
   ostringstream name;
@@ -146,7 +146,7 @@ char* DagdaImpl::sendFile(const corba_data_t &data, Dagda_ptr dest) {
 
   bool replace = true;
   char* distPath = NULL;
-  for (int i=0; i<nBlocks; ++i) {
+  for (unsigned long i=0; i<nBlocks; ++i) {
     SeqChar buffer;
     int toSend = (fileSize-wrote > getMaxMsgSize() ?
 		  getMaxMsgSize():(fileSize-wrote));
@@ -193,7 +193,7 @@ char* DagdaImpl::recordData(const SeqChar& data,
     (*getData())[dataId].value.length(data.length()+offset);
   }
 
-  for (int i=0; i<data.length(); ++i) {
+  for (unsigned int i=0; i<data.length(); ++i) {
     (*getData())[dataId].value[i+offset]=data[i];
   }
 
@@ -581,7 +581,7 @@ SeqCorbaDataDesc_t* SimpleDagdaImpl::lvlGetDataDescList() {
   std::map<char*,corba_data_desc_t> dataMap;
   SeqCorbaDataDesc_t* result = new SeqCorbaDataDesc_t();
 
-  for (int i=0; i<local->length(); i++)
+  for (unsigned int i=0; i<local->length(); i++)
     dataMap[(*local)[i].id.idNumber]=(*local)[i];
   delete local;
 
@@ -589,7 +589,7 @@ SeqCorbaDataDesc_t* SimpleDagdaImpl::lvlGetDataDescList() {
   for (itch=getChildren()->begin();itch!=getChildren()->end();)
     try {
       SeqCorbaDataDesc_t* childList = (*itch).second->lvlGetDataDescList();
-      for (int j=0; j<childList->length(); ++j)
+      for (unsigned int j=0; j<childList->length(); ++j)
         dataMap[(*childList)[j].id.idNumber]=(*childList)[j];
       delete childList;
 	  itch++;
@@ -674,7 +674,7 @@ SeqDagda_t* SimpleDagdaImpl::lvlGetDataManagers(const char* dataID) {
   for (itch=getChildren()->begin();itch!=getChildren()->end();)
     try {
       SeqDagda_t* managers = (*itch).second->lvlGetDataManagers(dataID);
-      for (int j=0; j< managers->length(); ++j)
+      for (unsigned int j=0; j< managers->length(); ++j)
         dtmList.push_back(Dagda::_duplicate((*managers)[j]));
       delete managers;
 	  itch++;
@@ -860,6 +860,8 @@ size_t DagdaImpl::make_corba_data(corba_data_t& data, diet_data_type_t type,
     case DIET_FILE:
       diet_data.desc.specific.file.path = path;
 	  break;
+	default:
+	  WARNING("This data type is not managed by DIET.");
   }
   
   mrsh_data_desc(&data.desc, &diet_data.desc);
@@ -1015,6 +1017,8 @@ int DagdaImpl::readData(corba_data_t& data, ifstream& file) {
 		value = NULL;
 		path = (char*) buffer;
 		break;
+	  default:
+	    WARNING("This data type is not managed by DIET.");
 	}
     make_corba_data(data, type, base_type, mode, nb_r, nb_c,
 	  order, buffer, path);

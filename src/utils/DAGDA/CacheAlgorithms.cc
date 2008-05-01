@@ -7,8 +7,8 @@
 /*                                                         */
 /* $LICENSE$                                               */
 /***********************************************************/
-/* $Id
-/* $Log
+/* $Id */
+/* $Log */
 /*														   */
 /***********************************************************/
 #include <iostream>
@@ -25,7 +25,7 @@ int LRU(AdvancedDagdaComponent* manager, size_t size, dagda_object_type_t type) 
   TRACE_TEXT(TRACE_ALL_STEPS, "Needs more space for the data:" <<
     " Tries to remove one using LRU." << endl);
   std::map<std::string, corba_data_t>::iterator it;
-  time_t leastRecent = 0;
+  clock_t leastRecent = 0;
   std::string found;
   
   for (it=manager->getData()->begin(); it!=manager->getData()->end(); ++it)
@@ -69,7 +69,7 @@ int FIFO(AdvancedDagdaComponent* manager, size_t size, dagda_object_type_t type)
   TRACE_TEXT(TRACE_ALL_STEPS, "Needs more space for the data:" <<
     " Tries to remove one using FIFO policy." << endl);
   std::map<std::string, corba_data_t>::iterator it;
-  time_t registerTime = 0;
+  clock_t registerTime = 0;
   std::string found;
   
   for (it=manager->getData()->begin(); it!=manager->getData()->end(); ++it)

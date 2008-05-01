@@ -6,7 +6,7 @@
 /*                                                         */
 /* $LICENSE$                                               */
 /***********************************************************/
-/* $Id$													   */
+/* $Id$*/
 /* $Log													   */
 /*														   */
 /***********************************************************/
@@ -31,7 +31,7 @@ typedef enum {DGD_CLIENT_MNGR, DGD_AGENT_MNGR, DGD_SED_MNGR} dagda_manager_type_
 
 class DagdaImpl : public POA_Dagda, public PortableServer::RefCountServantBase {
 public:
-  DagdaImpl() : parent(NULL), ID("NoID"), data(), children(), dataStatus() {}
+  DagdaImpl() : /*parent(NULL),*/ ID("NoID")/*, data(), children(), dataStatus()*/ {}
   ~DagdaImpl();
 
   /* CORBA part. To be remotely called. */

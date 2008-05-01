@@ -22,6 +22,7 @@ ADD_LATEX_DOCUMENT(UsersManual.tex
 			  juxmem.tex
 			  workflow.tex
 			  xml_example.tex
+                          agent_scheduler.tex
 		   BIBFILES UsersManual.bib 
 		   IMAGE_DIRS fig 
 		   IMAGES fig/DIET_arch_request-2.ps
@@ -42,6 +43,13 @@ ADD_LATEX_DOCUMENT(UsersManual.tex
 				fig/wf_archi1.fig 
 				fig/DiagrammeGridRPCDietStructure.fig
 				fig/logo_DIET.png
+                                fig/DIETScheduling.pdf
+                                fig/schdl00.pdf
+                                fig/schdl01.pdf
+                                fig/schdl02.pdf
+                                fig/schdl03.pdf
+                                fig/schdl04.pdf
+                                fig/schdl05.pdf
 		   DEFAULT_PDF
 		   )
 INSTALL_FILES(/doc FILES  ${CMAKE_CURRENT_BINARY_DIR}/UsersManual.pdf)

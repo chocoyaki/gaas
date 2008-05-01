@@ -22,7 +22,9 @@ attributes_t MapDagdaCatalog::request(string req) {
 int MapDagdaCatalog::insert(string key, attributes_t values) {
   TRACE_TEXT(TRACE_ALL_STEPS, "Create the data alias \"" << key
     << "\"" << endl);
+  if (exists(key)) return 1;
   setAttributes(key, values);
+  return 0;
 }
 
 bool MapDagdaCatalog::exists(std::string key) {

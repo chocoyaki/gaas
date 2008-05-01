@@ -95,7 +95,7 @@ std::list<corba_server_estimation_t> CORBA_to_STL(const corba_response_t* respon
   std::list<corba_server_estimation_t> result;
 
   for (int i=0; i<nb_responses; ++i)
-    for (int j=0; j<responses[i].servers.length(); ++j)
+    for (unsigned int j=0; j<responses[i].servers.length(); ++j)
       result.push_back(responses[i].servers[j]);
 
   return result;
@@ -105,7 +105,7 @@ std::list<corba_server_estimation_t> CORBA_to_STL(const corba_response_t* respon
 void STL_to_CORBA(std::list<corba_server_estimation_t> &servers,
 		  corba_response_t* &aggrResp) {
   std::list<corba_server_estimation_t>::iterator it;
-  int i=0;
+  unsigned int i=0;
 
   aggrResp->servers.length(servers.size());
   for (it=servers.begin(); it!=servers.end(); ++it)

@@ -157,7 +157,7 @@ void dagda_download_SeD_data(diet_profile_t* profile,
 	    inserted = dataManager->getData(pb->parameters[i].desc.id.idNumber);
 	    // The files are transmitted separately.
 	    if (pb->parameters[i].desc.specific._d() != DIET_FILE) {
-	      for (int j=0; j<size; ++j)
+	      for (size_t j=0; j<size; ++j)
 		    value[j]=inserted->value[j];
           inserted->value.replace(size, size, value, 0);
 	    }
@@ -172,7 +172,7 @@ void dagda_download_SeD_data(diet_profile_t* profile,
    	    // Scalar data: The value is transmitted inside the profile.
 	    inserted = dataManager->getData(pb->parameters[i].desc.id.idNumber);
 	    size = inserted->value.length();
-	    for (int j=0; j<size; ++j)
+	    for (size_t j=0; j<size; ++j)
 	      inserted->value[j]=pb->parameters[i].value[j];
 	  }
     }
@@ -474,6 +474,8 @@ size_t corba_data_init(corba_data_t& data, diet_data_type_t type,
     case DIET_FILE:
       diet_data.desc.specific.file.path = path;
 	  break;
+	default:
+	  WARNING("This type is not managed by DIET.");
   }
   
   mrsh_data_desc(&data.desc, &diet_data.desc);
@@ -666,6 +668,7 @@ public:
 	poolMutex.lock();
 	pool.erase(id);
 	poolMutex.unlock();
+	return ret;
   }
   // Returns a new thread id.
   unsigned int getNextID() {
@@ -742,12 +745,12 @@ int dagda_get_data(char* dataID, void** value, diet_data_type_t type,
 	} catch (Dagda::DataNotFound& ex) {
       return 1;
     }
-  if (inserted->desc.specific._d()!=type) {
+  if (inserted->desc.specific._d()!=type && type!=DIET_UNKNOWN_TYPE) {
     return 1;
   }
   if (value!=NULL) *value = inserted->value.get_buffer(false);
   if (base_type!=NULL) *base_type = (diet_base_type_t) inserted->desc.base_type;
-  switch (type) {
+  switch (inserted->desc.specific._d()) {
   case DIET_SCALAR:
 	break;
   case DIET_VECTOR:
@@ -763,6 +766,9 @@ int dagda_get_data(char* dataID, void** value, diet_data_type_t type,
     break;
   case DIET_FILE:
     if (path!=NULL) *path = inserted->desc.specific.file().path;
+	break;
+  default:
+    WARNING("This data type is not managed by DIET.");
   }
   return 0;
 }
@@ -792,6 +798,22 @@ int dagda_wait_get(unsigned int threadID, void** value, diet_base_type_t* base_t
   DagdaThreadPool* instance = DagdaThreadPool::getInstance();
   
   return instance->waitDataGet(threadID, value, base_type, nb_r, nb_c, order, path);
+}
+
+int dagda_add_data(void* value, diet_data_type_t type,
+	  diet_base_type_t base_type, diet_persistence_mode_t mode,
+	  size_t nb_r, size_t nb_c, diet_matrix_order_t order, char* path) {
+  DagdaPutDataThread* thrd =
+    new DagdaPutDataThread(value, type, base_type, mode, nb_r, nb_c, order, path);
+  thrd->start();
+  return 0;
+}
+
+int dagda_load_data(char* ID, diet_data_type_t type) {
+  DagdaGetDataThread* thrd =
+    new DagdaGetDataThread(ID, type);
+  thrd->start();
+  return 0;
 }
 
 int dagda_save_platform() {

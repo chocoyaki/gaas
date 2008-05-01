@@ -6,8 +6,8 @@
 /*                                                         */
 /* $LICENSE$                                               */
 /***********************************************************/
-/* $Id
-/* $Log
+/* $Id */
+/* $Log */
 /*														   */
 /***********************************************************/
 
@@ -43,39 +43,39 @@ private:
   bool shareFiles;
 public:
   AdvancedDagdaComponent(dagda_manager_type_t t) :
-    SimpleDagdaImpl(t), mngFunction(NULL), lastUsageTime(),
-	registerTime(), nbUsage(), stats(NULL), shareFiles(false) {}
+    SimpleDagdaImpl(t), mngFunction(NULL), /*lastUsageTime(),*/
+	/*registerTime(), nbUsage(),*/ stats(NULL), shareFiles(false) {}
 	
   AdvancedDagdaComponent(dagda_manager_type_t t, managementFunc function) :
-    SimpleDagdaImpl(t), mngFunction(function), lastUsageTime(),
-	registerTime(), nbUsage(), stats(NULL), shareFiles(false) {}
+    SimpleDagdaImpl(t), mngFunction(function), /*lastUsageTime(),*/
+	/*registerTime(), nbUsage(),*/ stats(NULL), shareFiles(false) {}
 	
   AdvancedDagdaComponent(dagda_manager_type_t t, managementFunc function,
     NetworkStats* stats) :
-	SimpleDagdaImpl(t), mngFunction(function), lastUsageTime(),
-	registerTime(), nbUsage(), stats(stats), shareFiles(false) {}
+	SimpleDagdaImpl(t), mngFunction(function), /*lastUsageTime(),*/
+	/*registerTime(), nbUsage(),*/ stats(stats), shareFiles(false) {}
 	
   AdvancedDagdaComponent(dagda_manager_type_t t, NetworkStats* stats) :
-    SimpleDagdaImpl(t), mngFunction(NULL), lastUsageTime(),
-	registerTime(), nbUsage(), stats(stats), shareFiles(false) {}
+    SimpleDagdaImpl(t), mngFunction(NULL), /*lastUsageTime(),*/
+	/*registerTime(), nbUsage(),*/ stats(stats), shareFiles(false) {}
 
   // With file sharing.
   AdvancedDagdaComponent(dagda_manager_type_t t, bool shareFiles) :
-    SimpleDagdaImpl(t), mngFunction(NULL), lastUsageTime(),
-	registerTime(), nbUsage(), stats(NULL), shareFiles(shareFiles) {}
+    SimpleDagdaImpl(t), mngFunction(NULL), /*lastUsageTime(),*/
+	/*registerTime(), nbUsage(),*/ stats(NULL), shareFiles(shareFiles) {}
 	
   AdvancedDagdaComponent(dagda_manager_type_t t, managementFunc function, bool shareFiles) :
-    SimpleDagdaImpl(t), mngFunction(function), lastUsageTime(),
-	registerTime(), nbUsage(), stats(NULL), shareFiles(shareFiles) {}
+    SimpleDagdaImpl(t), mngFunction(function), /*lastUsageTime(),*/
+	/*registerTime(), nbUsage(),*/ stats(NULL), shareFiles(shareFiles) {}
 	
   AdvancedDagdaComponent(dagda_manager_type_t t, managementFunc function,
     NetworkStats* stats, bool shareFiles) :
-	SimpleDagdaImpl(t), mngFunction(function), lastUsageTime(),
-	registerTime(), nbUsage(), stats(stats), shareFiles(shareFiles) {}
+	SimpleDagdaImpl(t), mngFunction(function), /*lastUsageTime(),*/
+	/*registerTime(), nbUsage(),*/ stats(stats), shareFiles(shareFiles) {}
 	
   AdvancedDagdaComponent(dagda_manager_type_t t, NetworkStats* stats, bool shareFiles) :
-    SimpleDagdaImpl(t), mngFunction(NULL), lastUsageTime(),
-	registerTime(), nbUsage(), stats(stats), shareFiles(shareFiles) {}
+    SimpleDagdaImpl(t), mngFunction(NULL), /*lastUsageTime(),*/
+	/*registerTime(), nbUsage(),*/ stats(stats), shareFiles(shareFiles) {}
 
 
   virtual char* sendFile(const corba_data_t &data, Dagda_ptr dest);

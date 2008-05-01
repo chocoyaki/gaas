@@ -6,8 +6,8 @@
 /*                                                         */
 /* $LICENSE$                                               */
 /***********************************************************/
-/* $Id
-/* $Log
+/* $Id */
+/* $Log */
 /*														   */
 /***********************************************************/
 #ifndef __NETWORKSTATS_HH__
@@ -22,6 +22,7 @@ protected:
 public:
   NetworkStats() : values() {}
   NetworkStats(const NetworkStats& stat) : values(stat.values) { }
+  virtual ~NetworkStats() {}
   virtual double getStat(std::string src, std::string dest);
   virtual bool cmpStats(double s1, double s2) = 0;
   virtual void addStat(std::string src, std::string dest, double value) = 0;
@@ -33,6 +34,7 @@ protected:
 public:
   AvgNetworkStats() : NetworkStats(), nbStats() {}
   AvgNetworkStats(const AvgNetworkStats& stat) : NetworkStats(stat), nbStats(stat.nbStats) {}
+  virtual ~AvgNetworkStats() {}
   virtual double getStat(std::string src, std::string dest);
   virtual bool cmpStats(double s1, double s2);
   virtual void addStat(std::string src, std::string dest, double value);

@@ -20,6 +20,7 @@ typedef std::list<std::string> attributes_t;
 class DagdaCatalog {
 private:
 public:
+  virtual ~DagdaCatalog() {};
   virtual attributes_t request(std::string req) = 0;
   virtual int insert(std::string key, attributes_t values) = 0;
   virtual bool exists(std::string key) = 0;
@@ -30,6 +31,7 @@ private:
   omni_mutex dbMutex;
   std::map<std::string, attributes_t> database;
 public:
+  virtual ~MapDagdaCatalog() {}
   virtual attributes_t request(std::string req);
   virtual int insert(std::string key, attributes_t values);
   virtual bool exists(std::string key);
