@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/05/05 13:54:18  bisnard
+ * new computation time estimation get/set functions
+ *
  * Revision 1.4  2008/04/10 09:17:10  bisnard
  * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
  *
@@ -44,15 +47,15 @@ performance_Exec_Time(diet_profile_t* pb ,estVector_t perfValues )
   t = atoi(time_str);
   if ( t == 0 )
     t = 10;
-  diet_est_set(perfValues, 0, t);
+  diet_estimate_comptime(perfValues, t);
 }
 
-void 
-set_up_scheduler(diet_profile_desc_t* profile){ 
+void
+set_up_scheduler(diet_profile_desc_t* profile){
   diet_aggregator_desc_t *agg = NULL;
   agg = diet_profile_desc_aggregator(profile);
   diet_service_use_perfmetric(performance_Exec_Time);
-  diet_aggregator_set_type(agg, DIET_AGG_PRIORITY); 
+  diet_aggregator_set_type(agg, DIET_AGG_PRIORITY);
   diet_aggregator_priority_minuser(agg,0);
 }
 
@@ -67,7 +70,7 @@ succ(diet_profile_t* pb)
   int * kx = NULL;
 
   fprintf(stderr, "SUCC SOLVING\n");
-  
+
   diet_scalar_get(diet_parameter(pb,0), &ix, NULL);
   diet_scalar_get(diet_parameter(pb,1), &jx, NULL);
   diet_scalar_get(diet_parameter(pb,2), &kx, NULL);
@@ -79,7 +82,7 @@ succ(diet_profile_t* pb)
   diet_scalar_desc_set(diet_parameter(pb,2), kx);
 
   usleep(t*100000);
-  
+
   return 0;
 }
 
@@ -109,7 +112,7 @@ double_int(diet_profile_t* pb)
 
 /**
  * The SUM service
- */ 
+ */
 int
 sum(diet_profile_t* pb)
 {
@@ -141,7 +144,7 @@ square(diet_profile_t* pb)
   double * jx = NULL;
 
   fprintf(stderr, "SQUARE SOLVING\n");
-  
+
   diet_scalar_get(diet_parameter(pb,0), &ix, NULL);
   diet_scalar_get(diet_parameter(pb,1), &jx, NULL);
   fprintf(stderr, "i = %d\n", *(int*)ix);
@@ -150,12 +153,12 @@ square(diet_profile_t* pb)
   diet_scalar_desc_set(diet_parameter(pb,1), jx);
 
   usleep(t*100000);
-  
+
   return 0;
 }
 
 int main(int argc, char * argv[]) {
-  
+
   int res;
   diet_profile_desc_t* profile = NULL;
 

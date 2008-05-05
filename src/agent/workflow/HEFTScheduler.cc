@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/05/05 13:54:17  bisnard
+ * new computation time estimation get/set functions
+ *
  * Revision 1.4  2008/04/30 07:32:24  bisnard
  * use relative timestamps for estimated and real completion time
  *
@@ -26,6 +29,7 @@
  *
  ****************************************************************************/
 
+#include "est_internal.hh"
 #include "HEFTScheduler.hh"
 #include "debug.hh"
 
@@ -123,11 +127,9 @@ HEFTScheduler::setNodesEFT(std::vector<Node *>& orderedNodes,
 	   jx++) {
 	EST = max(EST, AFT[n->getPrev(jx)->getCompleteId()]);
       } // end for jx
-      if ( (
-	    EST + wf_response->wfn_seq_resp[pb_index].response.servers[ix].estim.estValues[1].v_value < EFT )
-	   || (EFT == 0)) {
-	EFT =
-	  EST + wf_response->wfn_seq_resp[pb_index].response.servers[ix].estim.estValues[1].v_value;
+      double estCompTime = this->getCompTimeEst(wf_response, pb_index, ix);
+      if ( ( EST + estCompTime < EFT ) || (EFT == 0)) {
+	EFT = EST + estCompTime;
 	sed_ind = ix;
       }
     } // end for ix
@@ -148,6 +150,14 @@ HEFTScheduler::setNodesEFT(std::vector<Node *>& orderedNodes,
 /****************************************************************************/
 /*                          PRIVATE METHODS                                 */
 /****************************************************************************/
+
+double
+HEFTScheduler::getCompTimeEst(const wf_response_t * wf_response,
+                              unsigned int pbIndex,
+                              unsigned int srvIndex) {
+  return diet_est_get_internal(&wf_response->wfn_seq_resp[pbIndex].response.servers[srvIndex].estim,
+                               EST_TCOMP, 0);
+}
 
 /**
  * Computes the average value of node workload across the Seds
@@ -171,12 +181,7 @@ HEFTScheduler::computeNodeWeights(const wf_response_t * wf_response,
         for (unsigned int jx=0;
              jx < wf_response->wfn_seq_resp[ix].response.servers.length();
              jx++) {
-          /*
-          cout << "\t ** estValues.length() " <<
-          response->wfn_seq_resp[ix].response.servers[jx].estim.estValues.length()
-          << endl;
-          */
-          w += wf_response->wfn_seq_resp[ix].response.servers[jx].estim.estValues[1].v_value;
+          w += this->getCompTimeEst(wf_response, ix, jx);
         } // end for jx
         WI[n->getCompleteId()] = w / wf_response->wfn_seq_resp[ix].response.servers.length();
         TRACE_TEXT (TRACE_ALL_STEPS, " HEFT : node " << n->getCompleteId() << " weight :"

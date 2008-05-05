@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/05/05 13:54:18  bisnard
+ * new computation time estimation get/set functions
+ *
  * Revision 1.4  2006/11/07 12:44:48  aamar
  * *** empty log message ***
  *
@@ -36,15 +39,15 @@ performance_Exec_Time(diet_profile_t* pb ,estVector_t perfValues )
 
   diet_scalar_get(diet_parameter(pb, 0), &l, NULL);
   printf("The Magic number is %ld\n", l);
-  diet_est_set(perfValues, 0, t);
+  diet_estimate_comptime(perfValues, t);
 }
 
-void 
-set_up_scheduler(diet_profile_desc_t* profile){ 
+void
+set_up_scheduler(diet_profile_desc_t* profile){
   diet_aggregator_desc_t *agg = NULL;
   agg = diet_profile_desc_aggregator(profile);
   diet_service_use_perfmetric(performance_Exec_Time);
-  diet_aggregator_set_type(agg, DIET_AGG_PRIORITY); 
+  diet_aggregator_set_type(agg, DIET_AGG_PRIORITY);
   diet_aggregator_priority_minuser(agg,0);
 }
 
@@ -57,7 +60,7 @@ succ(diet_profile_t* pb)
   int * kx = NULL;
 
   fprintf(stderr, "SUCC SOLVING\n");
-  
+
   diet_scalar_get(diet_parameter(pb,0), &ix, NULL);
   diet_scalar_get(diet_parameter(pb,1), &jx, NULL);
   diet_scalar_get(diet_parameter(pb,2), &kx, NULL);
@@ -69,7 +72,7 @@ succ(diet_profile_t* pb)
   diet_scalar_desc_set(diet_parameter(pb,2), kx);
 
   usleep(t*100000);
-  
+
   return 0;
 }
 

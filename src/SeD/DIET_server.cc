@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.74  2008/05/05 13:54:19  bisnard
+ * new computation time estimation get/set functions
+ *
  * Revision 1.73  2008/04/07 15:33:42  ycaniou
  * This should remove all HAVE_BATCH occurences (still appears in the doc, which
  *   must be updated.. soon :)
@@ -164,7 +167,7 @@ using namespace std;
 
 #if HAVE_CORI
 #include "CORIMgr.hh"
-#else 
+#else
 #include "FASTMgr.hh"
 #endif //HAVE_CORI
 
@@ -185,7 +188,7 @@ using namespace std;
 
 #define BEGIN_API extern "C" {
 #define END_API   } // extern "C"
- 
+
 extern unsigned int TRACE_LEVEL;
 
 BEGIN_API
@@ -271,20 +274,20 @@ diet_service_table_add(const diet_profile_desc_t* const profile,
    {
    int refNum;
    corba_profile_desc_t corbaProfile;
-   
+
    if (profile == NULL) {
    ERROR(__FUNCTION__ << ": NULL profile", -1);
    }
-   
+
    if (SRVT == NULL) {
    ERROR(__FUNCTION__ << ": service table not yet initialized", -1);
    }
-   
+
    mrsh_profile_desc(&corbaProfile, profile);
    refNum = SRVT->lookupService(&corbaProfile);
-   
-   return (refNum); 
-   } 
+
+   return (refNum);
+   }
 */
 
 
@@ -397,7 +400,7 @@ diet_profile_desc_free(diet_profile_desc_t* desc)
   delete desc;
   return res;
 }
-  
+
 
 /****************************************************************************/
 /* DIET aggregation                                                         */
@@ -711,7 +714,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   /* Get listening port & hostname */
 
   // size_t --> unsigned int
-  unsigned int* port = (unsigned int*) 
+  unsigned int* port = (unsigned int*)
     (Parsers::Results::getParamValue(Parsers::Results::DIETPORT));
   char* host = (char*)
     (Parsers::Results::getParamValue(Parsers::Results::DIETHOSTNAME));
@@ -726,7 +729,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
 	    sprintf(endPoint, "giop:tcp::%u", *port);
     } else {
 	    sprintf(endPoint, "giop:tcp:%s:%u", host,*port);
-    }	    
+    }
     myargv[myargc + 1] = (char*)endPoint;
     myargc = tmp_argc;
   }
@@ -816,7 +819,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   monitoringThread = new MonitoringThread(dietLogComponent);
 
 #if HAVE_FD
-  /* very simple registration: SeD only is observable by FD, no details on 
+  /* very simple registration: SeD only is observable by FD, no details on
    * services hosted by this sed
    */
   fd_register_service(getpid(), 1);
@@ -826,7 +829,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   SeD = new SeDImpl();
   /* Initiliaze the object reference. */
   SeDObject = SeD;
-  TRACE_TEXT(NO_TRACE, 
+  TRACE_TEXT(NO_TRACE,
 	     "## SED_IOR " << ORBMgr::getIORString(SeD->_this()) << endl);
   fsync(1);
   fflush(NULL);
@@ -835,7 +838,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   /* Define the role of the SeD: batch, serial, etc. */
   SeD->setServerStatus( st ) ;
   TRACE_TEXT(TRACE_MAIN_STEPS, "setServerStatus " << (int)st << "\n");
-#endif  
+#endif
 
   /* Set SeD to use LogService object */
   SeD->setDietLogComponent(dietLogComponent);
@@ -845,7 +848,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   if (SeD->run(SRVT)) {
     ERROR("unable to launch the SeD", 1);
   }
-  
+
 #if HAVE_JUXMEM
   /** JuxMem creation */
   juxmem = new JuxMem::Wrapper(userDefName);
@@ -877,7 +880,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
     ofstream out (ackFile);
     out << "ok\n" << endl;
     out.close();
-  } 
+  }
 #endif
 
   /* We do not need the parsing results any more */
@@ -890,7 +893,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   /* shutdown and destroy the ORB
    * Servants will be deactivated and deleted automatically */
   ORBMgr::destroy();
-  
+
   return 0;
 }
 
@@ -1155,7 +1158,7 @@ diet_estimate_cori(estVector_t ev,
 {
 
   if (collector_type==EST_COLL_FAST){
-    //#if HAVE_FAST    
+    //#if HAVE_FAST
     fast_param_t fastparam={(diet_profile_t*)data,SRVT};
     //testing already here, because it is possible that an internal call use tag COMMTIME
     if ((info_type==EST_TCOMP)||
@@ -1181,7 +1184,7 @@ diet_estimate_cori(estVector_t ev,
     }
     //#endif //HAVE_FAST
   } else
-    CORIMgr::call_cori_mgr(&ev,info_type,collector_type,data);   
+    CORIMgr::call_cori_mgr(&ev,info_type,collector_type,data);
   return 0;
 }
 
@@ -1191,7 +1194,7 @@ diet_estimate_cori_add_collector(diet_est_collect_tag_t collector_type,
   return CORIMgr::add(collector_type,NULL);
 }
 
-void 
+void
 print_message(){
   cerr<<"=default value used"<<endl;
   }
@@ -1200,43 +1203,43 @@ void
 diet_estimate_coriEasy_print(){
   int tmp_int=TRACE_LEVEL;
   TRACE_LEVEL=15;
- 
+
    cerr<<"start printing CoRI values.."<<endl;
    estVector_t vec=new corba_estimation_t();
 
    CORIMgr::add(EST_COLL_EASY,NULL);
- 
+
    int minut=15;
 
    if  (diet_estimate_cori(vec,EST_AVGFREECPU,EST_COLL_EASY,&minut))
-     print_message();		   
-   
+     print_message();
+
    if  (diet_estimate_cori(vec,EST_CACHECPU,EST_COLL_EASY,NULL))
-     print_message();	 
-   
+     print_message();
+
    if  (diet_estimate_cori(vec,EST_NBCPU,EST_COLL_EASY,NULL))
-     print_message();		   
-   
+     print_message();
+
    if  (diet_estimate_cori(vec,EST_BOGOMIPS,EST_COLL_EASY,NULL))
-     print_message();		   
+     print_message();
    const char * tmp="./" ;
    if  (diet_estimate_cori(vec,EST_DISKACCESREAD,EST_COLL_EASY,tmp))
-     print_message();		   
-   
+     print_message();
+
    if  (diet_estimate_cori(vec,EST_DISKACCESWRITE,EST_COLL_EASY,tmp))
-     print_message();		   
-   
+     print_message();
+
    if  (diet_estimate_cori(vec,EST_TOTALSIZEDISK,EST_COLL_EASY,tmp))
-     print_message();		   
-   
+     print_message();
+
    if  (diet_estimate_cori(vec,EST_FREESIZEDISK,EST_COLL_EASY,tmp))
-     print_message();		   
-   
+     print_message();
+
    if  (diet_estimate_cori(vec,EST_TOTALMEM,EST_COLL_EASY,NULL))
-     print_message();		   
-   
+     print_message();
+
    if  (diet_estimate_cori(vec,EST_FREEMEM,EST_COLL_EASY,NULL))
-     print_message();	
+     print_message();
 
    cerr<<"end printing CoRI values"<<endl;
    TRACE_LEVEL=tmp_int;
@@ -1262,10 +1265,10 @@ diet_estimate_fast(estVector_t ev,
                     SRVT,
                     (ServiceTable::ServiceReference_t) stRef,
                     ev);
-                    
+
   return (1);
 }
-  
+
 #endif //HAVE_CORI
 
 int diet_estimate_lastexec(estVector_t ev,
@@ -1291,6 +1294,10 @@ int diet_estimate_lastexec(estVector_t ev,
   /* store the value in the performance data array */
   diet_est_set_internal(ev, EST_TIMESINCELASTSOLVE, timeSinceLastSolve);
   return (1);
+}
+
+int diet_estimate_comptime(estVector_t ev, double value) {
+  diet_est_set_internal(ev, EST_TCOMP, value);
 }
 
 /* Get the number of waiting jobs in the queue. */
@@ -1325,7 +1332,7 @@ diet_set_server_status( diet_server_status_t status )
     default:
       TRACE_TEXT(TRACE_MAIN_STEPS,"Server status list to update\n") ;
     }
-  //#endif  
+  //#endif
   } else ERROR_EXIT("Server status not recognized") ;
 }
 #endif

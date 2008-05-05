@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/05/05 13:54:17  bisnard
+ * new computation time estimation get/set functions
+ *
  * Revision 1.4  2008/04/30 07:32:24  bisnard
  * use relative timestamps for estimated and real completion time
  *
@@ -89,6 +92,19 @@ namespace madag {
     getAFT(string nodeId);
 
   private:
+
+    /**
+     * Get the value of estimated computation time from wf response
+     * for a given service and a given server
+     * @param wf_response the wf response structure
+     * @param pbIndex the index of the problem (service)
+     * @param srvIndex the index of the server
+     */
+    double
+    getCompTimeEst(const wf_response_t * wf_response,
+                   unsigned int pbIndex,
+                   unsigned int srvIndex);
+
     /**
      * Computes the average value of node workload across the Seds
      */

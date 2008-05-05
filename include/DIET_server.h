@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.37  2008/05/05 13:54:17  bisnard
+ * new computation time estimation get/set functions
+ *
  * Revision 1.36  2008/04/07 15:33:40  ycaniou
  * This should remove all HAVE_BATCH occurences (still appears in the doc, which
  *   must be updated.. soon :)
@@ -208,7 +211,7 @@ typedef struct {
 
 #if defined HAVE_ALT_BATCH
   unsigned short int parallel_flag ;
-  int nbprocs ; 
+  int nbprocs ;
 #endif
 
   /* aggregator description, used when declaring a service */
@@ -457,17 +460,17 @@ diet_SeD(char* config_file_name, int argc, char* argv[]);
     BATCH,
     NB_SERVER_STATUS
   } diet_server_status_t ;
-  
+
   void
   diet_set_server_status( diet_server_status_t status ) ;
 
   /* FIXME: futur Cori_batch */
   int
   diet_getNbMaxResources(diet_profile_t * profile) ;
-  
+
   int
   diet_getNbIdleResources(diet_profile_t * profile) ;
-  
+
 #endif
 
 
@@ -477,8 +480,8 @@ diet_SeD(char* config_file_name, int argc, char* argv[]);
 /****************************************************************************/
 int diet_est_set(estVector_t ev, int userTag, double value);
 double diet_est_get(estVectorConst_t ev, int userTag, double errVal);
-double diet_est_get_system(estVectorConst_t ev, 
-			     int systemTag, 
+double diet_est_get_system(estVectorConst_t ev,
+			     int systemTag,
 			     double errVal);
 int diet_est_defined(estVectorConst_t ev, int userTag);
 int diet_est_defined_system(estVectorConst_t ev, int systemTag);
@@ -499,7 +502,7 @@ int diet_est_array_defined_system(estVectorConst_t ev, int systemTag, int idx);
 
 int diet_estimate_cori(estVector_t ev,
 		       int info_type,
-		       diet_est_collect_tag_t collector_type, 
+		       diet_est_collect_tag_t collector_type,
 		       const void * data);
 
 int diet_estimate_cori_add_collector(diet_est_collect_tag_t collector_type,
@@ -511,6 +514,8 @@ int diet_estimate_fast(estVector_t ev, const diet_profile_t* const profilePtr);
 
 int diet_estimate_lastexec(estVector_t ev,
                            const diet_profile_t* const profilePtr);
+
+int diet_estimate_comptime(estVector_t ev, double value);
 
 /* To obtain the queue size. */
 int diet_estimate_waiting_jobs(estVector_t ev);
