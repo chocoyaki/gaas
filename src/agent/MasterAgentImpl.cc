@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.46  2008/05/06 13:39:33  glemahec
+ * DAGDA API extension.
+ *
  * Revision 1.45  2008/04/29 22:22:02  glemahec
  * DAGDA improvements :
  *   - Asynchronous API.
@@ -1041,7 +1044,7 @@ long MasterAgentImpl::insertData(const char* key, const SeqString& values) {
   attributes_t attr;
   if (catalog->exists(key)) return 1;
   
-  for (int i=0; i<values.length(); ++i)
+  for (unsigned int i=0; i<values.length(); ++i)
     attr.push_back(string(values[i]));
   catalog->insert(key, attr);
   return 0;

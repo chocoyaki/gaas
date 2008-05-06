@@ -23,6 +23,7 @@ ADD_LATEX_DOCUMENT(UsersManual.tex
 			  workflow.tex
 			  xml_example.tex
                           agent_scheduler.tex
+                          dagda.tex
 		   BIBFILES UsersManual.bib 
 		   IMAGE_DIRS fig 
 		   IMAGES fig/DIET_arch_request-2.ps
@@ -50,6 +51,7 @@ ADD_LATEX_DOCUMENT(UsersManual.tex
                                 fig/schdl03.pdf
                                 fig/schdl04.pdf
                                 fig/schdl05.pdf
+                                fig/dagdaArch.pdf
 		   DEFAULT_PDF
 		   )
 INSTALL_FILES(/doc FILES  ${CMAKE_CURRENT_BINARY_DIR}/UsersManual.pdf)

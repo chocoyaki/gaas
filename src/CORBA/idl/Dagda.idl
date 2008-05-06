@@ -95,6 +95,14 @@ interface Dagda {
     raises(DataNotFound);
   corba_data_desc_t pfmGetDataDesc(in string dataID)
     raises(DataNotFound);
+	
+  /* Replicate the data considering the conditions. */
+  oneway void lclReplicate(in string dataID, in long ruleTarget,
+    in string pattern, in boolean replace);
+  oneway void lvlReplicate(in string dataID, in long ruleTarget,
+    in string pattern, in boolean replace);
+  oneway void pfmReplicate(in string dataID, in long ruleTarget,
+    in string pattern, in boolean replace);
 
   /* Write a file on the node storage ressource. If "replace" is true, 
      the file is opened at the beginning, otherwise the data are added at
