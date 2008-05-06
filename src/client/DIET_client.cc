@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.120  2008/05/06 10:52:19  bisnard
+ * corrected error madag not defined for non-wf calls
+ *
  * Revision 1.119  2008/04/28 07:08:31  glemahec
  * The DAGDA API.
  *
@@ -300,7 +303,7 @@ using namespace std;
 
 #ifdef HAVE_FD
 #ifndef DIET_DEFAULT_FD_QOS
-/* set a default QoS for fault detector 
+/* set a default QoS for fault detector
  * 30s detection time, 60s false detection, 1 month between two errors
  */
 #define DIET_DEFAULT_FD_QOS 30.0, 2678400.0, 60.0
@@ -358,7 +361,7 @@ static WfLogSrv_var myWfLogService = WfLogSrv::_nil();
 /****************************************************************************/
 
   char* MA_Name;
-  
+
   int num_Session;
 
   char file_Name[256];
@@ -437,13 +440,13 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
 #endif // HAVE_WORKFLOW
 
   MA_MUTEX.lock();
-  
+
   if (!CORBA::is_nil(MA)) {
     WARNING(__FUNCTION__ << ": diet_finalize has not been called");
     MA_MUTEX.unlock();
     return 15;
   }
-  
+
   /* Set arguments for ORBMgr::init */
   if (argc) {
     myargc = argc;
@@ -451,10 +454,10 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
     for (int i = 0; i < argc; i++)
       myargv[i] = argv[i];
   }
-  
+
   /* Parsing */
   Parsers::Results::param_type_t compParam[] = {Parsers::Results::MANAME};
-  
+
   if ((res = Parsers::beginParsing(config_file_name))) {
     MA_MUTEX.unlock();
     return res;
@@ -469,7 +472,7 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   }
 
   /* Some more checks */
-  userDefName = (char*) 
+  userDefName = (char*)
     Parsers::Results::getParamValue(Parsers::Results::NAME);
 
   value = Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
@@ -481,7 +484,7 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   if (value != NULL)
     WARNING("parsing " << config_file_name
             << ": agentType is useless for a client - ignored");
-    
+
   /* Get the traceLevel */
   if (TRACE_LEVEL >= TRACE_MAX_VALUE) {
     char *  level = (char *) calloc(48, sizeof(char*)) ;
@@ -493,11 +496,11 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
     myargc = tmp_argc;
   }
 
-  
+
   /* Get the USE_ASYNC_API flag */
   value = Parsers::Results::getParamValue(Parsers::Results::USEASYNCAPI);
   if (value != NULL)
-    USE_ASYNC_API = *(size_t *)(value); 
+    USE_ASYNC_API = *(size_t *)(value);
 
   if (USE_ASYNC_API == 1) {
     /* Initialize the ORB */
@@ -560,7 +563,7 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
     TRACE_TEXT(TRACE_MAIN_STEPS,
                "MA DAG NAME PARSING = " << MA_DAG_name << endl);
     MA_DAG_name = CORBA::string_dup(MA_DAG_name);
-    MA_DAG = 
+    MA_DAG =
       MaDag::_narrow(ORBMgr::getObjReference(ORBMgr::MA_DAG, MA_DAG_name));
     if (CORBA::is_nil(MA_DAG)) {
       ERROR("Cannot locate MA DAG " << MA_DAG_name, 1);
@@ -569,15 +572,12 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
       CltWfMgr::instance()->setMaDag(MA_DAG);
     }
   } // end if (MA_DAG_name != NULL)
-  else {
-	ERROR("MADAGNAME is not defined", 1);
-  }
 
   // check if the Workflow Log Service is used
     Parsers::Results::getParamValue(Parsers::Results::USEWFLOGSERVICE);
   if (USE_WF_LOG_SERVICE != NULL) {
     if (!strcmp(USE_WF_LOG_SERVICE, "1")) {
-      CORBA::Object_var obj = 
+      CORBA::Object_var obj =
         ORBMgr::getObjReference(ORBMgr::WFLOGSERVICE, "WfLogService");
       WfLogSrv_var wfLogSrv = WfLogSrv::_narrow(obj);
       if (CORBA::is_nil(wfLogSrv)) {
@@ -645,7 +645,7 @@ diet_finalize()
 #if HAVE_JUXMEM
   delete(juxmem);
 #endif // HAVE_JUXMEM
-  
+
   /* end fileName */
   // *fileName='\0';
   return 0;
@@ -681,27 +681,27 @@ diet_free(diet_data_handle_t* handle)
 
 END_API
 
-/**************************************************************** 
+/****************************************************************
  *    get available Services in the DIET Platform
  ***************************************************************/
 
 /* Only return the name of services available on the platform */
 char**
 get_diet_services(int *services_number){
-  CORBA::Long length;                
+  CORBA::Long length;
   SeqCorbaProfileDesc_t* profileList = MA->getProfiles(length);
-  *services_number= (int)length;        
+  *services_number= (int)length;
   char** services_list = (char**)calloc(length+1,sizeof(char*));
   fflush(stdout);
   for(int i=0;i<*services_number;i++){
     services_list[i]= CORBA::string_dup((*profileList)[i].path);
-  }    
+  }
   return services_list;
 }
 
 
-/**************************************************************** 
- *   creation of the file that stores identifiers               * 
+/****************************************************************
+ *   creation of the file that stores identifiers               *
  ***************************************************************/
 
 void create_file()
@@ -715,7 +715,7 @@ void create_header()
 {
   const char * header_id = "Data Handle   ";
   const char * header_msg = "Description \n";
- 
+
   ofstream f(file_Name,ios_base::app|ios_base::ate);
   int cpt = strlen(header_id);
   f.write(header_id,cpt);
@@ -727,15 +727,15 @@ void create_header()
   f.close();
 }
 
-/**************************************************************** 
- *   Add handler id with message msg in the file                * 
+/****************************************************************
+ *   Add handler id with message msg in the file                *
  ***************************************************************/
 
 void store_id(char* argID, char* msg)
 {
- 
+
   size_t cpt;
- 
+
   char* msg1 = new char[strlen(msg)+2];
   cpt=strlen(argID);
   ofstream f(file_Name,ios_base::app|ios_base::ate);
@@ -751,9 +751,9 @@ void store_id(char* argID, char* msg)
 
 
 /******************************************************************
- *  Free persistent data identified by argID                     * 
+ *  Free persistent data identified by argID                     *
  *****************************************************************/
-int 
+int
 diet_free_persistent_data(char* argID)
 {
   if(MA->diet_free_pdata(argID)!=0) {
@@ -782,7 +782,7 @@ uploadClientDataJuxMem(diet_profile_t* profile)
   struct timeval t_end;
   struct timeval t_result;
 #endif
-      
+
   for (i = 0; i <= profile->last_inout; i++) {
     /**
      * If there is no data id (for both IN or INOUT case), this a new
@@ -792,18 +792,18 @@ uploadClientDataJuxMem(diet_profile_t* profile)
      */
     if (profile->parameters[i].desc.id == NULL &&
 	profile->parameters[i].desc.mode == DIET_PERSISTENT) {
-      profile->parameters[i].desc.id = 
-	juxmem->attach(profile->parameters[i].value, 
-		       data_sizeof(&(profile->parameters[i].desc)), 
+      profile->parameters[i].desc.id =
+	juxmem->attach(profile->parameters[i].value,
+		       data_sizeof(&(profile->parameters[i].desc)),
 		       1, 1, EC_PROTOCOL, BASIC_SOG);
-      TRACE_TEXT(TRACE_MAIN_STEPS, "A data space with ID = " 
-		 << profile->parameters[i].desc.id 
+      TRACE_TEXT(TRACE_MAIN_STEPS, "A data space with ID = "
+		 << profile->parameters[i].desc.id
 		 << " for IN data has been attached inside JuxMem!\n");
       /* The local memory is flush inside JuxMem */
 #if JUXMEM_LATENCY_THROUGHPUT
 	gettimeofday(&t_begin, NULL);
 #endif
-      juxmem->msync(profile->parameters[i].value);      
+      juxmem->msync(profile->parameters[i].value);
 #if JUXMEM_LATENCY_THROUGHPUT
 	gettimeofday(&t_end, NULL);
 	timersub(&t_end, &t_begin, &t_result);
@@ -861,7 +861,7 @@ downloadClientDataJuxMem(diet_profile_t* profile)
 	timersub(&t_end, &t_begin, &t_result);
 	latency = (t_result.tv_usec + (t_result.tv_sec * 1000. * 1000)) / 1000.;
 	timersub(&t_begin, &(this->t_begin), &t_result);
-	time = (t_result.tv_usec + (t_result.tv_sec * 1000. * 1000)) / 1000.;	
+	time = (t_result.tv_usec + (t_result.tv_sec * 1000. * 1000)) / 1000.;
 	throughput = (data_sizeof(&(profile.parameters[i].desc)) / (1024. * 1024.)) / (latency / 1000.);
 	fprintf(stderr, "%f INOUT %s read. Latency: %f, Throughput: %f\n", time, profile.parameters[i].desc.id, latency, throughput);
 #endif
@@ -892,7 +892,7 @@ request_submission(diet_profile_t* profile,
   diet_reqID_t reqID;
   char statMsg[128];
   chosenServer = SeD::_nil();
- 
+
   if (mrsh_pb_desc(&corba_pb, profile)) {
     ERROR("profile is wrongly built", 1);
   }
@@ -911,7 +911,7 @@ request_submission(diet_profile_t* profile,
          (i <= corba_pb.last_out && data_OK == 0) ;
          i++) {
       char* new_id = strdup(corba_pb.param_desc[i].id.idNumber);
- 
+
       if(strlen(new_id) != 0) {
 	/* then data is known. Check that it's still in plaform */
         corba_data_desc_t *arg_desc = new corba_data_desc_t;
@@ -972,7 +972,7 @@ request_submission(diet_profile_t* profile,
         }
 #if 0
         /** Contract checking has been commented out in Jan 2006 by Holly
-         * because noone has used it for years.  Leaving code here as 
+         * because noone has used it for years.  Leaving code here as
          * background info for someone pursuing research in contract
          * checking. */
 
@@ -1021,7 +1021,7 @@ request_submission(diet_profile_t* profile,
     ERROR (" data with ID " <<  bad_id << " not inside the platform.", 1);
     delete (bad_id);
   } else {
-  
+
     if (!response || response->servers.length() == 0) {
       if (response) {
         delete response;
@@ -1060,7 +1060,7 @@ request_submission(diet_profile_t* profile,
 
   return 0;
 }
-  
+
 /****************************************
  * Synchronous call
  ****************************************/
@@ -1089,7 +1089,7 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
 
   // Server is chosen, update its timeSinceLastSolve
   chosenServer->updateTimeSinceLastSolve() ;
-#if HAVE_JUXMEM 
+#if HAVE_JUXMEM
   uploadClientDataJuxMem(profile);
 #endif // HAVE_JUXMEM
 
@@ -1122,15 +1122,15 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
       arg_desc = MA->get_data_arg(new_id);
       const_cast<corba_data_desc_t&>(corba_profile.parameters[i].desc) = *arg_desc;
     }
-  }  
-  
+  }
+
   /* generate new ID for data if not already existant */
   for(int i = 0 ; i <= corba_profile.last_out ; i++) {
-    if((corba_profile.parameters[i].desc.mode > DIET_VOLATILE ) && 
+    if((corba_profile.parameters[i].desc.mode > DIET_VOLATILE ) &&
        (corba_profile.parameters[i].desc.mode < DIET_PERSISTENCE_MODE_COUNT) &&
        (MA->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber))))
       {
-	char* new_id = MA->get_data_id(); 
+	char* new_id = MA->get_data_id();
 	corba_profile.parameters[i].desc.id.idNumber = new_id;
       }
   }
@@ -1155,7 +1155,7 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
 #if ! HAVE_DAGDA
   /* reaffect identifier */
   for(int i = 0;i <= profile->last_out;i++) {
-    if ((corba_profile.parameters[i].desc.mode > DIET_VOLATILE ) && 
+    if ((corba_profile.parameters[i].desc.mode > DIET_VOLATILE ) &&
         (corba_profile.parameters[i].desc.mode < DIET_PERSISTENCE_MODE_COUNT)) {
       profile->parameters[i].desc.id = strdup(corba_profile.parameters[i].desc.id.idNumber);
     }
@@ -1299,20 +1299,20 @@ diet_call_async_common(diet_profile_t* profile,
         arg_desc = MA->get_data_arg(new_id);
         const_cast<corba_data_desc_t&>(corba_profile.parameters[i].desc) = *arg_desc;
       }
-    }  
+    }
     /* generate new ID for data if not already existant */
     for(i = 0;i <= corba_profile.last_out;i++) {
-      if ((corba_profile.parameters[i].desc.mode > DIET_VOLATILE ) && 
-          (corba_profile.parameters[i].desc.mode < DIET_PERSISTENCE_MODE_COUNT) 
-     && (MA->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber)))) 
+      if ((corba_profile.parameters[i].desc.mode > DIET_VOLATILE ) &&
+          (corba_profile.parameters[i].desc.mode < DIET_PERSISTENCE_MODE_COUNT)
+     && (MA->dataLookUp(strdup(corba_profile.parameters[i].desc.id.idNumber))))
       {
-        char* new_id = MA->get_data_id(); 
+        char* new_id = MA->get_data_id();
         corba_profile.parameters[i].desc.id.idNumber = new_id;
       }
     }
 #endif // ! HAVE_DAGDA
 #endif // ! HAVE_JUXMEM
-    
+
     // create corba client callback server...
     // TODO : modify addAsyncCall function because profile has the reqID
     if (caMgr->addAsyncCall(profile->dietReqID, profile) != 0) {
@@ -1320,7 +1320,7 @@ diet_call_async_common(diet_profile_t* profile,
     }
 
     stat_in("Client","computation_async");
-    chosenServer->solveAsync(profile->pb_name, corba_profile, 
+    chosenServer->solveAsync(profile->pb_name, corba_profile,
                              REF_CALLBACK_SERVER);
 
     stat_out("Client","computation_async");
@@ -1352,7 +1352,7 @@ diet_call_async_common(diet_profile_t* profile,
     profile->dietReqID = -1;
     return 1;
   }
-  
+
   stat_out("Client","diet_call_async");
   return 0;
 }
@@ -1395,10 +1395,10 @@ END_API
 
 BEGIN_API
 
-/****************************************************************************  
+/****************************************************************************
  * diet_probe GridRPC function.
  * This function probes status of an asynchronous request.
- * return reqID status.                   
+ * return reqID status.
  ****************************************************************************/
 int
 diet_probe(diet_reqID_t reqID)
@@ -1407,8 +1407,8 @@ diet_probe(diet_reqID_t reqID)
   /**
    * transform the request status as defined by the CallAsyncMgr to its
    * equivalent in GridRPC standard
-  STATUS_DONE = 0, // Result is available in local memory 
-  STATUS_WAITING,       // End of solving on Server, result comes 
+  STATUS_DONE = 0, // Result is available in local memory
+  STATUS_WAITING,       // End of solving on Server, result comes
   STATUS_RESOLVING,          // Request is currently solving on Server
   STATUS_CANCEL,	// Cancel is called on a reqID.
   STATUS_ERROR		// Error caught
@@ -1433,12 +1433,12 @@ diet_probe(diet_reqID_t reqID)
 
   return err;
 }
-  
-/****************************************************************************  
+
+/****************************************************************************
  * diet_cancel GridRPC function.
  * This function erases all persistent data that are manipulated by the reqID
  * request. Do not forget to calget_data_handle on data you would like
- * to save.                   
+ * to save.
  ****************************************************************************/
 int
 diet_cancel(diet_reqID_t reqID)
@@ -1446,11 +1446,11 @@ diet_cancel(diet_reqID_t reqID)
   return CallAsyncMgr::Instance()->deleteAsyncCall(reqID);
 }
 
-/****************************************************************************  
+/****************************************************************************
  * diet_cancel_all GridRPC function.
  * This function executes a diet_cancel for every client request.
  ****************************************************************************/
-int 
+int
 diet_cancel_all() {
   return CallAsyncMgr::Instance()->deleteAllAsyncCall();
 }
@@ -1472,7 +1472,7 @@ diet_wait(diet_reqID_t reqID)
     rule->length = 1;
     rule->ruleElts = simpleWait;
     rule->status = STATUS_RESOLVING;
-    
+
     // get lock on condition/waitRule
     return CallAsyncMgr::Instance()->addWaitRule(rule);
     // NOTES: Be careful, there may be others rules
@@ -1489,9 +1489,9 @@ diet_wait(diet_reqID_t reqID)
     if (*p != '\0') {
       WARNING(__FUNCTION__ << ": exception caught (" << p << ')');
     } else {
-      WARNING(__FUNCTION__ << ": exception caught (" << tc->id() << ')'); 
+      WARNING(__FUNCTION__ << ": exception caught (" << tc->id() << ')');
     }
-  }  
+  }
   catch (const exception& e) {
     ERROR(__FUNCTION__ << ": unexpected exception (what="
           << e.what() << ')', STATUS_ERROR);
@@ -1502,7 +1502,7 @@ diet_wait(diet_reqID_t reqID)
 
 /*****************************************************************************
  * diet_wait_and GridRPC function
- * return error status 
+ * return error status
  * three args :
  *      1 - reqID table.
  *      2 - size of the table.
@@ -1514,7 +1514,7 @@ diet_wait_and(diet_reqID_t* IDs, size_t length)
   for (unsigned int ix=0; ix<length; ix++) {
     if (!CallAsyncMgr::Instance()->checkSessionID(IDs[ix]))
       return GRPC_INVALID_SESSION_ID;
-  } 
+  }
 
   request_status_t rst = STATUS_ERROR;
   try {
@@ -1527,7 +1527,7 @@ diet_wait_and(diet_reqID_t* IDs, size_t length)
     Rule * rule = new Rule;
     rule->length = length;
     rule->ruleElts = simpleWait;
-    
+
     // get lock on condition/waitRule
     return CallAsyncMgr::Instance()->addWaitRule(rule);
     // NOTES: Be careful, there may be others rules using some of this
@@ -1545,7 +1545,7 @@ diet_wait_and(diet_reqID_t* IDs, size_t length)
     } else {
       WARNING(__FUNCTION__ << ": exception caught (" << tc->id() << ')');
     }
-  }  
+  }
   catch (const exception& e) {
     ERROR(__FUNCTION__ << ": unexpected exception (what=" << e.what() << ')',
           STATUS_ERROR);
@@ -1555,7 +1555,7 @@ diet_wait_and(diet_reqID_t* IDs, size_t length)
 
 /*****************************************************************************
  * diet_wait_or GridRPC function
- * return error status 
+ * return error status
  * three args :
  *      1 - reqID table.
  *      2 - size of the table.
@@ -1570,7 +1570,7 @@ diet_wait_or(diet_reqID_t* IDs, size_t length, diet_reqID_t* IDptr)
   for (unsigned int ix=0; ix<length; ix++) {
     if (!CallAsyncMgr::Instance()->checkSessionID(IDs[ix]))
       return GRPC_INVALID_SESSION_ID;
-  } 
+  }
 
   try {
     // Create ruleElements table ...
@@ -1582,7 +1582,7 @@ diet_wait_or(diet_reqID_t* IDs, size_t length, diet_reqID_t* IDptr)
     Rule * rule = new Rule;
     rule->length = length;
     rule->ruleElts = simpleWait;
-    
+
     // get lock on condition/waitRule
     // and manage return rule status
     switch (CallAsyncMgr::Instance()->addWaitRule(rule)) {
@@ -1671,8 +1671,8 @@ diet_get_failed_session(diet_reqID_t* reqIdPtr) {
   return CallAsyncMgr::Instance()->getFailedSession(reqIdPtr);
 }
 /***************************************************************************
- * check if one of the requests contained in the array id reqIdArray has 
- * completed. 
+ * check if one of the requests contained in the array id reqIdArray has
+ * completed.
  * Return the completed request ID if exist. Otherwise return an error code
  ***************************************************************************/
 diet_error_t
@@ -1685,7 +1685,7 @@ diet_probe_or(diet_reqID_t* reqIdArray,
   for (ix=0; ix< length; ix++) {
     if (!CallAsyncMgr::Instance()->checkSessionID(reqIdArray[ix]))
       return GRPC_INVALID_SESSION_ID;
-  }  
+  }
   for (ix=0; ix< length; ix++) {
     reqStatus = CallAsyncMgr::Instance()->getStatusReqID(reqIdArray[ix]);
     if  (reqStatus == STATUS_DONE) {
@@ -1698,25 +1698,25 @@ diet_probe_or(diet_reqID_t* reqIdArray,
 }
 
 /***************************************************************************
- * Get the function handle linked to reqID 
+ * Get the function handle linked to reqID
  ***************************************************************************/
 diet_error_t
 diet_get_handle(grpc_function_handle_t** handle,
 		diet_reqID_t sessionID) {
-  
+
   return CallAsyncMgr::Instance()->getHandle(handle, sessionID);
 }
 /***************************************************************************
- * Save the specified handle and associate it to a sessionID 
+ * Save the specified handle and associate it to a sessionID
  ***************************************************************************/
 void
-diet_save_handle(diet_reqID_t sessionID, 
+diet_save_handle(diet_reqID_t sessionID,
 		 grpc_function_handle_t* handle) {
   CallAsyncMgr::Instance()->saveHandle(sessionID, handle);
 }
 
 /***************************************************************************
- * Set the error code of the defined session (reqID) 
+ * Set the error code of the defined session (reqID)
  ***************************************************************************/
 void
 set_req_error(diet_reqID_t sessionID,
@@ -1731,6 +1731,9 @@ set_req_error(diet_reqID_t sessionID,
  */
 diet_error_t
 diet_wf_call(diet_wf_desc_t* profile) {
+  if (CORBA::is_nil(MA_DAG)) {
+      ERROR("No MA DAG defined", 1);
+  }
   return CltWfMgr::instance()->wf_call(profile);
 } // end diet_wf_call
 
@@ -1759,9 +1762,9 @@ _diet_wf_scalar_get(diet_wf_desc_t * profile,
 /**
  * Get a string result of the workflow
  */
-int 
+int
 _diet_wf_string_get(diet_wf_desc_t * profile,
-                    const char * id, 
+                    const char * id,
 		    char** value) {
   return CltWfMgr::instance()->getWfOutputString(profile, id, value);
 } // end _diet_wf_string_get
@@ -1777,7 +1780,7 @@ _diet_wf_file_get(diet_wf_desc_t * profile,
 int
 _diet_wf_matrix_get(diet_wf_desc_t * profile,
                     const char * id, void** value,
-		    size_t* nb_rows, size_t *nb_cols, 
+		    size_t* nb_rows, size_t *nb_cols,
 		    diet_matrix_order_t* order) {
   return CltWfMgr::instance()->getWfOutputMatrix(profile, id, value, nb_rows, nb_cols, order);
 }
@@ -1817,7 +1820,7 @@ get_all_results(diet_wf_desc_t * profile) {
 //  } // end if
 // }
 
-// void 
+// void
 // nodeIsStarting(const char * node_id) {
 //  if ((use_wf_log) && (myWfLogService != NULL)) {
 //    myWfLogService->nodeIsStarting(node_id);
@@ -1837,7 +1840,7 @@ END_API
 
 // this function place is marshalling.cc file
 // to fix if necessary
-int unmrsh_profile_desc( diet_profile_desc_t* dest, 
+int unmrsh_profile_desc( diet_profile_desc_t* dest,
 			 const corba_profile_desc_t* src) {
   dest->path       = strdup(src->path);
   dest->last_in    = src->last_in;
@@ -1852,9 +1855,9 @@ int unmrsh_profile_desc( diet_profile_desc_t* dest,
   dest->parallel_flag = src->parallel_flag ;
 #endif
 
-  // unmarshall the aggregator field 
+  // unmarshall the aggregator field
   // TO FIX
-  // Since this function is used only by GRPC client lib side, this is not 
+  // Since this function is used only by GRPC client lib side, this is not
   // necessary
 
   return 0;
@@ -1877,7 +1880,7 @@ getProfiles() {
  * function return true
  * otherwise return false, the profile parameter is unchanged
  */
-bool 
+bool
 getProfileDesc(const char * srvName, diet_profile_desc_t& profile) {
   SeqCorbaProfileDesc_t * allProfiles = getProfiles();
   if (allProfiles) {
@@ -1888,7 +1891,7 @@ getProfileDesc(const char * srvName, diet_profile_desc_t& profile) {
 	cout << "The service " << srvName << " is found " << endl;
 	// this function place is marshalling.cc file
 	// to fix is necessary
-	unmrsh_profile_desc( &profile, 
+	unmrsh_profile_desc( &profile,
 			     &((*allProfiles)[ix]));
 	return true;
       }
@@ -1908,7 +1911,7 @@ get_all_session_ids(int& len) {
 }
 
 
-MasterAgent_var 
+MasterAgent_var
 getMA() {
   return MA;
 }
