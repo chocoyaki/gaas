@@ -110,22 +110,22 @@ const char* DagdaFactory::getStorageDir() {
   return storageDir.c_str();
 }
 
-size_t DagdaFactory::getMaxMsgSize() {
+unsigned long DagdaFactory::getMaxMsgSize() {
   unsigned long* maxMsgSize = (unsigned long*)
     Parsers::Results::getParamValue(Parsers::Results::MAXMSGSIZE);
   if (maxMsgSize==NULL) maxMsgSize = &defaultMaxMsgSize;
   return *maxMsgSize;
 }
 
-size_t DagdaFactory::getMaxDiskSpace() {
-  size_t* maxDiskSpace = (size_t*)
+unsigned long DagdaFactory::getMaxDiskSpace() {
+  unsigned long* maxDiskSpace = (unsigned long*)
     Parsers::Results::getParamValue(Parsers::Results::MAXDISKSPACE);
   //defaultMaxDiskSpace = availableDiskSpace(getStorageDir());
   if (maxDiskSpace==NULL) maxDiskSpace = &defaultMaxDiskSpace;
   return *maxDiskSpace;
 }
 
-size_t DagdaFactory::getMaxMemSpace() {
+unsigned long DagdaFactory::getMaxMemSpace() {
   unsigned long* maxMemSpace = (unsigned long*)
     Parsers::Results::getParamValue(Parsers::Results::MAXMEMSPACE);
   string storageDir(getStorageDir());
