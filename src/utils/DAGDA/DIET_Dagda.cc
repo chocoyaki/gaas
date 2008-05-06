@@ -302,8 +302,11 @@ void dagda_download_data(diet_profile_t& profile, corba_profile_t& pb) {
 	  profile.parameters[i].value = inserted->value.get_buffer(i>pb.last_in ? true:false);
 	}
   }
-  for (int i=pb.last_inout+1;i<=pb.last_out; ++i)
+  for (int i=pb.last_inout+1;i<=pb.last_out; ++i) {
+    size_t outDataSize = data_sizeof(&pb.parameters[i].desc);
     unmrsh_data_desc(&profile.parameters[i].desc, &pb.parameters[i].desc);
+	profile.parameters[i].value = new CORBA::Char[outDataSize];
+  }
 }
 
 void dagda_upload_data(diet_profile_t& profile, corba_profile_t& pb) {
