@@ -22,6 +22,7 @@
 
 #include <unistd.h>
 #include <errno.h>
+#include <fnmatch.h>
 
 #include <list>
 #include <map>
@@ -295,8 +296,8 @@ SimpleDagdaImpl::~SimpleDagdaImpl() {
 // Initialize this data manager.
 int SimpleDagdaImpl::init(const char* ID, const char* parentID,
 			  const char* dataPath, const size_t maxMsgSize,
-			  const size_t diskMaxSpace,
-			  const size_t memMaxSpace) {
+			  const unsigned long diskMaxSpace,
+			  const unsigned long memMaxSpace) {
   setID(CORBA::string_dup(ID));
 
   if (ORBMgr::bindObjToName(_this(), ORBMgr::DATAMGR, getID())) {
@@ -566,6 +567,105 @@ void SimpleDagdaImpl::pfmUpdateData(Dagda_ptr src, const corba_data_t& data) {
   else
     getParent()->pfmUpdateData(src, data);
 }
+
+// To replicate a data on the nodes matching the pattern.
+// Pattern matching function.
+bool match(const char* str, const char* pattern) {
+  int ret;
+  ret = fnmatch(pattern, str, FNM_CASEFOLD);
+  
+  return (ret==0);
+}
+
+
+// Replication function
+void replicate(void* paramPtr) {
+  char* dataID = (char*) paramPtr;
+  corba_data_t data;
+  Dagda_ptr src;
+  corba_data_desc_t* desc;
+  DagdaImpl* manager = DagdaFactory::getDataManager();
+
+  try {
+    src = manager->getBestSource(manager->_this(), dataID);
+  } catch (Dagda::DataNotFound& ex) {
+    WARNING("Trying to replicate a data that does not exist on the platform.");
+	return;
+  }
+
+  desc = manager->pfmGetDataDesc(dataID);
+  data.desc = *desc;
+
+  manager->lclAddData(src, data);
+}
+
+void replicateIfPossible(void* paramPtr) {
+  char* dataID = (char*) paramPtr;
+  corba_data_desc_t* desc;
+  DagdaImpl* manager = DagdaFactory::getDataManager();
+  
+  try {
+    desc = manager->pfmGetDataDesc(dataID);
+  } catch (Dagda::DataNotFound& ex) {
+    WARNING("Trying to replicate a data that does not exist on the platform.");
+	return;
+  }
+  
+  if (desc->specific._d()==DIET_FILE) {
+    if (manager->getDiskMaxSpace()-manager->getUsedDiskSpace()>=data_sizeof(desc))
+	  replicate(paramPtr);
+  } else
+    if (manager->getMemMaxSpace()-manager->getUsedMemSpace()>=data_sizeof(desc))
+	  replicate(paramPtr);  
+}
+
+void SimpleDagdaImpl::lclReplicate(const char* dataID, long target,
+  const char* pattern, bool replace) {
+  bool replic;
+  void* ID = CORBA::string_dup(const_cast<char*>(dataID));
+
+  if (lclIsDataPresent(dataID)) return;
+
+  if (target==0) // Target is the hostname.
+    replic = match(getHostname(), pattern);
+  else // Target is the ID
+    replic = match(getID(), pattern);
+
+  if (replic) {
+    if (replace)
+	  omni_thread::create(replicate, ID);
+	else
+	  omni_thread::create(replicateIfPossible, ID);
+  }
+}
+
+void SimpleDagdaImpl::lvlReplicate(const char* dataID, long target,
+  const char* pattern, bool replace) {
+  std::map<string,Dagda_ptr>::iterator itch;
+
+  lclReplicate(dataID, target, pattern, replace);
+
+  childrenMutex.lock();
+  for (itch=getChildren()->begin();itch!=getChildren()->end();)
+    try {
+      (*itch).second->lvlReplicate(dataID, target, pattern, replace);
+	  itch++;
+	} catch (CORBA::COMM_FAILURE& e1) {
+	  getChildren()->erase(itch++);
+    } catch (CORBA::TRANSIENT& e2) {
+      getChildren()->erase(itch++);
+    }
+  childrenMutex.unlock();
+}
+
+void SimpleDagdaImpl::pfmReplicate(const char* dataID, long target,
+  const char* pattern, bool replace) {
+  if (getParent()==NULL)
+    lvlReplicate(dataID, target, pattern, replace);
+  else
+    getParent()->lvlReplicate(dataID, target, pattern, replace);
+}
+
 
 // To get the descriptions of the data locally stored.
 /* CORBA */

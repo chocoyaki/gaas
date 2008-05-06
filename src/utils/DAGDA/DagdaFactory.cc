@@ -59,8 +59,8 @@ unsigned long DagdaFactory::defaultMaxMsgSize =
   1073741824; // (1 GB)
 #endif
 
-size_t DagdaFactory::defaultMaxDiskSpace = 0;
-size_t DagdaFactory::defaultMaxMemSpace = 0;
+unsigned long DagdaFactory::defaultMaxDiskSpace = 0;
+unsigned long DagdaFactory::defaultMaxMemSpace = 0;
 
 DagdaImpl* DagdaFactory::createDataManager(dagda_manager_type_t type) {
   AdvancedDagdaComponent* result=NULL;

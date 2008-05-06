@@ -683,6 +683,52 @@ public:
 DagdaThreadPool* DagdaThreadPool::instance = NULL;
 unsigned int DagdaThreadPool::nextID = 0;
 
+// Evaluation of the replication rule.
+int eval(const char* str, long* type, char** rule, bool* replace) {
+  char* strCpy = strdup(str);
+  char* S = strCpy;
+  char* t, *r, *repl;
+  
+  t = strsep(&strCpy, ":");
+  if (strCpy==NULL) {
+    free(S);
+	return 1;
+  }
+  if (strcasecmp(t, "id")==0)
+    *type = 1;
+  else {
+    if (strcasecmp(t, "host")==0)
+	  *type = 0;
+	else {
+	  free(S);
+	  return 1;
+	}
+  }
+  r = strsep(&strCpy, ":");
+  if (strCpy==NULL) {
+    free(S);
+	return 1;
+  }
+  repl = strsep(&strCpy, ":");
+  if (strCpy!=NULL) {
+    free(S);
+	return 1;
+  }
+  if (strcasecmp(repl, "replace")==0)
+    *replace=true;
+  else {
+    if (strcasecmp(repl, "noreplace")==0)
+	  *replace=false;
+	else {
+	  free(S);
+	  return 1;
+    }
+  }
+  *rule = strdup(r);
+  free(S);
+  return 0;
+}
+
 BEGIN_API
 int dagda_put_data(void* value, diet_data_type_t type,
 	diet_base_type_t base_type, diet_persistence_mode_t mode,
@@ -850,4 +896,25 @@ int dagda_id_from_alias(const char* alias, char** id) {
   *id = (*attributes)[0];
   return 0;
 }
+
+int dagda_replicate_data(const char* id, const char* rule) {
+  long target;
+  char* pattern;
+  bool replace;
+  
+  if (eval(rule, &target, &pattern, &replace)!=0) {
+    WARNING("Error in replication rule definition.");
+    return 1;
+  }
+ 
+  Dagda_var entryPoint = getEntryPoint();
+  DagdaImpl*  manager = DagdaFactory::getDataManager();
+  
+  if (entryPoint!=NULL) { // We are on a client.
+    entryPoint->pfmReplicate(id, target, pattern, replace);
+  } else
+    manager->pfmReplicate(id, target, pattern, replace);
+  return 0;
+}
+
 END_API

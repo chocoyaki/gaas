@@ -31,7 +31,13 @@ typedef enum {DGD_CLIENT_MNGR, DGD_AGENT_MNGR, DGD_SED_MNGR} dagda_manager_type_
 
 class DagdaImpl : public POA_Dagda, public PortableServer::RefCountServantBase {
 public:
-  DagdaImpl() : /*parent(NULL),*/ ID("NoID")/*, data(), children(), dataStatus()*/ {}
+  DagdaImpl() : /*parent(NULL),*/ ID("NoID")/*, data(), children(), dataStatus()*/ {
+    char host[256];
+   
+    gethostname(host, 256);
+    host[255]='\0';
+	hostname = CORBA::string_dup(host);
+  }
   ~DagdaImpl();
 
   /* CORBA part. To be remotely called. */
@@ -55,6 +61,13 @@ public:
   virtual void lclUpdateData(Dagda_ptr src, const corba_data_t& data) = 0;
   virtual void lvlUpdateData(Dagda_ptr src, const corba_data_t& data) = 0;
   virtual void pfmUpdateData(Dagda_ptr src, const corba_data_t& data) = 0;
+  
+  virtual void lclReplicate(const char* dataID, long target,
+    const char* pattern, bool replace) = 0;
+  virtual void lvlReplicate(const char* dataID, long target,
+    const char* pattern, bool replace) = 0;
+  virtual void pfmReplicate(const char* dataID, long target,
+    const char* pattern, bool replace) = 0;
 
   virtual SeqCorbaDataDesc_t* lclGetDataDescList() = 0;
   virtual SeqCorbaDataDesc_t* lvlGetDataDescList() = 0;
@@ -196,6 +209,13 @@ public:
   virtual void lclUpdateData(Dagda_ptr src, const corba_data_t& data);
   virtual void lvlUpdateData(Dagda_ptr src, const corba_data_t& data);
   virtual void pfmUpdateData(Dagda_ptr src, const corba_data_t& data);
+  
+  virtual void lclReplicate(const char* dataID, long target,
+    const char* pattern, bool replace);
+  virtual void lvlReplicate(const char* dataID, long target, 
+    const char* pattern, bool replace);
+  virtual void pfmReplicate(const char* dataID, long target,
+    const char* pattern, bool replace);
 
   virtual SeqCorbaDataDesc_t* lclGetDataDescList();
   virtual SeqCorbaDataDesc_t* lvlGetDataDescList();
