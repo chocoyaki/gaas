@@ -295,7 +295,7 @@ SimpleDagdaImpl::~SimpleDagdaImpl() {
 
 // Initialize this data manager.
 int SimpleDagdaImpl::init(const char* ID, const char* parentID,
-			  const char* dataPath, const size_t maxMsgSize,
+			  const char* dataPath, const unsigned long maxMsgSize,
 			  const unsigned long diskMaxSpace,
 			  const unsigned long memMaxSpace) {
   setID(CORBA::string_dup(ID));
