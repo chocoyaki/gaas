@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.48  2008/05/06 10:49:37  bisnard
+ * bug in checkValidity (compulsory param was not displayed)
+ *
  * Revision 1.47  2008/04/29 22:22:02  glemahec
  * DAGDA improvements :
  *   - Asynchronous API.
@@ -286,7 +289,7 @@ Parsers::beginParsing(char* filePath)
   }
   Parsers::noLine = 0;
   // printf("begin Parsing %i\n",Parsers::file.good());
-  
+
   return 0;
 }
 
@@ -333,7 +336,7 @@ Parsers::endParsing()
 //       if (IS_ADDRESS(i)) {
 // 	delete((Results::Address*)Results::params[i].value);
 //       } else {
-//         // TODO: should be deleted with delete, but delete can not be  
+//         // TODO: should be deleted with delete, but delete can not be
 //         // used with void*.  Identify pointer type and delete.
 // 	//free(Results::params[i].value);
       }
@@ -344,7 +347,7 @@ Parsers::endParsing()
 }
 
 /**
- * Parse the file \c filePath and fill in the parameters structure. 
+ * Parse the file \c filePath and fill in the parameters structure.
  * It is possible to specify a list of compulsory parameters, so that the
  * parsers can check itself for presence of these parameters.
  * FAST parameters are processed apart, since they depend on each other.
@@ -386,7 +389,7 @@ Parsers::parseCfgFile(bool checkFASTEntries, unsigned int nbCompulsoryParams,
   /* If no traceLevel specified, set it to default */
   if (PARAM(TRACELEVEL).noLine == 0)
     TRACE_LEVEL = TRACE_DEFAULT;
-  
+
   if ((parse_res =
        Parsers::checkValidity(checkFASTEntries,
 			      nbCompulsoryParams, compulsoryParams)))
@@ -436,7 +439,7 @@ Parsers::checkFASTEntries()
     use = *((unsigned int*)PARAM(LDAPUSE).value);
     TRACE_TEXT(TRACE_ALL_STEPS,
 	       ' ' << PARAM(LDAPUSE).kwd << " = " << use << ".\n");
-    
+
     if (use > 0) {
       if (PARAM(LDAPBASE).value == NULL) {
 	PARSERS_ERROR(PARAM(LDAPBASE).kwd << " is missing",
@@ -464,7 +467,7 @@ Parsers::checkFASTEntries()
     use = *((unsigned int*)PARAM(NWSUSE).value);
     TRACE_TEXT(TRACE_ALL_STEPS,
 	       ' ' << PARAM(NWSUSE).kwd << " = " << use << ".\n");
-    
+
     if (use > 0) {
       if (PARAM(NWSNAMESERVER).value == NULL) {
 	PARSERS_ERROR(PARAM(NWSNAMESERVER).kwd << " is missing",
@@ -474,7 +477,7 @@ Parsers::checkFASTEntries()
 		 << ((Results::Address*)PARAM(NWSNAMESERVER).value)->host << ':'
 		 << ((Results::Address*)PARAM(NWSNAMESERVER).value)->port
 		 << endl);
-      
+
       if (PARAM(NWSFORECASTER).value != NULL) {
 	TRACE_TEXT(TRACE_ALL_STEPS, "  " << PARAM(NWSFORECASTER).kwd << " = "
 		   << ((Results::Address*)PARAM(NWSFORECASTER).value)->host
@@ -515,11 +518,11 @@ Parsers::checkValidity(bool checkFASTEntries, unsigned int nbCompulsoryParams,
 {
   if (checkFASTEntries)
     Parsers::checkFASTEntries();
-  
+
   if (nbCompulsoryParams == 0)
     return 0;
   assert(compulsoryParams != NULL);
-  
+
   bool someAreMissing(false);
 
   for (size_t i = 0; i < nbCompulsoryParams; i++) {
@@ -532,7 +535,7 @@ Parsers::checkValidity(bool checkFASTEntries, unsigned int nbCompulsoryParams,
   if (someAreMissing) {
     cerr << "Error: " << "Parsers::" << __FUNCTION__
 	 << ": some compulsory parameters are missing:\n";
-    for (size_t i = 0; i < nbCompulsoryParams - 1; i++) {
+    for (size_t i = 0; i < nbCompulsoryParams; i++) {
       Results::param_type_t type = compulsoryParams[i];
       if (Results::params[type].noLine == 0)
 	cerr << " " << Results::params[type].kwd;
@@ -709,7 +712,7 @@ Parsers::parseTraceLevel(char* traceLevel, Results::param_type_t type)
 /**
  * Parse an integer.  If the integer conversion did not succeed, the
  * integer result is set to -1;
- */ 
+ */
 int
 Parsers::parseInt(char* intString, Results::param_type_t type)
 {
@@ -724,7 +727,7 @@ Parsers::parseInt(char* intString, Results::param_type_t type)
   }
   Results::params[type].type = Results::INT_PARAMETER ;
   return 0;
-} 
+}
 
 /**
  * Parse a use (for fastUse, ldapUse, etc.): 0 or 1.
