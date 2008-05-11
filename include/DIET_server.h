@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.38  2008/05/11 16:19:48  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Implementation of Cori_batch system
+ * Numerous information can be dynamically retrieved through batch systems
+ *
  * Revision 1.37  2008/05/05 13:54:17  bisnard
  * new computation time estimation get/set functions
  *
@@ -455,6 +462,9 @@ diet_SeD(char* config_file_name, int argc, char* argv[]);
   int
   diet_submit_parallel(diet_profile_t* profile, const char *command) ;
 
+  /* TODO: this will disapear when BatchSystem will implement seqFIFO,
+     paralFIFO, LOADLEVELER, etc., since the definition would be
+     straightforward then. */
   typedef enum {
     SERIAL,
     BATCH,
@@ -464,13 +474,12 @@ diet_SeD(char* config_file_name, int argc, char* argv[]);
   void
   diet_set_server_status( diet_server_status_t status ) ;
 
-  /* FIXME: futur Cori_batch */
-  int
-  diet_getNbMaxResources(diet_profile_t * profile) ;
-
-  int
-  diet_getNbIdleResources(diet_profile_t * profile) ;
-
+  /* TODO: erase me, i am in Cori_batch */
+  /*   int */
+  /*   diet_getNbMaxResources(diet_profile_t * profile) ; */
+  
+  /*   int */
+  /*   diet_getNbIdleResources(diet_profile_t * profile) ; */
 #endif
 
 
@@ -500,6 +509,19 @@ double diet_est_array_get_system(estVectorConst_t ev,
 int diet_est_array_defined(estVectorConst_t ev, int userTag, int idx);
 int diet_est_array_defined_system(estVectorConst_t ev, int systemTag, int idx);
 
+#ifdef HAVE_ALT_BATCH
+/* These two functions shall be removed and a better mechanism found
+   for example vhen and if CoRI is rewritten. Or clients using CoRI must
+   be written in C and not in C++...
+   FIXME: Do they have to be integrated to the documented API at the moment?
+*/
+estVector_t
+diet_new_estVect() ;
+  
+void
+diet_destroy_estVect( estVector_t perfVect ) ;
+#endif
+
 int diet_estimate_cori(estVector_t ev,
 		       int info_type,
 		       diet_est_collect_tag_t collector_type,
@@ -518,7 +540,8 @@ int diet_estimate_lastexec(estVector_t ev,
 int diet_estimate_comptime(estVector_t ev, double value);
 
 /* To obtain the queue size. */
-int diet_estimate_waiting_jobs(estVector_t ev);
+int diet_estimate_waiting_jobs(estVector_t ev,
+			       const diet_profile_t* const profilePtr) ;
 
 /****************************************************************************/
 /* Inline definitions                                                       */

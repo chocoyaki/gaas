@@ -5,6 +5,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.53  2008/05/11 16:19:49  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Implementation of Cori_batch system
+ * Numerous information can be dynamically retrieved through batch systems
+ *
  * Revision 1.52  2008/04/28 07:08:30  glemahec
  * The DAGDA API.
  *
@@ -496,7 +503,7 @@ AgentImpl::findServer(Request* req, size_t max_srv)
     /* Need to know children for parallel and/or seq.
        One service can be registered as parallel and as seq on a child.
        It then appears 2 times.
-       Research from the profile and concatenes results. */
+       Search from the profile and concatene results. */
 
     /* Contact the children. The responses array will not be ready until all
        children are contacted. Thus lock the responses mutex now. */
@@ -505,7 +512,12 @@ AgentImpl::findServer(Request* req, size_t max_srv)
     
     req->lock();
     mc = SrvT->getChildren( &creq.pb, serviceRef, &frontier ) ;
+
     srvTMutex.unlock();
+
+#ifdef YC_DEBUG
+    cout << "Child ID: " << mc->children[0] << "\n\n" ;
+#endif
 
     nbChildrenContacted = mc->nb_children ;
     /* Perform requests */
@@ -813,17 +825,22 @@ AgentImpl::getCommTime(CORBA::Long childID, unsigned long size, bool to)
 
   AGT_TRACE_FUNCTION(childID <<", " << size);
   stat_in(this->myName,"getCommTime");
+
 #if !HAVE_CORI
-time = FASTMgr::commTime(this->localHostName, child_name, size, to);
+
+  time = FASTMgr::commTime(this->localHostName, child_name, size, to);
+
 #else //HAVE_CORI
+
   estVector_t ev=new corba_estimation_t();
   commTime_t commTime_param={this->localHostName,child_name,size,to};
 
   CORIMgr::call_cori_mgr(&ev,
-EST_COMMTIME,
-EST_COLL_FAST,
-&commTime_param);
+			 EST_COMMTIME,
+			 EST_COLL_FAST,
+			 &commTime_param);
   time = diet_est_get(ev, EST_COMMTIME, HUGE_VAL);
+
 #endif //HAVE_CORI
 
   ms_strfree(child_name);

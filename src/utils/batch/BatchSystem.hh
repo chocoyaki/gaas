@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/05/11 16:19:51  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Implementation of Cori_batch system
+ * Numerous information can be dynamically retrieved through batch systems
+ *
  * Revision 1.5  2008/04/19 09:16:46  ycaniou
  * Check that pathToTmp and pathToNFS exist
  * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
@@ -71,6 +78,7 @@ public :
     WAITING,
     SUBMITTED,
     PREEMPTED, // Is this useful?
+    UNDETERMINED, // If error when trying to read the status. Begin again.
     NB_STATUS
   } batchJobState ;
 
@@ -191,18 +199,34 @@ public :
   */
   virtual int
   isBatchJobCompleted(int batchJobID) = 0 ;
+
+  /********** Batch static information accessing Functions **********/
+  /* These should soon change for they assume a default queue and we
+     want to be able to manage all queues of a system! */
+
+  virtual int
+  getNbTotResources() = 0 ;
+
+  virtual int
+  getNbResources() = 0 ;
+
+  virtual int
+  getMaxWalltime() = 0 ;
+
+  virtual int
+  getMaxProcs() = 0 ;
+  
+  /********** Batch dynamic information accessing Functions *********/
+  /* These should soon change for they assume a default queue and we
+     want to be able to manage all queues of a system! */
+
+  virtual int
+  getNbTotFreeResources() = 0 ;
+
+  virtual int
+  getNbFreeResources() = 0 ;
       
   /****************** Performance Prediction Functions ***************/
-
-  /** Return the dynamic number of available resources, i.e., resources
-      that are up
-  */
-  virtual int
-  getNbMaxResources() = 0 ;
-
-  /** Return the dynamic number of idle resources */
-  virtual int
-  getNbIdleResources() = 0 ;
 
   /** Get the number of processors and the walltime for a Diet request
       by simulating the batch system.
@@ -243,9 +267,47 @@ protected :
   int
   readn(int fd, char * buffer, int n) ;
 
-  /** Check if @path is a writable directory. Quit the program if not */
+  /** Check if @path is a writable directory. Quit the program if not. */
   void
   errorIfPathNotValid( const char * path) ;
+
+  /* Creates a unique temporary file in the tmp path declared previously.
+     \c pattern is used for information purpose. Returns a filename that
+     the user must free when finished. */
+  
+  char *
+  createUniqueTemporaryTmpFile(const char * pattern) ;
+
+  /* Creates a unique temporary file in the NFS path declared previously.
+     \c pattern is used for information purpose. Returns a filename that
+     the user must free when finished. */
+  
+  char *
+  createUniqueTemporaryNFSFile(const char * pattern) ;
+  
+  /** Read a number in the file \c filename. Only NBDIGITS_MAX_RESOURCES
+      digits are read, thus the number of digits is assumed not to exceed 
+      this value. */
+  int
+  readNumberInFile(const char * filename) ;
+  
+  /** Exec a command (with system() system call) and get the result of
+      the output in a unique temporary file made from \c pattern
+      (maintly for debugging purpose). Assume the result in the file is an
+      integer, read and return this value. Only NBDIGITS_MAX_RESOURCES
+      digits are read, thus the number of digits is assumed not to exceed 
+      this value. */
+  int
+  launchCommandAndGetInt(const char * submitCommand,
+			 const char * pattern) ;
+  
+    /** Exec a command (with system() system call) and get the result of
+      the output in a unique temporary file made from \c pattern
+      (maintly for debugging purpose). Returns the name of the file for
+      further parsing. The user MUST unlink the file by his own. */ 
+  char *
+  launchCommandAndGetResultFilename(const char * submitCommand,
+				 const char * pattern) ;
   
   /************ Batch Configuration ************/
   /* (Fully qualified) frontal host name */
@@ -255,7 +317,7 @@ protected :
   const char * batchName ; // The name of the batch system
     
   const char * batchQueueName ; // Only one queue managed
-
+  
   /* The following must end with a '/' */
   const char * pathToNFS ; /* Some batch need this */
   const char * pathToTmp ; 

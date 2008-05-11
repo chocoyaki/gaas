@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.75  2008/05/11 16:19:48  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Implementation of Cori_batch system
+ * Numerous information can be dynamically retrieved through batch systems
+ *
  * Revision 1.74  2008/05/05 13:54:19  bisnard
  * new computation time estimation get/set functions
  *
@@ -648,9 +655,6 @@ diet_convertor_check(const diet_convertor_t* const cvt,
   return res;
 }
 
-/* To obtain the number of waiting jobs in the FIFO queue, we need a ref to */
-/* the SeD object. */
-SeDImpl* SeDObject = NULL;
 /****************************************************************************/
 /* DIET server call                                                         */
 /****************************************************************************/
@@ -747,7 +751,6 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   }
 
   /* ORB initialization */
-
   if (ORBMgr::init(myargc, (char**)myargv)) {
     ERROR("ORB initialization failed", 1);
   }
@@ -827,9 +830,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
 
   /* SeD creation */
   SeD = new SeDImpl();
-  /* Initiliaze the object reference. */
-  SeDObject = SeD;
-  TRACE_TEXT(NO_TRACE,
+  TRACE_TEXT(NO_TRACE, 
 	     "## SED_IOR " << ORBMgr::getIORString(SeD->_this()) << endl);
   fsync(1);
   fflush(NULL);
@@ -885,7 +886,6 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
 
   /* We do not need the parsing results any more */
   Parsers::endParsing();
-
 
   /* Wait for RPCs : */
   ORBMgr::wait();
@@ -1150,48 +1150,73 @@ diet_est_array_defined_system(estVectorConst_t ev, int systemTag, int idx)
 }
 #if HAVE_CORI
 
+#ifdef HAVE_ALT_BATCH
+/* These two functions shall be removed and a better mechanism found
+   for example vhen and if CoRI is rewritten.
+*/
+estVector_t
+diet_new_estVect()
+{
+  return new corba_estimation_t() ;
+}
+
+void
+diet_destroy_estVect( estVector_t perfVect )
+{
+  delete perfVect ;
+}
+#endif // HAVE_ALT_BATCH
+
 int
 diet_estimate_cori(estVector_t ev,
 		   int info_type,
 		   diet_est_collect_tag_t collector_type,
 		   const void * data)
 {
-
-  if (collector_type==EST_COLL_FAST){
-    //#if HAVE_FAST
-    fast_param_t fastparam={(diet_profile_t*)data,SRVT};
-    //testing already here, because it is possible that an internal call use tag COMMTIME
-    if ((info_type==EST_TCOMP)||
-	(info_type==EST_FREECPU)||
-	(info_type==EST_FREEMEM)||
-	(info_type==EST_NBCPU)||
-	(info_type==EST_ALLINFOS))
-      CORIMgr::call_cori_mgr(&ev,info_type,collector_type,&fastparam);
-    else {
-      // FIXME: set the default values for each type
-      double value ;
-      switch( info_type ) {
-      case EST_TCOMP:
-      case EST_FREECPU:
-      case EST_FREEMEM:
-      case EST_NBCPU:
-      case EST_ALLINFOS:
-      default:
-	value = 0 ;
+  fast_param_t fastparam={(diet_profile_t*)data,SRVT};
+  switch( collector_type ) {
+    case EST_COLL_FAST:
+      //#if HAVE_FAST    
+      //testing already here, because it is possible that an internal call use tag COMMTIME
+      if ((info_type==EST_TCOMP)||
+	  (info_type==EST_FREECPU)||
+	  (info_type==EST_FREEMEM)||
+	  (info_type==EST_NBCPU)||
+	  (info_type==EST_ALLINFOS))
+	CORIMgr::call_cori_mgr(&ev,info_type,collector_type,&fastparam);
+      else {
+	// FIXME: set the default values for each type
+	double value ;
+	switch( info_type ) {
+	case EST_TCOMP:
+	case EST_FREECPU:
+	case EST_FREEMEM:
+	case EST_NBCPU:
+	case EST_ALLINFOS:
+	default:
+	  value = 0 ;
+	}
+	diet_est_set_internal(ev,info_type,value);
+	ERROR(__FUNCTION__ << ": info_type must be EST_TCOMP,EST_FREECPU,EST_FREEMEM, EST_NBCPU or EST_ALLINFOS!)\n", -1);
       }
-      diet_est_set_internal(ev,info_type,value);
-      ERROR(__FUNCTION__ << ": info_type must be EST_TCOMP,EST_FREECPU,EST_FREEMEM, EST_NBCPU or EST_ALLINFOS!)\n", -1);
-    }
-    //#endif //HAVE_FAST
-  } else
-    CORIMgr::call_cori_mgr(&ev,info_type,collector_type,data);
-  return 0;
+      //#endif //HAVE_FAST
+      break ;
+  case EST_COLL_EASY:
+  case EST_COLL_BATCH: 
+    CORIMgr::call_cori_mgr( &ev, info_type, collector_type, data ) ;
+    break ;
+  case EST_COLL_GANGLIA:
+  case EST_COLL_NAGIOS:
+  default:
+    ERROR("Requested collector not implemented\n", -1) ;
+  }
+  return 0 ;
 }
 
 int
 diet_estimate_cori_add_collector(diet_est_collect_tag_t collector_type,
-				 void* data){
-  return CORIMgr::add(collector_type,NULL);
+				 void * data){
+  return CORIMgr::add(collector_type, data);
 }
 
 void
@@ -1243,6 +1268,8 @@ diet_estimate_coriEasy_print(){
 
    cerr<<"end printing CoRI values"<<endl;
    TRACE_LEVEL=tmp_int;
+
+   /* FIXME (YC->ANY): release vec ? */
 }
 
 #else //HAVE_CORI
@@ -1298,15 +1325,26 @@ int diet_estimate_lastexec(estVector_t ev,
 
 int diet_estimate_comptime(estVector_t ev, double value) {
   diet_est_set_internal(ev, EST_TCOMP, value);
+  return 0 ;
 }
 
 /* Get the number of waiting jobs in the queue. */
 /* TODO : Add to the documentation. */
-int diet_estimate_waiting_jobs(estVector_t ev) {
-  if (SeDObject!=NULL)
+int diet_estimate_waiting_jobs(estVector_t ev,
+			       const diet_profile_t* const profilePtr)
+{
+  const SeDImpl* refSeD = (SeDImpl*) profilePtr->SeDPtr;
+ 
+  if( refSeD!=NULL ) {
+    /*
+    ** casting away const-ness, because we know that the
+    ** method doesn't change the SeD
+    */
     diet_est_set_internal(ev, EST_NUMWAITINGJOBS,
-	                      SeDObject->getNumJobsWaiting());
-  return 0;
+			  ((SeDImpl*) refSeD)->getNumJobsWaiting());
+    return 0;
+  } else
+    INTERNAL_ERROR(__FUNCTION__ <<": ref on SeD not initialized?", 1) ;
 }
 
 /****************************************************************************/
@@ -1344,22 +1382,16 @@ diet_submit_parallel(diet_profile_t * profile, const char * command)
   return ((((SeDImpl*)profile->SeDPtr)->getBatch())->
 	  diet_submit_parallel(profile,command)) ;
 }
+
+/* This is to be used later: a SeD can manage a reservation as he wants. It
+   can partition the reserved procs, launch several pb resolutions with
+   tasks overlapping or not */
 int
 diet_concurrent_submit_parallel(int batchJobID, diet_profile_t * profile,
 				const char * command)
 {
   return (((SeDImpl*)profile->SeDPtr)->getBatch())->
     diet_submit_parallel(batchJobID,profile,command) ;
-}
-int
-diet_getNbMaxResources(diet_profile_t * profile)
-{
-  return ((SeDImpl *)profile->SeDPtr)->getBatch()->getNbMaxResources() ;
-}
-int
-diet_getNbIdleResources(diet_profile_t * profile)
-{
-  return ((SeDImpl *)profile->SeDPtr)->getBatch()->getNbIdleResources() ;
 }
 #endif
 

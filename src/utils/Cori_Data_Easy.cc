@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2008/05/11 16:19:51  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Implementation of Cori_batch system
+ * Numerous information can be dynamically retrieved through batch systems
+ *
  * Revision 1.13  2008/04/07 12:19:12  ycaniou
  * Except for the class Parsers (someone to re-code it? :)
  *   correct "deprecated conversion from string constant to 'char*'" warnings
@@ -152,7 +159,6 @@ Cori_Data_Easy::get_Information(int type_Info,
   case EST_CPUSPEED:
     res =cpu->get_CPU_Frequence(&vect); 
     convertArray(vect,info,type_Info);
-
     break;
   case EST_AVGFREECPU:  
     if (data==NULL){
@@ -224,7 +230,7 @@ Cori_Data_Easy::get_Information(int type_Info,
     INTERNAL_WARNING("CoRI: Tag " <<type_Info <<" unknown for collecting info");
     res=1;
   }
-}
+  }
   if (TRACE_LEVEL>=TRACE_ALL_STEPS)
     print_Metric(*info,type_Info); 
   return res;

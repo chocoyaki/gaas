@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2008/05/11 16:19:51  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Implementation of Cori_batch system
+ * Numerous information can be dynamically retrieved through batch systems
+ *
  * Revision 1.9  2007/04/16 22:43:44  ycaniou
  * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
  * This is indented to replace HAVE_BATCH.
@@ -35,7 +42,7 @@ int
 CORIMgr::add(diet_est_collect_tag_t collectorName,
 	     const void * datav)
 {
-  Cori_Metric tmp ( collectorName, datav);
+  Cori_Metric tmp ( collectorName, datav );
   collector_v->push_back(tmp);
   return 0;
 }
@@ -63,11 +70,10 @@ CORIMgr::call_cori_mgr(estVector_t *ev,
   iter1 = collector_v->begin();
   while( iter1 != collector_v->end()) {
     
-    if (name==iter1->get_Collector_type()){    
+    if (name==iter1->get_Collector_type())
       return iter1->call_cori_metric(info_type,ev,datav);
-    }
-    else 
-      iter1++;
+    
+    iter1++;
   }
   INTERNAL_WARNING("The collector "<<name<<" is not present in CORIMgr");
   return 1;

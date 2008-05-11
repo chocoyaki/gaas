@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/05/11 16:19:51  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Implementation of Cori_batch system
+ * Numerous information can be dynamically retrieved through batch systems
+ *
  * Revision 1.2  2008/04/07 13:11:44  ycaniou
  * Correct "deprecated conversion from string constant to 'char*'" warnings
  * First attempt to code functions to dynamicaly get batch information
@@ -54,10 +61,36 @@ public :
   int
   isBatchJobCompleted(int batchJobID) ;
 
-  /** TODO
-   */  
+  /********** Batch static information accessing Functions **********/
+  /* These should soon change for they assume a default queue and we
+     want to be able to manage all queues of a system! */
+
   int
-  getNumberOfAvailableComputingResources() ;
+  getNbTotResources() ;
+
+  int
+  getNbResources() ;
+
+  const char *
+  getResourcesName() ;
+  
+  int
+  getMaxWalltime() ;
+
+  int
+  getMaxProcs() ;
+  
+  /********** Batch dynamic information accessing Functions *********/
+  /* These should soon change for they assume a default queue and we
+     want to be able to manage all queues of a system! */
+
+  int
+  getNbTotFreeResources() ;
+
+  int
+  getNbFreeResources() ;
+
+  /****************** Performance Prediction Functions ***************/
 
 private :
 
@@ -66,4 +99,4 @@ private :
 
 } ;
 
-#endif // LOADLEVELER_BATCH_SYSTEM
+#endif // SGE_BATCH_SYSTEM

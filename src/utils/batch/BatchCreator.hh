@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/05/11 16:19:51  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Implementation of Cori_batch system
+ * Numerous information can be dynamically retrieved through batch systems
+ *
  * Revision 1.4  2008/04/07 12:19:12  ycaniou
  * Except for the class Parsers (someone to re-code it? :)
  *   correct "deprecated conversion from string constant to 'char*'" warnings
@@ -55,7 +62,7 @@ public :
   static BatchSystem *
   getBatchSystem( const char * batchName ) ;
 
-  /** Returns 1 if the batch system is managed by DIET, o otherwise */
+  /** Returns 1 if the batch system is managed by DIET, 0 otherwise */
   static int
   existBatchScheduler(const char * batchName, batchID_t * batchID) ;
       

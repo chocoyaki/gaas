@@ -9,6 +9,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2008/05/11 16:19:51  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Implementation of Cori_batch system
+ * Numerous information can be dynamically retrieved through batch systems
+ *
  * Revision 1.28  2008/03/28 13:17:17  rbolze
  * update code to avoid warning with the intel compiler
  *
@@ -149,6 +156,12 @@ extern omni_mutex debug_log_mutex ;
   return return_value ; }
 
 #define ERROR_EXIT(formatted_msg) {                 \
+  debug_log_mutex.lock() ;                          \
+  cerr << "DIET ERROR: " << formatted_msg << ".\n"; \
+  debug_log_mutex.unlock() ;                        \
+  exit(1) ; }
+
+#define INTERNAL_ERROR_EXIT(formatted_msg) {                 \
   debug_log_mutex.lock() ;                          \
   cerr << "DIET ERROR: " << formatted_msg << ".\n"; \
   debug_log_mutex.unlock() ;                        \

@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/05/11 16:19:51  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Implementation of Cori_batch system
+ * Numerous information can be dynamically retrieved through batch systems
+ *
  * Revision 1.2  2008/04/07 13:11:44  ycaniou
  * Correct "deprecated conversion from string constant to 'char*'" warnings
  * First attempt to code functions to dynamicaly get batch information
@@ -180,13 +187,51 @@ SGE_BatchSystem::isBatchJobCompleted(int batchJobID)
   return 0 ;
 }
 
-/*************************** Performance Prediction *************************/
+/********** Batch static information accessing Functions **********/
 
 int
-SGE_BatchSystem::getNumberOfAvailableComputingResources()
+SGE_BatchSystem::getNbTotResources()
 {
-  // oarnodes | grep [^ \t] | wc -l donne le nombre de noeuds
-  {
-    ERROR("This funtion is not implemented yet", 1) ;
-  }
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  return 16 ;
 }
+
+int
+SGE_BatchSystem::getNbResources()
+{
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  return 16 ;
+}
+
+int
+SGE_BatchSystem::getMaxWalltime()
+{
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  return 500 ;
+}
+
+int
+SGE_BatchSystem::getMaxProcs()
+{
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  return getNbResources() ;
+}
+
+/********** Batch dynamic information accessing Functions *********/
+
+int
+SGE_BatchSystem::getNbTotFreeResources()
+{
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  return getNbResources() ;
+}
+
+int
+SGE_BatchSystem::getNbFreeResources()
+{
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  return getNbResources() ;
+}
+
+/*************************** Performance Prediction *************************/
+

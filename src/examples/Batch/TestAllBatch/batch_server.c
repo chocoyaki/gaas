@@ -7,6 +7,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/05/11 16:19:50  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Implementation of Cori_batch system
+ * Numerous information can be dynamically retrieved through batch systems
+ *
  * Revision 1.3  2008/04/19 09:16:46  ycaniou
  * Check that pathToTmp and pathToNFS exist
  * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
@@ -67,9 +74,9 @@ void make_perf(diet_profile_t * pb)
 
 #ifdef YC_DEBUG
   printf("Requested job is ") ;
-  if( pb->parallel-flag == 1 )
+  if( pb->parallel_flag == 1 )
     printf("sequential\n\n") ;
-  else if( pb->parallel-flag == 2 )
+  else if( pb->parallel_flag == 2 )
     printf("parallel\n\n") ;
   else
     printf("ARGHHH\n\n") ;

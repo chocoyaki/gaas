@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2008/05/11 16:19:51  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Implementation of Cori_batch system
+ * Numerous information can be dynamically retrieved through batch systems
+ *
  * Revision 1.27  2008/04/19 09:16:46  ycaniou
  * Check that pathToTmp and pathToNFS exist
  * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
@@ -640,6 +647,9 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc,
     SRVT_ERROR("attempting to get children\n"
                << "  in a table initialized with solvers");
   }
+  if (((int) serviceRef < 0) || ((size_t) serviceRef >= nb_s)) {
+    SRVT_ERROR("wrong service reference");
+  }
   
   int first_found = -1, second_found = -1 ; // at most, two indices: // and seq
   size_t i(0), j(0) ;
@@ -679,28 +689,70 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc,
   
     /* Copy children, ordered parallel flag = 1 first */
     if( profiles[ serviceRef ].parallel_flag == 1 ) {
-      for( i=0; i<matching_children[ first_found ].nb_children ; i++ )
+#ifdef YC_DEBUG
+      cout << "Identities of the children for seq service\n" ;
+#endif
+      for( i=0; i<matching_children[ first_found ].nb_children ; i++ ) {
 	mc->children[ i ] =
 	  matching_children[ first_found ].children[ i ] ;
-      if( second_found > 0 )
-	for( j=0 ; j<matching_children[ second_found ].nb_children ; i++, j++ )
+#ifdef YC_DEBUG
+	cout << matching_children[ first_found ].children[ i ] ;
+#endif
+      }
+#ifdef YC_DEBUG
+	cout << "\n" ;
+#endif
+      if( second_found > 0 ) {
+#ifdef YC_DEBUG
+	cout << "Identities of the children for parallel service\n" ;
+#endif
+	for(j=0 ; j<matching_children[ second_found ].nb_children ; i++, j++) {
 	  mc->children[ i ] =
 	    matching_children[ second_found ].children[ j ] ;
+#ifdef YC_DEBUG
+	cout << matching_children[ second_found ].children[ j ] ;
+#endif
+	}
+#ifdef YC_DEBUG
+	cout << "\n" ;
+#endif
+      }
       /* set frontier */
       (*frontier)=matching_children[ first_found ].nb_children ;
     } else {
       if( second_found > 0 ) {
-	for( i=0; i<matching_children[ second_found ].nb_children ; i++ )
+#ifdef YC_DEBUG
+      cout << "Identities of the children for seq service\n" ;
+#endif
+	for( i=0; i<matching_children[ second_found ].nb_children ; i++ ) {
 	  mc->children[ i ] =
 	    matching_children[ second_found ].children[ i ] ;
+#ifdef YC_DEBUG
+	  cout << matching_children[ second_found ].children[ i ] ;
+#endif
+	}
+#ifdef YC_DEBUG
+	cout << "\n" ;
+#endif
 	/* set frontier */
 	(*frontier)=matching_children[ second_found ].nb_children ;
       } else {
-	for( j=0 ; j<matching_children[ first_found ].nb_children ; i++, j++ )
-	  mc->children[ i ] =
-	    matching_children[ first_found ].children[ j ] ;
-	/* set frontier */
-	(*frontier)=0 ;
+#ifdef YC_DEBUG
+      cout << "Identities of the children for parallel service\n" ;
+#endif 
+      for( j=0, i=0 ; j<matching_children[ first_found ].nb_children ;
+	   i++, j++ ) {
+	mc->children[ i ] =
+	  matching_children[ first_found ].children[ j ] ;
+#ifdef YC_DEBUG
+	cout << matching_children[ first_found ].children[ j ] ;
+#endif
+      }
+#ifdef YC_DEBUG
+	cout << "\n" ;
+#endif
+      /* set frontier */
+      (*frontier)=0 ;
       }
     }
   } else { /* Only interested by a given profile ( seq ORexclusive // )
@@ -709,10 +761,19 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc,
       matching_children[ first_found ].nb_children ;
     mc->children =
       new CORBA::ULong[mc->nb_children] ;
-    
-    for( i=0; i<matching_children[ first_found ].nb_children ; i++ )
+#ifdef YC_DEBUG
+    cout << "Identities of the children for service\n" ;
+#endif
+    for( i=0; i<matching_children[ first_found ].nb_children ; i++ ) {
       mc->children[ i ] =
 	matching_children[ first_found ].children[ i ] ;
+#ifdef YC_DEBUG
+      cout << matching_children[ first_found ].children[ i ] ;
+#endif
+    }
+#ifdef YC_DEBUG
+	cout << "\n" ;
+#endif
     /* set frontier */
     if( profiles[ serviceRef ].parallel_flag == 1 )
       (*frontier)= matching_children[ first_found ].nb_children ;

@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/05/11 16:19:51  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Implementation of Cori_batch system
+ * Numerous information can be dynamically retrieved through batch systems
+ *
  * Revision 1.2  2008/04/07 13:11:44  ycaniou
  * Correct "deprecated conversion from string constant to 'char*'" warnings
  * First attempt to code functions to dynamicaly get batch information
@@ -117,15 +124,11 @@ Loadleveler_BatchSystem::askBatchJobStatus(int batchJobID)
   if( (status == TERMINATED) || (status == CANCELED) || (status == ERROR) )
     return status ;
   /* create a temporary file to get results and batch job ID */
-  filename = (char*)malloc(sizeof(char)*strlen(pathToTmp) + 30 ) ;
-  sprintf(filename,"%sDIET_batch_finish.XXXXXX", pathToTmp) ;
-  file_descriptor = mkstemp( filename ) ;
+  filename = createUniqueTemporaryTmpFile("DIET_batch_finish") ;
+  file_descriptor = open(filename,O_RDONLY) ;
   if( file_descriptor == -1 ) {
-    ERROR("Cannot create batch I/O redirection file", NB_STATUS) ;
+    ERROR("Cannot open file", UNDETERMINED ) ;
   }
-#if defined YC_DEBUG
-  TRACE_TEXT(TRACE_ALL_STEPS,"Fichier_finish: " << filename << "\n") ;
-#endif
 
   /*** Ask batch system the job status ***/      
   chaine = (char*)malloc(sizeof(char)*(strlen(wait4Command)
@@ -199,23 +202,127 @@ Loadleveler_BatchSystem::isBatchJobCompleted(int batchJobID)
   return 0 ;
 }
 
+/********** Batch static information accessing Functions **********/
+
+int
+Loadleveler_BatchSystem::getNbResources()
+{
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  return 16 ;
+}
+
+int
+Loadleveler_BatchSystem::getNbTotResources()
+{
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  return 16 ;
+}
+
+int
+Loadleveler_BatchSystem::getMaxWalltime()
+{
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  return 500 ;
+}
+
+int
+Loadleveler_BatchSystem::getMaxProcs()
+{
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  return getNbResources() ;
+}
+
+/********** Batch dynamic information accessing Functions *********/
+
+int
+Loadleveler_BatchSystem::getNbTotFreeResources()
+{
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  return getNbResources() ;
+}
+
+int
+Loadleveler_BatchSystem::getNbFreeResources()
+{
+  /* Write this script in a file and execute it. It assumes that the Perl
+     Library API for Loadleveler is present
+  */
+
+// #!/usr/bin/perl
+// #
+// # use strict;
+// # use warnings;
+// use lib "$ENV{'HOME'}/local/perl_modules/lib";
+// use lib "$ENV{'HOME'}/local/perl_modules/lib/site_perl";
+
+// use IBM::LoadLeveler;
+
+// if ($ARGV[0]){
+//         $class_name=$ARGV[0];
+// }else{
+//         $class_name="decrypthon";
+// }
+
+// # Query Job information
+// $query = ll_query(JOBS);
+
+// # Ask for all data on all jobs
+// $return=ll_set_request($query,QUERY_ALL,undef,ALL_DATA);
+// if ($return != 0 ){
+//         print STDERR "ll_set_request failed Return = $return\n";
+// }
+// # Query the scheduler for information
+// # $number will contain the number of objects returned
+// $job=ll_get_objs($query,LL_CM,NULL,$number,$err);
+// $nb_running_job=0;
+// while ( $job){
+
+//         # Loop through all steps for this job
+//         my $step=ll_get_data($job,LL_JobGetFirstStep);
+//         while ($step)
+//         {
+//                 my $state=ll_get_data($step,LL_StepState);
+//                 my $class=ll_get_data($step,LL_StepJobClass);
+//                 if ( $class eq $class_name && $state == STATE_RUNNING){
+//                         $nb_running_job++;
+//                 }
+//                 $step=ll_get_data($job,LL_JobGetNextStep);
+//         }
+//         $job=ll_next_obj($query);
+// }
+// # Free up space allocated by LoadLeveler
+// ll_free_objs($query);
+// ll_deallocate($query);
+
+// open(OUTPUT,"llclass -l $class_name |");
+// while (defined($line = <OUTPUT>)) {
+//         $_=$line;
+//         if (/Free_slots/){
+//                 @val=split(/\s+/,$line);
+//                 $free_slots=$val[2];
+// #               print "Free_slots = ".$free_slots."\n";
+//         }
+//         if (/Maxjobs/){
+//                 @val=split(/\s+/,$line);
+//                 $maxjobs=$val[2];
+// #               print "Maxjobs = ".$maxjobs."\n";
+//         }
+// }
+// close(OUTPUT);
+// $free_slots+=$nb_running_job;
+// if ($maxjobs > 0 ){
+//         if($free_slots>$maxjobs){$nb_host=$maxjobs;}
+//         if($free_slots<$maxjobs){$nb_host=$free_slots;}
+// }else{
+//         $nb_host=$free_slots;
+// }
+// print "$nb_host\n";
+
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  return getNbResources() ;
+}
+
 /*************************** Performance Prediction *************************/
-int
-Loadleveler_BatchSystem::getNbMaxResources()
-{
-  {
-    ERROR("This funtion is not implemented yet", 1) ;
-  }
-}
-
-int
-Loadleveler_BatchSystem::getNbIdleResources()
-{
-  {
-    ERROR("This funtion is not implemented yet", 1) ;
-  }
-}
-
 
 
 /************************* Examples of commands ****************************/

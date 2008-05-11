@@ -1,14 +1,26 @@
 # DIET cmake local file
 
 IF( DIET_BUILD_LIBRARIES )
-  INCLUDE_DIRECTORIES(
-    ${OMNIORB4_INCLUDE_DIR}
-    ${DIET_SOURCE_DIR}/src/utils
-    ${DIET_BINARY_DIR}/src/CORBA/idl
-    ${DIET_SOURCE_DIR}/src/CORBA
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${DIET_SOURCE_DIR}/include
-  )
+  IF( HAVE_ALT_BATCH )
+    INCLUDE_DIRECTORIES(
+      ${OMNIORB4_INCLUDE_DIR}
+      ${DIET_SOURCE_DIR}/src/utils
+      ${DIET_BINARY_DIR}/src/CORBA/idl
+      ${DIET_SOURCE_DIR}/src/CORBA
+      ${CMAKE_CURRENT_SOURCE_DIR}
+      ${DIET_SOURCE_DIR}/include
+    )
+  ELSE( HAVE_ALT_BATCH )
+    INCLUDE_DIRECTORIES(
+      ${OMNIORB4_INCLUDE_DIR}
+      ${DIET_SOURCE_DIR}/src/utils
+      ${DIET_BINARY_DIR}/src/CORBA/idl
+      ${DIET_SOURCE_DIR}/src/CORBA
+      ${CMAKE_CURRENT_SOURCE_DIR}
+      ${DIET_SOURCE_DIR}/include
+      ${DIET_SOURCE_DIR}/src/SeD	# for SeDImpl.hh from Cori_Metric
+    )
+  ENDIF( HAVE_ALT_BATCH )
   
   #########################################################################
   IF (DIET_USE_WORKFLOW) 
@@ -56,6 +68,12 @@ IF( DIET_BUILD_LIBRARIES )
   ENDIF( DIET_USE_DAGDA )
 
   ADD_LIBRARY( AgentCommon ${AgentCommon_SOURCES} )
+
+  IF( DIET_USE_CORI )
+      SET( CORI_LIBRARIES
+	   UtilsCori )
+  ENDIF( DIET_USE_CORI )
+
   TARGET_LINK_LIBRARIES( AgentCommon
     UtilsNodes
     UtilsVector
@@ -68,6 +86,7 @@ IF( DIET_BUILD_LIBRARIES )
     ${DynamicLoadingLibrary}
   ## Only set when DIET_USE_DAGDA is on.
     ${DAGDA_LIBRARIES}
+    ${CORI_LIBRARIES}                          # defined a little above
   )
   INSTALL_TARGETS(/lib/ AgentCommon )
   

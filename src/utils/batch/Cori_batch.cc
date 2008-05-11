@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/05/11 16:19:51  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Implementation of Cori_batch system
+ * Numerous information can be dynamically retrieved through batch systems
+ *
  * Revision 1.3  2008/04/07 12:19:12  ycaniou
  * Except for the class Parsers (someone to re-code it? :)
  *   correct "deprecated conversion from string constant to 'char*'" warnings
@@ -22,6 +29,7 @@
  ****************************************************************************/
 
 #include "Cori_batch.hh"
+#include "BatchSystem.hh"
 
 #include "debug.hh"
 #include <iostream>
@@ -30,178 +38,107 @@
 #include <string>
 #include <math.h>
 
-using namespace std;
+#define className Cori_batch
 
-/*
+using namespace std ;
+
 void
-print_Metric(estVector_t vector_v,int type_Info){
-
-  double errorCode=0;
-  switch (type_Info){
+className::printMetric( estVector_t vector_v, int type_Info )
+{
+  switch( type_Info ){
   
-  case EST_ALLINFOS:
+  case EST_SERVER_TYPE: /* Value appears only once */
+    cout << "In construction: EST_SERVER_TYPE\n\n" ;
     break;
-  case EST_CPUSPEED: 
-    for (int i=0; i<diet_est_array_size_internal(vector_v,EST_CPUSPEED);i++)
-      cout << "CPU "<<i<<" frequence : "<< diet_est_array_get_internal(vector_v,EST_CPUSPEED,i,errorCode)<<" Mhz"<< endl;
+  case EST_PARAL_NBTOT_RESOURCES:
+    cout << "In construction: EST_PARAL_NBTOT_RESOURCES\n\n" ;
     break;
-  case EST_CACHECPU:
-    for (int i=0; i<diet_est_array_size_internal(vector_v,EST_CACHECPU);i++)
-      cout << "CPU "<<i<<" cache : "<< diet_est_array_get_internal(vector_v,EST_CACHECPU,i,errorCode)<<" Kb"<< endl;
-    break;	
-  case EST_BOGOMIPS:
-    for (int i=0; i<diet_est_array_size_internal(vector_v,EST_BOGOMIPS);i++)
-      cout << "CPU "<<i<<" Bogomips : "<< diet_est_array_get_internal(vector_v,EST_BOGOMIPS,i,errorCode)<< endl;
-    break;   
-  case EST_AVGFREECPU:  
-    cout << "cpu average load : "<<diet_est_get_internal(vector_v,EST_AVGFREECPU, errorCode)<<endl;
+  case EST_PARAL_NBTOT_FREE_RESOURCES:
+    cout << "In construction: EST_PARAL_NBTOT_FREE_RESOURCES\n\n" ;
     break;
-  case EST_NBCPU:
-    cout << "number of processors : " << diet_est_get_internal(vector_v,EST_NBCPU,errorCode)<< endl;     
-   break;
- case EST_DISKACCESREAD:
-    cout << "diskspeed in reading : "<<diet_est_get_internal(vector_v,EST_DISKACCESREAD,errorCode)<<" Mbyte/s"<<endl;
-    break;
- case EST_DISKACCESWRITE:
-    cout << "diskspeed in writing : "<<diet_est_get_internal(vector_v,EST_DISKACCESWRITE,errorCode)<<" Mbyte/s"<<endl;
-    break;
-  case EST_TOTALSIZEDISK: 
-    cout << "total disk size : " << diet_est_get_internal(vector_v,EST_TOTALSIZEDISK,errorCode)<<" Mb" << endl;
-    break;
-  case EST_FREESIZEDISK:
-    cout <<	"available disk size  :"<<diet_est_get_internal(vector_v,EST_FREESIZEDISK,errorCode)<<" Mb"<<endl;
-    break;
-  case EST_TOTALMEM: 
-    cout << "total memory : "<< diet_est_get_internal(vector_v,EST_TOTALMEM,errorCode)<<" Mb" << endl;
-    break;
-  case EST_FREEMEM:
-    cout << "available memory : "<<diet_est_get_internal(vector_v,EST_FREEMEM, errorCode)<<" Mb" <<endl;
-    break;
-  case EST_FREECPU: 
-    cout << "free cpu: "<<diet_est_get_internal(vector_v,EST_FREECPU, errorCode)<<endl;
+  case EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE:
+    cout << 
+      "CoRI: EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE... " <<
+      (int)diet_est_get_system(vector_v,
+			       EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE, 0)
+	 << "\n\n" ;
     break;
   default: {
-    INTERNAL_WARNING( "CoRI: Tag " <<type_Info <<" for printing info");
+  INTERNAL_WARNING( "CoRI: Tag " << type_Info <<" for printing info");
   }	
   }
 }
-*/
-Cori_batch::Cori_batch(){
-   // cpu=new Cori_Easy_CPU();
-//    memory=new Cori_Easy_Memory();
-//    disk=new Cori_Easy_Disk();
+
+Cori_batch::Cori_batch( diet_profile_t * profile )
+{
+  /* At this time, because diet_SeD() has not yet been called, we cannot do
+     that */
+  /* TODO: make a diet_initialize() or something before diet_SeD()! */
+
+  /* this->SeD = (SeDImpl*)(profile->SeDPtr) ;
+     this->batch = ((SeDImpl*)(profile->SeDPtr))->getBatch() ; */
 }
 
-int 
+int
 Cori_batch::get_Information(int type_Info,       
-			    estVector_t* info,
-			    const void * data){
-  const char * path;
-  vector<double> vect;
-  int res=0;
-  double temp=0;
-  int minut;
-  const char * tmp="./";
-
-  /*
-  switch (type_Info){
- 
-  case EST_ALLINFOS:{
-    minut=15;
-    res = get_Information(EST_CPUSPEED,info,NULL)||res;
-    res = get_Information(EST_AVGFREECPU,info,&minut)||res;
-    res = get_Information(EST_CACHECPU,info,NULL)||res;
-    res = get_Information(EST_NBCPU,info,NULL)||res;
-    res = get_Information(EST_BOGOMIPS,info,NULL)||res;
-    res = get_Information(EST_DISKACCESREAD,info,tmp)||res;
-    res = get_Information(EST_DISKACCESWRITE,info,tmp)||res;
-    res = get_Information(EST_TOTALSIZEDISK,info,tmp)||res;
-    res = get_Information(EST_FREESIZEDISK,info,tmp)||res;
-    res = get_Information(EST_TOTALMEM,info,NULL)||res;
-    res = get_Information(EST_FREEMEM,info,NULL)||res; 
-    //set all other TAGS to bad values
-    diet_est_set_internal(*info, EST_TCOMP, HUGE_VAL);
-  }
-  case EST_CPUSPEED:
-    res =cpu->get_CPU_Frequence(&vect); 
-    convertArray(vect,info,type_Info);
-
-    break;
-  case EST_AVGFREECPU:  
-    if (data==NULL){
-      minut=15;
+			    estVector_t * estvect,
+			    const void * data)
+{
+  switch( type_Info ) {
+  /* The following one should be replaced, when SeDseq, SeDpar will be
+     implemented, by est_PARAL_ID */
+  case EST_SERVER_TYPE:
+    /*    diet_est_set_internal( *estvect, type_Info, this->SeD->getServerStatus()) ; */
+    diet_est_set_internal( *estvect, type_Info,
+			   (( SeDImpl*)(((diet_profile_t*)data)->SeDPtr))->getServerStatus()) ;
+    break ;
+  case EST_PARAL_NBTOT_RESOURCES:
+    diet_est_set_internal( *estvect, type_Info,
+			   ((( SeDImpl*)(((diet_profile_t*)data)->SeDPtr))
+			    ->getBatch())->getNbTotResources() ) ;
+    /*			   this->batch->getNbTotResources() ) ; */
+    break ;
+  case EST_PARAL_NBTOT_FREE_RESOURCES:
+    diet_est_set_internal( *estvect, type_Info,
+			   ((( SeDImpl*)(((diet_profile_t*)data)->SeDPtr))
+			    ->getBatch())->getNbTotFreeResources() ) ;
+    /*			   this->batch->getNbTotFreeResources() ) ; */
+    break ;
+  /* Information concerning the default queue now */
+  case EST_PARAL_NB_RESOURCES_IN_DEFAULT_QUEUE:
+    diet_est_set_internal( *estvect, type_Info,
+			   ((( SeDImpl*)(((diet_profile_t*)data)->SeDPtr))
+			    ->getBatch())->getNbResources() ) ;
+    /*			   this->batch->getNbResources() ) ; */
+    break ;
+  case EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE:
+    diet_est_set_internal( *estvect, type_Info,
+			   ((( SeDImpl*)(((diet_profile_t*)data)->SeDPtr))
+			    ->getBatch())->getNbFreeResources() ) ;
+    /*			   this->batch->getNbFreeResources() ) ; */
+    break ;
+  case EST_PARAL_MAX_WALLTIME:
+    diet_est_set_internal( *estvect, type_Info,
+			   ((( SeDImpl*)(((diet_profile_t*)data)->SeDPtr))
+			    ->getBatch())->getMaxWalltime() ) ;
+    /*			   this->batch->getMaxWalltime() ) ; */
+    break ;
+  case EST_PARAL_MAX_PROCS:
+    diet_est_set_internal( *estvect, type_Info,
+			   ((( SeDImpl*)(((diet_profile_t*)data)->SeDPtr))
+			    ->getBatch())->getMaxProcs() ) ;
+    /*			   this->batch->getMaxProcs() ) ; */
+    break ;
+  default:
+    {
+      
+    WARNING("CoRI Batch: Tag " << type_Info << 
+	    " unknown for collecting info") ;
     }
-    else
-      minut= *((int*) data);
-    res=cpu->get_CPU_Avg(minut,&temp);
-    convertSimple(temp,info,type_Info);
-    break;
-  case EST_CACHECPU:
-     res=cpu->get_CPU_Cache(&vect);
-     convertArray(vect,info,type_Info);
-     break;
-  case EST_NBCPU:
-     res=cpu->get_CPU_Number(&temp);
-     convertSimple(temp, info,type_Info);
-    break;
-  case EST_BOGOMIPS:
-     res=cpu->get_CPU_Bogomips(&vect);
-     convertArray(vect,info,type_Info);
-    break;
-  case EST_DISKACCESREAD: 
-    if (data==NULL)
-      path="./";
-    else
-      path= (char *) data;        
-     res=disk->get_Read_Speed(path, &temp);
-     convertSimple(temp, info,type_Info);
-    break;
-  case EST_DISKACCESWRITE:
-    if (data==NULL)
-      path="./";
-    else
-     path=(char *) data;       
-    res=disk->get_Write_Speed(path, &temp);
-    convertSimple(temp, info,type_Info);
-    break;
-  case EST_TOTALSIZEDISK: 
-    if (data==NULL)
-      path="./";
-    else
-     path= (char *) data;        
-    res=disk->get_Total_DiskSpace(path,&temp);
-    convertSimple(temp, info,type_Info);
-    break;
-  case EST_FREESIZEDISK:
-    if (data==NULL)
-      path="./";
-    else
-      path= (char *) data;        
-    res=disk->get_Available_DiskSpace(path,&temp);
-    convertSimple(temp, info,type_Info);
-    break;
-  case EST_TOTALMEM:
-    res=memory->get_Total_Memory(&temp);
-    convertSimple(temp, info,type_Info);
-    break;
-  case EST_FREEMEM: 
-    res=memory->get_Avail_Memory(&temp);
-    convertSimple(temp, info,type_Info);
-    break;
-  case EST_FREECPU:
-    res=cpu->get_CPU_ActualLoad(&temp);
-    temp=1-temp;
-    convertSimple(temp, info,type_Info);
-    break;
-  default: {
-    INTERNAL_WARNING("CoRI: Tag " <<type_Info <<" unknown for collecting info");
-    res=1;
   }
-}
+  
   if (TRACE_LEVEL>=TRACE_ALL_STEPS)
-    print_Metric(*info,type_Info); 
-  return res;
-  */
+    printMetric( *estvect, type_Info ) ; 
   return 0 ;
 }
 

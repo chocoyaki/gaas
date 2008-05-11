@@ -8,6 +8,20 @@ IF( DIET_BUILD_LIBRARIES )
    DataMgrImpl.cc
    SeDImpl.cc
   )
+
+  IF( DIET_USE_ALT_BATCH )    # in that case, put lib UtilsCoRI in lib DIET_SeD
+    SET( DIET_SeD_SOURCES
+	 ${DIET_SeD_SOURCES}
+         ${DIET_SOURCE_DIR}/src/utils/Cori_batch.cc
+         ${DIET_SOURCE_DIR}/src/utils/FASTMgr.cc
+         ${DIET_SOURCE_DIR}/src/utils/Cori_Data_Easy.cc
+         ${DIET_SOURCE_DIR}/src/utils/Cori_Easy_CPU.cc
+         ${DIET_SOURCE_DIR}/src/utils/Cori_Easy_Disk.cc
+         ${DIET_SOURCE_DIR}/src/utils/Cori_Easy_Memory.cc
+         ${DIET_SOURCE_DIR}/src/utils/Cori_Fast.cc
+         ${DIET_SOURCE_DIR}/src/utils/Cori_Metric.cc
+         ${DIET_SOURCE_DIR}/src/utils/CORIMgr.cc )
+  ENDIF( DIET_USE_ALT_BATCH )
   
   INCLUDE_DIRECTORIES(
     ${OMNIORB4_INCLUDE_DIR}
@@ -19,10 +33,6 @@ IF( DIET_BUILD_LIBRARIES )
     ${DIET_BINARY_DIR}/src/CORBA/idl
   )
   
-  IF( DIET_USE_BATCH )
-    INCLUDE_DIRECTORIES( ${APPLESEEDS_INCLUDE_DIR} )
-  ENDIF( DIET_USE_BATCH )
-
   IF( DIET_USE_JUXMEM )
     INCLUDE_DIRECTORIES( ${JUXMEM_INCLUDE_DIR} )
   ENDIF( DIET_USE_JUXMEM )
@@ -31,39 +41,42 @@ IF( DIET_BUILD_LIBRARIES )
   IF( DIET_USE_DAGDA )
     INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/src/utils/DAGDA ${UUID_PATH} )
     SET( DAGDA_LIBRARIES
-      IDLDagda
-      Dagda
-      DIET_Dagda
-    )
+         IDLDagda
+	 Dagda
+	 DIET_Dagda )
   ENDIF( DIET_USE_DAGDA )
 
   ADD_LIBRARY( DIET_SeD ${DIET_SeD_SOURCES} )
   
+  SET( DIET_SeDTmpLib
+       CorbaCommon
+       UtilsNodes
+       IDLAgent
+       IDLCommon
+       UtilsCommon
+       UtilsSeDClt
+       UtilsVector
+       ${OMNIORB4_LIBRARIES}
+       ${DAGDA_LIBRARIES} )
+
+  IF( NOT DIET_USE_ALT_BATCH )
+    IF( DIET_USE_CORI )      # Then the lib is compiled independantly
+      SET( DIET_SeDTmpLib
+	   ${DIET_SeDTmpLib}
+	   UtilsCori )
+    ENDIF( DIET_USE_CORI )
+  ENDIF( NOT DIET_USE_ALT_BATCH )
+
   TARGET_LINK_LIBRARIES( DIET_SeD
-    CorbaCommon
-    UtilsNodes
-    IDLAgent
-    IDLCommon
-    UtilsCommon
-    UtilsSeDClt
-    UtilsVector
-    ${OMNIORB4_LIBRARIES}
-    ${DAGDA_LIBRARIES}
-  )
-  
+			 ${DIET_SeDTmpLib} )  
+
   IF(DIET_USE_FD)
-    TARGET_LINK_LIBRARIES( DIET_SeD fd)
+    TARGET_LINK_LIBRARIES( DIET_SeD fd )
   ENDIF(DIET_USE_FD)
   
-  IF( DIET_USE_BATCH )
-    TARGET_LINK_LIBRARIES( DIET_SeD ${APPLESEEDS_LIBRARIES} )
-    TARGET_LINK_LIBRARIES( DIET_SeD UtilsSeDBatch )
-  ENDIF( DIET_USE_BATCH )
-
   IF( DIET_USE_ALT_BATCH )
     TARGET_LINK_LIBRARIES( DIET_SeD UtilsSeDBatch )
   ENDIF( DIET_USE_ALT_BATCH )
-
 
   IF( DIET_USE_JUXMEM )
     TARGET_LINK_LIBRARIES( DIET_SeD ${JUXMEM_LIBRARIES} )

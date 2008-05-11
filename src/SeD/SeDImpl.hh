@@ -9,6 +9,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.40  2008/05/11 16:19:48  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Implementation of Cori_batch system
+ * Numerous information can be dynamically retrieved through batch systems
+ *
  * Revision 1.39  2008/04/07 15:33:42  ycaniou
  * This should remove all HAVE_BATCH occurences (still appears in the doc, which
  *   must be updated.. soon :)
@@ -284,6 +291,9 @@ public:
   /* Set if server is SERIAL, BATCH,.. */
   void
   setServerStatus( diet_server_status_t status ) ;
+
+  diet_server_status_t
+  getServerStatus() ;
   
   virtual CORBA::Long
   parallel_solve(const char* pbName, corba_profile_t& pb,

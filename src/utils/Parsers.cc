@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.49  2008/05/11 16:19:51  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Implementation of Cori_batch system
+ * Numerous information can be dynamically retrieved through batch systems
+ *
  * Revision 1.48  2008/05/06 10:49:37  bisnard
  * bug in checkValidity (compulsory param was not displayed)
  *
@@ -200,7 +207,7 @@ Parsers::Results::param_t Parsers::Results::params[] =
    /* [28] */ ,{"schedulerModule", 15, Parsers::parseName, 0, NULL}
    /* [29] */ ,{"moduleConfigFile", 16, Parsers::parseName, 0, NULL}
 #endif
-#if HAVE_ALT_BATCH
+#ifdef HAVE_ALT_BATCH
    /* [30] */ ,{"batchName", 9, Parsers::parseName, 0, NULL}
    /* [31] */ ,{"batchQueue", 10, Parsers::parseName, 0, NULL}
    /* [32] */ ,{"pathToNFS", 9, Parsers::parseName, 0, NULL}
@@ -224,6 +231,9 @@ Parsers::Results::param_t Parsers::Results::params[] =
 #endif
 #ifdef HAVE_CCS
    /* [44] */ ,{"USE_SPECIFIC_SCHEDULING", 23, Parsers::parseName, 0, NULL}
+#endif
+#ifdef HAVE_ALT_BATCH
+   /* [41] */ ,{"internOARbatchQueueName", 23, Parsers::parseName, 0, NULL}
 #endif
   } ;
 

@@ -9,6 +9,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2008/05/11 16:19:51  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Implementation of Cori_batch system
+ * Numerous information can be dynamically retrieved through batch systems
+ *
  * Revision 1.8  2007/04/30 13:53:22  ycaniou
  * Cosmetic changes (indentation) and small changes for Cori_Batch
  *
@@ -45,9 +52,9 @@ Cori_Metric::Cori_Metric(diet_est_collect_tag_t type,
     cori_fast=new Cori_Fast();
   }
     break;
-#if HAVE_ALT_BATCH
+#if (defined HAVE_ALT_BATCH) && (!defined CLEAN_CORILIB_FROM_BATCH_STAFF)
   case EST_COLL_BATCH:
-    cori_batch = new Cori_batch() ;
+    cori_batch = new Cori_batch( (diet_profile_t*)data ) ;
     break ;
 #endif
   default:{
@@ -67,10 +74,10 @@ Cori_Metric::start(diet_est_collect_tag_t type)
   collector_type=type;
 
   switch(collector_type){
-#if HAVE_ALT_BATCH
+#if !defined CLEAN_CORILIB_FROM_BATCH_STAFF and defined HAVE_ALT_BATCH
   case EST_COLL_BATCH:
     // do I need to 'start' some Batch things?
-    // I think not: all has to be done in the SeD_batch init
+    // Maybe one day, a process that monitors a batch systems if needed?
     return 0 ;
 #endif
   case EST_COLL_EASY:{ 
@@ -92,16 +99,17 @@ Cori_Metric::start(diet_est_collect_tag_t type)
 
 int 
 Cori_Metric::call_cori_metric(int type_Info,       
-				  estVector_t *information,
-				  const void *data)
+			      estVector_t *information,
+			      const void *data)
 {
   switch(collector_type){
-#if HAVE_ALT_BATCH
-  case EST_COLL_BATCH:
-    return cori_batch->get_Information(type_Info, 
-				       information,
-				       data);   
-    break; 
+
+#if !defined CLEAN_CORILIB_FROM_BATCH_STAFF and defined HAVE_ALT_BATCH
+   case EST_COLL_BATCH:
+     return cori_batch->get_Information(type_Info, 
+					information,
+					data) ;   
+     break ; 
 #endif
   case EST_COLL_EASY:{ 
     return cori_easy->get_Information(type_Info, 

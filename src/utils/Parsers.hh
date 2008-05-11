@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.35  2008/05/11 16:19:51  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Implementation of Cori_batch system
+ * Numerous information can be dynamically retrieved through batch systems
+ *
  * Revision 1.34  2008/04/29 22:22:02  glemahec
  * DAGDA improvements :
  *   - Asynchronous API.
@@ -229,7 +236,7 @@ public:
 	  MODULENAME,
 	  MODULECFG,
 #endif
-#if HAVE_ALT_BATCH
+#ifdef HAVE_ALT_BATCH
       BATCHNAME,
       BATCHQUEUE,
       PATHTONFS,
@@ -255,6 +262,10 @@ public:
 #endif
 #ifdef HAVE_CCS
       USE_SPECIFIC_SCHEDULING,
+#endif
+
+#ifdef HAVE_ALT_BATCH
+      INTERNOARQUEUENAME,
 #endif
       NB_PARAM_TYPE
     } param_type_t;

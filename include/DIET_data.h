@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.56  2008/05/11 16:19:48  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Implementation of Cori_batch system
+ * Numerous information can be dynamically retrieved through batch systems
+ *
  * Revision 1.55  2008/04/18 13:47:22  glemahec
  * Everything about DAGDA is now in utils/DAGDA directory.
  *
@@ -630,7 +637,17 @@ typedef struct diet_arg_s diet_data_t;
 #define EST_ALLINFOS 20 
 /* Added to obtain the queue size from the SeD. */
 #define EST_NUMWAITINGJOBS 21
-#define EST_USERDEFINED 22
+  /********** HAVE_ALT_BATCH ************/
+#define EST_SERVER_TYPE 22
+#define EST_PARAL_NBTOT_RESOURCES 23 /* Number of nodes if // machine, or machines if cluster */
+#define EST_PARAL_NBTOT_FREE_RESOURCES 24 /* same as above, idle resources */
+#define EST_PARAL_NB_RESOURCES_IN_DEFAULT_QUEUE 25 /* same as above, for the queue */
+#define EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE 26 /* same as above */
+#define EST_PARAL_MAX_WALLTIME 27
+#define EST_PARAL_MAX_PROCS 28
+/* Carefull: Add any new value before this one! */
+#define EST_USERDEFINED 29
+  /********** !HAVE_ALT_BATCH ************/
 /*} diet_est_tag_t;*/
 
 
@@ -651,11 +668,11 @@ typedef const struct corba_estimation_t *estVectorConst_t;
     EST_COLL_EASY,
     EST_COLL_FAST,
     EST_COLL_GANGLIA,
-    EST_COLL_NAGIOS
-#ifdef HAVE_ALT_BATCH
-    ,EST_COLL_BATCH
-#endif
-  }diet_est_collect_tag_t;
+    EST_COLL_NAGIOS,
+    /****** HAVE_ALT_BATCH ******/
+    EST_COLL_BATCH
+    /***** !HAVE_ALT_BATCH ******/
+  } diet_est_collect_tag_t;
 
 #ifdef HAVE_WORKFLOW
 

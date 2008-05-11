@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/05/11 16:19:51  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Implementation of Cori_batch system
+ * Numerous information can be dynamically retrieved through batch systems
+ *
  * Revision 1.4  2008/04/19 09:16:46  ycaniou
  * Check that pathToTmp and pathToNFS exist
  * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
@@ -39,7 +46,7 @@ using namespace std ;
 #include <unistd.h>      // for read()
 #include <fcntl.h>       // for O_RDONLY
 
-#include "debug.hh"
+#include "debug.hh"      // ERROR
 #include "Parsers.hh"
 #include "BatchSystem.hh"
 
@@ -57,7 +64,7 @@ BatchSystem::BatchSystem()
   char * tmpChaine = NULL ;
   
   batchJobQueue = NULL ;
-  
+    
   /* We are still on the frontal, whose name must be given to the service
   ** in case of data transfer or fault tolerance mechanism */  
   if (gethostname(frontalName, 256)) {
@@ -504,8 +511,6 @@ BatchSystem::updateBatchJobStatus(int batchJobID, batchJobState job_status)
 
 /****************** Performance Prediction Functions ***************/
 
-
-
 int
 BatchSystem::getSimulatedProcAndWalltime(int * nbprocPtr, int * walltimePtr,
 					 diet_profile_t * profilePtr)
@@ -514,7 +519,6 @@ BatchSystem::getSimulatedProcAndWalltime(int * nbprocPtr, int * walltimePtr,
     ERROR("This function is not implemented yet", 1) ;
   }
 }
-
 
 /****************** Utility function ********************/
 int
@@ -700,4 +704,139 @@ BatchSystem::errorIfPathNotValid( const char * path)
   snprintf(chaine, 99, "file %s is not a directory", //, or rights problems",
 	   path) ;
   ERROR_EXIT(chaine) ;
+}
+
+char *
+BatchSystem::createUniqueTemporaryTmpFile(const char * pattern)
+{
+  int file_descriptor ;
+  char * filename ;
+  
+  filename = (char*)malloc(sizeof(char)*strlen(pathToTmp) + 30 ) ;
+  sprintf(filename,"%s%s.XXXXXX", pathToTmp, pattern) ;
+  file_descriptor = mkstemp( filename ) ;
+  if( file_descriptor == -1 ) {
+    ERROR("Cannot create batch I/O redirection file."
+	  " Verify that tmp path is ok and that there is space left.\n", 0) ;
+  }
+#if defined YC_DEBUG
+  TRACE_TEXT(TRACE_MAIN_STEPS,
+	     "Fichier pour stocker info batch : " << filename << "\n") ; 
+#endif
+ 
+  return filename ;
+}
+
+char *
+BatchSystem::createUniqueTemporaryNFSFile(const char * pattern)
+{
+  int file_descriptor ;
+  char * filename ;
+  
+  filename = (char*)malloc(sizeof(char)*strlen(pathToNFS) + 30 ) ;
+  sprintf(filename,"%s%s.XXXXXX", pathToTmp, pattern) ;
+  file_descriptor = mkstemp( filename ) ;
+  if( file_descriptor == -1 ) {
+    ERROR("Cannot create batch I/O redirection file."
+	  " Verify that tmp path is ok and that there is space left.\n", 0) ;
+  }
+#if defined YC_DEBUG
+  TRACE_TEXT(TRACE_MAIN_STEPS,
+	     "Fichier pour stocker info batch : " << filename << "\n") ; 
+#endif
+ 
+  return filename ;
+}
+
+int
+BatchSystem::readNumberInFile(const char * filename)
+{
+  char small_chaine[10] ; // This must be gt NBDIGITS_MAX_RESOURCES
+  int file_descriptor ;
+  int nbread ;
+  
+  file_descriptor = open(filename,O_RDONLY) ;
+  if( file_descriptor == -1 ) {
+    ERROR("Cannot open batch I/O redirection file",-1) ;
+  }
+  
+  for( int i = 0 ; i<=NBDIGITS_MAX_RESOURCES ; i++ )
+    small_chaine[i] = '\0' ;
+  if( (nbread=readn(file_descriptor,small_chaine,NBDIGITS_MAX_RESOURCES))
+      == 0 ) {
+    ERROR("Error during submission or with I/O file."
+	  " Cannot read the batch ID", 0) ;
+  }
+
+  /* Just in case */
+  if( small_chaine[nbread-1] == '\n' )
+    small_chaine[nbread-1] = '\0' ;
+
+  if( close(file_descriptor) != 0 ) {
+    WARNING("Couln't close batch script file") ;
+  }
+
+  return atoi(small_chaine) ;
+}
+
+int
+BatchSystem::launchCommandAndGetInt(const char * submitCommand,
+				    const char * pattern)
+{
+  char * filename, * chaine ;
+  int nbread ;
+
+  filename = createUniqueTemporaryTmpFile( pattern ) ;
+  
+  chaine = (char*)malloc(sizeof(char)*(strlen(submitCommand)
+				       + strlen(filename)
+				       + 4 ) ) ;
+  sprintf(chaine,"%s > %s", submitCommand,filename) ;
+#if defined YC_DEBUG
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Submit avec la ligne :\n" << chaine << 
+	     "\n\n") ;
+#endif
+
+  if( system(chaine) == -1 ) {
+    ERROR("Cannot submit script", 0) ;
+  }
+
+  nbread = readNumberInFile( filename ) ;
+  
+#if REMOVE_BATCH_TEMPORARY_FILE
+  unlink( filename ) ;
+#endif
+
+  /* Free memory */
+  free(chaine) ;
+  free(filename) ;
+
+  return nbread ;
+}
+
+char *
+BatchSystem::launchCommandAndGetResultFilename(const char * submitCommand,
+					       const char * pattern)
+{
+  char * filename, * chaine ;
+  
+  filename = createUniqueTemporaryTmpFile( pattern ) ;
+  
+  chaine = (char*)malloc(sizeof(char)*(strlen(submitCommand)
+				       + strlen(filename)
+				       + 4 ) ) ;
+  sprintf(chaine,"%s > %s", submitCommand,filename) ;
+#if defined YC_DEBUG
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Submit avec la ligne :\n" << chaine << 
+	     "\n\n") ;
+#endif
+
+  if( system(chaine) == -1 ) {
+    ERROR("Cannot submit script", 0) ;
+  }
+  
+  /* Free memory */
+  free(chaine) ;
+
+  return filename ;
 }

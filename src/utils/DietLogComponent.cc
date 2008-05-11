@@ -9,6 +9,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.30  2008/05/11 16:19:51  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Implementation of Cori_batch system
+ * Numerous information can be dynamically retrieved through batch systems
+ *
  * Revision 1.29  2008/04/29 06:27:50  rbolze
  * propagate the new estimation tag : EST_NUMWAITINGJOBS
  *
@@ -530,8 +537,36 @@ DietLogComponent::getEstimationTags(const int v_tag){
 		case(EST_USERDEFINED): // 22
 		ret = strdup("EST_USERDEFINED");
 	        break;
-		default:
-		ret = strdup("UNKNOWN");
+		/********* HAVE_ALT_BATCH ***********/
+	/* Type of the server: must be in accordance with DIET_server.h
+	-> Should be replaced by the PARAL_ID (correspondings to serial, paral
+	   with DIET specific batch system (numerous IDs depending on the
+	   scheduling strategy implemented in the SeD), oar, LL, etc.) */
+	case(EST_SERVER_TYPE):
+	  ret=strdup("EST_SERVER_TYPE") ;
+	  break ;
+	/* Parallel resources information. Assumed a default queue */
+	case(EST_PARAL_NBTOT_RESOURCES):
+	  ret=strdup("EST_PARAL_NB_RESOURCES") ;
+	  break ;
+	case(EST_PARAL_NBTOT_FREE_RESOURCES):
+	  ret=strdup("EST_PARAL_NB_FREE_RESOURCES") ;
+	  break ;
+	case(EST_PARAL_NB_RESOURCES_IN_DEFAULT_QUEUE):
+	  ret=strdup("EST_PARAL_NB_RESOURCES_IN_DEFAULT_QUEUE") ;
+	  break ;
+	case(EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE):
+	  ret=strdup("EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE") ;
+	  break ;
+	case(EST_PARAL_MAX_WALLTIME):
+	  ret=strdup("EST_PARAL_MAX_WALLTIME") ;
+	  break ;
+	case(EST_PARAL_MAX_PROCS):
+	  ret=strdup("EST_PARAL_MAX_PROCS") ;
+	  break ;
+	  /* !HAVE_ALT_BATCH */
+	default:
+	  ret = strdup("UNKNOWN");
 	}
 	return ret;
 }

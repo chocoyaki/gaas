@@ -9,6 +9,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2008/05/11 16:19:51  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Implementation of Cori_batch system
+ * Numerous information can be dynamically retrieved through batch systems
+ *
  * Revision 1.9  2007/04/30 13:53:22  ycaniou
  * Cosmetic changes (indentation) and small changes for Cori_Batch
  *
@@ -30,7 +37,8 @@
 
 #include "Cori_Data_Easy.hh"
 #include "Cori_Fast.hh"
-#if HAVE_ALT_BATCH
+
+#if !defined CLEAN_CORILIB_FROM_BATCH_STAFF and defined HAVE_ALT_BATCH
 #include "Cori_batch.hh"
 #endif
 
@@ -42,7 +50,7 @@ private:
 
   Cori_Data_Easy* cori_easy;
   Cori_Fast* cori_fast;
-#if HAVE_ALT_BATCH  
+#if !defined CLEAN_CORILIB_FROM_BATCH_STAFF and defined HAVE_ALT_BATCH
   Cori_batch * cori_batch ;
 #endif
 

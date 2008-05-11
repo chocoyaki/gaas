@@ -214,6 +214,12 @@ ENDIF( OMNIORB4_FOUND )
 #ENDIF( DIET_BUILD_DOCUMENTATION )
 
 IF( DIET_USE_ALT_BATCH )
+    # In that case, CORI must also be present because of CORI_BATCH
+    IF( NOT DIET_USE_CORI )
+      MESSAGE( "Because of needed batch estimations, CORI must also be selected." )
+      SET( DIET_USE_CORI ON )
+    ENDIF( NOT DIET_USE_CORI )
+
     # The HAVE_ALT_BATCH compiler flags has too many occurences to be cleanly
     # associated with all the concerned files by using
     # SET_SOURCE_FILES_PROPERTIES combined with PROPERTIES COMPILE_FLAGS.

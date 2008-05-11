@@ -2,12 +2,19 @@
 | diet 2.3 |
 +----------+ 
 	
-* Parallel Subsmission
+* Parallel Subsmissions
 
 	- The server API has been extended to provide transparent submission
 	for parallel tasks on parallel resources, eventually managed by Batch
 	systems.
 
+* CoRI Collectors of ressource information for batch systems
+
+	- The CoRI system has been extented for batch systems:
+	still only a few information, but one can now get some information
+	on the batch system state, such as the number of idle nodes. These can
+	be used to dynamically tune a batch script.
+	
 * Loadable Schedulers
 
 	- Added support for scheduler module at agent level. The user can

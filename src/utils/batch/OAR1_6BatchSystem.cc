@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/05/11 16:19:51  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Implementation of Cori_batch system
+ * Numerous information can be dynamically retrieved through batch systems
+ *
  * Revision 1.4  2008/04/10 10:33:08  rbolze
  * correct filename_2 to filename
  *
@@ -27,6 +34,7 @@
 
 #include "debug.hh"
 #include "OAR1_6BatchSystem.hh"
+#include "Parsers.hh"
 #include <fcntl.h>       // for O_RDONLY
 #include <unistd.h>      // for read()
 
@@ -50,6 +58,13 @@ OAR1_6BatchSystem::OAR1_6BatchSystem(int ID, const char * batchname)
 
   batch_ID = ID ;
   batchName = batchname ;
+  /* Dirty Trick for OAR1.6 to get information on default queue */
+  internQueueName = strdup((char*)
+    Parsers::Results::getParamValue(Parsers::Results::INTERNOARQUEUENAME)) ;
+#if defined YC_DEBUG
+  TRACE_TEXT(TRACE_ALL_STEPS,"Nom queue interne: " << internQueueName 
+	     << "\n") ;
+#endif
   
   shell = BatchSystem::emptyString ;
   prefixe = "#!/bin/sh\n" ;
@@ -107,15 +122,11 @@ OAR1_6BatchSystem::askBatchJobStatus(int batchJobID)
   if( (status == TERMINATED) || (status == CANCELED) || (status == ERROR) )
     return status ;
   /* create a temporary file to get results and batch job ID */
-  filename = (char*)malloc(sizeof(char)*strlen(pathToTmp) + 30 ) ;
-  sprintf(filename,"%sDIET_batch_finish.XXXXXX", pathToTmp) ;
-  file_descriptor = mkstemp( filename ) ;
+  filename = createUniqueTemporaryTmpFile("DIET_batch_finish") ;
+  file_descriptor = open(filename,O_RDONLY) ;
   if( file_descriptor == -1 ) {
-    ERROR("Cannot create batch I/O redirection file", NB_STATUS) ;
+    ERROR("Cannot open file", UNDETERMINED ) ;
   }
-#if defined YC_DEBUG
-  TRACE_TEXT(TRACE_MAIN_STEPS,"Fichier_finish: " << filename << "\n") ;
-#endif
 
   /* Ask batch system the job status */      
   chaine = (char*)malloc(sizeof(char)*(strlen(wait4Command)
@@ -166,7 +177,7 @@ OAR1_6BatchSystem::askBatchJobStatus(int batchJobID)
 int
 OAR1_6BatchSystem::isBatchJobCompleted(int batchJobID)
 {
-  int status = getRecordedBatchJobStatus(batchJobID) ;
+  batchJobState status = getRecordedBatchJobStatus(batchJobID) ;
   
   if( (status == TERMINATED) || (status == CANCELED) || (status == ERROR) )
     return 1 ;
@@ -178,146 +189,141 @@ OAR1_6BatchSystem::isBatchJobCompleted(int batchJobID)
   return 0 ;
 }
 
-/*************************** Performance Prediction *************************/
+/********** Batch static information accessing Functions **********/
 
 int
-OAR1_6BatchSystem::getNbMaxResources()
+OAR1_6BatchSystem::getNbTotResources()
 {
-  char * chaine ;
-  char * filename ;
-  int file_descriptor ;
-  char submitCommand[100] = "oarnodes | grep state | wc -l" ;
-  char small_chaine[10] ; // This must be gt NBDIGITS_MAX_RESOURCES
-  int nbread ;
+  return launchCommandAndGetInt( "oarnodes | grep state | wc -l",
+				 "DIET_getNbResources") ;
+}
+
+/* TODO: this function should be C++ written 
+   or, as OAR relies on Perl, use a Perl script which has to be
+   deployed
+*/
+int
+OAR1_6BatchSystem::getNbResources() /* in the queue interQueueName */
+{
+  char chaine[500] ;
     
-  /* create a temporary file */
-  filename = (char*)malloc(sizeof(char)*strlen(pathToTmp) + 30 ) ;
-  sprintf(filename,"%sDIET_info.XXXXXX", pathToTmp) ;
-  file_descriptor = mkstemp( filename ) ;
-  if( file_descriptor == -1 ) {
-    ERROR("Cannot create batch I/O redirection file."
-	  " Verify that tmp path is ok\n",-1) ;
+  if( internQueueName == NULL ) {
+    WARNING("No internal queue Name given: use total information\n\n") ;    
+    return getNbTotResources() ;
   }
 
-#if defined YC_DEBUG
-  TRACE_TEXT(TRACE_MAIN_STEPS,
-	     "Fichier pour stocker info batch : " << filename << "\n") ; 
-#endif
+  sprintf(chaine, "oarnodes | grep %s | wc -l", internQueueName) ;
+  return launchCommandAndGetInt(chaine,
+				"DIET_getNameResources") ;
+}
 
-  chaine = (char*)malloc(sizeof(char)*(strlen(submitCommand)
-				       + strlen(filename)
-				       + 4 ) ) ;
-  sprintf(chaine,"%s > %s",
-	  submitCommand,filename) ;
-#if defined YC_DEBUG
-  TRACE_TEXT(TRACE_MAIN_STEPS,
-	     "Submit avec la ligne :\n" << chaine << "\n\n") ;
-#endif
-
-  if( system(chaine) == -1 ) {
-    ERROR("Cannot submit script", -1) ;
-  }
-
-  file_descriptor = open(filename,O_RDONLY) ;
-  if( file_descriptor == -1 ) {
-    ERROR("Cannot open batch I/O redirection file",-1) ;
-  }
-  /* Get # idle resources */  
-  for( int i = 0 ; i<=NBDIGITS_MAX_RESOURCES ; i++ )
-    small_chaine[i] = '\0' ;
-  if( (nbread=readn(file_descriptor,small_chaine,NBDIGITS_MAX_RESOURCES))
-      == 0 ) {
-    ERROR("Error during submission or with I/O file."
-	  " Cannot read the batch ID", -1) ;
-  }
-
-    /* Just in case */
-  if( small_chaine[nbread-1] == '\n' )
-    small_chaine[nbread-1] = '\0' ;
-
-  /* Remove temporary files by closing them */
-#if REMOVE_BATCH_TEMPORARY_FILE
-  unlink( filename ) ;
-#endif
-  if( close(file_descriptor) != 0 ) {
-    WARNING("Couln't close batch script file") ;
-  }
-
-  /* Free memory */
-  free(chaine) ;
-  free(filename) ;
-
-  return atoi(small_chaine) ;
+char *
+OAR1_6BatchSystem::getResourcesName()
+{
+  char chaine[500] ;
+  
+  sprintf(chaine, "oarnodes | grep %s | cut --delimiter=\"=\" --fields=6"
+	  " | cut --delimiter=\",\" --fields=1", internQueueName) ;
+  return launchCommandAndGetResultFilename(chaine,
+					   "DIET_getNameResources") ;
 }
 
 int
-OAR1_6BatchSystem::getNbIdleResources()
+OAR1_6BatchSystem::getMaxWalltime()
 {
-  char * chaine ;
-  char * filename ;
-  int file_descriptor ;
-  char submitCommand[100] = "oarnodes | grep state | grep free | wc -l" ;
-  char small_chaine[10] ; // This must be gt NBDIGITS_MAX_RESOURCES
-  int nbread ;
-      
-  /* create a temporary file */
-  filename = (char*)malloc(sizeof(char)*strlen(pathToTmp) + 30 ) ;
-  sprintf(filename,"%sDIET_info.XXXXXX", pathToTmp) ;
-  file_descriptor = mkstemp( filename ) ;
-  if( file_descriptor == -1 ) {
-    ERROR("Cannot create batch I/O redirection file."
-	  " Verify that tmp path is ok\n",-1) ;
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  return 500 ;
+}
+
+int
+OAR1_6BatchSystem::getMaxProcs()
+{
+  INTERNAL_WARNING(__FUNCTION__ << " not yet implemented\n\n") ;
+  return getNbResources() ;
+}
+
+/********** Batch dynamic information accessing Functions *********/
+
+int
+OAR1_6BatchSystem::getNbTotFreeResources()
+{
+  /* Command could be 
+     "oarstat -a | grep Free | cut --delimiter=" " --fields=4" */
+  return launchCommandAndGetInt( "oarnodes | grep state | grep free | wc -l",
+				 "DIET_getFreeResources") ;
+}
+
+int
+OAR1_6BatchSystem::getNbFreeResources()
+{
+  char chaine[500], hostname[50] ;
+  char * filename, * filenameToParse ;
+  FILE * file, * fileToParse ;
+  int nbfree = 0 ;
+  int j, k ;
+    
+  if( internQueueName == NULL ) {
+    WARNING("No internal queue Name given: use total information\n\n") ;    
+    return getNbTotResources() ;
+  }
+  
+  filename = getResourcesName() ;
+  filenameToParse = launchCommandAndGetResultFilename("oarnodes",
+						      "DIET_oarInfo") ;
+  
+  /* For each name (each line), get information about host status */
+  /* TODO: Do it the C++ way! Better, use a parser! */
+  file =  fopen(filename,"r") ;
+  if( file == NULL ) {
+    WARNING("GetNbRsource: Cannot open file " << filename << endl << endl) ;
+    return getNbTotResources() ;
+  }
+  fileToParse =  fopen(filenameToParse,"r") ;
+  if( fileToParse == NULL ) {
+    WARNING("GetNbRsource: Cannot open file " << filenameToParse << endl 
+	    << endl) ;
+    return getNbTotResources() ;
   }
 
-#if defined YC_DEBUG
-  TRACE_TEXT(TRACE_MAIN_STEPS,
-	     "Fichier pour stocker info batch : " << filename << "\n") ; 
-#endif
-
-  chaine = (char*)malloc(sizeof(char)*(strlen(submitCommand)
-				       + strlen(filename)
-				       + 4 ) ) ;
-  sprintf(chaine,"%s > %s",
-	  submitCommand,filename) ;
-#if defined YC_DEBUG
-  TRACE_TEXT(TRACE_MAIN_STEPS,
-	     "Submit avec la ligne :\n" << chaine << "\n\n") ;
-#endif
-
-  if( system(chaine) == -1 ) {
-    ERROR("Cannot submit script", -1) ;
-  }
-
-  file_descriptor = open(filename,O_RDONLY) ;
-  if( file_descriptor == -1 ) {
-    ERROR("Cannot open batch I/O redirection file",-1) ;
-  }
-  /* Get # idle resources */  
-  for( int i = 0 ; i<=NBDIGITS_MAX_RESOURCES ; i++ )
-    small_chaine[i] = '\0' ;
-  if( (nbread=readn(file_descriptor,small_chaine,NBDIGITS_MAX_RESOURCES))
-      == 0 ) {
-    ERROR("Error during submission or with I/O file."
-	  " Cannot read the batch ID", -1) ;
-  }
-
-    /* Just in case */
-  if( small_chaine[nbread-1] == '\n' )
-    small_chaine[nbread-1] = '\0' ;
-
-  /* Remove temporary files by closing them */
+  do { /* Read each hostname */
+    j = fscanf(file,"%s",hostname) ;
+    
+    /* Search for hostname in fileToParse */
+    do 
+      k = fscanf(fileToParse,"%s",chaine) ;
+    while( (k != EOF) && ( strcmp(chaine,hostname)!=0 ) ) ;
+    /* TODO: should end if k==EOF because ERROR! */
+    /* We have reached the line ^hostname */
+    /* Search for the status */
+    do 
+      k = fscanf(fileToParse,"%s",chaine) ;
+    while( (k != EOF) && ( strcmp(chaine,"state")!=0 ) ) ;
+    
+    /* Seek "=" and get status */
+    k = fscanf(fileToParse,"%s",chaine) ;
+    k = fscanf(fileToParse,"%s",chaine) ;
+    
+    if( strcmp(chaine,"free") == 0 )
+      nbfree++ ;
+    
+  } while( (j != EOF) ) ;
+  
 #if REMOVE_BATCH_TEMPORARY_FILE
   unlink( filename ) ;
 #endif
-  if( close(file_descriptor) != 0 ) {
-    WARNING("Couln't close batch script file") ;
+
+  if( fclose(file) != 0 ) {
+    WARNING("Couln't close file") ;
+  }
+  if( fclose(fileToParse) != 0 ) {
+    WARNING("Couln't close file") ;
   }
 
-  /* Free memory */
-  free(chaine) ;
   free(filename) ;
+  free(filenameToParse) ;
 
-  return atoi(small_chaine) ;
+  return nbfree ;
 }
 
+/*************************** Performance Prediction *************************/
 

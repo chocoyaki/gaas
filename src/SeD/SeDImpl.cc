@@ -9,6 +9,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.106  2008/05/11 16:19:48  ycaniou
+ * Check that pathToTmp and pathToNFS exist
+ * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
+ * Rewrite of the propagation of the request concerning job parallel_flag
+ * Implementation of Cori_batch system
+ * Numerous information can be dynamically retrieved through batch systems
+ *
  * Revision 1.105  2008/04/21 13:18:34  glemahec
  * Memory leak and volatile data management corrections.
  *
@@ -522,15 +529,19 @@ SeDImpl::getRequest(const corba_request_t& creq)
   sprintf(statMsg, "getRequest %ld", (unsigned long) creq.reqID);
 #endif
 
+#ifdef HAVE_ALT_BATCH
   stat_in("SeD",statMsg);
   TRACE_TEXT(TRACE_MAIN_STEPS,
 	     "\n**************************************************\n"
-#ifdef HAVE_ALT_BATCH
 	     << "Got " << jobSpec << " request " << creq.reqID << endl
-#else
-	     << "Got request " << creq.reqID << endl
-#endif
 	     << endl);
+#else
+  stat_in("SeD",statMsg);
+  TRACE_TEXT(TRACE_MAIN_STEPS,
+	     "\n**************************************************\n"
+	     << "Got request " << creq.reqID << endl
+	     << endl);
+#endif
   resp.reqID = creq.reqID;
   resp.myID  = childID;
 
@@ -556,42 +567,17 @@ SeDImpl::getRequest(const corba_request_t& creq)
     resp.servers[0].loc.uuid = CORBA::string_dup(uuid);
 #endif //HAVE_JXTA
 
+#ifdef HAVE_ALT_BATCH
+    resp.servers[0].loc.serverType = server_status ;
+    resp.servers[0].loc.parallel_flag = creq.pb.parallel_flag ;
+#endif
 
-#if not defined HAVE_ALT_BATCH
+    /* Initialize some values */
     estVector_t ev = &(resp.servers[0].estim);
     for (int ctIter = 0 ; ctIter < creq.pb.last_out ; ctIter++) {
       diet_est_set_internal(ev, EST_COMMTIME, 0.0);
     }
-#else
-    resp.servers[0].loc.serverType = server_status ;
-    resp.servers[0].loc.parallel_flag = creq.pb.parallel_flag ;
-
-    estVector_t ev = &(resp.servers[0].estim);
-
-    switch( server_status ) {
-    case BATCH:
-      if( creq.pb.parallel_flag == 1 ) {
-	TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::Have to provide information on sequential resolution" << endl);	
-	for (int ctIter = 0 ; ctIter < creq.pb.last_out ; ctIter++) {
-	  diet_est_set_internal(ev, EST_COMMTIME, 0.0);
-	}
-      } else {
-	// Give information about parallel_job and parallel_resource
-	
-
-	TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::Have to provide information on parallel resolution" << endl);	
-      }
-      break ;
-    case SERIAL: /* Do same as before */
-      for (int ctIter = 0 ; ctIter < creq.pb.last_out ; ctIter++) {
-	diet_est_set_internal(ev, EST_COMMTIME, 0.0);
-      }
-      break ;
-    default:
-      INTERNAL_ERROR("SeD should have been a type!",0) ;
-    }
-#endif
-
+    /* Fill the metrics */
     this->estimate(resp.servers[0].estim, creq.pb, serviceRef);
   }
 
@@ -755,6 +741,12 @@ void
 SeDImpl::setServerStatus( diet_server_status_t status )
 {
   this->server_status = status ;
+}
+
+diet_server_status_t
+SeDImpl::getServerStatus()
+{
+  return server_status ;
 }
 
 CORBA::Long
@@ -1290,10 +1282,57 @@ SeDImpl::estimate(corba_estimation_t& estimation,
 
  /***** START CoRI-based metrics *****/   
 #if HAVE_CORI //dummy values
+
+#ifdef HAVE_ALT_BATCH
+    /* TODO: 
+       - If Batch, we have to make a RR that is more robust than
+         just a RR on sites (cf mail from YC the 20 apr 2008)
+       - We can add some values that can be transfered to the client
+         for contract-client based checking
+       - We can check here if client constraints given in a contract are
+         respected, and if not, delete memory for the vector and do like
+	 in SeDImpl.cc:getRequest(), resp.servers.length(0) as a response
+	 by making SeDImpl.cc:estimate() return 0 or 1 and changing the
+	 code accordingly in getRequest().
+    */
+    switch(server_status) {
+    case BATCH:
+      if( pb.parallel_flag == 1 ) {
+	TRACE_TEXT(TRACE_MAIN_STEPS,
+		   "SeD::Have to provide information on sequential "
+		   "resolution through "
+		   << batch->getBatchName() << " Batch scheduler" << endl);
+      } else {
+	// Give information about parallel_job and parallel_resource
+	TRACE_TEXT(TRACE_MAIN_STEPS,
+		   "SeD::Have to provide information on parallel "
+		   "resolution through " << batch->getBatchName() << 
+		   " Batch scheduler" << endl);	
+      }
+      break ;
+      /* Set values like nb_resources, nb_free_resources, etc.
+	 See DIET_data.h */
+      WARNING("Set Batch information in vector\n");
+      break ;
+    case SERIAL:
+      /* Populate with random value */
+      diet_est_set_internal(eVals, EST_TCOMP, HUGE_VAL);
+      diet_est_set_internal(eVals, EST_FREECPU, 0);
+      diet_est_set_internal(eVals, EST_FREEMEM, 0);
+      diet_est_set_internal(eVals, EST_NBCPU, 1);
+      break ;
+    default:
+      INTERNAL_ERROR_EXIT(__FUNCTION__ << "Type of server is not yet handled"
+			  " for performance prediction!\n");
+    }
+#else // HAVE_ALT_BATCH
+    /* Populate with random value */
     diet_est_set_internal(eVals, EST_TCOMP, HUGE_VAL);
     diet_est_set_internal(eVals, EST_FREECPU, 0);
     diet_est_set_internal(eVals, EST_FREEMEM, 0);
     diet_est_set_internal(eVals, EST_NBCPU, 1);
+#endif // HAVE_ALT_BATCH
+
 #else //HAVE_CORI
    /***** START FAST-based metrics *****/
    diet_estimate_fast(eVals, &profile);
@@ -1339,16 +1378,15 @@ SeDImpl::estimate(corba_estimation_t& estimation,
     /***** END CoRI-based metrics *****/
 
     /***** START RR metrics *****/
+    /* TODO: improve this (see Batch remarks higher */
     diet_estimate_lastexec(eVals, &profile);
     /***** END RR metrics *****/
-  }
-  else {
+  } else {
     /*
     ** just call the custom performance metric function!
     */
     (*perfmetric_fn)(&profile, eVals);
   }
-
 
   /* Evaluate comm times for persistent IN arguments only: comm times for
      volatile IN and persistent OUT arguments cannot be estimated here, and
