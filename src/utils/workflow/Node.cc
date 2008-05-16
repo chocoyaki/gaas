@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2008/05/16 12:33:32  bisnard
+ * cleanup outputs of workflow node
+ *
  * Revision 1.6  2008/04/30 07:28:56  bisnard
  * use relative timestamps for estimated and real completion time
  *
@@ -195,7 +198,6 @@ Node::Node(int wfReqId, string id, string pb_name,
   this->myRunnableNode = NULL;
   this->chosenServer = SeD::_nil();
   this->nextDone = 0;
-  this->myMark = false;
   this->priority = 0;
   this->myDag = NULL;
   this->myQueue = NULL;
@@ -1259,6 +1261,26 @@ Node::set_profile_param(WfPort * port,
   }
 } // end set_profile_param
 
+/**
+ * Free the profile and the persistent data of the node
+ */
+void
+Node::freeProfileAndData() {
+  TRACE_TEXT (TRACE_ALL_STEPS,
+              myId << " Free profile and release persistent data" << endl);
+    // Free persistent data
+  for (map<string, WfOutPort*>::iterator p = outports.begin();
+       p != outports.end();
+       ++p) {
+         WfOutPort * out = (WfOutPort*)(p->second);
+//       if (!out->isResult()) {
+         diet_free_persistent_data(profile->parameters[out->index].desc.id);
+//       } // end if
+  } // end for
+  diet_profile_free(profile);
+  profile = NULL;
+}
+
 /****************************************************************************/
 /*                           Ports linking                                  */
 /****************************************************************************/
@@ -1375,24 +1397,6 @@ void Node::start(diet_reqID_t reqID, bool join) {
  */
 void
 Node::done() {
-  // nodeIsDone(myId.c_str(), this->myDag->getId().c_str());
-  // get the current time and set the real time variable
-//   struct timeval tv;
-//   gettimeofday(&tv, NULL);
-//   this->setRealCompTime(tv.tv_sec);
-//
-//   TRACE_TEXT (TRACE_ALL_STEPS,
-// 	      "The node terminate, the estimate completion time is " <<
-// 	      estCompTime << " and the real completion time is " <<
-// 	      realCompTime << endl);
-//
-//   Node * n = NULL;
-//   TRACE_TEXT (TRACE_ALL_STEPS,
-// 	      "calling the " << next.size() << " next nodes" << endl);
-//   for (uint ix=0; ix< next.size(); ix++) {
-//     n = next[ix];
-//     n->prevNodeHasDone();
-//   }
   TRACE_TEXT (TRACE_ALL_STEPS,
 	      "calling the " << myPrevNodes.size() << " previous nodes" << endl);
   Node * n = NULL;
@@ -1414,51 +1418,23 @@ Node::done() {
 void
 Node::nextIsDone() {
   nextDone++;
-  if (nextDone == next.size()) {
-    TRACE_TEXT (TRACE_ALL_STEPS,
-		myId << " Now I can free my profile !" << endl);
-    // Free persistent data
-    for (map<string, WfOutPort*>::iterator p = outports.begin();
-	 p != outports.end();
-	 ++p) {
-      WfOutPort * out = (WfOutPort*)(p->second);
-      if (!out->isResult()) {
-	TRACE_TEXT (TRACE_ALL_STEPS,
-		    "\tRelease the persistent data " <<
-		    profile->parameters[out->index].desc.id << endl);
-	diet_free_persistent_data(profile->parameters[out->index].desc.id);
-      } // end if
-    } // end for
-    diet_profile_free(profile);
-    profile = NULL;
-  }
+//   if (nextDone == next.size()) {
+//     TRACE_TEXT (TRACE_ALL_STEPS,
+// 		myId << " Now I can free my profile !" << endl);
+//     // Free persistent data
+//     for (map<string, WfOutPort*>::iterator p = outports.begin();
+// 	 p != outports.end();
+// 	 ++p) {
+//       WfOutPort * out = (WfOutPort*)(p->second);
+//       if (!out->isResult()) {
+// 	TRACE_TEXT (TRACE_ALL_STEPS,
+// 		    "\tRelease the persistent data " <<
+// 		    profile->parameters[out->index].desc.id << endl);
+// 	diet_free_persistent_data(profile->parameters[out->index].desc.id);
+//       } // end if
+//     } // end for
+//     diet_profile_free(profile);
+//     profile = NULL;
+//   }
 } // end nextIsDone
 
-/**
- * get the node mark (used for reordering)
- */
-bool
-Node::getMark() {
-  return this->myMark;
-} // end getMark
-
-/**
- * set the node mark
- */
-void
-Node::setMark(bool b) {
-  this->myMark = b;
-} // end setMark
-
-
-
-/**
- * set the node tag value *
- */
-// void
-// Node::setTag(unsigned int t) {
-//   this->myTag = MAX(this->myTag, t);
-//   for (unsigned int ix=0; ix < next.size(); ix++) {
-//     next[ix] -> setTag(1+ (this->myTag));
-//   }
-// } // end setTag

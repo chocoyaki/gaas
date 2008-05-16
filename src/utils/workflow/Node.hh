@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/05/16 12:33:32  bisnard
+ * cleanup outputs of workflow node
+ *
  * Revision 1.5  2008/04/30 07:28:56  bisnard
  * use relative timestamps for estimated and real completion time
  *
@@ -446,23 +449,6 @@ public:
   getRealDelay();
 
   /**
-   * get the node mark (used for reordering) - OBSOLETE
-   * if the node mark is false i.e the node was executed within the
-   * predicted time (+delta)
-   * otherwise the mark is true
-   */
-  bool
-  getMark();
-
-  /**
-   * Set the node mark - OBSOLETE
-   * @param b the new node mark (true if execution time greater than
-   * prediction + delta
-   */
-  void
-  setMark(bool b);
-
-  /**
    * Test if the node is running *
    */
   bool
@@ -537,6 +523,12 @@ public:
    */
   unsigned int
   prevNb();
+
+  /**
+   * free the node profile and all the output data
+   */
+  void
+  freeProfileAndData();
 
 protected:
   /*********************************************************************/
@@ -676,7 +668,7 @@ private:
   /**
    * the node mark (used for reordering)
    */
-  bool myMark;
+//   bool myMark;
 
   /*********************************************************************/
   /* private methods                                                   */
