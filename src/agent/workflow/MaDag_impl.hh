@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2008/05/16 12:30:20  bisnard
+ * MaDag returns dagID to client after dag submission
+ * (used for node execution)
+ *
  * Revision 1.6  2008/04/30 07:37:01  bisnard
  * use relative timestamps for estimated and real completion time
  * make MultiWfScheduler abstract and add HEFT MultiWf scheduler
@@ -95,11 +99,10 @@ public:
    * @param  cltMgrRef  client workflow manager reference
    * @param  wfReqId    submitted workflow identifier (obtained by
    * getWfReqId function)
-   * @return true if workflow submission succeed (in this case, the
-   *  calling CltWfMgr thread is blocked until release() is called)
+   * @return the dag Id if workflow submission succeed, -1 if not
    */
 
-  virtual CORBA::Boolean
+  virtual CORBA::Long
       processDagWf(const corba_wf_desc_t& dag_desc, const char* cltMgrRef,
                    CORBA::Long wfReqId);
   /**

@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2008/05/16 12:29:38  bisnard
+ * MaDag returns dagID to client after dag submission
+ * (used for node execution)
+ *
  * Revision 1.9  2008/04/21 14:32:46  bisnard
  * use wf request identifer instead of dagid to reference client
  *
@@ -60,9 +64,9 @@ interface MaDag {
   * @param  dag_desc   workflow textual description
   * @param  cltMgrRef  client workflow manager reference
   * @param  wfReqId    submitted workflow identifier
-  * @return true if workflow submission succeed, otherwise false
+  * @return dag Id if workflow submission succeed, otherwise -1
   */
-  boolean
+  long
       processDagWf(in corba_wf_desc_t dag_desc,
                    in string cltMgrRef,
                    in long wfReqId);

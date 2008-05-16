@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2008/05/16 12:30:20  bisnard
+ * MaDag returns dagID to client after dag submission
+ * (used for node execution)
+ *
  * Revision 1.6  2008/04/30 07:37:01  bisnard
  * use relative timestamps for estimated and real completion time
  * make MultiWfScheduler abstract and add HEFT MultiWf scheduler
@@ -92,7 +96,7 @@ MultiWfScheduler::getMaDag() const {
 /**
  * Process a new dag => when finished the dag is ready for execution
  */
-bool
+double
 MultiWfScheduler::scheduleNewDag(const corba_wf_desc_t& wf_desc, int wfReqId,
                                  MasterAgent_var MA)
     throw (XMLParsingException, NodeException)
@@ -101,7 +105,7 @@ MultiWfScheduler::scheduleNewDag(const corba_wf_desc_t& wf_desc, int wfReqId,
       << endl);
   // Dag XML Parsing
   Dag * newDag;
-  newDag = this->parseNewDag(wfReqId, wf_desc);
+  newDag = this->parseNewDag(wfReqId, wf_desc); // dagId is set here
 
   // Dag internal scheduling
   TRACE_TEXT (TRACE_ALL_STEPS, "Making intra-dag schedule" << endl);
@@ -127,7 +131,7 @@ MultiWfScheduler::scheduleNewDag(const corba_wf_desc_t& wf_desc, int wfReqId,
   // End of exclusion block
   this->myLock.unlock();
 
-  return true;
+  return atof(newDag->getId().c_str());
 }
 
 /**

@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2008/05/16 12:30:20  bisnard
+ * MaDag returns dagID to client after dag submission
+ * (used for node execution)
+ *
  * Revision 1.7  2008/04/30 07:37:01  bisnard
  * use relative timestamps for estimated and real completion time
  * make MultiWfScheduler abstract and add HEFT MultiWf scheduler
@@ -144,7 +148,7 @@ MaDag_impl::~MaDag_impl() {
 /**
  * DAG Workflow processing
  */
-CORBA::Boolean
+CORBA::Long
 MaDag_impl::processDagWf(const corba_wf_desc_t& dag_desc,
                                 const char* cltMgrRef,
                                 CORBA::Long wfReqId) {
@@ -159,18 +163,22 @@ MaDag_impl::processDagWf(const corba_wf_desc_t& dag_desc,
   this->setCltMan(wfReqId, cltMan);
 
   // Process the request ie merge dag into the global workflow managed by the MaDag
-  if (!this->myMultiWfSched->scheduleNewDag(dag_desc, wfReqId, this->myMA)) {
+  double dagId = 0;
+  try {
+    dagId = this->myMultiWfSched->scheduleNewDag(dag_desc, wfReqId, this->myMA);
+  }
+  catch (...) {
     sprintf(statMsg,"Workflow request (%ld) aborted",wfReqId);
     stat_out("MA DAG",statMsg);
     //stat_out("MA DAG","Workflow request (" << wfReqId << ") aborted");
     this->myMutex.unlock();
-    return false;
+    return -1;
   }
   this->myMutex.unlock();
   sprintf(statMsg,"End workflow request %ld",wfReqId);
   stat_out("MA DAG",statMsg);
   //stat_out("MA DAG","Workflow request  (" << wfReqId << ") processing END");
-  return true;
+  return (CORBA::Long) dagId;
 } // end processDagWf
 
 /**

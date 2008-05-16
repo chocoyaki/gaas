@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2008/05/16 12:30:20  bisnard
+ * MaDag returns dagID to client after dag submission
+ * (used for node execution)
+ *
  * Revision 1.6  2008/04/30 07:37:01  bisnard
  * use relative timestamps for estimated and real completion time
  * make MultiWfScheduler abstract and add HEFT MultiWf scheduler
@@ -79,9 +83,9 @@ namespace madag {
      * @param wf_desc   workflow string description
      * @param wfReqId   workflow request identifier
      * @param MA        master agent (CORBA)
-     * @return boolean  true if scheduling successful
+     * @return dag identifier (double)
      */
-    virtual bool
+    virtual double
         scheduleNewDag(const corba_wf_desc_t& wf_desc, int wfReqId,
                        MasterAgent_var MA)
         throw (XMLParsingException, NodeException);
