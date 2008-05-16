@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.107  2008/05/16 12:25:55  bisnard
+ * API give status of all jobs running or waiting on the SeD
+ * (used to compute earliest finish time)
+ *
  * Revision 1.106  2008/05/11 16:19:48  ycaniou
  * Check that pathToTmp and pathToNFS exist
  * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
@@ -241,7 +245,7 @@ using namespace std;
 /* CLEAN ME: this was a hilarious pun except that slimfast_api.h is nowhere
    to be found. The Changelog file of package fast-0.8.7 simply mentions:
    - For the LONG CHANGELOG entry of version 0.8.0:
-      - SLiM is dead 
+      - SLiM is dead
       - slimfast_api.h renamed to fast.h
    - For entry 0.2.13:
       - slimfast_api.h used to be generated from the concatenation of
@@ -263,7 +267,7 @@ using namespace std;
 
 #if HAVE_CORI
 #include "CORIMgr.hh"
-#else 
+#else
 #include "FASTMgr.hh"
 #endif //HAVE_CORI
 
@@ -340,28 +344,36 @@ SeDImpl::getNumJobsWaiting() {
   return 0;
 }
 
+int
+SeDImpl::getActiveJobVector(jobVector_t& jv) {
+  if (jobQueue)
+    return jobQueue->getActiveJobTable(jv);
+  else
+    return -1;
+}
+
 SeDImpl::~SeDImpl()
 {
   /* FIXME: Tables should be destroyed. */
-  stat_finalize();  
+  stat_finalize();
 }
 
 int
 SeDImpl::run(ServiceTable* services)
 {
   SeqCorbaProfileDesc_t* profiles(NULL);
-  stat_init();  
+  stat_init();
   if (gethostname(localHostName, 256)) {
     ERROR("could not get hostname", 1);
   }
-  localHostName[255] = '\0'; // If truncated, ensure null termination 
- 
+  localHostName[255] = '\0'; // If truncated, ensure null termination
+
   this->SrvT = services;
 
 #if defined HAVE_ALT_BATCH
   if( this->server_status == BATCH ) {
     // Read "batchName" if parallel jobs are to be submitted
-    char * batchname = (char*) 
+    char * batchname = (char*)
       Parsers::Results::getParamValue(Parsers::Results::BATCHNAME) ;
     if (batchname == NULL) {
       ERROR("SeD can not launch parallel/batch jobs, no parallel/batch"
@@ -372,14 +384,14 @@ SeDImpl::run(ServiceTable* services)
       ERROR("Parallel/batch scheduler not recognized", 1) ;
     }
     TRACE_TEXT(TRACE_MAIN_STEPS,
-    	       "Parallel/batch submission enabled with " 
+    	       "Parallel/batch submission enabled with "
 	       << batch->getBatchName()) ;
     /* TODO: Queues should be provided in the SeD.cfg, or
        should be recognized automatically
        -> for the moment, only one queue specified in the file
     */
     if( batch->getBatchQueueName() != NULL )
-      TRACE_TEXT(TRACE_MAIN_STEPS, " using queue " 
+      TRACE_TEXT(TRACE_MAIN_STEPS, " using queue "
 		 << batch->getBatchQueueName() ) ;
     TRACE_TEXT(TRACE_MAIN_STEPS, "\n" ) ;
     TRACE_TEXT(TRACE_MAIN_STEPS,"pathToNFS: " << batch->getNFSPath() << "\n") ;
@@ -389,7 +401,7 @@ SeDImpl::run(ServiceTable* services)
   char* parent_name = (char*)
     Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
   if (parent_name == NULL) {
-    return 1;  
+    return 1;
   }
   parent =
     Agent::_duplicate(Agent::_narrow(ORBMgr::getObjReference(ORBMgr::AGENT,
@@ -397,7 +409,7 @@ SeDImpl::run(ServiceTable* services)
   if (CORBA::is_nil(parent)) {
     ERROR("cannot locate agent " << parent_name, 1);
   }
-  
+
   profiles = SrvT->getProfiles();
 
   if (dietLogComponent != NULL) {
@@ -463,16 +475,18 @@ SeDImpl::run(ServiceTable* services)
         << " on concurrent solves)\n");
   }
 
+  this->jobQueue = new JobQueue();
+
   /* Print out service table */
   if (TRACE_LEVEL >= TRACE_STRUCTURES) {
     SrvT->dump(stdout);
   }
 
-#if HAVE_CORI  
+#if HAVE_CORI
  return CORIMgr::startCollectors();
-#else //HAVE_CORI  
+#else //HAVE_CORI
  return FASTMgr::init();
-#endif //HAVE_CORI  
+#endif //HAVE_CORI
 
 }
 
@@ -506,7 +520,7 @@ SeDImpl::setDietLogComponent(DietLogComponent* dietLogComponent) {
   this->dietLogComponent = dietLogComponent;
 }
 
-/* 
+/*
 ** The server receives a request by an agent
 */
 void
@@ -517,7 +531,7 @@ SeDImpl::getRequest(const corba_request_t& creq)
 
 #ifdef HAVE_ALT_BATCH
   const char * jobSpec ;
-    
+
   if( creq.pb.parallel_flag == 1 )
     jobSpec = "sequential" ;
   else
@@ -598,7 +612,7 @@ SeDImpl::getRequest(const corba_request_t& creq)
 CORBA::Long
 SeDImpl::checkContract(corba_estimation_t& estimation,
                        const corba_pb_desc_t& pb)
-{  
+{
   ServiceTable::ServiceReference_t ref(-1);
   ref = SrvT->lookupService(&(pb));
   if (ref == -1)
@@ -613,9 +627,9 @@ void persistent_data_release(corba_data_t* arg){
  switch((diet_data_type_t)(arg->desc.specific._d())) {
  case DIET_VECTOR: {
     corba_vector_specific_t vect;
-	
+
     vect.size = 0;
-    arg->desc.specific.vect(vect); 
+    arg->desc.specific.vect(vect);
     break;
   }
   case DIET_MATRIX: {
@@ -624,7 +638,7 @@ void persistent_data_release(corba_data_t* arg){
     arg->desc.specific.mat(mat);
     arg->desc.specific.mat().nb_r  = 0;
     arg->desc.specific.mat().nb_c  = 0;
-  
+
     break;
   }
   case DIET_STRING: {
@@ -650,13 +664,13 @@ void persistent_data_release(corba_data_t* arg){
 
 /** Called from client immediatly after knowing which server is selected
  ** and will be called by the client, before data transfer.
- 
+
  ** Should disappear when data management by Ga�l is fully tested, because
  ** by default, data will be managed inside the solve() function and not inside
  ** the call.
  **/
 void
-SeDImpl::updateTimeSinceLastSolve() 
+SeDImpl::updateTimeSinceLastSolve()
 {
   gettimeofday(&(this->lastSolveStart), NULL) ;
 }
@@ -677,11 +691,14 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
   ref = SrvT->lookupService(path, &pb);
   if (ref == -1) {
    ERROR("SeD::" << __FUNCTION__ << ": service not found", 1);
-  } 
+  }
 
-  /* Record time at which solve started (when not using queues) 
+  /* Record time at which solve started (when not using queues)
    * and time at which job was enqueued (when using queues). */
   gettimeofday(&(this->lastSolveStart), NULL);
+
+  /* Add the job to the list of queued jobs */
+  this->jobQueue->addJob(profile, DIET_JOB_WAITING);
 
 #if defined HAVE_ALT_BATCH
   if( server_status == BATCH )
@@ -699,19 +716,21 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
     dietLogComponent->logBeginSolve(path, &pb);
   }
 
+  this->jobQueue->setJobStarted(profile.dietReqID);
+
   TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::solve invoked on pb: " << path << endl);
 
   cvt = SrvT->getConvertor(ref);
 
   /* Data transfer */
   downloadSyncSeDData(profile,pb,cvt) ;
-  
+
   TRACE_TEXT(TRACE_MAIN_STEPS, "Calling getSolver\n");
   solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
 
   /* Data transfer */
   uploadSyncSeDData(profile,pb,cvt) ;
-   
+
   if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
     cout << "SeD::solve complete\n"
          << "************************************************************\n";
@@ -721,7 +740,9 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
   }
 #endif // ! HAVE_DAGDA
   delete [] profile.parameters; // allocated by unmrsh_in_args_to_profile
- 
+
+  this->jobQueue->deleteJob(profile.dietReqID);
+
   stat_out("SeD",statMsg);
   stat_flush();
 
@@ -757,14 +778,14 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
   /*************************************************************
    **                  submit a parallel job                  **
    **
-   ** For the moment, 
+   ** For the moment,
    ** datas are received before batch submission. Maybe this has
    ** to be done in a fork, during the wait in the batch queue
    ** if we want to be the most efficient, but needs file names
    ** and perf. pred. from DTM or JuxMem.
 
    ** TODO: If a data is not a file, convert it as a file.
-   **  Must I (can I?) do it here or give the functions to let 
+   **  Must I (can I?) do it here or give the functions to let
    **  the Sed programmer do it in the profile?
    *************************************************************/
 
@@ -787,12 +808,12 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
 
   TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::parallel_solve() invoked on pb: "
 	     << path << endl);
-  
+
   cvt = SrvT->getConvertor(ref);
 
   /* Data transfer */
   downloadSyncSeDData(profile,pb,cvt) ;
-    
+
   TRACE_TEXT(TRACE_MAIN_STEPS, "Calling getSolver\n");
   solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
   TRACE_TIME(TRACE_MAIN_STEPS, "Submitting DIET job of ID "
@@ -800,7 +821,7 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
 	     " on batch system with ID " <<
 	     batch->getBatchJobID(profile.dietReqID)
 	     << "\n") ;
-  if( batch->wait4BatchJobCompletion(batch->getBatchJobID(profile.dietReqID)) 
+  if( batch->wait4BatchJobCompletion(batch->getBatchJobID(profile.dietReqID))
       < 0 ) {
     ERROR("An error occured during the execution of the parallel job", 21) ;
   }
@@ -808,7 +829,7 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
 
   /* Data transfer */
   uploadSyncSeDData(profile,pb,cvt) ;
- 
+
   if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
     cout << "SeD::parallel_solve() completed\n"
          << "************************************************************\n";
@@ -835,7 +856,7 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
 #endif //HAVE_ALT_BATCH
 
 void
-SeDImpl::solveAsync(const char* path, const corba_profile_t& pb, 
+SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
                      const char* volatileclientREF)
 {
 
@@ -861,7 +882,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
         ERROR("SeD::" << __FUNCTION__ << ": service not found",);
       }
 
-      /* Record time at which solve started (when not using queues) 
+      /* Record time at which solve started (when not using queues)
        * and time at which job was enqueued (when using queues). */
       gettimeofday(&(this->lastSolveStart), NULL);
 #if defined HAVE_ALT_BATCH
@@ -876,52 +897,52 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 	if (this->useConcJobLimit){
 	  this->accessController->waitForResource();
 	}
-	
+
 	sprintf(statMsg, "solveAsync %ld", pb.dietReqID);
 	stat_in("SeD",statMsg);
-	
+
 	if (dietLogComponent != NULL) {
 	  dietLogComponent->logBeginSolve(path, &pb);
 	}
-	
+
 	TRACE_TEXT(TRACE_MAIN_STEPS,
-		   "SeD::solveAsync invoked on pb: " << path 
+		   "SeD::solveAsync invoked on pb: " << path
 		   << " (reqID " << profile.dietReqID << ")" << endl);
-	
-	
+
+
 	cvt = SrvT->getConvertor(ref);
-	
+
 	downloadAsyncSeDData(profile, const_cast<corba_profile_t&>(pb), cvt);
-	
+
 	solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
-	
+
 	uploadAsyncSeDData(profile,  const_cast<corba_profile_t&>(pb), cvt);
-	
+
 	TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::" << __FUNCTION__ << " complete\n"
 		   << "**************************************************\n");
-	
+
 	stat_out("SeD",statMsg);
 	stat_flush();
-	
+
 	if (dietLogComponent != NULL) {
 	  dietLogComponent->logEndSolve(path, &pb);
 	}
-	
+
 	/* Release resource before returning the data.  Caution: this could be a
 	 * problem for applications with lots of data. */
 	if (this->useConcJobLimit){
 	  this->accessController->releaseResource();
 	}
-     
+
 	// send result data to client.
 	// TODO : change notifyResults and solveResults signature remove dietReqID
 	TRACE_TEXT(TRACE_ALL_STEPS, "SeD::" << __FUNCTION__
 		   << ": performing the call-back.\n");
 	Callback_var cb_var = Callback::_narrow(cb);
-	
+
 	cb_var->notifyResults(path, pb, pb.dietReqID);
 	cb_var->solveResults(path, pb, pb.dietReqID, solve_res);
-		
+
 	/* FIXME: do we need to use diet_free_data on profile parameters as
 	 * we do in the solve(...) method? */
 	delete [] profile.parameters; // allocated by unmrsh_in_args_to_profile
@@ -952,7 +973,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 /* Note: ref is useful for convertors */
 #if defined HAVE_ALT_BATCH
 void
-SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb, 
+SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb,
 			     ServiceTable::ServiceReference_t ref,
 			     CORBA::Object_var & cb,
 			     diet_profile_t & profile)
@@ -960,14 +981,14 @@ SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb,
   /*************************************************************
    **                  submit a parallel job                  **
    **
-   ** For the moment, 
+   ** For the moment,
    ** datas are received before batch submission. Maybe this has
    ** to be done in a fork, during the wait in the batch queue
    ** if we want to be the most efficient, but needs file names
    ** and perf. pred. from DTM or JuxMem.
 
    ** TODO: If a data is not a file, convert it as a file.
-   **  Must I (can I?) do it here or give the functions to let 
+   **  Must I (can I?) do it here or give the functions to let
    **  the Sed programmer do it in the profile?
    *************************************************************/
 
@@ -978,7 +999,7 @@ SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb,
       diet_convertor_t* cvt(NULL);
       int solve_res(0);
       char statMsg[128];
-    
+
       /* This can be useful for parallel resolutions */
       if (this->useConcJobLimit){
         this->accessController->waitForResource();
@@ -986,19 +1007,19 @@ SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb,
 
       sprintf(statMsg, "solve_AsyncParallel %ld", (unsigned long) pb.dietReqID);
       stat_in("SeD",statMsg);
-    
+
       if (dietLogComponent != NULL) {
 	dietLogComponent->logBeginSolve(path, &pb);
       }
-    
+
       TRACE_TEXT(TRACE_MAIN_STEPS,
-		 "SeD::solve_AsyncParallel invoked on pb: " << path 
+		 "SeD::solve_AsyncParallel invoked on pb: " << path
 		 << " (reqID " << pb.dietReqID << ")" << endl);
-    
+
       cvt = SrvT->getConvertor(ref);
-    
+
       downloadAsyncSeDData(profile, const_cast<corba_profile_t&>(pb), cvt);
-    
+
 #if defined HAVE_ALT_BATCH
       solve_res = (*(SrvT->getSolver(ref)))(&profile);
       TRACE_TIME(TRACE_MAIN_STEPS, "Submitting DIET job of ID "
@@ -1006,9 +1027,9 @@ SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb,
 		 " on batch system with ID " <<
 		 batch->getBatchJobID(profile.dietReqID)
 		 << "\n") ;
-      if( 
+      if(
 	 batch->wait4BatchJobCompletion(batch->getBatchJobID(profile.dietReqID)
-					) 
+					)
 	 < 0 ) {
 	ERROR_EXIT("An error occured during the execution of the parallel job") ;
       }
@@ -1017,8 +1038,8 @@ SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb,
       int status ;
       TRACE_TIME(TRACE_MAIN_STEPS, "Submitting script for DIET job of ID "
 		 << profile.dietReqID <<
-		 " is of pid " << 
-		 (long)((ProcessInfo)findBatchID(profile.dietReqID))->pid 
+		 " is of pid " <<
+		 (long)((ProcessInfo)findBatchID(profile.dietReqID))->pid
 		 << "\n") ;
       /* This waits until the jobs ends
       ** and remove batchID/DIETreqID correspondance */
@@ -1042,7 +1063,7 @@ SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb,
 
       stat_out("SeD",statMsg);
       stat_flush();
-    
+
       if (dietLogComponent != NULL) {
 	dietLogComponent->logEndSolve(path, &pb);
       }
@@ -1064,7 +1085,7 @@ SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb,
       delete [] profile.parameters; // allocated by unmrsh_in_args_to_profile
     }
   } catch (const CORBA::Exception &e) {
-    
+
 //     // Process any other User exceptions. Use the .id() method to
 //     // record or display useful information
 //     CORBA::Any tmp;
@@ -1125,12 +1146,12 @@ SeDImpl::uploadSeDDataJuxMem(diet_profile_t* profile)
 	/** The data does not exist yet */
 	if (strlen(profile->parameters[i].desc.id) == 0) {
 	  /* The local memory is attached inside JuxMem */
-	  profile->parameters[i].desc.id = 
-	    this->juxmem->attach(profile->parameters[i].value, 
-				 data_sizeof(&(profile->parameters[i].desc)), 
+	  profile->parameters[i].desc.id =
+	    this->juxmem->attach(profile->parameters[i].value,
+				 data_sizeof(&(profile->parameters[i].desc)),
 				 1, 1, EC_PROTOCOL, BASIC_SOG);
-	  TRACE_TEXT(TRACE_MAIN_STEPS, "A data space with ID = " 
-		     << profile->parameters[i].desc.id 
+	  TRACE_TEXT(TRACE_MAIN_STEPS, "A data space with ID = "
+		     << profile->parameters[i].desc.id
 		     << " for OUT data has been attached inside JuxMem!\n");
 	  /* The local memory is flush inside JuxMem */
 	  this->juxmem->msync(profile->parameters[i].value);
@@ -1165,7 +1186,7 @@ SeDImpl::downloadSeDDataJuxMem(diet_profile_t* profile)
   for (i = 0; i <= profile->last_out; i++) {
     if (profile->parameters[i].desc.mode == DIET_PERSISTENT ||
 	profile->parameters[i].desc.mode == DIET_PERSISTENT_RETURN) {
-   
+
       /* IN case -> acquire the data in read mode */
       if (i <= profile->last_in) {
 	assert(profile->parameters[i].desc.id != NULL);
@@ -1178,7 +1199,7 @@ SeDImpl::downloadSeDDataJuxMem(diet_profile_t* profile)
 #if JUXMEM_LATENCY_THROUGHPUT
 	gettimeofday(&t_end, NULL);
 	timersub(&t_end, &t_begin, &t_result);
-	latency = (t_result.tv_usec + (t_result.tv_sec * 1000. * 1000)) / 1000.;	
+	latency = (t_result.tv_usec + (t_result.tv_sec * 1000. * 1000)) / 1000.;
 	throughput = (data_sizeof(&(profile->parameters[i].desc)) / (1024. * 1024.)) / (latency / 1000.);
 	fprintf(stderr, "IN %s acquireRead. Latency: %f, Throughput: %f\n", profile->parameters[i].desc.id, latency, throughput);
 #endif
@@ -1229,7 +1250,7 @@ CORBA::Long
 SeDImpl::ping()
 {
   TRACE_TEXT(TRACE_ALL_STEPS, "ping()\n");
-  fflush(stdout); 
+  fflush(stdout);
   return getpid();
 }
 
@@ -1238,10 +1259,10 @@ SeDImpl::ping()
 /****************************************************************************/
 
 /**
- * Estimate a request, with FAST if available. 
+ * Estimate a request, with FAST if available.
  * Gather info about SeD by CoRI
  */
-inline void 
+inline void
 SeDImpl::estimate(corba_estimation_t& estimation,
                   const corba_pb_desc_t& pb,
                   const ServiceTable::ServiceReference_t ref)
@@ -1275,16 +1296,16 @@ SeDImpl::estimate(corba_estimation_t& estimation,
     unmrsh_data_desc(ddd, cdd);
   }
 
-  if (perfmetric_fn == NULL){ 
-   
-    /** no metrics construction here: only RR Scheduling at 
+  if (perfmetric_fn == NULL){
+
+    /** no metrics construction here: only RR Scheduling at
 	the moment when Cori is installed*/
 
- /***** START CoRI-based metrics *****/   
+ /***** START CoRI-based metrics *****/
 #if HAVE_CORI //dummy values
 
 #ifdef HAVE_ALT_BATCH
-    /* TODO: 
+    /* TODO:
        - If Batch, we have to make a RR that is more robust than
          just a RR on sites (cf mail from YC the 20 apr 2008)
        - We can add some values that can be transfered to the client
@@ -1306,8 +1327,8 @@ SeDImpl::estimate(corba_estimation_t& estimation,
 	// Give information about parallel_job and parallel_resource
 	TRACE_TEXT(TRACE_MAIN_STEPS,
 		   "SeD::Have to provide information on parallel "
-		   "resolution through " << batch->getBatchName() << 
-		   " Batch scheduler" << endl);	
+		   "resolution through " << batch->getBatchName() <<
+		   " Batch scheduler" << endl);
       }
       break ;
       /* Set values like nb_resources, nb_free_resources, etc.
@@ -1396,8 +1417,8 @@ SeDImpl::estimate(corba_estimation_t& estimation,
     // determine the transfer time of all IN and INOUT parameters.
     if ((pb.param_desc[i].mode > DIET_VOLATILE)
         && (pb.param_desc[i].mode <= DIET_STICKY)
-        && (*(pb.param_desc[i].id.idNumber) != '\0')) {    
-//       estimation.commTimes[i] = 0;  
+        && (*(pb.param_desc[i].id.idNumber) != '\0')) {
+//       estimation.commTimes[i] = 0;
       diet_est_array_set_internal(eVals, EST_COMMTIME, i, 0.0);
     }
   }
@@ -1417,7 +1438,7 @@ SeDImpl::downloadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 #else
 #if ! HAVE_DAGDA
       int i;
-      for (i = 0; i <= pb.last_inout; i++) {    
+      for (i = 0; i <= pb.last_inout; i++) {
         if(pb.parameters[i].value.length() == 0){
           this->dataMgr->getData(const_cast<corba_data_t&>(pb.parameters[i]));
         } else {
@@ -1441,7 +1462,7 @@ SeDImpl::downloadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 			     diet_convertor_t* cvt)
 {
   TRACE_TIME(TRACE_MAIN_STEPS, "SeD downloads client datas\n");
-  
+
 #if HAVE_JUXMEM
   unmrsh_in_args_to_profile(&profile, &pb, cvt);
   downloadSeDDataJuxMem(&profile);
@@ -1451,9 +1472,9 @@ SeDImpl::downloadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
   // For data persistence
 
   for (i=0 ; i <= pb.last_inout ; i++) {
-    if(pb.parameters[i].value.length() == 0) { 
+    if(pb.parameters[i].value.length() == 0) {
       /* In argument with NULL value : data is present */
-      this->dataMgr->getData(pb.parameters[i]); 
+      this->dataMgr->getData(pb.parameters[i]);
     } else { /* data is not yet present but is persistent */
       if(diet_is_persistent(pb.parameters[i])) {
         this->dataMgr->addData(pb.parameters[i],0);
@@ -1462,9 +1483,9 @@ SeDImpl::downloadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
   }
   unmrsh_in_args_to_profile(&profile, &pb, cvt);
   for (i=0 ; i <= pb.last_inout ; i++) {
-    if( diet_is_persistent(pb.parameters[i]) && 
+    if( diet_is_persistent(pb.parameters[i]) &&
         (pb.parameters[i].desc.specific._d() == DIET_FILE)) {
-      char* in_path = 
+      char* in_path =
 	CORBA::string_dup(profile.parameters[i].desc.specific.file.path);
       this->dataMgr->changePath(pb.parameters[i], in_path);
     }
@@ -1472,7 +1493,7 @@ SeDImpl::downloadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 #else
   dagda_download_data(profile, pb);
 #endif // ! HAVE_DAGDA
-#endif // HAVE_JUXMEM 
+#endif // HAVE_JUXMEM
 }
 
 inline void
@@ -1501,20 +1522,20 @@ SeDImpl::uploadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
       mrsh_profile_to_out_args(&(const_cast<corba_profile_t&>(pb)), &profile, cvt);
       /*      for (i = profile.last_in + 1 ; i <= profile.last_inout; i++) {
         if ( diet_is_persistent(profile.parameters[i])) {
-          this->dataMgr->updateDataList(const_cast<corba_data_t&>(pb.parameters[i])); 
+          this->dataMgr->updateDataList(const_cast<corba_data_t&>(pb.parameters[i]));
         }
         }*/
-      
+
       for (i = pb.last_inout + 1 ; i <= pb.last_out; i++) {
         if ( diet_is_persistent(pb.parameters[i])) {
           this->dataMgr->addData(const_cast<corba_data_t&>(pb.parameters[i]),
-                                 1); 
+                                 1);
         }
       }
 #else // ! HAVE_DAGDA
   dagda_upload_data(profile, pb);
 #endif // ! HAVE_DAGDA
-      
+
       /* Free data */
 #if 0
       for(i=0;i<pb.last_out;i++)
@@ -1524,7 +1545,7 @@ SeDImpl::uploadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
           p1 = pbc.parameters[i].value.get_buffer(1);
           _CORBA_Sequence<unsigned char>::freebuf((_CORBA_Char *)p1);
           }
-      
+
 #endif
       // FIXME: persistent data should not be freed but referenced in the data list.
 #endif // HAVE_JUXMEM
@@ -1535,7 +1556,7 @@ SeDImpl::uploadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 			   diet_convertor_t* cvt)
 {
   TRACE_TIME(TRACE_MAIN_STEPS, "SeD uploads client datas\n");
-  
+
 #if HAVE_JUXMEM
   uploadSeDDataJuxMem(&profile);
   mrsh_profile_to_out_args(&pb, &profile, cvt);
@@ -1552,29 +1573,29 @@ SeDImpl::uploadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
     }
   }
   mrsh_profile_to_out_args(&pb, &profile, cvt);
-  
+
   for (i = pb.last_inout + 1 ; i <= pb.last_out; i++) {
     if ( diet_is_persistent(pb.parameters[i])) {
-      this->dataMgr->addData(pb.parameters[i],1); 
+      this->dataMgr->addData(pb.parameters[i],1);
     }
   }
   this->dataMgr->printList();
 #else
   dagda_upload_data(profile, pb);
 #endif // ! HAVE_DAGDA
-#endif // HAVE_JUXMEM 
+#endif // HAVE_JUXMEM
 }
 
 #if defined HAVE_ALT_BATCH
 BatchSystem * // should be const
-SeDImpl::getBatch() 
+SeDImpl::getBatch()
 {
   return batch ;
 }
 
 // int
 // diet_submit_parallel(diet_profile_t * profile, const char * command)
-// { 
+// {
 //   return batch->diet_submit_parallel(profile, command) ;
 // }
 // int

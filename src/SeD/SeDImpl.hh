@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.41  2008/05/16 12:25:56  bisnard
+ * API give status of all jobs running or waiting on the SeD
+ * (used to compute earliest finish time)
+ *
  * Revision 1.40  2008/05/11 16:19:48  ycaniou
  * Check that pathToTmp and pathToNFS exist
  * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
@@ -211,6 +215,7 @@
 #include "ServiceTable.hh"
 #include "DietLogComponent.hh"
 #include "AccessController.hh"
+#include "JobQueue.hh"
 
 #if ! HAVE_JUXMEM
 #if ! HAVE_DAGDA
@@ -232,7 +237,6 @@ extern "C" {
 #include "SeDScheduler.hh"
 #endif
 
-
 /****************************************************************************/
 /* SeD class                                                                */
 /****************************************************************************/
@@ -240,14 +244,14 @@ class SeDImpl : public POA_SeD,
 		public PortableServer::RefCountServantBase
 {
 
-public:                                              
+public:
 
   SeDImpl();
 #if HAVE_JXTA
   SeDImpl(const char*);
 #endif // HAVE_JXTA
   ~SeDImpl();
-  
+
   int
   run(ServiceTable* services);
 
@@ -262,7 +266,7 @@ public:
 #endif // ! HAVE_DAGDA
 #else
   /** Set this->JuxMem */
-  int 
+  int
   linkToJuxMem(JuxMem::Wrapper* juxmem);
 #endif // ! HAVE_JUXMEM
 
@@ -283,7 +287,7 @@ public:
 
   virtual void
   updateTimeSinceLastSolve() ;
-  
+
   virtual CORBA::Long
   solve(const char* pbName, corba_profile_t& pb);
 
@@ -294,18 +298,18 @@ public:
 
   diet_server_status_t
   getServerStatus() ;
-  
+
   virtual CORBA::Long
   parallel_solve(const char* pbName, corba_profile_t& pb,
 	      ServiceTable::ServiceReference_t& ref,
 	      diet_profile_t& profile) ;
 
   void
-  parallel_AsyncSolve(const char* path, const corba_profile_t& pb, 
+  parallel_AsyncSolve(const char* path, const corba_profile_t& pb,
 		      ServiceTable::ServiceReference_t ref,
 		      CORBA::Object_var & cb,
 		      diet_profile_t& profile) ;
-  
+
   char* getLocalHostName() ;
 #endif
 #if HAVE_ALT_BATCH
@@ -314,7 +318,7 @@ public:
 
 //   int
 //   diet_submit_parallel(diet_profile_t * profile, const char * command) ;
-  
+
 //   int
 //   diet_concurrent_submit_parallel(int batchJobID, diet_profile_t * profile,
 // 			             const char * command) ;
@@ -329,10 +333,17 @@ public:
   ping();
 
   const struct timeval* timeSinceLastSolve();
-  
+
   /* Access to the queue size in the AccessController object. */
   int getNumJobsWaiting();
-  
+
+  /**
+   * Retrieve the list of all jobs currently waiting or running
+   * @param jv  a table of diet_job_t (caller resp. for freeing this table)
+   * @return number of jobs in the table (-1 if failure)
+   */
+  int getActiveJobVector(jobVector_t& jv);
+
 private:
 #ifdef HAVE_ALT_BATCH
   /* Status of SeD: Batch, Serial, other? */
@@ -368,7 +379,7 @@ private:
   JuxMem::Wrapper * juxmem;
 #endif // ! HAVE_JUXMEM
 
-  /** Time at which last solve started (when not using queues) and when 
+  /** Time at which last solve started (when not using queues) and when
    * last job was enqueued (when using queues) */
   struct timeval lastSolveStart;
 
@@ -384,9 +395,12 @@ private:
   bool useConcJobLimit;
   /* Queue: If useConcJobLimit == true, how many jobs can run at once? */
   int maxConcJobs;
-  /* Queue: Enforce limit on concurrent solves with semaphore-like semantics 
+  /* Queue: Enforce limit on concurrent solves with semaphore-like semantics
    * but supporting more features (priority enforcement, count reporting). */
   AccessController* accessController;
+  /* Queue: Maintains the list of running or waiting jobs
+   * used for computing the estimation of earliest finish time */
+  JobQueue* jobQueue;
 
 #if HAVE_JXTA
   /* endoint of JXTA SeD*/
@@ -417,20 +431,20 @@ private:
    * in various constructors. */
   virtual void initialize();
 
-  inline void 
+  inline void
   estimate(corba_estimation_t& estimation,
 	   const corba_pb_desc_t& pb,
 	   const ServiceTable::ServiceReference_t ref);
 
   /**
-   * TODO: if possible merge async and sync function. Currently, the DTM code 
+   * TODO: if possible merge async and sync function. Currently, the DTM code
    * if different
    */
 
   inline void
   downloadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 		      diet_convertor_t* cvt) ;
-  
+
   inline void
   uploadSyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 		    diet_convertor_t* cvt) ;
@@ -438,7 +452,7 @@ private:
   inline void
   downloadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 		      diet_convertor_t* cvt) ;
-  
+
   inline void
   uploadAsyncSeDData(diet_profile_t& profile, corba_profile_t& pb,
 		    diet_convertor_t* cvt) ;

@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.39  2008/05/16 12:25:05  bisnard
+ * API give status of all jobs running or waiting on the SeD
+ * (used to compute earliest finish time)
+ *
  * Revision 1.38  2008/05/11 16:19:48  ycaniou
  * Check that pathToTmp and pathToNFS exist
  * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
@@ -477,7 +481,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[]);
   /* TODO: erase me, i am in Cori_batch */
   /*   int */
   /*   diet_getNbMaxResources(diet_profile_t * profile) ; */
-  
+
   /*   int */
   /*   diet_getNbIdleResources(diet_profile_t * profile) ; */
 #endif
@@ -517,7 +521,7 @@ int diet_est_array_defined_system(estVectorConst_t ev, int systemTag, int idx);
 */
 estVector_t
 diet_new_estVect() ;
-  
+
 void
 diet_destroy_estVect( estVector_t perfVect ) ;
 #endif
@@ -542,6 +546,25 @@ int diet_estimate_comptime(estVector_t ev, double value);
 /* To obtain the queue size. */
 int diet_estimate_waiting_jobs(estVector_t ev,
 			       const diet_profile_t* const profilePtr) ;
+
+/* To get the list of jobs currently waiting or running */
+/* Note: job vector must be deleted after usage */
+typedef enum {
+  DIET_JOB_WAITING,
+  DIET_JOB_RUNNING,
+  DIET_JOB_FINISHED
+} diet_job_status_t;
+
+typedef struct {
+  diet_profile_t*       profile;
+  diet_job_status_t     status;
+  double                startTime;
+} diet_job_t;
+
+typedef diet_job_t* jobVector_t;
+
+int diet_estimate_list_jobs(jobVector_t* jv, int* jobNb,
+                            const diet_profile_t* const profilePtr);
 
 /****************************************************************************/
 /* Inline definitions                                                       */

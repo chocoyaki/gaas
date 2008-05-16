@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.76  2008/05/16 12:25:55  bisnard
+ * API give status of all jobs running or waiting on the SeD
+ * (used to compute earliest finish time)
+ *
  * Revision 1.75  2008/05/11 16:19:48  ycaniou
  * Check that pathToTmp and pathToNFS exist
  * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
@@ -830,7 +834,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
 
   /* SeD creation */
   SeD = new SeDImpl();
-  TRACE_TEXT(NO_TRACE, 
+  TRACE_TEXT(NO_TRACE,
 	     "## SED_IOR " << ORBMgr::getIORString(SeD->_this()) << endl);
   fsync(1);
   fflush(NULL);
@@ -1176,7 +1180,7 @@ diet_estimate_cori(estVector_t ev,
   fast_param_t fastparam={(diet_profile_t*)data,SRVT};
   switch( collector_type ) {
     case EST_COLL_FAST:
-      //#if HAVE_FAST    
+      //#if HAVE_FAST
       //testing already here, because it is possible that an internal call use tag COMMTIME
       if ((info_type==EST_TCOMP)||
 	  (info_type==EST_FREECPU)||
@@ -1202,7 +1206,7 @@ diet_estimate_cori(estVector_t ev,
       //#endif //HAVE_FAST
       break ;
   case EST_COLL_EASY:
-  case EST_COLL_BATCH: 
+  case EST_COLL_BATCH:
     CORIMgr::call_cori_mgr( &ev, info_type, collector_type, data ) ;
     break ;
   case EST_COLL_GANGLIA:
@@ -1334,7 +1338,7 @@ int diet_estimate_waiting_jobs(estVector_t ev,
 			       const diet_profile_t* const profilePtr)
 {
   const SeDImpl* refSeD = (SeDImpl*) profilePtr->SeDPtr;
- 
+
   if( refSeD!=NULL ) {
     /*
     ** casting away const-ness, because we know that the
@@ -1342,6 +1346,20 @@ int diet_estimate_waiting_jobs(estVector_t ev,
     */
     diet_est_set_internal(ev, EST_NUMWAITINGJOBS,
 			  ((SeDImpl*) refSeD)->getNumJobsWaiting());
+    return 0;
+  } else
+    INTERNAL_ERROR(__FUNCTION__ <<": ref on SeD not initialized?", 1) ;
+}
+
+/* Get the list of all running and waiting jobs */
+/* (Caller is responsible for freeing the result) */
+int diet_estimate_list_jobs(jobVector_t* jv, int* jobNb,
+                            const diet_profile_t* const profilePtr) {
+  const SeDImpl* refSeD = (SeDImpl*) profilePtr->SeDPtr;
+  /* const_cast required due to lock/unlock mutex when getting jobs */
+  SeDImpl* ncrefSeD = const_cast<SeDImpl*> (refSeD);
+  if( ncrefSeD!=NULL ) {
+    *jobNb = ncrefSeD->getActiveJobVector(*jv);
     return 0;
   } else
     INTERNAL_ERROR(__FUNCTION__ <<": ref on SeD not initialized?", 1) ;
