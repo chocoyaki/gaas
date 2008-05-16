@@ -1,6 +1,10 @@
 # We need to know where TAU has been installed
 SET( TAU_DIR "" CACHE PATH "Root of TAU install directory." )
 
+# We need a file to instrument the Diet code, by default use the one in Cmake/TAU
+SET( TAU_INS_FILE "${CMAKE_MODULE_PATH}/TAU/instrument_rules.tau"
+  CACHE FILEPATH "File containing the rules to instrument DIET with TAU." )
+
 # we currently rely on the Makefile created during the TAU 
 # installation process.
 # This file contains the options for the tau_compiler.sh script
@@ -75,13 +79,21 @@ ELSE( NOT TAU_MAKEFILE_PATH )
 
 
   # we need to exlude some files
-  SET( CMAKE_C_FLAGS "-optTauSelectFile=\"${CMAKE_MODULE_PATH}/TAU/intrument_rules.tau\" ${CMAKE_C_FLAGS}" CACHE STRING "Flags used by the compiler during all build types, with TAU flags." FORCE )
-  SET( CMAKE_CXX_FLAGS "-optTauSelectFile=\"${CMAKE_MODULE_PATH}/TAU/intrument_rules.tau\" ${CMAKE_CXX_FLAGS}" CACHE STRING "Flags used by the compiler during all build types, with TAU flags." FORCE )
+  SET( CMAKE_C_FLAGS "-optTauSelectFile=\"${TAU_INS_FILE}\" ${CMAKE_C_FLAGS}"
+    CACHE STRING "Flags used by the compiler during all build types, with TAU flags."
+    FORCE )
+  SET( CMAKE_CXX_FLAGS "-optTauSelectFile=\"${TAU_INS_FILE}\" ${CMAKE_CXX_FLAGS}"
+    CACHE STRING "Flags used by the compiler during all build types, with TAU flags."
+    FORCE )
 
   # Verbose mode ?
   IF( CMAKE_VERBOSE_MAKEFILE )
-    SET( CMAKE_C_FLAGS "-optVerbose ${CMAKE_C_FLAGS}" CACHE STRING "Flags used by the compiler during all build types, with TAU flags." FORCE )
-    SET( CMAKE_CXX_FLAGS "-optVerbose ${CMAKE_CXX_FLAGS}" CACHE STRING "Flags used by the compiler during all build types, with TAU flags." FORCE )
+    SET( CMAKE_C_FLAGS "-optVerbose ${CMAKE_C_FLAGS}"
+      CACHE STRING "Flags used by the compiler during all build types, with TAU flags."
+      FORCE )
+    SET( CMAKE_CXX_FLAGS "-optVerbose ${CMAKE_CXX_FLAGS}"
+      CACHE STRING "Flags used by the compiler during all build types, with TAU flags."
+      FORCE )
   ENDIF( CMAKE_VERBOSE_MAKEFILE )
 ENDIF( NOT TAU_MAKEFILE_PATH )
 
