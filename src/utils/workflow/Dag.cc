@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/05/16 12:32:10  bisnard
+ * API function to retrieve all workflow results
+ *
  * Revision 1.4  2008/04/28 12:14:59  bisnard
  * new NodeQueue implementation for FOFT
  * nodes sorting done by Dag instead of scheduler
@@ -921,6 +924,23 @@ Dag::get_all_results() {
   } // end for p
 
   return 0;
+}
+
+/**
+ * free all persistent data used by the dag (includes intermediate and
+ * final results)
+ */
+void
+Dag::deleteAllResults() {
+  Node * n = NULL;
+  for (map<string, Node *>::iterator p = nodes.begin();
+       p != nodes.end();
+       ++p) {
+    n = (Node *)(p->second);
+    if (n != NULL) {
+      n->freeProfileAndData();
+    }
+  }
 }
 
 /**

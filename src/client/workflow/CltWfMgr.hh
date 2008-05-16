@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/05/16 12:32:10  bisnard
+ * API function to retrieve all workflow results
+ *
  * Revision 1.1  2008/04/30 07:26:10  bisnard
  * moved CltWfMgr into agent/workflow directory
  *
@@ -127,6 +130,12 @@ public:
   wf_call(diet_wf_desc_t* profile);
 
   /**
+   * Get all results from a workflow
+   */
+  diet_error_t
+  getAllWfResults(diet_wf_desc_t* profile);
+
+  /**
    * Get a scalar result from a workflow
    */
    int
@@ -178,18 +187,6 @@ protected:
   std::map<diet_wf_desc_t *, Dag *> myProfiles;
 
   /**
-   * Init the workflow processing
-   * @deprecated
-   * @param profile workflow profile reference
-   * @param pbs_seq problem sequence
-   * @param dagSize dag node number
-   */
-//   Dag *
-//   init_wf_call(diet_wf_desc_t * profile,
-//                corba_pb_desc_seq_t& pbs_seq,
-//                unsigned int& dagSize);
-
-  /**
    * Execute a workflow using the MA DAG.
    *
    * @param profile workflow reference
@@ -199,7 +196,6 @@ protected:
   virtual diet_error_t
   wf_call_madag(diet_wf_desc_t * profile,
                 bool mapping);
-
 
   /**
    * Return the object IOR

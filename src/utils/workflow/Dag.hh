@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/05/16 12:32:10  bisnard
+ * API function to retrieve all workflow results
+ *
  * Revision 1.4  2008/04/28 12:15:00  bisnard
  * new NodeQueue implementation for FOFT
  * nodes sorting done by Dag instead of scheduler
@@ -200,6 +203,13 @@ public:
    */
   int
   get_all_results();
+
+  /**
+   * Delete all results of the workflow (includes intermediary and final
+   * results)
+   */
+  void
+  deleteAllResults();
 
   /**
    * Tag the dag by level

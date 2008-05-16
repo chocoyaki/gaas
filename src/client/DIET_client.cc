@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.121  2008/05/16 12:32:10  bisnard
+ * API function to retrieve all workflow results
+ *
  * Revision 1.120  2008/05/06 10:52:19  bisnard
  * corrected error madag not defined for non-wf calls
  *
@@ -1788,14 +1791,9 @@ _diet_wf_matrix_get(diet_wf_desc_t * profile,
 /**
  * Print the value of all workflow exit ports
  */
-void
+int
 get_all_results(diet_wf_desc_t * profile) {
-//  if (all_wf_profiles.find(profile) != all_wf_profiles.end()) {
-//    ext_wf_desc_t ext = all_wf_profiles.find(profile)->second;
-//    if (ext.dag != NULL) {
-//      ext.dag->get_all_results();
-//    }
-//  }
+  return CltWfMgr::instance()->getAllWfResults(profile);
 } // end get_all_results
 
 // void

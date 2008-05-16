@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/05/16 12:32:10  bisnard
+ * API function to retrieve all workflow results
+ *
  * Revision 1.1  2008/04/30 07:26:10  bisnard
  * moved CltWfMgr into agent/workflow directory
  *
@@ -51,32 +54,6 @@ using namespace std;
 
 // Initialisation of static member myInstance
 CltWfMgr * CltWfMgr::myInstance = NULL;
-
-/**
- * Executes a node (CORBA method)
- */
-// void
-// CltWfMgr::execute(const char * node_id, const char * dag_id,
-//                   _objref_SeD* sed) {
-//   cout << "Executing the node " << node_id << endl;
-//   Dag * dag = this->getDag(dag_id);
-//   if (dag != NULL) {
-//     cout << "  ** Dag " << dag_id << " found!" << endl;
-//     Node * node = dag->getNode(node_id);
-//     if (node != NULL) {
-//       SeD_var sed_var = SeD::_narrow(sed);
-//       node->setSeD(sed_var, "");
-//       node->start(-1, true);
-//     }
-//     else
-//       cerr << "Node " << node_id << " not fount!!!!" << endl;
-//   }
-//   else
-//     cout << "  ** Dag " << dag_id << " not found!" << endl;
-//   sed->ping();
-//   cout << "CltWfMgr: end of execution of node" << endl;   // SED-TEST (to remove)
-// } // end execute
-
 
 void
 CltWfMgr::execNodeOnSed(const char * node_id, const char * dag_id,
@@ -153,33 +130,6 @@ CltWfMgr::setWfLogSrv(WfLogSrv_var logSrv) {
 }
 
 /**
- * Init the workflow processing
- */
-// Dag *
-// CltWfMgr::init_wf_call(diet_wf_desc_t * profile,
-//                        corba_pb_desc_seq_t& pbs_seq,
-//                        unsigned int& dagSize) {
-//   corba_wf_desc_t  * corba_profile = new corba_wf_desc_t;
-//   mrsh_wf_desc(corba_profile, profile);
-//   TRACE_TEXT (TRACE_ALL_STEPS,
-//               "Marshalling the workflow description done" << endl);
-//
-//   DagWfParser reader(cltWfReqId++,profile->abstract_wf, false);
-//   if (! reader.setup())
-//     return NULL;
-//
-//   // create the profile sequence
-//   unsigned int len = reader.pbs_list.size();
-//   pbs_seq.length(len);
-//   for (unsigned int ix=0; ix< len; ix++) {
-//     pbs_seq[ix] = reader.pbs_list[ix];
-//   }
-//
-//   dagSize = reader.getDagSize();
-//   return reader.getDag();
-// } // end init_wf_call
-
-/**
  * Execute a workflow using the MA DAG.
  *
  */
@@ -201,15 +151,18 @@ CltWfMgr::wf_call_madag(diet_wf_desc_t * profile,
   TRACE_TEXT (TRACE_ALL_STEPS,
 	      "Marshalling the workflow description done" << endl);
 
-  // call the MA DAG
   TRACE_TEXT (TRACE_ALL_STEPS,
 	      "Try to send the workflow description to the MA_DAG ...");
   if (this->myMaDag != MaDag::_nil()) {
-    CORBA::Long dagId = this->myMaDag->getWfReqId();
-    string dag_id = itoa(dagId);
-    dag->setId(dag_id);
-    if (this->myMaDag->processDagWf(*corba_profile, myIOR(), dagId)) {
+
+    // CALL MADAG
+    CORBA::Long wfReqId = this->myMaDag->getWfReqId();
+    CORBA::Long dagId   = this->myMaDag->processDagWf(*corba_profile, myIOR(), wfReqId);
+
+    // DO LOCAL STUFF and SLEEP until released by MaDag
+    if (dagId != -1) {
 	TRACE_TEXT (TRACE_ALL_STEPS, " done" << endl);
+        dag->setId(itoa((long) dagId));
 	// Build the dag connexions to allow retrieval of input data
   	dag->linkAllPorts();
   	this->myProfiles[profile] = dag;
@@ -246,6 +199,21 @@ CltWfMgr::wf_call(diet_wf_desc_t* profile) {
 //   }
   return res;
 } // end wf_call
+
+/**
+ * Get all results of the workflow
+ */
+diet_error_t
+CltWfMgr::getAllWfResults(diet_wf_desc_t* profile) {
+  if (this->myProfiles.find(profile) != this->myProfiles.end()) {
+    Dag * dag = this->myProfiles.find(profile)->second;
+    if (dag != NULL) {
+      return dag->get_all_results();
+    }
+    else return 1;
+  }
+  else return 1;
+}
 
 /**
  * Get a result from the workflow
@@ -317,6 +285,7 @@ CltWfMgr::wf_free(diet_wf_desc_t * profile) {
   if (this->myProfiles.find(profile) != this->myProfiles.end()) {
     Dag * dag = this->myProfiles.find(profile)->second;
     if (dag != NULL) {
+      dag->deleteAllResults();
       delete dag;
     }
     this->myProfiles.erase(profile);
