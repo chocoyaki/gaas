@@ -6,7 +6,7 @@ ENDIF( DIET_USE_DAGDA )
 
 IF( DIET_USE_FD )
   SUBDIRS( fd )
-ENDIF (DIET_USE_FD)  
+ENDIF (DIET_USE_FD)
 
 IF( DIET_BUILD_LIBRARIES )
   INCLUDE_DIRECTORIES(
@@ -19,12 +19,13 @@ IF( DIET_BUILD_LIBRARIES )
     ${DIET_SOURCE_DIR}/src/SeD		# for SeDImpl.hh in Cori_batch
     ${DIET_SOURCE_DIR}/src/agent	# for ChildID.hh in SeDImpl
   )
-  
+
   ########################################################################
   ### UtilsSeDClt library:
   ADD_LIBRARY( UtilsSeDClt
     AccessController.cc
-    DIET_mutex.cc 
+    JobQueue.cc
+    DIET_mutex.cc
     est_internal.cc
   )
   TARGET_LINK_LIBRARIES( UtilsSeDClt IDLCommon ${OMNIORB4_LIBRARIES} )
@@ -39,10 +40,10 @@ IF( DIET_BUILD_LIBRARIES )
       PROPERTIES LINK_FLAGS "-flat_namespace -undefined suppress" )
   ENDIF( APPLE )
   INSTALL_TARGETS( /lib/ UtilsSeDClt )
-  
+
   ########################################################################
   ### UtilsCommon library:
-  ADD_LIBRARY( UtilsCommon 
+  ADD_LIBRARY( UtilsCommon
     debug.cc
     DIET_data.cc
     KeyString.cc
@@ -64,7 +65,7 @@ IF( DIET_BUILD_LIBRARIES )
     Vector.c
   )
   INSTALL_TARGETS( /lib/ UtilsVector )
-  
+
   ########################################################################
   ### UtilsSedBatch library:
   IF( DIET_USE_BATCH )
@@ -74,7 +75,7 @@ IF( DIET_BUILD_LIBRARIES )
       IMMEDIATE
     )
 
-    INCLUDE_DIRECTORIES( ${APPLESEEDS_INCLUDE_DIR} 
+    INCLUDE_DIRECTORIES( ${APPLESEEDS_INCLUDE_DIR}
 			 ${CMAKE_CURRENT_BINARY_DIR} )
     ADD_LIBRARY( UtilsSeDBatch batch.c )
     TARGET_LINK_LIBRARIES( UtilsSeDBatch ${APPLESEEDS_LIBRARIES} -lpthread )
@@ -83,20 +84,20 @@ IF( DIET_BUILD_LIBRARIES )
 
   IF( DIET_USE_ALT_BATCH )
     INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
-    ADD_LIBRARY( UtilsSeDBatch 
+    ADD_LIBRARY( UtilsSeDBatch
 		 BatchCreator.cc
 		 BatchSystem.cc
-		 OAR1_6BatchSystem.cc 
+		 OAR1_6BatchSystem.cc
 		 Loadleveler_BatchSystem.cc
 		 SGE_BatchSystem.cc )
     TARGET_LINK_LIBRARIES( UtilsSeDBatch -lpthread UtilsCommon )
     INSTALL_TARGETS( /lib/ UtilsSeDBatch )
   ENDIF( DIET_USE_ALT_BATCH )
-  
+
   ########################################################################
   ### UtilsNodes library: contains CoRI if asked by the installer!
-  # Note: 
-  #    lib only built, linked with SeD and agent when HAVE_ALT_BATCH not set, 
+  # Note:
+  #    lib only built, linked with SeD and agent when HAVE_ALT_BATCH not set,
   #    or included in DIET_SeD *and* a lib built and linked to the agent
 
   # Build the lib, either for SeD and agent if !HAVE_ALT_BATCH, either
@@ -143,11 +144,11 @@ IF( DIET_BUILD_LIBRARIES )
 
 ########################################################################
 ### Cori library:          ***      for the SeD       ***
-# Note: lib only built when HAVE_ALT_BATCH not set, 
+# Note: lib only built when HAVE_ALT_BATCH not set,
 #       or included in DIET_SeD *and* a lib built for the agent
 
 IF( DIET_USE_CORI )
-  # Still to verify that compilation goes ok after, ie, 
+  # Still to verify that compilation goes ok after, ie,
   # things must be included in the files when compiling DIET_SeD
 
   SET( CORI_BATCH_CLEAN_COMPILE_FLAG "" )
@@ -156,9 +157,9 @@ IF( DIET_USE_CORI )
 	 ${CORI_BATCH_CLEAN_COMPILE_FLAG}
 	 "-D CLEAN_CORILIB_FROM_BATCH_STAFF" )
   ENDIF( DIET_USE_ALT_BATCH )
-  SET_SOURCE_FILES_PROPERTIES( Cori_Metric.cc 
+  SET_SOURCE_FILES_PROPERTIES( Cori_Metric.cc
      PROPERTIES COMPILE_FLAGS "${CORI_BATCH_CLEAN_COMPILE_FLAG}" )
- 
+
   # Build the lib, either for SeD and agent if !HAVE_ALT_BATCH, either
   # for the agent if HAVE_ALT_BATCH
 
@@ -186,7 +187,7 @@ IF( DIET_USE_CORI )
   TARGET_LINK_LIBRARIES( UtilsCori
 			 ${UtilsCoriTmpLib} )
   INSTALL_TARGETS( /lib/ UtilsCori )
-  ### FIXME: the following is kludgy! 
+  ### FIXME: the following is kludgy!
   # See note "MacOS X and unresolved symbol"
   # in src/CORBA/CMakeLists.txt
   IF( APPLE )
@@ -232,7 +233,7 @@ IF( DIET_USE_CORI )
     SET( CORI_EASY_MEMORY_COMPILE_FLAGS
       "${CORI_EASY_MEMORY_COMPILE_FLAGS} -D CORI_HAVE_SYS_SYSINFO" )
   ENDIF( CORI_HAVE_SYS_SYSINFO )
-  
+
   IF( CORI_HAVE_get_avphys_pages )
     SET( CORI_EASY_MEMORY_COMPILE_FLAGS
       "${CORI_EASY_MEMORY_COMPILE_FLAGS} -D CORI_HAVE_get_avphys_pages" )
