@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.57  2008/05/16 12:21:50  bisnard
+ * obsolete wf scheduler choice
+ *
  * Revision 1.56  2008/05/11 16:19:48  ycaniou
  * Check that pathToTmp and pathToNFS exist
  * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
@@ -418,7 +421,7 @@ diet_use_data(diet_arg_t* arg, char* id);
  * For instance,
  *   diet_scalar_get(arg, &value, NULL),
  * will only set the value to the value field of the (*arg) structure.
- * 
+ *
  * NB: these are macros that let the user not worry about casting its (int**)
  * or (double**) etc. into (void**).
  */
@@ -609,7 +612,7 @@ typedef struct diet_arg_s diet_data_t;
 
 /**
  * estimation tags
- * /WARNING: dependency changes to this enum must be propagated to 
+ * /WARNING: dependency changes to this enum must be propagated to
  * DietLogComponent::getEstimationTags
  */
 
@@ -617,24 +620,24 @@ typedef struct diet_arg_s diet_data_t;
 #define EST_INVALID -1
 #define EST_TOTALTIME 1
 #define EST_COMMTIME 2
-#define EST_TCOMP 3 
+#define EST_TCOMP 3
 #define EST_TIMESINCELASTSOLVE 4
 #define EST_COMMPROXIMITY 5
 #define EST_TRANSFEREFFORT 6
 #define EST_FREECPU 7
 #define EST_FREEMEM 8
-#define EST_NBCPU 9 
+#define EST_NBCPU 9
 #define EST_CPUSPEED 10
 #define EST_TOTALMEM 11
 #define EST_AVGFREEMEM 12 /*not yet implemented*/
 #define EST_AVGFREECPU 13
-#define EST_BOGOMIPS 14 
-#define EST_CACHECPU 15 
-#define EST_TOTALSIZEDISK 16 
-#define EST_FREESIZEDISK 17 
-#define EST_DISKACCESREAD 18 
+#define EST_BOGOMIPS 14
+#define EST_CACHECPU 15
+#define EST_TOTALSIZEDISK 16
+#define EST_FREESIZEDISK 17
+#define EST_DISKACCESREAD 18
 #define EST_DISKACCESWRITE 19
-#define EST_ALLINFOS 20 
+#define EST_ALLINFOS 20
 /* Added to obtain the queue size from the SeD. */
 #define EST_NUMWAITINGJOBS 21
   /********** HAVE_ALT_BATCH ************/
@@ -659,8 +662,8 @@ typedef const struct corba_estimation_t *estVectorConst_t;
 
 /**
  * estimation source tags
- * 
- * tags used by the plug-in CoRI to choose the appropriated programm 
+ *
+ * tags used by the plug-in CoRI to choose the appropriated programm
  * for collecting information about the machine
  */
 
@@ -676,18 +679,18 @@ typedef const struct corba_estimation_t *estVectorConst_t;
 
 #ifdef HAVE_WORKFLOW
 
-typedef enum {basic, rr, heft} wf_scheduler_t;
+// typedef enum {basic, rr, heft} wf_scheduler_t;
 
 /**
  * workflow internal description
  */
 typedef struct {
   char * abstract_wf;
-  wf_scheduler_t scheduler;
+  /*   wf_scheduler_t scheduler; */
   /*  diet_profile_t internal_profile; */
 } diet_wf_desc_t;
 
-  
+
   /**
    * Allocate a workflow diet profile *
    * wf_file_name is the file name that contains the workflow description *
@@ -709,9 +712,9 @@ _diet_wf_scalar_get(diet_wf_desc_t * profile,
 #define diet_wf_string_get(profile, id, value) \
   _diet_wf_string_get(profile, id, (char**)value)
 
-int 
+int
 _diet_wf_string_get(diet_wf_desc_t * profile,
-                    const char * id, 
+                    const char * id,
 		    char** value);
 
 #define diet_wf_file_get(profile, id, size, path) \
@@ -728,10 +731,10 @@ _diet_wf_file_get(diet_wf_desc_t * profile,
 int
 _diet_wf_matrix_get(diet_wf_desc_t * profile,
                     const char * id, void** value,
-		    size_t* nb_rows, size_t *nb_cols, 
+		    size_t* nb_rows, size_t *nb_cols,
 		    diet_matrix_order_t* order);
 
-void get_all_results(diet_wf_desc_t * profile);
+int get_all_results(diet_wf_desc_t * profile);
 
 #endif /* HAVE_WORKFLOW */
 
