@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.108  2008/05/19 14:45:07  bisnard
+ * jobs added to the queue during submit instead of solve
+ *
  * Revision 1.107  2008/05/16 12:25:55  bisnard
  * API give status of all jobs running or waiting on the SeD
  * (used to compute earliest finish time)
@@ -593,6 +596,9 @@ SeDImpl::getRequest(const corba_request_t& creq)
     }
     /* Fill the metrics */
     this->estimate(resp.servers[0].estim, creq.pb, serviceRef);
+
+    /* Save the metrics in the job queue */;
+    this->jobQueue->addJobEstimated(resp.reqID, resp.servers[0].estim);
   }
 
   if (TRACE_LEVEL >= TRACE_STRUCTURES) {
@@ -697,8 +703,8 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
    * and time at which job was enqueued (when using queues). */
   gettimeofday(&(this->lastSolveStart), NULL);
 
-  /* Add the job to the list of queued jobs */
-  this->jobQueue->addJob(profile, DIET_JOB_WAITING);
+  /* Updates the job in the list of queued jobs (it was added in getRequest) */
+  this->jobQueue->setJobWaiting(pb.dietReqID);
 
 #if defined HAVE_ALT_BATCH
   if( server_status == BATCH )
@@ -716,7 +722,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
     dietLogComponent->logBeginSolve(path, &pb);
   }
 
-  this->jobQueue->setJobStarted(profile.dietReqID);
+  this->jobQueue->setJobStarted(pb.dietReqID);
 
   TRACE_TEXT(TRACE_MAIN_STEPS, "SeD::solve invoked on pb: " << path << endl);
 
@@ -741,6 +747,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
 #endif // ! HAVE_DAGDA
   delete [] profile.parameters; // allocated by unmrsh_in_args_to_profile
 
+  this->jobQueue->setJobFinished(profile.dietReqID);
   this->jobQueue->deleteJob(profile.dietReqID);
 
   stat_out("SeD",statMsg);

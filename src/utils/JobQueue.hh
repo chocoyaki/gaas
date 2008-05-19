@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/05/19 14:45:08  bisnard
+ * jobs added to the queue during submit instead of solve
+ *
  * Revision 1.1  2008/05/16 12:26:39  bisnard
  * new class JobQueue to manage list of jobs on the SeD
  *
@@ -31,7 +34,10 @@ class JobQueue {
     ~JobQueue();
 
     bool
-        addJob(diet_profile_t& profile, diet_job_status_t status = DIET_JOB_WAITING);
+        addJobEstimated(int dietReqID, corba_estimation_t& ev);
+
+    bool
+        setJobWaiting(int dietReqId);
 
     bool
         setJobStarted(int dietReqId);

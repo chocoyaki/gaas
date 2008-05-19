@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.40  2008/05/19 14:45:07  bisnard
+ * jobs added to the queue during submit instead of solve
+ *
  * Revision 1.39  2008/05/16 12:25:05  bisnard
  * API give status of all jobs running or waiting on the SeD
  * (used to compute earliest finish time)
@@ -550,13 +553,14 @@ int diet_estimate_waiting_jobs(estVector_t ev,
 /* To get the list of jobs currently waiting or running */
 /* Note: job vector must be deleted after usage */
 typedef enum {
-  DIET_JOB_WAITING,
-  DIET_JOB_RUNNING,
-  DIET_JOB_FINISHED
+  DIET_JOB_ESTIMATED, // submit done but not solve yet
+  DIET_JOB_WAITING,   // inside solve, waiting for free ressource
+  DIET_JOB_RUNNING,   // inside solve, running
+  DIET_JOB_FINISHED   // inside solve, finished
 } diet_job_status_t;
 
 typedef struct {
-  diet_profile_t*       profile;
+  estVector_t           estVector;
   diet_job_status_t     status;
   double                startTime;
 } diet_job_t;
