@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/05/20 12:41:17  bisnard
+ * corrected bug of bad profile desc initialization for scalars
+ *
  * Revision 1.2  2008/04/28 12:06:28  bisnard
  * changed constructor for Node (new param wfReqId)
  *
@@ -705,7 +708,7 @@ DagWfParser::setParam(const wf_port_t param_type,
   bool result = true;
 
   if (! this->alloc) {
-    setParamDesc(param_type, name, type, profile, lastArg);
+    setParamDesc(param_type, name, type, profile, lastArg, -1, dagNode, value);
   }
 
   if (type == WfCst::DIET_CHAR) {
@@ -1087,50 +1090,95 @@ DagWfParser::setParamDesc(const wf_port_t param_type,
 			  Node * dagNode,
 			  const string * value) {
   if (type == WfCst::DIET_CHAR) {
-    diet_scalar_set(diet_parameter(profile, lastArg),
+    if (value != NULL)
+      diet_scalar_set(diet_parameter(profile, lastArg),
+		    dagNode->newChar(*value),
+		    DIET_VOLATILE,
+		    DIET_CHAR);
+    else
+      diet_scalar_set(diet_parameter(profile, lastArg),
 		    NULL,
 		    DIET_VOLATILE,
 		    DIET_CHAR);
   }
   if (type == WfCst::DIET_SHORT) {
-    diet_scalar_set(diet_parameter(profile, lastArg),
+    if (value != NULL)
+      diet_scalar_set(diet_parameter(profile, lastArg),
+		    dagNode->newShort(*value),
+		    DIET_VOLATILE,
+		    DIET_SHORT);
+    else
+      diet_scalar_set(diet_parameter(profile, lastArg),
 		    NULL,
 		    DIET_VOLATILE,
 		    DIET_SHORT);
   }
   if (type == WfCst::DIET_INT) {
-    diet_scalar_set(diet_parameter(profile, lastArg),
+    if (value != NULL)
+      diet_scalar_set(diet_parameter(profile, lastArg),
+		    dagNode->newInt(*value),
+		    DIET_VOLATILE,
+		    DIET_INT);
+    else
+      diet_scalar_set(diet_parameter(profile, lastArg),
 		    NULL,
 		    DIET_VOLATILE,
 		    DIET_INT);
   }
   if (type == WfCst::DIET_LONGINT) {
-    diet_scalar_set(diet_parameter(profile, lastArg),
-		    NULL,
-		    DIET_VOLATILE,
-		    DIET_LONGINT);
+    if (value != NULL)
+      diet_scalar_set(diet_parameter(profile, lastArg),
+		      dagNode->newLong(*value),
+		      DIET_VOLATILE,
+		      DIET_LONGINT);
+    else
+      diet_scalar_set(diet_parameter(profile, lastArg),
+		      NULL,
+		      DIET_VOLATILE,
+		      DIET_LONGINT);
   }
   if (type == WfCst::DIET_STRING) {
-    diet_string_set(diet_parameter(profile, lastArg),
+    if (value != NULL)
+      diet_string_set(diet_parameter(profile, lastArg),
+		    dagNode->newString(*value),
+		    DIET_VOLATILE);
+    else
+      diet_string_set(diet_parameter(profile, lastArg),
 		    new char[1024],
 		    DIET_VOLATILE);
   }
-
   if (type == WfCst::DIET_FILE) {
-    diet_file_set(diet_parameter(profile, lastArg),
+    if (value != NULL)
+      diet_file_set(diet_parameter(profile, lastArg),
+		  DIET_VOLATILE,
+		  dagNode->newFile(*value));
+    else
+      diet_file_set(diet_parameter(profile, lastArg),
 		  DIET_VOLATILE,
 		  NULL);
   }
 
   if (type == WfCst::DIET_FLOAT) {
-    diet_scalar_set(diet_parameter(profile, lastArg),
+    if (value != NULL)
+      diet_scalar_set(diet_parameter(profile, lastArg),
+		    dagNode->newFloat(*value),
+		    DIET_VOLATILE,
+		    DIET_FLOAT);
+    else
+      diet_scalar_set(diet_parameter(profile, lastArg),
 		    NULL,
 		    DIET_VOLATILE,
 		    DIET_FLOAT);
   }
 
   if (type == WfCst::DIET_DOUBLE) {
-    diet_scalar_set(diet_parameter(profile, lastArg),
+    if (value != NULL)
+      diet_scalar_set(diet_parameter(profile, lastArg),
+		    dagNode->newDouble(*value),
+		    DIET_VOLATILE,
+		    DIET_DOUBLE);
+    else
+      diet_scalar_set(diet_parameter(profile, lastArg),
 		    NULL,
 		    DIET_VOLATILE,
 		    DIET_DOUBLE);
