@@ -210,11 +210,11 @@ public:
   virtual void lvlUpdateData(Dagda_ptr src, const corba_data_t& data);
   virtual void pfmUpdateData(Dagda_ptr src, const corba_data_t& data);
   
-  virtual void lclReplicate(const char* dataID, long target,
+  virtual void lclReplicate(const char* dataID, CORBA::Long target,
     const char* pattern, bool replace);
-  virtual void lvlReplicate(const char* dataID, long target, 
+  virtual void lvlReplicate(const char* dataID, CORBA::Long target, 
     const char* pattern, bool replace);
-  virtual void pfmReplicate(const char* dataID, long target,
+  virtual void pfmReplicate(const char* dataID, CORBA::Long target,
     const char* pattern, bool replace);
 
   virtual SeqCorbaDataDesc_t* lclGetDataDescList();

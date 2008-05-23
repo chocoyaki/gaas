@@ -619,7 +619,7 @@ void replicateIfPossible(void* paramPtr) {
 	  replicate(paramPtr);  
 }
 
-void SimpleDagdaImpl::lclReplicate(const char* dataID, long target,
+void SimpleDagdaImpl::lclReplicate(const char* dataID, CORBA::Long target,
   const char* pattern, bool replace) {
   bool replic;
   void* ID = CORBA::string_dup(const_cast<char*>(dataID));
@@ -639,7 +639,7 @@ void SimpleDagdaImpl::lclReplicate(const char* dataID, long target,
   }
 }
 
-void SimpleDagdaImpl::lvlReplicate(const char* dataID, long target,
+void SimpleDagdaImpl::lvlReplicate(const char* dataID, CORBA::Long target,
   const char* pattern, bool replace) {
   std::map<string,Dagda_ptr>::iterator itch;
 
@@ -658,7 +658,7 @@ void SimpleDagdaImpl::lvlReplicate(const char* dataID, long target,
   childrenMutex.unlock();
 }
 
-void SimpleDagdaImpl::pfmReplicate(const char* dataID, long target,
+void SimpleDagdaImpl::pfmReplicate(const char* dataID, CORBA::Long target,
   const char* pattern, bool replace) {
   if (getParent()==NULL)
     lvlReplicate(dataID, target, pattern, replace);
