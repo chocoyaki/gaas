@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.47  2008/05/23 11:55:03  glemahec
+ * 64 bits CORBA mapping bug correction.
+ *
  * Revision 1.46  2008/05/06 13:39:33  glemahec
  * DAGDA API extension.
  *
@@ -1040,7 +1043,7 @@ SeqString* MasterAgentImpl::searchData(const char* request) {
   return ret;
 }
 
-long MasterAgentImpl::insertData(const char* key, const SeqString& values) {
+CORBA::Long MasterAgentImpl::insertData(const char* key, const SeqString& values) {
   attributes_t attr;
   if (catalog->exists(key)) return 1;
   

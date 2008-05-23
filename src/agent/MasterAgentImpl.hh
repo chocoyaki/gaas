@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2008/05/23 11:55:03  glemahec
+ * 64 bits CORBA mapping bug correction.
+ *
  * Revision 1.18  2008/04/29 22:22:02  glemahec
  * DAGDA improvements :
  *   - Asynchronous API.
@@ -216,7 +219,7 @@ public :
 #endif // HAVE_WORKFLOW
 #if HAVE_DAGDA
   SeqString* searchData(const char* request);
-  long insertData(const char* key, const SeqString& values);
+  CORBA::Long insertData(const char* key, const SeqString& values);
 #endif
 
 private :
