@@ -62,12 +62,12 @@ public:
   virtual void lvlUpdateData(Dagda_ptr src, const corba_data_t& data) = 0;
   virtual void pfmUpdateData(Dagda_ptr src, const corba_data_t& data) = 0;
   
-  virtual void lclReplicate(const char* dataID, long target,
-    const char* pattern, bool replace) = 0;
-  virtual void lvlReplicate(const char* dataID, long target,
-    const char* pattern, bool replace) = 0;
-  virtual void pfmReplicate(const char* dataID, long target,
-    const char* pattern, bool replace) = 0;
+  virtual void lclReplicate(const char* dataID, CORBA::Long target,
+    const char* pattern, CORBA::Boolean replace) = 0;
+  virtual void lvlReplicate(const char* dataID, CORBA::Long,
+    const char* pattern, CORBA::Boolean replace) = 0;
+  virtual void pfmReplicate(const char* dataID, CORBA::Long,
+    const char* pattern, CORBA::Boolean replace) = 0;
 
   virtual SeqCorbaDataDesc_t* lclGetDataDescList() = 0;
   virtual SeqCorbaDataDesc_t* lvlGetDataDescList() = 0;

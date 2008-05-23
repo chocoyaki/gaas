@@ -106,7 +106,7 @@ char* DagdaImpl::writeFile(const SeqChar& data, const char* basename,
 }
 
 string gen_filename(string basename) {
-  unsigned int idx = basename.find_last_of('/');
+  unsigned long int idx = basename.find_last_of('/');
   if (idx!=string::npos)
     basename=basename.substr(idx);
   ostringstream name;
@@ -620,7 +620,7 @@ void replicateIfPossible(void* paramPtr) {
 }
 
 void SimpleDagdaImpl::lclReplicate(const char* dataID, CORBA::Long target,
-  const char* pattern, bool replace) {
+  const char* pattern, CORBA::Boolean replace) {
   bool replic;
   void* ID = CORBA::string_dup(const_cast<char*>(dataID));
 
@@ -640,7 +640,7 @@ void SimpleDagdaImpl::lclReplicate(const char* dataID, CORBA::Long target,
 }
 
 void SimpleDagdaImpl::lvlReplicate(const char* dataID, CORBA::Long target,
-  const char* pattern, bool replace) {
+  const char* pattern, CORBA::Boolean replace) {
   std::map<string,Dagda_ptr>::iterator itch;
 
   lclReplicate(dataID, target, pattern, replace);
@@ -659,7 +659,7 @@ void SimpleDagdaImpl::lvlReplicate(const char* dataID, CORBA::Long target,
 }
 
 void SimpleDagdaImpl::pfmReplicate(const char* dataID, CORBA::Long target,
-  const char* pattern, bool replace) {
+  const char* pattern, CORBA::Boolean replace) {
   if (getParent()==NULL)
     lvlReplicate(dataID, target, pattern, replace);
   else
