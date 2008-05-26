@@ -17,6 +17,20 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.25  2008/05/26 15:21:46  rbolze
+#* add new files :
+#* 	src/agent/workflow/MultiWfHEFT.cc
+#* 	src/agent/workflow/MultiWfHEFT.hh
+#* 	src/client/workflow/CMakeLists.txt
+#* 	src/client/workflow/CltWfMgr.cc
+#* 	src/client/workflow/CltWfMgr.hh
+#* 	src/utils/JobQueue.cc
+#* 	src/utils/JobQueue.hh
+#*
+#* remove some files :
+#* 	src/utils/workflow/CltWfMgr.cc
+#* 	src/utils/workflow/CltWfMgr.hh
+#*
 #* Revision 1.24  2008/04/29 22:28:29  glemahec
 #* Distribution_files.lst update.
 #*
@@ -246,6 +260,8 @@ src/agent/workflow/MultiWfFOFT.cc
 src/agent/workflow/MultiWfFOFT.hh
 src/agent/workflow/MultiWfScheduler.cc
 src/agent/workflow/MultiWfScheduler.hh
+src/agent/workflow/MultiWfHEFT.cc
+src/agent/workflow/MultiWfHEFT.hh
 src/agent/workflow/WfScheduler.cc
 src/agent/workflow/WfScheduler.hh
 
@@ -253,8 +269,6 @@ src/agent/workflow/WfScheduler.hh
 [Untemplated]
 src/utils/workflow/CMakeLists.txt
 [Templated]
-src/utils/workflow/CltWfMgr.cc
-src/utils/workflow/CltWfMgr.hh
 src/utils/workflow/Dag.cc
 src/utils/workflow/Dag.hh
 src/utils/workflow/DagWfParser.cc
@@ -272,6 +286,12 @@ src/utils/workflow/WfPort.hh
 src/utils/workflow/WfUtils.cc
 src/utils/workflow/WfUtils.hh
 
+# client workflow section
+[Untemplated]
+src/client/workflow/CMakeLists.txt
+[Templated]
+src/client/workflow/CltWfMgr.cc
+src/client/workflow/CltWfMgr.hh
 
 # Client section
 [Untemplated]
@@ -482,6 +502,8 @@ src/utils/Loadleveler_BatchSystem.cc
 src/utils/Loadleveler_BatchSystem.hh
 src/utils/SGE_BatchSystem.cc
 src/utils/SGE_BatchSystem.hh
+src/utils/JobQueue.cc
+src/utils/JobQueue.hh
 
 [Untemplated]
 src/utils/fd/CMakeLists.txt
