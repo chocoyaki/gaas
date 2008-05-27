@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2008/05/27 22:55:12  rbolze
+ * add warning message when compare function retruned a COMPARE_UNDEFINED
+ *
  * Revision 1.20  2008/01/01 19:04:46  ycaniou
  * Only cosmetic
  *
@@ -429,6 +432,7 @@ Scheduler::aggregate(corba_response_t& aggrResp,
     case COMPARE_EQUAL:             /* choose the first when equal */         \
       parent = *fst;        break;                                            \
     case COMPARE_UNDEFINED:                                                   \
+      INTERNAL_WARNING("compare returned undefined value: " << cmp);          \
       parent.resp_idx = -1; break;                                            \
     default:                                                                  \
       INTERNAL_WARNING("compare returned wrong value: " << cmp);              \
