@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2008/05/28 20:53:33  rbolze
+ * now DIET_PARAMSTRING type can be use in DAG.
+ *
  * Revision 1.7  2008/05/16 12:33:32  bisnard
  * cleanup outputs of workflow node
  *
@@ -1080,6 +1083,18 @@ Node::set_profile_param(WfPort * port,
 		      this->newLong(),
 		      mode,
 		      DIET_LONGINT);
+  }
+  if (type == WfCst::DIET_PARAMSTRING) {
+    TRACE_TEXT (TRACE_ALL_STEPS,
+		"%%%%%%%%% PARAMSTRING parameter "<< lastArg << endl);
+    if (value != "")
+      diet_paramstring_set(diet_parameter(profile, lastArg),
+		      this->newString(value),
+		      mode);
+    else
+      diet_paramstring_set(diet_parameter(profile, lastArg),
+		      this->newString(),
+		      mode);
   }
   if (type == WfCst::DIET_STRING) {
     //

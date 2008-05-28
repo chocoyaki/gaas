@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/05/28 20:53:33  rbolze
+ * now DIET_PARAMSTRING type can be use in DAG.
+ *
  * Revision 1.3  2008/05/20 12:41:17  bisnard
  * corrected bug of bad profile desc initialization for scalars
  *
@@ -186,7 +189,7 @@ bool
 DagWfParser::initXml() {
   bool result = parseXml();
   if (! result) return result;
-  TRACE_TEXT (TRACE_MAIN_STEPS, "Cheking the precedence ..." << endl);
+  TRACE_TEXT (TRACE_MAIN_STEPS, "Checking the precedence ..." << endl);
   result = myDag->checkPrec();
   TRACE_TEXT (TRACE_MAIN_STEPS, "... checking the precedence done" << endl);
   return result;
@@ -798,6 +801,18 @@ DagWfParser::setParam(const wf_port_t param_type,
     }
   } // end if DIET_STRING
 
+  if (type == WfCst::DIET_PARAMSTRING) {
+    if (dagNode) {
+      if (value)
+	dagNode->newPort(name, lastArg, param_type,
+			 string(WfCst::DIET_PARAMSTRING),
+			 *value);
+      else
+	dagNode->newPort(name, lastArg, param_type,
+			 string(WfCst::DIET_PARAMSTRING));
+    }
+  } // end if DIET_PARAMSTRING
+
   if (type == WfCst::DIET_FILE) {
     if (dagNode) {
       if (value)
@@ -1089,6 +1104,7 @@ DagWfParser::setParamDesc(const wf_port_t param_type,
 			  long int var,
 			  Node * dagNode,
 			  const string * value) {
+  TRACE_TEXT (TRACE_MAIN_STEPS, " type : "<< type << endl);
   if (type == WfCst::DIET_CHAR) {
     if (value != NULL)
       diet_scalar_set(diet_parameter(profile, lastArg),
@@ -1147,6 +1163,16 @@ DagWfParser::setParamDesc(const wf_port_t param_type,
 		    new char[1024],
 		    DIET_VOLATILE);
   }
+  if (type == WfCst::DIET_PARAMSTRING) {
+    if (value != NULL)
+      diet_paramstring_set(diet_parameter(profile, lastArg),
+		    dagNode->newString(*value),
+		    DIET_VOLATILE);
+    else
+      diet_paramstring_set(diet_parameter(profile, lastArg),
+		    new char[1024],
+		    DIET_VOLATILE);
+  }
   if (type == WfCst::DIET_FILE) {
     if (value != NULL)
       diet_file_set(diet_parameter(profile, lastArg),
@@ -1182,9 +1208,7 @@ DagWfParser::setParamDesc(const wf_port_t param_type,
 		    NULL,
 		    DIET_VOLATILE,
 		    DIET_DOUBLE);
-  }
-
-
+  } 
   return true;
 } // end setParamDesc
 
