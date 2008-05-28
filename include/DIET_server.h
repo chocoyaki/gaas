@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.41  2008/05/28 12:30:34  rbolze
+ * change unit of the startTime value store in the diet_job_t structure.
+ * it was in second, now it is in millisecond
+ *
  * Revision 1.40  2008/05/19 14:45:07  bisnard
  * jobs added to the queue during submit instead of solve
  *
@@ -562,7 +566,7 @@ typedef enum {
 typedef struct {
   estVector_t           estVector;
   diet_job_status_t     status;
-  double                startTime;
+  double                startTime; // in ms
 } diet_job_t;
 
 typedef diet_job_t* jobVector_t;

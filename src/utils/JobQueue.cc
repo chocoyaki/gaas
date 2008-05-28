@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/05/28 12:30:36  rbolze
+ * change unit of the startTime value store in the diet_job_t structure.
+ * it was in second, now it is in millisecond
+ *
  * Revision 1.2  2008/05/19 14:45:08  bisnard
  * jobs added to the queue during submit instead of solve
  *
@@ -47,7 +51,9 @@ JobQueue::setJobStarted(int dietReqID) {
   // set start time
   struct timeval current_time;
   gettimeofday(&current_time, NULL);
-  myJobs[dietReqID].startTime = current_time.tv_sec;
+  // myJobs[dietReqID].startTime = current_time.tv_sec;
+  // time is store in ms
+  myJobs[dietReqID].startTime = (double)(current_time.tv_sec*1000 + current_time.tv_usec/1000);
   return true;
 }
 
