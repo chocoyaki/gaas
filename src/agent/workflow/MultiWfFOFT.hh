@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2008/05/30 14:39:57  bisnard
+ * cleanup
+ *
  * Revision 1.6  2008/04/30 07:37:01  bisnard
  * use relative timestamps for estimated and real completion time
  * make MultiWfScheduler abstract and add HEFT MultiWf scheduler
@@ -51,24 +54,11 @@ using namespace std;
 
 namespace madag {
   class DagState;
-  class NodeState;
 
   class MultiWfFOFT : public MultiWfScheduler {
   public:
     MultiWfFOFT(MaDag_impl* maDag);
     virtual ~MultiWfFOFT();
-
-    /**
-     * Old Workflow submission function.
-     * @deprecated
-     *
-     * @param wf_desc workflow string description
-     * @param dag_id the dag ID
-     */
-    virtual bool
-    submit_wf (const corba_wf_desc_t& wf_desc, int dag_id,
-               MasterAgent_var parent,
-               CltMan_var cltMan);
 
     /**
      * Updates scheduler when a node has been executed
@@ -97,53 +87,6 @@ namespace madag {
      */
     map<Dag*, DagState> dagsState;
 
-    /*************** DEPRECATED ATTRIBUTES & METHODS ******************/
-    /*********** (used by submit_wf) **********************************/
-
-    /**
-     * Save the state of nodes
-     */
-    map<Node*, NodeState> nodesState;
-
-    /**
-     * The scheduling of each dag using a scheduling algorithm 'R'
-     * @deprecated
-     */
-    map<Dag*, wf_node_sched_seq_t> sOwn;
-
-    /**
-     * The scheduling using the multiworkflow algorithm
-     * @deprecated
-     */
-    map<Node*, wf_node_sched_t> sMulti;
-
-    /**
-     * Vector of unexecuted dags
-     * must be sorted
-     * @deprecated
-     */
-    vector<Dag *> U;
-
-    /**
-     * Init the scheduling
-     * 1. schedule each dag
-     * 2. mark each dag as unexecuted, initialize the slowdown
-     */
-    virtual
-    void init();
-
-    /**
-     * The main scheduling function
-     */
-    void
-    fairnessOnFinishTime(const wf_response_t * wf_response);
-
-    Node *
-    get1stReadyNode(vector<Node*>& v);
-
-
-    void
-    sortU();
   };
 
   class DagState {
@@ -180,27 +123,6 @@ namespace madag {
      * The number of executed (or scheduled) nodes
      */
     unsigned int executedNodes;
-  };
-
-  // OBSOLETE
-  class NodeState {
-  public:
-    NodeState();
-
-    /**
-     * true if the dag is marked as executed otherwise false
-     */
-    bool executed;
-
-    /**
-     * Node finish time based on the multi-workflow algorithm
-     */
-    double multiFT;
-
-    /**
-     * Node finish time when the dag is scheduled alone
-     */
-    double ownFT;
   };
 
 }
