@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2008/05/30 13:22:19  bisnard
+ * added micro-delay between workflow node executions to avoid interf
+ *
  * Revision 1.7  2008/05/16 12:30:20  bisnard
  * MaDag returns dagID to client after dag submission
  * (used for node execution)
@@ -53,6 +56,8 @@ using namespace madag;
 /*                      CLASS MultiWfScheduler                              */
 /*                                                                          */
 /****************************************************************************/
+
+long MultiWfScheduler::interNodeDelay = 200; // in milliseconds
 
 /****************************************************************************/
 /*                         PUBLIC METHODS                                   */
@@ -186,6 +191,9 @@ MultiWfScheduler::run() {
             << " / request #" << n->getWfReqId()
             << " / prio = " << n->getPriority() << endl;
         runNode(n, n->getSeD());
+
+        // DELAY between NODES (to avoid interference btw submits)
+        usleep(this->interNodeDelay * 1000);
       }
     }
 

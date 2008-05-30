@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2008/05/30 13:22:19  bisnard
+ * added micro-delay between workflow node executions to avoid interf
+ *
  * Revision 1.6  2008/04/30 07:37:01  bisnard
  * use relative timestamps for estimated and real completion time
  * make MultiWfScheduler abstract and add HEFT MultiWf scheduler
@@ -83,6 +86,8 @@ MultiWfBasicScheduler::run() {
           this->deleteNodeQueue(readyQ);  // deletes both queues
           continue;
         }
+        // DELAY between NODES (to avoid interference btw submits)
+        usleep(this->interNodeDelay * 1000);
       }
       ++qp; // go to next queue
     }

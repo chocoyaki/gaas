@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2008/05/30 13:22:19  bisnard
+ * added micro-delay between workflow node executions to avoid interf
+ *
  * Revision 1.7  2008/05/16 12:30:20  bisnard
  * MaDag returns dagID to client after dag submission
  * (used for node execution)
@@ -247,6 +250,12 @@ namespace madag {
      */
     double
         getRefTime();
+
+    /**
+     * Inter-node delay (used to separate DIET submits)
+     *(in milliseconds)
+     */
+    static long interNodeDelay;
 
   private:
 
