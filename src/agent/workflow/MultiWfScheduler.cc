@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2008/05/30 14:22:48  bisnard
+ * obsolete MultiDag
+ *
  * Revision 1.9  2008/05/30 14:16:25  bisnard
  * obsolete MultiDag (not used anymore for multi-wf)
  *
@@ -76,8 +79,6 @@ MultiWfScheduler::MultiWfScheduler(MaDag_impl* maDag) : mySem(1), myMaDag(maDag)
 }
 
 MultiWfScheduler::~MultiWfScheduler() {
-  if (this->myMetaDag != NULL)
-    delete this->myMetaDag;
   if (this->mySched != NULL)
     delete this->mySched;
 }

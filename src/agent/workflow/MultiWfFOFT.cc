@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2008/05/30 14:22:48  bisnard
+ * obsolete MultiDag
+ *
  * Revision 1.6  2008/04/30 07:37:01  bisnard
  * use relative timestamps for estimated and real completion time
  * make MultiWfScheduler abstract and add HEFT MultiWf scheduler
@@ -198,144 +201,144 @@ bool
 MultiWfFOFT::submit_wf (const corba_wf_desc_t& wf_desc, int dag_id,
                       MasterAgent_var parent,
                       CltMan_var cltMan) {
-  this->myLock.lock();
-  wf_sched_response_t * wf_resp = new wf_sched_response_t;
-  wf_resp->dag_id = dag_id;
-  // The submited new dag
-  Dag * newDag = NULL;
-  // The meta dag as a Dag object
-  Dag * metaDag = NULL;
-
-  wf_resp->dag_id = dag_id;
-  // Parse the XML of the new DAG
-//   DagWfParser reader(wf_desc.abstract_wf);
-  DagWfParser reader(dag_id, wf_desc.abstract_wf); // for compatibility
-  reader.setup();
-  newDag = reader.getDag();
-  newDag->setId(itoa(dag_id));
-
-  // Send all the profiles (contained in the Meta-dag) to the MA
-  metaDag = this->myMetaDag->getDag();
-  metaDag->setAsTemp(true);
-  vector<diet_profile_t*> v1 = metaDag->getAllProfiles();
-  vector<diet_profile_t*> v2 = newDag->getAllProfiles();
-  unsigned int len = v1.size() + v2.size();
-  corba_pb_desc_seq_t pbs_seq;
-  pbs_seq.length(len);
-  for (unsigned int ix=0; ix< v1.size(); ix++) {
-    mrsh_pb_desc(&pbs_seq[ix], v1[ix]);
-  }
-  for (unsigned int ix=0; ix< v2.size(); ix++) {
-    mrsh_pb_desc(&pbs_seq[ix+v1.size()], v2[ix]);
-  }
-
-  TRACE_FUNCTION(TRACE_ALL_STEPS,
-		 "MultiWfFairness contacts the MA  ... " << endl);
-  wf_response_t * wf_response = parent->submit_pb_set(pbs_seq, len);
-  TRACE_FUNCTION(TRACE_ALL_STEPS,
-		 "... submit_pb_set done" << endl);
-
-  wf_resp->dag_id = wf_response->dag_id;
-  wf_resp->firstReqID = wf_response->firstReqID;
-  wf_resp->lastReqID = wf_response->lastReqID;
-  wf_resp->ma_response = *wf_response;
-
-  // construct the response/scheduling
-  if ( ! wf_response->complete) {
-    WARNING("The response of the MA for dag " << dag_id <<
-	    " is incomplete" << endl);
-    this->myLock.unlock();
-    return false;
-  }
-
-  // By default use the Round Robbin scheduler
-//   if (this->mySched == NULL) {
-//     this->mySched = new RRScheduler();
+//   this->myLock.lock();
+//   wf_sched_response_t * wf_resp = new wf_sched_response_t;
+//   wf_resp->dag_id = dag_id;
+//   // The submited new dag
+//   Dag * newDag = NULL;
+//   // The meta dag as a Dag object
+// //   Dag * metaDag = NULL;
+//
+//   wf_resp->dag_id = dag_id;
+//   // Parse the XML of the new DAG
+// //   DagWfParser reader(wf_desc.abstract_wf);
+//   DagWfParser reader(dag_id, wf_desc.abstract_wf); // for compatibility
+//   reader.setup();
+//   newDag = reader.getDag();
+//   newDag->setId(itoa(dag_id));
+//
+//   // Send all the profiles (contained in the Meta-dag) to the MA
+// //   metaDag = this->myMetaDag->getDag();
+// //   metaDag->setAsTemp(true);
+// //   vector<diet_profile_t*> v1 = metaDag->getAllProfiles();
+//   vector<diet_profile_t*> v2 = newDag->getAllProfiles();
+//   unsigned int len = v1.size() + v2.size();
+//   corba_pb_desc_seq_t pbs_seq;
+//   pbs_seq.length(len);
+//   for (unsigned int ix=0; ix< v1.size(); ix++) {
+//     mrsh_pb_desc(&pbs_seq[ix], v1[ix]);
 //   }
-
-  // Schedule each dag alone
-  Dag * dag = NULL;
-  vector<Dag*> allDags = this->myMetaDag->getAllDags();
-  for (unsigned int ix=0; ix<allDags.size(); ix++) {
-    dag = allDags[ix];
-    TRACE_FUNCTION(TRACE_ALL_STEPS,
-		   "scheduling the dag " << dag->getId() << endl);
-    this->sOwn[dag] = this->mySched->schedule(wf_response, dag);
-  }
-  // schedule the new Dag
-  this->sOwn[newDag] = this->mySched->schedule(wf_response, newDag);
-  wf_resp->wf_node_sched_seq = this->sOwn[newDag];
-
-  // Now we can add the new dag to the meta-dag
-  this->myMetaDag->addDag(newDag);
-
-  // Init the scheduling
-  init();
-
-  // Schedule the meta-dag
-  fairnessOnFinishTime(wf_response);
-
-  // Based on the sMulti construct the workflow scheduling
-  string dagIdStr(itoa(dag_id));
-  Node * node = NULL;
-  unsigned index = 0;
-  for (map<Node*, wf_node_sched_t>::iterator p = this->sMulti.begin();
-       p != this->sMulti.end();
-       p++) {
-    node = (p->first);
-    string id(node->getId());
-    if (id.substr(0, id.find("-")) == dagIdStr) {
-      wf_resp->wf_node_sched_seq.length(index+1);
-      wf_resp->wf_node_sched_seq[index].node_id =
-	CORBA::string_dup(id.substr(id.find("-")+1).c_str());
-      wf_resp->wf_node_sched_seq[index].server =
-	this->sMulti[node].server;
-      cout << "++++++++++++++++==" << index << id << endl;
-      index++;
-    }
-  }
-  // Construct the new scheduling to other clients
-  map<string, wf_node_sched_seq_t> remainingSched;
-  string id("");
-  string dagId("");
-  for (map<Node*, wf_node_sched_t>::iterator p = this->sMulti.begin();
-       p != this->sMulti.end();
-       p++) {
-    node = (p->first);
-    id = node->getId();
-    dagId = id.substr(0, id.find("-"));
-    len = remainingSched[dagId].length();
-    remainingSched[dagId].length(len + 1 );
-    remainingSched[dagId][len].node_id =
-      CORBA::string_dup(id.substr(id.find("-")+1).c_str());
-    remainingSched[dagId][len].server =
-      this->sMulti[node].server;
-  }
-  // Send the scheduling to the other clients
-//   CltReoMan_var clt = NULL;
-//   for (map<string, CltReoMan_var>::iterator p = this->myClients.begin();
-//        p != this->myClients.end();
-//        ++p) {
-//     dagId = p->first;
-//     clt = (CltReoMan_var)(p->second);
-//     map<string, wf_node_sched_seq_t>::iterator q =
-//       remainingSched.find(dagId);
-//     if ( (q != remainingSched.end()) &&
-// 	 (clt != NULL)) {
-//       cout << "$$$$$$$$$$$$$$$$$$$$$$$$$$ Sending a new Scheduling " << endl;
-//       clt->remainingSched(q->second);
+//   for (unsigned int ix=0; ix< v2.size(); ix++) {
+//     mrsh_pb_desc(&pbs_seq[ix+v1.size()], v2[ix]);
+//   }
+//
+//   TRACE_FUNCTION(TRACE_ALL_STEPS,
+// 		 "MultiWfFairness contacts the MA  ... " << endl);
+//   wf_response_t * wf_response = parent->submit_pb_set(pbs_seq, len);
+//   TRACE_FUNCTION(TRACE_ALL_STEPS,
+// 		 "... submit_pb_set done" << endl);
+//
+//   wf_resp->dag_id = wf_response->dag_id;
+//   wf_resp->firstReqID = wf_response->firstReqID;
+//   wf_resp->lastReqID = wf_response->lastReqID;
+//   wf_resp->ma_response = *wf_response;
+//
+//   // construct the response/scheduling
+//   if ( ! wf_response->complete) {
+//     WARNING("The response of the MA for dag " << dag_id <<
+// 	    " is incomplete" << endl);
+//     this->myLock.unlock();
+//     return false;
+//   }
+//
+//   // By default use the Round Robbin scheduler
+// //   if (this->mySched == NULL) {
+// //     this->mySched = new RRScheduler();
+// //   }
+//
+//   // Schedule each dag alone
+//   Dag * dag = NULL;
+//   vector<Dag*> allDags = this->myMetaDag->getAllDags();
+//   for (unsigned int ix=0; ix<allDags.size(); ix++) {
+//     dag = allDags[ix];
+//     TRACE_FUNCTION(TRACE_ALL_STEPS,
+// 		   "scheduling the dag " << dag->getId() << endl);
+//     this->sOwn[dag] = this->mySched->schedule(wf_response, dag);
+//   }
+//   // schedule the new Dag
+//   this->sOwn[newDag] = this->mySched->schedule(wf_response, newDag);
+//   wf_resp->wf_node_sched_seq = this->sOwn[newDag];
+//
+//   // Now we can add the new dag to the meta-dag
+// //   this->myMetaDag->addDag(newDag);
+//
+//   // Init the scheduling
+//   init();
+//
+//   // Schedule the meta-dag
+//   fairnessOnFinishTime(wf_response);
+//
+//   // Based on the sMulti construct the workflow scheduling
+//   string dagIdStr(itoa(dag_id));
+//   Node * node = NULL;
+//   unsigned index = 0;
+//   for (map<Node*, wf_node_sched_t>::iterator p = this->sMulti.begin();
+//        p != this->sMulti.end();
+//        p++) {
+//     node = (p->first);
+//     string id(node->getId());
+//     if (id.substr(0, id.find("-")) == dagIdStr) {
+//       wf_resp->wf_node_sched_seq.length(index+1);
+//       wf_resp->wf_node_sched_seq[index].node_id =
+// 	CORBA::string_dup(id.substr(id.find("-")+1).c_str());
+//       wf_resp->wf_node_sched_seq[index].server =
+// 	this->sMulti[node].server;
+//       cout << "++++++++++++++++==" << index << id << endl;
+//       index++;
 //     }
 //   }
-
-  //  metaDag->mapSeDs(sched_seq);
-
-  // release the Meta Dag
-  if (metaDag != NULL)
-    delete (metaDag);
-  this->myLock.unlock();
-//  return wf_resp;
-  return true;
-}
+//   // Construct the new scheduling to other clients
+//   map<string, wf_node_sched_seq_t> remainingSched;
+//   string id("");
+//   string dagId("");
+//   for (map<Node*, wf_node_sched_t>::iterator p = this->sMulti.begin();
+//        p != this->sMulti.end();
+//        p++) {
+//     node = (p->first);
+//     id = node->getId();
+//     dagId = id.substr(0, id.find("-"));
+//     len = remainingSched[dagId].length();
+//     remainingSched[dagId].length(len + 1 );
+//     remainingSched[dagId][len].node_id =
+//       CORBA::string_dup(id.substr(id.find("-")+1).c_str());
+//     remainingSched[dagId][len].server =
+//       this->sMulti[node].server;
+//   }
+//   // Send the scheduling to the other clients
+// //   CltReoMan_var clt = NULL;
+// //   for (map<string, CltReoMan_var>::iterator p = this->myClients.begin();
+// //        p != this->myClients.end();
+// //        ++p) {
+// //     dagId = p->first;
+// //     clt = (CltReoMan_var)(p->second);
+// //     map<string, wf_node_sched_seq_t>::iterator q =
+// //       remainingSched.find(dagId);
+// //     if ( (q != remainingSched.end()) &&
+// // 	 (clt != NULL)) {
+// //       cout << "$$$$$$$$$$$$$$$$$$$$$$$$$$ Sending a new Scheduling " << endl;
+// //       clt->remainingSched(q->second);
+// //     }
+// //   }
+//
+//   //  metaDag->mapSeDs(sched_seq);
+//
+//   // release the Meta Dag
+// //   if (metaDag != NULL)
+// //     delete (metaDag);
+// //   this->myLock.unlock();
+// //  return wf_resp;
+//   return true;
+// }
 
 /**
  * Init the scheduling
@@ -360,11 +363,11 @@ MultiWfFOFT::init() {
 
   // Mark each dag as unexecuted
   // set the slowdown of each dag as 0
-  vector<Dag*> v = this->myMetaDag->getAllDags();
+//   vector<Dag*> v = this->myMetaDag->getAllDags();
   unsigned int len = v.size();
   cout << "+++++++++++++ " <<
     __FUNCTION__ << " init state of each DAG " <<
-    len << "(" << this->myMetaDag->getLength() << ")" << endl;
+//     len << "(" << this->myMetaDag->getLength() << ")" << endl;
 
   for (unsigned int ix=0; ix<len; ix++) {
     initState.makespan = v[ix]->getEstMakespan();
