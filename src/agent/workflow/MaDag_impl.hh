@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2008/05/30 14:16:25  bisnard
+ * obsolete MultiDag (not used anymore for multi-wf)
+ *
  * Revision 1.7  2008/05/16 12:30:20  bisnard
  * MaDag returns dagID to client after dag submission
  * (used for node execution)
@@ -75,7 +78,6 @@
 #include "MaDag.hh"
 #include "MasterAgent.hh"
 #include "WfScheduler.hh"
-#include "MultiDag.hh"
 #include "MultiWfScheduler.hh"
 #include "CltMan.hh"
 

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2008/05/30 14:16:25  bisnard
+ * obsolete MultiDag (not used anymore for multi-wf)
+ *
  * Revision 1.8  2008/05/30 13:22:19  bisnard
  * added micro-delay between workflow node executions to avoid interf
  *
@@ -49,7 +52,6 @@
 #include <map>
 
 #include "WfScheduler.hh"
-#include "MultiDag.hh"
 #include "CltMan.hh"
 #include "MasterAgent.hh"
 #include "workflow/Thread.hh"
@@ -127,12 +129,6 @@ namespace madag {
         getRelCurrTime();
 
   protected:
-
-    /**
-     * The Meta-Dag (OBSOLETE - TO REMOVE)
-     */
-    MultiDag * myMetaDag;
-
 
     /**
      * The Wf meta-scheduler scheduler
