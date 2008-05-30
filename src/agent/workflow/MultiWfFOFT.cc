@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2008/05/30 14:25:35  bisnard
+ * cleanup
+ *
  * Revision 1.7  2008/05/30 14:22:48  bisnard
  * obsolete MultiDag
  *
@@ -338,7 +341,7 @@ MultiWfFOFT::submit_wf (const corba_wf_desc_t& wf_desc, int dag_id,
 // //   this->myLock.unlock();
 // //  return wf_resp;
 //   return true;
-// }
+ }
 
 /**
  * Init the scheduling
