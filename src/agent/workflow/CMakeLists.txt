@@ -15,7 +15,6 @@ IF( DIET_BUILD_LIBRARIES )
   ADD_LIBRARY( MaDag
     MaDag_impl.cc
     WfScheduler.cc HEFTScheduler.cc
-    MultiDag.cc
     MultiWfScheduler.cc
     MultiWfBasicScheduler.cc MultiWfFOFT.cc MultiWfHEFT.cc )
 
