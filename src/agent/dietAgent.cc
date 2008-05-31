@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.30  2008/05/31 08:43:52  rbolze
+ * add some free on unused pointers (LogService)
+ *
  * Revision 1.29  2008/04/28 07:08:30  glemahec
  * The DAGDA API.
  *
@@ -257,7 +260,7 @@ main(int argc, char** argv)
       useLS = true;
     }
   }
-
+  free(ULSptr);
   if (useLS) {
     // size_t --> unsigned int
     OBSptr = (unsigned int*)Parsers::Results::getParamValue(
@@ -268,6 +271,7 @@ main(int argc, char** argv)
       outBufferSize = 0;
       WARNING("lsOutbuffersize not configured, using default");
     }
+    free(OBSptr);
     // size_t --> unsigned int
     FTptr = (unsigned int*)Parsers::Results::getParamValue(
   	       Parsers::Results::LSFLUSHINTERVAL);
@@ -277,6 +281,7 @@ main(int argc, char** argv)
       flushTime = 10000;
       WARNING("lsFlushinterval not configured, using default");
     }
+    free(FTptr);
   }
 
   if (useLS) {
@@ -304,6 +309,8 @@ main(int argc, char** argv)
       dietLogComponent = NULL; // this should not happen;
     }
     free(agtTypeName);
+    free(agtParentName);
+    free(agtName);
   } else {
     TRACE_TEXT(TRACE_ALL_STEPS, "LogService disabled\n");
     dietLogComponent = NULL;
@@ -380,6 +387,7 @@ main(int argc, char** argv)
     out.close();
   } 
 #endif
+
 
   /* Wait for RPCs (blocking call): */
   if (ORBMgr::wait()) {

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.77  2008/05/31 08:43:55  rbolze
+ * add some free on unused pointers (LogService)
+ *
  * Revision 1.76  2008/05/16 12:25:55  bisnard
  * API give status of all jobs running or waiting on the SeD
  * (used to compute earliest finish time)
@@ -775,6 +778,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
       useLS = true;
     }
   }
+  free(ULSptr);
 
   if (useLS) {
     OBSptr = (unsigned int*)Parsers::Results::getParamValue(
@@ -786,7 +790,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
       TRACE_TEXT(TRACE_ALL_STEPS,
             "lsOutbuffersize not configured, using default");
     }
-
+    free(OBSptr);
     FTptr = (unsigned int*)Parsers::Results::getParamValue(
   	       Parsers::Results::LSFLUSHINTERVAL);
     if (FTptr != NULL) {
@@ -796,6 +800,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
       TRACE_TEXT(TRACE_ALL_STEPS,
             "lsFlushinterval not configured, using default");
     }
+    free(FTptr);
   }
 
   if (useLS) {
@@ -817,6 +822,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
       TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled\n");
       dietLogComponent = NULL; // this should never happen;
     }
+    free(parentName);
   } else {
     TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled\n");
     dietLogComponent = NULL;
