@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/05/31 08:45:55  rbolze
+ * add DietLogComponent to the maDagAgent
+ *
  * Revision 1.3  2008/04/30 07:37:01  bisnard
  * use relative timestamps for estimated and real completion time
  * make MultiWfScheduler abstract and add HEFT MultiWf scheduler
@@ -109,6 +112,7 @@ int main(int argc, char * argv[]){
   MaDag_impl * maDag_impl = new MaDag_impl(name, schedType);
   ORBMgr::activate((MaDag_impl*)maDag_impl);
 
+
   /* Wait for RPCs (blocking call): */
   if (ORBMgr::wait()) {
     WARNING("Error while exiting the ORBMgr::wait() function");
@@ -123,3 +127,4 @@ int main(int argc, char * argv[]){
 
   return 0;
 }
+

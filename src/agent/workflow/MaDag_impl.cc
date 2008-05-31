@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2008/05/31 08:45:55  rbolze
+ * add DietLogComponent to the maDagAgent
+ *
  * Revision 1.8  2008/05/16 12:30:20  bisnard
  * MaDag returns dagID to client after dag submission
  * (used for node execution)
@@ -96,8 +99,7 @@ using namespace std;
 using namespace madag;
 
 MaDag_impl::MaDag_impl(const char * name, const MaDagSchedType schedType = BASIC) :
-  myName(name), myMultiWfSched(NULL), wfReqIdCounter(0) {
-
+  myName(name), myMultiWfSched(NULL), wfReqIdCounter(0) {         
   char* MAName = (char*)
     Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
 
@@ -134,6 +136,9 @@ MaDag_impl::MaDag_impl(const char * name, const MaDagSchedType schedType = BASIC
       break;
   }
   this->myMultiWfSched->start();
+  
+  this->setupDietLogComponent();
+
   // init the statistics module
   stat_init();
 } // end MA DAG constructor
@@ -229,4 +234,83 @@ MaDag_impl::getCltMan(int wfReqId) {
 void
 MaDag_impl::setCltMan(int wfReqId, CltMan_ptr cltMan) {
   this->cltMans[wfReqId] = cltMan;
+}
+
+void 
+MaDag_impl::setupDietLogComponent(){
+
+  /* Create the DietLogComponent for use with LogService */  
+  bool useLS;
+    // size_t --> unsigned int
+  unsigned int* ULSptr;
+  int outBufferSize;
+    // size_t --> unsigned int
+  unsigned int* OBSptr;
+  int flushTime;
+    // size_t --> unsigned int
+  unsigned int* FTptr;
+
+    // size_t --> unsigned int
+  ULSptr = (unsigned int*)Parsers::Results::getParamValue(
+	Parsers::Results::USELOGSERVICE);
+  useLS = false;
+  if (ULSptr == NULL) {
+    cout << "WARNING: useLogService not configured. Disabled by default\n";
+  } else {
+    if (*ULSptr) {
+      useLS = true;
+    }
+  }
+  free(ULSptr);
+
+  if (useLS) {
+    // size_t --> unsigned int
+    OBSptr = (unsigned int*)Parsers::Results::getParamValue(
+  	       Parsers::Results::LSOUTBUFFERSIZE);
+    if (OBSptr != NULL) {
+      outBufferSize = (int)(*OBSptr);
+    } else {
+      outBufferSize = 0;
+      WARNING("lsOutbuffersize not configured, using default");
+    }
+    free(OBSptr);
+    // size_t --> unsigned int
+    FTptr = (unsigned int*)Parsers::Results::getParamValue(
+  	       Parsers::Results::LSFLUSHINTERVAL);
+    if (FTptr != NULL) {
+      flushTime = (int)(*FTptr);
+    } else {
+      flushTime = 10000;
+      WARNING("lsFlushinterval not configured, using default");
+    }
+    free(FTptr);
+  }
+
+  if (useLS) {
+    TRACE_TEXT(TRACE_ALL_STEPS, "LogService enabled\n");
+    char* agtTypeName;
+    char* agtParentName;
+    char* agtName;
+    agtParentName = (char*)Parsers::Results::getParamValue
+                          (Parsers::Results::PARENTNAME);
+    agtName =       (char*)Parsers::Results::getParamValue
+                          (Parsers::Results::NAME);
+    // the agent names should be correct if we arrive here
+
+    this->dietLogComponent = new DietLogComponent(agtName, outBufferSize);
+    ORBMgr::activate(dietLogComponent);
+
+    agtTypeName = strdup("MA_DAG");
+    if (dietLogComponent->run(agtTypeName, agtParentName, flushTime) != 0) {
+      
+      WARNING("Could not initialize DietLogComponent");
+      dietLogComponent = NULL; // this should not happen;
+    }
+    free(agtTypeName);
+    free(agtParentName);
+    free(agtName);
+  } else {
+    TRACE_TEXT(TRACE_ALL_STEPS, "LogService disabled\n");
+    this->dietLogComponent = NULL;
+  }
 }

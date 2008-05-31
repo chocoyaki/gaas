@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2008/05/31 08:45:55  rbolze
+ * add DietLogComponent to the maDagAgent
+ *
  * Revision 1.8  2008/05/30 14:16:25  bisnard
  * obsolete MultiDag (not used anymore for multi-wf)
  *
@@ -80,7 +83,8 @@
 #include "WfScheduler.hh"
 #include "MultiWfScheduler.hh"
 #include "CltMan.hh"
-
+#include "MaDag.hh"
+#include "DietLogComponent.hh"
 
 class MaDag_impl : public POA_MaDag,
 		   public PortableServer::RefCountServantBase {
@@ -141,13 +145,24 @@ public:
   /** Used to test if it is alive. */
   virtual CORBA::Long
       ping();
-
+   /**
+   * Ptr to the DietLogComponent. This ptr can be NULL, so it has to
+   * be checked every time it is used. If it is NULL, no monitoring 
+   * messages have to be sent.
+   */
+  DietLogComponent* dietLogComponent;
 protected:
   /**
    * set the client manager for a wf request
    */
   void
   setCltMan(int wfReqId, CltMan_ptr cltMan);
+
+/**
+   * setup the DietLogComponent
+   */
+  void
+  setupDietLogComponent();
 
 private:
   /**
@@ -179,6 +194,7 @@ private:
    * Dag identifier counter
    */
   CORBA::Long wfReqIdCounter;
+ 
 };
 
 
