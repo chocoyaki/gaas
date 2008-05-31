@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.48  2008/05/31 08:45:16  rbolze
+ * comment message send through logService
+ *
  * Revision 1.47  2008/05/23 11:55:03  glemahec
  * 64 bits CORBA mapping bug correction.
  *
@@ -903,9 +906,9 @@ MasterAgentImpl::logNeighbors() {
 wf_response_t *
 MasterAgentImpl::submit_pb_set  (const corba_pb_desc_seq_t& seq_pb,
 				 const CORBA::Long setSize) {
-  struct timeval tbegin;
+  /*struct timeval tbegin;
   struct timeval tend;
-  gettimeofday(&tbegin, NULL);
+  gettimeofday(&tbegin, NULL);*/
 
   static CORBA::Long dag_id = 0;
   wf_response_t * wf_response = new wf_response_t;
@@ -954,15 +957,17 @@ MasterAgentImpl::submit_pb_set  (const corba_pb_desc_seq_t& seq_pb,
   wf_response->lastReqID =  wf_response->firstReqID + setSize - 1 ;
   reqCount_mutex.unlock();
 
-  gettimeofday(&tend, NULL);
+  
   // calculate the processing time in ms
+  /*gettimeofday(&tend, NULL);
   time_t ptime = (tend.tv_sec - tbegin.tv_sec)* 1000 +
     (tend.tv_usec - tbegin.tv_usec)/1000;
-
-  if (dietLogComponent != NULL) {
+  */
+  /*if (dietLogComponent != NULL) {
     dietLogComponent->logDagSubmit(wf_response, 
 				   ptime);
-  }
+  }*/
+
 //   if (!used)
 //     this->reqIDCounter =  initialReqIdCounter;
   return wf_response;
