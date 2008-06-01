@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/06/01 09:20:37  rbolze
+ * the remote method release now return a string which contains
+ * feedback on the dag execution
+ *
  * Revision 1.2  2008/05/16 12:32:10  bisnard
  * API function to retrieve all workflow results
  *
@@ -41,6 +45,7 @@
 
 // STL headers
 #include <map>
+#include <string> 
 
 // IDL headers
 #include "CltMan.hh"
@@ -82,7 +87,7 @@ public:
    * Release the waiting semaphore. This method is used by the MA DAG when workflow execution
    * is done by this agent
    */
-  virtual void
+  virtual char *
   release(const char * dag_id);
 
   /**
@@ -253,7 +258,7 @@ private:
    * Synchronisation semaphores
    */
    omni_semaphore mySem;
-
+ 
 };
 
 

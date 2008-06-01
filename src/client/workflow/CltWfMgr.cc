@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/06/01 09:20:37  rbolze
+ * the remote method release now return a string which contains
+ * feedback on the dag execution
+ *
  * Revision 1.2  2008/05/16 12:32:10  bisnard
  * API function to retrieve all workflow results
  *
@@ -40,8 +44,6 @@
  *
  ****************************************************************************/
 
-#include <string>
-
 #include <stdlib.h>
 
 #include "CltWfMgr.hh"
@@ -64,7 +66,7 @@ CltWfMgr::execNodeOnSed(const char * node_id, const char * dag_id,
     if (node != NULL) {
       SeD_var sed_var = SeD::_narrow(sed);
       node->setSeD(sed_var, "");
-      node->start(-1, true);
+      node->start(true);
     }
     else
       cerr << "Node " << node_id << " not fount!!!!" << endl;
@@ -80,7 +82,7 @@ CltWfMgr::execNode(const char * node_id, const char * dag_id) {
   if (dag != NULL) {
     Node * node = dag->getNode(node_id);
     if (node != NULL) {
-      node->start(-1, true);
+      node->start(true);
     }
     else
       cerr << "Node " << node_id << " not fount!!!!" << endl;
@@ -314,9 +316,22 @@ CltWfMgr::ping() {
 /**
  * Release the waiting semaphore
  */
-void
+char *
 CltWfMgr::release(const char * dag_id) {
-    this->mySem.post();
+    Dag * dag = getDag(dag_id);    
+    dag->showDietReqID();
+    vector<diet_reqID_t> diet_request_ids = dag->getAllDietReqID();
+    std::string message = string(dag_id);
+    for (unsigned int ix=0; ix<diet_request_ids.size(); ix++){
+	    char str[64];
+	    sprintf(str, "%ld", diet_request_ids[ix]);
+	    message +=";"+string(str);
+   }
+   cout << "##"<< message << "#"<< endl;
+   char * ret = (char*)malloc(message.size()*sizeof(char)+1);
+   sprintf(ret,"%s",message.c_str());
+   this->mySem.post();
+   return ret;
 }
 
 /**
@@ -336,3 +351,4 @@ CltWfMgr::getDag(string dag_id) {
   } // end for
   return dag;
 } // end getDag
+

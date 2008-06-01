@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.3  2008/06/01 09:20:37  rbolze
+ * the remote method release now return a string which contains
+ * feedback on the dag execution
+ *
  * Revision 1.2  2008/04/15 14:20:19  bisnard
  * - Postpone sed mapping until wf node is executed
  *
@@ -30,7 +34,7 @@ interface CltMan {
   void
   execNode(in string node_id, in string dag_id);
 
-  void
+  string
   release(in string dag_id);
 
   void 
