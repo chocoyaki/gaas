@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/06/01 09:18:43  rbolze
+ * remove myreqID attribute from the RunnableNode
+ * add getReqID() method which return the reqID stored in the diet_profile_t
+ * add 2 methods: showDietReqID and getAllDietReqID
+ * this is use to send feedback through logservice
+ *
  * Revision 1.5  2008/05/16 12:32:10  bisnard
  * API function to retrieve all workflow results
  *
@@ -129,6 +135,7 @@ Dag::Dag() {
 }
 
 Dag::~Dag() {
+  TRACE_TEXT (TRACE_ALL_STEPS,"~Dag() destructor ..." <<  endl);
   if (! this->tmpDag) {
     Node * node = NULL;
     for (map<string, Node * >::iterator p = nodes.begin( );
@@ -438,26 +445,61 @@ Dag::linkNodePorts(Node * n) {
 // } // end getReadyNodes
 
 /**
- * Check if the dag execution is completed
+ * printDietReqID the dag execution is completed
  *
- * this methods loops through all the nodes of the dag to check if they are done
- * @return bool
- * TODO could be optimized to check only output nodes (this method runs each time
- * a node is done)
+ * this methods loops through all the nodes of the dag and getReqID of each node
+ * @return reqID[] 
  */
-bool
-Dag::isDone() {
-  Node * dagNode = NULL;
+void
+Dag::showDietReqID() {
+  Node * dagNode = NULL;    
+  cout << "@@@@ BEGIN Dag::" <<__FUNCTION__  << "()" << endl;
+  cout << "dag_id =" << this->myId << endl;
   for (map<string, Node *>::iterator p = nodes.begin();
        p != nodes.end();
        ++p) {
     dagNode = (Node*)p->second;
-    if ((dagNode) && !(dagNode->isDone()))
-      return false;
+    //if ((dagNode) && !(dagNode->isDone()))
+    cout << " dagNode->getPb() = "  << dagNode->getPb() <<endl;
+    cout << " dagNode->getProfile()->dietReqID =" << dagNode->getProfile()->dietReqID << endl;    
   }
-  return true;
+  cout << "@@@@ END Dag::" <<__FUNCTION__  << "()" << endl;
+}
+/**
+ * printDietReqID the dag execution is completed
+ *
+ * this methods loops through all the nodes of the dag and getReqID of each node
+ * @return diet_reqID_t[] 
+ */
+vector<diet_reqID_t>	
+Dag::getAllDietReqID() {
+	Node * dagNode = NULL;	
+	vector<diet_reqID_t> request_ids;
+	cout << "@@@@ BEGIN Dag::" <<__FUNCTION__  << "()" << endl;
+	cout << "dag_id =" << this->myId << endl;
+	for (map<string, Node *>::iterator p = nodes.begin();
+		    p != nodes.end();
+		    ++p) {
+			    dagNode = (Node*)p->second;
+			    request_ids.push_back(dagNode->getReqID());
+			    cout << "reqID ="<< dagNode->getReqID() << endl;    				
+		    }
+	cout << "@@@@ END Dag::" <<__FUNCTION__  << "()" << endl;
+	return request_ids;
 }
 
+bool
+Dag::isDone() {
+	Node * dagNode = NULL;
+	for (map<string, Node *>::iterator p = nodes.begin();
+		    p != nodes.end();
+		    ++p) {
+			    dagNode = (Node*)p->second;
+			    if ((dagNode) && !(dagNode->isDone()))
+				    return false;
+		    }
+		    return true;
+		}
 /**
  * set the workflow scheduling response *
  * @deprecated

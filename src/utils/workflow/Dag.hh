@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/06/01 09:18:43  rbolze
+ * remove myreqID attribute from the RunnableNode
+ * add getReqID() method which return the reqID stored in the diet_profile_t
+ * add 2 methods: showDietReqID and getAllDietReqID
+ * this is use to send feedback through logservice
+ *
  * Revision 1.5  2008/05/16 12:32:10  bisnard
  * API function to retrieve all workflow results
  *
@@ -343,6 +349,11 @@ public:
   bool
   updateDelayRec(Node * node, double newDelay);
 
+  void
+  showDietReqID();
+  
+  vector<diet_reqID_t>	
+  getAllDietReqID();
 private:
   /*********************************************************************/
   /* private fields                                                    */
