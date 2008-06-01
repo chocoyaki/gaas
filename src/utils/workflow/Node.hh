@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2008/06/01 09:16:57  rbolze
+ * remove myreqID attribute from the RunnableNode
+ * add getReqID() method which return the reqID stored in the diet_profile_t
+ *
  * Revision 1.6  2008/05/16 12:33:32  bisnard
  * cleanup outputs of workflow node
  *
@@ -71,8 +75,10 @@ public:
    * @param parent The node reference
    * @param reqID  The request Id
    */
-  RunnableNode(Node * parent,
-	       diet_reqID_t reqID);
+  /*RunnableNode(Node * parent,
+	       diet_reqID_t reqID);*/
+  RunnableNode(Node * parent);
+  
 private:
   /**
    * Node reference
@@ -82,7 +88,7 @@ private:
   /**
    * Request ID
    */
-  diet_reqID_t myReqID;
+  //diet_reqID_t myReqID;
 
   /**
    * Node execution method *
@@ -227,10 +233,10 @@ public:
 
   /**
    * start the node execution *
-   * @param reqID request id if set by the client manually
+   * @param join
    */
   void
-  start(diet_reqID_t reqID = -1, bool join = false);
+  start(bool join = false);
 
   /******************************/
   /* data allocation methods    */
@@ -529,7 +535,13 @@ public:
    */
   void
   freeProfileAndData();
-
+  
+  /**
+   * return the reqID of the node
+   */
+  diet_reqID_t 
+  getReqID();
+  
 protected:
   /*********************************************************************/
   /* protected fields                                                  */

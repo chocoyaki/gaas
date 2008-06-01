@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2008/06/01 09:16:56  rbolze
+ * remove myreqID attribute from the RunnableNode
+ * add getReqID() method which return the reqID stored in the diet_profile_t
+ *
  * Revision 1.8  2008/05/28 20:53:33  rbolze
  * now DIET_PARAMSTRING type can be use in DAG.
  *
@@ -132,11 +136,15 @@ void display(const corba_profile_t& pb) {
 /**
  * RunnableNode constructor
  */
-RunnableNode::RunnableNode(Node * parent,
+/*RunnableNode::RunnableNode(Node * parent,
 			   diet_reqID_t reqID)
   :Thread(false) {
   this->myParent = parent;
   this->myReqID = reqID;
+} // end RunnableNode constructor*/
+RunnableNode::RunnableNode(Node * parent)
+	:Thread(false) {
+  this->myParent = parent;  
 } // end RunnableNode constructor
 
 /**
@@ -173,16 +181,19 @@ RunnableNode::run() {
   if (!diet_call(myParent->profile)) {
     TRACE_TEXT (TRACE_MAIN_STEPS, "diet_call DONE" << endl);
     myParent->storePersistentData();
+    //cout << " dietReqID : " << myParent->profile->dietReqID << endl;
+    //this->myReqID=myParent->profile->dietReqID;
   }
   else {
     TRACE_TEXT (TRACE_MAIN_STEPS, "diet_call FAILED" << endl);
     // TODO : manage diet_call failure
   }
 
-  TRACE_TEXT (TRACE_ALL_STEPS, "RunnableNode call ... done" << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS, "RunnableNode call ... done" << endl);    
   myParent->done();
   return NULL;
 } // end RunnableNode::run
+
 
 /**
  * The Node constructor
@@ -213,6 +224,7 @@ Node::Node(int wfReqId, string id, string pb_name,
  */
 Node::~Node() {
   // if everything is alright, we need this line only for the exit node(s)
+  TRACE_TEXT (TRACE_ALL_STEPS, "~Node() destructor..." << endl);
   if (profile != NULL)
     diet_profile_free(profile);
   if (myRunnableNode)
@@ -1390,22 +1402,22 @@ Node::newPort(string id, uint ind, wf_port_t type, string diet_type,
 
 /**
  * start the node execution *
- * Note: the arguments reqID and join are always set to default currently
+ * Note: the argument join are always set to default currently
  */
-void Node::start(diet_reqID_t reqID, bool join) {
+void Node::start(bool join) {
   TRACE_TEXT (TRACE_ALL_STEPS, " create the runnable node " << endl);
   node_running = true;
 //  nodeIsStarting(myId.c_str());
 
-  myRunnableNode = new RunnableNode(this, reqID);
+  this->myRunnableNode = new RunnableNode(this);
   TRACE_TEXT (TRACE_ALL_STEPS, "The node " << myId << " tries to launch a RunnableNode "<< endl);
-  myRunnableNode->start();
+  this->myRunnableNode->start();
   TRACE_TEXT (TRACE_ALL_STEPS, "The node " << myId << " launched its RunnableNode" << endl);
 //   AbstractWfSched::pop(this->myId);
   if (join)
     this->myRunnableNode->join();
-  TRACE_TEXT (TRACE_ALL_STEPS, "The node " << myId << " joined its RunnableNode" << endl);
-    } // end start
+  TRACE_TEXT (TRACE_ALL_STEPS, "The node " << myId << " joined its RunnableNode" << endl);  
+  } // end start
 
 /**
  * called when the node execution is done *
@@ -1427,6 +1439,13 @@ Node::done() {
   node_running = false;
 } // end done
 
+diet_reqID_t
+Node::getReqID(){
+	//cout << "Node::" <<__FUNCTION__ << "()"<< endl;			
+	if(this->isDone())
+		return this->getProfile()->dietReqID;
+	return -1;
+}
 /**
  * called when a next node is done *
  */
