@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.78  2008/06/01 09:12:37  rbolze
+ * remove free on logService pointer
+ *
  * Revision 1.77  2008/05/31 08:43:55  rbolze
  * add some free on unused pointers (LogService)
  *
@@ -777,8 +780,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
     if (*ULSptr) {
       useLS = true;
     }
-  }
-  free(ULSptr);
+  }  
 
   if (useLS) {
     OBSptr = (unsigned int*)Parsers::Results::getParamValue(
@@ -790,7 +792,6 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
       TRACE_TEXT(TRACE_ALL_STEPS,
             "lsOutbuffersize not configured, using default");
     }
-    free(OBSptr);
     FTptr = (unsigned int*)Parsers::Results::getParamValue(
   	       Parsers::Results::LSFLUSHINTERVAL);
     if (FTptr != NULL) {
@@ -800,7 +801,6 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
       TRACE_TEXT(TRACE_ALL_STEPS,
             "lsFlushinterval not configured, using default");
     }
-    free(FTptr);
   }
 
   if (useLS) {
@@ -821,8 +821,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
       WARNING("Could not initialize DietLogComponent");
       TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled\n");
       dietLogComponent = NULL; // this should never happen;
-    }
-    free(parentName);
+    }    
   } else {
     TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled\n");
     dietLogComponent = NULL;

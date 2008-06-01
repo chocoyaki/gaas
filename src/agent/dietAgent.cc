@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.31  2008/06/01 09:12:40  rbolze
+ * remove free on logService pointer
+ *
  * Revision 1.30  2008/05/31 08:43:52  rbolze
  * add some free on unused pointers (LogService)
  *
@@ -259,8 +262,7 @@ main(int argc, char** argv)
     if (*ULSptr) {
       useLS = true;
     }
-  }
-  free(ULSptr);
+  }  
   if (useLS) {
     // size_t --> unsigned int
     OBSptr = (unsigned int*)Parsers::Results::getParamValue(
@@ -271,7 +273,6 @@ main(int argc, char** argv)
       outBufferSize = 0;
       WARNING("lsOutbuffersize not configured, using default");
     }
-    free(OBSptr);
     // size_t --> unsigned int
     FTptr = (unsigned int*)Parsers::Results::getParamValue(
   	       Parsers::Results::LSFLUSHINTERVAL);
@@ -280,8 +281,7 @@ main(int argc, char** argv)
     } else {
       flushTime = 10000;
       WARNING("lsFlushinterval not configured, using default");
-    }
-    free(FTptr);
+    }    
   }
 
   if (useLS) {
@@ -309,8 +309,7 @@ main(int argc, char** argv)
       dietLogComponent = NULL; // this should not happen;
     }
     free(agtTypeName);
-    free(agtParentName);
-    free(agtName);
+    
   } else {
     TRACE_TEXT(TRACE_ALL_STEPS, "LogService disabled\n");
     dietLogComponent = NULL;
