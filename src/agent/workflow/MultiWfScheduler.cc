@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2008/06/01 09:21:35  rbolze
+ * the remote method release now return a string which contains
+ * feedback on the dag execution
+ * it is send through logservice via the logDag method
+ *
  * Revision 1.10  2008/05/30 14:22:48  bisnard
  * obsolete MultiDag
  *
@@ -421,10 +426,15 @@ NodeRun::run() {
     if ((this->myNode->getDag() != NULL) &&
          (this->myNode->getDag()->isDone())
        ) {
-      cout << "NodeRun: The Dag " << this->myNode->getDag()->getId().c_str()
-          << " is done " << endl;
-      myCltMan->release(this->myNode->getDag()->getId().c_str());
-       }
+      	//this->myNode->getDag()->showDietReqID();
+	char* message = myCltMan->release(this->myNode->getDag()->getId().c_str());
+	cout << " message : "<< message << endl;
+	if (this->myScheduler->getMaDag()->dietLogComponent != NULL) {
+		this->myScheduler->getMaDag()->dietLogComponent->logDag(message);
+	}	
+	cout << "############### dag_id="<< this->myNode->getDag()->getId().c_str()
+			 <<" is done ################"<<endl;
+    	}
   }
   else {
     cout << "NodeRun: ERROR!! cannot contact the Client Wf Mgr" << endl;
