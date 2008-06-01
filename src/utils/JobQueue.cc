@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/06/01 14:06:55  rbolze
+ * replace most ot the cout by adapted function from debug.cc
+ * there are some left ...
+ *
  * Revision 1.3  2008/05/28 12:30:36  rbolze
  * change unit of the startTime value store in the diet_job_t structure.
  * it was in second, now it is in millisecond
@@ -33,7 +37,7 @@ JobQueue::addJobEstimated(int dietReqID, corba_estimation_t& ev) {
   diet_job_t newJob = { estVect, DIET_JOB_ESTIMATED, -1 };
   this->myLock.lock();        /** LOCK */
   myJobs[dietReqID] = newJob;
-  cout << "JobQueue: adding job " << dietReqID << " in status ESTIMATED" << endl;
+  TRACE_TEXT (TRACE_ALL_STEPS,"JobQueue: adding job " << dietReqID << " in status ESTIMATED" << endl);
   this->myLock.unlock();      /** UNLOCK */
   return true;
 }
@@ -70,23 +74,25 @@ JobQueue::deleteJob(int dietReqID) {
     diet_job_t job = p->second;
     if (job.status != DIET_JOB_FINISHED) {
       this->nbActiveJobs--;
-      cout << "[Warning] JobQueue::deleteJob: job deleted still active ("
-          << dietReqID << ")" << endl;
+      WARNING("JobQueue::deleteJob: job deleted still active ("
+          << dietReqID << ")" << endl);
     }
     if (job.estVector != NULL)
       delete job.estVector;
     else
-      cout << "[Warning] JobQueue::deleteJob: null estimation vector for job "
-          << dietReqID << endl;
+      WARNING("JobQueue::deleteJob: null estimation vector for job "
+          << dietReqID << endl);
     myJobs.erase(p);
-    cout << "job " << dietReqID << " deleted / new map size=" << myJobs.size() << endl;
+    TRACE_TEXT (TRACE_ALL_STEPS,"job " << dietReqID << " deleted / new map size=" << myJobs.size() << endl);
     for (map<int, diet_job_t>::iterator q = myJobs.begin(); q != myJobs.end(); q++) {
-      cout << " Queue contains job " << q->first << " in status " << (q->second).status << endl;
+	    TRACE_TEXT (TRACE_ALL_STEPS," Queue contains job " <<
+			  q->first << " in status " <<
+			  (q->second).status << endl);
     }
     return true;
   }
   else {
-    cout << "[Warning] JobQueue::deleteJob: could not find job "<< dietReqID << endl;
+    WARNING(" JobQueue::deleteJob: could not find job "<< dietReqID << endl);
     return false;
   }
 }
@@ -107,9 +113,9 @@ JobQueue::getActiveJobTable(jobVector_t& jobVector) {
   }
   this->myLock.unlock();      /** UNLOCK */
   if (nbJobs < this->nbActiveJobs) {
-    cout << "getActiveJobTable [WARNING]: mismatch btw counter and map"
+    WARNING("getActiveJobTable [WARNING]: mismatch btw counter and map"
         << "nbActiveJobs=" << this->nbActiveJobs << " / nbJobs="
-        << nbJobs << endl;
+        << nbJobs << endl);
   }
   return nbJobs;
 }

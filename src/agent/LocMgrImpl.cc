@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2008/06/01 14:06:56  rbolze
+ * replace most ot the cout by adapted function from debug.cc
+ * there are some left ...
+ *
  * Revision 1.17  2007/07/13 10:00:25  ecaron
  * Remove deprecated code (ALTPREDICT part)
  *
@@ -409,9 +413,10 @@ LocMgrImpl::printList1()
  
   char *SonName = NULL;
   if( dataLocList.size() > 0){
-    cout << "+------------+----------------------------+" << endl;
-    cout << "| Data Name  | Data Manager Owner         |" << endl;
-    cout << "+------------+----------------------------+" << endl;
+    TRACE_TEXT(TRACE_ALL_STEPS,
+    "+------------+----------------------------+" << endl <<
+    "| Data Name  | Data Manager Owner         |" << endl <<
+    "+------------+----------------------------+" << endl);
     dataLocList.lock();
     DataLocList_t::iterator cur = dataLocList.begin();
     while (cur != dataLocList.end()) {
@@ -429,12 +434,12 @@ LocMgrImpl::printList1()
 	  
 	}
       }
-      cout << "| " << cur->first << " |   " << SonName  << endl;
-      cout << "+------------+" << endl; 
+      TRACE_TEXT(TRACE_ALL_STEPS,"| " << cur->first << " |   " << SonName  << endl);
+      TRACE_TEXT(TRACE_ALL_STEPS,"+------------+" << endl); 
       cur++;
     }
     dataLocList.unlock();
-    cout << "+------------+----------------------------+" << endl; 
+    TRACE_TEXT(TRACE_ALL_STEPS,"+------------+----------------------------+" << endl); 
   } /*else {
     cout << "+-----No Data-----+" << endl;
   }*/

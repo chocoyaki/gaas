@@ -11,6 +11,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2008/06/01 14:06:56  rbolze
+ * replace most ot the cout by adapted function from debug.cc
+ * there are some left ...
+ *
  * Revision 1.8  2008/01/14 09:51:05  glemahec
  * localAgentJNI.cc modifications to allow the use of DAGDA.
  *
@@ -206,7 +210,7 @@ Java_LA_startDIETLA(JNIEnv *env,
               Parsers::Results::USELOGSERVICE);
   useLS = false;
   if (ULSptr == NULL) {
-    cout << "WARNING: useLogService not configured. Disabled by default\n";
+    WARNING(" useLogService not configured. Disabled by default\n");
   } else {
     if (*ULSptr) {
       useLS = true;

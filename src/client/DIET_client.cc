@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.122  2008/06/01 14:06:56  rbolze
+ * replace most ot the cout by adapted function from debug.cc
+ * there are some left ...
+ *
  * Revision 1.121  2008/05/16 12:32:10  bisnard
  * API function to retrieve all workflow results
  *
@@ -540,8 +544,8 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
 
   /* Find Master Agent */
   MA_name = (char*)
-    Parsers::Results::getParamValue(Parsers::Results::MANAME);
-   cout << "MA NAME PARSING = " << MA_name << endl;
+   Parsers::Results::getParamValue(Parsers::Results::MANAME);
+   TRACE_TEXT (TRACE_MAIN_STEPS,"MA NAME PARSING = " << MA_name << endl);
    MA_Name = CORBA::string_dup(MA_name);
   MA = MasterAgent::_narrow(ORBMgr::getObjReference(ORBMgr::AGENT, MA_name));
   if (CORBA::is_nil(MA)) {
@@ -1886,7 +1890,7 @@ getProfileDesc(const char * srvName, diet_profile_desc_t& profile) {
       if (!strcmp ( (*allProfiles)[ix].path,
 		    srvName)) {
 	// The service is found
-	cout << "The service " << srvName << " is found " << endl;
+        TRACE_TEXT (TRACE_MAIN_STEPS,"The service " << srvName << " is found " << endl);
 	// this function place is marshalling.cc file
 	// to fix is necessary
 	unmrsh_profile_desc( &profile,
@@ -1895,7 +1899,7 @@ getProfileDesc(const char * srvName, diet_profile_desc_t& profile) {
       }
     }
   }
-  cout << "The service " << srvName << " was not found" << endl;
+  TRACE_TEXT (TRACE_MAIN_STEPS,"The service " << srvName << " was not found" << endl);
   return false;
 }
 

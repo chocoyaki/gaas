@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.32  2008/06/01 14:06:56  rbolze
+ * replace most ot the cout by adapted function from debug.cc
+ * there are some left ...
+ *
  * Revision 1.31  2008/06/01 09:12:40  rbolze
  * remove free on logService pointer
  *
@@ -257,7 +261,7 @@ main(int argc, char** argv)
               Parsers::Results::USELOGSERVICE);
   useLS = false;
   if (ULSptr == NULL) {
-    cout << "WARNING: useLogService not configured. Disabled by default\n";
+	  WARNING(" useLogService not configured. Disabled by default\n");
   } else {
     if (*ULSptr) {
       useLS = true;

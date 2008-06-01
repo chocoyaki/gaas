@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2008/06/01 14:06:57  rbolze
+ * replace most ot the cout by adapted function from debug.cc
+ * there are some left ...
+ *
  * Revision 1.9  2008/05/30 14:39:57  bisnard
  * cleanup
  *
@@ -57,7 +61,7 @@ using namespace madag;
 
 MultiWfFOFT::MultiWfFOFT(MaDag_impl* maDag) : MultiWfScheduler(maDag) {
   this->execQueue = new PriorityNodeQueue;
-  cout << "Using FOFT multi-workflow scheduler" << endl;
+  TRACE_TEXT(TRACE_MAIN_STEPS,"Using FOFT multi-workflow scheduler" << endl);
 }
 
 MultiWfFOFT::~MultiWfFOFT() {
@@ -97,7 +101,7 @@ MultiWfFOFT::handlerNodeDone(Node * node) {
           << curDagState.slowdown << endl);
     }
   } else {
-    cout << "Problem during updateDelayRec" << endl;
+      TRACE_FUNCTION(TRACE_ALL_STEPS,"Problem during updateDelayRec" << endl);
   }
 }
 
@@ -139,6 +143,6 @@ MultiWfFOFT::intraDagSchedule(Dag * dag, MasterAgent_var MA)
 void
 MultiWfFOFT::setExecPriority(Node * node) {
   node->setPriority(this->dagsState[node->getDag()].slowdown);
-  cout << "     Node priority (slowdown) set to " << node->getPriority()
-      << " before exec. " << endl;
+  TRACE_TEXT(TRACE_ALL_STEPS,"     Node priority (slowdown) set to " << node->getPriority()
+      << " before exec. " << endl);
 }

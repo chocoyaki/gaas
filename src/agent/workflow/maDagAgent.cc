@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/06/01 14:06:57  rbolze
+ * replace most ot the cout by adapted function from debug.cc
+ * there are some left ...
+ *
  * Revision 1.4  2008/05/31 08:45:55  rbolze
  * add DietLogComponent to the maDagAgent
  *
@@ -88,10 +92,6 @@ int main(int argc, char * argv[]){
 
   char* name = (char*)
     Parsers::Results::getParamValue(Parsers::Results::NAME);
-
-  if (agtType == Parsers::Results::DIET_MA_DAG) {
-    cout << "MA_DAG type" << endl;
-  }
 
   // choose scheduler type
 

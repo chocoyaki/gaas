@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2008/06/01 14:06:57  rbolze
+ * replace most ot the cout by adapted function from debug.cc
+ * there are some left ...
+ *
  * Revision 1.10  2008/06/01 09:22:14  rbolze
  * add getter to retrieve the dietLogComponent
  *
@@ -262,7 +266,7 @@ MaDag_impl::setupDietLogComponent(){
 	Parsers::Results::USELOGSERVICE);
   useLS = false;
   if (ULSptr == NULL) {
-    cout << "WARNING: useLogService not configured. Disabled by default\n";
+    WARNING(" useLogService not configured. Disabled by default\n");
   } else {
     if (*ULSptr) {
       useLS = true;

@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2008/06/01 14:06:56  rbolze
+ * replace most ot the cout by adapted function from debug.cc
+ * there are some left ...
+ *
  * Revision 1.9  2008/06/01 09:16:56  rbolze
  * remove myreqID attribute from the RunnableNode
  * add getReqID() method which return the reqID stored in the diet_profile_t
@@ -274,7 +278,7 @@ Node::~Node() {
     }
   }
   {
-    // string vector
+    // string
     char * cx = NULL;
     while (stringParams.size() != 0) {
       cx = stringParams.back();

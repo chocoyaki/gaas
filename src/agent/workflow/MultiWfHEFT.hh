@@ -10,6 +10,10 @@
 
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/06/01 14:06:57  rbolze
+ * replace most ot the cout by adapted function from debug.cc
+ * there are some left ...
+ *
  * Revision 1.1  2008/04/30 07:37:01  bisnard
  * use relative timestamps for estimated and real completion time
  * make MultiWfScheduler abstract and add HEFT MultiWf scheduler
@@ -22,6 +26,7 @@
 
 #include "workflow/Dag.hh"
 #include "MultiWfScheduler.hh"
+#include "debug.hh"
 
 using namespace std;
 

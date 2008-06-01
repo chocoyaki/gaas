@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2008/06/01 14:06:57  rbolze
+ * replace most ot the cout by adapted function from debug.cc
+ * there are some left ...
+ *
  * Revision 1.7  2008/05/30 13:22:19  bisnard
  * added micro-delay between workflow node executions to avoid interf
  *
@@ -47,7 +51,7 @@ using namespace madag;
 
 MultiWfBasicScheduler::MultiWfBasicScheduler(MaDag_impl* maDag)
   : MultiWfScheduler(maDag) {
-  cout << "Using BASIC multi-workflow scheduler" << endl;
+   TRACE_TEXT(TRACE_MAIN_STEPS,"Using BASIC multi-workflow scheduler" << endl);
 }
 
 MultiWfBasicScheduler::~MultiWfBasicScheduler() {
@@ -61,19 +65,19 @@ void*
 MultiWfBasicScheduler::run() {
   int nodeCount = 0;
   while (true) {
-    cout << "\t ** Starting MultiWfBasicScheduler" << endl;
+    TRACE_TEXT(TRACE_MAIN_STEPS,"\t ** Starting MultiWfBasicScheduler" << endl);
     this->myLock.lock();
     // Loop over all nodeQueues and run the first ready node
     // for each queue
     nodeCount = 0;
     std::list<OrderedNodeQueue *>::iterator qp = readyQueues.begin();
     while (qp != readyQueues.end()) {
-      cout << "Checking ready nodes queue:" << endl;
+      TRACE_TEXT(TRACE_ALL_STEPS,"Checking ready nodes queue:" << endl);
       OrderedNodeQueue * readyQ = *qp;
       Node * n = readyQ->popFirstNode();
       if (n != NULL) {
-        cout << "  #### Ready node : " << n->getCompleteId()
-            << " (request #" << n->getWfReqId() << ") => execute" << endl;
+        TRACE_TEXT(TRACE_ALL_STEPS,"  #### Ready node : " << n->getCompleteId()
+            << " (request #" << n->getWfReqId() << ") => execute" << endl);
         // EXECUTE NODE (NEW THREAD)
         n->setAsRunning();
         runNode(n, n->getSeD());
@@ -81,7 +85,7 @@ MultiWfBasicScheduler::run() {
         // Destroy queues if both are empty
         ChainedNodeQueue * waitQ = waitingQueues[readyQ];
         if (waitQ->isEmpty() && readyQ->isEmpty()) {
-          cout << "Node Queues are empty: remove & destroy" << endl;
+	  TRACE_TEXT(TRACE_ALL_STEPS,"Node Queues are empty: remove & destroy" << endl);
           qp = readyQueues.erase(qp);      // removes from the list
           this->deleteNodeQueue(readyQ);  // deletes both queues
           continue;
@@ -93,7 +97,7 @@ MultiWfBasicScheduler::run() {
     }
     this->myLock.unlock();
     if (nodeCount == 0) {
-      cout << "No ready nodes" << endl;
+      TRACE_TEXT(TRACE_MAIN_STEPS,"No ready nodes" << endl);
       this->mySem.wait();
       if (this->termNode) {
         this->termNodeThread->join();
@@ -118,7 +122,7 @@ MultiWfBasicScheduler::handlerNodeDone(Node * node) {
 
 OrderedNodeQueue *
 MultiWfBasicScheduler::createNodeQueue(Dag * dag)  {
-  TRACE_TEXT (TRACE_ALL_STEPS, "Creating new node queues (basic)" << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, "Creating new node queues (basic)" << endl);
   OrderedNodeQueue *  readyQ  = new OrderedNodeQueue();
   ChainedNodeQueue *  waitQ   = new ChainedNodeQueue(readyQ);
   for (std::map <std::string, Node *>::iterator nodeIt = dag->begin();

@@ -11,6 +11,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2008/06/01 14:06:56  rbolze
+ * replace most ot the cout by adapted function from debug.cc
+ * there are some left ...
+ *
  * Revision 1.11  2008/01/14 10:08:19  glemahec
  * masterAgentJNI.cc modifications to allow the use of DAGDA.
  *
@@ -60,7 +64,7 @@
  *
  * revision 1.3
  * date: 2004/08/27 16:28:18  ctedesch
- * - Use of the asynchronous PIF scheme for propagation of the requests inside
+ *ï¿½- Use of the asynchronous PIF scheme for propagation of the requests inside
  * the DIET J multi-hierarchy
  * - DIET/JXTA -> DIET J
  * - Change the JXTA examples scripts to build a whole multi-hierarchy
@@ -233,7 +237,7 @@ Java_JXTAMultiMA_startDIETAgent(JNIEnv *env,
               Parsers::Results::USELOGSERVICE);
   useLS = false;
   if (ULSptr == NULL) {
-    cout << "WARNING: useLogService not configured. Disabled by default\n";
+	  WARNING(" useLogService not configured. Disabled by default\n");
   } else {
     if (*ULSptr) {
       useLS = true;

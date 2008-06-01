@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2008/06/01 14:06:57  rbolze
+ * replace most ot the cout by adapted function from debug.cc
+ * there are some left ...
+ *
  * Revision 1.11  2008/06/01 09:21:35  rbolze
  * the remote method release now return a string which contains
  * feedback on the dag execution
@@ -154,20 +158,20 @@ void*
 MultiWfScheduler::run() {
   int nodeCount = 0;
   while (true) {
-    cout << "\t ** Starting Multi-Workflow scheduler" << endl;
+    TRACE_TEXT(TRACE_MAIN_STEPS,"\t ** Starting Multi-Workflow scheduler" << endl);
     this->myLock.lock();
     // Loop over all nodeQueues and run the first ready node
     // for each queue
     nodeCount = 0;
     std::list<OrderedNodeQueue *>::iterator qp = readyQueues.begin();
     while (qp != readyQueues.end()) {
-      cout << "Checking ready nodes queue:" << endl;
+      TRACE_TEXT(TRACE_ALL_STEPS,"Checking ready nodes queue:" << endl);
       OrderedNodeQueue * readyQ = *qp;
       Node * n = readyQ->popFirstNode();
       if (n != NULL) {
-        cout << "  #### Ready node : " << n->getCompleteId()
+        TRACE_TEXT(TRACE_ALL_STEPS,"  #### Ready node : " << n->getCompleteId()
             << " / request #" << n->getWfReqId()
-            << " / prio = " << n->getPriority() << endl;
+            << " / prio = " << n->getPriority() << endl);
 
         // set priority of node (depends on choosen algorithm)
         this->setExecPriority(n);
@@ -179,7 +183,7 @@ MultiWfScheduler::run() {
         // Destroy queues if both are empty
         ChainedNodeQueue * waitQ = waitingQueues[readyQ];
         if (waitQ->isEmpty() && readyQ->isEmpty()) {
-          cout << "Node Queues are empty: remove & destroy" << endl;
+	  TRACE_TEXT(TRACE_ALL_STEPS,"Node Queues are empty: remove & destroy" << endl);
           qp = readyQueues.erase(qp);      // removes from the list
           this->deleteNodeQueue(readyQ);  // deletes both queues
           continue;
@@ -189,15 +193,15 @@ MultiWfScheduler::run() {
     }
 
     if (nodeCount > 0) {
-      cout << "Executing nodes in priority order:" << endl;
+      TRACE_TEXT(TRACE_ALL_STEPS,"Executing nodes in priority order:" << endl);
       while (!execQueue->isEmpty()) {
         Node *n = execQueue->popFirstNode();
 
         // EXECUTE NODE (NEW THREAD)
         n->setAsRunning();
-        cout << "  $$$$ Exec node : " << n->getCompleteId()
+	TRACE_TEXT(TRACE_ALL_STEPS,"  $$$$ Exec node : " << n->getCompleteId()
             << " / request #" << n->getWfReqId()
-            << " / prio = " << n->getPriority() << endl;
+            << " / prio = " << n->getPriority() << endl);
         runNode(n, n->getSeD());
 
         // DELAY between NODES (to avoid interference btw submits)
@@ -208,7 +212,7 @@ MultiWfScheduler::run() {
     this->myLock.unlock();
 
     if (nodeCount == 0) {
-      cout << "No ready nodes" << endl;
+      TRACE_TEXT(TRACE_ALL_STEPS,"No ready nodes" << endl);
       this->mySem.wait();
       if (this->termNode) {
         this->termNodeThread->join();
@@ -223,7 +227,7 @@ MultiWfScheduler::run() {
  */
 void
 MultiWfScheduler::wakeUp() {
-  cout << "Wake Up" << endl;
+  TRACE_TEXT(TRACE_ALL_STEPS,"Wake Up" << endl);
   this->termNode = false; // no thread to join
   this->mySem.post();
 }
@@ -234,7 +238,7 @@ MultiWfScheduler::wakeUp() {
  */
 void
 MultiWfScheduler::wakeUp(NodeRun * nodeThread) {
-  cout << "Wake Up & Join" << endl;
+  TRACE_TEXT(TRACE_ALL_STEPS,"Wake Up & Join" << endl);
   this->termNodeThread = nodeThread;
   this->termNode = true;
   this->mySem.post();
@@ -428,16 +432,16 @@ NodeRun::run() {
        ) {
       	//this->myNode->getDag()->showDietReqID();
 	char* message = myCltMan->release(this->myNode->getDag()->getId().c_str());
-	cout << " message : "<< message << endl;
+	TRACE_TEXT (TRACE_ALL_STEPS," message : "<< message << endl);
 	if (this->myScheduler->getMaDag()->dietLogComponent != NULL) {
 		this->myScheduler->getMaDag()->dietLogComponent->logDag(message);
 	}	
-	cout << "############### dag_id="<< this->myNode->getDag()->getId().c_str()
-			 <<" is done ################"<<endl;
+	TRACE_TEXT (TRACE_ALL_STEPS,"############### dag_id="<< this->myNode->getDag()->getId().c_str()
+			 <<" is done ################"<<endl);
     	}
   }
   else {
-    cout << "NodeRun: ERROR!! cannot contact the Client Wf Mgr" << endl;
+       TRACE_TEXT (TRACE_ALL_STEPS,"NodeRun: ERROR!! cannot contact the Client Wf Mgr" << endl);
   }
   this->myScheduler->wakeUp(this);
 }

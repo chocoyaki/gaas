@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/06/01 14:06:58  rbolze
+ * replace most ot the cout by adapted function from debug.cc
+ * there are some left ...
+ *
  * Revision 1.3  2008/06/01 09:20:37  rbolze
  * the remote method release now return a string which contains
  * feedback on the dag execution
@@ -72,7 +76,7 @@ CltWfMgr::execNodeOnSed(const char * node_id, const char * dag_id,
       cerr << "Node " << node_id << " not fount!!!!" << endl;
   }
   else
-    cout << "  Dag " << dag_id << " not found!" << endl;
+     TRACE_TEXT (TRACE_MAIN_STEPS,"  Dag " << dag_id << " not found!" << endl);
   sed->ping();
 } // end execNodeOnSed
 
@@ -88,7 +92,7 @@ CltWfMgr::execNode(const char * node_id, const char * dag_id) {
       cerr << "Node " << node_id << " not fount!!!!" << endl;
   }
   else
-    cout << "  Dag " << dag_id << " not found!" << endl;
+     TRACE_TEXT (TRACE_MAIN_STEPS,"  Dag " << dag_id << " not found!" << endl);
 } // end execNode
 
 
@@ -168,7 +172,7 @@ CltWfMgr::wf_call_madag(diet_wf_desc_t * profile,
 	// Build the dag connexions to allow retrieval of input data
   	dag->linkAllPorts();
   	this->myProfiles[profile] = dag;
-  	cout << "Dag ID " << dag->getId() << endl;
+	TRACE_TEXT (TRACE_MAIN_STEPS,"Dag ID " << dag->getId() << endl);
   	this->mySem.wait();
     } else {
 	TRACE_TEXT (TRACE_ALL_STEPS, "MA DAG cancelled the request ...");
@@ -309,7 +313,7 @@ CltWfMgr::myIOR() {
  */
 void
 CltWfMgr::ping() {
-  cout << "ping!!!!!!!!!!!!!!" << endl;
+  TRACE_TEXT (TRACE_ALL_STEPS, "ping!!!!!!!!!!!!!!"<< endl);
 } // end ping
 
 
@@ -327,7 +331,7 @@ CltWfMgr::release(const char * dag_id) {
 	    sprintf(str, "%ld", diet_request_ids[ix]);
 	    message +=";"+string(str);
    }
-   cout << "##"<< message << "#"<< endl;
+    cout << "##"<< message << "# " << message.size()<< endl;
    char * ret = (char*)malloc(message.size()*sizeof(char)+1);
    sprintf(ret,"%s",message.c_str());
    this->mySem.post();

@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.49  2008/06/01 14:06:56  rbolze
+ * replace most ot the cout by adapted function from debug.cc
+ * there are some left ...
+ *
  * Revision 1.48  2008/05/31 08:45:16  rbolze
  * comment message send through logService
  *
@@ -373,7 +377,7 @@ char* id = new char[100];
 SeqCorbaProfileDesc_t*
  MasterAgentImpl::getProfiles(CORBA::Long& length)
 {	
-//        cout << "ask for list of services" << endl;
+	TRACE_TEXT(TRACE_ALL_STEPS,"ask for list of services" << endl);
 	return this->AgentImpl::SrvT->getProfiles(length);
 }
 

@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2008/06/01 14:06:56  rbolze
+ * replace most ot the cout by adapted function from debug.cc
+ * there are some left ...
+ *
  * Revision 1.25  2008/04/18 13:47:24  glemahec
  * Everything about DAGDA is now in utils/DAGDA directory.
  *
@@ -296,13 +300,13 @@ int CallAsyncMgr::addWaitAnyRule(diet_reqID_t* IDptr)
           ReaderLockGuard r(callAsyncListLock);
           CallAsyncList::iterator h = caList.begin();
           for (unsigned int k = 0; k < caList.size(); k++){
-	    cout << "status " << h->second->st << endl; 
+	    TRACE_TEXT (TRACE_ALL_STEPS,"status " << h->second->st << endl); 
             if ((h->second->st == STATUS_DONE) &&
 		(find(doneRequests.begin(),
 		      doneRequests.end(),
 		      h->first) == doneRequests.end())
 		) {
-	      cout << "finding " << h->first << endl;
+	      TRACE_TEXT (TRACE_ALL_STEPS,"finding " << h->first << endl);
               *IDptr = h->first;
 	      doneRequests.push_back(h->first);
               return STATUS_DONE;
@@ -500,17 +504,19 @@ int CallAsyncMgr::areThereWaitRules()
  *********************************************************************/ 
 int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp) 
 {
-  cout << "notifyRst " << reqID << endl;
+  TRACE_TEXT (TRACE_ALL_STEPS,"notifyRst " << reqID << endl);
   setReqErrorCode(reqID, GRPC_NO_ERROR);
   WriterLockGuard r(callAsyncListLock);
 
   try {
-	cout<< "the service has computed the requestID=" << reqID << " and notifies his answer\n";
+   TRACE_TEXT (TRACE_ALL_STEPS,"the service has computed the requestID=" 
+		   << reqID << " and notifies his answer\n");
 	fflush(stdout);
     // update diet_profile datas linked to this reqId
     CallAsyncList::iterator h = caList.find(reqID);
     if (h == caList.end()){
-      WARNING(__FUNCTION__ << ":SeD notifies a result linked to a request ID (" << reqID << ") which is not registered");
+      WARNING(__FUNCTION__ << ":SeD notifies a result linked to a request ID (" 
+		      << reqID << ") which is not registered");
       fflush(stderr);
       return -1;
     } // code de trace et debbug, a virer pour la version CVSise

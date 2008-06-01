@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.32  2008/06/01 14:06:55  rbolze
+ * replace most ot the cout by adapted function from debug.cc
+ * there are some left ...
+ *
  * Revision 1.31  2008/06/01 09:19:17  rbolze
  * add method logDag
  *
@@ -1046,8 +1050,7 @@ DietLogComponent::logDagSubmit(wf_response_t* wf_response,
   char msg[256];
   sprintf(msg, "DAG_ID=%ld FIRST_REQID=%ld LAST_REQID=%ld TIME=%ld", wf_response->dag_id,wf_response->firstReqID,wf_response->lastReqID, ptime);
   
-  log(tagNames[18], msg);
-  delete(msg);
+  log(tagNames[18], msg);  
 }
 /**
  * Send dag identifier and workflow processing time in the MA

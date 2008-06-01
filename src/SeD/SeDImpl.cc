@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.109  2008/06/01 14:06:57  rbolze
+ * replace most ot the cout by adapted function from debug.cc
+ * there are some left ...
+ *
  * Revision 1.108  2008/05/19 14:45:07  bisnard
  * jobs added to the queue during submit instead of solve
  *
@@ -572,7 +576,9 @@ SeDImpl::getRequest(const corba_request_t& creq)
   serviceRef = SrvT->lookupService(&(creq.pb));
   if (serviceRef == -1) {
     resp.servers.length(0);
-    cout << "service not found ??????????????????????????????????????" << endl;
+    TRACE_TEXT(TRACE_MAIN_STEPS,
+	       "service not found ??????????????????????????????????????"
+			       << endl) ;
   } else {
     resp.servers.length(1);
 
@@ -737,9 +743,8 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
   /* Data transfer */
   uploadSyncSeDData(profile,pb,cvt) ;
 
-  if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
-    cout << "SeD::solve complete\n"
-         << "************************************************************\n";
+  TRACE_TEXT(TRACE_MAIN_STEPS,"SeD::solve complete" << endl
+         << "************************************************************"<< endl);
 #if ! HAVE_DAGDA
   for (i = 0; i <= cvt->last_in; i++) {
     diet_free_data(&(profile.parameters[i]));
@@ -837,9 +842,8 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
   /* Data transfer */
   uploadSyncSeDData(profile,pb,cvt) ;
 
-  if (TRACE_LEVEL >= TRACE_MAIN_STEPS)
-    cout << "SeD::parallel_solve() completed\n"
-         << "************************************************************\n";
+  TRACE_TEXT(TRACE_MAIN_STEPS,"SeD::parallel_solve() completed" << endl
+         << "************************************************************" << endl);
 #if ! HAVE_DAGDA
   for (i = 0; i <= cvt->last_in; i++) {
     diet_free_data(&(profile.parameters[i]));
