@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2008/06/01 09:19:17  rbolze
+ * add method logDag
+ *
  * Revision 1.15  2007/08/31 16:52:26  bdepardo
  * Implemented the new test() method in LogCentralComponent.
  * Used to check whether or not a component is reachable.
@@ -381,6 +384,15 @@ public:
   logDagSubmit(wf_response_t* wf_response,
 	       time_t ptime);
 	       
+  /**
+   * Send msg and workflow processing time
+   *
+   * @param msg the message which identify dag and request_id of the dag
+   * @param ptime  the time elapsed by the MA_DAG in ms to process the workflow submission
+   *
+   */
+  void
+	logDag(char * msg);
 #endif // HAVE_WORKFLOW
 
 private:

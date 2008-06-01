@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.31  2008/06/01 09:19:17  rbolze
+ * add method logDag
+ *
  * Revision 1.30  2008/05/11 16:19:51  ycaniou
  * Check that pathToTmp and pathToNFS exist
  * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
@@ -243,7 +246,7 @@ DietLogComponent::DietLogComponent(const char* name,
   pingThread=NULL;
 
   // define tags
-  tagCount = 19;
+  tagCount = 20;
   tagFlags = createBoolArrayFalse(tagCount);
   tagNames = new char*[this->tagCount];
   tagNames[0] = strdup("ADD_SERVICE");
@@ -267,6 +270,7 @@ DietLogComponent::DietLogComponent(const char* name,
   tagNames[16] = strdup("FAILURE");
   tagNames[17] = strdup("FD_OBSERVE"); 
   tagNames[18] = strdup("DAG_SUBMIT");
+  tagNames[19] = strdup("DAG");
 
   
   CORBA::Object_ptr myLCCptr;
@@ -534,7 +538,7 @@ DietLogComponent::getEstimationTags(const int v_tag){
 		case(EST_NUMWAITINGJOBS): // 21
 		ret = strdup("EST_NUMWAITINGJOBS");
 	        break;
-		case(EST_USERDEFINED): // 22
+		case(EST_USERDEFINED): // 29
 		ret = strdup("EST_USERDEFINED");
 	        break;
 		/********* HAVE_ALT_BATCH ***********/
@@ -543,25 +547,25 @@ DietLogComponent::getEstimationTags(const int v_tag){
 	   with DIET specific batch system (numerous IDs depending on the
 	   scheduling strategy implemented in the SeD), oar, LL, etc.) */
 	case(EST_SERVER_TYPE):
-	  ret=strdup("EST_SERVER_TYPE") ;
+	  ret=strdup("EST_SERVER_TYPE") ; // 22
 	  break ;
 	/* Parallel resources information. Assumed a default queue */
-	case(EST_PARAL_NBTOT_RESOURCES):
+	case(EST_PARAL_NBTOT_RESOURCES): // 23
 	  ret=strdup("EST_PARAL_NB_RESOURCES") ;
 	  break ;
-	case(EST_PARAL_NBTOT_FREE_RESOURCES):
+	case(EST_PARAL_NBTOT_FREE_RESOURCES): // 24 
 	  ret=strdup("EST_PARAL_NB_FREE_RESOURCES") ;
 	  break ;
-	case(EST_PARAL_NB_RESOURCES_IN_DEFAULT_QUEUE):
+	case(EST_PARAL_NB_RESOURCES_IN_DEFAULT_QUEUE): // 25
 	  ret=strdup("EST_PARAL_NB_RESOURCES_IN_DEFAULT_QUEUE") ;
 	  break ;
-	case(EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE):
+	case(EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE): // 26
 	  ret=strdup("EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE") ;
 	  break ;
-	case(EST_PARAL_MAX_WALLTIME):
+	case(EST_PARAL_MAX_WALLTIME): // 27
 	  ret=strdup("EST_PARAL_MAX_WALLTIME") ;
 	  break ;
-	case(EST_PARAL_MAX_PROCS):
+	case(EST_PARAL_MAX_PROCS): // 28
 	  ret=strdup("EST_PARAL_MAX_PROCS") ;
 	  break ;
 	  /* !HAVE_ALT_BATCH */
@@ -1043,6 +1047,18 @@ DietLogComponent::logDagSubmit(wf_response_t* wf_response,
   sprintf(msg, "DAG_ID=%ld FIRST_REQID=%ld LAST_REQID=%ld TIME=%ld", wf_response->dag_id,wf_response->firstReqID,wf_response->lastReqID, ptime);
   
   log(tagNames[18], msg);
+  delete(msg);
 }
+/**
+ * Send dag identifier and workflow processing time in the MA
+ */
+void
+  DietLogComponent::logDag(char* msg) {
+  char* log_msg = (char*)malloc(strlen(msg)*sizeof(char)+1);
+  sprintf(log_msg,"%s",msg);	
+  log(tagNames[19], log_msg);
+  free(log_msg);
+}
+
 	       
 #endif // HAVE_WORKFLOW
