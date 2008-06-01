@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/06/01 15:50:59  rbolze
+ * less verbose
+ *
  * Revision 1.4  2008/06/01 14:06:58  rbolze
  * replace most ot the cout by adapted function from debug.cc
  * there are some left ...
@@ -323,7 +326,7 @@ CltWfMgr::ping() {
 char *
 CltWfMgr::release(const char * dag_id) {
     Dag * dag = getDag(dag_id);    
-    dag->showDietReqID();
+    //dag->showDietReqID();
     vector<diet_reqID_t> diet_request_ids = dag->getAllDietReqID();
     std::string message = string(dag_id);
     for (unsigned int ix=0; ix<diet_request_ids.size(); ix++){
@@ -331,7 +334,7 @@ CltWfMgr::release(const char * dag_id) {
 	    sprintf(str, "%ld", diet_request_ids[ix]);
 	    message +=";"+string(str);
    }
-    cout << "##"<< message << "# " << message.size()<< endl;
+   TRACE_TEXT(TRACE_ALL_STEPS,"release |"<< message << "| " << message.size()<< endl);
    char * ret = (char*)malloc(message.size()*sizeof(char)+1);
    sprintf(ret,"%s",message.c_str());
    this->mySem.post();

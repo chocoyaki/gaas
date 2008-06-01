@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2008/06/01 15:50:59  rbolze
+ * less verbose
+ *
  * Revision 1.6  2008/06/01 09:18:43  rbolze
  * remove myreqID attribute from the RunnableNode
  * add getReqID() method which return the reqID stored in the diet_profile_t
@@ -474,17 +477,15 @@ Dag::showDietReqID() {
 vector<diet_reqID_t>	
 Dag::getAllDietReqID() {
 	Node * dagNode = NULL;	
-	vector<diet_reqID_t> request_ids;
-	cout << "@@@@ BEGIN Dag::" <<__FUNCTION__  << "()" << endl;
-	cout << "dag_id =" << this->myId << endl;
+	vector<diet_reqID_t> request_ids;	
+	//cout << "dag_id =" << this->myId << endl;
 	for (map<string, Node *>::iterator p = nodes.begin();
 		    p != nodes.end();
 		    ++p) {
 			    dagNode = (Node*)p->second;
 			    request_ids.push_back(dagNode->getReqID());
-			    cout << "reqID ="<< dagNode->getReqID() << endl;    				
-		    }
-	cout << "@@@@ END Dag::" <<__FUNCTION__  << "()" << endl;
+			    //cout << "reqID ="<< dagNode->getReqID() << endl;		
+		    }	
 	return request_ids;
 }
 
@@ -852,7 +853,7 @@ Dag::get_all_results() {
 	      double * value = NULL;
 	      diet_scalar_get(diet_parameter(outp->profile(),outp->getIndex()),
 			      &value, NULL);
-	      TRACE_TEXT (TRACE_MAIN_STEPS,
+	      TRACE_TEXT (TRACE_ALL_STEPS,
 			  "## WORKFLOW OUTPUT ## " <<
 			  outp->getId() << " = " << *value << endl);
 	    }
@@ -860,7 +861,7 @@ Dag::get_all_results() {
 	      float * value = NULL;
 	      diet_scalar_get(diet_parameter(outp->profile(),outp->getIndex()),
 			      &value, NULL);
-	      TRACE_TEXT (TRACE_MAIN_STEPS,
+	      TRACE_TEXT (TRACE_ALL_STEPS,
 			  "## WORKFLOW OUTPUT ## " <<
 			  outp->getId() << " = " << *value << endl);
 	    }
@@ -872,7 +873,7 @@ Dag::get_all_results() {
 	      long * value = NULL;
 	      diet_scalar_get(diet_parameter(outp->profile(),outp->getIndex()),
 			      &value, NULL);
-	      TRACE_TEXT (TRACE_MAIN_STEPS,
+	      TRACE_TEXT (TRACE_ALL_STEPS,
 			  "## WORKFLOW OUTPUT ## " <<
 			  outp->getId() << " = " << *value << endl);
 	    }
@@ -885,7 +886,7 @@ Dag::get_all_results() {
 	    char * value;
 	    diet_string_get(diet_parameter(outp->profile(),outp->getIndex()),
 			    &value, NULL);
-	      TRACE_TEXT (TRACE_MAIN_STEPS,
+	    TRACE_TEXT (TRACE_ALL_STEPS,
 			  "## WORKFLOW OUTPUT ## " <<
 			  outp->getId() << " = " << value << endl);
 	  } // end if STRING
@@ -897,7 +898,7 @@ Dag::get_all_results() {
 	    char * path;
 	    diet_file_get(diet_parameter(outp->profile(),outp->getIndex()),
 			  NULL, &size, &path);
-	    TRACE_TEXT (TRACE_MAIN_STEPS,
+	    TRACE_TEXT (TRACE_ALL_STEPS,
 			"## WORKFLOW OUTPUT ## " <<
 			outp->getId() << " type = DIET_FILE, " <<
 			"File name = " << path << ", " <<
