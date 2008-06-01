@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2008/06/01 09:22:14  rbolze
+ * add getter to retrieve the dietLogComponent
+ *
  * Revision 1.9  2008/05/31 08:45:55  rbolze
  * add DietLogComponent to the maDagAgent
  *
@@ -235,6 +238,10 @@ void
 MaDag_impl::setCltMan(int wfReqId, CltMan_ptr cltMan) {
   this->cltMans[wfReqId] = cltMan;
 }
+DietLogComponent*
+MaDag_impl::getDietLogComponent(){
+	return this->dietLogComponent;
+}
 
 void 
 MaDag_impl::setupDietLogComponent(){
@@ -260,8 +267,7 @@ MaDag_impl::setupDietLogComponent(){
     if (*ULSptr) {
       useLS = true;
     }
-  }
-  free(ULSptr);
+  }  
 
   if (useLS) {
     // size_t --> unsigned int
@@ -272,8 +278,7 @@ MaDag_impl::setupDietLogComponent(){
     } else {
       outBufferSize = 0;
       WARNING("lsOutbuffersize not configured, using default");
-    }
-    free(OBSptr);
+    }   
     // size_t --> unsigned int
     FTptr = (unsigned int*)Parsers::Results::getParamValue(
   	       Parsers::Results::LSFLUSHINTERVAL);
@@ -283,7 +288,6 @@ MaDag_impl::setupDietLogComponent(){
       flushTime = 10000;
       WARNING("lsFlushinterval not configured, using default");
     }
-    free(FTptr);
   }
 
   if (useLS) {
@@ -307,8 +311,7 @@ MaDag_impl::setupDietLogComponent(){
       dietLogComponent = NULL; // this should not happen;
     }
     free(agtTypeName);
-    free(agtParentName);
-    free(agtName);
+    
   } else {
     TRACE_TEXT(TRACE_ALL_STEPS, "LogService disabled\n");
     this->dietLogComponent = NULL;

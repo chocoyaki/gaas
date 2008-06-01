@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2008/06/01 09:22:14  rbolze
+ * add getter to retrieve the dietLogComponent
+ *
  * Revision 1.9  2008/05/31 08:45:55  rbolze
  * add DietLogComponent to the maDagAgent
  *
@@ -151,6 +154,12 @@ public:
    * messages have to be sent.
    */
   DietLogComponent* dietLogComponent;
+  
+  /**
+   *  Get the DietLogComponent
+   */
+  DietLogComponent*
+      getDietLogComponent();
 protected:
   /**
    * set the client manager for a wf request
