@@ -5,6 +5,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.54  2008/06/01 15:49:20  rbolze
+ * update msg in stat_in stat_out fonction
+ * add info about the reqID (normaly thread safe)
+ *
  * Revision 1.53  2008/05/11 16:19:49  ycaniou
  * Check that pathToTmp and pathToNFS exist
  * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
@@ -443,12 +447,13 @@ AgentImpl::findServer(Request* req, size_t max_srv)
   size_t i; //, j, k;
   corba_response_t* resp;
   const corba_request_t& creq = *(req->getRequest());
-
+  char statMsg[128];
   TRACE_TEXT(TRACE_MAIN_STEPS,
       "\n**************************************************\n"
       << "Got request " << creq.reqID
       << " on problem " << creq.pb.path << endl);
-  stat_in(this->myName,"findServer");
+  sprintf(statMsg, "findServer %ld", (unsigned long) creq.reqID);
+  stat_in(this->myName,statMsg);
 
   /* Add the new request to the list */
   reqList[creq.reqID] = req;
@@ -636,7 +641,7 @@ AgentImpl::findServer(Request* req, size_t max_srv)
     }
   }
 
-  stat_out(this->myName,"findServer");
+  stat_out(this->myName,statMsg);
 
   return resp;
 } // findServer(Request* req)
@@ -651,7 +656,9 @@ AgentImpl::getResponse(const corba_response_t& resp)
 {
   TRACE_TEXT(TRACE_MAIN_STEPS, "Got a response from " << resp.myID
       <<"th child" << " to request " << resp.reqID << endl);
-  stat_in(this->myName,"getResponse");
+  char statMsg[128];
+  sprintf(statMsg, "getResponse %ld %ld", (unsigned long) resp.reqID,(long) resp.myID);
+  stat_in(this->myName,statMsg);
   /* The response should be copied in the logs */
   /* Look for the concerned request in the logs */
   Request* req = reqList[resp.reqID];
@@ -662,7 +669,7 @@ AgentImpl::getResponse(const corba_response_t& resp)
   } else {
     WARNING("response to unknown request");
   } // if (req)
-  stat_out(this->myName,"getResponse");
+  stat_out(this->myName,statMsg);  
 } // getResponse(const corba_response_t & resp)
 
 /**
@@ -692,7 +699,7 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req)
 /**
  * Send the request structure \c req to the child whose ID is \c childID.
  * Decremente \c nb_children contacted when error
- * A \c numero_child SeD strictly inférior to \c frontier must been submitted
+ * A \c numero_child SeD strictly infï¿½rior to \c frontier must been submitted
    with a request with a parallel flag equal to 1
 */
 void
@@ -704,13 +711,16 @@ AgentImpl::sendRequest(CORBA::ULong * children,
 #endif
 {
   bool childFound = false;
-  typedef size_t comm_failure_t;
+  typedef size_t comm_failure_t;   
 #ifdef HAVE_ALT_BATCH
+  
   CORBA::ULong childID = children[numero_child] ;
 #endif
-
+  char statMsg[128]; 
+  sprintf(statMsg, "sendRequest %ld %d", (unsigned long) req->reqID,(unsigned long)childID);
   AGT_TRACE_FUNCTION(childID << ", " << req->pb.path);
-  stat_in(this->myName,"sendRequest");
+  
+  stat_in(this->myName,statMsg);
   try {
     /* Is the child an agent ? */
     if (childID < static_cast<CORBA::ULong>(LAChildren.size())) {
@@ -807,7 +817,7 @@ AgentImpl::sendRequest(CORBA::ULong * children,
   } catch(...) {
     WARNING("exception thrown in Agt::" << __FUNCTION__);
   }
-  stat_out(this->myName,"sendRequest");
+  stat_out(this->myName,statMsg);
 } // sendRequest(CORBA::Long childID, const corba_request_t* req)
 
 /**
@@ -857,16 +867,18 @@ AgentImpl::getCommTime(CORBA::Long childID, unsigned long size, bool to)
 corba_response_t*
 AgentImpl::aggregate(Request* request, size_t max_srv)
 {
+  char statMsg[128];
   GlobalScheduler* GS = request->getScheduler();
   corba_response_t* aggregResp = new corba_response_t;
   aggregResp->reqID = request->getRequest()->reqID;
   AGT_TRACE_FUNCTION(request->getRequest()->pb.path << ", " <<
       request->getResponsesSize() << " responses, " << max_srv);
-  stat_in(this->myName,"aggregate");
+  sprintf(statMsg, "aggregate %ld", (unsigned long) request->getRequest()->reqID);
+  stat_in(this->myName,statMsg);
   GS->aggregate(aggregResp, max_srv,
       request->getResponsesSize(), request->getResponses());
 
-  stat_out(this->myName,"aggregate");
+  stat_out(this->myName,statMsg);
   return aggregResp;
 } // aggregate(Request* request, size_t max_srv)
 

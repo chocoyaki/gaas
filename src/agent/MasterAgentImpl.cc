@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.50  2008/06/01 15:49:20  rbolze
+ * update msg in stat_in stat_out fonction
+ * add info about the reqID (normaly thread safe)
+ *
  * Revision 1.49  2008/06/01 14:06:56  rbolze
  * replace most ot the cout by adapted function from debug.cc
  * there are some left ...
@@ -434,16 +438,17 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
 {
   corba_request_t   creq;
   corba_response_t* decision(NULL);
-
+  char statMsg[128];
   MA_TRACE_FUNCTION(pb_profile.path <<", " << maxServers);
 
   /* Initialize statistics module */
   stat_init();
-  stat_in(this->myName,"start request");
 
   try {
     /* Initialize the corba request structure */
     creq.reqID = reqIDCounter++; // thread safe
+    sprintf(statMsg, "start request %ld", (unsigned long) creq.reqID);
+    stat_in(this->myName,statMsg);
     creq.pb = pb_profile;
     creq.max_srv = maxServers ;
 #if HAVE_ALTPREDICT
@@ -502,7 +507,8 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
   
   TRACE_TEXT(TRACE_MAIN_STEPS,
 	     "**************************************************\n");
-  stat_out(this->myName,"stop request");
+  sprintf(statMsg, "stop request %ld", (unsigned long) creq.reqID);
+  stat_out(this->myName,statMsg);  
   stat_flush();
 
   return decision;
