@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/06/01 15:50:39  rbolze
+ * correct warning
+ *
  * Revision 1.1  2008/04/10 08:38:50  bisnard
  * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
  *
@@ -87,7 +90,7 @@ private:
   startThread(void* pVoid);
 
   void
-  PrintError(char* msg, int status, char* fileName, int lineNumber);
+  PrintError(string msg, int status, string fileName, int lineNumber);
 };
 
 

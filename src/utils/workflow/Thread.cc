@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/06/01 15:50:30  rbolze
+ * correct warning
+ *
  * Revision 1.1  2008/04/10 08:38:50  bisnard
  * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
  *
@@ -128,7 +131,7 @@ void
 Thread::setCompleted() {/* completion was handled by pthread_join() */}
 
 void
-Thread::PrintError(char* msg, int status, char* fileName, int lineNumber) {
+Thread::PrintError(std::string msg, int status, std::string fileName, int lineNumber) {
   std::cout << msg << ' ' << fileName << ":" << lineNumber
 	    << "- " << strerror(status) << std::endl;
 }
