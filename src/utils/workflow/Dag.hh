@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2008/06/02 08:35:39  bisnard
+ * Avoid MaDag crash in case of client-SeD comm failure
+ *
  * Revision 1.6  2008/06/01 09:18:43  rbolze
  * remove myreqID attribute from the RunnableNode
  * add getReqID() method which return the reqID stored in the diet_profile_t
@@ -109,14 +112,12 @@ public:
   std::map <std::string, Node *>::iterator
   begin();
 
-
   /**
    * return an iterator on the last node *
    * (according to the std::map and not to the dag structure) *
    */
   std::map <std::string, Node *>::iterator
   end();
-
 
   /**
    * link all ports of the dag
@@ -130,20 +131,11 @@ public:
   void
   linkNodePorts(Node * n);
 
-
   /**
-   * execute the workflow *
+   * check if the dag execution is ongoing
    */
-//   void
-//   exec();
-
-  /**
-   * Get the ready nodes
-   *
-   * @param readNodes Map that will contain the readyNodes
-   */
-//   void
-//   getReadyNodes(std::map<std::string, Node *>& readyNodes);
+  bool
+  isRunning();
 
   /**
    * check if the dag execution is completed *
@@ -152,12 +144,10 @@ public:
   isDone();
 
   /**
-   * set the workflow scheduling response *
-   *
-   * @param response sequence of results
+   * check if the dag execution is cancelled *
    */
-//   void
-//   setSchedResponse(wf_node_sched_seq_t * response);
+  bool
+  isCancelled();
 
   /**
    * get a scalar result of the workflow
@@ -216,31 +206,6 @@ public:
    */
   void
   deleteAllResults();
-
-  /**
-   * Tag the dag by level
-   * The input node will receive a tag equal to zero *
-   * so of the level 1 will have a tag equal to 1 and so on *
-   * the output nodes will have a tag equal to the length of the dag *
-   */
-//   void
-//   setTags();
-
-  /**
-   * Check the scheduling.
-   * Test if the completion time of node is greater to the predicted
-   * one
-   */
-//   bool
-//   checkScheduling();
-
-  /**
-   * set the beginning time of execution
-   *
-   * @param tv the begining time
-   */
-//   void
-//   setTheBeginning(struct timeval tv);
 
   /**
    * Move a node to the trash vector (called when rescheduling)
@@ -349,11 +314,18 @@ public:
   bool
   updateDelayRec(Node * node, double newDelay);
 
+  /**
+   * notify dag of node execution failure
+   */
+  void
+  setNodeFailure(std::string nodeId);
+
   void
   showDietReqID();
-  
-  vector<diet_reqID_t>	
+
+  vector<diet_reqID_t>
   getAllDietReqID();
+
 private:
   /*********************************************************************/
   /* private fields                                                    */
@@ -375,33 +347,6 @@ private:
   double estDelay;
 
   /**
-   * current node (not used) - OBSOLETE
-   */
-//   std::map <std::string, Node *>::iterator current_node;
-
-  /**
-   * Scheduling response - OBSOLETE
-   */
-//   wf_node_sched_seq_t * response;
-
-  /**
-   * Reordering parameter - OBSOLETE
-   */
-//   long int
-//   nbSec;
-
-  /**
-   * Reordering parameter - OBSOLETE
-   */
-//   unsigned long int
-//   nbNodes;
-
-  /**
-   * The time of execution beginning - OBSOLETE
-   */
-//   struct timeval beginning;
-
-  /**
    * Trash nodes vector
    */
   std::vector<Node *> trash;
@@ -410,6 +355,11 @@ private:
    * Temporary dag flag. Used to not delete the nodes of the dag
    */
   bool tmpDag;
+
+  /**
+   * Cancelled flag (used when a node execution fails)
+   */
+  bool cancelled;
 };
 
 

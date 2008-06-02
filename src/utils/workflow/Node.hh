@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2008/06/02 08:35:39  bisnard
+ * Avoid MaDag crash in case of client-SeD comm failure
+ *
  * Revision 1.7  2008/06/01 09:16:57  rbolze
  * remove myreqID attribute from the RunnableNode
  * add getReqID() method which return the reqID stored in the diet_profile_t
@@ -473,11 +476,23 @@ public:
   isDone();
 
   /**
+   * Test if the execution failed *
+   */
+  bool
+  hasFailed();
+
+  /**
    * Set the node status as done
    * @param compTime  timestamp of node completion
    */
   void
   setAsDone(double compTime);
+
+  /**
+   * Set the node status as failed
+   */
+  void
+  setAsFailed();
 
   /**
    * Return the node profile
@@ -584,10 +599,9 @@ protected:
   bool task_done;
 
   /**
-   * Node tag*
-   * indicates its level in the Dag *
+   * indicate if execution of the task failed *
    */
-  unsigned int myTag;
+  bool taskExecFailed;
 
 private:
   /*********************************************************************/
@@ -676,11 +690,6 @@ private:
    * Real completion time
    */
   double realCompTime;
-
-  /**
-   * the node mark (used for reordering)
-   */
-//   bool myMark;
 
   /*********************************************************************/
   /* private methods                                                   */

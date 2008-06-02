@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2008/06/02 08:35:39  bisnard
+ * Avoid MaDag crash in case of client-SeD comm failure
+ *
  * Revision 1.10  2008/06/01 14:06:56  rbolze
  * replace most ot the cout by adapted function from debug.cc
  * there are some left ...
@@ -148,7 +151,7 @@ void display(const corba_profile_t& pb) {
 } // end RunnableNode constructor*/
 RunnableNode::RunnableNode(Node * parent)
 	:Thread(false) {
-  this->myParent = parent;  
+  this->myParent = parent;
 } // end RunnableNode constructor
 
 /**
@@ -156,6 +159,7 @@ RunnableNode::RunnableNode(Node * parent)
  */
 void *
 RunnableNode::run() {
+  typedef size_t comm_failure_t;
   TRACE_TEXT (TRACE_ALL_STEPS,
 	      "RunnableNode tries to a execute a service "<< endl);
   // create the node diet profile
@@ -181,20 +185,35 @@ RunnableNode::run() {
   TRACE_TEXT (TRACE_ALL_STEPS, "Init ports data ... done " << endl);
 
 //  nodeIsRunning(myParent->getId().c_str());
-
-  if (!diet_call(myParent->profile)) {
-    TRACE_TEXT (TRACE_MAIN_STEPS, "diet_call DONE" << endl);
-    myParent->storePersistentData();
-    //cout << " dietReqID : " << myParent->profile->dietReqID << endl;
-    //this->myReqID=myParent->profile->dietReqID;
+  bool failed = false;
+  try {
+    try {
+      if (!diet_call(myParent->profile)) {
+        TRACE_TEXT (TRACE_MAIN_STEPS, "diet_call DONE" << endl);
+        myParent->storePersistentData();
+        //cout << " dietReqID : " << myParent->profile->dietReqID << endl;
+        //this->myReqID=myParent->profile->dietReqID;
+      }
+      else {
+        TRACE_TEXT (TRACE_MAIN_STEPS, "diet_call FAILED" << endl);
+        failed = true;
+      }
+    } catch (CORBA::COMM_FAILURE& e) {
+      throw (comm_failure_t)1;
+    } catch (CORBA::TRANSIENT& e) {
+      throw (comm_failure_t)1;
+    }
+  } catch (comm_failure_t& e) {
+    if (e == 0 || e == 1) {
+      WARNING("Connection problems with SeD occured - node exec cancelled");
+      failed = true;
+    }
   }
-  else {
-    TRACE_TEXT (TRACE_MAIN_STEPS, "diet_call FAILED" << endl);
-    // TODO : manage diet_call failure
-  }
 
-  TRACE_TEXT (TRACE_ALL_STEPS, "RunnableNode call ... done" << endl);    
-  myParent->done();
+  TRACE_TEXT (TRACE_ALL_STEPS, "RunnableNode call ... done" << endl);
+  if (!failed)  myParent->done();
+  else          myParent->setAsFailed();
+
   return NULL;
 } // end RunnableNode::run
 
@@ -209,10 +228,10 @@ Node::Node(int wfReqId, string id, string pb_name,
   this->myPb = pb_name;
   this->prevNodes = 0;
   this->task_done = false;
-  this->myTag = 0;
   this->profile = diet_profile_alloc((char*)pb_name.c_str(),
 				     last_in, last_inout, last_out);
   this->node_running = false;
+  this->taskExecFailed = false;
   this->myRunnableNode = NULL;
   this->chosenServer = SeD::_nil();
   this->nextDone = 0;
@@ -734,8 +753,12 @@ Node::getPriority() {
   return this->priority;
 } // end getPriority
 
+/****************************************************************************/
+/*                           Node state                                     */
+/****************************************************************************/
+
 /**
- * test if the node is ready for execution *
+ * test if the node is ready for execution (Madag side)
  * (check the counter of dependencies)
  */
 bool
@@ -744,7 +767,7 @@ Node::isReady() {
 } // end isReady
 
 /**
- * set the node as ready for execution
+ * set the node as ready for execution (Madag side)
  * (Notifies the nodequeue if available)
  */
 void
@@ -757,7 +780,7 @@ Node::setAsReady() {
 }
 
 /**
- * test if the node is running *
+ * test if the node is running (Madag side)
  */
 bool
 Node::isRunning() {
@@ -765,7 +788,7 @@ Node::isRunning() {
 } // end isRunning
 
 /**
- * Set node status as running *
+ * Set node status as running (Madag side)
  */
 void
 Node::setAsRunning() {
@@ -773,7 +796,7 @@ Node::setAsRunning() {
 } // end isRunning
 
 /**
- * test if the execution is done *
+ * test if the execution is done (MaDag side)
  * (still used by HEFTscheduler to rank nodes)
  */
 bool
@@ -782,12 +805,13 @@ Node::isDone() {
 } // end isDone
 
 /**
- * Set the node status as done
+ * Set the node status as done (MaDag side)
  */
 void
 Node::setAsDone(double compTime) {
   // update node scheduling info
-  this->task_done = true;
+  task_done = true;
+  node_running = false;
   this->setRealCompTime(compTime);
   // notify the successors
   Node * n;
@@ -800,7 +824,7 @@ Node::setAsDone(double compTime) {
 } // end setAsDone
 
 /**
- * Called when a previous node execution is done *
+ * Called when a previous node execution is done (MaDag side)
  */
 void Node::prevNodeHasDone() {
   prevNodes++;
@@ -810,22 +834,27 @@ void Node::prevNodeHasDone() {
 } // end prevDone
 
 /**
- * get if the node is ready for execution
- * @deprecated
- * this method loops through all the predecessors of the node to check if they
- * are all done
- * @return bool
+ * called when the node execution failed (MaDag & client side) *
+ */
+void
+Node::setAsFailed() {
+  this->getDag()->setNodeFailure(this->getId());
+  taskExecFailed =  true;
+  task_done = true;
+  node_running = false;
+}
+
+/**
+ * test if the execution failed (client side)
  */
 bool
-Node::allPrevDone() {
-  for (map <string, Node*>::iterator p = this->myPrevNodes.begin();
-       p != this->myPrevNodes.end();
-       p++) {
-    if (!p->second->isDone())
-      return false;
-  }
-  return true;
-} // end allPrevDone
+Node::hasFailed() {
+  return taskExecFailed;
+}
+
+/****************************************************************************/
+/*                        Node mapping to SeD                               */
+/****************************************************************************/
 
 /**
  * set the SeD reference to the node *
@@ -845,6 +874,10 @@ SeD_var
 Node::getSeD() {
   return this->chosenServer;
 } // end getSeD
+
+/****************************************************************************/
+/*                           Timestamps (MaDag)                             */
+/****************************************************************************/
 
 /**
  * set the estimated completion time
@@ -1420,32 +1453,33 @@ void Node::start(bool join) {
 //   AbstractWfSched::pop(this->myId);
   if (join)
     this->myRunnableNode->join();
-  TRACE_TEXT (TRACE_ALL_STEPS, "The node " << myId << " joined its RunnableNode" << endl);  
-  } // end start
+  TRACE_TEXT (TRACE_ALL_STEPS, "The node " << myId << " joined its RunnableNode" << endl);
+} // end start
+
 
 /**
- * called when the node execution is done *
+ * called when the node execution is done (client side) *
  */
 void
 Node::done() {
-  TRACE_TEXT (TRACE_ALL_STEPS,
-	      "calling the " << myPrevNodes.size() << " previous nodes" << endl);
-  Node * n = NULL;
-  for (map<string, Node*>::iterator p = myPrevNodes.begin();
-       p != myPrevNodes.end();
-       ++p) {
-    n = (Node *)(p->second);
-    if (n) {
-      n->nextIsDone();
-    }
-  }
-  task_done = true;
-  node_running = false;
+//   TRACE_TEXT (TRACE_ALL_STEPS,
+// 	      "calling the " << myPrevNodes.size() << " previous nodes" << endl);
+//   Node * n = NULL;
+//   for (map<string, Node*>::iterator p = myPrevNodes.begin();
+//        p != myPrevNodes.end();
+//        ++p) {
+//     n = (Node *)(p->second);
+//     if (n) {
+//       n->nextIsDone();
+//     }
+//   }
+     task_done = true;
+     node_running = false;
 } // end done
 
 diet_reqID_t
 Node::getReqID(){
-	//cout << "Node::" <<__FUNCTION__ << "()"<< endl;			
+	//cout << "Node::" <<__FUNCTION__ << "()"<< endl;
 	if(this->isDone())
 		return this->getProfile()->dietReqID;
 	return -1;

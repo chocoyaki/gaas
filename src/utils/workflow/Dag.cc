@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2008/06/02 08:35:39  bisnard
+ * Avoid MaDag crash in case of client-SeD comm failure
+ *
  * Revision 1.7  2008/06/01 15:50:59  rbolze
  * less verbose
  *
@@ -135,6 +138,7 @@ Dag::Dag() {
 //   this->nbNodes = 1;
   this->tmpDag  = false;
   this->estDelay = 0;
+  this->cancelled = false;
 }
 
 Dag::~Dag() {
@@ -423,39 +427,16 @@ Dag::linkNodePorts(Node * n) {
   // link inout ports with ... <TO DO>
 }
 
-/**
- * execute the workflow *
- * @deprecated
- */
-// void
-// Dag::exec() {
-// }
-
-/**
- * Get the ready nodes *
- * @deprecated
- */
-// void
-// Dag::getReadyNodes(map<string, Node *>& readyNodes) {
-//   for (map <string, Node *>::iterator p = nodes.begin();
-//        p != nodes.end();
-//        ++p) {
-//     Node * n = (Node *)p->second;
-//     if ((n) && !(n->isRunning()) && !(n->isDone()) && (n->isReady())) {
-//       readyNodes[n->getId()] = n;
-//     }
-//   }
-// } // end getReadyNodes
 
 /**
  * printDietReqID the dag execution is completed
  *
  * this methods loops through all the nodes of the dag and getReqID of each node
- * @return reqID[] 
+ * @return reqID[]
  */
 void
 Dag::showDietReqID() {
-  Node * dagNode = NULL;    
+  Node * dagNode = NULL;
   cout << "@@@@ BEGIN Dag::" <<__FUNCTION__  << "()" << endl;
   cout << "dag_id =" << this->myId << endl;
   for (map<string, Node *>::iterator p = nodes.begin();
@@ -464,7 +445,7 @@ Dag::showDietReqID() {
     dagNode = (Node*)p->second;
     //if ((dagNode) && !(dagNode->isDone()))
     cout << " dagNode->getPb() = "  << dagNode->getPb() <<endl;
-    cout << " dagNode->getProfile()->dietReqID =" << dagNode->getProfile()->dietReqID << endl;    
+    cout << " dagNode->getProfile()->dietReqID =" << dagNode->getProfile()->dietReqID << endl;
   }
   cout << "@@@@ END Dag::" <<__FUNCTION__  << "()" << endl;
 }
@@ -472,20 +453,20 @@ Dag::showDietReqID() {
  * printDietReqID the dag execution is completed
  *
  * this methods loops through all the nodes of the dag and getReqID of each node
- * @return diet_reqID_t[] 
+ * @return diet_reqID_t[]
  */
-vector<diet_reqID_t>	
+vector<diet_reqID_t>
 Dag::getAllDietReqID() {
-	Node * dagNode = NULL;	
-	vector<diet_reqID_t> request_ids;	
+	Node * dagNode = NULL;
+	vector<diet_reqID_t> request_ids;
 	//cout << "dag_id =" << this->myId << endl;
 	for (map<string, Node *>::iterator p = nodes.begin();
 		    p != nodes.end();
 		    ++p) {
 			    dagNode = (Node*)p->second;
 			    request_ids.push_back(dagNode->getReqID());
-			    //cout << "reqID ="<< dagNode->getReqID() << endl;		
-		    }	
+			    //cout << "reqID ="<< dagNode->getReqID() << endl;
+		    }
 	return request_ids;
 }
 
@@ -502,49 +483,30 @@ Dag::isDone() {
 		    return true;
 		}
 /**
- * set the workflow scheduling response *
- * @deprecated
+ * check if the dag execution is ongoing
+ * (checks all nodes status and returns true if at least one node is running)
  */
-// void
-// Dag::setSchedResponse(wf_node_sched_seq_t * response) {
-//   this->response = response;
-//
-//   if (response->length() != nodes.size()) {
-//     TRACE_TEXT (TRACE_ALL_STEPS,
-// 		"the scheduling response length is different from dag length "
-// 		<< endl);
-//   }
-//
-//   for (unsigned int ix=0;
-//        ix < response->length();
-//        ix++) {
-//     string nid((*response)[ix].node_id);
-//     map <string, Node *>::iterator p =
-//       nodes.find(nid);
-//     if (p != nodes.end()) {
-//       TRACE_TEXT (TRACE_ALL_STEPS,
-// 		  "The nodes " << ((Node*)(p->second))->getId() <<
-// 		  " is mapped to a SeD"  << endl);
-//       ((Node*)(p->second))->setSeD((*response)[ix].server.loc.ior, "");
-//     }
-//     else {
-//       // Try with complete id
-//       nid = nid.substr(nid.find("-")+1);
-//       p = nodes.find(nid);
-//       if (p != nodes.end()) {
-//         TRACE_TEXT (TRACE_ALL_STEPS,
-//                     "The nodes " << ((Node*)(p->second))->getId() <<
-//                     " is mapped to a SeD"  << endl);
-//         ((Node*)(p->second))->setSeD((*response)[ix].server.loc.ior,
-//                                      "");
-//       }
-//       else {
-//         cout << " *** " << nid << " not found!!!" <<endl;
-//       }
-//     }
-//   }
-// }
+bool
+Dag::isRunning() {
+  Node * dagNode = NULL;
+  for (map<string, Node *>::iterator p = nodes.begin();
+       p != nodes.end();
+       ++p) {
+    dagNode = (Node*)p->second;
+    if ((dagNode) && (dagNode->isRunning())) {
+      return true;
+    }
+  }
+  return false;
+}
 
+/**
+ * check if the dag execution is cancelled *
+ */
+bool
+Dag::isCancelled() {
+  return cancelled;
+}
 
 /**
  * Get a scalar result of the workflow *
@@ -678,71 +640,6 @@ _matrix_get(diet_arg_t* arg, void** value, diet_persistence_mode_t* mode,
   }
   return 1;
 } // end get_matrix_output
-
-/**
- * tag the dag *
- * the input node will receive a tag equal to zero *
- * so of the level 1 will have a tag equal to 1 and so on *
- * the output nodes will have a tag equal to the length of the dag *
- */
-// void
-// Dag::setTags() {
-//   Node * n = NULL;
-//   for (map<string, Node*>::iterator p = nodes.begin();
-//        p != nodes.end();
-//        ++p) {
-//     n = (Node *)(p->second);
-//     if (n != NULL) {
-//       if (n->isAnInput()) {
-// 	n->setTag(0);
-//       }
-//     }
-//   }
-// }
-
-/**
- * check the scheduling
- */
-// bool
-// Dag::checkScheduling() {
-//   Node * n = NULL;
-//   vector<Node*> nodes_with_pb;
-//   //  cout << "The DAG checks the schedling" << endl;
-//   for (map<string, Node *>::iterator p = nodes.begin();
-//        p != nodes.end();
-//        ++p) {
-//     n = (Node *)(p->second);
-//     if ((n != NULL) && (n->isDone()) && (!n->getMark())) {
-//       if (
-// 	  (WfCst::diff(n->getRealCompTime(), this->beginning,
-// 		       n->getEstCompTime())>this->nbSec)
-// 	  ) {
-// 	nodes_with_pb.push_back(n);
-//       }
-//     }
-//   }
-//   if (nodes_with_pb.size()>0)
-//     TRACE_TEXT (TRACE_ALL_STEPS,
-// 		nodes_with_pb.size() << " node(s) out of predicted time" <<endl);
-//
-//   if (nodes_with_pb.size() >= this->nbNodes) {
-//     for (unsigned int ix=0; ix<nodes_with_pb.size(); ix++)
-//       nodes_with_pb[ix]->setMark(true);
-//     return false;
-//   }
-//   return true;
-// }
-
-/**
- * set the beginning time of execution
- */
-// void
-// Dag::setTheBeginning(struct timeval tv) {
-//   this->beginning = tv;
-//   TRACE_TEXT (TRACE_ALL_STEPS,
-// 	      "---- The beginning time is " << this->beginning.tv_sec <<
-// 	      endl);
-// }
 
 /**
  * Move a node to the trash vector (called when rescheduling)
@@ -1169,6 +1066,15 @@ Dag::updateDelayRec(Node * node, double newDelay) {
   } else if (newDelay == 0)  return true;
   else return false;  // input is incorrect
 }
+
+/**
+ * notify the dag of node execution failure (CLIENT-SIDE)
+ */
+void
+Dag::setNodeFailure(string nodeId) {
+  this->cancelled = true;
+}
+
 
 /**
  * Compare two profiles

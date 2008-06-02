@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2008/06/02 08:35:39  bisnard
+ * Avoid MaDag crash in case of client-SeD comm failure
+ *
  * Revision 1.12  2008/06/01 14:06:57  rbolze
  * replace most ot the cout by adapted function from debug.cc
  * there are some left ...
@@ -78,7 +81,7 @@ long MultiWfScheduler::interNodeDelay = 200; // in milliseconds
 /*                         PUBLIC METHODS                                   */
 /****************************************************************************/
 
-MultiWfScheduler::MultiWfScheduler(MaDag_impl* maDag) : mySem(1), myMaDag(maDag) {
+MultiWfScheduler::MultiWfScheduler(MaDag_impl* maDag) : mySem(0), myMaDag(maDag) {
   this->mySched   = new HEFTScheduler();
   this->execQueue = NULL; // must be initialized in derived class constructor
   // init reference time
@@ -157,6 +160,7 @@ MultiWfScheduler::scheduleNewDag(const corba_wf_desc_t& wf_desc, int wfReqId,
 void*
 MultiWfScheduler::run() {
   int nodeCount = 0;
+  TRACE_TEXT(TRACE_MAIN_STEPS,"MultiWfBasicScheduler is running" << endl);
   while (true) {
     TRACE_TEXT(TRACE_MAIN_STEPS,"\t ** Starting Multi-Workflow scheduler" << endl);
     this->myLock.lock();
@@ -215,8 +219,10 @@ MultiWfScheduler::run() {
       TRACE_TEXT(TRACE_ALL_STEPS,"No ready nodes" << endl);
       this->mySem.wait();
       if (this->termNode) {
+        TRACE_TEXT(TRACE_ALL_STEPS,"Joining RunNode thread" << endl);
         this->termNodeThread->join();
         delete this->termNodeThread;
+        this->termNode = false;
       }
     }
   }
@@ -409,39 +415,60 @@ NodeRun::run() {
         << endl);
     myCltMan->ping();
 
+    // NODE EXECUTION
+
     TRACE_TEXT (TRACE_ALL_STEPS, "NodeRun: try to call client manager ");
+    CORBA::Long res;
     if (!CORBA::is_nil(this->mySeD)) {
       TRACE_TEXT (TRACE_ALL_STEPS, "(exec on sed)" << endl);
-      myCltMan->execNodeOnSed(this->myNode->getId().c_str(),
+      res = myCltMan->execNodeOnSed(this->myNode->getId().c_str(),
                               this->myNode->getDag()->getId().c_str(),
                                   this->mySeD);
     } else {
       TRACE_TEXT (TRACE_ALL_STEPS, "(exec without sed)" << endl);
-      myCltMan->execNode(this->myNode->getId().c_str(),
+      res = myCltMan->execNode(this->myNode->getId().c_str(),
                          this->myNode->getDag()->getId().c_str());
     }
-    TRACE_TEXT (TRACE_ALL_STEPS, "NodeRun: node is done" << endl);
-    // update node status (must be called before handlerNodeDone to update realCompTime)
-    this->myNode->setAsDone(this->myScheduler->getRelCurrTime());
-    // inform scheduler that node is done (depending on the scheduler, this may trigger
-    //  a recursive update of the realCompTime in other nodes)
-    this->myScheduler->handlerNodeDone(myNode);
+
+    // POST-PROCESSING
+
+    if (res == 0) {
+      TRACE_TEXT (TRACE_ALL_STEPS, "NodeRun: node " << this->myNode->getCompleteId()
+          << " is done" << endl);
+      // update node status (must be called before handlerNodeDone to update realCompTime)
+      this->myNode->setAsDone(this->myScheduler->getRelCurrTime());
+      // inform scheduler that node is done (depending on the scheduler, this may trigger
+      //  a recursive update of the realCompTime in other nodes)
+      this->myScheduler->handlerNodeDone(myNode);
+
       // check if dag is completed and release client if yes
-    if ((this->myNode->getDag() != NULL) &&
-         (this->myNode->getDag()->isDone())
-       ) {
+      if ((this->myNode->getDag() != NULL) &&
+         (this->myNode->getDag()->isDone())) {
       	//this->myNode->getDag()->showDietReqID();
 	char* message = myCltMan->release(this->myNode->getDag()->getId().c_str());
 	TRACE_TEXT (TRACE_ALL_STEPS," message : "<< message << endl);
 	if (this->myScheduler->getMaDag()->dietLogComponent != NULL) {
 		this->myScheduler->getMaDag()->dietLogComponent->logDag(message);
-	}	
+	}
 	TRACE_TEXT (TRACE_ALL_STEPS,"############### dag_id="<< this->myNode->getDag()->getId().c_str()
 			 <<" is done ################"<<endl);
-    	}
+      }
+    } else {
+      TRACE_TEXT (TRACE_ALL_STEPS, "NodeRun: node execution failed! " << endl
+                    << " ==> Cancelling DAG execution" << endl);
+      this->myNode->setAsFailed(); // set the dag as cancelled
+    }
+
+    // Manage dag termination if a node failed
+    if (this->myNode->getDag()->isCancelled() && !this->myNode->getDag()->isRunning()) {
+      TRACE_TEXT (TRACE_ALL_STEPS, "NodeRun: DAG "
+          << this->myNode->getDag()->getId().c_str() << " IS CANCELLED!" << endl);
+      char* message = myCltMan->release(this->myNode->getDag()->getId().c_str());
+    }
   }
   else {
        TRACE_TEXT (TRACE_ALL_STEPS,"NodeRun: ERROR!! cannot contact the Client Wf Mgr" << endl);
   }
+  fflush(stdout);
   this->myScheduler->wakeUp(this);
 }

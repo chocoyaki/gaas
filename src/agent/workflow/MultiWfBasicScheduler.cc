@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2008/06/02 08:35:39  bisnard
+ * Avoid MaDag crash in case of client-SeD comm failure
+ *
  * Revision 1.8  2008/06/01 14:06:57  rbolze
  * replace most ot the cout by adapted function from debug.cc
  * there are some left ...
@@ -63,6 +66,7 @@ MultiWfBasicScheduler::~MultiWfBasicScheduler() {
  */
 void*
 MultiWfBasicScheduler::run() {
+  TRACE_TEXT(TRACE_MAIN_STEPS,"MultiWfBasicScheduler is running" << endl);
   int nodeCount = 0;
   while (true) {
     TRACE_TEXT(TRACE_MAIN_STEPS,"\t ** Starting MultiWfBasicScheduler" << endl);
@@ -102,6 +106,7 @@ MultiWfBasicScheduler::run() {
       if (this->termNode) {
         this->termNodeThread->join();
         delete this->termNodeThread;
+        this->termNode = false;
       }
     }
   }
