@@ -6,8 +6,12 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/* $Id$ 
+/* $Id$
  * $Log$
+ * Revision 1.4  2008/06/02 08:34:23  bisnard
+ * Execute method (for wf node) now returns an error code in case of
+ * communication failure with the SeD
+ *
  * Revision 1.3  2008/06/01 09:20:37  rbolze
  * the remote method release now return a string which contains
  * feedback on the dag execution
@@ -27,17 +31,17 @@
 #include "SeD.idl"
 
 interface CltMan {
-  void
+  long
   execNodeOnSed(in string node_id, in string dag_id,
 	  in SeD sed_ref);
 
-  void
+  long
   execNode(in string node_id, in string dag_id);
 
   string
   release(in string dag_id);
 
-  void 
+  void
   ping();
 };
 

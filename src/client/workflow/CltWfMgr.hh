@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/06/02 08:34:20  bisnard
+ * Execute method (for wf node) now returns an error code in case of
+ * communication failure with the SeD
+ *
  * Revision 1.3  2008/06/01 09:20:37  rbolze
  * the remote method release now return a string which contains
  * feedback on the dag execution
@@ -71,7 +75,7 @@ public:
    * @param dag_id  dag identifier
    * @param sed     SeD where execute service
    */
-  virtual void
+  virtual CORBA::Long
   execNodeOnSed(const char * node_id, const char * dag_id, _objref_SeD* sed);
 
   /**
@@ -80,7 +84,7 @@ public:
    * @param node_id node identifier
    * @param dag_id  dag identifier
    */
-  virtual void
+  virtual CORBA::Long
   execNode(const char * node_id, const char * dag_id);
 
   /**

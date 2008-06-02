@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/06/02 08:34:20  bisnard
+ * Execute method (for wf node) now returns an error code in case of
+ * communication failure with the SeD
+ *
  * Revision 1.5  2008/06/01 15:50:59  rbolze
  * less verbose
  *
@@ -64,7 +68,7 @@ using namespace std;
 // Initialisation of static member myInstance
 CltWfMgr * CltWfMgr::myInstance = NULL;
 
-void
+CORBA::Long
 CltWfMgr::execNodeOnSed(const char * node_id, const char * dag_id,
                   _objref_SeD* sed) {
   Dag * dag = this->getDag(dag_id);
@@ -74,28 +78,31 @@ CltWfMgr::execNodeOnSed(const char * node_id, const char * dag_id,
       SeD_var sed_var = SeD::_narrow(sed);
       node->setSeD(sed_var, "");
       node->start(true);
+      if (!node->hasFailed()) return 0;
     }
     else
-      cerr << "Node " << node_id << " not fount!!!!" << endl;
+      cerr << "Node " << node_id << " not found!!!!" << endl;
   }
   else
      TRACE_TEXT (TRACE_MAIN_STEPS,"  Dag " << dag_id << " not found!" << endl);
-  sed->ping();
+  return 1;
 } // end execNodeOnSed
 
-void
+CORBA::Long
 CltWfMgr::execNode(const char * node_id, const char * dag_id) {
   Dag * dag = this->getDag(dag_id);
   if (dag != NULL) {
     Node * node = dag->getNode(node_id);
     if (node != NULL) {
       node->start(true);
+      if (!node->hasFailed()) return 0;
     }
     else
-      cerr << "Node " << node_id << " not fount!!!!" << endl;
+      cerr << "Node " << node_id << " not found!!!!" << endl;
   }
   else
      TRACE_TEXT (TRACE_MAIN_STEPS,"  Dag " << dag_id << " not found!" << endl);
+  return 1;
 } // end execNode
 
 
@@ -325,7 +332,7 @@ CltWfMgr::ping() {
  */
 char *
 CltWfMgr::release(const char * dag_id) {
-    Dag * dag = getDag(dag_id);    
+    Dag * dag = getDag(dag_id);
     //dag->showDietReqID();
     vector<diet_reqID_t> diet_request_ids = dag->getAllDietReqID();
     std::string message = string(dag_id);
