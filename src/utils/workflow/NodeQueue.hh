@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/06/03 12:18:12  bisnard
+ * Get iterator on ordered queue
+ *
  * Revision 1.2  2008/04/28 12:15:00  bisnard
  * new NodeQueue implementation for FOFT
  * nodes sorting done by Dag instead of scheduler
@@ -70,8 +73,6 @@ class NodeQueue {
     // counter of nodes inserted in the queue (for queue destruction)
     int nodeCounter;
 
-    // this list contains all the ready nodes
-    list<Node *> rNodes;
 
   private:
 
@@ -121,8 +122,17 @@ class OrderedNodeQueue : public NodeQueue {
     bool
         notifyStateChange(Node * node); // do nothing
 
+/*    virtual Node *
+        getFirstNode(); // returns a ref to the first node in the queue (or NULL)
+ */
     virtual Node *
         popFirstNode(); // pop out the first node from the nodes queue
+
+    std::list<Node *>::iterator
+        begin();        // get an iterator on the list of nodes
+
+    std::list<Node *>::iterator
+        end();
 
   protected:
     /**

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/06/03 12:18:12  bisnard
+ * Get iterator on ordered queue
+ *
  * Revision 1.2  2008/04/28 12:15:00  bisnard
  * new NodeQueue implementation for FOFT
  * nodes sorting done by Dag instead of scheduler
@@ -95,6 +98,14 @@ OrderedNodeQueue::pushNode(Node * node) {
   this->nodeCounter++;
 }
 
+// Node *
+// OrderedNodeQueue::getFirstNode() {
+//   if (!orderedNodes.empty())
+//     return orderedNodes.front();
+//   else
+//     return NULL;
+// }
+
 Node *
 OrderedNodeQueue::popFirstNode() {
   if (!orderedNodes.empty()) {
@@ -114,6 +125,16 @@ OrderedNodeQueue::notifyStateChange(Node * node) {
   return true;
 }
 
+std::list<Node *>::iterator
+OrderedNodeQueue::begin() {
+  return orderedNodes.begin();
+}
+
+std::list<Node *>::iterator
+OrderedNodeQueue::end() {
+  return orderedNodes.end();
+}
+
 /****************************************************************************/
 /*                PriorityNodeQueue - PUBLIC METHODS                        */
 /****************************************************************************/
@@ -129,7 +150,7 @@ PriorityNodeQueue::pushNode(Node * insNode) {
   double insNodePrio = insNode->getPriority();
   std::list<Node*>::iterator  nodeIter = orderedNodes.begin();
   Node *                      curNode   = NULL;
-  while ((nodeIter != rNodes.end())
+  while ((nodeIter != orderedNodes.end())
           && (curNode != NULL)
           && (curNode->getPriority() >= insNodePrio)) {
     curNode = (Node *) *nodeIter;
@@ -148,4 +169,3 @@ PriorityNodeQueue::pushNode(Node * insNode) {
       "Node " << insNode->getCompleteId() << " inserted first in queue" << endl);
   }
 }
-
