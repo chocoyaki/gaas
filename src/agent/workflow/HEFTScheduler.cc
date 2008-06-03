@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/06/03 15:32:59  bisnard
+ * Modify rank calculation
+ *
  * Revision 1.5  2008/05/05 13:54:17  bisnard
  * new computation time estimation get/set functions
  *
@@ -199,13 +202,17 @@ void
 HEFTScheduler::rank(Node * n) {  // RECURSIVE
   Node * succ = NULL;
   unsigned len = n->nextNodesCount();
-  // LOOP for all descendant nodes of n
-  for (unsigned int ix=0; ix<len; ix++) {
-    succ = (Node*)(n->getNext(ix));
-    // add WI of current node and priority of descendant node and compare it to
-    // priority of current node: if higher then change priority of current node
-    if ((succ->getPriority() + WI[n->getCompleteId()]) > n->getPriority()) {
-      n->setPriority(succ->getPriority() + WI[n->getCompleteId()]);
+  if (len == 0) { // exit node
+    n->setPriority(WI[n->getCompleteId()]);
+  } else {
+    // LOOP for all descendant nodes of n
+    for (unsigned int ix=0; ix<len; ix++) {
+      succ = (Node*)(n->getNext(ix));
+      // add WI of current node and priority of descendant node and compare it to
+      // priority of current node: if higher then change priority of current node
+      if ((succ->getPriority() + WI[n->getCompleteId()]) > n->getPriority()) {
+        n->setPriority(succ->getPriority() + WI[n->getCompleteId()]);
+      }
     }
   }
   TRACE_TEXT (TRACE_ALL_STEPS, " HEFT : priority of node " << n->getCompleteId()
