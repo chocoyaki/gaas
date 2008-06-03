@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2008/06/03 12:14:29  bisnard
+ * New lastQueue attribute to allow node go back to prev queue
+ *
  * Revision 1.11  2008/06/02 08:35:39  bisnard
  * Avoid MaDag crash in case of client-SeD comm failure
  *
@@ -381,6 +384,22 @@ int Node::getWfReqId() {
  */
 void Node::setNodeQueue(NodeQueue * nodeQ) {
   this->myQueue = nodeQ;
+}
+
+/**
+  * set the ref to the last nodeQueue occupied by the node
+  */
+void
+Node::setLastQueue(NodeQueue * queue) {
+  this->lastQueue = queue;
+}
+
+/**
+ * get the ref to the last nodeQueue occupied by the node
+ */
+NodeQueue *
+Node::getLastQueue() {
+  return this->lastQueue;
 }
 
 /**

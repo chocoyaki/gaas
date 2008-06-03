@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2008/06/03 12:14:29  bisnard
+ * New lastQueue attribute to allow node go back to prev queue
+ *
  * Revision 1.8  2008/06/02 08:35:39  bisnard
  * Avoid MaDag crash in case of client-SeD comm failure
  *
@@ -81,7 +84,7 @@ public:
   /*RunnableNode(Node * parent,
 	       diet_reqID_t reqID);*/
   RunnableNode(Node * parent);
-  
+
 private:
   /**
    * Node reference
@@ -550,13 +553,25 @@ public:
    */
   void
   freeProfileAndData();
-  
+
   /**
    * return the reqID of the node
    */
-  diet_reqID_t 
+  diet_reqID_t
   getReqID();
-  
+
+  /**
+   * set the ref to the last nodeQueue occupied by the node
+   */
+  void
+  setLastQueue(NodeQueue * queue);
+
+  /**
+   * get the ref to the last nodeQueue occupied by the node
+   */
+  NodeQueue *
+  getLastQueue();
+
 protected:
   /*********************************************************************/
   /* protected fields                                                  */
@@ -577,6 +592,11 @@ protected:
    * NodeQueue ref (used to notify NodeQueue when state changes)
    */
   NodeQueue * myQueue;
+
+  /**
+   * NodeQueue ref (used to go back in the previous queue)
+   */
+  NodeQueue * lastQueue;
 
   /**
    * The previous nods map<id, reference> *
