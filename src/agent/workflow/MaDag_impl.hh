@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2008/06/03 12:19:36  bisnard
+ * Method to get MA ref
+ *
  * Revision 1.10  2008/06/01 09:22:14  rbolze
  * add getter to retrieve the dietLogComponent
  *
@@ -150,16 +153,23 @@ public:
       ping();
    /**
    * Ptr to the DietLogComponent. This ptr can be NULL, so it has to
-   * be checked every time it is used. If it is NULL, no monitoring 
+   * be checked every time it is used. If it is NULL, no monitoring
    * messages have to be sent.
    */
   DietLogComponent* dietLogComponent;
-  
+
   /**
    *  Get the DietLogComponent
    */
   DietLogComponent*
       getDietLogComponent();
+
+  /**
+   * Get the MA
+   */
+  MasterAgent_var
+      getMA() const;
+
 protected:
   /**
    * set the client manager for a wf request
@@ -203,7 +213,7 @@ private:
    * Dag identifier counter
    */
   CORBA::Long wfReqIdCounter;
- 
+
 };
 
 

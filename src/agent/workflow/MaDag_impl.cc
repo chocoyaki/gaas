@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2008/06/03 12:19:36  bisnard
+ * Method to get MA ref
+ *
  * Revision 1.11  2008/06/01 14:06:57  rbolze
  * replace most ot the cout by adapted function from debug.cc
  * there are some left ...
@@ -106,7 +109,7 @@ using namespace std;
 using namespace madag;
 
 MaDag_impl::MaDag_impl(const char * name, const MaDagSchedType schedType = BASIC) :
-  myName(name), myMultiWfSched(NULL), wfReqIdCounter(0) {         
+  myName(name), myMultiWfSched(NULL), wfReqIdCounter(0) {
   char* MAName = (char*)
     Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
 
@@ -143,7 +146,7 @@ MaDag_impl::MaDag_impl(const char * name, const MaDagSchedType schedType = BASIC
       break;
   }
   this->myMultiWfSched->start();
-  
+
   this->setupDietLogComponent();
 
   // init the statistics module
@@ -226,6 +229,14 @@ MaDag_impl::ping()
 } // ping()
 
 /**
+ * Get the MA
+ */
+MasterAgent_var
+MaDag_impl::getMA() const {
+  return this->myMA;
+}
+
+/**
  * Get the client manager for a given workflow request
  */
 CltMan_ptr
@@ -242,15 +253,22 @@ void
 MaDag_impl::setCltMan(int wfReqId, CltMan_ptr cltMan) {
   this->cltMans[wfReqId] = cltMan;
 }
+
+/**
+ * Get the DietLogComponent
+ */
 DietLogComponent*
 MaDag_impl::getDietLogComponent(){
 	return this->dietLogComponent;
 }
 
-void 
+/**
+ * Set the DietLogComponent
+ */
+void
 MaDag_impl::setupDietLogComponent(){
 
-  /* Create the DietLogComponent for use with LogService */  
+  /* Create the DietLogComponent for use with LogService */
   bool useLS;
     // size_t --> unsigned int
   unsigned int* ULSptr;
@@ -271,7 +289,7 @@ MaDag_impl::setupDietLogComponent(){
     if (*ULSptr) {
       useLS = true;
     }
-  }  
+  }
 
   if (useLS) {
     // size_t --> unsigned int
@@ -282,7 +300,7 @@ MaDag_impl::setupDietLogComponent(){
     } else {
       outBufferSize = 0;
       WARNING("lsOutbuffersize not configured, using default");
-    }   
+    }
     // size_t --> unsigned int
     FTptr = (unsigned int*)Parsers::Results::getParamValue(
   	       Parsers::Results::LSFLUSHINTERVAL);
@@ -310,12 +328,12 @@ MaDag_impl::setupDietLogComponent(){
 
     agtTypeName = strdup("MA_DAG");
     if (dietLogComponent->run(agtTypeName, agtParentName, flushTime) != 0) {
-      
+
       WARNING("Could not initialize DietLogComponent");
       dietLogComponent = NULL; // this should not happen;
     }
     free(agtTypeName);
-    
+
   } else {
     TRACE_TEXT(TRACE_ALL_STEPS, "LogService disabled\n");
     this->dietLogComponent = NULL;
