@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/06/03 08:52:05  bisnard
+ * handle config parameter for ORB debugging
+ *
  * Revision 1.5  2008/06/01 14:06:57  rbolze
  * replace most ot the cout by adapted function from debug.cc
  * there are some left ...
@@ -43,16 +46,19 @@ using namespace std;
 #include "HEFT_Sched.hh"
 */
 
+extern unsigned int TRACE_LEVEL;
+
 void usage(char * s) {
   fprintf(stderr, "Usage: %s <file.cfg> [option]\n", s);
   fprintf(stderr, "option = --heft | --fairness\n");
   exit(1);
 }
+
 int checkUsage(int argc, char ** argv) {
-  if ((argc != 2) && (argc != 3)) {
+  if (argc < 2) {
     usage(argv[0]);
   }
-  if (argc == 3) {
+  if (argc >= 3) {
     if (strcmp(argv[2], "--heft") &&
 	strcmp(argv[2], "--fairness")) {
       usage(argv[0]);
@@ -65,8 +71,17 @@ int checkUsage(int argc, char ** argv) {
 int main(int argc, char * argv[]){
   char * config_file_name = argv[1];
   int    res(0);
+  int    myargc;
+  char** myargv;
 
   checkUsage(argc,argv);
+
+  /* Set arguments for ORBMgr::init */
+
+  myargc = argc;
+  myargv = (char**)malloc(argc * sizeof(char*));
+  for (int i = 0; i < argc; i++)
+    myargv[i] = argv[i];
 
   /* Parsing */
 
@@ -93,7 +108,7 @@ int main(int argc, char * argv[]){
   char* name = (char*)
     Parsers::Results::getParamValue(Parsers::Results::NAME);
 
-  // choose scheduler type
+  /* Choose scheduler type */
 
   MaDag_impl::MaDagSchedType schedType = MaDag_impl::BASIC;
   if (argc >= 3) {
@@ -103,9 +118,21 @@ int main(int argc, char * argv[]){
       schedType = MaDag_impl::HEFT;
   }
 
+  /* Get the traceLevel */
+
+  if (TRACE_LEVEL >= TRACE_MAX_VALUE) {
+    char *  level = (char *) calloc(48, sizeof(char*)) ;
+    int    tmp_argc = myargc + 2;
+    myargv = (char**)realloc(myargv, tmp_argc * sizeof(char*));
+    myargv[myargc] = strdup("-ORBtraceLevel") ;
+    sprintf(level, "%u", TRACE_LEVEL - TRACE_MAX_VALUE);
+    myargv[myargc + 1] = (char*)level;
+    myargc = tmp_argc;
+  }
+
   // INIT ORB and CREATE MADAG CORBA OBJECT
 
-  if (ORBMgr::init(argc, argv)) {
+  if (ORBMgr::init(myargc, myargv)) {
     ERROR("ORB initialization failed", 1);
   }
 
