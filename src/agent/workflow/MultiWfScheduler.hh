@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2008/06/03 13:37:09  bisnard
+ * Multi-workflow sched now keeps nodes in the ready nodes queue
+ * until a ressource is available to ensure comparison is done btw
+ * nodes of different workflows (using sched-specific metric).
+ *
  * Revision 1.9  2008/05/30 14:16:25  bisnard
  * obsolete MultiDag (not used anymore for multi-wf)
  *
@@ -65,7 +70,17 @@ namespace madag {
 
   class MultiWfScheduler : public Thread {
   public:
-    MultiWfScheduler(MaDag_impl * maDag);
+    /**
+     * Selector for node priority policy:
+     * (depends on the metric used to compare nodes for execution priority)
+     *   MULTIWF_NO_METRIC: when no metric is used (Basic scheduler)
+     *   MULTIWF_NODE_METRIC: metric is for each node individually (eg b-level)
+     *   MULTIWF_DAG_METRIC: metric is per dag (eg slowdown)
+     */
+    typedef enum { MULTIWF_NO_METRIC, MULTIWF_NODE_METRIC, MULTIWF_DAG_METRIC }
+      nodePolicy_t;
+
+    MultiWfScheduler(MaDag_impl * maDag, nodePolicy_t nodePol);
 
     virtual ~MultiWfScheduler();
 
@@ -152,6 +167,11 @@ namespace madag {
     OrderedNodeQueue * execQueue;
 
     /**
+     * Selector for node priority policy
+     */
+    nodePolicy_t nodePolicy;
+
+    /**
      * Critical section of the scheduler
      */
     omni_mutex myLock;
@@ -193,6 +213,13 @@ namespace madag {
      */
     wf_response_t *
         getProblemEstimates(Dag * dag, MasterAgent_var MA)
+        throw (NodeException);
+
+    /**
+     * Call MA to get server estimations for all services for nodes of a queue
+     */
+    wf_response_t *
+        getProblemEstimates(OrderedNodeQueue * queue, MasterAgent_var MA)
         throw (NodeException);
 
     /**

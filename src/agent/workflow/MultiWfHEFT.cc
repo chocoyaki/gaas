@@ -10,6 +10,11 @@
 
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/06/03 13:37:09  bisnard
+ * Multi-workflow sched now keeps nodes in the ready nodes queue
+ * until a ressource is available to ensure comparison is done btw
+ * nodes of different workflows (using sched-specific metric).
+ *
  * Revision 1.2  2008/06/01 14:06:57  rbolze
  * replace most ot the cout by adapted function from debug.cc
  * there are some left ...
@@ -30,7 +35,8 @@ using namespace madag;
 /*                         PUBLIC METHODS                                   */
 /****************************************************************************/
 
-MultiWfHEFT::MultiWfHEFT(MaDag_impl* maDag) : MultiWfScheduler(maDag) {
+MultiWfHEFT::MultiWfHEFT(MaDag_impl* maDag)
+  : MultiWfScheduler(maDag, MultiWfScheduler::MULTIWF_NODE_METRIC) {
   this->execQueue = new PriorityNodeQueue;
   TRACE_TEXT(TRACE_MAIN_STEPS,"Using HEFT multi-workflow scheduler" << endl);
 }

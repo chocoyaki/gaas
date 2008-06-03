@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2008/06/03 13:37:09  bisnard
+ * Multi-workflow sched now keeps nodes in the ready nodes queue
+ * until a ressource is available to ensure comparison is done btw
+ * nodes of different workflows (using sched-specific metric).
+ *
  * Revision 1.9  2008/06/02 08:35:39  bisnard
  * Avoid MaDag crash in case of client-SeD comm failure
  *
@@ -53,7 +58,7 @@
 using namespace madag;
 
 MultiWfBasicScheduler::MultiWfBasicScheduler(MaDag_impl* maDag)
-  : MultiWfScheduler(maDag) {
+  : MultiWfScheduler(maDag, MultiWfScheduler::MULTIWF_NO_METRIC) {
    TRACE_TEXT(TRACE_MAIN_STEPS,"Using BASIC multi-workflow scheduler" << endl);
 }
 

@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2008/06/03 13:37:09  bisnard
+ * Multi-workflow sched now keeps nodes in the ready nodes queue
+ * until a ressource is available to ensure comparison is done btw
+ * nodes of different workflows (using sched-specific metric).
+ *
  * Revision 1.13  2008/06/02 08:35:39  bisnard
  * Avoid MaDag crash in case of client-SeD comm failure
  *
@@ -65,6 +70,7 @@
 #include "HEFTScheduler.hh"
 #include "MaDag_impl.hh"
 #include "marshalling.hh"
+#include "est_internal.hh"
 #include "debug.hh"
 
 using namespace madag;
@@ -81,7 +87,8 @@ long MultiWfScheduler::interNodeDelay = 200; // in milliseconds
 /*                         PUBLIC METHODS                                   */
 /****************************************************************************/
 
-MultiWfScheduler::MultiWfScheduler(MaDag_impl* maDag) : mySem(0), myMaDag(maDag) {
+MultiWfScheduler::MultiWfScheduler(MaDag_impl* maDag, nodePolicy_t nodePol)
+  : mySem(0), myMaDag(maDag), nodePolicy(nodePol) {
   this->mySched   = new HEFTScheduler();
   this->execQueue = NULL; // must be initialized in derived class constructor
   // init reference time
@@ -159,59 +166,119 @@ MultiWfScheduler::scheduleNewDag(const corba_wf_desc_t& wf_desc, int wfReqId,
  */
 void*
 MultiWfScheduler::run() {
+  // the ressource availability matrix
+  map<std::string, bool> avail;
+  // the counter of executed nodes (to check if new round must be started)
   int nodeCount = 0;
+  // the nb of nodes to move from ready to exec at each round (policy dep.)
+  int nodePolicyCount = 0;
+  if (this->nodePolicy == MULTIWF_NODE_METRIC)
+    nodePolicyCount = -1;   // ie no limit (take all ready nodes)
+  else if (this->nodePolicy == MULTIWF_DAG_METRIC)
+    nodePolicyCount = 1;    // ie take only 1 ready node
+
   TRACE_TEXT(TRACE_MAIN_STEPS,"MultiWfBasicScheduler is running" << endl);
+  /// Start a ROUND of node ordering & mapping
+  /// New rounds are started as long as some nodes can be mapped to ressources
+  /// (if no more ressources then we wait until a node is finished or a new dag
+  /// is submitted)
   while (true) {
     TRACE_TEXT(TRACE_MAIN_STEPS,"\t ** Starting Multi-Workflow scheduler" << endl);
     this->myLock.lock();
     // Loop over all nodeQueues and run the first ready node
     // for each queue
+    TRACE_TEXT(TRACE_ALL_STEPS,"PHASE 1: Move ready nodes to exec queue" << endl);
     nodeCount = 0;
     std::list<OrderedNodeQueue *>::iterator qp = readyQueues.begin();
     while (qp != readyQueues.end()) {
-      TRACE_TEXT(TRACE_ALL_STEPS,"Checking ready nodes queue:" << endl);
       OrderedNodeQueue * readyQ = *qp;
-      Node * n = readyQ->popFirstNode();
-      if (n != NULL) {
+      int npc = nodePolicyCount;
+      Node * n = NULL;
+      while ((npc) && (n = readyQ->popFirstNode())) {
         TRACE_TEXT(TRACE_ALL_STEPS,"  #### Ready node : " << n->getCompleteId()
             << " / request #" << n->getWfReqId()
             << " / prio = " << n->getPriority() << endl);
-
+        n->setLastQueue(readyQ);
         // set priority of node (depends on choosen algorithm)
         this->setExecPriority(n);
-
         // insert node into execution queue
         execQueue->pushNode(n);
-
         nodeCount++;
-        // Destroy queues if both are empty
-        ChainedNodeQueue * waitQ = waitingQueues[readyQ];
-        if (waitQ->isEmpty() && readyQ->isEmpty()) {
-	  TRACE_TEXT(TRACE_ALL_STEPS,"Node Queues are empty: remove & destroy" << endl);
-          qp = readyQueues.erase(qp);      // removes from the list
-          this->deleteNodeQueue(readyQ);  // deletes both queues
-          continue;
-        }
+        npc--;
       }
       ++qp; // go to next queue
     }
 
     if (nodeCount > 0) {
-      TRACE_TEXT(TRACE_ALL_STEPS,"Executing nodes in priority order:" << endl);
+      TRACE_TEXT(TRACE_ALL_STEPS,"Phase 2: Check ressources for nodes in exec queue" << endl);
+      // Build list of services for all nodes in the exec queue
+      // and ask MA for list of ressources available
+      wf_response_t * wf_response = getProblemEstimates(execQueue, myMaDag->getMA());
+      if (wf_response == NULL) {
+        cout << "ERROR during MA submission" << endl;
+        continue;
+      }
+      // Assign available ressources to nodes and start node execution
       while (!execQueue->isEmpty()) {
         Node *n = execQueue->popFirstNode();
+        OrderedNodeQueue * readyQ = dynamic_cast<OrderedNodeQueue *>(n->getLastQueue());
+
+        // CHECK RESSOURCE AVAILABILITY
+        bool ressourceFound = false;
+        for (unsigned int ix=0; ix < wf_response->wfn_seq_resp.length(); ix++) { // find pb
+          if (!strcmp(n->getPb().c_str(), wf_response->wfn_seq_resp[ix].node_id)) {
+            for (unsigned int jx=0;
+             jx < wf_response->wfn_seq_resp[ix].response.servers.length();
+             jx++) { // loop over servers
+               corba_server_estimation_t servEst = wf_response->wfn_seq_resp[ix].response.servers[jx];
+               double compTime = diet_est_get_internal(&servEst.estim, EST_TCOMP, 0);
+               double EFT = diet_est_get_internal(&servEst.estim, EST_USERDEFINED, 0);
+               string hostname(CORBA::string_dup(servEst.loc.hostName));
+               TRACE_TEXT(TRACE_ALL_STEPS,"  server " << hostname << ": compTime="
+                                                      << compTime << ": EFT=" << EFT << endl);
+               if (avail.find(hostname) == avail.end()) avail[hostname] = true;
+               if ((EFT - compTime <= 0) && avail[hostname]) {
+                 ressourceFound = true;
+                 avail[hostname] = false;
+                 TRACE_TEXT(TRACE_ALL_STEPS,"  server found: " << hostname << endl);
+                 break;
+               }
+             }
+          }
+        }
 
         // EXECUTE NODE (NEW THREAD)
-        n->setAsRunning();
-	TRACE_TEXT(TRACE_ALL_STEPS,"  $$$$ Exec node : " << n->getCompleteId()
+        if (ressourceFound) {
+          n->setAsRunning();
+	  TRACE_TEXT(TRACE_ALL_STEPS,"  $$$$ Exec node : " << n->getCompleteId()
             << " / request #" << n->getWfReqId()
             << " / prio = " << n->getPriority() << endl);
-        runNode(n, n->getSeD());
+          runNode(n, n->getSeD());
 
-        // DELAY between NODES (to avoid interference btw submits)
+          // Destroy queues if both are empty
+          ChainedNodeQueue * waitQ = waitingQueues[readyQ];
+          if (waitQ->isEmpty() && readyQ->isEmpty()) {
+            TRACE_TEXT(TRACE_ALL_STEPS,"Node Queues are empty: remove & destroy" << endl);
+            // get entry in the ready queues list
+            std::list<OrderedNodeQueue *>::iterator qp2 = readyQueues.begin();
+            while ((*qp2 != readyQ) && (qp2 != readyQueues.end())) qp2++;
+            readyQueues.erase(qp2);          // removes from the list
+            this->deleteNodeQueue(readyQ);   // deletes both queues
+          }
+        }
+        // PUT THE NODE BACK IN THE READY QUEUE if no ressource available
+        else {
+          readyQ->pushNode(n);
+        }
+
+        // DELAY between NODES (to avoid interference btw submits) ==> still necessary ??
         usleep(this->interNodeDelay * 1000);
-      }
-    }
+      } // end loop execQueue
+
+      // cleanup availability matrix
+      avail.clear();
+
+    } // end if nodeCount > 0
 
     this->myLock.unlock();
 
@@ -278,7 +345,7 @@ MultiWfScheduler::parseNewDag(int wfReqId, const corba_wf_desc_t& wf_desc)
 }
 
 /**
- * Call MA to get server estimations for all services
+ * Call MA to get server estimations for all services for nodes of a Dag
  */
 wf_response_t *
 MultiWfScheduler::getProblemEstimates(Dag *dag, MasterAgent_var MA)
@@ -305,6 +372,25 @@ MultiWfScheduler::getProblemEstimates(Dag *dag, MasterAgent_var MA)
   if ( ! wf_response->complete)
     throw (NodeException(NodeException::eSERVICE_NOT_FOUND));
   return wf_response;
+}
+
+/**
+ * Call MA to get server estimations for all services for nodes of a NodeQueue
+ */
+wf_response_t *
+MultiWfScheduler::getProblemEstimates(OrderedNodeQueue* queue, MasterAgent_var MA)
+    throw (NodeException) {
+  Dag * tmpDag = new Dag();
+  tmpDag->setAsTemp(true);
+  for (list<Node *>::iterator iter = queue->begin(); iter != queue->end(); iter++) {
+    Node * n = (Node *) *iter;
+    if (n != NULL)
+      tmpDag->addNode(n->getCompleteId(), n);
+    else WARNING("getProblemEstimates: NULL node in tmpDag" << endl);
+  }
+  wf_response_t * resp = getProblemEstimates(tmpDag, MA);
+  delete tmpDag;
+  return resp;
 }
 
 /**
@@ -350,8 +436,8 @@ MultiWfScheduler::deleteNodeQueue(OrderedNodeQueue * nodeQ) {
   TRACE_TEXT (TRACE_ALL_STEPS, "Deleting node queues" << endl);
   ChainedNodeQueue *  waitQ = waitingQueues[nodeQ];
   waitingQueues.erase(nodeQ);     // removes from the map
-  delete waitQ;
   PriorityNodeQueue * readyQ  = dynamic_cast<PriorityNodeQueue *>(nodeQ);
+  delete waitQ;
   delete readyQ;
 }
 
