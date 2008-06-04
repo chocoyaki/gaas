@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2008/06/04 07:52:38  bisnard
+ * SeD mapping done by MaDag just before node execution
+ *
  * Revision 1.9  2008/06/03 12:14:29  bisnard
  * New lastQueue attribute to allow node go back to prev queue
  *
@@ -383,7 +386,7 @@ public:
    * @param sed the SeD reference
    */
   void
-  setSeD(const SeD_var& sed, std::string hostName);
+  setSeD(const SeD_var& sed);
 
   /**
    * return the SeD affected to the node

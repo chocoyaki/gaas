@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2008/06/04 07:52:36  bisnard
+ * SeD mapping done by MaDag just before node execution
+ *
  * Revision 1.14  2008/06/03 13:37:09  bisnard
  * Multi-workflow sched now keeps nodes in the ready nodes queue
  * until a ressource is available to ensure comparison is done btw
@@ -240,6 +243,7 @@ MultiWfScheduler::run() {
                if ((EFT - compTime <= 0) && avail[hostname]) {
                  ressourceFound = true;
                  avail[hostname] = false;
+                 n->setSeD(servEst.loc.ior);
                  TRACE_TEXT(TRACE_ALL_STEPS,"  server found: " << hostname << endl);
                  break;
                }
@@ -272,7 +276,7 @@ MultiWfScheduler::run() {
         }
 
         // DELAY between NODES (to avoid interference btw submits) ==> still necessary ??
-        usleep(this->interNodeDelay * 1000);
+        // usleep(this->interNodeDelay * 1000);
       } // end loop execQueue
 
       // cleanup availability matrix

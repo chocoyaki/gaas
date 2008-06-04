@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2008/06/04 07:52:36  bisnard
+ * SeD mapping done by MaDag just before node execution
+ *
  * Revision 1.6  2008/06/02 08:34:20  bisnard
  * Execute method (for wf node) now returns an error code in case of
  * communication failure with the SeD
@@ -76,7 +79,7 @@ CltWfMgr::execNodeOnSed(const char * node_id, const char * dag_id,
     Node * node = dag->getNode(node_id);
     if (node != NULL) {
       SeD_var sed_var = SeD::_narrow(sed);
-      node->setSeD(sed_var, "");
+      node->setSeD(sed_var);
       node->start(true);
       if (!node->hasFailed()) return 0;
     }

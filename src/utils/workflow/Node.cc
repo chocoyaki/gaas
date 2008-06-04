@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2008/06/04 07:52:37  bisnard
+ * SeD mapping done by MaDag just before node execution
+ *
  * Revision 1.12  2008/06/03 12:14:29  bisnard
  * New lastQueue attribute to allow node go back to prev queue
  *
@@ -879,11 +882,8 @@ Node::hasFailed() {
  * set the SeD reference to the node *
  */
 void
-Node::setSeD(const SeD_var& sed, std::string hostName) {
+Node::setSeD(const SeD_var& sed) {
   this->chosenServer = sed;
-  if (hostName != "") {
-// 	  AbstractWfSched::allocateToSeD(this->myId, hostName);
-  }
 } // end setSeD
 
 /**
