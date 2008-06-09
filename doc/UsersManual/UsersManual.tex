@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.43  2008/06/09 08:14:33  ycaniou
+%* Correction, typos and begin of // and batch chapter
+%*
 %* Revision 1.42  2008/05/06 13:39:33  glemahec
 %* DAGDA API extension.
 %*
@@ -175,10 +178,11 @@
 \usepackage{marvosym} % More symbols
 \graphicspath{{./fig}}
 
+\usepackage{pifont} % for \ding{52} dagda
+
 \newsavebox{\logobox}
 \sbox{\logobox}{\includegraphics[scale=0.4]{fig/logo_DIET}}
 \newcommand{\logo}{\usebox{\logobox}}
-
 
 
 %%%%
@@ -197,7 +201,13 @@
 \rfoot[\fancyplain{Page~\thepage}{Page~\thepage}]
       {\fancyplain{Page~\thepage}{Page~\thepage}}
 
+
+\newcommand{\ie}{\emph{i.e.,} }
+\newcommand{\eg}{\emph{e.g.,} }
+
 \newcommand{\diet}{\textsc{Diet}\xspace}
+\newcommand{\pse}{\textsc{Pse}\xspace}
+\newcommand{\nes}{\textsc{Nes}\xspace}
 \newcommand{\ptop}{\textit{Peer-to-Peer}}
 \newcommand{\red}{\textit{Red}}
 \newcommand{\sci}{Scilab}
@@ -208,15 +218,13 @@
 \newcommand{\threads}{\textit{threads}}
 \newcommand{\nsl}{NetSolve}
 \newcommand{\fixme}[1]{\fbox{\textsl{{\bf #1}}}}
-\newcommand{\dietversion}{2.2}
+\newcommand{\dietversion}{2.3}
 
 %%%%
 % Document beginning
 %%%%
 
 \begin{document}
-
-
 
 %%%%
 % First sheet
@@ -237,7 +245,7 @@
 \small{
 \begin{tabular}{ll}
   \textbf{VERSION}  & \dietversion\\
-  \textbf{DATE}     & December 2006\\
+  \textbf{DATE}     & June 2008\\
   \textbf{PROJECT MANAGER}  & Fr\'ed\'eric \textsc{Desprez}.\\
   \textbf{EDITORIAL STAFF}  & Yves \textsc{Caniou}, Eddy \textsc{Caron} and David ~\textsc{Loureiro}.\\
   \textbf{AUTHORS STAFF}    & 
@@ -280,7 +288,6 @@
 % \href{fichier.pdf}{Mon fichier}          % Lien vers un fichier
 %\Acrobatmenu{FullScreen}{Plein écran}    % Plein écran/fenêtré
 
-
 Resource management is one of the key issues for the development of
 efficient Grid environments. Several approaches co-exist in today's
 middleware platforms. The granularity of computation (or communication) and 
@@ -312,7 +319,7 @@ from high performance parallel programs and computers. This model is
 closely related to the classical Remote Procedure Call (RPC)
 paradigm. On a Grid platform, RPC (or
 GridRPC~\cite{MNS+00,NMSDLC02}) offers easy access to available
-resources from a Web browser, a Problem Solving Environment (PSE), or a
+resources from a Web browser, a Problem Solving Environment (\pse), or a
 simple client program written in C, Fortran, or Java.  It also
 provides more transparency by hiding the selection and allocation of
 computing resources. We favor this second approach.
@@ -323,23 +330,23 @@ approach, a common way for clients to ask for resources to solve their
 problem is to submit a request to the middleware. The middleware will
 find the most appropriate server that will solve the problem on behalf
 of the client using a specific software. Several environments, usually
-called Network Enabled Servers (NES), have developed such a paradigm:
+called Network Enabled Servers (\nes), have developed such a paradigm:
 NetSolve~\cite{nug}, Ninf~\cite{NSS99}, NEOS~\cite{FMM00},
 OmniRPC~\cite{SHTS01}, and more recently \diet developed in the
 \textsc{Graal} project. A common feature of these environments is that
 they are built on top of five components: clients, servers, databases,
 monitors and schedulers. Clients solve computational requests on
-servers found by the NES. The NES schedules the requests on the
+servers found by the \nes. The \nes schedules the requests on the
 different servers using performance information obtained by monitors
 and stored in a database.
 
-\textsc{Diet} stands for Distributed Interactive Engineering
-Toolbox. It is a toolbox for easily developing Application Service
-Provider systems on Grid platforms, based on the Client/Agent/Server
-scheme. Agents are the schedulers of this toolbox. In \textsc{Diet},
-user requests are served via RPC.
+\diet stands for Distributed Interactive Engineering Toolbox. It is a
+toolbox for easily developing Application Service Provider systems on
+Grid platforms, based on the Client/Agent/Server scheme. Agents are
+the schedulers of this toolbox. In \diet, user requests are served via
+RPC.
 
-\textsc{Diet} follows the GridRPC API defined within the Global Grid
+\diet follows the GridRPC API defined within the Global Grid
 Forum~\cite{GridRPC}.
 
 %

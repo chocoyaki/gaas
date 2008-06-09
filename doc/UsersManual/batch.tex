@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.5  2008/06/09 08:14:33  ycaniou
+%* Correction, typos and begin of // and batch chapter
+%*
 %* Revision 1.4  2008/04/08 10:08:12  ecaron
 %* Remove dependancie to src/examples
 %* Todo: Fix with Yves this part
@@ -39,11 +42,11 @@ Most of resources in a grid are a parallel one. Computational grids
 are even considered as hierachical sets of parallel resources, as we
 can see in ongoing project like the french research grid project,
 Grid'5000\cite{grid5000} (for the moment, 9 sites are involved), or
-like the EGEE\footnote{\url{http://public.eu-egee.org/}} project ({\it
-Enabling Grids for E-science in Europe}), composed of more than a
-hundred centers in 31 countries. Then, in order to provide transparent
-access to resources, grid middleware must supply efficient mechanisms
-to provide parallel services.
+like the \textsc{Egee}\footnote{\url{http://public.eu-egee.org/}}
+project ({\it Enabling Grids for E-science in Europe}), composed of
+more than a hundred centers in 31 countries. Then, in order to provide
+transparent access to resources, grid middleware must supply efficient
+mechanisms to provide parallel services.
 
 Because parallel resources are managed differently on each site, it is
 neither the purpose of \diet to deal with the deployment of parallel
@@ -59,10 +62,10 @@ where to solve the problem.
 \section{Terminology}
 %****************************************************************************%
 
-Because a good understanding comes with correct terms, we provide here
-the definition of the terms that we will use thereafter.
+%Because a good understanding comes with correct terms, we provide here
+%the definition of the terms that we will use thereafter.
 
-Servers provide {\it services}, e.g instanciation of {problems} that a
+Servers provide {\it services}, \eg instanciation of {problems} that a
 server can solve: for example, two services can provide the resolution
 of the same problem, one being sequential the other parallel. A \diet~
 {\it task}, also called a {\it job}, is created by the {\it request}
@@ -83,32 +86,6 @@ speak about {\it jobs} rather than about {\it tasks}.
 \section{Configuration for compilation}
 %****************************************************************************%
 
-Compilation must necessary be done with \verb!cmake! (you can find
-some information about cmake within \diet sources in
-\verb!<diet_src>/Cmake/README!) because it is not maintained
-with the autotools anymore.
-
-Batch submission mechanisms were first built using two libraries:
-elagi\footnote{\url{http://grail.sdsc.edu/projects/elagi/}} and
-appleseeds\footnote{\url{http://grail.sdsc.edu/projects/appleseeds/}},
-developped in the University of California of San-Diego. It now only
-relies on the appleseeds library, that can be downloaded at the
-download section on the site. Note that if you want to use \diet on
-MAC OS 64 bits, you have to patch appleseeds by doing:
-\begin{itemize}
-\item Remove declaration of variable "environ" in \verb!envseed.h!
-\item In propertyseed.c, replace the following line
-\begin{lstlisting}[language=c,basewidth={.5em,.4em},fontadjust]
-extern char **environ;
-\end{lstlisting}
-by
-\begin{lstlisting}[language=c,basewidth={.5em,.4em},fontadjust]
-#include <crt_externs.h>
-#define environ (*_NSGetEnviron())
-\end{lstlisting}
-\item Then, you can compile and install it with traditional \verb!make! and \verb!make install!
-\end{itemize}
-
 You must enable the batch flag and provide the path of the appleseeds
 installation in cmake arguments. Typically, if you build \diet from
 the command line, you can use the following:
@@ -116,23 +93,32 @@ the command line, you can use the following:
 \begin{lstlisting}[language=bash,label=dietConfig.sh,basewidth={.5em,.4em},fontadjust]
 
    ccmake $diet_src_path                          \
-          -DDIET_USE_BATCH:BOOL=ON                \
-          -DAPPLESEEDS_DIR:PATH=$appleseeds_path
+          -DDIET_USE_ALT_BATCH:BOOL=ON
 
 \end{lstlisting}
+
+%% $$$
 
 You also have to provide a directory where the \sed can read and write
 data on the parallel resource. Its path is defined within the
 \verb!cmake! variable \verb!DIET_BATCH_WRITING_PATH!. Note that the
-\verb!$HOME! directory when the compilation is done is provided as
+\verb#$HOME # directory when the compilation is done is provided as
 default.
 
-Please note that this directory is used by \diet to store the new
+%% $$$
+
+Pease note that this directory is used by \diet to store the new
 built script that is submitted to the batch scheduler. In consequence,
 because certain batch schedulers (like OAR) need the script to be
 available on all resources, {\it this directory might be on NFS}
 (remember that \diet cannot replicate the script before submission
 because of access rights).
+
+\section{API}
+
+\begin{lstlisting}[language=C,label=dietConfig.sh,basewidth={.5em,.4em},fontadjust]
+  diet_set_server_status( diet_server_status_t st ) ;
+\end{lstlisting}
 
 %****************************************************************************%
 \section{Parallel systems}
@@ -180,8 +166,8 @@ execution, and are assured to exclusively possess them.
 Even if older client codes must be recompiled (because internal
 structures have evolved), they don't necessarily need modifications.
 
-\diet now provides to the client means to request exclusively
-sequential services, parallel services, or let \diet choose the best
+\diet provides to the client means to request exclusively sequential
+services, parallel services, or let \diet choose the best
 implementation of a problem for efficiency purposes (according to the
 scheduling metric). The API now incorporates the calling functions to
 perform the former, the latter being the default and accessed through
@@ -297,7 +283,7 @@ identity of the reserved nodes
 
 Once the script written in a string, it is given as an argument to the
 following function:
-\begin{lstlisting}[language=bash,label=dietConfig.sh,basewidth={.5em,.4em},fontadjust]
+\begin{lstlisting}[language=C,label=dietConfig.sh,basewidth={.5em,.4em},fontadjust]
 int diet_submit_parallel(diet_profile_t* pb, char* script)
 \end{lstlisting}
 \subsection{Example of the client/server 'concatenation' problem}
@@ -313,11 +299,12 @@ parallel (and batch) \sed (not reproduced here). Note that the user
 {\it must change} some paths in the \sed codes, according to the site
 where he deploys \diet. We reproduce it here.
 
-%\parbox[b]{.5\textwidth}{
-{%\twocolumn
-  \tiny
-%  \lstinputlisting[title={\bf Synchronous client code},language=c,label=client.c,basewidth={.5em,.4em},fontadjust]{@CMAKE_SOURCE_DIR@/src/examples/Batch/client.c}
-}
+%\parbox[b]{.5\textwidth}
+%{
+%  \twocolumn
+%  \tiny
+%  \lstinputlisting[title={\bf Synchronous client code},language=c,label=client.c,basewidth={.5em,.4em},fontadjust]{../../src/examples/Batch/client.c}
+%}
 
 \newpage
 
@@ -336,5 +323,5 @@ where he deploys \diet. We reproduce it here.
 %  \lstinputlisting[title={\bf Sequential server code},language=c,basewidth={.5em,.4em},fontadjust]{@CMAKE_SOURCE_DIR@/src/examples/Batch/sequential_server.c}
 }
 
-%\onecolumn
+\onecolumn
 

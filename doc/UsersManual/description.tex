@@ -9,6 +9,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.19  2008/06/09 08:14:33  ycaniou
+%* Correction, typos and begin of // and batch chapter
+%*
 %* Revision 1.18  2008/04/07 22:25:38  ecaron
 %* Updated files to pdflatex compilation
 %*
@@ -67,46 +70,48 @@
 %* add the multi-MA documentation
 %****************************************************************************%
 
-\chapter{A DIET platform}
+\chapter{A \diet platform}
 \label{ch:description}
 
-\textsc{Diet} is built upon \emph{Server Daemons}. The process of
-scheduling the requests is distributed amongst a hierarchy of
-\emph{Local Agents} and \emph{Master Agents}. The scheduler can use
-resource availability information collected from three different
-tools: from NWS~\cite{WSH99} sensors which are placed on every node of
-the hierarchy, from the application-centric performance prediction
-tool \textsc{FAST} \cite{Qui02}, which relies on NWS information, or
-from CoRI Easy, which is based on simple system calls and some basic
-performance tests (see Chapter~\ref{chapter:performance}). Figure~\ref{fig:platform} shows the hierarchical organization of \textsc{Diet}.
+\diet is built upon \emph{Server Daemons}. The process of scheduling
+the requests is distributed amongst a hierarchy of \emph{Local Agents}
+and \emph{Master Agents}. The scheduler can use resource availability
+information collected from three different tools: from
+NWS~\cite{WSH99} sensors which are placed on every node of the
+hierarchy, from the application-centric performance prediction tool
+\textsc{FAST} \cite{Qui02}, which relies on NWS information, or from
+CoRI Easy, which is based on simple system calls and some basic
+performance tests (see
+Chapter~\ref{chapter:performance}). Figure~\ref{fig:platform} shows
+the hierarchical organization of \diet.
 
 \begin{figure}[htb]
  \begin{center}
   \resizebox{.7\linewidth}{!}{\includegraphics{fig/global_platform}}
-  \caption{\label{fig:platform} A hierarchy of \textsc{Diet} agents}
+  \caption{\label{fig:platform} A hierarchy of \diet agents}
  \end{center}
 \end{figure}
 
 %====[ \textsc{Diet} components ]=======================================================
-\section{DIET components}
+\section{\diet components}
 \label{sec:components}
 
 The different components of our software architecture are the following:
 
 \begin{description}
 %....[ Client ]................................................................
-\item \textbf{Client}\\ A client is an application which uses
-  \textsc{Diet} to solve problems.  Many types of clients are able to
-  connect to \textsc{Diet}, from a web page, a PSE such as Matlab or
-  \sci, or from a compiled program.
+\item \textbf{Client}\\ A client is an application which uses \diet to
+  solve problems.  Many types of clients are able to connect to
+  \textsc{Diet}, from a web page, a \pse such as Matlab or \sci, or
+  from a compiled program.
 %....[ Master Agent (MA) ].....................................................
 \item \textbf{Master Agent (MA)}\\ An MA receives computation requests
-  from clients. These requests refer to some \textsc{Diet} problems
-  listed on a reference web page. Then the MA collects computation
-  abilities from the servers and chooses the best one. The reference
-  of the chosen server is returned to the client. A client can be
-  connected to an MA by a specific name server or a web page which
-  stores the various MA locations.
+  from clients. These requests refer to some \diet problems listed on
+  a reference web page. Then the MA collects computation abilities
+  from the servers and chooses the best one. The reference of the
+  chosen server is returned to the client. A client can be connected
+  to an MA by a specific name server or a web page which stores the
+  various MA locations.
 
 %....[ Local Agent (LA) ]......................................................
 \item \textbf{Local Agent (LA)}\\ An LA transmits requests and
@@ -149,20 +154,19 @@ applications that manage access to distributed services. They not only
 provide transparent communications in heterogeneous networks, but they
 also offer a framework for the large scale deployment of distributed
 applications. Being open and language independent, CORBA was chosen as
-the communication layer in \textsc{Diet}.
+the communication layer in \diet.
 
-As recent implementations of CORBA provide communication times close to
-that of sockets, CORBA is well suited to support distributed
+As recent implementations of CORBA provide communication times close
+to that of sockets, CORBA is well suited to support distributed
 applications in a large scale Grid environment. New specialized
 services can be easily published and existing services can also be
-used.  \textsc{Diet} is based upon \emph{OmniORB 3}~\cite{OMNIORB} or later,
-a free CORBA implementation that provides good communication
-performance.
+used.  \diet is based upon \emph{OmniORB 3}~\cite{OMNIORB} or later, a
+free CORBA implementation that provides good communication performance.
 
 
 
 %====[ DIET INITIALIZATION ]===================================================
-\section{DIET initialization}
+\section{\diet initialization}
 \label{init}
 
 Figure~\ref{fig:init} shows each step of the initialization of a
@@ -174,7 +178,7 @@ clients.
 \begin{figure}[hbt]
   \begin{center}
     \resizebox{9cm}{!}{\includegraphics{fig/init}}
-    \caption{Initialization of a \textsc{Diet} system.}
+    \caption{Initialization of a \diet system.}
     \label{fig:init}
   \end{center}
 \end{figure}
@@ -232,46 +236,46 @@ made in four steps.
 \end{itemize}
 
 %====[ Extensions ]============================================================
-\section{DIET Extensions}
+\section{\diet Extensions}
 \label{sec:extensions}
 
 %====[ Multi-MA ]==============================================================
 \subsection{Multi-MA}
 \label{init:multima}
 
-A standard \textsc{Diet} platform gives access to SeDs placed under
-the control of a MA as explained at the beginning of this
+A standard \diet platform gives access to SeDs placed under the
+control of a MA as explained at the beginning of this
 chapter. Sometime, it is useful to connect several MA together. This
 happens when several organizations wish to share their resources to
 offer a larger set of service types and more available servers. The
 Multi-MA extension allows this by creating a federation which shares
 resources between several MA.
 
-In multi-MA mode, the behavior of a \textsc{Diet} hierarchy does not change when a
-client requests a service that is available under the queried MA.  However, if
-a request sent to a MA does not found a SeD that can resolve its problem, \textsc{Diet}
-will forward the request to other MAs of the federation.  To read more about
-multi-MA, see Chapter~\ref{ch:multiMAextension} and
-Chapter~\ref{ch:p2pextension}.
+In multi-MA mode, the behavior of a \diet hierarchy does not change
+when a client requests a service that is available under the queried
+MA. However, if a request sent to a MA does not found a SeD that can
+resolve its problem, \diet will forward the request to other MAs of
+the federation.  To read more about multi-MA, see
+Chapter~\ref{ch:multiMAextension} and Chapter~\ref{ch:p2pextension}.
 
 %====[ FAST ]==============================================================
 \subsection{FAST}
 \label{sub:fast}
 
 Fast Agent's System Timer (FAST)~\cite{Qui02} is a tool for dynamic
-performance forecasting in a Grid environment.  When \textsc{Diet} is
-compiled with the appropriate options and FAST has been configured
-on the SeD machine, SeDs can access FAST to obtain dynamic
-performance predictions.  See Chapter~\ref{chapter:performance} for details
-on using FAST.
+performance forecasting in a Grid environment.  When \diet is compiled
+with the appropriate options and FAST has been configured on the SeD
+machine, SeDs can access FAST to obtain dynamic performance
+predictions.  See Chapter~\ref{chapter:performance} for details on
+using FAST.
 
 %====[ CoRI ]==============================================================
 \subsection{CoRI}
 \label{sub:cori}
 
 Collector of Resource Information (CoRI) is a manager for collecting
-hardware and performance information.  When \textsc{Diet} is compiled with
-the appropriate option, it is possible to get this information via
+hardware and performance information.  When \diet is compiled with the
+appropriate option, it is possible to get this information via
 different sub-modules like FAST* or CoRI-Easy. (* if compiled and
 configured on the SeD machine). See Chapter~\ref{chapter:performance}
 for details on using CoRI.
