@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.42  2008/06/10 21:01:27  ycaniou
+ * Cosmetics
+ *
  * Revision 1.41  2008/05/28 12:30:34  rbolze
  * change unit of the startTime value store in the diet_job_t structure.
  * it was in second, now it is in millisecond
@@ -263,9 +266,9 @@ diet_profile_desc_free(diet_profile_desc_t* desc);
 #if defined HAVE_ALT_BATCH
 /* Functions for server profile registration */
 int
-diet_profile_desc_set_sequential(diet_profile_desc_t* profile) ;
+diet_profile_desc_set_sequential(diet_profile_desc_t * profile) ;
 int
-diet_profile_desc_set_parallel(diet_profile_desc_t* profile) ;
+diet_profile_desc_set_parallel(diet_profile_desc_t * profile) ;
 #endif
 
 
@@ -471,7 +474,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[]);
    * to submit in order to provide the service @param profile
    */
   int
-  diet_submit_parallel(diet_profile_t* profile, const char *command) ;
+  diet_submit_parallel(diet_profile_t * profile, const char * command) ;
 
   /* TODO: this will disapear when BatchSystem will implement seqFIFO,
      paralFIFO, LOADLEVELER, etc., since the definition would be

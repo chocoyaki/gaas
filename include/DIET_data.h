@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.58  2008/06/10 21:01:27  ycaniou
+ * Cosmetics
+ *
  * Revision 1.57  2008/05/16 12:21:50  bisnard
  * obsolete wf scheduler choice
  *
@@ -345,11 +348,11 @@ diet_profile_free(diet_profile_t* profile);
 
 #if defined HAVE_ALT_BATCH
 int
-diet_profile_set_parallel(diet_profile_t* profile) ;
+diet_profile_set_parallel(diet_profile_t * profile) ;
 int
-diet_profile_set_sequential(diet_profile_t* profile) ;
+diet_profile_set_sequential(diet_profile_t * profile) ;
 int
-diet_profile_set_nbprocs(diet_profile_t* profile, int nbprocs) ;
+diet_profile_set_nbprocs(diet_profile_t * profile, int nbprocs) ;
 #endif
 
 /**
