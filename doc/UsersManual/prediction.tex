@@ -14,28 +14,27 @@
 
 As we have seen in chapter~\ref{ch:plugin} the agent needs some
 information from the SeD to make an optimal scheduling. This
-information is a performance prediction of the SeD. The agent will
-ask the SeD to fill the data structure defined in
-chapter~\ref{ch:plugin} with the information it needs. The SeD returns
-the information and the agent can make the scheduling. \\
-Performance prediction can be hardware information, the charge of
-the SeD (the charge of the CPU, of the memory,...) or an advanced
-performance prediction that combines a set of basic performance
-predictions. It is possible to use
-FAST in the plug-in scheduler that gives advanced performance predictions. A
-second possibility to get performance prediction, called CoRI, is now available.
- The aim of CoRI is to simplify
-the access to the information. Inside of CoRI, FAST can be called,
-but it is only one source of information among other sources (for
-example Cori-Easy). \\
- FAST is described in section~\ref{sec:FAST}, CoRI is
-described in section~\ref{sec:CORI}.\\
-The default compiling is without FAST and
-without CoRI. In the table~\ref{t:depcompil} you can see which
+information is a performance prediction of the SeD. The agent will ask
+the SeD to fill the data structure defined in chapter~\ref{ch:plugin}
+with the information it needs. The SeD returns the information and the
+agent can make the scheduling. \\ Performance prediction can be
+hardware information, the charge of the SeD (the charge of the CPU, of
+the memory,...) or an advanced performance prediction that combines a
+set of basic performance predictions. It is possible to use FAST in
+the plug-in scheduler that gives advanced performance predictions. A
+second possibility to get performance prediction, called CoRI, is now
+available.  The aim of CoRI is to simplify the access to the
+information. Inside of CoRI, FAST can be called, but it is only one
+source of information among other sources (for example Cori-Easy). \\
+FAST is described in section~\ref{sec:FAST}, CoRI is described in
+section~\ref{sec:CORI}.\\ The default compiling is without FAST and
+without CoRI. Note that if you compile with batch enabled, then CoRI
+is also enabled.
+In the table~\ref{t:depcompil} you can see which
 information is available with which compiling option.
 
 \begin{table}[h]
- \footnotesize
+ \tiny
  \centering
  \begin{tabular}[c]{|l|c|c||c||c|}\hline
 %Cori ligne
@@ -83,6 +82,10 @@ information is available with which compiling option.
   \textit{DISKACCESWRITE}     &   &   & x & x  \\[5pt]
   \hline
   \textit{ALLINFOS     }      &   &   & x & x  \\[5pt]
+  \hline
+  \hline
+  & \multicolumn{4}{|c|}{\textbf{-DDIET\_USE\_BATCH=ON}} \\[5pt]  
+  \textit{PARAL\_NB\_FREE\_RESOURCES\_IN\_DEFAULT\_QUEUE} & & & x & x  \\[5pt] 
   \hline
  \end{tabular}
  \caption{Dependencies of the available information on the
@@ -294,23 +297,26 @@ files \\
 \section{CoRI: Collectors of Ressource Information}
 \label{sec:CORI}
 
-CoRI manages the access to different tools for collecting information about the SeD. At present, two tools, called collectors, are implemented: FAST and the Easy-Mode. The user can choose which collector will provide the information.
+CoRI manages the access to different tools for collecting information
+about the SeD. At present, three tools, called collectors, are
+implemented: FAST, CoRI Easy and CoRI batch. The user can choose which
+collector will provide the information.
 
 \begin{figure}[h]
   \begin{center}
-    \resizebox{.25\linewidth}{!}{\includegraphics{fig/overviewCori}}
+    \resizebox{.5\linewidth}{!}{\includegraphics{fig/overviewCori}}
     \caption{CoRI overview}
     \label{fig:cori-overview}
   \end{center}
 \end{figure}
 
 \subsection{Functions and tags}
-The tags for information are of type \texttt{integer} and
-defined in the table~\ref{t:tags}. The second type of tag
+The tags for information are of type \texttt{integer} and defined in
+the table~\ref{t:tags}. The second type of tag
 \texttt{diet\_est\_collect\_tag\_t} is used to specify the collector
-which will provide the information: \texttt{EST\_COLL\_EASY} or
-\texttt{EST\_COLL\_FAST}. Three different functions are provided
-with CoRI.
+which will provide the information: \texttt{EST\_COLL\_FAST},
+\texttt{EST\_COLL\_EASY} or \texttt{EST\_COLL\_BATCH}. Three different
+functions are provided with CoRI.
 
 The first function initializes a specific collector.
 
@@ -318,13 +324,15 @@ The first function initializes a specific collector.
 \begin{verbatim}
   int
   diet_estimate_cori_add_collector(diet_est_collect_tag_t collector_type,
-                                   void* data);
+                                   void * data);
 \end{verbatim}
-\normalsize
-The second parameter is reserved for initializing collectors which need additional information on  initialization. At that time, this field is not used.
+\normalsize The second parameter is reserved for initializing
+collectors which need additional information on initialization. For
+example, the BATCH collector needs for its initialization the profile
+of the service to be solved.
 
-After the initialization, accessing to the information is done by specifying the
-collector and the information type.
+After the initialization, accessing to the information is done by
+specifying the collector and the information type. 
 \footnotesize
 \begin{verbatim}
   int
@@ -333,12 +341,12 @@ collector and the information type.
                      diet_est_collect_tag_t collector_type,
                      void* data);
 \end{verbatim}
-\normalsize 
-Cori-Easy doesn't need more information, but FAST needs a
-profile of type ``diet\_profile\_t''. The last
-parameter is reserved for it. \\
-The last function is used to test Cori-Easy. It
-prints all information Cori-Easy finds to the standard output.
+\normalsize
+
+Cori-Easy doesn't need more information, but FAST and BATCH need a
+profile of type ``diet\_profile\_t''. The last parameter is reserved
+for it. \\ The last function is used to test Cori-Easy. It prints all
+information Cori-Easy finds to the standard output.
 
 \footnotesize
 \begin{verbatim}
@@ -371,25 +379,45 @@ provide.
 
 \subsection{CoRI-Easy}
 The CoRI-Easy collector makes some basic system calls to gather the
-information. CoRI-Easy is only available if DIET is compiled with the option
-\texttt{-DDIET\_USE\_CORI} set to \texttt{ON}. The last collumn of the table~\ref{t:depcompil}
-corresponds to the CoRI-Easy's functionality.
+information. CoRI-Easy is only available if \diet is compiled with the
+option \texttt{-DDIET\_USE\_CORI} set to \texttt{ON}. The last collumn
+of the table~\ref{t:depcompil} corresponds to the CoRI-Easy's
+functionality.
+
+There is an example on how to use CoRI-Easy in the
+\verb!<diet_src>/src/examples/cori/! directory.
+
+\subsection{CoRI batch}
+With the help of the CoRI batch collector, a \sed programmer can use
+some information obtained from the batch system. It is only available
+if \diet is compiled with the option \texttt{-DDIET\_USE\_BATCH} set
+to \texttt{ON}. For the moment, only simple information can be
+accessed but functionalities will be improved as well as the number of
+recognizable batch systems.
+
+There is an example on how to use CoRI batch in the\\
+\verb!<diet_src>/src/examples/Batch/SparseSolver/! directory.
 
 \section{Future Work}
 
 There are two primary efforts for the CoRI manager:
 \begin{itemize}
-\item \textbf{Improving Cori-Easy}: Some evaluation functions are very basic and
-  should be revised to increase their response time speed and the
-  accuracy of the information.
-  There is a need for other information (i.e. information about the network).
-  Every operating systems provide other basic functions to get the information.
-  CoRI-Easy doesn't know all functions. Use the \texttt{diet\_estimate\_cori\_print()}
-function to test what CoRI-Easy can find on your SeD. Send us a mail if not 
-all functions are working properly.
+\item \textbf{Improving CoRI-Easy}: Some evaluation functions are very
+  basic and should be revised to increase their response time speed
+  and the accuracy of the information.  There is a need for other
+  information (i.e. information about the network).  Every operating
+  systems provide other basic functions to get the information.
+  CoRI-Easy doesn't know all functions. Use the
+  \texttt{diet\_estimate\_cori\_print()} function to test what
+  CoRI-Easy can find on your SeD. Send us a mail if not  all functions
+  are working properly.
 
-\item \textbf{New collectors}:
-  Integrating other external tools like Ganglia~\cite{Ganglia} or Nagios~\cite{Nagios} to the
-  CoRI Manager can provide more useful and exact information.
+\item \textbf{Improving CoRI batch}: add new functionalities to access
+dynamic information as well as some kind of performance predictions
+for more batch systems.
+
+\item \textbf{New collectors}: Integrating other external tools like
+  Ganglia~\cite{Ganglia} or Nagios~\cite{Nagios} to the CoRI Manager
+  can provide more useful and exact information.
 \end{itemize}
 
