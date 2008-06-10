@@ -8,6 +8,13 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.6  2008/06/10 16:59:56  ycaniou
+%* Typos
+%* Use the "${DIET_DOC_SOURCE_DIR}/../src/.." non portable to get path to .c to
+%*   be included in the doc. Should be ok if the doc is not removed from the DIET
+%*   project
+%* Batch chapter à priori completed
+%*
 %* Revision 1.5  2008/06/09 08:14:33  ycaniou
 %* Correction, typos and begin of // and batch chapter
 %*
@@ -34,13 +41,13 @@
 %* Added missing fields Id and Log in headers
 %****************************************************************************%
 
-\chapter{Batch and parallel submissions}
-\label{chapter:parallelSubmission}
+\chapter{Batch and parallel submissions}\label{chapter:parallelSubmission}
 \section{Introduction}
 
-Most of resources in a grid are a parallel one. Computational grids
-are even considered as hierachical sets of parallel resources, as we
-can see in ongoing project like the french research grid project,
+Most of resources in a grid are parallel, either clusters of
+workstations or parallel machines. Computational grids are even
+considered as hierachical sets of parallel resources, as we can see in
+ongoing project like the french research grid project,
 Grid'5000\cite{grid5000} (for the moment, 9 sites are involved), or
 like the \textsc{Egee}\footnote{\url{http://public.eu-egee.org/}}
 project ({\it Enabling Grids for E-science in Europe}), composed of
@@ -67,17 +74,17 @@ where to solve the problem.
 
 Servers provide {\it services}, \eg instanciation of {problems} that a
 server can solve: for example, two services can provide the resolution
-of the same problem, one being sequential the other parallel. A \diet~
-{\it task}, also called a {\it job}, is created by the {\it request}
-of a client: it refers to the resolution of a service on a given
-server.
+of the same problem, one being sequential and the other parallel. A
+\diet~{\it task}, also called a {\it job}, is created by the {\it
+request} of a client: it refers to the resolution of a service on a
+given server.
 
-A service can be sequential or (exclusive) parallel, in which case its
-resolution requires numerous processors of a parallel resource (a
-parallel machine or a cluster of workstations). If parallel, the task
-can be modeled with the MPI standard, or composed of multiple
-sequential tasks (deployed for example with \verb!ssh!) resolving a
-single service: it is often the case with data parallelism problems.
+A service can be sequential or parallel, in which case its resolution
+requires numerous processors of a parallel resource (a parallel
+machine or a cluster of workstations). If parallel, the task can be
+modeled with the MPI standard, or composed of multiple sequential
+tasks (deployed for example with \verb!ssh!) resolving a single
+service: it is often the case with data parallelism problems.
 
 Note that when dealing with batch reservation systems, we will likely
 speak about {\it jobs} rather than about {\it tasks}.
@@ -86,39 +93,17 @@ speak about {\it jobs} rather than about {\it tasks}.
 \section{Configuration for compilation}
 %****************************************************************************%
 
-You must enable the batch flag and provide the path of the appleseeds
-installation in cmake arguments. Typically, if you build \diet from
-the command line, you can use the following:
+You must enable the batch flag in cmake arguments. Typically, if you
+build \diet from the command line, you can use the following:
 
 \begin{lstlisting}[language=bash,label=dietConfig.sh,basewidth={.5em,.4em},fontadjust]
 
-   ccmake $diet_src_path                          \
+   ccmake $diet_src_path
           -DDIET_USE_ALT_BATCH:BOOL=ON
 
 \end{lstlisting}
 
 %% $$$
-
-You also have to provide a directory where the \sed can read and write
-data on the parallel resource. Its path is defined within the
-\verb!cmake! variable \verb!DIET_BATCH_WRITING_PATH!. Note that the
-\verb#$HOME # directory when the compilation is done is provided as
-default.
-
-%% $$$
-
-Pease note that this directory is used by \diet to store the new
-built script that is submitted to the batch scheduler. In consequence,
-because certain batch schedulers (like OAR) need the script to be
-available on all resources, {\it this directory might be on NFS}
-(remember that \diet cannot replicate the script before submission
-because of access rights).
-
-\section{API}
-
-\begin{lstlisting}[language=C,label=dietConfig.sh,basewidth={.5em,.4em},fontadjust]
-  diet_set_server_status( diet_server_status_t st ) ;
-\end{lstlisting}
 
 %****************************************************************************%
 \section{Parallel systems}
@@ -127,13 +112,17 @@ because of access rights).
 Single parallel systems are surely the less deployed in actual
 computing grids. They are usually composed of a frontale node where
 clients log in, and from which they can log on numerous nodes and
-execute their parallel jobs, without any kind of reservation. Some
-problems occur with such a use of parallel resources: multiple
-parallel tasks can share a single processor, hence delaying the
-execution of all applications using it; during the deployment, the
-application must at least check the connectivity of the resources; if
-performance is wanted, some monitoring has to be performed by the
-application.
+execute their parallel jobs, {\it without any kind of
+reservation}. Some problems occur with such a use of parallel
+resources: multiple parallel tasks can share a single processor, hence
+delaying the execution of all applications using it; during the
+deployment, the application must at least check the connectivity of
+the resources; if performance is wanted, some monitoring has to be
+performed by the application.
+
+For the moment, \diet has some internals mechanisms to launch external
+scripts and monitor them, but they will only be part of the API in the
+next release ($>2.3$).
 
 %****************************************************************************%
 \section{Batch system}
@@ -166,32 +155,79 @@ execution, and are assured to exclusively possess them.
 Even if older client codes must be recompiled (because internal
 structures have evolved), they don't necessarily need modifications.
 
-\diet provides to the client means to request exclusively sequential
-services, parallel services, or let \diet choose the best
-implementation of a problem for efficiency purposes (according to the
-scheduling metric). The API now incorporates the calling functions to
-perform the former, the latter being the default and accessed through
-the traditional \verb!diet_call()! function:
+\diet provides means to request exclusively sequential services,
+parallel services, or let \diet choose the best implementation of a
+problem for efficiency purposes (according to the scheduling metric
+and the performance function).
+% The API now incorporates the calling
+%functions to perform the former, the latter being the default and
+%accessed through the traditional \verb!diet_call()! function:
 
 \begin{lstlisting}[language=c,basewidth={.5em,.4em},fontadjust]
-diet_error_t diet_parallel_call(diet_profile_t* profile) ;
-diet_error_t diet_sequential_call(diet_profile_t* profile) ;
+
+/* To explicitly call a sequential service */
+diet_error_t
+diet_parallel_call(diet_profile_t * profile) ;
+
+diet_error_t
+diet_sequential_call_async(diet_profile_t* profile, diet_reqID_t* reqID);
+
+/* To explicitly call a parallel service in sync or async way */
+diet_error_t
+diet_sequential_call(diet_profile_t * profile) ;
+
+diet_error_t
+diet_parallel_call_async(diet_profile_t* profile, diet_reqID_t* reqID);
+
+/* To mark a profile as parallel or sequential. The default call to 
+   diet_call() or diet_call_async() will perform a call to the correct
+   previous call */
+int
+diet_profile_set_parallel(diet_profile_t * profile) ;
+int
+diet_profile_set_sequential(diet_profile_t * profile) ;
+
+/* To let the user choose a given amount of resources */ 
+int
+diet_profile_set_nbprocs(diet_profile_t * profile, int nbprocs) ;
+
 \end{lstlisting}
+
 %****************************************************************************%
-\section{Parallel and batch server extended API and configuration
-file}
+\section{Batch server extended API and configuration file}
 %****************************************************************************%
 
 There are too many diverse scenarii about the communication and
 execution of parallel applications: the code can be a MPI code or
-composed of different interacting programs possibly launched via ssh
-on every nodes; input and output files can use NFS if this file system
-is present, or they can be splitted and uploaded to each node
-participating to the calculus.
+composed of different interacting programs possibly launched via
+\verb!ssh!  on every nodes; input and output files can use NFS if this
+file system is present, or they can be splitted and uploaded to each
+node participating to the calculus.
 
 Then, we will see: what supplementary information has to be provided
-in the server configuration file; how to write a submission script
-from within a \sed; and how to record the parallel/batch service.
+in the server configuration file; how to write a batch submission
+meta-script in a \sed; and how to record the parallel/batch service.
+
+\section{Server API}
+
+\begin{lstlisting}[language=C,label=dietConfig.sh,basewidth={.5em,.4em},fontadjust]
+
+/* Set the status of the SeD among SERIAL and BATCH */
+void 
+diet_set_server_status( diet_server_status_t st ) ;
+
+/* Set the nature of the service to be registered to the SeD */
+int
+diet_profile_desc_set_sequential(diet_profile_desc_t * profile) ;
+
+int
+diet_profile_desc_set_parallel(diet_profile_desc_t * profile) ;
+
+/* A service MUST call this command to perform the submission to the batch system */
+int
+diet_submit_parallel(diet_profile_t * profile, const char * command) ;
+
+\end{lstlisting}
 
 \subsection{Registering the service}
 
@@ -211,25 +247,17 @@ explicitly register a sequantial service:
 void diet_profile_desc_set_sequential(diet_profile_desc_t* profile)
 \end{lstlisting}
 
-\underline{\bf Note:} a \sed only launches parallel services or none
-at all, in which case it solves exclusively sequential problems. If
-both kinds of jobs are tried to be recorded in a unique \sed, \diet
-reports an error.
-
 \subsection{Server configuration file}
 
-\subsubsection{\bf Batch server} 
-
 The programmer of a batch service available in a \sed has not to worry
-about which batch system to submit, because \diet provides all the
-mechanisms to transparently submit the job to them.
+to which batch system to submit except for its name, because \diet
+provides all the mechanisms to transparently submit the job to them.
 
 %FIXME: à quel point parle t-on d'elagi ?
-\diet is able to submit batch scripts to numerous batch schedulers,
-among which: "condor", "dqs", "loadleveler", "lsf", "pbs", "sge" or
-"oar".
-% FIXME: do we give shell, condor which are not batch? Do we give all
-% even if only oar is tested?
+\diet is able to submit batch scripts to %numerous batch schedulers,
+oar1.6 and loadleveler.
+%among which: "condor", "dqs", "loadleveler", "lsf", "pbs", "sge" or
+%"oar".
 The name of the batch scheduler managing the parallel resource where
 the \sed is running has to be incorporated with the keyword
 \verb!batchName! in the server configuration file. Only this makes the
@@ -239,37 +267,49 @@ Furthermore, if there is no default queue, the \diet deployer must
 also provide the queue on which jobs have to be submitted, with the
 keyword \verb!batchQueue!.
 
+You also have to provide a directory where the \sed can read and write
+data on the parallel resource. Pease note that this directory is used
+by \diet to store the new built script that is submitted to the batch
+scheduler. In consequence, because certain batch schedulers (like OAR)
+need the script to be available on all resources, {\it this directory
+might be on NFS} (remember that \diet cannot replicate the script on
+all resources before submission because of access rights).  Note that
+concerning OAR, in order to use the CoRI\_batch features, the Batch
+\sed deployer must also provide the keyword \verb$internQueue$ (see
+Section~\ref{section:cori_batch}).
+
 For example, the server configuration file can contain the following
 lines:
 
 \begin{lstlisting}[language=bash,label=dietConfig.sh,basewidth={.5em,.4em},fontadjust]
 batchName = oar
 batchQueue = queue_9_13
+pathToNFS = /home/ycaniou/tmp/nfs
+pathToTmp = /tmp/YC/
+internOARbatchQueueName = 913
 \end{lstlisting}
 
-\subsubsection{\bf Parallel server}
+%% \subsubsection{\bf Parallel server}
 
-With the aim to not extend the \diet API too much, we consider that a
-parallel server corresponds to an ordinary shell that submits the
-generated script. In consequence, the server configuration file should
-contain the following line
+%% With the aim to not extend the \diet API too much, we consider that a
+%% parallel server corresponds to an ordinary shell that submits the
+%% generated script. In consequence, the server configuration file should
+%% contain the following line
 
-\begin{lstlisting}[language=bash,label=dietConfig.sh,basewidth={.5em,.4em},fontadjust]
-batchName = shellscript
-\end{lstlisting}
+%% \begin{lstlisting}[language=bash,label=dietConfig.sh,basewidth={.5em,.4em},fontadjust]
+%% batchName = shellscript
+%% \end{lstlisting}
 
 \subsection{Server API for writing services}
 
 The writing of a service corresponding to a parallel or batch job is
 very simple. The \sed programmer builds a shell script that he would
-have normally used to execute the job, i.e., a script that must take
-care of data replication and executable invocation.
+have normally used to execute the job, \ie a script that must take
+care of data replication and executable invocation depending on the
+site.
 
 In order for the service to be system independent, the \sed API
-provides some meta-variables which can be used in the script. Note
-only the first and second ones given below are correct {\it for
-parallel jobs}, even if no error will occur if the \sed programmer use
-the other ones:
+provides some meta-variables which can be used in the script. 
 
 \begin{itemize}
 \item \verb!$DIET_NAME_FRONTALE!: frontale name
@@ -279,38 +319,49 @@ the other ones:
 \item \verb!$DIET_BATCH_NODESFILE!: name of the file containing the
 identity of the reserved nodes
 \item \verb!$DIET_BATCH_JOBID!: batch job ID
+\item \verb!$DIET_BATCHNAME!: name of the batch system
 \end{itemize}
+
+%%% $$$
 
 Once the script written in a string, it is given as an argument to the
 following function:
 \begin{lstlisting}[language=C,label=dietConfig.sh,basewidth={.5em,.4em},fontadjust]
-int diet_submit_parallel(diet_profile_t* pb, char* script)
+int 
+diet_submit_parallel(diet_profile_t * pb, char * script)
 \end{lstlisting}
 \subsection{Example of the client/server 'concatenation' problem}
 
-There is a fully commented client/server example in
-\verb!<diet_src>/src/examples/Batch! directory. It contains 3 servers:
-one sequential, one parallel and one batch, and a single client. The
-latter is configurable to simply ask for only sequential, or
-explicitly parallel services, or to let \diet choose the best (by
-default, 2 processors are used and the scheduling algorithm is
-Round-Robin). We consequently give the MPI code which is called from
-parallel (and batch) \sed (not reproduced here). Note that the user
-{\it must change} some paths in the \sed codes, according to the site
-where he deploys \diet. We reproduce it here.
+There are fully commented client/server examples in
+\verb!<diet_src>/src/examples/Batch! directory. The root directory
+contains a simple example, and \verb!TestAllBatch! and
+\verb!SparseSolver! are more practical, the latter being a code to
+explain the \verb!CoRI\_batch! API.
 
-%\parbox[b]{.5\textwidth}
-%{
-%  \twocolumn
-%  \tiny
-%  \lstinputlisting[title={\bf Synchronous client code},language=c,label=client.c,basewidth={.5em,.4em},fontadjust]{../../src/examples/Batch/client.c}
-%}
+The root directory contains 2 servers, one sequential
+%, one parallel 
+and one batch, and a single client. The latter is configurable to
+simply ask for only sequential, or explicitly parallel services, or to
+let \diet choose the best (by default, 2 processors are used and the
+scheduling algorithm is Round-Robin). We consequently give the MPI
+code which is called from the batch \sed (not reproduced here). Note
+that the user {\it must change} some paths in the \sed codes,
+according to the site where he deploys \diet. We reproduce the codes
+here.
 
 \newpage
 
+%\parbox[b]{.5\textwidth}
+{
+  \tiny
+  \lstinputlisting[title={\bf Synchronous client code},language=c,label=client.c,basewidth={.5em,.4em},fontadjust]{Data/examples_Batch_client.c}
+}
+
+%\newpage
+
 {%\twocolumn
   \tiny
-%  \lstinputlisting[title={\bf Batch server code},language=c,basewidth={.5em,.4em},fontadjust]{@CMAKE_SOURCE_DIR@/src/examples/Batch/batch_server.c}
+  \lstinputlisting[title={\bf Batch server code},language=c,basewidth={.5em,.4em},fontadjust]{Data/examples_Batch_batch_server.c}
 }
 
 {%\twocolumn
@@ -320,7 +371,7 @@ where he deploys \diet. We reproduce it here.
 
 {%\twocolumn
   \tiny
-%  \lstinputlisting[title={\bf Sequential server code},language=c,basewidth={.5em,.4em},fontadjust]{@CMAKE_SOURCE_DIR@/src/examples/Batch/sequential_server.c}
+  \lstinputlisting[title={\bf Sequential server code},language=c,basewidth={.5em,.4em},fontadjust]{Data/examples_Batch_sequential_server.c}
 }
 
 \onecolumn
