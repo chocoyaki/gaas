@@ -61,10 +61,10 @@ ELSE( DIET_USE_BATCH )
     INSTALL_TARGETS( /bin/examples/Batch ${loop_var} )
   ENDFOREACH( loop_var )
 
-  ### Do Lammps example, Decrypthon suites, TLSE/PasTiX prototype
+  ### Do Lammps example, Decrypthon suites, SparseSolver/PasTiX prototype
   # ADD_SUBDIRECTORY( Lammps )
   ADD_SUBDIRECTORY( TestAllBatch )
-  ADD_SUBDIRECTORY( TLSE )
+  ADD_SUBDIRECTORY( SparseSolver )
 
 ENDIF( DIET_USE_BATCH )
 
