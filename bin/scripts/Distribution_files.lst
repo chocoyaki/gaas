@@ -17,6 +17,10 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.26  2008/06/10 21:03:21  ycaniou
+#* Remove parallel_client.c since the API has changed (will put it back for the
+#*   next release).
+#*
 #* Revision 1.25  2008/05/26 15:21:46  rbolze
 #* add new files :
 #* 	src/agent/workflow/MultiWfHEFT.cc
@@ -322,7 +326,6 @@ src/examples/Batch/async_client.c
 src/examples/Batch/batch_server.c
 src/examples/Batch/client.c
 src/examples/Batch/concatenation.c
-src/examples/Batch/parallel_server.c
 src/examples/Batch/sequential_server.c
 src/examples/Batch/TestAllBatch/batch_server.c
 src/examples/Batch/TestAllBatch/client.c
