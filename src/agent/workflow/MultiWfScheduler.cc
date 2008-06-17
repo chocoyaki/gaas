@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2008/06/17 10:15:36  bisnard
+ * Corrected bug in execution loop
+ *
  * Revision 1.15  2008/06/04 07:52:36  bisnard
  * SeD mapping done by MaDag just before node execution
  *
@@ -169,10 +172,12 @@ MultiWfScheduler::scheduleNewDag(const corba_wf_desc_t& wf_desc, int wfReqId,
  */
 void*
 MultiWfScheduler::run() {
+  int loopCount = 0;
   // the ressource availability matrix
   map<std::string, bool> avail;
-  // the counter of executed nodes (to check if new round must be started)
-  int nodeCount = 0;
+  // the counters of executed nodes (to check if new round must be started)
+  int queuedNodeCount = 0;
+  int mappedNodeCount = 0;
   // the nb of nodes to move from ready to exec at each round (policy dep.)
   int nodePolicyCount = 0;
   if (this->nodePolicy == MULTIWF_NODE_METRIC)
@@ -180,18 +185,20 @@ MultiWfScheduler::run() {
   else if (this->nodePolicy == MULTIWF_DAG_METRIC)
     nodePolicyCount = 1;    // ie take only 1 ready node
 
-  TRACE_TEXT(TRACE_MAIN_STEPS,"MultiWfBasicScheduler is running" << endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS,"Multi-Workflow scheduler is running" << endl);
   /// Start a ROUND of node ordering & mapping
   /// New rounds are started as long as some nodes can be mapped to ressources
   /// (if no more ressources then we wait until a node is finished or a new dag
   /// is submitted)
   while (true) {
-    TRACE_TEXT(TRACE_MAIN_STEPS,"\t ** Starting Multi-Workflow scheduler" << endl);
+    loopCount++;
+    TRACE_TEXT(TRACE_MAIN_STEPS,"\t ** Starting Multi-Workflow scheduler ("
+        << loopCount << ")" << endl);
     this->myLock.lock();
     // Loop over all nodeQueues and run the first ready node
     // for each queue
     TRACE_TEXT(TRACE_ALL_STEPS,"PHASE 1: Move ready nodes to exec queue" << endl);
-    nodeCount = 0;
+    queuedNodeCount = 0;
     std::list<OrderedNodeQueue *>::iterator qp = readyQueues.begin();
     while (qp != readyQueues.end()) {
       OrderedNodeQueue * readyQ = *qp;
@@ -206,14 +213,15 @@ MultiWfScheduler::run() {
         this->setExecPriority(n);
         // insert node into execution queue
         execQueue->pushNode(n);
-        nodeCount++;
+        queuedNodeCount++;
         npc--;
       }
       ++qp; // go to next queue
     }
 
-    if (nodeCount > 0) {
-      TRACE_TEXT(TRACE_ALL_STEPS,"Phase 2: Check ressources for nodes in exec queue" << endl);
+    if (queuedNodeCount > 0) {
+      TRACE_TEXT(TRACE_ALL_STEPS,"Phase 2: Check ressources for nodes in exec queue ("
+          << queuedNodeCount << " nodes)" << endl);
       // Build list of services for all nodes in the exec queue
       // and ask MA for list of ressources available
       wf_response_t * wf_response = getProblemEstimates(execQueue, myMaDag->getMA());
@@ -221,6 +229,7 @@ MultiWfScheduler::run() {
         cout << "ERROR during MA submission" << endl;
         continue;
       }
+      mappedNodeCount = 0;
       // Assign available ressources to nodes and start node execution
       while (!execQueue->isEmpty()) {
         Node *n = execQueue->popFirstNode();
@@ -257,6 +266,7 @@ MultiWfScheduler::run() {
 	  TRACE_TEXT(TRACE_ALL_STEPS,"  $$$$ Exec node : " << n->getCompleteId()
             << " / request #" << n->getWfReqId()
             << " / prio = " << n->getPriority() << endl);
+          mappedNodeCount++;
           runNode(n, n->getSeD());
 
           // Destroy queues if both are empty
@@ -286,8 +296,16 @@ MultiWfScheduler::run() {
 
     this->myLock.unlock();
 
-    if (nodeCount == 0) {
-      TRACE_TEXT(TRACE_ALL_STEPS,"No ready nodes" << endl);
+    // The condition to go for a new round is the availability of ressources: under the
+    // hypothesis that all ressources are identical (in terms of provided services) for
+    // a given dag then there may be available ressources only if all nodes in the
+    // execQueue were assigned a ressource.
+    if ((queuedNodeCount == 0) || (queuedNodeCount > mappedNodeCount)) {
+      if (queuedNodeCount == 0) {
+        TRACE_TEXT(TRACE_ALL_STEPS,"No ready nodes - sleeping" << endl);
+      } else {
+        TRACE_TEXT(TRACE_ALL_STEPS,"No ressource available - sleeping" << endl);
+      }
       this->mySem.wait();
       if (this->termNode) {
         TRACE_TEXT(TRACE_ALL_STEPS,"Joining RunNode thread" << endl);
