@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/06/18 15:01:33  bisnard
+ * use new attribute estDuration to store job duration for each node
+ * rename method to avoid confusion (getCompTimeEst)
+ * initialize dag scheduling time in multi-wf scheduler
+ *
  * Revision 1.5  2008/05/05 13:54:17  bisnard
  * new computation time estimation get/set functions
  *
@@ -53,15 +58,13 @@ namespace madag {
      * @param orderedNodes  vector of nodes ordered by decreasing priority
      * @param wf_response   the estimates given by the MA
      * @param dag           the dag
-     * @param initTime      dag starting time (set by method)
-     * @param refTime       reference time (all timestamps are relative to this ref)
+     * @param initTime      dag starting time in ms (relative)
      */
     virtual void
     setNodesEFT(std::vector<Node *>& orderedNodes,
                 const wf_response_t * wf_response,
                 Dag * dag,
-                double& initTime,
-                double refTime);
+                double initTime);
 
     /**
      * Old scheduling methods
@@ -94,14 +97,14 @@ namespace madag {
   private:
 
     /**
-     * Get the value of estimated computation time from wf response
+     * Get the value of estimated job duration from wf response
      * for a given service and a given server
      * @param wf_response the wf response structure
      * @param pbIndex the index of the problem (service)
      * @param srvIndex the index of the server
      */
     double
-    getCompTimeEst(const wf_response_t * wf_response,
+    getNodeDurationEst(const wf_response_t * wf_response,
                    unsigned int pbIndex,
                    unsigned int srvIndex);
 
@@ -119,7 +122,7 @@ namespace madag {
     rank(Node * n);
 
     // the average wi
-    map<string, double> WI;
+    map<string, double> WI; // obsolete
     // AFT and AST map
     map<string, double> AFT;
     map<string, double> AST;  // obsolete

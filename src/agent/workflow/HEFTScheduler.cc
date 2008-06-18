@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2008/06/18 15:01:33  bisnard
+ * use new attribute estDuration to store job duration for each node
+ * rename method to avoid confusion (getCompTimeEst)
+ * initialize dag scheduling time in multi-wf scheduler
+ *
  * Revision 1.6  2008/06/03 15:32:59  bisnard
  * Modify rank calculation
  *
@@ -77,19 +82,17 @@ HEFTScheduler::setNodesPriority(const wf_response_t * wf_response, Dag * dag) {
  * Note that if there are many servers available for a given node, the
  * complexity of this method is <nb_servers> * <nb_predecessors> for each
  * node.
+ * @param orderedNodes the array of nodes to initialize
+ * @param initTime the current time (relative to scheduler ref) in ms
  */
 void
 HEFTScheduler::setNodesEFT(std::vector<Node *>& orderedNodes,
                            const wf_response_t * wf_response,
                            Dag * dag,
-                           double& initTime,
-                           double refTime) {
+                           double initTime) {
   // to store the availabilty of resources
   map<std::string, double> avail;
   // init the availability map (one entry per hostname)
-  struct timeval current_time;
-  gettimeofday(&current_time, NULL);
-  initTime = current_time.tv_sec - refTime;
   for (unsigned int ix=0;
        ix < wf_response->wfn_seq_resp.length();
        ix++) {
@@ -102,7 +105,8 @@ HEFTScheduler::setNodesEFT(std::vector<Node *>& orderedNodes,
 	avail[hostname] = initTime;
     }
   }
-  TRACE_TEXT (TRACE_ALL_STEPS, "HEFT : start computing nodes EFT" << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS, "HEFT : start computing nodes EFT (init time = "
+      << initTime << ")" << endl);
   // LOOP-1: for all dag nodes in the order provided
   for (std::vector<Node *>::iterator p = orderedNodes.begin();
        p != orderedNodes.end();
@@ -130,9 +134,9 @@ HEFTScheduler::setNodesEFT(std::vector<Node *>& orderedNodes,
 	   jx++) {
 	EST = max(EST, AFT[n->getPrev(jx)->getCompleteId()]);
       } // end for jx
-      double estCompTime = this->getCompTimeEst(wf_response, pb_index, ix);
-      if ( ( EST + estCompTime < EFT ) || (EFT == 0)) {
-	EFT = EST + estCompTime;
+      double nodeDuration = this->getNodeDurationEst(wf_response, pb_index, ix);
+      if ( ( EST + nodeDuration < EFT ) || (EFT == 0)) {
+	EFT = EST + nodeDuration;
 	sed_ind = ix;
       }
     } // end for ix
@@ -153,9 +157,13 @@ HEFTScheduler::setNodesEFT(std::vector<Node *>& orderedNodes,
 /****************************************************************************/
 /*                          PRIVATE METHODS                                 */
 /****************************************************************************/
-
+/**
+ * Get the estimation of job duration from the SeD estimation vector
+ * (TCOMP value)
+ * IMPORTANT: the value must be in milliseconds
+ */
 double
-HEFTScheduler::getCompTimeEst(const wf_response_t * wf_response,
+HEFTScheduler::getNodeDurationEst(const wf_response_t * wf_response,
                               unsigned int pbIndex,
                               unsigned int srvIndex) {
   return diet_est_get_internal(&wf_response->wfn_seq_resp[pbIndex].response.servers[srvIndex].estim,
@@ -164,7 +172,6 @@ HEFTScheduler::getCompTimeEst(const wf_response_t * wf_response,
 
 /**
  * Computes the average value of node workload across the Seds
- * (result stored in the WI table)
  */
 void
 HEFTScheduler::computeNodeWeights(const wf_response_t * wf_response,
@@ -175,20 +182,19 @@ HEFTScheduler::computeNodeWeights(const wf_response_t * wf_response,
        p != dag->end();
        p++) {
     n = (Node *)(p->second);
-    WI[n->getCompleteId()] = 0;
+    n->setEstDuration(0);
     // found the corresponding response in wf_response
     for (unsigned int ix=0; ix<wf_response->wfn_seq_resp.length(); ix++) {
       if (!strcmp(n->getPb().c_str(), wf_response->wfn_seq_resp[ix].node_id)) {
-	// compute WI[ix]
+	// compute mean of job duration for all servers
         double w = 0;
-        for (unsigned int jx=0;
-             jx < wf_response->wfn_seq_resp[ix].response.servers.length();
-             jx++) {
-          w += this->getCompTimeEst(wf_response, ix, jx);
+        int    nbServers = wf_response->wfn_seq_resp[ix].response.servers.length();
+        for (unsigned int jx=0; jx < nbServers; jx++) {
+          w += this->getNodeDurationEst(wf_response, ix, jx);
         } // end for jx
-        WI[n->getCompleteId()] = w / wf_response->wfn_seq_resp[ix].response.servers.length();
+        n->setEstDuration( w / nbServers);
         TRACE_TEXT (TRACE_ALL_STEPS, " HEFT : node " << n->getCompleteId() << " weight :"
-            << WI[n->getCompleteId()] << endl);
+            << n->getEstDuration() << endl);
       }
     } // end for ix
   } // end for nodes
@@ -196,7 +202,7 @@ HEFTScheduler::computeNodeWeights(const wf_response_t * wf_response,
 
 /**
  * rank the nodes upward
- * (uses the WI table and updates the priority of each node)
+ * (uses the estimation of job duration calculated for each node)
  */
 void
 HEFTScheduler::rank(Node * n) {  // RECURSIVE
@@ -208,10 +214,10 @@ HEFTScheduler::rank(Node * n) {  // RECURSIVE
     // LOOP for all descendant nodes of n
     for (unsigned int ix=0; ix<len; ix++) {
       succ = (Node*)(n->getNext(ix));
-      // add WI of current node and priority of descendant node and compare it to
+      // add duration of current node and priority of descendant node and compare it to
       // priority of current node: if higher then change priority of current node
-      if ((succ->getPriority() + WI[n->getCompleteId()]) > n->getPriority()) {
-        n->setPriority(succ->getPriority() + WI[n->getCompleteId()]);
+      if ((succ->getPriority() + n->getEstDuration()) > n->getPriority()) {
+        n->setPriority(succ->getPriority() + n->getEstDuration());
       }
     }
   }
