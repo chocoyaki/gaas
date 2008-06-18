@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/06/18 14:58:05  bisnard
+ * Bug in priority queue insertion
+ *
  * Revision 1.3  2008/06/03 12:18:12  bisnard
  * Get iterator on ordered queue
  *
@@ -151,19 +154,21 @@ PriorityNodeQueue::pushNode(Node * insNode) {
   std::list<Node*>::iterator  nodeIter = orderedNodes.begin();
   Node *                      curNode   = NULL;
   while ((nodeIter != orderedNodes.end())
-          && (curNode != NULL)
+          && (curNode = (Node *) *nodeIter)
           && (curNode->getPriority() >= insNodePrio)) {
-    curNode = (Node *) *nodeIter;
     nodeIter++;
   }
   orderedNodes.insert(nodeIter, insNode);
   insNode->setNodeQueue(this);
   this->nodeCounter++;
 
-  if (curNode != NULL) {
+  if (nodeIter != orderedNodes.end()) {
     TRACE_TEXT (TRACE_ALL_STEPS,
       "Node " << insNode->getCompleteId() << " inserted before "
           << curNode->getCompleteId() << " in queue" << endl);
+  } else if (curNode != NULL) {
+    TRACE_TEXT (TRACE_ALL_STEPS,
+      "Node " << insNode->getCompleteId() << " inserted last in queue" << endl);
   } else {
     TRACE_TEXT (TRACE_ALL_STEPS,
       "Node " << insNode->getCompleteId() << " inserted first in queue" << endl);
