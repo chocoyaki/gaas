@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2008/06/18 15:00:32  bisnard
+ * use new Node attribute estDuration to store job duration for each node
+ *
  * Revision 1.13  2008/06/04 07:52:37  bisnard
  * SeD mapping done by MaDag just before node execution
  *
@@ -246,6 +249,7 @@ Node::Node(int wfReqId, string id, string pb_name,
   this->myQueue = NULL;
   this->realCompTime = -1;
   this->estCompTime = -1;
+  this->estDelay = 0;
 } // end Node constructor
 
 /**
@@ -835,6 +839,7 @@ Node::setAsDone(double compTime) {
   task_done = true;
   node_running = false;
   this->setRealCompTime(compTime);
+  TRACE_TEXT (TRACE_ALL_STEPS, "completion time is " << compTime << endl);
   // notify the successors
   Node * n;
   TRACE_TEXT (TRACE_ALL_STEPS,
@@ -897,6 +902,22 @@ Node::getSeD() {
 /****************************************************************************/
 /*                           Timestamps (MaDag)                             */
 /****************************************************************************/
+
+/**
+ * set the estimated duration
+ */
+void
+Node::setEstDuration(double time) {
+  this->estDuration = time;
+} // end setDuration
+
+/**
+ * get the estimated duration
+ */
+double
+Node::getEstDuration() {
+  return this->estDuration;
+} // end getEstDuration
 
 /**
  * set the estimated completion time

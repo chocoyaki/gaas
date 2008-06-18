@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2008/06/18 15:00:32  bisnard
+ * use new Node attribute estDuration to store job duration for each node
+ *
  * Revision 1.10  2008/06/04 07:52:38  bisnard
  * SeD mapping done by MaDag just before node execution
  *
@@ -420,6 +423,18 @@ public:
   getPrev(unsigned int n);
 
   /**
+   * set the estimated duration
+   */
+  void
+  setEstDuration(double time);
+
+  /**
+   * get the estimated duration
+   */
+  double
+  getEstDuration();
+
+  /**
    * set the estimated completion time
    */
   void
@@ -700,17 +715,22 @@ private:
   unsigned int nextDone;
 
   /**
-   * Estimated completion time (absolute time)
+   * Estimated duration (in ms)
+   */
+  double estDuration;
+
+  /**
+   * Estimated completion time (in ms)
    */
   double estCompTime;
 
   /**
-   * Estimated delay (in seconds)
+   * Estimated delay (in ms)
    */
   double estDelay;
 
   /**
-   * Real completion time
+   * Real completion time (in ms)
    */
   double realCompTime;
 
