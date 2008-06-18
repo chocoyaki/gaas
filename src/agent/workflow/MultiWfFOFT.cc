@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2008/06/18 15:04:22  bisnard
+ * initialize dag scheduling time in multi-wf scheduler
+ * update slowdown when node is waiting in the ready nodes queue
+ *
  * Revision 1.11  2008/06/03 13:37:09  bisnard
  * Multi-workflow sched now keeps nodes in the ready nodes queue
  * until a ressource is available to ensure comparison is done btw
@@ -83,32 +87,6 @@ DagState::DagState() {
   this->makespan = -1;
   this->estimatedDelay = 0;
   this->slowdown = 0;
-  this->executedNodes = 0;
-}
-
-
-/**
- * Notify the scheduler that a node is done (called by runNode)
- * Triggers the update of slowdown parameter for the dag of the node
- */
-void
-MultiWfFOFT::handlerNodeDone(Node * node) {
-  DagState& curDagState   = this->dagsState[node->getDag()];
-  double dagPrevEstDelay  = curDagState.estimatedDelay;
-  if (node->getDag()->updateDelayRec(node, node->getRealDelay())) {
-    double dagNewEstDelay   = node->getDag()->getEstDelay();
-    // updates slowdown if the global delay for the dag is increased
-    if (dagNewEstDelay > dagPrevEstDelay) {
-       // updates the estimated delay
-      curDagState.estimatedDelay = dagNewEstDelay;
-      // slowdown is the percentage of delay relatively to initial makespan
-      curDagState.slowdown = (double) 100 * dagNewEstDelay / curDagState.makespan;
-      TRACE_FUNCTION(TRACE_ALL_STEPS, "updated slowdown = "
-          << curDagState.slowdown << endl);
-    }
-  } else {
-      TRACE_FUNCTION(TRACE_ALL_STEPS,"Problem during updateDelayRec" << endl);
-  }
 }
 
 /****************************************************************************/
@@ -130,25 +108,83 @@ MultiWfFOFT::intraDagSchedule(Dag * dag, MasterAgent_var MA)
   this->mySched->setNodesPriority(wf_response, dag);
 
   // Initialize the earliest finish time for all nodes
-  double startTime = 0; // will contain the timestamp for scheduling starting time
   std::vector<Node*>& orderedNodes = dag->getNodesByPriority();
-  this->mySched->setNodesEFT(orderedNodes, wf_response, dag, startTime, this->getRefTime());
+  double startTime = this->getRelCurrTime();
+  this->mySched->setNodesEFT(orderedNodes, wf_response, dag, startTime);
   delete &orderedNodes;
+
+  // Initialize nodesFlag
+  for (map <string,Node *>::iterator iter = dag->begin(); iter != dag->end();
+       iter++) {
+    this->nodesFlag[iter->second] = false;
+  }
 
   // Initialize the earliest finish time and makespan of the dag
   this->dagsState[dag].EFT       = dag->getEFT();
   this->dagsState[dag].makespan  = this->dagsState[dag].EFT - startTime;
-  TRACE_FUNCTION(TRACE_ALL_STEPS, "Dag " << dag->getId() << " : EFT = "
-      << this->dagsState[dag].EFT << " / makespan = " << this->dagsState[dag].makespan
-      << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, "[FOFT] Init (Dag " << dag->getId() << ") EFT = "
+      << this->dagsState[dag].EFT << " / makespan = "
+      << this->dagsState[dag].makespan << endl);
 }
+
+/**
+ * Notify the scheduler that a node is done (called by runNode)
+ * Triggers the update of slowdown parameter for the dag of the node
+ */
+void
+MultiWfFOFT::handlerNodeDone(Node * node) {
+  this->updateNodeDelay(node, node->getRealDelay());
+}
+
+
+/**
+ * Updates scheduler when a node cannot be executed and is waiting
+ * in the ready nodes queue.
+ * Set a flag to trigger slowdown calculation the next time this node's
+ * priority is set.
+*/
+void
+MultiWfFOFT::handlerNodeWaiting(Node * node) {
+  this->nodesFlag[node] = true;
+}
+
 
 /**
  * set node priority before inserting into execution queue
  */
 void
 MultiWfFOFT::setExecPriority(Node * node) {
+  // if flag is set (prev attempt to exec failed due to lack of ress.
+  if (this->nodesFlag[node]) {
+    double currDelay = this->getRelCurrTime() + node->getEstDuration() - node->getEstCompTime();
+    if (currDelay > 0)
+      this->updateNodeDelay(node, currDelay);
+  }
   node->setPriority(this->dagsState[node->getDag()].slowdown);
-  TRACE_TEXT(TRACE_ALL_STEPS,"     Node priority (slowdown) set to " << node->getPriority()
+  TRACE_TEXT(TRACE_ALL_STEPS,"[FOFT] Node priority (slowdown) set to " << node->getPriority()
       << " before exec. " << endl);
+}
+
+
+/**
+ * Updates the delay of a node
+ * Updates the slowdown of the DAG if needed
+ */
+void
+MultiWfFOFT::updateNodeDelay(Node * node, double delay) {
+  DagState& curDagState   = this->dagsState[node->getDag()];
+  double dagPrevEstDelay  = curDagState.estimatedDelay;
+  // Recursively updates the delay for the node and its successors
+  node->getDag()->updateDelayRec(node, delay);
+  // Check new value of the dag estimated delay
+  double dagNewEstDelay   = node->getDag()->getEstDelay();
+  // updates slowdown if the global delay for the dag is increased
+  if (dagNewEstDelay > dagPrevEstDelay) {
+    // updates the estimated delay
+    curDagState.estimatedDelay = dagNewEstDelay;
+    // slowdown is the percentage of delay relatively to initial makespan
+    curDagState.slowdown = (double) 100 * dagNewEstDelay / curDagState.makespan;
+    TRACE_TEXT(TRACE_MAIN_STEPS, "[FOFT] Updated slowdown for dag "
+        << node->getDag()->getId() << " = " << curDagState.slowdown << endl);
+  }
 }

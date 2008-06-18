@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2008/06/18 15:04:23  bisnard
+ * initialize dag scheduling time in multi-wf scheduler
+ * update slowdown when node is waiting in the ready nodes queue
+ *
  * Revision 1.7  2008/05/30 14:39:57  bisnard
  * cleanup
  *
@@ -60,13 +64,20 @@ namespace madag {
     MultiWfFOFT(MaDag_impl* maDag);
     virtual ~MultiWfFOFT();
 
+  protected:
+
     /**
      * Updates scheduler when a node has been executed
      */
     virtual void
         handlerNodeDone(Node * node);
 
-  protected:
+    /**
+     * Updates scheduler when a node cannot be executed and is waiting
+     * in the ready nodes queue
+     */
+    virtual void
+        handlerNodeWaiting(Node * node);
 
     /**
      * internal dag scheduling
@@ -83,9 +94,25 @@ namespace madag {
         setExecPriority(Node * node);
 
     /**
+     * updates the delay for a given node and change the current dag
+     * slowdown value accordingly if the dag delay is impacted
+     * @param node
+     * @param delay delay in ms
+     */
+    virtual void
+        updateNodeDelay(Node * node, double delay);
+
+  private:
+
+    /**
      * Save the state of dags
      */
     map<Dag*, DagState> dagsState;
+
+    /**
+     * Mark the nodes which priority must be re-calculated
+     */
+    map<Node*,bool> nodesFlag;
 
   };
 
@@ -119,10 +146,6 @@ namespace madag {
      */
     double slowdown;
 
-    /**
-     * The number of executed (or scheduled) nodes
-     */
-    unsigned int executedNodes;
   };
 
 }
