@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/06/18 15:03:39  bisnard
+ * initialize dag scheduling time in multi-wf scheduler
+ *
  * Revision 1.4  2008/04/30 07:36:21  bisnard
  * use relative timestamps for estimated and real completion time
  *
@@ -61,8 +64,7 @@ namespace madag {
     setNodesEFT(std::vector<Node *>& orderedNodes,
                 const wf_response_t * wf_response,
                 Dag * dag,
-                double& initTime,
-                double refTime) = 0;
+                double initTime) = 0;
     /**
      * Old scheduling methods
      * @deprecated
