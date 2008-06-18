@@ -10,6 +10,9 @@
 
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/06/18 15:06:51  bisnard
+ * set NodeRun class as friend to protect handler methods
+ *
  * Revision 1.2  2008/06/01 14:06:57  rbolze
  * replace most ot the cout by adapted function from debug.cc
  * there are some left ...
@@ -39,6 +42,7 @@ namespace madag {
     MultiWfHEFT(MaDag_impl* maDag);
     virtual ~MultiWfHEFT();
 
+  protected:
     /**
      * Updates scheduler when a node has been executed
      */
