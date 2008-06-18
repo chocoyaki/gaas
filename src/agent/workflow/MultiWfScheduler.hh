@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2008/06/18 15:03:09  bisnard
+ * use milliseconds instead of seconds in timestamps
+ * new handler method when node is waiting in queue
+ * set NodeRun class as friend to protect handler methods
+ *
  * Revision 1.10  2008/06/03 13:37:09  bisnard
  * Multi-workflow sched now keeps nodes in the ready nodes queue
  * until a ressource is available to ensure comparison is done btw
@@ -69,6 +74,9 @@ namespace madag {
   class NodeRun;
 
   class MultiWfScheduler : public Thread {
+
+  friend class NodeRun;
+
   public:
     /**
      * Selector for node priority policy:
@@ -116,6 +124,8 @@ namespace madag {
     virtual void *
         run();
 
+  protected:
+
     /**
      * Execute a post operation on synchronisation semaphore
      * and joins the node thread given as parameter
@@ -137,13 +147,18 @@ namespace madag {
         handlerNodeDone(Node * node) = 0;
 
     /**
+     * Updates scheduler when a node cannot be executed and is waiting
+     * in the ready nodes queue
+     */
+    virtual void
+        handlerNodeWaiting(Node * node);
+
+    /**
      * Get the current time from scheduler reference clock
-     * @return  current time in sec (from scheduler start)
+     * @return  current time in milliseconds (from scheduler start)
      */
     double
         getRelCurrTime();
-
-  protected:
 
     /**
      * The Wf meta-scheduler scheduler
@@ -268,15 +283,9 @@ namespace madag {
         setExecPriority(Node * node);
 
     /**
-     * get the reference time (when scheduler started)
-     * used to compute diff with this time
-     */
-    double
-        getRefTime();
-
-    /**
      * Inter-node delay (used to separate DIET submits)
      *(in milliseconds)
+     * @obsolete
      */
     static long interNodeDelay;
 
@@ -295,7 +304,7 @@ namespace madag {
     /**
      * Reference time
      */
-    double refTime;
+    struct timeval refTime;
 
   }; // end class MultiWfScheduler
 

@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2008/06/18 15:03:09  bisnard
+ * use milliseconds instead of seconds in timestamps
+ * new handler method when node is waiting in queue
+ * set NodeRun class as friend to protect handler methods
+ *
  * Revision 1.16  2008/06/17 10:15:36  bisnard
  * Corrected bug in execution loop
  *
@@ -97,10 +102,7 @@ MultiWfScheduler::MultiWfScheduler(MaDag_impl* maDag, nodePolicy_t nodePol)
   : mySem(0), myMaDag(maDag), nodePolicy(nodePol) {
   this->mySched   = new HEFTScheduler();
   this->execQueue = NULL; // must be initialized in derived class constructor
-  // init reference time
-  struct timeval current_time;
-  gettimeofday(&current_time, NULL);
-  this->refTime = current_time.tv_sec;
+  gettimeofday(&this->refTime, NULL); // init reference time
 }
 
 MultiWfScheduler::~MultiWfScheduler() {
@@ -159,6 +161,7 @@ MultiWfScheduler::scheduleNewDag(const corba_wf_desc_t& wf_desc, int wfReqId,
   this->insertNodeQueue(readyNodeQ);
 
   // Send signal to scheduler thread to inform there are new nodes
+  TRACE_TEXT( TRACE_MAIN_STEPS, "%%%%% NEW DAG SUBMITTED: dag id = " << newDag->getId() << endl);
   this->wakeUp();
 
   // End of exclusion block
@@ -185,7 +188,7 @@ MultiWfScheduler::run() {
   else if (this->nodePolicy == MULTIWF_DAG_METRIC)
     nodePolicyCount = 1;    // ie take only 1 ready node
 
-  TRACE_TEXT(TRACE_MAIN_STEPS,"Multi-Workflow scheduler is running" << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS,"Multi-Workflow scheduler is running" << endl);
   /// Start a ROUND of node ordering & mapping
   /// New rounds are started as long as some nodes can be mapped to ressources
   /// (if no more ressources then we wait until a node is finished or a new dag
@@ -205,9 +208,7 @@ MultiWfScheduler::run() {
       int npc = nodePolicyCount;
       Node * n = NULL;
       while ((npc) && (n = readyQ->popFirstNode())) {
-        TRACE_TEXT(TRACE_ALL_STEPS,"  #### Ready node : " << n->getCompleteId()
-            << " / request #" << n->getWfReqId()
-            << " / prio = " << n->getPriority() << endl);
+        // save the address of the readyQ for this node (used if node pushed back)
         n->setLastQueue(readyQ);
         // set priority of node (depends on choosen algorithm)
         this->setExecPriority(n);
@@ -215,6 +216,9 @@ MultiWfScheduler::run() {
         execQueue->pushNode(n);
         queuedNodeCount++;
         npc--;
+        TRACE_TEXT(TRACE_MAIN_STEPS,"  #### Ready node : " << n->getCompleteId()
+            << " / request #" << n->getWfReqId()
+            << " / prio = " << n->getPriority() << endl);
       }
       ++qp; // go to next queue
     }
@@ -263,7 +267,7 @@ MultiWfScheduler::run() {
         // EXECUTE NODE (NEW THREAD)
         if (ressourceFound) {
           n->setAsRunning();
-	  TRACE_TEXT(TRACE_ALL_STEPS,"  $$$$ Exec node : " << n->getCompleteId()
+	  TRACE_TEXT(TRACE_MAIN_STEPS,"  $$$$ Exec node : " << n->getCompleteId()
             << " / request #" << n->getWfReqId()
             << " / prio = " << n->getPriority() << endl);
           mappedNodeCount++;
@@ -283,6 +287,7 @@ MultiWfScheduler::run() {
         // PUT THE NODE BACK IN THE READY QUEUE if no ressource available
         else {
           readyQ->pushNode(n);
+          this->handlerNodeWaiting(n);
         }
 
         // DELAY between NODES (to avoid interference btw submits) ==> still necessary ??
@@ -292,7 +297,15 @@ MultiWfScheduler::run() {
       // cleanup availability matrix
       avail.clear();
 
-    } // end if nodeCount > 0
+      // round-robbin on the ready queues
+      if (readyQueues.size() > 0) {
+        // TRACE_TEXT(TRACE_MAIN_STEPS,"Round-robbin on ready queues" << endl);
+        OrderedNodeQueue * firstReadyQueue = readyQueues.front();
+        readyQueues.pop_front();
+        readyQueues.push_back(firstReadyQueue);
+      }
+
+    } // end if queuedNodeCount > 0
 
     this->myLock.unlock();
 
@@ -302,9 +315,9 @@ MultiWfScheduler::run() {
     // execQueue were assigned a ressource.
     if ((queuedNodeCount == 0) || (queuedNodeCount > mappedNodeCount)) {
       if (queuedNodeCount == 0) {
-        TRACE_TEXT(TRACE_ALL_STEPS,"No ready nodes - sleeping" << endl);
+        TRACE_TEXT(TRACE_MAIN_STEPS,"No ready nodes - sleeping" << endl);
       } else {
-        TRACE_TEXT(TRACE_ALL_STEPS,"No ressource available - sleeping" << endl);
+        TRACE_TEXT(TRACE_MAIN_STEPS,"No ressource available - sleeping" << endl);
       }
       this->mySem.wait();
       if (this->termNode) {
@@ -346,7 +359,8 @@ double
 MultiWfScheduler::getRelCurrTime() {
   struct timeval current_time;
   gettimeofday(&current_time, NULL);
-  return (current_time.tv_sec - this->refTime);
+  return (double) ((current_time.tv_sec - refTime.tv_sec)*1000
+      + (current_time.tv_usec - refTime.tv_usec)/1000);
 }
 
 /****************************************************************************/
@@ -478,13 +492,13 @@ void
 MultiWfScheduler::setExecPriority(Node * node) {
   // by default does nothing
 }
-
 /**
- * get reference time
+ * Handler when node is sent back to ready queue when it cannot be
+ * executed due to lack of ressources
  */
-double
-MultiWfScheduler::getRefTime() {
-  return this->refTime;
+void
+MultiWfScheduler::handlerNodeWaiting(Node * node) {
+  // by default does nothing
 }
 
 /**
@@ -541,7 +555,7 @@ NodeRun::run() {
     // POST-PROCESSING
 
     if (res == 0) {
-      TRACE_TEXT (TRACE_ALL_STEPS, "NodeRun: node " << this->myNode->getCompleteId()
+      TRACE_TEXT (TRACE_MAIN_STEPS, "NodeRun: node " << this->myNode->getCompleteId()
           << " is done" << endl);
       // update node status (must be called before handlerNodeDone to update realCompTime)
       this->myNode->setAsDone(this->myScheduler->getRelCurrTime());
@@ -558,7 +572,7 @@ NodeRun::run() {
 	if (this->myScheduler->getMaDag()->dietLogComponent != NULL) {
 		this->myScheduler->getMaDag()->dietLogComponent->logDag(message);
 	}
-	TRACE_TEXT (TRACE_ALL_STEPS,"############### dag_id="<< this->myNode->getDag()->getId().c_str()
+	TRACE_TEXT (TRACE_MAIN_STEPS,"############### dag_id="<< this->myNode->getDag()->getId().c_str()
 			 <<" is done ################"<<endl);
       }
     } else {
@@ -569,7 +583,7 @@ NodeRun::run() {
 
     // Manage dag termination if a node failed
     if (this->myNode->getDag()->isCancelled() && !this->myNode->getDag()->isRunning()) {
-      TRACE_TEXT (TRACE_ALL_STEPS, "NodeRun: DAG "
+      TRACE_TEXT (TRACE_MAIN_STEPS, "NodeRun: DAG "
           << this->myNode->getDag()->getId().c_str() << " IS CANCELLED!" << endl);
       char* message = myCltMan->release(this->myNode->getDag()->getId().c_str());
     }
