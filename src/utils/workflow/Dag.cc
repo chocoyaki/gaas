@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2008/06/18 14:58:57  bisnard
+ * bug in updateDelayRec
+ *
  * Revision 1.8  2008/06/02 08:35:39  bisnard
  * Avoid MaDag crash in case of client-SeD comm failure
  *
@@ -1055,16 +1058,23 @@ Dag::setEstDelay(double delay) {
 
 bool
 Dag::updateDelayRec(Node * node, double newDelay) {
-  if ((newDelay > 0) && (newDelay > node->getEstDelay())) {
+  bool res = true;
+  if (newDelay > node->getEstDelay()) {
     // the node is/will be late compared to the last estimated delay
     // so the new delay must be propagated to the successors
     node->setEstDelay(newDelay);
     for (unsigned int ix=0; ix < node->nextNodesCount(); ix++) {
       Node * succ = (Node*)(node->getNext(ix));
-      return this->updateDelayRec(succ, newDelay);
+      res = res && this->updateDelayRec(succ, newDelay);
     }
-  } else if (newDelay == 0)  return true;
-  else return false;  // input is incorrect
+  }
+  else {
+    TRACE_TEXT (TRACE_ALL_STEPS, "Delay estimate for node "
+        << node->getCompleteId() << " unchanged (newDelay = "
+        << newDelay << " / previous delay = " << node->getEstDelay()
+        << ")" << endl);
+  }
+  return res;
 }
 
 /**
