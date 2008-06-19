@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2008/06/19 10:17:41  bisnard
+ * remove some debug mess
+ *
  * Revision 1.14  2008/06/18 15:00:32  bisnard
  * use new Node attribute estDuration to store job duration for each node
  *
@@ -257,7 +260,7 @@ Node::Node(int wfReqId, string id, string pb_name,
  */
 Node::~Node() {
   // if everything is alright, we need this line only for the exit node(s)
-  TRACE_TEXT (TRACE_ALL_STEPS, "~Node() destructor..." << endl);
+//   TRACE_TEXT (TRACE_ALL_STEPS, "~Node() destructor..." << endl);
   if (profile != NULL)
     diet_profile_free(profile);
   if (myRunnableNode)
@@ -471,8 +474,8 @@ void Node::addPrecId(string str) {
 void Node::addPrec(string str, Node * node) {
   // add the node as a previous one if not already done
   if (myPrevNodes.find(str) == myPrevNodes.end()) {
-    TRACE_TEXT (TRACE_ALL_STEPS, "The node " << this->myId << " has a new previous node " <<
-		str << endl);
+//     TRACE_TEXT (TRACE_ALL_STEPS, "The node " << this->myId << " has a new previous node " <<
+// 		str << endl);
     myPrevNodes[str] = node;
     this->addPrevNode();
     node->addNext(this);
@@ -638,7 +641,7 @@ Node::toXML(bool b) {
  */
 char *
 Node::newChar(const string value) {
-  TRACE_TEXT (TRACE_ALL_STEPS, "new char ; value | " << value <<  " |" << endl);
+//   TRACE_TEXT (TRACE_ALL_STEPS, "new char ; value | " << value <<  " |" << endl);
   if (value != "") {
     char * cx = new char;
     *cx = value.c_str()[0];
@@ -656,7 +659,7 @@ Node::newChar(const string value) {
  */
 short *
 Node::newShort(const string value) {
-  TRACE_TEXT (TRACE_ALL_STEPS, "new short ; value | " << value <<  " |" << endl);
+//   TRACE_TEXT (TRACE_ALL_STEPS, "new short ; value | " << value <<  " |" << endl);
   if (value != "") {
     short * sx = new short;
     *sx = atoi(value.c_str());
@@ -674,8 +677,8 @@ Node::newShort(const string value) {
  */
 int *
 Node::newInt(const string value) {
-  TRACE_TEXT (TRACE_ALL_STEPS,
-	      "new int ; value | " << value <<  " |" << endl);
+//   TRACE_TEXT (TRACE_ALL_STEPS,
+// 	      "new int ; value | " << value <<  " |" << endl);
   if (value != "") {
     int * ix = new int;
     *ix = atoi(value.c_str());
@@ -694,8 +697,8 @@ Node::newInt(const string value) {
  */
 long *
 Node::newLong(const string value) {
-  TRACE_TEXT (TRACE_ALL_STEPS,
-	      "new long ; value | " << value <<  " |" << endl);
+//   TRACE_TEXT (TRACE_ALL_STEPS,
+// 	      "new long ; value | " << value <<  " |" << endl);
   if (value != "") {
     long * lx = new long;
     *lx = atoi(value.c_str());
@@ -717,8 +720,8 @@ Node::newString (const string value) {
   char * str = new char[value.size()+1];
   strcpy(str, value.c_str());
 
-  TRACE_TEXT (TRACE_ALL_STEPS,
-	      "----> new string; value = " << value << ", " << str << endl);
+//   TRACE_TEXT (TRACE_ALL_STEPS,
+// 	      "----> new string; value = " << value << ", " << str << endl);
   stringParams.push_back(str);
   return str;
 } // end newString
@@ -731,8 +734,8 @@ Node::newFile (const string value) {
   char * str = new char[value.size()+1];
   strcpy(str, value.c_str());
 
-  TRACE_TEXT (TRACE_ALL_STEPS,
-	      "----> new file; value = " << value << ", " << str << endl);
+//   TRACE_TEXT (TRACE_ALL_STEPS,
+// 	      "----> new file; value = " << value << ", " << str << endl);
   fileParams.push_back(str);
   return str;
 } // end newFile

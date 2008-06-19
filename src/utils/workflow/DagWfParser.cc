@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/06/19 10:17:41  bisnard
+ * remove some debug mess
+ *
  * Revision 1.5  2008/06/01 14:06:56  rbolze
  * replace most ot the cout by adapted function from debug.cc
  * there are some left ...
@@ -1108,7 +1111,6 @@ DagWfParser::setParamDesc(const wf_port_t param_type,
 			  long int var,
 			  Node * dagNode,
 			  const string * value) {
-  TRACE_TEXT (TRACE_ALL_STEPS, " type : "<< type << endl);
   if (type == WfCst::DIET_CHAR) {
     if (value != NULL)
       diet_scalar_set(diet_parameter(profile, lastArg),
@@ -1212,7 +1214,7 @@ DagWfParser::setParamDesc(const wf_port_t param_type,
 		    NULL,
 		    DIET_VOLATILE,
 		    DIET_DOUBLE);
-  } 
+  }
   return true;
 } // end setParamDesc
 
