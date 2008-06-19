@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2008/06/19 10:18:54  bisnard
+ * new heuristic AgingHEFT for multi-workflow scheduling
+ *
  * Revision 1.17  2008/06/18 15:03:09  bisnard
  * use milliseconds instead of seconds in timestamps
  * new handler method when node is waiting in queue
@@ -159,6 +162,9 @@ MultiWfScheduler::scheduleNewDag(const corba_wf_desc_t& wf_desc, int wfReqId,
   // Insert node queue into pool of node queues managed by the scheduler
   TRACE_TEXT (TRACE_ALL_STEPS, "Inserting new node queue into queue pool" << endl);
   this->insertNodeQueue(readyNodeQ);
+
+  // Set starting time of the DAG
+  newDag->setStartTime(this->getRelCurrTime());
 
   // Send signal to scheduler thread to inform there are new nodes
   TRACE_TEXT( TRACE_MAIN_STEPS, "%%%%% NEW DAG SUBMITTED: dag id = " << newDag->getId() << endl);
@@ -594,3 +600,18 @@ NodeRun::run() {
   fflush(stdout);
   this->myScheduler->wakeUp(this);
 }
+
+/****************************************************************************/
+/*                            CLASS DagState                                */
+/****************************************************************************/
+
+/**
+ * DagState default constructor
+ */
+DagState::DagState() {
+  this->EFT = -1;
+  this->makespan = -1;
+  this->estimatedDelay = 0;
+  this->slowdown = 0;
+}
+

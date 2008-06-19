@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2008/06/19 10:18:54  bisnard
+ * new heuristic AgingHEFT for multi-workflow scheduling
+ *
  * Revision 1.8  2008/06/18 15:04:23  bisnard
  * initialize dag scheduling time in multi-wf scheduler
  * update slowdown when node is waiting in the ready nodes queue
@@ -57,7 +60,6 @@ using namespace std;
 
 
 namespace madag {
-  class DagState;
 
   class MultiWfFOFT : public MultiWfScheduler {
   public:
@@ -113,38 +115,6 @@ namespace madag {
      * Mark the nodes which priority must be re-calculated
      */
     map<Node*,bool> nodesFlag;
-
-  };
-
-  class DagState {
-  public:
-    DagState();
-
-    /**
-     * true if the dag is marked as executed otherwise false
-     *
-     */
-    bool executed;
-
-    /**
-     * the earliest finish time of the DAG scheduled alone
-     */
-    double EFT;
-
-    /**
-     * the makespan of the DAG scheduled alone
-     */
-    double makespan;
-
-    /**
-     * the estimated global delay for the DAG
-     */
-    double estimatedDelay;
-
-    /**
-     * Dag slowdown (percentage of delay / makespan)
-     */
-    double slowdown;
 
   };
 

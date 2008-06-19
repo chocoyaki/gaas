@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2008/06/19 10:18:54  bisnard
+ * new heuristic AgingHEFT for multi-workflow scheduling
+ *
  * Revision 1.11  2008/06/03 12:19:36  bisnard
  * Method to get MA ref
  *
@@ -95,7 +98,7 @@
 class MaDag_impl : public POA_MaDag,
 		   public PortableServer::RefCountServantBase {
 public:
-  enum MaDagSchedType { BASIC, HEFT, FOFT };
+  enum MaDagSchedType { BASIC, HEFT, AHEFT, FOFT };
 
   MaDag_impl(const char * name, const MaDagSchedType schedType);
 

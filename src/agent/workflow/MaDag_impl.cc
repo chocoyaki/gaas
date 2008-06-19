@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2008/06/19 10:18:54  bisnard
+ * new heuristic AgingHEFT for multi-workflow scheduling
+ *
  * Revision 1.12  2008/06/03 12:19:36  bisnard
  * Method to get MA ref
  *
@@ -143,6 +146,9 @@ MaDag_impl::MaDag_impl(const char * name, const MaDagSchedType schedType = BASIC
       break;
     case FOFT:
       this->myMultiWfSched = new MultiWfFOFT(this);
+      break;
+    case AHEFT:
+      this->myMultiWfSched = new MultiWfAgingHEFT(this);
       break;
   }
   this->myMultiWfSched->start();

@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2008/06/19 10:18:54  bisnard
+ * new heuristic AgingHEFT for multi-workflow scheduling
+ *
  * Revision 1.12  2008/06/18 15:04:22  bisnard
  * initialize dag scheduling time in multi-wf scheduler
  * update slowdown when node is waiting in the ready nodes queue
@@ -76,17 +79,6 @@ MultiWfFOFT::MultiWfFOFT(MaDag_impl* maDag)
 
 MultiWfFOFT::~MultiWfFOFT() {
   delete dynamic_cast<PriorityNodeQueue *>(execQueue);
-}
-
-/**
- * DagState default constructor
- */
-DagState::DagState() {
-  this->executed = false;
-  this->EFT = -1;
-  this->makespan = -1;
-  this->estimatedDelay = 0;
-  this->slowdown = 0;
 }
 
 /****************************************************************************/

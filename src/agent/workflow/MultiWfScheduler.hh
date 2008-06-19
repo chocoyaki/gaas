@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2008/06/19 10:18:54  bisnard
+ * new heuristic AgingHEFT for multi-workflow scheduling
+ *
  * Revision 1.11  2008/06/18 15:03:09  bisnard
  * use milliseconds instead of seconds in timestamps
  * new handler method when node is waiting in queue
@@ -72,6 +75,7 @@ class MaDag_impl;
 
 namespace madag {
   class NodeRun;
+  class DagState;
 
   class MultiWfScheduler : public Thread {
 
@@ -312,6 +316,13 @@ namespace madag {
 /****************************************************************************/
 /*                            CLASS NodeRun                                 */
 /****************************************************************************/
+  /**
+   * This class is used by the MaDag agent to run a separate thread for each
+   * node execution. This thread will invoke the execute() method on the
+   * client workflow manager (agent located on the client) and wait until the
+   * execution is finished. Then it triggers the execution of successor nodes
+   * and informs the multi-wf scheduler that the node is completed.
+   */
 
   class NodeRun: public Thread {
     public:
@@ -326,6 +337,45 @@ namespace madag {
       MultiWfScheduler * myScheduler;
       CltMan_ptr myCltMan;
   }; // end class NodeRun
+
+/****************************************************************************/
+/*                            CLASS DagState                                */
+/****************************************************************************/
+/**
+ * This class is used by some derived classes of MultiWfScheduler to store
+ * information about the status of the DAG. The Dag structure itself is not
+ * used as this information is managed by the scheduler.
+ */
+
+  class DagState {
+  public:
+    DagState();
+
+    /**
+     * the earliest finish time of the DAG scheduled alone
+     * Used by FOFT / AgingHEFT
+     */
+    double EFT;
+
+    /**
+     * the makespan of the DAG scheduled alone
+     * Used by FOFT / AgingHEFT
+     */
+    double makespan;
+
+    /**
+     * the estimated global delay for the DAG
+     * Used by FOFT
+     */
+    double estimatedDelay;
+
+    /**
+     * Dag slowdown (percentage of delay / makespan)
+     * Used by FOFT
+     */
+    double slowdown;
+
+  }; // end class DagState
 
 } // end namespace madag
 

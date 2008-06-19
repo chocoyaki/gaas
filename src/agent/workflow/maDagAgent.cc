@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2008/06/19 10:18:54  bisnard
+ * new heuristic AgingHEFT for multi-workflow scheduling
+ *
  * Revision 1.6  2008/06/03 08:52:05  bisnard
  * handle config parameter for ORB debugging
  *
@@ -50,7 +53,7 @@ extern unsigned int TRACE_LEVEL;
 
 void usage(char * s) {
   fprintf(stderr, "Usage: %s <file.cfg> [option]\n", s);
-  fprintf(stderr, "option = --heft | --fairness\n");
+  fprintf(stderr, "option = --heft | --aging_heft | --fairness\n");
   exit(1);
 }
 
@@ -60,7 +63,8 @@ int checkUsage(int argc, char ** argv) {
   }
   if (argc >= 3) {
     if (strcmp(argv[2], "--heft") &&
-	strcmp(argv[2], "--fairness")) {
+	strcmp(argv[2], "--fairness") &&
+        strcmp(argv[2], "--aging_heft")) {
       usage(argv[0]);
     }
   }
@@ -85,7 +89,7 @@ int main(int argc, char * argv[]){
 
   /* Parsing */
 
-  // Init the Xerces engine
+  /* Init the Xerces engine */
   XMLPlatformUtils::Initialize();
 
 
@@ -116,6 +120,8 @@ int main(int argc, char * argv[]){
       schedType = MaDag_impl::FOFT;
     else if (!strcmp(argv[2], "--heft"))
       schedType = MaDag_impl::HEFT;
+    else if (!strcmp(argv[2], "--aging_heft"))
+      schedType = MaDag_impl::AHEFT;
   }
 
   /* Get the traceLevel */
@@ -130,7 +136,7 @@ int main(int argc, char * argv[]){
     myargc = tmp_argc;
   }
 
-  // INIT ORB and CREATE MADAG CORBA OBJECT
+  /* INIT ORB and CREATE MADAG CORBA OBJECT */
 
   if (ORBMgr::init(myargc, myargv)) {
     ERROR("ORB initialization failed", 1);
