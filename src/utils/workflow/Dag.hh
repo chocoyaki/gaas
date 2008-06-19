@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2008/06/19 10:17:13  bisnard
+ * new attribute to store DAG start time
+ *
  * Revision 1.7  2008/06/02 08:35:39  bisnard
  * Avoid MaDag crash in case of client-SeD comm failure
  *
@@ -295,6 +298,18 @@ public:
   getEFT();
 
   /**
+   * set the start time of the DAG
+   */
+  void
+  setStartTime(double time);
+
+  /**
+   * get the start time of the DAG
+   */
+  double
+  getStartTime();
+
+  /**
    * get the estimated delay of the DAG
    */
   double
@@ -340,6 +355,11 @@ private:
    * Workflow nodes *
    */
   std::map <std::string, Node *>   nodes;
+
+  /**
+   * start time
+   */
+  double startTime;
 
   /**
    * estimated delay

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2008/06/19 10:17:13  bisnard
+ * new attribute to store DAG start time
+ *
  * Revision 1.9  2008/06/18 14:58:57  bisnard
  * bug in updateDelayRec
  *
@@ -1028,6 +1031,22 @@ Dag::getEFT() {
       EFT = n->getEstCompTime();
   }
   return EFT;
+}
+
+/**
+ * set the start time of the DAG
+ */
+void
+Dag::setStartTime(double time) {
+  this->startTime = time;
+}
+
+/**
+ * get the start time of the DAG
+ */
+double
+Dag::getStartTime() {
+  return this->startTime;
 }
 
 /**
