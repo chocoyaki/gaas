@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/06/25 09:56:37  bisnard
+ * new method size()
+ *
  * Revision 1.4  2008/06/18 14:58:05  bisnard
  * Bug in priority queue insertion
  *
@@ -57,6 +60,11 @@ NodeQueue::pushNodes(std::vector<Node *> nodes) {
     this->pushNode(*iter);
     iter++;
   }
+}
+
+int
+NodeQueue::size() {
+  return this->nodeCounter;
 }
 
 bool

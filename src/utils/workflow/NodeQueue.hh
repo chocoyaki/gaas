@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/06/25 09:56:37  bisnard
+ * new method size()
+ *
  * Revision 1.3  2008/06/03 12:18:12  bisnard
  * Get iterator on ordered queue
  *
@@ -64,6 +67,9 @@ class NodeQueue {
 
     virtual bool
         notifyStateChange(Node * node) = 0; // notify the queue that a node's state changed
+
+    virtual int
+        size(); // returns the nb of nodes in the queue
 
     bool
         isEmpty();
