@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/06/25 09:59:40  bisnard
+ * new params in execNodeOnSeD to provide ReqId and estimation vector
+ * to client for solve request
+ *
  * Revision 1.4  2008/06/02 08:34:23  bisnard
  * Execute method (for wf node) now returns an error code in case of
  * communication failure with the SeD
@@ -31,13 +35,38 @@
 #include "SeD.idl"
 
 interface CltMan {
+  /**
+   * Request node execution on a given SeD
+   * @param node_id node identifier (string)
+   * @param dag_id  dag identifier (string)
+   * @param sed_ref the SeD CORBA object reference
+   * @param reqID   the DIET request ID of the previous submit request
+   * @param ev  the estimation vector (from previous submit request used to
+   * choose the SeD) - this param is inout to avoid const as the pointer is
+   * stored in the Node object
+   */
   long
-  execNodeOnSed(in string node_id, in string dag_id,
-	  in SeD sed_ref);
+  execNodeOnSed(in string node_id,
+                in string dag_id,
+                in SeD sed_ref,
+                in unsigned long reqID,
+                inout corba_estimation_t ev);
 
+  /**
+   * Request node execution on the best SeD available
+   * (delegates SeD choice to default scheduler)
+   * @param node_id node identifier (string)
+   * @param dag_id  dag identifier (string)
+   */
   long
-  execNode(in string node_id, in string dag_id);
+  execNode(in string node_id,
+           in string dag_id);
 
+  /**
+   * Release the manager after dag execution is either completed or
+   * cancelled
+   * @param dag_id  dag identifier (string)
+   */
   string
   release(in string dag_id);
 

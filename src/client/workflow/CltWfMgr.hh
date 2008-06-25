@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/06/25 09:59:39  bisnard
+ * new params in execNodeOnSeD to provide ReqId and estimation vector
+ * to client for solve request
+ *
  * Revision 1.4  2008/06/02 08:34:20  bisnard
  * Execute method (for wf node) now returns an error code in case of
  * communication failure with the SeD
@@ -49,7 +53,7 @@
 
 // STL headers
 #include <map>
-#include <string> 
+#include <string>
 
 // IDL headers
 #include "CltMan.hh"
@@ -74,9 +78,15 @@ public:
    * @param node_id node identifier
    * @param dag_id  dag identifier
    * @param sed     SeD where execute service
+   * @param reqID   request ID (from submit request)
+   * @param ev      Estimation vector for this SeD (from submit request)
    */
   virtual CORBA::Long
-  execNodeOnSed(const char * node_id, const char * dag_id, _objref_SeD* sed);
+  execNodeOnSed(const char * node_id,
+                const char * dag_id,
+                _objref_SeD* sed,
+                const unsigned long reqID,
+                corba_estimation_t& ev);
 
   /**
    * Executes a node without specifying the Sed (CORBA method)
@@ -262,7 +272,7 @@ private:
    * Synchronisation semaphores
    */
    omni_semaphore mySem;
- 
+
 };
 
 

@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2008/06/25 09:59:39  bisnard
+ * new params in execNodeOnSeD to provide ReqId and estimation vector
+ * to client for solve request
+ *
  * Revision 1.7  2008/06/04 07:52:36  bisnard
  * SeD mapping done by MaDag just before node execution
  *
@@ -72,14 +76,19 @@ using namespace std;
 CltWfMgr * CltWfMgr::myInstance = NULL;
 
 CORBA::Long
-CltWfMgr::execNodeOnSed(const char * node_id, const char * dag_id,
-                  _objref_SeD* sed) {
+CltWfMgr::execNodeOnSed(const char * node_id,
+                        const char * dag_id,
+                        _objref_SeD* sed,
+                        const unsigned long reqID,
+                        corba_estimation_t& ev) {
   Dag * dag = this->getDag(dag_id);
   if (dag != NULL) {
     Node * node = dag->getNode(node_id);
     if (node != NULL) {
       SeD_var sed_var = SeD::_narrow(sed);
-      node->setSeD(sed_var);
+      node->setSeD(sed_var, reqID, ev);
+      TRACE_TEXT (TRACE_MAIN_STEPS,"CltWfMgr: execute node " << node_id <<
+          " of dag " << dag_id << " (SED DEFINED)" << endl);
       node->start(true);
       if (!node->hasFailed()) return 0;
     }
@@ -97,6 +106,8 @@ CltWfMgr::execNode(const char * node_id, const char * dag_id) {
   if (dag != NULL) {
     Node * node = dag->getNode(node_id);
     if (node != NULL) {
+      TRACE_TEXT (TRACE_MAIN_STEPS,"CltWfMgr: execute node " << node_id <<
+          " of dag " << dag_id << " (SED NOT DEFINED)" << endl);
       node->start(true);
       if (!node->hasFailed()) return 0;
     }
