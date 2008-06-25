@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2008/06/25 09:55:56  bisnard
+ * removed unused parameter in submit_pb_set & corrected bug with ReqIDs
+ *
  * Revision 1.19  2008/05/23 11:55:03  glemahec
  * 64 bits CORBA mapping bug correction.
  *
@@ -107,18 +110,18 @@ public :
   MasterAgentImpl();
   virtual
   ~MasterAgentImpl();
-  
+
   /** Force call for POA_MasterAgent::_this. */
   inline MasterAgent_ptr
   _this()
   {
     return this->POA_MasterAgent::_this();
   };
-  
+
   /** Launch this agent (initialization + registration in the hierarchy). */
   int
   run();
-  
+
   /** Problem submission : remotely called by client. */
   corba_response_t*
   submit(const corba_pb_desc_t& pb_profile, CORBA::ULong maxServers);
@@ -129,30 +132,30 @@ public :
   submit_local(const corba_request_t& creq);
 
   /** get session id */
-  virtual  CORBA::Long 
+  virtual  CORBA::Long
   get_session_num();
 
   /** returns id of a data */
-  virtual  char * 
+  virtual  char *
   get_data_id();
 
   /** returns the List of Profile available */
 /*  virtual  SeqCorbaProfileDesc_t*
   getProfiles();*/
-  
+
   virtual  SeqCorbaProfileDesc_t*
-  getProfiles(CORBA::Long& length);	  
+  getProfiles(CORBA::Long& length);
 
   /** returns true if data present, FALSE elsewhere */
-  virtual CORBA::ULong  
+  virtual CORBA::ULong
   dataLookUp(const char* argID);
 
   /** return the descriptor the the data */
-   corba_data_desc_t* 
+   corba_data_desc_t*
    get_data_arg(const char* argID);
 
   /** removes data from the list */
-  virtual CORBA::Long 
+  virtual CORBA::Long
   diet_free_pdata(const char *argID);
 
 #ifdef HAVE_MULTI_MA
@@ -186,18 +189,16 @@ public :
 #endif // HAVE_MULTI_MA
 
 #ifdef HAVE_WORKFLOW
-  /** 
+  /**
    * Workflow submission function. *
    * called by the MA_DAG or a client to submit a set of problems
    * @param  seq_pb	list of pb descriptions
-   * @param  setSize	number of pbs
    */
   virtual wf_response_t *
-  submit_pb_set (const corba_pb_desc_seq_t& seq_pb,
-		 const CORBA::Long setSize);
- 
+  submit_pb_set (const corba_pb_desc_seq_t& seq_pb);
+
   /**
-   * A submission function used to submit a set of problem to the MA
+   * A submission function used to submit a set of problem to the MA (OBSOLETE)
    *
    * @param pb_seq     sequence of problems
    * @param reqCount   number of requests of the client. The request number is at least
@@ -206,14 +207,14 @@ public :
    * @param complete   indicates if the response is complete. The function return at the first problem
    *                   that cannot be solved
    * @param firstReqId the first request identifier to be used by the client
-   * @param seqReqId   an identifier to the submission (each sequence submission 
+   * @param seqReqId   an identifier to the submission (each sequence submission
    *                   has a unique identifier)
    */
-  virtual response_seq_t* 
-  submit_pb_seq(const corba_pb_desc_seq_t& pb_seq, 
-          CORBA::Long reqCount, 
-          CORBA::Boolean& complete, 
-          CORBA::Long& firstReqId, 
+  virtual response_seq_t*
+  submit_pb_seq(const corba_pb_desc_seq_t& pb_seq,
+          CORBA::Long reqCount,
+          CORBA::Boolean& complete,
+          CORBA::Long& firstReqId,
           CORBA::Long& seqReqId);
 
 #endif // HAVE_WORKFLOW

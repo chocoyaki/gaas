@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.51  2008/06/25 09:55:56  bisnard
+ * removed unused parameter in submit_pb_set & corrected bug with ReqIDs
+ *
  * Revision 1.50  2008/06/01 15:49:20  rbolze
  * update msg in stat_in stat_out fonction
  * add info about the reqID (normaly thread safe)
@@ -257,7 +260,7 @@ MasterAgentImpl::run()
   if (res)
     return res;
 
-  int * tmp_val= 
+  int * tmp_val=
     ((int*)(Parsers::Results::getParamValue(Parsers::Results::initRequestID)));
 
   if( tmp_val == NULL )
@@ -268,7 +271,7 @@ MasterAgentImpl::run()
 #ifdef HAVE_MULTI_MA
 
   /* launch the bind service */
-  unsigned int* port = 
+  unsigned int* port =
     static_cast<unsigned int*>(Parsers::Results::
 	            getParamValue(Parsers::Results::BINDSERVICEPORT)) ;
   if (port != NULL) {
@@ -342,7 +345,7 @@ MasterAgentImpl::run()
 /**
  * Returns the identifier of a data by agreggation of numsession and numdata
  */
-char * 
+char *
 MasterAgentImpl::get_data_id()
 {
 #if ! HAVE_DAGDA
@@ -360,7 +363,7 @@ char* id = new char[100];
   uuid_t uuid;
   char ID[37];
   string id("DAGDA://id-");
-  
+
   uuid_generate(uuid);
   uuid_unparse(uuid, ID);
   id+=ID;
@@ -370,17 +373,17 @@ char* id = new char[100];
 #endif
 #endif
 } // get_data_id()
- 
+
 /****************************************************************************/
-/* Available Service                                                        */ 
+/* Available Service                                                        */
 /****************************************************************************/
 
 /**
  * Returns the list of Profile available
- */ 
+ */
 SeqCorbaProfileDesc_t*
  MasterAgentImpl::getProfiles(CORBA::Long& length)
-{	
+{
 	TRACE_TEXT(TRACE_ALL_STEPS,"ask for list of services" << endl);
 	return this->AgentImpl::SrvT->getProfiles(length);
 }
@@ -394,7 +397,7 @@ SeqCorbaProfileDesc_t*
  * Invoke Loc Manager method to get data presence information (call by client)
  * When using DAGDA instead of DTM, uses the search of data on the platform.
  */
-CORBA::ULong 
+CORBA::ULong
 MasterAgentImpl::dataLookUp(const char* argID){
 #if ! HAVE_DAGDA
   if(locMgr->dataLookUp(strdup(argID))==0)
@@ -407,16 +410,16 @@ MasterAgentImpl::dataLookUp(const char* argID){
 } // dataLookUp(const char* argID)
 
 /**
- * invoke loc Manager method to get data descriptor of the data identified by argID 
+ * invoke loc Manager method to get data descriptor of the data identified by argID
  * When using DAGDA, the description is obtained from DAGDA instead of DTM.
  */
-corba_data_desc_t* 
+corba_data_desc_t*
 MasterAgentImpl::get_data_arg(const char* argID)
 {
 #if ! HAVE_DAGDA
   /* Memory leak ??? resp is instanciated with a new and forgotten on the following line... */
   corba_data_desc_t* resp = new corba_data_desc_t;
-  resp = locMgr->set_data_arg(argID);  
+  resp = locMgr->set_data_arg(argID);
   return resp;
 #else
   return getDataManager()->pfmGetDataDesc(argID);
@@ -465,12 +468,12 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
 #ifdef HAVE_MULTI_MA
     if (decision->servers.length() == 0) {
       FloodRequest& floodRequest =
-	*(new FloodRequest(MADescription(), 
+	*(new FloodRequest(MADescription(),
 			   MADescription(_this(), myName),
 			   creq, knownMAs)) ;
 
 
-      while((decision->servers.length() == 0) && (!floodRequest.flooded())) {  
+      while((decision->servers.length() == 0) && (!floodRequest.flooded())) {
 	TRACE_TEXT(TRACE_ALL_STEPS, "multi-MAs search "
 		   << creq.pb.path << " request (" << creq.reqID << ")\n") ;
 	int flooded = floodRequest.floodNextStep() ;
@@ -504,11 +507,11 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
   if (dietLogComponent != NULL) {
     dietLogComponent->logSedChosen(&creq, decision);
   }
-  
+
   TRACE_TEXT(TRACE_MAIN_STEPS,
 	     "**************************************************\n");
   sprintf(statMsg, "stop request %ld", (unsigned long) creq.reqID);
-  stat_out(this->myName,statMsg);  
+  stat_out(this->myName,statMsg);
   stat_flush();
 
   return decision;
@@ -525,7 +528,7 @@ MasterAgentImpl::submit_local(const corba_request_t& creq)
   Request*          req(NULL);
 
   /* Initialize the request with a global scheduler */
-  TRACE_TEXT(TRACE_ALL_STEPS, "Initialize the request " << creq.reqID << ".\n");	    
+  TRACE_TEXT(TRACE_ALL_STEPS, "Initialize the request " << creq.reqID << ".\n");
   /* Check that service exists */
   ServiceTable::ServiceReference_t sref;
   srvTMutex.lock();
@@ -549,9 +552,9 @@ MasterAgentImpl::submit_local(const corba_request_t& creq)
     const corba_profile_desc_t profile = (*profiles)[sref];
 #else
     /* I have defined, for batch cases, ServiceTable::getProfile( index )
-       I use it here because of efficiency. 
+       I use it here because of efficiency.
        Can we replace previous non batch code?
-       
+
     TODO: we can only manipulate reference here... look if we can change
     chooseGlobalScheduler() prototype */
     corba_profile_desc_t profile = this->SrvT->getProfile( sref ) ;
@@ -560,7 +563,7 @@ MasterAgentImpl::submit_local(const corba_request_t& creq)
     profile.parallel_flag = creq.pb.parallel_flag ;
 #endif
     srvTMutex.unlock();
-  
+
     req = new Request(&creq,
 		      GlobalScheduler::chooseGlobalScheduler(&creq, &profile));
 
@@ -590,11 +593,11 @@ MasterAgentImpl::submit_local(const corba_request_t& creq)
 } // submit_local(const corba_request_t& req, ...)
 
 
-CORBA::Long 
+CORBA::Long
 MasterAgentImpl::get_session_num()
 {
  (this->num_session)++;
-  return num_session; 
+  return num_session;
 
 }//get_session_num()
 
@@ -609,7 +612,7 @@ MasterAgentImpl::diet_free_pdata(const char* argID)
     locMgr->rm_pdata(ms_strdup(argID));
     return 1;
   }
-  else 
+  else
     return 0;
 #else
   if (!getDataManager()->pfmIsDataPresent(argID))
@@ -636,7 +639,7 @@ MasterAgentImpl::updateRefs()
   MasterAgent_var ma ;
 
   int loopCpt = 0 ;
-  
+
   for(StrList::iterator iter = MAIds.begin() ;
       iter != MAIds.end() ; iter++) {
     if(loopCpt < maxMAlinks) {
@@ -698,12 +701,12 @@ MasterAgentImpl::handShake(MasterAgent_ptr me, const char* myName)
 	  free(hisior) ;*/
     return false ;
   }
-  
+
   /*  free(myior) ;
       free(hisior) ;*/
 
   knownMAs.erase(myName) ;
-  
+
   // there is to much links to accept a new one.
   if (knownMAs.size() >= static_cast<size_t>(maxMAlinks))
     return false ;
@@ -725,7 +728,7 @@ void MasterAgentImpl::searchService(MasterAgent_ptr predecessor,
 
   //printTime() ;
   //fprintf(stderr, ">>>>>searchService from %s, %d, %s\n", predecessorId,  (int)request.reqID, (const char*)myName) ;
-  TRACE_TEXT(TRACE_ALL_STEPS, predecessorId << " search " 
+  TRACE_TEXT(TRACE_ALL_STEPS, predecessorId << " search "
 	     << request.pb.path << " request (" << request.reqID << ")\n") ;
 
   reqIdList.lock() ;
@@ -736,12 +739,12 @@ void MasterAgentImpl::searchService(MasterAgent_ptr predecessor,
   reqIdList.unlock() ;
 
   if (found) {
-    predecessor->alreadyContacted(request.reqID, bindName) ;  
-    TRACE_TEXT(TRACE_ALL_STEPS, "already contacted for request (" << 
+    predecessor->alreadyContacted(request.reqID, bindName) ;
+    TRACE_TEXT(TRACE_ALL_STEPS, "already contacted for request (" <<
 	       request.reqID << ")\n") ;
   } else {
     FloodRequest& floodRequest =
-      *(new FloodRequest(MADescription(predecessor, predecessorId), 
+      *(new FloodRequest(MADescription(predecessor, predecessorId),
 			 MADescription(_this(), bindName),
 			 request, knownMAs)) ;
 
@@ -755,13 +758,13 @@ void MasterAgentImpl::searchService(MasterAgent_ptr predecessor,
 		 request.reqID << ")\n") ;
     } else {
       predecessor->serviceFound(request.reqID, *decision) ;
-      TRACE_TEXT(TRACE_ALL_STEPS, decision->servers.length() 
+      TRACE_TEXT(TRACE_ALL_STEPS, decision->servers.length()
 		 << " server(s) found for request (" <<
 		 request.reqID << ")\n") ;
     }
-    
+
   }
-  
+
   //printf("<<<<<search service from %s\n", predecessorId) ;
 
 } // searchService(...)
@@ -771,7 +774,7 @@ void MasterAgentImpl::stopFlooding(CORBA::Long reqId,
 				   const char* senderId) {
   //fprintf(stderr, "stopFlooding from %s, %s:%d, %s\n", senderId, (const char*)reqId.maId, (int)reqId.idNumber, (const char*)myName) ;
   try {
-    FloodRequest& floodRequest = 
+    FloodRequest& floodRequest =
       floodRequestsList->get(reqId) ;
     floodRequest.stopFlooding() ;
     delete &floodRequest ;
@@ -784,11 +787,11 @@ void MasterAgentImpl::stopFlooding(CORBA::Long reqId,
 
 void MasterAgentImpl::serviceNotFound(CORBA::Long reqId,
 				      const char* senderId) {
-  //fprintf(stderr, "serviceNotFound from %s, %s:%d, %s\n", senderId, (const char*)reqId.maId, (int)reqId.idNumber, (const char*)myName) ; 
+  //fprintf(stderr, "serviceNotFound from %s, %s:%d, %s\n", senderId, (const char*)reqId.maId, (int)reqId.idNumber, (const char*)myName) ;
   try {
     TRACE_TEXT(TRACE_ALL_STEPS, "service not found by " << senderId
 	       << " for request (" << reqId << ")\n") ;
-    FloodRequest& floodRequest = 
+    FloodRequest& floodRequest =
       floodRequestsList->get(reqId) ;
     floodRequest.addResponseNotFound() ;
     floodRequestsList->put(floodRequest) ;
@@ -804,7 +807,7 @@ void MasterAgentImpl::newFlood(CORBA::Long reqId,
     TRACE_TEXT(TRACE_ALL_STEPS, senderId << " continue the search for "
 	       << " request (" << reqId << ")\n") ;
   try {
-    FloodRequest& floodRequest = 
+    FloodRequest& floodRequest =
       floodRequestsList->get(reqId) ;
     bool flooded = floodRequest.floodNextStep() ;
     floodRequestsList->put(floodRequest) ;
@@ -843,7 +846,7 @@ void MasterAgentImpl::floodedArea(CORBA::Long reqId,
   TRACE_TEXT(TRACE_ALL_STEPS, "stop the flood of " << senderId
 	     << " for request (" << reqId << ")\n") ;
   try {
-    FloodRequest& floodRequest = 
+    FloodRequest& floodRequest =
       floodRequestsList->get(reqId) ;
     floodRequest.addResponseFloodedArea(senderId) ;
     floodRequestsList->put(floodRequest) ;
@@ -858,7 +861,7 @@ void MasterAgentImpl::alreadyContacted(CORBA::Long reqId,
   //fprintf(stderr, "alreadyContacted from %s, %s:%d, %s\n", senderId, (const char*)reqId.maId, (int)reqId.idNumber, (const char*)myName) ;
   TRACE_TEXT(TRACE_ALL_STEPS, "already contacted for request (" << reqId << ")") ;
   try {
-    FloodRequest& floodRequest = 
+    FloodRequest& floodRequest =
       floodRequestsList->get(reqId) ;
     floodRequest.addResponseAlreadyContacted(senderId) ;
     floodRequestsList->put(floodRequest) ;
@@ -873,7 +876,7 @@ void MasterAgentImpl::serviceFound(CORBA::Long reqId,
   //printTime() ;
   //fprintf(stderr, "%d serviceFound, %s:%d, %s\n", (int)decision.length(), (const char*)reqId.maId, (int)reqId.idNumber, (const char*)myName) ;
   try {
-    FloodRequest& floodRequest = 
+    FloodRequest& floodRequest =
       floodRequestsList->get(reqId) ;
     floodRequest.addResponseServiceFound(decision) ;
     floodRequestsList->put(floodRequest) ;
@@ -910,80 +913,59 @@ MasterAgentImpl::logNeighbors() {
 
 #ifdef HAVE_WORKFLOW
 
-/** 
+/**
  * Workflow submission function.
  */
 wf_response_t *
-MasterAgentImpl::submit_pb_set  (const corba_pb_desc_seq_t& seq_pb,
-				 const CORBA::Long setSize) {
-  /*struct timeval tbegin;
-  struct timeval tend;
-  gettimeofday(&tbegin, NULL);*/
+MasterAgentImpl::submit_pb_set(const corba_pb_desc_seq_t& seq_pb) {
 
-  static CORBA::Long dag_id = 0;
   wf_response_t * wf_response = new wf_response_t;
-  wf_response->firstReqID = reqIDCounter;
+//   wf_response->firstReqID = reqIDCounter;
   unsigned int len = seq_pb.length();
   wf_response->wfn_seq_resp.length(0);
   corba_response_t * corba_response = NULL;
-//   Counter initialReqIdCounter = this->reqIDCounter;
-  wf_response->complete = false;
-  TRACE_TEXT (TRACE_MAIN_STEPS, 
-	      "The MasterAgent receives a set of "<< len << " problems" << 
-	      " for " << setSize << " nodes" <<
-	      endl);
+  bool missingService = false;
+
+  TRACE_TEXT(TRACE_MAIN_STEPS,
+	    "The MasterAgent receives a set of "<< len << " problems" << endl);
+  // LOOP for MA submissions (keeps the order of problems sequence)
   for (unsigned int ix=0; ix<len; ix++) {
 
-    // Submit one problem to the MA
     corba_response = this->submit(seq_pb[ix], 1024);
-
     if ((corba_response == NULL) || (corba_response->servers.length() == 0)) {
-      TRACE_TEXT (TRACE_MAIN_STEPS, 
-		  "The problem set can't be solved (one or more services are "
-		  << "missing) " << endl);
-//       if (!used) 
-// 	this->reqIDCounter = initialReqIdCounter;
-      return wf_response;
+      missingService = true;
+      break;
     }
     else {
       wf_response->wfn_seq_resp.length(ix+1);
-      wf_response->wfn_seq_resp[ix].node_id = CORBA::string_dup(seq_pb[ix].path);    
-      wf_response->wfn_seq_resp[ix].response = *corba_response;    
+      wf_response->wfn_seq_resp[ix].node_id = CORBA::string_dup(seq_pb[ix].path);
+      wf_response->wfn_seq_resp[ix].response = *corba_response;
     }
   }
 
-  TRACE_TEXT (TRACE_MAIN_STEPS, 
+  // Handle exception of missing service
+  if (!missingService) {
+    TRACE_TEXT (TRACE_MAIN_STEPS,
 	      "The pb set can be solved (all services available) " << endl);
-  wf_response->complete = true;
+    wf_response->complete = true;
+  } else {
+    TRACE_TEXT (TRACE_MAIN_STEPS,
+		  "The problem set can't be solved (one or more services are "
+		  << "missing) " << endl);
+    wf_response->complete = false;
+  }
 
-  reqCount_mutex.lock();
+  // Update reqID counter  ===> NOT NECESSARY as SUBMIT increases the counter
+  // MOREOVER THERE IS NO GUARANTEE THAT SUBMITS ARE IN SEQUENCE
+//   reqCount_mutex.lock();
+//   reqIDCounter            = reqIDCounter + ix + 1;
+//   reqCount_mutex.unlock();
+//   wf_response->lastReqID  = wf_response->firstReqID + ix ;
 
-  wf_response->dag_id = dag_id;
-  // increment the dag id
-  dag_id += 1; 
-  // increment the reqIDCounter
-  reqIDCounter = reqIDCounter + (setSize-seq_pb.length());
-
-  wf_response->lastReqID =  wf_response->firstReqID + setSize - 1 ;
-  reqCount_mutex.unlock();
-
-  
-  // calculate the processing time in ms
-  /*gettimeofday(&tend, NULL);
-  time_t ptime = (tend.tv_sec - tbegin.tv_sec)* 1000 +
-    (tend.tv_usec - tbegin.tv_usec)/1000;
-  */
-  /*if (dietLogComponent != NULL) {
-    dietLogComponent->logDagSubmit(wf_response, 
-				   ptime);
-  }*/
-
-//   if (!used)
-//     this->reqIDCounter =  initialReqIdCounter;
   return wf_response;
 }
 /**
- * A submission function used to submit a set of problem to the MA
+ * A submission function used to submit a set of problem to the MA (OBSOLETE)
  *
  * @param pb_seq     sequence of problems
  * @param reqCount   number of requests of the client. The request number is at least
@@ -992,18 +974,18 @@ MasterAgentImpl::submit_pb_set  (const corba_pb_desc_seq_t& seq_pb,
  * @param complete   indicates if the response is complete. The function return at the first problem
  *                   that cannot be solved
  * @param firstReqId the first request identifier to be used by the client
- * @param seqReqId   an identifier to the submission (each sequence submission 
+ * @param seqReqId   an identifier to the submission (each sequence submission
  *                   has a unique identifier)
  */
-response_seq_t* 
-MasterAgentImpl::submit_pb_seq(const corba_pb_desc_seq_t& pb_seq, 
-        CORBA::Long reqCount, 
-        CORBA::Boolean& complete, 
-        CORBA::Long& firstReqId, 
+response_seq_t*
+MasterAgentImpl::submit_pb_seq(const corba_pb_desc_seq_t& pb_seq,
+        CORBA::Long reqCount,
+        CORBA::Boolean& complete,
+        CORBA::Long& firstReqId,
         CORBA::Long& seqReqId) {
-    
+
     struct timeval start, end;
-    gettimeofday(&start, NULL); 
+    gettimeofday(&start, NULL);
     static CORBA::Long mySeqReqId = 0;
     response_seq_t * response_seq = new response_seq_t;
     corba_response_t * corba_response = NULL;
@@ -1012,19 +994,19 @@ MasterAgentImpl::submit_pb_seq(const corba_pb_desc_seq_t& pb_seq,
     for (unsigned int ix=0; ix<pb_seq.length(); ix++) {
       corba_response = this->submit(pb_seq[ix], reqCount);
       if ((corba_response == NULL) || (corba_response->servers.length() == 0)) {
-        TRACE_TEXT (TRACE_MAIN_STEPS, 
+        TRACE_TEXT (TRACE_MAIN_STEPS,
             "Problem sequence can't be solved: service " << pb_seq[ix].path
             << " missing) " << endl);
         return response_seq;
-      } 
+      }
       else {
         response_seq->length(ix+1);
-        (*response_seq)[ix].problem = pb_seq[ix]; 
-        (*response_seq)[ix].servers = corba_response->servers;    
-      } // end if 
+        (*response_seq)[ix].problem = pb_seq[ix];
+        (*response_seq)[ix].servers = corba_response->servers;
+      } // end if
     } // end for
 
-    TRACE_TEXT (TRACE_MAIN_STEPS, 
+    TRACE_TEXT (TRACE_MAIN_STEPS,
             "Problem sequence can be solved (all services available) " << endl);
     complete = true;
     // Update request identifiers
@@ -1040,7 +1022,7 @@ MasterAgentImpl::submit_pb_seq(const corba_pb_desc_seq_t& pb_seq,
         // TO DO: update dietLogComponent with the new data structure
         // dietLogComponent->logDagSubmit(wf_response, ptime);
     }
-        
+
     return response_seq;
 }
 #endif // HAVE_WORKFLOW
@@ -1051,7 +1033,7 @@ SeqString* MasterAgentImpl::searchData(const char* request) {
   attributes_t attr = catalog->request(request);
   attributes_t::iterator it;
   int i=0;
-  
+
   ret->length(attr.size());
   for (it=attr.begin(); it!=attr.end(); ++it)
     (*ret)[i++]=CORBA::string_dup(it->c_str());
@@ -1061,7 +1043,7 @@ SeqString* MasterAgentImpl::searchData(const char* request) {
 CORBA::Long MasterAgentImpl::insertData(const char* key, const SeqString& values) {
   attributes_t attr;
   if (catalog->exists(key)) return 1;
-  
+
   for (unsigned int i=0; i<values.length(); ++i)
     attr.push_back(string(values[i]));
   catalog->insert(key, attr);

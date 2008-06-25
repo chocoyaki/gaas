@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2008/06/25 09:55:57  bisnard
+ * removed unused parameter in submit_pb_set & corrected bug with ReqIDs
+ *
  * Revision 1.13  2008/04/29 22:22:01  glemahec
  * DAGDA improvements :
  *   - Asynchronous API.
@@ -66,18 +69,18 @@
 #endif
 
 interface MasterAgent : Agent {
-  
+
   /** Submission function: called by the clients to submit a problem. */
   corba_response_t submit(in corba_pb_desc_t pb_profile,
 			  in unsigned long maxServers);
-  
+
   /** get number of the current session */
   long get_session_num();
 
   /** get id of the data :  aggregation of numsession and numdata */
   string get_data_id();
 
-  /** look up of data identified by id */ 
+  /** look up of data identified by id */
   unsigned long dataLookUp(in string id);
 
   /** get data descriptor */
@@ -95,7 +98,7 @@ interface MasterAgent : Agent {
   SeqCorbaProfileDesc_t getProfiles(out long length);
 
 #ifdef HAVE_MULTI_MA
-  
+
   /** MAs federation management */
   boolean handShake(in MasterAgent me, in string myName);
 
@@ -133,12 +136,11 @@ interface MasterAgent : Agent {
 #endif // HAVE_MULTI_MA
 
 #ifdef HAVE_WORKFLOW
-  /** 
+  /**
    * Workflow submission function. *
    * called by the MA_DAG or a client to submit a set of problems *
    */
-  wf_response_t submit_pb_set (in corba_pb_desc_seq_t seq_pb,
-			       in long set_size);
+  wf_response_t submit_pb_set (in corba_pb_desc_seq_t seq_pb);
 
    /**
     * A submission function used to submit a set of problem to the MA
@@ -150,7 +152,7 @@ interface MasterAgent : Agent {
     * @param complete   indicates if the response is complete. The function return at the first problem
     *                   that cannot be solved
     * @param firstReqId the first request identifier to be used by the client
-    * @param seqReqId   an identifier to the submission (each sequence submission 
+    * @param seqReqId   an identifier to the submission (each sequence submission
     *                   has a unique identifier)
     */
     response_seq_t
