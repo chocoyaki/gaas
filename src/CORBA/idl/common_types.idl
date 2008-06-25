@@ -9,6 +9,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.30  2008/06/25 09:52:46  bisnard
+ * - Estimation vector sent with solve request to avoid storing it
+ * for each submit request as it depends on the parameters value. The
+ * estimation vector is used by SeD to updates internal Gantt chart and
+ * provide earliest finish time to submitted requests.
+ * ==> added parameter to diet_call_common & diet_call_async_common
+ *
  * Revision 1.29  2008/04/07 15:33:41  ycaniou
  * This should remove all HAVE_BATCH occurences (still appears in the doc, which
  *   must be updated.. soon :)
@@ -369,25 +376,6 @@ struct corba_pb_desc_t {
 #endif
 };
 
-/** The complete problem, sent from client to server. */
-struct corba_profile_t {
-  long   last_in;
-  long   last_inout;
-  long   last_out;
-  SeqCorbaData_t parameters;
-  unsigned long dietReqID ;
-#if HAVE_ALT_BATCH
-  long   parallel_flag ;
-  long   nbprocs ;
-  long   nbprocess ;
-  long   walltime ;
-#endif
-#if HAVE_DAGDA
-  string clientIOR;
-#endif
-};
-
-
 /****************************************************************************/
 /* REQUEST                                                                  */
 /****************************************************************************/
@@ -441,6 +429,28 @@ struct corba_wf_desc_t {
 };
 #endif
 
+/****************************************************************************/
+/* PROFILE (for problem solve)                                              */
+/****************************************************************************/
+
+/** The complete problem, sent from client to server. */
+struct corba_profile_t {
+  long   last_in;
+  long   last_inout;
+  long   last_out;
+  SeqCorbaData_t parameters;
+  unsigned long dietReqID ;
+  corba_estimation_t estim;
+#if HAVE_ALT_BATCH
+  long   parallel_flag ;
+  long   nbprocs ;
+  long   nbprocess ;
+  long   walltime ;
+#endif
+#if HAVE_DAGDA
+  string clientIOR;
+#endif
+};
 
 #endif // _COMMON_TYPES_IDL_
 

@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/06/25 09:52:47  bisnard
+ * - Estimation vector sent with solve request to avoid storing it
+ * for each submit request as it depends on the parameters value. The
+ * estimation vector is used by SeD to updates internal Gantt chart and
+ * provide earliest finish time to submitted requests.
+ * ==> added parameter to diet_call_common & diet_call_async_common
+ *
  * Revision 1.2  2008/05/19 14:45:08  bisnard
  * jobs added to the queue during submit instead of solve
  *
@@ -34,10 +41,7 @@ class JobQueue {
     ~JobQueue();
 
     bool
-        addJobEstimated(int dietReqID, corba_estimation_t& ev);
-
-    bool
-        setJobWaiting(int dietReqId);
+        addJobWaiting(int dietReqID, corba_estimation_t& ev);
 
     bool
         setJobStarted(int dietReqId);

@@ -10,6 +10,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.123  2008/06/25 09:52:46  bisnard
+ * - Estimation vector sent with solve request to avoid storing it
+ * for each submit request as it depends on the parameters value. The
+ * estimation vector is used by SeD to updates internal Gantt chart and
+ * provide earliest finish time to submitted requests.
+ * ==> added parameter to diet_call_common & diet_call_async_common
+ *
  * Revision 1.122  2008/06/01 14:06:56  rbolze
  * replace most ot the cout by adapted function from debug.cc
  * there are some left ...
@@ -889,7 +896,8 @@ downloadClientDataJuxMem(diet_profile_t* profile)
 
 diet_error_t
 request_submission(diet_profile_t* profile,
-                   SeD_var& chosenServer)
+                   SeD_var& chosenServer,
+                   estVector_t estim)
 {
   static int nb_tries(3);
   int server_OK(0), subm_count, data_OK(0);
@@ -1043,6 +1051,16 @@ request_submission(diet_profile_t* profile,
 
     if (server_OK >= 0) {
       chosenServer = response->servers[server_OK].loc.ior;
+      /* The estimation vector of the chosen SeD is copied into the profile.
+       * This is done because:
+       * 1/ the SeD cannot store the estimations for all requests as many
+       * won't be followed by a solve and it is not possible to know which ones
+       * 2/ the estimation vector depends on the value of the parameters of the
+       * profile (and not only on the description) so each request has a
+       * different estimation vector.
+       */
+      estim   = new corba_estimation_t(response->servers[server_OK].estim);
+
       reqID = response->reqID;
 #ifdef HAVE_FD
       fd_handle fd = fd_make_handle();
@@ -1077,21 +1095,29 @@ request_submission(diet_profile_t* profile,
  * It is designed to be called from diet_call, grpc_call and grpc_call_argstack.
  */
 diet_error_t
-diet_call_common(diet_profile_t* profile, SeD_var& chosenServer)
+diet_call_common(diet_profile_t* profile, SeD_var& chosenServer, estVector_t estimVect)
 {
   diet_error_t res(0);
   int solve_res(0);
   corba_profile_t corba_profile;
   char statMsg[128];
+  corba_estimation_t emptyEstimVect;
   stat_in("Client","diet_call");
 
   if (CORBA::is_nil(chosenServer)) {
-    if ((res = request_submission(profile, chosenServer))) {
+    if ((res = request_submission(profile, chosenServer, estimVect))) {
       return res;
     }
     if (CORBA::is_nil(chosenServer)) {
       return 1;
     }
+  }
+  /* Add estimation vector to the corba_profile */
+  /* (use an empty vector in case it is not provided, eg for grpc calls) */
+    else if (estimVect != NULL) {
+     corba_profile.estim = *estimVect;
+  } else {
+    corba_profile.estim = emptyEstimVect;
   }
 
   // Server is chosen, update its timeSinceLastSolve
@@ -1200,7 +1226,7 @@ diet_call(diet_profile_t* profile)
   }
 #endif // HAVE_CCS
 
-  diet_error_t err = diet_call_common(profile, chosenServer);
+  diet_error_t err = diet_call_common(profile, chosenServer, NULL);
 
 #ifdef HAVE_CCS
  if (SpecificClientScheduler::isEnabled()) {
@@ -1246,9 +1272,11 @@ END_API
  */
 diet_error_t
 diet_call_async_common(diet_profile_t* profile,
-                       SeD_var& chosenServer)
+                       SeD_var& chosenServer,
+                       estVector_t estimVect)
 {
   corba_profile_t corba_profile;
+  corba_estimation_t emptyEstimVect;
   CallAsyncMgr* caMgr;
   diet_error_t res(0);
   // get sole CallAsyncMgr singleton
@@ -1259,7 +1287,7 @@ diet_call_async_common(diet_profile_t* profile,
   try {
 
     if (CORBA::is_nil(chosenServer)) {
-      if ((res = request_submission(profile, chosenServer))) {
+      if ((res = request_submission(profile, chosenServer, estimVect))) {
         caMgr->setReqErrorCode(profile->dietReqID, res);
         return res;
       }
@@ -1267,6 +1295,13 @@ diet_call_async_common(diet_profile_t* profile,
 	caMgr->setReqErrorCode(profile->dietReqID, GRPC_SERVER_NOT_FOUND);
         return GRPC_SERVER_NOT_FOUND;
       }
+    }
+    /* Add estimation vector to the corba_profile */
+    /* (use an empty vector in case it is not provided, eg for grpc calls) */
+    else if (estimVect != NULL) {
+      corba_profile.estim = *estimVect;
+    } else {
+      corba_profile.estim = emptyEstimVect;
     }
 
 #if HAVE_JUXMEM
@@ -1280,6 +1315,7 @@ diet_call_async_common(diet_profile_t* profile,
       caMgr->setReqErrorCode(profile->dietReqID, GRPC_INVALID_FUNCTION_HANDLE);
       ERROR("profile is wrongly built", 1);
     }
+    corba_profile.estim = *estimVect;
 
     int j = 0;
     bool found = false;
@@ -1372,7 +1408,7 @@ diet_error_t
 diet_call_async(diet_profile_t* profile, diet_reqID_t* reqID)
 {
   SeD_var chosenServer = SeD::_nil();
-  diet_error_t err = diet_call_async_common(profile, chosenServer);
+  diet_error_t err = diet_call_async_common(profile, chosenServer, NULL);
   *reqID = profile->dietReqID;
   set_req_error(*reqID, err);
   return err;

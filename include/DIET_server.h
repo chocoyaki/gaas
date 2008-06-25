@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.43  2008/06/25 09:52:45  bisnard
+ * - Estimation vector sent with solve request to avoid storing it
+ * for each submit request as it depends on the parameters value. The
+ * estimation vector is used by SeD to updates internal Gantt chart and
+ * provide earliest finish time to submitted requests.
+ * ==> added parameter to diet_call_common & diet_call_async_common
+ *
  * Revision 1.42  2008/06/10 21:01:27  ycaniou
  * Cosmetics
  *
@@ -560,16 +567,15 @@ int diet_estimate_waiting_jobs(estVector_t ev,
 /* To get the list of jobs currently waiting or running */
 /* Note: job vector must be deleted after usage */
 typedef enum {
-  DIET_JOB_ESTIMATED, // submit done but not solve yet
-  DIET_JOB_WAITING,   // inside solve, waiting for free ressource
-  DIET_JOB_RUNNING,   // inside solve, running
-  DIET_JOB_FINISHED   // inside solve, finished
+  DIET_JOB_WAITING,
+  DIET_JOB_RUNNING,
+  DIET_JOB_FINISHED
 } diet_job_status_t;
 
 typedef struct {
   estVector_t           estVector;
   diet_job_status_t     status;
-  double                startTime; // in ms
+  double                startTime; /* in ms */
 } diet_job_t;
 
 typedef diet_job_t* jobVector_t;

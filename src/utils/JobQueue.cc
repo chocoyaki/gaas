@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/06/25 09:52:47  bisnard
+ * - Estimation vector sent with solve request to avoid storing it
+ * for each submit request as it depends on the parameters value. The
+ * estimation vector is used by SeD to updates internal Gantt chart and
+ * provide earliest finish time to submitted requests.
+ * ==> added parameter to diet_call_common & diet_call_async_common
+ *
  * Revision 1.4  2008/06/01 14:06:55  rbolze
  * replace most ot the cout by adapted function from debug.cc
  * there are some left ...
@@ -31,21 +38,15 @@ JobQueue::JobQueue() : nbActiveJobs(0) { };
 JobQueue::~JobQueue() { };
 
 bool
-JobQueue::addJobEstimated(int dietReqID, corba_estimation_t& ev) {
+JobQueue::addJobWaiting(int dietReqID, corba_estimation_t& ev) {
   // make a copy of the estimation vector
   estVector_t estVect = new corba_estimation_t(ev);
-  diet_job_t newJob = { estVect, DIET_JOB_ESTIMATED, -1 };
+  diet_job_t newJob = { estVect, DIET_JOB_WAITING, -1 };
   this->myLock.lock();        /** LOCK */
   myJobs[dietReqID] = newJob;
-  TRACE_TEXT (TRACE_ALL_STEPS,"JobQueue: adding job " << dietReqID << " in status ESTIMATED" << endl);
-  this->myLock.unlock();      /** UNLOCK */
-  return true;
-}
-
-bool
-JobQueue::setJobWaiting(int dietReqID) {
-  myJobs[dietReqID].status = DIET_JOB_WAITING;
   this->nbActiveJobs++;
+  TRACE_TEXT (TRACE_ALL_STEPS,"JobQueue: adding job " << dietReqID << " in status WAITING" << endl);
+  this->myLock.unlock();      /** UNLOCK */
   return true;
 }
 

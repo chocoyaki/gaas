@@ -10,6 +10,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2008/06/25 09:52:46  bisnard
+ * - Estimation vector sent with solve request to avoid storing it
+ * for each submit request as it depends on the parameters value. The
+ * estimation vector is used by SeD to updates internal Gantt chart and
+ * provide earliest finish time to submitted requests.
+ * ==> added parameter to diet_call_common & diet_call_async_common
+ *
  * Revision 1.10  2008/04/07 12:19:13  ycaniou
  * Except for the class Parsers (someone to re-code it? :)
  *   correct "deprecated conversion from string constant to 'char*'" warnings
@@ -69,7 +76,7 @@ static vector<grpc_function_handle_t> handles;
 
 static bool grpc_initialized = false;
 
-extern bool 
+extern bool
 getProfileDesc(const char * srvName, diet_profile_desc_t& profile);
 
 extern diet_reqID_t*
@@ -87,7 +94,7 @@ set_req_error(diet_reqID_t sessionID,
  ***************************************************************************/
 bool isInitialized(const grpc_function_handle_t handle) {
   for (unsigned int ix=0; ix < handles.size(); ix++) {
-    if (handles[ix] == handle) 
+    if (handles[ix] == handle)
       return true;
   }
   return false;
@@ -114,7 +121,7 @@ BEGIN_API
 grpc_error_t
 grpc_initialize(char* config_file_name)
 {
-  
+
   grpc_error_t err =  diet_initialize(config_file_name, 0, NULL);
   grpc_initialized = true;
   return err;
@@ -176,7 +183,7 @@ grpc_function_handle_default(grpc_function_handle_t* handle, char* func_name)
   // put this handle in the vector of initialized handles
   handles.push_back(*handle);
   // Search for the service
-  if (!getProfileDesc( (*handle)->func_name, 
+  if (!getProfileDesc( (*handle)->func_name,
 		       (*handle)->profile))
     return GRPC_SERVER_NOT_FOUND;
   // put this handle in the vector of initialized handles
@@ -209,7 +216,7 @@ grpc_function_handle_init(grpc_function_handle_t* handle,
 #endif // IT_IS_DONE
 
   // Search for the service
-  if (!getProfileDesc( (*handle)->func_name, 
+  if (!getProfileDesc( (*handle)->func_name,
 		       (*handle)->profile))
     return GRPC_SERVER_NOT_FOUND;
 
@@ -360,15 +367,15 @@ END_API
 /****************************************************************************/
 
 extern diet_error_t
-diet_call_common(diet_profile_t* profile, SeD_var& chosenServer);
+diet_call_common(diet_profile_t* profile, SeD_var& chosenServer, estVector_t estimVect);
 
 extern diet_error_t
 diet_call_async_common(diet_profile_t* profile,
-		       SeD_var& chosenServer);
+		       SeD_var& chosenServer, estVector_t estimVect);
 
 /** [internal] Convert the list of arguments into a diet_profile_t */
 grpc_error_t
-grpc_build_profile(grpc_function_handle_t* handle, diet_profile_t*& profile, 
+grpc_build_profile(grpc_function_handle_t* handle, diet_profile_t*& profile,
 		   char* pb_name, va_list arglist)
 {
 
@@ -391,15 +398,15 @@ grpc_build_profile(grpc_function_handle_t* handle, diet_profile_t*& profile,
   for (int ix=0; ix<= (*handle)->profile.last_out; ix++)
      args[ix] = (diet_arg_t*)calloc(1, sizeof(diet_arg_t));
 
-  profile = 
+  profile =
     diet_profile_alloc(pb_name,
-		       (*handle)->profile.last_in, 
+		       (*handle)->profile.last_in,
 		       (*handle)->profile.last_inout,
 		       (*handle)->profile.last_out);
 
 
-  for (int ix=0; 
-       ix <= (*handle)->profile.last_in; 
+  for (int ix=0;
+       ix <= (*handle)->profile.last_in;
        ix++) {
     switch ((*handle)->profile.param_desc[ix].type) {
     case DIET_SCALAR:
@@ -472,8 +479,8 @@ grpc_build_profile(grpc_function_handle_t* handle, diet_profile_t*& profile,
     }
   } // end for last_in
 
-  for (int ix= 1 + (*handle)->profile.last_in; 
-       ix <= (*handle)->profile.last_out; 
+  for (int ix= 1 + (*handle)->profile.last_in;
+       ix <= (*handle)->profile.last_out;
        ix++) {
     switch ((*handle)->profile.param_desc[ix].type) {
     case DIET_SCALAR:
@@ -499,7 +506,7 @@ grpc_build_profile(grpc_function_handle_t* handle, diet_profile_t*& profile,
       case DIET_LONGINT:
 	long_arg_ptr = va_arg(arglist, long*);
 	diet_scalar_set(diet_parameter(profile,ix),
-			long_arg_ptr, DIET_VOLATILE, DIET_LONGINT);	
+			long_arg_ptr, DIET_VOLATILE, DIET_LONGINT);
 	(*handle)->args_refs[ix] = (void*)(long_arg_ptr);
 	break;
       case DIET_FLOAT:
@@ -544,7 +551,7 @@ grpc_build_profile(grpc_function_handle_t* handle, diet_profile_t*& profile,
       break;
     }
   } // end for last_out
-  
+
   return 0;
 }
 
@@ -554,7 +561,7 @@ grpc_build_profile(diet_profile_t*& profile,
 		   char* pb_name, grpc_arg_stack_t* args)
 {
   int tmp;
-  
+
   profile = diet_profile_alloc(pb_name, 0, 0, args->first);
 
   tmp = 0;
@@ -603,7 +610,7 @@ grpc_call(grpc_function_handle_t* handle, ...)
     return res;
   va_end(ap);
 
-  res = diet_call_common(profile, server);
+  res = diet_call_common(profile, server, NULL);
   (*handle)->server = ORBMgr::getIORString(server);
   //  diet_profile_free(profile);
   return res;
@@ -617,7 +624,7 @@ grpc_call_async(grpc_function_handle_t* handle,
   grpc_error_t res(0);
   CORBA::Object_var chosenObject;
   SeD_var chosenServer;
-	  
+
   // check if GRPC is initialized
   if (!grpc_initialized)
     return GRPC_NOT_INITIALIZED;
@@ -627,18 +634,18 @@ grpc_call_async(grpc_function_handle_t* handle,
   }
 
   va_start(ap, sessionID);
-  if ((res = grpc_build_profile(handle, (*handle)->pb, 
+  if ((res = grpc_build_profile(handle, (*handle)->pb,
 				(*handle)->func_name, ap))) {
     set_req_error(*sessionID, res);
     return res;
   }
   va_end(ap);
-  
+
   /*
   chosenObject = ORBMgr::stringToObject((*handle)->server);
   chosenServer = SeD::_narrow(chosenObject);
   */
-  res = diet_call_async_common((*handle)->pb, chosenServer);
+  res = diet_call_async_common((*handle)->pb, chosenServer, NULL);
   *sessionID = (*handle)->pb->dietReqID;
   set_req_error(*sessionID, GRPC_NO_ERROR);
 
@@ -669,8 +676,8 @@ grpc_call_argstack(grpc_function_handle_t* handle, grpc_arg_stack_t* args)
     return res;
 
   chosenObject = ORBMgr::stringToObject((*handle)->server);
-  chosenServer = SeD::_narrow(chosenObject);  
-  res = diet_call_common(profile, chosenServer);
+  chosenServer = SeD::_narrow(chosenObject);
+  res = diet_call_common(profile, chosenServer, NULL);
   //  diet_profile_free(profile);
   return res;
 }
@@ -687,10 +694,10 @@ grpc_call_argstack_async(grpc_function_handle_t* handle,
 
   if ((res = grpc_build_profile(profile, (*handle)->func_name, args)))
     return res;
-  
+
   chosenObject = ORBMgr::stringToObject((*handle)->server);
-  chosenServer = SeD::_narrow(chosenObject);  
-  res = diet_call_async_common(profile, chosenServer);
+  chosenServer = SeD::_narrow(chosenObject);
+  res = diet_call_async_common(profile, chosenServer, NULL);
   *sessionID = profile->dietReqID;
   //  diet_profile_free(profile);
   return 0;
@@ -707,7 +714,7 @@ BEGIN_API
 const char *
 grpc_error_string(const grpc_error_t error_code) {
   return diet_error_string(error_code);
-  /*  
+  /*
   switch(error_code)
     {
     case  0 : return(CORBA::string_dup("GRPC_NO_ERROR"));
@@ -725,8 +732,8 @@ grpc_error_string(const grpc_error_t error_code) {
     case 12 : return(CORBA::string_dup("GRPC_NONE_COMPLETED"));
     default : return(CORBA::string_dup("GRPC_OTHER_ERROR_CODE"));
     }
-  */	
-} 
+  */
+}
 
 grpc_error_t
 grpc_get_results(grpc_sessionid_t reqID) {
@@ -740,32 +747,32 @@ grpc_get_results(grpc_sessionid_t reqID) {
       if ((*handle)->pb->parameters[ix].desc.generic.type == DIET_SCALAR) {
 	switch ((*handle)->pb->parameters[ix].desc.generic.base_type) {
 	case DIET_CHAR:
-	  *((char*)((*handle)->args_refs[ix])) = 
+	  *((char*)((*handle)->args_refs[ix])) =
 	    *((char*)((*handle)->pb->parameters[ix].desc.specific.scal.value));
 	  break;
 
 	case DIET_SHORT:
-	  *((short*)((*handle)->args_refs[ix])) = 
+	  *((short*)((*handle)->args_refs[ix])) =
 	    *((short*)((*handle)->pb->parameters[ix].desc.specific.scal.value));
 	  break;
 
 	case DIET_INT:
-	  *((int*)((*handle)->args_refs[ix])) = 
+	  *((int*)((*handle)->args_refs[ix])) =
 	    *((int*)((*handle)->pb->parameters[ix].desc.specific.scal.value));
 	  break;
 
 	case DIET_LONGINT:
-	  *((long*)((*handle)->args_refs[ix])) = 
+	  *((long*)((*handle)->args_refs[ix])) =
 	    *((long*)((*handle)->pb->parameters[ix].desc.specific.scal.value));
 	  break;
 
 	case DIET_FLOAT:
-	  *((float*)((*handle)->args_refs[ix])) = 
+	  *((float*)((*handle)->args_refs[ix])) =
 	    *((float*)((*handle)->pb->parameters[ix].desc.specific.scal.value));
 	  break;
 
 	case DIET_DOUBLE:
-	  *((double*)((*handle)->args_refs[ix])) = 
+	  *((double*)((*handle)->args_refs[ix])) =
 	    *((double*)((*handle)->pb->parameters[ix].desc.specific.scal.value));
 	  break;
 
@@ -834,7 +841,7 @@ grpc_error_t
 grpc_wait_all() {
   // check if GRPC is initialized
   if (!grpc_initialized)
-    return GRPC_NOT_INITIALIZED;  
+    return GRPC_NOT_INITIALIZED;
   grpc_error_t err = diet_wait_all();
 
   if (err == GRPC_NO_ERROR) {
@@ -856,7 +863,7 @@ grpc_error_t
 grpc_wait_any(diet_reqID_t* IDptr) {
   // check if GRPC is initialized
   if (!grpc_initialized)
-    return GRPC_NOT_INITIALIZED;  
+    return GRPC_NOT_INITIALIZED;
   grpc_error_t err = diet_wait_any(IDptr);
   if (err == GRPC_NO_ERROR) {
       grpc_get_results(*IDptr);
@@ -869,7 +876,7 @@ grpc_wait_any(diet_reqID_t* IDptr) {
 grpc_error_t
 grpc_probe(grpc_sessionid_t sessionID) {
   if (!grpc_initialized)
-    return GRPC_NOT_INITIALIZED;  
+    return GRPC_NOT_INITIALIZED;
 
   grpc_error_t err = diet_probe(sessionID);
 
@@ -882,8 +889,8 @@ grpc_probe_or(grpc_sessionid_t* reqIdArray,
 	      size_t length,
 	      grpc_sessionid_t* reqIdPtr) {
   if (!grpc_initialized)
-    return GRPC_NOT_INITIALIZED;  
-  
+    return GRPC_NOT_INITIALIZED;
+
   grpc_error_t err = diet_probe_or(reqIdArray, length, reqIdPtr);
 
   return err;
@@ -893,7 +900,7 @@ grpc_probe_or(grpc_sessionid_t* reqIdArray,
 grpc_error_t
 grpc_cancel(grpc_sessionid_t sessionID) {
   if (!grpc_initialized)
-    return GRPC_NOT_INITIALIZED;  
+    return GRPC_NOT_INITIALIZED;
 
   grpc_error_t err = diet_cancel(sessionID);
 
@@ -901,10 +908,10 @@ grpc_cancel(grpc_sessionid_t sessionID) {
 }
 
 /* Cancel all outstanding asynchronous GridRPC calls.                       */
-grpc_error_t 
+grpc_error_t
 grpc_cancel_all() {
   if (!grpc_initialized)
-    return GRPC_NOT_INITIALIZED;  
+    return GRPC_NOT_INITIALIZED;
 
   grpc_error_t err = diet_cancel_all();
 
