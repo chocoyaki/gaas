@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.33  2008/06/25 10:11:17  bisnard
+ * Removed logDagSubmit
+ *
  * Revision 1.32  2008/06/01 14:06:55  rbolze
  * replace most ot the cout by adapted function from debug.cc
  * there are some left ...
@@ -272,11 +275,11 @@ DietLogComponent::DietLogComponent(const char* name,
   tagNames[14] = strdup("NOT_DEFINED1");
   tagNames[15] = strdup("NOT_DEFINED2");
   tagNames[16] = strdup("FAILURE");
-  tagNames[17] = strdup("FD_OBSERVE"); 
+  tagNames[17] = strdup("FD_OBSERVE");
   tagNames[18] = strdup("DAG_SUBMIT");
   tagNames[19] = strdup("DAG");
 
-  
+
   CORBA::Object_ptr myLCCptr;
 
   try {
@@ -383,7 +386,7 @@ DietLogComponent::~DietLogComponent() {
  * ComponentConfigurator functions
  */
 
-void 
+void
 DietLogComponent::setTagFilter(const tag_list_t& tagList) {
   bool* newList = createBoolArrayFalse(tagCount);
   bool* oldList;
@@ -472,7 +475,7 @@ DietLogComponent::test() {
  * This function gives the string corresponding to the v_tag index;
  * This function must be consitent with the #define EST_* in DIET_data.h
  */
-char* 
+char*
 DietLogComponent::getEstimationTags(const int v_tag){
 	char* ret;
 	switch(v_tag){
@@ -490,7 +493,7 @@ DietLogComponent::getEstimationTags(const int v_tag){
 	        break;
 	        case(EST_TIMESINCELASTSOLVE): // 4
 		ret = strdup("EST_TIMESINCELASTSOLVE");
-	        break;		
+	        break;
 	        case(EST_COMMPROXIMITY): // 5
 		ret = strdup("EST_COMMPROXIMITY");
 	        break;
@@ -557,7 +560,7 @@ DietLogComponent::getEstimationTags(const int v_tag){
 	case(EST_PARAL_NBTOT_RESOURCES): // 23
 	  ret=strdup("EST_PARAL_NB_RESOURCES") ;
 	  break ;
-	case(EST_PARAL_NBTOT_FREE_RESOURCES): // 24 
+	case(EST_PARAL_NBTOT_FREE_RESOURCES): // 24
 	  ret=strdup("EST_PARAL_NB_FREE_RESOURCES") ;
 	  break ;
 	case(EST_PARAL_NB_RESOURCES_IN_DEFAULT_QUEUE): // 25
@@ -731,7 +734,7 @@ DietLogComponent::logAskForSeD(const corba_request_t* request) {
   if (tagFlags[1]) {
     // FIXME: add request parameters (size of request arguments?)
     char* s;
-    s = new char[strlen(request->pb.path) + num_Digits(request->reqID)+2]; 
+    s = new char[strlen(request->pb.path) + num_Digits(request->reqID)+2];
     sprintf(s,"%s %ld",(const char *)(request->pb.path),(unsigned long)(request->reqID));
     log(tagNames[1], s);
     delete(s);
@@ -757,25 +760,25 @@ DietLogComponent::logSedChosen(const corba_request_t* request,
 			char* v_value= new char[256];
 			sprintf(v_value,"%f",response->servers[i].estim.estValues[j].v_value);
 			estim_string.append(v_value);
-			delete(v_value); 
+			delete(v_value);
 		}
 	}
     s = new char[strlen(request->pb.path)
 	    +num_Digits(request->reqID)
 	    +num_Digits(response->servers.length())
 	    +estim_string.length()
-	    +5]; 
+	    +5];
     sprintf(s,"%s %ld %ld%s"
 	    ,(const char *)(request->pb.path)
 	    ,(unsigned long)(request->reqID)
 	    ,(unsigned long)(response->servers.length())
-	    ,(const char *)(estim_string.c_str()) 
+	    ,(const char *)(estim_string.c_str())
 	    );
     }else{
      s = new char[strlen(request->pb.path)
 	    +num_Digits(request->reqID)
 	    +num_Digits(response->servers.length())
-	    +3];	  
+	    +3];
      sprintf(s,"%s %ld %ld",
 	    (const char *)(request->pb.path),
 	    (unsigned long)(request->reqID),
@@ -800,7 +803,7 @@ DietLogComponent::logBeginSolve(const char* path,
   if (tagFlags[3]) {
     // FIXME: print problem (argument size?)
     char* s;
-    s = new char[strlen(path)+num_Digits(problem->dietReqID)+2]; 
+    s = new char[strlen(path)+num_Digits(problem->dietReqID)+2];
     sprintf(s,"%s %ld",(const char *)(path),(unsigned long)(problem->dietReqID));
     log(tagNames[3], s);
     delete(s);
@@ -812,7 +815,7 @@ DietLogComponent::logEndSolve(const char* path,
 			      const corba_profile_t* problem) {
   if (tagFlags[4]) {
     char* s;
-    s = new char[strlen(path)+num_Digits(problem->dietReqID)+2]; 
+    s = new char[strlen(path)+num_Digits(problem->dietReqID)+2];
     sprintf(s,"%s %ld",(const char *)(path),(unsigned long)(problem->dietReqID));
     log(tagNames[4], s);
     delete(s);
@@ -869,7 +872,7 @@ DietLogComponent::logDataStore(const char* dataID, const long unsigned int size,
       sprintf(s,"%s %ld %s %s",(const char *)(dataID),(long unsigned int)(size), type, base);
       break;
     }
-    } // end switch 
+    } // end switch
     log(tagNames[6], s);
     delete(s);
   }
@@ -901,7 +904,7 @@ DietLogComponent::logDataEndTransfer(const char* dataID,
 }
 
 #if HAVE_JUXMEM
-void 
+void
 DietLogComponent::logJuxMemDataStore(const unsigned long reqID, const char* dataID, const long unsigned int size, const long base_type, const char * type, const float time) {
    char * base = (char *)malloc(10*sizeof(char));
    char* s;
@@ -941,7 +944,7 @@ DietLogComponent::logJuxMemDataStore(const unsigned long reqID, const char* data
   delete(s);
 }
 
-void 
+void
 DietLogComponent::logJuxMemDataUse(const unsigned long reqID, const char* dataID, const char* access_mode, const long unsigned int size, const long base_type, const char * type, const float time) {
    char * base = (char *)malloc(10*sizeof(char));
    char* s;
@@ -1032,7 +1035,7 @@ void DietLogComponent::logFailure(const char *observed) {
 void DietLogComponent::logDetectorParams(const char *observed, double Pl, double Vd, double eta, double alpha) {
   if (tagFlags[17]) {
     char *buf;
-    
+
     buf = (char *) malloc(strlen(observed) + 84);
     sprintf(buf, "%s %14.4f %14.4f %14.4f %14.4f", observed, Pl, Vd, eta, alpha);
     log(tagNames[17], buf);
@@ -1041,27 +1044,17 @@ void DietLogComponent::logDetectorParams(const char *observed, double Pl, double
 #endif
 
 #ifdef HAVE_WORKFLOW
-/**
- * Send dag identifier and workflow processing time in the MA
- */
-void
-DietLogComponent::logDagSubmit(wf_response_t* wf_response,
-			       time_t ptime) {
-  char msg[256];
-  sprintf(msg, "DAG_ID=%ld FIRST_REQID=%ld LAST_REQID=%ld TIME=%ld", wf_response->dag_id,wf_response->firstReqID,wf_response->lastReqID, ptime);
-  
-  log(tagNames[18], msg);  
-}
+
 /**
  * Send dag identifier and workflow processing time in the MA
  */
 void
   DietLogComponent::logDag(char* msg) {
   char* log_msg = (char*)malloc(strlen(msg)*sizeof(char)+1);
-  sprintf(log_msg,"%s",msg);	
+  sprintf(log_msg,"%s",msg);
   log(tagNames[19], log_msg);
   free(log_msg);
 }
 
-	       
+
 #endif // HAVE_WORKFLOW

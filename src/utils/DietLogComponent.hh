@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2008/06/25 10:11:17  bisnard
+ * Removed logDagSubmit
+ *
  * Revision 1.16  2008/06/01 09:19:17  rbolze
  * add method logDag
  *
@@ -147,7 +150,7 @@ private:
 };
 
 /**
- * The PingThread regularly calls functions in the 
+ * The PingThread regularly calls functions in the
  * DietLogComponent(DLC) to synchronize with the
  * LogCentral. If this thread is not active, the
  * LogCentral will disconnect the component after
@@ -205,7 +208,7 @@ private:
 /**
  * The DietLogComponent encapsulates all LogCentral communication
  * in a DIET specific class. It acts as servant and as local proxy
- * for the LogCentral at the same time. It offers a number of 
+ * for the LogCentral at the same time. It offers a number of
  * functions for the creation of all possible logmessages. It also
  * handles errors with the DIET internal mechanisms.
  *
@@ -318,12 +321,12 @@ public:
   void logFailure(const char *observed);
   /** log failure detectors reconfigurations (and detected network conditions) */
   void logDetectorParams(const char *observed, double Pl, double Vd, double eta, double alpha);
-#endif  
+#endif
 
   /**
    * No-User functions
    */
-  
+
   /**
    * Synchronise with the LogCentral.
    * Not to be called by the user.
@@ -368,22 +371,12 @@ public:
 
 
   /**
-   * get a string representation of the v_tag value 
+   * get a string representation of the v_tag value
    */
   char* getEstimationTags(const int v_tag);
 
 #ifdef HAVE_WORKFLOW
-  /**
-   * Send dag identifier and workflow processing time in the MA
-   *
-   * @param dag_id the identifier of the DAG 
-   * @param ptime  the time elapsed by the MA in ms to process the workflow submission
-   *
-   */
-  void
-  logDagSubmit(wf_response_t* wf_response,
-	       time_t ptime);
-	       
+
   /**
    * Send msg and workflow processing time
    *
