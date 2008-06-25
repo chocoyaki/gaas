@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.110  2008/06/25 09:53:39  bisnard
+ * - Estimation vector sent with solve request to avoid storing it
+ * for each submit request as it depends on the parameters value. The
+ * estimation vector is used by SeD to updates internal Gantt chart and
+ * provide earliest finish time to submitted requests.
+ *
  * Revision 1.109  2008/06/01 14:06:57  rbolze
  * replace most ot the cout by adapted function from debug.cc
  * there are some left ...
@@ -603,8 +609,6 @@ SeDImpl::getRequest(const corba_request_t& creq)
     /* Fill the metrics */
     this->estimate(resp.servers[0].estim, creq.pb, serviceRef);
 
-    /* Save the metrics in the job queue */;
-    this->jobQueue->addJobEstimated(resp.reqID, resp.servers[0].estim);
   }
 
   if (TRACE_LEVEL >= TRACE_STRUCTURES) {
@@ -709,8 +713,8 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
    * and time at which job was enqueued (when using queues). */
   gettimeofday(&(this->lastSolveStart), NULL);
 
-  /* Updates the job in the list of queued jobs (it was added in getRequest) */
-  this->jobQueue->setJobWaiting(pb.dietReqID);
+  /* Add the job in the list of queued jobs with its estimation vector */
+  this->jobQueue->addJobWaiting(pb.dietReqID, pb.estim);
 
 #if defined HAVE_ALT_BATCH
   if( server_status == BATCH )
