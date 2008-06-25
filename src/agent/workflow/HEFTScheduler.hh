@@ -8,6 +8,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2008/06/25 10:05:44  bisnard
+ * - Waiting priority set when node is put back in waiting queue
+ * - Node index in wf_response stored in Node class (new attribute submitIndex)
+ * - HEFT scheduler uses SeD ref instead of hostname
+ * - Estimation vector and ReqID passed to client when SeD chosen by MaDag
+ * - New params in execNodeOnSeD to provide ReqId and estimation vector
+ * to client for solve request
+ *
  * Revision 1.6  2008/06/18 15:01:33  bisnard
  * use new attribute estDuration to store job duration for each node
  * rename method to avoid confusion (getCompTimeEst)
@@ -66,34 +74,6 @@ namespace madag {
                 Dag * dag,
                 double initTime);
 
-    /**
-     * Old scheduling methods
-     * @deprecated
-     */
-//     virtual wf_node_sched_seq_t
-//     schedule(const wf_response_t * wf_response,
-//              DagWfParser& reader,
-//              CORBA::Long dag_id);
-
-    virtual wf_node_sched_seq_t
-    schedule(const wf_response_t * wf_response,
-             Dag * dag);
-
-//     virtual wf_node_sched_seq_t
-//     reSchedule(const wf_response_t * wf_response,
-//                DagWfParser& reader);
-
-//     virtual wf_node_sched_seq_t
-//     reSchedule(const wf_response_t * wf_response,
-//                Dag* dag);
-
-    virtual wf_node_sched_t
-    schedule(const wf_response_t * response,
-             Node * n); // used by FOFT
-
-    virtual double
-    getAFT(string nodeId);
-
   private:
 
     /**
@@ -121,14 +101,11 @@ namespace madag {
     void
     rank(Node * n);
 
-    // the average wi
-    map<string, double> WI; // obsolete
-    // AFT and AST map
+    /**
+     * Stores all the nodes earliest finish times
+     */
     map<string, double> AFT;
-    map<string, double> AST;  // obsolete
 
-    // the availabilty of resources (obsolete)
-    static map<std::string, double> avail;
   };
 
 }

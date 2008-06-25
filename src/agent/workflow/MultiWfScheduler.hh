@@ -9,6 +9,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2008/06/25 10:05:44  bisnard
+ * - Waiting priority set when node is put back in waiting queue
+ * - Node index in wf_response stored in Node class (new attribute submitIndex)
+ * - HEFT scheduler uses SeD ref instead of hostname
+ * - Estimation vector and ReqID passed to client when SeD chosen by MaDag
+ * - New params in execNodeOnSeD to provide ReqId and estimation vector
+ * to client for solve request
+ *
  * Revision 1.12  2008/06/19 10:18:54  bisnard
  * new heuristic AgingHEFT for multi-workflow scheduling
  *
@@ -151,13 +159,6 @@ namespace madag {
         handlerNodeDone(Node * node) = 0;
 
     /**
-     * Updates scheduler when a node cannot be executed and is waiting
-     * in the ready nodes queue
-     */
-    virtual void
-        handlerNodeWaiting(Node * node);
-
-    /**
      * Get the current time from scheduler reference clock
      * @return  current time in milliseconds (from scheduler start)
      */
@@ -186,6 +187,11 @@ namespace madag {
     OrderedNodeQueue * execQueue;
 
     /**
+     * Store the nodes HEFT priority
+     */
+    map<Node*,double> nodesHEFTPrio;
+
+    /**
      * Selector for node priority policy
      */
     nodePolicy_t nodePolicy;
@@ -211,10 +217,19 @@ namespace madag {
     bool      termNode;
 
     /**
-     * Execute a node
+     * Execute a node on a given SeD
      */
     Thread *
-        runNode(Node * node, SeD_var sed);
+        runNode(Node * node,
+                SeD_var sed,
+                int reqID,
+                corba_estimation_t& ev);
+
+    /**
+     * Execute a node without specifying a SeD
+     */
+    Thread *
+        runNode(Node * node);
 
     /**
      * Parse a new dag provided in xml text and create a dag object
@@ -287,11 +302,16 @@ namespace madag {
         setExecPriority(Node * node);
 
     /**
-     * Inter-node delay (used to separate DIET submits)
-     *(in milliseconds)
-     * @obsolete
+     * set node priority before inserting back in the ready queue
      */
-    static long interNodeDelay;
+    virtual void
+        setWaitingPriority(Node * node);
+
+    /**
+     * Inter-round delay (used to separate DIET submits)
+     *(in milliseconds)
+     */
+    static long interRoundDelay;
 
   private:
 
@@ -326,16 +346,36 @@ namespace madag {
 
   class NodeRun: public Thread {
     public:
-      NodeRun(Node * node, SeD_var sed, MultiWfScheduler * scheduler, CltMan_ptr cltMan);
+      /**
+       * Constructor used when SeD is provided
+       */
+      NodeRun(Node * node,
+              SeD_var sed,
+              int reqID,
+              corba_estimation_t ev,
+              MultiWfScheduler * scheduler,
+              CltMan_ptr cltMan);
 
+      /**
+       * Constructor used when no SeD is provided
+       */
+      NodeRun(Node * node,
+              MultiWfScheduler * scheduler,
+              CltMan_ptr cltMan);
+
+      /**
+       * Run method
+       */
       void*
           run();
 
     private:
-      Node *  myNode;
-      SeD_var mySeD;
-      MultiWfScheduler * myScheduler;
-      CltMan_ptr myCltMan;
+      Node *              myNode;
+      SeD_var             mySeD;
+      int                 myReqID;
+      corba_estimation_t  myEstVect;
+      MultiWfScheduler *  myScheduler;
+      CltMan_ptr          myCltMan;
   }; // end class NodeRun
 
 /****************************************************************************/

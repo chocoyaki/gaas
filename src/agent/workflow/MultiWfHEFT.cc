@@ -10,6 +10,14 @@
 
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/06/25 10:05:44  bisnard
+ * - Waiting priority set when node is put back in waiting queue
+ * - Node index in wf_response stored in Node class (new attribute submitIndex)
+ * - HEFT scheduler uses SeD ref instead of hostname
+ * - Estimation vector and ReqID passed to client when SeD chosen by MaDag
+ * - New params in execNodeOnSeD to provide ReqId and estimation vector
+ * to client for solve request
+ *
  * Revision 1.4  2008/06/19 10:18:54  bisnard
  * new heuristic AgingHEFT for multi-workflow scheduling
  *
@@ -124,4 +132,12 @@ MultiWfAgingHEFT::setExecPriority(Node * node) {
   node->setPriority((double) (this->nodesHEFTPrio[node] * ageFactor));
   TRACE_TEXT(TRACE_ALL_STEPS,"[AHEFT] Node priority set to " << node->getPriority()
       << " (dag age = " << dagAge << "/factor = " << ageFactor << ")" << endl);
+}
+
+/**
+ * Set priority before inserting back in the ready queue
+ */
+void
+MultiWfAgingHEFT::setWaitingPriority(Node * node) {
+  node->setPriority(this->nodesHEFTPrio[node]);
 }

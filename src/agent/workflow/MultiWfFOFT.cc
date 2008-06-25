@@ -10,6 +10,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2008/06/25 10:05:44  bisnard
+ * - Waiting priority set when node is put back in waiting queue
+ * - Node index in wf_response stored in Node class (new attribute submitIndex)
+ * - HEFT scheduler uses SeD ref instead of hostname
+ * - Estimation vector and ReqID passed to client when SeD chosen by MaDag
+ * - New params in execNodeOnSeD to provide ReqId and estimation vector
+ * to client for solve request
+ *
  * Revision 1.13  2008/06/19 10:18:54  bisnard
  * new heuristic AgingHEFT for multi-workflow scheduling
  *
@@ -105,10 +113,12 @@ MultiWfFOFT::intraDagSchedule(Dag * dag, MasterAgent_var MA)
   this->mySched->setNodesEFT(orderedNodes, wf_response, dag, startTime);
   delete &orderedNodes;
 
-  // Initialize nodesFlag
+  // Initialize nodesFlag and nodesHEFTPrio
   for (map <string,Node *>::iterator iter = dag->begin(); iter != dag->end();
        iter++) {
-    this->nodesFlag[iter->second] = false;
+    Node * node = (Node*) iter->second;
+    this->nodesFlag[node] = false;
+    this->nodesHEFTPrio[node] = node->getPriority();
   }
 
   // Initialize the earliest finish time and makespan of the dag
@@ -128,19 +138,6 @@ MultiWfFOFT::handlerNodeDone(Node * node) {
   this->updateNodeDelay(node, node->getRealDelay());
 }
 
-
-/**
- * Updates scheduler when a node cannot be executed and is waiting
- * in the ready nodes queue.
- * Set a flag to trigger slowdown calculation the next time this node's
- * priority is set.
-*/
-void
-MultiWfFOFT::handlerNodeWaiting(Node * node) {
-  this->nodesFlag[node] = true;
-}
-
-
 /**
  * set node priority before inserting into execution queue
  */
@@ -149,14 +146,30 @@ MultiWfFOFT::setExecPriority(Node * node) {
   // if flag is set (prev attempt to exec failed due to lack of ress.
   if (this->nodesFlag[node]) {
     double currDelay = this->getRelCurrTime() + node->getEstDuration() - node->getEstCompTime();
-    if (currDelay > 0)
+    if (currDelay > 0) {
       this->updateNodeDelay(node, currDelay);
+      TRACE_TEXT(TRACE_MAIN_STEPS, "[FOFT] Waiting node "
+              << node->getCompleteId() << " delay updated (duration="
+              << node->getEstDuration() << "/EFT=" << node->getEstCompTime()
+              << "/delay=" << currDelay << ")" << endl);
+    } else {
+      TRACE_TEXT(TRACE_MAIN_STEPS, "[FOFT] Waiting node " << node->getCompleteId()
+          << " is on schedule" << endl);
+    }
   }
   node->setPriority(this->dagsState[node->getDag()].slowdown);
-  TRACE_TEXT(TRACE_ALL_STEPS,"[FOFT] Node priority (slowdown) set to " << node->getPriority()
-      << " before exec. " << endl);
 }
 
+/**
+ * Set priority before inserting back in the ready queue
+ * Set a flag to trigger slowdown calculation the next time this node's
+ * priority is set.
+*/
+void
+MultiWfFOFT::setWaitingPriority(Node * node) {
+  node->setPriority(this->nodesHEFTPrio[node]);
+  this->nodesFlag[node] = true;
+}
 
 /**
  * Updates the delay of a node

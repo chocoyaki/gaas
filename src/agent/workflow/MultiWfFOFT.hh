@@ -10,6 +10,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2008/06/25 10:05:44  bisnard
+ * - Waiting priority set when node is put back in waiting queue
+ * - Node index in wf_response stored in Node class (new attribute submitIndex)
+ * - HEFT scheduler uses SeD ref instead of hostname
+ * - Estimation vector and ReqID passed to client when SeD chosen by MaDag
+ * - New params in execNodeOnSeD to provide ReqId and estimation vector
+ * to client for solve request
+ *
  * Revision 1.9  2008/06/19 10:18:54  bisnard
  * new heuristic AgingHEFT for multi-workflow scheduling
  *
@@ -75,13 +83,6 @@ namespace madag {
         handlerNodeDone(Node * node);
 
     /**
-     * Updates scheduler when a node cannot be executed and is waiting
-     * in the ready nodes queue
-     */
-    virtual void
-        handlerNodeWaiting(Node * node);
-
-    /**
      * internal dag scheduling
      */
     virtual void
@@ -90,10 +91,15 @@ namespace madag {
 
     /**
      * set node priority before inserting into execution queue
-     * @param node   the node to insert
      */
     virtual void
         setExecPriority(Node * node);
+
+    /**
+     * set node priority before inserting back in the ready queue
+     */
+    virtual void
+        setWaitingPriority(Node * node);
 
     /**
      * updates the delay for a given node and change the current dag

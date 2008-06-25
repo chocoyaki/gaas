@@ -9,6 +9,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2008/06/25 10:05:44  bisnard
+ * - Waiting priority set when node is put back in waiting queue
+ * - Node index in wf_response stored in Node class (new attribute submitIndex)
+ * - HEFT scheduler uses SeD ref instead of hostname
+ * - Estimation vector and ReqID passed to client when SeD chosen by MaDag
+ * - New params in execNodeOnSeD to provide ReqId and estimation vector
+ * to client for solve request
+ *
  * Revision 1.18  2008/06/19 10:18:54  bisnard
  * new heuristic AgingHEFT for multi-workflow scheduling
  *
@@ -95,7 +103,7 @@ using namespace madag;
 /*                                                                          */
 /****************************************************************************/
 
-long MultiWfScheduler::interNodeDelay = 200; // in milliseconds
+long MultiWfScheduler::interRoundDelay = 100; // in milliseconds
 
 /****************************************************************************/
 /*                         PUBLIC METHODS                                   */
@@ -139,6 +147,10 @@ MultiWfScheduler::scheduleNewDag(const corba_wf_desc_t& wf_desc, int wfReqId,
                                  MasterAgent_var MA)
     throw (XMLParsingException, NodeException)
 {
+  // Beginning of exclusion block
+  // TODO move exclusion lock later (need to make HEFTScheduler thread-safe)
+  this->myLock.lock();
+
   TRACE_TEXT (TRACE_ALL_STEPS, "The meta scheduler receives a new xml dag "
       << endl);
   // Dag XML Parsing
@@ -155,9 +167,6 @@ MultiWfScheduler::scheduleNewDag(const corba_wf_desc_t& wf_desc, int wfReqId,
 
   // Init queue by setting input nodes as ready
   newDag->setInputNodesReady();
-
-  // Beginning of exclusion block
-  this->myLock.lock();
 
   // Insert node queue into pool of node queues managed by the scheduler
   TRACE_TEXT (TRACE_ALL_STEPS, "Inserting new node queue into queue pool" << endl);
@@ -202,7 +211,7 @@ MultiWfScheduler::run() {
   while (true) {
     loopCount++;
     TRACE_TEXT(TRACE_MAIN_STEPS,"\t ** Starting Multi-Workflow scheduler ("
-        << loopCount << ")" << endl);
+        << loopCount << ") time=" << this->getRelCurrTime() << endl);
     this->myLock.lock();
     // Loop over all nodeQueues and run the first ready node
     // for each queue
@@ -214,6 +223,9 @@ MultiWfScheduler::run() {
       int npc = nodePolicyCount;
       Node * n = NULL;
       while ((npc) && (n = readyQ->popFirstNode())) {
+        TRACE_TEXT(TRACE_MAIN_STEPS,"  #### Ready node : " << n->getCompleteId()
+            << " / request #" << n->getWfReqId()
+            << " / wait prio = " << n->getPriority() << endl);
         // save the address of the readyQ for this node (used if node pushed back)
         n->setLastQueue(readyQ);
         // set priority of node (depends on choosen algorithm)
@@ -222,9 +234,6 @@ MultiWfScheduler::run() {
         execQueue->pushNode(n);
         queuedNodeCount++;
         npc--;
-        TRACE_TEXT(TRACE_MAIN_STEPS,"  #### Ready node : " << n->getCompleteId()
-            << " / request #" << n->getWfReqId()
-            << " / prio = " << n->getPriority() << endl);
       }
       ++qp; // go to next queue
     }
@@ -241,43 +250,50 @@ MultiWfScheduler::run() {
       }
       mappedNodeCount = 0;
       // Assign available ressources to nodes and start node execution
+      int ix = 0; // index of the node response in wf_response
       while (!execQueue->isEmpty()) {
         Node *n = execQueue->popFirstNode();
         OrderedNodeQueue * readyQ = dynamic_cast<OrderedNodeQueue *>(n->getLastQueue());
 
         // CHECK RESSOURCE AVAILABILITY
         bool ressourceFound = false;
-        for (unsigned int ix=0; ix < wf_response->wfn_seq_resp.length(); ix++) { // find pb
-          if (!strcmp(n->getPb().c_str(), wf_response->wfn_seq_resp[ix].node_id)) {
-            for (unsigned int jx=0;
-             jx < wf_response->wfn_seq_resp[ix].response.servers.length();
-             jx++) { // loop over servers
-               corba_server_estimation_t servEst = wf_response->wfn_seq_resp[ix].response.servers[jx];
-               double compTime = diet_est_get_internal(&servEst.estim, EST_TCOMP, 0);
-               double EFT = diet_est_get_internal(&servEst.estim, EST_USERDEFINED, 0);
-               string hostname(CORBA::string_dup(servEst.loc.hostName));
-               TRACE_TEXT(TRACE_ALL_STEPS,"  server " << hostname << ": compTime="
-                                                      << compTime << ": EFT=" << EFT << endl);
-               if (avail.find(hostname) == avail.end()) avail[hostname] = true;
-               if ((EFT - compTime <= 0) && avail[hostname]) {
-                 ressourceFound = true;
-                 avail[hostname] = false;
-                 n->setSeD(servEst.loc.ior);
-                 TRACE_TEXT(TRACE_ALL_STEPS,"  server found: " << hostname << endl);
-                 break;
-               }
-             }
-          }
+        int submitReqID = 0;  /* used to store the ReqID of submit that must be provided
+        to the client for the solve request */
+        corba_server_estimation_t* servEst; // will contain the chosenServer estimation
+        ix = n->getSubmitIndex();
+        if (!strcmp(n->getPb().c_str(), wf_response->wfn_seq_resp[ix].node_id)) {
+          for (unsigned int jx=0;
+               jx < wf_response->wfn_seq_resp[ix].response.servers.length();
+               jx++) { // loop over servers
+            servEst = &wf_response->wfn_seq_resp[ix].response.servers[jx];
+            double compTime = diet_est_get_internal(&servEst->estim, EST_TCOMP, 0);
+            double EFT = diet_est_get_internal(&servEst->estim, EST_USERDEFINED, 0);
+            string hostname(CORBA::string_dup(servEst->loc.hostName));
+            TRACE_TEXT(TRACE_ALL_STEPS,"  server " << hostname << ": compTime="
+                << compTime << ": EFT=" << EFT << endl);
+            // test if the server is available right now
+            // TODO use SeD ref instead of hostname
+            if (avail.find(hostname) == avail.end()) avail[hostname] = true;
+            if ((EFT - compTime <= 0) && avail[hostname]) {
+              ressourceFound = true;
+              avail[hostname] = false;
+              submitReqID = wf_response->wfn_seq_resp[ix].response.reqID;
+              TRACE_TEXT(TRACE_ALL_STEPS,"  server found: " << hostname << endl);
+              break;
+            }
+          } // end for jx
+        } else {
+          TRACE_TEXT(TRACE_MAIN_STEPS,"WARNING: mismatch btw queue node & MA response"
+              << "(node pb=" << n->getPb() << ")" << endl); // should not happen!
         }
-
         // EXECUTE NODE (NEW THREAD)
         if (ressourceFound) {
           n->setAsRunning();
 	  TRACE_TEXT(TRACE_MAIN_STEPS,"  $$$$ Exec node : " << n->getCompleteId()
-            << " / request #" << n->getWfReqId()
-            << " / prio = " << n->getPriority() << endl);
+            << " / WFrequest #" << n->getWfReqId()
+            << " / exec prio = " << n->getPriority() << endl);
           mappedNodeCount++;
-          runNode(n, n->getSeD());
+          runNode(n, servEst->loc.ior, submitReqID, servEst->estim);
 
           // Destroy queues if both are empty
           ChainedNodeQueue * waitQ = waitingQueues[readyQ];
@@ -292,16 +308,18 @@ MultiWfScheduler::run() {
         }
         // PUT THE NODE BACK IN THE READY QUEUE if no ressource available
         else {
+          // set the priority to the initial value (intra-dag)
+          this->setWaitingPriority(n);
           readyQ->pushNode(n);
-          this->handlerNodeWaiting(n);
         }
 
-        // DELAY between NODES (to avoid interference btw submits) ==> still necessary ??
-        // usleep(this->interNodeDelay * 1000);
       } // end loop execQueue
 
       // cleanup availability matrix
       avail.clear();
+
+      // destroy wf_response
+      delete wf_response;
 
       // round-robbin on the ready queues
       if (readyQueues.size() > 0) {
@@ -332,6 +350,9 @@ MultiWfScheduler::run() {
         delete this->termNodeThread;
         this->termNode = false;
       }
+    } else {
+      // DELAY between rounds (to avoid interference btw submits)
+      usleep(this->interRoundDelay * 1000);
     }
   }
 }
@@ -379,9 +400,10 @@ MultiWfScheduler::getRelCurrTime() {
 Dag *
 MultiWfScheduler::parseNewDag(int wfReqId, const corba_wf_desc_t& wf_desc)
     throw (XMLParsingException) {
-  DagWfParser reader(wfReqId, wf_desc.abstract_wf);
-  reader.setup();
-  Dag * newDag = reader.getDag();
+  DagWfParser* reader = new DagWfParser(wfReqId, wf_desc.abstract_wf);
+  reader->setup();
+  Dag * newDag = reader->getDag();
+  delete reader;
   newDag->setId(itoa(dagIdCounter++));
   return newDag;
 }
@@ -393,23 +415,33 @@ wf_response_t *
 MultiWfScheduler::getProblemEstimates(Dag *dag, MasterAgent_var MA)
     throw (NodeException) {
   // Check that all services are available and get the estimations (with MA)
-  vector<diet_profile_t*> v = dag->getAllProfiles();
-  unsigned int len = v.size();
-  corba_pb_desc_seq_t pbs_seq;
-  pbs_seq.length(len);
-  for (unsigned int ix=0; ix< len; ix++) {
+/*  vector<diet_profile_t*> * v = dag->getAllProfiles();
+  corba_pb_desc_seq_t* pbs_seq = new corba_pb_desc_seq_t();
+  pbs_seq->length(v->size());
+  for (unsigned int ix=0; ix< pbs_seq->length(); ix++) {
     TRACE_TEXT (TRACE_ALL_STEPS, "marshalling pb " << ix << endl
-        << "pb_name = " << v[ix]->pb_name << endl
-        << "last_in = " << v[ix]->last_in << endl
-        << "last_inout = " << v[ix]->last_inout << endl
-        << "last_out = " << v[ix]->last_out << endl);
+        << "pb_name = " << (*v)[ix]->pb_name << endl
+        << "last_in = " << (*v)[ix]->last_in << endl
+        << "last_inout = " << (*v)[ix]->last_inout << endl
+        << "last_out = " << (*v)[ix]->last_out << endl);
 
-    mrsh_pb_desc(&pbs_seq[ix], v[ix]);
+    mrsh_pb_desc(&(*pbs_seq)[ix], (*v)[ix]);
+  }
+  delete v; */
+  corba_pb_desc_seq_t* pbs_seq = new corba_pb_desc_seq_t();
+  pbs_seq->length(dag->size());
+  int ix = 0;
+  for (map<std::string, Node *>::iterator iter = dag->begin();
+       iter != dag->end(); iter++) {
+         Node * node = (Node *) iter->second;
+         node->setSubmitIndex(ix); // used to find response
+         mrsh_pb_desc(&(*pbs_seq)[ix++], node->getProfile());
   }
   TRACE_TEXT (TRACE_ALL_STEPS,
-              "MultiWfScheduler: send the problems sequence to the MA  ... "
+              "MultiWfScheduler: send " << ix << " profile(s) to the MA  ... "
                   << endl);
-  wf_response_t * wf_response = MA->submit_pb_set(pbs_seq, dag->size());
+  wf_response_t * wf_response = MA->submit_pb_set(*pbs_seq);
+  delete pbs_seq;
   TRACE_TEXT (TRACE_ALL_STEPS, "... done" << endl);
   if ( ! wf_response->complete)
     throw (NodeException(NodeException::eSERVICE_NOT_FOUND));
@@ -422,17 +454,35 @@ MultiWfScheduler::getProblemEstimates(Dag *dag, MasterAgent_var MA)
 wf_response_t *
 MultiWfScheduler::getProblemEstimates(OrderedNodeQueue* queue, MasterAgent_var MA)
     throw (NodeException) {
-  Dag * tmpDag = new Dag();
+/*  Dag * tmpDag = new Dag();
   tmpDag->setAsTemp(true);
   for (list<Node *>::iterator iter = queue->begin(); iter != queue->end(); iter++) {
     Node * n = (Node *) *iter;
+    cout << "Adding node " << n->getCompleteId() << " to the tmp dag" << endl;
     if (n != NULL)
       tmpDag->addNode(n->getCompleteId(), n);
     else WARNING("getProblemEstimates: NULL node in tmpDag" << endl);
   }
   wf_response_t * resp = getProblemEstimates(tmpDag, MA);
-  delete tmpDag;
-  return resp;
+  delete tmpDag; */
+  corba_pb_desc_seq_t* pbs_seq = new corba_pb_desc_seq_t();
+  pbs_seq->length(queue->size());
+  int ix = 0;
+  for (list<Node *>::iterator iter = queue->begin();
+       iter != queue->end(); iter++) {
+         Node * node = (Node *) *iter;
+         node->setSubmitIndex(ix); // used to find response
+         mrsh_pb_desc(&(*pbs_seq)[ix++], node->getProfile());
+  }
+  TRACE_TEXT (TRACE_ALL_STEPS,
+              "MultiWfScheduler: send " << ix << " profile(s) to the MA  ... "
+                  << endl);
+  wf_response_t * wf_response = MA->submit_pb_set(*pbs_seq);
+  delete pbs_seq;
+  TRACE_TEXT (TRACE_ALL_STEPS, "... done" << endl);
+  if ( ! wf_response->complete)
+    throw (NodeException(NodeException::eSERVICE_NOT_FOUND));
+  return wf_response;
 }
 
 /**
@@ -443,7 +493,6 @@ MultiWfScheduler::intraDagSchedule(Dag * dag, MasterAgent_var MA)
     throw (NodeException) {
   // Call the MA to get estimations for all services
   wf_response_t * wf_response = this->getProblemEstimates(dag, MA);
-
   // Prioritize the nodes (with intra-dag scheduler)
   this->mySched->setNodesPriority(wf_response, dag);
 }
@@ -499,20 +548,31 @@ MultiWfScheduler::setExecPriority(Node * node) {
   // by default does nothing
 }
 /**
- * Handler when node is sent back to ready queue when it cannot be
- * executed due to lack of ressources
+ * set node priority before inserting back in the ready queue
  */
 void
-MultiWfScheduler::handlerNodeWaiting(Node * node) {
+MultiWfScheduler::setWaitingPriority(Node * node) {
   // by default does nothing
 }
 
 /**
- * Execute a node
+ * Execute a node on a given SeD
  */
 Thread *
-MultiWfScheduler::runNode(Node * node, SeD_var sed) {
-  Thread * thread = new NodeRun(node, sed, this,
+MultiWfScheduler::runNode(Node * node, SeD_var sed,
+                          int reqID, corba_estimation_t& ev) {
+  Thread * thread = new NodeRun(node, sed, reqID, ev, this,
+                                this->myMaDag->getCltMan(node->getWfReqId()));
+  thread->start();
+  return thread;
+}
+
+/**
+ * Execute a node without specifying a SeD
+ */
+Thread *
+MultiWfScheduler::runNode(Node * node) {
+  Thread * thread = new NodeRun(node, this,
                                 this->myMaDag->getCltMan(node->getWfReqId()));
   thread->start();
   return thread;
@@ -522,10 +582,20 @@ MultiWfScheduler::runNode(Node * node, SeD_var sed) {
 /*                            CLASS NodeRun                                 */
 /****************************************************************************/
 
-NodeRun::NodeRun(Node * node, SeD_var sed, MultiWfScheduler * scheduler,
-                 CltMan_ptr cltMan) {
+NodeRun::NodeRun(Node * node, SeD_var sed, int reqID, corba_estimation_t ev,
+                 MultiWfScheduler * scheduler, CltMan_ptr cltMan) {
   this->myNode = node;
   this->mySeD = sed;
+  this->myReqID = reqID;
+  this->myEstVect = ev;
+  this->myScheduler = scheduler;
+  this->myCltMan = cltMan;
+}
+
+NodeRun::NodeRun(Node * node,
+                 MultiWfScheduler * scheduler, CltMan_ptr cltMan) {
+  this->myNode = node;
+  this->mySeD = SeD::_nil();
   this->myScheduler = scheduler;
   this->myCltMan = cltMan;
 }
@@ -548,10 +618,13 @@ NodeRun::run() {
     TRACE_TEXT (TRACE_ALL_STEPS, "NodeRun: try to call client manager ");
     CORBA::Long res;
     if (!CORBA::is_nil(this->mySeD)) {
-      TRACE_TEXT (TRACE_ALL_STEPS, "(exec on sed)" << endl);
+      TRACE_TEXT (TRACE_ALL_STEPS, "(exec on sed - request #"
+          << this->myReqID << ")" << endl);
       res = myCltMan->execNodeOnSed(this->myNode->getId().c_str(),
-                              this->myNode->getDag()->getId().c_str(),
-                                  this->mySeD);
+                                    this->myNode->getDag()->getId().c_str(),
+                                    this->mySeD,
+                                    this->myReqID,
+                                    this->myEstVect);
     } else {
       TRACE_TEXT (TRACE_ALL_STEPS, "(exec without sed)" << endl);
       res = myCltMan->execNode(this->myNode->getId().c_str(),

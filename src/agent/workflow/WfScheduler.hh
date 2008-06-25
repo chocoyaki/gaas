@@ -8,6 +8,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/06/25 10:05:44  bisnard
+ * - Waiting priority set when node is put back in waiting queue
+ * - Node index in wf_response stored in Node class (new attribute submitIndex)
+ * - HEFT scheduler uses SeD ref instead of hostname
+ * - Estimation vector and ReqID passed to client when SeD chosen by MaDag
+ * - New params in execNodeOnSeD to provide ReqId and estimation vector
+ * to client for solve request
+ *
  * Revision 1.5  2008/06/18 15:03:39  bisnard
  * initialize dag scheduling time in multi-wf scheduler
  *
@@ -65,34 +73,6 @@ namespace madag {
                 const wf_response_t * wf_response,
                 Dag * dag,
                 double initTime) = 0;
-    /**
-     * Old scheduling methods
-     * @deprecated
-     */
-
-//     virtual wf_node_sched_seq_t
-//     schedule(const wf_response_t * wf_response,
-//              DagWfParser& parser,
-//              CORBA::Long dag_id) = 0;
-
-    virtual wf_node_sched_seq_t
-    schedule(const wf_response_t * wf_response,
-             Dag * dag) = 0;
-
-//     virtual wf_node_sched_seq_t
-//     reSchedule(const wf_response_t * wf_response,
-//                DagWfParser& parser) = 0;
-//
-//     virtual wf_node_sched_seq_t
-//     reSchedule(const wf_response_t * wf_response,
-//                Dag * dag) = 0;
-//
-    virtual wf_node_sched_t
-    schedule(const wf_response_t * response,
-             Node * n) = 0;
-
-    virtual double
-    getAFT(string nodeId) = 0;
 
   };
 

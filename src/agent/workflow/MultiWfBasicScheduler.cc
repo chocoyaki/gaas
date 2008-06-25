@@ -10,6 +10,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2008/06/25 10:05:44  bisnard
+ * - Waiting priority set when node is put back in waiting queue
+ * - Node index in wf_response stored in Node class (new attribute submitIndex)
+ * - HEFT scheduler uses SeD ref instead of hostname
+ * - Estimation vector and ReqID passed to client when SeD chosen by MaDag
+ * - New params in execNodeOnSeD to provide ReqId and estimation vector
+ * to client for solve request
+ *
  * Revision 1.10  2008/06/03 13:37:09  bisnard
  * Multi-workflow sched now keeps nodes in the ready nodes queue
  * until a ressource is available to ensure comparison is done btw
@@ -89,7 +97,7 @@ MultiWfBasicScheduler::run() {
             << " (request #" << n->getWfReqId() << ") => execute" << endl);
         // EXECUTE NODE (NEW THREAD)
         n->setAsRunning();
-        runNode(n, n->getSeD());
+        runNode(n);
         nodeCount++;
         // Destroy queues if both are empty
         ChainedNodeQueue * waitQ = waitingQueues[readyQ];
@@ -100,7 +108,7 @@ MultiWfBasicScheduler::run() {
           continue;
         }
         // DELAY between NODES (to avoid interference btw submits)
-        usleep(this->interNodeDelay * 1000);
+        usleep(this->interRoundDelay * 1000);
       }
       ++qp; // go to next queue
     }
