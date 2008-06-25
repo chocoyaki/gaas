@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2008/06/25 09:54:49  bisnard
+ * obsolete params used for DietLogComponent in wf_response
+ *
  * Revision 1.15  2008/04/19 09:16:45  ycaniou
  * Check that pathToTmp and pathToNFS exist
  * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
@@ -117,7 +120,7 @@ typedef sequence <corba_data_loc_t> SeqDataLoc_t;
 
 
 /**
- * The server estimation structure 
+ * The server estimation structure
  */
 
 struct corba_server_estimation_t{
@@ -137,7 +140,7 @@ typedef sequence <corba_server_estimation_t> SeqServerEstimation_t;
  *   computation could be estimated,
  *   whereas the second part consists of all the ones that provide only an
  *   estimation of their free resources.
- * Actually the servers are not sorted in the "servers" sequence itself : 
+ * Actually the servers are not sorted in the "servers" sequence itself :
  *   it is far cheaper to maintain sorted a sequence of indexes, with an apart
  *   long field that stores the number of servers where the computation could be
  *   estimated (nbComp).
@@ -177,22 +180,19 @@ struct node_response_t {
 
 typedef sequence<node_response_t> dag_response_t;
 
-// @deprecated (to clean)
 struct wf_node_response_t {
   string node_id;
   double node_priority;
   corba_response_t response;
 };
 
-// @deprecated (to clean)
 typedef sequence <wf_node_response_t> wfn_seq_resp_t;
 
-// @deprecated (to clean)
 struct wf_response_t {
   boolean complete;
-  long firstReqID;
-  long lastReqID;
-  long dag_id;
+  long firstReqID; // deprecated
+  long lastReqID; // deprecated
+//   long dag_id; // deprecated
   wfn_seq_resp_t wfn_seq_resp;
 };
 
@@ -200,7 +200,7 @@ struct wf_response_t {
 struct wf_node_sched_t {
   string node_id;
   double priority;
-  corba_server_estimation_t server;  
+  corba_server_estimation_t server;
 };
 
 // @deprecated (to clean)
