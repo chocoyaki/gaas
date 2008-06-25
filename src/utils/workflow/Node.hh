@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2008/06/25 10:07:12  bisnard
+ * - removed debug messages
+ * - Node index in wf_response stored in Node class (new attribute submitIndex)
+ *
  * Revision 1.11  2008/06/18 15:00:32  bisnard
  * use new Node attribute estDuration to store job duration for each node
  *
@@ -387,15 +391,11 @@ public:
   /**
    * set the SeD reference  associated to the Node
    * @param sed the SeD reference
+   * @param reqID the request ID (of previous submit request)
+   * @param ev  the Estimation vector for this SeD (required to call diet_call_common)
    */
   void
-  setSeD(const SeD_var& sed);
-
-  /**
-   * return the SeD affected to the node
-   */
-  SeD_var
-  getSeD();
+  setSeD(const SeD_var& sed, const unsigned long reqID, corba_estimation_t& ev);
 
   /**
    * return the number of next nodes
@@ -590,6 +590,18 @@ public:
   NodeQueue *
   getLastQueue();
 
+  /**
+   * set the submit index
+   */
+  void
+  setSubmitIndex(int idx);
+
+  /**
+   * get the submit index
+   */
+  int
+  getSubmitIndex();
+
 protected:
   /*********************************************************************/
   /* protected fields                                                  */
@@ -705,9 +717,19 @@ private:
   bool node_running;
 
   /**
-   * chosen server *
+   * chosen server *  (client-side)
    */
   SeD_var chosenServer;
+
+  /**
+   * estimation vector for chosen server * (client-side)
+   */
+  estVector_t estimVect;
+
+  /**
+   * request ID for chosen server (client-side)
+   */
+  unsigned long dietReqID;
 
   /**
    * number of immediate next nodes that have end their execution *
@@ -733,6 +755,11 @@ private:
    * Real completion time (in ms)
    */
   double realCompTime;
+
+  /**
+   * Submit index (stores the index in MA response)
+   */
+  int submitIndex;
 
   /*********************************************************************/
   /* private methods                                                   */

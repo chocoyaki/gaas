@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2008/06/25 10:07:12  bisnard
+ * - removed debug messages
+ * - Node index in wf_response stored in Node class (new attribute submitIndex)
+ *
  * Revision 1.15  2008/06/19 10:17:41  bisnard
  * remove some debug mess
  *
@@ -127,6 +131,8 @@
 #include "NodeQueue.hh"
 
 MasterAgent_var getMA();
+extern diet_error_t
+diet_call_common(diet_profile_t* profile, SeD_var& chosenServer, estVector_t estimVect);
 
 /**
  * Display a textual representation of a corba profile
@@ -200,7 +206,7 @@ RunnableNode::run() {
   bool failed = false;
   try {
     try {
-      if (!diet_call(myParent->profile)) {
+      if (!diet_call_common(myParent->profile, myParent->chosenServer, myParent->estimVect)) {
         TRACE_TEXT (TRACE_MAIN_STEPS, "diet_call DONE" << endl);
         myParent->storePersistentData();
         //cout << " dietReqID : " << myParent->profile->dietReqID << endl;
@@ -246,6 +252,7 @@ Node::Node(int wfReqId, string id, string pb_name,
   this->taskExecFailed = false;
   this->myRunnableNode = NULL;
   this->chosenServer = SeD::_nil();
+  this->estimVect = NULL;
   this->nextDone = 0;
   this->priority = 0;
   this->myDag = NULL;
@@ -253,6 +260,7 @@ Node::Node(int wfReqId, string id, string pb_name,
   this->realCompTime = -1;
   this->estCompTime = -1;
   this->estDelay = 0;
+  this->submitIndex = 0;
 } // end Node constructor
 
 /**
@@ -454,6 +462,22 @@ Node::getDag() {
     cout << "ERROR: calling getDag() on a node not linked to a dag" << endl;
     exit(0);
   }
+}
+
+/**
+ * set the submit index
+ */
+void
+Node::setSubmitIndex(int idx) {
+  this->submitIndex = idx;
+}
+
+/**
+ * get the submit index
+ */
+int
+Node::getSubmitIndex() {
+  return this->submitIndex;
 }
 
 /****************************************************************************/
@@ -883,24 +907,19 @@ Node::hasFailed() {
 }
 
 /****************************************************************************/
-/*                        Node mapping to SeD                               */
+/*                        Node mapping to SeD (Client)                      */
 /****************************************************************************/
 
 /**
  * set the SeD reference to the node *
  */
 void
-Node::setSeD(const SeD_var& sed) {
+Node::setSeD(const SeD_var& sed, const unsigned long reqID, corba_estimation_t& ev) {
   this->chosenServer = sed;
+  this->dietReqID = reqID;
+  this->estimVect = &ev;
 } // end setSeD
 
-/**
- * return the SeD affected to the node
- */
-SeD_var
-Node::getSeD() {
-  return this->chosenServer;
-} // end getSeD
 
 /****************************************************************************/
 /*                           Timestamps (MaDag)                             */
@@ -1055,18 +1074,23 @@ Node::createProfile() {
   int last_inout = this->profile->last_inout;
   int last_out = this->profile->last_out;
   diet_profile_free(this->profile);
-  TRACE_TEXT (TRACE_ALL_STEPS,
-	      "Reallocating a new profile " << myPb.c_str() << ", " <<
-	      last_in << ", " <<
-	      last_inout << ", " <<
-	      last_out << endl);
+//   TRACE_TEXT (TRACE_ALL_STEPS,
+// 	      "Reallocating a new profile " << myPb.c_str() << ", " <<
+// 	      last_in << ", " <<
+// 	      last_inout << ", " <<
+// 	      last_out << endl);
   this->profile =  diet_profile_alloc((char*)(this->myPb.c_str()),
 					   last_in, last_inout, last_out);
+  // Set the request ID if available (case when a previous submit request has
+  // been sent by the MaDag) and the SeD is already chosen
+  this->profile->dietReqID = this->dietReqID;
+  TRACE_TEXT(TRACE_ALL_STEPS,"Setting reqID in profile to #"
+      << this->dietReqID << endl);
 
   int last = 0;
   // input ports
-  TRACE_TEXT (TRACE_ALL_STEPS,
-	      inports.size() << " input ports" << endl);
+//   TRACE_TEXT (TRACE_ALL_STEPS,
+// 	      inports.size() << " input ports" << endl);
   for (map<string, WfInPort*>::iterator p = inports.begin();
        p != inports.end();
        ++p) {
@@ -1081,14 +1105,14 @@ Node::createProfile() {
     last ++;
   }
   // output ports
-  TRACE_TEXT (TRACE_ALL_STEPS,
-	      outports.size() << " output ports" << endl);
+//   TRACE_TEXT (TRACE_ALL_STEPS,
+// 	      outports.size() << " output ports" << endl);
   for (map<string, WfOutPort*>::iterator p = outports.begin();
        p != outports.end();
        ++p) {
     WfOutPort * out = (WfOutPort*)(p->second);
-    TRACE_TEXT (TRACE_ALL_STEPS,
-		"%%%%%%%% " << out->type << endl);
+//     TRACE_TEXT (TRACE_ALL_STEPS,
+// 		"%%%%%%%% " << out->type << endl);
     this->set_profile_param(out,
 			    out->type, out->index, out->value,
 			    DIET_PERSISTENT);
@@ -1116,13 +1140,13 @@ void
 Node::set_profile_param(WfPort * port,
 			string type, const int lastArg, const string& value,
 			const diet_persistence_mode_t mode) {
-  TRACE_TEXT (TRACE_ALL_STEPS,
-	      "\tset_profile_param : type = " << type <<
-	      ", lastArg = " << lastArg << ", value = " << value <<
-	      ", mode = " << mode << endl);
+//   TRACE_TEXT (TRACE_ALL_STEPS,
+// 	      "\tset_profile_param : type = " << type <<
+// 	      ", lastArg = " << lastArg << ", value = " << value <<
+// 	      ", mode = " << mode << endl);
   if (type == WfCst::DIET_CHAR) {
-    TRACE_TEXT (TRACE_ALL_STEPS,
-		"char parameter "<< lastArg << endl);
+//     TRACE_TEXT (TRACE_ALL_STEPS,
+// 		"char parameter "<< lastArg << endl);
     if (value != "")
       diet_scalar_set(diet_parameter(profile, lastArg),
 		      this->newChar(value),
@@ -1135,8 +1159,8 @@ Node::set_profile_param(WfPort * port,
 		      DIET_CHAR);
   }
   if (type == WfCst::DIET_SHORT) {
-    TRACE_TEXT (TRACE_ALL_STEPS,
-		"short parameter "<< lastArg << endl);
+//     TRACE_TEXT (TRACE_ALL_STEPS,
+// 		"short parameter "<< lastArg << endl);
     if (value != "")
       diet_scalar_set(diet_parameter(profile, lastArg),
 		      this->newShort(value),
@@ -1149,8 +1173,8 @@ Node::set_profile_param(WfPort * port,
 		      DIET_SHORT);
   }
   if (type == WfCst::DIET_INT) {
-    TRACE_TEXT (TRACE_ALL_STEPS,
-		"int parameter "<< lastArg << endl);
+//     TRACE_TEXT (TRACE_ALL_STEPS,
+// 		"int parameter "<< lastArg << endl);
     if (value != "")
       diet_scalar_set(diet_parameter(profile, lastArg),
 		      this->newInt(value),
@@ -1163,8 +1187,8 @@ Node::set_profile_param(WfPort * port,
 		      DIET_INT);
   }
   if (type == WfCst::DIET_LONGINT) {
-    TRACE_TEXT (TRACE_ALL_STEPS,
-		"long parameter "<< lastArg << endl);
+//     TRACE_TEXT (TRACE_ALL_STEPS,
+// 		"long parameter "<< lastArg << endl);
     if (value != "")
       diet_scalar_set(diet_parameter(profile, lastArg),
 		      this->newLong(value),
@@ -1177,8 +1201,8 @@ Node::set_profile_param(WfPort * port,
 		      DIET_LONGINT);
   }
   if (type == WfCst::DIET_PARAMSTRING) {
-    TRACE_TEXT (TRACE_ALL_STEPS,
-		"%%%%%%%%% PARAMSTRING parameter "<< lastArg << endl);
+//     TRACE_TEXT (TRACE_ALL_STEPS,
+// 		"%%%%%%%%% PARAMSTRING parameter "<< lastArg << endl);
     if (value != "")
       diet_paramstring_set(diet_parameter(profile, lastArg),
 		      this->newString(value),
@@ -1193,8 +1217,8 @@ Node::set_profile_param(WfPort * port,
     //  diet_string_set(diet_arg_t* arg,
     //                  char* value, diet_persistence_mode_t mode);
     //
-    TRACE_TEXT (TRACE_ALL_STEPS,
-		"%%%%%%%%% STRING parameter "<< lastArg << endl);
+//     TRACE_TEXT (TRACE_ALL_STEPS,
+// 		"%%%%%%%%% STRING parameter "<< lastArg << endl);
     if (value != "")
       diet_string_set(diet_parameter(profile, lastArg),
 		      this->newString(value),
@@ -1229,8 +1253,8 @@ Node::set_profile_param(WfPort * port,
 		      DIET_DOUBLE);
   }
   if (type == WfCst::DIET_FILE) {
-    TRACE_TEXT (TRACE_ALL_STEPS,
-		"%%%%%%%%% FILE parameter "<< lastArg << endl);
+//     TRACE_TEXT (TRACE_ALL_STEPS,
+// 		"%%%%%%%%% FILE parameter "<< lastArg << endl);
     if (value != "")
       diet_file_set(diet_parameter(profile, lastArg),
 		    mode,
@@ -1242,8 +1266,8 @@ Node::set_profile_param(WfPort * port,
   }
 
   if (type == WfCst::DIET_MATRIX) {
-    TRACE_TEXT (TRACE_ALL_STEPS,
-		"the profile contain a matrix" << endl);
+//     TRACE_TEXT (TRACE_ALL_STEPS,
+// 		"the profile contain a matrix" << endl);
     void * mat = NULL;
     switch (port->base_type) {
     case DIET_CHAR:

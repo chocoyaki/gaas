@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2008/06/25 10:07:12  bisnard
+ * - removed debug messages
+ * - Node index in wf_response stored in Node class (new attribute submitIndex)
+ *
  * Revision 1.10  2008/06/19 10:17:13  bisnard
  * new attribute to store DAG start time
  *
@@ -148,7 +152,7 @@ Dag::Dag() {
 }
 
 Dag::~Dag() {
-  TRACE_TEXT (TRACE_ALL_STEPS,"~Dag() destructor ..." <<  endl);
+//   TRACE_TEXT (TRACE_ALL_STEPS,"~Dag() destructor ..." <<  endl);
   if (! this->tmpDag) {
     Node * node = NULL;
     for (map<string, Node * >::iterator p = nodes.begin( );
@@ -330,17 +334,17 @@ Dag::linkAllPorts() {
  */
 void
 Dag::linkNodePorts(Node * n) {
-  TRACE_TEXT (TRACE_ALL_STEPS,
-	      "linkNodePorts : processing node " << n->getId() << endl);
+//   TRACE_TEXT (TRACE_ALL_STEPS,
+// 	      "linkNodePorts : processing node " << n->getId() << endl);
   // link Input ports with output ports
   for (map<string, WfInPort*>::iterator p = n->inports.begin();
        p != n->inports.end();
        ++p) {
     // get the port ref
     WfInPort * in = (WfInPort*)(p->second);
-    if (in != NULL)
-      TRACE_TEXT (TRACE_ALL_STEPS,
-		  "in found " << in->getId() << endl);
+//     if (in != NULL)
+//       TRACE_TEXT (TRACE_ALL_STEPS,
+// 		  "in found " << in->getId() << endl);
     string node_name = in->getId().substr(0, in->getId().find("#"));
     // get the linked port id
     string lp_id = in->getSourceId();
@@ -352,9 +356,9 @@ Dag::linkNodePorts(Node * n) {
     // linked port id
     lp_id = lp_id.substr(lp_id.find("#")+1);
 
-    TRACE_TEXT (TRACE_ALL_STEPS,
-		"linked node name : "<< linkedNode_name <<
-		", linked port : " << lp_id << endl);
+//     TRACE_TEXT (TRACE_ALL_STEPS,
+// 		"linked node name : "<< linkedNode_name <<
+// 		", linked port : " << lp_id << endl);
     // get the linked node ref
     map<string, Node *>::iterator lnp = nodes.find(linkedNode_name);
     Node * ln = NULL;
@@ -376,10 +380,10 @@ Dag::linkNodePorts(Node * n) {
     WfOutPort * out = ln->getOutPort(linkedNode_name + "#" + lp_id);
 
     // link the input port to the outport
-    TRACE_TEXT (TRACE_ALL_STEPS,
-		"linking the input port " << in->getId() <<
-		" to the output port " <<
-		out->getId() << endl);
+//     TRACE_TEXT (TRACE_ALL_STEPS,
+// 		"linking the input port " << in->getId() <<
+// 		" to the output port " <<
+// 		out->getId() << endl);
     in->set_source(out);
     out->set_sink(in);
   }
@@ -390,9 +394,9 @@ Dag::linkNodePorts(Node * n) {
        ++p) {
     // get the port ref
     WfOutPort * out = (WfOutPort*)(p->second);
-    if (out != NULL)
-      TRACE_TEXT (TRACE_ALL_STEPS,
-		  "Out found " << out->getId() << endl);
+//     if (out != NULL)
+//       TRACE_TEXT (TRACE_ALL_STEPS,
+// 		  "Out found " << out->getId() << endl);
     string node_name = out->getId().substr(0, out->getId().find("#"));
     // get the linked port id
     string lp_id = out->getSinkId();
@@ -404,9 +408,9 @@ Dag::linkNodePorts(Node * n) {
     // linked port id
     lp_id = lp_id.substr(lp_id.find("#")+1);
 
-    TRACE_TEXT (TRACE_ALL_STEPS,
-		"linked node name : "<< linkedNode_name <<
-		", linked port : " << lp_id << endl);
+//     TRACE_TEXT (TRACE_ALL_STEPS,
+// 		"linked node name : "<< linkedNode_name <<
+// 		", linked port : " << lp_id << endl);
     // get the linked node ref
     map<string, Node *>::iterator lnp = nodes.find(linkedNode_name);
     Node * ln = NULL;
@@ -423,10 +427,10 @@ Dag::linkNodePorts(Node * n) {
     WfInPort * in = ln->getInPort(linkedNode_name + "#" + lp_id);
 
     // link the input port to the outport
-    TRACE_TEXT (TRACE_ALL_STEPS,
-		"linking the output port " << out->getId() <<
-		" to the input port " <<
-		in->getId() << endl);
+//     TRACE_TEXT (TRACE_ALL_STEPS,
+// 		"linking the output port " << out->getId() <<
+// 		" to the input port " <<
+// 		in->getId() << endl);
     out->set_sink(in);
     in->set_source(out);
   }
@@ -954,12 +958,13 @@ Dag::getOutputNodes() {
 }
 
 /**
- * get all profiles in the dag
+ * get all profiles in the dag (thread-safe)
+ * (vector must be deleted after usage)
  */
 
-vector<diet_profile_t *>
+vector<diet_profile_t *>*
 Dag::getAllProfiles() {
-  vector<diet_profile_t*> v;
+  vector<diet_profile_t*> * v = new vector<diet_profile_t*>();
   Node * n = NULL;
   diet_profile_t * profile = NULL;
   bool found = false;
@@ -972,14 +977,14 @@ Dag::getAllProfiles() {
       profile = n->profile;
       if (profile != NULL) {
 	found = false;
-	for (unsigned int ix=0; ix<v.size(); ix++) {
-	  diet_profile_t * another_profile = v[ix];
+	for (unsigned int ix=0; ix<v->size(); ix++) {
+	  diet_profile_t * another_profile = (*v)[ix];
 	  if ( (*profile) == *(another_profile) ) {
 	    found = true;
 	  }
 	} // end for ix
 	if (!found)
-	  v.push_back(profile);
+	  v->push_back(profile);
       } // end if profile != NULL
     } // end if n != NULL
   } // end for iterator

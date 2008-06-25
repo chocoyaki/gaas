@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2008/06/25 10:07:12  bisnard
+ * - removed debug messages
+ * - Node index in wf_response stored in Node class (new attribute submitIndex)
+ *
  * Revision 1.8  2008/06/19 10:17:13  bisnard
  * new attribute to store DAG start time
  *
@@ -274,7 +278,7 @@ public:
   /**
    * Get all profiles in the dag
    */
-  std::vector<diet_profile_t *>
+  std::vector<diet_profile_t *> *
   getAllProfiles();
 
   /**
