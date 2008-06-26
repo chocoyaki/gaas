@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/06/26 15:00:18  bisnard
+ * corba type mismatch
+ *
  * Revision 1.5  2008/06/25 09:59:39  bisnard
  * new params in execNodeOnSeD to provide ReqId and estimation vector
  * to client for solve request
@@ -85,7 +88,7 @@ public:
   execNodeOnSed(const char * node_id,
                 const char * dag_id,
                 _objref_SeD* sed,
-                const unsigned long reqID,
+                const CORBA::ULong reqID,
                 corba_estimation_t& ev);
 
   /**

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2008/06/26 15:00:18  bisnard
+ * corba type mismatch
+ *
  * Revision 1.8  2008/06/25 09:59:39  bisnard
  * new params in execNodeOnSeD to provide ReqId and estimation vector
  * to client for solve request
@@ -79,14 +82,14 @@ CORBA::Long
 CltWfMgr::execNodeOnSed(const char * node_id,
                         const char * dag_id,
                         _objref_SeD* sed,
-                        const unsigned long reqID,
+                        const CORBA::ULong reqID,
                         corba_estimation_t& ev) {
   Dag * dag = this->getDag(dag_id);
   if (dag != NULL) {
     Node * node = dag->getNode(node_id);
     if (node != NULL) {
       SeD_var sed_var = SeD::_narrow(sed);
-      node->setSeD(sed_var, reqID, ev);
+      node->setSeD(sed_var, (unsigned long) reqID, ev);
       TRACE_TEXT (TRACE_MAIN_STEPS,"CltWfMgr: execute node " << node_id <<
           " of dag " << dag_id << " (SED DEFINED)" << endl);
       node->start(true);
