@@ -10,6 +10,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.18  2008/07/02 10:04:17  bdepardo
+%* Proofreading of chapters 5 and 7.
+%*
 %* Revision 1.17  2006/11/29 16:55:11  dloureir
 %* minor corrections
 %*
@@ -138,7 +141,7 @@ to retrieve the pointer to the zone his/her program should write to.
 \subsubsection*{Setting INOUT and OUT arguments}
 
 To set INOUT and OUT arguments, use the \texttt{diet\_*\_desc\_set} defined
-in \texttt{DIET\_server.h}, because they are helpful for writing ``solve''
+in \texttt{DIET\_server.h}, these are helpful for writing ``solve''
 functions only. Using these functions, the server developer must keep in
 mind the fact that he cannot alter the memory space pointed to by
 value fields on the server. Indeed, this would make DIET confused
@@ -150,7 +153,7 @@ are copied into the data descriptor.}}.
 {\footnotesize
 \begin{verbatim}
 /**
- * If value              is NULL,
+ * If value                 is NULL,
  * or if order              is DIET_MATRIX_ORDER_COUNT,
  * or if nb_rows or nb_cols is 0,
  * or if path               is NULL,
@@ -314,7 +317,7 @@ int main(int argc, char* argv[])
 \section{Compilation}
 \label{sec:sv_comp}
 
-After compiling his/her server program, the user must link it with the DIET
+After compiling her/his server program, the user must link it with the DIET
 and CORBA libraries. This process is very similar to the one described
 for the client in section \ref{sec:cl_comp}. Please refer to this section
 for details.

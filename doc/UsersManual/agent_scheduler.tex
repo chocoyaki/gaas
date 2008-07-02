@@ -6,29 +6,29 @@
 %\begin{document}
 \section{Scheduler at agents level}
 In this section we introduce a new way to define a scheduling policy in DIET.
-Some scheduling strategies could not be developed using only the DIET SeDs
-plugins. The schedulers at agents level allow the developper to design every
-scheduler strategies, even the centralized ones. The two first sections
+Some scheduling strategies could not be developed using only the DIET {\sed}s
+plugins. The schedulers at agents level allow the developer to design every
+scheduler strategies, even the centralized ones. The first two sections
 explain precisely how DIET performs the scheduling. The third section enters
 in the DIET source code and can be ignored by most of the users. The
 fourth section presents the tools provided to make an agent scheduler
-easily. The fifth section treats of the scheduler module compilation and
+easily. The fifth section deals with the scheduler module compilation and
 usage. The last section presents some scheduler examples.
 \subsection{Scheduling from the agents side.}
 In DIET, the scheduling works as follows (see Figure \ref{scheduleSteps} for
 a representation of each step): 
 \begin{itemize}
   \item A request is submitted to the Master Agent (step 1).
-  \item The Master Agent forwards the request to the Local Agents and SeDs that
+  \item The Master Agent forwards the request to the Local Agents and {\sed}s that
     it manages (step 2).
-  \item The SeDs which dispose of the asked service return a CORBA response
+  \item The {\sed}s which dispose of the asked service return a CORBA response
     structure which contains an estimation metric vector (step 3).
   \item According to a default policy or a user-defined one, the responses
-    from the SeDs are aggregated. Then the responses sequence is sent to
+    from the {\sed}s are aggregated. Then the responses sequence is sent to
     the parent agent which aggregates all the results of its children (step 4).
   \item When the aggregated responses reach the Master Agent, it returns
     the aggregated list of all responses to the client (step 5).
-  \item Then, the client chooses the better server, according to the
+  \item Finally, the client chooses the better server, according to the
     chosen aggregation method (step 6).
 \end{itemize}
 \newlength{\schdlFigWidth}
@@ -53,21 +53,21 @@ a representation of each step):
   \begin{minipage}{\schdlFigWidth}
     \includegraphics[width=\schdlFigWidth]{fig/schdl05}
   \end{minipage}
-  \caption{The steps of the scheduling in DIET.\label{scheduleSteps}}
+  \caption{Scheduling steps in DIET.\label{scheduleSteps}}
 \end{figure}
 
 \subsection{Aggregation methods overloading}
-To aggregate the responses of the SeDs, DIET uses an aggregation method
-which is called on the agents. This method is chosen from the SeDs
+To aggregate the responses of the {\sed}s, DIET uses an aggregation method
+which is called by the agents. This method is chosen from the {\sed}s
 by defining the aggregator type (see Section \ref{sect:estTags}).
 By default, two aggregator types are proposed by DIET:
 DIET\_AGG\_DEFAULT and DIET\_AGG\_PRIORITY. In the last versions of DIET, we
 introduced a new aggregator type: DIET\_AGG\_USER. Using this
-aggregator, the user can define its own aggregation method to be used in
+aggregator, the user can define its own aggregation method to be used by
 the agents. 
 Figure \ref{fig:DIETScheduling} presents the global schedulers classes
 organization in DIET. By choosing the DIET\_AGG\_USER aggregator, the user
-commands to the GlobalScheduler class to load an external module containing
+commands the GlobalScheduler class to load an external module containing
 a UserScheduler class overloading the \textit{aggregate} method.
 \begin{figure}[h]
   \centering
@@ -76,8 +76,8 @@ a UserScheduler class overloading the \textit{aggregate} method.
 \end{figure}
 
 The user-defined aggregation method just needs to sort the responses from the
-SeDs. By locating the aggregation method on the agent, we can use different
-scheduling strategies which could not be implemented at the SeD level. These
+{\sed}s. By locating the aggregation method on the agent, we can use different
+scheduling strategies which could not be implemented at the {\sed} level. These
 schedulers can also avoid some scheduling problems while submitting asynchronous
 jobs (with Round-Robin schedulers for example).
 
@@ -90,7 +90,7 @@ All the schedulers developed by users have to inherit from the
 its subclasses as a Scheduler class for DIET without error. The only method
 a user has to overload is the \textit{aggregate} method. Several useful
 functions and macros are defined in the \textit{UserScheduler.hh} file.
-The \textit{UserScheduler} class is defined as below:
+The \textit{UserScheduler} class is defined as follows:
 \begin{verbatim}
 class UserScheduler : public GlobalScheduler
 {
@@ -170,7 +170,7 @@ scheduler developer does not have to use it. The two operators
   \item \textit{CORBA::Long \bf myID}: this field is for DIET internal usage.
     The developer should ignore it.
   \item \textit{SeqServerEstimation\_t \bf servers}: this field is a sequence
-    of \textit{corba\_server\_estimation\_t}. It is used to store the SeDs
+    of \textit{corba\_server\_estimation\_t}. It is used to store the {\sed}s
     references returned by the \textit{aggregate} method. This is the field
     that has to be sorted/filtered.
 \end{itemize}
@@ -187,9 +187,9 @@ struct corba_server_estimation_t {
 \end{verbatim}
 \begin{itemize}
   \item \textit{corba\_server\_t \bf loc}: this field is used to designate a
-    particular SeD.
+    particular {\sed}.
   \item \textit{corba\_estimation\_t estim}: this field contains the estimation
-    vector for the designated SeD.
+    vector for the designated {\sed}.
 \end{itemize}
 
 \noindent The \textit{corba\_server\_t \bf loc} structure is defined as
@@ -206,8 +206,8 @@ struct corba_server_t {
 \end{verbatim}
 The two interesting fields are:
 \begin{itemize}
-  \item \textit{\bf ior} which is a CORBA reference to the SeD.
-  \item \textit{\bf hostName} which is the hostname of the SeD.
+  \item \textit{\bf ior} which is a CORBA reference to the {\sed}.
+  \item \textit{\bf hostName} which is the hostname of the {\sed}.
 \end{itemize}
 
 \noindent The \textit{corba\_estimation\_t} structure is defined as follows:
@@ -221,13 +221,14 @@ struct corba_estimation_t {
 \end{verbatim}
 \textit{SeqEstValue\_t \bf estValues}: This field is a CORBA sequence of
 estimation values. These estimation values are accessed through the specific
-functions: \textit{diet\_est\_get\_internal} and
+functions: \textit{diet\_est\_get\_internal} and \linebreak
 \textit{diet\_est\_array\_get\_internal} defined in scheduler/est\_internal.hh.
 
 \noindent These functions prototypes are:
 \begin{verbatim}
 double diet_est_get_internal(estVectorConst_t ev, int tag, double errVal);
-double diet_est_array_get_internal(estVectorConst_t ev, int tag, int idx, double errVal);
+double diet_est_array_get_internal(estVectorConst_t ev, int tag,
+                                   int idx, double errVal);
 \end{verbatim}
 \begin{itemize}
   \item \textit{ev}: the estimation vector to evaluate.
@@ -246,7 +247,7 @@ double diet_est_array_get_internal(estVectorConst_t ev, int tag, int idx, double
   %   (FAST must be activated at the compilation time)
   \item[-] EST\_TCOMP: The computation time evaluated by FAST
     (FAST must be activated at the compilation time).
-  \item[-] EST\_TIMESINCELASTSOLVE: The time elapsed since this SeD solved
+  \item[-] EST\_TIMESINCELASTSOLVE: The time elapsed since this {\sed} solved
     a request. This value is used by the default Round-Robin scheduler when
     available.
   \item[-] EST\_COMMPROXIMITY:
@@ -259,12 +260,13 @@ double diet_est_array_get_internal(estVectorConst_t ev, int tag, int idx, double
     of the CPUs of the node.
   \item[-] EST\_TOTALMEM: The total memory of the node.
   \item[-] EST\_AVGFREEMEM: The average free memory on the node.
-  \item[-] EST\_AVGFREECPU: The average free CPU on the node.
+  \item[-] EST\_AVGFREECPU: The average free CPU computation power on the node.
   \item[-] EST\_BOGOMIPS\footnotemark[\value{footnote}]: The computation power
     of the nodes CPUs given in bogomips.
-  \item[-] EST\_TOTALTIME:
+  \item[-] EST\_TOTALTIME: The total time to execute the request evaluated
+    by FAST. (FAST must be activated at the compilation time)
   \item[-] EST\_TOTALSIZEDISK: The total disk size on the node.
-  \item[-] EST\_FREESIZEDISK: The available space on the node disk.
+  \item[-] EST\_FREESIZEDISK: The available disk space on the node.
   \item[-] EST\_DISKACCESREAD: An evaluation of the disk access.
   \item[-] EST\_DISKACCESWRITE:
   \item[-] EST\_USERDEFINED: The first user-defined value.
@@ -284,14 +286,14 @@ extern "C" void destructor(UserScheduler* scheduler) {
 No C++ implementation of dynamic class loading are defined in the C++ standard.
 So, the UserScheduler class has to use C functions to load an external module
 containing the new scheduler class. A macro defined in \textit{UserScheduler.hh}
-automatizes this declaration. You can simply define your class as a scheduler
+automates this declaration. You can simply define your class as a scheduler
 class by calling \textit{SCHEDULER\_CLASS(MyScheduler)}, where
 \textit{MyScheduler} is the name of the class which inherits of
 the \textit{UserScheduler} class.
 
 \subsection{Easy definition of a new scheduler class}
-The previous section presents how the scheduler class loader is working. Many
-things presented before can be automatized. The UserScheduler.hh file defines
+The previous section presented how the scheduler class loader is working. Many
+things presented before can be automated. The UserScheduler.hh file defines
 some useful functions and macros to make a new scheduler class easily. In this
 section we will present how to create a new scheduler class using these
 functions and macros.
@@ -336,13 +338,16 @@ int MyScheduler::aggregate(corba_response_t* aggrResp, size_t max_srv,
 {
   ...
 }
+
+SCHEDULER\_CLASS(MyScheduler)
 \end{verbatim}
 After defining the scheduler class, the developer just has to use the
 \textit{SCHEDULER\_CLASS} macro to define it as a scheduler class loadable
 from an agent.
 
-On our example, \textit{SCHEDULER\_CLASS(MyScheduler)} after the class
-declaration makes the class loadable by a DIET agent.
+In our example, the call to \textit{SCHEDULER\_CLASS(MyScheduler)} --
+after the class declaration -- makes the class loadable by a DIET agent.
+
 \subsubsection{The aggregation method redefinition}
 The \textit{aggregate} function has the following prototype:
 \begin{verbatim}
@@ -382,7 +387,7 @@ function make the first aggregation of the results by marshalling all the
 sequences into one.
 
 \noindent The second function converts a STL list into a CORBA sequence that
-can be transfered by DIET.
+can be transfer ed by DIET.
 
 Then, an \textit{aggregate} function should start by a call to the
 \textit{CORBA\_to\_STL} function. The obtained list can then be sorted/filtered
@@ -446,7 +451,7 @@ and by decreasing CPU number and decreasing CPU cache.
 
 \subsubsection{Access the metric values through macros}
 \label{sec:metricMacros}
-To simplify the access to some specific values defined inside the SeD, you can
+To simplify the access to some specific values defined inside the {\sed}, you can
 use these macros:
 \begin{itemize}
   \item[-] TOTALTIME(SeD)
@@ -473,11 +478,11 @@ use these macros:
 The macros taking two arguments need an index to choose which CPU measurement
 is needed. Two extra macros are defined:
 \begin{itemize}
-  \item HOSTNAME(server): The hostname of the SeD.
-  \item SED\_REF(server): A CORBA reference to the SeD.
+  \item HOSTNAME(server): The hostname of the {\sed}.
+  \item SED\_REF(server): A CORBA reference to the {\sed}.
 \end{itemize}
 
-Here an example of an \textit{aggregate} function using these macros:
+Here is an example of an \textit{aggregate} function using these macros:
 \begin{verbatim}
 SORTFUN(compBogo, BOGOMIPS)
 
@@ -497,7 +502,7 @@ int MyScheduler::aggregate(corba_response_t* aggrResp, size_t max_srv,
   return 0;
 }
 \end{verbatim}
-This aggregation method first selects only the SeD which have more than 1 CPU
+This aggregation method first selects only the {\sed} which have more than 1 CPU
 and sorts them according to their number of Bogomips.
 
 \subsection{Creation and usage of a scheduler module}
@@ -507,7 +512,7 @@ With this option, you'll find a subdirectory "scheduler" in the include
 directory of the DIET installation. This directory contains all the headers
 needed to develop the basis class of the scheduler module.
 
-A scheduler module needs to be linked with some libraries to compile:\\
+A scheduler module needs to be linked with some libraries to compile:
 \begin{itemize}
   \item omniORB4: The basis omniORB library.
   \item omnithread: The omniORB thread library.
@@ -521,15 +526,18 @@ A scheduler module needs to be linked with some libraries to compile:\\
     \end{itemize}
 \end{itemize}
 When using g++ as compiler the option \textit{"-shared"} has to be used to
-compile the module under linux and \textit{"-dynamiclib"} under Mac OS X.
-The \textit{"-fPIC"} has to be used for the both operating systems.
+compile the module under Linux and \textit{"-dynamiclib"} under Mac OS X.
+The \textit{"-fPIC"} has to be used for both operating systems.
 
-\subsubsection{How to configure the agent and the SeD to use a scheduler module}
-On the agent side, the parameter \textit{schedulerModule} has to be fixed to
-the path of the module scheduler. This option uses the same syntax than the
-other agents and ORB options:\\
+\subsubsection{How to configure the agent and the {\sed} to use a
+  scheduler module}
+
+On the agent side, the parameter \textit{schedulerModule} has to be
+set to the path of the module scheduler (in the agent configuration
+file). This option uses the same syntax than the other agents and ORB
+options:\\
 \indent\textit{schedulerModule = $<$path to module$>$}\\
-On the SeD side, the developer has to choose \textit{DIET\_AGG\_USER} as
+On the {\sed} side, the developer has to choose \textit{DIET\_AGG\_USER} as
 aggregator:
 \begin{verbatim}
 diet_aggregator_desc_t *agg;
@@ -555,38 +563,38 @@ void metric(diet_profile_t * profile, estVector_t values) {
 }
 \end{verbatim}
 This metric just fixes the number of waiting jobs in the FIFO queue of the
-SeD. Now, at the agent side, the scheduler can use this value to aggregate,
-sort and filter the SeDs responses. More details are given in the following
-section about how to use the SeDs plugin schedulers to communicate with the
+{\sed}. Now, at the agent side, the scheduler can use this value to aggregate,
+sort and filter the {\sed}s responses. More details are given in the following
+section about how to use the {\sed}s plugin schedulers to communicate with the
 agent scheduler module.
 
-\subsection{SeD plugin schedulers and agent schedulers interactions}
-Most of the time, a scheduler needs some informations from the node to choose
+\subsection{{\sed} plugin schedulers and agent schedulers interactions}
+Most of the time, a scheduler needs some information from the nodes, to choose
 where a job should be executed. By using the plugin scheduler capacities of
-the SeDs, DIET allows to communicate some useful information for the 
+the {\sed}s, DIET allows to communicate some useful information for the 
 scheduling. The developer just has to define a performance metric function
 and select \textit{DIET\_AGG\_USER} as aggregator.
 
-\subsubsection{Informations obtained from the SeD}
-Your plugin scheduler can access to the informations obtained from CoRI
+\subsubsection{Information obtained from the {\sed}}
+Your plugin scheduler can access to the information obtained from CoRI
 by initializing the estimation vector using the \textit{diet\_estimate\_cori}
-function on the SeD. For more information about CoRI, see Section
-\ref{sec:CORI}. On the agents scheduler side, these informations are then
+function on the {\sed}. For more information about CoRI, see Section
+\ref{sec:CORI}. Then, on the agents scheduler side, these information are
 accessed using one of the previously presented macro.
-You also can obtain the user-defined informations by using the
-\textit{USERDEFINED(SeD, nb)} macro. These informations have been defined
-on the SeDs metric function using the \textit{diet\_est\_set(estVector t ev,
+You also can obtain the user-defined information by using the
+\textit{USERDEFINED(SeD, nb)} macro. These information have been defined
+on the {\sed}s metric function using the \textit{diet\_est\_set(estVector t ev,
 int nb, double value)}.
 
 For more information on how to get performance prediction values, please
-consult Chapter \ref{chapter:performance}.
+consult Chapter~\ref{chapter:performance}.
 
 \subsection{A complete example of scheduler}
 This example source code is available on the src/examples/agent\_scheduler
-directory. The scheduler performs a Round-Robin on the SeDs using their
+directory. The scheduler performs a Round-Robin on the {\sed}s using their
 hostname to evaluate the number of executions. For example, if the agent
-is connected to three SeDs, with two launched on the same machine, the
-number of jobs executed on the machine with two SeDs will be at most one
+is connected to three {\sed}s, with two launched on the same machine, the
+number of jobs executed on the machine with two {\sed}s will be at most one
 more than the number of executed jobs on the other machine.
 
 \subsubsection{Hostname based Round-Robin plugin scheduler.}
@@ -641,7 +649,7 @@ int HostnameRR::aggregate(corba_response_t* aggrResp, size_t max_srv,
   for (itSeD=candidates.begin(); itSeD!=candidates.end(); ++itSeD)
     // We select the SeD by its host usage.
     if (hostCounter[HOSTNAME(*itSeD)]<=nbUsage)
-	  selected=*itSeD;
+	  selected=*itSeD<;
 
   aggrResp->servers.length(1);
   aggrResp->servers[0]=selected;
