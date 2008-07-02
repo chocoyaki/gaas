@@ -85,8 +85,9 @@ public:
   virtual char* writeFile(const SeqChar& data, const char* basename,
 			  CORBA::Boolean replace);
   virtual char* sendFile(const corba_data_t &data, Dagda_ptr dest);
+
   virtual char* recordData(const SeqChar& data, const corba_data_desc_t& dataDesc,
-			   CORBA::Boolean replace);
+                           CORBA::Boolean replace, CORBA::Long offset);
   virtual char* sendData(const char* ID, Dagda_ptr dest);
 
   virtual char* downloadData(Dagda_ptr src, const corba_data_t& data) = 0;

@@ -115,8 +115,11 @@ interface Dagda {
   /* Record a data into memory. If "replace" is true,
      the data is erased or created and replaced by the new one.
      Returns the id of the data. */
-  string recordData(in SeqChar data, in corba_data_desc_t dataDesc,
+/*  string recordData(in SeqChar data, in corba_data_desc_t dataDesc,
 		    in boolean replace)
+    raises(NotEnoughSpace);*/
+  string recordData(in SeqChar data, in corba_data_desc_t dataDesc,
+		    in boolean replace, in long offset)
     raises(NotEnoughSpace);
   /* Send a data to a node. */
   string sendData(in string ID, in Dagda dest)

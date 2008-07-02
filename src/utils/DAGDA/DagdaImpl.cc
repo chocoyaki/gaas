@@ -167,7 +167,7 @@ char* DagdaImpl::sendFile(const corba_data_t &data, Dagda_ptr dest) {
 
 /* CORBA */
 /* Warning : this function MUST be protected by a dataMutex.lock()/unlock() pair. */
-char* DagdaImpl::recordData(const SeqChar& data,
+/*char* DagdaImpl::recordData(const SeqChar& data,
 			    const corba_data_desc_t& dataDesc,
 			    CORBA::Boolean replace) {
   unsigned long offset;
@@ -184,8 +184,7 @@ char* DagdaImpl::recordData(const SeqChar& data,
   }
   TRACE_TEXT(TRACE_ALL_STEPS, "\tRecord " << data.length() << " bytes for the data "
                         << dataDesc.id.idNumber << endl);
-  /*if (data.length()==0)
-    return CORBA::string_dup((*getData())[dataId].desc.id.idNumber);*/
+
   if (replace) {
     (*getData())[dataId].value.length(data.length());
     offset=0;
@@ -199,7 +198,36 @@ char* DagdaImpl::recordData(const SeqChar& data,
   }
 
   return CORBA::string_dup((*getData())[dataId].desc.id.idNumber);
+}*/
+
+/* Warning : this function MUST be protected by a dataMutex.lock()/unlock() pair. */
+/* New version: memory access optimization. */
+char* DagdaImpl::recordData(const SeqChar& data,
+                            const corba_data_desc_t& dataDesc,
+                            CORBA::Boolean replace, CORBA::Long offset) {  
+  string dataId(dataDesc.id.idNumber);
+  
+  if (getData()->find(dataId)==getData()->end()) {
+    TRACE_TEXT(TRACE_MAIN_STEPS, "Add data " << dataDesc.id.idNumber
+               << endl);
+    corba_data_t newData;
+    newData.desc = dataDesc;
+    lockData(dataId.c_str());
+    (*getData())[dataId]=newData;
+  }
+  TRACE_TEXT(TRACE_ALL_STEPS, "\tRecord " << data.length() << " bytes for the data "
+             << dataDesc.id.idNumber << endl);
+  if (replace) {
+    (*getData())[dataId].value.length(data_sizeof(&dataDesc));
+  }
+
+  CORBA::Char* buffer = (*getData())[dataId].value.get_buffer(true);
+  memcpy(buffer+offset, data.get_buffer(), data.length());
+  (*getData())[dataId].value.replace(data_sizeof(&dataDesc), data_sizeof(&dataDesc), buffer, true);
+  
+  return CORBA::string_dup((*getData())[dataId].desc.id.idNumber);
 }
+
 
 /* CORBA */
 char* DagdaImpl::sendData(const char* dataId, Dagda_ptr dest) {
@@ -217,21 +245,22 @@ char* DagdaImpl::sendData(const char* dataId, Dagda_ptr dest) {
   TRACE_TEXT(TRACE_MAIN_STEPS, "*** Sending data " << dataId << endl);
 
   corba_data_t* data = getData(dataId);
-  size_t wrote = 0;
-  size_t dataSize = data_sizeof(&data->desc);
-  size_t nBlocks =  dataSize / getMaxMsgSize() + 1;
+  unsigned long wrote = 0;
+  unsigned long dataSize = data_sizeof(&data->desc);
+  unsigned long nBlocks =  dataSize / getMaxMsgSize() + 1;
 
   bool replace = true;
   char* distID=NULL;
 
-  for (size_t i=0; i<nBlocks; ++i) {
-    int toSend = (dataSize-wrote > getMaxMsgSize() ?
+  for (unsigned long i=0; i<nBlocks; ++i) {
+    unsigned long toSend = (dataSize-wrote > getMaxMsgSize() ?
 		  getMaxMsgSize():(dataSize-wrote));
     TRACE_TEXT(TRACE_ALL_STEPS, "\tSend " <<  toSend << " bytes..." << endl);
     SeqChar buffer(toSend, toSend, data->value.get_buffer()+wrote);
 
     if (distID!=NULL) CORBA::string_free(distID);
-    distID=dest->recordData(buffer, data->desc, replace);
+//    distID=dest->recordData(buffer, data->desc, replace);
+    distID=dest->recordData(buffer, data->desc, replace, i*getMaxMsgSize());
 
     wrote+=toSend;
     replace=false;
