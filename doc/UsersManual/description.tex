@@ -9,6 +9,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.21  2008/07/02 12:56:28  gcharrie
+%* cosmetics and figures
+%*
 %* Revision 1.20  2008/06/10 16:59:56  ycaniou
 %* Typos
 %* Use the "${DIET_DOC_SOURCE_DIR}/../src/.." non portable to get path to .c to
@@ -77,7 +80,7 @@
 %* add the multi-MA documentation
 %****************************************************************************%
 
-\chapter{A \diet platform}\label{ch:description}
+\chapter{A DIET platform}\label{ch:description}
 
 \diet is built upon \emph{Server Daemons}. The process of scheduling
 the requests is distributed amongst a hierarchy of \emph{Local Agents}
@@ -99,7 +102,7 @@ the hierarchical organization of \diet.
 \end{figure}
 
 %====[ \textsc{Diet} components ]=======================================================
-\section{\diet components}
+\section{DIET components}
 \label{sec:components}
 
 The different components of our software architecture are the following:
@@ -172,7 +175,7 @@ free CORBA implementation that provides good communication performance.
 
 
 %====[ DIET INITIALIZATION ]===================================================
-\section{\diet initialization}
+\section{DIET initialization}
 \label{init}
 
 Figure~\ref{fig:init} shows each step of the initialization of a
@@ -200,7 +203,7 @@ parent agent until the MA.  If the service was previously unavailable
 along that arm of the hierarchy the agents update their records.
 Finally, clients can access the registered service by contacting
 the MA~(5) to get a reference to the best server available and then
-directly connect to it to launch the computation.
+directly connect to it~(6) to launch the computation.
 
 The architecture of the hierarchy is described in configuration files
 (see Section~\ref{sec:diet_config_files})
@@ -242,7 +245,7 @@ made in four steps.
 \end{itemize}
 
 %====[ Extensions ]============================================================
-\section{\diet Extensions}
+\section{DIET Extensions}
 \label{sec:extensions}
 
 %====[ Multi-MA ]==============================================================
