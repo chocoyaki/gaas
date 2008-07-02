@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.24  2008/07/02 13:23:55  gcharrie
+%* cosmetics and some clarifications on the problem parameters
+%*
 %* Revision 1.23  2008/04/07 23:55:37  ecaron
 %* Fix overfull box
 %*
@@ -75,7 +78,7 @@
 \chapter{DIET data}
 \label{ch:data}
 
-It is important that DIET can manipulate data to optimize copies and
+It is important that \diet can manipulate data to optimize copies and
 memory allocation, to estimate data transfer and computation time,
 etc. Therefore the data must be fully described in terms of their data 
 types and various attributes associated with these types.
@@ -83,13 +86,15 @@ types and various attributes associated with these types.
 \section{Data types}
 \label{sec:types}
 
-DIET defines a precise set of data types to be used to describe the arguments of
-the services (on the server side) and of the problems (on the client side).
+\diet defines a precise set of data types to be used to describe the
+arguments of the services (on the server side) and of the problems (on
+the client side).
 
-The DIET data types are defined in the file
-\texttt{$<$install\_dir$>$/include/DIET\_data.h}. The user will also find in
-this file various function prototypes to manipulate all DIET data types. Please
-refer to this file for a complete and up-to-date API description.
+The \diet data types are defined in the file
+\texttt{$<$install\_dir$>$/include/DIET\_data.h}. The user will also
+find in this file various function prototypes to manipulate all \diet
+data types. Please refer to this file for a complete and up-to-date
+API description.
 
 To keep DIET type descriptions generic, two main sets are used: base and
 composite types.
@@ -173,7 +178,7 @@ Persistence mode is defined in an enum type \texttt{diet\_persistence\_mode\_t}
 \section{Data description}
 \label{sec:datadesc}
 
-Each parameter of a client problem is manipulated by DIET using the following
+Each parameter of a client problem is manipulated by \diet using the following
 structure:
 {\footnotesize
 \begin{verbatim}
@@ -186,13 +191,14 @@ typedef diet_arg_t diet_data_t;
 \end{verbatim}
 }
 
-The second field is a pointer to the memory zone where the parameter data are
-stored. The first one consists of a complete DIET data description, which is
-better described by a figure than with C code, since it can be set and accessed
-through API functions. Figure \ref{fig:data} shows the data classification used
-in DIET. Every ``class'' inherits from the root ``class'' \texttt{data}, and
-could also be a parent of more detailed classes of data in future versions of
-DIET.
+The second field is a pointer to the memory zone where the parameter
+data are stored. The first one consists of a complete \diet data
+description, which is better described by a figure than with C code,
+since it can be set and accessed through API functions. Figure
+\ref{fig:data} shows the data classification used in \diet. Every
+``class'' inherits from the root ``class'' \texttt{data}, and could
+also be a parent of more detailed classes of data in future versions
+of \diet.
 
 \begin{figure}[hpt]
  \begin{center}
@@ -259,12 +265,12 @@ file isn't updated.
 \section{Manipulating DIET structures}
 \label{sec:manip}
 
-The user will notice that the API to the DIET data structures consists of
+The user will notice that the API to the \diet data structures consists of
 modifier and accessor functions only: no allocation function is required, since
 \texttt{diet\_profile\_alloc} (see Section \ref{sec:pbdesc}) allocates all
 necessary memory for all argument \textbf{descriptions}. This avoids the
 temptation for the user to allocate the memory for these data structures twice
-(which would lead to DIET errors while reading profile arguments). Please see
+(which would lead to \diet errors while reading profile arguments). Please see
 the example in Section \ref{sec:pbex} for a typical use.
 \\
 
@@ -273,7 +279,7 @@ that are passed by pointers are \textbf{not} copied, in order to save memory.
 This is true for the \emph{value} arguments, but also for the \emph{path} in
 \texttt{diet\_file\_set}. Thus, the user keeps ownership of the memory zones
 pointed at by these pointers, and he/she must be very careful not to alter it
-during a call to DIET.
+during a call to \diet.
 
 \subsection{Set functions}
 
@@ -379,7 +385,7 @@ diet_file_set(diet_arg_t* arg, diet_persistence_mode_t mode, char* path);
 \item {The \texttt{store\_id} method} is used to store the
 identifier of persistent data. It also accepts a description of
 the data stored. This method has to be called after the
-\texttt{diet\_call()}
+\texttt{diet\_call()} so that the identifier exists.
 \begin{verbatim}
   store_id(char* argID,char *msg);
 \end{verbatim}
@@ -440,7 +446,7 @@ diet_free_persistent_data(char* argID);
 \subsection{Free functions}
 \label{sec:freefun}
 
-The amount of data  pointed at by value fields should be freed through a DIET
+The amount of data  pointed at by value fields should be freed through a \diet
 API function:
 {\footnotesize
 \begin{verbatim}
@@ -463,7 +469,7 @@ diet_free_data(diet_arg_t* arg);
 \section{Problem description}
 \label{sec:pbdesc}
 
-For DIET to match the client problem with a service, servers and clients must
+For \diet to match the client problem with a service, servers and clients must
 ``speak the same language'', \emph{ie} they must use the same problem
 description. A unified way to describe problems is to use a name and define its
 profile with the type \texttt{diet\_profile\_t}:
@@ -495,8 +501,8 @@ $last\_out + 1$. Arguments can be
   brought back onto the client.
 \item{OUT:} The data are created on the server and brought back into a
   newly allocated zone on the client. This allocation is performed by
-  DIET. After the call has returned, the user can find the result in
-  the zone pointed at by the \emph{value} field. Of course, DIET
+  \diet. After the call has returned, the user can find the result in
+  the zone pointed at by the \emph{value} field. Of course, \diet
   cannot guess how long the user will need these data, so the
   user must free the memory him/herself with \texttt{diet\_free\_data}.
 \end{description}
@@ -507,7 +513,7 @@ $last\_out + 1$. Arguments can be
 
 The fields \emph{last\_in}, \emph{last\_inout} and \emph{last\_out} of the
 \texttt{diet\_profile\_t} structure respectively point at the indexes in the
-\emph{parameters} array of the last IN, INOUT and OUT arguments.
+\emph{parameters} array of the last IN, INOUT and OUT arguments. 
 
 Functions to create and destroy such profiles are defined with the prototypes
 below: \\
@@ -518,7 +524,15 @@ int diet_profile_free(diet_profile_t *profile);
 \end{verbatim}
 }
 
+The values of \emph{last\_in}, \emph{last\_inout} and \emph{last\_out}
+are respectively:
+\begin{description}
+\item{\emph{last\_in}:} $-1$ + number of input data.
 
+\item{\emph{last\_inout}:} \emph{last\_in} $+$ number of inout data.
+
+\item{\emph{last\_out}:} \emph{last\_inout} $+$ number of out data.
+\end{description}
 
 \section{Examples}
 \label{sec:pbex}
@@ -554,7 +568,7 @@ Here are the lines of C code to generate such a profile:
   be equal to \emph{last\_in}, and if there is no OUT argument,
   \emph{last\_out} must be equal to \emph{last\_inout}.
 \item[NB2:] The \emph{value} argument for \texttt{\_set} functions
-  (\ref{sec:setfun}) is ignored for OUT arguments, since DIET
+  (\ref{sec:setfun}) is ignored for OUT arguments, since \diet
   allocates the necessary memory space when the corresponding data are
   transferred from the server, so set value to NULL.
 \end{itemize}
@@ -634,7 +648,7 @@ in the platform. We consider that the handle of C is ``id.MA1.1.3''.
 }  
 
 Note that when a single client creates persistent data with a first
-DIET call and uses that data with a second DIET call, we will not
+\diet call and uses that data with a second \diet call, we will not
 know in advance the identifier of the data.  However, the identifier 
 is stored in the structure of the first profile. For example,
 consider a matrix A built with
