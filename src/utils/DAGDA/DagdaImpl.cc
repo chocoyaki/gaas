@@ -147,9 +147,11 @@ char* DagdaImpl::sendFile(const corba_data_t &data, Dagda_ptr dest) {
 
   bool replace = true;
   char* distPath = NULL;
+  if (getLogComponent())
+    getLogComponent()->logDataBeginTransfer(data.desc.id.idNumber, dest->getID());
   for (unsigned long i=0; i<nBlocks; ++i) {
     SeqChar buffer;
-    int toSend = (fileSize-wrote > getMaxMsgSize() ?
+    unsigned long toSend = (fileSize-wrote > getMaxMsgSize() ?
 		  getMaxMsgSize():(fileSize-wrote));
 	TRACE_TEXT(TRACE_ALL_STEPS, "\tSend " << toSend << " bytes..." << endl);
     buffer.length(toSend);
@@ -162,43 +164,10 @@ char* DagdaImpl::sendFile(const corba_data_t &data, Dagda_ptr dest) {
     wrote+=toSend;
     replace=false;
   }
+  if (getLogComponent())
+    getLogComponent()->logDataEndTransfer(data.desc.id.idNumber, dest->getID());
   return distPath;
 }
-
-/* CORBA */
-/* Warning : this function MUST be protected by a dataMutex.lock()/unlock() pair. */
-/*char* DagdaImpl::recordData(const SeqChar& data,
-			    const corba_data_desc_t& dataDesc,
-			    CORBA::Boolean replace) {
-  unsigned long offset;
-
-  string dataId(dataDesc.id.idNumber);
-
-  if (getData()->find(dataId)==getData()->end()) {
-    TRACE_TEXT(TRACE_MAIN_STEPS, "Add data " << dataDesc.id.idNumber
-								<< endl);
-	corba_data_t newData;
-    newData.desc = dataDesc;
-	lockData(dataId.c_str());
-    (*getData())[dataId]=newData;
-  }
-  TRACE_TEXT(TRACE_ALL_STEPS, "\tRecord " << data.length() << " bytes for the data "
-                        << dataDesc.id.idNumber << endl);
-
-  if (replace) {
-    (*getData())[dataId].value.length(data.length());
-    offset=0;
-  } else {
-    offset=(*getData())[dataId].value.length();
-    (*getData())[dataId].value.length(data.length()+offset);
-  }
-
-  for (unsigned int i=0; i<data.length(); ++i) {
-    (*getData())[dataId].value[i+offset]=data[i];
-  }
-
-  return CORBA::string_dup((*getData())[dataId].desc.id.idNumber);
-}*/
 
 /* Warning : this function MUST be protected by a dataMutex.lock()/unlock() pair. */
 /* New version: memory access optimization. */
@@ -238,8 +207,8 @@ char* DagdaImpl::sendData(const char* dataId, Dagda_ptr dest) {
   }
 
   if ((*getDataStatus())[dataId]==Dagda::downloading) {
-	dataMutex.unlock();
-	throw Dagda::UnavailableData(dataId);
+	  dataMutex.unlock();
+	  throw Dagda::UnavailableData(dataId);
   }
 
   TRACE_TEXT(TRACE_MAIN_STEPS, "*** Sending data " << dataId << endl);
@@ -259,7 +228,7 @@ char* DagdaImpl::sendData(const char* dataId, Dagda_ptr dest) {
     SeqChar buffer(toSend, toSend, data->value.get_buffer()+wrote);
 
     if (distID!=NULL) CORBA::string_free(distID);
-//    distID=dest->recordData(buffer, data->desc, replace);
+
     distID=dest->recordData(buffer, data->desc, replace, i*getMaxMsgSize());
 
     wrote+=toSend;
@@ -395,73 +364,6 @@ CORBA::Boolean SimpleDagdaImpl::pfmIsDataPresent(const char* dataID) {
   return getParent()->pfmIsDataPresent(dataID);
 }
 
-// Returns the data from this data manager.
-/* CORBA */
-/*corba_data_t* SimpleDagdaImpl::lclGetData(Dagda_ptr dest, const char* dataID) {
-  dataMutex.lock();
-  corba_data_t* found = getData(dataID);
-  dataMutex.unlock();
-  
-  if (dest==_this()) return found;
-  if (found==NULL) throw Dagda::DataNotFound(dataID);
-  if ((*getDataStatus())[dataID]==Dagda::downloading) {
-	throw Dagda::UnavailableData(dataID);
-  }
-
-  corba_data_t* result = new corba_data_t();
-
-  result->desc=found->desc;
-
-  if (found->desc.specific._d()==DIET_FILE) {
-    char* remotePath = sendFile(*found, dest);
-    result->desc.specific.file().path=remotePath;
-  }
-
-  SeqChar* data = new SeqChar(found->value);
-  result->value = *data;
-
-  delete data;
-  return result;
-}*/
-
-// Returns the data from this level.
-/* CORBA */
-/*corba_data_t* SimpleDagdaImpl::lvlGetData(Dagda_ptr dest, const char* dataID) {
-  std::map<string, Dagda_ptr>::iterator itch;
-
-  if (lclIsDataPresent(dataID))
-    return lclGetData(dest, dataID);
-
-  childrenMutex.lock();
-  for (itch=getChildren()->begin();itch!=getChildren()->end();)
-    try {
-      if ((*itch).second->lvlIsDataPresent(dataID)) {
-	    childrenMutex.unlock();
-        return (*itch).second->lvlGetData(dest, dataID);
-	  }
-	  itch++;
-	} catch (CORBA::COMM_FAILURE& e1) {
-	  getChildren()->erase(itch++);
-    } catch (CORBA::TRANSIENT& e2) {
-      getChildren()->erase(itch++);
-    } catch (Dagda::UnavailableData &ex) {
-	  itch++;
-	}
-  childrenMutex.unlock();
-  throw Dagda::DataNotFound(dataID);
-}*/
-
-// Look if the data is present on this level. Otherwise ask the parent
-// to get it.
-// This is the simplest implementation. There is many way to do that.
-/* CORBA */
-/*corba_data_t* SimpleDagdaImpl::pfmGetData(Dagda_ptr dest, const char* dataID) {
-  if (lvlIsDataPresent(dataID)) return lvlGetData(dest, dataID);
-  if (getParent()==NULL)
-    return lvlGetData(dest, dataID);
-  return getParent()->pfmGetData(dest, dataID);
-}*/
-
 // This method downloads the data from the node src.
 /* CORBA */
 char* SimpleDagdaImpl::downloadData(Dagda_ptr src, const corba_data_t& data) {
@@ -493,10 +395,10 @@ void SimpleDagdaImpl::lclAddData(Dagda_ptr src, const corba_data_t& data) {
 		  throw Dagda::NotEnoughSpace(getMemMaxSpace()-getUsedMemSpace());
 	    char* dataID;
 		corba_data_t* inserted;
-		addData(data);
+		inserted = addData(data);
 		dataID = downloadData(src, data);
 		unlockData(dataID);
-		inserted = getData(data.desc.id.idNumber);
+    
 		useMemSpace(inserted->value.length());
 	  }
 	}
@@ -857,7 +759,7 @@ corba_data_t* SimpleDagdaImpl::getData(const char* dataID) {
   return &((*getData())[dataID]);
 }
 
-void SimpleDagdaImpl::addData(const corba_data_t& data) {
+corba_data_t* SimpleDagdaImpl::addData(const corba_data_t& data) {
   char* dataManager = ORBMgr::getIORString(DagdaFactory::getDataManager()->_this());
   TRACE_TEXT(TRACE_ALL_STEPS, "Adding data " << data.desc.id.idNumber << " to this "
 			 << "data manager." << endl);
@@ -868,6 +770,34 @@ void SimpleDagdaImpl::addData(const corba_data_t& data) {
   (*getData())[string(data.desc.id.idNumber)].desc.dataManager = CORBA::string_dup(dataManager);
   if (data.desc.specific._d()==DIET_SCALAR) useMemSpace(data.value.length());
   dataMutex.unlock();
+  /* Log with DietLogComponent. */
+  if (getLogComponent()) {
+    string dType;
+    switch (data.desc.specific._d()) {
+      case DIET_SCALAR:
+        dType = "SCALAR";
+        break;
+      case DIET_VECTOR:
+        dType = "VECTOR";
+        break;
+      case DIET_MATRIX:
+        dType = "MATRIX";
+        break;
+      case DIET_STRING:
+        dType = "STRING";
+        break;
+      case DIET_FILE:
+        dType = "FILE";
+        break;
+      default:
+        dType = "UNKNOWN";
+    }
+    getLogComponent()->logDataStore(data.desc.id.idNumber,
+                                  data_sizeof(&data.desc),
+                                  data.desc.base_type,
+                                  dType.c_str());
+  }
+  return &(*getData())[string(data.desc.id.idNumber)];
 }
 
 void SimpleDagdaImpl::remData(const char* dataID) {
@@ -887,6 +817,9 @@ void SimpleDagdaImpl::remData(const char* dataID) {
     getData()->erase(it);
   }
   dataMutex.unlock();
+  if (getLogComponent()) {
+    getLogComponent()->logDataRelease(dataID);
+  }
 }
 
 SeqCorbaDataDesc_t* SimpleDagdaImpl::getDataDescList() {
@@ -1150,7 +1083,7 @@ int DagdaImpl::readData(corba_data_t& data, ifstream& file) {
 	    WARNING("This data type is not managed by DIET.");
 	}
     make_corba_data(data, type, base_type, mode, nb_r, nb_c,
-	  order, buffer, path);
+	    order, buffer, path);
 	data.desc.id.idNumber = id;
 	data.value.replace(inputSize, inputSize, buffer, true);
   } catch (ios_base::failure &ex) {
@@ -1196,9 +1129,9 @@ void DagdaImpl::restoreState() {
   while (readData(dataFromFile, file)==0) {
     size_t size = dataFromFile.value.length();
     data.desc = dataFromFile.desc;
-	addData(data);
+	inserted = addData(data);
 	unlockData(data.desc.id.idNumber);
-	inserted = getData(data.desc.id.idNumber);
+
 	inserted->value.replace(size, size, dataFromFile.value.get_buffer(true), true);
 	if (inserted->desc.specific._d()!=DIET_FILE)
       useMemSpace(inserted->value.length());
@@ -1220,7 +1153,6 @@ void DagdaImpl::checkpointState() {
   for (itch=getChildren()->begin();itch!=getChildren()->end();)
     try {
 	  omni_thread::create(thrdCheckpointChild, (*itch).second);
-      //(*itch).second->saveState();
 	  itch++;
     } catch (CORBA::COMM_FAILURE& e1) {
 	  getChildren()->erase(itch++);

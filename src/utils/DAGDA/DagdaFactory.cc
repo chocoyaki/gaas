@@ -219,9 +219,10 @@ DagdaImpl* DagdaFactory::getSeDDataManager() {
 	
 	sedDataManager = createDataManager(DGD_SED_MNGR);
 	
-	sedDataManager->init(getSeDName(), parentName, getStorageDir(),
+	sedDataManager->init(CORBA::string_dup(getSeDName()), CORBA::string_dup(parentName),
+                       CORBA::string_dup(getStorageDir()),
 	                     getMaxMsgSize(), getMaxDiskSpace(),
-						 getMaxMemSpace());
+						           getMaxMemSpace());
   }
   localDataManager = sedDataManager;
 
@@ -246,17 +247,17 @@ DagdaImpl* DagdaFactory::getAgentDataManager() {
 
   if (agentDataManager == NULL) {
     const char* parentName = getParentName();
-	const char* name = getAgentName();
-	if (name==NULL) {
-	  WARNING("Agent data manager didn't find a valid name for the agent in the configuration file.");
-	  name = getDefaultName();
-	}
-	//cout << "name = " << name << endl;
-	agentDataManager = createDataManager(DGD_AGENT_MNGR);
+	  const char* name = getAgentName();
+	  if (name==NULL) {
+	    WARNING("Agent data manager didn't find a valid name for the agent in the configuration file.");
+	    name = getDefaultName();
+	  }
+	  //cout << "name = " << name << endl;
+	  agentDataManager = createDataManager(DGD_AGENT_MNGR);
 	
-	agentDataManager->init(name, parentName, getStorageDir(),
-	                       getMaxMsgSize(), getMaxDiskSpace(),
-						   getMaxMemSpace());
+	  agentDataManager->init(name, parentName, getStorageDir(),
+	                         getMaxMsgSize(), getMaxDiskSpace(),
+                           getMaxMemSpace());
   }
   localDataManager = agentDataManager;
   
