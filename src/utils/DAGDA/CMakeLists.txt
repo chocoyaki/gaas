@@ -34,6 +34,7 @@ IF( DIET_BUILD_LIBRARIES )
     IDLCommon
     IDLDagda
     UtilsCommon
+    UtilsNodes
     ${OMNIORB4_LIBRARIES}
     ${UUIDLIB}
   )
