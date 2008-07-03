@@ -10,6 +10,7 @@ IF( DIET_BUILD_LIBRARIES )
     ${DIET_BINARY_DIR}/src/CORBA/idl
     ${DIET_SOURCE_DIR}/src/utils        # for DIET_data_internal.hh
     ${DIET_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}
   )
 
 IF( DIET_USE_ALT_BATCH )
