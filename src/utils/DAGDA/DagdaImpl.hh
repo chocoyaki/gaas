@@ -18,6 +18,7 @@
 #include "Dagda.hh"
 #include "common_types.hh"
 #include "DIET_data.h"
+#include "DietLogComponent.hh"
 
 #include <unistd.h>
 
@@ -100,7 +101,7 @@ public:
   /* Implementation dependent functions. */
   virtual bool isDataPresent(const char* dataID) = 0;
   virtual corba_data_t* getData(const char* dataID) = 0;
-  virtual void addData(const corba_data_t& data) = 0;
+  virtual corba_data_t* addData(const corba_data_t& data) = 0;
   virtual void remData(const char* dataID) = 0;
   virtual SeqCorbaDataDesc_t* getDataDescList() = 0;
   virtual int init(const char* ID, const char* parentID,
@@ -148,6 +149,8 @@ public:
   void setID(char* ID) { this->ID = ID; }
   char* getID() { return CORBA::string_dup(this->ID); } // CORBA
   std::string getStateFile() { return stateFile; }
+  DietLogComponent* getLogComponent() { return logComponent; }
+  void setLogComponent(DietLogComponent* comp) { logComponent=comp; }
   void setStateFile(std::string path) { stateFile=path; }
   void saveState();
   void restoreState();
@@ -172,6 +175,7 @@ private:
   std::map<std::string, corba_data_t> data;
   std::map<std::string, Dagda::dataStatus> dataStatus;
   std::string stateFile;
+  DietLogComponent* logComponent;
 protected:
   omni_mutex dataMutex;
   omni_mutex dataStatusMutex;
@@ -235,7 +239,7 @@ public:
   /* Implementation dependent functions. */
   virtual bool isDataPresent(const char* data);
   virtual corba_data_t* getData(const char* data);
-  virtual void addData(const corba_data_t& data);
+  virtual corba_data_t* addData(const corba_data_t& data);
   virtual void remData(const char* dataID);
   virtual SeqCorbaDataDesc_t* getDataDescList();
   virtual char* downloadData(Dagda_ptr src, const corba_data_t& data);
