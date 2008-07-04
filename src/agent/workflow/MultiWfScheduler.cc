@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2008/07/04 13:30:15  bisnard
+ * Avoid crash when connection to client is lost
+ *
  * Revision 1.19  2008/06/25 10:05:44  bisnard
  * - Waiting priority set when node is put back in waiting queue
  * - Node index in wf_response stored in Node class (new attribute submitIndex)
@@ -289,8 +292,8 @@ MultiWfScheduler::run() {
         // EXECUTE NODE (NEW THREAD)
         if (ressourceFound) {
           n->setAsRunning();
-	  TRACE_TEXT(TRACE_MAIN_STEPS,"  $$$$ Exec node : " << n->getCompleteId()
-            << " / WFrequest #" << n->getWfReqId()
+	  TRACE_TEXT(TRACE_MAIN_STEPS,"  $$$$ Exec node on " << servEst->loc.hostName
+            << " : " << n->getCompleteId()
             << " / exec prio = " << n->getPriority() << endl);
           mappedNodeCount++;
           runNode(n, servEst->loc.ior, submitReqID, servEst->estim);
@@ -605,6 +608,7 @@ NodeRun::NodeRun(Node * node,
  */
 void*
 NodeRun::run() {
+  typedef size_t comm_failure_t;
   string dag_id = this->myNode->getDag()->getId();
   TRACE_TEXT (TRACE_ALL_STEPS, "NodeRun: running node "
       << this->myNode->getCompleteId() << endl);
@@ -617,20 +621,34 @@ NodeRun::run() {
 
     TRACE_TEXT (TRACE_ALL_STEPS, "NodeRun: try to call client manager ");
     CORBA::Long res;
-    if (!CORBA::is_nil(this->mySeD)) {
-      TRACE_TEXT (TRACE_ALL_STEPS, "(exec on sed - request #"
-          << this->myReqID << ")" << endl);
-      res = myCltMan->execNodeOnSed(this->myNode->getId().c_str(),
+    bool clientFailure = false;
+    try {
+      try {
+        if (!CORBA::is_nil(this->mySeD)) {
+          TRACE_TEXT (TRACE_ALL_STEPS, "(exec on sed - request #"
+            << this->myReqID << ")" << endl);
+          res = myCltMan->execNodeOnSed(this->myNode->getId().c_str(),
                                     this->myNode->getDag()->getId().c_str(),
                                     this->mySeD,
                                     this->myReqID,
                                     this->myEstVect);
-    } else {
-      TRACE_TEXT (TRACE_ALL_STEPS, "(exec without sed)" << endl);
-      res = myCltMan->execNode(this->myNode->getId().c_str(),
+        } else {
+          TRACE_TEXT (TRACE_ALL_STEPS, "(exec without sed)" << endl);
+          res = myCltMan->execNode(this->myNode->getId().c_str(),
                          this->myNode->getDag()->getId().c_str());
+        }
+      } catch (CORBA::COMM_FAILURE& e) {
+        throw (comm_failure_t)1;
+      } catch (CORBA::TRANSIENT& e) {
+        throw (comm_failure_t)1;
+      }
+    } catch (comm_failure_t& e) {
+      if (e == 0 || e == 1) {
+        WARNING("Connection problems with Client occured - Dag cancelled");
+        clientFailure = true;
+        res = 1;
+      }
     }
-
     // POST-PROCESSING
 
     if (res == 0) {
@@ -664,7 +682,9 @@ NodeRun::run() {
     if (this->myNode->getDag()->isCancelled() && !this->myNode->getDag()->isRunning()) {
       TRACE_TEXT (TRACE_MAIN_STEPS, "NodeRun: DAG "
           << this->myNode->getDag()->getId().c_str() << " IS CANCELLED!" << endl);
-      char* message = myCltMan->release(this->myNode->getDag()->getId().c_str());
+      if (!clientFailure) {
+        myCltMan->release(this->myNode->getDag()->getId().c_str());
+      }
     }
   }
   else {
