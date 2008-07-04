@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2008/07/04 10:00:07  bisnard
+ * for DAGDA compatibility: use PERSISTENT_RETURN data
+ *
  * Revision 1.16  2008/06/25 10:07:12  bisnard
  * - removed debug messages
  * - Node index in wf_response stored in Node class (new attribute submitIndex)
@@ -1097,7 +1100,7 @@ Node::createProfile() {
     WfInPort * in = (WfInPort*)(p->second);
     if (in->isInput())
       this->set_profile_param(in,
-			      in->type, in->index, in->value, DIET_VOLATILE);
+			      in->type, in->index, in->value, DIET_PERSISTENT);
     else
       this->set_profile_param(in,
 			      in->type, in->index, in->value, DIET_PERSISTENT);
@@ -1113,9 +1116,15 @@ Node::createProfile() {
     WfOutPort * out = (WfOutPort*)(p->second);
 //     TRACE_TEXT (TRACE_ALL_STEPS,
 // 		"%%%%%%%% " << out->type << endl);
-    this->set_profile_param(out,
+    if (this->isAnExit()) {
+      this->set_profile_param(out,
+			    out->type, out->index, out->value,
+			    DIET_PERSISTENT_RETURN);
+    } else {
+      this->set_profile_param(out,
 			    out->type, out->index, out->value,
 			    DIET_PERSISTENT);
+    }
     last ++;
   }
   // inoutput ports
@@ -1123,9 +1132,15 @@ Node::createProfile() {
        p != inoutports.end();
        ++p) {
     WfInOutPort * inout = (WfInOutPort*)(p->second);
-    this->set_profile_param(inout,
+    if (this->isAnExit()) {
+      this->set_profile_param(inout,
+			    inout->type, inout->index,
+			    inout->value, DIET_PERSISTENT_RETURN);
+    } else {
+      this->set_profile_param(inout,
 			    inout->type, inout->index,
 			    inout->value, DIET_PERSISTENT);
+    }
     last ++;
   }
 } // end createProfile
@@ -1399,15 +1414,15 @@ void
 Node::freeProfileAndData() {
   TRACE_TEXT (TRACE_ALL_STEPS,
               myId << " Free profile and release persistent data" << endl);
-    // Free persistent data
+  // Free persistent data
+#if ! HAVE_DAGDA
   for (map<string, WfOutPort*>::iterator p = outports.begin();
        p != outports.end();
        ++p) {
          WfOutPort * out = (WfOutPort*)(p->second);
-//       if (!out->isResult()) {
          diet_free_persistent_data(profile->parameters[out->index].desc.id);
-//       } // end if
   } // end for
+#endif
   diet_profile_free(profile);
   profile = NULL;
 }
@@ -1529,17 +1544,6 @@ void Node::start(bool join) {
  */
 void
 Node::done() {
-//   TRACE_TEXT (TRACE_ALL_STEPS,
-// 	      "calling the " << myPrevNodes.size() << " previous nodes" << endl);
-//   Node * n = NULL;
-//   for (map<string, Node*>::iterator p = myPrevNodes.begin();
-//        p != myPrevNodes.end();
-//        ++p) {
-//     n = (Node *)(p->second);
-//     if (n) {
-//       n->nextIsDone();
-//     }
-//   }
      task_done = true;
      node_running = false;
 } // end done
@@ -1557,23 +1561,5 @@ Node::getReqID(){
 void
 Node::nextIsDone() {
   nextDone++;
-//   if (nextDone == next.size()) {
-//     TRACE_TEXT (TRACE_ALL_STEPS,
-// 		myId << " Now I can free my profile !" << endl);
-//     // Free persistent data
-//     for (map<string, WfOutPort*>::iterator p = outports.begin();
-// 	 p != outports.end();
-// 	 ++p) {
-//       WfOutPort * out = (WfOutPort*)(p->second);
-//       if (!out->isResult()) {
-// 	TRACE_TEXT (TRACE_ALL_STEPS,
-// 		    "\tRelease the persistent data " <<
-// 		    profile->parameters[out->index].desc.id << endl);
-// 	diet_free_persistent_data(profile->parameters[out->index].desc.id);
-//       } // end if
-//     } // end for
-//     diet_profile_free(profile);
-//     profile = NULL;
-//   }
 } // end nextIsDone
 
