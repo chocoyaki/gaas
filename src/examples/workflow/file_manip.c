@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/07/04 10:00:54  bisnard
+ * add EFT computation for workflow scheduler
+ *
  * Revision 1.4  2008/05/05 13:54:18  bisnard
  * new computation time estimation get/set functions
  *
@@ -30,13 +33,49 @@
 char time_str[64];
 long int t = 0;
 
+/*
+ * EFT_eval :
+ * calculate the earliest finish time using the SeDs jobqueue & this job's estimations
+ * the return value is in milliseconds and is a relative time (interval until finish)
+ */
+double eft_eval(diet_profile_t* pb, double computationTimeEstim) {
+  double         EFT, tcomp;
+  jobVector_t    jobVect = NULL;
+  int            jobNb,i ;
+  struct timeval currentTime;
+
+  EFT = computationTimeEstim; /* init with current job's computation time */
+  /* add the computation time for all other jobs on the SeD */
+  if (!diet_estimate_list_jobs(&jobVect, &jobNb, pb)) {
+    /************** EFT computation VALID FOR MAXCONCJOBS=1 ONLY !! *********/
+    printf("%d active job(s) in the SeD queue\n", jobNb);
+    for (i=0; i<jobNb; i++) {
+      /*  computation time for each job is added to EFT */
+      tcomp = diet_est_get_system(jobVect[i].estVector, EST_TCOMP, 10000000);
+      printf("\033[1;32m tcomp =%f \033[0m \n",tcomp);
+      EFT += tcomp;
+      /* if job is already running, substract the time since it started */
+      if (jobVect[i].status == DIET_JOB_RUNNING) {
+        gettimeofday(&currentTime, NULL);
+        double already_done = (double)(currentTime.tv_sec*1000 + currentTime.tv_usec/1000) - jobVect[i].startTime;
+        EFT -= already_done;
+        printf("\033[0;33m jobVect[%d] already_done=%f \033[0m \n",i,already_done);
+      }
+    }
+
+    free(jobVect);
+  }
+  return EFT;
+}
+
 void
 performance_Exec_Time(diet_profile_t* pb ,estVector_t perfValues )
 {
   t = atoi(time_str);
   if ( t == 0 )
     t = 10;
-  diet_estimate_comptime(perfValues, t);
+  diet_estimate_comptime(perfValues, t*1000);
+  diet_est_set(perfValues,0, eft_eval(pb, t*1000));
 }
 
 void
@@ -54,7 +93,7 @@ greyscale(diet_profile_t* pb)
 {
   size_t arg_size  = 0;
   char* path1 = NULL;
-  char* path_without_ext = NULL;
+//   char* path_without_ext = NULL;
   char* path_result = NULL;
   char cmd[1024];
 
@@ -64,16 +103,16 @@ greyscale(diet_profile_t* pb)
   fprintf(stderr, "on %s (%d) \n", path1, (int) arg_size);
 
 
-  path_result = (char*)malloc(strlen(path1) + 6);
-  path_without_ext = (char*)malloc(strlen(path1) - 2);
-  strncpy(path_without_ext, path1, strlen(path1) - 4);
-  path_without_ext[strlen(path1) - 4] = 0;
+  path_result = (char*)malloc(strlen(path1) + 10);
+//   path_without_ext = (char*)malloc(strlen(path1) - 2);
+//   strncpy(path_without_ext, path1, strlen(path1) - 4);
+//   path_without_ext[strlen(path1) - 4] = 0;
 
-  strcpy(path_result, path_without_ext);
-  strcat(path_result, "-gray.jpg");
+   strcpy(path_result, path1);
+   strcat(path_result, "-gray.jpg");
 
-  sprintf(cmd, "jpegtran -grayscale -outfile %s-gray.jpg %s.jpg",
-	  path_without_ext, path_without_ext);
+  sprintf(cmd, "jpegtran -grayscale -outfile %s-gray.jpg %s",
+	  path1, path1);
 
   printf("%s\n", cmd);
 
@@ -82,12 +121,12 @@ greyscale(diet_profile_t* pb)
   if (diet_file_desc_set(diet_parameter(pb,1), path_result)) {
     printf("diet_file_desc_set error\n");
     free(path_result);
-    free(path_without_ext);
+//     free(path_without_ext);
     return 1;
   }
 
   usleep(t*500000);
-  free(path_without_ext);
+//   free(path_without_ext);
 
   return 0;
 }
@@ -121,7 +160,7 @@ flip(diet_profile_t* pb)
 
   printf("flip cmd = %s\n", cmd);
   printf("%d\n", system(cmd));
-
+  printf( "@@@@@@@@@@@@@ Path of result: %s\n",path_result);
   if (diet_file_desc_set(diet_parameter(pb,1), path_result)) {
     printf("diet_file_desc_set error\n");
     free(path_without_ext);
