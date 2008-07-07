@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2008/07/07 09:41:30  bisnard
+ * wf_call returns error when dag was cancelled due to node exec failure
+ *
  * Revision 1.9  2008/06/26 15:00:18  bisnard
  * corba type mismatch
  *
@@ -201,17 +204,17 @@ CltWfMgr::wf_call_madag(diet_wf_desc_t * profile,
   	this->myProfiles[profile] = dag;
 	TRACE_TEXT (TRACE_MAIN_STEPS,"Dag ID " << dag->getId() << endl);
   	this->mySem.wait();
+        // WAIT UNTIL Workflow IS COMPLETED OR CANCELLED
+        if (dag->isCancelled()) {
+          TRACE_TEXT (TRACE_MAIN_STEPS,"Dag ID " << dag->getId()
+              << " WAS CANCELLED BY MADAG!" << endl);
+          res = 1;
+        }
     } else {
 	TRACE_TEXT (TRACE_ALL_STEPS, "MA DAG cancelled the request ...");
 	res = 1;
     }
   }
-
-  /*
-  // Call the Workflow Log Service
-  if (this->myWfLogSrv != WfLogSrv::_nil()) {
-    this->myWfLogSrv->setWf(profile->abstract_wf);
-  } // end if (this->myWfLogSrv)*/
 
   return res;
 
