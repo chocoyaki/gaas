@@ -9,6 +9,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.7  2008/07/07 08:45:59  vpichon
+#* licence CeCILL
+#*
 #* Revision 1.6  2008/03/27 18:47:03  rbolze
 #* update scripts and list of distrib. files
 #* exec "./bin/scripts/make_dist.pl -help" for usage
@@ -143,43 +146,43 @@ do
     printf "$OPC_PRNT This file is part of DIET $version_fmt$CLC_PRNT\n" \
            ${VERSION}. >> $OUT_FILE
     cat >> $OUT_FILE << EOF
-$OPC                                                                        $CLC
-$OPC Copyright (C) 2000-2003 ENS Lyon, LIFC, INSA and INRIA,                $CLC
-$OPC                         all rights reserved.                           $CLC
-$OPC                                                                        $CLC
-$OPC Since DIET is open source, free software, you are free to use, modify, $CLC
-$OPC and distribute the DIET source code and object code produced from the  $CLC
-$OPC source, as long as you include this copyright statement along with     $CLC
-$OPC code built using DIET.                                                 $CLC
-$OPC                                                                        $CLC
-$OPC Redistribution and use in source and binary forms, with or without     $CLC
-$OPC modification, are permitted provided that the following conditions     $CLC
-$OPC are met.                                                               $CLC
-$OPC                                                                        $CLC
-$OPC Redistributions of source code must retain the copyright notice below  $CLC
-$OPC this list of conditions and the following disclaimer. Redistributions  $CLC
-$OPC in binary form must reproduce the copyright notice below, this list    $CLC
-$OPC of conditions and the following disclaimer in the documentation        $CLC
-$OPC and/or other materials provided with the distribution. Neither the     $CLC
-$OPC name of ENS Lyon nor the names of its contributors (LIFC, INSA Lyon,   $CLC
-$OPC INRIA) may be used to endorse or promote products derived from this    $CLC
-$OPC software without specific prior written permission.                    $CLC
-$OPC                                                                        $CLC
-$OPC THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS    $CLC
-$OPC "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT      $CLC
-$OPC LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS      $CLC
-$OPC FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE         $CLC
-$OPC REGENTS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,            $CLC
-$OPC INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,   $CLC
-$OPC BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES ;      $CLC
-$OPC LOSS OF USE, DATA, OR PROFITS ; OR BUSINESS INTERRUPTION) HOWEVER      $CLC
-$OPC CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT     $CLC
-$OPC LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY  $CLC
-$OPC WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE            $CLC
-$OPC POSSIBILITY OF SUCH DAMAGE.                                            $CLC
-$OPC                                                                        $CLC
+$OPC                                                                           $CLC
+$OPC Copyright ENS Lyon, INRIA, (2000)                                         $CLC
+$OPC                                                                           $CLC
+$OPC Frederic.Desprez@ens-lyon.fr, Eddy.Caron@ens-lyon.fr                      $CLC
+$OPC                                                                           $CLC
+$OPC This software is a computer program whose purpose is to [describe         $CLC
+$OPC functionalities and technical features of your software].                 $CLC
+$OPC                                                                           $CLC
+$OPC This software is governed by the CeCILL license under French law and      $CLC
+$OPC abiding by the rules of distribution of free software.  You can  use,     $CLC
+$OPC modify and/ or redistribute the software under the terms of the CeCILL    $CLC
+$OPC license as circulated by CEA, CNRS and INRIA at the following URL         $CLC
+$OPC "http://www.cecill.info".                                                 $CLC
+$OPC                                                                           $CLC
+$OPC As a counterpart to the access to the source code and  rights to copy,    $CLC
+$OPC modify and redistribute granted by the license, users are provided only   $CLC
+$OPC with a limited warranty  and the software's author,  the holder of the    $CLC
+$OPC economic rights,  and the successive licensors  have only  limited        $CLC
+$OPC liability.                                                                $CLC
+$OPC                                                                           $CLC
+$OPC In this respect, the user's attention is drawn to the risks associated    $CLC
+$OPC with loading,  using,  modifying and/or developing or reproducing the     $CLC
+$OPC software by the user in light of its specific status of free software,    $CLC
+$OPC that may mean  that it is complicated to manipulate,  and  that  also     $CLC
+$OPC therefore means  that it is reserved for developers  and  experienced     $CLC
+$OPC professionals having in-depth computer knowledge. Users are therefore     $CLC
+$OPC encouraged to load and test the software's suitability as regards their   $CLC
+$OPC requirements in conditions enabling the security of their systems and/or  $CLC
+$OPC data to be ensured and,  more generally, to use and operate it in the     $CLC
+$OPC same conditions as regards security.                                      $CLC
+$OPC                                                                           $CLC
+$OPC The fact that you are presently reading this means that you have had      $CLC
+$OPC knowledge of the CeCILL license and that you accept its terms.            $CLC
+$OPC                                                                           $CLC
 EOF
-    
+
+
   elif [ "`echo \"$LINE\" | sed \"s|${SEP_LINE_PAT}|@@|g\"`" = "@@" ]
   then
     NO_SEP_LINE=`expr $NO_SEP_LINE + 1`
