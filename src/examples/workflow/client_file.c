@@ -6,8 +6,11 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/* $Id$ 
+/* $Id$
  * $Log$
+ * Revision 1.5  2008/07/07 09:50:48  bisnard
+ * Added EFT calculation required by MaDag scheduler
+ *
  * Revision 1.4  2008/04/14 09:10:39  bisnard
  *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
  *  - AbstractWfSched and derived classes no longer used with MaDag v2
@@ -48,19 +51,20 @@ main(int argc, char* argv[])
   diet_wf_desc_t * profile;
   char * fileName;
   char * path1 = NULL, * path2 = NULL;
+  char command1[255], command2[255];
   size_t out_size1 = 0 , out_size2 = 0;
-  
+
   checkUsage(argc, argv);
 
   if (diet_initialize(argv[1], argc, argv)) {
     fprintf(stderr, "DIET initialization failed !\n");
     return 1;
-  } 
+  }
 
   fileName = argv[2];
 
   profile = diet_wf_profile_alloc(fileName);
-  
+
   printf("Try to execute the workflow\n");
   if (! diet_wf_call(profile)) {
     printf("The workflow submission succeed\n");
@@ -81,6 +85,11 @@ main(int argc, char* argv[])
   else {
     printf("The workflow submission failed\n");
   }
+
+  sprintf(command1,"cp %s %s.res",path1,path1);
+  sprintf(command2,"cp %s %s.res",path2,path2);
+  system(command1);
+  system(command2);
 
   diet_wf_free(profile);
 
