@@ -10,6 +10,10 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.36  2008/07/07 14:05:52  vpichon
+%*
+%* ajout partie compilation de la doc.
+%*
 %* Revision 1.35  2008/04/08 09:41:40  bdepardo
 %* linebreaks to prevent overfull hbox
 %*
@@ -244,7 +248,7 @@ build tree, but feel free to follow your conventions):
   \item toggle the desired options e.g. \verb+DIET_BUILD_EXAMPLES+ or
      \verb+DIET_USE_JXTA+. 
   \item specify the \verb+CMAKE_INSTALL_PREFIX+ parameter (if you wish
-     to install in a directory different from \verb+/usr/local+,
+     to install in a directory different from \verb+/usr/local+)
   \item press \verb+c+ again, for checking required dependencies
   \item check all the parameters preceded with the * (star) character
      whose value was automatically retrieved by \verb+cmake+.
@@ -270,13 +274,6 @@ Here are the main configuration flags:
   \verb+OMNIORB4_DIR+ is the path to the omniORB4 installation directory
   (only relevant when omniORB4 was not installed in /usr/local).\\
   Example: \verb+cmake .. -DOMNIORB4_DIR:PATH=$HOME/local/omniORB-4.0.7+
-
-\item
-  \verb+DIET_BUILD_DOCUMENTATION+ for building LaTeX-based user's guide,
-  the developer's guide and the doxygenated documentation.
-  This option is disabled by default, since it is very sensitive to the
-  version of your \LaTeX\ compiler and it also relies on many sub-dependencies
-  (e.g. \verb+doxygen+ or \verb+fig2dev+)
 
 \item
   \verb+DIET_BUILD_EXAMPLES+ activates the compilation of a set of
@@ -305,7 +302,7 @@ the compilation of the desired extensions.
 \item
   \verb+DIET_USE_BATCH+ activates DIET support of Appleseeds (refer to
   \url{http://grail.sdsc.edu/projects/appleseeds/}) based batch
-  extensions.
+  extensions. \fixme{cette adresse n'existe plus}
 
 \item
   \verb+DIET_BUILD_BLAS_EXAMPLES+ option activates the compilation of
@@ -540,7 +537,7 @@ the DIET archive:
   demonstrate how to use the workflow feature of diet.
   The files representing the workflows that can be tested are stored in
   xml sub-directory.
-  For each workflow, you can fin the required services in the corresponding
+  For each workflow, you can find the required services in the corresponding
   xml file (check the path attribute of each node element).
   For the scalar manipulation example, you can use \texttt{scalar\_server}
   that gathers four different elementary services.
@@ -566,3 +563,43 @@ Likewise, the samples of configuration files located in
 \texttt{src/examples/cfgs} are processed by \texttt{make install} to
 create ready-to-use configuration files in \texttt{src/examples/cfgs} and
 then copied into \texttt{$<$install\_dir$>$/etc/cfgs}.
+
+\section{Documentation}
+\label{section:compiling-documentation}
+
+Documentation is in \verb+CVS_DIET_HOME/doc+. It includes the LaTeX-based 
+user's guide, the developer's guide and the doxygenated documentation.
+Compilation of the documentation is very sensitive to the version of your
+\LaTeX\ compiler and it also relies on many sub-dependencies
+  (e.g. \verb+doxygen+ or \verb+fig2dev+)
+
+\begin{itemize}
+\item
+  \verb+cd CVS_DIET_HOME/doc+
+\item
+  \verb+mkdir build+
+\item
+  \verb+cd build+
+\item
+  \verb+ccmake ..+ to enter the GUI
+  \begin{itemize}
+  \item press \verb+c+ (equivalent of bootstrap.sh of the autotools)
+  \item toggle the desired options 
+  \item specify the \verb+CMAKE_INSTALL_PREFIX+ parameter (if you wish
+     to install in a directory different from \verb+/usr/local+,
+  \item press \verb+c+ again, for checking required dependencies
+  \item check all the parameters preceded with the * (star) character
+     whose value was automatically retrieved by \verb+cmake+.
+  \item provide the required information i.e. fill in the proper values
+     for all parameters whose value is terminated by NOT-FOUND
+  \item iterate the above process of parameter checking, toggle/specification
+     and configuration until all configuration information is satisfied
+  \item press \verb+g+ to generate the makefile
+  \item press \verb+q+ to exit ccmake
+  \end{itemize}
+\item
+  \verb+make+ in order to classically launch the compilation process
+\item
+  \verb+make install+ when installation is required
+\end{itemize}
+
