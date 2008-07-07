@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2008/07/07 16:18:46  bisnard
+ * Removed clientmgr ping before node execution
+ *
  * Revision 1.21  2008/07/07 09:40:44  bisnard
  * use SeD CORBA ref instead of hostname to check ressource availability
  *
@@ -627,15 +630,11 @@ NodeRun::run() {
   TRACE_TEXT (TRACE_ALL_STEPS, "NodeRun: running node "
       << this->myNode->getCompleteId() << endl);
   if (myCltMan != CltMan::_nil()) {
-    TRACE_TEXT (TRACE_ALL_STEPS, "NodeRun: try to call client manager (ping)"
-        << endl);
-    myCltMan->ping();
-
-    // NODE EXECUTION
-
     TRACE_TEXT (TRACE_ALL_STEPS, "NodeRun: try to call client manager ");
     CORBA::Long res;
     bool clientFailure = false;
+
+    // NODE EXECUTION ON CLIENT
     try {
       try {
         if (!CORBA::is_nil(this->mySeD)) {
@@ -694,10 +693,11 @@ NodeRun::run() {
       this->myNode->setAsFailed(); // set the dag as cancelled
     }
 
-    // Manage dag termination if a node failed
+    // Manage dag termination if a node failed (following code is executed by the last running node)
     if (this->myNode->getDag()->isCancelled() && !this->myNode->getDag()->isRunning()) {
       TRACE_TEXT (TRACE_MAIN_STEPS, "NodeRun: DAG "
           << this->myNode->getDag()->getId().c_str() << " IS CANCELLED!" << endl);
+      // Release the client manager (if still alive)
       if (!clientFailure) {
         char* message = myCltMan->release(this->myNode->getDag()->getId().c_str());
         TRACE_TEXT (TRACE_ALL_STEPS," message : "<< message << endl);
