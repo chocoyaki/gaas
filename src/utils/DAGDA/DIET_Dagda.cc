@@ -9,7 +9,7 @@
 /* $Id$
 /* $Log
 /*
-************************************************************/
+ ************************************************************/
 #include "DIET_Dagda.hh"
 #include "DagdaFactory.hh"
 extern "C" {
@@ -37,12 +37,12 @@ using namespace std;
 
 /* Profile marshalling used by DAGDA on the client side. */
 void dagda_mrsh_profile(corba_profile_t* corba_profile, diet_profile_t* profile,
-  MasterAgent_var& MA) {
+                        MasterAgent_var& MA) {
   DagdaImpl* dataManager = DagdaFactory::getDataManager();
   char* dataManagerIOR = ORBMgr::getIORString(dataManager->_this());
-
+  
   corba_profile->parameters.length(profile->last_out+1);
-
+  
 #if defined HAVE_ALT_BATCH 
   corba_profile->parallel_flag = profile->parallel_flag ;
   corba_profile->nbprocs    = profile->nbprocs ;
@@ -54,77 +54,75 @@ void dagda_mrsh_profile(corba_profile_t* corba_profile, diet_profile_t* profile,
   corba_profile->last_out   = profile->last_out;
   corba_profile->dietReqID  = profile->dietReqID ;
   corba_profile->clientIOR = CORBA::string_dup(dataManagerIOR);
-
+  
   for (int i=0; i<=profile->last_out; ++i) {
     bool haveID = false;
-	corba_data_t data;
-	//CORBA::Char* value = (CORBA::Char*) profile->parameters[i].value;
-	//corba_profile->parameters[i].value.length(0);
-
-	// Does the data need an ID ? Yes: Get one from the MA.
-	// Else get the data description from the platform.
+    corba_data_t data;
+    //CORBA::Char* value = (CORBA::Char*) profile->parameters[i].value;
+    //corba_profile->parameters[i].value.length(0);
+    
+    // Does the data need an ID ? Yes: Get one from the MA.
+    // Else get the data description from the platform.
     if (profile->parameters[i].desc.id != NULL)
-	  if (strlen(profile->parameters[i].desc.id)!=0) {
-	    // The data is stored on the platform. Get its description.
-	    data.desc = *MA->get_data_arg(profile->parameters[i].desc.id);
-		haveID = true;
-	  }
+      if (strlen(profile->parameters[i].desc.id)!=0) {
+        // The data is stored on the platform. Get its description.
+        data.desc = *MA->get_data_arg(profile->parameters[i].desc.id);
+        haveID = true;
+      }
+        
+        // This is a new data. It needs an ID and its data manager is
+        // this client data manager.
+        if (i<=profile->last_inout && !haveID) {
+          corba_data_t* storedData;
+          size_t size;
+          char* dataID = MA->get_data_id();
+          
+          // Set the ID and the data manager IOR.
+          profile->parameters[i].desc.id = dataID;
+          mrsh_data_desc(&data.desc, &profile->parameters[i].desc);
+          data.desc.dataManager = CORBA::string_dup(dataManagerIOR);
+          
+          // Add the data in the client data manager.
+          // And get the pointer on it.
+          storedData = dataManager->addData(data);
 
-	// This is a new data. It needs an ID and its data manager is
-	// this client data manager.
-	if (i<=profile->last_inout && !haveID) {
-	  corba_data_t* storedData;
-	  size_t size;
-	  char* dataID = MA->get_data_id();
-
-	  // Set the ID and the data manager IOR.
-	  profile->parameters[i].desc.id = dataID;
-	  mrsh_data_desc(&data.desc, &profile->parameters[i].desc);
-	  data.desc.dataManager = CORBA::string_dup(dataManagerIOR);
-	  
-	  // Add the data in the client data manager.
-	  // And get the pointer on it.
-	  dataManager->addData(data);
-	  storedData = dataManager->getData(dataID);
-	  
-	  if (profile->parameters[i].desc.generic.type!=DIET_FILE)
-	    size = data_sizeof(&profile->parameters[i].desc);
-	  else size = 0;
-
-	  // Data in the profile and in the data manager share the same
-	  // pointer. The last parameter  of "replace" is the "release"
-	  // parameter. It is set to 0 to avoid  double free.
-	  if (profile->parameters[i].value!=NULL)
-	    storedData->value.replace(size, size,
-		  (CORBA::Char*) profile->parameters[i].value, 0);
-
-	  // Only scalar values are sent into the profile.
-	  // For other types, the peer has to download them.
-	  if (profile->parameters[i].desc.generic.type==DIET_SCALAR)
-	    corba_profile->parameters[i] = *storedData;
-	  else
-		corba_profile->parameters[i].desc = storedData->desc;
-
-	  dataManager->unlockData(dataID);
-
-	  continue;
-	}
-	// Out data needing an ID.
-	if (i>profile->last_inout && !haveID) {
-	  char* dataID = MA->get_data_id();
-
-	  profile->parameters[i].desc.id = dataID;
-	  mrsh_data_desc(&corba_profile->parameters[i].desc, &profile->parameters[i].desc);
-	}
-	// The data is on the platform. Set its description.
-	if (haveID)
-	  corba_profile->parameters[i].desc=data.desc;
+          if (profile->parameters[i].desc.generic.type!=DIET_FILE)
+            size = data_sizeof(&profile->parameters[i].desc);
+          else size = 0;
+          // Data in the profile and in the data manager share the same
+          // pointer. The last parameter  of "replace" is the "release"
+          // parameter. It is set to 0 to avoid  double free.
+          if (profile->parameters[i].value!=NULL)
+            storedData->value.replace(size, size,
+                                      (CORBA::Char*) profile->parameters[i].value, 0);
+          
+          // Only scalar values are sent into the profile.
+          // For other types, the peer has to download them.
+          if (profile->parameters[i].desc.generic.type==DIET_SCALAR)
+            corba_profile->parameters[i] = *storedData;
+          else
+            corba_profile->parameters[i].desc = storedData->desc;
+          
+          dataManager->unlockData(dataID);
+          
+          continue;
+        }
+        // Out data needing an ID.
+        if (i>profile->last_inout && !haveID) {
+          char* dataID = MA->get_data_id();
+          
+          profile->parameters[i].desc.id = dataID;
+          mrsh_data_desc(&corba_profile->parameters[i].desc, &profile->parameters[i].desc);
+        }
+        // The data is on the platform. Set its description.
+        if (haveID)
+          corba_profile->parameters[i].desc=data.desc;
   }
 }
 
 /* Data download function used by DAGDA. */
 void dagda_download_SeD_data(diet_profile_t* profile,
-			corba_profile_t* pb) {
+                             corba_profile_t* pb) {
   DagdaImpl* dataManager = DagdaFactory::getDataManager();
   corba_data_t data;
   corba_data_t* inserted;
@@ -132,94 +130,94 @@ void dagda_download_SeD_data(diet_profile_t* profile,
   // Free the remote volatile data.
   for (int i=0; i<=pb->last_in; ++i) {
     Dagda_var remoteManager =
-      Dagda::_narrow(ORBMgr::stringToObject(pb->parameters[i].desc.dataManager));
-	if (pb->parameters[i].desc.mode==DIET_VOLATILE)
+    Dagda::_narrow(ORBMgr::stringToObject(pb->parameters[i].desc.dataManager));
+	  if (pb->parameters[i].desc.mode==DIET_VOLATILE)
       remoteManager->lclRemData(pb->parameters[i].desc.id.idNumber);
   }
   // Downloads the INOUT data from the SeD to the client.
   for (int i=pb->last_in+1; i<=pb->last_inout; ++i) {
     // Get a reference to the data manager of the data.
     Dagda_var remoteManager =
-      Dagda::_narrow(ORBMgr::stringToObject(pb->parameters[i].desc.dataManager));
+    Dagda::_narrow(ORBMgr::stringToObject(pb->parameters[i].desc.dataManager));
 	  
     if (pb->parameters[i].desc.mode != DIET_PERSISTENT &&
-	  pb->parameters[i].desc.mode != DIET_STICKY) {
+        pb->parameters[i].desc.mode != DIET_STICKY) {
       // The data needs to be downloaded.
-	  if (pb->parameters[i].desc.specific._d() != DIET_SCALAR ) {
-	    inserted = dataManager->getData(pb->parameters[i].desc.id.idNumber);
-	    size = inserted->value.length();
-	    CORBA::Char* value = inserted->value.get_buffer();
-	    char*  path = inserted->desc.specific.file().path;
-	    size_t fileSize = inserted->desc.specific.file().size;
-	    // Data downloading.
-	    dataManager->lclAddData(remoteManager, pb->parameters[i]);
-
-	    inserted = dataManager->getData(pb->parameters[i].desc.id.idNumber);
-	    // The files are transmitted separately.
-	    if (pb->parameters[i].desc.specific._d() != DIET_FILE) {
-	      for (size_t j=0; j<size; ++j)
-		    value[j]=inserted->value[j];
+      if (pb->parameters[i].desc.specific._d() != DIET_SCALAR ) {
+        inserted = dataManager->getData(pb->parameters[i].desc.id.idNumber);
+        size = inserted->value.length();
+        CORBA::Char* value = inserted->value.get_buffer();
+        char*  path = inserted->desc.specific.file().path;
+        size_t fileSize = inserted->desc.specific.file().size;
+        // Data downloading.
+        dataManager->lclAddData(remoteManager, pb->parameters[i]);
+        
+        inserted = dataManager->getData(pb->parameters[i].desc.id.idNumber);
+        // The files are transmitted separately.
+        if (pb->parameters[i].desc.specific._d() != DIET_FILE) {
+          // Optimisation necessaire. Voir cote serveur...
+          for (size_t j=0; j<size; ++j)
+            value[j]=inserted->value[j];
           inserted->value.replace(size, size, value, 0);
-	    }
-	    else {
-		  // INOUT file: Remove the previous one.
-	      unlink(inserted->desc.specific.file().path);
-	      rename(path, inserted->desc.specific.file().path);
-		  inserted->desc.specific.file().path = path;
-		  inserted->desc.specific.file().size = fileSize;
-	    }
-	  } else {
+        }
+        else {
+          // INOUT file: Remove the previous one.
+          unlink(inserted->desc.specific.file().path);
+          rename(path, inserted->desc.specific.file().path);
+          inserted->desc.specific.file().path = path;
+          inserted->desc.specific.file().size = fileSize;
+        }
+      } else {
    	    // Scalar data: The value is transmitted inside the profile.
-	    inserted = dataManager->getData(pb->parameters[i].desc.id.idNumber);
-	    size = inserted->value.length();
-	    for (size_t j=0; j<size; ++j)
-	      inserted->value[j]=pb->parameters[i].value[j];
-	  }
+        inserted = dataManager->getData(pb->parameters[i].desc.id.idNumber);
+        size = inserted->value.length();
+        for (size_t j=0; j<size; ++j)
+          inserted->value[j]=pb->parameters[i].value[j];
+      }
     }
-	// Remove the remote volatile data
-	if (pb->parameters[i].desc.mode==DIET_VOLATILE)
+    // Remove the remote volatile data
+    if (pb->parameters[i].desc.mode==DIET_VOLATILE)
       remoteManager->lclRemData(pb->parameters[i].desc.id.idNumber);
   }
   // Download the OUT data.
   for (int i=pb->last_inout+1; i<=pb->last_out; ++i) {
     Dagda_var remoteManager =
-      Dagda::_narrow(ORBMgr::stringToObject(pb->parameters[i].desc.dataManager));
+    Dagda::_narrow(ORBMgr::stringToObject(pb->parameters[i].desc.dataManager));
     if (pb->parameters[i].desc.mode != DIET_PERSISTENT &&
-	  pb->parameters[i].desc.mode != DIET_STICKY) {
+        pb->parameters[i].desc.mode != DIET_STICKY) {
       if (pb->parameters[i].desc.specific._d() != DIET_SCALAR ) {
   	    dataManager->lclAddData(remoteManager, pb->parameters[i]);
-	    inserted = dataManager->getData(pb->parameters[i].desc.id.idNumber);
-	    size = inserted->value.length();
-	    unmrsh_data_desc(&profile->parameters[i].desc, &inserted->desc);
-	    profile->parameters[i].value = inserted->value.get_buffer();
-	  } else {
-	    data.desc = pb->parameters[i].desc;
-	    size = pb->parameters[i].value.length();
-	    dataManager->addData(data);
-	    inserted = dataManager->getData(data.desc.id.idNumber);
-	    CORBA::Char* value = pb->parameters[i].value.get_buffer(1);
-	    inserted->value.replace(size, size, value , 0);
-	    unmrsh_data_desc(&profile->parameters[i].desc, &inserted->desc);
-	    profile->parameters[i].value = inserted->value.get_buffer();
-	    dataManager->unlockData(pb->parameters[i].desc.id.idNumber);
-	  }
+        inserted = dataManager->getData(pb->parameters[i].desc.id.idNumber);
+        size = inserted->value.length();
+        unmrsh_data_desc(&profile->parameters[i].desc, &inserted->desc);
+        profile->parameters[i].value = inserted->value.get_buffer();
+      } else {
+        data.desc = pb->parameters[i].desc;
+        size = pb->parameters[i].value.length();
+        inserted = dataManager->addData(data);
+        CORBA::Char* value = pb->parameters[i].value.get_buffer(1);
+        inserted->value.replace(size, size, value , 0);
+        unmrsh_data_desc(&profile->parameters[i].desc, &inserted->desc);
+        profile->parameters[i].value = inserted->value.get_buffer();
+        dataManager->unlockData(pb->parameters[i].desc.id.idNumber);
+      }
     }
-	if (pb->parameters[i].desc.mode==DIET_VOLATILE)
+    if (pb->parameters[i].desc.mode==DIET_VOLATILE)
       remoteManager->lclRemData(pb->parameters[i].desc.id.idNumber);
   }
 }
 
 
 diet_error_t dagda_get_data_desc(corba_pb_desc_t& corba_pb, MasterAgent_var& MA) {
-    // Retrieves the information about a data stored on the platform.
-    for (int i=0; i<=corba_pb.last_out; ++i) {
-      if (strlen(corba_pb.param_desc[i].id.idNumber)!=0) {
+  // Retrieves the information about a data stored on the platform.
+  for (int i=0; i<=corba_pb.last_out; ++i) {
+    if (strlen(corba_pb.param_desc[i].id.idNumber)!=0) {
 	    if (!MA->dataLookUp(corba_pb.param_desc[i].id.idNumber)) {
 	      ERROR(" data with ID " << corba_pb.param_desc[i].id.idNumber
-		        << " not inside the platform.", 1);
+              << " not inside the platform.", 1);
 	    } else {
 	      const_cast<corba_data_desc_t&>(corba_pb.param_desc[i]) =
-	        *MA->get_data_arg(corba_pb.param_desc[i].id.idNumber);
+        *MA->get_data_arg(corba_pb.param_desc[i].id.idNumber);
 	    }
 	  }
 	}
@@ -227,13 +225,13 @@ diet_error_t dagda_get_data_desc(corba_pb_desc_t& corba_pb, MasterAgent_var& MA)
 }
 
 /* !!! Important note to programers: !!!
-     - The CORBA::sequence::get_buffer(orphan == true) makes the next
-	   call to get_buffer returns NULL and gives the pointer control
-	   to the user;
-	 - The CORBA::sequence::replace(size, maxSize, ptr, release == false)
-	   gives the pointer control to the user;
-   These two parameters mean the opposite. Be careful to have it in mind.
-*/
+- The CORBA::sequence::get_buffer(orphan == true) makes the next
+  call to get_buffer returns NULL and gives the pointer control
+  to the user;
+- The CORBA::sequence::replace(size, maxSize, ptr, release == false)
+  gives the pointer control to the user;
+  These two parameters mean the opposite. Be careful to have it in mind.
+  */
 void dagda_download_data(diet_profile_t& profile, corba_profile_t& pb) {
   DagdaImpl* dataManager = DagdaFactory::getDataManager();
   corba_data_t data;
@@ -253,59 +251,58 @@ void dagda_download_data(diet_profile_t& profile, corba_profile_t& pb) {
   for (int i=0; i<= pb.last_inout; ++i) {
     if (!dataManager->pfmIsDataPresent(pb.parameters[i].desc.id.idNumber)) {
       Dagda_var remoteManager =
-        Dagda::_narrow(ORBMgr::stringToObject(pb.parameters[i].desc.dataManager));
-	  // The data is not yet registered here.
-	  if (pb.parameters[i].desc.specific._d() != DIET_SCALAR) {
-	    // Data is transmitted from the remote manager.
-	    dataManager->lclAddData(remoteManager, pb.parameters[i]);
-	    inserted =  dataManager->getData(pb.parameters[i].desc.id.idNumber);
-	    size = inserted->value.length();
-	    unmrsh_data_desc(&profile.parameters[i].desc, &inserted->desc);
-		// (1):
-		// IN value: The data manager still have control on the value pointer.
-		// INOUT value: The data manager gives the pointer control to the SeD.
-		// get_buffer(boolean orphan) :
-		// orphan == true => inserted->value=NULL && param.value=ptr
-		// The SeD can modify *ptr.
-		// orphan == false => inserted->value=param.value=ptr
-		// The SeD must NOT to modify *ptr !
-	    profile.parameters[i].value = inserted->value.get_buffer(i>pb.last_in ? true:false);
-	  }
-	  else {
-	    // Scalar values are transmitted in the profile.
-	    data.desc = pb.parameters[i].desc;
-	    size = pb.parameters[i].value.length();
-	    dataManager->addData(data);
-	    inserted = dataManager->getData(data.desc.id.idNumber);
-
-	    // If the data is INOUT, we leave its management to the SeD developper.
-	    // Otherwise, the data should not be modified.
-	    // To modify it is a major bug.
-		// The corba profile leaves the pointer control to the data manager.
-	    inserted->value.replace(size, size, pb.parameters[i].value.get_buffer(true), true);
-	    unmrsh_data_desc(&profile.parameters[i].desc, &inserted->desc);
-		// See (1) below.
-	    profile.parameters[i].value = inserted->value.get_buffer(i>pb.last_in ? true:false);
-	 	dataManager->unlockData(pb.parameters[i].desc.id.idNumber);
-		dataManager->useMemSpace(size);
-	  }
-	} else {
-	  // Data is present. We use it.
-	  Dagda_var bestSource = dataManager->getBestSource(dataManager->_this(),
-	    pb.parameters[i].desc.id.idNumber);
-	  
-	  dataManager->lclAddData(bestSource, pb.parameters[i]);
-	  inserted = dataManager->getData(pb.parameters[i].desc.id.idNumber);
-	  size = inserted->value.length();
-	  unmrsh_data_desc(&profile.parameters[i].desc, &inserted->desc);
-	  // See (1) below.
-	  profile.parameters[i].value = inserted->value.get_buffer(i>pb.last_in ? true:false);
-	}
+      Dagda::_narrow(ORBMgr::stringToObject(pb.parameters[i].desc.dataManager));
+      // The data is not yet registered here.
+      if (pb.parameters[i].desc.specific._d() != DIET_SCALAR) {
+        // Data is transmitted from the remote manager.
+        dataManager->lclAddData(remoteManager, pb.parameters[i]);
+        inserted =  dataManager->getData(pb.parameters[i].desc.id.idNumber);
+        size = inserted->value.length();
+        unmrsh_data_desc(&profile.parameters[i].desc, &inserted->desc);
+        // (1):
+        // IN value: The data manager still have control on the value pointer.
+        // INOUT value: The data manager gives the pointer control to the SeD.
+        // get_buffer(boolean orphan) :
+        // orphan == true => inserted->value=NULL && param.value=ptr
+        // The SeD can modify *ptr.
+        // orphan == false => inserted->value=param.value=ptr
+        // The SeD must NOT to modify *ptr !
+        profile.parameters[i].value = inserted->value.get_buffer(i>pb.last_in ? true:false);
+      }
+      else {
+        // Scalar values are transmitted in the profile.
+        data.desc = pb.parameters[i].desc;
+        size = pb.parameters[i].value.length();
+        inserted = dataManager->addData(data);
+        
+        // If the data is INOUT, we leave its management to the SeD developper.
+        // Otherwise, the data should not be modified.
+        // To modify it is a major bug.
+        // The corba profile leaves the pointer control to the data manager.
+        inserted->value.replace(size, size, pb.parameters[i].value.get_buffer(true), true);
+        unmrsh_data_desc(&profile.parameters[i].desc, &inserted->desc);
+        // See (1) below.
+        profile.parameters[i].value = inserted->value.get_buffer(i>pb.last_in ? true:false);
+        dataManager->unlockData(pb.parameters[i].desc.id.idNumber);
+        dataManager->useMemSpace(size);
+      }
+    } else {
+      // Data is present. We use it.
+      Dagda_var bestSource = dataManager->getBestSource(dataManager->_this(),
+                                                        pb.parameters[i].desc.id.idNumber);
+      
+      dataManager->lclAddData(bestSource, pb.parameters[i]);
+      inserted = dataManager->getData(pb.parameters[i].desc.id.idNumber);
+      size = inserted->value.length();
+      unmrsh_data_desc(&profile.parameters[i].desc, &inserted->desc);
+      // See (1) below.
+      profile.parameters[i].value = inserted->value.get_buffer(i>pb.last_in ? true:false);
+    }
   }
   for (int i=pb.last_inout+1;i<=pb.last_out; ++i) {
     size_t outDataSize = data_sizeof(&pb.parameters[i].desc);
     unmrsh_data_desc(&profile.parameters[i].desc, &pb.parameters[i].desc);
-	profile.parameters[i].value = new CORBA::Char[outDataSize];
+    profile.parameters[i].value = new CORBA::Char[outDataSize];
   }
 }
 
@@ -314,49 +311,49 @@ void dagda_upload_data(diet_profile_t& profile, corba_profile_t& pb) {
   for (int i=0;i<=pb.last_in;++i)
     pb.parameters[i].desc.dataManager=ORBMgr::getIORString(manager->_this());
   for (int i=profile.last_in+1; i<= profile.last_out; ++i) {
-	// marshalling of the data
-	corba_data_t data;
-	corba_data_t* inserted;
-	size_t size = data_sizeof(&profile.parameters[i].desc);
-	string origIOR(pb.parameters[i].desc.dataManager);
-	
-	mrsh_data_desc(&data.desc, &profile.parameters[i].desc);
-
+    // marshalling of the data
+    corba_data_t data;
+    corba_data_t* inserted;
+    size_t size = data_sizeof(&profile.parameters[i].desc);
+    string origIOR(pb.parameters[i].desc.dataManager);
+    
+    mrsh_data_desc(&data.desc, &profile.parameters[i].desc);
+    
     if (i<=pb.last_inout && data.desc.specific._d()==DIET_FILE) {
-	  // We cannot delete an INOUT file but we have to update the used
-	  // disk space.
+      // We cannot delete an INOUT file but we have to update the used
+      // disk space.
       size_t previousSize;
-	  previousSize =
-	    (manager->getData(data.desc.id.idNumber))->desc.specific.file().size;
-	  manager->freeDiskSpace(previousSize);
-	}
-	manager->addData(data);
-	inserted = manager->getData(data.desc.id.idNumber);
-
+      previousSize =
+        (manager->getData(data.desc.id.idNumber))->desc.specific.file().size;
+      manager->freeDiskSpace(previousSize);
+    }
+    inserted = manager->addData(data);
+    //inserted = manager->getData(data.desc.id.idNumber);
+    
     if (data.desc.specific._d()!=DIET_FILE) {
-	  // The data manager obtains the pointer control. (release=true).
+      // The data manager obtains the pointer control. (release=true).
       inserted->value.replace(size, size, (CORBA::Char*)profile.parameters[i].value, true);
       if (data.desc.specific._d() == DIET_SCALAR &&
-	      pb.parameters[i].desc.mode == DIET_VOLATILE ||
-		  pb.parameters[i].desc.mode == DIET_PERSISTENT_RETURN ||
-		  pb.parameters[i].desc.mode == DIET_STICKY_RETURN) {
+          pb.parameters[i].desc.mode == DIET_VOLATILE ||
+          pb.parameters[i].desc.mode == DIET_PERSISTENT_RETURN ||
+          pb.parameters[i].desc.mode == DIET_STICKY_RETURN) {
         pb.parameters[i] = *inserted;
-	  }
+      }
     }
     pb.parameters[i].desc = inserted->desc;
-	
-	if (i>pb.last_inout || data.desc.specific._d()==DIET_FILE) {
-	  if (data.desc.specific._d()==DIET_FILE) {
-	    manager->useDiskSpace(inserted->desc.specific.file().size);
-	  }
-	  else
-	    manager->useMemSpace(inserted->value.length());
-	}
-	
-	manager->unlockData(data.desc.id.idNumber);
-
+    
+    if (i>pb.last_inout || data.desc.specific._d()==DIET_FILE) {
+      if (data.desc.specific._d()==DIET_FILE) {
+        manager->useDiskSpace(inserted->desc.specific.file().size);
+      }
+      else
+        manager->useMemSpace(inserted->value.length());
+    }
+    
+    manager->unlockData(data.desc.id.idNumber);
+    
     if (manager->pfmIsDataPresent(data.desc.id.idNumber))
-	  manager->pfmUpdateData(manager->_this(), data);
+      manager->pfmUpdateData(manager->_this(), data);
   }
 }
 
@@ -387,15 +384,15 @@ char * get_data_id()
   ostringstream id;
   char* name =
     (char*) Parsers::Results::getParamValue(Parsers::Results::NAME);
-
+  
   uuid_generate(uuid);
   uuid_unparse(uuid, ID);
-
+  
   if (name!=NULL)
     id << "DAGDA://id-" << ID << "-" << name;
   else
     id << "DAGDA://id-" << ID << "-client-" << getpid();
-
+  
   return CORBA::string_dup(id.str().c_str());
 #endif
 }
@@ -405,7 +402,7 @@ MasterAgent_var getMasterAgent() {
   char* MA_name =
     (char*) Parsers::Results::getParamValue(Parsers::Results::MANAME);
   if (MA_name==NULL) return NULL;
-
+  
   MasterAgent_var MA = MasterAgent::_narrow(ORBMgr::getObjReference(ORBMgr::AGENT, MA_name));
   if (CORBA::is_nil(MA)) {
     //ERROR("cannot locate Master Agent " << MA_name, 1);
@@ -422,15 +419,15 @@ Dagda_var getEntryPoint() {
   
   SimpleDagdaImpl* localManager = (SimpleDagdaImpl*) DagdaFactory::getDataManager();
   Dagda_var manager;
-
+  
   if (localManager->getType()==DGD_CLIENT_MNGR) {
     char* MA_name =
-      (char*) Parsers::Results::getParamValue(Parsers::Results::MANAME);
-	if (MA_name==NULL) return NULL;
+    (char*) Parsers::Results::getParamValue(Parsers::Results::MANAME);
+    if (MA_name==NULL) return NULL;
     MasterAgent_var MA = MasterAgent::_narrow(ORBMgr::getObjReference(ORBMgr::AGENT, MA_name));
     if (CORBA::is_nil(MA)) {
       //ERROR("cannot locate Master Agent " << MA_name, 1);
-	  return NULL;
+      return NULL;
     }
     manager = MA->getDataManager();
     entryPoint = manager;
@@ -440,19 +437,19 @@ Dagda_var getEntryPoint() {
 
 // corba_data_t initialization from explicit parameters.
 size_t corba_data_init(corba_data_t& data, diet_data_type_t type,
-	diet_base_type_t base_type, diet_persistence_mode_t mode,
-	size_t nb_r, size_t nb_c, diet_matrix_order_t order, void* value, char* path) {
+                       diet_base_type_t base_type, diet_persistence_mode_t mode,
+                       size_t nb_r, size_t nb_c, diet_matrix_order_t order, void* value, char* path) {
   diet_data_t diet_data;
   DagdaImpl*  manager = DagdaFactory::getDataManager();
   
   if (mode==DIET_VOLATILE) {
     WARNING("Trying to add a volatile data to DAGDA... The data " <<
-	  "will be persistent.");
-	mode=DIET_PERSISTENT;
+            "will be persistent.");
+    mode=DIET_PERSISTENT;
   }
   char* dataManagerIOR = ORBMgr::getIORString(manager->_this());
   char* dataID = get_data_id();
-
+  
   diet_data.desc.id = dataID;
   diet_data.desc.mode = mode;
   diet_data.desc.generic.type = type;
@@ -461,24 +458,24 @@ size_t corba_data_init(corba_data_t& data, diet_data_type_t type,
   switch (type) {
     case DIET_SCALAR:
       diet_data.desc.specific.scal.value = value;
-	  break;
+      break;
     case DIET_VECTOR:
-	  diet_data.desc.specific.vect.size = nb_c;
+      diet_data.desc.specific.vect.size = nb_c;
       break;
     case DIET_MATRIX:
       diet_data.desc.specific.mat.nb_r = nb_r;
-	  diet_data.desc.specific.mat.nb_c = nb_c;
-	  diet_data.desc.specific.mat.order = order;
-	  break;
+      diet_data.desc.specific.mat.nb_c = nb_c;
+      diet_data.desc.specific.mat.order = order;
+      break;
     case DIET_STRING:
     case DIET_PARAMSTRING:
       diet_data.desc.specific.pstr.length = strlen((char*) value);
    	  break;
     case DIET_FILE:
       diet_data.desc.specific.file.path = path;
-	  break;
-	default:
-	  WARNING("This type is not managed by DIET.");
+      break;
+    default:
+      WARNING("This type is not managed by DIET.");
   }
   
   mrsh_data_desc(&data.desc, &diet_data.desc);
@@ -510,25 +507,25 @@ private:
   diet_matrix_order_t order;
   char* path;
 public:
-  DagdaPutDataThread(void* value, diet_data_type_t type,
-	  diet_base_type_t base_type, diet_persistence_mode_t mode,
-	  size_t nb_r, size_t nb_c, diet_matrix_order_t order, char* path) :
-	value(value), type(type), base_type(base_type), mode(mode), nb_r(nb_r),
-	nb_c(nb_c), order(order), path(path) {
-	
-  }
-
+    DagdaPutDataThread(void* value, diet_data_type_t type,
+                       diet_base_type_t base_type, diet_persistence_mode_t mode,
+                       size_t nb_r, size_t nb_c, diet_matrix_order_t order, char* path) :
+    value(value), type(type), base_type(base_type), mode(mode), nb_r(nb_r),
+    nb_c(nb_c), order(order), path(path) {
+      
+    }
+  
   void startThread() {
     start_undetached();
   }
 protected:
-  void* run_undetached(void* arg) {
-	DagdaThreadResult* result = new DagdaThreadResult;
-	
-    result->returnedValue = 
-      dagda_put_data(value, type, base_type, mode, nb_r, nb_c, order, path, &result->ID);
-	return result;
-  }
+    void* run_undetached(void* arg) {
+      DagdaThreadResult* result = new DagdaThreadResult;
+      
+      result->returnedValue = 
+        dagda_put_data(value, type, base_type, mode, nb_r, nb_c, order, path, &result->ID);
+      return result;
+    }
   
   void run(void* arg) {
     dagda_put_data(value, type, base_type, mode, nb_r, nb_c, order, path, NULL);
@@ -541,23 +538,23 @@ private:
   char* dataID;
   diet_data_type_t type;
 public:
-  DagdaGetDataThread(char* dataID, diet_data_type_t type) : dataID(dataID),
+    DagdaGetDataThread(char* dataID, diet_data_type_t type) : dataID(dataID),
     type(type) {
-  }
-
+    }
+  
   void startThread() {
     start_undetached();
   }
 protected:
-  void* run_undetached(void* arg) {
-    DagdaThreadResult* result = new DagdaThreadResult;
-
-	result->returnedValue =
-	  dagda_get_data(dataID, &result->value, type, &result->base_type,
-	    &result->nb_r, &result->nb_c, &result->order, &result->path);
-
-	return result;
-  }
+    void* run_undetached(void* arg) {
+      DagdaThreadResult* result = new DagdaThreadResult;
+      
+      result->returnedValue =
+        dagda_get_data(dataID, &result->value, type, &result->base_type,
+                       &result->nb_r, &result->nb_c, &result->order, &result->path);
+      
+      return result;
+    }
   
   void run(void* arg) {
     dagda_get_data(dataID, NULL, type, NULL, NULL, NULL, NULL, NULL);
@@ -571,115 +568,115 @@ private:
   static unsigned int nextID;
   omni_mutex idMutex;
   omni_mutex poolMutex;
-
+  
   map<unsigned int, omni_thread*> pool;
   
   DagdaThreadPool() {
+    
+  }
   
-  }
-
 public:
-  static DagdaThreadPool* getInstance() {
-    if (instance==NULL)
-	  instance = new DagdaThreadPool();
-	return instance;
-  }
+    static DagdaThreadPool* getInstance() {
+      if (instance==NULL)
+        instance = new DagdaThreadPool();
+      return instance;
+    }
   // Creates a thread and records a reference on it.
   // Put a data.
   unsigned int newPutDataThread(void* value, diet_data_type_t type,
-	  diet_base_type_t base_type, diet_persistence_mode_t mode,
-	  size_t nb_r, size_t nb_c, diet_matrix_order_t order, char* path) {
-	unsigned int id = getNextID();
-	
-	poolMutex.lock();
-	pool[id] = new DagdaPutDataThread(value, type, base_type, mode, nb_r, nb_c,
-			order, path);
-	((DagdaPutDataThread*) pool[id])->startThread();
+                                diet_base_type_t base_type, diet_persistence_mode_t mode,
+                                size_t nb_r, size_t nb_c, diet_matrix_order_t order, char* path) {
+    unsigned int id = getNextID();
+    
+    poolMutex.lock();
+    pool[id] = new DagdaPutDataThread(value, type, base_type, mode, nb_r, nb_c,
+                                      order, path);
+    ((DagdaPutDataThread*) pool[id])->startThread();
     poolMutex.unlock();
-	
-	return id;
+    
+    return id;
   }
   // Get a data.
   unsigned int newGetDataThread(char* dataID, diet_data_type_t type) {
-	unsigned int id = getNextID();
-
-	poolMutex.lock();
-	pool[id] = new DagdaGetDataThread(dataID, type);
-	((DagdaGetDataThread*) pool[id])->startThread();
-	poolMutex.unlock();
-	
-	return id;
+    unsigned int id = getNextID();
+    
+    poolMutex.lock();
+    pool[id] = new DagdaGetDataThread(dataID, type);
+    ((DagdaGetDataThread*) pool[id])->startThread();
+    poolMutex.unlock();
+    
+    return id;
   }
   // Waits the end of the transfert from the client.
   int waitDataPut(unsigned int id, char** ID) {
     int ret;
-	DagdaThreadResult* result;
-	omni_thread* thread;
-	
-	poolMutex.lock();
+    DagdaThreadResult* result;
+    omni_thread* thread;
+    
+    poolMutex.lock();
     if (pool.find(id)==pool.end()) {
-	  poolMutex.unlock();
-	  return -1;
-	}
+      poolMutex.unlock();
+      return -1;
+    }
 	  
-	thread = pool[id];
-	poolMutex.unlock();
-	
-	thread->join((void**) &result);
-
-	ret = result->returnedValue;
-	*ID = result->ID;
-	delete result;
-	
-	poolMutex.lock();
-	pool.erase(id);
-	poolMutex.unlock();
-
-	return ret;
+    thread = pool[id];
+    poolMutex.unlock();
+    
+    thread->join((void**) &result);
+    
+    ret = result->returnedValue;
+    *ID = result->ID;
+    delete result;
+    
+    poolMutex.lock();
+    pool.erase(id);
+    poolMutex.unlock();
+    
+    return ret;
   }
   // Waits the end of the transfert to the client.
   int waitDataGet(unsigned int id, void** value, diet_base_type_t* base_type,
-    size_t* nb_r, size_t* nb_c, diet_matrix_order_t* order, char** path) {
-	int ret;
-	DagdaThreadResult* result;
-	omni_thread* thread;
-	
-	poolMutex.lock();
+                  size_t* nb_r, size_t* nb_c, diet_matrix_order_t* order, char** path) {
+    int ret;
+    DagdaThreadResult* result;
+    omni_thread* thread;
+    
+    poolMutex.lock();
     if (pool.find(id)==pool.end()) {
-	  poolMutex.unlock();
-	  return -1;
-	}
+      poolMutex.unlock();
+      return -1;
+    }
 	  
-	thread = pool[id];
-	poolMutex.unlock();
-	
-	thread->join((void**) &result);
-	ret = result->returnedValue;
-	if (value!=NULL)
-	  *value = result->value;
-	if (base_type!=NULL)
-	  *base_type = result->base_type;
-	if (nb_r!=NULL)
+    thread = pool[id];
+    poolMutex.unlock();
+    
+    thread->join((void**) &result);
+    ret = result->returnedValue;
+    if (value!=NULL)
+      *value = result->value;
+    if (base_type!=NULL)
+      *base_type = result->base_type;
+    if (nb_r!=NULL)
       *nb_r = result->nb_r;
-	if (nb_c!=NULL)
-	  *nb_c = result->nb_c;
-	if (order!=NULL)
-	  *order = result->order;
-	if (path!=NULL)
-	  *path = result->path;
-	delete result;
-	poolMutex.lock();
-	pool.erase(id);
-	poolMutex.unlock();
-	return ret;
+    if (nb_c!=NULL)
+      *nb_c = result->nb_c;
+    if (order!=NULL)
+      *order = result->order;
+    if (path!=NULL)
+      *path = result->path;
+    delete result;
+    poolMutex.lock();
+    pool.erase(id);
+    poolMutex.unlock();
+    return ret;
   }
   // Returns a new thread id.
   unsigned int getNextID() {
     unsigned int ret;
     idMutex.lock();
-	ret = nextID++;
-	idMutex.unlock();
-	return ret;
+    ret = nextID++;
+    idMutex.unlock();
+    return ret;
   }
 };
 // The thread pool is a singleton class.
@@ -695,36 +692,36 @@ int eval(const char* str, long* type, char** rule, bool* replace) {
   t = strsep(&strCpy, ":");
   if (strCpy==NULL) {
     free(S);
-	return 1;
+    return 1;
   }
   if (strcasecmp(t, "id")==0)
     *type = 1;
   else {
     if (strcasecmp(t, "host")==0)
-	  *type = 0;
-	else {
-	  free(S);
-	  return 1;
-	}
+      *type = 0;
+    else {
+      free(S);
+      return 1;
+    }
   }
   r = strsep(&strCpy, ":");
   if (strCpy==NULL) {
     free(S);
-	return 1;
+    return 1;
   }
   repl = strsep(&strCpy, ":");
   if (strCpy!=NULL) {
     free(S);
-	return 1;
+    return 1;
   }
   if (strcasecmp(repl, "replace")==0)
     *replace=true;
   else {
     if (strcasecmp(repl, "noreplace")==0)
-	  *replace=false;
-	else {
-	  free(S);
-	  return 1;
+      *replace=false;
+    else {
+      free(S);
+      return 1;
     }
   }
   *rule = strdup(r);
@@ -734,29 +731,29 @@ int eval(const char* str, long* type, char** rule, bool* replace) {
 
 BEGIN_API
 int dagda_put_data(void* value, diet_data_type_t type,
-	diet_base_type_t base_type, diet_persistence_mode_t mode,
-	size_t nb_r, size_t nb_c, diet_matrix_order_t order, char* path, char** ID) {
+                   diet_base_type_t base_type, diet_persistence_mode_t mode,
+                   size_t nb_r, size_t nb_c, diet_matrix_order_t order, char* path, char** ID) {
   Dagda_var entryPoint = getEntryPoint();
   DagdaImpl*  manager = DagdaFactory::getDataManager();
   corba_data_t* inserted;
-
+  
   corba_data_t data;
   char* dataID;
   size_t size = corba_data_init(data, type, base_type,
-	mode, nb_r, nb_c, order, value, path);
+                                mode, nb_r, nb_c, order, value, path);
   dataID = data.desc.id.idNumber;
-  manager->addData(data);
-  inserted = manager->getData(dataID);
+  inserted = manager->addData(data);
+
   if (value!=NULL)
     inserted->value.replace(size, size, (CORBA::Char*) value, false);
-
+  
   manager->unlockData(dataID);
   
   if (entryPoint!=NULL) {
     entryPoint->pfmAddData(manager->_this(), data);
-	// Client side. Don't need to keep the data reference.
-	if (type==DIET_FILE) manager->setDataStatus(dataID, Dagda::notOwner);
-	manager->remData(dataID);
+    // Client side. Don't need to keep the data reference.
+    if (type==DIET_FILE) manager->setDataStatus(dataID, Dagda::notOwner);
+    manager->remData(dataID);
   }	else {
     manager->pfmAddData(manager->_this(), data);
   }
@@ -766,32 +763,32 @@ int dagda_put_data(void* value, diet_data_type_t type,
 }
 
 int dagda_get_data(char* dataID, void** value, diet_data_type_t type,
-	diet_base_type_t* base_type, size_t* nb_r, size_t* nb_c,
-	diet_matrix_order_t* order, char** path) {
+                   diet_base_type_t* base_type, size_t* nb_r, size_t* nb_c,
+                   diet_matrix_order_t* order, char** path) {
   Dagda_var entryPoint = getEntryPoint();
   DagdaImpl*  manager = DagdaFactory::getDataManager();
   Dagda_ptr src;
   corba_data_t data;
   corba_data_t* inserted;
-
+  
   data.desc.id.idNumber = CORBA::string_dup(dataID);
   
   if (entryPoint!=NULL)
     try {
-	  data.desc = *entryPoint->pfmGetDataDesc(dataID);
+      data.desc = *entryPoint->pfmGetDataDesc(dataID);
       src = entryPoint->getBestSource(manager->_this(), dataID);
       manager->lclAddData(src, data);
-	  inserted = manager->getData(dataID);
+      inserted = manager->getData(dataID);
     } catch (Dagda::DataNotFound& ex) {
       return 1;
     }
   else
     try {
-	  data.desc = *manager->pfmGetDataDesc(dataID);
+      data.desc = *manager->pfmGetDataDesc(dataID);
       src = manager->getBestSource(manager->_this(), dataID);
       manager->lclAddData(src, data);
-	  inserted = manager->getData(dataID);
-	} catch (Dagda::DataNotFound& ex) {
+      inserted = manager->getData(dataID);
+    } catch (Dagda::DataNotFound& ex) {
       return 1;
     }
   if (inserted->desc.specific._d()!=type && type!=DIET_UNKNOWN_TYPE) {
@@ -800,31 +797,31 @@ int dagda_get_data(char* dataID, void** value, diet_data_type_t type,
   if (value!=NULL) *value = inserted->value.get_buffer(false);
   if (base_type!=NULL) *base_type = (diet_base_type_t) inserted->desc.base_type;
   switch (inserted->desc.specific._d()) {
-  case DIET_SCALAR:
-	break;
-  case DIET_VECTOR:
-	if (nb_c!=NULL) *nb_c = inserted->desc.specific.vect().size;
-	break;
-  case DIET_MATRIX:
-	if (nb_r!=NULL) *nb_r = inserted->desc.specific.mat().nb_r;
-	if (nb_c!=NULL) *nb_c = inserted->desc.specific.mat().nb_c;
-	if (order!=NULL) *order = (diet_matrix_order_t) inserted->desc.specific.mat().order;
-	break;
-  case DIET_STRING:
-  case DIET_PARAMSTRING:
-    break;
-  case DIET_FILE:
-    if (path!=NULL) *path = inserted->desc.specific.file().path;
-	break;
-  default:
-    WARNING("This data type is not managed by DIET.");
+    case DIET_SCALAR:
+      break;
+    case DIET_VECTOR:
+      if (nb_c!=NULL) *nb_c = inserted->desc.specific.vect().size;
+      break;
+    case DIET_MATRIX:
+      if (nb_r!=NULL) *nb_r = inserted->desc.specific.mat().nb_r;
+      if (nb_c!=NULL) *nb_c = inserted->desc.specific.mat().nb_c;
+        if (order!=NULL) *order = (diet_matrix_order_t) inserted->desc.specific.mat().order;
+          break;
+    case DIET_STRING:
+    case DIET_PARAMSTRING:
+      break;
+    case DIET_FILE:
+      if (path!=NULL) *path = inserted->desc.specific.file().path;
+      break;
+    default:
+      WARNING("This data type is not managed by DIET.");
   }
   return 0;
 }
 
 unsigned int dagda_put_data_async(void* value, diet_data_type_t type,
-	  diet_base_type_t base_type, diet_persistence_mode_t mode,
-	  size_t nb_r, size_t nb_c, diet_matrix_order_t order, char* path) {
+                                  diet_base_type_t base_type, diet_persistence_mode_t mode,
+                                  size_t nb_r, size_t nb_c, diet_matrix_order_t order, char* path) {
   DagdaThreadPool* instance = DagdaThreadPool::getInstance();
   
   return instance->newPutDataThread(value, type, base_type, mode, nb_r, nb_c, order, path);
@@ -843,24 +840,24 @@ int dagda_wait_put(unsigned int threadID, char** ID) {
 }
 
 int dagda_wait_get(unsigned int threadID, void** value, diet_base_type_t* base_type,
-    size_t* nb_r, size_t* nb_c, diet_matrix_order_t* order, char** path) {
+                   size_t* nb_r, size_t* nb_c, diet_matrix_order_t* order, char** path) {
   DagdaThreadPool* instance = DagdaThreadPool::getInstance();
   
   return instance->waitDataGet(threadID, value, base_type, nb_r, nb_c, order, path);
 }
 
 int dagda_add_data(void* value, diet_data_type_t type,
-	  diet_base_type_t base_type, diet_persistence_mode_t mode,
-	  size_t nb_r, size_t nb_c, diet_matrix_order_t order, char* path) {
+                   diet_base_type_t base_type, diet_persistence_mode_t mode,
+                   size_t nb_r, size_t nb_c, diet_matrix_order_t order, char* path) {
   DagdaPutDataThread* thrd =
-    new DagdaPutDataThread(value, type, base_type, mode, nb_r, nb_c, order, path);
+  new DagdaPutDataThread(value, type, base_type, mode, nb_r, nb_c, order, path);
   thrd->start();
   return 0;
 }
 
 int dagda_load_data(char* ID, diet_data_type_t type) {
   DagdaGetDataThread* thrd =
-    new DagdaGetDataThread(ID, type);
+  new DagdaGetDataThread(ID, type);
   thrd->start();
   return 0;
 }
@@ -868,7 +865,7 @@ int dagda_load_data(char* ID, diet_data_type_t type) {
 int dagda_save_platform() {
   if (entryPoint!=NULL) {
     entryPoint->checkpointState();
-	return 0;
+    return 0;
   }
   return 1;
 }
@@ -878,7 +875,7 @@ int dagda_data_alias(const char* id, const char* alias) {
   
   if (MA==NULL) {
     WARNING("Try to call " << __FUNCTION__ << " outside a client.");
-	return 1;
+    return 1;
   }
   SeqString values;
   values.length(1);
@@ -892,7 +889,7 @@ int dagda_id_from_alias(const char* alias, char** id) {
   
   if (MA==NULL) {
     WARNING("Try to call " << __FUNCTION__ << " outside a client.");
-	return 1;
+    return 1;
   }
   SeqString* attributes = MA->searchData(alias);
   if (attributes->length()==0) return 1;
@@ -909,7 +906,7 @@ int dagda_replicate_data(const char* id, const char* rule) {
     WARNING("Error in replication rule definition.");
     return 1;
   }
- 
+  
   Dagda_var entryPoint = getEntryPoint();
   DagdaImpl*  manager = DagdaFactory::getDataManager();
   

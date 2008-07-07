@@ -37,7 +37,8 @@ public:
    
     gethostname(host, 256);
     host[255]='\0';
-	hostname = CORBA::string_dup(host);
+	  hostname = CORBA::string_dup(host);
+    logComponent=NULL;
   }
   ~DagdaImpl();
 

@@ -771,7 +771,7 @@ corba_data_t* SimpleDagdaImpl::addData(const corba_data_t& data) {
   if (data.desc.specific._d()==DIET_SCALAR) useMemSpace(data.value.length());
   dataMutex.unlock();
   /* Log with DietLogComponent. */
-  if (getLogComponent()) {
+  if (getLogComponent()!=NULL) {
     string dType;
     switch (data.desc.specific._d()) {
       case DIET_SCALAR:
