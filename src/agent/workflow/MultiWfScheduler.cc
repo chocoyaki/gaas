@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2008/07/07 09:40:44  bisnard
+ * use SeD CORBA ref instead of hostname to check ressource availability
+ *
  * Revision 1.20  2008/07/04 13:30:15  bisnard
  * Avoid crash when connection to client is lost
  *
@@ -195,7 +198,7 @@ void*
 MultiWfScheduler::run() {
   int loopCount = 0;
   // the ressource availability matrix
-  map<std::string, bool> avail;
+  map<SeD_ptr, bool> avail;
   // the counters of executed nodes (to check if new round must be started)
   int queuedNodeCount = 0;
   int mappedNodeCount = 0;
@@ -271,21 +274,32 @@ MultiWfScheduler::run() {
             servEst = &wf_response->wfn_seq_resp[ix].response.servers[jx];
             double compTime = diet_est_get_internal(&servEst->estim, EST_TCOMP, 0);
             double EFT = diet_est_get_internal(&servEst->estim, EST_USERDEFINED, 0);
+            SeD_ptr curSeDPtr = servEst->loc.ior;
             string hostname(CORBA::string_dup(servEst->loc.hostName));
             TRACE_TEXT(TRACE_ALL_STEPS,"  server " << hostname << ": compTime="
                 << compTime << ": EFT=" << EFT << endl);
-            // test if the server is available right now
-            // TODO use SeD ref instead of hostname
-            if (avail.find(hostname) == avail.end()) avail[hostname] = true;
-            if ((EFT - compTime <= 0) && avail[hostname]) {
-              ressourceFound = true;
-              avail[hostname] = false;
-              submitReqID = wf_response->wfn_seq_resp[ix].response.reqID;
-              TRACE_TEXT(TRACE_ALL_STEPS,"  server found: " << hostname << endl);
-              break;
-            }
+            if (EFT - compTime <= 0) {  // test if available right now
+              // test if the server has not been already chosen for another node
+              bool available = true;
+              for (map<SeD_ptr, bool>::iterator availIter=avail.begin();
+                   availIter!=avail.end();
+                   availIter++) {
+                if (curSeDPtr->_is_equivalent(availIter->first)) {
+                  available = false;
+                  break;
+                }
+              }
+              // server is free so it can be used for this node
+              if (available) {
+                ressourceFound = true;
+                avail[curSeDPtr] = false;
+                submitReqID = wf_response->wfn_seq_resp[ix].response.reqID;
+                TRACE_TEXT(TRACE_ALL_STEPS,"  server found: " << hostname << endl);
+                break;
+              } // end if
+            } // end if
           } // end for jx
-        } else {
+        } else {  // problem name in node list & in wf response do not match
           TRACE_TEXT(TRACE_MAIN_STEPS,"WARNING: mismatch btw queue node & MA response"
               << "(node pb=" << n->getPb() << ")" << endl); // should not happen!
         }
@@ -669,12 +683,14 @@ NodeRun::run() {
 	if (this->myScheduler->getMaDag()->dietLogComponent != NULL) {
 		this->myScheduler->getMaDag()->dietLogComponent->logDag(message);
 	}
+        delete message;
 	TRACE_TEXT (TRACE_MAIN_STEPS,"############### dag_id="<< this->myNode->getDag()->getId().c_str()
 			 <<" is done ################"<<endl);
       }
     } else {
-      TRACE_TEXT (TRACE_ALL_STEPS, "NodeRun: node execution failed! " << endl
-                    << " ==> Cancelling DAG execution" << endl);
+      TRACE_TEXT (TRACE_ALL_STEPS, "NodeRun: node " << this->myNode->getCompleteId()
+          << " execution failed! " << endl
+          << " ==> Cancelling DAG execution" << endl);
       this->myNode->setAsFailed(); // set the dag as cancelled
     }
 
@@ -683,7 +699,12 @@ NodeRun::run() {
       TRACE_TEXT (TRACE_MAIN_STEPS, "NodeRun: DAG "
           << this->myNode->getDag()->getId().c_str() << " IS CANCELLED!" << endl);
       if (!clientFailure) {
-        myCltMan->release(this->myNode->getDag()->getId().c_str());
+        char* message = myCltMan->release(this->myNode->getDag()->getId().c_str());
+        TRACE_TEXT (TRACE_ALL_STEPS," message : "<< message << endl);
+	if (this->myScheduler->getMaDag()->dietLogComponent != NULL) {
+		this->myScheduler->getMaDag()->dietLogComponent->logDag(message);
+	}
+        delete message;
       }
     }
   }
