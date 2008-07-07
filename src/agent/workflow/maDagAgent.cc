@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2008/07/07 11:44:09  bisnard
+ * changed options syntax
+ *
  * Revision 1.7  2008/06/19 10:18:54  bisnard
  * new heuristic AgingHEFT for multi-workflow scheduling
  *
@@ -53,7 +56,7 @@ extern unsigned int TRACE_LEVEL;
 
 void usage(char * s) {
   fprintf(stderr, "Usage: %s <file.cfg> [option]\n", s);
-  fprintf(stderr, "option = --heft | --aging_heft | --fairness\n");
+  fprintf(stderr, "option = -basic (default) | -heft | -aging_heft | -fairness\n");
   exit(1);
 }
 
@@ -62,9 +65,10 @@ int checkUsage(int argc, char ** argv) {
     usage(argv[0]);
   }
   if (argc >= 3) {
-    if (strcmp(argv[2], "--heft") &&
-	strcmp(argv[2], "--fairness") &&
-        strcmp(argv[2], "--aging_heft")) {
+    if (strcmp(argv[2], "-basic") &&
+        strcmp(argv[2], "-heft") &&
+	strcmp(argv[2], "-fairness") &&
+        strcmp(argv[2], "-aging_heft")) {
       usage(argv[0]);
     }
   }
@@ -116,12 +120,13 @@ int main(int argc, char * argv[]){
 
   MaDag_impl::MaDagSchedType schedType = MaDag_impl::BASIC;
   if (argc >= 3) {
-    if (!strcmp(argv[2], "--fairness"))
+    if (!strcmp(argv[2], "-fairness"))
       schedType = MaDag_impl::FOFT;
-    else if (!strcmp(argv[2], "--heft"))
+    else if (!strcmp(argv[2], "-heft"))
       schedType = MaDag_impl::HEFT;
-    else if (!strcmp(argv[2], "--aging_heft"))
+    else if (!strcmp(argv[2], "-aging_heft"))
       schedType = MaDag_impl::AHEFT;
+    else schedType = MaDag_impl::BASIC;
   }
 
   /* Get the traceLevel */
