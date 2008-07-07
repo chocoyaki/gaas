@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2008/07/07 16:17:58  bisnard
+ * Stop calling next nodes if dag cancelled
+ *
  * Revision 1.17  2008/07/04 10:00:07  bisnard
  * for DAGDA compatibility: use PERSISTENT_RETURN data
  *
@@ -871,13 +874,15 @@ Node::setAsDone(double compTime) {
   this->setRealCompTime(compTime);
   TRACE_TEXT (TRACE_ALL_STEPS, "completion time is " << compTime << endl);
   // notify the successors
-  Node * n;
-  TRACE_TEXT (TRACE_ALL_STEPS,
+  if (!this->getDag()->isCancelled()) {
+    Node * n;
+    TRACE_TEXT (TRACE_ALL_STEPS,
               "calling the " << next.size() << " next nodes" << endl);
-  for (uint ix=0; ix< next.size(); ix++) {
-    n = next[ix];
-    n->prevNodeHasDone();
-  }
+    for (uint ix=0; ix< next.size(); ix++) {
+      n = next[ix];
+      n->prevNodeHasDone();
+    }
+  } // end if !cancelled
 } // end setAsDone
 
 /**
