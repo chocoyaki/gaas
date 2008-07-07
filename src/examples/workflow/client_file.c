@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/07/07 14:52:30  bisnard
+ * bug fix
+ *
  * Revision 1.5  2008/07/07 09:50:48  bisnard
  * Added EFT calculation required by MaDag scheduler
  *
@@ -85,11 +88,6 @@ main(int argc, char* argv[])
   else {
     printf("The workflow submission failed\n");
   }
-
-  sprintf(command1,"cp %s %s.res",path1,path1);
-  sprintf(command2,"cp %s %s.res",path2,path2);
-  system(command1);
-  system(command2);
 
   diet_wf_free(profile);
 
