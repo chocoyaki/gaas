@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/07/08 11:15:58  bisnard
+ * Correct dag/node destruction with nodequeues
+ *
  * Revision 1.5  2008/06/25 09:56:37  bisnard
  * new method size()
  *
@@ -33,13 +36,17 @@
 #include "NodeQueue.hh"
 #include "debug.hh"
 
+using namespace std;
+
 /****************************************************************************/
 /*                    NodeQueue - PUBLIC METHODS                            */
 /****************************************************************************/
 
 NodeQueue::NodeQueue() : nodeCounter(0) { }
 NodeQueue::NodeQueue(string name) : nodeCounter(0), myName(name) { }
-NodeQueue::~NodeQueue() { }
+NodeQueue::~NodeQueue() {
+  // Important: the queue must be empty before being destroyed
+}
 
 string
 NodeQueue::getName() {
@@ -54,12 +61,18 @@ NodeQueue::pushNode(Node * node) {
 }
 
 void
-NodeQueue::pushNodes(std::vector<Node *> nodes) {
-  std::vector<Node *>::iterator iter = nodes.begin();
+NodeQueue::pushNodes(vector<Node *> nodes) {
+  vector<Node *>::iterator iter = nodes.begin();
   while (iter != nodes.end()) {
     this->pushNode(*iter);
     iter++;
   }
+}
+
+void
+NodeQueue::removeNode(Node * node) {
+  node->setNodeQueue(NULL);
+  this->nodeCounter--;
 }
 
 int
@@ -122,11 +135,26 @@ OrderedNodeQueue::popFirstNode() {
   if (!orderedNodes.empty()) {
     Node * nodePtr = orderedNodes.front();  // get the ref to the first node
     orderedNodes.pop_front(); // removes the node from the queue
+    nodePtr->setNodeQueue(NULL);
     this->nodeCounter--;
     return nodePtr;
   }
   else {
     return NULL;
+  }
+}
+
+void
+OrderedNodeQueue::removeNode(Node * node) {
+  list<Node*>::iterator np = orderedNodes.begin();
+  while (np != orderedNodes.end()) {
+    if (*np = node) {
+      np = orderedNodes.erase(np);
+      node->setNodeQueue(NULL);
+      this->nodeCounter--;
+    } else {
+      np++;
+    }
   }
 }
 
@@ -159,7 +187,7 @@ PriorityNodeQueue::~PriorityNodeQueue() { }
 void
 PriorityNodeQueue::pushNode(Node * insNode) {
   double insNodePrio = insNode->getPriority();
-  std::list<Node*>::iterator  nodeIter = orderedNodes.begin();
+  list<Node*>::iterator  nodeIter = orderedNodes.begin();
   Node *                      curNode   = NULL;
   while ((nodeIter != orderedNodes.end())
           && (curNode = (Node *) *nodeIter)

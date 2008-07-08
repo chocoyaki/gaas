@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2008/07/08 11:15:58  bisnard
+ * Correct dag/node destruction with nodequeues
+ *
  * Revision 1.18  2008/07/07 16:17:58  bisnard
  * Stop calling next nodes if dag cancelled
  *
@@ -279,6 +282,8 @@ Node::~Node() {
     diet_profile_free(profile);
   if (myRunnableNode)
     delete (myRunnableNode);
+  if (myQueue)
+    myQueue->removeNode(this);
 
   // free the ports map ()
   // free the parameters vectors

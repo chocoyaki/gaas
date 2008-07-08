@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/07/08 11:15:58  bisnard
+ * Correct dag/node destruction with nodequeues
+ *
  * Revision 1.4  2008/06/25 09:56:37  bisnard
  * new method size()
  *
@@ -64,6 +67,9 @@ class NodeQueue {
 
     virtual void
         pushNodes(std::vector<Node *> nodes); // adds a vector of nodes into the queue
+
+    virtual void
+        removeNode(Node * node); // removes a node from the queue
 
     virtual bool
         notifyStateChange(Node * node) = 0; // notify the queue that a node's state changed
@@ -131,6 +137,9 @@ class OrderedNodeQueue : public NodeQueue {
 /*    virtual Node *
         getFirstNode(); // returns a ref to the first node in the queue (or NULL)
  */
+    virtual void
+        removeNode(Node * node); // removes a node from the queue
+
     virtual Node *
         popFirstNode(); // pop out the first node from the nodes queue
 

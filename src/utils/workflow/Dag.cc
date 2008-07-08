@@ -3,11 +3,15 @@
 /*                                                                          */
 /* Author(s):                                                               */
 /* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
+/* - Benjamin ISNARD (Benjamin.Isnard@ens-lyon.fr)                          */
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2008/07/08 11:15:58  bisnard
+ * Correct dag/node destruction with nodequeues
+ *
  * Revision 1.11  2008/06/25 10:07:12  bisnard
  * - removed debug messages
  * - Node index in wf_response stored in Node class (new attribute submitIndex)
@@ -142,17 +146,17 @@ using namespace std;
 
 
 Dag::Dag() {
-//  this->current_node = this->nodes.end();
   this->myId    = "";
-//   this->nbSec   = 5;
-//   this->nbNodes = 1;
   this->tmpDag  = false;
   this->estDelay = 0;
   this->cancelled = false;
 }
 
+/**
+ * DAG destructor: will delete all the nodes of the dag (if not a temp dag)
+ */
 Dag::~Dag() {
-//   TRACE_TEXT (TRACE_ALL_STEPS,"~Dag() destructor ..." <<  endl);
+  TRACE_TEXT (TRACE_ALL_STEPS,"~Dag() destructor ..." <<  endl);
   if (! this->tmpDag) {
     Node * node = NULL;
     for (map<string, Node * >::iterator p = nodes.begin( );
@@ -1102,7 +1106,7 @@ Dag::updateDelayRec(Node * node, double newDelay) {
 }
 
 /**
- * notify the dag of node execution failure (CLIENT-SIDE)
+ * notify the dag of node execution failure (MADAG & CLIENT-SIDE)
  */
 void
 Dag::setNodeFailure(string nodeId) {
