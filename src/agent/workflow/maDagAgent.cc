@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2008/07/08 15:52:03  bisnard
+ * Set interRoundDelay as parameter of workflow scheduler
+ *
  * Revision 1.8  2008/07/07 11:44:09  bisnard
  * changed options syntax
  *
@@ -81,6 +84,8 @@ int main(int argc, char * argv[]){
   int    res(0);
   int    myargc;
   char** myargv;
+  bool   IRD;
+  int    IRD_value;
 
   checkUsage(argc,argv);
 
@@ -129,6 +134,17 @@ int main(int argc, char * argv[]){
     else schedType = MaDag_impl::BASIC;
   }
 
+  /* Choose interRoundDelay */
+  IRD = false;
+  if (argc >= 4) {
+    if (!strcmp(argv[3], "-IRD")) {
+      IRD = true;
+      if (!sscanf(argv[4],"%d",&IRD_value)) {
+        ERROR("Wrong IRD parameter value", 1);
+      }
+    }
+  }
+
   /* Get the traceLevel */
 
   if (TRACE_LEVEL >= TRACE_MAX_VALUE) {
@@ -147,7 +163,8 @@ int main(int argc, char * argv[]){
     ERROR("ORB initialization failed", 1);
   }
 
-  MaDag_impl * maDag_impl = new MaDag_impl(name, schedType);
+  MaDag_impl * maDag_impl = IRD ? new MaDag_impl(name,schedType,IRD_value) :
+      new MaDag_impl(name, schedType);
   ORBMgr::activate((MaDag_impl*)maDag_impl);
 
 

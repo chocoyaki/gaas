@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2008/07/08 15:52:03  bisnard
+ * Set interRoundDelay as parameter of workflow scheduler
+ *
  * Revision 1.13  2008/06/25 10:05:44  bisnard
  * - Waiting priority set when node is put back in waiting queue
  * - Node index in wf_response stored in Node class (new attribute submitIndex)
@@ -116,6 +119,14 @@ namespace madag {
      */
     virtual void
         setSched(WfScheduler * sched);
+
+    /**
+     * set the inter-round delay in milliseconds
+     * this value (by default 100ms) is used to avoid burst of submit requests
+     * that result in mapping several jobs to same SeD
+     */
+    virtual void
+        setInterRoundDelay(int IRD_value);
 
     /**
      * schedules a new DAG workflow
@@ -311,7 +322,7 @@ namespace madag {
      * Inter-round delay (used to separate DIET submits)
      *(in milliseconds)
      */
-    static long interRoundDelay;
+    int interRoundDelay;
 
   private:
 

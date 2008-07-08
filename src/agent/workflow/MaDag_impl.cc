@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2008/07/08 15:52:03  bisnard
+ * Set interRoundDelay as parameter of workflow scheduler
+ *
  * Revision 1.14  2008/07/08 09:47:36  rbolze
  * send madag scheduler type through dietLogComponent
  *
@@ -114,7 +117,9 @@
 using namespace std;
 using namespace madag;
 
-MaDag_impl::MaDag_impl(const char * name, const MaDagSchedType schedType = BASIC) :
+MaDag_impl::MaDag_impl(const char * name,
+                       const MaDagSchedType schedType,
+                       const int interRoundDelay) :
   myName(name), myMultiWfSched(NULL), wfReqIdCounter(0) {
   char* MAName = (char*)
     Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
@@ -139,15 +144,15 @@ MaDag_impl::MaDag_impl(const char * name, const MaDagSchedType schedType = BASIC
 
   TRACE_TEXT(NO_TRACE,
 	       "## MADAG_IOR " << ORBMgr::getIORString(this->_this()) << endl);
-  
+
    this->setupDietLogComponent();
-   char* scheduler_type; 
+   char* scheduler_type;
   // starting the multiwfscheduler
   switch (schedType) {
     case BASIC:
       this->myMultiWfSched = new MultiWfBasicScheduler(this);
       if (this->dietLogComponent != NULL) {
-      	scheduler_type=strdup("BASIC"); 
+      	scheduler_type=strdup("BASIC");
       	dietLogComponent->maDagSchedulerType(scheduler_type);
       	free(scheduler_type);
       }
@@ -155,7 +160,7 @@ MaDag_impl::MaDag_impl(const char * name, const MaDagSchedType schedType = BASIC
     case HEFT:
       this->myMultiWfSched = new MultiWfHEFT(this);
       if (this->dietLogComponent != NULL) {
-      	scheduler_type=strdup("MULTI_HEFT"); 
+      	scheduler_type=strdup("MULTI_HEFT");
       	dietLogComponent->maDagSchedulerType(scheduler_type);
       	free(scheduler_type);
       }
@@ -163,7 +168,7 @@ MaDag_impl::MaDag_impl(const char * name, const MaDagSchedType schedType = BASIC
     case FOFT:
       this->myMultiWfSched = new MultiWfFOFT(this);
       if (this->dietLogComponent != NULL) {
-      	scheduler_type=strdup("FOFT"); 
+      	scheduler_type=strdup("FOFT");
       	dietLogComponent->maDagSchedulerType(scheduler_type);
       	free(scheduler_type);
       }
@@ -171,16 +176,18 @@ MaDag_impl::MaDag_impl(const char * name, const MaDagSchedType schedType = BASIC
     case AHEFT:
       this->myMultiWfSched = new MultiWfAgingHEFT(this);
       if (this->dietLogComponent != NULL) {
-      	scheduler_type=strdup("AGING_HEFT"); 
+      	scheduler_type=strdup("AGING_HEFT");
       	dietLogComponent->maDagSchedulerType(scheduler_type);
       	free(scheduler_type);
       }
       break;
   }
-  
+
+  if (interRoundDelay >= 0)
+    this->myMultiWfSched->setInterRoundDelay(interRoundDelay);
+
   this->myMultiWfSched->start();
-  
-  
+
   // init the statistics module
   stat_init();
 } // end MA DAG constructor
@@ -364,7 +371,7 @@ MaDag_impl::setupDietLogComponent(){
       WARNING("Could not initialize DietLogComponent");
       dietLogComponent = NULL; // this should not happen;
     }
-    
+
     free(agtTypeName);
 
   } else {

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2008/07/08 15:52:03  bisnard
+ * Set interRoundDelay as parameter of workflow scheduler
+ *
  * Revision 1.23  2008/07/08 11:13:53  bisnard
  * Dag cancellation cleanup
  * Raise exception when xml incorrect
@@ -117,14 +120,13 @@ using namespace madag;
 /*                                                                          */
 /****************************************************************************/
 
-long MultiWfScheduler::interRoundDelay = 100; // in milliseconds
 
 /****************************************************************************/
 /*                         PUBLIC METHODS                                   */
 /****************************************************************************/
 
 MultiWfScheduler::MultiWfScheduler(MaDag_impl* maDag, nodePolicy_t nodePol)
-  : mySem(0), myMaDag(maDag), nodePolicy(nodePol) {
+  : mySem(0), myMaDag(maDag), nodePolicy(nodePol), interRoundDelay(100) {
   this->mySched   = new HEFTScheduler();
   this->execQueue = NULL; // must be initialized in derived class constructor
   gettimeofday(&this->refTime, NULL); // init reference time
@@ -143,6 +145,13 @@ long MultiWfScheduler::dagIdCounter = 0;
 void
 MultiWfScheduler::setSched(WfScheduler * sched) {
   this->mySched = sched;
+}
+/**
+ * Change the inter-round delay value (by default 100 ms)
+ */
+void
+MultiWfScheduler::setInterRoundDelay(int IRD_value) {
+  this->interRoundDelay = IRD_value;
 }
 
 /**

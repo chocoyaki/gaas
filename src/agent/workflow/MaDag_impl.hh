@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2008/07/08 15:52:03  bisnard
+ * Set interRoundDelay as parameter of workflow scheduler
+ *
  * Revision 1.12  2008/06/19 10:18:54  bisnard
  * new heuristic AgingHEFT for multi-workflow scheduling
  *
@@ -100,7 +103,9 @@ class MaDag_impl : public POA_MaDag,
 public:
   enum MaDagSchedType { BASIC, HEFT, AHEFT, FOFT };
 
-  MaDag_impl(const char * name, const MaDagSchedType schedType);
+  MaDag_impl(const char * name,
+             const MaDagSchedType schedType = BASIC,
+             const int interRoundDelay = -1); // use default
 
   virtual ~MaDag_impl();
 
