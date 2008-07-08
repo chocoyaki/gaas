@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2008/07/08 11:13:53  bisnard
+ * Dag cancellation cleanup
+ * Raise exception when xml incorrect
+ * Delete dag when completed
+ *
  * Revision 1.22  2008/07/07 16:18:46  bisnard
  * Removed clientmgr ping before node execution
  *
@@ -314,17 +319,6 @@ MultiWfScheduler::run() {
             << " / exec prio = " << n->getPriority() << endl);
           mappedNodeCount++;
           runNode(n, servEst->loc.ior, submitReqID, servEst->estim);
-
-          // Destroy queues if both are empty
-          ChainedNodeQueue * waitQ = waitingQueues[readyQ];
-          if (waitQ->isEmpty() && readyQ->isEmpty()) {
-            TRACE_TEXT(TRACE_ALL_STEPS,"Node Queues are empty: remove & destroy" << endl);
-            // get entry in the ready queues list
-            std::list<OrderedNodeQueue *>::iterator qp2 = readyQueues.begin();
-            while ((*qp2 != readyQ) && (qp2 != readyQueues.end())) qp2++;
-            readyQueues.erase(qp2);          // removes from the list
-            this->deleteNodeQueue(readyQ);   // deletes both queues
-          }
         }
         // PUT THE NODE BACK IN THE READY QUEUE if no ressource available
         else {
@@ -341,9 +335,21 @@ MultiWfScheduler::run() {
       // destroy wf_response
       delete wf_response;
 
-      // round-robbin on the ready queues
+      // Destroy ready/waiting queues if both are empty
+      std::list<OrderedNodeQueue *>::iterator qp2 = readyQueues.begin();
+      while (qp2 != readyQueues.end()) {
+        OrderedNodeQueue * curReadyQ = *qp2;
+        ChainedNodeQueue * curWaitQ = waitingQueues[curReadyQ];
+        if (curWaitQ->isEmpty() && curReadyQ->isEmpty()) {
+          TRACE_TEXT(TRACE_ALL_STEPS,"Node Queues are empty: remove & destroy" << endl);
+          qp2 = readyQueues.erase(qp2);       // removes from the list
+          this->deleteNodeQueue(curReadyQ);   // deletes both queues
+        } else {
+          qp2++;
+        }
+      }
+      // Round-robbin on remaining queues
       if (readyQueues.size() > 0) {
-        // TRACE_TEXT(TRACE_MAIN_STEPS,"Round-robbin on ready queues" << endl);
         OrderedNodeQueue * firstReadyQueue = readyQueues.front();
         readyQueues.pop_front();
         readyQueues.push_back(firstReadyQueue);
@@ -421,7 +427,9 @@ Dag *
 MultiWfScheduler::parseNewDag(int wfReqId, const corba_wf_desc_t& wf_desc)
     throw (XMLParsingException) {
   DagWfParser* reader = new DagWfParser(wfReqId, wf_desc.abstract_wf);
-  reader->setup();
+  if (!reader->setup()) {
+      throw XMLParsingException(XMLParsingException::eBAD_STRUCT);
+  }
   Dag * newDag = reader->getDag();
   delete reader;
   newDag->setId(itoa(dagIdCounter++));
@@ -435,19 +443,6 @@ wf_response_t *
 MultiWfScheduler::getProblemEstimates(Dag *dag, MasterAgent_var MA)
     throw (NodeException) {
   // Check that all services are available and get the estimations (with MA)
-/*  vector<diet_profile_t*> * v = dag->getAllProfiles();
-  corba_pb_desc_seq_t* pbs_seq = new corba_pb_desc_seq_t();
-  pbs_seq->length(v->size());
-  for (unsigned int ix=0; ix< pbs_seq->length(); ix++) {
-    TRACE_TEXT (TRACE_ALL_STEPS, "marshalling pb " << ix << endl
-        << "pb_name = " << (*v)[ix]->pb_name << endl
-        << "last_in = " << (*v)[ix]->last_in << endl
-        << "last_inout = " << (*v)[ix]->last_inout << endl
-        << "last_out = " << (*v)[ix]->last_out << endl);
-
-    mrsh_pb_desc(&(*pbs_seq)[ix], (*v)[ix]);
-  }
-  delete v; */
   corba_pb_desc_seq_t* pbs_seq = new corba_pb_desc_seq_t();
   pbs_seq->length(dag->size());
   int ix = 0;
@@ -474,17 +469,6 @@ MultiWfScheduler::getProblemEstimates(Dag *dag, MasterAgent_var MA)
 wf_response_t *
 MultiWfScheduler::getProblemEstimates(OrderedNodeQueue* queue, MasterAgent_var MA)
     throw (NodeException) {
-/*  Dag * tmpDag = new Dag();
-  tmpDag->setAsTemp(true);
-  for (list<Node *>::iterator iter = queue->begin(); iter != queue->end(); iter++) {
-    Node * n = (Node *) *iter;
-    cout << "Adding node " << n->getCompleteId() << " to the tmp dag" << endl;
-    if (n != NULL)
-      tmpDag->addNode(n->getCompleteId(), n);
-    else WARNING("getProblemEstimates: NULL node in tmpDag" << endl);
-  }
-  wf_response_t * resp = getProblemEstimates(tmpDag, MA);
-  delete tmpDag; */
   corba_pb_desc_seq_t* pbs_seq = new corba_pb_desc_seq_t();
   pbs_seq->length(queue->size());
   int ix = 0;
@@ -683,8 +667,9 @@ NodeRun::run() {
 		this->myScheduler->getMaDag()->dietLogComponent->logDag(message);
 	}
         delete message;
-	TRACE_TEXT (TRACE_MAIN_STEPS,"############### dag_id="<< this->myNode->getDag()->getId().c_str()
-			 <<" is done ################"<<endl);
+	TRACE_TEXT (TRACE_MAIN_STEPS,"############### DAG "
+            << this->myNode->getDag()->getId().c_str() <<" IS DONE #########"<<endl);
+        delete this->myNode->getDag();
       }
     } else {
       TRACE_TEXT (TRACE_ALL_STEPS, "NodeRun: node " << this->myNode->getCompleteId()
@@ -693,10 +678,11 @@ NodeRun::run() {
       this->myNode->setAsFailed(); // set the dag as cancelled
     }
 
-    // Manage dag termination if a node failed (following code is executed by the last running node)
+    // Manage dag termination if a node failed (following code is executed
+    // by the last running node)
     if (this->myNode->getDag()->isCancelled() && !this->myNode->getDag()->isRunning()) {
-      TRACE_TEXT (TRACE_MAIN_STEPS, "NodeRun: DAG "
-          << this->myNode->getDag()->getId().c_str() << " IS CANCELLED!" << endl);
+      TRACE_TEXT (TRACE_MAIN_STEPS, "############## DAG "
+          << this->myNode->getDag()->getId().c_str() << " IS CANCELLED! #########" << endl);
       // Release the client manager (if still alive)
       if (!clientFailure) {
         char* message = myCltMan->release(this->myNode->getDag()->getId().c_str());
@@ -706,6 +692,8 @@ NodeRun::run() {
 	}
         delete message;
       }
+      // Delete dag
+      delete this->myNode->getDag();
     }
   }
   else {
