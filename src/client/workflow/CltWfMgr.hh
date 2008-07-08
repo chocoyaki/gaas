@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2008/07/08 11:14:21  bisnard
+ * Add dag makespan value in release message
+ *
  * Revision 1.6  2008/06/26 15:00:18  bisnard
  * corba type mismatch
  *
@@ -220,6 +223,12 @@ protected:
                 bool mapping);
 
   /**
+   * Get current time (in milliseconds)
+   */
+  double
+  getCurrTime();
+
+  /**
    * Return the object IOR
    */
   const char *
@@ -276,6 +285,10 @@ private:
    */
    omni_semaphore mySem;
 
+  /**
+   * Reference time
+   */
+   struct timeval refTime;
 };
 
 

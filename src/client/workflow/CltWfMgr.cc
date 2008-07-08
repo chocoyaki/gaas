@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2008/07/08 11:14:21  bisnard
+ * Add dag makespan value in release message
+ *
  * Revision 1.10  2008/07/07 09:41:30  bisnard
  * wf_call returns error when dag was cancelled due to node exec failure
  *
@@ -127,9 +130,10 @@ CltWfMgr::execNode(const char * node_id, const char * dag_id) {
 
 
 CltWfMgr::CltWfMgr() : mySem(0), cltWfReqId(0) {
-  this->myMA = MasterAgent::_nil();;
-  this->myMaDag = MaDag::_nil();;
-  this->myWfLogSrv = WfLogSrv::_nil();;
+  this->myMA = MasterAgent::_nil();
+  this->myMaDag = MaDag::_nil();
+  this->myWfLogSrv = WfLogSrv::_nil();
+  gettimeofday(&this->refTime, NULL); // init reference time
 } // end CltWfMgr constructor
 
 CltWfMgr *
@@ -166,6 +170,17 @@ CltWfMgr::setWfLogSrv(WfLogSrv_var logSrv) {
 }
 
 /**
+ * Get current time relative to construction time (in milliseconds)
+ */
+double
+CltWfMgr::getCurrTime() {
+  struct timeval current_time;
+  gettimeofday(&current_time, NULL);
+  return (double) ((current_time.tv_sec - refTime.tv_sec)*1000
+      + (current_time.tv_usec - refTime.tv_usec)/1000);
+}
+
+/**
  * Execute a workflow using the MA DAG.
  *
  */
@@ -182,6 +197,8 @@ CltWfMgr::wf_call_madag(diet_wf_desc_t * profile,
     return XML_MALFORMED;
 
   Dag * dag = reader.getDag();
+
+  dag->setStartTime(this->getCurrTime());
 
   mrsh_wf_desc(corba_profile, profile);
   TRACE_TEXT (TRACE_ALL_STEPS,
@@ -208,6 +225,7 @@ CltWfMgr::wf_call_madag(diet_wf_desc_t * profile,
         if (dag->isCancelled()) {
           TRACE_TEXT (TRACE_MAIN_STEPS,"Dag ID " << dag->getId()
               << " WAS CANCELLED BY MADAG!" << endl);
+          usleep(1000); // to let the release() call terminate before end of process
           res = 1;
         }
     } else {
@@ -352,15 +370,20 @@ CltWfMgr::ping() {
  */
 char *
 CltWfMgr::release(const char * dag_id) {
-    Dag * dag = getDag(dag_id);
-    //dag->showDietReqID();
-    vector<diet_reqID_t> diet_request_ids = dag->getAllDietReqID();
-    std::string message = string(dag_id);
-    for (unsigned int ix=0; ix<diet_request_ids.size(); ix++){
+   Dag * dag = getDag(dag_id);
+   vector<diet_reqID_t> diet_request_ids = dag->getAllDietReqID();
+   std::string message = string(dag_id);
+   // Add request IDs to message
+   for (unsigned int ix=0; ix<diet_request_ids.size(); ix++){
 	    char str[64];
 	    sprintf(str, "%ld", diet_request_ids[ix]);
 	    message +=";"+string(str);
    }
+   // Add makespan to message
+   char makespan[64];
+   sprintf(makespan, "%f", this->getCurrTime() - dag->getStartTime());
+   message +="#"+string(makespan);
+
    TRACE_TEXT(TRACE_ALL_STEPS,"release |"<< message << "| " << message.size()<< endl);
    char * ret = (char*)malloc(message.size()*sizeof(char)+1);
    sprintf(ret,"%s",message.c_str());
