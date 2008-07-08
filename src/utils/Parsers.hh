@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.36  2008/07/08 22:14:23  rbolze
+ * avoid  "conversion from string constant to «char*»" warning
+ *
  * Revision 1.35  2008/05/11 16:19:51  ycaniou
  * Check that pathToTmp and pathToNFS exist
  * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
@@ -342,7 +345,7 @@ public:
     /** Basic element of the parameters structure */
     typedef struct {
       /** keyword */
-      char*  kwd;
+      const char*  kwd;
       /** length of the keyword */
     // size_t --> unsigned int
       unsigned int len;

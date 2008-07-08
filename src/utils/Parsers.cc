@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.50  2008/07/08 22:14:23  rbolze
+ * avoid  "conversion from string constant to «char*»" warning
+ *
  * Revision 1.49  2008/05/11 16:19:51  ycaniou
  * Check that pathToTmp and pathToNFS exist
  * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
@@ -241,7 +244,7 @@ Parsers::Results::param_t Parsers::Results::params[] =
 
 
 ifstream Parsers::file;
-char*    Parsers::path = "";
+char*    Parsers::path = strdup("");
 // size_t --> unsigned int
 unsigned int   Parsers::noLine = 0;
 
