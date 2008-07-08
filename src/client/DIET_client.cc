@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.124  2008/07/08 22:12:45  rbolze
+ * change char* initialisation to avoid warning message
+ *
  * Revision 1.123  2008/06/25 09:52:46  bisnard
  * - Estimation vector sent with solve request to avoid storing it
  * for each submit request as it depends on the parameters value. The
@@ -389,23 +392,23 @@ static WfLogSrv_var myWfLogService = WfLogSrv::_nil();
  */
 // const char * const ErrorCodeStr[] = {
 char * ErrorCodeStr[] = {	// because of grpc_error_string that returns a char *
-  "GRPC_NO_ERROR",
-  "GRPC_NOT_INITIALIZED",
-  "GRPC_CONFIGFILE_NOT_FOUND",
-  "GRPC_CONFIGFILE_ERROR",
-  "GRPC_SERVER_NOT_FOUND",
-  "GRPC_FUNCTION_NOT_FOUND",
-  "GRPC_INVALID_FUNCTION_HANDLE",
-  "GRPC_INVALID_SESSION_ID",
-  "GRPC_RPC_REFUSED",
-  "GRPC_COMMUNICATION_FAILED",
-  "GRPC_SESSION_FAILED",
-  "GRPC_NOT_COMPLETED",
-  "GRPC_NONE_COMPLETED",
-  "GRPC_OTHER_ERROR_CODE",
-  "GRPC_UNKNOWN_ERROR_CODE",
-  "GRPC_ALREADY_INITIALIZED",
-  "GRPC_LAST_ERROR_CODE"};
+  strdup("GRPC_NO_ERROR"),
+  strdup("GRPC_NOT_INITIALIZED"),
+  strdup("GRPC_CONFIGFILE_NOT_FOUND"),
+ strdup("GRPC_CONFIGFILE_ERROR"),
+ strdup("GRPC_SERVER_NOT_FOUND"),
+ strdup("GRPC_FUNCTION_NOT_FOUND"),
+ strdup("GRPC_INVALID_FUNCTION_HANDLE"),
+ strdup("GRPC_INVALID_SESSION_ID"),
+ strdup("GRPC_RPC_REFUSED"),
+ strdup("GRPC_COMMUNICATION_FAILED"),
+ strdup("GRPC_SESSION_FAILED"),
+ strdup("GRPC_NOT_COMPLETED"),
+ strdup("GRPC_NONE_COMPLETED"),
+ strdup("GRPC_OTHER_ERROR_CODE"),
+ strdup("GRPC_UNKNOWN_ERROR_CODE"),
+ strdup("GRPC_ALREADY_INITIALIZED"),
+ strdup("GRPC_LAST_ERROR_CODE")};
 
 
 diet_error_t
@@ -1703,7 +1706,7 @@ diet_get_error(diet_reqID_t reqID) {
 char *
 diet_error_string(diet_error_t error) {
   if (error<0 || error>16)
-    return "GRPC_UNKNOWN_ERROR CODE";
+    return strdup("GRPC_UNKNOWN_ERROR CODE");
   return ErrorCodeStr[error];
 }
 /***************************************************************************
