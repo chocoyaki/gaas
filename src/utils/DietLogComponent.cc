@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.34  2008/07/08 09:49:26  rbolze
+ * add new function maDagSchedulerType in order to log
+ * what is the scheduler of the madag
+ *
  * Revision 1.33  2008/06/25 10:11:17  bisnard
  * Removed logDagSubmit
  *
@@ -276,7 +280,7 @@ DietLogComponent::DietLogComponent(const char* name,
   tagNames[15] = strdup("NOT_DEFINED2");
   tagNames[16] = strdup("FAILURE");
   tagNames[17] = strdup("FD_OBSERVE");
-  tagNames[18] = strdup("DAG_SUBMIT");
+  tagNames[18] = strdup("MADAG_SCHEDULER");
   tagNames[19] = strdup("DAG");
 
 
@@ -1044,6 +1048,16 @@ void DietLogComponent::logDetectorParams(const char *observed, double Pl, double
 #endif
 
 #ifdef HAVE_WORKFLOW
+/**
+ * Send madag schedulerType
+ */
+void
+  DietLogComponent::maDagSchedulerType(char* msg) {
+  char* log_msg = (char*)malloc(strlen(msg)*sizeof(char)+1);
+  sprintf(log_msg,"%s",msg);
+  log(tagNames[18], log_msg);
+  free(log_msg);
+}
 
 /**
  * Send dag identifier and workflow processing time in the MA

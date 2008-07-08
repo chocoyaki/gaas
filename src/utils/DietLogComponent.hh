@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2008/07/08 09:49:27  rbolze
+ * add new function maDagSchedulerType in order to log
+ * what is the scheduler of the madag
+ *
  * Revision 1.17  2008/06/25 10:11:17  bisnard
  * Removed logDagSubmit
  *
@@ -386,6 +390,14 @@ public:
    */
   void
 	logDag(char * msg);
+  /**
+   * Send msg : madag schedulerType
+   *
+   * @param msg the message which contains the scheduler type of the MA_DAG
+   *
+   */
+  void
+	maDagSchedulerType(char * msg);
 #endif // HAVE_WORKFLOW
 
 private:
