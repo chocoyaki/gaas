@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/07/08 11:14:51  bisnard
+ * EFT calculation required for multi-wf scheduler
+ *
  * Revision 1.5  2008/05/05 13:54:18  bisnard
  * new computation time estimation get/set functions
  *
@@ -41,13 +44,46 @@
 char time_str[64];
 long int t = 0;
 
+/*
+ * EFT_eval :
+ * calculate the earliest finish time using the SeDs jobqueue & this job's estimations
+ * the return value is in milliseconds and is a relative time (interval until finish)
+ */
+double eft_eval(diet_profile_t* pb, double computationTimeEstim) {
+  double         EFT, tcomp;
+  jobVector_t    jobVect = NULL;
+  int            jobNb,i ;
+  struct timeval currentTime;
+
+  EFT = computationTimeEstim; /* init with current job's computation time */
+  /* add the computation time for all other jobs on the SeD */
+  if (!diet_estimate_list_jobs(&jobVect, &jobNb, pb)) {
+    /************** EFT computation VALID FOR MAXCONCJOBS=1 ONLY !! *********/
+    for (i=0; i<jobNb; i++) {
+      /*  computation time for each job is added to EFT */
+      tcomp = diet_est_get_system(jobVect[i].estVector, EST_TCOMP, 10000000);
+      EFT += tcomp;
+      /* if job is already running, substract the time since it started */
+      if (jobVect[i].status == DIET_JOB_RUNNING) {
+        gettimeofday(&currentTime, NULL);
+        double already_done = (double)(currentTime.tv_sec*1000 + currentTime.tv_usec/1000) - jobVect[i].startTime;
+        /* use minimum in case computation time is longer than expected */
+        EFT -= (already_done > tcomp) ? tcomp : already_done;
+      }
+    }
+    free(jobVect);
+  }
+  return EFT;
+}
+
 void
 performance_Exec_Time(diet_profile_t* pb ,estVector_t perfValues )
 {
   t = atoi(time_str);
   if ( t == 0 )
     t = 10;
-  diet_estimate_comptime(perfValues, t);
+  diet_estimate_comptime(perfValues, t*1000);
+  diet_est_set(perfValues,0, eft_eval(pb, t*1000));
 }
 
 void
