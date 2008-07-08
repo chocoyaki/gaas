@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.7  2008/07/08 16:50:10  glemahec
+%* Quelques corrections (typo).
+%*
 %* Revision 1.6  2008/06/10 16:59:56  ycaniou
 %* Typos
 %* Use the "${DIET_DOC_SOURCE_DIR}/../src/.." non portable to get path to .c to
@@ -51,7 +54,7 @@ ongoing project like the french research grid project,
 Grid'5000\cite{grid5000} (for the moment, 9 sites are involved), or
 like the \textsc{Egee}\footnote{\url{http://public.eu-egee.org/}}
 project ({\it Enabling Grids for E-science in Europe}), composed of
-more than a hundred centers in 31 countries. Then, in order to provide
+more than a hundred centers in 48 countries. Then, in order to provide
 transparent access to resources, grid middleware must supply efficient
 mechanisms to provide parallel services.
 
@@ -110,7 +113,7 @@ build \diet from the command line, you can use the following:
 %****************************************************************************%
 
 Single parallel systems are surely the less deployed in actual
-computing grids. They are usually composed of a frontale node where
+computing grids. They are usually composed of a frontal node where
 clients log in, and from which they can log on numerous nodes and
 execute their parallel jobs, {\it without any kind of
 reservation}. Some problems occur with such a use of parallel
@@ -120,7 +123,7 @@ deployment, the application must at least check the connectivity of
 the resources; if performance is wanted, some monitoring has to be
 performed by the application.
 
-For the moment, \diet has some internals mechanisms to launch external
+For the moment, \diet has some internal mechanisms to launch external
 scripts and monitor them, but they will only be part of the API in the
 next release ($>2.3$).
 
@@ -153,7 +156,7 @@ execution, and are assured to exclusively possess them.
 %****************************************************************************%
 
 Even if older client codes must be recompiled (because internal
-structures have evolved), they don't necessarily need modifications.
+structures have evolved), they do not necessarily need modifications.
 
 \diet provides means to request exclusively sequential services,
 parallel services, or let \diet choose the best implementation of a
@@ -268,7 +271,7 @@ also provide the queue on which jobs have to be submitted, with the
 keyword \verb!batchQueue!.
 
 You also have to provide a directory where the \sed can read and write
-data on the parallel resource. Pease note that this directory is used
+data on the parallel resource. Please note that this directory is used
 by \diet to store the new built script that is submitted to the batch
 scheduler. In consequence, because certain batch schedulers (like OAR)
 need the script to be available on all resources, {\it this directory
@@ -342,7 +345,7 @@ The root directory contains 2 servers, one sequential
 %, one parallel 
 and one batch, and a single client. The latter is configurable to
 simply ask for only sequential, or explicitly parallel services, or to
-let \diet choose the best (by default, 2 processors are used and the
+let \diet choose the best (by default, two processors are used and the
 scheduling algorithm is Round-Robin). We consequently give the MPI
 code which is called from the batch \sed (not reproduced here). Note
 that the user {\it must change} some paths in the \sed codes,

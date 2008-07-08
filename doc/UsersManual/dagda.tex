@@ -330,7 +330,7 @@ depending of the data usage:
     these functions, that's why a data ID is only returned by the
     \textit{"dagda\_wait\_*"} and \textit{"dagda\_wait\_data\_ID"} functions.
   \item Without end-of-transfer control: The data is loaded from/to the
-    DAGDA hierarchy without the possibility to wait the end of the transfer.
+    DAGDA hierarchy without the possibility to wait for the end of the transfer.
     These functions should only be called from an agent plugin scheduler, a
     SeD plugin scheduler or a SeD if the data transfer without usage of the
     data is one of the objectives of the called service. The data adding
@@ -354,7 +354,7 @@ will be passed to the \textit{"dagda\_wait\_data\_ID"} function.
 \item[-] \verb#dagda_put_vector_async(void* value, diet_base_type_t base_type,#\\
          \verb#                       diet_persistence_mode_t mode, size_t size)#
 \item[-] \verb#dagda_put_matrix_async(void* value, diet_base_type_t base_type,#\\
-         \verb#                       diet_persistence_mode_tmode, size_t nb_rows,#\\
+         \verb#                       diet_persistence_mode_t mode, size_t nb_rows,#\\
          \verb#                       size_t nb_cols, diet_matrix_order_t order)#
 \item[-] \verb#dagda_put_string_async(char* value, diet_persistence_mode_t mode)#
 \item[-] \verb#dagda_put_file_async(char* path, diet_persistence_mode_t mode)#
@@ -401,7 +401,7 @@ for more details.
 \end{itemize}
 
 It is frequent that a plugin scheduler developer wants to make an asynchronous
-data transfer to the local DIET node. In that cases, to wait the end of the
+data transfer to the local DIET node. In that case, to wait the end of the
 transfers before to return can be a problem. But with the previously defined
 functions, DAGDA maintains a reference to the transfer thread which will be
 released after a call to the waiting function. To avoid DAGDA to keep
