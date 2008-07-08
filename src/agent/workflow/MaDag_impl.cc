@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2008/07/08 09:47:36  rbolze
+ * send madag scheduler type through dietLogComponent
+ *
  * Revision 1.13  2008/06/19 10:18:54  bisnard
  * new heuristic AgingHEFT for multi-workflow scheduling
  *
@@ -136,25 +139,48 @@ MaDag_impl::MaDag_impl(const char * name, const MaDagSchedType schedType = BASIC
 
   TRACE_TEXT(NO_TRACE,
 	       "## MADAG_IOR " << ORBMgr::getIORString(this->_this()) << endl);
+  
+   this->setupDietLogComponent();
+   char* scheduler_type; 
   // starting the multiwfscheduler
   switch (schedType) {
     case BASIC:
       this->myMultiWfSched = new MultiWfBasicScheduler(this);
+      if (this->dietLogComponent != NULL) {
+      	scheduler_type=strdup("BASIC"); 
+      	dietLogComponent->maDagSchedulerType(scheduler_type);
+      	free(scheduler_type);
+      }
       break;
     case HEFT:
       this->myMultiWfSched = new MultiWfHEFT(this);
+      if (this->dietLogComponent != NULL) {
+      	scheduler_type=strdup("MULTI_HEFT"); 
+      	dietLogComponent->maDagSchedulerType(scheduler_type);
+      	free(scheduler_type);
+      }
       break;
     case FOFT:
       this->myMultiWfSched = new MultiWfFOFT(this);
+      if (this->dietLogComponent != NULL) {
+      	scheduler_type=strdup("FOFT"); 
+      	dietLogComponent->maDagSchedulerType(scheduler_type);
+      	free(scheduler_type);
+      }
       break;
     case AHEFT:
       this->myMultiWfSched = new MultiWfAgingHEFT(this);
+      if (this->dietLogComponent != NULL) {
+      	scheduler_type=strdup("AGING_HEFT"); 
+      	dietLogComponent->maDagSchedulerType(scheduler_type);
+      	free(scheduler_type);
+      }
       break;
   }
+  
   this->myMultiWfSched->start();
-
-  this->setupDietLogComponent();
-
+  
+  
   // init the statistics module
   stat_init();
 } // end MA DAG constructor
@@ -338,6 +364,7 @@ MaDag_impl::setupDietLogComponent(){
       WARNING("Could not initialize DietLogComponent");
       dietLogComponent = NULL; // this should not happen;
     }
+    
     free(agtTypeName);
 
   } else {
