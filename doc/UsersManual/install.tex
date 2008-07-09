@@ -10,6 +10,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.37  2008/07/09 14:52:31  dloureir
+%* Adding a fixme concerning DIET_USE_BATCH and DIET_USE_ALT_BATCH options. Because both options exist in different files of DIET and when compiling DIET with DIET_USE_BATCH and Appleseed it does not work...
+%*
 %* Revision 1.36  2008/07/07 14:05:52  vpichon
 %*
 %* ajout partie compilation de la doc.
@@ -300,7 +303,9 @@ the compilation of the desired extensions.
 
 \begin{itemize}
 \item
-  \verb+DIET_USE_BATCH+ activates DIET support of Appleseeds (refer to
+  \verb+DIET_USE_BATCH+ \fixme{cette option existe toujours ou c'est
+     plutot devenu DIET_USE_ALT_BATCH car les deux sont présentes un
+     peu de partout} activates DIET support of Appleseeds (refer to
   \url{http://grail.sdsc.edu/projects/appleseeds/}) based batch
   extensions. \fixme{cette adresse n'existe plus}
 
