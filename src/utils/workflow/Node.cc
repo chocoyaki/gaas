@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2008/07/09 13:17:15  rbolze
+ * add the reqID in the diet_call DONE trace_text
+ *
  * Revision 1.19  2008/07/08 11:15:58  bisnard
  * Correct dag/node destruction with nodequeues
  *
@@ -216,7 +219,9 @@ RunnableNode::run() {
   try {
     try {
       if (!diet_call_common(myParent->profile, myParent->chosenServer, myParent->estimVect)) {
-        TRACE_TEXT (TRACE_MAIN_STEPS, "diet_call DONE" << endl);
+        TRACE_TEXT (TRACE_MAIN_STEPS, "diet_call DONE " << "reqID=" <<
+			myParent->profile->dietReqID <<
+			endl);
         myParent->storePersistentData();
         //cout << " dietReqID : " << myParent->profile->dietReqID << endl;
         //this->myReqID=myParent->profile->dietReqID;
