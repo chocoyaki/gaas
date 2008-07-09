@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.35  2008/07/09 13:16:34  rbolze
+ * correct some memory free problems
+ *
  * Revision 1.34  2008/07/08 09:49:26  rbolze
  * add new function maDagSchedulerType in order to log
  * what is the scheduler of the madag
@@ -738,10 +741,10 @@ DietLogComponent::logAskForSeD(const corba_request_t* request) {
   if (tagFlags[1]) {
     // FIXME: add request parameters (size of request arguments?)
     char* s;
-    s = new char[strlen(request->pb.path) + num_Digits(request->reqID)+2];
+    s = (char*)malloc( (strlen(request->pb.path) + num_Digits(request->reqID)+2)*sizeof(char));
     sprintf(s,"%s %ld",(const char *)(request->pb.path),(unsigned long)(request->reqID));
     log(tagNames[1], s);
-    delete(s);
+    free(s);
   }
 }
 
@@ -761,17 +764,18 @@ DietLogComponent::logSedChosen(const corba_request_t* request,
 			estim_string.append(";");
 			estim_string.append(getEstimationTags(valTagInt));
 			estim_string.append("=");
-			char* v_value= new char[256];
+			//char* v_value= new char[256];
+			char v_value[128];
 			sprintf(v_value,"%f",response->servers[i].estim.estValues[j].v_value);
 			estim_string.append(v_value);
-			delete(v_value);
+			//delete(v_value);			
 		}
 	}
-    s = new char[strlen(request->pb.path)
+    s = (char*)malloc((strlen(request->pb.path)
 	    +num_Digits(request->reqID)
 	    +num_Digits(response->servers.length())
 	    +estim_string.length()
-	    +5];
+	    +5)*sizeof(char));
     sprintf(s,"%s %ld %ld%s"
 	    ,(const char *)(request->pb.path)
 	    ,(unsigned long)(request->reqID)
@@ -779,17 +783,17 @@ DietLogComponent::logSedChosen(const corba_request_t* request,
 	    ,(const char *)(estim_string.c_str())
 	    );
     }else{
-     s = new char[strlen(request->pb.path)
+     s = (char*)malloc((strlen(request->pb.path)
 	    +num_Digits(request->reqID)
 	    +num_Digits(response->servers.length())
-	    +3];
+	    +3)*sizeof(char));
      sprintf(s,"%s %ld %ld",
 	    (const char *)(request->pb.path),
 	    (unsigned long)(request->reqID),
 	    (unsigned long)(response->servers.length()) );
      }
     log(tagNames[2], s);
-    delete(s);
+    free(s);
   }
 }
 
@@ -807,10 +811,10 @@ DietLogComponent::logBeginSolve(const char* path,
   if (tagFlags[3]) {
     // FIXME: print problem (argument size?)
     char* s;
-    s = new char[strlen(path)+num_Digits(problem->dietReqID)+2];
+    s = (char*)malloc((strlen(path)+num_Digits(problem->dietReqID)+2)*sizeof(char));
     sprintf(s,"%s %ld",(const char *)(path),(unsigned long)(problem->dietReqID));
     log(tagNames[3], s);
-    delete(s);
+    free(s);
   }
 }
 
@@ -819,10 +823,10 @@ DietLogComponent::logEndSolve(const char* path,
 			      const corba_profile_t* problem) {
   if (tagFlags[4]) {
     char* s;
-    s = new char[strlen(path)+num_Digits(problem->dietReqID)+2];
+    s = (char*)malloc((strlen(path)+num_Digits(problem->dietReqID)+2)*sizeof(char));
     sprintf(s,"%s %ld",(const char *)(path),(unsigned long)(problem->dietReqID));
     log(tagNames[4], s);
-    delete(s);
+    free(s);
   }
 }
 
@@ -842,7 +846,7 @@ DietLogComponent::logDataStore(const char* dataID, const long unsigned int size,
   char * base = (char *)malloc(10*sizeof(char));
   char* s;
   //  s = new char[strlen(dataID) + sizeof(size)+ strlen(type) + strlen(base) + 4];
-  s = new char[strlen(dataID) + num_Digits(size)+ strlen(type) + 10 + 4];
+  s = (char*)malloc((strlen(dataID) + num_Digits(size)+ strlen(type) + 10 + 4)*sizeof(char));
 
   if (tagFlags[6]) {
     switch (base_type) {
@@ -878,9 +882,10 @@ DietLogComponent::logDataStore(const char* dataID, const long unsigned int size,
     }
     } // end switch
     log(tagNames[6], s);
-    delete(s);
-  }
+    
+  }  
   free(base);
+  free(s);
 }
 
 void
@@ -888,10 +893,10 @@ DietLogComponent::logDataBeginTransfer(const char* dataID,
 		     const char* destAgent) {
   if (tagFlags[7]) {
     char* s;
-    s = new char[strlen(dataID)+strlen(destAgent)+2];
+    s = (char*)malloc((strlen(dataID)+strlen(destAgent)+2)*sizeof(char));
     sprintf(s,"%s %s",dataID, destAgent);
     log(tagNames[7], s);
-    delete(s);
+    free(s);
   }
 }
 
@@ -900,10 +905,10 @@ DietLogComponent::logDataEndTransfer(const char* dataID,
 		     const char* destAgent) {
   if (tagFlags[8]) {
     char* s;
-    s = new char[strlen(dataID)+strlen(destAgent)+2];
+    s = (char*)malloc((strlen(dataID)+strlen(destAgent)+2)*sizeof(char));
     sprintf(s,"%s %s",dataID, destAgent);
     log(tagNames[8], s);
-    delete(s);
+    free(s);
   }
 }
 
@@ -913,7 +918,12 @@ DietLogComponent::logJuxMemDataStore(const unsigned long reqID, const char* data
    char * base = (char *)malloc(10*sizeof(char));
    char* s;
    //   s = new char[sizeof(reqID) + strlen(dataID) + sizeof(size)+ strlen(type) + (10 * sizeof(char)) + sizeof(time) + 5];
-   s = new char[sizeof(reqID) + strlen(dataID) + num_Digits(size)+ strlen(type) + (10 * sizeof(char)) + sizeof(time) + 5];
+   s = (char*)malloc((sizeof(reqID) 
+   	+ strlen(dataID) 
+   	+ num_Digits(size)
+   	+ strlen(type) 
+   	+ (10 * sizeof(char)) 
+   	+ sizeof(time) + 5));
    if (tagFlags[14]) {
     switch (base_type) {
     case DIET_CHAR: {
@@ -945,14 +955,20 @@ DietLogComponent::logJuxMemDataStore(const unsigned long reqID, const char* data
     log(tagNames[14], s);
   }
   free(base);
-  delete(s);
+  free(s);
 }
 
 void
 DietLogComponent::logJuxMemDataUse(const unsigned long reqID, const char* dataID, const char* access_mode, const long unsigned int size, const long base_type, const char * type, const float time) {
    char * base = (char *)malloc(10*sizeof(char));
    char* s;
-   s = new char[sizeof(reqID) + strlen(dataID) + strlen(access_mode) + sizeof(size)+ strlen(type) + (sizeof(char) * 10) + sizeof(time) + 6];
+   s = (char*)malloc(sizeof(reqID) 
+   	+ strlen(dataID) 
+   	+ strlen(access_mode) 
+   	+ sizeof(size)
+   	+ strlen(type) 
+   	+ (sizeof(char) * 10) 
+   	+ sizeof(time) + 6);
    if (tagFlags[15]) {
     switch (base_type) {
     case DIET_CHAR: {
@@ -984,7 +1000,7 @@ DietLogComponent::logJuxMemDataUse(const unsigned long reqID, const char* dataID
     log(tagNames[15], s);
   }
   free(base);
-  //delete(s);
+  free(s);
 }
 
 #endif // HAVE_JUXMEM
@@ -1039,10 +1055,10 @@ void DietLogComponent::logFailure(const char *observed) {
 void DietLogComponent::logDetectorParams(const char *observed, double Pl, double Vd, double eta, double alpha) {
   if (tagFlags[17]) {
     char *buf;
-
     buf = (char *) malloc(strlen(observed) + 84);
     sprintf(buf, "%s %14.4f %14.4f %14.4f %14.4f", observed, Pl, Vd, eta, alpha);
     log(tagNames[17], buf);
+    free(buf);
   }
 }
 #endif
