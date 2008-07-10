@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.53  2008/07/10 13:08:23  glemahec
+ * Warning fixed in MasterAgentImpl.cc
+ *
  * Revision 1.52  2008/07/10 11:42:10  bisnard
  * Fix bug 68 memory loss during workflow execution
  *
@@ -619,7 +622,7 @@ MasterAgentImpl::diet_free_pdata(const char* argID)
     return 0;
 #else
   if (!getDataManager()->pfmIsDataPresent(argID))
-    return NULL;
+    return 0;
   getDataManager()->pfmRemData(argID);
   return 1;
 #endif // ! HAVE_DAGDA
