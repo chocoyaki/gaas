@@ -140,61 +140,59 @@ IF( DIET_BUILD_LIBRARIES )
   ENDIF( APPLE )
   TARGET_LINK_LIBRARIES( UtilsNodes ${UtilsNodesTmpLib} ${FAST_LIBRARIES} )
 
-  ENDIF( HAVE_ALT_BATCH )
-
 ########################################################################
 ### Cori library:          ***      for the SeD       ***
 # Note: lib only built when HAVE_ALT_BATCH not set,
 #       or included in DIET_SeD *and* a lib built for the agent
 
-IF( DIET_USE_CORI )
-  # Still to verify that compilation goes ok after, ie,
-  # things must be included in the files when compiling DIET_SeD
+  IF( DIET_USE_CORI )
+    # Still to verify that compilation goes ok after, ie,
+    # things must be included in the files when compiling DIET_SeD
 
-  SET( CORI_BATCH_CLEAN_COMPILE_FLAG "" )
-  IF( DIET_USE_ALT_BATCH )        # Then extract from the lib SeD related staff
-    SET( CORI_BATCH_CLEAN_COMPILE_FLAG
-	 ${CORI_BATCH_CLEAN_COMPILE_FLAG}
-	 "-D CLEAN_CORILIB_FROM_BATCH_STAFF" )
-  ENDIF( DIET_USE_ALT_BATCH )
-  SET_SOURCE_FILES_PROPERTIES( Cori_Metric.cc
-     PROPERTIES COMPILE_FLAGS "${CORI_BATCH_CLEAN_COMPILE_FLAG}" )
+    SET( CORI_BATCH_CLEAN_COMPILE_FLAG "" )
+    IF( DIET_USE_ALT_BATCH )      # Then extract from the lib SeD related staff
+      SET( CORI_BATCH_CLEAN_COMPILE_FLAG
+	   ${CORI_BATCH_CLEAN_COMPILE_FLAG}
+	   "-D CLEAN_CORILIB_FROM_BATCH_STAFF" )
+    ENDIF( DIET_USE_ALT_BATCH )
+    SET_SOURCE_FILES_PROPERTIES( Cori_Metric.cc
+       PROPERTIES COMPILE_FLAGS "${CORI_BATCH_CLEAN_COMPILE_FLAG}" )
 
-  # Build the lib, either for SeD and agent if !HAVE_ALT_BATCH, either
-  # for the agent if HAVE_ALT_BATCH
+    # Build the lib, either for SeD and agent if !HAVE_ALT_BATCH, either
+    # for the agent if HAVE_ALT_BATCH
 
-  # CORI extensions are only compiled when CORI is required:
-  SET(   UtilsCoriSource
-	 FASTMgr.cc
-	 Cori_Data_Easy.cc
-	 Cori_Easy_CPU.cc
-	 Cori_Easy_Disk.cc
-	 Cori_Easy_Memory.cc
-	 Cori_Fast.cc
-	 Cori_Metric.cc
-	 CORIMgr.cc )
+    # CORI extensions are only compiled when CORI is required:
+    SET(   UtilsCoriSource
+	   FASTMgr.cc
+	   Cori_Data_Easy.cc
+	   Cori_Easy_CPU.cc
+	   Cori_Easy_Disk.cc
+	   Cori_Easy_Memory.cc
+	   Cori_Fast.cc
+	   Cori_Metric.cc
+	   CORIMgr.cc )
 
-  ADD_LIBRARY( UtilsCori ${UtilsCoriSource} )
+    ADD_LIBRARY( UtilsCori ${UtilsCoriSource} )
 
-  SET_SOURCE_FILES_PROPERTIES( FASTMgr.cc PROPERTIES
-			       COMPILE_FLAGS "${FAST_INCLUDE_DIR}")
-  SET( UtilsCoriTmpLib
-       UtilsNodes
-       UtilsSeDClt
-       UtilsCommon
-       ${OMNIORB4_LIBRARIES} )
+    SET_SOURCE_FILES_PROPERTIES( FASTMgr.cc PROPERTIES
+				 COMPILE_FLAGS "${FAST_INCLUDE_DIR}")
+    SET( UtilsCoriTmpLib
+         UtilsNodes
+         UtilsSeDClt
+         UtilsCommon
+         ${OMNIORB4_LIBRARIES} )
 
-  TARGET_LINK_LIBRARIES( UtilsCori
-			 ${UtilsCoriTmpLib} )
-  INSTALL_TARGETS( /lib/ UtilsCori )
-  ### FIXME: the following is kludgy!
-  # See note "MacOS X and unresolved symbol"
-  # in src/CORBA/CMakeLists.txt
-  IF( APPLE )
-      SET_TARGET_PROPERTIES( UtilsCori
-      PROPERTIES LINK_FLAGS "-flat_namespace -undefined suppress" )
-  ENDIF( APPLE )
-  TARGET_LINK_LIBRARIES( UtilsCori ${UtilsCoriTmpLib} ${FAST_LIBRARIES} )
+    TARGET_LINK_LIBRARIES( UtilsCori
+			   ${UtilsCoriTmpLib} )
+    INSTALL_TARGETS( /lib/ UtilsCori )
+    ### FIXME: the following is kludgy!
+    # See note "MacOS X and unresolved symbol"
+    # in src/CORBA/CMakeLists.txt
+    IF( APPLE )
+        SET_TARGET_PROPERTIES( UtilsCori
+        PROPERTIES LINK_FLAGS "-flat_namespace -undefined suppress" )
+    ENDIF( APPLE )
+    TARGET_LINK_LIBRARIES( UtilsCori ${UtilsCoriTmpLib} ${FAST_LIBRARIES} )
 
   ENDIF( DIET_USE_CORI )
 
