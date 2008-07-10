@@ -39,6 +39,7 @@ OPTION( DIET_USE_ACKFILE     "Build DIET with acknowledge file." OFF)
 OPTION( DIET_USE_DAGDA "Build DIET with Dagda as data manager. (In developpment)." OFF )
 # Profiling, used to add counters with TAU (http://http://www.cs.uoregon.edu/research/tau/home.php)
 OPTION( DIET_TAU_PROFILING "Build DIET with TAU profiling support. (In developpment)." OFF )
+MARK_AS_ADVANCED( DIET_TAU_PROFILING )
 
 
 # --------------------- OPTIONS SET BY DEFAULT  ----------------------------
