@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.59  2008/07/10 08:07:50  ycaniou
+ * Removed a warning
+ *
  * Revision 1.58  2008/06/10 21:01:27  ycaniou
  * Cosmetics
  *
@@ -682,7 +685,7 @@ typedef const struct corba_estimation_t *estVectorConst_t;
 
 #ifdef HAVE_WORKFLOW
 
-// typedef enum {basic, rr, heft} wf_scheduler_t;
+  /* typedef enum {basic, rr, heft} wf_scheduler_t; */
 
 /**
  * workflow internal description
