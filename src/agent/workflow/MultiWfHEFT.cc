@@ -10,6 +10,9 @@
 
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/07/10 11:42:20  bisnard
+ * Fix bug 68 memory loss during workflow execution
+ *
  * Revision 1.5  2008/06/25 10:05:44  bisnard
  * - Waiting priority set when node is put back in waiting queue
  * - Node index in wf_response stored in Node class (new attribute submitIndex)
@@ -114,6 +117,9 @@ MultiWfAgingHEFT::intraDagSchedule(Dag * dag, MasterAgent_var MA)
   TRACE_TEXT(TRACE_ALL_STEPS, "[AHEFT] Init (Dag " << dag->getId() << ") EFT = "
       << this->dagsState[dag].EFT << " / makespan = "
       << this->dagsState[dag].makespan << endl);
+
+  // Cleanup
+  delete wf_response;
 }
 
 void

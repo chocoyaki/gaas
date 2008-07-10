@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.52  2008/07/10 11:42:10  bisnard
+ * Fix bug 68 memory loss during workflow execution
+ *
  * Revision 1.51  2008/06/25 09:55:56  bisnard
  * removed unused parameter in submit_pb_set & corrected bug with ReqIDs
  *
@@ -941,6 +944,7 @@ MasterAgentImpl::submit_pb_set(const corba_pb_desc_seq_t& seq_pb) {
       wf_response->wfn_seq_resp[ix].node_id = CORBA::string_dup(seq_pb[ix].path);
       wf_response->wfn_seq_resp[ix].response = *corba_response;
     }
+    delete corba_response;
   }
 
   // Handle exception of missing service

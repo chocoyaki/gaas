@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2008/07/10 11:42:20  bisnard
+ * Fix bug 68 memory loss during workflow execution
+ *
  * Revision 1.24  2008/07/08 15:52:03  bisnard
  * Set interRoundDelay as parameter of workflow scheduler
  *
@@ -508,6 +511,8 @@ MultiWfScheduler::intraDagSchedule(Dag * dag, MasterAgent_var MA)
   wf_response_t * wf_response = this->getProblemEstimates(dag, MA);
   // Prioritize the nodes (with intra-dag scheduler)
   this->mySched->setNodesPriority(wf_response, dag);
+  // Cleanup
+  delete wf_response;
 }
 
 
