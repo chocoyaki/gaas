@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2008/07/11 08:42:22  rbolze
+ * change cout by TRACE_TEXT(TRACE_MAIN_STEPS
+ *
  * Revision 1.28  2008/01/01 19:39:23  ycaniou
  * Prevent a segfault
  *
@@ -477,9 +480,10 @@ void
 DataMgrImpl::printList1()
 { 
   if( dataDescList.size() > 0){
-    cout << "+-----------------+" << endl;
-    cout << "|  Data ID        |" << endl;
-    cout << "+-----------------+" << endl;
+    TRACE_TEXT(TRACE_MAIN_STEPS,
+    "+-----------------+" << endl <<
+    "|  Data ID        |" << endl <<
+    "+-----------------+" << endl);
     dataDescList.lock();
     dietDataDescList_t::iterator cur = dataDescList.begin();
 
@@ -490,8 +494,10 @@ DataMgrImpl::printList1()
     
       p1 = (char *) cur->second.value.get_buffer(0);
       value  = (double*) p1;
-      cout << "|    " << cur->first << "    |" << endl; // cur->first[2]
-      cout << "+-----------------+" << endl;
+      TRACE_TEXT(TRACE_MAIN_STEPS,"|    " 
+      << cur->first 
+      << "    |" << endl 
+      << "+-----------------+" << endl);
       cur++;
     }
     dataDescList.unlock();
@@ -543,7 +549,8 @@ DataMgrImpl::putData(const char* argID, const DataMgr_ptr me)
   gettimeofday(&t1, NULL);
   me->sendData(*dest);
   gettimeofday(&t2, NULL);
-  cout << "TIME TO SENDATA = " << ((t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000)  << endl;
+  TRACE_TEXT(TRACE_MAIN_STEPS,"TIME TO SENDATA = " 
+  << ((t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000)  << endl);
 
   // FIXME: we cannot get the name of the receiving agent yet
   if (dietLogComponent != NULL) {
