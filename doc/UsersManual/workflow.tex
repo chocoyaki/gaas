@@ -60,8 +60,10 @@ can test it with the following command:
 
 You need to have a running \diet platform with the needed services. You
 can launch separate SeDs (\textit{succ}, \textit{double}, \textit{sum}
-and \textit{square}) or a single SeD that includes all the needed
-services (read Chapter~\ref{ch:server} for more details).
+
+and \textit{square}) or a single SeD (\texttt{scalar_server}) that
+includes all the needed services. (read Chapter~\ref{ch:server} for more
+details).
 
 \begin{figure}[htbp]
   \centering
@@ -72,113 +74,133 @@ services (read Chapter~\ref{ch:server} for more details).
 
 \section{Software architecture}
 
-The workflow support in \diet provides two kind of architectures. 
+% The workflow support in \textsc{DIET} provides two architectures and
+% can be used in three modes.
+% \begin{itemize}
+% \item The first one provides a workflow manager in the client side.
+% \item The second one use a special agent called the \textit{MA\_DAG}
+%   which is responsible to communicate with the \textit{Master Agent} of
+%   the platform and provide an ordering and mapping for workflow
+%   execution.
+% \item The third mode is similar to the second one, but in this mode
+%   the \textit{MA\_DAG} provides only an ordering for the workflow
+%   execution.
+% \end{itemize}
 
-\begin{itemize}
-   \item The first one provides a workflow manager in the client side.
-   \item The second one use a special agent called the \madag which is
-     responsible to communicate with the \textit{Master Agent} of the
-     platform. Two modes are available:
-     \begin{description}
-     \item{First mode:} \madag provides an ordering and mapping for
-       workflow execution.
-     \item{Second mode:} \madag provides only an ordering for the
-       workflow execution.  
-     \end{description}
-\end{itemize}
+A new agent called the \textit{MA-DAG} is used to manage workflows
+in the DIET architecture. This agent receives requests from clients
+containing the description of a workflow in a specific language
+(the MA-DAG XML workflow language). The role of the MA-DAG is to
+determine how to schedule the tasks contained in the workflow in
+order to follow the precedence constraints between tasks, and how to
+map the tasks to appropriate ressources in the DIET hierarchy.
 
-\subsection{Architecture 1: Workflow manager inside the client}
-\label{sec:archi1}
+The execution of the individual tasks is actually delegated by the
+MA-DAG to the client that submitted the workflow. After submitting
+the workflow, the client is put in a waiting mode and it will
+receive individual requests from the MA-DAG to execute each task
+of the workflow. Therefore all the data transfers are done only
+from the client to the SeDs and do not transit through the MA-DAG.
 
-In this scheme (Figure~\ref{fig:archi1}), the handling of workflow is
-done by the client, and the execution don't require an \madag. The
-execution steps are~:
-
-\begin{enumerate}
-\item The client read and process the workflow description; a Directed
-  Acyclic Graph (DAG) structure is created.
-\item The client sends the problem descriptions to the
-  Master Agent to check if all services are available.
-\item If all services are available, the client start the workflow
-  execution. By default a random scheduler is used to execute the DAG,
-  so only data dependencies are used to define the execution order.
-  In this mode, since all scheduling operation are done in the client
-  side, we can use a customized scheduler. The client programmer can
-  write a personal scheduler which must be a
-  \textit{AbstractScheduler} subclass and implements the
-  \textit{execute} method (for more details see the
-  Section~\ref{sec:wf_sched}).
-\item If the execution was successful, the client can retrieve the
-  results.
-\end{enumerate}
-
-To use this execution mode, nothing needs to be configured except that
-the client configuration file must not include a \texttt{MADAGNAME} parameter.
-
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[keepaspectratio,width=0.7\linewidth]{fig/wf_archi1}
-  \caption{Architecture 1 : workflow manager inside the client}
-  \label{fig:archi1}
-\end{figure}
-
-
-
-\subsection{Architecture 2: \madag Workflow manager}
-\label{sec:archi2}
-
-The second architecture (Figure~\ref{fig:archi2}) of workflow
-management in \diet use an additional entity called the \madag to
-handle the workflow. This agent can work in two modes, in the first it
-defines a complete scheduling of the workflow (ordering and mapping),
-while in the second it defines only an ordering for the workflow
-execution. In the second mode the mapping is done in the next step by
-the client which asks the Master Agent to find the server where
- to execute the workflow services.
-
+When all tasks are completed, the MA-DAG will send a release signal
+to the client which will then retrieve the results if the execution
+was successful.
 
 To use the \madag, the client configuration file must include
 the parameter \texttt{MADAGNAME} with the appropriate name.
 
-\paragraph{First mode : the \madag performs the complete scheduling}
-
-\begin{enumerate}
-\item The client sends the workflow description to the \madag.
-\item The MA\_dAG request the platform Master Agent to check if all
-  services are available.
-\item If the workflow can be executed, the \madag defines a mapping and
-  ordering and send it back to the client. Currently, the ordering is
-  random like in the first architecture, while the mapping use a round
-  robin policy.
-\item The client start the workflow execution and retrieve the results
-  if the execution was successful.
-\end{enumerate}
-
-This mode is the default mode when the \texttt{MADAGNAME} is set in
-the configuration file. The client can ensure this mode by the method
-\texttt{set\_ma\_dag\_sched}. \fixme{How ?}
-
-\paragraph{Second mode : the \madag provides only an ordering}
-
-This mode is similar to the previous one, except that the \madag
-provides only an execution order (or a priority tag for each node),
-the mapping is done when the client tries to execute each service, so
-the server is the one chosen by the Master Agent when requested by the
-client. To use this mode, the client needs to set the first scheduler for
-\madag using to the method \texttt{set\_ma\_dag\_sched(0)}. 
-
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[keepaspectratio,width=0.7\linewidth]{fig/wf_archi2}
-  \caption{Architecture 2 : The \madag as an external workflow manager}
-  \label{fig:archi2}
-\end{figure}
-
-
-
+% \subsection{Architecture 1 : Workflow manager inside the client}
+% \label{sec:archi1}
+%
+% In this scheme (figure~\ref{fig:archi1}), the handling of workflow is
+% done by the client, and the execution don't require an MA\_DAG. The
+% execution steps are~:
+%
+% \begin{enumerate}
+% \item The client read and process the workflow description; a dag
+%   structure is created.
+% \item The client send a set of the problem descriptions to the
+%   Master Agent to check if all services are available.
+% \item If all services are available, the client start the workflow
+%   execution. By default a random scheduler is used to execute the Dag,
+%   so only data dependencies are used to define the execution order.
+%   Between the ready nodes, the invocation order is random. In this
+%   mode, since all scheduling operation are done in the client side, we
+%   can use a customized scheduler. The client programmer can write a
+%   personal scheduler which must be a \textit{AbstractScheduler}
+%   subclass and implements the \textit{execute} method (for more
+%   details see the section~\ref{sec:wf_sched}).
+% \item If the execution was successful, the client can retrieve the
+%   results.
+%
+% \end{enumerate}
+%
+% To use this execution mode, nothing needs to be configured except that
+% the client configuration file must not include an MADAGNAME parameter.
+%
+% \begin{figure}[htbp]
+%   \centering
+%   \includegraphics[keepaspectratio,width=0.7\linewidth]{fig/wf_archi1}
+%   \caption{Architecture 1 : workflow manager inside the client}
+%   \label{fig:archi1}
+% \end{figure}
+%
+%
+%
+% \subsection{Architecture 2: Workflow manager = MA DAG}
+% \label{sec:archi2}
+%
+% The second architecture (figure~\ref{fig:archi2}) of workflow
+% management in DIET use an additional entity called the \textit{MA DAG}
+% to handle the workflow. This agent can work in two modes, in the first
+% it defines a complete scheduling of the workflow (ordering and
+% mapping), while in the second it defines only an ordering for the
+% workflow execution, the mapping is done in the next step by the client
+% which pass by the Master Agent to find the server where execute the
+% workflow services.
+%
+%
+% To use the \textit{MA DAG}, the client configuration file must include
+% the parameter \textit{MADAGNAME} with the appropriate name.
+%
+% \paragraph{First mode : the MA\_DAG provides a complete scheduling}
+%
+% \begin{enumerate}
+% \item The client sends the workflow description (in a textual format)
+%   to the MA\_DAG.
+% \item The MA\_dAG request the platform Master Agent to check if all
+%   services are available.
+% \item If the workflow can be executed, the MA\_DAG defines a mapping and
+%   ordering and send it back to the client. Currently, the ordering is
+%   random like in the first architecture, while the mapping use a round
+%   robin policy.
+% \item The client start the workflow execution and retrieve the results
+%   if the execution was successful.
+% \end{enumerate}
+%
+% When the \textit{MADAGNAME} is set in the configuration file, this is
+% the default mode. The client can ensure this mode by the method
+% \texttt{set\_ma\_dag\_sched}.
+%
+% \paragraph{Second mode : the MaDag provides only an ordering}
+%
+% This mode is similar to the previous one, except that the MaDag
+% provides only an execution order (or a priority tag for each node),
+% the mapping is done when the client tries to execute each service, so
+% the server is the one chosen by the Master Agent when requested by the
+% client.
+%
+% To use this mode, the client needs to use to the method
+% \texttt{set\_ma\dag\_sched(0)}.
+%
+% \begin{figure}[htbp]
+%   \centering
+%   \includegraphics[keepaspectratio,width=0.7\linewidth]{fig/wf_archi2}
+%   \caption{Architecture 2 : The MA\_DAG as an external workflow manager}
+%   \label{fig:archi2}
+% \end{figure}
 
 \section{Client API}
-
 
 \subsection{Structure of client program}
 \label{sec:client_prg}
@@ -201,7 +223,7 @@ diet_finalize
 \end{verbatim}
 
 The table~\ref{tab::wf_api} shows a description of the different
-methods provided by the \diet workflow API. 
+methods provided by the \diet workflow API.
 
 \begin{table}[htbp]
   \centering
@@ -209,33 +231,33 @@ methods provided by the \diet workflow API.
     Workflow function & Description \\\hline
     %
     \texttt{diet\_wf\_desc\_t*  \newline
-      diet\_wf\_profile\_alloc(const char* wf\_file\_name);} 
+      diet\_wf\_profile\_alloc(const char* wf\_file\_name);}
     &
     allocate a workflow profile to be used for a workflow submission.\newline
     \textit{wf\_file\_name} : the file name containing the workflow XML description.
     \\\hline
-    % 
+    %
     \texttt{void  \newline
-      diet\_wf\_profile\_free(diet\_wf\_desc\_t * profile);} 
+      diet\_wf\_profile\_free(diet\_wf\_desc\_t * profile);}
     &
     free the workflow profile.
     \\\hline
     %
     \texttt{diet\_error\_t \newline
-      diet\_wf\_call(diet\_wf\_desc\_t* wf\_profile);} 
+      diet\_wf\_call(diet\_wf\_desc\_t* wf\_profile);}
     &
     execute the workflow associated to profile \textit{wf\_profile}.
     \\\hline
     %
     \texttt{int   \newline
-      diet\_wf\_scalar\_get(const char * id, void** value);} 
+      diet\_wf\_scalar\_get(const char * id, void** value);}
     &
     Retrieve a workflow scalar result. \newline
     \textit{id} : the output port identifier.
     \\\hline
-    % 
+    %
     \texttt{int   \newline
-      diet\_wf\_string\_get(const char * id, char** value);} 
+      diet\_wf\_string\_get(const char * id, char** value);}
     &
     Retrieve a workflow string result. \newline
     \textit{id} : the output port identifier.
@@ -248,7 +270,7 @@ methods provided by the \diet workflow API.
     Retrieve a workflow file result. \newline
     \textit{id} : the output port identifier.
     \\\hline
-    % 
+    %
     \texttt{int \newline
       diet\_wf\_matrix\_get(id, (void**)value, nb\_rows, nb\_cols, order)
     }
@@ -256,28 +278,28 @@ methods provided by the \diet workflow API.
     Retrieve a workflow matrix result. \newline
     \textit{id} : the output port identifier.
     \\\hline
-    % 
-    \texttt{void \newline
-      set\_madag\_sched(int b);}&
-    Define if the client use the \madag ordering and mapping when
-    executing the workflow ($b\neq1$) or just its ordering ($b=0$)
-    \\\hline
     %
-    \texttt{void  \newline
-      set\_sched (struct AbstractWfSched * sched);}&
-    Define a customized scheduler defined by the user. The Scheduler
-    must be an AbstractScheduler subclass and implements the
-    \textit{execute} method.
-    \\\hline
+%     \texttt{void \newline
+%       set\_madag\_sched(int b);}&
+%     Define if the client use the Ma\_Dag ordering and mapping when
+%     executing the workflow ($b\neq1$) or just the ordering ($b=0$)
+%     \\\hline
     %
-    \texttt{void \newline
-      enable\_reordering(const char * name, int b);
-    }
-    & 
-    enable/disable the reordering \newline
-    reordering enabled (b = true) \newline
-    reordering disabled (b = false)
-    \\\hline
+%     \texttt{void  \newline
+%       set\_sched (struct AbstractWfSched * sched);}&
+%     Define a customized scheduler defined by the user. The Scheduler
+%     must be an AbstractScheduler subclass and implements the
+%     \textit{execute} method.
+%     \\\hline
+    %
+%     \texttt{void \newline
+%       enable\_reordering(const char * name, int b);
+%        }
+%     &
+%     enable/disable the reordering \newline
+%     reordering enabled (b = true) \newline
+%     reordering disabled (b = false)
+%     \\\hline
     %
     \texttt{void \newline
       void get\_all\_results();}
@@ -326,6 +348,11 @@ the element must be described as follow:
     <in name="in3" type="DIET_INT" source="n1#out2"/>
 \end{verbatim}
 
+The link between input and output ports must be described either by
+a \textit{source} value in the \textit{<in>} element, or by a
+\textit{sink} value in the \textit{<out>} element. Specifying both
+does not cause an error but duplicates the information.
+
 The example shown in Figure~\ref{fig:example1} can be represented by
 this XML description:
 
@@ -333,22 +360,18 @@ this XML description:
 <dag>
   <node id="n1" path="succ">
     <arg name="in1" type="DIET_INT" value="56"/>
-    <out name="out1" type="DIET_INT" sink="n2#in2"/>
-    <out name="out2" type="DIET_INT" sink="n3#in3"/>
+    <out name="out1" type="DIET_INT"/>
+    <out name="out2" type="DIET_INT"/>
   </node>
   <node id="n2" path="double">
-    <prec id="n1"/>
     <in name="in2" type="DIET_INT" source="n1#out1"/>
-    <out name="out3" type="DIET_INT" sink="n4#in4"/>
+    <out name="out3" type="DIET_INT"/>
   </node>
   <node id="n3" path="double">
-    <prec id="n1"/>
     <in name="in3" type="DIET_INT" source="n1#out2"/>
-    <out name="out4" type="DIET_INT" sink="n4#in5"/>
+    <out name="out4" type="DIET_INT"/>
   </node>
   <node id="n4" path="sum">
-    <prec id="n2"/>
-    <prec id="n3"/>
     <in name="in4" type="DIET_INT" source="n2#out3"/>
     <in name="in5" type="DIET_INT" source="n3#out4"/>
     <out name="out4" type="DIET_INT"/>
@@ -381,126 +404,156 @@ int main(int argc, char* argv[])
 {
   diet_wf_desc_t * profile;
   char * fileName;
-  long * l; 
+  long * l;
   if (argc != 3) {
     fprintf(stderr, "Usage: %s <file.cfg> <wf_file> \n", argv[0]);
     return 1;
   }
-  
+
   if (diet_initialize(argv[1], argc, argv)) {
     fprintf(stderr, "DIET initialization failed !\n");
     return 1;
-  } 
+  }
   fileName = argv[2];
   profile = diet_wf_profile_alloc(fileName);
   if (!diet_wf_call(profile)) {
     printf("get result = %d ", diet_wf_scalar_get("n4#out4", &l));
-    printf("%ld\n", (long)(*l)); 
+    printf("%ld\n", (long)(*l));
   }
   diet_wf_free(profile);
   return 0;
 }
 \end{lstlisting}
 
-\paragraph{Example 2 :  Use the MA DAG modes}
-
-This example is similar to the previous one but the user can specify
-which mode he wants to use by command line options \verb|-madag_sched|
-(the default) or \verb|-notmadag_sched|.
-
-\begin{lstlisting}{2}
-#include <string.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <sys/stat.h>
-#include "DIET_client.h"
-
-void usage(char * s) {
-  fprintf(stderr, "Usage: %s <file.cfg> <wf_file> [option]\n", s);
-  fprintf(stderr, "option = -madag_sched | -notmadag_sched\n");
-  exit(1);
-}
-int checkUsage(int argc, char ** argv) {
-  if ((argc != 3) && (argc != 4)) {
-    usage(argv[0]);
-  }
-  if (argc == 4) {
-    if (strcmp(argv[3], "-madag_sched") && 
-	strcmp(argv[3], "-notmadag_sched")) {
-      usage(argv[0]);
-    }
-  }
-  return 0;
-}
-
-int main(int argc, char* argv[])
-{
-  diet_wf_desc_t * profile;
-  char * fileName;
-  long * l; 
-  checkUsage(argc, argv);
-  if (diet_initialize(argv[1], argc, argv)) {
-    fprintf(stderr, "DIET initialization failed !\n");
-    return 1;
-  } 
-  fileName = argv[2];
-  if (argc == 4)
-    set_madag_sched(!strcmp(argv[3], "-madag_sched"));
-  profile = diet_wf_profile_alloc(fileName);
-  if (!diet_wf_call(profile)) {
-    printf("get result = %d ", diet_wf_scalar_get("n4#out4", &l));
-    printf("%ld\n", (long)(*l)); 
-  }
-  diet_wf_free(profile);
-  return 0;
-}
-\end{lstlisting}
+% \paragraph{Example 2 :  Use the MA DAG modes}
+%
+% This example is similar to the previous one but the user can specify
+% which mode he wants to use by command line options \verb|-madag_sched|
+% (the default) or \verb|-notmadag_sched|.
+%
+% \begin{lstlisting}{2}
+% #include <string.h>
+% #include <unistd.h>
+% #include <stdlib.h>
+% #include <stdio.h>
+% #include <sys/stat.h>
+% #include "DIET_client.h"
+%
+% void usage(char * s) {
+%   fprintf(stderr, "Usage: %s <file.cfg> <wf_file> [option]\n", s);
+%   fprintf(stderr, "option = -madag_sched | -notmadag_sched\n");
+%   exit(1);
+% }
+% int checkUsage(int argc, char ** argv) {
+%   if ((argc != 3) && (argc != 4)) {
+%     usage(argv[0]);
+%   }
+%   if (argc == 4) {
+%     if (strcmp(argv[3], "-madag_sched") &&
+% 	strcmp(argv[3], "-notmadag_sched")) {
+%       usage(argv[0]);
+%     }
+%   }
+%   return 0;
+% }
+%
+% int main(int argc, char* argv[])
+% {
+%   diet_wf_desc_t * profile;
+%   char * fileName;
+%   long * l;
+%   checkUsage(argc, argv);
+%   if (diet_initialize(argv[1], argc, argv)) {
+%     fprintf(stderr, "DIET initialization failed !\n");
+%     return 1;
+%   }
+%   fileName = argv[2];
+%   if (argc == 4)
+%     set_madag_sched(!strcmp(argv[3], "-madag_sched"));
+%   profile = diet_wf_profile_alloc(fileName);
+%   if (!diet_wf_call(profile)) {
+%     printf("get result = %d ", diet_wf_scalar_get("n4#out4", &l));
+%     printf("%ld\n", (long)(*l));
+%   }
+%   diet_wf_free(profile);
+%   return 0;
+% }
+% \end{lstlisting}
 
 
 \section{Scheduling}
+
 \label{sec:wf_sched}
 
 \subsection{Available schedulers}
 
-The available schedulers are:
+The available MA-DAG workflow schedulers are:
 
 \begin{itemize}
-\item In the client: a round robbin and HEFT scheduler.
-\item In the \madag: a round robbin, HEFT, and FOFT (Fairness On
-  Finish Time: in multiworkflow support -experimental-).
+
+\item A basic scheduler (option -basic) : this scheduler manages only
+the precedence constraints between the tasks of the dag but does not
+map ressources to tasks. This means that when a task is ready to be
+executed (ie the preceding tasks are completed) it will be sent to
+the client for execution without specifying a ressource. The client
+will then perform a standard DIET request that will use the scheduler
+configured by the SeD.
+
+\item A Multi-HEFT scheduler (option -heft) : this scheduler applies
+the HEFT heuristic to all workflows submitted by different clients to
+the MA-DAG. This means that the priorities assigned by the HEFT
+heuristic are used to order the tasks of all dags processed by the
+MA-DAG and following this order the tasks are mapped to the first
+available ressource.
+
+\item A Multi-AgingHEFT scheduler (option -aging_heft) : this scheduler
+is similar to Multi-HEFT but it applies a correction factor to the
+priorities calculated by the HEFT algorithm. This factor is based on
+the age of the dag ie the time since it was submitted to the scheduler.
+Compared to Multi-HEFT this scheduler will increase the priority of the
+tasks of a workflow that has been submitted earlier than other dags.
+
+\item A FOFT (Fairness on Finish Time) scheduler (option -fairness) :
+this scheduler uses another heuristic to apply a correction factor to
+the priorities calculated by the HEFT algorithm. This factor is based
+on the slowdown of the dag that is calculated by comparing the earliest
+finish time of the tasks in the same environment without any other
+concurrent workflow and the actual estimated finish time.
+
 \end{itemize}
 
-\subsection{Writing a new scheduler}
 
-The workflow scheduler of the client is different little bit from the
-\madag one. To write a new scheduler you need \diet sources. The
-following two section show how to develop your own scheduler and how
-to plug it in your client or in the \madag.
+% \subsection{Writing a new scheduler}
+%
+% The workflow scheduler of the client is different little bit from the
+% MA\_DAG one. To write a new scheduler you need diet sources. The
+% following two section show how to develop your own scheduler and how
+% to plug it in your client or in the MA\_DAG.
+%
+% \paragraph{Client scheduler}
+%
+% To write a new workflow scheduler for your diet client you need to
+% create a derived class of the base abstract class
+% \textit{AbstractWfSched}. The main function of the scheduler (the SeDs
+% mapping) must be placed in the pure virtual function \textit{execute}.
+% These are the steps to follow:
+%
+% \begin{enumerate}
+% \item Write a subclass of \textit{AbsWfSched} abstract class. The
+%   virtual method \textit{execute} needs to be implemented.
+% \item Create a c++ file where you can put the following code:
+% \begin{verbatim}
+% extern "C" {
+%   void set_my_personal_sched() {
+%     Personal_WfSched * mySched = new Personal_WfSched();
+%     set_sched(mySched);
+%   }
+% }
+% \end{verbatim}
+% \item In your client source code, call the method
+%   \textit{set\_my\_personal\_sched} before executing the
+%   \textit{diet\_wf\_call}.
+% \item Link the previous c++ object code to you DIET client.
+% \end{enumerate}
 
-\paragraph{Client scheduler}
-
-To write a new workflow scheduler for your \diet client you need to
-create a derived class of the base abstract class
-\textit{AbstractWfSched}. The main function of the scheduler (the SeDs
-mapping) must be placed in the pure virtual function \textit{execute}.
-These are the steps to follow:
-
-\begin{enumerate}
-\item Write a subclass of \textit{AbsWfSched} abstract class. The
-  virtual method \textit{execute} needs to be implemented.
-\item Create a c++ file where you can put the following code:
-\begin{verbatim}
-extern "C" {
-  void set_my_personal_sched() {
-    Personal_WfSched * mySched = new Personal_WfSched();
-    set_sched(mySched);
-  }
-}
-\end{verbatim}
-\item In your client source code, call the method
-  \textit{set\_my\_personal\_sched} before executing the
-  \textit{diet\_wf\_call}.
-\item Link the previous c++ object code to you \diet client.
-\end{enumerate}
 
