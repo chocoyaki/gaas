@@ -4,6 +4,7 @@
 %*  Author(s):                                                              *%
 %*    - Abdelkader Amar (Abdelkader.Amar@ens-lyon.fr)                       *%
 %*    - Raphael Bolze (Raphael.Bolze@ens-lyon.fr)                           *%
+%*    - Benjamin Isnard (Benjamin.Isnard@ens-lyon.fr)                       *%
 %*                                                                          *%
 %* $LICENSE$                                                                *%
 %****************************************************************************%
@@ -15,21 +16,18 @@
 
 \paragraph{Requirements and compilation}
 
-The workflow supports in \textsc{DIET} needs the following:
+The workflow supports in \diet needs the following:
 
 \begin{itemize}
 \item The Xerces library: the XML handling code is written with
   Xerces-C++ using the provided DOM API.
-\item Enable the workflow support when compiling DIET.
-\end{itemize}
-
-To build DIET with workflow support using \textit{cmake}, two
+\item Enable the workflow support when compiling \diet. In order to build \diet with workflow support using \textit{cmake}, two
 configuration parameters need to be set:
 
 \begin{itemize}
-\item DIET\_USE\_WORKFLOW as follow: -DDIET\_USE\_WORKFLOW:BOOL=ON
-\item XERCES\_DIR: defines the path to Xerces installation directory.
-  (for example -DXERCES\_DIR:PATH=/usr/local/xerces)
+\item \texttt{DIET\_USE\_WORKFLOW} as follow: \texttt{-DDIET\_USE\_WORKFLOW:BOOL=ON}
+\item \texttt{XERCES\_DIR}: defines the path to Xerces installation directory.
+  (for example \texttt{-DXERCES\_DIR:PATH=/usr/local/xerces})
 \end{itemize}
 
 This is an example of generating command line:
@@ -48,66 +46,22 @@ Workflow support was tested in the following configurations:
 \item gcc version 4.0.2 and higher.
 \item \textit{Xerces} 2.7.
 \end{itemize}
-
-%\subsubsection{Previous version \todo{TO REMOVE}}
-%
-%\paragraph{Compilation using the autotools}
-%
-%The workflow supports in \textsc{DIET} needs the following:
-%
-%\begin{itemize}
-%\item The QT4 library: the XML handling code is written with
-%  QT4 using the provided DOM API.
-%\item enable the workflow support by passing the
-%  \verb|--enable-workflow| to the configure script.
-%\end{itemize}
-%
-%To specify the QT4 installation directory, you can use the options
-%\verb|--with-qt-inc| and \verb|--with-qt-lib| which indicate
-%respectively where find headers and libraries. When QT4 is installed
-%by binaries (RPM or APT package), the include directory is
-%\verb|/usr/include/qt4|, when the library directory is
-%\verb|/usr/lib|.
-%
-%Workflow support was tested in the following configurations:
-%
-%\begin{itemize}
-%\item with FAST
-%\item with or without cori support
-%\end{itemize}
-%
-%\paragraph{Compilation using CMake}
-%
-%To build DIET with workflow support using \textit{cmake}, three
-%configuration parameters need to be set:
-%
-%\begin{itemize}
-%\item DIET\_USE\_WORKFLOW as follow: -DDIET\_USE\_WORKFLOW:BOOL=ON
-%\item QT\_INC: defines the path to QT4 header, by default set to
-%  /usr/include. (for example -DQT\_INC:PATH=/usr/include/qt4)
-%\item QT\_LIB: defines the path to QT4 library, by default set to
-%  /usr/lib. (for example -DQT\_LIB:PATH=/usr/local/lib)
-%\end{itemize}
-%
-%This is an example of generating command line:
-%
-%\verb|cmake .. -DOMNIORB4_DIR=/usr/local/omniORB -DDIET_USE_WORKFLOW:BOOL=ON \|\verb 
-%\verb|-DQT_LIB:PATH=/usr/lib -DQT_INC:PATH=/usr/include/qt4/| %|
+\end{itemize}
 
 \paragraph{Executing the examples}
 %\label{sec:wf_examples}
 
 The directory \texttt{examples/workflow} includes some examples of
 workflows.  You can find a simple workflow (see
-figure~\ref{fig:example1}) in the file \texttt{xml/scalar.xml} and you
+Figure~\ref{fig:example1}) in the file \texttt{xml/scalar.xml} and you
 can test it with the following command:
 
 \verb|./scalar_client local_client.cfg scalar.xml |
 
-You need to have a running DIET platform with the needed services. You
+You need to have a running \diet platform with the needed services. You
 can launch separate SeDs (\textit{succ}, \textit{double}, \textit{sum}
 and \textit{square}) or a single SeD that includes all the needed
-services.
+services (read Chapter~\ref{ch:server} for more details).
 
 \begin{figure}[htbp]
   \centering
@@ -118,46 +72,48 @@ services.
 
 \section{Software architecture}
 
-The workflow support in \textsc{DIET} provides two architectures and
-can be used in three modes.
+The workflow support in \diet provides two kind of architectures. 
+
 \begin{itemize}
-\item The first one provides a workflow manager in the client side.
-\item The second one use a special agent called the \textit{MA\_DAG}
-  which is responsible to communicate with the \textit{Master Agent} of
-  the platform and provide an ordering and mapping for workflow
-  execution.
-\item The third mode is similar to the second one, but in this mode
-  the \textit{MA\_DAG} provides only an ordering for the workflow
-  execution.
+   \item The first one provides a workflow manager in the client side.
+   \item The second one use a special agent called the \madag which is
+     responsible to communicate with the \textit{Master Agent} of the
+     platform. Two modes are available:
+     \begin{description}
+     \item{First mode:} \madag provides an ordering and mapping for
+       workflow execution.
+     \item{Second mode:} \madag provides only an ordering for the
+       workflow execution.  
+     \end{description}
 \end{itemize}
 
-\subsection{Architecture 1 : Workflow manager inside the client}
+\subsection{Architecture 1: Workflow manager inside the client}
 \label{sec:archi1}
 
-In this scheme (figure~\ref{fig:archi1}), the handling of workflow is
-done by the client, and the execution don't require an MA\_DAG. The
+In this scheme (Figure~\ref{fig:archi1}), the handling of workflow is
+done by the client, and the execution don't require an \madag. The
 execution steps are~:
 
 \begin{enumerate}
-\item The client read and process the workflow description; a dag
-  structure is created.
-\item The client send a set of the problem descriptions to the
+\item The client read and process the workflow description; a Directed
+  Acyclic Graph (DAG) structure is created.
+\item The client sends the problem descriptions to the
   Master Agent to check if all services are available.
 \item If all services are available, the client start the workflow
-  execution. By default a random scheduler is used to execute the Dag,
+  execution. By default a random scheduler is used to execute the DAG,
   so only data dependencies are used to define the execution order.
-  Between the ready nodes, the invocation order is random. In this
-  mode, since all scheduling operation are done in the client side, we
-  can use a customized scheduler. The client programmer can write a
-  personal scheduler which must be a \textit{AbstractScheduler}
-  subclass and implements the \textit{execute} method (for more
-  details see the section~\ref{sec:wf_sched}).
+  In this mode, since all scheduling operation are done in the client
+  side, we can use a customized scheduler. The client programmer can
+  write a personal scheduler which must be a
+  \textit{AbstractScheduler} subclass and implements the
+  \textit{execute} method (for more details see the
+  Section~\ref{sec:wf_sched}).
 \item If the execution was successful, the client can retrieve the
   results.
 \end{enumerate}
 
 To use this execution mode, nothing needs to be configured except that
-the client configuration file must not include an MADAGNAME parameter.
+the client configuration file must not include a \texttt{MADAGNAME} parameter.
 
 \begin{figure}[htbp]
   \centering
@@ -168,30 +124,29 @@ the client configuration file must not include an MADAGNAME parameter.
 
 
 
-\subsection{Architecture 2: Workflow manager = MA DAG}
+\subsection{Architecture 2: \madag Workflow manager}
 \label{sec:archi2}
 
-The second architecture (figure~\ref{fig:archi2}) of workflow
-management in DIET use an additional entity called the \textit{MA DAG}
-to handle the workflow. This agent can work in two modes, in the first
-it defines a complete scheduling of the workflow (ordering and
-mapping), while in the second it defines only an ordering for the
-workflow execution, the mapping is done in the next step by the client
-which pass by the Master Agent to find the server where execute the
-workflow services.
+The second architecture (Figure~\ref{fig:archi2}) of workflow
+management in \diet use an additional entity called the \madag to
+handle the workflow. This agent can work in two modes, in the first it
+defines a complete scheduling of the workflow (ordering and mapping),
+while in the second it defines only an ordering for the workflow
+execution. In the second mode the mapping is done in the next step by
+the client which asks the Master Agent to find the server where
+ to execute the workflow services.
 
 
-To use the \textit{MA DAG}, the client configuration file must include
-the parameter \textit{MADAGNAME} with the appropriate name.
+To use the \madag, the client configuration file must include
+the parameter \texttt{MADAGNAME} with the appropriate name.
 
-\paragraph{First mode : the MA\_DAG provides a complete scheduling}
+\paragraph{First mode : the \madag performs the complete scheduling}
 
 \begin{enumerate}
-\item The client sends the workflow description (in a textual format)
-  to the MA\_DAG.
+\item The client sends the workflow description to the \madag.
 \item The MA\_dAG request the platform Master Agent to check if all
   services are available.
-\item If the workflow can be executed, the MA\_DAG defines a mapping and
+\item If the workflow can be executed, the \madag defines a mapping and
   ordering and send it back to the client. Currently, the ordering is
   random like in the first architecture, while the mapping use a round
   robin policy.
@@ -199,25 +154,23 @@ the parameter \textit{MADAGNAME} with the appropriate name.
   if the execution was successful.
 \end{enumerate}
 
-When the \textit{MADAGNAME} is set in the configuration file, this is
-the default mode. The client can ensure this mode by the method
-\texttt{set\_ma\_dag\_sched}. 
+This mode is the default mode when the \texttt{MADAGNAME} is set in
+the configuration file. The client can ensure this mode by the method
+\texttt{set\_ma\_dag\_sched}. \fixme{How ?}
 
-\paragraph{Second mode : the MaDag provides only an ordering}
+\paragraph{Second mode : the \madag provides only an ordering}
 
-This mode is similar to the previous one, except that the MaDag
+This mode is similar to the previous one, except that the \madag
 provides only an execution order (or a priority tag for each node),
 the mapping is done when the client tries to execute each service, so
 the server is the one chosen by the Master Agent when requested by the
-client.
-
-To use this mode, the client needs to use to the method
-\texttt{set\_ma\dag\_sched(0)}. 
+client. To use this mode, the client needs to set the first scheduler for
+\madag using to the method \texttt{set\_ma\_dag\_sched(0)}. 
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[keepaspectratio,width=0.7\linewidth]{fig/wf_archi2}
-  \caption{Architecture 2 : The MA\_DAG as an external workflow manager}
+  \caption{Architecture 2 : The \madag as an external workflow manager}
   \label{fig:archi2}
 \end{figure}
 
@@ -231,7 +184,7 @@ To use this mode, the client needs to use to the method
 \label{sec:client_prg}
 
 The structure of a client program is very close to the structure of
-usual DIET client. The general structure is as follow:
+usual \diet client. The general algorithm is as follow:
 
 \begin{verbatim}
 diet_initialize
@@ -248,7 +201,7 @@ diet_finalize
 \end{verbatim}
 
 The table~\ref{tab::wf_api} shows a description of the different
-methods provided by diet workflow API. 
+methods provided by the \diet workflow API. 
 
 \begin{table}[htbp]
   \centering
@@ -306,8 +259,8 @@ methods provided by diet workflow API.
     % 
     \texttt{void \newline
       set\_madag\_sched(int b);}&
-    Define if the client use the Ma\_Dag ordering and mapping when
-    executing the workflow ($b\neq1$) or just the ordering ($b=0$)
+    Define if the client use the \madag ordering and mapping when
+    executing the workflow ($b\neq1$) or just its ordering ($b=0$)
     \\\hline
     %
     \texttt{void  \newline
@@ -341,8 +294,8 @@ methods provided by diet workflow API.
 \subsection{Workflow description}
 \label{sec:workflow_desc}
 
-The workflow is described using an XML representation which is close
-to diet profile representation. In addition to profile description
+The workflow is described with an XML representation which is close
+to \diet profile representation. In addition to profile description
 (problem path and arguments), this description represents also the
 data dependencies between ports (source/sink), the node identifier
 (unique) and the precedences between nodes. This last information can
@@ -373,7 +326,7 @@ the element must be described as follow:
     <in name="in3" type="DIET_INT" source="n1#out2"/>
 \end{verbatim}
 
-The example shown in figure~\ref{fig:example1} can be represented by
+The example shown in Figure~\ref{fig:example1} can be represented by
 this XML description:
 
 \begin{verbatim}
@@ -412,7 +365,7 @@ this XML description:
 
 This examples represents the basic client code to execute a workflow.
 The line 26 indicates that the workflow output is a double value named
-\verb|n4#out4|. The example shown in figure~\ref{fig:example1} can be
+\verb|n4#out4|. The example shown in Figure~\ref{fig:example1} can be
 fully (execution and result retrieving) executed with this client.
 
 \begin{lstlisting}{1}
@@ -506,7 +459,7 @@ int main(int argc, char* argv[])
 
 
 \section{Scheduling}
-
+\label{sec:wf_sched}
 
 \subsection{Available schedulers}
 
@@ -514,20 +467,20 @@ The available schedulers are:
 
 \begin{itemize}
 \item In the client: a round robbin and HEFT scheduler.
-\item In the MA\_DAG: a round robbin, HEFT, and FOFT (Fairness On
+\item In the \madag: a round robbin, HEFT, and FOFT (Fairness On
   Finish Time: in multiworkflow support -experimental-).
 \end{itemize}
 
 \subsection{Writing a new scheduler}
 
 The workflow scheduler of the client is different little bit from the
-MA\_DAG one. To write a new scheduler you need diet sources. The
+\madag one. To write a new scheduler you need \diet sources. The
 following two section show how to develop your own scheduler and how
-to plug it in your client or in the MA\_DAG.
+to plug it in your client or in the \madag.
 
 \paragraph{Client scheduler}
 
-To write a new workflow scheduler for your diet client you need to
+To write a new workflow scheduler for your \diet client you need to
 create a derived class of the base abstract class
 \textit{AbstractWfSched}. The main function of the scheduler (the SeDs
 mapping) must be placed in the pure virtual function \textit{execute}.
@@ -548,6 +501,6 @@ extern "C" {
 \item In your client source code, call the method
   \textit{set\_my\_personal\_sched} before executing the
   \textit{diet\_wf\_call}.
-\item Link the previous c++ object code to you DIET client.
+\item Link the previous c++ object code to you \diet client.
 \end{enumerate}
 
