@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2008/07/11 09:12:34  bisnard
+ * Added exclusion blocks to avoid dag not found error
+ *
  * Revision 1.7  2008/07/08 11:14:21  bisnard
  * Add dag makespan value in release message
  *
@@ -270,20 +273,19 @@ private:
   WfLogSrv_var myWfLogSrv;
 
   /**
-   * Defines if use or not MA DAG Scheduling
-   */
-//   bool useMaDagSched;
-
-  /**
    * Private constructor
    */
   CltWfMgr();
-
 
   /**
    * Synchronisation semaphores
    */
    omni_semaphore mySem;
+
+  /**
+    * Critical section
+   */
+  omni_mutex myLock;
 
   /**
    * Reference time
