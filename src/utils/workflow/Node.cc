@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2008/07/11 07:55:37  bisnard
+ * bug due to node simultaneously done and failed
+ *
  * Revision 1.20  2008/07/09 13:17:15  rbolze
  * add the reqID in the diet_call DONE trace_text
  *
@@ -912,7 +915,6 @@ void
 Node::setAsFailed() {
   this->getDag()->setNodeFailure(this->getId());
   taskExecFailed =  true;
-  task_done = true;
   node_running = false;
 }
 
