@@ -58,11 +58,15 @@ can test it with the following command:
 
 \verb|./scalar_client local_client.cfg scalar.xml |
 
+% You need to have a running \diet platform with the needed services. You
+% can launch separate SeDs (\textit{succ}, \textit{double}, \textit{sum}
+% and \textit{square}) or a single SeD (\texttt{scalar\_server}) that
+% includes all the needed services. (read Chapter~\ref{ch:server} for more
+% details).
+
 You need to have a running \diet platform with the needed services. You
-can launch separate SeDs (\textit{succ}, \textit{double}, \textit{sum}
-and \textit{square}) or a single SeD (\texttt{scalar\_server}) that
-includes all the needed services. (read Chapter~\ref{ch:server} for more
-details).
+can launch a single SeD (\texttt{scalar\_server}) that includes all the
+needed services. (read Chapter~\ref{ch:server} for more details).
 
 \begin{figure}[htbp]
   \centering
@@ -490,7 +494,8 @@ The available MA-DAG workflow schedulers are:
 
 \begin{itemize}
 
-\item A basic scheduler (option -basic) : this scheduler manages only
+\item A basic scheduler (option -basic or default choice) :
+this scheduler manages only
 the precedence constraints between the tasks of the dag but does not
 map ressources to tasks. This means that when a task is ready to be
 executed (ie the preceding tasks are completed) it will be sent to
@@ -521,6 +526,28 @@ concurrent workflow and the actual estimated finish time.
 
 \end{itemize}
 
+\subsection{SeD requirements for workflow scheduling}
+
+The multi-workflow schedulers (Multi-HEFT, Multi-AgingHEFT and FOFT) use
+information provided by the SeDs to be able to run the heuristic. So the
+SeD programmer must provide the required data in the estimation vector that
+is sent back to the client for each submit request.
+
+The following fields in the estimation vector must be filled in:
+\begin{enumerate}
+\item The \texttt{TCOMP} field must contain the estimation of the
+computation time for the job (in milliseconds). This can be done using the
+\texttt{diet\_estimate\_comptime(estVector\_t ev, double value)} method
+within the performance evaluation function.
+\item The \texttt{USERDEFINED} field must contain the estimation of the
+earliest finish time (in milliseconds from the time of the current submit
+request) for the job. To compute this value, the SeD programmer can use
+the API method \texttt{diet\_estimate\_list\_jobs(...)} to retrieve the
+estimated values of computation time for all the jobs active on the SeD
+(ie jobs waiting for solve or jobs being solved). There is an example of
+this EFT calculation in the simple case of sequential SeD available in
+the workflow examples (scalar\_server or file\_server).
+\end{enumerate}
 
 % \subsection{Writing a new scheduler}
 %
