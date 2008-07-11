@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2008/07/11 07:56:05  bisnard
+ * provide list of failed nodes in case of cancelled dag
+ *
  * Revision 1.25  2008/07/10 11:42:20  bisnard
  * Fix bug 68 memory loss during workflow execution
  *
@@ -695,8 +698,15 @@ NodeRun::run() {
     // Manage dag termination if a node failed (following code is executed
     // by the last running node)
     if (this->myNode->getDag()->isCancelled() && !this->myNode->getDag()->isRunning()) {
-      TRACE_TEXT (TRACE_MAIN_STEPS, "############## DAG "
-          << this->myNode->getDag()->getId().c_str() << " IS CANCELLED! #########" << endl);
+      string dagId = this->myNode->getDag()->getId();
+      TRACE_TEXT (TRACE_MAIN_STEPS, "############## DAG " << dagId
+          << " IS CANCELLED! #########" << endl);
+      // Display list of failed nodes
+      const std::list<string>& failedNodes = this->myNode->getDag()->getNodeFailureList();
+      for (std::list<string>::const_iterator iter = failedNodes.begin();
+           iter != failedNodes.end(); iter++) {
+        TRACE_TEXT (TRACE_MAIN_STEPS, "DAG " << dagId << " FAILED NODE : " << *iter << endl);
+      }
       // Release the client manager (if still alive)
       if (!clientFailure) {
         char* message = myCltMan->release(this->myNode->getDag()->getId().c_str());

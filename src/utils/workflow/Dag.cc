@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2008/07/11 07:56:01  bisnard
+ * provide list of failed nodes in case of cancelled dag
+ *
  * Revision 1.12  2008/07/08 11:15:58  bisnard
  * Correct dag/node destruction with nodequeues
  *
@@ -197,8 +200,10 @@ Dag::checkPrec() {
     for (uint ix = 0; ix < n; ix++) {
       map<string, Node * >::iterator q = nodes.find(node->getPrecId(ix));
       if (q != nodes.end()) {
-	node->addPrec(node->getPrecId(ix),
-		      (Node*)(q->second));
+        Node * precNode = (Node *) q->second;
+	node->addPrec(node->getPrecId(ix), precNode);
+        TRACE_FUNCTION (TRACE_ALL_STEPS," Loop1: Add prec " << precNode->getId()
+            << " to " << node->getId() << endl);
       }
       else
 	return false;
@@ -232,6 +237,8 @@ Dag::checkPrec() {
       if (lnp != nodes.end()) {
 	ln = (Node *)(lnp->second);
 	node->addPrec(ln->getId(), ln);
+        TRACE_FUNCTION (TRACE_ALL_STEPS," Loop2: Add prec " << ln->getId()
+            << " to " << node->getId() << endl);
       }
     } // end for in
 
@@ -486,32 +493,41 @@ Dag::getAllDietReqID() {
 
 bool
 Dag::isDone() {
-	Node * dagNode = NULL;
-	for (map<string, Node *>::iterator p = nodes.begin();
-		    p != nodes.end();
-		    ++p) {
-			    dagNode = (Node*)p->second;
-			    if ((dagNode) && !(dagNode->isDone()))
-				    return false;
-		    }
-		    return true;
-		}
+  Node * dagNode = NULL;
+  bool res = true;
+  this->myLock.lock();  /** LOCK */
+  for (map<string, Node *>::iterator p = nodes.begin();
+       p != nodes.end();
+       ++p) {
+    dagNode = (Node*)p->second;
+    if ((dagNode) && !(dagNode->isDone())) {
+      res = false;
+      break;
+    }
+  }
+  this->myLock.unlock(); /** UNLOCK */
+  return res;
+}
+
 /**
  * check if the dag execution is ongoing
  * (checks all nodes status and returns true if at least one node is running)
  */
 bool
 Dag::isRunning() {
+  bool res = false;
   Node * dagNode = NULL;
+  this->myLock.lock();  /** LOCK */
   for (map<string, Node *>::iterator p = nodes.begin();
        p != nodes.end();
        ++p) {
     dagNode = (Node*)p->second;
     if ((dagNode) && (dagNode->isRunning())) {
-      return true;
+      res = true;
     }
   }
-  return false;
+  this->myLock.unlock(); /** UNLOCK */
+  return res;
 }
 
 /**
@@ -1078,14 +1094,22 @@ Dag::setEstDelay(double delay) {
         << this->getId() << " : delay = " << delay << endl);
 }
 
+bool
+Dag::updateDelayRec(Node * node, double newDelay) {
+  bool res = true;
+  this->myLock.lock();  /** LOCK */
+  res = _updateDelayRec(node, newDelay);
+  this->myLock.unlock();  /** UNLOCK */
+  return res;
+}
+
 /**
  * RECURSIVE
  * updates the estDelay of node and propagates it to the successors
  * returns true if propagation worked well (no pb in getting delay info)
  */
-
 bool
-Dag::updateDelayRec(Node * node, double newDelay) {
+Dag::_updateDelayRec(Node * node, double newDelay) {
   bool res = true;
   if (newDelay > node->getEstDelay()) {
     // the node is/will be late compared to the last estimated delay
@@ -1093,7 +1117,7 @@ Dag::updateDelayRec(Node * node, double newDelay) {
     node->setEstDelay(newDelay);
     for (unsigned int ix=0; ix < node->nextNodesCount(); ix++) {
       Node * succ = (Node*)(node->getNext(ix));
-      res = res && this->updateDelayRec(succ, newDelay);
+      res = res && this->_updateDelayRec(succ, newDelay);
     }
   }
   else {
@@ -1111,8 +1135,16 @@ Dag::updateDelayRec(Node * node, double newDelay) {
 void
 Dag::setNodeFailure(string nodeId) {
   this->cancelled = true;
+  this->failedNodes.push_front(nodeId);
 }
 
+/**
+ * get the list of failed nodes
+ */
+const std::list<string>&
+Dag::getNodeFailureList() {
+  return this->failedNodes;
+}
 
 /**
  * Compare two profiles

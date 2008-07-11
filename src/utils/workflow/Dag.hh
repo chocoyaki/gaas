@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2008/07/11 07:56:01  bisnard
+ * provide list of failed nodes in case of cancelled dag
+ *
  * Revision 1.9  2008/06/25 10:07:12  bisnard
  * - removed debug messages
  * - Node index in wf_response stored in Node class (new attribute submitIndex)
@@ -51,6 +54,7 @@
 
 #include <string>
 #include <map>
+#include <list>
 
 #include "response.hh"
 
@@ -339,6 +343,12 @@ public:
   void
   setNodeFailure(std::string nodeId);
 
+  /**
+   * get the list of failed nodes
+   */
+  const std::list<string>&
+  getNodeFailureList();
+
   void
   showDietReqID();
 
@@ -376,6 +386,11 @@ private:
   std::vector<Node *> trash;
 
   /**
+   * Failed nodes list
+   */
+  std::list<string> failedNodes;
+
+  /**
    * Temporary dag flag. Used to not delete the nodes of the dag
    */
   bool tmpDag;
@@ -384,6 +399,17 @@ private:
    * Cancelled flag (used when a node execution fails)
    */
   bool cancelled;
+
+  /**
+    * Critical section of the dag
+   */
+  omni_mutex myLock;
+
+  /**
+   * Recursive method for updateDelayRec
+   */
+  bool
+  _updateDelayRec(Node * node, double newDelay);
 };
 
 
