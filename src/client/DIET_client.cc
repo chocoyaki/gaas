@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.125  2008/07/11 09:52:04  bisnard
+ * Missing estimation vector copy in diet_call_common when sed not provided
+ *
  * Revision 1.124  2008/07/08 22:12:45  rbolze
  * change char* initialisation to avoid warning message
  *
@@ -900,7 +903,7 @@ downloadClientDataJuxMem(diet_profile_t* profile)
 diet_error_t
 request_submission(diet_profile_t* profile,
                    SeD_var& chosenServer,
-                   estVector_t estim)
+                   estVector_t& estim)
 {
   static int nb_tries(3);
   int server_OK(0), subm_count, data_OK(0);
@@ -1108,7 +1111,10 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer, estVector_t est
   stat_in("Client","diet_call");
 
   if (CORBA::is_nil(chosenServer)) {
-    if ((res = request_submission(profile, chosenServer, estimVect))) {
+    if (!(res = request_submission(profile, chosenServer, estimVect))) {
+      corba_profile.estim = *estimVect; // copy estimation vector
+      delete estimVect; // vector was allocated in request_submission
+    } else { // error in request_submission
       return res;
     }
     if (CORBA::is_nil(chosenServer)) {
@@ -1117,8 +1123,8 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer, estVector_t est
   }
   /* Add estimation vector to the corba_profile */
   /* (use an empty vector in case it is not provided, eg for grpc calls) */
-    else if (estimVect != NULL) {
-     corba_profile.estim = *estimVect;
+  else if (estimVect != NULL) {
+    corba_profile.estim = *estimVect;
   } else {
     corba_profile.estim = emptyEstimVect;
   }
@@ -1290,7 +1296,10 @@ diet_call_async_common(diet_profile_t* profile,
   try {
 
     if (CORBA::is_nil(chosenServer)) {
-      if ((res = request_submission(profile, chosenServer, estimVect))) {
+      if (!(res = request_submission(profile, chosenServer, estimVect))) {
+        corba_profile.estim = *estimVect; // copy estimation vector
+        delete estimVect; // vector was allocated in request_submission
+      } else { // error in request_submission
         caMgr->setReqErrorCode(profile->dietReqID, res);
         return res;
       }
