@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2008/07/11 08:35:47  bisnard
+ * Added exclusion blocks to avoid dag not found error
+ *
  * Revision 1.11  2008/07/08 11:14:21  bisnard
  * Add dag makespan value in release message
  *
@@ -90,7 +93,9 @@ CltWfMgr::execNodeOnSed(const char * node_id,
                         _objref_SeD* sed,
                         const CORBA::ULong reqID,
                         corba_estimation_t& ev) {
+  this->myLock.lock();    /** LOCK */
   Dag * dag = this->getDag(dag_id);
+  this->myLock.unlock();  /** UNLOCK */
   if (dag != NULL) {
     Node * node = dag->getNode(node_id);
     if (node != NULL) {
@@ -102,16 +107,20 @@ CltWfMgr::execNodeOnSed(const char * node_id,
       if (!node->hasFailed()) return 0;
     }
     else
-      cerr << "Node " << node_id << " not found!!!!" << endl;
+      cerr << "Execution of node " << dag_id << "-" << node_id << " failed! "
+           << " (Node not found)" << endl;
   }
   else
-     TRACE_TEXT (TRACE_MAIN_STEPS,"  Dag " << dag_id << " not found!" << endl);
+     cerr << "Execution of node " << dag_id << "-" << node_id << " failed! "
+          << " (Dag not found)" << endl;
   return 1;
 } // end execNodeOnSed
 
 CORBA::Long
 CltWfMgr::execNode(const char * node_id, const char * dag_id) {
+  this->myLock.lock();    /** LOCK */
   Dag * dag = this->getDag(dag_id);
+  this->myLock.unlock();  /** UNLOCK */
   if (dag != NULL) {
     Node * node = dag->getNode(node_id);
     if (node != NULL) {
@@ -121,10 +130,12 @@ CltWfMgr::execNode(const char * node_id, const char * dag_id) {
       if (!node->hasFailed()) return 0;
     }
     else
-      cerr << "Node " << node_id << " not found!!!!" << endl;
+      cerr << "Execution of node " << dag_id << "-" << node_id << " failed! "
+           << " (Node not found)" << endl;
   }
   else
-     TRACE_TEXT (TRACE_MAIN_STEPS,"  Dag " << dag_id << " not found!" << endl);
+     cerr << "Execution of node " << dag_id << "-" << node_id << " failed! "
+          << " (Dag not found)" << endl;
   return 1;
 } // end execNode
 
@@ -196,6 +207,9 @@ CltWfMgr::wf_call_madag(diet_wf_desc_t * profile,
   if (! reader.setup())
     return XML_MALFORMED;
 
+  // At this stage only the XML validity is checked but not the coherence
+  // of the dag links between inputs and outputs
+
   Dag * dag = reader.getDag();
 
   dag->setStartTime(this->getCurrTime());
@@ -208,6 +222,7 @@ CltWfMgr::wf_call_madag(diet_wf_desc_t * profile,
 	      "Try to send the workflow description to the MA_DAG ...");
   if (this->myMaDag != MaDag::_nil()) {
 
+    this->myLock.lock();  /** LOCK */
     // CALL MADAG
     CORBA::Long wfReqId = this->myMaDag->getWfReqId();
     CORBA::Long dagId   = this->myMaDag->processDagWf(*corba_profile, myIOR(), wfReqId);
@@ -217,9 +232,14 @@ CltWfMgr::wf_call_madag(diet_wf_desc_t * profile,
 	TRACE_TEXT (TRACE_ALL_STEPS, " done" << endl);
         dag->setId(itoa((long) dagId));
 	// Build the dag connexions to allow retrieval of input data
+        TRACE_TEXT (TRACE_ALL_STEPS,
+                    "Linking the dag ports...");
   	dag->linkAllPorts();
+        TRACE_TEXT (TRACE_ALL_STEPS, " done" << endl);
   	this->myProfiles[profile] = dag;
-	TRACE_TEXT (TRACE_MAIN_STEPS,"Dag ID " << dag->getId() << endl);
+	TRACE_TEXT (TRACE_MAIN_STEPS,"Dag ID " << dag->getId() << " ready to execute" << endl);
+        this->myLock.unlock();  /** UNLOCK */
+
   	this->mySem.wait();
         // WAIT UNTIL Workflow IS COMPLETED OR CANCELLED
         if (dag->isCancelled()) {
@@ -231,6 +251,7 @@ CltWfMgr::wf_call_madag(diet_wf_desc_t * profile,
     } else {
 	TRACE_TEXT (TRACE_ALL_STEPS, "MA DAG cancelled the request ...");
 	res = 1;
+        this->myLock.unlock();  /** UNLOCK */
     }
   }
 
