@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.126  2008/07/12 00:24:50  rbolze
+ * add stat info when the persistent data are released
+ * add stat info about the workflow execution.
+ *
  * Revision 1.125  2008/07/11 09:52:04  bisnard
  * Missing estimation vector copy in diet_call_common when sed not provided
  *
@@ -776,12 +780,16 @@ void store_id(char* argID, char* msg)
 int
 diet_free_persistent_data(char* argID)
 {
+  char statMsg[128];
+  sprintf(statMsg,"%s %s",__FUNCTION__,argID);
+  stat_in("client", statMsg);
   if(MA->diet_free_pdata(argID)!=0) {
+    stat_out("client", statMsg);
     return 1;
   } else {
-    cerr << "UNKNOWN DATA" << endl;
+    cerr << "UNKNOWN DATA" << endl;    
     return 0;
-  }
+  }  
 }
 
 /******************************************************************
@@ -920,7 +928,7 @@ request_submission(diet_profile_t* profile,
 
   /* Request submission : try nb_tries times */
 
-  stat_in("Client","request_submission");
+  stat_in("client","request_submission");
   subm_count = 0;
   do {
     response = NULL;
@@ -1108,7 +1116,7 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer, estVector_t est
   corba_profile_t corba_profile;
   char statMsg[128];
   corba_estimation_t emptyEstimVect;
-  stat_in("Client","diet_call");
+  stat_in("client","diet_call");
 
   if (CORBA::is_nil(chosenServer)) {
     if (!(res = request_submission(profile, chosenServer, estimVect))) {
@@ -1181,7 +1189,7 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer, estVector_t est
   /* Computation */
   sprintf(statMsg, "computation %ld", (unsigned long) profile->dietReqID);
   try {
-    stat_in("Client",statMsg);
+    stat_in("client",statMsg);
 
     TRACE_TEXT(TRACE_MAIN_STEPS, "Calling the ref Corba of the SeD\n");
 #if HAVE_FD
@@ -1291,7 +1299,7 @@ diet_call_async_common(diet_profile_t* profile,
   // get sole CallAsyncMgr singleton
   caMgr = CallAsyncMgr::Instance();
 
-  stat_in("Client","diet_call_async");
+  stat_in("client","diet_call_async");
 
   try {
 
@@ -1374,11 +1382,11 @@ diet_call_async_common(diet_profile_t* profile,
       return 1;
     }
 
-    stat_in("Client","computation_async");
+    stat_in("client","computation_async");
     chosenServer->solveAsync(profile->pb_name, corba_profile,
                              REF_CALLBACK_SERVER);
 
-    stat_out("Client","computation_async");
+    stat_out("client","computation_async");
 
     if (unmrsh_out_args_to_profile(profile, &corba_profile)) {
       INTERNAL_ERROR("returned profile is wrongly built", 1);

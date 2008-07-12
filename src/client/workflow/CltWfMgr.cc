@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2008/07/12 00:24:49  rbolze
+ * add stat info when the persistent data are released
+ * add stat info about the workflow execution.
+ *
  * Revision 1.12  2008/07/11 08:35:47  bisnard
  * Added exclusion blocks to avoid dag not found error
  *
@@ -80,6 +84,7 @@
 #include "debug.hh"
 #include "ORBMgr.hh"
 #include "workflow/DagWfParser.hh"
+#include "statistics.hh"
 
 using namespace std;
 
@@ -199,8 +204,9 @@ diet_error_t
 CltWfMgr::wf_call_madag(diet_wf_desc_t * profile,
                         bool mapping) {
   diet_error_t res(0);
+  char statMsg[128];
   corba_wf_desc_t  * corba_profile = new corba_wf_desc_t;
-
+  
   TRACE_TEXT (TRACE_ALL_STEPS,"Calling the MA DAG "<< endl);
 
   DagWfParser reader(cltWfReqId++, profile->abstract_wf, false);
@@ -225,6 +231,8 @@ CltWfMgr::wf_call_madag(diet_wf_desc_t * profile,
     this->myLock.lock();  /** LOCK */
     // CALL MADAG
     CORBA::Long wfReqId = this->myMaDag->getWfReqId();
+    sprintf(statMsg,"%s",__FUNCTION__);
+    stat_in("cltwfmgr",statMsg);
     CORBA::Long dagId   = this->myMaDag->processDagWf(*corba_profile, myIOR(), wfReqId);
 
     // DO LOCAL STUFF and SLEEP until released by MaDag
@@ -254,7 +262,8 @@ CltWfMgr::wf_call_madag(diet_wf_desc_t * profile,
         this->myLock.unlock();  /** UNLOCK */
     }
   }
-
+  sprintf(statMsg,"%s %ld",__FUNCTION__,dag->getId().c_str());
+  stat_out("cltwfmgr",statMsg);
   return res;
 
 } // end wf_call_madag
@@ -265,7 +274,7 @@ CltWfMgr::wf_call_madag(diet_wf_desc_t * profile,
  */
 diet_error_t
 CltWfMgr::wf_call(diet_wf_desc_t* profile) {
-  diet_error_t res(0);
+  diet_error_t res(0);  
   if (this->myMaDag != MaDag::_nil()) {
     return this->wf_call_madag(profile, true);
   }
@@ -357,15 +366,20 @@ CltWfMgr::getWfOutputMatrix(diet_wf_desc_t* profile,
  */
 void
 CltWfMgr::wf_free(diet_wf_desc_t * profile) {
+  char statMsg[64];
+  
   if (this->myProfiles.find(profile) != this->myProfiles.end()) {
-    Dag * dag = this->myProfiles.find(profile)->second;
+    Dag * dag = this->myProfiles.find(profile)->second;    
     if (dag != NULL) {
+      sprintf(statMsg,"%s %s",__FUNCTION__,dag->getId().c_str());
+      stat_in("cltwfmgr",statMsg);
       dag->deleteAllResults();
       delete dag;
     }
     this->myProfiles.erase(profile);
     delete profile->abstract_wf;
     delete profile;
+    stat_out("cltwfmgr",statMsg);
   }
 } // end wf_free
 
