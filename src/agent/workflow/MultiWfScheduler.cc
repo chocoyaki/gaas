@@ -9,6 +9,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2008/07/12 00:22:28  rbolze
+ * add function getInterRoundDelay()
+ * use this function when the maDag start to display this value.
+ * display the dag_id when compute the ageFactor in AgingHEFT
+ * add some stats info :
+ * 	queuedNodeCount
+ * 	change MA DAG to MA_DAG
+ *
  * Revision 1.26  2008/07/11 07:56:05  bisnard
  * provide list of failed nodes in case of cancelled dag
  *
@@ -117,6 +125,7 @@
 #include "marshalling.hh"
 #include "est_internal.hh"
 #include "debug.hh"
+#include "statistics.hh"
 
 using namespace madag;
 
@@ -159,7 +168,13 @@ void
 MultiWfScheduler::setInterRoundDelay(int IRD_value) {
   this->interRoundDelay = IRD_value;
 }
-
+/**
+ * get the inter-round delay value
+ */
+const int
+MultiWfScheduler::getInterRoundDelay() const {
+  return this->interRoundDelay;
+}
 /**
  * get the MaDag object ref
  */
@@ -270,6 +285,9 @@ MultiWfScheduler::run() {
     if (queuedNodeCount > 0) {
       TRACE_TEXT(TRACE_ALL_STEPS,"Phase 2: Check ressources for nodes in exec queue ("
           << queuedNodeCount << " nodes)" << endl);
+      char statMsg[64];
+      sprintf(statMsg, "queuedNodeCount %d", queuedNodeCount);
+      stat_info("MA_DAG",statMsg);
       // Build list of services for all nodes in the exec queue
       // and ask MA for list of ressources available
       wf_response_t * wf_response = getProblemEstimates(execQueue, myMaDag->getMA());
@@ -369,7 +387,6 @@ MultiWfScheduler::run() {
         readyQueues.pop_front();
         readyQueues.push_back(firstReadyQueue);
       }
-
     } // end if queuedNodeCount > 0
 
     this->myLock.unlock();

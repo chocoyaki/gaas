@@ -10,6 +10,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2008/07/12 00:22:28  rbolze
+ * add function getInterRoundDelay()
+ * use this function when the maDag start to display this value.
+ * display the dag_id when compute the ageFactor in AgingHEFT
+ * add some stats info :
+ * 	queuedNodeCount
+ * 	change MA DAG to MA_DAG
+ *
  * Revision 1.15  2008/07/08 15:52:03  bisnard
  * Set interRoundDelay as parameter of workflow scheduler
  *
@@ -187,7 +195,8 @@ MaDag_impl::MaDag_impl(const char * name,
     this->myMultiWfSched->setInterRoundDelay(interRoundDelay);
 
   this->myMultiWfSched->start();
-
+  TRACE_TEXT(TRACE_ALL_STEPS, "InterRoundDelay= " <<
+	     this->myMultiWfSched->getInterRoundDelay() << endl);
   // init the statistics module
   stat_init();
 } // end MA DAG constructor
@@ -208,7 +217,7 @@ MaDag_impl::processDagWf(const corba_wf_desc_t& dag_desc,
                                 CORBA::Long wfReqId) {
   char statMsg[128];
   sprintf(statMsg,"Start workflow request %ld",wfReqId);
-  stat_in("MA DAG",statMsg);
+  stat_in("MA_DAG",statMsg);
   this->myMutex.lock();
 
   // Register the client workflow manager
@@ -223,14 +232,14 @@ MaDag_impl::processDagWf(const corba_wf_desc_t& dag_desc,
   }
   catch (...) {
     sprintf(statMsg,"Workflow request (%ld) aborted",wfReqId);
-    stat_out("MA DAG",statMsg);
+    stat_out("MA_DAG",statMsg);
     //stat_out("MA DAG","Workflow request (" << wfReqId << ") aborted");
     this->myMutex.unlock();
     return -1;
   }
   this->myMutex.unlock();
   sprintf(statMsg,"End workflow request %ld",wfReqId);
-  stat_out("MA DAG",statMsg);
+  stat_out("MA_DAG",statMsg);
   //stat_out("MA DAG","Workflow request  (" << wfReqId << ") processing END");
   return (CORBA::Long) dagId;
 } // end processDagWf

@@ -10,6 +10,14 @@
 
 /* $Id$
  * $Log$
+ * Revision 1.7  2008/07/12 00:22:28  rbolze
+ * add function getInterRoundDelay()
+ * use this function when the maDag start to display this value.
+ * display the dag_id when compute the ageFactor in AgingHEFT
+ * add some stats info :
+ * 	queuedNodeCount
+ * 	change MA DAG to MA_DAG
+ *
  * Revision 1.6  2008/07/10 11:42:20  bisnard
  * Fix bug 68 memory loss during workflow execution
  *
@@ -137,7 +145,9 @@ MultiWfAgingHEFT::setExecPriority(Node * node) {
   float  ageFactor  = (float) (dagAge / this->dagsState[node->getDag()].makespan) + 1;
   node->setPriority((double) (this->nodesHEFTPrio[node] * ageFactor));
   TRACE_TEXT(TRACE_ALL_STEPS,"[AHEFT] Node priority set to " << node->getPriority()
-      << " (dag age = " << dagAge << "/factor = " << ageFactor << ")" << endl);
+      << " (dag" << node->getDag()->getId()
+      << " age = " << dagAge 
+      << "/factor = " << ageFactor << ")" << endl);
 }
 
 /**

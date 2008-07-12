@@ -9,6 +9,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2008/07/12 00:22:28  rbolze
+ * add function getInterRoundDelay()
+ * use this function when the maDag start to display this value.
+ * display the dag_id when compute the ageFactor in AgingHEFT
+ * add some stats info :
+ * 	queuedNodeCount
+ * 	change MA DAG to MA_DAG
+ *
  * Revision 1.14  2008/07/08 15:52:03  bisnard
  * Set interRoundDelay as parameter of workflow scheduler
  *
@@ -119,6 +127,14 @@ namespace madag {
      */
     virtual void
         setSched(WfScheduler * sched);
+
+    /**
+     * get the inter-round delay in milliseconds
+     * this value (by default 100ms) is used to avoid burst of submit requests
+     * that result in mapping several jobs to same SeD
+     */
+    virtual const int
+        getInterRoundDelay() const;
 
     /**
      * set the inter-round delay in milliseconds
