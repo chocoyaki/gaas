@@ -8,6 +8,10 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.9  2008/07/14 09:33:34  vpichon
+%*
+%* documentation section move UserManual => ProgrammersGuide
+%*
 %* Revision 1.8  2006/11/16 14:09:20  eboix
 %* - Programmers guide converted from autotools to cmake.
 %* - cmake summary deported to Cmake sub-dir.   --- Injay2461
@@ -122,6 +126,45 @@ A script \texttt{local\_platform} is given with the distribution
 \end{itemize}
 So, as it is quite easy to launch a local platform, please do not
 hesitate configuring DIET with FAST.
+
+\section{Documentation}
+\label{section:compiling-documentation}
+
+Documentation is in \verb+CVS_DIET_HOME/doc+. It includes the LaTeX-based 
+user's guide, the developer's guide and the doxygenated documentation.
+Compilation of the documentation is very sensitive to the version of your
+\LaTeX\ compiler and it also relies on many sub-dependencies
+  (e.g. \verb+doxygen+ or \verb+fig2dev+)
+
+\begin{itemize}
+\item
+  \verb+cd CVS_DIET_HOME/doc+
+\item
+  \verb+mkdir build+
+\item
+  \verb+cd build+
+\item
+  \verb+ccmake ..+ to enter the GUI
+  \begin{itemize}
+  \item press \verb+c+ (equivalent of bootstrap.sh of the autotools)
+  \item toggle the desired options 
+  \item specify the \verb+CMAKE_INSTALL_PREFIX+ parameter (if you wish
+     to install in a directory different from \verb+/usr/local+,
+  \item press \verb+c+ again, for checking required dependencies
+  \item check all the parameters preceded with the * (star) character
+     whose value was automatically retrieved by \verb+cmake+.
+  \item provide the required information i.e. fill in the proper values
+     for all parameters whose value is terminated by NOT-FOUND
+  \item iterate the above process of parameter checking, toggle/specification
+     and configuration until all configuration information is satisfied
+  \item press \verb+g+ to generate the makefile
+  \item press \verb+q+ to exit ccmake
+  \end{itemize}
+\item
+  \verb+make+ in order to classically launch the compilation process
+\item
+  \verb+make install+ when installation is required
+\end{itemize}
 
 
 \section{Before altering DIET ...}
