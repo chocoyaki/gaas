@@ -120,6 +120,20 @@ FOREACH( function_to_check ${DIET_FUNCTIONS_TO_CHECK} )
   ENDIF( NOT dummyfound${function_to_check} )
 ENDFOREACH( function_to_check )
 
+IF( DIET_USE_ALT_BATCH )
+    # In that case, CORI must also be present because of CORI_BATCH
+    IF( NOT DIET_USE_CORI )
+      MESSAGE( "Because of needed batch estimations, CORI must also be selected." )
+      SET( DIET_USE_CORI ON )
+    ENDIF( NOT DIET_USE_CORI )
+
+    # The HAVE_ALT_BATCH compiler flags has too many occurences to be cleanly
+    # associated with all the concerned files by using
+    # SET_SOURCE_FILES_PROPERTIES combined with PROPERTIES COMPILE_FLAGS.
+    # [For example ServiceTable.hh gets included in many places...]
+    ADD_DEFINITIONS( -DHAVE_ALT_BATCH )
+ENDIF( DIET_USE_ALT_BATCH )
+
 ### CORI (COllector of Resource Information) is heavily dependant on 
 # system calls for probing ressources:
 IF( DIET_USE_CORI )
@@ -213,20 +227,6 @@ ENDIF( OMNIORB4_FOUND )
 #    ADD_SUBDIRECTORY( doc )
 #  ENDIF( DIET_BUILD_DOCUMENTATION )
 #ENDIF( DIET_BUILD_DOCUMENTATION )
-
-IF( DIET_USE_ALT_BATCH )
-    # In that case, CORI must also be present because of CORI_BATCH
-    IF( NOT DIET_USE_CORI )
-      MESSAGE( "Because of needed batch estimations, CORI must also be selected." )
-      SET( DIET_USE_CORI ON )
-    ENDIF( NOT DIET_USE_CORI )
-
-    # The HAVE_ALT_BATCH compiler flags has too many occurences to be cleanly
-    # associated with all the concerned files by using
-    # SET_SOURCE_FILES_PROPERTIES combined with PROPERTIES COMPILE_FLAGS.
-    # [For example ServiceTable.hh gets included in many places...]
-    ADD_DEFINITIONS( -DHAVE_ALT_BATCH )
-ENDIF( DIET_USE_ALT_BATCH )
 
 # Enable dynamic MULTI-Master-Agent support based on JXTA library
 # (refer to http://www.jxta.org/ ). This is similar to functionalities offered
