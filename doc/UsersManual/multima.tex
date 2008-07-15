@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.6  2008/07/15 23:11:45  ecaron
+%* Typo
+%*
 %* Revision 1.5  2008/04/07 22:25:38  ecaron
 %* Updated files to pdflatex compilation
 %*
@@ -36,7 +39,7 @@ when the number of users and the number of resources grow
 simultaneously. When a user tries to resolve a problem, without the
 multi-MA extension, \diet looks for the better \sed that can solve
 it. This search involves the fact that each \sed has to be queried to
-run a performance prediction as described in section~\ref{sec:solvepb}.
+run a performance prediction as described in Section~\ref{sec:solvepb}.
 
 The need to query every \sed that can resolve a problem is a serious
 scalability issue. To avoid it, the multi-MA extension proposes to
@@ -58,9 +61,9 @@ of {\sed}s that is independent of the total number of available
 \section{Deployment example}
 
 The instructions about how to compile \diet with the multi-MA
-extension are available in section~\ref{sec:multimainstall} and the
+extension are available in Section~\ref{sec:multimainstall} and the
 configuration instructions are available in
-section~\ref{sec:multimaconfig}.
+Section~\ref{sec:multimaconfig}.
 
 The example described here is about four organizations which want to
 share there resources. The first organization, named alpha, have ten
@@ -89,7 +92,7 @@ tell that the multi-MA extension should listen for incoming connection
 at port 2001. They also tell that the MA should create a link toward
 the MA of the organization gamma and toward the MA of the organization
 beta. (The description of each configuration parameter are available
-in section~\ref{sec:multimaconfig}.)
+in Section~\ref{sec:multimaconfig}.)
 
 \begin{verbatim}
 agentType = DIET_MASTER_AGENT
@@ -136,7 +139,7 @@ when used on the previous architecture.
 
 If a client sends a \texttt{diet\_call} for the problem \textbf{a} to
 the alpha's MA, the alpha's MA will return a reference of one of it's
-\sed. However, if its scheduler (see section~\ref{ch:plugin}) says
+\sed. However, if its scheduler (see Section~\ref{ch:plugin}) says
 that no \sed is available, it will forward the request to beta and
 gamma. If beta has an available \sed, it will be used to resolve the
 problem. If not, the request is forwarded to delta.
