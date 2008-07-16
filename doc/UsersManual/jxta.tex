@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.13  2008/07/16 22:59:36  ecaron
+%* customize look and feel
+%*
 %* Revision 1.12  2008/04/07 22:25:38  ecaron
 %* Updated files to pdflatex compilation
 %*
@@ -324,8 +327,17 @@ The SeD$_{DIET}$ contains:
 \subsection {Deploying a DIET$_{J}$ platform}
 \label{ssec:deployjxta}
 
+
+
 Please refer to the previous chapter for more information concerning
 things to do before deploying the platform.
+
+\begin{figure}[htb]
+ \begin{center}
+  \resizebox{.6\linewidth}{!}{\includegraphics{fig/JXTAConfig}}
+  \caption{Configuring JXTA \label{fig:platform}}
+ \end{center}
+\end{figure}
 
 
 \begin{itemize}
@@ -356,24 +368,18 @@ things to do before deploying the platform.
       and must be unique, for instance, ``MA1'' for the first MA$_{J}$
       you load. The second screen, named ``advanced'', displays the
       TCP and HTTP settings. When using DIET$_{J}$ on a single
-      machine, the configuration is as shown on figure 7.2, else, just
-      replace \texttt{localhost} by the IP address of the machine.
-      Please note that, for each peer on a single machine, the TCP and
-      HTTP ports have to be different. For instance : 9701 and 9700
-      for the first peer, 9703 and 9702 for the second, etc. The third
-      setup screen deals with the web access. If you want to access
-      peers outside the local network, references of rendezvous and
-      relay peers placed at the disposal of JXTA users by the JXTA
-      community can be downloaded. Otherwise, don't do anything with
-      this screen. The last screen deals with username and password,
-      but these parameters are filled with default values.}
-\begin{figure}[htb]
- \begin{center}
-  \resizebox{.7\linewidth}{!}{\includegraphics{fig/JXTAConfig}}
-%%   \label{fig:platform}
-  \caption{Configuring JXTA}
- \end{center}
-\end{figure}
+      machine, the configuration is as shown on
+      Figure~\ref{fig:platform}, else, just replace \texttt{localhost}
+      by the IP address of the machine.  Please note that, for each
+      peer on a single machine, the TCP and HTTP ports have to be
+      different. For instance : 9701 and 9700 for the first peer, 9703
+      and 9702 for the second, etc. The third setup screen deals with
+      the web access. If you want to access peers outside the local
+      network, references of rendezvous and relay peers placed at the
+      disposal of JXTA users by the JXTA community can be
+      downloaded. Otherwise, don't do anything with this screen. The
+      last screen deals with username and password, but these
+      parameters are filled with default values.}
 
 \item{\textbf{Second step}: registering a SeD to the MA. Be sure that
     the \texttt{parentName} inside the configuration file matches the
