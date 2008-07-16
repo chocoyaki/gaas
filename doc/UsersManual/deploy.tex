@@ -11,6 +11,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.21  2008/07/16 23:02:48  ecaron
+%* Fixe the problem with too long list of hosts
+%*
 %* Revision 1.20  2008/03/04 16:12:37  bdepardo
 %* Added a link to the file examples/commented.xml for GoDIET.
 %*
@@ -399,11 +402,12 @@ To federate resources, each MA tries periodically to contact other
 MAs. These options define how the MA connects to the others.\\
 
 \noindent
-\texttt{neighbours} \ \ \emph{default}\texttt{ = empty list \{\}} \\ List of
-known MAs separated by commas. The MA will try to connect itself to the MAs
-named in this list. Each MA is described by the name of its host followed by
-its bind service port number (see \texttt{bindServicePort}). For example
-\texttt{host1.domain.com:500,host4.domain.com:500,host.domainB.net:2001} is a
+\texttt{neighbours} \ \ \emph{default}\texttt{ = empty list \{\}} \\
+List of known MAs separated by commas. The MA will try to connect
+itself to the MAs named in this list. Each MA is described by the name
+of its host followed by its bind service port number (see
+\texttt{bindServicePort}). For example \texttt{host1.domain.com:500},
+\texttt{host4.domain.com:500}, \texttt{host.domainB.net:2001} is a
 valid three MAs list. By default, an empty list is set into
 \texttt{neighbours}.\\
 
