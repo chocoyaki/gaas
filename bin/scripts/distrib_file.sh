@@ -9,6 +9,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.8  2008/07/16 13:15:55  ecaron
+#* New template for the Licence
+#*
 #* Revision 1.7  2008/07/07 08:45:59  vpichon
 #* licence CeCILL
 #*
@@ -146,42 +149,44 @@ do
     printf "$OPC_PRNT This file is part of DIET $version_fmt$CLC_PRNT\n" \
            ${VERSION}. >> $OUT_FILE
     cat >> $OUT_FILE << EOF
-$OPC                                                                           $CLC
-$OPC Copyright ENS Lyon, INRIA, (2000)                                         $CLC
-$OPC                                                                           $CLC
-$OPC Frederic.Desprez@ens-lyon.fr, Eddy.Caron@ens-lyon.fr                      $CLC
-$OPC                                                                           $CLC
-$OPC This software is a computer program whose purpose is to [describe         $CLC
-$OPC functionalities and technical features of your software].                 $CLC
-$OPC                                                                           $CLC
-$OPC This software is governed by the CeCILL license under French law and      $CLC
-$OPC abiding by the rules of distribution of free software.  You can  use,     $CLC
-$OPC modify and/ or redistribute the software under the terms of the CeCILL    $CLC
-$OPC license as circulated by CEA, CNRS and INRIA at the following URL         $CLC
-$OPC "http://www.cecill.info".                                                 $CLC
-$OPC                                                                           $CLC
-$OPC As a counterpart to the access to the source code and  rights to copy,    $CLC
-$OPC modify and redistribute granted by the license, users are provided only   $CLC
-$OPC with a limited warranty  and the software's author,  the holder of the    $CLC
-$OPC economic rights,  and the successive licensors  have only  limited        $CLC
-$OPC liability.                                                                $CLC
-$OPC                                                                           $CLC
-$OPC In this respect, the user's attention is drawn to the risks associated    $CLC
-$OPC with loading,  using,  modifying and/or developing or reproducing the     $CLC
-$OPC software by the user in light of its specific status of free software,    $CLC
-$OPC that may mean  that it is complicated to manipulate,  and  that  also     $CLC
-$OPC therefore means  that it is reserved for developers  and  experienced     $CLC
-$OPC professionals having in-depth computer knowledge. Users are therefore     $CLC
-$OPC encouraged to load and test the software's suitability as regards their   $CLC
-$OPC requirements in conditions enabling the security of their systems and/or  $CLC
-$OPC data to be ensured and,  more generally, to use and operate it in the     $CLC
-$OPC same conditions as regards security.                                      $CLC
-$OPC                                                                           $CLC
-$OPC The fact that you are presently reading this means that you have had      $CLC
-$OPC knowledge of the CeCILL license and that you accept its terms.            $CLC
-$OPC                                                                           $CLC
+$OPC                                                                        $CLC
+$OPC Copyright ENS Lyon, INRIA, UCBL (2000)                                 $CLC
+$OPC                                                                        $CLC
+$OPC - Frederic.Desprez@ens-lyon.fr (Project Manager)                       $CLC
+$OPC - Eddy.Caron@ens-lyon.fr (Technical Manager)                           $CLC
+$OPC - Yves.Caniou@ens-lyon.fr (Permanent Contributor)                      $CLC
+$OPC                                                                        $CLC
+$OPC This software is a computer program whose purpose is to [describe      $CLC
+$OPC functionalities and technical features of your software].              $CLC
+$OPC                                                                        $CLC
+$OPC This software is governed by the CeCILL license under French law and   $CLC
+$OPC abiding by the rules of distribution of free software.  You can  use,  $CLC
+$OPC modify and/ or redistribute the software under the terms of the CeCILL $CLC
+$OPC license as circulated by CEA, CNRS and INRIA at the following URL      $CLC
+$OPC "http://www.cecill.info".                                              $CLC
+$OPC                                                                        $CLC
+$OPC As a counterpart to the access to the source code and  rights to copy, $CLC
+$OPC modify and redistribute granted by the license, users are provided     $CLC
+$OPC only with a limited warranty  and the software's author,  the holder   $CLC
+$OPC of the economic rights,  and the successive licensors  have only       $CLC
+$OPC limited liability.                                                     $CLC
+$OPC                                                                        $CLC
+$OPC In this respect, the user's attention is drawn to the risks            $CLC
+$OPC associated with loading,  using,  modifying and/or developing or       $CLC
+$OPC reproducing the software by the user in light of its specific status   $CLC
+$OPC of free software, that may mean  that it is complicated to             $CLC
+$OPC manipulate, and  that  also therefore means  that it is reserved for   $CLC
+$OPC developers and experienced professionals having in-depth computer      $CLC
+$OPC knowledge. Users are therefore encouraged to load and test the         $CLC
+$OPC software's suitability as regards their requirements in conditions     $CLC
+$OPC enabling the security of their systems and/or data to be ensured and,  $CLC
+$OPC more generally, to use and operate it in the same conditions as        $CLC
+$OPC regards security.                                                      $CLC
+$OPC                                                                        $CLC
+$OPC The fact that you are presently reading this means that you have had   $CLC
+$OPC knowledge of the CeCILL license and that you accept its terms.         $CLC
+$OPC                                                                        $CLC
 EOF
-
 
   elif [ "`echo \"$LINE\" | sed \"s|${SEP_LINE_PAT}|@@|g\"`" = "@@" ]
   then
