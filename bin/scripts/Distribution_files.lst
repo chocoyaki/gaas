@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.27  2008/07/16 01:09:10  ecaron
+#* Remove of two deprecated files for the workflow part
+#*
 #* Revision 1.26  2008/06/10 21:03:21  ycaniou
 #* Remove parallel_client.c since the API has changed (will put it back for the
 #*   next release).
@@ -256,8 +259,6 @@ src/agent/workflow/HEFTScheduler.hh
 src/agent/workflow/MaDag_impl.cc
 src/agent/workflow/MaDag_impl.hh
 src/agent/workflow/maDagAgent.cc
-src/agent/workflow/MultiDag.cc
-src/agent/workflow/MultiDag.hh
 src/agent/workflow/MultiWfBasicScheduler.cc
 src/agent/workflow/MultiWfBasicScheduler.hh
 src/agent/workflow/MultiWfFOFT.cc
