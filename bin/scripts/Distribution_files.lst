@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.28  2008/07/16 21:19:18  ecaron
+#* *** empty log message ***
+#*
 #* Revision 1.27  2008/07/16 01:09:10  ecaron
 #* Remove of two deprecated files for the workflow part
 #*
@@ -125,6 +128,8 @@ CMakeLists.txt
 README.FIRST
 INSTALL.txt
 ChangeLog
+LICENCE_eng
+LICENCE_fr
 
 # Cmake Section
 [Untemplated]
@@ -593,7 +598,7 @@ src/Testing/TestORBMgrInit.cxx
 
 
 # Doc section
-[Untemplated]
+[Devel_Untemplated]
 doc/CMakeLists.txt
 [Devel_Templated]
 doc/UsersManual/UsersManual.bib
