@@ -8,10 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
- * Revision 1.9  2005/09/05 16:04:10  hdail
- * Addition of getDataLocSubtree (experimental and protected by HAVE_ALTPREDICT).
- * Movement of subtree portion of whereData into separate method call so it can
- * also be used without searching higher in tree.
+ * Revision 1.10  2008/07/16 00:44:11  ecaron
+ * Remove HAVE_ALTPREDICT
+ *
  *
  * Revision 1.8  2004/09/13 14:12:52  hdail
  * Improved memory management for class variables localHostName and myName.
@@ -113,13 +112,6 @@ public:
   virtual DataMgr_ptr
   whereDataSubtree(const char* argID);
 
-#if HAVE_ALTPREDICT
-  /** look for a data reference in the subtree, but only recover 
-   * some location information about the data */
-  virtual corba_data_loc_t*
-  getDataLocSubtree(const char* argID);
-#endif // HAVE_ALTPREDICT
- 
   void
   printList1();
 
