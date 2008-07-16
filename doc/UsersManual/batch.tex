@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.8  2008/07/16 22:51:50  ecaron
+%* Remove examples (keep only references)
+%*
 %* Revision 1.7  2008/07/08 16:50:10  glemahec
 %* Quelques corrections (typo).
 %*
@@ -349,33 +352,35 @@ let \diet choose the best (by default, two processors are used and the
 scheduling algorithm is Round-Robin). We consequently give the MPI
 code which is called from the batch \sed (not reproduced here). Note
 that the user {\it must change} some paths in the \sed codes,
-according to the site where he deploys \diet. We reproduce the codes
-here.
+according to the site where he deploys \diet. 
 
-\newpage
+% We reproduce the codes
+% here.
 
-%\parbox[b]{.5\textwidth}
-{
-  \tiny
-  \lstinputlisting[title={\bf Synchronous client code},language=c,label=client.c,basewidth={.5em,.4em},fontadjust]{Data/examples_Batch_client.c}
-}
+% \newpage
 
-%\newpage
+% %\parbox[b]{.5\textwidth}
+% {
+%   \tiny
+%   \lstinputlisting[title={\bf Synchronous client code},language=c,label=client.c,basewidth={.5em,.4em},fontadjust]{Data/examples_Batch_client.c}
+% }
 
-{%\twocolumn
-  \tiny
-  \lstinputlisting[title={\bf Batch server code},language=c,basewidth={.5em,.4em},fontadjust]{Data/examples_Batch_batch_server.c}
-}
+% %\newpage
 
-{%\twocolumn
-  \tiny
-%  \lstinputlisting[title={\bf Parallel server code},language=c,basewidth={.5em,.4em},fontadjust]{@CMAKE_SOURCE_DIR@/src/examples/Batch/parallel_server.c}
-}
+% {%\twocolumn
+%   \tiny
+%   \lstinputlisting[title={\bf Batch server code},language=c,basewidth={.5em,.4em},fontadjust]{Data/examples_Batch_batch_server.c}
+% }
 
-{%\twocolumn
-  \tiny
-  \lstinputlisting[title={\bf Sequential server code},language=c,basewidth={.5em,.4em},fontadjust]{Data/examples_Batch_sequential_server.c}
-}
+% {%\twocolumn
+%   \tiny
+% %  \lstinputlisting[title={\bf Parallel server code},language=c,basewidth={.5em,.4em},fontadjust]{@CMAKE_SOURCE_DIR@/src/examples/Batch/parallel_server.c}
+% }
 
-\onecolumn
+% {%\twocolumn
+%   \tiny
+%   \lstinputlisting[title={\bf Sequential server code},language=c,basewidth={.5em,.4em},fontadjust]{Data/examples_Batch_sequential_server.c}
+% }
+
+% \onecolumn
 
