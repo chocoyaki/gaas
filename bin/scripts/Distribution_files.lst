@@ -17,8 +17,11 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.29  2008/07/16 21:21:34  ecaron
+#* Remove unused Cmake file for the documentation (now external compilation)
+#*
 #* Revision 1.28  2008/07/16 21:19:18  ecaron
-#* *** empty log message ***
+#* Add CeCILL Licence File
 #*
 #* Revision 1.27  2008/07/16 01:09:10  ecaron
 #* Remove of two deprecated files for the workflow part
