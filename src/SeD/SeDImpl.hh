@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.42  2008/07/16 00:45:56  ecaron
+ * Remove HAVE_ALTPREDICT (deprecated code)
+ *
  * Revision 1.41  2008/05/16 12:25:56  bisnard
  * API give status of all jobs running or waiting on the SeD
  * (used to compute earliest finish time)
@@ -117,11 +120,6 @@
  *
  * Revision 1.22  2006/01/13 10:40:39  mjan
  * Updating DIET for next JuxMem (0.2)
- *
- * Revision 1.21  2005/09/05 16:02:52  hdail
- * Addition of locationID as member variable and to parsing.  SeD initializes
- * data location data in response with all locally available information about
- * parameters. (experimental and protected by HAVE_ALTPREDICT).
  *
  * Revision 1.20  2005/08/30 09:20:20  ycaniou
  * Corrected things in DIET_server.cc (diet_submit_batch...)
@@ -357,11 +355,7 @@ private:
 
   /* (Fully qualified) local host name */
   char localHostName[256];
-#if HAVE_ALTPREDICT
-  /* Artifical location classification for rough distance estimation */
-  char locationID[256];
-#endif
-
+  
   /** Listening port */
   unsigned int port;
 

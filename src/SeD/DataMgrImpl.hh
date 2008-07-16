@@ -8,9 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2008/07/16 00:46:48  ecaron
+ * Remove HAVE_ALTPREDICT (deprecated code)
+ *
  * Revision 1.14  2005/09/05 16:01:34  hdail
  * Addition of locationID information and getDataLoc method call.
- * (experimental and protected by HAVE_ALTPREDICT).
  *
  * Revision 1.13  2005/04/08 13:02:43  hdail
  * The code for LogCentral has proven itself stable and it seems bug free.
@@ -170,13 +172,6 @@ public:
   char *
   whichDataMgr(const char * argId);
 
-#if HAVE_ALTPREDICT
-  /** look for data reference in the DataManager, but only recover
-   * some location information about the data (for scheduling) */
-  virtual corba_data_loc_t*
-  getDataLoc(const char* argID);
-#endif
-  
 private:
  
   /**************************************************************************/
@@ -185,10 +180,6 @@ private:
   
   /** Local host name */
   char localHostName[256];
-#if HAVE_ALTPREDICT
-  char locationID[256];
-#endif // HAVE_ALTPREDICT
-
   /** ID of this DataMgr amongst the children of its parent */
   ChildID childID;
   /* reference of the parent Data Location Manager */
