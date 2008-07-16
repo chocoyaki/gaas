@@ -10,6 +10,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.12  2008/07/16 23:00:12  ecaron
+%* Customize look and feel
+%*
 %* Revision 1.11  2008/04/07 22:25:38  ecaron
 %* Updated files to pdflatex compilation
 %*
@@ -90,7 +93,17 @@ The DIET platform can be monitored using a system called LogService.
 This monitoring service offers the capability to be aware of information that
 you want to relay from the platform.  As shown in
 Figure~\ref{fig:DIET_LogService}, LogService is composed of three
-modules: \textit{LogComponent}, \textit{LogCentral} and \textit{LogTool}.
+modules: \textit{LogComponent}, \textit{LogCentral} and
+\textit{LogTool}.
+
+ \begin{figure}[h!]
+  \begin{center}
+    \resizebox{.6\linewidth}{!}{\includegraphics{fig/DIET_arch_request-2}}
+    \caption{DIET and LogService.}
+    \label{fig:DIET_LogService}
+  \end{center}
+\end{figure}
+
 \begin{itemize}
  \item[-] A \textit{LogComponent} is attached to a component and relays
     information and messages to LogCentral.  LogComponents are
@@ -108,13 +121,6 @@ LA and SeD). \textit{LogCentral} offers the possibility to
 re-send this information to several tools (\textit{LogTools})
 that are responsible for analysing these message and offering
 comprehensive information to the user.\\
-\begin{figure}[htb]
-  \begin{center}
-    \resizebox{.6\linewidth}{!}{\includegraphics{fig/DIET_arch_request-2}}
-    \caption{DIET and LogService.}
-    \label{fig:DIET_LogService}
-  \end{center}
-\end{figure}
 
 \noindent
 LogService defines and implements several functionalities:
@@ -221,7 +227,7 @@ being monitored. There are two ways to use VizDIET.
 
 \begin{figure}[htb]
   \begin{center}
-    \resizebox{.5\linewidth}{!}{\includegraphics{fig/VizDIET}}
+    \resizebox{.6\linewidth}{!}{\includegraphics{fig/VizDIET}}
     \caption{Snapshot of VizDIET.}
     \label{fig:snapshot}
   \end{center}
