@@ -21,6 +21,13 @@
 	define his own scheduler class to be loaded by the agent and used to
 	select the SeD(s) returned to the client.
 
+* Data Arrangement for Grid and Distributed Application
+
+	- The users can now choose a new data manager which allows explicit
+	and implicit data distribution/replication. DAGDA extends the standard
+	DIET API with data management functions which can be called from a
+	client, a server or an agent through a plugin scheduler.
+	
 * All bug was resolved. If you found a new one please refer to  
   http://graal.ens-lyon.fr/bugzilla
 
