@@ -32,7 +32,7 @@ ADD_LATEX_DOCUMENT(UsersManual.tex
                           dagda.tex
 		   BIBFILES UsersManual.bib 
 		   IMAGE_DIRS fig 
-		   IMAGES fig/DIET_arch_request-2.ps
+		   IMAGES fig/DIET_arch_request-2.pdf
 				fig/FAST.fig
 				fig/JXTAConfig.ps
 				fig/VizDIET.pdf
