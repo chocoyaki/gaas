@@ -28,6 +28,18 @@
 	DIET API with data management functions which can be called from a
 	client, a server or an agent through a plugin scheduler.
 	
+* Workflow
+	the workflow management system of DIET has been redesigned.
+	4 differents scheduling heuristics have been implemented:
+	  - basic provides HEFT heuristic for the dag
+	  - multi-heft provides multi-HEFT heuristic when several Dag are
+	  submit to the MA_DAG
+	  - multi-aging_heft provides multi-HEFT with modification of node
+	  rank according to their age in the system.
+	  - foft provides multi-HEFT with modification of node selection
+	  according to the slowdown of each dag.
+	See UserManual for more details.
+
 * All bug was resolved. If you found a new one please refer to  
   http://graal.ens-lyon.fr/bugzilla
 
@@ -40,7 +52,7 @@
 * Workflow
 
 	- Workflow support added to DIET. A workflow engine and a special
-	agent the maDagAgent) were added to manage and schedule workflow
+	agent the maDagAgent were added to manage and schedule workflow
 	submissions.
     
 * Fault Tolerance
