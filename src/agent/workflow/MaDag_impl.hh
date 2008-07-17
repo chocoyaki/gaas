@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2008/07/17 13:33:09  bisnard
+ * New multi-wf heuristic SRPT
+ *
  * Revision 1.13  2008/07/08 15:52:03  bisnard
  * Set interRoundDelay as parameter of workflow scheduler
  *
@@ -101,7 +104,7 @@
 class MaDag_impl : public POA_MaDag,
 		   public PortableServer::RefCountServantBase {
 public:
-  enum MaDagSchedType { BASIC, HEFT, AHEFT, FOFT };
+  enum MaDagSchedType { BASIC, HEFT, AHEFT, FOFT, SRPT };
 
   MaDag_impl(const char * name,
              const MaDagSchedType schedType = BASIC,

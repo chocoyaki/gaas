@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2008/07/17 13:33:09  bisnard
+ * New multi-wf heuristic SRPT
+ *
  * Revision 1.18  2008/07/17 10:49:14  rbolze
  * change fflush(stdout) by stat_flush()
  *
@@ -126,6 +129,7 @@
 #include "MultiWfBasicScheduler.hh"
 #include "MultiWfFOFT.hh"
 #include "MultiWfHEFT.hh"
+#include "MultiWfSRPT.hh"
 #include "debug.hh"
 
 using namespace std;
@@ -191,6 +195,14 @@ MaDag_impl::MaDag_impl(const char * name,
       this->myMultiWfSched = new MultiWfAgingHEFT(this);
       if (this->dietLogComponent != NULL) {
       	scheduler_type=strdup("AGING_HEFT");
+      	dietLogComponent->maDagSchedulerType(scheduler_type);
+      	free(scheduler_type);
+      }
+      break;
+    case SRPT:
+      this->myMultiWfSched = new MultiWfSRPT(this);
+      if (this->dietLogComponent != NULL) {
+      	scheduler_type=strdup("SRPT");
       	dietLogComponent->maDagSchedulerType(scheduler_type);
       	free(scheduler_type);
       }

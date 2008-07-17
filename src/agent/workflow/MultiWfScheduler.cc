@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.31  2008/07/17 13:33:09  bisnard
+ * New multi-wf heuristic SRPT
+ *
  * Revision 1.30  2008/07/17 12:13:39  bisnard
  * Added stats on nb of total nodes to execute
  * Added CORBA exceptions handling for client release
@@ -379,6 +382,7 @@ MultiWfScheduler::run() {
         // EXECUTE NODE (NEW THREAD)
         if (ressourceFound) {
           n->setAsRunning();
+          n->setRealStartTime(this->getRelCurrTime());
 	  TRACE_TEXT(TRACE_MAIN_STEPS,"  $$$$ Exec node on " << servEst->loc.hostName
             << " : " << n->getCompleteId()
             << " / exec prio = " << n->getPriority() << endl);

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2008/07/17 13:33:09  bisnard
+ * New multi-wf heuristic SRPT
+ *
  * Revision 1.9  2008/07/08 15:52:03  bisnard
  * Set interRoundDelay as parameter of workflow scheduler
  *
@@ -59,7 +62,7 @@ extern unsigned int TRACE_LEVEL;
 
 void usage(char * s) {
   fprintf(stderr, "Usage: %s <file.cfg> [option]\n", s);
-  fprintf(stderr, "option = -basic (default) | -heft | -aging_heft | -fairness\n");
+  fprintf(stderr, "option = -basic (default) | -heft | -aging_heft | -fairness | -srpt\n");
   exit(1);
 }
 
@@ -71,7 +74,8 @@ int checkUsage(int argc, char ** argv) {
     if (strcmp(argv[2], "-basic") &&
         strcmp(argv[2], "-heft") &&
 	strcmp(argv[2], "-fairness") &&
-        strcmp(argv[2], "-aging_heft")) {
+        strcmp(argv[2], "-aging_heft") &&
+        strcmp(argv[2], "-srpt"  )) {
       usage(argv[0]);
     }
   }
@@ -131,6 +135,8 @@ int main(int argc, char * argv[]){
       schedType = MaDag_impl::HEFT;
     else if (!strcmp(argv[2], "-aging_heft"))
       schedType = MaDag_impl::AHEFT;
+    else if (!strcmp(argv[2], "-srpt"))
+      schedType = MaDag_impl::SRPT;
     else schedType = MaDag_impl::BASIC;
   }
 
