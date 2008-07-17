@@ -28,7 +28,6 @@ SET( CXX_EXAMPLES
   parallelClient
   parallelClient2
   parallelClient3
-  parallelClient3
   parallelClient4 )
 
 # FIXME: only used by the parallelClient* examples. Maybe this is a poor
