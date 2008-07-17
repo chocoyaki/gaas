@@ -8,6 +8,11 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.9  2008/07/17 09:03:22  ycaniou
+%* Update Cmakelist in order not to copy batch examples.c anymore since removed
+%*   from the doc
+%* Add label in prediction.tex and correct batch.tex correspondingly
+%*
 %* Revision 1.8  2008/07/16 22:51:50  ecaron
 %* Remove examples (keep only references)
 %*
@@ -280,9 +285,9 @@ scheduler. In consequence, because certain batch schedulers (like OAR)
 need the script to be available on all resources, {\it this directory
 might be on NFS} (remember that \diet cannot replicate the script on
 all resources before submission because of access rights).  Note that
-concerning OAR, in order to use the CoRI\_batch features, the Batch
-\sed deployer must also provide the keyword \verb$internQueue$ (see
-Section~\ref{section:cori_batch}).
+concerning OAR (v1.6), in order to use the CoRI\_batch features (see
+Section~\ref{section:cori_batch}), the Batch \sed deployer must also
+provide the keyword \verb$internQueue$ with the corresponding name.
 
 For example, the server configuration file can contain the following
 lines:
