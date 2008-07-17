@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2008/07/17 10:05:06  bisnard
+ * avoid warnings in DTM due to replacement of VOLATILE
+ * for node arguments by PERSISTENT
+ *
  * Revision 1.21  2008/07/11 07:55:37  bisnard
  * bug due to node simultaneously done and failed
  *
@@ -1115,10 +1119,16 @@ Node::createProfile() {
        p != inports.end();
        ++p) {
     WfInPort * in = (WfInPort*)(p->second);
-    if (in->isInput())
+
+    if (in->isInput()) {
+#if HAVE_DAGDA
       this->set_profile_param(in,
 			      in->type, in->index, in->value, DIET_PERSISTENT);
-    else
+#else
+      this->set_profile_param(in,
+			      in->type, in->index, in->value, DIET_VOLATILE);
+#endif
+    } else
       this->set_profile_param(in,
 			      in->type, in->index, in->value, DIET_PERSISTENT);
 
