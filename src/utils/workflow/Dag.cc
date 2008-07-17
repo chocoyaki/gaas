@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2008/07/17 12:19:18  bisnard
+ * Added dag cancellation method
+ *
  * Revision 1.13  2008/07/11 07:56:01  bisnard
  * provide list of failed nodes in case of cancelled dag
  *
@@ -153,6 +156,7 @@ Dag::Dag() {
   this->tmpDag  = false;
   this->estDelay = 0;
   this->cancelled = false;
+//   this->doneNodesCount = 0;
 }
 
 /**
@@ -537,6 +541,14 @@ bool
 Dag::isCancelled() {
   return cancelled;
 }
+
+/**
+ * get the number of remaining (not executed) nodes *
+ */
+// int
+// Dag::getRemainingNodesNb() {
+//   return (this->nodes.size() - this->doneNodesCount);
+// }
 
 /**
  * Get a scalar result of the workflow *
@@ -1130,6 +1142,14 @@ Dag::_updateDelayRec(Node * node, double newDelay) {
 }
 
 /**
+ * notify dag of node execution completion (MADAG)
+ */
+// void
+// Dag::setNodeDone() {
+//   this->doneNodesCount++;
+// }
+
+/**
  * notify the dag of node execution failure (MADAG & CLIENT-SIDE)
  */
 void
@@ -1144,6 +1164,14 @@ Dag::setNodeFailure(string nodeId) {
 const std::list<string>&
 Dag::getNodeFailureList() {
   return this->failedNodes;
+}
+/**
+ * set the dag as cancelled
+ * (used when failure happens after all nodes execution)
+ */
+void
+Dag::setAsCancelled() {
+  this->cancelled = true;
 }
 
 /**

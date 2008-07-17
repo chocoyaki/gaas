@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2008/07/17 12:19:18  bisnard
+ * Added dag cancellation method
+ *
  * Revision 1.10  2008/07/11 07:56:01  bisnard
  * provide list of failed nodes in case of cancelled dag
  *
@@ -159,6 +162,12 @@ public:
    */
   bool
   isCancelled();
+
+  /**
+   * get the number of remaining (not executed) nodes *
+   */
+//   int
+//   getRemainingNodesNb();
 
   /**
    * get a scalar result of the workflow
@@ -338,6 +347,12 @@ public:
   updateDelayRec(Node * node, double newDelay);
 
   /**
+   * notify dag of node execution completion
+   */
+//   void
+//   setNodeDone();
+
+  /**
    * notify dag of node execution failure
    */
   void
@@ -348,6 +363,12 @@ public:
    */
   const std::list<string>&
   getNodeFailureList();
+
+  /**
+   * set the dag as cancelled
+   */
+  void
+  setAsCancelled();
 
   void
   showDietReqID();
@@ -379,6 +400,11 @@ private:
    * estimated delay
    */
   double estDelay;
+
+  /**
+   * Nb of completed nodes
+   */
+//   int doneNodesCount;
 
   /**
    * Trash nodes vector
