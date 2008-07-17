@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.31  2008/07/17 13:33:44  bisnard
+#* new files MultiWfSRPT.cc and .hh
+#*
 #* Revision 1.30  2008/07/17 08:37:44  ycaniou
 #* Update batch stuff
 #*
@@ -274,6 +277,8 @@ src/agent/workflow/MultiWfBasicScheduler.cc
 src/agent/workflow/MultiWfBasicScheduler.hh
 src/agent/workflow/MultiWfFOFT.cc
 src/agent/workflow/MultiWfFOFT.hh
+src/agent/workflow/MultiWfSRPT.cc
+src/agent/workflow/MultiWfSRPT.hh
 src/agent/workflow/MultiWfScheduler.cc
 src/agent/workflow/MultiWfScheduler.hh
 src/agent/workflow/MultiWfHEFT.cc
