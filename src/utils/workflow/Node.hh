@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2008/07/17 13:34:18  bisnard
+ * new attribute RealStartTime and get/set for SRPT heuristic
+ *
  * Revision 1.12  2008/06/25 10:07:12  bisnard
  * - removed debug messages
  * - Node index in wf_response stored in Node class (new attribute submitIndex)
@@ -447,6 +450,18 @@ public:
   getEstCompTime();
 
   /**
+   * set the real start time
+   */
+  void
+  setRealStartTime(double time);
+
+  /**
+   * get the real start time
+   */
+  double
+  getRealStartTime();
+
+  /**
    * set the estimated delay
    */
   void
@@ -750,6 +765,11 @@ private:
    * Estimated delay (in ms)
    */
   double estDelay;
+
+  /**
+   * Real start time (in ms)
+   */
+  double realStartTime;
 
   /**
    * Real completion time (in ms)

@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2008/07/17 13:34:18  bisnard
+ * new attribute RealStartTime and get/set for SRPT heuristic
+ *
  * Revision 1.22  2008/07/17 10:05:06  bisnard
  * avoid warnings in DTM due to replacement of VOLATILE
  * for node arguments by PERSISTENT
@@ -279,6 +282,7 @@ Node::Node(int wfReqId, string id, string pb_name,
   this->myDag = NULL;
   this->myQueue = NULL;
   this->realCompTime = -1;
+  this->realStartTime = -1;
   this->estCompTime = -1;
   this->estDelay = 0;
   this->submitIndex = 0;
@@ -899,6 +903,7 @@ Node::setAsDone(double compTime) {
       n = next[ix];
       n->prevNodeHasDone();
     }
+//     this->getDag()->setNodeDone();
   } // end if !cancelled
 } // end setAsDone
 
@@ -997,6 +1002,22 @@ Node::setEstDelay(double delay) {
   TRACE_TEXT (TRACE_ALL_STEPS, "Updated est./real delay on node "
         << this->getCompleteId() << " : delay = " << delay << endl);
 }
+
+/**
+ * set the real start time
+ */
+void
+Node::setRealStartTime(double time) {
+  this->realStartTime = time;
+} // end setRealStartTime
+
+/**
+ * get the real start time
+ */
+double
+Node::getRealStartTime() {
+  return this->realStartTime;
+} // end getRealStartTime
 
 /**
  * get the estimated delay
