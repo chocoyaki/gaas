@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2008/07/17 10:49:14  rbolze
+ * change fflush(stdout) by stat_flush()
+ *
  * Revision 1.28  2008/07/17 10:14:36  rbolze
  * add some stat_info
  *
@@ -718,6 +721,8 @@ NodeRun::run() {
 	if (this->myScheduler->getMaDag()->dietLogComponent != NULL) {
 		this->myScheduler->getMaDag()->dietLogComponent->logDag(message);
 	}
+	// flush all stat
+	stat_flush();	
         delete message;
 	TRACE_TEXT (TRACE_MAIN_STEPS,"############### DAG "
             << this->myNode->getDag()->getId().c_str() <<" IS DONE #########"<<endl);

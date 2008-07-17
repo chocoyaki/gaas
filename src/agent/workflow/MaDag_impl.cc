@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2008/07/17 10:49:14  rbolze
+ * change fflush(stdout) by stat_flush()
+ *
  * Revision 1.17  2008/07/17 10:14:36  rbolze
  * add some stat_info
  *
@@ -221,7 +224,7 @@ MaDag_impl::processDagWf(const corba_wf_desc_t& dag_desc,
   char statMsg[128];
   sprintf(statMsg,"Start workflow request %ld",wfReqId);
   stat_in("MA_DAG",statMsg);
-  fflush(stdout);
+//   stat_flush();
   this->myMutex.lock();
 
   // Register the client workflow manager
@@ -244,7 +247,7 @@ MaDag_impl::processDagWf(const corba_wf_desc_t& dag_desc,
   this->myMutex.unlock();
   sprintf(statMsg,"End workflow request %ld",wfReqId);
   stat_out("MA_DAG",statMsg);
-  fflush(stdout);
+  stat_flush();
   //stat_out("MA DAG","Workflow request  (" << wfReqId << ") processing END");
   return (CORBA::Long) dagId;
 } // end processDagWf
@@ -277,7 +280,7 @@ CORBA::Long
 MaDag_impl::ping()
 {
   TRACE_TEXT(TRACE_ALL_STEPS, "ping()\n");
-  fflush(stdout);
+  stat_flush();
   return getpid();
 } // ping()
 
