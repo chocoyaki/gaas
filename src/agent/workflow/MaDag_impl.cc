@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2008/07/17 10:14:36  rbolze
+ * add some stat_info
+ *
  * Revision 1.16  2008/07/12 00:22:28  rbolze
  * add function getInterRoundDelay()
  * use this function when the maDag start to display this value.
@@ -218,6 +221,7 @@ MaDag_impl::processDagWf(const corba_wf_desc_t& dag_desc,
   char statMsg[128];
   sprintf(statMsg,"Start workflow request %ld",wfReqId);
   stat_in("MA_DAG",statMsg);
+  fflush(stdout);
   this->myMutex.lock();
 
   // Register the client workflow manager
@@ -240,6 +244,7 @@ MaDag_impl::processDagWf(const corba_wf_desc_t& dag_desc,
   this->myMutex.unlock();
   sprintf(statMsg,"End workflow request %ld",wfReqId);
   stat_out("MA_DAG",statMsg);
+  fflush(stdout);
   //stat_out("MA DAG","Workflow request  (" << wfReqId << ") processing END");
   return (CORBA::Long) dagId;
 } // end processDagWf

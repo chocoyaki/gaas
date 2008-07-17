@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2008/07/17 10:14:36  rbolze
+ * add some stat_info
+ *
  * Revision 1.27  2008/07/12 00:22:28  rbolze
  * add function getInterRoundDelay()
  * use this function when the maDag start to display this value.
@@ -242,6 +245,12 @@ MultiWfScheduler::run() {
   int mappedNodeCount = 0;
   // the nb of nodes to move from ready to exec at each round (policy dep.)
   int nodePolicyCount = 0;
+  // use for statistic output
+  char statMsg[64];
+  // the nb of nodes ready : this is use for statistic output.
+  int nodeReadyCount = 0;
+  // the nb of dag : this is use for statistic output.
+  int dagCount = 0;
   if (this->nodePolicy == MULTIWF_NODE_METRIC)
     nodePolicyCount = -1;   // ie no limit (take all ready nodes)
   else if (this->nodePolicy == MULTIWF_DAG_METRIC)
@@ -261,11 +270,15 @@ MultiWfScheduler::run() {
     // for each queue
     TRACE_TEXT(TRACE_ALL_STEPS,"PHASE 1: Move ready nodes to exec queue" << endl);
     queuedNodeCount = 0;
+    nodeReadyCount = 0;
+    dagCount=0;
     std::list<OrderedNodeQueue *>::iterator qp = readyQueues.begin();
     while (qp != readyQueues.end()) {
       OrderedNodeQueue * readyQ = *qp;
       int npc = nodePolicyCount;
       Node * n = NULL;
+      nodeReadyCount+=(int)readyQ->size();
+      dagCount++;
       while ((npc) && (n = readyQ->popFirstNode())) {
         TRACE_TEXT(TRACE_MAIN_STEPS,"  #### Ready node : " << n->getCompleteId()
             << " / request #" << n->getWfReqId()
@@ -281,11 +294,16 @@ MultiWfScheduler::run() {
       }
       ++qp; // go to next queue
     }
-
+    //only write stats when there is something to stats.
+    if(dagCount>0){
+	sprintf(statMsg, "dagCount %d", dagCount);
+	stat_info("MA_DAG",statMsg);
+	sprintf(statMsg, "nodeReadyCount %d", nodeReadyCount);
+	stat_info("MA_DAG",statMsg);
+    }
     if (queuedNodeCount > 0) {
       TRACE_TEXT(TRACE_ALL_STEPS,"Phase 2: Check ressources for nodes in exec queue ("
           << queuedNodeCount << " nodes)" << endl);
-      char statMsg[64];
       sprintf(statMsg, "queuedNodeCount %d", queuedNodeCount);
       stat_info("MA_DAG",statMsg);
       // Build list of services for all nodes in the exec queue
