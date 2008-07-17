@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.32  2008/07/17 15:01:43  rbolze
+ * change position of the stat_info call
+ *
  * Revision 1.31  2008/07/17 13:33:09  bisnard
  * New multi-wf heuristic SRPT
  *
@@ -315,14 +318,14 @@ MultiWfScheduler::run() {
 	stat_info("MA_DAG",statMsg);
 	sprintf(statMsg, "nodeReadyCount %d", nodeReadyCount);
 	stat_info("MA_DAG",statMsg);
+	sprintf(statMsg, "queuedNodeCount %d", queuedNodeCount);
+        stat_info("MA_DAG",statMsg);
         sprintf(statMsg, "nodeTodoCount %d", nodeTodoCount);
 	stat_info("MA_DAG",statMsg);
     }
     if (queuedNodeCount > 0) {
       TRACE_TEXT(TRACE_ALL_STEPS,"Phase 2: Check ressources for nodes in exec queue ("
           << queuedNodeCount << " nodes)" << endl);
-      sprintf(statMsg, "queuedNodeCount %d", queuedNodeCount);
-      stat_info("MA_DAG",statMsg);
       // Build list of services for all nodes in the exec queue
       // and ask MA for list of ressources available
       wf_response_t * wf_response = getProblemEstimates(execQueue, myMaDag->getMA());
