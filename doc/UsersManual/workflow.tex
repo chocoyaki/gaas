@@ -90,22 +90,22 @@ needed services. (read Chapter~\ref{ch:server} for more details).
 %   execution.
 % \end{itemize}
 
-A new agent called the \textit{MA-DAG} is used to manage workflows
+A new agent called the \textit{\madag} is used to manage workflows
 in the DIET architecture. This agent receives requests from clients
 containing the description of a workflow in a specific language
-(the MA-DAG XML workflow language). The role of the MA-DAG is to
+(the \madag XML workflow language). The role of the \madag is to
 determine how to schedule the tasks contained in the workflow in
 order to follow the precedence constraints between tasks, and how to
 map the tasks to appropriate ressources in the DIET hierarchy.
 
 The execution of the individual tasks is actually delegated by the
-MA-DAG to the client that submitted the workflow. After submitting
+\madag to the client that submitted the workflow. After submitting
 the workflow, the client is put in a waiting mode and it will
-receive individual requests from the MA-DAG to execute each task
+receive individual requests from the \madag to execute each task
 of the workflow. Therefore all the data transfers are done only
-from the client to the SeDs and do not transit through the MA-DAG.
+from the client to the SeDs and do not transit through the \madag.
 
-When all tasks are completed, the MA-DAG will send a release signal
+When all tasks are completed, the \madag will send a release signal
 to the client which will then retrieve the results if the execution
 was successful.
 
@@ -490,24 +490,24 @@ int main(int argc, char* argv[])
 
 \subsection{Available schedulers}
 
-The available MA-DAG workflow schedulers are:
+The available \madag workflow schedulers are:
 
 \begin{itemize}
 
 \item A basic scheduler (option -basic or default choice) :
-this scheduler manages only
-the precedence constraints between the tasks of the dag but does not
-map ressources to tasks. This means that when a task is ready to be
-executed (ie the preceding tasks are completed) it will be sent to
-the client for execution without specifying a ressource. The client
-will then perform a standard DIET request that will use the scheduler
+this scheduler manages the precedence constraints between the tasks. The
+ priority between tasks within a dag is set according (Heterogeneous 
+Earliest Finish Time) HEFT~\cite{heft_cpop} heuristic. When a task is ready to be
+executed (ie the preceding tasks are completed) the ready task with the higher
+HEFT rank is sent to the client for execution without specifying a ressource. 
+Then The client performs a standard DIET request that will use the scheduler
 configured by the SeD.
 
 \item A Multi-HEFT scheduler (option -heft) : this scheduler applies
 the HEFT heuristic to all workflows submitted by different clients to
-the MA-DAG. This means that the priorities assigned by the HEFT
+the \madag. This means that the priorities assigned by the HEFT
 heuristic are used to order the tasks of all dags processed by the
-MA-DAG and following this order the tasks are mapped to the first
+\madag and following this order the tasks are mapped to the first
 available ressource.
 
 \item A Multi-AgingHEFT scheduler (option -aging\_heft) : this scheduler
@@ -528,10 +528,10 @@ concurrent workflow and the actual estimated finish time.
 
 \subsection{SeD requirements for workflow scheduling}
 
-The multi-workflow schedulers (Multi-HEFT, Multi-AgingHEFT and FOFT) use
-information provided by the SeDs to be able to run the heuristic. So the
-SeD programmer must provide the required data in the estimation vector that
-is sent back to the client for each submit request.
+The workflow schedulers (Basic, Multi-HEFT, Multi-AgingHEFT and FOFT) use
+information provided by the SeDs to be able to run the HEFT heuristic. So the
+SeD programmer must provide the required data in the estimation vector by 
+implementing a plugin scheduler (see chapter~\ref{ch:plugin}).
 
 The following fields in the estimation vector must be filled in:
 \begin{enumerate}
@@ -542,11 +542,14 @@ within the performance evaluation function.
 \item The \texttt{USERDEFINED} field must contain the estimation of the
 earliest finish time (in milliseconds from the time of the current submit
 request) for the job. To compute this value, the SeD programmer can use
-the API method \texttt{diet\_estimate\_list\_jobs(...)} to retrieve the
+the API method \\
+\texttt{diet\_estimate\_list\_jobs(...)} to retrieve the
 estimated values of computation time for all the jobs active on the SeD
 (ie jobs waiting for solve or jobs being solved). There is an example of
 this EFT calculation in the simple case of sequential SeD available in
 the workflow examples (scalar\_server or file\_server).
+In future release, a function to calculate EFT value and fill the 
+\texttt{EFT} field be add in the SeD API. 
 \end{enumerate}
 
 % \subsection{Writing a new scheduler}
