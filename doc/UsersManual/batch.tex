@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.10  2008/07/17 09:21:53  ycaniou
+%* Removed compilation warning
+%*
 %* Revision 1.9  2008/07/17 09:03:22  ycaniou
 %* Update Cmakelist in order not to copy batch examples.c anymore since removed
 %*   from the doc
@@ -107,7 +110,7 @@ speak about {\it jobs} rather than about {\it tasks}.
 You must enable the batch flag in cmake arguments. Typically, if you
 build \diet from the command line, you can use the following:
 
-\begin{lstlisting}[language=bash,label=dietConfig.sh,basewidth={.5em,.4em},fontadjust]
+\begin{lstlisting}[language=bash,basewidth={.5em,.4em},fontadjust]
 
    ccmake $diet_src_path
           -DDIET_USE_ALT_BATCH:BOOL=ON
@@ -221,7 +224,7 @@ meta-script in a \sed; and how to record the parallel/batch service.
 
 \section{Server API}
 
-\begin{lstlisting}[language=C,label=dietConfig.sh,basewidth={.5em,.4em},fontadjust]
+\begin{lstlisting}[language=C,basewidth={.5em,.4em},fontadjust]
 
 /* Set the status of the SeD among SERIAL and BATCH */
 void 
@@ -292,7 +295,7 @@ provide the keyword \verb$internQueue$ with the corresponding name.
 For example, the server configuration file can contain the following
 lines:
 
-\begin{lstlisting}[language=bash,label=dietConfig.sh,basewidth={.5em,.4em},fontadjust]
+\begin{lstlisting}[language=bash,basewidth={.5em,.4em},fontadjust]
 batchName = oar
 batchQueue = queue_9_13
 pathToNFS = /home/ycaniou/tmp/nfs
@@ -337,7 +340,7 @@ identity of the reserved nodes
 
 Once the script written in a string, it is given as an argument to the
 following function:
-\begin{lstlisting}[language=C,label=dietConfig.sh,basewidth={.5em,.4em},fontadjust]
+\begin{lstlisting}[language=C,basewidth={.5em,.4em},fontadjust]
 int 
 diet_submit_parallel(diet_profile_t * pb, char * script)
 \end{lstlisting}
