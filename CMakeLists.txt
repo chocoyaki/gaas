@@ -161,6 +161,14 @@ ELSEIF( APPLE )
   MESSAGE( STATUS "XXX System name Darwin" )
   ADD_DEFINITIONS( -D__darwin__ )
 
+  # Static linking for a binary is forbidden on mac systems...
+  # Static compilation of libraries is authorized...
+  # So, if we are on a mac system let's just disable the static
+  # compilation option.
+  # http://developer.apple.com/qa/qa2001/qa1118.html
+  MARK_AS_ADVANCED( BUILD_SHARED_LIBS )
+  SET( BUILD_SHARED_LIBS ON CACHE BOOL "Unable to compile static binaries on APPLE systems." FORCE )  
+
 ELSEIF( LINUX )
   MESSAGE( STATUS "XXX System name Linux" )
   ADD_DEFINITIONS( -D__linux__ )
