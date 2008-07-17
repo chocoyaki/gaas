@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.30  2008/07/17 08:37:44  ycaniou
+#* Update batch stuff
+#*
 #* Revision 1.29  2008/07/16 21:21:34  ecaron
 #* Remove unused Cmake file for the documentation (now external compilation)
 #*
@@ -330,6 +333,8 @@ src/examples/BLAS/server.c
 
 [Untemplated]
 src/examples/Batch/CMakeLists.txt
+src/examples/Batch/TestAllBatch/CMakeLists.txt
+src/examples/Batch/SparseSolver/CMakeLists.txt
 [Templated]
 src/examples/Batch/async_client.c
 src/examples/Batch/batch_server.c
@@ -339,6 +344,8 @@ src/examples/Batch/sequential_server.c
 src/examples/Batch/TestAllBatch/batch_server.c
 src/examples/Batch/TestAllBatch/client.c
 src/examples/Batch/TestAllBatch/concatenation.sh
+src/examples/Batch/SparseSolver/batch_PasTiX_server.c
+src/examples/Batch/SparseSolver/batch_PasTiX_client.c
 
 [Untemplated]
 src/examples/GridRPC/CMakeLists.txt
@@ -457,8 +464,6 @@ src/utils/CMakeLists.txt
 [Templated]
 src/utils/AccessController.cc
 src/utils/AccessController.hh
-src/utils/batch.c
-src/utils/batch.h
 src/utils/CORIMgr.cc
 src/utils/CORIMgr.hh
 src/utils/Cori_batch.cc
