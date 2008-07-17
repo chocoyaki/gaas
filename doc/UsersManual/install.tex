@@ -10,6 +10,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.42  2008/07/17 09:58:54  bdepardo
+%* Added a line on the static compilation on Mac systems
+%*
 %* Revision 1.41  2008/07/15 23:11:45  ecaron
 %* Typo
 %*
@@ -420,7 +423,9 @@ compilation or some developers extensions:
 
 \item
   \verb+BUILD_SHARED_LIBS+ is a cmake internal variable which specifies
-  whether the libraries should be dynamics as opposed to static
+  whether the libraries should be dynamics as opposed to static (on
+  Mac system this option is automatically set to \verb!ON!, as
+  static compilation of binaries seems to be forbidden on these systems)
 
 \item
   \verb+DIET_USE_DART+ enables DART reporting system (refer to 
