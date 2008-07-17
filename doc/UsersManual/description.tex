@@ -9,6 +9,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.23  2008/07/17 21:31:46  ecaron
+%* To be compliant to latextohtml (use scale instead of resizebox)
+%*
 %* Revision 1.22  2008/07/15 23:11:44  ecaron
 %* Typo
 %*
@@ -99,7 +102,7 @@ the hierarchical organization of \diet.
 
 \begin{figure}[htb]
  \begin{center}
-  \resizebox{.7\linewidth}{!}{\includegraphics{fig/global_platform}}
+  \includegraphics[scale=.7]{fig/global_platform}
   \caption{\label{fig:platform} A hierarchy of \diet agents}
  \end{center}
 \end{figure}
@@ -189,7 +192,7 @@ clients.
 
 \begin{figure}[hbt]
   \begin{center}
-    \resizebox{9cm}{!}{\includegraphics{fig/init}}
+    \includegraphics[scale=.9]{fig/init}
     \caption{Initialization of a \diet system.}
     \label{fig:init}
   \end{center}

@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.7  2008/07/17 21:31:46  ecaron
+%* To be compliant to latextohtml (use scale instead of resizebox)
+%*
 %* Revision 1.6  2008/07/15 23:11:45  ecaron
 %* Typo
 %*
@@ -81,7 +84,7 @@ Figure~\ref{fig:multima}
 
 \begin{figure}[h]
  \begin{center}
-   \resizebox{.7\linewidth}{!}{\includegraphics{fig/multima}}
+   \includegraphics[scale=0.7]{fig/multima}
    \label{fig:multima}
   \caption{Example of a multi-MA deployment}
  \end{center}

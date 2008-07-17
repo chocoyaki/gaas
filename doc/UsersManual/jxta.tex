@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.15  2008/07/17 21:31:46  ecaron
+%* To be compliant to latextohtml (use scale instead of resizebox)
+%*
 %* Revision 1.14  2008/07/17 09:28:19  dloureir
 %* changing fig:platform to fig:platformjxta in order to solve label multiply defined when compiling the doc
 %*
@@ -109,7 +112,7 @@ divided in two parts:
 
 \begin{figure}[htb]
  \begin{center}
-   \resizebox{.7\linewidth}{!}{\includegraphics{fig/global_platform_jxta}}
+   \includegraphics[scale=0.7]{fig/global_platform_jxta}
 %%   \label{fig:platform}
   \caption{DIET$_{J}$ architecture}
  \end{center}
@@ -337,7 +340,7 @@ things to do before deploying the platform.
 
 \begin{figure}[htb]
  \begin{center}
-  \resizebox{.6\linewidth}{!}{\includegraphics{fig/JXTAConfig}}
+   \includegraphics[scale=0.6]{fig/JXTAConfig}
   \caption{Configuring JXTA \label{fig:platformjxta}}
  \end{center}
 \end{figure}
