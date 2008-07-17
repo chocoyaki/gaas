@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.30  2008/07/17 12:13:39  bisnard
+ * Added stats on nb of total nodes to execute
+ * Added CORBA exceptions handling for client release
+ *
  * Revision 1.29  2008/07/17 10:49:14  rbolze
  * change fflush(stdout) by stat_flush()
  *
@@ -254,6 +258,8 @@ MultiWfScheduler::run() {
   int nodeReadyCount = 0;
   // the nb of dag : this is use for statistic output.
   int dagCount = 0;
+  // the nb of nodes still to be executed : for statistic output
+  int nodeTodoCount = 0;
   if (this->nodePolicy == MULTIWF_NODE_METRIC)
     nodePolicyCount = -1;   // ie no limit (take all ready nodes)
   else if (this->nodePolicy == MULTIWF_DAG_METRIC)
@@ -274,6 +280,7 @@ MultiWfScheduler::run() {
     TRACE_TEXT(TRACE_ALL_STEPS,"PHASE 1: Move ready nodes to exec queue" << endl);
     queuedNodeCount = 0;
     nodeReadyCount = 0;
+    nodeTodoCount = 0;
     dagCount=0;
     std::list<OrderedNodeQueue *>::iterator qp = readyQueues.begin();
     while (qp != readyQueues.end()) {
@@ -282,6 +289,8 @@ MultiWfScheduler::run() {
       Node * n = NULL;
       nodeReadyCount+=(int)readyQ->size();
       dagCount++;
+      ChainedNodeQueue * waitQ = this->waitingQueues[readyQ];
+      nodeTodoCount+= nodeReadyCount + (int)waitQ->size(); // for stats only
       while ((npc) && (n = readyQ->popFirstNode())) {
         TRACE_TEXT(TRACE_MAIN_STEPS,"  #### Ready node : " << n->getCompleteId()
             << " / request #" << n->getWfReqId()
@@ -302,6 +311,8 @@ MultiWfScheduler::run() {
 	sprintf(statMsg, "dagCount %d", dagCount);
 	stat_info("MA_DAG",statMsg);
 	sprintf(statMsg, "nodeReadyCount %d", nodeReadyCount);
+	stat_info("MA_DAG",statMsg);
+        sprintf(statMsg, "nodeTodoCount %d", nodeTodoCount);
 	stat_info("MA_DAG",statMsg);
     }
     if (queuedNodeCount > 0) {
@@ -716,17 +727,37 @@ NodeRun::run() {
       if ((this->myNode->getDag() != NULL) &&
          (this->myNode->getDag()->isDone())) {
       	//this->myNode->getDag()->showDietReqID();
-	char* message = myCltMan->release(this->myNode->getDag()->getId().c_str());
-	TRACE_TEXT (TRACE_ALL_STEPS," message : "<< message << endl);
-	if (this->myScheduler->getMaDag()->dietLogComponent != NULL) {
-		this->myScheduler->getMaDag()->dietLogComponent->logDag(message);
-	}
-	// flush all stat
-	stat_flush();	
-        delete message;
-	TRACE_TEXT (TRACE_MAIN_STEPS,"############### DAG "
-            << this->myNode->getDag()->getId().c_str() <<" IS DONE #########"<<endl);
-        delete this->myNode->getDag();
+        // CALLING CLIENT MANAGER (CORBA AGENT) FOR RELEASE
+        TRACE_TEXT (TRACE_MAIN_STEPS,"Dag " << this->myNode->getDag()->getId()
+            << " completed - calling client for release");
+        char * message;
+        try {
+          try {
+            message = myCltMan->release(this->myNode->getDag()->getId().c_str());
+          } catch (CORBA::COMM_FAILURE& e) {
+            throw (comm_failure_t)1;
+          } catch (CORBA::TRANSIENT& e) {
+            throw (comm_failure_t)1;
+          }
+        } catch (comm_failure_t& e) {
+          if (e == 0 || e == 1) {
+            WARNING("Connection problems with Client occured - Release cancelled");
+            clientFailure = true;
+            this->myNode->getDag()->setAsCancelled();
+          }
+        }
+        if (!clientFailure) {
+          TRACE_TEXT (TRACE_ALL_STEPS," message : "<< message << endl);
+          if (this->myScheduler->getMaDag()->dietLogComponent != NULL) {
+            this->myScheduler->getMaDag()->dietLogComponent->logDag(message);
+          }
+	  // flush all stat
+	  stat_flush();
+          delete message;
+          TRACE_TEXT (TRACE_MAIN_STEPS,"############### DAG "
+              << this->myNode->getDag()->getId().c_str() <<" IS DONE #########"<<endl);
+          delete this->myNode->getDag();
+        }
       }
     } else {
       TRACE_TEXT (TRACE_ALL_STEPS, "NodeRun: node " << this->myNode->getCompleteId()
@@ -748,8 +779,24 @@ NodeRun::run() {
         TRACE_TEXT (TRACE_MAIN_STEPS, "DAG " << dagId << " FAILED NODE : " << *iter << endl);
       }
       // Release the client manager (if still alive)
+      char* message;
       if (!clientFailure) {
-        char* message = myCltMan->release(this->myNode->getDag()->getId().c_str());
+        try {
+          try {
+            message = myCltMan->release(this->myNode->getDag()->getId().c_str());
+          } catch (CORBA::COMM_FAILURE& e) {
+            throw (comm_failure_t)1;
+          } catch (CORBA::TRANSIENT& e) {
+            throw (comm_failure_t)1;
+          }
+        } catch (comm_failure_t& e) {
+          if (e == 0 || e == 1) {
+            WARNING("Connection problems with Client occured - Release cancelled");
+            clientFailure = true;
+          }
+        }
+      }
+      if (!clientFailure) {
         TRACE_TEXT (TRACE_ALL_STEPS," message : "<< message << endl);
 	if (this->myScheduler->getMaDag()->dietLogComponent != NULL) {
 		this->myScheduler->getMaDag()->dietLogComponent->logDag(message);
