@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.33  2008/07/18 12:21:33  rbolze
+ * correct nodeTodoCount value
+ *
  * Revision 1.32  2008/07/17 15:01:43  rbolze
  * change position of the stat_info call
  *
@@ -296,7 +299,7 @@ MultiWfScheduler::run() {
       nodeReadyCount+=(int)readyQ->size();
       dagCount++;
       ChainedNodeQueue * waitQ = this->waitingQueues[readyQ];
-      nodeTodoCount+= nodeReadyCount + (int)waitQ->size(); // for stats only
+      nodeTodoCount+= (int)readyQ->size() + (int)waitQ->size(); // for stats only
       while ((npc) && (n = readyQ->popFirstNode())) {
         TRACE_TEXT(TRACE_MAIN_STEPS,"  #### Ready node : " << n->getCompleteId()
             << " / request #" << n->getWfReqId()
