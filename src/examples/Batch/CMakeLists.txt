@@ -43,8 +43,9 @@ ELSE( DIET_USE_BATCH )
   ### Two servers...
   SET( C_SERVER_EXAMPLES
     batch_server
-    parallel_server 
     sequential_server )
+#    parallel_server 
+
 
   FOREACH( loop_var ${C_SERVER_EXAMPLES} )
     ADD_EXECUTABLE( ${loop_var} ${loop_var}.c )
