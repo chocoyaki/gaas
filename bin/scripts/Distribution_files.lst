@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.32  2008/07/18 07:00:23  ycaniou
+#* Typo
+#*
 #* Revision 1.31  2008/07/17 13:33:44  bisnard
 #* new files MultiWfSRPT.cc and .hh
 #*
@@ -350,7 +353,7 @@ src/examples/Batch/TestAllBatch/batch_server.c
 src/examples/Batch/TestAllBatch/client.c
 src/examples/Batch/TestAllBatch/concatenation.sh
 src/examples/Batch/SparseSolver/batch_PasTiX_server.c
-src/examples/Batch/SparseSolver/batch_PasTiX_client.c
+src/examples/Batch/SparseSolver/PasTiX_client.c
 
 [Untemplated]
 src/examples/GridRPC/CMakeLists.txt
