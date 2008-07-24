@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2008/07/24 21:08:11  rbolze
+ * New multi-wf heuristic FCFS (First Come First Serve)
+ *
  * Revision 1.10  2008/07/17 13:33:09  bisnard
  * New multi-wf heuristic SRPT
  *
@@ -62,7 +65,7 @@ extern unsigned int TRACE_LEVEL;
 
 void usage(char * s) {
   fprintf(stderr, "Usage: %s <file.cfg> [option]\n", s);
-  fprintf(stderr, "option = -basic (default) | -heft | -aging_heft | -fairness | -srpt\n");
+  fprintf(stderr, "option = -basic (default) | -heft | -aging_heft | -fairness | -srpt | -fcfs \n");
   exit(1);
 }
 
@@ -75,7 +78,8 @@ int checkUsage(int argc, char ** argv) {
         strcmp(argv[2], "-heft") &&
 	strcmp(argv[2], "-fairness") &&
         strcmp(argv[2], "-aging_heft") &&
-        strcmp(argv[2], "-srpt"  )) {
+        strcmp(argv[2], "-srpt") &&
+        strcmp(argv[2], "-fcfs"  )) {
       usage(argv[0]);
     }
   }
@@ -137,6 +141,8 @@ int main(int argc, char * argv[]){
       schedType = MaDag_impl::AHEFT;
     else if (!strcmp(argv[2], "-srpt"))
       schedType = MaDag_impl::SRPT;
+    else if (!strcmp(argv[2], "-fcfs"))
+      schedType = MaDag_impl::FCFS;
     else schedType = MaDag_impl::BASIC;
   }
 

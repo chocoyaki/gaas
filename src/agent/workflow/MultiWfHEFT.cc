@@ -10,6 +10,9 @@
 
 /* $Id$
  * $Log$
+ * Revision 1.8  2008/07/24 21:08:11  rbolze
+ * New multi-wf heuristic FCFS (First Come First Serve)
+ *
  * Revision 1.7  2008/07/12 00:22:28  rbolze
  * add function getInterRoundDelay()
  * use this function when the maDag start to display this value.
@@ -142,7 +145,7 @@ MultiWfAgingHEFT::handlerNodeDone(Node * node) {
 void
 MultiWfAgingHEFT::setExecPriority(Node * node) {
   double dagAge     = this->getRelCurrTime() - node->getDag()->getStartTime();
-  float  ageFactor  = (float) (dagAge / this->dagsState[node->getDag()].makespan) + 1;
+  float  ageFactor  = exp((float) (dagAge / this->dagsState[node->getDag()].makespan) + 1);
   node->setPriority((double) (this->nodesHEFTPrio[node] * ageFactor));
   TRACE_TEXT(TRACE_ALL_STEPS,"[AHEFT] Node priority set to " << node->getPriority()
       << " (dag" << node->getDag()->getId()

@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2008/07/24 21:08:11  rbolze
+ * New multi-wf heuristic FCFS (First Come First Serve)
+ *
  * Revision 1.19  2008/07/17 13:33:09  bisnard
  * New multi-wf heuristic SRPT
  *
@@ -130,6 +133,7 @@
 #include "MultiWfFOFT.hh"
 #include "MultiWfHEFT.hh"
 #include "MultiWfSRPT.hh"
+#include "MultiWfFCFS.hh"
 #include "debug.hh"
 
 using namespace std;
@@ -203,6 +207,14 @@ MaDag_impl::MaDag_impl(const char * name,
       this->myMultiWfSched = new MultiWfSRPT(this);
       if (this->dietLogComponent != NULL) {
       	scheduler_type=strdup("SRPT");
+      	dietLogComponent->maDagSchedulerType(scheduler_type);
+      	free(scheduler_type);
+      }
+      break;
+    case FCFS:
+      this->myMultiWfSched = new MultiWfFCFS(this);
+      if (this->dietLogComponent != NULL) {
+      	scheduler_type=strdup("FCFS");
       	dietLogComponent->maDagSchedulerType(scheduler_type);
       	free(scheduler_type);
       }

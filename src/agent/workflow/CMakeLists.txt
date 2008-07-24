@@ -16,7 +16,11 @@ IF( DIET_BUILD_LIBRARIES )
     MaDag_impl.cc
     WfScheduler.cc HEFTScheduler.cc
     MultiWfScheduler.cc
-    MultiWfBasicScheduler.cc MultiWfFOFT.cc MultiWfHEFT.cc MultiWfSRPT.cc )
+    MultiWfBasicScheduler.cc 
+    MultiWfFOFT.cc 
+    MultiWfHEFT.cc 
+    MultiWfSRPT.cc
+    MultiWfFCFS.cc )
 
   TARGET_LINK_LIBRARIES ( MaDag
     IDLWf

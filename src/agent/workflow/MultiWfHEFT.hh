@@ -10,6 +10,9 @@
 
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/07/24 21:08:11  rbolze
+ * New multi-wf heuristic FCFS (First Come First Serve)
+ *
  * Revision 1.5  2008/06/25 10:05:44  bisnard
  * - Waiting priority set when node is put back in waiting queue
  * - Node index in wf_response stored in Node class (new attribute submitIndex)
@@ -41,6 +44,7 @@
 #include "workflow/Dag.hh"
 #include "MultiWfScheduler.hh"
 #include "debug.hh"
+#include <math.h>
 
 using namespace std;
 

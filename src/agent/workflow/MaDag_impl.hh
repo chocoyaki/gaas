@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2008/07/24 21:08:11  rbolze
+ * New multi-wf heuristic FCFS (First Come First Serve)
+ *
  * Revision 1.14  2008/07/17 13:33:09  bisnard
  * New multi-wf heuristic SRPT
  *
@@ -104,7 +107,7 @@
 class MaDag_impl : public POA_MaDag,
 		   public PortableServer::RefCountServantBase {
 public:
-  enum MaDagSchedType { BASIC, HEFT, AHEFT, FOFT, SRPT };
+  enum MaDagSchedType { BASIC, HEFT, AHEFT, FOFT, SRPT , FCFS };
 
   MaDag_impl(const char * name,
              const MaDagSchedType schedType = BASIC,
