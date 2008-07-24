@@ -10,6 +10,9 @@
 
 /* $Id$
  * $Log$
+ * Revision 1.9  2008/07/24 23:59:05  rbolze
+ * oops I have commit the AgingHEFT with exponentiel factor.
+ *
  * Revision 1.8  2008/07/24 21:08:11  rbolze
  * New multi-wf heuristic FCFS (First Come First Serve)
  *
@@ -145,7 +148,8 @@ MultiWfAgingHEFT::handlerNodeDone(Node * node) {
 void
 MultiWfAgingHEFT::setExecPriority(Node * node) {
   double dagAge     = this->getRelCurrTime() - node->getDag()->getStartTime();
-  float  ageFactor  = exp((float) (dagAge / this->dagsState[node->getDag()].makespan) + 1);
+  //float  ageFactor  = exp((float) (dagAge / this->dagsState[node->getDag()].makespan) + 1);
+  float  ageFactor  = (float) (dagAge / this->dagsState[node->getDag()].makespan) + 1;
   node->setPriority((double) (this->nodesHEFTPrio[node] * ageFactor));
   TRACE_TEXT(TRACE_ALL_STEPS,"[AHEFT] Node priority set to " << node->getPriority()
       << " (dag" << node->getDag()->getId()
