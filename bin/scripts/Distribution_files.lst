@@ -17,6 +17,9 @@
 #****************************************************************************#
 #* $Id$
 #* $Log$
+#* Revision 1.33  2008/07/25 08:12:43  rbolze
+#* add MultiWfFCFS.*
+#*
 #* Revision 1.32  2008/07/18 07:00:23  ycaniou
 #* Typo
 #*
@@ -282,6 +285,8 @@ src/agent/workflow/MultiWfFOFT.cc
 src/agent/workflow/MultiWfFOFT.hh
 src/agent/workflow/MultiWfSRPT.cc
 src/agent/workflow/MultiWfSRPT.hh
+src/agent/workflow/MultiWfFCFS.cc
+src/agent/workflow/MultiWfFCFS.hh
 src/agent/workflow/MultiWfScheduler.cc
 src/agent/workflow/MultiWfScheduler.hh
 src/agent/workflow/MultiWfHEFT.cc
