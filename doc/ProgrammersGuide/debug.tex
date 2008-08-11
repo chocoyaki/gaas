@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.3  2008/08/11 21:03:37  bdepardo
+%* Added TAU profiling section.
+%*
 %* Revision 1.2  2007/04/17 13:34:53  ycaniou
 %* Error in debug.tex header
 %* Removes some warnings during doc generation
@@ -43,3 +46,149 @@ where you can find:
 \verb!which causes valgrind warnings such as these.!
 
 \verb!This is normal[..]''!
+
+
+
+
+\section{Profiling \diet using TAU}
+
+\subsection{Presentation}
+
+TAU (Tuning and Analysis
+Utilities\footnote{\url{http://www.cs.uoregon.edu/research/tau/home.php}}
+is a software to profile and trace applications for performance
+analysis. It can analyze programs written in C, C++, Fortran, Java and
+Python, being either sequential or MPI programs.
+
+In order to profile/trace an application, the code has to be modified
+to include TAU macros specifying where and what to profile. TAU
+provides scripts to help the instrumentation and compilation with the
+profiling environment, those can automatically append relevant calls
+at the beginning of each method, it can also rely on a file containing
+rules for the automatic instrumentation (such as exclude certain
+files, add at line number $x$ in file $y$ the line of code
+\texttt{toto();}, and so on). This tool is quite powerful, as it
+allows to keep a code clean of any call to TAU, the instrumentation of
+the code being done in separate files at compile time. Those scripts
+rely on PDT (Program Database
+Toolkit\footnote{\url{http://www.cs.uoregon.edu/research/pdt/home.php}}). However,
+those scripts cannot instrument automatically threaded application,
+even if TAU support the profiling of these latter. Thus, special
+macros have to be added whenever a thread is launched (this can be
+done directly in the code, or via the instrumentation rules file).
+
+By default TAU only provides time counters, but it can also rely on
+hardware counter libraries to have more precise information on the
+software. The two libraries are PAPI (Performance Application
+Programming Interface\footnote{\url{http://icl.cs.utk.edu/papi}}, and
+PCL (Performance Counter Library\footnote{\url{http://www.fz-juelich.de/jsc/PCL}}).
+
+
+\subsection{Installation}
+As the installing TAU is not quite straightforward, this section
+provides a little walk-through of the installation process to use TAU
+with PAPI.
+
+\subsubsection{PAPI}
+
+PAPI relies on perfctr to obtain hardware performance counters. The
+distribution of PAPI provides three different versions of perfctr in
+\texttt{src/perfctr-2.\{4,6,7\}.x}, the recommended version is
+2.6.x.
+
+perfctr needs to patch the kernel to be installed. You just need to
+follow the instruction provided in the INSTALL file. Just make sure
+that the patch has been applied correctly. I had some troubles with
+the file \texttt{include/asm-x86\_64/system.h}, I had to add the following lines by hand:
+\begin{verbatim}
+#define switch_to(prev,next,last) do { \
+      perfctr_suspend_thread(&(prev)->thread); \
+\end{verbatim}
+
+Once the kernel patched and installed, reboot the machine, and do not
+forget to create the device file perfctr with major number 10 and
+minor number 182:
+\begin{verbatim}
+mknod /dev/perfctr c 10 182
+chmod 666 /dev/perfctr
+\end{verbatim}
+Make sure the rights are 666, even after a reboot. If you use udev,
+add a rule to have the good rights when opening the device, add:
+\begin{verbatim}
+KERNEL=="perfctr",              MODE="0666",    GROUP="root"
+\end{verbatim}
+in the permission files of udev (generally in
+\texttt{/etc/udev/rules.d/}).
+
+You can now install the perfctr library, and then install PAPI.
+
+
+\subsubsection{TAU}
+Before installing TAU you also need to install PDT. The installation
+is easy, and only requires a \texttt{configure} with the appropriate
+options, and a \texttt{make install}.
+
+Finally, the installation of TAU. It is also an easy step, as it
+involves only to do a \texttt{configure} and \texttt{make install},
+only the numerous options available with TAU can be a little
+confusing. Do not forget to specify the \texttt{-pdt=} and
+\texttt{-papi=} to specify the installation paths of PDT and PAPI. You
+can next choose to trace your application (\texttt{-TRACE}), meaning
+that the whole execution will be output with timestamps each time a
+method is called, or to profile it (\texttt{-PROFILE}), meaning that
+you will have condensed information on your program with the time
+spend in each method. If you wish to record multiple counters, do not
+forget to use \texttt{-MULTIPLECOUNTERS} and the options associated
+with PAPI (see the TAU documentation for an (almost) up to date list
+of the possible options, or use \texttt{configure -help}).
+
+Here is an example of the configuration used to compile TAU:
+\begin{verbatim}
+./configure -c++=g++ -cc=gcc -fortran=gnu -pthread -pdt=/opt -papi=/usr/local -PROFILE
+ -PROFILEMEMORY -MULTIPLECOUNTERS -COMPENSATE -PAPIWALLCLOCK -PAPIVIRTUAL -LINUXTIMERS
+-PROFILEPARAM -prefix=/opt/tau
+\end{verbatim}
+
+
+\subsection{Profiling \diet}
+
+\subsubsection{Compilation}
+
+In order to profile \diet in a transparent and automatic way, the
+CMake options have been updated. If the \texttt{DIET\_TAU\_PROFILING}
+option is on, then you have to provide the installation path of TAU in
+the \texttt{TAU\_DIR} variable. CMake then searches the file
+\texttt{Makefile} provided by TAU in \texttt{\$TAU\_DIR/include}, this
+file contains the configuration of the \texttt{tau\_compiler.sh}
+script. The default C and C++ compiler are replaced by this script.
+You can also specify if you want to keep the instrumented source code
+files generated by TAU with the \texttt{TAU\_KEEP\_MOD\_SRC}.
+
+The instrumentation of the code relies on a file containing rules for
+the TAU script:\linebreak \texttt{diet/Cmake/TAU/intrument\_rules.tau}. Basically
+it contains the following rules:
+\begin{itemize}
+  \item between the tags \texttt{BEGIN\_FILE\_EXCLUDE\_LIST} and
+    \texttt{END\_FILE\_EXCLUDE\_LIST}: the exclusion of the files
+    generated by omniidl
+  \item between the tags \texttt{BEGIN\_INSTRUMENT\_SECTION} and
+    \texttt{END\_INSTRUMENT\_SECTION}: the instrumentation of the
+    methods that can be called via CORBA (those may generate threads)
+  \item between the tags \texttt{BEGIN\_EXCLUDE\_LIST} and
+    \texttt{END\_EXCLUDE\_LIST}: the exclusion of the methods
+    instrumented in the instrument section
+\end{itemize}
+
+In order for all this to work, we need to patch CMake. The problem is
+that CMake insert variable declarations at the beginning the command line when
+calling the compiler, and as the TAU scripts requires specific options
+it does not work. Two patch are provided in \texttt{Cmake/TAU/} to
+patch both the sources of CMake, and its modules.
+
+
+\subsubsection{Execution}
+
+If you are using multiple counters, you have to set the environment
+variables \texttt{COUNTER<1-25>} with the counters you want to profile
+(see the TAU documentation for all the basic counters, as well as
+those provided by PAPI)
