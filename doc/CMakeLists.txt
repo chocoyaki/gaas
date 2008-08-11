@@ -1,4 +1,22 @@
-PROJECT (DIET_DOC) 
+PROJECT ( DIET_DOC ) 
+CMAKE_MINIMUM_REQUIRED( VERSION 2.4 )
+
+# Policy CMP0002 is set to use the old behavior in order
+# to remove warnings with UseLATEX.cmake
+# (it uses variables in ADD_CUSTOM_TARGET where a constant
+# would be a better choice: uniq IDs are required).
+#
+# Example of the obtained warnings:
+#  CMake Warning (dev) at Cmake/UseLATEX.cmake:548 (ADD_CUSTOM_TARGET):
+#    Policy CMP0002 is not set: Logical target names must be globally unique.
+#    Run "cmake --help-policy CMP0002" for policy details.  Use the cmake_policy
+#    command to set the policy and suppress this warning.
+#  Call Stack (most recent call first):
+#    Cmake/UseLATEX.cmake:647 (ADD_LATEX_TARGETS)
+#    UsersManual/CMakeLists.txt:15 (ADD_LATEX_DOCUMENT)
+#  This warning is for project developers.  Use -Wno-dev to suppress it.
+CMAKE_POLICY( SET CMP0002 OLD )
+
 OPTION( BUILD_DOCUMENTATION "Build the documentation." ON )
 SET( CMAKE_MODULE_PATH ${DIET_DOC_SOURCE_DIR}/Cmake )
   FIND_PACKAGE( LATEX )
