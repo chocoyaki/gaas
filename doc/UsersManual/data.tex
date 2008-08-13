@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.25  2008/08/13 01:08:27  ecaron
+%* diet_string_get() have only 3 arguments
+%*
 %* Revision 1.24  2008/07/02 13:23:55  gcharrie
 %* cosmetics and some clarifications on the problem parameters
 %*
@@ -367,7 +370,7 @@ diet_file_set(diet_arg_t* arg, diet_persistence_mode_t mode, char* path);
  * Type: int diet_string_get((diet_arg_t *), (char **),
  *                           (diet_persistence_mode_t *))
  */
-#define diet_string_get(arg, value, mode, length) \
+#define diet_string_get(arg, value, mode) \
         _string_get(arg, (char **)value, mode)
 /**
  * Type: int diet_file_get((diet_arg_t *),
