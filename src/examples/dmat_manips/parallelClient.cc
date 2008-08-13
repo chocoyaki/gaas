@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2008/08/13 16:49:38  bdepardo
+ * Added #include <string.h> in order to compile with gcc 4.3
+ *
  * Revision 1.9  2008/01/01 18:54:20  ycaniou
  * Add a cast to avoid warning
  *
@@ -49,6 +52,7 @@ using namespace std;
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
+#include <string.h>
 
 #include "Global_macros.hh"
 #include "omnithread.h"

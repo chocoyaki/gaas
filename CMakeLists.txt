@@ -3,6 +3,7 @@
 #############################################################################
 
 PROJECT(DIET)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
 
 SET( DIET_MAJOR_VERSION 2 )
 SET( DIET_MINOR_VERSION 4 )
