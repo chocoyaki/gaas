@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/08/17 08:10:19  bdepardo
+ * Added PBS batch system
+ * /!\ not tested yet
+ *
  * Revision 1.5  2008/05/11 16:19:51  ycaniou
  * Check that pathToTmp and pathToNFS exist
  * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
@@ -48,6 +52,7 @@ public :
     OAR1_6, 
     LOADLEVELER,
     SGE,
+    PBS,
     NUMBER_OF_SUPPORTED_BATCH
   } batchID_t ;
 

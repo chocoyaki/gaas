@@ -89,6 +89,7 @@ IF( DIET_BUILD_LIBRARIES )
 		 BatchSystem.cc
 		 OAR1_6BatchSystem.cc
 		 Loadleveler_BatchSystem.cc
+		 PBS_BatchSystem.cc
 		 SGE_BatchSystem.cc )
     TARGET_LINK_LIBRARIES( UtilsSeDBatch -lpthread UtilsCommon )
     INSTALL_TARGETS( /lib/ UtilsSeDBatch )

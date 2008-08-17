@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/08/17 08:10:19  bdepardo
+ * Added PBS batch system
+ * /!\ not tested yet
+ *
  * Revision 1.3  2008/04/07 12:19:12  ycaniou
  * Except for the class Parsers (someone to re-code it? :)
  *   correct "deprecated conversion from string constant to 'char*'" warnings
@@ -24,7 +28,10 @@
 //#include <cstring>
 #include "OAR1_6BatchSystem.hh"
 #include "Loadleveler_BatchSystem.hh"
+#include "PBS_BatchSystem.hh"
 #include "BatchCreator.hh"
+
+#include <string.h>
 
 #ifdef YC_DEBUG
 #include "debug.hh"
@@ -33,7 +40,8 @@
 const char * const BatchCreator::batchNames[NUMBER_OF_SUPPORTED_BATCH] = {
   "oar1.6",
   "loadleveler",
-  "sge"
+  "sge",
+  "PBS"
 } ;
 
 // "shellscript",
@@ -65,6 +73,8 @@ BatchCreator::getBatchSystem( const char * batchName )
     return new OAR1_6BatchSystem(batchID,batchNames[batchID]) ;
   case LOADLEVELER:
     return new Loadleveler_BatchSystem(batchID,batchNames[batchID]) ;
+  case PBS:
+    return new PBS_BatchSystem(batchID,batchNames[batchID]) ;
   default:
     return NULL ;
   }
