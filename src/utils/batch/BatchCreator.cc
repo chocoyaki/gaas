@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/08/19 00:46:37  bdepardo
+ * PBS -> pbs for the name of the batch scheduler
+ *
  * Revision 1.4  2008/08/17 08:10:19  bdepardo
  * Added PBS batch system
  * /!\ not tested yet
@@ -41,7 +44,7 @@ const char * const BatchCreator::batchNames[NUMBER_OF_SUPPORTED_BATCH] = {
   "oar1.6",
   "loadleveler",
   "sge",
-  "PBS"
+  "pbs"
 } ;
 
 // "shellscript",
