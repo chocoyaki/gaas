@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/08/19 00:29:37  bdepardo
+ * A few corrections.
+ * It seems to work
+ *
  * Revision 1.1  2008/08/17 08:10:19  bdepardo
  * Added PBS batch system
  * /!\ not tested yet
@@ -23,10 +27,10 @@ const char * PBS_BatchSystem::statusNames[] = {
   "E", //         running, or it has exited
   "E", //         So, how to decide if all is ok? Parse the error file?
   "R", // Job is Running
-  "H", // Job is Held
+  "W", // Job is Held
   "Q", // Job is Queued, eligible to run or be routed
   "S", // ?? Job is Suspended
-  "W"  // ?? Job is waiting for its requested execution time to be reached
+  "H",  // ?? Job is waiting for its requested execution time to be reached
        //   or job specified a stage-in request which failed for some reason
 } ;
 
@@ -43,25 +47,26 @@ PBS_BatchSystem::PBS_BatchSystem(int ID, const char * batchname)
   batchName = batchname ;
   
   shell    = BatchSystem::emptyString ;
-  prefixe  = "#!/bin/sh\n\n" ;
-  postfixe = "#PBS -V\n" ; // the -V option declares that all
-                           // environment variables in the qsub
-                           // command's environment are to be exported
-                           // to the batch job
+  prefixe  = "#!/bin/sh\n" ;
+  // the -V option declares that all environment variables in the qsub
+  // command's environment are to be exported to the batch job
+  // the -N option is to set the name of the job (usefull to debug)
+  postfixe = "#PBS -V\n#PBS -N DIET_SeD\n" ;
 
   nodesNumber       = "#PBS -l nodes=" ;
   serial            = "#PBS -l nodes=1" ;
   walltime          = "#PBS -l walltime=" ;
   submittingQueue   = "#PBS -q " ;
-  minimumMemoryUsed = BatchSystem::emptyString ;
+  minimumMemoryUsed = "#PBS -l mem=" ;
   
   /* TODO: When we use some ID for DIET client, change there! */
-  mail      = "#PBS -m a\n#PBS -M " ; // -m, send mail when:
+  //mail      = "#PBS -m a\n#PBS -M " ; // -m, send mail when:
                                       // a: job is aborted by batch system
                                       // b: job begins execution
                                       // e: job ends execution
                                       // n: do not send mail
                                       // -M, recipient list
+  mail      = BatchSystem::emptyString ;
   account   = BatchSystem::emptyString ;
   setSTDOUT = "#PBS -o " ;
   setSTDIN  = BatchSystem::emptyString ;
@@ -73,7 +78,9 @@ PBS_BatchSystem::PBS_BatchSystem(int ID, const char * batchname)
   waitFilter    = "grep job_state | cut --delimiter== --field=2 | cut --delimiter=\" \" --field=2" ;
   exitCode      = "0" ;
   
-  jid_extract_patterns = "cut --delimiter=\\\" -f 2 | cut --delimiter=. -f 2" ;
+  // nothing to do to retrieve the ID of the submission...
+  // but we need to add something, let's say 'uniq' :-)
+  jid_extract_patterns = "uniq"; //"cut --delimiter=\\\" -f 2 | cut --delimiter=. -f 2" ;
 
   /* Information for META_VARIABLES */
   batchJobID     = "$PBS_JOBID" ;
@@ -109,14 +116,17 @@ PBS_BatchSystem::askBatchJobStatus(int batchJobID)
   }
 
   /*** Ask batch system the job status ***/      
-  chaine = (char*)malloc(sizeof(char)*(strlen(wait4Command)
-				       + NBDIGITS_MAX_BATCH_ID
-				       + strlen(waitFilter)
-				       + strlen(filename)
-				       + 7 + 1) ) ;
+  chaine = (char*)malloc(sizeof(char)*(strlen(wait4Command) * 2
+				       + NBDIGITS_MAX_BATCH_ID * 2
+				       + strlen(waitFilter) * 2
+				       + strlen(filename) * 3
+				       + 73 + 1) ) ;
   /* See EOF to get an example of what we parse */
-  sprintf(chaine,"%s %d | %s > %s",
-	  wait4Command,batchJobID,waitFilter,filename) ;
+  // ugly trick to use a PBS which do not keep the status of the batch once finished
+  sprintf(chaine,"TMP_VAL=`%s %d 2>/dev/null | %s`;if [ \"$TMP_VAL\" == \"\" ];then echo E > %s;else %s %d | %s > %s;fi",
+	  wait4Command,batchJobID,waitFilter,
+	  filename,
+	  wait4Command,batchJobID,waitFilter, filename) ;
 #if defined YC_DEBUG
   TRACE_TEXT(TRACE_ALL_STEPS,"Execute:\n " << chaine << "\n") ;
 #endif
@@ -139,9 +149,8 @@ PBS_BatchSystem::askBatchJobStatus(int batchJobID)
     /* Adjust what have been read */
     if( chaine[nbread-1] == '\n' )
       chaine[nbread-1] = '\0' ;
-    /* Compare to chaine+1 because of a space as a first char */
     while( (i<NB_STATUS) && 
-	   (strcmp(chaine+1,PBS_BatchSystem::statusNames[i])!=0) ) {
+	   (strcmp(chaine,PBS_BatchSystem::statusNames[i])!=0) ) {
       i++ ;
     }
   }
