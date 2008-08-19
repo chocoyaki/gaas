@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/08/19 02:07:43  bdepardo
+ * Removed the whitespaces between the options and their value
+ *
  * Revision 1.5  2008/05/11 16:19:51  ycaniou
  * Check that pathToTmp and pathToNFS exist
  * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
@@ -196,17 +199,17 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
   if( profile->parallel_flag == 1 )
     sprintf(options,
 	    "%s\n"
-	    "%s %ld\n",
+	    "%s%ld\n",
 	    this->serial,
 	    this->walltime, profile->walltime) ;
   else
     sprintf(options,
-	    "%s %d\n"
-	    "%s %ld\n",
+	    "%s%d\n"
+	    "%s%ld\n",
 	    this->nodesNumber, profile->nbprocs,
 	    this->walltime, profile->walltime) ;
   sprintf(options+strlen(options),
-	  "%s %s\n",
+	  "%s%s\n",
 	  submittingQueue, batchQueueName) ;
 
   /* TODO: the user will be able to set the shell, mail, stdin, etc. */
@@ -218,11 +221,11 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
 
   if( setSTDERR != emptyString ) /* FIXME: only for ldl.. */
     sprintf(options+strlen(options),
-	    "%s $(job_name).err\n",
+	    "%s$(job_name).err\n",
 	    setSTDERR ) ;
   if( setSTDOUT != emptyString ) /* FIXME: only for ldl.. */
     sprintf(options+strlen(options),
-	    "%s $(job_name).out\n",
+	    "%s$(job_name).out\n",
 	    setSTDOUT ) ;
   /*
   if( setSTDIN != emptyString ) ** & if user has set one entry
