@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2008/09/02 07:37:08  rbolze
+ * add some stat infos
+ * correct the dagId output in the stats file
+ *
  * Revision 1.13  2008/07/12 00:24:49  rbolze
  * add stat info when the persistent data are released
  * add stat info about the workflow execution.
@@ -209,10 +213,14 @@ CltWfMgr::wf_call_madag(diet_wf_desc_t * profile,
   
   TRACE_TEXT (TRACE_ALL_STEPS,"Calling the MA DAG "<< endl);
 
+  sprintf(statMsg,"xml_reader",__FUNCTION__);
+  stat_in("cltwfmgr",statMsg);
+
   DagWfParser reader(cltWfReqId++, profile->abstract_wf, false);
   if (! reader.setup())
     return XML_MALFORMED;
-
+  
+  stat_out("cltwfmgr",statMsg);
   // At this stage only the XML validity is checked but not the coherence
   // of the dag links between inputs and outputs
 
@@ -262,7 +270,7 @@ CltWfMgr::wf_call_madag(diet_wf_desc_t * profile,
         this->myLock.unlock();  /** UNLOCK */
     }
   }
-  sprintf(statMsg,"%s %ld",__FUNCTION__,dag->getId().c_str());
+  sprintf(statMsg,"%s %s",__FUNCTION__,dag->getId().c_str());
   stat_out("cltwfmgr",statMsg);
   return res;
 
