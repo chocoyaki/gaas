@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.34  2008/09/03 09:27:54  bisnard
+ * Temporary fix to reduce nb of submits
+ *
  * Revision 1.33  2008/07/18 12:21:33  rbolze
  * correct nodeTodoCount value
  *
@@ -331,13 +334,23 @@ MultiWfScheduler::run() {
           << queuedNodeCount << " nodes)" << endl);
       // Build list of services for all nodes in the exec queue
       // and ask MA for list of ressources available
-      wf_response_t * wf_response = getProblemEstimates(execQueue, myMaDag->getMA());
+
+      // ## TEST ## use only the first node to avoid unnecessary MA submits
+      if (queuedNodeCount > 1) {
+        TRACE_TEXT(TRACE_ALL_STEPS,"## TEST ## Remove all nodes but one in the exec queue" << endl);
+        queuedNodeCount = 1;
+      }
+      // getProblemEstimates temporarily modified to estimate only 1st node of the queue
+      wf_response_t *  wf_response = getProblemEstimates(execQueue, myMaDag->getMA());
+      // ## TEST ## end
+
       if (wf_response == NULL) {
         cout << "ERROR during MA submission" << endl;
         continue;
       }
       mappedNodeCount = 0;
       // Assign available ressources to nodes and start node execution
+      int nc = 0; // for ## TEST ##
       int ix = 0; // index of the node response in wf_response
       while (!execQueue->isEmpty()) {
         Node *n = execQueue->popFirstNode();
@@ -347,7 +360,9 @@ MultiWfScheduler::run() {
         bool ressourceFound = false;
         int submitReqID = 0;  /* used to store the ReqID of submit that must be provided
         to the client for the solve request */
+
         corba_server_estimation_t* servEst; // will contain the chosenServer estimation
+  if (nc++ < 1) {   // ## TEST ## check availability of ressource only for first node in the queue
         ix = n->getSubmitIndex();
         if (!strcmp(n->getPb().c_str(), wf_response->wfn_seq_resp[ix].node_id)) {
           for (unsigned int jx=0;
@@ -385,6 +400,7 @@ MultiWfScheduler::run() {
           TRACE_TEXT(TRACE_MAIN_STEPS,"WARNING: mismatch btw queue node & MA response"
               << "(node pb=" << n->getPb() << ")" << endl); // should not happen!
         }
+  } // ## TEST ##
         // EXECUTE NODE (NEW THREAD)
         if (ressourceFound) {
           n->setAsRunning();
@@ -437,7 +453,8 @@ MultiWfScheduler::run() {
     // hypothesis that all ressources are identical (in terms of provided services) for
     // a given dag then there may be available ressources only if all nodes in the
     // execQueue were assigned a ressource.
-    if ((queuedNodeCount == 0) || (queuedNodeCount > mappedNodeCount)) {
+//     if ((queuedNodeCount == 0) || (queuedNodeCount > mappedNodeCount)) {
+    if ((queuedNodeCount == 0) || (mappedNodeCount == 0)) { // see ## TEST ## above
       if (queuedNodeCount == 0) {
         TRACE_TEXT(TRACE_MAIN_STEPS,"No ready nodes - sleeping" << endl);
       } else {
@@ -539,18 +556,21 @@ MultiWfScheduler::getProblemEstimates(Dag *dag, MasterAgent_var MA)
 
 /**
  * Call MA to get server estimations for all services for nodes of a NodeQueue
+ * FIXME temporarily modified to process only 1 node (see ## TEST ## above)
  */
 wf_response_t *
 MultiWfScheduler::getProblemEstimates(OrderedNodeQueue* queue, MasterAgent_var MA)
     throw (NodeException) {
   corba_pb_desc_seq_t* pbs_seq = new corba_pb_desc_seq_t();
-  pbs_seq->length(queue->size());
+//   pbs_seq->length(queue->size());
+  pbs_seq->length(1); // for ## TEST ##
   int ix = 0;
   for (list<Node *>::iterator iter = queue->begin();
        iter != queue->end(); iter++) {
          Node * node = (Node *) *iter;
          node->setSubmitIndex(ix); // used to find response
          mrsh_pb_desc(&(*pbs_seq)[ix++], node->getProfile());
+         if (ix > 0) break; // for ## TEST ##
   }
   TRACE_TEXT (TRACE_ALL_STEPS,
               "MultiWfScheduler: send " << ix << " profile(s) to the MA  ... "
