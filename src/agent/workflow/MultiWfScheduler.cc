@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.35  2008/09/04 14:33:55  bisnard
+ * - New option for MaDag to select platform type (servers
+ * with same service list or not)
+ * - Optimization of the multiwfscheduler to avoid requests to
+ * MA for server availability
+ *
  * Revision 1.34  2008/09/03 09:27:54  bisnard
  * Temporary fix to reduce nb of submits
  *
@@ -163,7 +169,8 @@ using namespace madag;
 /****************************************************************************/
 
 MultiWfScheduler::MultiWfScheduler(MaDag_impl* maDag, nodePolicy_t nodePol)
-  : mySem(0), myMaDag(maDag), nodePolicy(nodePol), interRoundDelay(100) {
+  : mySem(0), myMaDag(maDag), nodePolicy(nodePol), interRoundDelay(100),
+    platformType(PFM_ANY) {
   this->mySched   = new HEFTScheduler();
   this->execQueue = NULL; // must be initialized in derived class constructor
   gettimeofday(&this->refTime, NULL); // init reference time
@@ -183,6 +190,15 @@ void
 MultiWfScheduler::setSched(WfScheduler * sched) {
   this->mySched = sched;
 }
+
+/**
+ * Change the platform type (by default it is PFM_ANY)
+ */
+void
+MultiWfScheduler::setPlatformType(pfmType_t pfmType) {
+  this->platformType = pfmType;
+}
+
 /**
  * Change the inter-round delay value (by default 100 ms)
  */
@@ -258,24 +274,22 @@ void*
 MultiWfScheduler::run() {
   int loopCount = 0;
   // the ressource availability matrix
-  map<SeD_ptr, bool> avail;
-  // the counters of executed nodes (to check if new round must be started)
-  int queuedNodeCount = 0;
-  int mappedNodeCount = 0;
+  map<SeD_ptr, bool> ressAvail;
+  // the service availability matrix
+  map<string, bool> servAvail;
   // the nb of nodes to move from ready to exec at each round (policy dep.)
   int nodePolicyCount = 0;
   // use for statistic output
   char statMsg[64];
-  // the nb of nodes ready : this is use for statistic output.
-  int nodeReadyCount = 0;
-  // the nb of dag : this is use for statistic output.
-  int dagCount = 0;
-  // the nb of nodes still to be executed : for statistic output
-  int nodeTodoCount = 0;
-  if (this->nodePolicy == MULTIWF_NODE_METRIC)
-    nodePolicyCount = -1;   // ie no limit (take all ready nodes)
-  else if (this->nodePolicy == MULTIWF_DAG_METRIC)
-    nodePolicyCount = 1;    // ie take only 1 ready node
+
+  switch (this->nodePolicy) {
+    case MULTIWF_NODE_METRIC:
+      nodePolicyCount = -1;   // ie no limit (take all ready nodes)
+      break;
+    case MULTIWF_DAG_METRIC:
+      nodePolicyCount = 1;    // ie take only 1 ready node
+      break;
+  }
 
   TRACE_TEXT(TRACE_ALL_STEPS,"Multi-Workflow scheduler is running" << endl);
   /// Start a ROUND of node ordering & mapping
@@ -284,16 +298,23 @@ MultiWfScheduler::run() {
   /// is submitted)
   while (true) {
     loopCount++;
+
+    int queuedNodeCount = 0;   // nb nodes put in execQueue (check for new round)
+    int mappedNodeCount = 0;   // nb nodes mapped to a ressource (check for new round)
+    int servAvailCount = 0; // nb available services (check for new round)
+
+    int nodeReadyCount = 0;    // the nb of nodes ready (statistics)
+    int dagCount = 0;          // the nb of dag (statistics)
+    int nodeTodoCount = 0;     // the nb of nodes still to be executed (statistics)
+
     TRACE_TEXT(TRACE_MAIN_STEPS,"\t ** Starting Multi-Workflow scheduler ("
         << loopCount << ") time=" << this->getRelCurrTime() << endl);
     this->myLock.lock();
     // Loop over all nodeQueues and run the first ready node
     // for each queue
     TRACE_TEXT(TRACE_ALL_STEPS,"PHASE 1: Move ready nodes to exec queue" << endl);
-    queuedNodeCount = 0;
-    nodeReadyCount = 0;
-    nodeTodoCount = 0;
-    dagCount=0;
+
+
     std::list<OrderedNodeQueue *>::iterator qp = readyQueues.begin();
     while (qp != readyQueues.end()) {
       OrderedNodeQueue * readyQ = *qp;
@@ -332,99 +353,110 @@ MultiWfScheduler::run() {
     if (queuedNodeCount > 0) {
       TRACE_TEXT(TRACE_ALL_STEPS,"Phase 2: Check ressources for nodes in exec queue ("
           << queuedNodeCount << " nodes)" << endl);
-      // Build list of services for all nodes in the exec queue
-      // and ask MA for list of ressources available
+      int requestCount = 0;
 
-      // ## TEST ## use only the first node to avoid unnecessary MA submits
-      if (queuedNodeCount > 1) {
-        TRACE_TEXT(TRACE_ALL_STEPS,"## TEST ## Remove all nodes but one in the exec queue" << endl);
-        queuedNodeCount = 1;
+      switch(this->platformType) {
+        case PFM_ANY:
+          // Initialize service availability matrix
+          for (list<Node *>::iterator nodeIter = execQueue->begin();
+               nodeIter != execQueue->end();
+               ++nodeIter) {
+            servAvail[(*nodeIter)->getPb()] = true;
+            servAvailCount = servAvail.size();
+          }
+          TRACE_TEXT(TRACE_ALL_STEPS, "Nb of distinct services in queue: "
+              << servAvailCount << endl);
+          break;
+        case PFM_SAME_SERVICES:
+          TRACE_TEXT(TRACE_ALL_STEPS,
+            "Limiting check to one ressource (same services on all ress.)" << endl);
       }
-      // getProblemEstimates temporarily modified to estimate only 1st node of the queue
-      wf_response_t *  wf_response = getProblemEstimates(execQueue, myMaDag->getMA());
-      // ## TEST ## end
 
-      if (wf_response == NULL) {
-        cout << "ERROR during MA submission" << endl;
-        continue;
-      }
-      mappedNodeCount = 0;
-      // Assign available ressources to nodes and start node execution
-      int nc = 0; // for ## TEST ##
-      int ix = 0; // index of the node response in wf_response
       while (!execQueue->isEmpty()) {
         Node *n = execQueue->popFirstNode();
         OrderedNodeQueue * readyQ = dynamic_cast<OrderedNodeQueue *>(n->getLastQueue());
-
-        // CHECK RESSOURCE AVAILABILITY
         bool ressourceFound = false;
-        int submitReqID = 0;  /* used to store the ReqID of submit that must be provided
-        to the client for the solve request */
+        int  submitReqID = 0;  // store ReqID of submit to provide it for solve
+        corba_server_estimation_t* servEst;
+        // Test to process node (depends on platform type)
+        bool nodeSubmit = ((this->platformType == PFM_ANY)
+                            && (servAvailCount) && (servAvail[n->getPb()]))
+            || ((this->platformType == PFM_SAME_SERVICES) && (requestCount < 1));
 
-        corba_server_estimation_t* servEst; // will contain the chosenServer estimation
-  if (nc++ < 1) {   // ## TEST ## check availability of ressource only for first node in the queue
-        ix = n->getSubmitIndex();
-        if (!strcmp(n->getPb().c_str(), wf_response->wfn_seq_resp[ix].node_id)) {
+        if (nodeSubmit) {
+          TRACE_TEXT(TRACE_MAIN_STEPS,"Submit request for node " << n->getCompleteId()
+            << "(" << n->getPb() << ") / exec prio = " << n->getPriority() << endl);
+
+          // SEND REQUEST TO PLATFORM (FOR CURRENT NODE)
+          wf_response_t *  wf_response = getProblemEstimates(n, myMaDag->getMA());
+          if (wf_response == NULL) {
+            cout << "ERROR during MA submission" << endl;
+            continue;
+          }
+          ++requestCount;
+          // CHECK RESSOURCE AVAILABILITY
           for (unsigned int jx=0;
-               jx < wf_response->wfn_seq_resp[ix].response.servers.length();
+               jx < wf_response->wfn_seq_resp[0].response.servers.length();
                jx++) { // loop over servers
-            servEst = &wf_response->wfn_seq_resp[ix].response.servers[jx];
+            servEst = &wf_response->wfn_seq_resp[0].response.servers[jx];
             double compTime = diet_est_get_internal(&servEst->estim, EST_TCOMP, 0);
             double EFT = diet_est_get_internal(&servEst->estim, EST_USERDEFINED, 0);
             SeD_ptr curSeDPtr = servEst->loc.ior;
             string hostname(CORBA::string_dup(servEst->loc.hostName));
             TRACE_TEXT(TRACE_ALL_STEPS,"  server " << hostname << ": compTime="
-                << compTime << ": EFT=" << EFT << endl);
+                       << compTime << ": EFT=" << EFT << endl);
             if (EFT - compTime <= 0) {  // test if available right now
               // test if the server has not been already chosen for another node
-              bool available = true;
-              for (map<SeD_ptr, bool>::iterator availIter=avail.begin();
-                   availIter!=avail.end();
-                   availIter++) {
-                if (curSeDPtr->_is_equivalent(availIter->first)) {
-                  available = false;
+              bool ressAvailable = true;
+              for (map<SeD_ptr, bool>::iterator ressAvailIter=ressAvail.begin();
+                   ressAvailIter!=ressAvail.end();
+                   ressAvailIter++) {
+                if (curSeDPtr->_is_equivalent(ressAvailIter->first)) {
+                  ressAvailable = false;
                   break;
                 }
               }
               // server is free so it can be used for this node
-              if (available) {
+              if (ressAvailable) {
                 ressourceFound = true;
-                avail[curSeDPtr] = false;
-                submitReqID = wf_response->wfn_seq_resp[ix].response.reqID;
+                ressAvail[curSeDPtr] = false;
+                submitReqID = wf_response->wfn_seq_resp[0].response.reqID;
                 TRACE_TEXT(TRACE_ALL_STEPS,"  server found: " << hostname << endl);
                 break;
               } // end if
             } // end if
           } // end for jx
-        } else {  // problem name in node list & in wf response do not match
-          TRACE_TEXT(TRACE_MAIN_STEPS,"WARNING: mismatch btw queue node & MA response"
-              << "(node pb=" << n->getPb() << ")" << endl); // should not happen!
-        }
-  } // ## TEST ##
-        // EXECUTE NODE (NEW THREAD)
-        if (ressourceFound) {
-          n->setAsRunning();
-          n->setRealStartTime(this->getRelCurrTime());
-	  TRACE_TEXT(TRACE_MAIN_STEPS,"  $$$$ Exec node on " << servEst->loc.hostName
-            << " : " << n->getCompleteId()
-            << " / exec prio = " << n->getPriority() << endl);
-          mappedNodeCount++;
-          runNode(n, servEst->loc.ior, submitReqID, servEst->estim);
-        }
-        // PUT THE NODE BACK IN THE READY QUEUE if no ressource available
-        else {
+
+          // EXECUTE NODE (NEW THREAD)
+          if (ressourceFound) {
+            n->setAsRunning();
+            n->setRealStartTime(this->getRelCurrTime());
+	    TRACE_TEXT(TRACE_MAIN_STEPS,"  $$$$ Exec node on " << servEst->loc.hostName
+              << " : " << n->getCompleteId() << endl);
+            mappedNodeCount++;
+            runNode(n, servEst->loc.ior, submitReqID, servEst->estim);
+          } else {
+            if (this->platformType == PFM_ANY) {
+              servAvail[n->getPb()] = false;
+              servAvailCount--;
+              TRACE_TEXT(TRACE_MAIN_STEPS,"Service " << n->getPb() << " is not available" << endl);
+            }
+          }
+          delete wf_response;
+
+        } // end if (nodeSubmit)
+
+        // PUT THE NODE BACK IN THE READY QUEUE if no ressource available or node skipped
+        if (!nodeSubmit || !ressourceFound) {
           // set the priority to the initial value (intra-dag)
           this->setWaitingPriority(n);
           readyQ->pushNode(n);
         }
-
       } // end loop execQueue
 
       // cleanup availability matrix
-      avail.clear();
-
-      // destroy wf_response
-      delete wf_response;
+      ressAvail.clear();
+      servAvail.clear();
 
       // Destroy ready/waiting queues if both are empty
       std::list<OrderedNodeQueue *>::iterator qp2 = readyQueues.begin();
@@ -438,7 +470,7 @@ MultiWfScheduler::run() {
         } else {
           qp2++;
         }
-      }
+      } // end while
       // Round-robbin on remaining queues
       if (readyQueues.size() > 0) {
         OrderedNodeQueue * firstReadyQueue = readyQueues.front();
@@ -454,7 +486,9 @@ MultiWfScheduler::run() {
     // a given dag then there may be available ressources only if all nodes in the
     // execQueue were assigned a ressource.
 //     if ((queuedNodeCount == 0) || (queuedNodeCount > mappedNodeCount)) {
-    if ((queuedNodeCount == 0) || (mappedNodeCount == 0)) { // see ## TEST ## above
+    if ((queuedNodeCount == 0)
+         || ((this->platformType == PFM_ANY) && (servAvailCount == 0))
+         || ((this->platformType == PFM_SAME_SERVICES) && (mappedNodeCount == 0))) {
       if (queuedNodeCount == 0) {
         TRACE_TEXT(TRACE_MAIN_STEPS,"No ready nodes - sleeping" << endl);
       } else {
@@ -462,7 +496,8 @@ MultiWfScheduler::run() {
       }
       this->mySem.wait();
       if (this->termNode) {
-        TRACE_TEXT(TRACE_ALL_STEPS,"Joining RunNode thread" << endl);
+        TRACE_TEXT(TRACE_ALL_STEPS,"Joining RunNode thread ("
+            << this->termNodeThread << ")" << endl);
         this->termNodeThread->join();
         delete this->termNodeThread;
         this->termNode = false;
@@ -470,8 +505,8 @@ MultiWfScheduler::run() {
     } else {
       // DELAY between rounds (to avoid interference btw submits)
       usleep(this->interRoundDelay * 1000);
-    }
-  }
+    } // end if
+  } // end while (true)
 }
 
 /**
@@ -556,24 +591,42 @@ MultiWfScheduler::getProblemEstimates(Dag *dag, MasterAgent_var MA)
 
 /**
  * Call MA to get server estimations for all services for nodes of a NodeQueue
- * FIXME temporarily modified to process only 1 node (see ## TEST ## above)
+ * @deprecated
  */
 wf_response_t *
 MultiWfScheduler::getProblemEstimates(OrderedNodeQueue* queue, MasterAgent_var MA)
     throw (NodeException) {
   corba_pb_desc_seq_t* pbs_seq = new corba_pb_desc_seq_t();
-//   pbs_seq->length(queue->size());
-  pbs_seq->length(1); // for ## TEST ##
+  pbs_seq->length(queue->size());
   int ix = 0;
   for (list<Node *>::iterator iter = queue->begin();
        iter != queue->end(); iter++) {
          Node * node = (Node *) *iter;
          node->setSubmitIndex(ix); // used to find response
          mrsh_pb_desc(&(*pbs_seq)[ix++], node->getProfile());
-         if (ix > 0) break; // for ## TEST ##
   }
   TRACE_TEXT (TRACE_ALL_STEPS,
               "MultiWfScheduler: send " << ix << " profile(s) to the MA  ... "
+                  << endl);
+  wf_response_t * wf_response = MA->submit_pb_set(*pbs_seq);
+  delete pbs_seq;
+  TRACE_TEXT (TRACE_ALL_STEPS, "... done" << endl);
+  if ( ! wf_response->complete)
+    throw (NodeException(NodeException::eSERVICE_NOT_FOUND));
+  return wf_response;
+}
+
+/**
+ * Call MA to get server estimations for one node
+ */
+wf_response_t *
+MultiWfScheduler::getProblemEstimates(Node *node, MasterAgent_var MA)
+    throw (NodeException) {
+  corba_pb_desc_seq_t* pbs_seq = new corba_pb_desc_seq_t();
+  pbs_seq->length(1);
+  node->setSubmitIndex(0);
+  mrsh_pb_desc(&(*pbs_seq)[0], node->getProfile());
+  TRACE_TEXT (TRACE_ALL_STEPS, "MultiWfScheduler: send 1 profile to the MA  ... "
                   << endl);
   wf_response_t * wf_response = MA->submit_pb_set(*pbs_seq);
   delete pbs_seq;

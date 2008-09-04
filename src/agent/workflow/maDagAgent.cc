@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2008/09/04 14:33:55  bisnard
+ * - New option for MaDag to select platform type (servers
+ * with same service list or not)
+ * - Optimization of the multiwfscheduler to avoid requests to
+ * MA for server availability
+ *
  * Revision 1.11  2008/07/24 21:08:11  rbolze
  * New multi-wf heuristic FCFS (First Come First Serve)
  *
@@ -64,8 +70,10 @@ using namespace std;
 extern unsigned int TRACE_LEVEL;
 
 void usage(char * s) {
-  fprintf(stderr, "Usage: %s <file.cfg> [option]\n", s);
-  fprintf(stderr, "option = -basic (default) | -heft | -aging_heft | -fairness | -srpt | -fcfs \n");
+  fprintf(stderr, "Usage: %s <file.cfg> [sched] [pfm] [IRD]\n", s);
+  fprintf(stderr, "sched = -basic (default) | -heft | -aging_heft | -fairness | -srpt | -fcfs \n");
+  fprintf(stderr, "pfm   = -pfm_any (default) | -pfm_sameservices \n");
+  fprintf(stderr, "IRD   = -IRD <value> \n");
   exit(1);
 }
 
@@ -82,6 +90,16 @@ int checkUsage(int argc, char ** argv) {
         strcmp(argv[2], "-fcfs"  )) {
       usage(argv[0]);
     }
+  }
+  if (argc >=4) {
+    if (strcmp(argv[3], "-pfm_any") &&
+        strcmp(argv[3], "-pfm_sameservices" )) {
+      usage(argv[0]);
+    }
+  }
+  if (argc >=5) {
+    if (strcmp(argv[4], "-IRD"))
+      usage(argv[0]);
   }
   return 0;
 }
@@ -130,7 +148,6 @@ int main(int argc, char * argv[]){
     Parsers::Results::getParamValue(Parsers::Results::NAME);
 
   /* Choose scheduler type */
-
   MaDag_impl::MaDagSchedType schedType = MaDag_impl::BASIC;
   if (argc >= 3) {
     if (!strcmp(argv[2], "-fairness"))
@@ -148,10 +165,10 @@ int main(int argc, char * argv[]){
 
   /* Choose interRoundDelay */
   IRD = false;
-  if (argc >= 4) {
-    if (!strcmp(argv[3], "-IRD")) {
+  if (argc >= 5) {
+    if (!strcmp(argv[4], "-IRD")) {
       IRD = true;
-      if (!sscanf(argv[4],"%d",&IRD_value)) {
+      if (!sscanf(argv[5],"%d",&IRD_value)) {
         ERROR("Wrong IRD parameter value", 1);
       }
     }
@@ -179,6 +196,11 @@ int main(int argc, char * argv[]){
       new MaDag_impl(name, schedType);
   ORBMgr::activate((MaDag_impl*)maDag_impl);
 
+  /* Change platform type */
+  if (argc >=4) {
+    if (!strcmp(argv[3], "-pfm_sameservices"))
+      maDag_impl->setPlatformType(MaDag::SAME_SERVICES);
+  }
 
   /* Wait for RPCs (blocking call): */
   if (ORBMgr::wait()) {

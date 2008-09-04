@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2008/09/04 14:33:55  bisnard
+ * - New option for MaDag to select platform type (servers
+ * with same service list or not)
+ * - Optimization of the multiwfscheduler to avoid requests to
+ * MA for server availability
+ *
  * Revision 1.15  2008/07/12 00:22:28  rbolze
  * add function getInterRoundDelay()
  * use this function when the maDag start to display this value.
@@ -111,6 +117,15 @@ namespace madag {
     typedef enum { MULTIWF_NO_METRIC, MULTIWF_NODE_METRIC, MULTIWF_DAG_METRIC }
       nodePolicy_t;
 
+    /**
+     * Selector for platform type
+     * (used to optimize the requests to the platform)
+     *   PFM_ANY : (default) any platform
+     *   PFM_SAME_SERVICES : platform containing hosts with same service list
+     */
+    typedef enum {PFM_ANY, PFM_SAME_SERVICES }
+      pfmType_t;
+
     MultiWfScheduler(MaDag_impl * maDag, nodePolicy_t nodePol);
 
     virtual ~MultiWfScheduler();
@@ -129,12 +144,11 @@ namespace madag {
         setSched(WfScheduler * sched);
 
     /**
-     * get the inter-round delay in milliseconds
-     * this value (by default 100ms) is used to avoid burst of submit requests
-     * that result in mapping several jobs to same SeD
+     * set the platform type
+     * @param pfmType the type of platform (grid) used
      */
-    virtual const int
-        getInterRoundDelay() const;
+    virtual void
+        setPlatformType(pfmType_t pfmType);
 
     /**
      * set the inter-round delay in milliseconds
@@ -143,6 +157,14 @@ namespace madag {
      */
     virtual void
         setInterRoundDelay(int IRD_value);
+
+    /**
+     * get the inter-round delay in milliseconds
+     * this value (by default 100ms) is used to avoid burst of submit requests
+     * that result in mapping several jobs to same SeD
+     */
+    virtual const int
+        getInterRoundDelay() const;
 
     /**
      * schedules a new DAG workflow
@@ -224,6 +246,12 @@ namespace madag {
     nodePolicy_t nodePolicy;
 
     /**
+     * Selector for platform type
+     */
+
+    pfmType_t platformType;
+
+    /**
      * Critical section of the scheduler
      */
     omni_mutex myLock;
@@ -277,7 +305,15 @@ namespace madag {
         throw (NodeException);
 
     /**
+     * Call MA to get server estimations for one node
+     */
+    wf_response_t *
+        getProblemEstimates(Node * node, MasterAgent_var MA)
+        throw (NodeException);
+
+    /**
      * Call MA to get server estimations for all services for nodes of a queue
+     * @deprecated
      */
     wf_response_t *
         getProblemEstimates(OrderedNodeQueue * queue, MasterAgent_var MA)

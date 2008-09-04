@@ -10,6 +10,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2008/09/04 14:33:55  bisnard
+ * - New option for MaDag to select platform type (servers
+ * with same service list or not)
+ * - Optimization of the multiwfscheduler to avoid requests to
+ * MA for server availability
+ *
  * Revision 1.15  2008/07/24 21:08:11  rbolze
  * New multi-wf heuristic FCFS (First Come First Serve)
  *
@@ -165,6 +171,13 @@ public:
   /** Used to test if it is alive. */
   virtual CORBA::Long
       ping();
+
+  /**
+   * Set the platform type
+   */
+  virtual void
+      setPlatformType(MaDag::pfmType_t pfmType);
+
    /**
    * Ptr to the DietLogComponent. This ptr can be NULL, so it has to
    * be checked every time it is used. If it is NULL, no monitoring

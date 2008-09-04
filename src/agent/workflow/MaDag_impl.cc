@@ -10,6 +10,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2008/09/04 14:33:55  bisnard
+ * - New option for MaDag to select platform type (servers
+ * with same service list or not)
+ * - Optimization of the multiwfscheduler to avoid requests to
+ * MA for server availability
+ *
  * Revision 1.20  2008/07/24 21:08:11  rbolze
  * New multi-wf heuristic FCFS (First Come First Serve)
  *
@@ -332,6 +338,23 @@ MaDag_impl::getCltMan(int wfReqId) {
 void
 MaDag_impl::setCltMan(int wfReqId, CltMan_ptr cltMan) {
   this->cltMans[wfReqId] = cltMan;
+}
+
+/**
+ * Set the platform type
+ */
+void
+MaDag_impl::setPlatformType(MaDag::pfmType_t pfmType) {
+  switch(pfmType) {
+    case (MaDag::DISTINCT_SERVICES):
+      this->myMultiWfSched->setPlatformType(MultiWfScheduler::PFM_ANY);
+      break;
+    case (MaDag::SAME_SERVICES):
+      this->myMultiWfSched->setPlatformType(MultiWfScheduler::PFM_SAME_SERVICES);
+      break;
+    default:
+      WARNING("Wrong platform type");
+  }
 }
 
 /**
