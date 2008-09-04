@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2008/09/04 15:22:25  bisnard
+ * Changed name of multiwf heuristic HEFT to GHEFT
+ *
  * Revision 1.16  2008/09/04 14:33:55  bisnard
  * - New option for MaDag to select platform type (servers
  * with same service list or not)
@@ -113,7 +116,7 @@
 class MaDag_impl : public POA_MaDag,
 		   public PortableServer::RefCountServantBase {
 public:
-  enum MaDagSchedType { BASIC, HEFT, AHEFT, FOFT, SRPT , FCFS };
+  enum MaDagSchedType { BASIC, GHEFT, GAHEFT, FOFT, SRPT , FCFS };
 
   MaDag_impl(const char * name,
              const MaDagSchedType schedType = BASIC,

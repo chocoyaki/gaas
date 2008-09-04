@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2008/09/04 15:22:25  bisnard
+ * Changed name of multiwf heuristic HEFT to GHEFT
+ *
  * Revision 1.21  2008/09/04 14:33:55  bisnard
  * - New option for MaDag to select platform type (servers
  * with same service list or not)
@@ -185,10 +188,10 @@ MaDag_impl::MaDag_impl(const char * name,
       	free(scheduler_type);
       }
       break;
-    case HEFT:
+    case GHEFT:
       this->myMultiWfSched = new MultiWfHEFT(this);
       if (this->dietLogComponent != NULL) {
-      	scheduler_type=strdup("MULTI_HEFT");
+      	scheduler_type=strdup("GLOBAL_HEFT");
       	dietLogComponent->maDagSchedulerType(scheduler_type);
       	free(scheduler_type);
       }
@@ -201,10 +204,10 @@ MaDag_impl::MaDag_impl(const char * name,
       	free(scheduler_type);
       }
       break;
-    case AHEFT:
+    case GAHEFT:
       this->myMultiWfSched = new MultiWfAgingHEFT(this);
       if (this->dietLogComponent != NULL) {
-      	scheduler_type=strdup("AGING_HEFT");
+      	scheduler_type=strdup("GLOBAL_AGING_HEFT");
       	dietLogComponent->maDagSchedulerType(scheduler_type);
       	free(scheduler_type);
       }

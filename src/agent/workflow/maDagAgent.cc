@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2008/09/04 15:22:25  bisnard
+ * Changed name of multiwf heuristic HEFT to GHEFT
+ *
  * Revision 1.12  2008/09/04 14:33:55  bisnard
  * - New option for MaDag to select platform type (servers
  * with same service list or not)
@@ -71,7 +74,7 @@ extern unsigned int TRACE_LEVEL;
 
 void usage(char * s) {
   fprintf(stderr, "Usage: %s <file.cfg> [sched] [pfm] [IRD]\n", s);
-  fprintf(stderr, "sched = -basic (default) | -heft | -aging_heft | -fairness | -srpt | -fcfs \n");
+  fprintf(stderr, "sched = -basic (default) | -g_heft | -g_aging_heft | -fairness | -srpt | -fcfs \n");
   fprintf(stderr, "pfm   = -pfm_any (default) | -pfm_sameservices \n");
   fprintf(stderr, "IRD   = -IRD <value> \n");
   exit(1);
@@ -83,9 +86,9 @@ int checkUsage(int argc, char ** argv) {
   }
   if (argc >= 3) {
     if (strcmp(argv[2], "-basic") &&
-        strcmp(argv[2], "-heft") &&
+        strcmp(argv[2], "-g_heft") &&
 	strcmp(argv[2], "-fairness") &&
-        strcmp(argv[2], "-aging_heft") &&
+        strcmp(argv[2], "-g_aging_heft") &&
         strcmp(argv[2], "-srpt") &&
         strcmp(argv[2], "-fcfs"  )) {
       usage(argv[0]);
@@ -152,10 +155,10 @@ int main(int argc, char * argv[]){
   if (argc >= 3) {
     if (!strcmp(argv[2], "-fairness"))
       schedType = MaDag_impl::FOFT;
-    else if (!strcmp(argv[2], "-heft"))
-      schedType = MaDag_impl::HEFT;
-    else if (!strcmp(argv[2], "-aging_heft"))
-      schedType = MaDag_impl::AHEFT;
+    else if (!strcmp(argv[2], "-g_heft"))
+      schedType = MaDag_impl::GHEFT;
+    else if (!strcmp(argv[2], "-g_aging_heft"))
+      schedType = MaDag_impl::GAHEFT;
     else if (!strcmp(argv[2], "-srpt"))
       schedType = MaDag_impl::SRPT;
     else if (!strcmp(argv[2], "-fcfs"))
