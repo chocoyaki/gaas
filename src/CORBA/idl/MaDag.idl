@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2008/09/04 15:02:08  bisnard
+ * new method setPlatformType
+ *
  * Revision 1.10  2008/05/16 12:29:38  bisnard
  * MaDag returns dagID to client after dag submission
  * (used for node execution)
@@ -95,6 +98,12 @@ interface MaDag {
 
   /** Used to test if this process is alive. */
   long ping();
+
+  /**
+   * Select type of platform connected to MaDag
+   */
+  enum pfmType_t { DISTINCT_SERVICES, SAME_SERVICES };
+  void setPlatformType(in pfmType_t pfmType);
 
 };
 
