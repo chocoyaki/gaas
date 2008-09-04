@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2008/09/04 14:34:36  bisnard
+ * new method removeLastNodes
+ *
  * Revision 1.6  2008/07/08 11:15:58  bisnard
  * Correct dag/node destruction with nodequeues
  *
@@ -157,6 +160,23 @@ OrderedNodeQueue::removeNode(Node * node) {
     }
   }
 }
+
+
+void
+OrderedNodeQueue::removeLastNodes(int nbNodesToKeep) {
+  list<Node*>::iterator  nodeIter = this->begin();
+  // Go to the first item to delete
+  int ix=0;
+  while ((nodeIter != this->end()) && (ix++ < nbNodesToKeep)) {
+    ++nodeIter;
+  }
+  // Delete remaining items
+  if (nodeIter != this->end()) {
+    orderedNodes.erase(nodeIter, this->end());
+    this->nodeCounter = nbNodesToKeep;
+  }
+}
+
 
 bool
 OrderedNodeQueue::notifyStateChange(Node * node) {

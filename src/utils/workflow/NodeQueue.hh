@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/09/04 14:34:36  bisnard
+ * new method removeLastNodes
+ *
  * Revision 1.5  2008/07/08 11:15:58  bisnard
  * Correct dag/node destruction with nodequeues
  *
@@ -142,6 +145,9 @@ class OrderedNodeQueue : public NodeQueue {
 
     virtual Node *
         popFirstNode(); // pop out the first node from the nodes queue
+
+    virtual void
+        removeLastNodes(int nbNodesToKeep); // Remove queue's tail keeping only a maximum nb of nodes
 
     std::list<Node *>::iterator
         begin();        // get an iterator on the list of nodes
