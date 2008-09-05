@@ -141,7 +141,13 @@ char* DagdaImpl::sendFile(const corba_data_t &data, Dagda_ptr dest) {
   unsigned long fileSize = data.desc.specific.file().size;
   string basename(data.desc.specific.file().path);
 
-  string name = gen_filename(basename);
+  /* TEST pour debuggage */
+  string name;
+  unsigned long int idx = basename.find_last_of('/');
+  if (idx!=string::npos)
+    name=basename.substr(idx);
+  //  string name = gen_filename(basename); // <= Version originale.
+  /***********************/
 
   unsigned long nBlocks =  fileSize / getMaxMsgSize() + 1;
 
