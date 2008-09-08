@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/09/08 09:12:58  bisnard
+ * removed obsolete attribute nodes_list, pbs_list, alloc
+ *
  * Revision 1.2  2008/04/28 12:06:28  bisnard
  * changed constructor for Node (new param wfReqId)
  *
@@ -54,20 +57,6 @@ class DagWfParser {
 public:
 
   /*********************************************************************/
-  /* public attributes                                                    */
-  /*********************************************************************/
-
-  /**
-   * Profiles list
-   */
-  std::vector<corba_pb_desc_t> pbs_list;
-
-  /**
-   * Nodes list
-   */
-  std::map<string, corba_pb_desc_t> nodes_list;
-
-  /*********************************************************************/
   /* public methods                                                    */
   /*********************************************************************/
 
@@ -77,14 +66,6 @@ public:
    * @param content the workflow description
    */
   DagWfParser(int wfReqId, const char * content);
-
-  /** Reader constructor
-   *
-   * @param wfReqId the workflow request ID
-   * @param content the workflow description
-   * @param alloc   indicates if the profile_desc is allocated  (false, the default value) or not
-   */
-  DagWfParser(int wfReqId, const char * content, bool alloc);
 
   /**
    * The destructor
@@ -103,21 +84,10 @@ public:
    */
   Dag * getDag();
 
-  unsigned int
-  getDagSize();
-
-
-  /**
-   * return the index of the provided problem in pbs_list vector
-   *
-   * @param pb the the requested problem index
-   */
-  unsigned int
-  indexOfPb(corba_pb_desc_t& pb);
 
 protected:
   /*********************************************************************/
-  /* protected fields                                                  */
+  /* protected                                                         */
   /*********************************************************************/
 
   /**
@@ -138,20 +108,9 @@ protected:
   std::map <std::string, Node*> myNodes;
 
   /**
-   * The DAG size
-   */
-  unsigned int dagSize;
-
-  /**
    * Dag structure
    */
   Dag * myDag;
-
-
-  /**
-   * allocation indicator (for profile construction)
-   */
-  bool alloc;
 
   /****************/
   /* Xml methods  */
@@ -447,8 +406,8 @@ protected:
    *
    * @param pb_desc the problem to found
    */
-  bool
-  pbAlreadyRegistred(corba_pb_desc_t& pb_desc);
+//   bool
+//   pbAlreadyRegistred(corba_pb_desc_t& pb_desc);
 
   /**
    * Fill a profile with the appropriate parameter type
@@ -506,6 +465,7 @@ protected:
      * The workflow request ID
      */
     int wfReqId;
+
 };
 
 bool operator == (corba_pb_desc_t& a,   corba_pb_desc_t& b);

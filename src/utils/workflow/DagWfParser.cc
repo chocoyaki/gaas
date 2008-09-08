@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2008/09/08 09:12:58  bisnard
+ * removed obsolete attribute nodes_list, pbs_list, alloc
+ *
  * Revision 1.6  2008/06/19 10:17:41  bisnard
  * remove some debug mess
  *
@@ -51,17 +54,8 @@ using namespace std;
  */
 DagWfParser::DagWfParser(int wfReqId, const char * wf_desc) :
   wfReqId(wfReqId), content(wf_desc) {
-  this->dagSize = 0;
   this->myDag = new Dag();
-  this->alloc = false;
 } // end constructor DagWfParser::DagWfParser(int, const char *)
-
-DagWfParser::DagWfParser(int wfReqId, const char * wf_desc, bool alloc) :
-  wfReqId(wfReqId), content(wf_desc) {
-  this->dagSize = 0;
-  this->myDag = new Dag();
-  this->alloc = alloc;
-} // end constructor DagWfParser::DagWfParser(int, const char *, bool)
 
 DagWfParser::~DagWfParser() {
   // dag is kept alive after parser destruction
@@ -232,7 +226,7 @@ DagWfParser::parseNode (const DOMNode * element,
   long int mul_arg =0, mul_in = 0, mul_inout = 0, mul_out = 0;
   unsigned lastArg = 0;
 
-  this->dagSize++;
+//   this->dagSize++;
 
   DOMNode * child = element->getFirstChild();
   while (child != NULL) {
@@ -551,17 +545,6 @@ DagWfParser::parseNode (const DOMNode * element,
 
   dagNode->set_pb_desc(profile);
 
-  if (! this->alloc) {
-    mrsh_pb_desc(corba_profile, profile);
-    nodes_list[nodeId] = (*corba_profile);
-    this->dagSize = nodes_list.size();
-
-    // add the corba profile to problem list if it is a new one
-    //if (! pbAlreadyRegistred(*corba_profile) ) {
-      pbs_list.push_back(*corba_profile);
-      //}
-  } // end if (! alloc)
-
   myDag->addNode(nodeId, dagNode);
   dagNode->setDag(myDag);
 
@@ -717,9 +700,9 @@ DagWfParser::setParam(const wf_port_t param_type,
 		      const string * value) {
   bool result = true;
 
-  if (! this->alloc) {
+//   if (! this->alloc) {
     setParamDesc(param_type, name, type, profile, lastArg, -1, dagNode, value);
-  }
+//   }
 
   if (type == WfCst::DIET_CHAR) {
     if (dagNode) {
@@ -987,14 +970,14 @@ DagWfParser::setMatrixParam(const wf_port_t param_type,
   diet_matrix_order_t matrix_order =
     getMatrixOrder(matrix_order_str);
 
-  if (! this->alloc) {
+//   if (! this->alloc) {
     setMatrixParamDesc(param_type, name, base_type_str,
 		       nb_rows_str, nb_cols_str,
 		       matrix_order_str,
 		       profile, lastArg,
 		       dagNode,
 		       value);
-  }
+//   }
 
 
   if (dagNode) {
@@ -1252,46 +1235,6 @@ DagWfParser::setMatrixParamDesc(const wf_port_t param_type,
 
   return true;
 } // end setMatrixParamDesc
-
-/**
- * Get the dag size (number of nodes)
- */
-unsigned int
-DagWfParser::getDagSize() {
-  //  return dagSize;
-  return nodes_list.size();
-} // end getDagSize
-
-
-/**
- * return the index of the provided problem in pbs_list vector
- */
-unsigned int
-DagWfParser::indexOfPb(corba_pb_desc_t& pb) {
-  unsigned int index = pbs_list.size() + 1;
-  unsigned int len = pbs_list.size();
-  for (unsigned int ix=0; ix < len; ix++) {
-    if (pbs_list[ix] == pb) {
-      index = ix;
-      return index;
-    }
-
-  }
-  return index;
-} // end indexOfPb
-
-
-/**
- * check if the profile is already in the problems list
- */
-bool
-DagWfParser::pbAlreadyRegistred(corba_pb_desc_t& pb_desc) {
-  for (unsigned int ix=0; ix<pbs_list.size(); ix++) {
-    if (pbs_list[ix] == pb_desc)
-      return true;
-  }
-  return false;
-} // end pbAlreadyRegistred
 
 /*************************************/
 bool operator != (corba_data_id_t& id1,
