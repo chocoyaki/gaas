@@ -10,6 +10,7 @@ IF( DIET_BUILD_LIBRARIES )
     CacheAlgorithms.cc
     NetworkStats.cc
     AdvancedDagdaComponent.cc
+    Container.cc
   )
 
   SET(DIET_DAGDA_SOURCES
@@ -25,16 +26,17 @@ IF( DIET_BUILD_LIBRARIES )
     ${DIET_BINARY_DIR}/src/CORBA/idl
     ${DIET_SOURCE_DIR}/src/agent
   )
-  
+
   ADD_LIBRARY( Dagda ${DAGDA_SOURCES} )
   ADD_LIBRARY( DIET_Dagda ${DIET_DAGDA_SOURCES} )
-  
+
   TARGET_LINK_LIBRARIES( Dagda
     CorbaCommon
     IDLCommon
     IDLDagda
     UtilsCommon
     UtilsNodes
+    UtilsDagda
     ${OMNIORB4_LIBRARIES}
     ${UUIDLIB}
   )
@@ -47,7 +49,7 @@ IF( DIET_BUILD_LIBRARIES )
     Dagda
     ${OMNIORB4_LIBRARIES}
   )
-  
+
 
   INSTALL_TARGETS( /lib/ Dagda DIET_Dagda )
   INSTALL_FILES( /include/ FILES DIET_Dagda.h )

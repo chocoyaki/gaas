@@ -19,6 +19,7 @@
 #include "common_types.hh"
 #include "DIET_data.h"
 #include "DietLogComponent.hh"
+#include "DataRelationMgr.hh"
 
 #include <unistd.h>
 
@@ -34,7 +35,7 @@ class DagdaImpl : public POA_Dagda, public PortableServer::RefCountServantBase {
 public:
   DagdaImpl() : /*parent(NULL),*/ ID("NoID")/*, data(), children(), dataStatus()*/ {
     char host[256];
-   
+
     gethostname(host, 256);
     host[255]='\0';
 	  hostname = CORBA::string_dup(host);
@@ -44,17 +45,94 @@ public:
 
   /* CORBA part. To be remotely called. */
   virtual char* getHostname();
+
+  /**
+   * Add new child data manager
+   * @param me  the child data mgr ref
+   */
   virtual void subscribe(Dagda_ptr me) = 0;
+
+  /**
+   * Remove child data manager
+   * @param me the child data mgr ref
+   */
   virtual void unsubscribe(Dagda_ptr me) = 0;
 
+  /**
+   * Check if data is stored on the Data Mgr (local, subtree or platform)
+   * @param dataID  data identifier
+   */
   virtual CORBA::Boolean lclIsDataPresent(const char* dataID) = 0;
   virtual CORBA::Boolean lvlIsDataPresent(const char* dataID) = 0;
   virtual CORBA::Boolean pfmIsDataPresent(const char* dataID) = 0;
 
+  /**
+   * Store a data (description + value) on the local data manager
+   * This will trigger the download of the data value from the src data mgr
+   * @param src   the source data mgr
+   * @param data  the data handle (ID already defined)
+   */
   virtual void lclAddData(Dagda_ptr src, const corba_data_t& data) = 0;
+
+  /**
+   * Store a data (description + value) at a given level of the platform
+   * @param src   the source data mgr
+   * @param data  the data handle (ID already defined)
+   */
   virtual void lvlAddData(Dagda_ptr src, const corba_data_t& data) = 0;
+
+  /**
+   * Store a data (description + value) on the platform
+   * This lets the platform decide where it is best to store the data
+   * @param src   the source data mgr
+   * @param data  the data handle (ID already defined)
+   */
   virtual void pfmAddData(Dagda_ptr src, const corba_data_t& data) = 0;
+
+  /**
+   * Register a file on the local data manager (for file sharing)
+   * @param data  the data handle
+   */
   virtual void registerFile(const corba_data_t& data) = 0;
+
+  /**
+   * Add an element to a container (on the local Data Mgr)
+   * The data element is not necessarily stored on the local data mgr
+   * @param containerID the id of the container
+   * @param dataID      the id of the data element
+   * @param index       the index of the element in the container
+   * @param flag        (not used yet)
+   * @param setSize     increase the counter of elements (yes/no)
+   */
+  virtual void lclAddContainerElt(const char* containerID,
+                                  const char* dataID,
+                                  long index,
+                                  long flag,
+                                  bool setSize) = 0;
+
+  /**
+   * Get the number of elements of a container
+   *
+   * This method returns only the nb of elements directly contained in this
+   * container, not elements indirectly contained in sub-containers.
+   * Note: does not count the elements but uses an internal counter
+   *
+   * @param containerID the id of the container
+   */
+  virtual CORBA::Long lclGetContainerSize(const char* containerID) = 0;
+
+  /**
+   * Get the list of elements of a container
+   *
+   * @param containerID the id of the container
+   * @param dataIDSeq   a sequence of strings (not pre-allocated)
+   * @param flagSeq     a sequence of long integers (not pre-allocated)
+   * @param ordered     if true, sort the elements using index field
+   */
+  virtual void lclGetContainerElts(const char* containerID,
+                                   SeqString& dataIDSeq,
+                                   SeqLong& flagSeq,
+                                   bool ordered) = 0;
 
   virtual void lclRemData(const char* dataID) = 0;
   virtual void lvlRemData(const char* dataID) = 0;
@@ -63,7 +141,7 @@ public:
   virtual void lclUpdateData(Dagda_ptr src, const corba_data_t& data) = 0;
   virtual void lvlUpdateData(Dagda_ptr src, const corba_data_t& data) = 0;
   virtual void pfmUpdateData(Dagda_ptr src, const corba_data_t& data) = 0;
-  
+
   virtual void lclReplicate(const char* dataID, CORBA::Long target,
     const char* pattern, CORBA::Boolean replace) = 0;
   virtual void lvlReplicate(const char* dataID, CORBA::Long,
@@ -81,28 +159,66 @@ public:
 
   virtual Dagda::SeqDagda_t* lvlGetDataManagers(const char* dataID) = 0;
   virtual Dagda::SeqDagda_t* pfmGetDataManagers(const char* dataID) = 0;
-  
+
   virtual Dagda_ptr getBestSource(Dagda_ptr dest, const char* dataID) = 0;
 
   virtual char* writeFile(const SeqChar& data, const char* basename,
 			  CORBA::Boolean replace);
   virtual char* sendFile(const corba_data_t &data, Dagda_ptr dest);
 
+  /**
+   * Store binary data (block) in the local value buffer of the data
+   * @param data      the buffer containing the binary data
+   * @param dataDesc  the data description
+   * @param replace   erase current content if yes
+   * @param offset    start nb of bytes from the beginning of the buffer
+   * @return THE ID OF THE DATA ON THE DESTINATION => WHY WOULD IT BE DIFFERENT?
+   */
   virtual char* recordData(const SeqChar& data, const corba_data_desc_t& dataDesc,
                            CORBA::Boolean replace, CORBA::Long offset);
+
+  /**
+   * Send a data (value) to a remote data manager
+   * @param ID    the ID of the data
+   * @param dest  the remote data mgr ref
+   * @return THE ID OF THE DATA ON THE DESTINATION => WHY WOULD IT BE DIFFERENT?
+   */
   virtual char* sendData(const char* ID, Dagda_ptr dest);
 
+  /**
+   * Send a container to a remote data manager
+   * @param ID    the ID of the data
+   * @param dest  the remote data mgr ref
+   * @return THE ID OF THE DATA ON THE DESTINATION => WHY WOULD IT BE DIFFERENT?
+   */
+  virtual char* sendContainer(const char* containerID, Dagda_ptr dest);
+
+  /**
+   * Download data from the src data manager
+   * (will call the appropriate send method depending on data type)
+   * @param src   the source data mgr ref
+   * @param data  the data handle
+   * @return THE ID OF THE DATA ON THE DESTINATION => WHY WOULD IT BE DIFFERENT?
+   */
   virtual char* downloadData(Dagda_ptr src, const corba_data_t& data) = 0;
-  
+
   virtual void lockData(const char* dataID);
   virtual void unlockData(const char* dataID);
   virtual Dagda::dataStatus getDataStatus(const char* dataID);
   virtual void setDataStatus(const char* dataID, Dagda::dataStatus status);
-  
+
   /* Implementation dependent functions. */
   virtual bool isDataPresent(const char* dataID) = 0;
   virtual corba_data_t* getData(const char* dataID) = 0;
+
+  /**
+   * Register a data on the local data manager
+   * This will only store the description of the data on the dataMgr (except
+   * for scalar data which will be stored with its value)
+   * @param data  the data handle (ID already defined)
+   */
   virtual corba_data_t* addData(const corba_data_t& data) = 0;
+
   virtual void remData(const char* dataID) = 0;
   virtual SeqCorbaDataDesc_t* getDataDescList() = 0;
   virtual int init(const char* ID, const char* parentID,
@@ -133,7 +249,7 @@ public:
   }
   void freeDiskSpace(size_t size) {
     usedDiskSpaceMutex.lock();
-    usedDiskSpace -= size;
+    usedDiskSpace -= size; // FIXME maybe check if not going below 0
 	usedDiskSpaceMutex.unlock();
   }
   void freeMemSpace(size_t size) {
@@ -144,6 +260,7 @@ public:
   std::map<std::string, Dagda_ptr>* getChildren() { return &children; }
   std::map<std::string, corba_data_t>* getData() { return &data; }
   std::map<std::string, Dagda::dataStatus>* getDataStatus() { return &dataStatus; }
+  DataRelationMgr* getContainerRelationMgr() { return containerRelationMgr; }
 
   Dagda_ptr getParent() { return parent; }
   void setParent(Dagda_ptr parent) { this->parent = parent; }
@@ -178,6 +295,7 @@ private:
   std::string stateFile;
   DietLogComponent* logComponent;
 protected:
+  DataRelationMgr* containerRelationMgr; // container-elements relationships
   omni_mutex dataMutex;
   omni_mutex dataStatusMutex;
   omni_mutex childrenMutex;
@@ -208,6 +326,17 @@ public:
   virtual void pfmAddData(Dagda_ptr src, const corba_data_t& data);
   virtual void registerFile(const corba_data_t& data);
 
+  virtual void lclAddContainerElt(const char* containerID,
+                                  const char* dataID,
+                                  long index,
+                                  long flag,
+                                  bool setSize);
+  virtual CORBA::Long lclGetContainerSize(const char* containerID);
+  virtual void lclGetContainerElts(const char* containerID,
+                                   SeqString& dataIDSeq,
+                                   SeqLong& flagSeq,
+                                   bool ordered);
+
   virtual void lclRemData(const char* dataID);
   virtual void lvlRemData(const char* dataID);
   virtual void pfmRemData(const char* dataID);
@@ -215,10 +344,10 @@ public:
   virtual void lclUpdateData(Dagda_ptr src, const corba_data_t& data);
   virtual void lvlUpdateData(Dagda_ptr src, const corba_data_t& data);
   virtual void pfmUpdateData(Dagda_ptr src, const corba_data_t& data);
-  
+
   virtual void lclReplicate(const char* dataID, CORBA::Long target,
     const char* pattern, bool replace);
-  virtual void lvlReplicate(const char* dataID, CORBA::Long target, 
+  virtual void lvlReplicate(const char* dataID, CORBA::Long target,
     const char* pattern, bool replace);
   virtual void pfmReplicate(const char* dataID, CORBA::Long target,
     const char* pattern, bool replace);
@@ -233,7 +362,7 @@ public:
 
   virtual Dagda::SeqDagda_t* lvlGetDataManagers(const char* dataID);
   virtual Dagda::SeqDagda_t* pfmGetDataManagers(const char* dataID);
-  
+
   virtual Dagda_ptr getBestSource(Dagda_ptr dest, const char* dataID);
 
   /* Local part. */
@@ -254,10 +383,10 @@ public:
   std::map<std::string, corba_data_t>::iterator dataIterator() {
     return DagdaImpl::getData()->begin();
   }
-  
+
   /* To avoid a lot of "DagdaImpl::getData()... */
   std::map<std::string, corba_data_t>* getData() { return DagdaImpl::getData(); }
-  
+
   /* Return the type of this data manager. */
   dagda_manager_type_t getType() {
 	return type;

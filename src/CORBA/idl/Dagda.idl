@@ -73,6 +73,23 @@ interface Dagda {
   void registerFile(in corba_data_t data)
     raises(InvalidPathName, UnreachableFile);
 
+  /* Add a container-element relationship */
+  void lclAddContainerElt(in string containerID,
+                          in string dataID,
+                          in long index,
+                          in long flag,
+                          in boolean setSize)
+    raises(DataNotFound);
+
+  /* Get the size ie nb of elements of a container */
+  long lclGetContainerSize(in string containerID);
+
+  /* Get all IDs of the elements of a container */
+  void lclGetContainerElts(in string containerID,
+                           inout SeqString dataIDSeq,
+                           inout SeqLong flagSeq,
+                           in boolean ordered);
+
   /* Remove a data. */
   void lclRemData(in string dataID);
   void lvlRemData(in string dataID);
@@ -95,7 +112,7 @@ interface Dagda {
     raises(DataNotFound);
   corba_data_desc_t pfmGetDataDesc(in string dataID)
     raises(DataNotFound);
-	
+
   /* Replicate the data considering the conditions. */
   oneway void lclReplicate(in string dataID, in long ruleTarget,
     in string pattern, in boolean replace);
@@ -104,7 +121,7 @@ interface Dagda {
   oneway void pfmReplicate(in string dataID, in long ruleTarget,
     in string pattern, in boolean replace);
 
-  /* Write a file on the node storage ressource. If "replace" is true, 
+  /* Write a file on the node storage ressource. If "replace" is true,
      the file is opened at the beginning, otherwise the data are added at
      the end of the file. Returns the path where the file was stored. */
   string writeFile(in SeqChar data, in string basename, in boolean replace)
@@ -124,8 +141,11 @@ interface Dagda {
   /* Send a data to a node. */
   string sendData(in string ID, in Dagda dest)
     raises(DataNotFound);
+  /* Send a container to a node */
+  string sendContainer(in string ID, in Dagda dest)
+    raises(DataNotFound);
 
-  
+
   typedef sequence<Dagda> SeqDagda_t;
   enum dataStatus { ready, downloading, notOwner };
   /* Get the managers of a data. */
@@ -140,16 +160,16 @@ interface Dagda {
   /* To identify the data manager node. */
   string getID();
   string getHostname();
-  
+
   /* To lock the access to a data. */
   void lockData(in string dataID);
   void unlockData(in string dataID);
-  
+
   dataStatus getDataStatus(in string dataID);
-  
+
   Dagda getBestSource(in Dagda dest, in string dataID)
     raises(DataNotFound);
-	
+
   void checkpointState();
 };
 

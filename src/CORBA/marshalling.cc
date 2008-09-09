@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.88  2008/09/09 10:05:57  bisnard
+ * container mgmt using Dagda agent
+ *
  * Revision 1.87  2008/04/22 08:24:02  glemahec
  * Cache replacement algorithms for DAGDA + Shared file management.
  *
@@ -130,7 +133,7 @@
  * Put initialization of diet_data_desc_t in unmrsh_data_desc()
  * in case of DIET_FILE: it was the only case where it wasn't. This id is then
  * used in mrsh_profile_to_out_args().
- * -- tkx Gaël, Philippe & Mathieu
+ * -- tkx Gaï¿½l, Philippe & Mathieu
  *
  * Batch: update (un)marshalling stuff (nbprocess + bugs)
  *
@@ -396,7 +399,7 @@ __mrsh_data_desc_type(corba_data_desc_t* dest,
   }
   case DIET_VECTOR: {
     corba_vector_specific_t vect;
-    
+
     vect.size = src->specific.vect.size;
     dest->specific.vect(vect);
     break;
@@ -430,7 +433,7 @@ __mrsh_data_desc_type(corba_data_desc_t* dest,
     corba_file_specific_t file;
     dest->specific.file(file);
     if (src->specific.file.path) {
-   
+
       dest->specific.file().path = CORBA::string_dup(src->specific.file.path);
 #if ! HAVE_DAGDA
       dest->specific.file().size = src->specific.file.size;
@@ -445,13 +448,18 @@ __mrsh_data_desc_type(corba_data_desc_t* dest,
 #endif // ! HAVE_DAGDA
 
     } else {
-     
+
       dest->specific.file().path = CORBA::string_dup("");
       dest->specific.file().size = 0;
 
     }
     break;
   }
+  case DIET_CONTAINER:
+    corba_container_specific_t cont;
+    dest->specific.cont(cont);
+    dest->specific.cont().size = src->specific.cont.size;
+    break;
   default:
     MRSH_ERROR("type " << src->generic.type << " not implemented", 1);
   }
@@ -465,7 +473,7 @@ mrsh_data_desc(corba_data_desc_t* dest, diet_data_desc_t* src)
   if (src->id != NULL)
     // nxt line also deallocates old dest->id.idNumber
     dest->id.idNumber = CORBA::string_dup(src->id);
-  else 
+  else
     dest->id.idNumber = CORBA::string_dup("");
   // The default values are not always inner the enum types, which triggers an ABORT.
   dest->id.state    = DIET_FREE;
@@ -492,7 +500,7 @@ mrsh_data(corba_data_t* dest, diet_data_t* src, int release)
 #if ! HAVE_JUXMEM && ! HAVE_DAGDA
   if (src->desc.generic.type == DIET_FILE) {
     char* path = src->desc.specific.file.path;
- 
+
     if (path && strcmp("", path)) {
       ifstream infile(path);
       value = SeqChar::allocbuf(size);
@@ -515,16 +523,16 @@ mrsh_data(corba_data_t* dest, diet_data_t* src, int release)
 #if ! HAVE_JUXMEM && ! HAVE_DAGDA
   }
 #endif // ! HAVE_JUXMEM && ! HAVE_DAGDA
-  if(value == NULL) 
+  if(value == NULL)
     dest->value.length(0);
   else {
 #ifdef WITH_ENDIANNESS
     /*
      * Manage endianness
      */
-    if ((!little_endian) && 
-        (src->desc.generic.type != DIET_FILE) && 
-        (src->desc.generic.type != DIET_STRING) && 
+    if ((!little_endian) &&
+        (src->desc.generic.type != DIET_FILE) &&
+        (src->desc.generic.type != DIET_STRING) &&
         (src->desc.generic.type != DIET_PARAMSTRING)
         ) {
       TRACE_TEXT (TRACE_ALL_STEPS, "  ** endian_swap 1" << endl);
@@ -532,8 +540,9 @@ mrsh_data(corba_data_t* dest, diet_data_t* src, int release)
     } // end if
 #endif // WITH_ENDIANNESS
     dest->value.replace(size, size, value, release); // 0 if persistent 1 elsewhere
+//     cout << "mrsh_data:: size is " << size << endl;
   }
-//   cout << "mrsh_data: value is " << dest->value.get_buffer() << "\n";
+//    cout << "mrsh_data: value is " << dest->value.get_buffer() << "\n";
   return 0;
 }
 
@@ -545,7 +554,7 @@ __mrsh_data_id_desc(corba_data_desc_t* dest,
                     const diet_data_desc_t* const src){
 
   dest->id.idNumber = CORBA::string_dup(src->id);
- 
+
   dest->id.state    = DIET_FREE;
   dest->id.dataCopy = DIET_ORIGINAL;
 
@@ -555,7 +564,7 @@ __mrsh_data_id_desc(corba_data_desc_t* dest,
 static void
 __mrsh_data_id(corba_data_t* dest, const diet_data_t* const src) {
   __mrsh_data_id_desc(&(dest->desc), &(src->desc));
-  dest->value.length(0); 
+  dest->value.length(0);
 }
 
 /****************************************************************************/
@@ -670,6 +679,11 @@ unmrsh_data_desc(diet_data_desc_t* dest, const corba_data_desc_t* const src)
 #endif // HAVE_JUXMEM || HAVE_DAGDA
     break;
   }
+  case DIET_CONTAINER: {
+    container_set_desc(dest, id, (diet_persistence_mode_t)src->mode,
+                    src->specific.cont().size);
+    break;
+  }
   default:
     MRSH_ERROR("type " << src->specific._d() << " not implemented", 1);
   }
@@ -684,11 +698,11 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown,
 int
 unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
 #endif
-{  
+{
   static int uniqDataID=0 ;
   static omni_mutex uniqDataIDMutex ;
-  
-  if( (src->desc.mode == DIET_VOLATILE) && (upDown == 1) ){ 
+
+  if( (src->desc.mode == DIET_VOLATILE) && (upDown == 1) ){
     char *tmp=NULL;
     src->desc.id.idNumber=CORBA::string_dup(tmp); // CORBA frees old mem
   }
@@ -730,20 +744,20 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
       } else {
 	if(upDown == 1) {
 	  sprintf(out_path,"%s",in_path);
-	
-	  ofstream outfile(out_path);  
+
+	  ofstream outfile(out_path);
 	  for (int i = 0; i < src->desc.specific.file().size; i++) {
 	    outfile.put(src->value[i]);
 	  }
 	  dest->desc.specific.file.path = out_path;
 	  CORBA::string_free(in_path);
-	}else{	
-	
+	}else{
+
 	  dest->desc.specific.file.path = in_path;
-	  
+
 	  /* FIXME: erase me if of: delete[] out_path; */
 	  CORBA::string_free( out_path ) ;
-	}	
+	}
       }
     } else if (src->desc.specific.file().size != 0) {
       INTERNAL_WARNING(__FUNCTION__ << ": file structure is vicious");
@@ -757,7 +771,7 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
       // TODO: should be allocated with new x[] to match delete[] used
       // by omniORB.  But ... what is the type?
       dest->value = malloc(data_sizeof(&(dest->desc)));
- 
+
     } else {
       if(upDown==0){ /** Need to know if it is in the client -> SeD way or in the SeD-> client way */
         if (src->desc.mode != DIET_VOLATILE) {
@@ -769,17 +783,17 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
           //  dest->value = p; //memcopy
           dest->value = (char*)src->value.get_buffer(0);
 #ifdef WITH_ENDIANNESS
-          /** 
+          /**
            * Manage endianness
            */
           dest->value = (char*)src->value.get_buffer(0);
-          if ( (!little_endian) && 
-               (src->desc.specific._d() != DIET_FILE) && 
-               (src->desc.specific._d() != DIET_STRING) && 
+          if ( (!little_endian) &&
+               (src->desc.specific._d() != DIET_FILE) &&
+               (src->desc.specific._d() != DIET_STRING) &&
                (src->desc.specific._d() != DIET_PARAMSTRING)
                ) {
             TRACE_TEXT (TRACE_ALL_STEPS, "  ** endian_swap 2" << endl);
-            endian_swap(dest->value, src->value.length(), 
+            endian_swap(dest->value, src->value.length(),
                         type_sizeof(dest->desc.generic.base_type) );
           } // end if
 #endif // WITH_ENDIANNESS
@@ -790,33 +804,33 @@ unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
 #endif // WITH_ENDIANNESS
           dest->value = (char*)src->value.get_buffer(orphan);
 #ifdef WITH_ENDIANNESS
-          if ((!little_endian) && 
-              (src->desc.specific._d() != DIET_FILE) && 
-              (src->desc.specific._d() != DIET_STRING) && 
+          if ((!little_endian) &&
+              (src->desc.specific._d() != DIET_FILE) &&
+              (src->desc.specific._d() != DIET_STRING) &&
               (src->desc.specific._d() != DIET_PARAMSTRING)
               ) {
             TRACE_TEXT (TRACE_ALL_STEPS, "  ** endian_swap 3" << lenx << endl);
-            endian_swap(dest->value, lenx, 
+            endian_swap(dest->value, lenx,
                         type_sizeof(dest->desc.generic.base_type) );
           } // end if
 #endif // WITH_ENDIANNESS
-       } 
+       }
       } else { // for out args when send to client
 #ifndef WITH_ENDIANNESS
         dest->value = (char*)src->value.get_buffer(1);
 #else
-        /** 
+        /**
          * Manage endianness
          */
         size_t lenx =  src->value.length();
         dest->value = (char*)src->value.get_buffer(1);
         if ((!little_endian) &&
-            (src->desc.specific._d() != DIET_FILE) && 
-            (src->desc.specific._d() != DIET_STRING) && 
+            (src->desc.specific._d() != DIET_FILE) &&
+            (src->desc.specific._d() != DIET_STRING) &&
             (src->desc.specific._d() != DIET_PARAMSTRING)
             ) {
           TRACE_TEXT (TRACE_ALL_STEPS, "  ** endian_swap 4" << endl);
-          endian_swap(dest->value, lenx, 
+          endian_swap(dest->value, lenx,
                       type_sizeof(dest->desc.generic.base_type) );
         } // end if
 #endif
@@ -924,7 +938,7 @@ mrsh_pb_desc(corba_pb_desc_t* dest, const diet_profile_t* const src)
   dest->last_out   = src->last_out;
   dest->param_desc.length(src->last_out + 1);
   for (int i = 0; i <= src->last_out; i++) {
-    /** Hack for correctly building CORBA profile. 
+    /** Hack for correctly building CORBA profile.
 	JuxMem does not require a call to the MA */
 #if HAVE_JUXMEM
     mrsh_data_desc(&(dest->param_desc[i]), &(src->parameters[i].desc));
@@ -955,7 +969,7 @@ mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src)
 {
   int i;
 
-#if defined HAVE_ALT_BATCH 
+#if defined HAVE_ALT_BATCH
   dest->parallel_flag = src->parallel_flag ;
   dest->nbprocs    = src->nbprocs ;
   dest->nbprocess  = src->nbprocess ;
@@ -972,7 +986,7 @@ mrsh_profile_to_in_args(corba_profile_t* dest, const diet_profile_t* src)
      if(src->parameters[i].desc.id) {
 #if ! HAVE_JUXMEM
        __mrsh_data_id(&(dest->parameters[i]), &(src->parameters[i]));
-#else 
+#else
        mrsh_data_desc(&(dest->parameters[i].desc), &(src->parameters[i].desc));
        dest->parameters[i].value.replace(0, 0, NULL, 1);
        dest->parameters[i].value.length(0);
@@ -1021,14 +1035,14 @@ cvt_arg(diet_data_t* dest, diet_data_t* src,
     (*dest) = (*src);
     if (duplicate_value && src->value) {
       size_t size = data_sizeof(&(src->desc));
-      dest->value = new char[size]; 
+      dest->value = new char[size];
 #ifdef WITH_ENDIANNESS
-      /** 
+      /**
        * Manage endianness
-       */    
+       */
       if ((!little_endian) &&
-          (src->desc.generic.type != DIET_FILE) && 
-          (src->desc.generic.type != DIET_STRING) && 
+          (src->desc.generic.type != DIET_FILE) &&
+          (src->desc.generic.type != DIET_STRING) &&
           (src->desc.generic.type != DIET_PARAMSTRING)
           ) {
         // Not necessary ?
@@ -1130,7 +1144,7 @@ unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
 	else // Should be removed when all classes managed within SeD
 	  unmrsh_data(src_params[arg_idx], &(src->parameters[arg_idx]),0,
 		      "/tmp/") ; */
-	const char * dataPath = 
+	const char * dataPath =
 	  (char*) Parsers::Results::getParamValue(Parsers::Results::STORAGEDIR);
 	if (dataPath==NULL) dataPath = "/tmp/";
 	unmrsh_data(src_params[arg_idx], &(src->parameters[arg_idx]),0,
@@ -1159,7 +1173,7 @@ unmrsh_in_args_to_profile(diet_profile_t* dest, corba_profile_t* src,
 
   for (int i = 0; i < (src->last_out + 1); i++) {
     if (src_params[i] != NULL) {
-      delete src_params[i]; 
+      delete src_params[i];
     }
   }
   delete[] src_params;
@@ -1185,7 +1199,7 @@ mrsh_profile_to_out_args(corba_profile_t* dest, const diet_profile_t* src,
     if ((arg_idx >= 0) && (arg_idx <= dest->last_out)) {
       if( dest->parameters[arg_idx].desc.specific._d() == DIET_FILE
 	  && diet_is_persistent(dest->parameters[arg_idx]) ) {
-	src->parameters[i].desc.id = 
+	src->parameters[i].desc.id =
 	  CORBA::string_dup(dest->parameters[arg_idx].desc.id.idNumber);
       }
       dd = src->parameters[i];
@@ -1210,7 +1224,7 @@ mrsh_profile_to_out_args(corba_profile_t* dest, const diet_profile_t* src,
               dd.desc.specific.file.size = 0;
             }
           }
-	
+
 #if HAVE_JUXMEM
 	  if (diet_is_persistent(dd)) {
 	    mrsh_data_desc(&(dest->parameters[arg_idx].desc), &(dd.desc));
@@ -1281,7 +1295,7 @@ unmrsh_out_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb)
     // Special case for INOUT files: rewrite in the same file.
     if (cdd->specific._d() == (long) DIET_FILE) {
       char* inout_path = dpb->parameters[i].desc.specific.file.path;
-   
+
       int   size = cdd->specific.file().size;
       ofstream inoutfile(inout_path);
       dpb->parameters[i].desc.specific.file.size = size;
@@ -1289,7 +1303,7 @@ unmrsh_out_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb)
         inoutfile.put(cpb->parameters[i].value[j]);
       }
     } else {
-      if(cpb->parameters[i].desc.mode == DIET_VOLATILE){ 
+      if(cpb->parameters[i].desc.mode == DIET_VOLATILE){
         char *tmp=NULL;
         cdd->id.idNumber=CORBA::string_dup(tmp);
       }
@@ -1337,7 +1351,7 @@ unmrsh_inout_args_to_profile(diet_profile_t* dpb, corba_profile_t* cpb)
     else // Should be removed when all classes managed within SeD
       unmrsh_data(&(dpb->parameters[i]), &(cpb->parameters[i]),1,
 		  "/tmp/") ;*/
-    const char * dataPath = 
+    const char * dataPath =
       (char*) Parsers::Results::getParamValue(Parsers::Results::STORAGEDIR);
     if (dataPath==NULL) dataPath = "/tmp/";
     unmrsh_data(&(dpb->parameters[i]), &(cpb->parameters[i]),1,
@@ -1368,14 +1382,14 @@ mrsh_wf_desc(corba_wf_desc_t* dest,
 /**
  * For big endian architecture, reswap in and inout parameters
  */
-int 
+int
 post_call(diet_profile_t * profile) {
   for (unsigned int ix=0; ix<=profile->last_inout; ix++) {
-    if ( (profile->parameters[ix].desc.generic.type != DIET_FILE) && 
-         (profile->parameters[ix].desc.generic.type != DIET_STRING) && 
+    if ( (profile->parameters[ix].desc.generic.type != DIET_FILE) &&
+         (profile->parameters[ix].desc.generic.type != DIET_STRING) &&
          (profile->parameters[ix].desc.generic.type != DIET_PARAMSTRING) ) {
-      endian_swap(profile->parameters[ix].value, 
-                  data_sizeof(&(profile->parameters[ix].desc)), 
+      endian_swap(profile->parameters[ix].value,
+                  data_sizeof(&(profile->parameters[ix].desc)),
                   type_sizeof(profile->parameters[ix].desc.generic.base_type) );
     } // end if
   } // end for

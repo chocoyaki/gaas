@@ -23,6 +23,8 @@ int dagda_put_data(void* value, diet_data_type_t type,
 int dagda_get_data(char* dataID, void** value, diet_data_type_t type,
 	diet_base_type_t* base_type, size_t* nb_r, size_t* nb_c,
 	diet_matrix_order_t* order, char** path);
+/* To remove a data from the platform */
+int dagda_delete_data(char* dataID);
 
 /* Asynchronous versions. */
 /* Put a data. Return the thread ID. */
@@ -59,19 +61,35 @@ int dagda_id_from_alias(const char* alias, char** id);
 /* Data replication following a wildcard rule. */
 int dagda_replicate_data(const char* id, const char* rule);
 
+/* Create a container */
+int dagda_create_container(char** ID);
+
+/* Initialize a container (ID already defined) */
+int dagda_init_container(diet_data_t* profile_data);
+
+/* Add an element to a container *
+ * The container must be either created or initialized before, so that
+ * it is declared on the local dagda manager */
+int dagda_add_container_element(const char* idContainer, const char* idElement, int index);
+
+/* Get all IDs of the elements of a container *
+ * The container must be either created or initialized before, so that
+ * it is declared on the local dagda manager */
+int dagda_get_container_elements(const char* idContainer, diet_container_t* content);
+
 /* Put macros */
 #define dagda_put_scalar(value, base_type, mode, ID) \
   dagda_put_data(value, DIET_SCALAR, base_type, mode, 0, 0, \
     (diet_matrix_order_t) 0, NULL, ID)
-  
+
 #define dagda_put_vector(value, base_type, mode, size, ID) \
   dagda_put_data(value, DIET_VECTOR, base_type, mode, 0, size, \
     (diet_matrix_order_t) 0, NULL, ID)
-  
+
 #define dagda_put_matrix(value, base_type, mode, nb_rows, nb_cols, order, ID) \
   dagda_put_data(value, DIET_MATRIX, base_type, mode, nb_rows, nb_cols, \
     order, NULL, ID)
-  
+
 #define dagda_put_string(value, mode, ID) \
   dagda_put_data(value, DIET_STRING, DIET_CHAR, mode, 0, 0, \
     (diet_matrix_order_t) 0, NULL, ID)
@@ -79,11 +97,11 @@ int dagda_replicate_data(const char* id, const char* rule);
 #define dagda_put_paramstring(value, mode, ID) \
   dagda_put_data(value, DIET_PARAMSTRING, DIET_CHAR, mode, 0, 0, \
     (diet_matrix_order_t) 0, NULL, ID)
-  
+
 #define dagda_put_file(path, mode, ID) \
   dagda_put_data(NULL, DIET_FILE, DIET_CHAR, mode, 0, 0, \
     (diet_matrix_order_t) 0, path, ID)
-	
+
 /* Get macros */
 #define dagda_get_scalar(ID, value, base_type) \
   dagda_get_data(ID, (void*) (value), DIET_SCALAR, base_type, NULL, NULL, NULL, NULL)
@@ -102,19 +120,22 @@ int dagda_replicate_data(const char* id, const char* rule);
 #define dagda_get_file(ID, path) \
   dagda_get_data(ID, NULL, DIET_FILE, NULL, NULL, NULL, NULL, (char**) (path))
 
+#define dagda_get_container(ID) \
+  dagda_get_data(ID, NULL, DIET_CONTAINER, NULL, NULL, NULL, NULL, NULL)
+
 // Asynchronous versions.
 /* Put macros */
 #define dagda_put_scalar_async(value, base_type, mode) \
   dagda_put_data_async(value, DIET_SCALAR, base_type, mode, 0, 0, \
     (diet_matrix_order_t) 0, NULL)
-	
+
 #define dagda_put_vector_async(value, base_type, mode, size) \
   dagda_put_data_async(value, DIET_VECTOR, base_type, mode, 0, size, \
     (diet_matrix_order_t) 0, NULL)
 
 #define dagda_put_matrix_async(value, base_type, mode, nb_rows, nb_cols, order) \
   dagda_put_data_async(value, DIET_MATRIX, base_type, mode, nb_rows, nb_cols, order, NULL)
-  
+
 #define dagda_put_string_async(value, mode) \
   dagda_put_data_async(value, DIET_STRING, DIET_CHAR, mode, 0, 0, \
     (diet_matrix_order_t) 0, NULL)
@@ -122,11 +143,11 @@ int dagda_replicate_data(const char* id, const char* rule);
 #define dagda_put_paramstring_async(value, mode) \
   dagda_put_data_async(value, DIET_PARAMSTRING, DIET_CHAR, mode, 0, 0, \
     (diet_matrix_order_t) 0, NULL)
-	
+
 #define dagda_put_file_async(path, mode) \
   dagda_put_data_async(NULL, DIET_FILE, DIET_CHAR, mode, 0, 0, \
     (diet_matrix_order_t) 0, path)
-	
+
 /* Get macros */
 #define dagda_get_scalar_async(ID) dagda_get_data_async(ID, DIET_SCALAR)
 #define dagda_get_vector_async(ID) dagda_get_data_async(ID, DIET_VECTOR)

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.31  2008/09/09 10:05:56  bisnard
+ * container mgmt using Dagda agent
+ *
  * Revision 1.30  2008/06/25 09:52:46  bisnard
  * - Estimation vector sent with solve request to avoid storing it
  * for each submit request as it depends on the parameters value. The
@@ -257,6 +260,14 @@ struct corba_file_specific_t {
   string path;
 };
 
+/** Mapping for struct diet_container_specific */
+struct corba_container_specific_t {
+#if HAVE_DAGDA
+  unsigned long long size;
+#else
+  long size;
+#endif
+};
 
 /**
  * Descriptor
@@ -275,6 +286,8 @@ union type switch (long) {
    corba_paramstring_specific_t pstr;
  case 5:
    corba_file_specific_t   file;
+ case 6:
+   corba_container_specific_t   cont;
 };
 
 struct corba_data_desc_t {
