@@ -143,7 +143,7 @@ void dagda_mrsh_profile(corba_profile_t* corba_profile, diet_profile_t* profile,
           << data.desc.id.idNumber << endl);
     }
   } // end for
-  display_profile(corba_profile);
+//   display_profile(corba_profile);
 }
 
 /* Data download function used by DAGDA. */
