@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.35  2008/09/10 09:04:26  bisnard
+ * new diet type for containers
+ *
  * Revision 1.34  2008/04/19 09:16:47  ycaniou
  * Check that pathToTmp and pathToNFS exist
  * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
@@ -228,7 +231,7 @@ displayResponse(FILE* os, const corba_response_t* resp)
                                           HUGE_VAL));
       } // end for each comm time parameter
     }   // end check if comm times exist in est vector
-  }     // end for each server 
+  }     // end for each server
   fprintf(os,"\n");
   fprintf(os, "----------------------------------------\n");
 }
@@ -240,7 +243,7 @@ displayResponseShort(FILE* os, const corba_response_t* resp)
 
   const char * serverType ;
   const char * jobSpec ;
-#endif  
+#endif
 
   fprintf(os, "\n---------- Responses for request %lu ----------\n",
       resp->reqID);
@@ -268,13 +271,13 @@ displayResponseShort(FILE* os, const corba_response_t* resp)
   }
 #endif
 
-    fprintf(stdout, 
+    fprintf(stdout,
 #ifdef HAVE_ALT_BATCH
             "    %ld: %s:%ld:%s;%s: tComp %g fCpu %g fMem %g\n",
             (long)i,
             (const char *)(resp->servers[i].loc.hostName),
             resp->servers[i].loc.port,
-	    serverType, jobSpec,	    
+	    serverType, jobSpec,
 #else
             "    %ld: %s:%ld: tComp %g fCpu %g fMem %g\n",
             (long)i,
@@ -298,10 +301,12 @@ displayArgDesc(FILE* f, int type, int base_type)
   case DIET_STRING: fprintf(f, "string"); break;
   case DIET_PARAMSTRING: fprintf(f, "paramstring"); break;
   case DIET_FILE:   fprintf(f, "file");   break;
+  case DIET_CONTAINER: fprintf(f, "container");   break;
   }
   if ((type != DIET_STRING) &&
       (type != DIET_PARAMSTRING) &&
-      (type != DIET_FILE)) {
+      (type != DIET_FILE) &&
+      (type != DIET_CONTAINER)) {
     fprintf(f, " of ");
     switch (base_type) {
     case DIET_CHAR:     fprintf(f, "char");           break;
@@ -332,10 +337,13 @@ displayArg(FILE* f, const corba_data_desc_t* arg)
                             (long)arg->specific.pstr().length); break;
   case DIET_FILE:   fprintf(f, "file (%ld)",
                             (long)arg->specific.file().size);  break;
+  case DIET_CONTAINER:  fprintf(f, "container (%ld)",
+                            (long)arg->specific.cont().size);  break;
   }
   if ((arg->specific._d() != DIET_STRING) &&
       (arg->specific._d() != DIET_PARAMSTRING) &&
-      (arg->specific._d() != DIET_FILE)) {
+      (arg->specific._d() != DIET_FILE) &&
+      (arg->specific._d() != DIET_CONTAINER)) {
     fprintf(f, " of ");
     switch (arg->base_type) {
     case DIET_CHAR:     fprintf(f, "char");           break;
@@ -367,10 +375,13 @@ displayArg(FILE* f, const diet_data_desc_t* arg)
                             (long)arg->specific.pstr.length); break;
   case DIET_FILE:   fprintf(f, "file (%ld)",
                             (long)arg->specific.file.size);  break;
+  case DIET_CONTAINER:  fprintf(f, "container (%ld)",
+                            (long)arg->specific.cont.size);  break;
   }
   if ((arg->generic.type != DIET_STRING) &&
       (arg->generic.type != DIET_PARAMSTRING) &&
-      (arg->generic.type != DIET_FILE)) {
+      (arg->generic.type != DIET_FILE) &&
+      (arg->generic.type != DIET_CONTAINER)) {
     fprintf(f, " of ");
     switch ((int) arg->generic.base_type) {
     case DIET_CHAR:     fprintf(f, "char");           break;
@@ -392,7 +403,7 @@ displayProfileDesc(const diet_profile_desc_t* desc, const char* path)
 {
 #ifdef HAVE_ALT_BATCH
   const char * jobSpec ;
-  
+
   /* TODO: Should be called from somewhere in DIET_server.cc */
   if( desc->parallel_flag == 1 )
     jobSpec = "sequential" ;
@@ -426,7 +437,7 @@ displayProfileDesc(const diet_profile_desc_t* desc, const char* path)
     case DIET_AGG_PRIORITY:
       fprintf(f,"   Aggregator: Priority (");
       {
-        diet_aggregator_priority_t prior = 
+        diet_aggregator_priority_t prior =
           (desc->aggregator).agg_specific.agg_specific_priority;
         if (prior.p_numPValues == 0) {
           fprintf(f," No priorities assigned");
@@ -450,7 +461,7 @@ displayProfileDesc(const corba_profile_desc_t* desc)
   char* path = CORBA::string_dup(desc->path);
 #ifdef HAVE_ALT_BATCH
   const char * jobSpec ;
-  
+
   /* TODO: Should be called from somewhere in DIET_server.cc */
   if( desc->parallel_flag == 1 )
     jobSpec = "sequential" ;
@@ -508,7 +519,7 @@ displayProfile(const diet_profile_t* profile, const char* path)
 
 #ifdef HAVE_ALT_BATCH
   const char * jobSpec ;
-  
+
   /* TODO: Should be called from somewhere in DIET_server.cc */
   if( profile->parallel_flag == 1 )
     jobSpec = "sequential" ;
@@ -540,7 +551,7 @@ displayProfile(const corba_profile_t* profile, const char* path)
 
 #ifdef HAVE_ALT_BATCH
   const char * jobSpec ;
-  
+
   /* TODO: Should be called from somewhere in DIET_server.cc */
   if( profile->parallel_flag == 1 )
     jobSpec = "sequential" ;
@@ -573,7 +584,7 @@ displayPbDesc(const corba_pb_desc_t* profile)
 
 #ifdef HAVE_ALT_BATCH
   const char * jobSpec ;
-  
+
   /* TODO: Should be called from somewhere in DIET_server.cc */
   if( profile->parallel_flag == 1 )
     jobSpec = "sequential" ;

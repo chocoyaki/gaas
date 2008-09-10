@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/09/10 09:04:27  bisnard
+ * new diet type for containers
+ *
  * Revision 1.4  2006/11/16 09:55:55  eboix
  *   DIET_config.h is no longer used. --- Injay2461
  *
@@ -111,13 +114,20 @@ paramstring_set_desc(diet_data_desc_t* desc,
                      const char* const param);
 
 /**
- * Alter a file descriptor. Also computes the file size ... 
+ * Alter a file descriptor. Also computes the file size ...
  * Each -1 (NULL for pointers) argument does not alter the corresponding field.
  */
 int
 file_set_desc(diet_data_desc_t* desc, char* const id,
 	      const diet_persistence_mode_t mode, char* const path);
 
+/**
+ * Alter a container descriptor.
+ * Each -1 (NULL for pointers) argument does not alter the corresponding field.
+ */
+int
+container_set_desc(diet_data_desc_t* desc, char* const id,
+	      const diet_persistence_mode_t mode, const size_t size);
 
 
 /****************************************************************************/
