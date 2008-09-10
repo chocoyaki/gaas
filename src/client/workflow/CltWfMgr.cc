@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2008/09/10 09:10:18  bisnard
+ * removed alloc parameter for DagWfParser
+ *
  * Revision 1.14  2008/09/02 07:37:08  rbolze
  * add some stat infos
  * correct the dagId output in the stats file
@@ -210,16 +213,16 @@ CltWfMgr::wf_call_madag(diet_wf_desc_t * profile,
   diet_error_t res(0);
   char statMsg[128];
   corba_wf_desc_t  * corba_profile = new corba_wf_desc_t;
-  
+
   TRACE_TEXT (TRACE_ALL_STEPS,"Calling the MA DAG "<< endl);
 
   sprintf(statMsg,"xml_reader",__FUNCTION__);
   stat_in("cltwfmgr",statMsg);
 
-  DagWfParser reader(cltWfReqId++, profile->abstract_wf, false);
+  DagWfParser reader(cltWfReqId++, profile->abstract_wf);
   if (! reader.setup())
     return XML_MALFORMED;
-  
+
   stat_out("cltwfmgr",statMsg);
   // At this stage only the XML validity is checked but not the coherence
   // of the dag links between inputs and outputs
@@ -282,7 +285,7 @@ CltWfMgr::wf_call_madag(diet_wf_desc_t * profile,
  */
 diet_error_t
 CltWfMgr::wf_call(diet_wf_desc_t* profile) {
-  diet_error_t res(0);  
+  diet_error_t res(0);
   if (this->myMaDag != MaDag::_nil()) {
     return this->wf_call_madag(profile, true);
   }
@@ -375,9 +378,9 @@ CltWfMgr::getWfOutputMatrix(diet_wf_desc_t* profile,
 void
 CltWfMgr::wf_free(diet_wf_desc_t * profile) {
   char statMsg[64];
-  
+
   if (this->myProfiles.find(profile) != this->myProfiles.end()) {
-    Dag * dag = this->myProfiles.find(profile)->second;    
+    Dag * dag = this->myProfiles.find(profile)->second;
     if (dag != NULL) {
       sprintf(statMsg,"%s %s",__FUNCTION__,dag->getId().c_str());
       stat_in("cltwfmgr",statMsg);
