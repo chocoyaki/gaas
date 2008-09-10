@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2008/09/10 09:11:24  bisnard
+ * new diet type for containers
+ *
  * Revision 1.11  2008/06/25 09:52:46  bisnard
  * - Estimation vector sent with solve request to avoid storing it
  * for each submit request as it depends on the parameters value. The
@@ -473,6 +476,9 @@ grpc_build_profile(grpc_function_handle_t* handle, diet_profile_t*& profile,
     case DIET_FILE:
       // FIXME
       break;
+    case DIET_CONTAINER:
+      // FIXME
+      break;
     case DIET_DATA_TYPE_COUNT:
       // FIXME
       break;
@@ -544,6 +550,9 @@ grpc_build_profile(grpc_function_handle_t* handle, diet_profile_t*& profile,
     case DIET_PARAMSTRING:
       break;
     case DIET_FILE:
+      // FIXME
+      break;
+    case DIET_CONTAINER:
       // FIXME
       break;
     case DIET_DATA_TYPE_COUNT:

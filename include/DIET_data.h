@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.60  2008/09/10 09:15:54  bisnard
+ * new diet type for containers
+ *
  * Revision 1.59  2008/07/10 08:07:50  ycaniou
  * Removed a warning
  *
@@ -260,6 +263,7 @@ typedef enum {
   DIET_STRING,
   DIET_PARAMSTRING,
   DIET_FILE,
+  DIET_CONTAINER,
   DIET_DATA_TYPE_COUNT
 } diet_data_type_t;
 
@@ -413,6 +417,9 @@ diet_paramstring_set(diet_arg_t* arg,
 int
 diet_file_set(diet_arg_t* arg, diet_persistence_mode_t mode, char* path);
 
+int
+diet_container_set(diet_arg_t* arg, diet_persistence_mode_t mode);
+
   /** sets only identifier : data is present inside the platform */
 void
 diet_use_data(diet_arg_t* arg, char* id);
@@ -484,8 +491,6 @@ diet_use_data(diet_arg_t* arg, char* id);
 #define diet_file_get(arg, mode, size, path) \
   _file_get(arg, mode, size, (char**)path)
 
-
-
 /*
 ** type-specific data descriptor access functions
 */
@@ -495,12 +500,14 @@ typedef const struct diet_matrix_specific* diet_matrix_desc_t;
 typedef const struct diet_string_specific* diet_string_desc_t;
 typedef const struct diet_paramstring_specific* diet_paramstring_desc_t;
 typedef const struct diet_file_specific* diet_file_desc_t;
+typedef const struct diet_container_specific* diet_container_desc_t;
 diet_scalar_desc_t diet_scalar_get_desc(diet_arg_t* arg);
 diet_vector_desc_t diet_vector_get_desc(diet_arg_t* arg);
 diet_matrix_desc_t diet_matrix_get_desc(diet_arg_t* arg);
 diet_string_desc_t diet_string_get_desc(diet_arg_t* arg);
 diet_paramstring_desc_t diet_paramstring_get_desc(diet_arg_t* arg);
 diet_file_desc_t diet_file_get_desc(diet_arg_t* arg);
+diet_container_desc_t diet_container_get_desc(diet_arg_t* arg);
 
 /****************************************************************************/
 /* Free the amount of data pointed at by the value field of an argument.    */
@@ -587,6 +594,11 @@ struct diet_file_specific {
   char* path;
 };
 
+/*----[ container - specific ]---------------------------------------------------*/
+struct diet_container_specific {
+  size_t  size; /* nb of elements */
+};
+
 /*----[ data - generic ]----------------------------------------------------*/
 struct diet_data_generic {
   diet_data_type_t type;
@@ -605,6 +617,7 @@ typedef struct {
     struct diet_string_specific      str;
     struct diet_paramstring_specific pstr;
     struct diet_file_specific        file;
+    struct diet_container_specific   cont;
   } specific;
 } diet_data_desc_t;
 
@@ -615,6 +628,18 @@ struct diet_arg_s {
 
 /* diet_data_t is the same as diet_arg_t, so far ... */
 typedef struct diet_arg_s diet_data_t;
+
+/**
+ * containers
+ */
+
+#if HAVE_DAGDA
+typedef struct {
+  char*   id;
+  size_t  size;
+  char**  elt_ids;
+} diet_container_t;
+#endif
 
 /**
  * estimation tags
