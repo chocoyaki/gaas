@@ -466,7 +466,7 @@ void SimpleDagdaImpl::lclAddContainerElt(const char* containerID,
                                          const char* dataID,
                                          CORBA::Long index,
                                          CORBA::Long flag,
-                                         bool setSize) {
+                                         CORBA::Boolean setSize) {
   Container *container = new Container(containerID);
   container->addData(dataID,index,flag,setSize);
 }
@@ -481,7 +481,7 @@ CORBA::Long SimpleDagdaImpl::lclGetContainerSize(const char* containerID) {
 void SimpleDagdaImpl::lclGetContainerElts(const char* containerID,
                                           SeqString& dataIDSeq,
                                           SeqLong& flagSeq,
-                                          bool ordered) {
+                                          CORBA::Boolean ordered) {
   Container *container = new Container(containerID);
   container->getAllElements(dataIDSeq,flagSeq,ordered);
 }

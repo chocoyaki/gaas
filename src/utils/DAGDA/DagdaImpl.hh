@@ -106,9 +106,9 @@ public:
    */
   virtual void lclAddContainerElt(const char* containerID,
                                   const char* dataID,
-                                  long index,
-                                  long flag,
-                                  bool setSize) = 0;
+                                  CORBA::Long index,
+                                  CORBA::Long flag,
+                                  CORBA::Boolean setSize) = 0;
 
   /**
    * Get the number of elements of a container
@@ -132,7 +132,7 @@ public:
   virtual void lclGetContainerElts(const char* containerID,
                                    SeqString& dataIDSeq,
                                    SeqLong& flagSeq,
-                                   bool ordered) = 0;
+                                   CORBA::Boolean ordered) = 0;
 
   virtual void lclRemData(const char* dataID) = 0;
   virtual void lvlRemData(const char* dataID) = 0;
@@ -328,14 +328,14 @@ public:
 
   virtual void lclAddContainerElt(const char* containerID,
                                   const char* dataID,
-                                  long index,
-                                  long flag,
-                                  bool setSize);
+                                  CORBA::Long index,
+                                  CORBA::Long flag,
+                                  CORBA::Boolean setSize);
   virtual CORBA::Long lclGetContainerSize(const char* containerID);
   virtual void lclGetContainerElts(const char* containerID,
                                    SeqString& dataIDSeq,
                                    SeqLong& flagSeq,
-                                   bool ordered);
+                                   CORBA::Boolean ordered);
 
   virtual void lclRemData(const char* dataID);
   virtual void lvlRemData(const char* dataID);
