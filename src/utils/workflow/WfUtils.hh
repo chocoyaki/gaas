@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/09/19 13:11:07  bisnard
+ * - added support for containers split/merge in workflows
+ * - added support for multiple port references
+ * - profile for node execution initialized by port (instead of node)
+ * - ports linking managed by ports (instead of dag)
+ *
  * Revision 1.2  2008/04/28 12:16:23  bisnard
  * timestamps diff not used anymore
  *
@@ -66,6 +72,7 @@ public:
   static const char * DIET_STRING;
   static const char * DIET_PARAMSTRING;
   static const char * DIET_FILE;
+  static const char * DIET_CONTAINER;
   static const char * DIET_DATA_TYPE_COUNT;
 
   /************************************************************/

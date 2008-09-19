@@ -7,6 +7,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/09/19 13:11:07  bisnard
+ * - added support for containers split/merge in workflows
+ * - added support for multiple port references
+ * - profile for node execution initialized by port (instead of node)
+ * - ports linking managed by ports (instead of dag)
+ *
  * Revision 1.2  2008/04/28 12:16:23  bisnard
  * timestamps diff not used anymore
  *
@@ -52,6 +58,7 @@ const char * WfCst::DIET_MATRIX   = "DIET_MATRIX";
 const char * WfCst::DIET_STRING   = "DIET_STRING";
 const char * WfCst::DIET_PARAMSTRING = "DIET_PARAMSTRING";
 const char * WfCst::DIET_FILE     = "DIET_FILE";
+const char * WfCst::DIET_CONTAINER= "DIET_CONTAINER";
 const char * WfCst::DIET_DATA_TYPE_COUNT = "DIET_DATA_TYPE_COUNT";
 
 

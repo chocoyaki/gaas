@@ -11,6 +11,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2008/09/19 13:11:07  bisnard
+ * - added support for containers split/merge in workflows
+ * - added support for multiple port references
+ * - profile for node execution initialized by port (instead of node)
+ * - ports linking managed by ports (instead of dag)
+ *
  * Revision 1.7  2008/09/08 09:12:58  bisnard
  * removed obsolete attribute nodes_list, pbs_list, alloc
  *
@@ -45,7 +51,6 @@
 #include "marshalling.hh"
 #include "DagWfParser.hh"
 #include "WfUtils.hh"
-
 
 using namespace std;
 
@@ -157,21 +162,7 @@ DagWfParser::parseXml() {
 	WARNING ("FATAL ERROR : Node without Path or Id");
 	return false;
       }
-
-      if (nodeId[0] == '$') {
-	nodeId.erase(0,1);
-	// this is parametrable node
-	string nodeInterval(getAttributeValue("interval", child_elt));
-	long interval = atoi(nodeInterval.c_str());
-	string base_id(nodeId);
-	for (long lx=0; lx < interval; lx ++) {
-	  nodeId = base_id + itoa(lx).c_str();
-	  if (!parseNode(child, nodeId, nodePath, lx)) {
-	    return false;
-	  }
-	} // end for lx
-      } // end if == $
-      else if (!parseNode(child, nodeId, nodePath)) {
+      if (!parseNode(child, nodeId, nodePath)) {
 	return false;
       }
     }
@@ -209,8 +200,7 @@ DagWfParser::getDag() {
  */
 bool
 DagWfParser::parseNode (const DOMNode * element,
-			string nodeId, string nodePath,
-			long int var_node) {
+			string nodeId, string nodePath) {
   diet_profile_t * profile;
   corba_pb_desc_t * corba_profile = new corba_pb_desc_t;
   vector <DOMElement *> argVect;
@@ -223,10 +213,7 @@ DagWfParser::parseNode (const DOMNode * element,
   vector <unsigned int> outVectIndex;
   vector <DOMElement *> precVect;
   DOMElement * node;
-  long int mul_arg =0, mul_in = 0, mul_inout = 0, mul_out = 0;
   unsigned lastArg = 0;
-
-//   this->dagSize++;
 
   DOMNode * child = element->getFirstChild();
   while (child != NULL) {
@@ -241,14 +228,8 @@ DagWfParser::parseNode (const DOMNode * element,
 	if (! parseArg (child_elt)) {
 	  ERROR ("Argument "<< child_name <<" malformed", false);
 	}
-
 	argVect.push_back(child_elt);
 	argVectIndex.push_back(lastArg++);
-
-	string mul_attr = getAttributeValue("mul", child_elt);
-	if (mul_attr != "") {
-	  mul_arg += atoi(mul_attr.c_str());
-	}
       } // end if (arg
 
       if (child_name == "in") {
@@ -257,11 +238,6 @@ DagWfParser::parseNode (const DOMNode * element,
 	}
 	inVect.push_back(child_elt);
 	inVectIndex.push_back(lastArg++);
-
-	string mul_attr = getAttributeValue("mul", child_elt);
-	if (mul_attr != "") {
-	  mul_in += atoi(mul_attr.c_str());
-	}
       } // end if (in
 
       if (child_name == "inOut") {
@@ -270,11 +246,6 @@ DagWfParser::parseNode (const DOMNode * element,
 	}
 	inoutVect.push_back(child_elt);
 	inoutVectIndex.push_back(lastArg++);
-
-	string mul_attr = getAttributeValue("mul", child_elt);
-	if (mul_attr != "") {
-	  mul_inout += atoi(mul_attr.c_str());
-	}
       } // end if (inout)
 
       if (child_name == "out") {
@@ -283,11 +254,6 @@ DagWfParser::parseNode (const DOMNode * element,
 	}
 	outVect.push_back(child_elt);
 	outVectIndex.push_back(lastArg++);
-
-	string mul_attr = getAttributeValue("mul", child_elt);
-	if (mul_attr != "") {
-	  mul_out += atoi(mul_attr.c_str());
-	}
       } // end if (out
 
       if (child_name == "prec") {
@@ -309,26 +275,13 @@ DagWfParser::parseNode (const DOMNode * element,
     child = child->getNextSibling();
   } // end while
 
-  // adjust mul_xxx
-  if (mul_arg == 0)
-    mul_arg = 1;
-  if (mul_in == 0)
-    mul_in = 1;
-  if (mul_inout == 0)
-    mul_inout = 1;
-  if (mul_out == 0)
-    mul_out = 1;
-
   // last_in last_inout last_out
-  int last_in    = inVect.size() + argVect.size() - 1 +
-    (mul_arg - 1) + (mul_in - 1);
-  int last_inout = last_in + inoutVect.size() +
-    (mul_inout - 1);
-  int last_out   = last_inout + outVect.size() +
-    (mul_out - 1);
+  int last_in    = inVect.size() + argVect.size() - 1;
+  int last_inout = last_in + inoutVect.size();
+  int last_out   = last_inout + outVect.size();
 
   lastArg    = 0;
-  TRACE_TEXT (TRACE_ALL_STEPS, "\t" << "last in " << last_in <<
+  TRACE_TEXT (TRACE_ALL_STEPS, "Node ports count:" << "last in " << last_in <<
 	      ", last_inout " << last_inout <<
 	      ", last_out " << last_out << endl);
 
@@ -344,207 +297,79 @@ DagWfParser::parseNode (const DOMNode * element,
 
   //************************************
   //** Parse the arguments once again
+  TRACE_TEXT (TRACE_ALL_STEPS,"Checking arg ports" << endl);
   for (uint ix=0; ix < argVect.size(); ix++) {
     node = argVect[ix];
-
-    string name = nodeId + "#";
-    /* not necessary since the node id contains already the number
-    if (var != -1) {
-      name = nodeId + itoa(var).c_str() + "#";
-    }
-    else {
-      name = nodeId + "#";
-    }
-    */
-    string value = getAttributeValue("value", node);
-    string type  = getAttributeValue("type", node);
-    string abs_name = getAttributeValue("name", node);
-    if (abs_name[0] == '$') {
-      // multiple port
-      abs_name = abs_name.erase(0,1);
-      string mul_str = getAttributeValue("mul", node);
-      long int mul = atoi(mul_str.c_str());
-      for (int var_port=0; var_port < mul; var_port++) {
-	string real_port_name = abs_name + itoa(var_port);
-	name = name + real_port_name.c_str();
-	if (type != "DIET_MATRIX")
-	  // check the arg attribute and add its description to the profile
-	  checkArg (name, value, type, profile, argVectIndex[ix],
-		    var_node, var_port, dagNode);
-	else
-	  // check the matrix argument
-	  checkMatrixArg(name, node, profile, argVectIndex[ix],
-			 var_node, var_port, dagNode);
-	lastArg++;
-      } // end for
-    }
-    else {
-      // single port
-      name = name + getAttributeValue("name", node);
-      if (type != "DIET_MATRIX")
-	// check the arg attribute and add its description to the profile
-	checkArg (name, value, type, profile, argVectIndex[ix],
-		  var_node, -1,
-		  dagNode);
-      else
-	// check the matrix argument
-	checkMatrixArg(name, node, profile, argVectIndex[ix],
-		       var_node, -1,
-		       dagNode);
-      lastArg++;
-    }
+    string portName  = nodeId + "#" + getAttributeValue("name", node);
+    string portType  = getAttributeValue("type", node);
+    string value     = getAttributeValue("value", node);
+    if (portType != "DIET_MATRIX")
+      // check the arg attribute and add its description to the profile
+      checkArg (portName, value, portType, profile, argVectIndex[ix], dagNode);
+    else
+      // check the matrix argument
+      checkMatrixArg(portName, node, profile, argVectIndex[ix], dagNode);
+    lastArg++;
   }
   //************************************
   // Parse the input parameters once again
+  TRACE_TEXT (TRACE_ALL_STEPS,"Checking in ports" << endl);
   for (uint ix=0; ix < inVect.size(); ix++) {
     node = inVect[ix];
-
-    string name("");
-    string type  = getAttributeValue("type", node);
+    string portName  = nodeId + "#" + getAttributeValue("name", node);
+    string portType  = getAttributeValue("type", node);
     string source  = getAttributeValue("source", node);
 
-    string abs_name = getAttributeValue("name", node);
-    if (abs_name[0] == '$') {
-      // multiple port
-      abs_name = abs_name.erase(0,1);
-      string mul_str = getAttributeValue("mul", node);
-      long int mul = atoi(mul_str.c_str());
-      for (int var_port = 0; var_port < mul; var_port++) {
-	string real_port_name = abs_name + itoa(var_port);
-	name = nodeId + "#" + real_port_name.c_str();
-	if (type != "DIET_MATRIX")
-	  // check in attribute and add its description to the profile
-	  checkIn (name, type, source, profile, inVectIndex[ix],
-		   var_node, var_port,
-		   dagNode);
-	else
-	  // check a matrix input port
-	  checkMatrixIn(name, source, node, profile, inVectIndex[ix],
-			var_node, var_port,
-			dagNode);
-	lastArg++;
-      }
-    }
-    else {
-      // single port
-      name = nodeId + "#" + getAttributeValue("name", node);
-      if (type != "DIET_MATRIX")
+    if (portType != "DIET_MATRIX")
 	// check in attribute and add its description to the profile
-	checkIn (name, type, source, profile, inVectIndex[ix],
-		 var_node, -1,
-		 dagNode);
-      else
+      checkIn (portName, portType, source, profile, inVectIndex[ix], dagNode);
+    else
 	// check a matrix input port
-	checkMatrixIn(name, source, node, profile, inVectIndex[ix],
-		      var_node, -1,
-		      dagNode);
-      lastArg++;
-    }
+      checkMatrixIn(portName, source, node, profile, inVectIndex[ix], dagNode);
+    lastArg++;
   }
   //************************************
   // Parse the Inout parameters once again
   // FIXME
+  TRACE_TEXT (TRACE_ALL_STEPS,"Checking inout ports" << endl);
   for (uint ix=0; ix < inoutVect.size(); ix++) {
     node = inoutVect[ix];
-
-    string name("");
-    string type  = getAttributeValue("type", node);
+    string portName  = nodeId + "#" + getAttributeValue("name", node);
+    string portType  = getAttributeValue("type", node);
     string sink  = getAttributeValue("sink", node);
 
-    string abs_name = getAttributeValue("name", node);
-    if (abs_name[0] == '$') {
-      // multiple port
-      abs_name = abs_name.erase(0,1);
-      string mul_str = getAttributeValue("mul", node);
-      long int mul = atoi(mul_str.c_str());
-      for (int var_port = 0; var_port < mul; var_port++) {
-	string real_port_name = abs_name + itoa(var_port);
-	name = nodeId + "#" + real_port_name.c_str();
-	if (type != "DIET_MATRIX")
-	  // check the inout attribute and add its description to the profile
-	  checkInout(name, type, sink, profile, inoutVectIndex[ix],
-		     var_node, var_port, dagNode);
-	else
-	  // check matrix inout port
-	  checkMatrixInout(name, node, profile, inoutVectIndex[ix],
-			   var_node, var_port, dagNode);
-
-	lastArg++;
-      }
-    }
-    else {
-      // single port
-      name = nodeId + "#" + getAttributeValue("name", node);
-      if (type != "DIET_MATRIX")
+    if (portType != "DIET_MATRIX")
 	// check the inout attribute and add its description to the profile
-	checkInout(name, type, sink, profile, inoutVectIndex[ix],
-		   var_node, -1,
-		   dagNode);
-      else
+      checkInout(portName, portType, sink, profile, inoutVectIndex[ix], dagNode);
+    else
 	// check matrix inout port
-	checkMatrixInout(name, node, profile, inoutVectIndex[ix],
-			 var_node, -1,
-			 dagNode);
-
-      lastArg++;
-    }
+      checkMatrixInout(portName, node, profile, inoutVectIndex[ix], dagNode);
+    lastArg++;
   }
   //************************************
   // Parse the out parameters once again
+  TRACE_TEXT (TRACE_ALL_STEPS,"Checking out ports" << endl);
   for (uint ix=0; ix < outVect.size(); ix++) {
     node = outVect[ix];
-
-    string name("");
-    string type  = getAttributeValue("type", node);
+    string portName  = nodeId + "#" + getAttributeValue("name", node);
+    string portType  = getAttributeValue("type", node);
     string sink  = getAttributeValue("sink", node);
-
-    string abs_name = getAttributeValue("name", node);
-    if (abs_name[0] == '$') {
-      // multiple port
-      abs_name = abs_name.erase(0,1);
-      string mul_str = getAttributeValue("mul", node);
-      long int mul = atoi(mul_str.c_str());
-      for (int var_port=0; var_port < mul; var_port++) {
-	string real_port_name = abs_name + itoa(var_port);
-	name = nodeId + "#" + real_port_name.c_str();
-	if (type != "DIET_MATRIX")
-	  // check the out attribute and add its description to the profile
-	  checkOut (name, type, sink, profile, outVectIndex[ix],
-		    var_node, var_port,
-		    dagNode);
-	else
-	  // check matrix output port
-	  checkMatrixOut(name, node, profile, outVectIndex[ix],
-			 var_node, var_port,
-			 dagNode);
-	lastArg++;
-      } // end for
-    }
-    else {
-      // single port
-      name = nodeId + "#" + getAttributeValue("name", node);
-      if (type != "DIET_MATRIX")
+    if (portType != "DIET_MATRIX")
 	// check the out attribute and add its description to the profile
-	checkOut (name, type, sink, profile, outVectIndex[ix],
-		  var_node, -1,
-		  dagNode);
-      else
+      checkOut (portName, portType, sink, profile, outVectIndex[ix], dagNode);
+    else
 	// check matrix output port
-	checkMatrixOut(name, node, profile, outVectIndex[ix],
-		       var_node, -1,
-		       dagNode);
-      lastArg++;
-    }
+      checkMatrixOut(portName, node, profile, outVectIndex[ix], dagNode);
+    lastArg++;
   }
   //************************************
   for (uint ix=0; ix< precVect.size(); ix++) {
     node = precVect[ix];
     string prev_id  = getAttributeValue("id", node);
-    dagNode ->addPrecId(prev_id);
+    dagNode->addPrecId(prev_id);
   }
 
   dagNode->set_pb_desc(profile);
-
   myDag->addNode(nodeId, dagNode);
   dagNode->setDag(myDag);
 
@@ -613,12 +438,8 @@ DagWfParser::checkArg(const string& name,
 		      const string& type,
 		      diet_profile_t * profile,
 		      unsigned int lastArg,
-		      long int var_node,
-		      long int var_port,
 		      Node * dagNode) {
-  setParam(ARG_PORT, name, type, profile, lastArg,
-	   var_node, var_port,
-	   dagNode, &value);
+  setParam(ARG_PORT, name, type, profile, lastArg, dagNode, &value);
   return true;
 } // end checkArg
 
@@ -631,16 +452,10 @@ DagWfParser::checkIn(const string& name,
 		     const string& source,
 		     diet_profile_t * profile,
 		     unsigned int lastArg,
-		     long int var_node,
-		     long int var_port,
 		     Node * dagNode) {
-  string real_source_name(source);
-  setParam(IN_PORT, name, type, profile, lastArg,
-	   var_node, var_port,
-	   dagNode);
+  setParam(IN_PORT, name, type, profile, lastArg, dagNode);
   if (dagNode) {
-    getRealName(real_source_name, var_node, var_port);
-    dagNode->link_i2o(name, real_source_name);
+    dagNode->link_i2o(name, source);
   }
   return true;
 } // end checkIn
@@ -654,11 +469,8 @@ DagWfParser::checkInout(const string& name,
 			const string& source,
 			diet_profile_t * profile,
 			unsigned int lastArg,
-			long int var_node,
-			long int var_port,
 			Node * dagNode) {
-  setParam(INOUT_PORT, name, type, profile, lastArg,
-	   var_node, var_port, dagNode);
+  setParam(INOUT_PORT, name, type, profile, lastArg, dagNode);
   return true;
 } // end checkInout
 
@@ -671,15 +483,10 @@ DagWfParser::checkOut(const string& name,
 		      const string& sink,
 		      diet_profile_t * profile,
 		      unsigned int lastArg,
-		      long int var_node,
-		      long int var_port,
 		      Node * dagNode) {
-  string real_sink_name(sink);
-  setParam(OUT_PORT, name, type, profile, lastArg,
-	   var_node, var_port, dagNode);
+  setParam(OUT_PORT, name, type, profile, lastArg, dagNode);
   if (dagNode) {
-    getRealName(real_sink_name, var_node, var_port);
-    dagNode->link_o2i(name, real_sink_name);
+    dagNode->link_o2i(name, sink);
   }
   return true;
 } // end checkOut
@@ -694,124 +501,135 @@ DagWfParser::setParam(const wf_port_t param_type,
 		      const string& type,
 		      diet_profile_t* profile,
 		      unsigned int lastArg,
-		      long int var_node,
-		      long int var_port,
 		      Node * dagNode,
 		      const string * value) {
   bool result = true;
 
-//   if (! this->alloc) {
-    setParamDesc(param_type, name, type, profile, lastArg, -1, dagNode, value);
-//   }
+  // Get the base type and the depth of the list structure
+  uint typeDepth = 0;
+  string baseType = type;
+  string::size_type listPos = baseType.find("LIST");
+  while (listPos != string::npos) {
+    baseType = baseType.substr(listPos+5, baseType.length() - 6);
+    listPos = baseType.find("LIST");
+    ++typeDepth;
+  }
+  TRACE_TEXT( TRACE_ALL_STEPS,"Parameter type = " << baseType
+             << " & depth = " << typeDepth << endl);
 
-  if (type == WfCst::DIET_CHAR) {
+  // Initialize the profile with the appropriate parameter type
+  // (and optionnally value: used only for Arg ports)
+  string descType = typeDepth == 0 ? baseType : WfCst::DIET_CONTAINER;
+  setParamDesc(param_type, name, descType, profile, lastArg, dagNode, value);
+
+  if (baseType == WfCst::DIET_CHAR) {
     if (dagNode) {
       if (value)
 	dagNode->newPort(name, lastArg, param_type,
-			 string(WfCst::DIET_CHAR),
+			 string(WfCst::DIET_CHAR),typeDepth,
 			 *value);
       else
 	dagNode->newPort(name, lastArg, param_type,
-			 string(WfCst::DIET_CHAR));
+			 string(WfCst::DIET_CHAR),typeDepth);
     }
   } // end if DIET_CHAR
 
-  if (type == WfCst::DIET_SHORT) {
+  if (baseType == WfCst::DIET_SHORT) {
     if (dagNode) {
       if (value)
 	dagNode->newPort(name, lastArg, param_type,
-			 string(WfCst::DIET_SHORT),
+			 string(WfCst::DIET_SHORT),typeDepth,
 			 *value);
       else
 	dagNode->newPort(name, lastArg, param_type,
-			 string(WfCst::DIET_SHORT));
+			 string(WfCst::DIET_SHORT),typeDepth);
     }
   } // end if DIET_SHORT
 
-  if (type == WfCst::DIET_INT) {
+  if (baseType == WfCst::DIET_INT) {
     if (dagNode) {
       if (value)
 	dagNode->newPort(name, lastArg, param_type,
-			 string(WfCst::DIET_INT),
+			 string(WfCst::DIET_INT),typeDepth,
 			 *value);
       else
 	dagNode->newPort(name, lastArg, param_type,
-			 string(WfCst::DIET_INT));
+			 string(WfCst::DIET_INT),typeDepth);
     }
   } // end if DIET_INT
 
-  if (type == WfCst::DIET_LONGINT) {
+  if (baseType == WfCst::DIET_LONGINT) {
     if (dagNode) {
       if (value)
 	dagNode->newPort(name, lastArg, param_type,
-			 string(WfCst::DIET_LONGINT),
+			 string(WfCst::DIET_LONGINT),typeDepth,
 			 *value);
       else
 	dagNode->newPort(name, lastArg, param_type,
-			 string(WfCst::DIET_LONGINT));
+			 string(WfCst::DIET_LONGINT),typeDepth);
     }
 
   } // end if LONG_INT
 
-  if (type == WfCst::DIET_FLOAT) {
+  if (baseType == WfCst::DIET_FLOAT) {
     if (dagNode) {
       if (value)
 	dagNode->newPort(name, lastArg, param_type,
-			 string(WfCst::DIET_FLOAT),
+			 string(WfCst::DIET_FLOAT),typeDepth,
 			 *value);
       else
 	dagNode->newPort(name, lastArg, param_type,
-			 string(WfCst::DIET_FLOAT));
+			 string(WfCst::DIET_FLOAT),typeDepth);
     }
   } // end if DIET_FLOAT
 
 
 
-  if (type == WfCst::DIET_DOUBLE) {
+  if (baseType == WfCst::DIET_DOUBLE) {
     if (dagNode) {
       if (value)
 	dagNode->newPort(name, lastArg, param_type,
-			 string(WfCst::DIET_DOUBLE),
+			 string(WfCst::DIET_DOUBLE),typeDepth,
 			 *value);
       else
 	dagNode->newPort(name, lastArg, param_type,
-			 string(WfCst::DIET_DOUBLE));
+			 string(WfCst::DIET_DOUBLE),typeDepth);
     }
   } // end if DIET_DOUBLE
 
-  if (type == WfCst::DIET_STRING) {
+  if (baseType == WfCst::DIET_STRING) {
     if (dagNode) {
       if (value)
 	dagNode->newPort(name, lastArg, param_type,
-			 string(WfCst::DIET_STRING),
+			 string(WfCst::DIET_STRING),typeDepth,
 			 *value);
       else
 	dagNode->newPort(name, lastArg, param_type,
-			 string(WfCst::DIET_STRING));
+			 string(WfCst::DIET_STRING),typeDepth);
     }
   } // end if DIET_STRING
 
-  if (type == WfCst::DIET_PARAMSTRING) {
+  if (baseType == WfCst::DIET_PARAMSTRING) {
     if (dagNode) {
       if (value)
 	dagNode->newPort(name, lastArg, param_type,
-			 string(WfCst::DIET_PARAMSTRING),
+			 string(WfCst::DIET_PARAMSTRING),typeDepth,
 			 *value);
       else
 	dagNode->newPort(name, lastArg, param_type,
-			 string(WfCst::DIET_PARAMSTRING));
+			 string(WfCst::DIET_PARAMSTRING),typeDepth);
     }
   } // end if DIET_PARAMSTRING
 
-  if (type == WfCst::DIET_FILE) {
+  if (baseType == WfCst::DIET_FILE) {
     if (dagNode) {
       if (value)
 	dagNode->newPort(name, lastArg, param_type,
-			 string(WfCst::DIET_FILE),
+			 string(WfCst::DIET_FILE),typeDepth,
 			 *value);
       else
 	dagNode->newPort(name, lastArg, param_type,
-			 string(WfCst::DIET_FILE));
+			 string(WfCst::DIET_FILE),typeDepth);
     }
   } // end if DIET_FILE
 
@@ -824,8 +642,6 @@ DagWfParser::setParam(const wf_port_t param_type,
 bool
 DagWfParser::checkMatrixArg(const string& id, const DOMElement * element,
 			    diet_profile_t * profile, unsigned int lastArg,
-			    long int var_node,
-			    long int var_port,
 			    Node * dagNode) {
   string base_type("");
   string nb_rows("");
@@ -853,10 +669,7 @@ bool
 DagWfParser::checkMatrixIn(const string& id, const string& source,
 			   const DOMElement * element,
 			   diet_profile_t * profile, unsigned int lastArg,
-			   long int var_node,
-			   long int var_port,
 			   Node * dagNode) {
-  string real_source_name(source);
   string base_type("");
   string nb_rows("");
   string nb_cols("");
@@ -870,10 +683,8 @@ DagWfParser::checkMatrixIn(const string& id, const string& source,
 		 profile, lastArg, dagNode);
 
   if (dagNode) {
-    getRealName(real_source_name, var_node, var_port);
-    dagNode->link_i2o(id, real_source_name);
+    dagNode->link_i2o(id, source);
   }
-
   return true;
 } // end checkMatrixIn
 
@@ -883,8 +694,6 @@ DagWfParser::checkMatrixIn(const string& id, const string& source,
 bool
 DagWfParser::checkMatrixInout(const string& id, const DOMElement * element,
 			      diet_profile_t * profile, unsigned int lastArg,
-			      long int var_node,
-			      long int var_port,
 			      Node * dagNode) {
   string base_type("");
   string nb_rows("");
@@ -906,8 +715,6 @@ DagWfParser::checkMatrixInout(const string& id, const DOMElement * element,
 bool
 DagWfParser::checkMatrixOut(const string& id, const DOMElement * element,
 			    diet_profile_t * profile, unsigned int lastArg,
-			    long int var_node,
-			    long int var_port,
 			    Node * dagNode) {
   string base_type("");
   string nb_rows("");
@@ -970,28 +777,25 @@ DagWfParser::setMatrixParam(const wf_port_t param_type,
   diet_matrix_order_t matrix_order =
     getMatrixOrder(matrix_order_str);
 
-//   if (! this->alloc) {
-    setMatrixParamDesc(param_type, name, base_type_str,
+  setMatrixParamDesc(param_type, name, base_type_str,
 		       nb_rows_str, nb_cols_str,
 		       matrix_order_str,
 		       profile, lastArg,
 		       dagNode,
 		       value);
-//   }
-
 
   if (dagNode) {
     if (value) {
       WfPort * port = (WfPort *)
 	(dagNode->newPort(name, lastArg, param_type,
-			  string(WfCst::DIET_MATRIX),
+			  string(WfCst::DIET_MATRIX), 0,
 			  *value));
       port->setMatParams(nb_rows, nb_cols, matrix_order, base_type);
     }
     else {
       WfPort * port = (WfPort *)
 	dagNode->newPort(name, lastArg, param_type,
-			 string(WfCst::DIET_MATRIX));
+			 string(WfCst::DIET_MATRIX), 0);
       port->setMatParams(nb_rows, nb_cols, matrix_order, base_type);
     } // end else
   }
@@ -1007,81 +811,6 @@ DagWfParser::setMatrixParam(const wf_port_t param_type,
   return true;
 } // end setMatrixParam
 
-string
-DagWfParser::getExpr(string& id) {
-  string expr = "";
-  string::size_type loc = id.find('{');
-  if ((id[id.size()-1] == '}') &&
-      (loc != string::npos)) {
-    expr = id.substr(loc+1, id.size()-loc-2);
-  }
-  return expr;
-} // end getExpr
-
-/**
- * return the name of source/sink after expansion
- */
-string
-DagWfParser::getRealName(string& real_name,
-			 long int var_node,
-			 long int var_port) {
-  if (real_name == "")
-    return real_name;
-  string var_node_str = itoa(var_node);
-  string var_port_str = itoa(var_port);
-  string linked_nid = real_name;
-  // linked port id
-  string linked_pid = linked_nid.substr(linked_nid.find('#')+1);
-  // linked_nid
-  linked_nid = linked_nid.substr(0, linked_nid.find('#'));
-  // check if the id contains an expression
-  string expr1 = getExpr(linked_nid);
-  // replace nv macro by its value
-  string::size_type loc = expr1.find("nv");
-  while (loc != string::npos) {
-    expr1.replace(loc, 2, var_node_str);
-    loc = expr1.find("nv");
-  }
-  // replace np macro by its value
-  loc = expr1.find("pv");
-  while (loc != string::npos) {
-    expr1.replace(loc, 2, var_port_str);
-    loc = expr1.find("pv");
-  }
-  if ((expr1 != "") &&
-      ((var_node != -1)||(var_port != -1))) {
-    long int value = WfCst::eval_expr(expr1, 0);
-    real_name = linked_nid.substr(0, linked_nid.find('{')) +
-	itoa(value) + "#";
-  }
-  else
-    real_name = linked_nid + "#";
-
-  // check if the port id contains an expression
-  string expr2 = getExpr(linked_pid);
-  // replace pv macro by its value
-  loc = expr2.find("pv");
-  while (loc != string::npos) {
-    expr2.replace(loc, 2, var_port_str);
-    loc = expr2.find("pv");
-  }
-  // replace nv macro by its value
-  loc = expr2.find("nv");
-  while (loc != string::npos) {
-    expr2.replace(loc, 2, var_node_str);
-    loc = expr2.find("nv");
-  }
-  if ((expr2 != "") &&
-      ((var_port != -1)||(var_node != -1))) {
-    long int value = WfCst::eval_expr(expr2, 0);
-    real_name += linked_pid.substr(0, linked_pid.find('{')) + itoa(value);
-  }
-  else {
-    real_name += linked_pid;
-  }
-  return real_name;
-} // end getRealName
-
 /**
  * fill a profile with the appropriate parameter type
  */
@@ -1091,7 +820,6 @@ DagWfParser::setParamDesc(const wf_port_t param_type,
 			  const string& type,
 			  diet_profile_t * profile,
 			  unsigned int lastArg,
-			  long int var,
 			  Node * dagNode,
 			  const string * value) {
   if (type == WfCst::DIET_CHAR) {
@@ -1197,6 +925,15 @@ DagWfParser::setParamDesc(const wf_port_t param_type,
 		    NULL,
 		    DIET_VOLATILE,
 		    DIET_DOUBLE);
+  }
+
+  if (type == WfCst::DIET_CONTAINER) {
+    if (value != NULL) {
+      diet_container_set(diet_parameter(profile, lastArg),
+		    DIET_PERSISTENT);
+    } else
+      diet_container_set(diet_parameter(profile, lastArg),
+		    DIET_PERSISTENT);
   }
   return true;
 } // end setParamDesc

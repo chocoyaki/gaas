@@ -11,6 +11,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/09/19 13:11:07  bisnard
+ * - added support for containers split/merge in workflows
+ * - added support for multiple port references
+ * - profile for node execution initialized by port (instead of node)
+ * - ports linking managed by ports (instead of dag)
+ *
  * Revision 1.3  2008/09/08 09:12:58  bisnard
  * removed obsolete attribute nodes_list, pbs_list, alloc
  *
@@ -143,12 +149,10 @@ protected:
    * @param element      the DOM node
    * @param nodeId   the node identifier
    * @param nodePath the node path (or service)
-   * @param var_node indicates if it is a variable node
    */
   virtual bool
   parseNode (const DOMNode * element,
-	     string nodeId, string nodePath,
-	     long int var_node = -1);
+	     string nodeId, string nodePath);
 
   /**
    * Parse an argument element
@@ -189,8 +193,6 @@ protected:
    * @param type     argument data type
    * @param profile  current profile reference
    * @param lastArg  the argument index in the profile
-   * @param var_node Undocumented
-   * @param var_port Undocumented
    * @param dagNode  node reference in the Dag structure
    */
   virtual bool
@@ -199,8 +201,6 @@ protected:
 	   const string& type,
 	   diet_profile_t * profile,
 	   const unsigned int lastArg,
-	   long int var_node = -1,
-	   long int var_port = -1,
 	   Node * dagNode = NULL);
 
   /**
@@ -210,8 +210,6 @@ protected:
    * @param source   linked output port id
    * @param profile  current profile reference
    * @param lastArg  the input port index in the profile
-   * @param var_node Undocumented
-   * @param var_port Undocumented
    * @param dagNode  node reference in the Dag structure
    */
   virtual bool
@@ -220,8 +218,6 @@ protected:
 	  const string& source,
 	  diet_profile_t * profile,
 	  unsigned int lastArg,
-	  long int var_node = -1,
-	  long int var_port = -1,
 	  Node * dagNode = NULL);
 
   /**
@@ -231,8 +227,6 @@ protected:
    * @param source   linked output port id
    * @param profile  current profile reference
    * @param lastArg  the inoutput port index in the profile
-   * @param var_node Undocumented
-   * @param var_port Undocumented
    * @param dagNode  node reference in the Dag structure
    */
   virtual bool
@@ -241,8 +235,6 @@ protected:
 	     const string& source,
 	     diet_profile_t * profile,
 	     unsigned int lastArg,
-	     long int var_node = -1,
-	     long int var_port = -1,
 	     Node * dagNode = NULL);
 
   /**
@@ -252,8 +244,6 @@ protected:
    * @param sink     linked input port id
    * @param profile  current profile reference
    * @param lastArg  the output port index in the profile
-   * @param var_node Undocumented
-   * @param var_port Undocumented
    * @param dagNode  node reference in the Dag structure
    */
   virtual bool
@@ -262,13 +252,18 @@ protected:
 	   const string& sink,
 	   diet_profile_t * profile,
 	   unsigned int lastArg,
-	   long int var_node = -1,
-	   long int var_port = -1,
 	   Node * dagNode = NULL);
 
   /**
    * fill a profile with the appropriate parameter type and create the
    * node ports
+   * @param param_type  the type of port (IN, OUT or INOUT)
+   * @param name        the name of the port ('node id'#'port id')
+   * @param type        the type of the port (eg 'LIST(LIST(DIET_INT))')
+   * @param profile     the DIET profile of the port (allocated previously)
+   * @param lastArg     the index of the port (in the profile)
+   * @param dagNode     the current node object (optional)
+   * @param value       the value of the parameter (optional)
    */
   virtual bool
   setParam(const wf_port_t param_type,
@@ -276,9 +271,7 @@ protected:
 	   const string& type,
 	   diet_profile_t* profile,
 	   unsigned int lastArg,
-	   long int var_node = -1,
-	   long int var_port = -1,
-	   Node * dagNode = NULL,
+	   Node * dagNode = NULL,      //FIXME should not be null!!
 	   const string * value = NULL);
 
   /**
@@ -287,15 +280,11 @@ protected:
    * @param element    Dom node representing a matrix
    * @param profile  current profile reference
    * @param lastArg  the output port index in the profile
-   * @param var_node Undocumented
-   * @param var_port Undocumented
    * @param dagNode  Undocumented
    */
   virtual bool
   checkMatrixArg(const string& id, const DOMElement * element,
 		 diet_profile_t * profile, unsigned int lastArg,
-		 long int var_node = -1,
-		 long int var_port = -1,
 		 Node * dagNode = NULL);
 
   /**
@@ -304,16 +293,12 @@ protected:
    * @param element    Dom node representing a matrix
    * @param profile  current profile reference
    * @param lastArg  the output port index in the profile
-   * @param var_node Undocumented
-   * @param var_port Undocumented
    * @param dagNode  Undocumented
    */
   virtual bool
   checkMatrixIn(const string& id, const string& source,
 		const DOMElement * element,
 		diet_profile_t * profile, unsigned int lastArg,
-		long int var_node = -1,
-		long int var_port = -1,
 		Node * dagNode = NULL);
 
   /**
@@ -322,15 +307,11 @@ protected:
    * @param element    Dom node representing a matrix
    * @param profile  current profile reference
    * @param lastArg  the output port index in the profile
-   * @param var_node Undocumented
-   * @param var_port Undocumented
    * @param dagNode  Undocumented
    */
   virtual bool
   checkMatrixInout(const string& id, const DOMElement * element,
 		   diet_profile_t * profile, unsigned int lastArg,
-		   long int var_node = -1,
-		   long int var_port = -1,
 		   Node * dagNode = NULL);
 
   /**
@@ -339,15 +320,11 @@ protected:
    * @param element    Dom node representing a matrix
    * @param profile  current profile reference
    * @param lastArg  the output port index in the profile
-   * @param var_node Undocumented
-   * @param var_port Undocumented
    * @param dagNode  Undocumented
    */
   virtual bool
   checkMatrixOut(const string& id, const DOMElement * element,
 		 diet_profile_t * profile, unsigned int lastArg,
-		 long int var_node = -1,
-		 long int var_port = -1,
 		 Node * dagNode = NULL);
 
   /**
@@ -384,32 +361,6 @@ protected:
 		 const string * value = NULL);
 
   /**
-   * Return the expression between {} in the id
-   *
-   * @param id the identifier to parse
-   */
-  string
-  getExpr(string& id);
-
-  /**
-   * Return the name of source/sink after expansion
-   *
-   * @param real_name the source/sink identifier
-   * @param var_node  the linked node number
-   * @param var_port  the port node number
-   */
-  string
-  getRealName(string& real_name, long int var_node, long int var_port);
-
-  /**
-   * Check if the profile is already in the problems list
-   *
-   * @param pb_desc the problem to found
-   */
-//   bool
-//   pbAlreadyRegistred(corba_pb_desc_t& pb_desc);
-
-  /**
    * Fill a profile with the appropriate parameter type
    * The data are NULL
    *
@@ -418,7 +369,6 @@ protected:
    * @param type       the parameter data type
    * @param profile    the diet profile reference
    * @param lastArg    the parameter index
-   * @param var        not used
    * @param dagNode    the node reference
    * @param value      the parameter value as a reference
    */
@@ -428,7 +378,6 @@ protected:
 	       const string& type,
 	       diet_profile_t * profile,
 	       unsigned int lastArg,
-	       long int var = -1,
 	       Node * dagNode = NULL,
 	       const string * value = NULL);
 

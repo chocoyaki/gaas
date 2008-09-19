@@ -9,11 +9,14 @@ IF( DIET_BUILD_LIBRARIES )
     )
   ADD_LIBRARY ( UtilsWf
     WfPort.cc Node.cc Dag.cc NodeQueue.cc
+    WfPortAdapter.cc
     DagWfParser.cc
     Thread.cc WfUtils.cc WfConfig.cc
     )
 
   TARGET_LINK_LIBRARIES( UtilsWf
+    DIET_client
+    DIET_Dagda
     ${XERCES_LIBRARY}  ${OMNIORB4_LIBRARIES}
     )
 

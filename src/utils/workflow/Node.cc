@@ -5,11 +5,18 @@
 /*                                                                          */
 /* Author(s):                                                               */
 /* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
+/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2008/09/19 13:11:07  bisnard
+ * - added support for containers split/merge in workflows
+ * - added support for multiple port references
+ * - profile for node execution initialized by port (instead of node)
+ * - ports linking managed by ports (instead of dag)
+ *
  * Revision 1.23  2008/07/17 13:34:18  bisnard
  * new attribute RealStartTime and get/set for SRPT heuristic
  *
@@ -152,6 +159,7 @@
 #include "Dag.hh"
 #include "NodeQueue.hh"
 
+
 MasterAgent_var getMA();
 extern diet_error_t
 diet_call_common(diet_profile_t* profile, SeD_var& chosenServer, estVector_t estimVect);
@@ -200,59 +208,41 @@ RunnableNode::RunnableNode(Node * parent)
 void *
 RunnableNode::run() {
   typedef size_t comm_failure_t;
+  bool failed = false;
   TRACE_TEXT (TRACE_ALL_STEPS,
 	      "RunnableNode tries to a execute a service "<< endl);
   // create the node diet profile
-  TRACE_TEXT (TRACE_ALL_STEPS, "create the node diet profile" << endl);
-  myParent->createProfile();
-  TRACE_TEXT (TRACE_ALL_STEPS, "profile creation ... done" << endl);
-  TRACE_TEXT (TRACE_ALL_STEPS, "Init the ports " << endl);
-  for (map<string, WfInPort*>::iterator p = myParent->inports.begin();
-       p != myParent->inports.end();
-       ++p) {
-    WfInPort * in = (WfInPort*)(p->second);
-    if (in->source_port) {
-      WfOutPort * out = (WfOutPort*)(in->source_port);
-        TRACE_TEXT (TRACE_ALL_STEPS,
-		    "using the persistent data for " << in->index <<
-		    " (out = " << out->index << ")" << endl);
-
-      diet_use_data(diet_parameter(myParent->profile, in->index),
-		    out->profile()->parameters[out->index].desc.id);
-
-    }
-  }
-  TRACE_TEXT (TRACE_ALL_STEPS, "Init ports data ... done " << endl);
-
-//  nodeIsRunning(myParent->getId().c_str());
-  bool failed = false;
-  try {
+  TRACE_TEXT (TRACE_ALL_STEPS, "Create the node diet profile" << endl);
+  failed = !(myParent->initProfileExec());
+  if (!failed) {
     try {
-      if (!diet_call_common(myParent->profile, myParent->chosenServer, myParent->estimVect)) {
-        TRACE_TEXT (TRACE_MAIN_STEPS, "diet_call DONE " << "reqID=" <<
-			myParent->profile->dietReqID <<
-			endl);
-        myParent->storePersistentData();
+      try {
+        cout << "Make DIET call for pb " << myParent->profile->pb_name << endl;
+        if (!diet_call_common(myParent->profile, myParent->chosenServer, myParent->estimVect)) {
+          TRACE_TEXT (TRACE_MAIN_STEPS, "diet_call DONE " << "reqID=" <<
+              myParent->profile->dietReqID <<
+                  endl);
+          myParent->storePersistentData();
         //cout << " dietReqID : " << myParent->profile->dietReqID << endl;
         //this->myReqID=myParent->profile->dietReqID;
+        }
+        else {
+          TRACE_TEXT (TRACE_MAIN_STEPS, "diet_call FAILED" << endl);
+          failed = true;
+        }
+      } catch (CORBA::COMM_FAILURE& e) {
+        throw (comm_failure_t)1;
+      } catch (CORBA::TRANSIENT& e) {
+        throw (comm_failure_t)1;
       }
-      else {
-        TRACE_TEXT (TRACE_MAIN_STEPS, "diet_call FAILED" << endl);
+    } catch (comm_failure_t& e) {
+      if (e == 0 || e == 1) {
+        WARNING("Connection problems with SeD occured - node exec cancelled");
         failed = true;
       }
-    } catch (CORBA::COMM_FAILURE& e) {
-      throw (comm_failure_t)1;
-    } catch (CORBA::TRANSIENT& e) {
-      throw (comm_failure_t)1;
     }
-  } catch (comm_failure_t& e) {
-    if (e == 0 || e == 1) {
-      WARNING("Connection problems with SeD occured - node exec cancelled");
-      failed = true;
-    }
+    TRACE_TEXT (TRACE_ALL_STEPS, "RunnableNode call ... done" << endl);
   }
-
-  TRACE_TEXT (TRACE_ALL_STEPS, "RunnableNode call ... done" << endl);
   if (!failed)  myParent->done();
   else          myParent->setAsFailed();
 
@@ -644,7 +634,7 @@ Node::toString() {
        p != inports.end();
        p++) {
     WfInPort * in = (WfInPort*)(p->second);
-    str += "\t\t"+ in->id + "\n";
+    str += "\t\t"+ in->getId() + "\n";
   }
 
   str += "Output Ports\n";
@@ -652,36 +642,12 @@ Node::toString() {
        p != outports.end();
        p++) {
     WfOutPort * out = (WfOutPort*)(p->second);
-    str += "\t\t"+ out->id + "\n";
+    str += "\t\t"+ out->getId() + "\n";
   }
 // return str + toStringBasis();
   return str;
 } // end toString
 
-/**
- * display an XML  representation of a node *
- * if b = false (value by default) the node representation doesn't include
- * the information about previous nodes (the source ports of input ports)
- */
-string
-Node::toXML(bool b) {
-  string xml = "<node id=\""+ myId+"\" ";
-  xml += "path=\""+ myPb +"\">\n";
-  for (map<string, WfInPort*>::iterator p = inports.begin();
-       p != inports.end();
-       p++) {
-    WfInPort * in = (WfInPort*)(p->second);
-    xml += in->toXML(b);
-  }
-  for (map<string, WfOutPort*>::iterator p = outports.begin();
-       p != outports.end();
-       p++) {
-    WfOutPort * out = (WfOutPort*)(p->second);
-    xml += out->toXML();
-  }
-  xml += "</node>\n";
-  return xml;
-} // end toXML
 
 /****************************************************************************/
 /*                          Profile Allocation                              */
@@ -1061,18 +1027,92 @@ Node::getRealDelay() {
 /****************************************************************************/
 
 /**
- * Store the persistent data of the node profile *
+ * Link input port to output port by id and setting references link *
  */
 void
-Node::storePersistentData() {
-  for (map<string, WfOutPort*>::iterator p = outports.begin();
-       p != outports.end();
-       ++p) {
-    WfOutPort * out = (WfOutPort*)(p->second);
-    store_id(profile->parameters[out->index].desc.id,
-	     (char *) "wf param");
+Node::link_i2o(const string in, const string out) {
+  TRACE_TEXT (TRACE_ALL_STEPS,"link_i2o: link " << in << " to " << out << endl);
+  // the port is supposed to be present
+  if (out == "") {
+    return;
   }
-} // end storePersistentData
+  WfInPort * inPort = getInPort(in);
+  if (inPort != NULL)
+    inPort->setSourceRef(out);
+  else {
+    INTERNAL_ERROR ("The input port " << in << " was not found " << endl <<
+		    "Check your XML file", 1);
+  }
+} // end link_i2o
+
+/**
+ * Link output port to input port by id and setting references link *
+ */
+void
+Node::link_o2i(const string out, const string in) {
+  TRACE_TEXT (TRACE_ALL_STEPS,"link_o2i: link " << out << " to " << in << endl);
+  if (in == "") {
+    return;
+  }
+  // the port is supposed to be present
+  WfOutPort * outPort = getOutPort(out);
+  if (outPort != NULL)
+    outPort->setSink(in);
+  else {
+    INTERNAL_ERROR ("The output port " << out << " was not found " << endl <<
+		    "Check your XML file", 1);
+  }
+} // end link_o2i
+
+/**
+ * Link inoutput port to input port by id and setting references link *
+ */
+void
+Node::link_io2i(const string io, const string in) {
+  // TO FIX
+  // the port is supposed to be present
+  getInOutPort(io)->setSink(in);
+} // end link_io2i
+
+/**
+ * Link inoutput port to output port by id and setting references link *
+ */
+void
+Node::link_io2o(const string io, const string out) {
+  // the port is supposed to be present
+  getInOutPort(io)->setSourceRef(out);
+} // end link_io2o
+
+/**
+ * create and add a new port to the node *
+ */
+WfPort *
+Node::newPort(string id, uint ind, wf_port_t type, string diet_type,
+	      uint depth, const string& v) {
+  WfPort * p = NULL;
+  WfInPort * in = NULL;
+  WfInOutPort * inout = NULL;
+  WfOutPort * out = NULL;
+  switch (type) {
+    case ARG_PORT:
+    case IN_PORT:
+      in = new WfInPort(this, id, diet_type, depth, ind, v);
+      inports[id] =  in;
+      p = (WfPort *) in;
+      break;
+    case INOUT_PORT:
+      inout = new WfInOutPort(this, id, diet_type, depth, ind, v);
+      inoutports[id] = inout;
+      p = (WfInOutPort * ) inout;
+      break;
+    case OUT_PORT:
+      out = new WfOutPort(this, id, diet_type, depth, ind, v);
+      outports[id] = out;
+      p = (WfOutPort *) out;
+      break;
+  }
+  return p;
+} // end newPort
 
 /**
  * Get the input port references by id *
@@ -1110,20 +1150,31 @@ Node::getInOutPort(string id) {
     return NULL;
 } // end getInOutPort
 
+
 /**
- * create the diet profile associated to the node *
+ * Store the persistent data of the node profile *
  */
 void
-Node::createProfile() {
+Node::storePersistentData() {
+  for (map<string, WfOutPort*>::iterator p = outports.begin();
+       p != outports.end();
+       ++p) {
+    WfOutPort * out = (WfOutPort*)(p->second);
+    store_id(profile->parameters[out->getIndex()].desc.id,
+	     (char *) "wf param");
+  }
+} // end storePersistentData
+
+/**
+ * Updates the profile before execution of the node
+ */
+bool
+Node::initProfileExec() {
   int last_in = this->profile->last_in;
   int last_inout = this->profile->last_inout;
   int last_out = this->profile->last_out;
   diet_profile_free(this->profile);
-//   TRACE_TEXT (TRACE_ALL_STEPS,
-// 	      "Reallocating a new profile " << myPb.c_str() << ", " <<
-// 	      last_in << ", " <<
-// 	      last_inout << ", " <<
-// 	      last_out << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS, "Reallocating a new profile " << myPb.c_str() << endl);
   this->profile =  diet_profile_alloc((char*)(this->myPb.c_str()),
 					   last_in, last_inout, last_out);
   // Set the request ID if available (case when a previous submit request has
@@ -1132,328 +1183,34 @@ Node::createProfile() {
   TRACE_TEXT(TRACE_ALL_STEPS,"Setting reqID in profile to #"
       << this->dietReqID << endl);
 
-  int last = 0;
-  // input ports
-//   TRACE_TEXT (TRACE_ALL_STEPS,
-// 	      inports.size() << " input ports" << endl);
+
   for (map<string, WfInPort*>::iterator p = inports.begin();
        p != inports.end();
        ++p) {
     WfInPort * in = (WfInPort*)(p->second);
-
-    if (in->isInput()) {
-#if HAVE_DAGDA
-      this->set_profile_param(in,
-			      in->type, in->index, in->value, DIET_PERSISTENT);
-#else
-      this->set_profile_param(in,
-			      in->type, in->index, in->value, DIET_VOLATILE);
-#endif
-    } else
-      this->set_profile_param(in,
-			      in->type, in->index, in->value, DIET_PERSISTENT);
-
-    last ++;
+    if (!in->initProfileExec()) {
+      ERROR ("Profile init failed (in port)" << endl, 0);
+    }
   }
-  // output ports
-//   TRACE_TEXT (TRACE_ALL_STEPS,
-// 	      outports.size() << " output ports" << endl);
   for (map<string, WfOutPort*>::iterator p = outports.begin();
        p != outports.end();
        ++p) {
     WfOutPort * out = (WfOutPort*)(p->second);
-//     TRACE_TEXT (TRACE_ALL_STEPS,
-// 		"%%%%%%%% " << out->type << endl);
-    if (this->isAnExit()) {
-      this->set_profile_param(out,
-			    out->type, out->index, out->value,
-			    DIET_PERSISTENT_RETURN);
-    } else {
-      this->set_profile_param(out,
-			    out->type, out->index, out->value,
-			    DIET_PERSISTENT);
+    if (!out->initProfileExec()) {
+      ERROR ("Profile init failed (out port)" << endl, 0);
     }
-    last ++;
   }
-  // inoutput ports
   for (map<string, WfInOutPort*>::iterator p = inoutports.begin();
        p != inoutports.end();
        ++p) {
     WfInOutPort * inout = (WfInOutPort*)(p->second);
-    if (this->isAnExit()) {
-      this->set_profile_param(inout,
-			    inout->type, inout->index,
-			    inout->value, DIET_PERSISTENT_RETURN);
-    } else {
-      this->set_profile_param(inout,
-			    inout->type, inout->index,
-			    inout->value, DIET_PERSISTENT);
+    if (!inout->initProfileExec()) {
+      ERROR ("Profile init failed (inout port)" << endl, 0);
     }
-    last ++;
   }
-} // end createProfile
+  return true;
+}
 
-/**
- * set the node profile param *
- * @param type    parameter data type *
- * @param lastArg parameter index *
- * @param value   string representation of parameter value *
- */
-void
-Node::set_profile_param(WfPort * port,
-			string type, const int lastArg, const string& value,
-			const diet_persistence_mode_t mode) {
-//   TRACE_TEXT (TRACE_ALL_STEPS,
-// 	      "\tset_profile_param : type = " << type <<
-// 	      ", lastArg = " << lastArg << ", value = " << value <<
-// 	      ", mode = " << mode << endl);
-  if (type == WfCst::DIET_CHAR) {
-//     TRACE_TEXT (TRACE_ALL_STEPS,
-// 		"char parameter "<< lastArg << endl);
-    if (value != "")
-      diet_scalar_set(diet_parameter(profile, lastArg),
-		      this->newChar(value),
-		      mode,
-		      DIET_CHAR);
-    else
-      diet_scalar_set(diet_parameter(profile, lastArg),
-		      this->newChar(),
-		      mode,
-		      DIET_CHAR);
-  }
-  if (type == WfCst::DIET_SHORT) {
-//     TRACE_TEXT (TRACE_ALL_STEPS,
-// 		"short parameter "<< lastArg << endl);
-    if (value != "")
-      diet_scalar_set(diet_parameter(profile, lastArg),
-		      this->newShort(value),
-		      mode,
-		      DIET_SHORT);
-    else
-      diet_scalar_set(diet_parameter(profile, lastArg),
-		      this->newShort(),
-		      mode,
-		      DIET_SHORT);
-  }
-  if (type == WfCst::DIET_INT) {
-//     TRACE_TEXT (TRACE_ALL_STEPS,
-// 		"int parameter "<< lastArg << endl);
-    if (value != "")
-      diet_scalar_set(diet_parameter(profile, lastArg),
-		      this->newInt(value),
-		      mode,
-		      DIET_INT);
-    else
-      diet_scalar_set(diet_parameter(profile, lastArg),
-		      this->newInt(),
-		      mode,
-		      DIET_INT);
-  }
-  if (type == WfCst::DIET_LONGINT) {
-//     TRACE_TEXT (TRACE_ALL_STEPS,
-// 		"long parameter "<< lastArg << endl);
-    if (value != "")
-      diet_scalar_set(diet_parameter(profile, lastArg),
-		      this->newLong(value),
-		      mode,
-		      DIET_LONGINT);
-    else
-      diet_scalar_set(diet_parameter(profile, lastArg),
-		      this->newLong(),
-		      mode,
-		      DIET_LONGINT);
-  }
-  if (type == WfCst::DIET_PARAMSTRING) {
-//     TRACE_TEXT (TRACE_ALL_STEPS,
-// 		"%%%%%%%%% PARAMSTRING parameter "<< lastArg << endl);
-    if (value != "")
-      diet_paramstring_set(diet_parameter(profile, lastArg),
-		      this->newString(value),
-		      mode);
-    else
-      diet_paramstring_set(diet_parameter(profile, lastArg),
-		      this->newString(),
-		      mode);
-  }
-  if (type == WfCst::DIET_STRING) {
-    //
-    //  diet_string_set(diet_arg_t* arg,
-    //                  char* value, diet_persistence_mode_t mode);
-    //
-//     TRACE_TEXT (TRACE_ALL_STEPS,
-// 		"%%%%%%%%% STRING parameter "<< lastArg << endl);
-    if (value != "")
-      diet_string_set(diet_parameter(profile, lastArg),
-		      this->newString(value),
-		      mode);
-    else
-      diet_string_set(diet_parameter(profile, lastArg),
-		      this->newString(),
-		      mode);
-  }
-  if (type == WfCst::DIET_FLOAT) {
-    if (value != "")
-      diet_scalar_set(diet_parameter(profile, lastArg),
-		      this->newFloat(value),
-		      mode,
-		      DIET_FLOAT);
-    else
-      diet_scalar_set(diet_parameter(profile, lastArg),
-		      this->newFloat(),
-		      mode,
-		      DIET_FLOAT);
-  }
-  if (type == WfCst::DIET_DOUBLE) {
-    if (value != "")
-      diet_scalar_set(diet_parameter(profile, lastArg),
-		      this->newDouble(value),
-		      mode,
-		      DIET_DOUBLE);
-    else
-      diet_scalar_set(diet_parameter(profile, lastArg),
-		      this->newDouble(),
-		      mode,
-		      DIET_DOUBLE);
-  }
-  if (type == WfCst::DIET_FILE) {
-//     TRACE_TEXT (TRACE_ALL_STEPS,
-// 		"%%%%%%%%% FILE parameter "<< lastArg << endl);
-    if (value != "")
-      diet_file_set(diet_parameter(profile, lastArg),
-		    mode,
-		    this->newFile(value));
-    else
-      diet_file_set(diet_parameter(profile, lastArg),
-		    mode,
-		    NULL);
-  }
-
-  if (type == WfCst::DIET_MATRIX) {
-//     TRACE_TEXT (TRACE_ALL_STEPS,
-// 		"the profile contain a matrix" << endl);
-    void * mat = NULL;
-    switch (port->base_type) {
-    case DIET_CHAR:
-      mat = new char[port->nb_r*port->nb_c];
-      break;
-    case DIET_SHORT:
-      mat = new int[port->nb_r*port->nb_c];
-      break;
-    case DIET_INT:
-      mat = new int[port->nb_r*port->nb_c];
-      break;
-    case DIET_LONGINT:
-      mat = new long[port->nb_r*port->nb_c];
-      break;
-    case DIET_FLOAT:
-      mat = new float[port->nb_r*port->nb_c];
-      break;
-    case DIET_DOUBLE:
-      mat = new double[port->nb_r*port->nb_c];
-      break;
-    default:
-      // Nothing to do ?
-      return;
-      break;
-    } // end (switch)
-    if (value != "") {
-      if (value.substr(0, (string("file->")).size()) == "file->") {
-	string dataFileName = value.substr((string("file->")).size());
-	unsigned len = port->nb_r*port->nb_c;
-	TRACE_TEXT (TRACE_ALL_STEPS,
-		    "reading the matrix data file" << endl);
-	switch (port->base_type) {
-	case DIET_CHAR:
-	  //	  char * ptr1 = (char*)(mat);
-	  WfCst::readChar(dataFileName.c_str(), (char*)(mat), len);
-	  break;
-	case DIET_SHORT:
-	  //	  short * ptr2 = (short*)(mat);
-	  WfCst::readShort(dataFileName.c_str(), (short*)(mat), len);
-	  break;
-	case DIET_INT:
-	  //	  int * ptr3 = (int*)(mat);
-	  WfCst::readInt(dataFileName.c_str(), (int*)(mat), len);
-	  break;
-	case DIET_LONGINT:
-	  //	  long * ptr4 = (long*)(mat);
-	  WfCst::readLong(dataFileName.c_str(), (long*)(mat), len);
-	  break;
-	case DIET_FLOAT:
-	  //	  float * ptr5 = (float*)(mat);
-	  WfCst::readFloat(dataFileName.c_str(), (float*)(mat), len);
-	  break;
-	case DIET_DOUBLE:
-	  //	  double * ptr6 = (double*)(mat);
-	  WfCst::readDouble(dataFileName.c_str(), (double*)(mat), len);
-	  break;
-	default:
-	  // Nothing to do ?
-	  return;
-	  break;
-	} // end switch
-
-      }
-      else {
-	// get the data if included in the XML workflow description
-	vector<string> v = getStringToken(port->value);
-	unsigned int len = v.size();
-	// fill the matrix with the given data
-	TRACE_TEXT (TRACE_ALL_STEPS,
-		    "filling the matrix with the data (" << len << ")" << endl);
-	char  * ptr1(NULL);
-	short * ptr2(NULL);
-	int   * ptr3(NULL);
-	long  * ptr4(NULL);
-	float * ptr5(NULL);
-	double * ptr6(NULL);
-	switch (port->base_type) {
-	case DIET_CHAR:
-	  ptr1 = (char*)(mat);
-	  for (unsigned int ix = 0; ix<len; ix++)
-	    ptr1[ix] = v[ix][0];
-	  break;
-	case DIET_SHORT:
-	  ptr2 = (short*)(mat);
-	  for (unsigned int ix = 0; ix<len; ix++)
-	    ptr2[ix] = atoi(v[ix].c_str());
-	  break;
-	case DIET_INT:
-	  ptr3 = (int*)(mat);
-	  for (unsigned int ix = 0; ix<len; ix++)
-	    ptr3[ix] = atoi(v[ix].c_str());
-	  break;
-	case DIET_LONGINT:
-	  ptr4 = (long*)(mat);
-	  for (unsigned int ix = 0; ix<len; ix++)
-	    ptr4[ix] = atoi(v[ix].c_str());
-	  break;
-	case DIET_FLOAT:
-	  ptr5 = (float*)(mat);
-	  for (unsigned int ix = 0; ix<len; ix++)
-	    ptr5[ix] = atof(v[ix].c_str());
-	  break;
-	case DIET_DOUBLE:
-	  ptr6 = (double*)(mat);
-	  for (unsigned int ix = 0; ix<len; ix++)
-	    ptr6[ix] = atof(v[ix].c_str());
-	  break;
-	default:
-	  // Nothing to do ?
-	  return;
-	  break;
-	} // end switch
-      } // end else
-    } // end if value
-    diet_matrix_set(diet_parameter(profile,lastArg),
-		    mat, mode,
-		    port->base_type,
-		    port->nb_r,
-		    port->nb_c,
-		    port->order);
-    //    matrixParams.push_back(mat);
-  }
-} // end set_profile_param
 
 /**
  * Free the profile and the persistent data of the node
@@ -1474,94 +1231,6 @@ Node::freeProfileAndData() {
   diet_profile_free(profile);
   profile = NULL;
 }
-
-/****************************************************************************/
-/*                           Ports linking                                  */
-/****************************************************************************/
-
-/**
- * Link input port to output port by id and setting references link *
- */
-void
-Node::link_i2o(const string in, const string out) {
-  // the port is supposed to be present
-  if (out == "") {
-    return;
-  }
-  WfInPort * inPort = getInPort(in);
-  if (inPort != NULL)
-    inPort->set_source(out);
-  else {
-    INTERNAL_ERROR ("The output port " << out << " was not found " << endl <<
-		    "Check your XML file", 1);
-  }
-} // end link_i2o
-
-/**
- * Link output port to input port by id and setting references link *
- */
-void
-Node::link_o2i(const string out, const string in) {
-  if (in == "") {
-    return;
-  }
-  // the port is supposed to be present
-  WfOutPort * outPort = getOutPort(out);
-  if (outPort != NULL)
-    outPort->set_sink(in);
-  else {
-    INTERNAL_ERROR ("The output port " << out << " was not found " << endl <<
-		    "Check your XML file", 1);
-  }
-} // end link_o2i
-
-/**
- * Link inoutput port to input port by id and setting references link *
- */
-void
-Node::link_io2i(const string io, const string in) {
-  // TO FIX
-  // the port is supposed to be present
-  getInOutPort(io)->set_sink(in);
-} // end link_io2i
-
-/**
- * Link inoutput port to output port by id and setting references link *
- */
-void
-Node::link_io2o(const string io, const string out) {
-  // the port is supposed to be present
-  getInOutPort(io)->set_source(out);
-} // end link_io2o
-
-/**
- * create and add a new port to the node *
- */
-WfPort *
-Node::newPort(string id, uint ind, wf_port_t type, string diet_type,
-	      const string& v) {
-  WfPort * p = NULL;
-  switch (type) {
-  case ARG_PORT:
-    // nothing to do ??
-     p = new WfInPort(this, id, diet_type, ind, v);
-    inports[id] =  (WfInPort *) p;
-    break;
-  case IN_PORT :
-    p = new WfInPort(this, id, diet_type, ind, v);
-    inports[id] = (WfInPort *) p;
-    break;
-  case INOUT_PORT:
-    p = new WfInOutPort(this, id, diet_type, ind, v);
-    inoutports[id] = (WfInOutPort *) p;
-    break;
-  case OUT_PORT:
-    p = new WfOutPort(this, id, diet_type, ind, v);
-    outports[id] = (WfOutPort *)p;
-    break;
-  }
-  return (WfPort*)p;
-} // end newPort
 
 /****************************************************************************/
 /*                           CLIENT - SIDE                                  */

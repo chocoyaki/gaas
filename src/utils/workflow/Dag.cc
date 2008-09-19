@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2008/09/19 13:11:07  bisnard
+ * - added support for containers split/merge in workflows
+ * - added support for multiple port references
+ * - profile for node execution initialized by port (instead of node)
+ * - ports linking managed by ports (instead of dag)
+ *
  * Revision 1.14  2008/07/17 12:19:18  bisnard
  * Added dag cancellation method
  *
@@ -156,7 +162,6 @@ Dag::Dag() {
   this->tmpDag  = false;
   this->estDelay = 0;
   this->cancelled = false;
-//   this->doneNodesCount = 0;
 }
 
 /**
@@ -178,6 +183,22 @@ Dag::~Dag() {
 }
 
 /**
+ * set the dag id
+ */
+void
+Dag::setId(const string id) {
+  this->myId = id;
+}
+
+/**
+ * get the dag id
+ */
+string
+Dag::getId() {
+  return this->myId;
+}
+
+/**
  * add a node to the dag
  */
 void
@@ -188,19 +209,34 @@ Dag::addNode (string nodeName, Node * node) {
 }
 
 /**
+ * Get the node with given identifier (only node id, not the complete id)
+ */
+Node *
+Dag::getNode(std::string node_id) {
+  map<string, Node*>::iterator p = this->nodes.find(node_id);
+  if ( p != this->nodes.end())
+    return p->second;
+  else
+    return NULL;
+}
+
+/**
  * check the precedence between node *
- * this function check only the precedence between node, it doesn't *
- * link the ports *
+ * this function checks the precedence between node; it doesn't *
+ * link the WfPorts but it creates the list of predecessors of each node *
  */
 bool
 Dag::checkPrec() {
   bool result = true;
   Node * node = NULL;
   unsigned int n = 0;
+  // Add to node predecessors those already registered with their ID only
+  // ie nodes that were declared predecessors in the XML (<prec> tag)
   for (map<string, Node * >::iterator p = nodes.begin( ); p != nodes.end( );
        ++p ) {
     node = (Node*) p->second;
     n = node->prevNb();
+    // loop over all IDs stored in prec_ids vector
     for (uint ix = 0; ix < n; ix++) {
       map<string, Node * >::iterator q = nodes.find(node->getPrecId(ix));
       if (q != nodes.end()) {
@@ -214,6 +250,7 @@ Dag::checkPrec() {
     }
   }
 
+  // Add to node predecessors the nodes linked via an input port
   for (map<string, Node * >::iterator p = nodes.begin( ); p != nodes.end( );
        ++p ) {
     node = (Node*) p->second;
@@ -221,34 +258,15 @@ Dag::checkPrec() {
     for (map<string, WfInPort*>::iterator p = node->inports.begin();
 	 p != node->inports.end();
 	 ++p) {
-      // get the port ref
       WfInPort * in = (WfInPort*)(p->second);
-      // get the linked port id (source id)
-      string lp_id = in->getSourceId();
-      if (lp_id == "")
-	continue;
-
-      // get the linked node name
-      string linkedNode_name = lp_id.substr(0, lp_id.find("#"));
-      // linked port id
-      lp_id = lp_id.substr(lp_id.find("#")+1);
-
-      TRACE_FUNCTION (TRACE_ALL_STEPS,
-		      "\tprevious node name : "<< linkedNode_name);
-      // get the linked node ref
-      map<string, Node *>::iterator lnp = nodes.find(linkedNode_name);
-      Node * ln = NULL;
-      if (lnp != nodes.end()) {
-	ln = (Node *)(lnp->second);
-	node->addPrec(ln->getId(), ln);
-        TRACE_FUNCTION (TRACE_ALL_STEPS," Loop2: Add prec " << ln->getId()
-            << " to " << node->getId() << endl);
-      }
+      in->setNodePredecessors(this);
     } // end for in
 
     for (map<string, WfInOutPort*>::iterator p = node->inoutports.begin();
 	 p != node->inoutports.end();
 	 ++p) {
+      WfInOutPort * inout = (WfInOutPort*)(p->second);
+      inout->setNodePredecessors(this);
     } // end for inout
 
   }
@@ -273,33 +291,6 @@ Dag::toString() {
   }
   str += "##############################################################";
   return str;
-}
-
-/**
- * return an XML representation of the DAG
- * if b = true, return the complete DAG representation
- * otherwise (b = false value by default) only the remaining DAG
- */
-string
-Dag::toXML(bool b) {
-  string xml = "<dag>\n";
-  Node * n = NULL;
-  for (map<string, Node *>::iterator p = nodes.begin();
-       p != nodes.end();
-       ++p) {
-    n = (Node *)(p->second);
-    if (b) {
-      // we need all nodes representation
-      xml += n->toXML(b);
-    }
-    else {
-      // we need only remaining nodes
-      if (!(n->isRunning()) && !(n->isDone()))
-	xml += n->toXML(b);
-    }
-  }
-  xml += "</dag>\n";
-  return xml;
 }
 
 /**
@@ -346,110 +337,34 @@ Dag::linkAllPorts() {
 
 /**
  * link the port of the node @n
+ * TODO currently does not manage <sink> links (only <source>)
  */
 void
 Dag::linkNodePorts(Node * n) {
-//   TRACE_TEXT (TRACE_ALL_STEPS,
-// 	      "linkNodePorts : processing node " << n->getId() << endl);
-  // link Input ports with output ports
+   TRACE_TEXT (TRACE_ALL_STEPS,
+ 	      "linkNodePorts : processing node " << n->getId() << endl);
+  // INPUT ==== ref to ===> OUTPUT
   for (map<string, WfInPort*>::iterator p = n->inports.begin();
        p != n->inports.end();
        ++p) {
-    // get the port ref
     WfInPort * in = (WfInPort*)(p->second);
-//     if (in != NULL)
-//       TRACE_TEXT (TRACE_ALL_STEPS,
-// 		  "in found " << in->getId() << endl);
-    string node_name = in->getId().substr(0, in->getId().find("#"));
-    // get the linked port id
-    string lp_id = in->getSourceId();
-    if (lp_id == "")
-      continue;
+    in->setPortDataLinks(this);
+  } // end for (inports)
 
-    // get the linked node name
-    string linkedNode_name = lp_id.substr(0, lp_id.find("#"));
-    // linked port id
-    lp_id = lp_id.substr(lp_id.find("#")+1);
-
-//     TRACE_TEXT (TRACE_ALL_STEPS,
-// 		"linked node name : "<< linkedNode_name <<
-// 		", linked port : " << lp_id << endl);
-    // get the linked node ref
-    map<string, Node *>::iterator lnp = nodes.find(linkedNode_name);
-    Node * ln = NULL;
-    if (lnp != nodes.end()) {
-      ln = (Node *)(lnp->second);
-    }
-    else {
-      lnp = nodes.find(this->myId + "-" + linkedNode_name);
-      if (lnp != nodes.end()) {
-        ln = (Node *)(lnp->second);
-      }
-      else {
-        INTERNAL_ERROR("FATAL ERROR" << endl <<
-                       "Unable to find the linked node : " <<
-                       node_name, 1);
-      }
-    }
-    // get outpur port
-    WfOutPort * out = ln->getOutPort(linkedNode_name + "#" + lp_id);
-
-    // link the input port to the outport
-//     TRACE_TEXT (TRACE_ALL_STEPS,
-// 		"linking the input port " << in->getId() <<
-// 		" to the output port " <<
-// 		out->getId() << endl);
-    in->set_source(out);
-    out->set_sink(in);
-  }
-
-  // link output ports with input ports
+  // OUTPUT ==== ref to ===> INPUT
   for (map<string, WfOutPort*>::iterator p = n->outports.begin();
        p != n->outports.end();
        ++p) {
-    // get the port ref
-    WfOutPort * out = (WfOutPort*)(p->second);
-//     if (out != NULL)
-//       TRACE_TEXT (TRACE_ALL_STEPS,
-// 		  "Out found " << out->getId() << endl);
-    string node_name = out->getId().substr(0, out->getId().find("#"));
-    // get the linked port id
-    string lp_id = out->getSinkId();
-    if (lp_id == "")
-      continue;
-
-    // get the linked node name
-    string linkedNode_name = lp_id.substr(0, lp_id.find("#"));
-    // linked port id
-    lp_id = lp_id.substr(lp_id.find("#")+1);
-
-//     TRACE_TEXT (TRACE_ALL_STEPS,
-// 		"linked node name : "<< linkedNode_name <<
-// 		", linked port : " << lp_id << endl);
-    // get the linked node ref
-    map<string, Node *>::iterator lnp = nodes.find(linkedNode_name);
-    Node * ln = NULL;
-    if (lnp != nodes.end()) {
-      ln = (Node *)(lnp->second);
-    }
-    else {
-      INTERNAL_ERROR ("FATAL ERROR" << endl <<
-		      "Unable to find the linked node : " <<
-		      node_name << endl,
-		      1);
-    }
-    // get outpur port
-    WfInPort * in = ln->getInPort(linkedNode_name + "#" + lp_id);
-
-    // link the input port to the outport
-//     TRACE_TEXT (TRACE_ALL_STEPS,
-// 		"linking the output port " << out->getId() <<
-// 		" to the input port " <<
-// 		in->getId() << endl);
-    out->set_sink(in);
-    in->set_source(out);
+    // manage linking using <sink> links
   }
-  // link inout ports with ... <TO DO>
+
+  // INOUT ==== ref to ===> OUTPUT
+  for (map<string, WfInOutPort*>::iterator p = n->inoutports.begin();
+       p != n->inoutports.end();
+       ++p) {
+    WfInOutPort * inout = (WfInOutPort*)(p->second);
+    inout->setPortDataLinks(this);
+  }
 }
 
 
@@ -541,14 +456,6 @@ bool
 Dag::isCancelled() {
   return cancelled;
 }
-
-/**
- * get the number of remaining (not executed) nodes *
- */
-// int
-// Dag::getRemainingNodesNb() {
-//   return (this->nodes.size() - this->doneNodesCount);
-// }
 
 /**
  * Get a scalar result of the workflow *
@@ -710,35 +617,6 @@ Dag::moveToTrash(Node * n) {
 		" The node " << n->getId() << " was not found!!!" << endl);
   }
 }
-
-/**
- * get the dag nodes as a vector of node reference
- */
-vector<Node*>
-Dag::getNodes() {
-  vector<Node*> v;
-  Node * node = NULL;
-  for (map<string, Node * >::iterator p = nodes.begin( ); p != nodes.end( );
-       ++p ) {
-    node = (Node*) p->second;
-    if (node != NULL)
-      v.push_back(node);
-  }
-  return v;
-} // end getNodes
-
-/**
- * Get the node with given identifier
- *
- */
-Node *
-Dag::getNode(std::string node_id) {
-  map<string, Node*>::iterator p = this->nodes.find(node_id);
-  if ( p != this->nodes.end())
-    return p->second;
-  else
-    return NULL;
-} // end getNode
 
 /**
  * Get the nodes sorted according to their priority using insertion sort
@@ -923,22 +801,6 @@ Dag::deleteAllResults() {
       n->freeProfileAndData();
     }
   }
-}
-
-/**
- * get the dag id
- */
-string
-Dag::getId() {
-  return this->myId;
-}
-
-/**
- * set the dag id
- */
-void
-Dag::setId(const string id) {
-  this->myId = id;
 }
 
 /**
@@ -1140,14 +1002,6 @@ Dag::_updateDelayRec(Node * node, double newDelay) {
   }
   return res;
 }
-
-/**
- * notify dag of node execution completion (MADAG)
- */
-// void
-// Dag::setNodeDone() {
-//   this->doneNodesCount++;
-// }
 
 /**
  * notify the dag of node execution failure (MADAG & CLIENT-SIDE)

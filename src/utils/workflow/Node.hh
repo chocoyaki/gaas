@@ -5,11 +5,18 @@
 /*                                                                          */
 /* Author(s):                                                               */
 /* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
+/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2008/09/19 13:11:07  bisnard
+ * - added support for containers split/merge in workflows
+ * - added support for multiple port references
+ * - profile for node execution initialized by port (instead of node)
+ * - ports linking managed by ports (instead of dag)
+ *
  * Revision 1.13  2008/07/17 13:34:18  bisnard
  * new attribute RealStartTime and get/set for SRPT heuristic
  *
@@ -236,14 +243,6 @@ public:
   toString();
 
   /**
-   * display an XML  representation of a node *
-   * if b = false the node representation doesn't include the information
-   * about previous nodes (the source ports of input ports)
-   */
-  std::string
-  toXML(bool b = false);
-
-  /**
    * set the node profile
    * @param profile the new diet profile
    */
@@ -385,11 +384,33 @@ public:
    * @param ind       the port index in diet profile
    * @param type      the port type (in, out, inout)
    * @param diet_type the diet data type as a string
+   * @param depth     the depth of the list structure (0 if no list)
    * @param v         the parameter value
    */
   WfPort *
-  newPort(string id, uint ind, wf_port_t type, string diet_type,
+  newPort(string id, uint ind, wf_port_t type, string diet_type, uint depth,
 	       const string& v = string(""));
+
+  /**
+   * Get the input port references by id. If not found returns NULL
+   * @param id the input port id
+   */
+  WfInPort*
+  getInPort(string id);
+
+  /**
+   * Get the output port reference by id. If not found return NULL
+   * @param id the requested output port id
+   */
+  WfOutPort*
+  getOutPort(string id);
+
+  /**
+   * Get the input/output port reference by id. If not found return NULL
+   * @param id the requested inout port id
+   */
+  WfInOutPort*
+  getInOutPort(string id);
 
   /**
    * set the SeD reference  associated to the Node
@@ -551,11 +572,6 @@ public:
   void addPrecId(string str);
 
   /**
-   * the previous nodes ids *
-   */
-  vector<string> prec_ids;
-
-  /**
    * Get the previous node id by index *
    * @param n the requested previous node index
    */
@@ -642,6 +658,11 @@ protected:
    * NodeQueue ref (used to go back in the previous queue)
    */
   NodeQueue * lastQueue;
+
+  /**
+   * the previous nodes ids *
+   */
+  vector<string> prec_ids;
 
   /**
    * The previous nods map<id, reference> *
@@ -791,50 +812,12 @@ private:
   void
   storePersistentData();
 
-
-  /**
-   * Get the input port references by id. If not found returns NULL
-   *
-   * @param id the input port id
-   */
-  WfInPort*
-  getInPort(string id);
-
-  /**
-   * Get the output port reference by id. If the output port is not found
-   * the function returns NULL
-   *
-   * @param id the requested output port id
-   */
-  WfOutPort*
-  getOutPort(string id);
-
-  /**
-   * Get the input/output port reference by id. If not found return NULL
-   *
-   * @param id the requested inout port id
-   */
-  WfInOutPort*
-  getInOutPort(string id);
-
   /**
    * create the diet profile associated to the node *
+   * @return true if success, false on failure
    */
-  void
-  createProfile();
-
-  /**
-   * set the node profile param *
-   * @param port    Undocumented *
-   * @param type    parameter data type *
-   * @param lastArg parameter index *
-   * @param value   string representation of parameter value *
-   * @param mode    The persistent mode *
-   */
-  void
-  set_profile_param(WfPort * port,
-		    string type, const int lastArg, const string& value,
-		    const diet_persistence_mode_t mode);
+  bool
+  initProfileExec();
 
   /**
    * called when the node execution is done *

@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2008/09/19 13:11:07  bisnard
+ * - added support for containers split/merge in workflows
+ * - added support for multiple port references
+ * - profile for node execution initialized by port (instead of node)
+ * - ports linking managed by ports (instead of dag)
+ *
  * Revision 1.11  2008/07/17 12:19:18  bisnard
  * Added dag cancellation method
  *
@@ -82,13 +88,33 @@ public:
   ~Dag();
 
   /**
+   * Set the dag id
+   */
+  void
+  setId(const std::string id);
+
+  /**
+   * Get the dag id
+   */
+  std::string
+  getId();
+
+  /**
    * Add a node to the dag
    *
-   * @param nodeId the node to add identifier
-   * @param node   the node to add reference
+   * @param nodeId  node id (not the complete id)
+   * @param node    node ref
    */
   void
   addNode (string nodeId, Node * node);
+
+  /**
+   * Get the node with given identifier
+   *
+   * @param node_id node identifier
+   */
+  Node *
+  getNode(std::string node_id);
 
   /**
    * check the precedence between node
@@ -103,15 +129,6 @@ public:
    */
   std::string
   toString();
-
-  /**
-   * return an XML representation of the DAG
-   * if b = true, return the complete DAG representation
-   * otherwise (b = false value by default) only the remaining DAG
-   * (without done nodes)
-   */
-  std::string
-  toXML(bool b= false);
 
   /**
    * return the size of the Dag (the nodes number and not the dag length)
@@ -162,12 +179,6 @@ public:
    */
   bool
   isCancelled();
-
-  /**
-   * get the number of remaining (not executed) nodes *
-   */
-//   int
-//   getRemainingNodesNb();
 
   /**
    * get a scalar result of the workflow
@@ -236,38 +247,12 @@ public:
   moveToTrash(Node * n);
 
   /**
-   * Get the dag nodes as a vector of node reference
-   */
-  std::vector<Node*>
-  getNodes();
-
-  /**
-   * Get the node with given identifier
-   *
-   * @param node_id node identifier
-   */
-  Node *
-  getNode(std::string node_id);
-
-  /**
    * Get all dag nodes sorted by priority
    *
    * @return ref to a vector of nodes (to be deleted by caller)
    */
   std::vector<Node*>&
   getNodesByPriority();
-
-  /**
-   * Get the dag id
-   */
-  std::string
-  getId();
-
-  /**
-   * Set the dag id
-   */
-  void
-  setId(const std::string id);
 
   /**
    * Get the input nodes
@@ -347,12 +332,6 @@ public:
   updateDelayRec(Node * node, double newDelay);
 
   /**
-   * notify dag of node execution completion
-   */
-//   void
-//   setNodeDone();
-
-  /**
    * notify dag of node execution failure
    */
   void
@@ -400,11 +379,6 @@ private:
    * estimated delay
    */
   double estDelay;
-
-  /**
-   * Nb of completed nodes
-   */
-//   int doneNodesCount;
 
   /**
    * Trash nodes vector

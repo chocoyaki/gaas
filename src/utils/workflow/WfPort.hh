@@ -4,11 +4,18 @@
 /*                                                                          */
 /* Author(s):                                                               */
 /* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
+/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/09/19 13:11:07  bisnard
+ * - added support for containers split/merge in workflows
+ * - added support for multiple port references
+ * - profile for node execution initialized by port (instead of node)
+ * - ports linking managed by ports (instead of dag)
+ *
  * Revision 1.1  2008/04/10 08:38:50  bisnard
  * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
  *
@@ -25,8 +32,10 @@
 #define _WFPORT_HH_
 
 #include <string>
+#include <list>
 
 #include "DIET_data.h"
+#include "WfPortAdapter.hh"
 
 using namespace std;
 
@@ -34,64 +43,31 @@ using namespace std;
 /* class declarations          */
 /*******************************/
 class Node;
-class AbstractInP;
-class AbstractOutP;
-
-
-/**
- * Input port interface *
- */
-class AbstractInP {
-  friend class Node;
-public:
-  /**
-   * Input port interface destructor *
-   */
-  virtual 
-  ~AbstractInP();
-
-  virtual void
-  set_source(AbstractOutP * p) = 0;
-    
-  virtual void 
-  set_source(const string& id) = 0;
-};
-
-/**
- * Output port interface *
- */
-class AbstractOutP {
-  friend class Node;
-public:
-  /**
-   * Output port interface destructor *
-   */
-  virtual 
-  ~AbstractOutP();
-
-  virtual void
-  set_sink(AbstractInP * p) = 0;
-
-  virtual void
-  set_sink(const string& id) = 0;
-};
+class WfInPort;
+class WfOutPort;
 
 /**
  * Basic Port *
  */
 class WfPort {
-  friend class Node;
 public:
   /**
    * Basic Port constructor *
    * @param parent The node of the port
    * @param _id    The id of the port ('node id'#'port id')
-   * @param _type  The port data type
+   * @param _type  The port data base type
+   * @param _depth The depth of the list structure (0 if no list)
    * @param _ind   The index of the parameter in the diet profile
    * @param v      The value of the parameter if it's an argument
    */
-  WfPort(Node * parent, string _id, string _type, uint _ind, 
+  WfPort(Node * parent, string _id, string _type, uint _depth, uint _ind,
 	 const string& v = "") ;
+
+  /**
+   * Initialize the profile before node execution
+   */
+  virtual bool
+  initProfileExec();
 
   /**
    * Set the parameter of a matrix argument
@@ -100,21 +76,16 @@ public:
    * @param o    Matrix order
    * @param bt   Data type of matrix elements
    */
-  void setMatParams(long nbr, long nbc, 
+  void setMatParams(long nbr, long nbc,
 		    diet_matrix_order_t o,
 		    diet_base_type_t bt);
 
   /**
-   * Return the XML  representation of the port *
-   */
-  string 
-  toXML();
-
-  /**
    * Return the profile of the node
+   * used by WfPortAdapter::getSourceDataID
    */
-  diet_profile_t * 
-  profile();
+   diet_profile_t *
+   profile();
 
   /**
    * Return the port id
@@ -127,7 +98,21 @@ public:
    */
   unsigned int
   getIndex();
+
+  /**
+   * Return the port depth (container)
+   */
+  unsigned int
+  getDepth();
+
 protected:
+
+  /**
+   * Returns the persistence mode for this port
+   */
+  virtual diet_persistence_mode_t
+      getPersistenceMode() = 0;
+
   /*******************************************/
   /* Protected fields                        */
   /*******************************************/
@@ -136,7 +121,7 @@ protected:
    * The reference of port node
    */
   Node * myParent;
-  
+
   /**
    * The complete id of the port ('node id'#'port id')
    */
@@ -146,6 +131,11 @@ protected:
    * The data type as a string (DIET_XXXX)
    */
   string type;
+
+  /**
+   * The depth of the list structure (eg if type="LIST(LIST(INT))")
+   */
+  unsigned int depth;
 
   /**
    * The index of the port parameter in the diet profile
@@ -183,20 +173,18 @@ protected:
 /**
  * Output port class *
  */
-class WfOutPort : public WfPort, 
-		  public AbstractOutP {
-  friend class Node;
-  friend class RunnableNode;
+class WfOutPort : virtual public WfPort {
 public:
   /**
    * Output port constructor *
    * @param parent The node of the port
    * @param _id    The id of the port ('node id'#'port id')
    * @param _type  The port data type
+   * @param _depth The depth of the list structure (0 if no list)
    * @param _ind   The index of the parameter in the diet profile
    * @param v      The value of the parameter if it's an argument
    */
-  WfOutPort(Node * parent, string _id, string _type, uint _ind,
+  WfOutPort(Node * parent, string _id, string _type, uint _depth, uint _ind,
 	    const string& v);
 
 
@@ -207,24 +195,18 @@ public:
   isResult();
 
   /**
-   * return an XML  representation of the output port *
-   */
-  string 
-  toXML();
-
-  /**
    * Set the sink of the output port
    * @param _sink_port The sink port (input port) reference
    */
-  void 
-  set_sink(AbstractInP * _sink_port);
+  void
+  setSink(WfInPort * _sink_port);
 
   /**
    * Set the sink id of the output port
    * @param _sink_id The sink port (input port) id
    */
-  void 
-  set_sink(const string& _sink_id);
+  void
+  setSink(const string& _sink_id);
 
   /**
    * Return the sink port id
@@ -235,10 +217,17 @@ public:
   /**
    * Return the sink port reference
    */
-  AbstractInP *
+  WfInPort *
   getSink();
 
 protected:
+
+  /**
+   * Returns the persistence mode for this port
+   */
+  diet_persistence_mode_t
+      getPersistenceMode();
+
   /*******************************************/
   /* Protected fields                        */
   /*******************************************/
@@ -246,7 +235,7 @@ protected:
   /**
    * The reference of sink port associated to this output port
    */
-  AbstractInP *sink_port;
+  WfInPort * sink_port;
 
   /**
    * The identifier of sink port associated to this output port
@@ -257,122 +246,105 @@ protected:
 /**
  * Input port class *
  */
-class WfInPort : public WfPort,
-		 public AbstractInP {
-  friend class Node;
-  friend class RunnableNode;
+class WfInPort : virtual public WfPort {
 public:
   /**
    * Input port constructor *
    * @param parent The node of the port
    * @param _id    The id of the port ('node id'#'port id')
    * @param _type  The port data type
+   * @param _depth The depth of the list structure (0 if no list)
    * @param _ind   The index of the parameter in the diet profile
    * @param v      The value of the parameter if it's an argument
    */
 
-  WfInPort(Node * parent, string _id, string _type, uint _ind,
+  WfInPort(Node * parent, string _id, string _type, uint _depth, uint _ind,
 	   const string& v);
 
-
   /**
-   * Set the source of the input port
-   * @param _src_port The source port (output port) reference
-   */
-  void
-  set_source(AbstractOutP * _src_port);
-
-  /**
-   * Set the source of the input port
+   * Set the source of the input port (Parsing only)
    * @param s The source port (output port) reference
    */
-  void
-  set_source(const string& s);
-
-  /**
-   * Return the source id of the input port
-   */
-  string
-  getSourceId();
-    
-  /**
-   * Return the source port reference of the input port
-   */
-  AbstractOutP *
-  getSource();
+  virtual void
+  setSourceRef(const string& strRef);
 
   /**
    * Return if the input port is an input of the DAG
+   * (ie if there is no source port defined)
    */
   bool
   isInput();
 
   /**
-   * return an XML  representation of the input port *
-   * if b = false the source port is not included. used to create the
-   * remaining DAG representation
-   * if b == true the complete representation is returned
+   * Node precedence analysis (used for dag scheduling)
    */
-  string 
-  toXML(bool b = false);
+  void
+  setNodePredecessors(Dag* dag);
+
+  /**
+   * Node linking (used for node execution)
+   * @param dag   the dag that contains the linked ports
+   */
+  void setPortDataLinks(Dag* dag);
+
+  /**
+   * Initialize the profile before node execution
+   */
+  virtual bool
+  initProfileExec();
 
 protected:
+
+  /**
+   * Source Data ID retrieval (used for node execution)
+   * Initialize the profile corresponding to this port with the data
+   * provided by the source port (uses data IDs because all output
+   * data in a workflow is persistent)
+   * @return false if source data cannot be found
+   */
+  virtual bool
+  initSourceData();
+
+  /**
+   * Returns the persistence mode for this port
+   */
+  diet_persistence_mode_t
+      getPersistenceMode();
+
   /*******************************************/
   /* Protected fields                        */
   /*******************************************/
 
-  /**
-   * The reference of source port associated to this input port
-   */
-  AbstractOutP * source_port;
+  WfPortAdapter* adapter;
 
-  /**
-   * The identifier of source port associated to this input port
-   */
-  string         source_port_id;
-};
+}; // end class WfInPort
 
 /**
  * Input/Output port class *
  * This class is not used and need to be completed when inout parameter *
  * support will be integrated *
  */
-class WfInOutPort : public WfPort, AbstractInP, AbstractOutP {
-  friend class Node;
-  friend class RunnableNode;
+class WfInOutPort : virtual public WfInPort, virtual public WfOutPort {
 public:
   /**
    * Input/Output port constructor *
    * @param parent The node of the port
    * @param _id    The id of the port ('node id'#'port id')
    * @param _type  The port data type
+   * @param _depth The depth of the list structure (0 if no list)
    * @param _ind   The index of the parameter in the diet profile
    * @param v      The value of the parameter if it's an argument
    */
-  WfInOutPort(Node * parent, string _id, string _type, uint _ind,
+  WfInOutPort(Node * parent, string _id, string _type, uint _depth, uint _ind,
 	      const string& v);
 
-  void
-  set_source(AbstractOutP * _src);
-
-  void
-  set_source(const string& s);
-
-  void
-  set_sink(AbstractInP * _sink);
-
-  void
-  set_sink(const string& s);
-  
 protected:
-  /*******************************************/
-  /* Protected fields                        */
-  /*******************************************/
-  AbstractOutP * source_port;
-  string source_port_id;
-  AbstractInP  * sink_port;
-  string sink_port_id;
-};
+  /**
+   * Returns the persistence mode for this port
+   */
+  diet_persistence_mode_t
+      getPersistenceMode();
 
+}; // end class WfInOutPort
 
 #endif   /* not defined _WFPORT_HH */
