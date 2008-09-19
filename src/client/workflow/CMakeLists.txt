@@ -18,6 +18,7 @@ IF( DIET_BUILD_LIBRARIES )
     CltWfMgr.cc )
 
   TARGET_LINK_LIBRARIES( CltWf
+    UtilsWf
     ${XERCES_LIBRARY}  ${OMNIORB4_LIBRARIES}
     )
 

@@ -71,7 +71,6 @@ IF( DIET_BUILD_LIBRARIES )
 
   IF (DIET_USE_WORKFLOW)
     TARGET_LINK_LIBRARIES( DIET_client
-      UtilsWf
       IDLWf
       CltWf
       ${XERCES_LIBRARY}

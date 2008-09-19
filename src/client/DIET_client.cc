@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.127  2008/09/19 13:05:19  bisnard
+ * changed library dependencies for UtilsWf
+ * added exception details in diet_call
+ *
  * Revision 1.126  2008/07/12 00:24:50  rbolze
  * add stat info when the persistent data are released
  * add stat info about the workflow execution.
@@ -315,10 +319,6 @@ using namespace std;
 #ifdef HAVE_WORKFLOW
 /** for workflow support */
 #include "workflow/CltWfMgr.hh"
-#include "workflow/WfConfig.hh"
-
-//MaDag_var MA_DAG = MaDag::_nil();
-
 #endif
 //****
 
@@ -787,9 +787,9 @@ diet_free_persistent_data(char* argID)
     stat_out("client", statMsg);
     return 1;
   } else {
-    cerr << "UNKNOWN DATA" << endl;    
+    cerr << "UNKNOWN DATA" << endl;
     return 0;
-  }  
+  }
 }
 
 /******************************************************************
@@ -1197,10 +1197,12 @@ diet_call_common(diet_profile_t* profile, SeD_var& chosenServer, estVector_t est
 #endif
     solve_res = chosenServer->solve(profile->pb_name, corba_profile);
     stat_out("Client",statMsg);
-   } catch(CORBA::MARSHAL& e) {
-    ERROR("got a marchal exception\n"
-          "Maybe your giopMaxMsgSize is too small",1) ;
-  }
+   } catch(CORBA::SystemException& e) {
+    ERROR("Got a CORBA " << e._name() << " exception ("
+        << e.NP_minorString() << ")\n",1) ;
+   } catch(CORBA::UserException& e) {
+    ERROR("Got an exception "  << e._name() << endl, 1);
+   }
 
 #if ! HAVE_DAGDA
   /* reaffect identifier */
@@ -1855,42 +1857,6 @@ int
 get_all_results(diet_wf_desc_t * profile) {
   return CltWfMgr::instance()->getAllWfResults(profile);
 } // end get_all_results
-
-// void
-// nodeIsDone(const char * node_id, const char * dag_id) {
-//  if ((use_wf_log) && (myWfLogService != NULL)) {
-//    myWfLogService->nodeIsDone(node_id);
-//  } // end if
-//
-//  if (WfConfig::logUsed()) {
-//  }
-//
-//  if ((use_ma_dag) && (MA_DAG!=NULL)) {
-//    MA_DAG->setAsDone(CORBA::string_dup(dag_id),
-//		      CORBA::string_dup(node_id));
-//  }
-// }
-
-// void
-// nodeIsRunning(const char * node_id) {
-//  if ((use_wf_log) && (myWfLogService != NULL)) {
-//    myWfLogService->nodeIsRunning(node_id, hostname);
-//  } // end if
-// }
-
-// void
-// nodeIsStarting(const char * node_id) {
-//  if ((use_wf_log) && (myWfLogService != NULL)) {
-//    myWfLogService->nodeIsStarting(node_id);
-//  } // end if
-// }
-
-// void
-// nodeIsWaiting(const char * node_id) {
-//  if ((use_wf_log) && (myWfLogService != NULL)) {
-//    myWfLogService->nodeIsWaiting(node_id);
-//  } // end if
-// }
 
 #endif // HAVE_WORKFLOW
 
