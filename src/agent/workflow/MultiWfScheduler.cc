@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.36  2008/09/19 13:12:48  bisnard
+ * add debug info
+ *
  * Revision 1.35  2008/09/04 14:33:55  bisnard
  * - New option for MaDag to select platform type (servers
  * with same service list or not)
@@ -569,12 +572,14 @@ wf_response_t *
 MultiWfScheduler::getProblemEstimates(Dag *dag, MasterAgent_var MA)
     throw (NodeException) {
   // Check that all services are available and get the estimations (with MA)
+  TRACE_TEXT (TRACE_ALL_STEPS,"MultiWfScheduler: Marshalling the profiles" << endl);
   corba_pb_desc_seq_t* pbs_seq = new corba_pb_desc_seq_t();
   pbs_seq->length(dag->size());
   int ix = 0;
   for (map<std::string, Node *>::iterator iter = dag->begin();
        iter != dag->end(); iter++) {
          Node * node = (Node *) iter->second;
+         cout << "Node #" << ix << " (" << node->getCompleteId() << ")" << endl;
          node->setSubmitIndex(ix); // used to find response
          mrsh_pb_desc(&(*pbs_seq)[ix++], node->getProfile());
   }
