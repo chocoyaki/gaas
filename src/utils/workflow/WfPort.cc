@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/09/19 14:01:30  bisnard
+ * allow compile wf support with or without DAGDA
+ *
  * Revision 1.2  2008/09/19 13:11:07  bisnard
  * - added support for containers split/merge in workflows
  * - added support for multiple port references
@@ -27,9 +30,11 @@
 #include "WfPort.hh"
 #include "Node.hh"
 #include "debug.hh"
+#if HAVE_DAGDA
 extern "C" {
 #include "DIET_Dagda.h"
 }
+#endif
 
 /**
  * WfPort class (ABSTRACT)

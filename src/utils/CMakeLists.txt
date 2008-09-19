@@ -1,6 +1,7 @@
 # DIET cmake local file
 ## Use Dagda as data manager.
 IF( DIET_USE_DAGDA )
+  SET (DIET_DAGDA_LIBRARY Diet_Dagda)
   ADD_SUBDIRECTORY( DAGDA )
   INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/src/utils/DAGDA ${UUID_PATH} )
   ADD_LIBRARY( UtilsDagda

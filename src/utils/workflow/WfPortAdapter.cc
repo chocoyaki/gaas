@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/09/19 14:01:30  bisnard
+ * allow compile wf support with or without DAGDA
+ *
  * Revision 1.1  2008/09/19 13:16:07  bisnard
  * New class to manage containers split/merge in workflows
  *
@@ -18,9 +21,11 @@
 #include "Node.hh"
 #include "WfPort.hh"
 #include "debug.hh"
+#if HAVE_DAGDA
 extern "C" {
 #include "DIET_Dagda.h"
 }
+#endif
 
 using namespace std;
 
@@ -199,6 +204,7 @@ WfMultiplePortAdapter::setPortDataLinks(WfInPort* inPort, Dag* dag) {
 char*
 WfMultiplePortAdapter::getSourceDataID() {
   char* idCont;
+#if HAVE_DAGDA
   TRACE_TEXT (TRACE_ALL_STEPS,"## Creating container to merge ports" << endl);
   dagda_create_container(&idCont);
   int ix=0;
@@ -209,5 +215,8 @@ WfMultiplePortAdapter::getSourceDataID() {
     dagda_add_container_element(idCont,idElt,ix++);
   }
   TRACE_TEXT (TRACE_ALL_STEPS,"## End of merge ports" << endl);
+#else
+  ERROR("WfMultiplePortAdapter Error: trying to use containers without Dagda enabled" << endl, NULL);
+#endif
   return idCont;
 }

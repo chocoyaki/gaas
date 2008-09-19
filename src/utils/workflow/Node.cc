@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2008/09/19 14:01:30  bisnard
+ * allow compile wf support with or without DAGDA
+ *
  * Revision 1.24  2008/09/19 13:11:07  bisnard
  * - added support for containers split/merge in workflows
  * - added support for multiple port references
@@ -1225,7 +1228,7 @@ Node::freeProfileAndData() {
        p != outports.end();
        ++p) {
          WfOutPort * out = (WfOutPort*)(p->second);
-         diet_free_persistent_data(profile->parameters[out->index].desc.id);
+         diet_free_persistent_data(profile->parameters[out->getIndex()].desc.id);
   } // end for
 #endif
   diet_profile_free(profile);
