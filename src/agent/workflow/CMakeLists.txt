@@ -16,9 +16,9 @@ IF( DIET_BUILD_LIBRARIES )
     MaDag_impl.cc
     WfScheduler.cc HEFTScheduler.cc
     MultiWfScheduler.cc
-    MultiWfBasicScheduler.cc 
-    MultiWfFOFT.cc 
-    MultiWfHEFT.cc 
+    MultiWfBasicScheduler.cc
+    MultiWfFOFT.cc
+    MultiWfHEFT.cc
     MultiWfSRPT.cc
     MultiWfFCFS.cc )
 
@@ -27,13 +27,13 @@ IF( DIET_BUILD_LIBRARIES )
     AgentCommon
     UtilsWf
     CltWf
-    DIET_client
     ${XERCES_LIBRARY}
     ${OMNIORB4_LIBRARIES}
     )
 
   ADD_EXECUTABLE ( maDagAgent maDagAgent.cc )
-  TARGET_LINK_LIBRARIES (maDagAgent MaDag)
+  TARGET_LINK_LIBRARIES (maDagAgent
+      MaDag )
   INSTALL_TARGETS(/bin/ maDagAgent )
   INSTALL_TARGETS(/lib/ MaDag )
 
