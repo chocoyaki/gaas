@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2008/09/30 15:33:35  bisnard
+ * Node::prevNodes and nextNodes data structures modified
+ *
  * Revision 1.8  2008/06/25 10:05:44  bisnard
  * - Waiting priority set when node is put back in waiting queue
  * - Node index in wf_response stored in Node class (new attribute submitIndex)
@@ -136,11 +139,11 @@ HEFTScheduler::setNodesEFT(std::vector<Node *>& orderedNodes,
         }
       }
       // increase earliest starting time if some dependencies with other nodes
-      for (unsigned int jx=0;
-	   jx < n->prevNodesCount();
-	   jx++) {
-	EST = max(EST, AFT[n->getPrev(jx)->getCompleteId()]);
-      } // end for jx
+      for (vector<Node*>::iterator prevIter = n->prevNodesBegin();
+           prevIter != n->prevNodesEnd();
+           ++prevIter) {
+	EST = max(EST, AFT[((Node*) *prevIter)->getCompleteId()]);
+      }
       // choose server if it improves the EFT
       double nodeDuration = this->getNodeDurationEst(wf_response, pb_index, ix);
       if ( ( EST + nodeDuration < EFT ) || (EFT == 0)) {
@@ -210,13 +213,15 @@ HEFTScheduler::computeNodeWeights(const wf_response_t * wf_response,
 void
 HEFTScheduler::rank(Node * n) {  // RECURSIVE
   Node * succ = NULL;
-  unsigned len = n->nextNodesCount();
+  unsigned len = n->nextNodesNb();
   if (len == 0) { // exit node
     n->setPriority(n->getEstDuration());
   } else {
     // LOOP for all descendant nodes of n
-    for (unsigned int ix=0; ix<len; ix++) {
-      succ = (Node*)(n->getNext(ix));
+    for (list<Node*>::iterator nextIter = n->nextNodesBegin();
+        nextIter != n->nextNodesEnd();
+        ++nextIter) {
+      succ = (Node*) *nextIter;
       // add duration of current node and priority of descendant node and compare it to
       // priority of current node: if higher then change priority of current node
       if ((succ->getPriority() + n->getEstDuration()) > n->getPriority()) {
@@ -226,11 +231,11 @@ HEFTScheduler::rank(Node * n) {  // RECURSIVE
   }
   TRACE_TEXT (TRACE_ALL_STEPS, " HEFT : priority of node " << n->getCompleteId()
       << " is " << n->getPriority() << endl);
-  len = n->prevNodesCount();
-  Node * prev = NULL;
-  // LOOP for         all preceding nodes of n
-  for (unsigned int ix=0; ix<len; ix++) {
-    prev = (Node*)(n->getPrev(ix));
+  // LOOP for all preceding nodes of n
+  for (vector<Node*>::iterator prevIter = n->prevNodesBegin();
+       prevIter != n->prevNodesEnd();
+       ++prevIter) {
+    Node * prev = (Node*) *prevIter;
     // if preceding node is not already done or running then rank it
     if ((!prev->isDone()) && (!prev->isRunning()))
       rank(prev);
