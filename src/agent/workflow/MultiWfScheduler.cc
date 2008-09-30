@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.37  2008/09/30 09:25:34  bisnard
+ * use Node::initProfileSubmit to create the diet profile before requesting node estimation to MA
+ *
  * Revision 1.36  2008/09/19 13:12:48  bisnard
  * add debug info
  *
@@ -567,6 +570,7 @@ MultiWfScheduler::parseNewDag(int wfReqId, const corba_wf_desc_t& wf_desc)
 
 /**
  * Call MA to get server estimations for all services for nodes of a Dag
+ * Note: creates the node profiles
  */
 wf_response_t *
 MultiWfScheduler::getProblemEstimates(Dag *dag, MasterAgent_var MA)
@@ -580,6 +584,7 @@ MultiWfScheduler::getProblemEstimates(Dag *dag, MasterAgent_var MA)
        iter != dag->end(); iter++) {
          Node * node = (Node *) iter->second;
          cout << "Node #" << ix << " (" << node->getCompleteId() << ")" << endl;
+         node->initProfileSubmit(); // creates the diet profile
          node->setSubmitIndex(ix); // used to find response
          mrsh_pb_desc(&(*pbs_seq)[ix++], node->getProfile());
   }
@@ -598,6 +603,7 @@ MultiWfScheduler::getProblemEstimates(Dag *dag, MasterAgent_var MA)
  * Call MA to get server estimations for all services for nodes of a NodeQueue
  * @deprecated
  */
+/*
 wf_response_t *
 MultiWfScheduler::getProblemEstimates(OrderedNodeQueue* queue, MasterAgent_var MA)
     throw (NodeException) {
@@ -619,10 +625,11 @@ MultiWfScheduler::getProblemEstimates(OrderedNodeQueue* queue, MasterAgent_var M
   if ( ! wf_response->complete)
     throw (NodeException(NodeException::eSERVICE_NOT_FOUND));
   return wf_response;
-}
+} */
 
 /**
  * Call MA to get server estimations for one node
+ * Note: the profile for the node is supposed to be already created
  */
 wf_response_t *
 MultiWfScheduler::getProblemEstimates(Node *node, MasterAgent_var MA)

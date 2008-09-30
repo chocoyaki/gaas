@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2008/09/30 09:25:34  bisnard
+ * use Node::initProfileSubmit to create the diet profile before requesting node estimation to MA
+ *
  * Revision 1.16  2008/09/04 14:33:55  bisnard
  * - New option for MaDag to select platform type (servers
  * with same service list or not)
@@ -315,9 +318,9 @@ namespace madag {
      * Call MA to get server estimations for all services for nodes of a queue
      * @deprecated
      */
-    wf_response_t *
-        getProblemEstimates(OrderedNodeQueue * queue, MasterAgent_var MA)
-        throw (NodeException);
+//     wf_response_t *
+//         getProblemEstimates(OrderedNodeQueue * queue, MasterAgent_var MA)
+//         throw (NodeException);
 
     /**
      * internal dag scheduling
