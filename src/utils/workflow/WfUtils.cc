@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/09/30 09:24:27  bisnard
+ * new static maps for converting workflow data types to diet data types
+ *
  * Revision 1.3  2008/09/19 13:11:07  bisnard
  * - added support for containers split/merge in workflows
  * - added support for multiple port references
@@ -38,29 +41,51 @@
 #include <sstream>
 
 #include "WfUtils.hh"
+#include <map>
 
 using namespace std;
 
-// Static costants intialisation
-const char * WfCst::DIET_CHAR     = "DIET_CHAR";
-const char * WfCst::DIET_SHORT    = "DIET_SHORT";
-const char * WfCst::DIET_INT      = "DIET_INT";
-const char * WfCst::DIET_LONGINT  = "DIET_LONGINT";
-const char * WfCst::DIET_FLOAT    = "DIET_FLOAT";
-const char * WfCst::DIET_DOUBLE   = "DIET_DOUBLE";
-const char * WfCst::DIET_SCOMPLEX = "DIET_SCOMPLEX";
-const char * WfCst::DIET_DCOMPLEX = "DIET_DCOMPLEX";
-const char * WfCst::DIET_BASE_TYPE_COUNT = "DIET_BASE_TYPE_COUNT";
 
-const char * WfCst::DIET_SCALAR   = "DIET_SCALAR";
-const char * WfCst::DIET_VECTOR   = "DIET_VECTOR";
-const char * WfCst::DIET_MATRIX   = "DIET_MATRIX";
-const char * WfCst::DIET_STRING   = "DIET_STRING";
-const char * WfCst::DIET_PARAMSTRING = "DIET_PARAMSTRING";
-const char * WfCst::DIET_FILE     = "DIET_FILE";
-const char * WfCst::DIET_CONTAINER= "DIET_CONTAINER";
-const char * WfCst::DIET_DATA_TYPE_COUNT = "DIET_DATA_TYPE_COUNT";
+static const pair<short,short> dietTypes[] = {
+  pair<short,short>( WfCst::TYPE_CHAR, DIET_CHAR ),
+  pair<short,short>( WfCst::TYPE_SHORT, DIET_SHORT),
+  pair<short,short>( WfCst::TYPE_INT, DIET_INT),
+  pair<short,short>( WfCst::TYPE_LONGINT, DIET_LONGINT),
+  pair<short,short>( WfCst::TYPE_FLOAT, DIET_FLOAT),
+  pair<short,short>( WfCst::TYPE_DOUBLE, DIET_DOUBLE),
+  pair<short,short>( WfCst::TYPE_MATRIX, DIET_MATRIX),
+  pair<short,short>( WfCst::TYPE_STRING, DIET_STRING),
+  pair<short,short>( WfCst::TYPE_PARAMSTRING, DIET_PARAMSTRING),
+  pair<short,short>( WfCst::TYPE_FILE, DIET_FILE),
+  pair<short,short>( WfCst::TYPE_CONTAINER, DIET_CONTAINER)
+};
 
+static const pair<string,short> wfTypes[] = {
+  pair<string,short>( "DIET_CHAR", WfCst::TYPE_CHAR),
+  pair<string,short>( "DIET_SHORT", WfCst::TYPE_SHORT),
+  pair<string,short>( "DIET_INT", WfCst::TYPE_INT),
+  pair<string,short>( "DIET_LONGINT", WfCst::TYPE_LONGINT),
+  pair<string,short>( "DIET_FLOAT", WfCst::TYPE_FLOAT),
+  pair<string,short>( "DIET_DOUBLE", WfCst::TYPE_DOUBLE),
+  pair<string,short>( "DIET_MATRIX", WfCst::TYPE_MATRIX),
+  pair<string,short>( "DIET_STRING", WfCst::TYPE_STRING),
+  pair<string,short>( "DIET_PARAMSTRING", WfCst::TYPE_PARAMSTRING),
+  pair<string,short>( "DIET_FILE", WfCst::TYPE_FILE),
+  pair<string,short>( "DIET_CONTAINER", WfCst::TYPE_CONTAINER)
+};
+
+static map<short,short> WfTypesToDietTypes(dietTypes, dietTypes + sizeof(dietTypes)/sizeof(dietTypes[0]));
+static map<string,short> StrTypesToWfTypes(wfTypes, wfTypes + sizeof(wfTypes)/sizeof(wfTypes[0]));
+
+short
+WfCst::cvtWfToDietType(WfDataType wfType) {
+  return WfTypesToDietTypes[wfType];
+}
+
+short
+WfCst::cvtStrToWfType(const string& strType) {
+  return StrTypesToWfTypes[strType];
+}
 
 void
 WfCst::open_file(const char * fileName, FILE *& myFile) {

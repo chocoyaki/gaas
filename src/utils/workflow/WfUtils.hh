@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/09/30 09:24:27  bisnard
+ * new static maps for converting workflow data types to diet data types
+ *
  * Revision 1.3  2008/09/19 13:11:07  bisnard
  * - added support for containers split/merge in workflows
  * - added support for multiple port references
@@ -54,26 +57,29 @@ public:
   /************************************************************/
 
   /************************************************************/
-  /** DIET TYPE                                              **/
+  /** PORT TYPE                                              **/
   /************************************************************/
-  static const char * DIET_CHAR;
-  static const char * DIET_SHORT;
-  static const char * DIET_INT;
-  static const char * DIET_LONGINT;
-  static const char * DIET_FLOAT;
-  static const char * DIET_DOUBLE;
-  static const char * DIET_SCOMPLEX;
-  static const char * DIET_DCOMPLEX;
-  static const char * DIET_BASE_TYPE_COUNT;
 
-  static const char * DIET_SCALAR;
-  static const char * DIET_VECTOR;
-  static const char * DIET_MATRIX;
-  static const char * DIET_STRING;
-  static const char * DIET_PARAMSTRING;
-  static const char * DIET_FILE;
-  static const char * DIET_CONTAINER;
-  static const char * DIET_DATA_TYPE_COUNT;
+  enum WfDataType {
+   TYPE_CHAR,
+   TYPE_SHORT,
+   TYPE_INT,
+   TYPE_LONGINT,
+   TYPE_FLOAT,
+   TYPE_DOUBLE,
+
+   TYPE_MATRIX,
+   TYPE_STRING,
+   TYPE_PARAMSTRING,
+   TYPE_FILE,
+   TYPE_CONTAINER
+  };
+
+  static short
+  cvtWfToDietType(WfDataType wfType);
+
+  static short
+  cvtStrToWfType(const std::string& strType);
 
   /************************************************************/
   /** METHODS FOR MATRIX HANDLING                             */
