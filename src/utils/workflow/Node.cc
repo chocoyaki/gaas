@@ -11,6 +11,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2008/09/30 15:32:53  bisnard
+ * - using simple port id instead of composite ones
+ * - dag nodes linking refactoring
+ * - prevNodes and nextNodes data structures modified
+ * - prevNodes initialization by Node::setNodePredecessors
+ *
  * Revision 1.26  2008/09/30 09:23:29  bisnard
  * removed diet profile initialization from DagWfParser and replaced by node methods initProfileSubmit and initProfileExec
  *
@@ -253,7 +259,7 @@ Node::Node(int wfReqId, string id, string pb_name) {
   this->wfReqId = wfReqId;
   this->myId = id;
   this->myPb = pb_name;
-  this->prevNodes = 0;
+  this->prevNodesTodoCount = 0;
   this->task_done = false;
   this->SeDDefined = false;
   this->profile = NULL;
@@ -489,104 +495,125 @@ Node::getSubmitIndex() {
 /****************************************************************************/
 
 /**
+ * (public) used by DagWfParser and WfPortAdapter
  * add a new previous node id *
  */
-void Node::addPrecId(string str) {
-  if (find(prec_ids.begin(), prec_ids.end(), str) == prec_ids.end())
-    prec_ids.push_back(str);
-} // end addPrecId
+void
+Node::addPrevId(string nodeId) {
+  prevNodeIds.insert(nodeId); // set insertion
+}
 
 /**
- * Add a new previous node id and reference *
+ * (public) used by Dag::checkPrec()
+ * initializes the list of node predecessors using both
+ * the control dependencies (<prec> tag) and the
+ * data dependencies (ports links)
  */
-void Node::addPrec(string str, Node * node) {
-  // add the node as a previous one if not already done
-  if (myPrevNodes.find(str) == myPrevNodes.end()) {
-//     TRACE_TEXT (TRACE_ALL_STEPS, "The node " << this->myId << " has a new previous node " <<
-// 		str << endl);
-    myPrevNodes[str] = node;
-    this->addPrevNode();
-    node->addNext(this);
-    addPrecId(str);
+bool
+Node::setNodePredecessors(Dag* dag) {
+  // The predecessors defined by control links (<prec> tag) were
+  // already added by the dag parser.
+  // Add the predecessors defined by data links
+  for (map<string, WfInPort*>::iterator p = inPorts.begin();
+	 p != inPorts.end();
+	 ++p) {
+      WfInPort * in = (WfInPort*)(p->second);
+      if (!in->setNodePredecessors(dag))
+        return false;
+    } // end for in
+
+  for (map<string, WfInOutPort*>::iterator p = inOutPorts.begin();
+	 p != inOutPorts.end();
+	 ++p) {
+      WfInOutPort * inout = (WfInOutPort*)(p->second);
+      if (!inout->setNodePredecessors(dag))
+        return false;
+  } // end for inout
+
+  // convert the predecessors defined by ID in prevNodeIds to
+  // direct object references stored in prevNodes
+  prevNodes.resize(prevNodeIds.size());
+  int prevIdx = 0;
+  for (set<string>::iterator idIter = prevNodeIds.begin();
+       idIter != prevNodeIds.end();
+       ++idIter) {
+    Node * prevNode = dag->getNode(*idIter);
+    if (prevNode)
+      this->setPrev(prevIdx++, prevNode);
+    else
+      return false;
   }
-} // end addPrec
+  return true;
+}
 
 /**
- * Get the nb of previous nodes *
+ * (private)
+ * Set a new previous node *
+ * (does not check duplicates)
+ */
+void
+Node::setPrev(int index, Node * node) {
+    TRACE_TEXT (TRACE_ALL_STEPS, "The node " << this->myId << " has a new previous node " <<
+ 		node->getId() << endl);
+    prevNodes[index] = node;
+    prevNodesTodoCount++;
+    node->addNext(this);
+}
+
+/**
+ * return the number of previous nodes
  */
 unsigned int
-Node::prevNb() {
-  return prec_ids.size();
-} // end prevNb
+Node::prevNodesNb() {
+  return prevNodes.size();
+}
 
 /**
- * Get the previous node id by index *
+ * return an iterator on the first previous nodes
  */
-string
-Node::getPrecId(unsigned int n) {
-  if (n<prec_ids.size())
-    return prec_ids[n];
-  else
-    return string("");
-} // end getPrecId
+vector<Node*>::iterator
+Node::prevNodesBegin() {
+  return prevNodes.begin();
+}
+
+/**
+ * return an iterator on the end of previous nodes
+ */
+vector<Node*>::iterator
+Node::prevNodesEnd() {
+  return prevNodes.end();
+}
 
 /**
  * Add a next node reference *
  */
 void
 Node::addNext(Node * n) {
-  next.push_back(n);
-} // end addNext
-
-/**
- * add a new previous node *
- */
-void
-Node::addPrevNode() {
-  prevNodes--;
-} // end addPrevNode
-
-/**
- * Add n new previous nodes *
- */
-void
-Node::addPrevNode(int n) {
-  prevNodes -= n;
-} // end addPrevNode
+  nextNodes.push_back(n);
+}
 
 /**
  * return the number of next nodes
  */
-unsigned int Node::nextNodesCount() {
-  return next.size();
-} // end nextNb
+unsigned int Node::nextNodesNb() {
+  return nextNodes.size();
+}
 
 /**
- * return  next node
+ * return an iterator on the first next node
  */
-Node * Node::getNext(unsigned int n) {
-  if (n< next.size())
-    return next[n];
-  else
-    return NULL;
-} // end getNext
+list<Node*>::iterator
+Node::nextNodesBegin() {
+  return nextNodes.begin();
+}
 
 /**
- * return the number of previous nodes
+ * return an iterator on the end of next nodes
  */
-unsigned int Node::prevNodesCount() {
-  return myPrevNodes.size();
-} // end prevNb
-
-/**
- * return  next node
- */
-Node * Node::getPrev(unsigned int n) {
-  if (n<myPrevNodes.size())
-    return (Node*)(myPrevNodes.find(prec_ids[n])->second);
-  else
-    return NULL;
-} // end getPrev
+list<Node*>::iterator
+Node::nextNodesEnd() {
+  return nextNodes.end();
+}
 
 /**
  * return if the node is an input node *
@@ -594,7 +621,7 @@ Node * Node::getPrev(unsigned int n) {
  */
 bool
 Node::isAnInput() {
-  return (myPrevNodes.size()==0);
+  return (prevNodes.size()==0);
 } // end isAnInput
 
 /**
@@ -603,7 +630,7 @@ Node::isAnInput() {
  */
 bool
 Node::isAnExit() {
-  return (next.size() == 0);
+  return (nextNodes.size() == 0);
 } // end isAnExit
 
 /****************************************************************************/
@@ -796,7 +823,7 @@ Node::getPriority() {
  */
 bool
 Node::isReady() {
-  return (prevNodes == 0);
+  return (prevNodesTodoCount == 0);
 } // end isReady
 
 /**
@@ -851,24 +878,24 @@ Node::setAsDone(double compTime) {
   if (!this->getDag()->isCancelled()) {
     Node * n;
     TRACE_TEXT (TRACE_ALL_STEPS,
-              "calling the " << next.size() << " next nodes" << endl);
-    for (uint ix=0; ix< next.size(); ix++) {
-      n = next[ix];
-      n->prevNodeHasDone();
+              "calling the " << nextNodes.size() << " next nodes" << endl);
+    for (list<Node*>::iterator nextIter = nextNodesBegin();
+         nextIter != nextNodesEnd();
+         ++nextIter) {
+      ((Node*) *nextIter)->prevNodeHasDone();
     }
-//     this->getDag()->setNodeDone();
-  } // end if !cancelled
-} // end setAsDone
+  }
+}
 
 /**
  * Called when a previous node execution is done (MaDag side)
  */
 void Node::prevNodeHasDone() {
-  prevNodes++;
+  prevNodesTodoCount--;
   if (this->isReady()) {
     this->setAsReady();
   }
-} // end prevDone
+}
 
 /**
  * called when the node execution failed (MaDag & client side) *
@@ -1018,15 +1045,15 @@ Node::getRealDelay() {
  * Link input port to output port by id and setting references link *
  */
 void
-Node::link_i2o(const string in, const string out) {
-  TRACE_TEXT (TRACE_ALL_STEPS,"link_i2o: link " << in << " to " << out << endl);
+Node::link_i2o(const string in, const string outRef) {
+  TRACE_TEXT (TRACE_ALL_STEPS,"link_i2o: link " << in << " to " << outRef << endl);
   // the port is supposed to be present
-  if (out == "") {
+  if (outRef == "") {
     return;
   }
   WfInPort * inPort = getInPort(in);
   if (inPort != NULL)
-    inPort->setSourceRef(out);
+    inPort->setSourceRef(outRef);
   else {
     INTERNAL_ERROR ("The input port " << in << " was not found " << endl <<
 		    "Check your XML file", 1);
@@ -1037,15 +1064,15 @@ Node::link_i2o(const string in, const string out) {
  * Link output port to input port by id and setting references link *
  */
 void
-Node::link_o2i(const string out, const string in) {
-  TRACE_TEXT (TRACE_ALL_STEPS,"link_o2i: link " << out << " to " << in << endl);
-  if (in == "") {
+Node::link_o2i(const string out, const string inRef) {
+  TRACE_TEXT (TRACE_ALL_STEPS,"link_o2i: link " << out << " to " << inRef << endl);
+  if (inRef == "") {
     return;
   }
   // the port is supposed to be present
   WfOutPort * outPort = getOutPort(out);
   if (outPort != NULL)
-    outPort->setSink(in);
+    outPort->setSink(inRef);
   else {
     INTERNAL_ERROR ("The output port " << out << " was not found " << endl <<
 		    "Check your XML file", 1);
@@ -1056,26 +1083,26 @@ Node::link_o2i(const string out, const string in) {
  * Link inoutput port to input port by id and setting references link *
  */
 void
-Node::link_io2i(const string io, const string in) {
+Node::link_io2i(const string io, const string inRef) {
   // TO FIX
   // the port is supposed to be present
-  getInOutPort(io)->setSink(in);
+  getInOutPort(io)->setSink(inRef);
 } // end link_io2i
 
 /**
  * Link inoutput port to output port by id and setting references link *
  */
 void
-Node::link_io2o(const string io, const string out) {
+Node::link_io2o(const string io, const string outRef) {
   // the port is supposed to be present
-  getInOutPort(io)->setSourceRef(out);
+  getInOutPort(io)->setSourceRef(outRef);
 } // end link_io2o
 
 /**
  * create and add a new port to the node *
  */
 WfPort *
-Node::newPort(string id, uint ind, wf_port_t type, WfCst::WfDataType dataType,
+Node::newPort(string portId, uint ind, wf_port_t type, WfCst::WfDataType dataType,
 	      uint depth, const string& v) {
   WfPort * p = NULL;
   WfInPort * in = NULL;
@@ -1084,18 +1111,18 @@ Node::newPort(string id, uint ind, wf_port_t type, WfCst::WfDataType dataType,
   switch (type) {
     case ARG_PORT:
     case IN_PORT:
-      in = new WfInPort(this, id, dataType, depth, ind, v);
-      inPorts[id] =  in;
+      in = new WfInPort(this, portId, dataType, depth, ind, v);
+      inPorts[portId] =  in;
       p = (WfPort *) in;
       break;
     case INOUT_PORT:
-      inout = new WfInOutPort(this, id, dataType, depth, ind, v);
-      inOutPorts[id] = inout;
+      inout = new WfInOutPort(this, portId, dataType, depth, ind, v);
+      inOutPorts[portId] = inout;
       p = (WfInOutPort * ) inout;
       break;
     case OUT_PORT:
-      out = new WfOutPort(this, id, dataType, depth, ind, v);
-      outPorts[id] = out;
+      out = new WfOutPort(this, portId, dataType, depth, ind, v);
+      outPorts[portId] = out;
       p = (WfOutPort *) out;
       break;
   }

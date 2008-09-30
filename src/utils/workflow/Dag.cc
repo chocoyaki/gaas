@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2008/09/30 15:32:53  bisnard
+ * - using simple port id instead of composite ones
+ * - dag nodes linking refactoring
+ * - prevNodes and nextNodes data structures modified
+ * - prevNodes initialization by Node::setNodePredecessors
+ *
  * Revision 1.16  2008/09/30 09:23:29  bisnard
  * removed diet profile initialization from DagWfParser and replaced by node methods initProfileSubmit and initProfileExec
  *
@@ -230,51 +236,14 @@ Dag::getNode(std::string node_id) {
  */
 bool
 Dag::checkPrec() {
-  bool result = true;
-  Node * node = NULL;
-  unsigned int n = 0;
-  // Add to node predecessors those already registered with their ID only
-  // ie nodes that were declared predecessors in the XML (<prec> tag)
   for (map<string, Node * >::iterator p = nodes.begin( ); p != nodes.end( );
        ++p ) {
-    node = (Node*) p->second;
-    n = node->prevNb();
-    // loop over all IDs stored in prec_ids vector
-    for (uint ix = 0; ix < n; ix++) {
-      map<string, Node * >::iterator q = nodes.find(node->getPrecId(ix));
-      if (q != nodes.end()) {
-        Node * precNode = (Node *) q->second;
-	node->addPrec(node->getPrecId(ix), precNode);
-        TRACE_FUNCTION (TRACE_ALL_STEPS," Loop1: Add prec " << precNode->getId()
-            << " to " << node->getId() << endl);
-      }
-      else
-	return false;
-    }
+    Node *node = (Node*) p->second;
+    if (!node->setNodePredecessors(this))
+      return false;
   }
-
-  // Add to node predecessors the nodes linked via an input port
-  for (map<string, Node * >::iterator p = nodes.begin( ); p != nodes.end( );
-       ++p ) {
-    node = (Node*) p->second;
-
-    for (map<string, WfInPort*>::iterator p = node->inPorts.begin();
-	 p != node->inPorts.end();
-	 ++p) {
-      WfInPort * in = (WfInPort*)(p->second);
-      in->setNodePredecessors(this);
-    } // end for in
-
-    for (map<string, WfInOutPort*>::iterator p = node->inOutPorts.begin();
-	 p != node->inOutPorts.end();
-	 ++p) {
-      WfInOutPort * inout = (WfInOutPort*)(p->second);
-      inout->setNodePredecessors(this);
-    } // end for inout
-
-  }
-  return result;
-} // end checkPrec
+  return true;
+}
 
 /**
  * return a string representation of the Dag *
@@ -596,30 +565,30 @@ _matrix_get(diet_arg_t* arg, void** value, diet_persistence_mode_t* mode,
 /**
  * Move a node to the trash vector (called when rescheduling)
  */
-void
-Dag::moveToTrash(Node * n) {
-  trash.push_back(n);
-  if (nodes.find(n->getId())  == nodes.end()) {
-    // The node complete id begin with dag id while the nodes map uses
-    // the simple id of the nodes
-    string id = n->getId();
-    if ( this->myId == (id.substr(0, id.find("-"))) ) {
-      TRACE_TEXT (TRACE_ALL_STEPS,
-		  " ERASING THE NODE " << id << endl);
-      nodes.erase(id.substr(id.find("-")+1));
-    }
-    else {
-      // a priori not used
-      TRACE_TEXT (TRACE_ALL_STEPS,
-		  " ERASING THE NODE " << n->getId() << endl);
-      nodes.erase(n->getId());
-    }
-  }
-  else {
-    TRACE_TEXT (TRACE_ALL_STEPS,
-		" The node " << n->getId() << " was not found!!!" << endl);
-  }
-}
+// void
+// Dag::moveToTrash(Node * n) {
+//   trash.push_back(n);
+//   if (nodes.find(n->getId())  == nodes.end()) {
+//     // The node complete id begin with dag id while the nodes map uses
+//     // the simple id of the nodes
+//     string id = n->getId();
+//     if ( this->myId == (id.substr(0, id.find("-"))) ) {
+//       TRACE_TEXT (TRACE_ALL_STEPS,
+// 		  " ERASING THE NODE " << id << endl);
+//       nodes.erase(id.substr(id.find("-")+1));
+//     }
+//     else {
+//       // a priori not used
+//       TRACE_TEXT (TRACE_ALL_STEPS,
+// 		  " ERASING THE NODE " << n->getId() << endl);
+//       nodes.erase(n->getId());
+//     }
+//   }
+//   else {
+//     TRACE_TEXT (TRACE_ALL_STEPS,
+// 		" The node " << n->getId() << " was not found!!!" << endl);
+//   }
+// }
 
 /**
  * Get the nodes sorted according to their priority using insertion sort
@@ -838,84 +807,85 @@ Dag::setInputNodesReady() {
 }
 
 /**
+ * @deprecated
  * get the output nodes
  */
-vector<Node *>
-Dag::getOutputNodes() {
-  vector<Node *> v;
-  Node * node = NULL;
-  for (map<string, Node *>::iterator p = this->nodes.begin();
-       p != this->nodes.end();
-       p++) {
-    node = (Node *)(p->second);
-    if ((node != NULL) && (node->isAnExit()))
-      v.push_back(node);
-  }
-  return v;
-}
+// vector<Node *>
+// Dag::getOutputNodes() {
+//   vector<Node *> v;
+//   Node * node = NULL;
+//   for (map<string, Node *>::iterator p = this->nodes.begin();
+//        p != this->nodes.end();
+//        p++) {
+//     node = (Node *)(p->second);
+//     if ((node != NULL) && (node->isAnExit()))
+//       v.push_back(node);
+//   }
+//   return v;
+// }
 
 /**
  * get all profiles in the dag (thread-safe)
  * (vector must be deleted after usage)
  */
 
-vector<diet_profile_t *>*
-Dag::getAllProfiles() {
-  vector<diet_profile_t*> * v = new vector<diet_profile_t*>();
-  Node * n = NULL;
-  diet_profile_t * profile = NULL;
-  bool found = false;
-
-  for (std::map <std::string, Node *>::iterator p = this->nodes.begin();
-       p != this->nodes.end();
-       p++) {
-    n = (Node*)(p->second);
-    if (n != NULL) {
-      profile = n->profile;
-      if (profile != NULL) {
-	found = false;
-	for (unsigned int ix=0; ix<v->size(); ix++) {
-	  diet_profile_t * another_profile = (*v)[ix];
-	  if ( (*profile) == *(another_profile) ) {
-	    found = true;
-	  }
-	} // end for ix
-	if (!found)
-	  v->push_back(profile);
-      } // end if profile != NULL
-    } // end if n != NULL
-  } // end for iterator
-
-  return v;
-}
+// vector<diet_profile_t *>*
+// Dag::getAllProfiles() {
+//   vector<diet_profile_t*> * v = new vector<diet_profile_t*>();
+//   Node * n = NULL;
+//   diet_profile_t * profile = NULL;
+//   bool found = false;
+//
+//   for (std::map <std::string, Node *>::iterator p = this->nodes.begin();
+//        p != this->nodes.end();
+//        p++) {
+//     n = (Node*)(p->second);
+//     if (n != NULL) {
+//       profile = n->profile;
+//       if (profile != NULL) {
+// 	found = false;
+// 	for (unsigned int ix=0; ix<v->size(); ix++) {
+// 	  diet_profile_t * another_profile = (*v)[ix];
+// 	  if ( (*profile) == *(another_profile) ) {
+// 	    found = true;
+// 	  }
+// 	} // end for ix
+// 	if (!found)
+// 	  v->push_back(profile);
+//       } // end if profile != NULL
+//     } // end if n != NULL
+//   } // end for iterator
+//
+//   return v;
+// }
 
 /**
  * set the dag as a temporary object
  * Used to not delete the nodes of the dag
  */
-void
-Dag::setAsTemp(bool b) {
-  this->tmpDag = b;
-}
+// void
+// Dag::setAsTemp(bool b) {
+//   this->tmpDag = b;
+// }
 
 /**
  * get the estimated makespan of the DAG
  * @deprecated
  */
-double
-Dag::getEstMakespan() {
-  double makespan = -1;
-  Node * n = NULL;
-  for (map<string, Node*>::iterator p = this->nodes.begin();
-       p != this->nodes.end();
-       ++p) {
-    n = (Node*)(p->second);
-    if ( (n != NULL) &&
-	 (n->getEstCompTime() > makespan) )
-      makespan = n->getEstCompTime();
-  }
-  return makespan;
-}
+// double
+// Dag::getEstMakespan() {
+//   double makespan = -1;
+//   Node * n = NULL;
+//   for (map<string, Node*>::iterator p = this->nodes.begin();
+//        p != this->nodes.end();
+//        ++p) {
+//     n = (Node*)(p->second);
+//     if ( (n != NULL) &&
+// 	 (n->getEstCompTime() > makespan) )
+//       makespan = n->getEstCompTime();
+//   }
+//   return makespan;
+// }
 
 /**
  * get the estimated earliest finish time of the DAG
@@ -992,9 +962,10 @@ Dag::_updateDelayRec(Node * node, double newDelay) {
     // the node is/will be late compared to the last estimated delay
     // so the new delay must be propagated to the successors
     node->setEstDelay(newDelay);
-    for (unsigned int ix=0; ix < node->nextNodesCount(); ix++) {
-      Node * succ = (Node*)(node->getNext(ix));
-      res = res && this->_updateDelayRec(succ, newDelay);
+    for (list<Node*>::iterator nextIter = node->nextNodesBegin();
+         nextIter != node->nextNodesEnd();
+         ++nextIter) {
+      res = res && this->_updateDelayRec((Node*) *nextIter, newDelay);
     }
   }
   else {

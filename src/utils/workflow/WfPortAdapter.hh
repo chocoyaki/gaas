@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/09/30 15:32:53  bisnard
+ * - using simple port id instead of composite ones
+ * - dag nodes linking refactoring
+ * - prevNodes and nextNodes data structures modified
+ * - prevNodes initialization by Node::setNodePredecessors
+ *
  * Revision 1.2  2008/09/30 09:23:29  bisnard
  * removed diet profile initialization from DagWfParser and replaced by node methods initProfileSubmit and initProfileExec
  *
@@ -44,7 +50,7 @@ class WfPortAdapter {
      * @param node  the node containing the port linked to this adapter
      * @param dag   the dag that contains the port
      */
-    virtual void
+    virtual bool
         setNodePredecessors(Node* node, Dag* dag) = 0;
 
     /**
@@ -74,7 +80,7 @@ class WfSimplePortAdapter : public WfPortAdapter {
      */
     WfSimplePortAdapter(const string& strRef);
 
-    void
+    bool
         setNodePredecessors(Node* node, Dag* dag);
     void
         setPortDataLinks(WfInPort* inPort, Dag* dag);
@@ -113,7 +119,7 @@ class WfMultiplePortAdapter : public WfPortAdapter {
      */
     WfMultiplePortAdapter(const string& strRef);
 
-    void
+    bool
         setNodePredecessors(Node* node, Dag* dag);
     void
         setPortDataLinks(WfInPort* inPort, Dag* dag);

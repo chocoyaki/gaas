@@ -10,6 +10,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/09/30 15:32:53  bisnard
+ * - using simple port id instead of composite ones
+ * - dag nodes linking refactoring
+ * - prevNodes and nextNodes data structures modified
+ * - prevNodes initialization by Node::setNodePredecessors
+ *
  * Revision 1.3  2008/09/30 09:23:29  bisnard
  * removed diet profile initialization from DagWfParser and replaced by node methods initProfileSubmit and initProfileExec
  *
@@ -58,7 +64,7 @@ public:
   /**
    * Basic Port constructor *
    * @param parent The node of the port
-   * @param _id    The id of the port ('node id'#'port id')
+   * @param _id    The id of the port
    * @param _type  The port data base type
    * @param _depth The depth of the list structure (0 if no list)
    * @param _ind   The index of the parameter in the diet profile
@@ -228,7 +234,7 @@ public:
   /**
    * Output port constructor *
    * @param parent The node of the port
-   * @param _id    The id of the port ('node id'#'port id')
+   * @param _id    The id of the port
    * @param _type  The port data type
    * @param _depth The depth of the list structure (0 if no list)
    * @param _ind   The index of the parameter in the diet profile
@@ -307,7 +313,7 @@ public:
   /**
    * Input port constructor *
    * @param parent The node of the port
-   * @param _id    The id of the port ('node id'#'port id')
+   * @param _id    The id of the port
    * @param _type  The port data type
    * @param _depth The depth of the list structure (0 if no list)
    * @param _ind   The index of the parameter in the diet profile
@@ -334,7 +340,7 @@ public:
   /**
    * Nodes linking (used for dag scheduling)
    */
-  void
+  bool
   setNodePredecessors(Dag* dag);
 
   /**
@@ -385,7 +391,7 @@ public:
   /**
    * Input/Output port constructor *
    * @param parent The node of the port
-   * @param _id    The id of the port ('node id'#'port id')
+   * @param _id    The id of the port
    * @param _type  The port data type
    * @param _depth The depth of the list structure (0 if no list)
    * @param _ind   The index of the parameter in the diet profile

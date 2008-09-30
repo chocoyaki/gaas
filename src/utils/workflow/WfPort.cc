@@ -10,6 +10,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/09/30 15:32:53  bisnard
+ * - using simple port id instead of composite ones
+ * - dag nodes linking refactoring
+ * - prevNodes and nextNodes data structures modified
+ * - prevNodes initialization by Node::setNodePredecessors
+ *
  * Revision 1.4  2008/09/30 09:23:29  bisnard
  * removed diet profile initialization from DagWfParser and replaced by node methods initProfileSubmit and initProfileExec
  *
@@ -425,11 +431,13 @@ WfInPort::isInput() {
 }
 
 // used by Dag::checkPrec()
-void
+bool
 WfInPort::setNodePredecessors(Dag* dag) {
-  if (!isInput()) { // this method may be called on an argument port
-    adapter->setNodePredecessors(myParent, dag);
+  if (!isInput()) { // in case this method is called on an argument port
+    if (!adapter->setNodePredecessors(myParent, dag))
+      return false;
   }
+  return true;
 }
 
 // used by Dag::linkNodePorts

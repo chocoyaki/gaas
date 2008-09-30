@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2008/09/30 15:32:53  bisnard
+ * - using simple port id instead of composite ones
+ * - dag nodes linking refactoring
+ * - prevNodes and nextNodes data structures modified
+ * - prevNodes initialization by Node::setNodePredecessors
+ *
  * Revision 1.12  2008/09/19 13:11:07  bisnard
  * - added support for containers split/merge in workflows
  * - added support for multiple port references
@@ -243,8 +249,8 @@ public:
    * @deprecated
    * @param n the node to remove reference
    */
-  void
-  moveToTrash(Node * n);
+//   void
+//   moveToTrash(Node * n);
 
   /**
    * Get all dag nodes sorted by priority
@@ -261,10 +267,11 @@ public:
   getInputNodes();
 
   /**
+   * @deprecated
    * Get the output nodes
    */
-  std::vector<Node *>
-  getOutputNodes();
+//   std::vector<Node *>
+//   getOutputNodes();
 
   /**
    * Set all input nodes as ready
@@ -274,24 +281,26 @@ public:
   setInputNodesReady();
 
   /**
+   * @deprecated
    * Get all profiles in the dag
    */
-  std::vector<diet_profile_t *> *
-  getAllProfiles();
+//   std::vector<diet_profile_t *> *
+//   getAllProfiles();
 
   /**
+   * @deprecated
    * set the dag as a temporary object
    * Used to not delete the nodes of the dag when destructing the dag
    */
-  void
-  setAsTemp(bool b = false);
+//   void
+//   setAsTemp(bool b = false);
 
   /**
    * get the estimated makespan of the DAG
    * @deprecated
    */
-  double
-  getEstMakespan();
+//   double
+//   getEstMakespan();
 
   /**
    * get the estimated earliest finish time of the DAG

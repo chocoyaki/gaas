@@ -11,6 +11,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2008/09/30 15:32:53  bisnard
+ * - using simple port id instead of composite ones
+ * - dag nodes linking refactoring
+ * - prevNodes and nextNodes data structures modified
+ * - prevNodes initialization by Node::setNodePredecessors
+ *
  * Revision 1.15  2008/09/30 09:23:29  bisnard
  * removed diet profile initialization from DagWfParser and replaced by node methods initProfileSubmit and initProfileExec
  *
@@ -72,6 +78,9 @@
 
 #include <iostream>
 #include <string>
+#include <set>
+#include <vector>
+#include <list>
 #include <map>
 
 #include <sys/time.h>
@@ -171,14 +180,6 @@ public:
   getPb();
 
   /**
-   * set the node tag value *
-   * see the myTag attribute *
-   * @param t the tag value
-   */
-//   void
-//   setTag(unsigned int t);
-
-  /**
    * Set the node ID
    * @param id the new id
    */
@@ -208,79 +209,97 @@ public:
   /******************************/
 
   /**
-   * add a new previous node id and reference *
-   * @param id previous node id
-   * @param n previous node reference
+   * add a previous node using the node id
+   * (this is the only way to add new predecessors; after adding all node
+   * ids the method setNodePredecessors is called to convert the
+   * predecessors ids into object references)
    */
   void
-  addPrec(string str, Node * n);
-
-  void addPrecId(string str);
+  addPrevId(string nodeId);
 
   /**
-   * Get the previous node id by index *
-   * @param n the requested previous node index
+   * initializes the previous nodes using both
+   * the control dependencies (<prec> tag) and the
+   * data dependencies (ports links)
    */
-  string
-  getPrecId(unsigned int n);
-
-  /**
-   * add a new previous node *
-   * This function change only the number of previous node *
-   */
-  void
-  addPrevNode();
-
-  /**
-   * Add @param n new previous nodes *
-   */
-  void
-  addPrevNode(int n);
+  bool
+  setNodePredecessors(Dag* dag);
 
   /**
    * return the number of previous nodes
+   * (setNodePredecessors must be called before)
    */
   unsigned int
-  prevNb();
+  prevNodesNb();
 
   /**
-   * Add a next node reference *
+   * return an iterator on the first previous nodes
+   */
+  vector<Node*>::iterator
+  prevNodesBegin();
+
+  /**
+   * return an iterator on the end of previous nodes
+   */
+  vector<Node*>::iterator
+  prevNodesEnd();
+
+  /**
+   * Add a new next node reference *
    * @param n the next node reference
    */
   void
   addNext(Node * n);
 
+    /**
+   * return the number of next nodes
+   */
+  unsigned int
+  nextNodesNb();
+
+  /**
+   * return an iterator on the first next node
+   */
+  list<Node*>::iterator
+  nextNodesBegin();
+
+  /**
+   * return an iterator on the end of next nodes
+   */
+  list<Node*>::iterator
+  nextNodesEnd();
+
   /**
    * Link input port to output port by id and setting references link *
    * @param in  the input port identifier
-   * @param out the output port identifier
+   * @param outRef the output port reference (nodeName#portName)
    */
   virtual void
-  link_i2o(const string in, const string out);
+  link_i2o(const string in, const string outRef);
 
   /**
    * Link output port to input port by id and setting references link *
    * @param out the output port identifier
-   * @param in  the input port identifier
+   * @param inRef  the input port reference (nodeName#portName)
    */
   virtual void
-  link_o2i(const string out, const string in);
+  link_o2i(const string out, const string inRef);
 
   /**
    * Link inoutput port to input port by id and setting references link *
    * @param io  the inout port identifier
-   * @param in  the input port identifier
+   * @param inRef  the input port reference (nodeName#portName)
    */
   virtual void
-  link_io2i(const string io, const string in);
+  link_io2i(const string io, const string inRef);
 
   /**
    * Link inoutput port to output port by id and setting references link *
    * @param io  the inout port identifier
-   * @param out the output port identifier
+   * @param outRef the output port reference (nodeName#portName)
    */
   virtual void
-  link_io2o(const string io, const string out);
+  link_io2o(const string io, const string outRef);
 
   /**
    * return true if the node is an input node *
@@ -458,31 +477,6 @@ public:
    */
   void
   setSeD(const SeD_var& sed, const unsigned long reqID, corba_estimation_t& ev);
-
-  /**
-   * return the number of next nodes
-   */
-  unsigned int
-  nextNodesCount();
-
-  /**
-   * return  next node with index n
-   * @param n the next node index
-   */
-  Node *
-  getNext(unsigned int n);
-
-  /**
-   * return the number of previous nodes
-   */
-  unsigned int
-  prevNodesCount();
-
-  /**
-   * return  next node
-   */
-  Node *
-  getPrev(unsigned int n);
 
   /******************************/
   /* Scheduling                 */
@@ -686,24 +680,27 @@ protected:
   NodeQueue * lastQueue;
 
   /**
-   * the previous nodes ids *
+   * the previous nodes ids
+   * (use a set to avoid searching duplicate when inserting)
    */
-  vector<string> prec_ids;
+  set<string> prevNodeIds;
 
   /**
-   * The previous nods map<id, reference> *
+   * The previous nodes list
+   * (use a vector because nb of items is known by prevNodeIds)
    */
-  map <string, Node*>  myPrevNodes;
+  vector<Node*> prevNodes;
 
   /**
-   * The following nodes reference vector *
+   * The next nodes list
+   * (use a list because nb of items is not known in advance)
    */
-  vector<Node *> next;
+  list<Node*> nextNodes;
 
   /**
-   * the number of previous nodes not finished (negative) *
+   * the number of previous nodes not finished *
    */
-  int prevNodes;
+  int prevNodesTodoCount;
 
   /**
    * indicate if the task is done *
@@ -716,6 +713,14 @@ protected:
   bool taskExecFailed;
 
 private:
+
+  /******************************/
+  /* PORTS                      */
+  /******************************/
+
+  void
+  setPrev(int index, Node * node);
+
   /*********************************************************************/
   /* private fields                                                    */
   /*********************************************************************/

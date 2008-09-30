@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/09/30 15:32:53  bisnard
+ * - using simple port id instead of composite ones
+ * - dag nodes linking refactoring
+ * - prevNodes and nextNodes data structures modified
+ * - prevNodes initialization by Node::setNodePredecessors
+ *
  * Revision 1.3  2008/09/30 09:23:29  bisnard
  * removed diet profile initialization from DagWfParser and replaced by node methods initProfileSubmit and initProfileExec
  *
@@ -80,23 +86,20 @@ WfSimplePortAdapter::WfSimplePortAdapter(const string& strRef) {
   }
 }
 
-void
+bool
 WfSimplePortAdapter::setNodePredecessors(Node* node, Dag* dag) {
   // if dagName different from dag's name, get the node from [dagName]
   nodePtr = dag->getNode(nodeName);
   if (nodePtr) {
-    node->addPrec(nodePtr->getId(), nodePtr);
-    TRACE_FUNCTION (TRACE_ALL_STEPS," Loop2: Add prec " << nodePtr->getId()
-        << " to " << node->getId() << endl);
-  } else {
-    //TODO throw exception node not found
-  }
+    node->addPrevId(nodePtr->getId());
+    return true;
+  } else return false;
 }
 
 void
 WfSimplePortAdapter::setPortDataLinks(WfInPort* inPort, Dag* dag) {
   if (nodePtr) {
-    WfOutPort * out = nodePtr->getOutPort(nodeName + "#" + portName);
+    WfOutPort * out = nodePtr->getOutPort(portName);
     if (out != NULL) {
       this->portPtr = out;      // SET the SOURCE link
       out->setSink(inPort);     // SET the SINK link (used to determine if out port is a result)
@@ -195,13 +198,15 @@ WfMultiplePortAdapter::WfMultiplePortAdapter(const string& strRef) {
   } // end while
 }
 
-void
+bool
 WfMultiplePortAdapter::setNodePredecessors(Node* node, Dag* dag) {
   for (list<WfPortAdapter*>::iterator iter = adapters.begin();
        iter != adapters.end();
        ++iter) {
-    (*iter)->setNodePredecessors(node, dag);
+    if (!((*iter)->setNodePredecessors(node, dag)))
+      return false;
   }
+  return true;
 }
 
 void
@@ -223,8 +228,6 @@ WfMultiplePortAdapter::getSourceDataID() {
   for (list<WfPortAdapter*>::iterator iter = adapters.begin();
        iter != adapters.end();
        ++iter) {
-//     char* idElt = (*iter)->getSourceDataID();
-//     dagda_add_container_element(idCont,idElt,ix++);
      const string& idElt = (*iter)->getSourceDataID();
      dagda_add_container_element(idCont,idElt.c_str(),ix++);
   }
