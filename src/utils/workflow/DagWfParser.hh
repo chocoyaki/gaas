@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/09/30 15:29:22  bisnard
+ * code refactoring after profile mgmt change
+ *
  * Revision 1.5  2008/09/30 09:23:29  bisnard
  * removed diet profile initialization from DagWfParser and replaced by node methods initProfileSubmit and initProfileExec
  *
@@ -33,8 +36,6 @@
 
 #ifndef _DAGWFPARSER_HH_
 #define _DAGWFPARSER_HH_
-
-#include <vector>
 
 #include "Dag.hh"
 // Xerces header
@@ -79,13 +80,12 @@ public:
   /**
    * The destructor
    */
-  virtual
   ~DagWfParser();
 
   /**
    * Initialize the processing
    */
-  virtual bool
+  bool
   setup();
 
   /**
@@ -109,12 +109,6 @@ protected:
    * Xml document
    */
   DOMDocument * document;
-
-  /**
-   * The dag representation as a map of nodes
-   * The key is the node identifier. The data is the node reference
-   */
-//   std::map <std::string, Node*> myNodes;
 
   /**
    * Dag structure
@@ -143,7 +137,7 @@ protected:
   /**
    * Init the XML processing
    */
-  virtual bool
+  bool
   initXml();
 
   /**
@@ -153,7 +147,7 @@ protected:
    * @param nodeId   the node identifier
    * @param nodePath the node path (or service)
    */
-  virtual bool
+  bool
   parseNode (const DOMNode * element,
 	     string nodeId, string nodePath);
 
@@ -163,7 +157,9 @@ protected:
    * @param child_elt argument DOM element reference
    */
   bool
-  parseArg(DOMElement * child_elt);
+  parseArg(DOMElement * child_elt,
+           const unsigned int lastArg,
+ 	   Node& dagNode);
 
   /**
    * Parse an input port element
@@ -171,7 +167,9 @@ protected:
    * @param child_elt input port DOM element reference
    */
   bool
-  parseIn(DOMElement * child_elt);
+  parseIn(DOMElement * child_elt,
+          const unsigned int lastArg,
+ 	  Node& dagNode);
 
   /**
    * Parse an inout port element
@@ -179,7 +177,9 @@ protected:
    * @param child_elt Inout DOM element reference
    */
   bool
-  parseInout(DOMElement * child_elt);
+  parseInout(DOMElement * child_elt,
+             const unsigned int lastArg,
+ 	     Node& dagNode);
 
   /**
    * Parse an output port element
@@ -187,161 +187,36 @@ protected:
    * @param child_elt Out port DOM element reference
    */
   bool
-  parseOut(DOMElement * child_elt);
+  parseOut(DOMElement * child_elt,
+           const unsigned int lastArg,
+ 	   Node& dagNode);
 
   /**
-   * parse an argument element
-   * @param name     argument id
-   * @param value    argument value
-   * @param type     argument data type
-   * @param lastArg  the argument index in the profile
-   * @param dagNode  node reference in the Dag structure
-   */
-  virtual bool
-  checkArg(const string& name,
-	   const string& value,
-	   const string& type,
-	   const unsigned int lastArg,
-	   Node * dagNode = NULL);
-
-  /**
-   * parse an input port element
-   * @param name     input port id
-   * @param type     input port data type
-   * @param source   linked output port id
-   * @param lastArg  the input port index in the profile
-   * @param dagNode  node reference in the Dag structure
-   */
-  virtual bool
-  checkIn(const string& name,
-	  const string& type,
-	  const string& source,
-	  unsigned int lastArg,
-	  Node * dagNode = NULL);
-
-  /**
-   * parse an input/output port element
-   * @param name     inoutput port id
-   * @param type     inoutput port data type
-   * @param source   linked output port id
-   * @param lastArg  the inoutput port index in the profile
-   * @param dagNode  node reference in the Dag structure
-   */
-  virtual bool
-  checkInout(const string& name,
-	     const string& type,
-	     const string& source,
-	     unsigned int lastArg,
-	     Node * dagNode = NULL);
-
-  /**
-   * parse an output port element
-   * @param name     output port id
-   * @param type     output port data type
-   * @param sink     linked input port id
-   * @param lastArg  the output port index in the profile
-   * @param dagNode  node reference in the Dag structure
-   */
-  virtual bool
-  checkOut(const string& name,
-	   const string& type,
-	   const string& sink,
-	   unsigned int lastArg,
-	   Node * dagNode = NULL);
-
-  /**
-   * fill a profile with the appropriate parameter type and create the
-   * node ports
+   * create a node port
    * @param param_type  the type of port (IN, OUT or INOUT)
    * @param name        the name of the port ('node id'#'port id')
    * @param type        the type of the port (eg 'LIST(LIST(DIET_INT))')
    * @param lastArg     the index of the port (in the profile)
-   * @param dagNode     the current node object (optional)
+   * @param dagNode     the current node object
    * @param value       the value of the parameter (optional)
    */
-  virtual void
+  void
   setParam(const wf_port_t param_type,
 	   const string& name,
 	   const string& type,
 	   unsigned int lastArg,
-	   Node * dagNode = NULL,      //FIXME should not be null!!
+	   Node& dagNode,
 	   const string * value = NULL);
 
   /**
-   * parse a matrix argument
-   * @param id         Port complete id (node id + # + port name)
-   * @param element    Dom node representing a matrix
-   * @param lastArg  the output port index in the profile
-   * @param dagNode  Undocumented
+   * create a node port of type matrix
    */
-  virtual bool
-  checkMatrixArg(const string& id, const DOMElement * element,
-		 unsigned int lastArg, Node * dagNode = NULL);
-
-  /**
-   * parse a matrix input port
-   * @param id         Port complete id (node id + # + port name)
-   * @param element    Dom node representing a matrix
-   * @param lastArg  the output port index in the profile
-   * @param dagNode  Undocumented
-   */
-  virtual bool
-  checkMatrixIn(const string& id, const string& source,
-		const DOMElement * element,
-		unsigned int lastArg, Node * dagNode = NULL);
-
-  /**
-   * parse a matrix inout port
-   * @param id         Port complete id (node id + # + port name)
-   * @param element    Dom node representing a matrix
-   * @param lastArg  the output port index in the profile
-   * @param dagNode  Undocumented
-   */
-  virtual bool
-  checkMatrixInout(const string& id, const DOMElement * element,
-		   unsigned int lastArg, Node * dagNode = NULL);
-
-  /**
-   * parse a matrix output port
-   * @param id         Port complete id (node id + # + port name)
-   * @param element    Dom node representing a matrix
-   * @param lastArg  the output port index in the profile
-   * @param dagNode  Undocumented
-   */
-  virtual bool
-  checkMatrixOut(const string& id, const DOMElement * element,
-		 unsigned int lastArg, Node * dagNode = NULL);
-
-  /**
-   * parse a matrix argument.
-   * Check only the commun attributes of In, Inout and Out ports
-   * @param id         Port complete id (node id + # + port name)
-   * @param element    Dom node representing a matrix
-   * @param base_type  Undocumented
-   * @param nb_rows    Undocumented
-   * @param nb_cols    Undocumented
-   * @param matrix_order Undocumented
-   */
-  virtual bool
-  checkMatrixCommun(const string& id, const DOMElement * element,
-		    string& base_type,
-		    string& nb_rows,
-		    string& nb_cols,
-		    string& matrix_order);
-
-  /**
-   * fill a profile with matrix parameter type
-   * The data are NULL
-   */
-  virtual bool
-  setMatrixParam(const wf_port_t param_type,
+  bool
+  setMatrixParam(const DOMElement * element,
+                 const wf_port_t param_type,
 		 const string& name,
-		 const string& base_type,
-		 const string& nb_rows,
-		 const string& nb_cols,
-		 const string& matrix_order,
 		 unsigned int lastArg,
-		 Node * dagNode = NULL,
+		 Node& dagNode,
 		 const string * value = NULL);
 
   private:
