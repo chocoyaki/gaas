@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/09/30 09:23:29  bisnard
+ * removed diet profile initialization from DagWfParser and replaced by node methods initProfileSubmit and initProfileExec
+ *
  * Revision 1.2  2008/09/19 13:11:07  bisnard
  * - added support for containers split/merge in workflows
  * - added support for multiple port references
@@ -36,6 +39,7 @@
 
 #include "DIET_data.h"
 #include "WfPortAdapter.hh"
+#include "WfUtils.hh"
 
 using namespace std;
 
@@ -60,8 +64,14 @@ public:
    * @param _ind   The index of the parameter in the diet profile
    * @param v      The value of the parameter if it's an argument
    */
-  WfPort(Node * parent, string _id, string _type, uint _depth, uint _ind,
+  WfPort(Node * parent, string _id, WfCst::WfDataType _type, uint _depth, uint _ind,
 	 const string& v = "") ;
+
+  /**
+   * Initialize the profile before node submission
+   */
+  virtual bool
+  initProfileSubmit();
 
   /**
    * Initialize the profile before node execution
@@ -84,8 +94,8 @@ public:
    * Return the profile of the node
    * used by WfPortAdapter::getSourceDataID
    */
-   diet_profile_t *
-   profile();
+  diet_profile_t *
+  profile();
 
   /**
    * Return the port id
@@ -105,6 +115,12 @@ public:
   unsigned int
   getDepth();
 
+  /**
+   * Return the data ID of the port
+   */
+  const string&
+  getDataID();
+
 protected:
 
   /**
@@ -112,6 +128,30 @@ protected:
    */
   virtual diet_persistence_mode_t
       getPersistenceMode() = 0;
+
+  /**
+   * Initializes the profile when no value is provided
+   */
+  void
+  setProfileWithoutValue();
+
+  /**
+   * Initializes the profile when a value is provided
+   */
+  void
+  setProfileWithValue();
+
+  /**
+   * Converts the string value to an allocated buffer for a matrix
+   */
+  void
+  initMatrixValue(void **buffer, const string& value);
+
+  /**
+   * Converts the string value to a data handle for a container
+   */
+  void
+  initContainerValue(const string& value);
 
   /*******************************************/
   /* Protected fields                        */
@@ -128,9 +168,14 @@ protected:
   string id;
 
   /**
-   * The data type as a string (DIET_XXXX)
+   * The data type (constants defined in WfCst class)
    */
-  string type;
+  WfCst::WfDataType type;
+
+  /**
+   * The data type of elements (in case of type=CONTAINER)
+   */
+  WfCst::WfDataType eltType;
 
   /**
    * The depth of the list structure (eg if type="LIST(LIST(INT))")
@@ -141,6 +186,11 @@ protected:
    * The index of the port parameter in the diet profile
    */
   unsigned int index;
+
+  /**
+   * The port data ID
+   */
+  string dataID;
 
   /**
    * The port value as a string
@@ -184,7 +234,7 @@ public:
    * @param _ind   The index of the parameter in the diet profile
    * @param v      The value of the parameter if it's an argument
    */
-  WfOutPort(Node * parent, string _id, string _type, uint _depth, uint _ind,
+  WfOutPort(Node * parent, string _id, WfCst::WfDataType _type, uint _depth, uint _ind,
 	    const string& v);
 
 
@@ -219,6 +269,12 @@ public:
    */
   WfInPort *
   getSink();
+
+  /**
+   * Store the data IDs from the profile
+   */
+  void
+  storeProfileData();
 
 protected:
 
@@ -258,7 +314,7 @@ public:
    * @param v      The value of the parameter if it's an argument
    */
 
-  WfInPort(Node * parent, string _id, string _type, uint _depth, uint _ind,
+  WfInPort(Node * parent, string _id, WfCst::WfDataType _type, uint _depth, uint _ind,
 	   const string& v);
 
   /**
@@ -276,13 +332,13 @@ public:
   isInput();
 
   /**
-   * Node precedence analysis (used for dag scheduling)
+   * Nodes linking (used for dag scheduling)
    */
   void
   setNodePredecessors(Dag* dag);
 
   /**
-   * Node linking (used for node execution)
+   * Ports linking (used for node execution)
    * @param dag   the dag that contains the linked ports
    */
   void setPortDataLinks(Dag* dag);
@@ -335,7 +391,7 @@ public:
    * @param _ind   The index of the parameter in the diet profile
    * @param v      The value of the parameter if it's an argument
    */
-  WfInOutPort(Node * parent, string _id, string _type, uint _depth, uint _ind,
+  WfInOutPort(Node * parent, string _id, WfCst::WfDataType _type, uint _depth, uint _ind,
 	      const string& v);
 
 protected:

@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/09/30 09:23:29  bisnard
+ * removed diet profile initialization from DagWfParser and replaced by node methods initProfileSubmit and initProfileExec
+ *
  * Revision 1.3  2008/09/19 14:01:30  bisnard
  * allow compile wf support with or without DAGDA
  *
@@ -40,266 +43,137 @@ extern "C" {
  * WfPort class (ABSTRACT)
  */
 
-WfPort::WfPort(Node * parent, string _id, string _type, uint _depth, uint _ind,
+WfPort::WfPort(Node * parent, string _id, WfCst::WfDataType _type, uint _depth, uint _ind,
 	       const string& v) :
   myParent(parent), id(_id),type(_type), depth(_depth), index(_ind),value(v) {
+  if (_depth > 0) {
+    eltType = _type; // store the elements type
+    type = WfCst::TYPE_CONTAINER;
+  }
   this->nb_r = 0;
   this->nb_c = 0;
 }
 
+void
+WfPort::setProfileWithoutValue() {
+  diet_profile_t* profile = myParent->getProfile();
+  diet_persistence_mode_t mode = this->getPersistenceMode();
+  if ((type == WfCst::TYPE_CHAR)
+       || (type == WfCst::TYPE_SHORT)
+       || (type == WfCst::TYPE_INT)
+       || (type == WfCst::TYPE_LONGINT)
+       || (type == WfCst::TYPE_FLOAT)
+       || (type == WfCst::TYPE_DOUBLE)) {
+    diet_scalar_set(diet_parameter(profile, index),
+                    NULL, mode, (diet_base_type_t) WfCst::cvtWfToDietType(type));
+  } else {
+    switch (type) {
+      case WfCst::TYPE_PARAMSTRING :
+        diet_paramstring_set(diet_parameter(profile, index),
+                             NULL, mode);
+        break;
+      case WfCst::TYPE_STRING :
+        diet_string_set(diet_parameter(profile, index),
+                        NULL, mode);
+        break;
+      case WfCst::TYPE_FILE :
+        diet_file_set(diet_parameter(profile, index), mode,
+                      NULL);
+        break;
+      case WfCst::TYPE_MATRIX :
+        diet_matrix_set(diet_parameter(profile,index), NULL,
+                        mode, base_type, nb_r, nb_c, order);
+        break;
+      case WfCst::TYPE_CONTAINER :
+        diet_container_set(diet_parameter(profile, index), DIET_PERSISTENT);
+        break;
+    }
+  }
+}
+
+void
+WfPort::setProfileWithValue() {
+  diet_profile_t* profile = myParent->getProfile();
+  diet_persistence_mode_t mode = this->getPersistenceMode();
+  void * mat = NULL;
+  switch(type) {
+    case WfCst::TYPE_CHAR :
+      diet_scalar_set(diet_parameter(profile, index),
+                      myParent->newChar(value), mode, DIET_CHAR);
+      break;
+    case WfCst::TYPE_SHORT :
+      diet_scalar_set(diet_parameter(profile, index),
+                      myParent->newShort(value), mode, DIET_SHORT);
+      break;
+    case WfCst::TYPE_INT :
+      diet_scalar_set(diet_parameter(profile, index),
+                      myParent->newInt(value), mode, DIET_INT);
+      break;
+    case WfCst::TYPE_LONGINT :
+      diet_scalar_set(diet_parameter(profile, index),
+                      myParent->newLong(value), mode, DIET_LONGINT);
+      break;
+    case WfCst::TYPE_FLOAT :
+      diet_scalar_set(diet_parameter(profile, index),
+                      myParent->newFloat(value), mode, DIET_FLOAT);
+      break;
+    case WfCst::TYPE_DOUBLE :
+      diet_scalar_set(diet_parameter(profile, index),
+                      myParent->newDouble(value), mode, DIET_DOUBLE);
+      break;
+    case WfCst::TYPE_PARAMSTRING :
+      diet_paramstring_set(diet_parameter(profile, index),
+                           myParent->newString(value), mode);
+      break;
+    case WfCst::TYPE_STRING :
+      diet_string_set(diet_parameter(profile, index),
+                      myParent->newString(value), mode);
+      break;
+    case WfCst::TYPE_FILE :
+      diet_file_set(diet_parameter(profile, index), mode,
+                    myParent->newFile(value));
+      break;
+    case WfCst::TYPE_MATRIX :
+      initMatrixValue(&mat, value);
+      diet_matrix_set(diet_parameter(profile,index), mat,
+                      mode, base_type, nb_r, nb_c, order);
+      break;
+    case WfCst::TYPE_CONTAINER :
+      initContainerValue(value);
+      diet_container_set(diet_parameter(profile, index), DIET_PERSISTENT);
+      break;
+  }
+}
+
+/**
+ * set the port profile for submission
+ */
+bool
+WfPort::initProfileSubmit() {
+  // set the value for scalar & paramstring types
+  if ((value != "") &&
+       ((type == WfCst::TYPE_CHAR)
+       || (type == WfCst::TYPE_SHORT)
+       || (type == WfCst::TYPE_INT)
+       || (type == WfCst::TYPE_LONGINT)
+       || (type == WfCst::TYPE_FLOAT)
+       || (type == WfCst::TYPE_DOUBLE)
+       || (type == WfCst::TYPE_PARAMSTRING)))
+    setProfileWithValue();
+  else
+    setProfileWithoutValue();
+  return true;
+} // end initProfileSubmit
 
 /**
  * set the port profile for execution
  */
 bool
 WfPort::initProfileExec() {
-  diet_profile_t* profile = myParent->getProfile();
-  diet_persistence_mode_t mode = this->getPersistenceMode();
-  if (getDepth() == 0) {
-    if (type == WfCst::DIET_CHAR) {
-      if (value != "")
-        diet_scalar_set(diet_parameter(profile, index),
-                        myParent->newChar(value),
-                                          mode,
-                                          DIET_CHAR);
-      else
-        diet_scalar_set(diet_parameter(profile, index),
-                        myParent->newChar(),
-                                          mode,
-                                          DIET_CHAR);
-    }
-    if (type == WfCst::DIET_SHORT) {
-      if (value != "")
-        diet_scalar_set(diet_parameter(profile, index),
-                        myParent->newShort(value),
-                                           mode,
-                                           DIET_SHORT);
-      else
-        diet_scalar_set(diet_parameter(profile, index),
-                        myParent->newShort(),
-                                           mode,
-                                           DIET_SHORT);
-    }
-    if (type == WfCst::DIET_INT) {
-      if (value != "")
-        diet_scalar_set(diet_parameter(profile, index),
-                        myParent->newInt(value),
-                                         mode,
-                                         DIET_INT);
-      else
-        diet_scalar_set(diet_parameter(profile, index),
-                        myParent->newInt(),
-                                         mode,
-                                         DIET_INT);
-    }
-    if (type == WfCst::DIET_LONGINT) {
-      if (value != "")
-        diet_scalar_set(diet_parameter(profile, index),
-                        myParent->newLong(value),
-                                          mode,
-                                          DIET_LONGINT);
-      else
-        diet_scalar_set(diet_parameter(profile, index),
-                        myParent->newLong(),
-                                          mode,
-                                          DIET_LONGINT);
-    }
-    if (type == WfCst::DIET_PARAMSTRING) {
-      if (value != "")
-        diet_paramstring_set(diet_parameter(profile, index),
-                             myParent->newString(value),
-                                 mode);
-      else
-        diet_paramstring_set(diet_parameter(profile, index),
-                             myParent->newString(),
-                                 mode);
-    }
-    if (type == WfCst::DIET_STRING) {
-      if (value != "")
-        diet_string_set(diet_parameter(profile, index),
-                        myParent->newString(value),
-                                            mode);
-      else
-        diet_string_set(diet_parameter(profile, index),
-                        myParent->newString(),
-                                            mode);
-    }
-    if (type == WfCst::DIET_FLOAT) {
-      if (value != "")
-        diet_scalar_set(diet_parameter(profile, index),
-                        myParent->newFloat(value),
-                                           mode,
-                                           DIET_FLOAT);
-      else
-        diet_scalar_set(diet_parameter(profile, index),
-                        myParent->newFloat(),
-                                           mode,
-                                           DIET_FLOAT);
-    }
-    if (type == WfCst::DIET_DOUBLE) {
-      if (value != "")
-        diet_scalar_set(diet_parameter(profile, index),
-                        myParent->newDouble(value),
-                                            mode,
-                                            DIET_DOUBLE);
-      else
-        diet_scalar_set(diet_parameter(profile, index),
-                        myParent->newDouble(),
-                                            mode,
-                                            DIET_DOUBLE);
-    }
-    if (type == WfCst::DIET_FILE) {
-      if (value != "")
-        diet_file_set(diet_parameter(profile, index),
-                      mode,
-                      myParent->newFile(value));
-      else
-        diet_file_set(diet_parameter(profile, index),
-                      mode,
-                      NULL);
-    }
-    if (type == WfCst::DIET_MATRIX) {
-      void * mat = NULL;
-      switch (base_type) {
-        case DIET_CHAR:
-          mat = new char[nb_r*nb_c];
-          break;
-        case DIET_SHORT:
-          mat = new int[nb_r*nb_c];
-          break;
-        case DIET_INT:
-          mat = new int[nb_r*nb_c];
-          break;
-        case DIET_LONGINT:
-          mat = new long[nb_r*nb_c];
-          break;
-        case DIET_FLOAT:
-          mat = new float[nb_r*nb_c];
-          break;
-        case DIET_DOUBLE:
-          mat = new double[nb_r*nb_c];
-          break;
-        default:
-          return false;
-          break;
-      } // end (switch)
-      if (value != "") {
-        if (value.substr(0, (string("file->")).size()) == "file->") {
-          string dataFileName = value.substr((string("file->")).size());
-          unsigned len = nb_r*nb_c;
-          TRACE_TEXT (TRACE_ALL_STEPS,
-                      "reading the matrix data file" << endl);
-          switch (base_type) {
-            case DIET_CHAR:
-              WfCst::readChar(dataFileName.c_str(), (char*)(mat), len);
-              break;
-            case DIET_SHORT:
-              WfCst::readShort(dataFileName.c_str(), (short*)(mat), len);
-              break;
-            case DIET_INT:
-              WfCst::readInt(dataFileName.c_str(), (int*)(mat), len);
-              break;
-            case DIET_LONGINT:
-              WfCst::readLong(dataFileName.c_str(), (long*)(mat), len);
-              break;
-            case DIET_FLOAT:
-              WfCst::readFloat(dataFileName.c_str(), (float*)(mat), len);
-              break;
-            case DIET_DOUBLE:
-              WfCst::readDouble(dataFileName.c_str(), (double*)(mat), len);
-              break;
-            default:
-              return false;
-              break;
-          } // end switch
-        }
-        else {
-	// get the data if included in the XML workflow description
-          vector<string> v = getStringToken(value);
-          unsigned int len = v.size();
-	// fill the matrix with the given data
-          TRACE_TEXT (TRACE_ALL_STEPS,
-                      "filling the matrix with the data (" << len << ")" << endl);
-          char  * ptr1(NULL);
-          short * ptr2(NULL);
-          int   * ptr3(NULL);
-          long  * ptr4(NULL);
-          float * ptr5(NULL);
-          double * ptr6(NULL);
-          switch (base_type) {
-            case DIET_CHAR:
-              ptr1 = (char*)(mat);
-              for (unsigned int ix = 0; ix<len; ix++)
-                ptr1[ix] = v[ix][0];
-              break;
-            case DIET_SHORT:
-              ptr2 = (short*)(mat);
-              for (unsigned int ix = 0; ix<len; ix++)
-                ptr2[ix] = atoi(v[ix].c_str());
-              break;
-            case DIET_INT:
-              ptr3 = (int*)(mat);
-              for (unsigned int ix = 0; ix<len; ix++)
-                ptr3[ix] = atoi(v[ix].c_str());
-              break;
-            case DIET_LONGINT:
-              ptr4 = (long*)(mat);
-              for (unsigned int ix = 0; ix<len; ix++)
-                ptr4[ix] = atoi(v[ix].c_str());
-              break;
-            case DIET_FLOAT:
-              ptr5 = (float*)(mat);
-              for (unsigned int ix = 0; ix<len; ix++)
-                ptr5[ix] = atof(v[ix].c_str());
-              break;
-            case DIET_DOUBLE:
-              ptr6 = (double*)(mat);
-              for (unsigned int ix = 0; ix<len; ix++)
-                ptr6[ix] = atof(v[ix].c_str());
-              break;
-            default:
-              return false;
-              break;
-          } // end switch
-        } // end else
-      } // end if value
-      diet_matrix_set(diet_parameter(profile,index),
-                      mat, mode, base_type, nb_r, nb_c,order);
-    }
-  } else { // depth > 0 (DIET_CONTAINER)
-    if (value != "") {
-#if HAVE_DAGDA
-      // Currently this container initialization is limited to 1 level
-      TRACE_TEXT (TRACE_ALL_STEPS,"Using value (" << value
-          << ") to initialize container" << endl);
-      // init container
-      char* contID;
-      dagda_create_container(&contID);
-      diet_use_data(diet_parameter(profile, index),contID);
-      // parse values
-      char* valID;
-      int ix=0;
-      string contVal = value;
-      string::size_type valSepLeft  = -1;
-      while ((ix == 0) || (valSepLeft!=string::npos)) {
-        string::size_type valSepRight = contVal.find(";",valSepLeft+1);
-        long val = atoi(contVal.substr(
-                        valSepLeft+1,
-                        (valSepRight == string::npos ? contVal.length() : valSepRight)-valSepLeft-1
-                                      ).c_str());
-        valSepLeft = valSepRight;
-        // store value and add it to container
-        dagda_put_scalar(&val, DIET_LONGINT, DIET_PERSISTENT, &valID);
-        dagda_add_container_element(contID,valID,ix++);
-        CORBA::string_free(valID);
-      }
-#else
-      ERROR("Cannot use containers without Dagda" << endl, 0);
-#endif
-    } else {
-      diet_container_set(diet_parameter(profile, index),DIET_PERSISTENT);
-    }
-  }
+  if (value != "")
+    setProfileWithValue();
+  else
+    setProfileWithoutValue();
   return true;
 } // end initProfileExec
 
@@ -312,6 +186,145 @@ WfPort::setMatParams(long nbr, long nbc,
   this->nb_c = nbc;
   this->order = o;
   this->base_type = bt;
+}
+
+void
+WfPort::initMatrixValue(void **buffer, const string& value) {
+  switch (base_type) {
+    case DIET_CHAR:
+      *buffer = new char[nb_r*nb_c];
+      break;
+    case DIET_SHORT:
+      *buffer = new int[nb_r*nb_c];
+      break;
+    case DIET_INT:
+      *buffer = new int[nb_r*nb_c];
+      break;
+    case DIET_LONGINT:
+      *buffer = new long[nb_r*nb_c];
+      break;
+    case DIET_FLOAT:
+      *buffer = new float[nb_r*nb_c];
+      break;
+    case DIET_DOUBLE:
+      *buffer = new double[nb_r*nb_c];
+      break;
+    default:
+      break;
+  } // end (switch)
+  // VALUE IS PROVIDED IN A FILE
+  if (value.substr(0, (string("file->")).size()) == "file->") {
+    string dataFileName = value.substr((string("file->")).size());
+    unsigned len = nb_r*nb_c;
+    TRACE_TEXT (TRACE_ALL_STEPS,
+                "reading the matrix data file" << endl);
+    switch (base_type) {
+      case DIET_CHAR:
+        WfCst::readChar(dataFileName.c_str(), (char*)(*buffer), len);
+        break;
+      case DIET_SHORT:
+        WfCst::readShort(dataFileName.c_str(), (short*)(*buffer), len);
+        break;
+      case DIET_INT:
+        WfCst::readInt(dataFileName.c_str(), (int*)(*buffer), len);
+        break;
+      case DIET_LONGINT:
+        WfCst::readLong(dataFileName.c_str(), (long*)(*buffer), len);
+        break;
+      case DIET_FLOAT:
+        WfCst::readFloat(dataFileName.c_str(), (float*)(*buffer), len);
+        break;
+      case DIET_DOUBLE:
+        WfCst::readDouble(dataFileName.c_str(), (double*)(*buffer), len);
+        break;
+      default:
+        break;
+    } // end switch
+  }
+  // VALUE IS PROVIDED DIRECTLY IN THE XML WORKFLOW
+  else {
+    vector<string> v = getStringToken(value);
+    unsigned int len = v.size();
+	// fill the matrix with the given data
+    TRACE_TEXT (TRACE_ALL_STEPS,
+                "filling the matrix with the data (" << len << ")" << endl);
+    char  * ptr1(NULL);
+    short * ptr2(NULL);
+    int   * ptr3(NULL);
+    long  * ptr4(NULL);
+    float * ptr5(NULL);
+    double * ptr6(NULL);
+    switch (base_type) {
+      case DIET_CHAR:
+        ptr1 = (char*)(*buffer);
+        for (unsigned int ix = 0; ix<len; ix++)
+          ptr1[ix] = v[ix][0];
+        break;
+      case DIET_SHORT:
+        ptr2 = (short*)(*buffer);
+        for (unsigned int ix = 0; ix<len; ix++)
+          ptr2[ix] = atoi(v[ix].c_str());
+        break;
+      case DIET_INT:
+        ptr3 = (int*)(*buffer);
+        for (unsigned int ix = 0; ix<len; ix++)
+          ptr3[ix] = atoi(v[ix].c_str());
+        break;
+      case DIET_LONGINT:
+        ptr4 = (long*)(*buffer);
+        for (unsigned int ix = 0; ix<len; ix++)
+          ptr4[ix] = atoi(v[ix].c_str());
+        break;
+      case DIET_FLOAT:
+        ptr5 = (float*)(*buffer);
+        for (unsigned int ix = 0; ix<len; ix++)
+          ptr5[ix] = atof(v[ix].c_str());
+        break;
+      case DIET_DOUBLE:
+        ptr6 = (double*)(*buffer);
+        for (unsigned int ix = 0; ix<len; ix++)
+          ptr6[ix] = atof(v[ix].c_str());
+        break;
+      default:
+        break;
+    } // end switch
+  } // end else
+}
+
+/**
+ * Initialize a port value for a container
+ * IMPORTANT:  Currently limited to 1 level and to DIET_LONGINT values
+ */
+void
+WfPort::initContainerValue(const string& value) {
+#if HAVE_DAGDA
+  TRACE_TEXT (TRACE_ALL_STEPS,"Using value (" << value
+      << ") to initialize container" << endl);
+  // init container
+  char* contID;
+  diet_profile_t* profile = myParent->getProfile();
+  dagda_create_container(&contID);
+  diet_use_data(diet_parameter(profile, index),contID);
+  // parse values
+  char* valID;
+  int ix=0;
+  string contVal = value;
+  string::size_type valSepLeft  = -1;
+  while ((ix == 0) || (valSepLeft!=string::npos)) {
+    string::size_type valSepRight = contVal.find(";",valSepLeft+1);
+    long val = atoi(contVal.substr(
+                    valSepLeft+1,
+                    (valSepRight == string::npos ? contVal.length() : valSepRight)-valSepLeft-1
+                                  ).c_str());
+    valSepLeft = valSepRight;
+        // store value and add it to container
+    dagda_put_scalar(&val, DIET_LONGINT, DIET_PERSISTENT, &valID);
+    dagda_add_container_element(contID,valID,ix++);
+    CORBA::string_free(valID);
+  }
+#else
+  WARNING("Cannot use containers without Dagda" << endl, 0);
+#endif
 }
 
 diet_profile_t *
@@ -334,11 +347,16 @@ WfPort::getDepth() {
   return this->depth;
 }
 
+const string&
+WfPort::getDataID() {
+  return this->dataID;
+}
+
 /**
  * WfOutPort class (inherits from WfPort)
  */
 
-WfOutPort::WfOutPort(Node * parent, string _id, string _type, uint _depth,
+WfOutPort::WfOutPort(Node * parent, string _id, WfCst::WfDataType _type, uint _depth,
                      uint _ind, const string& v) :
   WfPort(parent, _id, _type, _depth, _ind, v) {
   sink_port = NULL;
@@ -369,6 +387,11 @@ WfOutPort::isResult() {
   return (sink_port == NULL);
 }
 
+void
+WfOutPort::storeProfileData() {
+  dataID = profile()->parameters[getIndex()].desc.id;
+}
+
 diet_persistence_mode_t
 WfOutPort::getPersistenceMode() {
   if (isResult()) return DIET_PERSISTENT_RETURN;
@@ -378,7 +401,7 @@ WfOutPort::getPersistenceMode() {
 /**
  * WfInPort class (inherits from WfPort)
  */
-WfInPort::WfInPort(Node * parent, string _id, string _type, uint _depth,
+WfInPort::WfInPort(Node * parent, string _id, WfCst::WfDataType _type, uint _depth,
                    uint _ind, const string& v) :
   WfPort(parent, _id, _type, _depth, _ind, v) {
   this->adapter = NULL;
@@ -437,11 +460,12 @@ WfInPort::initSourceData() {
   if (!isInput()) {
     TRACE_TEXT (TRACE_ALL_STEPS,
  		"## using persistent data for " << index << endl);
-    char* srcDataID = adapter->getSourceDataID();
-    if (srcDataID != NULL) {
+    dataID = adapter->getSourceDataID();
+    if (!dataID.empty()) {
       TRACE_TEXT (TRACE_ALL_STEPS,
-                  "##  ==> data ID is " << srcDataID << endl);
-      diet_use_data(diet_parameter(this->profile(), index), srcDataID);
+                  "##  ==> data ID is " << dataID << endl);
+      diet_use_data(diet_parameter(this->profile(), index),
+                    const_cast<char*>(dataID.c_str()));
     } else {
       TRACE_TEXT (TRACE_ALL_STEPS,
                   "##  ERROR ==> data ID not found" << endl);
@@ -464,7 +488,7 @@ WfInPort::getPersistenceMode() {
 /**
  * WfInOutPort class
  */
-WfInOutPort::WfInOutPort(Node * parent, string _id, string _type, uint _depth,
+WfInOutPort::WfInOutPort(Node * parent, string _id, WfCst::WfDataType _type, uint _depth,
                          uint _ind, const string& v) :
   WfPort(parent, _id, _type, _depth, _ind, v),
   WfInPort(parent, _id, _type, _depth, _ind, v),

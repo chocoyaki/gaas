@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/09/30 09:23:29  bisnard
+ * removed diet profile initialization from DagWfParser and replaced by node methods initProfileSubmit and initProfileExec
+ *
  * Revision 1.4  2008/09/19 13:11:07  bisnard
  * - added support for containers split/merge in workflows
  * - added support for multiple port references
@@ -111,7 +114,7 @@ protected:
    * The dag representation as a map of nodes
    * The key is the node identifier. The data is the node reference
    */
-  std::map <std::string, Node*> myNodes;
+//   std::map <std::string, Node*> myNodes;
 
   /**
    * Dag structure
@@ -191,7 +194,6 @@ protected:
    * @param name     argument id
    * @param value    argument value
    * @param type     argument data type
-   * @param profile  current profile reference
    * @param lastArg  the argument index in the profile
    * @param dagNode  node reference in the Dag structure
    */
@@ -199,7 +201,6 @@ protected:
   checkArg(const string& name,
 	   const string& value,
 	   const string& type,
-	   diet_profile_t * profile,
 	   const unsigned int lastArg,
 	   Node * dagNode = NULL);
 
@@ -208,7 +209,6 @@ protected:
    * @param name     input port id
    * @param type     input port data type
    * @param source   linked output port id
-   * @param profile  current profile reference
    * @param lastArg  the input port index in the profile
    * @param dagNode  node reference in the Dag structure
    */
@@ -216,7 +216,6 @@ protected:
   checkIn(const string& name,
 	  const string& type,
 	  const string& source,
-	  diet_profile_t * profile,
 	  unsigned int lastArg,
 	  Node * dagNode = NULL);
 
@@ -225,7 +224,6 @@ protected:
    * @param name     inoutput port id
    * @param type     inoutput port data type
    * @param source   linked output port id
-   * @param profile  current profile reference
    * @param lastArg  the inoutput port index in the profile
    * @param dagNode  node reference in the Dag structure
    */
@@ -233,7 +231,6 @@ protected:
   checkInout(const string& name,
 	     const string& type,
 	     const string& source,
-	     diet_profile_t * profile,
 	     unsigned int lastArg,
 	     Node * dagNode = NULL);
 
@@ -242,7 +239,6 @@ protected:
    * @param name     output port id
    * @param type     output port data type
    * @param sink     linked input port id
-   * @param profile  current profile reference
    * @param lastArg  the output port index in the profile
    * @param dagNode  node reference in the Dag structure
    */
@@ -250,7 +246,6 @@ protected:
   checkOut(const string& name,
 	   const string& type,
 	   const string& sink,
-	   diet_profile_t * profile,
 	   unsigned int lastArg,
 	   Node * dagNode = NULL);
 
@@ -260,16 +255,14 @@ protected:
    * @param param_type  the type of port (IN, OUT or INOUT)
    * @param name        the name of the port ('node id'#'port id')
    * @param type        the type of the port (eg 'LIST(LIST(DIET_INT))')
-   * @param profile     the DIET profile of the port (allocated previously)
    * @param lastArg     the index of the port (in the profile)
    * @param dagNode     the current node object (optional)
    * @param value       the value of the parameter (optional)
    */
-  virtual bool
+  virtual void
   setParam(const wf_port_t param_type,
 	   const string& name,
 	   const string& type,
-	   diet_profile_t* profile,
 	   unsigned int lastArg,
 	   Node * dagNode = NULL,      //FIXME should not be null!!
 	   const string * value = NULL);
@@ -278,54 +271,46 @@ protected:
    * parse a matrix argument
    * @param id         Port complete id (node id + # + port name)
    * @param element    Dom node representing a matrix
-   * @param profile  current profile reference
    * @param lastArg  the output port index in the profile
    * @param dagNode  Undocumented
    */
   virtual bool
   checkMatrixArg(const string& id, const DOMElement * element,
-		 diet_profile_t * profile, unsigned int lastArg,
-		 Node * dagNode = NULL);
+		 unsigned int lastArg, Node * dagNode = NULL);
 
   /**
    * parse a matrix input port
    * @param id         Port complete id (node id + # + port name)
    * @param element    Dom node representing a matrix
-   * @param profile  current profile reference
    * @param lastArg  the output port index in the profile
    * @param dagNode  Undocumented
    */
   virtual bool
   checkMatrixIn(const string& id, const string& source,
 		const DOMElement * element,
-		diet_profile_t * profile, unsigned int lastArg,
-		Node * dagNode = NULL);
+		unsigned int lastArg, Node * dagNode = NULL);
 
   /**
    * parse a matrix inout port
    * @param id         Port complete id (node id + # + port name)
    * @param element    Dom node representing a matrix
-   * @param profile  current profile reference
    * @param lastArg  the output port index in the profile
    * @param dagNode  Undocumented
    */
   virtual bool
   checkMatrixInout(const string& id, const DOMElement * element,
-		   diet_profile_t * profile, unsigned int lastArg,
-		   Node * dagNode = NULL);
+		   unsigned int lastArg, Node * dagNode = NULL);
 
   /**
    * parse a matrix output port
    * @param id         Port complete id (node id + # + port name)
    * @param element    Dom node representing a matrix
-   * @param profile  current profile reference
    * @param lastArg  the output port index in the profile
    * @param dagNode  Undocumented
    */
   virtual bool
   checkMatrixOut(const string& id, const DOMElement * element,
-		 diet_profile_t * profile, unsigned int lastArg,
-		 Node * dagNode = NULL);
+		 unsigned int lastArg, Node * dagNode = NULL);
 
   /**
    * parse a matrix argument.
@@ -355,58 +340,9 @@ protected:
 		 const string& nb_rows,
 		 const string& nb_cols,
 		 const string& matrix_order,
-		 diet_profile_t * profile,
 		 unsigned int lastArg,
 		 Node * dagNode = NULL,
 		 const string * value = NULL);
-
-  /**
-   * Fill a profile with the appropriate parameter type
-   * The data are NULL
-   *
-   * @param param_type the parameter type (ARG, IN, INOUT)
-   * @param name       the port type
-   * @param type       the parameter data type
-   * @param profile    the diet profile reference
-   * @param lastArg    the parameter index
-   * @param dagNode    the node reference
-   * @param value      the parameter value as a reference
-   */
-  virtual bool
-  setParamDesc(const wf_port_t param_type,
-	       const string& name,
-	       const string& type,
-	       diet_profile_t * profile,
-	       unsigned int lastArg,
-	       Node * dagNode = NULL,
-	       const string * value = NULL);
-
-  /**
-   * fill a profile with matrix parameter type
-   * The data are NULL
-   *
-   * @param param_type   the parameter type (ARG, IN, INOUT)
-   * @param name         the port type
-   * @param base_type    the matrix element data type
-   * @param nb_rows      the rows count
-   * @param nb_cols      the cols count
-   * @param matrix_order the matrix order
-   * @param profile      the diet profile reference
-   * @param lastArg      the parameter index
-   * @param dagNode      the node reference
-   * @param value        the parameter value as a reference
-   */
-  virtual bool
-  setMatrixParamDesc(const wf_port_t param_type,
-		     const string& name,
-		     const string& base_type,
-		     const string& nb_rows,
-		     const string& nb_cols,
-		     const string& matrix_order,
-		     diet_profile_t * profile,
-		     unsigned int lastArg,
-		     Node * dagNode = NULL,
-		     const string * value = NULL);
 
   private:
 
@@ -416,8 +352,6 @@ protected:
     int wfReqId;
 
 };
-
-bool operator == (corba_pb_desc_t& a,   corba_pb_desc_t& b);
 
 class XMLParsingException {
   public:

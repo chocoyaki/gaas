@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/09/30 09:23:29  bisnard
+ * removed diet profile initialization from DagWfParser and replaced by node methods initProfileSubmit and initProfileExec
+ *
  * Revision 1.2  2008/09/19 14:01:30  bisnard
  * allow compile wf support with or without DAGDA
  *
@@ -47,10 +50,16 @@ WfPortAdapter::createAdapter(const string& strRef) {
  * PARSING of a simple reference (with or without subports)
  */
 WfSimplePortAdapter::WfSimplePortAdapter(const string& strRef) {
-  TRACE_TEXT (TRACE_ALL_STEPS,"Creating simple port adapter ref=[" << strRef << "]" << endl);
-  string::size_type portSep = strRef.find("#");
+  TRACE_TEXT (TRACE_ALL_STEPS,"Creating simple port adapter ref=" << strRef << endl);
+  string::size_type nodeSep = strRef.find("%");
+  string::size_type nodeStart = 0;
+  if (nodeSep != string::npos) {
+    this->dagName = strRef.substr(0, nodeSep);
+    nodeStart = nodeSep + 1;
+  }
+  string::size_type portSep = strRef.find("#",nodeStart);
   if (portSep != string::npos) {
-    this->nodeName = strRef.substr(0, portSep);
+    this->nodeName = strRef.substr(nodeStart, portSep-nodeStart);
     string::size_type idxListLeft = strRef.find("[");
     if (idxListLeft == string::npos) {
       this->portName = strRef.substr(portSep+1);
@@ -73,10 +82,11 @@ WfSimplePortAdapter::WfSimplePortAdapter(const string& strRef) {
 
 void
 WfSimplePortAdapter::setNodePredecessors(Node* node, Dag* dag) {
-  Node * linkedNode = dag->getNode(nodeName);
-  if (linkedNode) {
-    node->addPrec(linkedNode->getId(), linkedNode);
-    TRACE_FUNCTION (TRACE_ALL_STEPS," Loop2: Add prec " << linkedNode->getId()
+  // if dagName different from dag's name, get the node from [dagName]
+  nodePtr = dag->getNode(nodeName);
+  if (nodePtr) {
+    node->addPrec(nodePtr->getId(), nodePtr);
+    TRACE_FUNCTION (TRACE_ALL_STEPS," Loop2: Add prec " << nodePtr->getId()
         << " to " << node->getId() << endl);
   } else {
     //TODO throw exception node not found
@@ -85,30 +95,29 @@ WfSimplePortAdapter::setNodePredecessors(Node* node, Dag* dag) {
 
 void
 WfSimplePortAdapter::setPortDataLinks(WfInPort* inPort, Dag* dag) {
-    // get the linked node ref
-    Node * linkedNode = dag->getNode(nodeName);
-    if (linkedNode) {
-      WfOutPort * out = linkedNode->getOutPort(nodeName + "#" + portName);
-      if (out != NULL) {
-        this->portPtr = out;      // SET the SOURCE link
-        out->setSink(inPort);     // SET the SINK link (used to determine if out port is a result)
-      } else {
-        INTERNAL_ERROR("FATAL ERROR:" << endl << "Cannot find linked port '"
-          << nodeName + "#" + portName << "'" << endl, 1);
-      }
+  if (nodePtr) {
+    WfOutPort * out = nodePtr->getOutPort(nodeName + "#" + portName);
+    if (out != NULL) {
+      this->portPtr = out;      // SET the SOURCE link
+      out->setSink(inPort);     // SET the SINK link (used to determine if out port is a result)
+      // if external link (different dags) then use setExternalSink
     } else {
-      INTERNAL_ERROR("FATAL ERROR" << endl <<
-              "Cannot find linked node : " << nodeName, 1);
+      INTERNAL_ERROR("FATAL ERROR:" << endl << "Cannot find linked port '"
+          << nodeName + "#" + portName << "'" << endl, 1);
     }
+  } else {
+    INTERNAL_ERROR("FATAL ERROR" << endl <<
+        "Cannot find linked node : " << nodeName, 1);
+  }
 }
 
-char*
+const string&
 WfSimplePortAdapter::getSourceDataID() {
   if (portPtr == NULL) {
-    ERROR("WfSimplePortAdapter Error: invalid port reference" << endl, NULL);
+    ERROR("WfSimplePortAdapter Error: invalid port reference" << endl, dataID);
   }
   // use the data ID of the source port itself
-  char* srcDataID = CORBA::string_dup(portPtr->profile()->parameters[portPtr->getIndex()].desc.id);
+  dataID = portPtr->getDataID();
   // look for element's data ID in case of a container
   if (depth() > 0) {
 #if HAVE_DAGDA
@@ -116,21 +125,24 @@ WfSimplePortAdapter::getSourceDataID() {
     for (list<uint>::const_iterator idxIter = eltIdx.begin();
          idxIter != eltIdx.end();
          ++idxIter) {
-      dagda_get_container(srcDataID);
-      diet_container_t content;
-      dagda_get_container_elements(srcDataID, &content);
-      if (content.size >= (*idxIter + 1)) {
-        CORBA::string_free(srcDataID);
-        srcDataID = CORBA::string_dup(content.elt_ids[*idxIter]);
+      if (!dataID.empty()) {
+        dagda_get_container(dataID.c_str());
+        diet_container_t content;
+        dagda_get_container_elements(dataID.c_str(), &content);
+        if (content.size >= (*idxIter + 1)) {
+          dataID = content.elt_ids[*idxIter];
+        } else {
+          ERROR("WfSimplePortAdapter Error: cannot find container item" << endl, dataID);
+        }
       } else {
-        ERROR("WfSimplePortAdapter Error: cannot find container item" << endl, NULL);
+        ERROR("WfSimplePortAdapter Error: empty data ID" << endl, dataID);
       }
     }
 #else
-    ERROR("WfSimplePortAdapter Error: trying to use containers without Dagda enabled" << endl, NULL);
+    ERROR("WfSimplePortAdapter Error: trying to use containers without Dagda enabled" << endl, dataID);
 #endif
   }
-  return srcDataID;
+  return dataID;
 }
 
 const string&
@@ -201,7 +213,7 @@ WfMultiplePortAdapter::setPortDataLinks(WfInPort* inPort, Dag* dag) {
   }
 }
 
-char*
+const string&
 WfMultiplePortAdapter::getSourceDataID() {
   char* idCont;
 #if HAVE_DAGDA
@@ -211,12 +223,15 @@ WfMultiplePortAdapter::getSourceDataID() {
   for (list<WfPortAdapter*>::iterator iter = adapters.begin();
        iter != adapters.end();
        ++iter) {
-    char* idElt = (*iter)->getSourceDataID();
-    dagda_add_container_element(idCont,idElt,ix++);
+//     char* idElt = (*iter)->getSourceDataID();
+//     dagda_add_container_element(idCont,idElt,ix++);
+     const string& idElt = (*iter)->getSourceDataID();
+     dagda_add_container_element(idCont,idElt.c_str(),ix++);
   }
+  containerID = idCont;
   TRACE_TEXT (TRACE_ALL_STEPS,"## End of merge ports" << endl);
 #else
-  ERROR("WfMultiplePortAdapter Error: trying to use containers without Dagda enabled" << endl, NULL);
+  ERROR("WfMultiplePortAdapter Error: trying to use containers without Dagda enabled" << endl, "");
 #endif
-  return idCont;
+  return containerID;
 }

@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2008/09/30 09:23:29  bisnard
+ * removed diet profile initialization from DagWfParser and replaced by node methods initProfileSubmit and initProfileExec
+ *
  * Revision 1.25  2008/09/19 14:01:30  bisnard
  * allow compile wf support with or without DAGDA
  *
@@ -194,12 +197,6 @@ void display(const corba_profile_t& pb) {
 /**
  * RunnableNode constructor
  */
-/*RunnableNode::RunnableNode(Node * parent,
-			   diet_reqID_t reqID)
-  :Thread(false) {
-  this->myParent = parent;
-  this->myReqID = reqID;
-} // end RunnableNode constructor*/
 RunnableNode::RunnableNode(Node * parent)
 	:Thread(false) {
   this->myParent = parent;
@@ -215,7 +212,6 @@ RunnableNode::run() {
   TRACE_TEXT (TRACE_ALL_STEPS,
 	      "RunnableNode tries to a execute a service "<< endl);
   // create the node diet profile
-  TRACE_TEXT (TRACE_ALL_STEPS, "Create the node diet profile" << endl);
   failed = !(myParent->initProfileExec());
   if (!failed) {
     try {
@@ -223,11 +219,8 @@ RunnableNode::run() {
         cout << "Make DIET call for pb " << myParent->profile->pb_name << endl;
         if (!diet_call_common(myParent->profile, myParent->chosenServer, myParent->estimVect)) {
           TRACE_TEXT (TRACE_MAIN_STEPS, "diet_call DONE " << "reqID=" <<
-              myParent->profile->dietReqID <<
-                  endl);
-          myParent->storePersistentData();
-        //cout << " dietReqID : " << myParent->profile->dietReqID << endl;
-        //this->myReqID=myParent->profile->dietReqID;
+              myParent->profile->dietReqID << endl);
+          myParent->storeProfileData();
         }
         else {
           TRACE_TEXT (TRACE_MAIN_STEPS, "diet_call FAILED" << endl);
@@ -256,15 +249,14 @@ RunnableNode::run() {
 /**
  * The Node constructor
  */
-Node::Node(int wfReqId, string id, string pb_name,
-	   int last_in, int last_inout, int last_out) {
+Node::Node(int wfReqId, string id, string pb_name) {
   this->wfReqId = wfReqId;
   this->myId = id;
   this->myPb = pb_name;
   this->prevNodes = 0;
   this->task_done = false;
-  this->profile = diet_profile_alloc((char*)pb_name.c_str(),
-				     last_in, last_inout, last_out);
+  this->SeDDefined = false;
+  this->profile = NULL;
   this->node_running = false;
   this->taskExecFailed = false;
   this->myRunnableNode = NULL;
@@ -285,8 +277,7 @@ Node::Node(int wfReqId, string id, string pb_name,
  * Node destructor
  */
 Node::~Node() {
-  // if everything is alright, we need this line only for the exit node(s)
-//   TRACE_TEXT (TRACE_ALL_STEPS, "~Node() destructor..." << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS, "~Node() destructor (id: " << myId << ") ..." << endl);
   if (profile != NULL)
     diet_profile_free(profile);
   if (myRunnableNode)
@@ -446,13 +437,6 @@ Node::getLastQueue() {
 string Node::getPb() {
   return this->myPb;
 } // end getPb
-
-/**
- * set the node profile
- */
-void Node::set_pb_desc(diet_profile_t* profile) {
-  this->profile = profile;
-} // end set_pb_desc
 
 /**
  * return the node profile
@@ -633,16 +617,16 @@ string
 Node::toString() {
   string str = "Node representation\n";
   str += "Input Ports\n";
-  for (map<string, WfInPort*>::iterator p = inports.begin();
-       p != inports.end();
+  for (map<string, WfInPort*>::iterator p = inPorts.begin();
+       p != inPorts.end();
        p++) {
     WfInPort * in = (WfInPort*)(p->second);
     str += "\t\t"+ in->getId() + "\n";
   }
 
   str += "Output Ports\n";
-  for (map<string, WfOutPort*>::iterator p = outports.begin();
-       p != outports.end();
+  for (map<string, WfOutPort*>::iterator p = outPorts.begin();
+       p != outPorts.end();
        p++) {
     WfOutPort * out = (WfOutPort*)(p->second);
     str += "\t\t"+ out->getId() + "\n";
@@ -717,8 +701,8 @@ Node::newInt(const string value) {
  */
 long *
 Node::newLong(const string value) {
-//   TRACE_TEXT (TRACE_ALL_STEPS,
-// 	      "new long ; value | " << value <<  " |" << endl);
+   TRACE_TEXT (TRACE_ALL_STEPS,
+ 	      "new long ; value | " << value <<  " |" << endl);
   if (value != "") {
     long * lx = new long;
     *lx = atoi(value.c_str());
@@ -913,6 +897,7 @@ Node::hasFailed() {
  */
 void
 Node::setSeD(const SeD_var& sed, const unsigned long reqID, corba_estimation_t& ev) {
+  this->SeDDefined = true;
   this->chosenServer = sed;
   this->dietReqID = reqID;
   this->estimVect = &ev;
@@ -1090,7 +1075,7 @@ Node::link_io2o(const string io, const string out) {
  * create and add a new port to the node *
  */
 WfPort *
-Node::newPort(string id, uint ind, wf_port_t type, string diet_type,
+Node::newPort(string id, uint ind, wf_port_t type, WfCst::WfDataType dataType,
 	      uint depth, const string& v) {
   WfPort * p = NULL;
   WfInPort * in = NULL;
@@ -1099,18 +1084,18 @@ Node::newPort(string id, uint ind, wf_port_t type, string diet_type,
   switch (type) {
     case ARG_PORT:
     case IN_PORT:
-      in = new WfInPort(this, id, diet_type, depth, ind, v);
-      inports[id] =  in;
+      in = new WfInPort(this, id, dataType, depth, ind, v);
+      inPorts[id] =  in;
       p = (WfPort *) in;
       break;
     case INOUT_PORT:
-      inout = new WfInOutPort(this, id, diet_type, depth, ind, v);
-      inoutports[id] = inout;
+      inout = new WfInOutPort(this, id, dataType, depth, ind, v);
+      inOutPorts[id] = inout;
       p = (WfInOutPort * ) inout;
       break;
     case OUT_PORT:
-      out = new WfOutPort(this, id, diet_type, depth, ind, v);
-      outports[id] = out;
+      out = new WfOutPort(this, id, dataType, depth, ind, v);
+      outPorts[id] = out;
       p = (WfOutPort *) out;
       break;
   }
@@ -1122,8 +1107,8 @@ Node::newPort(string id, uint ind, wf_port_t type, string diet_type,
  */
 WfInPort *
 Node::getInPort(string id) {
-  map<string, WfInPort*>::iterator p = inports.find(id);
-  if (p != inports.end())
+  map<string, WfInPort*>::iterator p = inPorts.find(id);
+  if (p != inPorts.end())
     return ((WfInPort*)(p->second));
   else
     return NULL;
@@ -1134,8 +1119,8 @@ Node::getInPort(string id) {
  */
 WfOutPort *
 Node::getOutPort(string id) {
-  map<string, WfOutPort*>::iterator p = outports.find(id);
-  if (p != outports.end())
+  map<string, WfOutPort*>::iterator p = outPorts.find(id);
+  if (p != outPorts.end())
     return ((WfOutPort*)(p->second));
   else
     return NULL;
@@ -1146,65 +1131,94 @@ Node::getOutPort(string id) {
  */
 WfInOutPort *
 Node::getInOutPort(string id) {
-  map<string, WfInOutPort*>::iterator p = inoutports.find(id);
-  if (p != inoutports.end())
+  map<string, WfInOutPort*>::iterator p = inOutPorts.find(id);
+  if (p != inOutPorts.end())
     return ((WfInOutPort*)(p->second));
   else
     return NULL;
 } // end getInOutPort
 
-
 /**
- * Store the persistent data of the node profile *
+ * Creates the base profile without the parameters (COMMON)
  */
 void
-Node::storePersistentData() {
-  for (map<string, WfOutPort*>::iterator p = outports.begin();
-       p != outports.end();
-       ++p) {
-    WfOutPort * out = (WfOutPort*)(p->second);
-    store_id(profile->parameters[out->getIndex()].desc.id,
-	     (char *) "wf param");
+Node::createProfile() {
+  if (this->profile) {
+    WARNING("Node::createProfile : profile already defined!!" << endl);
   }
-} // end storePersistentData
+  int last_in    = inPorts.size() - 1;
+  int last_inout = last_in + inOutPorts.size();
+  int last_out   = last_inout + outPorts.size();
+  this->profile =  diet_profile_alloc((char*)(this->myPb.c_str()),
+                                       last_in, last_inout, last_out);
+
+}
 
 /**
- * Updates the profile before execution of the node
+ * Creates the profile before submission of the node (MADAG SIDE)
+ */
+bool
+Node::initProfileSubmit() {
+  TRACE_TEXT(TRACE_ALL_STEPS,"Creating profile for Submit" << endl);
+  createProfile();
+  for (map<string, WfInPort*>::iterator p = inPorts.begin();
+       p != inPorts.end();
+       ++p) {
+    WfInPort * in = (WfInPort*)(p->second);
+    if (!in->initProfileSubmit()) {
+      ERROR ("Profile init failed (in port)" << endl, 0);
+    }
+  }
+  for (map<string, WfOutPort*>::iterator p = outPorts.begin();
+       p != outPorts.end();
+       ++p) {
+    WfOutPort * out = (WfOutPort*)(p->second);
+    if (!out->initProfileSubmit()) {
+      ERROR ("Profile init failed (out port)" << endl, 0);
+    }
+  }
+  for (map<string, WfInOutPort*>::iterator p = inOutPorts.begin();
+       p != inOutPorts.end();
+       ++p) {
+    WfInOutPort * inout = (WfInOutPort*)(p->second);
+    if (!inout->initProfileSubmit()) {
+      ERROR ("Profile init failed (inout port)" << endl, 0);
+    }
+  }
+  return true;
+}
+
+/**
+ * Creates the profile before execution of the node (CLIENT SIDE)
  */
 bool
 Node::initProfileExec() {
-  int last_in = this->profile->last_in;
-  int last_inout = this->profile->last_inout;
-  int last_out = this->profile->last_out;
-  diet_profile_free(this->profile);
-  TRACE_TEXT (TRACE_ALL_STEPS, "Reallocating a new profile " << myPb.c_str() << endl);
-  this->profile =  diet_profile_alloc((char*)(this->myPb.c_str()),
-					   last_in, last_inout, last_out);
-  // Set the request ID if available (case when a previous submit request has
-  // been sent by the MaDag) and the SeD is already chosen
-  this->profile->dietReqID = this->dietReqID;
-  TRACE_TEXT(TRACE_ALL_STEPS,"Setting reqID in profile to #"
+  TRACE_TEXT(TRACE_ALL_STEPS,"Creating profile for Execution" << endl);
+  createProfile();
+  if (this->SeDDefined) {
+    this->profile->dietReqID = this->dietReqID;
+    TRACE_TEXT(TRACE_ALL_STEPS,"Setting reqID in profile to #"
       << this->dietReqID << endl);
+  }
 
-
-  for (map<string, WfInPort*>::iterator p = inports.begin();
-       p != inports.end();
+  for (map<string, WfInPort*>::iterator p = inPorts.begin();
+       p != inPorts.end();
        ++p) {
     WfInPort * in = (WfInPort*)(p->second);
     if (!in->initProfileExec()) {
       ERROR ("Profile init failed (in port)" << endl, 0);
     }
   }
-  for (map<string, WfOutPort*>::iterator p = outports.begin();
-       p != outports.end();
+  for (map<string, WfOutPort*>::iterator p = outPorts.begin();
+       p != outPorts.end();
        ++p) {
     WfOutPort * out = (WfOutPort*)(p->second);
     if (!out->initProfileExec()) {
       ERROR ("Profile init failed (out port)" << endl, 0);
     }
   }
-  for (map<string, WfInOutPort*>::iterator p = inoutports.begin();
-       p != inoutports.end();
+  for (map<string, WfInOutPort*>::iterator p = inOutPorts.begin();
+       p != inOutPorts.end();
        ++p) {
     WfInOutPort * inout = (WfInOutPort*)(p->second);
     if (!inout->initProfileExec()) {
@@ -1214,6 +1228,20 @@ Node::initProfileExec() {
   return true;
 }
 
+/**
+ * Store the persistent data of the node profile *
+ */
+void
+Node::storeProfileData() {
+  for (map<string, WfOutPort*>::iterator p = outPorts.begin();
+       p != outPorts.end();
+       ++p) {
+    WfOutPort * out = (WfOutPort*)(p->second);
+    out->storeProfileData();
+//     store_id(profile->parameters[out->getIndex()].desc.id,
+// 	     (char *) "wf param");
+  }
+}
 
 /**
  * Free the profile and the persistent data of the node

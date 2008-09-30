@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2008/09/30 09:23:29  bisnard
+ * removed diet profile initialization from DagWfParser and replaced by node methods initProfileSubmit and initProfileExec
+ *
  * Revision 1.15  2008/09/19 13:11:07  bisnard
  * - added support for containers split/merge in workflows
  * - added support for multiple port references
@@ -255,15 +258,15 @@ Dag::checkPrec() {
        ++p ) {
     node = (Node*) p->second;
 
-    for (map<string, WfInPort*>::iterator p = node->inports.begin();
-	 p != node->inports.end();
+    for (map<string, WfInPort*>::iterator p = node->inPorts.begin();
+	 p != node->inPorts.end();
 	 ++p) {
       WfInPort * in = (WfInPort*)(p->second);
       in->setNodePredecessors(this);
     } // end for in
 
-    for (map<string, WfInOutPort*>::iterator p = node->inoutports.begin();
-	 p != node->inoutports.end();
+    for (map<string, WfInOutPort*>::iterator p = node->inOutPorts.begin();
+	 p != node->inOutPorts.end();
 	 ++p) {
       WfInOutPort * inout = (WfInOutPort*)(p->second);
       inout->setNodePredecessors(this);
@@ -344,23 +347,23 @@ Dag::linkNodePorts(Node * n) {
    TRACE_TEXT (TRACE_ALL_STEPS,
  	      "linkNodePorts : processing node " << n->getId() << endl);
   // INPUT ==== ref to ===> OUTPUT
-  for (map<string, WfInPort*>::iterator p = n->inports.begin();
-       p != n->inports.end();
+  for (map<string, WfInPort*>::iterator p = n->inPorts.begin();
+       p != n->inPorts.end();
        ++p) {
     WfInPort * in = (WfInPort*)(p->second);
     in->setPortDataLinks(this);
   } // end for (inports)
 
   // OUTPUT ==== ref to ===> INPUT
-  for (map<string, WfOutPort*>::iterator p = n->outports.begin();
-       p != n->outports.end();
+  for (map<string, WfOutPort*>::iterator p = n->outPorts.begin();
+       p != n->outPorts.end();
        ++p) {
     // manage linking using <sink> links
   }
 
   // INOUT ==== ref to ===> OUTPUT
-  for (map<string, WfInOutPort*>::iterator p = n->inoutports.begin();
-       p != n->inoutports.end();
+  for (map<string, WfInOutPort*>::iterator p = n->inOutPorts.begin();
+       p != n->inOutPorts.end();
        ++p) {
     WfInOutPort * inout = (WfInOutPort*)(p->second);
     inout->setPortDataLinks(this);
@@ -479,8 +482,8 @@ Dag::get_scalar_output(const char * id,
     n = (Node *)(p->second);
     if (n != NULL) {
       map<string, WfOutPort*>::iterator outp_iter =
-	n->outports.find(id);
-      if (outp_iter != n->outports.end()) {
+	n->outPorts.find(id);
+      if (outp_iter != n->outPorts.end()) {
 	TRACE_TEXT (TRACE_ALL_STEPS,
 		    "\t" << "found an output port with the id " << id << endl);
 	WfOutPort * outp = (WfOutPort *)(outp_iter->second);
@@ -510,8 +513,8 @@ Dag::get_string_output(const char * id,
   if (p!= nodes.end()) {
     Node * n = (Node *)(p->second);
     map<string, WfOutPort*>::iterator outp_iter =
-      n->outports.find(port_id);
-    if (outp_iter != n->outports.end()) {
+      n->outPorts.find(port_id);
+    if (outp_iter != n->outPorts.end()) {
       TRACE_TEXT (TRACE_ALL_STEPS,
 		  "######## found an output port with the id " << id << endl);
       WfOutPort * outp = (WfOutPort *)(outp_iter->second);
@@ -539,8 +542,8 @@ Dag::get_file_output (const char * id,
   if (p!= nodes.end()) {
     Node * n = (Node *)(p->second);
     map<string, WfOutPort*>::iterator outp_iter =
-      n->outports.find(port_id);
-    if (outp_iter != n->outports.end()) {
+      n->outPorts.find(port_id);
+    if (outp_iter != n->outPorts.end()) {
       TRACE_TEXT (TRACE_ALL_STEPS,
 		  "######## found an output port with the id " << id << endl);
       WfOutPort * outp = (WfOutPort *)(outp_iter->second);
@@ -568,8 +571,8 @@ Dag::get_matrix_output (const char * id, void** value,
   if (p!= nodes.end()) {
     Node * n = (Node *)(p->second);
     map<string, WfOutPort*>::iterator outp_iter =
-      n->outports.find(port_id);
-    if (outp_iter != n->outports.end()) {
+      n->outPorts.find(port_id);
+    if (outp_iter != n->outPorts.end()) {
       TRACE_TEXT (TRACE_ALL_STEPS,
 		  "######## found an output port with the id " << id << endl);
       WfOutPort * outp = (WfOutPort *)(outp_iter->second);
@@ -658,8 +661,8 @@ Dag::get_all_results() {
        ++p) {
     n = (Node *)(p->second);
     if ((n != NULL) && (n->isAnExit())) {
-      for (map<string, WfOutPort*>::iterator outp_iter = n->outports.begin();
-	   outp_iter != n->outports.end();
+      for (map<string, WfOutPort*>::iterator outp_iter = n->outPorts.begin();
+	   outp_iter != n->outPorts.end();
 	   outp_iter++) {
 	WfOutPort * outp = (WfOutPort *)(outp_iter->second);
 	if (outp->isResult()) {
@@ -779,7 +782,7 @@ Dag::get_all_results() {
 	  }
 	  // ******************* MATRIX
 	} // if isResult
-      } // end for outports
+      } // end for outPorts
     } // end if n != NULL
   } // end for p
 

@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2008/09/30 09:23:29  bisnard
+ * removed diet profile initialization from DagWfParser and replaced by node methods initProfileSubmit and initProfileExec
+ *
  * Revision 1.14  2008/09/19 13:11:07  bisnard
  * - added support for containers split/merge in workflows
  * - added support for multiple port references
@@ -99,10 +102,7 @@ public:
   /**
    * The default constructor
    * @param parent The node reference
-   * @param reqID  The request Id
    */
-  /*RunnableNode(Node * parent,
-	       diet_reqID_t reqID);*/
   RunnableNode(Node * parent);
 
 private:
@@ -110,11 +110,6 @@ private:
    * Node reference
    */
   Node * myParent;
-
-  /**
-   * Request ID
-   */
-  //diet_reqID_t myReqID;
 
   /**
    * Node execution method *
@@ -143,25 +138,13 @@ public:
    * @param wfReqId    the workflow request id
    * @param id         the node id
    * @param pb_name    the node service name
-   * @param last_in    last input parameter in diet profile
-   * @param last_inout last inout parameter in diet profile
-   * @param last_out   last out parameter in diet profile
    */
-  Node(int wfReqId, string id, string pb_name,
-       int last_in, int last_inout, int last_out);
+  Node(int wfReqId, string id, string pb_name);
 
   /**
    * Node destructor
    */
   virtual ~Node();
-
-  /**
-   * add a new previous node id and reference *
-   * @param id previous node id
-   * @param n previous node reference
-   */
-  void
-  addPrec(string str, Node * n);
 
   /**
    * To get the node id *
@@ -182,16 +165,83 @@ public:
   getWfReqId();
 
   /**
-   * Set the NodeQueue when the node is inserted into it
-   */
-  void
-  setNodeQueue(NodeQueue * nodeQ);
-
-  /**
    * To get the node pb *
    */
   std::string
   getPb();
+
+  /**
+   * set the node tag value *
+   * see the myTag attribute *
+   * @param t the tag value
+   */
+//   void
+//   setTag(unsigned int t);
+
+  /**
+   * Set the node ID
+   * @param id the new id
+   */
+  void
+  setId(std::string id);
+
+  /**
+   * set the parent Dag reference
+   */
+  void
+  setDag(Dag * dag);
+
+  /**
+   * get the node Dag reference
+   */
+  Dag *
+  getDag();
+
+  /**
+   * display the textual representation of a node  *
+   */
+  std::string
+  toString();
+
+  /******************************/
+  /* Links with other nodes     */
+  /******************************/
+
+  /**
+   * add a new previous node id and reference *
+   * @param id previous node id
+   * @param n previous node reference
+   */
+  void
+  addPrec(string str, Node * n);
+
+  void addPrecId(string str);
+
+  /**
+   * Get the previous node id by index *
+   * @param n the requested previous node index
+   */
+  string
+  getPrecId(unsigned int n);
+
+  /**
+   * add a new previous node *
+   * This function change only the number of previous node *
+   */
+  void
+  addPrevNode();
+
+  /**
+   * Add @param n new previous nodes *
+   */
+  void
+  addPrevNode(int n);
+
+  /**
+   * return the number of previous nodes
+   */
+  unsigned int
+  prevNb();
 
   /**
    * Add a next node reference *
@@ -201,18 +251,36 @@ public:
   addNext(Node * n);
 
   /**
-   * Called when a previous node execution is done *
+   * Link input port to output port by id and setting references link *
+   * @param in  the input port identifier
+   * @param out the output port identifier
    */
-  void
-  prevNodeHasDone();
+  virtual void
+  link_i2o(const string in, const string out);
 
   /**
-   * set the node tag value *
-   * see the myTag attribute *
-   * @param t the tag value
+   * Link output port to input port by id and setting references link *
+   * @param out the output port identifier
+   * @param in  the input port identifier
    */
-  void
-  setTag(unsigned int t);
+  virtual void
+  link_o2i(const string out, const string in);
+
+  /**
+   * Link inoutput port to input port by id and setting references link *
+   * @param io  the inout port identifier
+   * @param in  the input port identifier
+   */
+  virtual void
+  link_io2i(const string io, const string in);
+
+  /**
+   * Link inoutput port to output port by id and setting references link *
+   * @param io  the inout port identifier
+   * @param out the output port identifier
+   */
+  virtual void
+  link_io2o(const string io, const string out);
 
   /**
    * return true if the node is an input node *
@@ -228,37 +296,59 @@ public:
   bool
   isAnExit();
 
-  /**
-   * Set the node ID
-   * @param id the new id
-   */
-  void
-  setId(std::string id);
-
-
-  /**
-   * display the textual representation of a node  *
-   */
-  std::string
-  toString();
-
-  /**
-   * set the node profile
-   * @param profile the new diet profile
-   */
-  void
-  set_pb_desc(diet_profile_t* profile);
-
-  /**
-   * start the node execution *
-   * @param join
-   */
-  void
-  start(bool join = false);
-
   /******************************/
-  /* data allocation methods    */
+  /* DIET Profile Mgmt          */
   /******************************/
+
+  /**
+   * Return the node profile
+   */
+  diet_profile_t *
+  getProfile();
+
+  /**
+   * return the reqID of the node
+   */
+  diet_reqID_t
+  getReqID();
+
+  /**
+   * set the submit index
+   */
+  void
+  setSubmitIndex(int idx);
+
+  /**
+   * get the submit index
+   */
+  int
+  getSubmitIndex();
+
+  /**
+   * creates a basic profile without parameters (common part)
+   */
+  void
+  createProfile();
+
+  /**
+   * create the diet profile associated to the node (MADAG) *
+   * @return true if success, false on failure
+   */
+  bool
+  initProfileSubmit();
+
+  /**
+   * create the diet profile associated to the node (CLIENT) *
+   * @return true if success, false on failure
+   */
+  bool
+  initProfileExec();
+
+  /**
+   * Store the persistent data IDs from profile to node
+   */
+  void
+  storeProfileData();
 
   /**
    * Allocate a new char *
@@ -316,79 +406,27 @@ public:
   newFile   (const string value = "");
 
   /**
-   * set the node priority *
-   * @param priority the new priority of the node
+   * free the node profile and all the output data
    */
   void
-  setPriority(double priority);
+  freeProfileAndData();
 
-  /**
-   * get the node priority *
-   */
-  double
-  getPriority();
 
-  /**
-   * Return true if the node is ready for execution, false otherwise
-   */
-  bool
-  isReady();
-
-  /**
-   * set the node as ready for execution
-   */
-  void
-  setAsReady();
-
-  /**
-   * Another method to get if the node is ready for execution *
-   */
-  bool
-  allPrevDone();
-
-  /**
-   * Link input port to output port by id and setting references link *
-   * @param in  the input port identifier
-   * @param out the output port identifier
-   */
-  virtual void
-  link_i2o(const string in, const string out);
-
-  /**
-   * Link output port to input port by id and setting references link *
-   * @param out the output port identifier
-   * @param in  the input port identifier
-   */
-  virtual void
-  link_o2i(const string out, const string in);
-
-  /**
-   * Link inoutput port to input port by id and setting references link *
-   * @param io  the inout port identifier
-   * @param in  the input port identifier
-   */
-  virtual void
-  link_io2i(const string io, const string in);
-
-  /**
-   * Link inoutput port to output port by id and setting references link *
-   * @param io  the inout port identifier
-   * @param out the output port identifier
-   */
-  virtual void
-  link_io2o(const string io, const string out);
+  /******************************/
+  /* PORTS                      */
+  /******************************/
 
   /**
    * create and add a new port to the node *
    * @param id        the port identifier
    * @param ind       the port index in diet profile
    * @param type      the port type (in, out, inout)
-   * @param diet_type the diet data type as a string
+   * @param type      the data type (constant defined in WfCst class)
    * @param depth     the depth of the list structure (0 if no list)
    * @param v         the parameter value
    */
   WfPort *
-  newPort(string id, uint ind, wf_port_t type, string diet_type, uint depth,
+  newPort(string id, uint ind, wf_port_t type, WfCst::WfDataType type, uint depth,
 	       const string& v = string(""));
 
   /**
@@ -445,6 +483,41 @@ public:
    */
   Node *
   getPrev(unsigned int n);
+
+  /******************************/
+  /* Scheduling                 */
+  /******************************/
+
+  /**
+   * set the node priority *
+   * @param priority the new priority of the node
+   */
+  void
+  setPriority(double priority);
+
+  /**
+   * get the node priority *
+   */
+  double
+  getPriority();
+
+  /**
+   * Set the NodeQueue when the node is inserted into it
+   */
+  void
+  setNodeQueue(NodeQueue * nodeQ);
+
+  /**
+   * set the ref to the last nodeQueue occupied by the node
+   */
+  void
+  setLastQueue(NodeQueue * queue);
+
+  /**
+   * get the ref to the last nodeQueue occupied by the node
+   */
+  NodeQueue *
+  getLastQueue();
 
   /**
    * set the estimated duration
@@ -514,6 +587,41 @@ public:
   double
   getRealDelay();
 
+  /**********************************/
+  /*      Execution status          */
+  /**********************************/
+
+  /**
+   * start the node execution *
+   * @param join
+   */
+  void
+  start(bool join = false);
+
+  /**
+   * Called when a previous node execution is done *
+   */
+  void
+  prevNodeHasDone();
+
+  /**
+   * Return true if the node is ready for execution, false otherwise
+   */
+  bool
+  isReady();
+
+  /**
+   * set the node as ready for execution
+   */
+  void
+  setAsReady();
+
+  /**
+   * Another method to get if the node is ready for execution *
+   */
+  bool
+  allPrevDone();
+
   /**
    * Test if the node is running *
    */
@@ -550,88 +658,6 @@ public:
    */
   void
   setAsFailed();
-
-  /**
-   * Return the node profile
-   */
-  diet_profile_t *
-  getProfile();
-
-  /**
-   * set the parent Dag reference
-   */
-  void
-  setDag(Dag * dag);
-
-  /**
-   * get the node Dag reference
-   */
-  Dag *
-  getDag();
-
-  void addPrecId(string str);
-
-  /**
-   * Get the previous node id by index *
-   * @param n the requested previous node index
-   */
-  string
-  getPrecId(unsigned int n);
-
-  /**
-   * add a new previous node *
-   * This function change only the number of previous node *
-   */
-  void
-  addPrevNode();
-
-  /**
-   * Add @param n new previous nodes *
-   */
-  void
-  addPrevNode(int n);
-
-  /**
-   * return the number of previous nodes
-   */
-  unsigned int
-  prevNb();
-
-  /**
-   * free the node profile and all the output data
-   */
-  void
-  freeProfileAndData();
-
-  /**
-   * return the reqID of the node
-   */
-  diet_reqID_t
-  getReqID();
-
-  /**
-   * set the ref to the last nodeQueue occupied by the node
-   */
-  void
-  setLastQueue(NodeQueue * queue);
-
-  /**
-   * get the ref to the last nodeQueue occupied by the node
-   */
-  NodeQueue *
-  getLastQueue();
-
-  /**
-   * set the submit index
-   */
-  void
-  setSubmitIndex(int idx);
-
-  /**
-   * get the submit index
-   */
-  int
-  getSubmitIndex();
 
 protected:
   /*********************************************************************/
@@ -735,22 +761,27 @@ private:
   /**
    * input ports map<id, reference> *
    */
-  map<string, WfInPort*> inports;
+  map<string, WfInPort*> inPorts;
 
   /**
    * output ports map<id, reference> *
    */
-  map<string, WfOutPort*> outports;
+  map<string, WfOutPort*> outPorts;
 
   /**
    * inoutput ports map<id, reference> *
    */
-  map<string, WfInOutPort*> inoutports;
+  map<string, WfInOutPort*> inOutPorts;
 
   /**
    * node running status *
    */
   bool node_running;
+
+  /**
+   * Sed status (true if sed is defined)
+   */
+  bool SeDDefined;
 
   /**
    * chosen server *  (client-side)
@@ -805,19 +836,6 @@ private:
   /*********************************************************************/
   /* private methods                                                   */
   /*********************************************************************/
-
-  /**
-   * Store the persistent data of the node profile *
-   */
-  void
-  storePersistentData();
-
-  /**
-   * create the diet profile associated to the node *
-   * @return true if success, false on failure
-   */
-  bool
-  initProfileExec();
 
   /**
    * called when the node execution is done *
