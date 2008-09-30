@@ -39,6 +39,8 @@
 #include <uuid/uuid.h>
 #endif
 
+char DagdaImpl::NoID[] = "NoID";
+
 DagdaImpl::~DagdaImpl() {
   if (parent!=NULL) parent->unsubscribe(_this());
 }

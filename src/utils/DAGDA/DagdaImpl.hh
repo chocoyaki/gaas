@@ -33,7 +33,8 @@ typedef enum {DGD_CLIENT_MNGR, DGD_AGENT_MNGR, DGD_SED_MNGR} dagda_manager_type_
 
 class DagdaImpl : public POA_Dagda, public PortableServer::RefCountServantBase {
 public:
-  DagdaImpl() : /*parent(NULL),*/ ID("NoID")/*, data(), children(), dataStatus()*/ {
+  static char NoID[];
+  DagdaImpl() : /*parent(NULL),*/ ID(NoID)/*, data(), children(), dataStatus()*/ {
     char host[256];
 
     gethostname(host, 256);
