@@ -20,7 +20,7 @@ int dagda_put_data(void* value, diet_data_type_t type,
 	diet_base_type_t base_type, diet_persistence_mode_t mode,
 	size_t nb_r, size_t nb_c, diet_matrix_order_t order, char* path, char** ID);
 /* To get a data from the platform. */
-int dagda_get_data(char* dataID, void** value, diet_data_type_t type,
+int dagda_get_data(const char* dataID, void** value, diet_data_type_t type,
 	diet_base_type_t* base_type, size_t* nb_r, size_t* nb_c,
 	diet_matrix_order_t* order, char** path);
 /* To remove a data from the platform */
