@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/10/02 07:34:20  bisnard
+ * new constants definitions (matrix order)
+ *
  * Revision 1.4  2008/09/30 09:24:27  bisnard
  * new static maps for converting workflow data types to diet data types
  *
@@ -45,6 +48,11 @@
 
 using namespace std;
 
+/**
+ * Conversion for data types
+ * WF -> DIET
+ * STRING -> WF
+ */
 
 static const pair<short,short> dietTypes[] = {
   pair<short,short>( WfCst::TYPE_CHAR, DIET_CHAR ),
@@ -74,8 +82,10 @@ static const pair<string,short> wfTypes[] = {
   pair<string,short>( "DIET_CONTAINER", WfCst::TYPE_CONTAINER)
 };
 
-static map<short,short> WfTypesToDietTypes(dietTypes, dietTypes + sizeof(dietTypes)/sizeof(dietTypes[0]));
-static map<string,short> StrTypesToWfTypes(wfTypes, wfTypes + sizeof(wfTypes)/sizeof(wfTypes[0]));
+static map<short,short> WfTypesToDietTypes(dietTypes, dietTypes
+    + sizeof(dietTypes)/sizeof(dietTypes[0]));
+static map<string,short> StrTypesToWfTypes(wfTypes, wfTypes
+    + sizeof(wfTypes)/sizeof(wfTypes[0]));
 
 short
 WfCst::cvtWfToDietType(WfDataType wfType) {
@@ -86,6 +96,46 @@ short
 WfCst::cvtStrToWfType(const string& strType) {
   return StrTypesToWfTypes[strType];
 }
+
+bool
+WfCst::isMatrixType(const string& strType) {
+  return (strType == "DIET_MATRIX");
+}
+
+/**
+ * Conversion for matrix orders
+ * WF -> DIET
+ * STRING -> WF
+ */
+
+static const pair<short,short> dietMatrixOrders[] = {
+  pair<short,short>( WfCst::ORDER_COL_MAJOR, DIET_COL_MAJOR ),
+  pair<short,short>( WfCst::ORDER_ROW_MAJOR, DIET_ROW_MAJOR )
+};
+
+static const pair<string,short> wfMatrixOrders[] = {
+  pair<string,short>( "DIET_COL_MAJOR", WfCst::ORDER_COL_MAJOR),
+  pair<string,short>( "DIET_ROW_MAJOR", WfCst::ORDER_ROW_MAJOR)
+};
+
+static map<short,short> WfToDietMatrixOrders(dietMatrixOrders, dietMatrixOrders
+    + sizeof(dietMatrixOrders)/sizeof(dietMatrixOrders[0]));
+static map<string,short> StrToWfMatrixOrders(wfMatrixOrders, wfMatrixOrders
+    + sizeof(wfMatrixOrders)/sizeof(wfMatrixOrders[0]));
+
+short
+WfCst::cvtWfToDietMatrixOrder(WfMatrixOrder wfMatrixOrder) {
+  return WfToDietMatrixOrders[wfMatrixOrder];
+}
+
+short
+WfCst::cvtStrToWfMatrixOrder(const std::string& strMatrixOrder) {
+  return StrToWfMatrixOrders[strMatrixOrder];
+}
+
+/**
+ * Matrix read
+ */
 
 void
 WfCst::open_file(const char * fileName, FILE *& myFile) {
@@ -319,108 +369,6 @@ WfCst::eval_expr(std::string& expr, int var) {
   //  cout << "Final result " << polish.top() << endl;
   total = atoi(polish.top().c_str());
   return total;
-}
-
-/**
- * get the diet base type by a string
- */
-diet_base_type_t
-getBaseType(const std::string base_type) {
-  static std::map<std::string, diet_base_type_t> baseTypeMap;
-  baseTypeMap["DIET_CHAR"] = DIET_CHAR;
-  baseTypeMap["DIET_SHORT"] = DIET_SHORT;
-  baseTypeMap["DIET_INT"] = DIET_INT;
-  baseTypeMap["DIET_LONGINT"] = DIET_LONGINT;
-  baseTypeMap["DIET_FLOAT"] = DIET_FLOAT;
-  baseTypeMap["DIET_DOUBLE"] = DIET_DOUBLE;
-  baseTypeMap["DIET_SCOMPLEX"] = DIET_SCOMPLEX;
-  baseTypeMap["DIET_DCOMPLEX"] = DIET_DCOMPLEX;
-  baseTypeMap["DIET_BASE_TYPE_COUNT"] = DIET_BASE_TYPE_COUNT;
-
-  map<string, diet_base_type_t>::iterator p =
-    baseTypeMap.find(base_type);
-
-  if (p == baseTypeMap.end()) {
-    // TO FIX
-    cerr << "Unknown base type " << endl;
-    return ((diet_base_type_t)(-1));
-  }
-  else
-    return (diet_base_type_t)(p->second);
-}
-
-/**
- * get the string representation of diet base type
- */
-string
-getBaseTypeStr(const diet_base_type_t base_type) {
-  static std::map<diet_base_type_t, std::string> baseTypeMapStr;
-  baseTypeMapStr[DIET_CHAR] = "DIET_CHAR";
-  baseTypeMapStr[DIET_SHORT] = "DIET_SHORT";
-  baseTypeMapStr[DIET_INT] = "DIET_INT";
-  baseTypeMapStr[DIET_LONGINT] = "DIET_LONGINT";
-  baseTypeMapStr[DIET_FLOAT] = "DIET_FLOAT";
-  baseTypeMapStr[DIET_DOUBLE] = "DIET_DOUBLE";
-  baseTypeMapStr[DIET_SCOMPLEX] = "DIET_SCOMPLEX";
-  baseTypeMapStr[DIET_DCOMPLEX] = "DIET_DCOMPLEX";
-  baseTypeMapStr[DIET_BASE_TYPE_COUNT] = "DIET_BASE_TYPE_COUNT";
-
-  map<diet_base_type_t, string>::iterator p =
-    baseTypeMapStr.find(base_type);
-
-  if (p == baseTypeMapStr.end()) {
-    // TO FIX
-    cerr << "Unknown base type " << endl;
-    return "UNKNOWN";
-  }
-  else
-    return (string)(p->second);
-
-}
-/**
- * get the matrix order by a string
- */
-diet_matrix_order_t
-getMatrixOrder(const std::string matrix_order) {
-  static std::map<std::string, diet_matrix_order_t> matrixOrderMap;
-  matrixOrderMap["DIET_COL_MAJOR"] = DIET_COL_MAJOR;
-  matrixOrderMap["DIET_ROW_MAJOR"] = DIET_ROW_MAJOR;
-  matrixOrderMap["DIET_MATRIX_ORDER_COUNT"] = DIET_MATRIX_ORDER_COUNT;
-
-  map<string, diet_matrix_order_t>::iterator p =
-    matrixOrderMap.find(matrix_order);
-
-  if (p == matrixOrderMap.end()) {
-    // TO FIX
-    cerr << "Unknown matrix order " << endl;
-    return ((diet_matrix_order_t)(-1));
-  }
-  else
-    return (diet_matrix_order_t)(p->second);
-
-}
-
-/**
- * get the string associated to a matrix order
- */
-std::string
-getMatrixOrderStr(const diet_matrix_order_t matrix_order) {
-  static std::map<diet_matrix_order_t, std::string> matrixOrderMapStr;
-  matrixOrderMapStr[DIET_COL_MAJOR] = "DIET_COL_MAJOR";
-  matrixOrderMapStr[DIET_ROW_MAJOR] = "DIET_ROW_MAJOR";
-  matrixOrderMapStr[DIET_MATRIX_ORDER_COUNT] = "DIET_MATRIX_ORDER_COUNT";
-
-  map<diet_matrix_order_t, string>::iterator p =
-    matrixOrderMapStr.find(matrix_order);
-
-  if (p == matrixOrderMapStr.end()) {
-    // TO FIX
-    cerr << "Unknown matrix order " << endl;
-    return "UNKNOWN";
-  }
-  else
-    return (string)(p->second);
-
 }
 
 /**

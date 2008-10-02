@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/10/02 07:34:20  bisnard
+ * new constants definitions (matrix order)
+ *
  * Revision 1.4  2008/09/30 09:24:27  bisnard
  * new static maps for converting workflow data types to diet data types
  *
@@ -81,9 +84,24 @@ public:
   static short
   cvtStrToWfType(const std::string& strType);
 
+  static bool
+  isMatrixType(const std::string& strType);
+
   /************************************************************/
   /** METHODS FOR MATRIX HANDLING                             */
   /************************************************************/
+
+  enum WfMatrixOrder {
+    ORDER_COL_MAJOR,
+    ORDER_ROW_MAJOR
+  };
+
+  static short
+  cvtWfToDietMatrixOrder(WfMatrixOrder wfMatrixOrder);
+
+  static short
+  cvtStrToWfMatrixOrder(const std::string& strMatrixOrder);
+
   static void
   open_file(const char * fileName, FILE *& myFile);
 
@@ -112,13 +130,6 @@ public:
 private:
 };
 
-typedef enum {
-  ARG_PORT,
-  IN_PORT,
-  INOUT_PORT,
-  OUT_PORT
-} wf_port_t;
-
 /***************************************************************/
 /** For debugging                                              */
 /***************************************************************/
@@ -140,17 +151,6 @@ extern omni_mutex debug_log_mutex ;
 
 /***************************************************************/
 
-/**
- * get the diet base type by a string
- */
-diet_base_type_t
-getBaseType(const std::string base_type);
-
-/**
- * get the string representation of diet base type
- */
-std::string
-getBaseTypeStr(const diet_base_type_t base_type);
 
 /**
  * get the matrix order by a string
