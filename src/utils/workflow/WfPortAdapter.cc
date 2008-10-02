@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/10/02 09:10:51  bisnard
+ * incorrect constant definition
+ *
  * Revision 1.5  2008/10/02 07:35:10  bisnard
  * new constants definitions (matrix order and port type)
  *
@@ -221,7 +224,7 @@ WfMultiplePortAdapter::setPortDataLinks(WfInPort* inPort, Dag* dag) {
   }
 }
 
-static string errorID = string("ID_Error");
+string WfMultiplePortAdapter::errorID = string("ID_Error");
 
 const string&
 WfMultiplePortAdapter::getSourceDataID() {
