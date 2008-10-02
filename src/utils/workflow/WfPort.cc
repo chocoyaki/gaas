@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2008/10/02 08:28:47  bisnard
+ * new WfPort method to free persistent data
+ *
  * Revision 1.6  2008/10/02 07:35:10  bisnard
  * new constants definitions (matrix order and port type)
  *
@@ -403,6 +406,13 @@ WfOutPort::isResult() {
 void
 WfOutPort::storeProfileData() {
   dataID = profile()->parameters[getIndex()].desc.id;
+}
+
+void
+WfOutPort::freeProfileData() {
+#if ! HAVE_DAGDA
+  diet_free_persistent_data(profile()->parameters[getIndex()].desc.id);
+#endif
 }
 
 diet_persistence_mode_t

@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/10/02 08:28:47  bisnard
+ * new WfPort method to free persistent data
+ *
  * Revision 1.5  2008/10/02 07:35:10  bisnard
  * new constants definitions (matrix order and port type)
  *
@@ -285,6 +288,12 @@ public:
    */
   void
   storeProfileData();
+
+  /**
+   * Free the data
+   */
+  void
+  freeProfileData();
 
 protected:
 

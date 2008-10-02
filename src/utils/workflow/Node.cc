@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2008/10/02 08:28:47  bisnard
+ * new WfPort method to free persistent data
+ *
  * Revision 1.28  2008/10/02 07:35:10  bisnard
  * new constants definitions (matrix order and port type)
  *
@@ -1281,15 +1284,11 @@ void
 Node::freeProfileAndData() {
   TRACE_TEXT (TRACE_ALL_STEPS,
               myId << " Free profile and release persistent data" << endl);
-  // Free persistent data
-#if ! HAVE_DAGDA
-  for (map<string, WfOutPort*>::iterator p = outports.begin();
-       p != outports.end();
+  for (map<string, WfOutPort*>::iterator p = outPorts.begin();
+       p != outPorts.end();
        ++p) {
-         WfOutPort * out = (WfOutPort*)(p->second);
-         diet_free_persistent_data(profile->parameters[out->getIndex()].desc.id);
-  } // end for
-#endif
+         ((WfOutPort*)(p->second))->freeProfileData();
+  }
   diet_profile_free(profile);
   profile = NULL;
 }
