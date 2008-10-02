@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2008/10/02 07:35:10  bisnard
+ * new constants definitions (matrix order and port type)
+ *
  * Revision 1.6  2008/09/30 15:29:22  bisnard
  * code refactoring after profile mgmt change
  *
@@ -201,7 +204,7 @@ protected:
    * @param value       the value of the parameter (optional)
    */
   void
-  setParam(const wf_port_t param_type,
+  setParam(const WfPort::WfPortType param_type,
 	   const string& name,
 	   const string& type,
 	   unsigned int lastArg,
@@ -213,7 +216,7 @@ protected:
    */
   bool
   setMatrixParam(const DOMElement * element,
-                 const wf_port_t param_type,
+                 const WfPort::WfPortType param_type,
 		 const string& name,
 		 unsigned int lastArg,
 		 Node& dagNode,

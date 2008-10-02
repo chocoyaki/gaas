@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/10/02 07:35:10  bisnard
+ * new constants definitions (matrix order and port type)
+ *
  * Revision 1.5  2008/09/30 15:32:53  bisnard
  * - using simple port id instead of composite ones
  * - dag nodes linking refactoring
@@ -87,8 +90,10 @@ WfPort::setProfileWithoutValue() {
                       NULL);
         break;
       case WfCst::TYPE_MATRIX :
-        diet_matrix_set(diet_parameter(profile,index), NULL,
-                        mode, base_type, nb_r, nb_c, order);
+        diet_matrix_set(diet_parameter(profile,index), NULL, mode,
+                        (diet_base_type_t) WfCst::cvtWfToDietType(eltType),
+                        nb_r, nb_c,
+                        (diet_matrix_order_t) WfCst::cvtWfToDietMatrixOrder(order));
         break;
       case WfCst::TYPE_CONTAINER :
         diet_container_set(diet_parameter(profile, index), DIET_PERSISTENT);
@@ -141,8 +146,10 @@ WfPort::setProfileWithValue() {
       break;
     case WfCst::TYPE_MATRIX :
       initMatrixValue(&mat, value);
-      diet_matrix_set(diet_parameter(profile,index), mat,
-                      mode, base_type, nb_r, nb_c, order);
+      diet_matrix_set(diet_parameter(profile,index), mat, mode,
+                      (diet_base_type_t) WfCst::cvtWfToDietType(eltType),
+                      nb_r, nb_c,
+                      (diet_matrix_order_t) WfCst::cvtWfToDietMatrixOrder(order));
       break;
     case WfCst::TYPE_CONTAINER :
       initContainerValue(value);
@@ -186,33 +193,33 @@ WfPort::initProfileExec() {
 
 void
 WfPort::setMatParams(long nbr, long nbc,
-		    diet_matrix_order_t o,
-		    diet_base_type_t bt) {
+		    WfCst::WfMatrixOrder o,
+		    WfCst::WfDataType bt) {
   this->nb_r = nbr;
   this->nb_c = nbc;
   this->order = o;
-  this->base_type = bt;
+  this->eltType = bt;
 }
 
 void
 WfPort::initMatrixValue(void **buffer, const string& value) {
-  switch (base_type) {
-    case DIET_CHAR:
+  switch (eltType) {
+    case WfCst::TYPE_CHAR:
       *buffer = new char[nb_r*nb_c];
       break;
-    case DIET_SHORT:
+    case WfCst::TYPE_SHORT:
       *buffer = new int[nb_r*nb_c];
       break;
-    case DIET_INT:
+    case WfCst::TYPE_INT:
       *buffer = new int[nb_r*nb_c];
       break;
-    case DIET_LONGINT:
+    case WfCst::TYPE_LONGINT:
       *buffer = new long[nb_r*nb_c];
       break;
-    case DIET_FLOAT:
+    case WfCst::TYPE_FLOAT:
       *buffer = new float[nb_r*nb_c];
       break;
-    case DIET_DOUBLE:
+    case WfCst::TYPE_DOUBLE:
       *buffer = new double[nb_r*nb_c];
       break;
     default:
@@ -224,23 +231,23 @@ WfPort::initMatrixValue(void **buffer, const string& value) {
     unsigned len = nb_r*nb_c;
     TRACE_TEXT (TRACE_ALL_STEPS,
                 "reading the matrix data file" << endl);
-    switch (base_type) {
-      case DIET_CHAR:
+    switch (eltType) {
+      case WfCst::TYPE_CHAR:
         WfCst::readChar(dataFileName.c_str(), (char*)(*buffer), len);
         break;
-      case DIET_SHORT:
+      case WfCst::TYPE_SHORT:
         WfCst::readShort(dataFileName.c_str(), (short*)(*buffer), len);
         break;
-      case DIET_INT:
+      case WfCst::TYPE_INT:
         WfCst::readInt(dataFileName.c_str(), (int*)(*buffer), len);
         break;
-      case DIET_LONGINT:
+      case WfCst::TYPE_LONGINT:
         WfCst::readLong(dataFileName.c_str(), (long*)(*buffer), len);
         break;
-      case DIET_FLOAT:
+      case WfCst::TYPE_FLOAT:
         WfCst::readFloat(dataFileName.c_str(), (float*)(*buffer), len);
         break;
-      case DIET_DOUBLE:
+      case WfCst::TYPE_DOUBLE:
         WfCst::readDouble(dataFileName.c_str(), (double*)(*buffer), len);
         break;
       default:
@@ -260,33 +267,33 @@ WfPort::initMatrixValue(void **buffer, const string& value) {
     long  * ptr4(NULL);
     float * ptr5(NULL);
     double * ptr6(NULL);
-    switch (base_type) {
-      case DIET_CHAR:
+    switch (eltType) {
+      case WfCst::TYPE_CHAR:
         ptr1 = (char*)(*buffer);
         for (unsigned int ix = 0; ix<len; ix++)
           ptr1[ix] = v[ix][0];
         break;
-      case DIET_SHORT:
+      case WfCst::TYPE_SHORT:
         ptr2 = (short*)(*buffer);
         for (unsigned int ix = 0; ix<len; ix++)
           ptr2[ix] = atoi(v[ix].c_str());
         break;
-      case DIET_INT:
+      case WfCst::TYPE_INT:
         ptr3 = (int*)(*buffer);
         for (unsigned int ix = 0; ix<len; ix++)
           ptr3[ix] = atoi(v[ix].c_str());
         break;
-      case DIET_LONGINT:
+      case WfCst::TYPE_LONGINT:
         ptr4 = (long*)(*buffer);
         for (unsigned int ix = 0; ix<len; ix++)
           ptr4[ix] = atoi(v[ix].c_str());
         break;
-      case DIET_FLOAT:
+      case WfCst::TYPE_FLOAT:
         ptr5 = (float*)(*buffer);
         for (unsigned int ix = 0; ix<len; ix++)
           ptr5[ix] = atof(v[ix].c_str());
         break;
-      case DIET_DOUBLE:
+      case WfCst::TYPE_DOUBLE:
         ptr6 = (double*)(*buffer);
         for (unsigned int ix = 0; ix<len; ix++)
           ptr6[ix] = atof(v[ix].c_str());
@@ -299,7 +306,7 @@ WfPort::initMatrixValue(void **buffer, const string& value) {
 
 /**
  * Initialize a port value for a container
- * IMPORTANT:  Currently limited to 1 level and to DIET_LONGINT values
+ * IMPORTANT:  Currently limited to 1 level and to TYPE_LONGINT values
  */
 void
 WfPort::initContainerValue(const string& value) {
@@ -329,7 +336,7 @@ WfPort::initContainerValue(const string& value) {
     CORBA::string_free(valID);
   }
 #else
-  WARNING("Cannot use containers without Dagda" << endl, 0);
+  WARNING("Cannot use containers without Dagda" << endl);
 #endif
 }
 

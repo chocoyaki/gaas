@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/10/02 07:35:10  bisnard
+ * new constants definitions (matrix order and port type)
+ *
  * Revision 1.3  2008/09/30 15:32:53  bisnard
  * - using simple port id instead of composite ones
  * - dag nodes linking refactoring
@@ -132,6 +135,8 @@ class WfMultiplePortAdapter : public WfPortAdapter {
     string      strRef;
     string      containerID;
     list<WfPortAdapter*>  adapters;
+
+    static string errorID;
 
 }; // end class WfMultiplePortAdapter
 

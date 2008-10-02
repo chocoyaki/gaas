@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/10/02 07:35:10  bisnard
+ * new constants definitions (matrix order and port type)
+ *
  * Revision 1.4  2008/09/30 15:32:53  bisnard
  * - using simple port id instead of composite ones
  * - dag nodes linking refactoring
@@ -61,6 +64,14 @@ class WfOutPort;
  */
 class WfPort {
 public:
+
+  enum WfPortType{
+    PORT_ARG,
+    PORT_IN,
+    PORT_INOUT,
+    PORT_OUT
+  };
+
   /**
    * Basic Port constructor *
    * @param parent The node of the port
@@ -93,8 +104,8 @@ public:
    * @param bt   Data type of matrix elements
    */
   void setMatParams(long nbr, long nbc,
-		    diet_matrix_order_t o,
-		    diet_base_type_t bt);
+                    WfCst::WfMatrixOrder o,
+                    WfCst::WfDataType bt);
 
   /**
    * Return the profile of the node
@@ -179,7 +190,7 @@ protected:
   WfCst::WfDataType type;
 
   /**
-   * The data type of elements (in case of type=CONTAINER)
+   * The data type of elements (in case of CONTAINER or MATRIX type)
    */
   WfCst::WfDataType eltType;
 
@@ -216,14 +227,7 @@ protected:
   /**
    * The matrix order (for matrix parameter)
    */
-  diet_matrix_order_t order;
-
-  /**
-   * The data type of matrix elements (for matrix parameter)
-   */
-  diet_base_type_t base_type;
-
-
+  WfCst::WfMatrixOrder order;
 };
 
 /**

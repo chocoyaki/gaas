@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2008/10/02 07:35:09  bisnard
+ * new constants definitions (matrix order and port type)
+ *
  * Revision 1.10  2008/09/30 15:29:22  bisnard
  * code refactoring after profile mgmt change
  *
@@ -272,10 +275,10 @@ DagWfParser::parseArg(DOMElement * child_elt, unsigned int lastArg,
     ERROR ("Argument element doesn't accept a child element" << endl <<
       "May be a </arg> is forgotten", false);
   }
-  if (type != "DIET_MATRIX") {
-    setParam(ARG_PORT, name, type, lastArg, dagNode, &value);
+  if (!WfCst::isMatrixType(type)) {
+    setParam(WfPort::PORT_ARG, name, type, lastArg, dagNode, &value);
   } else {
-    if (!setMatrixParam(child_elt, ARG_PORT, name, lastArg, dagNode, &value))
+    if (!setMatrixParam(child_elt, WfPort::PORT_ARG, name, lastArg, dagNode, &value))
       return false;
   }
   return true;
@@ -294,10 +297,10 @@ DagWfParser::parseIn(DOMElement * child_elt, unsigned int lastArg,
     ERROR ("input port element doesn't accept a child element" << endl <<
       "May be a </in> is forgotten", false);
   }
-  if (type != "DIET_MATRIX") {
-    setParam(IN_PORT, name, type, lastArg, dagNode);
+  if (!WfCst::isMatrixType(type)) {
+    setParam(WfPort::PORT_IN, name, type, lastArg, dagNode);
   } else {
-    if (!setMatrixParam(child_elt, IN_PORT, name, lastArg, dagNode))
+    if (!setMatrixParam(child_elt, WfPort::PORT_IN, name, lastArg, dagNode))
       return false;
   }
   if (!source.empty())
@@ -318,10 +321,10 @@ DagWfParser::parseInout(DOMElement * child_elt, unsigned int lastArg,
     ERROR ("inOut port element doesn't accept a child element" << endl <<
       "May be a </inOut> is forgotten", false);
   }
-  if (type != "DIET_MATRIX") {
-    setParam(INOUT_PORT, name, type, lastArg, dagNode);
+  if (!WfCst::isMatrixType(type)) {
+    setParam(WfPort::PORT_INOUT, name, type, lastArg, dagNode);
   } else {
-    if (!setMatrixParam(child_elt, INOUT_PORT, name, lastArg, dagNode))
+    if (!setMatrixParam(child_elt, WfPort::PORT_INOUT, name, lastArg, dagNode))
       return false;
   }
   if (!source.empty())
@@ -342,10 +345,10 @@ DagWfParser::parseOut(DOMElement * child_elt, unsigned int lastArg,
     ERROR ("output port element doesn't accept a child element" << endl <<
 	   "May be a </out> is forgotten", false);
   }
-  if (type != "DIET_MATRIX") {
-    setParam(OUT_PORT, name, type, lastArg, dagNode);
+  if (!WfCst::isMatrixType(type)) {
+    setParam(WfPort::PORT_OUT, name, type, lastArg, dagNode);
   } else {
-    if (!setMatrixParam(child_elt, OUT_PORT, name, lastArg, dagNode))
+    if (!setMatrixParam(child_elt, WfPort::PORT_OUT, name, lastArg, dagNode))
       return false;
   }
   if (!sink.empty())
@@ -357,7 +360,7 @@ DagWfParser::parseOut(DOMElement * child_elt, unsigned int lastArg,
  * Create a port
  */
 void
-DagWfParser::setParam(const wf_port_t param_type,
+DagWfParser::setParam(const WfPort::WfPortType param_type,
 		      const string& name,
 		      const string& type,
 		      unsigned int lastArg,
@@ -391,42 +394,45 @@ DagWfParser::setParam(const wf_port_t param_type,
  */
 bool
 DagWfParser::setMatrixParam(const DOMElement * element,
-                            const wf_port_t param_type,
+                            const WfPort::WfPortType param_type,
 			    const string& name,
 			    unsigned int lastArg,
 			    Node& dagNode,
 			    const string * value) {
-  string base_type_str = getAttributeValue("base_type", element);
+  string elt_type_str = getAttributeValue("base_type", element);
   string nb_rows_str = getAttributeValue("nb_rows", element);
   string nb_cols_str = getAttributeValue("nb_cols", element);
   string matrix_order_str = getAttributeValue("matrix_order", element);
 
-  if ((base_type_str == "") || (nb_rows_str == "")  ||
+  if ((elt_type_str == "") || (nb_rows_str == "")  ||
       (nb_cols_str == "") || (matrix_order_str == "")) {
     ERROR ("Matrix attribute malformed", false);
   }
 
   // get the base type of matrix element
-  diet_base_type_t base_type = getBaseType(base_type_str);
+  short elt_type = WfCst::cvtStrToWfType(elt_type_str);
   // get the number of rows
   size_t nb_rows = atoi(nb_rows_str.c_str());
   // get the column numbers
   size_t nb_cols = atoi(nb_cols_str.c_str());
   // get the matrix order
-  diet_matrix_order_t matrix_order =
-    getMatrixOrder(matrix_order_str);
+  short matrix_order = WfCst::cvtStrToWfMatrixOrder(matrix_order_str);
 
   if (value) {
     WfPort * port = (WfPort *)
         dagNode.newPort(name, lastArg, param_type,
                         WfCst::TYPE_MATRIX, 0, *value);
-    port->setMatParams(nb_rows, nb_cols, matrix_order, base_type);
+    port->setMatParams(nb_rows, nb_cols,
+                       (WfCst::WfMatrixOrder) matrix_order,
+                       (WfCst::WfDataType) elt_type);
   }
   else {
     WfPort * port = (WfPort *)
         dagNode.newPort(name, lastArg, param_type,
                          WfCst::TYPE_MATRIX, 0);
-    port->setMatParams(nb_rows, nb_cols, matrix_order, base_type);
+    port->setMatParams(nb_rows, nb_cols,
+                       (WfCst::WfMatrixOrder) matrix_order,
+                       (WfCst::WfDataType) elt_type);
   } // end else
 
   return true;

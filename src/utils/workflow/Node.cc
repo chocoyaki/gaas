@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2008/10/02 07:35:10  bisnard
+ * new constants definitions (matrix order and port type)
+ *
  * Revision 1.27  2008/09/30 15:32:53  bisnard
  * - using simple port id instead of composite ones
  * - dag nodes linking refactoring
@@ -1102,32 +1105,33 @@ Node::link_io2o(const string io, const string outRef) {
  * create and add a new port to the node *
  */
 WfPort *
-Node::newPort(string portId, uint ind, wf_port_t type, WfCst::WfDataType dataType,
+Node::newPort(string portId, uint ind,
+              WfPort::WfPortType type, WfCst::WfDataType dataType,
 	      uint depth, const string& v) {
   WfPort * p = NULL;
   WfInPort * in = NULL;
   WfInOutPort * inout = NULL;
   WfOutPort * out = NULL;
   switch (type) {
-    case ARG_PORT:
-    case IN_PORT:
+    case WfPort::PORT_ARG:
+    case WfPort::PORT_IN:
       in = new WfInPort(this, portId, dataType, depth, ind, v);
       inPorts[portId] =  in;
       p = (WfPort *) in;
       break;
-    case INOUT_PORT:
+    case WfPort::PORT_INOUT:
       inout = new WfInOutPort(this, portId, dataType, depth, ind, v);
       inOutPorts[portId] = inout;
       p = (WfInOutPort * ) inout;
       break;
-    case OUT_PORT:
+    case WfPort::PORT_OUT:
       out = new WfOutPort(this, portId, dataType, depth, ind, v);
       outPorts[portId] = out;
       p = (WfOutPort *) out;
       break;
   }
   return p;
-} // end newPort
+}
 
 /**
  * Get the input port references by id *

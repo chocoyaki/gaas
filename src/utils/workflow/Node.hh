@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2008/10/02 07:35:10  bisnard
+ * new constants definitions (matrix order and port type)
+ *
  * Revision 1.16  2008/09/30 15:32:53  bisnard
  * - using simple port id instead of composite ones
  * - dag nodes linking refactoring
@@ -445,8 +448,8 @@ public:
    * @param v         the parameter value
    */
   WfPort *
-  newPort(string id, uint ind, wf_port_t type, WfCst::WfDataType type, uint depth,
-	       const string& v = string(""));
+  newPort(string id, uint ind, WfPort::WfPortType type, WfCst::WfDataType type,
+          uint depth, const string& v = string(""));
 
   /**
    * Get the input port references by id. If not found returns NULL

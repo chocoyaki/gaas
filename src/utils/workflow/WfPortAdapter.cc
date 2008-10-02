@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/10/02 07:35:10  bisnard
+ * new constants definitions (matrix order and port type)
+ *
  * Revision 1.4  2008/09/30 15:32:53  bisnard
  * - using simple port id instead of composite ones
  * - dag nodes linking refactoring
@@ -218,6 +221,8 @@ WfMultiplePortAdapter::setPortDataLinks(WfInPort* inPort, Dag* dag) {
   }
 }
 
+static string errorID = string("ID_Error");
+
 const string&
 WfMultiplePortAdapter::getSourceDataID() {
   char* idCont;
@@ -234,7 +239,7 @@ WfMultiplePortAdapter::getSourceDataID() {
   containerID = idCont;
   TRACE_TEXT (TRACE_ALL_STEPS,"## End of merge ports" << endl);
 #else
-  ERROR("WfMultiplePortAdapter Error: trying to use containers without Dagda enabled" << endl, "");
+  ERROR("WfMultiplePortAdapter Error: trying to use containers without Dagda enabled" << endl, errorID);
 #endif
   return containerID;
 }
