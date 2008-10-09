@@ -127,6 +127,19 @@ string gen_filename(string basename) {
   return name.str();
 }
 
+string conditional_filename(string basename) {
+  unsigned long int idx = basename.find_last_of('/');
+  if (idx!=string::npos)
+    basename=basename.substr(idx);
+  
+  if (fnmatch("*-????????""-????""-????""-????????????*",
+              basename.c_str(), FNM_CASEFOLD)==0) {
+    cout << "Deja unifie..." << endl;
+    return basename;
+  }
+  return gen_filename(basename);
+}
+
 /* Send a file to a node. */
 /* CORBA */
 char* DagdaImpl::sendFile(const corba_data_t &data, Dagda_ptr dest) {
@@ -145,11 +158,12 @@ char* DagdaImpl::sendFile(const corba_data_t &data, Dagda_ptr dest) {
   string basename(data.desc.specific.file().path);
 
   /* TEST pour debuggage */
-  string name;
-  unsigned long int idx = basename.find_last_of('/');
-  if (idx!=string::npos)
-    name=basename.substr(idx);
-  //  string name = gen_filename(basename); // <= Version originale.
+  //string name;
+  //unsigned long int idx = basename.find_last_of('/');
+  //if (idx!=string::npos)
+  //  name=basename.substr(idx);
+  //string name = gen_filename(basename); // <= Version originale.
+  string name = conditional_filename(basename);
   /***********************/
 
   unsigned long nBlocks =  fileSize / getMaxMsgSize() + 1;

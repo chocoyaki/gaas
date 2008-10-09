@@ -7,7 +7,7 @@ IF( DIET_USE_DAGDA )
   ADD_LIBRARY( UtilsDagda
     DataRelationMgr.cc
   )
-  TARGET_LINK_LIBRARIES( UtilsDagda )
+  TARGET_LINK_LIBRARIES( UtilsDagda UtilsCommon ${OMNIORB4_LIBRARIES})
   INSTALL_TARGETS( /lib/ UtilsDagda )
 ENDIF( DIET_USE_DAGDA )
 
