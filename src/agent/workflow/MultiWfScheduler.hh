@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2008/10/14 13:24:49  bisnard
+ * use new class structure for dags (DagNode,DagNodePort)
+ *
  * Revision 1.17  2008/09/30 09:25:34  bisnard
  * use Node::initProfileSubmit to create the diet profile before requesting node estimation to MA
  *
@@ -97,6 +100,7 @@
 #include "MasterAgent.hh"
 #include "workflow/Thread.hh"
 #include "workflow/NodeQueue.hh"
+#include "workflow/DagWfParser.hh"
 #include "SeD.hh"
 
 class MaDag_impl;
@@ -173,12 +177,12 @@ namespace madag {
      * schedules a new DAG workflow
      *
      * @param wf_desc   workflow string description
-     * @param wfReqId   workflow request identifier
+     * @param dagId     the dag identifier
      * @param MA        master agent (CORBA)
-     * @return dag identifier (double)
      */
-    virtual double
-        scheduleNewDag(const corba_wf_desc_t& wf_desc, int wfReqId,
+    virtual void
+        scheduleNewDag(const corba_wf_desc_t& wf_desc,
+                       const string& dagId,
                        MasterAgent_var MA)
         throw (XMLParsingException, NodeException);
 
@@ -208,7 +212,7 @@ namespace madag {
      * Updates scheduler when a node has been executed
      */
     virtual void
-        handlerNodeDone(Node * node) = 0;
+        handlerNodeDone(DagNode * node) = 0;
 
     /**
      * Get the current time from scheduler reference clock
@@ -223,25 +227,25 @@ namespace madag {
     WfScheduler * mySched;
 
     /**
-     * Node queues for waiting nodes
+     * DagNode queues for waiting nodes
      * (key = ref of ready queue)
      */
     map<NodeQueue *,ChainedNodeQueue *> waitingQueues;
 
     /**
-     * Node queues for ready nodes
+     * DagNode queues for ready nodes
      */
     list<OrderedNodeQueue *> readyQueues;
 
     /**
-     * Node queue for nodes to be executed
+     * DagNode queue for nodes to be executed
      */
     OrderedNodeQueue * execQueue;
 
     /**
      * Store the nodes HEFT priority
      */
-    map<Node*,double> nodesHEFTPrio;
+    map<DagNode*,double> nodesHEFTPrio;
 
     /**
      * Selector for node priority policy
@@ -278,7 +282,7 @@ namespace madag {
      * Execute a node on a given SeD
      */
     Thread *
-        runNode(Node * node,
+        runNode(DagNode * node,
                 SeD_var sed,
                 int reqID,
                 corba_estimation_t& ev);
@@ -287,17 +291,17 @@ namespace madag {
      * Execute a node without specifying a SeD
      */
     Thread *
-        runNode(Node * node);
+        runNode(DagNode * node);
 
     /**
      * Parse a new dag provided in xml text and create a dag object
-     *
-     * @param wfReqId   workflow request ID
      * @param wf_desc   workflow string description
+     * @param dagId     the dag identifier
      * @return pointer to dag structure (to be destroyed by the caller)
      */
     Dag *
-        parseNewDag(int wfReqId, const corba_wf_desc_t& wf_desc)
+        parseNewDag(const corba_wf_desc_t& wf_desc,
+                    const string& dagId)
         throw (XMLParsingException);
 
     /**
@@ -311,16 +315,8 @@ namespace madag {
      * Call MA to get server estimations for one node
      */
     wf_response_t *
-        getProblemEstimates(Node * node, MasterAgent_var MA)
+        getProblemEstimates(DagNode * node, MasterAgent_var MA)
         throw (NodeException);
-
-    /**
-     * Call MA to get server estimations for all services for nodes of a queue
-     * @deprecated
-     */
-//     wf_response_t *
-//         getProblemEstimates(OrderedNodeQueue * queue, MasterAgent_var MA)
-//         throw (NodeException);
 
     /**
      * internal dag scheduling
@@ -365,13 +361,13 @@ namespace madag {
      * @param node   the node to insert
      */
     virtual void
-        setExecPriority(Node * node);
+        setExecPriority(DagNode * node);
 
     /**
      * set node priority before inserting back in the ready queue
      */
     virtual void
-        setWaitingPriority(Node * node);
+        setWaitingPriority(DagNode * node);
 
     /**
      * Inter-round delay (used to separate DIET submits)
@@ -385,11 +381,6 @@ namespace madag {
       * MaDag reference
       */
     MaDag_impl * myMaDag;
-
-    /**
-     * Dag counter
-     */
-    static long dagIdCounter;
 
     /**
      * Reference time
@@ -415,7 +406,7 @@ namespace madag {
       /**
        * Constructor used when SeD is provided
        */
-      NodeRun(Node * node,
+      NodeRun(DagNode * node,
               SeD_var sed,
               int reqID,
               corba_estimation_t ev,
@@ -425,7 +416,7 @@ namespace madag {
       /**
        * Constructor used when no SeD is provided
        */
-      NodeRun(Node * node,
+      NodeRun(DagNode * node,
               MultiWfScheduler * scheduler,
               CltMan_ptr cltMan);
 
@@ -436,7 +427,7 @@ namespace madag {
           run();
 
     private:
-      Node *              myNode;
+      DagNode *           myNode;
       SeD_var             mySeD;
       int                 myReqID;
       corba_estimation_t  myEstVect;

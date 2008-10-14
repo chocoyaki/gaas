@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2008/10/14 13:24:48  bisnard
+ * use new class structure for dags (DagNode,DagNodePort)
+ *
  * Revision 1.9  2008/09/30 15:33:35  bisnard
  * Node::prevNodes and nextNodes data structures modified
  *
@@ -75,11 +78,11 @@ HEFTScheduler::setNodesPriority(const wf_response_t * wf_response, Dag * dag) {
   this->computeNodeWeights(wf_response, dag);
 
   // Ranking
-  Node * n = NULL;
-  for (std::map <std::string, Node *>::iterator p = dag->begin();
+  DagNode * n = NULL;
+  for (std::map <std::string, DagNode *>::iterator p = dag->begin();
        p != dag->end();
        p++) {
-         n = (Node *)(p->second);
+         n = (DagNode *)(p->second);
          if (n->isAnExit())
            rank(n);
   }
@@ -97,7 +100,7 @@ HEFTScheduler::setNodesPriority(const wf_response_t * wf_response, Dag * dag) {
  * @param initTime the current time (relative to scheduler ref) in ms
  */
 void
-HEFTScheduler::setNodesEFT(std::vector<Node *>& orderedNodes,
+HEFTScheduler::setNodesEFT(std::vector<DagNode *>& orderedNodes,
                            const wf_response_t * wf_response,
                            Dag * dag,
                            double initTime) {
@@ -106,10 +109,10 @@ HEFTScheduler::setNodesEFT(std::vector<Node *>& orderedNodes,
   TRACE_TEXT (TRACE_ALL_STEPS, "HEFT : start computing nodes EFT (init time = "
       << initTime << ")" << endl);
   // LOOP-1: for all dag nodes in the order provided
-  for (std::vector<Node *>::iterator p = orderedNodes.begin();
+  for (std::vector<DagNode *>::iterator p = orderedNodes.begin();
        p != orderedNodes.end();
        p++) {
-    Node *        n = (Node *) *p;
+    DagNode *        n = (DagNode *) *p;
     unsigned int  pb_index = 0; // index of the service (problem) in the wf_response
     unsigned int  sed_ind = 0;  // index of the chosen server in the wf_response
     SeD_ptr       chosenSeDPtr; // ref to the chosen SeD
@@ -142,7 +145,7 @@ HEFTScheduler::setNodesEFT(std::vector<Node *>& orderedNodes,
       for (vector<Node*>::iterator prevIter = n->prevNodesBegin();
            prevIter != n->prevNodesEnd();
            ++prevIter) {
-	EST = max(EST, AFT[((Node*) *prevIter)->getCompleteId()]);
+	EST = max(EST, AFT[(dynamic_cast<DagNode*>(*prevIter))->getCompleteId()]);
       }
       // choose server if it improves the EFT
       double nodeDuration = this->getNodeDurationEst(wf_response, pb_index, ix);
@@ -187,12 +190,12 @@ void
 HEFTScheduler::computeNodeWeights(const wf_response_t * wf_response,
                                   Dag * dag) {
   TRACE_TEXT (TRACE_ALL_STEPS, "HEFT : start computing weights (mean of estimates)" << endl);
-  Node * n = NULL;
+  DagNode * n = NULL;
   int ix = 0; // index of the node response in wf_response
-  for (std::map <std::string, Node *>::iterator p = dag->begin();
+  for (std::map <std::string, DagNode *>::iterator p = dag->begin();
        p != dag->end();
        p++) {
-    n = (Node *)(p->second);
+    n = (DagNode *)(p->second);
     n->setEstDuration(0);
     ix = n->getSubmitIndex(); // the index was stored before submitting to MA
     double w = 0;
@@ -211,8 +214,8 @@ HEFTScheduler::computeNodeWeights(const wf_response_t * wf_response,
  * (uses the estimation of job duration calculated for each node)
  */
 void
-HEFTScheduler::rank(Node * n) {  // RECURSIVE
-  Node * succ = NULL;
+HEFTScheduler::rank(DagNode * n) {  // RECURSIVE
+  DagNode * succ = NULL;
   unsigned len = n->nextNodesNb();
   if (len == 0) { // exit node
     n->setPriority(n->getEstDuration());
@@ -221,7 +224,7 @@ HEFTScheduler::rank(Node * n) {  // RECURSIVE
     for (list<Node*>::iterator nextIter = n->nextNodesBegin();
         nextIter != n->nextNodesEnd();
         ++nextIter) {
-      succ = (Node*) *nextIter;
+      succ = dynamic_cast<DagNode*>(*nextIter);
       // add duration of current node and priority of descendant node and compare it to
       // priority of current node: if higher then change priority of current node
       if ((succ->getPriority() + n->getEstDuration()) > n->getPriority()) {
@@ -235,7 +238,7 @@ HEFTScheduler::rank(Node * n) {  // RECURSIVE
   for (vector<Node*>::iterator prevIter = n->prevNodesBegin();
        prevIter != n->prevNodesEnd();
        ++prevIter) {
-    Node * prev = (Node*) *prevIter;
+    DagNode * prev = dynamic_cast<DagNode*>(*prevIter);
     // if preceding node is not already done or running then rank it
     if ((!prev->isDone()) && (!prev->isRunning()))
       rank(prev);

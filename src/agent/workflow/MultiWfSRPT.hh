@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/10/14 13:24:49  bisnard
+ * use new class structure for dags (DagNode,DagNodePort)
+ *
  * Revision 1.1  2008/07/17 13:33:09  bisnard
  * New multi-wf heuristic SRPT
  *
@@ -35,19 +38,19 @@ namespace madag {
      * Updates scheduler when a node has been executed
      */
     virtual void
-        handlerNodeDone(Node * node);
+        handlerNodeDone(DagNode * node);
 
     /**
      * set node priority before inserting into execution queue
      */
     virtual void
-        setExecPriority(Node * node);
+        setExecPriority(DagNode * node);
 
     /**
      * set node priority before inserting back in the ready queue
      */
     virtual void
-        setWaitingPriority(Node * node);
+        setWaitingPriority(DagNode * node);
   };
 
 }

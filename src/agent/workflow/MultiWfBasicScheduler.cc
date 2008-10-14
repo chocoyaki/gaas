@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2008/10/14 13:24:49  bisnard
+ * use new class structure for dags (DagNode,DagNodePort)
+ *
  * Revision 1.11  2008/06/25 10:05:44  bisnard
  * - Waiting priority set when node is put back in waiting queue
  * - Node index in wf_response stored in Node class (new attribute submitIndex)
@@ -91,10 +94,10 @@ MultiWfBasicScheduler::run() {
     while (qp != readyQueues.end()) {
       TRACE_TEXT(TRACE_ALL_STEPS,"Checking ready nodes queue:" << endl);
       OrderedNodeQueue * readyQ = *qp;
-      Node * n = readyQ->popFirstNode();
+      DagNode * n = readyQ->popFirstNode();
       if (n != NULL) {
         TRACE_TEXT(TRACE_ALL_STEPS,"  #### Ready node : " << n->getCompleteId()
-            << " (request #" << n->getWfReqId() << ") => execute" << endl);
+            << " => execute" << endl);
         // EXECUTE NODE (NEW THREAD)
         n->setAsRunning();
         runNode(n);
@@ -129,7 +132,7 @@ MultiWfBasicScheduler::run() {
  * Notify the scheduler that a node is done
  */
 void
-MultiWfBasicScheduler::handlerNodeDone(Node * node) {
+MultiWfBasicScheduler::handlerNodeDone(DagNode * node) {
   // does nothing for this class
 }
 
@@ -143,7 +146,7 @@ MultiWfBasicScheduler::createNodeQueue(Dag * dag)  {
   TRACE_TEXT(TRACE_ALL_STEPS, "Creating new node queues (basic)" << endl);
   OrderedNodeQueue *  readyQ  = new OrderedNodeQueue();
   ChainedNodeQueue *  waitQ   = new ChainedNodeQueue(readyQ);
-  for (std::map <std::string, Node *>::iterator nodeIt = dag->begin();
+  for (std::map <std::string, DagNode *>::iterator nodeIt = dag->begin();
        nodeIt != dag->end();
        nodeIt++) {
     waitQ->pushNode(&(*nodeIt->second));

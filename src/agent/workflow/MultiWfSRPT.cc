@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/10/14 13:24:49  bisnard
+ * use new class structure for dags (DagNode,DagNodePort)
+ *
  * Revision 1.1  2008/07/17 13:33:09  bisnard
  * New multi-wf heuristic SRPT
  *
@@ -45,7 +48,7 @@ MultiWfSRPT::~MultiWfSRPT() {
  * each time a node is put into execution queue)
  */
 void
-MultiWfSRPT::handlerNodeDone(Node * node) {
+MultiWfSRPT::handlerNodeDone(DagNode * node) {
   // does nothing
 }
 
@@ -53,13 +56,13 @@ MultiWfSRPT::handlerNodeDone(Node * node) {
  * set node priority before inserting into execution queue
  */
 void
-MultiWfSRPT::setExecPriority(Node * node) {
+MultiWfSRPT::setExecPriority(DagNode * node) {
   Dag * dag = node->getDag();
   double  RPT = 0; // remaining processing time
   // loop over all dag nodes and add their computation time if not yet executed
-  for (std::map<std::string,Node*>::iterator np = dag->begin();
+  for (std::map<std::string,DagNode*>::iterator np = dag->begin();
        np != dag->end(); np++) {
-    Node * curNode = (Node *) np->second;
+    DagNode * curNode = (DagNode *) np->second;
     if (!curNode->isDone() && !curNode->hasFailed()) {
       RPT += curNode->getEstDuration();
       if (curNode->isRunning()) {
@@ -84,6 +87,6 @@ MultiWfSRPT::setExecPriority(Node * node) {
  * Set priority before inserting back in the ready queue
  */
 void
-MultiWfSRPT::setWaitingPriority(Node * node) {
+MultiWfSRPT::setWaitingPriority(DagNode * node) {
   node->setPriority(this->nodesHEFTPrio[node]);
 }

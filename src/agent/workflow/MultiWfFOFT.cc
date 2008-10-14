@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2008/10/14 13:24:49  bisnard
+ * use new class structure for dags (DagNode,DagNodePort)
+ *
  * Revision 1.15  2008/07/10 11:42:20  bisnard
  * Fix bug 68 memory loss during workflow execution
  *
@@ -111,15 +114,15 @@ MultiWfFOFT::intraDagSchedule(Dag * dag, MasterAgent_var MA)
   this->mySched->setNodesPriority(wf_response, dag);
 
   // Initialize the earliest finish time for all nodes
-  std::vector<Node*>& orderedNodes = dag->getNodesByPriority();
+  std::vector<DagNode*>& orderedNodes = dag->getNodesByPriority();
   double startTime = this->getRelCurrTime();
   this->mySched->setNodesEFT(orderedNodes, wf_response, dag, startTime);
   delete &orderedNodes;
 
   // Initialize nodesFlag and nodesHEFTPrio
-  for (map <string,Node *>::iterator iter = dag->begin(); iter != dag->end();
+  for (map <string,DagNode *>::iterator iter = dag->begin(); iter != dag->end();
        iter++) {
-    Node * node = (Node*) iter->second;
+    DagNode * node = (DagNode*) iter->second;
     this->nodesFlag[node] = false;
     this->nodesHEFTPrio[node] = node->getPriority();
   }
@@ -140,7 +143,7 @@ MultiWfFOFT::intraDagSchedule(Dag * dag, MasterAgent_var MA)
  * Triggers the update of slowdown parameter for the dag of the node
  */
 void
-MultiWfFOFT::handlerNodeDone(Node * node) {
+MultiWfFOFT::handlerNodeDone(DagNode * node) {
   this->updateNodeDelay(node, node->getRealDelay());
 }
 
@@ -148,7 +151,7 @@ MultiWfFOFT::handlerNodeDone(Node * node) {
  * set node priority before inserting into execution queue
  */
 void
-MultiWfFOFT::setExecPriority(Node * node) {
+MultiWfFOFT::setExecPriority(DagNode * node) {
   // if flag is set (prev attempt to exec failed due to lack of ress.
   if (this->nodesFlag[node]) {
     double currDelay = this->getRelCurrTime() + node->getEstDuration() - node->getEstCompTime();
@@ -172,7 +175,7 @@ MultiWfFOFT::setExecPriority(Node * node) {
  * priority is set.
 */
 void
-MultiWfFOFT::setWaitingPriority(Node * node) {
+MultiWfFOFT::setWaitingPriority(DagNode * node) {
   node->setPriority(this->nodesHEFTPrio[node]);
   this->nodesFlag[node] = true;
 }
@@ -182,7 +185,7 @@ MultiWfFOFT::setWaitingPriority(Node * node) {
  * Updates the slowdown of the DAG if needed
  */
 void
-MultiWfFOFT::updateNodeDelay(Node * node, double delay) {
+MultiWfFOFT::updateNodeDelay(DagNode * node, double delay) {
   DagState& curDagState   = this->dagsState[node->getDag()];
   double dagPrevEstDelay  = curDagState.estimatedDelay;
   // Recursively updates the delay for the node and its successors

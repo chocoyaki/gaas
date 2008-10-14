@@ -44,7 +44,7 @@ MultiWfFCFS::~MultiWfFCFS() {
  * each time a node is put into execution queue)
  */
 void
-MultiWfFCFS::handlerNodeDone(Node * node) {
+MultiWfFCFS::handlerNodeDone(DagNode * node) {
   // does nothing
 }
 
@@ -52,7 +52,7 @@ MultiWfFCFS::handlerNodeDone(Node * node) {
  * set node priority before inserting into execution queue
  */
 void
-MultiWfFCFS::setExecPriority(Node * node) {
+MultiWfFCFS::setExecPriority(DagNode * node) {
   node->setPriority(1/node->getDag()->getStartTime());
 }
 
@@ -60,6 +60,6 @@ MultiWfFCFS::setExecPriority(Node * node) {
  * Set priority before inserting back in the ready queue
  */
 void
-MultiWfFCFS::setWaitingPriority(Node * node) {
+MultiWfFCFS::setWaitingPriority(DagNode * node) {
   node->setPriority(this->nodesHEFTPrio[node]);
 }

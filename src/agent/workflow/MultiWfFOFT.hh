@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2008/10/14 13:24:49  bisnard
+ * use new class structure for dags (DagNode,DagNodePort)
+ *
  * Revision 1.10  2008/06/25 10:05:44  bisnard
  * - Waiting priority set when node is put back in waiting queue
  * - Node index in wf_response stored in Node class (new attribute submitIndex)
@@ -80,7 +83,7 @@ namespace madag {
      * Updates scheduler when a node has been executed
      */
     virtual void
-        handlerNodeDone(Node * node);
+        handlerNodeDone(DagNode * node);
 
     /**
      * internal dag scheduling
@@ -93,13 +96,13 @@ namespace madag {
      * set node priority before inserting into execution queue
      */
     virtual void
-        setExecPriority(Node * node);
+        setExecPriority(DagNode * node);
 
     /**
      * set node priority before inserting back in the ready queue
      */
     virtual void
-        setWaitingPriority(Node * node);
+        setWaitingPriority(DagNode * node);
 
     /**
      * updates the delay for a given node and change the current dag
@@ -108,7 +111,7 @@ namespace madag {
      * @param delay delay in ms
      */
     virtual void
-        updateNodeDelay(Node * node, double delay);
+        updateNodeDelay(DagNode * node, double delay);
 
   private:
 
@@ -120,7 +123,7 @@ namespace madag {
     /**
      * Mark the nodes which priority must be re-calculated
      */
-    map<Node*,bool> nodesFlag;
+    map<DagNode*,bool> nodesFlag;
 
   };
 

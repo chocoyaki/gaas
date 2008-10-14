@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2008/10/14 13:24:53  bisnard
+ * use new class structure for dags (DagNode,DagNodePort)
+ *
  * Revision 1.15  2008/09/10 09:10:18  bisnard
  * removed alloc parameter for DagWfParser
  *
@@ -109,7 +112,7 @@ CltWfMgr::execNodeOnSed(const char * node_id,
   Dag * dag = this->getDag(dag_id);
   this->myLock.unlock();  /** UNLOCK */
   if (dag != NULL) {
-    Node * node = dag->getNode(node_id);
+    DagNode * node = dynamic_cast<DagNode*>(dag->getNode(node_id));
     if (node != NULL) {
       SeD_var sed_var = SeD::_narrow(sed);
       node->setSeD(sed_var, (unsigned long) reqID, ev);
@@ -134,7 +137,7 @@ CltWfMgr::execNode(const char * node_id, const char * dag_id) {
   Dag * dag = this->getDag(dag_id);
   this->myLock.unlock();  /** UNLOCK */
   if (dag != NULL) {
-    Node * node = dag->getNode(node_id);
+    DagNode * node = dynamic_cast<DagNode*>(dag->getNode(node_id));
     if (node != NULL) {
       TRACE_TEXT (TRACE_MAIN_STEPS,"CltWfMgr: execute node " << node_id <<
           " of dag " << dag_id << " (SED NOT DEFINED)" << endl);
@@ -219,15 +222,14 @@ CltWfMgr::wf_call_madag(diet_wf_desc_t * profile,
   sprintf(statMsg,"xml_reader",__FUNCTION__);
   stat_in("cltwfmgr",statMsg);
 
-  DagWfParser reader(cltWfReqId++, profile->abstract_wf);
-  if (! reader.setup())
+  Dag *dag = new Dag();
+  DagWfParser reader(*dag, profile->abstract_wf);
+  if (! reader.parseAndCheck())
     return XML_MALFORMED;
 
   stat_out("cltwfmgr",statMsg);
   // At this stage only the XML validity is checked but not the coherence
   // of the dag links between inputs and outputs
-
-  Dag * dag = reader.getDag();
 
   dag->setStartTime(this->getCurrTime());
 
@@ -236,7 +238,7 @@ CltWfMgr::wf_call_madag(diet_wf_desc_t * profile,
 	      "Marshalling the workflow description done" << endl);
 
   TRACE_TEXT (TRACE_ALL_STEPS,
-	      "Try to send the workflow description to the MA_DAG ...");
+	      "Try to send the workflow description to the MA_DAG ..." << endl);
   if (this->myMaDag != MaDag::_nil()) {
 
     this->myLock.lock();  /** LOCK */
@@ -252,7 +254,7 @@ CltWfMgr::wf_call_madag(diet_wf_desc_t * profile,
         dag->setId(itoa((long) dagId));
 	// Build the dag connexions to allow retrieval of input data
         TRACE_TEXT (TRACE_ALL_STEPS,
-                    "Linking the dag ports...");
+                    "Linking the dag ports..." << endl);
   	dag->linkAllPorts();
         TRACE_TEXT (TRACE_ALL_STEPS, " done" << endl);
   	this->myProfiles[profile] = dag;
@@ -277,7 +279,7 @@ CltWfMgr::wf_call_madag(diet_wf_desc_t * profile,
   stat_out("cltwfmgr",statMsg);
   return res;
 
-} // end wf_call_madag
+}
 
 /**
  * Execute the workflow
@@ -289,11 +291,8 @@ CltWfMgr::wf_call(diet_wf_desc_t* profile) {
   if (this->myMaDag != MaDag::_nil()) {
     return this->wf_call_madag(profile, true);
   }
-//   else {
-//     return this->wf_call_ma(profile);
-//   }
   return res;
-} // end wf_call
+}
 
 /**
  * Get all results of the workflow

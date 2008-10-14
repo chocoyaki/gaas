@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2008/10/14 13:24:48  bisnard
+ * use new class structure for dags (DagNode,DagNodePort)
+ *
  * Revision 1.7  2008/06/25 10:05:44  bisnard
  * - Waiting priority set when node is put back in waiting queue
  * - Node index in wf_response stored in Node class (new attribute submitIndex)
@@ -69,7 +72,7 @@ namespace madag {
      * @param initTime      dag starting time in ms (relative)
      */
     virtual void
-    setNodesEFT(std::vector<Node *>& orderedNodes,
+    setNodesEFT(std::vector<DagNode *>& orderedNodes,
                 const wf_response_t * wf_response,
                 Dag * dag,
                 double initTime);
@@ -99,7 +102,7 @@ namespace madag {
      * @param n the top node to rank.
      */
     void
-    rank(Node * n);
+    rank(DagNode * n);
 
     /**
      * Stores all the nodes earliest finish times

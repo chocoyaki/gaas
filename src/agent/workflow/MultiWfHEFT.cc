@@ -10,6 +10,9 @@
 
 /* $Id$
  * $Log$
+ * Revision 1.10  2008/10/14 13:24:49  bisnard
+ * use new class structure for dags (DagNode,DagNodePort)
+ *
  * Revision 1.9  2008/07/24 23:59:05  rbolze
  * oops I have commit the AgingHEFT with exponentiel factor.
  *
@@ -94,7 +97,7 @@ MultiWfAgingHEFT::~MultiWfAgingHEFT() {
 /**** CLASS MultiWfHEFT ****/
 
 void
-MultiWfHEFT::handlerNodeDone(Node * node) {
+MultiWfHEFT::handlerNodeDone(DagNode * node) {
   // does nothing
 }
 
@@ -113,15 +116,15 @@ MultiWfAgingHEFT::intraDagSchedule(Dag * dag, MasterAgent_var MA)
   this->mySched->setNodesPriority(wf_response, dag);
 
   // Initialize the earliest finish time for all nodes
-  std::vector<Node*>& orderedNodes = dag->getNodesByPriority();
+  std::vector<DagNode*>& orderedNodes = dag->getNodesByPriority();
   double startTime = this->getRelCurrTime();
   this->mySched->setNodesEFT(orderedNodes, wf_response, dag, startTime);
   delete &orderedNodes;
 
   // Store the HEFT Priority of nodes
-  for (map <string,Node *>::iterator iter = dag->begin(); iter != dag->end();
+  for (map <string,DagNode *>::iterator iter = dag->begin(); iter != dag->end();
        iter++) {
-    Node * node = (Node*) iter->second;
+    DagNode * node = (DagNode*) iter->second;
     this->nodesHEFTPrio[node] = node->getPriority();
   }
 
@@ -137,7 +140,7 @@ MultiWfAgingHEFT::intraDagSchedule(Dag * dag, MasterAgent_var MA)
 }
 
 void
-MultiWfAgingHEFT::handlerNodeDone(Node * node) {
+MultiWfAgingHEFT::handlerNodeDone(DagNode * node) {
   // does nothing
 }
 
@@ -146,14 +149,14 @@ MultiWfAgingHEFT::handlerNodeDone(Node * node) {
  * Note: the age of the dag is re-computed for all nodes
  */
 void
-MultiWfAgingHEFT::setExecPriority(Node * node) {
+MultiWfAgingHEFT::setExecPriority(DagNode * node) {
   double dagAge     = this->getRelCurrTime() - node->getDag()->getStartTime();
   //float  ageFactor  = exp((float) (dagAge / this->dagsState[node->getDag()].makespan) + 1);
   float  ageFactor  = (float) (dagAge / this->dagsState[node->getDag()].makespan) + 1;
   node->setPriority((double) (this->nodesHEFTPrio[node] * ageFactor));
   TRACE_TEXT(TRACE_ALL_STEPS,"[AHEFT] Node priority set to " << node->getPriority()
       << " (dag" << node->getDag()->getId()
-      << " age = " << dagAge 
+      << " age = " << dagAge
       << "/factor = " << ageFactor << ")" << endl);
 }
 
@@ -161,6 +164,6 @@ MultiWfAgingHEFT::setExecPriority(Node * node) {
  * Set priority before inserting back in the ready queue
  */
 void
-MultiWfAgingHEFT::setWaitingPriority(Node * node) {
+MultiWfAgingHEFT::setWaitingPriority(DagNode * node) {
   node->setPriority(this->nodesHEFTPrio[node]);
 }

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.38  2008/10/14 13:24:49  bisnard
+ * use new class structure for dags (DagNode,DagNodePort)
+ *
  * Revision 1.37  2008/09/30 09:25:34  bisnard
  * use Node::initProfileSubmit to create the diet profile before requesting node estimation to MA
  *
@@ -187,8 +190,6 @@ MultiWfScheduler::~MultiWfScheduler() {
     delete this->mySched;
 }
 
-long MultiWfScheduler::dagIdCounter = 0;
-
 /**
  * Change the intra-dag scheduler (by default it is HEFT)
  */
@@ -230,8 +231,9 @@ MultiWfScheduler::getMaDag() const {
 /**
  * Process a new dag => when finished the dag is ready for execution
  */
-double
-MultiWfScheduler::scheduleNewDag(const corba_wf_desc_t& wf_desc, int wfReqId,
+void
+MultiWfScheduler::scheduleNewDag(const corba_wf_desc_t& wf_desc,
+                                 const string& dagId,
                                  MasterAgent_var MA)
     throw (XMLParsingException, NodeException)
 {
@@ -242,8 +244,7 @@ MultiWfScheduler::scheduleNewDag(const corba_wf_desc_t& wf_desc, int wfReqId,
   TRACE_TEXT (TRACE_ALL_STEPS, "The meta scheduler receives a new xml dag "
       << endl);
   // Dag XML Parsing
-  Dag * newDag;
-  newDag = this->parseNewDag(wfReqId, wf_desc); // dagId is set here
+  Dag * newDag = this->parseNewDag(wf_desc, dagId);
 
   // Dag internal scheduling
   TRACE_TEXT (TRACE_ALL_STEPS, "Making intra-dag schedule" << endl);
@@ -269,8 +270,6 @@ MultiWfScheduler::scheduleNewDag(const corba_wf_desc_t& wf_desc, int wfReqId,
 
   // End of exclusion block
   this->myLock.unlock();
-
-  return atof(newDag->getId().c_str());
 }
 
 /**
@@ -325,14 +324,13 @@ MultiWfScheduler::run() {
     while (qp != readyQueues.end()) {
       OrderedNodeQueue * readyQ = *qp;
       int npc = nodePolicyCount;
-      Node * n = NULL;
+      DagNode * n = NULL;
       nodeReadyCount+=(int)readyQ->size();
       dagCount++;
       ChainedNodeQueue * waitQ = this->waitingQueues[readyQ];
       nodeTodoCount+= (int)readyQ->size() + (int)waitQ->size(); // for stats only
       while ((npc) && (n = readyQ->popFirstNode())) {
         TRACE_TEXT(TRACE_MAIN_STEPS,"  #### Ready node : " << n->getCompleteId()
-            << " / request #" << n->getWfReqId()
             << " / wait prio = " << n->getPriority() << endl);
         // save the address of the readyQ for this node (used if node pushed back)
         n->setLastQueue(readyQ);
@@ -364,7 +362,7 @@ MultiWfScheduler::run() {
       switch(this->platformType) {
         case PFM_ANY:
           // Initialize service availability matrix
-          for (list<Node *>::iterator nodeIter = execQueue->begin();
+          for (list<DagNode *>::iterator nodeIter = execQueue->begin();
                nodeIter != execQueue->end();
                ++nodeIter) {
             servAvail[(*nodeIter)->getPb()] = true;
@@ -379,7 +377,7 @@ MultiWfScheduler::run() {
       }
 
       while (!execQueue->isEmpty()) {
-        Node *n = execQueue->popFirstNode();
+        DagNode *n = execQueue->popFirstNode();
         OrderedNodeQueue * readyQ = dynamic_cast<OrderedNodeQueue *>(n->getLastQueue());
         bool ressourceFound = false;
         int  submitReqID = 0;  // store ReqID of submit to provide it for solve
@@ -556,15 +554,16 @@ MultiWfScheduler::getRelCurrTime() {
  * Parse dag xml description and create a dag object
  */
 Dag *
-MultiWfScheduler::parseNewDag(int wfReqId, const corba_wf_desc_t& wf_desc)
+MultiWfScheduler::parseNewDag(const corba_wf_desc_t& wf_desc,
+                              const string& dagId)
     throw (XMLParsingException) {
-  DagWfParser* reader = new DagWfParser(wfReqId, wf_desc.abstract_wf);
-  if (!reader->setup()) {
+  Dag * newDag = new Dag();
+  DagWfParser* reader = new DagWfParser(*newDag, wf_desc.abstract_wf);
+  if (!reader->parseAndCheck()) {
       throw XMLParsingException(XMLParsingException::eBAD_STRUCT);
   }
-  Dag * newDag = reader->getDag();
   delete reader;
-  newDag->setId(itoa(dagIdCounter++));
+  newDag->setId(dagId);
   return newDag;
 }
 
@@ -580,59 +579,32 @@ MultiWfScheduler::getProblemEstimates(Dag *dag, MasterAgent_var MA)
   corba_pb_desc_seq_t* pbs_seq = new corba_pb_desc_seq_t();
   pbs_seq->length(dag->size());
   int ix = 0;
-  for (map<std::string, Node *>::iterator iter = dag->begin();
-       iter != dag->end(); iter++) {
-         Node * node = (Node *) iter->second;
-         cout << "Node #" << ix << " (" << node->getCompleteId() << ")" << endl;
-         node->initProfileSubmit(); // creates the diet profile
-         node->setSubmitIndex(ix); // used to find response
-         mrsh_pb_desc(&(*pbs_seq)[ix++], node->getProfile());
+  for (map<std::string, DagNode *>::iterator iter = dag->begin();
+       iter != dag->end();
+       ++iter) {
+    DagNode * dagNode = (DagNode *) iter->second;
+    cout << "Node #" << ix << " (" << dagNode->getCompleteId() << ")" << endl;
+    dagNode->initProfileSubmit(); // creates the diet profile
+    dagNode->setSubmitIndex(ix);  // used to find response
+    mrsh_pb_desc(&(*pbs_seq)[ix++], dagNode->getProfile());
   }
   TRACE_TEXT (TRACE_ALL_STEPS,
               "MultiWfScheduler: send " << ix << " profile(s) to the MA  ... "
                   << endl);
   wf_response_t * wf_response = MA->submit_pb_set(*pbs_seq);
-  delete pbs_seq;
   TRACE_TEXT (TRACE_ALL_STEPS, "... done" << endl);
+  delete pbs_seq;
   if ( ! wf_response->complete)
     throw (NodeException(NodeException::eSERVICE_NOT_FOUND));
   return wf_response;
 }
 
 /**
- * Call MA to get server estimations for all services for nodes of a NodeQueue
- * @deprecated
- */
-/*
-wf_response_t *
-MultiWfScheduler::getProblemEstimates(OrderedNodeQueue* queue, MasterAgent_var MA)
-    throw (NodeException) {
-  corba_pb_desc_seq_t* pbs_seq = new corba_pb_desc_seq_t();
-  pbs_seq->length(queue->size());
-  int ix = 0;
-  for (list<Node *>::iterator iter = queue->begin();
-       iter != queue->end(); iter++) {
-         Node * node = (Node *) *iter;
-         node->setSubmitIndex(ix); // used to find response
-         mrsh_pb_desc(&(*pbs_seq)[ix++], node->getProfile());
-  }
-  TRACE_TEXT (TRACE_ALL_STEPS,
-              "MultiWfScheduler: send " << ix << " profile(s) to the MA  ... "
-                  << endl);
-  wf_response_t * wf_response = MA->submit_pb_set(*pbs_seq);
-  delete pbs_seq;
-  TRACE_TEXT (TRACE_ALL_STEPS, "... done" << endl);
-  if ( ! wf_response->complete)
-    throw (NodeException(NodeException::eSERVICE_NOT_FOUND));
-  return wf_response;
-} */
-
-/**
  * Call MA to get server estimations for one node
  * Note: the profile for the node is supposed to be already created
  */
 wf_response_t *
-MultiWfScheduler::getProblemEstimates(Node *node, MasterAgent_var MA)
+MultiWfScheduler::getProblemEstimates(DagNode *node, MasterAgent_var MA)
     throw (NodeException) {
   corba_pb_desc_seq_t* pbs_seq = new corba_pb_desc_seq_t();
   pbs_seq->length(1);
@@ -674,7 +646,7 @@ MultiWfScheduler::createNodeQueue(Dag * dag)  {
   TRACE_TEXT (TRACE_ALL_STEPS, "Creating new node queues (priority-based)" << endl);
   OrderedNodeQueue *  readyQ  = new PriorityNodeQueue();
   ChainedNodeQueue *  waitQ   = new ChainedNodeQueue(readyQ);
-  for (std::map <std::string, Node *>::iterator nodeIt = dag->begin();
+  for (std::map <std::string, DagNode *>::iterator nodeIt = dag->begin();
        nodeIt != dag->end();
        nodeIt++) {
     waitQ->pushNode(&(*nodeIt->second));
@@ -709,14 +681,14 @@ MultiWfScheduler::insertNodeQueue(OrderedNodeQueue * nodeQ) {
  * set node priority before inserting into execution queue
  */
 void
-MultiWfScheduler::setExecPriority(Node * node) {
+MultiWfScheduler::setExecPriority(DagNode * node) {
   // by default does nothing
 }
 /**
  * set node priority before inserting back in the ready queue
  */
 void
-MultiWfScheduler::setWaitingPriority(Node * node) {
+MultiWfScheduler::setWaitingPriority(DagNode * node) {
   // by default does nothing
 }
 
@@ -724,10 +696,10 @@ MultiWfScheduler::setWaitingPriority(Node * node) {
  * Execute a node on a given SeD
  */
 Thread *
-MultiWfScheduler::runNode(Node * node, SeD_var sed,
+MultiWfScheduler::runNode(DagNode * node, SeD_var sed,
                           int reqID, corba_estimation_t& ev) {
   Thread * thread = new NodeRun(node, sed, reqID, ev, this,
-                                this->myMaDag->getCltMan(node->getWfReqId()));
+                                this->myMaDag->getCltMan(node->getDag()->getId()));
   thread->start();
   return thread;
 }
@@ -736,9 +708,9 @@ MultiWfScheduler::runNode(Node * node, SeD_var sed,
  * Execute a node without specifying a SeD
  */
 Thread *
-MultiWfScheduler::runNode(Node * node) {
+MultiWfScheduler::runNode(DagNode * node) {
   Thread * thread = new NodeRun(node, this,
-                                this->myMaDag->getCltMan(node->getWfReqId()));
+                                this->myMaDag->getCltMan(node->getDag()->getId()));
   thread->start();
   return thread;
 }
@@ -747,7 +719,7 @@ MultiWfScheduler::runNode(Node * node) {
 /*                            CLASS NodeRun                                 */
 /****************************************************************************/
 
-NodeRun::NodeRun(Node * node, SeD_var sed, int reqID, corba_estimation_t ev,
+NodeRun::NodeRun(DagNode * node, SeD_var sed, int reqID, corba_estimation_t ev,
                  MultiWfScheduler * scheduler, CltMan_ptr cltMan) {
   this->myNode = node;
   this->mySeD = sed;
@@ -757,7 +729,7 @@ NodeRun::NodeRun(Node * node, SeD_var sed, int reqID, corba_estimation_t ev,
   this->myCltMan = cltMan;
 }
 
-NodeRun::NodeRun(Node * node,
+NodeRun::NodeRun(DagNode * node,
                  MultiWfScheduler * scheduler, CltMan_ptr cltMan) {
   this->myNode = node;
   this->mySeD = SeD::_nil();
