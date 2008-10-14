@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/10/14 13:31:36  bisnard
+ * new conversion method
+ *
  * Revision 1.5  2008/10/02 07:34:20  bisnard
  * new constants definitions (matrix order)
  *
@@ -80,6 +83,9 @@ public:
 
   static short
   cvtWfToDietType(WfDataType wfType);
+
+  static short
+  cvtDietToWfType(short dietType);
 
   static short
   cvtStrToWfType(const std::string& strType);

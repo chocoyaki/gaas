@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/10/14 13:31:36  bisnard
+ * new conversion method
+ *
  * Revision 1.5  2008/10/02 07:34:20  bisnard
  * new constants definitions (matrix order)
  *
@@ -54,7 +57,7 @@ using namespace std;
  * STRING -> WF
  */
 
-static const pair<short,short> dietTypes[] = {
+static const pair<short,short> wf2DietTypes[] = {
   pair<short,short>( WfCst::TYPE_CHAR, DIET_CHAR ),
   pair<short,short>( WfCst::TYPE_SHORT, DIET_SHORT),
   pair<short,short>( WfCst::TYPE_INT, DIET_INT),
@@ -66,6 +69,20 @@ static const pair<short,short> dietTypes[] = {
   pair<short,short>( WfCst::TYPE_PARAMSTRING, DIET_PARAMSTRING),
   pair<short,short>( WfCst::TYPE_FILE, DIET_FILE),
   pair<short,short>( WfCst::TYPE_CONTAINER, DIET_CONTAINER)
+};
+
+static const pair<short,short> diet2WfTypes[] = {
+  pair<short,short>( DIET_CHAR, WfCst::TYPE_CHAR),
+  pair<short,short>( DIET_SHORT, WfCst::TYPE_SHORT),
+  pair<short,short>( DIET_INT, WfCst::TYPE_INT),
+  pair<short,short>( DIET_LONGINT, WfCst::TYPE_LONGINT),
+  pair<short,short>( DIET_FLOAT, WfCst::TYPE_FLOAT),
+  pair<short,short>( DIET_DOUBLE, WfCst::TYPE_DOUBLE),
+  pair<short,short>( DIET_MATRIX, WfCst::TYPE_MATRIX),
+  pair<short,short>( DIET_STRING, WfCst::TYPE_STRING),
+  pair<short,short>( DIET_PARAMSTRING, WfCst::TYPE_PARAMSTRING),
+  pair<short,short>( DIET_FILE, WfCst::TYPE_FILE),
+  pair<short,short>( DIET_CONTAINER, WfCst::TYPE_CONTAINER)
 };
 
 static const pair<string,short> wfTypes[] = {
@@ -82,14 +99,21 @@ static const pair<string,short> wfTypes[] = {
   pair<string,short>( "DIET_CONTAINER", WfCst::TYPE_CONTAINER)
 };
 
-static map<short,short> WfTypesToDietTypes(dietTypes, dietTypes
-    + sizeof(dietTypes)/sizeof(dietTypes[0]));
+static map<short,short> WfTypesToDietTypes(wf2DietTypes, wf2DietTypes
+    + sizeof(wf2DietTypes)/sizeof(wf2DietTypes[0]));
+static map<short,short> DietTypesToWfTypes(diet2WfTypes, diet2WfTypes
+    + sizeof(diet2WfTypes)/sizeof(diet2WfTypes[0]));
 static map<string,short> StrTypesToWfTypes(wfTypes, wfTypes
     + sizeof(wfTypes)/sizeof(wfTypes[0]));
 
 short
 WfCst::cvtWfToDietType(WfDataType wfType) {
   return WfTypesToDietTypes[wfType];
+}
+
+short
+WfCst::cvtDietToWfType(short dietType) {
+  return DietTypesToWfTypes[dietType];
 }
 
 short
