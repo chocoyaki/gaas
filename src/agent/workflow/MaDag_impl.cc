@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2008/10/14 13:23:01  bisnard
+ * - use dagId instead of wfReqId as key for dags
+ * - new mapping table dagId to wfReqId
+ *
  * Revision 1.22  2008/09/04 15:22:25  bisnard
  * Changed name of multiwf heuristic HEFT to GHEFT
  *
@@ -151,7 +155,7 @@ using namespace madag;
 MaDag_impl::MaDag_impl(const char * name,
                        const MaDagSchedType schedType,
                        const int interRoundDelay) :
-  myName(name), myMultiWfSched(NULL), wfReqIdCounter(0) {
+  myName(name), myMultiWfSched(NULL), wfReqIdCounter(0), dagIdCounter(0) {
   char* MAName = (char*)
     Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
 
@@ -252,8 +256,8 @@ MaDag_impl::~MaDag_impl() {
  */
 CORBA::Long
 MaDag_impl::processDagWf(const corba_wf_desc_t& dag_desc,
-                                const char* cltMgrRef,
-                                CORBA::Long wfReqId) {
+                         const char* cltMgrRef,
+                         CORBA::Long wfReqId) {
   char statMsg[128];
   sprintf(statMsg,"Start workflow request %ld",wfReqId);
   stat_in("MA_DAG",statMsg);
@@ -263,27 +267,26 @@ MaDag_impl::processDagWf(const corba_wf_desc_t& dag_desc,
   // Register the client workflow manager
   CORBA::Object_ptr obj = ORBMgr::stringToObject(cltMgrRef);
   CltMan_ptr cltMan = CltMan::_narrow(obj);
-  this->setCltMan(wfReqId, cltMan);
+  setCltMan(wfReqId, cltMan);
 
   // Process the request ie merge dag into the global workflow managed by the MaDag
-  double dagId = 0;
+  CORBA::Long dagId = dagIdCounter++;
+  setWfReq(dagId, wfReqId);
   try {
-    dagId = this->myMultiWfSched->scheduleNewDag(dag_desc, wfReqId, this->myMA);
+    this->myMultiWfSched->scheduleNewDag(dag_desc, itoa(dagId), this->myMA);
   }
   catch (...) {
-    sprintf(statMsg,"Workflow request (%ld) aborted",wfReqId);
+    sprintf(statMsg,"Dag request (%ld) aborted",dagId);
     stat_out("MA_DAG",statMsg);
-    //stat_out("MA DAG","Workflow request (" << wfReqId << ") aborted");
     this->myMutex.unlock();
     return -1;
   }
   this->myMutex.unlock();
-  sprintf(statMsg,"End workflow request %ld",wfReqId);
+  sprintf(statMsg,"End Dag request %ld",dagId);
   stat_out("MA_DAG",statMsg);
   stat_flush();
-  //stat_out("MA DAG","Workflow request  (" << wfReqId << ") processing END");
-  return (CORBA::Long) dagId;
-} // end processDagWf
+  return dagId;
+}
 
 /**
  * Multi DAG Workflow processing
@@ -326,21 +329,33 @@ MaDag_impl::getMA() const {
 }
 
 /**
- * Get the client manager for a given workflow request
+ * Get the client manager for a given dag id
  */
 CltMan_ptr
-MaDag_impl::getCltMan(int wfReqId) {
-  if (this->cltMans.find(wfReqId) == this->cltMans.end())
-    return CltMan::_nil();
-  return this->cltMans.find(wfReqId)->second;
-} // end getCltMan
+MaDag_impl::getCltMan(const string& dagId) {
+  map<string,CORBA::Long>::iterator wfReqIter = wfReqs.find(dagId);
+  if (wfReqIter != wfReqs.end()) {
+    map<CORBA::Long,CltMan_ptr>::iterator cltManIter = cltMans.find(wfReqIter->second);
+    if (cltManIter != cltMans.end())
+      return cltManIter->second;
+  }
+  return CltMan::_nil();
+}
 
 /**
  * Set the client manager for a wf request
  */
 void
-MaDag_impl::setCltMan(int wfReqId, CltMan_ptr cltMan) {
+MaDag_impl::setCltMan(CORBA::Long wfReqId, CltMan_ptr cltMan) {
   this->cltMans[wfReqId] = cltMan;
+}
+
+/**
+ * set the wf request id for a given dag
+ */
+void
+MaDag_impl::setWfReq(CORBA::Long dagId, CORBA::Long wfReqId) {
+  this->wfReqs[itoa(dagId)] = wfReqId;
 }
 
 /**

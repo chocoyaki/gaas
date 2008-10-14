@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2008/10/14 13:23:01  bisnard
+ * - use dagId instead of wfReqId as key for dags
+ * - new mapping table dagId to wfReqId
+ *
  * Revision 1.17  2008/09/04 15:22:25  bisnard
  * Changed name of multiwf heuristic HEFT to GHEFT
  *
@@ -164,12 +168,12 @@ public:
       getWfReqId();
 
   /**
-   * Get the client mgr for a given wfReqId
-   * @param wfReqId workflow request identifier
+   * Get the client mgr for a given dag
+   * @param dagId the dag identifier
    * @return client manager pointer (CORBA)
    */
   virtual CltMan_ptr
-      getCltMan(int wfReqId);
+      getCltMan(const string& dagId);
 
   /** Used to test if it is alive. */
   virtual CORBA::Long
@@ -205,9 +209,15 @@ protected:
    * set the client manager for a wf request
    */
   void
-  setCltMan(int wfReqId, CltMan_ptr cltMan);
+  setCltMan(CORBA::Long wfReqId, CltMan_ptr cltMan);
 
-/**
+  /**
+   * set the wf request id for a given dag
+   */
+  void
+  setWfReq(CORBA::Long dagId, CORBA::Long wfReqId);
+
+  /**
    * setup the DietLogComponent
    */
   void
@@ -225,9 +235,14 @@ private:
   MasterAgent_var myMA;
 
   /**
-   * The client wf manager references
+   * The mapping table dagId => wfReqId
    */
-  map<int, CltMan_ptr> cltMans;
+  map<string, CORBA::Long> wfReqs;
+
+  /**
+   * The mapping table wfReqId => cltManager
+   */
+  map<CORBA::Long, CltMan_ptr> cltMans;
 
   /**
    * The meta-scheduler (used for multiworkflow support)
@@ -243,6 +258,11 @@ private:
    * Dag identifier counter
    */
   CORBA::Long wfReqIdCounter;
+
+  /**
+    * Dag counter
+    */
+  CORBA::Long dagIdCounter;
 
 };
 
