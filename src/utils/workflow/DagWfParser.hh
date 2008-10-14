@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2008/10/14 13:31:01  bisnard
+ * new class structure for dags (DagNode,DagNodePort)
+ *
  * Revision 1.7  2008/10/02 07:35:10  bisnard
  * new constants definitions (matrix order and port type)
  *
@@ -62,6 +65,7 @@
 // Workflow related headers
 #include "WfUtils.hh"
 #include "Node.hh"
+#include "Dag.hh"
 
 XERCES_CPP_NAMESPACE_USE
 using namespace std;
@@ -75,10 +79,10 @@ public:
 
   /** Reader constructor
    *
-   * @param wfReqId the workflow request ID
+   * @param
    * @param content the workflow description
    */
-  DagWfParser(int wfReqId, const char * content);
+  DagWfParser(NodeSet& nodeSet, const char * content);
 
   /**
    * The destructor
@@ -86,15 +90,10 @@ public:
   ~DagWfParser();
 
   /**
-   * Initialize the processing
+   * Parse the XML and check the structure
    */
   bool
-  setup();
-
-  /**
-   * get a reference to Dag structure
-   */
-  Dag * getDag();
+  parseAndCheck();
 
 
 protected:
@@ -106,7 +105,7 @@ protected:
    * workflow description
    * contains the content of the workflow description file
    */
-  std::string content;
+  string content;
 
   /**
    * Xml document
@@ -116,7 +115,7 @@ protected:
   /**
    * Dag structure
    */
-  Dag * myDag;
+  NodeSet&  myNodeSet;
 
   /****************/
   /* Xml methods  */
@@ -136,12 +135,6 @@ protected:
    */
   bool
   parseXml();
-
-  /**
-   * Init the XML processing
-   */
-  bool
-  initXml();
 
   /**
    * parse a node element
@@ -203,7 +196,7 @@ protected:
    * @param dagNode     the current node object
    * @param value       the value of the parameter (optional)
    */
-  void
+  WfPort *
   setParam(const WfPort::WfPortType param_type,
 	   const string& name,
 	   const string& type,
@@ -214,7 +207,7 @@ protected:
   /**
    * create a node port of type matrix
    */
-  bool
+  WfPort *
   setMatrixParam(const DOMElement * element,
                  const WfPort::WfPortType param_type,
 		 const string& name,

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2008/10/14 13:31:01  bisnard
+ * new class structure for dags (DagNode,DagNodePort)
+ *
  * Revision 1.6  2008/09/04 14:34:36  bisnard
  * new method removeLastNodes
  *
@@ -36,8 +39,11 @@
 #ifndef _NODEQUEUE_HH_
 #define _NODEQUEUE_HH_
 
+#include <string>
 #include <list>
-#include "Node.hh"
+#include <vector>
+
+using namespace std;
 
 /**
  * Class NodeQueue (ABSTRACT)
@@ -55,6 +61,8 @@
  * notifyStateChange.
  */
 
+class DagNode;
+
 class NodeQueue {
 
   public:
@@ -66,16 +74,16 @@ class NodeQueue {
         getName(); // returns the name of the queue
 
     virtual void
-        pushNode(Node * node); // adds a node into the queue
+        pushNode(DagNode * node); // adds a node into the queue
 
     virtual void
-        pushNodes(std::vector<Node *> nodes); // adds a vector of nodes into the queue
+        pushNodes(vector<DagNode *> nodes); // adds a vector of nodes into the queue
 
     virtual void
-        removeNode(Node * node); // removes a node from the queue
+        removeNode(DagNode * node); // removes a node from the queue
 
     virtual bool
-        notifyStateChange(Node * node) = 0; // notify the queue that a node's state changed
+        notifyStateChange(DagNode * node) = 0; // notify the queue that a node's state changed
 
     virtual int
         size(); // returns the nb of nodes in the queue
@@ -111,7 +119,7 @@ class ChainedNodeQueue : public NodeQueue {
     virtual ~ChainedNodeQueue();
 
     bool
-        notifyStateChange(Node * node); // moves the node to the output queue
+    notifyStateChange(DagNode * node); // moves the node to the output queue
 
   protected:
     NodeQueue * outputQ;  // pointer to the next queue
@@ -132,34 +140,34 @@ class OrderedNodeQueue : public NodeQueue {
     virtual ~OrderedNodeQueue();
 
     void
-        pushNode(Node * node); // adds a node into the queue
+        pushNode(DagNode * node); // adds a node into the queue
 
     bool
-        notifyStateChange(Node * node); // do nothing
+        notifyStateChange(DagNode * node); // do nothing
 
-/*    virtual Node *
+/*    virtual DagNode *
         getFirstNode(); // returns a ref to the first node in the queue (or NULL)
  */
     virtual void
-        removeNode(Node * node); // removes a node from the queue
+        removeNode(DagNode * node); // removes a node from the queue
 
-    virtual Node *
+    virtual DagNode *
         popFirstNode(); // pop out the first node from the nodes queue
 
     virtual void
         removeLastNodes(int nbNodesToKeep); // Remove queue's tail keeping only a maximum nb of nodes
 
-    std::list<Node *>::iterator
+    list<DagNode *>::iterator
         begin();        // get an iterator on the list of nodes
 
-    std::list<Node *>::iterator
+    list<DagNode *>::iterator
         end();
 
   protected:
     /**
      * The queue is implemented as a list
      */
-    list<Node *> orderedNodes;
+    list<DagNode *> orderedNodes;
 
 }; // end class OrderedNodeQueue
 
@@ -184,7 +192,7 @@ class PriorityNodeQueue : public OrderedNodeQueue {
      * Insert the node in the queue according to its priority
      */
     void
-        pushNode(Node * node);
+        pushNode(DagNode * node);
 
 }; // end class PriorityNodeQueue
 

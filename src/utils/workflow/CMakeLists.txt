@@ -8,9 +8,11 @@ IF( DIET_BUILD_LIBRARIES )
     ${XERCES_INCLUDE_DIR}
     )
   ADD_LIBRARY ( UtilsWf
-    WfPortAdapter.cc WfPort.cc
-    Node.cc Dag.cc NodeQueue.cc
+    Node.cc Dag.cc
+    WfPort.cc WfPortAdapter.cc
+    DagNode.cc DagNodePort.cc
     DagWfParser.cc
+    NodeQueue.cc
     Thread.cc WfUtils.cc
     )
 

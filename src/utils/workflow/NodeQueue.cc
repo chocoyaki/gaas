@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2008/10/14 13:31:01  bisnard
+ * new class structure for dags (DagNode,DagNodePort)
+ *
  * Revision 1.7  2008/09/04 14:34:36  bisnard
  * new method removeLastNodes
  *
@@ -37,6 +40,7 @@
  ****************************************************************************/
 
 #include "NodeQueue.hh"
+#include "DagNode.hh"
 #include "debug.hh"
 
 using namespace std;
@@ -57,15 +61,15 @@ NodeQueue::getName() {
 }
 
 void
-NodeQueue::pushNode(Node * node) {
+NodeQueue::pushNode(DagNode * node) {
   // nodes must be able to notify the queue it belongs to
   node->setNodeQueue(this);
   this->nodeCounter++;
 }
 
 void
-NodeQueue::pushNodes(vector<Node *> nodes) {
-  vector<Node *>::iterator iter = nodes.begin();
+NodeQueue::pushNodes(vector<DagNode *> nodes) {
+  vector<DagNode *>::iterator iter = nodes.begin();
   while (iter != nodes.end()) {
     this->pushNode(*iter);
     iter++;
@@ -73,7 +77,7 @@ NodeQueue::pushNodes(vector<Node *> nodes) {
 }
 
 void
-NodeQueue::removeNode(Node * node) {
+NodeQueue::removeNode(DagNode * node) {
   node->setNodeQueue(NULL);
   this->nodeCounter--;
 }
@@ -97,7 +101,7 @@ ChainedNodeQueue::ChainedNodeQueue(string name, NodeQueue * outputQ)
 ChainedNodeQueue::~ChainedNodeQueue() { }
 
 bool
-ChainedNodeQueue::notifyStateChange(Node * node) {
+ChainedNodeQueue::notifyStateChange(DagNode * node) {
   if (this->outputQ != NULL) {
     this->outputQ->pushNode(node);
     this->nodeCounter--;
@@ -117,7 +121,7 @@ OrderedNodeQueue::~OrderedNodeQueue() { }
 // The basic version of this method inserts a ready node at the end
 // of the ready nodes list without doing any re-ordering
 void
-OrderedNodeQueue::pushNode(Node * node) {
+OrderedNodeQueue::pushNode(DagNode * node) {
   TRACE_TEXT (TRACE_ALL_STEPS,
       "Node " << node->getCompleteId() << " inserted at end of queue" << endl);
   orderedNodes.push_back(node);
@@ -125,7 +129,7 @@ OrderedNodeQueue::pushNode(Node * node) {
   this->nodeCounter++;
 }
 
-// Node *
+// DagNode *
 // OrderedNodeQueue::getFirstNode() {
 //   if (!orderedNodes.empty())
 //     return orderedNodes.front();
@@ -133,10 +137,10 @@ OrderedNodeQueue::pushNode(Node * node) {
 //     return NULL;
 // }
 
-Node *
+DagNode *
 OrderedNodeQueue::popFirstNode() {
   if (!orderedNodes.empty()) {
-    Node * nodePtr = orderedNodes.front();  // get the ref to the first node
+    DagNode * nodePtr = orderedNodes.front();  // get the ref to the first node
     orderedNodes.pop_front(); // removes the node from the queue
     nodePtr->setNodeQueue(NULL);
     this->nodeCounter--;
@@ -148,8 +152,8 @@ OrderedNodeQueue::popFirstNode() {
 }
 
 void
-OrderedNodeQueue::removeNode(Node * node) {
-  list<Node*>::iterator np = orderedNodes.begin();
+OrderedNodeQueue::removeNode(DagNode * node) {
+  list<DagNode*>::iterator np = orderedNodes.begin();
   while (np != orderedNodes.end()) {
     if (*np = node) {
       np = orderedNodes.erase(np);
@@ -164,7 +168,7 @@ OrderedNodeQueue::removeNode(Node * node) {
 
 void
 OrderedNodeQueue::removeLastNodes(int nbNodesToKeep) {
-  list<Node*>::iterator  nodeIter = this->begin();
+  list<DagNode*>::iterator  nodeIter = this->begin();
   // Go to the first item to delete
   int ix=0;
   while ((nodeIter != this->end()) && (ix++ < nbNodesToKeep)) {
@@ -179,17 +183,17 @@ OrderedNodeQueue::removeLastNodes(int nbNodesToKeep) {
 
 
 bool
-OrderedNodeQueue::notifyStateChange(Node * node) {
+OrderedNodeQueue::notifyStateChange(DagNode * node) {
   // do nothing
   return true;
 }
 
-std::list<Node *>::iterator
+std::list<DagNode *>::iterator
 OrderedNodeQueue::begin() {
   return orderedNodes.begin();
 }
 
-std::list<Node *>::iterator
+std::list<DagNode *>::iterator
 OrderedNodeQueue::end() {
   return orderedNodes.end();
 }
@@ -205,12 +209,12 @@ PriorityNodeQueue::~PriorityNodeQueue() { }
 // The version that implements ordering based on node priority
 // It orders the ready nodes in DECREASING priority
 void
-PriorityNodeQueue::pushNode(Node * insNode) {
+PriorityNodeQueue::pushNode(DagNode * insNode) {
   double insNodePrio = insNode->getPriority();
-  list<Node*>::iterator  nodeIter = orderedNodes.begin();
-  Node *                      curNode   = NULL;
+  list<DagNode*>::iterator  nodeIter = orderedNodes.begin();
+  DagNode *                      curNode   = NULL;
   while ((nodeIter != orderedNodes.end())
-          && (curNode = (Node *) *nodeIter)
+          && (curNode = (DagNode *) *nodeIter)
           && (curNode->getPriority() >= insNodePrio)) {
     nodeIter++;
   }

@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.30  2008/10/14 13:31:01  bisnard
+ * new class structure for dags (DagNode,DagNodePort)
+ *
  * Revision 1.29  2008/10/02 08:28:47  bisnard
  * new WfPort method to free persistent data
  *
@@ -164,337 +167,26 @@
  *
  ****************************************************************************/
 
-#include <stdlib.h>
-#include <sstream>
-#include <algorithm>
-
-#include "statistics.hh"
 #include "debug.hh"
-#include "marshalling.hh"
-#include "MasterAgent.hh"
 
 #include "Node.hh"
-#include "Dag.hh"
-#include "NodeQueue.hh"
+#include "Dag.hh" // for NodeSet definition
 
+/****************************************************************************/
+/*                       Constructors/Destructor                            */
+/****************************************************************************/
 
-MasterAgent_var getMA();
-extern diet_error_t
-diet_call_common(diet_profile_t* profile, SeD_var& chosenServer, estVector_t estimVect);
+Node::Node(const string& id, const string& pbName) :
+  myId(id), myPb(pbName) {}
 
-/**
- * Display a textual representation of a corba profile
- *
- * @param pb the corba profile to display
- */
-void display(const corba_profile_t& pb) {
-  TRACE_TEXT (TRACE_ALL_STEPS,
-		  "  - last_in    : " << pb.last_in << endl);
-  TRACE_TEXT (TRACE_ALL_STEPS,
-	      "  - last inout : " << pb.last_inout << endl);
-  TRACE_TEXT (TRACE_ALL_STEPS,
-	      "  - last out   : " << pb.last_out << endl);
-  TRACE_TEXT (TRACE_ALL_STEPS,
-	      "  - param : " << pb.last_out << endl);
-  for (unsigned int ix=0; ix < pb.parameters.length(); ix++) {
-    TRACE_TEXT (TRACE_ALL_STEPS,
-		"     - base_type = " << pb.parameters[ix].desc.base_type <<
-		", specific = " << pb.parameters[ix].desc.specific._d() <<
-		endl);
-  }
-  TRACE_TEXT (TRACE_ALL_STEPS,
-	      "*************************" << endl);
-}
-
-/**
- * RunnableNode constructor
- */
-RunnableNode::RunnableNode(Node * parent)
-	:Thread(false) {
-  this->myParent = parent;
-} // end RunnableNode constructor
-
-/**
- * Node execution methods *
- */
-void *
-RunnableNode::run() {
-  typedef size_t comm_failure_t;
-  bool failed = false;
-  TRACE_TEXT (TRACE_ALL_STEPS,
-	      "RunnableNode tries to a execute a service "<< endl);
-  // create the node diet profile
-  failed = !(myParent->initProfileExec());
-  if (!failed) {
-    try {
-      try {
-        cout << "Make DIET call for pb " << myParent->profile->pb_name << endl;
-        if (!diet_call_common(myParent->profile, myParent->chosenServer, myParent->estimVect)) {
-          TRACE_TEXT (TRACE_MAIN_STEPS, "diet_call DONE " << "reqID=" <<
-              myParent->profile->dietReqID << endl);
-          myParent->storeProfileData();
-        }
-        else {
-          TRACE_TEXT (TRACE_MAIN_STEPS, "diet_call FAILED" << endl);
-          failed = true;
-        }
-      } catch (CORBA::COMM_FAILURE& e) {
-        throw (comm_failure_t)1;
-      } catch (CORBA::TRANSIENT& e) {
-        throw (comm_failure_t)1;
-      }
-    } catch (comm_failure_t& e) {
-      if (e == 0 || e == 1) {
-        WARNING("Connection problems with SeD occured - node exec cancelled");
-        failed = true;
-      }
-    }
-    TRACE_TEXT (TRACE_ALL_STEPS, "RunnableNode call ... done" << endl);
-  }
-  if (!failed)  myParent->done();
-  else          myParent->setAsFailed();
-
-  return NULL;
-} // end RunnableNode::run
-
-
-/**
- * The Node constructor
- */
-Node::Node(int wfReqId, string id, string pb_name) {
-  this->wfReqId = wfReqId;
-  this->myId = id;
-  this->myPb = pb_name;
-  this->prevNodesTodoCount = 0;
-  this->task_done = false;
-  this->SeDDefined = false;
-  this->profile = NULL;
-  this->node_running = false;
-  this->taskExecFailed = false;
-  this->myRunnableNode = NULL;
-  this->chosenServer = SeD::_nil();
-  this->estimVect = NULL;
-  this->nextDone = 0;
-  this->priority = 0;
-  this->myDag = NULL;
-  this->myQueue = NULL;
-  this->realCompTime = -1;
-  this->realStartTime = -1;
-  this->estCompTime = -1;
-  this->estDelay = 0;
-  this->submitIndex = 0;
-} // end Node constructor
-
-/**
- * Node destructor
- */
-Node::~Node() {
-  TRACE_TEXT (TRACE_ALL_STEPS, "~Node() destructor (id: " << myId << ") ..." << endl);
-  if (profile != NULL)
-    diet_profile_free(profile);
-  if (myRunnableNode)
-    delete (myRunnableNode);
-  if (myQueue)
-    myQueue->removeNode(this);
-
-  // free the ports map ()
-  // free the parameters vectors
-  {
-    // char vector
-    char * cx;
-    while (charParams.size() != 0) {
-      cx = charParams.back();
-      charParams.pop_back();
-      if (cx)
-	delete (cx);
-    }
-  }
-  {
-    // short vector
-    short * sx = NULL;
-    while (shortParams.size() != 0) {
-      sx = shortParams.back();
-      shortParams.pop_back();
-      if (sx) {
-	delete(sx);
-      }
-    }
-  }
-  {
-    // int vector
-    int * ix = NULL;
-    while (intParams.size() != 0) {
-      ix = intParams.back();
-      intParams.pop_back();
-      if (ix)
-	delete (ix);
-    }
-  }
-  {
-    // long vector
-    long * lx = NULL;
-    while (longParams.size() != 0) {
-      lx = longParams.back();
-      longParams.pop_back();
-      if (lx)
-	delete (lx);
-    }
-  }
-  {
-    // string
-    char * cx = NULL;
-    while (stringParams.size() != 0) {
-      cx = stringParams.back();
-      stringParams.pop_back();
-      if (cx)
-	delete(cx);
-    }
-  }
-
-  {
-    // file name vector
-    char * cx = NULL;
-    while (fileParams.size() != 0) {
-      cx = fileParams.back();
-      fileParams.pop_back();
-      if (cx)
-	delete(cx);
-    }
-  }
-
-  {
-    // float vector
-    float * fx = NULL;
-    while (floatParams.size() != 0) {
-      fx = floatParams.back();
-      floatParams.pop_back();
-      if (fx)
-	delete(fx);
-    }
-  }
-  {
-    // double vector
-    double * dx = NULL;
-    while (doubleParams.size() != 0) {
-      dx = doubleParams.back();
-      doubleParams.pop_back();
-      if (dx)
-	delete(dx);
-    }
-  }
-}
+Node::~Node() {}
 
 /****************************************************************************/
 /*                              Basic GET/SET                               */
 /****************************************************************************/
 
-/**
- * Set the node ID
- */
-void
-Node::setId(string id) {
-  this->myId = id;
-} // end setId
-
-/**
- * Get the node id *
- */
-string Node::getId() {
-  return this->myId;
-} // end getId
-
-/**
- * Get the node complete id *
- */
-string Node::getCompleteId() {
-  if (this->myDag != NULL)
-    return this->myDag->getId() + "-" + this->myId;
-  return this->myId;
-} // end getCompleteId
-
-/**
- * Get the workflow request id associated with the node *
- */
-int Node::getWfReqId() {
-  return this->wfReqId;
-}
-
-/**
- * Set the NodeQueue ref when the node is inserted into it *
- * (This is used to notify the NodeQueue when the node state changes *
- */
-void Node::setNodeQueue(NodeQueue * nodeQ) {
-  this->myQueue = nodeQ;
-}
-
-/**
-  * set the ref to the last nodeQueue occupied by the node
-  */
-void
-Node::setLastQueue(NodeQueue * queue) {
-  this->lastQueue = queue;
-}
-
-/**
- * get the ref to the last nodeQueue occupied by the node
- */
-NodeQueue *
-Node::getLastQueue() {
-  return this->lastQueue;
-}
-
-/**
- * To get the node problem identifier
- */
-string Node::getPb() {
-  return this->myPb;
-} // end getPb
-
-/**
- * return the node profile
- */
-diet_profile_t *
-Node::getProfile() {
-  return this->profile;
-} // end getProfile
-
-
-/**
- * set the parent Dag reference
- */
-void
-Node::setDag(Dag * dag) {
-  this->myDag = dag;
-}
-
-/**
- * get the node Dag reference
- */
-Dag *
-Node::getDag() {
-  if (this->myDag != NULL)
-    return this->myDag;
-  else {
-    cout << "ERROR: calling getDag() on a node not linked to a dag" << endl;
-    exit(0);
-  }
-}
-
-/**
- * set the submit index
- */
-void
-Node::setSubmitIndex(int idx) {
-  this->submitIndex = idx;
-}
-
-/**
- * get the submit index
- */
-int
-Node::getSubmitIndex() {
-  return this->submitIndex;
-}
+const string& Node::getId() { return this->myId; }
+const string& Node::getPb() { return this->myPb; }
 
 /****************************************************************************/
 /*                       Predecessor/Successors Mgmt                        */
@@ -516,25 +208,16 @@ Node::addPrevId(string nodeId) {
  * data dependencies (ports links)
  */
 bool
-Node::setNodePredecessors(Dag* dag) {
+Node::setNodePrecedence(NodeSet* nodeSet) {
   // The predecessors defined by control links (<prec> tag) were
   // already added by the dag parser.
   // Add the predecessors defined by data links
-  for (map<string, WfInPort*>::iterator p = inPorts.begin();
-	 p != inPorts.end();
+  for (map<string, WfPort*>::iterator p = ports.begin();
+	 p != ports.end();
 	 ++p) {
-      WfInPort * in = (WfInPort*)(p->second);
-      if (!in->setNodePredecessors(dag))
+      if (!((WfPort*)p->second)->setNodePrecedence(nodeSet))
         return false;
-    } // end for in
-
-  for (map<string, WfInOutPort*>::iterator p = inOutPorts.begin();
-	 p != inOutPorts.end();
-	 ++p) {
-      WfInOutPort * inout = (WfInOutPort*)(p->second);
-      if (!inout->setNodePredecessors(dag))
-        return false;
-  } // end for inout
+  }
 
   // convert the predecessors defined by ID in prevNodeIds to
   // direct object references stored in prevNodes
@@ -543,7 +226,7 @@ Node::setNodePredecessors(Dag* dag) {
   for (set<string>::iterator idIter = prevNodeIds.begin();
        idIter != prevNodeIds.end();
        ++idIter) {
-    Node * prevNode = dag->getNode(*idIter);
+    Node * prevNode = nodeSet->getNode(*idIter);
     if (prevNode)
       this->setPrev(prevIdx++, prevNode);
     else
@@ -562,7 +245,6 @@ Node::setPrev(int index, Node * node) {
     TRACE_TEXT (TRACE_ALL_STEPS, "The node " << this->myId << " has a new previous node " <<
  		node->getId() << endl);
     prevNodes[index] = node;
-    prevNodesTodoCount++;
     node->addNext(this);
 }
 
@@ -601,7 +283,8 @@ Node::addNext(Node * n) {
 /**
  * return the number of next nodes
  */
-unsigned int Node::nextNodesNb() {
+unsigned int
+Node::nextNodesNb() {
   return nextNodes.size();
 }
 
@@ -628,7 +311,7 @@ Node::nextNodesEnd() {
 bool
 Node::isAnInput() {
   return (prevNodes.size()==0);
-} // end isAnInput
+}
 
 /**
  * return true if the node is an input node *
@@ -637,707 +320,35 @@ Node::isAnInput() {
 bool
 Node::isAnExit() {
   return (nextNodes.size() == 0);
-} // end isAnExit
-
-/****************************************************************************/
-/*                          PRINT functions                                 */
-/****************************************************************************/
-
-/**
- * display the textual representation of a node *
- */
-string
-Node::toString() {
-  string str = "Node representation\n";
-  str += "Input Ports\n";
-  for (map<string, WfInPort*>::iterator p = inPorts.begin();
-       p != inPorts.end();
-       p++) {
-    WfInPort * in = (WfInPort*)(p->second);
-    str += "\t\t"+ in->getId() + "\n";
-  }
-
-  str += "Output Ports\n";
-  for (map<string, WfOutPort*>::iterator p = outPorts.begin();
-       p != outPorts.end();
-       p++) {
-    WfOutPort * out = (WfOutPort*)(p->second);
-    str += "\t\t"+ out->getId() + "\n";
-  }
-// return str + toStringBasis();
-  return str;
-} // end toString
+}
 
 
 /****************************************************************************/
-/*                          Profile Allocation                              */
+/*                            Ports Mgmt                                    */
 /****************************************************************************/
 
 /**
- * Allocate a new char *
+ * link the ports by references
  */
-char *
-Node::newChar(const string value) {
-//   TRACE_TEXT (TRACE_ALL_STEPS, "new char ; value | " << value <<  " |" << endl);
-  if (value != "") {
-    char * cx = new char;
-    *cx = value.c_str()[0];
-    charParams.push_back(cx);
-  }
-  else {
-    TRACE_TEXT (TRACE_ALL_STEPS, "$$$$$$$$$$$$$ Add a NULL" << endl);
-    charParams.push_back(NULL);
-  }
-  return charParams[charParams.size() - 1];
-} // end newChar
-
-/**
- * Allocate a new short *
- */
-short *
-Node::newShort(const string value) {
-//   TRACE_TEXT (TRACE_ALL_STEPS, "new short ; value | " << value <<  " |" << endl);
-  if (value != "") {
-    short * sx = new short;
-    *sx = atoi(value.c_str());
-    shortParams.push_back(sx);
-  }
-  else {
-    TRACE_TEXT (TRACE_ALL_STEPS, "$$$$$$$$$$$$$ Add a NULL" << endl);
-    shortParams.push_back(NULL);
-  }
-  return shortParams[shortParams.size() - 1];
-} // end newShort
-
-/**
- * Allocate a new int  *
- */
-int *
-Node::newInt(const string value) {
-//   TRACE_TEXT (TRACE_ALL_STEPS,
-// 	      "new int ; value | " << value <<  " |" << endl);
-  if (value != "") {
-    int * ix = new int;
-    *ix = atoi(value.c_str());
-    intParams.push_back(ix);
-  }
-  else {
-    TRACE_TEXT (TRACE_ALL_STEPS,
-		"$$$$$$$$$$$$$ Add a NULL" << endl);
-    intParams.push_back(NULL);
-  }
-  return intParams[intParams.size() - 1];
-} // end newInt
-
-/**
- * Allocate a new long *
- */
-long *
-Node::newLong(const string value) {
+void
+Node::connectNodePorts() {
    TRACE_TEXT (TRACE_ALL_STEPS,
- 	      "new long ; value | " << value <<  " |" << endl);
-  if (value != "") {
-    long * lx = new long;
-    *lx = atoi(value.c_str());
-    longParams.push_back(lx);
+ 	      "connectNodePorts : processing node " << getId() << endl);
+  for (map<string, WfPort*>::iterator p = ports.begin();
+       p != ports.end();
+       ++p) {
+    ((WfPort*)(p->second))->connectPorts(this->getNodeSet());
   }
-  else {
-    TRACE_TEXT (TRACE_ALL_STEPS,
-		"$$$$$$$$$$$$$ Add a NULL" << endl);
-    longParams.push_back(NULL);
-  }
-  return longParams[longParams.size() - 1];
-} // end newLong
-
-/**
- * Allocate a new string *
- */
-char *
-Node::newString (const string value) {
-  char * str = new char[value.size()+1];
-  strcpy(str, value.c_str());
-
-//   TRACE_TEXT (TRACE_ALL_STEPS,
-// 	      "----> new string; value = " << value << ", " << str << endl);
-  stringParams.push_back(str);
-  return str;
-} // end newString
-
-/**
- * Allocate a new file *
- */
-char *
-Node::newFile (const string value) {
-  char * str = new char[value.size()+1];
-  strcpy(str, value.c_str());
-
-//   TRACE_TEXT (TRACE_ALL_STEPS,
-// 	      "----> new file; value = " << value << ", " << str << endl);
-  fileParams.push_back(str);
-  return str;
-} // end newFile
-
-/**
- * Allocate a new float  *
- */
-float *
-Node::newFloat  (const string value) {
-  float * fx = new float;
-  *fx = (float)atof(value.c_str());
-  floatParams.push_back(fx);
-  return fx;
-} // end newFloat
-
-/**
- * Allocate a new double  *
- */
-double *
-Node::newDouble (const string value) {
-  double * dx = new double;
-  *dx = atof(value.c_str());
-  doubleParams.push_back(dx);
-  return dx;
-} // end newDouble
-
-/****************************************************************************/
-/*                        Priority / Scheduling                             */
-/****************************************************************************/
-
-/**
- * set the node priority *
- */
-void
-Node::setPriority(double priority) {
-  this->priority = priority;
-} // end setPriority
-
-/**
- * get the node priority *
- */
-double
-Node::getPriority() {
-  return this->priority;
-} // end getPriority
-
-/****************************************************************************/
-/*                           Node state                                     */
-/****************************************************************************/
-
-/**
- * test if the node is ready for execution (Madag side)
- * (check the counter of dependencies)
- */
-bool
-Node::isReady() {
-  return (prevNodesTodoCount == 0);
-} // end isReady
-
-/**
- * set the node as ready for execution (Madag side)
- * (Notifies the nodequeue if available)
- */
-void
-Node::setAsReady() {
-  if (this->myQueue != NULL) {
-    TRACE_TEXT (TRACE_ALL_STEPS,
-      "Node " << this->getCompleteId() << " is ready: notify its queue" << endl);
-    this->myQueue->notifyStateChange(this);
-  }
-}
-
-/**
- * test if the node is running (Madag side)
- */
-bool
-Node::isRunning() {
-  return node_running;
-} // end isRunning
-
-/**
- * Set node status as running (Madag side)
- */
-void
-Node::setAsRunning() {
-  this->node_running = true;
-} // end isRunning
-
-/**
- * test if the execution is done (MaDag side)
- * (still used by HEFTscheduler to rank nodes)
- */
-bool
-Node::isDone() {
-  return task_done;
-} // end isDone
-
-/**
- * Set the node status as done (MaDag side)
- */
-void
-Node::setAsDone(double compTime) {
-  // update node scheduling info
-  task_done = true;
-  node_running = false;
-  this->setRealCompTime(compTime);
-  TRACE_TEXT (TRACE_ALL_STEPS, "completion time is " << compTime << endl);
-  // notify the successors
-  if (!this->getDag()->isCancelled()) {
-    Node * n;
-    TRACE_TEXT (TRACE_ALL_STEPS,
-              "calling the " << nextNodes.size() << " next nodes" << endl);
-    for (list<Node*>::iterator nextIter = nextNodesBegin();
-         nextIter != nextNodesEnd();
-         ++nextIter) {
-      ((Node*) *nextIter)->prevNodeHasDone();
-    }
-  }
-}
-
-/**
- * Called when a previous node execution is done (MaDag side)
- */
-void Node::prevNodeHasDone() {
-  prevNodesTodoCount--;
-  if (this->isReady()) {
-    this->setAsReady();
-  }
-}
-
-/**
- * called when the node execution failed (MaDag & client side) *
- */
-void
-Node::setAsFailed() {
-  this->getDag()->setNodeFailure(this->getId());
-  taskExecFailed =  true;
-  node_running = false;
-}
-
-/**
- * test if the execution failed (client side)
- */
-bool
-Node::hasFailed() {
-  return taskExecFailed;
-}
-
-/****************************************************************************/
-/*                        Node mapping to SeD (Client)                      */
-/****************************************************************************/
-
-/**
- * set the SeD reference to the node *
- */
-void
-Node::setSeD(const SeD_var& sed, const unsigned long reqID, corba_estimation_t& ev) {
-  this->SeDDefined = true;
-  this->chosenServer = sed;
-  this->dietReqID = reqID;
-  this->estimVect = &ev;
-} // end setSeD
-
-
-/****************************************************************************/
-/*                           Timestamps (MaDag)                             */
-/****************************************************************************/
-
-/**
- * set the estimated duration
- */
-void
-Node::setEstDuration(double time) {
-  this->estDuration = time;
-} // end setDuration
-
-/**
- * get the estimated duration
- */
-double
-Node::getEstDuration() {
-  return this->estDuration;
-} // end getEstDuration
-
-/**
- * set the estimated completion time
- */
-void
-Node::setEstCompTime(double time) {
-  this->estCompTime = time;
-} // end setEstCompTime
-
-/**
- * get the estimated completion time
- */
-double
-Node::getEstCompTime() {
-  return this->estCompTime;
-} // end getEstCompTime
-
-/**
- * set the estimated delay
- * (can be increased or decreased)
- */
-void
-Node::setEstDelay(double delay) {
-  // if this is an exit node then eventually updates the dag delay
-  if (this->isAnExit()
-      && (delay > this->estDelay)
-      && (this->getDag() != NULL)) {
-    this->getDag()->setEstDelay(delay);
-  }
-  this->estDelay = delay;
-  TRACE_TEXT (TRACE_ALL_STEPS, "Updated est./real delay on node "
-        << this->getCompleteId() << " : delay = " << delay << endl);
-}
-
-/**
- * set the real start time
- */
-void
-Node::setRealStartTime(double time) {
-  this->realStartTime = time;
-} // end setRealStartTime
-
-/**
- * get the real start time
- */
-double
-Node::getRealStartTime() {
-  return this->realStartTime;
-} // end getRealStartTime
-
-/**
- * get the estimated delay
- */
-double
-Node::getEstDelay() {
-  return this->estDelay;
-}
-
-/**
- * set the real completion time
- */
-void
-Node::setRealCompTime(double time) {
-  this->realCompTime = time;
-} // end setRealCompTime
-
-/**
- * get the real completion time
- */
-double
-Node::getRealCompTime() {
-  return this->realCompTime;
-} // end getRealCompTime
-
-/**
- * get the real delay (positive) or 0 if no delay
- * or -1 if needed timestamps not set
- */
-double
-Node::getRealDelay() {
-  if ((this->realCompTime != -1) && (this->estCompTime != -1)) {
-    double delay = this->realCompTime - this->estCompTime;
-    if (delay > 0) return delay;
-    else return 0;
-  } else return -1;
-}
-
-/****************************************************************************/
-/*                       Ports & Profile Mgmt                               */
-/****************************************************************************/
-
-/**
- * Link input port to output port by id and setting references link *
- */
-void
-Node::link_i2o(const string in, const string outRef) {
-  TRACE_TEXT (TRACE_ALL_STEPS,"link_i2o: link " << in << " to " << outRef << endl);
-  // the port is supposed to be present
-  if (outRef == "") {
-    return;
-  }
-  WfInPort * inPort = getInPort(in);
-  if (inPort != NULL)
-    inPort->setSourceRef(outRef);
-  else {
-    INTERNAL_ERROR ("The input port " << in << " was not found " << endl <<
-		    "Check your XML file", 1);
-  }
-} // end link_i2o
-
-/**
- * Link output port to input port by id and setting references link *
- */
-void
-Node::link_o2i(const string out, const string inRef) {
-  TRACE_TEXT (TRACE_ALL_STEPS,"link_o2i: link " << out << " to " << inRef << endl);
-  if (inRef == "") {
-    return;
-  }
-  // the port is supposed to be present
-  WfOutPort * outPort = getOutPort(out);
-  if (outPort != NULL)
-    outPort->setSink(inRef);
-  else {
-    INTERNAL_ERROR ("The output port " << out << " was not found " << endl <<
-		    "Check your XML file", 1);
-  }
-} // end link_o2i
-
-/**
- * Link inoutput port to input port by id and setting references link *
- */
-void
-Node::link_io2i(const string io, const string inRef) {
-  // TO FIX
-  // the port is supposed to be present
-  getInOutPort(io)->setSink(inRef);
-} // end link_io2i
-
-/**
- * Link inoutput port to output port by id and setting references link *
- */
-void
-Node::link_io2o(const string io, const string outRef) {
-  // the port is supposed to be present
-  getInOutPort(io)->setSourceRef(outRef);
-} // end link_io2o
-
-/**
- * create and add a new port to the node *
- */
-WfPort *
-Node::newPort(string portId, uint ind,
-              WfPort::WfPortType type, WfCst::WfDataType dataType,
-	      uint depth, const string& v) {
-  WfPort * p = NULL;
-  WfInPort * in = NULL;
-  WfInOutPort * inout = NULL;
-  WfOutPort * out = NULL;
-  switch (type) {
-    case WfPort::PORT_ARG:
-    case WfPort::PORT_IN:
-      in = new WfInPort(this, portId, dataType, depth, ind, v);
-      inPorts[portId] =  in;
-      p = (WfPort *) in;
-      break;
-    case WfPort::PORT_INOUT:
-      inout = new WfInOutPort(this, portId, dataType, depth, ind, v);
-      inOutPorts[portId] = inout;
-      p = (WfInOutPort * ) inout;
-      break;
-    case WfPort::PORT_OUT:
-      out = new WfOutPort(this, portId, dataType, depth, ind, v);
-      outPorts[portId] = out;
-      p = (WfOutPort *) out;
-      break;
-  }
-  return p;
 }
 
 /**
  * Get the input port references by id *
  */
-WfInPort *
-Node::getInPort(string id) {
-  map<string, WfInPort*>::iterator p = inPorts.find(id);
-  if (p != inPorts.end())
-    return ((WfInPort*)(p->second));
+WfPort *
+Node::getPort(const string& id) {
+  map<string, WfPort*>::iterator p = ports.find(id);
+  if (p != ports.end())
+    return ((WfPort*)(p->second));
   else
     return NULL;
-} // end getInPort
-
-/**
- * Get the output port reference by id *
- */
-WfOutPort *
-Node::getOutPort(string id) {
-  map<string, WfOutPort*>::iterator p = outPorts.find(id);
-  if (p != outPorts.end())
-    return ((WfOutPort*)(p->second));
-  else
-    return NULL;
-} // end getOutPort
-
-/**
- * Get the input/output port reference by id *
- */
-WfInOutPort *
-Node::getInOutPort(string id) {
-  map<string, WfInOutPort*>::iterator p = inOutPorts.find(id);
-  if (p != inOutPorts.end())
-    return ((WfInOutPort*)(p->second));
-  else
-    return NULL;
-} // end getInOutPort
-
-/**
- * Creates the base profile without the parameters (COMMON)
- */
-void
-Node::createProfile() {
-  if (this->profile) {
-    WARNING("Node::createProfile : profile already defined!!" << endl);
-  }
-  int last_in    = inPorts.size() - 1;
-  int last_inout = last_in + inOutPorts.size();
-  int last_out   = last_inout + outPorts.size();
-  this->profile =  diet_profile_alloc((char*)(this->myPb.c_str()),
-                                       last_in, last_inout, last_out);
-
 }
-
-/**
- * Creates the profile before submission of the node (MADAG SIDE)
- */
-bool
-Node::initProfileSubmit() {
-  TRACE_TEXT(TRACE_ALL_STEPS,"Creating profile for Submit" << endl);
-  createProfile();
-  for (map<string, WfInPort*>::iterator p = inPorts.begin();
-       p != inPorts.end();
-       ++p) {
-    WfInPort * in = (WfInPort*)(p->second);
-    if (!in->initProfileSubmit()) {
-      ERROR ("Profile init failed (in port)" << endl, 0);
-    }
-  }
-  for (map<string, WfOutPort*>::iterator p = outPorts.begin();
-       p != outPorts.end();
-       ++p) {
-    WfOutPort * out = (WfOutPort*)(p->second);
-    if (!out->initProfileSubmit()) {
-      ERROR ("Profile init failed (out port)" << endl, 0);
-    }
-  }
-  for (map<string, WfInOutPort*>::iterator p = inOutPorts.begin();
-       p != inOutPorts.end();
-       ++p) {
-    WfInOutPort * inout = (WfInOutPort*)(p->second);
-    if (!inout->initProfileSubmit()) {
-      ERROR ("Profile init failed (inout port)" << endl, 0);
-    }
-  }
-  return true;
-}
-
-/**
- * Creates the profile before execution of the node (CLIENT SIDE)
- */
-bool
-Node::initProfileExec() {
-  TRACE_TEXT(TRACE_ALL_STEPS,"Creating profile for Execution" << endl);
-  createProfile();
-  if (this->SeDDefined) {
-    this->profile->dietReqID = this->dietReqID;
-    TRACE_TEXT(TRACE_ALL_STEPS,"Setting reqID in profile to #"
-      << this->dietReqID << endl);
-  }
-
-  for (map<string, WfInPort*>::iterator p = inPorts.begin();
-       p != inPorts.end();
-       ++p) {
-    WfInPort * in = (WfInPort*)(p->second);
-    if (!in->initProfileExec()) {
-      ERROR ("Profile init failed (in port)" << endl, 0);
-    }
-  }
-  for (map<string, WfOutPort*>::iterator p = outPorts.begin();
-       p != outPorts.end();
-       ++p) {
-    WfOutPort * out = (WfOutPort*)(p->second);
-    if (!out->initProfileExec()) {
-      ERROR ("Profile init failed (out port)" << endl, 0);
-    }
-  }
-  for (map<string, WfInOutPort*>::iterator p = inOutPorts.begin();
-       p != inOutPorts.end();
-       ++p) {
-    WfInOutPort * inout = (WfInOutPort*)(p->second);
-    if (!inout->initProfileExec()) {
-      ERROR ("Profile init failed (inout port)" << endl, 0);
-    }
-  }
-  return true;
-}
-
-/**
- * Store the persistent data of the node profile *
- */
-void
-Node::storeProfileData() {
-  for (map<string, WfOutPort*>::iterator p = outPorts.begin();
-       p != outPorts.end();
-       ++p) {
-    WfOutPort * out = (WfOutPort*)(p->second);
-    out->storeProfileData();
-//     store_id(profile->parameters[out->getIndex()].desc.id,
-// 	     (char *) "wf param");
-  }
-}
-
-/**
- * Free the profile and the persistent data of the node
- */
-void
-Node::freeProfileAndData() {
-  TRACE_TEXT (TRACE_ALL_STEPS,
-              myId << " Free profile and release persistent data" << endl);
-  for (map<string, WfOutPort*>::iterator p = outPorts.begin();
-       p != outPorts.end();
-       ++p) {
-         ((WfOutPort*)(p->second))->freeProfileData();
-  }
-  diet_profile_free(profile);
-  profile = NULL;
-}
-
-/****************************************************************************/
-/*                           CLIENT - SIDE                                  */
-/****************************************************************************/
-
-/**
- * start the node execution *
- * Note: the argument join are always set to default currently
- */
-void Node::start(bool join) {
-  TRACE_TEXT (TRACE_ALL_STEPS, " create the runnable node " << endl);
-  node_running = true;
-//  nodeIsStarting(myId.c_str());
-
-  this->myRunnableNode = new RunnableNode(this);
-  TRACE_TEXT (TRACE_ALL_STEPS, "The node " << myId << " tries to launch a RunnableNode "<< endl);
-  this->myRunnableNode->start();
-  TRACE_TEXT (TRACE_ALL_STEPS, "The node " << myId << " launched its RunnableNode" << endl);
-//   AbstractWfSched::pop(this->myId);
-  if (join)
-    this->myRunnableNode->join();
-  TRACE_TEXT (TRACE_ALL_STEPS, "The node " << myId << " joined its RunnableNode" << endl);
-} // end start
-
-
-/**
- * called when the node execution is done (client side) *
- */
-void
-Node::done() {
-     task_done = true;
-     node_running = false;
-} // end done
-
-diet_reqID_t
-Node::getReqID(){
-	//cout << "Node::" <<__FUNCTION__ << "()"<< endl;
-	if(this->isDone())
-		return this->getProfile()->dietReqID;
-	return -1;
-}
-/**
- * called when a next node is done *
- */
-void
-Node::nextIsDone() {
-  nextDone++;
-} // end nextIsDone
-

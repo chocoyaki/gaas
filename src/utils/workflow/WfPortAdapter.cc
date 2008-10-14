@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2008/10/14 13:31:01  bisnard
+ * new class structure for dags (DagNode,DagNodePort)
+ *
  * Revision 1.6  2008/10/02 09:10:51  bisnard
  * incorrect constant definition
  *
@@ -93,9 +96,9 @@ WfSimplePortAdapter::WfSimplePortAdapter(const string& strRef) {
 }
 
 bool
-WfSimplePortAdapter::setNodePredecessors(Node* node, Dag* dag) {
+WfSimplePortAdapter::setNodePrecedence(Node* node, NodeSet* nodeSet) {
   // if dagName different from dag's name, get the node from [dagName]
-  nodePtr = dag->getNode(nodeName);
+  nodePtr = nodeSet->getNode(nodeName);
   if (nodePtr) {
     node->addPrevId(nodePtr->getId());
     return true;
@@ -103,12 +106,13 @@ WfSimplePortAdapter::setNodePredecessors(Node* node, Dag* dag) {
 }
 
 void
-WfSimplePortAdapter::setPortDataLinks(WfInPort* inPort, Dag* dag) {
+WfSimplePortAdapter::connectPorts(WfPort* port, NodeSet* nodeSet) {
   if (nodePtr) {
-    WfOutPort * out = nodePtr->getOutPort(portName);
-    if (out != NULL) {
-      this->portPtr = out;      // SET the SOURCE link
-      out->setSink(inPort);     // SET the SINK link (used to determine if out port is a result)
+    WfPort * linkedPort = nodePtr->getPort(portName);
+    if (linkedPort != NULL) {
+      this->portPtr = linkedPort;      // SET the SOURCE link
+      linkedPort->setAsConnected();    // SET the linked port as connected (used to determine
+                                       // if the port is a result or an input
       // if external link (different dags) then use setExternalSink
     } else {
       INTERNAL_ERROR("FATAL ERROR:" << endl << "Cannot find linked port '"
@@ -122,11 +126,12 @@ WfSimplePortAdapter::setPortDataLinks(WfInPort* inPort, Dag* dag) {
 
 const string&
 WfSimplePortAdapter::getSourceDataID() {
-  if (portPtr == NULL) {
+  DagNodeOutPort* dagNodeOutPortPtr = dynamic_cast<DagNodeOutPort*>(portPtr);
+  if (dagNodeOutPortPtr == NULL) {
     ERROR("WfSimplePortAdapter Error: invalid port reference" << endl, dataID);
   }
   // use the data ID of the source port itself
-  dataID = portPtr->getDataID();
+  dataID = dagNodeOutPortPtr->getDataID();
   // look for element's data ID in case of a container
   if (depth() > 0) {
 #if HAVE_DAGDA
@@ -205,22 +210,22 @@ WfMultiplePortAdapter::WfMultiplePortAdapter(const string& strRef) {
 }
 
 bool
-WfMultiplePortAdapter::setNodePredecessors(Node* node, Dag* dag) {
+WfMultiplePortAdapter::setNodePrecedence(Node* node, NodeSet* nodeSet) {
   for (list<WfPortAdapter*>::iterator iter = adapters.begin();
        iter != adapters.end();
        ++iter) {
-    if (!((*iter)->setNodePredecessors(node, dag)))
+    if (!((*iter)->setNodePrecedence(node, nodeSet)))
       return false;
   }
   return true;
 }
 
 void
-WfMultiplePortAdapter::setPortDataLinks(WfInPort* inPort, Dag* dag) {
+WfMultiplePortAdapter::connectPorts(WfPort* port, NodeSet* nodeSet) {
   for (list<WfPortAdapter*>::iterator iter = adapters.begin();
        iter != adapters.end();
        ++iter) {
-    (*iter)->setPortDataLinks(inPort, dag);
+    (*iter)->connectPorts(port, nodeSet);
   }
 }
 

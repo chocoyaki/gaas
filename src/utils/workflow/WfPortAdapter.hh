@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/10/14 13:31:01  bisnard
+ * new class structure for dags (DagNode,DagNodePort)
+ *
  * Revision 1.4  2008/10/02 07:35:10  bisnard
  * new constants definitions (matrix order and port type)
  *
@@ -32,10 +35,9 @@
 #include <list>
 
 using namespace std;
-class Dag;
 class Node;
-class WfInPort;
-class WfOutPort;
+class NodeSet;
+class WfPort;
 
 class WfPortAdapter {
 
@@ -50,23 +52,24 @@ class WfPortAdapter {
 
     /**
      * Node precedence analysis (used for dag scheduling)
-     * @param node  the node containing the port linked to this adapter
-     * @param dag   the dag that contains the port
+     * @param node      the node containing the port linked to this adapter
+     * @param nodeSet   the dag that contains the port
      */
     virtual bool
-        setNodePredecessors(Node* node, Dag* dag) = 0;
+        setNodePrecedence(Node* node, NodeSet* nodeSet) = 0;
 
     /**
      * Node linking (used for node execution - step 1)
-     * @param port  the port that contains the current adapter
-     * @param dag   the dag that contains the port
+     * @param port      the port that contains the current adapter
+     * @param nodeSet   the dag that contains the port
      */
     virtual void
-        setPortDataLinks(WfInPort* inPort, Dag* dag) = 0;
+        connectPorts(WfPort* port, NodeSet* nodeSet) = 0;
 
     /**
      * Data ID retrieval (used for node execution - step 2)
-     * (Node linking required before calling this method)
+     * REQUIRED: Node linking required before calling this method
+     * REQUIRED: to be used only with adapters of DagNode ports
      * @return a string containing the data ID of the toplevel data item
      */
     virtual const string&
@@ -84,9 +87,9 @@ class WfSimplePortAdapter : public WfPortAdapter {
     WfSimplePortAdapter(const string& strRef);
 
     bool
-        setNodePredecessors(Node* node, Dag* dag);
+        setNodePrecedence(Node* node, NodeSet* nodeSet);
     void
-        setPortDataLinks(WfInPort* inPort, Dag* dag);
+        connectPorts(WfPort* port, NodeSet* nodeSet);
     const string&
         getSourceDataID();
 
@@ -109,7 +112,7 @@ class WfSimplePortAdapter : public WfPortAdapter {
     string      dataID;
     list<uint>  eltIdxList;
     Node *      nodePtr;
-    WfOutPort * portPtr;
+    WfPort *    portPtr;
 
 }; // end class WfSimplePortAdapter
 
@@ -123,9 +126,9 @@ class WfMultiplePortAdapter : public WfPortAdapter {
     WfMultiplePortAdapter(const string& strRef);
 
     bool
-        setNodePredecessors(Node* node, Dag* dag);
+        setNodePrecedence(Node* node, NodeSet* nodeSet);
     void
-        setPortDataLinks(WfInPort* inPort, Dag* dag);
+        connectPorts(WfPort* port, NodeSet* nodeSet);
     const string&
         getSourceDataID();
 

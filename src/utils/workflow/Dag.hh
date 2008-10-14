@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2008/10/14 13:31:01  bisnard
+ * new class structure for dags (DagNode,DagNodePort)
+ *
  * Revision 1.13  2008/09/30 15:32:53  bisnard
  * - using simple port id instead of composite ones
  * - dag nodes linking refactoring
@@ -68,19 +71,68 @@
 #define _DAG_HH_
 
 #include <string>
+#include <vector>
 #include <map>
 #include <list>
 
-#include "response.hh"
+#include "DIET_client.h" // for diet_ReqID_t
 
-#include "Node.hh"
 #include <sys/time.h>
 #include <time.h>
 
-class Dag {
+#include "Node.hh"
+#include "DagNode.hh"
+#include "DagNodePort.hh"
+
+using namespace std;
+
+/**
+ * NodeSet class
+ *
+ * Used by the DagWfParser to create either a dag or workflow
+ * Used by Node class to manage relationships between nodes (this
+ * applies to both dags or workflows)
+ */
+
+class NodeSet {
+public:
+  NodeSet();
+
+  virtual ~NodeSet();
+
+  /**
+   * Create a new node
+   */
+  virtual Node*
+  createNode(const string& nodeId, const string& pbName) = 0;
+
+  /**
+   * Get a node from the nodeset
+   * @param nodeId  the identifier (string) of the node
+   */
+  virtual Node*
+  getNode(const string& nodeId) = 0;
+
+  /**
+   * Check that the precedence relationship between nodes are correct
+   * This is used by the parser to check that the parsed nodeset is ok
+   */
+  virtual bool
+  checkPrec() = 0;
+
+  /**
+   * Get the number of nodes
+   */
+  virtual uint
+  size() = 0;
+
+};
+
+
+class Dag : public NodeSet {
 public:
   /*********************************************************************/
-  /* public methods                                                    */
+  /* constructors/destructor                                           */
   /*********************************************************************/
 
   /**
@@ -91,69 +143,78 @@ public:
   /**
    * Dag destructor
    */
-  ~Dag();
+  virtual ~Dag();
+
+  /***************************************************/
+  /*            NodeSet methods                      */
+  /***************************************************/
+
+  /**
+   * Create a new node of the dag
+   * (allocates a new node and insert it in the dag)
+   *
+   * @param id      node id (not the complete id)
+   * @param pbName  service name
+   */
+  virtual Node*
+  createNode(const string& id, const string& pbName);
+
+  /**
+   * Get the node with given identifier
+   *
+   * @param nodeId node identifier
+   */
+  virtual Node *
+  getNode(const string& nodeId);
+
+  /**
+   * check the precedence between node
+   * this function check only the precedence between nodes, it doesn't
+   * link the ports
+   */
+  virtual bool
+  checkPrec();
+
+  /**
+   * return the size of the Dag (the nodes number and not the dag length)
+   */
+  virtual uint
+  size();
+
+  /***************************************************/
+  /*               public methods                    */
+  /***************************************************/
 
   /**
    * Set the dag id
    */
   void
-  setId(const std::string id);
+  setId(const string& id);
 
   /**
    * Get the dag id
    */
-  std::string
+  const string&
   getId();
 
   /**
-   * Add a node to the dag
-   *
-   * @param nodeId  node id (not the complete id)
-   * @param node    node ref
+   * return a dag's node
    */
-  void
-  addNode (string nodeId, Node * node);
-
-  /**
-   * Get the node with given identifier
-   *
-   * @param node_id node identifier
-   */
-  Node *
-  getNode(std::string node_id);
-
-  /**
-   * check the precedence between node
-   * this function check only the precedence between node, it doesn't
-   * link the ports
-   */
-  bool
-  checkPrec();
-
-  /**
-   * return a string representation of the Dag *
-   */
-  std::string
-  toString();
-
-  /**
-   * return the size of the Dag (the nodes number and not the dag length)
-   */
-  unsigned int
-  size();
+  DagNode *
+  getDagNode(const string& nodeId);
 
   /**
    * return an iterator on the first node
-   * (according to the std::map and not to the dag structure)
+   * (according to the map and not to the dag structure)
    */
-  std::map <std::string, Node *>::iterator
+  map <string, DagNode *>::iterator
   begin();
 
   /**
    * return an iterator on the last node *
-   * (according to the std::map and not to the dag structure) *
+   * (according to the map and not to the dag structure) *
    */
-  std::map <std::string, Node *>::iterator
+  map <string, DagNode *>::iterator
   end();
 
   /**
@@ -161,12 +222,6 @@ public:
    */
   void
   linkAllPorts();
-
-  /**
-   * link the port of the node @n
-   */
-  void
-  linkNodePorts(Node * n);
 
   /**
    * check if the dag execution is ongoing
@@ -245,33 +300,18 @@ public:
   deleteAllResults();
 
   /**
-   * Move a node to the trash vector (called when rescheduling)
-   * @deprecated
-   * @param n the node to remove reference
-   */
-//   void
-//   moveToTrash(Node * n);
-
-  /**
    * Get all dag nodes sorted by priority
    *
    * @return ref to a vector of nodes (to be deleted by caller)
    */
-  std::vector<Node*>&
+  vector<DagNode*>&
   getNodesByPriority();
 
   /**
    * Get the input nodes
    */
-  std::vector<Node *>
+  vector<DagNode*>
   getInputNodes();
-
-  /**
-   * @deprecated
-   * Get the output nodes
-   */
-//   std::vector<Node *>
-//   getOutputNodes();
 
   /**
    * Set all input nodes as ready
@@ -279,21 +319,6 @@ public:
    */
   void
   setInputNodesReady();
-
-  /**
-   * @deprecated
-   * Get all profiles in the dag
-   */
-//   std::vector<diet_profile_t *> *
-//   getAllProfiles();
-
-  /**
-   * @deprecated
-   * set the dag as a temporary object
-   * Used to not delete the nodes of the dag when destructing the dag
-   */
-//   void
-//   setAsTemp(bool b = false);
 
   /**
    * get the estimated makespan of the DAG
@@ -338,18 +363,18 @@ public:
    * and applying it to successors
    */
   bool
-  updateDelayRec(Node * node, double newDelay);
+  updateDelayRec(DagNode * node, double newDelay);
 
   /**
    * notify dag of node execution failure
    */
   void
-  setNodeFailure(std::string nodeId);
+  setNodeFailure(string nodeId);
 
   /**
    * get the list of failed nodes
    */
-  const std::list<string>&
+  const list<string>&
   getNodeFailureList();
 
   /**
@@ -372,12 +397,12 @@ private:
   /**
    * The dag id
    */
-  std::string myId;
+  string myId;
 
   /**
    * Workflow nodes *
    */
-  std::map <std::string, Node *>   nodes;
+  map<string, DagNode *> nodes;
 
   /**
    * start time
@@ -390,14 +415,9 @@ private:
   double estDelay;
 
   /**
-   * Trash nodes vector
-   */
-  std::vector<Node *> trash;
-
-  /**
    * Failed nodes list
    */
-  std::list<string> failedNodes;
+  list<string> failedNodes;
 
   /**
    * Temporary dag flag. Used to not delete the nodes of the dag
@@ -418,11 +438,15 @@ private:
    * Recursive method for updateDelayRec
    */
   bool
-  _updateDelayRec(Node * node, double newDelay);
+  _updateDelayRec(DagNode * node, double newDelay);
+
+  /**
+   * Get port using composite id
+   * (used for getting results for client API)
+   */
+  DagNodeOutPort *
+  getOutputPort(const char* id);
 };
-
-
-bool operator == (diet_profile_t& a,   diet_profile_t& b);
 
 #endif   /* not defined _DAG_HH. */
 
