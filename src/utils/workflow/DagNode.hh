@@ -1,3 +1,18 @@
+/****************************************************************************/
+/* The node class used for dag execution                                    */
+/* Manages the execution profile, the data, the execution status and time   */
+/*                                                                          */
+/* Author(s):                                                               */
+/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.2  2008/10/20 07:59:29  bisnard
+ * file header creation
+ *
+ */
 
 #ifndef _DAGNODE_HH_
 #define _DAGNODE_HH_
@@ -76,9 +91,8 @@ public:
    * The Dag Node default constructor
    * @param dag        the parent dag
    * @param id         the node id
-   * @param pb_name    the node service name
    */
-  DagNode(Dag *dag, string id, string pb_name);
+  DagNode(Dag *dag, string id);
 
   /**
    * DagNode destructor
@@ -102,6 +116,18 @@ public:
    */
   Dag *
   getDag();
+
+  /**
+   * set the node problem name (ie service name)
+   */
+  void
+  setPbName(const string& pbName);
+
+  /**
+   * get the problem name
+   */
+  const string&
+  getPbName();
 
   /**
    * create a new port
@@ -444,6 +470,11 @@ private:
   /*********************************************************************/
   /* private members                                                   */
   /*********************************************************************/
+
+  /**
+   * Node problem
+   */
+  string myPb;
 
   /**
    * NodeQueue ref (used to notify NodeQueue when state changes)

@@ -1,4 +1,18 @@
-
+/****************************************************************************/
+/* The port classes used for dag execution                                  */
+/* The main classes are DagNodePort, DagNodeOutPort and DagNodeInPort       */
+/*                                                                          */
+/* Author(s):                                                               */
+/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.2  2008/10/20 07:59:29  bisnard
+ * file header creation
+ *
+ */
 
 #include "debug.hh"
 #include "DagNodePort.hh"

@@ -1,4 +1,18 @@
-
+/****************************************************************************/
+/* The node class used for dag execution                                    */
+/* Manages the execution profile, the data, the execution status and time   */
+/*                                                                          */
+/* Author(s):                                                               */
+/* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
+/*                                                                          */
+/* $LICENSE$                                                                */
+/****************************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.2  2008/10/20 07:59:29  bisnard
+ * file header creation
+ *
+ */
 
 #include "debug.hh"
 #include "marshalling.hh"
@@ -128,8 +142,7 @@ RunnableNode::run() {
 /*                       Constructors/Destructor                            */
 /****************************************************************************/
 
-DagNode::DagNode(Dag *dag, string id, string pbName) :
-  Node(id, pbName), myDag(dag) {
+DagNode::DagNode(Dag *dag, string id) : Node(id), myDag(dag) {
   this->prevNodesTodoCount = 0;
   this->task_done = false;
   this->SeDDefined = false;
@@ -277,6 +290,22 @@ DagNode::getDag() {
     cout << "ERROR: calling getDag() on a node not linked to a dag" << endl;
     exit(0);
   }
+}
+
+/**
+ * set the problem name
+ */
+void
+DagNode::setPbName(const string& pbName) {
+  this->myPb = pbName;
+}
+
+/**
+ * get the problem name
+ */
+const string&
+DagNode::getPbName() {
+  return this->myPb;
 }
 
 /******************************/
