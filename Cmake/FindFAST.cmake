@@ -1,6 +1,6 @@
 #
 # This module checks wether FAST (Fast Agent System Timers, refer to 
-# http://graal.ens-lyon.fr/FAST/ ) tools are installed. When they are it
+# http:///www.loria.fr/~quinson/fast.html ) tools are installed. When they are it
 # determines the location of the FAST libraries and include files.
 # This code sets the following variables:
 #   - FAST_FOUND set to either "YES" or "NO"
