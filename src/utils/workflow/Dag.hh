@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2008/10/20 08:01:12  bisnard
+ * removed createNode method from NodeSet class
+ *
  * Revision 1.14  2008/10/14 13:31:01  bisnard
  * new class structure for dags (DagNode,DagNodePort)
  *
@@ -101,12 +104,6 @@ public:
   virtual ~NodeSet();
 
   /**
-   * Create a new node
-   */
-  virtual Node*
-  createNode(const string& nodeId, const string& pbName) = 0;
-
-  /**
    * Get a node from the nodeset
    * @param nodeId  the identifier (string) of the node
    */
@@ -150,16 +147,6 @@ public:
   /***************************************************/
 
   /**
-   * Create a new node of the dag
-   * (allocates a new node and insert it in the dag)
-   *
-   * @param id      node id (not the complete id)
-   * @param pbName  service name
-   */
-  virtual Node*
-  createNode(const string& id, const string& pbName);
-
-  /**
    * Get the node with given identifier
    *
    * @param nodeId node identifier
@@ -196,6 +183,14 @@ public:
    */
   const string&
   getId();
+
+  /**
+   * Create a new node of the dag
+   * (allocates a new node and insert it in the dag)
+   * @param id      node id (not the complete id)
+   */
+  DagNode*
+  createDagNode(const string& id);
 
   /**
    * return a dag's node

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2008/10/20 08:01:12  bisnard
+ * removed createNode method from NodeSet class
+ *
  * Revision 1.18  2008/10/14 13:31:01  bisnard
  * new class structure for dags (DagNode,DagNodePort)
  *
@@ -160,21 +163,21 @@ Dag::getId() {
 }
 
 /**
- * Allocates a new node and add it to the dag
- */
-Node*
-Dag::createNode(const string& id, const string& pbName) {
-  DagNode* newDagNode = new DagNode(this, id, pbName);
-  this->nodes[id] = newDagNode;
-  return newDagNode;
-}
-
-/**
  * Get the node with given identifier (only node id, not the complete id)
  */
 Node *
 Dag::getNode(const string& nodeId) {
   return getDagNode(nodeId);
+}
+
+/**
+ * Allocates a new node and add it to the dag
+ */
+DagNode*
+Dag::createDagNode(const string& id) {
+  DagNode* newDagNode = new DagNode(this, id);
+  this->nodes[id] = newDagNode;
+  return newDagNode;
 }
 
 /**
@@ -262,7 +265,7 @@ Dag::showDietReqID() {
        ++p) {
     dagNode = (DagNode*)p->second;
     //if ((dagNode) && !(dagNode->isDone()))
-    cout << " dagNode->getPb() = "  << dagNode->getPb() <<endl;
+    cout << " dagNode->getPb() = "  << dagNode->getPbName() <<endl;
     cout << " dagNode->getProfile()->dietReqID =" << dagNode->getProfile()->dietReqID << endl;
   }
   cout << "@@@@ END Dag::" <<__FUNCTION__  << "()" << endl;
