@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.39  2008/10/20 07:56:43  bisnard
+ * new classes XML parser (Dagparser,FWfParser)
+ *
  * Revision 1.38  2008/10/14 13:24:49  bisnard
  * use new class structure for dags (DagNode,DagNodePort)
  *
@@ -365,7 +368,7 @@ MultiWfScheduler::run() {
           for (list<DagNode *>::iterator nodeIter = execQueue->begin();
                nodeIter != execQueue->end();
                ++nodeIter) {
-            servAvail[(*nodeIter)->getPb()] = true;
+            servAvail[(*nodeIter)->getPbName()] = true;
             servAvailCount = servAvail.size();
           }
           TRACE_TEXT(TRACE_ALL_STEPS, "Nb of distinct services in queue: "
@@ -384,12 +387,12 @@ MultiWfScheduler::run() {
         corba_server_estimation_t* servEst;
         // Test to process node (depends on platform type)
         bool nodeSubmit = ((this->platformType == PFM_ANY)
-                            && (servAvailCount) && (servAvail[n->getPb()]))
+                            && (servAvailCount) && (servAvail[n->getPbName()]))
             || ((this->platformType == PFM_SAME_SERVICES) && (requestCount < 1));
 
         if (nodeSubmit) {
           TRACE_TEXT(TRACE_MAIN_STEPS,"Submit request for node " << n->getCompleteId()
-            << "(" << n->getPb() << ") / exec prio = " << n->getPriority() << endl);
+            << "(" << n->getPbName() << ") / exec prio = " << n->getPriority() << endl);
 
           // SEND REQUEST TO PLATFORM (FOR CURRENT NODE)
           wf_response_t *  wf_response = getProblemEstimates(n, myMaDag->getMA());
@@ -441,9 +444,9 @@ MultiWfScheduler::run() {
             runNode(n, servEst->loc.ior, submitReqID, servEst->estim);
           } else {
             if (this->platformType == PFM_ANY) {
-              servAvail[n->getPb()] = false;
+              servAvail[n->getPbName()] = false;
               servAvailCount--;
-              TRACE_TEXT(TRACE_MAIN_STEPS,"Service " << n->getPb() << " is not available" << endl);
+              TRACE_TEXT(TRACE_MAIN_STEPS,"Service " << n->getPbName() << " is not available" << endl);
             }
           }
           delete wf_response;
@@ -558,9 +561,10 @@ MultiWfScheduler::parseNewDag(const corba_wf_desc_t& wf_desc,
                               const string& dagId)
     throw (XMLParsingException) {
   Dag * newDag = new Dag();
-  DagWfParser* reader = new DagWfParser(*newDag, wf_desc.abstract_wf);
+  DagWfParser* reader = new DagParser(*newDag, wf_desc.abstract_wf);
   if (!reader->parseAndCheck()) {
-      throw XMLParsingException(XMLParsingException::eBAD_STRUCT);
+      throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
+                                "Invalid dag");
   }
   delete reader;
   newDag->setId(dagId);

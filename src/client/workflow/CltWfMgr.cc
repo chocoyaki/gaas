@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2008/10/20 07:56:48  bisnard
+ * new classes XML parser (Dagparser,FWfParser)
+ *
  * Revision 1.16  2008/10/14 13:24:53  bisnard
  * use new class structure for dags (DagNode,DagNodePort)
  *
@@ -112,7 +115,7 @@ CltWfMgr::execNodeOnSed(const char * node_id,
   Dag * dag = this->getDag(dag_id);
   this->myLock.unlock();  /** UNLOCK */
   if (dag != NULL) {
-    DagNode * node = dynamic_cast<DagNode*>(dag->getNode(node_id));
+    DagNode * node = dag->getDagNode(node_id);
     if (node != NULL) {
       SeD_var sed_var = SeD::_narrow(sed);
       node->setSeD(sed_var, (unsigned long) reqID, ev);
@@ -137,7 +140,7 @@ CltWfMgr::execNode(const char * node_id, const char * dag_id) {
   Dag * dag = this->getDag(dag_id);
   this->myLock.unlock();  /** UNLOCK */
   if (dag != NULL) {
-    DagNode * node = dynamic_cast<DagNode*>(dag->getNode(node_id));
+    DagNode * node = dag->getDagNode(node_id);
     if (node != NULL) {
       TRACE_TEXT (TRACE_MAIN_STEPS,"CltWfMgr: execute node " << node_id <<
           " of dag " << dag_id << " (SED NOT DEFINED)" << endl);
@@ -223,7 +226,7 @@ CltWfMgr::wf_call_madag(diet_wf_desc_t * profile,
   stat_in("cltwfmgr",statMsg);
 
   Dag *dag = new Dag();
-  DagWfParser reader(*dag, profile->abstract_wf);
+  DagParser reader(*dag, profile->abstract_wf);
   if (! reader.parseAndCheck())
     return XML_MALFORMED;
 
