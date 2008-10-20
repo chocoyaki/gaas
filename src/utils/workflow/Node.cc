@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.31  2008/10/20 08:02:19  bisnard
+ * moved pb name attribute from Node to DagNode class
+ *
  * Revision 1.30  2008/10/14 13:31:01  bisnard
  * new class structure for dags (DagNode,DagNodePort)
  *
@@ -168,7 +171,6 @@
  ****************************************************************************/
 
 #include "debug.hh"
-
 #include "Node.hh"
 #include "Dag.hh" // for NodeSet definition
 
@@ -176,8 +178,7 @@
 /*                       Constructors/Destructor                            */
 /****************************************************************************/
 
-Node::Node(const string& id, const string& pbName) :
-  myId(id), myPb(pbName) {}
+Node::Node(const string& id) : myId(id) {}
 
 Node::~Node() {}
 
@@ -186,7 +187,6 @@ Node::~Node() {}
 /****************************************************************************/
 
 const string& Node::getId() { return this->myId; }
-const string& Node::getPb() { return this->myPb; }
 
 /****************************************************************************/
 /*                       Predecessor/Successors Mgmt                        */

@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2008/10/20 08:02:19  bisnard
+ * moved pb name attribute from Node to DagNode class
+ *
  * Revision 1.18  2008/10/14 13:31:01  bisnard
  * new class structure for dags (DagNode,DagNodePort)
  *
@@ -106,10 +109,8 @@ public:
   /**
    * The Node default constructor
    * @param id         the node id
-   * @param pbName     the node service name
    */
-  Node(const string& id,
-       const string& pbName);
+  Node(const string& id);
 
   /**
    * Node destructor
@@ -121,12 +122,6 @@ public:
    */
   const string&
   getId();
-
-  /**
-   * To get the node pb *
-   */
-  const string&
-  getPb();
 
   /**
    * node container
@@ -252,11 +247,6 @@ protected:
    * Node id *
    */
   string myId;
-
-  /**
-   * Node problem
-   */
-  string myPb;
 
   /**
    * ports map<id, reference> *
