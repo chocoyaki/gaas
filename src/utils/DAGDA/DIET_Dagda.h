@@ -104,16 +104,16 @@ int dagda_get_container_elements(const char* idContainer, diet_container_t* cont
 
 /* Get macros */
 #define dagda_get_scalar(ID, value, base_type) \
-  dagda_get_data(ID, (void*) (value), DIET_SCALAR, base_type, NULL, NULL, NULL, NULL)
+  dagda_get_data(ID, (void**) (value), DIET_SCALAR, base_type, NULL, NULL, NULL, NULL)
 
 #define dagda_get_vector(ID, value, base_type, size) \
-  dagda_get_data(ID, (void*) (value), DIET_VECTOR, base_type, NULL, size, NULL, NULL)
+  dagda_get_data(ID, (void**) (value), DIET_VECTOR, base_type, NULL, size, NULL, NULL)
 
 #define dagda_get_matrix(ID, value, base_type, nb_r, nb_c, order) \
-  dagda_get_data(ID, (void*) (value), DIET_MATRIX, base_type, nb_r, nb_c, order, NULL)
+  dagda_get_data(ID, (void**) (value), DIET_MATRIX, base_type, nb_r, nb_c, order, NULL)
 
 #define dagda_get_string(ID, value) \
-  dagda_get_data(ID, (void*) (value), DIET_STRING, NULL, NULL, NULL, NULL, NULL)
+  dagda_get_data(ID, (void**) (value), DIET_STRING, NULL, NULL, NULL, NULL, NULL)
 
 #define dagda_get_paramstring(ID, value) dagda_get_string(ID, value)
 
