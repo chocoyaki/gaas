@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/10/22 09:51:17  bisnard
+ * missing include
+ *
  * Revision 1.2  2008/06/01 15:50:30  rbolze
  * correct warning
  *
@@ -27,6 +30,7 @@
 
 #include <iostream>
 #include <assert.h>
+#include <string.h>
 #include "Thread.hh"
 
 Runnable::~Runnable() {}
@@ -36,7 +40,7 @@ Thread::Thread(auto_ptr<Runnable> runnable_, bool isDetached) :
   if (runnable.get() == NULL) {
     std::cout << "Thread::Thread(auto_ptr<Runnable> runnable_,"
 	      <<"bool isDetached) failed at " << ' ' << __FILE__ << ":"
-	      << __LINE__ << "- " << "runnable is NULL " << std::endl; 
+	      << __LINE__ << "- " << "runnable is NULL " << std::endl;
     exit(-1);
   }
 }
@@ -45,7 +49,7 @@ Thread::Thread(bool isDetached) : runnable(NULL), detached(isDetached){ }
 
 Thread::~Thread() { }
 
-void* 
+void*
 Thread::startThreadRunnable(void* pVoid){
   // thread start function when a Runnable is involved
   Thread* runnableThread = static_cast<Thread*> (pVoid);
@@ -55,7 +59,7 @@ Thread::startThreadRunnable(void* pVoid){
   return runnableThread->result;
 }
 
-void* 
+void*
 Thread::startThread(void* pVoid) {
   // thread start function when no Runnable is involved
   Thread* aThread = static_cast<Thread*> (pVoid);
@@ -68,13 +72,13 @@ Thread::startThread(void* pVoid) {
 
 void Thread::start() {
   int status = pthread_attr_init(&threadAttribute); // initialize attribute object
-  if (status != 0) { 
+  if (status != 0) {
     PrintError("pthread_attr_init failed at", status, __FILE__,
 	       __LINE__); exit(status);
   }
   status = pthread_attr_setscope(&threadAttribute,
 				 PTHREAD_SCOPE_SYSTEM);
-  if (status != 0) { 
+  if (status != 0) {
     PrintError("pthread_attr_setscope failed at",
 	       status, __FILE__, __LINE__); exit(status);
   }
@@ -118,7 +122,7 @@ void Thread::start() {
 				status, __FILE__, __LINE__); exit(status);}
 }
 
-void* 
+void*
 Thread::join() {
   int status = pthread_join(PthreadThreadID,NULL);
   // result was already saved by thread start functions
