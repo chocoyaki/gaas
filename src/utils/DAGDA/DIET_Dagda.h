@@ -6,10 +6,15 @@
 /*                                                         */
 /* $LICENSE$                                               */
 /***********************************************************/
-/* $Id:
-/* $Log
-/*
-************************************************************/
+/* $Id$
+ * $Log$
+ * Revision 1.9  2008/10/22 15:07:28  bdepardo
+ * Fixed header:
+ *  - now CVS will write the log
+ *  - this removes a warning during compilation
+ *
+ *
+ ***********************************************************/
 #ifndef __DIET_DAGDA_H__
 #define __DIET_DAGDA_H__
 
