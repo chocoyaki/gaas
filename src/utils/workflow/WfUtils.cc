@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2008/10/22 11:01:28  bdepardo
+ * missing include
+ *
  * Revision 1.6  2008/10/14 13:31:36  bisnard
  * new conversion method
  *
@@ -45,6 +48,7 @@
 #include <stack>
 #include <list>
 #include <sstream>
+#include <cstdlib>
 
 #include "WfUtils.hh"
 #include <map>
