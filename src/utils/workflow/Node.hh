@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2008/10/22 08:52:39  bisnard
+ * duplicate parameter name in newPort()
+ *
  * Revision 1.19  2008/10/20 08:02:19  bisnard
  * moved pb name attribute from Node to DagNode class
  *
@@ -222,13 +225,13 @@ public:
    * create and add a new port to the node *
    * @param id        the port identifier
    * @param ind       the port index in diet profile
-   * @param type      the port type (in, out, inout)
-   * @param type      the data type (constant defined in WfCst class)
+   * @param portType  the port type (in, out, inout)
+   * @param dataType  the data type (constant defined in WfCst class)
    * @param depth     the depth of the list structure (0 if no list)
    * @param v         the parameter value
    */
   virtual WfPort *
-  newPort(string id, uint ind, WfPort::WfPortType type, WfCst::WfDataType type,
+  newPort(string id, uint ind, WfPort::WfPortType portType, WfCst::WfDataType dataType,
           uint depth) = 0;
 
   /**
