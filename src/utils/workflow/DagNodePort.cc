@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/10/22 09:29:00  bisnard
+ * replaced uint by standard type
+ *
  * Revision 1.2  2008/10/20 07:59:29  bisnard
  * file header creation
  *
@@ -29,8 +32,8 @@ DagNodePort::DagNodePort(DagNode * parent,
                          string _id,
                          WfPort::WfPortType _portType,
                          WfCst::WfDataType _type,
-                         uint _depth,
-                         uint _ind)
+                         unsigned int _depth,
+                         unsigned int _ind)
   : WfPort(parent, _id, _portType, _type, _depth, _ind),
     myParent(parent) {
 }
@@ -323,8 +326,8 @@ DagNodePort::getDataID() {
 DagNodeOutPort::DagNodeOutPort(DagNode * parent,
                                string _id,
                                WfCst::WfDataType _type,
-                               uint _depth,
-                               uint _ind)
+                               unsigned int _depth,
+                               unsigned int _ind)
   : DagNodePort(parent, _id, WfPort::PORT_OUT, _type, _depth, _ind) {
 }
 
@@ -353,8 +356,8 @@ DagNodeOutPort::getPersistenceMode() {
 DagNodeInPort::DagNodeInPort(DagNode * parent,
                              string _id,
                              WfCst::WfDataType _type,
-                             uint _depth,
-                             uint _ind)
+                             unsigned int _depth,
+                             unsigned int _ind)
   : DagNodePort(parent, _id, WfPort::PORT_IN, _type, _depth, _ind) {
 }
 
@@ -409,8 +412,8 @@ DagNodeInPort::getPersistenceMode() {
 DagNodeInOutPort::DagNodeInOutPort(DagNode * parent,
                                    string _id,
                                    WfCst::WfDataType _type,
-                                   uint _depth,
-                                   uint _ind)
+                                   unsigned int _depth,
+                                   unsigned int _ind)
   : DagNodePort(parent, _id, WfPort::PORT_INOUT, _type, _depth, _ind),
     DagNodeInPort(parent,_id,_type,_depth,_ind),
     DagNodeOutPort(parent,_id,_type,_depth,_ind) {

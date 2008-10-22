@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2008/10/22 09:29:00  bisnard
+ * replaced uint by standard type
+ *
  * Revision 1.19  2008/10/20 08:01:12  bisnard
  * removed createNode method from NodeSet class
  *
@@ -226,7 +229,7 @@ Dag::linkAllPorts() {
 /**
  * return the size of the Dag (the nodes number)
  */
-uint
+unsigned int
 Dag::size() {
   return nodes.size();
 }

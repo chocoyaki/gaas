@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/10/22 09:29:00  bisnard
+ * replaced uint by standard type
+ *
  * Revision 1.5  2008/10/14 13:31:01  bisnard
  * new class structure for dags (DagNode,DagNodePort)
  *
@@ -100,9 +103,9 @@ class WfSimplePortAdapter : public WfPortAdapter {
         getNodeName() const;
     const string&
         getDagName() const;
-    uint
+    unsigned int
         depth();
-    const list<uint>&
+    const list<unsigned int>&
         getElementIndexes();
 
   private:
@@ -110,7 +113,7 @@ class WfSimplePortAdapter : public WfPortAdapter {
     string      nodeName;
     string      dagName;
     string      dataID;
-    list<uint>  eltIdxList;
+    list<unsigned int>  eltIdxList;
     Node *      nodePtr;
     WfPort *    portPtr;
 

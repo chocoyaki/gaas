@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2008/10/22 09:29:00  bisnard
+ * replaced uint by standard type
+ *
  * Revision 1.15  2008/10/20 08:01:12  bisnard
  * removed createNode method from NodeSet class
  *
@@ -120,7 +123,7 @@ public:
   /**
    * Get the number of nodes
    */
-  virtual uint
+  virtual unsigned int
   size() = 0;
 
 };
@@ -165,7 +168,7 @@ public:
   /**
    * return the size of the Dag (the nodes number and not the dag length)
    */
-  virtual uint
+  virtual unsigned int
   size();
 
   /***************************************************/

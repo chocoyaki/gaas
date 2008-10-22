@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2008/10/22 09:29:00  bisnard
+ * replaced uint by standard type
+ *
  * Revision 1.20  2008/10/22 08:52:39  bisnard
  * duplicate parameter name in newPort()
  *
@@ -231,8 +234,8 @@ public:
    * @param v         the parameter value
    */
   virtual WfPort *
-  newPort(string id, uint ind, WfPort::WfPortType portType, WfCst::WfDataType dataType,
-          uint depth) = 0;
+  newPort(string id, unsigned int ind, WfPort::WfPortType portType, WfCst::WfDataType dataType,
+          unsigned int depth) = 0;
 
   /**
    * Get the port by id. If not found returns NULL

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/10/22 09:29:00  bisnard
+ * replaced uint by standard type
+ *
  * Revision 1.2  2008/10/20 07:59:29  bisnard
  * file header creation
  *
@@ -326,9 +329,9 @@ DagNode::setPrev(int index, Node * node) {
  * create and add a new port to the node *
  */
 WfPort *
-DagNode::newPort(string portId, uint ind,
+DagNode::newPort(string portId, unsigned int ind,
                  WfPort::WfPortType type, WfCst::WfDataType dataType,
-                 uint depth) {
+                 unsigned int depth) {
   WfPort * p = NULL;
   switch (type) {
     case WfPort::PORT_IN:

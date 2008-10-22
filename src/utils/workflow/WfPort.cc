@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2008/10/22 09:29:00  bisnard
+ * replaced uint by standard type
+ *
  * Revision 1.8  2008/10/14 13:31:01  bisnard
  * new class structure for dags (DagNode,DagNodePort)
  *
@@ -49,7 +52,7 @@
 #include "debug.hh"
 
 WfPort::WfPort(Node * parent, const string& _id, WfPortType _portType,
-               WfCst::WfDataType _type, uint _depth, uint _ind) :
+               WfCst::WfDataType _type, unsigned int _depth, unsigned int _ind) :
   myParent(parent), id(_id), portType(_portType), type(_type),
   depth(_depth), index(_ind), adapter(NULL), nb_r(0), nb_c(0), connected(false) {
   if (_depth > 0) {

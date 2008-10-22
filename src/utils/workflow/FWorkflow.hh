@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/10/22 09:29:00  bisnard
+ * replaced uint by standard type
+ *
  * Revision 1.1  2008/10/20 08:09:58  bisnard
  * new classes for functional workflows
  *
@@ -44,7 +47,7 @@ public:
   virtual bool
   checkPrec();
 
-  virtual uint
+  virtual unsigned int
   size();
 
   /***************************************************/

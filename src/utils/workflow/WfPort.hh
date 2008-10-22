@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2008/10/22 09:29:00  bisnard
+ * replaced uint by standard type
+ *
  * Revision 1.7  2008/10/14 13:31:01  bisnard
  * new class structure for dags (DagNode,DagNodePort)
  *
@@ -78,7 +81,7 @@ public:
    * @param _ind   The index of the parameter in the diet profile
    */
   WfPort(Node * parent, const string& _id, WfPortType _portType,
-         WfCst::WfDataType _type, uint _depth, uint _ind);
+         WfCst::WfDataType _type, unsigned int _depth, unsigned int _ind);
 
   virtual ~WfPort();
 

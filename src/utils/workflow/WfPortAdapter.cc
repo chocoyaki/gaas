@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2008/10/22 09:29:00  bisnard
+ * replaced uint by standard type
+ *
  * Revision 1.7  2008/10/14 13:31:01  bisnard
  * new class structure for dags (DagNode,DagNodePort)
  *
@@ -85,7 +88,7 @@ WfSimplePortAdapter::WfSimplePortAdapter(const string& strRef) {
         if (idxListRight == string::npos) {
           // throw exception (brackets not closed)
         }
-        uint idx = atoi(strRef.substr(idxListLeft+1, idxListRight-idxListLeft-1).c_str());
+        unsigned int idx = atoi(strRef.substr(idxListLeft+1, idxListRight-idxListLeft-1).c_str());
         this->eltIdxList.push_back(idx);
         idxListLeft = strRef.find("[",idxListRight);
       }
@@ -135,8 +138,8 @@ WfSimplePortAdapter::getSourceDataID() {
   // look for element's data ID in case of a container
   if (depth() > 0) {
 #if HAVE_DAGDA
-    const list<uint>& eltIdx = this->getElementIndexes();
-    for (list<uint>::const_iterator idxIter = eltIdx.begin();
+    const list<unsigned int>& eltIdx = this->getElementIndexes();
+    for (list<unsigned int>::const_iterator idxIter = eltIdx.begin();
          idxIter != eltIdx.end();
          ++idxIter) {
       if (!dataID.empty()) {
@@ -169,12 +172,12 @@ WfSimplePortAdapter::getNodeName() const {
   return nodeName;
 }
 
-uint
+unsigned int
 WfSimplePortAdapter::depth() {
   return eltIdxList.size();
 }
 
-const list<uint>&
+const list<unsigned int>&
 WfSimplePortAdapter::getElementIndexes() {
   return eltIdxList;
 }

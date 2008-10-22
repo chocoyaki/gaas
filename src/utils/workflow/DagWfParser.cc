@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2008/10/22 09:29:00  bisnard
+ * replaced uint by standard type
+ *
  * Revision 1.13  2008/10/20 08:02:57  bisnard
  * new classes XML parser (Dagparser,FWfParser)
  *
@@ -306,7 +309,7 @@ DagWfParser::setParam(const WfPort::WfPortType param_type,
 		      Node&  node,
 		      const string * value) {
   // Get the base type and the depth of the list structure
-  uint typeDepth = 0;
+  unsigned int typeDepth = 0;
   string curType = type;
   string::size_type listPos = curType.find("LIST");
   while (listPos != string::npos) {

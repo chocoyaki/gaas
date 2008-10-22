@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/10/22 09:29:00  bisnard
+ * replaced uint by standard type
+ *
  * Revision 1.2  2008/10/20 07:59:29  bisnard
  * file header creation
  *
@@ -40,8 +43,8 @@ public:
               string _id,
               WfPort::WfPortType _portType,
               WfCst::WfDataType _type,
-              uint _depth,
-              uint _ind) ;
+              unsigned int _depth,
+              unsigned int _ind) ;
 
   /**
    * Set the value of the data for the port
@@ -130,8 +133,8 @@ public:
   DagNodeOutPort(DagNode * parent,
                  string _id,
                  WfCst::WfDataType _type,
-                 uint _depth,
-                 uint _ind);
+                 unsigned int _depth,
+                 unsigned int _ind);
 
   /**
    * Store the data IDs from the profile
@@ -159,8 +162,8 @@ public:
   DagNodeInPort(DagNode * parent,
                 string _id,
                 WfCst::WfDataType _type,
-                uint _depth,
-                uint _ind);
+                unsigned int _depth,
+                unsigned int _ind);
 
   /**
    * Initialize the profile before node execution
@@ -193,8 +196,8 @@ public:
   DagNodeInOutPort(DagNode * parent,
                    string _id,
                    WfCst::WfDataType _type,
-                   uint _depth,
-                   uint _ind) ;
+                   unsigned int _depth,
+                   unsigned int _ind) ;
 
 protected:
   /**
