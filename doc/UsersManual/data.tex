@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.26  2008/10/22 12:02:50  bdepardo
+%* Replaced DIET_BYTE by the current type which is DIET_SHORT
+%*
 %* Revision 1.25  2008/08/13 01:08:27  ecaron
 %* diet_string_get() have only 3 arguments
 %*
@@ -114,7 +117,7 @@ following semantics:
 \textbf{Type}&\textbf{Description}&\textbf{Size in octets}\\
 \hline
 \textsf{DIET\_CHAR}     & Character                &  1\\
-\textsf{DIET\_BYTE}     & Octet                    &  1\\
+\textsf{DIET\_SHORT}    & Signed short integer     &  2\\
 \textsf{DIET\_INT}      & Signed integer           &  4\\
 \textsf{DIET\_LONGINT}  & Long signed integer      &  8\\
 \textsf{DIET\_FLOAT}    & Simple precision real    &  4\\
