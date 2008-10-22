@@ -13,6 +13,10 @@
 #ifndef __DIET_DAGDA_H__
 #define __DIET_DAGDA_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* If we don't know the type of the data to download. */
 #define DIET_UNKNOWN_TYPE DIET_DATA_TYPE_COUNT
 /* To add a data to the platform. */
@@ -179,4 +183,8 @@ int dagda_get_container_elements(const char* idContainer, diet_container_t* cont
   dagda_wait_string(thread, value)
 #define dagda_wait_file(thread, path) \
   dagda_wait_get(thread, NULL, NULL, NULL, NULL, NULL, path)
+    
+#ifdef __cplusplus
+}
+#endif
 #endif
