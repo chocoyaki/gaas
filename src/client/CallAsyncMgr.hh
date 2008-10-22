@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2008/10/22 14:16:37  gcharrie
+ * Adding MultiCall. It is used to devide a profile and make several calls with just one SeD. Some documentation will be added soon.
+ *
  * Revision 1.15  2008/03/28 13:17:16  rbolze
  * update code to avoid warning with the intel compiler
  *
@@ -110,6 +113,9 @@ struct Data{
   diet_profile_t *profile;	// Ref on profile linked to a reqID
   request_status_t st;	   	// Info about reqID state 
   int used;			// Rules number using this profile/ReqID
+#ifdef HAVE_MULTICALL
+  int nbRequests; //saves the number of requests to wait
+#endif //HAVE_MULTICALL
 };
 
 struct ruleElement{

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2008/10/22 14:16:37  gcharrie
+ * Adding MultiCall. It is used to devide a profile and make several calls with just one SeD. Some documentation will be added soon.
+ *
  * Revision 1.26  2008/06/01 14:06:56  rbolze
  * replace most ot the cout by adapted function from debug.cc
  * there are some left ...
@@ -147,8 +150,16 @@ int CallAsyncMgr::addAsyncCall (diet_reqID_t reqID, diet_profile_t* dpt)
     data->profile = dpt;
     data->st = STATUS_RESOLVING;
     data->used = 0;
+#ifdef HAVE_MULTICALL
+    data->nbRequests = 0;
+#endif //HAVE_MULTICALL
     caList.insert(CallAsyncList::value_type(reqID,data));
   }
+#ifdef HAVE_MULTICALL
+  else {
+    (caList.find(reqID))->second->nbRequests++;
+  }
+#endif //HAVE_MULTICALL
   return 0; 
 }
 
@@ -508,6 +519,14 @@ int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
   setReqErrorCode(reqID, GRPC_NO_ERROR);
   WriterLockGuard r(callAsyncListLock);
 
+#ifdef HAVE_MULTICALL
+  //Should just make one find, not two
+  if (caList.find(reqID)->second->nbRequests != 0) {
+    caList.find(reqID)->second->nbRequests--;
+  }
+  else {
+#endif //HAVE_MULTICALL
+
   try {
    TRACE_TEXT (TRACE_ALL_STEPS,"the service has computed the requestID=" 
 		   << reqID << " and notifies his answer\n");
@@ -586,6 +605,10 @@ int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
     fflush(stderr);
     return -1;
   }
+
+#ifdef HAVE_MULTICALL
+  } // else (if the reqid nbRequests == 0)
+#endif //HAVE_MULTICALL
 
   return 0;
 }

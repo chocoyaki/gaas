@@ -17,6 +17,13 @@ IF( DIET_BUILD_LIBRARIES )
       )
   ENDIF (DIET_USE_CCS)
 
+  IF (DIET_USE_MULTICALL)
+    SET(DIET_client_SOURCES
+      MultiCall.cc
+      ${DIET_client_SOURCES}
+      )
+  ENDIF (DIET_USE_MULTICALL)
+
   INCLUDE_DIRECTORIES(
     ${OMNIORB4_INCLUDE_DIR}
     ${DIET_SOURCE_DIR}/src/utils

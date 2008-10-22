@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.128  2008/10/22 14:16:37  gcharrie
+ * Adding MultiCall. It is used to devide a profile and make several calls with just one SeD. Some documentation will be added soon.
+ *
  * Revision 1.127  2008/09/19 13:05:19  bisnard
  * changed library dependencies for UtilsWf
  * added exception details in diet_call
@@ -314,6 +317,12 @@ using namespace std;
 /** Custom client scheduling */
 #include "SpecificClientScheduler.hh"
 #endif // HAVE_CCS
+
+#ifdef HAVE_MULTICALL
+//Multiple async call
+#include "MultiCall.hh"
+#include <vector>
+#endif //MULTICALL
 
 // for workflow support
 #ifdef HAVE_WORKFLOW
@@ -1091,6 +1100,10 @@ request_submission(diet_profile_t* profile,
       }
 #endif // HAVE CCS
 
+#ifdef HAVE_MULTICALL
+      MultiCall::set_response(response);
+#endif //HAVE_MULTICALL
+
     }
     sprintf(statMsg, "request_submission %ld", (unsigned long) reqID);
     stat_out("Client",statMsg);
@@ -1326,6 +1339,29 @@ diet_call_async_common(diet_profile_t* profile,
       corba_profile.estim = emptyEstimVect;
     }
 
+#ifdef HAVE_MULTICALL
+    corba_response_t * corba_response = MultiCall::get_response();
+    vector<int> nb_scenarios = MultiCall::cerfacsSchedule();
+    char *s, *stemp, c = '#';
+    diet_paramstring_get(diet_parameter(profile, 2), &s, NULL);
+    int sSize = strlen(s);
+    for (int counter = 0; counter < corba_response->servers.length(); counter++) {
+      stemp = (char*)malloc((sSize + 1) * sizeof(char));;
+      stemp[0] = '\0';
+      //if there is at least a scenario on this SeD
+      if (nb_scenarios[counter] != 0) {
+	chosenServer = corba_response->servers[counter].loc.ior;
+	diet_scalar_set(diet_parameter(profile, 0), &(nb_scenarios[counter]), DIET_VOLATILE, DIET_INT);
+	//splits the mnemonics
+	for (int counter2 = 0; counter2 < nb_scenarios[counter]; counter2++) {
+	  if (counter2 != 0) { stemp = strcat(stemp, &c);}
+	  s = strtok(s, &c);
+	  stemp = strcat(stemp, s);
+	  s = NULL;
+	}
+	diet_paramstring_set(diet_parameter(profile, 2), stemp, DIET_VOLATILE);
+#endif //HAVE_MULTICALL
+
 #if HAVE_JUXMEM
     uploadClientDataJuxMem(profile);
 #endif
@@ -1337,7 +1373,6 @@ diet_call_async_common(diet_profile_t* profile,
       caMgr->setReqErrorCode(profile->dietReqID, GRPC_INVALID_FUNCTION_HANDLE);
       ERROR("profile is wrongly built", 1);
     }
-    corba_profile.estim = *estimVect;
 
     int j = 0;
     bool found = false;
@@ -1397,6 +1432,13 @@ diet_call_async_common(diet_profile_t* profile,
 #if HAVE_JUXMEM
     downloadClientDataJuxMem(profile);
 #endif // HAVE_JUXMEM
+
+#ifdef HAVE_MULTICALL
+      } //endif (nbDags != 0)
+      free(stemp);
+    } //end for (for each SeD)
+#endif
+
   } catch (const CORBA::Exception &e) {
     // Process any other User exceptions. Use the .id() method to
     // record or display useful information
