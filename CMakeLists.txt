@@ -41,8 +41,8 @@ OPTION( DIET_USE_DAGDA "Build DIET with Dagda as data manager. (In developpment)
 # Profiling, used to add counters with TAU (http://http://www.cs.uoregon.edu/research/tau/home.php)
 OPTION( DIET_TAU_PROFILING "Build DIET with TAU profiling support. (In developpment)." OFF )
 MARK_AS_ADVANCED( DIET_TAU_PROFILING )
-OPTION( DIET_USE_MULTICALL "Build DIET with the multiple async call (only use with Ocean-Atmosphere)" OFF)
-
+OPTION( DIET_USE_MULTICALL "Build DIET with the multiple async call (In development)" OFF)
+MARK_AS_ADVANCED( DIET_USE_MULTICALL )
 # ---- get C and CXX compiler version -----#
 EXEC_PROGRAM(${CMAKE_C_COMPILER} ARGS "-dumpversion" OUTPUT_VARIABLE CMAKE_C_COMPILER_VERSION )
 EXEC_PROGRAM(${CMAKE_CXX_COMPILER} ARGS "-dumpversion" OUTPUT_VARIABLE CMAKE_CXX_COMPILER_VERSION )
