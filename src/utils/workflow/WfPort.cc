@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2008/10/27 16:19:58  bisnard
+ * correction of bug in connectPorts
+ *
  * Revision 1.9  2008/10/22 09:29:00  bisnard
  * replaced uint by standard type
  *
@@ -102,7 +105,6 @@ void
 WfPort::setConnectionRef(const string& strRef) {
   // create the appropriate adapter (simple or split) depending on ref parsing
   this->adapter = WfPortAdapter::createAdapter(strRef);
-  setAsConnected();
 }
 
 void
@@ -117,7 +119,7 @@ WfPort::isConnected() {
 
 bool
 WfPort::setNodePrecedence(NodeSet* nodeSet) {
-  if (isConnected()) { // in case this method is called on an argument port
+  if (adapter) { // in case this method is called on an argument port
     if (!adapter->setNodePrecedence(getParent(), nodeSet))
       return false;
   }
@@ -126,8 +128,9 @@ WfPort::setNodePrecedence(NodeSet* nodeSet) {
 
 void
 WfPort::connectPorts(NodeSet* nodeSet) {
-  if (isConnected()) { // this method may be called on an argument port
+  if (adapter) { // this method may be called on an argument port
     adapter->connectPorts(this, nodeSet);
+    this->setAsConnected();
   }
 }
 
