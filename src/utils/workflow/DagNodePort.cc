@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/10/29 08:35:57  bisnard
+ * completed container initialization for all data types
+ *
  * Revision 1.3  2008/10/22 09:29:00  bisnard
  * replaced uint by standard type
  *
@@ -294,13 +297,44 @@ DagNodePort::initContainerValue(const string& value) {
   string::size_type valSepLeft  = -1;
   while ((ix == 0) || (valSepLeft!=string::npos)) {
     string::size_type valSepRight = contVal.find(";",valSepLeft+1);
-    long val = atoi(contVal.substr(
-                    valSepLeft+1,
-                    (valSepRight == string::npos ? contVal.length() : valSepRight)-valSepLeft-1
-                                  ).c_str());
+    const char *valStr = contVal.substr(
+                         valSepLeft+1,
+                         (valSepRight == string::npos ? contVal.length() : valSepRight)-valSepLeft-1
+                         ).c_str();
     valSepLeft = valSepRight;
-        // store value and add it to container
-    dagda_put_scalar(&val, DIET_LONGINT, DIET_PERSISTENT, &valID);
+    // store value and add it to container
+    switch (eltType) {
+      case WfCst::TYPE_CHAR:
+        dagda_put_scalar(myParent->newChar(valStr), DIET_CHAR, DIET_PERSISTENT, &valID);
+        break;
+      case WfCst::TYPE_SHORT:
+        dagda_put_scalar(myParent->newShort(valStr), DIET_SHORT, DIET_PERSISTENT, &valID);
+        break;
+      case WfCst::TYPE_INT:
+        dagda_put_scalar(myParent->newInt(valStr), DIET_INT, DIET_PERSISTENT, &valID);
+        break;
+      case WfCst::TYPE_LONGINT:
+        dagda_put_scalar(myParent->newLong(valStr), DIET_LONGINT, DIET_PERSISTENT, &valID);
+        break;
+      case WfCst::TYPE_FLOAT:
+        dagda_put_scalar(myParent->newFloat(valStr), DIET_FLOAT, DIET_PERSISTENT, &valID);
+        break;
+      case WfCst::TYPE_DOUBLE:
+        dagda_put_scalar(myParent->newDouble(valStr), DIET_DOUBLE, DIET_PERSISTENT, &valID);
+        break;
+      case WfCst::TYPE_PARAMSTRING:
+        dagda_put_paramstring(myParent->newString(valStr), DIET_PERSISTENT, &valID);
+        break;
+      case WfCst::TYPE_STRING:
+        dagda_put_string(myParent->newString(valStr), DIET_PERSISTENT, &valID);
+        break;
+      case WfCst::TYPE_FILE:
+        dagda_put_file(myParent->newFile(valStr), DIET_PERSISTENT, &valID);
+        break;
+      case WfCst::TYPE_MATRIX:
+      default:
+        INTERNAL_ERROR("Type not managed in container initialization",0);
+    } // end (switch)
     dagda_add_container_element(contID,valID,ix++);
     CORBA::string_free(valID);
   }
