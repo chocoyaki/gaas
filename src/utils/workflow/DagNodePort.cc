@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/10/29 10:10:40  bisnard
+ * avoid warning for incomplete switch
+ *
  * Revision 1.4  2008/10/29 08:35:57  bisnard
  * completed container initialization for all data types
  *
@@ -45,38 +48,31 @@ void
 DagNodePort::setProfileWithoutValue() {
   diet_profile_t* profile = myParent->getProfile();
   diet_persistence_mode_t mode = this->getPersistenceMode();
-  if ((type == WfCst::TYPE_CHAR)
-       || (type == WfCst::TYPE_SHORT)
-       || (type == WfCst::TYPE_INT)
-       || (type == WfCst::TYPE_LONGINT)
-       || (type == WfCst::TYPE_FLOAT)
-       || (type == WfCst::TYPE_DOUBLE)) {
-    diet_scalar_set(diet_parameter(profile, index),
-                    NULL, mode, (diet_base_type_t) WfCst::cvtWfToDietType(type));
-  } else {
-    switch (type) {
-      case WfCst::TYPE_PARAMSTRING :
-        diet_paramstring_set(diet_parameter(profile, index),
-                             NULL, mode);
-        break;
-      case WfCst::TYPE_STRING :
-        diet_string_set(diet_parameter(profile, index),
-                        NULL, mode);
-        break;
-      case WfCst::TYPE_FILE :
-        diet_file_set(diet_parameter(profile, index), mode,
-                      NULL);
-        break;
-      case WfCst::TYPE_MATRIX :
-        diet_matrix_set(diet_parameter(profile,index), NULL, mode,
-                        (diet_base_type_t) WfCst::cvtWfToDietType(eltType),
-                        nb_r, nb_c,
-                        (diet_matrix_order_t) WfCst::cvtWfToDietMatrixOrder(order));
-        break;
-      case WfCst::TYPE_CONTAINER :
-        diet_container_set(diet_parameter(profile, index), DIET_PERSISTENT);
-        break;
-    }
+  switch (type) {
+    case WfCst::TYPE_PARAMSTRING :
+      diet_paramstring_set(diet_parameter(profile, index),
+                           NULL, mode);
+      break;
+    case WfCst::TYPE_STRING :
+      diet_string_set(diet_parameter(profile, index),
+                      NULL, mode);
+      break;
+    case WfCst::TYPE_FILE :
+      diet_file_set(diet_parameter(profile, index), mode,
+                    NULL);
+      break;
+    case WfCst::TYPE_MATRIX :
+      diet_matrix_set(diet_parameter(profile,index), NULL, mode,
+                      (diet_base_type_t) WfCst::cvtWfToDietType(eltType),
+                       nb_r, nb_c,
+                       (diet_matrix_order_t) WfCst::cvtWfToDietMatrixOrder(order));
+      break;
+    case WfCst::TYPE_CONTAINER :
+      diet_container_set(diet_parameter(profile, index), DIET_PERSISTENT);
+      break;
+    default:  // all scalar types
+      diet_scalar_set(diet_parameter(profile, index),
+                      NULL, mode, (diet_base_type_t) WfCst::cvtWfToDietType(type));
   }
 }
 
