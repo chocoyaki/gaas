@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2008/10/29 11:00:14  bisnard
+ * bug correction in dag destructor
+ *
  * Revision 1.20  2008/10/22 09:29:00  bisnard
  * replaced uint by standard type
  *
@@ -137,13 +140,10 @@ Dag::Dag() {
 Dag::~Dag() {
   TRACE_TEXT (TRACE_ALL_STEPS,"~Dag() destructor ..." <<  endl);
   if (! this->tmpDag) {
-    DagNode * node = NULL;
-    for (map<string, DagNode * >::iterator p = nodes.begin( );
-	 p != nodes.end( );
-	 ++p ) {
-      node = (DagNode*) p->second;
-      nodes.erase(p);
-      delete(node);
+    while (! nodes.empty() ) {
+       DagNode * p = begin()->second ;
+       nodes.erase( begin() ) ;
+       delete p ;
     }
     nodes.clear();
   }
