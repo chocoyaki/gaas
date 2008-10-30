@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/10/30 14:33:01  bisnard
+ * added recursive container initialization
+ *
  * Revision 1.3  2008/10/22 09:29:00  bisnard
  * replaced uint by standard type
  *
@@ -105,6 +108,8 @@ protected:
 
   /**
    * Converts the string value to a data handle for a container
+   * Examples of input: 3;4;5  or ((toto;titi);(tata))
+   * @param value container value (uses parenthesis & semicolumns)
    */
   void
   initContainerValue(const string& value);
@@ -115,6 +120,17 @@ protected:
   string dataID;
 
 private:
+
+  /**
+   * Container initialization from string (recursive)
+   * @param contIDPtr will contain the ID of the created container
+   * @param contStr   string to parse (already parsed content is removed)
+   * @param contDepth depth of the current container (must be >= 1)
+   */
+  void
+  initContainerValueRec(char** contIDPtr,
+                        string& contStr,
+                        unsigned int contDepth);
 
   /**
    * The reference of port node

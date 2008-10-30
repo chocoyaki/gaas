@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/10/30 14:33:01  bisnard
+ * added recursive container initialization
+ *
  * Revision 1.5  2008/10/29 10:10:40  bisnard
  * avoid warning for incomplete switch
  *
@@ -274,68 +277,115 @@ DagNodePort::initMatrixValue(void **buffer, const string& value) {
 
 /**
  * Initialize a port value for a container
- * IMPORTANT:  Currently limited to 1 level and to TYPE_LONGINT values
  */
 void
 DagNodePort::initContainerValue(const string& value) {
 #if HAVE_DAGDA
-  TRACE_TEXT (TRACE_ALL_STEPS,"Using value (" << value
-      << ") to initialize container" << endl);
-  // init container
+  // init container and link it to profile
   char* contID;
-  diet_profile_t* profile = myParent->getProfile();
-  dagda_create_container(&contID);
-  diet_use_data(diet_parameter(profile, index),contID);
-  // parse values
-  char* valID;
-  int ix=0;
-  string contVal = value;
-  string::size_type valSepLeft  = -1;
-  while ((ix == 0) || (valSepLeft!=string::npos)) {
-    string::size_type valSepRight = contVal.find(";",valSepLeft+1);
-    const char *valStr = contVal.substr(
-                         valSepLeft+1,
-                         (valSepRight == string::npos ? contVal.length() : valSepRight)-valSepLeft-1
-                         ).c_str();
-    valSepLeft = valSepRight;
-    // store value and add it to container
-    switch (eltType) {
-      case WfCst::TYPE_CHAR:
-        dagda_put_scalar(myParent->newChar(valStr), DIET_CHAR, DIET_PERSISTENT, &valID);
-        break;
-      case WfCst::TYPE_SHORT:
-        dagda_put_scalar(myParent->newShort(valStr), DIET_SHORT, DIET_PERSISTENT, &valID);
-        break;
-      case WfCst::TYPE_INT:
-        dagda_put_scalar(myParent->newInt(valStr), DIET_INT, DIET_PERSISTENT, &valID);
-        break;
-      case WfCst::TYPE_LONGINT:
-        dagda_put_scalar(myParent->newLong(valStr), DIET_LONGINT, DIET_PERSISTENT, &valID);
-        break;
-      case WfCst::TYPE_FLOAT:
-        dagda_put_scalar(myParent->newFloat(valStr), DIET_FLOAT, DIET_PERSISTENT, &valID);
-        break;
-      case WfCst::TYPE_DOUBLE:
-        dagda_put_scalar(myParent->newDouble(valStr), DIET_DOUBLE, DIET_PERSISTENT, &valID);
-        break;
-      case WfCst::TYPE_PARAMSTRING:
-        dagda_put_paramstring(myParent->newString(valStr), DIET_PERSISTENT, &valID);
-        break;
-      case WfCst::TYPE_STRING:
-        dagda_put_string(myParent->newString(valStr), DIET_PERSISTENT, &valID);
-        break;
-      case WfCst::TYPE_FILE:
-        dagda_put_file(myParent->newFile(valStr), DIET_PERSISTENT, &valID);
-        break;
-      case WfCst::TYPE_MATRIX:
-      default:
-        INTERNAL_ERROR("Type not managed in container initialization",0);
-    } // end (switch)
-    dagda_add_container_element(contID,valID,ix++);
-    CORBA::string_free(valID);
-  }
+  // fill-in the container with the values (recursive)
+  string contVal = value; // due to const
+  initContainerValueRec(&contID, contVal, depth);
+  // attach to profile
+  diet_use_data(diet_parameter(myParent->getProfile(), index),contID);
 #else
   WARNING("Cannot use containers without Dagda" << endl);
+#endif
+}
+
+/**
+ * Initialize a port value for a container (recursive)
+ */
+void
+DagNodePort::initContainerValueRec(char** contIDPtr,
+                                   string& contStr,
+                                   unsigned int contDepth) {
+  if (contDepth < 1)  {
+    cout << "Too many parenthesis in container init (contStr="
+         << contStr << ")" << endl;
+    exit(0);
+  }
+#if HAVE_DAGDA
+  // init container
+//   cout << "creating container" << endl;
+  dagda_create_container(contIDPtr);
+  // parse values
+  char* valID;
+  int   valIdx = 0;
+  bool  valEnd = false;
+  bool  strEnd = false;
+  while (!(valEnd || contStr.empty())) {
+//     cout << "while loop - str = " << contStr << endl;
+    string::size_type parLeft = contStr.find("(");
+    string::size_type valSepRight = contStr.find(";");
+    string::size_type parRight = contStr.find(")");
+    // define the right end of the value (as valSepRight-1)
+    if ((parRight != string::npos)
+        && ((valSepRight == string::npos) || (parRight < valSepRight))) {
+      valEnd = true;
+      valSepRight = parRight;
+    }
+    if (valSepRight == string::npos) {  // end of the string
+      valEnd = true;
+      strEnd = true;
+      valSepRight = contStr.length();
+    }
+//     cout << " end of current value: " << valSepRight << endl;
+    if (valSepRight == 0) {
+      contStr.erase(0,1);
+      continue;
+    }
+    if ((parLeft == string::npos) || (parLeft > valSepRight)) {
+//       cout << " parsing leaf value" << endl;
+      // if no left parenthesis before the separator then parse the value
+      const char *valStr = contStr.substr(0, valSepRight).c_str();  // leaf value
+      // store value in Dagda
+      switch (eltType) {
+        case WfCst::TYPE_CHAR:
+          dagda_put_scalar(myParent->newChar(valStr), DIET_CHAR, DIET_PERSISTENT, &valID);
+          break;
+        case WfCst::TYPE_SHORT:
+          dagda_put_scalar(myParent->newShort(valStr), DIET_SHORT, DIET_PERSISTENT, &valID);
+          break;
+        case WfCst::TYPE_INT:
+          dagda_put_scalar(myParent->newInt(valStr), DIET_INT, DIET_PERSISTENT, &valID);
+          break;
+        case WfCst::TYPE_LONGINT:
+          dagda_put_scalar(myParent->newLong(valStr), DIET_LONGINT, DIET_PERSISTENT, &valID);
+          break;
+        case WfCst::TYPE_FLOAT:
+          dagda_put_scalar(myParent->newFloat(valStr), DIET_FLOAT, DIET_PERSISTENT, &valID);
+          break;
+        case WfCst::TYPE_DOUBLE:
+          dagda_put_scalar(myParent->newDouble(valStr), DIET_DOUBLE, DIET_PERSISTENT, &valID);
+          break;
+        case WfCst::TYPE_PARAMSTRING:
+          dagda_put_paramstring(myParent->newString(valStr), DIET_PERSISTENT, &valID);
+          break;
+        case WfCst::TYPE_STRING:
+          dagda_put_string(myParent->newString(valStr), DIET_PERSISTENT, &valID);
+          break;
+        case WfCst::TYPE_FILE:
+          dagda_put_file(myParent->newFile(valStr), DIET_PERSISTENT, &valID);
+          break;
+        case WfCst::TYPE_MATRIX:
+        default:
+          INTERNAL_ERROR("Type not managed in container initialization",0);
+      } // end (switch)
+      // update the parsed string
+      if (!strEnd)
+        contStr = contStr.substr(valSepRight+1, contStr.length() - valSepRight - 1);
+      else
+        contStr.clear();
+    } else {
+      contStr.erase(parLeft,1);
+      initContainerValueRec(&valID,contStr,depth-1);
+    }
+//     cout << "adding element to container" << endl;
+    dagda_add_container_element(*contIDPtr,valID,valIdx++);
+    CORBA::string_free(valID);
+  } // end while
+//   cout << "end of recursive call" << endl;
 #endif
 }
 
