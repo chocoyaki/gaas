@@ -471,6 +471,36 @@ behavior$>$"\\
 For example, \textit{"host:capricorne-*.lyon.*:replace"} is a valid replication
 rule.
 
+\section{On correct usage of DAGDA}
+Some things to keep in mind when using DAGDA as data manager for
+DIET:
+\begin{itemize}
+\item All the data managed by DAGDA are entirely managed by DAGDA: The user
+  must not free them. DAGDA avoids memory leaks, so the user does not
+  have to worry about the memory management for the data managed by DAGDA.
+\item When using more than one DAGDA component on a node, the user should
+  define a different storage directory for each component. For example,
+  the Master Agent and one SeD are launched on the same computer: the
+  user can define the storage directory of the Master Agent as ``/tmp/MA''
+  and the one for the SeD as ``/tmp/SeD1''. Do not forget to create the
+  directories before to use DAGDA. This tip avoids many bugs which are
+  really hard to find.
+\item The DAGDA API can be used to transfer the parameters of a service,
+  but it should not be used as this. If an application needs a data which
+  is only on the client, the user should transmit it through the profile.
+  The DAGDA API should be used to share, replicate or retrieve an existing
+  data. Using the API allows the user to optimize their applications, not
+  to proceed to a diet\_call even if it works fine. Indeed, the DAGDA
+  client component is not linked to the DIET hierarchy, so using the API to
+  add a data and then to use it as a profile parameter makes DAGDA to
+  do additionnal and useless transfers.
+\item DAGDA can be used without any configuration, but it is allways a
+  good idea to define all the DAGDA parameters in the configuration files.
+\end{itemize}
+
+For any comment or bug report on DAGDA, please contact G. Le Mahec
+at the following e-mail address: \url{gael.le.mahec@ens-lyon.fr}.
+
 \section{Future works}
 The next version of DAGDA will allow the users to develop their own cache
 replacement algorithms and network capacity measurements methods.
