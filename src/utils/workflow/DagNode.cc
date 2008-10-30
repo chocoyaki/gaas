@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/10/30 14:33:56  bisnard
+ * updated destructor
+ *
  * Revision 1.3  2008/10/22 09:29:00  bisnard
  * replaced uint by standard type
  *
@@ -227,7 +230,7 @@ DagNode::~DagNode() {
       cx = stringParams.back();
       stringParams.pop_back();
       if (cx)
-	delete(cx);
+	delete [] cx;
     }
   }
 
@@ -238,7 +241,7 @@ DagNode::~DagNode() {
       cx = fileParams.back();
       fileParams.pop_back();
       if (cx)
-	delete(cx);
+	delete [] cx;
     }
   }
 
