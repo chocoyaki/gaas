@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.54  2008/11/06 12:19:35  bdepardo
+ * Fixed a bug where a DIET_STRING crashed when initialized to NULL
+ *
  * Revision 1.53  2008/09/10 09:04:26  bisnard
  * new diet type for containers
  *
@@ -357,7 +360,7 @@ string_set_desc(diet_data_desc_t* desc, char* const id,
   int status(0);
   if ((status = generic_set_desc(desc, id, mode, DIET_STRING, DIET_CHAR)))
     return status;
-  if (length != 0)
+  //  if (length != 0)
     desc->specific.str.length = length;
   return status;
 }
@@ -656,13 +659,19 @@ int
 diet_string_set(diet_arg_t* arg, char* value, diet_persistence_mode_t mode)
 {
   int status(0);
+  size_t len;
+  
+  if (value)
+    len = strlen((char*) value) + 1;
+  else
+    len = 0;
+
   if ((status = string_set_desc(&(arg->desc),
                                 NULL,
                                 mode,
-                                strlen((char*) value) + 1))) {
+                                len))) {
     return status;
   }
-
   arg->value = value;
   return status;
 }
