@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2008/11/06 08:27:34  bdepardo
+ * Added a warning when the 'source' attribute is missing in an input parameter
+ *
  * Revision 1.14  2008/10/22 09:29:00  bisnard
  * replaced uint by standard type
  *
@@ -230,6 +233,9 @@ DagWfParser::parseIn(DOMElement * child_elt, unsigned int lastArg,
   }
   if (!source.empty())
     port->setConnectionRef(source);
+  else {
+    WARNING("No source attribute for input port " << node.getId());
+  }
 }
 
 /**
