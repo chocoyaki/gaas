@@ -7,8 +7,8 @@
 /* $LICENSE$                                               */
 /***********************************************************/
 /* $Id$
-/* $Log
-/*
+ * $Log $
+ *
  ************************************************************/
 #include "DIET_Dagda.hh"
 #include "DagdaFactory.hh"
@@ -194,7 +194,7 @@ void dagda_download_SeD_data(diet_profile_t* profile,
           inserted->desc.specific.file().size = fileSize;
         }
       } else {
-   	    // Scalar data: The value is transmitted inside the profile.
+	// Scalar data: The value is transmitted inside the profile.
         inserted = dataManager->getData(pb->parameters[i].desc.id.idNumber);
         size = inserted->value.length();
         for (size_t j=0; j<size; ++j)

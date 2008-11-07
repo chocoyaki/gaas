@@ -6,10 +6,10 @@
 /*                                                         */
 /* $LICENSE$                                               */
 /***********************************************************/
-/* $Id$													   */
-/* $Log													   */
-/*														   */
-/***********************************************************/
+/* $Id$
+ * $Log	$
+ *
+ ***********************************************************/
 
 #include "Dagda.hh"
 #include "common_types.hh"
@@ -65,7 +65,7 @@ void DagdaImpl::setMaxMsgSize(const size_t maxMsgSize) {
   this->maxMsgSize = maxMsgSize;
 }
 
-const size_t DagdaImpl::getMaxMsgSize() {
+size_t DagdaImpl::getMaxMsgSize() {
   return maxMsgSize;
 }
 
@@ -73,7 +73,7 @@ void DagdaImpl::setDiskMaxSpace(const size_t diskMaxSpace) {
   this->diskMaxSpace = diskMaxSpace;
 }
 
-const size_t DagdaImpl::getDiskMaxSpace() {
+size_t DagdaImpl::getDiskMaxSpace() {
   return diskMaxSpace;
 }
 
@@ -81,7 +81,7 @@ void DagdaImpl::setMemMaxSpace(const size_t memMaxSpace) {
   this->memMaxSpace = memMaxSpace;
 }
 
-const size_t DagdaImpl::getMemMaxSpace() {
+size_t DagdaImpl::getMemMaxSpace() {
   return memMaxSpace;
 }
 
@@ -147,8 +147,9 @@ char* DagdaImpl::sendFile(const corba_data_t &data, Dagda_ptr dest) {
     throw Dagda::InvalidPathName(data.desc.id.idNumber, "null");
 
   std::ifstream file(data.desc.specific.file().path);
-  if (!file.is_open()) // Unable to open the file.
+  if (!file.is_open()) {// Unable to open the file.
     throw Dagda::ReadError(errno);
+  }
 
   TRACE_TEXT(TRACE_MAIN_STEPS, "*** Sending file " << data.desc.specific.file().path
                               << " (" << data.desc.id.idNumber << ")" << endl);
@@ -179,7 +180,9 @@ char* DagdaImpl::sendFile(const corba_data_t &data, Dagda_ptr dest) {
 	TRACE_TEXT(TRACE_ALL_STEPS, "\tSend " << toSend << " bytes..." << endl);
     buffer.length(toSend);
     file.read((char*) buffer.get_buffer(false), toSend);
-    if (file.bad()) throw Dagda::ReadError(errno);
+    if (file.bad()) {
+      throw Dagda::ReadError(errno);
+    }
     // Send the data.
     if (distPath!=NULL) CORBA::string_free(distPath);
     distPath=dest->writeFile(buffer, name.c_str(), replace);
@@ -422,8 +425,8 @@ void SimpleDagdaImpl::lclAddData(Dagda_ptr src, const corba_data_t& data) {
                              << " locally." << endl);
     if (strcmp(src->getID(), getID()) != 0) {
       if (data.desc.specific._d()==DIET_FILE) {
-	if (getDiskMaxSpace()!=0 && getUsedDiskSpace()+data_sizeof(&data.desc)>getDiskMaxSpace())
-		  throw Dagda::NotEnoughSpace(getDiskMaxSpace()-getUsedDiskSpace());
+	if (getDiskMaxSpace()!=0 && getUsedDiskSpace()+data_sizeof(&data.desc)>getDiskMaxSpace()) 
+	  throw Dagda::NotEnoughSpace(getDiskMaxSpace()-getUsedDiskSpace());
 	char* path = downloadData(src, data);
         if (path) {
           corba_data_t newData(data);

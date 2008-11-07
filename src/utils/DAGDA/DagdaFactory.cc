@@ -8,10 +8,10 @@
 /*                                                         */
 /* $LICENSE$                                               */
 /***********************************************************/
-/* $Id$													   */
-/* $Log													   */
-/*														   */
-/***********************************************************/
+/* $Id$
+ * $Log $
+ *
+ ***********************************************************/
 
 #include "DagdaFactory.hh"
 #include "Parsers.hh"
@@ -129,7 +129,7 @@ unsigned long DagdaFactory::getMaxMemSpace() {
   unsigned long* maxMemSpace = (unsigned long*)
     Parsers::Results::getParamValue(Parsers::Results::MAXMEMSPACE);
   string storageDir(getStorageDir());
-  defaultMaxMemSpace = availableDiskSpace(storageDir.c_str());
+  //defaultMaxMemSpace = availableDiskSpace(storageDir.c_str());
   if (maxMemSpace==NULL) maxMemSpace = &defaultMaxMemSpace;
   return *maxMemSpace;
 }
@@ -194,8 +194,8 @@ DagdaImpl* DagdaFactory::getClientDataManager() {
     clientDataManager = createDataManager(DGD_CLIENT_MNGR);
 	
     clientDataManager->init(getClientName(), NULL, getStorageDir(),
-							getMaxMsgSize(), getMaxDiskSpace(),
-							getMaxMemSpace());
+			    getMaxMsgSize(), getMaxDiskSpace(),
+			    getMaxMemSpace());
   }
   localDataManager = clientDataManager;
   return clientDataManager;

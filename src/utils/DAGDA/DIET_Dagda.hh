@@ -7,11 +7,17 @@
 /* $LICENSE$                                                                */
 /****************************************************************************/
 /* $Id$
-/* $Log$
-/* Revision 1.3  2008/08/13 10:12:21  ecaron
-/* Correction of the header file
-/*
-****************************************************************************/
+ * $Log$
+ * Revision 1.4  2008/11/07 14:22:40  bdepardo
+ * Headers correction.
+ * Initialize maxMemSpace to 0 by default.
+ * removed some warnings due to a return type of 'const size_t' -> const is
+ * useless
+ *
+ * Revision 1.3  2008/08/13 10:12:21  ecaron
+ * Correction of the header file
+ *
+ ****************************************************************************/
 
 #ifndef __DIET_DAGDA_HH__
 #define __DIET_DAGDA_HH__

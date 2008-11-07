@@ -231,13 +231,13 @@ public:
   void setDataPath(const char* path);
   const char* getDataPath();
   void setMaxMsgSize(const size_t maxMsgSize);
-  const size_t getMaxMsgSize();
+  size_t getMaxMsgSize();
   void setDiskMaxSpace(const size_t diskMaxSpace);
-  const size_t getDiskMaxSpace();
+  size_t getDiskMaxSpace();
   void setMemMaxSpace(const size_t memMaxSpace);
-  const size_t getMemMaxSpace();
-  const size_t getUsedDiskSpace() { return usedDiskSpace; }
-  const size_t getUsedMemSpace() { return usedMemSpace; }
+  size_t getMemMaxSpace();
+  size_t getUsedDiskSpace() { return usedDiskSpace; }
+  size_t getUsedMemSpace() { return usedMemSpace; }
   void useDiskSpace(size_t size) {
     usedDiskSpaceMutex.lock();
 	usedDiskSpace += size;

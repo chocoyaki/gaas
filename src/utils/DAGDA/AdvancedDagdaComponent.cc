@@ -6,10 +6,10 @@
 /*                                                         */
 /* $LICENSE$                                               */
 /***********************************************************/
-/* $Id
-/* $Log
-/*														   */
-/***********************************************************/
+/* $Id $
+ * $Log $
+ *							    
+ ***********************************************************/
 
 #include "AdvancedDagdaComponent.hh"
 #include "DIET_data_internal.hh"
@@ -74,29 +74,29 @@ void AdvancedDagdaComponent::lclAddData(Dagda_ptr src, const corba_data_t& data)
 	if (shareFiles && DGD_OBJ_TYPE(data)==DIET_FILE_OBJ)
 	  shareData(data);
   } catch (Dagda::NotEnoughSpace ex) {
-	TRACE_TEXT(TRACE_ALL_STEPS, "Needs more space. Try to call the selected cache "
-	  << "algorithm." << endl);
+    TRACE_TEXT(TRACE_ALL_STEPS, "Needs more space. Try to call the selected cache "
+	       << "algorithm." << endl);
     if (mngFunction!=NULL) {
-	  size_t needed = data_sizeof(&data.desc);
-	  size_t max;
-	  size_t used;
-	  if (DGD_OBJ_TYPE(data)==DIET_MEM_OBJ) {
-	    max = getMemMaxSpace();
-		used = getUsedMemSpace();
-	  } else {
-	    max = getDiskMaxSpace();
-		used = getUsedDiskSpace();
-	  }
+      size_t needed = data_sizeof(&data.desc);
+      size_t max;
+      size_t used;
+      if (DGD_OBJ_TYPE(data)==DIET_MEM_OBJ) {
+	max = getMemMaxSpace();
+	used = getUsedMemSpace();
+      } else {
+	max = getDiskMaxSpace();
+	used = getUsedDiskSpace();
+      }
       if (used+needed>max) needed += used-max;
-	  
-	  if (mngFunction(this, needed, DGD_OBJ_TYPE(data)))
-	    throw Dagda::NotEnoughSpace(ex.available);
-	  SimpleDagdaImpl::lclAddData(src, data);
-	  setRegisterTime(data.desc.id.idNumber);
-	  if (shareFiles && DGD_OBJ_TYPE(data)==DIET_FILE_OBJ)
-	    shareData(data);
-	} else
-	  throw Dagda::NotEnoughSpace(ex.available);
+      
+      if (mngFunction(this, needed, DGD_OBJ_TYPE(data)))
+	throw Dagda::NotEnoughSpace(ex.available);
+      SimpleDagdaImpl::lclAddData(src, data);
+      setRegisterTime(data.desc.id.idNumber);
+      if (shareFiles && DGD_OBJ_TYPE(data)==DIET_FILE_OBJ)
+	shareData(data);
+    } else
+      throw Dagda::NotEnoughSpace(ex.available);
   }
 }
 
