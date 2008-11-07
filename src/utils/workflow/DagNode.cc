@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/11/07 13:42:05  bdepardo
+ * Added two getters in WfPort:
+ * - getDataType
+ * - getEltDataType.
+ * Use them in DagNode::displayResults
+ *
  * Revision 1.4  2008/10/30 14:33:56  bisnard
  * updated destructor
  *
@@ -642,9 +648,20 @@ DagNode::displayResults() {
     if (((WfPort *)p->second)->getPortType() == WfPort::PORT_OUT) {
       DagNodeOutPort * outp = dynamic_cast<DagNodeOutPort *>(p->second);
       if (!outp->isConnected()) {
-        short dataType = WfCst::cvtDietToWfType(
-            outp->profile()->parameters[outp->getIndex()].desc.generic.type);
-        if (dataType == WfCst::TYPE_DOUBLE) {
+        short dataType = outp->getDataType();
+	
+	if (dataType == WfCst::TYPE_FILE) {
+	  size_t size;
+	  char * path;
+	  diet_file_get(diet_parameter(outp->profile(),outp->getIndex()),
+			NULL, &size, &path);
+	  TRACE_TEXT (TRACE_ALL_STEPS,
+		      "## WORKFLOW OUTPUT ## " <<
+		      outp->getId() << " type = DIET_FILE, " <<
+		      "File name = " << path << ", " <<
+		      "File size = " << size  << endl);
+	}
+	else if (dataType == WfCst::TYPE_DOUBLE) {
           double * value = NULL;
           diet_scalar_get(diet_parameter(outp->profile(),outp->getIndex()),
                           &value, NULL);
@@ -652,7 +669,7 @@ DagNode::displayResults() {
                       "## WORKFLOW OUTPUT ## " <<
                           outp->getId() << " = " << *value << endl);
         }
-        if (dataType == WfCst::TYPE_FLOAT) {
+        else if (dataType == WfCst::TYPE_FLOAT) {
           float * value = NULL;
           diet_scalar_get(diet_parameter(outp->profile(),outp->getIndex()),
                           &value, NULL);
@@ -660,84 +677,73 @@ DagNode::displayResults() {
                       "## WORKFLOW OUTPUT ## " <<
                           outp->getId() << " = " << *value << endl);
         }
-        if ( (dataType == WfCst::TYPE_CHAR) ||
-              (dataType == WfCst::TYPE_SHORT) ||
-              (dataType == WfCst::TYPE_INT) ||
-              (dataType == WfCst::TYPE_LONGINT)) {
+        else if ( (dataType == WfCst::TYPE_CHAR) ||
+		  (dataType == WfCst::TYPE_SHORT) ||
+		  (dataType == WfCst::TYPE_INT) ||
+		  (dataType == WfCst::TYPE_LONGINT)) {
           long * value = NULL;
           diet_scalar_get(diet_parameter(outp->profile(),outp->getIndex()),
                           &value, NULL);
           TRACE_TEXT (TRACE_ALL_STEPS,
                       "## WORKFLOW OUTPUT ## " <<
-                          outp->getId() << " = " << *value << endl);
-              }
-              if (dataType == WfCst::TYPE_STRING) {
-                char * value;
-                diet_string_get(diet_parameter(outp->profile(),outp->getIndex()),
-                                &value, NULL);
-                TRACE_TEXT (TRACE_ALL_STEPS,
-                            "## WORKFLOW OUTPUT ## " <<
-                                outp->getId() << " = " << value << endl);
-              }
-              if (dataType == WfCst::TYPE_FILE) {
-                size_t size;
-                char * path;
-                diet_file_get(diet_parameter(outp->profile(),outp->getIndex()),
-                              NULL, &size, &path);
-                TRACE_TEXT (TRACE_ALL_STEPS,
-                            "## WORKFLOW OUTPUT ## " <<
-                                outp->getId() << " type = DIET_FILE, " <<
-                                "File name = " << path << ", " <<
-                                "File size = " << size  << endl);
-              }
-              if (dataType == WfCst::TYPE_MATRIX) {
-                size_t nb_rows, nb_cols;
-                diet_matrix_order_t order;
-                short baseType = WfCst::cvtDietToWfType(
-                    outp->profile()->parameters[outp->getIndex()].desc.generic.base_type);
-                if (baseType == WfCst::TYPE_DOUBLE) {
-                  double * value;
-                  diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()),
-                                  &value, NULL,
-                                  &nb_rows, &nb_cols, &order);
-                  wf_dag_print_matrix_of_real(value, nb_rows, nb_cols, order);
-                }
-                if (baseType == WfCst::TYPE_FLOAT) {
-                  float * value;
-                  diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()),
-                                  &value, NULL,
-                                  &nb_rows, &nb_cols, &order);
-                  wf_dag_print_matrix_of_real(value, nb_rows, nb_cols, order);
-                }
-                if (baseType == WfCst::TYPE_CHAR) {
-                  char * value;
-                  diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()),
-                                  &value, NULL,
-                                  &nb_rows, &nb_cols, &order);
-                  wf_dag_print_matrix_of_integer(value, nb_rows, nb_cols, order);
-                }
-                if (baseType == WfCst::TYPE_SHORT) {
-                  short * value;
-                  diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()),
-                                  &value, NULL,
-                                  &nb_rows, &nb_cols, &order);
-                  wf_dag_print_matrix_of_integer(value, nb_rows, nb_cols, order);
-                }
-                if (baseType == WfCst::TYPE_INT) {
-                  int * value;
-                  diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()),
-                                  &value, NULL,
-                                  &nb_rows, &nb_cols, &order);
-                  wf_dag_print_matrix_of_integer(value, nb_rows, nb_cols, order);
-                }
-                if (baseType == WfCst::TYPE_LONGINT) {
-                  long * value;
-                  diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()),
-                                  &value, NULL,
-                                  &nb_rows, &nb_cols, &order);
-                  wf_dag_print_matrix_of_longint(value, nb_rows, nb_cols, order);
-                }
-              } // end if TYPE_MATRIX
+		      outp->getId() << " = " << *value << endl);
+	}
+	else if (dataType == WfCst::TYPE_STRING) {
+	  char * value;
+	  diet_string_get(diet_parameter(outp->profile(),outp->getIndex()),
+			  &value, NULL);
+	  TRACE_TEXT (TRACE_ALL_STEPS,
+		      "## WORKFLOW OUTPUT ## " <<
+		      outp->getId() << " = " << value << std::endl);
+	}
+	else if (dataType == WfCst::TYPE_MATRIX) {
+	  size_t nb_rows, nb_cols;
+	  diet_matrix_order_t order;
+	  short baseType = outp->getEltDataType();
+
+	  if (baseType == WfCst::TYPE_DOUBLE) {
+	    double * value;
+	    diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()),
+			    &value, NULL,
+			    &nb_rows, &nb_cols, &order);
+	    wf_dag_print_matrix_of_real(value, nb_rows, nb_cols, order);
+	  }
+	  else if (baseType == WfCst::TYPE_FLOAT) {
+	    float * value;
+	    diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()),
+			    &value, NULL,
+			    &nb_rows, &nb_cols, &order);
+	    wf_dag_print_matrix_of_real(value, nb_rows, nb_cols, order);
+	  }
+	  else if (baseType == WfCst::TYPE_CHAR) {
+	    char * value;
+	    diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()),
+			    &value, NULL,
+			    &nb_rows, &nb_cols, &order);
+	    wf_dag_print_matrix_of_integer(value, nb_rows, nb_cols, order);
+	  }
+	  else if (baseType == WfCst::TYPE_SHORT) {
+	    short * value;
+	    diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()),
+			    &value, NULL,
+			    &nb_rows, &nb_cols, &order);
+	    wf_dag_print_matrix_of_integer(value, nb_rows, nb_cols, order);
+	  }
+	  else if (baseType == WfCst::TYPE_INT) {
+	    int * value;
+	    diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()),
+			    &value, NULL,
+			    &nb_rows, &nb_cols, &order);
+	    wf_dag_print_matrix_of_integer(value, nb_rows, nb_cols, order);
+	  }
+	  else if (baseType == WfCst::TYPE_LONGINT) {
+	    long * value;
+	    diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()),
+			    &value, NULL,
+			    &nb_rows, &nb_cols, &order);
+	    wf_dag_print_matrix_of_longint(value, nb_rows, nb_cols, order);
+	  }
+	} // end if TYPE_MATRIX
       } // if isResult
     } // if out port
   } // end for ports

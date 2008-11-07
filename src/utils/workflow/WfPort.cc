@@ -10,6 +10,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2008/11/07 13:42:05  bdepardo
+ * Added two getters in WfPort:
+ * - getDataType
+ * - getEltDataType.
+ * Use them in DagNode::displayResults
+ *
  * Revision 1.10  2008/10/27 16:19:58  bisnard
  * correction of bug in connectPorts
  *
@@ -100,6 +106,17 @@ unsigned int
 WfPort::getDepth() {
   return this->depth;
 }
+
+WfCst::WfDataType
+WfPort::getDataType() {
+  return this->type;
+}
+
+WfCst::WfDataType
+WfPort::getEltDataType() {
+  return this->eltType;
+}
+
 
 void
 WfPort::setConnectionRef(const string& strRef) {

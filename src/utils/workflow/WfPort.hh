@@ -10,6 +10,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2008/11/07 13:42:05  bdepardo
+ * Added two getters in WfPort:
+ * - getDataType
+ * - getEltDataType.
+ * Use them in DagNode::displayResults
+ *
  * Revision 1.8  2008/10/22 09:29:00  bisnard
  * replaced uint by standard type
  *
@@ -127,6 +133,18 @@ public:
   getDepth();
 
   /**
+   * Returns the data type (constants defined in WfCst class)
+   */
+  WfCst::WfDataType
+  getDataType();
+
+  /**
+   * Returns the data type of elements (in case of CONTAINER or MATRIX type)
+   */
+  WfCst::WfDataType
+  getEltDataType();
+
+  /**
    * Set the source of the input port (Parsing only)
    * @param s The source port (output port) reference
    */
@@ -160,7 +178,6 @@ public:
    */
   void
   connectPorts(NodeSet* nodeSet);
-
 
 protected:
 
