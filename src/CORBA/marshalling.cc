@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.89  2008/11/08 19:12:36  bdepardo
+ * A few warnings removal
+ *
  * Revision 1.88  2008/09/09 10:05:57  bisnard
  * container mgmt using Dagda agent
  *
@@ -699,7 +702,9 @@ int
 unmrsh_data(diet_data_t* dest, corba_data_t* src, int upDown)
 #endif
 {
+#if ! HAVE_JUXMEM && ! HAVE_DAGDA
   static int uniqDataID=0 ;
+#endif
   static omni_mutex uniqDataIDMutex ;
 
   if( (src->desc.mode == DIET_VOLATILE) && (upDown == 1) ){

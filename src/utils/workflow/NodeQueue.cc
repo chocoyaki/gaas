@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2008/11/08 19:12:40  bdepardo
+ * A few warnings removal
+ *
  * Revision 1.8  2008/10/14 13:31:01  bisnard
  * new class structure for dags (DagNode,DagNodePort)
  *
@@ -155,7 +158,7 @@ void
 OrderedNodeQueue::removeNode(DagNode * node) {
   list<DagNode*>::iterator np = orderedNodes.begin();
   while (np != orderedNodes.end()) {
-    if (*np = node) {
+    if (*np == node) {
       np = orderedNodes.erase(np);
       node->setNodeQueue(NULL);
       this->nodeCounter--;

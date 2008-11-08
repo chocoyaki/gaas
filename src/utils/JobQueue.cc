@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/11/08 19:12:38  bdepardo
+ * A few warnings removal
+ *
  * Revision 1.5  2008/06/25 09:52:47  bisnard
  * - Estimation vector sent with solve request to avoid storing it
  * for each submit request as it depends on the parameters value. The
@@ -66,6 +69,7 @@ bool
 JobQueue::setJobFinished(int dietReqID) {
   myJobs[dietReqID].status = DIET_JOB_FINISHED;
   this->nbActiveJobs--;
+  return true;
 }
 
 bool

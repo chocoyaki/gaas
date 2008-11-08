@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2008/11/08 19:12:39  bdepardo
+ * A few warnings removal
+ *
  * Revision 1.15  2008/11/07 14:32:14  bdepardo
  * Headers correction
  *
@@ -369,8 +372,8 @@ void dagda_upload_data(diet_profile_t& profile, corba_profile_t& pb) {
     if (data.desc.specific._d()!=DIET_FILE && data.desc.specific._d()!=DIET_CONTAINER) {
       // The data manager obtains the pointer control. (release=true).
       inserted->value.replace(size, size, (CORBA::Char*)profile.parameters[i].value, true);
-      if (data.desc.specific._d() == DIET_SCALAR &&
-          pb.parameters[i].desc.mode == DIET_VOLATILE ||
+      if ((data.desc.specific._d() == DIET_SCALAR &&
+	   pb.parameters[i].desc.mode == DIET_VOLATILE) ||
           pb.parameters[i].desc.mode == DIET_PERSISTENT_RETURN ||
           pb.parameters[i].desc.mode == DIET_STICKY_RETURN) {
         pb.parameters[i] = *inserted;
@@ -1004,6 +1007,8 @@ int dagda_init_container(diet_data_t *profile_data) {
   // register the container locally
   manager->addData(data);
   manager->unlockData(data.desc.id.idNumber);
+
+  return 0;
 }
 
 int dagda_add_container_element(const char* idContainer, const char* idElement, int index) {
@@ -1044,7 +1049,7 @@ int dagda_get_container_elements(const char* idContainer, diet_container_t* cont
     content->size = eltIDSeq.length();
     content->id   = CORBA::string_dup(idContainer);
     content->elt_ids = (char**) malloc(sizeof(char*) * content->size); // FIXME not deallocated
-    for (int ix=0; ix<eltIDSeq.length(); ++ix) {
+    for (unsigned int ix=0; ix<eltIDSeq.length(); ++ix) {
       content->elt_ids[ix] = CORBA::string_dup(eltIDSeq[ix]);
     }
   } else return 1;

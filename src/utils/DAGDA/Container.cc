@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/11/08 19:12:39  bdepardo
+ * A few warnings removal
+ *
  * Revision 1.1  2008/09/09 10:05:14  bisnard
  * container mgmt using Dagda agent
  *
@@ -86,7 +89,7 @@ Container::send(Dagda_ptr dest) {
   SeqLong*   flagSeq = new SeqLong();
   this->getAllElements(*dataIDSeq, *flagSeq, true);
 
-  for (int ix = 0; ix < dataIDSeq->length(); ++ix) {
+  for (unsigned int ix = 0; ix < dataIDSeq->length(); ++ix) {
     const char* eltID = (*dataIDSeq)[ix];
     TRACE_TEXT(TRACE_ALL_STEPS, "Sending element " << eltID << endl);
     corba_data_desc_t * eltDesc;

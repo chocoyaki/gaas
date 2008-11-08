@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/11/08 19:12:40  bdepardo
+ * A few warnings removal
+ *
  * Revision 1.5  2008/11/07 13:42:05  bdepardo
  * Added two getters in WfPort:
  * - getDataType
@@ -973,7 +976,6 @@ DagNode::setAsDone(double compTime) {
   TRACE_TEXT (TRACE_ALL_STEPS, "completion time is " << compTime << endl);
   // notify the successors
   if (!this->getDag()->isCancelled()) {
-    Node * n;
     TRACE_TEXT (TRACE_ALL_STEPS,
               "calling the " << nextNodes.size() << " next nodes" << endl);
     for (list<Node*>::iterator nextIter = nextNodesBegin();

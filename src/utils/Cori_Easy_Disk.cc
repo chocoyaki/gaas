@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2008/11/08 19:12:38  bdepardo
+ * A few warnings removal
+ *
  * Revision 1.9  2006/11/16 09:55:55  eboix
  *   DIET_config.h is no longer used. --- Injay2461
  *
@@ -86,9 +89,8 @@ if (!gatherSizeDisks(1,result , path))
 /****************************************************************************/
 void 
 stop_count(int a){
-
-	extern int sigalarm;
-	sigalarm = 1;
+  extern int sigalarm;
+  sigalarm = 1;
 }
 void 
 removePath_file(char** path){

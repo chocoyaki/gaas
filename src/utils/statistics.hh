@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2008/11/08 19:12:38  bdepardo
+ * A few warnings removal
+ *
  * Revision 1.14  2008/04/07 12:19:12  ycaniou
  * Except for the class Parsers (someone to re-code it? :)
  *   correct "deprecated conversion from string constant to 'char*'" warnings
@@ -76,7 +79,8 @@ gen_stat(int type, const char * myname, const char * message) {
     struct timezone tz;
 
     if (gettimeofday(&tv, &tz) == 0) {
-      fprintf(STAT_FILE, "%10ld.%06ld|%s|[%s] %s\n", tv.tv_sec, tv.tv_usec,
+      fprintf(STAT_FILE, "%10ld.%06ld|%s|[%s] %s\n",
+	      (long int)tv.tv_sec, (long int)tv.tv_usec,
 	      STAT_TYPE_STRING[type], myname, message);
 
       /* Examples of generated trace :

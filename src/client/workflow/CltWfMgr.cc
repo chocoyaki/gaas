@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2008/11/08 19:12:38  bdepardo
+ * A few warnings removal
+ *
  * Revision 1.17  2008/10/20 07:56:48  bisnard
  * new classes XML parser (Dagparser,FWfParser)
  *
@@ -424,7 +427,7 @@ CltWfMgr::release(const char * dag_id) {
    // Add request IDs to message
    for (unsigned int ix=0; ix<diet_request_ids.size(); ix++){
 	    char str[64];
-	    sprintf(str, "%ld", diet_request_ids[ix]);
+	    sprintf(str, "%ld", (long int) diet_request_ids[ix]);
 	    message +=";"+string(str);
    }
    // Add makespan to message

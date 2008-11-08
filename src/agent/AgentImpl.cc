@@ -5,6 +5,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.55  2008/11/08 19:12:37  bdepardo
+ * A few warnings removal
+ *
  * Revision 1.54  2008/06/01 15:49:20  rbolze
  * update msg in stat_in stat_out fonction
  * add info about the reqID (normaly thread safe)
@@ -717,7 +720,7 @@ AgentImpl::sendRequest(CORBA::ULong * children,
   CORBA::ULong childID = children[numero_child] ;
 #endif
   char statMsg[128]; 
-  sprintf(statMsg, "sendRequest %ld %d", (unsigned long) req->reqID,(unsigned long)childID);
+  sprintf(statMsg, "sendRequest %ld %ld", (unsigned long) req->reqID,(unsigned long)childID);
   AGT_TRACE_FUNCTION(childID << ", " << req->pb.path);
   
   stat_in(this->myName,statMsg);

@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2008/11/08 19:12:39  bdepardo
+ * A few warnings removal
+ *
  * Revision 1.26  2008/11/07 14:32:14  bdepardo
  * Headers correction
  *
@@ -932,50 +935,50 @@ void SimpleDagdaImpl::registerFile(const corba_data_t& data) {
 
 /* Bytes to write to the backup file. */
 size_t dataSize(corba_data_t& data) {
-  size_t baseSize, nbElt;
+  size_t baseSize = 0, nbElt = 0;
   switch (data.desc.base_type) {
-    case DIET_CHAR:
-	  baseSize=1;
-	  break;
-	case DIET_SHORT:
-	  baseSize=sizeof(short);
-	  break;
-	case DIET_INT:
-	  baseSize=sizeof(int);
-	  break;
-	case DIET_LONGINT:
-	  baseSize=sizeof(long);
-	  break;
-	case DIET_FLOAT:
-	  baseSize=sizeof(float);
-	  break;
-	case DIET_DOUBLE:
-	  baseSize=sizeof(double);
-	  break;
+  case DIET_CHAR:
+    baseSize=1;
+    break;
+  case DIET_SHORT:
+    baseSize=sizeof(short);
+    break;
+  case DIET_INT:
+    baseSize=sizeof(int);
+    break;
+  case DIET_LONGINT:
+    baseSize=sizeof(long);
+    break;
+  case DIET_FLOAT:
+    baseSize=sizeof(float);
+    break;
+  case DIET_DOUBLE:
+    baseSize=sizeof(double);
+    break;
   }
   switch (data.desc.specific._d()) {
-    case DIET_SCALAR:
-	  nbElt=1;
-	  break;
-	case DIET_VECTOR:
-	  nbElt=data.desc.specific.vect().size;
-	  break;
-	case DIET_MATRIX:
-	  nbElt=data.desc.specific.mat().nb_r *
-	        data.desc.specific.mat().nb_c;
-	  break;
-	case DIET_STRING:
-	  nbElt=data.desc.specific.str().length+1;
-	  break;
-	case DIET_PARAMSTRING:
-	  nbElt=data.desc.specific.pstr().length+1;
-	  break;
-	case DIET_FILE:
-	  nbElt=strlen(data.desc.specific.file().path)+1;
-	  break;
-        case DIET_CONTAINER:
-          nbElt=0;
-          break;
+  case DIET_SCALAR:
+    nbElt=1;
+    break;
+  case DIET_VECTOR:
+    nbElt=data.desc.specific.vect().size;
+    break;
+  case DIET_MATRIX:
+    nbElt=data.desc.specific.mat().nb_r *
+      data.desc.specific.mat().nb_c;
+    break;
+  case DIET_STRING:
+    nbElt=data.desc.specific.str().length+1;
+    break;
+  case DIET_PARAMSTRING:
+    nbElt=data.desc.specific.pstr().length+1;
+    break;
+  case DIET_FILE:
+    nbElt=strlen(data.desc.specific.file().path)+1;
+    break;
+  case DIET_CONTAINER:
+    nbElt=0;
+    break;
   }
   return baseSize*nbElt;
 }
@@ -1130,7 +1133,7 @@ int DagdaImpl::readData(corba_data_t& data, ifstream& file) {
 	} while (c!='\0');
 
 	file.read((char*) &inputSize, sizeof(size_t));
-	CORBA::Char* buffer;
+	CORBA::Char* buffer = NULL;
 
 	switch (type) {
 	  case DIET_SCALAR:
@@ -1187,6 +1190,7 @@ int DagdaImpl::readData(corba_data_t& data, ifstream& file) {
 	    break;
 	  default:
 	    WARNING("This data type is not managed by DIET.");
+            order = (diet_matrix_order_t) 0;	    
 	}
     make_corba_data(data, type, base_type, mode, nb_r, nb_c,
 	    order, buffer, path);

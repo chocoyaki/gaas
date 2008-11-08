@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2008/11/08 19:12:38  bdepardo
+ * A few warnings removal
+ *
  * Revision 1.28  2008/05/11 16:19:51  ycaniou
  * Check that pathToTmp and pathToNFS exist
  * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
@@ -206,7 +209,7 @@ ServiceTable::lookupService(const corba_profile_desc_t* sv_profile)
   ** Cori_Fast::diet_service_table_lookup_by_profile() 
   */
   size_t i(0);
-  for (; (i < nb_s) && (!profile_desc_match(&(profiles[i]), sv_profile)); i++);
+  for (; (i < nb_s) && (!profile_desc_match(&(profiles[i]), sv_profile)); i++) ;
   return (ServiceReference_t) ((i == nb_s) ? -1 : (int)i);
 }
 
@@ -220,7 +223,7 @@ ServiceTable::lookupService(const corba_pb_desc_t* pb_desc)
   **  - if nothing specified, both // and non-// must be considered
   */
   size_t i(0);
-  for (; (i < nb_s) && (!profile_match(&(profiles[i]), pb_desc)); i++);
+  for (; (i < nb_s) && (!profile_match(&(profiles[i]), pb_desc)); i++) ;
   return (ServiceReference_t) ((i == nb_s) ? -1 : (int)i);
 }
 
@@ -229,7 +232,7 @@ ServiceTable::lookupService(const char* path, const corba_profile_t* pb)
 {
   /* Called from SeDImpl::solve() and solveAsync() */
   size_t i(0);
-  for (; (i < nb_s) && (!profile_match(&(profiles[i]), path, pb)); i++);
+  for (; (i < nb_s) && (!profile_match(&(profiles[i]), path, pb)); i++) ;
   return (ServiceReference_t) ((i == nb_s) ? -1 : (int)i);
 }
 
@@ -467,7 +470,7 @@ ServiceTable::rmChild(const CORBA::ULong child)
     for (i = 0 ;
          ((i < matching_children[ref].nb_children) &&
           (matching_children[(size_t)ref].children[i] != child)) ;
-         i++);
+         i++) ;
     if (i < matching_children[ref].nb_children) {
       for (size_t j = i; j < matching_children[ref].nb_children; j++) {
         matching_children[ref].children[j]

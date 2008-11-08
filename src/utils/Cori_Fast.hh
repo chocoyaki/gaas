@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/11/08 19:12:38  bdepardo
+ * A few warnings removal
+ *
  * Revision 1.5  2006/10/31 23:18:33  ecaron
  * Correct wrong header
  *
@@ -20,14 +23,14 @@
 #include "DIET_data.h"
 #include "ServiceTable.hh"
 
-typedef struct commTime_t{
+struct commTime_t{
   char* host1;
   char* host2;
   unsigned long size;
   bool to;
 };
 
-typedef struct fast_param_t{
+struct fast_param_t{
   diet_profile_t* initprofilePtr;
   ServiceTable* SRVT;	
 };

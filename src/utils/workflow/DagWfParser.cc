@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2008/11/08 19:12:40  bdepardo
+ * A few warnings removal
+ *
  * Revision 1.15  2008/11/06 08:27:34  bdepardo
  * Added a warning when the 'source' attribute is missing in an input parameter
  *
@@ -329,7 +332,7 @@ DagWfParser::setParam(const WfPort::WfPortType param_type,
 
   // Initialize the profile with the appropriate parameter type
   // (and optionnally value: used only for Arg ports)
-  short descType = (typeDepth == 0) ? baseType : WfCst::TYPE_CONTAINER;
+//   short descType = (typeDepth == 0) ? baseType : (short) WfCst::TYPE_CONTAINER;
 
   WfPort *port = node.newPort(name, lastArg, param_type, (WfCst::WfDataType) baseType, typeDepth);
   if (value) {
