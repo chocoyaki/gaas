@@ -10,6 +10,11 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2008/11/12 15:55:39  bdepardo
+ * Added a test on DAGDA storage directory. Now reports an error if:
+ * - the directory does not exist
+ * - the directory does not have sufficient rights (rwx)
+ *
  * Revision 1.12  2008/11/07 14:32:14  bdepardo
  * Headers correction
  *
@@ -30,6 +35,8 @@
 
 #include <sstream>
 #include <string>
+#include <dirent.h>
+#include <sys/stat.h>
 
 size_t availableDiskSpace(const char* path) {
   struct statvfs buffer;
@@ -103,6 +110,9 @@ DagdaImpl* DagdaFactory::createDataManager(dagda_manager_type_t type) {
 }
 
 const char* DagdaFactory::getStorageDir() {
+  DIR *dp;
+  struct stat tmpStat;
+
   if (storageDir.empty()) {
     char* storage = (char*)
 	  Parsers::Results::getParamValue(Parsers::Results::STORAGEDIR);
@@ -110,6 +120,20 @@ const char* DagdaFactory::getStorageDir() {
 	else storageDir = storage;
   }
   
+  /* Test if the directory exists */
+  if((dp  = opendir(storageDir.c_str())) == NULL) {
+    ERROR_EXIT("The DAGDA storage directory '" << storageDir << "' cannot be opened");
+  }
+  closedir(dp);
+
+  /* Test if the directory has sufficient rights */
+  if (!stat(storageDir.c_str(), &tmpStat)) {
+    if (!(tmpStat.st_mode & S_IRUSR) || !(tmpStat.st_mode & S_IWUSR) || !(tmpStat.st_mode & S_IXUSR)) {
+      ERROR_EXIT("The DAGDA storage directory '" << storageDir << "' does not have sufficient rights (rwx)");
+    }
+  }
+
+
   return storageDir.c_str();
 }
 
