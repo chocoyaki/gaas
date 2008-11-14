@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2008/11/14 09:35:28  bdepardo
+ * Bug correction in the multiple port adapter initialization
+ *
  * Revision 1.8  2008/10/22 09:29:00  bisnard
  * replaced uint by standard type
  *
@@ -55,11 +58,15 @@ using namespace std;
  */
 WfPortAdapter*
 WfPortAdapter::createAdapter(const string& strRef) {
-  string::size_type refSep = strRef.find(";");
+  string::size_type refSep = strRef.find("(");
   if (refSep == string::npos) {
     return new WfSimplePortAdapter(strRef);
   } else {
-    return new WfMultiplePortAdapter(strRef);
+    string::size_type refSepLast = strRef.rfind(")");
+    if (refSepLast == string::npos) {
+      INTERNAL_ERROR("No closing bracket in " << strRef << std::endl, 1);
+    }
+    return new WfMultiplePortAdapter(strRef.substr(refSep+1, refSepLast-1));
   }
 }
 
@@ -245,6 +252,7 @@ WfMultiplePortAdapter::getSourceDataID() {
        iter != adapters.end();
        ++iter) {
      const string& idElt = (*iter)->getSourceDataID();
+     TRACE_TEXT(TRACE_ALL_STEPS, "## merging " << idElt << " into " << idCont << std::endl);
      dagda_add_container_element(idCont,idElt.c_str(),ix++);
   }
   containerID = idCont;
