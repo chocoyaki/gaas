@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.51  2008/11/18 09:39:59  bdepardo
+ * Warning removal: the type of the parameters weren't in the intialization of
+ * the array containing the different parameters.
+ *
  * Revision 1.50  2008/07/08 22:14:23  rbolze
  * avoid  "conversion from string constant to «char*»" warning
  *
@@ -175,68 +179,68 @@ extern unsigned int TRACE_LEVEL;
 
 // !!! None of these keywords can be a prefix for another !!!
 Parsers::Results::param_t Parsers::Results::params[] =
-  {/* [0]  */ {"traceLevel", 10, Parsers::parseTraceLevel, 0, NULL},
-   /* [1]  */ {"MAName", 6, Parsers::parseName, 0, NULL},
-   /* [2]  */ {"agentType", 9, Parsers::parseAgentType, 0, NULL},
-   /* [3]  */ {"dietPort", 8, Parsers::parsePort, 0, NULL},
-   /* [4]  */ {"dietHostname", 12, Parsers::parseName, 0, NULL},
-   /* [5]  */ {"name", 4, Parsers::parseName, 0, NULL},
-   /* [6]  */ {"parentName", 10, Parsers::parseName, 0, NULL},
-   /* [7]  */ {"fastUse", 7, Parsers::parseUse, 0, NULL},
-   /* [8]  */ {"ldapUse", 7, Parsers::parseUse, 0, NULL},
-   /* [9]  */ {"ldapBase", 8, Parsers::parseAddress, 0, NULL},
-   /* [10] */ {"ldapMask", 8, Parsers::parseName, 0, NULL},
-   /* [11] */ {"nwsUse", 6, Parsers::parseUse, 0, NULL},
-   /* [12] */ {"nwsNameserver", 13, Parsers::parseAddress, 0, NULL},
-   /* [13] */ {"nwsForecaster", 13, Parsers::parseAddress, 0, NULL},
-   /* [14] */ {"useAsyncAPI", 11, Parsers::parseUse, 0, NULL},
-   /* [15] */ {"useLogService", 13, Parsers::parseUse, 0, NULL},
-   /* [16] */ {"lsOutbuffersize", 15, Parsers::parsePort, 0, NULL},
-   /* [17] */ {"lsFlushinterval", 15, Parsers::parsePort, 0, NULL},
-   /* [18] */ {"neighbours", 10, Parsers::parseName, 0, NULL},
-   /* [19] */ {"maximumNeighbours", 17, Parsers::parsePort, 0, NULL},
-   /* [20] */ {"minimumNeighbours", 17, Parsers::parsePort, 0, NULL},
-   /* [21] */ {"updateLinkPeriod", 16, Parsers::parsePort, 0, NULL},
-   /* [22] */ {"bindServicePort", 15, Parsers::parsePort, 0, NULL},
-   /* [23] */ {"useConcJobLimit", 15, Parsers::parseUse, 0, NULL},
-   /* [24] */ {"maxConcJobs", 11, Parsers::parseInt, 0, NULL}
-   /* [25] */ ,{"locationID", 10, Parsers::parseName, 0, NULL}
-   /* [26] */ ,{"MADAGNAME", 9, Parsers::parseName, 0, NULL}
-   /* [27] */ ,{"USEWFLOGSERVICE", 15, Parsers::parseName, 0, NULL}
+  {/* [0]  */ {"traceLevel", 10, Parsers::parseTraceLevel, 0, NULL, Results::NONE_PARAMETER},
+   /* [1]  */ {"MAName", 6, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER},
+   /* [2]  */ {"agentType", 9, Parsers::parseAgentType, 0, NULL, Results::AGENT_PARAMETER},
+   /* [3]  */ {"dietPort", 8, Parsers::parsePort, 0, NULL, Results::INT_PARAMETER},
+   /* [4]  */ {"dietHostname", 12, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER},
+   /* [5]  */ {"name", 4, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER},
+   /* [6]  */ {"parentName", 10, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER},
+   /* [7]  */ {"fastUse", 7, Parsers::parseUse, 0, NULL, Results::INT_PARAMETER},
+   /* [8]  */ {"ldapUse", 7, Parsers::parseUse, 0, NULL, Results::INT_PARAMETER},
+   /* [9]  */ {"ldapBase", 8, Parsers::parseAddress, 0, NULL, Results::ADDRESS_PARAMETER},
+   /* [10] */ {"ldapMask", 8, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER},
+   /* [11] */ {"nwsUse", 6, Parsers::parseUse, 0, NULL, Results::INT_PARAMETER},
+   /* [12] */ {"nwsNameserver", 13, Parsers::parseAddress, 0, NULL, Results::ADDRESS_PARAMETER},
+   /* [13] */ {"nwsForecaster", 13, Parsers::parseAddress, 0, NULL, Results::ADDRESS_PARAMETER},
+   /* [14] */ {"useAsyncAPI", 11, Parsers::parseUse, 0, NULL, Results::INT_PARAMETER},
+   /* [15] */ {"useLogService", 13, Parsers::parseUse, 0, NULL, Results::INT_PARAMETER},
+   /* [16] */ {"lsOutbuffersize", 15, Parsers::parsePort, 0, NULL, Results::INT_PARAMETER},
+   /* [17] */ {"lsFlushinterval", 15, Parsers::parsePort, 0, NULL, Results::INT_PARAMETER},
+   /* [18] */ {"neighbours", 10, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER},
+   /* [19] */ {"maximumNeighbours", 17, Parsers::parsePort, 0, NULL, Results::INT_PARAMETER},
+   /* [20] */ {"minimumNeighbours", 17, Parsers::parsePort, 0, NULL, Results::INT_PARAMETER},
+   /* [21] */ {"updateLinkPeriod", 16, Parsers::parsePort, 0, NULL, Results::INT_PARAMETER},
+   /* [22] */ {"bindServicePort", 15, Parsers::parsePort, 0, NULL, Results::INT_PARAMETER},
+   /* [23] */ {"useConcJobLimit", 15, Parsers::parseUse, 0, NULL, Results::INT_PARAMETER},
+   /* [24] */ {"maxConcJobs", 11, Parsers::parseInt, 0, NULL, Results::INT_PARAMETER}
+   /* [25] */ ,{"locationID", 10, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [26] */ ,{"MADAGNAME", 9, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [27] */ ,{"USEWFLOGSERVICE", 15, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
 /* New : For user scheduler support. */
 /*       schedulerModule  : The path to the scheduler library file. */
 /*       moduleConfigFile : Optionnal configuration file for the module. */
 #ifdef USERSCHED
-   /* [28] */ ,{"schedulerModule", 15, Parsers::parseName, 0, NULL}
-   /* [29] */ ,{"moduleConfigFile", 16, Parsers::parseName, 0, NULL}
+   /* [28] */ ,{"schedulerModule", 15, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [29] */ ,{"moduleConfigFile", 16, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
 #endif
 #ifdef HAVE_ALT_BATCH
-   /* [30] */ ,{"batchName", 9, Parsers::parseName, 0, NULL}
-   /* [31] */ ,{"batchQueue", 10, Parsers::parseName, 0, NULL}
-   /* [32] */ ,{"pathToNFS", 9, Parsers::parseName, 0, NULL}
-   /* [33] */ ,{"pathToTmp", 9, Parsers::parseName, 0, NULL}
+   /* [30] */ ,{"batchName", 9, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [31] */ ,{"batchQueue", 10, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [32] */ ,{"pathToNFS", 9, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [33] */ ,{"pathToTmp", 9, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
 #endif
-   /* [34] */ ,{"initRequestID", 13, Parsers::parseInt, 0, NULL}
+   /* [34] */ ,{"initRequestID", 13, Parsers::parseInt, 0, NULL, Results::INT_PARAMETER}
 #ifdef HAVE_ACKFILE
-   /* [35] */ ,{"ackFile", 7, Parsers::parseName, 0, NULL}
+   /* [35] */ ,{"ackFile", 7, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
 #endif
 #if HAVE_DAGDA
-   /* [36] */ ,{"maxMsgSize", 10, Parsers::parseULong, 0, NULL}
-   /* [37] */ ,{"maxDiskSpace", 12, Parsers::parseULong, 0, NULL}
-   /* [38] */ ,{"maxMemSpace", 11, Parsers::parseULong, 0, NULL}
-   /* [39] */ ,{"cacheAlgorithm", 14, Parsers::parseName, 0, NULL}
-   /* [40] */ ,{"shareFiles", 10, Parsers::parseUse, 0, NULL}
-   /* [41] */ ,{"dataBackupFile", 14, Parsers::parseName, 0, NULL}
-   /* [42] */ ,{"restoreOnStart", 14, Parsers::parseUse, 0, NULL}
+   /* [36] */ ,{"maxMsgSize", 10, Parsers::parseULong, 0, NULL, Results::ULONG_PARAMETER}
+   /* [37] */ ,{"maxDiskSpace", 12, Parsers::parseULong, 0, NULL, Results::ULONG_PARAMETER}
+   /* [38] */ ,{"maxMemSpace", 11, Parsers::parseULong, 0, NULL, Results::ULONG_PARAMETER}
+   /* [39] */ ,{"cacheAlgorithm", 14, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [40] */ ,{"shareFiles", 10, Parsers::parseUse, 0, NULL, Results::INT_PARAMETER}
+   /* [41] */ ,{"dataBackupFile", 14, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
+   /* [42] */ ,{"restoreOnStart", 14, Parsers::parseUse, 0, NULL, Results::INT_PARAMETER}
 #endif // HAVE_DAGDA
 #if HAVE_DAGDA || HAVE_ALT_BATCH
-   /* [43] */ ,{"storageDirectory", 16, Parsers::parseName, 0, NULL}
+   /* [43] */ ,{"storageDirectory", 16, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
 #endif
 #ifdef HAVE_CCS
-   /* [44] */ ,{"USE_SPECIFIC_SCHEDULING", 23, Parsers::parseName, 0, NULL}
+   /* [44] */ ,{"USE_SPECIFIC_SCHEDULING", 23, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
 #endif
 #ifdef HAVE_ALT_BATCH
-   /* [41] */ ,{"internOARbatchQueueName", 23, Parsers::parseName, 0, NULL}
+   /* [41] */ ,{"internOARbatchQueueName", 23, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
 #endif
   } ;
 
