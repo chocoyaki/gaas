@@ -10,6 +10,16 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2008/11/18 10:15:22  bdepardo
+ * - Added the possibility to dynamically create and destroy a service
+ *   (even if the SeD is already started). An example is available.
+ *   This feature only works with DAGDA.
+ * - Added policy commands for CMake 2.6
+ * - Added the name of the service in the profile. It was only present in
+ *   the profile description, but not in the profile. Currently, the name is
+ *   copied in each solve function, but this should certainly be moved
+ *   somewhere else.
+ *
  * Revision 1.14  2005/12/20 15:42:05  rbolze
  * the list of SeD return by LA do not exceed the max_srv specified in the client's request
  *
@@ -141,6 +151,25 @@ LocalAgentImpl::addServices(CORBA::ULong myID,
   return (0);
 } // addServices((CORBA::ULong myID, ...)
 
+
+#ifdef HAVE_DAGDA
+/**
+ * Remove \c services from the service table, and inform upper hierarchy.
+ */
+CORBA::Long
+LocalAgentImpl::serverRemoveService(CORBA::ULong childID,
+				    const corba_profile_desc_t& profile)
+{
+  LA_TRACE_FUNCTION(childID);
+  
+  /* Update local service table first */
+  if (this->AgentImpl::serverRemoveService(childID, profile) != 0) {
+    return (-1);
+  }
+  /* Then propagate the complete service table to the parent */
+  return this->parent->serverRemoveService(this->childID, profile);
+} // serverRemoveService(...)
+#endif // HAVE_DAGDA
 
 
 /** Get a request from the parent */

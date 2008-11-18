@@ -10,6 +10,16 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2008/11/18 10:15:22  bdepardo
+ * - Added the possibility to dynamically create and destroy a service
+ *   (even if the SeD is already started). An example is available.
+ *   This feature only works with DAGDA.
+ * - Added policy commands for CMake 2.6
+ * - Added the name of the service in the profile. It was only present in
+ *   the profile description, but not in the profile. Currently, the name is
+ *   copied in each solve function, but this should certainly be moved
+ *   somewhere else.
+ *
  * Revision 1.23  2008/07/16 00:45:09  ecaron
  * Remove HAVE_ALTPREDICT (deprecated code)
  *
@@ -169,6 +179,13 @@ public:
   /** Add services into the service table, and attach them to child me.*/
   virtual CORBA::Long
   addServices(CORBA::ULong myID, const SeqCorbaProfileDesc_t& services);
+
+#ifdef HAVE_DAGDA
+  /** Remove services into the service table for a given child */
+  virtual CORBA::Long
+  serverRemoveService(CORBA::ULong childID, const corba_profile_desc_t& profile);
+#endif
+
 
   /** Get the response of a child */
   virtual void

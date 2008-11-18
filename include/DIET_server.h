@@ -8,6 +8,16 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.44  2008/11/18 10:11:07  bdepardo
+ * - Added the possibility to dynamically create and destroy a service
+ *   (even if the SeD is already started). An example is available.
+ *   This feature only works with DAGDA.
+ * - Added policy commands for CMake 2.6
+ * - Added the name of the service in the profile. It was only present in
+ *   the profile description, but not in the profile. Currently, the name is
+ *   copied in each solve function, but this should certainly be moved
+ *   somewhere else.
+ *
  * Revision 1.43  2008/06/25 09:52:45  bisnard
  * - Estimation vector sent with solve request to avoid storing it
  * for each submit request as it depends on the parameters value. The
@@ -455,6 +465,13 @@ diet_perfmetric_t diet_service_use_perfmetric(diet_perfmetric_t fn);
 int diet_service_table_add(const diet_profile_desc_t* const profile,
                            const diet_convertor_t*    const cvt,
                            diet_solve_t               solve_func);
+
+#ifdef HAVE_DAGDA
+/* Function to remove a service from the server.
+ * It also informs its parent from the removal.
+ */
+int diet_service_table_remove(const diet_profile_t* const profile);
+#endif
   /* Unused !!!
 int diet_service_table_lookup(const diet_profile_desc_t* const profile);
   */

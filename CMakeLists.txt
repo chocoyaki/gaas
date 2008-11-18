@@ -5,6 +5,22 @@
 PROJECT(DIET)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
 
+IF( COMMAND CMAKE_POLICY )
+  # CMAKE policy CMP0002: CMake 2.6 introduces policy CMP0002 which
+  # requires all logical target names to be globally unique (duplicate
+  # target names previously worked in some cases by accident but were
+  # not diagnosed). Projects using duplicate target names and working
+  # accidentally will receive warnings referencing the policy.
+  # Thus we set to 'OLD' this policy in order to remove the warnings.
+  # THIS SHOULD BE SET TO 'NEW', but it requires that all targets have a 
+  # different name, which currently isn't the case.
+  CMAKE_POLICY( SET CMP0002 OLD )
+
+  # See `cmake --help-policy CMP0003`
+  CMAKE_POLICY( SET CMP0003 NEW )
+ENDIF( COMMAND CMAKE_POLICY )
+
+
 SET( DIET_MAJOR_VERSION 2 )
 SET( DIET_MINOR_VERSION 4 )
 

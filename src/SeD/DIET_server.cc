@@ -8,6 +8,16 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.79  2008/11/18 10:13:56  bdepardo
+ * - Added the possibility to dynamically create and destroy a service
+ *   (even if the SeD is already started). An example is available.
+ *   This feature only works with DAGDA.
+ * - Added policy commands for CMake 2.6
+ * - Added the name of the service in the profile. It was only present in
+ *   the profile description, but not in the profile. Currently, the name is
+ *   copied in each solve function, but this should certainly be moved
+ *   somewhere else.
+ *
  * Revision 1.78  2008/06/01 09:12:37  rbolze
  * remove free on logService pointer
  *
@@ -215,6 +225,12 @@ BEGIN_API
 /****************************************************************************/
 
 static ServiceTable* SRVT;
+#ifdef HAVE_DAGDA
+/* We need to keep a pointer to the SeD Impl in order to be able to dynamically
+ * add/remove services 
+ */
+static SeDImpl * sedImpl = NULL;
+#endif
 #ifdef HAVE_ALT_BATCH
 static diet_server_status_t st=SERIAL ;
 #endif
@@ -276,6 +292,16 @@ diet_service_table_add(const diet_profile_desc_t* const profile,
                          solve_func,
                          NULL,
                          current_perfmetric_fn);
+
+
+#ifdef HAVE_DAGDA
+  /** if the SeD is already running, we need to inform our parent 
+   * that we added a new service.
+   */
+  if (sedImpl)
+    sedImpl->addService(corba_profile);
+#endif
+
   if (!cvt) {
     /*
     ** free it only when the incoming parameter was null (i.e., in
@@ -283,8 +309,21 @@ diet_service_table_add(const diet_profile_desc_t* const profile,
     */
     diet_convertor_free((diet_convertor_t*) actual_cvt);
   }
+
+
   return res;
 }
+
+
+#ifdef HAVE_DAGDA
+int
+diet_service_table_remove(const diet_profile_t* const profile)
+{
+  return ((SeDImpl*) profile->SeDPtr)->removeService(profile);
+}
+#endif
+
+
 /* Unused !!!
    int
    diet_service_table_lookup(const diet_profile_desc_t* const profile)
@@ -723,7 +762,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
     Parsers::Results::getParamValue(Parsers::Results::MANAME);
   if (name != NULL)
     WARNING("parsing " << config_file_name
-	    << ": no need to specify an MA name for an SeD - ignored");
+	    << ": no need to specify an MA name for a SeD - ignored");
 
   /* Get listening port & hostname */
 
@@ -896,6 +935,10 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   /* We do not need the parsing results any more */
   Parsers::endParsing();
 
+#ifdef HAVE_DAGDA
+  sedImpl = SeD;
+#endif
+ 
   /* Wait for RPCs : */
   ORBMgr::wait();
 

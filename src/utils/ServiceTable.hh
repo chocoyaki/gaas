@@ -8,6 +8,16 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2008/11/18 10:19:38  bdepardo
+ * - Added the possibility to dynamically create and destroy a service
+ *   (even if the SeD is already started). An example is available.
+ *   This feature only works with DAGDA.
+ * - Added policy commands for CMake 2.6
+ * - Added the name of the service in the profile. It was only present in
+ *   the profile description, but not in the profile. Currently, the name is
+ *   copied in each solve function, but this should certainly be moved
+ *   somewhere else.
+ *
  * Revision 1.19  2008/04/19 09:16:47  ycaniou
  * Check that pathToTmp and pathToNFS exist
  * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
@@ -183,6 +193,10 @@ public:
   rmService(const corba_profile_desc_t* profile);
   int
   rmService(const ServiceReference_t ref);
+#ifdef HAVE_DAGDA
+  int
+  rmChildService(const corba_profile_desc_t* profile, CORBA::ULong childID);
+#endif
   int
   rmChild(const CORBA::ULong child);
 

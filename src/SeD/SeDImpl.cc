@@ -9,6 +9,16 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.111  2008/11/18 10:13:57  bdepardo
+ * - Added the possibility to dynamically create and destroy a service
+ *   (even if the SeD is already started). An example is available.
+ *   This feature only works with DAGDA.
+ * - Added policy commands for CMake 2.6
+ * - Added the name of the service in the profile. It was only present in
+ *   the profile description, but not in the profile. Currently, the name is
+ *   copied in each solve function, but this should certainly be moved
+ *   somewhere else.
+ *
  * Revision 1.110  2008/06/25 09:53:39  bisnard
  * - Estimation vector sent with solve request to avoid storing it
  * for each submit request as it depends on the parameters value. The
@@ -741,6 +751,12 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
   /* Data transfer */
   downloadSyncSeDData(profile,pb,cvt) ;
 
+  /* Copying the name of the service in the profile...
+   * Not sure this should be done here, but currently it isn't done
+   * anywhere else...
+   */
+  profile.pb_name = strdup(path);
+
   TRACE_TEXT(TRACE_MAIN_STEPS, "Calling getSolver\n");
   solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
 
@@ -809,6 +825,12 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
   int solve_res(0);
   char statMsg[128];
   int i ;
+
+  /* Copying the name of the service in the profile...
+   * Not sure this should be done here, but currently it isn't done
+   * anywhere else...
+   */
+  profile.pb_name = strdup(path);
 
   /* Is there a sens to use Queue with Batch? */
   if (this->useConcJobLimit){
@@ -929,6 +951,12 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 
 	downloadAsyncSeDData(profile, const_cast<corba_profile_t&>(pb), cvt);
 
+	/* Copying the name of the service in the profile...
+	 * Not sure this should be done here, but currently it isn't done
+	 * anywhere else...
+	 */
+	profile.pb_name = strdup(path);
+
 	solve_res = (*(SrvT->getSolver(ref)))(&profile);    // SOLVE
 
 	uploadAsyncSeDData(profile,  const_cast<corba_profile_t&>(pb), cvt);
@@ -1034,6 +1062,13 @@ SeDImpl::parallel_AsyncSolve(const char * path, const corba_profile_t & pb,
       cvt = SrvT->getConvertor(ref);
 
       downloadAsyncSeDData(profile, const_cast<corba_profile_t&>(pb), cvt);
+
+      /* Copying the name of the service in the profile...
+       * Not sure this should be done here, but currently it isn't done
+       * anywhere else...
+       */
+      profile.pb_name = strdup(path);
+
 
 #if defined HAVE_ALT_BATCH
       solve_res = (*(SrvT->getSolver(ref)))(&profile);
@@ -1621,3 +1656,71 @@ SeDImpl::getBatch()
 // 				     command) ;
 // }
 #endif
+
+
+
+#ifdef HAVE_DAGDA
+int
+SeDImpl::removeService(const diet_profile_t* const profile)
+{
+  int res = 0;
+  corba_profile_desc_t corba_profile;
+  diet_profile_desc_t profileDesc;
+
+  if (profile == NULL) {
+    ERROR(__FUNCTION__ << ": NULL profile", -1);
+  }
+
+  if (this->SrvT == NULL) {
+    ERROR(__FUNCTION__ << ": service table not yet initialized", -1);
+  }
+
+  if (childID < 0) {
+    ERROR(__FUNCTION__ << ": server did not subscribe yet\n", 1);
+  }
+
+  { /* create the corresponding profile description */
+    profileDesc.path = strdup(profile->pb_name);
+    profileDesc.last_in = profile->last_in;
+    profileDesc.last_inout = profile->last_inout;
+    profileDesc.last_out = profile->last_out;
+#if defined HAVE_ALT_BATCH
+    profileDesc.parallel_flag = profile->parallel_flag ;
+#endif
+    int numArgs = profile->last_out + 1;
+    profileDesc.param_desc =
+      (diet_arg_desc_t*) calloc (numArgs, sizeof (diet_arg_desc_t));
+    for (int argIter = 0 ; argIter < numArgs ; argIter++) {
+      profileDesc.param_desc[argIter] =
+        (profile->parameters[argIter]).desc.generic;
+    }
+
+    profileDesc.aggregator.agg_method = DIET_AGG_DEFAULT;
+  }
+
+  mrsh_profile_desc(&corba_profile, &profileDesc);
+  if ((res = this->SrvT->rmService(&corba_profile)) != 0)
+    return res;
+
+  res = parent->serverRemoveService(this->childID, corba_profile);
+
+  return res;
+}
+
+
+int
+SeDImpl::addService(const corba_profile_desc_t& profile)
+{
+  SeqCorbaProfileDesc_t profiles;
+  ServiceTable::ServiceReference_t sref = this->SrvT->lookupService(&profile);
+  profiles.length(1);
+  profiles[0] = this->SrvT->getProfile(sref);
+  
+  if (dietLogComponent != NULL) {
+    dietLogComponent->logAddService(&(profiles[0]));
+  }
+
+  return parent->addServices(this->childID, profiles);
+}
+#endif //HAVE_DAGDA
+

@@ -9,6 +9,16 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.43  2008/11/18 10:13:57  bdepardo
+ * - Added the possibility to dynamically create and destroy a service
+ *   (even if the SeD is already started). An example is available.
+ *   This feature only works with DAGDA.
+ * - Added policy commands for CMake 2.6
+ * - Added the name of the service in the profile. It was only present in
+ *   the profile description, but not in the profile. Currently, the name is
+ *   copied in each solve function, but this should certainly be moved
+ *   somewhere else.
+ *
  * Revision 1.42  2008/07/16 00:45:56  ecaron
  * Remove HAVE_ALTPREDICT (deprecated code)
  *
@@ -341,6 +351,12 @@ public:
    * @return number of jobs in the table (-1 if failure)
    */
   int getActiveJobVector(jobVector_t& jv);
+
+
+#ifdef HAVE_DAGDA
+  int removeService(const diet_profile_t* const profile);
+  int addService(const corba_profile_desc_t& profile);
+#endif
 
 private:
 #ifdef HAVE_ALT_BATCH

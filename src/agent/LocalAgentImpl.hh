@@ -10,6 +10,16 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/11/18 10:15:23  bdepardo
+ * - Added the possibility to dynamically create and destroy a service
+ *   (even if the SeD is already started). An example is available.
+ *   This feature only works with DAGDA.
+ * - Added policy commands for CMake 2.6
+ * - Added the name of the service in the profile. It was only present in
+ *   the profile description, but not in the profile. Currently, the name is
+ *   copied in each solve function, but this should certainly be moved
+ *   somewhere else.
+ *
  * Revision 1.5  2005/05/15 15:51:15  alsu
  * to indicate sucess/failure, addServices not returns a value
  *
@@ -59,6 +69,12 @@ public :
    */
   virtual CORBA::Long
   addServices(CORBA::ULong myID, const SeqCorbaProfileDesc_t& services);
+
+#ifdef HAVE_DAGDA
+  /** Remove services into the service table for a given child */
+  virtual CORBA::Long
+  serverRemoveService(CORBA::ULong childID, const corba_profile_desc_t& profile);
+#endif
 
 
 private:

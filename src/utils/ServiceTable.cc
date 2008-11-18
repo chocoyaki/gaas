@@ -8,6 +8,16 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.30  2008/11/18 10:19:37  bdepardo
+ * - Added the possibility to dynamically create and destroy a service
+ *   (even if the SeD is already started). An example is available.
+ *   This feature only works with DAGDA.
+ * - Added policy commands for CMake 2.6
+ * - Added the name of the service in the profile. It was only present in
+ *   the profile description, but not in the profile. Currently, the name is
+ *   copied in each solve function, but this should certainly be moved
+ *   somewhere else.
+ *
  * Revision 1.29  2008/11/08 19:12:38  bdepardo
  * A few warnings removal
  *
@@ -245,7 +255,7 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
                          diet_perfmetric_t perfmetric_fn)
 {
   ServiceReference_t service_idx(-1);
-  
+
   if (matching_children) {
     SRVT_ERROR("attempting to add a service with\n"
                << "  solver in a table initialized with children");
@@ -272,20 +282,20 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
         perfmetrics[i]          = NULL;
       }
     }
+
     profiles[nb_s]             = *profile; // deep copy
     solvers[nb_s]              = solver;
     eval_functions[nb_s]       = evalf;
     // duplicate path and arg_convs, since the user should deallocate them with
     // diet_convertor_free.
-    convertors[nb_s]           = *cvt;
-    convertors[nb_s].path      = strdup(cvt->path);
-    convertors[nb_s].arg_convs = new diet_arg_convertor_t[cvt->last_out + 1];
+    convertors[nb_s]            = *cvt;
+    convertors[nb_s].path       = strdup(cvt->path);
+    convertors[nb_s].arg_convs  = new diet_arg_convertor_t[cvt->last_out + 1];
     for (int i = 0; i <= cvt->last_out; i++) {
       convertors[nb_s].arg_convs[i] = cvt->arg_convs[i];
     }
     perfmetrics[nb_s]          = perfmetric_fn;
     nb_s++;
-
   } else if (solver == solvers[(size_t)service_idx]) {
     return -1;
     // service is already in table
@@ -456,6 +466,52 @@ ServiceTable::rmService(const ServiceReference_t ref)
 }
 
 
+#ifdef HAVE_DAGDA
+/** removes a service on a given child */
+int
+ServiceTable::rmChildService(const corba_profile_desc_t* profile, CORBA::ULong childID)
+{
+  ServiceReference_t ref(-1);
+  size_t i(0), j(0);
+  
+  if ((ref = lookupService(profile)) == -1) {
+    SRVT_ERROR("attempting to rm a service that is not in table");
+  }
+
+  if (((int) ref < 0) || ((size_t) ref >= nb_s)) {
+    SRVT_ERROR("wrong service reference");
+  }
+  
+  if (solvers) {
+    /* Nothing to do
+     * Should we even be able to call this?? */
+  } else {
+    /* We need to verify that this child exists for this service */
+    for (i = (size_t) 0;
+	 i < matching_children[ref].nb_children && matching_children[ref].children[i] != childID;
+	 i ++) ;
+
+    /* if we didn't found it return -1 */
+    if (i == matching_children[ref].nb_children) {
+      SRVT_ERROR("attempting to rm a service to a child which do not possess it");
+    }
+
+    /* If the child is the only one to possess this service, we remove it completely */
+    if (matching_children[ref].nb_children == 1)
+      return this->rmService(ref);
+
+    /* Otherwise we need to shift the array of children */
+    for (j = i; j < matching_children[ref].nb_children; j++) {
+      matching_children[ref].children[j] = matching_children[ref].children[j+1];
+    }
+    matching_children[ref].nb_children --;
+  }
+
+  return 0;
+}
+#endif // HAVE_DAGDA
+
+
 int
 ServiceTable::rmChild(const CORBA::ULong child)
 {
@@ -487,14 +543,14 @@ ServiceTable::rmChild(const CORBA::ULong child)
   return 0;
 }
 
-#if defined HAVE_ALT_BATCH
+//#if defined HAVE_ALT_BATCH
 /* This method does NOT test the validity of the range index */
 const corba_profile_desc_t &
 ServiceTable::getProfile( const ServiceReference_t index )
 {
   return profiles[ index ] ;
 }
-#endif
+//#endif
 
 SeqCorbaProfileDesc_t*
 ServiceTable::getProfiles()
@@ -598,6 +654,7 @@ ServiceTable::getConvertor(const ServiceReference_t ref)
   if (((int) ref < 0) || ((size_t) ref >= nb_s)) {
     SRVT_ERROR("wrong service reference");
   }
+
   return &(convertors[ref]);
 }
 

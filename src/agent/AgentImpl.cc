@@ -5,6 +5,16 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.56  2008/11/18 10:15:22  bdepardo
+ * - Added the possibility to dynamically create and destroy a service
+ *   (even if the SeD is already started). An example is available.
+ *   This feature only works with DAGDA.
+ * - Added policy commands for CMake 2.6
+ * - Added the name of the service in the profile. It was only present in
+ *   the profile description, but not in the profile. Currently, the name is
+ *   copied in each solve function, but this should certainly be moved
+ *   somewhere else.
+ *
  * Revision 1.55  2008/11/08 19:12:37  bdepardo
  * A few warnings removal
  *
@@ -357,7 +367,7 @@ AgentImpl::serverSubscribe(SeD_ptr me, const char* hostName,
 #if HAVE_JXTA
 			   const char* uuid,
 #endif // HAVE_JXTA
-    const SeqCorbaProfileDesc_t& services)
+			   const SeqCorbaProfileDesc_t& services)
 {
   CORBA::ULong retID;
 
@@ -432,6 +442,27 @@ AgentImpl::addServices(CORBA::ULong myID,
 
   return (0);
 } // addServices(CORBA::ULong myID, const SeqCorbaProfileDesc_t& services)
+
+
+#ifdef HAVE_DAGDA
+CORBA::Long
+AgentImpl::serverRemoveService(CORBA::ULong childID, const corba_profile_desc_t& profile)
+{
+  int result;
+
+  TRACE_TEXT(TRACE_MAIN_STEPS, "A server is removing a service from its service table, " << childID << std::endl);
+
+  this->srvTMutex.lock();
+
+  result = this->SrvT->rmChildService(&profile, childID);
+
+  if (TRACE_LEVEL >= TRACE_STRUCTURES)
+    this->SrvT->dump(stdout);
+  this->srvTMutex.unlock();
+
+  return (result);
+}
+#endif // HAVE_DAGDA
 
 
 /****************************************************************************/
