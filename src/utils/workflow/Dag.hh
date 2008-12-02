@@ -3,11 +3,15 @@
 /*                                                                          */
 /* Author(s):                                                               */
 /* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
+/* - Benjamin Isnard (benjamin.isnard@ens-lyon.fr)                          */
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2008/12/02 10:11:41  bisnard
+ * modified node precedence check
+ *
  * Revision 1.16  2008/10/22 09:29:00  bisnard
  * replaced uint by standard type
  *
@@ -92,6 +96,27 @@
 
 using namespace std;
 
+/*****************************************************************************/
+/*                        CLASS WfStructException                            */
+/*****************************************************************************/
+
+class WfStructException {
+  public:
+    enum WfStructErrorType { eUNKNOWN_NODE,
+                             eUNKNOWN_PORT };
+    WfStructException(WfStructErrorType t, const string& info)
+      { this->why = t; this->info = info; }
+    WfStructErrorType Type() { return this->why; }
+    const string& Info() { return this->info; }
+  private:
+    WfStructErrorType why;
+    string info;
+};
+
+/*****************************************************************************/
+/*                    CLASS NodeSet (ABSTRACT)                               */
+/*****************************************************************************/
+
 /**
  * NodeSet class
  *
@@ -114,20 +139,18 @@ public:
   getNode(const string& nodeId) = 0;
 
   /**
-   * Check that the precedence relationship between nodes are correct
-   * This is used by the parser to check that the parsed nodeset is ok
+   * Check that the relationships between nodes are correct
+   * @param contextNodeSet the nodeSet used to find nodes referenced in the
+   * current nodeSet (can be the current nodeSet itself)
    */
-  virtual bool
-  checkPrec() = 0;
-
-  /**
-   * Get the number of nodes
-   */
-  virtual unsigned int
-  size() = 0;
+  virtual void
+  checkPrec(NodeSet* contextNodeSet) throw (WfStructException) = 0;
 
 };
 
+/*****************************************************************************/
+/*                              CLASS Dag                                    */
+/*****************************************************************************/
 
 class Dag : public NodeSet {
 public:
@@ -162,14 +185,8 @@ public:
    * this function check only the precedence between nodes, it doesn't
    * link the ports
    */
-  virtual bool
-  checkPrec();
-
-  /**
-   * return the size of the Dag (the nodes number and not the dag length)
-   */
-  virtual unsigned int
-  size();
+  virtual void
+  checkPrec(NodeSet* contextNodeSet) throw (WfStructException);
 
   /***************************************************/
   /*               public methods                    */
@@ -191,6 +208,7 @@ public:
    * Create a new node of the dag
    * (allocates a new node and insert it in the dag)
    * @param id      node id (not the complete id)
+   * @return pointer to the node, or NULL if duplicate id
    */
   DagNode*
   createDagNode(const string& id);
@@ -200,6 +218,12 @@ public:
    */
   DagNode *
   getDagNode(const string& nodeId);
+
+  /**
+   * return the size of the Dag (the nodes number and not the dag length)
+   */
+  unsigned int
+  size();
 
   /**
    * return an iterator on the first node
@@ -214,6 +238,12 @@ public:
    */
   map <string, DagNode *>::iterator
   end();
+
+  /**
+   * returns the XML description of the dag
+   */
+  string
+  toXML();
 
   /**
    * link all ports of the dag
@@ -287,8 +317,8 @@ public:
    * Get all the results and display them. This function doesn't returned
    * the value.
    */
-  int
-  get_all_results();
+  void
+  displayAllResults();
 
   /**
    * Delete all results of the workflow (includes intermediary and final

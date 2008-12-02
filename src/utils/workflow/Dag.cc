@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2008/12/02 10:11:41  bisnard
+ * modified node precedence check
+ *
  * Revision 1.21  2008/10/29 11:00:14  bisnard
  * bug correction in dag destructor
  *
@@ -178,6 +181,8 @@ Dag::getNode(const string& nodeId) {
  */
 DagNode*
 Dag::createDagNode(const string& id) {
+  if (this->getDagNode(id) != NULL)
+    return NULL;
   DagNode* newDagNode = new DagNode(this, id);
   this->nodes[id] = newDagNode;
   return newDagNode;
@@ -200,17 +205,20 @@ Dag::getDagNode(const string& nodeId) {
  * this function checks the precedence between node; it doesn't *
  * link the WfPorts but it creates the list of predecessors of each node *
  */
-bool
-Dag::checkPrec() {
+void
+Dag::checkPrec(NodeSet* contextNodeSet) throw (WfStructException) {
+  TRACE_TEXT(TRACE_ALL_STEPS, "CHECKING DAG STRUCTURE START" << endl);
   for (map<string, DagNode * >::iterator p = nodes.begin( );
        p != nodes.end( );
        ++p ) {
     DagNode *node = (DagNode*) p->second;
-    if (!node->setNodePrecedence(this))
-      return false;
+    if (!node->setNodePrecedence(contextNodeSet))
+      throw WfStructException(WfStructException::eUNKNOWN_NODE,
+                              "Cannot set predecessor relationship for node "
+                                  + node->getId());
   }
   // TODO use DFS to check there is no cycle
-  return true;
+  TRACE_TEXT(TRACE_ALL_STEPS, "CHECKING DAG STRUCTURE END" << endl);
 }
 
 /**
@@ -218,12 +226,14 @@ Dag::checkPrec() {
  */
 void
 Dag::linkAllPorts() {
+  TRACE_TEXT(TRACE_ALL_STEPS, "LINKING NODES START" << endl);
   for (map<string, DagNode*>::iterator p = nodes.begin();
        p != nodes.end();
        ++p) {
     DagNode * n = (DagNode*)(p->second);
     n->connectNodePorts();
   }
+  TRACE_TEXT(TRACE_ALL_STEPS, "LINKING NODES END" << endl);
 }
 
 /**
@@ -250,6 +260,21 @@ Dag::begin() {
 map <string, DagNode *>::iterator
 Dag::end() {
  return nodes.end();
+}
+
+/**
+ * returns the XML description of the dag
+ */
+string
+Dag::toXML() {
+  string xml = "<dag>\n";
+  for (map<string, DagNode*>::iterator p = begin();
+       p != end();
+       ++p) {
+    xml += ((DagNode*) p->second)->toXML();
+  }
+  xml += "</dag>\n";
+  return xml;
 }
 
 /**
@@ -451,8 +476,9 @@ Dag::getNodesByPriority() {
 /**
  * get all the results
  */
-int
-Dag::get_all_results() {
+void
+Dag::displayAllResults() {
+  cout << "** RESULTS OF DAG " << getId() << " **" << endl;
   DagNode * n = NULL;
   for (map<string, DagNode *>::iterator p = nodes.begin();
        p != nodes.end();
@@ -460,9 +486,8 @@ Dag::get_all_results() {
     n = (DagNode *)(p->second);
     if ((n != NULL) && (n->isAnExit())) {
       n->displayResults();
-    } // end if n != NULL
-  } // end for p
-  return 0;
+    }
+  }
 }
 
 /**
