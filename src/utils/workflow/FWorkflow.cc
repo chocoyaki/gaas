@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/12/02 14:17:49  bisnard
+ * manage multi-dag cancellation when one dag fails
+ *
  * Revision 1.3  2008/12/02 10:09:36  bisnard
  * added instanciation methods
  *
@@ -236,7 +239,7 @@ FWorkflow::initialize() {
 Dag *
 FWorkflow::instanciateDag() {
   Dag * currDag = new Dag();
-  currDag->setId(itoa(dagCounter++));
+  currDag->setId("WF_" + this->id + "_DAG_" + itoa(dagCounter++));
   TRACE_TEXT (TRACE_ALL_STEPS,"@@@@@ DAG " << currDag->getId()
                << " GENERATION START @@@@@" << endl);
   TRACE_TEXT (TRACE_ALL_STEPS,"Init workflow interface..." << endl);

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2008/12/02 14:17:49  bisnard
+ * manage multi-dag cancellation when one dag fails
+ *
  * Revision 1.7  2008/12/02 10:14:51  bisnard
  * modified nodes links mgmt to handle inter-dags links
  *
@@ -689,6 +692,7 @@ DagNode::newDouble (const string value) {
  */
 void
 DagNode::displayResults() {
+  if (hasFailed()) return;
   for (map<string, WfPort*>::iterator p = ports.begin();
        p != ports.end();
        ++p) {

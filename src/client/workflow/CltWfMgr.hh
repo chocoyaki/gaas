@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2008/12/02 14:17:48  bisnard
+ * manage multi-dag cancellation when one dag fails
+ *
  * Revision 1.9  2008/12/02 10:19:15  bisnard
  * functional workflow submission to MaDag
  *
@@ -114,7 +117,7 @@ public:
    * is done by this agent
    */
   virtual char *
-  release(const char * dag_id);
+  release(const char * dag_id, bool successful);
 
   /**
    * Debug function

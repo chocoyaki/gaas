@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2008/12/02 14:17:48  bisnard
+ * manage multi-dag cancellation when one dag fails
+ *
  * Revision 1.6  2008/12/02 10:18:37  bisnard
  * added exception
  *
@@ -74,9 +77,10 @@ interface CltMan {
    * Release the manager after dag execution is either completed or
    * cancelled
    * @param dag_id  dag identifier (string)
+   * @param successful  true if dag execution was successful
    */
   string
-  release(in string dag_id);
+  release(in string dag_id, in boolean successful);
 
   void
   ping();

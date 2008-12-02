@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.41  2008/12/02 14:17:44  bisnard
+ * manage multi-dag cancellation when one dag fails
+ *
  * Revision 1.40  2008/12/02 10:21:03  bisnard
  * use MetaDags to handle multi-dag submission and execution
  *
@@ -711,7 +714,7 @@ MultiWfScheduler::handlerDagDone(Dag * dag) {
   TRACE_TEXT(TRACE_MAIN_STEPS, "Dag " << dagId << " done - calling client for release" << endl);
   CltMan_ptr cltMan = myMaDag->getCltMan(dag->getId());
   try {
-      message = cltMan->release(dagId.c_str());
+      message = cltMan->release(dagId.c_str(), !dag->isCancelled());
       TRACE_TEXT (TRACE_ALL_STEPS," Release message : " << message << endl);
        // INFORM LOGMANAGER
       if (myMaDag->dietLogComponent != NULL) {

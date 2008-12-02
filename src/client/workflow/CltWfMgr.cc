@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2008/12/02 14:17:48  bisnard
+ * manage multi-dag cancellation when one dag fails
+ *
  * Revision 1.19  2008/12/02 10:19:14  bisnard
  * functional workflow submission to MaDag
  *
@@ -428,7 +431,11 @@ CltWfMgr::printAllDagResults(diet_wf_desc_t* profile) {
   if (nsp != myProfiles.end()) {
     Dag * dag = dynamic_cast<Dag*>(nsp->second);
     if (dag != NULL) {
-      dag->displayAllResults();
+      if (!dag->isCancelled())
+        dag->displayAllResults();
+      else
+        cout << "** DAG " << dag->getId()
+             << " was cancelled => no results **" << endl;
     }
     else return 1;
   }
@@ -449,7 +456,11 @@ CltWfMgr::printAllFunctionalWfResults(diet_wf_desc_t* profile) {
       list<Dag*>::iterator dagIter = dagList.begin();
       while (dagIter != dagList.end()) {
         Dag * currDag = (Dag*) *dagIter;
-        currDag->displayAllResults();
+        if (!currDag->isCancelled())
+          currDag->displayAllResults();
+        else
+          cout << "** DAG " << currDag->getId()
+               << " was cancelled => no results **" << endl;
         ++dagIter;
       }
     }
@@ -580,11 +591,17 @@ CltWfMgr::ping() {
  * Release the waiting semaphore
  */
 char *
-CltWfMgr::release(const char * dag_id) {
+CltWfMgr::release(const char * dag_id, bool successful) {
    Dag * dag = getDag(dag_id);
    if (dag == NULL) {
      throw CltMan::DagNotFound(dag_id);
    }
+   // SET DAG STATUS
+   if (!successful) {
+     dag->setAsCancelled();
+   }
+
+   // RETURN MESSAGE CONTAINING REQUEST IDs (FOR VIZDIET)
    vector<diet_reqID_t> diet_request_ids = dag->getAllDietReqID();
    cout << " got request ids" << endl;
    stringstream message;
@@ -600,10 +617,12 @@ CltWfMgr::release(const char * dag_id) {
    char * ret = (char*)malloc(message.str().size()*sizeof(char)+1);
    sprintf(ret,"%s",message.str().c_str());
 
+   // UPDATE DAG COUNTER
    this->myLock.lock();    /** LOCK */
    dagSentCount--;
    this->myLock.unlock();  /** UNLOCK */
    cout << "DAG SENT COUNT = " << dagSentCount << endl;
+
    if (dagSentCount == 0) {
      TRACE_TEXT(TRACE_ALL_STEPS,"No more dags running ==> POST" << endl);
      this->mySem.post();
