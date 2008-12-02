@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.129  2008/12/02 10:19:48  bisnard
+ * functional workflow submission API update
+ *
  * Revision 1.128  2008/10/22 14:16:37  gcharrie
  * Adding MultiCall. It is used to devide a profile and make several calls with just one SeD. Some documentation will be added soon.
  *
@@ -1841,8 +1844,13 @@ diet_wf_call(diet_wf_desc_t* profile) {
   if (CORBA::is_nil(MA_DAG)) {
       ERROR("No MA DAG defined", 1);
   }
-  return CltWfMgr::instance()->wf_call(profile);
-} // end diet_wf_call
+  switch(profile->level) {
+    case DIET_WF_DAG:
+      return CltWfMgr::instance()->wfDagCall(profile);
+    case DIET_WF_FUNCTIONAL:
+      return CltWfMgr::instance()->wfFunctionalCall(profile);
+  }
+}
 
 /**
  * terminate a workflow session *
@@ -1893,11 +1901,18 @@ _diet_wf_matrix_get(diet_wf_desc_t * profile,
 }
 
 /**
- * Print the value of all workflow exit ports
+ * Print the value of all exit ports of a dag or functional wf
  */
 int
 get_all_results(diet_wf_desc_t * profile) {
-  return CltWfMgr::instance()->getAllWfResults(profile);
+  switch(profile->level) {
+    case DIET_WF_DAG:
+      return CltWfMgr::instance()->printAllDagResults(profile);
+    case DIET_WF_FUNCTIONAL:
+      return CltWfMgr::instance()->printAllFunctionalWfResults(profile);
+    default:
+      ;
+  }
 } // end get_all_results
 
 #endif // HAVE_WORKFLOW

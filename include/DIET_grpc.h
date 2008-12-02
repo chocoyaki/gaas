@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2008/12/02 10:22:09  bisnard
+ * functional workflow submission API update
+ *
  * Revision 1.12  2008/04/07 12:19:13  ycaniou
  * Except for the class Parsers (someone to re-code it? :)
  *   correct "deprecated conversion from string constant to 'char*'" warnings
@@ -227,7 +230,7 @@ grpc_cancel(grpc_sessionid_t sessionID);
 
 /* Cancel all outstanding asynchronous GridRPC calls.                       */
 /* #define grpc_cancel_all               diet_cancel_all */
-grpc_error_t 
+grpc_error_t
 grpc_cancel_all();
 
 /* Check whether the asynchronous GridRPC call has completed.               */
@@ -283,7 +286,7 @@ grpc_wait_any(diet_reqID_t* IDptr);
 
 #define grpc_perror                   diet_perror
 
-/* This return the error description string, given a GridRPC error code. 
+/* This return the error description string, given a GridRPC error code.
    If the error code is unrecognized for any reason, the string C
    GRPC_UNKNOWN_ERROR_CODE is returned */
 const char * grpc_error_string(grpc_error_t error_code);
@@ -310,14 +313,16 @@ const char * grpc_error_string(grpc_error_t error_code);
 #define GRPC_OTHER_ERROR_CODE 13
 #define GRPC_UNKNOWN_ERROR_CODE 14
 #define GRPC_ALREADY_INITIALIZED 15
-#define GRPC_LAST_ERROR_CODE 16 
+#define GRPC_LAST_ERROR_CODE 16
 
 /****************************************************************************/
 /* Workflow error code                                                      */
 /****************************************************************************/
 #ifdef HAVE_WORKFLOW
 #define XML_MALFORMED 17
-#define SRV_MISS      18
+#define DAG_BADSTRUCT 18
+#define WFL_BADSTRUCT 19
+#define SRV_MISS      20
 #endif
 
 /****************************************************************************/

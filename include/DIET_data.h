@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.61  2008/12/02 10:22:09  bisnard
+ * functional workflow submission API update
+ *
  * Revision 1.60  2008/09/10 09:15:54  bisnard
  * new diet type for containers
  *
@@ -710,24 +713,28 @@ typedef const struct corba_estimation_t *estVectorConst_t;
 
 #ifdef HAVE_WORKFLOW
 
-  /* typedef enum {basic, rr, heft} wf_scheduler_t; */
+typedef enum { DIET_WF_DAG,
+               DIET_WF_FUNCTIONAL } wf_level_t;
 
 /**
  * workflow internal description
  */
 typedef struct {
   char * abstract_wf;
-  /*   wf_scheduler_t scheduler; */
-  /*  diet_profile_t internal_profile; */
+  char * name;
+  wf_level_t level;
 } diet_wf_desc_t;
 
-
-  /**
-   * Allocate a workflow diet profile *
-   * wf_file_name is the file name that contains the workflow description *
-   */
+/**
+ * Allocate a workflow diet profile *
+ * @param wf_file_name is the file name that contains the workflow description *
+ * @param wf_name is the name of the workflow (used in logs) *
+ * @param wf_level is the type of workflow *
+ */
 diet_wf_desc_t*
-diet_wf_profile_alloc(const char* wf_file_name);
+diet_wf_profile_alloc(const char* wf_file_name,
+                      const char* wf_name,
+                      wf_level_t wf_level);
 
 void
 diet_wf_profile_free(diet_wf_desc_t * profile);
