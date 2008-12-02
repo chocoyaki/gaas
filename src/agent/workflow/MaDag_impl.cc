@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2008/12/02 10:21:03  bisnard
+ * use MetaDags to handle multi-dag submission and execution
+ *
  * Revision 1.23  2008/10/14 13:23:01  bisnard
  * - use dagId instead of wfReqId as key for dags
  * - new mapping table dagId to wfReqId
@@ -258,10 +261,45 @@ CORBA::Long
 MaDag_impl::processDagWf(const corba_wf_desc_t& dag_desc,
                          const char* cltMgrRef,
                          CORBA::Long wfReqId) {
+  TRACE_TEXT(TRACE_ALL_STEPS, "MADAG receives a SINGLE DAG request (wfReqId = "
+                              << wfReqId << ")" << endl);
+  return processDagWfCommon(dag_desc, cltMgrRef, wfReqId);
+}
+
+/**
+ * Multi DAG Workflow processing
+ */
+CORBA::Long
+MaDag_impl::processMultiDagWf(const corba_wf_desc_t& dag_desc, const char* cltMgrRef,
+                              CORBA::Long wfReqId)
+{
+  TRACE_TEXT(TRACE_ALL_STEPS, "MADAG receives a MULTIPLE DAG request (wfReqId = "
+                              << wfReqId << ")" << endl);
+  // Check if a MetaDag already exists for this wf request (or create one)
+  MetaDag* mDag = NULL;
+  map<CORBA::Long, MetaDag*>::iterator mDagIter = myMetaDags.find(wfReqId);
+  if (mDagIter != myMetaDags.end()) {
+    mDag = (MetaDag*) mDagIter->second;
+  } else {
+    mDag = new MetaDag(itoa(wfReqId));
+    myMetaDags[wfReqId] = mDag;
+  }
+  // Process the dag
+  return processDagWfCommon(dag_desc, cltMgrRef, wfReqId, mDag);
+}
+
+/**
+ * Common part
+ */
+CORBA::Long
+MaDag_impl::processDagWfCommon(const corba_wf_desc_t& dag_desc,
+                               const char* cltMgrRef,
+                               CORBA::Long wfReqId,
+                               MetaDag* mDag) {
   char statMsg[128];
   sprintf(statMsg,"Start workflow request %ld",wfReqId);
   stat_in("MA_DAG",statMsg);
-//   stat_flush();
+
   this->myMutex.lock();
 
   // Register the client workflow manager
@@ -273,14 +311,35 @@ MaDag_impl::processDagWf(const corba_wf_desc_t& dag_desc,
   CORBA::Long dagId = dagIdCounter++;
   setWfReq(dagId, wfReqId);
   try {
-    this->myMultiWfSched->scheduleNewDag(dag_desc, itoa(dagId), this->myMA);
+    Dag * newDag = this->parseNewDag(dag_desc, itoa(dagId), mDag);
+    this->myMultiWfSched->scheduleNewDag(newDag, mDag);
   }
-  catch (...) {
+  catch (XMLParsingException& e) {
+    // TODO manage exceptions using CORBA exceptions
     sprintf(statMsg,"Dag request (%ld) aborted",dagId);
     stat_out("MA_DAG",statMsg);
+    TRACE_TEXT(TRACE_ALL_STEPS, "WRONG XML => MADAG cancelled DAG request (wfReqId = "
+                              << wfReqId << ")" << endl);
     this->myMutex.unlock();
     return -1;
   }
+  catch (WfStructException& e) {
+    sprintf(statMsg,"Dag request (%ld) aborted",dagId);
+    stat_out("MA_DAG",statMsg);
+    TRACE_TEXT(TRACE_ALL_STEPS, "WRONG DAG STRUCTURE  => MADAG cancelled DAG request (wfReqId = "
+                              << wfReqId << ")" << endl);
+    this->myMutex.unlock();
+    return -1;
+  }
+  catch (NodeException& e) {
+    sprintf(statMsg,"Dag request (%ld) aborted",dagId);
+    stat_out("MA_DAG",statMsg);
+    TRACE_TEXT(TRACE_ALL_STEPS, "MISSING SERVICE => MADAG cancelled DAG request (wfReqId = "
+                              << wfReqId << ")" << endl);
+    this->myMutex.unlock();
+    return -1;
+  }
+
   this->myMutex.unlock();
   sprintf(statMsg,"End Dag request %ld",dagId);
   stat_out("MA_DAG",statMsg);
@@ -289,14 +348,41 @@ MaDag_impl::processDagWf(const corba_wf_desc_t& dag_desc,
 }
 
 /**
- * Multi DAG Workflow processing
+ * Parse dag xml description and create a dag object
  */
-CORBA::Boolean
-MaDag_impl::processMultiDagWf(const corba_wf_desc_t& dag_desc, const char* cltMgrRef,
-                              CORBA::Long wfReqId)
-{
-  return true;
-} // end processMultiDagWf
+Dag *
+MaDag_impl::parseNewDag(const corba_wf_desc_t& wf_desc,
+                        const string& dagId,
+                        MetaDag * mDag)
+    throw (XMLParsingException, WfStructException) {
+  // CREATION & PARSING
+  Dag *        newDag = new Dag();
+  DagWfParser* reader = new DagParser(*newDag, wf_desc.abstract_wf);
+
+  reader->parseXml();
+
+  delete reader;
+  newDag->setId(dagId);
+
+  // CHECK STRUCTURE
+  NodeSet * contextNodeSet;
+  if (mDag == NULL) {
+    contextNodeSet = (NodeSet*) newDag;
+  } else {
+    mDag->addDag(newDag);
+    contextNodeSet = (NodeSet*) mDag;
+    mDag->setCurrentDag(newDag);
+  }
+
+  newDag->checkPrec(contextNodeSet);
+
+  if (mDag != NULL) {
+    // release current dag in metadag
+    mDag->setCurrentDag(NULL);
+  }
+
+  return newDag;
+}
 
 /**
  * Get a new workflow request identifier

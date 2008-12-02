@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.40  2008/12/02 10:21:03  bisnard
+ * use MetaDags to handle multi-dag submission and execution
+ *
  * Revision 1.39  2008/10/20 07:56:43  bisnard
  * new classes XML parser (Dagparser,FWfParser)
  *
@@ -232,26 +235,41 @@ MultiWfScheduler::getMaDag() const {
 }
 
 /**
+ * get the metadag of a dag
+ */
+MetaDag*
+MultiWfScheduler::getMetaDag(Dag * dag) {
+  map<Dag*,MetaDag*>::iterator iter = myMetaDags.find(dag);
+  if (iter != myMetaDags.end())
+    return ((MetaDag*)iter->second);
+  else
+    return NULL;
+}
+
+/**
  * Process a new dag => when finished the dag is ready for execution
  */
 void
-MultiWfScheduler::scheduleNewDag(const corba_wf_desc_t& wf_desc,
-                                 const string& dagId,
-                                 MasterAgent_var MA)
-    throw (XMLParsingException, NodeException)
+MultiWfScheduler::scheduleNewDag(Dag * newDag, MetaDag * metaDag)
+    throw (NodeException)
 {
   // Beginning of exclusion block
   // TODO move exclusion lock later (need to make HEFTScheduler thread-safe)
   this->myLock.lock();
 
-  TRACE_TEXT (TRACE_ALL_STEPS, "The meta scheduler receives a new xml dag "
-      << endl);
-  // Dag XML Parsing
-  Dag * newDag = this->parseNewDag(wf_desc, dagId);
-
   // Dag internal scheduling
   TRACE_TEXT (TRACE_ALL_STEPS, "Making intra-dag schedule" << endl);
-  this->intraDagSchedule(newDag, MA);
+  try {
+    this->intraDagSchedule(newDag, myMaDag->getMA());
+  } catch (NodeException& e) {
+    this->myLock.unlock();
+    throw e;
+  }
+
+  // Store metaDag
+  if (metaDag != NULL) {
+    this->myMetaDags[newDag] = metaDag;
+  }
 
   // Node queue creation (to manage ready nodes queueing)
   TRACE_TEXT (TRACE_ALL_STEPS, "Initializing new ready nodes queue" << endl);
@@ -516,60 +534,9 @@ MultiWfScheduler::run() {
   } // end while (true)
 }
 
-/**
- * Execute a post operation on synchronisation semaphore
- */
-void
-MultiWfScheduler::wakeUp() {
-  TRACE_TEXT(TRACE_ALL_STEPS,"Wake Up" << endl);
-  this->termNode = false; // no thread to join
-  this->mySem.post();
-}
-
-/**
- * Execute a post operation on synchronisation semaphore
- * and joins the node thread given as parameter
- */
-void
-MultiWfScheduler::wakeUp(NodeRun * nodeThread) {
-  TRACE_TEXT(TRACE_ALL_STEPS,"Wake Up & Join" << endl);
-  this->termNodeThread = nodeThread;
-  this->termNode = true;
-  this->mySem.post();
-}
-
-/**
- * Get the current time from scheduler reference clock
- */
-double
-MultiWfScheduler::getRelCurrTime() {
-  struct timeval current_time;
-  gettimeofday(&current_time, NULL);
-  return (double) ((current_time.tv_sec - refTime.tv_sec)*1000
-      + (current_time.tv_usec - refTime.tv_usec)/1000);
-}
-
 /****************************************************************************/
 /*                         PROTECTED METHODS                                */
 /****************************************************************************/
-
-/**
- * Parse dag xml description and create a dag object
- */
-Dag *
-MultiWfScheduler::parseNewDag(const corba_wf_desc_t& wf_desc,
-                              const string& dagId)
-    throw (XMLParsingException) {
-  Dag * newDag = new Dag();
-  DagWfParser* reader = new DagParser(*newDag, wf_desc.abstract_wf);
-  if (!reader->parseAndCheck()) {
-      throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
-                                "Invalid dag");
-  }
-  delete reader;
-  newDag->setId(dagId);
-  return newDag;
-}
 
 /**
  * Call MA to get server estimations for all services for nodes of a Dag
@@ -697,6 +664,99 @@ MultiWfScheduler::setWaitingPriority(DagNode * node) {
 }
 
 /**
+ * Get the current time from scheduler reference clock
+ */
+double
+MultiWfScheduler::getRelCurrTime() {
+  struct timeval current_time;
+  gettimeofday(&current_time, NULL);
+  return (double) ((current_time.tv_sec - refTime.tv_sec)*1000
+      + (current_time.tv_usec - refTime.tv_usec)/1000);
+}
+
+/**
+ * Execute a post operation on synchronisation semaphore
+ */
+void
+MultiWfScheduler::wakeUp() {
+  TRACE_TEXT(TRACE_ALL_STEPS,"Wake Up" << endl);
+  this->termNode = false; // no thread to join
+  this->mySem.post();
+}
+
+/**
+ * Execute a post operation on synchronisation semaphore
+ * and joins the node thread given as parameter
+ */
+void
+MultiWfScheduler::wakeUp(NodeRun * nodeThread) {
+  TRACE_TEXT(TRACE_ALL_STEPS,"Wake Up & Join" << endl);
+  this->termNodeThread = nodeThread;
+  this->termNode = true;
+  this->mySem.post();
+}
+
+/**
+ * manage dag end of execution
+ */
+void
+MultiWfScheduler::handlerDagDone(Dag * dag) {
+  typedef size_t comm_failure_t;
+  string dagId = dag->getId();
+  char * message;
+  bool clientFailure;
+
+  // RELEASE THE CLIENT MANAGER
+
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Dag " << dagId << " done - calling client for release" << endl);
+  CltMan_ptr cltMan = myMaDag->getCltMan(dag->getId());
+  try {
+      message = cltMan->release(dagId.c_str());
+      TRACE_TEXT (TRACE_ALL_STEPS," Release message : " << message << endl);
+       // INFORM LOGMANAGER
+      if (myMaDag->dietLogComponent != NULL) {
+        myMaDag->dietLogComponent->logDag(message);
+      }
+      stat_flush();
+      delete message;
+  } catch(CORBA::SystemException& e) {
+      cout << "Caught a CORBA " << e._name() << " exception ("
+           << e.NP_minorString() << ")" << endl ;
+      WARNING("Connection problems with Client occured - Release cancelled");
+      clientFailure = true;
+      dag->setAsCancelled();
+  } catch(CORBA::UserException& e) {
+      cout << "Caught exception " << e._name() << endl;
+      clientFailure = true;
+      dag->setAsCancelled();
+  }
+
+  // DISPLAY DEBUG INFO
+  if (!dag->isCancelled()) {
+    TRACE_TEXT (TRACE_MAIN_STEPS,"############### DAG "
+                                  << dagId << " IS DONE #########" << endl);
+  } else {
+    TRACE_TEXT (TRACE_MAIN_STEPS,"############### DAG "
+                                  << dagId << " IS CANCELLED #########" << endl);
+    // Display list of failed nodes
+    const std::list<string>& failedNodes = dag->getNodeFailureList();
+    for (std::list<string>::const_iterator iter = failedNodes.begin();
+         iter != failedNodes.end();
+         ++iter) {
+      TRACE_TEXT (TRACE_MAIN_STEPS, "Dag " << dagId << " FAILED NODE : " << *iter << endl);
+    }
+  }
+
+  // DELETE DAG (IF NOT PART OF A METADAG)
+  MetaDag * metaDag = this->getMetaDag(dag);
+  if (metaDag != NULL) {
+    metaDag->handlerDagDone(dag);
+  } else {
+    delete dag;
+  }
+}
+
+/**
  * Execute a node on a given SeD
  */
 Thread *
@@ -747,142 +807,65 @@ NodeRun::NodeRun(DagNode * node,
 void*
 NodeRun::run() {
   typedef size_t comm_failure_t;
-  string dag_id = this->myNode->getDag()->getId();
-  TRACE_TEXT (TRACE_ALL_STEPS, "NodeRun: running node "
-      << this->myNode->getCompleteId() << endl);
-  if (myCltMan != CltMan::_nil()) {
-    TRACE_TEXT (TRACE_ALL_STEPS, "NodeRun: try to call client manager ");
-    CORBA::Long res;
-    bool clientFailure = false;
+  Dag *  dag    = myNode->getDag();
+  string dagId  = dag->getId();
+  string nodeId = myNode->getId();
+  bool clientFailure = false;
+  CORBA::Long res;
+
+  TRACE_TEXT (TRACE_ALL_STEPS, "NodeRun: running node " << myNode->getCompleteId() << endl);
 
     // NODE EXECUTION ON CLIENT
+  try {
     try {
-      try {
-        if (!CORBA::is_nil(this->mySeD)) {
-          TRACE_TEXT (TRACE_ALL_STEPS, "(exec on sed - request #"
+      if (!CORBA::is_nil(this->mySeD)) {
+        TRACE_TEXT (TRACE_ALL_STEPS, "(exec on sed - request #"
             << this->myReqID << ")" << endl);
-          res = myCltMan->execNodeOnSed(this->myNode->getId().c_str(),
-                                    this->myNode->getDag()->getId().c_str(),
-                                    this->mySeD,
-                                    this->myReqID,
-                                    this->myEstVect);
-        } else {
-          TRACE_TEXT (TRACE_ALL_STEPS, "(exec without sed)" << endl);
-          res = myCltMan->execNode(this->myNode->getId().c_str(),
-                         this->myNode->getDag()->getId().c_str());
-        }
-      } catch (CORBA::COMM_FAILURE& e) {
-        throw (comm_failure_t)1;
-      } catch (CORBA::TRANSIENT& e) {
-        throw (comm_failure_t)1;
+        res = myCltMan->execNodeOnSed(nodeId.c_str(),
+                                      dagId.c_str(),
+                                      this->mySeD,
+                                      this->myReqID,
+                                      this->myEstVect);
+      } else {
+        TRACE_TEXT (TRACE_ALL_STEPS, "(exec without sed)" << endl);
+        res = myCltMan->execNode(nodeId.c_str(),
+                                 dagId.c_str());
       }
-    } catch (comm_failure_t& e) {
-      if (e == 0 || e == 1) {
-        WARNING("Connection problems with Client occured - Dag cancelled");
-        clientFailure = true;
-        res = 1;
-      }
+    } catch (CORBA::COMM_FAILURE& e) {
+      throw (comm_failure_t)1;
+    } catch (CORBA::TRANSIENT& e) {
+      throw (comm_failure_t)1;
     }
-    // POST-PROCESSING
+  } catch (comm_failure_t& e) {
+    if (e == 0 || e == 1) {
+      WARNING("Connection problems with Client occured - Dag cancelled");
+      clientFailure = true;
+    }
+  }
 
-    if (res == 0) {
-      TRACE_TEXT (TRACE_MAIN_STEPS, "NodeRun: node " << this->myNode->getCompleteId()
-          << " is done" << endl);
+  // POST-PROCESSING
+
+  if (!clientFailure && !res) {
+    TRACE_TEXT (TRACE_MAIN_STEPS, "NodeRun: node " << myNode->getCompleteId()
+        << " is done" << endl);
       // update node status (must be called before handlerNodeDone to update realCompTime)
-      this->myNode->setAsDone(this->myScheduler->getRelCurrTime());
+    myNode->setAsDone(myScheduler->getRelCurrTime());
       // inform scheduler that node is done (depending on the scheduler, this may trigger
       //  a recursive update of the realCompTime in other nodes)
-      this->myScheduler->handlerNodeDone(myNode);
-
-      // check if dag is completed and release client if yes
-      if ((this->myNode->getDag() != NULL) &&
-         (this->myNode->getDag()->isDone())) {
-      	//this->myNode->getDag()->showDietReqID();
-        // CALLING CLIENT MANAGER (CORBA AGENT) FOR RELEASE
-        TRACE_TEXT (TRACE_MAIN_STEPS,"Dag " << this->myNode->getDag()->getId()
-            << " completed - calling client for release");
-        char * message;
-        try {
-          try {
-            message = myCltMan->release(this->myNode->getDag()->getId().c_str());
-          } catch (CORBA::COMM_FAILURE& e) {
-            throw (comm_failure_t)1;
-          } catch (CORBA::TRANSIENT& e) {
-            throw (comm_failure_t)1;
-          }
-        } catch (comm_failure_t& e) {
-          if (e == 0 || e == 1) {
-            WARNING("Connection problems with Client occured - Release cancelled");
-            clientFailure = true;
-            this->myNode->getDag()->setAsCancelled();
-          }
-        }
-        if (!clientFailure) {
-          TRACE_TEXT (TRACE_ALL_STEPS," message : "<< message << endl);
-          if (this->myScheduler->getMaDag()->dietLogComponent != NULL) {
-            this->myScheduler->getMaDag()->dietLogComponent->logDag(message);
-          }
-	  // flush all stat
-	  stat_flush();
-          delete message;
-          TRACE_TEXT (TRACE_MAIN_STEPS,"############### DAG "
-              << this->myNode->getDag()->getId().c_str() <<" IS DONE #########"<<endl);
-          delete this->myNode->getDag();
-        }
-      }
-    } else {
-      TRACE_TEXT (TRACE_ALL_STEPS, "NodeRun: node " << this->myNode->getCompleteId()
-          << " execution failed! " << endl
-          << " ==> Cancelling DAG execution" << endl);
-      this->myNode->setAsFailed(); // set the dag as cancelled
-    }
-
-    // Manage dag termination if a node failed (following code is executed
-    // by the last running node)
-    if (this->myNode->getDag()->isCancelled() && !this->myNode->getDag()->isRunning()) {
-      string dagId = this->myNode->getDag()->getId();
-      TRACE_TEXT (TRACE_MAIN_STEPS, "############## DAG " << dagId
-          << " IS CANCELLED! #########" << endl);
-      // Display list of failed nodes
-      const std::list<string>& failedNodes = this->myNode->getDag()->getNodeFailureList();
-      for (std::list<string>::const_iterator iter = failedNodes.begin();
-           iter != failedNodes.end(); iter++) {
-        TRACE_TEXT (TRACE_MAIN_STEPS, "DAG " << dagId << " FAILED NODE : " << *iter << endl);
-      }
-      // Release the client manager (if still alive)
-      char* message;
-      if (!clientFailure) {
-        try {
-          try {
-            message = myCltMan->release(this->myNode->getDag()->getId().c_str());
-          } catch (CORBA::COMM_FAILURE& e) {
-            throw (comm_failure_t)1;
-          } catch (CORBA::TRANSIENT& e) {
-            throw (comm_failure_t)1;
-          }
-        } catch (comm_failure_t& e) {
-          if (e == 0 || e == 1) {
-            WARNING("Connection problems with Client occured - Release cancelled");
-            clientFailure = true;
-          }
-        }
-      }
-      if (!clientFailure) {
-        TRACE_TEXT (TRACE_ALL_STEPS," message : "<< message << endl);
-	if (this->myScheduler->getMaDag()->dietLogComponent != NULL) {
-		this->myScheduler->getMaDag()->dietLogComponent->logDag(message);
-	}
-        delete message;
-      }
-      // Delete dag
-      delete this->myNode->getDag();
-    }
+    myScheduler->handlerNodeDone(myNode);
+  } else {
+    TRACE_TEXT (TRACE_ALL_STEPS, "NodeRun: node " << myNode->getCompleteId()
+        << " execution failed! " << endl
+            << " ==> Cancelling DAG execution" << endl);
+    myNode->setAsFailed();
   }
-  else {
-       TRACE_TEXT (TRACE_ALL_STEPS,"NodeRun: ERROR!! cannot contact the Client Wf Mgr" << endl);
+
+    // Manage dag termination if dag is finished or if a node failed
+  if ( dag->isDone() || ( dag->isCancelled() && !dag->isRunning()) ) {
+    myScheduler->handlerDagDone(dag);
   }
   fflush(stdout);
-  this->myScheduler->wakeUp(this);
+  myScheduler->wakeUp(this);
 }
 
 /****************************************************************************/

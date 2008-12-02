@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2008/12/02 10:21:03  bisnard
+ * use MetaDags to handle multi-dag submission and execution
+ *
  * Revision 1.18  2008/10/14 13:23:01  bisnard
  * - use dagId instead of wfReqId as key for dags
  * - new mapping table dagId to wfReqId
@@ -116,6 +119,7 @@
 #include "CltMan.hh"
 #include "MaDag.hh"
 #include "DietLogComponent.hh"
+#include "workflow/MetaDag.hh"
 
 class MaDag_impl : public POA_MaDag,
 		   public PortableServer::RefCountServantBase {
@@ -146,17 +150,18 @@ public:
                    CORBA::Long wfReqId);
   /**
    * Multi DAG Workflow processing
-   * Manages the scheduling and orchestration of a set of N identical DAGs
-   * Delegates the execution of each individual task to the client workflow mgr
+   * Manages the scheduling and orchestration of the submitted DAG
+   * when this DAG is linked to other DAGs from the same wf request.
+   * Delegates the execution of each individual task to the client
    *
    * @param  dag_desc     workflow textual description
    * @param  cltMgrRef    client workflow manager reference
    * @param  wfReqId      submitted workflow identifier (obtained by
    * getWfReqId function)
-   * @return true if workflow submission succeed, otherwise false
+   * @return the dag Id if workflow submission succeed, -1 if not
    */
 
-  virtual CORBA::Boolean
+  virtual CORBA::Long
       processMultiDagWf(const corba_wf_desc_t& dag_desc, const char* cltMgrRef,
                         CORBA::Long wfReqId);
 
@@ -218,6 +223,28 @@ protected:
   setWfReq(CORBA::Long dagId, CORBA::Long wfReqId);
 
   /**
+   * Common part of dag processing call methods
+   */
+  CORBA::Long
+  processDagWfCommon(const corba_wf_desc_t& dag_desc,
+                     const char* cltMgrRef,
+                     CORBA::Long wfReqId,
+                     MetaDag* mDag = NULL);
+
+  /**
+   * Parse a new dag provided in xml text and create a dag object
+   * @param wf_desc   workflow string description
+   * @param dagId     the dag identifier
+   * @param mDag      ref to a metadag (optional) in case dag is linked to other dags
+   * @return pointer to dag structure (to be destroyed by the caller)
+   */
+  Dag *
+  parseNewDag(const corba_wf_desc_t& wf_desc,
+              const string& dagId,
+              MetaDag * mDag = NULL)
+        throw (XMLParsingException, WfStructException);
+
+  /**
    * setup the DietLogComponent
    */
   void
@@ -243,6 +270,11 @@ private:
    * The mapping table wfReqId => cltManager
    */
   map<CORBA::Long, CltMan_ptr> cltMans;
+
+  /**
+   * The mapping table wfReqId => MetaDag
+   */
+  map<CORBA::Long, MetaDag*> myMetaDags;
 
   /**
    * The meta-scheduler (used for multiworkflow support)

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2008/12/02 10:21:03  bisnard
+ * use MetaDags to handle multi-dag submission and execution
+ *
  * Revision 1.18  2008/10/14 13:24:49  bisnard
  * use new class structure for dags (DagNode,DagNodePort)
  *
@@ -101,6 +104,7 @@
 #include "workflow/Thread.hh"
 #include "workflow/NodeQueue.hh"
 #include "workflow/DagWfParser.hh"
+#include "workflow/MetaDag.hh"
 #include "SeD.hh"
 
 class MaDag_impl;
@@ -175,16 +179,12 @@ namespace madag {
 
     /**
      * schedules a new DAG workflow
-     *
-     * @param wf_desc   workflow string description
-     * @param dagId     the dag identifier
-     * @param MA        master agent (CORBA)
+     * @param newDag  ref to a dag
+     * @param metaDag ref to a metadag containing the dag (optional)
      */
     virtual void
-        scheduleNewDag(const corba_wf_desc_t& wf_desc,
-                       const string& dagId,
-                       MasterAgent_var MA)
-        throw (XMLParsingException, NodeException);
+        scheduleNewDag(Dag * newDag, MetaDag * metaDag = NULL)
+        throw (NodeException);
 
     /**
      * Execution method
@@ -195,114 +195,10 @@ namespace madag {
   protected:
 
     /**
-     * Execute a post operation on synchronisation semaphore
-     * and joins the node thread given as parameter
-     * @param nodeThread  pointer to the calling thread
+     * Get the MetaDag of a given dag
      */
-    virtual void
-        wakeUp(NodeRun * nodeThread);
-
-    /**
-     * Execute a post operation on synchronisation semaphore
-     */
-    virtual void
-        wakeUp();
-
-    /**
-     * Updates scheduler when a node has been executed
-     */
-    virtual void
-        handlerNodeDone(DagNode * node) = 0;
-
-    /**
-     * Get the current time from scheduler reference clock
-     * @return  current time in milliseconds (from scheduler start)
-     */
-    double
-        getRelCurrTime();
-
-    /**
-     * The Wf meta-scheduler scheduler
-     */
-    WfScheduler * mySched;
-
-    /**
-     * DagNode queues for waiting nodes
-     * (key = ref of ready queue)
-     */
-    map<NodeQueue *,ChainedNodeQueue *> waitingQueues;
-
-    /**
-     * DagNode queues for ready nodes
-     */
-    list<OrderedNodeQueue *> readyQueues;
-
-    /**
-     * DagNode queue for nodes to be executed
-     */
-    OrderedNodeQueue * execQueue;
-
-    /**
-     * Store the nodes HEFT priority
-     */
-    map<DagNode*,double> nodesHEFTPrio;
-
-    /**
-     * Selector for node priority policy
-     */
-    nodePolicy_t nodePolicy;
-
-    /**
-     * Selector for platform type
-     */
-
-    pfmType_t platformType;
-
-    /**
-     * Critical section of the scheduler
-     */
-    omni_mutex myLock;
-
-    /**
-     * Synchronisation semaphore
-     */
-    omni_semaphore mySem;
-
-    /**
-     * Terminating node thread pointer (for join)
-     */
-    NodeRun * termNodeThread;
-
-    /**
-     * Terminating node thread flag (for join)
-     */
-    bool      termNode;
-
-    /**
-     * Execute a node on a given SeD
-     */
-    Thread *
-        runNode(DagNode * node,
-                SeD_var sed,
-                int reqID,
-                corba_estimation_t& ev);
-
-    /**
-     * Execute a node without specifying a SeD
-     */
-    Thread *
-        runNode(DagNode * node);
-
-    /**
-     * Parse a new dag provided in xml text and create a dag object
-     * @param wf_desc   workflow string description
-     * @param dagId     the dag identifier
-     * @return pointer to dag structure (to be destroyed by the caller)
-     */
-    Dag *
-        parseNewDag(const corba_wf_desc_t& wf_desc,
-                    const string& dagId)
-        throw (XMLParsingException);
+    MetaDag *
+        getMetaDag(Dag * dag);
 
     /**
      * Call MA to get server estimations for all services
@@ -370,6 +266,111 @@ namespace madag {
         setWaitingPriority(DagNode * node);
 
     /**
+     * Get the current time from scheduler reference clock
+     * @return  current time in milliseconds (from scheduler start)
+     */
+    double
+        getRelCurrTime();
+
+    /**
+     * Execute a post operation on synchronisation semaphore
+     * and joins the node thread given as parameter
+     * @param nodeThread  pointer to the calling thread
+     */
+    virtual void
+        wakeUp(NodeRun * nodeThread);
+
+    /**
+     * Execute a post operation on synchronisation semaphore
+     */
+    virtual void
+        wakeUp();
+
+    /**
+     * Updates scheduler when a node has been executed
+     */
+    virtual void
+        handlerNodeDone(DagNode * node) = 0;
+
+    /**
+     * Updates scheduler when a dag has been executed
+     */
+    virtual void
+        handlerDagDone(Dag * dag);
+
+    /**
+     * Execute a node on a given SeD
+     */
+    Thread *
+        runNode(DagNode * node,
+                SeD_var sed,
+                int reqID,
+                corba_estimation_t& ev);
+
+    /**
+     * Execute a node without specifying a SeD
+     */
+    Thread *
+        runNode(DagNode * node);
+
+    /**
+     * The Wf meta-scheduler scheduler
+     */
+    WfScheduler * mySched;
+
+    /**
+     * DagNode queues for waiting nodes
+     * (key = ref of ready queue)
+     */
+    map<NodeQueue *,ChainedNodeQueue *> waitingQueues;
+
+    /**
+     * DagNode queues for ready nodes
+     */
+    list<OrderedNodeQueue *> readyQueues;
+
+    /**
+     * DagNode queue for nodes to be executed
+     */
+    OrderedNodeQueue * execQueue;
+
+    /**
+     * Store the nodes HEFT priority
+     */
+    map<DagNode*,double> nodesHEFTPrio;
+
+    /**
+     * Selector for node priority policy
+     */
+    nodePolicy_t nodePolicy;
+
+    /**
+     * Selector for platform type
+     */
+
+    pfmType_t platformType;
+
+    /**
+     * Critical section of the scheduler
+     */
+    omni_mutex myLock;
+
+    /**
+     * Synchronisation semaphore
+     */
+    omni_semaphore mySem;
+
+    /**
+     * Terminating node thread pointer (for join)
+     */
+    NodeRun * termNodeThread;
+
+    /**
+     * Terminating node thread flag (for join)
+     */
+    bool termNode;
+
+    /**
      * Inter-round delay (used to separate DIET submits)
      *(in milliseconds)
      */
@@ -386,6 +387,11 @@ namespace madag {
      * Reference time
      */
     struct timeval refTime;
+
+    /**
+     * Map dag ref => metadag ref
+     */
+    map<Dag*,MetaDag*>  myMetaDags;
 
   }; // end class MultiWfScheduler
 
