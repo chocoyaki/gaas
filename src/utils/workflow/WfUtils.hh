@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2008/12/02 10:05:27  bisnard
+ * new conversion method
+ *
  * Revision 1.6  2008/10/14 13:31:36  bisnard
  * new conversion method
  *
@@ -90,6 +93,9 @@ public:
   static short
   cvtStrToWfType(const std::string& strType);
 
+  static const std::string&
+  cvtWfToStrType(WfDataType wfType);
+
   static bool
   isMatrixType(const std::string& strType);
 
@@ -107,6 +113,9 @@ public:
 
   static short
   cvtStrToWfMatrixOrder(const std::string& strMatrixOrder);
+
+  static const std::string&
+  cvtWfToStrMatrixOrder(WfMatrixOrder wfMatrixOrder);
 
   static void
   open_file(const char * fileName, FILE *& myFile);

@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2008/12/02 10:05:27  bisnard
+ * new conversion method
+ *
  * Revision 1.7  2008/10/22 11:01:28  bdepardo
  * missing include
  *
@@ -103,12 +106,28 @@ static const pair<string,short> wfTypes[] = {
   pair<string,short>( "DIET_CONTAINER", WfCst::TYPE_CONTAINER)
 };
 
+static const pair<short, const string> strTypes[] = {
+  pair<short, const string>( WfCst::TYPE_CHAR, "DIET_CHAR"),
+  pair<short, const string>( WfCst::TYPE_SHORT, "DIET_SHORT"),
+  pair<short, const string>( WfCst::TYPE_INT, "DIET_INT"),
+  pair<short, const string>( WfCst::TYPE_LONGINT, "DIET_LONGINT"),
+  pair<short, const string>( WfCst::TYPE_FLOAT, "DIET_FLOAT"),
+  pair<short, const string>( WfCst::TYPE_DOUBLE, "DIET_DOUBLE"),
+  pair<short, const string>( WfCst::TYPE_MATRIX, "DIET_MATRIX"),
+  pair<short, const string>( WfCst::TYPE_STRING, "DIET_STRING"),
+  pair<short, const string>( WfCst::TYPE_PARAMSTRING, "DIET_PARAMSTRING"),
+  pair<short, const string>( WfCst::TYPE_FILE, "DIET_FILE"),
+  pair<short, const string>( WfCst::TYPE_CONTAINER, "DIET_CONTAINER")
+};
+
 static map<short,short> WfTypesToDietTypes(wf2DietTypes, wf2DietTypes
     + sizeof(wf2DietTypes)/sizeof(wf2DietTypes[0]));
 static map<short,short> DietTypesToWfTypes(diet2WfTypes, diet2WfTypes
     + sizeof(diet2WfTypes)/sizeof(diet2WfTypes[0]));
 static map<string,short> StrTypesToWfTypes(wfTypes, wfTypes
     + sizeof(wfTypes)/sizeof(wfTypes[0]));
+static map<short, const string> WfTypesToStrTypes(strTypes, strTypes
+    + sizeof(strTypes)/sizeof(strTypes[0]));
 
 short
 WfCst::cvtWfToDietType(WfDataType wfType) {
@@ -123,6 +142,11 @@ WfCst::cvtDietToWfType(short dietType) {
 short
 WfCst::cvtStrToWfType(const string& strType) {
   return StrTypesToWfTypes[strType];
+}
+
+const string&
+WfCst::cvtWfToStrType(WfDataType wfType) {
+  return WfTypesToStrTypes[wfType];
 }
 
 bool
@@ -146,10 +170,17 @@ static const pair<string,short> wfMatrixOrders[] = {
   pair<string,short>( "DIET_ROW_MAJOR", WfCst::ORDER_ROW_MAJOR)
 };
 
+static const pair<short, const string> strMatrixOrders[] = {
+  pair<short, const string>( WfCst::ORDER_COL_MAJOR, "DIET_COL_MAJOR"),
+  pair<short, const string>( WfCst::ORDER_ROW_MAJOR, "DIET_ROW_MAJOR")
+};
+
 static map<short,short> WfToDietMatrixOrders(dietMatrixOrders, dietMatrixOrders
     + sizeof(dietMatrixOrders)/sizeof(dietMatrixOrders[0]));
 static map<string,short> StrToWfMatrixOrders(wfMatrixOrders, wfMatrixOrders
     + sizeof(wfMatrixOrders)/sizeof(wfMatrixOrders[0]));
+static map<short,const string> WfToStrMatrixOrders(strMatrixOrders, strMatrixOrders
+    + sizeof(strMatrixOrders)/sizeof(strMatrixOrders[0]));
 
 short
 WfCst::cvtWfToDietMatrixOrder(WfMatrixOrder wfMatrixOrder) {
@@ -159,6 +190,11 @@ WfCst::cvtWfToDietMatrixOrder(WfMatrixOrder wfMatrixOrder) {
 short
 WfCst::cvtStrToWfMatrixOrder(const std::string& strMatrixOrder) {
   return StrToWfMatrixOrders[strMatrixOrder];
+}
+
+const string&
+WfCst::cvtWfToStrMatrixOrder(WfMatrixOrder wfMatrixOrder) {
+  return WfToStrMatrixOrders[wfMatrixOrder];
 }
 
 /**
