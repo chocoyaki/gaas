@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.55  2008/12/02 10:16:47  bisnard
+ * modified workflow profile allocation to handle functional wf
+ *
  * Revision 1.54  2008/11/06 12:19:35  bdepardo
  * Fixed a bug where a DIET_STRING crashed when initialized to NULL
  *
@@ -1107,8 +1110,12 @@ diet_free_data(diet_arg_t* arg)
  * Workflow profile allocation method *
  */
 diet_wf_desc_t*
-diet_wf_profile_alloc(const char* wf_file_name) {
+diet_wf_profile_alloc(const char* wf_file_name,
+                      const char* name,
+                      wf_level_t wf_level) {
   diet_wf_desc_t* profile = new diet_wf_desc_t;
+  profile->level = wf_level;
+  profile->name = strdup(name);
   struct stat stat_p;
   FILE * file;
   char line[LINE_LENGTH];
@@ -1132,6 +1139,8 @@ void
 diet_wf_profile_free(diet_wf_desc_t * profile) {
   if (profile->abstract_wf)
     free(profile->abstract_wf);
+  if (profile->name)
+    free(profile->name);
   free(profile);
 }
 #endif // endif HAVE_WORKFLOW
