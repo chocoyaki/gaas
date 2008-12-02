@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/12/02 10:18:37  bisnard
+ * added exception
+ *
  * Revision 1.5  2008/06/25 09:59:40  bisnard
  * new params in execNodeOnSeD to provide ReqId and estimation vector
  * to client for solve request
@@ -35,6 +38,11 @@
 #include "SeD.idl"
 
 interface CltMan {
+
+  exception DagNotFound {
+    string dagId;
+  };
+
   /**
    * Request node execution on a given SeD
    * @param node_id node identifier (string)
