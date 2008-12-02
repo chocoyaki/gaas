@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/12/02 14:18:20  bisnard
+ * obsolete attribute myDagName
+ *
  * Revision 1.1  2008/12/02 10:07:07  bisnard
  * new classes for functional workflow instanciation and execution
  *
@@ -297,7 +300,7 @@ class FDataHandle {
     /**
      * port dag name
      */
-    string myDagName;
+//     string myDagName;
 
     /**
      * value (if applicable)
