@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/12/02 10:09:36  bisnard
+ * added instanciation methods
+ *
  * Revision 1.2  2008/10/22 09:29:00  bisnard
  * replaced uint by standard type
  *
@@ -20,6 +23,8 @@
 
 #ifndef _FWORKFLOW_HH_
 #define _FWORKFLOW_HH_
+
+#include <map>
 
 #include "Dag.hh"
 #include "FNode.hh"
@@ -34,7 +39,12 @@ public:
   /* constructors/destructor                         */
   /***************************************************/
 
-  FWorkflow(const string& name);
+  FWorkflow(const string& id);
+
+  /**
+   * FWorkflow destructor
+   * Note: it does not delete the instantiated dags (use deleteAllDags)
+   */
   virtual ~FWorkflow();
 
   /***************************************************/
@@ -44,32 +54,74 @@ public:
   virtual Node *
   getNode(const string& nodeId);
 
-  virtual bool
-  checkPrec();
-
-  virtual unsigned int
-  size();
+  virtual void
+  checkPrec(NodeSet* contextNodeSet) throw (WfStructException);
 
   /***************************************************/
   /*               public methods                    */
   /***************************************************/
 
+  const string&
+  getId();
+
+  /**
+   * creation
+   */
+
   FProcNode*
-  createProcessor(const string& id);
+  createProcessor(const string& id, short maxInstances = 0);
 
   FSourceNode*
-  createSource(const string& id);
+  createSource(const string& id, WfCst::WfDataType type, short maxInstances = 0);
 
   FConstantNode*
-  createConstant(const string& id);
+  createConstant(const string& id, WfCst::WfDataType type);
+
+  /**
+   * retrieval
+   */
+
+  FProcNode *
+  getProcNode(const string& id);
+
+  FNode *
+  getInterfaceNode(const string& id);
+
+  /**
+   * instanciation
+   */
+
+  void
+  initialize();
+
+  Dag *
+  instanciateDag();
+
+  bool
+  instanciationCompleted();
+
+  /**
+   * dags
+   */
+  list<Dag*>&
+  getDagList();
+
+  /**
+   * memory free
+   */
+  void
+  deleteAllResults();
+
+  void
+  deleteAllDags();
 
 
 private:
 
   /**
-   * Workflow name
+   * Workflow id
    */
-  string name;
+  string id;
 
   /**
    * Workflow nodes for the interface (sources, sinks, constants)
@@ -80,6 +132,22 @@ private:
    * Workflow nodes for the processors
    */
   map<string, FProcNode*> myProc;
+
+  /**
+   * Workflow nodes to be instanciated (ordered list)
+   */
+  list<FProcNode*> todoProc;
+
+  /**
+   * List of generated dags
+   */
+
+  list<Dag*> myDags;
+
+  /**
+   * Counter of generated dags
+   */
+  int dagCounter;
 
 };
 
