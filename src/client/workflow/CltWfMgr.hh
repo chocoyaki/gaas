@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2008/12/02 10:19:15  bisnard
+ * functional workflow submission to MaDag
+ *
  * Revision 1.8  2008/07/11 09:12:34  bisnard
  * Added exclusion blocks to avoid dag not found error
  *
@@ -150,18 +153,30 @@ public:
   setWfLogSrv(WfLogSrv_var logSrv);
 
   /**
-   * Execute a workflow
-   *
-   * @param profile profile of workflow to execute
+   * Execute a dag using the MA DAG.
+   * @param profile dag description
    */
   diet_error_t
-  wf_call(diet_wf_desc_t* profile);
+  wfDagCall(diet_wf_desc_t * profile);
 
   /**
-   * Get all results from a workflow
+   * Execute a functional workflow using the MA DAG
+   * @param profile workflow description
    */
   diet_error_t
-  getAllWfResults(diet_wf_desc_t* profile);
+  wfFunctionalCall(diet_wf_desc_t * profile);
+
+  /**
+   * Display all results from a dag
+   */
+  diet_error_t
+  printAllDagResults(diet_wf_desc_t* profile);
+
+  /**
+   * DIsplay all results from a functional wf
+   */
+  diet_error_t
+  printAllFunctionalWfResults(diet_wf_desc_t* profile);
 
   /**
    * Get a scalar result from a workflow
@@ -210,20 +225,9 @@ public:
 
 protected:
   /**
-   * Map for profiles and their dags
+   * Map for profiles and their dags or workflows
    */
-  std::map<diet_wf_desc_t *, Dag *> myProfiles;
-
-  /**
-   * Execute a workflow using the MA DAG.
-   *
-   * @param profile workflow reference
-   * @param mapping set if the scheduling is complete (priorities and mapping)
-   *                or if it is just for setting nodes priorities
-   */
-  virtual diet_error_t
-  wf_call_madag(diet_wf_desc_t * profile,
-                bool mapping);
+  std::map<diet_wf_desc_t *, NodeSet *> myProfiles;
 
   /**
    * Get current time (in milliseconds)
@@ -239,8 +243,8 @@ protected:
 
   /**
    * Return the DAG with a given identifier
-   *
    * @param dag_id Dag identifier
+   * @return dag pointer or NULL if not found
    */
   Dag *
   getDag(std::string dag_id);
@@ -280,7 +284,12 @@ private:
   /**
    * Synchronisation semaphores
    */
-   omni_semaphore mySem;
+  omni_semaphore mySem;
+
+  /**
+   * Dag sent counter
+   */
+  int dagSentCount;
 
   /**
     * Critical section
