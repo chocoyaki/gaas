@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2008/12/02 10:14:51  bisnard
+ * modified nodes links mgmt to handle inter-dags links
+ *
  * Revision 1.21  2008/10/22 09:29:00  bisnard
  * replaced uint by standard type
  *
@@ -132,29 +135,29 @@ public:
   /**
    * node container
    */
-  virtual NodeSet*
-  getNodeSet() = 0;
+//   virtual NodeSet*
+//   getNodeSet() = 0;
 
   /******************************/
   /* Links with other nodes     */
   /******************************/
 
   /**
-   * add a previous node using the node id
-   * (this is the only way to add new predecessors; after adding all node
-   * ids the method setNodePredecessors is called to convert the
-   * predecessors ids into object references)
-   */
-  void
-  addPrevId(string nodeId);
-
-  /**
    * initializes the previous nodes using both
    * the control dependencies (<prec> tag) and the
    * data dependencies (ports links)
    */
-  bool
+  virtual bool
   setNodePrecedence(NodeSet* nodeSet);
+
+  /**
+   * Add a new predecessor
+   * (may check some constraints before adding the predecessor effectively)
+   * @param node  ptr to the predecessor
+   * @param fullNodeId  contains the id of the predecessor eventually prefixed (if external)
+   */
+  virtual void
+  addNodePredecessor(Node * node, const string& fullNodeId);
 
   /**
    * return the number of previous nodes
@@ -176,13 +179,6 @@ public:
   prevNodesEnd();
 
   /**
-   * Add a new next node reference *
-   * @param n the next node reference
-   */
-  void
-  addNext(Node * n);
-
-    /**
    * return the number of next nodes
    */
   unsigned int
@@ -234,7 +230,10 @@ public:
    * @param v         the parameter value
    */
   virtual WfPort *
-  newPort(string id, unsigned int ind, WfPort::WfPortType portType, WfCst::WfDataType dataType,
+  newPort(string id,
+          unsigned int ind,
+          WfPort::WfPortType portType,
+          WfCst::WfDataType dataType,
           unsigned int depth) = 0;
 
   /**
@@ -246,8 +245,37 @@ public:
 
 protected:
 
+  /**
+   * add a previous node using the node id
+   * (this is the only way to add new predecessors; after adding all node
+   * ids the method setNodePredecessors is called to convert the
+   * predecessors ids into object references)
+   */
+  void
+  addPrevId(const string& nodeId);
+
+  /**
+   * remove a previous node using the node id
+   */
+  void
+  remPrevId(const string& nodeId);
+
+  /**
+   * Set the precedence relationship between two nodes
+   * ie add the successor to the list of successors of the predecessor
+   * and add the predecessor to the list of predecessors of the successor
+   * @param index the index of the predecessor (in the list of predecessors)
+   * @param node  the predecessor ref
+   */
   virtual void
   setPrev(int index, Node * node);
+
+  /**
+   * Add a new next node reference *
+   * @param n the next node reference
+   */
+  void
+  addNext(Node * n);
 
   /**
    * Node id *

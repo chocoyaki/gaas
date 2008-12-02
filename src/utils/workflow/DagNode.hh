@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/12/02 10:14:51  bisnard
+ * modified nodes links mgmt to handle inter-dags links
+ *
  * Revision 1.3  2008/10/22 09:29:00  bisnard
  * replaced uint by standard type
  *
@@ -95,7 +98,7 @@ public:
    * @param dag        the parent dag
    * @param id         the node id
    */
-  DagNode(Dag *dag, string id);
+  DagNode(Dag *dag, const string& id);
 
   /**
    * DagNode destructor
@@ -111,8 +114,8 @@ public:
   /**
    * Get the node container
    */
-  NodeSet*
-  getNodeSet();
+//   NodeSet*
+//   getNodeSet();
 
   /**
    * get the node Dag reference
@@ -137,8 +140,23 @@ public:
    */
   WfPort *
   newPort(string portId, unsigned int ind,
-          WfPort::WfPortType type, WfCst::WfDataType dataType,
+          WfPort::WfPortType portType, WfCst::WfDataType dataType,
           unsigned int depth);
+
+  /**
+   * Add a new predecessor
+   * (may check some constraints before adding the predecessor effectively)
+   * @param node  ptr to the predecessor
+   * @param fullNodeId  contains the id of the predecessor eventually prefixed (if external)
+   */
+  virtual void
+  addNodePredecessor(Node * node, const string& fullNodeId);
+
+  /**
+   * returns an XML  representation of a node
+   */
+  string
+  toXML();
 
   /******************************/
   /* DIET Profile Mgmt          */
@@ -465,10 +483,12 @@ public:
   void
   nextIsDone();
 
-private:
+protected:
 
   void
   setPrev(int index, Node * node);
+
+private:
 
   /*********************************************************************/
   /* private members                                                   */

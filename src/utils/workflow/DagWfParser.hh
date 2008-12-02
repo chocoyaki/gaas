@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2008/12/02 10:14:51  bisnard
+ * modified nodes links mgmt to handle inter-dags links
+ *
  * Revision 1.9  2008/10/20 08:02:57  bisnard
  * new classes XML parser (Dagparser,FWfParser)
  *
@@ -69,7 +72,9 @@
 #include "WfUtils.hh"
 #include "Node.hh"
 #include "Dag.hh"
-#include "FWorkflow.hh"
+
+class FWorkflow;
+class FNode;
 
 XERCES_CPP_NAMESPACE_USE
 using namespace std;
@@ -112,11 +117,10 @@ public:
   virtual ~DagWfParser();
 
   /**
-   * Parse the XML and check the structure
+   * Parse the XML
    */
-  virtual bool
-  parseAndCheck() throw(XMLParsingException);
-
+  void
+  parseXml() throw (XMLParsingException);
 
 protected:
 
@@ -145,18 +149,6 @@ protected:
   getAttributeValue(const char * attr_name, const DOMElement * elt);
 
   /**
-   * Parse the XML
-   */
-  bool
-  parseXml();
-
-  /**
-   * Check the precedence
-   */
-  virtual bool
-  checkPrec() = 0;
-
-  /**
    * Parse the root element
    */
   virtual void
@@ -165,90 +157,100 @@ protected:
   /**
    * Parse a node (element & sub-elements)
    * @param element     the DOM element
-   * @param nodeEltName the element tag name (ie 'node' or 'processor' ...)
+   * @param elementName the element tag name (ie 'node' or 'processor' ...)
    */
   void
-  parseNode(const DOMElement * element, const string& nodeEltName);
+  parseNode(const DOMElement * element, const string& elementName);
 
   /**
    * Create a node (using attributes of the element)
-   * @param element   the DOM element
-   * @param nodeEltName the element tag name (ie 'node' or 'processor' ...)
+   * @param element     the DOM element
+   * @param elementName the element tag name (ie 'node' or 'processor' ...)
    * @return a pointer to the newly created node
   */
   virtual Node *
-  createNode(const DOMElement * element, const string& nodeEltName) = 0;
+  createNode(const DOMElement * element, const string& elementName) = 0;
 
   /**
    * Parse an argument element
-   * @param child_elt argument DOM element reference
+   * @param element   port DOM element reference
    * @param lastArg   index of the port
    * @param node      ref to the current node
+   * @return ref to the port created
    */
-  void
-  parseArg(DOMElement * child_elt,
+  virtual WfPort *
+  parseArg(DOMElement * element,
            const unsigned int lastArg,
- 	   Node& node);
+ 	   Node * node);
 
   /**
    * Parse an input port element
-   * @param child_elt input port DOM element reference
+   * @param element   port DOM element reference
    * @param lastArg   index of the port
    * @param node      ref to the current node
+   * @return ref to the port created
    */
-  void
-  parseIn(DOMElement * child_elt,
+  virtual WfPort *
+  parseIn(DOMElement * element,
           const unsigned int lastArg,
- 	  Node& node);
+ 	  Node * node);
 
   /**
    * Parse an inout port element
-   * @param child_elt Inout DOM element reference
+   * @param element   port DOM element reference
    * @param lastArg   index of the port
    * @param node      ref to the current node
+   * @return ref to the port created
    */
-  void
-  parseInout(DOMElement * child_elt,
+  virtual WfPort *
+  parseInOut(DOMElement * element,
              const unsigned int lastArg,
- 	     Node& node);
+ 	     Node * node);
 
   /**
    * Parse an output port element
-   * @param child_elt Out port DOM element reference
+   * @param element   port DOM element reference
    * @param lastArg   index of the port
    * @param node      ref to the current node
+   * @return ref to the port created
    */
-  void
-  parseOut(DOMElement * child_elt,
+  virtual WfPort *
+  parseOut(DOMElement * element,
            const unsigned int lastArg,
- 	   Node& node);
+ 	   Node * node);
 
   /**
-   * Parse other sub-elements (not common)
-   * @param child_elt Out port DOM element reference
-   * @param childName the element name
-   * @param node      ref to the current node
+   * Parse other sub-elements (not common) - called by parseNode
+   * @param element     port DOM element reference
+   * @param elementName the element name
+   * @param node        ref to the current node
    */
   virtual void
-  parseOtherNodeSubElt(const DOMElement * childElt,
-                       const string& childName,
-                       Node& node) = 0;
+  parseOtherNodeSubElt(const DOMElement * element,
+                       const string& elementName,
+                       Node * node) = 0;
 
   /**
    * create a node port
+   * Note: two different syntax are possible for container types:
+   *  * either type="LIST(LIST(<base_type>))" : oldest syntax used in MaDag
+   *  * either type="<base_type>" depth="2" : new syntax used for funct parser
+   *
    * @param param_type  the type of port (IN, OUT or INOUT)
    * @param name        the name of the port ('node id'#'port id')
    * @param type        the type of the port (eg 'LIST(LIST(DIET_INT))')
+   * @param depth       the depth of the port (replaces LIST)
    * @param lastArg     the index of the port (in the profile)
-   * @param node     the current node object
+   * @param node        the current node object
    * @param value       the value of the parameter (optional)
    */
   WfPort *
   setParam(const WfPort::WfPortType param_type,
 	   const string& name,
 	   const string& type,
+           const string& depth,
 	   unsigned int lastArg,
-	   Node& node,
+	   Node * node,
 	   const string * value = NULL);
 
   /**
@@ -259,7 +261,7 @@ protected:
                  const WfPort::WfPortType param_type,
 		 const string& name,
 		 unsigned int lastArg,
-		 Node& node,
+		 Node * node,
 		 const string * value = NULL);
 
 }; // end class DagWfParser
@@ -276,24 +278,22 @@ public:
 
 protected:
 
-  virtual bool
-  checkPrec();
   virtual void
   parseRoot(DOMNode* root);
   virtual Node *
-  createNode(const DOMElement * element, const string& nodeEltName );
+  createNode(const DOMElement * element, const string& elementName );
   virtual void
-  parseOtherNodeSubElt(const DOMElement * childElt,
-                       const string& childName,
-                       Node& node);
+  parseOtherNodeSubElt(const DOMElement * element,
+                       const string& elementName,
+                       Node * node);
   /**
    * Parse a prec element
-   * @param child_elt Out port DOM element reference
+   * @param element   port DOM element reference
    * @param node      ref to the current node
    */
   void
-  parsePrec(const DOMElement * child_elt,
-            Node& node);
+  parsePrec(const DOMElement * element,
+            Node * node);
 private:
 
   /**
@@ -315,16 +315,61 @@ public:
 
 protected:
 
-  virtual bool
-  checkPrec();
+  /**
+   * METHODS already declared in parent class
+   */
+
   virtual void
   parseRoot(DOMNode* root);
+
   virtual Node *
-  createNode(const DOMElement * element, const string& nodeEltName);
+  createNode(const DOMElement * element, const string& elementName);
+
+  virtual WfPort *
+  parseIn(DOMElement * element,
+          const unsigned int lastArg,
+          Node * node);
+
+  virtual WfPort *
+  parseOut(DOMElement * element,
+           const unsigned int lastArg,
+           Node * node);
+
+  virtual WfPort *
+  parseInOut(DOMElement * element,
+           const unsigned int lastArg,
+           Node * node);
+
   virtual void
-  parseOtherNodeSubElt(const DOMElement * childElt,
-                       const string& childName,
-                       Node& node);
+  parseOtherNodeSubElt(const DOMElement * element,
+                       const string& elementName,
+                       Node * node);
+
+  /**
+   * Parse the cardinal attribute of a processor
+   * @param element the DOM element corresponding to the <processor> tag
+   * @param port    the current port object
+   */
+  void
+  parseCardAttr(DOMElement * element, WfPort* port);
+
+  /**
+   * Parse a <link> element
+   * @param element the DOM element corresponding to the <link> tag
+   */
+  void
+  parseLink(DOMElement * element);
+
+  /**
+   * Parse the reference to another node or port inside a link attribute
+   * @param strRef either an interface node name or nodeName:portName
+   * @param nodeName returns the node name
+   * @param portName returns the port name
+   * @return the ref to the node object
+   */
+  FNode *
+  parseLinkRef(const string& strRef, string& nodeName, string& portName);
+
 private:
   FWorkflow&  workflow;
 }; // end class FWfParser

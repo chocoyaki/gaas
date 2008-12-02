@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2008/12/02 10:14:51  bisnard
+ * modified nodes links mgmt to handle inter-dags links
+ *
  * Revision 1.16  2008/11/08 19:12:40  bdepardo
  * A few warnings removal
  *
@@ -70,12 +73,15 @@
 #include <xercesc/framework/MemBufInputSource.hpp>
 #include <xercesc/framework/Wrapper4InputSource.hpp>
 #include <xercesc/util/XMLString.hpp>
+#include <xercesc/util/XMLStringTokenizer.hpp>
+#include <xercesc/dom/DOMText.hpp>
 #include <string>
 
 #include "debug.hh"
 #include "marshalling.hh"
 #include "DagWfParser.hh"
 #include "WfUtils.hh"
+#include "FWorkflow.hh"
 
 using namespace std;
 
@@ -107,25 +113,13 @@ DagWfParser::getAttributeValue(const char * attr_name,
 }
 
 /**
- * Parses the XML and check the structure
- */
-bool
-DagWfParser::parseAndCheck() throw(XMLParsingException) {
-  bool result = parseXml();
-  if (! result) return result;
-  TRACE_TEXT (TRACE_MAIN_STEPS, "Checking the precedence ..." << endl);
-  result = checkPrec();
-  TRACE_TEXT (TRACE_MAIN_STEPS, "... checking the precedence done" << endl);
-  return result;
-}
-
-/**
  * Parse the XML Document
  */
-bool
-DagWfParser::parseXml() {
+void
+DagWfParser::parseXml() throw (XMLParsingException) {
   const XMLCh gLS[] = { chLatin_L, chLatin_S, chNull };
 
+  TRACE_TEXT(TRACE_ALL_STEPS, "PARSING XML START" << endl);
   DOMImplementation *impl = DOMImplementationRegistry::getDOMImplementation(gLS);
   DOMBuilder  *parser =
     ((DOMImplementationLS*)impl)->createDOMBuilder(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
@@ -138,31 +132,29 @@ DagWfParser::parseXml() {
      , false
     );
   Wrapper4InputSource * wrapper = new Wrapper4InputSource(memBufIS);
-  TRACE_TEXT (TRACE_ALL_STEPS, "Xml wrapper created" << endl);
   this->document = parser->parse(*wrapper);
   if (document == NULL) {
-    WARNING ("FATAL ERROR : wrong description ?");
-    return false;
+    throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
+                              "Wrong document description");
   }
   DOMNode * root = (DOMNode*)(document->getDocumentElement());
 
   // Parse the root element
   parseRoot(root);
 
-  TRACE_TEXT (TRACE_MAIN_STEPS, "parsing xml content successful " <<endl);
-  return true;
+  TRACE_TEXT(TRACE_ALL_STEPS, "PARSING XML END" << endl);
 }
 
 /**
  * parse a node element
  */
 void
-DagWfParser::parseNode (const DOMElement * element, const string& nodeEltName) {
+DagWfParser::parseNode (const DOMElement * element, const string& elementName) {
   // parse the node start element and its attributes
-  Node * newNode = this->createNode(element, nodeEltName);
+  Node * newNode = this->createNode(element, elementName);
   // parse the node sub-elements
   DOMNode * child = element->getFirstChild();
-  unsigned lastArg = 0;
+  unsigned int lastArg = 0;
   while (child != NULL) {
     if (child->getNodeType() == DOMNode::ELEMENT_NODE) {
       DOMElement * child_elt = (DOMElement*) child;
@@ -171,18 +163,18 @@ DagWfParser::parseNode (const DOMElement * element, const string& nodeEltName) {
       XMLString::release(&child_name_str);
 
       if (child_name == "arg") {
-	parseArg (child_elt, lastArg++, *newNode);
+	parseArg(child_elt, lastArg++, newNode);
       } else
       if (child_name == "in") {
-	parseIn(child_elt, lastArg++, *newNode);
+	parseIn(child_elt, lastArg++, newNode);
       } else
       if (child_name == "inOut") {
-	parseInout(child_elt, lastArg++, *newNode);
+	parseInOut(child_elt, lastArg++, newNode);
       } else
       if (child_name == "out") {
-	parseOut(child_elt, lastArg++, *newNode);
+	parseOut(child_elt, lastArg++, newNode);
       } else
-        parseOtherNodeSubElt(child_elt, child_name, *newNode);
+        parseOtherNodeSubElt(child_elt, child_name, newNode);
     }
     child = child->getNextSibling();
   } // end while
@@ -191,120 +183,128 @@ DagWfParser::parseNode (const DOMElement * element, const string& nodeEltName) {
 /**
  * Parse an argument element
  */
-void
-DagWfParser::parseArg(DOMElement * child_elt, unsigned int lastArg,
-                      Node& node) {
-  string name  = getAttributeValue("name", child_elt);
-  string value = getAttributeValue("value", child_elt);
-  string type  = getAttributeValue("type", child_elt);
+WfPort *
+DagWfParser::parseArg(DOMElement * element, unsigned int lastArg,
+                      Node* node) {
+  string name  = getAttributeValue("name", element);
+  string value = getAttributeValue("value", element);
+  string type  = getAttributeValue("type", element);
+  string depth   = getAttributeValue("depth", element);
   if ((name == "") || (value == "")) {
     throw XMLParsingException(XMLParsingException::eEMPTY_ATTR,
                               "Argument " + name + " malformed");
   }
-  if (child_elt->getFirstChild() != NULL) {
+  if (element->getFirstChild() != NULL) {
     throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
           "Argument element doesn't accept a child element. \
           May be a </arg> is forgotten");
   }
   WfPort *port;
   if (!WfCst::isMatrixType(type)) {
-    port = setParam(WfPort::PORT_IN, name, type, lastArg, node, &value);
+    port = setParam(WfPort::PORT_IN, name, type, depth, lastArg, node, &value);
   } else {
-    port = setMatrixParam(child_elt, WfPort::PORT_IN, name, lastArg, node, &value);
+    port = setMatrixParam(element, WfPort::PORT_IN, name, lastArg, node, &value);
   }
+  return port;
 }
 
 /**
  * Parse an input port element
  */
-void
-DagWfParser::parseIn(DOMElement * child_elt, unsigned int lastArg,
-                     Node& node) {
-  string name    = getAttributeValue("name", child_elt);
-  string type    = getAttributeValue("type", child_elt);
-  string source  = getAttributeValue("source", child_elt);
-  if (child_elt->getFirstChild() != NULL) {
+WfPort *
+DagWfParser::parseIn(DOMElement * element, unsigned int lastArg,
+                     Node* node) {
+  string name    = getAttributeValue("name", element);
+  string type    = getAttributeValue("type", element);
+  string source  = getAttributeValue("source", element);
+  string depth   = getAttributeValue("depth", element);
+  if (element->getFirstChild() != NULL) {
     throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
             "input port element doesn't accept a child element. \
             May be a </in> is forgotten");
   }
   WfPort *port;
   if (!WfCst::isMatrixType(type)) {
-    port = setParam(WfPort::PORT_IN, name, type, lastArg, node);
+    port = setParam(WfPort::PORT_IN, name, type, depth, lastArg, node);
   } else {
-    port = setMatrixParam(child_elt, WfPort::PORT_IN, name, lastArg, node);
+    port = setMatrixParam(element, WfPort::PORT_IN, name, lastArg, node);
   }
   if (!source.empty())
     port->setConnectionRef(source);
   else {
-    WARNING("No source attribute for input port " << node.getId());
+    WARNING("No source attribute for input port " << node->getId());
   }
+  return port;
 }
 
 /**
  * parse InOut port element
  */
-void
-DagWfParser::parseInout(DOMElement * child_elt, unsigned int lastArg,
-                        Node& node) {
-  string name    = getAttributeValue("name", child_elt);
-  string type    = getAttributeValue("type", child_elt);
-  string source  = getAttributeValue("source", child_elt);
-  if (child_elt->getFirstChild()!=NULL) {
+WfPort *
+DagWfParser::parseInOut(DOMElement * element, unsigned int lastArg,
+                        Node* node) {
+  string name    = getAttributeValue("name", element);
+  string type    = getAttributeValue("type", element);
+  string source  = getAttributeValue("source", element);
+  string depth   = getAttributeValue("depth", element);
+  if (element->getFirstChild()!=NULL) {
     throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
           "inOut port element doesn't accept a child element. \
            May be a </inOut> is forgotten");
   }
   WfPort *port;
   if (!WfCst::isMatrixType(type)) {
-    port = setParam(WfPort::PORT_INOUT, name, type, lastArg, node);
+    port = setParam(WfPort::PORT_INOUT, name, type, depth, lastArg, node);
   } else {
-    port = setMatrixParam(child_elt, WfPort::PORT_INOUT, name, lastArg, node);
+    port = setMatrixParam(element, WfPort::PORT_INOUT, name, lastArg, node);
   }
   if (!source.empty())
     port->setConnectionRef(source);
+  return port;
 }
 
 /**
  * Parse Out port element
  */
-void
-DagWfParser::parseOut(DOMElement * child_elt, unsigned int lastArg,
-                      Node& node) {
-  string name  = getAttributeValue("name", child_elt);
-  string type  = getAttributeValue("type", child_elt);
-  string sink  = getAttributeValue("sink", child_elt);
-  if (child_elt->getFirstChild() != NULL) {
+WfPort *
+DagWfParser::parseOut(DOMElement * element, unsigned int lastArg,
+                      Node* node) {
+  string name  = getAttributeValue("name", element);
+  string type  = getAttributeValue("type", element);
+  string sink  = getAttributeValue("sink", element);
+  string depth   = getAttributeValue("depth", element);
+  if (element->getFirstChild() != NULL) {
     throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
           "output port element doesn't accept a child element. \
 	  May be a </out> is forgotten");
   }
   WfPort *port;
   if (!WfCst::isMatrixType(type)) {
-    port = setParam(WfPort::PORT_OUT, name, type, lastArg, node);
+    port = setParam(WfPort::PORT_OUT, name, type, depth, lastArg, node);
   } else {
-    port = setMatrixParam(child_elt, WfPort::PORT_OUT, name, lastArg, node);
+    port = setMatrixParam(element, WfPort::PORT_OUT, name, lastArg, node);
   }
   if (!sink.empty())
     port->setConnectionRef(sink);
+  return port;
 }
 
 /**
  * Parse a prec element
  */
 void
-DagParser::parsePrec(const DOMElement * child_elt, Node& node) {
-  string precNodeId = getAttributeValue("id", child_elt);
+DagParser::parsePrec(const DOMElement * element, Node* node) {
+  string precNodeId = getAttributeValue("id", element);
   if (precNodeId == "") {
     throw XMLParsingException(XMLParsingException::eEMPTY_ATTR,
             "Precedence element malformed");
   }
-  if (child_elt->getFirstChild() != NULL) {
+  if (element->getFirstChild() != NULL) {
     throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
           "Precedence element doesn't accept a child element. \
            May be a </prec> is forgotten");
   }
-  node.addPrevId(precNodeId);
+  node->addNodePredecessor(NULL, precNodeId);
 }
 
 /**
@@ -314,10 +314,11 @@ WfPort *
 DagWfParser::setParam(const WfPort::WfPortType param_type,
 		      const string& name,
 		      const string& type,
+                      const string& depth,
 		      unsigned int lastArg,
-		      Node&  node,
+		      Node * node,
 		      const string * value) {
-  // Get the base type and the depth of the list structure
+  // Get the base type and the depth of the list structure (syntax 'LIST(LIST(<basetype>))')
   unsigned int typeDepth = 0;
   string curType = type;
   string::size_type listPos = curType.find("LIST");
@@ -327,6 +328,9 @@ DagWfParser::setParam(const WfPort::WfPortType param_type,
     ++typeDepth;
   }
   short baseType = WfCst::cvtStrToWfType(curType);
+  // Use depth attribute (second syntax)
+  if (!depth.empty())
+    typeDepth = atoi(depth.c_str());
   TRACE_TEXT( TRACE_ALL_STEPS,"Parameter base type = " << curType
              << " & depth = " << typeDepth << endl);
 
@@ -334,7 +338,7 @@ DagWfParser::setParam(const WfPort::WfPortType param_type,
   // (and optionnally value: used only for Arg ports)
 //   short descType = (typeDepth == 0) ? baseType : (short) WfCst::TYPE_CONTAINER;
 
-  WfPort *port = node.newPort(name, lastArg, param_type, (WfCst::WfDataType) baseType, typeDepth);
+  WfPort *port = node->newPort(name, lastArg, param_type, (WfCst::WfDataType) baseType, typeDepth);
   if (value) {
     DagNodePort * dagPort = dynamic_cast<DagNodePort*>(port);
     if (dagPort) {
@@ -355,7 +359,7 @@ DagWfParser::setMatrixParam(const DOMElement * element,
                             const WfPort::WfPortType param_type,
 			    const string& name,
 			    unsigned int lastArg,
-			    Node& node,
+			    Node * node,
 			    const string * value) {
   string elt_type_str = getAttributeValue("base_type", element);
   string nb_rows_str = getAttributeValue("nb_rows", element);
@@ -364,7 +368,8 @@ DagWfParser::setMatrixParam(const DOMElement * element,
 
   if ((elt_type_str == "") || (nb_rows_str == "")  ||
       (nb_cols_str == "") || (matrix_order_str == "")) {
-    ERROR ("Matrix attribute malformed", false);
+    throw XMLParsingException(XMLParsingException::eEMPTY_ATTR,
+             "Port with wrong matrix parameters");
   }
 
   // get the base type of matrix element
@@ -376,7 +381,7 @@ DagWfParser::setMatrixParam(const DOMElement * element,
   // get the matrix order
   short matrix_order = WfCst::cvtStrToWfMatrixOrder(matrix_order_str);
   // create port
-  WfPort * port = node.newPort(name, lastArg, param_type,
+  WfPort * port = node->newPort(name, lastArg, param_type,
                                WfCst::TYPE_MATRIX, 0);
   port->setMatParams(nb_rows, nb_cols,
                      (WfCst::WfMatrixOrder) matrix_order,
@@ -386,7 +391,8 @@ DagWfParser::setMatrixParam(const DOMElement * element,
     if (dagPort) {
       dagPort->setValue(*value);
     } else {
-      ERROR("Cannot assign value to a port in a non-dag node",0);
+      throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
+              "Cannot assign value to a port in a non-dag node");
     }
   }
   return port;
@@ -400,14 +406,6 @@ DagParser::DagParser(Dag& dag, const char* content)
   : DagWfParser(content), dag(dag) {
 }
 DagParser::~DagParser() {
-}
-
-/**
- * check the precedence of the dag
- */
-bool
-DagParser::checkPrec() {
-  return dag.checkPrec();
 }
 
 /**
@@ -443,7 +441,7 @@ DagParser::parseRoot(DOMNode* root) {
 }
 
 Node *
-DagParser::createNode(const DOMElement* element, const string& nodeEltName) {
+DagParser::createNode(const DOMElement* element, const string& elementName) {
   string nodeId(getAttributeValue("id", element));
   string pbName = getAttributeValue("path", element);
   if (nodeId.empty() || pbName.empty()) {
@@ -451,19 +449,22 @@ DagParser::createNode(const DOMElement* element, const string& nodeEltName) {
                                   "Node without Id or Path");
   }
   DagNode* node = dag.createDagNode(nodeId);
+  if (node == NULL)
+    throw XMLParsingException(XMLParsingException::eINVALID_REF,
+                              "Duplicate node id : " + nodeId);
   node->setPbName(pbName);
   return node;
 }
 
 void
-DagParser::parseOtherNodeSubElt(const DOMElement * childElt,
-                                const string& childName,
-                                Node& node) {
-  if (childName == "prec") {
-    parsePrec(childElt, node);
+DagParser::parseOtherNodeSubElt(const DOMElement * element,
+                                const string& elementName,
+                                Node * node) {
+  if (elementName == "prec") {
+    parsePrec(element, node);
   } else
     throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
-                              "Invalid tag within node (" + childName + ")");
+                              "Invalid tag within node (" + elementName + ")");
 }
 
 /*****************************************************************************/
@@ -474,14 +475,6 @@ FWfParser::FWfParser(FWorkflow& workflow, const char * content)
   : DagWfParser(content), workflow(workflow) {
 }
 FWfParser::~FWfParser() {
-}
-
-/**
- * check the precedence of the dag
- */
-bool
-FWfParser::checkPrec() {
-  return true;
 }
 
 /**
@@ -508,33 +501,48 @@ FWfParser::parseRoot(DOMNode* root) {
 		  "Parsing the element " << nodeName << endl );
       if (nodeName == "interface") {
         // Parse the interface
-        DOMNode * child = root->getFirstChild();
-        while ((child != NULL)) {
-          if (child->getNodeType() == DOMNode::ELEMENT_NODE) {
-            DOMElement * child_elt = (DOMElement*)child;
-            char * _nodeName = XMLString::transcode(child_elt->getNodeName());
-            string nodeName(_nodeName);
-            XMLString::release(&_nodeName);
+        DOMNode * child2 = child->getFirstChild(); // sub-element of <interface>
+        while ((child2 != NULL)) {
+          if (child2->getNodeType() == DOMNode::ELEMENT_NODE) {
+            DOMElement * child_elt2 = (DOMElement*)child2;
+            char * _nodeName2 = XMLString::transcode(child_elt2->getNodeName());
+            string nodeName2(_nodeName2);
+            XMLString::release(&_nodeName2);
             TRACE_TEXT (TRACE_ALL_STEPS,
-                        "Parsing the element " << nodeName << endl );
-            parseNode(child_elt, nodeName);
+                        "Parsing the element " << nodeName2 << endl );
+            parseNode(child_elt2, nodeName2);
           }
-          child = child->getNextSibling();
+          child2 = child2->getNextSibling();
         } // end while
       } else if (nodeName == "processors") {
         // Parse the processors
-        DOMNode * child = root->getFirstChild();
-        while ((child != NULL)) {
-          if (child->getNodeType() == DOMNode::ELEMENT_NODE) {
-            DOMElement * child_elt = (DOMElement*)child;
-            char * _nodeName = XMLString::transcode(child_elt->getNodeName());
-            string nodeName(_nodeName);
-            XMLString::release(&_nodeName);
+        DOMNode * child2 = child->getFirstChild(); // sub-element of <processors>
+        while ((child2 != NULL)) {
+          if (child2->getNodeType() == DOMNode::ELEMENT_NODE) {
+            DOMElement * child_elt2 = (DOMElement*)child2;
+            char * _nodeName2 = XMLString::transcode(child_elt2->getNodeName());
+            string nodeName2(_nodeName2);
+            XMLString::release(&_nodeName2);
             TRACE_TEXT (TRACE_ALL_STEPS,
-                        "Parsing the element " << nodeName << endl );
-            parseNode(child_elt, nodeName);
+                        "Parsing the element " << nodeName2 << endl );
+            parseNode(child_elt2, nodeName2);
           }
-          child = child->getNextSibling();
+          child2 = child2->getNextSibling();
+        } // end while
+      } else if (nodeName == "links") {
+        // Parse the links
+        DOMNode * child2 = child->getFirstChild(); // sub-element of <links>
+        while ((child2 != NULL)) {
+          if (child2->getNodeType() == DOMNode::ELEMENT_NODE) {
+            DOMElement * child_elt2 = (DOMElement*)child2;
+            char * _nodeName2 = XMLString::transcode(child_elt2->getNodeName());
+            string nodeName2(_nodeName2);
+            XMLString::release(&_nodeName2);
+            TRACE_TEXT (TRACE_ALL_STEPS,
+                        "Parsing the element " << nodeName2 << endl );
+            parseLink(child_elt2);
+          }
+          child2 = child2->getNextSibling();
         } // end while
       } else {
 	throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
@@ -545,31 +553,177 @@ FWfParser::parseRoot(DOMNode* root) {
   } // end while
 }
 
+/**
+ * Workflow node creation for functional wf
+ * TODO manage condition and loop
+ */
 Node *
-FWfParser::createNode(const DOMElement* element, const string& nodeEltName) {
+FWfParser::createNode(const DOMElement* element, const string& elementName) {
   string name = getAttributeValue("name", element);
   string type = getAttributeValue("type", element);
-  if (name.empty() || type.empty()) {
+  string maxInstStr = getAttributeValue("max_instances", element);
+  short dataType = 0;
+  short maxInst = 0;
+  if (name.empty()) {
     throw XMLParsingException(XMLParsingException::eEMPTY_ATTR,
-                              "Element " + nodeEltName + " without name or type");
+                              "Element " + elementName + " without name");
   }
-  if (nodeEltName == "source") {
-    return (Node*) workflow.createSource(name);
-  } else if (nodeEltName == "constant") {
-    return (Node*) workflow.createConstant(name);
-  } else if (nodeEltName == "processor") {
-    return (Node*) workflow.createProcessor(name);
+  if (type.empty() && (elementName != "processor")) {
+    throw XMLParsingException(XMLParsingException::eEMPTY_ATTR,
+                              "Element " + elementName + " without type");
+  }
+  if (!type.empty()) {
+    dataType = WfCst::cvtStrToWfType(type);
+  }
+  if (!maxInstStr.empty()) {
+    maxInst = atoi(maxInstStr.c_str());
+  }
+  Node * node;
+  if (elementName == "source") {
+    node = workflow.createSource(name,(WfCst::WfDataType) dataType, maxInst);
+  } else if (elementName == "constant") {
+    node = workflow.createConstant(name,(WfCst::WfDataType) dataType);
+  } else if (elementName == "processor") {
+    node = workflow.createProcessor(name, maxInst);
   } else {
     throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
-                              "Invalid element : " + nodeEltName);
+                              "Invalid element : " + elementName);
   }
+  if (node == NULL)
+    throw XMLParsingException(XMLParsingException::eINVALID_REF,
+                              "Duplicate node id : " + name);
+  return node;
 }
 
-void
-FWfParser::parseOtherNodeSubElt(const DOMElement * child_elt,
-                                const string& childName,
-                                Node& node) {
-  if (childName == "diet") {
+/**
+ * Override methods for port parsing
+ */
+WfPort*
+FWfParser::parseIn(DOMElement * element,
+                   const unsigned int lastArg,
+                   Node * node) {
+  WfPort *port = DagWfParser::parseIn(element,lastArg,node);
+  parseCardAttr(element,port);
+  return port;
+}
 
+WfPort*
+FWfParser::parseOut(DOMElement * element,
+                    const unsigned int lastArg,
+                    Node * node) {
+  WfPort *port = DagWfParser::parseOut(element,lastArg,node);
+  parseCardAttr(element,port);
+  return port;
+}
+
+WfPort*
+FWfParser::parseInOut(DOMElement * element,
+                      const unsigned int lastArg,
+                      Node * node) {
+  WfPort *port = DagWfParser::parseInOut(element,lastArg,node);
+  parseCardAttr(element,port);
+  return port;
+}
+
+/**
+ * Parse the 'card' attribute (the cardinal of containers)
+ */
+void
+FWfParser::parseCardAttr(DOMElement * element, WfPort* port) {
+  const XMLCh * strCard  = element->getAttribute(XMLString::transcode("card"));
+  // parse the semi-column separated list
+  XMLStringTokenizer *tkizer = new XMLStringTokenizer(strCard, XMLString::transcode(";"));
+  list<string> * tklist = new list<string>();
+  while (tkizer->hasMoreTokens()) {
+    const char *item = XMLString::transcode(tkizer->nextToken());
+    tklist->push_back(item);
+    cout << "Parsed cardinal item=" << item << endl;
+  }
+  // set the cardinal of the port
+  port->setCardinal(*tklist);
+  delete tklist;
+  delete tkizer;
+}
+
+/**
+ * Parse a link
+ * This will create the portAdapter object within the TO node port
+ * FIXME at this stage we dont know wether the link is a back link or not!
+ */
+void
+FWfParser::parseLink(DOMElement * element) {
+  string from = getAttributeValue("from", element);
+  string to = getAttributeValue("to", element);
+  string fromNodeName, toNodeName, fromPortName, toPortName;
+  FNode *fromNode = parseLinkRef(from, fromNodeName, fromPortName);
+  FNode *toNode = parseLinkRef(to, toNodeName, toPortName);
+  cout << "Parsing link: from=" << from << " to=" << to << endl;
+  // set the port reference
+  WfPort *toPort = toNode->getPort(toPortName);
+  if (toPort == NULL)
+    throw XMLParsingException(XMLParsingException::eINVALID_REF,
+             "<link> contains an invalid port name : " + toPortName
+             + " for node : " + toNodeName);
+  // creates the adapter to the source port
+  toPort->setConnectionRef(fromNodeName + "#" + fromPortName);
+}
+
+/**
+ * Parse a link attribute (ref to an interface node or to a port)
+ */
+FNode *
+FWfParser::parseLinkRef(const string& strRef, string& nodeName, string& portName) {
+  FNode *node;
+  string::size_type nodeSep = strRef.find(":");
+  if (nodeSep != string::npos) {
+    nodeName = strRef.substr(0, nodeSep);
+    portName = strRef.substr(nodeSep+1, strRef.length()-nodeSep-1);
+    node = workflow.getProcNode(nodeName);
+  } else {
+    nodeName = strRef;
+    portName = "out";
+    node = workflow.getInterfaceNode(nodeName);
+  }
+  if (node == NULL)
+    throw XMLParsingException(XMLParsingException::eINVALID_REF,
+             "<link> contains an invalid node name : " + nodeName);
+  return node;
+}
+
+/**
+ * Parse the derived class specific node elements
+ */
+void
+FWfParser::parseOtherNodeSubElt(const DOMElement * element,
+                                const string& elementName,
+                                Node * node) {
+  // Diet service
+  if (elementName == "diet") {
+    FProcNode* procNode = dynamic_cast<FProcNode*>(node);
+    if (!procNode)
+      throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
+                 "<diet> element applied to non-processor element");
+    string path = getAttributeValue("path", element);
+    if (path.empty())
+      throw XMLParsingException(XMLParsingException::eEMPTY_ATTR,
+                 "<diet> element must contain a path attribute");
+    procNode->setDIETServicePath(path);
+  // VALUE of constants
+  } else if (elementName == "value") {
+    FConstantNode* cstNode = dynamic_cast<FConstantNode*>(node);
+    if (!cstNode)
+      throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
+                 "<value> element defined outside a <constant>");
+    DOMNode * child = element->getFirstChild();
+    if (child->getNodeType() == DOMNode::TEXT_NODE) {
+      DOMText * child_elt = (DOMText*) child;
+      char *child_name_str = XMLString::transcode(child_elt->getData());
+      string value(child_name_str);
+      XMLString::release(&child_name_str);
+      cstNode->setValue(value);
+    }
+  } else { // TODO Manage operators
+    throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
+                              "Invalid element : " + elementName);
   }
 }

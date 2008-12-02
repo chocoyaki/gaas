@@ -8,11 +8,13 @@ IF( DIET_BUILD_LIBRARIES )
     ${XERCES_INCLUDE_DIR}
     )
   ADD_LIBRARY ( UtilsWf
-    Node.cc Dag.cc FWorkflow.cc
+    Node.cc Dag.cc MetaDag.cc FWorkflow.cc FNode.cc
     WfPort.cc WfPortAdapter.cc
+    FNodePort.cc
     DagNode.cc DagNodePort.cc
     DagWfParser.cc
     NodeQueue.cc
+    FDataHandle.cc
     Thread.cc WfUtils.cc
     )
 
@@ -27,4 +29,9 @@ IF( DIET_BUILD_LIBRARIES )
   ENDIF( APPLE )
 
   INSTALL_TARGETS( /lib/ UtilsWf )
+
+  ADD_EXECUTABLE( wftest WfUnitTest.cc )
+  TARGET_LINK_LIBRARIES( wftest UtilsWf DIET_client)
+  INSTALL_TARGETS( /bin/ wftest )
+
 ENDIF( DIET_BUILD_LIBRARIES )

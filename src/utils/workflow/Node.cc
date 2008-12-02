@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.32  2008/12/02 10:14:51  bisnard
+ * modified nodes links mgmt to handle inter-dags links
+ *
  * Revision 1.31  2008/10/20 08:02:19  bisnard
  * moved pb name attribute from Node to DagNode class
  *
@@ -180,7 +183,14 @@
 
 Node::Node(const string& id) : myId(id) {}
 
-Node::~Node() {}
+Node::~Node() {
+  // Free the ports map
+  while (! ports.empty() ) {
+    WfPort * p = ports.begin()->second;
+    ports.erase( ports.begin() );
+    delete p;
+  }
+}
 
 /****************************************************************************/
 /*                              Basic GET/SET                               */
@@ -193,12 +203,27 @@ const string& Node::getId() { return this->myId; }
 /****************************************************************************/
 
 /**
- * (public) used by DagWfParser and WfPortAdapter
+ * (protected)
  * add a new previous node id *
  */
 void
-Node::addPrevId(string nodeId) {
+Node::addPrevId(const string& nodeId) {
+  if (nodeId.empty()) {
+    INTERNAL_ERROR("Node::addPrevId Fatal Error: Empty node id", 1);
+  }
   prevNodeIds.insert(nodeId); // set insertion
+}
+
+/**
+ * (protected)
+ * remove a previous node id *
+ */
+void
+Node::remPrevId(const string& nodeId) {
+  if (nodeId.empty()) {
+    INTERNAL_ERROR("Node::remPrevId Fatal Error: Empty node id", 1);
+  }
+  prevNodeIds.erase(nodeId); // set removal
 }
 
 /**
@@ -212,13 +237,13 @@ Node::setNodePrecedence(NodeSet* nodeSet) {
   // The predecessors defined by control links (<prec> tag) were
   // already added by the dag parser.
   // Add the predecessors defined by data links
+  TRACE_TEXT (TRACE_ALL_STEPS, "Processing ports of node : " << myId << endl);
   for (map<string, WfPort*>::iterator p = ports.begin();
 	 p != ports.end();
 	 ++p) {
       if (!((WfPort*)p->second)->setNodePrecedence(nodeSet))
         return false;
   }
-
   // convert the predecessors defined by ID in prevNodeIds to
   // direct object references stored in prevNodes
   prevNodes.resize(prevNodeIds.size());
@@ -227,7 +252,7 @@ Node::setNodePrecedence(NodeSet* nodeSet) {
        idIter != prevNodeIds.end();
        ++idIter) {
     Node * prevNode = nodeSet->getNode(*idIter);
-    if (prevNode)
+    if (prevNode != NULL)
       this->setPrev(prevIdx++, prevNode);
     else
       return false;
@@ -236,13 +261,22 @@ Node::setNodePrecedence(NodeSet* nodeSet) {
 }
 
 /**
- * (private)
- * Set a new previous node *
+ * (public) Add a new predecessor
+ * (may check some constraints before adding the predecessor effectively)
+ */
+void
+Node::addNodePredecessor(Node * node, const string& fullNodeId) {
+  // no check is done in this class
+  addPrevId(fullNodeId);
+}
+
+/**
+ * (protected) Set a new previous node *
  * (does not check duplicates)
  */
 void
 Node::setPrev(int index, Node * node) {
-    TRACE_TEXT (TRACE_ALL_STEPS, "The node " << this->myId << " has a new previous node " <<
+    TRACE_TEXT (TRACE_ALL_STEPS, "The node " << myId << " has a new previous node " <<
  		node->getId() << endl);
     prevNodes[index] = node;
     node->addNext(this);
@@ -276,8 +310,8 @@ Node::prevNodesEnd() {
  * Add a next node reference *
  */
 void
-Node::addNext(Node * n) {
-  nextNodes.push_back(n);
+Node::addNext(Node * node) {
+  nextNodes.push_back(node);
 }
 
 /**
@@ -337,7 +371,7 @@ Node::connectNodePorts() {
   for (map<string, WfPort*>::iterator p = ports.begin();
        p != ports.end();
        ++p) {
-    ((WfPort*)(p->second))->connectPorts(this->getNodeSet());
+    ((WfPort*)(p->second))->connectPorts();
   }
 }
 

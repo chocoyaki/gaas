@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/12/02 10:14:51  bisnard
+ * modified nodes links mgmt to handle inter-dags links
+ *
  * Revision 1.4  2008/10/30 14:33:01  bisnard
  * added recursive container initialization
  *
@@ -68,6 +71,12 @@ public:
   initProfileExec();
 
   /**
+   * Return the XML description of the port
+   */
+  virtual string
+  toXML();
+
+  /**
    * Return the profile of the node
    * used by WfPortAdapter::getSourceDataID
    */
@@ -119,6 +128,11 @@ protected:
    */
   string dataID;
 
+  /**
+   * The value of the data (if present)
+   */
+  string value;
+
 private:
 
   /**
@@ -136,11 +150,6 @@ private:
    * The reference of port node
    */
   DagNode * myParent;
-
-  /**
-   * The value of the data (if present)
-   */
-  string value;
 
 }; // end DagNodePort
 
@@ -164,6 +173,12 @@ public:
   void
   freeProfileData();
 
+  /**
+   * Return the XML description of the port
+   */
+  virtual string
+  toXML();
+
 protected:
 
   /**
@@ -186,6 +201,12 @@ public:
    */
   virtual bool
   initProfileExec();
+
+  /**
+   * Return the XML description of the port
+   */
+  virtual string
+  toXML();
 
 protected:
   /**
@@ -213,7 +234,13 @@ public:
                    string _id,
                    WfCst::WfDataType _type,
                    unsigned int _depth,
-                   unsigned int _ind) ;
+                   unsigned int _ind);
+
+  /**
+   * Return the XML description of the port
+   */
+  virtual string
+  toXML();
 
 protected:
   /**

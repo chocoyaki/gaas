@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2008/12/02 10:14:51  bisnard
+ * modified nodes links mgmt to handle inter-dags links
+ *
  * Revision 1.6  2008/11/08 19:12:40  bdepardo
  * A few warnings removal
  *
@@ -36,6 +39,11 @@
 #include "Dag.hh"
 #include "DagNode.hh"
 #include "DagNodePort.hh"
+#if HAVE_DAGDA
+extern "C" {
+#include "DIET_Dagda.h"
+}
+#endif
 
 
 #define wf_dag_print_matrix_of_real(mat, m, n, rm)        \
@@ -157,7 +165,7 @@ RunnableNode::run() {
 /*                       Constructors/Destructor                            */
 /****************************************************************************/
 
-DagNode::DagNode(Dag *dag, string id) : Node(id), myDag(dag) {
+DagNode::DagNode(Dag *dag, const string& id) : Node(id), myDag(dag) {
   this->prevNodesTodoCount = 0;
   this->task_done = false;
   this->SeDDefined = false;
@@ -289,10 +297,10 @@ string DagNode::getCompleteId() {
  * Get the node container (implements abstract method)
  * Used by generic node linking functions
  */
-NodeSet*
-DagNode::getNodeSet() {
-  return getDag();
-}
+// NodeSet*
+// DagNode::getNodeSet() {
+//   return getDag();
+// }
 
 /**
  * get the node Dag reference
@@ -328,13 +336,33 @@ DagNode::getPbName() {
 /******************************/
 
 /**
+ * (public) Add a new predecessor
+ * (may check some constraints before adding the predecessor effectively)
+ */
+void
+DagNode::addNodePredecessor(Node * node, const string& fullNodeId) {
+  // check if predecessor is not already done
+  if (node != NULL) {
+    DagNode * predNode = dynamic_cast<DagNode*>(node);
+    if (!predNode->isDone()) {
+      addPrevId(fullNodeId);
+    } else {
+    TRACE_TEXT(TRACE_ALL_STEPS,"Previous node is done => no node dependency" << endl);
+    }
+  } else {
+    addPrevId(fullNodeId);
+  }
+}
+
+/**
  * (private)
  * Set a new previous node *
  */
 void
 DagNode::setPrev(int index, Node * node) {
-    Node::setPrev(index,node);
-    prevNodesTodoCount++;
+  DagNode * prevDagNode = dynamic_cast<DagNode*>(node);
+  Node::setPrev(index,node);
+  prevNodesTodoCount++;
 }
 
 /**
@@ -342,10 +370,10 @@ DagNode::setPrev(int index, Node * node) {
  */
 WfPort *
 DagNode::newPort(string portId, unsigned int ind,
-                 WfPort::WfPortType type, WfCst::WfDataType dataType,
+                 WfPort::WfPortType portType, WfCst::WfDataType dataType,
                  unsigned int depth) {
   WfPort * p = NULL;
-  switch (type) {
+  switch (portType) {
     case WfPort::PORT_IN:
       p = new DagNodeInPort(this, portId, dataType, depth, ind);
       break;
@@ -358,6 +386,20 @@ DagNode::newPort(string portId, unsigned int ind,
   }
   this->ports[portId] = p;
   return p;
+}
+
+string
+DagNode::toXML() {
+  string xml = "<node id=\""+ myId +"\" ";
+  xml += "path=\""+ myPb +"\">\n";
+  for (map<string, WfPort*>::iterator p = ports.begin();
+       p != ports.end();
+       ++p) {
+    DagNodePort * port = dynamic_cast<DagNodePort*>((WfPort*)(p->second));
+    xml += port->toXML();
+  }
+  xml += "</node>\n";
+  return xml;
 }
 
 /******************************/
@@ -502,16 +544,18 @@ DagNode::freeProfileAndData() {
   TRACE_TEXT (TRACE_ALL_STEPS,
               myId << " Free profile and release persistent data" << endl);
   // Free persistent data
-  for (map<string, WfPort*>::iterator p = ports.begin();
-       p != ports.end();
-       ++p) {
-    if (((WfPort *)p->second)->getPortType() == WfPort::PORT_OUT) {
-      DagNodeOutPort * dagPort = dynamic_cast<DagNodeOutPort*>(p->second);
-      dagPort->freeProfileData();
+  if (profile) {
+    for (map<string, WfPort*>::iterator p = ports.begin();
+         p != ports.end();
+         ++p) {
+      if (((WfPort *)p->second)->getPortType() == WfPort::PORT_OUT) {
+        DagNodeOutPort * dagPort = dynamic_cast<DagNodeOutPort*>(p->second);
+        dagPort->freeProfileData();
+      }
     }
+    diet_profile_free(profile);
+    profile = NULL;
   }
-  diet_profile_free(profile);
-  profile = NULL;
 }
 
 /**
@@ -650,35 +694,34 @@ DagNode::displayResults() {
        ++p) {
     if (((WfPort *)p->second)->getPortType() == WfPort::PORT_OUT) {
       DagNodeOutPort * outp = dynamic_cast<DagNodeOutPort *>(p->second);
+      cout << "checking port " << outp->getId() << " of node "
+           << outp->getParent()->getId() << endl;
       if (!outp->isConnected()) {
         short dataType = outp->getDataType();
-	
+
 	if (dataType == WfCst::TYPE_FILE) {
 	  size_t size;
 	  char * path;
 	  diet_file_get(diet_parameter(outp->profile(),outp->getIndex()),
 			NULL, &size, &path);
-	  TRACE_TEXT (TRACE_ALL_STEPS,
-		      "## WORKFLOW OUTPUT ## " <<
+	  cout << "## WORKFLOW OUTPUT ## " <<
 		      outp->getId() << " type = DIET_FILE, " <<
 		      "File name = " << path << ", " <<
-		      "File size = " << size  << endl);
+		      "File size = " << size  << endl;
 	}
 	else if (dataType == WfCst::TYPE_DOUBLE) {
           double * value = NULL;
           diet_scalar_get(diet_parameter(outp->profile(),outp->getIndex()),
                           &value, NULL);
-          TRACE_TEXT (TRACE_ALL_STEPS,
-                      "## WORKFLOW OUTPUT ## " <<
-                          outp->getId() << " = " << *value << endl);
+          cout << "## WORKFLOW OUTPUT ## " <<
+                          outp->getId() << " = " << *value << endl;
         }
         else if (dataType == WfCst::TYPE_FLOAT) {
           float * value = NULL;
           diet_scalar_get(diet_parameter(outp->profile(),outp->getIndex()),
                           &value, NULL);
-          TRACE_TEXT (TRACE_ALL_STEPS,
-                      "## WORKFLOW OUTPUT ## " <<
-                          outp->getId() << " = " << *value << endl);
+          cout << "## WORKFLOW OUTPUT ## " <<
+                          outp->getId() << " = " << *value << endl;
         }
         else if ( (dataType == WfCst::TYPE_CHAR) ||
 		  (dataType == WfCst::TYPE_SHORT) ||
@@ -687,19 +730,34 @@ DagNode::displayResults() {
           long * value = NULL;
           diet_scalar_get(diet_parameter(outp->profile(),outp->getIndex()),
                           &value, NULL);
-          TRACE_TEXT (TRACE_ALL_STEPS,
-                      "## WORKFLOW OUTPUT ## " <<
-		      outp->getId() << " = " << *value << endl);
+          cout << "## WORKFLOW OUTPUT ## " <<
+		      outp->getId() << " = " << *value << endl;
 	}
 	else if (dataType == WfCst::TYPE_STRING) {
 	  char * value;
 	  diet_string_get(diet_parameter(outp->profile(),outp->getIndex()),
 			  &value, NULL);
-	  TRACE_TEXT (TRACE_ALL_STEPS,
-		      "## WORKFLOW OUTPUT ## " <<
-		      outp->getId() << " = " << value << std::endl);
+	  cout << "## WORKFLOW OUTPUT ## " <<
+		      outp->getId() << " = " << value << endl;
 	}
-	else if (dataType == WfCst::TYPE_MATRIX) {
+        else if (dataType == WfCst::TYPE_CONTAINER) {
+          short baseType = outp->getEltDataType();
+          cout << "## WORKFLOW OUTPUT ## " <<
+		      outp->getId() << " = LIST (" << endl;
+          // Retrieve container elements
+          const char *contID = (*diet_parameter(outp->profile(),outp->getIndex())).desc.id;
+          dagda_get_container(contID);
+          diet_container_t content;
+          dagda_get_container_elements(contID, &content);
+          for (int ix=0; ix<content.size; ++ix) {
+            if (baseType == WfCst::TYPE_LONGINT) {
+              long *value;
+              dagda_get_scalar(content.elt_ids[ix],&value,NULL);
+              cout <<  "element [" << ix << "] = " << *value << endl;
+            }
+          }
+          TRACE_TEXT (TRACE_ALL_STEPS,")" << endl);
+        } else if (dataType == WfCst::TYPE_MATRIX) {
 	  size_t nb_rows, nb_cols;
 	  diet_matrix_order_t order;
 	  short baseType = outp->getEltDataType();

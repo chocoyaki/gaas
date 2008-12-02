@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2008/12/02 10:14:51  bisnard
+ * modified nodes links mgmt to handle inter-dags links
+ *
  * Revision 1.9  2008/11/07 13:42:05  bdepardo
  * Added two getters in WfPort:
  * - getDataType
@@ -59,6 +62,7 @@
 #define _WFPORT_HH_
 
 #include <string>
+#include <list>
 
 #include "WfPortAdapter.hh"
 #include "WfUtils.hh"
@@ -69,6 +73,10 @@ class Node;
 class NodeSet;
 
 class WfPort {
+
+  // single adapter is friend as it manages the connection btw two ports
+  friend class WfSimplePortAdapter;
+
 public:
 
   enum WfPortType{
@@ -145,41 +153,60 @@ public:
   getEltDataType();
 
   /**
+   * Returns the base data type (in all cases)
+   */
+  WfCst::WfDataType
+  getBaseDataType();
+
+  /**
+   * Set the cardinal of the containers
+   * @param cardList  a list of values
+   */
+  void
+  setCardinal(const list<string>& cardList);
+
+  /**
    * Set the source of the input port (Parsing only)
-   * @param s The source port (output port) reference
+   * @param strRef The source port (output port) reference
    */
   void
   setConnectionRef(const string& strRef);
 
   /**
-   * Set the port as connected
-   * (means that there is a linked port, but not that the connectPorts() method
-   *  has been called)
+   * Set the port adapter
    */
   void
-  setAsConnected();
+  setPortAdapter(WfPortAdapter* adapter);
+
+  /**
+   * Nodes linking (used for dag scheduling)
+   * @param contextNodeSet  the node set used to find references to nodes
+   */
+  bool
+  setNodePrecedence(NodeSet * contextNodeSet);
+
+  /**
+   * Ports linking (used for node execution)
+   * @param nodeSet   container for the linked nodes
+   */
+  void
+  connectPorts();
 
   /**
    * Return true if the port is connected to another port
-   * (ie source or sink attribute is defined)
+   * (through an object link)
    */
   bool
   isConnected();
 
-  /**
-   * Nodes linking (used for dag scheduling)
-   */
-  bool
-  setNodePrecedence(NodeSet* nodeSet);
-
-  /**
-   * Ports linking (used for node execution)
-   * @param dag   the dag that contains the linked ports
-   */
-  void
-  connectPorts(NodeSet* nodeSet);
-
 protected:
+
+  /**
+   * Ports linking on one side only
+   * @param remPort  remote port
+   */
+  virtual void
+  connectToPort(WfPort* remPort);
 
   /**
    * The id of the port
@@ -207,6 +234,15 @@ protected:
    * The depth of the list structure (eg if type="LIST(LIST(INT))")
    */
   unsigned int depth;
+
+  /**
+   * The cardinal of the list structure (ie nb of elements at each level)
+   * HYP: at a given level all elements have the same cardinal
+   * The values stored in the list can be
+   *  - an unsigned integer (as a string) if the cardinal is known
+   *  - an 'x' if the cardinal is not known
+   */
+  list<string> * card;
 
   /**
    * The index of the port

@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2008/12/02 10:14:51  bisnard
+ * modified nodes links mgmt to handle inter-dags links
+ *
  * Revision 1.11  2008/11/07 13:42:05  bdepardo
  * Added two getters in WfPort:
  * - getDataType
@@ -57,20 +60,30 @@
  *
  ****************************************************************************/
 
+
 #include "WfPort.hh"
 #include "debug.hh"
 
 WfPort::WfPort(Node * parent, const string& _id, WfPortType _portType,
                WfCst::WfDataType _type, unsigned int _depth, unsigned int _ind) :
   myParent(parent), id(_id), portType(_portType), type(_type),
-  depth(_depth), index(_ind), adapter(NULL), nb_r(0), nb_c(0), connected(false) {
+  depth(_depth), index(_ind), adapter(NULL), nb_r(0), nb_c(0),
+  connected(false), card(NULL) {
+  if (!parent) {
+    INTERNAL_ERROR("Missing parent for port creation",0);
+  }
   if (_depth > 0) {
     eltType = _type; // store the elements type
     type = WfCst::TYPE_CONTAINER;
   }
 }
 
-WfPort::~WfPort() { }
+WfPort::~WfPort() {
+  if (adapter != NULL)
+    delete adapter;
+  if (card != NULL)
+    delete card;
+}
 
 void
 WfPort::setMatParams(long nbr, long nbc,
@@ -117,6 +130,18 @@ WfPort::getEltDataType() {
   return this->eltType;
 }
 
+WfCst::WfDataType
+WfPort::getBaseDataType() {
+  return (depth > 0) ? eltType : type;
+}
+
+void
+WfPort::setCardinal(const list<string>& cardList) {
+  if (card == NULL)
+    card = new list<string>(cardList);
+  else
+    *card = cardList;
+}
 
 void
 WfPort::setConnectionRef(const string& strRef) {
@@ -125,8 +150,24 @@ WfPort::setConnectionRef(const string& strRef) {
 }
 
 void
-WfPort::setAsConnected() {
-  this->connected = true;
+WfPort::setPortAdapter(WfPortAdapter* adapter) {
+  this->adapter = adapter;
+}
+
+bool
+WfPort::setNodePrecedence(NodeSet* contextNodeSet) {
+  if (adapter) { // in case this method is called on an argument port
+    if (!adapter->setNodePrecedence(getParent(), contextNodeSet))
+      return false;
+  }
+  return true;
+}
+
+void
+WfPort::connectPorts() {
+  if (adapter) {
+    adapter->connectPorts(this);
+  }
 }
 
 bool
@@ -134,20 +175,12 @@ WfPort::isConnected() {
   return connected;
 }
 
-bool
-WfPort::setNodePrecedence(NodeSet* nodeSet) {
-  if (adapter) { // in case this method is called on an argument port
-    if (!adapter->setNodePrecedence(getParent(), nodeSet))
-      return false;
-  }
-  return true;
-}
+/*************************************/
+/*          PROTECTED                */
+/*************************************/
 
 void
-WfPort::connectPorts(NodeSet* nodeSet) {
-  if (adapter) { // this method may be called on an argument port
-    adapter->connectPorts(this, nodeSet);
-    this->setAsConnected();
-  }
+WfPort::connectToPort(WfPort * remPort) {
+  this->connected = true;
 }
 

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2008/12/02 10:14:51  bisnard
+ * modified nodes links mgmt to handle inter-dags links
+ *
  * Revision 1.6  2008/10/30 14:33:01  bisnard
  * added recursive container initialization
  *
@@ -28,6 +31,7 @@
 
 #include "debug.hh"
 #include "DagNodePort.hh"
+#include "WfUtils.hh"
 #if HAVE_DAGDA
 extern "C" {
 #include "DIET_Dagda.h"
@@ -399,6 +403,22 @@ DagNodePort::getDataID() {
   return this->dataID;
 }
 
+string
+DagNodePort::toXML() {
+  string xml = "";
+  xml += "name=\"" + id + "\" type=\"" + WfCst::cvtWfToStrType(getBaseDataType()) +"\" ";
+  if (depth > 0) {
+    xml += " depth=\"" + itoa(depth) +"\" ";
+  }
+  if (type == WfCst::TYPE_MATRIX) {
+    xml += "base_type=\""+ WfCst::cvtWfToStrType(eltType) +"\" ";
+    xml += "nb_rows=\"" + itoa(nb_r)+"\" ";
+    xml += "nb_cols=\"" + itoa(nb_c)+"\" ";
+    xml += "matrix_order=\"" + WfCst::cvtWfToStrMatrixOrder(order) + "\" ";
+  }
+  return xml;
+}
+
 /**
  * DagNodeOutPort class
  */
@@ -421,6 +441,14 @@ DagNodeOutPort::freeProfileData() {
 #if ! HAVE_DAGDA
   diet_free_persistent_data(profile()->parameters[getIndex()].desc.id);
 #endif
+}
+
+string
+DagNodeOutPort::toXML() {
+  string xml = "\t<out ";
+  xml += DagNodePort::toXML();
+  xml += "/>\n";
+  return xml;
 }
 
 diet_persistence_mode_t
@@ -475,6 +503,22 @@ DagNodeInPort::initSourceData() {
   return true;
 }
 
+string
+DagNodeInPort::toXML() {
+  string xml = "";
+  if (!value.empty())
+    xml = "\t<arg ";
+  else
+    xml ="\t<in ";
+  xml += DagNodePort::toXML();
+  if (!value.empty())
+    xml += "value=\"" + this->value + "\" ";
+  if (adapter)
+    xml += "source=\""+ adapter->getSourceRef() +"\"";
+  xml += "/>\n";
+  return xml;
+}
+
 diet_persistence_mode_t
 DagNodeInPort::getPersistenceMode() {
 #if HAVE_DAGDA
@@ -503,4 +547,10 @@ diet_persistence_mode_t
 DagNodeInOutPort::getPersistenceMode() {
   if (!isConnected()) return DIET_PERSISTENT_RETURN;
   else return DIET_PERSISTENT;
+}
+
+string
+DagNodeInOutPort::toXML() {
+  string xml = "CANNOT BE GENERATED YET!!";
+  return xml;
 }
