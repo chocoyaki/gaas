@@ -1,0 +1,5 @@
+This example demonstrates how a service can dynamically be added to an
+existing SeD by using a library.
+
+service.{hh,cc} and service2.{hh,cc} are in fact the same service,
+only the names differ.
