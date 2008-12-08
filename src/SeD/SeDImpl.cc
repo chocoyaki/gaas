@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.112  2008/12/08 15:31:42  bdepardo
+ * Added the possibility to remove a service given its profile description.
+ * So now, one is able to remove a service given either the real profile,
+ * or the profile description.
+ *
  * Revision 1.111  2008/11/18 10:13:57  bdepardo
  * - Added the possibility to dynamically create and destroy a service
  *   (even if the SeD is already started). An example is available.
@@ -709,6 +714,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
   diet_convertor_t* cvt(NULL);
   int solve_res(0);
   char statMsg[128];
+
   int i;//, arg_idx;
 
   /* Record the SedImpl address */
@@ -1699,6 +1705,34 @@ SeDImpl::removeService(const diet_profile_t* const profile)
   }
 
   mrsh_profile_desc(&corba_profile, &profileDesc);
+  if ((res = this->SrvT->rmService(&corba_profile)) != 0)
+    return res;
+
+  res = parent->serverRemoveService(this->childID, corba_profile);
+
+  return res;
+}
+
+
+int
+SeDImpl::removeServiceDesc(const diet_profile_desc_t* profile)
+{
+  int res = 0;
+  corba_profile_desc_t corba_profile;
+
+  if (profile == NULL) {
+    ERROR(__FUNCTION__ << ": NULL profile", -1);
+  }
+
+  if (this->SrvT == NULL) {
+    ERROR(__FUNCTION__ << ": service table not yet initialized", -1);
+  }
+
+  if (childID < 0) {
+    ERROR(__FUNCTION__ << ": server did not subscribe yet\n", 1);
+  }
+
+  mrsh_profile_desc(&corba_profile, profile);
   if ((res = this->SrvT->rmService(&corba_profile)) != 0)
     return res;
 

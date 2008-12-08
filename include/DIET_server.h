@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.45  2008/12/08 15:31:42  bdepardo
+ * Added the possibility to remove a service given its profile description.
+ * So now, one is able to remove a service given either the real profile,
+ * or the profile description.
+ *
  * Revision 1.44  2008/11/18 10:11:07  bdepardo
  * - Added the possibility to dynamically create and destroy a service
  *   (even if the SeD is already started). An example is available.
@@ -471,6 +476,7 @@ int diet_service_table_add(const diet_profile_desc_t* const profile,
  * It also informs its parent from the removal.
  */
 int diet_service_table_remove(const diet_profile_t* const profile);
+int diet_service_table_remove_desc(const diet_profile_desc_t* const profile);
 #endif
   /* Unused !!!
 int diet_service_table_lookup(const diet_profile_desc_t* const profile);

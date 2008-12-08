@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.80  2008/12/08 15:31:42  bdepardo
+ * Added the possibility to remove a service given its profile description.
+ * So now, one is able to remove a service given either the real profile,
+ * or the profile description.
+ *
  * Revision 1.79  2008/11/18 10:13:56  bdepardo
  * - Added the possibility to dynamically create and destroy a service
  *   (even if the SeD is already started). An example is available.
@@ -320,6 +325,12 @@ int
 diet_service_table_remove(const diet_profile_t* const profile)
 {
   return ((SeDImpl*) profile->SeDPtr)->removeService(profile);
+}
+
+int
+diet_service_table_remove_desc(const diet_profile_desc_t* const profile)
+{
+  return sedImpl->removeServiceDesc(profile);
 }
 #endif
 

@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.44  2008/12/08 15:31:42  bdepardo
+ * Added the possibility to remove a service given its profile description.
+ * So now, one is able to remove a service given either the real profile,
+ * or the profile description.
+ *
  * Revision 1.43  2008/11/18 10:13:57  bdepardo
  * - Added the possibility to dynamically create and destroy a service
  *   (even if the SeD is already started). An example is available.
@@ -355,6 +360,7 @@ public:
 
 #ifdef HAVE_DAGDA
   int removeService(const diet_profile_t* const profile);
+  int removeServiceDesc(const diet_profile_desc_t* profile);
   int addService(const corba_profile_desc_t& profile);
 #endif
 
