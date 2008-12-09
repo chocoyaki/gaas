@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.130  2008/12/09 12:09:38  bisnard
+ * new API method for inter-dependent dag submit
+ *
  * Revision 1.129  2008/12/02 10:19:48  bisnard
  * functional workflow submission API update
  *
@@ -1850,6 +1853,29 @@ diet_wf_call(diet_wf_desc_t* profile) {
     case DIET_WF_FUNCTIONAL:
       return CltWfMgr::instance()->wfFunctionalCall(profile);
   }
+}
+
+/**
+ * Get a request ID for interdependent dags submit
+ */
+int
+diet_wf_get_reqID() {
+  if (CORBA::is_nil(MA_DAG)) {
+      ERROR("No MA DAG defined", 1);
+  }
+  return (int) CltWfMgr::instance()->getNewWfReqID();
+}
+
+/**
+ * Interdependent dags execution method
+ */
+diet_error_t
+diet_wf_multi_call(diet_wf_desc_t* profile, int wfReqID) {
+  if (profile->level != DIET_WF_DAG) {
+    return 1;
+  }
+  profile->wfReqID = wfReqID;
+  return CltWfMgr::instance()->wfDagCall(profile);
 }
 
 /**
