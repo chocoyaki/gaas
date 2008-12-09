@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2008/12/09 12:09:00  bisnard
+ * added parameters to dag submit method to handle inter-dependent dags
+ *
  * Revision 1.24  2008/12/02 10:21:03  bisnard
  * use MetaDags to handle multi-dag submission and execution
  *
@@ -271,10 +274,10 @@ MaDag_impl::processDagWf(const corba_wf_desc_t& dag_desc,
  */
 CORBA::Long
 MaDag_impl::processMultiDagWf(const corba_wf_desc_t& dag_desc, const char* cltMgrRef,
-                              CORBA::Long wfReqId)
+                              CORBA::Long wfReqId, CORBA::Boolean release)
 {
   TRACE_TEXT(TRACE_ALL_STEPS, "MADAG receives a MULTIPLE DAG request (wfReqId = "
-                              << wfReqId << ")" << endl);
+                              << wfReqId << " / release=" << release << ")" << endl);
   // Check if a MetaDag already exists for this wf request (or create one)
   MetaDag* mDag = NULL;
   map<CORBA::Long, MetaDag*>::iterator mDagIter = myMetaDags.find(wfReqId);
@@ -284,6 +287,8 @@ MaDag_impl::processMultiDagWf(const corba_wf_desc_t& dag_desc, const char* cltMg
     mDag = new MetaDag(itoa(wfReqId));
     myMetaDags[wfReqId] = mDag;
   }
+  // Set the release flag
+  mDag->setReleaseFlag(release);
   // Process the dag
   return processDagWfCommon(dag_desc, cltMgrRef, wfReqId, mDag);
 }

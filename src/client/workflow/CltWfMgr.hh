@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2008/12/09 12:09:03  bisnard
+ * added parameters to dag submit method to handle inter-dependent dags
+ *
  * Revision 1.10  2008/12/02 14:17:48  bisnard
  * manage multi-dag cancellation when one dag fails
  *
@@ -82,6 +85,7 @@
 #include "marshalling.hh"
 
 #include "workflow/DagWfParser.hh"
+#include "workflow/MetaDag.hh"
 
 class CltWfMgr : public POA_CltMan,
                  public PortableServer::RefCountServantBase{
@@ -156,7 +160,15 @@ public:
   setWfLogSrv(WfLogSrv_var logSrv);
 
   /**
+   * Get a new workflow request ID (for multi-dag submit)
+   */
+  CORBA::Long
+  getNewWfReqID();
+
+  /**
    * Execute a dag using the MA DAG.
+   * (if the wfReqID is set in the profile, then this call is part of several
+   * interdependent dag calls)
    * @param profile dag description
    */
   diet_error_t
@@ -231,6 +243,11 @@ protected:
    * Map for profiles and their dags or workflows
    */
   std::map<diet_wf_desc_t *, NodeSet *> myProfiles;
+
+  /**
+   * Map for metadags
+   */
+  std::map<CORBA::Long, MetaDag*> myMetaDags;
 
   /**
    * Get current time (in milliseconds)

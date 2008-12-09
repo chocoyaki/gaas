@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.42  2008/12/09 12:09:00  bisnard
+ * added parameters to dag submit method to handle inter-dependent dags
+ *
  * Revision 1.41  2008/12/02 14:17:44  bisnard
  * manage multi-dag cancellation when one dag fails
  *
@@ -756,6 +759,11 @@ MultiWfScheduler::handlerDagDone(Dag * dag) {
     metaDag->handlerDagDone(dag);
   } else {
     delete dag;
+  }
+  if (metaDag->isDone()) {
+    TRACE_TEXT (TRACE_ALL_STEPS,"######## META-DAG "
+                                << metaDag->getId() << " IS COMPLETED #########" << endl);
+    delete metaDag;
   }
 }
 

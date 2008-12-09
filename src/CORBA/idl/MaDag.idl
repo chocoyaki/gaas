@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2008/12/09 12:09:03  bisnard
+ * added parameters to dag submit method to handle inter-dependent dags
+ *
  * Revision 1.12  2008/12/02 10:18:20  bisnard
  * modified dag submission method for multi-dags
  *
@@ -84,13 +87,15 @@ interface MaDag {
    * @param  dag_desc     workflow textual description
    * @param  cltMgrRef    client workflow manager reference
    * @param  wfReqId      submitted workflow identifier
+   * @param  release      if false, keep the wf request open after this req
    * @return dag Id if workflow submission succeed, otherwise -1
    */
 
   long
       processMultiDagWf(in corba_wf_desc_t dag_desc,
                         in string cltMgrRef,
-                        in long wfReqId);
+                        in long wfReqId,
+                        in boolean release);
 
   /**
    * Get a new workflow request identifier

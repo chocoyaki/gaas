@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2008/12/09 12:09:00  bisnard
+ * added parameters to dag submit method to handle inter-dependent dags
+ *
  * Revision 1.19  2008/12/02 10:21:03  bisnard
  * use MetaDags to handle multi-dag submission and execution
  *
@@ -158,12 +161,13 @@ public:
    * @param  cltMgrRef    client workflow manager reference
    * @param  wfReqId      submitted workflow identifier (obtained by
    * getWfReqId function)
+   * @param  release      if false, does not destroy metadag when this request ends
    * @return the dag Id if workflow submission succeed, -1 if not
    */
 
   virtual CORBA::Long
       processMultiDagWf(const corba_wf_desc_t& dag_desc, const char* cltMgrRef,
-                        CORBA::Long wfReqId);
+                        CORBA::Long wfReqId, CORBA::Boolean release);
 
   /**
    * Get a new workflow request identifier
