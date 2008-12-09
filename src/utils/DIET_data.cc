@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.56  2008/12/09 12:10:27  bisnard
+ * added parameter wfReqID in wf profile for inter-dependent dag submissions
+ *
  * Revision 1.55  2008/12/02 10:16:47  bisnard
  * modified workflow profile allocation to handle functional wf
  *
@@ -663,7 +666,7 @@ diet_string_set(diet_arg_t* arg, char* value, diet_persistence_mode_t mode)
 {
   int status(0);
   size_t len;
-  
+
   if (value)
     len = strlen((char*) value) + 1;
   else
@@ -1116,6 +1119,7 @@ diet_wf_profile_alloc(const char* wf_file_name,
   diet_wf_desc_t* profile = new diet_wf_desc_t;
   profile->level = wf_level;
   profile->name = strdup(name);
+  profile->wfReqID = 0;
   struct stat stat_p;
   FILE * file;
   char line[LINE_LENGTH];
