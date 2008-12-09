@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2008/12/09 12:12:14  bisnard
+ * added reference to FWorkflow
+ *
  * Revision 1.22  2008/12/02 10:11:41  bisnard
  * modified node precedence check
  *
@@ -130,11 +133,8 @@ using namespace std;
 NodeSet::NodeSet() { }
 NodeSet::~NodeSet() { }
 
-Dag::Dag() {
-  this->myId    = "";
-  this->tmpDag  = false;
-  this->estDelay = 0;
-  this->cancelled = false;
+Dag::Dag() : myId(""), tmpDag(false), estDelay(0), cancelled(false),
+             myWf(NULL) {
 }
 
 /**
@@ -166,6 +166,22 @@ Dag::setId(const string& id) {
 const string&
 Dag::getId() {
   return this->myId;
+}
+
+/**
+ * Set the functional wf for which this dag is an instance
+ */
+void
+Dag::setWorkflow(FWorkflow * wf) {
+  this->myWf = wf;
+}
+
+/**
+ * Get the functional wf
+ */
+FWorkflow *
+Dag::getWorkflow() {
+  return this->myWf;
 }
 
 /**

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2008/12/09 12:12:14  bisnard
+ * added reference to FWorkflow
+ *
  * Revision 1.17  2008/12/02 10:11:41  bisnard
  * modified node precedence check
  *
@@ -95,6 +98,8 @@
 #include "DagNodePort.hh"
 
 using namespace std;
+
+class FWorkflow;
 
 /*****************************************************************************/
 /*                        CLASS WfStructException                            */
@@ -203,6 +208,18 @@ public:
    */
   const string&
   getId();
+
+  /**
+   * Set the functional wf for which this dag is an instance
+   */
+  void
+  setWorkflow(FWorkflow * wf);
+
+  /**
+   * Get the functional wf
+   */
+  FWorkflow *
+  getWorkflow();
 
   /**
    * Create a new node of the dag
@@ -428,7 +445,12 @@ private:
   string myId;
 
   /**
-   * Workflow nodes *
+   * Workflow for which dag is an instance
+   */
+  FWorkflow * myWf;
+
+  /**
+   * Dag nodes *
    */
   map<string, DagNode *> nodes;
 
