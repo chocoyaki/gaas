@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/12/09 12:15:59  bisnard
+ * pending instanciation handling (uses dag outputs for instanciation
+ * of a functional wf)
+ *
  * Revision 1.2  2008/12/02 10:09:36  bisnard
  * added instanciation methods
  *
@@ -19,6 +23,7 @@
 #include "debug.hh"
 #include "FNode.hh"
 #include "FWorkflow.hh"
+#include "DagNodePort.hh"
 
 using namespace std;
 
@@ -34,17 +39,17 @@ FNode::~FNode() {
 }
 
 bool
-FNode::isOnHold() {
-  return this->isOnHoldFlag;
+FNode::instanciationOnHold() {
+  return isOnHoldFlag;
 }
 
 void
 FNode::resumeInstanciation() {
-  this->isOnHoldFlag = false;
+  isOnHoldFlag = false;
 }
 
 bool
-FNode::isFullyInstantiated() {
+FNode::instanciationCompleted() {
   return isFullInst;
 }
 
@@ -90,7 +95,7 @@ FConstantNode::setValue(const string& strVal) {
 
 void
 FConstantNode::instanciate(Dag* dag) {
-  if (!isOnHold() && !isFullyInstantiated()) {
+  if (!instanciationOnHold() && !instanciationCompleted()) {
     // create a WfDataHandle and set its value
     FDataTag singleTag(0,true);
     FDataHandle* dataHdl = new FDataHandle(singleTag, myValue);
@@ -121,7 +126,7 @@ FSourceNode::~FSourceNode() {}
 
 void
 FSourceNode::instanciate(Dag* dag) {
-  if (!isOnHold() && !isFullyInstantiated()) {
+  if (!instanciationOnHold() && !instanciationCompleted()) {
   // LOOP while file contains data items
     // create data handle with the data item
     // instanciate out port with this data handle
@@ -146,7 +151,7 @@ FProcNode::setDIETServicePath(const string& path) {
 
 void
 FProcNode::instanciate(Dag* dag) {
-  if (!isOnHold() && !isFullyInstantiated()) {
+  if (!instanciationOnHold() && !isFullInst) {
     TRACE_TEXT (TRACE_ALL_STEPS,"#### Processor " << this->getId()
                     << " instanciation START" << endl);
     // LOOP while the iterator provides inputs (tag + map(port=>WfDataHandle))
@@ -177,10 +182,11 @@ FProcNode::instanciate(Dag* dag) {
       string   dagNodeId = this->getId() + dataHdl->getTag().toString();
       TRACE_TEXT (TRACE_ALL_STEPS,"  ## NEW NODE INSTANCE : " << dagNodeId << endl);
       DagNode* dagNode = dag->createDagNode(dagNodeId);
-      dagNode->setPbName(myPath);
       if (dagNode == NULL) {
         INTERNAL_ERROR("Could not create dag node " << dagNodeId << endl,0);
       }
+      dagNode->setPbName(myPath);
+      dagNode->setFNode(this);
       // LOOP for each port
       for (map<string,WfPort*>::iterator portIter = ports.begin();
            portIter != ports.end();
@@ -227,6 +233,53 @@ FProcNode::instanciate(Dag* dag) {
       this->isOnHoldFlag = true;
     }
   } // end if (!isFullyInstantiated())
+}
+
+void
+FProcNode::setPendingInstanceInfo(DagNode * dagNode,
+                                      FDataHandle * dataHdl,
+                                      FNodeOutPort * outPort,
+                                      FNodeInPort * inPort) {
+  pendingDagNodeInfo_t info;
+  info.dataHdl = dataHdl;
+  info.outPort = outPort;
+  info.inPort  = inPort;
+  pendingNodes.insert(make_pair(dagNode,info));
+  cout << "added one entry in pending list (size = " << pendingNodes.size() << ")" << endl;
+}
+
+bool
+FProcNode::instanciationPending() {
+  return (pendingNodes.size() > 0);
+}
+
+bool
+FProcNode::instanciationCompleted() {
+  return isFullInst && !instanciationPending();
+}
+
+void
+FProcNode::instanceIsDone(DagNode * dagNode, bool& statusChange) {
+  TRACE_TEXT (TRACE_ALL_STEPS,"Processing pending nodes list (list contains "
+                              << pendingNodes.size() << " entries)" << endl);
+  // search the instance in the pending list
+  multimap<DagNode*, pendingDagNodeInfo_t>::iterator pendingIter, pendingStart;
+  pendingStart = pendingIter = pendingNodes.lower_bound(dagNode);
+  // if found, resubmit the datahandle to the in port(s)
+  while (pendingIter != pendingNodes.upper_bound(dagNode)) {
+    pendingDagNodeInfo_t info = (pendingDagNodeInfo_t) (pendingIter++)->second;
+    // get the dag port providing the data
+    WfPort * portPtr = dagNode->getPort(info.outPort->getId());
+    DagNodeOutPort * dagOutPort = dynamic_cast<DagNodeOutPort*>(portPtr);
+    // submit data to the in port
+    info.inPort->addData(info.dataHdl, dagOutPort);
+    // re-start instanciation
+    statusChange = true;
+  }
+  // remove entries from the pending list
+  pendingNodes.erase(pendingStart,pendingIter);
+  TRACE_TEXT (TRACE_ALL_STEPS,"END of processing pending nodes list (list now contains "
+                              << pendingNodes.size() << " entries)" << endl);
 }
 
 /*****************************************************************************/

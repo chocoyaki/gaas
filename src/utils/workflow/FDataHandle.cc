@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/12/09 12:15:59  bisnard
+ * pending instanciation handling (uses dag outputs for instanciation
+ * of a functional wf)
+ *
  * Revision 1.1  2008/12/02 10:07:07  bisnard
  * new classes for functional workflow instanciation and execution
  *
@@ -161,7 +165,7 @@ operator<( const FDataTag& tag1, const FDataTag& tag2 ) {
 FDataHandle::FDataHandle()
   : myTag(), myDepth(0), myParentHdl(NULL), myPort(NULL),
     myCard(0), cardDef(false), adapterDef(false), valueDef(false),
-    myAdapterType(ADAPTER_UNDEFINED) {}
+    dataIDDef(false), myAdapterType(ADAPTER_UNDEFINED) {}
 
 FDataHandle::FDataHandle(const FDataTag& tag,
                          unsigned int depth,
@@ -169,7 +173,7 @@ FDataHandle::FDataHandle(const FDataTag& tag,
                          WfPort* port)
   : myTag(tag), myDepth(depth), myParentHdl(parentHdl), myPort(port),
     myCard(0), cardDef(false), adapterDef(false), valueDef(false),
-    myAdapterType(ADAPTER_UNDEFINED) {
+    dataIDDef(false), myAdapterType(ADAPTER_UNDEFINED) {
   cout << "Creating data handle : tag = " << tag.toString()
        << " / depth=" << depth << " / parent=" << parentHdl << " / port=" << port << endl;
   if (myDepth > 0)
@@ -185,7 +189,7 @@ FDataHandle::FDataHandle(const FDataTag& tag,
                          FDataHandle* parentHdl)
   : myTag(tag), myDepth(0), myValue(value), myParentHdl(parentHdl),
     myPort(NULL), myCard(0), cardDef(false), adapterDef(false), valueDef(true),
-    myAdapterType(ADAPTER_UNDEFINED) {
+    dataIDDef(false), myAdapterType(ADAPTER_UNDEFINED) {
   cout << "Creating data handle : tag = " << myTag.toString()
        << " / value=" << value << " / parent=" << parentHdl << endl;
 }
@@ -193,7 +197,7 @@ FDataHandle::FDataHandle(const FDataTag& tag,
 FDataHandle::FDataHandle(unsigned int depth)
   : myTag(), myDepth(depth), myValue(), myParentHdl(NULL),
     myPort(NULL), myCard(0), cardDef(false), adapterDef(false), valueDef(false),
-    myAdapterType(ADAPTER_UNDEFINED) {
+    dataIDDef(false), myAdapterType(ADAPTER_UNDEFINED) {
   cout << "Creating data handle : tag = " << myTag.toString()
        << " / depth=" << depth << endl;
   if (myDepth > 0)
@@ -433,4 +437,22 @@ FDataHandle::isValueDefined() {
 const string&
 FDataHandle::getValue() {
   return myValue;
+}
+
+bool
+FDataHandle::isDataIDDefined() {
+  return dataIDDef;
+}
+
+const string&
+FDataHandle::getDataID() {
+  return myDataID;
+}
+
+void
+FDataHandle::setDataID(const string& dataID) {
+  if (!dataID.empty()) {
+    myDataID = dataID;
+    dataIDDef = true;
+  }
 }

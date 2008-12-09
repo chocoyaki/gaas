@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/12/09 12:15:59  bisnard
+ * pending instanciation handling (uses dag outputs for instanciation
+ * of a functional wf)
+ *
  * Revision 1.4  2008/12/02 14:17:49  bisnard
  * manage multi-dag cancellation when one dag fails
  *
@@ -31,7 +35,7 @@
 #include "FWorkflow.hh"
 
 FWorkflow::FWorkflow(const string& id)
-  : id(id), dagCounter(0) {
+  : id(id), dagCounter(0), myStatus(INSTANC_READY) {
 }
 
 FWorkflow::~FWorkflow() {
@@ -240,6 +244,7 @@ Dag *
 FWorkflow::instanciateDag() {
   Dag * currDag = new Dag();
   currDag->setId("WF_" + this->id + "_DAG_" + itoa(dagCounter++));
+  currDag->setWorkflow(this);
   TRACE_TEXT (TRACE_ALL_STEPS,"@@@@@ DAG " << currDag->getId()
                << " GENERATION START @@@@@" << endl);
   TRACE_TEXT (TRACE_ALL_STEPS,"Init workflow interface..." << endl);
@@ -267,20 +272,37 @@ FWorkflow::instanciateDag() {
         // instantiate node
         currProc->instanciate(currDag);
         // if fully instanciated, remove from todo list
-        if (currProc->isFullyInstantiated()) {
+        if (currProc->instanciationCompleted()) {
           TRACE_TEXT (TRACE_ALL_STEPS,"#### Processor " << currProc->getId()
                       << " instanciation COMPLETE" << endl);
           procIter = todoProc.erase(procIter);
           nbTodoProc--;
         } else {
 //           if (currProc->isOnHold()) {
-            nbTodoProc--;
+          nbTodoProc--;
 //           }
+          if (currProc->instanciationPending()) {
+            TRACE_TEXT (TRACE_ALL_STEPS,"#### Processor " << currProc->getId()
+                      << " instanciation PENDING" << endl);
+            myStatus = INSTANC_PENDING;
+          }
           ++procIter;
         }
 //       } // end if !isOnHold
     } // end loop todo list
   } // end while (nbTodoProc)
+  // check dag emptyness
+  if (currDag->size() == 0) {
+    WARNING("Instanciation of EMPTY DAG!!! Problem during instanciation.");
+    myStatus = INSTANC_END;
+    delete currDag;
+    return NULL;
+  }
+  // check if instanciation is finished
+  if (todoProc.size() == 0) {
+    TRACE_TEXT (TRACE_ALL_STEPS,"############ WORKFLOW INSTANCIATION END ############" << endl);
+    myStatus = INSTANC_END;
+  }
   // add dag to my list of dags
   myDags.push_back(currDag);
   return currDag;
@@ -292,8 +314,41 @@ FWorkflow::getDagList() {
 }
 
 bool
+FWorkflow::instanciationReady() {
+  return myStatus == INSTANC_READY;
+}
+
+// bool
+// FWorkflow::instanciationOnHold() {
+//   return myStatus == INSTANC_ONHOLD;
+// }
+
+bool
+FWorkflow::instanciationPending() {
+  return myStatus == INSTANC_PENDING;
+}
+
+bool
 FWorkflow::instanciationCompleted() {
-  return (todoProc.size() == 0);
+  return myStatus == INSTANC_END;
+}
+
+/**
+ * Handle end of node execution
+ */
+void
+FWorkflow::handlerDagNodeDone(DagNode* dagNode) {
+  FProcNode* fNode = dagNode->getFNode();
+  if (fNode == NULL) {
+    INTERNAL_ERROR("handlerNodeDone: Missing FNode ref in DagNode",1);
+  }
+  // call the FProcNode to process pending data handles
+  bool statusChange = false;
+  fNode->instanceIsDone(dagNode, statusChange);
+  // re-initialize instanciation
+  if (statusChange) {
+    myStatus = INSTANC_READY;
+  }
 }
 
 /**

@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/12/09 12:15:59  bisnard
+ * pending instanciation handling (uses dag outputs for instanciation
+ * of a functional wf)
+ *
  * Revision 1.2  2008/12/02 10:09:36  bisnard
  * added instanciation methods
  *
@@ -18,6 +22,8 @@
 
 #ifndef _FNODE_HH_
 #define _FNODE_HH_
+
+#include <map>
 
 #include "Node.hh"
 #include "FNodePort.hh"
@@ -50,24 +56,24 @@ public:
   instanciate(Dag* dag) = 0;
 
   bool
-  isOnHold();
+  instanciationOnHold();
 
   void
   resumeInstanciation();
 
-  bool
-  isFullyInstantiated();
+  virtual bool
+  instanciationCompleted();
 
 protected:
   FWorkflow * wf;
 
   /**
-   * Status 'on hold' is used when instanciation is stopped
+   * Status 'on hold' (instance limitation)
    */
   bool isOnHoldFlag;
 
   /**
-   * Status 'fully instantiated' used when instanciation is completed
+   * Status 'fully instantiated' used when last input has been processed
    */
   bool isFullInst;
 
@@ -132,12 +138,52 @@ class FProcNode : public FNode {
 
     virtual void instanciate(Dag* dag);
 
+    /**
+     * Setup the information used when node instance (dagnode) is done
+     * and some output ports instances have to be re-submitted to next
+     * nodes (when cardinal was not known before node execution)
+     */
+    void
+    setPendingInstanceInfo(DagNode * dagNode,
+                           FDataHandle * dataHdl,
+                           FNodeOutPort * outPort,
+                           FNodeInPort * inPort); // adds info to the multimap
+
+    /**
+     * Returns true if the node instanciation is pending until some dag
+     * node execution
+     */
+    bool
+    instanciationPending();
+
+    /**
+     * Returns true when instanciation is completed
+     */
+    virtual bool
+    instanciationCompleted();
+
+    /**
+     * Handle dag node execution event
+     * Checks the pending dag node info map and if the dag node is present
+     * then use info to re-submit the datahandles to the correct in ports
+     */
+    void
+    instanceIsDone(DagNode * dagNode, bool& statusChange);
+
     void
     setDIETServicePath(const string& path);
 
   protected:
 
+    struct pendingDagNodeInfo_t {
+      FDataHandle * dataHdl;
+      FNodeOutPort * outPort;
+      FNodeInPort * inPort;
+    };
+
     string myPath;
+
+    multimap<DagNode*, pendingDagNodeInfo_t> pendingNodes;
 
 }; // end class FProcNode
 

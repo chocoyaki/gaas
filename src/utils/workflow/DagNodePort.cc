@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2008/12/09 12:15:59  bisnard
+ * pending instanciation handling (uses dag outputs for instanciation
+ * of a functional wf)
+ *
  * Revision 1.7  2008/12/02 10:14:51  bisnard
  * modified nodes links mgmt to handle inter-dags links
  *
@@ -34,8 +38,10 @@
 #include "WfUtils.hh"
 #if HAVE_DAGDA
 extern "C" {
-#include "DIET_Dagda.h"
+  #include "DIET_Dagda.h"
 }
+#include "DagdaFactory.hh"
+#include "DagdaImpl.hh"
 #endif
 
 using namespace std;
@@ -431,6 +437,17 @@ DagNodeOutPort::DagNodeOutPort(DagNode * parent,
   : DagNodePort(parent, _id, WfPort::PORT_OUT, _type, _depth, _ind) {
 }
 
+DagNodeOutPort::~DagNodeOutPort() {
+  // free cache
+  while (! myCache.empty() ) {
+    cout << "deleting out port cache entry" << endl;
+    diet_container_t * p = myCache.begin()->second;
+    myCache.erase( myCache.begin() );
+    free(p->elt_ids); // was allocated using malloc
+    delete p;
+  }
+}
+
 void
 DagNodeOutPort::storeProfileData() {
   dataID = profile()->parameters[getIndex()].desc.id;
@@ -451,9 +468,28 @@ DagNodeOutPort::toXML() {
   return xml;
 }
 
+diet_container_t*
+DagNodeOutPort::getDataIDList(const string& dataID) {
+  diet_container_t* content = NULL;
+  map<string,diet_container_t*>::iterator cacheIter = myCache.find(dataID);
+  if (cacheIter != myCache.end()) {
+    cout << "getDataIDList: using cache for entry " << dataID << endl;
+    content = (diet_container_t*) cacheIter->second;
+  } else {
+    content = new diet_container_t;
+    content->size = 0;
+    cout << "getDataIDList: retrieve container element IDs" << endl;
+    dagda_get_container(dataID.c_str());
+    cout << "getDataIDList: calling dagda_get_container_elements" << endl;
+    dagda_get_container_elements(dataID.c_str(), content);
+    myCache[dataID] = content;
+  }
+  return content;
+}
+
 diet_persistence_mode_t
 DagNodeOutPort::getPersistenceMode() {
-  if (!isConnected()) return DIET_PERSISTENT_RETURN;
+  if (!isConnected()) return DIET_PERSISTENT_RETURN; // WARNING not applied to containers!!
   else return DIET_PERSISTENT;
 }
 

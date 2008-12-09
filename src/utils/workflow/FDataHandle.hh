@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/12/09 12:15:59  bisnard
+ * pending instanciation handling (uses dag outputs for instanciation
+ * of a functional wf)
+ *
  * Revision 1.2  2008/12/02 14:18:20  bisnard
  * obsolete attribute myDagName
  *
@@ -241,7 +245,7 @@ class FDataHandle {
     createPortAdapter(const string& currDagName = "");
 
     /**
-     * Returns true if the handle as a defined value
+     * Returns true if the handle has a defined value
      */
     bool
     isValueDefined();
@@ -251,6 +255,24 @@ class FDataHandle {
      */
     const string&
     getValue();
+
+    /**
+     * Returns true if the handle has a defined data ID
+     */
+    bool
+    isDataIDDefined();
+
+    /**
+     * Returns data ID
+     */
+    const string&
+    getDataID();
+
+    /**
+     * Set data ID
+     */
+    void
+    setDataID(const string& dataID);
 
   private:
 
@@ -298,14 +320,14 @@ class FDataHandle {
     FDataHdlAdapterType myAdapterType;
 
     /**
-     * port dag name
-     */
-//     string myDagName;
-
-    /**
      * value (if applicable)
      */
     string myValue;
+
+    /**
+     * data ID
+     */
+    string myDataID;
 
     /**
      * data depth (if container)
@@ -331,6 +353,11 @@ class FDataHandle {
      * flag to check if value is defined
      */
     bool valueDef;
+
+    /**
+     * flag to check if data ID is defined
+     */
+    bool dataIDDef;
 
 }; // end class FDataHandle
 

@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/12/09 12:15:59  bisnard
+ * pending instanciation handling (uses dag outputs for instanciation
+ * of a functional wf)
+ *
  * Revision 1.3  2008/12/02 10:09:36  bisnard
  * added instanciation methods
  *
@@ -98,7 +102,19 @@ public:
   instanciateDag();
 
   bool
+  instanciationReady();
+
+//   bool
+//   instanciationOnHold();  // for instance nb limitation per dag
+//
+  bool
+  instanciationPending(); // for dynamic dependencies
+
+  bool
   instanciationCompleted();
+
+  void
+  handlerDagNodeDone(DagNode* dagNode);
 
   /**
    * dags
@@ -148,6 +164,17 @@ private:
    * Counter of generated dags
    */
   int dagCounter;
+
+  /**
+   * Instanciation status
+   */
+  typedef enum {
+    INSTANC_READY,
+    INSTANC_ONHOLD,
+    INSTANC_PENDING,
+    INSTANC_END } instanciationStatus_t;
+
+  instanciationStatus_t myStatus;
 
 };
 

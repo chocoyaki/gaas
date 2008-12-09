@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/12/09 12:15:59  bisnard
+ * pending instanciation handling (uses dag outputs for instanciation
+ * of a functional wf)
+ *
  * Revision 1.1  2008/12/02 10:07:07  bisnard
  * new classes for functional workflow instanciation and execution
  *
@@ -51,6 +55,27 @@ class MetaDag : public NodeSet {
         addDag(Dag * dag);
 
     /**
+     * Remove a dag from the metaDag
+     * @param dag the dag ref
+     */
+    bool
+        removeDag(Dag * dag);
+
+    /**
+     * Nb of dags
+     */
+    int
+        getDagNb();
+
+    /**
+     * Set the release flag
+     * TRUE => destroy metadag when last dag is done
+     * FALSE => do not destroy metadag when last dag is done
+     */
+    void
+        setReleaseFlag(bool release);
+
+    /**
      * Set the current dag used when parsing node references
      * (node references without a dag prefix are found using this default dag)
      * @param dag the default dag ref
@@ -79,6 +104,13 @@ class MetaDag : public NodeSet {
     virtual void
         handlerDagDone(Dag * dag);
 
+    /**
+     * Check if metadag is completed
+     * (for destruction)
+     */
+    bool
+        isDone();
+
   protected:
 
     /**
@@ -100,6 +132,11 @@ class MetaDag : public NodeSet {
      * Counter of not finished dags
      */
     int dagTodoCount;
+
+    /**
+     * Release flag
+     */
+    bool releaseFlag;
 };
 
 #endif   /* not defined _METADAG_HH. */

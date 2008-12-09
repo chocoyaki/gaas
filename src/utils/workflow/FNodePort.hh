@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/12/09 12:15:59  bisnard
+ * pending instanciation handling (uses dag outputs for instanciation
+ * of a functional wf)
+ *
  * Revision 1.1  2008/12/02 10:07:07  bisnard
  * new classes for functional workflow instanciation and execution
  *
@@ -20,6 +24,7 @@
 #include "WfPort.hh"
 #include "FDataHandle.hh"
 #include "DagNode.hh"
+#include "DagNodePort.hh"
 
 class FNodeInPort;
 
@@ -97,7 +102,7 @@ class FNodeOutPort : public FNodePort {
      * node uses this map to re-submit the data handle to the in ports (the data
      * handle can be found in the buffer using the instance tag)
      */
-    map<FDataTag, FNodeInPort*> myWaitingPorts;
+//     map<FDataTag, FNodeInPort*> myWaitingPorts;
 
 }; // end class FNodeOutPort
 
@@ -113,13 +118,24 @@ class FNodeInPort : public FNodePort {
     virtual ~FNodeInPort();
 
     /**
+     * Static addData (before node execution)
      * Add a new data item to be used for instanciation
      * @param dataHdl   the data Handle
      * @param dataCard  a list of (integer | 'x') = cardinal of data
-     * @return true if the data cannot be added due to missing cardinal
+     * @return false if the data cannot be added due to missing cardinal
      */
     bool
     addData(FDataHandle* dataHdl, const list<string>& dataCard);
+
+    /**
+     * Dynamic addData (after node execution)
+     * Add a new data item to be used for instanciation
+     * (when data item is available from the specified port)
+     * @param dataHdl     the data Handle
+     * @param dagOutPort  the port providing the data
+     */
+    void
+    addData(FDataHandle* dataHdl, DagNodeOutPort* dagOutPort);
 
     /**
      * Set as a constant
