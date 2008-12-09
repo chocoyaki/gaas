@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2008/12/09 12:14:05  bisnard
+ * added reference to FNode to handle pending instanciation
+ *
  * Revision 1.4  2008/12/02 10:14:51  bisnard
  * modified nodes links mgmt to handle inter-dags links
  *
@@ -84,6 +87,7 @@ private:
 /****************************************************************************/
 
 class Dag;
+class FProcNode;
 
 class DagNode : public Node  {
   /*******************************/
@@ -112,12 +116,6 @@ public:
   getCompleteId();
 
   /**
-   * Get the node container
-   */
-//   NodeSet*
-//   getNodeSet();
-
-  /**
    * get the node Dag reference
    */
   Dag *
@@ -134,6 +132,18 @@ public:
    */
   const string&
   getPbName();
+
+  /**
+   * set the functional node for which this node is an instance
+   */
+  void
+  setFNode(FProcNode * fNode);
+
+  /**
+   * get the functional node
+   */
+  FProcNode *
+  getFNode();
 
   /**
    * create a new port
@@ -287,6 +297,12 @@ public:
    */
   void
   setSeD(const SeD_var& sed, const unsigned long reqID, corba_estimation_t& ev);
+
+  /**
+   * Get the chosen SeD
+   */
+  SeD_var&
+  getSeD();
 
   /******************************/
   /* Scheduling                 */
@@ -528,6 +544,11 @@ private:
    * Dag reference
    */
   Dag * myDag;
+
+  /**
+   * Functional node
+   */
+  FProcNode * myFNode;
 
   /**
    * problem profile *

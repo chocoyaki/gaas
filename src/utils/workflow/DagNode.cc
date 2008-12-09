@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2008/12/09 12:14:05  bisnard
+ * added reference to FNode to handle pending instanciation
+ *
  * Revision 1.8  2008/12/02 14:17:49  bisnard
  * manage multi-dag cancellation when one dag fails
  *
@@ -38,6 +41,7 @@
 #include "debug.hh"
 #include "marshalling.hh"
 #include "MasterAgent.hh"
+#include "SeDImpl.hh"
 
 #include "Dag.hh"
 #include "DagNode.hh"
@@ -168,7 +172,8 @@ RunnableNode::run() {
 /*                       Constructors/Destructor                            */
 /****************************************************************************/
 
-DagNode::DagNode(Dag *dag, const string& id) : Node(id), myDag(dag) {
+DagNode::DagNode(Dag *dag, const string& id)
+  : Node(id), myDag(dag), myFNode(NULL) {
   this->prevNodesTodoCount = 0;
   this->task_done = false;
   this->SeDDefined = false;
@@ -297,15 +302,6 @@ string DagNode::getCompleteId() {
 }
 
 /**
- * Get the node container (implements abstract method)
- * Used by generic node linking functions
- */
-// NodeSet*
-// DagNode::getNodeSet() {
-//   return getDag();
-// }
-
-/**
  * get the node Dag reference
  */
 Dag *
@@ -332,6 +328,22 @@ DagNode::setPbName(const string& pbName) {
 const string&
 DagNode::getPbName() {
   return this->myPb;
+}
+
+/**
+ * set the functional node for which this node is an instance
+ */
+void
+DagNode::setFNode(FProcNode * fNode) {
+  this->myFNode = fNode;
+}
+
+/**
+ * get the functional node
+ */
+FProcNode *
+DagNode::getFNode() {
+  return this->myFNode;
 }
 
 /******************************/
@@ -527,14 +539,13 @@ DagNode::initProfileExec() {
  */
 void
 DagNode::storeProfileData() {
+  // store the data IDs for each port
   for (map<string, WfPort*>::iterator p = ports.begin();
        p != ports.end();
        ++p) {
     if (((WfPort *)p->second)->getPortType() == WfPort::PORT_OUT) {
       DagNodeOutPort * dagPort = dynamic_cast<DagNodeOutPort*>(p->second);
       dagPort->storeProfileData();
-//     store_id(profile->parameters[out->getIndex()].desc.id,
-// 	     (char *) "wf param");
     }
   }
 }
@@ -823,6 +834,14 @@ DagNode::setSeD(const SeD_var& sed, const unsigned long reqID, corba_estimation_
   this->chosenServer = sed;
   this->dietReqID = reqID;
   this->estimVect = &ev;
+}
+
+/**
+ * get the SeD
+ */
+SeD_var&
+DagNode::getSeD() {
+  return chosenServer;
 }
 
 /******************************/
