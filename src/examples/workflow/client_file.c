@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2008/12/09 09:01:06  bisnard
+ * added new param to diet_wf_profile_alloc to select btw dag or functional wf
+ *
  * Revision 1.6  2008/07/07 14:52:30  bisnard
  * bug fix
  *
@@ -66,7 +69,7 @@ main(int argc, char* argv[])
 
   fileName = argv[2];
 
-  profile = diet_wf_profile_alloc(fileName);
+  profile = diet_wf_profile_alloc(fileName,"test",DIET_WF_DAG);
 
   printf("Try to execute the workflow\n");
   if (! diet_wf_call(profile)) {

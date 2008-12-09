@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2008/12/09 09:01:06  bisnard
+ * added new param to diet_wf_profile_alloc to select btw dag or functional wf
+ *
  * Revision 1.5  2008/04/14 09:10:39  bisnard
  *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
  *  - AbstractWfSched and derived classes no longer used with MaDag v2
@@ -51,18 +54,18 @@ main(int argc, char* argv[])
   diet_wf_desc_t * profile;
   char * fileName;
   double * result = NULL;
-  
+
   checkUsage(argc, argv);
 
   if (diet_initialize(argv[1], argc, argv)) {
     fprintf(stderr, "DIET initialization failed !\n");
     return 1;
-  } 
+  }
 
   fileName = argv[2];
 
-  profile = diet_wf_profile_alloc(fileName);
-  
+  profile = diet_wf_profile_alloc(fileName,"test",DIET_WF_DAG);
+
   printf("Try to execute the workflow\n");
   if (! diet_wf_call(profile)) {
     printf("The workflow submission succeed\n");
