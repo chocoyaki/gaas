@@ -8,6 +8,10 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2008/12/09 12:06:21  bisnard
+ * changed container download method to transfer only the list of IDs
+ * (each container element must be downloaded separately)
+ *
  * Revision 1.22  2008/11/07 14:32:14  bdepardo
  * Headers correction
  *
@@ -193,9 +197,11 @@ public:
    * Send a container to a remote data manager
    * @param ID    the ID of the data
    * @param dest  the remote data mgr ref
+   * @param sendElements  if true, also send each element of the container
    * @return THE ID OF THE DATA ON THE DESTINATION => WHY WOULD IT BE DIFFERENT?
    */
-  virtual char* sendContainer(const char* containerID, Dagda_ptr dest);
+  virtual char* sendContainer(const char* containerID, Dagda_ptr dest,
+                              CORBA::Boolean sendElements);
 
   /**
    * Download data from the src data manager

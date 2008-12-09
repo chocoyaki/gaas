@@ -142,7 +142,7 @@ interface Dagda {
   string sendData(in string ID, in Dagda dest)
     raises(DataNotFound);
   /* Send a container to a node */
-  string sendContainer(in string ID, in Dagda dest)
+  string sendContainer(in string ID, in Dagda dest, in boolean sendElements)
     raises(DataNotFound);
 
 

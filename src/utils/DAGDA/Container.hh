@@ -8,6 +8,10 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/12/09 12:06:21  bisnard
+ * changed container download method to transfer only the list of IDs
+ * (each container element must be downloaded separately)
+ *
  * Revision 1.1  2008/09/09 10:05:14  bisnard
  * container mgmt using Dagda agent
  *
@@ -71,8 +75,10 @@ class Container {
     /**
      * Send the container to a remote Data Mgr
      * @param dest  the destination dagda agent
+     * @param sendData  if true, will send all the elements of the container
+     *                  if false, will send only the relationships
      */
-    char* send(Dagda_ptr dest);
+    char* send(Dagda_ptr dest, bool sendData = true);
 
   private:
 
@@ -95,6 +101,11 @@ class Container {
      * Nb of elements in the container
      */
     int nbOfElements;
+
+    /**
+     * Not found flag
+     */
+    bool notFound;
 
 
 }; // end class Container

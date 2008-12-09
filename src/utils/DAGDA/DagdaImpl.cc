@@ -8,6 +8,10 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2008/12/09 12:06:21  bisnard
+ * changed container download method to transfer only the list of IDs
+ * (each container element must be downloaded separately)
+ *
  * Revision 1.27  2008/11/08 19:12:39  bdepardo
  * A few warnings removal
  *
@@ -137,7 +141,7 @@ string conditional_filename(string basename) {
   unsigned long int idx = basename.find_last_of('/');
   if (idx!=string::npos)
     basename=basename.substr(idx);
-  
+
   if (fnmatch("*-????????""-????""-????""-????????????*",
               basename.c_str(), FNM_CASEFOLD)==0) {
     cout << "Deja unifie..." << endl;
@@ -273,8 +277,8 @@ char* DagdaImpl::sendData(const char* dataId, Dagda_ptr dest) {
 }
 
 /* CORBA */
-char* DagdaImpl::sendContainer(const char* containerID, Dagda_ptr dest) {
-  // nothing to transfer for the container itself
+char* DagdaImpl::sendContainer(const char* containerID, Dagda_ptr dest,
+                               CORBA::Boolean sendElements) {
   dataMutex.lock();
   if (getData()->find(containerID)==getData()->end()) {
     dataMutex.unlock();
@@ -284,7 +288,7 @@ char* DagdaImpl::sendContainer(const char* containerID, Dagda_ptr dest) {
   dest->unlockData(containerID);
   // transfer the container elements
   Container *container = new Container(containerID);
-  return container->send(dest);
+  return container->send(dest,sendElements);
 }
 
 void DagdaImpl::lockData(const char* dataID) {
@@ -419,7 +423,7 @@ char* SimpleDagdaImpl::downloadData(Dagda_ptr src, const corba_data_t& data) {
   if (data.desc.specific._d()==DIET_FILE)
     return src->sendFile(data, _this());
   else if (data.desc.specific._d()==DIET_CONTAINER)
-    return src->sendContainer(data.desc.id.idNumber, _this());
+    return src->sendContainer(data.desc.id.idNumber, _this(), false);
   else
     return src->sendData(data.desc.id.idNumber, _this());
 }
@@ -431,7 +435,7 @@ void SimpleDagdaImpl::lclAddData(Dagda_ptr src, const corba_data_t& data) {
                              << " locally." << endl);
     if (strcmp(src->getID(), getID()) != 0) {
       if (data.desc.specific._d()==DIET_FILE) {
-	if (getDiskMaxSpace()!=0 && getUsedDiskSpace()+data_sizeof(&data.desc)>getDiskMaxSpace()) 
+	if (getDiskMaxSpace()!=0 && getUsedDiskSpace()+data_sizeof(&data.desc)>getDiskMaxSpace())
 	  throw Dagda::NotEnoughSpace(getDiskMaxSpace()-getUsedDiskSpace());
 	char* path = downloadData(src, data);
         if (path) {
@@ -445,10 +449,7 @@ void SimpleDagdaImpl::lclAddData(Dagda_ptr src, const corba_data_t& data) {
         char* dataID;
         corba_data_t* inserted;
         inserted = addData(data);
-        TRACE_TEXT(TRACE_ALL_STEPS, "Start downloading container " << data.desc.id.idNumber
-            << " from " << src->getID() << endl);
-        dataID = downloadData(src, data);
-        TRACE_TEXT(TRACE_ALL_STEPS, "Finished downloading container " << data.desc.id.idNumber << endl);
+        dataID = downloadData(src, data); // non-recursive (downloads only the id list)
         DagdaImpl* manager = DagdaFactory::getDataManager();
         manager->getContainerRelationMgr()->displayContent();
       } else {
@@ -1190,7 +1191,7 @@ int DagdaImpl::readData(corba_data_t& data, ifstream& file) {
 	    break;
 	  default:
 	    WARNING("This data type is not managed by DIET.");
-            order = (diet_matrix_order_t) 0;	    
+            order = (diet_matrix_order_t) 0;
 	}
     make_corba_data(data, type, base_type, mode, nb_r, nb_c,
 	    order, buffer, path);

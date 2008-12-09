@@ -8,6 +8,10 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2008/12/09 12:06:20  bisnard
+ * changed container download method to transfer only the list of IDs
+ * (each container element must be downloaded separately)
+ *
  * Revision 1.2  2008/11/08 19:12:39  bdepardo
  * A few warnings removal
  *
@@ -26,21 +30,22 @@
 
 using namespace std;
 
-Container::Container(const char* dataID) {
+Container::Container(const char* dataID)
+  : myID(dataID), notFound(false), nbOfElements(0) {
   myMgr    = DagdaFactory::getDataManager();
   myRelMgr = myMgr->getContainerRelationMgr();
-  myID     = dataID;
   // check if container is already existing on the local data mgr
   // EXISTING means registered but not all elements of the container are
   // necessarily present locally
   if (myMgr->lclIsDataPresent(dataID)) {
+    cout << "data found locally" << endl;
     corba_data_t* storedData = myMgr->getData(dataID);
     nbOfElements = storedData->desc.specific.cont().size;
     TRACE_TEXT(TRACE_ALL_STEPS,"Container: object created (" << nbOfElements
         << " elements" << ", storedData=" << storedData << ")" << endl);
   }
   else
-    throw Dagda::DataNotFound(dataID);
+    notFound = true;
 }
 
 Container::~Container() {
@@ -50,6 +55,8 @@ void
 Container::addData(const char* dataID, long index, long flag, bool setSize) {
   TRACE_TEXT(TRACE_ALL_STEPS, "Container: Add the data " << dataID
      << " to container " << myID << endl);
+  if (notFound)
+    throw Dagda::DataNotFound(myID.c_str());
   myRelMgr->addRelation(myID,dataID,index,flag);
   if (setSize) {
     ++nbOfElements;
@@ -62,11 +69,15 @@ Container::addData(const char* dataID, long index, long flag, bool setSize) {
 
 void
 Container::remData(const char* dataID, long flag) {
+  if (notFound)
+    throw Dagda::DataNotFound(myID.c_str());
   myRelMgr->remRelation(myID, dataID, flag);
 }
 
 int
 Container::size() {
+  if (notFound)
+    throw Dagda::DataNotFound(myID.c_str());
   return nbOfElements;
 }
 
@@ -84,7 +95,7 @@ Container::getAllElements(SeqString& dataIDSeq, SeqLong& flagSeq, bool ordered) 
  * from a call to the platform.
  */
 char *
-Container::send(Dagda_ptr dest) {
+Container::send(Dagda_ptr dest, bool sendData) {
   SeqString* dataIDSeq = new SeqString();
   SeqLong*   flagSeq = new SeqLong();
   this->getAllElements(*dataIDSeq, *flagSeq, true);
@@ -100,10 +111,12 @@ Container::send(Dagda_ptr dest) {
       continue; // skip this element
     }
     // add data element to destination mgr
-    corba_data_t eltData;
-    eltData.desc = *eltDesc;
-    Dagda_var srcMgr = Dagda::_narrow(ORBMgr::stringToObject(eltDesc->dataManager));
-    dest->lclAddData(srcMgr, eltData);
+    if (sendData) {
+      corba_data_t eltData;
+      eltData.desc = *eltDesc;
+      Dagda_var srcMgr = Dagda::_narrow(ORBMgr::stringToObject(eltDesc->dataManager));
+      dest->lclAddData(srcMgr, eltData);
+    }
     // add relationship container-data to destination mgr
     dest->lclAddContainerElt(myID.c_str(), eltID, ix, (*flagSeq)[ix], false);
   }
