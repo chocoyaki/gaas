@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2008/12/12 16:35:39  bdepardo
+ * Added #include <cstdlib> for exit
+ *
  * Revision 1.3  2008/10/22 09:51:17  bisnard
  * missing include
  *
@@ -31,7 +34,9 @@
 #include <iostream>
 #include <assert.h>
 #include <string.h>
+#include <cstdlib>
 #include "Thread.hh"
+
 
 Runnable::~Runnable() {}
 
