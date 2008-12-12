@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.62  2008/12/12 15:29:51  bisnard
+ * added wfReqId field to diet_wf_desc_t
+ *
  * Revision 1.61  2008/12/02 10:22:09  bisnard
  * functional workflow submission API update
  *
@@ -723,6 +726,7 @@ typedef struct {
   char * abstract_wf;
   char * name;
   wf_level_t level;
+  int wfReqID;
 } diet_wf_desc_t;
 
 /**
