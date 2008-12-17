@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.43  2008/12/17 10:10:16  bisnard
+ * corrected bug in handlerDagDone when using single dag submit
+ *
  * Revision 1.42  2008/12/09 12:09:00  bisnard
  * added parameters to dag submit method to handle inter-dependent dags
  *
@@ -757,13 +760,13 @@ MultiWfScheduler::handlerDagDone(Dag * dag) {
   MetaDag * metaDag = this->getMetaDag(dag);
   if (metaDag != NULL) {
     metaDag->handlerDagDone(dag);
+    if (metaDag->isDone()) {
+      TRACE_TEXT (TRACE_ALL_STEPS,"######## META-DAG "
+                                << metaDag->getId() << " IS COMPLETED #########" << endl);
+      delete metaDag;
+    }
   } else {
     delete dag;
-  }
-  if (metaDag->isDone()) {
-    TRACE_TEXT (TRACE_ALL_STEPS,"######## META-DAG "
-                                << metaDag->getId() << " IS COMPLETED #########" << endl);
-    delete metaDag;
   }
 }
 
