@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.81  2008/12/22 13:38:55  bdepardo
+ * Added diet_wait_batch_job_completion to explicitely wait for the end of a
+ * batch job.
+ *
  * Revision 1.80  2008/12/08 15:31:42  bdepardo
  * Added the possibility to remove a service given its profile description.
  * So now, one is able to remove a service given either the real profile,
@@ -1469,6 +1473,14 @@ diet_concurrent_submit_parallel(int batchJobID, diet_profile_t * profile,
 {
   return (((SeDImpl*)profile->SeDPtr)->getBatch())->
     diet_submit_parallel(batchJobID,profile,command) ;
+}
+
+/* Used to explicitely wait for the completion of a batch job */
+int
+diet_wait_batch_job_completion(diet_profile_t * profile)
+{
+  return ((SeDImpl*) profile->SeDPtr)->getBatch()->
+    wait4BatchJobCompletion(((SeDImpl*) profile->SeDPtr)->getBatch()->getBatchJobID(profile->dietReqID));
 }
 #endif
 
