@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2008/12/22 12:14:06  bdepardo
+ * Corrected example in case Diet is compiled with Batch support.
+ *
  * Revision 1.1  2008/11/18 10:18:13  bdepardo
  * - Added the possibility to dynamically create and destroy a service
  *   (even if the SeD is already started). An example is available.
@@ -73,6 +76,9 @@ service(diet_profile_t* pb)
 
   /* Removing */
   std::cout << "## Removing service " << pb->pb_name << std::endl;
+#ifdef HAVE_ALT_BATCH
+  pb->parallel_flag = 1;
+#endif
   diet_service_table_remove(pb);
   std::cout << "## Service removed" << std::endl;
 
