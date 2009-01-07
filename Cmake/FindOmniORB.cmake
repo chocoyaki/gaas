@@ -42,6 +42,9 @@
 # COSDynamic4 and when present we add them to list of required libraries.
 # [the logic is here: the installer of omniORB knows better...]
 #
+#### The minimum recommanded version of omniORB is 4.1.2 as 4.0.6 has known bugs
+# in marshalling/unmarshalling floats and doubles using CORBA::Any.
+SET( OMNIORB4_MINIMUM_VERSION "4.1.2" )
 
 FIND_PATH( OMNIORB4_INCLUDE_DIR
   omniORB4/CORBA.h
@@ -161,6 +164,13 @@ IF( OMNIORB4_IDL_COMPILER )
     FILE( READ ${OMNIORB4_INCLUDE_DIR}/omniORB4/acconfig.h OMNIORB_ACCONFIG_H )
     STRING( REGEX MATCH "#define[\t ]+PACKAGE_VERSION[\t ]+\"([0-9]+.[0-9]+.[0-9]+)\"" OMNIORB_ACCONFIG_H "${OMNIORB_ACCONFIG_H}" )
     STRING( REGEX REPLACE ".*\"([0-9]+.[0-9]+.[0-9]+)\".*" "\\1" OMNIORB4_VERSION "${OMNIORB_ACCONFIG_H}" )
+
+    # TODO: when really switching to CMake 2.6, we should use VERSION_LESS instead of LESS
+    IF( "${OMNIORB4_VERSION}" LESS "${OMNIORB4_MINIMUM_VERSION}" )
+      MESSAGE( "WARNING: your version of omniORB is older than the minimum required one (${OMNIORB4_MINIMUM_VERSION}), using DIET with this version may result in undetermined behaviors." )
+    ENDIF( "${OMNIORB4_VERSION}" LESS "${OMNIORB4_MINIMUM_VERSION}" )
+
+
   ELSE( EXISTS ${OMNIORB4_INCLUDE_DIR}/omniORB4/acconfig.h )
     SET( OMNIORB4_VERSION "NOT-FOUND" )
   ENDIF( EXISTS ${OMNIORB4_INCLUDE_DIR}/omniORB4/acconfig.h )
