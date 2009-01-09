@@ -27,7 +27,7 @@ SET( DYNAMICSERVICEMGR_SERVER_SRC
   server.cc
   )
 ADD_EXECUTABLE( server_DynamicServiceMgr ${DYNAMICSERVICEMGR_SERVER_SRC} )
-TARGET_LINK_LIBRARIES( server_DynamicServiceMgr ${DIET_SERVER_LIBRARIES} )
+TARGET_LINK_LIBRARIES( server_DynamicServiceMgr ${DIET_SERVER_LIBRARIES} dl)
 INSTALL_TARGETS( /bin/examples/dynamicServiceMgr server_DynamicServiceMgr )
 
 # Library for Dynamic Service Mgr
