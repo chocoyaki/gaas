@@ -30,8 +30,8 @@ IF( DIET_BUILD_LIBRARIES )
 
   INSTALL_TARGETS( /lib/ UtilsWf )
 
-  ADD_EXECUTABLE( wftest WfUnitTest.cc )
-  TARGET_LINK_LIBRARIES( wftest UtilsWf DIET_client)
-  INSTALL_TARGETS( /bin/ wftest )
+#   ADD_EXECUTABLE( wftest WfUnitTest.cc )
+#   TARGET_LINK_LIBRARIES( wftest UtilsWf DIET_client)
+#   INSTALL_TARGETS( /bin/ wftest )
 
 ENDIF( DIET_BUILD_LIBRARIES )

@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.57  2009/01/13 21:01:13  bdepardo
+ * Correction of bug 83: float as well as integer are now passed correctly
+ * in the profile description.
+ * The size of Diet types are no longer statically defined, uses sizeof.
+ * Also fixed a memory leak in marshalling.cc.
+ *
  * Revision 1.56  2008/12/09 12:10:27  bisnard
  * added parameter wfReqID in wf profile for inter-dependent dag submissions
  *
@@ -203,13 +209,13 @@ type_sizeof(const diet_base_type_t type)
 {
   switch (type) {
   case DIET_CHAR:
-    return 1;
+    return sizeof(char);
   case DIET_SHORT:
-    return 2;
+    return sizeof(short);
   case DIET_INT:
-    return 4;
+    return sizeof(int);
   case DIET_LONGINT:
-    return 8;
+    return sizeof(long int);
   case DIET_FLOAT:
     return sizeof(float);
   case DIET_DOUBLE:

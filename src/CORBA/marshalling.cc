@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.90  2009/01/13 21:01:19  bdepardo
+ * Correction of bug 83: float as well as integer are now passed correctly
+ * in the profile description.
+ * The size of Diet types are no longer statically defined, uses sizeof.
+ * Also fixed a memory leak in marshalling.cc.
+ *
  * Revision 1.89  2008/11/08 19:12:36  bdepardo
  * A few warnings removal
  *
@@ -356,7 +362,7 @@ mrsh_scalar_desc(corba_data_desc_t* dest,
       break;
     }
     case DIET_INT: {
-      long scal = (long) *((int*)(src->specific.scal.value));
+      long scal = *((long int*)(src->specific.scal.value));
       dest->specific.scal().value <<= (CORBA::Long) scal;
       break;
     }
@@ -473,9 +479,10 @@ __mrsh_data_desc_type(corba_data_desc_t* dest,
 int
 mrsh_data_desc(corba_data_desc_t* dest, diet_data_desc_t* src)
 {
-  if (src->id != NULL)
-    // nxt line also deallocates old dest->id.idNumber
+  if (src->id != NULL) {
+    CORBA::string_free(dest->id.idNumber);
     dest->id.idNumber = CORBA::string_dup(src->id);
+  }
   else
     dest->id.idNumber = CORBA::string_dup("");
   // The default values are not always inner the enum types, which triggers an ABORT.
@@ -593,31 +600,35 @@ unmrsh_scalar_desc(diet_data_desc_t* dest, const corba_data_desc_t* src)
     break;
   }
   case DIET_INT: {
-    value = (void*) new int;
-    src->specific.scal().value >>= *((CORBA::Long*)(value));
+    CORBA::Long v;
+    value = (void*) new long int;
+    src->specific.scal().value >>= v;
+    *((long int *)value) = v;
     scalar_set_desc(dest, id, (diet_persistence_mode_t)src->mode, bt, value);
-    //    delete((int*)value) ;
     break;
   }
   case DIET_LONGINT: {
+    CORBA::Long v;
     value = (void*) new long long int;
-    src->specific.scal().value >>= *((CORBA::Long*)(value));
+    src->specific.scal().value >>= v;
+    *((long long int *)value) = v;
     scalar_set_desc(dest, id, (diet_persistence_mode_t)src->mode, bt, value);
-    //    delete((long long int*)value) ;
     break;
   }
   case DIET_FLOAT: {
+    CORBA::Float f;
     value = (void*) new float;
-    src->specific.scal().value >>= *((CORBA::Float*)(value));
+    src->specific.scal().value >>= f;
+    *((float*)value) = f;
     scalar_set_desc(dest, id, (diet_persistence_mode_t)src->mode, bt, value);
-    //    delete((float*)value) ;
     break;
   }
   case DIET_DOUBLE: {
+    CORBA::Double d;
     value = (void*) new double;
-    src->specific.scal().value >>= *((CORBA::Double*)(value));
+    src->specific.scal().value >>= d;
+    *((double*)value) = d;
     scalar_set_desc(dest, id, (diet_persistence_mode_t)src->mode, bt, value);
-    //    delete((double*)value) ;
     break;
   }
 #if HAVE_COMPLEX
