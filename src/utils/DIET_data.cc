@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.58  2009/01/14 12:22:12  bdepardo
+ * Use long int for DIET_INT, and long long int for DIET_LONGINT, as this is
+ * what is used in the marshalling.
+ *
  * Revision 1.57  2009/01/13 21:01:13  bdepardo
  * Correction of bug 83: float as well as integer are now passed correctly
  * in the profile description.
@@ -213,9 +217,9 @@ type_sizeof(const diet_base_type_t type)
   case DIET_SHORT:
     return sizeof(short);
   case DIET_INT:
-    return sizeof(int);
-  case DIET_LONGINT:
     return sizeof(long int);
+  case DIET_LONGINT:
+    return sizeof(long long int);
   case DIET_FLOAT:
     return sizeof(float);
   case DIET_DOUBLE:
