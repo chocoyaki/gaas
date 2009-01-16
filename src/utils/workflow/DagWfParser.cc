@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2009/01/16 16:31:54  bisnard
+ * added option to specify data source file name
+ *
  * Revision 1.18  2009/01/16 13:54:50  bisnard
  * new version of the dag instanciator with iteration strategies for nodes with multiple input ports
  *
@@ -805,8 +808,6 @@ FWfParser::parseOtherNodeSubElt(const DOMElement * element,
 /*                    CLASS DataSourceParser                                 */
 /*****************************************************************************/
 
-string DataSourceParser::dataFileName = "data.xml";
-
 DataSourceParser::DataSourceParser(const string& name)
   : myName(name), currValueNode(NULL) {
 }
@@ -816,7 +817,7 @@ DataSourceParser::~DataSourceParser() {
 }
 
 void
-DataSourceParser::parseXml() throw (XMLParsingException) {
+DataSourceParser::parseXml(const string& dataFileName) throw (XMLParsingException) {
   const XMLCh gLS[] = { chLatin_L, chLatin_S, chNull };
 
   TRACE_TEXT(TRACE_ALL_STEPS, "PARSING XML START" << endl);

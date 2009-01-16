@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2009/01/16 16:32:26  bisnard
+ * added option to specify data source file name
+ *
  * Revision 1.22  2009/01/16 13:51:10  bisnard
  * corrected synchronization pbs between dag instanciation and execution
  *
@@ -124,8 +127,9 @@
 using namespace std;
 
 
-// Initialisation of static member myInstance
+// Initialisation of static members
 CltWfMgr * CltWfMgr::myInstance = NULL;
+string CltWfMgr::defaultDataFileName("data.xml");
 
 CORBA::Long
 CltWfMgr::execNodeOnSed(const char * node_id,
@@ -452,8 +456,13 @@ CltWfMgr::wfFunctionalCall(diet_wf_desc_t * profile) {
   }
 
   TRACE_TEXT (TRACE_ALL_STEPS, "*** Initialize functional wf ****" << endl);
+  string dataFileName = defaultDataFileName;
+  if (profile->dataFile) {
+    dataFileName = profile->dataFile;
+  }
+  cout << "XML DATA SOURCE FILE = " << dataFileName << endl;
   try {
-    wf->initialize();
+    wf->initialize(dataFileName);
   } catch (XMLParsingException& exception) {
     cerr << "XML Parsing exception: " << exception.Info() << endl;
   }

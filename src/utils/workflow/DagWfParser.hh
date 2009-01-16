@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2009/01/16 16:31:54  bisnard
+ * added option to specify data source file name
+ *
  * Revision 1.11  2009/01/16 13:54:50  bisnard
  * new version of the dag instanciator with iteration strategies for nodes with multiple input ports
  *
@@ -396,7 +399,6 @@ private:
 class DataSourceParser {
 
   public:
-    static string dataFileName;
 
     DataSourceParser(const string& name); // create and go to first item
     ~DataSourceParser();
@@ -405,8 +407,9 @@ class DataSourceParser {
      * Initialize the parser
      * Note: after this call the next available value can be retrieved
      * with getValue() if end() is not true
+     * @param dataFileName  path of the file containing data description
      */
-    void parseXml() throw (XMLParsingException);
+    void parseXml(const string& dataFileName) throw (XMLParsingException);
 
     /**
      * Get the current value

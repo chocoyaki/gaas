@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2009/01/16 16:32:26  bisnard
+ * added option to specify data source file name
+ *
  * Revision 1.12  2009/01/16 13:51:11  bisnard
  * corrected synchronization pbs between dag instanciation and execution
  *
@@ -299,6 +302,11 @@ private:
    * Unique instance reference
    */
   static CltWfMgr * myInstance;
+
+  /**
+   * Default data file name
+   */
+  static string defaultDataFileName;
 
   /**
    * MaDag CORBA object reference

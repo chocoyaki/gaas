@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2009/01/16 16:31:54  bisnard
+ * added option to specify data source file name
+ *
  * Revision 1.6  2009/01/16 13:54:50  bisnard
  * new version of the dag instanciator with iteration strategies for nodes with multiple input ports
  *
@@ -213,7 +216,8 @@ void DFS(Node* node,
  * NOT THREAD SAFE
  */
 void
-FWorkflow::initialize() {
+FWorkflow::initialize(const string& dataFileName) {
+  this->dataSrcXmlFile = dataFileName;
   TRACE_TEXT (TRACE_ALL_STEPS,"Initializing Interface..." << endl);
   for(map<string,FNode*>::iterator iter = myInterface.begin();
       iter != myInterface.end();
@@ -262,6 +266,14 @@ FWorkflow::initialize() {
       todoProc.insert(todoIter, node);
     }
   }
+}
+
+/**
+ * Returns the path of the file used for data sources instanciation
+ */
+const string&
+FWorkflow::getDataSrcXmlFile() {
+  return dataSrcXmlFile;
 }
 
 /**

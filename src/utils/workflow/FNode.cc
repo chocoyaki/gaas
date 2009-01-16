@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2009/01/16 16:31:54  bisnard
+ * added option to specify data source file name
+ *
  * Revision 1.4  2009/01/16 13:54:50  bisnard
  * new version of the dag instanciator with iteration strategies for nodes with multiple input ports
  *
@@ -152,7 +155,7 @@ void
 FSourceNode::initialize() {
   TRACE_TEXT (TRACE_ALL_STEPS,"Initializing data source :" << getId() << endl);
   TRACE_TEXT (TRACE_ALL_STEPS,"  1/ Parse XML data file :" << endl);
-  myParser->parseXml();
+  myParser->parseXml(wf->getDataSrcXmlFile());
 }
 
 void
