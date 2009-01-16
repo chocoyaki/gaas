@@ -9,6 +9,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2009/01/16 13:36:54  bisnard
+ * make thread-safe using mutex
+ *
  * Revision 1.1  2008/09/09 10:07:36  bisnard
  * new class used for container mgmt using Dagda agent
  *
@@ -102,6 +105,11 @@ class DataRelationMgr {
     } dataRelationValue_t;
 
     multimap<string, dataRelationValue_t> myMap;
+
+    /**
+     * Critical section
+     */
+    omni_mutex myLock;
 
 }; // end class DataRelationMgr
 
