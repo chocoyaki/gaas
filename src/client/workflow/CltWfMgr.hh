@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2009/01/16 13:51:11  bisnard
+ * corrected synchronization pbs between dag instanciation and execution
+ *
  * Revision 1.11  2008/12/09 12:09:03  bisnard
  * added parameters to dag submit method to handle inter-dependent dags
  *
@@ -86,6 +89,7 @@
 
 #include "workflow/DagWfParser.hh"
 #include "workflow/MetaDag.hh"
+class FWorkflow;
 
 class CltWfMgr : public POA_CltMan,
                  public PortableServer::RefCountServantBase{
@@ -117,6 +121,7 @@ public:
   execNode(const char * node_id, const char * dag_id);
 
   /**
+   * (CORBA method)
    * Release the waiting semaphore. This method is used by the MA DAG when workflow execution
    * is done by this agent
    */
@@ -237,17 +242,16 @@ public:
   void
   wf_free(diet_wf_desc_t * profile);
 
+private:
 
-protected:
-  /**
-   * Map for profiles and their dags or workflows
-   */
-  std::map<diet_wf_desc_t *, NodeSet *> myProfiles;
+  /***************************************************************************/
+  /*                           PRIVATE methods                               */
+  /***************************************************************************/
 
   /**
-   * Map for metadags
+   * Private constructor
    */
-  std::map<CORBA::Long, MetaDag*> myMetaDags;
+  CltWfMgr();
 
   /**
    * Get current time (in milliseconds)
@@ -269,17 +273,32 @@ protected:
   Dag *
   getDag(std::string dag_id);
 
-private:
+  /**
+   * Initialize status for functional workflow
+   */
+  void
+      initDagStatus(FWorkflow* wf);
+
+  /**
+   * Set the dag status regarding dags sent for a given functional workflow
+   */
+  void
+      setWfSubmissionComplete(FWorkflow* wf);
+
+  /**
+   * Get the status regarding dags sent for a given functional workflow
+   */
+  bool
+      isWfSubmissionComplete(FWorkflow* wf);
+
+  /***************************************************************************/
+  /*                          PRIVATE attributes                             */
+  /***************************************************************************/
+
   /**
    * Unique instance reference
    */
   static CltWfMgr * myInstance;
-
-  /**
-   * Local workflow request ID counter
-   * (different from wf request ID on MaDag)
-   */
-  int cltWfReqId;
 
   /**
    * MaDag CORBA object reference
@@ -297,14 +316,25 @@ private:
   WfLogSrv_var myWfLogSrv;
 
   /**
-   * Private constructor
+   * Local workflow request ID counter
+   * (different from wf request ID on MaDag)
    */
-  CltWfMgr();
+  int cltWfReqId;
 
   /**
-   * Synchronisation semaphores
+   * Map for profiles and their dags or workflows
    */
-  omni_semaphore mySem;
+  std::map<diet_wf_desc_t *, NodeSet *> myProfiles;
+
+  /**
+   * Map for metadags
+   */
+  std::map<CORBA::Long, MetaDag*> myMetaDags;
+
+  /**
+   * Dags status for functional workflows
+   */
+  std::map<FWorkflow*,bool> allDagsSent;
 
   /**
    * Dag sent counter
@@ -317,9 +347,15 @@ private:
   omni_mutex myLock;
 
   /**
+   * Synchronisation semaphores
+   */
+  omni_semaphore mySem;
+
+  bool instanciationPending;
+  /**
    * Reference time
    */
-   struct timeval refTime;
+  struct timeval refTime;
 };
 
 
