@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2009/01/16 13:54:50  bisnard
+ * new version of the dag instanciator with iteration strategies for nodes with multiple input ports
+ *
  * Revision 1.3  2008/12/09 12:15:59  bisnard
  * pending instanciation handling (uses dag outputs for instanciation
  * of a functional wf)
@@ -28,7 +31,6 @@
 #include "debug.hh"
 #include "WfPort.hh"
 
-
 using namespace std;
 
 /*****************************************************************************/
@@ -43,6 +45,7 @@ class FDataTag {
     FDataTag(const FDataTag& tag);
     FDataTag(unsigned int index, bool isLast);
     FDataTag(const FDataTag& parentTag, unsigned int index, bool isLast);
+    FDataTag(const FDataTag& parentTag, const FDataTag& childTag);
     ~FDataTag();
 
     friend int operator<( const FDataTag& tag1, const FDataTag& tag2 );
@@ -67,10 +70,46 @@ class FDataTag {
     isLast() const;
 
     /**
+     * Returns true if this is an empty tag
+     */
+    bool
+    isEmpty() const;
+
+    /**
      * Returns an index of the tag
      */
     unsigned int
     getIndex(unsigned int level) const;
+
+    /**
+     * Returns the last index of the tag
+     */
+    unsigned int
+    getLastIndex() const;
+
+    /**
+     * Returns the flat index of the tag
+     * ie the index of the tag in the leaves list
+     * (used only if this is the last tag, to determine the total
+     * nb of items)
+     */
+    unsigned int
+    getFlatIndex() const;
+
+    /**
+     * Returns the top indexes of the tag
+     * ie a partial tag containing the indexes from level 1 to the provided int
+     * @param maxLevel the level of the last index of the returned tag
+     */
+    FDataTag *
+    getLeftPart(unsigned int maxLevel) const;
+
+    /**
+     * Returns the bottom indexes of the tag
+     * @param minLevel the level of the first index of the returned tag
+     */
+    FDataTag *
+    getRightPart(unsigned int minLevel) const;
 
     /**
      * Returns the parent tag
@@ -82,7 +121,7 @@ class FDataTag {
      * Converts the tag to a string
      * (used to generate node IDs)
      */
-    string
+    const string&
     toString() const;
 
   protected:
@@ -99,6 +138,12 @@ class FDataTag {
     isLastRec(unsigned int level) const;
 
     /**
+     * Initializes the string version of the tag (used in constructors)
+     */
+    void
+    initStr();
+
+    /**
      * Contains the index values of the tag
      */
     unsigned int * myIdxs;
@@ -112,6 +157,32 @@ class FDataTag {
      * Size of the tag (= nb of levels = nb of index values)
      */
     unsigned int mySize;
+
+    /**
+     * String version of the tag
+     */
+    string myStr;
+};
+
+/*****************************************************************************/
+/*                        CLASS DataHandleException                          */
+/*****************************************************************************/
+
+class DataHandleException {
+  public:
+    enum DataHandleErrorType { eBAD_STRUCT,
+                               eINVALID_ADAPT };
+    DataHandleException(DataHandleErrorType t,
+                        const string& _info,
+                        const FDataTag& _tag)
+      { this->why = t; this->info = _info; this->tag = _tag; }
+    DataHandleErrorType Type() { return this->why; }
+    const string& Info()       { return this->info; }
+    const FDataTag& Tag()      { return this->tag; }
+  private:
+    DataHandleErrorType why;
+    string info;
+    FDataTag tag;
 };
 
 /*****************************************************************************/
@@ -163,10 +234,10 @@ class FDataHandle {
     ~FDataHandle();
 
     unsigned int
-    getDepth();
+    getDepth() const;
 
     const FDataTag&
-    getTag();
+    getTag() const;
 
     /**
      * Set the cardinal (at this handle's level)
@@ -179,26 +250,26 @@ class FDataHandle {
      * (does not match the nb of childs if not complete)
      */
     unsigned int
-    getCardinal();
+    getCardinal() const;
 
     /**
      * Returns true if the cardinal is known
      * (if true then calling begin() the first time will create the childs)
      */
     bool
-    isCardinalDefined();
+    isCardinalDefined() const;
 
     /**
      * Returns true if the parent is defined
      */
     bool
-    isParentDefined();
+    isParentDefined() const;
 
     /**
      * Get the parent handle
      */
     FDataHandle*
-    getParent();
+    getParent() const;
 
     /**
      * Add a data as a child of this data handle
@@ -209,10 +280,11 @@ class FDataHandle {
      * object with tag '2,3'.
      * If there are missing nodes in the tree then they will be created.
      * If the inserted child is a direct child and its tag is marked as last then
-     * this handle's cardinal is set as defined and checkAdapter is called
+     * this handle's cardinal is set as defined
      */
     void
-    insertInTree(FDataHandle* dataHdl);
+    insertInTree(FDataHandle* dataHdl)
+        throw (DataHandleException);
 
     /**
      * Get an iterator on the childs of the data Handle
@@ -233,7 +305,7 @@ class FDataHandle {
      * parent or built from the same property of the childs.
      */
     bool
-    isAdapterDefined();
+    isAdapterDefined() const;
 
     /**
      * Create the port adapter corresponding to this data handle
@@ -248,31 +320,45 @@ class FDataHandle {
      * Returns true if the handle has a defined value
      */
     bool
-    isValueDefined();
+    isValueDefined() const;
 
     /**
      * Returns value
      */
     const string&
-    getValue();
+    getValue() const;
 
     /**
      * Returns true if the handle has a defined data ID
      */
     bool
-    isDataIDDefined();
+    isDataIDDefined() const;
 
     /**
      * Returns data ID
      */
     const string&
-    getDataID();
+    getDataID() const;
 
     /**
      * Set data ID
      */
     void
     setDataID(const string& dataID);
+
+    /**
+     * Checks recursively if the adapter is defined (up the tree)
+     */
+    void checkAdapter();
+
+    /**
+     * Returns true if the data contains all its childs at the given level
+     * and updates the table with the total nb of childs at each level (up to
+     * the given level)
+     */
+    bool
+    checkIfComplete(unsigned int level,
+                    vector<unsigned int>& childNbTable);
 
   private:
 
@@ -289,10 +375,13 @@ class FDataHandle {
     setParent(FDataHandle* parentHdl);
 
     bool
-    isLastChild();
+    isLastChild() const;
+
+    bool
+    checkIfCompleteRec(unsigned int level, unsigned int& total);
 
     void
-    checkAdapter();
+    display(bool goUp=false);
 
     /**
      * the tag associated with this data handle
@@ -343,6 +432,12 @@ class FDataHandle {
      * flag to check if cardinal is defined
      */
     bool cardDef;
+
+    /**
+     * flag to check if data is locally complete
+     * (ie nb of childs match cardinal)
+     */
+//     bool complete;
 
     /**
      * flag to check if adapter is defined

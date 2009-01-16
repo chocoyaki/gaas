@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2009/01/16 13:54:50  bisnard
+ * new version of the dag instanciator with iteration strategies for nodes with multiple input ports
+ *
  * Revision 1.4  2008/12/09 12:15:59  bisnard
  * pending instanciation handling (uses dag outputs for instanciation
  * of a functional wf)
@@ -73,13 +76,16 @@ public:
    */
 
   FProcNode*
-  createProcessor(const string& id, short maxInstances = 0);
+  createProcessor(const string& id);
 
   FSourceNode*
-  createSource(const string& id, WfCst::WfDataType type, short maxInstances = 0);
+  createSource(const string& id, WfCst::WfDataType type);
 
   FConstantNode*
   createConstant(const string& id, WfCst::WfDataType type);
+
+  FSinkNode*
+  createSink(const string& id, WfCst::WfDataType type);
 
   /**
    * retrieval
@@ -175,6 +181,11 @@ private:
     INSTANC_END } instanciationStatus_t;
 
   instanciationStatus_t myStatus;
+
+  /**
+   * Critical section
+   */
+  omni_mutex myLock;
 
 };
 

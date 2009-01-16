@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2009/01/16 13:54:50  bisnard
+ * new version of the dag instanciator with iteration strategies for nodes with multiple input ports
+ *
  * Revision 1.5  2008/12/09 12:15:59  bisnard
  * pending instanciation handling (uses dag outputs for instanciation
  * of a functional wf)
@@ -71,26 +74,30 @@ FWorkflow::getNode(const string& nodeId) {
 
 FProcNode *
 FWorkflow::getProcNode(const string& id) {
+  FProcNode *node = NULL;
+  myLock.lock();    /** LOCK */
   map<string, FProcNode*>::iterator p = this->myProc.find(id);
   if ( p != this->myProc.end())
-    return p->second;
-  else
-    return NULL;
+    node = p->second;
+  myLock.unlock();  /** UNLOCK */
+  return node;
 }
 
 FNode *
 FWorkflow::getInterfaceNode(const string& id) {
+  FNode *node = NULL;
+  myLock.lock();    /** LOCK */
   map<string, FNode*>::iterator p = this->myInterface.find(id);
   if ( p != this->myInterface.end())
-    return p->second;
-  else
-    return NULL;
+    node = p->second;
+  myLock.unlock();  /** UNLOCK */
+  return node;
 }
 
 void
 FWorkflow::checkPrec(NodeSet* contextNodeSet) throw (WfStructException) {
   TRACE_TEXT(TRACE_ALL_STEPS, "CHECKING WF PRECEDENCE START" << endl);
-  // initializes the next/prev tables for each processor node
+  // processor nodes
   for (map<string, FProcNode * >::iterator p = myProc.begin();
        p != myProc.end();
        ++p ) {
@@ -100,31 +107,35 @@ FWorkflow::checkPrec(NodeSet* contextNodeSet) throw (WfStructException) {
                               "Cannot set predecessor relationship for node "
                                   + node->getId());
   }
+  // interface nodes (does sth only for sink nodes)
+  for (map<string, FNode * >::iterator p = myInterface.begin();
+       p != myInterface.end();
+       ++p ) {
+    FNode * node = (FNode *) p->second;
+    if (!node->setNodePrecedence(contextNodeSet))
+      throw WfStructException(WfStructException::eUNKNOWN_NODE,
+                              "Cannot set predecessor relationship for node "
+                                  + node->getId());
+  }
   TRACE_TEXT(TRACE_ALL_STEPS, "CHECKING WF PRECEDENCE END" << endl);
 }
 
-// unsigned int
-// FWorkflow::size() {
-//   cout << "FWorkflow::size NOT IMPLEMENTED";
-//   exit(1);
-// }
-
 FProcNode*
-FWorkflow::createProcessor(const string& id, short maxInstances) {
+FWorkflow::createProcessor(const string& id) {
   if (getProcNode(id) != NULL)
     return NULL;
   TRACE_TEXT (TRACE_ALL_STEPS,"Creating processor node : " << id << endl);
-  FProcNode* node = new FProcNode(this, id, maxInstances);
+  FProcNode* node = new FProcNode(this, id);
   myProc[id] = node;
   return node;
 }
 
 FSourceNode*
-FWorkflow::createSource(const string& id, WfCst::WfDataType type, short maxInstances) {
+FWorkflow::createSource(const string& id, WfCst::WfDataType type) {
   if (getInterfaceNode(id) != NULL)
     return NULL;
   TRACE_TEXT (TRACE_ALL_STEPS,"Creating source node : " << id << endl);
-  FSourceNode* node = new FSourceNode(this, id, type, maxInstances);
+  FSourceNode* node = new FSourceNode(this, id, type);
   myInterface[id] = node;
   return node;
 }
@@ -139,9 +150,20 @@ FWorkflow::createConstant(const string& id, WfCst::WfDataType type) {
   return node;
 }
 
+FSinkNode*
+FWorkflow::createSink(const string& id, WfCst::WfDataType type) {
+  if (getInterfaceNode(id) != NULL)
+    return NULL;
+  TRACE_TEXT (TRACE_ALL_STEPS,"Creating sink node : " << id << endl);
+  FSinkNode* node = new FSinkNode(this, id, type);
+  myInterface[id] = node;
+  return node;
+}
+
 /**
  * Specific DFS search method
  * Skips the back nodes
+ * NOT THREAD SAFE
  */
 
 struct DFSNodeInfo {
@@ -157,48 +179,54 @@ void DFS(Node* node,
          map<Node*, DFSNodeInfo>& DFSInfo,
          short& endCount) {
   DFSInfo[node].ongoing = true;
-  cout << "Starting DFS search for node : " << node->getId() << endl;
+  TRACE_TEXT (TRACE_ALL_STEPS, "Starting DFS search for node : " << node->getId() << endl);
   for(list<Node*>::iterator nextIter = node->nextNodesBegin();
       nextIter != node->nextNodesEnd();
       ++nextIter) {
     Node* nextNode = (Node*) *nextIter;
-    cout << "  Processing next node : " << nextNode->getId() << endl;
+    TRACE_TEXT (TRACE_ALL_STEPS, "  Processing next node : " << nextNode->getId() << endl);
     // look for next node DFS information
     map<Node*, DFSNodeInfo>::iterator nextNodeInfoSearch = DFSInfo.find(nextNode);
     // if not found skip the node (means next node is not a processor)
     if (nextNodeInfoSearch == DFSInfo.end())
-      return;
+      continue;
     DFSNodeInfo& nextNodeInfo = nextNodeInfoSearch->second;
     if (!nextNodeInfo.explored) {
       if (!nextNodeInfo.ongoing) {
         DFS(nextNode, DFSInfo, endCount);
       } else {
         // this is a BACK edge
-        cout << "Found back edge!!" << endl;
+        TRACE_TEXT (TRACE_ALL_STEPS, "Found back edge!!" << endl);
       }
     } else {
-      cout << "  Next node was already explored" << endl;
+      TRACE_TEXT (TRACE_ALL_STEPS, "  Next node was already explored" << endl);
     }
   }
   DFSInfo[node].explored = true;
   DFSInfo[node].end      = endCount++;
-  cout << "End of DFS search for node : " << node->getId()
-            << " (count=" << endCount-1 << ")" << endl;
+  TRACE_TEXT (TRACE_ALL_STEPS, "End of DFS search for node : " << node->getId()
+            << " (count=" << endCount-1 << ")" << endl);
 }
 
 /**
  * FWorkflow initialization
+ * NOT THREAD SAFE
  */
 void
 FWorkflow::initialize() {
-  TRACE_TEXT (TRACE_ALL_STEPS,"Connecting Fnodes..." << endl);
-  // initialize the INTERNAL nodes first (to create the buffers)
+  TRACE_TEXT (TRACE_ALL_STEPS,"Initializing Interface..." << endl);
+  for(map<string,FNode*>::iterator iter = myInterface.begin();
+      iter != myInterface.end();
+      ++iter) {
+    ((FNode*) iter->second)->initialize();
+  }
+  TRACE_TEXT (TRACE_ALL_STEPS,"Initializing Processors..." << endl);
   for(map<string,FProcNode*>::iterator iter = myProc.begin();
       iter != myProc.end();
       ++iter) {
-    ((FProcNode*) iter->second)->connectNodePorts();
+    ((FProcNode*) iter->second)->initialize();
   }
-  TRACE_TEXT (TRACE_ALL_STEPS,"Sorting Fnodes..." << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS,"Sorting processors..." << endl);
   // create a topologically sorted list of processor nodes
   map<Node*, DFSNodeInfo>* DFSInfo = new map<Node*,DFSNodeInfo>();
   short DFSEndCount = 0;
@@ -238,16 +266,20 @@ FWorkflow::initialize() {
 
 /**
  * FWorkflow instanciation
+ * NOT THREAD SAFE
  */
 
 Dag *
 FWorkflow::instanciateDag() {
   Dag * currDag = new Dag();
+  // set a temporary ID for the DAG
+  // this ID will be changed when the DAG is submitted to the MaDag
+  // the temp ID must not match any real ID (which are numbers)
   currDag->setId("WF_" + this->id + "_DAG_" + itoa(dagCounter++));
   currDag->setWorkflow(this);
-  TRACE_TEXT (TRACE_ALL_STEPS,"@@@@@ DAG " << currDag->getId()
+  TRACE_TEXT (TRACE_MAIN_STEPS,"@@@@@ DAG " << currDag->getId()
                << " GENERATION START @@@@@" << endl);
-  TRACE_TEXT (TRACE_ALL_STEPS,"Init workflow interface..." << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS,"Instanciate interface..." << endl);
   // initialize the INTERFACE (this will create the input data items)
   for(map<string,FNode*>::iterator iter = myInterface.begin();
       iter != myInterface.end();
@@ -268,27 +300,23 @@ FWorkflow::instanciateDag() {
     list<FProcNode*>::iterator procIter = todoProc.begin();
     while (procIter != todoProc.end()) {
       FProcNode* currProc = (FProcNode*) *procIter;
-//       if (!currProc->isOnHold()) {
-        // instantiate node
-        currProc->instanciate(currDag);
-        // if fully instanciated, remove from todo list
-        if (currProc->instanciationCompleted()) {
-          TRACE_TEXT (TRACE_ALL_STEPS,"#### Processor " << currProc->getId()
+      // instantiate node
+      currProc->instanciate(currDag);
+      // if fully instanciated, remove from todo list
+      if (currProc->instanciationCompleted()) {
+        TRACE_TEXT (TRACE_MAIN_STEPS,"#### Processor " << currProc->getId()
                       << " instanciation COMPLETE" << endl);
-          procIter = todoProc.erase(procIter);
-          nbTodoProc--;
-        } else {
-//           if (currProc->isOnHold()) {
-          nbTodoProc--;
-//           }
-          if (currProc->instanciationPending()) {
-            TRACE_TEXT (TRACE_ALL_STEPS,"#### Processor " << currProc->getId()
+        procIter = todoProc.erase(procIter);
+        nbTodoProc--;
+      } else {
+        nbTodoProc--;
+        if (currProc->instanciationPending()) {
+          TRACE_TEXT (TRACE_MAIN_STEPS,"#### Processor " << currProc->getId()
                       << " instanciation PENDING" << endl);
-            myStatus = INSTANC_PENDING;
-          }
-          ++procIter;
+          myStatus = INSTANC_PENDING;
         }
-//       } // end if !isOnHold
+        ++procIter;
+      }
     } // end loop todo list
   } // end while (nbTodoProc)
   // check dag emptyness
@@ -300,7 +328,7 @@ FWorkflow::instanciateDag() {
   }
   // check if instanciation is finished
   if (todoProc.size() == 0) {
-    TRACE_TEXT (TRACE_ALL_STEPS,"############ WORKFLOW INSTANCIATION END ############" << endl);
+    TRACE_TEXT (TRACE_MAIN_STEPS,"############ WORKFLOW INSTANCIATION END ############" << endl);
     myStatus = INSTANC_END;
   }
   // add dag to my list of dags
@@ -317,11 +345,6 @@ bool
 FWorkflow::instanciationReady() {
   return myStatus == INSTANC_READY;
 }
-
-// bool
-// FWorkflow::instanciationOnHold() {
-//   return myStatus == INSTANC_ONHOLD;
-// }
 
 bool
 FWorkflow::instanciationPending() {
@@ -340,15 +363,17 @@ void
 FWorkflow::handlerDagNodeDone(DagNode* dagNode) {
   FProcNode* fNode = dagNode->getFNode();
   if (fNode == NULL) {
-    INTERNAL_ERROR("handlerNodeDone: Missing FNode ref in DagNode",1);
+    INTERNAL_ERROR("handlerDagNodeDone: Missing FNode ref in DagNode",1);
   }
   // call the FProcNode to process pending data handles
   bool statusChange = false;
+  myLock.lock();    /** LOCK */
   fNode->instanceIsDone(dagNode, statusChange);
   // re-initialize instanciation
   if (statusChange) {
     myStatus = INSTANC_READY;
   }
+  myLock.unlock();  /** UNLOCK */
 }
 
 /**

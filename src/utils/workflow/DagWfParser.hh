@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2009/01/16 13:54:50  bisnard
+ * new version of the dag instanciator with iteration strategies for nodes with multiple input ports
+ *
  * Revision 1.10  2008/12/02 10:14:51  bisnard
  * modified nodes links mgmt to handle inter-dags links
  *
@@ -122,6 +125,15 @@ public:
   void
   parseXml() throw (XMLParsingException);
 
+  /**
+   * utility method to get the attribute value in a DOM element
+   *
+   * @param attr_name the attribute name
+   * @param elt      the DOM element
+   */
+  static string
+  getAttributeValue(const char * attr_name, const DOMElement * elt);
+
 protected:
 
   /**
@@ -139,14 +151,6 @@ protected:
   /* Xml methods  */
   /****************/
 
-  /**
-   * utility method to get the attribute value in a DOM element
-   *
-   * @param attr_name the attribute name
-   * @param elt      the DOM element
-   */
-  string
-  getAttributeValue(const char * attr_name, const DOMElement * elt);
 
   /**
    * Parse the root element
@@ -370,10 +374,75 @@ protected:
   FNode *
   parseLinkRef(const string& strRef, string& nodeName, string& portName);
 
+  /**
+   * Parse the iteration strategy tree
+   * @param element the DOM element corresponding to the <iterationstragegy>
+   *                or to an operator tag
+   * @param procNode  the current processor node
+   * @return a vector containing the ids of the operator(s) created
+   */
+  vector<string>*
+  parseIterationStrategy(const DOMElement * element,
+                         FProcNode* procNode);
+
 private:
   FWorkflow&  workflow;
 }; // end class FWfParser
 
+/*****************************************************************************/
+/*                         CLASS FWfParser                                   */
+/*****************************************************************************/
+
+class DataSourceParser {
+
+  public:
+    static string dataFileName;
+
+    DataSourceParser(const string& name); // create and go to first item
+    ~DataSourceParser();
+
+    /**
+     * Initialize the parser
+     * Note: after this call the next available value can be retrieved
+     * with getValue() if end() is not true
+     */
+    void parseXml() throw (XMLParsingException);
+
+    /**
+     * Get the current value
+     * Note: must not be called if end() is true
+     * @return  a ptr to a string containing the value or to an empty string
+     */
+    string * getValue();
+
+    /**
+     * Go to the next available value
+     */
+    void goToNextValue() throw (XMLParsingException);
+
+    /**
+     * Returns true if the source values were all parsed
+     */
+    bool end();
+
+  private:
+
+    void parseRoot(DOMNode* root) throw (XMLParsingException);
+    void findValueNode() throw (XMLParsingException);
+
+    string myName;
+
+    /**
+     * Xml document
+     */
+    DOMDocument * document;
+
+    /**
+     * Current DOM node containing a value for the source
+     */
+    DOMNode * currValueNode;
+
+};
 
 #endif   /* not defined _DAGWFPARSER_HH */
 

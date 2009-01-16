@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2009/01/16 13:54:50  bisnard
+ * new version of the dag instanciator with iteration strategies for nodes with multiple input ports
+ *
  * Revision 1.2  2008/12/09 12:15:59  bisnard
  * pending instanciation handling (uses dag outputs for instanciation
  * of a functional wf)
@@ -39,6 +42,13 @@ class FNodePort : public WfPort {
               WfCst::WfDataType _type, unsigned int _depth, unsigned int _ind);
     virtual ~FNodePort();
 
+  protected:
+    /**
+     * Get the parent node (applicable only if port of processor node)
+     * @return  ref to ProcNode (will exit if ref is NULL)
+     */
+    FProcNode*
+    getParentProcNode();
 
 }; // end class FNodePort
 
@@ -49,6 +59,9 @@ class FNodePort : public WfPort {
 class FNodeOutPort : public FNodePort {
 
   public:
+
+    friend class FProcNode; // for pending instanciation
+
     FNodeOutPort(Node * parent, const string& _id,
                  WfCst::WfDataType _type, unsigned int _depth, unsigned int _ind);
     virtual ~FNodeOutPort();
@@ -85,6 +98,24 @@ class FNodeOutPort : public FNodePort {
   protected:
 
     /**
+     * Methods used by the instanciate methods to submit a data item
+     * to an input port
+     * (also used by FProcNode for pending data)
+     */
+
+    bool
+    addDataToInPort(FNodeInPort *inPort,
+                    FDataHandle *dataHdl,
+                    const list<string>& dataCard);
+    bool
+    addDataToInPort(FNodeInPort *inPort,
+                    FDataHandle *dataHdl,
+                    DagNodeOutPort * dagOutPort);
+    void
+    checkTotalDataNb(FNodeInPort *inPort,
+                     FDataHandle *dataHdl);
+
+    /**
      * The list of in ports connected
      */
     list<FNodeInPort*>  myConnectedPorts;
@@ -95,14 +126,10 @@ class FNodeOutPort : public FNodePort {
     FDataHandle myBuffer;
 
     /**
-     * The waiting list (map instance tag => in port)
-     * Used when some data handles cannot be directly transferred to in ports
-     * during instanciation because their cardinal is not known statically
-     * This map is used after node instance has been executed. The functional
-     * node uses this map to re-submit the data handle to the in ports (the data
-     * handle can be found in the buffer using the instance tag)
+     * The nb of childs table
+     * indexed by the level of the buffer tree (from O to its max level)
      */
-//     map<FDataTag, FNodeInPort*> myWaitingPorts;
+    vector<unsigned int> myBufferChildNbTable;
 
 }; // end class FNodeOutPort
 
@@ -113,6 +140,9 @@ class FNodeOutPort : public FNodePort {
 class FNodeInPort : public FNodePort {
 
   public:
+
+    friend class PortInputIterator;
+
     FNodeInPort(Node * parent, const string& _id,
                 WfCst::WfDataType _type, unsigned int _depth, unsigned int _ind);
     virtual ~FNodeInPort();
@@ -133,9 +163,19 @@ class FNodeInPort : public FNodePort {
      * (when data item is available from the specified port)
      * @param dataHdl     the data Handle
      * @param dagOutPort  the port providing the data
+     * @return false if the data cannot be added due to missing data ID
+     */
+    bool
+    addData(FDataHandle* dataHdl, DagNodeOutPort* dagOutPort);
+
+    /**
+     * Set the total nb of data items
+     * This information is used by input operators to determine when
+     * the instanciation is finished.
+     * Called by connected OUT port when total can be determined.
      */
     void
-    addData(FDataHandle* dataHdl, DagNodeOutPort* dagOutPort);
+    setTotalDataNb(unsigned int total);
 
     /**
      * Set as a constant
@@ -153,31 +193,21 @@ class FNodeInPort : public FNodePort {
     void
     instanciate(Dag* dag, DagNode* nodeInst, FDataHandle* dataHdl);
 
-    /**
-     * Get an iterator on the queue of datahandles
-     */
-    map<FDataTag, FDataHandle*>::iterator
-    begin();
-
-    map<FDataTag, FDataHandle*>::iterator
-    end();
-
-    /**
-     * Clear the queue
-     */
-    void
-    clearQueue();
-
-    /**
-     * Remove elements from the queue
-     */
-    void
-    clearQueue(map<FDataTag, FDataHandle*>::iterator start,
-               map<FDataTag, FDataHandle*>::iterator end);
-
   protected:
 
     map<FDataTag, FDataHandle*> myQueue;
+
+    /**
+     * The total nb of data items that the node will receive
+     * This information is used by input operators to determine when
+     * the instanciation is finished.
+     */
+    unsigned int dataTotalNb;
+
+    /**
+     * Flag to check if total has been defined
+     */
+    bool totalDef;
 
 }; // end class FNodeInPort
 

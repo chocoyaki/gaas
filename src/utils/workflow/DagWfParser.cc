@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2009/01/16 13:54:50  bisnard
+ * new version of the dag instanciator with iteration strategies for nodes with multiple input ports
+ *
  * Revision 1.17  2008/12/02 10:14:51  bisnard
  * modified nodes links mgmt to handle inter-dags links
  *
@@ -70,12 +73,14 @@
 
 #include <iostream>
 
+#include <xercesc/framework/LocalFileInputSource.hpp>
 #include <xercesc/framework/MemBufInputSource.hpp>
 #include <xercesc/framework/Wrapper4InputSource.hpp>
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/util/XMLStringTokenizer.hpp>
 #include <xercesc/dom/DOMText.hpp>
 #include <string>
+#include <fstream>
 
 #include "debug.hh"
 #include "marshalling.hh"
@@ -231,9 +236,6 @@ DagWfParser::parseIn(DOMElement * element, unsigned int lastArg,
   }
   if (!source.empty())
     port->setConnectionRef(source);
-  else {
-    WARNING("No source attribute for input port " << node->getId());
-  }
   return port;
 }
 
@@ -561,9 +563,7 @@ Node *
 FWfParser::createNode(const DOMElement* element, const string& elementName) {
   string name = getAttributeValue("name", element);
   string type = getAttributeValue("type", element);
-  string maxInstStr = getAttributeValue("max_instances", element);
-  short dataType = 0;
-  short maxInst = 0;
+  // Check parameters
   if (name.empty()) {
     throw XMLParsingException(XMLParsingException::eEMPTY_ATTR,
                               "Element " + elementName + " without name");
@@ -572,19 +572,25 @@ FWfParser::createNode(const DOMElement* element, const string& elementName) {
     throw XMLParsingException(XMLParsingException::eEMPTY_ATTR,
                               "Element " + elementName + " without type");
   }
+  // Convert type
+  short dataType = 0;
   if (!type.empty()) {
     dataType = WfCst::cvtStrToWfType(type);
   }
-  if (!maxInstStr.empty()) {
-    maxInst = atoi(maxInstStr.c_str());
-  }
+  // Create node depending on element name
   Node * node;
   if (elementName == "source") {
-    node = workflow.createSource(name,(WfCst::WfDataType) dataType, maxInst);
+    node = workflow.createSource(name,(WfCst::WfDataType) dataType);
   } else if (elementName == "constant") {
-    node = workflow.createConstant(name,(WfCst::WfDataType) dataType);
+    FConstantNode* cstNode = workflow.createConstant(name,(WfCst::WfDataType) dataType);
+    string value = getAttributeValue("value", element);
+    if (!value.empty())
+      cstNode->setValue(value);
+    node = (Node*) cstNode;
+  } else if (elementName == "sink") {
+    node = workflow.createSink(name, (WfCst::WfDataType) dataType);
   } else if (elementName == "processor") {
-    node = workflow.createProcessor(name, maxInst);
+    node = workflow.createProcessor(name);
   } else {
     throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
                               "Invalid element : " + elementName);
@@ -637,7 +643,7 @@ FWfParser::parseCardAttr(DOMElement * element, WfPort* port) {
   while (tkizer->hasMoreTokens()) {
     const char *item = XMLString::transcode(tkizer->nextToken());
     tklist->push_back(item);
-    cout << "Parsed cardinal item=" << item << endl;
+    TRACE_TEXT (TRACE_ALL_STEPS, "Parsed cardinal item=" << item << endl);
   }
   // set the cardinal of the port
   port->setCardinal(*tklist);
@@ -657,7 +663,7 @@ FWfParser::parseLink(DOMElement * element) {
   string fromNodeName, toNodeName, fromPortName, toPortName;
   FNode *fromNode = parseLinkRef(from, fromNodeName, fromPortName);
   FNode *toNode = parseLinkRef(to, toNodeName, toPortName);
-  cout << "Parsing link: from=" << from << " to=" << to << endl;
+  TRACE_TEXT(TRACE_ALL_STEPS, "Parsing link: from=" << from << " to=" << to << endl);
   // set the port reference
   WfPort *toPort = toNode->getPort(toPortName);
   if (toPort == NULL)
@@ -669,25 +675,74 @@ FWfParser::parseLink(DOMElement * element) {
 }
 
 /**
- * Parse a link attribute (ref to an interface node or to a port)
+ * Parses a link attribute (ref to an interface node or to a port)
+ * Returns the node reference, and set the node name and the port name
  */
 FNode *
 FWfParser::parseLinkRef(const string& strRef, string& nodeName, string& portName) {
   FNode *node;
   string::size_type nodeSep = strRef.find(":");
-  if (nodeSep != string::npos) {
+  if (nodeSep != string::npos) { // for processor nodes
     nodeName = strRef.substr(0, nodeSep);
     portName = strRef.substr(nodeSep+1, strRef.length()-nodeSep-1);
     node = workflow.getProcNode(nodeName);
-  } else {
+  } else {  // for interface nodes, use the default port
     nodeName = strRef;
-    portName = "out";
     node = workflow.getInterfaceNode(nodeName);
+    portName = node->getDefaultPortName();
   }
   if (node == NULL)
     throw XMLParsingException(XMLParsingException::eINVALID_REF,
              "<link> contains an invalid node name : " + nodeName);
   return node;
+}
+
+/**
+ * Parse the iteration strategy structure (tree)
+ * RECURSIVE method
+ * returned vector must be deallocated by caller
+ */
+vector<string>*
+FWfParser::parseIterationStrategy(const DOMElement * element,
+                                  FProcNode* procNode) {
+  const DOMNode * child = element->getFirstChild();
+  vector<string>* inputIds = new vector<string>();
+  while (child != NULL) {
+    if (child->getNodeType() == DOMNode::ELEMENT_NODE) {
+      const DOMElement * child_elt = (DOMElement*) child;
+      char *child_name_str = XMLString::transcode(child_elt->getNodeName());
+      string child_name(child_name_str);
+      XMLString::release(&child_name_str);
+
+      if (child_name == "port") {
+        string portName = getAttributeValue("name", child_elt);
+        if (portName.empty())
+          throw XMLParsingException(XMLParsingException::eINVALID_REF,
+             "<iterationstrategy> missing port name IN node " + procNode->getId());
+	inputIds->push_back(portName);
+      } else
+      if (child_name == "match") {
+        vector<string>* opInputIds = parseIterationStrategy(child_elt, procNode);
+        const string& opId = procNode->createInputOperator(FProcNode::OPER_MATCH, *opInputIds);
+        inputIds->push_back(opId);
+        delete opInputIds;
+      } else
+      if (child_name == "cross") {
+	vector<string>* opInputIds = parseIterationStrategy(child_elt, procNode);
+        const string& opId = procNode->createInputOperator(FProcNode::OPER_CROSS, *opInputIds);
+        inputIds->push_back(opId);
+        delete opInputIds;
+      } else
+      if (child_name == "dot") {
+	vector<string>* opInputIds = parseIterationStrategy(child_elt, procNode);
+        const string& opId = procNode->createInputOperator(FProcNode::OPER_DOT, *opInputIds);
+        inputIds->push_back(opId);
+        delete opInputIds;
+      }
+    }
+    child = child->getNextSibling();
+  } // end while
+  return inputIds;
 }
 
 /**
@@ -703,12 +758,19 @@ FWfParser::parseOtherNodeSubElt(const DOMElement * element,
     if (!procNode)
       throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
                  "<diet> element applied to non-processor element");
+    // PATH attribute
     string path = getAttributeValue("path", element);
     if (path.empty())
       throw XMLParsingException(XMLParsingException::eEMPTY_ATTR,
                  "<diet> element must contain a path attribute");
     procNode->setDIETServicePath(path);
-  // VALUE of constants
+    // MAX-INSTANCES attribute
+    string maxInstStr = getAttributeValue("max-instances", element);
+    if (!maxInstStr.empty()) {
+      procNode->setMaxInstancePerDag(atoi(maxInstStr.c_str()));
+    }
+  // VALUE of constants (may be replaced by a 'value' attribute within
+  //  the <constant> tag)
   } else if (elementName == "value") {
     FConstantNode* cstNode = dynamic_cast<FConstantNode*>(node);
     if (!cstNode)
@@ -722,8 +784,153 @@ FWfParser::parseOtherNodeSubElt(const DOMElement * element,
       XMLString::release(&child_name_str);
       cstNode->setValue(value);
     }
-  } else { // TODO Manage operators
+  } else if (elementName == "iterationstrategy") {
+    FProcNode* procNode = dynamic_cast<FProcNode*>(node);
+    if (!procNode)
+      throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
+                 "<iterationstrategy> element applied to non-processor element");
+    vector<string>* opInputId = parseIterationStrategy(element, procNode);
+    if (opInputId->size() != 1)
+      throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
+                 "<iterationstrategy> contains more than one root operator");
+    procNode->setRootInputOperator((*opInputId)[0]);
+    delete opInputId;
+  } else {
     throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
                               "Invalid element : " + elementName);
   }
+}
+
+/*****************************************************************************/
+/*                    CLASS DataSourceParser                                 */
+/*****************************************************************************/
+
+string DataSourceParser::dataFileName = "data.xml";
+
+DataSourceParser::DataSourceParser(const string& name)
+  : myName(name), currValueNode(NULL) {
+}
+
+DataSourceParser::~DataSourceParser() {
+  // TODO Free ressources
+}
+
+void
+DataSourceParser::parseXml() throw (XMLParsingException) {
+  const XMLCh gLS[] = { chLatin_L, chLatin_S, chNull };
+
+  TRACE_TEXT(TRACE_ALL_STEPS, "PARSING XML START" << endl);
+  DOMImplementation *impl = DOMImplementationRegistry::getDOMImplementation(gLS);
+  DOMBuilder  *parser =
+    ((DOMImplementationLS*)impl)->createDOMBuilder(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
+  const XMLCh * fileName = XMLString::transcode(dataFileName.c_str());
+  LocalFileInputSource* locFileIS = new LocalFileInputSource
+    (fileName
+    );
+//   XMLString::release(&fileName);
+  Wrapper4InputSource * wrapper = new Wrapper4InputSource(locFileIS);
+  this->document = parser->parse(*wrapper);
+  if (document == NULL) {
+    throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
+                              "Data source file not found or wrong document format");
+  }
+  DOMNode * root = (DOMNode*)(document->getDocumentElement());
+
+  // Parse the root element
+  parseRoot(root);
+
+  TRACE_TEXT(TRACE_ALL_STEPS, "PARSING XML END" << endl);
+}
+
+void
+DataSourceParser::parseRoot(DOMNode* root) throw (XMLParsingException) {
+  // Check root element
+  char * _rootNodeName = XMLString::transcode(root->getNodeName());
+  if (strcmp (_rootNodeName, "data")) {
+    throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
+                              "XML for DATA SOURCE should begin with <data>");
+  }
+  XMLString::release(&_rootNodeName);
+  DOMNode * child = root->getFirstChild();
+  while ((child != NULL)) {
+    // Parse all the <source> elements
+    if (child->getNodeType() == DOMNode::ELEMENT_NODE) {
+      DOMElement * child_elt = (DOMElement*)child;
+      char * _nodeName = XMLString::transcode(child_elt->getNodeName());
+      string nodeName(_nodeName);
+      XMLString::release(&_nodeName);
+      TRACE_TEXT (TRACE_ALL_STEPS,
+		  "Parsing the element " << nodeName << endl );
+      if (nodeName != "source") {
+	throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
+                                  "A data source should only contain <source> elements");
+      }
+      string srcName = DagWfParser::getAttributeValue("name", child_elt);
+      if (srcName == myName) {
+        TRACE_TEXT (TRACE_ALL_STEPS,
+		  "Found the source " << srcName << endl );
+        // INITIALIZE THE CURRENT VALUE NODE
+        currValueNode = child->getFirstChild();
+        findValueNode();
+        break;
+      }
+    }
+    child = child->getNextSibling();
+  } // end while
+  if (currValueNode == NULL)
+    throw XMLParsingException(XMLParsingException::eINVALID_REF,
+                                  "The data source " + myName + " could not be found");
+}
+
+/**
+ * Skip the non-element XML nodes until a <value> tag is found
+ */
+void
+DataSourceParser::findValueNode() throw (XMLParsingException) {
+  bool valueFound = false;
+  while (!valueFound && (currValueNode!=NULL)) {
+    if (currValueNode->getNodeType() == DOMNode::ELEMENT_NODE) {
+      DOMElement * element = (DOMElement*) currValueNode;
+      // get current node name
+      char *elt_name_str = XMLString::transcode(element->getNodeName());
+      string elt_name(elt_name_str);
+      XMLString::release(&elt_name_str);
+      // check current node name
+      if (elt_name != "value")
+         throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
+                  "Invalid tag within a source (" + elt_name + ")");
+      valueFound = true;
+    } else {
+      // go to next XML node
+      currValueNode = currValueNode->getNextSibling();
+    }
+  }
+}
+
+string *
+DataSourceParser::getValue() {
+  string* value = NULL;
+  DOMElement * element = (DOMElement*) currValueNode;
+  DOMNode * child = element->getFirstChild();
+  if ((child != NULL) && (child->getNodeType() == DOMNode::TEXT_NODE)) {
+    DOMText * child_elt = (DOMText*) child;
+    char *child_name_str = XMLString::transcode(child_elt->getData());
+    value = new string(child_name_str);
+    XMLString::release(&child_name_str);
+  } else {
+    value = new string();
+  }
+  return value;
+}
+
+void
+DataSourceParser::goToNextValue() throw (XMLParsingException) {
+  currValueNode = currValueNode->getNextSibling();
+  // skip the non-value nodes
+  findValueNode();
+}
+
+bool
+DataSourceParser::end() {
+  return (currValueNode == NULL);
 }
