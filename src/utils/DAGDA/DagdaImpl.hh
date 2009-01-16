@@ -8,6 +8,12 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2009/01/16 13:36:13  bisnard
+ * changed Container constructor signature
+ * modified scope of getDataRelationMgr to protected
+ * lock container during element addition
+ * check lock before sending container
+ *
  * Revision 1.23  2008/12/09 12:06:21  bisnard
  * changed container download method to transfer only the list of IDs
  * (each container element must be downloaded separately)
@@ -270,7 +276,6 @@ public:
   std::map<std::string, Dagda_ptr>* getChildren() { return &children; }
   std::map<std::string, corba_data_t>* getData() { return &data; }
   std::map<std::string, Dagda::dataStatus>* getDataStatus() { return &dataStatus; }
-  DataRelationMgr* getContainerRelationMgr() { return containerRelationMgr; }
 
   Dagda_ptr getParent() { return parent; }
   void setParent(Dagda_ptr parent) { this->parent = parent; }
@@ -283,6 +288,8 @@ public:
   void saveState();
   void restoreState();
   void checkpointState();
+protected:
+  DataRelationMgr* getContainerRelationMgr() { return containerRelationMgr; }
 private:
   size_t make_corba_data(corba_data_t& data, diet_data_type_t type,
 	diet_base_type_t base_type, diet_persistence_mode_t mode,

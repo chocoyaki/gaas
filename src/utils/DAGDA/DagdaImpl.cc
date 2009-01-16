@@ -8,6 +8,12 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2009/01/16 13:36:13  bisnard
+ * changed Container constructor signature
+ * modified scope of getDataRelationMgr to protected
+ * lock container during element addition
+ * check lock before sending container
+ *
  * Revision 1.28  2008/12/09 12:06:21  bisnard
  * changed container download method to transfer only the list of IDs
  * (each container element must be downloaded separately)
@@ -284,11 +290,20 @@ char* DagdaImpl::sendContainer(const char* containerID, Dagda_ptr dest,
     dataMutex.unlock();
     throw Dagda::DataNotFound(containerID);
   }
+  if ((*getDataStatus())[containerID]==Dagda::downloading) {
+    dataMutex.unlock();
+    throw Dagda::UnavailableData(containerID);
+  }
   dataMutex.unlock();
+  TRACE_TEXT(TRACE_MAIN_STEPS, "*** Sending container " << containerID << endl);
+
+  // transfer the container elements (must be outside locked part)
   dest->unlockData(containerID);
-  // transfer the container elements
-  Container *container = new Container(containerID);
-  return container->send(dest,sendElements);
+  Container *container = new Container(containerID,_this(),containerRelationMgr);
+  char *distID = container->send(dest,sendElements);
+
+//   dest->unlockData(containerID); CAUSES FAILURE IN lclAddContainerElt
+  return distID;
 }
 
 void DagdaImpl::lockData(const char* dataID) {
@@ -450,8 +465,8 @@ void SimpleDagdaImpl::lclAddData(Dagda_ptr src, const corba_data_t& data) {
         corba_data_t* inserted;
         inserted = addData(data);
         dataID = downloadData(src, data); // non-recursive (downloads only the id list)
-        DagdaImpl* manager = DagdaFactory::getDataManager();
-        manager->getContainerRelationMgr()->displayContent();
+        if (TRACE_LEVEL >= TRACE_ALL_STEPS)
+          getContainerRelationMgr()->displayContent();
       } else {
         if (getMemMaxSpace()!=0 && getUsedMemSpace()+data_sizeof(&data.desc)>getMemMaxSpace())
           throw Dagda::NotEnoughSpace(getMemMaxSpace()-getUsedMemSpace());
@@ -493,13 +508,19 @@ void SimpleDagdaImpl::lclAddContainerElt(const char* containerID,
                                          CORBA::Long index,
                                          CORBA::Long flag,
                                          CORBA::Boolean setSize) {
-  Container *container = new Container(containerID);
+  Container *container = new Container(containerID,_this(),containerRelationMgr);
+  lockData(containerID);
   container->addData(dataID,index,flag,setSize);
+  if (setSize) {
+    corba_data_desc_t* storedDataDesc = &getData(containerID)->desc;
+    storedDataDesc->specific.cont().size = (CORBA::ULongLong) container->size();
+  }
+  unlockData(containerID);
 }
 
 /* CORBA */
 CORBA::Long SimpleDagdaImpl::lclGetContainerSize(const char* containerID) {
-  Container *container = new Container(containerID);
+  Container *container = new Container(containerID,_this(),containerRelationMgr);
   return (CORBA::Long) container->size();
 }
 
@@ -508,7 +529,7 @@ void SimpleDagdaImpl::lclGetContainerElts(const char* containerID,
                                           SeqString& dataIDSeq,
                                           SeqLong& flagSeq,
                                           CORBA::Boolean ordered) {
-  Container *container = new Container(containerID);
+  Container *container = new Container(containerID,_this(),containerRelationMgr);
   container->getAllElements(dataIDSeq,flagSeq,ordered);
 }
 
@@ -740,8 +761,8 @@ SeqCorbaDataDesc_t* SimpleDagdaImpl::pfmGetDataDescList() {
 corba_data_desc_t* SimpleDagdaImpl::lclGetDataDesc(const char* dataID) {
   if (lclIsDataPresent(dataID)) {
     corba_data_desc_t* result = new corba_data_desc_t((*getData())[dataID].desc);
-	result->id.idNumber = CORBA::string_dup(dataID);
-	return result;
+    result->id.idNumber = CORBA::string_dup(dataID);
+    return result;
   }
   throw Dagda::DataNotFound(dataID);
 }
@@ -749,7 +770,6 @@ corba_data_desc_t* SimpleDagdaImpl::lclGetDataDesc(const char* dataID) {
 /* CORBA */
 corba_data_desc_t* SimpleDagdaImpl::lvlGetDataDesc(const char* dataID) {
   std::map<string,Dagda_ptr>::iterator itch;
-
   if (lclIsDataPresent(dataID))
     return lclGetDataDesc(dataID);
 
@@ -762,8 +782,10 @@ corba_data_desc_t* SimpleDagdaImpl::lvlGetDataDesc(const char* dataID) {
 	  }
 	  itch++;
     } catch (CORBA::COMM_FAILURE& e1) {
+          cout << "CORBA Comm failure!!" << endl;
 	  getChildren()->erase(itch++);
     } catch (CORBA::TRANSIENT& e2) {
+      cout << "CORBA Comm failure!!" << endl;
       getChildren()->erase(itch++);
     }
   childrenMutex.unlock();
@@ -850,7 +872,6 @@ corba_data_t* SimpleDagdaImpl::addData(const corba_data_t& data) {
   TRACE_TEXT(TRACE_ALL_STEPS, "Adding data " << data.desc.id.idNumber << " to this "
 			 << "data manager." << endl);
   dataMutex.lock();
-
   lockData(data.desc.id.idNumber);
   (*getData())[string(data.desc.id.idNumber)]=data;
   (*getData())[string(data.desc.id.idNumber)].desc.dataManager = CORBA::string_dup(dataManager);
