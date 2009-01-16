@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.63  2009/01/16 16:33:09  bisnard
+ * added API method to provide data source filename for functional wf
+ *
  * Revision 1.62  2008/12/12 15:29:51  bisnard
  * added wfReqId field to diet_wf_desc_t
  *
@@ -727,6 +730,7 @@ typedef struct {
   char * name;
   wf_level_t level;
   int wfReqID;
+  char * dataFile;
 } diet_wf_desc_t;
 
 /**
@@ -739,6 +743,10 @@ diet_wf_desc_t*
 diet_wf_profile_alloc(const char* wf_file_name,
                       const char* wf_name,
                       wf_level_t wf_level);
+
+void
+diet_wf_profile_set_data_file(diet_wf_desc_t * profile,
+                              const char * data_file_name);
 
 void
 diet_wf_profile_free(diet_wf_desc_t * profile);

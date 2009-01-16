@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.59  2009/01/16 16:33:10  bisnard
+ * added API method to provide data source filename for functional wf
+ *
  * Revision 1.58  2009/01/14 12:22:12  bdepardo
  * Use long int for DIET_INT, and long long int for DIET_LONGINT, as this is
  * what is used in the marshalling.
@@ -1121,6 +1124,7 @@ diet_free_data(diet_arg_t* arg)
 
 /**
  * Workflow profile allocation method *
+ * (common for dags and functional workflows)
  */
 diet_wf_desc_t*
 diet_wf_profile_alloc(const char* wf_file_name,
@@ -1129,6 +1133,7 @@ diet_wf_profile_alloc(const char* wf_file_name,
   diet_wf_desc_t* profile = new diet_wf_desc_t;
   profile->level = wf_level;
   profile->name = strdup(name);
+  profile->dataFile = NULL;
   profile->wfReqID = 0;
   struct stat stat_p;
   FILE * file;
@@ -1147,6 +1152,17 @@ diet_wf_profile_alloc(const char* wf_file_name,
 }
 
 /**
+ * Workflow profile method to set data file name
+ * (for functional wf only)
+ */
+void
+diet_wf_profile_set_data_file(diet_wf_desc_t* profile,
+                              const char * data_file_name) {
+  if (data_file_name)
+    profile->dataFile = strdup(data_file_name);
+}
+
+/**
  * Free a workflow profile *
  */
 void
@@ -1155,6 +1171,8 @@ diet_wf_profile_free(diet_wf_desc_t * profile) {
     free(profile->abstract_wf);
   if (profile->name)
     free(profile->name);
+  if (profile->dataFile)
+    free(profile->dataFile);
   free(profile);
 }
 #endif // endif HAVE_WORKFLOW
