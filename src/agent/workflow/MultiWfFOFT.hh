@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2009/01/16 13:41:22  bisnard
+ * added common base class DagScheduler to simplify dag events handling
+ * improved exception management
+ *
  * Revision 1.11  2008/10/14 13:24:49  bisnard
  * use new class structure for dags (DagNode,DagNodePort)
  *
@@ -64,7 +68,6 @@
 #include <map>
 #include <vector>
 
-#include "workflow/Dag.hh"
 #include "MultiWfScheduler.hh"
 
 using namespace std;

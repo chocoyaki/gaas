@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2009/01/16 13:41:22  bisnard
+ * added common base class DagScheduler to simplify dag events handling
+ * improved exception management
+ *
  * Revision 1.25  2008/12/09 12:09:00  bisnard
  * added parameters to dag submit method to handle inter-dependent dags
  *
@@ -378,8 +382,13 @@ MaDag_impl::parseNewDag(const corba_wf_desc_t& wf_desc,
     contextNodeSet = (NodeSet*) mDag;
     mDag->setCurrentDag(newDag);
   }
-
-  newDag->checkPrec(contextNodeSet);
+  try {
+    newDag->checkPrec(contextNodeSet);
+  } catch (WfStructException& e) {
+    if (mDag != NULL)
+      mDag->setCurrentDag(NULL);
+    throw e;
+  }
 
   if (mDag != NULL) {
     // release current dag in metadag

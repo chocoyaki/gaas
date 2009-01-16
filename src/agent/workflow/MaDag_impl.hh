@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2009/01/16 13:41:22  bisnard
+ * added common base class DagScheduler to simplify dag events handling
+ * improved exception management
+ *
  * Revision 1.20  2008/12/09 12:09:00  bisnard
  * added parameters to dag submit method to handle inter-dependent dags
  *
@@ -122,7 +126,8 @@
 #include "CltMan.hh"
 #include "MaDag.hh"
 #include "DietLogComponent.hh"
-#include "workflow/MetaDag.hh"
+#include "DagWfParser.hh"
+#include "MetaDag.hh"
 
 class MaDag_impl : public POA_MaDag,
 		   public PortableServer::RefCountServantBase {

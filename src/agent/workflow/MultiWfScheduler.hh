@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2009/01/16 13:41:22  bisnard
+ * added common base class DagScheduler to simplify dag events handling
+ * improved exception management
+ *
  * Revision 1.19  2008/12/02 10:21:03  bisnard
  * use MetaDags to handle multi-dag submission and execution
  *
@@ -101,11 +105,12 @@
 #include "WfScheduler.hh"
 #include "CltMan.hh"
 #include "MasterAgent.hh"
-#include "workflow/Thread.hh"
-#include "workflow/NodeQueue.hh"
-#include "workflow/DagWfParser.hh"
-#include "workflow/MetaDag.hh"
 #include "SeD.hh"
+/* workflow utils */
+#include "Thread.hh"
+#include "NodeQueue.hh"
+#include "DagScheduler.hh"
+#include "MetaDag.hh"
 
 class MaDag_impl;
 
@@ -113,7 +118,7 @@ namespace madag {
   class NodeRun;
   class DagState;
 
-  class MultiWfScheduler : public Thread {
+  class MultiWfScheduler : public Thread, public DagScheduler {
 
   friend class NodeRun;
 
@@ -269,7 +274,7 @@ namespace madag {
      * Get the current time from scheduler reference clock
      * @return  current time in milliseconds (from scheduler start)
      */
-    double
+    virtual double
         getRelCurrTime();
 
     /**

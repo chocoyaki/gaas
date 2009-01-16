@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.44  2009/01/16 13:41:22  bisnard
+ * added common base class DagScheduler to simplify dag events handling
+ * improved exception management
+ *
  * Revision 1.43  2008/12/17 10:10:16  bisnard
  * corrected bug in handlerDagDone when using single dag submit
  *
@@ -422,9 +426,12 @@ MultiWfScheduler::run() {
             << "(" << n->getPbName() << ") / exec prio = " << n->getPriority() << endl);
 
           // SEND REQUEST TO PLATFORM (FOR CURRENT NODE)
-          wf_response_t *  wf_response = getProblemEstimates(n, myMaDag->getMA());
-          if (wf_response == NULL) {
-            cout << "ERROR during MA submission" << endl;
+          wf_response_t *  wf_response = NULL;
+          try {
+            wf_response= getProblemEstimates(n, myMaDag->getMA());
+          } catch (NodeException& e) {
+            cerr << "ERROR during MA submission" << endl;
+            n->setAsFailed();
             continue;
           }
           ++requestCount;
@@ -557,6 +564,7 @@ MultiWfScheduler::getProblemEstimates(Dag *dag, MasterAgent_var MA)
   // Check that all services are available and get the estimations (with MA)
   TRACE_TEXT (TRACE_ALL_STEPS,"MultiWfScheduler: Marshalling the profiles" << endl);
   corba_pb_desc_seq_t* pbs_seq = new corba_pb_desc_seq_t();
+  wf_response_t * wf_response = NULL;
   pbs_seq->length(dag->size());
   int ix = 0;
   for (map<std::string, DagNode *>::iterator iter = dag->begin();
@@ -571,10 +579,17 @@ MultiWfScheduler::getProblemEstimates(Dag *dag, MasterAgent_var MA)
   TRACE_TEXT (TRACE_ALL_STEPS,
               "MultiWfScheduler: send " << ix << " profile(s) to the MA  ... "
                   << endl);
-  wf_response_t * wf_response = MA->submit_pb_set(*pbs_seq);
+  bool failed = false;
+  try {
+    wf_response = MA->submit_pb_set(*pbs_seq);
+  } catch(CORBA::SystemException& e) {
+    WARNING(" MultiWfScheduler: Got a CORBA " << e._name() << " exception ("
+          << e.NP_minorString() << ")" << endl) ;
+    failed = true;
+  }
   TRACE_TEXT (TRACE_ALL_STEPS, "... done" << endl);
   delete pbs_seq;
-  if ( ! wf_response->complete)
+  if ( failed || ! wf_response->complete)
     throw (NodeException(NodeException::eSERVICE_NOT_FOUND));
   return wf_response;
 }
@@ -587,15 +602,23 @@ wf_response_t *
 MultiWfScheduler::getProblemEstimates(DagNode *node, MasterAgent_var MA)
     throw (NodeException) {
   corba_pb_desc_seq_t* pbs_seq = new corba_pb_desc_seq_t();
+  wf_response_t * wf_response = NULL;
   pbs_seq->length(1);
   node->setSubmitIndex(0);
   mrsh_pb_desc(&(*pbs_seq)[0], node->getProfile());
   TRACE_TEXT (TRACE_ALL_STEPS, "MultiWfScheduler: send 1 profile to the MA  ... "
                   << endl);
-  wf_response_t * wf_response = MA->submit_pb_set(*pbs_seq);
+  bool failed = false;
+  try {
+    wf_response = MA->submit_pb_set(*pbs_seq);
+  } catch(CORBA::SystemException& e) {
+    WARNING(" MultiWfScheduler: Got a CORBA " << e._name() << " exception ("
+          << e.NP_minorString() << ")" << endl) ;
+    failed = true;
+  }
   delete pbs_seq;
   TRACE_TEXT (TRACE_ALL_STEPS, "... done" << endl);
-  if ( ! wf_response->complete)
+  if (failed || !wf_response->complete)
     throw (NodeException(NodeException::eSERVICE_NOT_FOUND));
   return wf_response;
 }
@@ -644,9 +667,10 @@ MultiWfScheduler::deleteNodeQueue(OrderedNodeQueue * nodeQ) {
   TRACE_TEXT (TRACE_ALL_STEPS, "Deleting node queues" << endl);
   ChainedNodeQueue *  waitQ = waitingQueues[nodeQ];
   waitingQueues.erase(nodeQ);     // removes from the map
-  PriorityNodeQueue * readyQ  = dynamic_cast<PriorityNodeQueue *>(nodeQ);
+//   PriorityNodeQueue * readyQ  = dynamic_cast<PriorityNodeQueue *>(nodeQ);
   delete waitQ;
-  delete readyQ;
+//   delete readyQ;
+  delete nodeQ;
 }
 
 /**
@@ -862,22 +886,13 @@ NodeRun::run() {
   if (!clientFailure && !res) {
     TRACE_TEXT (TRACE_MAIN_STEPS, "NodeRun: node " << myNode->getCompleteId()
         << " is done" << endl);
-      // update node status (must be called before handlerNodeDone to update realCompTime)
-    myNode->setAsDone(myScheduler->getRelCurrTime());
-      // inform scheduler that node is done (depending on the scheduler, this may trigger
-      //  a recursive update of the realCompTime in other nodes)
-    myScheduler->handlerNodeDone(myNode);
+    myNode->setAsDone(myScheduler);
   } else {
     TRACE_TEXT (TRACE_ALL_STEPS, "NodeRun: node " << myNode->getCompleteId()
-        << " execution failed! " << endl
-            << " ==> Cancelling DAG execution" << endl);
-    myNode->setAsFailed();
+        << " execution failed! " << endl);
+    myNode->setAsFailed(myScheduler);
   }
 
-    // Manage dag termination if dag is finished or if a node failed
-  if ( dag->isDone() || ( dag->isCancelled() && !dag->isRunning()) ) {
-    myScheduler->handlerDagDone(dag);
-  }
   fflush(stdout);
   myScheduler->wakeUp(this);
 }

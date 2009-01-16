@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2009/01/16 13:41:22  bisnard
+ * added common base class DagScheduler to simplify dag events handling
+ * improved exception management
+ *
  * Revision 1.8  2008/10/14 13:24:48  bisnard
  * use new class structure for dags (DagNode,DagNodePort)
  *
@@ -48,7 +52,10 @@
 #ifndef _HEFTSCHEDULER_HH_
 #define _HEFTSCHEDULER_HH_
 
+#include <map>
+
 #include "WfScheduler.hh"
+#include "Dag.hh"
 
 namespace madag {
   class HEFTScheduler : public WfScheduler {
