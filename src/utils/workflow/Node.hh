@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2009/01/16 13:55:36  bisnard
+ * changes in dag event handling methods
+ *
  * Revision 1.22  2008/12/02 10:14:51  bisnard
  * modified nodes links mgmt to handle inter-dags links
  *
@@ -242,6 +245,24 @@ public:
    */
   WfPort*
   getPort(const string& id);
+
+  /**
+   * Get nb of ports
+   */
+  unsigned int
+  getPortNb() const;
+
+  /**
+   * Get nb of IN ports
+   */
+  unsigned int
+  getInPortNb() const;
+
+  /**
+   * Get port by index
+   */
+  WfPort*
+  getPortByIndex(unsigned int portIdx);
 
 protected:
 

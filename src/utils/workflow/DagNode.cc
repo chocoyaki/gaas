@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2009/01/16 13:55:36  bisnard
+ * changes in dag event handling methods
+ *
  * Revision 1.9  2008/12/09 12:14:05  bisnard
  * added reference to FNode to handle pending instanciation
  *
@@ -46,6 +49,7 @@
 #include "Dag.hh"
 #include "DagNode.hh"
 #include "DagNodePort.hh"
+
 #if HAVE_DAGDA
 extern "C" {
 #include "DIET_Dagda.h"
@@ -115,7 +119,9 @@ extern "C" {
 
 MasterAgent_var getMA();
 extern diet_error_t
-diet_call_common(diet_profile_t* profile, SeD_var& chosenServer, estVector_t estimVect);
+diet_call_common(diet_profile_t* profile,
+                 SeD_var& chosenServer,
+                 estVector_t estimVect);
 
 RunnableNode::RunnableNode(DagNode * parent)
 	:Thread(false) {
@@ -126,21 +132,20 @@ void *
 RunnableNode::run() {
   typedef size_t comm_failure_t;
   bool failed = false;
-  TRACE_TEXT (TRACE_ALL_STEPS,
-	      "RunnableNode tries to a execute a service "<< endl);
+  string traceHeader = "[" + myParent->getId() + "] RunnableNode : ";
+  TRACE_TEXT (TRACE_ALL_STEPS, traceHeader << " starting... " << endl);
   // create the node diet profile
-  failed = !(myParent->initProfileExec());
+//   failed = !(myParent->initProfileExec());
   if (!failed) {
     try {
       try {
-        cout << "Make DIET call for pb " << myParent->profile->pb_name << endl;
         if (!diet_call_common(myParent->profile, myParent->chosenServer, myParent->estimVect)) {
-          TRACE_TEXT (TRACE_MAIN_STEPS, "diet_call DONE " << "reqID=" <<
+          TRACE_TEXT (TRACE_MAIN_STEPS, traceHeader << " diet call DONE reqID=" <<
               myParent->profile->dietReqID << endl);
           myParent->storeProfileData();
         }
         else {
-          TRACE_TEXT (TRACE_MAIN_STEPS, "diet_call FAILED" << endl);
+          TRACE_TEXT (TRACE_MAIN_STEPS, traceHeader << " diet call FAILED" << endl);
           failed = true;
         }
       } catch (CORBA::COMM_FAILURE& e) {
@@ -150,13 +155,16 @@ RunnableNode::run() {
       }
     } catch (comm_failure_t& e) {
       if (e == 0 || e == 1) {
-        WARNING("Connection problems with SeD occured - node exec cancelled");
+        WARNING(traceHeader << "Connection problems with DIET occured - node exec cancelled");
         failed = true;
       }
+    } catch(CORBA::SystemException& e) {
+       WARNING(traceHeader << "Got a CORBA " << e._name() << " exception ("
+          << e.NP_minorString() << ")\n") ;
+       failed = true;
     }
-    TRACE_TEXT (TRACE_ALL_STEPS, "RunnableNode call ... done" << endl);
   }
-  if (!failed)  myParent->done();
+  if (!failed)  myParent->setAsDone();
   else          myParent->setAsFailed();
 
   return NULL;
@@ -309,8 +317,7 @@ DagNode::getDag() {
   if (this->myDag != NULL)
     return this->myDag;
   else {
-    cout << "ERROR: calling getDag() on a node not linked to a dag" << endl;
-    exit(0);
+    INTERNAL_ERROR( "ERROR: calling getDag() on a node not linked to a dag" << endl, 1);
   }
 }
 
@@ -357,16 +364,9 @@ DagNode::getFNode() {
 void
 DagNode::addNodePredecessor(Node * node, const string& fullNodeId) {
   // check if predecessor is not already done
-  if (node != NULL) {
-    DagNode * predNode = dynamic_cast<DagNode*>(node);
-    if (!predNode->isDone()) {
+  DagNode *predNode = dynamic_cast<DagNode*>(node);
+  if (!predNode || !predNode->isDone())
       addPrevId(fullNodeId);
-    } else {
-    TRACE_TEXT(TRACE_ALL_STEPS,"Previous node is done => no node dependency" << endl);
-    }
-  } else {
-    addPrevId(fullNodeId);
-  }
 }
 
 /**
@@ -531,6 +531,7 @@ DagNode::initProfileExec() {
       ERROR ("Profile init failed" << endl, 0);
     }
   }
+  TRACE_TEXT(TRACE_ALL_STEPS,"Profile for Execution done (" << myId << ")" << endl);
   return true;
 }
 
@@ -709,8 +710,8 @@ DagNode::displayResults() {
        ++p) {
     if (((WfPort *)p->second)->getPortType() == WfPort::PORT_OUT) {
       DagNodeOutPort * outp = dynamic_cast<DagNodeOutPort *>(p->second);
-      cout << "checking port " << outp->getId() << " of node "
-           << outp->getParent()->getId() << endl;
+      TRACE_TEXT (TRACE_ALL_STEPS,"checking port " << outp->getId() << " of node "
+           << outp->getParent()->getId() << endl);
       if (!outp->isConnected()) {
         short dataType = outp->getDataType();
 
@@ -719,7 +720,7 @@ DagNode::displayResults() {
 	  char * path;
 	  diet_file_get(diet_parameter(outp->profile(),outp->getIndex()),
 			NULL, &size, &path);
-	  cout << "## WORKFLOW OUTPUT ## " <<
+	  cout << "## DAG OUTPUT ## " <<
 		      outp->getId() << " type = DIET_FILE, " <<
 		      "File name = " << path << ", " <<
 		      "File size = " << size  << endl;
@@ -728,14 +729,14 @@ DagNode::displayResults() {
           double * value = NULL;
           diet_scalar_get(diet_parameter(outp->profile(),outp->getIndex()),
                           &value, NULL);
-          cout << "## WORKFLOW OUTPUT ## " <<
+          cout << "## DAG OUTPUT ## " <<
                           outp->getId() << " = " << *value << endl;
         }
         else if (dataType == WfCst::TYPE_FLOAT) {
           float * value = NULL;
           diet_scalar_get(diet_parameter(outp->profile(),outp->getIndex()),
                           &value, NULL);
-          cout << "## WORKFLOW OUTPUT ## " <<
+          cout << "## DAG OUTPUT ## " <<
                           outp->getId() << " = " << *value << endl;
         }
         else if ( (dataType == WfCst::TYPE_CHAR) ||
@@ -745,19 +746,19 @@ DagNode::displayResults() {
           long * value = NULL;
           diet_scalar_get(diet_parameter(outp->profile(),outp->getIndex()),
                           &value, NULL);
-          cout << "## WORKFLOW OUTPUT ## " <<
+          cout << "## DAG OUTPUT ## " <<
 		      outp->getId() << " = " << *value << endl;
 	}
 	else if (dataType == WfCst::TYPE_STRING) {
 	  char * value;
 	  diet_string_get(diet_parameter(outp->profile(),outp->getIndex()),
 			  &value, NULL);
-	  cout << "## WORKFLOW OUTPUT ## " <<
+	  cout << "## DAG OUTPUT ## " <<
 		      outp->getId() << " = " << value << endl;
 	}
         else if (dataType == WfCst::TYPE_CONTAINER) {
           short baseType = outp->getEltDataType();
-          cout << "## WORKFLOW OUTPUT ## " <<
+          cout << "## DAG OUTPUT ## " <<
 		      outp->getId() << " = LIST (" << endl;
           // Retrieve container elements
           const char *contID = (*diet_parameter(outp->profile(),outp->getIndex())).desc.id;
@@ -873,6 +874,17 @@ void DagNode::setNodeQueue(NodeQueue * nodeQ) {
 }
 
 /**
+ * Remove node from the NodeQueue it belongs to (if applicable)
+ * This is used in case of dag cancellation
+ */
+void
+DagNode::removeFromNodeQueue() {
+  if (myQueue) {
+    myQueue->removeNode(this);
+  }
+}
+
+/**
   * set the ref to the last nodeQueue occupied by the node
   */
 void
@@ -930,6 +942,7 @@ DagNode::getEstCompTime() {
  */
 void
 DagNode::setEstDelay(double delay) {
+  string traceHeader = "[" + getId() + "] setEstDelay() : ";
   // if this is an exit node then eventually updates the dag delay
   if (this->isAnExit()
       && (delay > this->estDelay)
@@ -937,8 +950,7 @@ DagNode::setEstDelay(double delay) {
     this->getDag()->setEstDelay(delay);
   }
   this->estDelay = delay;
-  TRACE_TEXT (TRACE_ALL_STEPS, "Updated est./real delay on node "
-        << this->getCompleteId() << " : delay = " << delay << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS, traceHeader << "delay = " << delay << endl);
 }
 
 /**
@@ -995,7 +1007,7 @@ DagNode::getRealDelay() {
 }
 
 /**********************************/
-/* Execution status (MaDag-side)  */
+/* Execution status               */
 /**********************************/
 
 /**
@@ -1013,11 +1025,27 @@ DagNode::isReady() {
  */
 void
 DagNode::setAsReady() {
+  string traceHeader = "[" + getId() + "] setAsReady() : ";
   if (this->myQueue != NULL) {
-    TRACE_TEXT (TRACE_ALL_STEPS,
-      "Node " << this->getCompleteId() << " is ready: notify its queue" << endl);
+    TRACE_TEXT (TRACE_ALL_STEPS,traceHeader << "notify its queue" << endl);
     this->myQueue->notifyStateChange(this);
   }
+}
+
+/**
+ * start the node execution (CLIENT SIDE ONLY) *
+ * Note: the argument join are always set to default currently
+ */
+void DagNode::start(bool join) {
+  string traceHeader = "[" + getId() + "] start() : ";
+  node_running = true;
+  this->myRunnableNode = new RunnableNode(this);
+  TRACE_TEXT (TRACE_ALL_STEPS, traceHeader << "tries to launch a RunnableNode "<< endl);
+  this->myRunnableNode->start();
+  TRACE_TEXT (TRACE_ALL_STEPS, traceHeader << "launched its RunnableNode" << endl);
+  if (join)
+    this->myRunnableNode->join();
+  TRACE_TEXT (TRACE_ALL_STEPS, traceHeader << "joined its RunnableNode" << endl);
 }
 
 /**
@@ -1046,25 +1074,22 @@ DagNode::isDone() {
 }
 
 /**
- * Set the node status as done (MaDag side)
+ * Set the node status as done (MaDag & client side)
  */
 void
-DagNode::setAsDone(double compTime) {
+DagNode::setAsDone(DagScheduler* scheduler) {
   // update node scheduling info
   task_done = true;
   node_running = false;
-  this->setRealCompTime(compTime);
-  TRACE_TEXT (TRACE_ALL_STEPS, "completion time is " << compTime << endl);
-  // notify the successors
-  if (!this->getDag()->isCancelled()) {
-    TRACE_TEXT (TRACE_ALL_STEPS,
-              "calling the " << nextNodes.size() << " next nodes" << endl);
-    for (list<Node*>::iterator nextIter = nextNodesBegin();
-         nextIter != nextNodesEnd();
-         ++nextIter) {
-      (dynamic_cast<DagNode*>(*nextIter))->prevNodeHasDone();
-    }
+  // the following applies only to MaDag
+  if (scheduler) {
+    setRealCompTime(scheduler->getRelCurrTime());
+    // notify scheduler that node is done (depending on the scheduler, this may trigger
+    //  a recursive update of the realCompTime in other nodes)
+    scheduler->handlerNodeDone(this);
   }
+  // notify the dag
+  this->getDag()->setNodeDone(this, scheduler);
 }
 
 /**
@@ -1081,10 +1106,10 @@ void DagNode::prevNodeHasDone() {
  * called when the node execution failed (MaDag & client side) *
  */
 void
-DagNode::setAsFailed() {
-  this->getDag()->setNodeFailure(this->getId());
+DagNode::setAsFailed(DagScheduler* scheduler) {
   taskExecFailed =  true;
   node_running = false;
+  this->getDag()->setNodeFailure(this->getId(), scheduler);
 }
 
 /**
@@ -1095,40 +1120,3 @@ DagNode::hasFailed() {
   return taskExecFailed;
 }
 
-/**********************************/
-/*      Execution status          */
-/**********************************/
-
-/**
- * start the node execution *
- * Note: the argument join are always set to default currently
- */
-void DagNode::start(bool join) {
-  TRACE_TEXT (TRACE_ALL_STEPS, " create the runnable node " << endl);
-  node_running = true;
-  this->myRunnableNode = new RunnableNode(this);
-  TRACE_TEXT (TRACE_ALL_STEPS, "The node " << myId << " tries to launch a RunnableNode "<< endl);
-  this->myRunnableNode->start();
-  TRACE_TEXT (TRACE_ALL_STEPS, "The node " << myId << " launched its RunnableNode" << endl);
-  if (join)
-    this->myRunnableNode->join();
-  TRACE_TEXT (TRACE_ALL_STEPS, "The node " << myId << " joined its RunnableNode" << endl);
-}
-
-
-/**
- * called when the node execution is done (client side) *
- */
-void
-DagNode::done() {
-     task_done = true;
-     node_running = false;
-}
-
-/**
- * called when a next node is done *
- */
-void
-DagNode::nextIsDone() {
-  nextDone++;
-}

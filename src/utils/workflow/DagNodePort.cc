@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2009/01/16 13:55:36  bisnard
+ * changes in dag event handling methods
+ *
  * Revision 1.8  2008/12/09 12:15:59  bisnard
  * pending instanciation handling (uses dag outputs for instanciation
  * of a functional wf)
@@ -440,7 +443,7 @@ DagNodeOutPort::DagNodeOutPort(DagNode * parent,
 DagNodeOutPort::~DagNodeOutPort() {
   // free cache
   while (! myCache.empty() ) {
-    cout << "deleting out port cache entry" << endl;
+    TRACE_TEXT (TRACE_ALL_STEPS, "deleting out port cache entry" << endl);
     diet_container_t * p = myCache.begin()->second;
     myCache.erase( myCache.begin() );
     free(p->elt_ids); // was allocated using malloc
@@ -473,14 +476,15 @@ DagNodeOutPort::getDataIDList(const string& dataID) {
   diet_container_t* content = NULL;
   map<string,diet_container_t*>::iterator cacheIter = myCache.find(dataID);
   if (cacheIter != myCache.end()) {
-    cout << "getDataIDList: using cache for entry " << dataID << endl;
+    TRACE_TEXT (TRACE_ALL_STEPS, "port " << id << ": using container cache for entry "
+                                 << dataID << endl);
     content = (diet_container_t*) cacheIter->second;
   } else {
     content = new diet_container_t;
     content->size = 0;
-    cout << "getDataIDList: retrieve container element IDs" << endl;
+    TRACE_TEXT (TRACE_ALL_STEPS, "port " << id << ": get ID list for container "
+                                 <<  dataID << endl);
     dagda_get_container(dataID.c_str());
-    cout << "getDataIDList: calling dagda_get_container_elements" << endl;
     dagda_get_container_elements(dataID.c_str(), content);
     myCache[dataID] = content;
   }
@@ -528,8 +532,10 @@ DagNodeInPort::initSourceData() {
     if (!dataID.empty()) {
       TRACE_TEXT (TRACE_ALL_STEPS,
                   "##  ==> data ID is " << dataID << endl);
-      diet_use_data(diet_parameter(this->profile(), index),
-                    const_cast<char*>(dataID.c_str()));
+      diet_use_data(diet_parameter(this->profile(), index), myParent->newString(dataID));
+//       char* dataIDStr = new char[dataID.length()+1];
+//       strcpy(dataIDStr, dataID.c_str());
+//       diet_use_data(diet_parameter(this->profile(), index), dataIDStr);
     } else {
       TRACE_TEXT (TRACE_ALL_STEPS,
                   "##  ERROR ==> data ID not found" << endl);

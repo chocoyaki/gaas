@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.33  2009/01/16 13:55:36  bisnard
+ * changes in dag event handling methods
+ *
  * Revision 1.32  2008/12/02 10:14:51  bisnard
  * modified nodes links mgmt to handle inter-dags links
  *
@@ -385,4 +388,43 @@ Node::getPort(const string& id) {
     return ((WfPort*)(p->second));
   else
     return NULL;
+}
+
+/**
+ * Get nb of ports
+ */
+unsigned int
+Node::getPortNb() const {
+  return ports.size();
+}
+
+/**
+ * Get nb of IN ports
+ */
+unsigned int
+Node::getInPortNb() const {
+  unsigned int count = 0;
+  map<string, WfPort*>::const_iterator portIter = ports.begin();
+  while (portIter != ports.end()) {
+    WfPort *port = (WfPort*) portIter->second;
+    if (port->getPortType() == WfPort::PORT_IN)
+      count++;
+    portIter++;
+  }
+  return count;
+}
+
+/**
+ * Get port by index
+ */
+WfPort*
+Node::getPortByIndex(unsigned int portIdx) {
+  map<string, WfPort*>::iterator portIter = ports.begin();
+  while (portIter != ports.end()) {
+    WfPort *port = (WfPort*) portIter->second;
+    if (port->getIndex() == portIdx)
+      return port;
+    portIter++;
+  }
+  return NULL;
 }

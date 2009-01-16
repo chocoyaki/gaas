@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2009/01/16 13:55:36  bisnard
+ * changes in dag event handling methods
+ *
  * Revision 1.5  2008/12/09 12:14:05  bisnard
  * added reference to FNode to handle pending instanciation
  *
@@ -43,6 +46,7 @@
 #include "Node.hh"
 #include "NodeQueue.hh"
 #include "Thread.hh"
+#include "DagScheduler.hh"
 
 using namespace std;
 
@@ -328,6 +332,13 @@ public:
   setNodeQueue(NodeQueue * nodeQ);
 
   /**
+   * Remove node from the NodeQueue it belongs to (if applicable)
+   * This is used in case of dag cancellation
+   */
+  void
+  removeFromNodeQueue();
+
+  /**
    * set the ref to the last nodeQueue occupied by the node
    */
   void
@@ -412,7 +423,7 @@ public:
   getRealDelay();
 
   /**********************************/
-  /* Execution status (MaDag-side)  */
+  /* Execution status               */
   /**********************************/
 
   /**
@@ -426,6 +437,13 @@ public:
    */
   void
   setAsReady();
+
+  /**
+   * start the node execution (client side) *
+   * @param join
+   */
+  void
+  start(bool join = false);
 
   /**
    * Called when a previous node execution is done *
@@ -468,36 +486,15 @@ public:
    * @param compTime  timestamp of node completion
    */
   void
-  setAsDone(double compTime);
+  setAsDone(DagScheduler* scheduler = NULL);
 
   /**
    * Set the node status as failed
+   * @param scheduler  workflow scheduler (for MADAG only)
    */
   void
-  setAsFailed();
+  setAsFailed(DagScheduler* scheduler = NULL);
 
-  /**********************************/
-  /* Execution status (client-side) */
-  /**********************************/
-
-  /**
-   * start the node execution *
-   * @param join
-   */
-  void
-  start(bool join = false);
-
-  /**
-   * called when the node execution is done *
-   */
-  void
-  done();
-
-  /**
-   * called when a next node is done *
-   */
-  void
-  nextIsDone();
 
 protected:
 

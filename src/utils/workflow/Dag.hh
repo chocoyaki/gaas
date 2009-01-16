@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2009/01/16 13:55:36  bisnard
+ * changes in dag event handling methods
+ *
  * Revision 1.18  2008/12/09 12:12:14  bisnard
  * added reference to FWorkflow
  *
@@ -96,10 +99,12 @@
 #include "Node.hh"
 #include "DagNode.hh"
 #include "DagNodePort.hh"
+#include "DagScheduler.hh"
 
 using namespace std;
 
 class FWorkflow;
+
 
 /*****************************************************************************/
 /*                        CLASS WfStructException                            */
@@ -411,10 +416,16 @@ public:
   updateDelayRec(DagNode * node, double newDelay);
 
   /**
+   * Notify dag of node end of execution (when successful)
+   */
+  void
+  setNodeDone(DagNode* node, DagScheduler* scheduler = NULL);
+
+  /**
    * notify dag of node execution failure
    */
   void
-  setNodeFailure(string nodeId);
+  setNodeFailure(string nodeId, DagScheduler* scheduler = NULL);
 
   /**
    * get the list of failed nodes
@@ -426,7 +437,7 @@ public:
    * set the dag as cancelled
    */
   void
-  setAsCancelled();
+  setAsCancelled(DagScheduler* scheduler = NULL);
 
   void
   showDietReqID();

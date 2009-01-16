@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2009/01/16 13:55:36  bisnard
+ * changes in dag event handling methods
+ *
  * Revision 1.23  2008/12/09 12:12:14  bisnard
  * added reference to FWorkflow
  *
@@ -664,11 +667,38 @@ Dag::_updateDelayRec(DagNode * node, double newDelay) {
 }
 
 /**
+ * Notify the dag of node end of execution (when successful)
+ */
+void
+Dag::setNodeDone(DagNode* node, DagScheduler* scheduler) {
+  // the following applies only to MaDag
+  if (scheduler) {
+    // trigger next nodes (even if dag finished , because nodes belonging to other dags
+    // can depend on the current one)
+    if (!isCancelled() && (node->nextNodesNb() > 0)) {
+      TRACE_TEXT (TRACE_ALL_STEPS,"Dag " << getId() << " : Calling next nodes of "
+                  << node->getId() << endl);
+      for (list<Node*>::iterator nextIter = node->nextNodesBegin();
+           nextIter != node->nextNodesEnd();
+           ++nextIter) {
+          (dynamic_cast<DagNode*>(*nextIter))->prevNodeHasDone();
+      }
+    }
+    // manage dag termination when the current node is the last
+    // one finishing (either dag is complete or is cancelled)
+    if (isDone() || (isCancelled() && !isRunning()) ) {
+      TRACE_TEXT (TRACE_ALL_STEPS,"Dag " << getId() << " : End of execution" << endl);
+      scheduler->handlerDagDone(this);
+    }
+  }
+}
+
+/**
  * notify the dag of node execution failure (MADAG & CLIENT-SIDE)
  */
 void
-Dag::setNodeFailure(string nodeId) {
-  this->cancelled = true;
+Dag::setNodeFailure(string nodeId, DagScheduler* scheduler) {
+  setAsCancelled(scheduler);
   this->failedNodes.push_front(nodeId);
 }
 
@@ -681,11 +711,30 @@ Dag::getNodeFailureList() {
 }
 /**
  * set the dag as cancelled
- * (used when failure happens after all nodes execution)
  */
 void
-Dag::setAsCancelled() {
+Dag::setAsCancelled(DagScheduler* scheduler) {
   this->cancelled = true;
+  // the following is used only by MaDag
+  if (scheduler) {
+    // remove all nodes from their queues
+    TRACE_TEXT (TRACE_ALL_STEPS, "Dag " << getId()
+                 << " : removing all nodes from nodeQueues" << endl);
+    for (map<string, DagNode*>::iterator p = this->nodes.begin();
+         p != this->nodes.end();
+         ++p) {
+      ((DagNode*) p->second)->removeFromNodeQueue();
+    }
+    // trigger dag termination (will remove all dag nodes from the execution
+    // queues and will inform the client of cancellation)
+    // if there are still running nodes then do nothing
+    if (!isRunning()) {
+      scheduler->handlerDagDone(this);
+    } else {
+      TRACE_TEXT (TRACE_ALL_STEPS, "Dag " << getId()
+                  << " : dag cancelled but nodes still running => wait" << endl);
+    }
+  }
 }
 
 

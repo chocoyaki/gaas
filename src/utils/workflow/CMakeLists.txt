@@ -14,7 +14,7 @@ IF( DIET_BUILD_LIBRARIES )
     DagNode.cc DagNodePort.cc
     DagWfParser.cc
     NodeQueue.cc
-    FDataHandle.cc
+    FDataHandle.cc InputIterator.cc
     Thread.cc WfUtils.cc
     )
 

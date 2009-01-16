@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2009/01/16 13:55:36  bisnard
+ * changes in dag event handling methods
+ *
  * Revision 1.12  2008/12/02 10:14:51  bisnard
  * modified nodes links mgmt to handle inter-dags links
  *
@@ -95,7 +98,7 @@ WfPort::setMatParams(long nbr, long nbc,
   this->eltType = bt;
 }
 
-string
+const string&
 WfPort::getId() {
   return this->id;
 }

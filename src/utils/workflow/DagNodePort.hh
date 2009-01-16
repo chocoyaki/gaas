@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2009/01/16 13:55:36  bisnard
+ * changes in dag event handling methods
+ *
  * Revision 1.6  2008/12/09 12:15:59  bisnard
  * pending instanciation handling (uses dag outputs for instanciation
  * of a functional wf)
@@ -137,6 +140,11 @@ protected:
    */
   string value;
 
+  /**
+   * The reference of port node
+   */
+  DagNode * myParent;
+
 private:
 
   /**
@@ -149,11 +157,6 @@ private:
   initContainerValueRec(char** contIDPtr,
                         string& contStr,
                         unsigned int contDepth);
-
-  /**
-   * The reference of port node
-   */
-  DagNode * myParent;
 
 }; // end DagNodePort
 
