@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2009/01/16 16:34:05  bisnard
+ * updated command line options to handle functional wf
+ *
  * Revision 1.5  2008/12/09 09:01:06  bisnard
  * added new param to diet_wf_profile_alloc to select btw dag or functional wf
  *
@@ -35,6 +38,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/stat.h>
+#include <time.h>
 
 #include "DIET_client.h"
 
@@ -42,11 +46,11 @@
    argv[2]: path of the worflow description file */
 
 void usage(char * s) {
-  fprintf(stderr, "Usage: %s <file.cfg> <wf_file>\n", s);
+  fprintf(stderr, "Usage: %s <file.cfg> dag|wf <wf_file> [data_file]\n", s);
   exit(1);
 }
 int checkUsage(int argc, char ** argv) {
-  if ((argc != 3) && (argc != 4)) {
+  if ((argc != 4) && (argc != 5)) {
     usage(argv[0]);
   }
   return 0;
@@ -56,7 +60,10 @@ int
 main(int argc, char* argv[])
 {
   diet_wf_desc_t * profile;
-  char * fileName;
+  char *wfFileName, *dataFileName;
+  wf_level_t wfType;
+  struct timeval t1, t2;
+  float time;
 
   checkUsage(argc, argv);
 
@@ -65,21 +72,42 @@ main(int argc, char* argv[])
     return 1;
   }
 
-  fileName = argv[2];
+  wfFileName = argv[3];
 
-  profile = diet_wf_profile_alloc(fileName,"test",DIET_WF_DAG);
+  if (!strcmp(argv[2],"dag")) {
+    wfType = DIET_WF_DAG;
+  } else if (!strcmp(argv[2],"wf")) {
+    wfType = DIET_WF_FUNCTIONAL;
+  } else {
+    usage(argv[0]);
+  }
+
+  if (argc == 5) {
+    dataFileName = argv[4];
+  } else {
+    dataFileName = (char*) NULL;
+  }
+
+  gettimeofday(&t1, NULL);
+  profile = diet_wf_profile_alloc(wfFileName,"test", wfType);
+
+  diet_wf_profile_set_data_file(profile,dataFileName);
 
   printf("Try to execute the workflow\n");
   if (! diet_wf_call(profile)) {
-    printf("The workflow submission succeed\n");
+    gettimeofday(&t2, NULL);
+    time = (t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000;
+    printf("The workflow submission succeed / time= %f s\n",time);
+    printf("Display results:\n");
+    if (! get_all_results(profile)) {
+      printf("Could not display results\n");
+    }
   }
   else {
     printf("The workflow submission failed\n");
   }
 
-  get_all_results(profile);
-
   diet_wf_free(profile);
-
+  fflush(stdout);
   return 0;
 }
