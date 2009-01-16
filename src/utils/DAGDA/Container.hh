@@ -8,6 +8,11 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2009/01/16 13:32:47  bisnard
+ * replaced use of DagdaImpl ptr by dagda object ref
+ * modified constructor signature
+ * moved container descr update from addData to DagdaImpl
+ *
  * Revision 1.2  2008/12/09 12:06:21  bisnard
  * changed container download method to transfer only the list of IDs
  * (each container element must be downloaded separately)
@@ -35,7 +40,9 @@ class Container {
      * Constructor by ID
      * Access an existing container on the local Data Mgr
      */
-    Container(const char* dataID);
+    Container(const char* dataID,
+              Dagda_ptr dataMgr,
+              DataRelationMgr* relMgr);
 
     /**
      * Destructor
@@ -90,7 +97,7 @@ class Container {
     /**
      * The Data Mgr that contains the container
      */
-    DagdaImpl * myMgr;
+    Dagda_ptr myMgr;
 
     /**
      * The data relation Mgr that manages the container-elements relationship

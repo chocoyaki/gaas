@@ -8,6 +8,11 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2009/01/16 13:32:47  bisnard
+ * replaced use of DagdaImpl ptr by dagda object ref
+ * modified constructor signature
+ * moved container descr update from addData to DagdaImpl
+ *
  * Revision 1.3  2008/12/09 12:06:20  bisnard
  * changed container download method to transfer only the list of IDs
  * (each container element must be downloaded separately)
@@ -30,19 +35,19 @@
 
 using namespace std;
 
-Container::Container(const char* dataID)
+Container::Container(const char* dataID, Dagda_ptr dataMgr, DataRelationMgr* relMgr)
   : myID(dataID), notFound(false), nbOfElements(0) {
-  myMgr    = DagdaFactory::getDataManager();
-  myRelMgr = myMgr->getContainerRelationMgr();
+
+  myMgr = dataMgr;
+  myRelMgr = relMgr;
+
   // check if container is already existing on the local data mgr
   // EXISTING means registered but not all elements of the container are
   // necessarily present locally
   if (myMgr->lclIsDataPresent(dataID)) {
-    cout << "data found locally" << endl;
-    corba_data_t* storedData = myMgr->getData(dataID);
-    nbOfElements = storedData->desc.specific.cont().size;
-    TRACE_TEXT(TRACE_ALL_STEPS,"Container: object created (" << nbOfElements
-        << " elements" << ", storedData=" << storedData << ")" << endl);
+    corba_data_desc_t* dataDesc = myMgr->lclGetDataDesc(dataID); // makes a copy of desc
+    nbOfElements = dataDesc->specific.cont().size;
+    delete dataDesc;
   }
   else
     notFound = true;
@@ -60,11 +65,8 @@ Container::addData(const char* dataID, long index, long flag, bool setSize) {
   myRelMgr->addRelation(myID,dataID,index,flag);
   if (setSize) {
     ++nbOfElements;
-    corba_data_desc_t* storedDataDesc = &myMgr->getData(myID.c_str())->desc;
-    storedDataDesc->specific.cont().size = (CORBA::ULongLong) nbOfElements;
+    // update of the data description is done by data mgr
   }
-  TRACE_TEXT(TRACE_ALL_STEPS, "Container now contains " << nbOfElements
-      << " element(s)" << endl);
 }
 
 void
@@ -100,18 +102,19 @@ Container::send(Dagda_ptr dest, bool sendData) {
   SeqLong*   flagSeq = new SeqLong();
   this->getAllElements(*dataIDSeq, *flagSeq, true);
 
+  TRACE_TEXT(TRACE_ALL_STEPS, "Sending container " << myID << " ("
+                              << dataIDSeq->length() << " elements / sendData="
+                              << sendData << ")" << endl);
   for (unsigned int ix = 0; ix < dataIDSeq->length(); ++ix) {
     const char* eltID = (*dataIDSeq)[ix];
-    TRACE_TEXT(TRACE_ALL_STEPS, "Sending element " << eltID << endl);
-    corba_data_desc_t * eltDesc;
-    try {
-       eltDesc = myMgr->pfmGetDataDesc(eltID);
-    } catch (Dagda::DataNotFound& ex) {
-      WARNING("Missing element " << eltID << " in container " << myID << endl);
-      continue; // skip this element
-    }
-    // add data element to destination mgr
     if (sendData) {
+      corba_data_desc_t * eltDesc;
+      try {
+        eltDesc = myMgr->pfmGetDataDesc(eltID);
+      } catch (Dagda::DataNotFound& ex) {
+        WARNING("Missing element " << eltID << " in container " << myID << endl);
+        continue; // skip this element
+      }
       corba_data_t eltData;
       eltData.desc = *eltDesc;
       Dagda_var srcMgr = Dagda::_narrow(ORBMgr::stringToObject(eltDesc->dataManager));
@@ -120,5 +123,5 @@ Container::send(Dagda_ptr dest, bool sendData) {
     // add relationship container-data to destination mgr
     dest->lclAddContainerElt(myID.c_str(), eltID, ix, (*flagSeq)[ix], false);
   }
-  return CORBA::string_dup((*myMgr->getData())[myID].desc.id.idNumber);
+  return CORBA::string_dup(myID.c_str());
 }
