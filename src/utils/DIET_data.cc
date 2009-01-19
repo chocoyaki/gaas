@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.60  2009/01/19 16:19:15  bisnard
+ * added error message for diet_paramstring_set when value is NULL
+ *
  * Revision 1.59  2009/01/16 16:33:10  bisnard
  * added API method to provide data source filename for functional wf
  *
@@ -701,6 +704,9 @@ diet_paramstring_set(diet_arg_t* arg,
                      diet_persistence_mode_t mode)
 {
   int status(0);
+  if (!value) {
+    ERROR(__FUNCTION__ << " misused (value is NULL)", 1);
+  }
   if ((status = paramstring_set_desc(&(arg->desc),
                                      NULL,
                                      mode,
