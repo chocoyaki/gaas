@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2009/01/19 09:37:17  bisnard
+ * new example for functional wf instanciation
+ *
  * Revision 1.6  2009/01/16 16:34:05  bisnard
  * updated command line options to handle functional wf
  *
@@ -89,8 +92,17 @@ main(int argc, char* argv[])
   }
 
   gettimeofday(&t1, NULL);
+
+  /*
+   * Allocate a DIET workflow profile
+   * The same method is used for both dags and functional workflows
+   */
   profile = diet_wf_profile_alloc(wfFileName,"test", wfType);
 
+  /*
+   * For functional workflows ONLY
+   * Defines which file is used to provide the data to instanciate the wf
+   */
   diet_wf_profile_set_data_file(profile,dataFileName);
 
   printf("Try to execute the workflow\n");

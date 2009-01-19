@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workflow name="func_scalar">
+
+  <interface>
+    <source name="wf_input" type="DIET_INT"/>
+    <sink name="wf_output" type="DIET_DOUBLE" />
+  </interface>
+
+  <processors>
+    <processor name="n1">
+      <!-- the depth attribute is optional (default is 0) -->
+      <in name="in" type="DIET_INT" depth="0"/>
+      <out name="out1" type="DIET_INT"/>
+      <out name="out2" type="DIET_INT"/>
+      <diet path="succ"/>
+    </processor>
+
+    <processor name="n2">
+      <in name="in" type="DIET_INT" />
+      <out name="out" type="DIET_INT"/>
+      <diet path="double"/>
+    </processor>
+
+    <processor name="n3">
+      <in name="in" type="DIET_INT"/>
+      <out name="out" type="DIET_INT"/>
+      <diet path="double"/>
+    </processor>
+
+    <processor name="n4">
+      <in name="in1" type="DIET_INT"/>
+      <in name="in2" type="DIET_INT"/>
+      <out name="out" type="DIET_INT"/>
+      <diet path="sum"/>
+      <iterationstrategy>
+        <dot>
+          <port name="in1" />
+          <port name="in2" />
+        </dot>
+      </iterationstrategy>
+    </processor>
+
+    <processor name="n5">
+      <in name="in" type="DIET_INT"/>
+      <out name="out" type="DIET_DOUBLE"/>
+      <diet path="square"/>
+    </processor>
+
+  </processors>
+
+  <links>
+    <link from="wf_input" to="n1:in"/>
+    <link from="n1:out1" to="n2:in"/>
+    <link from="n1:out2" to="n3:in"/>
+    <link from="n2:out" to="n4:in1"/>
+    <link from="n3:out" to="n4:in2"/>
+    <link from="n4:out" to="n5:in"/>
+    <link from="n5:out" to="wf_output"/>
+  </links>
+
+</workflow>

@@ -1,18 +1,18 @@
 <dag>
   <node id="n1" path="succ">
     <arg name="in1" type="DIET_INT" value="56"/>
-    <out name="out1" type="DIET_INT" sink="n2#in2"/>
-    <out name="out2" type="DIET_INT" sink="n3#in3"/>
+    <out name="out1" type="DIET_INT"/>
+    <out name="out2" type="DIET_INT"/>
   </node>
   <node id="n2" path="double">
     <prec id="n1"/>
     <in name="in2" type="DIET_INT" source="n1#out1"/>
-    <out name="out3" type="DIET_INT" sink="n4#in4"/>
+    <out name="out3" type="DIET_INT"/>
   </node>
   <node id="n3" path="double">
     <prec id="n1"/>
     <in name="in3" type="DIET_INT" source="n1#out2"/>
-    <out name="out4" type="DIET_INT" sink="n4#in5"/>
+    <out name="out4" type="DIET_INT"/>
   </node>
   <node id="n4" path="sum">
     <prec id="n2"/>
