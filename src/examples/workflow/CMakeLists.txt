@@ -6,12 +6,14 @@
 SET( DIET_CLIENT_LIBRARIES DIET_client )
 SET( DIET_SERVER_LIBRARIES DIET_SeD )
 
-INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/include )
+INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/include
+                     ${DIET_SOURCE_DIR}/src/utils/DAGDA )
 
 
-SET( SEDs succ double sum mul_succ mul_sum square scalar_server 
+SET( SEDs succ double sum mul_succ mul_sum square scalar_server
           strlen int2str
-          file_manip )
+          file_manip
+          string_server )
 
 SET (CLIENTS generic_client client_scalar client_string client_file client_matrix)
 
