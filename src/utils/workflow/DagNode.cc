@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2009/01/20 16:18:22  bisnard
+ * updated results display for ports producing containers
+ *
  * Revision 1.10  2009/01/16 13:55:36  bisnard
  * changes in dag event handling methods
  *
@@ -756,6 +759,13 @@ DagNode::displayResults() {
 	  cout << "## DAG OUTPUT ## " <<
 		      outp->getId() << " = " << value << endl;
 	}
+        else if (dataType == WfCst::TYPE_PARAMSTRING) {
+	  char * value;
+	  diet_paramstring_get(diet_parameter(outp->profile(),outp->getIndex()),
+			  &value, NULL);
+	  cout << "## DAG OUTPUT ## " <<
+		      outp->getId() << " = " << value << endl;
+	}
         else if (dataType == WfCst::TYPE_CONTAINER) {
           short baseType = outp->getEltDataType();
           cout << "## DAG OUTPUT ## " <<
@@ -766,13 +776,51 @@ DagNode::displayResults() {
           diet_container_t content;
           dagda_get_container_elements(contID, &content);
           for (int ix=0; ix<content.size; ++ix) {
-            if (baseType == WfCst::TYPE_LONGINT) {
+            if (baseType == WfCst::TYPE_DOUBLE) {
+              double * value;
+              dagda_get_scalar(content.elt_ids[ix],&value,NULL);
+              cout << *value << endl;
+            } else if (baseType == WfCst::TYPE_INT) {
+              int *value;
+              dagda_get_scalar(content.elt_ids[ix],&value,NULL);
+              cout << *value << endl;
+            } else if (baseType == WfCst::TYPE_LONGINT) {
               long *value;
               dagda_get_scalar(content.elt_ids[ix],&value,NULL);
-              cout <<  "element [" << ix << "] = " << *value << endl;
+              cout << *value << endl;
+            } else if (baseType == WfCst::TYPE_FLOAT) {
+              float *value;
+              dagda_get_scalar(content.elt_ids[ix],&value,NULL);
+              cout << *value << endl;
+            } else if (baseType == WfCst::TYPE_CHAR) {
+              char *value;
+              dagda_get_scalar(content.elt_ids[ix],&value,NULL);
+              cout << *value << endl;
+            } else if (baseType == WfCst::TYPE_SHORT) {
+              short *value;
+              dagda_get_scalar(content.elt_ids[ix],&value,NULL);
+              cout << *value << endl;
+            } else if (baseType == WfCst::TYPE_PARAMSTRING) {
+              char *value;
+              dagda_get_paramstring(content.elt_ids[ix],&value);
+              cout << value << endl;
+            } else if (baseType == WfCst::TYPE_STRING) {
+              char *value;
+              dagda_get_string(content.elt_ids[ix],&value);
+              cout << value << endl;
+            } else if (baseType == WfCst::TYPE_FILE) {
+              char *path;
+              dagda_get_file(content.elt_ids[ix],&path);
+              cout << path << endl;
+            } else if (baseType == WfCst::TYPE_CONTAINER) {
+              char *ID = content.elt_ids[ix];
+              cout << ID << endl;
             }
-          }
-          TRACE_TEXT (TRACE_ALL_STEPS,")" << endl);
+            // separator
+            if (ix < content.size-1)
+              cout << ",";
+          } // end for
+          cout << ")" << endl;
         } else if (dataType == WfCst::TYPE_MATRIX) {
 	  size_t nb_rows, nb_cols;
 	  diet_matrix_order_t order;
