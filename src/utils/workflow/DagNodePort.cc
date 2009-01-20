@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2009/01/20 10:22:07  bisnard
+ * check return code of dagda_get_container to avoid some crashes
+ *
  * Revision 1.9  2009/01/16 13:55:36  bisnard
  * changes in dag event handling methods
  *
@@ -67,7 +70,7 @@ DagNodePort::setProfileWithoutValue() {
   switch (type) {
     case WfCst::TYPE_PARAMSTRING :
       diet_paramstring_set(diet_parameter(profile, index),
-                           NULL, mode);
+                           myParent->newString(), mode);
       break;
     case WfCst::TYPE_STRING :
       diet_string_set(diet_parameter(profile, index),
@@ -484,9 +487,12 @@ DagNodeOutPort::getDataIDList(const string& dataID) {
     content->size = 0;
     TRACE_TEXT (TRACE_ALL_STEPS, "port " << id << ": get ID list for container "
                                  <<  dataID << endl);
-    dagda_get_container(dataID.c_str());
-    dagda_get_container_elements(dataID.c_str(), content);
-    myCache[dataID] = content;
+    if (!dagda_get_container(dataID.c_str())) {
+      dagda_get_container_elements(dataID.c_str(), content);
+      myCache[dataID] = content;
+    } else {
+      WARNING("port " << id << ": cannot find container " << dataID << endl);
+    }
   }
   return content;
 }
@@ -533,9 +539,6 @@ DagNodeInPort::initSourceData() {
       TRACE_TEXT (TRACE_ALL_STEPS,
                   "##  ==> data ID is " << dataID << endl);
       diet_use_data(diet_parameter(this->profile(), index), myParent->newString(dataID));
-//       char* dataIDStr = new char[dataID.length()+1];
-//       strcpy(dataIDStr, dataID.c_str());
-//       diet_use_data(diet_parameter(this->profile(), index), dataIDStr);
     } else {
       TRACE_TEXT (TRACE_ALL_STEPS,
                   "##  ERROR ==> data ID not found" << endl);
