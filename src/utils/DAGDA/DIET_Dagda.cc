@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2009/01/20 13:59:56  bisnard
+ * catch dagda exception in dagda_add_container_elt
+ *
  * Revision 1.16  2008/11/08 19:12:39  bdepardo
  * A few warnings removal
  *
@@ -1014,26 +1017,30 @@ int dagda_init_container(diet_data_t *profile_data) {
 int dagda_add_container_element(const char* idContainer, const char* idElement, int index) {
   Dagda_var   entryPoint = getEntryPoint();
   DagdaImpl*  manager    = DagdaFactory::getDataManager();
-  if (entryPoint != NULL) {
-    // on the client => find the data mgr that hosts the container
-    if (entryPoint->pfmIsDataPresent(idContainer)) {
-      corba_data_desc_t* storedDataDesc = entryPoint->pfmGetDataDesc(idContainer);
-      Dagda_var srcMgr = Dagda::_narrow(ORBMgr::stringToObject(storedDataDesc->dataManager));
+  try {
+    if (entryPoint != NULL) {
+      // on the client => find the data mgr that hosts the container
+      if (entryPoint->pfmIsDataPresent(idContainer)) {
+        corba_data_desc_t* storedDataDesc = entryPoint->pfmGetDataDesc(idContainer);
+        Dagda_var srcMgr = Dagda::_narrow(ORBMgr::stringToObject(storedDataDesc->dataManager));
       // add the relationship
-      srcMgr->lclAddContainerElt(idContainer, idElement, index, 0, true);
+        srcMgr->lclAddContainerElt(idContainer, idElement, index, 0, true);
+      } else {
+        WARNING("Cannot find container " << idContainer << " on platform");
+        return 1;
+      }
     } else {
-      WARNING("Cannot find container " << idContainer << " on platform");
-      throw Dagda::DataNotFound(idContainer);
+      // not on the client => dagda_init_container must have been called before
+      // so the container exists locally
+      if (manager->lclIsDataPresent(idContainer)) {
+        manager->lclAddContainerElt(idContainer, idElement, index, 0, true);
+      } else {
+        WARNING("Cannot find container " << idContainer << " locally");
+        return 1;
+      }
     }
-  } else {
-    // not on the client => dagda_init_container must have been called before
-    // so the container exists locally
-    if (manager->lclIsDataPresent(idContainer)) {
-      manager->lclAddContainerElt(idContainer, idElement, index, 0, true);
-    } else {
-      WARNING("Cannot find container " << idContainer << " locally");
-      throw Dagda::DataNotFound(idContainer);
-    }
+  } catch (Dagda::DataNotFound& ex) {
+    return 1;
   }
   return 0;
 }
