@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.62  2009/01/22 15:09:29  bisnard
+ * cancelled previous change
+ *
  * Revision 1.61  2009/01/20 16:17:12  bisnard
  * corrected bug in data_sizeof for strings and paramstrings (wrong length)
  *
@@ -254,9 +257,9 @@ macro_data_sizeof(const diet_data_desc_t* desc)
   case DIET_MATRIX:
     return (desc->specific.mat.nb_c * desc->specific.mat.nb_r);
   case DIET_STRING:
-    return (desc->specific.str.length + 1);
+    return desc->specific.str.length;
   case DIET_PARAMSTRING:
-    return (desc->specific.pstr.length + 1);
+    return desc->specific.pstr.length;
   case DIET_FILE:
     return desc->specific.file.size;
   case DIET_CONTAINER:
@@ -288,9 +291,9 @@ data_sizeof(const corba_data_desc_t* desc)
   case DIET_MATRIX:
     size = (desc->specific.mat().nb_c * desc->specific.mat().nb_r); break;
   case DIET_STRING:
-    size = desc->specific.str().length + 1; break;
+    size = desc->specific.str().length; break;
   case DIET_PARAMSTRING:
-    size = desc->specific.pstr().length + 1; break;
+    size = desc->specific.pstr().length; break;
   case DIET_FILE:
     size = desc->specific.file().size; break;
   case DIET_CONTAINER:
