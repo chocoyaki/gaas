@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workflow name="func_string">
+
+  <interface>
+    <source name="str_input" type="DIET_STRING"/>
+    <sink name="str_output" type="DIET_STRING" />
+  </interface>
+
+  <processors>
+
+    <!-- to launch this service use the following command line:
+         string_server server.cfg mixproc 10 2 1 0 0 1 -->
+    <processor name="PROC">
+      <!-- the depth attribute is optional (default is 0) -->
+      <in name="in1" type="DIET_STRING" depth="0"/>
+      <in name="in2" type="DIET_STRING"/>
+      <!-- use the following line for dynamic instanciation -->
+      <out name="out" type="DIET_STRING" depth="1"/>
+      <!-- or replace with the following for static instanciation -->
+      <!-- <out name="out" type="DIET_STRING" depth="1" card="2"/> -->
+      <diet path="mixproc"/>
+      <iterationstrategy>
+        <cross>
+          <port name="in1" />
+          <port name="in2" />
+        </cross>
+      </iterationstrategy>
+    </processor>
+
+    <!-- to launch this service use the following command line:
+         string_server server.cfg dummy 10 1 1 0 0 -->
+    <processor name="POSTPROC">
+      <!-- the depth attribute is optional (default is 0) -->
+      <in name="in" type="DIET_STRING"/>
+      <out name="out" type="DIET_STRING"/>
+      <diet path="dummy"/>
+    </processor>
+
+  </processors>
+
+  <links>
+    <link from="str_input" to="PROC:in1"/>
+    <link from="str_input" to="PROC:in2"/>
+    <link from="PROC:out" to="POSTPROC:in"/>
+    <link from="POSTPROC:out" to="str_output"/>
+  </links>
+
+</workflow>

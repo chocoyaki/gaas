@@ -5,4 +5,8 @@
 	<value>10</value>
         <value>240</value>
 </source>
+<source name="str_input">
+  <value>a</value>
+  <value>b</value>
+</source>
 </data>
