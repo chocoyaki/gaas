@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2009/01/22 15:12:31  bisnard
+ * fixed bug with data transfer of strings and paramstrings
+ *
  * Revision 1.17  2009/01/20 13:59:56  bisnard
  * catch dagda exception in dagda_add_container_elt
  *
@@ -511,7 +514,7 @@ size_t corba_data_init(corba_data_t& data, diet_data_type_t type,
       break;
     case DIET_STRING:
     case DIET_PARAMSTRING:
-      diet_data.desc.specific.pstr.length = strlen((char*) value);
+      diet_data.desc.specific.pstr.length = strlen((char*) value) + 1;
    	  break;
     case DIET_FILE:
       diet_data.desc.specific.file.path = path;
