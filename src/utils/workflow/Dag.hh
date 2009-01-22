@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2009/01/22 09:01:09  bisnard
+ * added client method to retrieve workflow container output
+ *
  * Revision 1.19  2009/01/16 13:55:36  bisnard
  * changes in dag event handling methods
  *
@@ -334,6 +337,14 @@ public:
   get_matrix_output (const char * id, void** value,
 		     size_t* nb_rows, size_t *nb_cols,
 		     diet_matrix_order_t* order);
+
+  /**
+   * Get a container result of the workflow
+   * @param id      the output port id (prefixed with the node id)
+   * @param dataID  a ref to a string that will contain a copy of the container dataID
+   */
+  int
+  get_container_output (const char * id, char** dataID);
 
   /**
    * Get all the results and display them. This function doesn't returned

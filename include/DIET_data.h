@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.64  2009/01/22 09:01:04  bisnard
+ * added client method to retrieve workflow container output
+ *
  * Revision 1.63  2009/01/16 16:33:09  bisnard
  * added API method to provide data source filename for functional wf
  *
@@ -783,6 +786,14 @@ _diet_wf_matrix_get(diet_wf_desc_t * profile,
                     const char * id, void** value,
 		    size_t* nb_rows, size_t *nb_cols,
 		    diet_matrix_order_t* order);
+
+#define diet_wf_container_get(profile, id, dataID) \
+  _diet_wf_container_get(profile, id, (char**)dataID)
+
+int
+_diet_wf_container_get(diet_wf_desc_t * profile,
+                       const char * id,
+                       char** dataID);
 
 int get_all_results(diet_wf_desc_t * profile);
 

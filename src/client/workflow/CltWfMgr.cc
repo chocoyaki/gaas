@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2009/01/22 09:01:08  bisnard
+ * added client method to retrieve workflow container output
+ *
  * Revision 1.23  2009/01/16 16:32:26  bisnard
  * added option to specify data source file name
  *
@@ -740,6 +743,21 @@ CltWfMgr::getWfOutputMatrix(diet_wf_desc_t* profile,
     Dag * dag = dynamic_cast<Dag*>(nsp->second);
     if (dag != NULL) {
 	return dag->get_matrix_output(id, value, nb_rows, nb_cols, order);
+    }
+    else return 1;
+  }
+  else return 1;
+}
+
+int
+CltWfMgr::getWfOutputContainer(diet_wf_desc_t* profile,
+                               const char * id,
+                               char** dataID) {
+  map<diet_wf_desc_t*,NodeSet*>::iterator nsp = myProfiles.find(profile);
+  if (nsp != myProfiles.end()) {
+    Dag * dag = dynamic_cast<Dag*>(nsp->second);
+    if (dag != NULL) {
+	return dag->get_container_output(id, dataID);
     }
     else return 1;
   }

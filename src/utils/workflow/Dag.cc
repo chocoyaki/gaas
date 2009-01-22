@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2009/01/22 09:01:09  bisnard
+ * added client method to retrieve workflow container output
+ *
  * Revision 1.24  2009/01/16 13:55:36  bisnard
  * changes in dag event handling methods
  *
@@ -461,6 +464,18 @@ Dag::get_matrix_output (const char * id, void** value,
   return diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()),
                          value, NULL,
                          nb_rows, nb_cols, order);
+}
+
+/**
+ * Get a container result of the workflow
+ */
+int
+Dag::get_container_output (const char * id, char** dataID) {
+  DagNodeOutPort * outp = getOutputPort(id);
+  if (dataID != NULL) {
+    *dataID = strdup(outp->profile()->parameters[outp->getIndex()].desc.id);
+    return 0;
+  } else return 1;
 }
 
 /**

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2009/01/22 09:01:09  bisnard
+ * added client method to retrieve workflow container output
+ *
  * Revision 1.13  2009/01/16 16:32:26  bisnard
  * added option to specify data source file name
  *
@@ -236,6 +239,13 @@ public:
 		   size_t *nb_cols,
 		   diet_matrix_order_t* order);
 
+  /**
+   * Get a container result from a workflow
+   */
+  int
+  getWfOutputContainer(diet_wf_desc_t* profile,
+                       const char * id,
+                       char** dataID);
 
   /**
    * terminate a workflow session and free the memory

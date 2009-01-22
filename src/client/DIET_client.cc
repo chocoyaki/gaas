@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.131  2009/01/22 09:01:07  bisnard
+ * added client method to retrieve workflow container output
+ *
  * Revision 1.130  2008/12/09 12:09:38  bisnard
  * new API method for inter-dependent dag submit
  *
@@ -1924,6 +1927,13 @@ _diet_wf_matrix_get(diet_wf_desc_t * profile,
 		    size_t* nb_rows, size_t *nb_cols,
 		    diet_matrix_order_t* order) {
   return CltWfMgr::instance()->getWfOutputMatrix(profile, id, value, nb_rows, nb_cols, order);
+}
+
+int
+_diet_wf_container_get(diet_wf_desc_t * profile,
+                       const char * id,
+                       char** dataID) {
+  return CltWfMgr::instance()->getWfOutputContainer(profile, id, dataID);
 }
 
 /**
