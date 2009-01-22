@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2009/01/22 14:19:42  bisnard
+ * new example for dag using containers
+ *
  * Revision 1.2  2009/01/22 10:16:04  bisnard
  * new example for container usage in workflows
  *
@@ -133,7 +136,7 @@ process_container(short depth, const char *outputstr, const char *parentID) {
   }
 }
 
-int container_string_length(const char* contID, short depth) {
+int container_string_length(const char* contID, short depth, char getContainer) {
   int i;
   short length = 0;
   diet_container_t content;
@@ -142,6 +145,16 @@ int container_string_length(const char* contID, short depth) {
     fprintf(stderr, "Error in container_string_length: depth=%d\n", depth);
     exit(0);
   }
+  /* container download not necessary for root input container but required
+     for sub-containers */
+  if (getContainer) {
+    fprintf(stderr, "(%d) getting container ID = %s\n", depth, contID);
+    if (dagda_get_container(contID)) {
+      fprintf(stderr, "ERROR: could not get container ID = %s\n", contID);
+      return 0;
+    }
+  }
+
   fprintf(stderr, "(%d) getting element ids (container ID = %s)\n", depth, contID);
   if (!dagda_get_container_elements(contID, &content)) {
     for (i=0; i<CONTAINER_ELT_NB; i++) {
@@ -151,7 +164,7 @@ int container_string_length(const char* contID, short depth) {
         else
           fprintf(stderr, "ERROR: cannot get container element %s\n", content.elt_ids[i]);
       } else {
-        length += container_string_length(content.elt_ids[i], depth-1);
+        length += container_string_length(content.elt_ids[i], depth-1, 1);
       }
       if (i < CONTAINER_ELT_NB-1)
         length += 1;
@@ -192,7 +205,8 @@ processor(diet_profile_t* pb)
 {
   int i, inlength;
   const char *inputstr;
-  char * outputstr, *Noutputstr, *idx, *outContID;
+  char *outputstr, *Noutputstr, *outContID;
+  char buffer[10];
 
   fprintf(stderr, "PROCESSOR %s SOLVING (REQUEST %d)\n", name_str, pb->dietReqID);
 
@@ -203,7 +217,7 @@ processor(diet_profile_t* pb)
       diet_string_get(diet_parameter(pb, i), &inputstr, NULL);
       inlength += strlen(inputstr);
     } else {
-      inlength += container_string_length(pb->parameters[i].desc.id, ports_depth_table[i]);
+      inlength += container_string_length(pb->parameters[i].desc.id, ports_depth_table[i], 0);
     }
   }
   inlength += (nb_in - 1) + strlen(name_str) + 7;
@@ -243,9 +257,13 @@ processor(diet_profile_t* pb)
   } else {
     for (i=0; i<nb_out; i++) {
       Noutputstr = (char*) calloc(inlength, sizeof(char));
-      /* TODO remplacer $ par l'index du port */
+      /* remplacer $ par l'index du port */
+      sprintf(buffer,"%d",i);
       strcpy(Noutputstr, outputstr);
+      Noutputstr[strstr(Noutputstr, "$") - Noutputstr] = buffer[0];
+
       if (ports_depth_table[nb_in+i] == 0) {
+        fprintf(stderr, "OUTPUT %d = %s\n", i, Noutputstr);
         diet_string_set(diet_parameter(pb,nb_in+i), Noutputstr, DIET_PERSISTENT_RETURN);
       } else {
         outContID = (pb->parameters[nb_in+i]).desc.id;
@@ -266,8 +284,8 @@ processor(diet_profile_t* pb)
    argv[2]: name of the service
    argv[3]: time of computation (in milliseconds)
    argv[4]: nb of IN ports
-   argv[5]: nb of OUT ports
-   argv[6+n]: depth of n-th port (default is 0) (>=1 ONLY AVAILABLE FOR 1st OUT PORT)
+   argv[5]: nb of OUT ports (must be <10)
+   argv[6+n]: depth of n-th port (default is 0)
  */
 
 void usage(char * s) {

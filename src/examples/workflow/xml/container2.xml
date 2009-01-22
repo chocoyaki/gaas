@@ -1,0 +1,36 @@
+<dag>
+
+  <!-- to launch this service use the following command line:
+       string_server server.cfg gencont 10 1 1 0 1 -->
+  <node id="TOP" path="gencont" >
+    <arg name="in" type="DIET_STRING" value="diet" />
+    <out name="out" type="DIET_STRING" depth="1"/>
+  </node>
+
+  <!-- to launch this service use the following command line:
+       string_server server.cfg proc 10 1 2 0 0 2-->
+  <node id="MIDDLE1" path="proc" >
+    <in name="in" type="DIET_STRING" source="TOP#out[0]" />
+    <out name="out0" type="DIET_STRING" />
+    <out name="out1" type="DIET_STRING" depth="2"/>
+  </node>
+
+  <node id="MIDDLE2" path="proc" >
+    <in name="in" type="DIET_STRING" source="TOP#out[1]" />
+    <out name="out0" type="DIET_STRING" />
+    <out name="out1" type="DIET_STRING" depth="2"/>
+  </node>
+
+  <!-- to launch this service use the following command line:
+       string_server server.cfg postproc 10 1 1 2 1 -->
+  <node id="BOTTOM" path="postproc" >
+    <in name="in" type="DIET_STRING" depth="2" source="((MIDDLE1#out0;MIDDLE2#out0);(MIDDLE1#out1[0][1];MIDDLE2#out1[0][1]))" />
+    <out name="out" type="DIET_STRING" depth="1"/>
+  </node>
+
+  <!-- output is a container that contains 2 elements :
+       postproc_out(((proc_out0(gencont_out(diet)_0),proc_out0(gencont_out(diet)_1)),(proc_out1(gencont_out(diet)_0)_0_1,proc_out1(gencont_out(diet)_1)_0_1)))_0
+       postproc_out(((proc_out0(gencont_out(diet)_0),proc_out0(gencont_out(diet)_1)),(proc_out1(gencont_out(diet)_0)_0_1,proc_out1(gencont_out(diet)_1)_0_1)))_1
+       (check SeD error output) -->
+
+</dag>
