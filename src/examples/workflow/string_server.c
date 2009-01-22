@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2009/01/22 10:16:04  bisnard
+ * new example for container usage in workflows
+ *
  * Revision 1.1  2009/01/20 16:13:18  bisnard
  * new example to test functional workflows
  *
@@ -111,7 +114,7 @@ process_container(short depth, const char *outputstr, const char *parentID) {
       fprintf(stderr, "(%d) storing element %d (value=%s)\n", depth, i, eltStr[i]);
       dagda_put_string(eltStr[i], DIET_PERSISTENT, &eltID[i]);
       fprintf(stderr, "(%d) adding element %d : ID=%s\n", depth, i, eltID[i]);
-      check_data(eltID[i]);
+      /* check_data(eltID[i]); */
       if (dagda_add_container_element(parentID,eltID[i],i)) {
         fprintf(stderr, "ERROR : cannot add element to container\n");
         break;
@@ -130,6 +133,60 @@ process_container(short depth, const char *outputstr, const char *parentID) {
   }
 }
 
+int container_string_length(const char* contID, short depth) {
+  int i;
+  short length = 0;
+  diet_container_t content;
+  char *eltStr;
+  if (depth < 0) {
+    fprintf(stderr, "Error in container_string_length: depth=%d\n", depth);
+    exit(0);
+  }
+  fprintf(stderr, "(%d) getting element ids (container ID = %s)\n", depth, contID);
+  if (!dagda_get_container_elements(contID, &content)) {
+    for (i=0; i<CONTAINER_ELT_NB; i++) {
+      if (depth == 1) {
+        if (!dagda_get_string(content.elt_ids[i], &eltStr))
+          length += strlen(eltStr);
+        else
+          fprintf(stderr, "ERROR: cannot get container element %s\n", content.elt_ids[i]);
+      } else {
+        length += container_string_length(content.elt_ids[i], depth-1);
+      }
+      if (i < CONTAINER_ELT_NB-1)
+        length += 1;
+    }
+    length += 2;
+  } else fprintf(stderr, "ERROR: cannot get container (%s) element IDs\n", contID);
+  return length;
+}
+
+void container_string_get(const char* contID, short depth, char *contStr) {
+  int i;
+  diet_container_t content;
+  char *eltStr;
+  if (depth < 0) {
+    fprintf(stderr, "Error in container_string_get: depth=%d\n", depth);
+    exit(0);
+  }
+  if (!dagda_get_container_elements(contID, &content)) {
+    strcat(contStr,"(");
+    for (i=0; i<CONTAINER_ELT_NB; i++) {
+      if (depth == 1) {
+        if (!dagda_get_string(content.elt_ids[i], &eltStr))
+          strcat(contStr, eltStr);
+        else
+          fprintf(stderr, "ERROR: cannot get container element %s\n", content.elt_ids[i]);
+      } else {
+        container_string_get(content.elt_ids[i], depth-1, contStr);
+      }
+      if (i < CONTAINER_ELT_NB-1)
+        strcat(contStr,",");
+    }
+    strcat(contStr,")");
+  } else fprintf(stderr, "ERROR: cannot get container (%s) element IDs\n", contID);
+}
+
 int
 processor(diet_profile_t* pb)
 {
@@ -142,8 +199,12 @@ processor(diet_profile_t* pb)
   /* process length of output string */
   inlength = 0;
   for (i=0; i<nb_in; i++) {
-    diet_string_get(diet_parameter(pb, i), &inputstr, NULL);
-    inlength += strlen(inputstr);
+    if (ports_depth_table[i] == 0) {
+      diet_string_get(diet_parameter(pb, i), &inputstr, NULL);
+      inlength += strlen(inputstr);
+    } else {
+      inlength += container_string_length(pb->parameters[i].desc.id, ports_depth_table[i]);
+    }
   }
   inlength += (nb_in - 1) + strlen(name_str) + 7;
   outputstr = (char*) calloc(inlength, sizeof(char));
@@ -155,10 +216,14 @@ processor(diet_profile_t* pb)
     strcat(outputstr, "$");
   strcat(outputstr, "(");
   for (i=0; i<nb_in; i++) {
-    check_data((*diet_parameter(pb, i)).desc.id);
-    diet_string_get(diet_parameter(pb, i), &inputstr, NULL);
-    fprintf(stderr, "INPUT %d (len=%d): %s\n", i, strlen(inputstr), inputstr);
-    strcat(outputstr, inputstr);
+    if (ports_depth_table[i] == 0) {
+      /* check_data((*diet_parameter(pb, i)).desc.id); */
+      diet_string_get(diet_parameter(pb, i), &inputstr, NULL);
+      fprintf(stderr, "INPUT %d (len=%d): %s\n", i, strlen(inputstr), inputstr);
+      strcat(outputstr, inputstr);
+    } else {
+      container_string_get(pb->parameters[i].desc.id, ports_depth_table[i], outputstr);
+    }
     if (i < nb_in-1)
       strcat(outputstr,",");
   }

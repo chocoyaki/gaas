@@ -15,7 +15,12 @@ SET( SEDs succ double sum mul_succ mul_sum square scalar_server
           file_manip
           string_server )
 
-SET (CLIENTS generic_client client_scalar client_string client_file client_matrix)
+SET (CLIENTS  generic_client
+              client_scalar
+              client_string
+              client_file
+              client_matrix
+              client_container)
 
 FOREACH (sed ${SEDs})
   ADD_EXECUTABLE( ${sed} ${sed}.c )
