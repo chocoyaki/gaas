@@ -5,7 +5,7 @@
 # Build (by configuration) all the configurations files of the examples by
 # basically substituting with the proper "hostname".
 
-SET( DIET_EXAMPLES_CONFIG_BUILD ON BOOL "Wether the configuration files were build" )
+SET( DIET_EXAMPLES_CONFIG_BUILD ON BOOL "Whether the configuration files were built" )
 
 # FIXME: already defined in Cmake/FindTestingUtils.cmake 
 EXEC_PROGRAM( hostname
