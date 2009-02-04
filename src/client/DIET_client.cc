@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.132  2009/02/04 01:01:48  gcharrie
+ * Cleaning the code in DIET_client to make a multicall.
+ * there is still work to do in MultiCall, but the "public"
+ * code is a lot cleaner
+ *
  * Revision 1.131  2009/01/22 09:01:07  bisnard
  * added client method to retrieve workflow container output
  *
@@ -1349,26 +1354,9 @@ diet_call_async_common(diet_profile_t* profile,
     }
 
 #ifdef HAVE_MULTICALL
-    corba_response_t * corba_response = MultiCall::get_response();
-    vector<int> nb_scenarios = MultiCall::cerfacsSchedule();
-    char *s, *stemp, c = '#';
-    diet_paramstring_get(diet_parameter(profile, 2), &s, NULL);
-    int sSize = strlen(s);
-    for (int counter = 0; counter < corba_response->servers.length(); counter++) {
-      stemp = (char*)malloc((sSize + 1) * sizeof(char));;
-      stemp[0] = '\0';
-      //if there is at least a scenario on this SeD
-      if (nb_scenarios[counter] != 0) {
-	chosenServer = corba_response->servers[counter].loc.ior;
-	diet_scalar_set(diet_parameter(profile, 0), &(nb_scenarios[counter]), DIET_VOLATILE, DIET_INT);
-	//splits the mnemonics
-	for (int counter2 = 0; counter2 < nb_scenarios[counter]; counter2++) {
-	  if (counter2 != 0) { stemp = strcat(stemp, &c);}
-	  s = strtok(s, &c);
-	  stemp = strcat(stemp, s);
-	  s = NULL;
-	}
-	diet_paramstring_set(diet_parameter(profile, 2), stemp, DIET_VOLATILE);
+    int max = MultiCall::get_response()->servers.length();
+    for (int counter = 0; counter < max; counter++) {
+      if (MultiCall::updateCall(profile, chosenServer)) {
 #endif //HAVE_MULTICALL
 
 #if HAVE_JUXMEM
@@ -1443,8 +1431,7 @@ diet_call_async_common(diet_profile_t* profile,
 #endif // HAVE_JUXMEM
 
 #ifdef HAVE_MULTICALL
-      } //endif (nbDags != 0)
-      free(stemp);
+      } //endif (a call must be done)
     } //end for (for each SeD)
 #endif
 

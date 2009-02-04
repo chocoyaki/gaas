@@ -2,16 +2,19 @@
 #define _MULTICALL_HH_
 
 #include "response.hh"
+#include "DIET_client.h"
+#include "SeD.hh"
 #include <vector>
 
 class MultiCall {
 
 public:
-  static void set_response(corba_response_t *response);
   static corba_response_t* get_response();
-  static std::vector<int> cerfacsSchedule();
+  static void set_response(corba_response_t *response);
+  static bool updateCall(diet_profile_t* profile, SeD_var& chosenServer);
 
 private:
+  static std::vector<int> cerfacsSchedule();
   static corba_response_t *corba_response;
 };
 
