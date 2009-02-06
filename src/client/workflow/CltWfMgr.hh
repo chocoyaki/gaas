@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2009/02/06 14:51:27  bisnard
+ * - setup exceptions
+ * - refactoring dag and functional wf submission
+ *
  * Revision 1.14  2009/01/22 09:01:09  bisnard
  * added client method to retrieve workflow container output
  *
@@ -102,8 +106,6 @@ class CltWfMgr : public POA_CltMan,
 public:
   /**
    * Executes a node on a specified Sed (CORBA method)
-   * (CURRENTLY NOT USED)
-   *
    * @param node_id node identifier
    * @param dag_id  dag identifier
    * @param sed     SeD where execute service
@@ -303,6 +305,28 @@ private:
    */
   bool
       isWfSubmissionComplete(FWorkflow* wf);
+
+  /**
+   * Common part of node execution
+   */
+  CORBA::Long
+      execNodeCommon(const char * node_id,
+                     const char * dag_id,
+                     _objref_SeD* sed,
+                     const CORBA::ULong reqID,
+                     corba_estimation_t& ev);
+
+  /**
+   * Common part of the dag submission
+   * @param dagProfile  the diet profile containing the XML code for the Dag
+   *                    (to be sent to MaDag) and eventually the wfReqId
+   * @param dag a ref to a dag (may be NULL if parse is true)
+   * @param parse will parse the XML if set to true
+   * @param release will close the wfReqId on MaDag side if set to true
+   */
+  diet_error_t
+      wfDagCallCommon(diet_wf_desc_t *dagProfile, Dag *dag, bool parse, bool release);
+
 
   /***************************************************************************/
   /*                          PRIVATE attributes                             */
