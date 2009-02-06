@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2009/02/06 14:54:43  bisnard
+ * - setup exceptions
+ * - added data type & depth check
+ *
  * Revision 1.10  2008/12/02 10:14:51  bisnard
  * modified nodes links mgmt to handle inter-dags links
  *
@@ -49,6 +53,7 @@
 #include "Dag.hh"
 #include "Node.hh"
 #include "WfPort.hh"
+#include "DagNode.hh"
 #include "debug.hh"
 #if HAVE_DAGDA
 extern "C" {
@@ -75,7 +80,7 @@ WfPortAdapter::createAdapter(const string& strRef) {
   } else {
     string::size_type refSepLast = strRef.rfind(")");
     if (refSepLast == string::npos) {
-      INTERNAL_ERROR("No closing bracket in " << strRef << std::endl, 1);
+      INTERNAL_ERROR("No closing bracket in " << strRef << endl, 1);
     }
     return new WfMultiplePortAdapter(strRef.substr(refSep+1, refSepLast-1));
   }
@@ -86,7 +91,7 @@ WfPortAdapter::createAdapter(const string& strRef) {
  * PARSING of a simple reference (with or without subports)
  */
 WfSimplePortAdapter::WfSimplePortAdapter(const string& strRef) : dagName() {
-  TRACE_TEXT (TRACE_ALL_STEPS,"Creating simple port adapter ref=" << strRef << endl);
+//   TRACE_TEXT (TRACE_ALL_STEPS,"Creating simple port adapter ref=" << strRef << endl);
   string::size_type nodeSep = strRef.find(":");
   string::size_type nodeStart = 0;
   if (nodeSep != string::npos) {
@@ -119,8 +124,8 @@ WfSimplePortAdapter::WfSimplePortAdapter(const string& strRef) : dagName() {
 
 WfSimplePortAdapter::WfSimplePortAdapter(WfPort * port,
                                          const string& portDagName) {
-  TRACE_TEXT (TRACE_ALL_STEPS,"Creating simple port adapter TO port "
-                              << port->getId() << endl);
+//   TRACE_TEXT (TRACE_ALL_STEPS,"Creating simple port adapter TO port "
+//                               << port->getId() << endl);
   nodePtr  = port->getParent();
   portPtr  = port;
   nodeName = nodePtr->getId();
@@ -130,8 +135,8 @@ WfSimplePortAdapter::WfSimplePortAdapter(WfPort * port,
 
 WfSimplePortAdapter::WfSimplePortAdapter(WfSimplePortAdapter* parentAdapter,
                                          unsigned int index) {
-  TRACE_TEXT (TRACE_ALL_STEPS,"Creating simple port adapter using parent adapter "
-                               << endl);
+//   TRACE_TEXT (TRACE_ALL_STEPS,"Creating simple port adapter using parent adapter "
+//                                << endl);
   portPtr  = parentAdapter->getSourcePort();
   nodePtr  = portPtr->getParent();
   nodeName = nodePtr->getId();
@@ -158,8 +163,8 @@ WfSimplePortAdapter::getSourceRef() const {
   return ss.str();
 }
 
-bool
-WfSimplePortAdapter::setNodePrecedence(Node* node, NodeSet* nodeSet) {
+void
+WfSimplePortAdapter::setNodePrecedence(Node* node, NodeSet* nodeSet) throw (WfStructException) {
   // create the full node name (including dag prefix if needed)
   string dagPrefix;
   if (!dagName.empty()) {
@@ -167,37 +172,38 @@ WfSimplePortAdapter::setNodePrecedence(Node* node, NodeSet* nodeSet) {
   }
   // get the node pointer from the nodeSet
   nodePtr = nodeSet->getNode(dagPrefix + nodeName);
-  if (nodePtr != NULL) {
-    node->addNodePredecessor(nodePtr, dagPrefix + nodePtr->getId());
-    return true;
-  } else {
-    TRACE_TEXT (TRACE_ALL_STEPS,"Linked node not found! (" << nodeName << ")" << endl);
-    return false;
-  }
+  node->addNodePredecessor(nodePtr, dagPrefix + nodePtr->getId());
 }
 
 /**
  * Initializes the connection between two WfPorts
  * This method searches the remote port then updates its own pointer
  * and calls the method WfPort::connectToPort on both sides
+ * The adapterLevel parameter is used only to check depth compatibility between
+ * the adapter and the linked port
  */
 void
-WfSimplePortAdapter::connectPorts(WfPort* port) {
-  if (nodePtr) {
-    WfPort * linkedPort = nodePtr->getPort(portName);
-    if (linkedPort != NULL) {
-      this->portPtr = linkedPort;       // SET the port ref FOR THE ADAPTER
-      port->connectToPort(linkedPort);  // SET the connection on my port
-      linkedPort->connectToPort(port);  // SET the connection on remote port
-      // if external link (different dags) then use setExternalSink
-    } else {
-      INTERNAL_ERROR("FATAL ERROR:" << endl << "Cannot find linked port '"
-          << nodeName + "#" + portName << "'" << endl, 1);
-    }
-  } else {
-    INTERNAL_ERROR("FATAL ERROR" << endl <<
-        "Cannot find linked node : " << nodeName, 1);
+WfSimplePortAdapter::connectPorts(WfPort* port, unsigned int adapterLevel)
+    throw (WfStructException)
+{
+  if (nodePtr == NULL) {
+    INTERNAL_ERROR(__FUNCTION__ << "NULL node pointer" << endl, 1);
   }
+  WfPort * linkedPort = nodePtr->getPort(portName);
+  string errorMsg = "connect " + port->getCompleteId()
+                       + " to " + getSourceRef();
+
+  // check data type compatibility
+  if (port->getBaseDataType() != linkedPort->getBaseDataType())
+    throw WfStructException(WfStructException::eTYPE_MISMATCH,errorMsg);
+
+  this->portPtr = linkedPort;       // SET the port ref FOR THE ADAPTER
+  port->connectToPort(linkedPort);  // SET the connection on my port
+  linkedPort->connectToPort(port);  // SET the connection on remote port
+
+  // check data depth compatibility
+  if (port->getDepth() != adapterLevel + linkedPort->getDepth() - getDepth())
+    throw WfStructException(WfStructException::eDEPTH_MISMATCH,errorMsg);
 }
 
 WfPort *
@@ -209,35 +215,26 @@ const string&
 WfSimplePortAdapter::getSourceDataID() {
   DagNodeOutPort* dagNodeOutPortPtr = dynamic_cast<DagNodeOutPort*>(portPtr);
   if (dagNodeOutPortPtr == NULL) {
-    ERROR("WfSimplePortAdapter Error: invalid port reference" << endl, dataID);
+    INTERNAL_ERROR(__FUNCTION__ << "NULL port reference" << endl, 1);
   }
-  // use the data ID of the source port itself
-  dataID = dagNodeOutPortPtr->getDataID();
-  // look for element's data ID in case of a container
-  if (depth() > 0) {
-#if HAVE_DAGDA
-    const list<unsigned int>& eltIdx = this->getElementIndexes();
-    for (list<unsigned int>::const_iterator idxIter = eltIdx.begin();
-         idxIter != eltIdx.end();
-         ++idxIter) {
-      if (!dataID.empty()) {
-        dagda_get_container(dataID.c_str());
-        diet_container_t content;
-        dagda_get_container_elements(dataID.c_str(), &content);
-        if (content.size >= (*idxIter + 1)) {
-          dataID = content.elt_ids[*idxIter];
-        } else {
-          ERROR("WfSimplePortAdapter Error: cannot find container item" << endl, dataID);
-        }
-      } else {
-        ERROR("WfSimplePortAdapter Error: empty data ID" << endl, dataID);
-      }
-    }
-#else
-    ERROR("WfSimplePortAdapter Error: trying to use containers without Dagda enabled" << endl, dataID);
-#endif
+  if (getDepth() == 0)
+    this->dataID = dagNodeOutPortPtr->getDataID();
+  else
+    this->dataID = dagNodeOutPortPtr->getElementDataID(eltIdxList);
+
+  return this->dataID;
+}
+
+void
+WfSimplePortAdapter::displayDataAsList(ostream& output) {
+  DagNodeOutPort* dagNodeOutPortPtr = dynamic_cast<DagNodeOutPort*>(portPtr);
+  if (dagNodeOutPortPtr == NULL) {
+    INTERNAL_ERROR(__FUNCTION__ << "NULL port reference" << endl, 1);
   }
-  return dataID;
+  if (getDepth() == 0)
+    dagNodeOutPortPtr->displayDataAsList(output);
+  else
+    dagNodeOutPortPtr->displayDataElementAsList(output, eltIdxList);
 }
 
 const string&
@@ -256,7 +253,7 @@ WfSimplePortAdapter::getDagName() const {
 }
 
 unsigned int
-WfSimplePortAdapter::depth() {
+WfSimplePortAdapter::getDepth() const {
   return eltIdxList.size();
 }
 
@@ -270,7 +267,7 @@ WfSimplePortAdapter::getElementIndexes() {
  * Builds a hierarchy of adapters
  */
 WfMultiplePortAdapter::WfMultiplePortAdapter(const string& strRef) {
-  TRACE_TEXT (TRACE_ALL_STEPS,"Creating multiple ports adapter ref=[" << strRef << "]" << endl);
+//   TRACE_TEXT (TRACE_ALL_STEPS,"Creating multiple ports adapter ref=[" << strRef << "]" << endl);
   string::size_type refStart = 0;
   while (refStart < strRef.length()) {
     string::size_type parLeft  = strRef.find("(",refStart);
@@ -296,15 +293,13 @@ WfMultiplePortAdapter::WfMultiplePortAdapter(const string& strRef) {
 }
 
 WfMultiplePortAdapter::WfMultiplePortAdapter() {
-  TRACE_TEXT (TRACE_ALL_STEPS,"Creating multiple ports adapter (empty)" << endl);
 }
 
 WfMultiplePortAdapter::WfMultiplePortAdapter(const WfMultiplePortAdapter& mpa) {
-  cout << "WfMultiplePortAdapter: COPY CONSTRUCTOR NOT DEFINED" << endl;
+  // WfMultiplePortAdapter: COPY CONSTRUCTOR NOT DEFINED
 }
 
 WfMultiplePortAdapter::~WfMultiplePortAdapter() {
-  cout << "~WfMultiplePortAdapter" << endl;
   // Free the adapters list
   while (! adapters.empty() ) {
     WfPortAdapter * p = adapters.front();
@@ -315,27 +310,28 @@ WfMultiplePortAdapter::~WfMultiplePortAdapter() {
 
 void
 WfMultiplePortAdapter::addSubAdapter(WfPortAdapter* subAdapter) {
-  TRACE_TEXT (TRACE_ALL_STEPS,"Adding subadapter to multiple port adapter" << endl);
   adapters.push_back(subAdapter);
 }
 
-bool
-WfMultiplePortAdapter::setNodePrecedence(Node* node, NodeSet* nodeSet) {
+void
+WfMultiplePortAdapter::setNodePrecedence(Node* node, NodeSet* nodeSet)
+    throw (WfStructException)
+{
   for (list<WfPortAdapter*>::iterator iter = adapters.begin();
        iter != adapters.end();
        ++iter) {
-    if (!((*iter)->setNodePrecedence(node, nodeSet)))
-      return false;
+    (*iter)->setNodePrecedence(node, nodeSet);
   }
-  return true;
 }
 
 void
-WfMultiplePortAdapter::connectPorts(WfPort* port) {
+WfMultiplePortAdapter::connectPorts(WfPort* port, unsigned int adapterLevel)
+    throw (WfStructException)
+{
   for (list<WfPortAdapter*>::iterator iter = adapters.begin();
        iter != adapters.end();
        ++iter) {
-    (*iter)->connectPorts(port);
+    (*iter)->connectPorts(port, adapterLevel+1);
   }
 }
 
@@ -375,3 +371,16 @@ WfMultiplePortAdapter::getSourceDataID() {
 #endif
   return containerID;
 }
+
+void
+WfMultiplePortAdapter::displayDataAsList(ostream& output) {
+  output << "(";
+  list<WfPortAdapter*>::const_iterator adaptIter = adapters.begin();
+  while (adaptIter != adapters.end()) {
+    ((WfPortAdapter*) *adaptIter)->displayDataAsList(output);
+    if (++adaptIter != adapters.end())
+      output << ",";
+  }
+  output << ")";
+}
+

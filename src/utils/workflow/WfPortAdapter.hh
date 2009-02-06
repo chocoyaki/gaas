@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2009/02/06 14:54:43  bisnard
+ * - setup exceptions
+ * - added data type & depth check
+ *
  * Revision 1.7  2008/12/02 10:14:51  bisnard
  * modified nodes links mgmt to handle inter-dags links
  *
@@ -39,11 +43,9 @@
 #define _WFPORTADAPTER_HH_
 
 #include <list>
+#include "WfPort.hh"
 
 using namespace std;
-class Node;
-class NodeSet;
-class WfPort;
 
 class WfPortAdapter {
 
@@ -64,16 +66,20 @@ class WfPortAdapter {
      * @param node      the node containing the port linked to this adapter
      * @param nodeSet   the node set that contains the linked nodes
      */
-    virtual bool
-        setNodePrecedence(Node* node, NodeSet* nodeSet) = 0;
+    virtual void
+        setNodePrecedence(Node* node, NodeSet* nodeSet)
+        throw (WfStructException) = 0;
 
     /**
      * Node linking (used for node execution - step 1)
+     * Checks the compatibility between both ports (data type and depth)
      * Requires setNodePrecedence to be called before
-     * @param port      the port that contains the current adapter
+     * @param port         the port that contains the current adapter
+     * @param adapterLevel the level of the current adapter within the port
      */
     virtual void
-        connectPorts(WfPort* port) = 0;
+        connectPorts(WfPort* port, unsigned int adapterLevel)
+        throw (WfStructException) = 0;
 
     /**
      * Returns the string reference (used for generating xml)
@@ -89,6 +95,13 @@ class WfPortAdapter {
      */
     virtual const string&
         getSourceDataID() = 0;
+
+    /**
+     * Data value retrieval and display (used for sink nodes)
+     * @param output  the output stream
+     */
+    virtual void
+        displayDataAsList(ostream& output) = 0;
 
 };
 
@@ -109,7 +122,7 @@ class WfSimplePortAdapter : public WfPortAdapter {
     /**
      * Constructor for a simple port
      * @param port        the port to which the adapter points
-     * @param portDagName (optional) the name of the dag that contains that port
+     * @param portDagName (optional) the name of dag that contains that port
      *                    (for external links => adds a prefix to the ref)
      */
     WfSimplePortAdapter(WfPort* port, const string& portDagName = "");
@@ -117,20 +130,25 @@ class WfSimplePortAdapter : public WfPortAdapter {
     /**
      * Constructor for a simple port
      * @param parentAdapter the parent of this adapter
-     * @param index         the index of the element within the parent container
+     * @param index         the index of the element within the parent cont.
      */
-    WfSimplePortAdapter(WfSimplePortAdapter* parentAdapter, unsigned int index);
+    WfSimplePortAdapter(WfSimplePortAdapter* parentAdapter,
+                        unsigned int index);
 
     // virtual base methods
 
-    bool
-        setNodePrecedence(Node* node, NodeSet* nodeSet);
     void
-        connectPorts(WfPort* port);
+        setNodePrecedence(Node* node, NodeSet* nodeSet)
+        throw (WfStructException);
+    void
+        connectPorts(WfPort* port, unsigned int adapterLevel)
+        throw (WfStructException);
     string
         getSourceRef() const;
     const string&
         getSourceDataID();
+    void
+        displayDataAsList(ostream& output);
 
     /**
      * Returns the port ref
@@ -146,7 +164,7 @@ class WfSimplePortAdapter : public WfPortAdapter {
     const string&
         getDagName() const;
     unsigned int
-        depth();
+        getDepth() const;
     const list<unsigned int>&
         getElementIndexes();
 
@@ -177,21 +195,24 @@ class WfMultiplePortAdapter : public WfPortAdapter {
 
     WfMultiplePortAdapter();
 
-    WfMultiplePortAdapter(const WfMultiplePortAdapter& mpa);
-
     void
         addSubAdapter(WfPortAdapter* subAdapter);
-
-    bool
-        setNodePrecedence(Node* node, NodeSet* nodeSet);
     void
-        connectPorts(WfPort* port);
+        setNodePrecedence(Node* node, NodeSet* nodeSet)
+        throw (WfStructException);
+    void
+        connectPorts(WfPort* port, unsigned int adapterLevel)
+        throw (WfStructException);
     string
         getSourceRef() const;
     const string&
         getSourceDataID();
+    void
+        displayDataAsList(ostream& output);
 
   protected:
+
+    WfMultiplePortAdapter(const WfMultiplePortAdapter& mpa);
 
   private:
     string      strRef;
