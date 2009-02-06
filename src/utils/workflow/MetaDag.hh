@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2009/02/06 14:53:46  bisnard
+ * make thread-safe
+ *
  * Revision 1.2  2008/12/09 12:15:59  bisnard
  * pending instanciation handling (uses dag outputs for instanciation
  * of a functional wf)
@@ -55,11 +58,18 @@ class MetaDag : public NodeSet {
         addDag(Dag * dag);
 
     /**
-     * Remove a dag from the metaDag
-     * @param dag the dag ref
+     * Get a dag by ID
+     * @param dagId the dag identifier (string)
      */
-    bool
-        removeDag(Dag * dag);
+    Dag *
+        getDag(const string& dagId) throw (WfStructException);
+
+    /**
+     * Remove a dag from the metaDag
+     * @param dagId the dag identifier (string)
+     */
+    void
+        removeDag(const string& dagId) throw (WfStructException);
 
     /**
      * Nb of dags
@@ -86,15 +96,10 @@ class MetaDag : public NodeSet {
     /**
      * Search a node reference among the nodes of the metadag's dags
      * @param nodeId  the node reference ('nodeId' or 'dagId:nodeId')
+     * @return pointer to node (does not return NULL)
      */
     virtual Node*
-        getNode(const string& nodeId);
-
-    /**
-     * NOT APPLICABLE
-     */
-    virtual void
-        checkPrec(NodeSet* contextNodeSet) throw (WfStructException);
+        getNode(const string& nodeId) throw (WfStructException);
 
     /**
      * Manages dag termination
@@ -137,6 +142,20 @@ class MetaDag : public NodeSet {
      * Release flag
      */
     bool releaseFlag;
+
+    /**
+     * Critical section
+     */
+    omni_mutex myLock;
+    void lock();
+    void unlock();
+
+    /**
+     * Not applicable to this class
+     */
+    virtual void
+    checkPrec(NodeSet* contextNodeSet) throw (WfStructException);
+
 };
 
 #endif   /* not defined _METADAG_HH. */

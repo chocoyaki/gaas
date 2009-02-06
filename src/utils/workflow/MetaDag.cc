@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2009/02/06 14:53:46  bisnard
+ * make thread-safe
+ *
  * Revision 1.2  2008/12/09 12:15:59  bisnard
  * pending instanciation handling (uses dag outputs for instanciation
  * of a functional wf)
@@ -44,21 +47,37 @@ MetaDag::getId() {
 
 void
 MetaDag::addDag(Dag * dag) {
-  TRACE_TEXT (TRACE_ALL_STEPS,"Adding dag " << dag->getId()
-                              << " to Metadag " << myId << endl);
+  lock();
   myDags[dag->getId()] = dag;
   dagTodoCount++;
+  unlock();
 }
 
-bool
-MetaDag::removeDag(Dag * dag) {
-  TRACE_TEXT (TRACE_ALL_STEPS,"Removing dag " << dag->getId()
-                              << " from Metadag " << myId << endl);
-  map<string,Dag*>::iterator dagIter = myDags.find(dag->getId());
+Dag *
+MetaDag::getDag(const string& dagId) throw (WfStructException) {
+  lock();
+  map<string,Dag*>::iterator dagIter = myDags.find(dagId);
+  unlock();
+  if (dagIter != myDags.end()) {
+    return (Dag*) dagIter->second;
+  } else {
+    string errorMsg = "cannot find dag in metadag (dag id = " + dagId + ")";
+    throw WfStructException(WfStructException::eUNKNOWN_DAG, errorMsg);
+  }
+}
+
+void
+MetaDag::removeDag(const string& dagId) throw (WfStructException) {
+  lock();
+  map<string,Dag*>::iterator dagIter = myDags.find(dagId);
   if (dagIter != myDags.end()) {
     myDags.erase(dagIter);
-    return true;
-  } else return false;
+    unlock();
+  } else {
+    unlock();
+    string errorMsg = "cannot find dag in metadag (dag id = " + dagId + ")";
+    throw WfStructException(WfStructException::eUNKNOWN_DAG, errorMsg);
+  }
 }
 
 int
@@ -71,7 +90,9 @@ MetaDag::setCurrentDag(Dag * dag) {
   if ((dag != NULL) && (currDag != NULL)) {
     INTERNAL_ERROR("Conflict for access to MetaDag",0);
   }
+  lock();
   this->currDag = dag;
+  unlock();
 }
 
 void
@@ -80,29 +101,20 @@ MetaDag::setReleaseFlag(bool release) {
 }
 
 Node*
-MetaDag::getNode(const string& nodeId) {
+MetaDag::getNode(const string& nodeId) throw (WfStructException) {
   TRACE_TEXT (TRACE_ALL_STEPS,"Searching node " << nodeId
-                               << " in Metadag" << myId << endl);
+                               << " in Metadag " << myId << endl);
   Dag * dag = NULL;
   string baseNodeId;
   string::size_type dagSep  = nodeId.find(":");
   if (dagSep != string::npos) {
-    string dagId = nodeId.substr(0,dagSep);
+    dag = getDag(nodeId.substr(0,dagSep));
     baseNodeId = nodeId.substr(dagSep+1, nodeId.length()-dagSep);
-    map<string,Dag*>::iterator dagIter = myDags.find(dagId);
-    if (dagIter != myDags.end()) {
-      dag = (Dag*) dagIter->second;
-    } else {
-      TRACE_TEXT (TRACE_ALL_STEPS,"Error: cannot find dag for external ref (dag id = "
-                                  << dagId << ")" << endl);
-      return NULL;
-    }
   } else {
-    dag = currDag;
-    if (dag == NULL) {
-      TRACE_TEXT (TRACE_ALL_STEPS,"Error: no default dag defined in metadag" << endl);
-      return NULL;
+    if (currDag == NULL) {
+      INTERNAL_ERROR("Error: no default dag defined in metadag",1);
     }
+    dag = currDag;
     baseNodeId = nodeId;
   }
   return dag->getNode(baseNodeId);
@@ -115,11 +127,31 @@ MetaDag::checkPrec(NodeSet* contextNodeSet) throw (WfStructException) {
 
 void
 MetaDag::handlerDagDone(Dag * dag) {
+  lock();
   dagTodoCount--;
+  unlock();
 }
 
 bool
 MetaDag::isDone() {
-  return (dagTodoCount == 0) && releaseFlag;
+  if (!releaseFlag)
+    return false;
+  else {
+    lock();
+    bool noDagTodo = (dagTodoCount == 0);
+    unlock();
+    return noDagTodo;
+  }
 }
+
+void
+MetaDag::lock() {
+  myLock.lock();
+}
+
+void
+MetaDag::unlock() {
+  myLock.unlock();
+}
+
 
