@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2009/02/06 14:53:09  bisnard
+ * - setup exceptions
+ * - display methods for container results
+ *
  * Revision 1.10  2009/01/20 10:22:07  bisnard
  * check return code of dagda_get_container to avoid some crashes
  *
@@ -154,7 +158,7 @@ DagNodePort::setProfileWithValue() {
 /**
  * set the port profile for submission
  */
-bool
+void
 DagNodePort::initProfileSubmit() {
   // set the value for scalar & paramstring types
   if ((!value.empty()) &&
@@ -168,19 +172,17 @@ DagNodePort::initProfileSubmit() {
     setProfileWithValue();
   else
     setProfileWithoutValue();
-  return true;
 }
 
 /**
  * set the port profile for execution
  */
-bool
-DagNodePort::initProfileExec() {
+void
+DagNodePort::initProfileExec() throw (WfDataException) {
   if (!value.empty())
     setProfileWithValue();
   else
     setProfileWithoutValue();
-  return true;
 }
 
 void
@@ -416,7 +418,7 @@ DagNodePort::getDataID() {
 }
 
 string
-DagNodePort::toXML() {
+DagNodePort::toXML() const {
   string xml = "";
   xml += "name=\"" + id + "\" type=\"" + WfCst::cvtWfToStrType(getBaseDataType()) +"\" ";
   if (depth > 0) {
@@ -461,21 +463,26 @@ DagNodeOutPort::storeProfileData() {
 
 void
 DagNodeOutPort::freeProfileData() {
+  const char* dataId = profile()->parameters[getIndex()].desc.id;
 #if ! HAVE_DAGDA
-  diet_free_persistent_data(profile()->parameters[getIndex()].desc.id);
+  TRACE_TEXT (TRACE_ALL_STEPS, "Deleting persistent data: " << dataId << endl);
+  diet_free_persistent_data(dataId);
+#else
+  TRACE_TEXT (TRACE_ALL_STEPS, "Persistent data (" << dataId << ") NOT deleted" << endl);
 #endif
 }
 
 string
-DagNodeOutPort::toXML() {
+DagNodeOutPort::toXML() const {
   string xml = "\t<out ";
   xml += DagNodePort::toXML();
   xml += "/>\n";
   return xml;
 }
 
+#if HAVE_DAGDA
 diet_container_t*
-DagNodeOutPort::getDataIDList(const string& dataID) {
+DagNodeOutPort::getDataIDList(const string& dataID) throw (WfDataException) {
   diet_container_t* content = NULL;
   map<string,diet_container_t*>::iterator cacheIter = myCache.find(dataID);
   if (cacheIter != myCache.end()) {
@@ -488,13 +495,245 @@ DagNodeOutPort::getDataIDList(const string& dataID) {
     TRACE_TEXT (TRACE_ALL_STEPS, "port " << id << ": get ID list for container "
                                  <<  dataID << endl);
     if (!dagda_get_container(dataID.c_str())) {
-      dagda_get_container_elements(dataID.c_str(), content);
-      myCache[dataID] = content;
+      if (!dagda_get_container_elements(dataID.c_str(), content))
+        myCache[dataID] = content;
+      else {
+        string errorMsg = "port " + id + ": cannot get content of container " + dataID;
+        throw WfDataException(WfDataException::eINVALID_CONTAINER, errorMsg);
+      }
     } else {
-      WARNING("port " << id << ": cannot find container " << dataID << endl);
+      string errorMsg = "port " + id + ": container " + dataID + " not found or invalid type";
+      throw WfDataException(WfDataException::eNOTFOUND, errorMsg);
     }
   }
   return content;
+}
+#endif
+
+string
+DagNodeOutPort::getElementDataID(const list<unsigned int>& eltIdx)
+    throw (WfDataException)
+{
+  string eltID = "";
+#if HAVE_DAGDA
+  // initialize with port's data ID (ie container root)
+  eltID = getDataID();
+  // loop until the last container level
+  for (list<unsigned int>::const_iterator idxIter = eltIdx.begin();
+       idxIter != eltIdx.end();
+       ++idxIter) {
+    if (!eltID.empty()) {
+      // get list of element IDs from out port cache
+      diet_container_t *content = getDataIDList(eltID);
+      if (content->size >= (*idxIter + 1)) {
+        eltID = content->elt_ids[*idxIter];
+      } else {
+        string errorMsg = "Container size smaller than element index (container ID="
+                            + eltID + ")";
+        throw (WfDataException(WfDataException::eINVALID_CONTAINER, errorMsg));
+      }
+    } else {
+      string errorMsg = "Container ID not defined";
+      throw (WfDataException(WfDataException::eINVALID_CONTAINER, errorMsg));
+    }
+  }
+#else
+  INTERNAL_ERROR("Error: trying to use containers without Dagda enabled", 1);
+#endif
+  return eltID;
+}
+
+/**
+ * Display for standard data
+ * (uses DIET API except for containers)
+ */
+void
+DagNodeOutPort::displayDataAsList(ostream& output) throw (WfDataException) {
+  short dataType = getDataType();
+  diet_arg_t* dietParam = diet_parameter(profile(),getIndex());
+
+  if (dataType == WfCst::TYPE_CONTAINER) {
+    const char *contID = (*dietParam).desc.id;
+    displayContainerAsList(output, contID, getDepth());
+  }
+  // USE DIET API FOR ALL OTHER TYPES
+  else if (dataType == WfCst::TYPE_FILE) {
+    size_t size;
+    char * path;
+    diet_file_get(dietParam, NULL, &size, &path);
+    output << path  << " (" << size  << " bytes)";
+  }
+  else if (dataType == WfCst::TYPE_DOUBLE) {
+    double * value = NULL;
+    diet_scalar_get(dietParam, &value, NULL);
+    output << *value;
+  }
+  else if (dataType == WfCst::TYPE_FLOAT) {
+    float * value = NULL;
+    diet_scalar_get(dietParam, &value, NULL);
+    output << *value;
+  }
+  else if ( (dataType == WfCst::TYPE_CHAR) ||
+             (dataType == WfCst::TYPE_SHORT) ||
+             (dataType == WfCst::TYPE_INT) ||
+             (dataType == WfCst::TYPE_LONGINT)) {
+    long * value = NULL;
+    diet_scalar_get(dietParam,&value, NULL);
+//    const char *dataID = (*dietParam).desc.id;
+//    dagda_get_scalar(dataID, &value, NULL);
+    output << *value;
+  }
+  else if (dataType == WfCst::TYPE_STRING) {
+    char * value;
+    diet_string_get(dietParam, &value, NULL);
+    output << value;
+  }
+  else if (dataType == WfCst::TYPE_PARAMSTRING) {
+    char * value;
+    diet_paramstring_get(dietParam, &value, NULL);
+    output << value;
+  }
+  else if (dataType == WfCst::TYPE_MATRIX) {
+    size_t nb_rows, nb_cols;
+    diet_matrix_order_t order;
+    short baseType = getEltDataType();
+
+    if (baseType == WfCst::TYPE_DOUBLE) {
+      double * value;
+      diet_matrix_get(dietParam, &value, NULL,
+                      &nb_rows, &nb_cols, &order);
+      // TODO implement new matrix display method
+//       wf_dag_print_matrix_of_real(value, nb_rows, nb_cols, order);
+    }
+    else if (baseType == WfCst::TYPE_FLOAT) {
+      float * value;
+      diet_matrix_get(dietParam, &value, NULL,
+                      &nb_rows, &nb_cols, &order);
+//       wf_dag_print_matrix_of_real(value, nb_rows, nb_cols, order);
+    }
+    else if (baseType == WfCst::TYPE_CHAR) {
+      char * value;
+      diet_matrix_get(dietParam, &value, NULL,
+                      &nb_rows, &nb_cols, &order);
+//       wf_dag_print_matrix_of_integer(value, nb_rows, nb_cols, order);
+    }
+    else if (baseType == WfCst::TYPE_SHORT) {
+      short * value;
+      diet_matrix_get(dietParam, &value, NULL,
+                      &nb_rows, &nb_cols, &order);
+//       wf_dag_print_matrix_of_integer(value, nb_rows, nb_cols, order);
+    }
+    else if (baseType == WfCst::TYPE_INT) {
+      int * value;
+      diet_matrix_get(dietParam, &value, NULL,
+                      &nb_rows, &nb_cols, &order);
+//       wf_dag_print_matrix_of_integer(value, nb_rows, nb_cols, order);
+    }
+    else if (baseType == WfCst::TYPE_LONGINT) {
+      long * value;
+      diet_matrix_get(dietParam, &value, NULL,
+                      &nb_rows, &nb_cols, &order);
+//       wf_dag_print_matrix_of_longint(value, nb_rows, nb_cols, order);
+    }
+  } // end if TYPE_MATRIX
+}
+
+/** Display for containers
+ * (recursive)
+ */
+void
+DagNodeOutPort::displayContainerAsList(ostream& output,
+                                       const char* containerID,
+                                       unsigned int depth)
+    throw (WfDataException)
+{
+  output << "(";
+#if HAVE_DAGDA
+  diet_container_t* content = getDataIDList(containerID);
+  for (int ix=0; ix<content->size; ++ix) {
+    char* eltID = content->elt_ids[ix];
+    if (depth > 1) {
+      displayContainerAsList(output, eltID, depth-1);
+    } else if (depth == 1) {
+      displayContainerData(output, eltID);
+    } else { // wrong depth
+      output << "<error>";
+    }
+    // separator
+    if (ix < content->size-1)
+        output << ",";
+  } // end for
+  // free list of ids
+  free(content->elt_ids);
+  delete content;
+#endif
+  output << ")";
+}
+
+/**
+ * Specific display for container data
+ * because we use DAGDA API instead of DIET API in this case
+ */
+void
+DagNodeOutPort::displayContainerData(ostream& output,
+                                     const char* eltID) {
+  short baseType = getEltDataType();
+#if HAVE_DAGDA
+  if (baseType == WfCst::TYPE_DOUBLE) {
+    double * value;
+    dagda_get_scalar(eltID,&value,NULL);
+    output << *value;
+  } else if (baseType == WfCst::TYPE_INT) {
+    int *value;
+    dagda_get_scalar(eltID,&value,NULL);
+    output << *value;
+  } else if (baseType == WfCst::TYPE_LONGINT) {
+    long *value;
+    dagda_get_scalar(eltID,&value,NULL);
+    output << *value;
+  } else if (baseType == WfCst::TYPE_FLOAT) {
+    float *value;
+    dagda_get_scalar(eltID,&value,NULL);
+    output << *value;
+  } else if (baseType == WfCst::TYPE_CHAR) {
+    char *value;
+    dagda_get_scalar(eltID,&value,NULL);
+    output << *value;
+  } else if (baseType == WfCst::TYPE_SHORT) {
+    short *value;
+    dagda_get_scalar(eltID,&value,NULL);
+    output << *value;
+  } else if (baseType == WfCst::TYPE_PARAMSTRING) {
+    char *value;
+    dagda_get_paramstring(eltID,&value);
+    output << value;
+  } else if (baseType == WfCst::TYPE_STRING) {
+    char *value;
+    dagda_get_string(eltID,&value);
+    output << value;
+  } else if (baseType == WfCst::TYPE_FILE) {
+    char *path;
+    dagda_get_file(eltID,&path);
+    output << path;
+  }
+#endif
+}
+
+/**
+ * Display for a container sub-element (that may be a container itself)
+ */
+void
+DagNodeOutPort::displayDataElementAsList(ostream& output,
+                                         const list<unsigned int>& idxList)
+    throw (WfDataException)
+{
+  string eltID = getElementDataID(idxList);
+  if (!eltID.empty()) {
+    if (idxList.size() == getDepth())
+      displayContainerData(output, eltID.c_str());
+    else
+      displayContainerAsList(output, eltID.c_str(), getDepth() - idxList.size());
+  }
 }
 
 diet_persistence_mode_t
@@ -515,22 +754,14 @@ DagNodeInPort::DagNodeInPort(DagNode * parent,
   : DagNodePort(parent, _id, WfPort::PORT_IN, _type, _depth, _ind) {
 }
 
-bool
-DagNodeInPort::initProfileExec() {
-  if (DagNodePort::initProfileExec()) {
-    if (initSourceData()) {
-      return true;
-    } else {
-      ERROR("WfInPort: data init failed" << endl, 0);
-    }
-  } else {
-    ERROR("WfInPort: profile init failed" << endl, 0);
-  }
-  return true;
+void
+DagNodeInPort::initProfileExec() throw (WfDataException) {
+  DagNodePort::initProfileExec();
+  initSourceData();
 }
 
-bool
-DagNodeInPort::initSourceData() {
+void
+DagNodeInPort::initSourceData() throw (WfDataException) {
   if (isConnected()) {
     TRACE_TEXT (TRACE_ALL_STEPS,
  		"## using persistent data for " << index << endl);
@@ -540,16 +771,15 @@ DagNodeInPort::initSourceData() {
                   "##  ==> data ID is " << dataID << endl);
       diet_use_data(diet_parameter(this->profile(), index), myParent->newString(dataID));
     } else {
-      TRACE_TEXT (TRACE_ALL_STEPS,
-                  "##  ERROR ==> data ID not found" << endl);
-      return false;
+      string errorMsg = "inport " + getId() + " of node " + getParent()->getId()
+                        + " has an empty dataID";
+      throw (WfDataException(WfDataException::eNOTFOUND,errorMsg));
     }
   }
-  return true;
 }
 
 string
-DagNodeInPort::toXML() {
+DagNodeInPort::toXML() const {
   string xml = "";
   if (!value.empty())
     xml = "\t<arg ";
@@ -595,7 +825,7 @@ DagNodeInOutPort::getPersistenceMode() {
 }
 
 string
-DagNodeInOutPort::toXML() {
+DagNodeInOutPort::toXML() const {
   string xml = "CANNOT BE GENERATED YET!!";
   return xml;
 }

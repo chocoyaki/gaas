@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2009/02/06 14:53:09  bisnard
+ * - setup exceptions
+ * - display methods for container results
+ *
  * Revision 1.7  2009/01/16 13:55:36  bisnard
  * changes in dag event handling methods
  *
@@ -68,20 +72,20 @@ public:
   /**
    * Initialize the profile before node submission
    */
-  virtual bool
+  virtual void
   initProfileSubmit();
 
   /**
    * Initialize the profile before node execution
    */
-  virtual bool
-  initProfileExec();
+  virtual void
+  initProfileExec() throw (WfDataException);
 
   /**
    * Return the XML description of the port
    */
   virtual string
-  toXML();
+  toXML() const;
 
   /**
    * Return the profile of the node
@@ -186,7 +190,7 @@ public:
    * Return the XML description of the port
    */
   virtual string
-  toXML();
+  toXML() const;
 
   /**
    * Get the content (list of data IDs) of the output data
@@ -197,10 +201,53 @@ public:
    * @param dataID  the ID of the data element
    * @return  container content structure (no deallocation needed)
    */
+#if HAVE_DAGDA
   diet_container_t*
-  getDataIDList(const string& dataID);
+  getDataIDList(const string& dataID) throw (WfDataException);
+#endif
+
+  /**
+   * Get the ID of an element of the output data (when it's a container)
+   * @param eltIdx a list of indexes for the element
+   * @return  the data ID
+   */
+  string
+  getElementDataID(const list<unsigned int>& eltIdx) throw (WfDataException);
+
+  /**
+   * Display the output data in a stream
+   * If the data is a container then it's displayed as a parenthezized
+   * comma-separated list
+   * @param output  the output stream
+   */
+  void
+  displayDataAsList(ostream& output) throw (WfDataException);
+
+  /**
+   * Display an element of the output data (when it's a container)
+   * @param output  the output stream
+   * @param eltIdx a list of indexes for the element
+   */
+  void
+  displayDataElementAsList(ostream& output, const list<unsigned int>& idxList)
+      throw (WfDataException);
 
 protected:
+
+  /**
+   * Display method used only when port type is container
+   * (recursive)
+   */
+  void
+  displayContainerAsList(ostream& output,
+                         const char* containerID,
+                         unsigned int depth) throw (WfDataException);
+
+  /**
+   * Display method used for container elements (dagda API)
+   */
+  void
+  displayContainerData(ostream& output, const char* eltID);
 
   /**
    * Returns the persistence mode for this port
@@ -226,14 +273,14 @@ public:
   /**
    * Initialize the profile before node execution
    */
-  virtual bool
-  initProfileExec();
+  virtual void
+  initProfileExec() throw (WfDataException);
 
   /**
    * Return the XML description of the port
    */
   virtual string
-  toXML();
+  toXML() const;
 
 protected:
   /**
@@ -243,8 +290,8 @@ protected:
    * data in a workflow is persistent)
    * @return false if source data cannot be found
    */
-  virtual bool
-  initSourceData();
+  virtual void
+  initSourceData() throw (WfDataException) ;
 
   /**
    * Returns the persistence mode for this port
@@ -267,7 +314,7 @@ public:
    * Return the XML description of the port
    */
   virtual string
-  toXML();
+  toXML() const;
 
 protected:
   /**
