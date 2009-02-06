@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2009/02/06 14:51:55  bisnard
+ * setup exceptions for workflows
+ *
  * Revision 1.16  2008/06/25 09:54:49  bisnard
  * obsolete params used for DietLogComponent in wf_response
  *
@@ -190,40 +193,9 @@ typedef sequence <wf_node_response_t> wfn_seq_resp_t;
 
 struct wf_response_t {
   boolean complete;
-  long firstReqID; // deprecated
-  long lastReqID; // deprecated
-//   long dag_id; // deprecated
+  long    idxError;
   wfn_seq_resp_t wfn_seq_resp;
 };
-
-// @deprecated (to clean)
-struct wf_node_sched_t {
-  string node_id;
-  double priority;
-  corba_server_estimation_t server;
-};
-
-// @deprecated (to clean)
-typedef sequence<wf_node_sched_t>  wf_node_sched_seq_t;
-
-// @deprecated (to clean)
-struct wf_sched_response_t {
-  boolean complete;
-  long firstReqID;
-  long lastReqID;
-  long dag_id;
-  wf_node_sched_seq_t wf_node_sched_seq;
-  wf_response_t ma_response;
-};
-
-// @deprecated (to clean)
-struct wf_node_ordering_t {
-  string node_id;
-  long priority;
-};
-
-// @deprecated (to clean)
-typedef sequence<wf_node_ordering_t>  wf_ordering_t;
 
 #endif // HAVE_WORKFLOW
 

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2009/02/06 14:51:55  bisnard
+ * setup exceptions for workflows
+ *
  * Revision 1.13  2008/12/09 12:09:03  bisnard
  * added parameters to dag submit method to handle inter-dependent dags
  *
@@ -67,18 +70,33 @@
 
 interface MaDag {
 
+  exception ServiceNotFound {
+    string nodeId;
+    string pbName;
+    string pbParams;
+  };
+
+  exception InvalidDag {
+    string info;
+  };
+
+  exception CommProblem {
+    string info;
+  };
+
  /**
   * DAG Workflow processing
   *
   * @param  dag_desc   workflow textual description
   * @param  cltMgrRef  client workflow manager reference
   * @param  wfReqId    submitted workflow identifier
-  * @return dag Id if workflow submission succeed, otherwise -1
+  * @return dag Id
   */
   long
       processDagWf(in corba_wf_desc_t dag_desc,
                    in string cltMgrRef,
-                   in long wfReqId);
+                   in long wfReqId)
+      raises(InvalidDag, ServiceNotFound, CommProblem);
 
   /**
    * Multi DAG Workflow processing
@@ -88,14 +106,15 @@ interface MaDag {
    * @param  cltMgrRef    client workflow manager reference
    * @param  wfReqId      submitted workflow identifier
    * @param  release      if false, keep the wf request open after this req
-   * @return dag Id if workflow submission succeed, otherwise -1
+   * @return dag Id
    */
 
   long
       processMultiDagWf(in corba_wf_desc_t dag_desc,
                         in string cltMgrRef,
                         in long wfReqId,
-                        in boolean release);
+                        in boolean release)
+      raises(InvalidDag, ServiceNotFound, CommProblem);
 
   /**
    * Get a new workflow request identifier
