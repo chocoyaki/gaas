@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2009/02/06 14:50:35  bisnard
+ * setup exceptions
+ *
  * Revision 1.17  2009/01/16 13:41:22  bisnard
  * added common base class DagScheduler to simplify dag events handling
  * improved exception management
@@ -111,7 +114,7 @@ MultiWfFOFT::~MultiWfFOFT() {
  */
 void
 MultiWfFOFT::intraDagSchedule(Dag * dag, MasterAgent_var MA)
-    throw (NodeException) {
+    throw (MaDag::ServiceNotFound, MaDag::CommProblem) {
   // Call the MA to get estimations for all services
   wf_response_t * wf_response = this->getProblemEstimates(dag, MA);
 

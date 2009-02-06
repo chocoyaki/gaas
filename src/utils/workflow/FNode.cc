@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2009/02/06 14:55:08  bisnard
+ * setup exceptions
+ *
  * Revision 1.5  2009/01/16 16:31:54  bisnard
  * added option to specify data source file name
  *
@@ -69,7 +72,9 @@ FNode::newPort(string portId,
                unsigned int ind,
                WfPort::WfPortType portType,
                WfCst::WfDataType dataType,
-               unsigned int depth) {
+               unsigned int depth) throw (WfStructException) {
+  if (isPortDefined(portId))
+    throw WfStructException(WfStructException::eDUPLICATE_PORT,"port id="+portId);
   WfPort * p = NULL;
   switch (portType) {
     case WfPort::PORT_IN:
@@ -85,6 +90,23 @@ FNode::newPort(string portId,
   }
   this->ports[portId] = p;
   return p;
+}
+
+void
+FNode::connectNodePorts() throw (WfStructException) {
+  TRACE_TEXT (TRACE_ALL_STEPS,
+ 	      "connectNodePorts : processing node " << getId() << endl);
+  for (map<string, WfPort*>::iterator p = ports.begin();
+       p != ports.end();
+       ++p) {
+    try {
+      ((WfPort*)(p->second))->connectPorts();
+    } catch (WfStructException& e) {
+      // depth mismatch is ok for functional nodes connections
+      if (e.Type() != WfStructException::eDEPTH_MISMATCH)
+        throw;
+    }
+  }
 }
 
 void
@@ -198,9 +220,10 @@ string FSinkNode::inPortName("in");
 
 FSinkNode::FSinkNode(FWorkflow* wf,
                      const string& id,
-                     WfCst::WfDataType type)
+                     WfCst::WfDataType type,
+                     unsigned int depth)
   : FNode(wf, id) {
-  WfPort * inPort = this->newPort(inPortName,0,WfPort::PORT_IN,type,0);
+  WfPort * inPort = this->newPort(inPortName,0,WfPort::PORT_IN,type,depth);
   myInPort = dynamic_cast<FNodeInPort*>(inPort);
 }
 
@@ -221,6 +244,12 @@ FSinkNode::initialize() {
 
 void
 FSinkNode::instanciate(Dag* dag) {
+}
+
+void
+FSinkNode::displayResults(ostream& output) {
+  output << "## WF OUTPUT (" << myId << ") :" << endl;
+  myInPort->displayData(output);
 }
 
 /*****************************************************************************/
@@ -263,10 +292,13 @@ FProcNode::initDataLine() {
 
 PortInputIterator *
 FProcNode::createPortInputIterator(const string& portId) {
-  WfPort *wfPort = getPort(portId);
-  if (wfPort == NULL)
+  WfPort *wfPort;
+  try {
+    wfPort = getPort(portId);
+  } catch (WfStructException& e) {
     throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
-                              "unknown input for operator creation (" + portId + ")");
+                              "unknown input for operator creation :" + e.Info());
+  }
   FNodeInPort *inPort = dynamic_cast<FNodeInPort*>(wfPort);
   if (inPort == NULL)
     throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
@@ -341,7 +373,7 @@ FProcNode::initialize() {
       INTERNAL_ERROR("no root iterator defined for processor node",1);
     } else {
       // define a default iterator for single port
-      WfPort *port = this->getPortByIndex(0);
+      const WfPort *port = this->getPortByIndex(0);
       PortInputIterator *inputIter = createPortInputIterator(port->getId());
       this->setRootInputOperator(inputIter->getId());
     }
@@ -471,7 +503,8 @@ FProcNode::instanciationCompleted() {
 }
 
 void
-FProcNode::instanceIsDone(DagNode * dagNode, bool& statusChange) {
+FProcNode::instanceIsDone(DagNode * dagNode, bool& statusChange)
+    throw (WfDataException, WfDataHandleException) {
   // search the instance in the pending list
   multimap<DagNode*, pendingDagNodeInfo_t>::iterator pendingIter, pendingStart;
   pendingStart = pendingIter = pendingNodes.lower_bound(dagNode);
@@ -484,9 +517,7 @@ FProcNode::instanceIsDone(DagNode * dagNode, bool& statusChange) {
     // submit data to the in port
     TRACE_TEXT (TRACE_ALL_STEPS,"[" << getId() << "] : Process pending entry for node "
                                 << dagNode->getId() << endl);
-    if (!info.outPort->addDataToInPort(info.inPort, info.dataHdl, dagOutPort)) {
-      INTERNAL_ERROR("Error during data transfer to IN port",1);
-    }
+    info.outPort->addDataToInPort(info.inPort, info.dataHdl, dagOutPort);
     // re-start instanciation
     statusChange = true;
   }

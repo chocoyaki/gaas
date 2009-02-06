@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2009/02/06 14:55:08  bisnard
+ * setup exceptions
+ *
  * Revision 1.20  2009/01/22 09:01:09  bisnard
  * added client method to retrieve workflow container output
  *
@@ -93,6 +96,7 @@
 #include <vector>
 #include <map>
 #include <list>
+#include <iostream>
 
 #include "DIET_client.h" // for diet_ReqID_t
 
@@ -108,23 +112,6 @@ using namespace std;
 
 class FWorkflow;
 
-
-/*****************************************************************************/
-/*                        CLASS WfStructException                            */
-/*****************************************************************************/
-
-class WfStructException {
-  public:
-    enum WfStructErrorType { eUNKNOWN_NODE,
-                             eUNKNOWN_PORT };
-    WfStructException(WfStructErrorType t, const string& info)
-      { this->why = t; this->info = info; }
-    WfStructErrorType Type() { return this->why; }
-    const string& Info() { return this->info; }
-  private:
-    WfStructErrorType why;
-    string info;
-};
 
 /*****************************************************************************/
 /*                    CLASS NodeSet (ABSTRACT)                               */
@@ -147,9 +134,10 @@ public:
   /**
    * Get a node from the nodeset
    * @param nodeId  the identifier (string) of the node
+   * @return pointer to node (does not return NULL)
    */
   virtual Node*
-  getNode(const string& nodeId) = 0;
+  getNode(const string& nodeId) throw (WfStructException) = 0;
 
   /**
    * Check that the relationships between nodes are correct
@@ -189,9 +177,10 @@ public:
    * Get the node with given identifier
    *
    * @param nodeId node identifier
+   * @return pointer to node (does not return NULL)
    */
   virtual Node *
-  getNode(const string& nodeId);
+  getNode(const string& nodeId) throw (WfStructException);
 
   /**
    * check the precedence between node
@@ -233,16 +222,17 @@ public:
    * Create a new node of the dag
    * (allocates a new node and insert it in the dag)
    * @param id      node id (not the complete id)
-   * @return pointer to the node, or NULL if duplicate id
+   * @return pointer to the node (does not return NULL)
    */
   DagNode*
-  createDagNode(const string& id);
+  createDagNode(const string& id) throw (WfStructException);
 
   /**
    * return a dag's node
+   * @return pointer to the node (does not return NULL)
    */
   DagNode *
-  getDagNode(const string& nodeId);
+  getDagNode(const string& nodeId) throw (WfStructException);
 
   /**
    * return the size of the Dag (the nodes number and not the dag length)
@@ -274,7 +264,7 @@ public:
    * link all ports of the dag
    */
   void
-  linkAllPorts();
+  linkAllPorts() throw (WfStructException);
 
   /**
    * check if the dag execution is ongoing
@@ -351,7 +341,7 @@ public:
    * the value.
    */
   void
-  displayAllResults();
+  displayAllResults(ostream& output);
 
   /**
    * Delete all results of the workflow (includes intermediary and final
@@ -517,7 +507,7 @@ private:
    * (used for getting results for client API)
    */
   DagNodeOutPort *
-  getOutputPort(const char* id);
+  getOutputPort(const char* id) throw (WfStructException);
 };
 
 #endif   /* not defined _DAG_HH. */

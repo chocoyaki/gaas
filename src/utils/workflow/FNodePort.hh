@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2009/02/06 14:55:08  bisnard
+ * setup exceptions
+ *
  * Revision 1.3  2009/01/16 13:54:50  bisnard
  * new version of the dag instanciator with iteration strategies for nodes with multiple input ports
  *
@@ -106,11 +109,15 @@ class FNodeOutPort : public FNodePort {
     bool
     addDataToInPort(FNodeInPort *inPort,
                     FDataHandle *dataHdl,
-                    const list<string>& dataCard);
-    bool
+                    const list<string>& dataCard)
+        throw (WfDataHandleException);
+
+    void
     addDataToInPort(FNodeInPort *inPort,
                     FDataHandle *dataHdl,
-                    DagNodeOutPort * dagOutPort);
+                    DagNodeOutPort * dagOutPort)
+        throw (WfDataException, WfDataHandleException);
+
     void
     checkTotalDataNb(FNodeInPort *inPort,
                      FDataHandle *dataHdl);
@@ -155,7 +162,8 @@ class FNodeInPort : public FNodePort {
      * @return false if the data cannot be added due to missing cardinal
      */
     bool
-    addData(FDataHandle* dataHdl, const list<string>& dataCard);
+    addData(FDataHandle* dataHdl, const list<string>& dataCard)
+        throw (WfDataHandleException);
 
     /**
      * Dynamic addData (after node execution)
@@ -163,10 +171,10 @@ class FNodeInPort : public FNodePort {
      * (when data item is available from the specified port)
      * @param dataHdl     the data Handle
      * @param dagOutPort  the port providing the data
-     * @return false if the data cannot be added due to missing data ID
      */
-    bool
-    addData(FDataHandle* dataHdl, DagNodeOutPort* dagOutPort);
+    void
+    addData(FDataHandle* dataHdl, DagNodeOutPort* dagOutPort)
+        throw (WfDataException, WfDataHandleException);
 
     /**
      * Set the total nb of data items
@@ -192,6 +200,13 @@ class FNodeInPort : public FNodePort {
      */
     void
     instanciate(Dag* dag, DagNode* nodeInst, FDataHandle* dataHdl);
+
+    /**
+     * Display the port current data
+     * @param output  output stream
+     */
+    void
+    displayData(ostream& output);
 
   protected:
 

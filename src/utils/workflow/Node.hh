@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2009/02/06 14:55:08  bisnard
+ * setup exceptions
+ *
  * Revision 1.23  2009/01/16 13:55:36  bisnard
  * changes in dag event handling methods
  *
@@ -150,8 +153,8 @@ public:
    * the control dependencies (<prec> tag) and the
    * data dependencies (ports links)
    */
-  virtual bool
-  setNodePrecedence(NodeSet* nodeSet);
+  virtual void
+  setNodePrecedence(NodeSet* nodeSet) throw (WfStructException);
 
   /**
    * Add a new predecessor
@@ -203,7 +206,7 @@ public:
    * Link the ports by object references
    */
   virtual void
-  connectNodePorts();
+  connectNodePorts() throw (WfStructException);
 
   /**
    * return true if the node is an input node *
@@ -237,14 +240,21 @@ public:
           unsigned int ind,
           WfPort::WfPortType portType,
           WfCst::WfDataType dataType,
-          unsigned int depth) = 0;
+          unsigned int depth) throw (WfStructException) = 0;
+
+  /**
+   * check if port already exists
+   * @return true if the port id is already defined
+   */
+  bool
+  isPortDefined(const string& id);
 
   /**
    * Get the port by id. If not found returns NULL
    * @param id the port id
    */
   WfPort*
-  getPort(const string& id);
+  getPort(const string& id) throw (WfStructException);
 
   /**
    * Get nb of ports
@@ -261,8 +271,15 @@ public:
   /**
    * Get port by index
    */
-  WfPort*
-  getPortByIndex(unsigned int portIdx);
+  const WfPort*
+  getPortByIndex(unsigned int portIdx) const;
+
+  /**
+   * Get ports description
+   * @return a string (example: "IN DIET_INT, OUT DIET_DOUBLE")
+   */
+  string
+  getPortsDescr() const;
 
 protected:
 

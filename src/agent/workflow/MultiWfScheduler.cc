@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.45  2009/02/06 14:50:35  bisnard
+ * setup exceptions
+ *
  * Revision 1.44  2009/01/16 13:41:22  bisnard
  * added common base class DagScheduler to simplify dag events handling
  * improved exception management
@@ -252,7 +255,7 @@ MultiWfScheduler::getMaDag() const {
  */
 MetaDag*
 MultiWfScheduler::getMetaDag(Dag * dag) {
-  map<Dag*,MetaDag*>::iterator iter = myMetaDags.find(dag);
+  map<string,MetaDag*>::iterator iter = myMetaDags.find(dag->getId());
   if (iter != myMetaDags.end())
     return ((MetaDag*)iter->second);
   else
@@ -264,7 +267,7 @@ MultiWfScheduler::getMetaDag(Dag * dag) {
  */
 void
 MultiWfScheduler::scheduleNewDag(Dag * newDag, MetaDag * metaDag)
-    throw (NodeException)
+    throw (MaDag::ServiceNotFound, MaDag::CommProblem)
 {
   // Beginning of exclusion block
   // TODO move exclusion lock later (need to make HEFTScheduler thread-safe)
@@ -274,14 +277,14 @@ MultiWfScheduler::scheduleNewDag(Dag * newDag, MetaDag * metaDag)
   TRACE_TEXT (TRACE_ALL_STEPS, "Making intra-dag schedule" << endl);
   try {
     this->intraDagSchedule(newDag, myMaDag->getMA());
-  } catch (NodeException& e) {
+  } catch (...) {
     this->myLock.unlock();
-    throw e;
+    throw;
   }
 
   // Store metaDag
   if (metaDag != NULL) {
-    this->myMetaDags[newDag] = metaDag;
+    this->myMetaDags[newDag->getId()] = metaDag;
   }
 
   // Node queue creation (to manage ready nodes queueing)
@@ -429,7 +432,7 @@ MultiWfScheduler::run() {
           wf_response_t *  wf_response = NULL;
           try {
             wf_response= getProblemEstimates(n, myMaDag->getMA());
-          } catch (NodeException& e) {
+          } catch (...) {
             cerr << "ERROR during MA submission" << endl;
             n->setAsFailed();
             continue;
@@ -560,7 +563,7 @@ MultiWfScheduler::run() {
  */
 wf_response_t *
 MultiWfScheduler::getProblemEstimates(Dag *dag, MasterAgent_var MA)
-    throw (NodeException) {
+    throw (MaDag::ServiceNotFound, MaDag::CommProblem) {
   // Check that all services are available and get the estimations (with MA)
   TRACE_TEXT (TRACE_ALL_STEPS,"MultiWfScheduler: Marshalling the profiles" << endl);
   corba_pb_desc_seq_t* pbs_seq = new corba_pb_desc_seq_t();
@@ -571,7 +574,6 @@ MultiWfScheduler::getProblemEstimates(Dag *dag, MasterAgent_var MA)
        iter != dag->end();
        ++iter) {
     DagNode * dagNode = (DagNode *) iter->second;
-    cout << "Node #" << ix << " (" << dagNode->getCompleteId() << ")" << endl;
     dagNode->initProfileSubmit(); // creates the diet profile
     dagNode->setSubmitIndex(ix);  // used to find response
     mrsh_pb_desc(&(*pbs_seq)[ix++], dagNode->getProfile());
@@ -580,17 +582,40 @@ MultiWfScheduler::getProblemEstimates(Dag *dag, MasterAgent_var MA)
               "MultiWfScheduler: send " << ix << " profile(s) to the MA  ... "
                   << endl);
   bool failed = false;
+  string failureMsg;
   try {
     wf_response = MA->submit_pb_set(*pbs_seq);
   } catch(CORBA::SystemException& e) {
-    WARNING(" MultiWfScheduler: Got a CORBA " << e._name() << " exception ("
-          << e.NP_minorString() << ")" << endl) ;
+    failureMsg = " MultiWfScheduler: Got a CORBA " + string(e._name()) + " exception ("
+                 + string(e.NP_minorString()) + ")";
     failed = true;
+    WARNING(failureMsg << endl);
   }
   TRACE_TEXT (TRACE_ALL_STEPS, "... done" << endl);
   delete pbs_seq;
-  if ( failed || ! wf_response->complete)
-    throw (NodeException(NodeException::eSERVICE_NOT_FOUND));
+  if (failed) {
+    throw (MaDag::CommProblem(failureMsg.c_str()));
+  }
+  if (!wf_response->complete) {
+    // get the faulty node using the submission index
+    DagNode * failedDagNode = NULL;
+    for (map<std::string, DagNode *>::iterator iter = dag->begin();
+         iter != dag->end();
+         ++iter) {
+      DagNode *dagNode = (DagNode *) iter->second;
+      if (dagNode->getSubmitIndex() == wf_response->idxError) {
+        failedDagNode = dagNode;
+        break;
+      }
+    }
+    // throw corba exception with node details
+    if (failedDagNode)
+      throw (MaDag::ServiceNotFound(failedDagNode->getId().c_str(),
+                                    failedDagNode->getPbName().c_str(),
+                                    failedDagNode->getPortsDescr().c_str()));
+    else
+      throw (MaDag::ServiceNotFound(NULL,NULL,NULL));
+  }
   return wf_response;
 }
 
@@ -600,7 +625,7 @@ MultiWfScheduler::getProblemEstimates(Dag *dag, MasterAgent_var MA)
  */
 wf_response_t *
 MultiWfScheduler::getProblemEstimates(DagNode *node, MasterAgent_var MA)
-    throw (NodeException) {
+    throw (MaDag::ServiceNotFound, MaDag::CommProblem) {
   corba_pb_desc_seq_t* pbs_seq = new corba_pb_desc_seq_t();
   wf_response_t * wf_response = NULL;
   pbs_seq->length(1);
@@ -609,17 +634,23 @@ MultiWfScheduler::getProblemEstimates(DagNode *node, MasterAgent_var MA)
   TRACE_TEXT (TRACE_ALL_STEPS, "MultiWfScheduler: send 1 profile to the MA  ... "
                   << endl);
   bool failed = false;
+  string failureMsg;
   try {
     wf_response = MA->submit_pb_set(*pbs_seq);
   } catch(CORBA::SystemException& e) {
-    WARNING(" MultiWfScheduler: Got a CORBA " << e._name() << " exception ("
-          << e.NP_minorString() << ")" << endl) ;
+    failureMsg = " MultiWfScheduler: Got a CORBA " + string(e._name()) + " exception ("
+                 + string(e.NP_minorString()) + ")";
+    WARNING(failureMsg << endl) ;
     failed = true;
   }
   delete pbs_seq;
   TRACE_TEXT (TRACE_ALL_STEPS, "... done" << endl);
-  if (failed || !wf_response->complete)
-    throw (NodeException(NodeException::eSERVICE_NOT_FOUND));
+  if (failed)
+    throw (MaDag::CommProblem(failureMsg.c_str()));
+  if (!wf_response->complete)
+    throw (MaDag::ServiceNotFound(node->getId().c_str(),
+                                  node->getPbName().c_str(),
+                                  node->getPortsDescr().c_str()));
   return wf_response;
 }
 
@@ -628,7 +659,7 @@ MultiWfScheduler::getProblemEstimates(DagNode *node, MasterAgent_var MA)
  */
 void
 MultiWfScheduler::intraDagSchedule(Dag * dag, MasterAgent_var MA)
-    throw (NodeException) {
+    throw (MaDag::ServiceNotFound, MaDag::CommProblem) {
   // Call the MA to get estimations for all services
   wf_response_t * wf_response = this->getProblemEstimates(dag, MA);
   // Prioritize the nodes (with intra-dag scheduler)
@@ -783,13 +814,16 @@ MultiWfScheduler::handlerDagDone(Dag * dag) {
   // DELETE DAG (IF NOT PART OF A METADAG)
   MetaDag * metaDag = this->getMetaDag(dag);
   if (metaDag != NULL) {
+    TRACE_TEXT (TRACE_ALL_STEPS, "Trigger end-of-dag event to MetaDag" << endl);
     metaDag->handlerDagDone(dag);
+    myMetaDags.erase(dag->getId());
     if (metaDag->isDone()) {
       TRACE_TEXT (TRACE_ALL_STEPS,"######## META-DAG "
                                 << metaDag->getId() << " IS COMPLETED #########" << endl);
       delete metaDag;
     }
   } else {
+    TRACE_TEXT (TRACE_ALL_STEPS, "Deleting dag" << endl);
     delete dag;
   }
 }

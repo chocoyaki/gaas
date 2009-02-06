@@ -10,6 +10,9 @@
 
 /* $Id$
  * $Log$
+ * Revision 1.11  2009/02/06 14:50:35  bisnard
+ * setup exceptions
+ *
  * Revision 1.10  2008/10/14 13:24:49  bisnard
  * use new class structure for dags (DagNode,DagNodePort)
  *
@@ -108,7 +111,7 @@ MultiWfHEFT::handlerNodeDone(DagNode * node) {
  */
 void
 MultiWfAgingHEFT::intraDagSchedule(Dag * dag, MasterAgent_var MA)
-    throw (NodeException) {
+    throw (MaDag::ServiceNotFound, MaDag::CommProblem) {
   // Call the MA to get estimations for all services
   wf_response_t * wf_response = this->getProblemEstimates(dag, MA);
 

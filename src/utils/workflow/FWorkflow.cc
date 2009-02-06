@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2009/02/06 14:55:08  bisnard
+ * setup exceptions
+ *
  * Revision 1.7  2009/01/16 16:31:54  bisnard
  * added option to specify data source file name
  *
@@ -65,35 +68,39 @@ FWorkflow::getId() {
 }
 
 Node *
-FWorkflow::getNode(const string& nodeId) {
-  Node * node = (Node *) getProcNode(nodeId);
-  if (node == NULL) {
+FWorkflow::getNode(const string& nodeId) throw (WfStructException) {
+  Node * node;
+  try {
+    node = (Node *) getProcNode(nodeId);
+  } catch (WfStructException& e) {
     node = (Node *) getInterfaceNode(nodeId);
-    if (node == NULL)
-      return NULL;
   }
   return node;
 }
 
 FProcNode *
-FWorkflow::getProcNode(const string& id) {
+FWorkflow::getProcNode(const string& id) throw (WfStructException) {
   FProcNode *node = NULL;
   myLock.lock();    /** LOCK */
   map<string, FProcNode*>::iterator p = this->myProc.find(id);
   if ( p != this->myProc.end())
     node = p->second;
   myLock.unlock();  /** UNLOCK */
+  if (node == NULL)
+    throw WfStructException(WfStructException::eUNKNOWN_NODE,"FNode id="+id);
   return node;
 }
 
 FNode *
-FWorkflow::getInterfaceNode(const string& id) {
+FWorkflow::getInterfaceNode(const string& id) throw (WfStructException) {
   FNode *node = NULL;
   myLock.lock();    /** LOCK */
   map<string, FNode*>::iterator p = this->myInterface.find(id);
   if ( p != this->myInterface.end())
     node = p->second;
   myLock.unlock();  /** UNLOCK */
+  if (node == NULL)
+    throw WfStructException(WfStructException::eUNKNOWN_NODE,"FNode id="+id);
   return node;
 }
 
@@ -105,62 +112,75 @@ FWorkflow::checkPrec(NodeSet* contextNodeSet) throw (WfStructException) {
        p != myProc.end();
        ++p ) {
     FProcNode * node = (FProcNode*) p->second;
-    if (!node->setNodePrecedence(contextNodeSet))
-      throw WfStructException(WfStructException::eUNKNOWN_NODE,
-                              "Cannot set predecessor relationship for node "
-                                  + node->getId());
+    node->setNodePrecedence(contextNodeSet);
   }
   // interface nodes (does sth only for sink nodes)
   for (map<string, FNode * >::iterator p = myInterface.begin();
        p != myInterface.end();
        ++p ) {
     FNode * node = (FNode *) p->second;
-    if (!node->setNodePrecedence(contextNodeSet))
-      throw WfStructException(WfStructException::eUNKNOWN_NODE,
-                              "Cannot set predecessor relationship for node "
-                                  + node->getId());
+    node->setNodePrecedence(contextNodeSet);
   }
   TRACE_TEXT(TRACE_ALL_STEPS, "CHECKING WF PRECEDENCE END" << endl);
 }
 
 FProcNode*
-FWorkflow::createProcessor(const string& id) {
-  if (getProcNode(id) != NULL)
-    return NULL;
-  TRACE_TEXT (TRACE_ALL_STEPS,"Creating processor node : " << id << endl);
-  FProcNode* node = new FProcNode(this, id);
-  myProc[id] = node;
-  return node;
+FWorkflow::createProcessor(const string& id) throw (WfStructException)
+{
+  try {
+    getProcNode(id);
+  } catch (WfStructException& e) {
+    TRACE_TEXT (TRACE_ALL_STEPS,"Creating processor node : " << id << endl);
+    FProcNode* node = new FProcNode(this, id);
+    myProc[id] = node;
+    return node;
+  }
+  throw WfStructException(WfStructException::eDUPLICATE_NODE,"FNode id="+id);
 }
 
 FSourceNode*
-FWorkflow::createSource(const string& id, WfCst::WfDataType type) {
-  if (getInterfaceNode(id) != NULL)
-    return NULL;
-  TRACE_TEXT (TRACE_ALL_STEPS,"Creating source node : " << id << endl);
-  FSourceNode* node = new FSourceNode(this, id, type);
-  myInterface[id] = node;
-  return node;
+FWorkflow::createSource(const string& id, WfCst::WfDataType type)
+    throw (WfStructException)
+{
+  try {
+    getInterfaceNode(id);
+  } catch (WfStructException& e) {
+    TRACE_TEXT (TRACE_ALL_STEPS,"Creating source node : " << id << endl);
+    FSourceNode* node = new FSourceNode(this, id, type);
+    myInterface[id] = node;
+    return node;
+  }
+  throw WfStructException(WfStructException::eDUPLICATE_NODE,"FNode id="+id);
 }
 
 FConstantNode*
-FWorkflow::createConstant(const string& id, WfCst::WfDataType type) {
-  if (getInterfaceNode(id) != NULL)
-    return NULL;
-  TRACE_TEXT (TRACE_ALL_STEPS,"Creating constant node : " << id << endl);
-  FConstantNode* node = new FConstantNode(this, id, type);
-  myInterface[id] = node;
-  return node;
+FWorkflow::createConstant(const string& id, WfCst::WfDataType type)
+    throw (WfStructException)
+{
+  try {
+    getInterfaceNode(id);
+  } catch (WfStructException& e) {
+    TRACE_TEXT (TRACE_ALL_STEPS,"Creating constant node : " << id << endl);
+    FConstantNode* node = new FConstantNode(this, id, type);
+    myInterface[id] = node;
+    return node;
+  }
+  throw WfStructException(WfStructException::eDUPLICATE_NODE,"FNode id="+id);
 }
 
 FSinkNode*
-FWorkflow::createSink(const string& id, WfCst::WfDataType type) {
-  if (getInterfaceNode(id) != NULL)
-    return NULL;
-  TRACE_TEXT (TRACE_ALL_STEPS,"Creating sink node : " << id << endl);
-  FSinkNode* node = new FSinkNode(this, id, type);
-  myInterface[id] = node;
-  return node;
+FWorkflow::createSink(const string& id, WfCst::WfDataType type, unsigned int depth)
+    throw (WfStructException)
+{
+  try {
+    getInterfaceNode(id);
+  } catch (WfStructException& e) {
+    TRACE_TEXT (TRACE_ALL_STEPS,"Creating sink node : " << id << endl);
+    FSinkNode* node = new FSinkNode(this, id, type, depth);
+    myInterface[id] = node;
+    return node;
+  }
+  throw WfStructException(WfStructException::eDUPLICATE_NODE,"FNode id="+id);
 }
 
 /**
@@ -216,7 +236,7 @@ void DFS(Node* node,
  * NOT THREAD SAFE
  */
 void
-FWorkflow::initialize(const string& dataFileName) {
+FWorkflow::initialize(const string& dataFileName) throw (WfStructException) {
   this->dataSrcXmlFile = dataFileName;
   TRACE_TEXT (TRACE_ALL_STEPS,"Initializing Interface..." << endl);
   for(map<string,FNode*>::iterator iter = myInterface.begin();
@@ -348,9 +368,27 @@ FWorkflow::instanciateDag() {
   return currDag;
 }
 
-list<Dag*>&
-FWorkflow::getDagList() {
-  return myDags;
+void
+FWorkflow::displayAllResults(ostream& output) {
+  // display cancelled dags
+  for (list<Dag*>::const_iterator dagIter = myDags.begin();
+       dagIter != myDags.end();
+       ++dagIter) {
+    Dag * currDag = (Dag*) *dagIter;
+    if (currDag->isCancelled()) {
+       output  << "** DAG " << currDag->getId()
+               << " was cancelled => no results **" << endl;
+    }
+  }
+  // display all sink results
+  for (map<string,FNode*>::const_iterator nodeIter = myInterface.begin();
+       nodeIter != myInterface.end();
+       ++nodeIter) {
+    FSinkNode *sink = dynamic_cast<FSinkNode*>((FNode*) nodeIter->second);
+    if (sink != NULL) {
+      sink->displayResults(output);
+    }
+  }
 }
 
 bool
@@ -368,11 +406,21 @@ FWorkflow::instanciationCompleted() {
   return myStatus == INSTANC_END;
 }
 
+void
+FWorkflow::stopInstanciation() {
+  myStatus = INSTANC_STOPPED;
+}
+
+bool
+FWorkflow::instanciationStopped() {
+  return myStatus == INSTANC_STOPPED;
+}
+
 /**
  * Handle end of node execution
  */
 void
-FWorkflow::handlerDagNodeDone(DagNode* dagNode) {
+FWorkflow::handlerDagNodeDone(DagNode* dagNode) throw (WfDataException) {
   FProcNode* fNode = dagNode->getFNode();
   if (fNode == NULL) {
     INTERNAL_ERROR("handlerDagNodeDone: Missing FNode ref in DagNode",1);
@@ -380,9 +428,17 @@ FWorkflow::handlerDagNodeDone(DagNode* dagNode) {
   // call the FProcNode to process pending data handles
   bool statusChange = false;
   myLock.lock();    /** LOCK */
-  fNode->instanceIsDone(dagNode, statusChange);
+  try {
+    fNode->instanceIsDone(dagNode, statusChange);
+  } catch (WfDataHandleException& e) {
+    WARNING("Data handle error :" << e.ErrorMsg());
+    myStatus = INSTANC_STOPPED;
+  } catch (WfDataException& e) {
+    WARNING("Data error :" << e.ErrorMsg());
+    myStatus = INSTANC_STOPPED;
+  }
   // re-initialize instanciation
-  if (statusChange) {
+  if (statusChange && !instanciationStopped()) {
     myStatus = INSTANC_READY;
   }
   myLock.unlock();  /** UNLOCK */

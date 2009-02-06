@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2009/02/06 14:50:35  bisnard
+ * setup exceptions
+ *
  * Revision 1.26  2009/01/16 13:41:22  bisnard
  * added common base class DagScheduler to simplify dag events handling
  * improved exception management
@@ -323,30 +326,13 @@ MaDag_impl::processDagWfCommon(const corba_wf_desc_t& dag_desc,
     Dag * newDag = this->parseNewDag(dag_desc, itoa(dagId), mDag);
     this->myMultiWfSched->scheduleNewDag(newDag, mDag);
   }
-  catch (XMLParsingException& e) {
-    // TODO manage exceptions using CORBA exceptions
+  catch (...) {
     sprintf(statMsg,"Dag request (%ld) aborted",dagId);
     stat_out("MA_DAG",statMsg);
-    TRACE_TEXT(TRACE_ALL_STEPS, "WRONG XML => MADAG cancelled DAG request (wfReqId = "
+    TRACE_TEXT(TRACE_ALL_STEPS, "MADAG cancelled DAG request (wfReqId = "
                               << wfReqId << ")" << endl);
     this->myMutex.unlock();
-    return -1;
-  }
-  catch (WfStructException& e) {
-    sprintf(statMsg,"Dag request (%ld) aborted",dagId);
-    stat_out("MA_DAG",statMsg);
-    TRACE_TEXT(TRACE_ALL_STEPS, "WRONG DAG STRUCTURE  => MADAG cancelled DAG request (wfReqId = "
-                              << wfReqId << ")" << endl);
-    this->myMutex.unlock();
-    return -1;
-  }
-  catch (NodeException& e) {
-    sprintf(statMsg,"Dag request (%ld) aborted",dagId);
-    stat_out("MA_DAG",statMsg);
-    TRACE_TEXT(TRACE_ALL_STEPS, "MISSING SERVICE => MADAG cancelled DAG request (wfReqId = "
-                              << wfReqId << ")" << endl);
-    this->myMutex.unlock();
-    return -1;
+    throw;
   }
 
   this->myMutex.unlock();
@@ -363,12 +349,16 @@ Dag *
 MaDag_impl::parseNewDag(const corba_wf_desc_t& wf_desc,
                         const string& dagId,
                         MetaDag * mDag)
-    throw (XMLParsingException, WfStructException) {
+    throw (MaDag::InvalidDag) {
   // CREATION & PARSING
   Dag *        newDag = new Dag();
   DagWfParser* reader = new DagParser(*newDag, wf_desc.abstract_wf);
 
-  reader->parseXml();
+  try {
+    reader->parseXml();
+  } catch (XMLParsingException& e) {
+    throw (MaDag::InvalidDag(e.ErrorMsg().c_str()));
+  }
 
   delete reader;
   newDag->setId(dagId);
@@ -387,7 +377,7 @@ MaDag_impl::parseNewDag(const corba_wf_desc_t& wf_desc,
   } catch (WfStructException& e) {
     if (mDag != NULL)
       mDag->setCurrentDag(NULL);
-    throw e;
+    throw (MaDag::InvalidDag(e.ErrorMsg().c_str()));
   }
 
   if (mDag != NULL) {

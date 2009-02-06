@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2009/02/06 14:55:08  bisnard
+ * setup exceptions
+ *
  * Revision 1.19  2009/01/16 16:31:54  bisnard
  * added option to specify data source file name
  *
@@ -92,6 +95,27 @@
 #include "FWorkflow.hh"
 
 using namespace std;
+
+/**
+ * XML Parsing errors description
+ */
+string
+XMLParsingException::ErrorMsg() {
+  string errorMsg;
+  switch(Type()) {
+    case eBAD_STRUCT :
+      errorMsg = "BAD XML STRUCTURE (" + Info() + ")"; break;
+    case eEMPTY_ATTR :
+      errorMsg = "MISSING DATA (" + Info() + ")"; break;
+    case eUNKNOWN_TAG :
+      errorMsg = "UNKNOWN XML TAG ("+ Info() + ")"; break;
+    case eUNKNOWN_ATTR :
+      errorMsg = "UNKNOWN XML ATTRIBUTE (" + Info() + ")"; break;
+    case eINVALID_REF :
+      errorMsg = "INVALID REFERENCE (" + Info() + ")"; break;
+  }
+  return errorMsg;
+}
 
 /**
  * Constructor
@@ -343,7 +367,13 @@ DagWfParser::setParam(const WfPort::WfPortType param_type,
   // (and optionnally value: used only for Arg ports)
 //   short descType = (typeDepth == 0) ? baseType : (short) WfCst::TYPE_CONTAINER;
 
-  WfPort *port = node->newPort(name, lastArg, param_type, (WfCst::WfDataType) baseType, typeDepth);
+  WfPort *port;
+  try {
+    port = node->newPort(name, lastArg, param_type, (WfCst::WfDataType) baseType, typeDepth);
+  } catch (WfStructException& e) {
+    throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
+                              "Cannot create port : "+e.ErrorMsg());
+  }
   if (value) {
     DagNodePort * dagPort = dynamic_cast<DagNodePort*>(port);
     if (dagPort) {
@@ -386,8 +416,13 @@ DagWfParser::setMatrixParam(const DOMElement * element,
   // get the matrix order
   short matrix_order = WfCst::cvtStrToWfMatrixOrder(matrix_order_str);
   // create port
-  WfPort * port = node->newPort(name, lastArg, param_type,
-                               WfCst::TYPE_MATRIX, 0);
+  WfPort * port;
+  try {
+    port = node->newPort(name, lastArg, param_type, WfCst::TYPE_MATRIX, 0);
+  } catch (WfStructException& e) {
+    throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
+                              "Cannot create port : "+e.ErrorMsg());
+  }
   port->setMatParams(nb_rows, nb_cols,
                      (WfCst::WfMatrixOrder) matrix_order,
                      (WfCst::WfDataType) elt_type);
@@ -566,6 +601,7 @@ Node *
 FWfParser::createNode(const DOMElement* element, const string& elementName) {
   string name = getAttributeValue("name", element);
   string type = getAttributeValue("type", element);
+  string depth = getAttributeValue("depth", element); // for <sink> only
   // Check parameters
   if (name.empty()) {
     throw XMLParsingException(XMLParsingException::eEMPTY_ATTR,
@@ -580,6 +616,10 @@ FWfParser::createNode(const DOMElement* element, const string& elementName) {
   if (!type.empty()) {
     dataType = WfCst::cvtStrToWfType(type);
   }
+  // Convert depth
+  unsigned int typeDepth = 0;
+  if (!depth.empty())
+    typeDepth = atoi(depth.c_str());
   // Create node depending on element name
   Node * node;
   if (elementName == "source") {
@@ -591,7 +631,7 @@ FWfParser::createNode(const DOMElement* element, const string& elementName) {
       cstNode->setValue(value);
     node = (Node*) cstNode;
   } else if (elementName == "sink") {
-    node = workflow.createSink(name, (WfCst::WfDataType) dataType);
+    node = workflow.createSink(name, (WfCst::WfDataType) dataType, typeDepth);
   } else if (elementName == "processor") {
     node = workflow.createProcessor(name);
   } else {
@@ -668,13 +708,13 @@ FWfParser::parseLink(DOMElement * element) {
   FNode *toNode = parseLinkRef(to, toNodeName, toPortName);
   TRACE_TEXT(TRACE_ALL_STEPS, "Parsing link: from=" << from << " to=" << to << endl);
   // set the port reference
-  WfPort *toPort = toNode->getPort(toPortName);
-  if (toPort == NULL)
+  try {
+    WfPort *toPort = toNode->getPort(toPortName);
+    toPort->setConnectionRef(fromNodeName + "#" + fromPortName);
+  } catch (WfStructException& e) {
     throw XMLParsingException(XMLParsingException::eINVALID_REF,
-             "<link> contains an invalid port name : " + toPortName
-             + " for node : " + toNodeName);
-  // creates the adapter to the source port
-  toPort->setConnectionRef(fromNodeName + "#" + fromPortName);
+             "<link> contains an invalid ref: " + e.Info());
+  }
 }
 
 /**

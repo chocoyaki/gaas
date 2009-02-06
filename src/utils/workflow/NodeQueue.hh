@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2009/02/06 14:55:08  bisnard
+ * setup exceptions
+ *
  * Revision 1.7  2008/10/14 13:31:01  bisnard
  * new class structure for dags (DagNode,DagNodePort)
  *
@@ -195,25 +198,5 @@ class PriorityNodeQueue : public OrderedNodeQueue {
         pushNode(DagNode * node);
 
 }; // end class PriorityNodeQueue
-
-/**
- * Class NodeException
- *
- * This class is used as exception for all functions that manage workflow
- * nodes and that may trigger exceptions due to unusual properties of the
- * node:
- *  - eSERVICE_NOT_FOUND: triggered when the service of the node is not
- *                        available in the DIET hierarchy
- */
-
-class NodeException {
-  public:
-    enum NodeErrorType { eSERVICE_NOT_FOUND };
-    NodeException(NodeErrorType t) { this->why = t; }
-    NodeErrorType TYpe()  { return this->why; }
-  private:
-    NodeErrorType why;
-}; // end class NodeException
-
 
 #endif  /* not defined _NODEQUEUE_HH_ */

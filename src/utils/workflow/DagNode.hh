@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2009/02/06 14:55:08  bisnard
+ * setup exceptions
+ *
  * Revision 1.6  2009/01/16 13:55:36  bisnard
  * changes in dag event handling methods
  *
@@ -84,6 +87,25 @@ private:
 
 };
 
+/*****************************************************************************/
+/*                         CLASS WfDataException                             */
+/*****************************************************************************/
+
+class WfDataException {
+  public:
+    enum WfDataErrorType { eNOTFOUND,
+                           eWRONGTYPE,
+                           eINVALID_CONTAINER };
+    WfDataException(WfDataErrorType t, const string& info)
+      { this->why = t; this->info = info; }
+    WfDataErrorType Type() { return this->why; }
+    const string& Info() { return this->info; }
+    string ErrorMsg();
+  private:
+    WfDataErrorType why;
+    string info;
+};
+
 /****************************************************************************/
 /*                                                                          */
 /*                            class DagNode                                 */
@@ -155,7 +177,7 @@ public:
   WfPort *
   newPort(string portId, unsigned int ind,
           WfPort::WfPortType portType, WfCst::WfDataType dataType,
-          unsigned int depth);
+          unsigned int depth) throw (WfStructException);
 
   /**
    * Add a new predecessor
@@ -170,7 +192,7 @@ public:
    * returns an XML  representation of a node
    */
   string
-  toXML();
+  toXML() const;
 
   /******************************/
   /* DIET Profile Mgmt          */
@@ -208,17 +230,15 @@ public:
 
   /**
    * create the diet profile associated to the node (MADAG) *
-   * @return true if success, false on failure
    */
-  bool
+  void
   initProfileSubmit();
 
   /**
    * create the diet profile associated to the node (CLIENT) *
-   * @return true if success, false on failure
    */
-  bool
-  initProfileExec();
+  void
+  initProfileExec() throw (WfDataException);
 
   /**
    * Store the persistent data IDs from profile to node
@@ -291,7 +311,7 @@ public:
    * Display all results of the node
    */
   void
-  displayResults();
+  displayResults(ostream& output);
 
   /**
    * set the SeD reference associated to the Node

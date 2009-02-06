@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2009/02/06 14:55:08  bisnard
+ * setup exceptions
+ *
  * Revision 1.13  2009/01/16 13:55:36  bisnard
  * changes in dag event handling methods
  *
@@ -65,6 +68,8 @@
 
 
 #include "WfPort.hh"
+#include "WfPortAdapter.hh"
+#include "Node.hh"
 #include "debug.hh"
 
 WfPort::WfPort(Node * parent, const string& _id, WfPortType _portType,
@@ -99,42 +104,65 @@ WfPort::setMatParams(long nbr, long nbc,
 }
 
 const string&
-WfPort::getId() {
+WfPort::getId() const {
   return this->id;
 }
 
+string
+WfPort::getCompleteId() const {
+  return (this->myParent->getId() + "#" + this->id);
+}
+
 short
-WfPort::getPortType() {
+WfPort::getPortType() const {
   return this->portType;
 }
 
+string
+WfPort::getPortDescr() const {
+  string portDescr;
+  switch(portType) {
+    case PORT_IN:
+      portDescr = "in ";
+      break;
+    case PORT_INOUT:
+      portDescr = "inout ";
+      break;
+    case PORT_OUT:
+      portDescr = "out ";
+      break;
+  }
+  portDescr += WfCst::cvtWfToStrType(getDataType());
+  return portDescr;
+}
+
 Node*
-WfPort::getParent() {
+WfPort::getParent() const {
   return this->myParent;
 }
 
 unsigned int
-WfPort::getIndex() {
+WfPort::getIndex() const {
   return this->index;
 }
 
 unsigned int
-WfPort::getDepth() {
+WfPort::getDepth() const {
   return this->depth;
 }
 
 WfCst::WfDataType
-WfPort::getDataType() {
+WfPort::getDataType() const {
   return this->type;
 }
 
 WfCst::WfDataType
-WfPort::getEltDataType() {
+WfPort::getEltDataType() const {
   return this->eltType;
 }
 
 WfCst::WfDataType
-WfPort::getBaseDataType() {
+WfPort::getBaseDataType() const {
   return (depth > 0) ? eltType : type;
 }
 
@@ -157,24 +185,22 @@ WfPort::setPortAdapter(WfPortAdapter* adapter) {
   this->adapter = adapter;
 }
 
-bool
-WfPort::setNodePrecedence(NodeSet* contextNodeSet) {
+void
+WfPort::setNodePrecedence(NodeSet* contextNodeSet) throw (WfStructException) {
   if (adapter) { // in case this method is called on an argument port
-    if (!adapter->setNodePrecedence(getParent(), contextNodeSet))
-      return false;
+    adapter->setNodePrecedence(getParent(), contextNodeSet);
   }
-  return true;
 }
 
 void
-WfPort::connectPorts() {
+WfPort::connectPorts() throw (WfStructException) {
   if (adapter) {
-    adapter->connectPorts(this);
+    adapter->connectPorts(this, 0);
   }
 }
 
 bool
-WfPort::isConnected() {
+WfPort::isConnected() const {
   return connected;
 }
 

@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2009/02/06 14:50:35  bisnard
+ * setup exceptions
+ *
  * Revision 1.12  2009/01/16 13:41:22  bisnard
  * added common base class DagScheduler to simplify dag events handling
  * improved exception management
@@ -93,7 +96,7 @@ namespace madag {
      */
     virtual void
         intraDagSchedule(Dag * dag, MasterAgent_var MA)
-        throw (NodeException);
+        throw (MaDag::ServiceNotFound, MaDag::CommProblem);
 
     /**
      * set node priority before inserting into execution queue

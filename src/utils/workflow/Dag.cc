@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2009/02/06 14:55:08  bisnard
+ * setup exceptions
+ *
  * Revision 1.25  2009/01/22 09:01:09  bisnard
  * added client method to retrieve workflow container output
  *
@@ -194,7 +197,7 @@ Dag::getWorkflow() {
  * Get the node with given identifier (only node id, not the complete id)
  */
 Node *
-Dag::getNode(const string& nodeId) {
+Dag::getNode(const string& nodeId) throw (WfStructException) {
   return getDagNode(nodeId);
 }
 
@@ -202,9 +205,10 @@ Dag::getNode(const string& nodeId) {
  * Allocates a new node and add it to the dag
  */
 DagNode*
-Dag::createDagNode(const string& id) {
-  if (this->getDagNode(id) != NULL)
-    return NULL;
+Dag::createDagNode(const string& id) throw (WfStructException) {
+  map<string, DagNode*>::iterator p = this->nodes.find(id);
+  if (p != this->nodes.end())
+    throw WfStructException(WfStructException::eDUPLICATE_NODE,"node id="+id);
   DagNode* newDagNode = new DagNode(this, id);
   this->nodes[id] = newDagNode;
   return newDagNode;
@@ -214,12 +218,12 @@ Dag::createDagNode(const string& id) {
  * Get the dag node with given identifier (only node id, not the complete id)
  */
 DagNode *
-Dag::getDagNode(const string& nodeId) {
+Dag::getDagNode(const string& nodeId) throw (WfStructException) {
   map<string, DagNode*>::iterator p = this->nodes.find(nodeId);
   if ( p != this->nodes.end())
     return p->second;
   else
-    return NULL;
+    throw WfStructException(WfStructException::eUNKNOWN_NODE,"node id="+nodeId);
 }
 
 /**
@@ -234,10 +238,7 @@ Dag::checkPrec(NodeSet* contextNodeSet) throw (WfStructException) {
        p != nodes.end( );
        ++p ) {
     DagNode *node = (DagNode*) p->second;
-    if (!node->setNodePrecedence(contextNodeSet))
-      throw WfStructException(WfStructException::eUNKNOWN_NODE,
-                              "Cannot set predecessor relationship for node "
-                                  + node->getId());
+    node->setNodePrecedence(contextNodeSet); // throw WfStructException
   }
   // TODO use DFS to check there is no cycle
   TRACE_TEXT(TRACE_ALL_STEPS, "CHECKING DAG STRUCTURE END" << endl);
@@ -247,7 +248,7 @@ Dag::checkPrec(NodeSet* contextNodeSet) throw (WfStructException) {
  * link all ports of the dag *
  */
 void
-Dag::linkAllPorts() {
+Dag::linkAllPorts() throw (WfStructException) {
   TRACE_TEXT(TRACE_ALL_STEPS, "LINKING NODES START" << endl);
   for (map<string, DagNode*>::iterator p = nodes.begin();
        p != nodes.end();
@@ -394,23 +395,13 @@ Dag::isCancelled() {
  */
 
 DagNodeOutPort *
-Dag::getOutputPort(const char* id) {
+Dag::getOutputPort(const char* id) throw (WfStructException) {
   string strId(id);
   string::size_type portSep = strId.find("#");
   string nodeId = strId.substr(0, portSep);
   string portId = strId.substr(portSep+1, strId.length()-portSep-1);
-    TRACE_TEXT (TRACE_ALL_STEPS,
-	      "\t" << "get_scalar_output : searching for " << id << endl);
   DagNode * n = getDagNode(nodeId);
-  if (n != NULL) {
-    DagNodeOutPort * outp = dynamic_cast<DagNodeOutPort*>(n->getPort(portId));
-    if (outp != NULL) {
-      return outp;
-    } else {
-      ERROR("Cannot get result for non-output port",0);
-    }
-  }
-  ERROR("Output port not found", 0);
+  return dynamic_cast<DagNodeOutPort*>(n->getPort(portId));
 }
 
 /**
@@ -511,15 +502,15 @@ Dag::getNodesByPriority() {
  * get all the results
  */
 void
-Dag::displayAllResults() {
-  cout << "** RESULTS OF DAG " << getId() << " **" << endl;
+Dag::displayAllResults(ostream& output) {
+  output << "** RESULTS OF DAG " << getId() << " **" << endl;
   DagNode * n = NULL;
   for (map<string, DagNode *>::iterator p = nodes.begin();
        p != nodes.end();
        ++p) {
     n = (DagNode *)(p->second);
     if ((n != NULL) && (n->isAnExit())) {
-      n->displayResults();
+      n->displayResults(output);
     }
   }
 }

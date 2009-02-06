@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2009/02/06 14:55:08  bisnard
+ * setup exceptions
+ *
  * Revision 1.11  2009/01/16 13:55:36  bisnard
  * changes in dag event handling methods
  *
@@ -67,13 +70,14 @@
 #include <string>
 #include <list>
 
-#include "WfPortAdapter.hh"
 #include "WfUtils.hh"
 
 using namespace std;
 
 class Node;
 class NodeSet;
+class WfSimplePortAdapter;
+class WfPortAdapter;
 
 class WfPort {
 
@@ -117,49 +121,61 @@ public:
    * Return the port id
    */
   const string&
-  getId();
+  getId() const;
+
+  /**
+   * Return the complete ID (nodeid#portid)
+   */
+  virtual string
+  getCompleteId() const;
 
   /**
    * Return the port type
    */
   short
-  getPortType();
+  getPortType() const;
+
+  /**
+   * Return a description of the port
+   */
+  string
+  getPortDescr() const;
 
   /**
    * Return the port's parent node
    */
   Node*
-  getParent();
+  getParent() const;
 
   /**
    * Return the port index
    */
   unsigned int
-  getIndex();
+  getIndex() const;
 
   /**
    * Return the port depth (container)
    */
   unsigned int
-  getDepth();
+  getDepth() const;
 
   /**
    * Returns the data type (constants defined in WfCst class)
    */
   WfCst::WfDataType
-  getDataType();
+  getDataType() const;
 
   /**
    * Returns the data type of elements (in case of CONTAINER or MATRIX type)
    */
   WfCst::WfDataType
-  getEltDataType();
+  getEltDataType() const;
 
   /**
    * Returns the base data type (in all cases)
    */
   WfCst::WfDataType
-  getBaseDataType();
+  getBaseDataType() const;
 
   /**
    * Set the cardinal of the containers
@@ -185,22 +201,22 @@ public:
    * Nodes linking (used for dag scheduling)
    * @param contextNodeSet  the node set used to find references to nodes
    */
-  bool
-  setNodePrecedence(NodeSet * contextNodeSet);
+  void
+  setNodePrecedence(NodeSet * contextNodeSet) throw (WfStructException);
 
   /**
    * Ports linking (used for node execution)
    * @param nodeSet   container for the linked nodes
    */
   void
-  connectPorts();
+  connectPorts() throw (WfStructException);
 
   /**
    * Return true if the port is connected to another port
    * (through an object link)
    */
   bool
-  isConnected();
+  isConnected() const;
 
 protected:
 

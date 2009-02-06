@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2009/02/06 14:55:08  bisnard
+ * setup exceptions
+ *
  * Revision 1.5  2009/01/16 16:31:54  bisnard
  * added option to specify data source file name
  *
@@ -54,7 +57,7 @@ public:
               unsigned int ind,
               WfPort::WfPortType portType,
               WfCst::WfDataType dataType,
-              unsigned int depth);
+              unsigned int depth) throw (WfStructException);
 
   /**
    * Get the name of the default port (only for interface nodes)
@@ -63,8 +66,17 @@ public:
       getDefaultPortName() const;
 
   /**
+   * Node interconnections (and type check)
+   */
+  virtual void
+      connectNodePorts() throw (WfStructException);
+
+  /**
    * Initialization
    * (method called once before starting instanciation)
+   * Note: may throw different types of exceptions depending on class
+   * - XMLParsingException (sources)
+   * - WfStructException (proc / sink)
    */
   virtual void
       initialize();
@@ -190,17 +202,21 @@ class FSinkNode : public FNode {
    public:
      FSinkNode(FWorkflow* wf,
                const string& id,
-               WfCst::WfDataType type);
+               WfCst::WfDataType type,
+               unsigned int depth);
      virtual ~FSinkNode();
 
      virtual const string&
-      getDefaultPortName() const;
+         getDefaultPortName() const;
 
      virtual void
-        initialize();
+         initialize();
 
      virtual void
-        instanciate(Dag* dag);
+         instanciate(Dag* dag);
+
+     virtual void
+         displayResults(ostream& output);
 
   private:
 
@@ -305,7 +321,8 @@ class FProcNode : public FNode {
      * then use info to re-submit the datahandles to the correct in ports
      */
     void
-        instanceIsDone(DagNode * dagNode, bool& statusChange);
+        instanceIsDone(DagNode * dagNode, bool& statusChange)
+        throw (WfDataException, WfDataHandleException);
 
     void
         setDIETServicePath(const string& path);

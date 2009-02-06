@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2009/02/06 14:55:08  bisnard
+ * setup exceptions
+ *
  * Revision 1.11  2009/01/20 16:18:22  bisnard
  * updated results display for ports producing containers
  *
@@ -52,67 +55,6 @@
 #include "Dag.hh"
 #include "DagNode.hh"
 #include "DagNodePort.hh"
-
-#if HAVE_DAGDA
-extern "C" {
-#include "DIET_Dagda.h"
-}
-#endif
-
-
-#define wf_dag_print_matrix_of_real(mat, m, n, rm)        \
-  {                                        \
-    size_t i, j;                           \
-    printf("## WORKFLOW OUTPUT ## %s (%s-major) = \n", #mat,     \
-           (rm) ? "row" : "column");       \
-    for (i = 0; i < (m); i++) {            \
-      printf("## WORKFLOW OUTPUT ## ");    \
-      for (j = 0; j < (n); j++) {          \
-        if (rm)                            \
-	  printf("%3f ", (mat)[j + i*(n)]);\
-        else                               \
-	  printf("%3f ", (mat)[i + j*(m)]);\
-      }                                    \
-      printf("\n");                        \
-    }                                      \
-    printf("\n");                          \
-  }
-
-#define wf_dag_print_matrix_of_integer(mat, m, n, rm)        \
-  {                                        \
-    size_t i, j;                           \
-    printf("## WORKFLOW OUTPUT ## %s (%s-major) = \n", #mat,     \
-           (rm) ? "row" : "column");       \
-    for (i = 0; i < (m); i++) {            \
-      printf("## WORKFLOW OUTPUT ## ");    \
-      for (j = 0; j < (n); j++) {          \
-        if (rm)                            \
-	  printf("%d ", (mat)[j + i*(n)]);\
-        else                               \
-	  printf("%d ", (mat)[i + j*(m)]);\
-      }                                    \
-      printf("\n");                        \
-    }                                      \
-    printf("\n");                          \
-  }
-
-#define wf_dag_print_matrix_of_longint(mat, m, n, rm)        \
-  {                                        \
-    size_t i, j;                           \
-    printf("%s (%s-major) = \n", #mat,     \
-           (rm) ? "row" : "column");       \
-    for (i = 0; i < (m); i++) {            \
-      for (j = 0; j < (n); j++) {          \
-        if (rm)                            \
-	  printf("%l ", (mat)[j + i*(n)]);\
-        else                               \
-	  printf("%l ", (mat)[i + j*(m)]);\
-      }                                    \
-      printf("\n");                        \
-    }                                      \
-    printf("\n");                          \
-  }
-
 
 /****************************************************************************/
 /*                                                                          */
@@ -171,6 +113,25 @@ RunnableNode::run() {
   else          myParent->setAsFailed();
 
   return NULL;
+}
+
+/****************************************************************************/
+/*                                                                          */
+/*                          class WfDataException                           */
+/*                                                                          */
+/****************************************************************************/
+string
+WfDataException::ErrorMsg() {
+  string errorMsg;
+  switch(Type()) {
+    case eNOTFOUND:
+      errorMsg = "Data not found (" + Info() + ")"; break;
+    case eWRONGTYPE:
+      errorMsg = "Wrong data type (" + Info() + ")"; break;
+    case eINVALID_CONTAINER:
+      errorMsg = "Invalid container (" + Info() + ")"; break;
+  }
+  return errorMsg;
 }
 
 /****************************************************************************/
@@ -389,7 +350,9 @@ DagNode::setPrev(int index, Node * node) {
 WfPort *
 DagNode::newPort(string portId, unsigned int ind,
                  WfPort::WfPortType portType, WfCst::WfDataType dataType,
-                 unsigned int depth) {
+                 unsigned int depth) throw (WfStructException) {
+  if (isPortDefined(portId))
+    throw WfStructException(WfStructException::eDUPLICATE_PORT,"port id="+portId);
   WfPort * p = NULL;
   switch (portType) {
     case WfPort::PORT_IN:
@@ -407,13 +370,11 @@ DagNode::newPort(string portId, unsigned int ind,
 }
 
 string
-DagNode::toXML() {
+DagNode::toXML() const {
   string xml = "<node id=\""+ myId +"\" ";
   xml += "path=\""+ myPb +"\">\n";
-  for (map<string, WfPort*>::iterator p = ports.begin();
-       p != ports.end();
-       ++p) {
-    DagNodePort * port = dynamic_cast<DagNodePort*>((WfPort*)(p->second));
+  for (int ix = 0; ix < getPortNb(); ++ix) {
+    const DagNodePort * port = dynamic_cast<const DagNodePort*>(getPortByIndex(ix));
     xml += port->toXML();
   }
   xml += "</node>\n";
@@ -499,7 +460,7 @@ DagNode::createProfile() {
 /**
  * Creates the profile before submission of the node (MADAG SIDE)
  */
-bool
+void
 DagNode::initProfileSubmit() {
   TRACE_TEXT(TRACE_ALL_STEPS,"Creating profile for Submit" << endl);
   createProfile();
@@ -507,18 +468,15 @@ DagNode::initProfileSubmit() {
        p != ports.end();
        ++p) {
     DagNodePort * dagPort = dynamic_cast<DagNodePort*>(p->second);
-    if (!dagPort->initProfileSubmit()) {
-      ERROR ("Profile init failed" << endl, 0);
-    }
+    dagPort->initProfileSubmit();
   }
-  return true;
 }
 
 /**
  * Creates the profile before execution of the node (CLIENT SIDE)
  */
-bool
-DagNode::initProfileExec() {
+void
+DagNode::initProfileExec() throw (WfDataException) {
   TRACE_TEXT(TRACE_ALL_STEPS,"Creating profile for Execution" << endl);
   createProfile();
   if (this->SeDDefined) {
@@ -530,12 +488,9 @@ DagNode::initProfileExec() {
        p != ports.end();
        ++p) {
     DagNodePort * dagPort = dynamic_cast<DagNodePort*>(p->second);
-    if (!dagPort->initProfileExec()) {
-      ERROR ("Profile init failed" << endl, 0);
-    }
+    dagPort->initProfileExec();
   }
   TRACE_TEXT(TRACE_ALL_STEPS,"Profile for Execution done (" << myId << ")" << endl);
-  return true;
 }
 
 /**
@@ -706,172 +661,23 @@ DagNode::newDouble (const string value) {
  * Display the results of the node
  */
 void
-DagNode::displayResults() {
-  if (hasFailed()) return;
+DagNode::displayResults(ostream& output) {
   for (map<string, WfPort*>::iterator p = ports.begin();
        p != ports.end();
        ++p) {
     if (((WfPort *)p->second)->getPortType() == WfPort::PORT_OUT) {
       DagNodeOutPort * outp = dynamic_cast<DagNodeOutPort *>(p->second);
-      TRACE_TEXT (TRACE_ALL_STEPS,"checking port " << outp->getId() << " of node "
-           << outp->getParent()->getId() << endl);
+      string currPortFullId = outp->getParent()->getId() + "#" + outp->getId();
       if (!outp->isConnected()) {
-        short dataType = outp->getDataType();
-
-	if (dataType == WfCst::TYPE_FILE) {
-	  size_t size;
-	  char * path;
-	  diet_file_get(diet_parameter(outp->profile(),outp->getIndex()),
-			NULL, &size, &path);
-	  cout << "## DAG OUTPUT ## " <<
-		      outp->getId() << " type = DIET_FILE, " <<
-		      "File name = " << path << ", " <<
-		      "File size = " << size  << endl;
-	}
-	else if (dataType == WfCst::TYPE_DOUBLE) {
-          double * value = NULL;
-          diet_scalar_get(diet_parameter(outp->profile(),outp->getIndex()),
-                          &value, NULL);
-          cout << "## DAG OUTPUT ## " <<
-                          outp->getId() << " = " << *value << endl;
-        }
-        else if (dataType == WfCst::TYPE_FLOAT) {
-          float * value = NULL;
-          diet_scalar_get(diet_parameter(outp->profile(),outp->getIndex()),
-                          &value, NULL);
-          cout << "## DAG OUTPUT ## " <<
-                          outp->getId() << " = " << *value << endl;
-        }
-        else if ( (dataType == WfCst::TYPE_CHAR) ||
-		  (dataType == WfCst::TYPE_SHORT) ||
-		  (dataType == WfCst::TYPE_INT) ||
-		  (dataType == WfCst::TYPE_LONGINT)) {
-          long * value = NULL;
-          diet_scalar_get(diet_parameter(outp->profile(),outp->getIndex()),
-                          &value, NULL);
-          cout << "## DAG OUTPUT ## " <<
-		      outp->getId() << " = " << *value << endl;
-	}
-	else if (dataType == WfCst::TYPE_STRING) {
-	  char * value;
-	  diet_string_get(diet_parameter(outp->profile(),outp->getIndex()),
-			  &value, NULL);
-	  cout << "## DAG OUTPUT ## " <<
-		      outp->getId() << " = " << value << endl;
-	}
-        else if (dataType == WfCst::TYPE_PARAMSTRING) {
-	  char * value;
-	  diet_paramstring_get(diet_parameter(outp->profile(),outp->getIndex()),
-			  &value, NULL);
-	  cout << "## DAG OUTPUT ## " <<
-		      outp->getId() << " = " << value << endl;
-	}
-        else if (dataType == WfCst::TYPE_CONTAINER) {
-          short baseType = outp->getEltDataType();
-          cout << "## DAG OUTPUT ## " <<
-		      outp->getId() << " = LIST (" << endl;
-          // Retrieve container elements
-          const char *contID = (*diet_parameter(outp->profile(),outp->getIndex())).desc.id;
-          dagda_get_container(contID);
-          diet_container_t content;
-          dagda_get_container_elements(contID, &content);
-          for (int ix=0; ix<content.size; ++ix) {
-            if (baseType == WfCst::TYPE_DOUBLE) {
-              double * value;
-              dagda_get_scalar(content.elt_ids[ix],&value,NULL);
-              cout << *value << endl;
-            } else if (baseType == WfCst::TYPE_INT) {
-              int *value;
-              dagda_get_scalar(content.elt_ids[ix],&value,NULL);
-              cout << *value << endl;
-            } else if (baseType == WfCst::TYPE_LONGINT) {
-              long *value;
-              dagda_get_scalar(content.elt_ids[ix],&value,NULL);
-              cout << *value << endl;
-            } else if (baseType == WfCst::TYPE_FLOAT) {
-              float *value;
-              dagda_get_scalar(content.elt_ids[ix],&value,NULL);
-              cout << *value << endl;
-            } else if (baseType == WfCst::TYPE_CHAR) {
-              char *value;
-              dagda_get_scalar(content.elt_ids[ix],&value,NULL);
-              cout << *value << endl;
-            } else if (baseType == WfCst::TYPE_SHORT) {
-              short *value;
-              dagda_get_scalar(content.elt_ids[ix],&value,NULL);
-              cout << *value << endl;
-            } else if (baseType == WfCst::TYPE_PARAMSTRING) {
-              char *value;
-              dagda_get_paramstring(content.elt_ids[ix],&value);
-              cout << value << endl;
-            } else if (baseType == WfCst::TYPE_STRING) {
-              char *value;
-              dagda_get_string(content.elt_ids[ix],&value);
-              cout << value << endl;
-            } else if (baseType == WfCst::TYPE_FILE) {
-              char *path;
-              dagda_get_file(content.elt_ids[ix],&path);
-              cout << path << endl;
-            } else if (baseType == WfCst::TYPE_CONTAINER) {
-              char *ID = content.elt_ids[ix];
-              cout << ID << endl;
-            }
-            // separator
-            if (ix < content.size-1)
-              cout << ",";
-          } // end for
-          cout << ")" << endl;
-        } else if (dataType == WfCst::TYPE_MATRIX) {
-	  size_t nb_rows, nb_cols;
-	  diet_matrix_order_t order;
-	  short baseType = outp->getEltDataType();
-
-	  if (baseType == WfCst::TYPE_DOUBLE) {
-	    double * value;
-	    diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()),
-			    &value, NULL,
-			    &nb_rows, &nb_cols, &order);
-	    wf_dag_print_matrix_of_real(value, nb_rows, nb_cols, order);
-	  }
-	  else if (baseType == WfCst::TYPE_FLOAT) {
-	    float * value;
-	    diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()),
-			    &value, NULL,
-			    &nb_rows, &nb_cols, &order);
-	    wf_dag_print_matrix_of_real(value, nb_rows, nb_cols, order);
-	  }
-	  else if (baseType == WfCst::TYPE_CHAR) {
-	    char * value;
-	    diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()),
-			    &value, NULL,
-			    &nb_rows, &nb_cols, &order);
-	    wf_dag_print_matrix_of_integer(value, nb_rows, nb_cols, order);
-	  }
-	  else if (baseType == WfCst::TYPE_SHORT) {
-	    short * value;
-	    diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()),
-			    &value, NULL,
-			    &nb_rows, &nb_cols, &order);
-	    wf_dag_print_matrix_of_integer(value, nb_rows, nb_cols, order);
-	  }
-	  else if (baseType == WfCst::TYPE_INT) {
-	    int * value;
-	    diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()),
-			    &value, NULL,
-			    &nb_rows, &nb_cols, &order);
-	    wf_dag_print_matrix_of_integer(value, nb_rows, nb_cols, order);
-	  }
-	  else if (baseType == WfCst::TYPE_LONGINT) {
-	    long * value;
-	    diet_matrix_get(diet_parameter(outp->profile(), outp->getIndex()),
-			    &value, NULL,
-			    &nb_rows, &nb_cols, &order);
-	    wf_dag_print_matrix_of_longint(value, nb_rows, nb_cols, order);
-	  }
-	} // end if TYPE_MATRIX
-      } // if isResult
-    } // if out port
-  } // end for ports
+        output << "## DAG OUTPUT (" << currPortFullId << ") = ";
+        if (!hasFailed())
+          outp->displayDataAsList(output);
+        else
+          output << "<error>";
+        output << endl;
+      }
+    }
+  }
 }
 
 /**

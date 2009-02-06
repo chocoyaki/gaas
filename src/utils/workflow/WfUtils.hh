@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2009/02/06 14:55:08  bisnard
+ * setup exceptions
+ *
  * Revision 1.7  2008/12/02 10:05:27  bisnard
  * new conversion method
  *
@@ -58,6 +61,34 @@
 #include <vector>
 
 #include "DIET_data.h"
+
+
+/*****************************************************************************/
+/*                        CLASS WfStructException                            */
+/*****************************************************************************/
+
+class WfStructException {
+  public:
+    enum WfStructErrorType { eUNKNOWN_DAG,
+                             eUNKNOWN_NODE,
+                             eUNKNOWN_PORT,
+                             eDUPLICATE_NODE,
+                             eDUPLICATE_PORT,
+                             eTYPE_MISMATCH,
+                             eDEPTH_MISMATCH };
+    WfStructException(WfStructErrorType t, const std::string& info)
+      { this->why = t; this->info = info; }
+    WfStructErrorType Type() { return this->why; }
+    const std::string& Info() { return this->info; }
+    std::string ErrorMsg();
+  private:
+    WfStructErrorType why;
+    std::string info;
+};
+
+/*****************************************************************************/
+/*                              CLASS WfCst                                  */
+/*****************************************************************************/
 
 class WfCst {
 public:

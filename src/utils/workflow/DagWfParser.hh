@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2009/02/06 14:55:08  bisnard
+ * setup exceptions
+ *
  * Revision 1.12  2009/01/16 16:31:54  bisnard
  * added option to specify data source file name
  *
@@ -100,6 +103,7 @@ class XMLParsingException {
       { this->why = t; this->info = info; }
     XMLParsingErrorType Type() { return this->why; }
     const string& Info() { return this->info; }
+    string ErrorMsg();
   private:
     XMLParsingErrorType why;
     string info;

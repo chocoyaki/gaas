@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2009/02/06 14:50:35  bisnard
+ * setup exceptions
+ *
  * Revision 1.20  2009/01/16 13:41:22  bisnard
  * added common base class DagScheduler to simplify dag events handling
  * improved exception management
@@ -111,6 +114,7 @@
 #include "NodeQueue.hh"
 #include "DagScheduler.hh"
 #include "MetaDag.hh"
+#include "MaDag.hh"
 
 class MaDag_impl;
 
@@ -189,7 +193,7 @@ namespace madag {
      */
     virtual void
         scheduleNewDag(Dag * newDag, MetaDag * metaDag = NULL)
-        throw (NodeException);
+        throw (MaDag::ServiceNotFound, MaDag::CommProblem);
 
     /**
      * Execution method
@@ -210,14 +214,14 @@ namespace madag {
      */
     wf_response_t *
         getProblemEstimates(Dag * dag, MasterAgent_var MA)
-        throw (NodeException);
+        throw (MaDag::ServiceNotFound, MaDag::CommProblem);
 
     /**
      * Call MA to get server estimations for one node
      */
     wf_response_t *
         getProblemEstimates(DagNode * node, MasterAgent_var MA)
-        throw (NodeException);
+        throw (MaDag::ServiceNotFound, MaDag::CommProblem);
 
     /**
      * internal dag scheduling
@@ -229,7 +233,7 @@ namespace madag {
      */
     virtual void
         intraDagSchedule(Dag * dag, MasterAgent_var MA)
-        throw (NodeException);
+        throw (MaDag::ServiceNotFound, MaDag::CommProblem);
 
     /**
      * create a new node queue based on a dag
@@ -396,7 +400,7 @@ namespace madag {
     /**
      * Map dag ref => metadag ref
      */
-    map<Dag*,MetaDag*>  myMetaDags;
+    map<string,MetaDag*>  myMetaDags;
 
   }; // end class MultiWfScheduler
 

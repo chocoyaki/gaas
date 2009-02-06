@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2009/02/06 14:55:08  bisnard
+ * setup exceptions
+ *
  * Revision 1.6  2009/01/16 16:31:54  bisnard
  * added option to specify data source file name
  *
@@ -35,6 +38,7 @@
 #define _FWORKFLOW_HH_
 
 #include <map>
+#include <iostream>
 
 #include "Dag.hh"
 #include "FNode.hh"
@@ -62,7 +66,7 @@ public:
   /***************************************************/
 
   virtual Node *
-  getNode(const string& nodeId);
+  getNode(const string& nodeId) throw (WfStructException);
 
   virtual void
   checkPrec(NodeSet* contextNodeSet) throw (WfStructException);
@@ -76,42 +80,47 @@ public:
 
   /**
    * creation
+   * @return pointer to the node (does not return NULL)
    */
 
   FProcNode*
-  createProcessor(const string& id);
+  createProcessor(const string& id) throw (WfStructException);
 
   FSourceNode*
-  createSource(const string& id, WfCst::WfDataType type);
+  createSource(const string& id, WfCst::WfDataType type) throw (WfStructException);
 
   FConstantNode*
-  createConstant(const string& id, WfCst::WfDataType type);
+  createConstant(const string& id, WfCst::WfDataType type) throw (WfStructException);
 
   FSinkNode*
-  createSink(const string& id, WfCst::WfDataType type);
+  createSink(const string& id, WfCst::WfDataType type, unsigned int depth)
+      throw (WfStructException);
 
   /**
    * retrieval
    */
 
   FProcNode *
-  getProcNode(const string& id);
+  getProcNode(const string& id) throw (WfStructException);
 
   FNode *
-  getInterfaceNode(const string& id);
+  getInterfaceNode(const string& id) throw (WfStructException);
 
   /**
    * instanciation
    */
 
   void
-  initialize(const string& dataFileName);
+  initialize(const string& dataFileName) throw (WfStructException);
 
   const string&
   getDataSrcXmlFile();
 
   Dag *
   instanciateDag();
+
+  void
+  stopInstanciation();
 
   bool
   instanciationReady();
@@ -120,16 +129,19 @@ public:
   instanciationPending(); // for dynamic dependencies
 
   bool
+  instanciationStopped();
+
+  bool
   instanciationCompleted();
 
   void
-  handlerDagNodeDone(DagNode* dagNode);
+  handlerDagNodeDone(DagNode* dagNode) throw (WfDataException);
 
   /**
-   * dags
+   * results
    */
-  list<Dag*>&
-  getDagList();
+  void
+  displayAllResults(ostream& output);
 
   /**
    * memory free
@@ -186,7 +198,8 @@ private:
     INSTANC_READY,
     INSTANC_ONHOLD,
     INSTANC_PENDING,
-    INSTANC_END } instanciationStatus_t;
+    INSTANC_END,
+    INSTANC_STOPPED } instanciationStatus_t;
 
   instanciationStatus_t myStatus;
 

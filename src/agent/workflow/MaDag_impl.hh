@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2009/02/06 14:50:35  bisnard
+ * setup exceptions
+ *
  * Revision 1.21  2009/01/16 13:41:22  bisnard
  * added common base class DagScheduler to simplify dag events handling
  * improved exception management
@@ -251,7 +254,7 @@ protected:
   parseNewDag(const corba_wf_desc_t& wf_desc,
               const string& dagId,
               MetaDag * mDag = NULL)
-        throw (XMLParsingException, WfStructException);
+        throw (MaDag::InvalidDag);
 
   /**
    * setup the DietLogComponent

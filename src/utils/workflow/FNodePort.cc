@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2009/02/06 14:55:08  bisnard
+ * setup exceptions
+ *
  * Revision 1.3  2009/01/16 13:54:50  bisnard
  * new version of the dag instanciator with iteration strategies for nodes with multiple input ports
  *
@@ -168,8 +171,11 @@ FNodeOutPort::checkTotalDataNb(FNodeInPort *inPort,
 bool
 FNodeOutPort::addDataToInPort(FNodeInPort *inPort,
                               FDataHandle *dataHdl,
-                              const list<string>& dataCard) {
+                              const list<string>& dataCard)
+    throw (WfDataHandleException)
+{
   // try to insert the data in the inPort
+  // (fails in case of missing cardinal information)
   if (!inPort->addData(dataHdl, dataCard)) {
     return false;
   } else {
@@ -178,17 +184,14 @@ FNodeOutPort::addDataToInPort(FNodeInPort *inPort,
   }
 }
 
-bool
+void
 FNodeOutPort::addDataToInPort(FNodeInPort *inPort,
                               FDataHandle *dataHdl,
-                              DagNodeOutPort * dagOutPort) {
-    // try to insert the data in the inPort
-  if (!inPort->addData(dataHdl, dagOutPort)) {
-    return false;
-  } else {
-    checkTotalDataNb(inPort, dataHdl);
-    return true;
-  }
+                              DagNodeOutPort * dagOutPort)
+    throw (WfDataException, WfDataHandleException)
+{
+  inPort->addData(dataHdl, dagOutPort);
+  checkTotalDataNb(inPort, dataHdl);
 }
 
 void
@@ -209,7 +212,9 @@ FNodeOutPort::setAsConstant(FDataHandle* dataHdl) {
  * Static addData
  */
 bool
-FNodeInPort::addData(FDataHandle* dataHdl, const list<string>& dataCard) {
+FNodeInPort::addData(FDataHandle* dataHdl, const list<string>& dataCard)
+   throw (WfDataHandleException)
+{
   TRACE_TEXT (TRACE_ALL_STEPS,"     # Calling addData (port " << getParent()->getId()
                               << "#" << getId()
                               << ") for data: " << dataHdl->getTag().toString() << endl);
@@ -227,10 +232,6 @@ FNodeInPort::addData(FDataHandle* dataHdl, const list<string>& dataCard) {
       TRACE_TEXT (TRACE_ALL_STEPS,"Adding data in input port queue (tag="
                   << dataTag.toString() << ")" << endl);
       myQueue.insert(make_pair(dataTag, dataHdl));
-//       if (dataTag.isLast()) {
-//         TRACE_TEXT (TRACE_ALL_STEPS,"==> Last input inserted in port " << getId() << endl);
-//         lastTag = dataTag;
-//       }
     }
   } else if (dataHdl->getDepth() > depth) {
   // if dataHdl depth > port depth (SPLIT)
@@ -248,7 +249,7 @@ FNodeInPort::addData(FDataHandle* dataHdl, const list<string>& dataCard) {
       // remove first element of the cardinal list
       list<string> childCard = dataCard;
       childCard.pop_front();
-      // loop over all elements of the data handle
+      // loop over all elements of the data handle (may throw exception)
       for (map<FDataTag,FDataHandle*>::iterator eltIter = dataHdl->begin();
            eltIter != dataHdl->end();
            ++eltIter) {
@@ -276,8 +277,9 @@ FNodeInPort::addData(FDataHandle* dataHdl, const list<string>& dataCard) {
 /**
  * Dynamic addData
  */
-bool
-FNodeInPort::addData(FDataHandle* dataHdl, DagNodeOutPort* dagOutPort) {
+void
+FNodeInPort::addData(FDataHandle* dataHdl, DagNodeOutPort* dagOutPort)
+    throw (WfDataException, WfDataHandleException) {
   TRACE_TEXT (TRACE_ALL_STEPS,"     # Calling addData (port " << getParent()->getId()
                               << "#" << getId()
                               << ") for data: " << dataHdl->getTag().toString() << endl);
@@ -294,8 +296,11 @@ FNodeInPort::addData(FDataHandle* dataHdl, DagNodeOutPort* dagOutPort) {
     addData(dataHdl,dummyCard);
   } else {
     if (dataHdl->isDataIDDefined()) {
+#if HAVE_DAGDA
       TRACE_TEXT (TRACE_ALL_STEPS,"addData: get ID list from port" << endl);
-      diet_container_t* content = dagOutPort->getDataIDList(dataHdl->getDataID());
+      diet_container_t* content = NULL;
+      // retrieve container element ID list (may throw exception)
+      content = dagOutPort->getDataIDList(dataHdl->getDataID());
       if (content->size > 0) {
         TRACE_TEXT (TRACE_ALL_STEPS,"addData: cardinal = " << content->size << endl);
         dataHdl->setCardinal(content->size);
@@ -311,17 +316,19 @@ FNodeInPort::addData(FDataHandle* dataHdl, DagNodeOutPort* dagOutPort) {
           addData(childHdl, dagOutPort);
         }
       } else {
-        WARNING("FNodeInPort::addData : Empty container for data ID "
-                << dataHdl->getDataID() << endl);
-        return false;
+        WARNING("FNodeInPort::addData : Empty container");
+        throw (WfDataException(WfDataException::eINVALID_CONTAINER,
+               "Empty container " + dataHdl->getDataID()));
       }
+#else
+      INTERNAL_ERROR("Missing Dagda DIET component to handle containers",1);
+#endif
     } else {
-      WARNING("FNodeInPort::addData : Missing Data ID in data handle "
-              << dataHdl->getTag().toString() << endl);
-      return false;
+      WARNING("FNodeInPort::addData : Missing Data ID");
+      throw (WfDataException(WfDataException::eNOTFOUND,
+                              "Empty data ID"));
     }
   }
-  return true;
 }
 
 void
@@ -355,4 +362,25 @@ FNodeInPort::instanciate(Dag* dag, DagNode* nodeInst, FDataHandle* dataHdl) {
     TRACE_TEXT (TRACE_ALL_STEPS," IN port ==> ADAPTER = " << portAdapter->getSourceRef() << endl);
   }
 }
+
+void
+FNodeInPort::displayData(ostream& output) {
+  if (totalDef)
+    output << "TOTAL NB OF RESULTS : " << dataTotalNb << endl;
+  else
+    output << "Warning: undefined total nb of results (error during instanciation)" << endl;
+  int ix = 0;
+  for (map<FDataTag,FDataHandle*>::const_iterator dataIter = myQueue.begin();
+       dataIter != myQueue.end();
+       ++dataIter) {
+    output << "[" << ix++ << "]=";
+    try {
+      ((FDataHandle*) dataIter->second)->displayDataAsList(output);
+    } catch (WfDataException& e) {
+      output << "<Error: " << e.ErrorMsg() << ">";
+    }
+    output << endl;
+  }
+}
+
 

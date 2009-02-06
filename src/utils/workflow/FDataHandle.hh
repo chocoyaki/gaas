@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2009/02/06 14:55:08  bisnard
+ * setup exceptions
+ *
  * Revision 1.4  2009/01/16 13:54:50  bisnard
  * new version of the dag instanciator with iteration strategies for nodes with multiple input ports
  *
@@ -165,22 +168,23 @@ class FDataTag {
 };
 
 /*****************************************************************************/
-/*                        CLASS DataHandleException                          */
+/*                        CLASS WfDataHandleException                          */
 /*****************************************************************************/
 
-class DataHandleException {
+class WfDataHandleException {
   public:
-    enum DataHandleErrorType { eBAD_STRUCT,
+    enum WfDataHandleErrorType { eBAD_STRUCT,
                                eINVALID_ADAPT };
-    DataHandleException(DataHandleErrorType t,
-                        const string& _info,
-                        const FDataTag& _tag)
+    WfDataHandleException(WfDataHandleErrorType t,
+                          const string& _info,
+                          const FDataTag& _tag)
       { this->why = t; this->info = _info; this->tag = _tag; }
-    DataHandleErrorType Type() { return this->why; }
+    WfDataHandleErrorType Type() { return this->why; }
     const string& Info()       { return this->info; }
     const FDataTag& Tag()      { return this->tag; }
+    string ErrorMsg();
   private:
-    DataHandleErrorType why;
+    WfDataHandleErrorType why;
     string info;
     FDataTag tag;
 };
@@ -284,16 +288,15 @@ class FDataHandle {
      */
     void
     insertInTree(FDataHandle* dataHdl)
-        throw (DataHandleException);
+        throw (WfDataHandleException);
 
     /**
      * Get an iterator on the childs of the data Handle
      * If the cardinal is defined and the childs are not yet generated then this
      * will generate the childs with the correct tags
-     * TODO optimize begin()
      */
     map<FDataTag,FDataHandle*>::iterator
-    begin();
+    begin() throw (WfDataHandleException);
 
     map<FDataTag,FDataHandle*>::iterator
     end();
@@ -360,6 +363,14 @@ class FDataHandle {
     checkIfComplete(unsigned int level,
                     vector<unsigned int>& childNbTable);
 
+    /**
+     * Display the content of the dataHandle as a parenthezized list
+     * @param output  the output stream
+     * @param goUp    will display the full tree if the current data is a node
+     */
+    void
+    displayDataAsList(ostream& output);
+
   private:
 
     typedef enum {
@@ -381,7 +392,7 @@ class FDataHandle {
     checkIfCompleteRec(unsigned int level, unsigned int& total);
 
     void
-    display(bool goUp=false);
+    display(bool goUp = false);
 
     /**
      * the tag associated with this data handle

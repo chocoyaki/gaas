@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2009/02/06 14:55:08  bisnard
+ * setup exceptions
+ *
  * Revision 1.3  2009/01/16 13:54:50  bisnard
  * new version of the dag instanciator with iteration strategies for nodes with multiple input ports
  *
@@ -226,6 +229,20 @@ operator<( const FDataTag& tag1, const FDataTag& tag2 ) {
   }
   return 0;
 }
+/*****************************************************************************/
+/*                   WfDataHandleException class                             */
+/*****************************************************************************/
+string
+WfDataHandleException::ErrorMsg() {
+  string errorMsg;
+  switch(Type()) {
+    case eBAD_STRUCT:
+      errorMsg = "Data Hdl bad structure (tag="+Tag().toString()+":"+Info(); break;
+    case eINVALID_ADAPT:
+      errorMsg = "Invalid adapter (tag="+Tag().toString()+":"+Info(); break;
+  }
+  return errorMsg;
+}
 
 /*****************************************************************************/
 /*                         FDataHandle class                                 */
@@ -357,18 +374,18 @@ FDataHandle::isAdapterDefined() const {
  */
 void
 FDataHandle::insertInTree(FDataHandle* dataHdl)
-  throw (DataHandleException) {
+  throw (WfDataHandleException) {
   TRACE_TEXT (TRACE_ALL_STEPS, "insertInTree (current tag=" << getTag().toString()
        << " / depth=" << myDepth << ") ..." << endl);
   if (myDepth == 0)
-    throw DataHandleException(DataHandleException::eBAD_STRUCT,
+    throw WfDataHandleException(WfDataHandleException::eBAD_STRUCT,
                               "Cannot insert into non-container data handle (depth=0)",
                               this->getTag());
   const FDataTag& dataTag = dataHdl->getTag();
   unsigned int dataLevel = dataTag.getLevel();
   unsigned int myLevel = myTag.getLevel();
   if (dataLevel <= myLevel)
-    throw DataHandleException(DataHandleException::eBAD_STRUCT,
+    throw WfDataHandleException(WfDataHandleException::eBAD_STRUCT,
                               "Tried to insert data handle of same or lower level",
                               this->getTag());
   if (dataLevel == myLevel+1) {
@@ -487,8 +504,8 @@ FDataHandle::checkIfComplete(unsigned int level,
  */
 bool
 FDataHandle::checkIfCompleteRec(unsigned int level, unsigned int& total) {
-  TRACE_TEXT (TRACE_ALL_STEPS, "@@@@ REC checkIfComplete (data=" << getTag().toString()
-       << " / total=" << total << ")" << endl);
+//   TRACE_TEXT (TRACE_ALL_STEPS, "@@@@ REC checkIfComplete (data=" << getTag().toString()
+//        << " / total=" << total << ")" << endl);
   // check if current data is not locally complete
   if (!isCardinalDefined() || (myData->size() != myCard)) return false;
   // recursion stops when current data's level is at level-1
@@ -510,16 +527,17 @@ FDataHandle::checkIfCompleteRec(unsigned int level, unsigned int& total) {
 }
 
 map<FDataTag,FDataHandle*>::iterator
-FDataHandle::begin() {
+FDataHandle::begin() throw (WfDataHandleException) {
   // check that data handle is a container
   if (myDepth < 1) {
-    INTERNAL_ERROR("Trying to get elements of non-container data handle",0);
+    throw WfDataHandleException(WfDataHandleException::eBAD_STRUCT,
+                          "Tried to get elements of non-container data handle",myTag);
   }
   // if data handle linked to an existing dag port (ie adapter defined)
   // and if the cardinal is defined then the first call to begin will
   // create the childs
   if (isAdapterDefined() && isCardinalDefined() && (myData->size() == 0)) {
-    TRACE_TEXT (TRACE_ALL_STEPS,"Creating childs of data " << getTag().toString() << endl);
+//     TRACE_TEXT (TRACE_ALL_STEPS,"Creating childs of data " << getTag().toString() << endl);
     for (int ix=0; ix < myCard; ++ix) {
       FDataTag  childTag(myTag,ix, (ix == myCard-1));
       FDataHandle* childHdl = new FDataHandle(childTag, myDepth-1, this, NULL);
@@ -540,7 +558,6 @@ FDataHandle::createPortAdapter(const string& currDagName) {
   if (myAdapterType == ADAPTER_DIRECT) {
     // LINK TO OUTPUT PORT WITHOUT SPLIT
     // provide dagName only if different from the dag of this handle's port
-    TRACE_TEXT (TRACE_ALL_STEPS, "createPortAdapter (this="<< this << ") direct" << endl);
     DagNode * endNode = dynamic_cast<DagNode*>(myPort->getParent());
     string dagName;
     string endNodeDagName = endNode->getDag()->getId();
@@ -552,7 +569,6 @@ FDataHandle::createPortAdapter(const string& currDagName) {
     // LINK TO OUTPUT PORT WITH SPLIT (use indexes)
     // get parent port adapter that is necessarily a simple port adapter
     // (my parent adapter type can either be DIRECT or SIMPLE but not MULTIPLE)
-    TRACE_TEXT (TRACE_ALL_STEPS, "createPortAdapter (this="<< this << ") simple" << endl);
     if (myParentHdl->myAdapterType == ADAPTER_MULTIPLE) {
       INTERNAL_ERROR("Wrong port adapter structure: multiple parent of simple",1);
     }
@@ -567,10 +583,8 @@ FDataHandle::createPortAdapter(const string& currDagName) {
     delete parentAdapter;
 
   } else if (myAdapterType == ADAPTER_MULTIPLE) {
-      // LINK TO SEVERAL OUTPUT PORTS (MERGE)
-      // get all my child adapters and create a multiple adapter from them
-    TRACE_TEXT (TRACE_ALL_STEPS, "createPortAdapter (this="<< this << ") multiple" << endl);
-//     display(true);
+    // LINK TO SEVERAL OUTPUT PORTS (MERGE)
+    // get all my child adapters and create a multiple adapter from them
     WfMultiplePortAdapter* multAdapter = new WfMultiplePortAdapter();
     for (map<FDataTag,FDataHandle*>::iterator childIter = myData->begin();
          childIter != myData->end();
@@ -579,8 +593,6 @@ FDataHandle::createPortAdapter(const string& currDagName) {
       multAdapter->addSubAdapter(childHdl->createPortAdapter(currDagName));
     }
     myAdapter = (WfPortAdapter*) multAdapter;
-    TRACE_TEXT (TRACE_ALL_STEPS, "END of createPortAdapter multiple" << endl);
-//     display(true);
   }
   return myAdapter;
 }
@@ -613,6 +625,27 @@ FDataHandle::setDataID(const string& dataID) {
   }
 }
 
+/**
+ * Method to display data handle value after execution (for sink nodes)
+ * Creates a temporary port adapter and calls displayData()
+ * on this adapter
+ */
+void
+FDataHandle::displayDataAsList(ostream& output) {
+  if (isValueDefined()) {
+    output << myValue;
+  } else if (isAdapterDefined()) {
+    WfPortAdapter *adapter = createPortAdapter();
+    adapter->displayDataAsList(output);
+    delete adapter;
+  } else { // no adapter and no static value
+    output << "<error>";
+  }
+}
+
+/**
+ * display used for debug
+ */
 void
 FDataHandle::display(bool goUp) {
   if (goUp && myParentHdl)
@@ -636,5 +669,4 @@ FDataHandle::display(bool goUp) {
     if (getTag().getLevel() == 0) cout << "-------------------" << endl;
   }
 }
-
 

@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.34  2009/02/06 14:55:08  bisnard
+ * setup exceptions
+ *
  * Revision 1.33  2009/01/16 13:55:36  bisnard
  * changes in dag event handling methods
  *
@@ -235,8 +238,8 @@ Node::remPrevId(const string& nodeId) {
  * the control dependencies (<prec> tag) and the
  * data dependencies (ports links)
  */
-bool
-Node::setNodePrecedence(NodeSet* nodeSet) {
+void
+Node::setNodePrecedence(NodeSet* nodeSet) throw (WfStructException) {
   // The predecessors defined by control links (<prec> tag) were
   // already added by the dag parser.
   // Add the predecessors defined by data links
@@ -244,8 +247,7 @@ Node::setNodePrecedence(NodeSet* nodeSet) {
   for (map<string, WfPort*>::iterator p = ports.begin();
 	 p != ports.end();
 	 ++p) {
-      if (!((WfPort*)p->second)->setNodePrecedence(nodeSet))
-        return false;
+      ((WfPort*)p->second)->setNodePrecedence(nodeSet);
   }
   // convert the predecessors defined by ID in prevNodeIds to
   // direct object references stored in prevNodes
@@ -255,12 +257,8 @@ Node::setNodePrecedence(NodeSet* nodeSet) {
        idIter != prevNodeIds.end();
        ++idIter) {
     Node * prevNode = nodeSet->getNode(*idIter);
-    if (prevNode != NULL)
-      this->setPrev(prevIdx++, prevNode);
-    else
-      return false;
+    setPrev(prevIdx++, prevNode);
   }
-  return true;
 }
 
 /**
@@ -368,8 +366,8 @@ Node::isAnExit() {
  * link the ports by references
  */
 void
-Node::connectNodePorts() {
-   TRACE_TEXT (TRACE_ALL_STEPS,
+Node::connectNodePorts() throw (WfStructException) {
+  TRACE_TEXT (TRACE_ALL_STEPS,
  	      "connectNodePorts : processing node " << getId() << endl);
   for (map<string, WfPort*>::iterator p = ports.begin();
        p != ports.end();
@@ -379,15 +377,25 @@ Node::connectNodePorts() {
 }
 
 /**
+ * check if port already exists
+ */
+bool
+Node::isPortDefined(const string& id) {
+  map<string, WfPort*>::iterator p = ports.find(id);
+  return (p != ports.end());
+}
+
+/**
  * Get the input port references by id *
  */
 WfPort *
-Node::getPort(const string& id) {
+Node::getPort(const string& id) throw (WfStructException) {
   map<string, WfPort*>::iterator p = ports.find(id);
   if (p != ports.end())
     return ((WfPort*)(p->second));
   else
-    return NULL;
+    throw WfStructException(WfStructException::eUNKNOWN_PORT,
+                            "node id=" + myId + "/port id=" + id);
 }
 
 /**
@@ -417,14 +425,29 @@ Node::getInPortNb() const {
 /**
  * Get port by index
  */
-WfPort*
-Node::getPortByIndex(unsigned int portIdx) {
-  map<string, WfPort*>::iterator portIter = ports.begin();
+const WfPort*
+Node::getPortByIndex(unsigned int portIdx) const {
+  map<string, WfPort*>::const_iterator portIter = ports.begin();
   while (portIter != ports.end()) {
-    WfPort *port = (WfPort*) portIter->second;
+    const WfPort *port = (const WfPort*) portIter->second;
     if (port->getIndex() == portIdx)
       return port;
     portIter++;
   }
   return NULL;
+}
+
+/**
+ * Get description of ports (used for error msg)
+ */
+string
+Node::getPortsDescr() const {
+  string descrStr;
+  for (int ix=0; ix<getPortNb(); ++ix) {
+    const WfPort* port = getPortByIndex(ix);
+    descrStr += port->getPortDescr();
+    if (ix < getPortNb()-1)
+      descrStr += ", ";
+  }
+  return descrStr;
 }

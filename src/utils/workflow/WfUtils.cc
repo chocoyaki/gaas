@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2009/02/06 14:55:08  bisnard
+ * setup exceptions
+ *
  * Revision 1.8  2008/12/02 10:05:27  bisnard
  * new conversion method
  *
@@ -57,6 +60,26 @@
 #include <map>
 
 using namespace std;
+
+string
+WfStructException::ErrorMsg() {
+  string errorMsg;
+  switch(Type()) {
+    case eUNKNOWN_DAG:
+      errorMsg = "Unknown dag (" + Info() + ")"; break;
+    case eUNKNOWN_NODE:
+      errorMsg = "Unknown node (" + Info() + ")"; break;
+    case eUNKNOWN_PORT:
+      errorMsg = "Unknown port (" + Info() + ")"; break;
+    case eDUPLICATE_NODE:
+      errorMsg = "Duplicate node (" + Info() + ")"; break;
+    case eTYPE_MISMATCH:
+      errorMsg = "Type mismatch (" + Info() + ")"; break;
+    case eDEPTH_MISMATCH:
+      errorMsg = "Depth mismatch (" + Info() + ")"; break;
+  }
+  return errorMsg;
+}
 
 /**
  * Conversion for data types
