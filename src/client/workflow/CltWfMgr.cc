@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2009/02/11 07:50:42  bisnard
+ * remove debug messages
+ *
  * Revision 1.25  2009/02/06 14:51:27  bisnard
  * - setup exceptions
  * - refactoring dag and functional wf submission
@@ -339,13 +342,6 @@ CltWfMgr::wfDagCall(diet_wf_desc_t * profile) {
 diet_error_t
 CltWfMgr::wfDagCallCommon(diet_wf_desc_t *dagProfile, Dag *dag, bool parse, bool release) {
   diet_error_t res(0);
-
-  char* hn = myMA->getHostname();
-  cout << "Check MA 1:" << hn << endl;
-  CORBA::string_free(hn);
-  char* hn2 = myMA->getHostname();
-  cout << "Check MA 2:" << hn2 << endl;
-  CORBA::string_free(hn2);
 
   if (parse) {
     try {
