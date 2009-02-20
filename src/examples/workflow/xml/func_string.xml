@@ -18,7 +18,12 @@
       <out name="out" type="DIET_STRING" depth="1"/>
       <!-- or replace with the following for static instanciation -->
       <!-- <out name="out" type="DIET_STRING" depth="1" card="2"/> -->
-      <diet path="mixproc"/>
+
+      <!-- the estimation for this service is supposed to take the same
+           value whatever parameters value are. If this attribute is
+           removed the MADAG will send an estimation request for each
+           task -->
+      <diet path="mixproc" estimation="constant"/>
       <iterationstrategy>
         <cross>
           <port name="in1" />
@@ -33,7 +38,7 @@
       <!-- the depth attribute is optional (default is 0) -->
       <in name="in" type="DIET_STRING"/>
       <out name="out" type="DIET_STRING"/>
-      <diet path="dummy"/>
+      <diet path="dummy" estimation="constant"/>
     </processor>
 
   </processors>
