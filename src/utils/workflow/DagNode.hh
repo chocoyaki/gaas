@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2009/02/20 10:23:54  bisnard
+ * use estimation class to reduce the nb of submit requests
+ *
  * Revision 1.7  2009/02/06 14:55:08  bisnard
  * setup exceptions
  *
@@ -209,6 +212,21 @@ public:
    */
   diet_reqID_t
   getReqID();
+
+  /**
+   * Set the estimation class
+   * (if dagNode belongs to an estimation class then
+   * the scheduler will use the same estimation value as for any node
+   * of the same class)
+   */
+  void
+  setEstimationClass(const string& estimClassId);
+
+  /**
+   * Get the estimation class
+   */
+  const string&
+  getEstimationClass();
 
   /**
    * set the submit index
@@ -655,6 +673,12 @@ private:
    */
   int submitIndex;
 
+  /**
+   * Estimation class (if dagNode belongs to an estimation class then
+   * the scheduler will use the same estimation value as for any node
+   * of the same class)
+   */
+  string estimationClass;
 
 };
 

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2009/02/20 10:23:54  bisnard
+ * use estimation class to reduce the nb of submit requests
+ *
  * Revision 1.12  2009/02/06 14:55:08  bisnard
  * setup exceptions
  *
@@ -372,7 +375,10 @@ DagNode::newPort(string portId, unsigned int ind,
 string
 DagNode::toXML() const {
   string xml = "<node id=\""+ myId +"\" ";
-  xml += "path=\""+ myPb +"\">\n";
+  xml += "path=\""+ myPb + "\" ";
+  if (!estimationClass.empty())
+    xml += "est-class=\"" + estimationClass + "\" ";
+  xml += ">\n";
   for (int ix = 0; ix < getPortNb(); ++ix) {
     const DagNodePort * port = dynamic_cast<const DagNodePort*>(getPortByIndex(ix));
     xml += port->toXML();
@@ -401,6 +407,22 @@ DagNode::getReqID(){
   if(this->isDone())
     return this->getProfile()->dietReqID;
   return -1;
+}
+
+/**
+ * Set the estimation class
+ */
+void
+DagNode::setEstimationClass(const string& estimClassId) {
+  estimationClass = estimClassId;
+}
+
+/**
+ * Get the estimation class
+ */
+const string&
+DagNode::getEstimationClass() {
+  return estimationClass;
 }
 
 /**

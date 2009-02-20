@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2009/02/20 10:23:54  bisnard
+ * use estimation class to reduce the nb of submit requests
+ *
  * Revision 1.20  2009/02/06 14:55:08  bisnard
  * setup exceptions
  *
@@ -484,6 +487,7 @@ Node *
 DagParser::createNode(const DOMElement* element, const string& elementName) {
   string nodeId(getAttributeValue("id", element));
   string pbName = getAttributeValue("path", element);
+  string estClass = getAttributeValue("est-class", element);
   if (nodeId.empty() || pbName.empty()) {
         throw XMLParsingException(XMLParsingException::eEMPTY_ATTR,
                                   "Node without Id or Path");
@@ -493,6 +497,8 @@ DagParser::createNode(const DOMElement* element, const string& elementName) {
     throw XMLParsingException(XMLParsingException::eINVALID_REF,
                               "Duplicate node id : " + nodeId);
   node->setPbName(pbName);
+  if (!estClass.empty())
+    node->setEstimationClass(estClass);
   return node;
 }
 
@@ -811,6 +817,11 @@ FWfParser::parseOtherNodeSubElt(const DOMElement * element,
     string maxInstStr = getAttributeValue("max-instances", element);
     if (!maxInstStr.empty()) {
       procNode->setMaxInstancePerDag(atoi(maxInstStr.c_str()));
+    }
+    // ESTIMATION attribute
+    string estimAttr = getAttributeValue("estimation", element);
+    if (!estimAttr.empty()) {
+      procNode->setDIETEstimationOption(estimAttr);
     }
   // VALUE of constants (may be replaced by a 'value' attribute within
   //  the <constant> tag)

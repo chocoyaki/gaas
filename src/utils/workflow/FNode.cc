@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2009/02/20 10:23:54  bisnard
+ * use estimation class to reduce the nb of submit requests
+ *
  * Revision 1.6  2009/02/06 14:55:08  bisnard
  * setup exceptions
  *
@@ -277,6 +280,11 @@ FProcNode::setDIETServicePath(const string& path) {
 }
 
 void
+FProcNode::setDIETEstimationOption(const string& estimOption) {
+  myEstimOption = estimOption;
+}
+
+void
 FProcNode::setMaxInstancePerDag(short maxInst) {
   maxInstNb = maxInst;
 }
@@ -428,6 +436,9 @@ FProcNode::instanciate(Dag* dag) {
       }
       dagNode->setPbName(myPath);
       dagNode->setFNode(this);
+      if (myEstimOption == "constant") {
+        dagNode->setEstimationClass(this->getId());
+      }
       // LOOP for each port
       for (map<string,WfPort*>::iterator portIter = ports.begin();
            portIter != ports.end();

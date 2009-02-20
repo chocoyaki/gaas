@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.46  2009/02/20 10:24:52  bisnard
+ * use estimation class to reduce the nb of submit requests
+ *
  * Revision 1.45  2009/02/06 14:50:35  bisnard
  * setup exceptions
  *
@@ -559,7 +562,8 @@ MultiWfScheduler::run() {
 
 /**
  * Call MA to get server estimations for all services for nodes of a Dag
- * Note: creates the node profiles
+ * Note: creates the node profiles, uses the estimation class to optimize
+ * the request ie reduce the nb of estimations requested to the MA
  */
 wf_response_t *
 MultiWfScheduler::getProblemEstimates(Dag *dag, MasterAgent_var MA)
@@ -569,18 +573,50 @@ MultiWfScheduler::getProblemEstimates(Dag *dag, MasterAgent_var MA)
   corba_pb_desc_seq_t* pbs_seq = new corba_pb_desc_seq_t();
   wf_response_t * wf_response = NULL;
   pbs_seq->length(dag->size());
+  // Create a mapping table (estimation class => submission index)
+  map<string,int> estimClassMap;
+  // Current submit index is ix
   int ix = 0;
   for (map<std::string, DagNode *>::iterator iter = dag->begin();
        iter != dag->end();
        ++iter) {
     DagNode * dagNode = (DagNode *) iter->second;
-    dagNode->initProfileSubmit(); // creates the diet profile
-    dagNode->setSubmitIndex(ix);  // used to find response
-    mrsh_pb_desc(&(*pbs_seq)[ix++], dagNode->getProfile());
+    // creates the diet profile
+    dagNode->initProfileSubmit();
+
+    // set the submit index and decide if this node must be added to the request
+    string nodeEstimClass = dagNode->getEstimationClass();
+    bool submit = true;
+    int submitIdx;
+    if (nodeEstimClass.empty()) {
+      // default case (no estimation class) => node is added to request
+      submitIdx = ix++;
+    } else {
+      // estimation class defined => check if already added to request or not
+      map<string,int>::iterator estimClassIter = estimClassMap.find(nodeEstimClass);
+      if (estimClassIter != estimClassMap.end()) {
+        submitIdx = (int) estimClassIter->second;
+        submit = false;
+        cout << "Node " << dagNode->getId() << " using submit index=" << submitIdx << endl;
+      } else {
+        submitIdx = ix++;
+        estimClassMap.insert(make_pair(nodeEstimClass,submitIdx));
+      }
+    }
+    dagNode->setSubmitIndex(submitIdx);
+
+    // add the current node's profile to the sequence (if part of the request)
+    if (submit) {
+      mrsh_pb_desc(&(*pbs_seq)[submitIdx], dagNode->getProfile());
+    }
+
   }
   TRACE_TEXT (TRACE_ALL_STEPS,
               "MultiWfScheduler: send " << ix << " profile(s) to the MA  ... "
                   << endl);
+  // resize the sequence to the final length
+  pbs_seq->length(ix);
+
   bool failed = false;
   string failureMsg;
   try {

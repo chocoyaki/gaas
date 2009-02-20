@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2009/02/20 10:23:54  bisnard
+ * use estimation class to reduce the nb of submit requests
+ *
  * Revision 1.6  2009/02/06 14:55:08  bisnard
  * setup exceptions
  *
@@ -327,6 +330,9 @@ class FProcNode : public FNode {
     void
         setDIETServicePath(const string& path);
 
+    void
+        setDIETEstimationOption(const string& estimOption);
+
   protected:
 
     PortInputIterator *
@@ -354,6 +360,11 @@ class FProcNode : public FNode {
      * The service path
      */
     string myPath;
+
+    /**
+     * The estimation option
+     */
+    string myEstimOption;
 
     /**
      * Max number of instances per dag
