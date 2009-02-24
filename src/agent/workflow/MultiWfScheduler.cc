@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.47  2009/02/24 13:59:48  bisnard
+ * modified trace messages
+ *
  * Revision 1.46  2009/02/20 10:24:52  bisnard
  * use estimation class to reduce the nb of submit requests
  *
@@ -275,6 +278,9 @@ MultiWfScheduler::scheduleNewDag(Dag * newDag, MetaDag * metaDag)
   // Beginning of exclusion block
   // TODO move exclusion lock later (need to make HEFTScheduler thread-safe)
   this->myLock.lock();
+
+  TRACE_TEXT(TRACE_MAIN_STEPS,"\t ** New DAG to schedule (" << newDag->getId()
+              << ") time=" << this->getRelCurrTime() << endl);
 
   // Dag internal scheduling
   TRACE_TEXT (TRACE_ALL_STEPS, "Making intra-dag schedule" << endl);
@@ -597,7 +603,8 @@ MultiWfScheduler::getProblemEstimates(Dag *dag, MasterAgent_var MA)
       if (estimClassIter != estimClassMap.end()) {
         submitIdx = (int) estimClassIter->second;
         submit = false;
-        cout << "Node " << dagNode->getId() << " using submit index=" << submitIdx << endl;
+        TRACE_TEXT (TRACE_ALL_STEPS,"Node " << dagNode->getId()
+                     << " using submit index=" << submitIdx << endl);
       } else {
         submitIdx = ix++;
         estimClassMap.insert(make_pair(nodeEstimClass,submitIdx));
