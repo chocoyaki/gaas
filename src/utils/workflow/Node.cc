@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.35  2009/02/24 14:01:05  bisnard
+ * added dynamic parameter mgmt for wf processors
+ *
  * Revision 1.34  2009/02/06 14:55:08  bisnard
  * setup exceptions
  *
@@ -407,15 +410,15 @@ Node::getPortNb() const {
 }
 
 /**
- * Get nb of IN ports
+ * Get nb of ports by type
  */
 unsigned int
-Node::getInPortNb() const {
+Node::getPortNb(WfPort::WfPortType portType) const {
   unsigned int count = 0;
   map<string, WfPort*>::const_iterator portIter = ports.begin();
   while (portIter != ports.end()) {
     WfPort *port = (WfPort*) portIter->second;
-    if (port->getPortType() == WfPort::PORT_IN)
+    if (port->getPortType() == portType)
       count++;
     portIter++;
   }

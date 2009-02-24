@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2009/02/24 14:01:05  bisnard
+ * added dynamic parameter mgmt for wf processors
+ *
  * Revision 1.4  2009/02/06 14:55:08  bisnard
  * setup exceptions
  *
@@ -69,6 +72,17 @@ FNodeInPort::FNodeInPort(Node * parent,
 FNodeInPort::~FNodeInPort() {
 }
 
+FNodeParamPort::FNodeParamPort(Node * parent,
+                           const string& _id,
+                           WfCst::WfDataType _type,
+                           unsigned int _ind)
+  : FNodeInPort(parent, _id, _type, 0, _ind) {
+  portType = WfPort::PORT_PARAM;
+}
+
+FNodeParamPort::~FNodeParamPort() {
+}
+
 /**
  * Ports connection setup method
  * Called by WfSimpleAdapter on both sides to connect node ports
@@ -101,7 +115,7 @@ FNodeOutPort::instanciate(Dag* dag, DagNode* nodeInst, const FDataTag& tag) {
   string portId = this->getId();
   TRACE_TEXT (TRACE_ALL_STEPS,"   # Creating new instance of OUT port: " << portId << endl);
   WfPort* portInst = nodeInst->newPort(portId,
-                                       index,
+                                       nodeInst->getPortNb(),
                                        portType,
                                        getBaseDataType(),
                                        depth);
@@ -349,7 +363,11 @@ FNodeInPort::instanciate(Dag* dag, DagNode* nodeInst, FDataHandle* dataHdl) {
   // create a DagNodeInPort for the nodeInst
   string portId = this->getId();
   TRACE_TEXT (TRACE_ALL_STEPS,"Creating new instance of IN port: " << portId << endl);
-  WfPort* portInst = nodeInst->newPort(portId, index, portType, getBaseDataType(), depth);
+  WfPort* portInst = nodeInst->newPort(portId,
+                                       nodeInst->getPortNb(),
+                                       portType,
+                                       getBaseDataType(),
+                                       depth);
   // if the dataHdl has a value then set the value of the port
   if (dataHdl->isValueDefined()) {
     TRACE_TEXT (TRACE_ALL_STEPS," IN port ==> VALUE : " << dataHdl->getValue() << endl);
@@ -383,4 +401,38 @@ FNodeInPort::displayData(ostream& output) {
   }
 }
 
+/*****************************************************************************/
+/*                          FNodeParamPort                                   */
+/*****************************************************************************/
+// Note: a param port has necessarily depth=0
 
+bool
+FNodeParamPort::addData(FDataHandle* dataHdl, const list<string>& dataCard)
+    throw (WfDataHandleException)
+{
+  if (dataHdl->isValueDefined())
+    return FNodeInPort::addData(dataHdl, dataCard);
+  else
+    return false;
+}
+
+void
+FNodeParamPort::addData(FDataHandle* dataHdl, DagNodeOutPort* dagOutPort)
+    throw (WfDataException, WfDataHandleException)
+{
+  // set the data handle value (if no split)
+  if ((dataHdl->getDepth() == depth) && !dataHdl->isValueDefined()) {
+    dataHdl->downloadValue();
+  }
+  // call parent method
+  FNodeInPort::addData(dataHdl,dagOutPort);
+}
+
+void
+FNodeParamPort::instanciate(Dag* dag, DagNode* nodeInst, FDataHandle* dataHdl) {
+  string portId = this->getId();
+  string value = dataHdl->getValue();
+  TRACE_TEXT (TRACE_ALL_STEPS,"Instanciate PARAM port: " << portId
+                              << "(value = " << value << ")" << endl);
+  getParentProcNode()->setDynamicParamValue(portId, value);
+}

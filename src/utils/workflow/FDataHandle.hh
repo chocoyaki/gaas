@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2009/02/24 14:01:05  bisnard
+ * added dynamic parameter mgmt for wf processors
+ *
  * Revision 1.5  2009/02/06 14:55:08  bisnard
  * setup exceptions
  *
@@ -237,9 +240,22 @@ class FDataHandle {
      */
     ~FDataHandle();
 
+    /**
+     * Get the depth of this data handle
+     * Note: the depth value can be modified by addChild() if the first child inserted
+     * as a higher depth than current depth - 1. This is necessary for port buffer
+     * (root of the tree) as its actual depth is not known at creation.
+     * Note: a strictly positive depth does not necessarily mean the childs exist. They
+     * may be 'virtual' until an iterator is created on the data using begin() which
+     * will create the childs.
+     */
     unsigned int
     getDepth() const;
 
+    /**
+     * Get the tag of this data handle
+     * (The tag is set at creation and is not modified)
+     */
     const FDataTag&
     getTag() const;
 
@@ -348,6 +364,12 @@ class FDataHandle {
      */
     void
     setDataID(const string& dataID);
+
+    /**
+     * Get the value from the dag node (after execution)
+     */
+    void
+    downloadValue();
 
     /**
      * Checks recursively if the adapter is defined (up the tree)

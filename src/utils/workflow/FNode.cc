@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2009/02/24 14:01:05  bisnard
+ * added dynamic parameter mgmt for wf processors
+ *
  * Revision 1.7  2009/02/20 10:23:54  bisnard
  * use estimation class to reduce the nb of submit requests
  *
@@ -80,6 +83,9 @@ FNode::newPort(string portId,
     throw WfStructException(WfStructException::eDUPLICATE_PORT,"port id="+portId);
   WfPort * p = NULL;
   switch (portType) {
+    case WfPort::PORT_PARAM:
+      p = new FNodeParamPort(this, portId, dataType, ind);
+      break;
     case WfPort::PORT_IN:
       p = new FNodeInPort(this, portId, dataType, depth, ind);
       break;
@@ -292,9 +298,10 @@ FProcNode::setMaxInstancePerDag(short maxInst) {
 void
 FProcNode::initDataLine() {
   if (cstDataLine == NULL) {
-    cstDataLine = new vector<FDataHandle*>(getInPortNb());
+    unsigned int inPortNb = getPortNb(WfPort::PORT_IN) + getPortNb(WfPort::PORT_PARAM);
+    cstDataLine = new vector<FDataHandle*>(inPortNb, (FDataHandle*) NULL);
     TRACE_TEXT (TRACE_ALL_STEPS,"Created base dataline ("
-                << getInPortNb() << " ports)" << endl);
+                << inPortNb << " ports)" << endl);
   }
 }
 
@@ -304,16 +311,22 @@ FProcNode::createPortInputIterator(const string& portId) {
   try {
     wfPort = getPort(portId);
   } catch (WfStructException& e) {
-    throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
+    throw WfStructException(WfStructException::eOTHER,
                               "unknown input for operator creation :" + e.Info());
   }
   FNodeInPort *inPort = dynamic_cast<FNodeInPort*>(wfPort);
   if (inPort == NULL)
-    throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
+    throw WfStructException(WfStructException::eOTHER,
                               "input operator applied to an output port");
   PortInputIterator *newPortIter = new PortInputIterator(inPort);
   myIterators[inPort->getId()] = (InputIterator*) newPortIter;
   return newPortIter;
+}
+
+bool
+FProcNode::isIteratorDefined(const string& portId) {
+  map<string,InputIterator*>::iterator iter = myIterators.find(portId);
+  return (iter != myIterators.end());
 }
 
 const string&
@@ -360,8 +373,8 @@ FProcNode::setRootInputOperator(const string& opId) {
   if (iterFind != myIterators.end()) {
     myRootIterator = (InputIterator*) iterFind->second;
   } else
-    throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
-                              "root input operator not found");
+    throw WfStructException(WfStructException::eOTHER,
+                              "Root input operator '"+opId+"' not found");
 }
 
 void
@@ -370,24 +383,96 @@ FProcNode::setConstantInput(int idxPort, FDataHandle* dataHdl) {
   (*cstDataLine)[idxPort] = dataHdl;
 }
 
+bool
+FProcNode::isConstantInput(int idxPort) {
+  if (cstDataLine == NULL) return false;
+  return ((*cstDataLine)[idxPort] != NULL);
+}
+
+void
+FProcNode::checkDynamicParam(const string& paramName,
+                             const string& paramValue) {
+  // if value contains $ as first character then it's considered a variable
+  string::size_type varTag = paramValue.find("$");
+  if (varTag != 0) return;
+  // get the name of the variable
+  string paramVarName = paramValue.substr(1, paramValue.length()-1);
+  // check if it's a valid dynamic parameter
+  if (!(paramName == "path"))
+    throw XMLParsingException(XMLParsingException::eINVALID_REF,
+                              "attribute "+paramName+" cannot be dynamic");
+  // store the association name => variable
+  setDynamicParam(paramName, paramVarName);
+}
+
+void
+FProcNode::setDynamicParam(const string& paramName,
+                           const string& paramVarName) {
+  dynParMap.insert(make_pair(paramName, paramVarName));
+}
+
+bool
+FProcNode::isDynamicParam(const string& paramName) {
+  map<string,string>::iterator iter = dynParMap.find(paramName);
+  return (iter != dynParMap.end());
+}
+
+void
+FProcNode::setDynamicParamValue(const string& paramVarName,
+                                const string& paramValue) {
+  varMap[paramVarName] = paramValue;
+}
+
+const string&
+FProcNode::getDynamicParamValue(const string& paramName) {
+  // get the name of the variable containing this parameter
+  string varName;
+  map<string,string>::iterator parIter = dynParMap.find(paramName);
+  if (parIter != dynParMap.end())
+    varName = parIter->second;
+  else ERROR_EXIT("dynamic parameter '"+paramName+"' has no variable set");
+  // get the value of the variable
+  map<string,string>::iterator varIter = varMap.find(varName);
+  if (varIter != varMap.end())
+    return (varIter->second);
+  else ERROR_EXIT("dynamic variable '"+varName+"' has no value set");
+}
+
 void
 FProcNode::initialize() {
   TRACE_TEXT (TRACE_ALL_STEPS,"Initializing processor :" << getId() << endl);
   TRACE_TEXT (TRACE_ALL_STEPS,"  1/ Connecting node ports" << endl);
   this->connectNodePorts();
   TRACE_TEXT (TRACE_ALL_STEPS,"  2/ Checking input iterators" << endl);
-  if (!myRootIterator) {
-    if (this->getInPortNb() > 1) {
-      INTERNAL_ERROR("no root iterator defined for processor node",1);
+  vector<string> *iterCreatedMap = new vector<string>(getPortNb());
+  unsigned int iterCreatedNb = 0;
+  // loop for all input or param ports
+  for (int ix = 0; ix < getPortNb(); ++ix) {
+    const FNodePort * port = dynamic_cast<const FNodePort*>(getPortByIndex(ix));
+    string portId = port->getId();
+    // check if current port is an input and is not constant
+    if (((port->getPortType() == WfPort::PORT_IN)
+          || (port->getPortType() == WfPort::PORT_PARAM))
+         && !isConstantInput(ix)
+         && !isIteratorDefined(portId)) {
+        // create an iterator for the current port
+        createPortInputIterator(portId);
+        (*iterCreatedMap)[iterCreatedNb++] = portId;
+    }
+  }
+  if (iterCreatedNb > 0) {
+    if (iterCreatedNb == 1) {
+      setRootInputOperator((*iterCreatedMap)[0]);
     } else {
-      // define a default iterator for single port
-      const WfPort *port = this->getPortByIndex(0);
-      PortInputIterator *inputIter = createPortInputIterator(port->getId());
-      this->setRootInputOperator(inputIter->getId());
+      iterCreatedMap->resize(iterCreatedNb);
+      TRACE_TEXT (TRACE_ALL_STEPS,"Creating default DOT iterator for all inputs");
+      string parentIter = createInputOperator(OPER_DOT, *iterCreatedMap);
+      setRootInputOperator(parentIter);
     }
   }
   // Initialize the dataline (in case it was not created before)
   initDataLine();
+  delete iterCreatedMap;
 }
 
 void
@@ -434,11 +519,15 @@ FProcNode::instanciate(Dag* dag) {
       if (dagNode == NULL) {
         INTERNAL_ERROR("Could not create dag node " << dagNodeId << endl,0);
       }
-      dagNode->setPbName(myPath);
       dagNode->setFNode(this);
-      if (myEstimOption == "constant") {
-        dagNode->setEstimationClass(this->getId());
-      }
+      // initializes the variable map
+      varMap.clear();
+      // NOTE: currently only node path can by dynamic so the value of the parameter
+      // is automatically set before it is used (because the paramPort is instanciated
+      // before) BUT this won't be the case if some port attributes are made dynamic. To
+      // manage this the next loop should be splitted to handle paramPorts before the other
+      // ports.
+
       // LOOP for each port
       for (map<string,WfPort*>::iterator portIter = ports.begin();
            portIter != ports.end();
@@ -449,6 +538,7 @@ FProcNode::instanciate(Dag* dag) {
         FDataHandle* dataHdl;
         switch(port->getPortType()) {
           case WfPort::PORT_IN:
+          case WfPort::PORT_PARAM:
             inPort = dynamic_cast<FNodeInPort*>(port);
             // get the input data handle from the map (if not found set as NULL)
             dataHdl = (*currDataLine)[inPort->getIndex()];
@@ -467,6 +557,17 @@ FProcNode::instanciate(Dag* dag) {
             ;
         }
       } // end for ports
+
+      // define instance parameters: PATH
+      if (!isDynamicParam("path"))
+        dagNode->setPbName(myPath);
+      else
+        dagNode->setPbName(getDynamicParamValue("path"));
+      // define instance parameters: ESTIMATION option
+      if (myEstimOption == "constant") {
+        dagNode->setEstimationClass(this->getId());
+      }
+
       TRACE_TEXT (TRACE_ALL_STEPS,"  ## END OF CREATION OF NEW NODE INSTANCE : "
                                 << dagNodeId << endl);
     }

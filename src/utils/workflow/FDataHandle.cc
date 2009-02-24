@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2009/02/24 14:01:05  bisnard
+ * added dynamic parameter mgmt for wf processors
+ *
  * Revision 1.4  2009/02/06 14:55:08  bisnard
  * setup exceptions
  *
@@ -421,6 +424,16 @@ FDataHandle::addChild(FDataHandle* dataHdl) {
       << dataHdl->getTag().toString() << ")" << endl);
   myData->insert(make_pair(dataHdl->getTag(),dataHdl));
   dataHdl->setParent(this);
+  // update depth at first child insertion
+  if (dataHdl->getDepth() != myDepth-1) {
+    if (myData->size() == 1) {
+      myDepth = dataHdl->getDepth() + 1;
+      TRACE_TEXT (TRACE_ALL_STEPS, "updating depth (new depth=" << myDepth << ")" << endl);
+    } else {
+      INTERNAL_ERROR("Depth mismatch during data handle child insertion",1);
+    }
+  }
+  // update cardinal if element inserted is the last one
   if (dataHdl->isLastChild() && !isCardinalDefined()) {
     unsigned int card = dataHdl->getTag().getLastIndex() + 1;
     TRACE_TEXT (TRACE_ALL_STEPS," LAST child added => Updating cardinal : "
@@ -623,6 +636,15 @@ FDataHandle::setDataID(const string& dataID) {
     myDataID = dataID;
     dataIDDef = true;
   }
+}
+
+void
+FDataHandle::downloadValue() {
+  if (isValueDefined()) return;
+  ostringstream  valStr;
+  displayDataAsList(valStr);
+  myValue = valStr.str();
+  valueDef = true;
 }
 
 /**

@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2009/02/24 14:01:05  bisnard
+ * added dynamic parameter mgmt for wf processors
+ *
  * Revision 1.14  2009/02/06 14:55:08  bisnard
  * setup exceptions
  *
@@ -122,6 +125,9 @@ string
 WfPort::getPortDescr() const {
   string portDescr;
   switch(portType) {
+    case PORT_PARAM:
+      portDescr = "param ";
+      break;
     case PORT_IN:
       portDescr = "in ";
       break;

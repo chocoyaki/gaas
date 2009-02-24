@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2009/02/24 14:01:05  bisnard
+ * added dynamic parameter mgmt for wf processors
+ *
  * Revision 1.4  2009/02/06 14:55:08  bisnard
  * setup exceptions
  *
@@ -161,7 +164,7 @@ class FNodeInPort : public FNodePort {
      * @param dataCard  a list of (integer | 'x') = cardinal of data
      * @return false if the data cannot be added due to missing cardinal
      */
-    bool
+    virtual bool
     addData(FDataHandle* dataHdl, const list<string>& dataCard)
         throw (WfDataHandleException);
 
@@ -172,7 +175,7 @@ class FNodeInPort : public FNodePort {
      * @param dataHdl     the data Handle
      * @param dagOutPort  the port providing the data
      */
-    void
+    virtual void
     addData(FDataHandle* dataHdl, DagNodeOutPort* dagOutPort)
         throw (WfDataException, WfDataHandleException);
 
@@ -198,7 +201,7 @@ class FNodeInPort : public FNodePort {
      * @param nodeInst  the node instance already created
      * @param dataHdl   (may be NULL) the data Handle to be used (as source)
      */
-    void
+    virtual void
     instanciate(Dag* dag, DagNode* nodeInst, FDataHandle* dataHdl);
 
     /**
@@ -225,6 +228,52 @@ class FNodeInPort : public FNodePort {
     bool totalDef;
 
 }; // end class FNodeInPort
+
+/*****************************************************************************/
+/*                          FNodeParamPort                                   */
+/*****************************************************************************/
+// notes:
+// 1/ a param port always has depth = 0
+// 2/ a param port must be defined
+
+class FNodeParamPort : public FNodeInPort {
+
+  public:
+
+    FNodeParamPort(Node * parent, const string& _id,
+                   WfCst::WfDataType _type, unsigned int _ind);
+    virtual ~FNodeParamPort();
+
+    /**
+     * Use the value of the DH to setup dynamic parameters of the node
+     * @param dag       the dag being instanciated
+     * @param nodeInst  the node instance already created
+     * @param dataHdl   the data Handle to be used (as source)
+     */
+    virtual void
+        instanciate(Dag* dag, DagNode* nodeInst, FDataHandle* dataHdl);
+
+    /**
+     * Static addData (before node execution)
+     * @param dataHdl   the data Handle
+     * @param dataCard  a list of (integer | 'x') = cardinal of data
+     * @return false if value is not available
+     */
+    virtual bool
+        addData(FDataHandle* dataHdl, const list<string>& dataCard)
+        throw (WfDataHandleException);
+
+    /**
+     * Dynamic addData (after node execution)
+     * Add a new data item to be used for instanciation
+     * (when data item is available from the specified port)
+     * @param dataHdl     the data Handle
+     * @param dagOutPort  the port providing the data
+     */
+    virtual void
+        addData(FDataHandle* dataHdl, DagNodeOutPort* dagOutPort)
+        throw (WfDataException, WfDataHandleException);
+};
 
 
 #endif // _FNODEPORT_HH_

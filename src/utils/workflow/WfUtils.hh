@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2009/02/24 14:01:05  bisnard
+ * added dynamic parameter mgmt for wf processors
+ *
  * Revision 1.8  2009/02/06 14:55:08  bisnard
  * setup exceptions
  *
@@ -75,7 +78,8 @@ class WfStructException {
                              eDUPLICATE_NODE,
                              eDUPLICATE_PORT,
                              eTYPE_MISMATCH,
-                             eDEPTH_MISMATCH };
+                             eDEPTH_MISMATCH,
+                             eOTHER };
     WfStructException(WfStructErrorType t, const std::string& info)
       { this->why = t; this->info = info; }
     WfStructErrorType Type() { return this->why; }

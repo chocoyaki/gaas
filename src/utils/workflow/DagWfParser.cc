@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2009/02/24 14:01:05  bisnard
+ * added dynamic parameter mgmt for wf processors
+ *
  * Revision 1.21  2009/02/20 10:23:54  bisnard
  * use estimation class to reduce the nb of submit requests
  *
@@ -209,7 +212,7 @@ DagWfParser::parseNode (const DOMElement * element, const string& elementName) {
       if (child_name == "out") {
 	parseOut(child_elt, lastArg++, newNode);
       } else
-        parseOtherNodeSubElt(child_elt, child_name, newNode);
+      parseOtherNodeSubElt(child_elt, child_name, lastArg, newNode);
     }
     child = child->getNextSibling();
   } // end while
@@ -219,7 +222,7 @@ DagWfParser::parseNode (const DOMElement * element, const string& elementName) {
  * Parse an argument element
  */
 WfPort *
-DagWfParser::parseArg(DOMElement * element, unsigned int lastArg,
+DagWfParser::parseArg(const DOMElement * element, unsigned int lastArg,
                       Node* node) {
   string name  = getAttributeValue("name", element);
   string value = getAttributeValue("value", element);
@@ -247,7 +250,7 @@ DagWfParser::parseArg(DOMElement * element, unsigned int lastArg,
  * Parse an input port element
  */
 WfPort *
-DagWfParser::parseIn(DOMElement * element, unsigned int lastArg,
+DagWfParser::parseIn(const DOMElement * element, unsigned int lastArg,
                      Node* node) {
   string name    = getAttributeValue("name", element);
   string type    = getAttributeValue("type", element);
@@ -273,7 +276,7 @@ DagWfParser::parseIn(DOMElement * element, unsigned int lastArg,
  * parse InOut port element
  */
 WfPort *
-DagWfParser::parseInOut(DOMElement * element, unsigned int lastArg,
+DagWfParser::parseInOut(const DOMElement * element, unsigned int lastArg,
                         Node* node) {
   string name    = getAttributeValue("name", element);
   string type    = getAttributeValue("type", element);
@@ -299,7 +302,7 @@ DagWfParser::parseInOut(DOMElement * element, unsigned int lastArg,
  * Parse Out port element
  */
 WfPort *
-DagWfParser::parseOut(DOMElement * element, unsigned int lastArg,
+DagWfParser::parseOut(const DOMElement * element, unsigned int lastArg,
                       Node* node) {
   string name  = getAttributeValue("name", element);
   string type  = getAttributeValue("type", element);
@@ -363,12 +366,12 @@ DagWfParser::setParam(const WfPort::WfPortType param_type,
   // Use depth attribute (second syntax)
   if (!depth.empty())
     typeDepth = atoi(depth.c_str());
-  TRACE_TEXT( TRACE_ALL_STEPS,"Parameter base type = " << curType
-             << " & depth = " << typeDepth << endl);
+  TRACE_TEXT( TRACE_ALL_STEPS,"Creating new port '" << name
+               << "' (base type=" << curType
+               << " ,depth=" << typeDepth << " ,idx=" << lastArg << ")" << endl);
 
   // Initialize the profile with the appropriate parameter type
   // (and optionnally value: used only for Arg ports)
-//   short descType = (typeDepth == 0) ? baseType : (short) WfCst::TYPE_CONTAINER;
 
   WfPort *port;
   try {
@@ -505,6 +508,7 @@ DagParser::createNode(const DOMElement* element, const string& elementName) {
 void
 DagParser::parseOtherNodeSubElt(const DOMElement * element,
                                 const string& elementName,
+                                unsigned int& portIndex,
                                 Node * node) {
   if (elementName == "prec") {
     parsePrec(element, node);
@@ -654,7 +658,7 @@ FWfParser::createNode(const DOMElement* element, const string& elementName) {
  * Override methods for port parsing
  */
 WfPort*
-FWfParser::parseIn(DOMElement * element,
+FWfParser::parseIn(const DOMElement * element,
                    const unsigned int lastArg,
                    Node * node) {
   WfPort *port = DagWfParser::parseIn(element,lastArg,node);
@@ -663,7 +667,7 @@ FWfParser::parseIn(DOMElement * element,
 }
 
 WfPort*
-FWfParser::parseOut(DOMElement * element,
+FWfParser::parseOut(const DOMElement * element,
                     const unsigned int lastArg,
                     Node * node) {
   WfPort *port = DagWfParser::parseOut(element,lastArg,node);
@@ -672,7 +676,7 @@ FWfParser::parseOut(DOMElement * element,
 }
 
 WfPort*
-FWfParser::parseInOut(DOMElement * element,
+FWfParser::parseInOut(const DOMElement * element,
                       const unsigned int lastArg,
                       Node * node) {
   WfPort *port = DagWfParser::parseInOut(element,lastArg,node);
@@ -681,10 +685,29 @@ FWfParser::parseInOut(DOMElement * element,
 }
 
 /**
+ * Parse Param port element (only for functional wf)
+ */
+WfPort *
+FWfParser::parseParamPort(const DOMElement * element,
+                          const unsigned int lastArg,
+                          Node* node) {
+  string name  = getAttributeValue("name", element);
+  string type  = getAttributeValue("type", element);
+  if (element->getFirstChild() != NULL)
+    throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
+          "param port element doesn't accept a child element. \
+	  May be a </param> is forgotten");
+  if (WfCst::isMatrixType(type))
+    throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
+          "param port cannot have a matrix type");
+  return setParam(WfPort::PORT_PARAM, name, type, "0", lastArg, node);
+}
+
+/**
  * Parse the 'card' attribute (the cardinal of containers)
  */
 void
-FWfParser::parseCardAttr(DOMElement * element, WfPort* port) {
+FWfParser::parseCardAttr(const DOMElement * element, WfPort* port) {
   const XMLCh * strCard  = element->getAttribute(XMLString::transcode("card"));
   // parse the semi-column separated list
   XMLStringTokenizer *tkizer = new XMLStringTokenizer(strCard, XMLString::transcode(";"));
@@ -706,7 +729,7 @@ FWfParser::parseCardAttr(DOMElement * element, WfPort* port) {
  * FIXME at this stage we dont know wether the link is a back link or not!
  */
 void
-FWfParser::parseLink(DOMElement * element) {
+FWfParser::parseLink(const DOMElement * element) {
   string from = getAttributeValue("from", element);
   string to = getAttributeValue("to", element);
   string fromNodeName, toNodeName, fromPortName, toPortName;
@@ -800,6 +823,7 @@ FWfParser::parseIterationStrategy(const DOMElement * element,
 void
 FWfParser::parseOtherNodeSubElt(const DOMElement * element,
                                 const string& elementName,
+                                unsigned int& portIndex,
                                 Node * node) {
   // Diet service
   if (elementName == "diet") {
@@ -812,6 +836,7 @@ FWfParser::parseOtherNodeSubElt(const DOMElement * element,
     if (path.empty())
       throw XMLParsingException(XMLParsingException::eEMPTY_ATTR,
                  "<diet> element must contain a path attribute");
+    procNode->checkDynamicParam("path", path);
     procNode->setDIETServicePath(path);
     // MAX-INSTANCES attribute
     string maxInstStr = getAttributeValue("max-instances", element);
@@ -849,6 +874,8 @@ FWfParser::parseOtherNodeSubElt(const DOMElement * element,
                  "<iterationstrategy> contains more than one root operator");
     procNode->setRootInputOperator((*opInputId)[0]);
     delete opInputId;
+  } else if (elementName == "param") {
+    parseParamPort(element, portIndex++, node);
   } else {
     throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
                               "Invalid element : " + elementName);

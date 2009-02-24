@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2009/02/24 14:01:05  bisnard
+ * added dynamic parameter mgmt for wf processors
+ *
  * Revision 1.24  2009/02/06 14:55:08  bisnard
  * setup exceptions
  *
@@ -263,10 +266,10 @@ public:
   getPortNb() const;
 
   /**
-   * Get nb of IN ports
+   * Get nb of ports by type
    */
   unsigned int
-  getInPortNb() const;
+  getPortNb(WfPort::WfPortType portType) const;
 
   /**
    * Get port by index

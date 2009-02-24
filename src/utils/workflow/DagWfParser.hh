@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2009/02/24 14:01:05  bisnard
+ * added dynamic parameter mgmt for wf processors
+ *
  * Revision 1.13  2009/02/06 14:55:08  bisnard
  * setup exceptions
  *
@@ -190,7 +193,7 @@ protected:
    * @return ref to the port created
    */
   virtual WfPort *
-  parseArg(DOMElement * element,
+  parseArg(const DOMElement * element,
            const unsigned int lastArg,
  	   Node * node);
 
@@ -202,7 +205,7 @@ protected:
    * @return ref to the port created
    */
   virtual WfPort *
-  parseIn(DOMElement * element,
+  parseIn(const DOMElement * element,
           const unsigned int lastArg,
  	  Node * node);
 
@@ -214,7 +217,7 @@ protected:
    * @return ref to the port created
    */
   virtual WfPort *
-  parseInOut(DOMElement * element,
+  parseInOut(const DOMElement * element,
              const unsigned int lastArg,
  	     Node * node);
 
@@ -226,7 +229,7 @@ protected:
    * @return ref to the port created
    */
   virtual WfPort *
-  parseOut(DOMElement * element,
+  parseOut(const DOMElement * element,
            const unsigned int lastArg,
  	   Node * node);
 
@@ -234,11 +237,13 @@ protected:
    * Parse other sub-elements (not common) - called by parseNode
    * @param element     port DOM element reference
    * @param elementName the element name
+   * @param portIndex   the current port index (to be updated if a new port is created)
    * @param node        ref to the current node
    */
   virtual void
   parseOtherNodeSubElt(const DOMElement * element,
                        const string& elementName,
+                       unsigned int& portIndex,
                        Node * node) = 0;
 
   /**
@@ -296,6 +301,7 @@ protected:
   virtual void
   parseOtherNodeSubElt(const DOMElement * element,
                        const string& elementName,
+                       unsigned int& portIndex,
                        Node * node);
   /**
    * Parse a prec element
@@ -337,23 +343,29 @@ protected:
   createNode(const DOMElement * element, const string& elementName);
 
   virtual WfPort *
-  parseIn(DOMElement * element,
+  parseIn(const DOMElement * element,
           const unsigned int lastArg,
           Node * node);
 
   virtual WfPort *
-  parseOut(DOMElement * element,
+  parseOut(const DOMElement * element,
            const unsigned int lastArg,
            Node * node);
 
   virtual WfPort *
-  parseInOut(DOMElement * element,
-           const unsigned int lastArg,
-           Node * node);
+  parseInOut(const DOMElement * element,
+             const unsigned int lastArg,
+             Node * node);
+
+  virtual WfPort *
+  parseParamPort(const DOMElement * element,
+                 const unsigned int lastArg,
+                 Node* node);
 
   virtual void
   parseOtherNodeSubElt(const DOMElement * element,
                        const string& elementName,
+                       unsigned int& portIndex,
                        Node * node);
 
   /**
@@ -362,14 +374,14 @@ protected:
    * @param port    the current port object
    */
   void
-  parseCardAttr(DOMElement * element, WfPort* port);
+  parseCardAttr(const DOMElement * element, WfPort* port);
 
   /**
    * Parse a <link> element
    * @param element the DOM element corresponding to the <link> tag
    */
   void
-  parseLink(DOMElement * element);
+  parseLink(const DOMElement * element);
 
   /**
    * Parse the reference to another node or port inside a link attribute

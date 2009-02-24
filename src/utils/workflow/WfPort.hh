@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2009/02/24 14:01:05  bisnard
+ * added dynamic parameter mgmt for wf processors
+ *
  * Revision 1.12  2009/02/06 14:55:08  bisnard
  * setup exceptions
  *
@@ -89,14 +92,15 @@ public:
   enum WfPortType{
     PORT_IN,
     PORT_INOUT,
-    PORT_OUT
+    PORT_OUT,
+    PORT_PARAM
   };
 
   /**
    * Basic Port constructor *
    * @param parent The node of the port
    * @param _id    The id of the port
-   * @param _portType The port type (IN, INOUT or OUT)
+   * @param _portType The port type (IN, INOUT ,OUT, PARAM)
    * @param _type  The port data base type
    * @param _depth The depth of the list structure (0 if no list)
    * @param _ind   The index of the parameter in the diet profile

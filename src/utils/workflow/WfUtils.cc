@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2009/02/24 14:01:05  bisnard
+ * added dynamic parameter mgmt for wf processors
+ *
  * Revision 1.9  2009/02/06 14:55:08  bisnard
  * setup exceptions
  *
@@ -77,6 +80,8 @@ WfStructException::ErrorMsg() {
       errorMsg = "Type mismatch (" + Info() + ")"; break;
     case eDEPTH_MISMATCH:
       errorMsg = "Depth mismatch (" + Info() + ")"; break;
+    case eOTHER:
+      errorMsg = Info(); break;
   }
   return errorMsg;
 }

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2009/02/24 14:01:05  bisnard
+ * added dynamic parameter mgmt for wf processors
+ *
  * Revision 1.7  2009/02/20 10:23:54  bisnard
  * use estimation class to reduce the nb of submit requests
  *
@@ -273,11 +276,52 @@ class FProcNode : public FNode {
         setConstantInput(int idxPort, FDataHandle* dataHdl);
 
     /**
+     * Checks if a given port index corresponds to a constant
+     * @param idxPort the index of the port
+     * @return true if the port has been set as constant
+     */
+    bool
+        isConstantInput(int idxPort);
+
+    /**
      * Set the maximum nb of instances of this node inside one dag
      * @param maxInst the max nb of instances
      */
     void
         setMaxInstancePerDag(short maxInst);
+
+    /**
+     * Set DIET service name
+     * @param path the DIET service name
+     */
+    void
+        setDIETServicePath(const string& path);
+
+    /**
+     * Set DIET estimation option
+     * If estimOption == "constant" the instanciator will use the
+     * 'est-class' attribute for all generated dag nodes
+     * @param estimOption = ('constant'|...)
+     */
+    void
+        setDIETEstimationOption(const string& estimOption);
+
+    /**
+     * Setup a dynamic parameter for the node
+     * @param paramName string containing the name of the parameter
+     * @param paramValue string containing the value of the parameter
+     */
+    void
+        checkDynamicParam(const string& paramName, const string& paramValue);
+
+    /**
+     * Set the value of a dynamic parameter
+     * @param paramVarName  name of the variable to set
+     * @param paramValue value of the variable
+     */
+    void
+        setDynamicParamValue(const string& paramVarName,
+                             const string& paramValue);
 
     /**
      * Initialization
@@ -327,16 +371,23 @@ class FProcNode : public FNode {
         instanceIsDone(DagNode * dagNode, bool& statusChange)
         throw (WfDataException, WfDataHandleException);
 
-    void
-        setDIETServicePath(const string& path);
-
-    void
-        setDIETEstimationOption(const string& estimOption);
-
   protected:
+
+    void
+        setDynamicParam(const string& paramName,
+                        const string& paramVarName);
+
+    bool
+        isDynamicParam(const string& paramName);
+
+    const string&
+        getDynamicParamValue(const string& paramName);
 
     PortInputIterator *
         createPortInputIterator(const string& portId);
+
+    bool
+        isIteratorDefined(const string& portId);
 
     void initDataLine();
 
@@ -383,6 +434,18 @@ class FProcNode : public FNode {
      * Contains the constant port values and is copied for each new instance
      */
     vector<FDataHandle*>* cstDataLine;
+
+    /**
+     * The dynamic parameters map
+     * contains param_Name => param_Variable_Name
+     */
+    map<string,string> dynParMap;
+
+    /**
+     * The variables map
+     * contains param_Variable_Name => param_Value
+     */
+    map<string,string> varMap;
 
 }; // end class FProcNode
 
