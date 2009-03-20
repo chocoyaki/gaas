@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.91  2009/03/20 13:06:22  bdepardo
+ * Reverting change made previously to fix a memory leak: it caused a crash
+ * when using non persistent data.
+ *
  * Revision 1.90  2009/01/13 21:01:19  bdepardo
  * Correction of bug 83: float as well as integer are now passed correctly
  * in the profile description.
@@ -480,7 +484,8 @@ int
 mrsh_data_desc(corba_data_desc_t* dest, diet_data_desc_t* src)
 {
   if (src->id != NULL) {
-    CORBA::string_free(dest->id.idNumber);
+    // /!\ We cannot free dest->id.idNumber, it is only set by DTM in persistent mode
+    // CORBA::string_free(dest->id.idNumber);
     dest->id.idNumber = CORBA::string_dup(src->id);
   }
   else
