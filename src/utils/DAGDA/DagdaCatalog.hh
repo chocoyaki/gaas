@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2009/03/25 15:06:41  glemahec
+ * Bug correction (data alias)
+ *
  * Revision 1.4  2008/11/07 14:32:14  bdepardo
  * Headers correction
  *
@@ -41,6 +44,7 @@ public:
 protected:
   attributes_t getAttributes(std::string key) {
     attributes_t ret;
+    if (!exists(key)) return ret;
 	dbMutex.lock();
     ret = database[key];
 	dbMutex.unlock();

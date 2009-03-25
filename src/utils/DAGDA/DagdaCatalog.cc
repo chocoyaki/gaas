@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2009/03/25 15:06:41  glemahec
+ * Bug correction (data alias)
+ *
  * Revision 1.4  2008/11/07 14:32:14  bdepardo
  * Headers correction
  *
@@ -19,6 +22,7 @@
 using namespace std;
 
 attributes_t MapDagdaCatalog::request(string req) {
+  
   return getAttributes(req);
 }
 
@@ -31,9 +35,12 @@ int MapDagdaCatalog::insert(string key, attributes_t values) {
 }
 
 bool MapDagdaCatalog::exists(std::string key) {
-  bool ret;
+  bool ret=false;
+  std::map<std::string, attributes_t>::const_iterator it;
+  
   dbMutex.lock();
-  ret = (database.find(key)!=database.end());
+  it = database.find(key);
+  ret = !(it == database.end());
   dbMutex.unlock();
   return ret;
 }
