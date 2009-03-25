@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2009/03/25 12:21:31  glemahec
+ * Bug correction
+ *
  * Revision 1.18  2009/01/22 15:12:31  bisnard
  * fixed bug with data transfer of strings and paramstrings
  *
@@ -326,9 +329,13 @@ void dagda_download_data(diet_profile_t& profile, corba_profile_t& pb) {
       }
     } else {
       // Data is present. We use it.
+      
       Dagda_var bestSource = dataManager->getBestSource(dataManager->_this(),
                                                         pb.parameters[i].desc.id.idNumber);
-      dataManager->lclAddData(bestSource, pb.parameters[i]);
+      if (!dataManager->lclIsDataPresent(pb.parameters[i].desc.id.idNumber)) {
+        cout << "Uses the local data " << pb.parameters[i].desc.id.idNumber << endl;
+        dataManager->lclAddData(bestSource, pb.parameters[i]);
+      }
       if ((pb.parameters[i].desc.specific._d() == DIET_CONTAINER)
          && (strcmp(dataManager->getID(), bestSource->getID()) != 0)) {
         // original container should be removed to avoid incoherencies
