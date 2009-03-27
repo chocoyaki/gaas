@@ -8,6 +8,10 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2009/03/27 09:04:10  bisnard
+ * - replace container size attr by dynamic value
+ * - added exception mgmt
+ *
  * Revision 1.19  2009/03/25 12:21:31  glemahec
  * Bug correction
  *
@@ -98,7 +102,13 @@ void dagda_mrsh_profile(corba_profile_t* corba_profile, diet_profile_t* profile,
     if (profile->parameters[i].desc.id != NULL) {
       if (strlen(profile->parameters[i].desc.id)!=0) {
         // The data is stored on the platform. Get its description.
-        data.desc = *MA->get_data_arg(profile->parameters[i].desc.id);
+        try {
+          data.desc = *MA->get_data_arg(profile->parameters[i].desc.id);
+        } catch (CORBA::SystemException& e) {
+          cerr << "call to MA::get_data_arg() Caught a CORBA " << e._name() << " exception ("
+           << e.NP_minorString() << ")" << endl ;
+          throw;
+        }
         haveID = true;
       }
     }
@@ -329,7 +339,7 @@ void dagda_download_data(diet_profile_t& profile, corba_profile_t& pb) {
       }
     } else {
       // Data is present. We use it.
-      
+
       Dagda_var bestSource = dataManager->getBestSource(dataManager->_this(),
                                                         pb.parameters[i].desc.id.idNumber);
       if (!dataManager->lclIsDataPresent(pb.parameters[i].desc.id.idNumber)) {
@@ -404,7 +414,8 @@ void dagda_upload_data(diet_profile_t& profile, corba_profile_t& pb) {
 
     manager->unlockData(data.desc.id.idNumber);
 
-    if (manager->pfmIsDataPresent(data.desc.id.idNumber) && (data.desc.specific._d() != DIET_CONTAINER))
+//     if (manager->pfmIsDataPresent(data.desc.id.idNumber) && (data.desc.specific._d() != DIET_CONTAINER))
+    if (manager->pfmIsDataPresent(data.desc.id.idNumber))
       manager->pfmUpdateData(manager->_this(), data);
   }
 }
@@ -478,9 +489,10 @@ Dagda_var getEntryPoint() {
     if (MA_name==NULL) return NULL;
     MasterAgent_var MA = MasterAgent::_narrow(ORBMgr::getObjReference(ORBMgr::AGENT, MA_name));
     if (CORBA::is_nil(MA)) {
-      //ERROR("cannot locate Master Agent " << MA_name, 1);
+//       ERROR("cannot locate Master Agent " << MA_name, 1);
       return NULL;
     }
+
     manager = MA->getDataManager();
     entryPoint = manager;
     return entryPoint;
@@ -527,7 +539,6 @@ size_t corba_data_init(corba_data_t& data, diet_data_type_t type,
       diet_data.desc.specific.file.path = path;
       break;
     case DIET_CONTAINER:
-      diet_data.desc.specific.cont.size = nb_c;
       break;
     default:
       WARNING("This type is not managed by DIET.");
@@ -835,18 +846,31 @@ int dagda_get_data(const char* dataID, void** value, diet_data_type_t type,
     if (entryPoint!=NULL) {
       try {
       data.desc = *entryPoint->pfmGetDataDesc(dataID);
-      src = entryPoint->getBestSource(manager->_this(), dataID);
-      manager->lclAddData(src, data);
-      inserted = manager->getData(dataID);
+      } catch (CORBA::SystemException& e) {
+        cerr << "dagda_get_data/pfmGetDataDesc: Caught a CORBA " << e._name() << " exception ("
+             << e.NP_minorString() << ")" << endl ;
+        throw;
+      } catch (...) {
+        cerr << "dagda_get_data/pfmGetDataDesc: Caught exception" << endl;
+        throw;
+      }
+      try {
+        src = entryPoint->getBestSource(manager->_this(), dataID);
+        manager->lclAddData(src, data);
+        inserted = manager->getData(dataID);
       } catch (Dagda::DataNotFound& ex) {
+        return 1;
+      } catch (CORBA::SystemException& e) {
+          cerr << "dagda_get_data: Caught a CORBA " << e._name() << " exception ("
+          << e.NP_minorString() << ")" << endl ;
         return 1;
       }
     } else {
       try {
-      data.desc = *manager->pfmGetDataDesc(dataID);
-      src = manager->getBestSource(manager->_this(), dataID);
-      manager->lclAddData(src, data);
-      inserted = manager->getData(dataID);
+        data.desc = *manager->pfmGetDataDesc(dataID);
+        src = manager->getBestSource(manager->_this(), dataID);
+        manager->lclAddData(src, data);
+        inserted = manager->getData(dataID);
       } catch (Dagda::DataNotFound& ex) {
         return 1;
       }
@@ -1034,7 +1058,7 @@ int dagda_add_container_element(const char* idContainer, const char* idElement, 
         corba_data_desc_t* storedDataDesc = entryPoint->pfmGetDataDesc(idContainer);
         Dagda_var srcMgr = Dagda::_narrow(ORBMgr::stringToObject(storedDataDesc->dataManager));
       // add the relationship
-        srcMgr->lclAddContainerElt(idContainer, idElement, index, 0, true);
+        srcMgr->lclAddContainerElt(idContainer, idElement, index, 0);
       } else {
         WARNING("Cannot find container " << idContainer << " on platform");
         return 1;
@@ -1043,7 +1067,7 @@ int dagda_add_container_element(const char* idContainer, const char* idElement, 
       // not on the client => dagda_init_container must have been called before
       // so the container exists locally
       if (manager->lclIsDataPresent(idContainer)) {
-        manager->lclAddContainerElt(idContainer, idElement, index, 0, true);
+        manager->lclAddContainerElt(idContainer, idElement, index, 0);
       } else {
         WARNING("Cannot find container " << idContainer << " locally");
         return 1;
@@ -1060,7 +1084,16 @@ int dagda_get_container_elements(const char* idContainer, diet_container_t* cont
   // get the sequence of IDs
   SeqString  eltIDSeq;
   SeqLong    eltFlagSeq;
-  manager->lclGetContainerElts(idContainer,eltIDSeq,eltFlagSeq,true);
+  try {
+    manager->lclGetContainerElts(idContainer,eltIDSeq,eltFlagSeq,true);
+  } catch (CORBA::SystemException& e) {
+          cerr << "dagda_get_container_elements: Caught a CORBA " << e._name() << " exception ("
+          << e.NP_minorString() << ")" << endl ;
+        return 1;
+  } catch (...) {
+    cerr << "dagda_get_container_elements exception!" << endl;
+    throw;
+  }
   // convert it to diet_container_t
   if (content != NULL) {
     content->size = eltIDSeq.length();

@@ -8,6 +8,10 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.30  2009/03/27 09:04:10  bisnard
+ * - replace container size attr by dynamic value
+ * - added exception mgmt
+ *
  * Revision 1.29  2009/01/16 13:36:13  bisnard
  * changed Container constructor signature
  * modified scope of getDataRelationMgr to protected
@@ -63,7 +67,7 @@ DagdaImpl::~DagdaImpl() {
 
 /* CORBA */
 char* DagdaImpl::getHostname() {
-  return hostname;
+  return CORBA::string_dup(hostname);
 }
 
 
@@ -296,13 +300,11 @@ char* DagdaImpl::sendContainer(const char* containerID, Dagda_ptr dest,
   }
   dataMutex.unlock();
   TRACE_TEXT(TRACE_MAIN_STEPS, "*** Sending container " << containerID << endl);
-
-  // transfer the container elements (must be outside locked part)
   dest->unlockData(containerID);
+  // transfer the container elements
   Container *container = new Container(containerID,_this(),containerRelationMgr);
   char *distID = container->send(dest,sendElements);
 
-//   dest->unlockData(containerID); CAUSES FAILURE IN lclAddContainerElt
   return distID;
 }
 
@@ -465,6 +467,8 @@ void SimpleDagdaImpl::lclAddData(Dagda_ptr src, const corba_data_t& data) {
         corba_data_t* inserted;
         inserted = addData(data);
         dataID = downloadData(src, data); // non-recursive (downloads only the id list)
+        unlockData(dataID);
+        useMemSpace(inserted->value.length());
         if (TRACE_LEVEL >= TRACE_ALL_STEPS)
           getContainerRelationMgr()->displayContent();
       } else {
@@ -506,15 +510,10 @@ void SimpleDagdaImpl::pfmAddData(Dagda_ptr src, const corba_data_t& data) {
 void SimpleDagdaImpl::lclAddContainerElt(const char* containerID,
                                          const char* dataID,
                                          CORBA::Long index,
-                                         CORBA::Long flag,
-                                         CORBA::Boolean setSize) {
+                                         CORBA::Long flag) {
   Container *container = new Container(containerID,_this(),containerRelationMgr);
   lockData(containerID);
-  container->addData(dataID,index,flag,setSize);
-  if (setSize) {
-    corba_data_desc_t* storedDataDesc = &getData(containerID)->desc;
-    storedDataDesc->specific.cont().size = (CORBA::ULongLong) container->size();
-  }
+  container->addData(dataID,index,flag);
   unlockData(containerID);
 }
 
@@ -530,7 +529,15 @@ void SimpleDagdaImpl::lclGetContainerElts(const char* containerID,
                                           SeqLong& flagSeq,
                                           CORBA::Boolean ordered) {
   Container *container = new Container(containerID,_this(),containerRelationMgr);
-  container->getAllElements(dataIDSeq,flagSeq,ordered);
+  try {
+    container->getAllElements(dataIDSeq,flagSeq,ordered);
+  } catch (CORBA::SystemException& e) {
+    cerr << "lclGetContainerElts Caught a CORBA " << e._name() << " exception ("
+         << e.NP_minorString() << ")" << endl ;
+  } catch (...) {
+    cerr << "UNMANAGED exception in lclGetContainerElts" << endl;
+    throw;
+  }
 }
 
 // Simple implementation.
@@ -1039,7 +1046,7 @@ size_t DagdaImpl::make_corba_data(corba_data_t& data, diet_data_type_t type,
       diet_data.desc.specific.file.path = path;
 	  break;
     case DIET_CONTAINER:
-      diet_data.desc.specific.cont.size = nb_c;
+      diet_data.desc.specific.cont.size = 0;
       break;
     default:
       WARNING("This data type is not managed by DIET.");

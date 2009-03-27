@@ -8,6 +8,10 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2009/03/27 09:04:10  bisnard
+ * - replace container size attr by dynamic value
+ * - added exception mgmt
+ *
  * Revision 1.4  2009/01/16 13:32:47  bisnard
  * replaced use of DagdaImpl ptr by dagda object ref
  * modified constructor signature
@@ -44,29 +48,21 @@ Container::Container(const char* dataID, Dagda_ptr dataMgr, DataRelationMgr* rel
   // check if container is already existing on the local data mgr
   // EXISTING means registered but not all elements of the container are
   // necessarily present locally
-  if (myMgr->lclIsDataPresent(dataID)) {
-    corba_data_desc_t* dataDesc = myMgr->lclGetDataDesc(dataID); // makes a copy of desc
-    nbOfElements = dataDesc->specific.cont().size;
-    delete dataDesc;
-  }
-  else
+  if (!myMgr->lclIsDataPresent(dataID)) {
     notFound = true;
+  }
 }
 
 Container::~Container() {
 }
 
 void
-Container::addData(const char* dataID, long index, long flag, bool setSize) {
+Container::addData(const char* dataID, long index, long flag) {
   TRACE_TEXT(TRACE_ALL_STEPS, "Container: Add the data " << dataID
      << " to container " << myID << endl);
   if (notFound)
     throw Dagda::DataNotFound(myID.c_str());
   myRelMgr->addRelation(myID,dataID,index,flag);
-  if (setSize) {
-    ++nbOfElements;
-    // update of the data description is done by data mgr
-  }
 }
 
 void
@@ -80,14 +76,28 @@ int
 Container::size() {
   if (notFound)
     throw Dagda::DataNotFound(myID.c_str());
-  return nbOfElements;
+  return myRelMgr->getRelationNb(myID);
 }
 
 void
 Container::getAllElements(SeqString& dataIDSeq, SeqLong& flagSeq, bool ordered) {
-  dataIDSeq.length(this->size());
-  flagSeq.length(this->size());
-  myRelMgr->getRelationList(myID, dataIDSeq, flagSeq, ordered);
+  if (notFound) {
+    throw Dagda::DataNotFound(myID.c_str());
+  }
+  int _size = size();
+  try {
+    dataIDSeq.length(_size);
+    flagSeq.length(_size);
+  } catch (...) {
+    cerr << "Container::getAllElements exception in initialization" << endl;
+    throw;
+  }
+  try {
+    myRelMgr->getRelationList(myID, dataIDSeq, flagSeq, ordered);
+  } catch (...) {
+    cerr << "Container::getAllElements exception in getRelationList" << endl;
+    throw;
+  }
 }
 
 /**
@@ -121,7 +131,7 @@ Container::send(Dagda_ptr dest, bool sendData) {
       dest->lclAddData(srcMgr, eltData);
     }
     // add relationship container-data to destination mgr
-    dest->lclAddContainerElt(myID.c_str(), eltID, ix, (*flagSeq)[ix], false);
+    dest->lclAddContainerElt(myID.c_str(), eltID, ix, (*flagSeq)[ix]);
   }
   return CORBA::string_dup(myID.c_str());
 }
