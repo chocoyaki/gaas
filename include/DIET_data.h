@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.65  2009/03/27 09:09:40  bisnard
+ * replace container size attr by dynamic value
+ *
  * Revision 1.64  2009/01/22 09:01:04  bisnard
  * added client method to retrieve workflow container output
  *
@@ -519,7 +522,7 @@ diet_matrix_desc_t diet_matrix_get_desc(diet_arg_t* arg);
 diet_string_desc_t diet_string_get_desc(diet_arg_t* arg);
 diet_paramstring_desc_t diet_paramstring_get_desc(diet_arg_t* arg);
 diet_file_desc_t diet_file_get_desc(diet_arg_t* arg);
-diet_container_desc_t diet_container_get_desc(diet_arg_t* arg);
+/* diet_container_desc_t diet_container_get_desc(diet_arg_t* arg); */
 
 /****************************************************************************/
 /* Free the amount of data pointed at by the value field of an argument.    */
@@ -608,7 +611,7 @@ struct diet_file_specific {
 
 /*----[ container - specific ]---------------------------------------------------*/
 struct diet_container_specific {
-  size_t  size; /* nb of elements */
+  size_t  size; /* nb of elements (not used) */
 };
 
 /*----[ data - generic ]----------------------------------------------------*/

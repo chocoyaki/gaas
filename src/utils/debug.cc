@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.36  2009/03/27 09:09:41  bisnard
+ * replace container size attr by dynamic value
+ *
  * Revision 1.35  2008/09/10 09:04:26  bisnard
  * new diet type for containers
  *
@@ -337,8 +340,7 @@ displayArg(FILE* f, const corba_data_desc_t* arg)
                             (long)arg->specific.pstr().length); break;
   case DIET_FILE:   fprintf(f, "file (%ld)",
                             (long)arg->specific.file().size);  break;
-  case DIET_CONTAINER:  fprintf(f, "container (%ld)",
-                            (long)arg->specific.cont().size);  break;
+  case DIET_CONTAINER:  fprintf(f, "container");  break;
   }
   if ((arg->specific._d() != DIET_STRING) &&
       (arg->specific._d() != DIET_PARAMSTRING) &&
@@ -375,8 +377,7 @@ displayArg(FILE* f, const diet_data_desc_t* arg)
                             (long)arg->specific.pstr.length); break;
   case DIET_FILE:   fprintf(f, "file (%ld)",
                             (long)arg->specific.file.size);  break;
-  case DIET_CONTAINER:  fprintf(f, "container (%ld)",
-                            (long)arg->specific.cont.size);  break;
+  case DIET_CONTAINER:  fprintf(f, "container");  break;
   }
   if ((arg->generic.type != DIET_STRING) &&
       (arg->generic.type != DIET_PARAMSTRING) &&

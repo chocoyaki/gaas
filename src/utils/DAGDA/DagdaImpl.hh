@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2009/03/27 09:09:41  bisnard
+ * replace container size attr by dynamic value
+ *
  * Revision 1.24  2009/01/16 13:36:13  bisnard
  * changed Container constructor signature
  * modified scope of getDataRelationMgr to protected
@@ -116,13 +119,11 @@ public:
    * @param dataID      the id of the data element
    * @param index       the index of the element in the container
    * @param flag        (not used yet)
-   * @param setSize     increase the counter of elements (yes/no)
    */
   virtual void lclAddContainerElt(const char* containerID,
                                   const char* dataID,
                                   CORBA::Long index,
-                                  CORBA::Long flag,
-                                  CORBA::Boolean setSize) = 0;
+                                  CORBA::Long flag) = 0;
 
   /**
    * Get the number of elements of a container
@@ -346,8 +347,7 @@ public:
   virtual void lclAddContainerElt(const char* containerID,
                                   const char* dataID,
                                   CORBA::Long index,
-                                  CORBA::Long flag,
-                                  CORBA::Boolean setSize);
+                                  CORBA::Long flag);
   virtual CORBA::Long lclGetContainerSize(const char* containerID);
   virtual void lclGetContainerElts(const char* containerID,
                                    SeqString& dataIDSeq,

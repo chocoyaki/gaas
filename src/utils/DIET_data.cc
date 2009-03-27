@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.63  2009/03/27 09:09:41  bisnard
+ * replace container size attr by dynamic value
+ *
  * Revision 1.62  2009/01/22 15:09:29  bisnard
  * cancelled previous change
  *
@@ -263,7 +266,8 @@ macro_data_sizeof(const diet_data_desc_t* desc)
   case DIET_FILE:
     return desc->specific.file.size;
   case DIET_CONTAINER:
-    return desc->specific.cont.size;
+//     return desc->specific.cont.size;
+    return 0;
   default:
     DATA_INTERNAL_WARNING("bad type (cons type)");
     return 0;
@@ -297,7 +301,8 @@ data_sizeof(const corba_data_desc_t* desc)
   case DIET_FILE:
     size = desc->specific.file().size; break;
   case DIET_CONTAINER:
-    size = desc->specific.cont().size; break;
+//     size = desc->specific.cont().size; break;
+    size = 0; break;
   default:
     DATA_INTERNAL_WARNING("bad type (cons type)");
   }
@@ -452,7 +457,8 @@ container_set_desc(diet_data_desc_t* desc, char* const id,
   int status(0);
   if ((status = generic_set_desc(desc, id, mode, DIET_CONTAINER, DIET_CHAR)))
     return status;
-  desc->specific.cont.size = size;
+//   desc->specific.cont.size = size;
+  desc->specific.cont.size = 0;
   return status;
 }
 
@@ -1064,14 +1070,14 @@ diet_file_get_desc(diet_arg_t* arg)
   return (&((arg->desc).specific.file));
 }
 
-diet_container_desc_t
-diet_container_get_desc(diet_arg_t* arg)
-{
-  if (arg->desc.generic.type != DIET_CONTAINER) {
-    ERROR(__FUNCTION__ << " misused (wrong type)", NULL);
-  }
-  return (&((arg->desc).specific.cont));
-}
+// diet_container_desc_t
+// diet_container_get_desc(diet_arg_t* arg)
+// {
+//   if (arg->desc.generic.type != DIET_CONTAINER) {
+//     ERROR(__FUNCTION__ << " misused (wrong type)", NULL);
+//   }
+//   return (&((arg->desc).specific.cont));
+// }
 
 /****************************************************************************/
 /* Free the amount of data pointed at by the value field of an argument.    */
@@ -1146,7 +1152,7 @@ diet_wf_profile_alloc(const char* wf_file_name,
   profile->level = wf_level;
   profile->name = strdup(name);
   profile->dataFile = NULL;
-  profile->wfReqID = 0;
+  profile->wfReqID = -1;
   struct stat stat_p;
   FILE * file;
   char line[LINE_LENGTH];

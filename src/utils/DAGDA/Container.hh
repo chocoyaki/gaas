@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2009/03/27 09:09:41  bisnard
+ * replace container size attr by dynamic value
+ *
  * Revision 1.3  2009/01/16 13:32:47  bisnard
  * replaced use of DagdaImpl ptr by dagda object ref
  * modified constructor signature
@@ -56,9 +59,8 @@ class Container {
      * @param dataID  the element data identifier
      * @param index   the index of the element
      * @param flag    the flag of the relation to the container
-     * @param setSize   if yes, will increase the size of the container
      */
-    void addData(const char* dataID, long index, long flag, bool setSize=true);
+    void addData(const char* dataID, long index, long flag);
 
     /**
      * Remove a data element from the container

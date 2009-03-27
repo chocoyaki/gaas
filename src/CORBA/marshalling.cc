@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.92  2009/03/27 09:09:23  bisnard
+ * replace container size attr by dynamic value
+ *
  * Revision 1.91  2009/03/20 13:06:22  bdepardo
  * Reverting change made previously to fix a memory leak: it caused a crash
  * when using non persistent data.
@@ -469,9 +472,9 @@ __mrsh_data_desc_type(corba_data_desc_t* dest,
     break;
   }
   case DIET_CONTAINER:
-    corba_container_specific_t cont;
-    dest->specific.cont(cont);
-    dest->specific.cont().size = src->specific.cont.size;
+     corba_container_specific_t cont;
+     dest->specific.cont(cont);
+     dest->specific.cont().size = 0;
     break;
   default:
     MRSH_ERROR("type " << src->generic.type << " not implemented", 1);
@@ -699,8 +702,7 @@ unmrsh_data_desc(diet_data_desc_t* dest, const corba_data_desc_t* const src)
     break;
   }
   case DIET_CONTAINER: {
-    container_set_desc(dest, id, (diet_persistence_mode_t)src->mode,
-                    src->specific.cont().size);
+    container_set_desc(dest, id, (diet_persistence_mode_t)src->mode, 0);
     break;
   }
   default:

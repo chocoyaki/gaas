@@ -77,8 +77,7 @@ interface Dagda {
   void lclAddContainerElt(in string containerID,
                           in string dataID,
                           in long index,
-                          in long flag,
-                          in boolean setSize)
+                          in long flag)
     raises(DataNotFound);
 
   /* Get the size ie nb of elements of a container */
