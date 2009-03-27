@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.54  2009/03/27 09:29:30  bisnard
+ * submit_pb_set: provide service info when service missing
+ *
  * Revision 1.53  2008/07/10 13:08:23  glemahec
  * Warning fixed in MasterAgentImpl.cc
  *
@@ -926,8 +929,8 @@ wf_response_t *
 MasterAgentImpl::submit_pb_set(const corba_pb_desc_seq_t& seq_pb) {
 
   wf_response_t * wf_response = new wf_response_t;
-//   wf_response->firstReqID = reqIDCounter;
   unsigned int len = seq_pb.length();
+  unsigned int failureIdx;
   wf_response->wfn_seq_resp.length(0);
   corba_response_t * corba_response = NULL;
   bool missingService = false;
@@ -940,6 +943,7 @@ MasterAgentImpl::submit_pb_set(const corba_pb_desc_seq_t& seq_pb) {
     corba_response = this->submit(seq_pb[ix], 1024);
     if ((corba_response == NULL) || (corba_response->servers.length() == 0)) {
       missingService = true;
+      failureIdx = ix;
       break;
     }
     else {
@@ -952,22 +956,14 @@ MasterAgentImpl::submit_pb_set(const corba_pb_desc_seq_t& seq_pb) {
 
   // Handle exception of missing service
   if (!missingService) {
-    TRACE_TEXT (TRACE_MAIN_STEPS,
-	      "The pb set can be solved (all services available) " << endl);
     wf_response->complete = true;
   } else {
     TRACE_TEXT (TRACE_MAIN_STEPS,
 		  "The problem set can't be solved (one or more services are "
 		  << "missing) " << endl);
     wf_response->complete = false;
+    wf_response->idxError = failureIdx;
   }
-
-  // Update reqID counter  ===> NOT NECESSARY as SUBMIT increases the counter
-  // MOREOVER THERE IS NO GUARANTEE THAT SUBMITS ARE IN SEQUENCE
-//   reqCount_mutex.lock();
-//   reqIDCounter            = reqIDCounter + ix + 1;
-//   reqCount_mutex.unlock();
-//   wf_response->lastReqID  = wf_response->firstReqID + ix ;
 
   return wf_response;
 }
