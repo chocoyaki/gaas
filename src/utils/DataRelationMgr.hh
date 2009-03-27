@@ -9,6 +9,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2009/03/27 08:06:20  bisnard
+ * new method getRelationNb
+ *
  * Revision 1.2  2009/01/16 13:36:54  bisnard
  * make thread-safe using mutex
  *
@@ -73,7 +76,7 @@ class DataRelationMgr {
      */
     void remAllRelation(const string& dataID, bool reverse = false);
 
-//     const int  getRelationNb(const string& dataID);
+    int  getRelationNb(const string& dataID);
 
     /**
      * Get the relationships from a given item (using index order)

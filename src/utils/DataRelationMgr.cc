@@ -9,6 +9,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2009/03/27 08:06:20  bisnard
+ * new method getRelationNb
+ *
  * Revision 1.2  2009/01/16 13:36:54  bisnard
  * make thread-safe using mutex
  *
@@ -96,6 +99,17 @@ DataRelationMgr::getRelationList(const string& dataID,
     flagList[jx]   = iter->second.flag;
   }
   myLock.unlock();
+}
+
+int
+DataRelationMgr::getRelationNb(const string& dataID) {
+  myLock.lock();
+  int ix = 0;
+  for (multimap<std::string, dataRelationValue_t>::iterator iter = myMap.lower_bound(dataID);
+       iter != myMap.upper_bound(dataID);
+       ++iter) { ++ix; }
+  myLock.unlock();
+  return ix;
 }
 
 /**
