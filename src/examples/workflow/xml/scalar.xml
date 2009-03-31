@@ -5,18 +5,14 @@
     <out name="out2" type="DIET_INT"/>
   </node>
   <node id="n2" path="double">
-    <prec id="n1"/>
     <in name="in2" type="DIET_INT" source="n1#out1"/>
     <out name="out3" type="DIET_INT"/>
   </node>
   <node id="n3" path="double">
-    <prec id="n1"/>
     <in name="in3" type="DIET_INT" source="n1#out2"/>
     <out name="out4" type="DIET_INT"/>
   </node>
   <node id="n4" path="sum">
-    <prec id="n2"/>
-    <prec id="n3"/>
     <in name="in4" type="DIET_INT" source="n2#out3"/>
     <in name="in5" type="DIET_INT" source="n3#out4"/>
     <out name="out4" type="DIET_INT"/>
