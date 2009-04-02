@@ -6,7 +6,7 @@
 
 # DIET variables
 DIET_INSTALLDIR  = @CMAKE_INSTALL_PREFIX@
-DIET_CPP_FLAGS   = -I$(DIET_INSTALLDIR)/include
+DIET_CPP_FLAGS   = -I$(DIET_INSTALLDIR)/include @COMPILE_FLAGS@
 DIET_CLIENT_LIBS = -L$(DIET_INSTALLDIR)/lib -lDIET_client -lCorbaCommon -lUtilsCommon 
 DIET_SERVER_LIBS = -L$(DIET_INSTALLDIR)/lib -lDIET_SeD -lCorbaCommon -lUtilsCommon 
 

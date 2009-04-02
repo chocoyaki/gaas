@@ -5,6 +5,7 @@ CONFIGURE_FILE( DietConfig.cmake.in
 INSTALL_FILES( /share/ FILES DietConfig.cmake )
 
 ### Build the configuration file for external projects using DIET and make:
+GET_DIRECTORY_PROPERTY( COMPILE_FLAGS DEFINITIONS )
 CONFIGURE_FILE(
   ${CMAKE_CURRENT_SOURCE_DIR}/Makefile.inc.in
   ${CMAKE_BINARY_DIR}/include/Makefile.inc
