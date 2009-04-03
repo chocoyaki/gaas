@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2009/04/03 13:46:05  bisnard
+ * bug correction (missing _duplicate() for Dagda agent ref)
+ *
  * Revision 1.20  2009/03/27 09:04:10  bisnard
  * - replace container size attr by dynamic value
  * - added exception mgmt
@@ -471,8 +474,8 @@ MasterAgent_var getMasterAgent() {
     //ERROR("cannot locate Master Agent " << MA_name, 1);
     return NULL;
   }
-  masterAgent = MA;
-  return masterAgent;
+  masterAgent = MasterAgent::_duplicate(MA);
+  return MasterAgent::_duplicate(masterAgent);
 }
 
 // The reference to the MA DAGDA component is obtained from the ORB
@@ -494,8 +497,8 @@ Dagda_var getEntryPoint() {
     }
 
     manager = MA->getDataManager();
-    entryPoint = manager;
-    return entryPoint;
+    entryPoint = Dagda::_duplicate(manager);
+    return Dagda::_duplicate(entryPoint);
   } else return NULL;
 }
 

@@ -5,6 +5,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.57  2009/04/03 13:46:04  bisnard
+ * bug correction (missing _duplicate() for Dagda agent ref)
+ *
  * Revision 1.56  2008/11/18 10:15:22  bdepardo
  * - Added the possibility to dynamically create and destroy a service
  *   (even if the SeD is already started). An example is available.
@@ -224,7 +227,7 @@ AgentImpl::AgentImpl()
   this->dataManager          = NULL;
 #endif // ! HAVE_DAGDA
   this->myName               = NULL;
-  this->localHostName        = NULL; 
+  this->localHostName        = NULL;
   this->dietLogComponent     = NULL;
 } // AgentImpl()
 
@@ -287,10 +290,10 @@ AgentImpl::run()
     ERROR("could not declare myself as " << this->myName, 1);
   }
 
-#if !HAVE_CORI 
+#if !HAVE_CORI
     // Init FAST (HAVE_FAST is managed by the FASTMgr class)
   return FASTMgr::init();
-#else 
+#else
    size_t* use =
      (size_t*)Parsers::Results::getParamValue(Parsers::Results::FASTUSE);
   if (use != NULL && *use > 0){
@@ -319,7 +322,7 @@ void AgentImpl::setDataManager(Dagda_ptr dataManager) {
 }
 
 Dagda_ptr AgentImpl::getDataManager() {
-  return dataManager;
+  return Dagda::_duplicate(dataManager);
 }
 #endif // HAVE_DAGDA
 
@@ -417,11 +420,11 @@ AgentImpl::addServices(CORBA::ULong myID,
   for (size_t i = 0; i < services.length(); i++) {
     result = this->SrvT->addService(&(services[i]), myID);
     if(result == 0){
-      TRACE_TEXT(TRACE_STRUCTURES, "Service " << i 
+      TRACE_TEXT(TRACE_STRUCTURES, "Service " << i
           << " added for child " << myID << ".\n");
     }
     else if (result == -1) {
-      TRACE_TEXT(TRACE_STRUCTURES, "Service " << i 
+      TRACE_TEXT(TRACE_STRUCTURES, "Service " << i
             << " is a duplicate for child " << myID << ". Not added.\n");
     }
     else if (result == -2) {
@@ -548,7 +551,7 @@ AgentImpl::findServer(Request* req, size_t max_srv)
        children are contacted. Thus lock the responses mutex now. */
     ServiceTable::matching_children_t * mc = NULL ;
     CORBA::ULong frontier ;
-    
+
     req->lock();
     mc = SrvT->getChildren( &creq.pb, serviceRef, &frontier ) ;
 
@@ -594,13 +597,13 @@ AgentImpl::findServer(Request* req, size_t max_srv)
 
     /* The thread is awakened when all responses are gathered */
 
-#if HAVE_JXTA || ! HAVE_FAST 
+#if HAVE_JXTA || ! HAVE_FAST
     /* this part seems to generate JNI problems */
     /* but this part should be removed in the next DIET version */
-    /* that explains why we don't fix it */ 
+    /* that explains why we don't fix it */
 
     /* in fact, the following code is only useful if one has
-    ** chosen to compile with fast.  
+    ** chosen to compile with fast.
     */
 #else
     /* Update communication times for all non-persistent parameters:
@@ -610,7 +613,7 @@ AgentImpl::findServer(Request* req, size_t max_srv)
 
     size_t nb_resp = req->getResponsesSize();
 
-    double* time = new double[nb_resp]; 
+    double* time = new double[nb_resp];
 
     for (i = 0; (int)i <= creq.pb.last_out; i++) {
 
@@ -665,7 +668,7 @@ AgentImpl::findServer(Request* req, size_t max_srv)
     }
 
     delete [] time;
-#endif // HAVE_JXTA || ! HAVE_FAST 
+#endif // HAVE_JXTA || ! HAVE_FAST
 
     resp = this->aggregate(req, max_srv);
 
@@ -703,7 +706,7 @@ AgentImpl::getResponse(const corba_response_t& resp)
   } else {
     WARNING("response to unknown request");
   } // if (req)
-  stat_out(this->myName,statMsg);  
+  stat_out(this->myName,statMsg);
 } // getResponse(const corba_response_t & resp)
 
 /**
@@ -713,7 +716,7 @@ CORBA::Long
 AgentImpl::ping()
 {
   TRACE_TEXT(TRACE_ALL_STEPS, "ping()\n");
-  fflush(stdout); 
+  fflush(stdout);
   return getpid();
 } // ping()
 
@@ -737,7 +740,7 @@ AgentImpl::sendRequest(CORBA::ULong childID, const corba_request_t* req)
    with a request with a parallel flag equal to 1
 */
 void
-AgentImpl::sendRequest(CORBA::ULong * children, 
+AgentImpl::sendRequest(CORBA::ULong * children,
 		       size_t numero_child,
 		       const corba_request_t* req,
 		       int * nb_children_contacted,
@@ -745,15 +748,15 @@ AgentImpl::sendRequest(CORBA::ULong * children,
 #endif
 {
   bool childFound = false;
-  typedef size_t comm_failure_t;   
+  typedef size_t comm_failure_t;
 #ifdef HAVE_ALT_BATCH
-  
+
   CORBA::ULong childID = children[numero_child] ;
 #endif
-  char statMsg[128]; 
+  char statMsg[128];
   sprintf(statMsg, "sendRequest %ld %ld", (unsigned long) req->reqID,(unsigned long)childID);
   AGT_TRACE_FUNCTION(childID << ", " << req->pb.path);
-  
+
   stat_in(this->myName,statMsg);
   try {
     /* Is the child an agent ? */
@@ -855,7 +858,7 @@ AgentImpl::sendRequest(CORBA::ULong * children,
 } // sendRequest(CORBA::Long childID, const corba_request_t* req)
 
 /**
- * Get communication time between this agent and the child \c childID for a 
+ * Get communication time between this agent and the child \c childID for a
  * data amount of size \c size. The way of the data transfer can be specified
  * with \c to : if (to), from this agent to the child, else from the child to
  * this agent.
