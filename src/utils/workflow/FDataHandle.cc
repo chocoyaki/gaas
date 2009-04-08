@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2009/04/08 09:34:56  bisnard
+ * pending nodes mgmt moved to FWorkflow class
+ * FWorkflow and FNode state graph revisited
+ * FNodePort instanciation refactoring
+ *
  * Revision 1.5  2009/02/24 14:01:05  bisnard
  * added dynamic parameter mgmt for wf processors
  *
@@ -78,7 +83,7 @@ FDataTag::FDataTag(const FDataTag& parentTag, unsigned int index, bool isLast) {
   mySize = parentTag.mySize + 1;
   myIdxs = new unsigned int[mySize];
   myLastFlags = new bool[mySize];
-  for (int ix=0; ix<mySize ; ++ix) {
+  for (int ix=0; ix<mySize-1 ; ++ix) {
     myIdxs[ix] = parentTag.myIdxs[ix];
     myLastFlags[ix] = parentTag.myLastFlags[ix];
   }
@@ -240,9 +245,13 @@ WfDataHandleException::ErrorMsg() {
   string errorMsg;
   switch(Type()) {
     case eBAD_STRUCT:
-      errorMsg = "Data Hdl bad structure (tag="+Tag().toString()+":"+Info(); break;
+      errorMsg = "Data Hdl bad structure ("+Info()+")"; break;
     case eINVALID_ADAPT:
-      errorMsg = "Invalid adapter (tag="+Tag().toString()+":"+Info(); break;
+      errorMsg = "Invalid adapter ("+Info()+")"; break;
+    case eCARD_UNDEF:
+      errorMsg = "Cardinal of DH undefined ("+Info()+")"; break;
+    case eVALUE_UNDEF:
+      errorMsg = "Value of DH undefined ("+Info()+")";; break;
   }
   return errorMsg;
 }
@@ -382,15 +391,13 @@ FDataHandle::insertInTree(FDataHandle* dataHdl)
        << " / depth=" << myDepth << ") ..." << endl);
   if (myDepth == 0)
     throw WfDataHandleException(WfDataHandleException::eBAD_STRUCT,
-                              "Cannot insert into non-container data handle (depth=0)",
-                              this->getTag());
+                              "Cannot insert into non-container data handle (depth=0)");
   const FDataTag& dataTag = dataHdl->getTag();
   unsigned int dataLevel = dataTag.getLevel();
   unsigned int myLevel = myTag.getLevel();
   if (dataLevel <= myLevel)
     throw WfDataHandleException(WfDataHandleException::eBAD_STRUCT,
-                              "Tried to insert data handle of same or lower level",
-                              this->getTag());
+                              "Tried to insert data handle of same or lower level");
   if (dataLevel == myLevel+1) {
     // data is a direct child of object ==> insert it as a child
     // if the inserted data is at the completion level then set it as complete
@@ -422,7 +429,7 @@ void
 FDataHandle::addChild(FDataHandle* dataHdl) {
   TRACE_TEXT (TRACE_ALL_STEPS, "adding data child (tag="
       << dataHdl->getTag().toString() << ")" << endl);
-  myData->insert(make_pair(dataHdl->getTag(),dataHdl));
+  myData->insert(pair<FDataTag,FDataHandle*>(dataHdl->getTag(),dataHdl));
   dataHdl->setParent(this);
   // update depth at first child insertion
   if (dataHdl->getDepth() != myDepth-1) {
@@ -544,15 +551,15 @@ FDataHandle::begin() throw (WfDataHandleException) {
   // check that data handle is a container
   if (myDepth < 1) {
     throw WfDataHandleException(WfDataHandleException::eBAD_STRUCT,
-                          "Tried to get elements of non-container data handle",myTag);
+                          "Tried to get elements of non-container data handle");
   }
   // if data handle linked to an existing dag port (ie adapter defined)
   // and if the cardinal is defined then the first call to begin will
   // create the childs
   if (isAdapterDefined() && isCardinalDefined() && (myData->size() == 0)) {
-//     TRACE_TEXT (TRACE_ALL_STEPS,"Creating childs of data " << getTag().toString() << endl);
+    TRACE_TEXT (TRACE_ALL_STEPS,"Creating childs of data " << getTag().toString() << endl);
     for (int ix=0; ix < myCard; ++ix) {
-      FDataTag  childTag(myTag,ix, (ix == myCard-1));
+      FDataTag  childTag(getTag(),ix, (ix == myCard-1));
       FDataHandle* childHdl = new FDataHandle(childTag, myDepth-1, this, NULL);
       this->addChild(childHdl);
     }
@@ -608,6 +615,15 @@ FDataHandle::createPortAdapter(const string& currDagName) {
     myAdapter = (WfPortAdapter*) multAdapter;
   }
   return myAdapter;
+}
+
+WfPort*
+FDataHandle::getSourcePort() throw (WfDataHandleException) {
+  if (myAdapterType == ADAPTER_DIRECT) {
+    return myPort;
+  } else throw WfDataHandleException(WfDataHandleException::eINVALID_ADAPT,
+                                     "Cannot get source port - tag="
+                                         + getTag().toString());
 }
 
 bool

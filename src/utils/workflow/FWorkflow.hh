@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2009/04/08 09:34:56  bisnard
+ * pending nodes mgmt moved to FWorkflow class
+ * FWorkflow and FNode state graph revisited
+ * FNodePort instanciation refactoring
+ *
  * Revision 1.7  2009/02/06 14:55:08  bisnard
  * setup exceptions
  *
@@ -129,13 +134,37 @@ public:
   instanciationPending(); // for dynamic dependencies
 
   bool
+  instanciationOnHold();
+
+  bool
   instanciationStopped();
 
   bool
   instanciationCompleted();
 
+  /**
+   * Setup the information used when node instance (dagnode) is done
+   * and some output ports instances have to be re-submitted to next
+   * nodes (when cardinal was not known before node execution)
+   * @param dagNode the dag node
+   * @param dataHdl the data handle that could not be sent to the in port
+   * @param outPort the FNode out port producing the data
+   * @param inPort  the FNode in port receiving the data
+   */
   void
-  handlerDagNodeDone(DagNode* dagNode) throw (WfDataException);
+  setPendingInstanceInfo(DagNode * dagNode,
+                         FDataHandle * dataHdl,
+                         FNodeOutPort * outPort,
+                         FNodeInPort * inPort);
+
+  /**
+   * Handles the dagNode end of execution event
+   * Uses the info set with setPendingInstanceInfo to re-send the
+   * data to connected nodes
+   * @param dagNode the dag node
+   */
+  void
+  handlerDagNodeDone(DagNode* dagNode);
 
   /**
    * results
@@ -195,13 +224,29 @@ private:
    * Instanciation status
    */
   typedef enum {
-    INSTANC_READY,
-    INSTANC_ONHOLD,
-    INSTANC_PENDING,
-    INSTANC_END,
-    INSTANC_STOPPED } instanciationStatus_t;
+    W_INSTANC_READY,
+    W_INSTANC_ONHOLD,
+    W_INSTANC_PENDING,
+    W_INSTANC_END,
+    W_INSTANC_STOPPED } wfInstStatus_t;
 
-  instanciationStatus_t myStatus;
+  wfInstStatus_t myStatus;
+
+  /**
+   * Pending instance record
+   */
+  struct pendingDagNodeInfo_t {
+    FDataHandle * dataHdl;
+    FNodeOutPort * outPort;
+    FNodeInPort * inPort;
+  };
+
+  /**
+   * The list of instances that will trigger new instanciation (due to
+   * dependency of other functional nodes on the cardinal of the outputs of
+   * this node)
+   */
+  multimap<DagNode*, pendingDagNodeInfo_t> pendingNodes;
 
   /**
    * Critical section

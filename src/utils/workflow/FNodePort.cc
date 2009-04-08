@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2009/04/08 09:34:56  bisnard
+ * pending nodes mgmt moved to FWorkflow class
+ * FWorkflow and FNode state graph revisited
+ * FNodePort instanciation refactoring
+ *
  * Revision 1.5  2009/02/24 14:01:05  bisnard
  * added dynamic parameter mgmt for wf processors
  *
@@ -30,6 +35,7 @@
 #include "DIET_data.h"
 #include "FNodePort.hh"
 #include "FNode.hh"
+#include "FWorkflow.hh"
 #include "DagNodePort.hh"
 #include "Dag.hh"
 
@@ -83,10 +89,12 @@ FNodeParamPort::FNodeParamPort(Node * parent,
 FNodeParamPort::~FNodeParamPort() {
 }
 
-/**
- * Ports connection setup method
- * Called by WfSimpleAdapter on both sides to connect node ports
- */
+
+FNode*
+FNodePort::getParentFNode() {
+  FNode* parent = dynamic_cast<FNode*>(getParent());
+  return parent;
+}
 
 FProcNode*
 FNodePort::getParentProcNode() {
@@ -97,6 +105,10 @@ FNodePort::getParentProcNode() {
   return parent;
 }
 
+/**
+ * Ports connection setup method
+ * Called by WfSimpleAdapter on both sides to connect node ports
+ */
 void
 FNodeOutPort::connectToPort(WfPort* remPort) {
   // set connected flag
@@ -107,6 +119,59 @@ FNodeOutPort::connectToPort(WfPort* remPort) {
     INTERNAL_ERROR("Wrong connected node type in functional node OUT port", 0);
   }
   myConnectedPorts.push_back(srcPort);
+}
+
+/**
+ * Static sendData
+ */
+void
+FNodeOutPort::sendData(FDataHandle* dataHdl) throw (WfDataHandleException) {
+  TRACE_TEXT (TRACE_ALL_STEPS,"   # Insert data into buffer" << endl);
+  myBuffer.insertInTree(dataHdl);
+  // use cardinal info if data is container (depth > 0) and cardinal is known
+  list<string>  cardList;
+  if ((depth > 0) && (card != NULL)) {
+    cardList = *card;
+  } else {
+    cardList.push_back("x");
+  }
+  // add the new dataHandle to all the connected in ports ==> inPort.addData
+  // all the inPort(s) that return false must be included in the FNode pending list
+  TRACE_TEXT (TRACE_ALL_STEPS,"   # Insert data into connected ports" << endl);
+  for (list<FNodeInPort*>::iterator inPortIter = myConnectedPorts.begin();
+       inPortIter != myConnectedPorts.end();
+       ++inPortIter) {
+    FNodeInPort* inPort = (FNodeInPort*) *inPortIter;
+    try {
+      inPort->addData(dataHdl, cardList);
+      checkTotalDataNb(inPort, dataHdl);
+    } catch (WfDataHandleException& e) {
+      if ((e.Type() == WfDataHandleException::eCARD_UNDEF)
+          || (e.Type() == WfDataHandleException::eVALUE_UNDEF)) {
+        TRACE_TEXT (TRACE_ALL_STEPS,"  - in port (" << inPort->getParent()->getId()
+                    << "#" << inPort->getId() << ") insertion pending" << endl);
+        FWorkflow* wf = getParentProcNode()->getWorkflow();
+        // THE dataHdl supplied here ALWAYS contains a pointer to a DagNodeOutPort!!
+        // BECAUSE if cardinal or value is not known it means this is a dynamic data
+        // that is necessarily produced by a dagNode
+        DagNodeOutPort* dagOutPort = dynamic_cast<DagNodeOutPort*>(dataHdl->getSourcePort());
+        DagNode* dagNode = dynamic_cast<DagNode*>(dagOutPort->getParent());
+        wf->setPendingInstanceInfo(dagNode,dataHdl,this,inPort);
+      } else throw;
+    }
+  }
+}
+
+/**
+ * Dynamic sendData (if data available)
+ * Used by workflow when processing pending instances
+ */
+void
+FNodeOutPort::reSendData(FDataHandle* dataHdl, FNodeInPort* inPort)
+    throw (WfDataException, WfDataHandleException) {
+  DagNodeOutPort* dagOutPort = dynamic_cast<DagNodeOutPort*>(dataHdl->getSourcePort());
+  inPort->addData(dataHdl, dagOutPort);
+  checkTotalDataNb(inPort, dataHdl);
 }
 
 void
@@ -125,47 +190,13 @@ FNodeOutPort::instanciate(Dag* dag, DagNode* nodeInst, const FDataTag& tag) {
   //  - its port equals the portInst
   TRACE_TEXT (TRACE_ALL_STEPS,"   # Creating new data handle / tag = " << tag.toString() << endl);
   FDataHandle* dataHdl = new FDataHandle(tag, depth, NULL, portInst);
-  // insert it under the root data handle  ==> myBuffer.insertInTree()
-  // the intermediate nodes (if needed) are created on the fly if they are missing.
-  TRACE_TEXT (TRACE_ALL_STEPS,"   # Insert data into buffer" << endl);
-  myBuffer.insertInTree(dataHdl);
-  // use cardinal info if data is container (depth > 0) and cardinal is known
-  list<string>  cardList;
-  if ((depth > 0) && (card != NULL)) {
-    cardList = *card;
-  } else {
-    cardList.push_back("x");
-  }
-  // add the new dataHandle to all the connected in ports ==> inPort.addData
-  // all the inPort(s) that return false must be included in the FNode pending list
-  TRACE_TEXT (TRACE_ALL_STEPS,"   # Insert data into connected ports" << endl);
-  for (list<FNodeInPort*>::iterator inPortIter = myConnectedPorts.begin();
-       inPortIter != myConnectedPorts.end();
-       ++inPortIter) {
-    FNodeInPort *inPort = (FNodeInPort*) *inPortIter;
-    if (!addDataToInPort(inPort, dataHdl, cardList)) {
-      TRACE_TEXT (TRACE_ALL_STEPS,"  - in port (" << inPort->getParent()->getId()
-                  << "#" << inPort->getId() << ") insertion pending" << endl);
-      FProcNode * parentFNode = getParentProcNode();
-      parentFNode->setPendingInstanceInfo(nodeInst,dataHdl,this,inPort);
-    }
-  }
+  // send the data to the connected ports
+  sendData(dataHdl);
 }
 
 void
 FNodeOutPort::instanciate(FDataHandle* dataHdl) {
-  // if the dataHandle has a value then add it to the connected in ports
-  TRACE_TEXT (TRACE_ALL_STEPS,"   # Insert data into buffer" << endl);
-  myBuffer.insertInTree(dataHdl);
-  TRACE_TEXT (TRACE_ALL_STEPS,"   # Insert data into connected ports" << endl);
-  list<string> dummyCard;
-  for (list<FNodeInPort*>::iterator inPortIter = myConnectedPorts.begin();
-       inPortIter != myConnectedPorts.end();
-       ++inPortIter) {
-    if (!addDataToInPort((FNodeInPort*) *inPortIter, dataHdl, dummyCard)) {
-      INTERNAL_ERROR("Cannot split source data",1);
-    }
-  }
+  sendData(dataHdl);
 }
 
 void
@@ -180,32 +211,6 @@ FNodeOutPort::checkTotalDataNb(FNodeInPort *inPort,
     // connected port
     inPort->setTotalDataNb(myBufferChildNbTable[inLevel]);
   }
-}
-
-bool
-FNodeOutPort::addDataToInPort(FNodeInPort *inPort,
-                              FDataHandle *dataHdl,
-                              const list<string>& dataCard)
-    throw (WfDataHandleException)
-{
-  // try to insert the data in the inPort
-  // (fails in case of missing cardinal information)
-  if (!inPort->addData(dataHdl, dataCard)) {
-    return false;
-  } else {
-    checkTotalDataNb(inPort, dataHdl);
-    return true;
-  }
-}
-
-void
-FNodeOutPort::addDataToInPort(FNodeInPort *inPort,
-                              FDataHandle *dataHdl,
-                              DagNodeOutPort * dagOutPort)
-    throw (WfDataException, WfDataHandleException)
-{
-  inPort->addData(dataHdl, dagOutPort);
-  checkTotalDataNb(inPort, dataHdl);
 }
 
 void
@@ -225,7 +230,7 @@ FNodeOutPort::setAsConstant(FDataHandle* dataHdl) {
 /**
  * Static addData
  */
-bool
+void
 FNodeInPort::addData(FDataHandle* dataHdl, const list<string>& dataCard)
    throw (WfDataHandleException)
 {
@@ -235,7 +240,7 @@ FNodeInPort::addData(FDataHandle* dataHdl, const list<string>& dataCard)
   // if dataHdl is not complete then do nothing
   if (!dataHdl->isAdapterDefined() && !dataHdl->isValueDefined()) {
     TRACE_TEXT (TRACE_ALL_STEPS,"Cannot add data to inPort (no value and no adapter)" << endl);
-    return true;
+    return;
   }
   // if dataHdl depth = port depth
     // if dataHdl not already in the queue
@@ -245,7 +250,9 @@ FNodeInPort::addData(FDataHandle* dataHdl, const list<string>& dataCard)
     if (myQueue.find(dataTag) == myQueue.end()) {
       TRACE_TEXT (TRACE_ALL_STEPS,"Adding data in input port queue (tag="
                   << dataTag.toString() << ")" << endl);
-      myQueue.insert(make_pair(dataTag, dataHdl));
+      myQueue.insert(pair<FDataTag,FDataHandle*>(dataTag, dataHdl));
+      // updates node status
+      getParentFNode()->setStatusReady();
     }
   } else if (dataHdl->getDepth() > depth) {
   // if dataHdl depth > port depth (SPLIT)
@@ -263,16 +270,15 @@ FNodeInPort::addData(FDataHandle* dataHdl, const list<string>& dataCard)
       // remove first element of the cardinal list
       list<string> childCard = dataCard;
       childCard.pop_front();
-      // loop over all elements of the data handle (may throw exception)
+      // loop over all elements of the data handle (begin may throw exception)
       for (map<FDataTag,FDataHandle*>::iterator eltIter = dataHdl->begin();
            eltIter != dataHdl->end();
            ++eltIter) {
-        if (!this->addData((FDataHandle*) eltIter->second, childCard))
-          return false;
+        this->addData((FDataHandle*) eltIter->second, childCard);
       }
     } else {
       TRACE_TEXT (TRACE_ALL_STEPS,"Cannot split data (cardinal unknown)" << endl);
-      return false;
+      throw WfDataHandleException(WfDataHandleException::eCARD_UNDEF,dataHdl->getTag().toString());
     }
   // if dataHdl depth < port depth (MERGE)
   } else {
@@ -285,7 +291,6 @@ FNodeInPort::addData(FDataHandle* dataHdl, const list<string>& dataCard)
       INTERNAL_ERROR("Missing data handle parent",0);
     }
   }
-  return true;
 }
 
 /**
@@ -355,7 +360,9 @@ FNodeInPort::setTotalDataNb(unsigned int total) {
 
 void
 FNodeInPort::setAsConstant(FDataHandle* dataHdl) {
-  getParentProcNode()->setConstantInput(getIndex(), dataHdl);
+  FProcNode* node = getParentProcNode();
+  node->setConstantInput(getIndex(), dataHdl);
+  node->setStatusReady();
 }
 
 void
@@ -406,14 +413,15 @@ FNodeInPort::displayData(ostream& output) {
 /*****************************************************************************/
 // Note: a param port has necessarily depth=0
 
-bool
+void
 FNodeParamPort::addData(FDataHandle* dataHdl, const list<string>& dataCard)
     throw (WfDataHandleException)
 {
   if (dataHdl->isValueDefined())
-    return FNodeInPort::addData(dataHdl, dataCard);
+    FNodeInPort::addData(dataHdl, dataCard);
   else
-    return false;
+    throw WfDataHandleException(WfDataHandleException::eVALUE_UNDEF,
+                                dataHdl->getTag().toString());
 }
 
 void

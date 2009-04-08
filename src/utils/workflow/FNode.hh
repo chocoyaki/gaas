@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2009/04/08 09:34:56  bisnard
+ * pending nodes mgmt moved to FWorkflow class
+ * FWorkflow and FNode state graph revisited
+ * FNodePort instanciation refactoring
+ *
  * Revision 1.8  2009/02/24 14:01:05  bisnard
  * added dynamic parameter mgmt for wf processors
  *
@@ -55,9 +60,19 @@ using namespace std;
 class FNode : public Node {
 
 public:
-  FNode(FWorkflow* wf, const string& id);
+  friend class FNodeInPort;
+
   virtual ~FNode();
 
+  /**
+   * Get the workflow the node belongs to
+   */
+  FWorkflow *
+      getWorkflow();
+
+  /**
+   * Create a new port
+   */
   virtual WfPort *
       newPort(string portId,
               unsigned int ind,
@@ -88,33 +103,68 @@ public:
       initialize();
 
   /**
-   * instanciation
+   * Instanciation
+   * @param dag the current generated dag
    */
 
   virtual void
       instanciate(Dag* dag) = 0;
 
-  bool
-      instanciationOnHold();
+  /**
+   * Instanciation status: data available to process
+   */
+  bool instanciationReady();
 
-  void
-      resumeInstanciation();
+  /**
+   * Instanciation status: waiting for data to process
+   */
+  bool instanciationWaiting();
 
-  virtual bool
-      instanciationCompleted();
+  /**
+   * Instanciation status: waiting to resume instanciation (stopped due
+   * to instance nb limitation)
+   */
+  bool instanciationOnHold();
+
+  /**
+   * Instanciation status: no more data to process
+   */
+  bool instanciationCompleted();
+
+  /**
+   * Resume instanciation (when stopped by instance nb limitation)
+   */
+  void resumeInstanciation();
 
 protected:
+  /**
+   * Parent workflow
+   */
   FWorkflow * wf;
 
   /**
-   * Status 'on hold' (instance limitation)
+   * Instanciation status type
    */
-  bool isOnHoldFlag;
+  typedef enum {
+    N_INSTANC_READY,
+    N_INSTANC_ONHOLD,
+    N_INSTANC_WAITING,
+    N_INSTANC_END } nodeInstStatus_t;
 
   /**
-   * Status 'fully instantiated' used when last input has been processed
+   * Constructor
    */
-  bool isFullInst;
+  FNode(FWorkflow* wf, const string& id, nodeInstStatus_t initStatus);
+
+  /**
+   * Instanciation status
+   */
+  nodeInstStatus_t  myStatus;
+
+  /**
+   * Set instanciation status to ready
+   */
+  void setStatusReady();
 
 }; // end class FNode
 
@@ -338,38 +388,6 @@ class FProcNode : public FNode {
     virtual void
         instanciate(Dag* dag);
 
-    /**
-     * Setup the information used when node instance (dagnode) is done
-     * and some output ports instances have to be re-submitted to next
-     * nodes (when cardinal was not known before node execution)
-     */
-    void
-        setPendingInstanceInfo(DagNode * dagNode,
-                               FDataHandle * dataHdl,
-                               FNodeOutPort * outPort,
-                               FNodeInPort * inPort);
-
-    /**
-     * Returns true if the node instanciation is pending until some dag
-     * node execution
-     */
-    bool
-        instanciationPending();
-
-    /**
-     * Returns true when instanciation is completed
-     */
-    virtual bool
-        instanciationCompleted();
-
-    /**
-     * Handle dag node execution event
-     * Checks the pending dag node info map and if the dag node is present
-     * then use info to re-submit the datahandles to the correct in ports
-     */
-    void
-        instanceIsDone(DagNode * dagNode, bool& statusChange)
-        throw (WfDataException, WfDataHandleException);
 
   protected:
 
@@ -390,12 +408,6 @@ class FProcNode : public FNode {
         isIteratorDefined(const string& portId);
 
     void initDataLine();
-
-    struct pendingDagNodeInfo_t {
-      FDataHandle * dataHdl;
-      FNodeOutPort * outPort;
-      FNodeInPort * inPort;
-    };
 
     /**
      * The map of all input operators
@@ -423,13 +435,6 @@ class FProcNode : public FNode {
     short maxInstNb;
 
     /**
-     * The list of instances that will trigger new instanciation (due to
-     * dependency of other functional nodes on the cardinal of the outputs of
-     * this node)
-     */
-    multimap<DagNode*, pendingDagNodeInfo_t> pendingNodes;
-
-    /**
      * The template data line used for each instance
      * Contains the constant port values and is copied for each new instance
      */
@@ -448,19 +453,5 @@ class FProcNode : public FNode {
     map<string,string> varMap;
 
 }; // end class FProcNode
-
-/*****************************************************************************/
-/*                           FConditionNode                                  */
-/*****************************************************************************/
-
-class FConditionNode : public FNode {
-
-  public:
-    FConditionNode(FWorkflow* wf, const string& id);
-    virtual ~FConditionNode();
-
-    virtual void
-        instanciate(Dag* dag);
-}; // end class FConditionNode
 
 #endif // _FNODE_HH_

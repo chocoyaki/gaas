@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2009/04/08 09:34:56  bisnard
+ * pending nodes mgmt moved to FWorkflow class
+ * FWorkflow and FNode state graph revisited
+ * FNodePort instanciation refactoring
+ *
  * Revision 1.8  2009/02/06 14:55:08  bisnard
  * setup exceptions
  *
@@ -44,7 +49,7 @@
 #include "FWorkflow.hh"
 
 FWorkflow::FWorkflow(const string& id)
-  : id(id), dagCounter(0), myStatus(INSTANC_READY) {
+  : id(id), dagCounter(0), myStatus(W_INSTANC_READY) {
 }
 
 FWorkflow::~FWorkflow() {
@@ -303,6 +308,7 @@ FWorkflow::getDataSrcXmlFile() {
 
 Dag *
 FWorkflow::instanciateDag() {
+  myStatus = W_INSTANC_READY;
   Dag * currDag = new Dag();
   // set a temporary ID for the DAG
   // this ID will be changed when the DAG is submitted to the MaDag
@@ -334,34 +340,49 @@ FWorkflow::instanciateDag() {
       FProcNode* currProc = (FProcNode*) *procIter;
       // instantiate node
       currProc->instanciate(currDag);
+      // if on hold, then set the whole wf on hold
+      if (currProc->instanciationOnHold()) {
+        myStatus = W_INSTANC_ONHOLD;
+      }
       // if fully instanciated, remove from todo list
       if (currProc->instanciationCompleted()) {
         TRACE_TEXT (TRACE_MAIN_STEPS,"#### Processor " << currProc->getId()
                       << " instanciation COMPLETE" << endl);
         procIter = todoProc.erase(procIter);
         nbTodoProc--;
-      } else {
-        nbTodoProc--;
-        if (currProc->instanciationPending()) {
-          TRACE_TEXT (TRACE_MAIN_STEPS,"#### Processor " << currProc->getId()
-                      << " instanciation PENDING" << endl);
-          myStatus = INSTANC_PENDING;
-        }
-        ++procIter;
+        continue;
       }
+      // go to next todoProc
+      nbTodoProc--;
+      ++procIter;
     } // end loop todo list
   } // end while (nbTodoProc)
   // check dag emptyness
   if (currDag->size() == 0) {
     WARNING("Instanciation of EMPTY DAG!!! Problem during instanciation.");
-    myStatus = INSTANC_END;
+    myStatus = W_INSTANC_END;
     delete currDag;
     return NULL;
   }
+  if (instanciationOnHold()) {
+    TRACE_TEXT (TRACE_MAIN_STEPS,"########## WORKFLOW INSTANCIATION ON HOLD ##########" << endl);
+  }
+  // check if instanciation is pending on node execution
+  else if (pendingNodes.size() > 0) {
+    TRACE_TEXT (TRACE_MAIN_STEPS,"########## WORKFLOW INSTANCIATION PENDING ##########" << endl);
+    myStatus = W_INSTANC_PENDING;
+  }
   // check if instanciation is finished
-  if (todoProc.size() == 0) {
+  else if (todoProc.size() == 0) {
     TRACE_TEXT (TRACE_MAIN_STEPS,"############ WORKFLOW INSTANCIATION END ############" << endl);
-    myStatus = INSTANC_END;
+    myStatus = W_INSTANC_END;
+  }
+  // incorrect status
+  else {
+    WARNING("Instanciation stopped in incorrect state!!");
+    myStatus = W_INSTANC_END;
+    delete currDag;
+    return NULL;
   }
   // add dag to my list of dags
   myDags.push_back(currDag);
@@ -393,53 +414,81 @@ FWorkflow::displayAllResults(ostream& output) {
 
 bool
 FWorkflow::instanciationReady() {
-  return myStatus == INSTANC_READY;
+  return myStatus == W_INSTANC_READY;
 }
 
 bool
 FWorkflow::instanciationPending() {
-  return myStatus == INSTANC_PENDING;
+  return myStatus == W_INSTANC_PENDING;
+}
+
+bool
+FWorkflow::instanciationOnHold() {
+  return myStatus == W_INSTANC_ONHOLD;
 }
 
 bool
 FWorkflow::instanciationCompleted() {
-  return myStatus == INSTANC_END;
+  return myStatus == W_INSTANC_END;
 }
 
 void
 FWorkflow::stopInstanciation() {
-  myStatus = INSTANC_STOPPED;
+  myStatus = W_INSTANC_STOPPED;
 }
 
 bool
 FWorkflow::instanciationStopped() {
-  return myStatus == INSTANC_STOPPED;
+  return myStatus == W_INSTANC_STOPPED;
+}
+
+void
+FWorkflow::setPendingInstanceInfo(DagNode * dagNode,
+                                  FDataHandle * dataHdl,
+                                  FNodeOutPort * outPort,
+                                  FNodeInPort * inPort) {
+  pendingDagNodeInfo_t info;
+  info.dataHdl = dataHdl;
+  info.outPort = outPort;
+  info.inPort  = inPort;
+  pendingNodes.insert(make_pair(dagNode,info));
+  TRACE_TEXT (TRACE_ALL_STEPS, "Added one entry (tag=" << dataHdl->getTag().toString()
+              << ") in pending list (size = " << pendingNodes.size() << ")" << endl);
 }
 
 /**
  * Handle end of node execution
  */
 void
-FWorkflow::handlerDagNodeDone(DagNode* dagNode) throw (WfDataException) {
-  FProcNode* fNode = dagNode->getFNode();
-  if (fNode == NULL) {
-    INTERNAL_ERROR("handlerDagNodeDone: Missing FNode ref in DagNode",1);
-  }
-  // call the FProcNode to process pending data handles
+FWorkflow::handlerDagNodeDone(DagNode* dagNode) {
   bool statusChange = false;
   myLock.lock();    /** LOCK */
-  try {
-    fNode->instanceIsDone(dagNode, statusChange);
-  } catch (WfDataHandleException& e) {
-    WARNING("Data handle error :" << e.ErrorMsg());
-    myStatus = INSTANC_STOPPED;
-  } catch (WfDataException& e) {
-    WARNING("Data error :" << e.ErrorMsg());
-    myStatus = INSTANC_STOPPED;
+  // search the instance in the pending list
+  multimap<DagNode*, pendingDagNodeInfo_t>::iterator pendingIter, pendingStart;
+  pendingStart = pendingIter = pendingNodes.lower_bound(dagNode);
+  // if found, resubmit the datahandle to the in port(s)
+  while (pendingIter != pendingNodes.upper_bound(dagNode)) {
+    pendingDagNodeInfo_t info = (pendingDagNodeInfo_t) (pendingIter++)->second;
+    // submit data to the in port
+    TRACE_TEXT (TRACE_ALL_STEPS,"[" << getId() << "] : Process pending entry for node "
+                                << dagNode->getId() << endl);
+    try {
+      info.outPort->reSendData(info.dataHdl, info.inPort);
+    } catch (WfDataHandleException& e) {
+      WARNING("Instanciator error due to data handle error :" << e.ErrorMsg());
+      myStatus = W_INSTANC_STOPPED;
+    } catch (WfDataException& e) {
+      WARNING("Instanciator error due to invalid dag data :" << e.ErrorMsg());
+      myStatus = W_INSTANC_STOPPED;
+    }
+    // re-start instanciation
+    statusChange = true;
   }
+  // remove entries from the pending list
+  pendingNodes.erase(pendingStart,pendingIter);
   // re-initialize instanciation
   if (statusChange && !instanciationStopped()) {
-    myStatus = INSTANC_READY;
+    myStatus = W_INSTANC_READY;
   }
   myLock.unlock();  /** UNLOCK */
 }

@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2009/04/08 09:34:56  bisnard
+ * pending nodes mgmt moved to FWorkflow class
+ * FWorkflow and FNode state graph revisited
+ * FNodePort instanciation refactoring
+ *
  * Revision 1.5  2009/02/24 14:01:05  bisnard
  * added dynamic parameter mgmt for wf processors
  *
@@ -35,6 +40,7 @@
 #include "DagNode.hh"
 #include "DagNodePort.hh"
 
+class FNode;
 class FNodeInPort;
 
 /*****************************************************************************/
@@ -49,12 +55,20 @@ class FNodePort : public WfPort {
     virtual ~FNodePort();
 
   protected:
+
+    /**
+     * Get the parent node
+     * @return ref to FNode
+     */
+    FNode*
+        getParentFNode();
+
     /**
      * Get the parent node (applicable only if port of processor node)
      * @return  ref to ProcNode (will exit if ref is NULL)
      */
     FProcNode*
-    getParentProcNode();
+        getParentProcNode();
 
 }; // end class FNodePort
 
@@ -65,8 +79,6 @@ class FNodePort : public WfPort {
 class FNodeOutPort : public FNodePort {
 
   public:
-
-    friend class FProcNode; // for pending instanciation
 
     FNodeOutPort(Node * parent, const string& _id,
                  WfCst::WfDataType _type, unsigned int _depth, unsigned int _ind);
@@ -79,7 +91,22 @@ class FNodeOutPort : public FNodePort {
     connectToPort(WfPort* remPort);
 
     /**
-     * Instanciate the port as a real output port (used for processors)
+     * Method to send a data handle to the connected ports
+     */
+    virtual void
+    sendData(FDataHandle* dataHdl)
+        throw (WfDataHandleException);
+
+    /**
+     * Method to re-send a data handle to a given connected port when the data
+     * is available (data exists on the platform)
+     */
+    virtual void
+    reSendData(FDataHandle* dataHdl, FNodeInPort* inPort)
+        throw (WfDataException, WfDataHandleException);
+
+    /**
+     * Instanciate the port as a real output port (used for tasks)
      * @param dag       the current dag being instanciated
      * @param nodeInst  the node instance (parent of the port to create)
      * @param tag       the tag of the instance
@@ -102,24 +129,6 @@ class FNodeOutPort : public FNodePort {
     setAsConstant(FDataHandle* dataHdl);
 
   protected:
-
-    /**
-     * Methods used by the instanciate methods to submit a data item
-     * to an input port
-     * (also used by FProcNode for pending data)
-     */
-
-    bool
-    addDataToInPort(FNodeInPort *inPort,
-                    FDataHandle *dataHdl,
-                    const list<string>& dataCard)
-        throw (WfDataHandleException);
-
-    void
-    addDataToInPort(FNodeInPort *inPort,
-                    FDataHandle *dataHdl,
-                    DagNodeOutPort * dagOutPort)
-        throw (WfDataException, WfDataHandleException);
 
     void
     checkTotalDataNb(FNodeInPort *inPort,
@@ -162,9 +171,10 @@ class FNodeInPort : public FNodePort {
      * Add a new data item to be used for instanciation
      * @param dataHdl   the data Handle
      * @param dataCard  a list of (integer | 'x') = cardinal of data
-     * @return false if the data cannot be added due to missing cardinal
+     * @exception WfDataHandleException(eCARD_UNDEF) if cardinal missing
+     * @exception WfDataHandleException(eBAD_STRUCT) if DH cannot be added
      */
-    virtual bool
+    virtual void
     addData(FDataHandle* dataHdl, const list<string>& dataCard)
         throw (WfDataHandleException);
 
@@ -257,9 +267,9 @@ class FNodeParamPort : public FNodeInPort {
      * Static addData (before node execution)
      * @param dataHdl   the data Handle
      * @param dataCard  a list of (integer | 'x') = cardinal of data
-     * @return false if value is not available
+     * @exception WfDataHandleException(eVALUE_UNDEF) if value missing
      */
-    virtual bool
+    virtual void
         addData(FDataHandle* dataHdl, const list<string>& dataCard)
         throw (WfDataHandleException);
 

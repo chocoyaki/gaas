@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2009/04/08 09:34:56  bisnard
+ * pending nodes mgmt moved to FWorkflow class
+ * FWorkflow and FNode state graph revisited
+ * FNodePort instanciation refactoring
+ *
  * Revision 1.8  2009/02/24 14:01:05  bisnard
  * added dynamic parameter mgmt for wf processors
  *
@@ -43,14 +48,16 @@
 
 using namespace std;
 
-FNode::FNode(FWorkflow* wf, const string& id)
-  : Node(id),
-    wf(wf),
-    isFullInst(false),
-    isOnHoldFlag(false) {}
+FNode::FNode(FWorkflow* wf, const string& id, nodeInstStatus_t initStatus)
+  : Node(id), wf(wf), myStatus(initStatus) {}
 
 FNode::~FNode() {
   TRACE_TEXT (TRACE_ALL_STEPS,"~FNode() " << getId() << " destructor ..." <<  endl);
+}
+
+FWorkflow *
+FNode::getWorkflow() {
+  return wf;
 }
 
 const string&
@@ -58,19 +65,37 @@ FNode::getDefaultPortName() const {
   INTERNAL_ERROR("FNode::getDefaultPortName not defined for this class",1);
 }
 
-bool
-FNode::instanciationOnHold() {
-  return isOnHoldFlag;
+/* protected */
+void
+FNode::setStatusReady() {
+  if (!instanciationOnHold())
+    myStatus = N_INSTANC_READY;
 }
 
-void
-FNode::resumeInstanciation() {
-  isOnHoldFlag = false;
+bool
+FNode::instanciationReady() {
+  return (myStatus == N_INSTANC_READY);
+}
+
+bool
+FNode::instanciationWaiting() {
+  return (myStatus == N_INSTANC_WAITING);
+}
+
+bool
+FNode::instanciationOnHold() {
+  return (myStatus == N_INSTANC_ONHOLD);
 }
 
 bool
 FNode::instanciationCompleted() {
-  return isFullInst;
+  return (myStatus == N_INSTANC_END);
+}
+
+void
+FNode::resumeInstanciation() {
+  if (!instanciationCompleted())
+    myStatus = N_INSTANC_READY;
 }
 
 WfPort *
@@ -133,7 +158,7 @@ FConstantNode::getDefaultPortName() const {
 
 FConstantNode::FConstantNode(FWorkflow* wf, const string& id,
                              WfCst::WfDataType type)
-  : FNode(wf, id) {
+  : FNode(wf, id, N_INSTANC_READY) {
   this->newPort(outPortName,0,WfPort::PORT_OUT,type,0);
 }
 FConstantNode::~FConstantNode() {}
@@ -145,18 +170,16 @@ FConstantNode::setValue(const string& strVal) {
 
 void
 FConstantNode::instanciate(Dag* dag) {
-  if (!instanciationOnHold() && !instanciationCompleted()) {
-    // create a WfDataHandle and set its value
-    FDataTag singleTag(0,true);
-    FDataHandle* dataHdl = new FDataHandle(singleTag, myValue);
-    // set the out port as constant with this dataHdl
-    FNodeOutPort* outPort = dynamic_cast<FNodeOutPort*>(ports[outPortName]);
-    if (!outPort) {
-      INTERNAL_ERROR("Missing out port in constant FNode",0);
-    }
-    outPort->setAsConstant(dataHdl);
-    this->isFullInst = true;
+  // create a WfDataHandle and set its value
+  FDataTag singleTag(0,true);
+  FDataHandle* dataHdl = new FDataHandle(singleTag, myValue);
+  // set the out port as constant with this dataHdl
+  FNodeOutPort* outPort = dynamic_cast<FNodeOutPort*>(ports[outPortName]);
+  if (!outPort) {
+    INTERNAL_ERROR("Missing out port in constant FNode",0);
   }
+  outPort->setAsConstant(dataHdl);
+  myStatus = N_INSTANC_END;
 }
 
 /*****************************************************************************/
@@ -167,7 +190,7 @@ string FSourceNode::outPortName("out");
 FSourceNode::FSourceNode(FWorkflow* wf,
                          const string& id,
                          WfCst::WfDataType type)
-  : FNode(wf, id), myParser(NULL) {
+  : FNode(wf, id, N_INSTANC_READY), myParser(NULL) {
   WfPort * outPort = this->newPort(outPortName,0,WfPort::PORT_OUT,type,0);
   myOutPort = dynamic_cast<FNodeOutPort*>(outPort);
   myParser = new DataSourceParser(id);
@@ -191,34 +214,33 @@ FSourceNode::initialize() {
 
 void
 FSourceNode::instanciate(Dag* dag) {
-  if (!instanciationOnHold() && !instanciationCompleted()) {
-    unsigned int valCount = 0;
-    // LOOP while file contains data items
-    while (!myParser->end()) {
-      TRACE_TEXT (TRACE_ALL_STEPS, "Source " << getId()
-                   << " : Found one value in XML file" << endl);
-        // get the data item
-      string * currVal = myParser->getValue();
-        // move the parser to the next value
-      try {
-        myParser->goToNextValue();
-      } catch (XMLParsingException& exception) {
-        cerr <<  "Data source " << getId() << " XML Parsing error: "
-             << exception.Info() << endl;
-        delete currVal;
-        break;
-      }
-        // if this is the last item, then set the tag as last
-      bool isLast = myParser->end();
-      FDataTag currTag(valCount++, isLast);
-        // create data handle with the data item
-      FDataHandle* currDataHdl = new FDataHandle(currTag, *currVal);
-        // instanciate out port with this data handle
-      myOutPort->instanciate(currDataHdl);
-        // free data
+  unsigned int valCount = 0;
+  // LOOP while file contains data items
+  while (!myParser->end()) {
+    TRACE_TEXT (TRACE_ALL_STEPS, "Source " << getId()
+                  << " : Found one value in XML file" << endl);
+      // get the data item
+    string * currVal = myParser->getValue();
+      // move the parser to the next value
+    try {
+      myParser->goToNextValue();
+    } catch (XMLParsingException& exception) {
+      cerr <<  "Data source " << getId() << " XML Parsing error: "
+            << exception.Info() << endl;
       delete currVal;
+      break;
     }
-  } // end if
+      // if this is the last item, then set the tag as last
+    bool isLast = myParser->end();
+    FDataTag currTag(valCount++, isLast);
+      // create data handle with the data item
+    FDataHandle* currDataHdl = new FDataHandle(currTag, *currVal);
+      // instanciate out port with this data handle
+    myOutPort->instanciate(currDataHdl);
+      // free data
+    delete currVal;
+  }
+  myStatus = N_INSTANC_END;
 }
 
 /*****************************************************************************/
@@ -231,7 +253,7 @@ FSinkNode::FSinkNode(FWorkflow* wf,
                      const string& id,
                      WfCst::WfDataType type,
                      unsigned int depth)
-  : FNode(wf, id) {
+  : FNode(wf, id, N_INSTANC_WAITING) {
   WfPort * inPort = this->newPort(inPortName,0,WfPort::PORT_IN,type,depth);
   myInPort = dynamic_cast<FNodeInPort*>(inPort);
 }
@@ -267,7 +289,7 @@ FSinkNode::displayResults(ostream& output) {
 
 FProcNode::FProcNode(FWorkflow* wf,
                      const string& id)
-  : FNode(wf, id), maxInstNb(0), myPath(), myRootIterator(NULL),
+  : FNode(wf, id, N_INSTANC_WAITING), maxInstNb(0), myPath(), myRootIterator(NULL),
     cstDataLine(NULL) {}
 
 FProcNode::~FProcNode() {
@@ -477,7 +499,7 @@ FProcNode::initialize() {
 
 void
 FProcNode::instanciate(Dag* dag) {
-  if (!instanciationOnHold() && !isFullInst) {
+  if (instanciationReady()) {
     TRACE_TEXT (TRACE_ALL_STEPS,"#### Processor " << this->getId()
                     << " instanciation START" << endl);
 
@@ -576,77 +598,19 @@ FProcNode::instanciate(Dag* dag) {
     //
 
     if (myRootIterator->isAtEnd()) {
-      TRACE_TEXT (TRACE_ALL_STEPS, "########## NO MORE MATCHES FOR NODE INPUTS " << endl);
       if (myRootIterator->isDone()) {
         TRACE_TEXT (TRACE_ALL_STEPS, "########## ALL INPUTS PROCESSED" << endl);
-        this->isFullInst = true;
+        myStatus = N_INSTANC_END;
+      } else {
+        TRACE_TEXT (TRACE_ALL_STEPS, "########## WAITING FOR INPUTS " << endl);
+        myStatus = N_INSTANC_WAITING;
       }
     } else {
       TRACE_TEXT (TRACE_ALL_STEPS, "########## SET NODE ON HOLD" << endl);
-      this->isOnHoldFlag = true;
+      myStatus = N_INSTANC_ONHOLD;
     }
 
     delete currDataLine;
-  } // end if (!isFullyInstantiated())
-}
-
-void
-FProcNode::setPendingInstanceInfo(DagNode * dagNode,
-                                      FDataHandle * dataHdl,
-                                      FNodeOutPort * outPort,
-                                      FNodeInPort * inPort) {
-  pendingDagNodeInfo_t info;
-  info.dataHdl = dataHdl;
-  info.outPort = outPort;
-  info.inPort  = inPort;
-  pendingNodes.insert(make_pair(dagNode,info));
-  TRACE_TEXT (TRACE_ALL_STEPS, "[" << getId() << "] : added one entry in pending list (size = "
-      << pendingNodes.size() << ")" << endl);
-}
-
-bool
-FProcNode::instanciationPending() {
-  return (pendingNodes.size() > 0);
-}
-
-bool
-FProcNode::instanciationCompleted() {
-  return isFullInst && !instanciationPending();
-}
-
-void
-FProcNode::instanceIsDone(DagNode * dagNode, bool& statusChange)
-    throw (WfDataException, WfDataHandleException) {
-  // search the instance in the pending list
-  multimap<DagNode*, pendingDagNodeInfo_t>::iterator pendingIter, pendingStart;
-  pendingStart = pendingIter = pendingNodes.lower_bound(dagNode);
-  // if found, resubmit the datahandle to the in port(s)
-  while (pendingIter != pendingNodes.upper_bound(dagNode)) {
-    pendingDagNodeInfo_t info = (pendingDagNodeInfo_t) (pendingIter++)->second;
-    // get the dag port providing the data
-    WfPort * portPtr = dagNode->getPort(info.outPort->getId());
-    DagNodeOutPort * dagOutPort = dynamic_cast<DagNodeOutPort*>(portPtr);
-    // submit data to the in port
-    TRACE_TEXT (TRACE_ALL_STEPS,"[" << getId() << "] : Process pending entry for node "
-                                << dagNode->getId() << endl);
-    info.outPort->addDataToInPort(info.inPort, info.dataHdl, dagOutPort);
-    // re-start instanciation
-    statusChange = true;
   }
-  // remove entries from the pending list
-  pendingNodes.erase(pendingStart,pendingIter);
-}
-
-/*****************************************************************************/
-/*                           FConditionNode                                  */
-/*****************************************************************************/
-
-FConditionNode::FConditionNode(FWorkflow* wf, const string& id)
-  : FNode(wf, id) {}
-FConditionNode::~FConditionNode() {}
-
-
-void
-FConditionNode::instanciate(Dag* dag) {
 }
 

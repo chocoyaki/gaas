@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2009/04/08 09:34:56  bisnard
+ * pending nodes mgmt moved to FWorkflow class
+ * FWorkflow and FNode state graph revisited
+ * FNodePort instanciation refactoring
+ *
  * Revision 1.6  2009/02/24 14:01:05  bisnard
  * added dynamic parameter mgmt for wf processors
  *
@@ -177,19 +182,18 @@ class FDataTag {
 class WfDataHandleException {
   public:
     enum WfDataHandleErrorType { eBAD_STRUCT,
-                               eINVALID_ADAPT };
+                                 eINVALID_ADAPT,
+                                 eCARD_UNDEF,
+                                 eVALUE_UNDEF };
     WfDataHandleException(WfDataHandleErrorType t,
-                          const string& _info,
-                          const FDataTag& _tag)
-      { this->why = t; this->info = _info; this->tag = _tag; }
+                          const string& _info)
+      { this->why = t; this->info = _info; }
     WfDataHandleErrorType Type() { return this->why; }
     const string& Info()       { return this->info; }
-    const FDataTag& Tag()      { return this->tag; }
     string ErrorMsg();
   private:
     WfDataHandleErrorType why;
     string info;
-    FDataTag tag;
 };
 
 /*****************************************************************************/
@@ -301,6 +305,8 @@ class FDataHandle {
      * If there are missing nodes in the tree then they will be created.
      * If the inserted child is a direct child and its tag is marked as last then
      * this handle's cardinal is set as defined
+     * @param dataHdl the DH to insert in the current DH's tree
+     * @exception WfDataHandleException(eBAD_STRUCT) if DH cannot be inserted
      */
     void
     insertInTree(FDataHandle* dataHdl)
@@ -310,6 +316,7 @@ class FDataHandle {
      * Get an iterator on the childs of the data Handle
      * If the cardinal is defined and the childs are not yet generated then this
      * will generate the childs with the correct tags
+     * @exception WfDataHandleException(eBAD_STRUCT) if DH depth = 0
      */
     map<FDataTag,FDataHandle*>::iterator
     begin() throw (WfDataHandleException);
@@ -334,6 +341,14 @@ class FDataHandle {
      */
     WfPortAdapter*
     createPortAdapter(const string& currDagName = "");
+
+    /**
+     * Get the source port (if adapter is direct)
+     * @return ptr to port
+     * @exception WfDataHandleException(eINVALID_ADAPT)
+     */
+    WfPort*
+    getSourcePort() throw (WfDataHandleException);
 
     /**
      * Returns true if the handle has a defined value
