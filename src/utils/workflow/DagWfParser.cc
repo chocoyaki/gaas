@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2009/04/09 09:56:20  bisnard
+ * refactoring due to new class FActivityNode
+ *
  * Revision 1.22  2009/02/24 14:01:05  bisnard
  * added dynamic parameter mgmt for wf processors
  *
@@ -643,7 +646,7 @@ FWfParser::createNode(const DOMElement* element, const string& elementName) {
   } else if (elementName == "sink") {
     node = workflow.createSink(name, (WfCst::WfDataType) dataType, typeDepth);
   } else if (elementName == "processor") {
-    node = workflow.createProcessor(name);
+    node = workflow.createActivity(name);
   } else {
     throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
                               "Invalid element : " + elementName);
@@ -827,26 +830,26 @@ FWfParser::parseOtherNodeSubElt(const DOMElement * element,
                                 Node * node) {
   // Diet service
   if (elementName == "diet") {
-    FProcNode* procNode = dynamic_cast<FProcNode*>(node);
-    if (!procNode)
+    FActivityNode* aNode = dynamic_cast<FActivityNode*>(node);
+    if (!aNode)
       throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
-                 "<diet> element applied to non-processor element");
+                 "<diet> element applied to non-activity element");
     // PATH attribute
     string path = getAttributeValue("path", element);
     if (path.empty())
       throw XMLParsingException(XMLParsingException::eEMPTY_ATTR,
                  "<diet> element must contain a path attribute");
-    procNode->checkDynamicParam("path", path);
-    procNode->setDIETServicePath(path);
+    aNode->checkDynamicParam("path", path);
+    aNode->setDIETServicePath(path);
     // MAX-INSTANCES attribute
     string maxInstStr = getAttributeValue("max-instances", element);
     if (!maxInstStr.empty()) {
-      procNode->setMaxInstancePerDag(atoi(maxInstStr.c_str()));
+      aNode->setMaxInstancePerDag(atoi(maxInstStr.c_str()));
     }
     // ESTIMATION attribute
     string estimAttr = getAttributeValue("estimation", element);
     if (!estimAttr.empty()) {
-      procNode->setDIETEstimationOption(estimAttr);
+      aNode->setDIETEstimationOption(estimAttr);
     }
   // VALUE of constants (may be replaced by a 'value' attribute within
   //  the <constant> tag)

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2009/04/09 09:56:20  bisnard
+ * refactoring due to new class FActivityNode
+ *
  * Revision 1.9  2009/04/08 09:34:56  bisnard
  * pending nodes mgmt moved to FWorkflow class
  * FWorkflow and FNode state graph revisited
@@ -291,6 +294,8 @@ class FProcNode : public FNode {
               const string& id);
     virtual ~FProcNode();
 
+    // ******************** INPUT DATA OPERATORS *********************
+
     /**
      * Iteration strategies
      *  OPER_MATCH: match operator => match tags of all inputs
@@ -333,28 +338,7 @@ class FProcNode : public FNode {
     bool
         isConstantInput(int idxPort);
 
-    /**
-     * Set the maximum nb of instances of this node inside one dag
-     * @param maxInst the max nb of instances
-     */
-    void
-        setMaxInstancePerDag(short maxInst);
-
-    /**
-     * Set DIET service name
-     * @param path the DIET service name
-     */
-    void
-        setDIETServicePath(const string& path);
-
-    /**
-     * Set DIET estimation option
-     * If estimOption == "constant" the instanciator will use the
-     * 'est-class' attribute for all generated dag nodes
-     * @param estimOption = ('constant'|...)
-     */
-    void
-        setDIETEstimationOption(const string& estimOption);
+    // ******************** DYNAMIC PARAMETERS *********************
 
     /**
      * Setup a dynamic parameter for the node
@@ -364,17 +348,12 @@ class FProcNode : public FNode {
     void
         checkDynamicParam(const string& paramName, const string& paramValue);
 
-    /**
-     * Set the value of a dynamic parameter
-     * @param paramVarName  name of the variable to set
-     * @param paramValue value of the variable
-     */
-    void
-        setDynamicParamValue(const string& paramVarName,
-                             const string& paramValue);
+
+
+    // *********************** INSTANCIATION *************************
 
     /**
-     * Initialization
+     * Initialization - called once before all instanciation calls
      *  - connection to other nodes
      *  - input iterators setup
      */
@@ -382,8 +361,22 @@ class FProcNode : public FNode {
         initialize();
 
     /**
-     * Instanciation of the processor as a DagNode
-     * @param dag ref to the dag that will contain the DagNode
+     * Instanciation initialization - called for each instanciation call
+     */
+    virtual void
+        initInstanciation() = 0;
+
+    virtual bool
+        instLimitReached() = 0;
+
+    virtual void
+        createInstance(Dag* dag,
+                       const FDataTag& currTag,
+                       const vector<FDataHandle*>& currDataLine) = 0;
+
+    /**
+     * Instanciation of the processor (TEMPLATE METHOD)
+     * @param dag ref to the dag that will contain the generated DagNodes
      */
     virtual void
         instanciate(Dag* dag);
@@ -391,9 +384,23 @@ class FProcNode : public FNode {
 
   protected:
 
+    /**
+     * Create a dynamic parameter
+     * @param paramName    name of the parameter
+     * @param paramVarName name of the variable
+     */
     void
         setDynamicParam(const string& paramName,
                         const string& paramVarName);
+
+    /**
+     * Set the value of a dynamic parameter
+     * @param paramVarName  name of the variable to set
+     * @param paramValue    value of the variable
+     */
+    void
+        setDynamicParamValue(const string& paramVarName,
+                             const string& paramValue);
 
     bool
         isDynamicParam(const string& paramName);
@@ -418,21 +425,6 @@ class FProcNode : public FNode {
      * The root operator
      */
     InputIterator*  myRootIterator;
-
-    /**
-     * The service path
-     */
-    string myPath;
-
-    /**
-     * The estimation option
-     */
-    string myEstimOption;
-
-    /**
-     * Max number of instances per dag
-     */
-    short maxInstNb;
 
     /**
      * The template data line used for each instance

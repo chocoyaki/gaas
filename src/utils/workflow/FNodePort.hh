@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2009/04/09 09:56:20  bisnard
+ * refactoring due to new class FActivityNode
+ *
  * Revision 1.6  2009/04/08 09:34:56  bisnard
  * pending nodes mgmt moved to FWorkflow class
  * FWorkflow and FNode state graph revisited
@@ -255,15 +258,6 @@ class FNodeParamPort : public FNodeInPort {
     virtual ~FNodeParamPort();
 
     /**
-     * Use the value of the DH to setup dynamic parameters of the node
-     * @param dag       the dag being instanciated
-     * @param nodeInst  the node instance already created
-     * @param dataHdl   the data Handle to be used (as source)
-     */
-    virtual void
-        instanciate(Dag* dag, DagNode* nodeInst, FDataHandle* dataHdl);
-
-    /**
      * Static addData (before node execution)
      * @param dataHdl   the data Handle
      * @param dataCard  a list of (integer | 'x') = cardinal of data
@@ -283,6 +277,12 @@ class FNodeParamPort : public FNodeInPort {
     virtual void
         addData(FDataHandle* dataHdl, DagNodeOutPort* dagOutPort)
         throw (WfDataException, WfDataHandleException);
+
+  private:
+    // not applicable
+    virtual void
+        instanciate(Dag* dag, DagNode* nodeInst, FDataHandle* dataHdl);
+
 };
 
 

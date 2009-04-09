@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2009/04/09 09:56:20  bisnard
+ * refactoring due to new class FActivityNode
+ *
  * Revision 1.9  2009/04/08 09:34:56  bisnard
  * pending nodes mgmt moved to FWorkflow class
  * FWorkflow and FNode state graph revisited
@@ -129,14 +132,15 @@ FWorkflow::checkPrec(NodeSet* contextNodeSet) throw (WfStructException) {
   TRACE_TEXT(TRACE_ALL_STEPS, "CHECKING WF PRECEDENCE END" << endl);
 }
 
-FProcNode*
-FWorkflow::createProcessor(const string& id) throw (WfStructException)
+FActivityNode*
+FWorkflow::createActivity(const string& id) throw (WfStructException)
 {
+  // check if node does not already exist
   try {
     getProcNode(id);
   } catch (WfStructException& e) {
-    TRACE_TEXT (TRACE_ALL_STEPS,"Creating processor node : " << id << endl);
-    FProcNode* node = new FProcNode(this, id);
+    TRACE_TEXT (TRACE_ALL_STEPS,"Creating activity node : " << id << endl);
+    FActivityNode* node = new FActivityNode(this, id);
     myProc[id] = node;
     return node;
   }

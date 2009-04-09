@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2009/04/09 09:56:20  bisnard
+ * refactoring due to new class FActivityNode
+ *
  * Revision 1.8  2009/04/08 09:34:56  bisnard
  * pending nodes mgmt moved to FWorkflow class
  * FWorkflow and FNode state graph revisited
@@ -47,6 +50,7 @@
 
 #include "Dag.hh"
 #include "FNode.hh"
+#include "FActivityNode.hh"
 
 using namespace std;
 
@@ -88,8 +92,8 @@ public:
    * @return pointer to the node (does not return NULL)
    */
 
-  FProcNode*
-  createProcessor(const string& id) throw (WfStructException);
+  FActivityNode*
+  createActivity(const string& id) throw (WfStructException);
 
   FSourceNode*
   createSource(const string& id, WfCst::WfDataType type) throw (WfStructException);

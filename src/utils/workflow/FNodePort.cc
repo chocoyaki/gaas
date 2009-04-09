@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2009/04/09 09:56:20  bisnard
+ * refactoring due to new class FActivityNode
+ *
  * Revision 1.6  2009/04/08 09:34:56  bisnard
  * pending nodes mgmt moved to FWorkflow class
  * FWorkflow and FNode state graph revisited
@@ -438,9 +441,4 @@ FNodeParamPort::addData(FDataHandle* dataHdl, DagNodeOutPort* dagOutPort)
 
 void
 FNodeParamPort::instanciate(Dag* dag, DagNode* nodeInst, FDataHandle* dataHdl) {
-  string portId = this->getId();
-  string value = dataHdl->getValue();
-  TRACE_TEXT (TRACE_ALL_STEPS,"Instanciate PARAM port: " << portId
-                              << "(value = " << value << ")" << endl);
-  getParentProcNode()->setDynamicParamValue(portId, value);
 }

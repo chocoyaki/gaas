@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2009/04/09 09:56:20  bisnard
+ * refactoring due to new class FActivityNode
+ *
  * Revision 1.9  2009/04/08 09:34:56  bisnard
  * pending nodes mgmt moved to FWorkflow class
  * FWorkflow and FNode state graph revisited
@@ -289,8 +292,8 @@ FSinkNode::displayResults(ostream& output) {
 
 FProcNode::FProcNode(FWorkflow* wf,
                      const string& id)
-  : FNode(wf, id, N_INSTANC_WAITING), maxInstNb(0), myPath(), myRootIterator(NULL),
-    cstDataLine(NULL) {}
+  : FNode(wf, id, N_INSTANC_WAITING), myRootIterator(NULL), cstDataLine(NULL)
+{}
 
 FProcNode::~FProcNode() {
   if (cstDataLine)
@@ -300,21 +303,6 @@ FProcNode::~FProcNode() {
     myIterators.erase( myIterators.begin() );
     delete p;
   }
-}
-
-void
-FProcNode::setDIETServicePath(const string& path) {
-  myPath = path;
-}
-
-void
-FProcNode::setDIETEstimationOption(const string& estimOption) {
-  myEstimOption = estimOption;
-}
-
-void
-FProcNode::setMaxInstancePerDag(short maxInst) {
-  maxInstNb = maxInst;
 }
 
 void
@@ -443,6 +431,8 @@ void
 FProcNode::setDynamicParamValue(const string& paramVarName,
                                 const string& paramValue) {
   varMap[paramVarName] = paramValue;
+  TRACE_TEXT (TRACE_ALL_STEPS,"Set parameter variable: " << paramVarName
+                              << "(value = " << paramValue << ")" << endl);
 }
 
 const string&
@@ -500,8 +490,6 @@ FProcNode::initialize() {
 void
 FProcNode::instanciate(Dag* dag) {
   if (instanciationReady()) {
-    TRACE_TEXT (TRACE_ALL_STEPS,"#### Processor " << this->getId()
-                    << " instanciation START" << endl);
 
     // Initialize the root input iterator
     if (!myRootIterator) {
@@ -509,89 +497,48 @@ FProcNode::instanciate(Dag* dag) {
     }
     myRootIterator->begin();
 
-    // Initialize the instance limit (if defined)
-    int  nbInstances = 0;
-    bool limitInstances = this->maxInstNb != 0;
-    if (limitInstances) {
-      TRACE_TEXT (TRACE_ALL_STEPS, "########## INSTANCE COUNT LIMIT : "
-          << maxInstNb << endl);
-    }
-
     // Copy the constant dataline into the dataline used for the iteration
     if (!cstDataLine) {
       INTERNAL_ERROR("FProcNode::instanciate : no constant dataline defined",1);
     }
-
     vector<FDataHandle*>* currDataLine = new vector<FDataHandle*>(*cstDataLine);
 
-    TRACE_TEXT (TRACE_ALL_STEPS,"Starting iterator loop" << endl);
+    // Other initializations
+    initInstanciation();
+
+    //
     // LOOP OVER ITEMS in the INPUT QUEUE
-    // (until queue is empty OR until limit of max instances is reached)
-    while ( !myRootIterator->isAtEnd()
-            && (!limitInstances || (++nbInstances <= maxInstNb))) {
+    //
+    while ( !myRootIterator->isAtEnd() && !instLimitReached()) {
+
+      // GET DATALINE
       TRACE_TEXT (TRACE_ALL_STEPS," ## Retrieve dataline from iterator..." << endl);
-      // get the data line
       FDataTag currTag = myRootIterator->getCurrentItem(*currDataLine);
       TRACE_TEXT (TRACE_ALL_STEPS," ## Remove selected item (" << currTag.toString() << ")" << endl);
       myRootIterator->removeItem(); // goes to next item at the same time
-      // create a new DagNode
-      string   dagNodeId = this->getId() + currTag.toString();
-      TRACE_TEXT (TRACE_ALL_STEPS,"  ## NEW NODE INSTANCE : " << dagNodeId << endl);
-      DagNode* dagNode = dag->createDagNode(dagNodeId);
-      if (dagNode == NULL) {
-        INTERNAL_ERROR("Could not create dag node " << dagNodeId << endl,0);
-      }
-      dagNode->setFNode(this);
-      // initializes the variable map
-      varMap.clear();
-      // NOTE: currently only node path can by dynamic so the value of the parameter
-      // is automatically set before it is used (because the paramPort is instanciated
-      // before) BUT this won't be the case if some port attributes are made dynamic. To
-      // manage this the next loop should be splitted to handle paramPorts before the other
-      // ports.
 
-      // LOOP for each port
+      // SET DYNAMIC PARAMETERS
+      varMap.clear();
       for (map<string,WfPort*>::iterator portIter = ports.begin();
            portIter != ports.end();
            ++portIter) {
         WfPort* port = (WfPort*) portIter->second;
-        FNodeInPort* inPort;
-        FNodeOutPort* outPort;
-        FDataHandle* dataHdl;
-        switch(port->getPortType()) {
-          case WfPort::PORT_IN:
-          case WfPort::PORT_PARAM:
-            inPort = dynamic_cast<FNodeInPort*>(port);
-            // get the input data handle from the map (if not found set as NULL)
-            dataHdl = (*currDataLine)[inPort->getIndex()];
-            if (dataHdl == NULL) {
-              INTERNAL_ERROR("Input data handle is invalid",1);
-            }
-            // instanciate port with data handle
-            inPort->instanciate(dag, dagNode, dataHdl);
-            break;
-          case WfPort::PORT_OUT:
-            outPort = dynamic_cast<FNodeOutPort*>(port);
-            // instanciate port with dagNode and tag
-            outPort->instanciate(dag, dagNode, currTag);
-            break;
-          case WfPort::PORT_INOUT:
-            ;
+        if (port->getPortType() == WfPort::PORT_PARAM) {
+          FNodeParamPort* paramPort = dynamic_cast<FNodeParamPort*>(port);
+          FDataHandle* dataHdl = (*currDataLine)[paramPort->getIndex()];
+          if (dataHdl == NULL) {
+            INTERNAL_ERROR("Input data handle is invalid (dyn par)",1);
+          }
+          if (!dataHdl->isValueDefined()) { //TODO replace by exceptions
+            INTERNAL_ERROR("Input data handle has no value (dyn par)",1);
+          }
+          setDynamicParamValue(paramPort->getId(), dataHdl->getValue());
         }
-      } // end for ports
-
-      // define instance parameters: PATH
-      if (!isDynamicParam("path"))
-        dagNode->setPbName(myPath);
-      else
-        dagNode->setPbName(getDynamicParamValue("path"));
-      // define instance parameters: ESTIMATION option
-      if (myEstimOption == "constant") {
-        dagNode->setEstimationClass(this->getId());
       }
 
-      TRACE_TEXT (TRACE_ALL_STEPS,"  ## END OF CREATION OF NEW NODE INSTANCE : "
-                                << dagNodeId << endl);
+      // create instance
+      createInstance(dag, currTag, *currDataLine);
+
     }
     //
     // END LOOP
