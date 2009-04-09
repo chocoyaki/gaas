@@ -9,6 +9,7 @@ IF( DIET_BUILD_LIBRARIES )
     )
   ADD_LIBRARY ( UtilsWf
     Node.cc Dag.cc MetaDag.cc FWorkflow.cc FNode.cc
+    FActivityNode.cc
     WfPort.cc WfPortAdapter.cc
     FNodePort.cc
     DagNode.cc DagNodePort.cc
