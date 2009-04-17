@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2009/04/17 08:54:43  bisnard
+ * renamed Node class as WfNode
+ *
  * Revision 1.10  2009/04/09 09:56:20  bisnard
  * refactoring due to new class FActivityNode
  *
@@ -75,13 +78,13 @@ FWorkflow::getId() {
   return id;
 }
 
-Node *
+WfNode *
 FWorkflow::getNode(const string& nodeId) throw (WfStructException) {
-  Node * node;
+  WfNode * node;
   try {
-    node = (Node *) getProcNode(nodeId);
+    node = (WfNode *) getProcNode(nodeId);
   } catch (WfStructException& e) {
-    node = (Node *) getInterfaceNode(nodeId);
+    node = (WfNode *) getInterfaceNode(nodeId);
   }
   return node;
 }
@@ -207,18 +210,18 @@ struct DFSNodeInfo {
   : explored(_expl),ongoing(_ongoing),end(_end) {};
 };
 
-void DFS(Node* node,
-         map<Node*, DFSNodeInfo>& DFSInfo,
+void DFS(WfNode* node,
+         map<WfNode*, DFSNodeInfo>& DFSInfo,
          short& endCount) {
   DFSInfo[node].ongoing = true;
   TRACE_TEXT (TRACE_ALL_STEPS, "Starting DFS search for node : " << node->getId() << endl);
-  for(list<Node*>::iterator nextIter = node->nextNodesBegin();
+  for(list<WfNode*>::iterator nextIter = node->nextNodesBegin();
       nextIter != node->nextNodesEnd();
       ++nextIter) {
-    Node* nextNode = (Node*) *nextIter;
+    WfNode* nextNode = (WfNode*) *nextIter;
     TRACE_TEXT (TRACE_ALL_STEPS, "  Processing next node : " << nextNode->getId() << endl);
     // look for next node DFS information
-    map<Node*, DFSNodeInfo>::iterator nextNodeInfoSearch = DFSInfo.find(nextNode);
+    map<WfNode*, DFSNodeInfo>::iterator nextNodeInfoSearch = DFSInfo.find(nextNode);
     // if not found skip the node (means next node is not a processor)
     if (nextNodeInfoSearch == DFSInfo.end())
       continue;
@@ -261,20 +264,20 @@ FWorkflow::initialize(const string& dataFileName) throw (WfStructException) {
   }
   TRACE_TEXT (TRACE_ALL_STEPS,"Sorting processors..." << endl);
   // create a topologically sorted list of processor nodes
-  map<Node*, DFSNodeInfo>* DFSInfo = new map<Node*,DFSNodeInfo>();
+  map<WfNode*, DFSNodeInfo>* DFSInfo = new map<WfNode*,DFSNodeInfo>();
   short DFSEndCount = 0;
   // -> initialization of DFSInfo
   for(map<string,FProcNode*>::iterator iter = myProc.begin();
       iter != myProc.end();
       ++iter) {
-    Node* node = (Node*) iter->second;
+    WfNode* node = (WfNode*) iter->second;
     (*DFSInfo)[node] = DFSNodeInfo(false,false,0);
   }
   // -> DFS search
   for(map<string,FProcNode*>::iterator iter = myProc.begin();
       iter != myProc.end();
       ++iter) {
-    Node* node = (Node*) iter->second;
+    WfNode* node = (WfNode*) iter->second;
     if (!(*DFSInfo)[node].explored) {
       DFS(node,*DFSInfo, DFSEndCount);
     }
@@ -287,9 +290,9 @@ FWorkflow::initialize(const string& dataFileName) throw (WfStructException) {
     if (todoProc.size() == 0) {
       todoProc.push_back(node);
     } else { // insertion sort
-      short insNodePrio = (*DFSInfo)[(Node*)node].end;
+      short insNodePrio = (*DFSInfo)[(WfNode*)node].end;
       list<FProcNode*>::iterator todoIter = todoProc.begin();
-      while ((insNodePrio < (*DFSInfo)[(Node*) *todoIter].end)
+      while ((insNodePrio < (*DFSInfo)[(WfNode*) *todoIter].end)
               && (todoIter != todoProc.end()))
            ++todoIter;
       todoProc.insert(todoIter, node);

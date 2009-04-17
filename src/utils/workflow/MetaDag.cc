@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2009/04/17 08:54:44  bisnard
+ * renamed Node class as WfNode
+ *
  * Revision 1.3  2009/02/06 14:53:46  bisnard
  * make thread-safe
  *
@@ -100,7 +103,7 @@ MetaDag::setReleaseFlag(bool release) {
   releaseFlag = release;
 }
 
-Node*
+WfNode*
 MetaDag::getNode(const string& nodeId) throw (WfStructException) {
   TRACE_TEXT (TRACE_ALL_STEPS,"Searching node " << nodeId
                                << " in Metadag " << myId << endl);

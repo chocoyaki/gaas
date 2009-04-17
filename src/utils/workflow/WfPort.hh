@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2009/04/17 08:54:44  bisnard
+ * renamed Node class as WfNode
+ *
  * Revision 1.13  2009/02/24 14:01:05  bisnard
  * added dynamic parameter mgmt for wf processors
  *
@@ -77,7 +80,7 @@
 
 using namespace std;
 
-class Node;
+class WfNode;
 class NodeSet;
 class WfSimplePortAdapter;
 class WfPortAdapter;
@@ -105,7 +108,7 @@ public:
    * @param _depth The depth of the list structure (0 if no list)
    * @param _ind   The index of the parameter in the diet profile
    */
-  WfPort(Node * parent, const string& _id, WfPortType _portType,
+  WfPort(WfNode * parent, const string& _id, WfPortType _portType,
          WfCst::WfDataType _type, unsigned int _depth, unsigned int _ind);
 
   virtual ~WfPort();
@@ -148,7 +151,7 @@ public:
   /**
    * Return the port's parent node
    */
-  Node*
+  WfNode*
   getParent() const;
 
   /**
@@ -298,7 +301,7 @@ private:
    * The reference of port node
    */
 
-  Node * myParent;
+  WfNode * myParent;
 
   /**
    * The connection status

@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2009/04/17 08:54:44  bisnard
+ * renamed Node class as WfNode
+ *
  * Revision 1.15  2009/02/24 14:01:05  bisnard
  * added dynamic parameter mgmt for wf processors
  *
@@ -72,10 +75,10 @@
 
 #include "WfPort.hh"
 #include "WfPortAdapter.hh"
-#include "Node.hh"
+#include "WfNode.hh"
 #include "debug.hh"
 
-WfPort::WfPort(Node * parent, const string& _id, WfPortType _portType,
+WfPort::WfPort(WfNode * parent, const string& _id, WfPortType _portType,
                WfCst::WfDataType _type, unsigned int _depth, unsigned int _ind) :
   myParent(parent), id(_id), portType(_portType), type(_type),
   depth(_depth), index(_ind), adapter(NULL), nb_r(0), nb_c(0),
@@ -142,7 +145,7 @@ WfPort::getPortDescr() const {
   return portDescr;
 }
 
-Node*
+WfNode*
 WfPort::getParent() const {
   return this->myParent;
 }

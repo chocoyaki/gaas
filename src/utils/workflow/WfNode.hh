@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.1  2009/04/17 08:54:44  bisnard
+ * renamed Node class as WfNode
+ *
  * Revision 1.25  2009/02/24 14:01:05  bisnard
  * added dynamic parameter mgmt for wf processors
  *
@@ -117,7 +120,7 @@ class NodeSet;
 
 using namespace std;
 
-class Node  {
+class WfNode  {
 
 public:
   /*********************************************************************/
@@ -128,12 +131,12 @@ public:
    * The Node default constructor
    * @param id         the node id
    */
-  Node(const string& id);
+  WfNode(const string& id);
 
   /**
    * Node destructor
    */
-  virtual ~Node();
+  virtual ~WfNode();
 
   /**
    * To get the node id *
@@ -166,7 +169,7 @@ public:
    * @param fullNodeId  contains the id of the predecessor eventually prefixed (if external)
    */
   virtual void
-  addNodePredecessor(Node * node, const string& fullNodeId);
+  addNodePredecessor(WfNode * node, const string& fullNodeId);
 
   /**
    * return the number of previous nodes
@@ -178,13 +181,13 @@ public:
   /**
    * return an iterator on the first previous nodes
    */
-  vector<Node*>::iterator
+  vector<WfNode*>::iterator
   prevNodesBegin();
 
   /**
    * return an iterator on the end of previous nodes
    */
-  vector<Node*>::iterator
+  vector<WfNode*>::iterator
   prevNodesEnd();
 
   /**
@@ -196,13 +199,13 @@ public:
   /**
    * return an iterator on the first next node
    */
-  list<Node*>::iterator
+  list<WfNode*>::iterator
   nextNodesBegin();
 
   /**
    * return an iterator on the end of next nodes
    */
-  list<Node*>::iterator
+  list<WfNode*>::iterator
   nextNodesEnd();
 
   /**
@@ -309,14 +312,14 @@ protected:
    * @param node  the predecessor ref
    */
   virtual void
-  setPrev(int index, Node * node);
+  setPrev(int index, WfNode * node);
 
   /**
    * Add a new next node reference *
    * @param n the next node reference
    */
   void
-  addNext(Node * n);
+  addNext(WfNode * n);
 
   /**
    * Node id *
@@ -332,13 +335,13 @@ protected:
    * The previous nodes list
    * (use a vector because nb of items is known by prevNodeIds)
    */
-  vector<Node*> prevNodes;
+  vector<WfNode*> prevNodes;
 
   /**
    * The next nodes list
    * (use a list because nb of items is not known in advance)
    */
-  list<Node*> nextNodes;
+  list<WfNode*> nextNodes;
 
 private:
 

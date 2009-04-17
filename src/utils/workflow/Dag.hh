@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2009/04/17 08:54:43  bisnard
+ * renamed Node class as WfNode
+ *
  * Revision 1.21  2009/02/06 14:55:08  bisnard
  * setup exceptions
  *
@@ -103,7 +106,7 @@
 #include <sys/time.h>
 #include <time.h>
 
-#include "Node.hh"
+#include "WfNode.hh"
 #include "DagNode.hh"
 #include "DagNodePort.hh"
 #include "DagScheduler.hh"
@@ -136,7 +139,7 @@ public:
    * @param nodeId  the identifier (string) of the node
    * @return pointer to node (does not return NULL)
    */
-  virtual Node*
+  virtual WfNode*
   getNode(const string& nodeId) throw (WfStructException) = 0;
 
   /**
@@ -179,7 +182,7 @@ public:
    * @param nodeId node identifier
    * @return pointer to node (does not return NULL)
    */
-  virtual Node *
+  virtual WfNode *
   getNode(const string& nodeId) throw (WfStructException);
 
   /**

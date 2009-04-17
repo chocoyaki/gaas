@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2009/04/17 08:54:43  bisnard
+ * renamed Node class as WfNode
+ *
  * Revision 1.23  2009/04/09 09:56:20  bisnard
  * refactoring due to new class FActivityNode
  *
@@ -94,6 +97,9 @@
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/util/XMLStringTokenizer.hpp>
 #include <xercesc/dom/DOMText.hpp>
+#if XERCES_VERSION_MAJOR >= 3
+#include <xercesc/dom/DOMLSParser.hpp>
+#endif
 #include <string>
 #include <fstream>
 
@@ -162,8 +168,12 @@ DagWfParser::parseXml() throw (XMLParsingException) {
 
   TRACE_TEXT(TRACE_ALL_STEPS, "PARSING XML START" << endl);
   DOMImplementation *impl = DOMImplementationRegistry::getDOMImplementation(gLS);
+#if XERCES_VERSION_MAJOR >= 3
+  DOMLSParser *parser = impl->createLSParser(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
+#else
   DOMBuilder  *parser =
     ((DOMImplementationLS*)impl)->createDOMBuilder(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
+#endif
   static const char * content_id = "workflow_description";
   MemBufInputSource* memBufIS = new MemBufInputSource
     (
@@ -173,7 +183,12 @@ DagWfParser::parseXml() throw (XMLParsingException) {
      , false
     );
   Wrapper4InputSource * wrapper = new Wrapper4InputSource(memBufIS);
+#if XERCES_VERSION_MAJOR >= 3
+  this->document = parser->parse((DOMLSInput*) wrapper);
+#else
   this->document = parser->parse(*wrapper);
+#endif
+
   if (document == NULL) {
     throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
                               "Wrong document description");
@@ -192,7 +207,7 @@ DagWfParser::parseXml() throw (XMLParsingException) {
 void
 DagWfParser::parseNode (const DOMElement * element, const string& elementName) {
   // parse the node start element and its attributes
-  Node * newNode = this->createNode(element, elementName);
+  WfNode * newNode = this->createNode(element, elementName);
   // parse the node sub-elements
   DOMNode * child = element->getFirstChild();
   unsigned int lastArg = 0;
@@ -226,7 +241,7 @@ DagWfParser::parseNode (const DOMElement * element, const string& elementName) {
  */
 WfPort *
 DagWfParser::parseArg(const DOMElement * element, unsigned int lastArg,
-                      Node* node) {
+                      WfNode* node) {
   string name  = getAttributeValue("name", element);
   string value = getAttributeValue("value", element);
   string type  = getAttributeValue("type", element);
@@ -254,7 +269,7 @@ DagWfParser::parseArg(const DOMElement * element, unsigned int lastArg,
  */
 WfPort *
 DagWfParser::parseIn(const DOMElement * element, unsigned int lastArg,
-                     Node* node) {
+                     WfNode* node) {
   string name    = getAttributeValue("name", element);
   string type    = getAttributeValue("type", element);
   string source  = getAttributeValue("source", element);
@@ -280,7 +295,7 @@ DagWfParser::parseIn(const DOMElement * element, unsigned int lastArg,
  */
 WfPort *
 DagWfParser::parseInOut(const DOMElement * element, unsigned int lastArg,
-                        Node* node) {
+                        WfNode* node) {
   string name    = getAttributeValue("name", element);
   string type    = getAttributeValue("type", element);
   string source  = getAttributeValue("source", element);
@@ -306,7 +321,7 @@ DagWfParser::parseInOut(const DOMElement * element, unsigned int lastArg,
  */
 WfPort *
 DagWfParser::parseOut(const DOMElement * element, unsigned int lastArg,
-                      Node* node) {
+                      WfNode* node) {
   string name  = getAttributeValue("name", element);
   string type  = getAttributeValue("type", element);
   string sink  = getAttributeValue("sink", element);
@@ -331,7 +346,7 @@ DagWfParser::parseOut(const DOMElement * element, unsigned int lastArg,
  * Parse a prec element
  */
 void
-DagParser::parsePrec(const DOMElement * element, Node* node) {
+DagParser::parsePrec(const DOMElement * element, WfNode* node) {
   string precNodeId = getAttributeValue("id", element);
   if (precNodeId == "") {
     throw XMLParsingException(XMLParsingException::eEMPTY_ATTR,
@@ -354,7 +369,7 @@ DagWfParser::setParam(const WfPort::WfPortType param_type,
 		      const string& type,
                       const string& depth,
 		      unsigned int lastArg,
-		      Node * node,
+		      WfNode * node,
 		      const string * value) {
   // Get the base type and the depth of the list structure (syntax 'LIST(LIST(<basetype>))')
   unsigned int typeDepth = 0;
@@ -403,7 +418,7 @@ DagWfParser::setMatrixParam(const DOMElement * element,
                             const WfPort::WfPortType param_type,
 			    const string& name,
 			    unsigned int lastArg,
-			    Node * node,
+			    WfNode * node,
 			    const string * value) {
   string elt_type_str = getAttributeValue("base_type", element);
   string nb_rows_str = getAttributeValue("nb_rows", element);
@@ -489,7 +504,7 @@ DagParser::parseRoot(DOMNode* root) {
   } // end while
 }
 
-Node *
+WfNode *
 DagParser::createNode(const DOMElement* element, const string& elementName) {
   string nodeId(getAttributeValue("id", element));
   string pbName = getAttributeValue("path", element);
@@ -512,7 +527,7 @@ void
 DagParser::parseOtherNodeSubElt(const DOMElement * element,
                                 const string& elementName,
                                 unsigned int& portIndex,
-                                Node * node) {
+                                WfNode * node) {
   if (elementName == "prec") {
     parsePrec(element, node);
   } else
@@ -610,7 +625,7 @@ FWfParser::parseRoot(DOMNode* root) {
  * Workflow node creation for functional wf
  * TODO manage condition and loop
  */
-Node *
+WfNode *
 FWfParser::createNode(const DOMElement* element, const string& elementName) {
   string name = getAttributeValue("name", element);
   string type = getAttributeValue("type", element);
@@ -634,7 +649,7 @@ FWfParser::createNode(const DOMElement* element, const string& elementName) {
   if (!depth.empty())
     typeDepth = atoi(depth.c_str());
   // Create node depending on element name
-  Node * node;
+  WfNode * node;
   if (elementName == "source") {
     node = workflow.createSource(name,(WfCst::WfDataType) dataType);
   } else if (elementName == "constant") {
@@ -642,7 +657,7 @@ FWfParser::createNode(const DOMElement* element, const string& elementName) {
     string value = getAttributeValue("value", element);
     if (!value.empty())
       cstNode->setValue(value);
-    node = (Node*) cstNode;
+    node = (WfNode*) cstNode;
   } else if (elementName == "sink") {
     node = workflow.createSink(name, (WfCst::WfDataType) dataType, typeDepth);
   } else if (elementName == "processor") {
@@ -663,7 +678,7 @@ FWfParser::createNode(const DOMElement* element, const string& elementName) {
 WfPort*
 FWfParser::parseIn(const DOMElement * element,
                    const unsigned int lastArg,
-                   Node * node) {
+                   WfNode * node) {
   WfPort *port = DagWfParser::parseIn(element,lastArg,node);
   parseCardAttr(element,port);
   return port;
@@ -672,7 +687,7 @@ FWfParser::parseIn(const DOMElement * element,
 WfPort*
 FWfParser::parseOut(const DOMElement * element,
                     const unsigned int lastArg,
-                    Node * node) {
+                    WfNode * node) {
   WfPort *port = DagWfParser::parseOut(element,lastArg,node);
   parseCardAttr(element,port);
   return port;
@@ -681,7 +696,7 @@ FWfParser::parseOut(const DOMElement * element,
 WfPort*
 FWfParser::parseInOut(const DOMElement * element,
                       const unsigned int lastArg,
-                      Node * node) {
+                      WfNode * node) {
   WfPort *port = DagWfParser::parseInOut(element,lastArg,node);
   parseCardAttr(element,port);
   return port;
@@ -693,7 +708,7 @@ FWfParser::parseInOut(const DOMElement * element,
 WfPort *
 FWfParser::parseParamPort(const DOMElement * element,
                           const unsigned int lastArg,
-                          Node* node) {
+                          WfNode* node) {
   string name  = getAttributeValue("name", element);
   string type  = getAttributeValue("type", element);
   if (element->getFirstChild() != NULL)
@@ -827,7 +842,7 @@ void
 FWfParser::parseOtherNodeSubElt(const DOMElement * element,
                                 const string& elementName,
                                 unsigned int& portIndex,
-                                Node * node) {
+                                WfNode * node) {
   // Diet service
   if (elementName == "diet") {
     FActivityNode* aNode = dynamic_cast<FActivityNode*>(node);
@@ -903,15 +918,23 @@ DataSourceParser::parseXml(const string& dataFileName) throw (XMLParsingExceptio
 
   TRACE_TEXT(TRACE_ALL_STEPS, "PARSING XML START" << endl);
   DOMImplementation *impl = DOMImplementationRegistry::getDOMImplementation(gLS);
+#if XERCES_VERSION_MAJOR >= 3
+  DOMLSParser *parser = impl->createLSParser(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
+#else
   DOMBuilder  *parser =
     ((DOMImplementationLS*)impl)->createDOMBuilder(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
+#endif
   const XMLCh * fileName = XMLString::transcode(dataFileName.c_str());
   LocalFileInputSource* locFileIS = new LocalFileInputSource
     (fileName
     );
 //   XMLString::release(&fileName);
   Wrapper4InputSource * wrapper = new Wrapper4InputSource(locFileIS);
+#if XERCES_VERSION_MAJOR >= 3
+  this->document = parser->parse((DOMLSInput*) wrapper);
+#else
   this->document = parser->parse(*wrapper);
+#endif
   if (document == NULL) {
     throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
                               "Data source file not found or wrong document format");

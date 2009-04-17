@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2009/04/17 08:54:43  bisnard
+ * renamed Node class as WfNode
+ *
  * Revision 1.26  2009/02/06 14:55:08  bisnard
  * setup exceptions
  *
@@ -196,7 +199,7 @@ Dag::getWorkflow() {
 /**
  * Get the node with given identifier (only node id, not the complete id)
  */
-Node *
+WfNode *
 Dag::getNode(const string& nodeId) throw (WfStructException) {
   return getDagNode(nodeId);
 }
@@ -570,11 +573,11 @@ Dag::setInputNodesReady() {
 // double
 // Dag::getEstMakespan() {
 //   double makespan = -1;
-//   Node * n = NULL;
-//   for (map<string, Node*>::iterator p = this->nodes.begin();
+//   WfNode * n = NULL;
+//   for (map<string, WfNode*>::iterator p = this->nodes.begin();
 //        p != this->nodes.end();
 //        ++p) {
-//     n = (Node*)(p->second);
+//     n = (WfNode*)(p->second);
 //     if ( (n != NULL) &&
 // 	 (n->getEstCompTime() > makespan) )
 //       makespan = n->getEstCompTime();
@@ -657,7 +660,7 @@ Dag::_updateDelayRec(DagNode * node, double newDelay) {
     // the node is/will be late compared to the last estimated delay
     // so the new delay must be propagated to the successors
     node->setEstDelay(newDelay);
-    for (list<Node*>::iterator nextIter = node->nextNodesBegin();
+    for (list<WfNode*>::iterator nextIter = node->nextNodesBegin();
          nextIter != node->nextNodesEnd();
          ++nextIter) {
       res = res && this->_updateDelayRec(dynamic_cast<DagNode*>(*nextIter), newDelay);
@@ -684,7 +687,7 @@ Dag::setNodeDone(DagNode* node, DagScheduler* scheduler) {
     if (!isCancelled() && (node->nextNodesNb() > 0)) {
       TRACE_TEXT (TRACE_ALL_STEPS,"Dag " << getId() << " : Calling next nodes of "
                   << node->getId() << endl);
-      for (list<Node*>::iterator nextIter = node->nextNodesBegin();
+      for (list<WfNode*>::iterator nextIter = node->nextNodesBegin();
            nextIter != node->nextNodesEnd();
            ++nextIter) {
           (dynamic_cast<DagNode*>(*nextIter))->prevNodeHasDone();

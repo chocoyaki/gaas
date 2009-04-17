@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2009/04/17 08:54:43  bisnard
+ * renamed Node class as WfNode
+ *
  * Revision 1.8  2009/02/20 10:23:54  bisnard
  * use estimation class to reduce the nb of submit requests
  *
@@ -49,7 +52,7 @@
 #include "common_types.hh"
 
 // workflow related headers
-#include "Node.hh"
+#include "WfNode.hh"
 #include "NodeQueue.hh"
 #include "Thread.hh"
 #include "DagScheduler.hh"
@@ -118,7 +121,7 @@ class WfDataException {
 class Dag;
 class FProcNode;
 
-class DagNode : public Node  {
+class DagNode : public WfNode  {
   /*******************************/
   /* friend classes              */
   friend class RunnableNode;
@@ -189,7 +192,7 @@ public:
    * @param fullNodeId  contains the id of the predecessor eventually prefixed (if external)
    */
   virtual void
-  addNodePredecessor(Node * node, const string& fullNodeId);
+  addNodePredecessor(WfNode * node, const string& fullNodeId);
 
   /**
    * returns an XML  representation of a node
@@ -537,7 +540,7 @@ public:
 protected:
 
   void
-  setPrev(int index, Node * node);
+  setPrev(int index, WfNode * node);
 
 private:
 

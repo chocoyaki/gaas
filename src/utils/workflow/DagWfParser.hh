@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2009/04/17 08:54:43  bisnard
+ * renamed Node class as WfNode
+ *
  * Revision 1.14  2009/02/24 14:01:05  bisnard
  * added dynamic parameter mgmt for wf processors
  *
@@ -82,7 +85,7 @@
 
 // Workflow related headers
 #include "WfUtils.hh"
-#include "Node.hh"
+#include "WfNode.hh"
 #include "Dag.hh"
 
 class FWorkflow;
@@ -182,7 +185,7 @@ protected:
    * @param elementName the element tag name (ie 'node' or 'processor' ...)
    * @return a pointer to the newly created node
   */
-  virtual Node *
+  virtual WfNode *
   createNode(const DOMElement * element, const string& elementName) = 0;
 
   /**
@@ -195,7 +198,7 @@ protected:
   virtual WfPort *
   parseArg(const DOMElement * element,
            const unsigned int lastArg,
- 	   Node * node);
+ 	   WfNode * node);
 
   /**
    * Parse an input port element
@@ -207,7 +210,7 @@ protected:
   virtual WfPort *
   parseIn(const DOMElement * element,
           const unsigned int lastArg,
- 	  Node * node);
+ 	  WfNode * node);
 
   /**
    * Parse an inout port element
@@ -219,7 +222,7 @@ protected:
   virtual WfPort *
   parseInOut(const DOMElement * element,
              const unsigned int lastArg,
- 	     Node * node);
+ 	     WfNode * node);
 
   /**
    * Parse an output port element
@@ -231,7 +234,7 @@ protected:
   virtual WfPort *
   parseOut(const DOMElement * element,
            const unsigned int lastArg,
- 	   Node * node);
+ 	   WfNode * node);
 
   /**
    * Parse other sub-elements (not common) - called by parseNode
@@ -244,7 +247,7 @@ protected:
   parseOtherNodeSubElt(const DOMElement * element,
                        const string& elementName,
                        unsigned int& portIndex,
-                       Node * node) = 0;
+                       WfNode * node) = 0;
 
   /**
    * create a node port
@@ -266,7 +269,7 @@ protected:
 	   const string& type,
            const string& depth,
 	   unsigned int lastArg,
-	   Node * node,
+	   WfNode * node,
 	   const string * value = NULL);
 
   /**
@@ -277,7 +280,7 @@ protected:
                  const WfPort::WfPortType param_type,
 		 const string& name,
 		 unsigned int lastArg,
-		 Node * node,
+		 WfNode * node,
 		 const string * value = NULL);
 
 }; // end class DagWfParser
@@ -296,13 +299,13 @@ protected:
 
   virtual void
   parseRoot(DOMNode* root);
-  virtual Node *
+  virtual WfNode *
   createNode(const DOMElement * element, const string& elementName );
   virtual void
   parseOtherNodeSubElt(const DOMElement * element,
                        const string& elementName,
                        unsigned int& portIndex,
-                       Node * node);
+                       WfNode * node);
   /**
    * Parse a prec element
    * @param element   port DOM element reference
@@ -310,7 +313,7 @@ protected:
    */
   void
   parsePrec(const DOMElement * element,
-            Node * node);
+            WfNode * node);
 private:
 
   /**
@@ -339,34 +342,34 @@ protected:
   virtual void
   parseRoot(DOMNode* root);
 
-  virtual Node *
+  virtual WfNode *
   createNode(const DOMElement * element, const string& elementName);
 
   virtual WfPort *
   parseIn(const DOMElement * element,
           const unsigned int lastArg,
-          Node * node);
+          WfNode * node);
 
   virtual WfPort *
   parseOut(const DOMElement * element,
            const unsigned int lastArg,
-           Node * node);
+           WfNode * node);
 
   virtual WfPort *
   parseInOut(const DOMElement * element,
              const unsigned int lastArg,
-             Node * node);
+             WfNode * node);
 
   virtual WfPort *
   parseParamPort(const DOMElement * element,
                  const unsigned int lastArg,
-                 Node* node);
+                 WfNode* node);
 
   virtual void
   parseOtherNodeSubElt(const DOMElement * element,
                        const string& elementName,
                        unsigned int& portIndex,
-                       Node * node);
+                       WfNode * node);
 
   /**
    * Parse the cardinal attribute of a processor

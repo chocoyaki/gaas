@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2009/04/17 08:54:43  bisnard
+ * renamed Node class as WfNode
+ *
  * Revision 1.13  2009/02/20 10:23:54  bisnard
  * use estimation class to reduce the nb of submit requests
  *
@@ -148,7 +151,7 @@ WfDataException::ErrorMsg() {
 /****************************************************************************/
 
 DagNode::DagNode(Dag *dag, const string& id)
-  : Node(id), myDag(dag), myFNode(NULL) {
+  : WfNode(id), myDag(dag), myFNode(NULL) {
   this->prevNodesTodoCount = 0;
   this->task_done = false;
   this->SeDDefined = false;
@@ -172,7 +175,7 @@ DagNode::DagNode(Dag *dag, const string& id)
  * Node destructor
  */
 DagNode::~DagNode() {
-  TRACE_TEXT (TRACE_ALL_STEPS, "~Node() destructor (id: " << myId << ") ..." << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS, "~DagNode() destructor (id: " << myId << ") ..." << endl);
   if (profile != NULL)
     diet_profile_free(profile);
   if (myRunnableNode)
@@ -329,7 +332,7 @@ DagNode::getFNode() {
  * (may check some constraints before adding the predecessor effectively)
  */
 void
-DagNode::addNodePredecessor(Node * node, const string& fullNodeId) {
+DagNode::addNodePredecessor(WfNode * node, const string& fullNodeId) {
   // check if predecessor is not already done
   DagNode *predNode = dynamic_cast<DagNode*>(node);
   if (!predNode || !predNode->isDone())
@@ -341,9 +344,9 @@ DagNode::addNodePredecessor(Node * node, const string& fullNodeId) {
  * Set a new previous node *
  */
 void
-DagNode::setPrev(int index, Node * node) {
+DagNode::setPrev(int index, WfNode * node) {
   DagNode * prevDagNode = dynamic_cast<DagNode*>(node);
-  Node::setPrev(index,node);
+  WfNode::setPrev(index,node);
   prevNodesTodoCount++;
 }
 

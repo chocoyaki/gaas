@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2009/04/17 08:54:44  bisnard
+ * renamed Node class as WfNode
+ *
  * Revision 1.3  2009/02/06 14:53:46  bisnard
  * make thread-safe
  *
@@ -98,7 +101,7 @@ class MetaDag : public NodeSet {
      * @param nodeId  the node reference ('nodeId' or 'dagId:nodeId')
      * @return pointer to node (does not return NULL)
      */
-    virtual Node*
+    virtual WfNode*
         getNode(const string& nodeId) throw (WfStructException);
 
     /**

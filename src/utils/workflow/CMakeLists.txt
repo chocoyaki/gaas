@@ -8,8 +8,8 @@ IF( DIET_BUILD_LIBRARIES )
     ${XERCES_INCLUDE_DIR}
     )
   ADD_LIBRARY ( UtilsWf
-    Node.cc Dag.cc MetaDag.cc FWorkflow.cc FNode.cc
-    FActivityNode.cc
+    WfNode.cc Dag.cc MetaDag.cc FWorkflow.cc FNode.cc
+    FActivityNode.cc FIfNode.cc
     WfPort.cc WfPortAdapter.cc
     FNodePort.cc
     DagNode.cc DagNodePort.cc

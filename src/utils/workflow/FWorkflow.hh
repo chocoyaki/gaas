@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2009/04/17 08:54:43  bisnard
+ * renamed Node class as WfNode
+ *
  * Revision 1.9  2009/04/09 09:56:20  bisnard
  * refactoring due to new class FActivityNode
  *
@@ -74,7 +77,7 @@ public:
   /*            NodeSet methods                      */
   /***************************************************/
 
-  virtual Node *
+  virtual WfNode *
   getNode(const string& nodeId) throw (WfStructException);
 
   virtual void
