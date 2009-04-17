@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2009/04/17 09:04:07  bisnard
+ * initial version for conditional nodes in functional workflows
+ *
  * Revision 1.6  2009/04/08 09:34:56  bisnard
  * pending nodes mgmt moved to FWorkflow class
  * FWorkflow and FNode state graph revisited
@@ -272,7 +275,8 @@ FDataHandle::FDataHandle()
 FDataHandle::FDataHandle(const FDataTag& tag,
                          unsigned int depth,
                          FDataHandle* parentHdl,
-                         WfPort* port)
+                         WfPort* port,
+                         bool isVoid)
   : myTag(tag), myDepth(depth), myParentHdl(parentHdl), myPort(port),
     myCard(0), cardDef(false), adapterDef(false), valueDef(false),
     dataIDDef(false), myAdapterType(ADAPTER_UNDEFINED) {
@@ -281,12 +285,21 @@ FDataHandle::FDataHandle(const FDataTag& tag,
   if (myDepth > 0)
     myData = new map<FDataTag,FDataHandle*>();
   if ((parentHdl) && parentHdl->isAdapterDefined()) {
-    TRACE_TEXT (TRACE_ALL_STEPS, "   / adapter = simple" << endl);
-    myAdapterType = ADAPTER_SIMPLE;  // adapter is inherited from parent
-  }
-  if (myPort) {
+    if (!parentHdl->isVoid()) {
+      TRACE_TEXT (TRACE_ALL_STEPS, "   / adapter = simple" << endl);
+      myAdapterType = ADAPTER_SIMPLE;  // adapter is inherited from parent
+    } else {
+      isVoid = true;
+    }
+  } else if (myPort) {
     TRACE_TEXT (TRACE_ALL_STEPS, "   / adapter = direct" << endl);
     myAdapterType = ADAPTER_DIRECT;  // adapter defined by port reference
+  }
+  if (isVoid) {
+    TRACE_TEXT (TRACE_ALL_STEPS, "   / adapter = VOID" << endl);
+    myAdapterType = ADAPTER_VOID;
+    if (depth > 0)
+      setCardinal(1); // by default a VOID container DH has 1 element
   }
 }
 
@@ -372,6 +385,16 @@ FDataHandle::getParent() const {
 void
 FDataHandle::setParent(FDataHandle* parentHdl) {
   myParentHdl = parentHdl;
+}
+
+bool
+FDataHandle::isVoid() const {
+  return (myAdapterType == ADAPTER_VOID);
+}
+
+void
+FDataHandle::setAsVoid() {
+  myAdapterType = ADAPTER_VOID;
 }
 
 bool
@@ -468,22 +491,33 @@ FDataHandle::checkAdapter() {
       << " (parent = " << myParentHdl << ")" << endl);
   if (!isAdapterDefined()) {
     if (!isCardinalDefined() || (myData->size() != myCard)) {
-      TRACE_TEXT (TRACE_ALL_STEPS, "cardinal undefined ==> cannot update adapter" << endl);
+      TRACE_TEXT (TRACE_ALL_STEPS, "cardinal undefined or data not complete "
+                                   << " ==> cannot update adapter" << endl);
       return;
     }
     bool allAdaptersDefined = true;
+    bool allAdaptersVoid = true;
     map<FDataTag,FDataHandle*>::iterator childIter = myData->begin();
     while (allAdaptersDefined && childIter != myData->end()) {
       FDataHandle * childData = (FDataHandle*) childIter->second;
       if (!childData->isAdapterDefined()) {
         allAdaptersDefined = false;
       }
+      if (!childData->isVoid()) {
+        allAdaptersVoid = false;
+      }
       ++childIter;
     }
     if (allAdaptersDefined) {
-      this->myAdapterType = ADAPTER_MULTIPLE;
-      TRACE_TEXT (TRACE_ALL_STEPS,"**** adapter for " << getTag().toString()
-                  << " is MULTIPLE ****" << endl);
+      if (allAdaptersVoid) {
+        this->myAdapterType = ADAPTER_VOID;
+        TRACE_TEXT (TRACE_ALL_STEPS,"**** adapter for " << getTag().toString()
+                    << " is VOID ****" << endl);
+      } else {
+        this->myAdapterType = ADAPTER_MULTIPLE;
+        TRACE_TEXT (TRACE_ALL_STEPS,"**** adapter for " << getTag().toString()
+                    << " is MULTIPLE ****" << endl);
+      }
       if (isParentDefined()) {
         myParentHdl->checkAdapter();
       }
@@ -613,6 +647,8 @@ FDataHandle::createPortAdapter(const string& currDagName) {
       multAdapter->addSubAdapter(childHdl->createPortAdapter(currDagName));
     }
     myAdapter = (WfPortAdapter*) multAdapter;
+  } else if (myAdapterType == ADAPTER_VOID) {
+    myAdapter = new WfVoidAdapter();
   }
   return myAdapter;
 }

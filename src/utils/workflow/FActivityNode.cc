@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2009/04/17 09:04:07  bisnard
+ * initial version for conditional nodes in functional workflows
+ *
  * Revision 1.1  2009/04/09 09:55:27  bisnard
  * new class
  *
@@ -115,5 +118,21 @@ FActivityNode::createInstance(Dag* dag,
 
   TRACE_TEXT (TRACE_ALL_STEPS,"  ## END OF CREATION OF NEW ACTIVITY INSTANCE : "
                               << dagNodeId << endl);
+}
+
+void
+FActivityNode::updateInstanciationStatus() {
+  if (myRootIterator->isAtEnd()) {
+    if (myRootIterator->isDone()) {
+      TRACE_TEXT (TRACE_ALL_STEPS, "########## ALL INPUTS PROCESSED" << endl);
+      myStatus = N_INSTANC_END;
+    } else {
+      TRACE_TEXT (TRACE_ALL_STEPS, "########## WAITING FOR INPUTS " << endl);
+      myStatus = N_INSTANC_WAITING;
+    }
+  } else {
+    TRACE_TEXT (TRACE_ALL_STEPS, "########## SET NODE ON HOLD" << endl);
+    myStatus = N_INSTANC_ONHOLD;
+  }
 }
 

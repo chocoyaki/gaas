@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2009/04/17 09:04:07  bisnard
+ * initial version for conditional nodes in functional workflows
+ *
  * Revision 1.7  2009/04/09 09:56:20  bisnard
  * refactoring due to new class FActivityNode
  *
@@ -46,7 +49,7 @@
  * Constructors & destructors
  */
 
-FNodePort::FNodePort (Node * parent,
+FNodePort::FNodePort (WfNode * parent,
                       const string& _id,
                       WfPort::WfPortType _portType,
                       WfCst::WfDataType _type,
@@ -58,7 +61,7 @@ FNodePort::FNodePort (Node * parent,
 FNodePort::~FNodePort() {
 }
 
-FNodeOutPort::FNodeOutPort(Node * parent,
+FNodeOutPort::FNodeOutPort(WfNode * parent,
                            const string& _id,
                            WfCst::WfDataType _type,
                            unsigned int _depth,
@@ -70,18 +73,18 @@ FNodeOutPort::FNodeOutPort(Node * parent,
 FNodeOutPort::~FNodeOutPort() {
 }
 
-FNodeInPort::FNodeInPort(Node * parent,
+FNodeInPort::FNodeInPort(WfNode * parent,
                            const string& _id,
                            WfCst::WfDataType _type,
                            unsigned int _depth,
                            unsigned int _ind)
   : FNodePort(parent, _id, WfPort::PORT_IN, _type, _depth, _ind),
-    dataTotalNb(0), totalDef(false) { }
+    dataTotalNb(0), totalDef(false), valueRequired(false) { }
 
 FNodeInPort::~FNodeInPort() {
 }
 
-FNodeParamPort::FNodeParamPort(Node * parent,
+FNodeParamPort::FNodeParamPort(WfNode * parent,
                            const string& _id,
                            WfCst::WfDataType _type,
                            unsigned int _ind)
@@ -230,8 +233,13 @@ FNodeOutPort::setAsConstant(FDataHandle* dataHdl) {
 /*                            FNodeInPort                                    */
 /*****************************************************************************/
 
+void
+FNodeInPort::setValueRequired() {
+  valueRequired = true;
+}
+
 /**
- * Static addData
+ * Static addData (RECURSIVE)
  */
 void
 FNodeInPort::addData(FDataHandle* dataHdl, const list<string>& dataCard)
@@ -240,10 +248,15 @@ FNodeInPort::addData(FDataHandle* dataHdl, const list<string>& dataCard)
   TRACE_TEXT (TRACE_ALL_STEPS,"     # Calling addData (port " << getParent()->getId()
                               << "#" << getId()
                               << ") for data: " << dataHdl->getTag().toString() << endl);
-  // if dataHdl is not complete then do nothing
+  // if dataHdl is not complete then do nothing (happens due to recursive call to parent)
   if (!dataHdl->isAdapterDefined() && !dataHdl->isValueDefined()) {
     TRACE_TEXT (TRACE_ALL_STEPS,"Cannot add data to inPort (no value and no adapter)" << endl);
     return;
+  }
+  // check if value is required
+  if (valueRequired && !dataHdl->isValueDefined()) {
+    TRACE_TEXT (TRACE_ALL_STEPS,"Cannot add data without value" << endl);
+    throw WfDataHandleException(WfDataHandleException::eVALUE_UNDEF,dataHdl->getTag().toString());
   }
   // if dataHdl depth = port depth
     // if dataHdl not already in the queue
@@ -333,7 +346,11 @@ FNodeInPort::addData(FDataHandle* dataHdl, DagNodeOutPort* dagOutPort)
              ++eltIter) {
           FDataHandle * childHdl = (FDataHandle*) eltIter->second;
           // set the data ID of the child data using content provided by dag port
-          childHdl->setDataID(content->elt_ids[ix++]);
+          if (content->elt_ids[ix])
+            childHdl->setDataID(content->elt_ids[ix]);
+          else
+            childHdl->setAsVoid();
+          ++ix;
           // add the child ID to the input port queue
           addData(childHdl, dagOutPort);
         }
@@ -441,4 +458,45 @@ FNodeParamPort::addData(FDataHandle* dataHdl, DagNodeOutPort* dagOutPort)
 
 void
 FNodeParamPort::instanciate(Dag* dag, DagNode* nodeInst, FDataHandle* dataHdl) {
+}
+
+/*****************************************************************************/
+/*                           FNodePortMap                                    */
+/*****************************************************************************/
+
+FNodePortMap::FNodePortMap() {
+}
+
+void
+FNodePortMap::mapPorts(FNodeOutPort* outPort, FNodeInPort* inPort) {
+  myPortMap.insert(pair<FNodeOutPort*,FNodeInPort*>(outPort,inPort));
+}
+
+void
+FNodePortMap::mapPortToVoid(FNodeOutPort* outPort) {
+  myPortMap.insert(pair<FNodeOutPort*,FNodeInPort*>(outPort,NULL));
+}
+
+void
+FNodePortMap::applyMap(const FDataTag& tag, const vector<FDataHandle*>& dataLine) {
+  for (map<FNodeOutPort*,FNodeInPort*>::const_iterator iter = myPortMap.begin();
+       iter != myPortMap.end();
+       ++iter) {
+     FNodeOutPort* outPort = (FNodeOutPort*) iter->first;
+     FDataHandle* dataHdl;
+     if (iter->second) {
+       FNodeInPort* inPort = (FNodeInPort*) iter->second;
+       if (inPort->getIndex() < dataLine.size()) {
+         // COPY the input DH (with all its child tree)
+         dataHdl = new FDataHandle(*dataLine[inPort->getIndex()]);
+       } else {
+         INTERNAL_ERROR("applyMap : port index out of bound",1);
+       }
+     } else {
+       // CREATE a new VOID datahandle
+        dataHdl = new FDataHandle(tag, outPort->getDepth(), NULL, NULL, true);
+     }
+     // Submit to out port (ie will send it to connected ports)
+     outPort->instanciate(dataHdl);
+   }
 }

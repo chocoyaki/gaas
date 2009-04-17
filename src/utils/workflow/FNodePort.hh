@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2009/04/17 09:04:07  bisnard
+ * initial version for conditional nodes in functional workflows
+ *
  * Revision 1.7  2009/04/09 09:56:20  bisnard
  * refactoring due to new class FActivityNode
  *
@@ -53,7 +56,7 @@ class FNodeInPort;
 class FNodePort : public WfPort {
 
   public:
-    FNodePort(Node * parent, const string& _id, WfPort::WfPortType _portType,
+    FNodePort(WfNode * parent, const string& _id, WfPort::WfPortType _portType,
               WfCst::WfDataType _type, unsigned int _depth, unsigned int _ind);
     virtual ~FNodePort();
 
@@ -83,7 +86,7 @@ class FNodeOutPort : public FNodePort {
 
   public:
 
-    FNodeOutPort(Node * parent, const string& _id,
+    FNodeOutPort(WfNode * parent, const string& _id,
                  WfCst::WfDataType _type, unsigned int _depth, unsigned int _ind);
     virtual ~FNodeOutPort();
 
@@ -118,7 +121,7 @@ class FNodeOutPort : public FNodePort {
     instanciate(Dag* dag, DagNode* nodeInst, const FDataTag& tag);
 
     /**
-     * Instanciate the port only as a new output data (used for sources)
+     * Instanciate the port only as a new output data
      * @param dataHdl  the output data handle
      */
     void
@@ -165,9 +168,16 @@ class FNodeInPort : public FNodePort {
 
     friend class PortInputIterator;
 
-    FNodeInPort(Node * parent, const string& _id,
+    FNodeInPort(WfNode * parent, const string& _id,
                 WfCst::WfDataType _type, unsigned int _depth, unsigned int _ind);
     virtual ~FNodeInPort();
+
+    /**
+     * Set the port as requiring a value for all received DH
+     * (used for control structures: if, loops)
+     */
+    void
+        setValueRequired();
 
     /**
      * Static addData (before node execution)
@@ -178,7 +188,7 @@ class FNodeInPort : public FNodePort {
      * @exception WfDataHandleException(eBAD_STRUCT) if DH cannot be added
      */
     virtual void
-    addData(FDataHandle* dataHdl, const list<string>& dataCard)
+        addData(FDataHandle* dataHdl, const list<string>& dataCard)
         throw (WfDataHandleException);
 
     /**
@@ -189,7 +199,7 @@ class FNodeInPort : public FNodePort {
      * @param dagOutPort  the port providing the data
      */
     virtual void
-    addData(FDataHandle* dataHdl, DagNodeOutPort* dagOutPort)
+        addData(FDataHandle* dataHdl, DagNodeOutPort* dagOutPort)
         throw (WfDataException, WfDataHandleException);
 
     /**
@@ -199,14 +209,14 @@ class FNodeInPort : public FNodePort {
      * Called by connected OUT port when total can be determined.
      */
     void
-    setTotalDataNb(unsigned int total);
+        setTotalDataNb(unsigned int total);
 
     /**
      * Set as a constant
      * @param dataHdl  the data handle that contains the constant
      */
     void
-    setAsConstant(FDataHandle* dataHdl);
+        setAsConstant(FDataHandle* dataHdl);
 
     /**
      * Instanciate the port as a real input port
@@ -215,14 +225,14 @@ class FNodeInPort : public FNodePort {
      * @param dataHdl   (may be NULL) the data Handle to be used (as source)
      */
     virtual void
-    instanciate(Dag* dag, DagNode* nodeInst, FDataHandle* dataHdl);
+        instanciate(Dag* dag, DagNode* nodeInst, FDataHandle* dataHdl);
 
     /**
      * Display the port current data
      * @param output  output stream
      */
     void
-    displayData(ostream& output);
+        displayData(ostream& output);
 
   protected:
 
@@ -240,6 +250,11 @@ class FNodeInPort : public FNodePort {
      */
     bool totalDef;
 
+    /**
+     * Flag for value required
+     */
+    bool valueRequired;
+
 }; // end class FNodeInPort
 
 /*****************************************************************************/
@@ -253,7 +268,7 @@ class FNodeParamPort : public FNodeInPort {
 
   public:
 
-    FNodeParamPort(Node * parent, const string& _id,
+    FNodeParamPort(WfNode * parent, const string& _id,
                    WfCst::WfDataType _type, unsigned int _ind);
     virtual ~FNodeParamPort();
 
@@ -285,5 +300,38 @@ class FNodeParamPort : public FNodeInPort {
 
 };
 
+/*****************************************************************************/
+/*                           FNodePortMap                                    */
+/*****************************************************************************/
+
+class FNodePortMap {
+
+  public:
+
+    FNodePortMap();
+
+    /**
+     * Map an out port of a node to an in port of the same node
+     */
+    void
+        mapPorts(FNodeOutPort* outPort, FNodeInPort* inPort);
+
+    /**
+     * Map an out port of a node to the VOID value
+     */
+    void
+        mapPortToVoid(FNodeOutPort* outPort);
+
+    /**
+     * Apply mapping to a given dataline
+     */
+    void
+        applyMap(const FDataTag& tag, const vector<FDataHandle*>& dataLine);
+
+  private:
+
+    map<FNodeOutPort*,FNodeInPort*> myPortMap;
+
+};
 
 #endif // _FNODEPORT_HH_

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2009/04/17 09:04:07  bisnard
+ * initial version for conditional nodes in functional workflows
+ *
  * Revision 1.7  2009/04/08 09:34:56  bisnard
  * pending nodes mgmt moved to FWorkflow class
  * FWorkflow and FNode state graph revisited
@@ -216,11 +219,13 @@ class FDataHandle {
      * @param depth the depth of this data (0 if not a container)
      * @param parentHdl the parent handle (NULL if root handle)
      * @param port the port that produces the data (NULL if data is a container element)
+     * @param isVoid  set to true to create a VOID data
      */
     FDataHandle(const FDataTag& tag,
                 unsigned int depth,
                 FDataHandle* parentHdl = NULL,
-                WfPort* port = NULL);
+                WfPort* port = NULL,
+                bool isVoid = false);
 
     /**
      * Constructor of a constant data handle (that has a value)
@@ -233,7 +238,17 @@ class FDataHandle {
                 FDataHandle* parentHdl = NULL);
 
     /**
-     * Constructor of a root data handle (that has no tag)
+     * Constructor of a VOID data handle (that will not exist in execution)
+     * @param tag the data tag attached to this handle
+     * @param depth the depth of this data (0 if not a container)
+     * @param isVoid should be true
+     */
+    FDataHandle(const FDataTag& tag,
+                unsigned int depth,
+                bool isVoid);
+
+    /**
+     * Constructor of a root data handle (used for out ports buffer)
      * @param depth data depth
      */
     FDataHandle(unsigned int depth);
@@ -296,6 +311,19 @@ class FDataHandle {
     getParent() const;
 
     /**
+     * Returns true if the data is VOID
+     */
+    bool
+    isVoid() const;
+
+    /**
+     * Set the data as VOID
+     * (used after node execution when container element is finally null)
+     */
+    void
+    setAsVoid();
+
+    /**
      * Add a data as a child of this data handle
      * This will insert the dataHdl at the right sublevel of the datahandle
      * depending on the TAG of the dataHdl
@@ -307,6 +335,9 @@ class FDataHandle {
      * this handle's cardinal is set as defined
      * @param dataHdl the DH to insert in the current DH's tree
      * @exception WfDataHandleException(eBAD_STRUCT) if DH cannot be inserted
+     *
+     * IMPORTANT: DH takes over memory mgmt of the argument (it will deallocate
+     * the pointer when destroyed)
      */
     void
     insertInTree(FDataHandle* dataHdl)
@@ -414,7 +445,8 @@ class FDataHandle {
       ADAPTER_UNDEFINED,
       ADAPTER_DIRECT,
       ADAPTER_SIMPLE,
-      ADAPTER_MULTIPLE } FDataHdlAdapterType;
+      ADAPTER_MULTIPLE,
+      ADAPTER_VOID } FDataHdlAdapterType;
 
     void
     addChild(FDataHandle* dataHdl);
@@ -480,12 +512,6 @@ class FDataHandle {
      * flag to check if cardinal is defined
      */
     bool cardDef;
-
-    /**
-     * flag to check if data is locally complete
-     * (ie nb of childs match cardinal)
-     */
-//     bool complete;
 
     /**
      * flag to check if adapter is defined

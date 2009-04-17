@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2009/04/17 09:04:07  bisnard
+ * initial version for conditional nodes in functional workflows
+ *
  * Revision 1.10  2009/04/09 09:56:20  bisnard
  * refactoring due to new class FActivityNode
  *
@@ -48,7 +51,7 @@
 
 #include <map>
 
-#include "Node.hh"
+#include "WfNode.hh"
 #include "FNodePort.hh"
 #include "InputIterator.hh"
 #include "WfUtils.hh"
@@ -60,7 +63,7 @@ using namespace std;
 /*                                 FNode                                     */
 /*****************************************************************************/
 
-class FNode : public Node {
+class FNode : public WfNode {
 
 public:
   friend class FNodeInPort;
@@ -349,7 +352,6 @@ class FProcNode : public FNode {
         checkDynamicParam(const string& paramName, const string& paramValue);
 
 
-
     // *********************** INSTANCIATION *************************
 
     /**
@@ -364,15 +366,18 @@ class FProcNode : public FNode {
      * Instanciation initialization - called for each instanciation call
      */
     virtual void
-        initInstanciation() = 0;
+        initInstanciation();
 
     virtual bool
-        instLimitReached() = 0;
+        instLimitReached();
 
     virtual void
         createInstance(Dag* dag,
                        const FDataTag& currTag,
                        const vector<FDataHandle*>& currDataLine) = 0;
+
+    virtual void
+        updateInstanciationStatus() = 0;
 
     /**
      * Instanciation of the processor (TEMPLATE METHOD)
@@ -381,8 +386,9 @@ class FProcNode : public FNode {
     virtual void
         instanciate(Dag* dag);
 
-
   protected:
+
+    // ******************** DYNAMIC PARAMETERS *********************
 
     /**
      * Create a dynamic parameter
@@ -407,6 +413,28 @@ class FProcNode : public FNode {
 
     const string&
         getDynamicParamValue(const string& paramName);
+
+    // ****************** INTERNAL PORT MAPPING  *********************
+    /**
+     * Check a port name and returns the appropriate pointer
+     * @param portName  name of the port
+     * @return the correct port ref (cannot return NULL)
+     */
+    template<class PortType>
+    PortType*
+        checkAssignPort(const string& portName)
+        throw (WfStructException) {
+      WfPort* port = getPort(portName); // throws exception
+      PortType* FPort = dynamic_cast<PortType*>(port);
+      if (!FPort) {
+        string errorMsg = string("Invalid port in port assignment ")
+                      + "(node=" + getId() + "/port=" + portName + ")";
+        throw WfStructException(WfStructException::eOTHER, errorMsg);
+      }
+      return FPort;
+    }
+
+    // ******************** INPUT DATA OPERATORS *********************
 
     PortInputIterator *
         createPortInputIterator(const string& portId);

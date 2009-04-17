@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2009/04/17 09:04:07  bisnard
+ * initial version for conditional nodes in functional workflows
+ *
  * Revision 1.10  2009/04/09 09:56:20  bisnard
  * refactoring due to new class FActivityNode
  *
@@ -43,6 +46,7 @@
  *
  */
 
+#include <string>
 #include "debug.hh"
 #include "FNode.hh"
 #include "FWorkflow.hh"
@@ -52,7 +56,7 @@
 using namespace std;
 
 FNode::FNode(FWorkflow* wf, const string& id, nodeInstStatus_t initStatus)
-  : Node(id), wf(wf), myStatus(initStatus) {}
+  : WfNode(id), wf(wf), myStatus(initStatus) {}
 
 FNode::~FNode() {
   TRACE_TEXT (TRACE_ALL_STEPS,"~FNode() " << getId() << " destructor ..." <<  endl);
@@ -488,6 +492,15 @@ FProcNode::initialize() {
 }
 
 void
+FProcNode::initInstanciation() {
+}
+
+bool
+FProcNode::instLimitReached() {
+  return false;
+}
+
+void
 FProcNode::instanciate(Dag* dag) {
   if (instanciationReady()) {
 
@@ -544,18 +557,7 @@ FProcNode::instanciate(Dag* dag) {
     // END LOOP
     //
 
-    if (myRootIterator->isAtEnd()) {
-      if (myRootIterator->isDone()) {
-        TRACE_TEXT (TRACE_ALL_STEPS, "########## ALL INPUTS PROCESSED" << endl);
-        myStatus = N_INSTANC_END;
-      } else {
-        TRACE_TEXT (TRACE_ALL_STEPS, "########## WAITING FOR INPUTS " << endl);
-        myStatus = N_INSTANC_WAITING;
-      }
-    } else {
-      TRACE_TEXT (TRACE_ALL_STEPS, "########## SET NODE ON HOLD" << endl);
-      myStatus = N_INSTANC_ONHOLD;
-    }
+    updateInstanciationStatus();
 
     delete currDataLine;
   }
