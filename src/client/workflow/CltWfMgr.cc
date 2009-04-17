@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2009/04/17 08:49:32  bisnard
+ * updated exception handling
+ *
  * Revision 1.26  2009/02/11 07:50:42  bisnard
  * remove debug messages
  *
@@ -194,12 +197,7 @@ CltWfMgr::execNodeCommon(const char * node_id,
           this->myLock.lock();    /** LOCK (conflict with main instanciation thread) */
           // notify the workflow (if applicable and if wf is pending)
           if ((wf = dag->getWorkflow()) && (wf->instanciationPending())) {
-            try {
-              wf->handlerDagNodeDone(node);
-            } catch (WfDataException& e) {
-              WARNING("Instanciator error due to invalid dag data (" << e.ErrorMsg() << ")" << endl);
-              wf->instanciationStopped();
-            }
+            wf->handlerDagNodeDone(node);
             if (wf->instanciationReady() && this->instanciationPending) {
               TRACE_TEXT (TRACE_MAIN_STEPS,"INSTANCIATION pending & ready ==> POST" << endl);
               mySem.post();
