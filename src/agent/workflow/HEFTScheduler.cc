@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2009/04/17 08:45:40  bisnard
+ * renamed Node class as WfNode
+ *
  * Revision 1.10  2008/10/14 13:24:48  bisnard
  * use new class structure for dags (DagNode,DagNodePort)
  *
@@ -142,7 +145,7 @@ HEFTScheduler::setNodesEFT(std::vector<DagNode *>& orderedNodes,
         }
       }
       // increase earliest starting time if some dependencies with other nodes
-      for (vector<Node*>::iterator prevIter = n->prevNodesBegin();
+      for (vector<WfNode*>::iterator prevIter = n->prevNodesBegin();
            prevIter != n->prevNodesEnd();
            ++prevIter) {
 	EST = max(EST, AFT[(dynamic_cast<DagNode*>(*prevIter))->getCompleteId()]);
@@ -221,7 +224,7 @@ HEFTScheduler::rank(DagNode * n) {  // RECURSIVE
     n->setPriority(n->getEstDuration());
   } else {
     // LOOP for all descendant nodes of n
-    for (list<Node*>::iterator nextIter = n->nextNodesBegin();
+    for (list<WfNode*>::iterator nextIter = n->nextNodesBegin();
         nextIter != n->nextNodesEnd();
         ++nextIter) {
       succ = dynamic_cast<DagNode*>(*nextIter);
@@ -235,7 +238,7 @@ HEFTScheduler::rank(DagNode * n) {  // RECURSIVE
   TRACE_TEXT (TRACE_ALL_STEPS, " HEFT : priority of node " << n->getCompleteId()
       << " is " << n->getPriority() << endl);
   // LOOP for all preceding nodes of n
-  for (vector<Node*>::iterator prevIter = n->prevNodesBegin();
+  for (vector<WfNode*>::iterator prevIter = n->prevNodesBegin();
        prevIter != n->prevNodesEnd();
        ++prevIter) {
     DagNode * prev = dynamic_cast<DagNode*>(*prevIter);
