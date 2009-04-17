@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2009/04/17 09:02:15  bisnard
+ * container empty elements (added WfVoidAdapter class)
+ *
  * Revision 1.11  2009/02/06 14:53:09  bisnard
  * - setup exceptions
  * - display methods for container results
@@ -526,7 +529,8 @@ DagNodeOutPort::getElementDataID(const list<unsigned int>& eltIdx)
       // get list of element IDs from out port cache
       diet_container_t *content = getDataIDList(eltID);
       if (content->size >= (*idxIter + 1)) {
-        eltID = content->elt_ids[*idxIter];
+        if (content->elt_ids[*idxIter]) // if NULL then eltID = empty string
+          eltID = content->elt_ids[*idxIter];
       } else {
         string errorMsg = "Container size smaller than element index (container ID="
                             + eltID + ")";
@@ -652,7 +656,9 @@ DagNodeOutPort::displayContainerAsList(ostream& output,
   diet_container_t* content = getDataIDList(containerID);
   for (int ix=0; ix<content->size; ++ix) {
     char* eltID = content->elt_ids[ix];
-    if (depth > 1) {
+    if (eltID == NULL) {
+      output << WfVoidAdapter::voidRef;
+    } else if (depth > 1) {
       displayContainerAsList(output, eltID, depth-1);
     } else if (depth == 1) {
       displayContainerData(output, eltID);
@@ -733,6 +739,8 @@ DagNodeOutPort::displayDataElementAsList(ostream& output,
       displayContainerData(output, eltID.c_str());
     else
       displayContainerAsList(output, eltID.c_str(), getDepth() - idxList.size());
+  } else {
+    output << WfVoidAdapter::voidRef;
   }
 }
 

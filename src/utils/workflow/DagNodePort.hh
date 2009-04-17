@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2009/04/17 09:02:15  bisnard
+ * container empty elements (added WfVoidAdapter class)
+ *
  * Revision 1.8  2009/02/06 14:53:09  bisnard
  * - setup exceptions
  * - display methods for container results
@@ -209,7 +212,7 @@ public:
   /**
    * Get the ID of an element of the output data (when it's a container)
    * @param eltIdx a list of indexes for the element
-   * @return  the data ID
+   * @return  the data ID (may be empty if the element is NULL)
    */
   string
   getElementDataID(const list<unsigned int>& eltIdx) throw (WfDataException);

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2009/04/17 09:02:15  bisnard
+ * container empty elements (added WfVoidAdapter class)
+ *
  * Revision 1.8  2009/02/06 14:54:43  bisnard
  * - setup exceptions
  * - added data type & depth check
@@ -67,7 +70,7 @@ class WfPortAdapter {
      * @param nodeSet   the node set that contains the linked nodes
      */
     virtual void
-        setNodePrecedence(Node* node, NodeSet* nodeSet)
+        setNodePrecedence(WfNode* node, NodeSet* nodeSet)
         throw (WfStructException) = 0;
 
     /**
@@ -138,15 +141,18 @@ class WfSimplePortAdapter : public WfPortAdapter {
     // virtual base methods
 
     void
-        setNodePrecedence(Node* node, NodeSet* nodeSet)
+        setNodePrecedence(WfNode* node, NodeSet* nodeSet)
         throw (WfStructException);
     void
         connectPorts(WfPort* port, unsigned int adapterLevel)
         throw (WfStructException);
     string
         getSourceRef() const;
+
+    // may return an empty string if source is a null container element
     const string&
         getSourceDataID();
+
     void
         displayDataAsList(ostream& output);
 
@@ -174,7 +180,7 @@ class WfSimplePortAdapter : public WfPortAdapter {
     string      dagName;
     string      dataID;
     list<unsigned int>  eltIdxList;
-    Node *      nodePtr;
+    WfNode *      nodePtr;
     WfPort *    portPtr;
 
 }; // end class WfSimplePortAdapter
@@ -198,7 +204,7 @@ class WfMultiplePortAdapter : public WfPortAdapter {
     void
         addSubAdapter(WfPortAdapter* subAdapter);
     void
-        setNodePrecedence(Node* node, NodeSet* nodeSet)
+        setNodePrecedence(WfNode* node, NodeSet* nodeSet)
         throw (WfStructException);
     void
         connectPorts(WfPort* port, unsigned int adapterLevel)
@@ -222,5 +228,31 @@ class WfMultiplePortAdapter : public WfPortAdapter {
     static string errorID;
 
 }; // end class WfMultiplePortAdapter
+
+class WfVoidAdapter : public WfPortAdapter {
+
+  public:
+
+    static string voidRef;    // appears in dag
+    static string voidDataID; // appears in data ID field in the profile
+
+    WfVoidAdapter();
+    ~WfVoidAdapter();
+
+    // virtual base methods
+
+    void
+        setNodePrecedence(WfNode* node, NodeSet* nodeSet)
+        throw (WfStructException);
+    void
+        connectPorts(WfPort* port, unsigned int adapterLevel)
+        throw (WfStructException);
+    string
+        getSourceRef() const;
+    const string&
+        getSourceDataID();
+    void
+        displayDataAsList(ostream& output);
+};
 
 #endif
