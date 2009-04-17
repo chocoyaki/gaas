@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2009/04/17 08:50:49  bisnard
+ * added handling of container empty elements
+ *
  * Revision 1.25  2009/03/27 09:09:41  bisnard
  * replace container size attr by dynamic value
  *
@@ -116,9 +119,9 @@ public:
    * Add an element to a container (on the local Data Mgr)
    * The data element is not necessarily stored on the local data mgr
    * @param containerID the id of the container
-   * @param dataID      the id of the data element
+   * @param dataID      the id of the data element (can be NULL)
    * @param index       the index of the element in the container
-   * @param flag        (not used yet)
+   * @param flag        flag (used for NULL elements)
    */
   virtual void lclAddContainerElt(const char* containerID,
                                   const char* dataID,

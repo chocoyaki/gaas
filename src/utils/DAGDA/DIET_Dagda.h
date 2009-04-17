@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2009/04/17 08:50:49  bisnard
+ * added handling of container empty elements
+ *
  * Revision 1.9  2008/10/22 15:07:28  bdepardo
  * Fixed header:
  *  - now CVS will write the log
@@ -80,6 +83,11 @@ int dagda_init_container(diet_data_t* profile_data);
  * The container must be either created or initialized before, so that
  * it is declared on the local dagda manager */
 int dagda_add_container_element(const char* idContainer, const char* idElement, int index);
+
+/* Add an empty slot to a container (replaces an element)
+ * The container must be either created or initialized before, so that
+ * it is declared on the local dagda manager */
+int dagda_add_container_null_element(const char* idContainer, int index);
 
 /* Get all IDs of the elements of a container *
  * The container must be either created or initialized before, so that
@@ -188,7 +196,7 @@ int dagda_get_container_elements(const char* idContainer, diet_container_t* cont
   dagda_wait_string(thread, value)
 #define dagda_wait_file(thread, path) \
   dagda_wait_get(thread, NULL, NULL, NULL, NULL, NULL, path)
-    
+
 #ifdef __cplusplus
 }
 #endif

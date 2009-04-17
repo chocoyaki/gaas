@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2009/04/17 08:50:49  bisnard
+ * added handling of container empty elements
+ *
  * Revision 1.21  2009/04/03 13:46:05  bisnard
  * bug correction (missing _duplicate() for Dagda agent ref)
  *
@@ -1051,7 +1054,7 @@ int dagda_init_container(diet_data_t *profile_data) {
   return 0;
 }
 
-int dagda_add_container_element(const char* idContainer, const char* idElement, int index) {
+int add_container_element_common(const char* idContainer, const char* idElement, int index, int flag) {
   Dagda_var   entryPoint = getEntryPoint();
   DagdaImpl*  manager    = DagdaFactory::getDataManager();
   try {
@@ -1061,7 +1064,7 @@ int dagda_add_container_element(const char* idContainer, const char* idElement, 
         corba_data_desc_t* storedDataDesc = entryPoint->pfmGetDataDesc(idContainer);
         Dagda_var srcMgr = Dagda::_narrow(ORBMgr::stringToObject(storedDataDesc->dataManager));
       // add the relationship
-        srcMgr->lclAddContainerElt(idContainer, idElement, index, 0);
+        srcMgr->lclAddContainerElt(idContainer, idElement, index, flag);
       } else {
         WARNING("Cannot find container " << idContainer << " on platform");
         return 1;
@@ -1070,7 +1073,7 @@ int dagda_add_container_element(const char* idContainer, const char* idElement, 
       // not on the client => dagda_init_container must have been called before
       // so the container exists locally
       if (manager->lclIsDataPresent(idContainer)) {
-        manager->lclAddContainerElt(idContainer, idElement, index, 0);
+        manager->lclAddContainerElt(idContainer, idElement, index, flag);
       } else {
         WARNING("Cannot find container " << idContainer << " locally");
         return 1;
@@ -1080,6 +1083,14 @@ int dagda_add_container_element(const char* idContainer, const char* idElement, 
     return 1;
   }
   return 0;
+}
+
+int dagda_add_container_element(const char* idContainer, const char* idElement, int index) {
+  return add_container_element_common(idContainer, idElement, index, 0);
+}
+
+int dagda_add_container_null_element(const char* idContainer, int index) {
+  return add_container_element_common(idContainer, NULL, index, 1);
 }
 
 int dagda_get_container_elements(const char* idContainer, diet_container_t* content) {
@@ -1103,7 +1114,10 @@ int dagda_get_container_elements(const char* idContainer, diet_container_t* cont
     content->id   = CORBA::string_dup(idContainer);
     content->elt_ids = (char**) malloc(sizeof(char*) * content->size); // FIXME not deallocated
     for (unsigned int ix=0; ix<eltIDSeq.length(); ++ix) {
-      content->elt_ids[ix] = CORBA::string_dup(eltIDSeq[ix]);
+      if (!eltFlagSeq[ix])  // test if this is not a null element
+        content->elt_ids[ix] = CORBA::string_dup(eltIDSeq[ix]);
+      else
+        content->elt_ids[ix] = NULL;
     }
   } else return 1;
   return 0;

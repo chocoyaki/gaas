@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.31  2009/04/17 08:50:49  bisnard
+ * added handling of container empty elements
+ *
  * Revision 1.30  2009/03/27 09:04:10  bisnard
  * - replace container size attr by dynamic value
  * - added exception mgmt
@@ -512,8 +515,9 @@ void SimpleDagdaImpl::lclAddContainerElt(const char* containerID,
                                          CORBA::Long index,
                                          CORBA::Long flag) {
   Container *container = new Container(containerID,_this(),containerRelationMgr);
+  const char* eltID = dataID ? dataID : NoID;
   lockData(containerID);
-  container->addData(dataID,index,flag);
+  container->addData(eltID,index,flag);
   unlockData(containerID);
 }
 
