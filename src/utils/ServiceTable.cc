@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.31  2009/04/22 06:21:21  ycaniou
+ * Correct a bug: when adding at least 20 services, matching_children[20] wasn't
+ *   initialized and matching_children[20].children wasn't allocated thus a
+ *   seg fault.
+ *
  * Revision 1.30  2008/11/18 10:19:37  bdepardo
  * - Added the possibility to dynamically create and destroy a service
  *   (even if the SeD is already started). An example is available.
@@ -320,12 +325,12 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
 
   if ((service_idx = lookupService(profile)) == -1) {
     // Then add a brand new service
-    if ((nb_s != 0) && (nb_s % max_nb_s) == 0) {
+    if( (nb_s != 0) && (nb_s % max_nb_s) == 0 ) {
       max_nb_s += max_nb_s_step;
       profiles.length(max_nb_s);
       matching_children = (matching_children_t*)
         realloc(matching_children, max_nb_s * sizeof(matching_children_t));
-      for (size_t i = nb_s + 1; i < max_nb_s; i++) {
+      for (size_t i = nb_s ; i < max_nb_s; i++) {
         profiles[i].param_desc.length(0);
         matching_children[i].nb_children = 0;
         matching_children[i].children    = new CORBA::ULong[max_nb_children];
@@ -336,8 +341,7 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
       = child;
     nb_s++;
   
-  }
-  else {
+  } else {
 
     { /* verify that the aggregators are equivalent */
       corba_profile_desc_t *storedProfile = &(profiles[service_idx]);
