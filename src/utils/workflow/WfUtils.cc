@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2009/04/24 11:04:07  bisnard
+ * added conversion to XSchema types
+ *
  * Revision 1.10  2009/02/24 14:01:05  bisnard
  * added dynamic parameter mgmt for wf processors
  *
@@ -80,6 +83,8 @@ WfStructException::ErrorMsg() {
       errorMsg = "Type mismatch (" + Info() + ")"; break;
     case eDEPTH_MISMATCH:
       errorMsg = "Depth mismatch (" + Info() + ")"; break;
+    case eINVALID_EXPR:
+      errorMsg = "Invalid expression (" + Info() + ")"; break;
     case eOTHER:
       errorMsg = Info(); break;
   }
@@ -148,6 +153,20 @@ static const pair<short, const string> strTypes[] = {
   pair<short, const string>( WfCst::TYPE_CONTAINER, "DIET_CONTAINER")
 };
 
+static const pair<short, const string> XSTypes[] = {
+  pair<short, const string>( WfCst::TYPE_CHAR, "xs:byte"),
+  pair<short, const string>( WfCst::TYPE_SHORT, "xs:short"),
+  pair<short, const string>( WfCst::TYPE_INT, "xs:int"),
+  pair<short, const string>( WfCst::TYPE_LONGINT, "xs:long"),
+  pair<short, const string>( WfCst::TYPE_FLOAT, "xs:float"),
+  pair<short, const string>( WfCst::TYPE_DOUBLE, "xs:double"),
+  pair<short, const string>( WfCst::TYPE_MATRIX, ""), // not defined
+  pair<short, const string>( WfCst::TYPE_STRING, "xs:string"),
+  pair<short, const string>( WfCst::TYPE_PARAMSTRING, "xs:string"),
+  pair<short, const string>( WfCst::TYPE_FILE, ""),
+  pair<short, const string>( WfCst::TYPE_CONTAINER, "")
+};
+
 static map<short,short> WfTypesToDietTypes(wf2DietTypes, wf2DietTypes
     + sizeof(wf2DietTypes)/sizeof(wf2DietTypes[0]));
 static map<short,short> DietTypesToWfTypes(diet2WfTypes, diet2WfTypes
@@ -156,6 +175,8 @@ static map<string,short> StrTypesToWfTypes(wfTypes, wfTypes
     + sizeof(wfTypes)/sizeof(wfTypes[0]));
 static map<short, const string> WfTypesToStrTypes(strTypes, strTypes
     + sizeof(strTypes)/sizeof(strTypes[0]));
+static map<short, const string> WfTypesToXSTypes(XSTypes, XSTypes
+    + sizeof(XSTypes)/sizeof(XSTypes[0]));
 
 short
 WfCst::cvtWfToDietType(WfDataType wfType) {
@@ -175,6 +196,11 @@ WfCst::cvtStrToWfType(const string& strType) {
 const string&
 WfCst::cvtWfToStrType(WfDataType wfType) {
   return WfTypesToStrTypes[wfType];
+}
+
+const string&
+WfCst::cvtWfToXSType(WfDataType wfType) {
+  return WfTypesToXSTypes[wfType];
 }
 
 bool

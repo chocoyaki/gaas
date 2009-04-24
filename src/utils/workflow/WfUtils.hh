@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2009/04/24 11:04:07  bisnard
+ * added conversion to XSchema types
+ *
  * Revision 1.9  2009/02/24 14:01:05  bisnard
  * added dynamic parameter mgmt for wf processors
  *
@@ -79,6 +82,7 @@ class WfStructException {
                              eDUPLICATE_PORT,
                              eTYPE_MISMATCH,
                              eDEPTH_MISMATCH,
+                             eINVALID_EXPR,
                              eOTHER };
     WfStructException(WfStructErrorType t, const std::string& info)
       { this->why = t; this->info = info; }
@@ -130,6 +134,9 @@ public:
 
   static const std::string&
   cvtWfToStrType(WfDataType wfType);
+
+  static const std::string&
+  cvtWfToXSType(WfDataType wfType);
 
   static bool
   isMatrixType(const std::string& strType);
