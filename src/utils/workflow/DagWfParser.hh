@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2009/05/15 11:10:20  bisnard
+ * release for workflow conditional structure (if)
+ *
  * Revision 1.15  2009/04/17 08:54:43  bisnard
  * renamed Node class as WfNode
  *
@@ -104,7 +107,8 @@ class XMLParsingException {
                                eUNKNOWN_ATTR,
                                eEMPTY_ATTR,
                                eBAD_STRUCT,
-                               eINVALID_REF };
+                               eINVALID_REF,
+                               eINVALID_DATA };
     XMLParsingException(XMLParsingErrorType t, const string& info)
       { this->why = t; this->info = info; }
     XMLParsingErrorType Type() { return this->why; }
@@ -145,9 +149,30 @@ public:
    * @param elt      the DOM element
    */
   static string
-  getAttributeValue(const char * attr_name, const DOMElement * elt);
+      getAttributeValue(const char * attr_name, const DOMElement * elt);
+
+  /**
+   * Utility method to get the text content of a DOM element
+   * @param element the DOM element
+   * @param buffer  the string that will contain the value
+   */
+  static void
+      getTextContent(const DOMElement * element, string& buffer);
+
+  /**
+   * Utility method to trim spaces from strings
+   */
+  static string&
+      stringTrim(string& str);
 
 protected:
+
+  /**
+   * Utility method to parse multiple assignmnent data
+   */
+  static void
+      getPortMap(const string& thenMapStr,
+                 map<string,string>& thenMap) throw (XMLParsingException);
 
   /**
    * workflow description
@@ -412,7 +437,7 @@ private:
 }; // end class FWfParser
 
 /*****************************************************************************/
-/*                         CLASS FWfParser                                   */
+/*                    CLASS DataSourceParser                                 */
 /*****************************************************************************/
 
 class DataSourceParser {
@@ -433,9 +458,10 @@ class DataSourceParser {
     /**
      * Get the current value
      * Note: must not be called if end() is true
-     * @return  a ptr to a string containing the value or to an empty string
+     * @param buffer string that will contain the value
      */
-    string * getValue();
+    void
+        getCurrentValue(string& buffer);
 
     /**
      * Go to the next available value

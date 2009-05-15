@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2009/05/15 11:10:20  bisnard
+ * release for workflow conditional structure (if)
+ *
  * Revision 1.12  2009/04/17 09:02:15  bisnard
  * container empty elements (added WfVoidAdapter class)
  *
@@ -65,6 +68,10 @@ extern "C" {
 #endif
 
 using namespace std;
+
+string WfMultiplePortAdapter::parLeftChar = "(";
+string WfMultiplePortAdapter::parRightChar = ")";
+string WfMultiplePortAdapter::separatorChar = ";";
 
 /**
  * Base descructor
@@ -132,8 +139,8 @@ WfSimplePortAdapter::WfSimplePortAdapter(const string& strRef) : dagName() {
 
 WfSimplePortAdapter::WfSimplePortAdapter(WfPort * port,
                                          const string& portDagName) {
-  TRACE_TEXT (TRACE_ALL_STEPS,"Creating simple port adapter TO port "
-                              << port->getId() << endl);
+//   TRACE_TEXT (TRACE_ALL_STEPS,"Creating simple port adapter TO port "
+//                               << port->getId() << endl);
   nodePtr  = port->getParent();
   portPtr  = port;
   nodeName = nodePtr->getId();
@@ -141,18 +148,29 @@ WfSimplePortAdapter::WfSimplePortAdapter(WfPort * port,
   dagName  = portDagName;
 }
 
-WfSimplePortAdapter::WfSimplePortAdapter(WfSimplePortAdapter* parentAdapter,
-                                         unsigned int index) {
-  TRACE_TEXT (TRACE_ALL_STEPS,"Creating simple port adapter using parent adapter "
-                               << endl);
-  portPtr  = parentAdapter->getSourcePort();
-  nodePtr  = portPtr->getParent();
+WfSimplePortAdapter::WfSimplePortAdapter(WfPort* port,
+                                         const list<unsigned int>& indexes,
+                                         const string& portDagName) {
+  nodePtr  = port->getParent();
+  portPtr  = port;
   nodeName = nodePtr->getId();
   portName = portPtr->getId();
-  dagName  = parentAdapter->getDagName();
-  eltIdxList = parentAdapter->getElementIndexes();
-  eltIdxList.push_back(index);
+  dagName  = portDagName;
+  eltIdxList = indexes;
 }
+
+// WfSimplePortAdapter::WfSimplePortAdapter(WfSimplePortAdapter* parentAdapter,
+//                                          unsigned int index) {
+// //   TRACE_TEXT (TRACE_ALL_STEPS,"Creating simple port adapter using parent adapter "
+// //                                << endl);
+//   portPtr  = parentAdapter->getSourcePort();
+//   nodePtr  = portPtr->getParent();
+//   nodeName = nodePtr->getId();
+//   portName = portPtr->getId();
+//   dagName  = parentAdapter->getDagName();
+//   eltIdxList = parentAdapter->getElementIndexes();
+//   eltIdxList.push_back(index);
+// }
 
 WfSimplePortAdapter::~WfSimplePortAdapter() {}
 
@@ -214,35 +232,36 @@ WfSimplePortAdapter::connectPorts(WfPort* port, unsigned int adapterLevel)
     throw WfStructException(WfStructException::eDEPTH_MISMATCH,errorMsg);
 }
 
-WfPort *
-WfSimplePortAdapter::getSourcePort() {
-  return this->portPtr;
+DagNodeOutPort*
+WfSimplePortAdapter::getSourcePort() const {
+  DagNodeOutPort* p = dynamic_cast<DagNodeOutPort*>(portPtr);
+  if (!p) {
+    INTERNAL_ERROR(__FUNCTION__ << " used with adapter to incorrect port type" << endl, 1);
+  }
+  return p;
 }
 
 const string&
 WfSimplePortAdapter::getSourceDataID() {
-  DagNodeOutPort* dagNodeOutPortPtr = dynamic_cast<DagNodeOutPort*>(portPtr);
-  if (dagNodeOutPortPtr == NULL) {
-    INTERNAL_ERROR(__FUNCTION__ << "NULL port reference" << endl, 1);
-  }
+  if (!dataID.empty()) return dataID;
   if (getDepth() == 0)
-    this->dataID = dagNodeOutPortPtr->getDataID();
+    dataID = getSourcePort()->getDataID();
   else
-    this->dataID = dagNodeOutPortPtr->getElementDataID(eltIdxList);
+    dataID = getSourcePort()->getElementDataID(eltIdxList);
+  return dataID;
+}
 
-  return this->dataID;
+unsigned int
+WfSimplePortAdapter::getSourceDataCardinal() {
+  return getSourcePort()->getDataIDCardinal(getSourceDataID());
 }
 
 void
 WfSimplePortAdapter::displayDataAsList(ostream& output) {
-  DagNodeOutPort* dagNodeOutPortPtr = dynamic_cast<DagNodeOutPort*>(portPtr);
-  if (dagNodeOutPortPtr == NULL) {
-    INTERNAL_ERROR(__FUNCTION__ << "NULL port reference" << endl, 1);
-  }
   if (getDepth() == 0)
-    dagNodeOutPortPtr->displayDataAsList(output);
+    getSourcePort()->displayDataAsList(output);
   else
-    dagNodeOutPortPtr->displayDataElementAsList(output, eltIdxList);
+    getSourcePort()->displayDataElementAsList(output, eltIdxList);
 }
 
 const string&
@@ -279,31 +298,44 @@ WfSimplePortAdapter::getElementIndexes() {
 WfMultiplePortAdapter::WfMultiplePortAdapter(const string& strRef) {
   TRACE_TEXT (TRACE_ALL_STEPS,"Creating multiple ports adapter ref=[" << strRef << "]" << endl);
   string::size_type refStart = 0;
-  while (refStart < strRef.length()) {
-    string::size_type parLeft  = strRef.find("(",refStart);
-    string::size_type refSep   = strRef.find(";",refStart);
-    if (parLeft < refSep) { // multiple refs inside ( )
-      string::size_type parRight = strRef.find(")",refStart);
-      if (parRight != string::npos) {
-        WfMultiplePortAdapter* mulAd =
-            new WfMultiplePortAdapter(strRef.substr(parLeft+1, parRight-parLeft-1));
-        adapters.push_back(mulAd);
-        refStart = parRight+2; // right ) is either followed by ; or is at the end
-      } else {
-      // exception non-closed parenthesis
-      }
+  parse(strRef, refStart);
+}
+
+void WfMultiplePortAdapter::parse(const string& strRef, string::size_type& startPos) {
+//   cout << "parse adapter string at position " << itoa(startPos) << endl;
+  while (startPos < strRef.length()) {
+    string::size_type parLeft  = strRef.find(parLeftChar,startPos);
+    string::size_type parRight = strRef.find(parRightChar,startPos);
+    string::size_type sepRight = strRef.find(separatorChar,startPos);
+    if (parLeft < sepRight) { // multiple refs inside ( )
+      startPos = parLeft+1;
+      WfMultiplePortAdapter* mulAd = new WfMultiplePortAdapter();
+      mulAd->parse(strRef, startPos);
+      addSubAdapter(mulAd);
+      // re-initialize separator position (because startPos changed)
+      sepRight = strRef.find(separatorChar,startPos);
+      parRight = strRef.find(parRightChar,startPos);
+
     } else {  // simple ref
-      string::size_type refEnd = (refSep == string::npos) ? strRef.length()-1 : refSep-1;
-//       WfSimplePortAdapter* splAd =
-//            new WfSimplePortAdapter(strRef.substr(refStart, refEnd-refStart+1));
-      WfPortAdapter* adapt = createAdapter(strRef.substr(refStart, refEnd-refStart+1));
-      adapters.push_back(adapt);
-      refStart = refEnd+2;
+      string::size_type refEnd = (parRight < sepRight) ? parRight-1 :
+                                 (sepRight == string::npos) ? strRef.length()-1 : sepRight-1;
+      WfPortAdapter* adapt = createAdapter(strRef.substr(startPos, refEnd-startPos+1));
+      addSubAdapter(adapt);
+    }
+    // if followed by a ; => skip it and continue parsing
+    if (sepRight < parRight)
+      startPos = sepRight + 1;
+    // in other cases i.e. ) or nothing, this is the end of the current adapter
+    else {
+      startPos = (parRight == string::npos) ? strRef.length()-1 : parRight + 1;
+      break;
     }
   } // end while
+//   cout << "end of parse - pos = " << startPos << endl;
 }
 
 WfMultiplePortAdapter::WfMultiplePortAdapter() {
+//   cout << "creating empty multipleAdapter" << endl;
 }
 
 WfMultiplePortAdapter::WfMultiplePortAdapter(const WfMultiplePortAdapter& mpa) {
@@ -321,6 +353,7 @@ WfMultiplePortAdapter::~WfMultiplePortAdapter() {
 
 void
 WfMultiplePortAdapter::addSubAdapter(WfPortAdapter* subAdapter) {
+  TRACE_TEXT (TRACE_ALL_STEPS,"Adding child adapter to multiple adapter" << endl);
   adapters.push_back(subAdapter);
 }
 
@@ -363,6 +396,20 @@ WfMultiplePortAdapter::getSourceRef() const {
 
 const string&
 WfMultiplePortAdapter::getSourceDataID() {
+  if (!containerID.empty()) return containerID;
+  // First check if all adapters have either their ID defined or are VOID
+  // (will throw exception if one is not defined)
+  for (list<WfPortAdapter*>::iterator iter = adapters.begin();
+         iter != adapters.end();
+         ++iter) {
+     try {
+      (*iter)->getSourceDataID();
+     } catch (WfDataException& e) {
+       if (e.Type() != WfDataException::eVOID_DATA)
+         throw;
+     }
+  }
+  // If ok then create container to merge all adapters
   char* idCont;
 #if HAVE_DAGDA
   TRACE_TEXT (TRACE_ALL_STEPS,"## Creating container to merge ports" << endl);
@@ -371,9 +418,18 @@ WfMultiplePortAdapter::getSourceDataID() {
   for (list<WfPortAdapter*>::iterator iter = adapters.begin();
        iter != adapters.end();
        ++iter) {
-     const string& idElt = (*iter)->getSourceDataID();
-     TRACE_TEXT(TRACE_ALL_STEPS, "## merging " << idElt << " into " << idCont << std::endl);
-     dagda_add_container_element(idCont,idElt.c_str(),ix++);
+     try {
+
+      const string& idElt = (*iter)->getSourceDataID();
+      TRACE_TEXT(TRACE_ALL_STEPS, "## merging " << idElt << " into " << idCont << endl);
+      dagda_add_container_element(idCont,idElt.c_str(),ix++);
+
+     } catch (WfDataException& e) {
+        if (e.Type() == WfDataException::eVOID_DATA) {
+          TRACE_TEXT(TRACE_ALL_STEPS, "## merging NULL elt into " << idCont << endl);
+          dagda_add_container_null_element(idCont, ix++);
+        }
+     }
   }
   containerID = idCont;
   TRACE_TEXT (TRACE_ALL_STEPS,"## End of merge ports" << endl);
@@ -383,26 +439,33 @@ WfMultiplePortAdapter::getSourceDataID() {
   return containerID;
 }
 
+unsigned int
+WfMultiplePortAdapter::getSourceDataCardinal() {
+  getSourceDataID(); // to initialize data if not already done
+  return adapters.size();
+}
+
 void
 WfMultiplePortAdapter::displayDataAsList(ostream& output) {
-  output << "(";
+  output << parLeftChar;
   list<WfPortAdapter*>::const_iterator adaptIter = adapters.begin();
   while (adaptIter != adapters.end()) {
     ((WfPortAdapter*) *adaptIter)->displayDataAsList(output);
     if (++adaptIter != adapters.end())
-      output << ",";
+      output << separatorChar;
   }
-  output << ")";
+  output << parRightChar;
 }
 
 WfVoidAdapter::WfVoidAdapter() {
-  TRACE_TEXT (TRACE_ALL_STEPS,"Creating VOID adapter" << endl);
+//   TRACE_TEXT (TRACE_ALL_STEPS,"Creating VOID adapter" << endl);
 }
 
 WfVoidAdapter::~WfVoidAdapter() {}
 
 string WfVoidAdapter::voidRef = string("#UNDEF");
 string WfVoidAdapter::voidDataID = string();
+// if voidDataID is modified then update WfMultiplePortAdapter::getSourceDataID()
 
 void
 WfVoidAdapter::setNodePrecedence(WfNode* node, NodeSet* nodeSet)
@@ -422,6 +485,11 @@ WfVoidAdapter::getSourceRef() const {
 const string&
 WfVoidAdapter::getSourceDataID() {
   return voidDataID;
+}
+
+unsigned int
+WfVoidAdapter::getSourceDataCardinal() {
+  return 1;
 }
 
 void

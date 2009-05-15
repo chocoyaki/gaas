@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2009/05/15 11:10:20  bisnard
+ * release for workflow conditional structure (if)
+ *
  * Revision 1.11  2009/04/17 08:54:43  bisnard
  * renamed Node class as WfNode
  *
@@ -149,6 +152,22 @@ FWorkflow::createActivity(const string& id) throw (WfStructException)
   }
   throw WfStructException(WfStructException::eDUPLICATE_NODE,"FNode id="+id);
 }
+
+FIfNode*
+FWorkflow::createIf(const string& id) throw (WfStructException)
+{
+  // check if node does not already exist
+  try {
+    getProcNode(id);
+  } catch (WfStructException& e) {
+    TRACE_TEXT (TRACE_ALL_STEPS,"Creating IF node : " << id << endl);
+    FIfNode* node = new FIfNode(this, id);
+    myProc[id] = node;
+    return node;
+  }
+  throw WfStructException(WfStructException::eDUPLICATE_NODE,"FNode id="+id);
+}
+
 
 FSourceNode*
 FWorkflow::createSource(const string& id, WfCst::WfDataType type)
@@ -364,13 +383,7 @@ FWorkflow::instanciateDag() {
       ++procIter;
     } // end loop todo list
   } // end while (nbTodoProc)
-  // check dag emptyness
-  if (currDag->size() == 0) {
-    WARNING("Instanciation of EMPTY DAG!!! Problem during instanciation.");
-    myStatus = W_INSTANC_END;
-    delete currDag;
-    return NULL;
-  }
+
   if (instanciationOnHold()) {
     TRACE_TEXT (TRACE_MAIN_STEPS,"########## WORKFLOW INSTANCIATION ON HOLD ##########" << endl);
   }
@@ -416,6 +429,19 @@ FWorkflow::displayAllResults(ostream& output) {
     if (sink != NULL) {
       sink->displayResults(output);
     }
+  }
+}
+
+void
+FWorkflow::displayDagSummary(ostream& output) {
+  output << "** INSTANCIATED DAGS SUMMARY:" << endl;
+  for (list<Dag*>::iterator dagIter = myDags.begin();
+       dagIter != myDags.end();
+       ++dagIter) {
+    Dag * dag = (Dag*) *dagIter;
+    output << "DAG ID '" << dag->getId() << "': "
+           << "size = " << dag->size() << " node(s), "
+           << "makespan = " << dag->getMakespan() << " ms" << endl;
   }
 }
 
@@ -476,11 +502,15 @@ FWorkflow::handlerDagNodeDone(DagNode* dagNode) {
   // if found, resubmit the datahandle to the in port(s)
   while (pendingIter != pendingNodes.upper_bound(dagNode)) {
     pendingDagNodeInfo_t info = (pendingDagNodeInfo_t) (pendingIter++)->second;
-    // submit data to the in port
-    TRACE_TEXT (TRACE_ALL_STEPS,"[" << getId() << "] : Process pending entry for node "
+    TRACE_TEXT (TRACE_ALL_STEPS," ## RETRY DATA SUBMISSION FOR INSTANCE : "
                                 << dagNode->getId() << endl);
+
     try {
+      // update the data ID
+      info.dataHdl->downloadDataID();
+      // submit data to the in port
       info.outPort->reSendData(info.dataHdl, info.inPort);
+
     } catch (WfDataHandleException& e) {
       WARNING("Instanciator error due to data handle error :" << e.ErrorMsg());
       myStatus = W_INSTANC_STOPPED;
@@ -490,6 +520,9 @@ FWorkflow::handlerDagNodeDone(DagNode* dagNode) {
     }
     // re-start instanciation
     statusChange = true;
+
+    TRACE_TEXT (TRACE_ALL_STEPS," ## END OF RETRY FOR INSTANCE : "
+                                << dagNode->getId() << endl);
   }
   // remove entries from the pending list
   pendingNodes.erase(pendingStart,pendingIter);

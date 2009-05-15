@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2009/05/15 11:10:20  bisnard
+ * release for workflow conditional structure (if)
+ *
  * Revision 1.1  2009/01/16 13:52:36  bisnard
  * new class to manage different operators to mix input streams of data
  *
@@ -144,7 +147,6 @@ CrossIterator::getId() const {
  */
 bool
 CrossIterator::setTag() {
-  cout << "in CrossIterator::setTag()" << endl;
   if (currTag) delete currTag;
   currTag = new FDataTag(myLeftIter->getCurrentTag(), myRightIter->getCurrentTag());
   return true;
@@ -156,7 +158,6 @@ CrossIterator::setTag() {
  */
 void
 CrossIterator::clearTag() {
-  cout << "in CrossIterator::clearTag()" << endl;
   if (currTag) {
     delete currTag;
     currTag = NULL;

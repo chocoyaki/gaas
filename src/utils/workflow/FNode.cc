@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2009/05/15 11:10:20  bisnard
+ * release for workflow conditional structure (if)
+ *
  * Revision 1.11  2009/04/17 09:04:07  bisnard
  * initial version for conditional nodes in functional workflows
  *
@@ -227,25 +230,23 @@ FSourceNode::instanciate(Dag* dag) {
     TRACE_TEXT (TRACE_ALL_STEPS, "Source " << getId()
                   << " : Found one value in XML file" << endl);
       // get the data item
-    string * currVal = myParser->getValue();
+    string currVal;
+    myParser->getCurrentValue(currVal);
       // move the parser to the next value
     try {
       myParser->goToNextValue();
     } catch (XMLParsingException& exception) {
       cerr <<  "Data source " << getId() << " XML Parsing error: "
             << exception.Info() << endl;
-      delete currVal;
       break;
     }
       // if this is the last item, then set the tag as last
     bool isLast = myParser->end();
     FDataTag currTag(valCount++, isLast);
       // create data handle with the data item
-    FDataHandle* currDataHdl = new FDataHandle(currTag, *currVal);
-      // instanciate out port with this data handle
-    myOutPort->instanciate(currDataHdl);
-      // free data
-    delete currVal;
+    FDataHandle* currDataHdl = new FDataHandle(currTag, currVal);
+      // send this data handle to connected ports
+    myOutPort->sendData(currDataHdl);
   }
   myStatus = N_INSTANC_END;
 }
@@ -312,10 +313,10 @@ FProcNode::~FProcNode() {
 void
 FProcNode::initDataLine() {
   if (cstDataLine == NULL) {
-    unsigned int inPortNb = getPortNb(WfPort::PORT_IN) + getPortNb(WfPort::PORT_PARAM);
-    cstDataLine = new vector<FDataHandle*>(inPortNb, (FDataHandle*) NULL);
-    TRACE_TEXT (TRACE_ALL_STEPS,"Created base dataline ("
-                << inPortNb << " ports)" << endl);
+    // this data vector will be used as template for the data vector of each
+    // instance. Its size equals the total nb of ports (including out ports)
+    // but only in/inout/param port indexes will be used.
+    cstDataLine = new vector<FDataHandle*>(getPortNb(), (FDataHandle*) NULL);
   }
 }
 
@@ -501,6 +502,26 @@ FProcNode::instLimitReached() {
 }
 
 void
+FProcNode::createVoidInstance(const FDataTag& currTag) {
+  TRACE_TEXT (TRACE_ALL_STEPS,"  ## NEW VOID INSTANCE : " << getId()
+                              << currTag.toString() << endl);
+  // LOOP for each out port
+  for (map<string,WfPort*>::iterator portIter = ports.begin();
+      portIter != ports.end();
+      ++portIter) {
+    WfPort* port = (WfPort*) portIter->second;
+    if (port->getPortType() == WfPort::PORT_OUT) {
+      FNodeOutPort* outPort = dynamic_cast<FNodeOutPort*>(port);
+      // instanciate port with VOID data
+      FDataHandle* dataHdl = outPort->createVoidInstance(currTag);
+      // send data to connected nodes
+      outPort->sendData(dataHdl);
+    }
+  }
+  TRACE_TEXT (TRACE_ALL_STEPS,"  ## END OF VOID INSTANCE" << endl);
+}
+
+void
 FProcNode::instanciate(Dag* dag) {
   if (instanciationReady()) {
 
@@ -525,33 +546,38 @@ FProcNode::instanciate(Dag* dag) {
     while ( !myRootIterator->isAtEnd() && !instLimitReached()) {
 
       // GET DATALINE
-      TRACE_TEXT (TRACE_ALL_STEPS," ## Retrieve dataline from iterator..." << endl);
       FDataTag currTag = myRootIterator->getCurrentItem(*currDataLine);
-      TRACE_TEXT (TRACE_ALL_STEPS," ## Remove selected item (" << currTag.toString() << ")" << endl);
       myRootIterator->removeItem(); // goes to next item at the same time
 
-      // SET DYNAMIC PARAMETERS
-      varMap.clear();
-      for (map<string,WfPort*>::iterator portIter = ports.begin();
-           portIter != ports.end();
-           ++portIter) {
-        WfPort* port = (WfPort*) portIter->second;
-        if (port->getPortType() == WfPort::PORT_PARAM) {
-          FNodeParamPort* paramPort = dynamic_cast<FNodeParamPort*>(port);
-          FDataHandle* dataHdl = (*currDataLine)[paramPort->getIndex()];
-          if (dataHdl == NULL) {
-            INTERNAL_ERROR("Input data handle is invalid (dyn par)",1);
-          }
-          if (!dataHdl->isValueDefined()) { //TODO replace by exceptions
-            INTERNAL_ERROR("Input data handle has no value (dyn par)",1);
-          }
-          setDynamicParamValue(paramPort->getId(), dataHdl->getValue());
-        }
+      // CHECK IF VOID
+      bool dataIsVoid = false;
+      vector<FDataHandle*>::const_iterator DLIter = currDataLine->begin();
+      while ((!dataIsVoid) && (DLIter!=currDataLine->end())) {
+        FDataHandle* currDataHdl = *(DLIter++);
+        dataIsVoid = currDataHdl ? currDataHdl->isVoid() : dataIsVoid;
       }
 
-      // create instance
-      createInstance(dag, currTag, *currDataLine);
+      if (!dataIsVoid) {
 
+        // SET DYNAMIC PARAMETERS
+        varMap.clear();
+        for (map<string,WfPort*>::iterator portIter = ports.begin();
+            portIter != ports.end();
+            ++portIter) {
+          WfPort* port = (WfPort*) portIter->second;
+          if (port->getPortType() == WfPort::PORT_PARAM) {
+            FNodeParamPort* paramPort = dynamic_cast<FNodeParamPort*>(port);
+            FDataHandle* dataHdl = (*currDataLine)[paramPort->getIndex()];
+            setDynamicParamValue(paramPort->getId(), dataHdl->getValue());
+          }
+        }
+
+        // create a real instance of the node
+        createRealInstance(dag, currTag, *currDataLine);
+
+      } else {
+        createVoidInstance(currTag);
+      }
     }
     //
     // END LOOP

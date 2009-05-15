@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2009/05/15 11:10:20  bisnard
+ * release for workflow conditional structure (if)
+ *
  * Revision 1.8  2009/04/17 09:04:07  bisnard
  * initial version for conditional nodes in functional workflows
  *
@@ -43,7 +46,7 @@
 
 #include <map>
 #include "debug.hh"
-#include "WfPort.hh"
+#include "DagNodePort.hh"
 
 using namespace std;
 
@@ -69,37 +72,37 @@ class FDataTag {
      * (= number of indexes)
      */
     unsigned int
-    getLevel() const;
+        getLevel() const;
 
     /**
      * Returns true if this is the last element at the level of the tag
      */
     bool
-    isLastOfBranch() const;
+        isLastOfBranch() const;
 
     /**
      * Returns true if this is the last element (at all levels)
      */
     bool
-    isLast() const;
+        isLast() const;
 
     /**
      * Returns true if this is an empty tag
      */
     bool
-    isEmpty() const;
+        isEmpty() const;
 
     /**
      * Returns an index of the tag
      */
     unsigned int
-    getIndex(unsigned int level) const;
+        getIndex(unsigned int level) const;
 
     /**
      * Returns the last index of the tag
      */
     unsigned int
-    getLastIndex() const;
+        getLastIndex() const;
 
     /**
      * Returns the flat index of the tag
@@ -108,7 +111,7 @@ class FDataTag {
      * nb of items)
      */
     unsigned int
-    getFlatIndex() const;
+        getFlatIndex() const;
 
     /**
      * Returns the top indexes of the tag
@@ -116,27 +119,27 @@ class FDataTag {
      * @param maxLevel the level of the last index of the returned tag
      */
     FDataTag *
-    getLeftPart(unsigned int maxLevel) const;
+        getLeftPart(unsigned int maxLevel) const;
 
     /**
      * Returns the bottom indexes of the tag
      * @param minLevel the level of the first index of the returned tag
      */
     FDataTag *
-    getRightPart(unsigned int minLevel) const;
+        getRightPart(unsigned int minLevel) const;
 
     /**
      * Returns the parent tag
      */
     FDataTag
-    getParent(unsigned int level) const;
+        getParent(unsigned int level) const;
 
     /**
      * Converts the tag to a string
      * (used to generate node IDs)
      */
     const string&
-    toString() const;
+        toString() const;
 
   protected:
 
@@ -217,41 +220,36 @@ class FDataHandle {
      * Constructor of a data handle
      * @param tag the data tag attached to this handle
      * @param depth the depth of this data (0 if not a container)
-     * @param parentHdl the parent handle (NULL if root handle)
-     * @param port the port that produces the data (NULL if data is a container element)
      * @param isVoid  set to true to create a VOID data
+     * @param parentHdl the parent handle (NULL if root handle or new DH)
+     * @param port the port that produces the data (may be NULL)
+     * @param portLevel the level of the port (if port is provided)
      */
     FDataHandle(const FDataTag& tag,
                 unsigned int depth,
+                bool isVoid = false,
                 FDataHandle* parentHdl = NULL,
-                WfPort* port = NULL,
-                bool isVoid = false);
+                DagNodeOutPort* port = NULL,
+                unsigned int portLevel = 0);
 
     /**
      * Constructor of a constant data handle (that has a value)
      * @param tag the data tag attached to this handle
      * @param value the value of the data
-     * @param parentHdl the parent handle (NULL if root handle)
      */
     FDataHandle(const FDataTag& tag,
-                const string& value,
-                FDataHandle* parentHdl = NULL);
-
-    /**
-     * Constructor of a VOID data handle (that will not exist in execution)
-     * @param tag the data tag attached to this handle
-     * @param depth the depth of this data (0 if not a container)
-     * @param isVoid should be true
-     */
-    FDataHandle(const FDataTag& tag,
-                unsigned int depth,
-                bool isVoid);
+                const string& value);
 
     /**
      * Constructor of a root data handle (used for out ports buffer)
      * @param depth data depth
      */
     FDataHandle(unsigned int depth);
+
+    /**
+     * Copy constructor (used for port mappings in control structures)
+     */
+    FDataHandle(const FDataHandle& src);
 
     /**
      * Destructor
@@ -269,59 +267,70 @@ class FDataHandle {
      * will create the childs.
      */
     unsigned int
-    getDepth() const;
+        getDepth() const;
 
     /**
      * Get the tag of this data handle
      * (The tag is set at creation and is not modified)
      */
     const FDataTag&
-    getTag() const;
+        getTag() const;
 
     /**
-     * Set the cardinal (at this handle's level)
+     * Set the predefined cardinal (statically provided before execution)
+     * (the list may include 'x' values if cardinal unknown at that level)
      */
     void
-    setCardinal(unsigned int card);
-
+        setCardinalList(const list<string>& cardList);
+    void
+        setCardinalList(list<string>::const_iterator& start,
+                        list<string>::const_iterator& end);
     /**
      * Get the cardinal
      * (does not match the nb of childs if not complete)
+     * @exception WfDataHandleException(eCARD_UNDEF)
      */
     unsigned int
-    getCardinal() const;
+        getCardinal() const throw (WfDataHandleException);
 
     /**
      * Returns true if the cardinal is known
      * (if true then calling begin() the first time will create the childs)
      */
     bool
-    isCardinalDefined() const;
+        isCardinalDefined() const;
 
     /**
      * Returns true if the parent is defined
      */
     bool
-    isParentDefined() const;
+        isParentDefined() const;
 
     /**
      * Get the parent handle
      */
     FDataHandle*
-    getParent() const;
+        getParent() const;
+
+    /**
+     * Returns true if the port and portLevel attribute are defined
+     */
+    bool
+        isPortDefined() const;
+
+    /**
+     * Get the source port (if adapter is direct or simple)
+     * @return ptr to port
+     * @exception WfDataHandleException(eINVALID_ADAPT)
+     */
+    DagNodeOutPort*
+        getSourcePort() const throw (WfDataHandleException);
 
     /**
      * Returns true if the data is VOID
      */
     bool
-    isVoid() const;
-
-    /**
-     * Set the data as VOID
-     * (used after node execution when container element is finally null)
-     */
-    void
-    setAsVoid();
+        isVoid() const;
 
     /**
      * Add a data as a child of this data handle
@@ -340,7 +349,7 @@ class FDataHandle {
      * the pointer when destroyed)
      */
     void
-    insertInTree(FDataHandle* dataHdl)
+        insertInTree(FDataHandle* dataHdl)
         throw (WfDataHandleException);
 
     /**
@@ -350,10 +359,11 @@ class FDataHandle {
      * @exception WfDataHandleException(eBAD_STRUCT) if DH depth = 0
      */
     map<FDataTag,FDataHandle*>::iterator
-    begin() throw (WfDataHandleException);
+        begin()
+        throw (WfDataHandleException);
 
     map<FDataTag,FDataHandle*>::iterator
-    end();
+        end();
 
     /**
      * Returns true if the handle has a defined reference to a
@@ -362,7 +372,7 @@ class FDataHandle {
      * parent or built from the same property of the childs.
      */
     bool
-    isAdapterDefined() const;
+        isAdapterDefined() const;
 
     /**
      * Create the port adapter corresponding to this data handle
@@ -371,56 +381,57 @@ class FDataHandle {
      *         adapter is not defined
      */
     WfPortAdapter*
-    createPortAdapter(const string& currDagName = "");
-
-    /**
-     * Get the source port (if adapter is direct)
-     * @return ptr to port
-     * @exception WfDataHandleException(eINVALID_ADAPT)
-     */
-    WfPort*
-    getSourcePort() throw (WfDataHandleException);
+        createPortAdapter(const string& currDagName = "");
 
     /**
      * Returns true if the handle has a defined value
      */
     bool
-    isValueDefined() const;
+        isValueDefined() const;
 
     /**
      * Returns value
      */
     const string&
-    getValue() const;
+        getValue() const;
 
     /**
      * Returns true if the handle has a defined data ID
      */
     bool
-    isDataIDDefined() const;
+        isDataIDDefined() const;
 
     /**
      * Returns data ID
      */
     const string&
-    getDataID() const;
-
-    /**
-     * Set data ID
-     */
-    void
-    setDataID(const string& dataID);
+        getDataID() const;
 
     /**
      * Get the value from the dag node (after execution)
      */
     void
-    downloadValue();
+        downloadValue();
 
     /**
-     * Checks recursively if the adapter is defined (up the tree)
+     * Get the dataID from the dag node (after execution)
+     * @exception WfDataException(eID_UNDEF)
+     * @exception WfDataException(eINVALID_CONTAINER)
      */
-    void checkAdapter();
+    void
+        downloadDataID();
+
+    /**
+     * Get the cardinal from the dag node (after execution)
+     */
+    void
+        downloadCardinal();
+
+    /**
+     * Get the content (dataID of elements) from the dag node (after execution)
+     */
+    void
+        downloadElementDataIDs();
 
     /**
      * Returns true if the data contains all its childs at the given level
@@ -428,40 +439,56 @@ class FDataHandle {
      * the given level)
      */
     bool
-    checkIfComplete(unsigned int level,
+        checkIfComplete(unsigned int level,
                     vector<unsigned int>& childNbTable);
 
     /**
      * Display the content of the dataHandle as a parenthezized list
      * @param output  the output stream
-     * @param goUp    will display the full tree if the current data is a node
      */
     void
-    displayDataAsList(ostream& output);
+        displayDataAsList(ostream& output);
 
   private:
 
     typedef enum {
-      ADAPTER_UNDEFINED,
-      ADAPTER_DIRECT,
-      ADAPTER_SIMPLE,
-      ADAPTER_MULTIPLE,
-      ADAPTER_VOID } FDataHdlAdapterType;
+      ADAPTER_UNDEFINED,    // initial state
+      ADAPTER_DIRECT,       // = linked directly to a port
+      ADAPTER_SIMPLE,       // = descendant of direct adapter
+      ADAPTER_MULTIPLE,     // = parent of direct/multiple adapters
+      ADAPTER_VOID          // = empty value
+    } FDataHdlAdapterType;
+    // ADAPTER_MULTIPLE status implies that all descendants are defined
 
     void
-    addChild(FDataHandle* dataHdl);
+        addChild(FDataHandle* dataHdl);
 
     void
-    setParent(FDataHandle* parentHdl);
+        setParent(FDataHandle* parentHdl);
 
     bool
-    isLastChild() const;
+        isLastChild() const;
 
     bool
-    checkIfCompleteRec(unsigned int level, unsigned int& total);
+        checkIfCompleteRec(unsigned int level, unsigned int& total);
 
     void
-    display(bool goUp = false);
+        checkAdapter();
+
+    void
+        display(bool goUp = false);
+
+    void
+        setCardinal(unsigned int card);
+
+    void
+        setDataID(const string& dataID);
+
+    void
+        setAsVoid();
+
+    unsigned int
+        getPortLevel() const;
 
     /**
      * the tag associated with this data handle
@@ -481,7 +508,7 @@ class FDataHandle {
     /**
      * the port providing the data (if applicable)
      */
-    WfPort* myPort;
+    DagNodeOutPort* myPort;
 
     /**
      * type of port adapter
@@ -504,9 +531,20 @@ class FDataHandle {
     unsigned int myDepth;
 
     /**
+     * port level (tag level of the port providing the data)
+     * (defined only for SIMPLE or DIRECT typeAdapter)
+     */
+    unsigned int myPortLevel;
+
+    /**
      * data cardinal (if it is a container)
      */
     unsigned int myCard;
+
+    /**
+     * predefined cardinal info (may contain several levels)
+     */
+    list<string>* myCardList;
 
     /**
      * flag to check if cardinal is defined

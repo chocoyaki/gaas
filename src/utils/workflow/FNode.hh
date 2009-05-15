@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2009/05/15 11:10:20  bisnard
+ * release for workflow conditional structure (if)
+ *
  * Revision 1.11  2009/04/17 09:04:07  bisnard
  * initial version for conditional nodes in functional workflows
  *
@@ -109,7 +112,8 @@ public:
       initialize();
 
   /**
-   * Instanciation
+   * Instanciation = run the instanciation loop for all available input data items
+   * and eventually create dag nodes in the given dag
    * @param dag the current generated dag
    */
 
@@ -372,9 +376,12 @@ class FProcNode : public FNode {
         instLimitReached();
 
     virtual void
-        createInstance(Dag* dag,
-                       const FDataTag& currTag,
-                       const vector<FDataHandle*>& currDataLine) = 0;
+        createRealInstance(Dag* dag,
+                           const FDataTag& currTag,
+                           const vector<FDataHandle*>& currDataLine) = 0;
+
+    virtual void
+        createVoidInstance(const FDataTag& currTag);
 
     virtual void
         updateInstanciationStatus() = 0;

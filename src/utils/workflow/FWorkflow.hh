@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2009/05/15 11:10:20  bisnard
+ * release for workflow conditional structure (if)
+ *
  * Revision 1.10  2009/04/17 08:54:43  bisnard
  * renamed Node class as WfNode
  *
@@ -54,6 +57,7 @@
 #include "Dag.hh"
 #include "FNode.hh"
 #include "FActivityNode.hh"
+#include "FIfNode.hh"
 
 using namespace std;
 
@@ -97,6 +101,9 @@ public:
 
   FActivityNode*
   createActivity(const string& id) throw (WfStructException);
+
+  FIfNode*
+  createIf(const string& id) throw (WfStructException);
 
   FSourceNode*
   createSource(const string& id, WfCst::WfDataType type) throw (WfStructException);
@@ -178,6 +185,8 @@ public:
    */
   void
   displayAllResults(ostream& output);
+  void
+  displayDagSummary(ostream& output);
 
   /**
    * memory free

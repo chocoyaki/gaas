@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2009/05/15 11:10:20  bisnard
+ * release for workflow conditional structure (if)
+ *
  * Revision 1.9  2009/04/17 09:02:15  bisnard
  * container empty elements (added WfVoidAdapter class)
  *
@@ -47,6 +50,7 @@
 
 #include <list>
 #include "WfPort.hh"
+class DagNodeOutPort;
 
 using namespace std;
 
@@ -100,6 +104,15 @@ class WfPortAdapter {
         getSourceDataID() = 0;
 
     /**
+     * Cardinal of data retrieval (used for node execution - step 2)
+     * REQUIRED: idem as getSourceDataID()
+     * REQUIRED: to be used only with adapters pointing to container data
+     * @return the size of the container corresponding to the adapter
+     */
+    virtual unsigned int
+        getSourceDataCardinal() = 0;
+
+    /**
      * Data value retrieval and display (used for sink nodes)
      * @param output  the output stream
      */
@@ -132,11 +145,22 @@ class WfSimplePortAdapter : public WfPortAdapter {
 
     /**
      * Constructor for a simple port
+     * @param port        the port to which the adapter points
+     * @param indexes     the list of indexes of the element of the port
+     * @param portDagName (optional) the name of dag that contains that port
+     *                    (for external links => adds a prefix to the ref)
+     */
+    WfSimplePortAdapter(WfPort* port,
+                        const list<unsigned int>& indexes,
+                        const string& portDagName = "");
+
+    /**
+     * Constructor for a simple port
      * @param parentAdapter the parent of this adapter
      * @param index         the index of the element within the parent cont.
      */
-    WfSimplePortAdapter(WfSimplePortAdapter* parentAdapter,
-                        unsigned int index);
+//     WfSimplePortAdapter(WfSimplePortAdapter* parentAdapter,
+//                         unsigned int index);
 
     // virtual base methods
 
@@ -149,18 +173,20 @@ class WfSimplePortAdapter : public WfPortAdapter {
     string
         getSourceRef() const;
 
-    // may return an empty string if source is a null container element
     const string&
         getSourceDataID();
+
+    unsigned int
+        getSourceDataCardinal();
 
     void
         displayDataAsList(ostream& output);
 
     /**
-     * Returns the port ref
+     * Returns the port ref casted to a dag port
      */
-    WfPort *
-        getSourcePort();
+    DagNodeOutPort*
+        getSourcePort() const;
 
   protected:
     const string&
@@ -194,6 +220,13 @@ class WfMultiplePortAdapter : public WfPortAdapter {
     ~WfMultiplePortAdapter();
 
     /**
+     * Separator and Parenthesis characters definition
+     */
+    static string parLeftChar;
+    static string parRightChar;
+    static string separatorChar;
+
+    /**
      * Constructor for a multiple port
      * @param strRef the complete port reference
      */
@@ -213,12 +246,16 @@ class WfMultiplePortAdapter : public WfPortAdapter {
         getSourceRef() const;
     const string&
         getSourceDataID();
+    unsigned int
+        getSourceDataCardinal();
     void
         displayDataAsList(ostream& output);
 
   protected:
 
     WfMultiplePortAdapter(const WfMultiplePortAdapter& mpa);
+
+    void parse(const string& strRef, string::size_type& startPos);
 
   private:
     string      strRef;
@@ -251,6 +288,8 @@ class WfVoidAdapter : public WfPortAdapter {
         getSourceRef() const;
     const string&
         getSourceDataID();
+    unsigned int
+        getSourceDataCardinal();
     void
         displayDataAsList(ostream& output);
 };

@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2009/05/15 11:10:20  bisnard
+ * release for workflow conditional structure (if)
+ *
  * Revision 1.11  2009/04/24 11:04:07  bisnard
  * added conversion to XSchema types
  *
@@ -156,7 +159,7 @@ static const pair<short, const string> strTypes[] = {
 static const pair<short, const string> XSTypes[] = {
   pair<short, const string>( WfCst::TYPE_CHAR, "xs:byte"),
   pair<short, const string>( WfCst::TYPE_SHORT, "xs:short"),
-  pair<short, const string>( WfCst::TYPE_INT, "xs:int"),
+  pair<short, const string>( WfCst::TYPE_INT, "xs:integer"),
   pair<short, const string>( WfCst::TYPE_LONGINT, "xs:long"),
   pair<short, const string>( WfCst::TYPE_FLOAT, "xs:float"),
   pair<short, const string>( WfCst::TYPE_DOUBLE, "xs:double"),

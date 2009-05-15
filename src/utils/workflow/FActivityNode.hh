@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2009/05/15 11:10:20  bisnard
+ * release for workflow conditional structure (if)
+ *
  * Revision 1.2  2009/04/17 09:04:07  bisnard
  * initial version for conditional nodes in functional workflows
  *
@@ -80,9 +83,9 @@ class FActivityNode : public FProcNode {
      * @param currDataLine dataLine used to set input data for the DagNode
      */
     virtual void
-        createInstance(Dag* dag,
-                       const FDataTag& currTag,
-                       const vector<FDataHandle*>& currDataLine);
+        createRealInstance(Dag* dag,
+                           const FDataTag& currTag,
+                           const vector<FDataHandle*>& currDataLine);
 
     /**
      * Update the FNode instanciation status after data processing loop

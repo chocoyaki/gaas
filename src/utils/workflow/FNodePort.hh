@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2009/05/15 11:10:20  bisnard
+ * release for workflow conditional structure (if)
+ *
  * Revision 1.8  2009/04/17 09:04:07  bisnard
  * initial version for conditional nodes in functional workflows
  *
@@ -94,47 +97,52 @@ class FNodeOutPort : public FNodePort {
      * Method to setup ports connection on each side
      */
     virtual void
-    connectToPort(WfPort* remPort);
+        connectToPort(WfPort* remPort);
 
     /**
      * Method to send a data handle to the connected ports
      */
     virtual void
-    sendData(FDataHandle* dataHdl)
+        sendData(FDataHandle* dataHdl)
         throw (WfDataHandleException);
 
     /**
-     * Method to re-send a data handle to a given connected port when the data
-     * is available (data exists on the platform)
+     * Method to re-send a data handle to a given connected port when the first
+     * attempt (sendData) was unsuccessful and therefore data transfer was set
+     * as pending
      */
     virtual void
-    reSendData(FDataHandle* dataHdl, FNodeInPort* inPort)
+        reSendData(FDataHandle* dataHdl, FNodeInPort* inPort)
         throw (WfDataException, WfDataHandleException);
 
     /**
      * Instanciate the port as a real output port (used for tasks)
      * @param dag       the current dag being instanciated
-     * @param nodeInst  the node instance (parent of the port to create)
+     * @param nodeInst  the node instance
      * @param tag       the tag of the instance
      */
-    void
-    instanciate(Dag* dag, DagNode* nodeInst, const FDataTag& tag);
+    FDataHandle*
+        createRealInstance(Dag* dag, DagNode* nodeInst, const FDataTag& tag);
 
     /**
-     * Instanciate the port only as a new output data
-     * @param dataHdl  the output data handle
+     * Instanciate the port as a void port
+     * @param tag     the tag of the instance
      */
-    void
-    instanciate(FDataHandle* dataHdl);
+    FDataHandle*
+        createVoidInstance(const FDataTag& tag);
 
     /**
      * Set as a constant
      * @param dataHdl  the data handle that contains the constant
      */
     void
-    setAsConstant(FDataHandle* dataHdl);
+        setAsConstant(FDataHandle* dataHdl);
 
   protected:
+
+    void
+    setPendingDataTransfer(FDataHandle* dataHdl,
+                           FNodeInPort* inPort);
 
     void
     checkTotalDataNb(FNodeInPort *inPort,
@@ -179,28 +187,20 @@ class FNodeInPort : public FNodePort {
     void
         setValueRequired();
 
+    bool
+        isValueRequired();
+
     /**
-     * Static addData (before node execution)
+     * addData
      * Add a new data item to be used for instanciation
      * @param dataHdl   the data Handle
-     * @param dataCard  a list of (integer | 'x') = cardinal of data
      * @exception WfDataHandleException(eCARD_UNDEF) if cardinal missing
      * @exception WfDataHandleException(eBAD_STRUCT) if DH cannot be added
      */
     virtual void
-        addData(FDataHandle* dataHdl, const list<string>& dataCard)
-        throw (WfDataHandleException);
+        addData(FDataHandle* dataHdl)
+        throw (WfDataHandleException, WfDataException);
 
-    /**
-     * Dynamic addData (after node execution)
-     * Add a new data item to be used for instanciation
-     * (when data item is available from the specified port)
-     * @param dataHdl     the data Handle
-     * @param dagOutPort  the port providing the data
-     */
-    virtual void
-        addData(FDataHandle* dataHdl, DagNodeOutPort* dagOutPort)
-        throw (WfDataException, WfDataHandleException);
 
     /**
      * Set the total nb of data items
@@ -221,11 +221,11 @@ class FNodeInPort : public FNodePort {
     /**
      * Instanciate the port as a real input port
      * @param dag       the dag being instanciated
-     * @param nodeInst  the node instance already created
-     * @param dataHdl   (may be NULL) the data Handle to be used (as source)
+     * @param nodeInst  the node instance - NOT NULL
+     * @param dataHdl   the data Handle to be used (as source) - NOT NULL
      */
     virtual void
-        instanciate(Dag* dag, DagNode* nodeInst, FDataHandle* dataHdl);
+        createRealInstance(Dag* dag, DagNode* nodeInst, FDataHandle* dataHdl);
 
     /**
      * Display the port current data
@@ -272,31 +272,10 @@ class FNodeParamPort : public FNodeInPort {
                    WfCst::WfDataType _type, unsigned int _ind);
     virtual ~FNodeParamPort();
 
-    /**
-     * Static addData (before node execution)
-     * @param dataHdl   the data Handle
-     * @param dataCard  a list of (integer | 'x') = cardinal of data
-     * @exception WfDataHandleException(eVALUE_UNDEF) if value missing
-     */
-    virtual void
-        addData(FDataHandle* dataHdl, const list<string>& dataCard)
-        throw (WfDataHandleException);
-
-    /**
-     * Dynamic addData (after node execution)
-     * Add a new data item to be used for instanciation
-     * (when data item is available from the specified port)
-     * @param dataHdl     the data Handle
-     * @param dagOutPort  the port providing the data
-     */
-    virtual void
-        addData(FDataHandle* dataHdl, DagNodeOutPort* dagOutPort)
-        throw (WfDataException, WfDataHandleException);
-
   private:
     // not applicable
     virtual void
-        instanciate(Dag* dag, DagNode* nodeInst, FDataHandle* dataHdl);
+        createRealInstance(Dag* dag, DagNode* nodeInst, FDataHandle* dataHdl);
 
 };
 
@@ -333,5 +312,6 @@ class FNodePortMap {
     map<FNodeOutPort*,FNodeInPort*> myPortMap;
 
 };
+
 
 #endif // _FNODEPORT_HH_

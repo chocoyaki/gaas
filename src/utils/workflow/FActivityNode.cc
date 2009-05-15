@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2009/05/15 11:10:20  bisnard
+ * release for workflow conditional structure (if)
+ *
  * Revision 1.2  2009/04/17 09:04:07  bisnard
  * initial version for conditional nodes in functional workflows
  *
@@ -64,13 +67,15 @@ FActivityNode::instLimitReached() {
 }
 
 void
-FActivityNode::createInstance(Dag* dag,
-                              const FDataTag& currTag,
-                              const vector<FDataHandle*>& currDataLine) {
-  // create a new DagNode
+FActivityNode::createRealInstance(Dag* dag,
+                                  const FDataTag& currTag,
+                                  const vector<FDataHandle*>& currDataLine) {
+  DagNode* dagNode = NULL;
   string   dagNodeId = getId() + currTag.toString();
+
+  // create a new DagNode
   TRACE_TEXT (TRACE_ALL_STEPS,"  ## NEW ACTIVITY INSTANCE : " << dagNodeId << endl);
-  DagNode* dagNode = dag->createDagNode(dagNodeId);
+  dagNode = dag->createDagNode(dagNodeId);
   if (dagNode == NULL) {
     INTERNAL_ERROR("Could not create dag node " << dagNodeId << endl,0);
   }
@@ -79,8 +84,8 @@ FActivityNode::createInstance(Dag* dag,
 
   // LOOP for each port
   for (map<string,WfPort*>::iterator portIter = ports.begin();
-       portIter != ports.end();
-       ++portIter) {
+      portIter != ports.end();
+      ++portIter) {
     WfPort* port = (WfPort*) portIter->second;
     FNodeInPort* inPort;
     FNodeOutPort* outPort;
@@ -91,15 +96,19 @@ FActivityNode::createInstance(Dag* dag,
         // get the input data handle from the map (if not found set as NULL)
         dataHdl = currDataLine[inPort->getIndex()];
         if (dataHdl == NULL) {
-          INTERNAL_ERROR("Input data handle is invalid",1);
+          INTERNAL_ERROR("FActivityNode: Input data handle is invalid",1);
         }
         // instanciate port with data handle
-        inPort->instanciate(dag, dagNode, dataHdl);
+        inPort->createRealInstance(dag, dagNode, dataHdl);
         break;
       case WfPort::PORT_OUT:
         outPort = dynamic_cast<FNodeOutPort*>(port);
         // instanciate port with dagNode and tag
-        outPort->instanciate(dag, dagNode, currTag);
+        dataHdl = outPort->createRealInstance(dag, dagNode, currTag);
+        if (dataHdl == NULL) {
+          INTERNAL_ERROR("FActivityNode: Output data handle is invalid",1);
+        }
+        outPort->sendData(dataHdl);
         break;
       case WfPort::PORT_INOUT:
         ;
