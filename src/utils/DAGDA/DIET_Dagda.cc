@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2009/05/15 11:00:05  bisnard
+ * bug correction for container empty elements
+ *
  * Revision 1.22  2009/04/17 08:50:49  bisnard
  * added handling of container empty elements
  *
@@ -1090,7 +1093,8 @@ int dagda_add_container_element(const char* idContainer, const char* idElement, 
 }
 
 int dagda_add_container_null_element(const char* idContainer, int index) {
-  return add_container_element_common(idContainer, NULL, index, 1);
+  char idElement = 0;
+  return add_container_element_common(idContainer, &idElement, index, 1);
 }
 
 int dagda_get_container_elements(const char* idContainer, diet_container_t* content) {
