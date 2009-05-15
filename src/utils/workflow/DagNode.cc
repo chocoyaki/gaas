@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2009/05/15 11:03:41  bisnard
+ * added new exception types
+ *
  * Revision 1.14  2009/04/17 08:54:43  bisnard
  * renamed Node class as WfNode
  *
@@ -136,6 +139,10 @@ WfDataException::ErrorMsg() {
       errorMsg = "Wrong data type (" + Info() + ")"; break;
     case eINVALID_CONTAINER:
       errorMsg = "Invalid container (" + Info() + ")"; break;
+    case eID_UNDEF:
+      errorMsg = "Undefined data ID (" + Info() + ")"; break;
+    case eINVALID_VALUE:
+      errorMsg = "Invalid init value (" + Info() + ")"; break;
   }
   return errorMsg;
 }

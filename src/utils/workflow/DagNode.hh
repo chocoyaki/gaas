@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2009/05/15 11:03:41  bisnard
+ * added new exception types
+ *
  * Revision 1.9  2009/04/17 08:54:43  bisnard
  * renamed Node class as WfNode
  *
@@ -101,7 +104,10 @@ class WfDataException {
   public:
     enum WfDataErrorType { eNOTFOUND,
                            eWRONGTYPE,
-                           eINVALID_CONTAINER };
+                           eINVALID_CONTAINER,
+                           eID_UNDEF,
+                           eVOID_DATA,
+                           eINVALID_VALUE };
     WfDataException(WfDataErrorType t, const string& info)
       { this->why = t; this->info = info; }
     WfDataErrorType Type() { return this->why; }
