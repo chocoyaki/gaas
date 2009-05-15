@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2009/05/15 11:02:55  bisnard
+ * added makespan calculation
+ *
  * Revision 1.27  2009/04/17 08:54:43  bisnard
  * renamed Node class as WfNode
  *
@@ -146,7 +149,7 @@ NodeSet::NodeSet() { }
 NodeSet::~NodeSet() { }
 
 Dag::Dag() : myId(""), tmpDag(false), estDelay(0), cancelled(false),
-             myWf(NULL) {
+             myWf(NULL), startTime(0), finishTime(0) {
 }
 
 /**
@@ -617,6 +620,22 @@ Dag::setStartTime(double time) {
 double
 Dag::getStartTime() {
   return this->startTime;
+}
+
+/**
+ * set the finish time of the DAG
+ */
+void
+Dag::setFinishTime(double time) {
+  this->finishTime = time;
+}
+
+/**
+ * get the makespan of the DAG (finish - start)
+ */
+double
+Dag::getMakespan() {
+  return finishTime - startTime;
 }
 
 /**

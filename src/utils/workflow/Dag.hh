@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2009/05/15 11:02:55  bisnard
+ * added makespan calculation
+ *
  * Revision 1.22  2009/04/17 08:54:43  bisnard
  * renamed Node class as WfNode
  *
@@ -400,6 +403,18 @@ public:
   getStartTime();
 
   /**
+   * set the finish time of the DAG
+   */
+  void
+  setFinishTime(double time);
+
+  /**
+   * get the makespan of the DAG (finish - start)
+   */
+  double
+  getMakespan();
+
+  /**
    * get the estimated delay of the DAG
    */
   double
@@ -473,6 +488,11 @@ private:
    * start time
    */
   double startTime;
+
+  /**
+   * finish time
+   */
+  double finishTime;
 
   /**
    * estimated delay
