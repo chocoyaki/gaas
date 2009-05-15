@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2009/05/15 10:58:47  bisnard
+ * minor changes due to conditional nodes test
+ *
  * Revision 1.3  2009/01/22 14:19:42  bisnard
  * new example for dag using containers
  *
@@ -38,6 +41,9 @@ char time_str[64], name_str[64];
 short nb_in, nb_out, nb_ports;
 short *ports_depth_table;
 long int t = 0;
+char *parLeft_c = "[";
+char *parRight_c = "]";
+char *separator_c = ",";
 
 /*
  * EFT_eval :
@@ -158,7 +164,9 @@ int container_string_length(const char* contID, short depth, char getContainer) 
   fprintf(stderr, "(%d) getting element ids (container ID = %s)\n", depth, contID);
   if (!dagda_get_container_elements(contID, &content)) {
     for (i=0; i<CONTAINER_ELT_NB; i++) {
-      if (depth == 1) {
+      if (content.elt_ids[i] == NULL)
+          length += 6;
+      else if (depth == 1) {
         if (!dagda_get_string(content.elt_ids[i], &eltStr))
           length += strlen(eltStr);
         else
@@ -183,9 +191,11 @@ void container_string_get(const char* contID, short depth, char *contStr) {
     exit(0);
   }
   if (!dagda_get_container_elements(contID, &content)) {
-    strcat(contStr,"(");
+    strcat(contStr,parLeft_c);
     for (i=0; i<CONTAINER_ELT_NB; i++) {
-      if (depth == 1) {
+      if (content.elt_ids[i] == NULL) {
+        strcat(contStr, "[VOID]");
+      } else if (depth == 1) {
         if (!dagda_get_string(content.elt_ids[i], &eltStr))
           strcat(contStr, eltStr);
         else
@@ -194,9 +204,9 @@ void container_string_get(const char* contID, short depth, char *contStr) {
         container_string_get(content.elt_ids[i], depth-1, contStr);
       }
       if (i < CONTAINER_ELT_NB-1)
-        strcat(contStr,",");
+        strcat(contStr,separator_c);
     }
-    strcat(contStr,")");
+    strcat(contStr,parRight_c);
   } else fprintf(stderr, "ERROR: cannot get container (%s) element IDs\n", contID);
 }
 
@@ -228,20 +238,21 @@ processor(diet_profile_t* pb)
   strcat(outputstr, "_out");
   if (nb_out > 1)
     strcat(outputstr, "$");
-  strcat(outputstr, "(");
+  strcat(outputstr, parLeft_c);
   for (i=0; i<nb_in; i++) {
     if (ports_depth_table[i] == 0) {
       /* check_data((*diet_parameter(pb, i)).desc.id); */
       diet_string_get(diet_parameter(pb, i), &inputstr, NULL);
-      fprintf(stderr, "INPUT %d (len=%d): %s\n", i, strlen(inputstr), inputstr);
+      fprintf(stderr, "INPUT %d (len=%d): %s (%p)\n", i, strlen(inputstr), inputstr, inputstr);
       strcat(outputstr, inputstr);
     } else {
       container_string_get(pb->parameters[i].desc.id, ports_depth_table[i], outputstr);
     }
     if (i < nb_in-1)
-      strcat(outputstr,",");
+      strcat(outputstr,separator_c);
   }
-  strcat(outputstr,")");
+  strcat(outputstr,parRight_c);
+  fprintf(stderr, "INPUT STRING = %s (len=%d) (%p)\n", outputstr, strlen(outputstr), outputstr);
 
   /* store output in profile */
   if (nb_out == 1) {
