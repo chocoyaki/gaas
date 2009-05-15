@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2009/05/15 11:15:07  bisnard
+ * container initialization adapted to standard notation
+ * added method to retrieve container cardinal
+ *
  * Revision 1.12  2009/04/17 09:02:15  bisnard
  * container empty elements (added WfVoidAdapter class)
  *
@@ -69,6 +73,8 @@ DagNodePort::DagNodePort(DagNode * parent,
   : WfPort(parent, _id, _portType, _type, _depth, _ind),
     myParent(parent) {
 }
+
+string DagNodePort::containerSeparator = ";";
 
 void
 DagNodePort::setProfileWithoutValue() {
@@ -302,6 +308,7 @@ DagNodePort::initMatrixValue(void **buffer, const string& value) {
 void
 DagNodePort::initContainerValue(const string& value) {
 #if HAVE_DAGDA
+  TRACE_TEXT (TRACE_ALL_STEPS," # Initializing container for port " << getId() << endl);
   // init container and link it to profile
   char* contID;
   // fill-in the container with the values (recursive)
@@ -309,6 +316,7 @@ DagNodePort::initContainerValue(const string& value) {
   initContainerValueRec(&contID, contVal, depth);
   // attach to profile
   diet_use_data(diet_parameter(myParent->getProfile(), index),contID);
+  TRACE_TEXT (TRACE_ALL_STEPS," # END OF container initialization for port " << getId() << endl);
 #else
   WARNING("Cannot use containers without Dagda" << endl);
 #endif
@@ -322,9 +330,8 @@ DagNodePort::initContainerValueRec(char** contIDPtr,
                                    string& contStr,
                                    unsigned int contDepth) {
   if (contDepth < 1)  {
-    cout << "Too many parenthesis in container init (contStr="
-         << contStr << ")" << endl;
-    exit(0);
+    string errorMsg = "Too many parenthesis in '" + contStr + "'";
+    throw WfDataException(WfDataException::eINVALID_VALUE, errorMsg);
   }
 #if HAVE_DAGDA
   // init container
@@ -335,10 +342,14 @@ DagNodePort::initContainerValueRec(char** contIDPtr,
   int   valIdx = 0;
   bool  valEnd = false;
   bool  strEnd = false;
+  // remove first and last characters (open and close parenthesis)
+  contStr.erase(0,1);
+  contStr.erase(contStr.length()-1,1);
+
   while (!(valEnd || contStr.empty())) {
 //     cout << "while loop - str = " << contStr << endl;
     string::size_type parLeft = contStr.find("(");
-    string::size_type valSepRight = contStr.find(";");
+    string::size_type valSepRight = contStr.find(containerSeparator);
     string::size_type parRight = contStr.find(")");
     // define the right end of the value (as valSepRight-1)
     if ((parRight != string::npos)
@@ -361,45 +372,13 @@ DagNodePort::initContainerValueRec(char** contIDPtr,
       // if no left parenthesis before the separator then parse the value
       const char *valStr = contStr.substr(0, valSepRight).c_str();  // leaf value
       // store value in Dagda
-      switch (eltType) {
-        case WfCst::TYPE_CHAR:
-          dagda_put_scalar(myParent->newChar(valStr), DIET_CHAR, DIET_PERSISTENT, &valID);
-          break;
-        case WfCst::TYPE_SHORT:
-          dagda_put_scalar(myParent->newShort(valStr), DIET_SHORT, DIET_PERSISTENT, &valID);
-          break;
-        case WfCst::TYPE_INT:
-          dagda_put_scalar(myParent->newInt(valStr), DIET_INT, DIET_PERSISTENT, &valID);
-          break;
-        case WfCst::TYPE_LONGINT:
-          dagda_put_scalar(myParent->newLong(valStr), DIET_LONGINT, DIET_PERSISTENT, &valID);
-          break;
-        case WfCst::TYPE_FLOAT:
-          dagda_put_scalar(myParent->newFloat(valStr), DIET_FLOAT, DIET_PERSISTENT, &valID);
-          break;
-        case WfCst::TYPE_DOUBLE:
-          dagda_put_scalar(myParent->newDouble(valStr), DIET_DOUBLE, DIET_PERSISTENT, &valID);
-          break;
-        case WfCst::TYPE_PARAMSTRING:
-          dagda_put_paramstring(myParent->newString(valStr), DIET_PERSISTENT, &valID);
-          break;
-        case WfCst::TYPE_STRING:
-          dagda_put_string(myParent->newString(valStr), DIET_PERSISTENT, &valID);
-          break;
-        case WfCst::TYPE_FILE:
-          dagda_put_file(myParent->newFile(valStr), DIET_PERSISTENT, &valID);
-          break;
-        case WfCst::TYPE_MATRIX:
-        default:
-          INTERNAL_ERROR("Type not managed in container initialization",0);
-      } // end (switch)
+      initContainerElementValue(valStr, &valID);
       // update the parsed string
       if (!strEnd)
         contStr = contStr.substr(valSepRight+1, contStr.length() - valSepRight - 1);
       else
         contStr.clear();
     } else {
-      contStr.erase(parLeft,1);
       initContainerValueRec(&valID,contStr,depth-1);
     }
 //     cout << "adding element to container" << endl;
@@ -410,14 +389,55 @@ DagNodePort::initContainerValueRec(char** contIDPtr,
 #endif
 }
 
+void
+DagNodePort::initContainerElementValue(const char* valStr, char** valIDPtr) {
+  switch (eltType) {
+    case WfCst::TYPE_CHAR:
+      dagda_put_scalar(myParent->newChar(valStr), DIET_CHAR, DIET_PERSISTENT, valIDPtr);
+      break;
+    case WfCst::TYPE_SHORT:
+      dagda_put_scalar(myParent->newShort(valStr), DIET_SHORT, DIET_PERSISTENT, valIDPtr);
+      break;
+    case WfCst::TYPE_INT:
+      dagda_put_scalar(myParent->newInt(valStr), DIET_INT, DIET_PERSISTENT, valIDPtr);
+      break;
+    case WfCst::TYPE_LONGINT:
+      dagda_put_scalar(myParent->newLong(valStr), DIET_LONGINT, DIET_PERSISTENT, valIDPtr);
+      break;
+    case WfCst::TYPE_FLOAT:
+      dagda_put_scalar(myParent->newFloat(valStr), DIET_FLOAT, DIET_PERSISTENT, valIDPtr);
+      break;
+    case WfCst::TYPE_DOUBLE:
+      dagda_put_scalar(myParent->newDouble(valStr), DIET_DOUBLE, DIET_PERSISTENT, valIDPtr);
+      break;
+    case WfCst::TYPE_PARAMSTRING:
+      dagda_put_paramstring(myParent->newString(valStr), DIET_PERSISTENT, valIDPtr);
+      break;
+    case WfCst::TYPE_STRING:
+      dagda_put_string(myParent->newString(valStr), DIET_PERSISTENT, valIDPtr);
+      break;
+    case WfCst::TYPE_FILE:
+      dagda_put_file(myParent->newFile(valStr), DIET_PERSISTENT, valIDPtr);
+      break;
+    case WfCst::TYPE_MATRIX:
+    default:
+      INTERNAL_ERROR("Type not managed in container initialization",0);
+  } // end (switch)
+}
+
+
 diet_profile_t *
 DagNodePort::profile() {
   return myParent->getProfile();
 }
 
 const string&
-DagNodePort::getDataID() {
-  return this->dataID;
+DagNodePort::getDataID() throw (WfDataException) {
+  if (dataID.empty()) {
+    string baseErrorMsg = "PORT=" + getParent()->getId() + "#" + getId();
+    throw (WfDataException(WfDataException::eID_UNDEF, baseErrorMsg));
+  }
+  return dataID;
 }
 
 string
@@ -451,7 +471,7 @@ DagNodeOutPort::DagNodeOutPort(DagNode * parent,
 DagNodeOutPort::~DagNodeOutPort() {
   // free cache
   while (! myCache.empty() ) {
-    TRACE_TEXT (TRACE_ALL_STEPS, "deleting out port cache entry" << endl);
+//     TRACE_TEXT (TRACE_ALL_STEPS, "deleting out port cache entry" << endl);
     diet_container_t * p = myCache.begin()->second;
     myCache.erase( myCache.begin() );
     free(p->elt_ids); // was allocated using malloc
@@ -489,14 +509,14 @@ DagNodeOutPort::getDataIDList(const string& dataID) throw (WfDataException) {
   diet_container_t* content = NULL;
   map<string,diet_container_t*>::iterator cacheIter = myCache.find(dataID);
   if (cacheIter != myCache.end()) {
-    TRACE_TEXT (TRACE_ALL_STEPS, "port " << id << ": using container cache for entry "
-                                 << dataID << endl);
+//     TRACE_TEXT (TRACE_ALL_STEPS, "port " << id << ": using container cache for entry "
+//                                  << dataID << endl);
     content = (diet_container_t*) cacheIter->second;
   } else {
     content = new diet_container_t;
     content->size = 0;
-    TRACE_TEXT (TRACE_ALL_STEPS, "port " << id << ": get ID list for container "
-                                 <<  dataID << endl);
+//     TRACE_TEXT (TRACE_ALL_STEPS, "port " << id << ": get ID list for container "
+//                                  <<  dataID << endl);
     if (!dagda_get_container(dataID.c_str())) {
       if (!dagda_get_container_elements(dataID.c_str(), content))
         myCache[dataID] = content;
@@ -513,31 +533,42 @@ DagNodeOutPort::getDataIDList(const string& dataID) throw (WfDataException) {
 }
 #endif
 
+unsigned int
+DagNodeOutPort::getDataIDCardinal(const string& dataID) throw (WfDataException) {
+#if HAVE_DAGDA
+  diet_container_t* content = getDataIDList(dataID);
+  return content->size;
+#endif
+}
+
 string
 DagNodeOutPort::getElementDataID(const list<unsigned int>& eltIdx)
     throw (WfDataException)
 {
   string eltID = "";
+  string baseErrorMsg = "PORT=" + getParent()->getId() + "#" + getId();
 #if HAVE_DAGDA
   // initialize with port's data ID (ie container root)
   eltID = getDataID();
+  if (eltID.empty())
+    throw (WfDataException(WfDataException::eID_UNDEF, baseErrorMsg));
   // loop until the last container level
   for (list<unsigned int>::const_iterator idxIter = eltIdx.begin();
        idxIter != eltIdx.end();
        ++idxIter) {
-    if (!eltID.empty()) {
-      // get list of element IDs from out port cache
-      diet_container_t *content = getDataIDList(eltID);
-      if (content->size >= (*idxIter + 1)) {
-        if (content->elt_ids[*idxIter]) // if NULL then eltID = empty string
-          eltID = content->elt_ids[*idxIter];
-      } else {
-        string errorMsg = "Container size smaller than element index (container ID="
-                            + eltID + ")";
-        throw (WfDataException(WfDataException::eINVALID_CONTAINER, errorMsg));
-      }
+    baseErrorMsg += "[" + itoa(*idxIter) + "]";
+    if (eltID.empty())
+      throw (WfDataException(WfDataException::eID_UNDEF, baseErrorMsg));
+    // get list of element IDs from out port cache
+    diet_container_t *content = getDataIDList(eltID);
+    if (content->size >= (*idxIter + 1)) {
+      if (content->elt_ids[*idxIter])
+        eltID = content->elt_ids[*idxIter];
+      else
+        throw (WfDataException(WfDataException::eVOID_DATA, baseErrorMsg));
     } else {
-      string errorMsg = "Container ID not defined";
+      string errorMsg = "Container size smaller than element index (container ID="
+                          + eltID + "/" + baseErrorMsg + ")";
       throw (WfDataException(WfDataException::eINVALID_CONTAINER, errorMsg));
     }
   }
@@ -667,7 +698,7 @@ DagNodeOutPort::displayContainerAsList(ostream& output,
     }
     // separator
     if (ix < content->size-1)
-        output << ",";
+        output << containerSeparator;
   } // end for
   // free list of ids
   free(content->elt_ids);
