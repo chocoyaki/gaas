@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2009/05/15 10:57:45  bisnard
+ * minor changes for instanciation of conditionals (if)
+ *
  * Revision 1.27  2009/04/17 08:49:32  bisnard
  * updated exception handling
  *
@@ -464,22 +467,21 @@ CltWfMgr::wfFunctionalCall(diet_wf_desc_t * profile) {
   char statMsg[128];
   string wfName(profile->name);
 
-  TRACE_TEXT (TRACE_ALL_STEPS,"Parsing WORKFLOW XML" << endl);
   FWorkflow *wf = new FWorkflow(wfName);
   FWfParser reader(*wf, profile->abstract_wf);
   try {
-    reader.parseXml();
-  } catch (XMLParsingException& e) {
-      cerr << "FATAL ERROR: INVALID FUNCTIONAL WORKFLOW XML:" << endl;
-      cerr << e.ErrorMsg() << endl;
-      return XML_MALFORMED;
-  }
 
-  TRACE_TEXT (TRACE_ALL_STEPS,"*** Checking WORKFLOW XML structure" << endl);
-  try {
+    TRACE_TEXT (TRACE_ALL_STEPS,"Parsing WORKFLOW XML" << endl);
+    reader.parseXml();
+    TRACE_TEXT (TRACE_ALL_STEPS,"*** Checking WORKFLOW XML structure" << endl);
     wf->checkPrec(wf);
+
+  } catch (XMLParsingException& e) {
+    cerr << "FATAL ERROR: INVALID FUNCTIONAL WORKFLOW XML:" << endl;
+    cerr << e.ErrorMsg() << endl;
+    return XML_MALFORMED;
   } catch (WfStructException& e) {
-    cerr << "FATAL ERROR: BAD FUNCTIONAL WORKFLOW STRUCTURE:" << endl;
+    cerr << "FATAL ERROR: FUNCTIONAL WORKFLOW SYNTAX OR STRUCTURE ERROR:" << endl;
     cerr << e.ErrorMsg() << endl;
     return WFL_BADSTRUCT;
   }
@@ -527,33 +529,37 @@ CltWfMgr::wfFunctionalCall(diet_wf_desc_t * profile) {
       cerr << "!!! dag instanciation failed !!!" << endl;
       break;
     }
-    string dagFileName = "dag_" + currDag->getId(); // will be changed when dag submitted to MaDag
+    if (currDag->size() == 0) {
+      cout << "*** GENERATED DAG IS EMPTY ***" << endl;
+    } else {
+      string dagFileName = "dag_" + currDag->getId(); // will be changed when dag submitted to MaDag
 
-    if (TRACE_LEVEL >= TRACE_ALL_STEPS) {
-      cout << "*** DISPLAY DAG " << currDag->getId()
-                                 << "  ****" << endl << endl;
-      fstream filestr;
-      filestr.open(dagFileName.c_str(), fstream::out);
-      filestr << currDag->toXML();
-      filestr.close();
-      cout << currDag->toXML() << endl;
-    }
+      if (TRACE_LEVEL >= TRACE_ALL_STEPS) {
+        cout << "*** DISPLAY DAG " << currDag->getId()
+                                  << "  ****" << endl << endl;
+        fstream filestr;
+        filestr.open(dagFileName.c_str(), fstream::out);
+        filestr << currDag->toXML();
+        filestr.close();
+        cout << currDag->toXML() << endl;
+      }
 
-    TRACE_TEXT (TRACE_MAIN_STEPS, "*** SUBMIT DAG " << currDag->getId()
-                                  << " TO MADAG ****" << endl << endl);
-    diet_wf_desc_t * dagProfile = diet_wf_profile_alloc(dagFileName.c_str(),"testdag",DIET_WF_DAG);
-    dagProfile->wfReqID = wfReqId;
+      TRACE_TEXT (TRACE_MAIN_STEPS, "*** SUBMIT DAG " << currDag->getId()
+                                    << " TO MADAG ****" << endl << endl);
+      diet_wf_desc_t * dagProfile = diet_wf_profile_alloc(dagFileName.c_str(),"testdag",DIET_WF_DAG);
+      dagProfile->wfReqID = wfReqId;
 
-    try {
+      try {
 
-      // Call the common DAG submission method
-      // with PARSING option deactivated (the dag is already in memory)
-      res = wfDagCallCommon(dagProfile, currDag, false, wf->instanciationCompleted());
+        // Call the common DAG submission method
+        // with PARSING option deactivated (the dag is already in memory)
+        res = wfDagCallCommon(dagProfile, currDag, false, wf->instanciationCompleted());
 
-    } catch (...) {
-      cerr << "Exception not caught in wfDagCallCommon!" << endl;
-      res = 1;
-    }
+      } catch (...) {
+        cerr << "Exception not caught in wfDagCallCommon!" << endl;
+        res = 1;
+      }
+    } // end if (currDag->size() == 0)
 
     if (!res) {
       // If this is the last dag of the workflow instanciation, set the flag
@@ -578,14 +584,12 @@ CltWfMgr::wfFunctionalCall(diet_wf_desc_t * profile) {
     TRACE_TEXT (TRACE_ALL_STEPS,"NO MORE DAGS TO INSTANCIATE ==> WAIT" << endl);
     this->mySem.wait();
     usleep(1000); // to avoid stopping process before end of release call
-    if (!wf->instanciationCompleted()) {
+  }
+  if (!wf->instanciationCompleted()) {
       cerr << "FUNCTIONAL WORKFLOW INSTANCIATION or EXECUTION FAILED!" << endl;
       res = 1;
-    }
-  } else {
-    cerr << "FUNCTIONAL WORKFLOW INSTANCIATION CANCELLED!" << endl;
-    res = 1;
   }
+  wf->displayDagSummary(cout);
   return res;
 }
 
@@ -602,6 +606,7 @@ CltWfMgr::release(const char * dag_id, bool successful) {
     throw CltMan::DagNotFound(dag_id);
   }
    // SET DAG STATUS
+  dag->setFinishTime(this->getCurrTime());
   if (!successful) {
     cerr << traceHeader << "cancelled by MaDag!" << endl;
     dag->setAsCancelled();
@@ -612,7 +617,7 @@ CltWfMgr::release(const char * dag_id, bool successful) {
     }
   }
 
-   // RETURN MESSAGE CONTAINING REQUEST IDs (FOR VIZDIET)
+  // RETURN MESSAGE CONTAINING REQUEST IDs (FOR VIZDIET)
   vector<diet_reqID_t> diet_request_ids = dag->getAllDietReqID();
   TRACE_TEXT(TRACE_ALL_STEPS, traceHeader << "got request ids (size = "
               << diet_request_ids.size() << ")" << endl);
@@ -623,7 +628,7 @@ CltWfMgr::release(const char * dag_id, bool successful) {
     message << ";" << diet_request_ids[ix];
   }
    // Add makespan to message
-  message << "#" << this->getCurrTime() - dag->getStartTime();
+  message << "#" << dag->getMakespan();
 
   TRACE_TEXT(TRACE_ALL_STEPS, traceHeader << "message: |" << message.str()
               << "| " << message.str().size()<< endl);
