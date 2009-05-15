@@ -9,6 +9,7 @@ IF( DIET_BUILD_LIBRARIES )
     )
   ADD_LIBRARY ( UtilsWf
     WfNode.cc Dag.cc MetaDag.cc FWorkflow.cc FNode.cc
+    WfExpression.cc
     FActivityNode.cc FIfNode.cc
     WfPort.cc WfPortAdapter.cc
     FNodePort.cc
@@ -21,7 +22,7 @@ IF( DIET_BUILD_LIBRARIES )
 
   TARGET_LINK_LIBRARIES( UtilsWf
     ${DIET_DAGDA_LIBRARY}
-    ${XERCES_LIBRARY}  ${OMNIORB4_LIBRARIES}
+    ${XERCES_LIBRARY}  ${OMNIORB4_LIBRARIES} ${XQILLA_LIBRARY}
     )
 
   IF( APPLE )
@@ -31,8 +32,8 @@ IF( DIET_BUILD_LIBRARIES )
 
   INSTALL_TARGETS( /lib/ UtilsWf )
 
-#   ADD_EXECUTABLE( wftest WfUnitTest.cc )
-#   TARGET_LINK_LIBRARIES( wftest UtilsWf DIET_client)
-#   INSTALL_TARGETS( /bin/ wftest )
+#    ADD_EXECUTABLE( wftest WfUnitTest.cc )
+#    TARGET_LINK_LIBRARIES( wftest UtilsWf DIET_client)
+#    INSTALL_TARGETS( /bin/ wftest )
 
 ENDIF( DIET_BUILD_LIBRARIES )
