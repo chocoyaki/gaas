@@ -67,12 +67,12 @@ EXEC_PROGRAM(${CMAKE_CXX_COMPILER} ARGS "-dumpversion" OUTPUT_VARIABLE CMAKE_CXX
 # --------------------- OPTIONS SET BY DEFAULT  ----------------------------
 # One might wish not to compile DIET but just to build the docs:
 OPTION( DIET_BUILD_LIBRARIES "Build DIET libraries." ON )
-# Are libraries dynamic libraries as opposed to library archives ? 
+# Are libraries dynamic libraries as opposed to library archives ?
 # Note: this variable is a cmake internal, hence not prefixed with DIET_.
 OPTION( BUILD_SHARED_LIBS "Build libraries as shared libraries." ON )
 
 # --------------------- OPTIONS COHERENCE SANITY CHECKS --------------------
-  
+
 IF( DIET_BUILD_BLAS_EXAMPLES AND NOT DIET_BUILD_EXAMPLES )
   MESSAGE( SEND_ERROR "For DIET_BUILD_BLAS_EXAMPLES to be effective you MUST also set DIET_BUILD_EXAMPLES" )
 ENDIF( DIET_BUILD_BLAS_EXAMPLES AND NOT DIET_BUILD_EXAMPLES )
@@ -91,7 +91,7 @@ IF( DIET_WITH_MULTI_MA AND DIET_USE_JXTA )
  MESSAGE(SEND_ERROR "Either set DIET_WITH_MULTI_MA or DIET_USE_JXTA. Not both.")
 ENDIF( DIET_WITH_MULTI_MA AND DIET_USE_JXTA )
 
- 
+
 
 # --------------------- DEPENDENCIES TOWARDS "CLASSIC" C++ HEADERS ---------
 # This is just a convenience to advance the detection of any potential missing
@@ -156,7 +156,7 @@ IF( DIET_USE_ALT_BATCH )
     ADD_DEFINITIONS( -DHAVE_ALT_BATCH )
 ENDIF( DIET_USE_ALT_BATCH )
 
-### CORI (COllector of Resource Information) is heavily dependant on 
+### CORI (COllector of Resource Information) is heavily dependant on
 # system calls for probing ressources:
 IF( DIET_USE_CORI )
   ADD_DEFINITIONS( -DHAVE_CORI )
@@ -174,7 +174,7 @@ STRING( COMPARE EQUAL ${CMAKE_SYSTEM_NAME} "Darwin" APPLE )
 STRING( COMPARE EQUAL ${CMAKE_SYSTEM_NAME} "Linux" LINUX )
 STRING( COMPARE EQUAL ${CMAKE_SYSTEM_NAME} "SunOS" SUNOS )
 STRING( COMPARE EQUAL ${CMAKE_SYSTEM_NAME} "FreeBSD" FREEBSD )
- 
+
 IF( AIX )
   MESSAGE( STATUS "XXX System name Aix" )
   ADD_DEFINITIONS( -D__aix__ )
@@ -189,7 +189,7 @@ ELSEIF( APPLE )
   # compilation option.
   # http://developer.apple.com/qa/qa2001/qa1118.html
   MARK_AS_ADVANCED( BUILD_SHARED_LIBS )
-  SET( BUILD_SHARED_LIBS ON CACHE BOOL "Unable to compile static binaries on APPLE systems." FORCE )  
+  SET( BUILD_SHARED_LIBS ON CACHE BOOL "Unable to compile static binaries on APPLE systems." FORCE )
 
 ELSEIF( LINUX )
   MESSAGE( STATUS "XXX System name Linux" )
@@ -325,18 +325,25 @@ ENDIF( DIET_BUILD_EXAMPLES AND DIET_BUILD_BLAS_EXAMPLES )
 ### Workflow support:
 IF( DIET_USE_WORKFLOW )
   FIND_PACKAGE( Xerces )
-  IF( XERCES_FOUND ) 
-    IF( XERCES_VERSION LESS 27 )
-      MESSAGE( "Diet Workflow support requires at leat version 2.7 of Xerces." )
+  IF( XERCES_FOUND )
+    IF( XERCES_VERSION LESS 30 )
+      MESSAGE( "Diet Workflow support requires at leat version 3.0 of Xerces." )
       MESSAGE( "Workflow support will be disabled" )
       SET( DIET_USE_WORKFLOW OFF)
-    ELSE( XERCES_VERSION LESS 27 )
-      ADD_DEFINITIONS( -DHAVE_WORKFLOW )
-    ENDIF( XERCES_VERSION LESS 27 )
-  ELSE( XERCES_FOUND ) 
+    ELSE( XERCES_VERSION LESS 30 )
+      FIND_PACKAGE( XQilla )
+      IF( XQILLA_FOUND )
+        ADD_DEFINITIONS( -DHAVE_WORKFLOW )
+      ELSE ( XQILLA_FOUND )
+        MESSAGE( "Diet Workflow support requires XQilla library." )
+        MESSAGE( "Workflow support will be disabled" )
+        SET( DIET_USE_WORKFLOW OFF)
+      ENDIF ( XQILLA_FOUND )
+    ENDIF( XERCES_VERSION LESS 30 )
+  ELSE( XERCES_FOUND )
     SET( DIET_USE_WORKFLOW OFF
          CACHE BOOL "Build DIET with workflow support..." )
-  ENDIF( XERCES_FOUND ) 
+  ENDIF( XERCES_FOUND )
 ENDIF( DIET_USE_WORKFLOW )
 
 # --------------------------- Ackfile support ------------------------
