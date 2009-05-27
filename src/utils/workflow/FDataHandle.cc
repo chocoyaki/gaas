@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2009/05/27 08:54:43  bisnard
+ * - modified FDataTag comparison op (lexicographic order)
+ * - new FDataHandle copy constructor for condition nodes
+ *
  * Revision 1.8  2009/05/15 11:10:20  bisnard
  * release for workflow conditional structure (if)
  *
@@ -119,11 +123,13 @@ FDataTag::FDataTag(const FDataTag& parentTag, const FDataTag& childTag) {
  */
 FDataTag::FDataTag(unsigned int * idxTab, bool * lastTab, unsigned int level)
   : mySize(level) {
-  myIdxs = new unsigned int[mySize];
-  myLastFlags = new bool[mySize];
-  for (int ix=0; ix<mySize; ++ix) {
-    myIdxs[ix]      = idxTab[ix];
-    myLastFlags[ix] = lastTab[ix];
+  if (mySize > 0) {
+    myIdxs = new unsigned int[mySize];
+    myLastFlags = new bool[mySize];
+    for (int ix=0; ix<mySize; ++ix) {
+      myIdxs[ix]      = idxTab[ix];
+      myLastFlags[ix] = lastTab[ix];
+    }
   }
   initStr();
 }
@@ -153,6 +159,9 @@ FDataTag::isLastRec(unsigned int level) const {
 
 bool
 FDataTag::isLastOfBranch() const {
+  if (isEmpty()) {
+    INTERNAL_ERROR("Cannot test if last for empty tag",1);
+  }
   return myLastFlags[mySize-1];
 }
 
@@ -173,6 +182,9 @@ FDataTag::getIndex(unsigned int level) const {
 
 unsigned int
 FDataTag::getLastIndex() const {
+  if (isEmpty()) {
+    INTERNAL_ERROR("Cannot get index of empty tag",1);
+  }
   return myIdxs[mySize-1];
 }
 
@@ -199,9 +211,39 @@ FDataTag::getRightPart(unsigned int minLevel) const {
 }
 
 FDataTag
-FDataTag::getParent(unsigned int level) const {
+FDataTag::getAncestor(unsigned int level) const {
   FDataTag parTag(myIdxs, myLastFlags, level);
   return parTag;
+}
+
+FDataTag&
+FDataTag::getParent() {
+  if (mySize == 0) {
+    INTERNAL_ERROR("Cannot get parent of root tag",1);
+  }
+  mySize -= 1;
+  initStr();
+  return *this;
+}
+
+FDataTag&
+FDataTag::getPredecessor() {
+  if (getLastIndex() == 0) {
+    INTERNAL_ERROR("Cannot get predecessor of tag",1);
+  }
+  myIdxs[mySize-1] -= 1;
+  initStr();
+  return *this;
+}
+
+FDataTag&
+FDataTag::getSuccessor() {
+  if (isLastOfBranch()) {
+    INTERNAL_ERROR("Cannot get successor of tag",1);
+  }
+  myIdxs[mySize-1] += 1;
+  initStr();
+  return *this;
 }
 
 /**
@@ -216,18 +258,16 @@ FDataTag::toString() const {
 
 int
 operator<( const FDataTag& tag1, const FDataTag& tag2 ) {
-//   cout << "COMPARING TAGS: " << tag1.toString() << " AND " << tag2.toString() << endl;
-  if (tag1.getLevel() != tag2.getLevel()) {
-    INTERNAL_ERROR("Cannot compare tags of different level",0);
-  }
+//    cout << "COMPARING TAGS: " << tag1.toString() << " AND " << tag2.toString() << endl;
   int ix = 0;
-  while (ix < tag1.getLevel()) {
+  while ((ix < tag1.getLevel()) && (ix < tag2.getLevel())) {
     if (tag1.myIdxs[ix] != tag2.myIdxs[ix])
       return (tag1.myIdxs[ix] < tag2.myIdxs[ix]);
     ++ix;
   }
-  return 0;
+  return (tag1.getLevel() < tag2.getLevel());
 }
+
 /*****************************************************************************/
 /*                   WfDataHandleException class                             */
 /*****************************************************************************/
@@ -330,8 +370,34 @@ FDataHandle::FDataHandle(unsigned int depth)
 }
 
 // Copy constructor
-FDataHandle::FDataHandle(const FDataHandle& src)
-  : myTag(src.myTag), myDepth(src.myDepth), myValue(src.myValue), myParentHdl(NULL),
+// FDataHandle::FDataHandle(const FDataHandle& src)
+//   : myTag(src.myTag), myDepth(src.myDepth), myValue(src.myValue), myParentHdl(NULL),
+//     myPortLevel(src.myPortLevel), myPort(src.myPort), myCard(src.myCard),
+//     cardDef(src.cardDef), adapterDef(src.adapterDef), valueDef(src.valueDef),
+//     dataIDDef(src.dataIDDef), myAdapterType(src.myAdapterType), myCardList(NULL),
+//     myDataID(src.myDataID) {
+// //   TRACE_TEXT (TRACE_ALL_STEPS, "Creating data handle COPY of "
+// //                                << src.myTag.toString() << endl);
+//   if (myDepth > 0)
+//     myData = new map<FDataTag,FDataHandle*>();
+//   if (myAdapterType == ADAPTER_MULTIPLE) {
+//     if (!cardDef) {
+//       INTERNAL_ERROR("Cannot copy a MULTIPLE DH if cardinal not defined",1);
+//     }
+//     if (src.myCardList) {
+//       myCardList = new list<string>(*src.myCardList);
+//     }
+//     for (map<FDataTag,FDataHandle*>::const_iterator srcEltIter = src.myData->begin();
+//          srcEltIter != src.myData->end();
+//          ++srcEltIter) {
+//       FDataHandle *destElt = new FDataHandle(*((FDataHandle*) srcEltIter->second));
+//       myData->insert(pair<FDataTag,FDataHandle*>(destElt->getTag(),destElt));
+//     }
+//   }
+// }
+
+FDataHandle::FDataHandle(const FDataTag& tag, const FDataHandle& src)
+  : myTag(tag), myDepth(src.myDepth), myValue(src.myValue), myParentHdl(NULL),
     myPortLevel(src.myPortLevel), myPort(src.myPort), myCard(src.myCard),
     cardDef(src.cardDef), adapterDef(src.adapterDef), valueDef(src.valueDef),
     dataIDDef(src.dataIDDef), myAdapterType(src.myAdapterType), myCardList(NULL),
@@ -350,11 +416,18 @@ FDataHandle::FDataHandle(const FDataHandle& src)
     for (map<FDataTag,FDataHandle*>::const_iterator srcEltIter = src.myData->begin();
          srcEltIter != src.myData->end();
          ++srcEltIter) {
-      FDataHandle *destElt = new FDataHandle(*((FDataHandle*) srcEltIter->second));
-      myData->insert(pair<FDataTag,FDataHandle*>(destElt->getTag(),destElt));
+      FDataHandle *srcElt = (FDataHandle*) srcEltIter->second;
+      // Create new child tag based on new tag and last index of the src child
+      const FDataTag& srcTag = srcElt->getTag();
+      FDataTag  *destTag = new FDataTag(tag, srcTag.getLastIndex(), srcTag.isLast());
+      FDataHandle *destElt = new FDataHandle(*destTag, *srcElt);
+      // Add new child
+      myData->insert(pair<FDataTag,FDataHandle*>(*destTag,destElt));
+      delete destTag;
     }
   }
 }
+
 
 /**
  * Destructor
@@ -519,7 +592,7 @@ FDataHandle::insertInTree(FDataHandle* dataHdl)
   } else {    // data is a descendant of current DH
 
     // look for its ancestor (direct child of current DH)
-    FDataTag ancestorTag = dataTag.getParent(myLevel+1);
+    FDataTag ancestorTag = dataTag.getAncestor(myLevel+1);
     FDataHandle* ancestorHdl = NULL;
     map<FDataTag,FDataHandle*>::iterator parIter = myData->find(ancestorTag);
 

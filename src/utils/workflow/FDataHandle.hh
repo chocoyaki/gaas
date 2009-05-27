@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2009/05/27 08:54:43  bisnard
+ * - modified FDataTag comparison op (lexicographic order)
+ * - new FDataHandle copy constructor for condition nodes
+ *
  * Revision 1.9  2009/05/15 11:10:20  bisnard
  * release for workflow conditional structure (if)
  *
@@ -63,6 +67,7 @@ class FDataTag {
     FDataTag(unsigned int index, bool isLast);
     FDataTag(const FDataTag& parentTag, unsigned int index, bool isLast);
     FDataTag(const FDataTag& parentTag, const FDataTag& childTag);
+    FDataTag(unsigned int * idxTab, bool * lastTab, unsigned int level);
     ~FDataTag();
 
     friend int operator<( const FDataTag& tag1, const FDataTag& tag2 );
@@ -129,10 +134,33 @@ class FDataTag {
         getRightPart(unsigned int minLevel) const;
 
     /**
-     * Returns the parent tag
+     * Returns an ancestor's tag
+     * @param level the level of the ancestor
      */
     FDataTag
-        getParent(unsigned int level) const;
+        getAncestor(unsigned int level) const;
+
+    /**
+     * Get direct parent's tag (current tag is modified)
+     * Returns ref on itself
+     */
+    FDataTag&
+        getParent();
+
+    /**
+     * Get predecessor's tag (current tag is modified)
+     * Returns ref on itself
+     */
+    FDataTag&
+        getPredecessor();
+
+    /**
+     * Get successor's tag (current tag is modified)
+     * (the 'last' flag is set by default to false)
+     * Returns ref on itself
+     */
+    FDataTag&
+        getSuccessor();
 
     /**
      * Converts the tag to a string
@@ -140,10 +168,6 @@ class FDataTag {
      */
     const string&
         toString() const;
-
-  protected:
-
-    FDataTag(unsigned int * idxTab, bool * lastTab, unsigned int level);
 
   private:
 
@@ -182,7 +206,7 @@ class FDataTag {
 };
 
 /*****************************************************************************/
-/*                        CLASS WfDataHandleException                          */
+/*                        CLASS WfDataHandleException                        */
 /*****************************************************************************/
 
 class WfDataHandleException {
@@ -247,9 +271,16 @@ class FDataHandle {
     FDataHandle(unsigned int depth);
 
     /**
-     * Copy constructor (used for port mappings in control structures)
+     * Copy constructor
+     * Copy the whole data tree
      */
-    FDataHandle(const FDataHandle& src);
+//     FDataHandle(const FDataHandle& src);
+
+    /**
+     * Special copy constructor (used for port mappings in control structures)
+     * Copy the whole data tree but changes the tags
+     */
+    FDataHandle(const FDataTag& tag, const FDataHandle& src);
 
     /**
      * Destructor
