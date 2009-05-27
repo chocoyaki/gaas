@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2009/05/27 08:41:50  bisnard
+ * added new exception constructor
+ *
  * Revision 1.10  2009/04/24 11:04:07  bisnard
  * added conversion to XSchema types
  *
@@ -86,6 +89,8 @@ class WfStructException {
                              eOTHER };
     WfStructException(WfStructErrorType t, const std::string& info)
       { this->why = t; this->info = info; }
+    WfStructException(const std::string& info)
+      { this->why = eOTHER; this->info = info; }
     WfStructErrorType Type() { return this->why; }
     const std::string& Info() { return this->info; }
     std::string ErrorMsg();
