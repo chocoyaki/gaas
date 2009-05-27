@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2009/05/27 08:56:47  bisnard
+ * moved id attribute to parent abstract class
+ *
  * Revision 1.1  2009/01/16 13:52:36  bisnard
  * new class to manage different operators to mix input streams of data
  *
@@ -34,12 +37,14 @@ class InputIterator {
 
   public:
 
+    InputIterator(const string& id);
+
     /**
      * Returns the identifier of the iterator
      * (mainly used to create the map of iterators for a node, and for logs)
      */
     virtual const string&
-        getId() const = 0;
+        getId() const;
 
     /**
      * Go to the first available element
@@ -125,13 +130,18 @@ class InputIterator {
 //     virtual bool
 //         hasGotFirstItem() = 0;
 
+  protected:
+    /**
+     * The operator's ID
+     */
+    string myId;
+
 };
 
 class PortInputIterator : public InputIterator {
 
   public:
     PortInputIterator(FNodeInPort * inPort);
-    const string& getId() const;
     void begin();
     void end();
     void next();
@@ -145,13 +155,12 @@ class PortInputIterator : public InputIterator {
     bool isTotalDefined() const;
     unsigned int getTotalItemNb() const;
 
-  private:
+  protected:
     FNodeInPort * myInPort;
     map<FDataTag, FDataHandle*>::iterator myQueueIter;
     int removedItemsCount;
 
 };
-
 
 class CrossIterator : public InputIterator {
 
@@ -214,11 +223,6 @@ class DotIterator : public InputIterator {
     InputIterator*
     getFirstInput() const;
     bool isMatched();
-
-    /**
-     * The operator's ID (used only for logs)
-     */
-    string myId;
 
     /**
      * Table containing all the inputs of the operator

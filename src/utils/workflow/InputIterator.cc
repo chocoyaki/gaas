@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2009/05/27 08:56:47  bisnard
+ * moved id attribute to parent abstract class
+ *
  * Revision 1.2  2009/05/15 11:10:20  bisnard
  * release for workflow conditional structure (if)
  *
@@ -20,16 +23,20 @@
 #include "debug.hh"
 
 /*****************************************************************************/
+/*                       InputIterator (ABSTRACT)                            */
+/*****************************************************************************/
+
+InputIterator::InputIterator(const string& id) : myId(id) { }
+
+const string&
+InputIterator::getId() const { return myId; }
+
+/*****************************************************************************/
 /*                       PortInputIterator                                   */
 /*****************************************************************************/
 
 PortInputIterator::PortInputIterator(FNodeInPort * inPort)
-  : myInPort(inPort), removedItemsCount(0) {}
-
-const string&
-PortInputIterator::getId() const {
-  return myInPort->getId();
-}
+  : InputIterator(inPort->getId()), myInPort(inPort), removedItemsCount(0) {}
 
 void
 PortInputIterator::begin() {
@@ -95,7 +102,7 @@ const FDataTag&
 PortInputIterator::getCurrentItem(vector<FDataHandle*>& dataLine) {
   FDataHandle * currDataHdl = (FDataHandle*) myQueueIter->second;
   dataLine[myInPort->getIndex()] = currDataHdl;
-  return currDataHdl->getTag();
+  return getCurrentTag();
 }
 
 const FDataTag&
@@ -126,10 +133,9 @@ PortInputIterator::getTotalItemNb() const {
 
 CrossIterator::CrossIterator(InputIterator* leftIter,
                              InputIterator* rightIter)
-  : myLeftIter(leftIter), myRightIter(rightIter), leftTagLength(0)
-    , currTag(NULL) {
-  myId = myLeftIter->getId() + "_x_" + myRightIter->getId();
-}
+  : InputIterator(leftIter->getId() + "_x_" + rightIter->getId()),
+    myLeftIter(leftIter), myRightIter(rightIter), leftTagLength(0)
+    , currTag(NULL) { }
 
 CrossIterator::~CrossIterator() {
   if (currTag)
@@ -362,7 +368,7 @@ CrossIterator::getTotalItemNb() const {
 /*****************************************************************************/
 
 DotIterator::DotIterator(const vector<InputIterator*>& iterTable)
-  : myInputs(iterTable), myId() {
+  : InputIterator(""), myInputs(iterTable) {
   vector<InputIterator*>::const_iterator inputIter = myInputs.begin();
   // concatenate the IDs of all the inputs to make this operator's id
   while (inputIter != myInputs.end()) {
