@@ -1,7 +1,6 @@
 /****************************************************************************/
-/* Node description class                                                   */
-/* This class contains the diet profile, the i/o ports and the execution    */
-/* object                                                                   */
+/* Node description class (ABSTRACT)                                        */
+/* This class contains the i/o ports of a workflow node                     */
 /*                                                                          */
 /* Author(s):                                                               */
 /* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
@@ -11,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2009/05/27 08:43:42  bisnard
+ * added new addPort method to avoid direct access to map
+ *
  * Revision 1.1  2009/04/17 08:54:44  bisnard
  * renamed Node class as WfNode
  *
@@ -325,6 +327,17 @@ protected:
    * Node id *
    */
   string myId;
+
+  /**
+   * Method to add a port
+   * @param portId  identifier of the port
+   * @param port    pointer to the port
+   * @return  same pointer as argument
+   * @exception WfStructException if duplicate port (pointer is deleted)
+   */
+  WfPort *
+  addPort(const string& portId, WfPort* port)
+      throw (WfStructException);
 
   /**
    * ports map<id, reference> *

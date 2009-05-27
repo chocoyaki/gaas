@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2009/05/27 08:43:41  bisnard
+ * added new addPort method to avoid direct access to map
+ *
  * Revision 1.1  2009/04/17 08:54:44  bisnard
  * renamed Node class as WfNode
  *
@@ -389,6 +392,19 @@ bool
 WfNode::isPortDefined(const string& id) {
   map<string, WfPort*>::iterator p = ports.find(id);
   return (p != ports.end());
+}
+
+/**
+ * Add a new port to the ports map
+ */
+WfPort *
+WfNode::addPort(const string& portId, WfPort* port) throw (WfStructException) {
+  if (isPortDefined(portId)) {
+    delete port;
+    throw WfStructException(WfStructException::eDUPLICATE_PORT,"port id="+portId);
+  }
+  ports[portId] = port;
+  return port;
 }
 
 /**
