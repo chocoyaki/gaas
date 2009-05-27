@@ -11,6 +11,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2009/05/27 08:49:43  bisnard
+ * - modified condition output: new IF_THEN and IF_ELSE port types
+ * - implemented MERGE and FILTER workflow nodes
+ *
  * Revision 1.25  2009/05/15 11:10:20  bisnard
  * release for workflow conditional structure (if)
  *
@@ -165,6 +169,18 @@ DagWfParser::getAttributeValue(const char * attr_name,
 }
 
 /**
+ * Check that an attribute is non-empty
+ */
+void
+DagWfParser::checkMandatoryAttr(const string& tagName,
+                                const string& attrName,
+                                const string& attrValue) {
+  if (attrValue.empty())
+    throw XMLParsingException(XMLParsingException::eEMPTY_ATTR,
+                              "Attribute " + attrName + " of tag " + tagName + " is empty");
+}
+
+/**
  * Get the text content of a DOM element (either parsed or non-parsed)
  */
 void
@@ -178,6 +194,14 @@ DagWfParser::getTextContent(const DOMElement * element, string& buffer) {
     buffer = child_content;
     XMLString::release(&child_content);
   }
+}
+
+void
+DagWfParser::checkLeafElement(const DOMElement * element, const string& tagName) {
+  if (element->getFirstChild() != NULL)
+    throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
+          "The element '" + tagName +  "' does not accept a child element. \
+          May be a </" + tagName + "> is forgotten");
 }
 
 /**
@@ -224,7 +248,7 @@ DagWfParser::getPortMap(const string& thenMapStr,
  * Parse the XML Document
  */
 void
-DagWfParser::parseXml() throw (XMLParsingException) {
+DagWfParser::parseXml() {
   const XMLCh gLS[] = { chLatin_L, chLatin_S, chNull };
 
   TRACE_TEXT(TRACE_ALL_STEPS, "PARSING XML START" << endl);
@@ -307,15 +331,9 @@ DagWfParser::parseArg(const DOMElement * element, unsigned int lastArg,
   string value = getAttributeValue("value", element);
   string type  = getAttributeValue("type", element);
   string depth   = getAttributeValue("depth", element);
-  if ((name == "") || (value == "")) {
-    throw XMLParsingException(XMLParsingException::eEMPTY_ATTR,
-                              "Argument " + name + " malformed");
-  }
-  if (element->getFirstChild() != NULL) {
-    throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
-          "Argument element doesn't accept a child element. \
-          May be a </arg> is forgotten");
-  }
+  checkMandatoryAttr("node","name",name);
+  checkMandatoryAttr("node","value",value);
+  checkLeafElement(element, "arg");
   WfPort *port;
   if (!WfCst::isMatrixType(type)) {
     port = setParam(WfPort::PORT_IN, name, type, depth, lastArg, node, &value);
@@ -335,11 +353,9 @@ DagWfParser::parseIn(const DOMElement * element, unsigned int lastArg,
   string type    = getAttributeValue("type", element);
   string source  = getAttributeValue("source", element);
   string depth   = getAttributeValue("depth", element);
-  if (element->getFirstChild() != NULL) {
-    throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
-            "input port element doesn't accept a child element. \
-            May be a </in> is forgotten");
-  }
+  checkMandatoryAttr("in","name",name);
+  checkMandatoryAttr("in","type",name);
+  checkLeafElement(element, "in");
   WfPort *port;
   if (!WfCst::isMatrixType(type)) {
     port = setParam(WfPort::PORT_IN, name, type, depth, lastArg, node);
@@ -361,11 +377,9 @@ DagWfParser::parseInOut(const DOMElement * element, unsigned int lastArg,
   string type    = getAttributeValue("type", element);
   string source  = getAttributeValue("source", element);
   string depth   = getAttributeValue("depth", element);
-  if (element->getFirstChild()!=NULL) {
-    throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
-          "inOut port element doesn't accept a child element. \
-           May be a </inOut> is forgotten");
-  }
+  checkMandatoryAttr("inOut","name",name);
+  checkMandatoryAttr("inOut","type",name);
+  checkLeafElement(element, "inOut");
   WfPort *port;
   if (!WfCst::isMatrixType(type)) {
     port = setParam(WfPort::PORT_INOUT, name, type, depth, lastArg, node);
@@ -386,12 +400,10 @@ DagWfParser::parseOut(const DOMElement * element, unsigned int lastArg,
   string name  = getAttributeValue("name", element);
   string type  = getAttributeValue("type", element);
   string sink  = getAttributeValue("sink", element);
-  string depth   = getAttributeValue("depth", element);
-  if (element->getFirstChild() != NULL) {
-    throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
-          "output port element doesn't accept a child element. \
-	  May be a </out> is forgotten");
-  }
+  string depth = getAttributeValue("depth", element);
+  checkMandatoryAttr("out","name",name);
+  checkMandatoryAttr("out","type",name);
+  checkLeafElement(element, "out");
   WfPort *port;
   if (!WfCst::isMatrixType(type)) {
     port = setParam(WfPort::PORT_OUT, name, type, depth, lastArg, node);
@@ -409,15 +421,8 @@ DagWfParser::parseOut(const DOMElement * element, unsigned int lastArg,
 void
 DagParser::parsePrec(const DOMElement * element, WfNode* node) {
   string precNodeId = getAttributeValue("id", element);
-  if (precNodeId == "") {
-    throw XMLParsingException(XMLParsingException::eEMPTY_ATTR,
-            "Precedence element malformed");
-  }
-  if (element->getFirstChild() != NULL) {
-    throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
-          "Precedence element doesn't accept a child element. \
-           May be a </prec> is forgotten");
-  }
+  checkMandatoryAttr("prec","id",precNodeId);
+  checkLeafElement(element, "prec");
   node->addNodePredecessor(NULL, precNodeId);
 }
 
@@ -485,12 +490,10 @@ DagWfParser::setMatrixParam(const DOMElement * element,
   string nb_rows_str = getAttributeValue("nb_rows", element);
   string nb_cols_str = getAttributeValue("nb_cols", element);
   string matrix_order_str = getAttributeValue("matrix_order", element);
-
-  if ((elt_type_str == "") || (nb_rows_str == "")  ||
-      (nb_cols_str == "") || (matrix_order_str == "")) {
-    throw XMLParsingException(XMLParsingException::eEMPTY_ATTR,
-             "Port with wrong matrix parameters");
-  }
+  checkMandatoryAttr("(matrix port)","base_type",elt_type_str);
+  checkMandatoryAttr("(matrix port)","nb_rows",nb_rows_str);
+  checkMandatoryAttr("(matrix port)","nb_cols",nb_cols_str);
+  checkMandatoryAttr("(matrix port)","matrix_order",matrix_order_str);
 
   // get the base type of matrix element
   short elt_type = WfCst::cvtStrToWfType(elt_type_str);
@@ -570,14 +573,16 @@ DagParser::createNode(const DOMElement* element, const string& elementName) {
   string nodeId(getAttributeValue("id", element));
   string pbName = getAttributeValue("path", element);
   string estClass = getAttributeValue("est-class", element);
-  if (nodeId.empty() || pbName.empty()) {
-        throw XMLParsingException(XMLParsingException::eEMPTY_ATTR,
-                                  "Node without Id or Path");
+  checkMandatoryAttr("node","id",nodeId);
+  checkMandatoryAttr("node","path",pbName);
+
+  DagNode* node = NULL;
+  try {
+    node = dag.createDagNode(nodeId);
+  } catch (WfStructException& e) {
+    throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
+                              "Cannot create node : "+e.ErrorMsg());
   }
-  DagNode* node = dag.createDagNode(nodeId);
-  if (node == NULL)
-    throw XMLParsingException(XMLParsingException::eINVALID_REF,
-                              "Duplicate node id : " + nodeId);
   node->setPbName(pbName);
   if (!estClass.empty())
     node->setEstimationClass(estClass);
@@ -684,22 +689,15 @@ FWfParser::parseRoot(DOMNode* root) {
 
 /**
  * Workflow node creation for functional wf
- * TODO manage condition and loop
  */
 WfNode *
 FWfParser::createNode(const DOMElement* element, const string& elementName) {
   string name = getAttributeValue("name", element);
   string type = getAttributeValue("type", element);
-  string depth = getAttributeValue("depth", element); // for <sink> only
-  // Check parameters
-  if (name.empty()) {
-    throw XMLParsingException(XMLParsingException::eEMPTY_ATTR,
-                              "Element " + elementName + " without name");
-  }
-  if (type.empty() && (elementName != "processor") && (elementName != "condition")) {
-    throw XMLParsingException(XMLParsingException::eEMPTY_ATTR,
-                              "Element " + elementName + " without type");
-  }
+  string depth = getAttributeValue("depth", element);
+  string value = getAttributeValue("value", element);
+  checkMandatoryAttr(elementName,"name",name);
+
   // Convert type
   short dataType = 0;
   if (!type.empty()) {
@@ -712,19 +710,32 @@ FWfParser::createNode(const DOMElement* element, const string& elementName) {
   // Create node depending on element name
   WfNode * node;
   if (elementName == "source") {
+    checkMandatoryAttr(elementName,"type",type);
     node = workflow.createSource(name,(WfCst::WfDataType) dataType);
+
   } else if (elementName == "constant") {
+    checkMandatoryAttr(elementName,"type",type);
     FConstantNode* cstNode = workflow.createConstant(name,(WfCst::WfDataType) dataType);
-    string value = getAttributeValue("value", element);
     if (!value.empty())
       cstNode->setValue(value);
     node = (WfNode*) cstNode;
+
   } else if (elementName == "sink") {
+    checkMandatoryAttr(elementName,"type",type);
     node = workflow.createSink(name, (WfCst::WfDataType) dataType, typeDepth);
+
   } else if (elementName == "processor") {
     node = workflow.createActivity(name);
+
   } else if (elementName == "condition") {
     node = workflow.createIf(name);
+
+  } else if (elementName == "merge") {
+    node = workflow.createMerge(name);
+
+  } else if (elementName == "filter") {
+    node = workflow.createFilter(name);
+
   } else {
     throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
                               "Invalid element : " + elementName);
@@ -765,6 +776,43 @@ FWfParser::parseInOut(const DOMElement * element,
   return port;
 }
 
+//TODO refactor parseOut, parseOutThen, parseOutElse (add portType parameter)
+void
+FWfParser::parseOutThen(const DOMElement * element,
+                        const unsigned int portIndex,
+                        WfNode * node) {
+  string name  = getAttributeValue("name", element);
+  string type  = getAttributeValue("type", element);
+  string depth = getAttributeValue("depth", element);
+  checkMandatoryAttr("outThen","name",name);
+  checkMandatoryAttr("outThen","type",name);
+  checkLeafElement(element,"outThen");
+
+  if (!WfCst::isMatrixType(type)) {
+    setParam(WfPort::PORT_OUT_THEN, name, type, depth, portIndex, node);
+  } else {
+    setMatrixParam(element, WfPort::PORT_OUT_THEN, name, portIndex, node);
+  }
+}
+
+void
+FWfParser::parseOutElse(const DOMElement * element,
+                        const unsigned int portIndex,
+                        WfNode * node) {
+  string name  = getAttributeValue("name", element);
+  string type  = getAttributeValue("type", element);
+  string depth = getAttributeValue("depth", element);
+  checkMandatoryAttr("outElse","name",name);
+  checkMandatoryAttr("outElse","type",name);
+  checkLeafElement(element,"outElse");
+
+  if (!WfCst::isMatrixType(type)) {
+    setParam(WfPort::PORT_OUT_ELSE, name, type, depth, portIndex, node);
+  } else {
+    setMatrixParam(element, WfPort::PORT_OUT_ELSE, name, portIndex, node);
+  }
+}
+
 /**
  * Parse Param port element (only for functional wf)
  */
@@ -774,10 +822,10 @@ FWfParser::parseParamPort(const DOMElement * element,
                           WfNode* node) {
   string name  = getAttributeValue("name", element);
   string type  = getAttributeValue("type", element);
-  if (element->getFirstChild() != NULL)
-    throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
-          "param port element doesn't accept a child element. \
-	  May be a </param> is forgotten");
+  checkMandatoryAttr("param","name",name);
+  checkMandatoryAttr("param","type",name);
+  checkLeafElement(element,"param");
+
   if (WfCst::isMatrixType(type))
     throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
           "param port cannot have a matrix type");
@@ -866,9 +914,7 @@ FWfParser::parseIterationStrategy(const DOMElement * element,
 
       if (child_name == "port") {
         string portName = getAttributeValue("name", child_elt);
-        if (portName.empty())
-          throw XMLParsingException(XMLParsingException::eINVALID_REF,
-             "<iterationstrategy> missing port name IN node " + procNode->getId());
+        checkMandatoryAttr("port","name",portName);
 	inputIds->push_back(portName);
       } else
       if (child_name == "match") {
@@ -911,9 +957,7 @@ FWfParser::parseOtherNodeSubElt(const DOMElement * element,
                  "<diet> element applied to non-activity element");
     // PATH attribute
     string path = getAttributeValue("path", element);
-    if (path.empty())
-      throw XMLParsingException(XMLParsingException::eEMPTY_ATTR,
-                 "<diet> element must contain a path attribute");
+    checkMandatoryAttr("diet","path",path);
     aNode->checkDynamicParam("path", path);
     aNode->setDIETServicePath(path);
     // MAX-INSTANCES attribute
@@ -963,6 +1007,18 @@ FWfParser::parseOtherNodeSubElt(const DOMElement * element,
       throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
                 "<if> element contains invalid expression");
     }
+  } else if (elementName == "outThen") {
+    FIfNode* ifNode = dynamic_cast<FIfNode*>(node);
+    if (!ifNode)
+      throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
+                 "<outThen> element applied to non-conditional element");
+    parseOutThen(element, portIndex++, ifNode);
+  } else if (elementName == "outElse") {
+    FIfNode* ifNode = dynamic_cast<FIfNode*>(node);
+    if (!ifNode)
+      throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
+                 "<outElse> element applied to non-conditional element");
+    parseOutElse(element, portIndex++, ifNode);
   } else if (elementName == "then") {
     FIfNode* ifNode = dynamic_cast<FIfNode*>(node);
     if (!ifNode)

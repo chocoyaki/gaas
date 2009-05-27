@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2009/05/27 08:49:43  bisnard
+ * - modified condition output: new IF_THEN and IF_ELSE port types
+ * - implemented MERGE and FILTER workflow nodes
+ *
  * Revision 1.14  2009/04/17 08:54:44  bisnard
  * renamed Node class as WfNode
  *
@@ -96,14 +100,16 @@ public:
     PORT_IN,
     PORT_INOUT,
     PORT_OUT,
-    PORT_PARAM
+    PORT_PARAM,
+    PORT_OUT_THEN,
+    PORT_OUT_ELSE
   };
 
   /**
    * Basic Port constructor *
    * @param parent The node of the port
    * @param _id    The id of the port
-   * @param _portType The port type (IN, INOUT ,OUT, PARAM)
+   * @param _portType The port type
    * @param _type  The port data base type
    * @param _depth The depth of the list structure (0 if no list)
    * @param _ind   The index of the parameter in the diet profile

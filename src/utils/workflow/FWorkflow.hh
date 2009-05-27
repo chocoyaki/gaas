@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2009/05/27 08:49:43  bisnard
+ * - modified condition output: new IF_THEN and IF_ELSE port types
+ * - implemented MERGE and FILTER workflow nodes
+ *
  * Revision 1.11  2009/05/15 11:10:20  bisnard
  * release for workflow conditional structure (if)
  *
@@ -104,6 +108,12 @@ public:
 
   FIfNode*
   createIf(const string& id) throw (WfStructException);
+
+  FMergeNode*
+  createMerge(const string& id) throw (WfStructException);
+
+  FFilterNode*
+  createFilter(const string& id) throw (WfStructException);
 
   FSourceNode*
   createSource(const string& id, WfCst::WfDataType type) throw (WfStructException);

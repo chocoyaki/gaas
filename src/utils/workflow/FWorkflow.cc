@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2009/05/27 08:49:43  bisnard
+ * - modified condition output: new IF_THEN and IF_ELSE port types
+ * - implemented MERGE and FILTER workflow nodes
+ *
  * Revision 1.12  2009/05/15 11:10:20  bisnard
  * release for workflow conditional structure (if)
  *
@@ -168,6 +172,35 @@ FWorkflow::createIf(const string& id) throw (WfStructException)
   throw WfStructException(WfStructException::eDUPLICATE_NODE,"FNode id="+id);
 }
 
+FMergeNode*
+FWorkflow::createMerge(const string& id) throw (WfStructException)
+{
+  // check if node does not already exist
+  try {
+    getProcNode(id);
+  } catch (WfStructException& e) {
+    TRACE_TEXT (TRACE_ALL_STEPS,"Creating MERGE node : " << id << endl);
+    FMergeNode* node = new FMergeNode(this, id);
+    myProc[id] = node;
+    return node;
+  }
+  throw WfStructException(WfStructException::eDUPLICATE_NODE,"FNode id="+id);
+}
+
+FFilterNode*
+FWorkflow::createFilter(const string& id) throw (WfStructException)
+{
+  // check if node does not already exist
+  try {
+    getProcNode(id);
+  } catch (WfStructException& e) {
+    TRACE_TEXT (TRACE_ALL_STEPS,"Creating FILTER node : " << id << endl);
+    FFilterNode* node = new FFilterNode(this, id);
+    myProc[id] = node;
+    return node;
+  }
+  throw WfStructException(WfStructException::eDUPLICATE_NODE,"FNode id="+id);
+}
 
 FSourceNode*
 FWorkflow::createSource(const string& id, WfCst::WfDataType type)

@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2009/05/27 08:49:43  bisnard
+ * - modified condition output: new IF_THEN and IF_ELSE port types
+ * - implemented MERGE and FILTER workflow nodes
+ *
  * Revision 1.2  2009/05/15 11:10:20  bisnard
  * release for workflow conditional structure (if)
  *
@@ -23,6 +27,12 @@
 #include "WfUtils.hh"
 #include "WfExpression.hh"
 
+
+/*****************************************************************************/
+/*                            FIfNode class                                  */
+/*****************************************************************************/
+
+
 class FIfNode : public FProcNode {
 
   public:
@@ -31,6 +41,13 @@ class FIfNode : public FProcNode {
     virtual ~FIfNode();
 
     // ******************** NODE SETUP *********************
+
+    virtual WfPort *
+        newPort(string portId,
+                unsigned int ind,
+                WfPort::WfPortType portType,
+                WfCst::WfDataType dataType,
+                unsigned int depth) throw (WfStructException);
 
     void
         setCondition(const string& conditionStr)
@@ -59,12 +76,6 @@ class FIfNode : public FProcNode {
                            const FDataTag& currTag,
                            const vector<FDataHandle*>& currDataLine);
 
-    /**
-     * Update the FNode instanciation status after data processing loop
-     */
-    virtual void
-        updateInstanciationStatus();
-
   protected:
 
     virtual void
@@ -73,6 +84,106 @@ class FIfNode : public FProcNode {
     FNodePortMap  myThenMap;
     FNodePortMap  myElseMap;
     WfBooleanExpression*  myCondition;
+
+};
+
+/*****************************************************************************/
+/*                           FMergeNode class                                */
+/*****************************************************************************/
+
+class FMergeNode : public FProcNode {
+
+  public:
+
+    FMergeNode(FWorkflow* wf, const string& id);
+    ~FMergeNode();
+
+    /**
+     * Create a new port
+     * A merge node must create 2 input ports and 1 output port to be valid
+     */
+    virtual WfPort *
+        newPort(string portId,
+                unsigned int ind,
+                WfPort::WfPortType portType,
+                WfCst::WfDataType dataType,
+                unsigned int depth) throw (WfStructException);
+
+    virtual void
+        createRealInstance(Dag* dag,
+                           const FDataTag& currTag,
+                           const vector<FDataHandle*>& currDataLine);
+
+    virtual void
+        createVoidInstance(const FDataTag& currTag,
+                           const vector<FDataHandle*>& currDataLine);
+
+
+  private:
+
+    void
+        createMergeInstance(const FDataTag& currTag,
+                            const vector<FDataHandle*>& currDataLine);
+
+    FNodeOutPort* myOutPort;
+
+};
+
+/*****************************************************************************/
+/*                           FFilterNode class                               */
+/*****************************************************************************/
+
+class FFilterNode : public FProcNode {
+
+  public:
+
+    FFilterNode(FWorkflow* wf, const string& id);
+    virtual ~FFilterNode();
+
+    virtual WfPort *
+        newPort(string portId,
+                unsigned int ind,
+                WfPort::WfPortType portType,
+                WfCst::WfDataType dataType,
+                unsigned int depth) throw (WfStructException);
+
+    virtual void
+        createRealInstance(Dag* dag,
+                           const FDataTag& currTag,
+                           const vector<FDataHandle*>& currDataLine);
+
+    virtual void
+        createVoidInstance(const FDataTag& currTag,
+                           const vector<FDataHandle*>& currDataLine);
+
+  private:
+
+    typedef struct filterNode_t {
+      FDataHandle*  dataHdl;
+      bool          voidDef;
+      bool          indexOk;
+      bool          lastFlagOk;
+      bool          isDone;
+      int           newIndex;   // may be negative (-1)
+      bool          newLastFlag;
+    };
+
+    void updateUp(FDataHandle* DH, short depth);
+    void updateRight(const FDataTag& tag, int precIdx, short depth);
+    void updateLeftNonVoid(const FDataTag& tag, short depth);
+    void updateLeftVoid(const FDataTag& tag, short depth);
+    void sendDown(FDataHandle* DH, short depth);
+
+    bool isNonVoid(FDataHandle* DH);  // test if there is at least one non-void element (only for container)
+    bool isReadyAssumingParentIs(const FDataTag& srcTag);
+    bool isReady(const FDataTag& srcTag);
+    FDataTag getNewTag(const FDataTag& srcTag);
+    filterNode_t* getTreeNode(FDataHandle* DH);
+    filterNode_t* getTreeNode(const FDataTag& tag);
+
+    FNodeOutPort* myOutPort;
+
+    map<FDataTag, filterNode_t*> myTree;
 
 };
 

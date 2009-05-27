@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2009/05/27 08:49:43  bisnard
+ * - modified condition output: new IF_THEN and IF_ELSE port types
+ * - implemented MERGE and FILTER workflow nodes
+ *
  * Revision 1.9  2009/05/15 11:10:20  bisnard
  * release for workflow conditional structure (if)
  *
@@ -66,10 +70,11 @@ FNodePort::~FNodePort() {
 
 FNodeOutPort::FNodeOutPort(WfNode * parent,
                            const string& _id,
+                           WfPort::WfPortType _portType,
                            WfCst::WfDataType _type,
                            unsigned int _depth,
                            unsigned int _ind)
-  : FNodePort(parent, _id, WfPort::PORT_OUT, _type, _depth, _ind)
+  : FNodePort(parent, _id, _portType, _type, _depth, _ind)
     , myBuffer(_depth+1) {
 }
 
@@ -159,7 +164,7 @@ FNodeOutPort::createVoidInstance(const FDataTag& tag) {
  */
 void
 FNodeOutPort::sendData(FDataHandle* dataHdl) throw (WfDataHandleException) {
-  TRACE_TEXT (TRACE_ALL_STEPS,"   # Insert data into buffer" << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS,"   # Insert data into buffer (" << getId() << ")" << endl);
   myBuffer.insertInTree(dataHdl);
   // add the new dataHandle to all the connected in ports ==> inPort.addData
   // all the inPort(s) that return false must be included in the FNode pending list
@@ -415,12 +420,12 @@ FNodePortMap::FNodePortMap() {
 
 void
 FNodePortMap::mapPorts(FNodeOutPort* outPort, FNodeInPort* inPort) {
-  myPortMap.insert(pair<FNodeOutPort*,FNodeInPort*>(outPort,inPort));
+  myPortMap[outPort] = inPort;
 }
 
 void
 FNodePortMap::mapPortToVoid(FNodeOutPort* outPort) {
-  myPortMap.insert(pair<FNodeOutPort*,FNodeInPort*>(outPort,NULL));
+  myPortMap[outPort] = NULL;
 }
 
 void
@@ -432,12 +437,12 @@ FNodePortMap::applyMap(const FDataTag& tag, const vector<FDataHandle*>& dataLine
      FDataHandle* dataHdl;
      if (iter->second) {
        FNodeInPort* inPort = (FNodeInPort*) iter->second;
-       TRACE_TEXT (TRACE_ALL_STEPS,"Mapping " << inPort->getId()
+       TRACE_TEXT (TRACE_ALL_STEPS," # Mapping " << inPort->getId()
                                     << " to " << outPort->getId() << endl);
        // COPY the input DH (with all its child tree)
-       dataHdl = new FDataHandle(*dataLine[inPort->getIndex()]);
+       dataHdl = new FDataHandle(tag, *dataLine[inPort->getIndex()]);
      } else {
-       TRACE_TEXT (TRACE_ALL_STEPS,"Mapping VOID to " << outPort->getId() << endl);
+       TRACE_TEXT (TRACE_ALL_STEPS," # Mapping VOID to " << outPort->getId() << endl);
        // CREATE a new VOID datahandle
         dataHdl = new FDataHandle(tag, outPort->getDepth(), true);
      }

@@ -11,6 +11,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2009/05/27 08:49:43  bisnard
+ * - modified condition output: new IF_THEN and IF_ELSE port types
+ * - implemented MERGE and FILTER workflow nodes
+ *
  * Revision 1.16  2009/05/15 11:10:20  bisnard
  * release for workflow conditional structure (if)
  *
@@ -140,7 +144,7 @@ public:
    * Parse the XML
    */
   void
-  parseXml() throw (XMLParsingException);
+  parseXml();
 
   /**
    * utility method to get the attribute value in a DOM element
@@ -150,6 +154,20 @@ public:
    */
   static string
       getAttributeValue(const char * attr_name, const DOMElement * elt);
+
+  /**
+   * utility method to check that the attribute is non-empty
+   */
+  static void
+      checkMandatoryAttr(const string& tagName,
+                         const string& attrName,
+                         const string& attrValue);
+
+  /**
+   * utility method to check that an element does not contain any child
+   */
+  static void
+      checkLeafElement(const DOMElement * element, const string& tagName);
 
   /**
    * Utility method to get the text content of a DOM element
@@ -384,6 +402,16 @@ protected:
   parseInOut(const DOMElement * element,
              const unsigned int lastArg,
              WfNode * node);
+
+  virtual void
+  parseOutThen(const DOMElement * element,
+               const unsigned int portIndex,
+               WfNode * node);
+
+  virtual void
+  parseOutElse(const DOMElement * element,
+               const unsigned int portIndex,
+               WfNode * node);
 
   virtual WfPort *
   parseParamPort(const DOMElement * element,

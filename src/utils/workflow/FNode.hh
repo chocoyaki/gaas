@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2009/05/27 08:49:43  bisnard
+ * - modified condition output: new IF_THEN and IF_ELSE port types
+ * - implemented MERGE and FILTER workflow nodes
+ *
  * Revision 1.12  2009/05/15 11:10:20  bisnard
  * release for workflow conditional structure (if)
  *
@@ -324,10 +328,17 @@ class FProcNode : public FNode {
 
     /**
      * Set the root element of the iteration strategy tree
-     * @param opId  the id of the root operator
+     * @param opId  the id of the root operator (must already be registered)
      */
     void
         setRootInputOperator(const string& opId);
+
+    /**
+     * Set the root element of the iteration strategy tree
+     * @param newOper  the ref of the root operator (not registered yet)
+     */
+    void
+        setRootInputOperator(InputIterator * newOper);
 
     /**
      * Set one port of the node (identified by its index) as a constant
@@ -381,10 +392,11 @@ class FProcNode : public FNode {
                            const vector<FDataHandle*>& currDataLine) = 0;
 
     virtual void
-        createVoidInstance(const FDataTag& currTag);
+        createVoidInstance(const FDataTag& currTag,
+                           const vector<FDataHandle*>& currDataLine);
 
     virtual void
-        updateInstanciationStatus() = 0;
+        updateInstanciationStatus();
 
     /**
      * Instanciation of the processor (TEMPLATE METHOD)

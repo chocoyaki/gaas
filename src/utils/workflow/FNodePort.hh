@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2009/05/27 08:49:43  bisnard
+ * - modified condition output: new IF_THEN and IF_ELSE port types
+ * - implemented MERGE and FILTER workflow nodes
+ *
  * Revision 1.9  2009/05/15 11:10:20  bisnard
  * release for workflow conditional structure (if)
  *
@@ -56,6 +60,9 @@ class FNodeInPort;
 /*                         FNodePort (Abstract)                              */
 /*****************************************************************************/
 
+//NOTE this class could be removed (no real common point btw FNodeInPort
+// and FNodeOutPort)
+
 class FNodePort : public WfPort {
 
   public:
@@ -89,7 +96,7 @@ class FNodeOutPort : public FNodePort {
 
   public:
 
-    FNodeOutPort(WfNode * parent, const string& _id,
+    FNodeOutPort(WfNode * parent, const string& _id, WfPort::WfPortType _portType,
                  WfCst::WfDataType _type, unsigned int _depth, unsigned int _ind);
     virtual ~FNodeOutPort();
 
@@ -291,12 +298,14 @@ class FNodePortMap {
 
     /**
      * Map an out port of a node to an in port of the same node
+     * (will replace existing mapping for outPort if any)
      */
     void
         mapPorts(FNodeOutPort* outPort, FNodeInPort* inPort);
 
     /**
      * Map an out port of a node to the VOID value
+     * (will replace existing mapping for outPort if any)
      */
     void
         mapPortToVoid(FNodeOutPort* outPort);

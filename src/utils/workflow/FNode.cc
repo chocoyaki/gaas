@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2009/05/27 08:49:43  bisnard
+ * - modified condition output: new IF_THEN and IF_ELSE port types
+ * - implemented MERGE and FILTER workflow nodes
+ *
  * Revision 1.12  2009/05/15 11:10:20  bisnard
  * release for workflow conditional structure (if)
  *
@@ -114,8 +118,6 @@ FNode::newPort(string portId,
                WfPort::WfPortType portType,
                WfCst::WfDataType dataType,
                unsigned int depth) throw (WfStructException) {
-  if (isPortDefined(portId))
-    throw WfStructException(WfStructException::eDUPLICATE_PORT,"port id="+portId);
   WfPort * p = NULL;
   switch (portType) {
     case WfPort::PORT_PARAM:
@@ -129,11 +131,10 @@ FNode::newPort(string portId,
       /* p = new FNodeInOutPort(this, portId, dataType, depth, ind); */
       break;
     case WfPort::PORT_OUT:
-      p = new FNodeOutPort(this, portId, dataType, depth, ind);
+      p = new FNodeOutPort(this, portId, portType, dataType, depth, ind);
       break;
   }
-  this->ports[portId] = p;
-  return p;
+  return addPort(portId, p);
 }
 
 void
@@ -393,6 +394,18 @@ FProcNode::setRootInputOperator(const string& opId) {
 }
 
 void
+FProcNode::setRootInputOperator(InputIterator * newOper) {
+  map<string,InputIterator*>::iterator iterFind = myIterators.find(newOper->getId());
+  if (iterFind != myIterators.end()) {
+    throw WfStructException(WfStructException::eOTHER,
+                              "Root input operator '"+newOper->getId()+"' already defined");
+  } else {
+    myIterators[newOper->getId()] = newOper;
+    myRootIterator = newOper;
+  }
+}
+
+void
 FProcNode::setConstantInput(int idxPort, FDataHandle* dataHdl) {
   initDataLine();
   (*cstDataLine)[idxPort] = dataHdl;
@@ -482,7 +495,7 @@ FProcNode::initialize() {
       setRootInputOperator((*iterCreatedMap)[0]);
     } else {
       iterCreatedMap->resize(iterCreatedNb);
-      TRACE_TEXT (TRACE_ALL_STEPS,"Creating default DOT iterator for all inputs");
+      TRACE_TEXT (TRACE_ALL_STEPS,"Creating default DOT iterator for all inputs" << endl);
       string parentIter = createInputOperator(OPER_DOT, *iterCreatedMap);
       setRootInputOperator(parentIter);
     }
@@ -502,7 +515,8 @@ FProcNode::instLimitReached() {
 }
 
 void
-FProcNode::createVoidInstance(const FDataTag& currTag) {
+FProcNode::createVoidInstance(const FDataTag& currTag,
+                              const vector<FDataHandle*>& currDataLine) {
   TRACE_TEXT (TRACE_ALL_STEPS,"  ## NEW VOID INSTANCE : " << getId()
                               << currTag.toString() << endl);
   // LOOP for each out port
@@ -576,7 +590,7 @@ FProcNode::instanciate(Dag* dag) {
         createRealInstance(dag, currTag, *currDataLine);
 
       } else {
-        createVoidInstance(currTag);
+        createVoidInstance(currTag, *currDataLine);
       }
     }
     //
@@ -586,6 +600,22 @@ FProcNode::instanciate(Dag* dag) {
     updateInstanciationStatus();
 
     delete currDataLine;
+  }
+}
+
+
+void
+FProcNode::updateInstanciationStatus() {
+  if (myRootIterator->isAtEnd()) {
+    if (myRootIterator->isDone()) {
+      TRACE_TEXT (TRACE_ALL_STEPS, "########## ALL INPUTS PROCESSED" << endl);
+      myStatus = N_INSTANC_END;
+    } else {
+      TRACE_TEXT (TRACE_ALL_STEPS, "########## WAITING FOR INPUTS " << endl);
+      myStatus = N_INSTANC_WAITING;
+    }
+  } else {
+    INTERNAL_ERROR("FNode '" << getId() << "' root iterator stopped before end without reason",1);
   }
 }
 
