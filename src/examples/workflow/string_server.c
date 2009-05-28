@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2009/05/28 14:07:25  bisnard
+ * removed constant value for nb of elements of input
+ *
  * Revision 1.4  2009/05/15 10:58:47  bisnard
  * minor changes due to conditional nodes test
  *
@@ -163,7 +166,7 @@ int container_string_length(const char* contID, short depth, char getContainer) 
 
   fprintf(stderr, "(%d) getting element ids (container ID = %s)\n", depth, contID);
   if (!dagda_get_container_elements(contID, &content)) {
-    for (i=0; i<CONTAINER_ELT_NB; i++) {
+    for (i=0; i<content.size; i++) {
       if (content.elt_ids[i] == NULL)
           length += 6;
       else if (depth == 1) {
@@ -174,7 +177,7 @@ int container_string_length(const char* contID, short depth, char getContainer) 
       } else {
         length += container_string_length(content.elt_ids[i], depth-1, 1);
       }
-      if (i < CONTAINER_ELT_NB-1)
+      if (i < content.size-1)
         length += 1;
     }
     length += 2;
@@ -192,7 +195,7 @@ void container_string_get(const char* contID, short depth, char *contStr) {
   }
   if (!dagda_get_container_elements(contID, &content)) {
     strcat(contStr,parLeft_c);
-    for (i=0; i<CONTAINER_ELT_NB; i++) {
+    for (i=0; i<content.size; i++) {
       if (content.elt_ids[i] == NULL) {
         strcat(contStr, "[VOID]");
       } else if (depth == 1) {
@@ -203,7 +206,7 @@ void container_string_get(const char* contID, short depth, char *contStr) {
       } else {
         container_string_get(content.elt_ids[i], depth-1, contStr);
       }
-      if (i < CONTAINER_ELT_NB-1)
+      if (i < content.size-1)
         strcat(contStr,separator_c);
     }
     strcat(contStr,parRight_c);
