@@ -9,11 +9,15 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2009/06/15 12:14:08  bisnard
+ * added new class WfExprVariable to handle expression variables in conditional nodes
+ *
  * Revision 1.1  2009/05/15 11:01:24  bisnard
  * new class WfExpression used to evaluate expression in IF node
  *
  *
  */
+#include <sstream>
 
 #include "WfExpression.hh"
 #include "debug.hh"
@@ -57,6 +61,39 @@ WfExpressionParser::parse(const string& queryStr) {
 }
 
 /*****************************************************************************/
+/*                        WfExprVariable class                               */
+/*****************************************************************************/
+
+WfExprVariable::WfExprVariable(const std::string& varName,
+                               const WfCst::WfDataType varType)
+  : myName(varName), myType(varType), myValue() {}
+
+void
+WfExprVariable::getXQDeclaration(ostream& output) {
+  output << "declare variable $" << myName;
+  if (myType != WfCst::TYPE_CONTAINER) {
+
+    string xsType = WfCst::cvtWfToXSType(myType);
+    string quotes = (xsType == "xs:string") ? "'" : "";
+    output << " as " << xsType << " := " << quotes << myValue << quotes << "; " << endl;
+
+  } else {
+    // in this case the value is supposed to be XML-encoded
+    output << " := document { " << myValue << " }; " << endl;
+  }
+}
+
+void
+WfExprVariable::setValue(const std::string& varValue) {
+  myValue = varValue;
+}
+
+void
+WfExprVariable::setDefaultValue() {
+  myValue =  "0";
+}
+
+/*****************************************************************************/
 /*                        WfExpression class                                 */
 /*****************************************************************************/
 
@@ -89,32 +126,8 @@ WfExpression::isVariableUsed(const string& varName) {
 }
 
 void
-WfExpression::setVariable(const string& varName,
-                         const WfCst::WfDataType varType,
-                         const bool isSequence,
-                         const string& varValue) {
-  if (isVariableUsed(varName)) {
-    varInfo_t varInfo;
-    varInfo.name = varName;
-    // convert type
-    string xsType = WfCst::cvtWfToXSType(varType);
-    if (xsType.empty())
-      xsType = "xs:string";
-    if (isSequence)
-      xsType += "*";
-    // store variable information
-    varInfo.xsType = xsType;
-    varInfo.value = varValue;
-    myVariables.push_back(varInfo);
-  }
-}
-
-void
-WfExpression::setVariableDefaultValue(const string& varName,
-                                      const WfCst::WfDataType varType,
-                                      const bool isSequence) {
-  string defVal = isSequence ? "(\"0\",\"1\")" : "0";
-  setVariable(varName, varType, isSequence, defVal);
+WfExpression::addVariable(WfExprVariable*  var) {
+  myVariables.push_back(var);
 }
 
 const std::string&
@@ -123,25 +136,17 @@ WfExpression::getQueryString() {
 }
 
 void
-WfExpression::addVariableDecl(const string& varName,
-                             const string& XSType,
-                             const string& varValue) {
-  string quotes = (XSType == "xs:string") ? "'" : "";
-  myQueryStr = "declare variable $" + varName
-               + " as " + XSType
-               + " := " + quotes + varValue + quotes + "; "
-               + myQueryStr;
-}
-
-void
 WfExpression::initQuery() {
   cout << "Initialize query..." << endl;
-  myQueryStr = myExpression;
-  for (list<varInfo_t>::iterator varIter = myVariables.begin();
+  ostringstream queryStream;
+
+  for (list<WfExprVariable*>::iterator varIter = myVariables.begin();
        varIter != myVariables.end();
        ++varIter) {
-    addVariableDecl((*varIter).name, (*varIter).xsType, (*varIter).value);
+    ((WfExprVariable*) *varIter)->getXQDeclaration(queryStream);
   }
+  queryStream << myExpression;
+  myQueryStr = queryStream.str();
 }
 
 void
@@ -157,20 +162,13 @@ WfExpression::evaluate() {
   DynamicContext* dynContext = myQuery->createDynamicContext();
   Result result = myQuery->execute(dynContext);
   Item::Ptr item = result->next(dynContext);
-  if (item == NULL) {
-    // no result
+  if (item != NULL) {
+    myResult = UTF8(item->asString(dynContext));
+  } else {
+    myResult = "";
   }
-  myResult = UTF8(item->asString(dynContext));
   delete dynContext;
 }
-
-void
-WfExpression::reset() {
-  myVariables.clear();
-  myQueryStr = myExpression;
-  myResult.clear();
-}
-
 
 /*****************************************************************************/
 /*                    WfBooleanExpression class                              */

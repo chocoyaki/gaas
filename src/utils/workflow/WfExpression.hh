@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2009/06/15 12:14:08  bisnard
+ * added new class WfExprVariable to handle expression variables in conditional nodes
+ *
  * Revision 1.1  2009/05/15 11:01:24  bisnard
  * new class WfExpression used to evaluate expression in IF node
  *
@@ -23,6 +26,10 @@
 #include <xqilla/xqilla-simple.hpp>
 #include "WfUtils.hh"
 
+
+/*****************************************************************************/
+/*                       WfExpressionParser class                            */
+/*****************************************************************************/
 
 class WfExpressionParser {
 
@@ -62,6 +69,52 @@ class WfExpressionParser {
     XQilla* myImpl;
 };
 
+/*****************************************************************************/
+/*                        WfExprVariable class                               */
+/*****************************************************************************/
+
+class WfExprVariable {
+
+  public:
+    /**
+     * Initialize a variable
+     * @param varName string containing the variable name
+     * @param varType type of the variable
+     */
+    WfExprVariable(const std::string& varName,
+                   const WfCst::WfDataType varType);
+
+    /**
+     * Generate the XQuery declaration of the variable
+     * @param output  an output stream
+     */
+    virtual void
+        getXQDeclaration(std::ostream& output);
+
+    /**
+     * Set the value of the variable
+     * @param value raw value if scalar, XML-encoded if container
+     */
+    virtual void
+        setValue(const std::string& varValue);
+
+    /**
+     * Set a default value for the variable
+     */
+    virtual void
+        setDefaultValue();
+
+  protected:
+
+    std::string myName;
+    WfCst::WfDataType myType;
+    std::string myValue;
+
+};
+
+/*****************************************************************************/
+/*                          WfExpression class                               */
+/*****************************************************************************/
 
 class WfExpression {
 
@@ -77,27 +130,11 @@ class WfExpression {
     virtual void setExpression(const std::string& exprStr);
 
     /**
-     * Set the value of a variable for the expression
-     * (if variable name is not found in the expression, nothing happens)
-     * @param varName string containing the variable name
-     * @param varType type of the variable
-     * @param isSequence set to true if the value contains a list: ( value1, value2, ... )
-     * @param varValue string containing the variable value
+     * Add a variable to the expression
+     * @param var ref to a WfExprVariable
      */
-    virtual void
-        setVariable(const std::string& varName,
-                    const WfCst::WfDataType varType,
-                    const bool isSequence,
-                    const std::string& varValue);
+    virtual void addVariable(WfExprVariable*  var);
 
-    /**
-     * Idem above but give a default value to the variable
-     * (used for testing the expression)
-     */
-    virtual void
-        setVariableDefaultValue(const std::string& varName,
-                                const WfCst::WfDataType varType,
-                                const bool isSequence);
     /**
      * Get the expression
      */
@@ -118,10 +155,6 @@ class WfExpression {
      */
     virtual void evaluate();
 
-    /**
-     * Reset the variables of the expression
-     */
-    virtual void reset();
 
   protected:
 
@@ -135,14 +168,6 @@ class WfExpression {
      * Method to parse an expression containing variables
      */
     void parseQuery();
-
-    /**
-     * Method to add a variable declaration to the query
-     */
-    void
-        addVariableDecl(const std::string& varName,
-                        const std::string& XSType,
-                        const std::string& varValue);
 
     /**
      * Original expression
@@ -160,18 +185,9 @@ class WfExpression {
     std::string myResult;
 
     /**
-     * Variable record type
-     */
-    struct varInfo_t {
-      std::string name;
-      std::string xsType;
-      std::string value;
-    };
-
-    /**
      * Variables storage
      */
-    std::list<varInfo_t>  myVariables;
+    std::list<WfExprVariable*> myVariables;
 
     /**
      * Parser
@@ -184,6 +200,11 @@ class WfExpression {
     XQQuery* myQuery;
 
 };
+
+
+/*****************************************************************************/
+/*                       WfBooleanExpression class                           */
+/*****************************************************************************/
 
 class WfBooleanExpression : public WfExpression {
 
