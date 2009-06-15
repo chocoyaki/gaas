@@ -1,12 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <data>
 <source name="wf_input">
-	<value>3</value>
-	<value>10</value>
-        <value>240</value>
+  <list>
+    <item>3</item>
+    <item>10</item>
+    <item>240</item>
+  </list>
 </source>
 <source name="str_input">
-  <value>a</value>
-  <value>b</value>
+  <list>
+    <item>a</item>
+    <item>b</item>
+  </list>
+</source>
+<source name="cont_input">
+  <list>
+    <list>
+      <list>
+        <item>Ae0</item>
+        <item>Ae1</item>
+      </list>
+      <list>
+        <item>Af0</item>
+        <item>Af1</item>
+      </list>
+    </list>
+    <list>
+      <list>
+        <item>Be0</item>
+        <item>Be1</item>
+      </list>
+      <list>
+        <item>Bf0</item>
+        <item>Bf1</item>
+      </list>
+    </list>
+  </list>
 </source>
 </data>
