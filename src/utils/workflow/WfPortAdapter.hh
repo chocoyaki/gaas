@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2009/06/15 12:13:12  bisnard
+ * added data type handling in WfPortAdapter
+ * added new class WfValueAdapter to avoid data duplication
+ *
  * Revision 1.10  2009/05/15 11:10:20  bisnard
  * release for workflow conditional structure (if)
  *
@@ -50,9 +54,15 @@
 
 #include <list>
 #include "WfPort.hh"
+#include "WfDataWriter.hh"
+
 class DagNodeOutPort;
 
 using namespace std;
+
+/*****************************************************************************/
+/*                        WfPortAdapter (ABSTRACT)                           */
+/*****************************************************************************/
 
 class WfPortAdapter {
 
@@ -61,7 +71,9 @@ class WfPortAdapter {
     virtual ~WfPortAdapter();
 
     /**
-     * Static factory method for adapters
+     * Static parsing & factory method for adapters
+     * Note: if reference contains values then the valueAdapters will be defined
+     * without a data type.
      * @param strRef  the complete port reference (ie content of source
      *                attribute of the port, for ex: node1#port0[2][3])
      */
@@ -104,6 +116,13 @@ class WfPortAdapter {
         getSourceDataID() = 0;
 
     /**
+     * Returns the type of the data referenced by the adapter
+     * @return the data type (integer)
+     */
+    virtual WfCst::WfDataType
+        getSourceDataType() = 0;
+
+    /**
      * Cardinal of data retrieval (used for node execution - step 2)
      * REQUIRED: idem as getSourceDataID()
      * REQUIRED: to be used only with adapters pointing to container data
@@ -113,13 +132,17 @@ class WfPortAdapter {
         getSourceDataCardinal() = 0;
 
     /**
-     * Data value retrieval and display (used for sink nodes)
-     * @param output  the output stream
+     * Data value retrieval and display
+     * @param dataWriter  the data output formatter
      */
     virtual void
-        displayDataAsList(ostream& output) = 0;
-
+        writeData(WfDataWriter* dataWriter) = 0;
 };
+
+
+/*****************************************************************************/
+/*                        WfSimplePortAdapter                                */
+/*****************************************************************************/
 
 class WfSimplePortAdapter : public WfPortAdapter {
 
@@ -154,13 +177,6 @@ class WfSimplePortAdapter : public WfPortAdapter {
                         const list<unsigned int>& indexes,
                         const string& portDagName = "");
 
-    /**
-     * Constructor for a simple port
-     * @param parentAdapter the parent of this adapter
-     * @param index         the index of the element within the parent cont.
-     */
-//     WfSimplePortAdapter(WfSimplePortAdapter* parentAdapter,
-//                         unsigned int index);
 
     // virtual base methods
 
@@ -176,19 +192,22 @@ class WfSimplePortAdapter : public WfPortAdapter {
     const string&
         getSourceDataID();
 
+    WfCst::WfDataType
+        getSourceDataType();
+
     unsigned int
         getSourceDataCardinal();
 
     void
-        displayDataAsList(ostream& output);
-
+        writeData(WfDataWriter* dataWriter);
+protected:
     /**
      * Returns the port ref casted to a dag port
      */
     DagNodeOutPort*
         getSourcePort() const;
 
-  protected:
+//   protected:
     const string&
         getPortName() const;
     const string&
@@ -210,6 +229,11 @@ class WfSimplePortAdapter : public WfPortAdapter {
     WfPort *    portPtr;
 
 }; // end class WfSimplePortAdapter
+
+
+/*****************************************************************************/
+/*                       WfMultiplePortAdapter                               */
+/*****************************************************************************/
 
 class WfMultiplePortAdapter : public WfPortAdapter {
 
@@ -246,16 +270,19 @@ class WfMultiplePortAdapter : public WfPortAdapter {
         getSourceRef() const;
     const string&
         getSourceDataID();
+    WfCst::WfDataType
+        getSourceDataType();
     unsigned int
         getSourceDataCardinal();
     void
-        displayDataAsList(ostream& output);
+        writeData(WfDataWriter* dataWriter);
 
   protected:
 
     WfMultiplePortAdapter(const WfMultiplePortAdapter& mpa);
 
-    void parse(const string& strRef, string::size_type& startPos);
+    void parse(const string& strRef,
+               string::size_type& startPos);
 
   private:
     string      strRef;
@@ -266,12 +293,16 @@ class WfMultiplePortAdapter : public WfPortAdapter {
 
 }; // end class WfMultiplePortAdapter
 
+
+/*****************************************************************************/
+/*                            WfVoidAdapter                                  */
+/*****************************************************************************/
+
 class WfVoidAdapter : public WfPortAdapter {
 
   public:
 
     static string voidRef;    // appears in dag
-    static string voidDataID; // appears in data ID field in the profile
 
     WfVoidAdapter();
     ~WfVoidAdapter();
@@ -287,11 +318,115 @@ class WfVoidAdapter : public WfPortAdapter {
     string
         getSourceRef() const;
     const string&
-        getSourceDataID();
+        getSourceDataID();  // throws exception WfDataException::eVOID_DATA
+    WfCst::WfDataType
+        getSourceDataType(); // throws exception WfDataException::eVOID_DATA
     unsigned int
         getSourceDataCardinal();
     void
-        displayDataAsList(ostream& output);
+        writeData(WfDataWriter* dataWriter);
 };
+
+
+/*****************************************************************************/
+/*                          WfValueAdapter                                   */
+/*****************************************************************************/
+
+class WfValueAdapter : public WfPortAdapter {
+
+  public:
+
+    /**
+     * The basic constructor stores only the value but cannot be used to
+     * generate the dataID (used by MADAG ONLY during DAG PARSING)
+     * @param value the (string) value of the data (e.g. path for a file)
+     */
+    WfValueAdapter(const string& value);
+
+    /**
+     * Basic constructor with dataID only (used by MADAG for DAG parsing)
+     * @param dataID the data ID
+     * @param value (not used)
+     */
+    WfValueAdapter(const string& dataID, string value);
+
+    /**
+     * The constructor with type will create an adapter that generates the dataID
+     * (i.e. stores the data in the dataMgr) using the provided value.
+     * (used by WF INSTANCIATOR for constant and source nodes)
+     * @param valueType the type of the data (necessary to initialize data)
+     * @param value the stringified value of the data (e.g. path for a file)
+     */
+    WfValueAdapter(WfCst::WfDataType valueType,
+                   const string& value);
+
+    /**
+     * The dataID constructor will create an adapter that re-uses the provided
+     * dataID when requested. It will NOT generate a new dataID and does not
+     * need to contain the value of the data. (but does need the value type)
+     * @param dataID  the dataID provided by the dataMgr
+     * @param valueType the type of the data
+     * @param value (optional)
+     */
+    WfValueAdapter(const string& dataID,
+                   WfCst::WfDataType valueType,
+                   string value);
+    ~WfValueAdapter();
+
+    /**
+     * Tags used to delimitate the reference within the 'source' attribute
+     * inside a DAG node. As a value adapter may be an element of a multiple
+     * adapter, these tags are used when parsing the complex reference that
+     * may contain different types of adapter references (simple, void,
+     * multiple or value)
+     */
+    static string valStartTag;
+    static string valFinishTag;
+    static string IDStartTag;
+    static string IDFinishTag;
+
+    // virtual base methods
+
+    void
+        setNodePrecedence(WfNode* node, NodeSet* nodeSet)
+        throw (WfStructException);
+    void
+        connectPorts(WfPort* port, unsigned int adapterLevel)
+        throw (WfStructException);
+    string
+        getSourceRef() const;
+    const string&
+        getSourceDataID();
+    WfCst::WfDataType
+        getSourceDataType();
+    unsigned int
+        getSourceDataCardinal(); // should not be used
+    void
+        writeData(WfDataWriter* dataWriter);
+
+  private:
+
+    char* newChar();
+    short* newShort();
+    int*  newInt();
+    long* newLong();
+    char* newString();
+    char* newFile();
+    float* newFloat();
+    double* newDouble();
+
+    string myDataID;
+    string myValue;
+    WfCst::WfDataType myDataType;
+
+    char *cx;
+    short * sx;
+    int * ix;
+    long * lx;
+    char * str;
+    float * fx;
+    double * dx;
+};
+
 
 #endif

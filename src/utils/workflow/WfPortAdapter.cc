@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2009/06/15 12:13:12  bisnard
+ * added data type handling in WfPortAdapter
+ * added new class WfValueAdapter to avoid data duplication
+ *
  * Revision 1.13  2009/05/15 11:10:20  bisnard
  * release for workflow conditional structure (if)
  *
@@ -73,6 +77,11 @@ string WfMultiplePortAdapter::parLeftChar = "(";
 string WfMultiplePortAdapter::parRightChar = ")";
 string WfMultiplePortAdapter::separatorChar = ";";
 
+
+/*****************************************************************************/
+/*                        WfPortAdapter (ABSTRACT)                           */
+/*****************************************************************************/
+
 /**
  * Base descructor
  */
@@ -81,18 +90,38 @@ WfPortAdapter::~WfPortAdapter() {}
 /**
  * Static factory method for adapters
  * Note: the caller is responsible for freeing the memory
- * Example of input: (nodeA#port1;nodeB#port2[0][1];#UNDEF)
+ * Example of input: (nodeA#port1;nodeB#port2[0][1];#UNDEF;#VALDEB#toto#VALFIN#)
  */
 WfPortAdapter*
 WfPortAdapter::createAdapter(const string& strRef) {
   string::size_type refSep = strRef.find("(");
   if (refSep == string::npos) {
     string::size_type testVoid = strRef.find(WfVoidAdapter::voidRef);
-    if (testVoid == string::npos)
-      return new WfSimplePortAdapter(strRef);
-    else
+    if (testVoid == string::npos) {
+      string::size_type startValue = strRef.find(WfValueAdapter::valStartTag);
+      if (startValue == string::npos) {
+        string::size_type startID = strRef.find(WfValueAdapter::IDStartTag);
+        if (startID == string::npos) {
+          // case of reference to a dag port
+          return new WfSimplePortAdapter(strRef);
+        } else {
+          // case of data ID
+          startID += WfValueAdapter::IDStartTag.length();
+          string::size_type endID = strRef.find(WfValueAdapter::IDFinishTag);
+          return new WfValueAdapter(strRef.substr(startID, endID - startID),"");
+        }
+      } else {
+        // case of data value
+        startValue += WfValueAdapter::valStartTag.length();
+        string::size_type endValue = strRef.find(WfValueAdapter::valFinishTag);
+        return new WfValueAdapter(strRef.substr(startValue, endValue - startValue));
+      }
+    } else {
+      // case of VOID data
       return new WfVoidAdapter();
+    }
   } else {
+    // case of container data
     string::size_type refSepLast = strRef.rfind(")");
     if (refSepLast == string::npos) {
       INTERNAL_ERROR("No closing bracket in " << strRef << endl, 1);
@@ -101,12 +130,17 @@ WfPortAdapter::createAdapter(const string& strRef) {
   }
 }
 
+/*****************************************************************************/
+/*                        WfSimplePortAdapter                                */
+/*****************************************************************************/
+
 /**
  * Constructor for simple port adapter
  * PARSING of a simple reference (with or without subports)
  */
-WfSimplePortAdapter::WfSimplePortAdapter(const string& strRef) : dagName() {
-  TRACE_TEXT (TRACE_ALL_STEPS,"Creating simple port adapter ref=" << strRef << endl);
+WfSimplePortAdapter::WfSimplePortAdapter(const string& strRef)
+  : dagName() {
+//   TRACE_TEXT (TRACE_ALL_STEPS,"Creating simple port adapter ref=" << strRef << endl);
   string::size_type nodeSep = strRef.find(":");
   string::size_type nodeStart = 0;
   if (nodeSep != string::npos) {
@@ -158,19 +192,6 @@ WfSimplePortAdapter::WfSimplePortAdapter(WfPort* port,
   dagName  = portDagName;
   eltIdxList = indexes;
 }
-
-// WfSimplePortAdapter::WfSimplePortAdapter(WfSimplePortAdapter* parentAdapter,
-//                                          unsigned int index) {
-// //   TRACE_TEXT (TRACE_ALL_STEPS,"Creating simple port adapter using parent adapter "
-// //                                << endl);
-//   portPtr  = parentAdapter->getSourcePort();
-//   nodePtr  = portPtr->getParent();
-//   nodeName = nodePtr->getId();
-//   portName = portPtr->getId();
-//   dagName  = parentAdapter->getDagName();
-//   eltIdxList = parentAdapter->getElementIndexes();
-//   eltIdxList.push_back(index);
-// }
 
 WfSimplePortAdapter::~WfSimplePortAdapter() {}
 
@@ -251,17 +272,22 @@ WfSimplePortAdapter::getSourceDataID() {
   return dataID;
 }
 
+WfCst::WfDataType
+WfSimplePortAdapter::getSourceDataType() {
+  return getSourcePort()->getDataType(getDepth());
+}
+
 unsigned int
 WfSimplePortAdapter::getSourceDataCardinal() {
   return getSourcePort()->getDataIDCardinal(getSourceDataID());
 }
 
 void
-WfSimplePortAdapter::displayDataAsList(ostream& output) {
+WfSimplePortAdapter::writeData(WfDataWriter* dataWriter) {
   if (getDepth() == 0)
-    getSourcePort()->displayDataAsList(output);
+    getSourcePort()->writeData(dataWriter);
   else
-    getSourcePort()->displayDataElementAsList(output, eltIdxList);
+    getSourcePort()->writeDataElement(dataWriter, eltIdxList);
 }
 
 const string&
@@ -289,6 +315,10 @@ WfSimplePortAdapter::getElementIndexes() {
   return eltIdxList;
 }
 
+/*****************************************************************************/
+/*                       WfMultiplePortAdapter                               */
+/*****************************************************************************/
+
 /**
  * Constructor for multiple port adapter
  * Builds a hierarchy of adapters
@@ -296,12 +326,13 @@ WfSimplePortAdapter::getElementIndexes() {
  * (note that createAdapter strips the toplevel parenthesis)
  */
 WfMultiplePortAdapter::WfMultiplePortAdapter(const string& strRef) {
-  TRACE_TEXT (TRACE_ALL_STEPS,"Creating multiple ports adapter ref=[" << strRef << "]" << endl);
+//   TRACE_TEXT (TRACE_ALL_STEPS,"Creating multiple ports adapter ref=/" << strRef << "/" << endl);
   string::size_type refStart = 0;
   parse(strRef, refStart);
 }
 
-void WfMultiplePortAdapter::parse(const string& strRef, string::size_type& startPos) {
+void WfMultiplePortAdapter::parse(const string& strRef,
+                                  string::size_type& startPos) {
 //   cout << "parse adapter string at position " << itoa(startPos) << endl;
   while (startPos < strRef.length()) {
     string::size_type parLeft  = strRef.find(parLeftChar,startPos);
@@ -353,7 +384,7 @@ WfMultiplePortAdapter::~WfMultiplePortAdapter() {
 
 void
 WfMultiplePortAdapter::addSubAdapter(WfPortAdapter* subAdapter) {
-  TRACE_TEXT (TRACE_ALL_STEPS,"Adding child adapter to multiple adapter" << endl);
+//   TRACE_TEXT (TRACE_ALL_STEPS,"Adding child adapter to multiple adapter" << endl);
   adapters.push_back(subAdapter);
 }
 
@@ -439,6 +470,11 @@ WfMultiplePortAdapter::getSourceDataID() {
   return containerID;
 }
 
+WfCst::WfDataType
+WfMultiplePortAdapter::getSourceDataType() {
+  return WfCst::TYPE_CONTAINER;
+}
+
 unsigned int
 WfMultiplePortAdapter::getSourceDataCardinal() {
   getSourceDataID(); // to initialize data if not already done
@@ -446,16 +482,19 @@ WfMultiplePortAdapter::getSourceDataCardinal() {
 }
 
 void
-WfMultiplePortAdapter::displayDataAsList(ostream& output) {
-  output << parLeftChar;
-  list<WfPortAdapter*>::const_iterator adaptIter = adapters.begin();
-  while (adaptIter != adapters.end()) {
-    ((WfPortAdapter*) *adaptIter)->displayDataAsList(output);
-    if (++adaptIter != adapters.end())
-      output << separatorChar;
+WfMultiplePortAdapter::writeData(WfDataWriter* dataWriter) {
+  dataWriter->startContainer();
+  for (list<WfPortAdapter*>::const_iterator adaptIter = adapters.begin();
+       adaptIter != adapters.end();
+       ++adaptIter) {
+     ((WfPortAdapter*) *adaptIter)->writeData(dataWriter);
   }
-  output << parRightChar;
+  dataWriter->endContainer();
 }
+
+/*****************************************************************************/
+/*                            WfVoidAdapter                                  */
+/*****************************************************************************/
 
 WfVoidAdapter::WfVoidAdapter() {
 //   TRACE_TEXT (TRACE_ALL_STEPS,"Creating VOID adapter" << endl);
@@ -464,8 +503,6 @@ WfVoidAdapter::WfVoidAdapter() {
 WfVoidAdapter::~WfVoidAdapter() {}
 
 string WfVoidAdapter::voidRef = string("#UNDEF");
-string WfVoidAdapter::voidDataID = string();
-// if voidDataID is modified then update WfMultiplePortAdapter::getSourceDataID()
 
 void
 WfVoidAdapter::setNodePrecedence(WfNode* node, NodeSet* nodeSet)
@@ -484,7 +521,12 @@ WfVoidAdapter::getSourceRef() const {
 
 const string&
 WfVoidAdapter::getSourceDataID() {
-  return voidDataID;
+  throw WfDataException(WfDataException::eVOID_DATA,"");
+}
+
+WfCst::WfDataType
+WfVoidAdapter::getSourceDataType() {
+  throw WfDataException(WfDataException::eVOID_DATA,"");
 }
 
 unsigned int
@@ -493,6 +535,195 @@ WfVoidAdapter::getSourceDataCardinal() {
 }
 
 void
-WfVoidAdapter::displayDataAsList(ostream& output) {
-  output << voidRef;
+WfVoidAdapter::writeData(WfDataWriter* dataWriter) {
+  dataWriter->voidElement();
 }
+
+/*****************************************************************************/
+/*                          WfValueAdapter                                   */
+/*****************************************************************************/
+
+string WfValueAdapter::valStartTag = string("#VALDEB#");
+string WfValueAdapter::valFinishTag = string("#VALFIN#");
+string WfValueAdapter::IDStartTag = string("#IDDEB#");
+string WfValueAdapter::IDFinishTag = string("#IDFIN#");
+
+WfValueAdapter::WfValueAdapter(const string& value)
+  : myValue(value), myDataType(WfCst::TYPE_UNKNOWN),
+  cx(NULL), sx(NULL), ix(NULL), lx(NULL), fx(NULL), dx(NULL), str(NULL)
+{
+  TRACE_TEXT (TRACE_ALL_STEPS,"Creating VALUE adapter value=/"
+                               << value << "/" << endl);
+}
+
+WfValueAdapter::WfValueAdapter(const string& dataID, string value)
+  : myValue(value), myDataID(dataID), myDataType(WfCst::TYPE_UNKNOWN),
+  cx(NULL), sx(NULL), ix(NULL), lx(NULL), fx(NULL), dx(NULL), str(NULL)
+{
+  TRACE_TEXT (TRACE_ALL_STEPS,"Creating VALUE adapter dataID=/"
+                               << dataID << "/" << endl);
+}
+
+WfValueAdapter::WfValueAdapter(WfCst::WfDataType valueType, const string& value)
+  : myValue(value), myDataType(valueType),
+  cx(NULL), sx(NULL), ix(NULL), lx(NULL), fx(NULL), dx(NULL), str(NULL)
+{
+  TRACE_TEXT (TRACE_ALL_STEPS,"Creating VALUE adapter (TYPE=" << valueType
+                               << ") value=/" << value << "/" << endl);
+}
+
+WfValueAdapter::WfValueAdapter(const string& dataID,
+                               WfCst::WfDataType valueType,
+                               string value)
+  : myDataID(dataID), myValue(value), myDataType(valueType),
+    cx(NULL), sx(NULL), ix(NULL), lx(NULL), fx(NULL), dx(NULL), str(NULL)  {
+  TRACE_TEXT (TRACE_ALL_STEPS,"Creating VALUE adapter (TYPE=" << valueType
+                              << ") dataID=/" << dataID << "/" << endl);
+}
+
+WfValueAdapter::~WfValueAdapter() {
+  if (cx) delete cx;
+  if (sx) delete sx;
+  if (ix) delete ix;
+  if (lx) delete lx;
+  if (fx) delete fx;
+  if (dx) delete dx;
+  if (str) delete str;
+}
+
+void
+WfValueAdapter::setNodePrecedence(WfNode* node, NodeSet* nodeSet)
+throw (WfStructException) {
+}
+
+void
+WfValueAdapter::connectPorts(WfPort* port, unsigned int adapterLevel)
+throw (WfStructException) {
+}
+
+string
+WfValueAdapter::getSourceRef() const {
+  if (myDataID.empty())
+    return valStartTag + myValue + valFinishTag;
+  else
+    return IDStartTag + myDataID + IDFinishTag;
+}
+
+const string&
+WfValueAdapter::getSourceDataID() {
+  if (!myDataID.empty()) return myDataID;
+  char *valID;
+  char **valIDPtr = &valID;
+#if HAVE_DAGDA
+  switch (myDataType) {
+    case WfCst::TYPE_CHAR:
+      dagda_put_scalar(newChar(), DIET_CHAR, DIET_PERSISTENT, valIDPtr);
+      break;
+    case WfCst::TYPE_SHORT:
+      dagda_put_scalar(newShort(), DIET_SHORT, DIET_PERSISTENT, valIDPtr);
+      break;
+    case WfCst::TYPE_INT:
+      dagda_put_scalar(newInt(), DIET_INT, DIET_PERSISTENT, valIDPtr);
+      break;
+    case WfCst::TYPE_LONGINT:
+      dagda_put_scalar(newLong(), DIET_LONGINT, DIET_PERSISTENT, valIDPtr);
+      break;
+    case WfCst::TYPE_FLOAT:
+      dagda_put_scalar(newFloat(), DIET_FLOAT, DIET_PERSISTENT, valIDPtr);
+      break;
+    case WfCst::TYPE_DOUBLE:
+      dagda_put_scalar(newDouble(), DIET_DOUBLE, DIET_PERSISTENT, valIDPtr);
+      break;
+    case WfCst::TYPE_PARAMSTRING:
+      dagda_put_paramstring(newString(), DIET_PERSISTENT, valIDPtr);
+      break;
+    case WfCst::TYPE_STRING:
+      dagda_put_string(newString(), DIET_PERSISTENT, valIDPtr);
+      break;
+    case WfCst::TYPE_FILE:
+      dagda_put_file(newFile(), DIET_PERSISTENT, valIDPtr);
+      break;
+    default:
+      throw WfDataException(WfDataException::eWRONGTYPE,
+                          "Cannot initialize data due to unknown type in value adapter");
+  } // end (switch)
+  myDataID = valID;
+#else
+  ERROR("WfValueAdapter Error: Dagda not enabled" << endl, errorID);
+#endif
+  return myDataID;
+}
+
+WfCst::WfDataType
+WfValueAdapter::getSourceDataType() {
+  return myDataType;
+}
+
+unsigned int
+WfValueAdapter::getSourceDataCardinal() {
+  WARNING("Cannot get cardinal of a WfValueAdapter");
+  return 0;
+}
+
+void
+WfValueAdapter::writeData(WfDataWriter* dataWriter) {
+  dataWriter->itemValue(myValue);
+}
+
+char *
+WfValueAdapter::newChar() {
+    cx = new char;
+    *cx = myValue.c_str()[0];
+  return cx;
+}
+
+short *
+WfValueAdapter::newShort() {
+  sx = new short;
+  *sx = atoi(myValue.c_str());
+  return sx;
+}
+
+int *
+WfValueAdapter::newInt() {
+  ix = new int;
+  *ix = atoi(myValue.c_str());
+  return ix;
+}
+
+long *
+WfValueAdapter::newLong() {
+  lx = new long;
+  *lx = atoi(myValue.c_str());
+  return lx;
+}
+
+char *
+WfValueAdapter::newString() {
+  str = new char[myValue.size()+1];
+  strcpy(str, myValue.c_str());
+  return str;
+}
+
+char *
+WfValueAdapter::newFile() {
+  str = new char[myValue.size()+1];
+  strcpy(str, myValue.c_str());
+  return str;
+}
+
+float *
+WfValueAdapter::newFloat() {
+  fx = new float;
+  *fx = (float) atof(myValue.c_str());
+  return fx;
+}
+
+double *
+WfValueAdapter::newDouble() {
+  dx = new double;
+  *dx = atof(myValue.c_str());
+  return dx;
+}
+
+
