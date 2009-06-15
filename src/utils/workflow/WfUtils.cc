@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2009/06/15 12:25:24  bisnard
+ * added missing mappings for TYPE_UNKNOWN
+ *
  * Revision 1.12  2009/05/15 11:10:20  bisnard
  * release for workflow conditional structure (if)
  *
@@ -153,7 +156,8 @@ static const pair<short, const string> strTypes[] = {
   pair<short, const string>( WfCst::TYPE_STRING, "DIET_STRING"),
   pair<short, const string>( WfCst::TYPE_PARAMSTRING, "DIET_PARAMSTRING"),
   pair<short, const string>( WfCst::TYPE_FILE, "DIET_FILE"),
-  pair<short, const string>( WfCst::TYPE_CONTAINER, "DIET_CONTAINER")
+  pair<short, const string>( WfCst::TYPE_CONTAINER, "DIET_CONTAINER"),
+  pair<short, const string>( WfCst::TYPE_UNKNOWN,"_UNKNOWN_")
 };
 
 static const pair<short, const string> XSTypes[] = {
@@ -167,7 +171,8 @@ static const pair<short, const string> XSTypes[] = {
   pair<short, const string>( WfCst::TYPE_STRING, "xs:string"),
   pair<short, const string>( WfCst::TYPE_PARAMSTRING, "xs:string"),
   pair<short, const string>( WfCst::TYPE_FILE, ""),
-  pair<short, const string>( WfCst::TYPE_CONTAINER, "")
+  pair<short, const string>( WfCst::TYPE_CONTAINER, ""),
+  pair<short, const string>( WfCst::TYPE_UNKNOWN,"")
 };
 
 static map<short,short> WfTypesToDietTypes(wf2DietTypes, wf2DietTypes
@@ -209,6 +214,11 @@ WfCst::cvtWfToXSType(WfDataType wfType) {
 bool
 WfCst::isMatrixType(const string& strType) {
   return (strType == "DIET_MATRIX");
+}
+
+bool
+WfCst::isMatrixType(const WfDataType type) {
+  return (type == TYPE_MATRIX);
 }
 
 /**

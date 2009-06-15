@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2009/06/15 12:25:24  bisnard
+ * added missing mappings for TYPE_UNKNOWN
+ *
  * Revision 1.11  2009/05/27 08:41:50  bisnard
  * added new exception constructor
  *
@@ -125,7 +128,9 @@ public:
    TYPE_STRING,
    TYPE_PARAMSTRING,
    TYPE_FILE,
-   TYPE_CONTAINER
+   TYPE_CONTAINER,
+
+   TYPE_UNKNOWN
   };
 
   static short
@@ -145,6 +150,8 @@ public:
 
   static bool
   isMatrixType(const std::string& strType);
+  static bool
+  isMatrixType(const WfDataType type);
 
   /************************************************************/
   /** METHODS FOR MATRIX HANDLING                             */
