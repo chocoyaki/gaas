@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2009/06/15 12:11:13  bisnard
+ * use new XML Parser (SAX) for data source file
+ * use new class WfValueAdapter to avoid data duplication
+ * use new method FNodeOutPort::storeData
+ * changed method to compute total nb of data items
+ *
  * Revision 1.13  2009/05/27 08:49:43  bisnard
  * - modified condition output: new IF_THEN and IF_ELSE port types
  * - implemented MERGE and FILTER workflow nodes
@@ -242,20 +248,38 @@ class DataSourceParser; // used to parse the data source XML file
 
 class FSourceNode : public FNode {
 
+  // provides access to protected method (no use of attributes)
+  friend class DataSourceHandler;
+
   public:
     FSourceNode(FWorkflow* wf,
                 const string& id,
                 WfCst::WfDataType type);
     virtual ~FSourceNode();
 
-    virtual const string&
+    const string&
         getDefaultPortName() const;
+
+    WfCst::WfDataType
+        getDataType() const;
+
+    unsigned int
+        getDepth() const;
 
     virtual void
         initialize();
 
     virtual void
         instanciate(Dag* dag); // parameter is not used
+
+  protected:
+    /**
+     * Instanciate a new value for the source
+     * @param tag the data tag for the value
+     * @param value the value as a string
+     */
+    void
+        instanciate(const FDataTag& tag, const string& value);
 
   private:
     DataSourceParser * myParser;

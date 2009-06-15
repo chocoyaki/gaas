@@ -10,6 +10,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2009/06/15 12:11:13  bisnard
+ * use new XML Parser (SAX) for data source file
+ * use new class WfValueAdapter to avoid data duplication
+ * use new method FNodeOutPort::storeData
+ * changed method to compute total nb of data items
+ *
  * Revision 1.13  2009/05/27 08:49:43  bisnard
  * - modified condition output: new IF_THEN and IF_ELSE port types
  * - implemented MERGE and FILTER workflow nodes
@@ -381,8 +387,10 @@ FWorkflow::instanciateDag() {
   for(map<string,FNode*>::iterator iter = myInterface.begin();
       iter != myInterface.end();
       ++iter) {
-    ((FNode*) iter->second)->resumeInstanciation();
-    ((FNode*) iter->second)->instanciate(NULL);
+    FNode* interfNode = (FNode*) iter->second;
+    interfNode->resumeInstanciation();
+    if (interfNode->instanciationReady())
+      interfNode->instanciate(NULL);
   }
   // resume instanciation (if node was put on hold during a previous instanciate call)
   for(list<FProcNode*>::iterator iter = todoProc.begin();
@@ -398,7 +406,12 @@ FWorkflow::instanciateDag() {
     while (procIter != todoProc.end()) {
       FProcNode* currProc = (FProcNode*) *procIter;
       // instantiate node
-      currProc->instanciate(currDag);
+      try {
+        currProc->instanciate(currDag);
+      } catch (WfDataHandleException& e) {
+        WARNING("Failure during node " << currProc->getId() << " instanciation:"
+                << endl << e.ErrorMsg() << endl);
+      }
       // if on hold, then set the whole wf on hold
       if (currProc->instanciationOnHold()) {
         myStatus = W_INSTANC_ONHOLD;
@@ -434,6 +447,11 @@ FWorkflow::instanciateDag() {
   else {
     WARNING("Instanciation stopped in incorrect state!!");
     myStatus = W_INSTANC_END;
+    for (list<FProcNode*>::iterator procIter = todoProc.begin();
+         procIter != todoProc.end();
+         ++procIter) {
+      WARNING("Functional node remaining in TODO list: " << ((FProcNode*) *procIter)->getId() << endl);
+    }
     delete currDag;
     return NULL;
   }

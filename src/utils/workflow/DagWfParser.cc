@@ -11,6 +11,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2009/06/15 12:11:12  bisnard
+ * use new XML Parser (SAX) for data source file
+ * use new class WfValueAdapter to avoid data duplication
+ * use new method FNodeOutPort::storeData
+ * changed method to compute total nb of data items
+ *
  * Revision 1.26  2009/05/27 08:49:43  bisnard
  * - modified condition output: new IF_THEN and IF_ELSE port types
  * - implemented MERGE and FILTER workflow nodes
@@ -104,9 +110,11 @@
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/util/XMLStringTokenizer.hpp>
 #include <xercesc/dom/DOMText.hpp>
-#if XERCES_VERSION_MAJOR >= 3
+#include <xercesc/sax2/SAX2XMLReader.hpp>
+#include <xercesc/sax2/XMLReaderFactory.hpp>
+#include <xercesc/sax2/Attributes.hpp>
 #include <xercesc/dom/DOMLSParser.hpp>
-#endif
+
 #include <string>
 #include <fstream>
 
@@ -253,12 +261,7 @@ DagWfParser::parseXml() {
 
   TRACE_TEXT(TRACE_ALL_STEPS, "PARSING XML START" << endl);
   DOMImplementation *impl = DOMImplementationRegistry::getDOMImplementation(gLS);
-#if XERCES_VERSION_MAJOR >= 3
   DOMLSParser *parser = impl->createLSParser(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
-#else
-  DOMBuilder  *parser =
-    ((DOMImplementationLS*)impl)->createDOMBuilder(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
-#endif
   static const char * content_id = "workflow_description";
   MemBufInputSource* memBufIS = new MemBufInputSource
     (
@@ -268,11 +271,7 @@ DagWfParser::parseXml() {
      , false
     );
   Wrapper4InputSource * wrapper = new Wrapper4InputSource(memBufIS);
-#if XERCES_VERSION_MAJOR >= 3
   this->document = parser->parse((DOMLSInput*) wrapper);
-#else
-  this->document = parser->parse(*wrapper);
-#endif
 
   if (document == NULL) {
     throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
@@ -336,10 +335,17 @@ DagWfParser::parseArg(const DOMElement * element, unsigned int lastArg,
   checkLeafElement(element, "arg");
   WfPort *port;
   if (!WfCst::isMatrixType(type)) {
-    port = setParam(WfPort::PORT_IN, name, type, depth, lastArg, node, &value);
+    port = setParam(WfPort::PORT_ARG, name, type, depth, lastArg, node);
   } else {
-    port = setMatrixParam(element, WfPort::PORT_IN, name, lastArg, node, &value);
+    port = setMatrixParam(element, WfPort::PORT_ARG, name, lastArg, node);
   }
+  // set the value
+  DagNodeArgPort * dagPort = dynamic_cast<DagNodeArgPort*>(port);
+  if (dagPort)
+    dagPort->setValue(value);
+  else throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
+              "value attribute not valid for other ports than <arg> port");
+
   return port;
 }
 
@@ -435,8 +441,7 @@ DagWfParser::setParam(const WfPort::WfPortType param_type,
 		      const string& type,
                       const string& depth,
 		      unsigned int lastArg,
-		      WfNode * node,
-		      const string * value) {
+		      WfNode * node) {
   // Get the base type and the depth of the list structure (syntax 'LIST(LIST(<basetype>))')
   unsigned int typeDepth = 0;
   string curType = type;
@@ -464,15 +469,6 @@ DagWfParser::setParam(const WfPort::WfPortType param_type,
     throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
                               "Cannot create port : "+e.ErrorMsg());
   }
-  if (value) {
-    DagNodePort * dagPort = dynamic_cast<DagNodePort*>(port);
-    if (dagPort) {
-      dagPort->setValue(*value);
-    } else {
-      throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
-              "Cannot assign value to a port in a non-dag node");
-    }
-  }
   return port;
 }
 
@@ -484,8 +480,7 @@ DagWfParser::setMatrixParam(const DOMElement * element,
                             const WfPort::WfPortType param_type,
 			    const string& name,
 			    unsigned int lastArg,
-			    WfNode * node,
-			    const string * value) {
+			    WfNode * node) {
   string elt_type_str = getAttributeValue("base_type", element);
   string nb_rows_str = getAttributeValue("nb_rows", element);
   string nb_cols_str = getAttributeValue("nb_cols", element);
@@ -514,15 +509,6 @@ DagWfParser::setMatrixParam(const DOMElement * element,
   port->setMatParams(nb_rows, nb_cols,
                      (WfCst::WfMatrixOrder) matrix_order,
                      (WfCst::WfDataType) elt_type);
-  if (value) {
-    DagNodePort * dagPort = dynamic_cast<DagNodePort*>(port);
-    if (dagPort) {
-      dagPort->setValue(*value);
-    } else {
-      throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
-              "Cannot assign value to a port in a non-dag node");
-    }
-  }
   return port;
 }
 
@@ -925,6 +911,9 @@ FWfParser::parseIterationStrategy(const DOMElement * element,
       } else
       if (child_name == "cross") {
 	vector<string>* opInputIds = parseIterationStrategy(child_elt, procNode);
+        if (opInputIds->size() > 2)
+          throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
+                                    "CROSS iterator only accepts 2 input ports");
         const string& opId = procNode->createInputOperator(FProcNode::OPER_CROSS, *opInputIds);
         inputIds->push_back(opId);
         delete opInputIds;
@@ -1059,12 +1048,11 @@ FWfParser::parseOtherNodeSubElt(const DOMElement * element,
 /*                    CLASS DataSourceParser                                 */
 /*****************************************************************************/
 
-DataSourceParser::DataSourceParser(const string& name)
-  : myName(name), currValueNode(NULL) {
+DataSourceParser::DataSourceParser(FSourceNode* node)
+  : myNode(node) {
 }
 
 DataSourceParser::~DataSourceParser() {
-  // TODO Free ressources
 }
 
 void
@@ -1072,114 +1060,152 @@ DataSourceParser::parseXml(const string& dataFileName) throw (XMLParsingExceptio
   const XMLCh gLS[] = { chLatin_L, chLatin_S, chNull };
 
   TRACE_TEXT(TRACE_ALL_STEPS, "PARSING XML START" << endl);
-  DOMImplementation *impl = DOMImplementationRegistry::getDOMImplementation(gLS);
-#if XERCES_VERSION_MAJOR >= 3
-  DOMLSParser *parser = impl->createLSParser(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
-#else
-  DOMBuilder  *parser =
-    ((DOMImplementationLS*)impl)->createDOMBuilder(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
-#endif
-  const XMLCh * fileName = XMLString::transcode(dataFileName.c_str());
-  LocalFileInputSource* locFileIS = new LocalFileInputSource
-    (fileName
-    );
-//   XMLString::release(&fileName);
-  Wrapper4InputSource * wrapper = new Wrapper4InputSource(locFileIS);
-#if XERCES_VERSION_MAJOR >= 3
-  this->document = parser->parse((DOMLSInput*) wrapper);
-#else
-  this->document = parser->parse(*wrapper);
-#endif
-  if (document == NULL) {
-    throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
-                              "Data source file not found or wrong document format");
-  }
-  DOMNode * root = (DOMNode*)(document->getDocumentElement());
 
-  // Parse the root element
-  parseRoot(root);
+  SAX2XMLReader* parser = XMLReaderFactory::createXMLReader();
+  parser->setFeature(XMLUni::fgSAX2CoreValidation, false);
+  parser->setFeature(XMLUni::fgSAX2CoreNameSpaces, false);
+
+  DataSourceHandler* defaultHandler = new DataSourceHandler(myNode);
+  parser->setContentHandler(defaultHandler);
+  parser->setErrorHandler(defaultHandler);
+
+  try {
+      parser->parse(dataFileName.c_str());
+  } catch (XMLParsingException& e) {
+    throw;
+  } catch (...) {
+    throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
+                              "Invalid XML in data source file");
+  }
 
   TRACE_TEXT(TRACE_ALL_STEPS, "PARSING XML END" << endl);
 }
 
-void
-DataSourceParser::parseRoot(DOMNode* root) throw (XMLParsingException) {
-  // Check root element
-  char * _rootNodeName = XMLString::transcode(root->getNodeName());
-  if (strcmp (_rootNodeName, "data")) {
-    throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
-                              "XML for DATA SOURCE should begin with <data>");
-  }
-  XMLString::release(&_rootNodeName);
-  DOMNode * child = root->getFirstChild();
-  while ((child != NULL)) {
-    // Parse all the <source> elements
-    if (child->getNodeType() == DOMNode::ELEMENT_NODE) {
-      DOMElement * child_elt = (DOMElement*)child;
-      char * _nodeName = XMLString::transcode(child_elt->getNodeName());
-      string nodeName(_nodeName);
-      XMLString::release(&_nodeName);
-      TRACE_TEXT (TRACE_ALL_STEPS,
-		  "Parsing the element " << nodeName << endl );
-      if (nodeName != "source") {
-	throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
-                                  "A data source should only contain <source> elements");
-      }
-      string srcName = DagWfParser::getAttributeValue("name", child_elt);
-      if (srcName == myName) {
-        TRACE_TEXT (TRACE_ALL_STEPS,
-		  "Found the source " << srcName << endl );
-        // INITIALIZE THE CURRENT VALUE NODE
-        currValueNode = child->getFirstChild();
-        findValueNode();
-        break;
-      }
-    }
-    child = child->getNextSibling();
-  } // end while
-  if (currValueNode == NULL)
-    throw XMLParsingException(XMLParsingException::eINVALID_REF,
-                                  "The data source " + myName + " could not be found");
+/*****************************************************************************/
+/*                    CLASS DataSourceHandler                                */
+/*****************************************************************************/
+#ifndef XTOC
+#define XTOC(x) XMLString::transcode(x) // Use iff x is a XMLCh *
+#define CTOX(x) XMLString::transcode(x) // Use iff x is a char *
+#define XREL(x) XMLString::release(&x)
+#endif
+
+DataSourceHandler::DataSourceHandler(FSourceNode* node)
+  : myNode(node), myCurrTag(NULL), isSourceFound(false), isItemFound(false) {
 }
 
 /**
- * Skip the non-element XML nodes until a <value> tag is found
+ * Main handlers
  */
+
 void
-DataSourceParser::findValueNode() throw (XMLParsingException) {
-  bool valueFound = false;
-  while (!valueFound && (currValueNode!=NULL)) {
-    if (currValueNode->getNodeType() == DOMNode::ELEMENT_NODE) {
-      DOMElement * element = (DOMElement*) currValueNode;
-      // get current node name
-      char *elt_name_str = XMLString::transcode(element->getNodeName());
-      string elt_name(elt_name_str);
-      XMLString::release(&elt_name_str);
-      // check current node name
-      if (elt_name != "value")
-         throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
-                  "Invalid tag within a source (" + elt_name + ")");
-      valueFound = true;
+DataSourceHandler::startElement(const   XMLCh* const    uri,
+                                const   XMLCh* const    localname,
+                                const   XMLCh* const    qname,
+                                const   Attributes&     attrs ) {
+  char* eltName = XTOC(qname);
+//   cout << "startElement : " << eltName << endl;
+
+  if (strcmp("source",eltName) == 0) startSource(attrs);
+  if (strcmp("list",eltName) == 0)   startList();
+  if (strcmp("item",eltName) == 0)   startItem();
+
+  XREL(eltName);
+}
+
+void
+DataSourceHandler::endElement(const   XMLCh* const    uri,
+                                const   XMLCh* const    localname,
+                                const   XMLCh* const    qname) {
+  char* eltName = XTOC(qname);
+//   cout << "endElement : " << eltName << endl;
+
+  if (strcmp("source",eltName) == 0) endSource();
+  if (strcmp("list",eltName) == 0)   endList();
+  if (strcmp("item",eltName) == 0)   endItem();
+
+  XREL(eltName);
+}
+
+/**
+ * Tag-specific handlers
+ */
+
+void
+DataSourceHandler::startSource(const   Attributes&     attrs) {
+  XMLCh* attName = CTOX("name");
+  char* srcName = XTOC(attrs.getValue(attName));
+
+  if (strcmp(myNode->getId().c_str(), srcName) == 0) {
+//     cout << "source " << myNode->getId() << " found" << endl;
+    isSourceFound = true;
+  }
+
+  XREL(attName);
+  XREL(srcName);
+}
+
+void
+DataSourceHandler::endSource() {
+  if (isSourceFound) {
+    isSourceFound = false;
+  }
+}
+
+void
+DataSourceHandler::startList() {
+  if (isSourceFound) {
+    if (myCurrTag == NULL) {
+      myCurrTag = new FDataTag(0,false);
     } else {
-      // go to next XML node
-      currValueNode = currValueNode->getNextSibling();
+      FDataTag* parTag = myCurrTag;
+      myCurrTag = new FDataTag(*parTag, 0, false);  // creates first child tag
+      delete parTag;
     }
   }
 }
 
 void
-DataSourceParser::getCurrentValue(string& buffer) {
-  DagWfParser::getTextContent((DOMElement*) currValueNode, buffer);
+DataSourceHandler::endList() {
+  if (isSourceFound) {
+    myCurrTag->getParent();
+    if (!myCurrTag->isEmpty())
+      myCurrTag->getSuccessor();
+  }
 }
 
 void
-DataSourceParser::goToNextValue() throw (XMLParsingException) {
-  currValueNode = currValueNode->getNextSibling();
-  // skip the non-value nodes
-  findValueNode();
+DataSourceHandler::startItem() {
+  if (isSourceFound && (myCurrTag)) {
+//     cout << "found item / tag=" << myCurrTag->toString() << endl;
+    isItemFound = true;
+  }
 }
 
-bool
-DataSourceParser::end() {
-  return (currValueNode == NULL);
+void
+DataSourceHandler::characters (const  XMLCh* const     chars,
+                               const  unsigned int     length) {
+  // note that this test will work only for small chunks of text (only one call
+  // of the handler)
+  if (isItemFound) {
+    char* value = XTOC(chars);
+    myCurrItemValue = value;
+    XREL(value);
+  }
+}
+
+void
+DataSourceHandler::endItem() {
+  if (isItemFound) {
+    myNode->instanciate(*myCurrTag, myCurrItemValue);
+    myCurrTag->getSuccessor();
+    isItemFound = false;
+  }
+}
+
+void
+DataSourceHandler::fatalError(const SAXParseException& e) {
+  string errorMsg = "Error in data source XML file (line "
+                    + itoa(e.getLineNumber()) + ")";
+  throw XMLParsingException(XMLParsingException::eBAD_STRUCT, errorMsg);
 }

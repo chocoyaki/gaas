@@ -11,6 +11,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2009/06/15 12:11:12  bisnard
+ * use new XML Parser (SAX) for data source file
+ * use new class WfValueAdapter to avoid data duplication
+ * use new method FNodeOutPort::storeData
+ * changed method to compute total nb of data items
+ *
  * Revision 1.17  2009/05/27 08:49:43  bisnard
  * - modified condition output: new IF_THEN and IF_ELSE port types
  * - implemented MERGE and FILTER workflow nodes
@@ -75,6 +81,7 @@
 // Xerces header
 #include <xercesc/util/PlatformUtils.hpp>
 #include <xercesc/parsers/AbstractDOMParser.hpp>
+#include <xercesc/sax2/DefaultHandler.hpp>
 #include <xercesc/dom/DOMImplementation.hpp>
 #include <xercesc/dom/DOMImplementationLS.hpp>
 #include <xercesc/dom/DOMImplementationRegistry.hpp>
@@ -94,9 +101,10 @@
 #include "WfUtils.hh"
 #include "WfNode.hh"
 #include "Dag.hh"
+#include "FNode.hh"
 
 class FWorkflow;
-class FNode;
+
 
 XERCES_CPP_NAMESPACE_USE
 using namespace std;
@@ -304,7 +312,6 @@ protected:
    * @param depth       the depth of the port (replaces LIST)
    * @param lastArg     the index of the port (in the profile)
    * @param node        the current node object
-   * @param value       the value of the parameter (optional)
    */
   WfPort *
   setParam(const WfPort::WfPortType param_type,
@@ -312,8 +319,7 @@ protected:
 	   const string& type,
            const string& depth,
 	   unsigned int lastArg,
-	   WfNode * node,
-	   const string * value = NULL);
+	   WfNode * node);
 
   /**
    * create a node port of type matrix
@@ -323,8 +329,7 @@ protected:
                  const WfPort::WfPortType param_type,
 		 const string& name,
 		 unsigned int lastArg,
-		 WfNode * node,
-		 const string * value = NULL);
+		 WfNode * node);
 
 }; // end class DagWfParser
 
@@ -472,7 +477,7 @@ class DataSourceParser {
 
   public:
 
-    DataSourceParser(const string& name); // create and go to first item
+    DataSourceParser(FSourceNode* node);
     ~DataSourceParser();
 
     /**
@@ -483,40 +488,55 @@ class DataSourceParser {
      */
     void parseXml(const string& dataFileName) throw (XMLParsingException);
 
-    /**
-     * Get the current value
-     * Note: must not be called if end() is true
-     * @param buffer string that will contain the value
-     */
-    void
-        getCurrentValue(string& buffer);
-
-    /**
-     * Go to the next available value
-     */
-    void goToNextValue() throw (XMLParsingException);
-
-    /**
-     * Returns true if the source values were all parsed
-     */
-    bool end();
 
   private:
 
-    void parseRoot(DOMNode* root) throw (XMLParsingException);
-    void findValueNode() throw (XMLParsingException);
+    FSourceNode* myNode;
+};
 
-    string myName;
 
-    /**
-     * Xml document
-     */
-    DOMDocument * document;
+/*****************************************************************************/
+/*                    CLASS DataSourceHandler                                */
+/*****************************************************************************/
 
-    /**
-     * Current DOM node containing a value for the source
-     */
-    DOMNode * currValueNode;
+class DataSourceHandler : public DefaultHandler {
+
+  public:
+
+    DataSourceHandler(FSourceNode* node);
+
+    void startElement(
+        const   XMLCh* const    uri,
+        const   XMLCh* const    localname,
+        const   XMLCh* const    qname,
+        const   Attributes&     attrs
+    );
+
+    void endElement(const   XMLCh* const    uri,
+                    const   XMLCh* const    localname,
+                    const   XMLCh* const    qname);
+
+    void characters (const  XMLCh* const     chars,
+                     const  unsigned int     length);
+
+    void fatalError(const SAXParseException& e);
+
+  private:
+    void startSource(const   Attributes&     attrs);
+    void startList();
+    void startItem();
+
+    void endSource();
+    void endList();
+    void endItem();
+
+    FSourceNode*  myNode;
+    FDataTag*     myCurrTag;
+    string        myCurrItemValue;
+
+    bool          isSourceFound;
+    bool          isItemFound;
+
 
 };
 

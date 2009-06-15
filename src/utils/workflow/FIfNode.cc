@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2009/06/15 12:11:12  bisnard
+ * use new XML Parser (SAX) for data source file
+ * use new class WfValueAdapter to avoid data duplication
+ * use new method FNodeOutPort::storeData
+ * changed method to compute total nb of data items
+ *
  * Revision 1.3  2009/05/27 08:49:43  bisnard
  * - modified condition output: new IF_THEN and IF_ELSE port types
  * - implemented MERGE and FILTER workflow nodes
@@ -31,6 +37,7 @@
 
 FIfNode::FIfNode(FWorkflow* wf, const string& id) : FProcNode(wf,id) {
   myCondition = new WfBooleanExpression();
+  myConditionVars = NULL;
 }
 
 FIfNode::~FIfNode() {}
@@ -83,7 +90,10 @@ FIfNode::setCondition(const string& conditionStr)
 
 void
 FIfNode::checkCondition() throw (WfStructException) {
-  // loop over all inputs and set a default value (0) for the variable
+  // init variables table
+  if (myConditionVars != NULL)  delete myConditionVars;
+  myConditionVars = new vector<WfExprVariable*>(getPortNb(), NULL);
+  // loop over all inputs and set the variable in the table
   for (map<string, WfPort*>::iterator portIter = ports.begin();
        portIter != ports.end();
        ++portIter) {
@@ -94,13 +104,13 @@ FIfNode::checkCondition() throw (WfStructException) {
       // DH with a real value
       FNodeInPort* inPort = dynamic_cast<FNodeInPort*>(port);
       inPort->setValueRequired();
-      // check if port depth is maximum 1
-      if (port->getDepth() > 1)
-        throw WfStructException(WfStructException::eINVALID_EXPR,
-                                "variable in condition is a container of depth > 1");
-      bool seq = port->getDepth() > 0;
-      // set the default value for the condition check
-      myCondition->setVariableDefaultValue(port->getId(), port->getBaseDataType(), seq);
+      // create a new variable
+      WfExprVariable* newVar = new WfExprVariable(inPort->getId(), inPort->getDataType());
+      newVar->setDefaultValue();
+      // store the new variable in the table (index = port index)
+      (*myConditionVars)[inPort->getIndex()] = newVar;
+      // apply variable to condition
+      myCondition->addVariable(newVar);
     }
   }
   // check if the expression evaluates
@@ -110,7 +120,7 @@ FIfNode::checkCondition() throw (WfStructException) {
     throw WfStructException(WfStructException::eINVALID_EXPR,
                             myCondition->getExpression());
   }
-  myCondition->reset();
+//   myCondition->reset();
 }
 
 void
@@ -142,15 +152,22 @@ FIfNode::createRealInstance(Dag* dag,
   TRACE_TEXT (TRACE_ALL_STEPS,"  ## NEW IF INSTANCE : " << getId()
                               << currTag.toString() << endl);
   FNodePortMap* mapToApply;
-  // Loop for all inputs (NOT OPTIMIZED: some inputs may be unused in the expression)
+  // Loop for all inputs
   for (int ix = 0; ix < currDataLine.size(); ++ix) {
-    FDataHandle *dataHdl = (FDataHandle*) currDataLine[ix];
-    const WfPort *port = getPortByIndex(ix);
-    if (dataHdl && dataHdl->isValueDefined()) {
-      myCondition->setVariable(port->getId(),
-                               port->getBaseDataType(),
-                               port->getDepth() > 0,
-                               dataHdl->getValue());
+
+    // check if current input is used as variable in the condition
+    if ((*myConditionVars)[ix] != NULL) {
+
+      // check if current input has a value
+      FDataHandle *dataHdl = (FDataHandle*) currDataLine[ix];
+      if (dataHdl && dataHdl->isValueDefined()) {
+
+        // set the value of the variable
+        (*myConditionVars)[ix]->setValue(dataHdl->getValue());
+
+      } else {
+        //TODO throw exception
+      }
     }
   }
   bool result = false;
@@ -172,7 +189,7 @@ FIfNode::createRealInstance(Dag* dag,
   }
   // Apply the chosen map accordingly
   mapToApply->applyMap(currTag, currDataLine);
-  myCondition->reset();
+//   myCondition->reset();
   TRACE_TEXT (TRACE_ALL_STEPS,"  ## END OF CREATION OF NEW IF INSTANCE : "
                               << getId() << currTag.toString() << endl);
 }
@@ -224,6 +241,7 @@ FMergeNode::createMergeInstance(const FDataTag& currTag,
     // COPY the input DH (with all its child tree)
     FDataHandle *dataHdl = new FDataHandle(currTag, *srcData);
     // Submit to out port (ie will send it to connected ports)
+    myOutPort->storeData(dataHdl);
     myOutPort->sendData(dataHdl);
   } else {
     INTERNAL_ERROR("Merge node received 2 void inputs",1);
@@ -312,7 +330,7 @@ FFilterNode::createVoidInstance(const FDataTag& currTag,
 
 void
 FFilterNode::updateUp(FDataHandle* DH, short depth) {
-  cout << "[FILTER] updateUp for " << DH->getTag().toString() << endl;
+//   cout << "[FILTER] updateUp for " << DH->getTag().toString() << endl;
   filterNode_t* currTreeNode = getTreeNode(DH);
   bool voidDefChange = false;
 
@@ -385,7 +403,7 @@ FFilterNode::updateUp(FDataHandle* DH, short depth) {
 
 void
 FFilterNode::updateRight(const FDataTag& tag, int precIdx, short depth) {
-  cout << "[FILTER] updateRight for " << tag.toString() << endl;
+//   cout << "[FILTER] updateRight for " << tag.toString() << endl;
   FDataTag currTag = tag;
   filterNode_t* currTreeNode = getTreeNode(tag);
   while (currTreeNode->voidDef) {
@@ -415,7 +433,7 @@ FFilterNode::updateRight(const FDataTag& tag, int precIdx, short depth) {
 
 void
 FFilterNode::updateLeftNonVoid(const FDataTag& tag, short depth) {
-  cout << "[FILTER] updateLeftNonVoid for " << tag.toString() << endl;
+//   cout << "[FILTER] updateLeftNonVoid for " << tag.toString() << endl;
   FDataTag currTag = tag;
   while (currTag.getLastIndex() > 0) {
     currTag.getPredecessor();
@@ -431,7 +449,7 @@ FFilterNode::updateLeftNonVoid(const FDataTag& tag, short depth) {
 
 void
 FFilterNode::updateLeftVoid(const FDataTag& tag, short depth) {
-  cout << "[FILTER] updateLeftVoid for " << tag.toString() << endl;
+//   cout << "[FILTER] updateLeftVoid for " << tag.toString() << endl;
   FDataTag currTag = tag;
   while (currTag.getLastIndex() > 0) {
     currTag.getPredecessor();
@@ -464,17 +482,18 @@ FFilterNode::updateLeftVoid(const FDataTag& tag, short depth) {
 // RECURSIVE
 void
 FFilterNode::sendDown(FDataHandle* DH, short depth) {
-  cout << "[FILTER] sendDown for " << DH->getTag().toString() << endl;
+//   cout << "[FILTER] sendDown for " << DH->getTag().toString() << endl;
   if (!DH->isVoid()) {
     if (depth == 0) {
       // copy the data handle and send it
       FDataTag  newTag = getNewTag(DH->getTag());
       FDataHandle *dataHdl = new FDataHandle(newTag , *DH);
+      myOutPort->storeData(dataHdl);
       myOutPort->sendData(dataHdl);
       myTree[DH->getTag()]->isDone = true;
 
     } else {
-      cout << "[FILTER] sendDown: processing childs" << endl;
+//       cout << "[FILTER] sendDown: processing childs" << endl;
       for (map<FDataTag,FDataHandle*>::iterator childIter = DH->begin();
            childIter != DH->end();
            ++childIter) {
@@ -540,8 +559,8 @@ FFilterNode::getNewTag(const FDataTag& srcTag) {
   } // end while
 
   FDataTag newTag = FDataTag(idxTab, lastTab, srcTag.getLevel());
-  cout << "[FILTER] getNewTag for " << srcTag.toString()
-       << " ==> mapping is " << newTag.toString() << endl;
+//   cout << "[FILTER] getNewTag for " << srcTag.toString()
+//        << " ==> mapping is " << newTag.toString() << endl;
   delete [] idxTab;
   delete [] lastTab;
 

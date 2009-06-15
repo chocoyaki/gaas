@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2009/06/15 12:11:12  bisnard
+ * use new XML Parser (SAX) for data source file
+ * use new class WfValueAdapter to avoid data duplication
+ * use new method FNodeOutPort::storeData
+ * changed method to compute total nb of data items
+ *
  * Revision 1.13  2009/05/27 08:49:43  bisnard
  * - modified condition output: new IF_THEN and IF_ELSE port types
  * - implemented MERGE and FILTER workflow nodes
@@ -181,14 +187,14 @@ FConstantNode::setValue(const string& strVal) {
 
 void
 FConstantNode::instanciate(Dag* dag) {
-  // create a WfDataHandle and set its value
-  FDataTag singleTag(0,true);
-  FDataHandle* dataHdl = new FDataHandle(singleTag, myValue);
   // set the out port as constant with this dataHdl
   FNodeOutPort* outPort = dynamic_cast<FNodeOutPort*>(ports[outPortName]);
   if (!outPort) {
     INTERNAL_ERROR("Missing out port in constant FNode",0);
   }
+  // create a WfDataHandle and set its value
+  FDataTag singleTag(0,true);
+  FDataHandle* dataHdl = new FDataHandle(singleTag, outPort->getBaseDataType(), myValue);
   outPort->setAsConstant(dataHdl);
   myStatus = N_INSTANC_END;
 }
@@ -204,7 +210,7 @@ FSourceNode::FSourceNode(FWorkflow* wf,
   : FNode(wf, id, N_INSTANC_READY), myParser(NULL) {
   WfPort * outPort = this->newPort(outPortName,0,WfPort::PORT_OUT,type,0);
   myOutPort = dynamic_cast<FNodeOutPort*>(outPort);
-  myParser = new DataSourceParser(id);
+  myParser = new DataSourceParser(this);
 }
 
 FSourceNode::~FSourceNode() {
@@ -216,40 +222,43 @@ FSourceNode::getDefaultPortName() const {
   return outPortName;
 }
 
+WfCst::WfDataType
+FSourceNode::getDataType() const {
+  return myOutPort->getBaseDataType();
+}
+
+unsigned int
+FSourceNode::getDepth() const {
+  return myOutPort->getDepth();
+}
+
 void
 FSourceNode::initialize() {
   TRACE_TEXT (TRACE_ALL_STEPS,"Initializing data source :" << getId() << endl);
-  TRACE_TEXT (TRACE_ALL_STEPS,"  1/ Parse XML data file :" << endl);
-  myParser->parseXml(wf->getDataSrcXmlFile());
+  // initialize the total nb of item to 0 (in case XML data is empty)
+  myOutPort->checkIfEmptyOutput();
 }
 
 void
 FSourceNode::instanciate(Dag* dag) {
-  unsigned int valCount = 0;
-  // LOOP while file contains data items
-  while (!myParser->end()) {
-    TRACE_TEXT (TRACE_ALL_STEPS, "Source " << getId()
-                  << " : Found one value in XML file" << endl);
-      // get the data item
-    string currVal;
-    myParser->getCurrentValue(currVal);
-      // move the parser to the next value
-    try {
-      myParser->goToNextValue();
-    } catch (XMLParsingException& exception) {
-      cerr <<  "Data source " << getId() << " XML Parsing error: "
-            << exception.Info() << endl;
-      break;
-    }
-      // if this is the last item, then set the tag as last
-    bool isLast = myParser->end();
-    FDataTag currTag(valCount++, isLast);
-      // create data handle with the data item
-    FDataHandle* currDataHdl = new FDataHandle(currTag, currVal);
-      // send this data handle to connected ports
-    myOutPort->sendData(currDataHdl);
+  TRACE_TEXT (TRACE_ALL_STEPS,"#### SOURCE " << getId() << " INSTANCIATION" << endl);
+  try {
+    myParser->parseXml(wf->getDataSrcXmlFile());
+    myOutPort->updateDataTree();
+    myOutPort->sendAllData();
+
+  } catch (XMLParsingException& e) {
+    cerr << "FATAL ERROR during SOURCE '" << getId() << "' initialization:\n"
+         << e.ErrorMsg() << endl;
   }
   myStatus = N_INSTANC_END;
+  TRACE_TEXT (TRACE_ALL_STEPS,"#### END OF SOURCE " << getId() << " INSTANCIATION" << endl);
+}
+
+void
+FSourceNode::instanciate(const FDataTag& tag, const string& value) {
+  FDataHandle* newDH = new FDataHandle(tag, getDataType(),value);
+  myOutPort->storeData(newDH);
 }
 
 /*****************************************************************************/
@@ -529,6 +538,7 @@ FProcNode::createVoidInstance(const FDataTag& currTag,
       // instanciate port with VOID data
       FDataHandle* dataHdl = outPort->createVoidInstance(currTag);
       // send data to connected nodes
+      outPort->storeData(dataHdl);
       outPort->sendData(dataHdl);
     }
   }
@@ -610,12 +620,22 @@ FProcNode::updateInstanciationStatus() {
     if (myRootIterator->isDone()) {
       TRACE_TEXT (TRACE_ALL_STEPS, "########## ALL INPUTS PROCESSED" << endl);
       myStatus = N_INSTANC_END;
+
+      // CHECK for each out port if the output is empty  TODO check if could be optimized
+      for (map<string,WfPort*>::iterator portIter = ports.begin();
+           portIter != ports.end();
+           ++portIter) {
+        WfPort* port = (WfPort*) portIter->second;
+        if (port->getPortType() == WfPort::PORT_OUT) {
+          FNodeOutPort* outPort = dynamic_cast<FNodeOutPort*>(port);
+          outPort->checkIfEmptyOutput();
+        }
+      }
+
     } else {
       TRACE_TEXT (TRACE_ALL_STEPS, "########## WAITING FOR INPUTS " << endl);
       myStatus = N_INSTANC_WAITING;
     }
-  } else {
-    INTERNAL_ERROR("FNode '" << getId() << "' root iterator stopped before end without reason",1);
   }
 }
 

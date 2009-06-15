@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2009/06/15 12:11:12  bisnard
+ * use new XML Parser (SAX) for data source file
+ * use new class WfValueAdapter to avoid data duplication
+ * use new method FNodeOutPort::storeData
+ * changed method to compute total nb of data items
+ *
  * Revision 1.3  2009/05/27 08:49:43  bisnard
  * - modified condition output: new IF_THEN and IF_ELSE port types
  * - implemented MERGE and FILTER workflow nodes
@@ -83,7 +89,8 @@ class FIfNode : public FProcNode {
 
     FNodePortMap  myThenMap;
     FNodePortMap  myElseMap;
-    WfBooleanExpression*  myCondition;
+    vector<WfExprVariable*>*  myConditionVars;
+    WfBooleanExpression*      myCondition;
 
 };
 

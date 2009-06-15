@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2009/06/15 12:11:12  bisnard
+ * use new XML Parser (SAX) for data source file
+ * use new class WfValueAdapter to avoid data duplication
+ * use new method FNodeOutPort::storeData
+ * changed method to compute total nb of data items
+ *
  * Revision 1.3  2009/05/15 11:10:20  bisnard
  * release for workflow conditional structure (if)
  *
@@ -108,6 +114,7 @@ FActivityNode::createRealInstance(Dag* dag,
         if (dataHdl == NULL) {
           INTERNAL_ERROR("FActivityNode: Output data handle is invalid",1);
         }
+        outPort->storeData(dataHdl);
         outPort->sendData(dataHdl);
         break;
       case WfPort::PORT_INOUT:
@@ -131,15 +138,9 @@ FActivityNode::createRealInstance(Dag* dag,
 
 void
 FActivityNode::updateInstanciationStatus() {
-  if (myRootIterator->isAtEnd()) {
-    if (myRootIterator->isDone()) {
-      TRACE_TEXT (TRACE_ALL_STEPS, "########## ALL INPUTS PROCESSED" << endl);
-      myStatus = N_INSTANC_END;
-    } else {
-      TRACE_TEXT (TRACE_ALL_STEPS, "########## WAITING FOR INPUTS " << endl);
-      myStatus = N_INSTANC_WAITING;
-    }
-  } else {
+  FProcNode::updateInstanciationStatus();
+  // Handle specific case for instance nb limitation
+  if (!myRootIterator->isAtEnd()) {
     TRACE_TEXT (TRACE_ALL_STEPS, "########## SET NODE ON HOLD" << endl);
     myStatus = N_INSTANC_ONHOLD;
   }

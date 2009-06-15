@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2009/06/15 12:11:13  bisnard
+ * use new XML Parser (SAX) for data source file
+ * use new class WfValueAdapter to avoid data duplication
+ * use new method FNodeOutPort::storeData
+ * changed method to compute total nb of data items
+ *
  * Revision 1.10  2009/05/27 08:49:43  bisnard
  * - modified condition output: new IF_THEN and IF_ELSE port types
  * - implemented MERGE and FILTER workflow nodes
@@ -145,7 +151,7 @@ FNodeOutPort::createRealInstance(Dag* dag, DagNode* nodeInst, const FDataTag& ta
   //  - its depth equals the depth of the out port
   //  - its tag equals the tag of the node instance
   //  - its port equals the portInst
-  dataHdl = new FDataHandle(tag, depth, false, NULL, portInstPtr, tag.getLevel());
+  dataHdl = new FDataHandle(tag, depth, false, portInstPtr, tag.getLevel());
   // set the cardinal information if available
   if (card) {
     dataHdl->setCardinalList(*card);
@@ -159,13 +165,14 @@ FNodeOutPort::createVoidInstance(const FDataTag& tag) {
   return new FDataHandle(tag, depth, true);
 }
 
-/**
- * Static sendData
- */
 void
-FNodeOutPort::sendData(FDataHandle* dataHdl) throw (WfDataHandleException) {
+FNodeOutPort::storeData(FDataHandle* dataHdl) throw (WfDataHandleException) {
   TRACE_TEXT (TRACE_ALL_STEPS,"   # Insert data into buffer (" << getId() << ")" << endl);
   myBuffer.insertInTree(dataHdl);
+}
+
+void
+FNodeOutPort::sendData(FDataHandle* dataHdl) throw (WfDataHandleException) {
   // add the new dataHandle to all the connected in ports ==> inPort.addData
   // all the inPort(s) that return false must be included in the FNode pending list
   TRACE_TEXT (TRACE_ALL_STEPS,"   # Insert data into connected ports" << endl);
@@ -175,11 +182,13 @@ FNodeOutPort::sendData(FDataHandle* dataHdl) throw (WfDataHandleException) {
     FNodeInPort* inPort = (FNodeInPort*) *inPortIter;
     try {
       inPort->addData(dataHdl);
-      checkTotalDataNb(inPort, dataHdl);
+      checkTotalDataNb(inPort);
     } catch (WfDataHandleException& e) {
-      TRACE_TEXT (TRACE_ALL_STEPS," ==> insert failed (missing value or cardinal)");
-      if ((e.Type() == WfDataHandleException::eCARD_UNDEF)
+      if  (e.Type() == WfDataHandleException::eADAPT_UNDEF) {
+        TRACE_TEXT (TRACE_ALL_STEPS," ==> insert failed (missing adapter)\n");
+      } else if ((e.Type() == WfDataHandleException::eCARD_UNDEF)
           || (e.Type() == WfDataHandleException::eVALUE_UNDEF)) {
+        TRACE_TEXT (TRACE_ALL_STEPS," ==> insert failed (missing value or cardinal)\n");
         if (dataHdl->isDataIDDefined()) {
           reSendData(dataHdl, inPort);
         } else {
@@ -188,6 +197,11 @@ FNodeOutPort::sendData(FDataHandle* dataHdl) throw (WfDataHandleException) {
       } else throw;
     }
   }
+}
+
+void
+FNodeOutPort::sendAllData() throw (WfDataHandleException) {
+  sendData(&myBuffer);
 }
 
 void
@@ -213,30 +227,41 @@ FNodeOutPort::reSendData(FDataHandle* dataHdl, FNodeInPort* inPort)
   // send the data to IN port
   try {
     inPort->addData(dataHdl);
-    checkTotalDataNb(inPort, dataHdl);
+    checkTotalDataNb(inPort);
   } catch (WfDataHandleException& e) {
     // a VALUE_UNDEF may be thrown in case the current data must be merged with
     // other data that is not yet available. In this case there is nothing to do
     // because the container DH will be received when the last element is added.
-    if (e.Type() != WfDataHandleException::eVALUE_UNDEF)
+    if ((e.Type() != WfDataHandleException::eVALUE_UNDEF) &&
+         (e.Type() != WfDataHandleException::eADAPT_UNDEF))
       throw;
   }
 }
 
 void
-FNodeOutPort::checkTotalDataNb(FNodeInPort *inPort,
-                               FDataHandle *dataHdl) {
-  TRACE_TEXT (TRACE_ALL_STEPS,"     # Checking total nb of items (port "
-                              << inPort->getParent()->getId()
-                              << "#" << inPort->getId() << ")" << endl);
+FNodeOutPort::checkTotalDataNb(FNodeInPort *inPort) {
   // determine the level corresponding to data items of the input port
-  unsigned int inLevel = dataHdl->getTag().getLevel() + this->depth
-                         - inPort->getDepth();
+  unsigned int inLevel = inPort->getDataLevel();
   // check if the tree is complete at this level
-  if (myBuffer.checkIfComplete(inLevel, myBufferChildNbTable)) {
-    // if yes then use the childNbTable to set the total items for the
-    // connected port
-    inPort->setTotalDataNb(myBufferChildNbTable[inLevel]);
+  if (myBuffer.checkIfComplete(inLevel)) {
+    inPort->setTotalDataNb(myBuffer.getChildCount(inLevel));
+  }
+}
+
+void
+FNodeOutPort::updateDataTree() {
+  myBuffer.updateTree();
+}
+
+void
+FNodeOutPort::checkIfEmptyOutput() {
+  if (myBuffer.isEmpty()) {
+    for (list<FNodeInPort*>::iterator inPortIter = myConnectedPorts.begin();
+       inPortIter != myConnectedPorts.end();
+       ++inPortIter) {
+      FNodeInPort* inPort = (FNodeInPort*) *inPortIter;
+      inPort->setTotalDataNb(0);
+    }
   }
 }
 
@@ -271,13 +296,18 @@ void
 FNodeInPort::addData(FDataHandle* dataHdl)
    throw (WfDataHandleException, WfDataException)
 {
-  TRACE_TEXT (TRACE_ALL_STEPS,"     # Calling addData (port " << getParent()->getId()
-                              << "#" << getId()
-                              << ") for data: " << dataHdl->getTag().toString() << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS,"     # add data " << dataHdl->getTag().toString()
+              << " to port " << getParent()->getId() << "#" << getId()
+              << (dataHdl->isValueDefined() ? " /value=" + dataHdl->getValue() : "")
+              << endl);
   // if dataHdl is not complete then do nothing (happens due to recursive call to parent)
-  if (!dataHdl->isAdapterDefined() && !dataHdl->isValueDefined()) {
-    TRACE_TEXT (TRACE_ALL_STEPS,"Cannot add data to inPort (no value and no adapter)" << endl);
-    return;
+//   if (!dataHdl->isAdapterDefined() && !dataHdl->isValueDefined()) {
+  if (!dataHdl->isAdapterDefined()) {
+//     TRACE_TEXT (TRACE_ALL_STEPS,"Cannot add data to inPort (no value and no adapter)" << endl);
+//     return
+    TRACE_TEXT (TRACE_ALL_STEPS,"Cannot add data to inPort (no adapter)" << endl);
+    throw WfDataHandleException(WfDataHandleException::eADAPT_UNDEF,
+                                dataHdl->getTag().toString());
   }
 
   if (dataHdl->getDepth() == depth) {
@@ -285,15 +315,15 @@ FNodeInPort::addData(FDataHandle* dataHdl)
     // check if value is required
     if ((valueRequired) && (!dataHdl->isValueDefined()))
       dataHdl->downloadValue();
-    if (myQueue.find(dataTag) == myQueue.end()) {
+//     if (myQueue.find(dataTag) == myQueue.end()) {
       TRACE_TEXT (TRACE_ALL_STEPS,"Adding data in input port queue (tag="
                   << dataTag.toString() << ")" << endl);
       myQueue.insert(pair<FDataTag,FDataHandle*>(dataTag, dataHdl));
       // updates node status
       getParentFNode()->setStatusReady();
-    } else {
-      //FIXME should this case happen ??
-    }
+//     } else {
+//       //FIXME should this case happen ??
+//     }
 
   // SPLIT CURRENT DATA => calls addData on the childrens
   } else if (dataHdl->getDepth() > depth) {
@@ -318,11 +348,27 @@ FNodeInPort::addData(FDataHandle* dataHdl)
     if ((valueRequired) && (!dataHdl->isValueDefined()))
       dataHdl->downloadValue();
     if (dataHdl->isParentDefined()) {
+      if (dataHdl->getTag().getLevel() <= 1) {
+        // throw exception when the parent DH is the buffer's ROOT which should never be
+        // used as a data itself. This means the workflow is badly built.
+        throw WfDataHandleException(WfDataHandleException::eINVALID_ADAPT,
+                                    "Cannot merge data higher than level 1 data");
+      }
       TRACE_TEXT (TRACE_ALL_STEPS,"Trying to add parent (MERGE)" << endl);
       this->addData(dataHdl->getParent());
     } else {
       INTERNAL_ERROR("Missing data handle parent",0);
     }
+  }
+}
+
+unsigned int
+FNodeInPort::getDataLevel() {
+  map<FDataTag,FDataHandle*>::const_iterator dataIter = myQueue.begin();
+  if (dataIter != myQueue.end()) {
+    return ((FDataHandle*)dataIter->second)->getTag().getLevel();
+  } else {
+    INTERNAL_ERROR("Called getDataLevel() on empty IN port",1);
   }
 }
 
@@ -351,23 +397,26 @@ FNodeInPort::createRealInstance(Dag* dag, DagNode* nodeInst, FDataHandle* dataHd
   }
   // create a DagNodeInPort for the nodeInst
   string portId = this->getId();
-  TRACE_TEXT (TRACE_ALL_STEPS,"Creating new instance of IN port: " << portId << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS,"   # Creating new instance of IN port: " << portId << endl);
   WfPort* portInst = nodeInst->newPort(portId,
                                       nodeInst->getPortNb(),
                                       portType,
                                       getBaseDataType(),
                                       depth);
-  // if the dataHdl has a value then set the value of the port
-  if (dataHdl->isValueDefined()) {
-    TRACE_TEXT (TRACE_ALL_STEPS," IN port ==> VALUE : " << dataHdl->getValue() << endl);
-    DagNodePort* dagPortInst = dynamic_cast<DagNodePort*>(portInst);
-    dagPortInst->setValue(dataHdl->getValue());
-  } else {
-    // if the dataHdl has a source then set the source of the port
-    WfPortAdapter * portAdapter = dataHdl->createPortAdapter(dag->getId());
-    portInst->setPortAdapter(portAdapter);
-    TRACE_TEXT (TRACE_ALL_STEPS," IN port ==> ADAPTER = " << portAdapter->getSourceRef() << endl);
+  // updates the dataID of the input data in case the value is available
+  // (to avoid storing the same value multiple times in the dataMgr)
+  if (dataHdl->isValueDefined() && !dataHdl->isDataIDDefined()) {
+    TRACE_TEXT (TRACE_ALL_STEPS,"Updating dataID of data having a value" << endl);
+    try {
+      dataHdl->downloadDataID();
+    } catch (WfDataException& e) {
+      WARNING("Data initialization failure (" << e.ErrorMsg() << ")" << endl);
+    }
   }
+  WfPortAdapter * portAdapter = dataHdl->createPortAdapter(dag->getId());
+  portInst->setPortAdapter(portAdapter);
+  TRACE_TEXT (TRACE_ALL_STEPS,"Setting ADAPTER = " << portAdapter->getSourceRef() << endl);
+
 }
 
 void
@@ -380,9 +429,11 @@ FNodeInPort::displayData(ostream& output) {
   for (map<FDataTag,FDataHandle*>::const_iterator dataIter = myQueue.begin();
        dataIter != myQueue.end();
        ++dataIter) {
+    FDataHandle*  currData = (FDataHandle*) dataIter->second;
+    WfDataWriter* dataWriter = new WfListDataWriter(output);
     output << "[" << ix++ << "]=";
     try {
-      ((FDataHandle*) dataIter->second)->displayDataAsList(output);
+      currData->writeValue(dataWriter);
     } catch (WfDataException& e) {
       output << "<Error: " << e.ErrorMsg() << ">";
     }
@@ -440,6 +491,9 @@ FNodePortMap::applyMap(const FDataTag& tag, const vector<FDataHandle*>& dataLine
        TRACE_TEXT (TRACE_ALL_STEPS," # Mapping " << inPort->getId()
                                     << " to " << outPort->getId() << endl);
        // COPY the input DH (with all its child tree)
+       if (!dataLine[inPort->getIndex()]) {
+         INTERNAL_ERROR("data handle for in port " << inPort->getId() << " not defined" << endl, 1);
+       }
        dataHdl = new FDataHandle(tag, *dataLine[inPort->getIndex()]);
      } else {
        TRACE_TEXT (TRACE_ALL_STEPS," # Mapping VOID to " << outPort->getId() << endl);
@@ -447,6 +501,7 @@ FNodePortMap::applyMap(const FDataTag& tag, const vector<FDataHandle*>& dataLine
         dataHdl = new FDataHandle(tag, outPort->getDepth(), true);
      }
      // Submit to out port (ie will send it to connected ports)
+     outPort->storeData(dataHdl);
      outPort->sendData(dataHdl);
    }
 }

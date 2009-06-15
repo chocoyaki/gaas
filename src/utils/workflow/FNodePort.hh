@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2009/06/15 12:11:13  bisnard
+ * use new XML Parser (SAX) for data source file
+ * use new class WfValueAdapter to avoid data duplication
+ * use new method FNodeOutPort::storeData
+ * changed method to compute total nb of data items
+ *
  * Revision 1.10  2009/05/27 08:49:43  bisnard
  * - modified condition output: new IF_THEN and IF_ELSE port types
  * - implemented MERGE and FILTER workflow nodes
@@ -107,6 +113,14 @@ class FNodeOutPort : public FNodePort {
         connectToPort(WfPort* remPort);
 
     /**
+     * Method to store a new data handle in the buffer
+     * (must be called before sending data)
+     */
+    virtual void
+        storeData(FDataHandle* dataHdl)
+        throw (WfDataHandleException);
+
+    /**
      * Method to send a data handle to the connected ports
      */
     virtual void
@@ -145,6 +159,26 @@ class FNodeOutPort : public FNodePort {
     void
         setAsConstant(FDataHandle* dataHdl);
 
+    /**
+     * Checks if the port did not send any data and if yes set the dataTotalNb
+     * of connected ports to O
+     */
+    void
+        checkIfEmptyOutput();
+
+    /**
+     * Set the data boundaries (ie cardinal & last flags) when the data set is complete
+     * (used for data sources only)
+     */
+    void
+        updateDataTree();
+
+    /**
+     * Send all the data contained in the buffer
+     */
+    void
+        sendAllData() throw (WfDataHandleException);
+
   protected:
 
     void
@@ -152,8 +186,7 @@ class FNodeOutPort : public FNodePort {
                            FNodeInPort* inPort);
 
     void
-    checkTotalDataNb(FNodeInPort *inPort,
-                     FDataHandle *dataHdl);
+    checkTotalDataNb(FNodeInPort *inPort);
 
     /**
      * The list of in ports connected
@@ -169,7 +202,7 @@ class FNodeOutPort : public FNodePort {
      * The nb of childs table
      * indexed by the level of the buffer tree (from O to its max level)
      */
-    vector<unsigned int> myBufferChildNbTable;
+//     vector<unsigned int> myBufferChildNbTable;
 
 }; // end class FNodeOutPort
 
@@ -208,6 +241,13 @@ class FNodeInPort : public FNodePort {
         addData(FDataHandle* dataHdl)
         throw (WfDataHandleException, WfDataException);
 
+    /**
+     * Get the tag level of data currently stored in the input queue
+     * (cannot be called before at least one item is stored)
+     * @return  tag level
+     */
+    unsigned int
+        getDataLevel();
 
     /**
      * Set the total nb of data items
@@ -236,7 +276,7 @@ class FNodeInPort : public FNodePort {
 
     /**
      * Display the port current data
-     * @param output  output stream
+     * @param output      output stream
      */
     void
         displayData(ostream& output);
