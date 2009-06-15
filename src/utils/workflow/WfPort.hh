@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2009/06/15 12:24:30  bisnard
+ * new class DagNodeArgPort (arg ports not used for funct wf anymore)
+ * use WfDataWriter class to display data
+ *
  * Revision 1.15  2009/05/27 08:49:43  bisnard
  * - modified condition output: new IF_THEN and IF_ELSE port types
  * - implemented MERGE and FILTER workflow nodes
@@ -98,6 +102,7 @@ public:
 
   enum WfPortType{
     PORT_IN,
+    PORT_ARG,
     PORT_INOUT,
     PORT_OUT,
     PORT_PARAM,
@@ -177,6 +182,14 @@ public:
    */
   WfCst::WfDataType
   getDataType() const;
+
+  /**
+   * Returns the data type at a given depth
+   * (returns container if eltDepth lower than port depth,
+   *  returns base data type if eltDepth=port depth)
+   */
+  WfCst::WfDataType
+  getDataType(unsigned int eltDepth) const;
 
   /**
    * Returns the data type of elements (in case of CONTAINER or MATRIX type)

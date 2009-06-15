@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2009/06/15 12:24:29  bisnard
+ * new class DagNodeArgPort (arg ports not used for funct wf anymore)
+ * use WfDataWriter class to display data
+ *
  * Revision 1.10  2009/05/15 11:15:07  bisnard
  * container initialization adapted to standard notation
  * added method to retrieve container cardinal
@@ -55,9 +59,9 @@
 
 using namespace std;
 
-/*******************************/
-/* class declarations          */
-/*******************************/
+/*****************************************************************************/
+/*                        DagNodePort (ABSTRACT)                             */
+/*****************************************************************************/
 
 class DagNodePort : public WfPort {
 
@@ -75,11 +79,6 @@ public:
    */
   static string containerSeparator;
 
-  /**
-   * Set the value of the data for the port
-   */
-  void
-  setValue(const string& value);
 
   /**
    * Initialize the profile before node submission
@@ -91,7 +90,7 @@ public:
    * Initialize the profile before node execution
    */
   virtual void
-  initProfileExec() throw (WfDataException);
+  initProfileExec() throw (WfDataException) = 0;
 
   /**
    * Return the XML description of the port
@@ -128,62 +127,21 @@ protected:
   setProfileWithoutValue();
 
   /**
-   * Initializes the profile when a value is provided
-   */
-  void
-  setProfileWithValue();
-
-  /**
-   * Converts the string value to an allocated buffer for a matrix
-   */
-  void
-  initMatrixValue(void **buffer, const string& value);
-
-  /**
-   * Converts the string value to a data handle for a container
-   * Examples of input: 3;4;5  or ((toto;titi);(tata))
-   * @param value container value (uses parenthesis & semicolumns)
-   */
-  void
-  initContainerValue(const string& value);
-
-  /**
-   * Stores a data defined by a value string into the data manager
-   * @param valStr  the value
-   * @param valID   will contain the ID of the data
-   */
-  void
-  initContainerElementValue(const char* valStr, char** valIDPtr);
-
-  /**
    * The port data ID
    */
   string dataID;
-
-  /**
-   * The value of the data (if present)
-   */
-  string value;
 
   /**
    * The reference of port node
    */
   DagNode * myParent;
 
-private:
-
-  /**
-   * Container initialization from string (recursive)
-   * @param contIDPtr will contain the ID of the created container
-   * @param contStr   string to parse (already parsed content is removed)
-   * @param contDepth depth of the current container (must be >= 1)
-   */
-  void
-  initContainerValueRec(char** contIDPtr,
-                        string& contStr,
-                        unsigned int contDepth);
-
 }; // end DagNodePort
+
+
+/*****************************************************************************/
+/*                           DagNodeOutPort                                  */
+/*****************************************************************************/
 
 class DagNodeOutPort : virtual public DagNodePort {
 public:
@@ -194,6 +152,12 @@ public:
                  unsigned int _ind);
 
   ~DagNodeOutPort();
+
+  /**
+   * Initialize the profile before node execution
+   */
+  virtual void
+  initProfileExec() throw (WfDataException);
 
   /**
    * Store the data IDs from the profile
@@ -232,22 +196,23 @@ public:
   getElementDataID(const list<unsigned int>& eltIdx) throw (WfDataException);
 
   /**
-   * Display the output data in a stream
+   * Write the output data in a stream
    * If the data is a container then it's displayed as a parenthezized
    * comma-separated list
-   * @param output  the output stream
+   * @param dataWriter  the data output formatter
    */
   void
-  displayDataAsList(ostream& output) throw (WfDataException);
+  writeData(WfDataWriter* dataWriter) throw (WfDataException);
 
   /**
-   * Display an element of the output data (when it's a container)
-   * @param output  the output stream
+   * Write an element of the output data (when it's a container)
+   * @param dataWriter  the data output formatter
    * @param eltIdx a list of indexes for the element
    */
   void
-  displayDataElementAsList(ostream& output, const list<unsigned int>& idxList)
+  writeDataElement(WfDataWriter* dataWriter, const list<unsigned int>& idxList)
       throw (WfDataException);
+
 
 protected:
 
@@ -270,15 +235,15 @@ protected:
    * (recursive)
    */
   void
-  displayContainerAsList(ostream& output,
-                         const char* containerID,
-                         unsigned int depth) throw (WfDataException);
-
+  writeContainer(WfDataWriter* dataWriter,
+                 const char* containerID,
+                 unsigned int depth) throw (WfDataException);
   /**
    * Display method used for container elements (dagda API)
    */
   void
-  displayContainerData(ostream& output, const char* eltID);
+  writeContainerData(WfDataWriter* dataWriter,
+                     const char* eltID);
 
   /**
    * Returns the persistence mode for this port
@@ -292,6 +257,11 @@ protected:
   map<string,diet_container_t*> myCache;
 
 };
+
+
+/*****************************************************************************/
+/*                           DagNodeInPort                                   */
+/*****************************************************************************/
 
 class DagNodeInPort : virtual public DagNodePort {
 public:
@@ -332,6 +302,11 @@ protected:
 
 }; // end DagNodeInPort
 
+
+/*****************************************************************************/
+/*                         DagNodeInOutPort                                  */
+/*****************************************************************************/
+
 class DagNodeInOutPort : virtual public DagNodeInPort,
                            virtual public DagNodeOutPort {
 public:
@@ -340,6 +315,11 @@ public:
                    WfCst::WfDataType _type,
                    unsigned int _depth,
                    unsigned int _ind);
+  /**
+   * Initialize the profile before node execution
+   */
+  virtual void
+  initProfileExec() throw (WfDataException);
 
   /**
    * Return the XML description of the port
@@ -355,5 +335,95 @@ protected:
       getPersistenceMode();
 
 }; // end DagNodeInOutPort
+
+
+/*****************************************************************************/
+/*                           DagNodeArgPort                                  */
+/*****************************************************************************/
+
+class DagNodeArgPort : virtual public DagNodePort {
+public:
+  DagNodeArgPort(DagNode * parent,
+                 string _id,
+                 WfCst::WfDataType _type,
+                 unsigned int _depth,
+                 unsigned int _ind);
+
+  /**
+   * Set the value of the data for the port
+   */
+  void
+  setValue(const string& val);
+
+  /**
+   * Initialize the profile before node submission
+   */
+  virtual void
+  initProfileSubmit();
+
+  /**
+   * Initialize the profile before node execution
+   */
+  virtual void
+  initProfileExec() throw (WfDataException);
+
+  /**
+   * Return the XML description of the port
+   */
+  virtual string
+  toXML() const;
+
+protected:
+
+  /**
+   * Initializes the profile when a value is provided
+   */
+  void
+  setProfileWithValue();
+
+  /**
+   * Converts the string value to an allocated buffer for a matrix
+   */
+  void
+  initMatrixValue(void **buffer);
+
+  /**
+   * Converts the string value to a data handle for a container
+   * Examples of input: (3;4;5)  or ((toto;titi);(tata))
+   */
+  void
+  initContainerValue();
+
+  /**
+   * Container initialization from string (recursive)
+   * @param contIDPtr will contain the ID of the created container
+   * @param contStr   string to parse (already parsed content is removed)
+   * @param contDepth depth of the current container (must be >= 1)
+   */
+  void
+  initContainerValueRec(char** contIDPtr,
+                        string& contStr,
+                        unsigned int contDepth);
+  /**
+   * Stores a data defined by a value string into the data manager
+   * @param valStr  the value
+   * @param valID   will contain the ID of the data
+   */
+  void
+  initContainerElementValue(const char* valStr, char** valIDPtr);
+
+  /**
+   * Returns the persistence mode for this port
+   */
+  diet_persistence_mode_t
+  getPersistenceMode();
+
+  /**
+   * The value of the data
+   */
+  string value;
+
+}; // end DagNodeArgPort
+
 
 #endif // _DAGNODEPORT_HH_

@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2009/06/15 12:24:29  bisnard
+ * new class DagNodeArgPort (arg ports not used for funct wf anymore)
+ * use WfDataWriter class to display data
+ *
  * Revision 1.15  2009/05/15 11:03:41  bisnard
  * added new exception types
  *
@@ -371,6 +375,9 @@ DagNode::newPort(string portId, unsigned int ind,
     case WfPort::PORT_IN:
       p = new DagNodeInPort(this, portId, dataType, depth, ind);
       break;
+    case WfPort::PORT_ARG:
+      p = new DagNodeArgPort(this, portId, dataType, depth, ind);
+      break;
     case WfPort::PORT_INOUT:
       p = new DagNodeInOutPort(this, portId, dataType, depth, ind);
       break;
@@ -624,8 +631,8 @@ DagNode::newInt(const string value) {
  */
 long *
 DagNode::newLong(const string value) {
-   TRACE_TEXT (TRACE_ALL_STEPS,
- 	      "new long ; value | " << value <<  " |" << endl);
+//    TRACE_TEXT (TRACE_ALL_STEPS,
+//  	      "new long ; value | " << value <<  " |" << endl);
   if (value != "") {
     long * lx = new long;
     *lx = atoi(value.c_str());
@@ -702,9 +709,10 @@ DagNode::displayResults(ostream& output) {
       string currPortFullId = outp->getParent()->getId() + "#" + outp->getId();
       if (!outp->isConnected()) {
         output << "## DAG OUTPUT (" << currPortFullId << ") = ";
-        if (!hasFailed())
-          outp->displayDataAsList(output);
-        else
+        if (!hasFailed()) {
+          WfListDataWriter  dataWriter(output);
+          outp->writeData(&dataWriter);
+        } else
           output << "<error>";
         output << endl;
       }

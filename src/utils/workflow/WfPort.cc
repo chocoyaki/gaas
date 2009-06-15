@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2009/06/15 12:24:30  bisnard
+ * new class DagNodeArgPort (arg ports not used for funct wf anymore)
+ * use WfDataWriter class to display data
+ *
  * Revision 1.16  2009/04/17 08:54:44  bisnard
  * renamed Node class as WfNode
  *
@@ -134,6 +138,9 @@ WfPort::getPortDescr() const {
     case PORT_IN:
       portDescr = "in ";
       break;
+    case PORT_ARG:
+      portDescr = "arg ";
+      break;
     case PORT_INOUT:
       portDescr = "inout ";
       break;
@@ -166,7 +173,19 @@ WfPort::getDataType() const {
 }
 
 WfCst::WfDataType
+WfPort::getDataType(unsigned int eltDepth) const {
+  if (eltDepth == this->depth) return getBaseDataType();
+  else if (eltDepth < this->depth) return WfCst::TYPE_CONTAINER;
+  else {
+    INTERNAL_ERROR("Wrong eltDepth in getDataType (greater than port depth)",1);
+  }
+}
+
+WfCst::WfDataType
 WfPort::getEltDataType() const {
+  if (!WfCst::isMatrixType(type)) {
+    INTERNAL_ERROR("getEltDataType() should not be used for types other than matrix",1);
+  }
   return this->eltType;
 }
 
