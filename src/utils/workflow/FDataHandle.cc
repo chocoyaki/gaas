@@ -9,6 +9,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2009/06/15 12:22:29  bisnard
+ * use new class WfValueAdapter for adapters with constant value
+ * added attributes myCompletionDepth & myValueType
+ * added data tree initialization (for data sources parsed with SAX)
+ * refactorize constructors & updateAncestors
+ * corrected bug in copy constructor (srcTag.isLast())
+ * use WfDataWriter class to display DH's value (writeData)
+ *
  * Revision 1.9  2009/05/27 08:54:43  bisnard
  * - modified FDataTag comparison op (lexicographic order)
  * - new FDataHandle copy constructor for condition nodes
@@ -246,6 +254,20 @@ FDataTag::getSuccessor() {
   return *this;
 }
 
+FDataTag&
+FDataTag::getTagAsLastOfBranch() {
+  if (mySize > 0) {
+    myLastFlags[mySize-1] = true;
+  }
+  return *this;
+}
+
+void
+FDataTag::updateLastFlags(const FDataTag& parentTag) {
+  for (int ix=0; ix<parentTag.getLevel(); ++ix)
+    myLastFlags[ix] = parentTag.myLastFlags[ix];
+}
+
 /**
  * Converts the tag to a string
  * Used to make the IDs of node instances
@@ -283,6 +305,8 @@ WfDataHandleException::ErrorMsg() {
       errorMsg = "Cardinal of DH undefined ("+Info()+")"; break;
     case eVALUE_UNDEF:
       errorMsg = "Value of DH undefined ("+Info()+")";; break;
+    case eADAPT_UNDEF:
+      errorMsg = "DH Adapter undefined ("+Info()+")";; break;
   }
   return errorMsg;
 }
@@ -297,111 +321,116 @@ WfDataHandleException::ErrorMsg() {
 
 FDataHandle::FDataHandle()
   : myTag(), myDepth(0), myParentHdl(NULL), myPort(NULL), myPortLevel(0),
-    myCard(0), cardDef(false), adapterDef(false), valueDef(false),
+    myCard(0), cardDef(false), valueDef(false), myCompletionDepth(0),
     dataIDDef(false), myAdapterType(ADAPTER_UNDEFINED), myCardList(NULL) {}
 
 FDataHandle::FDataHandle(const FDataTag& tag,
                          unsigned int depth,
                          bool isVoid,
-                         FDataHandle* parentHdl,
                          DagNodeOutPort* port,
                          unsigned int portLevel)
-  : myTag(tag), myDepth(depth), myParentHdl(parentHdl), myPort(port),
-    myPortLevel(portLevel), myCard(0), cardDef(false), adapterDef(false),
+  : myTag(tag), myDepth(depth), myParentHdl(NULL), myPort(port),
+    myPortLevel(portLevel), myCard(0), cardDef(false), myCompletionDepth(0),
     valueDef(false), dataIDDef(false), myAdapterType(ADAPTER_UNDEFINED),
     myCardList(NULL) {
 //   TRACE_TEXT (TRACE_ALL_STEPS, "Creating data handle : tag = " << tag.toString()
-//        << " / depth=" << depth << " / parent=" << parentHdl << " / port=" << port
-//        << " / portLvl=" << portLevel << endl);
+//        << " / depth=" << depth  << " / void=" << isVoid << " / port=" << port
+//        << " / portLevel=" << portLevel );
+  if (depth > 0)
+    myData = new map<FDataTag,FDataHandle*>();
+
+  if (port) {
+    if (!portLevel) {
+      INTERNAL_ERROR("Error in DH constructor : missing port level",1);
+    }
+    if (portLevel == tag.getLevel()) {
+//       TRACE_TEXT (TRACE_ALL_STEPS, " / adapter = direct" << endl);
+      myAdapterType = ADAPTER_DIRECT;  // adapter defined by port reference
+    } else {
+//       TRACE_TEXT (TRACE_ALL_STEPS, " / adapter = simple" << endl);
+      myAdapterType = ADAPTER_SIMPLE;
+    }
+  }
+  else if (isVoid) {
+//     TRACE_TEXT (TRACE_ALL_STEPS, " / adapter = VOID" << endl);
+    myAdapterType = ADAPTER_VOID;
+    if (depth > 0)
+      setCardinal(1); // by default a VOID container DH has 1 element
+  }
+  else {
+    INTERNAL_ERROR("Error in DH constructor: NULL port and not void",1);
+  }
+}
+
+// Private constructor
+FDataHandle::FDataHandle(const FDataTag& tag,
+                         unsigned int depth,
+                         FDataHandle* parentHdl)
+  : myTag(tag), myDepth(depth), myParentHdl(parentHdl), myPort(NULL),
+    myPortLevel(0), myCard(0), cardDef(false), myCompletionDepth(0),
+    valueDef(false), dataIDDef(false), myAdapterType(ADAPTER_UNDEFINED),
+    myCardList(NULL), myValueType(WfCst::TYPE_UNKNOWN) {
+//   TRACE_TEXT (TRACE_ALL_STEPS, "Creating data handle : tag = " << tag.toString()
+//        << " / depth=" << depth << " / parent=" << parentHdl );
   if (myDepth > 0)
     myData = new map<FDataTag,FDataHandle*>();
 
   if ((parentHdl) && parentHdl->isAdapterDefined()) {
-    // adapter is inherited from parent
+    // adapter is inherited from parent except if parent is MULTIPLE
     if ((parentHdl->myAdapterType == ADAPTER_DIRECT)
         || (parentHdl->myAdapterType == ADAPTER_SIMPLE)) {
-//       TRACE_TEXT (TRACE_ALL_STEPS, "   / adapter = simple (inherited)" << endl);
+//       TRACE_TEXT (TRACE_ALL_STEPS, " / adapter = simple (inherited)" << endl);
       myAdapterType = ADAPTER_SIMPLE;
       // inherit the port information
       myPort = parentHdl->myPort;
       myPortLevel = parentHdl->myPortLevel;
     } else if (parentHdl->isVoid()) {
       // VOID IS PROPAGATED TO CHILDS AUTOMATICALLY (at construction time only)
-      isVoid = true;
-    }
-  }
-  if ((myPort) && (myAdapterType == ADAPTER_UNDEFINED)) {
-    if (!portLevel) {
-      INTERNAL_ERROR("Error in DH constructor : missing port level",1);
-    }
-    if (portLevel == tag.getLevel()) {
-//       TRACE_TEXT (TRACE_ALL_STEPS, "   / adapter = direct" << endl);
-      myAdapterType = ADAPTER_DIRECT;  // adapter defined by port reference
+      // TRACE_TEXT (TRACE_ALL_STEPS, " / adapter = VOID" << endl);
+      myAdapterType = ADAPTER_VOID;
+      if (depth > 0)
+        setCardinal(1); // by default a VOID container DH has 1 element
     } else {
-//       TRACE_TEXT (TRACE_ALL_STEPS, "   / adapter = simple" << endl);
-      myAdapterType = ADAPTER_SIMPLE;
+      // TRACE_TEXT (TRACE_ALL_STEPS, " / adapter = UNDEF" << endl);
     }
-  }
-  if (isVoid) {
-//     TRACE_TEXT (TRACE_ALL_STEPS, "   / adapter = VOID" << endl);
-    myAdapterType = ADAPTER_VOID;
-    if (depth > 0)
-      setCardinal(1); // by default a VOID container DH has 1 element
+  } else {
+    // TRACE_TEXT (TRACE_ALL_STEPS, " / adapter = UNDEF" << endl);
   }
 }
 
 FDataHandle::FDataHandle(const FDataTag& tag,
+                         WfCst::WfDataType valueType,
                          const string& value)
   : myTag(tag), myDepth(0), myValue(value), myParentHdl(NULL), myPortLevel(0),
-    myPort(NULL), myCard(0), cardDef(false), adapterDef(false), valueDef(true),
-    dataIDDef(false), myAdapterType(ADAPTER_UNDEFINED), myCardList(NULL) {
+    myPort(NULL), myCard(0), cardDef(true), valueDef(true), myValueType(valueType),
+    dataIDDef(false), myAdapterType(ADAPTER_VALUE), myCardList(NULL),
+    myCompletionDepth(0) {
 //   TRACE_TEXT (TRACE_ALL_STEPS, "Creating data handle : tag = " << myTag.toString()
-//        << " / value=" << value << endl);
+//        << " / value=" << value << " / adapter = VALUE " << endl);
 }
 
 FDataHandle::FDataHandle(unsigned int depth)
   : myTag(), myDepth(depth), myValue(), myParentHdl(NULL), myPortLevel(0),
-    myPort(NULL), myCard(0), cardDef(false), adapterDef(false), valueDef(false),
-    dataIDDef(false), myAdapterType(ADAPTER_UNDEFINED), myCardList(NULL) {
+    myPort(NULL), myCard(0), cardDef(false), valueDef(false),
+    dataIDDef(false), myAdapterType(ADAPTER_UNDEFINED), myCardList(NULL),
+    myValueType(WfCst::TYPE_UNKNOWN), myCompletionDepth(0) {
 //   TRACE_TEXT (TRACE_ALL_STEPS, "Creating data handle : tag = " << myTag.toString()
 //        << " / depth=" << depth << endl);
   if (myDepth > 0)
     myData = new map<FDataTag,FDataHandle*>();
 }
 
-// Copy constructor
-// FDataHandle::FDataHandle(const FDataHandle& src)
-//   : myTag(src.myTag), myDepth(src.myDepth), myValue(src.myValue), myParentHdl(NULL),
-//     myPortLevel(src.myPortLevel), myPort(src.myPort), myCard(src.myCard),
-//     cardDef(src.cardDef), adapterDef(src.adapterDef), valueDef(src.valueDef),
-//     dataIDDef(src.dataIDDef), myAdapterType(src.myAdapterType), myCardList(NULL),
-//     myDataID(src.myDataID) {
-// //   TRACE_TEXT (TRACE_ALL_STEPS, "Creating data handle COPY of "
-// //                                << src.myTag.toString() << endl);
-//   if (myDepth > 0)
-//     myData = new map<FDataTag,FDataHandle*>();
-//   if (myAdapterType == ADAPTER_MULTIPLE) {
-//     if (!cardDef) {
-//       INTERNAL_ERROR("Cannot copy a MULTIPLE DH if cardinal not defined",1);
-//     }
-//     if (src.myCardList) {
-//       myCardList = new list<string>(*src.myCardList);
-//     }
-//     for (map<FDataTag,FDataHandle*>::const_iterator srcEltIter = src.myData->begin();
-//          srcEltIter != src.myData->end();
-//          ++srcEltIter) {
-//       FDataHandle *destElt = new FDataHandle(*((FDataHandle*) srcEltIter->second));
-//       myData->insert(pair<FDataTag,FDataHandle*>(destElt->getTag(),destElt));
-//     }
-//   }
-// }
-
+/**
+ * Special copy constructor with tag modification
+ * Used for control structures (IF) that use port mappings
+ * Tag must be modified because of input operators that may be applied on IF node ports
+ */
 FDataHandle::FDataHandle(const FDataTag& tag, const FDataHandle& src)
   : myTag(tag), myDepth(src.myDepth), myValue(src.myValue), myParentHdl(NULL),
     myPortLevel(src.myPortLevel), myPort(src.myPort), myCard(src.myCard),
-    cardDef(src.cardDef), adapterDef(src.adapterDef), valueDef(src.valueDef),
+    cardDef(src.cardDef), valueDef(src.valueDef), myValueType(src.myValueType),
     dataIDDef(src.dataIDDef), myAdapterType(src.myAdapterType), myCardList(NULL),
-    myDataID(src.myDataID) {
+    myDataID(src.myDataID), myCompletionDepth(src.myCompletionDepth) {
 //   TRACE_TEXT (TRACE_ALL_STEPS, "Creating data handle COPY of "
 //                                << src.myTag.toString() << endl);
   if (myDepth > 0)
@@ -419,7 +448,7 @@ FDataHandle::FDataHandle(const FDataTag& tag, const FDataHandle& src)
       FDataHandle *srcElt = (FDataHandle*) srcEltIter->second;
       // Create new child tag based on new tag and last index of the src child
       const FDataTag& srcTag = srcElt->getTag();
-      FDataTag  *destTag = new FDataTag(tag, srcTag.getLastIndex(), srcTag.isLast());
+      FDataTag  *destTag = new FDataTag(tag, srcTag.getLastIndex(), srcTag.isLastOfBranch());
       FDataHandle *destElt = new FDataHandle(*destTag, *srcElt);
       // Add new child
       myData->insert(pair<FDataTag,FDataHandle*>(*destTag,destElt));
@@ -433,10 +462,6 @@ FDataHandle::FDataHandle(const FDataTag& tag, const FDataHandle& src)
  * Destructor
  */
 FDataHandle::~FDataHandle() {
-//   this trace makes sometimes the destructor crash (corrupted linked list)
-//   in toString() ...
-//   TRACE_TEXT (TRACE_ALL_STEPS,"~FDataHandle() " << myTag.toString()
-//                               << " destructor ..." <<  "(" << this << ")" << endl);
   // free data
   if (myDepth > 0) {
     while (! myData->empty() ) {
@@ -466,6 +491,8 @@ FDataHandle::getTag() const {
 //private
 void
 FDataHandle::setCardinal(unsigned int card) {
+//   TRACE_TEXT (TRACE_ALL_STEPS, "Set cardinal of " << myTag.toString()
+//                                << " = " << card << endl);
   myCard = card;
   cardDef = true;
 }
@@ -550,6 +577,11 @@ FDataHandle::isVoid() const {
   return (myAdapterType == ADAPTER_VOID);
 }
 
+bool
+FDataHandle::isEmpty() const {
+  return (myDepth > 0) ? myData->size() == 0 : true;
+}
+
 // private
 void
 FDataHandle::setAsVoid() {
@@ -601,10 +633,7 @@ FDataHandle::insertInTree(FDataHandle* dataHdl)
 
     } else {  // ancestor does not exist yet => create it
       unsigned int    childDepth = dataHdl->getDepth() + dataLevel - myLevel - 1;
-      DagNodeOutPort* port = NULL;
-      unsigned int    portLevel = 0;
-
-      ancestorHdl = new FDataHandle(ancestorTag, childDepth, false, this, port, portLevel);
+      ancestorHdl = new FDataHandle(ancestorTag, childDepth, this);
       addChild(ancestorHdl);
     }
 
@@ -634,7 +663,7 @@ FDataHandle::addChild(FDataHandle* dataHdl) {
     setCardinal(dataHdl->getTag().getLastIndex() + 1);
   }
   // updates the adapter status (recursively until the root of the tree)
-  checkAdapter();
+  updateAncestors();
 }
 
 bool
@@ -646,95 +675,125 @@ FDataHandle::isLastChild() const {
  * (RECURSIVE : goes up the tree if one level is complete)
  * Check on all childs if adapter is defined
  * Updates the adapter if all its childs have a defined adapter
+ * Updates the completion depth at the same time
  * IMPORTANT: ONLY METHOD THAT CHANGES myAdapterType after construction
  */
 void
-FDataHandle::checkAdapter() {
-
-  if (!isAdapterDefined()) {
-    if (!isCardinalDefined() || (myData->size() != myCard)) {
-//       TRACE_TEXT (TRACE_ALL_STEPS, "cardinal undefined or elements still missing "
-//                                    << " ==> adapter is undefined" << endl);
-      return;
-    }
-    bool allAdaptersDefined = true;
-    bool allAdaptersVoid = true;
-    map<FDataTag,FDataHandle*>::iterator childIter = myData->begin();
-    while (allAdaptersDefined && childIter != myData->end()) {
-      FDataHandle * childData = (FDataHandle*) childIter->second;
-      if (!childData->isAdapterDefined()) {
-        allAdaptersDefined = false;
-      }
-      if (!childData->isVoid()) {
-        allAdaptersVoid = false;
-      }
-      ++childIter;
-    }
-    if (allAdaptersDefined) {
-      if (allAdaptersVoid) {
-        myAdapterType = ADAPTER_VOID;
-        TRACE_TEXT (TRACE_ALL_STEPS,"**** adapter for " << getTag().toString()
-                    << " is VOID ****" << endl);
-      } else {
-        // this is the only way to set the adapterType to MULTIPLE
-        myAdapterType = ADAPTER_MULTIPLE;
-        TRACE_TEXT (TRACE_ALL_STEPS,"**** adapter for " << getTag().toString()
-                    << " is MULTIPLE ****" << endl);
-      }
-      if (isParentDefined()) {
-        myParentHdl->checkAdapter();
-      }
-    }
+FDataHandle::updateAncestors() {
+  if (!isCardinalDefined() || (myData->size() != myCard)) {
+    return;
   }
-}
-
-/**
- * Check if the tree is complete at a given level (level >= 1)
- */
-bool
-FDataHandle::checkIfComplete(unsigned int level,
-                             vector<unsigned int>& childNbTable) {
-  // check if current total for given level is already stored
-  if (childNbTable.size() > level) {
-    return true;
-  }
-  unsigned int childTotal = 0;
-  if (checkIfCompleteRec(level, childTotal)) {
-    childNbTable.resize(level+1);
-    childNbTable[level] = childTotal;
-    TRACE_TEXT (TRACE_ALL_STEPS,"**** buffer " << getTag().toString()
-                  << " is complete at level " << level << " ("
-                  << childTotal << " childs) ****" << endl);
-    return true;
-  } else {
-    return false;
-  }
-}
-
-/**
- * Recursive check used by preceding method
- * (goes down the data tree to check all levels are complete)
- */
-bool
-FDataHandle::checkIfCompleteRec(unsigned int level, unsigned int& total) {
-  // check if current data is not locally complete
-  if (!isCardinalDefined() || (myData->size() != myCard)) return false;
-  // recursion stops when current data's level is at level-1
-  if (this->getTag().getLevel() == level-1) {
-    // nb of childs is added to the total
-    total += myCard;
-    return true;
-  }
-  // recursion continues by checking all childs
-  bool allChildsComplete = true;
+  bool allAdaptersDefined = true;
+  bool allAdaptersVoid = true;
+  unsigned int minChildCompletionDepth = 999;
+  if (myData->size() == 0)  minChildCompletionDepth = myDepth-1;
   map<FDataTag,FDataHandle*>::iterator childIter = myData->begin();
-  while (allChildsComplete && childIter != myData->end()) {
+  while (allAdaptersDefined && childIter != myData->end()) {
     FDataHandle * childData = (FDataHandle*) childIter->second;
-    if (!childData->checkIfCompleteRec(level, total))
-      allChildsComplete = false;
+    if (!childData->isAdapterDefined()) {
+      allAdaptersDefined = false;
+    }
+    if (!childData->isVoid()) {
+      allAdaptersVoid = false;
+    }
+    if (childData->myCompletionDepth < minChildCompletionDepth)
+      minChildCompletionDepth = childData->myCompletionDepth;
     ++childIter;
   }
-  return allChildsComplete;
+
+  bool updateParent = false;
+  if ((int) minChildCompletionDepth > (int) myCompletionDepth-1) {
+    myCompletionDepth = minChildCompletionDepth+1;
+    TRACE_TEXT (TRACE_ALL_STEPS,"**** Completion depth for " << myTag.toString()
+                  << " = " << myCompletionDepth << endl);
+    updateParent = true;
+  }
+  if (!isAdapterDefined() && allAdaptersDefined) {
+    if (allAdaptersVoid) {
+      myAdapterType = ADAPTER_VOID;
+      TRACE_TEXT (TRACE_ALL_STEPS,"**** adapter for " << getTag().toString()
+                  << " is VOID ****" << endl);
+    } else {
+      // this is the only way to set the adapterType to MULTIPLE
+      myAdapterType = ADAPTER_MULTIPLE;
+      TRACE_TEXT (TRACE_ALL_STEPS,"**** adapter for " << getTag().toString()
+                  << " is MULTIPLE ****" << endl);
+    }
+    updateParent = true;
+  }
+  if (updateParent && isParentDefined()) {
+    myParentHdl->updateAncestors();
+  }
+}
+
+/**
+ * Check if the tree is complete at a given level
+ */
+bool
+FDataHandle::checkIfComplete(unsigned int level) {
+  return (myCompletionDepth >= level);
+}
+
+/**
+ * Recursive count of childs
+ * (note: the 'level' parameter is an absolute value related to the tag level)
+ */
+unsigned int
+FDataHandle::getChildCount(unsigned int level) {
+  // special cases (not used normally)
+  if ((myDepth == 0) || (level == 0)) return 0;
+
+  unsigned int    myLevel = myTag.getLevel();
+  unsigned int    count = 0;
+  bool            isParentLevel = (myLevel == level-1);
+
+  for (map<FDataTag,FDataHandle*>::iterator childIter = myData->begin();
+         childIter != myData->end();
+         ++childIter) {
+    if (isParentLevel)
+      count += 1; // recursion stops at level-1
+    else
+      count += ((FDataHandle*) childIter->second)->getChildCount(level);
+  }
+
+  return count;
+}
+
+void
+FDataHandle::updateTree() {
+  updateTreeRec(false, false);
+}
+
+// private
+void
+FDataHandle::updateTreeRec(bool isLast, bool parentTagMod) {
+  // Modify the tag according to position and parent's tag
+  if (parentTagMod)
+    myTag.updateLastFlags(getParent()->getTag());
+  if (isLast)
+    myTag.getTagAsLastOfBranch();
+
+  // Update cardinal and call recursively the method for all childs
+  if ((myDepth > 0) && (myData->size() > 0)) {
+
+    // get last child DH
+    map<FDataTag,FDataHandle*>::reverse_iterator childRIter = myData->rbegin();
+    FDataHandle*  lastChild = (FDataHandle*)childRIter->second;
+
+    // cardinal update
+    setCardinal(lastChild->getTag().getLastIndex() + 1);
+
+    for (map<FDataTag,FDataHandle*>::iterator childIter = myData->begin();
+         childIter != myData->end();
+         ++childIter) {
+      FDataHandle*  currChild = (FDataHandle*)childIter->second;
+      currChild->updateTreeRec(currChild == lastChild, parentTagMod || isLast);
+    }
+
+  } else {
+    // call updateAncestors when on a leave which is the last of its parent
+    if (isLast) myParentHdl->updateAncestors();
+  }
 }
 
 map<FDataTag,FDataHandle*>::iterator
@@ -749,7 +808,7 @@ FDataHandle::begin() throw (WfDataHandleException) {
   if (isCardinalDefined() && (myData->size() == 0)) {
     for (int ix=0; ix < myCard; ++ix) {
       FDataTag  childTag(getTag(),ix, (ix == myCard-1));
-      FDataHandle* childHdl = new FDataHandle(childTag, myDepth-1, false, this);
+      FDataHandle* childHdl = new FDataHandle(childTag, myDepth-1, this);
       this->addChild(childHdl);
       // set the cardinal list (static cardinal info) for childs
       if ((myCardList) && (myCardList->size() > 1)) {
@@ -776,6 +835,11 @@ FDataHandle::createPortAdapter(const string& currDagName) {
 
   if (myAdapterType == ADAPTER_VOID) {
     myAdapter = new WfVoidAdapter();
+  } else if (myAdapterType == ADAPTER_VALUE) {
+    if (isDataIDDefined())
+      myAdapter = new WfValueAdapter(getDataID(), getValueType(), getValue());
+    else
+      myAdapter = new WfValueAdapter(getValueType(), getValue());
 
   } else if (myAdapterType == ADAPTER_MULTIPLE) {
     // LINK TO SEVERAL OUTPUT PORTS (MERGE)
@@ -824,6 +888,11 @@ FDataHandle::getValue() const {
   return myValue;
 }
 
+WfCst::WfDataType
+FDataHandle::getValueType() const {
+  return myValueType;
+}
+
 bool
 FDataHandle::isDataIDDefined() const {
   return dataIDDef;
@@ -842,6 +911,23 @@ FDataHandle::setDataID(const string& dataID) {
   }
 }
 
+/**
+ * Get the value using the adapter and write it on given DataWriter
+ */
+void
+FDataHandle::writeValue(WfDataWriter *dataWriter) {
+  if (isAdapterDefined()) {
+    WfPortAdapter *adapter = createPortAdapter();
+    adapter->writeData(dataWriter);
+    delete adapter;
+  } else {
+    dataWriter->error();
+  }
+}
+
+/**
+ * Get the value (in XML format) and store it in myValue
+ */
 void
 FDataHandle::downloadValue() {
   if (isValueDefined()) return;
@@ -856,9 +942,11 @@ FDataHandle::downloadValue() {
   if (isDataIDDefined()) {
     // the following must be called only if the dataID is really defined!
     ostringstream  valStr;
-    displayDataAsList(valStr);
+    WfDataWriter  *dataWriter = new WfXMLDataWriter(valStr);
+    writeValue(dataWriter);
     myValue = valStr.str();
     valueDef = true;
+    delete dataWriter;
     TRACE_TEXT (TRACE_ALL_STEPS,"==> Value is : " << myValue << endl);
   } else if (isVoid()) {
     TRACE_TEXT (TRACE_ALL_STEPS,"==> Value is VOID" << endl);
@@ -909,24 +997,6 @@ FDataHandle::downloadElementDataIDs() {
        childIter != myData->end();
        ++childIter) {
     ((FDataHandle*)childIter->second)->downloadDataID();
-  }
-}
-
-/**
- * Method to display data handle value after execution (for sink nodes)
- * Creates a temporary port adapter and calls displayData()
- * on this adapter
- */
-void
-FDataHandle::displayDataAsList(ostream& output) {
-  if (isValueDefined()) {
-    output << myValue;
-  } else if (isAdapterDefined()) {
-    WfPortAdapter *adapter = createPortAdapter();
-    adapter->displayDataAsList(output);
-    delete adapter;
-  } else { // no adapter and no static value
-    output << "<error>";
   }
 }
 

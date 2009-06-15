@@ -9,6 +9,14 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2009/06/15 12:22:30  bisnard
+ * use new class WfValueAdapter for adapters with constant value
+ * added attributes myCompletionDepth & myValueType
+ * added data tree initialization (for data sources parsed with SAX)
+ * refactorize constructors & updateAncestors
+ * corrected bug in copy constructor (srcTag.isLast())
+ * use WfDataWriter class to display DH's value (writeData)
+ *
  * Revision 1.10  2009/05/27 08:54:43  bisnard
  * - modified FDataTag comparison op (lexicographic order)
  * - new FDataHandle copy constructor for condition nodes
@@ -51,6 +59,7 @@
 #include <map>
 #include "debug.hh"
 #include "DagNodePort.hh"
+#include "WfDataWriter.hh"
 
 using namespace std;
 
@@ -163,6 +172,17 @@ class FDataTag {
         getSuccessor();
 
     /**
+     * Get tag with same indexes but 'last' flag set (current tag is modified)
+     * The 'last' flag is set to true at the tag's level only (not on lower levels)
+     * Returns ref on itself
+     */
+    FDataTag&
+        getTagAsLastOfBranch();
+
+    void
+        updateLastFlags(const FDataTag& parentTag);
+
+    /**
      * Converts the tag to a string
      * (used to generate node IDs)
      */
@@ -214,7 +234,8 @@ class WfDataHandleException {
     enum WfDataHandleErrorType { eBAD_STRUCT,
                                  eINVALID_ADAPT,
                                  eCARD_UNDEF,
-                                 eVALUE_UNDEF };
+                                 eVALUE_UNDEF,
+                                 eADAPT_UNDEF };
     WfDataHandleException(WfDataHandleErrorType t,
                           const string& _info)
       { this->why = t; this->info = _info; }
@@ -245,23 +266,23 @@ class FDataHandle {
      * @param tag the data tag attached to this handle
      * @param depth the depth of this data (0 if not a container)
      * @param isVoid  set to true to create a VOID data
-     * @param parentHdl the parent handle (NULL if root handle or new DH)
-     * @param port the port that produces the data (may be NULL)
+     * @param port the port that produces the data (NULL if void data)
      * @param portLevel the level of the port (if port is provided)
      */
     FDataHandle(const FDataTag& tag,
                 unsigned int depth,
                 bool isVoid = false,
-                FDataHandle* parentHdl = NULL,
                 DagNodeOutPort* port = NULL,
                 unsigned int portLevel = 0);
 
     /**
      * Constructor of a constant data handle (that has a value)
      * @param tag the data tag attached to this handle
+     * @param valueType the type of the data
      * @param value the value of the data
      */
     FDataHandle(const FDataTag& tag,
+                WfCst::WfDataType valueType,
                 const string& value);
 
     /**
@@ -269,12 +290,6 @@ class FDataHandle {
      * @param depth data depth
      */
     FDataHandle(unsigned int depth);
-
-    /**
-     * Copy constructor
-     * Copy the whole data tree
-     */
-//     FDataHandle(const FDataHandle& src);
 
     /**
      * Special copy constructor (used for port mappings in control structures)
@@ -306,6 +321,14 @@ class FDataHandle {
      */
     const FDataTag&
         getTag() const;
+
+    /**
+     * Set the data tree properties (cardinal and boundaries)
+     * This is done recursively until the leaves of DH's tree.
+     * (used when data tree is built from parsing and cardinal is not known in advance)
+     */
+    void
+        updateTree();
 
     /**
      * Set the predefined cardinal (statically provided before execution)
@@ -362,6 +385,12 @@ class FDataHandle {
      */
     bool
         isVoid() const;
+
+    /**
+     * Returns true if the data contains no child
+     */
+    bool
+        isEmpty() const;
 
     /**
      * Add a data as a child of this data handle
@@ -427,6 +456,12 @@ class FDataHandle {
         getValue() const;
 
     /**
+     * Returns value type
+     */
+    WfCst::WfDataType
+        getValueType() const;
+
+    /**
      * Returns true if the handle has a defined data ID
      */
     bool
@@ -437,6 +472,13 @@ class FDataHandle {
      */
     const string&
         getDataID() const;
+
+    /**
+     * Write the value of the dataHandle (does not use the stored value)
+     * @param dataWriter  a data writer to format the data
+     */
+    void
+        writeValue(WfDataWriter *dataWriter);
 
     /**
      * Get the value from the dag node (after execution)
@@ -466,19 +508,15 @@ class FDataHandle {
 
     /**
      * Returns true if the data contains all its childs at the given level
-     * and updates the table with the total nb of childs at each level (up to
-     * the given level)
      */
     bool
-        checkIfComplete(unsigned int level,
-                    vector<unsigned int>& childNbTable);
+        checkIfComplete(unsigned int level);
 
     /**
-     * Display the content of the dataHandle as a parenthezized list
-     * @param output  the output stream
+     * Returns the count of childs at the given level
      */
-    void
-        displayDataAsList(ostream& output);
+    unsigned int
+        getChildCount(unsigned int level);
 
   private:
 
@@ -487,9 +525,20 @@ class FDataHandle {
       ADAPTER_DIRECT,       // = linked directly to a port
       ADAPTER_SIMPLE,       // = descendant of direct adapter
       ADAPTER_MULTIPLE,     // = parent of direct/multiple adapters
-      ADAPTER_VOID          // = empty value
+      ADAPTER_VOID,         // = void data (non-existent)
+      ADAPTER_VALUE         // = data value only (constant or data source)
     } FDataHdlAdapterType;
     // ADAPTER_MULTIPLE status implies that all descendants are defined
+
+    /**
+     * Constructor of a data handle
+     * @param tag the data tag attached to this handle
+     * @param depth the depth of this data (0 if not a container)
+     * @param parentHdl the parent handle
+     */
+    FDataHandle(const FDataTag& tag,
+                unsigned int depth,
+                FDataHandle* parentHdl);
 
     void
         addChild(FDataHandle* dataHdl);
@@ -500,11 +549,11 @@ class FDataHandle {
     bool
         isLastChild() const;
 
-    bool
-        checkIfCompleteRec(unsigned int level, unsigned int& total);
+    void
+        updateAncestors();
 
     void
-        checkAdapter();
+        updateTreeRec(bool isLast, bool parentTagMod = false);
 
     void
         display(bool goUp = false);
@@ -547,9 +596,14 @@ class FDataHandle {
     FDataHdlAdapterType myAdapterType;
 
     /**
-     * value (if applicable)
+     * value (stored in XML format)
      */
     string myValue;
+
+    /**
+     * value type (used for ADAPTER_VALUE only)
+     */
+    WfCst::WfDataType myValueType;
 
     /**
      * data ID
@@ -573,6 +627,11 @@ class FDataHandle {
     unsigned int myCard;
 
     /**
+     * completion depth (= childs at this depth are all defined)
+     */
+    unsigned int myCompletionDepth;
+
+    /**
      * predefined cardinal info (may contain several levels)
      */
     list<string>* myCardList;
@@ -581,11 +640,6 @@ class FDataHandle {
      * flag to check if cardinal is defined
      */
     bool cardDef;
-
-    /**
-     * flag to check if adapter is defined
-     */
-    bool adapterDef;
 
     /**
      * flag to check if value is defined
