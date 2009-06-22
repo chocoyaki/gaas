@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2009/06/22 14:04:27  bisnard
+ * fixed bug in profile initialization
+ *
  * Revision 1.16  2009/06/15 12:24:29  bisnard
  * new class DagNodeArgPort (arg ports not used for funct wf anymore)
  * use WfDataWriter class to display data
@@ -474,6 +477,7 @@ DagNode::createProfile() {
     WfPort * port = (WfPort *) p->second;
     switch (port->getPortType()) {
       case WfPort::PORT_IN:
+      case WfPort::PORT_ARG:
         ++nbIn;
         break;
       case WfPort::PORT_INOUT:
