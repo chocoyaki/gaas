@@ -6,8 +6,11 @@
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
-/* $Id$ 
+/* $Id$
  * $Log$
+ * Revision 1.7  2009/06/23 09:16:19  bisnard
+ * changed CORBA class name WfLogSrv to match DIET_Dashboard
+ *
  * Revision 1.1  2008/04/10 08:17:14  bisnard
  * New version of the MaDag where workflow node execution is triggered by the MaDag agent and done by a new CORBA object CltWfMgr located in the client
  *
@@ -25,23 +28,23 @@
 #ifndef _WFLOGSERVICE_IDL_
 #define _WFLOGSERVICE_IDL_
 
-interface WfLogSrv {
-  void 
+interface WfLogService {
+  void
   setWf(in string workflow_description);
 
   void
   nodeIsDone(in string node_id);
 
   void
-  nodeIsRunning(in string node_id);
+  nodeIsRunning(in string node_id, in string hostname);
 
-  void 
+  void
   nodeIsStarting(in string node_id);
 
   void
   nodeIsWaiting(in string node_id);
 
-  void 
+  void
   ping();
 };
 

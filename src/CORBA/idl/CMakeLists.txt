@@ -1,11 +1,11 @@
 #****************************************************************************#
 #* DIET cmake local file                                                    *#
 #****************************************************************************#
-  
+
 IF( DIET_BUILD_LIBRARIES )
   # Generate the code out of the IDL source files and build the ad-hoc
   # libraries (idl is part of omniORB which is mandatory).
-  
+
   # Define the flags for the IDL compiler
   SET( DIET_IDL_FLAGS "-bcxx -Wba -Wbtp")
 
@@ -16,7 +16,7 @@ IF( DIET_BUILD_LIBRARIES )
   IF( DIET_USE_JXTA )
      SET( DIET_IDL_FLAGS "${DIET_IDL_FLAGS} -DHAVE_JXTA" )
   ENDIF( DIET_USE_JXTA )
-  
+
   IF( DIET_USE_WORKFLOW )
      SET( DIET_IDL_FLAGS "${DIET_IDL_FLAGS} -DHAVE_WORKFLOW" )
   ENDIF( DIET_USE_WORKFLOW )
@@ -42,9 +42,9 @@ IF( DIET_BUILD_LIBRARIES )
      )
   ENDIF( DIET_USE_USERSCHED )
 # ------------------------------------------------------------
-  
+
   SEPARATE_ARGUMENTS( DIET_IDL_FLAGS )
-  
+
   SET( IDL_SOURCES
     Agent
     Callback
@@ -57,12 +57,12 @@ IF( DIET_BUILD_LIBRARIES )
     MasterAgent
     response
     SeD )
-  
+
   IF ( DIET_USE_WORKFLOW )
   SET ( IDL_SOURCES
       MaDag
       CltMan
-      WfLogSrv
+      WfLogService
       ${IDL_SOURCES} )
   ENDIF ( DIET_USE_WORKFLOW )
 
@@ -73,14 +73,14 @@ IF( DIET_BUILD_LIBRARIES )
      ${IDL_SOURCES} )
   ENDIF( DIET_USE_DAGDA )
 
-  # Some libraries of the utils directory (e.g. UtilsCommon) need the 
+  # Some libraries of the utils directory (e.g. UtilsCommon) need the
   # idl generated header files. This is a technical variable used to
   # define the target enabling to express this dependency (look below
   # for the DIET_TARGET_IDL_GENERATED_HEADERS definition):
   SET( DIET_TARGET_IDL_GENERATED_HEADER_FILES )
-  
+
   FOREACH( loop_var ${IDL_SOURCES} )
-  
+
     ADD_CUSTOM_COMMAND(
       OUTPUT    ${CMAKE_CURRENT_BINARY_DIR}/${loop_var}SK.cc
       COMMAND   ${OMNIORB4_IDL_COMPILER}
@@ -89,7 +89,7 @@ IF( DIET_BUILD_LIBRARIES )
       DEPENDS   ${CMAKE_CURRENT_SOURCE_DIR}/${loop_var}.idl
       COMMENT   "idl generated code"
     )
-  
+
     # Dirty trick to avoid executing twice the IDL compiler which produces
     # multiple outputs ${loop_var}SK.cc, ${loop_var}DynSK.cc and
     # ${loop_var}.hh [refer to
@@ -108,7 +108,7 @@ IF( DIET_BUILD_LIBRARIES )
       DEPENDS   ${CMAKE_CURRENT_BINARY_DIR}/${loop_var}SK.cc
       COMMENT   "idl generated code"
     )
-  
+
     SET( DIET_TARGET_IDL_GENERATED_HEADER_FILES
       ${DIET_TARGET_IDL_GENERATED_HEADER_FILES}
          ${CMAKE_CURRENT_BINARY_DIR}/${loop_var}.hh )
@@ -154,7 +154,7 @@ IF( DIET_BUILD_LIBRARIES )
     ${OMNIORB4_LIBRARIES}
   )
   INSTALL_TARGETS(/lib/ IDLCommon )
-  
+
   ADD_LIBRARY( IDLAgent
     AgentSK.cc
     AgentDynSK.cc
@@ -165,7 +165,7 @@ IF( DIET_BUILD_LIBRARIES )
     LocMgrSK.cc
     LocMgrDynSK.cc
     LogTypesSK.cc
-    LogTypesDynSK.cc 
+    LogTypesDynSK.cc
   )
   IF( DIET_USE_DAGDA )
     SET( DagdaLibs IDLDagda )
@@ -177,7 +177,7 @@ IF( DIET_BUILD_LIBRARIES )
     ${DagdaLibs}
   )
   INSTALL_TARGETS(/lib/ IDLAgent )
-  
+
   ADD_LIBRARY( IDLLA
     LocalAgentSK.cc
     LocalAgentDynSK.cc
@@ -187,7 +187,7 @@ IF( DIET_BUILD_LIBRARIES )
     ${OMNIORB4_LIBRARIES}
   )
   INSTALL_TARGETS(/lib/ IDLLA )
-  
+
   ADD_LIBRARY( IDLMA
     MasterAgentSK.cc
     MasterAgentDynSK.cc
@@ -210,16 +210,16 @@ IF( DIET_BUILD_LIBRARIES )
   ENDIF( DIET_USE_DAGDA )
 
   ##########################################################################
-  IF ( DIET_USE_WORKFLOW ) 
+  IF ( DIET_USE_WORKFLOW )
   ADD_LIBRARY ( IDLWf
     MaDagSK.cc
-    MaDagDynSK.cc 
-    WfLogSrvSK.cc
-    WfLogSrvDynSK.cc
+    MaDagDynSK.cc
+    WfLogServiceSK.cc
+    WfLogServiceDynSK.cc
     CltManSK.cc
     CltManDynSK.cc
     )
-  
+
 
   TARGET_LINK_LIBRARIES( IDLWf
     IDLCommon
@@ -232,6 +232,6 @@ IF( DIET_BUILD_LIBRARIES )
   ENDIF( APPLE )
 
   INSTALL_TARGETS(/lib/ IDLWf )
-  ENDIF ( DIET_USE_WORKFLOW ) 
+  ENDIF ( DIET_USE_WORKFLOW )
   ##########################################################################
 ENDIF( DIET_BUILD_LIBRARIES )
