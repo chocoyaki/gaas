@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2009/06/23 12:23:58  bisnard
+ * removed dependencies (includes)
+ *
  * Revision 1.14  2009/06/15 12:11:13  bisnard
  * use new XML Parser (SAX) for data source file
  * use new class WfValueAdapter to avoid data duplication
@@ -66,6 +69,8 @@
 
 #include "debug.hh"
 #include "FWorkflow.hh"
+#include "FActivityNode.hh"
+#include "FIfNode.hh"
 
 FWorkflow::FWorkflow(const string& id)
   : id(id), dagCounter(0), myStatus(W_INSTANC_READY) {

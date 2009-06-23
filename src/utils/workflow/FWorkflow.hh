@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2009/06/23 12:23:58  bisnard
+ * removed dependencies (includes)
+ *
  * Revision 1.12  2009/05/27 08:49:43  bisnard
  * - modified condition output: new IF_THEN and IF_ELSE port types
  * - implemented MERGE and FILTER workflow nodes
@@ -60,10 +63,15 @@
 
 #include "Dag.hh"
 #include "FNode.hh"
-#include "FActivityNode.hh"
-#include "FIfNode.hh"
 
 using namespace std;
+
+/* The different types of nodes used in a functional workflow */
+
+class FActivityNode;
+class FIfNode;
+class FMergeNode;
+class FFilterNode;
 
 class FWorkflow : public NodeSet {
 
