@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.47  2009/06/23 09:22:01  bisnard
+ * added new API method for EFT estimation
+ *
  * Revision 1.46  2008/12/22 13:38:54  bdepardo
  * Added diet_wait_batch_job_completion to explicitely wait for the end of a
  * batch job.
@@ -605,13 +608,22 @@ typedef enum {
 typedef struct {
   estVector_t           estVector;
   diet_job_status_t     status;
-  double                startTime; /* in ms */
+  double                estCompTime;  /* in ms */
+  double                startTime;    /* in ms */
 } diet_job_t;
 
 typedef diet_job_t* jobVector_t;
 
+/* Method to retrieve the list of jobs queued on the SeD with their
+   estimation of performance (initially added to compute EFT but this is now
+   done by the function below) */
 int diet_estimate_list_jobs(jobVector_t* jv, int* jobNb,
                             const diet_profile_t* const profilePtr);
+
+/* New method to estimate the EFT for a job */
+int diet_estimate_eft(estVector_t ev,
+                      double jobEstimatedCompTime,
+                      const diet_profile_t* const profilePtr);
 
 /****************************************************************************/
 /* Inline definitions                                                       */
