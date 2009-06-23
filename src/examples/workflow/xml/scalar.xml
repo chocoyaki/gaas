@@ -1,24 +1,24 @@
 <dag>
   <node id="n1" path="succ">
-    <arg name="in1" type="DIET_INT" value="56"/>
+    <arg name="in" type="DIET_INT" value="56"/>
     <out name="out1" type="DIET_INT"/>
     <out name="out2" type="DIET_INT"/>
   </node>
   <node id="n2" path="double">
-    <in name="in2" type="DIET_INT" source="n1#out1"/>
-    <out name="out3" type="DIET_INT"/>
+    <in name="in" type="DIET_INT" source="n1#out1"/>
+    <out name="out" type="DIET_INT"/>
   </node>
   <node id="n3" path="double">
-    <in name="in3" type="DIET_INT" source="n1#out2"/>
-    <out name="out4" type="DIET_INT"/>
+    <in name="in" type="DIET_INT" source="n1#out1"/>
+    <out name="out" type="DIET_INT"/>
   </node>
   <node id="n4" path="sum">
-    <in name="in4" type="DIET_INT" source="n2#out3"/>
-    <in name="in5" type="DIET_INT" source="n3#out4"/>
-    <out name="out4" type="DIET_INT"/>
+    <in name="in4" type="DIET_INT" source="n2#out"/>
+    <in name="in5" type="DIET_INT" source="n3#out"/>
+    <out name="out" type="DIET_INT"/>
   </node>
   <node id="n5" path="square">
-    <in name="in" type="DIET_INT" source="n4#out4" />
+    <in name="in" type="DIET_INT" source="n4#out" />
     <out name="out" type="DIET_DOUBLE" />
   </node>
 </dag>
