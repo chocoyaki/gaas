@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.66  2009/06/23 09:21:31  bisnard
+ * added new estimation vector entry (EST_EFT)
+ *
  * Revision 1.65  2009/03/27 09:09:40  bisnard
  * replace container size attr by dynamic value
  *
@@ -694,11 +697,12 @@ typedef struct {
 #define EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE 26 /* same as above */
 #define EST_PARAL_MAX_WALLTIME 27
 #define EST_PARAL_MAX_PROCS 28
-/* Carefull: Add any new value before this one! */
-#define EST_USERDEFINED 29
   /********** !HAVE_ALT_BATCH ************/
+/* Added to obtain the earliest finish time (used by workflows) */
+#define EST_EFT 29
+/* Carefull: Add any new value before this one! */
+#define EST_USERDEFINED 30
 /*} diet_est_tag_t;*/
-
 
 /**
  * estimation vector
