@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.133  2009/06/23 09:25:01  bisnard
+ * use new classname for WfLogService
+ * bug correction for WfLogService option parsing
+ *
  * Revision 1.132  2009/02/04 01:01:48  gcharrie
  * Cleaning the code in DIET_client to make a multicall.
  * there is still work to do in MultiCall, but the "public"
@@ -400,7 +404,7 @@ static size_t USE_ASYNC_API = 1;
 #ifdef HAVE_WORKFLOW
 /** The MA DAG reference */
 static MaDag_var MA_DAG = MaDag::_nil();
-static WfLogSrv_var myWfLogService = WfLogSrv::_nil();
+static WfLogService_var myWfLogService = WfLogService::_nil();
 #endif
 
 /****************************************************************************/
@@ -621,12 +625,13 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   } // end if (MA_DAG_name != NULL)
 
   // check if the Workflow Log Service is used
-    Parsers::Results::getParamValue(Parsers::Results::USEWFLOGSERVICE);
+  USE_WF_LOG_SERVICE = (char*) Parsers::Results::getParamValue(Parsers::Results::USEWFLOGSERVICE);
   if (USE_WF_LOG_SERVICE != NULL) {
     if (!strcmp(USE_WF_LOG_SERVICE, "1")) {
+      TRACE_TEXT(TRACE_MAIN_STEPS, "Connecting to Workflow Log Service" << endl);
       CORBA::Object_var obj =
         ORBMgr::getObjReference(ORBMgr::WFLOGSERVICE, "WfLogService");
-      WfLogSrv_var wfLogSrv = WfLogSrv::_narrow(obj);
+      WfLogService_var wfLogSrv = WfLogService::_narrow(obj);
       if (CORBA::is_nil(wfLogSrv)) {
 	ERROR("cannot locate the Workflow Log Service ", 1);
       }
