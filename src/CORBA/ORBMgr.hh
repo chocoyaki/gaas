@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2009/06/23 09:15:32  bisnard
+ * bug correction (enum mismatch for CORBA contexts)
+ *
  * Revision 1.16  2006/11/16 09:55:51  eboix
  *   DIET_config.h is no longer used. --- Injay2461
  *
@@ -89,9 +92,8 @@ public:
     /**
      * Code not secure since the enum is used to index the CONTEXTS array *
      */
-#ifdef HAVE_WORKFLOW 
+#ifdef HAVE_WORKFLOW
     , MA_DAG
-    , CLT_REO_MAN
     , WFLOGSERVICE
 #endif // HAVE_WORKFLOW
   } object_type_t;
@@ -101,7 +103,7 @@ public:
 
   static int
   unbindObj(object_type_t type, const char* name);
-  
+
   static CORBA::Object_ptr
   getObjReference(object_type_t type, const char* name);
 
@@ -131,7 +133,7 @@ private:
 
   static CosNaming::NamingContext_var
   getRootContext();
-  
+
 #if INTERRUPTION_MGR
   static sigjmp_buf buff_int;
   static void
