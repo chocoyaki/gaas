@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2009/06/23 13:08:19  bisnard
+ * updated include dependencies
+ *
  * Revision 1.27  2009/06/15 12:11:12  bisnard
  * use new XML Parser (SAX) for data source file
  * use new class WfValueAdapter to avoid data duplication
@@ -123,6 +126,8 @@
 #include "DagWfParser.hh"
 #include "WfUtils.hh"
 #include "FWorkflow.hh"
+#include "FActivityNode.hh"
+#include "FIfNode.hh"
 
 using namespace std;
 
