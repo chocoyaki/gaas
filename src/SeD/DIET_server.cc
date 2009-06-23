@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.82  2009/06/23 09:28:27  bisnard
+ * new API method for EFT estimation
+ *
  * Revision 1.81  2008/12/22 13:38:55  bdepardo
  * Added diet_wait_batch_job_completion to explicitely wait for the end of a
  * batch job.
@@ -236,7 +239,7 @@ BEGIN_API
 static ServiceTable* SRVT;
 #ifdef HAVE_DAGDA
 /* We need to keep a pointer to the SeD Impl in order to be able to dynamically
- * add/remove services 
+ * add/remove services
  */
 static SeDImpl * sedImpl = NULL;
 #endif
@@ -304,7 +307,7 @@ diet_service_table_add(const diet_profile_desc_t* const profile,
 
 
 #ifdef HAVE_DAGDA
-  /** if the SeD is already running, we need to inform our parent 
+  /** if the SeD is already running, we need to inform our parent
    * that we added a new service.
    */
   if (sedImpl)
@@ -834,7 +837,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
     if (*ULSptr) {
       useLS = true;
     }
-  }  
+  }
 
   if (useLS) {
     OBSptr = (unsigned int*)Parsers::Results::getParamValue(
@@ -875,7 +878,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
       WARNING("Could not initialize DietLogComponent");
       TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled\n");
       dietLogComponent = NULL; // this should never happen;
-    }    
+    }
   } else {
     TRACE_TEXT(TRACE_ALL_STEPS, "* LogService: disabled\n");
     dietLogComponent = NULL;
@@ -953,7 +956,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
 #ifdef HAVE_DAGDA
   sedImpl = SeD;
 #endif
- 
+
   /* Wait for RPCs : */
   ORBMgr::wait();
 
@@ -1426,6 +1429,23 @@ int diet_estimate_list_jobs(jobVector_t* jv, int* jobNb,
     return 0;
   } else
     INTERNAL_ERROR(__FUNCTION__ <<": ref on SeD not initialized?", 1) ;
+}
+
+/* Get the estimated Earliest Finish Time for a job with given duration est.*/
+int diet_estimate_eft(estVector_t ev,
+                      double  jobEstimatedCompTime,
+                      const diet_profile_t* const profilePtr) {
+  const SeDImpl* refSeD = (SeDImpl*) profilePtr->SeDPtr;
+  if( refSeD==NULL ) {
+    ERROR(__FUNCTION__ <<": ref on SeD not initialized?", 1);
+  }
+  /*
+   ** casting away const-ness, because we know that the
+   ** method doesn't change the SeD
+   */
+  double value = jobEstimatedCompTime + ((SeDImpl*) refSeD)->getEFT();
+  diet_est_set_internal(ev, EST_EFT, value);
+  return 0;
 }
 
 /****************************************************************************/

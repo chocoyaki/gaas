@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.113  2009/06/23 09:28:27  bisnard
+ * new API method for EFT estimation
+ *
  * Revision 1.112  2008/12/08 15:31:42  bdepardo
  * Added the possibility to remove a service given its profile description.
  * So now, one is able to remove a service given either the real profile,
@@ -365,21 +368,6 @@ SeDImpl::initialize()
 #endif
 }
 
-int
-SeDImpl::getNumJobsWaiting() {
-  if (accessController)
-    return accessController->getNumWaiting();
-  return 0;
-}
-
-int
-SeDImpl::getActiveJobVector(jobVector_t& jv) {
-  if (jobQueue)
-    return jobQueue->getActiveJobTable(jv);
-  else
-    return -1;
-}
-
 SeDImpl::~SeDImpl()
 {
   /* FIXME: Tables should be destroyed. */
@@ -495,15 +483,17 @@ SeDImpl::run(ServiceTable* services)
 
   if (this->useConcJobLimit){
     this->accessController = new AccessController(this->maxConcJobs);
+    this->jobQueue = new JobQueue(this->maxConcJobs);
     TRACE_TEXT(TRACE_ALL_STEPS, "* SeD Queue: enabled "
         << "(maximum " << this->maxConcJobs << " concurrent solves)\n");
   } else {
     this->accessController = NULL;
+    this->jobQueue = new JobQueue();
     TRACE_TEXT(TRACE_ALL_STEPS, "* SeD Queue: disabled (no restriction"
         << " on concurrent solves)\n");
   }
 
-  this->jobQueue = new JobQueue();
+
 
   /* Print out service table */
   if (TRACE_LEVEL >= TRACE_STRUCTURES) {
@@ -706,6 +696,27 @@ SeDImpl::updateTimeSinceLastSolve()
   gettimeofday(&(this->lastSolveStart), NULL) ;
 }
 
+int
+SeDImpl::getNumJobsWaiting() {
+  if (accessController)
+    return accessController->getNumWaiting();
+  return 0;
+}
+
+int
+SeDImpl::getActiveJobVector(jobVector_t& jv) {
+  if (jobQueue)
+    return jobQueue->getActiveJobTable(jv);
+  return 0;
+}
+
+double
+SeDImpl::getEFT() {
+  if (this->useConcJobLimit && jobQueue)
+    return jobQueue->estimateEFTwithFIFOSched();
+  return 0;
+}
+
 CORBA::Long
 SeDImpl::solve(const char* path, corba_profile_t& pb)
 {
@@ -730,7 +741,8 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
   gettimeofday(&(this->lastSolveStart), NULL);
 
   /* Add the job in the list of queued jobs with its estimation vector */
-  this->jobQueue->addJobWaiting(pb.dietReqID, pb.estim);
+  double estCompTime = diet_est_get_system(&pb.estim, EST_TCOMP, 10000000);
+  this->jobQueue->addJobWaiting(pb.dietReqID, estCompTime, pb.estim);
 
 #if defined HAVE_ALT_BATCH
   if( server_status == BATCH )
@@ -846,6 +858,8 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
   sprintf(statMsg, "solve %ld", (unsigned long) pb.dietReqID);
   stat_in("SeD",statMsg);
 
+  this->jobQueue->setJobStarted(pb.dietReqID);
+
   if (dietLogComponent != NULL) {
     dietLogComponent->logBeginSolve(path, &pb);
   }
@@ -889,6 +903,9 @@ SeDImpl::parallel_solve(const char* path, corba_profile_t& pb,
   if (dietLogComponent != NULL) {
     dietLogComponent->logEndSolve(path, &pb);
   }
+
+  this->jobQueue->setJobFinished(profile.dietReqID);
+  this->jobQueue->deleteJob(profile.dietReqID);
 
   if (this->useConcJobLimit){
     this->accessController->releaseResource();
@@ -1394,6 +1411,7 @@ SeDImpl::estimate(corba_estimation_t& estimation,
     case SERIAL:
       /* Populate with random value */
       diet_est_set_internal(eVals, EST_TCOMP, HUGE_VAL);
+      diet_est_set_internal(eVals, EST_EFT, HUGE_VAL);
       diet_est_set_internal(eVals, EST_FREECPU, 0);
       diet_est_set_internal(eVals, EST_FREEMEM, 0);
       diet_est_set_internal(eVals, EST_NBCPU, 1);
@@ -1405,6 +1423,7 @@ SeDImpl::estimate(corba_estimation_t& estimation,
 #else // HAVE_ALT_BATCH
     /* Populate with random value */
     diet_est_set_internal(eVals, EST_TCOMP, HUGE_VAL);
+    diet_est_set_internal(eVals, EST_EFT, HUGE_VAL);
     diet_est_set_internal(eVals, EST_FREECPU, 0);
     diet_est_set_internal(eVals, EST_FREEMEM, 0);
     diet_est_set_internal(eVals, EST_NBCPU, 1);
@@ -1459,6 +1478,9 @@ SeDImpl::estimate(corba_estimation_t& estimation,
     diet_estimate_lastexec(eVals, &profile);
     /***** END RR metrics *****/
   } else {
+    /* populate with default values */
+    diet_est_set_internal(eVals, EST_TCOMP, HUGE_VAL);
+    diet_est_set_internal(eVals, EST_EFT, HUGE_VAL);
     /*
     ** just call the custom performance metric function!
     */
@@ -1749,7 +1771,7 @@ SeDImpl::addService(const corba_profile_desc_t& profile)
   ServiceTable::ServiceReference_t sref = this->SrvT->lookupService(&profile);
   profiles.length(1);
   profiles[0] = this->SrvT->getProfile(sref);
-  
+
   if (dietLogComponent != NULL) {
     dietLogComponent->logAddService(&(profiles[0]));
   }

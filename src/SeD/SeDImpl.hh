@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.45  2009/06/23 09:28:27  bisnard
+ * new API method for EFT estimation
+ *
  * Revision 1.44  2008/12/08 15:31:42  bdepardo
  * Added the possibility to remove a service given its profile description.
  * So now, one is able to remove a service given either the real profile,
@@ -353,9 +356,17 @@ public:
   /**
    * Retrieve the list of all jobs currently waiting or running
    * @param jv  a table of diet_job_t (caller resp. for freeing this table)
-   * @return number of jobs in the table (-1 if failure)
+   * @return number of jobs in the table (0 if failure)
    */
   int getActiveJobVector(jobVector_t& jv);
+
+  /**
+   * Get the Earliest Finish Time of the SeD ie time until it's available
+   * This will take into account the SeD's current job queue (jobs either
+   * running or waiting) and SeD's concurrency constraint (nb of procs).
+   * @return  the estimated EFT in ms from now
+   */
+  double getEFT();
 
 
 #ifdef HAVE_DAGDA
@@ -377,7 +388,7 @@ private:
 
   /* (Fully qualified) local host name */
   char localHostName[256];
-  
+
   /** Listening port */
   unsigned int port;
 

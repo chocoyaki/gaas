@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2009/06/23 09:26:56  bisnard
+ * new API method for EFT estimation
+ *
  * Revision 1.6  2008/07/08 11:14:51  bisnard
  * EFT calculation required for multi-wf scheduler
  *
@@ -36,38 +39,6 @@
 char time_str[64];
 long int t = 0;
 
-/*
- * EFT_eval :
- * calculate the earliest finish time using the SeDs jobqueue & this job's estimations
- * the return value is in milliseconds and is a relative time (interval until finish)
- */
-double eft_eval(diet_profile_t* pb, double computationTimeEstim) {
-  double         EFT, tcomp;
-  jobVector_t    jobVect = NULL;
-  int            jobNb,i ;
-  struct timeval currentTime;
-
-  EFT = computationTimeEstim; /* init with current job's computation time */
-  /* add the computation time for all other jobs on the SeD */
-  if (!diet_estimate_list_jobs(&jobVect, &jobNb, pb)) {
-    /************** EFT computation VALID FOR MAXCONCJOBS=1 ONLY !! *********/
-    for (i=0; i<jobNb; i++) {
-      /*  computation time for each job is added to EFT */
-      tcomp = diet_est_get_system(jobVect[i].estVector, EST_TCOMP, 10000000);
-      EFT += tcomp;
-      /* if job is already running, substract the time since it started */
-      if (jobVect[i].status == DIET_JOB_RUNNING) {
-        gettimeofday(&currentTime, NULL);
-        double already_done = (double)(currentTime.tv_sec*1000 + currentTime.tv_usec/1000) - jobVect[i].startTime;
-        /* use minimum in case computation time is longer than expected */
-        EFT -= (already_done > tcomp) ? tcomp : already_done;
-      }
-    }
-    free(jobVect);
-  }
-  return EFT;
-}
-
 void
 performance_Exec_Time(diet_profile_t* pb ,estVector_t perfValues )
 {
@@ -75,7 +46,7 @@ performance_Exec_Time(diet_profile_t* pb ,estVector_t perfValues )
   if ( t == 0 )
     t = 10;
   diet_estimate_comptime(perfValues, t*1000);
-  diet_est_set(perfValues,0, eft_eval(pb, t*1000));
+  diet_estimate_eft(perfValues, t*1000, pb);
 }
 
 void
@@ -84,7 +55,7 @@ set_up_scheduler(diet_profile_desc_t* profile){
   agg = diet_profile_desc_aggregator(profile);
   diet_service_use_perfmetric(performance_Exec_Time);
   diet_aggregator_set_type(agg, DIET_AGG_PRIORITY);
-  diet_aggregator_priority_minuser(agg,0);
+  diet_aggregator_priority_min(agg, EST_EFT);
 }
 
 
@@ -120,7 +91,7 @@ greyscale(diet_profile_t* pb)
     return 1;
   }
 
-  usleep(t*500000);
+  usleep(t*100000);
 
   return 0;
 }
@@ -156,7 +127,7 @@ flip(diet_profile_t* pb)
     return 1;
   }
 
-  usleep(t*500000);
+  usleep(t*100000);
 
   return 0;
 
@@ -205,7 +176,7 @@ duplicate(diet_profile_t* pb)
     return 1;
   }
 
-  usleep(t*500000);
+  usleep(t*100000);
 
   return 0;
 }

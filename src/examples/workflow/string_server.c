@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2009/06/23 09:26:56  bisnard
+ * new API method for EFT estimation
+ *
  * Revision 1.5  2009/05/28 14:07:25  bisnard
  * removed constant value for nb of elements of input
  *
@@ -48,46 +51,20 @@ char *parLeft_c = "[";
 char *parRight_c = "]";
 char *separator_c = ",";
 
-/*
- * EFT_eval :
- * calculate the earliest finish time using the SeDs jobqueue & this job's estimations
- * the return value is in milliseconds and is a relative time (interval until finish)
- */
-double eft_eval(diet_profile_t* pb, double computationTimeEstim) {
-  double         EFT, tcomp;
-  jobVector_t    jobVect = NULL;
-  int            jobNb,i ;
-  struct timeval currentTime;
-
-  EFT = computationTimeEstim; /* init with current job's computation time */
-  /* add the computation time for all other jobs on the SeD */
-  if (!diet_estimate_list_jobs(&jobVect, &jobNb, pb)) {
-    /************** EFT computation VALID FOR MAXCONCJOBS=1 ONLY !! *********/
-    for (i=0; i<jobNb; i++) {
-      /*  computation time for each job is added to EFT */
-      tcomp = diet_est_get_system(jobVect[i].estVector, EST_TCOMP, 10000000);
-      EFT += tcomp;
-      /* if job is already running, substract the time since it started */
-      if (jobVect[i].status == DIET_JOB_RUNNING) {
-        gettimeofday(&currentTime, NULL);
-        double already_done = (double)(currentTime.tv_sec*1000 + currentTime.tv_usec/1000) - jobVect[i].startTime;
-        /* use minimum in case computation time is longer than expected */
-        EFT -= (already_done > tcomp) ? tcomp : already_done;
-      }
-    }
-    free(jobVect);
-  }
-  return EFT;
-}
-
 void
 performance_Exec_Time(diet_profile_t* pb ,estVector_t perfValues )
 {
+  double eft, tcomp;
   t = atoi(time_str);
   if ( t == 0 )
     t = 10;
+  /* Set the job duration and compute SeD's EFT (results stored in EV) */
   diet_estimate_comptime(perfValues, t*1000);
-  diet_est_set(perfValues,0, eft_eval(pb, t*1000));
+  diet_estimate_eft(perfValues, t*1000, pb);
+  /* Get the values from EV */
+  tcomp = diet_est_get_system(perfValues, EST_TCOMP, 10000000);
+  eft = diet_est_get_system(perfValues, EST_EFT, 10000000);
+  printf("TCOMP=%f / EFT=%f\n", tcomp, eft);
 }
 
 void
@@ -96,7 +73,7 @@ set_up_scheduler(diet_profile_desc_t* profile){
   agg = diet_profile_desc_aggregator(profile);
   diet_service_use_perfmetric(performance_Exec_Time);
   diet_aggregator_set_type(agg, DIET_AGG_PRIORITY);
-  diet_aggregator_priority_minuser(agg,0);
+  diet_aggregator_priority_min(agg, EST_EFT);
 }
 
 void check_data(const char* ID) {
