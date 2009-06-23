@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2009/06/23 09:19:34  bisnard
+ * use new classname for WfLogService
+ * added missing exception catch in execNodeCommon
+ *
  * Revision 1.15  2009/02/06 14:51:27  bisnard
  * - setup exceptions
  * - refactoring dag and functional wf submission
@@ -90,7 +94,7 @@
 #include "CltMan.hh"
 #include "MasterAgent.hh"
 #include "MaDag.hh"
-#include "WfLogSrv.hh"
+#include "WfLogService.hh"
 
 // DIET headers
 #include "DIET_data.h"
@@ -170,7 +174,7 @@ public:
    * @param logSrv workflow log service reference
    */
   void
-  setWfLogSrv(WfLogSrv_var logSrv);
+  setWfLogSrv(WfLogService_var logSrv);
 
   /**
    * Get a new workflow request ID (for multi-dag submit)
@@ -355,7 +359,7 @@ private:
   /**
    * Workflow log service CORBA object reference
    */
-  WfLogSrv_var myWfLogSrv;
+  WfLogService_var myWfLogService;
 
   /**
    * Local workflow request ID counter
