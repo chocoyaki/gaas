@@ -6,6 +6,7 @@ IF( DIET_BUILD_LIBRARIES )
     ${CMAKE_CURRENT_SOURCE_DIR}         # for DIET_data_internal.hh
     ${DIET_SOURCE_DIR}/include
     ${XERCES_INCLUDE_DIR}
+    ${XQILLA_INCLUDE_DIR}
     )
   ADD_LIBRARY ( UtilsWf
     WfNode.cc Dag.cc MetaDag.cc FWorkflow.cc FNode.cc
