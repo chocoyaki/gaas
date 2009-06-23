@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.48  2009/06/23 09:25:38  bisnard
+ * use new estimation vector entry (EST_EFT)
+ *
  * Revision 1.47  2009/02/24 13:59:48  bisnard
  * modified trace messages
  *
@@ -189,6 +192,7 @@
 #include "MaDag_impl.hh"
 #include "marshalling.hh"
 #include "est_internal.hh"
+#include <math.h>
 #include "debug.hh"
 #include "statistics.hh"
 
@@ -453,7 +457,11 @@ MultiWfScheduler::run() {
                jx++) { // loop over servers
             servEst = &wf_response->wfn_seq_resp[0].response.servers[jx];
             double compTime = diet_est_get_internal(&servEst->estim, EST_TCOMP, 0);
-            double EFT = diet_est_get_internal(&servEst->estim, EST_USERDEFINED, 0);
+            double EFT = diet_est_get_internal(&servEst->estim, EST_EFT, 0);
+            if ((compTime == HUGE_VAL) || (EFT == HUGE_VAL)) {
+              WARNING("SeD estimation function does not provide correct values for "
+                      << "computation time (EST_COMPTIME) and EFT (EST_EFT)");
+            }
             SeD_ptr curSeDPtr = servEst->loc.ior;
             string hostname(CORBA::string_dup(servEst->loc.hostName));
             TRACE_TEXT(TRACE_ALL_STEPS,"  server " << hostname << ": compTime="
@@ -832,10 +840,6 @@ MultiWfScheduler::handlerDagDone(Dag * dag) {
       WARNING("Connection problems with Client occured - Release cancelled");
       clientFailure = true;
       dag->setAsCancelled();
-  } catch(CORBA::UserException& e) {
-      cout << "Caught exception " << e._name() << endl;
-      clientFailure = true;
-      dag->setAsCancelled();
   }
 
   // DISPLAY DEBUG INFO
@@ -921,52 +925,46 @@ NodeRun::NodeRun(DagNode * node,
  */
 void*
 NodeRun::run() {
-  typedef size_t comm_failure_t;
   Dag *  dag    = myNode->getDag();
   string dagId  = dag->getId();
   string nodeId = myNode->getId();
+  string nodePx = "[" + myNode->getCompleteId() + "] : ";
   bool clientFailure = false;
   CORBA::Long res;
 
-  TRACE_TEXT (TRACE_ALL_STEPS, "NodeRun: running node " << myNode->getCompleteId() << endl);
-
     // NODE EXECUTION ON CLIENT
   try {
-    try {
-      if (!CORBA::is_nil(this->mySeD)) {
-        TRACE_TEXT (TRACE_ALL_STEPS, "(exec on sed - request #"
-            << this->myReqID << ")" << endl);
-        res = myCltMan->execNodeOnSed(nodeId.c_str(),
-                                      dagId.c_str(),
-                                      this->mySeD,
-                                      this->myReqID,
-                                      this->myEstVect);
-      } else {
-        TRACE_TEXT (TRACE_ALL_STEPS, "(exec without sed)" << endl);
-        res = myCltMan->execNode(nodeId.c_str(),
-                                 dagId.c_str());
-      }
-    } catch (CORBA::COMM_FAILURE& e) {
-      throw (comm_failure_t)1;
-    } catch (CORBA::TRANSIENT& e) {
-      throw (comm_failure_t)1;
+    if (!CORBA::is_nil(this->mySeD)) {
+      TRACE_TEXT (TRACE_ALL_STEPS, nodePx << "call client (sed defined) - request #"
+          << this->myReqID << endl);
+      res = myCltMan->execNodeOnSed(nodeId.c_str(),
+                                    dagId.c_str(),
+                                    this->mySeD,
+                                    this->myReqID,
+                                    this->myEstVect);
+    } else {
+      TRACE_TEXT (TRACE_ALL_STEPS, nodePx << "call client (sed not defined)" << endl);
+      res = myCltMan->execNode(nodeId.c_str(),
+                                dagId.c_str());
     }
-  } catch (comm_failure_t& e) {
-    if (e == 0 || e == 1) {
-      WARNING("Connection problems with Client occured - Dag cancelled");
-      clientFailure = true;
-    }
+  } catch (CORBA::COMM_FAILURE& e) {
+    WARNING(nodePx << "Client call had connection problems" << endl);
+    clientFailure = true;
+  } catch (CORBA::SystemException& e) {
+    WARNING(nodePx << "Client call got a CORBA " << e._name() << " exception ("
+        << e.NP_minorString() << ")" << endl);
+    clientFailure = true;
+  } catch (...) {
+    WARNING(nodePx << "Client call got unknown exception!" << endl);
+    clientFailure = true;
   }
-
   // POST-PROCESSING
 
   if (!clientFailure && !res) {
-    TRACE_TEXT (TRACE_MAIN_STEPS, "NodeRun: node " << myNode->getCompleteId()
-        << " is done" << endl);
+    TRACE_TEXT (TRACE_MAIN_STEPS, nodePx << "call client done" << endl);
     myNode->setAsDone(myScheduler);
   } else {
-    TRACE_TEXT (TRACE_ALL_STEPS, "NodeRun: node " << myNode->getCompleteId()
-        << " execution failed! " << endl);
+    TRACE_TEXT (TRACE_ALL_STEPS, nodePx << "call client FAILURE!" << endl);
     myNode->setAsFailed(myScheduler);
   }
 

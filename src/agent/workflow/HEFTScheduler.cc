@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2009/06/23 09:25:38  bisnard
+ * use new estimation vector entry (EST_EFT)
+ *
  * Revision 1.11  2009/04/17 08:45:40  bisnard
  * renamed Node class as WfNode
  *
@@ -203,8 +206,10 @@ HEFTScheduler::computeNodeWeights(const wf_response_t * wf_response,
     ix = n->getSubmitIndex(); // the index was stored before submitting to MA
     double w = 0;
     int    nbServers = wf_response->wfn_seq_resp[ix].response.servers.length();
+    cout << "[" << n->getId() << "]: nb servers = " << nbServers << endl;
     for (unsigned int jx=0; jx < nbServers; jx++) {
           w += this->getNodeDurationEst(wf_response, ix, jx);
+          cout << "[" << n->getId() << "]: w= " << w << endl;
     } // end for jx
     if (nbServers > 0) n->setEstDuration( w / nbServers);
     TRACE_TEXT (TRACE_ALL_STEPS, " HEFT : node " << n->getCompleteId() << " weight :"

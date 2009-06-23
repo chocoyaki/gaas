@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.36  2009/06/23 09:28:46  bisnard
+ * use new estimation vector entry (EST_EFT)
+ *
  * Revision 1.35  2008/07/09 13:16:34  rbolze
  * correct some memory free problems
  *
@@ -552,7 +555,10 @@ DietLogComponent::getEstimationTags(const int v_tag){
 		case(EST_NUMWAITINGJOBS): // 21
 		ret = strdup("EST_NUMWAITINGJOBS");
 	        break;
-		case(EST_USERDEFINED): // 29
+                case(EST_EFT): // 29
+                ret = strdup("EST_EFT");
+                break;
+		case(EST_USERDEFINED): // 30
 		ret = strdup("EST_USERDEFINED");
 	        break;
 		/********* HAVE_ALT_BATCH ***********/
@@ -768,7 +774,7 @@ DietLogComponent::logSedChosen(const corba_request_t* request,
 			char v_value[128];
 			sprintf(v_value,"%f",response->servers[i].estim.estValues[j].v_value);
 			estim_string.append(v_value);
-			//delete(v_value);			
+			//delete(v_value);
 		}
 	}
     s = (char*)malloc((strlen(request->pb.path)
@@ -882,8 +888,8 @@ DietLogComponent::logDataStore(const char* dataID, const long unsigned int size,
     }
     } // end switch
     log(tagNames[6], s);
-    
-  }  
+
+  }
   free(base);
   free(s);
 }
@@ -918,11 +924,11 @@ DietLogComponent::logJuxMemDataStore(const unsigned long reqID, const char* data
    char * base = (char *)malloc(10*sizeof(char));
    char* s;
    //   s = new char[sizeof(reqID) + strlen(dataID) + sizeof(size)+ strlen(type) + (10 * sizeof(char)) + sizeof(time) + 5];
-   s = (char*)malloc((sizeof(reqID) 
-   	+ strlen(dataID) 
+   s = (char*)malloc((sizeof(reqID)
+   	+ strlen(dataID)
    	+ num_Digits(size)
-   	+ strlen(type) 
-   	+ (10 * sizeof(char)) 
+   	+ strlen(type)
+   	+ (10 * sizeof(char))
    	+ sizeof(time) + 5));
    if (tagFlags[14]) {
     switch (base_type) {
@@ -962,12 +968,12 @@ void
 DietLogComponent::logJuxMemDataUse(const unsigned long reqID, const char* dataID, const char* access_mode, const long unsigned int size, const long base_type, const char * type, const float time) {
    char * base = (char *)malloc(10*sizeof(char));
    char* s;
-   s = (char*)malloc(sizeof(reqID) 
-   	+ strlen(dataID) 
-   	+ strlen(access_mode) 
+   s = (char*)malloc(sizeof(reqID)
+   	+ strlen(dataID)
+   	+ strlen(access_mode)
    	+ sizeof(size)
-   	+ strlen(type) 
-   	+ (sizeof(char) * 10) 
+   	+ strlen(type)
+   	+ (sizeof(char) * 10)
    	+ sizeof(time) + 6);
    if (tagFlags[15]) {
     switch (base_type) {
