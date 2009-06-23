@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2009/06/23 09:29:35  bisnard
+ * implemented scheduling simulation method to estimate SeD's EFT
+ *
  * Revision 1.6  2008/11/08 19:12:38  bdepardo
  * A few warnings removal
  *
@@ -35,22 +38,29 @@
  ****************************************************************************/
 
 #include "JobQueue.hh"
+#include <map>
 
+JobQueue::JobQueue(int maxConcurrentJobsNb)
+  : nbActiveJobs(0) , nbProc(maxConcurrentJobsNb) {
+}
 
-JobQueue::JobQueue() : nbActiveJobs(0) { };
-JobQueue::~JobQueue() { };
+JobQueue::~JobQueue() { }
 
-bool
-JobQueue::addJobWaiting(int dietReqID, corba_estimation_t& ev) {
+void
+JobQueue::addJobWaiting(int dietReqID, double jobEstCompTime,
+                        corba_estimation_t& ev) {
   // make a copy of the estimation vector
+  // (the estimation vector is stored only to be able to provide it when
+  // getActiveJobTable is called; data inside ev is not used)
   estVector_t estVect = new corba_estimation_t(ev);
-  diet_job_t newJob = { estVect, DIET_JOB_WAITING, -1 };
+  diet_job_t newJob = { estVect, DIET_JOB_WAITING, jobEstCompTime, -1 };
   this->myLock.lock();        /** LOCK */
   myJobs[dietReqID] = newJob;
+  myWaitingQueue.push_back(dietReqID);
   this->nbActiveJobs++;
-  TRACE_TEXT (TRACE_ALL_STEPS,"JobQueue: adding job " << dietReqID << " in status WAITING" << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS,"JobQueue: adding job " << dietReqID << " in status WAITING"
+                              << " (duration est.=" << jobEstCompTime << " ms)" << endl);
   this->myLock.unlock();      /** UNLOCK */
-  return true;
 }
 
 bool
@@ -62,6 +72,8 @@ JobQueue::setJobStarted(int dietReqID) {
   // myJobs[dietReqID].startTime = current_time.tv_sec;
   // time is store in ms
   myJobs[dietReqID].startTime = (double)(current_time.tv_sec*1000 + current_time.tv_usec/1000);
+  // remove from waiting queue
+  myWaitingQueue.remove(dietReqID);
   return true;
 }
 
@@ -123,5 +135,60 @@ JobQueue::getActiveJobTable(jobVector_t& jobVector) {
         << nbJobs << endl);
   }
   return nbJobs;
+}
+
+double
+JobQueue::estimateEFTwithFIFOSched() {
+
+  // initialize EFT=>processor map
+  multimap<double, int> procMap;
+  for (int i=0; i<nbProc; ++i)
+    procMap.insert(make_pair(0,0));
+
+  // initialize current time
+  struct timeval currentTime;
+  gettimeofday(&currentTime, NULL);
+  double currTime = (double)(currentTime.tv_sec*1000 + currentTime.tv_usec/1000);
+
+  // process RUNNING jobs
+  int nbJobsRunning = 0;  // used only for trace
+  for (map<int, diet_job_t>::iterator jobsIter = myJobs.begin();
+       jobsIter != myJobs.end();
+       ++jobsIter) {
+    diet_job_t job = jobsIter->second;
+    if (job.status == DIET_JOB_RUNNING) {
+      nbJobsRunning++;
+      double remainCompTime =  job.startTime + job.estCompTime - currTime;
+      if (remainCompTime > 0) {
+
+        // add this job to the proc with lowest EFT
+        double newEFT = procMap.begin()->first + remainCompTime;
+        procMap.erase(procMap.begin());
+        procMap.insert(make_pair(newEFT,0));
+
+      }
+    }
+  }
+
+  // process WAITING jobs
+  for (list<int>::iterator waitJobIter = myWaitingQueue.begin();
+       waitJobIter != myWaitingQueue.end();
+       ++waitJobIter) {
+    int jobReqID = *waitJobIter;
+
+    map<int, diet_job_t>::iterator jobsIter = myJobs.find(jobReqID);
+    if (jobsIter == myJobs.end()) continue;
+    diet_job_t job = jobsIter->second;
+
+    // add this job to the proc with lowest EFT
+    double newEFT = procMap.begin()->first + job.estCompTime;
+    procMap.erase(procMap.begin());
+    procMap.insert(make_pair(newEFT,0));
+  }
+
+  TRACE_TEXT (TRACE_ALL_STEPS,"Computing EFT: " << nbJobsRunning << " jobs running / "
+                              << myWaitingQueue.size() << " jobs waiting" << endl);
+  // Take the lowest EFT value
+  return procMap.begin()->first;
 }
 
