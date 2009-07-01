@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2009/07/01 15:05:25  bisnard
+ * bug correction (display pointer instead of value)
+ *
  * Revision 1.1  2009/06/15 12:01:20  bisnard
  * new class WfDataWriter to abstract the different ways of
  * displaying data within a workflow (XML or list)
@@ -40,15 +43,15 @@ WfDataWriter::rawValue(void * valuePtr,
   switch(valueType) {
 
     case WfCst::TYPE_DOUBLE:
-      myOutput << (double *) valuePtr; break;
+      myOutput << *((double *) valuePtr); break;
     case WfCst::TYPE_INT:
-      myOutput << (int *) valuePtr; break;
+      myOutput << *((int *) valuePtr); break;
     case WfCst::TYPE_LONGINT:
-      myOutput << (long *) valuePtr; break;
+      myOutput << *((long *) valuePtr); break;
     case WfCst::TYPE_FLOAT:
-      myOutput << (float *) valuePtr; break;
+      myOutput << *((float *) valuePtr); break;
     case WfCst::TYPE_SHORT:
-      myOutput << (short *) valuePtr; break;
+      myOutput << *((short *) valuePtr); break;
 
     case WfCst::TYPE_CHAR:
     case WfCst::TYPE_PARAMSTRING:
