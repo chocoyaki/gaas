@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2009/07/02 15:55:24  bisnard
+ * bug correction in updateAncestors()
+ *
  * Revision 1.10  2009/06/15 12:22:29  bisnard
  * use new class WfValueAdapter for adapters with constant value
  * added attributes myCompletionDepth & myValueType
@@ -687,20 +690,23 @@ FDataHandle::updateAncestors() {
   bool allAdaptersVoid = true;
   unsigned int minChildCompletionDepth = 999;
   if (myData->size() == 0)  minChildCompletionDepth = myDepth-1;
-  map<FDataTag,FDataHandle*>::iterator childIter = myData->begin();
-  while (allAdaptersDefined && childIter != myData->end()) {
+  // LOOP for ALL childs - checking adapters, voids and completionDepth
+  for (map<FDataTag,FDataHandle*>::iterator childIter = myData->begin();
+       childIter != myData->end();
+       ++childIter) {
     FDataHandle * childData = (FDataHandle*) childIter->second;
     if (!childData->isAdapterDefined()) {
       allAdaptersDefined = false;
     }
+
     if (!childData->isVoid()) {
       allAdaptersVoid = false;
     }
+
     if (childData->myCompletionDepth < minChildCompletionDepth)
       minChildCompletionDepth = childData->myCompletionDepth;
-    ++childIter;
-  }
 
+  }
   bool updateParent = false;
   if ((int) minChildCompletionDepth > (int) myCompletionDepth-1) {
     myCompletionDepth = minChildCompletionDepth+1;
