@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2009/07/07 11:25:54  bisnard
+ * modified data file parser
+ *
  * Revision 1.20  2009/07/07 09:03:22  bisnard
  * changes for sub-workflows (FWorkflow class now inherits from FProcNode)
  *
@@ -547,11 +550,12 @@ class DataSourceHandler : public DefaultHandler {
                      const  unsigned int     length);
 
     void fatalError(const SAXParseException& e);
+    void warning(const SAXParseException& e);
 
   private:
     void startSource(const   Attributes&     attrs);
-    void startList();
-    void startItem();
+    void startList(const   Attributes&     attrs);
+    void startItem(const   Attributes&     attrs);
 
     void endSource();
     void endList();

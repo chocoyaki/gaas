@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.30  2009/07/07 11:25:54  bisnard
+ * modified data file parser
+ *
  * Revision 1.29  2009/07/07 09:03:22  bisnard
  * changes for sub-workflows (FWorkflow class now inherits from FProcNode)
  *
@@ -1192,8 +1195,8 @@ DataSourceHandler::startElement(const   XMLCh* const    uri,
 //   cout << "startElement : " << eltName << endl;
 
   if (strcmp("source",eltName) == 0) startSource(attrs);
-  if (strcmp("list",eltName) == 0)   startList();
-  if (strcmp("item",eltName) == 0)   startItem();
+  if (strcmp("list",eltName) == 0)   startList(attrs);
+  if (strcmp("item",eltName) == 0)   startItem(attrs);
 
   XREL(eltName);
 }
@@ -1238,7 +1241,7 @@ DataSourceHandler::endSource() {
 }
 
 void
-DataSourceHandler::startList() {
+DataSourceHandler::startList(const   Attributes&     attrs) {
   if (isSourceFound) {
     if (myCurrTag == NULL) {
       myCurrTag = new FDataTag(0,false);
@@ -1260,10 +1263,19 @@ DataSourceHandler::endList() {
 }
 
 void
-DataSourceHandler::startItem() {
+DataSourceHandler::startItem(const   Attributes&     attrs) {
   if (isSourceFound && (myCurrTag)) {
 //     cout << "found item / tag=" << myCurrTag->toString() << endl;
     isItemFound = true;
+    for (XMLSize_t i = 0; i < attrs.getLength(); i++) {
+      char * name  = XTOC(attrs.getQName(i));
+      char * value = XTOC(attrs.getValue(i));
+      if (!strcmp(name,"value")) {
+        myCurrItemValue = value;
+      }
+      XREL(name);
+      XREL(value);
+    }
   }
 }
 
@@ -1291,6 +1303,14 @@ DataSourceHandler::endItem() {
 void
 DataSourceHandler::fatalError(const SAXParseException& e) {
   string errorMsg = "Error in data source XML file (line "
+                    + itoa(e.getLineNumber()) + ")";
+  throw XMLParsingException(XMLParsingException::eBAD_STRUCT, errorMsg);
+}
+
+void
+DataSourceHandler::warning(const SAXParseException& e)
+{
+  string errorMsg = "Warning in data source XML file (line "
                     + itoa(e.getLineNumber()) + ")";
   throw XMLParsingException(XMLParsingException::eBAD_STRUCT, errorMsg);
 }
