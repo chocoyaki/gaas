@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2009/07/07 09:01:32  bisnard
+ * new attribute myWf to replace dag-related workflow
+ *
  * Revision 1.17  2009/06/22 14:04:27  bisnard
  * fixed bug in profile initialization
  *
@@ -78,11 +81,15 @@
 /*                                                                          */
 /****************************************************************************/
 
-MasterAgent_var getMA();
+#define MAX_EXEC_SERVERS 10 // max nb of servers in the agent response
+
+// MasterAgent_var getMA();
 extern diet_error_t
-diet_call_common(diet_profile_t* profile,
+diet_call_common(MasterAgent_var& MA,
+                 diet_profile_t* profile,
                  SeD_var& chosenServer,
-                 estVector_t estimVect);
+                 estVector_t estimVect,
+                 unsigned long maxServers);
 
 RunnableNode::RunnableNode(DagNode * parent)
 	:Thread(false) {
@@ -100,7 +107,11 @@ RunnableNode::run() {
   if (!failed) {
     try {
       try {
-        if (!diet_call_common(myParent->profile, myParent->chosenServer, myParent->estimVect)) {
+        if (!diet_call_common(myParent->getDag()->getExecutionAgent(),
+                              myParent->profile,
+                              myParent->chosenServer,
+                              myParent->estimVect,
+                              MAX_EXEC_SERVERS)) {
           TRACE_TEXT (TRACE_MAIN_STEPS, traceHeader << " diet call DONE reqID=" <<
               myParent->profile->dietReqID << endl);
           myParent->storeProfileData();
@@ -164,8 +175,8 @@ WfDataException::ErrorMsg() {
 /*                       Constructors/Destructor                            */
 /****************************************************************************/
 
-DagNode::DagNode(Dag *dag, const string& id)
-  : WfNode(id), myDag(dag), myFNode(NULL) {
+DagNode::DagNode(const string& id, Dag *dag, FWorkflow* wf)
+  : WfNode(id), myDag(dag), myWf(wf) {
   this->prevNodesTodoCount = 0;
   this->task_done = false;
   this->SeDDefined = false;
@@ -284,18 +295,12 @@ DagNode::~DagNode() {
   }
 }
 
-/**
- * Get the node complete id *
- */
 string DagNode::getCompleteId() {
   if (this->myDag != NULL)
     return this->myDag->getId() + "-" + this->myId;
   return this->myId;
 }
 
-/**
- * get the node Dag reference
- */
 Dag *
 DagNode::getDag() {
   if (this->myDag != NULL)
@@ -305,37 +310,34 @@ DagNode::getDag() {
   }
 }
 
-/**
- * set the problem name
- */
+FWorkflow *
+DagNode::getWorkflow() {
+  if (myWf != NULL)
+    return myWf;
+  else {
+    INTERNAL_ERROR( "ERROR: calling getWorkflow() on a node not linked to a wf" << endl, 1);
+  }
+}
+
 void
 DagNode::setPbName(const string& pbName) {
   this->myPb = pbName;
 }
 
-/**
- * get the problem name
- */
 const string&
 DagNode::getPbName() {
   return this->myPb;
 }
 
-/**
- * set the functional node for which this node is an instance
- */
-void
-DagNode::setFNode(FProcNode * fNode) {
-  this->myFNode = fNode;
-}
-
-/**
- * get the functional node
- */
-FProcNode *
-DagNode::getFNode() {
-  return this->myFNode;
-}
+// void
+// DagNode::setFNode(FProcNode * fNode) {
+//   this->myFNode = fNode;
+// }
+//
+// FProcNode *
+// DagNode::getFNode() {
+//   return this->myFNode;
+// }
 
 /******************************/
 /* Base methods override      */
@@ -387,24 +389,24 @@ DagNode::newPort(string portId, unsigned int ind,
     case WfPort::PORT_OUT:
       p = new DagNodeOutPort(this, portId, dataType, depth, ind);
       break;
+    default:
+      INTERNAL_ERROR("Invalid port type for DagNode",1);
   }
   this->ports[portId] = p;
   return p;
 }
 
-string
-DagNode::toXML() const {
-  string xml = "<node id=\""+ myId +"\" ";
-  xml += "path=\""+ myPb + "\" ";
+void
+DagNode::toXML(ostream& output) const {
+  output << "<node id=\"" << myId << "\" path=\"" << myPb << "\" ";
   if (!estimationClass.empty())
-    xml += "est-class=\"" + estimationClass + "\" ";
-  xml += ">\n";
+    output << "est-class=\"" << estimationClass << "\" ";
+  output << ">" << endl;
   for (int ix = 0; ix < getPortNb(); ++ix) {
     const DagNodePort * port = dynamic_cast<const DagNodePort*>(getPortByIndex(ix));
-    xml += port->toXML();
+    port->toXML(output);
   }
-  xml += "</node>\n";
-  return xml;
+  output << "</node>" << endl;
 }
 
 /******************************/
@@ -486,6 +488,8 @@ DagNode::createProfile() {
       case WfPort::PORT_OUT:
         ++nbOut;
         break;
+      default:
+        INTERNAL_ERROR("Invalid port type for profile creation",1);
     }
   } // end for all ports
   int last_in    = nbIn - 1;
@@ -545,7 +549,7 @@ DagNode::storeProfileData() {
   for (map<string, WfPort*>::iterator p = ports.begin();
        p != ports.end();
        ++p) {
-    if (((WfPort *)p->second)->getPortType() == WfPort::PORT_OUT) {
+    if (((WfPort *)p->second)->isOutput()) {
       DagNodeOutPort * dagPort = dynamic_cast<DagNodeOutPort*>(p->second);
       dagPort->storeProfileData();
     }
@@ -564,7 +568,7 @@ DagNode::freeProfileAndData() {
     for (map<string, WfPort*>::iterator p = ports.begin();
          p != ports.end();
          ++p) {
-      if (((WfPort *)p->second)->getPortType() == WfPort::PORT_OUT) {
+      if (((WfPort *)p->second)->isOutput()) {
         DagNodeOutPort * dagPort = dynamic_cast<DagNodeOutPort*>(p->second);
         dagPort->freeProfileData();
       }
@@ -708,7 +712,7 @@ DagNode::displayResults(ostream& output) {
   for (map<string, WfPort*>::iterator p = ports.begin();
        p != ports.end();
        ++p) {
-    if (((WfPort *)p->second)->getPortType() == WfPort::PORT_OUT) {
+    if (((WfPort *)p->second)->isOutput()) {
       DagNodeOutPort * outp = dynamic_cast<DagNodeOutPort *>(p->second);
       string currPortFullId = outp->getParent()->getId() + "#" + outp->getId();
       if (!outp->isConnected()) {

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2009/07/07 09:01:32  bisnard
+ * new attribute myWf to replace dag-related workflow
+ *
  * Revision 1.10  2009/05/15 11:03:41  bisnard
  * added new exception types
  *
@@ -125,6 +128,7 @@ class WfDataException {
 /****************************************************************************/
 
 class Dag;
+class FWorkflow;
 class FProcNode;
 
 class DagNode : public WfNode  {
@@ -137,10 +141,11 @@ public:
 
   /**
    * The Dag Node default constructor
-   * @param dag        the parent dag
    * @param id         the node id
+   * @param dag        the parent dag
+   * @param wf         the workflow that generated this dag node (optional)
    */
-  DagNode(Dag *dag, const string& id);
+  DagNode(const string& id, Dag *dag, FWorkflow* wf = NULL);
 
   /**
    * DagNode destructor
@@ -160,6 +165,12 @@ public:
   getDag();
 
   /**
+   * get the node Wf reference
+   */
+  FWorkflow *
+  getWorkflow();
+
+  /**
    * set the node problem name (ie service name)
    */
   void
@@ -174,14 +185,14 @@ public:
   /**
    * set the functional node for which this node is an instance
    */
-  void
-  setFNode(FProcNode * fNode);
+//   void
+//   setFNode(FProcNode * fNode);
 
   /**
    * get the functional node
    */
-  FProcNode *
-  getFNode();
+//   FProcNode *
+//   getFNode();
 
   /**
    * create a new port
@@ -203,8 +214,8 @@ public:
   /**
    * returns an XML  representation of a node
    */
-  string
-  toXML() const;
+  void
+  toXML(ostream& output) const;
 
   /******************************/
   /* DIET Profile Mgmt          */
@@ -590,9 +601,14 @@ private:
   Dag * myDag;
 
   /**
+   * Workflow reference
+   */
+  FWorkflow * myWf;
+
+  /**
    * Functional node
    */
-  FProcNode * myFNode;
+//   FProcNode * myFNode;
 
   /**
    * problem profile *
