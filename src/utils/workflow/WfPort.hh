@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2009/07/07 09:04:40  bisnard
+ * new method isOutput to handle output ports that have different types
+ *
  * Revision 1.16  2009/06/15 12:24:30  bisnard
  * new class DagNodeArgPort (arg ports not used for funct wf anymore)
  * use WfDataWriter class to display data
@@ -154,6 +157,12 @@ public:
   getPortType() const;
 
   /**
+   * Returns true if the port is an output
+   */
+  bool
+  isOutput() const;
+
+  /**
    * Return a description of the port
    */
   string
@@ -210,6 +219,10 @@ public:
   void
   setCardinal(const list<string>& cardList);
 
+  /******************************/
+  /* Links with other ports     */
+  /******************************/
+
   /**
    * Set the source of the input port (Parsing only)
    * @param strRef The source port (output port) reference
@@ -243,6 +256,16 @@ public:
    */
   bool
   isConnected() const;
+
+  /****************************************************/
+  /* Interface with node's internal sources/sinks     */
+  /****************************************************/
+
+  void
+  setInterfaceRef(const string& strInterface);
+
+  const string&
+  getInterfaceRef();
 
 protected:
 
@@ -313,6 +336,11 @@ protected:
    * The adapter to the linked port (source or sink)
    */
   WfPortAdapter* adapter;
+
+  /**
+   * The name of interface port to connect to
+   */
+  string myInterfaceRef;
 
 private:
 

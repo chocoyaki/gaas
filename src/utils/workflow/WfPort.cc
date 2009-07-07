@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2009/07/07 09:04:40  bisnard
+ * new method isOutput to handle output ports that have different types
+ *
  * Revision 1.17  2009/06/15 12:24:30  bisnard
  * new class DagNodeArgPort (arg ports not used for funct wf anymore)
  * use WfDataWriter class to display data
@@ -128,6 +131,14 @@ WfPort::getPortType() const {
   return this->portType;
 }
 
+bool
+WfPort::isOutput() const {
+  return ((portType == PORT_OUT)
+          || (portType == PORT_INOUT)
+          || (portType == PORT_OUT_THEN)
+          || (portType == PORT_OUT_ELSE));
+}
+
 string
 WfPort::getPortDescr() const {
   string portDescr;
@@ -230,6 +241,16 @@ WfPort::connectPorts() throw (WfStructException) {
 bool
 WfPort::isConnected() const {
   return connected;
+}
+
+void
+WfPort::setInterfaceRef(const string& strInterface) {
+  myInterfaceRef = strInterface;
+}
+
+const string&
+WfPort::getInterfaceRef() {
+  return myInterfaceRef;
 }
 
 /*************************************/
