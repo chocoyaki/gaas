@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2009/07/07 09:03:22  bisnard
+ * changes for sub-workflows (FWorkflow class now inherits from FProcNode)
+ *
  * Revision 1.15  2009/06/23 12:23:58  bisnard
  * removed dependencies (includes)
  *
@@ -68,12 +71,15 @@
 #include <functional>
 
 #include "debug.hh"
+#include "DagWfParser.hh"
 #include "FWorkflow.hh"
 #include "FActivityNode.hh"
 #include "FIfNode.hh"
+#include "FLoopNode.hh"
 
-FWorkflow::FWorkflow(const string& id)
-  : id(id), dagCounter(0), myStatus(W_INSTANC_READY) {
+FWorkflow::FWorkflow(const string& id,
+                     FWorkflow*  parentWf)
+  : FProcNode(parentWf, id) {
 }
 
 FWorkflow::~FWorkflow() {
@@ -89,11 +95,6 @@ FWorkflow::~FWorkflow() {
     myProc.erase( myProc.begin() );
     delete p;
   }
-}
-
-const string&
-FWorkflow::getId() {
-  return id;
 }
 
 WfNode *
@@ -213,6 +214,35 @@ FWorkflow::createFilter(const string& id) throw (WfStructException)
   throw WfStructException(WfStructException::eDUPLICATE_NODE,"FNode id="+id);
 }
 
+FLoopNode*
+FWorkflow::createLoop(const string& id) throw (WfStructException)
+{
+  // check if node does not already exist
+  try {
+    getProcNode(id);
+  } catch (WfStructException& e) {
+    TRACE_TEXT (TRACE_ALL_STEPS,"Creating LOOP node : " << id << endl);
+    FLoopNode* node = new FLoopNode(this, id);
+    myProc[id] = node;
+    return node;
+  }
+  throw WfStructException(WfStructException::eDUPLICATE_NODE,"FNode id="+id);
+}
+
+FWorkflow*
+FWorkflow::createSubWorkflow(const string& id) throw (WfStructException)
+{
+  try {
+    getProcNode(id);
+  } catch (WfStructException& e) {
+    TRACE_TEXT (TRACE_ALL_STEPS,"Creating sub-workflow node : " << id << endl);
+    FWorkflow* node = new FWorkflow(id, this);
+    myProc[id] = node;
+    return node;
+  }
+  throw WfStructException(WfStructException::eDUPLICATE_NODE,"FNode id="+id);
+}
+
 FSourceNode*
 FWorkflow::createSource(const string& id, WfCst::WfDataType type)
     throw (WfStructException)
@@ -307,25 +337,65 @@ void DFS(WfNode* node,
 }
 
 /**
- * FWorkflow initialization
- * NOT THREAD SAFE
+ * FWorkflow XML Parsing
  */
 void
-FWorkflow::initialize(const string& dataFileName) throw (WfStructException) {
-  this->dataSrcXmlFile = dataFileName;
-  TRACE_TEXT (TRACE_ALL_STEPS,"Initializing Interface..." << endl);
+FWorkflow::initFromXmlFile(const string& xmlWfFileName,
+                           const string& xmlDataFileName) {
+
+  string pfx = "[" + getId() + "] : ";
+  TRACE_TEXT (TRACE_ALL_STEPS, pfx << "*** Parsing WORKFLOW XML" << endl);
+  FWfParser reader(*this, xmlWfFileName);
+  reader.parseXml();
+
+  TRACE_TEXT (TRACE_ALL_STEPS, pfx << "*** Checking WORKFLOW XML structure" << endl);
+  checkPrec(this);
+
+  TRACE_TEXT (TRACE_ALL_STEPS, pfx << "*** Initialize functional wf ****" << endl);
+  setDataSrcXmlFile(xmlDataFileName);
+//   initialize();
+}
+
+/**
+ * FWorkflow initialization
+ * NOT THREAD SAFE
+ * FIXME make it private ?
+ */
+void
+FWorkflow::initialize() throw (WfStructException) {
+  string pfx = "[" + getId() + "] : ";
+
+  if (getPortNb() > 0) {  // used for sub-workflows
+    FProcNode::initialize();
+    // All input ports must be interfaced to sources & outputs to sinks
+    TRACE_TEXT (TRACE_ALL_STEPS, pfx << "Checking interfaces" << endl);
+    for (map<string,WfPort*>::iterator portIter = ports.begin();
+      portIter != ports.end();
+      ++portIter) {
+      FNodePort* wfPort = dynamic_cast<FNodePort*>((WfPort*) portIter->second);
+      try {
+        FNode* interfNode = getInterfaceNode(wfPort->getInterfaceRef());
+        interfNode->connectToWfPort(wfPort);
+      } catch (const WfStructException& e) {
+        throw WfStructException(e.Type(), string("Unknown reference for sub-workflow interface : ")
+                                          + e.Info());
+      }
+    }
+  }
+
+  TRACE_TEXT (TRACE_ALL_STEPS,pfx << "Initializing Interface..." << endl);
   for(map<string,FNode*>::iterator iter = myInterface.begin();
       iter != myInterface.end();
       ++iter) {
     ((FNode*) iter->second)->initialize();
   }
-  TRACE_TEXT (TRACE_ALL_STEPS,"Initializing Processors..." << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS,pfx << "Initializing Processors..." << endl);
   for(map<string,FProcNode*>::iterator iter = myProc.begin();
       iter != myProc.end();
       ++iter) {
     ((FProcNode*) iter->second)->initialize();
   }
-  TRACE_TEXT (TRACE_ALL_STEPS,"Sorting processors..." << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS,pfx << "Sorting processors..." << endl);
   // create a topologically sorted list of processor nodes
   map<WfNode*, DFSNodeInfo>* DFSInfo = new map<WfNode*,DFSNodeInfo>();
   short DFSEndCount = 0;
@@ -364,6 +434,14 @@ FWorkflow::initialize(const string& dataFileName) throw (WfStructException) {
 }
 
 /**
+ * Set the path of the file used for data sources instanciation
+ */
+void
+FWorkflow::setDataSrcXmlFile(const string& dataFileName) {
+  this->dataSrcXmlFile = dataFileName;
+}
+
+/**
  * Returns the path of the file used for data sources instanciation
  */
 const string&
@@ -376,19 +454,21 @@ FWorkflow::getDataSrcXmlFile() {
  * NOT THREAD SAFE
  */
 
-Dag *
-FWorkflow::instanciateDag() {
-  myStatus = W_INSTANC_READY;
-  Dag * currDag = new Dag();
-  // set a temporary ID for the DAG
-  // this ID will be changed when the DAG is submitted to the MaDag
-  // the temp ID must not match any real ID (which are numbers)
-  currDag->setId("WF_" + this->id + "_DAG_" + itoa(dagCounter++));
-  currDag->setWorkflow(this);
-  TRACE_TEXT (TRACE_MAIN_STEPS,"@@@@@ DAG " << currDag->getId()
-               << " GENERATION START @@@@@" << endl);
-  TRACE_TEXT (TRACE_ALL_STEPS,"Instanciate interface..." << endl);
-  // initialize the INTERFACE (this will create the input data items)
+void
+FWorkflow::instanciate(Dag * dag) {
+  // re-initialize status
+  myStatus = N_INSTANC_READY;
+
+  string pfx = "[" + getId() + "] : ";
+
+  TRACE_TEXT (TRACE_MAIN_STEPS, pfx << "########## WORKFLOW '" << getId()
+                            << "' INSTANCIATION START ##########" << endl);
+
+  if (getPortNb() > 0) {  // used for sub-workflows
+    FProcNode::instanciate(dag); // run the iterator and call createReal/VoidInstance
+  }
+  TRACE_TEXT (TRACE_ALL_STEPS, pfx << "###### Instanciate sources/constants ..." << endl);
+  // initialize the INTERFACE (this will create the input data items if source is XML)
   for(map<string,FNode*>::iterator iter = myInterface.begin();
       iter != myInterface.end();
       ++iter) {
@@ -397,6 +477,8 @@ FWorkflow::instanciateDag() {
     if (interfNode->instanciationReady())
       interfNode->instanciate(NULL);
   }
+
+  TRACE_TEXT (TRACE_ALL_STEPS, pfx << "###### Instanciate processors..." << endl);
   // resume instanciation (if node was put on hold during a previous instanciate call)
   for(list<FProcNode*>::iterator iter = todoProc.begin();
       iter != todoProc.end();
@@ -412,14 +494,17 @@ FWorkflow::instanciateDag() {
       FProcNode* currProc = (FProcNode*) *procIter;
       // instantiate node
       try {
-        currProc->instanciate(currDag);
+        currProc->instanciate(dag);
       } catch (WfDataHandleException& e) {
         WARNING("Failure during node " << currProc->getId() << " instanciation:"
                 << endl << e.ErrorMsg() << endl);
       }
       // if on hold, then set the whole wf on hold
       if (currProc->instanciationOnHold()) {
-        myStatus = W_INSTANC_ONHOLD;
+        myStatus = N_INSTANC_ONHOLD;
+      }
+      if (currProc->instanciationPending()) {
+        myStatus = N_INSTANC_PENDING;
       }
       // if fully instanciated, remove from todo list
       if (currProc->instanciationCompleted()) {
@@ -435,34 +520,93 @@ FWorkflow::instanciateDag() {
     } // end loop todo list
   } // end while (nbTodoProc)
 
+  TRACE_TEXT (TRACE_ALL_STEPS, pfx << "###### Instanciate sinks ..." << endl);
+  for(map<string,FNode*>::iterator iter = myInterface.begin();
+      iter != myInterface.end();
+      ++iter) {
+    FSinkNode* sinkNode = dynamic_cast<FSinkNode*>((FNode*) iter->second);
+    if (sinkNode) {
+      sinkNode->instanciate(NULL);
+    }
+  }
+
   if (instanciationOnHold()) {
-    TRACE_TEXT (TRACE_MAIN_STEPS,"########## WORKFLOW INSTANCIATION ON HOLD ##########" << endl);
+    TRACE_TEXT (TRACE_MAIN_STEPS, pfx << "########## WORKFLOW INSTANCIATION ON HOLD ##########" << endl);
   }
   // check if instanciation is pending on node execution
-  else if (pendingNodes.size() > 0) {
-    TRACE_TEXT (TRACE_MAIN_STEPS,"########## WORKFLOW INSTANCIATION PENDING ##########" << endl);
-    myStatus = W_INSTANC_PENDING;
+  // the first condition happens when one of the nodes (a sub-wf) is pending
+  else if (instanciationPending() || pendingNodes.size() > 0) {
+    TRACE_TEXT (TRACE_MAIN_STEPS, pfx << "########## WORKFLOW INSTANCIATION PENDING ##########" << endl);
+    myStatus = N_INSTANC_PENDING;
   }
   // check if instanciation is finished
   else if (todoProc.size() == 0) {
-    TRACE_TEXT (TRACE_MAIN_STEPS,"############ WORKFLOW INSTANCIATION END ############" << endl);
-    myStatus = W_INSTANC_END;
+    TRACE_TEXT (TRACE_MAIN_STEPS, pfx << "############ WORKFLOW INSTANCIATION END ############" << endl);
+    myStatus = N_INSTANC_END;
+  }
+  else if (getPortNb() > 0) {  // used for sub-workflows
+    TRACE_TEXT (TRACE_MAIN_STEPS, pfx << "############ WORKFLOW INSTANCIATION NOT FINISHED ############" << endl);
   }
   // incorrect status
   else {
-    WARNING("Instanciation stopped in incorrect state!!");
-    myStatus = W_INSTANC_END;
+    WARNING(pfx << "Instanciation stopped in incorrect state!!");
+    myStatus = N_INSTANC_STOPPED;
     for (list<FProcNode*>::iterator procIter = todoProc.begin();
          procIter != todoProc.end();
          ++procIter) {
-      WARNING("Functional node remaining in TODO list: " << ((FProcNode*) *procIter)->getId() << endl);
+      WARNING(pfx << "Functional node remaining in TODO list: "
+                  << ((FProcNode*) *procIter)->getId() << endl);
     }
-    delete currDag;
-    return NULL;
   }
   // add dag to my list of dags
-  myDags.push_back(currDag);
-  return currDag;
+  myDags.push_back(dag);
+}
+
+void
+FWorkflow::createRealInstance(Dag* dag,
+                              const FDataTag& currTag,
+                              const vector<FDataHandle*>& currDataLine) {
+  // LOOP for each source
+  for (map<string, FNode *>::iterator interfIter = myInterface.begin();
+       interfIter != myInterface.end();
+       ++interfIter) {
+    FSourceNode * source = dynamic_cast<FSourceNode*>((FNode*) interfIter->second);
+    if (source) {
+      source->instanciate(currTag, currDataLine); // get DH from DataLine and send it
+    }
+  } // end for interface nodes
+}
+
+void
+FWorkflow::createVoidInstance(const FDataTag& currTag,
+                              const vector<FDataHandle*>& currDataLine) {
+  createRealInstance(NULL,currTag,currDataLine);
+}
+
+void
+FWorkflow::updateInstanciationStatus() {
+  string pfx = "[" + getId() + "] : ";
+  if (myRootIterator->isAtEnd()) {
+    if (myRootIterator->isDone()) {
+      TRACE_TEXT (TRACE_ALL_STEPS, pfx << "########## ALL INPUTS PROCESSED" << endl);
+//      myStatus = N_INSTANC_END; (NOT APPLICABLE FOR SUB-WORKFLOWS)
+
+      // CHECK for each out port if the output is empty  TODO check if could be optimized
+      for (map<string,WfPort*>::iterator portIter = ports.begin();
+           portIter != ports.end();
+           ++portIter) {
+        WfPort* port = (WfPort*) portIter->second;
+        if (port->isOutput()) {
+          FNodeOutPort* outPort = dynamic_cast<FNodeOutPort*>(port);
+          outPort->checkIfEmptyOutput();
+        }
+      }
+
+    } else {
+      TRACE_TEXT (TRACE_ALL_STEPS, pfx << "########## WAITING FOR INPUTS " << endl);
+      myStatus = N_INSTANC_READY;
+    }
+  }
 }
 
 void
@@ -501,36 +645,6 @@ FWorkflow::displayDagSummary(ostream& output) {
   }
 }
 
-bool
-FWorkflow::instanciationReady() {
-  return myStatus == W_INSTANC_READY;
-}
-
-bool
-FWorkflow::instanciationPending() {
-  return myStatus == W_INSTANC_PENDING;
-}
-
-bool
-FWorkflow::instanciationOnHold() {
-  return myStatus == W_INSTANC_ONHOLD;
-}
-
-bool
-FWorkflow::instanciationCompleted() {
-  return myStatus == W_INSTANC_END;
-}
-
-void
-FWorkflow::stopInstanciation() {
-  myStatus = W_INSTANC_STOPPED;
-}
-
-bool
-FWorkflow::instanciationStopped() {
-  return myStatus == W_INSTANC_STOPPED;
-}
-
 void
 FWorkflow::setPendingInstanceInfo(DagNode * dagNode,
                                   FDataHandle * dataHdl,
@@ -541,7 +655,8 @@ FWorkflow::setPendingInstanceInfo(DagNode * dagNode,
   info.outPort = outPort;
   info.inPort  = inPort;
   pendingNodes.insert(make_pair(dagNode,info));
-  TRACE_TEXT (TRACE_ALL_STEPS, "Added one entry (tag=" << dataHdl->getTag().toString()
+  string pfx = "[" + getId() + "] : ";
+  TRACE_TEXT (TRACE_ALL_STEPS, pfx << "Added one entry (tag=" << dataHdl->getTag().toString()
               << ") in pending list (size = " << pendingNodes.size() << ")" << endl);
 }
 
@@ -551,6 +666,7 @@ FWorkflow::setPendingInstanceInfo(DagNode * dagNode,
 void
 FWorkflow::handlerDagNodeDone(DagNode* dagNode) {
   bool statusChange = false;
+  string pfx = "[" + getId() + "] : ";
   myLock.lock();    /** LOCK */
   // search the instance in the pending list
   multimap<DagNode*, pendingDagNodeInfo_t>::iterator pendingIter, pendingStart;
@@ -558,7 +674,7 @@ FWorkflow::handlerDagNodeDone(DagNode* dagNode) {
   // if found, resubmit the datahandle to the in port(s)
   while (pendingIter != pendingNodes.upper_bound(dagNode)) {
     pendingDagNodeInfo_t info = (pendingDagNodeInfo_t) (pendingIter++)->second;
-    TRACE_TEXT (TRACE_ALL_STEPS," ## RETRY DATA SUBMISSION FOR INSTANCE : "
+    TRACE_TEXT (TRACE_ALL_STEPS, pfx << " ## RETRY DATA SUBMISSION FOR INSTANCE : "
                                 << dagNode->getId() << endl);
 
     try {
@@ -569,23 +685,23 @@ FWorkflow::handlerDagNodeDone(DagNode* dagNode) {
 
     } catch (WfDataHandleException& e) {
       WARNING("Instanciator error due to data handle error :" << e.ErrorMsg());
-      myStatus = W_INSTANC_STOPPED;
+      myStatus = N_INSTANC_STOPPED;
     } catch (WfDataException& e) {
       WARNING("Instanciator error due to invalid dag data :" << e.ErrorMsg());
-      myStatus = W_INSTANC_STOPPED;
+      myStatus = N_INSTANC_STOPPED;
     }
     // re-start instanciation
     statusChange = true;
 
-    TRACE_TEXT (TRACE_ALL_STEPS," ## END OF RETRY FOR INSTANCE : "
+    TRACE_TEXT (TRACE_ALL_STEPS, pfx << " ## END OF RETRY FOR INSTANCE : "
                                 << dagNode->getId() << endl);
   }
   // remove entries from the pending list
   pendingNodes.erase(pendingStart,pendingIter);
   // re-initialize instanciation
-  if (statusChange && !instanciationStopped()) {
-    myStatus = W_INSTANC_READY;
-  }
+  if (statusChange)
+    resumeInstanciation();
+
   myLock.unlock();  /** UNLOCK */
 }
 

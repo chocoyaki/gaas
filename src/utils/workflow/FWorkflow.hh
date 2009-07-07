@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2009/07/07 09:03:22  bisnard
+ * changes for sub-workflows (FWorkflow class now inherits from FProcNode)
+ *
  * Revision 1.13  2009/06/23 12:23:58  bisnard
  * removed dependencies (includes)
  *
@@ -72,8 +75,9 @@ class FActivityNode;
 class FIfNode;
 class FMergeNode;
 class FFilterNode;
+class FLoopNode;
 
-class FWorkflow : public NodeSet {
+class FWorkflow : public NodeSet, public FProcNode {
 
 public:
 
@@ -81,7 +85,8 @@ public:
   /* constructors/destructor                         */
   /***************************************************/
 
-  FWorkflow(const string& id);
+  FWorkflow(const string& id,
+            FWorkflow*  parentWf = NULL);
 
   /**
    * FWorkflow destructor
@@ -100,11 +105,43 @@ public:
   checkPrec(NodeSet* contextNodeSet) throw (WfStructException);
 
   /***************************************************/
+  /*               FNode methods                     */
+  /***************************************************/
+
+  virtual void
+      initialize() throw (WfStructException);
+
+  virtual void
+      instanciate(Dag* dag);
+
+  /***************************************************/
+  /*             FProcNode methods                   */
+  /***************************************************/
+  virtual void
+      createRealInstance(Dag* dag,
+                         const FDataTag& currTag,
+                         const vector<FDataHandle*>& currDataLine);
+
+  virtual void
+      createVoidInstance(const FDataTag& currTag,
+                         const vector<FDataHandle*>& currDataLine);
+
+  virtual void
+      updateInstanciationStatus();
+
+  /***************************************************/
   /*               public methods                    */
   /***************************************************/
 
+  void
+  setDataSrcXmlFile(const string& dataFileName);
+
   const string&
-  getId();
+  getDataSrcXmlFile();
+
+  void
+  initFromXmlFile(const string& xmlWfFileName,
+                  const string& xmlDataFileName);
 
   /**
    * creation
@@ -122,6 +159,12 @@ public:
 
   FFilterNode*
   createFilter(const string& id) throw (WfStructException);
+
+  FLoopNode*
+  createLoop(const string& id) throw (WfStructException);
+
+  FWorkflow*
+  createSubWorkflow(const string& id) throw (WfStructException);
 
   FSourceNode*
   createSource(const string& id, WfCst::WfDataType type) throw (WfStructException);
@@ -143,36 +186,6 @@ public:
   FNode *
   getInterfaceNode(const string& id) throw (WfStructException);
 
-  /**
-   * instanciation
-   */
-
-  void
-  initialize(const string& dataFileName) throw (WfStructException);
-
-  const string&
-  getDataSrcXmlFile();
-
-  Dag *
-  instanciateDag();
-
-  void
-  stopInstanciation();
-
-  bool
-  instanciationReady();
-
-  bool
-  instanciationPending(); // for dynamic dependencies
-
-  bool
-  instanciationOnHold();
-
-  bool
-  instanciationStopped();
-
-  bool
-  instanciationCompleted();
 
   /**
    * Setup the information used when node instance (dagnode) is done
@@ -219,11 +232,6 @@ public:
 private:
 
   /**
-   * Workflow id
-   */
-  string id;
-
-  /**
    * Workflow nodes for the interface (sources, sinks, constants)
    */
   map<string, FNode *> myInterface;
@@ -248,23 +256,6 @@ private:
    */
 
   list<Dag*> myDags;
-
-  /**
-   * Counter of generated dags
-   */
-  int dagCounter;
-
-  /**
-   * Instanciation status
-   */
-  typedef enum {
-    W_INSTANC_READY,
-    W_INSTANC_ONHOLD,
-    W_INSTANC_PENDING,
-    W_INSTANC_END,
-    W_INSTANC_STOPPED } wfInstStatus_t;
-
-  wfInstStatus_t myStatus;
 
   /**
    * Pending instance record

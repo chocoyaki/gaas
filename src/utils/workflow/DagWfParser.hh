@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2009/07/07 09:03:22  bisnard
+ * changes for sub-workflows (FWorkflow class now inherits from FProcNode)
+ *
  * Revision 1.19  2009/06/19 07:47:19  bisnard
  * removed deprecated header file
  *
@@ -80,7 +83,6 @@
 #ifndef _DAGWFPARSER_HH_
 #define _DAGWFPARSER_HH_
 
-#include "Dag.hh"
 // Xerces header
 #include <xercesc/util/PlatformUtils.hpp>
 #include <xercesc/parsers/AbstractDOMParser.hpp>
@@ -103,9 +105,12 @@
 #include "WfUtils.hh"
 #include "WfNode.hh"
 #include "Dag.hh"
-#include "FNode.hh"
 
+// Functional workflow classes
 class FWorkflow;
+class FNode;
+class FSourceNode;
+class FDataTag;
 
 
 XERCES_CPP_NAMESPACE_USE
@@ -144,6 +149,7 @@ public:
    * @param content the workflow description
    */
   DagWfParser(const char * content);
+  DagWfParser(const string& fileName);
 
   /**
    * The destructor
@@ -207,6 +213,7 @@ protected:
    * contains the content of the workflow description file
    */
   string content;
+  string myXmlFileName;
 
   /**
    * Xml document
@@ -381,6 +388,7 @@ class FWfParser : public DagWfParser {
 
 public:
   FWfParser(FWorkflow& workflow, const char * content);
+  FWfParser(FWorkflow& workflow, const string& fileName);
   ~FWfParser();
 
 protected:
@@ -468,7 +476,24 @@ protected:
                          FProcNode* procNode);
 
 private:
+
+  /**
+   * Parse a workflow file name and get the corresponding class name
+   * @param fileName  file containing the wf XML
+   * @return  class of the wf
+   */
+  string getWfClassName(const string& fileName);
+
+  /**
+   * Map containing the included workflow classes with the corresponding file
+   */
+  map<string,string>  myClassFiles;
+
+  /**
+   * Ref to the workflow
+   */
   FWorkflow&  workflow;
+
 }; // end class FWfParser
 
 /*****************************************************************************/

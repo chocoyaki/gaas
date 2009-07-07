@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2009/07/07 09:03:22  bisnard
+ * changes for sub-workflows (FWorkflow class now inherits from FProcNode)
+ *
  * Revision 1.4  2009/06/15 12:11:12  bisnard
  * use new XML Parser (SAX) for data source file
  * use new class WfValueAdapter to avoid data duplication
@@ -165,7 +168,7 @@ class FFilterNode : public FProcNode {
 
   private:
 
-    typedef struct filterNode_t {
+    struct filterNode_t {
       FDataHandle*  dataHdl;
       bool          voidDef;
       bool          indexOk;

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2009/07/07 09:03:22  bisnard
+ * changes for sub-workflows (FWorkflow class now inherits from FProcNode)
+ *
  * Revision 1.14  2009/06/15 12:11:13  bisnard
  * use new XML Parser (SAX) for data source file
  * use new class WfValueAdapter to avoid data duplication
@@ -112,6 +115,12 @@ public:
       connectNodePorts() throw (WfStructException);
 
   /**
+   * Node connections to workflow external ports (used for sub-workflows)
+   */
+  virtual void
+      connectToWfPort(FNodePort* port);
+
+  /**
    * Initialization
    * (method called once before starting instanciation)
    * Note: may throw different types of exceptions depending on class
@@ -131,14 +140,14 @@ public:
       instanciate(Dag* dag) = 0;
 
   /**
-   * Instanciation status: data available to process
+   * Instanciation status: ready to process data
    */
   bool instanciationReady();
 
   /**
-   * Instanciation status: waiting for data to process
+   * Instanciation status: waiting for event from dag engine
    */
-  bool instanciationWaiting();
+  bool instanciationPending();
 
   /**
    * Instanciation status: waiting to resume instanciation (stopped due
@@ -147,18 +156,30 @@ public:
   bool instanciationOnHold();
 
   /**
+   * Instanciation status: stopped (unexpected event: instanciation or
+   * execution error)
+   */
+  bool instanciationStopped();
+
+  /**
    * Instanciation status: no more data to process
    */
   bool instanciationCompleted();
 
   /**
-   * Resume instanciation (when stopped by instance nb limitation)
+   * Stop the instanciation (execution error)
+   */
+  void stopInstanciation();
+
+  /**
+   * Resume instanciation
+   * Calls the parent workflow to resume its instanciation as well.
    */
   void resumeInstanciation();
 
 protected:
   /**
-   * Parent workflow
+   * Parent workflow (may be NULL)
    */
   FWorkflow * wf;
 
@@ -168,8 +189,9 @@ protected:
   typedef enum {
     N_INSTANC_READY,
     N_INSTANC_ONHOLD,
-    N_INSTANC_WAITING,
-    N_INSTANC_END } nodeInstStatus_t;
+    N_INSTANC_PENDING,    // waiting for event from dag engine
+    N_INSTANC_END,
+    N_INSTANC_STOPPED } nodeInstStatus_t;
 
   /**
    * Constructor
@@ -267,14 +289,21 @@ class FSourceNode : public FNode {
         getDepth() const;
 
     virtual void
+        connectToWfPort(FNodePort* port); // used for sub-workflows
+
+    virtual void
         initialize();
 
     virtual void
         instanciate(Dag* dag); // parameter is not used
 
+    virtual void
+        instanciate(const FDataTag& currTag,
+                    const vector<FDataHandle*>& currDataLine); // used for sub-workflows
+
   protected:
     /**
-     * Instanciate a new value for the source
+     * Instanciate a new value for the source (used by parser)
      * @param tag the data tag for the value
      * @param value the value as a string
      */
@@ -285,6 +314,10 @@ class FSourceNode : public FNode {
     DataSourceParser * myParser;
     static string outPortName;
     FNodeOutPort* myOutPort;
+
+    FNodeInPort* myConnectedPort; // used for sub-workflows
+    bool  isConnected;
+
 }; // end class FSourceNode
 
 /*****************************************************************************/
@@ -304,10 +337,13 @@ class FSinkNode : public FNode {
          getDefaultPortName() const;
 
      virtual void
+         connectToWfPort(FNodePort* port); // used for sub-workflows
+
+     virtual void
          initialize();
 
      virtual void
-         instanciate(Dag* dag);
+         instanciate(Dag* dag); // used for sub-workflows
 
      virtual void
          displayResults(ostream& output);
@@ -316,6 +352,10 @@ class FSinkNode : public FNode {
 
     static string inPortName;
     FNodeInPort* myInPort;
+
+    FNodeOutPort* myConnectedPort; // used for sub-workflows
+    bool  isConnected;
+
 }; // end class FSinkNode
 
 /*****************************************************************************/

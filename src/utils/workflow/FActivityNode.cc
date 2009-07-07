@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2009/07/07 09:03:22  bisnard
+ * changes for sub-workflows (FWorkflow class now inherits from FProcNode)
+ *
  * Revision 1.4  2009/06/15 12:11:12  bisnard
  * use new XML Parser (SAX) for data source file
  * use new class WfValueAdapter to avoid data duplication
@@ -81,11 +84,11 @@ FActivityNode::createRealInstance(Dag* dag,
 
   // create a new DagNode
   TRACE_TEXT (TRACE_ALL_STEPS,"  ## NEW ACTIVITY INSTANCE : " << dagNodeId << endl);
-  dagNode = dag->createDagNode(dagNodeId);
+  dagNode = dag->createDagNode(dagNodeId, wf);
   if (dagNode == NULL) {
     INTERNAL_ERROR("Could not create dag node " << dagNodeId << endl,0);
   }
-  dagNode->setFNode(this);
+//   dagNode->setFNode(this);
   ++nbInstances;
 
   // LOOP for each port
@@ -117,8 +120,8 @@ FActivityNode::createRealInstance(Dag* dag,
         outPort->storeData(dataHdl);
         outPort->sendData(dataHdl);
         break;
-      case WfPort::PORT_INOUT:
-        ;
+      default:
+        INTERNAL_ERROR("Invalid port type for FActivityNode",1);
     }
   } // end for ports
 

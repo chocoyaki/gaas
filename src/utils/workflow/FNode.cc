@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2009/07/07 09:03:22  bisnard
+ * changes for sub-workflows (FWorkflow class now inherits from FProcNode)
+ *
  * Revision 1.14  2009/06/15 12:11:12  bisnard
  * use new XML Parser (SAX) for data source file
  * use new class WfValueAdapter to avoid data duplication
@@ -98,8 +101,8 @@ FNode::instanciationReady() {
 }
 
 bool
-FNode::instanciationWaiting() {
-  return (myStatus == N_INSTANC_WAITING);
+FNode::instanciationPending() {
+  return (myStatus == N_INSTANC_PENDING);
 }
 
 bool
@@ -112,10 +115,22 @@ FNode::instanciationCompleted() {
   return (myStatus == N_INSTANC_END);
 }
 
+bool
+FNode::instanciationStopped() {
+  return (myStatus == N_INSTANC_STOPPED);
+}
+
+void
+FNode::stopInstanciation() {
+  myStatus = N_INSTANC_STOPPED;
+}
+
 void
 FNode::resumeInstanciation() {
-  if (!instanciationCompleted())
+  if (!instanciationCompleted() && !instanciationStopped()) {
     myStatus = N_INSTANC_READY;
+    if (wf) wf->resumeInstanciation();
+  }
 }
 
 WfPort *
@@ -139,6 +154,8 @@ FNode::newPort(string portId,
     case WfPort::PORT_OUT:
       p = new FNodeOutPort(this, portId, portType, dataType, depth, ind);
       break;
+    default:
+      INTERNAL_ERROR("Invalid port type for FNode port",1);
   }
   return addPort(portId, p);
 }
@@ -159,6 +176,9 @@ FNode::connectNodePorts() throw (WfStructException) {
     }
   }
 }
+
+void
+FNode::connectToWfPort(FNodePort* port) {}
 
 void
 FNode::initialize() {}
@@ -207,7 +227,7 @@ string FSourceNode::outPortName("out");
 FSourceNode::FSourceNode(FWorkflow* wf,
                          const string& id,
                          WfCst::WfDataType type)
-  : FNode(wf, id, N_INSTANC_READY), myParser(NULL) {
+  : FNode(wf, id, N_INSTANC_READY), myParser(NULL), isConnected(false) {
   WfPort * outPort = this->newPort(outPortName,0,WfPort::PORT_OUT,type,0);
   myOutPort = dynamic_cast<FNodeOutPort*>(outPort);
   myParser = new DataSourceParser(this);
@@ -233,6 +253,16 @@ FSourceNode::getDepth() const {
 }
 
 void
+FSourceNode::connectToWfPort(FNodePort* port) {
+  FNodeInPort*  inPort = dynamic_cast<FNodeInPort*>(port);
+  if (inPort) {
+    myConnectedPort = inPort;
+    isConnected = true;
+  } else throw WfStructException(WfStructException::eOTHER,
+                                 "source connected to invalid port");
+}
+
+void
 FSourceNode::initialize() {
   TRACE_TEXT (TRACE_ALL_STEPS,"Initializing data source :" << getId() << endl);
   // initialize the total nb of item to 0 (in case XML data is empty)
@@ -242,17 +272,29 @@ FSourceNode::initialize() {
 void
 FSourceNode::instanciate(Dag* dag) {
   TRACE_TEXT (TRACE_ALL_STEPS,"#### SOURCE " << getId() << " INSTANCIATION" << endl);
-  try {
-    myParser->parseXml(wf->getDataSrcXmlFile());
-    myOutPort->updateDataTree();
-    myOutPort->sendAllData();
+  if (!isConnected) {
+    try {
+      myParser->parseXml(wf->getDataSrcXmlFile());
+      myOutPort->updateDataTree();
+      myOutPort->sendAllData();
 
-  } catch (XMLParsingException& e) {
-    cerr << "FATAL ERROR during SOURCE '" << getId() << "' initialization:\n"
-         << e.ErrorMsg() << endl;
+    } catch (XMLParsingException& e) {
+      cerr << "FATAL ERROR during SOURCE '" << getId() << "' initialization:\n"
+          << e.ErrorMsg() << endl;
+    }
+  } else {
+    // do nothing
   }
   myStatus = N_INSTANC_END;
   TRACE_TEXT (TRACE_ALL_STEPS,"#### END OF SOURCE " << getId() << " INSTANCIATION" << endl);
+}
+
+void
+FSourceNode::instanciate(const FDataTag& currTag,
+                         const vector<FDataHandle*>& currDataLine) {
+  FDataHandle* currDH = currDataLine[myConnectedPort->getIndex()];
+  myOutPort->storeData(currDH);
+  myOutPort->sendData(currDH);
 }
 
 void
@@ -271,7 +313,7 @@ FSinkNode::FSinkNode(FWorkflow* wf,
                      const string& id,
                      WfCst::WfDataType type,
                      unsigned int depth)
-  : FNode(wf, id, N_INSTANC_WAITING) {
+  : FNode(wf, id, N_INSTANC_READY), isConnected(false) {
   WfPort * inPort = this->newPort(inPortName,0,WfPort::PORT_IN,type,depth);
   myInPort = dynamic_cast<FNodeInPort*>(inPort);
 }
@@ -285,6 +327,16 @@ FSinkNode::getDefaultPortName() const {
 }
 
 void
+FSinkNode::connectToWfPort(FNodePort* port) {
+  FNodeOutPort*  outPort = dynamic_cast<FNodeOutPort*>(port);
+  if (outPort) {
+    myConnectedPort = outPort;
+    isConnected = true;
+  } else throw WfStructException(WfStructException::eOTHER,
+                                 "sink connected to invalid port");
+}
+
+void
 FSinkNode::initialize() {
   TRACE_TEXT (TRACE_ALL_STEPS,"Initializing data sink :" << getId() << endl);
   TRACE_TEXT (TRACE_ALL_STEPS,"  1/ Connecting node ports" << endl);
@@ -293,6 +345,21 @@ FSinkNode::initialize() {
 
 void
 FSinkNode::instanciate(Dag* dag) {
+  if (isConnected) {
+    PortInputIterator* iter = new PortInputIterator(myInPort);
+    vector<FDataHandle*>* DL = new vector<FDataHandle*>(1, (FDataHandle*) NULL);
+    iter->begin();
+    while (!iter->isAtEnd()) {
+      FDataTag currTag = iter->getCurrentItem(*DL);
+      FDataHandle* DH = DL->front();
+      if (DH == NULL) {
+        INTERNAL_ERROR("NULL data handle provided to sink",1);
+      }
+      myConnectedPort->storeData(DH);
+      myConnectedPort->sendData(DH);
+      iter->next();
+    }
+  }
 }
 
 void
@@ -307,7 +374,7 @@ FSinkNode::displayResults(ostream& output) {
 
 FProcNode::FProcNode(FWorkflow* wf,
                      const string& id)
-  : FNode(wf, id, N_INSTANC_WAITING), myRootIterator(NULL), cstDataLine(NULL)
+  : FNode(wf, id, N_INSTANC_READY), myRootIterator(NULL), cstDataLine(NULL)
 {}
 
 FProcNode::~FProcNode() {
@@ -533,7 +600,7 @@ FProcNode::createVoidInstance(const FDataTag& currTag,
       portIter != ports.end();
       ++portIter) {
     WfPort* port = (WfPort*) portIter->second;
-    if (port->getPortType() == WfPort::PORT_OUT) {
+    if (port->isOutput()) {
       FNodeOutPort* outPort = dynamic_cast<FNodeOutPort*>(port);
       // instanciate port with VOID data
       FDataHandle* dataHdl = outPort->createVoidInstance(currTag);
@@ -626,7 +693,7 @@ FProcNode::updateInstanciationStatus() {
            portIter != ports.end();
            ++portIter) {
         WfPort* port = (WfPort*) portIter->second;
-        if (port->getPortType() == WfPort::PORT_OUT) {
+        if (port->isOutput()) {
           FNodeOutPort* outPort = dynamic_cast<FNodeOutPort*>(port);
           outPort->checkIfEmptyOutput();
         }
@@ -634,7 +701,7 @@ FProcNode::updateInstanciationStatus() {
 
     } else {
       TRACE_TEXT (TRACE_ALL_STEPS, "########## WAITING FOR INPUTS " << endl);
-      myStatus = N_INSTANC_WAITING;
+      myStatus = N_INSTANC_READY;
     }
   }
 }

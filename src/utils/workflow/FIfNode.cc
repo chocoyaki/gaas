@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2009/07/07 09:03:22  bisnard
+ * changes for sub-workflows (FWorkflow class now inherits from FProcNode)
+ *
  * Revision 1.4  2009/06/15 12:11:12  bisnard
  * use new XML Parser (SAX) for data source file
  * use new class WfValueAdapter to avoid data duplication
@@ -77,6 +80,8 @@ FIfNode::newPort(string portId,
       setElseMap(portId,"VOID");  // default mapping (to be overriden by explicit mapping)
       setThenMap(portId,"VOID");  // opposite case mapping
       break;
+    default:
+      throw WfStructException("Invalid port type in conditional node");
   }
   return p;
 }
@@ -223,6 +228,8 @@ FMergeNode::newPort(string portId,
       myOutPort = new FNodeOutPort(this, portId, portType, dataType, depth, ind);
       p = (WfPort *) myOutPort;
       break;
+    default:
+      throw WfStructException("Invalid port type in merge node");
   }
   return addPort(portId, p);
 }
@@ -299,6 +306,8 @@ FFilterNode::newPort(string portId,
       myOutPort = new FNodeOutPort(this, portId, portType, dataType, depth, 1);
       p = (WfPort *) myOutPort;
       break;
+    default:
+       throw WfStructException("Invalid port type in filter node");
   }
   return addPort(portId, p);
 }

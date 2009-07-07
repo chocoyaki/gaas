@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2009/07/07 09:03:22  bisnard
+ * changes for sub-workflows (FWorkflow class now inherits from FProcNode)
+ *
  * Revision 1.28  2009/06/23 13:08:19  bisnard
  * updated include dependencies
  *
@@ -128,6 +131,13 @@
 #include "FWorkflow.hh"
 #include "FActivityNode.hh"
 #include "FIfNode.hh"
+#include "FLoopNode.hh"
+
+#ifndef XTOC
+#define XTOC(x) XMLString::transcode(x) // Use iff x is a XMLCh *
+#define CTOX(x) XMLString::transcode(x) // Use iff x is a char *
+#define XREL(x) XMLString::release(&x)
+#endif
 
 using namespace std;
 
@@ -158,6 +168,8 @@ XMLParsingException::ErrorMsg() {
  * Constructor
  */
 DagWfParser::DagWfParser(const char * wf_desc) : content(wf_desc) {
+}
+DagWfParser::DagWfParser(const string& fileName) : myXmlFileName(fileName) {
 }
 
 DagWfParser::~DagWfParser() {
@@ -239,19 +251,21 @@ void
 DagWfParser::getPortMap(const string& thenMapStr,
                         map<string,string>& thenMap) throw (XMLParsingException) {
   string::size_type startPos = 0;
-  while (startPos < thenMapStr.length()) {
-    string::size_type sepPos = thenMapStr.find(";",startPos);
+  string mapStr = thenMapStr;
+  stringTrim(mapStr);
+  while (startPos < mapStr.length()) {
+    string::size_type sepPos = mapStr.find(";",startPos);
     if (sepPos == string::npos)
       throw XMLParsingException(XMLParsingException::eINVALID_DATA,
                                 "missing semi-column at end of assignment in '"
-                                + thenMapStr +"'");
-    string::size_type opPos = thenMapStr.find("=",startPos);
+                                + mapStr +"'");
+    string::size_type opPos = mapStr.find("=",startPos);
     if (opPos > sepPos)
       throw XMLParsingException(XMLParsingException::eINVALID_DATA,
                                 "missing assignment (=) operator in '"
-                               + thenMapStr + "'");
-    string left(thenMapStr.substr(startPos, opPos-startPos));
-    string right(thenMapStr.substr(opPos+1, sepPos-opPos-1));
+                               + mapStr + "'");
+    string left(mapStr.substr(startPos, opPos-startPos));
+    string right(mapStr.substr(opPos+1, sepPos-opPos-1));
     thenMap.insert(pair<string,string>(stringTrim(left),stringTrim(right)));
     startPos = sepPos+1;
   }
@@ -267,20 +281,36 @@ DagWfParser::parseXml() {
   TRACE_TEXT(TRACE_ALL_STEPS, "PARSING XML START" << endl);
   DOMImplementation *impl = DOMImplementationRegistry::getDOMImplementation(gLS);
   DOMLSParser *parser = impl->createLSParser(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
-  static const char * content_id = "workflow_description";
-  MemBufInputSource* memBufIS = new MemBufInputSource
-    (
-     (const XMLByte*)(this->content.c_str())
-     , content.size()
-     , content_id
-     , false
-    );
-  Wrapper4InputSource * wrapper = new Wrapper4InputSource(memBufIS);
+  Wrapper4InputSource * wrapper;
+
+  if (myXmlFileName.empty()) {
+
+    // INITIALIZE FROM BUFFER
+    static const char * content_id = "workflow_description";
+    MemBufInputSource* memBufIS = new MemBufInputSource
+      (
+      (const XMLByte*)(this->content.c_str())
+      , content.size()
+      , content_id
+      , false
+      );
+    wrapper = new Wrapper4InputSource(memBufIS);
+
+  } else {
+
+    // INITIALIZE FROM FILE
+    TRACE_TEXT(TRACE_ALL_STEPS, "PARSING FROM FILE: " << myXmlFileName << endl);
+    XMLCh* xmlFileName = CTOX(myXmlFileName.c_str());
+    LocalFileInputSource * fileBufIS = new LocalFileInputSource(xmlFileName);
+    wrapper = new Wrapper4InputSource(fileBufIS);
+//     XREL(xmlFileName);
+  }
+  // PARSE
   this->document = parser->parse((DOMLSInput*) wrapper);
 
   if (document == NULL) {
     throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
-                              "Wrong document description");
+                              "XML File not found");
   }
   DOMNode * root = (DOMNode*)(document->getDocumentElement());
 
@@ -363,6 +393,7 @@ DagWfParser::parseIn(const DOMElement * element, unsigned int lastArg,
   string name    = getAttributeValue("name", element);
   string type    = getAttributeValue("type", element);
   string source  = getAttributeValue("source", element);
+  string interface  = getAttributeValue("interface", element);
   string depth   = getAttributeValue("depth", element);
   checkMandatoryAttr("in","name",name);
   checkMandatoryAttr("in","type",name);
@@ -375,6 +406,8 @@ DagWfParser::parseIn(const DOMElement * element, unsigned int lastArg,
   }
   if (!source.empty())
     port->setConnectionRef(source);
+  if (!interface.empty())
+    port->setInterfaceRef(interface);
   return port;
 }
 
@@ -411,6 +444,7 @@ DagWfParser::parseOut(const DOMElement * element, unsigned int lastArg,
   string name  = getAttributeValue("name", element);
   string type  = getAttributeValue("type", element);
   string sink  = getAttributeValue("sink", element);
+  string interface  = getAttributeValue("interface", element);
   string depth = getAttributeValue("depth", element);
   checkMandatoryAttr("out","name",name);
   checkMandatoryAttr("out","type",name);
@@ -423,6 +457,8 @@ DagWfParser::parseOut(const DOMElement * element, unsigned int lastArg,
   }
   if (!sink.empty())
     port->setConnectionRef(sink);
+  if (!interface.empty())
+    port->setInterfaceRef(interface);
   return port;
 }
 
@@ -599,7 +635,20 @@ DagParser::parseOtherNodeSubElt(const DOMElement * element,
 FWfParser::FWfParser(FWorkflow& workflow, const char * content)
   : DagWfParser(content), workflow(workflow) {
 }
+FWfParser::FWfParser(FWorkflow& workflow, const string& fileName)
+  : DagWfParser(fileName), workflow(workflow) {
+}
+
 FWfParser::~FWfParser() {
+}
+
+string
+FWfParser::getWfClassName(const string& fileName) {
+  string::size_type lastSlash = fileName.rfind("/");
+  string::size_type start = (lastSlash == string::npos) ? 0 : lastSlash+1;
+  string::size_type suffix = fileName.rfind(".xml");
+  string::size_type end = (suffix == string::npos) ? 0 : suffix-1;
+  return fileName.substr(start, end-start+1);
 }
 
 /**
@@ -624,7 +673,16 @@ FWfParser::parseRoot(DOMNode* root) {
       XMLString::release(&_nodeName);
       TRACE_TEXT (TRACE_ALL_STEPS,
 		  "Parsing the element " << nodeName << endl );
-      if (nodeName == "interface") {
+      if (nodeName == "include") {
+        string fileName = getAttributeValue("file", child_elt);
+        // store class=>filename mapping
+        string className = getWfClassName(fileName);
+        if (!className.empty()) {
+          TRACE_TEXT (TRACE_ALL_STEPS,
+		      "Include workflow class : " << className << endl );
+          myClassFiles[className] = fileName;
+        }
+      } else if (nodeName == "interface") {
         // Parse the interface
         DOMNode * child2 = child->getFirstChild(); // sub-element of <interface>
         while ((child2 != NULL)) {
@@ -687,6 +745,7 @@ FWfParser::createNode(const DOMElement* element, const string& elementName) {
   string type = getAttributeValue("type", element);
   string depth = getAttributeValue("depth", element);
   string value = getAttributeValue("value", element);
+  string nclass = getAttributeValue("class", element);
   checkMandatoryAttr(elementName,"name",name);
 
   // Convert type
@@ -726,6 +785,20 @@ FWfParser::createNode(const DOMElement* element, const string& elementName) {
 
   } else if (elementName == "filter") {
     node = workflow.createFilter(name);
+
+  } else if (elementName == "loop") {
+    node = workflow.createLoop(name);
+
+  } else if (elementName == "workflow") {
+    FWorkflow*  subWf = workflow.createSubWorkflow(name);
+    // initialize workflow from XML file defined in the <include> tag
+    checkMandatoryAttr(elementName,"class",nclass);
+    map<string,string>::iterator classIter = myClassFiles.find(nclass);
+    if (classIter == myClassFiles.end())
+      throw XMLParsingException(XMLParsingException::eINVALID_REF,
+                              "Unknown workflow class (missing include) : " + nclass);
+    subWf->initFromXmlFile((string) classIter->second, workflow.getDataSrcXmlFile());
+    node = (WfNode*) subWf;
 
   } else {
     throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
@@ -994,7 +1067,6 @@ FWfParser::parseOtherNodeSubElt(const DOMElement * element,
                  "<if> element applied to non-conditional element");
     string condition;
     getTextContent(element, condition);
-    cout << "PARSED CONDITION: " << condition << endl;
     try {
       ifNode->setCondition(condition);
     } catch (WfStructException& e) {
@@ -1043,6 +1115,19 @@ FWfParser::parseOtherNodeSubElt(const DOMElement * element,
 //       cout << "ELSE mapping: " << mapIter->first << " = " << mapIter->second << endl;
       ifNode->setElseMap(mapIter->first,mapIter->second);
     }
+  } else if (elementName == "while") {
+    FLoopNode* loopNode = dynamic_cast<FLoopNode*>(node);
+    if (!loopNode)
+      throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
+                 "<while> element applied to non-loop element");
+    string condition;
+    getTextContent(element, condition);
+    try {
+      loopNode->setWhileCondition(condition);
+    } catch (WfStructException& e) {
+      throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
+                "<while> element contains invalid expression");
+    }
   } else {
     throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
                               "Invalid element : " + elementName);
@@ -1089,11 +1174,6 @@ DataSourceParser::parseXml(const string& dataFileName) throw (XMLParsingExceptio
 /*****************************************************************************/
 /*                    CLASS DataSourceHandler                                */
 /*****************************************************************************/
-#ifndef XTOC
-#define XTOC(x) XMLString::transcode(x) // Use iff x is a XMLCh *
-#define CTOX(x) XMLString::transcode(x) // Use iff x is a char *
-#define XREL(x) XMLString::release(&x)
-#endif
 
 DataSourceHandler::DataSourceHandler(FSourceNode* node)
   : myNode(node), myCurrTag(NULL), isSourceFound(false), isItemFound(false) {
