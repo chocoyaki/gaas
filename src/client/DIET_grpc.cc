@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2009/07/07 08:57:52  bisnard
+ * Changes due to DIET_client library split in two libraries (DIETCall).
+ * New signature for client core functions (diet_call_common)
+ *
  * Revision 1.12  2008/09/10 09:11:24  bisnard
  * new diet type for containers
  *
@@ -67,6 +71,7 @@
 #include <ORBMgr.hh>
 #include <stdarg.h>
 #include "debug.hh"
+#include "DIETCall.hh"
 #include <vector>
 #include <map>
 
@@ -74,6 +79,11 @@
 #define END_API   } // extern "C"
 
 using namespace std;
+
+/* parameters defined in DIET_client */
+extern MasterAgent_var MA;
+extern unsigned long MAX_SERVERS;
+extern char* REF_CALLBACK_SERVER;
 
 static vector<grpc_function_handle_t> handles;
 
@@ -369,12 +379,6 @@ END_API
 /* Tools for GridRPC call functions    s                                    */
 /****************************************************************************/
 
-extern diet_error_t
-diet_call_common(diet_profile_t* profile, SeD_var& chosenServer, estVector_t estimVect);
-
-extern diet_error_t
-diet_call_async_common(diet_profile_t* profile,
-		       SeD_var& chosenServer, estVector_t estimVect);
 
 /** [internal] Convert the list of arguments into a diet_profile_t */
 grpc_error_t
@@ -619,7 +623,7 @@ grpc_call(grpc_function_handle_t* handle, ...)
     return res;
   va_end(ap);
 
-  res = diet_call_common(profile, server, NULL);
+  res = diet_call_common(MA, profile, server, NULL, MAX_SERVERS);
   (*handle)->server = ORBMgr::getIORString(server);
   //  diet_profile_free(profile);
   return res;
@@ -654,7 +658,8 @@ grpc_call_async(grpc_function_handle_t* handle,
   chosenObject = ORBMgr::stringToObject((*handle)->server);
   chosenServer = SeD::_narrow(chosenObject);
   */
-  res = diet_call_async_common((*handle)->pb, chosenServer, NULL);
+  res = diet_call_async_common(MA, (*handle)->pb, chosenServer, NULL,
+                               MAX_SERVERS, REF_CALLBACK_SERVER);
   *sessionID = (*handle)->pb->dietReqID;
   set_req_error(*sessionID, GRPC_NO_ERROR);
 
@@ -686,7 +691,7 @@ grpc_call_argstack(grpc_function_handle_t* handle, grpc_arg_stack_t* args)
 
   chosenObject = ORBMgr::stringToObject((*handle)->server);
   chosenServer = SeD::_narrow(chosenObject);
-  res = diet_call_common(profile, chosenServer, NULL);
+  res = diet_call_common(MA, profile, chosenServer, NULL, MAX_SERVERS);
   //  diet_profile_free(profile);
   return res;
 }
@@ -706,7 +711,8 @@ grpc_call_argstack_async(grpc_function_handle_t* handle,
 
   chosenObject = ORBMgr::stringToObject((*handle)->server);
   chosenServer = SeD::_narrow(chosenObject);
-  res = diet_call_async_common(profile, chosenServer, NULL);
+  res = diet_call_async_common(MA, profile, chosenServer, NULL, MAX_SERVERS,
+                               REF_CALLBACK_SERVER);
   *sessionID = profile->dietReqID;
   //  diet_profile_free(profile);
   return 0;
