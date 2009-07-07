@@ -11,7 +11,7 @@ IF( DIET_BUILD_LIBRARIES )
   ADD_LIBRARY ( UtilsWf
     WfNode.cc Dag.cc MetaDag.cc FWorkflow.cc FNode.cc
     WfExpression.cc WfDataWriter.cc
-    FActivityNode.cc FIfNode.cc
+    FActivityNode.cc FIfNode.cc FLoopNode.cc
     WfPort.cc WfPortAdapter.cc
     FNodePort.cc
     DagNode.cc DagNodePort.cc
@@ -22,6 +22,7 @@ IF( DIET_BUILD_LIBRARIES )
     )
 
   TARGET_LINK_LIBRARIES( UtilsWf
+    DIETCall
     ${DIET_DAGDA_LIBRARY}
     ${XERCES_LIBRARY}  ${OMNIORB4_LIBRARIES} ${XQILLA_LIBRARY}
     )
