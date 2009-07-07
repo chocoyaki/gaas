@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2009/07/07 09:02:00  bisnard
+ * modified toXML method
+ *
  * Revision 1.15  2009/06/15 15:41:23  bisnard
  * cleanup
  *
@@ -141,20 +144,18 @@ DagNodePort::getDataID() throw (WfDataException) {
   return dataID;
 }
 
-string
-DagNodePort::toXML() const {
-  string xml = "";
-  xml += "name=\"" + id + "\" type=\"" + WfCst::cvtWfToStrType(getBaseDataType()) +"\" ";
+void
+DagNodePort::toXML(ostream& output) const {
+  output << "name=\"" << id << "\" type=\"" << WfCst::cvtWfToStrType(getBaseDataType()) << "\" ";
   if (depth > 0) {
-    xml += " depth=\"" + itoa(depth) +"\" ";
+    output << " depth=\"" << depth << "\" ";
   }
   if (type == WfCst::TYPE_MATRIX) {
-    xml += "base_type=\""+ WfCst::cvtWfToStrType(eltType) +"\" ";
-    xml += "nb_rows=\"" + itoa(nb_r)+"\" ";
-    xml += "nb_cols=\"" + itoa(nb_c)+"\" ";
-    xml += "matrix_order=\"" + WfCst::cvtWfToStrMatrixOrder(order) + "\" ";
+    output << "base_type=\"" << WfCst::cvtWfToStrType(eltType) << "\" "
+     << "nb_rows=\"" << nb_r << "\" "
+     << "nb_cols=\"" << nb_c << "\" "
+     << "matrix_order=\"" << WfCst::cvtWfToStrMatrixOrder(order) << "\" ";
   }
-  return xml;
 }
 
 /*****************************************************************************/
@@ -201,12 +202,11 @@ DagNodeOutPort::freeProfileData() {
 #endif
 }
 
-string
-DagNodeOutPort::toXML() const {
-  string xml = "\t<out ";
-  xml += DagNodePort::toXML();
-  xml += "/>\n";
-  return xml;
+void
+DagNodeOutPort::toXML(ostream& output) const {
+  output << "\t<out ";
+  DagNodePort::toXML(output);
+  output << "/>" << endl;
 }
 
 #if HAVE_DAGDA
@@ -530,12 +530,11 @@ DagNodeInPort::initSourceData() throw (WfDataException) {
   }
 }
 
-string
-DagNodeInPort::toXML() const {
-  string xml ="\t<in ";
-  xml += DagNodePort::toXML();
-  xml += "source=\""+ adapter->getSourceRef() +"\" />\n";
-  return xml;
+void
+DagNodeInPort::toXML(ostream& output) const {
+  output << "\t<in ";
+  DagNodePort::toXML(output);
+  output << "source=\"" << adapter->getSourceRef()  << "\" />" << endl;
 }
 
 diet_persistence_mode_t
@@ -569,10 +568,9 @@ DagNodeInOutPort::getPersistenceMode() {
   else return DIET_PERSISTENT;
 }
 
-string
-DagNodeInOutPort::toXML() const {
-  string xml = "CANNOT BE GENERATED YET!!";
-  return xml;
+void
+DagNodeInOutPort::toXML(ostream& output) const {
+  output << "CANNOT BE GENERATED YET!!";
 }
 
 /*****************************************************************************/
@@ -615,12 +613,11 @@ DagNodeArgPort::initProfileExec() throw (WfDataException) {
   setProfileWithValue();
 }
 
-string
-DagNodeArgPort::toXML() const {
-  string xml = "\t<arg ";
-  xml += DagNodePort::toXML();
-  xml += "value=\"" + this->value + "\" />\n";
-  return xml;
+void
+DagNodeArgPort::toXML(ostream& output) const {
+  output << "\t<arg ";
+  DagNodePort::toXML(output);
+  output << "value=\"" << value << "\" />" << endl;
 }
 
 diet_persistence_mode_t

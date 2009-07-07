@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2009/07/07 09:02:00  bisnard
+ * modified toXML method
+ *
  * Revision 1.28  2009/05/15 11:02:55  bisnard
  * added makespan calculation
  *
@@ -148,8 +151,16 @@ using namespace std;
 NodeSet::NodeSet() { }
 NodeSet::~NodeSet() { }
 
-Dag::Dag() : myId(""), tmpDag(false), estDelay(0), cancelled(false),
-             myWf(NULL), startTime(0), finishTime(0) {
+Dag::Dag()
+  : myId(""), tmpDag(false), estDelay(0), cancelled(false),
+    startTime(0), finishTime(0), myExecAgent(MasterAgent::_nil())
+{
+}
+
+Dag::Dag(MasterAgent_var& MA)
+  : myId(""), tmpDag(false), estDelay(0), cancelled(false),
+    startTime(0), finishTime(0) {
+  myExecAgent = MA;
 }
 
 /**
@@ -167,36 +178,29 @@ Dag::~Dag() {
   }
 }
 
-/**
- * set the dag id
- */
 void
 Dag::setId(const string& id) {
   this->myId = id;
 }
 
-/**
- * get the dag id
- */
 const string&
 Dag::getId() {
   return this->myId;
 }
 
-/**
- * Set the functional wf for which this dag is an instance
- */
 void
 Dag::setWorkflow(FWorkflow * wf) {
   this->myWf = wf;
 }
 
-/**
- * Get the functional wf
- */
 FWorkflow *
 Dag::getWorkflow() {
   return this->myWf;
+}
+
+MasterAgent_var&
+Dag::getExecutionAgent() {
+  return myExecAgent;
 }
 
 /**
@@ -211,11 +215,11 @@ Dag::getNode(const string& nodeId) throw (WfStructException) {
  * Allocates a new node and add it to the dag
  */
 DagNode*
-Dag::createDagNode(const string& id) throw (WfStructException) {
+Dag::createDagNode(const string& id, FWorkflow* wf) throw (WfStructException) {
   map<string, DagNode*>::iterator p = this->nodes.find(id);
   if (p != this->nodes.end())
     throw WfStructException(WfStructException::eDUPLICATE_NODE,"node id="+id);
-  DagNode* newDagNode = new DagNode(this, id);
+  DagNode* newDagNode = new DagNode(id, this, wf);
   this->nodes[id] = newDagNode;
   return newDagNode;
 }
@@ -294,16 +298,15 @@ Dag::end() {
 /**
  * returns the XML description of the dag
  */
-string
-Dag::toXML() {
-  string xml = "<dag>\n";
-  for (map<string, DagNode*>::iterator p = begin();
-       p != end();
+void
+Dag::toXML(ostream& output) const {
+  output << "<dag>" << endl;
+  for (map<string, DagNode*>::const_iterator p = nodes.begin();
+       p != nodes.end();
        ++p) {
-    xml += ((DagNode*) p->second)->toXML();
+    ((DagNode*) p->second)->toXML(output);
   }
-  xml += "</dag>\n";
-  return xml;
+  output << "</dag>" << endl;
 }
 
 /**

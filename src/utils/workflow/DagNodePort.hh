@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2009/07/07 09:02:00  bisnard
+ * modified toXML method
+ *
  * Revision 1.11  2009/06/15 12:24:29  bisnard
  * new class DagNodeArgPort (arg ports not used for funct wf anymore)
  * use WfDataWriter class to display data
@@ -95,8 +98,8 @@ public:
   /**
    * Return the XML description of the port
    */
-  virtual string
-  toXML() const;
+  virtual void
+  toXML(ostream& output) const;
 
   /**
    * Return the profile of the node
@@ -174,8 +177,8 @@ public:
   /**
    * Return the XML description of the port
    */
-  virtual string
-  toXML() const;
+  virtual void
+  toXML(ostream& output) const;
 
   /**
    * Get the cardinal of the content of the output data (when it's a container)
@@ -280,8 +283,8 @@ public:
   /**
    * Return the XML description of the port
    */
-  virtual string
-  toXML() const;
+  virtual void
+  toXML(ostream& output) const;
 
 protected:
   /**
@@ -324,8 +327,8 @@ public:
   /**
    * Return the XML description of the port
    */
-  virtual string
-  toXML() const;
+  virtual void
+  toXML(ostream& output) const;
 
 protected:
   /**
@@ -370,8 +373,8 @@ public:
   /**
    * Return the XML description of the port
    */
-  virtual string
-  toXML() const;
+  virtual void
+  toXML(ostream& output) const;
 
 protected:
 

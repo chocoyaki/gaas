@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2009/07/07 09:02:00  bisnard
+ * modified toXML method
+ *
  * Revision 1.23  2009/05/15 11:02:55  bisnard
  * added makespan calculation
  *
@@ -113,6 +116,7 @@
 #include "DagNode.hh"
 #include "DagNodePort.hh"
 #include "DagScheduler.hh"
+#include "MasterAgent.hh"
 
 using namespace std;
 
@@ -166,9 +170,14 @@ public:
   /*********************************************************************/
 
   /**
-   * Dag constructor
+   * Dag constructor WITHOUT DAG execution agent
    */
   Dag();
+
+  /**
+   * Dag constructor WITH DAG execution agent (DIET MasterAgent)
+   */
+  Dag(MasterAgent_var& MA);
 
   /**
    * Dag destructor
@@ -213,7 +222,7 @@ public:
   getId();
 
   /**
-   * Set the functional wf for which this dag is an instance
+   * Set the functional wf that created this dag
    */
   void
   setWorkflow(FWorkflow * wf);
@@ -225,13 +234,20 @@ public:
   getWorkflow();
 
   /**
+   * Get the execution agent
+   */
+  MasterAgent_var&
+  getExecutionAgent();
+
+  /**
    * Create a new node of the dag
    * (allocates a new node and insert it in the dag)
    * @param id      node id (not the complete id)
+   * @param wf      workflow ref (optional)
    * @return pointer to the node (does not return NULL)
    */
   DagNode*
-  createDagNode(const string& id) throw (WfStructException);
+  createDagNode(const string& id, FWorkflow* wf = NULL) throw (WfStructException);
 
   /**
    * return a dag's node
@@ -263,8 +279,8 @@ public:
   /**
    * returns the XML description of the dag
    */
-  string
-  toXML();
+  void
+  toXML(ostream& output) const;
 
   /**
    * link all ports of the dag
@@ -478,6 +494,11 @@ private:
    * Workflow for which dag is an instance
    */
   FWorkflow * myWf;
+
+  /**
+   * Ref to DAG execution agent
+   */
+  MasterAgent_var  myExecAgent;
 
   /**
    * Dag nodes *
