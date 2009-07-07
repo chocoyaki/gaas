@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.30  2009/07/07 08:58:32  bisnard
+ * changed execNode to handle sub-workflows
+ * modified FWorkflow instanciate method signature (create Dag before)
+ *
  * Revision 1.29  2009/06/23 09:19:34  bisnard
  * use new classname for WfLogService
  * added missing exception catch in execNodeCommon
@@ -205,7 +209,7 @@ CltWfMgr::execNodeCommon(const char * node_id,
         if (!node->hasFailed()) {
           this->myLock.lock();    /** LOCK (conflict with main instanciation thread) */
           // notify the workflow (if applicable and if wf is pending)
-          if ((wf = dag->getWorkflow()) && (wf->instanciationPending())) {
+          if ((wf = node->getWorkflow()) && (wf->instanciationPending())) {
             wf->handlerDagNodeDone(node);
             if (wf->instanciationReady() && this->instanciationPending) {
               TRACE_TEXT (TRACE_MAIN_STEPS,"INSTANCIATION pending & ready ==> POST" << endl);
@@ -337,7 +341,7 @@ CltWfMgr::isWfSubmissionComplete(FWorkflow* wf) {
 diet_error_t
 CltWfMgr::wfDagCall(diet_wf_desc_t * profile) {
   diet_error_t res(0);
-  Dag * dag = new Dag();
+  Dag * dag = new Dag(myMA);
   if (this->myMaDag != MaDag::_nil()) {
     // Call the common dag submission with parsing=ON and release=FALSE
     if (!wfDagCallCommon(profile, dag, true, false)) {
@@ -502,7 +506,7 @@ CltWfMgr::wfFunctionalCall(diet_wf_desc_t * profile) {
   string wfName(profile->name);
 
   FWorkflow *wf = new FWorkflow(wfName);
-  FWfParser reader(*wf, profile->abstract_wf);
+  FWfParser reader(*wf, profile->abstract_wf);  //TODO use initFromXmlFile()
   try {
 
     TRACE_TEXT (TRACE_ALL_STEPS,"Parsing WORKFLOW XML" << endl);
@@ -526,8 +530,9 @@ CltWfMgr::wfFunctionalCall(diet_wf_desc_t * profile) {
     dataFileName = profile->dataFile;
   }
   cout << "XML DATA SOURCE FILE = " << dataFileName << endl;
+  wf->setDataSrcXmlFile(dataFileName);
   try {
-    wf->initialize(dataFileName);
+    wf->initialize();
   } catch (XMLParsingException& e) {
     cerr << "FATAL ERROR: DATA FILE Parsing exception: " << endl;
     cerr << e.ErrorMsg() << endl;
@@ -552,17 +557,22 @@ CltWfMgr::wfFunctionalCall(diet_wf_desc_t * profile) {
   initDagStatus(wf);
 
   TRACE_TEXT (TRACE_ALL_STEPS, "*** INSTANCIATION ****" << endl);
+  int dagCounter = 0;
   while (!res && !wf->instanciationCompleted() && !wf->instanciationStopped()) {
     // synchronization with end-of-node-execution events
     this->instanciationPending = false;
 
+    // GENERATE NEW DAG
+    Dag * currDag = new Dag(myMA);
+    // set a temporary ID for the DAG
+    // this ID will be changed when the DAG is submitted to the MaDag
+    // the temp ID must not match any real ID (which are numbers)
+    currDag->setId("WF_" + wf->getId() + "_DAG_" + itoa(dagCounter++));
+    currDag->setWorkflow(wf);
     this->myLock.lock();    /** LOCK */
-    Dag * currDag = wf->instanciateDag();
+    wf->instanciate(currDag);
     this->myLock.unlock();  /** UNLOCK */
-    if (currDag == NULL) {
-      cerr << "!!! dag instanciation failed !!!" << endl;
-      break;
-    }
+
     if (currDag->size() == 0) {
       cout << "*** GENERATED DAG IS EMPTY ***" << endl;
     } else {
@@ -573,9 +583,9 @@ CltWfMgr::wfFunctionalCall(diet_wf_desc_t * profile) {
                                   << "  ****" << endl << endl;
         fstream filestr;
         filestr.open(dagFileName.c_str(), fstream::out);
-        filestr << currDag->toXML();
+        currDag->toXML(filestr);
         filestr.close();
-        cout << currDag->toXML() << endl;
+        currDag->toXML(cout);
       }
 
       TRACE_TEXT (TRACE_MAIN_STEPS, "*** SUBMIT DAG " << currDag->getId()
