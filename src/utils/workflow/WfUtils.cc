@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2009/07/07 09:05:49  bisnard
+ * added some const's
+ *
  * Revision 1.13  2009/06/15 12:25:24  bisnard
  * added missing mappings for TYPE_UNKNOWN
  *
@@ -74,7 +77,7 @@
 using namespace std;
 
 string
-WfStructException::ErrorMsg() {
+WfStructException::ErrorMsg() const {
   string errorMsg;
   switch(Type()) {
     case eUNKNOWN_DAG:

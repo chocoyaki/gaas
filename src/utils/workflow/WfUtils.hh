@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2009/07/07 09:05:49  bisnard
+ * added some const's
+ *
  * Revision 1.12  2009/06/15 12:25:24  bisnard
  * added missing mappings for TYPE_UNKNOWN
  *
@@ -94,9 +97,9 @@ class WfStructException {
       { this->why = t; this->info = info; }
     WfStructException(const std::string& info)
       { this->why = eOTHER; this->info = info; }
-    WfStructErrorType Type() { return this->why; }
-    const std::string& Info() { return this->info; }
-    std::string ErrorMsg();
+    WfStructErrorType Type() const { return this->why; }
+    const std::string& Info() const { return this->info; }
+    std::string ErrorMsg() const;
   private:
     WfStructErrorType why;
     std::string info;
