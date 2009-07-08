@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2009/07/08 08:56:55  bisnard
+ * avoid false variable detection when var name is prefix of another variable
+ *
  * Revision 1.2  2009/06/15 12:14:08  bisnard
  * added new class WfExprVariable to handle expression variables in conditional nodes
  *
@@ -119,10 +122,26 @@ WfExpression::getExpression() {
   return myExpression;
 }
 
+/**
+ * List of all characters than can separate words in XQuery
+ * (used to avoid false positive in next method when a variable is prefix of another)
+ */
+string WfExpression::XQVarSeparators = string(" ,)+*-");
+
 bool
 WfExpression::isVariableUsed(const string& varName) {
+  // find occurence of variable (may be positive in case variable is prefix of another)
   string::size_type pos = myExpression.find("$"+varName);
-  return (pos != string::npos);
+  // find character following the variable (if not at the end)
+  string nextChar;
+  string::size_type nextPos = pos + varName.length() + 1;
+  if (nextPos < myExpression.length())
+    nextChar = myExpression.substr(nextPos,1);
+  // find occurence of this next character in the separators list
+  string::size_type nextCharIsSep = XQVarSeparators.find(nextChar);
+
+  return ((pos != string::npos)
+          && (nextChar.empty() || (nextCharIsSep != string::npos)));
 }
 
 void
@@ -160,7 +179,13 @@ WfExpression::evaluate() {
   initQuery();
   parseQuery();
   DynamicContext* dynContext = myQuery->createDynamicContext();
+  if (dynContext == NULL) {
+    INTERNAL_ERROR("Error in WfExpression::evaluate() : void context",1);
+  }
   Result result = myQuery->execute(dynContext);
+  if (result.isNull()) {
+    INTERNAL_ERROR("Error in WfExpression::evaluate() : void result",1);
+  }
   Item::Ptr item = result->next(dynContext);
   if (item != NULL) {
     myResult = UTF8(item->asString(dynContext));

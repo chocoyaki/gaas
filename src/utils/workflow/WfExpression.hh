@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2009/07/08 08:56:55  bisnard
+ * avoid false variable detection when var name is prefix of another variable
+ *
  * Revision 1.2  2009/06/15 12:14:08  bisnard
  * added new class WfExprVariable to handle expression variables in conditional nodes
  *
@@ -148,6 +151,7 @@ class WfExpression {
     /**
      * Check if a variable name is used in the expression
      */
+    static std::string XQVarSeparators;  // characters that can happen after a variable
     bool isVariableUsed(const std::string& varName);
 
     /**
