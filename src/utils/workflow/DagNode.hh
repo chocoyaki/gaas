@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2009/07/09 07:18:38  bisnard
+ * fixed bug with getWorkflow()
+ *
  * Revision 1.11  2009/07/07 09:01:32  bisnard
  * new attribute myWf to replace dag-related workflow
  *
@@ -166,6 +169,7 @@ public:
 
   /**
    * get the node Wf reference
+   * (may return NULL if node does not belong to a functional workflow)
    */
   FWorkflow *
   getWorkflow();

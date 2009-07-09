@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2009/07/09 07:18:38  bisnard
+ * fixed bug with getWorkflow()
+ *
  * Revision 1.18  2009/07/07 09:01:32  bisnard
  * new attribute myWf to replace dag-related workflow
  *
@@ -312,11 +315,7 @@ DagNode::getDag() {
 
 FWorkflow *
 DagNode::getWorkflow() {
-  if (myWf != NULL)
-    return myWf;
-  else {
-    INTERNAL_ERROR( "ERROR: calling getWorkflow() on a node not linked to a wf" << endl, 1);
-  }
+  return myWf;
 }
 
 void
