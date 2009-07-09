@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.31  2009/07/09 13:41:16  bisnard
+ * fixed bug with loglevel
+ *
  * Revision 1.30  2009/07/07 08:58:32  bisnard
  * changed execNode to handle sub-workflows
  * modified FWorkflow instanciate method signature (create Dag before)
@@ -509,9 +512,9 @@ CltWfMgr::wfFunctionalCall(diet_wf_desc_t * profile) {
   FWfParser reader(*wf, profile->abstract_wf);  //TODO use initFromXmlFile()
   try {
 
-    TRACE_TEXT (TRACE_ALL_STEPS,"Parsing WORKFLOW XML" << endl);
+    TRACE_TEXT (TRACE_MAIN_STEPS,"Parsing WORKFLOW XML" << endl);
     reader.parseXml();
-    TRACE_TEXT (TRACE_ALL_STEPS,"*** Checking WORKFLOW XML structure" << endl);
+    TRACE_TEXT (TRACE_MAIN_STEPS,"*** Checking WORKFLOW XML structure" << endl);
     wf->checkPrec(wf);
 
   } catch (XMLParsingException& e) {
@@ -524,12 +527,12 @@ CltWfMgr::wfFunctionalCall(diet_wf_desc_t * profile) {
     return WFL_BADSTRUCT;
   }
 
-  TRACE_TEXT (TRACE_ALL_STEPS, "*** Initialize functional wf ****" << endl);
+  TRACE_TEXT (TRACE_MAIN_STEPS, "*** Initialize functional wf ****" << endl);
   string dataFileName = defaultDataFileName;
   if (profile->dataFile) {
     dataFileName = profile->dataFile;
   }
-  cout << "XML DATA SOURCE FILE = " << dataFileName << endl;
+  TRACE_TEXT (TRACE_MAIN_STEPS,"XML DATA SOURCE FILE = " << dataFileName << endl);
   wf->setDataSrcXmlFile(dataFileName);
   try {
     wf->initialize();
@@ -545,7 +548,7 @@ CltWfMgr::wfFunctionalCall(diet_wf_desc_t * profile) {
   // store wf profile to allow results retrieval
   myProfiles[profile] = wf;
 
-  TRACE_TEXT (TRACE_ALL_STEPS, "*** Get wf request ID from MADAG ****" << endl);
+  TRACE_TEXT (TRACE_MAIN_STEPS, "*** Get wf request ID from MADAG ****" << endl);
   CORBA::Long wfReqId = 0;
   if (this->myMaDag != MaDag::_nil()) {
     wfReqId = this->myMaDag->getWfReqId();
@@ -556,7 +559,7 @@ CltWfMgr::wfFunctionalCall(diet_wf_desc_t * profile) {
 
   initDagStatus(wf);
 
-  TRACE_TEXT (TRACE_ALL_STEPS, "*** INSTANCIATION ****" << endl);
+  TRACE_TEXT (TRACE_MAIN_STEPS, "*** INSTANCIATION ****" << endl);
   int dagCounter = 0;
   while (!res && !wf->instanciationCompleted() && !wf->instanciationStopped()) {
     // synchronization with end-of-node-execution events
@@ -574,17 +577,21 @@ CltWfMgr::wfFunctionalCall(diet_wf_desc_t * profile) {
     this->myLock.unlock();  /** UNLOCK */
 
     if (currDag->size() == 0) {
-      cout << "*** GENERATED DAG IS EMPTY ***" << endl;
+      TRACE_TEXT (TRACE_MAIN_STEPS, "*** GENERATED DAG IS EMPTY ***" << endl);
     } else {
       string dagFileName = "dag_" + currDag->getId(); // will be changed when dag submitted to MaDag
 
+      // STORE DAG IN FILE
+      TRACE_TEXT (TRACE_MAIN_STEPS, "*** WRITE DAG IN FILE: " << dagFileName << endl);
+      fstream filestr;
+      filestr.open(dagFileName.c_str(), fstream::out);
+      currDag->toXML(filestr);
+      filestr.close();
+
+      // DISPLAY DAG
       if (TRACE_LEVEL >= TRACE_ALL_STEPS) {
         cout << "*** DISPLAY DAG " << currDag->getId()
                                   << "  ****" << endl << endl;
-        fstream filestr;
-        filestr.open(dagFileName.c_str(), fstream::out);
-        currDag->toXML(filestr);
-        filestr.close();
         currDag->toXML(cout);
       }
 
@@ -611,11 +618,11 @@ CltWfMgr::wfFunctionalCall(diet_wf_desc_t * profile) {
         setWfSubmissionComplete(wf);
       // CHECK IF INSTANCIATION IS PENDING (waiting for node execution)
       if (wf->instanciationPending()) {
-        TRACE_TEXT (TRACE_ALL_STEPS,"INSTANCIATION PENDING ON NODE EXECUTION ==> WAIT" << endl);
+        TRACE_TEXT (TRACE_MAIN_STEPS,"INSTANCIATION PENDING ON NODE EXECUTION ==> WAIT" << endl);
         this->instanciationPending = true;
         this->mySem.wait();
         if (wf->instanciationPending())
-          TRACE_TEXT (TRACE_ALL_STEPS,"INSTANCIATION RESTARTS" << endl);
+          TRACE_TEXT (TRACE_MAIN_STEPS,"INSTANCIATION RESTARTS" << endl);
       }
     } else {
       cerr << "DAG SUBMISSION FAILED ==> INSTANCIATION STOPPED" << endl;
@@ -625,7 +632,7 @@ CltWfMgr::wfFunctionalCall(diet_wf_desc_t * profile) {
 
   // Instanciation is finished
   if (dagSentCount > 0) {
-    TRACE_TEXT (TRACE_ALL_STEPS,"NO MORE DAGS TO INSTANCIATE ==> WAIT" << endl);
+    TRACE_TEXT (TRACE_MAIN_STEPS,"NO MORE DAGS TO INSTANCIATE ==> WAIT" << endl);
     this->mySem.wait();
     usleep(1000); // to avoid stopping process before end of release call
   }
@@ -687,15 +694,15 @@ CltWfMgr::release(const char * dag_id, bool successful) {
   if (dagSentCount == 0) {
 
     if (!wf || isWfSubmissionComplete(wf) || wf->instanciationStopped()) {
-      TRACE_TEXT(TRACE_ALL_STEPS,traceHeader << "No more dags running ==> POST" << endl);
+      TRACE_TEXT(TRACE_MAIN_STEPS,traceHeader << "No more dags running ==> POST" << endl);
       this->myLock.unlock();  /** UNLOCK */
       this->mySem.post();
     } else {
-      TRACE_TEXT(TRACE_ALL_STEPS,traceHeader << "Still some dags to send ==> CONTINUE" << endl);
+      TRACE_TEXT(TRACE_MAIN_STEPS,traceHeader << "Still some dags to send ==> CONTINUE" << endl);
       this->myLock.unlock();  /** UNLOCK */
     }
   } else {
-    TRACE_TEXT(TRACE_ALL_STEPS,traceHeader << "Still some dags running ==> CONTINUE" << endl);
+    TRACE_TEXT(TRACE_MAIN_STEPS,traceHeader << "Still some dags running ==> CONTINUE" << endl);
     this->myLock.unlock();  /** UNLOCK */
   }
   return ret;
