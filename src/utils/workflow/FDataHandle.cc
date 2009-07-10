@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2009/07/10 11:35:56  bisnard
+ * changed value format for scalar values (removed XML tags)
+ *
  * Revision 1.11  2009/07/02 15:55:24  bisnard
  * bug correction in updateAncestors()
  *
@@ -948,7 +951,11 @@ FDataHandle::downloadValue() {
   if (isDataIDDefined()) {
     // the following must be called only if the dataID is really defined!
     ostringstream  valStr;
-    WfDataWriter  *dataWriter = new WfXMLDataWriter(valStr);
+    WfDataWriter  *dataWriter;
+    if (myDepth > 0)
+      dataWriter = new WfXMLDataWriter(valStr); // for containers
+    else
+      dataWriter = new WfListDataWriter(valStr); // for scalar values
     writeValue(dataWriter);
     myValue = valStr.str();
     valueDef = true;
