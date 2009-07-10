@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.31  2009/07/10 12:55:59  bisnard
+ * implemented while loop workflow node
+ *
  * Revision 1.30  2009/07/07 11:25:54  bisnard
  * modified data file parser
  *
@@ -768,6 +771,9 @@ FWfParser::createNode(const DOMElement* element, const string& elementName) {
 
   } else if (elementName == "constant") {
     checkMandatoryAttr(elementName,"type",type);
+    if (!depth.empty())
+      throw XMLParsingException(XMLParsingException::eUNKNOWN_ATTR,
+                                "Attribute depth is not applicable to constant tag");
     FConstantNode* cstNode = workflow.createConstant(name,(WfCst::WfDataType) dataType);
     if (!value.empty())
       cstNode->setValue(value);
@@ -816,6 +822,27 @@ FWfParser::createNode(const DOMElement* element, const string& elementName) {
 /**
  * Override methods for port parsing
  */
+
+WfPort *
+FWfParser::parsePortCommon(const DOMElement * element,
+                           const unsigned int portIndex,
+                           WfNode * node,
+                           const string& portName,
+                           const WfPort::WfPortType portType) {
+  string name  = getAttributeValue("name", element);
+  string type  = getAttributeValue("type", element);
+  string depth = getAttributeValue("depth", element);
+  checkMandatoryAttr(portName,"name",name);
+  checkMandatoryAttr(portName,"type",name);
+  checkLeafElement(element,portName);
+
+  if (!WfCst::isMatrixType(type)) {
+    return setParam(portType, name, type, depth, portIndex, node);
+  } else {
+    return setMatrixParam(element, portType, name, portIndex, node);
+  }
+}
+
 WfPort*
 FWfParser::parseIn(const DOMElement * element,
                    const unsigned int lastArg,
@@ -843,6 +870,7 @@ FWfParser::parseInOut(const DOMElement * element,
   return port;
 }
 
+/*
 //TODO refactor parseOut, parseOutThen, parseOutElse (add portType parameter)
 void
 FWfParser::parseOutThen(const DOMElement * element,
@@ -878,7 +906,7 @@ FWfParser::parseOutElse(const DOMElement * element,
   } else {
     setMatrixParam(element, WfPort::PORT_OUT_ELSE, name, portIndex, node);
   }
-}
+}*/
 
 /**
  * Parse Param port element (only for functional wf)
@@ -1081,13 +1109,13 @@ FWfParser::parseOtherNodeSubElt(const DOMElement * element,
     if (!ifNode)
       throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
                  "<outThen> element applied to non-conditional element");
-    parseOutThen(element, portIndex++, ifNode);
+    parsePortCommon(element, portIndex++, ifNode, "outThen", WfPort::PORT_OUT_THEN);
   } else if (elementName == "outElse") {
     FIfNode* ifNode = dynamic_cast<FIfNode*>(node);
     if (!ifNode)
       throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
                  "<outElse> element applied to non-conditional element");
-    parseOutElse(element, portIndex++, ifNode);
+    parsePortCommon(element, portIndex++, ifNode, "outElse", WfPort::PORT_OUT_ELSE);
   } else if (elementName == "then") {
     FIfNode* ifNode = dynamic_cast<FIfNode*>(node);
     if (!ifNode)
@@ -1100,7 +1128,6 @@ FWfParser::parseOtherNodeSubElt(const DOMElement * element,
     for (map<string,string>::iterator mapIter = thenMap.begin();
          mapIter != thenMap.end();
          ++mapIter) {
-//       cout << "THEN mapping: " << mapIter->first << " = " << mapIter->second << endl;
       ifNode->setThenMap(mapIter->first,mapIter->second);
     }
   } else if (elementName == "else") {
@@ -1115,7 +1142,6 @@ FWfParser::parseOtherNodeSubElt(const DOMElement * element,
     for (map<string,string>::iterator mapIter = elseMap.begin();
          mapIter != elseMap.end();
          ++mapIter) {
-//       cout << "ELSE mapping: " << mapIter->first << " = " << mapIter->second << endl;
       ifNode->setElseMap(mapIter->first,mapIter->second);
     }
   } else if (elementName == "while") {
@@ -1130,6 +1156,40 @@ FWfParser::parseOtherNodeSubElt(const DOMElement * element,
     } catch (WfStructException& e) {
       throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
                 "<while> element contains invalid expression");
+    }
+  } else if (elementName == "inLoop") {
+    FLoopNode* loopNode = dynamic_cast<FLoopNode*>(node);
+    if (!loopNode)
+      throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
+                 "<inLoop> element applied to non-loop element");
+    WfPort *lPort = parsePortCommon(element, portIndex++, loopNode, "inLoop", WfPort::PORT_IN_LOOP);
+    // INIT attribute
+    string init = getAttributeValue("init", element);
+    checkMandatoryAttr("inLoop","init",init);
+    lPort->setInterfaceRef(init);
+  } else if (elementName == "outLoop") {
+    FLoopNode* loopNode = dynamic_cast<FLoopNode*>(node);
+    if (!loopNode)
+      throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
+                 "<outLoop> element applied to non-loop element");
+    WfPort *lPort = parsePortCommon(element, portIndex++, loopNode, "outLoop", WfPort::PORT_OUT_LOOP);
+    // FINAL attribute
+    string final = getAttributeValue("final", element);
+    checkMandatoryAttr("inLoop","final",final);
+    lPort->setInterfaceRef(final);
+  } else if (elementName == "do") {
+    FLoopNode* loopNode = dynamic_cast<FLoopNode*>(node);
+    if (!loopNode)
+      throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
+                 "<do> element applied to non-loop element");
+    string doMapStr;
+    getTextContent(element, doMapStr);
+    map<string,string>  doMap;
+    getPortMap(doMapStr, doMap);
+    for (map<string,string>::iterator mapIter = doMap.begin();
+         mapIter != doMap.end();
+         ++mapIter) {
+      loopNode->setDoMap(mapIter->first,mapIter->second);
     }
   } else {
     throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,

@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2009/07/10 12:55:59  bisnard
+ * implemented while loop workflow node
+ *
  * Revision 1.16  2009/07/07 09:03:22  bisnard
  * changes for sub-workflows (FWorkflow class now inherits from FProcNode)
  *
@@ -362,7 +365,7 @@ FWorkflow::initFromXmlFile(const string& xmlWfFileName,
  * FIXME make it private ?
  */
 void
-FWorkflow::initialize() throw (WfStructException) {
+FWorkflow::initialize() {
   string pfx = "[" + getId() + "] : ";
 
   if (getPortNb() > 0) {  // used for sub-workflows
@@ -383,18 +386,6 @@ FWorkflow::initialize() throw (WfStructException) {
     }
   }
 
-  TRACE_TEXT (TRACE_ALL_STEPS,pfx << "Initializing Interface..." << endl);
-  for(map<string,FNode*>::iterator iter = myInterface.begin();
-      iter != myInterface.end();
-      ++iter) {
-    ((FNode*) iter->second)->initialize();
-  }
-  TRACE_TEXT (TRACE_ALL_STEPS,pfx << "Initializing Processors..." << endl);
-  for(map<string,FProcNode*>::iterator iter = myProc.begin();
-      iter != myProc.end();
-      ++iter) {
-    ((FProcNode*) iter->second)->initialize();
-  }
   TRACE_TEXT (TRACE_ALL_STEPS,pfx << "Sorting processors..." << endl);
   // create a topologically sorted list of processor nodes
   map<WfNode*, DFSNodeInfo>* DFSInfo = new map<WfNode*,DFSNodeInfo>();
@@ -430,6 +421,31 @@ FWorkflow::initialize() throw (WfStructException) {
            ++todoIter;
       todoProc.insert(todoIter, node);
     }
+  }
+
+  TRACE_TEXT (TRACE_ALL_STEPS,pfx << "Connecting all nodes..." << endl);
+  for(map<string,FProcNode*>::iterator iter = myProc.begin();
+      iter != myProc.end();
+      ++iter) {
+    ((FProcNode*) iter->second)->connectNodePorts();
+  }
+  for(map<string,FNode*>::iterator iter = myInterface.begin();
+      iter != myInterface.end();
+      ++iter) {
+    ((FNode*) iter->second)->connectNodePorts();
+  }
+
+  TRACE_TEXT (TRACE_ALL_STEPS,pfx << "Initializing Interface..." << endl);
+  for(map<string,FNode*>::iterator iter = myInterface.begin();
+      iter != myInterface.end();
+      ++iter) {
+    ((FNode*) iter->second)->initialize();
+  }
+  TRACE_TEXT (TRACE_ALL_STEPS,pfx << "Initializing Processors..." << endl);
+  for(map<string,FProcNode*>::iterator iter = myProc.begin();
+      iter != myProc.end();
+      ++iter) {
+    ((FProcNode*) iter->second)->initialize();
   }
 }
 
@@ -493,6 +509,7 @@ FWorkflow::instanciate(Dag * dag) {
     while (procIter != todoProc.end()) {
       FProcNode* currProc = (FProcNode*) *procIter;
       // instantiate node
+      TRACE_TEXT (TRACE_MAIN_STEPS,"  ## INSTANCIATE NODE : " << currProc->getId() << endl);
       try {
         currProc->instanciate(dag);
       } catch (WfDataHandleException& e) {

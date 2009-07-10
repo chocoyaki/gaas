@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2009/07/10 12:55:59  bisnard
+ * implemented while loop workflow node
+ *
  * Revision 1.14  2009/07/07 09:03:22  bisnard
  * changes for sub-workflows (FWorkflow class now inherits from FProcNode)
  *
@@ -109,7 +112,7 @@ public:
   /***************************************************/
 
   virtual void
-      initialize() throw (WfStructException);
+      initialize();
 
   virtual void
       instanciate(Dag* dag);

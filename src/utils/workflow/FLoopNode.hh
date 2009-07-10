@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2009/07/10 12:55:59  bisnard
+ * implemented while loop workflow node
+ *
  * Revision 1.1  2009/07/07 09:06:08  bisnard
  * new class FLoopNode to handle workflow loops
  *
@@ -27,22 +30,67 @@ class FLoopNode : public FProcNode {
               const string& id);
     virtual ~FLoopNode();
 
+    // ******************** NODE SETUP *********************
+
+    virtual WfPort *
+        newPort(string portId,
+                unsigned int ind,
+                WfPort::WfPortType portType,
+                WfCst::WfDataType dataType,
+                unsigned int depth) throw (WfStructException);
+
+    virtual void
+        connectNodePorts() throw (WfStructException);
+
+    void
+        setDoMap(const string& leftPortName,
+                 const string& rightPortName)
+        throw (WfStructException);
+
     void
         setWhileCondition(const string& conditionStr)
         throw (WfStructException);
+
+    // ******************** INSTANCIATION *********************
+
+    virtual void
+        initialize();
+
+    virtual void
+        instanciate(Dag* dag);
 
     virtual void
         createRealInstance(Dag* dag,
                            const FDataTag& currTag,
                            const vector<FDataHandle*>& currDataLine);
 
+    virtual void
+        createVoidInstance(const FDataTag& currTag,
+                           const vector<FDataHandle*>& currDataLine);
+
+    virtual void
+        updateInstanciationStatus();
+
   protected:
 
     virtual void
         checkCondition() throw (WfStructException);
 
+    bool
+        testCondition(const vector<FDataHandle*>& currDataLine);
+
     vector<WfExprVariable*>*  myConditionVars;
     WfBooleanExpression*      myCondition;
+    FNodePortMap  myDoMap;        // used for IN LOOP => OUT LOOP
+    FNodePortMap  myFinalOutMap;  // used for IN LOOP => OUT
+    FNodePortMap  myFinalLoopMap; // used for VOID => OUT LOOP
+    InputIterator*  myLoopIterator;
+
+  private:
+    /**
+     * Total nb of running loop instances
+     */
+    int activeInstanceNb;
 
 };
 

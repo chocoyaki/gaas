@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2009/07/10 12:55:59  bisnard
+ * implemented while loop workflow node
+ *
  * Revision 1.17  2009/07/07 09:04:40  bisnard
  * new method isOutput to handle output ports that have different types
  *
@@ -110,7 +113,9 @@ public:
     PORT_OUT,
     PORT_PARAM,
     PORT_OUT_THEN,
-    PORT_OUT_ELSE
+    PORT_OUT_ELSE,
+    PORT_IN_LOOP,
+    PORT_OUT_LOOP
   };
 
   /**
@@ -227,44 +232,44 @@ public:
    * Set the source of the input port (Parsing only)
    * @param strRef The source port (output port) reference
    */
-  void
+  virtual void
   setConnectionRef(const string& strRef);
 
   /**
    * Set the port adapter
    */
-  void
+  virtual void
   setPortAdapter(WfPortAdapter* adapter);
 
   /**
    * Nodes linking (used for dag scheduling)
    * @param contextNodeSet  the node set used to find references to nodes
    */
-  void
+  virtual void
   setNodePrecedence(NodeSet * contextNodeSet) throw (WfStructException);
 
   /**
    * Ports linking (used for node execution)
    * @param nodeSet   container for the linked nodes
    */
-  void
+  virtual void
   connectPorts() throw (WfStructException);
 
   /**
    * Return true if the port is connected to another port
    * (through an object link)
    */
-  bool
+  virtual bool
   isConnected() const;
 
   /****************************************************/
   /* Interface with node's internal sources/sinks     */
   /****************************************************/
 
-  void
+  virtual void
   setInterfaceRef(const string& strInterface);
 
-  const string&
+  virtual const string&
   getInterfaceRef();
 
 protected:

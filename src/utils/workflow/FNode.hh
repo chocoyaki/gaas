@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2009/07/10 12:55:59  bisnard
+ * implemented while loop workflow node
+ *
  * Revision 1.15  2009/07/07 09:03:22  bisnard
  * changes for sub-workflows (FWorkflow class now inherits from FProcNode)
  *
@@ -235,8 +238,14 @@ class FConstantNode : public FNode {
         setValue(const string& strVal);
 
     /**
-     * Instanciate a constant node
-     * @param dag should be NULL (not used because no dag node is created)
+     * Initialization of the constant node
+     */
+    virtual void
+        initialize();
+
+    /**
+     * Instanciate a constant node (does nothing)
+     * @param dag should be NULL
      */
     virtual void
         instanciate(Dag* dag);

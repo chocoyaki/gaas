@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2009/07/10 12:55:59  bisnard
+ * implemented while loop workflow node
+ *
  * Revision 1.15  2009/07/07 09:03:22  bisnard
  * changes for sub-workflows (FWorkflow class now inherits from FProcNode)
  *
@@ -145,7 +148,7 @@ FNode::newPort(string portId,
       p = new FNodeParamPort(this, portId, dataType, ind);
       break;
     case WfPort::PORT_IN:
-      p = new FNodeInPort(this, portId, dataType, depth, ind);
+      p = new FNodeInPort(this, portId, portType, dataType, depth, ind);
       break;
     case WfPort::PORT_INOUT:
       INTERNAL_ERROR("Functional Inout port not implemented yet",0);
@@ -206,16 +209,22 @@ FConstantNode::setValue(const string& strVal) {
 }
 
 void
-FConstantNode::instanciate(Dag* dag) {
+FConstantNode::initialize() {
   // set the out port as constant with this dataHdl
   FNodeOutPort* outPort = dynamic_cast<FNodeOutPort*>(ports[outPortName]);
   if (!outPort) {
     INTERNAL_ERROR("Missing out port in constant FNode",0);
   }
   // create a WfDataHandle and set its value
+  TRACE_TEXT (TRACE_ALL_STEPS,"SET CONSTANT '" << getId() << "' = /"
+                              << myValue << "/" << endl);
   FDataTag singleTag(0,true);
   FDataHandle* dataHdl = new FDataHandle(singleTag, outPort->getBaseDataType(), myValue);
   outPort->setAsConstant(dataHdl);
+}
+
+void
+FConstantNode::instanciate(Dag* dag) {
   myStatus = N_INSTANC_END;
 }
 
@@ -338,9 +347,6 @@ FSinkNode::connectToWfPort(FNodePort* port) {
 
 void
 FSinkNode::initialize() {
-  TRACE_TEXT (TRACE_ALL_STEPS,"Initializing data sink :" << getId() << endl);
-  TRACE_TEXT (TRACE_ALL_STEPS,"  1/ Connecting node ports" << endl);
-  this->connectNodePorts();
 }
 
 void
@@ -547,9 +553,6 @@ FProcNode::getDynamicParamValue(const string& paramName) {
 void
 FProcNode::initialize() {
   TRACE_TEXT (TRACE_ALL_STEPS,"Initializing processor :" << getId() << endl);
-  TRACE_TEXT (TRACE_ALL_STEPS,"  1/ Connecting node ports" << endl);
-  this->connectNodePorts();
-  TRACE_TEXT (TRACE_ALL_STEPS,"  2/ Checking input iterators" << endl);
   vector<string> *iterCreatedMap = new vector<string>(getPortNb());
   unsigned int iterCreatedNb = 0;
   // loop for all input or param ports

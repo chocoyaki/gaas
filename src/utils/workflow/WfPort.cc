@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2009/07/10 12:55:59  bisnard
+ * implemented while loop workflow node
+ *
  * Revision 1.18  2009/07/07 09:04:40  bisnard
  * new method isOutput to handle output ports that have different types
  *
@@ -136,7 +139,8 @@ WfPort::isOutput() const {
   return ((portType == PORT_OUT)
           || (portType == PORT_INOUT)
           || (portType == PORT_OUT_THEN)
-          || (portType == PORT_OUT_ELSE));
+          || (portType == PORT_OUT_ELSE)
+          || (portType == PORT_OUT_LOOP));
 }
 
 string

@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2009/07/10 12:55:59  bisnard
+ * implemented while loop workflow node
+ *
  * Revision 1.21  2009/07/07 11:25:54  bisnard
  * modified data file parser
  *
@@ -421,15 +424,15 @@ protected:
              const unsigned int lastArg,
              WfNode * node);
 
-  virtual void
-  parseOutThen(const DOMElement * element,
-               const unsigned int portIndex,
-               WfNode * node);
-
-  virtual void
-  parseOutElse(const DOMElement * element,
-               const unsigned int portIndex,
-               WfNode * node);
+//   virtual void
+//   parseOutThen(const DOMElement * element,
+//                const unsigned int portIndex,
+//                WfNode * node);
+//
+//   virtual void
+//   parseOutElse(const DOMElement * element,
+//                const unsigned int portIndex,
+//                WfNode * node);
 
   virtual WfPort *
   parseParamPort(const DOMElement * element,
@@ -486,6 +489,13 @@ private:
    * @return  class of the wf
    */
   string getWfClassName(const string& fileName);
+
+  WfPort *
+  parsePortCommon(const DOMElement * element,
+                  const unsigned int portIndex,
+                  WfNode * node,
+                  const string& portName,
+                  const WfPort::WfPortType portType);
 
   /**
    * Map containing the included workflow classes with the corresponding file
