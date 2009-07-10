@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2009/07/10 12:55:17  bisnard
+ * updated list of XQuery separators
+ *
  * Revision 1.3  2009/07/08 08:56:55  bisnard
  * avoid false variable detection when var name is prefix of another variable
  *
@@ -126,7 +129,7 @@ WfExpression::getExpression() {
  * List of all characters than can separate words in XQuery
  * (used to avoid false positive in next method when a variable is prefix of another)
  */
-string WfExpression::XQVarSeparators = string(" ,)+*-");
+string WfExpression::XQVarSeparators = string(" ,)+*-/");
 
 bool
 WfExpression::isVariableUsed(const string& varName) {
