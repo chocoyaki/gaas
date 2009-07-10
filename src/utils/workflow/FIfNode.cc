@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2009/07/10 12:52:08  bisnard
+ * standardized FNodeInPort constructor
+ *
  * Revision 1.5  2009/07/07 09:03:22  bisnard
  * changes for sub-workflows (FWorkflow class now inherits from FProcNode)
  *
@@ -59,7 +62,7 @@ FIfNode::newPort(string portId,
       addPort(portId, p);
       break;
     case WfPort::PORT_IN:
-      p = new FNodeInPort(this, portId, dataType, depth, ind);
+      p = new FNodeInPort(this, portId, portType, dataType, depth, ind);
       addPort(portId, p);
       break;
     case WfPort::PORT_INOUT:
@@ -220,7 +223,7 @@ FMergeNode::newPort(string portId,
     case WfPort::PORT_IN:
       if (getPortNb(WfPort::PORT_IN) > 1)
         throw WfStructException("Merge node can have only 2 input ports");
-      p = new FNodeInPort(this, portId, dataType, depth, ind);
+      p = new FNodeInPort(this, portId, portType, dataType, depth, ind);
       break;
     case WfPort::PORT_OUT:
       if (getPortNb(WfPort::PORT_OUT) > 0)
@@ -298,7 +301,7 @@ FFilterNode::newPort(string portId,
     case WfPort::PORT_IN:
       if (getPortNb(WfPort::PORT_IN) > 0)
         throw WfStructException("Filter node can have only 1 input port");
-      p = new FNodeInPort(this, portId, dataType, depth, 0);
+      p = new FNodeInPort(this, portId, portType, dataType, depth, 0);
       break;
     case WfPort::PORT_OUT:
       if (getPortNb(WfPort::PORT_OUT) > 0)

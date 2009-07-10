@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2009/07/10 12:52:08  bisnard
+ * standardized FNodeInPort constructor
+ *
  * Revision 1.11  2009/06/15 12:11:13  bisnard
  * use new XML Parser (SAX) for data source file
  * use new class WfValueAdapter to avoid data duplication
@@ -216,7 +219,7 @@ class FNodeInPort : public FNodePort {
 
     friend class PortInputIterator;
 
-    FNodeInPort(WfNode * parent, const string& _id,
+    FNodeInPort(WfNode * parent, const string& _id, WfPort::WfPortType _portType,
                 WfCst::WfDataType _type, unsigned int _depth, unsigned int _ind);
     virtual ~FNodeInPort();
 

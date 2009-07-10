@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2009/07/10 12:52:08  bisnard
+ * standardized FNodeInPort constructor
+ *
  * Revision 1.11  2009/06/15 12:11:13  bisnard
  * use new XML Parser (SAX) for data source file
  * use new class WfValueAdapter to avoid data duplication
@@ -89,10 +92,11 @@ FNodeOutPort::~FNodeOutPort() {
 
 FNodeInPort::FNodeInPort(WfNode * parent,
                            const string& _id,
+                           WfPort::WfPortType _portType,
                            WfCst::WfDataType _type,
                            unsigned int _depth,
                            unsigned int _ind)
-  : FNodePort(parent, _id, WfPort::PORT_IN, _type, _depth, _ind),
+  : FNodePort(parent, _id, _portType, _type, _depth, _ind),
     dataTotalNb(0), totalDef(false), valueRequired(false) { }
 
 FNodeInPort::~FNodeInPort() {
@@ -297,7 +301,7 @@ FNodeInPort::addData(FDataHandle* dataHdl)
    throw (WfDataHandleException, WfDataException)
 {
   TRACE_TEXT (TRACE_ALL_STEPS,"     # add data " << dataHdl->getTag().toString()
-              << " to port " << getParent()->getId() << "#" << getId()
+              << " to port " << getCompleteId()
               << (dataHdl->isValueDefined() ? " /value=" + dataHdl->getValue() : "")
               << endl);
   // if dataHdl is not complete then do nothing (happens due to recursive call to parent)
@@ -377,14 +381,14 @@ FNodeInPort::setTotalDataNb(unsigned int total) {
   dataTotalNb = total;
   totalDef = true;
   TRACE_TEXT (TRACE_ALL_STEPS,"Setting total to " << total
-               << " for IN port : " << getId() << endl);
+               << " for IN port : " << getCompleteId() << endl);
 }
 
 void
 FNodeInPort::setAsConstant(FDataHandle* dataHdl) {
   FProcNode* node = getParentProcNode();
   node->setConstantInput(getIndex(), dataHdl);
-  node->setStatusReady();
+//  node->setStatusReady(); ???
 }
 
 void
@@ -449,8 +453,7 @@ FNodeParamPort::FNodeParamPort(WfNode * parent,
                            const string& _id,
                            WfCst::WfDataType _type,
                            unsigned int _ind)
-  : FNodeInPort(parent, _id, _type, 0, _ind) {
-  portType = WfPort::PORT_PARAM;
+  : FNodeInPort(parent, _id, WfPort::PORT_PARAM, _type, 0, _ind) {
   setValueRequired();
 }
 
