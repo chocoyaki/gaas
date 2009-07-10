@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2009/07/10 12:54:54  bisnard
+ * removed some debug
+ * added pointer initialization
+ *
  * Revision 1.14  2009/06/15 12:13:12  bisnard
  * added data type handling in WfPortAdapter
  * added new class WfValueAdapter to avoid data duplication
@@ -139,7 +143,7 @@ WfPortAdapter::createAdapter(const string& strRef) {
  * PARSING of a simple reference (with or without subports)
  */
 WfSimplePortAdapter::WfSimplePortAdapter(const string& strRef)
-  : dagName() {
+  : nodePtr(NULL), portPtr(NULL) {
 //   TRACE_TEXT (TRACE_ALL_STEPS,"Creating simple port adapter ref=" << strRef << endl);
   string::size_type nodeSep = strRef.find(":");
   string::size_type nodeStart = 0;
@@ -552,24 +556,24 @@ WfValueAdapter::WfValueAdapter(const string& value)
   : myValue(value), myDataType(WfCst::TYPE_UNKNOWN),
   cx(NULL), sx(NULL), ix(NULL), lx(NULL), fx(NULL), dx(NULL), str(NULL)
 {
-  TRACE_TEXT (TRACE_ALL_STEPS,"Creating VALUE adapter value=/"
-                               << value << "/" << endl);
+//   TRACE_TEXT (TRACE_ALL_STEPS,"Creating VALUE adapter value=/"
+//                                << value << "/" << endl);
 }
 
 WfValueAdapter::WfValueAdapter(const string& dataID, string value)
   : myValue(value), myDataID(dataID), myDataType(WfCst::TYPE_UNKNOWN),
   cx(NULL), sx(NULL), ix(NULL), lx(NULL), fx(NULL), dx(NULL), str(NULL)
 {
-  TRACE_TEXT (TRACE_ALL_STEPS,"Creating VALUE adapter dataID=/"
-                               << dataID << "/" << endl);
+//   TRACE_TEXT (TRACE_ALL_STEPS,"Creating VALUE adapter dataID=/"
+//                                << dataID << "/" << endl);
 }
 
 WfValueAdapter::WfValueAdapter(WfCst::WfDataType valueType, const string& value)
   : myValue(value), myDataType(valueType),
   cx(NULL), sx(NULL), ix(NULL), lx(NULL), fx(NULL), dx(NULL), str(NULL)
 {
-  TRACE_TEXT (TRACE_ALL_STEPS,"Creating VALUE adapter (TYPE=" << valueType
-                               << ") value=/" << value << "/" << endl);
+//   TRACE_TEXT (TRACE_ALL_STEPS,"Creating VALUE adapter (TYPE=" << valueType
+//                                << ") value=/" << value << "/" << endl);
 }
 
 WfValueAdapter::WfValueAdapter(const string& dataID,
@@ -577,8 +581,8 @@ WfValueAdapter::WfValueAdapter(const string& dataID,
                                string value)
   : myDataID(dataID), myValue(value), myDataType(valueType),
     cx(NULL), sx(NULL), ix(NULL), lx(NULL), fx(NULL), dx(NULL), str(NULL)  {
-  TRACE_TEXT (TRACE_ALL_STEPS,"Creating VALUE adapter (TYPE=" << valueType
-                              << ") dataID=/" << dataID << "/" << endl);
+//   TRACE_TEXT (TRACE_ALL_STEPS,"Creating VALUE adapter (TYPE=" << valueType
+//                               << ") dataID=/" << dataID << "/" << endl);
 }
 
 WfValueAdapter::~WfValueAdapter() {
