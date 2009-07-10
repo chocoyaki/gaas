@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2009/07/10 12:02:39  bisnard
+ * fixed string allocation bug
+ *
  * Revision 1.6  2009/06/23 09:26:56  bisnard
  * new API method for EFT estimation
  *
@@ -95,7 +98,7 @@ process_container(short depth, const char *outputstr, const char *parentID) {
     exit(0);
   }
   for (i=0; i<CONTAINER_ELT_NB; i++) {
-    eltStr[i] = (char*) calloc(strlen(outputstr)+2, sizeof(char));
+    eltStr[i] = (char*) calloc(strlen(outputstr)+3, sizeof(char));
     strcpy(eltStr[i], outputstr);
     sprintf(buffer,"_%d",i);
     strncat(eltStr[i],buffer,2);
@@ -211,7 +214,7 @@ processor(diet_profile_t* pb)
     }
   }
   inlength += (nb_in - 1) + strlen(name_str) + 7;
-  outputstr = (char*) calloc(inlength, sizeof(char));
+  outputstr = (char*) calloc(inlength+1, sizeof(char));
 
   /* build output string */
   strcat(outputstr, name_str);
@@ -232,7 +235,7 @@ processor(diet_profile_t* pb)
       strcat(outputstr,separator_c);
   }
   strcat(outputstr,parRight_c);
-  fprintf(stderr, "INPUT STRING = %s (len=%d) (%p)\n", outputstr, strlen(outputstr), outputstr);
+  fprintf(stderr, "INPUT STRING = %s (len=%d)\n", outputstr, strlen(outputstr));
 
   /* store output in profile */
   if (nb_out == 1) {
@@ -247,7 +250,7 @@ processor(diet_profile_t* pb)
     }
   } else {
     for (i=0; i<nb_out; i++) {
-      Noutputstr = (char*) calloc(inlength, sizeof(char));
+      Noutputstr = (char*) calloc(inlength+1, sizeof(char));
       /* remplacer $ par l'index du port */
       sprintf(buffer,"%d",i);
       strcpy(Noutputstr, outputstr);
