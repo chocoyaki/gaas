@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2009/07/20 12:53:13  bisnard
+ * obsoleted file storing persistent data IDs on client when using DTM
+ *
  * Revision 1.1  2009/07/07 08:57:21  bisnard
  * Created new file by transferring functions from DIET_client.
  * Added new parameters to functions request_submission, diet_call_common
@@ -449,7 +452,7 @@ diet_call_common(MasterAgent_var& MA,
     j++;
   }
   if(found == true){
-     create_file();
+//     create_file();
   }
 #if ! HAVE_JUXMEM
   /* data property base_type and type retrieval: used for scheduler */
@@ -595,7 +598,7 @@ diet_call_async_common(MasterAgent_var& MA,
       j++;
     }
     if(found == true){
-      create_file();
+//       create_file();
     }
 #endif
 

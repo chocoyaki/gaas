@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.38  2009/07/20 12:53:12  bisnard
+ * obsoleted file storing persistent data IDs on client when using DTM
+ *
  * Revision 1.37  2008/04/16 08:27:07  ycaniou
  * C++ commentaries -> C commentaries to avoid warnings
  *
@@ -140,7 +143,7 @@ extern "C" {
 
 
 
-  
+
 /****************************************************************************/
 /* A DIET client can submit several request in one session.                 */
 /****************************************************************************/
@@ -170,17 +173,21 @@ diet_get(diet_data_handle_t* handle);
 diet_error_t
 diet_free(diet_data_handle_t* handle);
 
+/* obsoleted
 void
 create_file();
+*/
 
   /** stores identifier of a eprsistent data in a file in the client directory */
 void
 store_id(char* argID, char* msg);
 
-void 
+/* obsoleted
+void
 create_header();
+*/
 
-int 
+int
 diet_free_persistent_data(char *id);
 
 /****************************************************************************/
@@ -223,7 +230,7 @@ diet_get_handle(grpc_function_handle_t** handle,
 
 /* Save the specified handle and associate it to a sessionID */
 void
-diet_save_handle(diet_reqID_t sessionID, 
+diet_save_handle(diet_reqID_t sessionID,
 		 grpc_function_handle_t* handle);
 
 /* Set the error code of the defined session (reqID) */
@@ -250,7 +257,7 @@ diet_wait_all();
 diet_error_t
 diet_wait_any(diet_reqID_t* IDptr);
 
-/* 
+/*
  * return the error code of the asynchronous call identified by reqID
  */
 diet_error_t
@@ -266,8 +273,8 @@ diet_error_string(diet_error_t error);
 diet_error_t
 diet_get_failed_session(diet_reqID_t* reqIdPtr);
 /*
- * check if one of the requests contained in the array id reqIdArray has 
- * completed. 
+ * check if one of the requests contained in the array id reqIdArray has
+ * completed.
  * Return the completed request ID if exist. Otherwise return an error code
  */
 diet_error_t
@@ -299,8 +306,8 @@ diet_wf_free(diet_wf_desc_t * profile);
 
      void
      nodeIsRunning(const char * node_id);
- 
-     void 
+
+     void
      nodeIsStarting(const char * node_id);
 
      void

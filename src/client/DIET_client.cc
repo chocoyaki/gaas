@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.135  2009/07/20 12:53:13  bisnard
+ * obsoleted file storing persistent data IDs on client when using DTM
+ *
  * Revision 1.134  2009/07/07 08:55:50  bisnard
  * Reorganized code in two libraries: new library DIETCall contains all
  * core client functions & classes (including request_submission,
@@ -715,7 +718,7 @@ get_diet_services(int *services_number){
 /****************************************************************
  *   creation of the file that stores identifiers               *
  ***************************************************************/
-
+/*
 void create_file()
 {
   sprintf(file_Name,"/tmp/ID_FILE.%s.%d",MA_Name,num_Session);
@@ -738,14 +741,14 @@ void create_header()
   f.write(header_msg,cpt);
   f.close();
 }
-
+*/
 /****************************************************************
  *   Add handler id with message msg in the file                *
  ***************************************************************/
 
 void store_id(char* argID, char* msg)
 {
-
+/*
   size_t cpt;
 
   char* msg1 = new char[strlen(msg)+2];
@@ -759,6 +762,7 @@ void store_id(char* argID, char* msg)
   cpt = strlen(msg1);
   f.write(msg1,cpt);
   f.close();
+  */
 }
 
 
