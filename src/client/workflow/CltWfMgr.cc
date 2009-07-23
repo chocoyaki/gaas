@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.32  2009/07/23 12:26:06  bisnard
+ * new API method to get functional wf results as a container
+ *
  * Revision 1.31  2009/07/09 13:41:16  bisnard
  * fixed bug with loglevel
  *
@@ -509,7 +512,17 @@ CltWfMgr::wfFunctionalCall(diet_wf_desc_t * profile) {
   string wfName(profile->name);
 
   FWorkflow *wf = new FWorkflow(wfName);
-  FWfParser reader(*wf, profile->abstract_wf);  //TODO use initFromXmlFile()
+
+  // Initialize data file
+  string dataFileName = defaultDataFileName;
+  if (profile->dataFile) {
+    dataFileName = profile->dataFile;
+  }
+  TRACE_TEXT (TRACE_MAIN_STEPS,"XML DATA SOURCE FILE = " << dataFileName << endl);
+  wf->setDataSrcXmlFile(dataFileName);
+
+  // Parse workflow
+  FWfParser reader(*wf, profile->abstract_wf);
   try {
 
     TRACE_TEXT (TRACE_MAIN_STEPS,"Parsing WORKFLOW XML" << endl);
@@ -528,12 +541,6 @@ CltWfMgr::wfFunctionalCall(diet_wf_desc_t * profile) {
   }
 
   TRACE_TEXT (TRACE_MAIN_STEPS, "*** Initialize functional wf ****" << endl);
-  string dataFileName = defaultDataFileName;
-  if (profile->dataFile) {
-    dataFileName = profile->dataFile;
-  }
-  TRACE_TEXT (TRACE_MAIN_STEPS,"XML DATA SOURCE FILE = " << dataFileName << endl);
-  wf->setDataSrcXmlFile(dataFileName);
   try {
     wf->initialize();
   } catch (XMLParsingException& e) {
@@ -835,6 +842,30 @@ CltWfMgr::getWfOutputContainer(diet_wf_desc_t* profile,
     else return 1;
   }
   else return 1;
+}
+
+int
+CltWfMgr::getWfSinkContainer(diet_wf_desc_t* profile,
+                             const char * id,
+                             char** dataID) {
+  map<diet_wf_desc_t*,NodeSet*>::iterator nsp = myProfiles.find(profile);
+  if (nsp == myProfiles.end())
+    return 1;
+  FWorkflow * wf = dynamic_cast<FWorkflow*>(nsp->second);
+  if (wf == NULL)
+    return 1;
+  try {
+    string dataIDStr;
+    wf->getSinkContainer(id, dataIDStr);
+    *dataID = strdup(dataIDStr.c_str());
+  } catch (const WfStructException& e) {
+    WARNING("Cannot get sink results: " << e.ErrorMsg() << endl);
+    return 1;
+  } catch (const WfDataException& e) {
+    WARNING("Invalid sink result: " << e.ErrorMsg() << endl);
+    return 1;
+  }
+  return 0;
 }
 
 /**

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2009/07/23 12:26:06  bisnard
+ * new API method to get functional wf results as a container
+ *
  * Revision 1.8  2009/05/15 10:58:47  bisnard
  * minor changes due to conditional nodes test
  *
@@ -52,7 +55,7 @@
    argv[2]: path of the worflow description file */
 
 void usage(char * s) {
-  fprintf(stderr, "Usage: %s <file.cfg> dag|dagNR|wf <wf_file> [data_file]\n", s);
+  fprintf(stderr, "Usage: %s <file.cfg> dag|wf <wf_file> [data_file]\n", s);
   exit(1);
 }
 int checkUsage(int argc, char ** argv) {
@@ -70,7 +73,7 @@ main(int argc, char* argv[])
   wf_level_t wfType;
   struct timeval t1, t2;
   float time;
-  short noRes = 0;
+  char *resultsContID;
 
   checkUsage(argc, argv);
 
@@ -85,9 +88,6 @@ main(int argc, char* argv[])
     wfType = DIET_WF_DAG;
   } else if (!strcmp(argv[2],"wf")) {
     wfType = DIET_WF_FUNCTIONAL;
-  } else if (!strcmp(argv[2],"dagNR")) {
-    wfType = DIET_WF_DAG;
-    noRes = 1;
   } else {
     usage(argv[0]);
   }
@@ -117,12 +117,12 @@ main(int argc, char* argv[])
     gettimeofday(&t2, NULL);
     time = (t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000;
     printf("The workflow submission succeed / time= %f s\n",time);
-    if (!noRes) {
-      printf("Display results:\n");
-      if (!get_all_results(profile)) {
-        printf("Could not display results\n");
-      }
+
+    printf("Display results:\n");
+    if (!get_all_results(profile)) {
+      printf("Could not display results\n");
     }
+
   }
   else {
     printf("The workflow submission failed\n");

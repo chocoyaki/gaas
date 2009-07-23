@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.136  2009/07/23 12:26:05  bisnard
+ * new API method to get functional wf results as a container
+ *
  * Revision 1.135  2009/07/20 12:53:13  bisnard
  * obsoleted file storing persistent data IDs on client when using DTM
  *
@@ -1246,13 +1249,31 @@ diet_wf_get_reqID() {
 }
 
 /**
+ * Check the type of workflow
+ * @param profile workflow profile ref
+ * @param wf_level  type of workflow
+ * @return 1 if workflow profile does not match wf_level
+ */
+int
+wf_check_profile_level(diet_wf_desc_t* profile,
+                       wf_level_t wf_level) {
+  if (!profile) {
+    ERROR("Null workflow profile", 1);
+  }
+  if (profile->level != wf_level) {
+    WARNING("Invalid type of workflow (dag or functional)");
+    return 1;
+  }
+  return 0;
+}
+
+/**
  * Interdependent dags execution method
  */
 diet_error_t
 diet_wf_multi_call(diet_wf_desc_t* profile, int wfReqID) {
-  if (profile->level != DIET_WF_DAG) {
+  if (wf_check_profile_level(profile, DIET_WF_DAG))
     return 1;
-  }
   profile->wfReqID = wfReqID;
   return CltWfMgr::instance()->wfDagCall(profile);
 }
@@ -1275,6 +1296,8 @@ int
 _diet_wf_scalar_get(diet_wf_desc_t * profile,
                     const char * id,
 		    void** value) {
+  if (wf_check_profile_level(profile, DIET_WF_DAG))
+    return 1;
   return CltWfMgr::instance()->getWfOutputScalar(profile, id, value);
 } // end _diet_wf_scalar_get
 
@@ -1286,6 +1309,8 @@ int
 _diet_wf_string_get(diet_wf_desc_t * profile,
                     const char * id,
 		    char** value) {
+  if (wf_check_profile_level(profile, DIET_WF_DAG))
+    return 1;
   return CltWfMgr::instance()->getWfOutputString(profile, id, value);
 } // end _diet_wf_string_get
 
@@ -1294,6 +1319,8 @@ int
 _diet_wf_file_get(diet_wf_desc_t * profile,
                   const char * id,
 		  size_t* size, char** path) {
+  if (wf_check_profile_level(profile, DIET_WF_DAG))
+    return 1;
   return CltWfMgr::instance()->getWfOutputFile(profile, id, size, path);
 }
 
@@ -1302,6 +1329,8 @@ _diet_wf_matrix_get(diet_wf_desc_t * profile,
                     const char * id, void** value,
 		    size_t* nb_rows, size_t *nb_cols,
 		    diet_matrix_order_t* order) {
+  if (wf_check_profile_level(profile, DIET_WF_DAG))
+    return 1;
   return CltWfMgr::instance()->getWfOutputMatrix(profile, id, value, nb_rows, nb_cols, order);
 }
 
@@ -1309,6 +1338,8 @@ int
 _diet_wf_container_get(diet_wf_desc_t * profile,
                        const char * id,
                        char** dataID) {
+  if (wf_check_profile_level(profile, DIET_WF_DAG))
+    return 1;
   return CltWfMgr::instance()->getWfOutputContainer(profile, id, dataID);
 }
 
@@ -1326,6 +1357,19 @@ get_all_results(diet_wf_desc_t * profile) {
       ;
   }
 } // end get_all_results
+
+/**
+ * Get a container containing the data received by a sink
+ * in a functional workflow
+ */
+int
+diet_wf_sink_get(diet_wf_desc_t * profile,
+                 const char * id,
+                 char** dataID) {
+  if (wf_check_profile_level(profile, DIET_WF_FUNCTIONAL))
+    return 1;
+  return CltWfMgr::instance()->getWfSinkContainer(profile, id, dataID);
+}
 
 #endif // HAVE_WORKFLOW
 

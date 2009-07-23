@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.67  2009/07/23 12:25:20  bisnard
+ * new API method to get functional wf results as a container
+ *
  * Revision 1.66  2009/06/23 09:21:31  bisnard
  * added new estimation vector entry (EST_EFT)
  *
@@ -744,22 +747,43 @@ typedef struct {
 } diet_wf_desc_t;
 
 /**
- * Allocate a workflow diet profile *
- * @param wf_file_name is the file name that contains the workflow description *
- * @param wf_name is the name of the workflow (used in logs) *
- * @param wf_level is the type of workflow *
+ * Allocate a workflow diet profile
+ * @param wf_file_name is the file name that contains the workflow description
+ * @param wf_name is the name of the workflow (used in logs)
+ * @param wf_level is the type of workflow
  */
 diet_wf_desc_t*
 diet_wf_profile_alloc(const char* wf_file_name,
                       const char* wf_name,
                       wf_level_t wf_level);
 
+/**
+ * Set the name of the file containing data used by a functional workflow
+ * @param profile is the functional wf profile ref
+ * @param data_file_name is the full name of the file containing data (in XML)
+ */
 void
 diet_wf_profile_set_data_file(diet_wf_desc_t * profile,
                               const char * data_file_name);
 
+/**
+ * Free ressources of a workflow
+ * @param profile is the dag / functional wf profile ref
+ */
 void
 diet_wf_profile_free(diet_wf_desc_t * profile);
+
+/**
+ * Generic function to display all workflow outputs on standard output
+ * (may be used for dag or functional wf)
+ * @param profile is the dag / functional wf profile ref
+ */
+int get_all_results(diet_wf_desc_t * profile);
+
+/**
+ * Get results of a DAG workflow
+ * The 'id' parameter is the port complete id (ex: 'nodeA#out')
+ */
 
 #define diet_wf_scalar_get(profile, id, value) \
   _diet_wf_scalar_get(profile, id, (void**)value)
@@ -802,7 +826,18 @@ _diet_wf_container_get(diet_wf_desc_t * profile,
                        const char * id,
                        char** dataID);
 
-int get_all_results(diet_wf_desc_t * profile);
+/**
+ * Get results of a FUNCTIONAL workflow
+ * Use sink nodes to get access to workflow results
+ * @param profile is the functional wf profile ref
+ * @param id is the id ('name' attribute) of the sink node
+ * @param dataID returns the DAGDA ID of a container containing the results
+ */
+
+int
+diet_wf_sink_get(diet_wf_desc_t * profile,
+                 const char * id,
+                 char** dataID);
 
 #endif /* HAVE_WORKFLOW */
 

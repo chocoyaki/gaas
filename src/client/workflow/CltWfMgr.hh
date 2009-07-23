@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2009/07/23 12:26:06  bisnard
+ * new API method to get functional wf results as a container
+ *
  * Revision 1.16  2009/06/23 09:19:34  bisnard
  * use new classname for WfLogService
  * added missing exception catch in execNodeCommon
@@ -211,7 +214,7 @@ public:
   printAllFunctionalWfResults(diet_wf_desc_t* profile);
 
   /**
-   * Get a scalar result from a workflow
+   * Get a scalar result from a dag
    */
    int
    getWfOutputScalar(diet_wf_desc_t* profile,
@@ -219,7 +222,7 @@ public:
 		   void** value);
 
   /**
-   * Get a string result from a workflow
+   * Get a string result from a dag
    */
    int
    getWfOutputString(diet_wf_desc_t* profile,
@@ -227,7 +230,7 @@ public:
 		   char** value);
 
   /**
-   * Get a file result from a workflow
+   * Get a file result from a dag
    */
    int
    getWfOutputFile(diet_wf_desc_t* profile,
@@ -235,7 +238,7 @@ public:
 		   size_t* size, char** path);
 
   /**
-   * Get a matrix result from a workflow
+   * Get a matrix result from a dag
    */
    int
    getWfOutputMatrix(diet_wf_desc_t* profile,
@@ -246,12 +249,21 @@ public:
 		   diet_matrix_order_t* order);
 
   /**
-   * Get a container result from a workflow
+   * Get a container result from a dag
    */
   int
   getWfOutputContainer(diet_wf_desc_t* profile,
                        const char * id,
                        char** dataID);
+
+  /**
+   * Get sink results from a functional workflow
+   * @return dataID contains the DAGDA ID of a container containing all results
+   */
+  int
+  getWfSinkContainer(diet_wf_desc_t* profile,
+                     const char * id,
+                     char** dataID);
 
   /**
    * terminate a workflow session and free the memory
