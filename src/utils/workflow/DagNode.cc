@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2009/07/23 12:26:34  bisnard
+ * added some const to WfDataException
+ *
  * Revision 1.19  2009/07/09 07:18:38  bisnard
  * fixed bug with getWorkflow()
  *
@@ -151,7 +154,7 @@ RunnableNode::run() {
 /*                                                                          */
 /****************************************************************************/
 string
-WfDataException::ErrorMsg() {
+WfDataException::ErrorMsg() const {
   string errorMsg;
   switch(Type()) {
     case eNOTFOUND:

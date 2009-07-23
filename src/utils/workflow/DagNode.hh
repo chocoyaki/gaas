@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2009/07/23 12:26:34  bisnard
+ * added some const to WfDataException
+ *
  * Revision 1.12  2009/07/09 07:18:38  bisnard
  * fixed bug with getWorkflow()
  *
@@ -116,9 +119,9 @@ class WfDataException {
                            eINVALID_VALUE };
     WfDataException(WfDataErrorType t, const string& info)
       { this->why = t; this->info = info; }
-    WfDataErrorType Type() { return this->why; }
-    const string& Info() { return this->info; }
-    string ErrorMsg();
+    WfDataErrorType Type() const { return this->why; }
+    const string& Info() const { return this->info; }
+    string ErrorMsg() const;
   private:
     WfDataErrorType why;
     string info;
