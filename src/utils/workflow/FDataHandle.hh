@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2009/07/23 12:33:41  bisnard
+ * removed attribute myPortLevel
+ * added new attribute myPortElementIndexes
+ * modified port adapter creation for simple adapters
+ *
  * Revision 1.11  2009/06/15 12:22:30  bisnard
  * use new class WfValueAdapter for adapters with constant value
  * added attributes myCompletionDepth & myValueType
@@ -567,9 +572,6 @@ class FDataHandle {
     void
         setAsVoid();
 
-    unsigned int
-        getPortLevel() const;
-
     /**
      * the tag associated with this data handle
      */
@@ -589,6 +591,11 @@ class FDataHandle {
      * the port providing the data (if applicable)
      */
     DagNodeOutPort* myPort;
+
+    /**
+     * the list of indexes of the port element (if ADAPTER_SIMPLE)
+     */
+    list<unsigned int>* myPortElementIndexes;
 
     /**
      * type of port adapter
@@ -614,12 +621,6 @@ class FDataHandle {
      * data depth (if container)
      */
     unsigned int myDepth;
-
-    /**
-     * port level (tag level of the port providing the data)
-     * (defined only for SIMPLE or DIRECT typeAdapter)
-     */
-    unsigned int myPortLevel;
 
     /**
      * data cardinal (if it is a container)

@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2009/07/23 12:33:41  bisnard
+ * removed attribute myPortLevel
+ * added new attribute myPortElementIndexes
+ * modified port adapter creation for simple adapters
+ *
  * Revision 1.12  2009/07/10 11:35:56  bisnard
  * changed value format for scalar values (removed XML tags)
  *
@@ -77,6 +82,7 @@ FDataTag::initStr() {
   ostringstream ss;
   for (int ix=0; ix < mySize; ++ix) {
     ss << "_" << myIdxs[ix];
+//     if (myLastFlags[ix]) ss << "L";
   }
   myStr = ss.str();
 }
@@ -326,9 +332,10 @@ WfDataHandleException::ErrorMsg() {
  */
 
 FDataHandle::FDataHandle()
-  : myTag(), myDepth(0), myParentHdl(NULL), myPort(NULL), myPortLevel(0),
+  : myTag(), myDepth(0), myParentHdl(NULL), myPort(NULL),
     myCard(0), cardDef(false), valueDef(false), myCompletionDepth(0),
-    dataIDDef(false), myAdapterType(ADAPTER_UNDEFINED), myCardList(NULL) {}
+    dataIDDef(false), myAdapterType(ADAPTER_UNDEFINED), myCardList(NULL),
+    myPortElementIndexes(NULL) {}
 
 FDataHandle::FDataHandle(const FDataTag& tag,
                          unsigned int depth,
@@ -336,9 +343,9 @@ FDataHandle::FDataHandle(const FDataTag& tag,
                          DagNodeOutPort* port,
                          unsigned int portLevel)
   : myTag(tag), myDepth(depth), myParentHdl(NULL), myPort(port),
-    myPortLevel(portLevel), myCard(0), cardDef(false), myCompletionDepth(0),
+    myCard(0), cardDef(false), myCompletionDepth(0),
     valueDef(false), dataIDDef(false), myAdapterType(ADAPTER_UNDEFINED),
-    myCardList(NULL) {
+    myCardList(NULL), myPortElementIndexes(NULL) {
 //   TRACE_TEXT (TRACE_ALL_STEPS, "Creating data handle : tag = " << tag.toString()
 //        << " / depth=" << depth  << " / void=" << isVoid << " / port=" << port
 //        << " / portLevel=" << portLevel );
@@ -355,6 +362,10 @@ FDataHandle::FDataHandle(const FDataTag& tag,
     } else {
 //       TRACE_TEXT (TRACE_ALL_STEPS, " / adapter = simple" << endl);
       myAdapterType = ADAPTER_SIMPLE;
+      myPortElementIndexes = new list<unsigned int>();
+      for (int ix = portLevel + 1; ix <= myTag.getLevel(); ++ix) {
+        myPortElementIndexes->push_back(myTag.getIndex(ix));
+      }
     }
   }
   else if (isVoid) {
@@ -373,9 +384,9 @@ FDataHandle::FDataHandle(const FDataTag& tag,
                          unsigned int depth,
                          FDataHandle* parentHdl)
   : myTag(tag), myDepth(depth), myParentHdl(parentHdl), myPort(NULL),
-    myPortLevel(0), myCard(0), cardDef(false), myCompletionDepth(0),
+    myCard(0), cardDef(false), myCompletionDepth(0), myPortElementIndexes(NULL),
     valueDef(false), dataIDDef(false), myAdapterType(ADAPTER_UNDEFINED),
-    myCardList(NULL), myValueType(WfCst::TYPE_UNKNOWN) {
+    myCardList(NULL), myValueType(WfCst::TYPE_UNKNOWN)  {
 //   TRACE_TEXT (TRACE_ALL_STEPS, "Creating data handle : tag = " << tag.toString()
 //        << " / depth=" << depth << " / parent=" << parentHdl );
   if (myDepth > 0)
@@ -389,7 +400,13 @@ FDataHandle::FDataHandle(const FDataTag& tag,
       myAdapterType = ADAPTER_SIMPLE;
       // inherit the port information
       myPort = parentHdl->myPort;
-      myPortLevel = parentHdl->myPortLevel;
+//       myPortLevel = parentHdl->myPortLevel;
+      if (parentHdl->myPortElementIndexes)
+        myPortElementIndexes = new list<unsigned int>(*parentHdl->myPortElementIndexes);
+      else
+        myPortElementIndexes = new list<unsigned int>();
+      myPortElementIndexes->push_back(tag.getLastIndex());
+
     } else if (parentHdl->isVoid()) {
       // VOID IS PROPAGATED TO CHILDS AUTOMATICALLY (at construction time only)
       // TRACE_TEXT (TRACE_ALL_STEPS, " / adapter = VOID" << endl);
@@ -407,19 +424,20 @@ FDataHandle::FDataHandle(const FDataTag& tag,
 FDataHandle::FDataHandle(const FDataTag& tag,
                          WfCst::WfDataType valueType,
                          const string& value)
-  : myTag(tag), myDepth(0), myValue(value), myParentHdl(NULL), myPortLevel(0),
+  : myTag(tag), myDepth(0), myValue(value), myParentHdl(NULL),
     myPort(NULL), myCard(0), cardDef(true), valueDef(true), myValueType(valueType),
     dataIDDef(false), myAdapterType(ADAPTER_VALUE), myCardList(NULL),
-    myCompletionDepth(0) {
+    myCompletionDepth(0), myPortElementIndexes(NULL) {
 //   TRACE_TEXT (TRACE_ALL_STEPS, "Creating data handle : tag = " << myTag.toString()
 //        << " / value=" << value << " / adapter = VALUE " << endl);
 }
 
 FDataHandle::FDataHandle(unsigned int depth)
-  : myTag(), myDepth(depth), myValue(), myParentHdl(NULL), myPortLevel(0),
+  : myTag(), myDepth(depth), myValue(), myParentHdl(NULL),
     myPort(NULL), myCard(0), cardDef(false), valueDef(false),
     dataIDDef(false), myAdapterType(ADAPTER_UNDEFINED), myCardList(NULL),
-    myValueType(WfCst::TYPE_UNKNOWN), myCompletionDepth(0) {
+    myValueType(WfCst::TYPE_UNKNOWN), myCompletionDepth(0),
+    myPortElementIndexes(NULL) {
 //   TRACE_TEXT (TRACE_ALL_STEPS, "Creating data handle : tag = " << myTag.toString()
 //        << " / depth=" << depth << endl);
   if (myDepth > 0)
@@ -428,12 +446,12 @@ FDataHandle::FDataHandle(unsigned int depth)
 
 /**
  * Special copy constructor with tag modification
- * Used for control structures (IF) that use port mappings
- * Tag must be modified because of input operators that may be applied on IF node ports
+ * Used for control structures (IF,WHILE) that use port mappings
+ * Tag is modified due to input operators or loop iterations
  */
 FDataHandle::FDataHandle(const FDataTag& tag, const FDataHandle& src)
   : myTag(tag), myDepth(src.myDepth), myValue(src.myValue), myParentHdl(NULL),
-    myPortLevel(src.myPortLevel), myPort(src.myPort), myCard(src.myCard),
+    myPort(src.myPort), myCard(src.myCard), myPortElementIndexes(NULL),
     cardDef(src.cardDef), valueDef(src.valueDef), myValueType(src.myValueType),
     dataIDDef(src.dataIDDef), myAdapterType(src.myAdapterType), myCardList(NULL),
     myDataID(src.myDataID), myCompletionDepth(src.myCompletionDepth) {
@@ -441,6 +459,9 @@ FDataHandle::FDataHandle(const FDataTag& tag, const FDataHandle& src)
 //                                << src.myTag.toString() << endl);
   if (myDepth > 0)
     myData = new map<FDataTag,FDataHandle*>();
+  if (src.myPortElementIndexes)
+    myPortElementIndexes = new list<unsigned int>(*src.myPortElementIndexes);
+  // Copy the childs if applicable
   if (myAdapterType == ADAPTER_MULTIPLE) {
     if (!cardDef) {
       INTERNAL_ERROR("Cannot copy a MULTIPLE DH if cardinal not defined",1);
@@ -478,6 +499,8 @@ FDataHandle::~FDataHandle() {
     delete myData;
     if (myCardList) delete myCardList;
   }
+  if (myPortElementIndexes)
+    delete myPortElementIndexes;
 }
 
 /**
@@ -564,12 +587,6 @@ FDataHandle::getSourcePort() const throw (WfDataHandleException) {
     throw WfDataHandleException(WfDataHandleException::eINVALID_ADAPT,
                                 "Cannot get source port - tag="
                                          + getTag().toString());
-}
-
-// private
-unsigned int
-FDataHandle::getPortLevel() const {
-  return myPortLevel;
 }
 
 // private
@@ -713,20 +730,20 @@ FDataHandle::updateAncestors() {
   bool updateParent = false;
   if ((int) minChildCompletionDepth > (int) myCompletionDepth-1) {
     myCompletionDepth = minChildCompletionDepth+1;
-    TRACE_TEXT (TRACE_ALL_STEPS,"**** Completion depth for " << myTag.toString()
-                  << " = " << myCompletionDepth << endl);
+//     TRACE_TEXT (TRACE_ALL_STEPS,"**** Completion depth for " << myTag.toString()
+//                   << " = " << myCompletionDepth << endl);
     updateParent = true;
   }
   if (!isAdapterDefined() && allAdaptersDefined) {
     if (allAdaptersVoid) {
       myAdapterType = ADAPTER_VOID;
-      TRACE_TEXT (TRACE_ALL_STEPS,"**** adapter for " << getTag().toString()
-                  << " is VOID ****" << endl);
+//       TRACE_TEXT (TRACE_ALL_STEPS,"**** adapter for " << getTag().toString()
+//                   << " is VOID ****" << endl);
     } else {
       // this is the only way to set the adapterType to MULTIPLE
       myAdapterType = ADAPTER_MULTIPLE;
-      TRACE_TEXT (TRACE_ALL_STEPS,"**** adapter for " << getTag().toString()
-                  << " is MULTIPLE ****" << endl);
+//       TRACE_TEXT (TRACE_ALL_STEPS,"**** adapter for " << getTag().toString()
+//                   << " is MULTIPLE ****" << endl);
     }
     updateParent = true;
   }
@@ -876,12 +893,7 @@ FDataHandle::createPortAdapter(const string& currDagName) {
 
     } else if (myAdapterType == ADAPTER_SIMPLE) {
       // LINK TO OUTPUT PORT WITH SPLIT (use indexes)
-      list<unsigned int>* adapterIndexes = new list<unsigned int>();
-      for (int ix = getPortLevel() + 1; ix <= myTag.getLevel(); ++ix) {
-        adapterIndexes->push_back(myTag.getIndex(ix));
-      }
-      myAdapter = new WfSimplePortAdapter(myPort,*adapterIndexes,dagName);
-      delete adapterIndexes;
+      myAdapter = new WfSimplePortAdapter(myPort,*myPortElementIndexes,dagName);
     }
   }
   return myAdapter;
