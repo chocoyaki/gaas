@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2009/07/23 12:31:56  bisnard
+ * new methods for sink node results client access
+ * modified access to wf ref for pending instances
+ *
  * Revision 1.12  2009/07/10 12:52:08  bisnard
  * standardized FNodeInPort constructor
  *
@@ -60,6 +64,9 @@
 #include "FWorkflow.hh"
 #include "DagNodePort.hh"
 #include "Dag.hh"
+extern "C" {
+  #include "DIET_Dagda.h"
+}
 
 /**
  * Constructors & destructors
@@ -211,11 +218,9 @@ FNodeOutPort::sendAllData() throw (WfDataHandleException) {
 void
 FNodeOutPort::setPendingDataTransfer(FDataHandle* dataHdl,
                                      FNodeInPort* inPort) {
-  TRACE_TEXT (TRACE_ALL_STEPS,"  - in port (" << inPort->getParent()->getId()
-              << "#" << inPort->getId() << ") insertion pending" << endl);
-  FWorkflow*      wf = getParentProcNode()->getWorkflow();
   DagNodeOutPort* dagOutPort = dynamic_cast<DagNodeOutPort*>(dataHdl->getSourcePort());
   DagNode*        dagNode = dynamic_cast<DagNode*>(dagOutPort->getParent());
+  FWorkflow*      wf = dagNode->getWorkflow();
   wf->setPendingInstanceInfo(dagNode,dataHdl,this,inPort);
 }
 
@@ -443,6 +448,34 @@ FNodeInPort::displayData(ostream& output) {
     }
     output << endl;
   }
+}
+
+void
+FNodeInPort::getDataInContainer(string& containerID) {
+  if (!totalDef) {
+    WARNING("Warning: undefined total nb of results (error during instanciation)" << endl);
+  }
+  char* idCont;
+  dagda_create_container(&idCont);
+  int ix=0;
+  for (map<FDataTag,FDataHandle*>::const_iterator dataIter = myQueue.begin();
+       dataIter != myQueue.end();
+       ++dataIter) {
+    FDataHandle*  currData = (FDataHandle*) dataIter->second;
+    currData->downloadDataID();
+    if (!currData->isVoid()) {
+      const string& idElt = currData->getDataID();
+      if (!idElt.empty())
+        dagda_add_container_element(idCont,idElt.c_str(),ix++);
+      else
+        throw WfDataException(WfDataException::eID_UNDEF,
+                              "Sink '" + id + "' : empty data ID (tag="
+                              + currData->getTag().toString() + ")");
+    } else {
+      dagda_add_container_null_element(idCont,ix++);
+    }
+  }
+  containerID = idCont;
 }
 
 /*****************************************************************************/

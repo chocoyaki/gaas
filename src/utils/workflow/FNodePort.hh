@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2009/07/23 12:31:56  bisnard
+ * new methods for sink node results client access
+ * modified access to wf ref for pending instances
+ *
  * Revision 1.12  2009/07/10 12:52:08  bisnard
  * standardized FNodeInPort constructor
  *
@@ -227,10 +231,10 @@ class FNodeInPort : public FNodePort {
      * Set the port as requiring a value for all received DH
      * (used for control structures: if, loops)
      */
-    void
+    virtual void
         setValueRequired();
 
-    bool
+    virtual bool
         isValueRequired();
 
     /**
@@ -283,6 +287,13 @@ class FNodeInPort : public FNodePort {
      */
     void
         displayData(ostream& output);
+
+    /**
+     * Create a container containing all data items
+     * (used for sinks)
+     */
+    void
+        getDataInContainer(string& containerID);
 
   protected:
 
