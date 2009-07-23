@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2009/07/23 12:30:10  bisnard
+ * new method finalize() for functional wf nodes
+ * removed const on currDataLine parameter for instance creation
+ *
  * Revision 1.5  2009/07/07 09:03:22  bisnard
  * changes for sub-workflows (FWorkflow class now inherits from FProcNode)
  *
@@ -83,7 +87,7 @@ class FIfNode : public FProcNode {
     virtual void
         createRealInstance(Dag* dag,
                            const FDataTag& currTag,
-                           const vector<FDataHandle*>& currDataLine);
+                           vector<FDataHandle*>& currDataLine);
 
   protected:
 
@@ -122,18 +126,18 @@ class FMergeNode : public FProcNode {
     virtual void
         createRealInstance(Dag* dag,
                            const FDataTag& currTag,
-                           const vector<FDataHandle*>& currDataLine);
+                           vector<FDataHandle*>& currDataLine);
 
     virtual void
         createVoidInstance(const FDataTag& currTag,
-                           const vector<FDataHandle*>& currDataLine);
+                           vector<FDataHandle*>& currDataLine);
 
 
   private:
 
     void
         createMergeInstance(const FDataTag& currTag,
-                            const vector<FDataHandle*>& currDataLine);
+                            vector<FDataHandle*>& currDataLine);
 
     FNodeOutPort* myOutPort;
 
@@ -160,11 +164,11 @@ class FFilterNode : public FProcNode {
     virtual void
         createRealInstance(Dag* dag,
                            const FDataTag& currTag,
-                           const vector<FDataHandle*>& currDataLine);
+                           vector<FDataHandle*>& currDataLine);
 
     virtual void
         createVoidInstance(const FDataTag& currTag,
-                           const vector<FDataHandle*>& currDataLine);
+                           vector<FDataHandle*>& currDataLine);
 
   private:
 

@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2009/07/23 12:30:10  bisnard
+ * new method finalize() for functional wf nodes
+ * removed const on currDataLine parameter for instance creation
+ *
  * Revision 1.2  2009/07/10 12:55:59  bisnard
  * implemented while loop workflow node
  *
@@ -31,7 +35,7 @@ class FLoopInPort : public FNodeInPort {
     }
 
     virtual void
-    setNodePrecedence(NodeSet * contextNodeSet) throw (WfStructException);
+        setNodePrecedence(NodeSet * contextNodeSet) throw (WfStructException);
 
   private:
     bool setPrecedence;
@@ -56,10 +60,9 @@ FLoopInPort::setNodePrecedence(NodeSet * contextNodeSet) throw (WfStructExceptio
     WfPort::setNodePrecedence(contextNodeSet);
 }
 
-
 FLoopNode::FLoopNode(FWorkflow* wf,
                      const string& id)
-  : FProcNode(wf,id) , activeInstanceNb(0) {
+  : FProcNode(wf,id) , activeInstanceNb(0), loopTagLength(0) {
   myCondition = new WfBooleanExpression();
   myConditionVars = NULL;
 }
@@ -120,7 +123,7 @@ FLoopNode::connectNodePorts() throw (WfStructException) {
     }
   }
 
-  WfNode::connectNodePorts();
+  FNode::connectNodePorts();
 }
 
 void
@@ -135,6 +138,7 @@ FLoopNode::setDoMap(const string& leftPortName,
     FNodeOutPort* outPort = checkAssignPort<FNodeOutPort>(loopOutPort->getInterfaceRef());
     myFinalOutMap.mapPorts(outPort, loopInPort);
     myFinalLoopMap.mapPortToVoid(loopOutPort);
+    myFinalVoidOutMap.mapPortToVoid(outPort);
   } catch (const WfStructException& e) {
     cerr << "SINK out port for LOOP out port '" << loopOutPort->getId() << "' not found" << endl;
     throw;
@@ -164,6 +168,16 @@ FLoopNode::checkCondition() throw (WfStructException) {
       // DH with a real value
       FNodeInPort* inPort = dynamic_cast<FNodeInPort*>(port);
       inPort->setValueRequired();
+      if (inPort->getPortType() == WfPort::PORT_IN_LOOP) {
+        // set the init port as value required too
+        try {
+          WfPort * port = getPort(inPort->getInterfaceRef());
+          FNodeInPort* initPort = dynamic_cast<FNodeInPort*>(port);
+          initPort->setValueRequired();
+        } catch (const WfStructException& e) {
+          INTERNAL_ERROR("no corresponding in port for inLoop port",1);
+        }
+      }
       // create a new variable
       WfExprVariable* newVar = new WfExprVariable(inPort->getId(), inPort->getDataType());
       newVar->setDefaultValue();
@@ -243,7 +257,7 @@ FLoopNode::testCondition(const vector<FDataHandle*>& currDataLine) {
 
 void
 FLoopNode::instanciate(Dag* dag) {
-  TRACE_TEXT (TRACE_ALL_STEPS,"   ## instanciate loop items : " << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS,"   ## instanciate loop (internally) : " << endl);
   // Process ongoing loops
   vector<FDataHandle*>* loopDataLine = new vector<FDataHandle*>(getPortNb());
   myLoopIterator->begin();
@@ -252,6 +266,11 @@ FLoopNode::instanciate(Dag* dag) {
     // GET DATALINE
     FDataTag currTag = myLoopIterator->getCurrentItem(*loopDataLine);
     myLoopIterator->removeItem();
+
+    // CHECK if tag length matches loop tag length
+    if (currTag.getLevel() != loopTagLength) {
+      INTERNAL_ERROR("Incorrect workflow inside loop",1);
+    }
 
     // CHECK if data received is the last VOID item that terminates the iteration
     if (currTag.isLastOfBranch()) {
@@ -291,29 +310,21 @@ FLoopNode::instanciate(Dag* dag) {
       currTag.getParent();
       myFinalOutMap.applyMap(currTag, *loopDataLine);
 
-      // Update loop node status // FIXME move this to updateInstanciationStatus??
+      // Update nb of active instances (used for status update)
       activeInstanceNb--;
-      if ((activeInstanceNb == 0) && myRootIterator->isDone()) {
-        cout << " ## END OF ALL ITERATIONS" << endl;
-        myStatus = N_INSTANC_END;
-      }
+
     }
   }
   // Process new data
-  TRACE_TEXT (TRACE_ALL_STEPS,"   ## instanciate processor items : " << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS,"   ## instanciate loop (externally) : " << endl);
   FProcNode::instanciate(dag);
 }
 
+/**
+ * Copy the DH of IN ports onto LOOP IN ports
+ */
 void
-FLoopNode::createRealInstance(Dag* dag,
-                              const FDataTag& currTag,
-                              const vector<FDataHandle*>& currDataLine) {
-  TRACE_TEXT (TRACE_ALL_STEPS,"  ## NEW LOOP INSTANCE : " << getId()
-                              << currTag.toString() << endl);
-
-  // copy dataline (because modified later)
-  vector<FDataHandle*>  currDataLineCpy = currDataLine;
-  // map loop in ports on in ports
+FLoopNode::initLoopInPorts(vector<FDataHandle*>& currDataLine) {
   for (map<string, WfPort*>::iterator portIter = ports.begin();
        portIter != ports.end();
        ++portIter) {
@@ -321,26 +332,42 @@ FLoopNode::createRealInstance(Dag* dag,
     if (loopInPort) {
       try {
         WfPort * port = getPort(loopInPort->getInterfaceRef());
-        currDataLineCpy[loopInPort->getIndex()] = currDataLineCpy[port->getIndex()];
+        currDataLine[loopInPort->getIndex()] = currDataLine[port->getIndex()];
       } catch (const WfStructException& e) {
-          cerr << "ERROR: init for inLoop port not found" << endl;
-          throw; //TODO throw exception
+        INTERNAL_ERROR("no corresponding in port for inLoop port",1);
       }
     }
   }
+}
+
+void
+FLoopNode::createRealInstance(Dag* dag,
+                              const FDataTag& currTag,
+                              vector<FDataHandle*>& currDataLine) {
+  TRACE_TEXT (TRACE_ALL_STEPS,"  ## NEW LOOP INSTANCE : " << getId()
+                              << currTag.toString() << endl);
+
+  initLoopInPorts(currDataLine);
 
   // IF EXPRESSION IS +++++ TRUE ++++++
-  if (testCondition(currDataLineCpy)) {
+  if (testCondition(currDataLine)) {
+    TRACE_TEXT (TRACE_ALL_STEPS,"==> While condition is TRUE ==> start LOOP" << endl);
     // create new tag for the first iteration of the loop
     FDataTag* firstIterTag = new FDataTag(currTag,0,false);
     // copy input data to output
-    myDoMap.applyMap(*firstIterTag, currDataLineCpy);
+    myDoMap.applyMap(*firstIterTag, currDataLine);
     delete firstIterTag;
     // This starts a new active instance (used for status update)
     activeInstanceNb++;
+    // Initializes the loop tag length
+    if (!loopTagLength) {
+      loopTagLength = firstIterTag->getLevel();
+      cout << "LOOP TAG LENGTH initialized = " << loopTagLength << endl;
+    }
 
   } else {
-    // TODO
+    TRACE_TEXT (TRACE_ALL_STEPS,"==> While condition is FALSE ==> create VOID instance" << endl);
+    createVoidInstance(currTag, currDataLine);
   }
 }
 
@@ -349,57 +376,18 @@ FLoopNode::createRealInstance(Dag* dag,
 // nodes in the loop to make them completed
 void
 FLoopNode::createVoidInstance(const FDataTag& currTag,
-                              const vector<FDataHandle*>& currDataLine) {
+                              vector<FDataHandle*>& currDataLine) {
   TRACE_TEXT (TRACE_ALL_STEPS,"  ## NEW LOOP VOID INSTANCE : " << getId()
                               << currTag.toString() << endl);
 
-/** This block is a copy of same in createRealInstance **/
-  // copy dataline (because modified later)
-  vector<FDataHandle*>  currDataLineCpy = currDataLine;
-  // map loop in ports on in ports
-  for (map<string, WfPort*>::iterator portIter = ports.begin();
-       portIter != ports.end();
-       ++portIter) {
-    FLoopInPort* loopInPort = dynamic_cast<FLoopInPort*>((WfPort*) portIter->second);
-    if (loopInPort) {
-      try {
-        WfPort * port = getPort(loopInPort->getInterfaceRef());
-        currDataLineCpy[loopInPort->getIndex()] = currDataLineCpy[port->getIndex()];
-      } catch (const WfStructException& e) {
-          cerr << "ERROR: init for inLoop port not found" << endl;
-          throw; //TODO throw exception
-      }
-    }
-  }
-/** end of block **/
+  initLoopInPorts(currDataLine);
+  FDataTag* loopTag = new FDataTag(currTag,0,true);
 
-  activeInstanceNb++;
-  FDataTag* loopTag = new FDataTag(currTag,0,false);
+  // apply VOID mapping for loop out ports
+  myFinalLoopMap.applyMap(*loopTag, currDataLine);
 
-/** This block is a copy of same in instanciate (almost)
- *  (replaced loopDataLine by currDataLineCpy) + diffs due to currTag not defined as previous
- *  loop iteration tag **/
-      // apply VOID mapping for loop out ports
-      cout << "Apply Final Loop mapping" << endl;
-  /*    FDataTag nextTag = currTag; */
-  /*    nextTag.getSuccessor(); */
-      FDataTag nextTag = *loopTag;
-      nextTag.getTagAsLastOfBranch();
-      myFinalLoopMap.applyMap(nextTag, currDataLineCpy);
-
-      // apply output mapping for out ports
-      cout << "Apply Final Out mapping" << endl;
-  /*    currTag.getParent(); */
-      loopTag->getParent();
-      myFinalOutMap.applyMap(*loopTag, currDataLineCpy);
-
-      // Update loop node status // FIXME move this to updateInstanciationStatus??
-      activeInstanceNb--;
-      if ((activeInstanceNb == 0) && myRootIterator->isDone()) {
-        cout << " ## END OF ALL ITERATIONS" << endl;
-        myStatus = N_INSTANC_END;
-      }
-/** end of block **/
+  // apply VOID mapping for out ports
+  myFinalVoidOutMap.applyMap(currTag, currDataLine);
 
   delete loopTag;
 
@@ -410,24 +398,17 @@ FLoopNode::createVoidInstance(const FDataTag& currTag,
 void
 FLoopNode::updateInstanciationStatus() {
   if (myRootIterator->isAtEnd()) {
+    string pfx = "[" + getId() + "] : ";
     if (myRootIterator->isDone()) {
-      TRACE_TEXT (TRACE_ALL_STEPS, "########## ALL INPUTS PROCESSED" << endl);
-//       myStatus = N_INSTANC_END;
+      if (activeInstanceNb == 0) {
+        TRACE_TEXT (TRACE_ALL_STEPS, pfx << "########## ALL ITERATIONS COMPLETED" << endl);
+        myStatus = N_INSTANC_END;
 
-      // CHECK for each out port if the output is empty
-      // NOT APPLICABLE TO WHILE NODES (output not known yet)
-//       for (map<string,WfPort*>::iterator portIter = ports.begin();
-//            portIter != ports.end();
-//            ++portIter) {
-//         WfPort* port = (WfPort*) portIter->second;
-//         if (port->isOutput()) {
-//           FNodeOutPort* outPort = dynamic_cast<FNodeOutPort*>(port);
-//           outPort->checkIfEmptyOutput();
-//         }
-//       }
-
+      } else {  // still some loop instances running
+        TRACE_TEXT (TRACE_ALL_STEPS, pfx << "########## ALL INPUTS PROCESSED" << endl);
+      }
     } else {
-      TRACE_TEXT (TRACE_ALL_STEPS, "########## WAITING FOR INPUTS " << endl);
+      TRACE_TEXT (TRACE_ALL_STEPS, pfx << "########## WAITING FOR INPUTS " << endl);
       myStatus = N_INSTANC_READY;
     }
   }

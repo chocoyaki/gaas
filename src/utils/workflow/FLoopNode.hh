@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2009/07/23 12:30:10  bisnard
+ * new method finalize() for functional wf nodes
+ * removed const on currDataLine parameter for instance creation
+ *
  * Revision 1.2  2009/07/10 12:55:59  bisnard
  * implemented while loop workflow node
  *
@@ -62,11 +66,11 @@ class FLoopNode : public FProcNode {
     virtual void
         createRealInstance(Dag* dag,
                            const FDataTag& currTag,
-                           const vector<FDataHandle*>& currDataLine);
+                           vector<FDataHandle*>& currDataLine);
 
     virtual void
         createVoidInstance(const FDataTag& currTag,
-                           const vector<FDataHandle*>& currDataLine);
+                           vector<FDataHandle*>& currDataLine);
 
     virtual void
         updateInstanciationStatus();
@@ -78,12 +82,15 @@ class FLoopNode : public FProcNode {
 
     bool
         testCondition(const vector<FDataHandle*>& currDataLine);
+    void
+        initLoopInPorts(vector<FDataHandle*>& currDataLine);
 
     vector<WfExprVariable*>*  myConditionVars;
     WfBooleanExpression*      myCondition;
     FNodePortMap  myDoMap;        // used for IN LOOP => OUT LOOP
     FNodePortMap  myFinalOutMap;  // used for IN LOOP => OUT
     FNodePortMap  myFinalLoopMap; // used for VOID => OUT LOOP
+    FNodePortMap  myFinalVoidOutMap;  // used for VOID => OUT
     InputIterator*  myLoopIterator;
 
   private:
@@ -91,6 +98,11 @@ class FLoopNode : public FProcNode {
      * Total nb of running loop instances
      */
     int activeInstanceNb;
+
+    /**
+     * Length of loop tags
+     */
+    unsigned int loopTagLength;
 
 };
 

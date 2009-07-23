@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2009/07/23 12:30:10  bisnard
+ * new method finalize() for functional wf nodes
+ * removed const on currDataLine parameter for instance creation
+ *
  * Revision 1.6  2009/07/10 12:52:08  bisnard
  * standardized FNodeInPort constructor
  *
@@ -156,7 +160,7 @@ FIfNode::setElseMap(const string& leftPortName,
 void
 FIfNode::createRealInstance(Dag* dag,
                             const FDataTag& currTag,
-                            const vector<FDataHandle*>& currDataLine) {
+                            vector<FDataHandle*>& currDataLine) {
   TRACE_TEXT (TRACE_ALL_STEPS,"  ## NEW IF INSTANCE : " << getId()
                               << currTag.toString() << endl);
   FNodePortMap* mapToApply;
@@ -198,7 +202,7 @@ FIfNode::createRealInstance(Dag* dag,
   // Apply the chosen map accordingly
   mapToApply->applyMap(currTag, currDataLine);
 //   myCondition->reset();
-  TRACE_TEXT (TRACE_ALL_STEPS,"  ## END OF CREATION OF NEW IF INSTANCE : "
+  TRACE_TEXT (TRACE_ALL_STEPS,"  ## END IF INSTANCE : "
                               << getId() << currTag.toString() << endl);
 }
 
@@ -239,7 +243,7 @@ FMergeNode::newPort(string portId,
 
 void
 FMergeNode::createMergeInstance(const FDataTag& currTag,
-                                const vector<FDataHandle*>& currDataLine) {
+                                vector<FDataHandle*>& currDataLine) {
   TRACE_TEXT (TRACE_ALL_STEPS,"  ## NEW MERGE INSTANCE : " << getId()
                               << currTag.toString() << endl);
   FDataHandle* srcData = NULL;
@@ -261,14 +265,14 @@ FMergeNode::createMergeInstance(const FDataTag& currTag,
 void
 FMergeNode::createRealInstance(Dag* dag,
                                const FDataTag& currTag,
-                               const vector<FDataHandle*>& currDataLine) {
+                               vector<FDataHandle*>& currDataLine) {
   WARNING("MERGE Node received two non-VOID inputs");
   createMergeInstance(currTag, currDataLine);
 }
 
 void
 FMergeNode::createVoidInstance(const FDataTag& currTag,
-                               const vector<FDataHandle*>& currDataLine) {
+                               vector<FDataHandle*>& currDataLine) {
   createMergeInstance(currTag, currDataLine);
 }
 
@@ -317,8 +321,8 @@ FFilterNode::newPort(string portId,
 
 void
 FFilterNode::createRealInstance(Dag* dag,
-                               const FDataTag& currTag,
-                               const vector<FDataHandle*>& currDataLine) {
+                                const FDataTag& currTag,
+                                vector<FDataHandle*>& currDataLine) {
   TRACE_TEXT (TRACE_ALL_STEPS,"  ## FILTER PROCESSES NON-VOID ITEM : "
                                << currTag.toString() << endl);
   FDataHandle* srcData = currDataLine[0];
@@ -330,7 +334,7 @@ FFilterNode::createRealInstance(Dag* dag,
 
 void
 FFilterNode::createVoidInstance(const FDataTag& currTag,
-                               const vector<FDataHandle*>& currDataLine) {
+                                vector<FDataHandle*>& currDataLine) {
   TRACE_TEXT (TRACE_ALL_STEPS,"  ## FILTER PROCESSES VOID ITEM : "
                                << currTag.toString() << endl);
   FDataHandle* srcData = currDataLine[0];
@@ -512,9 +516,13 @@ FFilterNode::sendDown(FDataHandle* DH, short depth) {
         FDataHandle* childDH = (FDataHandle*) childIter->second;
         if (isReadyAssumingParentIs(childDH->getTag())) {
           sendDown(childDH, depth-1);
+        } else {
+//           cout << "[FILTER] sendDown: child " << childDH->getTag().toString() << " not ready" << endl;
         }
       }
     }
+  } else {
+//     cout << "[FILTER] sendDown stop because DH is Void" << endl;
   }
 }
 

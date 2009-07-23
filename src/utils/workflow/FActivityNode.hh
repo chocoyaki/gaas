@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2009/07/23 12:30:10  bisnard
+ * new method finalize() for functional wf nodes
+ * removed const on currDataLine parameter for instance creation
+ *
  * Revision 1.3  2009/05/15 11:10:20  bisnard
  * release for workflow conditional structure (if)
  *
@@ -85,7 +89,7 @@ class FActivityNode : public FProcNode {
     virtual void
         createRealInstance(Dag* dag,
                            const FDataTag& currTag,
-                           const vector<FDataHandle*>& currDataLine);
+                           vector<FDataHandle*>& currDataLine);
 
     /**
      * Update the FNode instanciation status after data processing loop

@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2009/07/23 12:30:10  bisnard
+ * new method finalize() for functional wf nodes
+ * removed const on currDataLine parameter for instance creation
+ *
  * Revision 1.15  2009/07/10 12:55:59  bisnard
  * implemented while loop workflow node
  *
@@ -123,11 +127,11 @@ public:
   virtual void
       createRealInstance(Dag* dag,
                          const FDataTag& currTag,
-                         const vector<FDataHandle*>& currDataLine);
+                         vector<FDataHandle*>& currDataLine);
 
   virtual void
       createVoidInstance(const FDataTag& currTag,
-                         const vector<FDataHandle*>& currDataLine);
+                         vector<FDataHandle*>& currDataLine);
 
   virtual void
       updateInstanciationStatus();
@@ -141,10 +145,6 @@ public:
 
   const string&
   getDataSrcXmlFile();
-
-  void
-  initFromXmlFile(const string& xmlWfFileName,
-                  const string& xmlDataFileName);
 
   /**
    * creation
@@ -221,6 +221,9 @@ public:
   displayAllResults(ostream& output);
   void
   displayDagSummary(ostream& output);
+  void
+  getSinkContainer(const string& sinkName,
+                   string& containerID);
 
   /**
    * memory free

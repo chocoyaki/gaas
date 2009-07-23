@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2009/07/23 12:30:10  bisnard
+ * new method finalize() for functional wf nodes
+ * removed const on currDataLine parameter for instance creation
+ *
  * Revision 1.17  2009/07/10 12:55:59  bisnard
  * implemented while loop workflow node
  *
@@ -139,13 +143,19 @@ FWorkflow::getInterfaceNode(const string& id) throw (WfStructException) {
 
 void
 FWorkflow::checkPrec(NodeSet* contextNodeSet) throw (WfStructException) {
-  TRACE_TEXT(TRACE_ALL_STEPS, "CHECKING WF PRECEDENCE START" << endl);
+  string pfx = "[" + getId() + "] : ";
+  TRACE_TEXT(TRACE_ALL_STEPS, pfx << "CHECKING WF PRECEDENCE START" << endl);
   // processor nodes
   for (map<string, FProcNode * >::iterator p = myProc.begin();
        p != myProc.end();
        ++p ) {
     FProcNode * node = (FProcNode*) p->second;
     node->setNodePrecedence(contextNodeSet);
+    // sub-workflows
+    FWorkflow* subWf = dynamic_cast<FWorkflow*>(node);
+    if (subWf) {
+      subWf->checkPrec(subWf);
+    }
   }
   // interface nodes (does sth only for sink nodes)
   for (map<string, FNode * >::iterator p = myInterface.begin();
@@ -154,7 +164,21 @@ FWorkflow::checkPrec(NodeSet* contextNodeSet) throw (WfStructException) {
     FNode * node = (FNode *) p->second;
     node->setNodePrecedence(contextNodeSet);
   }
-  TRACE_TEXT(TRACE_ALL_STEPS, "CHECKING WF PRECEDENCE END" << endl);
+  // ports of workflow (for sub-workflows only)
+  for (map<string,WfPort*>::iterator portIter = ports.begin();
+       portIter != ports.end();
+       ++portIter) {
+    FNodePort* wfPort = dynamic_cast<FNodePort*>((WfPort*) portIter->second);
+    try {
+      cout << "Connecting workflow port: " << wfPort->getCompleteId() << endl;
+      FNode* interfNode = getInterfaceNode(wfPort->getInterfaceRef());
+      interfNode->connectToWfPort(wfPort);
+    } catch (const WfStructException& e) {
+      throw WfStructException(e.Type(), string("Unknown reference for sub-workflow interface : ")
+                                        + e.Info());
+    }
+  }
+  TRACE_TEXT(TRACE_ALL_STEPS, pfx << "CHECKING WF PRECEDENCE END" << endl);
 }
 
 FActivityNode*
@@ -340,26 +364,6 @@ void DFS(WfNode* node,
 }
 
 /**
- * FWorkflow XML Parsing
- */
-void
-FWorkflow::initFromXmlFile(const string& xmlWfFileName,
-                           const string& xmlDataFileName) {
-
-  string pfx = "[" + getId() + "] : ";
-  TRACE_TEXT (TRACE_ALL_STEPS, pfx << "*** Parsing WORKFLOW XML" << endl);
-  FWfParser reader(*this, xmlWfFileName);
-  reader.parseXml();
-
-  TRACE_TEXT (TRACE_ALL_STEPS, pfx << "*** Checking WORKFLOW XML structure" << endl);
-  checkPrec(this);
-
-  TRACE_TEXT (TRACE_ALL_STEPS, pfx << "*** Initialize functional wf ****" << endl);
-  setDataSrcXmlFile(xmlDataFileName);
-//   initialize();
-}
-
-/**
  * FWorkflow initialization
  * NOT THREAD SAFE
  * FIXME make it private ?
@@ -370,20 +374,6 @@ FWorkflow::initialize() {
 
   if (getPortNb() > 0) {  // used for sub-workflows
     FProcNode::initialize();
-    // All input ports must be interfaced to sources & outputs to sinks
-    TRACE_TEXT (TRACE_ALL_STEPS, pfx << "Checking interfaces" << endl);
-    for (map<string,WfPort*>::iterator portIter = ports.begin();
-      portIter != ports.end();
-      ++portIter) {
-      FNodePort* wfPort = dynamic_cast<FNodePort*>((WfPort*) portIter->second);
-      try {
-        FNode* interfNode = getInterfaceNode(wfPort->getInterfaceRef());
-        interfNode->connectToWfPort(wfPort);
-      } catch (const WfStructException& e) {
-        throw WfStructException(e.Type(), string("Unknown reference for sub-workflow interface : ")
-                                          + e.Info());
-      }
-    }
   }
 
   TRACE_TEXT (TRACE_ALL_STEPS,pfx << "Sorting processors..." << endl);
@@ -492,6 +482,8 @@ FWorkflow::instanciate(Dag * dag) {
     interfNode->resumeInstanciation();
     if (interfNode->instanciationReady())
       interfNode->instanciate(NULL);
+    if (interfNode->instanciationCompleted())
+      interfNode->finalize();
   }
 
   TRACE_TEXT (TRACE_ALL_STEPS, pfx << "###### Instanciate processors..." << endl);
@@ -525,6 +517,7 @@ FWorkflow::instanciate(Dag * dag) {
       }
       // if fully instanciated, remove from todo list
       if (currProc->instanciationCompleted()) {
+        currProc->finalize();
         TRACE_TEXT (TRACE_MAIN_STEPS,"#### Processor " << currProc->getId()
                       << " instanciation COMPLETE" << endl);
         procIter = todoProc.erase(procIter);
@@ -544,6 +537,8 @@ FWorkflow::instanciate(Dag * dag) {
     FSinkNode* sinkNode = dynamic_cast<FSinkNode*>((FNode*) iter->second);
     if (sinkNode) {
       sinkNode->instanciate(NULL);
+      if (sinkNode->instanciationCompleted())
+        sinkNode->finalize();
     }
   }
 
@@ -579,45 +574,56 @@ FWorkflow::instanciate(Dag * dag) {
   myDags.push_back(dag);
 }
 
+/**
+ * Create one instance of the workflow (USED FOR SUB-WORKFLOWS)
+ */
 void
 FWorkflow::createRealInstance(Dag* dag,
                               const FDataTag& currTag,
-                              const vector<FDataHandle*>& currDataLine) {
+                              vector<FDataHandle*>& currDataLine) {
   // LOOP for each source
   for (map<string, FNode *>::iterator interfIter = myInterface.begin();
        interfIter != myInterface.end();
        ++interfIter) {
     FSourceNode * source = dynamic_cast<FSourceNode*>((FNode*) interfIter->second);
     if (source) {
-      source->instanciate(currTag, currDataLine); // get DH from DataLine and send it
+      source->createInstance(currTag, currDataLine);
     }
   } // end for interface nodes
 }
 
+/**
+ * Create one VOID instance of the workflow (USED FOR SUB-WORKFLOWS)
+ */
 void
 FWorkflow::createVoidInstance(const FDataTag& currTag,
-                              const vector<FDataHandle*>& currDataLine) {
+                              vector<FDataHandle*>& currDataLine) {
   createRealInstance(NULL,currTag,currDataLine);
 }
 
+/**
+ * Update instanciation status: USED FOR SUB-WORKFLOWS ONLY
+ */
 void
 FWorkflow::updateInstanciationStatus() {
   string pfx = "[" + getId() + "] : ";
   if (myRootIterator->isAtEnd()) {
     if (myRootIterator->isDone()) {
-      TRACE_TEXT (TRACE_ALL_STEPS, pfx << "########## ALL INPUTS PROCESSED" << endl);
-//      myStatus = N_INSTANC_END; (NOT APPLICABLE FOR SUB-WORKFLOWS)
 
-      // CHECK for each out port if the output is empty  TODO check if could be optimized
-      for (map<string,WfPort*>::iterator portIter = ports.begin();
-           portIter != ports.end();
-           ++portIter) {
-        WfPort* port = (WfPort*) portIter->second;
-        if (port->isOutput()) {
-          FNodeOutPort* outPort = dynamic_cast<FNodeOutPort*>(port);
-          outPort->checkIfEmptyOutput();
+      // LOOP for each source - set them as completed
+      // (sources cannot update their status themselves as they don't use an iterator)
+      for (map<string, FNode *>::iterator interfIter = myInterface.begin();
+           interfIter != myInterface.end();
+           ++interfIter) {
+        FSourceNode * source = dynamic_cast<FSourceNode*>((FNode*) interfIter->second);
+        if (source) {
+          source->setAsComplete();
         }
-      }
+      } // end for interface nodes
+
+      TRACE_TEXT (TRACE_ALL_STEPS, pfx << "########## ALL INPUTS PROCESSED" << endl);
+      // status not updated here but in the instanciate() method because instanciation
+      // is completed only after all nodes of the wf have been completed
 
     } else {
       TRACE_TEXT (TRACE_ALL_STEPS, pfx << "########## WAITING FOR INPUTS " << endl);
@@ -638,6 +644,18 @@ FWorkflow::displayAllResults(ostream& output) {
                << " was cancelled => no results **" << endl;
     }
   }
+  // get all sink containers ID
+  for (map<string,FNode*>::const_iterator nodeIter = myInterface.begin();
+       nodeIter != myInterface.end();
+       ++nodeIter) {
+    FSinkNode *sink = dynamic_cast<FSinkNode*>((FNode*) nodeIter->second);
+    if (sink != NULL) {
+      string containerID;
+      sink->getResultsInContainer(containerID);
+      output << "## WF OUTPUT (" << sink->getId() << ") container ID = "
+             << containerID << endl;
+    }
+  }
   // display all sink results
   for (map<string,FNode*>::const_iterator nodeIter = myInterface.begin();
        nodeIter != myInterface.end();
@@ -647,6 +665,18 @@ FWorkflow::displayAllResults(ostream& output) {
       sink->displayResults(output);
     }
   }
+}
+
+void
+FWorkflow::getSinkContainer(const string& sinkName,
+                            string& containerID) {
+  FNode* interfNode = getInterfaceNode(sinkName);
+  FSinkNode *sink = dynamic_cast<FSinkNode*>(interfNode);
+  if (sink)
+    sink->getResultsInContainer(containerID);
+  else
+    throw WfStructException(WfStructException::eUNKNOWN_NODE,
+                            "Sink name="+sinkName);
 }
 
 void
@@ -673,8 +703,9 @@ FWorkflow::setPendingInstanceInfo(DagNode * dagNode,
   info.inPort  = inPort;
   pendingNodes.insert(make_pair(dagNode,info));
   string pfx = "[" + getId() + "] : ";
-  TRACE_TEXT (TRACE_ALL_STEPS, pfx << "Added one entry (tag=" << dataHdl->getTag().toString()
-              << ") in pending list (size = " << pendingNodes.size() << ")" << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS, pfx << "new PENDING dag node ("
+                              << dagNode->getId() << ") for IN port (" << inPort->getCompleteId()
+                              << ")" << endl);
 }
 
 /**

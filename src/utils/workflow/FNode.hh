@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2009/07/23 12:31:04  bisnard
+ * new method finalize() for functional wf nodes
+ * removed const on currDataLine parameter for instance creation
+ *
  * Revision 1.16  2009/07/10 12:55:59  bisnard
  * implemented while loop workflow node
  *
@@ -141,6 +145,13 @@ public:
 
   virtual void
       instanciate(Dag* dag) = 0;
+
+ /**
+   * Finalize - called once after instanciation is completed
+   *  - check if output ports have 0 items and updates connected ports if yes
+   */
+  virtual void
+      finalize();
 
   /**
    * Instanciation status: ready to process data
@@ -301,14 +312,13 @@ class FSourceNode : public FNode {
         connectToWfPort(FNodePort* port); // used for sub-workflows
 
     virtual void
-        initialize();
-
-    virtual void
         instanciate(Dag* dag); // parameter is not used
 
     virtual void
-        instanciate(const FDataTag& currTag,
-                    const vector<FDataHandle*>& currDataLine); // used for sub-workflows
+        createInstance(const FDataTag& currTag,
+                       vector<FDataHandle*>& currDataLine); // used for sub-workflows
+    virtual void
+        setAsComplete();  // used for sub-workflows
 
   protected:
     /**
@@ -357,13 +367,18 @@ class FSinkNode : public FNode {
      virtual void
          displayResults(ostream& output);
 
+     virtual void
+         getResultsInContainer(string& containerID);
+
   private:
 
     static string inPortName;
     FNodeInPort* myInPort;
 
-    FNodeOutPort* myConnectedPort; // used for sub-workflows
+    // used for sub-workflows
+    FNodeOutPort* myConnectedPort;
     bool  isConnected;
+    PortInputIterator*  myIterator;
 
 }; // end class FSinkNode
 
@@ -462,11 +477,11 @@ class FProcNode : public FNode {
     virtual void
         createRealInstance(Dag* dag,
                            const FDataTag& currTag,
-                           const vector<FDataHandle*>& currDataLine) = 0;
+                           vector<FDataHandle*>& currDataLine) = 0;
 
     virtual void
         createVoidInstance(const FDataTag& currTag,
-                           const vector<FDataHandle*>& currDataLine);
+                           vector<FDataHandle*>& currDataLine);
 
     virtual void
         updateInstanciationStatus();
