@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.32  2009/07/23 12:29:11  bisnard
+ * separated sub-workflow parsing and precedence check
+ *
  * Revision 1.31  2009/07/10 12:55:59  bisnard
  * implemented while loop workflow node
  *
@@ -806,7 +809,14 @@ FWfParser::createNode(const DOMElement* element, const string& elementName) {
     if (classIter == myClassFiles.end())
       throw XMLParsingException(XMLParsingException::eINVALID_REF,
                               "Unknown workflow class (missing include) : " + nclass);
-    subWf->initFromXmlFile((string) classIter->second, workflow.getDataSrcXmlFile());
+    // Parse the workflow XML
+    string xmlWfFileName = (string) classIter->second;
+    TRACE_TEXT (TRACE_ALL_STEPS, "Parsing SUB-WORKFLOW '" << name << "' XML" << endl);
+    FWfParser reader(*subWf, xmlWfFileName);
+    reader.parseXml();
+    // Set the data file for the sub-wf
+    subWf->setDataSrcXmlFile(workflow.getDataSrcXmlFile());
+
     node = (WfNode*) subWf;
 
   } else {
@@ -1214,6 +1224,10 @@ DataSourceParser::parseXml(const string& dataFileName) throw (XMLParsingExceptio
 
   TRACE_TEXT(TRACE_ALL_STEPS, "PARSING XML START" << endl);
 
+  if (dataFileName.empty())
+    throw XMLParsingException(XMLParsingException::eINVALID_DATA,
+                              "Empty XML File name");
+
   SAX2XMLReader* parser = XMLReaderFactory::createXMLReader();
   parser->setFeature(XMLUni::fgSAX2CoreValidation, false);
   parser->setFeature(XMLUni::fgSAX2CoreNameSpaces, false);
@@ -1231,6 +1245,8 @@ DataSourceParser::parseXml(const string& dataFileName) throw (XMLParsingExceptio
                               "Invalid XML in data source file");
   }
 
+  delete defaultHandler;
+  delete parser;
   TRACE_TEXT(TRACE_ALL_STEPS, "PARSING XML END" << endl);
 }
 
