@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2009/07/24 15:10:41  bisnard
+ * corrected creation of void instance of merge node
+ *
  * Revision 1.7  2009/07/23 12:30:10  bisnard
  * new method finalize() for functional wf nodes
  * removed const on currDataLine parameter for instance creation
@@ -247,19 +250,21 @@ FMergeNode::createMergeInstance(const FDataTag& currTag,
   TRACE_TEXT (TRACE_ALL_STEPS,"  ## NEW MERGE INSTANCE : " << getId()
                               << currTag.toString() << endl);
   FDataHandle* srcData = NULL;
+  FDataHandle *outData = NULL;
   vector<FDataHandle*>::const_iterator DLIter = currDataLine.begin();
   while ((!srcData || srcData->isVoid()) && !(DLIter == currDataLine.end()))
     srcData = (FDataHandle*) *(DLIter++);
+
   if (srcData && !srcData->isVoid()) {
     // we have got a non-VOID datahandle on one of our inputs
     // COPY the input DH (with all its child tree)
-    FDataHandle *dataHdl = new FDataHandle(currTag, *srcData);
-    // Submit to out port (ie will send it to connected ports)
-    myOutPort->storeData(dataHdl);
-    myOutPort->sendData(dataHdl);
+    outData = new FDataHandle(currTag, *srcData);
   } else {
-    INTERNAL_ERROR("Merge node received 2 void inputs",1);
+    outData = myOutPort->createVoidInstance(currTag);
   }
+  // Submit to out port (ie will send it to connected ports)
+  myOutPort->storeData(outData);
+  myOutPort->sendData(outData);
 }
 
 void
