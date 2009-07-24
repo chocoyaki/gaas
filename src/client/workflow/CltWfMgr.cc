@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.33  2009/07/24 15:06:46  bisnard
+ * XML validation using DTD for functional workflows
+ *
  * Revision 1.32  2009/07/23 12:26:06  bisnard
  * new API method to get functional wf results as a container
  *
@@ -526,7 +529,7 @@ CltWfMgr::wfFunctionalCall(diet_wf_desc_t * profile) {
   try {
 
     TRACE_TEXT (TRACE_MAIN_STEPS,"Parsing WORKFLOW XML" << endl);
-    reader.parseXml();
+    reader.parseXml(true);
     TRACE_TEXT (TRACE_MAIN_STEPS,"*** Checking WORKFLOW XML structure" << endl);
     wf->checkPrec(wf);
 

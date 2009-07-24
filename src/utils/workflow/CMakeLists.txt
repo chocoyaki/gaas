@@ -34,6 +34,8 @@ IF( DIET_BUILD_LIBRARIES )
 
   INSTALL_TARGETS( /lib/ UtilsWf )
 
+  INSTALL_FILES( /etc/ FILES FWorkflow.dtd )
+
 #    ADD_EXECUTABLE( wftest WfUnitTest.cc )
 #    TARGET_LINK_LIBRARIES( wftest UtilsWf DIET_client)
 #    INSTALL_TARGETS( /bin/ wftest )

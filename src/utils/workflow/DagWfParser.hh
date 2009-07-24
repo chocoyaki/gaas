@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2009/07/24 15:06:46  bisnard
+ * XML validation using DTD for functional workflows
+ *
  * Revision 1.22  2009/07/10 12:55:59  bisnard
  * implemented while loop workflow node
  *
@@ -100,6 +103,7 @@
 #include <xercesc/dom/DOMDocument.hpp>
 #include <xercesc/dom/DOMNodeList.hpp>
 #include <xercesc/dom/DOMError.hpp>
+#include <xercesc/dom/DOMErrorHandler.hpp>
 #include <xercesc/dom/DOMLocator.hpp>
 #include <xercesc/dom/DOMNamedNodeMap.hpp>
 #include <xercesc/dom/DOMElement.hpp>
@@ -128,7 +132,8 @@ using namespace std;
 
 class XMLParsingException {
   public:
-    enum XMLParsingErrorType { eUNKNOWN_TAG,
+    enum XMLParsingErrorType { eUNKNOWN,
+                               eUNKNOWN_TAG,
                                eUNKNOWN_ATTR,
                                eEMPTY_ATTR,
                                eBAD_STRUCT,
@@ -164,9 +169,10 @@ public:
 
   /**
    * Parse the XML
+   * @param checkValid  if true a warning is displayed if no DTD provided
    */
   void
-  parseXml();
+  parseXml(bool checkValid = false);
 
   /**
    * utility method to get the attribute value in a DOM element
@@ -580,6 +586,18 @@ class DataSourceHandler : public DefaultHandler {
 
 
 };
+
+/*****************************************************************************/
+/*                    CLASS MyDOMErrorHandler                                */
+/*****************************************************************************/
+
+class MyDOMErrorHandler : public DOMErrorHandler {
+
+  virtual bool
+      handleError (const DOMError &domError);
+
+};
+
 
 #endif   /* not defined _DAGWFPARSER_HH */
 

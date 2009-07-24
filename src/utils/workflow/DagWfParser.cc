@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.33  2009/07/24 15:06:46  bisnard
+ * XML validation using DTD for functional workflows
+ *
  * Revision 1.32  2009/07/23 12:29:11  bisnard
  * separated sub-workflow parsing and precedence check
  *
@@ -157,6 +160,8 @@ string
 XMLParsingException::ErrorMsg() {
   string errorMsg;
   switch(Type()) {
+    case eUNKNOWN:
+      errorMsg = "UNDEFINED ERROR (" + Info() + ")"; break;
     case eBAD_STRUCT :
       errorMsg = "BAD XML STRUCTURE (" + Info() + ")"; break;
     case eEMPTY_ATTR :
@@ -171,6 +176,20 @@ XMLParsingException::ErrorMsg() {
       errorMsg = "INVALID DATA (" + Info() + ")"; break;
   }
   return errorMsg;
+}
+
+/**
+ * Error handler for workflow parser
+ */
+bool
+MyDOMErrorHandler::handleError (const DOMError &domError) {
+  char* errorMsg = XTOC(domError.getMessage());
+  WARNING("XML Error: " << errorMsg);
+  XREL(errorMsg);
+  if (domError.getSeverity() == DOMError::DOM_SEVERITY_WARNING)
+    return true;
+  else  // exceptions cannot be thrown here - parser *should* stop if false
+    return false;
 }
 
 /**
@@ -281,17 +300,37 @@ DagWfParser::getPortMap(const string& thenMapStr,
 }
 
 /**
- * Parse the XML Document
+ * Parse the XML Document using DOM Parser (common part for Dag and Functional WF)
  */
 void
-DagWfParser::parseXml() {
+DagWfParser::parseXml(bool checkValid) {
   const XMLCh gLS[] = { chLatin_L, chLatin_S, chNull };
 
-  TRACE_TEXT(TRACE_ALL_STEPS, "PARSING XML START" << endl);
+  TRACE_TEXT(TRACE_ALL_STEPS, "INITIALIZE XML PARSER" << endl);
   DOMImplementation *impl = DOMImplementationRegistry::getDOMImplementation(gLS);
   DOMLSParser *parser = impl->createLSParser(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
-  Wrapper4InputSource * wrapper;
+  MyDOMErrorHandler* errHandler = new MyDOMErrorHandler();
 
+  // Validation
+  if (parser->getDomConfig()->canSetParameter(XMLUni::fgDOMValidateIfSchema, true)) {
+    TRACE_TEXT(TRACE_ALL_STEPS, "Activating XML Validation" << endl);
+    parser->getDomConfig()->setParameter(XMLUni::fgDOMValidateIfSchema, true);
+    parser->getDomConfig()->setParameter(XMLUni::fgXercesValidationErrorAsFatal, true);
+  } else {
+    TRACE_TEXT(TRACE_ALL_STEPS, "XML Validation cannot be activated" << endl);
+  }
+
+  // Error handler
+  if (parser->getDomConfig()->canSetParameter(XMLUni::fgDOMErrorHandler, errHandler)) {
+    TRACE_TEXT(TRACE_ALL_STEPS, "Activating XML Error handler" << endl);
+    parser->getDomConfig()->setParameter(XMLUni::fgDOMErrorHandler, errHandler);
+  } else {
+    TRACE_TEXT(TRACE_ALL_STEPS, "XML Error handler cannot be activated" << endl);
+  }
+
+  // Wrapper
+  Wrapper4InputSource * wrapper;
+  string errorMsgPfx;
   if (myXmlFileName.empty()) {
 
     // INITIALIZE FROM BUFFER
@@ -309,23 +348,42 @@ DagWfParser::parseXml() {
 
     // INITIALIZE FROM FILE
     TRACE_TEXT(TRACE_ALL_STEPS, "PARSING FROM FILE: " << myXmlFileName << endl);
+    errorMsgPfx = "In file " + myXmlFileName + " : ";
     XMLCh* xmlFileName = CTOX(myXmlFileName.c_str());
     LocalFileInputSource * fileBufIS = new LocalFileInputSource(xmlFileName);
     wrapper = new Wrapper4InputSource(fileBufIS);
 //     XREL(xmlFileName);
   }
   // PARSE
-  this->document = parser->parse((DOMLSInput*) wrapper);
-
-  if (document == NULL) {
-    throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
-                              "XML File not found");
+  TRACE_TEXT(TRACE_ALL_STEPS, "PARSING XML START" << endl);
+  try {
+    this->document = parser->parse((DOMLSInput*) wrapper);
+  } catch (...) {
+    WARNING(errorMsgPfx << "Unexpected exception during XML Parsing");
+    throw XMLParsingException(XMLParsingException::eUNKNOWN,"");
   }
+
+  if (document == NULL)
+    throw XMLParsingException(XMLParsingException::eUNKNOWN,
+                              "XML File not found");
+
+  // Check if DTD was provided
+  if (checkValid && !document->getDoctype()) {
+    WARNING(errorMsgPfx << "XML is not validated (no DTD provided)" << endl
+             << "Use <!DOCTYPE workflow SYSTEM \"[DIET_INSTALL_DIR]/etc/FWorkflow.dtd\">"
+             << " instruction to provide it");
+  }
+
   DOMNode * root = (DOMNode*)(document->getDocumentElement());
+  if (root == NULL)
+    throw XMLParsingException(XMLParsingException::eUNKNOWN,
+                              "No details available");
 
   // Parse the root element
   parseRoot(root);
 
+  delete errHandler;
+  delete parser;
   TRACE_TEXT(TRACE_ALL_STEPS, "PARSING XML END" << endl);
 }
 
@@ -801,7 +859,7 @@ FWfParser::createNode(const DOMElement* element, const string& elementName) {
   } else if (elementName == "loop") {
     node = workflow.createLoop(name);
 
-  } else if (elementName == "workflow") {
+  } else if (elementName == "subWorkflow") {
     FWorkflow*  subWf = workflow.createSubWorkflow(name);
     // initialize workflow from XML file defined in the <include> tag
     checkMandatoryAttr(elementName,"class",nclass);
@@ -813,7 +871,7 @@ FWfParser::createNode(const DOMElement* element, const string& elementName) {
     string xmlWfFileName = (string) classIter->second;
     TRACE_TEXT (TRACE_ALL_STEPS, "Parsing SUB-WORKFLOW '" << name << "' XML" << endl);
     FWfParser reader(*subWf, xmlWfFileName);
-    reader.parseXml();
+    reader.parseXml(true);
     // Set the data file for the sub-wf
     subWf->setDataSrcXmlFile(workflow.getDataSrcXmlFile());
 
@@ -880,44 +938,6 @@ FWfParser::parseInOut(const DOMElement * element,
   return port;
 }
 
-/*
-//TODO refactor parseOut, parseOutThen, parseOutElse (add portType parameter)
-void
-FWfParser::parseOutThen(const DOMElement * element,
-                        const unsigned int portIndex,
-                        WfNode * node) {
-  string name  = getAttributeValue("name", element);
-  string type  = getAttributeValue("type", element);
-  string depth = getAttributeValue("depth", element);
-  checkMandatoryAttr("outThen","name",name);
-  checkMandatoryAttr("outThen","type",name);
-  checkLeafElement(element,"outThen");
-
-  if (!WfCst::isMatrixType(type)) {
-    setParam(WfPort::PORT_OUT_THEN, name, type, depth, portIndex, node);
-  } else {
-    setMatrixParam(element, WfPort::PORT_OUT_THEN, name, portIndex, node);
-  }
-}
-
-void
-FWfParser::parseOutElse(const DOMElement * element,
-                        const unsigned int portIndex,
-                        WfNode * node) {
-  string name  = getAttributeValue("name", element);
-  string type  = getAttributeValue("type", element);
-  string depth = getAttributeValue("depth", element);
-  checkMandatoryAttr("outElse","name",name);
-  checkMandatoryAttr("outElse","type",name);
-  checkLeafElement(element,"outElse");
-
-  if (!WfCst::isMatrixType(type)) {
-    setParam(WfPort::PORT_OUT_ELSE, name, type, depth, portIndex, node);
-  } else {
-    setMatrixParam(element, WfPort::PORT_OUT_ELSE, name, portIndex, node);
-  }
-}*/
-
 /**
  * Parse Param port element (only for functional wf)
  */
@@ -960,7 +980,6 @@ FWfParser::parseCardAttr(const DOMElement * element, WfPort* port) {
 /**
  * Parse a link
  * This will create the portAdapter object within the TO node port
- * FIXME at this stage we dont know wether the link is a back link or not!
  */
 void
 FWfParser::parseLink(const DOMElement * element) {
