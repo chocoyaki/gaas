@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2009/07/30 09:37:23  bisnard
+ * added diet_wf_free after workflow completion
+ *
  * Revision 1.9  2009/07/23 12:26:06  bisnard
  * new API method to get functional wf results as a container
  *
@@ -128,7 +131,7 @@ main(int argc, char* argv[])
     printf("The workflow submission failed\n");
   }
 
-//   diet_wf_free(profile);
+  diet_wf_free(profile);
   diet_finalize();
   fflush(stdout);
   return 0;
