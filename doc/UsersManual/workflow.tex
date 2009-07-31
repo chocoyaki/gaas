@@ -21,6 +21,8 @@ The workflow supports in \diet needs the following:
 \begin{itemize}
 \item The Xerces library: the XML handling code is written with
   Xerces-C++ using the provided DOM API.
+\item The XQilla library: the conditions in conditional or looping workflow structures are written in
+  XQuery language and parsed using the XQilla library.
 \item Enable the workflow support when compiling \diet. In order to build \diet with workflow support using \textit{cmake}, two
 configuration parameters need to be set:
 
@@ -28,6 +30,8 @@ configuration parameters need to be set:
 \item \texttt{DIET\_USE\_WORKFLOW} as follow: \texttt{-DDIET\_USE\_WORKFLOW:BOOL=ON}
 \item \texttt{XERCES\_DIR}: defines the path to Xerces installation directory.
   (for example \texttt{-DXERCES\_DIR:PATH=/usr/local/xerces})
+\item \texttt{XQILLA\_DIR}: defines the path to XQilla installation directory.
+  (for example \texttt{-DXQILLA\_DIR:PATH=/usr/local/xqilla})
 \end{itemize}
 
 This is an example of generating command line:
@@ -38,13 +42,15 @@ This is an example of generating command line:
 
 \verb|      -DXERCES_DIR=/usr/local/xerces|
 
+\verb|      -DXQILLA_DIR=/usr/local/xqilla|
 
 \paragraph{}
 Workflow support was tested in the following configurations:
 
 \begin{itemize}
 \item gcc version 4.0.2 and higher.
-\item \textit{Xerces} 2.7.
+\item \textit{Xerces} 3.0.1
+\item \textit{XQilla} 2.2.0
 \end{itemize}
 \end{itemize}
 
@@ -52,7 +58,7 @@ Workflow support was tested in the following configurations:
 %\label{sec:wf_examples}
 
 The directory \texttt{examples/workflow} includes some examples of
-workflows.  You can find a simple workflow (see
+workflows.  You can find a simple DAG workflow (see
 Figure~\ref{fig:example1}) in the file \texttt{xml/scalar.xml} and you
 can test it with the following command:
 
@@ -71,7 +77,7 @@ needed services. (read Chapter~\ref{ch:server} for more details).
 \begin{figure}[htbp]
   \centering
   \includegraphics[keepaspectratio,width=0.4\linewidth]{fig/wf_example1}
-  \caption{Workflow example}
+  \caption{DAG example}
   \label{fig:example1}
 \end{figure}
 
@@ -93,7 +99,8 @@ needed services. (read Chapter~\ref{ch:server} for more details).
 A new agent called the \textit{\madag} is used to manage workflows
 in the DIET architecture. This agent receives requests from clients
 containing the description of a workflow in a specific language
-(the \madag XML workflow language). The role of the \madag is to
+(the \madag XML workflow language for DAGs or the GWENDIA workflow
+language for functional workflows). The role of the \madag is to
 determine how to schedule the tasks contained in the workflow in
 order to follow the precedence constraints between tasks, and how to
 map the tasks to appropriate ressources in the DIET hierarchy.
@@ -234,10 +241,18 @@ methods provided by the \diet workflow API.
     Workflow function & Description \\\hline
     %
     \texttt{diet\_wf\_desc\_t*  \newline
-      diet\_wf\_profile\_alloc(const char* wf\_file\_name);}
+      diet\_wf\_profile\_alloc(const char* wf\_file\_name, const char* wf\_name, wf\_level\_t wf\_level);}
     &
     allocate a workflow profile to be used for a workflow submission.\newline
     \textit{wf\_file\_name} : the file name containing the workflow XML description.
+    \textit{wf\_name} : the name of the workflow (used for logs)
+    \textit{wf\_level} : specifier for workflow type (DAG or FUNCTIONAL)
+    \\\hline
+    %
+    \texttt{void  \newline
+      diet\_wf\_profile\_set\_data\_file(diet\_wf\_desc\_t * profile, const char * data\_file\_name);}
+    &
+    specifies the file containing the data list used to generate the workflow (only for FUNCTIONAL workflows)
     \\\hline
     %
     \texttt{void  \newline
@@ -310,16 +325,23 @@ methods provided by the \diet workflow API.
     print all the results of the current executed workflow.
     \\\hline
     %
+    \texttt{void \newline
+      void diet\_wf\_sink\_get(diet\_wf\_desc\_t* wf\_profile, const char * id, char** dataID;}
+    &
+    get a container (DAGDA data) containing all the data received by a 'sink' node (only for
+    FUNCTIONAL workflows)
+    \\\hline
+    %
   \end{tabular}
   \caption{Diet workflow API}
   \label{tab::wf_api}
 \end{table}
 
 
-\subsection{Workflow description}
+\subsection{DAG description}
 \label{sec:workflow_desc}
 
-The workflow is described with an XML representation which is close
+A DAG is described with an XML representation which is close
 to \diet profile representation. In addition to profile description
 (problem path and arguments), this description represents also the
 data dependencies between ports (source/sink), the node identifier
@@ -389,7 +411,7 @@ this XML description:
 \subsubsection{Example 1 : the simplest example}
 \label{sec:ex1}
 
-This examples represents the basic client code to execute a workflow.
+This examples represents the basic client code to execute a DAG.
 The line 26 indicates that the workflow output is a double value named
 \verb|n4#out4|. The example shown in Figure~\ref{fig:example1} can be
 fully (execution and result retrieving) executed with this client.
@@ -418,7 +440,7 @@ int main(int argc, char* argv[])
     return 1;
   }
   fileName = argv[2];
-  profile = diet_wf_profile_alloc(fileName);
+  profile = diet_wf_profile_alloc(fileName,"test",DIET_WF_DAG);
   if (!diet_wf_call(profile)) {
     printf("get result = %d ", diet_wf_scalar_get("n4#out4", &l));
     printf("%ld\n", (long)(*l));
@@ -496,10 +518,10 @@ The available \madag workflow schedulers are:
 
 \item A basic scheduler (option -basic or default choice) :
 this scheduler manages the precedence constraints between the tasks. The
- priority between tasks within a dag is set according (Heterogeneous 
+ priority between tasks within a dag is set according (Heterogeneous
 Earliest Finish Time) HEFT~\cite{heft_cpop} heuristic. When a task is ready to be
 executed (ie the preceding tasks are completed) the ready task with the higher
-HEFT rank is sent to the client for execution without specifying a ressource. 
+HEFT rank is sent to the client for execution without specifying a ressource.
 Then The client performs a standard DIET request that will use the scheduler
 configured by the SeD.
 
@@ -530,7 +552,7 @@ concurrent workflow and the actual estimated finish time.
 
 The workflow schedulers (Basic, Multi-HEFT, Multi-AgingHEFT and FOFT) use
 information provided by the SeDs to be able to run the HEFT heuristic. So the
-SeD programmer must provide the required data in the estimation vector by 
+SeD programmer must provide the required data in the estimation vector by
 implementing a plugin scheduler (see chapter~\ref{ch:plugin}).
 
 The following fields in the estimation vector must be filled in:
@@ -539,17 +561,12 @@ The following fields in the estimation vector must be filled in:
 computation time for the job (in milliseconds). This can be done using the
 \texttt{diet\_estimate\_comptime(estVector\_t ev, double value)} method
 within the performance evaluation function.
-\item The \texttt{USERDEFINED} field must contain the estimation of the
+\item The \texttt{EFT} field must contain the estimation of the
 earliest finish time (in milliseconds from the time of the current submit
 request) for the job. To compute this value, the SeD programmer can use
 the API method \\
-\texttt{diet\_estimate\_list\_jobs(...)} to retrieve the
-estimated values of computation time for all the jobs active on the SeD
-(ie jobs waiting for solve or jobs being solved). There is an example of
-this EFT calculation in the simple case of sequential SeD available in
-the workflow examples (scalar\_server or file\_server).
-In future release, a function to calculate EFT value and fill the 
-\texttt{EFT} field be add in the SeD API. 
+\texttt{diet\_estimate\_eft(...)} to retrieve the
+estimated value of earliest finish time for a new job.
 \end{enumerate}
 
 % \subsection{Writing a new scheduler}
