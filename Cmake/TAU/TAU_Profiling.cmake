@@ -96,12 +96,22 @@ ELSE( NOT TAU_MAKEFILE_PATH )
 
 
   CONFIGURE_FILE(
-    ${CMAKE_MODULE_PATH}/TAU/TAU_preprocessor.py
-    ${CMAKE_CURRENT_BINARY_DIR}/TAU_preprocessor.py
+    ${CMAKE_MODULE_PATH}/TAU/TAU_preprocessor_cxx.py
+    ${CMAKE_CURRENT_BINARY_DIR}/TAU_preprocessor_cxx.py
     @ONLY
     )
-  SET( CMAKE_CXX_COMPILER "${CMAKE_CURRENT_BINARY_DIR}/TAU_preprocessor.py" CACHE FILEPATH "TAU compiler." FORCE )
-  SET( CMAKE_C_COMPILER "${CMAKE_CURRENT_BINARY_DIR}/TAU_preprocessor.py" CACHE FILEPATH "TAU compiler." FORCE )
+  CONFIGURE_FILE(
+    ${CMAKE_MODULE_PATH}/TAU/TAU_preprocessor_c.py
+    ${CMAKE_CURRENT_BINARY_DIR}/TAU_preprocessor_c.py
+    @ONLY
+    )
+  CONFIGURE_FILE(
+    ${CMAKE_MODULE_PATH}/TAU/TAU_preprocessor_f90.py
+    ${CMAKE_CURRENT_BINARY_DIR}/TAU_preprocessor_f90.py
+    @ONLY
+    )
+  SET( CMAKE_CXX_COMPILER "${CMAKE_CURRENT_BINARY_DIR}/TAU_preprocessor_cxx.py" CACHE FILEPATH "TAU compiler." FORCE )
+  SET( CMAKE_C_COMPILER "${CMAKE_CURRENT_BINARY_DIR}/TAU_preprocessor_c.py" CACHE FILEPATH "TAU compiler." FORCE )
 
 ENDIF( NOT TAU_MAKEFILE_PATH )
 
