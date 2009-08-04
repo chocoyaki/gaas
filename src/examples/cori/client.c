@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2009/08/04 12:11:35  bdepardo
+ * Corrected data management
+ *
  * Revision 1.1  2006/01/25 21:39:06  pfrauenk
  * CoRI Example dmatmips replaced by a simple fibonacci example
  *
@@ -77,6 +80,7 @@ main(int argc, char* argv[])
     return 1;
   }
   
+  diet_free_data(diet_parameter(profile,1));
   diet_profile_free(profile);
   diet_finalize();
 

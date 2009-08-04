@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2009/08/04 12:11:35  bdepardo
+ * Corrected data management
+ *
  * Revision 1.2  2006/07/06 23:09:32  eboix
  *    Cori examples are now build (when required). --- Injay2461
  *
@@ -70,17 +73,19 @@ int
 solve_fib(diet_profile_t* pb)
 {
   int res = 0;
-  long tmp;
+  long * tmp = NULL;
   
   /* For integers, we can use the longest type to store values
      of smaller types. */
   long* l1 = NULL;
   diet_scalar_get(diet_parameter(pb,0), &l1, NULL);
+  diet_scalar_get(diet_parameter(pb,1), &tmp, NULL);
   printf("Solve fibonacci %ld...\n", *l1);
 
-  tmp = fibonacci(*l1);
+  *tmp = fibonacci(*l1);
 
-  diet_scalar_desc_set(diet_parameter(pb,1), &tmp);
+  diet_scalar_desc_set(diet_parameter(pb,1), tmp);
+  
   diet_free_data(diet_parameter(pb,0));
 
   printf("Solve fibonacci ... done\n");
