@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2009/08/06 14:00:53  bdepardo
+ * Linear version of Fibonacci
+ *
  * Revision 1.3  2009/08/04 12:11:35  bdepardo
  * Corrected data management
  *
@@ -32,6 +35,9 @@
 #define NB_SRV 1
 static const char* SRV[NB_SRV] =
   {"FIBO"};
+
+
+long (*fibonacci_algo)(long);
 
 void
 set_up_scheduler(char * schedulertype,diet_profile_desc_t* profile);
@@ -65,6 +71,21 @@ long fibonacci( long n )
           return fibonacci( n - 1 ) + fibonacci( n - 2 );
 }
 
+long fibonacci_linear( long n )
+{
+  long i;
+  long * map = (long*) malloc(sizeof(long)*(n+1));
+  map[0] = 0;
+  map[1] = 1;
+  for (i = 2; i < n+1; ++i)
+    map[i] = map[i-1] + map[i-2];
+
+  i = map[n];
+  free(map);
+  return i;
+}
+
+
 /*
  * SOLVE FUNCTION
  */
@@ -82,7 +103,8 @@ solve_fib(diet_profile_t* pb)
   diet_scalar_get(diet_parameter(pb,1), &tmp, NULL);
   printf("Solve fibonacci %ld...\n", *l1);
 
-  *tmp = fibonacci(*l1);
+/*   *tmp = fibonacci(*l1); */
+  *tmp = (*fibonacci_algo)(*l1);
 
   diet_scalar_desc_set(diet_parameter(pb,1), tmp);
   
@@ -95,7 +117,7 @@ solve_fib(diet_profile_t* pb)
 int
 usage(char* cmd)
 {
-  fprintf(stderr, "Usage: %s <file.cfg> <LOADAVG|DEFAULT>\n", cmd);
+  fprintf(stderr, "Usage: %s <file.cfg> <LOADAVG|DEFAULT> [linear|exponential]\n", cmd);
   return 1;
 }
 
@@ -116,6 +138,18 @@ main(int argc, char* argv[])
   }
   scheduler_name=argv[2];
   diet_service_table_init(NB_SRV);
+
+
+  fibonacci_algo = &fibonacci;
+  if (argc == 4) {
+    if (!strcmp("linear",argv[3])) {
+      fibonacci_algo = &fibonacci_linear;
+      printf("## Algorithm: linear\n");
+    } else
+      printf("## Algorithm: recursive\n");
+  } else
+      printf("## Algorithm: recursive\n");
+
 
   profile = diet_profile_desc_alloc(SRV[0], 0, 0, 1);
   diet_generic_desc_set(diet_param_desc(profile,0), DIET_SCALAR, DIET_LONGINT);

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2009/08/06 14:00:52  bdepardo
+ * Linear version of Fibonacci
+ *
  * Revision 1.2  2009/08/04 12:11:35  bdepardo
  * Corrected data management
  *
@@ -65,6 +68,7 @@ main(int argc, char* argv[])
      printf("too big number! %ld\n", (long)l1);
      exit(1);
   }
+
   printf("Before the call: fibo=%ld\n", (long)l1);
   diet_scalar_set(diet_parameter(profile,0), &l1,  DIET_VOLATILE, DIET_LONGINT);
   diet_scalar_set(diet_parameter(profile,1), NULL, DIET_VOLATILE, DIET_LONGINT);
