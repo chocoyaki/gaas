@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2009/08/17 15:24:31  bdepardo
+ * JobQueue wasn't thread safe. Added most of the code into critical sections.
+ *
  * Revision 1.7  2009/06/23 09:29:35  bisnard
  * implemented scheduling simulation method to estimate SeD's EFT
  *
@@ -58,34 +61,40 @@ JobQueue::addJobWaiting(int dietReqID, double jobEstCompTime,
   myJobs[dietReqID] = newJob;
   myWaitingQueue.push_back(dietReqID);
   this->nbActiveJobs++;
+  this->myLock.unlock();      /** UNLOCK */
   TRACE_TEXT (TRACE_ALL_STEPS,"JobQueue: adding job " << dietReqID << " in status WAITING"
                               << " (duration est.=" << jobEstCompTime << " ms)" << endl);
-  this->myLock.unlock();      /** UNLOCK */
 }
 
 bool
 JobQueue::setJobStarted(int dietReqID) {
-  myJobs[dietReqID].status = DIET_JOB_RUNNING;
   // set start time
   struct timeval current_time;
   gettimeofday(&current_time, NULL);
+  double currTime = (double)(current_time.tv_sec*1000 + current_time.tv_usec/1000);
   // myJobs[dietReqID].startTime = current_time.tv_sec;
   // time is store in ms
-  myJobs[dietReqID].startTime = (double)(current_time.tv_sec*1000 + current_time.tv_usec/1000);
+  this->myLock.lock();        /** LOCK */
+  myJobs[dietReqID].status = DIET_JOB_RUNNING;
+  myJobs[dietReqID].startTime = currTime;
   // remove from waiting queue
   myWaitingQueue.remove(dietReqID);
+  this->myLock.unlock();      /** UNLOCK */
   return true;
 }
 
 bool
 JobQueue::setJobFinished(int dietReqID) {
+  this->myLock.lock();        /** LOCK */
   myJobs[dietReqID].status = DIET_JOB_FINISHED;
   this->nbActiveJobs--;
+  this->myLock.unlock();      /** UNLOCK */
   return true;
 }
 
 bool
 JobQueue::deleteJob(int dietReqID) {
+  this->myLock.lock();        /** LOCK */
   map<int, diet_job_t>::iterator p = myJobs.find(dietReqID);
   if (p != myJobs.end()) {
     diet_job_t job = p->second;
@@ -100,15 +109,18 @@ JobQueue::deleteJob(int dietReqID) {
       WARNING("JobQueue::deleteJob: null estimation vector for job "
           << dietReqID << endl);
     myJobs.erase(p);
+
     TRACE_TEXT (TRACE_ALL_STEPS,"job " << dietReqID << " deleted / new map size=" << myJobs.size() << endl);
-    for (map<int, diet_job_t>::iterator q = myJobs.begin(); q != myJobs.end(); q++) {
+    for (map<int, diet_job_t>::iterator q = myJobs.begin(); q != myJobs.end(); ++ q) {
 	    TRACE_TEXT (TRACE_ALL_STEPS," Queue contains job " <<
 			  q->first << " in status " <<
 			  (q->second).status << endl);
     }
+    this->myLock.unlock();      /** UNLOCK */
     return true;
   }
   else {
+    this->myLock.unlock();      /** UNLOCK */
     WARNING(" JobQueue::deleteJob: could not find job "<< dietReqID << endl);
     return false;
   }
@@ -126,14 +138,14 @@ JobQueue::getActiveJobTable(jobVector_t& jobVector) {
     if (job.status == DIET_JOB_WAITING || job.status == DIET_JOB_RUNNING) {
       jobVector[nbJobs++] = p->second;
     }
-    p++;
+    ++ p;
   }
-  this->myLock.unlock();      /** UNLOCK */
   if (nbJobs < this->nbActiveJobs) {
     WARNING("getActiveJobTable [WARNING]: mismatch btw counter and map"
         << "nbActiveJobs=" << this->nbActiveJobs << " / nbJobs="
         << nbJobs << endl);
   }
+  this->myLock.unlock();      /** UNLOCK */
   return nbJobs;
 }
 
@@ -152,6 +164,7 @@ JobQueue::estimateEFTwithFIFOSched() {
 
   // process RUNNING jobs
   int nbJobsRunning = 0;  // used only for trace
+  this->myLock.lock();        /** LOCK */
   for (map<int, diet_job_t>::iterator jobsIter = myJobs.begin();
        jobsIter != myJobs.end();
        ++jobsIter) {
@@ -185,6 +198,8 @@ JobQueue::estimateEFTwithFIFOSched() {
     procMap.erase(procMap.begin());
     procMap.insert(make_pair(newEFT,0));
   }
+  this->myLock.unlock();        /** UNLOCK */
+
 
   TRACE_TEXT (TRACE_ALL_STEPS,"Computing EFT: " << nbJobsRunning << " jobs running / "
                               << myWaitingQueue.size() << " jobs waiting" << endl);
