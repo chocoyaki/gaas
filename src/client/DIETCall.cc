@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2009/08/17 12:36:17  bdepardo
+ * Be more consistent in stat messages
+ *
  * Revision 1.2  2009/07/20 12:53:13  bisnard
  * obsoleted file storing persistent data IDs on client when using DTM
  *
@@ -93,7 +96,7 @@ request_submission(MasterAgent_var& MA,
 
   /* Request submission : try nb_tries times */
 
-  stat_in("client","request_submission");
+  stat_in("Client","request_submission");
   subm_count = 0;
   do {
     response = NULL;
@@ -407,7 +410,7 @@ diet_call_common(MasterAgent_var& MA,
   corba_profile_t corba_profile;
   char statMsg[128];
   corba_estimation_t emptyEstimVect;
-  stat_in("client","diet_call");
+  stat_in("Client","diet_call");
 
   if (CORBA::is_nil(chosenServer)) {
     if (!(res = request_submission(MA, profile, chosenServer, estimVect, maxServers))) {
@@ -480,7 +483,7 @@ diet_call_common(MasterAgent_var& MA,
   /* Computation */
   sprintf(statMsg, "computation %ld", (unsigned long) profile->dietReqID);
   try {
-    stat_in("client",statMsg);
+    stat_in("Client",statMsg);
 
     TRACE_TEXT(TRACE_MAIN_STEPS, "Calling the ref Corba of the SeD\n");
 #if HAVE_FD
@@ -545,7 +548,7 @@ diet_call_async_common(MasterAgent_var& MA,
   // get sole CallAsyncMgr singleton
   caMgr = CallAsyncMgr::Instance();
 
-  stat_in("client","diet_call_async");
+  stat_in("Client","diet_call_async");
 
   try {
 
@@ -633,11 +636,11 @@ diet_call_async_common(MasterAgent_var& MA,
       return 1;
     }
 
-    stat_in("client","computation_async");
+    stat_in("Client","computation_async");
     chosenServer->solveAsync(profile->pb_name, corba_profile,
                              refCallbackServer);
 
-    stat_out("client","computation_async");
+    stat_out("Client","computation_async");
 
     if (unmrsh_out_args_to_profile(profile, &corba_profile)) {
       INTERNAL_ERROR("returned profile is wrongly built", 1);
