@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2009/08/19 15:51:11  bdepardo
+ * Did not compile in release mode
+ *
  * Revision 1.5  2006/05/12 12:12:33  sdahan
  * Add some documentation about multi-MA
  *
@@ -91,7 +94,11 @@ public :
   /**
    * creates a new ts_set.
    */
+#ifndef NDEBUG // only used by the assert
   ts_set() : accessLocked(false) {}
+#else
+  ts_set() {}
+#endif
 
   /**
    * return the size (number of elements) of the set. (thread safe)
