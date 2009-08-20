@@ -28,7 +28,7 @@ IF( DIET_BUILD_LIBRARIES )
     AgentCommon
     UtilsWf
     CltWf
-    DIET_client
+    DIETCall
     ${XERCES_LIBRARY}
     ${OMNIORB4_LIBRARIES}
     )
