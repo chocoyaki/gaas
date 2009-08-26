@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2009/08/26 10:33:36  bisnard
+ * use new parser for single dags
+ *
  * Revision 1.27  2009/02/06 14:50:35  bisnard
  * setup exceptions
  *
@@ -352,7 +355,7 @@ MaDag_impl::parseNewDag(const corba_wf_desc_t& wf_desc,
     throw (MaDag::InvalidDag) {
   // CREATION & PARSING
   Dag *        newDag = new Dag();
-  DagWfParser* reader = new DagParser(*newDag, wf_desc.abstract_wf);
+  SingleDagParser* reader = new SingleDagParser(*newDag, wf_desc.abstract_wf);
 
   try {
     reader->parseXml();
