@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2009/08/26 10:26:29  bisnard
+ * added new iterator flatcross
+ *
  * Revision 1.2  2009/05/27 08:56:47  bisnard
  * moved id attribute to parent abstract class
  *
@@ -136,6 +139,11 @@ class InputIterator {
      */
     string myId;
 
+    /**
+     * Prefix for all trace messages
+     */
+    virtual string traceId() const;
+
 };
 
 class PortInputIterator : public InputIterator {
@@ -158,7 +166,7 @@ class PortInputIterator : public InputIterator {
   protected:
     FNodeInPort * myInPort;
     map<FDataTag, FDataHandle*>::iterator myQueueIter;
-    int removedItemsCount;
+    unsigned int removedItemsCount;
 
 };
 
@@ -168,37 +176,65 @@ class CrossIterator : public InputIterator {
     CrossIterator(InputIterator* leftIter,
                   InputIterator* rightIter);
     ~CrossIterator();
-    const string& getId() const;
-    void begin();
-    void end();
-    void next();
-    bool isEmpty() const;
-    bool isAtEnd() const;
-    bool isDone() const;
-    void removeItem();
-    const FDataTag& getCurrentItem(vector<FDataHandle*>& dataLine);
-    const FDataTag& getCurrentTag();
-    bool find(const FDataTag& tag); // modifies the left iterator
-    bool isTotalDefined() const;
-    unsigned int getTotalItemNb() const;
+    virtual void begin();
+    virtual void end();
+    virtual void next();
+    virtual bool isEmpty() const;
+    virtual bool isAtEnd() const;
+    virtual bool isDone() const;
+    virtual void removeItem();
+    virtual const FDataTag& getCurrentItem(vector<FDataHandle*>& dataLine);
+    virtual const FDataTag& getCurrentTag();
+    virtual bool find(const FDataTag& tag); // modifies the left iterator
+    virtual bool isTotalDefined() const;
+    virtual unsigned int getTotalItemNb() const;
 
   protected:
-    bool isFlagged();
+    virtual string createId(InputIterator* leftIter,
+                            InputIterator* rightIter);
+    virtual bool isFlagged();
     int  incrementMatchCount(const FDataTag& leftTag);
     bool checkItemAvailable();
-    bool setTag();
+    virtual bool setTag();
     void clearTag();
+    virtual bool splitTag(const FDataTag& tag,
+                          FDataTag*& leftTagPtr, FDataTag*& rightTagPtr);
 
-  private:
-    string myId;
-    // TODO following maps could use a hash code from the tag to be faster
-    map<FDataTag,bool> myFlags; // keys are the complete tags (left+right)
-    map<FDataTag,int> myCounters; // keys are the left tags
     InputIterator* myLeftIter;
     InputIterator* myRightIter;
     FDataTag* currTag;
     unsigned int leftTagLength;  // to be initialized at first find call by calling left.begin
                                  // and use the length of the tag of left.current
+
+  private:
+    // TODO following maps could use a hash code from the tag to be faster
+    map<FDataTag,bool> myFlags; // keys are the complete tags (left+right)
+    map<FDataTag,int> myCounters; // keys are the left tags
+
+
+
+
+};
+
+
+class FlatCrossIterator : public CrossIterator {
+
+  public:
+    FlatCrossIterator(InputIterator* leftIter,
+		      InputIterator* rightIter);
+    ~FlatCrossIterator();
+
+  protected:
+    virtual string createId(InputIterator* leftIter,
+                            InputIterator* rightIter);
+    virtual bool isFlagged();
+    virtual bool setTag();
+    virtual bool splitTag(const FDataTag& tag,
+                          FDataTag*& leftTagPtr, FDataTag*& rightTagPtr);
+    bool isIndexReady();
+
+  private:
+
 
 };
 
@@ -220,8 +256,8 @@ class DotIterator : public InputIterator {
     unsigned int getTotalItemNb() const;
 
   private:
-    InputIterator*
-    getFirstInput() const;
+    virtual string createId(const vector<InputIterator*>& iterTable);
+    InputIterator* getFirstInput() const;
     bool isMatched();
 
     /**

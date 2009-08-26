@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2009/08/26 10:26:29  bisnard
+ * added new iterator flatcross
+ *
  * Revision 1.3  2009/05/27 08:56:47  bisnard
  * moved id attribute to parent abstract class
  *
@@ -31,6 +34,11 @@ InputIterator::InputIterator(const string& id) : myId(id) { }
 const string&
 InputIterator::getId() const { return myId; }
 
+string
+InputIterator::traceId() const {
+  return ("[" + myId + "] : ");
+}
+
 /*****************************************************************************/
 /*                       PortInputIterator                                   */
 /*****************************************************************************/
@@ -40,7 +48,7 @@ PortInputIterator::PortInputIterator(FNodeInPort * inPort)
 
 void
 PortInputIterator::begin() {
-  TRACE_TEXT (TRACE_ALL_STEPS,"[ITER] begin() for port : " << getId() << " : "
+  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "begin() : "
                       << myInPort->myQueue.size() << " items in the queue" << endl);
   myQueueIter = myInPort->myQueue.begin();
   if (!isAtEnd()) {
@@ -51,13 +59,13 @@ PortInputIterator::begin() {
 
 void
 PortInputIterator::end() {
-  TRACE_TEXT (TRACE_ALL_STEPS,"[ITER] end() for port : " << getId() << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "end" << endl);
   myQueueIter = myInPort->myQueue.end();
 }
 
 void
 PortInputIterator::next() {
-  TRACE_TEXT(TRACE_ALL_STEPS,"[ITER] next item for port : " << getId());
+  TRACE_TEXT(TRACE_ALL_STEPS, traceId() << "next item" << endl);
   if (isAtEnd()) {
     INTERNAL_ERROR("Calling next on empty port iterator",1);
   }
@@ -83,7 +91,7 @@ PortInputIterator::isAtEnd() const {
 bool
 PortInputIterator::isDone() const {
   string total = isTotalDefined() ? itoa(getTotalItemNb()) : "undef";
-  TRACE_TEXT (TRACE_ALL_STEPS, "[ITER] port " << getId() << " isDone(): total=" << total
+  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "isDone(): total=" << total
        << " / removed=" << removedItemsCount << endl);
   return (isTotalDefined() && (getTotalItemNb() == removedItemsCount));
 }
@@ -94,8 +102,8 @@ PortInputIterator::removeItem() {
   this->next();
   myInPort->myQueue.erase(toRemove);
   removedItemsCount++;
-  TRACE_TEXT (TRACE_ALL_STEPS, "[ITER] port " << getId()
-      << " removeItem(): removed=" << removedItemsCount << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "removeItem(): removed="
+                               << removedItemsCount << endl);
 }
 
 const FDataTag&
@@ -133,18 +141,19 @@ PortInputIterator::getTotalItemNb() const {
 
 CrossIterator::CrossIterator(InputIterator* leftIter,
                              InputIterator* rightIter)
-  : InputIterator(leftIter->getId() + "_x_" + rightIter->getId()),
-    myLeftIter(leftIter), myRightIter(rightIter), leftTagLength(0)
-    , currTag(NULL) { }
+  : InputIterator(createId(leftIter,rightIter)),
+    myLeftIter(leftIter), myRightIter(rightIter), currTag(NULL), leftTagLength(0)
+     { }
 
 CrossIterator::~CrossIterator() {
   if (currTag)
     delete currTag;
 }
 
-const string&
-CrossIterator::getId() const {
-  return myId;
+string
+CrossIterator::createId(InputIterator* leftIter,
+                        InputIterator* rightIter) {
+  return ("(" + leftIter->getId() + "_x_" + rightIter->getId() + ")");
 }
 
 /**
@@ -153,7 +162,7 @@ CrossIterator::getId() const {
  */
 bool
 CrossIterator::setTag() {
-  if (currTag) delete currTag;
+  clearTag();
   currTag = new FDataTag(myLeftIter->getCurrentTag(), myRightIter->getCurrentTag());
   return true;
 }
@@ -209,7 +218,7 @@ CrossIterator::incrementMatchCount(const FDataTag& leftTag) {
 
 void
 CrossIterator::begin() {
-  TRACE_TEXT (TRACE_ALL_STEPS, "[ITER-CROSS " << myId << "] begin() ..." << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "begin() ..." << endl);
   myLeftIter->begin();
   myRightIter->begin();
   // if right iterator does not contain one item then this is the end
@@ -227,9 +236,9 @@ CrossIterator::end() {
 
 void
 CrossIterator::next() {
-  TRACE_TEXT (TRACE_ALL_STEPS, "[ITER-CROSS " << myId << "] next() ..." << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "next() ..." << endl);
   if (isAtEnd()) {
-    INTERNAL_ERROR("Calling next on empty cross iterator",1);
+    INTERNAL_ERROR(__FUNCTION__ << " : empty cross iterator",1);
   }
   // loop until the end of the left iter or a non-flagged item is found
   bool endOfLeft = false, endOfRight = false, nextFound = false;
@@ -242,8 +251,7 @@ CrossIterator::next() {
     }
     if (!nextFound) {
       // end of right iter => go to next on left iter and restart right iter
-      TRACE_TEXT (TRACE_ALL_STEPS, "[ITER-CROSS " << myId
-                  << "] end of right iter ==> next on left and reset right" << endl);
+      TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "end of right iter" << endl);
       myLeftIter->next();
       myRightIter->begin();
       endOfLeft = myLeftIter->isAtEnd();
@@ -251,11 +259,11 @@ CrossIterator::next() {
     }
   }
   if (nextFound) {
-    TRACE_TEXT (TRACE_ALL_STEPS, "[ITER-CROSS " << myId << "] next() IS "
+    TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "next() IS "
         << getCurrentTag().toString() << endl);
   } else {
     clearTag();
-    TRACE_TEXT (TRACE_ALL_STEPS, "[ITER-CROSS " << myId << "] next() ==> END" << endl);
+    TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "next() ==> END" << endl);
   }
 }
 
@@ -271,20 +279,20 @@ CrossIterator::isAtEnd() const {
 
 bool
 CrossIterator::isDone() const {
-  TRACE_TEXT (TRACE_ALL_STEPS, "[ITER-CROSS " << myId << "] isDone()" << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "isDone()" << endl);
   return myLeftIter->isDone();
 }
 
 void
 CrossIterator::removeItem() {
   const FDataTag& leftTag  = myLeftIter->getCurrentTag();
-  TRACE_TEXT (TRACE_ALL_STEPS, "[ITER-CROSS " << myId << "] removeItem(): removing "
+  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "removeItem(): removing "
       << currTag->toString() << endl);
   // mark the removed item
   myFlags[*currTag] = true;
   // increment the counter of matched items for the left tag
-  int matchCount = incrementMatchCount(leftTag);
-  TRACE_TEXT (TRACE_ALL_STEPS, "[ITER-CROSS " << myId << "] removeItem(): match count of "
+  unsigned int matchCount = incrementMatchCount(leftTag);
+  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "removeItem(): match count of "
       << leftTag.toString() << " is " << matchCount << endl);
   // check if right iter is completed for the current left item
   if (myRightIter->isTotalDefined() && (matchCount == myRightIter->getTotalItemNb())) {
@@ -309,7 +317,7 @@ CrossIterator::removeItem() {
 const FDataTag&
 CrossIterator::getCurrentItem(vector<FDataHandle*>& dataLine) {
   if (!checkItemAvailable()) {
-    INTERNAL_ERROR("Tried to get iterator current item although no item available",1);
+    INTERNAL_ERROR(__FUNCTION__ << " : no item available",1);
   }
   myLeftIter->getCurrentItem(dataLine);
   myRightIter->getCurrentItem(dataLine);
@@ -320,9 +328,16 @@ CrossIterator::getCurrentItem(vector<FDataHandle*>& dataLine) {
 const FDataTag&
 CrossIterator::getCurrentTag() {
   if (!currTag) {
-    INTERNAL_ERROR("Tried to get iterator current tag although no item available",1);
+    INTERNAL_ERROR(__FUNCTION__ << " : no item available",1);
   }
   return *currTag;
+}
+
+bool
+CrossIterator::splitTag(const FDataTag& tag, FDataTag*& leftTagPtr, FDataTag*& rightTagPtr) {
+  leftTagPtr = tag.getLeftPart(leftTagLength);
+  rightTagPtr = tag.getRightPart(leftTagLength+1);
+  return true;
 }
 
 bool
@@ -334,13 +349,15 @@ CrossIterator::find(const FDataTag& tag) {
   // initialize left tag's length if not already done
   if (leftTagLength == 0) {
     myLeftIter->begin();
+    if (myLeftIter->isAtEnd()) return false;
     leftTagLength = myLeftIter->getCurrentTag().getLevel();
   }
-  // split the tag in left and right part
-  FDataTag *leftTag = tag.getLeftPart(leftTagLength);
-  FDataTag *rightTag = tag.getRightPart(leftTagLength+1);
+  // split the tag in left and right part (if possible)
+  FDataTag *leftTag, *rightTag;
+  if (!splitTag(tag, leftTag, rightTag))
+    return false;
   if ((leftTag == NULL) || (rightTag == NULL)) {
-    INTERNAL_ERROR("CrossIterator::find : Fatal Error in tag split",1);
+    INTERNAL_ERROR(__FUNCTION__ << " : Fatal Error in tag split",1);
   }
   // returns true if found in both left and right iterators
   bool found = myLeftIter->find(*leftTag) && myRightIter->find(*rightTag);
@@ -363,20 +380,109 @@ CrossIterator::getTotalItemNb() const {
   return (myLeftIter->getTotalItemNb() * myRightIter->getTotalItemNb());
 }
 
+
+/*****************************************************************************/
+/*                         FlatCrossIterator                                 */
+/*****************************************************************************/
+
+FlatCrossIterator::FlatCrossIterator(InputIterator* leftIter,
+				     InputIterator* rightIter)
+  : CrossIterator(leftIter, rightIter) {
+   myId = createId(leftIter,rightIter);
+}
+
+FlatCrossIterator::~FlatCrossIterator() {
+}
+
+string
+FlatCrossIterator::createId(InputIterator* leftIter,
+                            InputIterator* rightIter) {
+  return ("(" + leftIter->getId() + "_Fx_" + rightIter->getId() + ")");
+}
+
+/**
+ * (private)
+ * Updates the current tag (used when iterator position changes)
+ */
+bool
+FlatCrossIterator::setTag() {
+  if (!isIndexReady()) {
+    INTERNAL_ERROR(__FUNCTION__ << "Invalid call: index cannot be computed" << endl,1);
+  }
+  clearTag();
+  // check if right tag is of level 1 (flat cross does not handle level > 1 on the right)
+  if (myRightIter->getCurrentTag().getLevel() > 1) {
+    WARNING("Operator " << getId() << " cannot handle this data depth" << endl);
+  }
+  // parent tag
+  FDataTag tmpTag = myLeftIter->getCurrentTag();
+  tmpTag.getParent();
+  // index
+  unsigned int index = myLeftIter->getCurrentTag().getLastIndex() * myRightIter->getTotalItemNb()
+		       + myRightIter->getCurrentTag().getLastIndex();
+  // last
+  bool isLast = myLeftIter->getCurrentTag().isLastOfBranch()
+		&& myRightIter->getCurrentTag().isLastOfBranch();
+
+  currTag = new FDataTag(tmpTag, index, isLast);
+  return true;
+}
+
+/**
+ * (private)
+ * Check if the current item can NOT be selected (either already selected or
+ * index not available)
+ */
+bool
+FlatCrossIterator::isFlagged() {
+  return CrossIterator::isFlagged() || !isIndexReady();
+}
+
+bool
+FlatCrossIterator::isIndexReady() {
+  return myRightIter->isTotalDefined()
+	 || (myLeftIter->getCurrentTag().getLastIndex() == 0);
+}
+
+bool
+FlatCrossIterator::splitTag(const FDataTag& tag, FDataTag*& leftTagPtr, FDataTag*& rightTagPtr) {
+  if (!myRightIter->isTotalDefined()) return false;
+  FDataTag* tmpTagPtr = tag.getLeftPart(leftTagLength);  // should be a copy of original tag
+  unsigned int origIndex = tmpTagPtr->getLastIndex();
+  tmpTagPtr->getParent();
+  cout << __FUNCTION__ << " tmpTag => " << tmpTagPtr->toString() << endl;
+  unsigned int leftIndex = origIndex / myRightIter->getTotalItemNb();
+  unsigned int rightIndex = origIndex % myRightIter->getTotalItemNb();
+  cout << __FUNCTION__ << "leftIndex=" << leftIndex << "/rightIndex=" << rightIndex << endl;
+  leftTagPtr = new FDataTag(*tmpTagPtr, leftIndex, false);
+  rightTagPtr = new FDataTag(rightIndex, false);
+  cout << __FUNCTION__ << " leftTag => " << leftTagPtr->toString()
+                      << "rightTag => " << rightTagPtr->toString() << endl;
+  delete tmpTagPtr;
+  return true;
+}
+
+
 /*****************************************************************************/
 /*                           DotIterator                                   */
 /*****************************************************************************/
 
 DotIterator::DotIterator(const vector<InputIterator*>& iterTable)
-  : InputIterator(""), myInputs(iterTable) {
-  vector<InputIterator*>::const_iterator inputIter = myInputs.begin();
+  : InputIterator(createId(iterTable)), myInputs(iterTable) {
+}
+
+string
+DotIterator::createId(const vector<InputIterator*>& iterTable) {
+  string id = "(";
+  vector<InputIterator*>::const_iterator inputIter = iterTable.begin();
   // concatenate the IDs of all the inputs to make this operator's id
-  while (inputIter != myInputs.end()) {
-    myId += ((InputIterator*) *inputIter)->getId();
+  while (inputIter != iterTable.end()) {
+    id += ((InputIterator*) *inputIter)->getId();
     ++inputIter;
-    if (inputIter != myInputs.end())
-      myId += "_._";
+    if (inputIter != iterTable.end())
+      id += "_._";
   }
+  return id + ")";
 }
 
 const string&
@@ -396,8 +502,7 @@ DotIterator::isMatched() {
   InputIterator *firstInput = getFirstInput();
   // get the current tag (from first input iterator)
   const FDataTag& firstTag = firstInput->getCurrentTag();
-  TRACE_TEXT (TRACE_ALL_STEPS, "[ITER-DOT " << myId << "] matching tag "
-              << firstTag.toString() << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << " matching tag " << firstTag.toString() << endl);
   // initialize the input loop on second input
   vector<InputIterator*>::iterator inputIter = myInputs.begin();
   ++inputIter;
@@ -407,7 +512,7 @@ DotIterator::isMatched() {
     InputIterator *currInput = (InputIterator*) *(inputIter++);
     if (!(currInput->find(firstTag))) {
         allMatched = false;
-        TRACE_TEXT (TRACE_ALL_STEPS, "[ITER-DOT] match failed for input : "
+        TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "match failed for input : "
              << currInput->getId() << endl);
     }
   }
@@ -416,7 +521,7 @@ DotIterator::isMatched() {
 
 void
 DotIterator::begin() {
-  TRACE_TEXT (TRACE_ALL_STEPS, "[ITER-DOT " << myId << "] begin() ..." << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "begin() ..." << endl);
   if (isEmpty()) {
     getFirstInput()->end();
   } else {
@@ -432,7 +537,7 @@ DotIterator::end() {
 
 void
 DotIterator::next() {
-  TRACE_TEXT (TRACE_ALL_STEPS, "[ITER-DOT " << myId << "] next() ..." << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "next() ..." << endl);
   if (isAtEnd()) {
     INTERNAL_ERROR("Calling next on empty match iterator",1);
   }
@@ -445,10 +550,10 @@ DotIterator::next() {
     if (!endOfFirst && isMatched()) nextFound = true;
   }
   if (nextFound) {
-    TRACE_TEXT (TRACE_ALL_STEPS, "[ITER-DOT " << myId << "] next() IS "
+    TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "next() IS "
         << getCurrentTag().toString() << endl);
   } else {
-    TRACE_TEXT (TRACE_ALL_STEPS, "[ITER-DOT " << myId << "] next() ==> END" << endl);
+    TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "next() ==> END" << endl);
   }
 }
 
@@ -473,7 +578,7 @@ DotIterator::isDone() const {
 
 void
 DotIterator::removeItem() {
-  TRACE_TEXT (TRACE_ALL_STEPS, "[ITER-DOT " << myId << "] removeItem() "
+  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "removeItem() "
       << getCurrentTag().toString() << endl);
   // remove current item from all inputs (and go to next as well)
   for (vector<InputIterator*>::iterator inputIter = myInputs.begin();
@@ -487,7 +592,7 @@ DotIterator::removeItem() {
 const FDataTag&
 DotIterator::getCurrentItem(vector<FDataHandle*>& dataLine) {
   if (isAtEnd()) {
-    INTERNAL_ERROR("Tried to get iterator current item although no item available",1);
+    INTERNAL_ERROR(__FUNCTION__ << " : no item available",1);
   }
   for (vector<InputIterator*>::iterator inputIter = myInputs.begin();
        inputIter != myInputs.end();
