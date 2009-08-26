@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2009/08/26 10:32:11  bisnard
+ * corrected  warnings
+ *
  * Revision 1.1  2009/06/15 12:01:20  bisnard
  * new class WfDataWriter to abstract the different ways of
  * displaying data within a workflow (XML or list)
@@ -26,11 +29,6 @@
 /*****************************************************************************/
 
 class WfDataWriter {
-
-//   enum WfDataFormat {
-//     FORMAT_LIST,
-//     FORMAT_XML
-//   };
 
   public:
 
@@ -78,6 +76,14 @@ class WfXMLDataWriter : public WfDataWriter  {
                          diet_matrix_order_t order);
     virtual void  voidElement();
     virtual void  error();
+    
+    // additional methods to include dataId attribute in tags
+    void startContainer( const std::string& dataID );
+    void itemValue( const std::string& valueStr,
+		    const std::string& dataID);
+    void itemValue( void * valuePtr,
+                    WfCst::WfDataType valueType,
+		    const std::string& dataID );
 };
 
 class WfListDataWriter : public WfDataWriter  {

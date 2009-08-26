@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2009/08/26 10:32:11  bisnard
+ * corrected  warnings
+ *
  * Revision 1.8  2009/07/24 15:10:41  bisnard
  * corrected creation of void instance of merge node
  *
@@ -168,7 +171,7 @@ FIfNode::createRealInstance(Dag* dag,
                               << currTag.toString() << endl);
   FNodePortMap* mapToApply;
   // Loop for all inputs
-  for (int ix = 0; ix < currDataLine.size(); ++ix) {
+  for (unsigned int ix = 0; ix < currDataLine.size(); ++ix) {
 
     // check if current input is used as variable in the condition
     if ((*myConditionVars)[ix] != NULL) {
@@ -604,6 +607,7 @@ FFilterNode::getTreeNode(FDataHandle* DH) {
     newNode->indexOk = false;
     newNode->lastFlagOk = false;
     newNode->isDone = false;
+    return newNode;
   } else {
     filterNode_t *tNode = (filterNode_t*) treeSrch->second;
     if (tNode->dataHdl == NULL)
@@ -623,6 +627,7 @@ FFilterNode::getTreeNode(const FDataTag& tag) {
     newNode->indexOk = false;
     newNode->lastFlagOk = false;
     newNode->isDone = false;
+    return newNode;
   } else {
     return (filterNode_t*) treeSrch->second;
   }

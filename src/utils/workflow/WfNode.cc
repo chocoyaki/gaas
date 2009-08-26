@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2009/08/26 10:32:11  bisnard
+ * corrected  warnings
+ *
  * Revision 1.2  2009/05/27 08:43:41  bisnard
  * added new addPort method to avoid direct access to map
  *
@@ -465,7 +468,7 @@ WfNode::getPortByIndex(unsigned int portIdx) const {
 string
 WfNode::getPortsDescr() const {
   string descrStr;
-  for (int ix=0; ix<getPortNb(); ++ix) {
+  for (unsigned int ix=0; ix<getPortNb(); ++ix) {
     const WfPort* port = getPortByIndex(ix);
     descrStr += port->getPortDescr();
     if (ix < getPortNb()-1)

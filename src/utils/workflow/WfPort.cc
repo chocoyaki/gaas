@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2009/08/26 10:32:11  bisnard
+ * corrected  warnings
+ *
  * Revision 1.19  2009/07/10 12:55:59  bisnard
  * implemented while loop workflow node
  *
@@ -89,10 +92,10 @@
 #include "debug.hh"
 
 WfPort::WfPort(WfNode * parent, const string& _id, WfPortType _portType,
-               WfCst::WfDataType _type, unsigned int _depth, unsigned int _ind) :
-  myParent(parent), id(_id), portType(_portType), type(_type),
-  depth(_depth), index(_ind), adapter(NULL), nb_r(0), nb_c(0),
-  connected(false), card(NULL) {
+               WfCst::WfDataType _type, unsigned int _depth, unsigned int _ind)
+  : id(_id), portType(_portType), type(_type), depth(_depth), card(NULL),
+  index(_ind), nb_r(0), nb_c(0), adapter(NULL), myParent(parent),
+  connected(false)  {
   if (!parent) {
     INTERNAL_ERROR("Missing parent for port creation",0);
   }
@@ -161,6 +164,18 @@ WfPort::getPortDescr() const {
       break;
     case PORT_OUT:
       portDescr = "out ";
+      break;
+    case PORT_OUT_THEN:
+      portDescr = "outThen ";
+      break;
+    case PORT_OUT_ELSE:
+      portDescr = "outElse ";
+      break;
+    case PORT_IN_LOOP:
+      portDescr = "inLoop ";
+      break;
+    case PORT_OUT_LOOP:
+      portDescr = "outLoop ";
       break;
   }
   portDescr += WfCst::cvtWfToStrType(getDataType());

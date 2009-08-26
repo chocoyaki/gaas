@@ -1,6 +1,6 @@
 /****************************************************************************/
 /* The class used to parse and execute conditional expressions used in      */
-/* workflow control structures (If, While, ...)
+/* workflow control structures (If, While, ...)                             */
 /*                                                                          */
 /* Author(s):                                                               */
 /* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2009/08/26 10:32:11  bisnard
+ * corrected  warnings
+ *
  * Revision 1.3  2009/07/08 08:56:55  bisnard
  * avoid false variable detection when var name is prefix of another variable
  *
@@ -86,6 +89,12 @@ class WfExprVariable {
      */
     WfExprVariable(const std::string& varName,
                    const WfCst::WfDataType varType);
+
+    /**
+     * Get name
+     */
+    const std::string&
+        getName() { return myName; }
 
     /**
      * Generate the XQuery declaration of the variable

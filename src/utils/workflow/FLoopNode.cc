@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2009/08/26 10:32:11  bisnard
+ * corrected  warnings
+ *
  * Revision 1.3  2009/07/23 12:30:10  bisnard
  * new method finalize() for functional wf nodes
  * removed const on currDataLine parameter for instance creation
@@ -175,7 +178,7 @@ FLoopNode::checkCondition() throw (WfStructException) {
           FNodeInPort* initPort = dynamic_cast<FNodeInPort*>(port);
           initPort->setValueRequired();
         } catch (const WfStructException& e) {
-          INTERNAL_ERROR("no corresponding in port for inLoop port",1);
+          INTERNAL_ERROR(__FUNCTION__ << "no corresponding in port for inLoop port",1);
         }
       }
       // create a new variable
@@ -224,7 +227,7 @@ FLoopNode::initialize() {
 bool
 FLoopNode::testCondition(const vector<FDataHandle*>& currDataLine) {
   // init variables for condition
-  for (int ix = 0; ix < currDataLine.size(); ++ix) {
+  for (unsigned int ix = 0; ix < currDataLine.size(); ++ix) {
 
     // check if current input is used as variable in the condition
     if ((*myConditionVars)[ix] != NULL) {
@@ -237,8 +240,8 @@ FLoopNode::testCondition(const vector<FDataHandle*>& currDataLine) {
         (*myConditionVars)[ix]->setValue(dataHdl->getValue());
 
       } else {
-        cerr << "ERROR: condition variable not defined" << endl;
-        //TODO throw exception
+        throw WfDataHandleException(WfDataHandleException::eVALUE_UNDEF,
+                "Condition variable '" + (*myConditionVars)[ix]->getName());
       }
     }
   }
@@ -269,12 +272,12 @@ FLoopNode::instanciate(Dag* dag) {
 
     // CHECK if tag length matches loop tag length
     if (currTag.getLevel() != loopTagLength) {
-      INTERNAL_ERROR("Incorrect workflow inside loop",1);
+      INTERNAL_ERROR(__FUNCTION__ << "Loop contains workflow with different in/out tag level",1);
     }
 
     // CHECK if data received is the last VOID item that terminates the iteration
     if (currTag.isLastOfBranch()) {
-      cout << "Received last void item " << currTag.toString() << endl;
+      TRACE_TEXT (TRACE_ALL_STEPS,"Received last void item " << currTag.toString() << endl);
       continue;
     }
 
@@ -299,14 +302,12 @@ FLoopNode::instanciate(Dag* dag) {
     } else {
       TRACE_TEXT (TRACE_ALL_STEPS,"While condition is FALSE ==> Apply final mappings" << endl);
       // apply VOID mapping for loop out ports
-      cout << "Apply Final Loop mapping" << endl;
       FDataTag nextTag = currTag;
       nextTag.getSuccessor();
       nextTag.getTagAsLastOfBranch();
       myFinalLoopMap.applyMap(nextTag, *loopDataLine);
 
       // apply output mapping for out ports
-      cout << "Apply Final Out mapping" << endl;
       currTag.getParent();
       myFinalOutMap.applyMap(currTag, *loopDataLine);
 
@@ -334,7 +335,7 @@ FLoopNode::initLoopInPorts(vector<FDataHandle*>& currDataLine) {
         WfPort * port = getPort(loopInPort->getInterfaceRef());
         currDataLine[loopInPort->getIndex()] = currDataLine[port->getIndex()];
       } catch (const WfStructException& e) {
-        INTERNAL_ERROR("no corresponding in port for inLoop port",1);
+        INTERNAL_ERROR(__FUNCTION__ << "no corresponding in port for inLoop port",1);
       }
     }
   }
@@ -362,7 +363,7 @@ FLoopNode::createRealInstance(Dag* dag,
     // Initializes the loop tag length
     if (!loopTagLength) {
       loopTagLength = firstIterTag->getLevel();
-      cout << "LOOP TAG LENGTH initialized = " << loopTagLength << endl;
+//       cout << "LOOP TAG LENGTH initialized = " << loopTagLength << endl;
     }
 
   } else {
@@ -391,24 +392,23 @@ FLoopNode::createVoidInstance(const FDataTag& currTag,
 
   delete loopTag;
 
-  TRACE_TEXT (TRACE_ALL_STEPS,"  ## END OF LOOP VOID INSTANCE" << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS, traceId() <<"  ## END OF LOOP VOID INSTANCE" << endl);
 }
 
 
 void
 FLoopNode::updateInstanciationStatus() {
   if (myRootIterator->isAtEnd()) {
-    string pfx = "[" + getId() + "] : ";
     if (myRootIterator->isDone()) {
       if (activeInstanceNb == 0) {
-        TRACE_TEXT (TRACE_ALL_STEPS, pfx << "########## ALL ITERATIONS COMPLETED" << endl);
+        TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "########## ALL ITERATIONS COMPLETED" << endl);
         myStatus = N_INSTANC_END;
 
       } else {  // still some loop instances running
-        TRACE_TEXT (TRACE_ALL_STEPS, pfx << "########## ALL INPUTS PROCESSED" << endl);
+        TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "########## ALL INPUTS PROCESSED" << endl);
       }
     } else {
-      TRACE_TEXT (TRACE_ALL_STEPS, pfx << "########## WAITING FOR INPUTS " << endl);
+      TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "########## WAITING FOR INPUTS " << endl);
       myStatus = N_INSTANC_READY;
     }
   }

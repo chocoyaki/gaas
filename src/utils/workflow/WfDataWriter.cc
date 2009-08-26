@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2009/08/26 10:32:11  bisnard
+ * corrected  warnings
+ *
  * Revision 1.2  2009/07/01 15:05:25  bisnard
  * bug correction (display pointer instead of value)
  *
@@ -22,6 +25,8 @@
 #include "WfDataWriter.hh"
 #include "WfPortAdapter.hh" // for voidRef
 #include <iostream>
+
+using namespace std;
 
 /*****************************************************************************/
 /*                          WfDataWriter class                               */
@@ -59,6 +64,10 @@ WfDataWriter::rawValue(void * valuePtr,
     case WfCst::TYPE_FILE:
       myOutput << (char *) valuePtr; break;
 
+    case WfCst::TYPE_MATRIX:
+    case WfCst::TYPE_CONTAINER:
+    case WfCst::TYPE_UNKNOWN:
+      myOutput << "#ERROR DATA RAW VALUE WRITER#";
   }
 }
 
@@ -66,25 +75,38 @@ WfDataWriter::rawValue(void * valuePtr,
 /*                        WfXMLDataWriter class                              */
 /*****************************************************************************/
 
-WfXMLDataWriter::WfXMLDataWriter(std::ostream& output)
+WfXMLDataWriter::WfXMLDataWriter(ostream& output)
   : WfDataWriter(output) {}
 
 void
 WfXMLDataWriter::startContainer() {
-  myOutput << "<list>";
+  myOutput << "<list>" << endl;
+}
+
+void
+WfXMLDataWriter::startContainer(const string& dataID) {
+  myOutput << "<list dataId=\"" << dataID << "\">" << endl;
 }
 
 void
 WfXMLDataWriter::endContainer() {
-  myOutput << "</list>";
+  myOutput << "</list>" << endl;
 }
 
 void
-WfXMLDataWriter::itemValue(const std::string& valueStr) {
+WfXMLDataWriter::itemValue(const string& valueStr) {
   // FIXME tag should not be added if no list was open previously
   myOutput << "<item>";
   rawValue(valueStr);
-  myOutput << "</item>";
+  myOutput << "</item>" << endl;
+}
+
+void
+WfXMLDataWriter::itemValue(const string& valueStr,
+			   const string& dataID) {
+  myOutput << "<item dataId=\"" << dataID << "\">";
+  rawValue(valueStr);
+  myOutput << "</item>" << endl;
 }
 
 void
@@ -92,7 +114,16 @@ WfXMLDataWriter::itemValue(void * valuePtr,
                            WfCst::WfDataType valueType) {
   myOutput << "<item>";
   rawValue(valuePtr, valueType);
-  myOutput << "</item>";
+  myOutput << "</item>" << endl;
+}
+
+void
+WfXMLDataWriter::itemValue(void * valuePtr,
+                           WfCst::WfDataType valueType,
+			   const string& dataID) {
+  myOutput << "<item dataId=\"" << dataID << "\">";
+  rawValue(valuePtr, valueType);
+  myOutput << "</item>" << endl;
 }
 
 void
@@ -117,7 +148,7 @@ WfXMLDataWriter::error() {
 /*****************************************************************************/
 
 
-WfListDataWriter::WfListDataWriter(std::ostream& output)
+WfListDataWriter::WfListDataWriter(ostream& output)
   : WfDataWriter(output), firstElt(true) {}
 
 void
@@ -135,7 +166,7 @@ WfListDataWriter::endContainer() {
 }
 
 void
-WfListDataWriter::itemValue(const std::string& valueStr) {
+WfListDataWriter::itemValue(const string& valueStr) {
   if (!firstElt)
     myOutput << ",";
   rawValue(valueStr);

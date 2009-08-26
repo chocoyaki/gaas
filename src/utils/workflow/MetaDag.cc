@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2009/08/26 10:32:11  bisnard
+ * corrected  warnings
+ *
  * Revision 1.4  2009/04/17 08:54:44  bisnard
  * renamed Node class as WfNode
  *
@@ -31,8 +34,9 @@
 
 using namespace std;
 
-MetaDag::MetaDag(const string& id) : myId(id), dagTodoCount(0), currDag(NULL)
-                                     , releaseFlag(true) {}
+MetaDag::MetaDag(const string& id)
+  : myId(id),  currDag(NULL), dagTodoCount(0), releaseFlag(true) {
+}
 
 MetaDag::~MetaDag() {
   // delete the dags map

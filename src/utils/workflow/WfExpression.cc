@@ -1,6 +1,6 @@
 /****************************************************************************/
 /* The class used to parse and execute conditional expressions used in      */
-/* workflow control structures (If, While, ...)
+/* workflow control structures (If, While, ...)                             */
 /*                                                                          */
 /* Author(s):                                                               */
 /* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2009/08/26 10:32:11  bisnard
+ * corrected  warnings
+ *
  * Revision 1.4  2009/07/10 12:55:17  bisnard
  * updated list of XQuery separators
  *
