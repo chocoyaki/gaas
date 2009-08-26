@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2009/08/26 10:35:40  bisnard
+ * use new workflow API
+ *
  * Revision 1.10  2009/07/30 09:37:23  bisnard
  * added diet_wf_free after workflow completion
  *
@@ -51,6 +54,7 @@
 #include <stdio.h>
 #include <sys/stat.h>
 #include <time.h>
+#include <sys/time.h>
 
 #include "DIET_client.h"
 
@@ -58,11 +62,12 @@
    argv[2]: path of the worflow description file */
 
 void usage(char * s) {
-  fprintf(stderr, "Usage: %s <file.cfg> dag|wf <wf_file> [data_file]\n", s);
+  fprintf(stderr, "Usage: %s <file.cfg> -dag <dag_file>\n", s);
+  fprintf(stderr, "       %s <file.cfg> -wf <wf_file> <data_file> [transcript_file]\n", s);
   exit(1);
 }
 int checkUsage(int argc, char ** argv) {
-  if ((argc != 4) && (argc != 5)) {
+  if ((argc < 4) || (argc > 6)) {
     usage(argv[0]);
   }
   return 0;
@@ -72,11 +77,10 @@ int
 main(int argc, char* argv[])
 {
   diet_wf_desc_t * profile;
-  char *wfFileName, *dataFileName;
+  char *wfFileName, *dataFileName, *transcriptFileName;
   wf_level_t wfType;
   struct timeval t1, t2;
   float time;
-  char *resultsContID;
 
   checkUsage(argc, argv);
 
@@ -86,19 +90,28 @@ main(int argc, char* argv[])
   }
 
   wfFileName = argv[3];
+  dataFileName = (char*) NULL;
+  transcriptFileName = (char*) NULL;
 
-  if (!strcmp(argv[2],"dag")) {
+  if (!strcmp(argv[2],"-dag")) {
     wfType = DIET_WF_DAG;
-  } else if (!strcmp(argv[2],"wf")) {
+  } else if (!strcmp(argv[2],"-wf")) {
     wfType = DIET_WF_FUNCTIONAL;
   } else {
     usage(argv[0]);
   }
 
-  if (argc >= 5) {
-    dataFileName = argv[4];
+  if (wfType = DIET_WF_FUNCTIONAL) {
+    if (argc >= 5) {
+      dataFileName = argv[4];
+    }
+    if (argc >= 6) {
+      transcriptFileName = argv[5];
+    }
   } else {
-    dataFileName = (char*) NULL;
+    if (argc >= 5) {
+      transcriptFileName = argv[4];
+    }
   }
 
   gettimeofday(&t1, NULL);
@@ -113,7 +126,15 @@ main(int argc, char* argv[])
    * For functional workflows ONLY
    * Defines which file is used to provide the data to instanciate the wf
    */
-  diet_wf_profile_set_data_file(profile,dataFileName);
+  diet_wf_set_data_file(profile,dataFileName);
+
+  /*
+   * For workflow restart
+   * Defines which file is used to store the execution transcriptFileName
+   * (file will be overwritten if existing)
+   */
+  diet_wf_set_transcript_file(profile, transcriptFileName);
+
 
   printf("Try to execute the workflow\n");
   if (! diet_wf_call(profile)) {
@@ -121,8 +142,13 @@ main(int argc, char* argv[])
     time = (t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000;
     printf("The workflow submission succeed / time= %f s\n",time);
 
+    printf("Save data in data_out.xml\n");
+    if (diet_wf_save_data_file(profile, "data_out.xml")) {
+      printf("Could not save data file\n");
+    }
+
     printf("Display results:\n");
-    if (!get_all_results(profile)) {
+    if (diet_wf_print_results(profile) != 0) {
       printf("Could not display results\n");
     }
 
@@ -131,7 +157,12 @@ main(int argc, char* argv[])
     printf("The workflow submission failed\n");
   }
 
-  diet_wf_free(profile);
+  if (transcriptFileName == NULL) {
+    diet_wf_free(profile);
+  } else {
+    printf("Save transcript of workflow execution\n");
+    diet_wf_save_transcript_file(profile, transcriptFileName);
+  }
   diet_finalize();
   fflush(stdout);
   return 0;
