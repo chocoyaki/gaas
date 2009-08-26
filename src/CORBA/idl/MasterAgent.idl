@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2009/08/26 09:27:30  bisnard
+ * allow Dagda exception forwarding in get_data_arg
+ *
  * Revision 1.14  2008/06/25 09:55:57  bisnard
  * removed unused parameter in submit_pb_set & corrected bug with ReqIDs
  *
@@ -84,7 +87,11 @@ interface MasterAgent : Agent {
   unsigned long dataLookUp(in string id);
 
   /** get data descriptor */
+#ifdef HAVE_DAGDA
+  corba_data_desc_t get_data_arg(in string argID) raises(Dagda::DataNotFound);
+#else
   corba_data_desc_t get_data_arg(in string argID);
+#endif
 
   /**
    * invoked by client : removal from the platform of the data identified by argID
