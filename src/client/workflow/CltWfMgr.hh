@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2009/08/26 10:35:24  bisnard
+ * provide new methods for data input/output and execution transcript
+ *
  * Revision 1.17  2009/07/23 12:26:06  bisnard
  * new API method to get functional wf results as a container
  *
@@ -212,6 +215,34 @@ public:
    */
   diet_error_t
   printAllFunctionalWfResults(diet_wf_desc_t* profile);
+
+  /**
+   * Read the workflow/dag execution transcript from a file (XML)
+   * (file name is stored in profile)
+   * If file does not exist, method does nothing
+   */
+  diet_error_t
+  readWorkflowExecutionTranscript(diet_wf_desc_t * profile);
+
+  /**
+   * Store the workflow/dag execution transcript in a file (XML)
+   * (file name is stored in profile)
+   * (If file contains sth, content is overwritten)
+   */
+  diet_error_t
+  saveWorkflowExecutionTranscript(diet_wf_desc_t * profile,
+                                  const char * transcriptFileName);
+
+  /**
+   * Store the workflow data file (XML format) after workflow execution.
+   * This file can be used as input for another execution of a workflow
+   * to avoid re-uploading the data items to the DIET platform (the data
+   * IDs are written as attributes of the data items)
+   * (if file already exists, content will be overwritten)
+   */
+  diet_error_t
+  saveWorkflowDataFile(diet_wf_desc_t * profile,
+                       const char * dataFileName);
 
   /**
    * Get a scalar result from a dag

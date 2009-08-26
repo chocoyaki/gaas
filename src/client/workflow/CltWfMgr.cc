@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.34  2009/08/26 10:35:24  bisnard
+ * provide new methods for data input/output and execution transcript
+ *
  * Revision 1.33  2009/07/24 15:06:46  bisnard
  * XML validation using DTD for functional workflows
  *
@@ -153,6 +156,12 @@
 #include "debug.hh"
 #include "statistics.hh"
 #include "ORBMgr.hh"
+/* DAGDA */
+#if HAVE_DAGDA
+extern "C" {
+  #include "DIET_Dagda.h"
+}
+#endif
 /* WORKFLOW UTILS */
 #include "DagWfParser.hh"
 #include "FWorkflow.hh"
@@ -252,7 +261,7 @@ CltWfMgr::execNodeCommon(const char * node_id,
   return 1;
 }
 
-CltWfMgr::CltWfMgr() : mySem(0), cltWfReqId(0), dagSentCount(0) {
+CltWfMgr::CltWfMgr() : cltWfReqId(0), dagSentCount(0), mySem(0) {
   this->myMA = MasterAgent::_nil();
   this->myMaDag = MaDag::_nil();
   this->myWfLogService = WfLogService::_nil();
@@ -380,7 +389,7 @@ CltWfMgr::wfDagCallCommon(diet_wf_desc_t *dagProfile, Dag *dag, bool parse, bool
 
   if (parse) {
     try {
-      DagParser parser(*dag, dagProfile->abstract_wf);
+      SingleDagParser parser(*dag, dagProfile->abstract_wf);
       parser.parseXml();
     } catch (XMLParsingException& e) {
       cerr << "DAG PARSING FATAL ERROR:" << endl;
@@ -511,10 +520,11 @@ CltWfMgr::wfDagCallCommon(diet_wf_desc_t *dagProfile, Dag *dag, bool parse, bool
 diet_error_t
 CltWfMgr::wfFunctionalCall(diet_wf_desc_t * profile) {
   diet_error_t res(0);
-  char statMsg[128];
   string wfName(profile->name);
 
-  FWorkflow *wf = new FWorkflow(wfName);
+  FWorkflow *wf = new FWorkflow(profile->name);
+  // store wf profile to allow results retrieval
+  myProfiles[profile] = wf;
 
   // Initialize data file
   string dataFileName = defaultDataFileName;
@@ -524,7 +534,12 @@ CltWfMgr::wfFunctionalCall(diet_wf_desc_t * profile) {
   TRACE_TEXT (TRACE_MAIN_STEPS,"XML DATA SOURCE FILE = " << dataFileName << endl);
   wf->setDataSrcXmlFile(dataFileName);
 
-  // Parse workflow
+  // Read transcript file (if available)
+  if (profile->transcriptFile) {
+    readWorkflowExecutionTranscript(profile);
+  }
+
+  // Parse workflow description
   FWfParser reader(*wf, profile->abstract_wf);
   try {
 
@@ -555,8 +570,6 @@ CltWfMgr::wfFunctionalCall(diet_wf_desc_t * profile) {
     cerr << e.ErrorMsg() << endl;
     return WFL_BADSTRUCT;
   }
-  // store wf profile to allow results retrieval
-  myProfiles[profile] = wf;
 
   TRACE_TEXT (TRACE_MAIN_STEPS, "*** Get wf request ID from MADAG ****" << endl);
   CORBA::Long wfReqId = 0;
@@ -651,6 +664,7 @@ CltWfMgr::wfFunctionalCall(diet_wf_desc_t * profile) {
       res = 1;
   }
   wf->displayDagSummary(cout);
+//    myMA->getDataManager()->checkpointState();
   return res;
 }
 
@@ -730,17 +744,16 @@ CltWfMgr::printAllDagResults(diet_wf_desc_t* profile) {
       if (!dag->isCancelled())
         try {
           dag->displayAllResults(cout);
+          return 0;
         } catch (WfDataException& e) {
           cerr << "Data error: " << e.ErrorMsg() << endl;
-          return 1;
         }
       else
         cerr << "** DAG " << dag->getId()
              << " was cancelled => no results **" << endl;
     }
-    else return 1;
   }
-  else return 1;
+  return 1;
 }
 
 /**
@@ -748,21 +761,119 @@ CltWfMgr::printAllDagResults(diet_wf_desc_t* profile) {
  */
 diet_error_t
 CltWfMgr::printAllFunctionalWfResults(diet_wf_desc_t* profile) {
-  diet_error_t res(0);
   map<diet_wf_desc_t*,NodeSet*>::iterator nsp = myProfiles.find(profile);
   if (nsp != myProfiles.end()) {
     FWorkflow * wf = dynamic_cast<FWorkflow*>(nsp->second);
     if (wf != NULL) {
       try {
+        wf->downloadSinkData();
         wf->displayAllResults(cout);
+        return 0;
       } catch (WfDataException& e) {
         cerr << "Data error: " << e.ErrorMsg() << endl;
-        return 1;
       }
     }
-    else return 1;
   }
-  else return 1;
+  return 1;
+}
+
+diet_error_t
+CltWfMgr::readWorkflowExecutionTranscript(diet_wf_desc_t * profile) {
+  // check if file exists
+  ifstream inFile;
+  inFile.exceptions( ifstream::failbit | ifstream::badbit );
+  try {
+    inFile.open(profile->transcriptFile);
+    inFile.close();
+  } catch (...) {
+    TRACE_TEXT(TRACE_MAIN_STEPS, "Transcript file: file not found => use for output only" << endl);
+    return 0;
+  }
+  // find workflow & parse file
+  map<diet_wf_desc_t*,NodeSet*>::iterator nsp = myProfiles.find(profile);
+  if (nsp != myProfiles.end()) {
+    FWorkflow * wf = dynamic_cast<FWorkflow*>(nsp->second);
+    if (wf != NULL) {
+      try {
+        MultiDagParser dagsParser(string(profile->transcriptFile));
+        dagsParser.parseXml(false);
+        wf->readDagsState(dagsParser.getDags());
+      } catch (XMLParsingException& e) {
+        cerr << __FUNCTION__ << " : file read error :" << e.ErrorMsg() << endl;
+        return 1;
+      }
+      return 0;
+    }
+  }
+  return 1;
+}
+
+diet_error_t
+CltWfMgr::saveWorkflowExecutionTranscript(diet_wf_desc_t * profile,
+                                          const char * transcriptFileName) {
+  map<diet_wf_desc_t*,NodeSet*>::iterator nsp = myProfiles.find(profile);
+  if (nsp != myProfiles.end()) {
+    FWorkflow * wf = dynamic_cast<FWorkflow*>(nsp->second);
+    if (wf != NULL) {
+      // open the file
+      ofstream outFile;
+      outFile.exceptions( ofstream::failbit | ofstream::badbit );
+      try {
+        outFile.open(transcriptFileName, ofstream::trunc );
+      } catch (...) {
+        cerr << __FUNCTION__ << " : file open failed" << endl;
+        return 1;
+      }
+      // write the workflow transcript
+      wf->writeAllDagsState(outFile);
+      // close the file
+      try {
+        outFile.close();
+      } catch (...) {
+        cerr << __FUNCTION__ << " : file close failed" << endl;
+        return 1;
+      }
+      return 0;
+    }
+  }
+  return 1;
+}
+
+diet_error_t
+CltWfMgr::saveWorkflowDataFile(diet_wf_desc_t * profile,
+                               const char * dataFileName) {
+  map<diet_wf_desc_t*,NodeSet*>::iterator nsp = myProfiles.find(profile);
+  if (nsp != myProfiles.end()) {
+    FWorkflow * wf = dynamic_cast<FWorkflow*>(nsp->second);
+    if (wf != NULL) {
+      // open the file
+      ofstream outFile;
+      outFile.exceptions( ofstream::failbit | ofstream::badbit );
+      try {
+        outFile.open(dataFileName, ofstream::trunc );
+      } catch (...) {
+        cerr << __FUNCTION__ << " : file open failed" << endl;
+        return 1;
+      }
+      try {
+        // update data IDs and values
+        wf->downloadSinkData();
+        // write the workflow transcript
+        wf->writeAllSourcesAndSinksData( outFile );
+        // close the file
+      } catch (WfDataException& e) {
+
+      }
+      try {
+        outFile.close();
+      } catch (...) {
+        cerr << __FUNCTION__ << " : file close failed" << endl;
+        return 1;
+      }
+      return 0;
+    }
+  }
+  return 1;
 }
 
 /**
@@ -905,6 +1016,8 @@ CltWfMgr::wf_free(diet_wf_desc_t * profile) {
         stat_in("cltwfmgr",statMsg);
         wf->deleteAllResults();
         wf->deleteAllDags();
+        wf->deleteAllInputData(myMA);
+        wf->deleteAllIntermediateData(myMA);
         delete wf;
       }
     }
@@ -915,6 +1028,8 @@ CltWfMgr::wf_free(diet_wf_desc_t * profile) {
   } else {
     WARNING("wf_free : profile not found\n");
   }
+//   cout << "SAVE PLATFORM!!" << endl;
+//   dagda_save_platform();
 }
 
 /**
