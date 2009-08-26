@@ -1,6 +1,6 @@
 /****************************************************************************/
 /* The class representing the nodes of a functional workflow that will      */
-/* correspond to tasks in the DAG
+/* correspond to tasks in the DAG                                           */
 /*                                                                          */
 /* Author(s):                                                               */
 /* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2009/08/26 10:33:09  bisnard
+ * implementation of workflow status & restart
+ *
  * Revision 1.4  2009/07/23 12:30:10  bisnard
  * new method finalize() for functional wf nodes
  * removed const on currDataLine parameter for instance creation

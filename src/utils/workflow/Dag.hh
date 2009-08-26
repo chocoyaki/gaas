@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2009/08/26 10:33:08  bisnard
+ * implementation of workflow status & restart
+ *
  * Revision 1.24  2009/07/07 09:02:00  bisnard
  * modified toXML method
  *
@@ -232,6 +235,12 @@ public:
    */
   FWorkflow *
   getWorkflow();
+  
+  /**
+   * Set the execution agent
+   */
+  void
+  setExecutionAgent(MasterAgent_var& MA);
 
   /**
    * Get the execution agent
@@ -255,6 +264,12 @@ public:
    */
   DagNode *
   getDagNode(const string& nodeId) throw (WfStructException);
+  
+  /**
+   * remove a node from the dag
+   */
+  void
+  removeNode(const string& nodeId) throw (WfStructException);
 
   /**
    * return the size of the Dag (the nodes number and not the dag length)
@@ -287,18 +302,6 @@ public:
    */
   void
   linkAllPorts() throw (WfStructException);
-
-  /**
-   * check if the dag execution is ongoing
-   */
-  bool
-  isRunning();
-
-  /**
-   * check if the dag execution is completed *
-   */
-  bool
-  isDone();
 
   /**
    * check if the dag execution is cancelled *
@@ -481,6 +484,19 @@ public:
   getAllDietReqID();
 
 private:
+
+  /**
+   * check if the dag execution is ongoing
+   */
+  bool
+  isRunning();
+
+  /**
+   * check if the dag execution is completed *
+   */
+  bool
+  isDone();
+
   /*********************************************************************/
   /* private fields                                                    */
   /*********************************************************************/

@@ -1,6 +1,6 @@
 /****************************************************************************/
 /* The class representing the nodes of a functional workflow that will      */
-/* correspond to tasks in the DAG
+/* correspond to tasks in the DAG                                           */
 /*                                                                          */
 /* Author(s):                                                               */
 /* - Benjamin ISNARD (benjamin.isnard@ens-lyon.fr)                          */
@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2009/08/26 10:33:09  bisnard
+ * implementation of workflow status & restart
+ *
  * Revision 1.6  2009/07/23 12:30:10  bisnard
  * new method finalize() for functional wf nodes
  * removed const on currDataLine parameter for instance creation
@@ -35,11 +38,12 @@
 
 #include "debug.hh"
 #include "FActivityNode.hh"
+#include "FWorkflow.hh"
 #include "Dag.hh"
 
 FActivityNode::FActivityNode(FWorkflow* wf,
                              const string& id)
-  : FProcNode(wf, id), maxInstNb(0), myPath() {}
+  : FProcNode(wf, id), myPath(), maxInstNb(0) {}
 
 FActivityNode::~FActivityNode() {}
 
@@ -86,61 +90,119 @@ FActivityNode::createRealInstance(Dag* dag,
   DagNode* dagNode = NULL;
   string   dagNodeId = getId() + currTag.toString();
 
-  // create a new DagNode
-  TRACE_TEXT (TRACE_ALL_STEPS,"  ## NEW ACTIVITY INSTANCE : " << dagNodeId << endl);
-  dagNode = dag->createDagNode(dagNodeId, wf);
-  if (dagNode == NULL) {
-    INTERNAL_ERROR("Could not create dag node " << dagNodeId << endl,0);
-  }
-//   dagNode->setFNode(this);
-  ++nbInstances;
-
-  // LOOP for each port
-  for (map<string,WfPort*>::iterator portIter = ports.begin();
-      portIter != ports.end();
-      ++portIter) {
-    WfPort* port = (WfPort*) portIter->second;
-    FNodeInPort* inPort;
-    FNodeOutPort* outPort;
-    FDataHandle* dataHdl;
-    switch(port->getPortType()) {
-      case WfPort::PORT_IN:
-        inPort = dynamic_cast<FNodeInPort*>(port);
-        // get the input data handle from the map (if not found set as NULL)
-        dataHdl = currDataLine[inPort->getIndex()];
-        if (dataHdl == NULL) {
-          INTERNAL_ERROR("FActivityNode: Input data handle is invalid",1);
-        }
-        // instanciate port with data handle
-        inPort->createRealInstance(dag, dagNode, dataHdl);
-        break;
-      case WfPort::PORT_OUT:
-        outPort = dynamic_cast<FNodeOutPort*>(port);
-        // instanciate port with dagNode and tag
-        dataHdl = outPort->createRealInstance(dag, dagNode, currTag);
-        if (dataHdl == NULL) {
-          INTERNAL_ERROR("FActivityNode: Output data handle is invalid",1);
-        }
-        outPort->storeData(dataHdl);
-        outPort->sendData(dataHdl);
-        break;
-      default:
-        INTERNAL_ERROR("Invalid port type for FActivityNode",1);
+  // check if dagNode id is not available in the execution transcript
+  // (used in case of workflow re-start)
+  bool isAlreadyExecuted = false;
+  bool isOutputDataAvailable = false;
+  getWorkflow()->findDagNodeTranscript(dagNodeId, dagNode, isAlreadyExecuted);
+  
+  if (isAlreadyExecuted) {
+    
+     // LOOP for each port - check if data available
+    isOutputDataAvailable = true;
+    for (map<string,WfPort*>::iterator portIter = ports.begin();
+	 portIter != ports.end();
+	 ++portIter) {
+      WfPort* FPort = (WfPort*) portIter->second;
+      if (FPort->getPortType() == WfPort::PORT_OUT) {
+	
+	WfPort *_DPort = dagNode->getPort( FPort->getId() ); //TODO manage exceptions
+	DagNodePort *DPort = dynamic_cast<DagNodePort*>(_DPort);
+	
+	if (!DPort->isDataIDAvailable(dag->getExecutionAgent())) {
+	  cout << "DATA ID NOT AVAILABLE!" << endl;
+	  isOutputDataAvailable = false;
+	  break;
+	}
+      }
     }
-  } // end for ports
-
-  // define service path
-  if (!isDynamicParam("path"))
-    dagNode->setPbName(myPath);
-  else
-    dagNode->setPbName(getDynamicParamValue("path"));
-  // define ESTIMATION option
-  if (myEstimOption == "constant") {
-    dagNode->setEstimationClass(getId());
   }
-
-  TRACE_TEXT (TRACE_ALL_STEPS,"  ## END OF CREATION OF NEW ACTIVITY INSTANCE : "
+  
+  if (isOutputDataAvailable) {
+    TRACE_TEXT (TRACE_ALL_STEPS,"  ## RE-USE ACTIVITY INSTANCE : " << dagNodeId << endl);
+    // LOOP for each port - send data
+    for (map<string,WfPort*>::iterator portIter = ports.begin();
+	 portIter != ports.end();
+	 ++portIter) {
+      WfPort* FPort = (WfPort*) portIter->second;
+      if (FPort->getPortType() == WfPort::PORT_OUT) {
+	
+	WfPort *_DPort = dagNode->getPort( FPort->getId() ); //TODO manage exceptions
+	DagNodePort *DPort = dynamic_cast<DagNodePort*>(_DPort);
+	
+	FDataHandle* dataHdl = new FDataHandle( currTag,
+						FPort->getBaseDataType(),
+						FPort->getDepth() );
+	dataHdl->setDataID( DPort->getDataID() );	//TODO manage exceptions
+	TRACE_TEXT (TRACE_ALL_STEPS,"Port " << DPort->getId() << " data ID = " 
+				    << dataHdl->getDataID() << endl);
+	
+	FNodeOutPort *outPort = dynamic_cast<FNodeOutPort*>(FPort);
+	outPort->storeData(dataHdl);
+	outPort->sendData(dataHdl);
+      }
+    }
+    TRACE_TEXT (TRACE_ALL_STEPS,"  ## END OF RE-USE OF ACTIVITY INSTANCE : "
                               << dagNodeId << endl);
+			      
+  } else {	// USUAL BEHAVIOUR (no previous execution)
+    // create a new DagNode
+    TRACE_TEXT (TRACE_ALL_STEPS,"  ## NEW ACTIVITY INSTANCE : " << dagNodeId << endl);
+    dagNode = dag->createDagNode(dagNodeId, wf);
+    if (dagNode == NULL) {
+      INTERNAL_ERROR("Could not create dag node " << dagNodeId << endl,0);
+    }
+
+    ++nbInstances;
+
+    // LOOP for each port
+    for (map<string,WfPort*>::iterator portIter = ports.begin();
+	portIter != ports.end();
+	++portIter) {
+      WfPort* port = (WfPort*) portIter->second;
+      FNodeInPort* inPort;
+      FNodeOutPort* outPort;
+      FDataHandle* dataHdl;
+      switch(port->getPortType()) {
+	case WfPort::PORT_IN:
+	  inPort = dynamic_cast<FNodeInPort*>(port);
+	  // get the input data handle from the map (if not found set as NULL)
+	  dataHdl = currDataLine[inPort->getIndex()];
+	  if (dataHdl == NULL) {
+	    INTERNAL_ERROR("FActivityNode: Input data handle is invalid",1);
+	  }
+	  // instanciate port with data handle
+	  inPort->createRealInstance(dag, dagNode, dataHdl);
+	  break;
+	case WfPort::PORT_OUT:
+	  outPort = dynamic_cast<FNodeOutPort*>(port);
+	  // instanciate port with dagNode and tag
+	  dataHdl = outPort->createRealInstance(dag, dagNode, currTag);
+	  if (dataHdl == NULL) {
+	    INTERNAL_ERROR("FActivityNode: Output data handle is invalid",1);
+	  }
+	  outPort->storeData(dataHdl);
+	  outPort->sendData(dataHdl);
+	  break;
+	default:
+	  INTERNAL_ERROR("Invalid port type for FActivityNode",1);
+      }
+    } // end for ports
+
+    // define service path
+    if (!isDynamicParam("path"))
+      dagNode->setPbName(myPath);
+    else
+      dagNode->setPbName(getDynamicParamValue("path"));
+    // define ESTIMATION option
+    if (myEstimOption == "constant") {
+      dagNode->setEstimationClass(getId());
+    }
+
+    TRACE_TEXT (TRACE_ALL_STEPS,"  ## END OF CREATION OF NEW ACTIVITY INSTANCE : "
+                              << dagNodeId << endl);
+			      
+  } 
 }
 
 void

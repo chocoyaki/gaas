@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2009/08/26 10:33:09  bisnard
+ * implementation of workflow status & restart
+ *
  * Revision 1.23  2009/07/24 15:06:46  bisnard
  * XML validation using DTD for functional workflows
  *
@@ -138,7 +141,8 @@ class XMLParsingException {
                                eEMPTY_ATTR,
                                eBAD_STRUCT,
                                eINVALID_REF,
-                               eINVALID_DATA };
+                               eINVALID_DATA,
+                               eFILENOTFOUND };
     XMLParsingException(XMLParsingErrorType t, const string& info)
       { this->why = t; this->info = info; }
     XMLParsingErrorType Type() { return this->why; }
@@ -159,6 +163,7 @@ public:
   /** Reader constructor
    * @param content the workflow description
    */
+  DagWfParser();
   DagWfParser(const char * content);
   DagWfParser(const string& fileName);
 
@@ -174,55 +179,12 @@ public:
   void
   parseXml(bool checkValid = false);
 
-  /**
-   * utility method to get the attribute value in a DOM element
-   *
-   * @param attr_name the attribute name
-   * @param elt      the DOM element
-   */
-  static string
-      getAttributeValue(const char * attr_name, const DOMElement * elt);
-
-  /**
-   * utility method to check that the attribute is non-empty
-   */
-  static void
-      checkMandatoryAttr(const string& tagName,
-                         const string& attrName,
-                         const string& attrValue);
-
-  /**
-   * utility method to check that an element does not contain any child
-   */
-  static void
-      checkLeafElement(const DOMElement * element, const string& tagName);
-
-  /**
-   * Utility method to get the text content of a DOM element
-   * @param element the DOM element
-   * @param buffer  the string that will contain the value
-   */
-  static void
-      getTextContent(const DOMElement * element, string& buffer);
-
-  /**
-   * Utility method to trim spaces from strings
-   */
-  static string&
-      stringTrim(string& str);
-
 protected:
 
   /**
-   * Utility method to parse multiple assignmnent data
-   */
-  static void
-      getPortMap(const string& thenMapStr,
-                 map<string,string>& thenMap) throw (XMLParsingException);
-
-  /**
    * workflow description
-   * contains the content of the workflow description file
+   * Either XML is stored in the 'content' attribute or it is provided
+   * in a file
    */
   string content;
   string myXmlFileName;
@@ -232,19 +194,23 @@ protected:
    */
   DOMDocument * document;
 
+
   /****************/
   /* Xml methods  */
   /****************/
 
-
   /**
    * Parse the root element
+   * The implementation depends on the document structure so this is defined in
+   * child classes.
    */
   virtual void
   parseRoot(DOMNode* root) = 0;
 
   /**
    * Parse a node (element & sub-elements)
+   * This common implementation parses the node and its ports, and calls
+   * parseOtherNodeSubElt(...) for specific node sub-elements
    * @param element     the DOM element
    * @param elementName the element tag name (ie 'node' or 'processor' ...)
    */
@@ -335,62 +301,174 @@ protected:
    * @param node        the current node object
    */
   WfPort *
-  setParam(const WfPort::WfPortType param_type,
-	   const string& name,
-	   const string& type,
-           const string& depth,
-	   unsigned int lastArg,
-	   WfNode * node);
+  createPort( const WfPort::WfPortType param_type,
+	      const string& name,
+	      const string& type,
+	      const string& depth,
+	      unsigned int lastArg,
+	      WfNode * node );
 
   /**
    * create a node port of type matrix
    */
   WfPort *
-  setMatrixParam(const DOMElement * element,
-                 const WfPort::WfPortType param_type,
-		 const string& name,
-		 unsigned int lastArg,
-		 WfNode * node);
+  createMatrixPort( const DOMElement * element,
+		    const WfPort::WfPortType param_type,
+		    const string& name,
+		    unsigned int lastArg,
+		    WfNode * node );
+
+
+  /********************/
+  /* Utility methods  */
+  /********************/
+
+  /**
+   * utility method to get the attribute value in a DOM element
+   * @param attr_name the attribute name
+   * @param elt      the DOM element
+   */
+  static string
+      getAttributeValue(const char * attr_name, const DOMElement * elt);
+
+  /**
+   * utility method to check that the attribute is non-empty
+   */
+  static void
+      checkMandatoryAttr(const string& tagName,
+                         const string& attrName,
+                         const string& attrValue);
+
+  /**
+   * utility method to check that an element does not contain any child
+   */
+  static void
+      checkLeafElement(const DOMElement * element, const string& tagName);
+
+  /**
+   * Utility method to get the text content of a DOM element
+   * @param element the DOM element
+   * @param buffer  the string that will contain the value
+   */
+  static void
+      getTextContent(const DOMElement * element, string& buffer);
+
+  /**
+   * Utility method to trim spaces from strings
+   */
+  static string&
+      stringTrim(string& str);
+
+  /**
+   * Utility method to parse multiple assignmnent data
+   */
+  static void
+      getPortMap(const string& thenMapStr,
+                 map<string,string>& thenMap) throw (XMLParsingException);
+
 
 }; // end class DagWfParser
 
 /*****************************************************************************/
-/*                         CLASS DagParser                                   */
+/*                         CLASS DagParser  *** ABSTRACT ***                 */
 /*****************************************************************************/
 
 class DagParser : public DagWfParser {
 
 public:
-  DagParser(Dag& dag, const char * content);
-  ~DagParser();
+  DagParser();
+  DagParser(const char * content);
+  DagParser(const string& xmlFileName);
+  virtual ~DagParser();
 
 protected:
 
-  virtual void
-  parseRoot(DOMNode* root);
+  Dag* myCurrDag;
+
+  /**
+   * Set the current dag
+   */
+  void setCurrentDag(Dag& dag);
+
+  /**
+   * Parse XML for one dag (beginning with <dag>)
+   */
+  void parseOneDag(DOMNode* root);
+
+  /**
+   * Creation of a Dag node
+   */
   virtual WfNode *
-  createNode(const DOMElement * element, const string& elementName );
+  createNode( const DOMElement * element, const string& elementName );
+
+  /**
+   * Parse dag node specific sub-tags (
+   */
   virtual void
-  parseOtherNodeSubElt(const DOMElement * element,
-                       const string& elementName,
-                       unsigned int& portIndex,
-                       WfNode * node);
+  parseOtherNodeSubElt( const DOMElement * element,
+			const string& elementName,
+			unsigned int& portIndex,
+			WfNode * node );
   /**
    * Parse a prec element
    * @param element   port DOM element reference
    * @param node      ref to the current node
    */
   void
-  parsePrec(const DOMElement * element,
-            WfNode * node);
-private:
-
-  /**
-   * Dag structure
-   */
-  Dag&  dag;
+  parsePrec( const DOMElement * element,
+             WfNode * node );
 
 }; // end class DagParser
+
+/*****************************************************************************/
+/*                         CLASS SingleDagParser                             */
+/*****************************************************************************/
+
+class SingleDagParser : public DagParser {
+
+  public:
+
+    SingleDagParser(Dag& dag, const char * content);
+    virtual ~SingleDagParser();
+
+  protected:
+
+    virtual void parseRoot(DOMNode* root);
+
+}; // end class SingleDagParser
+
+
+/*****************************************************************************/
+/*                         CLASS MultiDagParser                              */
+/*****************************************************************************/
+
+class MultiDagParser : public DagParser {
+
+  public:
+
+    MultiDagParser ();
+    MultiDagParser ( const string& xmlFileName );
+
+    virtual ~MultiDagParser();
+
+    /**
+     * Parse a <dags> DOM element
+     * @param root	the DOM node corresponding to <dags>
+     */
+    virtual void parseRoot(DOMNode* root);
+
+    /**
+     * Get the list of dags created during parsing
+     * IMPORTANT: - created dags have no execution agent defined
+     * 		  - parser does not deallocate dags at destruction
+     */
+    list<Dag*>& getDags();
+
+  protected:
+
+    list<Dag*>	myDags;
+
+}; // end class MultiDagParser
 
 /*****************************************************************************/
 /*                         CLASS FWfParser                                   */
@@ -580,6 +658,7 @@ class DataSourceHandler : public DefaultHandler {
     FSourceNode*  myNode;
     FDataTag*     myCurrTag;
     string        myCurrItemValue;
+    string        myCurrItemDataID;
 
     bool          isSourceFound;
     bool          isItemFound;

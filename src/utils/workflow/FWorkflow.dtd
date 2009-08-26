@@ -39,9 +39,10 @@
 	depth CDATA "0"
 	card CDATA #IMPLIED
 	interface CDATA #IMPLIED>
-<!ELEMENT iterationstrategy (cross|dot)>
-<!ELEMENT cross ((cross|dot|port)*)>
-<!ELEMENT dot ((cross|dot|port)*)>
+<!ELEMENT iterationstrategy (cross|dot|flatcross)>
+<!ELEMENT cross ((cross|dot|flatcross|port)*)>
+<!ELEMENT dot ((cross|dot|flatcross|port)*)>
+<!ELEMENT flatcross ((cross|dot|flatcross|port)*)>
 <!ELEMENT port EMPTY>
 <!ATTLIST port
 	name CDATA #REQUIRED>

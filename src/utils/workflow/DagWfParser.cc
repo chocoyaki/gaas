@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.34  2009/08/26 10:33:09  bisnard
+ * implementation of workflow status & restart
+ *
  * Revision 1.33  2009/07/24 15:06:46  bisnard
  * XML validation using DTD for functional workflows
  *
@@ -174,6 +177,8 @@ XMLParsingException::ErrorMsg() {
       errorMsg = "INVALID REFERENCE (" + Info() + ")"; break;
     case eINVALID_DATA :
       errorMsg = "INVALID DATA (" + Info() + ")"; break;
+    case eFILENOTFOUND :
+      errorMsg = "FILE NOT FOUND (" + Info() + ")"; break;
   }
   return errorMsg;
 }
@@ -195,108 +200,15 @@ MyDOMErrorHandler::handleError (const DOMError &domError) {
 /**
  * Constructor
  */
+DagWfParser::DagWfParser() : content() {
+}
 DagWfParser::DagWfParser(const char * wf_desc) : content(wf_desc) {
 }
-DagWfParser::DagWfParser(const string& fileName) : myXmlFileName(fileName) {
+DagWfParser::DagWfParser(const string& fileName)
+  : content (), myXmlFileName(fileName) {
 }
 
 DagWfParser::~DagWfParser() {
-}
-
-/**
- * Get the attribute value of a DOM element
- */
-string
-DagWfParser::getAttributeValue(const char * attr_name,
-			       const DOMElement * elt) {
-  XMLCh * attr = XMLString::transcode(attr_name);
-  const XMLCh * value   = elt->getAttribute(attr);
-  char  * value_str = XMLString::transcode(value);
-
-  string result(value_str);
-
-  XMLString::release(&value_str);
-  XMLString::release(&attr);
-
-  return result;
-}
-
-/**
- * Check that an attribute is non-empty
- */
-void
-DagWfParser::checkMandatoryAttr(const string& tagName,
-                                const string& attrName,
-                                const string& attrValue) {
-  if (attrValue.empty())
-    throw XMLParsingException(XMLParsingException::eEMPTY_ATTR,
-                              "Attribute " + attrName + " of tag " + tagName + " is empty");
-}
-
-/**
- * Get the text content of a DOM element (either parsed or non-parsed)
- */
-void
-DagWfParser::getTextContent(const DOMElement * element, string& buffer) {
-  DOMNode * child = element->getFirstChild();
-  if ((child != NULL)
-       && ((child->getNodeType() == DOMNode::TEXT_NODE)
-           || (child->getNodeType() == DOMNode::CDATA_SECTION_NODE))) {
-    DOMText * child_elt = (DOMText*) child;
-    char *child_content = XMLString::transcode(child_elt->getData());
-    buffer = child_content;
-    XMLString::release(&child_content);
-  }
-}
-
-void
-DagWfParser::checkLeafElement(const DOMElement * element, const string& tagName) {
-  if (element->getFirstChild() != NULL)
-    throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
-          "The element '" + tagName +  "' does not accept a child element. \
-          May be a </" + tagName + "> is forgotten");
-}
-
-/**
- * Trim string
- */
-string&
-DagWfParser::stringTrim(string& str) {
-  string::size_type pos = str.find_last_not_of(' ');
-  if(pos != string::npos) {
-    str.erase(pos + 1);
-    pos = str.find_first_not_of(' ');
-    if(pos != string::npos) str.erase(0, pos);
-  }
-  else str.erase(str.begin(), str.end());
-  return str;
-}
-
-/**
- * Parse an assignment string (eg 'portA=portB; portC=VOID;')
- */
-void
-DagWfParser::getPortMap(const string& thenMapStr,
-                        map<string,string>& thenMap) throw (XMLParsingException) {
-  string::size_type startPos = 0;
-  string mapStr = thenMapStr;
-  stringTrim(mapStr);
-  while (startPos < mapStr.length()) {
-    string::size_type sepPos = mapStr.find(";",startPos);
-    if (sepPos == string::npos)
-      throw XMLParsingException(XMLParsingException::eINVALID_DATA,
-                                "missing semi-column at end of assignment in '"
-                                + mapStr +"'");
-    string::size_type opPos = mapStr.find("=",startPos);
-    if (opPos > sepPos)
-      throw XMLParsingException(XMLParsingException::eINVALID_DATA,
-                                "missing assignment (=) operator in '"
-                               + mapStr + "'");
-    string left(mapStr.substr(startPos, opPos-startPos));
-    string right(mapStr.substr(opPos+1, sepPos-opPos-1));
-    thenMap.insert(pair<string,string>(stringTrim(left),stringTrim(right)));
-    startPos = sepPos+1;
-  }
 }
 
 /**
@@ -331,7 +243,7 @@ DagWfParser::parseXml(bool checkValid) {
   // Wrapper
   Wrapper4InputSource * wrapper;
   string errorMsgPfx;
-  if (myXmlFileName.empty()) {
+  if (!content.empty()) {
 
     // INITIALIZE FROM BUFFER
     static const char * content_id = "workflow_description";
@@ -344,7 +256,7 @@ DagWfParser::parseXml(bool checkValid) {
       );
     wrapper = new Wrapper4InputSource(memBufIS);
 
-  } else {
+  } else if (!myXmlFileName.empty()) {
 
     // INITIALIZE FROM FILE
     TRACE_TEXT(TRACE_ALL_STEPS, "PARSING FROM FILE: " << myXmlFileName << endl);
@@ -353,7 +265,11 @@ DagWfParser::parseXml(bool checkValid) {
     LocalFileInputSource * fileBufIS = new LocalFileInputSource(xmlFileName);
     wrapper = new Wrapper4InputSource(fileBufIS);
 //     XREL(xmlFileName);
+
+  } else {
+    throw XMLParsingException(XMLParsingException::eUNKNOWN,"Empty XML filename");
   }
+
   // PARSE
   TRACE_TEXT(TRACE_ALL_STEPS, "PARSING XML START" << endl);
   try {
@@ -364,8 +280,8 @@ DagWfParser::parseXml(bool checkValid) {
   }
 
   if (document == NULL)
-    throw XMLParsingException(XMLParsingException::eUNKNOWN,
-                              "XML File not found");
+    throw XMLParsingException(XMLParsingException::eFILENOTFOUND,
+                              myXmlFileName);
 
   // Check if DTD was provided
   if (checkValid && !document->getDoctype()) {
@@ -437,9 +353,9 @@ DagWfParser::parseArg(const DOMElement * element, unsigned int lastArg,
   checkLeafElement(element, "arg");
   WfPort *port;
   if (!WfCst::isMatrixType(type)) {
-    port = setParam(WfPort::PORT_ARG, name, type, depth, lastArg, node);
+    port = createPort(WfPort::PORT_ARG, name, type, depth, lastArg, node);
   } else {
-    port = setMatrixParam(element, WfPort::PORT_ARG, name, lastArg, node);
+    port = createMatrixPort(element, WfPort::PORT_ARG, name, lastArg, node);
   }
   // set the value
   DagNodeArgPort * dagPort = dynamic_cast<DagNodeArgPort*>(port);
@@ -467,9 +383,9 @@ DagWfParser::parseIn(const DOMElement * element, unsigned int lastArg,
   checkLeafElement(element, "in");
   WfPort *port;
   if (!WfCst::isMatrixType(type)) {
-    port = setParam(WfPort::PORT_IN, name, type, depth, lastArg, node);
+    port = createPort(WfPort::PORT_IN, name, type, depth, lastArg, node);
   } else {
-    port = setMatrixParam(element, WfPort::PORT_IN, name, lastArg, node);
+    port = createMatrixPort(element, WfPort::PORT_IN, name, lastArg, node);
   }
   if (!source.empty())
     port->setConnectionRef(source);
@@ -493,9 +409,9 @@ DagWfParser::parseInOut(const DOMElement * element, unsigned int lastArg,
   checkLeafElement(element, "inOut");
   WfPort *port;
   if (!WfCst::isMatrixType(type)) {
-    port = setParam(WfPort::PORT_INOUT, name, type, depth, lastArg, node);
+    port = createPort(WfPort::PORT_INOUT, name, type, depth, lastArg, node);
   } else {
-    port = setMatrixParam(element, WfPort::PORT_INOUT, name, lastArg, node);
+    port = createMatrixPort(element, WfPort::PORT_INOUT, name, lastArg, node);
   }
   if (!source.empty())
     port->setConnectionRef(source);
@@ -513,43 +429,37 @@ DagWfParser::parseOut(const DOMElement * element, unsigned int lastArg,
   string sink  = getAttributeValue("sink", element);
   string interface  = getAttributeValue("interface", element);
   string depth = getAttributeValue("depth", element);
+  string dataId = getAttributeValue("dataId", element);
   checkMandatoryAttr("out","name",name);
   checkMandatoryAttr("out","type",name);
   checkLeafElement(element, "out");
   WfPort *port;
   if (!WfCst::isMatrixType(type)) {
-    port = setParam(WfPort::PORT_OUT, name, type, depth, lastArg, node);
+    port = createPort(WfPort::PORT_OUT, name, type, depth, lastArg, node);
   } else {
-    port = setMatrixParam(element, WfPort::PORT_OUT, name, lastArg, node);
+    port = createMatrixPort(element, WfPort::PORT_OUT, name, lastArg, node);
   }
   if (!sink.empty())
     port->setConnectionRef(sink);
   if (!interface.empty())
     port->setInterfaceRef(interface);
+  if (!dataId.empty()) {
+    DagNodePort *DPort = dynamic_cast<DagNodePort*>(port);
+    DPort->setDataID(dataId);
+  }
   return port;
-}
-
-/**
- * Parse a prec element
- */
-void
-DagParser::parsePrec(const DOMElement * element, WfNode* node) {
-  string precNodeId = getAttributeValue("id", element);
-  checkMandatoryAttr("prec","id",precNodeId);
-  checkLeafElement(element, "prec");
-  node->addNodePredecessor(NULL, precNodeId);
 }
 
 /**
  * Create a port
  */
 WfPort *
-DagWfParser::setParam(const WfPort::WfPortType param_type,
-		      const string& name,
-		      const string& type,
-                      const string& depth,
-		      unsigned int lastArg,
-		      WfNode * node) {
+DagWfParser::createPort( const WfPort::WfPortType param_type,
+			 const string& name,
+			 const string& type,
+			 const string& depth,
+			 unsigned int lastArg,
+			 WfNode * node ) {
   // Get the base type and the depth of the list structure (syntax 'LIST(LIST(<basetype>))')
   unsigned int typeDepth = 0;
   string curType = type;
@@ -584,11 +494,11 @@ DagWfParser::setParam(const WfPort::WfPortType param_type,
  * create a port with matrix parameter type
  */
 WfPort *
-DagWfParser::setMatrixParam(const DOMElement * element,
-                            const WfPort::WfPortType param_type,
-			    const string& name,
-			    unsigned int lastArg,
-			    WfNode * node) {
+DagWfParser::createMatrixPort( const DOMElement * element,
+			       const WfPort::WfPortType param_type,
+			       const string& name,
+			       unsigned int lastArg,
+			       WfNode * node ) {
   string elt_type_str = getAttributeValue("base_type", element);
   string nb_rows_str = getAttributeValue("nb_rows", element);
   string nb_cols_str = getAttributeValue("nb_cols", element);
@@ -624,32 +534,37 @@ DagWfParser::setMatrixParam(const DOMElement * element,
 /*                         CLASS DagParser                                   */
 /*****************************************************************************/
 
-DagParser::DagParser(Dag& dag, const char* content)
-  : DagWfParser(content), dag(dag) {
+DagParser::DagParser() : DagWfParser(), myCurrDag(NULL) {
+}
+DagParser::DagParser(const char* content)
+  : DagWfParser(content), myCurrDag(NULL) {
+}
+DagParser::DagParser(const string& xmlFileName)
+  : DagWfParser(xmlFileName), myCurrDag(NULL) {
 }
 DagParser::~DagParser() {
 }
 
-/**
- * parse the root node (dag) and its elements (nodes)
- */
 void
-DagParser::parseRoot(DOMNode* root) {
-  // Check root element
-  char * _rootNodeName = XMLString::transcode(root->getNodeName());
-  if (strcmp (_rootNodeName, "dag")) {
+DagParser::setCurrentDag(Dag& dag) {
+  myCurrDag = &dag;
+}
+
+void
+DagParser::parseOneDag(DOMNode* root) {
+  char * rootNodeName = XTOC(root->getNodeName());
+  if ( strcmp(rootNodeName, "dag") )
     throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
                               "XML for DAG should begin with <dag>");
-  }
-  XMLString::release(&_rootNodeName);
+  XREL(rootNodeName);
   DOMNode * child = root->getFirstChild();
   while ((child != NULL)) {
     // Parse all the <node> elements
     if (child->getNodeType() == DOMNode::ELEMENT_NODE) {
       DOMElement * child_elt = (DOMElement*)child;
-      char * _nodeName = XMLString::transcode(child_elt->getNodeName());
+      char * _nodeName = XTOC(child_elt->getNodeName());
       string nodeName(_nodeName);
-      XMLString::release(&_nodeName);
+      XREL(_nodeName);
       TRACE_TEXT (TRACE_ALL_STEPS,
 		  "Parsing the element " << nodeName << endl );
       if (nodeName != "node") {
@@ -664,15 +579,19 @@ DagParser::parseRoot(DOMNode* root) {
 
 WfNode *
 DagParser::createNode(const DOMElement* element, const string& elementName) {
+  if (!myCurrDag) {
+    INTERNAL_ERROR(__FUNCTION__ << "Null dag pointer" << endl,1);
+  }
   string nodeId(getAttributeValue("id", element));
   string pbName = getAttributeValue("path", element);
   string estClass = getAttributeValue("est-class", element);
+  string status = getAttributeValue("status", element);
   checkMandatoryAttr("node","id",nodeId);
   checkMandatoryAttr("node","path",pbName);
 
   DagNode* node = NULL;
   try {
-    node = dag.createDagNode(nodeId);
+    node = myCurrDag->createDagNode(nodeId);
   } catch (WfStructException& e) {
     throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
                               "Cannot create node : "+e.ErrorMsg());
@@ -680,6 +599,8 @@ DagParser::createNode(const DOMElement* element, const string& elementName) {
   node->setPbName(pbName);
   if (!estClass.empty())
     node->setEstimationClass(estClass);
+  if (!status.empty())
+    node->setStatus(status);
   return node;
 }
 
@@ -693,6 +614,86 @@ DagParser::parseOtherNodeSubElt(const DOMElement * element,
   } else
     throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
                               "Invalid tag within node (" + elementName + ")");
+}
+
+void
+DagParser::parsePrec(const DOMElement * element, WfNode* node) {
+  string precNodeId = getAttributeValue("id", element);
+  checkMandatoryAttr("prec","id",precNodeId);
+  checkLeafElement(element, "prec");
+  node->addNodePredecessor(NULL, precNodeId);
+}
+
+
+/*****************************************************************************/
+/*                       CLASS SingleDagParser                               */
+/*****************************************************************************/
+
+SingleDagParser::SingleDagParser(Dag& dag, const char* content)
+  : DagParser(content) {
+  setCurrentDag(dag);
+}
+
+SingleDagParser::~SingleDagParser() {
+}
+
+void
+SingleDagParser::parseRoot(DOMNode* root) {
+  parseOneDag(root);
+}
+
+
+/*****************************************************************************/
+/*                       CLASS MultiDagParser                               */
+/*****************************************************************************/
+
+MultiDagParser::MultiDagParser()
+  : DagParser() {
+}
+
+MultiDagParser::MultiDagParser( const string& xmlFileName )
+  : DagParser(xmlFileName) {
+}
+
+MultiDagParser::~MultiDagParser() {
+  // does not deallocate parsed dags
+}
+
+list<Dag*>&
+MultiDagParser::getDags() {
+  return myDags;
+}
+
+void
+MultiDagParser::parseRoot(DOMNode* root) {
+  // Check root element
+  char * _rootNodeName = XTOC(root->getNodeName());
+  if (strcmp (_rootNodeName, "dags")) {
+    throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
+                              "XML for MultiDAG should begin with <dags>");
+  }
+  XREL(_rootNodeName);
+  DOMNode * child = root->getFirstChild();
+  while ((child != NULL)) {
+    // Parse all the <dag> elements
+    if (child->getNodeType() == DOMNode::ELEMENT_NODE) {
+      DOMElement * child_elt = (DOMElement*)child;
+      char * _childName = XTOC(child_elt->getNodeName());
+      string childName(_childName);
+      TRACE_TEXT (TRACE_ALL_STEPS,
+		  "Parsing the element " << childName << endl );
+      if (strcmp(_childName, "dag")) {
+	throw XMLParsingException(XMLParsingException::eUNKNOWN_TAG,
+                                  "A MultiDag should only contain <dag> elements");
+      }
+      XREL(_childName);
+      Dag * currDag = new Dag();
+      myDags.push_back(currDag);
+      this->setCurrentDag(*currDag);
+      this->parseOneDag(child);
+    }
+    child = child->getNextSibling();
+  }
 }
 
 /*****************************************************************************/
@@ -831,6 +832,7 @@ FWfParser::createNode(const DOMElement* element, const string& elementName) {
     node = workflow.createSource(name,(WfCst::WfDataType) dataType);
 
   } else if (elementName == "constant") {
+    string dataID = getAttributeValue("dataId", element);
     checkMandatoryAttr(elementName,"type",type);
     if (!depth.empty())
       throw XMLParsingException(XMLParsingException::eUNKNOWN_ATTR,
@@ -838,6 +840,8 @@ FWfParser::createNode(const DOMElement* element, const string& elementName) {
     FConstantNode* cstNode = workflow.createConstant(name,(WfCst::WfDataType) dataType);
     if (!value.empty())
       cstNode->setValue(value);
+    if (!dataID.empty())
+      cstNode->setDataID(dataID);
     node = (WfNode*) cstNode;
 
   } else if (elementName == "sink") {
@@ -905,9 +909,9 @@ FWfParser::parsePortCommon(const DOMElement * element,
   checkLeafElement(element,portName);
 
   if (!WfCst::isMatrixType(type)) {
-    return setParam(portType, name, type, depth, portIndex, node);
+    return createPort(portType, name, type, depth, portIndex, node);
   } else {
-    return setMatrixParam(element, portType, name, portIndex, node);
+    return createMatrixPort(element, portType, name, portIndex, node);
   }
 }
 
@@ -954,7 +958,7 @@ FWfParser::parseParamPort(const DOMElement * element,
   if (WfCst::isMatrixType(type))
     throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
           "param port cannot have a matrix type");
-  return setParam(WfPort::PORT_PARAM, name, type, "0", lastArg, node);
+  return createPort(WfPort::PORT_PARAM, name, type, "0", lastArg, node);
 }
 
 /**
@@ -989,7 +993,8 @@ FWfParser::parseLink(const DOMElement * element) {
   try {
     FNode *fromNode = parseLinkRef(from, fromNodeName, fromPortName);
     FNode *toNode = parseLinkRef(to, toNodeName, toPortName);
-    TRACE_TEXT(TRACE_ALL_STEPS, "Parsing link: from=" << from << " to=" << to << endl);
+    TRACE_TEXT(TRACE_ALL_STEPS, "Parsing link: from=" << fromNode->getId()
+                                << " to=" << toNode->getId() << endl);
     // set the port reference
     WfPort *toPort = toNode->getPort(toPortName);
     toPort->setConnectionRef(fromNodeName + "#" + fromPortName);
@@ -1053,6 +1058,15 @@ FWfParser::parseIterationStrategy(const DOMElement * element,
           throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
                                     "CROSS iterator only accepts 2 input ports");
         const string& opId = procNode->createInputOperator(FProcNode::OPER_CROSS, *opInputIds);
+        inputIds->push_back(opId);
+        delete opInputIds;
+      } else
+      if (child_name == "flatcross") {
+	vector<string>* opInputIds = parseIterationStrategy(child_elt, procNode);
+        if (opInputIds->size() > 2)
+          throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
+                                    "FLAT-CROSS iterator only accepts 2 input ports");
+        const string& opId = procNode->createInputOperator(FProcNode::OPER_FLATCROSS, *opInputIds);
         inputIds->push_back(opId);
         delete opInputIds;
       } else
@@ -1239,7 +1253,7 @@ DataSourceParser::~DataSourceParser() {
 
 void
 DataSourceParser::parseXml(const string& dataFileName) throw (XMLParsingException) {
-  const XMLCh gLS[] = { chLatin_L, chLatin_S, chNull };
+//   const XMLCh gLS[] = { chLatin_L, chLatin_S, chNull };
 
   TRACE_TEXT(TRACE_ALL_STEPS, "PARSING XML START" << endl);
 
@@ -1338,13 +1352,34 @@ DataSourceHandler::endSource() {
 void
 DataSourceHandler::startList(const   Attributes&     attrs) {
   if (isSourceFound) {
-    if (myCurrTag == NULL) {
+
+    // temporary for my own tag
+    FDataTag* myTag = myCurrTag;
+
+    // create tag
+    if (myTag == NULL) {
       myCurrTag = new FDataTag(0,false);
     } else {
-      FDataTag* parTag = myCurrTag;
-      myCurrTag = new FDataTag(*parTag, 0, false);  // creates first child tag
-      delete parTag;
+      myCurrTag = new FDataTag(*myTag, 0, false);  // creates first child tag
     }
+
+    // insert dataID if provided
+    string currListDataID = "";
+    for (XMLSize_t i = 0; i < attrs.getLength(); i++) {
+      char * name  = XTOC(attrs.getQName(i));
+      char * value = XTOC(attrs.getValue(i));
+      if (!strcmp(name,"dataId")) {
+        currListDataID = value;
+      }
+      XREL(name);
+      XREL(value);
+    }
+    if (!currListDataID.empty()) {
+      myNode->insertDataID(*myTag, myCurrItemDataID);
+    }
+
+    // delete temporary
+    delete myTag;
   }
 }
 
@@ -1362,11 +1397,15 @@ DataSourceHandler::startItem(const   Attributes&     attrs) {
   if (isSourceFound && (myCurrTag)) {
 //     cout << "found item / tag=" << myCurrTag->toString() << endl;
     isItemFound = true;
+    myCurrItemValue = "";
+    myCurrItemDataID = "";
     for (XMLSize_t i = 0; i < attrs.getLength(); i++) {
       char * name  = XTOC(attrs.getQName(i));
       char * value = XTOC(attrs.getValue(i));
       if (!strcmp(name,"value")) {
         myCurrItemValue = value;
+      } else if (!strcmp(name,"dataId")) {
+        myCurrItemDataID = value;
       }
       XREL(name);
       XREL(value);
@@ -1389,7 +1428,11 @@ DataSourceHandler::characters (const  XMLCh* const     chars,
 void
 DataSourceHandler::endItem() {
   if (isItemFound) {
-    myNode->instanciate(*myCurrTag, myCurrItemValue);
+    if (!myCurrItemDataID.empty())
+      myNode->insertDataID(*myCurrTag, myCurrItemDataID, myCurrItemValue);
+    else
+      myNode->insertValue(*myCurrTag, myCurrItemValue);
+
     myCurrTag->getSuccessor();
     isItemFound = false;
   }
@@ -1408,4 +1451,105 @@ DataSourceHandler::warning(const SAXParseException& e)
   string errorMsg = "Warning in data source XML file (line "
                     + itoa(e.getLineNumber()) + ")";
   throw XMLParsingException(XMLParsingException::eBAD_STRUCT, errorMsg);
+}
+
+
+/*****************************************************************************/
+/*          CLASS DataSourceHandler - Static utility methods                 */
+/*****************************************************************************/
+
+/**
+ * Get the attribute value of a DOM element
+ */
+string
+DagWfParser::getAttributeValue(const char * attr_name,
+			       const DOMElement * elt) {
+  XMLCh * attr = XMLString::transcode(attr_name);
+  const XMLCh * value   = elt->getAttribute(attr);
+  char  * value_str = XMLString::transcode(value);
+
+  string result(value_str);
+
+  XMLString::release(&value_str);
+  XMLString::release(&attr);
+
+  return result;
+}
+
+/**
+ * Check that an attribute is non-empty
+ */
+void
+DagWfParser::checkMandatoryAttr(const string& tagName,
+                                const string& attrName,
+                                const string& attrValue) {
+  if (attrValue.empty())
+    throw XMLParsingException(XMLParsingException::eEMPTY_ATTR,
+                              "Attribute " + attrName + " of tag " + tagName + " is empty");
+}
+
+/**
+ * Get the text content of a DOM element (either parsed or non-parsed)
+ */
+void
+DagWfParser::getTextContent(const DOMElement * element, string& buffer) {
+  DOMNode * child = element->getFirstChild();
+  if ((child != NULL)
+       && ((child->getNodeType() == DOMNode::TEXT_NODE)
+           || (child->getNodeType() == DOMNode::CDATA_SECTION_NODE))) {
+    DOMText * child_elt = (DOMText*) child;
+    char *child_content = XMLString::transcode(child_elt->getData());
+    buffer = child_content;
+    XMLString::release(&child_content);
+  }
+}
+
+void
+DagWfParser::checkLeafElement(const DOMElement * element, const string& tagName) {
+  if (element->getFirstChild() != NULL)
+    throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
+          "The element '" + tagName +  "' does not accept a child element. \
+          May be a </" + tagName + "> is forgotten");
+}
+
+/**
+ * Trim string
+ */
+string&
+DagWfParser::stringTrim(string& str) {
+  string::size_type pos = str.find_last_not_of(' ');
+  if(pos != string::npos) {
+    str.erase(pos + 1);
+    pos = str.find_first_not_of(' ');
+    if(pos != string::npos) str.erase(0, pos);
+  }
+  else str.erase(str.begin(), str.end());
+  return str;
+}
+
+/**
+ * Parse an assignment string (eg 'portA=portB; portC=VOID;')
+ */
+void
+DagWfParser::getPortMap(const string& thenMapStr,
+                        map<string,string>& thenMap) throw (XMLParsingException) {
+  string::size_type startPos = 0;
+  string mapStr = thenMapStr;
+  stringTrim(mapStr);
+  while (startPos < mapStr.length()) {
+    string::size_type sepPos = mapStr.find(";",startPos);
+    if (sepPos == string::npos)
+      throw XMLParsingException(XMLParsingException::eINVALID_DATA,
+                                "missing semi-column at end of assignment in '"
+                                + mapStr +"'");
+    string::size_type opPos = mapStr.find("=",startPos);
+    if (opPos > sepPos)
+      throw XMLParsingException(XMLParsingException::eINVALID_DATA,
+                                "missing assignment (=) operator in '"
+                               + mapStr + "'");
+    string left(mapStr.substr(startPos, opPos-startPos));
+    string right(mapStr.substr(opPos+1, sepPos-opPos-1));
+    thenMap.insert(pair<string,string>(stringTrim(left),stringTrim(right)));
+    startPos = sepPos+1;
+  }
 }
