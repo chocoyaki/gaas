@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.137  2009/08/26 10:34:28  bisnard
+ * added new API methods for workflows (data in/out, transcript)
+ *
  * Revision 1.136  2009/07/23 12:26:05  bisnard
  * new API method to get functional wf results as a container
  *
@@ -1235,6 +1238,7 @@ diet_wf_call(diet_wf_desc_t* profile) {
     case DIET_WF_FUNCTIONAL:
       return CltWfMgr::instance()->wfFunctionalCall(profile);
   }
+  return 1;
 }
 
 /**
@@ -1278,11 +1282,37 @@ diet_wf_multi_call(diet_wf_desc_t* profile, int wfReqID) {
   return CltWfMgr::instance()->wfDagCall(profile);
 }
 
+
+/**
+ * Save data file after workflow execution (functional wf)
+ */
+int
+diet_wf_save_data_file(diet_wf_desc_t * profile,
+                       const char * data_file_name) {
+  if (wf_check_profile_level(profile, DIET_WF_FUNCTIONAL))
+    return 1;
+  if (!data_file_name)
+    return 1;
+  return CltWfMgr::instance()->saveWorkflowDataFile(profile, data_file_name);
+}
+
+/**
+ * Save execution transcript after workflow execution
+ * (contains status of dag nodes and data IDs of produced data)
+ */
+int
+diet_wf_save_transcript_file(diet_wf_desc_t * profile,
+                             const char * transcript_file_name) {
+  if (!transcript_file_name)
+    return 1;
+  return CltWfMgr::instance()->saveWorkflowExecutionTranscript(profile,
+                                                transcript_file_name);
+}
+
 /**
  * terminate a workflow session *
  * and free the memory *
  */
-
 void
 diet_wf_free(diet_wf_desc_t * profile) {
   CltWfMgr::instance()->wf_free(profile);
@@ -1290,7 +1320,7 @@ diet_wf_free(diet_wf_desc_t * profile) {
 
 
 /**
- * Get a scalar result of the workflow
+ * Get results of a dag
  */
 int
 _diet_wf_scalar_get(diet_wf_desc_t * profile,
@@ -1301,10 +1331,6 @@ _diet_wf_scalar_get(diet_wf_desc_t * profile,
   return CltWfMgr::instance()->getWfOutputScalar(profile, id, value);
 } // end _diet_wf_scalar_get
 
-
-/**
- * Get a string result of the workflow
- */
 int
 _diet_wf_string_get(diet_wf_desc_t * profile,
                     const char * id,
@@ -1348,15 +1374,19 @@ _diet_wf_container_get(diet_wf_desc_t * profile,
  */
 int
 get_all_results(diet_wf_desc_t * profile) {
+  return diet_wf_print_results(profile);
+}
+
+int
+diet_wf_print_results(diet_wf_desc_t * profile) {
   switch(profile->level) {
     case DIET_WF_DAG:
       return CltWfMgr::instance()->printAllDagResults(profile);
     case DIET_WF_FUNCTIONAL:
       return CltWfMgr::instance()->printAllFunctionalWfResults(profile);
-    default:
-      ;
   }
-} // end get_all_results
+  return 1;
+}
 
 /**
  * Get a container containing the data received by a sink

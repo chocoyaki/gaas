@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.64  2009/08/26 10:34:29  bisnard
+ * added new API methods for workflows (data in/out, transcript)
+ *
  * Revision 1.63  2009/03/27 09:09:41  bisnard
  * replace container size attr by dynamic value
  *
@@ -1174,10 +1177,21 @@ diet_wf_profile_alloc(const char* wf_file_name,
  * (for functional wf only)
  */
 void
-diet_wf_profile_set_data_file(diet_wf_desc_t* profile,
-                              const char * data_file_name) {
+diet_wf_set_data_file(diet_wf_desc_t* profile,
+                      const char * data_file_name) {
   if (data_file_name)
     profile->dataFile = strdup(data_file_name);
+}
+
+/**
+ * Workflow profile method to set transcript file name
+ * (for DAG or FUNCTIONAL wf)
+ */
+void
+diet_wf_set_transcript_file(diet_wf_desc_t * profile,
+                            const char * transcript_file_name) {
+  if (transcript_file_name)
+    profile->transcriptFile = strdup(transcript_file_name);
 }
 
 /**
@@ -1191,6 +1205,8 @@ diet_wf_profile_free(diet_wf_desc_t * profile) {
     free(profile->name);
   if (profile->dataFile)
     free(profile->dataFile);
+  if (profile->transcriptFile)
+    free(profile->transcriptFile);
   free(profile);
 }
 #endif // endif HAVE_WORKFLOW

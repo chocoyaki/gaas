@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.68  2009/08/26 10:34:27  bisnard
+ * added new API methods for workflows (data in/out, transcript)
+ *
  * Revision 1.67  2009/07/23 12:25:20  bisnard
  * new API method to get functional wf results as a container
  *
@@ -736,7 +739,7 @@ typedef enum { DIET_WF_DAG,
                DIET_WF_FUNCTIONAL } wf_level_t;
 
 /**
- * workflow internal description
+ * workflow description
  */
 typedef struct {
   char * abstract_wf;
@@ -744,6 +747,7 @@ typedef struct {
   wf_level_t level;
   int wfReqID;
   char * dataFile;
+  char * transcriptFile;
 } diet_wf_desc_t;
 
 /**
@@ -763,8 +767,43 @@ diet_wf_profile_alloc(const char* wf_file_name,
  * @param data_file_name is the full name of the file containing data (in XML)
  */
 void
-diet_wf_profile_set_data_file(diet_wf_desc_t * profile,
-                              const char * data_file_name);
+diet_wf_set_data_file(diet_wf_desc_t * profile,
+                      const char * data_file_name);
+
+/**
+ * Store the description of input and output data of a functional workflow
+ * (data items of 'source' and 'sink' nodes of the workflow)
+ * The description (in XML) contains the data IDs therefore the sources can
+ * be re-used for another execution of the workflow.
+ * @param profile is the functional wf profile ref
+ * @param data_file_name  output file (overwritten if existing)
+ */
+int
+diet_wf_save_data_file(diet_wf_desc_t * profile,
+                       const char * data_file_name);
+
+/**
+ * Set the name of the file used to read the execution transcript
+ * of a workflow (dag or functional). The workflow engine will not
+ * execute again tasks when their results are already existing on
+ * the DIET platform.
+ * @param profile is the dag or functional wf profile ref
+ * @param transcript_file_name is the path of the file to read
+ */
+void
+diet_wf_set_transcript_file(diet_wf_desc_t * profile,
+                            const char * transcript_file_name);
+
+/**
+ * Store the execution transcript of the workflow (after execution)
+ * This file is used to restart the workflow from where it stopped
+ * (if results of all tasks are still available on the DIET platform)
+ * @param profile is the dag or functional wf profile ref
+ * @param transcript_file_name output file (overwritten if existing)
+ */
+int
+diet_wf_save_transcript_file(diet_wf_desc_t * profile,
+                             const char * transcript_file_name);
 
 /**
  * Free ressources of a workflow
@@ -778,7 +817,10 @@ diet_wf_profile_free(diet_wf_desc_t * profile);
  * (may be used for dag or functional wf)
  * @param profile is the dag / functional wf profile ref
  */
-int get_all_results(diet_wf_desc_t * profile);
+int
+get_all_results(diet_wf_desc_t * profile);  /* DEPRECATED */
+int
+diet_wf_print_results(diet_wf_desc_t * profile);
 
 /**
  * Get results of a DAG workflow
