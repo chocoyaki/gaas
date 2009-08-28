@@ -12,6 +12,7 @@ ADD_LATEX_DOCUMENT(ProgrammersGuide.tex
 			  CS.tex
 			  batch.tex
 			  debug.tex
+			  package.tex
 			  Annexe1.tex
 		   #IMAGE_DIRS fig 
 		   IMAGES fig/DiagrammeGridRPCDietStructure.fig

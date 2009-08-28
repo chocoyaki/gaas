@@ -1,0 +1,60 @@
+%****************************************************************************%
+%* DIET Programmer' guide, Package things                                   *%
+%*                                                                          *%
+%*  Author(s):                                                              *%
+%*    - Eddy Caron (Eddy.Caron@ens-lyon.fr)                                 *%
+%*    - Philippe Combes (Philippe.Combes@ens-lyon.fr)                       *%
+%*                                                                          *%
+%* $LICENSE$                                                                *%
+%****************************************************************************%
+%* $Id$
+%* $Log$
+%* Revision 1.1  2009/08/28 15:20:13  ecaron
+%* Add information to generate the DIET tarball
+%*
+%****************************************************************************%
+
+\section{DIET tarball generated}
+
+The \url{bin/scripts} directory contains utilities for the DIET packaging. Here are some notes for the packager:
+
+\begin{itemize} 
+\item obtain the last cvs version (called here as DIET\_CVS)
+\item Build the documentation with cmake under Bin:
+\begin{verbatim}
+        cmake ...
+        make
+\end{verbatim}
+\item copy the resulting documentations (and included PostScript files)
+\begin{verbatim}
+   tar cvf DietDocs.tar ./doc/UsersManual/UsersManual.pdf 
+   ./doc/ProgrammersGuide/ProgrammersGuide.pdf 
+   ./doc/UsersManual/fig/*.ps      
+   ./doc/UsersManual/fig/*.eps     
+   ./doc/ProgrammersGuide/fig/*.ps 
+   ./doc/ProgrammersGuide/fig/*.eps
+   cp DietDocs.tar $DIET_CVS
+   cd $DIET_CVS
+   tar xvf DietDocs.tar
+\end{verbatim}
+
+\item Invoke the packaging script from DIET\_CVS:
+\begin{verbatim}
+     ./bin/scripts/make_dist.pl
+\end{verbatim}
+\item The result is placed under the cwd with name:
+\begin{verbatim}
+   diet-<major>.<minor>.tar.gz (e.g. diet-2.2.tar.gz)
+\end{verbatim}
+\end{itemize} 
+
+\section{Files selected}
+
+In the Distribution\_files.lst file, there are 4 types of section:
+
+\begin{description}
+\item{[Templated]:} Files for all kinds of distribution, with a template header which is to be processed by distrib\_file.sh
+\item{[Untemplated]:} File with no template header but to be added in all kinds of distribution.                         
+\item{[Devel\_Templated]:} Files with template header for maintainer distributions only.                                            
+\item{[Devel\_Untemplated]:} Files with no template header for maintainer distributions only.       
+\end{description}
