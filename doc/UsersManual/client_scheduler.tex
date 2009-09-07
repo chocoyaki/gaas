@@ -1,0 +1,133 @@
+\section{Scheduler at client level}
+
+In this section we introduce a new way to define a scheduling policy
+in \diet: at the client level. When a client submits a requests, it
+receives an ordered list of available servers. However, the order of
+the list might not suit the requirements of the client. Hence, we
+introduce the ``Custom Client Scheduling'' mode. You need to compile
+\diet with the option \texttt{DIET\_USE\_CCS}. Then you need to specify
+in the client configuration file the scheduler you want to use with
+the option \texttt{USE\_SPECIFIC\_SCHEDULING}. By
+default, two schedulers are available: \texttt{BURST\_REQUEST} which
+does a round-robin on the \sed (all the encountered \sed so far), and
+\texttt{BURST\_LIMIT} which only allow a certain number of request per
+\sed in parallel the limit can be set with
+\verb|void setAllowedReqPerSeD(unsigned ix)|.
+Hence for example you can add the following line in your client
+configuration file:
+\begin{verbatim}
+USE_SPECIFIC_SCHEDULING = BURST_REQUEST
+\end{verbatim}
+
+
+
+\subsection{Create a new scheduler: \diet side}
+
+
+A new scheduling mode can be added by modifying the
+\texttt{SpecificClientScheduler} class present in
+\texttt{src/client/SpecificClientScheduler.\{cc,hh\}}.
+The virtual function \texttt{schedule} is here to test the name of the
+chosen scheduler, and to execute the corresponding method.
+Here is an example to add a mode named \texttt{DUMMY\_MODE}:
+\begin{verbatim}
+void
+SpecificClientScheduler::schedule(const char * scheduling_name,
+                                  SeD_var& chosenServer,
+                                  corba_response_t * response) {
+…..
+  if (! strcmp(scheduling_name, "DUMMY_MODE") ) {
+    dummyScheduling(chosenServer, response);
+  }
+…...
+} // end schedule
+
+void
+SpecificClientScheduler::dummyScheduling(const char * scheduling_name,
+                                         SeD_var& chosenServer,
+                                         corba_response_t * response) {
+  // ADD PROCESSING IN ORDER TO GIVE A VALUE TO chosenServer
+  ….
+} // end dummyScheduling
+\end{verbatim}
+
+
+\subsection{Create a new scheduler: user side}
+
+We can add a new scheduling mode without having to modify \diet
+sources. For this you need to create a class that inherits from
+\texttt{SpecificClientScheduler} and which implements the
+\texttt{schedule} method. Here is an example of how you can add a
+scheduling mode which always chooses the same server (this is of
+course usually not the kind of schedule you would like to have, but
+this serves as an illustration).
+
+\subsubsection{Create the ``SpecificClientScheduler'' class}
+
+\begin{verbatim}
+class MyScheduler : public SpecificClientScheduler {
+public:
+  MyScheduler();
+  virtual ~MyScheduler();
+  virtual void schedule(const char * scheduling_name, SeD_var& chosenServer,
+           corba_response_t * response);
+private:
+  void dummyScheduling(const char * scheduling_name, SeD_var& chosenServer,
+                  corba_response_t * response);
+};
+\end{verbatim}
+
+\subsubsection{Redefine the ``schedule'' method}
+
+\begin{verbatim}
+void
+MyScheduler::schedule(const char * scheduling_name,
+                      SeD_var& chosenServer,
+                      corba_response_t * response) {
+  SpecificClientScheduler::schedule(scheduling_name, chosenServer, response);
+  if (! strcmp(scheduling_name, "DUMMY_SCHEDULING")) {
+    this->dummyScheduling(scheduling_name, chosenServer, response);
+  }
+} // end schedule
+\end{verbatim}
+
+
+\subsubsection{Write scheduling method}
+
+\begin{verbatim}
+void
+MyScheduler::dummyScheduling(const char * scheduling_name,
+                             SeD_var& chosenServer,
+                             corba_response_t * response) {
+  static vector<SeD_var> allSeDs;
+
+  // Add new SeDs
+  for (unsigned int ix=0; ix < response->servers.length(); ix++) {
+    unsigned int jx;
+    bool found = false;
+    while (!found && (jx < allSeDs.size())) {
+      if (allSeDs[jx] == response->servers[ix].loc.ior) 
+        found = true;
+      else
+        jx++;
+    }
+    if (!found) {
+      allSeDs.push_back(response->servers[ix].loc.ior);
+    }
+  } // end for
+
+  cout << "*** Using my own scheduling method to change the SeD !!!!" << endl;
+  chosenServer = allSeDs[0];
+}
+\end{verbatim}
+
+
+\subsubsection{Modify client code}
+
+\begin{verbatim}
+MyScheduler * scheduler = new MyScheduler();
+MyScheduler::setScheduler(scheduler);
+// DIET code execution
+…
+delete scheduler;
+\end{verbatim}

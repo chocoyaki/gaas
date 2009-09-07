@@ -21,7 +21,7 @@
 %% \begin{document}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\chapter{Scheduling in DIET}
+\chapter{Scheduling in \diet}
 \label{ch:plugin}
 
 \section{Introduction}
@@ -72,27 +72,27 @@ ordered sequence of tests:
   equivalent {\sed} performance estimations.
 \end{enumerate}
 
-\textbf{Warning:} If DIET is compiled with option \texttt{DIET\_USE\_CORI},
+\textbf{Warning:} If \diet is compiled with option \texttt{DIET\_USE\_CORI},
 FAST/NWS Scheduling is deactivated (See
 Chapter~\ref{chapter:performance} for more information about CoRI).
 
 In principle, this scheduling policy prioritizes servers that are able
 to provide useful performance prediction information (as provided by
 the FAST and NWS facilities).  In general, this approach works well
-when all servers in a given DIET hierarchy are capable of making such
+when all servers in a given \diet hierarchy are capable of making such
 estimations.  However, in platforms composed of {\sed}s with varying
-capabilities, load imbalances may occur: since DIET systematically
+capabilities, load imbalances may occur: since \diet systematically
 prioritizes server responses containing FAST and/or NWS data, servers
 that do not respond with such performance data will never be
 chosen.
 
 We have designed a plugin scheduler facility to
-enable the application developer to tailor the DIET scheduling to the
+enable the application developer to tailor the \diet scheduling to the
 targeted application.
 This functionality provides
 the application developer the means to extend the notion of a
 performance estimation to include metrics that are
-application-specific, and to instruct DIET how to treat those data in
+application-specific, and to instruct \diet how to treat those data in
 the aggregation phase.
 We describe these interfaces in the following sections.
 
@@ -117,9 +117,9 @@ The new type \texttt{estVector\_t} represents an
 \emph{estimation vector}, logically a structure that can manage a
 dynamic collection of performance estimation values.  It contains
 values that represent the performance profile provided by a
-{\sed} in response to a DIET service request.  This collection of values
+{\sed} in response to a \diet service request.  This collection of values
 may include either standard performance measures that are available
-through DIET, or developer-defined values that are meaningful solely in
+through \diet, or developer-defined values that are meaningful solely in
 the context of the application being developed.
 
 \subsection{Standard Estimation Tags}\label{sect:estTags}
@@ -202,7 +202,7 @@ performance estimation functions:
     \> \texttt{const diet\_profile\_t* const profilePtr)};
   \end{tabbing}
   with an appropriate value for \texttt{ev} and the
-  \texttt{profilePtr} corresponding to the current DIET request.
+  \texttt{profilePtr} corresponding to the current \diet request.
 \item The number of waiting jobs when using the maximum concurrent jobs
   limit is stored in an estimation metric vector by calling
   \begin{tabbing}
@@ -244,7 +244,7 @@ The default behavior of a {\sed} when a service request arrives from
 its parent agent is to store the following information in the
 request profile:
 \begin{enumerate}
-\item \textbf{FAST-based execution time predictions}: DIET {\sed}s
+\item \textbf{FAST-based execution time predictions}: \diet {\sed}s
   attempt to call FAST
   routines to obtain execution time predictions based on the type of
   service requested, if FAST was available at compilation time.  If
@@ -281,10 +281,10 @@ interface that admits customizable performance estimation routines:
 %% \end{code}
 Thus, the type \texttt{diet\_perfmetric\_t} is a function pointer that
 takes as arguments a performance estimation (represented by the
-\texttt{estVector\_t} object) and a DIET service request
+\texttt{estVector\_t} object) and a \diet service request
 profile.  The application
 developer can associate such a function, or
-\emph{performance estimation routine}, with DIET services via the
+\emph{performance estimation routine}, with \diet services via the
 \texttt{diet\_service\_use\_perfmetric} interface.  This interface
 returns the previously registered performance estimation routine, if
 one was defined (and
@@ -302,7 +302,7 @@ methods (described in the next section).
 
 \subsection{Aggregation Methods}\label{sect:agg_methods}
 
-At the time a DIET service is defined, an \emph{aggregation method}~--
+At the time a \diet service is defined, an \emph{aggregation method}~--
 the logical mechanism by which {\sed} responses are sorted~-- is
 associated with the service; the default behavior was described in
 Section~\ref{sect:default_sched}.
@@ -337,7 +337,7 @@ int diet\_aggregator\_priority\_minuser(\=diet\_aggregator\_desc\_t* agg, \\
 \end{code}
 The \texttt{diet\_profile\_desc\_aggregator} and
 \texttt{diet\_aggregator\_set\_type} functions fetch and configure the
-aggregator corresponding to a DIET service profile, respectively.
+aggregator corresponding to a \diet service profile, respectively.
 In particular, a priority scheduler is declared by invoking the latter
 function with \texttt{DIET\_AGG\_PRIORITY} as the \texttt{agg}
 parameter.
@@ -375,17 +375,17 @@ are exhausted (and the responses are judged equivalent).
 
 \section{Example}
 
-A new example has been added to the DIET distribution to illustrate
+A new example has been added to the \diet distribution to illustrate
 the usage of the plugin scheduler functionality; this code is
 available in the directory
 \begin{code}
 src/examples/plugin\_example/
 \end{code}
-A DIET server and client corresponding to a simulation of a
+A \diet server and client corresponding to a simulation of a
 database research application are provided.  If the construction of
-examples was enabled during DIET configuration, two binaries
+examples was enabled during \diet configuration, two binaries
 \texttt{server} and \texttt{client} will be built in this directory.
-Having deployed a DIET agent hierarchy, the server may be
+Having deployed a \diet agent hierarchy, the server may be
 instantiated:
 \begin{code}
   \$ server <SeD\_config> <DB> [ <DB> ... ]
@@ -477,19 +477,19 @@ scheduler.
 \begin{itemize}
 \item \textbf{Additional information services}: We plan to add
   functionalities to enable the application developer to access and use
-  data concerning the internal state of the DIET server (e.g.,~the
+  data concerning the internal state of the \diet server (e.g.,~the
   current length of request queues).  As other performance measurement
   and evaluation tools are developed both within and external to the
-  DIET project (see Chapter~\ref{chapter:performance}), some
+  \diet project (see Chapter~\ref{chapter:performance}), some
   tools are already available to enable such 
   information to be incorporated
   in the context of the plugin scheduler.
 \item \textbf{Enhanced aggregation methods}: The plugin scheduler
-  implemented in the current release enables the DIET system to
+  implemented in the current release enables the \diet system to
   account for user-defined factors in the server selection process.
   However, the priority aggregation method is fairly rudimentary and
   lacks the power to express many imaginable comparison mechanisms.
-  We plan to investigate methods to embed code into DIET agents
+  We plan to investigate methods to embed code into \diet agents
   (e.g.,~a simple expression interpreter) in a manner that is secure
   and that preserves performance.
 \end{itemize}

@@ -8,6 +8,12 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.25  2009/09/07 16:07:47  bdepardo
+%* Added CCS mode.
+%* A few corrections:
+%* - DIET -> \diet
+%* - SeD -> \sed
+%*
 %* Revision 1.24  2008/07/17 21:54:32  ecaron
 %* Update scale for figures
 %*
@@ -142,14 +148,14 @@ The different components of our software architecture are the following:
   workload at the MA.
 
 %....[ Server Daemon (SeD) ]...................................................
-\item \textbf{Server Daemon (SeD)}\\ A SeD encapsulates a
+\item \textbf{Server Daemon (\sed)}\\ A \sed encapsulates a
   computational server. For instance it can be located on the entry
-  point of a parallel computer. The information stored on a SeD is a
+  point of a parallel computer. The information stored on a \sed is a
   list of the data available locally ({\it i.e.}, on the server), the
   list of problems that can be solved on it, and performance-related
   information such as the amount of available memory or the number of
-  resources available. When it registers, a SeD declares the problems
-  it can solve to its parent LA or MA.  A SeD can give perfomance and
+  resources available. When it registers, a \sed declares the problems
+  it can solve to its parent LA or MA.  A \sed can give perfomance and
   hardware information by using the module CoRI or performance
   predictions for some types of problems by using the module FAST.
   Both modules are described in Chapter~\ref{chapter:performance}.
@@ -260,7 +266,7 @@ made in four steps.
 \subsection{Multi-MA}
 \label{init:multima}
 
-A standard \diet platform gives access to SeDs placed under the
+A standard \diet platform gives access to {\sed}s placed under the
 control of a MA as explained at the beginning of this
 chapter. Sometime, it is useful to connect several MA together. This
 happens when several organizations wish to share their resources to
@@ -270,7 +276,7 @@ resources between several MA.
 
 In multi-MA mode, the behavior of a \diet hierarchy does not change
 when a client requests a service that is available under the queried
-MA. However, if a request sent to a MA does not found a SeD that can
+MA. However, if a request sent to a MA does not found a \sed that can
 resolve its problem, \diet will forward the request to other MAs of
 the federation.  To read more about multi-MA, see
 Chapter~\ref{ch:multiMAextension} and Chapter~\ref{ch:p2pextension}.
@@ -281,8 +287,8 @@ Chapter~\ref{ch:multiMAextension} and Chapter~\ref{ch:p2pextension}.
 
 Fast Agent's System Timer (FAST)~\cite{Qui02} is a tool for dynamic
 performance forecasting in a Grid environment.  When \diet is compiled
-with the appropriate options and FAST has been configured on the SeD
-machine, SeDs can access FAST to obtain dynamic performance
+with the appropriate options and FAST has been configured on the \sed
+machine, {\sed}s can access FAST to obtain dynamic performance
 predictions.  See Chapter~\ref{chapter:performance} for details on
 using FAST.
 
@@ -294,7 +300,7 @@ Collector of Resource Information (CoRI) is a manager for collecting
 hardware and performance information.  When \diet is compiled with the
 appropriate option, it is possible to get this information via
 different sub-modules like FAST* or CoRI-Easy. (* if compiled and
-configured on the SeD machine). See Chapter~\ref{chapter:performance}
+configured on the \sed machine). See Chapter~\ref{chapter:performance}
 for details on using CoRI.
 
 %%%%%%%%%%%%%%%

@@ -71,7 +71,7 @@ can test it with the following command:
 % details).
 
 You need to have a running \diet platform with the needed services. You
-can launch a single SeD (\texttt{scalar\_server}) that includes all the
+can launch a single \sed (\texttt{scalar\_server}) that includes all the
 needed services. (read Chapter~\ref{ch:server} for more details).
 
 \begin{figure}[htbp]
@@ -97,20 +97,20 @@ needed services. (read Chapter~\ref{ch:server} for more details).
 % \end{itemize}
 
 A new agent called the \textit{\madag} is used to manage workflows
-in the DIET architecture. This agent receives requests from clients
+in the \diet architecture. This agent receives requests from clients
 containing the description of a workflow in a specific language
 (the \madag XML workflow language for DAGs or the GWENDIA workflow
 language for functional workflows). The role of the \madag is to
 determine how to schedule the tasks contained in the workflow in
 order to follow the precedence constraints between tasks, and how to
-map the tasks to appropriate ressources in the DIET hierarchy.
+map the tasks to appropriate ressources in the \diet hierarchy.
 
 The execution of the individual tasks is actually delegated by the
 \madag to the client that submitted the workflow. After submitting
 the workflow, the client is put in a waiting mode and it will
 receive individual requests from the \madag to execute each task
 of the workflow. Therefore all the data transfers are done only
-from the client to the SeDs and do not transit through the \madag.
+from the client to the {\sed}s and do not transit through the \madag.
 
 When all tasks are completed, the \madag will send a release signal
 to the client which will then retrieve the results if the execution
@@ -161,7 +161,7 @@ the parameter \texttt{MADAGNAME} with the appropriate name.
 % \label{sec:archi2}
 %
 % The second architecture (figure~\ref{fig:archi2}) of workflow
-% management in DIET use an additional entity called the \textit{MA DAG}
+% management in \diet use an additional entity called the \textit{MA DAG}
 % to handle the workflow. This agent can work in two modes, in the first
 % it defines a complete scheduling of the workflow (ordering and
 % mapping), while in the second it defines only an ordering for the
@@ -522,8 +522,8 @@ this scheduler manages the precedence constraints between the tasks. The
 Earliest Finish Time) HEFT~\cite{heft_cpop} heuristic. When a task is ready to be
 executed (ie the preceding tasks are completed) the ready task with the higher
 HEFT rank is sent to the client for execution without specifying a ressource.
-Then The client performs a standard DIET request that will use the scheduler
-configured by the SeD.
+Then The client performs a standard \diet request that will use the scheduler
+configured by the \sed.
 
 \item A Multi-HEFT scheduler (option -heft) : this scheduler applies
 the HEFT heuristic to all workflows submitted by different clients to
@@ -548,11 +548,11 @@ concurrent workflow and the actual estimated finish time.
 
 \end{itemize}
 
-\subsection{SeD requirements for workflow scheduling}
+\subsection{\sed requirements for workflow scheduling}
 
 The workflow schedulers (Basic, Multi-HEFT, Multi-AgingHEFT and FOFT) use
-information provided by the SeDs to be able to run the HEFT heuristic. So the
-SeD programmer must provide the required data in the estimation vector by
+information provided by the {\sed}s to be able to run the HEFT heuristic. So the
+\sed programmer must provide the required data in the estimation vector by
 implementing a plugin scheduler (see chapter~\ref{ch:plugin}).
 
 The following fields in the estimation vector must be filled in:
@@ -563,7 +563,7 @@ computation time for the job (in milliseconds). This can be done using the
 within the performance evaluation function.
 \item The \texttt{EFT} field must contain the estimation of the
 earliest finish time (in milliseconds from the time of the current submit
-request) for the job. To compute this value, the SeD programmer can use
+request) for the job. To compute this value, the \sed programmer can use
 the API method \\
 \texttt{diet\_estimate\_eft(...)} to retrieve the
 estimated value of earliest finish time for a new job.
@@ -599,7 +599,7 @@ estimated value of earliest finish time for a new job.
 % \item In your client source code, call the method
 %   \textit{set\_my\_personal\_sched} before executing the
 %   \textit{diet\_wf\_call}.
-% \item Link the previous c++ object code to you DIET client.
+% \item Link the previous c++ object code to you \diet client.
 % \end{enumerate}
 
 

@@ -13,12 +13,12 @@
 \section{Introduction}
 
 As we have seen in Chapter~\ref{ch:plugin} the agent needs some
-information from the SeD to make an optimal scheduling. This
-information is a performance prediction of the SeD. The agent will ask
-the SeD to fill the data structure defined in Chapter~\ref{ch:plugin}
-with the information it needs. The SeD returns the information and the
+information from the \sed to make an optimal scheduling. This
+information is a performance prediction of the \sed. The agent will ask
+the \sed to fill the data structure defined in Chapter~\ref{ch:plugin}
+with the information it needs. The \sed returns the information and the
 agent can make the scheduling. \\ Performance prediction can be based
-on hardware information, the charge of the SeD (the charge of the CPU,
+on hardware information, the charge of the \sed (the charge of the CPU,
 of the memory,...) or an advanced performance prediction can combine
 a set of basic performance predictions. It is possible to use FAST in
 the plug-in scheduler to obtain advanced performance predictions. A
@@ -97,7 +97,7 @@ information is available with each compiling option.
 \label{sec:FAST}
 
 This section deals with FAST, a performance prediction module that can
-be used by DIET. It is non-mandatory, but can provide SeDs with
+be used by \diet. It is non-mandatory, but can provide {\sed}s with
 improved performance prediction capability.\\
 You can use FAST in stand-alone mode without having compiled with
 CoRI option.
@@ -114,7 +114,7 @@ NWS monitoring between two machines, FAST automatically searches for
 the shortest path between them in the graph of monitored links. It
 estimates the bandwidth as the minimum of those in the path and the
 latency as the sum of those measured. This allows the
-availability of more predictions when DIET is deployed over a
+availability of more predictions when \diet is deployed over a
 hierarchical network.
 
 \begin{figure}[htb]
@@ -142,7 +142,7 @@ extension~\cite{CS02} to forecast execution times of parallel
 routines.
 
 FAST clients can access information like the time needed to move a
-given amount of data between two FAST-enabled machines SeDs, the
+given amount of data between two FAST-enabled machines {\sed}s, the
 time to solve a problem with a given set of computational resources,
 or the combination of these two quantities.\\
 
@@ -173,7 +173,7 @@ FAST- and NWS-based performance estimation metrics are stored in
     \> \texttt{const diet\_profile\_t* const profilePtr)};
   \end{tabbing}
    with an appropriate value for \texttt{ev} and the
-   \texttt{profilePtr} corresponding to the current DIET request.
+   \texttt{profilePtr} corresponding to the current \diet request.
 
    \textbf{Attention: } this option it not available when compiling 
    with the option \texttt{-DDIET\_USE\_CORI} set to \texttt{OFF}, 
@@ -182,16 +182,16 @@ FAST- and NWS-based performance estimation metrics are stored in
 
 \subsection{Building a server application with FAST}
 
-Since performance prediction is performed only in the DIET SeD,
+Since performance prediction is performed only in the \diet \sed,
 no modification is needed to the client code.
 
-On the other hand, at the SeD-level the code must sometimes be adapted.  In
+On the other hand, at the \sed-level the code must sometimes be adapted.  In
 the next subsection we explain convertors and show how they can be used
 in an example.
 
 \subsubsection{Using convertors}
 
-The service profiles offered by DIET are sometimes not
+The service profiles offered by \diet are sometimes not
 understandable by the service implementations. To solve this problem,
 a convertor processes each profile before it is passed to the
 implementation. This is mainly used to
@@ -226,7 +226,7 @@ allows the following operations:
   argument. To extract a property of an existing argument, other
   functions than \texttt{DIET\_CVT\_IDENTITY} must be applied. The
   result of this function will then be used as the value for the
-  destination argument.  Corresponding to the DIET datatypes, the
+  destination argument.  Corresponding to the \diet datatypes, the
   following functions exist: \\
 \begin{itemize}
 \item{\texttt{DIET\_CVT\_IDENTITY}} Copy the argument
@@ -298,7 +298,7 @@ files \\
 \label{sec:CORI}
 
 CoRI manages the access to different tools for collecting information
-about the SeD. At present, three tools, called collectors, are
+about the \sed. At present, three tools, called collectors, are
 implemented: FAST, CoRI Easy and CoRI batch. The user can choose which
 collector will provide the information.
 
@@ -409,7 +409,7 @@ There are two primary efforts for the CoRI manager:
   systems provide other basic functions to get the information.
   CoRI-Easy doesn't know all functions. Use the
   \texttt{diet\_estimate\_cori\_print()} function to test what
-  CoRI-Easy can find on your SeD. Send us a mail if not  all functions
+  CoRI-Easy can find on your \sed. Send us a mail if not  all functions
   are working properly.
 
 \item \textbf{Improving CoRI batch}: add new functionalities to access

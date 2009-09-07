@@ -5,17 +5,17 @@
 
 %\begin{document}
 \section{Scheduler at agents level}
-In this section we introduce a new way to define a scheduling policy in DIET.
-Some scheduling strategies could not be developed using only the DIET {\sed}s
+In this section we introduce a new way to define a scheduling policy in \diet.
+Some scheduling strategies could not be developed using only the \diet {\sed}s
 plugins. The schedulers at agents level allow the developer to design every
 scheduler strategies, even the centralized ones. The first two sections
-explain precisely how DIET performs the scheduling. The third section enters
-in the DIET source code and can be ignored by most of the users. The
+explain precisely how \diet performs the scheduling. The third section enters
+in the \diet source code and can be ignored by most of the users. The
 fourth section presents the tools provided to make an agent scheduler
 easily. The fifth section deals with the scheduler module compilation and
 usage. The last section presents some scheduler examples.
 \subsection{Scheduling from the agents side.}
-In DIET, the scheduling works as follows (see Figure \ref{scheduleSteps} for
+In \diet, the scheduling works as follows (see Figure \ref{scheduleSteps} for
 a representation of each step): 
 \begin{itemize}
   \item A request is submitted to the Master Agent (step 1).
@@ -53,26 +53,26 @@ a representation of each step):
   \begin{minipage}{\schdlFigWidth}
     \includegraphics[width=\schdlFigWidth]{fig/schdl05}
   \end{minipage}
-  \caption{Scheduling steps in DIET.\label{scheduleSteps}}
+  \caption{Scheduling steps in \diet.\label{scheduleSteps}}
 \end{figure}
 
 \subsection{Aggregation methods overloading}
-To aggregate the responses of the {\sed}s, DIET uses an aggregation method
+To aggregate the responses of the {\sed}s, \diet uses an aggregation method
 which is called by the agents. This method is chosen from the {\sed}s
 by defining the aggregator type (see Section \ref{sect:estTags}).
-By default, two aggregator types are proposed by DIET:
-DIET\_AGG\_DEFAULT and DIET\_AGG\_PRIORITY. In the last versions of DIET, we
+By default, two aggregator types are proposed by \diet:
+DIET\_AGG\_DEFAULT and DIET\_AGG\_PRIORITY. In the last versions of \diet, we
 introduced a new aggregator type: DIET\_AGG\_USER. Using this
 aggregator, the user can define its own aggregation method to be used by
 the agents. 
 Figure \ref{fig:DIETScheduling} presents the global schedulers classes
-organization in DIET. By choosing the DIET\_AGG\_USER aggregator, the user
+organization in \diet. By choosing the DIET\_AGG\_USER aggregator, the user
 commands the GlobalScheduler class to load an external module containing
 a UserScheduler class overloading the \textit{aggregate} method.
 \begin{figure}[h]
   \centering
   \includegraphics[width=16cm]{fig/DIETScheduling}
-  \caption{Schedulers classes organization in DIET.\label{fig:DIETScheduling}}
+  \caption{Schedulers classes organization in \diet.\label{fig:DIETScheduling}}
 \end{figure}
 
 The user-defined aggregation method just needs to sort the responses from the
@@ -82,12 +82,12 @@ schedulers can also avoid some scheduling problems while submitting asynchronous
 jobs (with Round-Robin schedulers for example).
 
 \subsection{The UserScheduler class}
-This section presents how the scheduling process is managed in DIET.
+This section presents how the scheduling process is managed in \diet.
 Most of the developers can go directly to the next section.
 
 All the schedulers developed by users have to inherit from the
 \textit{UserScheduler} class. This class furnishes the methods to load
-its subclasses as a Scheduler class for DIET without error. The only method
+its subclasses as a Scheduler class for \diet without error. The only method
 a user has to overload is the \textit{aggregate} method. Several useful
 functions and macros are defined in the \textit{UserScheduler.hh} file.
 The \textit{UserScheduler} class is defined as follows:
@@ -140,7 +140,7 @@ private:
   \item \textit{size\_t \bf max\_srv}: this argument gives the maximum number
     of responses to return in \textit{\bf aggrResp}. This value can be ignored
     without any risk and it is sometimes useful to ignore it because this
-    parameter is hard-coded in the DIET sources.
+    parameter is hard-coded in the \diet sources.
   \item \textit{const size\_t \bf nb\_responses}: this argument gives the number
     of responses in \textit{\bf responses}.
   \item \textit{const corba\_response\_t* \bf responses}: the responses are
@@ -167,7 +167,7 @@ scheduler developer does not have to use it. The two operators
 \begin{itemize}
   \item \textit{CORBA::ULong \bf reqID}: this field contains the ID of the
     request.
-  \item \textit{CORBA::Long \bf myID}: this field is for DIET internal usage.
+  \item \textit{CORBA::Long \bf myID}: this field is for \diet internal usage.
     The developer should ignore it.
   \item \textit{SeqServerEstimation\_t \bf servers}: this field is a sequence
     of \textit{corba\_server\_estimation\_t}. It is used to store the {\sed}s
@@ -346,7 +346,7 @@ After defining the scheduler class, the developer just has to use the
 from an agent.
 
 In our example, the call to \textit{SCHEDULER\_CLASS(MyScheduler)} --
-after the class declaration -- makes the class loadable by a DIET agent.
+after the class declaration -- makes the class loadable by a \diet agent.
 
 \subsubsection{The aggregation method redefinition}
 The \textit{aggregate} function has the following prototype:
@@ -367,7 +367,7 @@ int MyScheduler::aggregate(corba_response_t* aggrResp, size_t max_srv,
   \item \textit{size\_t \bf max\_srv}: this argument gives the maximum number
     of responses to return in \textit{\bf aggrResp}. This value can be ignored
     without any risk and it is sometimes useful to ignore it because this
-    parameter is hard-coded in the DIET sources.
+    parameter is hard-coded in the \diet sources.
   \item \textit{const size\_t \bf nb\_responses}: this argument gives the number
     of responses in \textit{\bf responses}.
   \item \textit{const corba\_response\_t* \bf responses}: the responses are
@@ -387,7 +387,7 @@ function make the first aggregation of the results by marshalling all the
 sequences into one.
 
 \noindent The second function converts a STL list into a CORBA sequence that
-can be transfer ed by DIET.
+can be transfer ed by \diet.
 
 Then, an \textit{aggregate} function should start by a call to the
 \textit{CORBA\_to\_STL} function. The obtained list can then be sorted/filtered
@@ -507,21 +507,21 @@ and sorts them according to their number of Bogomips.
 
 \subsection{Creation and usage of a scheduler module}
 \subsubsection{How to compile a scheduler module}
-The first step is to compile DIET activating the "USERSCHED" option.
+The first step is to compile \diet activating the "USERSCHED" option.
 With this option, you'll find a subdirectory "scheduler" in the include
-directory of the DIET installation. This directory contains all the headers
+directory of the \diet installation. This directory contains all the headers
 needed to develop the basis class of the scheduler module.
 
 A scheduler module needs to be linked with some libraries to compile:
 \begin{itemize}
   \item omniORB4: The basis omniORB library.
   \item omnithread: The omniORB thread library.
-  \item DIET libraries:
+  \item \diet libraries:
     \begin{itemize}
-      \item CorbaCommon: The basis DIET Corba library.
-      \item UtilsCommon \& UtilsNodes: The DIET utilities libraries.
-      \item IDLAgent \& IDLCommon: The IDL DIET libraries.
-      \item UtilsVector: The vector library internally used in DIET.
+      \item CorbaCommon: The basis \diet Corba library.
+      \item UtilsCommon \& UtilsNodes: The \diet utilities libraries.
+      \item IDLAgent \& IDLCommon: The IDL \diet libraries.
+      \item UtilsVector: The vector library internally used in \diet.
       \item IDLLA \& IDLMA: The agents libraries.
     \end{itemize}
 \end{itemize}
@@ -571,7 +571,7 @@ agent scheduler module.
 \subsection{{\sed} plugin schedulers and agent schedulers interactions}
 Most of the time, a scheduler needs some information from the nodes, to choose
 where a job should be executed. By using the plugin scheduler capacities of
-the {\sed}s, DIET allows to communicate some useful information for the 
+the {\sed}s, \diet allows to communicate some useful information for the 
 scheduling. The developer just has to define a performance metric function
 and select \textit{DIET\_AGG\_USER} as aggregator.
 

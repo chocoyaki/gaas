@@ -10,6 +10,12 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.19  2009/09/07 16:07:48  bdepardo
+%* Added CCS mode.
+%* A few corrections:
+%* - DIET -> \diet
+%* - SeD -> \sed
+%*
 %* Revision 1.18  2008/07/02 10:04:17  bdepardo
 %* Proofreading of chapters 5 and 7.
 %*
@@ -72,15 +78,15 @@
 \chapter{Building a server application}
 \label{ch:server}
 
-A DIET server program is the link between the DIET Server Deamon
+A \diet server program is the link between the \diet Server Deamon
 (SeD) and the libraries that implement the service to offer.
 
 \section{Structure of the program}
 \label{sec:sv_struct}
 
-As for the client side, the DIET SeD is a library. So the server
+As for the client side, the \diet SeD is a library. So the server
 developer needs to define the \texttt{main} function. Within the
-\texttt{main}, the DIET server will be launched with a call to
+\texttt{main}, the \diet server will be launched with a call to
 \texttt{diet\_SeD} which will never return (except if some errors
 occur). The complete server side interface is described in the files
 \texttt{DIET\_data.h} (see Chapter~\ref{ch:data}) and \texttt{DIET\_server.h}
@@ -107,10 +113,10 @@ int service(int arg1, char *arg2, double *arg3);
 \end{verbatim}
 }
 
-This function cannot be called directly by DIET, since such a prototype is hard
+This function cannot be called directly by \diet, since such a prototype is hard
 to manipulate dynamically. The user must define a ``solve'' function whose
 prototype only consists of a \texttt{diet\_profile\_t}.
-This function will be called by the DIET SeD through a pointer.
+This function will be called by the \diet \sed through a pointer.
 {\footnotesize
 \begin{verbatim}
 int solve_service(diet_profile_t *pb)
@@ -135,7 +141,7 @@ OUT arguments.
 
 The \texttt{diet\_*\_get} functions defined in \texttt{DIET\_data.h} are still
 usable here. Do not forget that the necessary memory space for OUT arguments is
-allocated by DIET. So the user should call the \texttt{diet\_*\_get} functions
+allocated by \diet. So the user should call the \texttt{diet\_*\_get} functions
 to retrieve the pointer to the zone his/her program should write to.
 
 \subsubsection*{Setting INOUT and OUT arguments}
@@ -144,7 +150,7 @@ To set INOUT and OUT arguments, use the \texttt{diet\_*\_desc\_set} defined
 in \texttt{DIET\_server.h}, these are helpful for writing ``solve''
 functions only. Using these functions, the server developer must keep in
 mind the fact that he cannot alter the memory space pointed to by
-value fields on the server. Indeed, this would make DIET confused
+value fields on the server. Indeed, this would make \diet confused
 about how to manage the data{\footnote{And the server developer
 should not be confused by the fact that
 \texttt{diet\_scalar\_desc\_set} uses a value, since scalar values
@@ -241,12 +247,12 @@ void diet_print_service_table();
 }
 
 The parameter \texttt{diet\_solve\_t solve\_func} is the type of the
-\texttt{solve\_service} function: a function pointer used by DIET to launch the
+\texttt{solve\_service} function: a function pointer used by \diet to launch the
 computation.
 
 The parameter \texttt{diet\_convertor\_t *cvt} is to be used in combination
 with FAST (if available). It is there to allow profile conversion (for
-multiple services, or when differences occur between the DIET and the FAST
+multiple services, or when differences occur between the \diet and the FAST
 profile). Profile conversion is complicated and will be treated
 separately in Chapter~\ref{chapter:performance}.
 
@@ -261,7 +267,7 @@ int scal_mat_prod(double alpha, double *M, int nb_rows, int nb_cols, float *time
 \end{verbatim}
 }
 Our program will first define the solve function that consists of the link
-between DIET and this function. Then, the \texttt{main} function defines one service and
+between \diet and this function. Then, the \texttt{main} function defines one service and
 adds it in the service table with its associated solve function.
 {\footnotesize
 \begin{verbatim}
@@ -317,7 +323,7 @@ int main(int argc, char* argv[])
 \section{Compilation}
 \label{sec:sv_comp}
 
-After compiling her/his server program, the user must link it with the DIET
+After compiling her/his server program, the user must link it with the \diet
 and CORBA libraries. This process is very similar to the one described
 for the client in section \ref{sec:cl_comp}. Please refer to this section
 for details.
