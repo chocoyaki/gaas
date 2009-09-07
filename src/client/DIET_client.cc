@@ -10,6 +10,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.138  2009/09/07 14:34:55  bdepardo
+ * Added an option in client configuration file to select, when launching the
+ * client, the maximum number of SeD the client can receive.
+ * Example in client.cfg:
+ * clientMaxNbSeD = 100
+ *
  * Revision 1.137  2009/08/26 10:34:28  bisnard
  * added new API methods for workflows (data in/out, transcript)
  *
@@ -634,6 +640,13 @@ diet_initialize(char* config_file_name, int argc, char* argv[])
   /* We do not need the parsing results any more */
   Parsers::endParsing();
 #endif
+
+  /* Has the maximum number of SeD been specified? */
+  value = Parsers::Results::getParamValue(Parsers::Results::CLIENT_MAX_NB_SED);
+  if (value != NULL) {
+    MAX_SERVERS = *(unsigned long *)(value);
+    TRACE_TEXT (TRACE_MAIN_STEPS,"Max number of SeD allowed = " << MAX_SERVERS << endl);
+  }
 
   return 0;
 }

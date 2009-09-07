@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.52  2009/09/07 14:34:53  bdepardo
+ * Added an option in client configuration file to select, when launching the
+ * client, the maximum number of SeD the client can receive.
+ * Example in client.cfg:
+ * clientMaxNbSeD = 100
+ *
  * Revision 1.51  2008/11/18 09:39:59  bdepardo
  * Warning removal: the type of the parameters weren't in the intialization of
  * the array containing the different parameters.
@@ -169,9 +175,7 @@ using namespace std;
 #include "debug.hh"
 #include "ms_function.hh"
 
-#if HAVE_DAGDA
 #include <sstream>
-#endif // HAVE_DAGDA
 
 /** The trace level. */
 extern unsigned int TRACE_LEVEL;
@@ -242,6 +246,7 @@ Parsers::Results::param_t Parsers::Results::params[] =
 #ifdef HAVE_ALT_BATCH
    /* [41] */ ,{"internOARbatchQueueName", 23, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
 #endif
+   /* [42] */ ,{"clientMaxNbSeD", 14, Parsers::parseULong, 0, NULL, Results::INT_PARAMETER}
   } ;
 
 #define IS_ADDRESS(i) ((i == Results::LDAPBASE) || (i == Results::NWSNAMESERVER) || (i == Results::NWSFORECASTER))
@@ -767,7 +772,6 @@ Parsers::parseUse(char* use_str, Results::param_type_t type)
   return 0;
 }
 
-#if HAVE_DAGDA
 /**
  * Parse an unsigned long int. If the conversion did not succeed,
  * the result is set to 0.
@@ -785,4 +789,3 @@ Parsers::parseULong(char* ulongString, Results::param_type_t type) {
   Results::params[type].type = Results::ULONG_PARAMETER ;
   return 0;
 }
-#endif

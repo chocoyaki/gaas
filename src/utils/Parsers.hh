@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.37  2009/09/07 14:34:53  bdepardo
+ * Added an option in client configuration file to select, when launching the
+ * client, the maximum number of SeD the client can receive.
+ * Example in client.cfg:
+ * clientMaxNbSeD = 100
+ *
  * Revision 1.36  2008/07/08 22:14:23  rbolze
  * avoid  "conversion from string constant to «char*»" warning
  *
@@ -270,6 +276,7 @@ public:
 #ifdef HAVE_ALT_BATCH
       INTERNOARQUEUENAME,
 #endif
+      CLIENT_MAX_NB_SED,
       NB_PARAM_TYPE
     } param_type_t;
 
@@ -279,10 +286,8 @@ public:
       INT_PARAMETER,
       STRING_PARAMETER,
       ADDRESS_PARAMETER,
-      AGENT_PARAMETER // like int
-#if HAVE_DAGDA
-	 ,ULONG_PARAMETER
-#endif // HAVE_DAGDA
+      AGENT_PARAMETER, // like int
+      ULONG_PARAMETER
     } param_C_type_t ;
 
     /* Some of these parameters are complex types ... */
@@ -472,14 +477,12 @@ private:
   static int
   parseUse(char* use_str, Results::param_type_t type);
 
-#if HAVE_DAGDA
   /**
    * Parse an unsigned long int. If the conversion did not succeed,
    * the result is set to 0.
    */
    static int
    parseULong(char* ulongString, Results::param_type_t type);
-#endif // HAVE_DAGDA
 
 };
 
