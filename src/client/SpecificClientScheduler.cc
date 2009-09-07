@@ -8,12 +8,16 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.2  2009/09/07 11:18:53  bdepardo
+ * Added #include <cstdlib> for exit()
+ *
  * Revision 1.1  2007/07/11 08:42:09  aamar
  * Adding "custom client scheduling" mode (known as Burst mode). Need to be
  * activated in cmake.
  *
  ****************************************************************************/
 #include "SpecificClientScheduler.hh"
+#include <cstdlib>
 #include <iostream>
 #include <vector>
 
