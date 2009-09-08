@@ -31,6 +31,7 @@ ADD_LATEX_DOCUMENT(UsersManual.tex
                           agent_scheduler.tex
                           dagda.tex
 			  client_scheduler.tex
+			  appendix.tex
 		   BIBFILES UsersManual.bib 
 		   IMAGE_DIRS fig 
 		   IMAGES fig/DIET_arch_request-2.pdf
