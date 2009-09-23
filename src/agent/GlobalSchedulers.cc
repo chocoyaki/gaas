@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2009/09/23 15:24:03  bdepardo
+ * Fixed a bug when reverting to default scheduler: StdGS wasn't initialized.
+ *
  * Revision 1.18  2008/01/01 19:04:46  ycaniou
  * Only cosmetic
  *
@@ -254,7 +257,7 @@ GlobalScheduler::chooseGlobalScheduler(const corba_request_t* req,
     if (!moduleName) {
       WARNING("moduleName parameter is not set in the configuration file ; "
 	      << "reverting to default (StdGS)" << endl);
-      return new StdGS();
+      return (GlobalScheduler::chooseGlobalScheduler());
     }
     try {
       loaded = UserScheduler::instanciate(moduleName);
@@ -263,7 +266,7 @@ GlobalScheduler::chooseGlobalScheduler(const corba_request_t* req,
       WARNING("unable to load module " << moduleName << " ; "
 	      << "reverting to default (StdGS)" << endl
 	      << "Error : " << error.message() << endl);
-      return new StdGS();
+      return (GlobalScheduler::chooseGlobalScheduler());
     }
     SCHED_TRACE_FUNCTION("Module " << moduleName << " loaded.");
     return loaded;
