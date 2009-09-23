@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.3  2009/09/23 14:16:18  bdepardo
+ * Burst request now checks whether or not the SeDs it knows are still in the
+ * list of available SeD, and removes them if necessary.
+ * This is still to do for burstlimit.
+ *
  * Revision 1.2  2009/09/07 11:18:53  bdepardo
  * Added #include <cstdlib> for exit()
  *
@@ -20,6 +25,9 @@
 #include <cstdlib>
 #include <iostream>
 #include <vector>
+#include <list>
+
+#include "debug.hh"
 
 using namespace std;
 
@@ -89,39 +97,69 @@ SpecificClientScheduler::burstRequest(SeD_var& chosenServer,
                                 corba_response_t * response) {
   static vector<SeD_var> availableSeDs;
   static vector<int> use;
+  static int min = 0;
+  unsigned int ix, jx;
+  bool found;
+  vector<SeD_var>::iterator i_s, i_r;
+  vector<int>::iterator i_us, i_ur;
+  
+  // Remove obsolete SeDs
+  for (i_s = availableSeDs.begin(), i_us = use.begin();
+       i_s != availableSeDs.end() && i_us != use.end(); ++ i_s, ++ i_us) {
+    found = false;
+    for (ix=0; ix < response->servers.length(); ++ ix) {
+      if ((*i_s)->_is_equivalent(response->servers[ix].loc.ior._ptr)) {
+        found = true;
+        break;
+      }
+    }
+
+    if (!found) {
+      i_r = i_s;
+      -- i_s;
+      i_ur = i_us;
+      -- i_us;
+      TRACE_FUNCTION(TRACE_ALL_STEPS, "Removing a SeD from the list");
+      availableSeDs.erase(i_r);
+      use.erase(i_ur);
+    }
+  }
 
   // Add news SeDs
-  for (unsigned int ix=0; ix < response->servers.length(); ix++) {
-    bool found = false;
-    for (unsigned int jx=0; jx < availableSeDs.size(); jx++) {
-      if (availableSeDs[jx]->_is_equivalent(response->servers[ix].loc.ior._ptr)) {
+  for (ix=0; ix < response->servers.length(); ix++) {
+    found = false;
+    for (i_s = availableSeDs.begin(); i_s != availableSeDs.end(); ++ i_s) {
+      if ((*i_s)->_is_equivalent(response->servers[ix].loc.ior._ptr)) {
         found = true;
         break;
       }
     }
     if (!found) {
       availableSeDs.push_back(response->servers[ix].loc.ior);
-      use.push_back(0);
+      TRACE_FUNCTION(TRACE_ALL_STEPS, "Adding a new SeD to the list");
+      use.push_back(min);
     }
   }
 
   // Search the SeD with the minimum value => Less used
-  int min = use[0];
-  int idx = 0;
-  for (unsigned int ix=0;
-       ix < availableSeDs.size();
-       ix++) {
-    if (use[ix] < min) {
-      idx = ix;
-      min = use[ix];
+  min = *use.begin();
+  i_ur = use.begin();
+  i_r = availableSeDs.begin();
+
+  for (i_s = ++ availableSeDs.begin(), i_us = ++ use.begin();
+       i_s != availableSeDs.end(); ++ i_s, ++ i_us) {
+    if (*i_us < min) {
+      i_ur = i_us;
+      min = *i_us;
+      i_r = i_s;
     }
   } // end for
-  cout << "Burst scheduler chooses a SeD used " << 
-    use[idx] << "(" << min << ") times before." <<
-    " The SeDs vector contains " << availableSeDs.size() <<
-    " references" << endl;
-  use[idx]++;
-  chosenServer = availableSeDs[idx];  
+  TRACE_FUNCTION(TRACE_ALL_STEPS, "Burst scheduler chooses a SeD used " << 
+		 min << " times before." <<
+		 " The SeDs vector contains " << availableSeDs.size() <<
+		 " references");
+  (*i_ur) += 1;
+  chosenServer = *i_r;
 }
 
 /**
