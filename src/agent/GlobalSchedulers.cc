@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2009/09/24 10:48:34  bdepardo
+ * Fixed a bug when reverting to default scheduler: StdGS wasn't initialized
+ * (in deserialize).
+ *
  * Revision 1.19  2009/09/23 15:24:03  bdepardo
  * Fixed a bug when reverting to default scheduler: StdGS wasn't initialized.
  *
@@ -166,7 +170,7 @@ GlobalScheduler::deserialize(const char* serializedScheduler)
     if (!moduleName) {
       WARNING("moduleName parameter is not set in the configuration file ; "
 	      << "reverting to default (StdGS)" << endl);
-      return new StdGS();
+      return (GlobalScheduler::chooseGlobalScheduler());
     }
     try {
       return UserScheduler::deserialize(serializedScheduler, moduleName);
@@ -175,7 +179,7 @@ GlobalScheduler::deserialize(const char* serializedScheduler)
       WARNING("unable to load module " << moduleName << " ; "
 	      << "reverting to default (StdGS)" << endl <<
 	      "Message : " << error.message() << endl);
-      return new StdGS();
+      return (GlobalScheduler::chooseGlobalScheduler());
     }
   } else
 #endif
@@ -184,7 +188,7 @@ GlobalScheduler::deserialize(const char* serializedScheduler)
     WARNING("unable to deserialize global scheduler ; "
 	    << "reverting to default (StdGS)");
     cout << "scheduler was \"" << serializedScheduler << "\"\n";
-    return new StdGS();
+    return (GlobalScheduler::chooseGlobalScheduler());
   }
 }
 
