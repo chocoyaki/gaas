@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2009/09/25 12:49:11  bisnard
+ * avoid deadlocks due to new thread mgmt in DagNodeLauncher
+ *
  * Revision 1.4  2009/04/17 08:54:44  bisnard
  * renamed Node class as WfNode
  *
@@ -27,8 +30,10 @@
 #ifndef _METADAG_HH_
 #define _METADAG_HH_
 
-#include "Dag.hh"
+#include "NodeSet.hh"
 
+class Dag;
+class DagScheduler;
 
 /*****************************************************************************/
 /*                            METADAG CLASS                                  */
@@ -81,12 +86,14 @@ class MetaDag : public NodeSet {
         getDagNb();
 
     /**
-     * Set the release flag
+     * Set the release flag and returns the metadag completion status
      * TRUE => destroy metadag when last dag is done
      * FALSE => do not destroy metadag when last dag is done
      */
     void
         setReleaseFlag(bool release);
+    void
+        setReleaseFlag(bool release, bool& isDone);
 
     /**
      * Set the current dag used when parsing node references
@@ -119,6 +126,12 @@ class MetaDag : public NodeSet {
     bool
         isDone();
 
+    /**
+     * Cancel all dags
+     */
+    void
+        cancelAllDags(DagScheduler * scheduler = NULL);
+
   protected:
 
     /**
@@ -145,6 +158,11 @@ class MetaDag : public NodeSet {
      * Release flag
      */
     bool releaseFlag;
+
+    /**
+     * Cancelled flag
+     */
+    bool cancelFlag;
 
     /**
      * Critical section

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2009/09/25 12:49:11  bisnard
+ * avoid deadlocks due to new thread mgmt in DagNodeLauncher
+ *
  * Revision 1.5  2009/08/26 10:32:11  bisnard
  * corrected  warnings
  *
@@ -31,11 +34,13 @@
 #include <map>
 #include "debug.hh"
 #include "MetaDag.hh"
+#include "Dag.hh"
 
 using namespace std;
 
 MetaDag::MetaDag(const string& id)
-  : myId(id),  currDag(NULL), dagTodoCount(0), releaseFlag(true) {
+  : myId(id),  currDag(NULL), dagTodoCount(0), releaseFlag(true),
+    cancelFlag(false) {
 }
 
 MetaDag::~MetaDag() {
@@ -104,7 +109,17 @@ MetaDag::setCurrentDag(Dag * dag) {
 
 void
 MetaDag::setReleaseFlag(bool release) {
+  lock();
   releaseFlag = release;
+  unlock();
+}
+
+void
+MetaDag::setReleaseFlag(bool release, bool& isDone) {
+  lock();
+  releaseFlag = release;
+  isDone = release && (dagTodoCount == 0);
+  unlock();
 }
 
 WfNode*
@@ -141,14 +156,33 @@ MetaDag::handlerDagDone(Dag * dag) {
 
 bool
 MetaDag::isDone() {
-  if (!releaseFlag)
-    return false;
-  else {
-    lock();
-    bool noDagTodo = (dagTodoCount == 0);
-    unlock();
-    return noDagTodo;
+  bool isDone = false;
+  lock();
+  if (releaseFlag)
+  {
+    isDone = (dagTodoCount == 0);
   }
+  unlock();
+  return isDone;
+}
+
+void
+MetaDag::cancelAllDags(DagScheduler * scheduler) {
+  if (cancelFlag) return;
+  lock();
+  TRACE_TEXT (TRACE_ALL_STEPS,"Cancelling all dags of Metadag " << myId << endl);
+  for (map<string,Dag*>::iterator dagIter = myDags.begin();
+       dagIter != myDags.end();
+       ++dagIter)
+  {
+    Dag * currDag = (Dag*) dagIter->second;
+    if (!currDag->isDone()) {
+      TRACE_TEXT (TRACE_ALL_STEPS,"Cancelling dag " << currDag->getId() << endl);
+      currDag->setAsCancelled(scheduler);
+    }
+  }
+  cancelFlag = true;
+  unlock();
 }
 
 void

@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.32  2009/09/25 12:49:11  bisnard
+ * avoid deadlocks due to new thread mgmt in DagNodeLauncher
+ *
  * Revision 1.31  2009/08/26 10:33:08  bisnard
  * implementation of workflow status & restart
  *
@@ -150,21 +153,21 @@
 #include "debug.hh"
 
 #include "Dag.hh"
+#include "DagNode.hh"
+#include "DagNodePort.hh"
 #include "DagWfParser.hh"
+#include "DagScheduler.hh"
 
 using namespace std;
 
-NodeSet::NodeSet() { }
-NodeSet::~NodeSet() { }
-
 Dag::Dag()
-  : myId(""), myExecAgent(MasterAgent::_nil()), startTime(0), finishTime(0),
-    estDelay(0), tmpDag(false), cancelled(false) {
+  : myId(""), myWf(NULL), myExecAgent(MasterAgent::_nil()), startTime(0),
+    finishTime(0), estDelay(0), tmpDag(false), cancelled(false) {
 }
 
 Dag::Dag(MasterAgent_var& MA)
-  : myId(""), startTime(0), finishTime(0),
-    estDelay(0),tmpDag(false),  cancelled(false) {
+  : myId(""), myWf(NULL), startTime(0), finishTime(0),
+    estDelay(0), tmpDag(false), cancelled(false) {
   if (MA != MasterAgent::_nil())
     myExecAgent = MA;
   else {
@@ -176,7 +179,7 @@ Dag::Dag(MasterAgent_var& MA)
  * DAG destructor: will delete all the nodes of the dag (if not a temp dag)
  */
 Dag::~Dag() {
-//   TRACE_TEXT (TRACE_ALL_STEPS,"~Dag() destructor ..." <<  endl);
+  TRACE_TEXT (TRACE_ALL_STEPS,"~Dag() destructor ..." <<  endl);
   if (! this->tmpDag) {
     while (! nodes.empty() ) {
        DagNode * p = begin()->second ;
@@ -261,7 +264,7 @@ Dag::removeNode(const string& nodeId) throw (WfStructException) {
     this->nodes.erase(p);
     // clean parent attribute of the node
     ((DagNode*) p->second)->setDag(NULL);
-    
+
   } else
     throw WfStructException(WfStructException::eUNKNOWN_NODE,"node id="+nodeId);
 }
@@ -747,7 +750,7 @@ Dag::setNodeDone(DagNode* node, DagScheduler* scheduler) {
     }
     // manage dag termination when the current node is the last
     // one finishing (either dag is complete or is cancelled)
-    if (isDone() || (isCancelled() && !isRunning()) ) {
+    if (isDone() || isCancelled()) {
       TRACE_TEXT (TRACE_ALL_STEPS,"Dag " << getId() << " : End of execution" << endl);
       scheduler->handlerDagDone(this);
     }
@@ -759,8 +762,10 @@ Dag::setNodeDone(DagNode* node, DagScheduler* scheduler) {
  */
 void
 Dag::setNodeFailure(string nodeId, DagScheduler* scheduler) {
+  this->myLock.lock();  /** LOCK */
   setAsCancelled(scheduler);
   this->failedNodes.push_front(nodeId);
+  this->myLock.unlock();  /** UNLOCK */
 }
 
 /**
@@ -775,7 +780,8 @@ Dag::getNodeFailureList() {
  */
 void
 Dag::setAsCancelled(DagScheduler* scheduler) {
-  this->cancelled = true;
+  if (cancelled) return;
+  cancelled = true;
   // the following is used only by MaDag
   if (scheduler) {
     // remove all nodes from their queues
@@ -788,13 +794,7 @@ Dag::setAsCancelled(DagScheduler* scheduler) {
     }
     // trigger dag termination (will remove all dag nodes from the execution
     // queues and will inform the client of cancellation)
-    // if there are still running nodes then do nothing
-    if (!isRunning()) {
-      scheduler->handlerDagDone(this);
-    } else {
-      TRACE_TEXT (TRACE_ALL_STEPS, "Dag " << getId()
-                  << " : dag cancelled but nodes still running => wait" << endl);
-    }
+    scheduler->handlerDagDone(this);
   }
 }
 

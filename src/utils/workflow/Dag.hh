@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2009/09/25 12:49:11  bisnard
+ * avoid deadlocks due to new thread mgmt in DagNodeLauncher
+ *
  * Revision 1.25  2009/08/26 10:33:08  bisnard
  * implementation of workflow status & restart
  *
@@ -116,51 +119,15 @@
 #include <time.h>
 
 #include "WfNode.hh"
-#include "DagNode.hh"
-#include "DagNodePort.hh"
-#include "DagScheduler.hh"
 #include "MasterAgent.hh"
+#include "NodeSet.hh"
 
 using namespace std;
 
 class FWorkflow;
-
-
-/*****************************************************************************/
-/*                    CLASS NodeSet (ABSTRACT)                               */
-/*****************************************************************************/
-
-/**
- * NodeSet class
- *
- * Used by the DagWfParser to create either a dag or workflow
- * Used by Node class to manage relationships between nodes (this
- * applies to both dags or workflows)
- */
-
-class NodeSet {
-public:
-  NodeSet();
-
-  virtual ~NodeSet();
-
-  /**
-   * Get a node from the nodeset
-   * @param nodeId  the identifier (string) of the node
-   * @return pointer to node (does not return NULL)
-   */
-  virtual WfNode*
-  getNode(const string& nodeId) throw (WfStructException) = 0;
-
-  /**
-   * Check that the relationships between nodes are correct
-   * @param contextNodeSet the nodeSet used to find nodes referenced in the
-   * current nodeSet (can be the current nodeSet itself)
-   */
-  virtual void
-  checkPrec(NodeSet* contextNodeSet) throw (WfStructException) = 0;
-
-};
+class DagNode;
+class DagNodeOutPort;
+class DagScheduler;
 
 /*****************************************************************************/
 /*                              CLASS Dag                                    */
@@ -235,7 +202,7 @@ public:
    */
   FWorkflow *
   getWorkflow();
-  
+
   /**
    * Set the execution agent
    */
@@ -264,7 +231,7 @@ public:
    */
   DagNode *
   getDagNode(const string& nodeId) throw (WfStructException);
-  
+
   /**
    * remove a node from the dag
    */
@@ -302,6 +269,18 @@ public:
    */
   void
   linkAllPorts() throw (WfStructException);
+
+  /**
+   * check if the dag execution is ongoing
+   */
+  bool
+  isRunning();
+
+  /**
+   * check if the dag execution is completed *
+   */
+  bool
+  isDone();
 
   /**
    * check if the dag execution is cancelled *
@@ -484,18 +463,6 @@ public:
   getAllDietReqID();
 
 private:
-
-  /**
-   * check if the dag execution is ongoing
-   */
-  bool
-  isRunning();
-
-  /**
-   * check if the dag execution is completed *
-   */
-  bool
-  isDone();
 
   /*********************************************************************/
   /* private fields                                                    */

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2009/09/25 12:49:11  bisnard
+ * avoid deadlocks due to new thread mgmt in DagNodeLauncher
+ *
  * Revision 1.2  2008/06/01 15:50:39  rbolze
  * correct warning
  *
@@ -55,6 +58,9 @@ public:
   void start();
 
   void* join();
+  
+  long unsigned int getId();
+  
 private:
   /*********************************************************************/
   /* private fields                                                    */

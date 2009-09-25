@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2009/09/25 12:49:11  bisnard
+ * avoid deadlocks due to new thread mgmt in DagNodeLauncher
+ *
  * Revision 1.4  2008/12/12 16:35:39  bdepardo
  * Added #include <cstdlib> for exit
  *
@@ -53,6 +56,9 @@ Thread::Thread(auto_ptr<Runnable> runnable_, bool isDetached) :
 Thread::Thread(bool isDetached) : runnable(NULL), detached(isDetached){ }
 
 Thread::~Thread() { }
+
+long unsigned int
+Thread::getId() {	return PthreadThreadID; }
 
 void*
 Thread::startThreadRunnable(void* pVoid){
