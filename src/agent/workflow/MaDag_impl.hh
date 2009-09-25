@@ -3,6 +3,7 @@
 /*                                                                          */
 /* Author(s):                                                               */
 /* - Abdelkader AMAR (Abdelkader.Amar@ens-lyon.fr)                          */
+/* - Benjamin Isnard (Benjamin.Isnard@ens-lyon.fr)                          */
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
@@ -10,6 +11,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2009/09/25 12:42:09  bisnard
+ * - use new DagNodeLauncher classes to manage threads
+ * - added dag cancellation method
+ *
  * Revision 1.22  2009/02/06 14:50:35  bisnard
  * setup exceptions
  *
@@ -176,6 +181,24 @@ public:
   virtual CORBA::Long
       processMultiDagWf(const corba_wf_desc_t& dag_desc, const char* cltMgrRef,
                         CORBA::Long wfReqId, CORBA::Boolean release);
+
+  /**
+   * Multi DAG release
+   * Free all ressources after the multi-dag is completed
+   */
+  virtual void
+      releaseMultiDag(CORBA::Long wfReqId);
+
+  /**
+   * DAG cancellation method (non-blocking)
+   * Will stop execution of the dag as soon as all running dag nodes are completed.
+   * (running nodes cannot be stopped asynchronously)
+   * This method returns immediately. The MaDag will call release() on the CltWfMgr
+   * when the last running node is completed.
+   * @param  dagId  id of the dag (provided by MaDag at submission)
+   */
+  virtual void
+      cancelDag(CORBA::Long dagId);
 
   /**
    * Get a new workflow request identifier

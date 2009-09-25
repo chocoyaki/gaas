@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.29  2009/09/25 12:42:09  bisnard
+ * - use new DagNodeLauncher classes to manage threads
+ * - added dag cancellation method
+ *
  * Revision 1.28  2009/08/26 10:33:36  bisnard
  * use new parser for single dags
  *
@@ -274,7 +278,7 @@ CORBA::Long
 MaDag_impl::processDagWf(const corba_wf_desc_t& dag_desc,
                          const char* cltMgrRef,
                          CORBA::Long wfReqId) {
-  TRACE_TEXT(TRACE_ALL_STEPS, "MADAG receives a SINGLE DAG request (wfReqId = "
+  TRACE_TEXT(TRACE_ALL_STEPS, "%%%%% MADAG receives a SINGLE DAG request (wfReqId = "
                               << wfReqId << ")" << endl);
   return processDagWfCommon(dag_desc, cltMgrRef, wfReqId);
 }
@@ -286,7 +290,7 @@ CORBA::Long
 MaDag_impl::processMultiDagWf(const corba_wf_desc_t& dag_desc, const char* cltMgrRef,
                               CORBA::Long wfReqId, CORBA::Boolean release)
 {
-  TRACE_TEXT(TRACE_ALL_STEPS, "MADAG receives a MULTIPLE DAG request (wfReqId = "
+  TRACE_TEXT(TRACE_ALL_STEPS, "%%%%% MADAG receives a MULTIPLE DAG request (wfReqId = "
                               << wfReqId << " / release=" << release << ")" << endl);
   // Check if a MetaDag already exists for this wf request (or create one)
   MetaDag* mDag = NULL;
@@ -301,6 +305,28 @@ MaDag_impl::processMultiDagWf(const corba_wf_desc_t& dag_desc, const char* cltMg
   mDag->setReleaseFlag(release);
   // Process the dag
   return processDagWfCommon(dag_desc, cltMgrRef, wfReqId, mDag);
+}
+
+/**
+ * Multi DAG Workflow Release
+ */
+void
+MaDag_impl::releaseMultiDag(CORBA::Long wfReqId) {
+  TRACE_TEXT(TRACE_ALL_STEPS, "%%%%% MADAG receives a RELEASE request (wfReqId = "
+                              << wfReqId << ")" << endl);
+  MetaDag* mDag = NULL;
+  map<CORBA::Long, MetaDag*>::iterator mDagIter = myMetaDags.find(wfReqId);
+  if (mDagIter != myMetaDags.end()) {
+    mDag = (MetaDag*) mDagIter->second;
+  } else {
+    string errorMsg = "Request ID '" + itoa(wfReqId) + "' not found";
+    throw (MaDag::InvalidRequest(errorMsg.c_str()));
+  }
+  // Set the release flag
+  bool isDone = false;
+  mDag->setReleaseFlag(true, isDone);
+  if (isDone)
+    delete mDag;
 }
 
 /**
@@ -412,6 +438,14 @@ MaDag_impl::ping()
   stat_flush();
   return getpid();
 } // ping()
+
+/**
+ * Cancel a dag
+ */
+void
+MaDag_impl::cancelDag(CORBA::Long dagId) {
+  this->myMultiWfSched->cancelDag(itoa(dagId));
+}
 
 /**
  * Get the MA

@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2009/09/25 12:42:09  bisnard
+ * - use new DagNodeLauncher classes to manage threads
+ * - added dag cancellation method
+ *
  * Revision 1.21  2009/02/06 14:50:35  bisnard
  * setup exceptions
  *
@@ -113,6 +117,7 @@
 #include "Thread.hh"
 #include "NodeQueue.hh"
 #include "DagScheduler.hh"
+#include "DagNodeLauncher.hh"
 #include "MetaDag.hh"
 #include "MaDag.hh"
 
@@ -124,7 +129,8 @@ namespace madag {
 
   class MultiWfScheduler : public Thread, public DagScheduler {
 
-  friend class NodeRun;
+  friend class MultiWfBasicScheduler;
+  friend class MaDagNodeLauncher;
 
   public:
     /**
@@ -201,7 +207,20 @@ namespace madag {
     virtual void *
         run();
 
+    /**
+     * Dag cancellation
+     */
+    virtual void
+        cancelDag(const string& dagId);
+
   protected:
+
+    /**
+     * Get a dag ref given the dag id
+     * (will not find a completed dag except if part of a non-completed metaDag)
+     */
+    Dag *
+        getDag(const string& dagId) throw (MaDag::InvalidDag);
 
     /**
      * Get the MetaDag of a given dag
@@ -283,20 +302,14 @@ namespace madag {
 
     /**
      * Execute a post operation on synchronisation semaphore
-     * and joins the node thread given as parameter
-     * @param nodeThread  pointer to the calling thread
+     * @param newDag  must be set to True if calling post for a new submission
+     * @param node    must contain the node ref if calling post for end of node
      */
     virtual void
-        wakeUp(NodeRun * nodeThread);
+        wakeUp(bool newDag, DagNode * node = NULL);
 
     /**
-     * Execute a post operation on synchronisation semaphore
-     */
-    virtual void
-        wakeUp();
-
-    /**
-     * Updates scheduler when a node has been executed
+     * Updates scheduler when a node has been completed successfully
      */
     virtual void
         handlerNodeDone(DagNode * node) = 0;
@@ -308,19 +321,22 @@ namespace madag {
         handlerDagDone(Dag * dag);
 
     /**
-     * Execute a node on a given SeD
+     * Handles the node threads termination
      */
-    Thread *
-        runNode(DagNode * node,
-                SeD_var sed,
-                int reqID,
-                corba_estimation_t& ev);
+    virtual void
+        postWakeUp();
 
     /**
-     * Execute a node without specifying a SeD
+     * Handles the dag termination
      */
-    Thread *
-        runNode(DagNode * node);
+    virtual void
+        checkDagsRelease();
+
+    /**
+     * Release a dag on the client
+     */
+    virtual void
+        releaseDag(Dag * dag);
 
     /**
      * The Wf meta-scheduler scheduler
@@ -370,14 +386,24 @@ namespace madag {
     omni_semaphore mySem;
 
     /**
-     * Terminating node thread pointer (for join)
+     * FIFO list for semaphore post information
      */
-    NodeRun * termNodeThread;
+    typedef struct {
+      bool      isNewDag;
+      DagNode * nodeRef;
+    } wakeUpInfo_t;
+
+    list<wakeUpInfo_t>  myWakeUpList;
 
     /**
-     * Terminating node thread flag (for join)
+     * Semaphore for access to WakeUpList and DagsTermList
      */
-    bool termNode;
+    omni_mutex  myWakeUpLock;
+
+    /**
+     * MAP for dag termination
+     */
+    list<string> myDagsTermList;
 
     /**
      * Inter-round delay (used to separate DIET submits)
@@ -398,57 +424,17 @@ namespace madag {
     struct timeval refTime;
 
     /**
-     * Map dag ref => metadag ref
+     * Map dag id => metadag ref (only if dag belongs to metadag)
      */
     map<string,MetaDag*>  myMetaDags;
 
+    /**
+     * Map dag id => dag ptr (for all dags)
+     */
+    map<string,Dag*>  myDags;
+
   }; // end class MultiWfScheduler
 
-
-/****************************************************************************/
-/*                            CLASS NodeRun                                 */
-/****************************************************************************/
-  /**
-   * This class is used by the MaDag agent to run a separate thread for each
-   * node execution. This thread will invoke the execute() method on the
-   * client workflow manager (agent located on the client) and wait until the
-   * execution is finished. Then it triggers the execution of successor nodes
-   * and informs the multi-wf scheduler that the node is completed.
-   */
-
-  class NodeRun: public Thread {
-    public:
-      /**
-       * Constructor used when SeD is provided
-       */
-      NodeRun(DagNode * node,
-              SeD_var sed,
-              int reqID,
-              corba_estimation_t ev,
-              MultiWfScheduler * scheduler,
-              CltMan_ptr cltMan);
-
-      /**
-       * Constructor used when no SeD is provided
-       */
-      NodeRun(DagNode * node,
-              MultiWfScheduler * scheduler,
-              CltMan_ptr cltMan);
-
-      /**
-       * Run method
-       */
-      void*
-          run();
-
-    private:
-      DagNode *           myNode;
-      SeD_var             mySeD;
-      int                 myReqID;
-      corba_estimation_t  myEstVect;
-      MultiWfScheduler *  myScheduler;
-      CltMan_ptr          myCltMan;
-  }; // end class NodeRun
 
 /****************************************************************************/
 /*                            CLASS DagState                                */

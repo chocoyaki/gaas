@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.49  2009/09/25 12:42:09  bisnard
+ * - use new DagNodeLauncher classes to manage threads
+ * - added dag cancellation method
+ *
  * Revision 1.48  2009/06/23 09:25:38  bisnard
  * use new estimation vector entry (EST_EFT)
  *
@@ -187,14 +191,18 @@
  *
  ****************************************************************************/
 
-#include "MultiWfScheduler.hh"
-#include "HEFTScheduler.hh"
-#include "MaDag_impl.hh"
 #include "marshalling.hh"
 #include "est_internal.hh"
 #include <math.h>
 #include "debug.hh"
 #include "statistics.hh"
+
+#include "MaDag_impl.hh"
+#include "MultiWfScheduler.hh"
+#include "HEFTScheduler.hh"
+#include "MaDagNodeLauncher.hh"
+#include "Dag.hh"
+#include "DagNode.hh"
 
 using namespace madag;
 
@@ -260,6 +268,15 @@ MultiWfScheduler::getMaDag() const {
   return this->myMaDag;
 }
 
+Dag *
+MultiWfScheduler::getDag(const string& dagId) throw (MaDag::InvalidDag) {
+  map<string,Dag*>::iterator iter = myDags.find(dagId);
+  if (iter != myDags.end())
+    return ((Dag*)iter->second);
+  else
+    throw (MaDag::InvalidDag(dagId.c_str()));
+}
+
 /**
  * get the metadag of a dag
  */
@@ -281,19 +298,22 @@ MultiWfScheduler::scheduleNewDag(Dag * newDag, MetaDag * metaDag)
 {
   // Beginning of exclusion block
   // TODO move exclusion lock later (need to make HEFTScheduler thread-safe)
-  this->myLock.lock();
 
   TRACE_TEXT(TRACE_MAIN_STEPS,"\t ** New DAG to schedule (" << newDag->getId()
               << ") time=" << this->getRelCurrTime() << endl);
 
   // Dag internal scheduling
   TRACE_TEXT (TRACE_ALL_STEPS, "Making intra-dag schedule" << endl);
+  myLock.lock();
   try {
     this->intraDagSchedule(newDag, myMaDag->getMA());
   } catch (...) {
-    this->myLock.unlock();
+    myLock.unlock();
     throw;
   }
+
+  // Store Dag reference
+  this->myDags[newDag->getId()] = newDag;
 
   // Store metaDag
   if (metaDag != NULL) {
@@ -316,10 +336,9 @@ MultiWfScheduler::scheduleNewDag(Dag * newDag, MetaDag * metaDag)
 
   // Send signal to scheduler thread to inform there are new nodes
   TRACE_TEXT( TRACE_MAIN_STEPS, "%%%%% NEW DAG SUBMITTED: dag id = " << newDag->getId() << endl);
-  this->wakeUp();
+  this->wakeUp(true);
 
-  // End of exclusion block
-  this->myLock.unlock();
+  myLock.unlock();
 }
 
 /**
@@ -364,7 +383,8 @@ MultiWfScheduler::run() {
 
     TRACE_TEXT(TRACE_MAIN_STEPS,"\t ** Starting Multi-Workflow scheduler ("
         << loopCount << ") time=" << this->getRelCurrTime() << endl);
-    this->myLock.lock();
+
+    myLock.lock();
     // Loop over all nodeQueues and run the first ready node
     // for each queue
     TRACE_TEXT(TRACE_ALL_STEPS,"PHASE 1: Move ready nodes to exec queue" << endl);
@@ -490,12 +510,17 @@ MultiWfScheduler::run() {
 
           // EXECUTE NODE (NEW THREAD)
           if (ressourceFound) {
-            n->setAsRunning();
-            n->setRealStartTime(this->getRelCurrTime());
 	    TRACE_TEXT(TRACE_MAIN_STEPS,"  $$$$ Exec node on " << servEst->loc.hostName
               << " : " << n->getCompleteId() << endl);
             mappedNodeCount++;
-            runNode(n, servEst->loc.ior, submitReqID, servEst->estim);
+            // create a node launcher
+            DagNodeLauncher *launcher = new MaDagNodeLauncher( n, this,
+                                              myMaDag->getCltMan(n->getDag()->getId()));
+            // record chosen SeD information
+            launcher->setSeD(servEst->loc.ior, submitReqID, servEst->estim);
+            // start node execution
+            n->setRealStartTime(this->getRelCurrTime());
+            n->start(launcher); // non-blocking
           } else {
             if (this->platformType == PFM_ANY) {
               servAvail[n->getPbName()] = false;
@@ -540,7 +565,7 @@ MultiWfScheduler::run() {
       }
     } // end if queuedNodeCount > 0
 
-    this->myLock.unlock();
+    myLock.unlock();
 
     // The condition to go for a new round is the availability of ressources: under the
     // hypothesis that all ressources are identical (in terms of provided services) for
@@ -556,13 +581,12 @@ MultiWfScheduler::run() {
         TRACE_TEXT(TRACE_MAIN_STEPS,"No ressource available - sleeping" << endl);
       }
       this->mySem.wait();
-      if (this->termNode) {
-        TRACE_TEXT(TRACE_ALL_STEPS,"Joining RunNode thread ("
-            << this->termNodeThread << ")" << endl);
-        this->termNodeThread->join();
-        delete this->termNodeThread;
-        this->termNode = false;
-      }
+
+      // WAIT UNTIL A NEW DAG IS SUBMITTED OR A NODE IS COMPLETED
+
+      this->postWakeUp();
+      this->checkDagsRelease();
+
     } else {
       // DELAY between rounds (to avoid interference btw submits)
       usleep(this->interRoundDelay * 1000);
@@ -749,9 +773,7 @@ MultiWfScheduler::deleteNodeQueue(OrderedNodeQueue * nodeQ) {
   TRACE_TEXT (TRACE_ALL_STEPS, "Deleting node queues" << endl);
   ChainedNodeQueue *  waitQ = waitingQueues[nodeQ];
   waitingQueues.erase(nodeQ);     // removes from the map
-//   PriorityNodeQueue * readyQ  = dynamic_cast<PriorityNodeQueue *>(nodeQ);
   delete waitQ;
-//   delete readyQ;
   delete nodeQ;
 }
 
@@ -793,37 +815,106 @@ MultiWfScheduler::getRelCurrTime() {
  * Execute a post operation on synchronisation semaphore
  */
 void
-MultiWfScheduler::wakeUp() {
-  TRACE_TEXT(TRACE_ALL_STEPS,"Wake Up" << endl);
-  this->termNode = false; // no thread to join
-  this->mySem.post();
-}
-
-/**
- * Execute a post operation on synchronisation semaphore
- * and joins the node thread given as parameter
- */
-void
-MultiWfScheduler::wakeUp(NodeRun * nodeThread) {
-  TRACE_TEXT(TRACE_ALL_STEPS,"Wake Up & Join" << endl);
-  this->termNodeThread = nodeThread;
-  this->termNode = true;
+MultiWfScheduler::wakeUp(bool newDag, DagNode *node) {
+  // store information in the FIFO list
+  wakeUpInfo_t  info;
+  info.isNewDag = newDag;
+  info.nodeRef = node;
+  myWakeUpLock.lock();
+  myWakeUpList.push_back(info);
+  myWakeUpLock.unlock();
+  // call POST on semaphore
   this->mySem.post();
 }
 
 /**
  * manage dag end of execution
+ * Can handle several calls for the same dag (may happen if several nodes from
+ * the same dag are cancelled within a short timeframe)
  */
 void
 MultiWfScheduler::handlerDagDone(Dag * dag) {
+  myWakeUpLock.lock();
+  myDagsTermList.push_back(dag->getId());
+  myWakeUpLock.unlock();
+}
+
+/**
+ * manage threads (nodes) termination
+ */
+void
+MultiWfScheduler::postWakeUp() {
+  // MANAGE NODE TERMINATION (if not waking up on new dag submission)
+  myWakeUpLock.lock();
+  if (myWakeUpList.size() > 0) {
+    wakeUpInfo_t& info = myWakeUpList.front();
+    myWakeUpLock.unlock();
+    if (info.isNewDag)
+    {
+      TRACE_TEXT (TRACE_ALL_STEPS,"Scheduler waking up (NEW DAG)" << endl);
+    } else
+    {
+      TRACE_TEXT (TRACE_ALL_STEPS,"Scheduler waking up (END OF NODE)" << endl);
+      if (info.nodeRef)
+      {
+        info.nodeRef->terminate();
+      } else
+      {
+        INTERNAL_ERROR(__FUNCTION__ << "Invalid terminating node reference" << endl,1);
+      }
+    }
+    myWakeUpLock.lock();
+    myWakeUpList.pop_front();
+  }
+  myWakeUpLock.unlock();
+}
+
+/**
+ * manage dags termination
+ */
+void
+MultiWfScheduler::checkDagsRelease() {
+  // MANAGE DAG TERMINATION
+  myWakeUpLock.lock();
+  if (myDagsTermList.size() > 0)
+  {
+    myDagsTermList.sort();
+    myDagsTermList.unique();  // removes consecutive duplicates
+    list<string>::iterator it = myDagsTermList.begin();
+    while (it != myDagsTermList.end())
+    {
+      Dag * currDag = getDag(*it);
+      TRACE_TEXT (TRACE_ALL_STEPS,"Dag " << currDag->getId() << " : try to release" << endl);
+      if (!currDag->isRunning())
+      {
+        myWakeUpLock.unlock();
+        releaseDag(currDag);
+        myWakeUpLock.lock();
+        it = myDagsTermList.erase(it);
+      } else
+      {
+        TRACE_TEXT (TRACE_ALL_STEPS,"Dag " << currDag->getId() << " : cannot release now" << endl);
+        ++it;
+      }
+    }
+  }
+  myWakeUpLock.unlock();
+}
+
+/**
+ * release dag on client mgr
+ */
+void
+MultiWfScheduler::releaseDag(Dag * dag) {
   typedef size_t comm_failure_t;
   string dagId = dag->getId();
   char * message;
   bool clientFailure;
+  MetaDag * metaDag = this->getMetaDag(dag);
 
   // RELEASE THE CLIENT MANAGER
 
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Dag " << dagId << " done - calling client for release" << endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "[Dag " << dagId << "] : calling client for release" << endl);
   CltMan_ptr cltMan = myMaDag->getCltMan(dag->getId());
   try {
       message = cltMan->release(dagId.c_str(), !dag->isCancelled());
@@ -839,7 +930,9 @@ MultiWfScheduler::handlerDagDone(Dag * dag) {
            << e.NP_minorString() << ")" << endl ;
       WARNING("Connection problems with Client occured - Release cancelled");
       clientFailure = true;
-      dag->setAsCancelled();
+      dag->setAsCancelled(NULL);
+      if (metaDag)
+        metaDag->setReleaseFlag(true);  // allow MaDag to destroy the metadag
   }
 
   // DISPLAY DEBUG INFO
@@ -858,8 +951,15 @@ MultiWfScheduler::handlerDagDone(Dag * dag) {
     }
   }
 
-  // DELETE DAG (IF NOT PART OF A METADAG)
-  MetaDag * metaDag = this->getMetaDag(dag);
+  // REMOVE from dag list
+  myDags.erase(dagId);
+
+  // IF DAG IS CANCELLED, PROPAGATE CANCELLATION TO THE METADAG
+  if ((metaDag != NULL) && dag->isCancelled()) {
+    metaDag->cancelAllDags(this);
+  }
+
+  // DELETE DAG or METADAG
   if (metaDag != NULL) {
     TRACE_TEXT (TRACE_ALL_STEPS, "Trigger end-of-dag event to MetaDag" << endl);
     metaDag->handlerDagDone(dag);
@@ -876,100 +976,20 @@ MultiWfScheduler::handlerDagDone(Dag * dag) {
 }
 
 /**
- * Execute a node on a given SeD
+ * Cancel dag (without stopping running tasks)
  */
-Thread *
-MultiWfScheduler::runNode(DagNode * node, SeD_var sed,
-                          int reqID, corba_estimation_t& ev) {
-  Thread * thread = new NodeRun(node, sed, reqID, ev, this,
-                                this->myMaDag->getCltMan(node->getDag()->getId()));
-  thread->start();
-  return thread;
-}
-
-/**
- * Execute a node without specifying a SeD
- */
-Thread *
-MultiWfScheduler::runNode(DagNode * node) {
-  Thread * thread = new NodeRun(node, this,
-                                this->myMaDag->getCltMan(node->getDag()->getId()));
-  thread->start();
-  return thread;
-}
-
-/****************************************************************************/
-/*                            CLASS NodeRun                                 */
-/****************************************************************************/
-
-NodeRun::NodeRun(DagNode * node, SeD_var sed, int reqID, corba_estimation_t ev,
-                 MultiWfScheduler * scheduler, CltMan_ptr cltMan) {
-  this->myNode = node;
-  this->mySeD = sed;
-  this->myReqID = reqID;
-  this->myEstVect = ev;
-  this->myScheduler = scheduler;
-  this->myCltMan = cltMan;
-}
-
-NodeRun::NodeRun(DagNode * node,
-                 MultiWfScheduler * scheduler, CltMan_ptr cltMan) {
-  this->myNode = node;
-  this->mySeD = SeD::_nil();
-  this->myScheduler = scheduler;
-  this->myCltMan = cltMan;
-}
-
-/**
- * The execution method
- */
-void*
-NodeRun::run() {
-  Dag *  dag    = myNode->getDag();
-  string dagId  = dag->getId();
-  string nodeId = myNode->getId();
-  string nodePx = "[" + myNode->getCompleteId() + "] : ";
-  bool clientFailure = false;
-  CORBA::Long res;
-
-    // NODE EXECUTION ON CLIENT
+void
+MultiWfScheduler::cancelDag(const string& dagId) {
+  TRACE_TEXT (TRACE_ALL_STEPS,"######## RECEIVED DAG CANCELLATION FOR DAG '"
+                                << dagId << "' #########" << endl);
+  myLock.lock();
   try {
-    if (!CORBA::is_nil(this->mySeD)) {
-      TRACE_TEXT (TRACE_ALL_STEPS, nodePx << "call client (sed defined) - request #"
-          << this->myReqID << endl);
-      res = myCltMan->execNodeOnSed(nodeId.c_str(),
-                                    dagId.c_str(),
-                                    this->mySeD,
-                                    this->myReqID,
-                                    this->myEstVect);
-    } else {
-      TRACE_TEXT (TRACE_ALL_STEPS, nodePx << "call client (sed not defined)" << endl);
-      res = myCltMan->execNode(nodeId.c_str(),
-                                dagId.c_str());
-    }
-  } catch (CORBA::COMM_FAILURE& e) {
-    WARNING(nodePx << "Client call had connection problems" << endl);
-    clientFailure = true;
-  } catch (CORBA::SystemException& e) {
-    WARNING(nodePx << "Client call got a CORBA " << e._name() << " exception ("
-        << e.NP_minorString() << ")" << endl);
-    clientFailure = true;
+    getDag(dagId)->setAsCancelled(this);
   } catch (...) {
-    WARNING(nodePx << "Client call got unknown exception!" << endl);
-    clientFailure = true;
+    myLock.unlock();
+    throw;
   }
-  // POST-PROCESSING
-
-  if (!clientFailure && !res) {
-    TRACE_TEXT (TRACE_MAIN_STEPS, nodePx << "call client done" << endl);
-    myNode->setAsDone(myScheduler);
-  } else {
-    TRACE_TEXT (TRACE_ALL_STEPS, nodePx << "call client FAILURE!" << endl);
-    myNode->setAsFailed(myScheduler);
-  }
-
-  fflush(stdout);
-  myScheduler->wakeUp(this);
+  myLock.unlock();
 }
 
 /****************************************************************************/

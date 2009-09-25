@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2009/09/25 12:42:09  bisnard
+ * - use new DagNodeLauncher classes to manage threads
+ * - added dag cancellation method
+ *
  * Revision 1.12  2008/10/14 13:24:49  bisnard
  * use new class structure for dags (DagNode,DagNodePort)
  *
@@ -63,8 +67,12 @@
  ****************************************************************************/
 
 #include "MultiWfBasicScheduler.hh"
+#include "Dag.hh"
+#include "DagNode.hh"
+#include "MaDagNodeLauncher.hh"
 #include "debug.hh"
 #include "marshalling.hh"
+#include "MaDag_impl.hh"
 
 using namespace madag;
 
@@ -86,7 +94,7 @@ MultiWfBasicScheduler::run() {
   int nodeCount = 0;
   while (true) {
     TRACE_TEXT(TRACE_MAIN_STEPS,"\t ** Starting MultiWfBasicScheduler" << endl);
-    this->myLock.lock();
+    myLock.lock();
     // Loop over all nodeQueues and run the first ready node
     // for each queue
     nodeCount = 0;
@@ -99,8 +107,10 @@ MultiWfBasicScheduler::run() {
         TRACE_TEXT(TRACE_ALL_STEPS,"  #### Ready node : " << n->getCompleteId()
             << " => execute" << endl);
         // EXECUTE NODE (NEW THREAD)
-        n->setAsRunning();
-        runNode(n);
+        // create a node launcher
+        DagNodeLauncher *launcher = new MaDagNodeLauncher( n, this,
+                                           myMaDag->getCltMan(n->getDag()->getId()));
+        n->start(launcher);
         nodeCount++;
         // Destroy queues if both are empty
         ChainedNodeQueue * waitQ = waitingQueues[readyQ];
@@ -115,15 +125,17 @@ MultiWfBasicScheduler::run() {
       }
       ++qp; // go to next queue
     }
-    this->myLock.unlock();
+    myLock.unlock();
+
     if (nodeCount == 0) {
       TRACE_TEXT(TRACE_MAIN_STEPS,"No ready nodes" << endl);
       this->mySem.wait();
-      if (this->termNode) {
-        this->termNodeThread->join();
-        delete this->termNodeThread;
-        this->termNode = false;
-      }
+
+      // WAIT UNTIL A NEW DAG IS SUBMITTED OR A NODE IS COMPLETED
+
+      this->postWakeUp();
+      this->checkDagsRelease();
+
     }
   }
 }
