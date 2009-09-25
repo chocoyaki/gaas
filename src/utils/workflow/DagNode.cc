@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2009/09/25 12:46:56  bisnard
+ * - use new DagNodeLauncher classes to manage threads
+ * - removed node_running attribute
+ *
  * Revision 1.22  2009/08/26 10:33:08  bisnard
  * implementation of workflow status & restart
  *
@@ -79,70 +83,12 @@
  */
 
 #include "debug.hh"
-#include "marshalling.hh"
-#include "MasterAgent.hh"
-#include "SeDImpl.hh"
+// #include "marshalling.hh"
+#include "MasterAgent.hh" // for persistent data deletion
 
 #include "Dag.hh"
 #include "DagNode.hh"
 #include "DagNodePort.hh"
-
-/****************************************************************************/
-/*                                                                          */
-/*                         class RunnableNode                               */
-/*                                                                          */
-/****************************************************************************/
-
-#define MAX_EXEC_SERVERS 10 // max nb of servers in the agent response
-
-extern diet_error_t
-diet_call_common(MasterAgent_var& MA,
-                 diet_profile_t* profile,
-                 SeD_var& chosenServer,
-                 estVector_t estimVect,
-                 unsigned long maxServers);
-
-RunnableNode::RunnableNode(DagNode * parent)
-	:Thread(false) {
-  this->myParent = parent;
-}
-
-void *
-RunnableNode::run() {
-  typedef size_t comm_failure_t;
-  bool failed = false;
-  string traceHeader = "[" + myParent->getId() + "] RunnableNode : ";
-  TRACE_TEXT (TRACE_ALL_STEPS, traceHeader << " starting... " << endl);
-
-  if (!failed) {
-    try {
-      if (!diet_call_common(myParent->getDag()->getExecutionAgent(),
-                            myParent->profile,
-                            myParent->chosenServer,
-                            myParent->estimVect,
-                            MAX_EXEC_SERVERS)) {
-        TRACE_TEXT (TRACE_MAIN_STEPS, traceHeader << " diet call DONE reqID=" <<
-                    myParent->profile->dietReqID << endl);
-        myParent->storeProfileData();
-      }
-      else {
-          WARNING(traceHeader << "Diet call FAILED" << endl);
-          failed = true;
-      }
-    } catch(Dagda::DataNotFound& e) {
-      WARNING(traceHeader << "Data not found (ID=" << e.dataID << ")");
-      failed = true;
-    } catch(CORBA::SystemException& e) {
-      WARNING(traceHeader << "Got a CORBA " << e._name() << " exception ("
-                          << e.NP_minorString() << ")\n") ;
-      failed = true;
-    }
-  }
-  if (!failed)  myParent->setAsDone();
-  else          myParent->setAsFailed();
-
-  return NULL;
-}
 
 /****************************************************************************/
 /*                                                                          */
@@ -180,16 +126,12 @@ WfDataException::ErrorMsg() const {
 /****************************************************************************/
 
 DagNode::DagNode(const string& id, Dag *dag, FWorkflow* wf)
-  : WfNode(id), myDag(dag), myWf(wf) {
+  : WfNode(id), myDag(dag), myWf(wf), isStarted(false), isTerminated(false) {
   this->prevNodesTodoCount = 0;
   this->task_done = false;
-  this->SeDDefined = false;
   this->profile = NULL;
-  this->node_running = false;
+  this->myLauncher = NULL;
   this->taskExecFailed = false;
-  this->myRunnableNode = NULL;
-  this->chosenServer = SeD::_nil();
-  this->estimVect = NULL;
   this->nextDone = 0;
   this->priority = 0;
   this->myQueue = NULL;
@@ -204,11 +146,9 @@ DagNode::DagNode(const string& id, Dag *dag, FWorkflow* wf)
  * Node destructor
  */
 DagNode::~DagNode() {
-//   TRACE_TEXT (TRACE_ALL_STEPS, "~DagNode() destructor (id: " << myId << ") ..." << endl);
+  TRACE_TEXT (TRACE_ALL_STEPS, "~DagNode() destructor (id: " << getCompleteId() << ") ..." << endl);
   if (profile != NULL)
     diet_profile_free(profile);
-  if (myRunnableNode)
-    delete (myRunnableNode);
   if (myQueue)
     myQueue->removeNode(this);
 
@@ -524,6 +464,7 @@ DagNode::initProfileSubmit() {
     DagNodePort * dagPort = dynamic_cast<DagNodePort*>(p->second);
     dagPort->initProfileSubmit();
   }
+  TRACE_TEXT(TRACE_ALL_STEPS,"Profile for Submit done (" << myId << ")" << endl);
 }
 
 /**
@@ -533,11 +474,6 @@ void
 DagNode::initProfileExec() throw (WfDataException) {
   TRACE_TEXT(TRACE_ALL_STEPS,"Creating profile for Execution" << endl);
   createProfile();
-  if (this->SeDDefined) {
-    this->profile->dietReqID = this->dietReqID;
-    TRACE_TEXT(TRACE_ALL_STEPS,"Setting reqID in profile to #"
-      << this->dietReqID << endl);
-  }
   for (map<string, WfPort*>::iterator p = ports.begin();
        p != ports.end();
        ++p) {
@@ -733,24 +669,6 @@ DagNode::displayResults(ostream& output) {
   }
 }
 
-/**
- * set the SeD reference to the node *
- */
-void
-DagNode::setSeD(const SeD_var& sed, const unsigned long reqID, corba_estimation_t& ev) {
-  this->SeDDefined = true;
-  this->chosenServer = sed;
-  this->dietReqID = reqID;
-  this->estimVect = &ev;
-}
-
-/**
- * get the SeD
- */
-SeD_var&
-DagNode::getSeD() {
-  return chosenServer;
-}
 
 /******************************/
 /* Scheduling                 */
@@ -914,7 +832,7 @@ DagNode::getRealDelay() {
 }
 
 /**********************************/
-/* Execution status               */
+/* Execution                      */
 /**********************************/
 
 /**
@@ -932,43 +850,47 @@ DagNode::isReady() const {
  */
 void
 DagNode::setAsReady() {
-  string traceHeader = "[" + getId() + "] setAsReady() : ";
   if (this->myQueue != NULL) {
-    TRACE_TEXT (TRACE_ALL_STEPS,traceHeader << "notify its queue" << endl);
     this->myQueue->notifyStateChange(this);
   }
 }
 
 /**
- * start the node execution (CLIENT SIDE ONLY) *
- * Note: the argument join are always set to default currently
+ * start the node execution *
  */
-void DagNode::start(bool join) {
-  string traceHeader = "[" + getId() + "] start() : ";
-  node_running = true;
-  this->myRunnableNode = new RunnableNode(this);
-  TRACE_TEXT (TRACE_ALL_STEPS, traceHeader << "tries to launch a RunnableNode "<< endl);
-  this->myRunnableNode->start();
-  TRACE_TEXT (TRACE_ALL_STEPS, traceHeader << "launched its RunnableNode" << endl);
-  if (join)
-    this->myRunnableNode->join();
-  TRACE_TEXT (TRACE_ALL_STEPS, traceHeader << "joined its RunnableNode" << endl);
+
+void DagNode::start(DagNodeLauncher * launcher) {
+  TRACE_TEXT (TRACE_ALL_STEPS, "[" << getId() << "] : starting" << endl);/**/
+  myLauncher = launcher;
+  myLauncher->start();
+  isStarted = true;
 }
 
 /**
- * test if the node is running (Madag side)
+ * terminate the node execution (thread)
+ */
+void DagNode::terminate() {
+  string pfx = " [" + getCompleteId() + "] : ";
+  if (!isStarted) {
+    WARNING(__FUNCTION__ << pfx << "cannot terminate thread not started" << endl);
+    return;
+  }
+  if (isTerminated) {
+    WARNING(__FUNCTION__ << pfx << "cannot terminate thread already terminated" << endl);
+    return;
+  }
+  TRACE_TEXT (TRACE_ALL_STEPS, pfx << "waiting for node termination" << endl);
+  myLauncher->join();
+  delete myLauncher;
+  isTerminated = true;
+}
+
+/**
+ * test if the node is running
  */
 bool
 DagNode::isRunning() const {
-  return node_running;
-}
-
-/**
- * Set node status as running (Madag side)
- */
-void
-DagNode::setAsRunning() {
-  this->node_running = true;
+  return (isStarted && !isTerminated);
 }
 
 /**
@@ -987,7 +909,6 @@ void
 DagNode::setAsDone(DagScheduler* scheduler) {
   // update node scheduling info
   task_done = true;
-  node_running = false;
   // the following applies only to MaDag
   if (scheduler) {
     setRealCompTime(scheduler->getRelCurrTime());
@@ -1015,7 +936,6 @@ void DagNode::prevNodeHasDone() {
 void
 DagNode::setAsFailed(DagScheduler* scheduler) {
   taskExecFailed =  true;
-  node_running = false;
   this->getDag()->setNodeFailure(this->getId(), scheduler);
 }
 
@@ -1031,9 +951,9 @@ void
 DagNode::setStatus(const string& statusStr) {
   if (statusStr == "done")
     this->setAsDone();
-  else if (statusStr ==  "running")
-    this->setAsRunning();
-  else if (statusStr == "failed")
+  else if (statusStr ==  "running") {
+      // nothing to do this status cannot be set because it is dynamic
+  } else if (statusStr == "failed")
     this->setAsFailed();
   else if (statusStr == "ready") {
       // nothing to do: this status depends on predecessors status

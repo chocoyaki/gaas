@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2009/09/25 12:46:56  bisnard
+ * - use new DagNodeLauncher classes to manage threads
+ * - removed node_running attribute
+ *
  * Revision 1.15  2009/08/26 10:33:08  bisnard
  * implementation of workflow status & restart
  *
@@ -63,54 +67,18 @@
 #include <sys/time.h>
 #include <time.h>
 
-// general DIET headers
-#include "DIET_data.h"
-#include "DIET_client.h"
-#include "SeD.hh"
-#include "common_types.hh"
-#include "MasterAgent.hh"
+// DIET core headers
+#include "DIET_grpc.h"
+#include "MasterAgentImpl.hh"
 
 // workflow related headers
 #include "WfNode.hh"
 #include "NodeQueue.hh"
 #include "Thread.hh"
 #include "DagScheduler.hh"
+#include "DagNodeLauncher.hh"
 
 using namespace std;
-
-/****************************************************************************/
-/*                                                                          */
-/*                         class RunnableNode                               */
-/*                                                                          */
-/****************************************************************************/
-
-class DagNode;
-
-/**
- * The RunnableNode class is used for node execution *
- */
-class RunnableNode : public Thread {
-public:
-  /**
-   * The default constructor
-   * @param parent The node reference
-   */
-  RunnableNode(DagNode * parent);
-
-private:
-  /**
-   * Node reference
-   */
-  DagNode * myParent;
-
-  /**
-   * Node execution method *
-   * Allocates the profile and executes the call to the SeD *
-   */
-  void *
-  run();
-
-};
 
 /*****************************************************************************/
 /*                         CLASS WfDataException                             */
@@ -145,10 +113,6 @@ class FWorkflow;
 class FProcNode;
 
 class DagNode : public WfNode  {
-  /*******************************/
-  /* friend classes              */
-  friend class RunnableNode;
-  /*******************************/
 
 public:
 
@@ -176,7 +140,7 @@ public:
    */
   void
   setDag(Dag *dag);
-  
+
   /**
    * get the node Dag reference
    */
@@ -201,18 +165,6 @@ public:
    */
   const string&
   getPbName();
-
-  /**
-   * set the functional node for which this node is an instance
-   */
-//   void
-//   setFNode(FProcNode * fNode);
-
-  /**
-   * get the functional node
-   */
-//   FProcNode *
-//   getFNode();
 
   /**
    * create a new port
@@ -372,20 +324,6 @@ public:
   void
   displayResults(ostream& output);
 
-  /**
-   * set the SeD reference associated to the Node
-   * @param sed the SeD reference
-   * @param reqID the request ID (of previous submit request)
-   * @param ev  the Estimation vector for this SeD (required to call diet_call_common)
-   */
-  void
-  setSeD(const SeD_var& sed, const unsigned long reqID, corba_estimation_t& ev);
-
-  /**
-   * Get the chosen SeD
-   */
-  SeD_var&
-  getSeD();
 
   /******************************/
   /* Scheduling                 */
@@ -518,13 +456,6 @@ public:
   setAsReady();
 
   /**
-   * start the node execution (client side) *
-   * @param join
-   */
-  void
-  start(bool join = false);
-
-  /**
    * Called when a previous node execution is done *
    */
   void
@@ -541,12 +472,6 @@ public:
    */
   bool
   isRunning() const;
-
-  /**
-   * Set node statuc as running *
-   */
-  void
-  setAsRunning();
 
   /**
    * Test if the execution is done *
@@ -573,13 +498,31 @@ public:
    */
   void
   setAsFailed(DagScheduler* scheduler = NULL);
-  
+
   /**
    * Set the status of the node given a string value of the status
    * @param statusStr	status value as provided by getStateAsString()
    */
   void
   setStatus(const string& statusStr);
+
+  /**********************************/
+  /* Execution thread               */
+  /**********************************/
+
+  /**
+   * start the node execution
+   */
+  void
+  start(DagNodeLauncher * launcher);
+
+  /**
+   * terminate node execution
+   * Will wait until completed and delete the launcher
+   */
+  void
+  terminate();
+
 
 protected:
 
@@ -591,6 +534,12 @@ protected:
    */
   string
   getStatusAsString() const;
+
+  /**
+   * Set node statuc as running *
+   */
+  void
+  setAsRunning();
 
 private:
 
@@ -639,19 +588,14 @@ private:
   FWorkflow * myWf;
 
   /**
-   * Functional node
-   */
-//   FProcNode * myFNode;
-
-  /**
    * problem profile *
    */
   diet_profile_t * profile;
 
   /**
-   * node thread *
+   * node launcher *
    */
-  RunnableNode   * myRunnableNode;
+  DagNodeLauncher*  myLauncher;
 
   /*************************/
   /* problem parameters    */
@@ -674,27 +618,7 @@ private:
     /**
    * node running status *
    */
-  bool node_running;
-
-  /**
-   * Sed status (true if sed is defined)
-   */
-  bool SeDDefined;
-
-  /**
-   * chosen server *  (client-side)
-   */
-  SeD_var chosenServer;
-
-  /**
-   * estimation vector for chosen server * (client-side)
-   */
-  estVector_t estimVect;
-
-  /**
-   * request ID for chosen server (client-side)
-   */
-  unsigned long dietReqID;
+//   bool node_running;
 
   /**
    * number of immediate next nodes that have end their execution *
@@ -737,6 +661,16 @@ private:
    * of the same class)
    */
   string estimationClass;
+
+  /**
+   * Indicates that the node started a thread
+   */
+  bool isStarted;
+
+  /**
+   * Indicates that the node's thread was joined
+   */
+  bool isTerminated;
 
 };
 
