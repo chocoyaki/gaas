@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.139  2009/09/25 12:42:28  bisnard
+ * added dag cancellation method
+ *
  * Revision 1.138  2009/09/07 14:34:55  bdepardo
  * Added an option in client configuration file to select, when launching the
  * client, the maximum number of SeD the client can receive.
@@ -355,6 +358,7 @@ using namespace std;
 
 #ifdef HAVE_WORKFLOW
 #include "workflow/CltWfMgr.hh"
+#include "workflow/DagWfParser.hh"
 #endif
 
 #define BEGIN_API extern "C" {
@@ -1252,6 +1256,17 @@ diet_wf_call(diet_wf_desc_t* profile) {
       return CltWfMgr::instance()->wfFunctionalCall(profile);
   }
   return 1;
+}
+
+/**
+ * Dag cancellation method
+ */
+diet_error_t
+diet_wf_cancel_dag(const char* dagId) {
+  if (CORBA::is_nil(MA_DAG)) {
+      ERROR("No MA DAG defined", 1);
+  }
+  return CltWfMgr::instance()->cancelDag(dagId);
 }
 
 /**

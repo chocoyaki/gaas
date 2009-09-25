@@ -3,11 +3,15 @@
 /*                                                                          */
 /*  Author(s):                                                              */
 /*    - Abdelkader Amar (Abdelkader.Amar@ens-lyon.fr)                       */
+/*    - Benjamin Isnard (Benjamin.Isnard@ens-lyon.fr)                       */
 /*                                                                          */
 /* $LICENSE$                                                                */
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2009/09/25 12:42:37  bisnard
+ * added dag cancellation method
+ *
  * Revision 1.14  2009/02/06 14:51:55  bisnard
  * setup exceptions for workflows
  *
@@ -80,16 +84,20 @@ interface MaDag {
     string info;
   };
 
+  exception InvalidRequest {
+    string info;
+  };
+
   exception CommProblem {
     string info;
   };
 
  /**
-  * DAG Workflow processing
+  * DAG processing
   *
-  * @param  dag_desc   workflow textual description
+  * @param  dag_desc   dag textual description
   * @param  cltMgrRef  client workflow manager reference
-  * @param  wfReqId    submitted workflow identifier
+  * @param  wfReqId    submitted request identifier
   * @return dag Id
   */
   long
@@ -99,12 +107,12 @@ interface MaDag {
       raises(InvalidDag, ServiceNotFound, CommProblem);
 
   /**
-   * Multi DAG Workflow processing
+   * Multi DAG processing
    * (when submitted DAG is linked to other DAGs)
    *
-   * @param  dag_desc     workflow textual description
+   * @param  dag_desc     dag textual description
    * @param  cltMgrRef    client workflow manager reference
-   * @param  wfReqId      submitted workflow identifier
+   * @param  wfReqId      submitted request identifier
    * @param  release      if false, keep the wf request open after this req
    * @return dag Id
    */
@@ -124,6 +132,21 @@ interface MaDag {
 
   /** Used to test if this process is alive. */
   long ping();
+
+  /**
+   * Release a multi-dag
+   */
+  void
+      releaseMultiDag(in long wfReqId)
+      raises(InvalidRequest);
+
+  /**
+   * Cancel the execution of a dag
+   * (execution of running tasks is not stopped)
+   */
+  void
+      cancelDag(in long dagId)
+      raises(InvalidDag);
 
   /**
    * Select type of platform connected to MaDag
