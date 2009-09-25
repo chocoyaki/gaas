@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.53  2009/09/25 13:44:43  bdepardo
+ * Fixed a bug on clientMaxNbSeD: there was an inconsistency in the type of
+ * the parameter.
+ *
  * Revision 1.52  2009/09/07 14:34:53  bdepardo
  * Added an option in client configuration file to select, when launching the
  * client, the maximum number of SeD the client can receive.
@@ -246,7 +250,7 @@ Parsers::Results::param_t Parsers::Results::params[] =
 #ifdef HAVE_ALT_BATCH
    /* [41] */ ,{"internOARbatchQueueName", 23, Parsers::parseName, 0, NULL, Results::STRING_PARAMETER}
 #endif
-   /* [42] */ ,{"clientMaxNbSeD", 14, Parsers::parseULong, 0, NULL, Results::INT_PARAMETER}
+   /* [42] */ ,{"clientMaxNbSeD", 14, Parsers::parseULong, 0, NULL, Results::ULONG_PARAMETER}
   } ;
 
 #define IS_ADDRESS(i) ((i == Results::LDAPBASE) || (i == Results::NWSNAMESERVER) || (i == Results::NWSFORECASTER))
