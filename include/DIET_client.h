@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.39  2009/09/25 12:34:01  bisnard
+ * added dag cancellation API function
+ *
  * Revision 1.38  2009/07/20 12:53:12  bisnard
  * obsoleted file storing persistent data IDs on client when using DTM
  *
@@ -293,6 +296,12 @@ get_diet_services(int *services_number);
 /*****************************************/
 diet_error_t
 diet_wf_call(diet_wf_desc_t* profile);
+
+/********************************************/
+/* cancel a dag sent to the MaDag.          */
+/********************************************/
+diet_error_t
+diet_wf_cancel_dag(const char* dagId);
 
 /*****************************************/
 /* terminate a workflow session and      */
