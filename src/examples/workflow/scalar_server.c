@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2009/09/25 14:28:47  bisnard
+ * modified to allocate output variables
+ *
  * Revision 1.7  2009/06/23 09:26:56  bisnard
  * new API method for EFT estimation
  *
@@ -85,9 +88,9 @@ succ(diet_profile_t* pb)
   fprintf(stderr, "SUCC SOLVING\n");
 
   diet_scalar_get(diet_parameter(pb,0), &ix, NULL);
-  diet_scalar_get(diet_parameter(pb,1), &jx, NULL);
-  diet_scalar_get(diet_parameter(pb,2), &kx, NULL);
   fprintf(stderr, "i = %d\n", *(int*)ix);
+  jx = (int*) malloc(sizeof(int));
+  kx = (int*) malloc(sizeof(int));
   *(int*)jx = *(int*)ix + 1;
   *(int*)kx = *(int*)ix + 1;
   fprintf(stderr, "succ(i) = %d\n", *(int*)jx);
@@ -111,8 +114,8 @@ double_int(diet_profile_t* pb)
   fprintf(stderr, "DOUBLE SOLVING\n");
 
   diet_scalar_get(diet_parameter(pb,0), &ix, NULL);
-  diet_scalar_get(diet_parameter(pb,0), &jx, NULL);
   fprintf(stderr, "i = %d\n", *(int*)ix);
+  jx = (int*) malloc(sizeof(int));
   *(int*)jx = *(int*)ix * 2;
   fprintf(stderr, "j = 2i = %d\n", *(int*)jx);
   diet_scalar_desc_set(diet_parameter(pb,1), jx);
@@ -136,8 +139,8 @@ sum(diet_profile_t* pb)
   fprintf(stderr, "SUM SOLVING\n");
   diet_scalar_get(diet_parameter(pb,0), &ix, NULL);
   diet_scalar_get(diet_parameter(pb,1), &jx, NULL);
-  diet_scalar_get(diet_parameter(pb,2), &kx, NULL);
   fprintf(stderr, "i = %d, j =%d\n", *(int*)ix, *(int*)jx);
+  kx = (int*) malloc(sizeof(int));
   *(int*)kx = *(int*)ix + *(int*)jx;
   fprintf(stderr, "k = i + j = %d\n", *(int*)kx);
   diet_scalar_desc_set(diet_parameter(pb,2), kx);
@@ -159,8 +162,8 @@ square(diet_profile_t* pb)
   fprintf(stderr, "SQUARE SOLVING\n");
 
   diet_scalar_get(diet_parameter(pb,0), &ix, NULL);
-  diet_scalar_get(diet_parameter(pb,1), &jx, NULL);
   fprintf(stderr, "i = %d\n", *(int*)ix);
+  jx = (double*) malloc(sizeof(double));
   *(double*)jx = sqrt(*(int*)ix);
   fprintf(stderr, "sqrt(i) = %f\n", *(double*)jx);
   diet_scalar_desc_set(diet_parameter(pb,1), jx);
