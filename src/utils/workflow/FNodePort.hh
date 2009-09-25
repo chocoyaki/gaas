@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2009/09/25 12:49:45  bisnard
+ * handle user data tags
+ *
  * Revision 1.15  2009/08/26 10:33:09  bisnard
  * implementation of workflow status & restart
  *
@@ -215,6 +218,12 @@ class FNodeOutPort : public FNodePort {
      */
     void
         writeAllDataAsList(ostream& output);
+
+    /**
+     * Get the data handle of the buffer
+     */
+    FDataHandle*
+        getBufferRootDH();
 
     /**
      * Get the container containing all the data in the buffer

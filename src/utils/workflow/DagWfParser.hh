@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2009/09/25 12:49:45  bisnard
+ * handle user data tags
+ *
  * Revision 1.24  2009/08/26 10:33:09  bisnard
  * implementation of workflow status & restart
  *
@@ -117,13 +120,15 @@
 // Workflow related headers
 #include "WfUtils.hh"
 #include "WfNode.hh"
-#include "Dag.hh"
+class Dag;
 
 // Functional workflow classes
 class FWorkflow;
 class FNode;
 class FSourceNode;
+class FProcNode;
 class FDataTag;
+class FDataHandle;
 
 
 XERCES_CPP_NAMESPACE_USE
@@ -650,17 +655,22 @@ class DataSourceHandler : public DefaultHandler {
     void startSource(const   Attributes&     attrs);
     void startList(const   Attributes&     attrs);
     void startItem(const   Attributes&     attrs);
+    void startTag(const   Attributes&     attrs);
 
     void endSource();
     void endList();
     void endItem();
+    void endTag();
 
     FSourceNode*  myNode;
     FDataTag*     myCurrTag;
+    FDataHandle*  myCurrListDH;
     string        myCurrItemValue;
     string        myCurrItemDataID;
+    FDataHandle*  myCurrItemDH;
 
     bool          isSourceFound;
+    bool          isListFound;
     bool          isItemFound;
 
 

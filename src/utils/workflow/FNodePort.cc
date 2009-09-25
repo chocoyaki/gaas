@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2009/09/25 12:49:45  bisnard
+ * handle user data tags
+ *
  * Revision 1.15  2009/08/26 10:33:09  bisnard
  * implementation of workflow status & restart
  *
@@ -297,6 +300,11 @@ FNodeOutPort::writeAllDataAsList(ostream& output) {
     }
     output << endl;
   }
+}
+
+FDataHandle*
+FNodeOutPort::getBufferRootDH() {
+  return &myBuffer;
 }
 
 const string&

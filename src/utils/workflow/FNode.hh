@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2009/09/25 12:49:45  bisnard
+ * handle user data tags
+ *
  * Revision 1.19  2009/08/26 10:33:09  bisnard
  * implementation of workflow status & restart
  *
@@ -374,24 +377,45 @@ class FSourceNode : public FNode {
 
   protected:
     /**
-     * Instanciate a new value for the source (used by parser)
+     * Instanciate a new data for the source (used by parser)
      * @param tag the data tag
-     * @param value the value as a string
+     * @return ref on the data
      */
-    void
-        insertValue( const FDataTag& tag,
-		     const string& value);
+    FDataHandle *
+        createData( const FDataTag& tag );
 
     /**
-     * Instanciate a new data ID for the source (used by parser)
-     * @param tag the data tag
-     * @param dataID  the dataID of data already stored on the platform
-     * @param value (optional) the data value to use if dataID is invalid
+     * Set the value of the data
+     * @param DH ref on the data
+     * @param value string containing the value
      */
     void
-        insertDataID( const FDataTag& tag,
-		      const string& dataID,
-		      const string& value = "");
+        setDataValue( FDataHandle* DH, const string& value);
+
+    /**
+     * Set the data ID of the data
+     * @param DH ref on the data
+     * @param dataID  string containing the data ID
+     */
+    void
+        setDataID( FDataHandle* DH, const string& dataID);
+
+    /**
+     * Set a property of the data
+     * @param DH ref on the data
+     * @param propKey key of the property
+     * @param propValue value of the property
+     */
+    void
+        setDataProperty( FDataHandle* DH,
+                         const string& propKey,
+                         const string& propValue );
+    /**
+     * Store the new data for the source (used by parser)
+     * @param newDH the ref to the data (created by createData)
+     */
+    void
+        insertData( FDataHandle* newDH );
 
   private:
     DataSourceParser * myParser;

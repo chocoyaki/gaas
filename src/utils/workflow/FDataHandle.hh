@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2009/09/25 12:49:45  bisnard
+ * handle user data tags
+ *
  * Revision 1.14  2009/08/26 10:33:09  bisnard
  * implementation of workflow status & restart
  *
@@ -577,6 +580,23 @@ class FDataHandle {
      */
     unsigned int
         getChildCount(unsigned int level);
+
+    /**
+     * Add a new property to the data handle
+     * A property is a string key/value pair attached to the data handle.
+     * Properties are automatically inherited by childs.
+     * If property already defined, value is overriden. //CONFIRM
+     */
+    void
+        addProperty(const string& propKey, const string& propValue);
+
+    /**
+     * Get the value of a property
+     * @param propKey the property name
+     * @exception FDataHandleException  if property is not defined
+     */
+    const string&
+        getProperty(const string& propKey) throw (WfDataHandleException);
 
     /**
      * Write all the data tree in XML format

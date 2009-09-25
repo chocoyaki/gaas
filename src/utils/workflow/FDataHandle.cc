@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2009/09/25 12:49:45  bisnard
+ * handle user data tags
+ *
  * Revision 1.15  2009/08/26 10:33:09  bisnard
  * implementation of workflow status & restart
  *
@@ -807,6 +810,16 @@ FDataHandle::getChildCount(unsigned int level) {
 }
 
 void
+FDataHandle::addProperty(const string& propKey, const string& propValue) {
+  cout << __FUNCTION__ << "DH=" << myTag.toString() << " : key=" << propKey
+       << "/value=" << propValue << endl;
+}
+
+const string&
+FDataHandle::getProperty(const string& propKey) throw (WfDataHandleException) {
+}
+
+void
 FDataHandle::updateTreeCardinal() {
   updateTreeCardinalRec(false, false);
 }
@@ -972,6 +985,8 @@ FDataHandle::setValue( WfCst::WfDataType valueType,
   myValueType = valueType;
   myValue = value;
   valueDef = true;
+  if (myAdapterType == ADAPTER_UNDEFINED)
+    myAdapterType = ADAPTER_VALUE;
 }
 
 const string&

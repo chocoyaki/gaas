@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.35  2009/09/25 12:49:45  bisnard
+ * handle user data tags
+ *
  * Revision 1.34  2009/08/26 10:33:09  bisnard
  * implementation of workflow status & restart
  *
@@ -142,11 +145,13 @@
 #include "debug.hh"
 #include "marshalling.hh"
 #include "DagWfParser.hh"
+#include "Dag.hh"
 #include "WfUtils.hh"
 #include "FWorkflow.hh"
 #include "FActivityNode.hh"
 #include "FIfNode.hh"
 #include "FLoopNode.hh"
+#include "FDataHandle.hh"
 
 #ifndef XTOC
 #define XTOC(x) XMLString::transcode(x) // Use iff x is a XMLCh *
@@ -1288,7 +1293,8 @@ DataSourceParser::parseXml(const string& dataFileName) throw (XMLParsingExceptio
 /*****************************************************************************/
 
 DataSourceHandler::DataSourceHandler(FSourceNode* node)
-  : myNode(node), myCurrTag(NULL), isSourceFound(false), isItemFound(false) {
+  : myNode(node), myCurrTag(NULL), myCurrListDH(NULL), myCurrItemDH(NULL),
+    isSourceFound(false), isListFound(false), isItemFound(false) {
 }
 
 /**
@@ -1301,11 +1307,11 @@ DataSourceHandler::startElement(const   XMLCh* const    uri,
                                 const   XMLCh* const    qname,
                                 const   Attributes&     attrs ) {
   char* eltName = XTOC(qname);
-//   cout << "startElement : " << eltName << endl;
 
   if (strcmp("source",eltName) == 0) startSource(attrs);
   if (strcmp("list",eltName) == 0)   startList(attrs);
   if (strcmp("item",eltName) == 0)   startItem(attrs);
+  if (strcmp("tag",eltName) == 0)    startTag(attrs);
 
   XREL(eltName);
 }
@@ -1315,11 +1321,11 @@ DataSourceHandler::endElement(const   XMLCh* const    uri,
                                 const   XMLCh* const    localname,
                                 const   XMLCh* const    qname) {
   char* eltName = XTOC(qname);
-//   cout << "endElement : " << eltName << endl;
 
   if (strcmp("source",eltName) == 0) endSource();
   if (strcmp("list",eltName) == 0)   endList();
   if (strcmp("item",eltName) == 0)   endItem();
+  if (strcmp("tag",eltName) == 0)    endTag();
 
   XREL(eltName);
 }
@@ -1334,7 +1340,6 @@ DataSourceHandler::startSource(const   Attributes&     attrs) {
   char* srcName = XTOC(attrs.getValue(attName));
 
   if (strcmp(myNode->getId().c_str(), srcName) == 0) {
-//     cout << "source " << myNode->getId() << " found" << endl;
     isSourceFound = true;
   }
 
@@ -1344,26 +1349,42 @@ DataSourceHandler::startSource(const   Attributes&     attrs) {
 
 void
 DataSourceHandler::endSource() {
-  if (isSourceFound) {
-    isSourceFound = false;
-  }
+  isListFound = false;
+  isSourceFound = false;
+  delete myCurrTag;
+  myCurrTag = NULL;
 }
 
 void
 DataSourceHandler::startList(const   Attributes&     attrs) {
   if (isSourceFound) {
 
-    // temporary for my own tag
-    FDataTag* myTag = myCurrTag;
-
-    // create tag
-    if (myTag == NULL) {
-      myCurrTag = new FDataTag(0,false);
-    } else {
-      myCurrTag = new FDataTag(*myTag, 0, false);  // creates first child tag
+    // only one <list> element (root tag) is possible
+    if (isListFound && myCurrTag && myCurrTag->isEmpty()) {
+      string errorMsg = "Error in data source XML file (source must contain one list element)";
+      throw XMLParsingException(XMLParsingException::eBAD_STRUCT, errorMsg);
     }
 
-    // insert dataID if provided
+    // start processing list
+    isListFound = true;
+
+    // store a copy of my own tag
+    FDataTag* myTag = myCurrTag;
+
+    // initialize my own tag
+    if (myTag == NULL) {
+      myTag = new FDataTag();
+    }
+
+    // create my data handle & insert in the data tree
+    myCurrListDH = myNode->createData( *myTag);
+    if (!myTag->isEmpty())
+      myNode->insertData( myCurrListDH );
+
+    // create tag for first child
+    myCurrTag = new FDataTag(*myTag, 0, false);
+
+    // check data ID attribute
     string currListDataID = "";
     for (XMLSize_t i = 0; i < attrs.getLength(); i++) {
       char * name  = XTOC(attrs.getQName(i));
@@ -1374,8 +1395,10 @@ DataSourceHandler::startList(const   Attributes&     attrs) {
       XREL(name);
       XREL(value);
     }
+
+    // update data ID
     if (!currListDataID.empty()) {
-      myNode->insertDataID(*myTag, myCurrItemDataID);
+      myNode->setDataID( myCurrListDH, myCurrItemDataID);
     }
 
     // delete temporary
@@ -1385,7 +1408,7 @@ DataSourceHandler::startList(const   Attributes&     attrs) {
 
 void
 DataSourceHandler::endList() {
-  if (isSourceFound) {
+  if (isListFound) {
     myCurrTag->getParent();
     if (!myCurrTag->isEmpty())
       myCurrTag->getSuccessor();
@@ -1394,9 +1417,15 @@ DataSourceHandler::endList() {
 
 void
 DataSourceHandler::startItem(const   Attributes&     attrs) {
-  if (isSourceFound && (myCurrTag)) {
-//     cout << "found item / tag=" << myCurrTag->toString() << endl;
+  if (isListFound) {
+    // start new item
     isItemFound = true;
+
+    // create and store new DH
+    myCurrItemDH = myNode->createData( *myCurrTag );
+    myNode->insertData( myCurrItemDH );
+
+    // check attributes
     myCurrItemValue = "";
     myCurrItemDataID = "";
     for (XMLSize_t i = 0; i < attrs.getLength(); i++) {
@@ -1428,14 +1457,52 @@ DataSourceHandler::characters (const  XMLCh* const     chars,
 void
 DataSourceHandler::endItem() {
   if (isItemFound) {
+    // update data ID and value
     if (!myCurrItemDataID.empty())
-      myNode->insertDataID(*myCurrTag, myCurrItemDataID, myCurrItemValue);
-    else
-      myNode->insertValue(*myCurrTag, myCurrItemValue);
+      myNode->setDataID( myCurrItemDH, myCurrItemDataID);
+    if (!myCurrItemValue.empty())
+      myNode->setDataValue( myCurrItemDH, myCurrItemValue );
 
     myCurrTag->getSuccessor();
     isItemFound = false;
   }
+}
+
+void
+DataSourceHandler::startTag(const   Attributes&     attrs) {
+  if (isListFound || isItemFound) {
+    // check attributes
+    string currTagKey;
+    string currTagValue;
+    for (XMLSize_t i = 0; i < attrs.getLength(); i++) {
+      char * name  = XTOC(attrs.getQName(i));
+      char * value = XTOC(attrs.getValue(i));
+      if (!strcmp(name,"name")) {
+        currTagKey = value;
+      } else if (!strcmp(name,"value")) {
+        currTagValue = value;
+      }
+      XREL(name);
+      XREL(value);
+    }
+    // get the right current data handle
+    FDataHandle* currDH = NULL;
+    if (isItemFound)
+      currDH = myCurrItemDH;
+    else if (isListFound)
+      currDH = myCurrListDH;
+
+    // store tag as DH property
+    if (currDH)
+      currDH->addProperty( currTagKey, currTagValue );
+    else {
+      INTERNAL_ERROR("Cannot store data tag: no current data\n",1);
+    }
+  }
+}
+
+void
+DataSourceHandler::endTag() {
 }
 
 void
@@ -1455,7 +1522,7 @@ DataSourceHandler::warning(const SAXParseException& e)
 
 
 /*****************************************************************************/
-/*          CLASS DataSourceHandler - Static utility methods                 */
+/*                   CLASS DagWfParser - Static utility methods              */
 /*****************************************************************************/
 
 /**

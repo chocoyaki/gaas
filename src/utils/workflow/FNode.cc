@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2009/09/25 12:49:45  bisnard
+ * handle user data tags
+ *
  * Revision 1.19  2009/08/26 10:33:09  bisnard
  * implementation of workflow status & restart
  *
@@ -79,6 +82,7 @@
 #include "debug.hh"
 #include "FNode.hh"
 #include "FWorkflow.hh"
+#include "Dag.hh"
 #include "DagNodePort.hh"
 #include "DagWfParser.hh"
 
@@ -384,6 +388,35 @@ FSourceNode::toXML(ostream& output) {
   output << "</source>" << endl;
 }
 
+FDataHandle*
+FSourceNode::createData( const FDataTag& tag ) {
+  // depth may be wrong but it will be updated at the end by
+  // updateAllDataCardinal on the whole data tree
+  return new FDataHandle(tag, getDataType(), 0);
+}
+
+void
+FSourceNode::setDataValue( FDataHandle* DH, const string& value) {
+  DH->setValue(getDataType(),value);
+}
+
+void
+FSourceNode::setDataID( FDataHandle* DH, const string& dataID) {
+  DH->setDataID(dataID);
+}
+
+void
+FSourceNode::setDataProperty( FDataHandle* DH,
+                              const string& propKey,
+                              const string& propValue ) {
+  DH->addProperty(propKey, propValue);
+}
+
+void
+FSourceNode::insertData( FDataHandle* newDH ) {
+  myOutPort->storeData(newDH);
+}
+/*
 void
 FSourceNode::insertValue( const FDataTag& tag,
                           const string& value ) {
@@ -402,7 +435,7 @@ FSourceNode::insertDataID( const FDataTag& tag,
   if (!value.empty())
     newDH->setValue(getDataType(),value);
   myOutPort->storeData(newDH);
-}
+}*/
 
 /*****************************************************************************/
 /*                             FSinkNode                                     */
