@@ -38,14 +38,17 @@ main(int argc, char* argv[])
         char * ID2;
         char * ID3;
         char * ID4;
+        char * ID5;
 	diet_container_t content1, content2;
         long *outsleepTime1 = NULL;
         long *outsleepTime2 = NULL;
         char *path2 = NULL;
         char *path3 = NULL;
-        profile1 = diet_profile_alloc(service_name,0,1,1);
+        profile1 = diet_profile_alloc(service_name,1,1,2);
+        // set INPUT scalar parameter
         diet_scalar_set(diet_parameter(profile1,0), &sleepTime,DIET_VOLATILE, DIET_LONGINT);
-        // set INPUT container
+
+        // set INPUT container profile
         printf("PUT first element on platform (scalar)\n");
         dagda_put_scalar(&sleepTime, DIET_LONGINT, DIET_PERSISTENT, &ID1);
         printf("PUT second element on platform (file)\n");
@@ -62,25 +65,34 @@ main(int argc, char* argv[])
         dagda_add_container_element(ID4, ID3, 0);
         printf("Add PARENT container to profile\n");
         diet_use_data(diet_parameter(profile1,1), ID4);
+
+        // set OUTPUT container profile
+        diet_container_set(diet_parameter(profile1,2), DIET_PERSISTENT);
+
         printf("Start DIET CALL\n");
 	if (diet_call(profile1) ){
 		return 1;
 	}
         printf("DIET CALL finished\n");
-        printf("Get OUTPUT PARENT container\n");
-        dagda_get_container(ID4);
+        ID5 = (profile1->parameters[2]).desc.id;
+        printf("Get OUTPUT PARENT container (ID : %s)\n", ID5);
+        dagda_get_container(ID5);
         printf("Get PARENT container element list\n");
-        dagda_get_container_elements(ID4, &content1);
-        printf("Get CHILD container element list\n");
+        dagda_get_container_elements(ID5, &content1);
+
         if (content1.size == 1) {
+          printf("Download CHILD container\n");
+          dagda_get_container(content1.elt_ids[0]);
+          printf("Get CHILD container element list\n");
           dagda_get_container_elements(content1.elt_ids[0], &content2);
           printf("Get CHILD elements\n");
           if (content2.size == 4) {
-            dagda_get_scalar(content2.elt_ids[0],&outsleepTime1, NULL);
-            dagda_get_file(content2.elt_ids[1],&path2);
+            /* The first two elements are empty */
+            if ((content2.elt_ids[0] != NULL) || (content2.elt_ids[1] != NULL))
+              printf("ERROR: first two elements of the CHILD container are not empty\n");
             dagda_get_scalar(content2.elt_ids[2],&outsleepTime2, NULL);
             dagda_get_file(content2.elt_ids[3],&path3);
-            printf("Container contains: %ld, %s, %ld, %s\n", *outsleepTime1, path2, *outsleepTime2, path3);
+            printf("Container contains: VOID, VOID, %ld, %s\n", *outsleepTime2, path3);
           } else {
             printf("ERROR: OUTPUT CHILD container does not contain expected nb of elements\n");
           }

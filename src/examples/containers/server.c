@@ -37,12 +37,13 @@ add_service(char* service_name)
 {
   diet_profile_desc_t* profile = NULL;
   printf("Service_name : %s\n",service_name);
-  profile = diet_profile_desc_alloc(service_name,0,1,1);
+  profile = diet_profile_desc_alloc(service_name,1,1,2);
   /* setup scheduler */
   set_up_scheduler(profile);
   /* Set profile parameters: */
   diet_generic_desc_set(diet_param_desc(profile,0),DIET_SCALAR,DIET_LONGINT);
   diet_generic_desc_set(diet_param_desc(profile,1),DIET_CONTAINER,DIET_CHAR);
+  diet_generic_desc_set(diet_param_desc(profile,2),DIET_CONTAINER,DIET_CHAR);
   /* Add service to the service table */
   if (diet_service_table_add(profile, NULL, service )) return 1;
   /* Free the profile, since it was deep copied */
@@ -147,18 +148,21 @@ service(diet_profile_t* pb)
         char * ID1;
         char * ID2;
         char * ID3;
+        char * ID4;
         char * path1 = NULL;
 	long* outsleepTime = (long*) malloc(sizeof(long));
 	printf("###############\n");
         diet_container_t content1, content2;
-        printf("Initialize INPUT container\n");
-       /* dagda_init_container(diet_parameter(pb,1)); */
+       /* no need to call dagda_get_container for root container as it is
+        * downloaded automatically by DIET */
         printf("Get PARENT container element list\n");
         dagda_get_container_elements((*diet_parameter(pb,1)).desc.id, &content1);
         if (content1.size != 1) {
           printf("Container does not contain expected nb of elements\n");
           printf("It contains %ld elements\n",content1.size);
         } else {
+          printf("Retrieve CHILD container (not downloaded by DIET)\n");
+          dagda_get_container(content1.elt_ids[0]);
           printf("Get CHILD container element list\n");
           dagda_get_container_elements(content1.elt_ids[0], &content2);
           if (content2.size !=2) {
@@ -175,14 +179,19 @@ service(diet_profile_t* pb)
         }
 	printf("Time to Sleep =%ld ms\n",*outsleepTime);
 	usleep(*outsleepTime*1000);
-// 	diet_scalar_desc_set(diet_parameter(pb,2),outsleepTime);
+        printf("INIT PARENT OUTPUT container\n");
+        dagda_init_container(diet_parameter(pb,2));
+        printf("CREATE CHILD OUTPUT container\n");
+        dagda_create_container(&ID4);
+        printf("PUT CHILD container as 1st element of OUTPUT container\n");
+        dagda_add_container_element((*diet_parameter(pb,2)).desc.id, ID4, 0);
         printf("PUT first OUT element on platform (SCALAR)\n");
         dagda_put_scalar(outsleepTime, DIET_LONGINT, DIET_PERSISTENT, &ID1);
         printf("PUT second OUT element on platform (FILE)\n");
         dagda_put_file(path1, DIET_PERSISTENT, &ID2);
         printf("Add CHILD container elements\n");
-        dagda_add_container_element(content1.elt_ids[0], ID1, 2);
-        dagda_add_container_element(content1.elt_ids[0], ID2, 3);
+        dagda_add_container_element(ID4, ID1, 2);
+        dagda_add_container_element(ID4, ID2, 3);
         printf("###############\n");
         free(content1.elt_ids);
         free(content2.elt_ids);
