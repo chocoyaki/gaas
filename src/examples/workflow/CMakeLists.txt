@@ -20,7 +20,8 @@ SET (CLIENTS  generic_client
               client_string
               client_file
               client_matrix
-              client_container)
+              client_container
+              utils_client )
 
 FOREACH (sed ${SEDs})
   ADD_EXECUTABLE( ${sed} ${sed}.c )
