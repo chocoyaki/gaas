@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.12  2009/09/25 12:54:02  bisnard
+ * fixed bug for dag submission
+ * make command-line parameters standard
+ *
  * Revision 1.11  2009/08/26 10:35:40  bisnard
  * use new workflow API
  *
@@ -79,6 +83,7 @@ main(int argc, char* argv[])
   diet_wf_desc_t * profile;
   char *wfFileName, *dataFileName, *transcriptFileName;
   wf_level_t wfType;
+  char wfTypeName[10];
   struct timeval t1, t2;
   float time;
 
@@ -94,14 +99,16 @@ main(int argc, char* argv[])
   transcriptFileName = (char*) NULL;
 
   if (!strcmp(argv[2],"-dag")) {
+    strcpy(wfTypeName, "dag");
     wfType = DIET_WF_DAG;
   } else if (!strcmp(argv[2],"-wf")) {
+    strcpy(wfTypeName, "workflow");
     wfType = DIET_WF_FUNCTIONAL;
   } else {
     usage(argv[0]);
   }
 
-  if (wfType = DIET_WF_FUNCTIONAL) {
+  if (wfType == DIET_WF_FUNCTIONAL) {
     if (argc >= 5) {
       dataFileName = argv[4];
     }
@@ -122,29 +129,32 @@ main(int argc, char* argv[])
    */
   profile = diet_wf_profile_alloc(wfFileName,"test", wfType);
 
-  /*
-   * For functional workflows ONLY
-   * Defines which file is used to provide the data to instanciate the wf
-   */
-  diet_wf_set_data_file(profile,dataFileName);
+  if (wfType == DIET_WF_FUNCTIONAL) {
+    /*
+    * For functional workflows ONLY
+    * Defines which file is used to provide the data to instanciate the wf
+    */
+    diet_wf_set_data_file(profile,dataFileName);
 
-  /*
-   * For workflow restart
-   * Defines which file is used to store the execution transcriptFileName
-   * (file will be overwritten if existing)
-   */
-  diet_wf_set_transcript_file(profile, transcriptFileName);
+    /*
+    * For workflow restart
+    * Defines which file is used to store the execution transcriptFileName
+    * (file will be overwritten if existing)
+    */
+    diet_wf_set_transcript_file(profile, transcriptFileName);
+  }
 
-
-  printf("Try to execute the workflow\n");
+  printf("Try to execute the %s\n", wfTypeName);
   if (! diet_wf_call(profile)) {
     gettimeofday(&t2, NULL);
     time = (t2.tv_sec - t1.tv_sec) + ((float)(t2.tv_usec - t1.tv_usec))/1000000;
-    printf("The workflow submission succeed / time= %f s\n",time);
+    printf("The %s submission succeed / time= %f s\n" ,wfTypeName, time);
 
-    printf("Save data in data_out.xml\n");
-    if (diet_wf_save_data_file(profile, "data_out.xml")) {
-      printf("Could not save data file\n");
+    if (wfType == DIET_WF_FUNCTIONAL) {
+      printf("Save data in data_out.xml\n");
+      if (diet_wf_save_data_file(profile, "data_out.xml")) {
+        printf("Could not save data file\n");
+      }
     }
 
     printf("Display results:\n");
@@ -154,7 +164,7 @@ main(int argc, char* argv[])
 
   }
   else {
-    printf("The workflow submission failed\n");
+    printf("The %s submission failed\n", wfTypeName);
   }
 
   if (transcriptFileName == NULL) {
