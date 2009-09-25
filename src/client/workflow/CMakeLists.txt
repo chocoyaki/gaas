@@ -11,11 +11,13 @@ IF( DIET_BUILD_LIBRARIES )
     ${DIET_SOURCE_DIR}/src/CORBA
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${DIET_SOURCE_DIR}/include
+    ${DIET_SOURCE_DIR}/src/SeD
     )
 
   INCLUDE_DIRECTORIES( ${XERCES_INCLUDE_DIR} )
 
   ADD_LIBRARY( CltWf
+    CltDagNodeLauncher.cc
     CltWfMgr.cc )
 
   TARGET_LINK_LIBRARIES( CltWf

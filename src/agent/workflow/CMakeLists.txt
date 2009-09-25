@@ -14,6 +14,7 @@ IF( DIET_BUILD_LIBRARIES )
   INCLUDE_DIRECTORIES( ${XERCES_INCLUDE_DIR} )
 
   ADD_LIBRARY( MaDag
+    MaDagNodeLauncher.cc
     MaDag_impl.cc
     WfScheduler.cc HEFTScheduler.cc
     MultiWfScheduler.cc

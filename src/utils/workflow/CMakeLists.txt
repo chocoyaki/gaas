@@ -5,6 +5,7 @@ IF( DIET_BUILD_LIBRARIES )
     ${DIET_SOURCE_DIR}/src/CORBA        # for e.g. marshalling.hh
     ${CMAKE_CURRENT_SOURCE_DIR}         # for DIET_data_internal.hh
     ${DIET_SOURCE_DIR}/include
+    ${DIET_SOURCE_DIR}/src/SeD
     ${XERCES_INCLUDE_DIR}
     ${XQILLA_INCLUDE_DIR}
     )
@@ -14,7 +15,7 @@ IF( DIET_BUILD_LIBRARIES )
     FActivityNode.cc FIfNode.cc FLoopNode.cc
     WfPort.cc WfPortAdapter.cc
     FNodePort.cc
-    DagNode.cc DagNodePort.cc
+    DagNode.cc DagNodePort.cc DagNodeLauncher.cc
     DagWfParser.cc
     NodeQueue.cc
     FDataHandle.cc InputIterator.cc
@@ -22,7 +23,6 @@ IF( DIET_BUILD_LIBRARIES )
     )
 
   TARGET_LINK_LIBRARIES( UtilsWf
-    DIETCall
     ${DIET_DAGDA_LIBRARY}
     ${XERCES_LIBRARY}  ${OMNIORB4_LIBRARIES} ${XQILLA_LIBRARY}
     )
@@ -35,9 +35,5 @@ IF( DIET_BUILD_LIBRARIES )
   INSTALL_TARGETS( /lib/ UtilsWf )
 
   INSTALL_FILES( /etc/ FILES FWorkflow.dtd )
-
-#    ADD_EXECUTABLE( wftest WfUnitTest.cc )
-#    TARGET_LINK_LIBRARIES( wftest UtilsWf DIET_client)
-#    INSTALL_TARGETS( /bin/ wftest )
 
 ENDIF( DIET_BUILD_LIBRARIES )
