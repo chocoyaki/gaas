@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2009/09/25 12:43:37  bisnard
+ * modified send method to handle missing relationships
+ *
  * Revision 1.4  2009/03/27 09:09:41  bisnard
  * replace container size attr by dynamic value
  *
@@ -63,9 +66,10 @@ class Container {
     void addData(const char* dataID, long index, long flag);
 
     /**
-     * Remove a data element from the container
+     * Remove the i-th element from the container (does not delete the element)
+     * @param index   the index of the element
      */
-    void remData(const char* dataID, long flag);
+    void remData(long index);
 
     /**
      * Get the size (nb of elements) of the container

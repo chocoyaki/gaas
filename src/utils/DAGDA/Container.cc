@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2009/09/25 12:43:37  bisnard
+ * modified send method to handle missing relationships
+ *
  * Revision 1.5  2009/03/27 09:04:10  bisnard
  * - replace container size attr by dynamic value
  * - added exception mgmt
@@ -59,24 +62,24 @@ Container::~Container() {
 void
 Container::addData(const char* dataID, long index, long flag) {
   TRACE_TEXT(TRACE_ALL_STEPS, "Container: Add the data " << dataID
-     << " to container " << myID << endl);
+     << "(flag=" << flag << ") to container " << myID << endl);
   if (notFound)
     throw Dagda::DataNotFound(myID.c_str());
   myRelMgr->addRelation(myID,dataID,index,flag);
 }
 
 void
-Container::remData(const char* dataID, long flag) {
+Container::remData(long index) {
   if (notFound)
     throw Dagda::DataNotFound(myID.c_str());
-  myRelMgr->remRelation(myID, dataID, flag);
+  myRelMgr->remRelation(myID, index);
 }
 
 int
 Container::size() {
   if (notFound)
     throw Dagda::DataNotFound(myID.c_str());
-  return myRelMgr->getRelationNb(myID);
+  return (myRelMgr->getRelationMaxIndex(myID) + 1);
 }
 
 void
@@ -116,22 +119,28 @@ Container::send(Dagda_ptr dest, bool sendData) {
                               << dataIDSeq->length() << " elements / sendData="
                               << sendData << ")" << endl);
   for (unsigned int ix = 0; ix < dataIDSeq->length(); ++ix) {
-    const char* eltID = (*dataIDSeq)[ix];
-    if (sendData) {
-      corba_data_desc_t * eltDesc;
-      try {
-        eltDesc = myMgr->pfmGetDataDesc(eltID);
-      } catch (Dagda::DataNotFound& ex) {
-        WARNING("Missing element " << eltID << " in container " << myID << endl);
-        continue; // skip this element
+
+    if ((*dataIDSeq)[ix] != NULL) {
+      const char* eltID = (*dataIDSeq)[ix];
+      if (sendData) {
+        corba_data_desc_t * eltDesc;
+        try {
+          eltDesc = myMgr->pfmGetDataDesc(eltID);
+        } catch (Dagda::DataNotFound& ex) {
+          WARNING("Missing element " << eltID << " in container " << myID << endl);
+          continue; // skip this element
+        }
+        corba_data_t eltData;
+        eltData.desc = *eltDesc;
+        Dagda_var srcMgr = Dagda::_narrow(ORBMgr::stringToObject(eltDesc->dataManager));
+        dest->lclAddData(srcMgr, eltData);
       }
-      corba_data_t eltData;
-      eltData.desc = *eltDesc;
-      Dagda_var srcMgr = Dagda::_narrow(ORBMgr::stringToObject(eltDesc->dataManager));
-      dest->lclAddData(srcMgr, eltData);
+      // add relationship container-data to destination mgr
+      dest->lclAddContainerElt(myID.c_str(), eltID, ix, (*flagSeq)[ix]);
+
+    } else {  // dataIDSeq[ix] = NULL
+      dest->lclAddContainerElt(myID.c_str(), "", ix, (CORBA::Long) 1);
     }
-    // add relationship container-data to destination mgr
-    dest->lclAddContainerElt(myID.c_str(), eltID, ix, (*flagSeq)[ix]);
   }
   return CORBA::string_dup(myID.c_str());
 }
