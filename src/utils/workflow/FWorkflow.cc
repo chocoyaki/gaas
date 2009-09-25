@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2009/09/25 12:39:18  bisnard
+ * modified includes to reduce inter-dependencies
+ *
  * Revision 1.20  2009/08/26 10:33:09  bisnard
  * implementation of workflow status & restart
  *
@@ -84,6 +87,7 @@
 #include <functional>
 
 #include "debug.hh"
+#include "Dag.hh"
 #include "DagWfParser.hh"
 #include "FWorkflow.hh"
 #include "FActivityNode.hh"

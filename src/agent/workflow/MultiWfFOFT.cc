@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2009/09/25 12:39:13  bisnard
+ * modified includes to reduce inter-dependencies
+ *
  * Revision 1.18  2009/02/06 14:50:35  bisnard
  * setup exceptions
  *
@@ -86,6 +89,7 @@
 #include "debug.hh"
 #include "MultiWfFOFT.hh"
 #include "Dag.hh"
+#include "DagNode.hh"
 
 using namespace madag;
 

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2009/09/25 12:39:18  bisnard
+ * modified includes to reduce inter-dependencies
+ *
  * Revision 1.18  2009/08/26 10:35:24  bisnard
  * provide new methods for data input/output and execution transcript
  *
@@ -107,9 +110,12 @@
 #include "DIET_client.h"
 #include "marshalling.hh"
 
-#include "workflow/DagWfParser.hh"
-#include "workflow/MetaDag.hh"
+class NodeSet;
 class FWorkflow;
+class Dag;
+class MetaDag;
+
+using namespace std;
 
 class CltWfMgr : public POA_CltMan,
                  public PortableServer::RefCountServantBase{
@@ -203,6 +209,14 @@ public:
    */
   diet_error_t
   wfFunctionalCall(diet_wf_desc_t * profile);
+
+  /**
+   * Cancel a running dag. This method returns immediately as it only set the dag's status.
+   * Dag will continue running until currently running nodes are finished, and then
+   * MaDag will send the release() call.
+   */
+  diet_error_t
+  cancelDag(const char* dagId);
 
   /**
    * Display all results from a dag

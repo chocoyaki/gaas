@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2009/09/25 12:39:18  bisnard
+ * modified includes to reduce inter-dependencies
+ *
  * Revision 1.18  2009/08/26 10:33:09  bisnard
  * implementation of workflow status & restart
  *
@@ -77,7 +80,7 @@
 #include <map>
 #include <iostream>
 
-#include "Dag.hh"
+#include "NodeSet.hh"
 #include "FNode.hh"
 
 using namespace std;

@@ -17,6 +17,8 @@
 
 #include "debug.hh"
 #include "MultiWfFCFS.hh"
+#include "Dag.hh"
+#include "DagNode.hh"
 
 using namespace madag;
 

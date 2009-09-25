@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2009/09/25 12:39:14  bisnard
+ * modified includes to reduce inter-dependencies
+ *
  * Revision 1.2  2008/10/14 13:24:49  bisnard
  * use new class structure for dags (DagNode,DagNodePort)
  *
@@ -21,6 +24,8 @@
 
 #include "debug.hh"
 #include "MultiWfSRPT.hh"
+#include "Dag.hh"
+#include "DagNode.hh"
 
 using namespace madag;
 

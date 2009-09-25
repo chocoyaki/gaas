@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2009/09/25 12:39:13  bisnard
+ * modified includes to reduce inter-dependencies
+ *
  * Revision 1.12  2009/06/23 09:25:38  bisnard
  * use new estimation vector entry (EST_EFT)
  *
@@ -59,6 +62,7 @@
 
 #include "est_internal.hh"
 #include "HEFTScheduler.hh"
+#include "DagNode.hh"
 #include "debug.hh"
 
 using namespace madag;

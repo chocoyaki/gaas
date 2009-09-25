@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2009/09/25 12:39:19  bisnard
+ * modified includes to reduce inter-dependencies
+ *
  * Revision 1.17  2009/08/26 10:33:09  bisnard
  * implementation of workflow status & restart
  *
@@ -69,17 +72,24 @@
  */
 
 #include <sstream>
-#include "DagWfParser.hh"
-#include "Dag.hh"
-#include "WfNode.hh"
-#include "WfPort.hh"
-#include "DagNode.hh"
 #include "debug.hh"
+
+// DIET core headers
 #if HAVE_DAGDA
 extern "C" {
 #include "DIET_Dagda.h"
 }
 #endif
+
+// DIET workflows headers
+
+#include "WfPortAdapter.hh"
+#include "DagWfParser.hh"
+#include "Dag.hh"
+#include "DagNode.hh"
+#include "DagNodePort.hh"
+
+
 
 using namespace std;
 
