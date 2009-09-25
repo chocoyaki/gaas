@@ -9,6 +9,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2009/09/25 12:51:31  bisnard
+ * fixed bug in case of containers containing empty elements as first elements
+ *
  * Revision 1.3  2009/03/27 08:06:20  bisnard
  * new method getRelationNb
  *
@@ -60,13 +63,11 @@ class DataRelationMgr {
                      long flag = 0);
 
     /**
-     * Remove a relationship between two data items
+     * Remove the relationship given parent data id and index
      * @param dataID1 id of first item
-     * @param dataID2 id of second item
      * @param index   index of the link
      */
     void remRelation(const string& dataID1,
-                     const string& dataID2,
                      long index);
 
     /**
@@ -76,13 +77,28 @@ class DataRelationMgr {
      */
     void remAllRelation(const string& dataID, bool reverse = false);
 
-    int  getRelationNb(const string& dataID);
+    /**
+     * Get the total nb of relations for a given dataID
+     * @param dataID  id of the container
+     */
+    unsigned int
+        getRelationNb(const string& dataID);
+
+    /**
+     * Get the maximum index value for a given dataID (indexes start from 0)
+     * @param dataID  id of the container
+     */
+    unsigned int
+        getRelationMaxIndex(const string& dataID);
 
     /**
      * Get the relationships from a given item (using index order)
      *
      * The two sequences returned must be pre-allocated with enough space
      * to store all the relationships found
+     *
+     * The sequence may contain NULL elements if some indexes are missing
+     * in the database.
      *
      * @param dataID      id of the item
      * @param dataIDList  a sequence of string containing the IDs

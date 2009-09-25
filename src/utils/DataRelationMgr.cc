@@ -9,6 +9,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2009/09/25 12:51:31  bisnard
+ * fixed bug in case of containers containing empty elements as first elements
+ *
  * Revision 1.3  2009/03/27 08:06:20  bisnard
  * new method getRelationNb
  *
@@ -42,16 +45,13 @@ DataRelationMgr::addRelation(const string& dataID1,
 
 void
 DataRelationMgr::remRelation(const string& dataID1,
-                             const string& dataID2,
                              long index) {
   myLock.lock(); /** LOCK */
   for (multimap<std::string, dataRelationValue_t>::iterator iter = myMap.lower_bound(dataID1);
        iter != myMap.upper_bound(dataID1);
        ++iter) {
-    if ((iter->second.ID == dataID2) && (iter->second.index == index)) {
+    if (iter->second.index == index) {
       myMap.erase(iter);
-      TRACE_TEXT(TRACE_ALL_STEPS, "Removed 1 relation : key="
-      << dataID1 << " value=" << dataID2 << " index=" << index << endl);
       break;
     }
   }
@@ -72,13 +72,9 @@ DataRelationMgr::remAllRelation(const string& dataID, bool reverse) {
   }
 }
 
-// const int
-// DataRelationMgr::getRelationNb(const string& dataID) { }
-
 /**
  * Get the list of relations for a given dataID
  * Note: the SeqString and SeqLong must be pre-allocated by the caller
- * TODO manage exceptions
  */
 void
 DataRelationMgr::getRelationList(const string& dataID,
@@ -93,7 +89,7 @@ DataRelationMgr::getRelationList(const string& dataID,
        ++iter) {
     int jx = ordered ? iter->second.index : ix++;
     if (jx >= listSize) {
-      INTERNAL_ERROR("Mismatching container size with nb of relationships",1);
+      INTERNAL_ERROR("Mismatching container element index with nb of relationships",1);
     }
     dataIDList[jx] = CORBA::string_dup(iter->second.ID.c_str());
     flagList[jx]   = iter->second.flag;
@@ -101,15 +97,29 @@ DataRelationMgr::getRelationList(const string& dataID,
   myLock.unlock();
 }
 
-int
+unsigned int
 DataRelationMgr::getRelationNb(const string& dataID) {
+  unsigned int ix = 0;
   myLock.lock();
-  int ix = 0;
   for (multimap<std::string, dataRelationValue_t>::iterator iter = myMap.lower_bound(dataID);
        iter != myMap.upper_bound(dataID);
        ++iter) { ++ix; }
   myLock.unlock();
   return ix;
+}
+
+unsigned int
+DataRelationMgr::getRelationMaxIndex(const string& dataID) {
+  unsigned int max = 0;
+  myLock.lock();
+  for (multimap<std::string, dataRelationValue_t>::iterator iter = myMap.lower_bound(dataID);
+       iter != myMap.upper_bound(dataID);
+       ++iter) {
+    if (iter->second.index > max)
+      max = (unsigned int) iter->second.index;
+  }
+  myLock.unlock();
+  return max;
 }
 
 /**
