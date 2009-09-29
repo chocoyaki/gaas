@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2009/09/29 11:42:45  bisnard
+ * commented out getId() due to pthread_t being actually an opaque type
+ *
  * Revision 1.3  2009/09/25 12:49:11  bisnard
  * avoid deadlocks due to new thread mgmt in DagNodeLauncher
  *
@@ -40,7 +43,7 @@ public:
   /*********************************************************************/
   virtual~Runnable() = 0;
 
-  virtual void* 
+  virtual void*
   run() = 0;
 };
 
@@ -58,9 +61,9 @@ public:
   void start();
 
   void* join();
-  
-  long unsigned int getId();
-  
+
+//   long unsigned int getId();
+
 private:
   /*********************************************************************/
   /* private fields                                                    */
@@ -89,10 +92,10 @@ private:
   virtual
   void* run() { return NULL;}
 
-  static void* 
+  static void*
   startThreadRunnable(void* pVoid);
 
-  static void* 
+  static void*
   startThread(void* pVoid);
 
   void
@@ -104,4 +107,4 @@ private:
 
 
 
-  
+

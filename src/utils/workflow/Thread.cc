@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2009/09/29 11:42:45  bisnard
+ * commented out getId() due to pthread_t being actually an opaque type
+ *
  * Revision 1.5  2009/09/25 12:49:11  bisnard
  * avoid deadlocks due to new thread mgmt in DagNodeLauncher
  *
@@ -57,8 +60,8 @@ Thread::Thread(bool isDetached) : runnable(NULL), detached(isDetached){ }
 
 Thread::~Thread() { }
 
-long unsigned int
-Thread::getId() {	return PthreadThreadID; }
+// long unsigned int
+// Thread::getId() {	return PthreadThreadID; }
 
 void*
 Thread::startThreadRunnable(void* pVoid){
