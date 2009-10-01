@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.30  2009/10/01 09:14:19  dloureir
+ * Removing the #ifndef HUGE_VAL statement replaced by the include of math.h (there was a problem under the cygwin environment because _DBLINF was not defined) which is a standard header file.
+ *
  * Revision 1.29  2008/05/11 16:19:51  ycaniou
  * Check that pathToTmp and pathToNFS exist
  * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
@@ -95,6 +98,7 @@ using namespace std;
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
+#include <math.h> /* include used for the definition of HUGE_VAL*/
 
 #include "common_types.hh"
 #include "response.hh"
@@ -115,10 +119,6 @@ extern omni_mutex debug_log_mutex ;
 #define TRACE_STRUCTURES   10
 #define TRACE_MAX_VALUE    TRACE_STRUCTURES
 #define TRACE_DEFAULT      TRACE_MAIN_STEPS
-
-#ifndef HUGE_VAL
-#define HUGE_VAL (*((double *) (_DBLINF)))
-#endif
 
 /**
  * Definition of the EXIT_FUNCTION when not yet defined.
