@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.14  2009/10/02 07:46:15  bisnard
+ * conversion of types for gwendia wf language
+ *
  * Revision 1.13  2009/07/07 09:05:49  bisnard
  * added some const's
  *
@@ -151,6 +154,9 @@ public:
   static const std::string&
   cvtWfToXSType(WfDataType wfType);
 
+  static const std::string&
+  cvtGwendiaToDietType(const std::string& gwType);
+
   static bool
   isMatrixType(const std::string& strType);
   static bool
@@ -200,6 +206,8 @@ public:
   eval_expr(std::string& expr, int var = 0);
 
 private:
+
+  static std::string  dietTypePrefix;
 };
 
 /***************************************************************/

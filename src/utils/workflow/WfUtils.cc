@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.15  2009/10/02 07:46:15  bisnard
+ * conversion of types for gwendia wf language
+ *
  * Revision 1.14  2009/07/07 09:05:49  bisnard
  * added some const's
  *
@@ -105,6 +108,7 @@ WfStructException::ErrorMsg() const {
  * WF -> DIET
  * STRING -> WF
  */
+string WfCst::dietTypePrefix = "DIET_";
 
 static const pair<short,short> wf2DietTypes[] = {
   pair<short,short>( WfCst::TYPE_CHAR, DIET_CHAR ),
@@ -135,6 +139,7 @@ static const pair<short,short> diet2WfTypes[] = {
 };
 
 static const pair<string,short> wfTypes[] = {
+  pair<string,short>( "", WfCst::TYPE_UNKNOWN),
   pair<string,short>( "DIET_CHAR", WfCst::TYPE_CHAR),
   pair<string,short>( "DIET_SHORT", WfCst::TYPE_SHORT),
   pair<string,short>( "DIET_INT", WfCst::TYPE_INT),
@@ -178,6 +183,11 @@ static const pair<short, const string> XSTypes[] = {
   pair<short, const string>( WfCst::TYPE_UNKNOWN,"")
 };
 
+static const pair<const string, const string> gw2dietTypes[] = {
+  pair<const string, const string>( "", ""),
+  pair<const string, const string>( "string", "DIET_STRING"),
+};
+
 static map<short,short> WfTypesToDietTypes(wf2DietTypes, wf2DietTypes
     + sizeof(wf2DietTypes)/sizeof(wf2DietTypes[0]));
 static map<short,short> DietTypesToWfTypes(diet2WfTypes, diet2WfTypes
@@ -188,6 +198,8 @@ static map<short, const string> WfTypesToStrTypes(strTypes, strTypes
     + sizeof(strTypes)/sizeof(strTypes[0]));
 static map<short, const string> WfTypesToXSTypes(XSTypes, XSTypes
     + sizeof(XSTypes)/sizeof(XSTypes[0]));
+static map<const string, const string> GwendiaToDietTypes(gw2dietTypes,
+    gw2dietTypes + sizeof(gw2dietTypes)/sizeof(gw2dietTypes[0]));
 
 short
 WfCst::cvtWfToDietType(WfDataType wfType) {
@@ -201,7 +213,10 @@ WfCst::cvtDietToWfType(short dietType) {
 
 short
 WfCst::cvtStrToWfType(const string& strType) {
-  return StrTypesToWfTypes[strType];
+  if (strType.substr(0,5) == dietTypePrefix)
+    return StrTypesToWfTypes[strType];
+  else
+    return StrTypesToWfTypes[cvtGwendiaToDietType(strType)];
 }
 
 const string&
@@ -212,6 +227,11 @@ WfCst::cvtWfToStrType(WfDataType wfType) {
 const string&
 WfCst::cvtWfToXSType(WfDataType wfType) {
   return WfTypesToXSTypes[wfType];
+}
+
+const string&
+WfCst::cvtGwendiaToDietType(const string& gwType) {
+  return GwendiaToDietTypes[gwType];
 }
 
 bool
