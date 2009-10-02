@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.10  2009/10/02 07:43:51  bisnard
+ * modified trace verbosity
+ *
  * Revision 1.9  2009/08/26 10:32:11  bisnard
  * corrected  warnings
  *
@@ -167,7 +170,7 @@ void
 FIfNode::createRealInstance(Dag* dag,
                             const FDataTag& currTag,
                             vector<FDataHandle*>& currDataLine) {
-  TRACE_TEXT (TRACE_ALL_STEPS,"  ## NEW IF INSTANCE : " << getId()
+  TRACE_TEXT (TRACE_MAIN_STEPS,"  ## NEW IF INSTANCE : " << getId()
                               << currTag.toString() << endl);
   FNodePortMap* mapToApply;
   // Loop for all inputs
@@ -250,7 +253,7 @@ FMergeNode::newPort(string portId,
 void
 FMergeNode::createMergeInstance(const FDataTag& currTag,
                                 vector<FDataHandle*>& currDataLine) {
-  TRACE_TEXT (TRACE_ALL_STEPS,"  ## NEW MERGE INSTANCE : " << getId()
+  TRACE_TEXT (TRACE_MAIN_STEPS,"  ## NEW MERGE INSTANCE : " << getId()
                               << currTag.toString() << endl);
   FDataHandle* srcData = NULL;
   FDataHandle *outData = NULL;
@@ -331,7 +334,7 @@ void
 FFilterNode::createRealInstance(Dag* dag,
                                 const FDataTag& currTag,
                                 vector<FDataHandle*>& currDataLine) {
-  TRACE_TEXT (TRACE_ALL_STEPS,"  ## FILTER PROCESSES NON-VOID ITEM : "
+  TRACE_TEXT (TRACE_MAIN_STEPS,"  ## FILTER PROCESSES NON-VOID ITEM : "
                                << currTag.toString() << endl);
   FDataHandle* srcData = currDataLine[0];
   if (!srcData) {
@@ -343,7 +346,7 @@ FFilterNode::createRealInstance(Dag* dag,
 void
 FFilterNode::createVoidInstance(const FDataTag& currTag,
                                 vector<FDataHandle*>& currDataLine) {
-  TRACE_TEXT (TRACE_ALL_STEPS,"  ## FILTER PROCESSES VOID ITEM : "
+  TRACE_TEXT (TRACE_MAIN_STEPS,"  ## FILTER PROCESSES VOID ITEM : "
                                << currTag.toString() << endl);
   FDataHandle* srcData = currDataLine[0];
   if (!srcData) {

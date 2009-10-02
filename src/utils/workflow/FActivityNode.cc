@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2009/10/02 07:43:51  bisnard
+ * modified trace verbosity
+ *
  * Revision 1.7  2009/08/26 10:33:09  bisnard
  * implementation of workflow status & restart
  *
@@ -95,9 +98,9 @@ FActivityNode::createRealInstance(Dag* dag,
   bool isAlreadyExecuted = false;
   bool isOutputDataAvailable = false;
   getWorkflow()->findDagNodeTranscript(dagNodeId, dagNode, isAlreadyExecuted);
-  
+
   if (isAlreadyExecuted) {
-    
+
      // LOOP for each port - check if data available
     isOutputDataAvailable = true;
     for (map<string,WfPort*>::iterator portIter = ports.begin();
@@ -105,10 +108,10 @@ FActivityNode::createRealInstance(Dag* dag,
 	 ++portIter) {
       WfPort* FPort = (WfPort*) portIter->second;
       if (FPort->getPortType() == WfPort::PORT_OUT) {
-	
+
 	WfPort *_DPort = dagNode->getPort( FPort->getId() ); //TODO manage exceptions
 	DagNodePort *DPort = dynamic_cast<DagNodePort*>(_DPort);
-	
+
 	if (!DPort->isDataIDAvailable(dag->getExecutionAgent())) {
 	  cout << "DATA ID NOT AVAILABLE!" << endl;
 	  isOutputDataAvailable = false;
@@ -117,26 +120,26 @@ FActivityNode::createRealInstance(Dag* dag,
       }
     }
   }
-  
+
   if (isOutputDataAvailable) {
-    TRACE_TEXT (TRACE_ALL_STEPS,"  ## RE-USE ACTIVITY INSTANCE : " << dagNodeId << endl);
+    TRACE_TEXT (TRACE_MAIN_STEPS,"  ## RE-USE ACTIVITY INSTANCE : " << dagNodeId << endl);
     // LOOP for each port - send data
     for (map<string,WfPort*>::iterator portIter = ports.begin();
 	 portIter != ports.end();
 	 ++portIter) {
       WfPort* FPort = (WfPort*) portIter->second;
       if (FPort->getPortType() == WfPort::PORT_OUT) {
-	
+
 	WfPort *_DPort = dagNode->getPort( FPort->getId() ); //TODO manage exceptions
 	DagNodePort *DPort = dynamic_cast<DagNodePort*>(_DPort);
-	
+
 	FDataHandle* dataHdl = new FDataHandle( currTag,
 						FPort->getBaseDataType(),
 						FPort->getDepth() );
 	dataHdl->setDataID( DPort->getDataID() );	//TODO manage exceptions
-	TRACE_TEXT (TRACE_ALL_STEPS,"Port " << DPort->getId() << " data ID = " 
+	TRACE_TEXT (TRACE_ALL_STEPS,"Port " << DPort->getId() << " data ID = "
 				    << dataHdl->getDataID() << endl);
-	
+
 	FNodeOutPort *outPort = dynamic_cast<FNodeOutPort*>(FPort);
 	outPort->storeData(dataHdl);
 	outPort->sendData(dataHdl);
@@ -144,10 +147,10 @@ FActivityNode::createRealInstance(Dag* dag,
     }
     TRACE_TEXT (TRACE_ALL_STEPS,"  ## END OF RE-USE OF ACTIVITY INSTANCE : "
                               << dagNodeId << endl);
-			      
+
   } else {	// USUAL BEHAVIOUR (no previous execution)
     // create a new DagNode
-    TRACE_TEXT (TRACE_ALL_STEPS,"  ## NEW ACTIVITY INSTANCE : " << dagNodeId << endl);
+    TRACE_TEXT (TRACE_MAIN_STEPS,"  ## NEW ACTIVITY INSTANCE : " << dagNodeId << endl);
     dagNode = dag->createDagNode(dagNodeId, wf);
     if (dagNode == NULL) {
       INTERNAL_ERROR("Could not create dag node " << dagNodeId << endl,0);
@@ -201,8 +204,8 @@ FActivityNode::createRealInstance(Dag* dag,
 
     TRACE_TEXT (TRACE_ALL_STEPS,"  ## END OF CREATION OF NEW ACTIVITY INSTANCE : "
                               << dagNodeId << endl);
-			      
-  } 
+
+  }
 }
 
 void
@@ -210,7 +213,7 @@ FActivityNode::updateInstanciationStatus() {
   FProcNode::updateInstanciationStatus();
   // Handle specific case for instance nb limitation
   if (!myRootIterator->isAtEnd()) {
-    TRACE_TEXT (TRACE_ALL_STEPS, "########## SET NODE ON HOLD" << endl);
+    TRACE_TEXT (TRACE_MAIN_STEPS, "########## SET NODE ON HOLD" << endl);
     myStatus = N_INSTANC_ONHOLD;
   }
 }
