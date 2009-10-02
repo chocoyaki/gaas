@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2009/10/02 07:42:42  bisnard
+ * reduced trace verbosity for containers
+ *
  * Revision 1.6  2009/09/25 12:43:37  bisnard
  * modified send method to handle missing relationships
  *
@@ -61,8 +64,8 @@ Container::~Container() {
 
 void
 Container::addData(const char* dataID, long index, long flag) {
-  TRACE_TEXT(TRACE_ALL_STEPS, "Container: Add the data " << dataID
-     << "(flag=" << flag << ") to container " << myID << endl);
+//   TRACE_TEXT(TRACE_ALL_STEPS, "Container: Add the data " << dataID
+//      << "(flag=" << flag << ") to container " << myID << endl);
   if (notFound)
     throw Dagda::DataNotFound(myID.c_str());
   myRelMgr->addRelation(myID,dataID,index,flag);

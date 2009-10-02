@@ -9,6 +9,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2009/10/02 07:43:21  bisnard
+ * reduced trace verbosity for containers
+ *
  * Revision 1.4  2009/09/25 12:51:31  bisnard
  * fixed bug in case of containers containing empty elements as first elements
  *
@@ -35,8 +38,6 @@ DataRelationMgr::addRelation(const string& dataID1,
                              const string& dataID2,
                              long index,
                              long flag) {
-  TRACE_TEXT(TRACE_ALL_STEPS, "Adding relation cont=" << dataID1
-                              << " - elt=" << dataID2 << endl);
   dataRelationValue_t value = { dataID2, index, flag};
   myLock.lock(); /** LOCK */
   myMap.insert(make_pair(dataID1, value));

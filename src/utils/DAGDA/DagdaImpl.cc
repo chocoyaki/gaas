@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.32  2009/10/02 07:42:42  bisnard
+ * reduced trace verbosity for containers
+ *
  * Revision 1.31  2009/04/17 08:50:49  bisnard
  * added handling of container empty elements
  *
@@ -472,8 +475,8 @@ void SimpleDagdaImpl::lclAddData(Dagda_ptr src, const corba_data_t& data) {
         dataID = downloadData(src, data); // non-recursive (downloads only the id list)
         unlockData(dataID);
         useMemSpace(inserted->value.length());
-        if (TRACE_LEVEL >= TRACE_ALL_STEPS)
-          getContainerRelationMgr()->displayContent();
+//         if (TRACE_LEVEL >= TRACE_ALL_STEPS)
+//           getContainerRelationMgr()->displayContent();
       } else {
         if (getMemMaxSpace()!=0 && getUsedMemSpace()+data_sizeof(&data.desc)>getMemMaxSpace())
           throw Dagda::NotEnoughSpace(getMemMaxSpace()-getUsedMemSpace());
