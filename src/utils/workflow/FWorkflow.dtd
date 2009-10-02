@@ -1,6 +1,7 @@
 <!ELEMENT workflow (include*,interface, processors, links)>
 <!ATTLIST workflow
-	class CDATA #IMPLIED>
+	class CDATA #IMPLIED
+        name CDATA #IMPLIED>
 <!ELEMENT include EMPTY>
 <!ATTLIST include
 	file CDATA #REQUIRED>
@@ -17,9 +18,10 @@
 <!ATTLIST constant
 	name CDATA #REQUIRED
 	type CDATA #REQUIRED
-	value CDATA #REQUIRED>
+	value CDATA #REQUIRED
+        cardinality CDATA #IMPLIED>
 <!ELEMENT processors ((processor|condition|merge|filter|loop|subWorkflow)*)>
-<!ELEMENT processor (param*,in+,out*,iterationstrategy?,diet)>
+<!ELEMENT processor (param*,in+,out*,iterationstrategy?,(diet|beanshell|gasw)*)>
 <!ATTLIST processor
 	name CDATA #REQUIRED>
 <!ELEMENT param EMPTY>
@@ -39,10 +41,11 @@
 	depth CDATA "0"
 	card CDATA #IMPLIED
 	interface CDATA #IMPLIED>
-<!ELEMENT iterationstrategy (cross|dot|flatcross)>
-<!ELEMENT cross ((cross|dot|flatcross|port)*)>
-<!ELEMENT dot ((cross|dot|flatcross|port)*)>
-<!ELEMENT flatcross ((cross|dot|flatcross|port)*)>
+<!ELEMENT iterationstrategy (cross|dot|flatcross|match)>
+<!ELEMENT cross ((cross|dot|flatcross|match|port)*)>
+<!ELEMENT dot ((cross|dot|flatcross|match|port)*)>
+<!ELEMENT flatcross ((cross|dot|flatcross|match|port)*)>
+<!ELEMENT match ((cross|dot|flatcross|match|port)*)>
 <!ELEMENT port EMPTY>
 <!ATTLIST port
 	name CDATA #REQUIRED>
@@ -51,6 +54,10 @@
 	path CDATA #REQUIRED
 	max-instances CDATA #IMPLIED
 	estimation CDATA #IMPLIED>
+<!ELEMENT beanshell (#PCDATA)>
+<!ELEMENT gasw EMPTY>
+<!ATTLIST gasw
+        descriptor CDATA #IMPLIED>
 <!ELEMENT condition (in+,outThen*,outElse*,if,then,else?,iterationstrategy?)>
 <!ATTLIST condition
 	name CDATA #REQUIRED>

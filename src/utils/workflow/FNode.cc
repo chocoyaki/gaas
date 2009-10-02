@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2009/10/02 07:44:56  bisnard
+ * new wf data operators MATCH & N-CROSS
+ *
  * Revision 1.20  2009/09/25 12:49:45  bisnard
  * handle user data tags
  *
@@ -361,6 +364,10 @@ FSourceNode::instanciate(Dag* dag) {
       cerr << "FATAL ERROR during SOURCE '" << getId() << "' XML parsing:\n"
           << e.ErrorMsg() << endl;
     }
+    // check if empty
+    if (myOutPort->getBufferRootDH()->isEmpty()) {
+      WARNING("Workflow source '" << getId() << "' contains no data" << endl);
+    }
     // instanciation is completed when file has been read
     myStatus = N_INSTANC_END;
 
@@ -416,26 +423,6 @@ void
 FSourceNode::insertData( FDataHandle* newDH ) {
   myOutPort->storeData(newDH);
 }
-/*
-void
-FSourceNode::insertValue( const FDataTag& tag,
-                          const string& value ) {
-  FDataHandle* newDH = new FDataHandle(tag, getDataType(),value);
-  myOutPort->storeData(newDH);
-}
-
-void
-FSourceNode::insertDataID( const FDataTag& tag,
-                           const string& dataID,
-			   const string& value ) {
-  // the depth parameter is WRONG (it is not known yet)
-  // updateDataTree() must be called after insertion to update it
-  FDataHandle* newDH = new FDataHandle(tag, getDataType(), 0);
-  newDH->setDataID(dataID);
-  if (!value.empty())
-    newDH->setValue(getDataType(),value);
-  myOutPort->storeData(newDH);
-}*/
 
 /*****************************************************************************/
 /*                             FSinkNode                                     */
@@ -586,11 +573,21 @@ FProcNode::isIteratorDefined(const string& portId) {
 
 const string&
 FProcNode::createInputOperator(inputOperator_t opType, const vector<string>& inputIds) {
+  vector<string>  _inputIds(inputIds);
+  // convert N-cross to 2-cross using recursive call
+  if (((opType == OPER_CROSS) || (opType == OPER_FLATCROSS))
+        && (inputIds.size() > 2))
+  {
+    vector<string>  rightInputIds(++inputIds.begin(), inputIds.end());
+    _inputIds.resize(2);
+    _inputIds[0] = inputIds[0];
+    _inputIds[1] = createInputOperator(opType, rightInputIds);
+  }
   // convert inputIds to a table of iterator ref
-  vector<InputIterator*> *inputIterTab = new vector<InputIterator*>(inputIds.size());
+  vector<InputIterator*> *inputIterTab = new vector<InputIterator*>(_inputIds.size());
   int inputIterIdx = 0;
-  for (vector<string>::const_iterator idIter = inputIds.begin();
-       idIter != inputIds.end();
+  for (vector<string>::const_iterator idIter = _inputIds.begin();
+       idIter != _inputIds.end();
        ++idIter) {
     const string& currId = *idIter;
     InputIterator* currInputIter = NULL;
@@ -610,8 +607,8 @@ FProcNode::createInputOperator(inputOperator_t opType, const vector<string>& inp
       newOper = new DotIterator(*inputIterTab);
       break;
     case OPER_MATCH:
-      INTERNAL_ERROR("Match operator not implemented yet",1);
-      /* newOper = new MatchIterator(*inputIterTab); */
+      WARNING("Match iterator currently experimental");
+      newOper = new MatchIterator((*inputIterTab)[0], (*inputIterTab)[1]);
       break;
     case OPER_CROSS:
       newOper = new CrossIterator((*inputIterTab)[0], (*inputIterTab)[1]);
@@ -756,7 +753,7 @@ FProcNode::instLimitReached() {
 void
 FProcNode::createVoidInstance(const FDataTag& currTag,
                               vector<FDataHandle*>& currDataLine) {
-  TRACE_TEXT (TRACE_ALL_STEPS,"  ## NEW VOID INSTANCE : " << getId()
+  TRACE_TEXT (TRACE_MAIN_STEPS,"  ## NEW VOID INSTANCE : " << getId()
                               << currTag.toString() << endl);
   // LOOP for each out port
   for (map<string,WfPort*>::iterator portIter = ports.begin();

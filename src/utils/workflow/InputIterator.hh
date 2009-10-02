@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2009/10/02 07:44:56  bisnard
+ * new wf data operators MATCH & N-CROSS
+ *
  * Revision 1.3  2009/08/26 10:26:29  bisnard
  * added new iterator flatcross
  *
@@ -126,13 +129,6 @@ class InputIterator {
     virtual unsigned int
         getTotalItemNb() const = 0;
 
-    /**
-     * Returns true if the first tag is either the current tag or has been already processed
-     * (used by DOT operator to start the iteration)
-     */
-//     virtual bool
-//         hasGotFirstItem() = 0;
-
   protected:
     /**
      * The operator's ID
@@ -155,6 +151,7 @@ class PortInputIterator : public InputIterator {
     void next();
     bool isEmpty() const;
     bool isAtEnd() const;
+//     bool isComplete() const;
     bool isDone() const;
     void removeItem();
     const FDataTag& getCurrentItem(vector<FDataHandle*>& dataLine);
@@ -206,14 +203,9 @@ class CrossIterator : public InputIterator {
     unsigned int leftTagLength;  // to be initialized at first find call by calling left.begin
                                  // and use the length of the tag of left.current
 
-  private:
     // TODO following maps could use a hash code from the tag to be faster
     map<FDataTag,bool> myFlags; // keys are the complete tags (left+right)
     map<FDataTag,int> myCounters; // keys are the left tags
-
-
-
-
 };
 
 
@@ -231,10 +223,32 @@ class FlatCrossIterator : public CrossIterator {
     virtual bool setTag();
     virtual bool splitTag(const FDataTag& tag,
                           FDataTag*& leftTagPtr, FDataTag*& rightTagPtr);
-    bool isIndexReady();
 
   private:
+    bool isIndexReady();
+};
 
+class MatchIterator : public CrossIterator {
+
+  public:
+    MatchIterator(InputIterator* leftIter,
+                  InputIterator* rightIter);
+    ~MatchIterator();
+
+    virtual void removeItem();
+    virtual bool isDone() const;
+    virtual bool isTotalDefined() const;
+    virtual unsigned int getTotalItemNb() const;
+
+  protected:
+    virtual string createId(InputIterator* leftIter,
+                            InputIterator* rightIter);
+    virtual bool isFlagged();
+    virtual bool setTag();
+    virtual bool splitTag(const FDataTag& tag,
+                          FDataTag*& leftTagPtr, FDataTag*& rightTagPtr);
+  private:
+    bool isMatched();
 
 };
 
@@ -265,34 +279,5 @@ class DotIterator : public InputIterator {
      */
     vector<InputIterator*>  myInputs;
 };
-
-/*
-class MatchIterator : public InputIterator {
-  public:
-    MatchIterator(const vector<InputIterator*>& iterTable);
-    const string& getId() const;
-    void begin(); // begin on all iterators
-                  // if one iterator does not have its first item then set isAtEnd=true
-    void end();
-    void next(); // if all iterators have a following item, then do next on all of them
-                 // else set isAtEnd=true
-    bool isEmpty() const;
-    bool isAtEnd() const; // true if left isAtEnd
-    bool isDone() const; // true if one of the iterators is done
-    void removeItem(); // if next is available, remove current item on all iterators and go to next
-    const FDataTag& getCurrentItem(vector<FDataHandle*>& dataLine);
-    const FDataTag& getCurrentTag(); // left.currentTag ???
-    bool find(const FDataTag& tag); // UNAPPLICABLE ???
-    bool isTotalDefined() const; // true if left.totaldef or right.totaldef
-    unsigned int getTotalItemNb() const; // left.total or right.total (should be equal)
-
-  private:
-    InputIterator*
-    getFirstInput() const;
-
-    string myId;
-
-    vector<InputIterator*>  myInputs;
-}; */
 
 #endif

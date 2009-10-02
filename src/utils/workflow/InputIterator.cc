@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2009/10/02 07:44:56  bisnard
+ * new wf data operators MATCH & N-CROSS
+ *
  * Revision 1.4  2009/08/26 10:26:29  bisnard
  * added new iterator flatcross
  *
@@ -84,9 +87,13 @@ PortInputIterator::isEmpty() const {
 
 bool
 PortInputIterator::isAtEnd() const {
-//   cout << "in isAtEnd() for port " << getId() << endl;
   return (myQueueIter == myInPort->myQueue.end());
 }
+
+// bool
+// PortInputIterator::isComplete() const {
+//   return (isTotalDefined() && (getTotalItemNb() == myInPort->myQueue.size()));
+// }
 
 bool
 PortInputIterator::isDone() const {
@@ -401,7 +408,6 @@ FlatCrossIterator::createId(InputIterator* leftIter,
 }
 
 /**
- * (private)
  * Updates the current tag (used when iterator position changes)
  */
 bool
@@ -429,7 +435,6 @@ FlatCrossIterator::setTag() {
 }
 
 /**
- * (private)
  * Check if the current item can NOT be selected (either already selected or
  * index not available)
  */
@@ -438,6 +443,10 @@ FlatCrossIterator::isFlagged() {
   return CrossIterator::isFlagged() || !isIndexReady();
 }
 
+/**
+ * (private)
+ * Test if the index can be computed
+ */
 bool
 FlatCrossIterator::isIndexReady() {
   return myRightIter->isTotalDefined()
@@ -450,18 +459,120 @@ FlatCrossIterator::splitTag(const FDataTag& tag, FDataTag*& leftTagPtr, FDataTag
   FDataTag* tmpTagPtr = tag.getLeftPart(leftTagLength);  // should be a copy of original tag
   unsigned int origIndex = tmpTagPtr->getLastIndex();
   tmpTagPtr->getParent();
-  cout << __FUNCTION__ << " tmpTag => " << tmpTagPtr->toString() << endl;
   unsigned int leftIndex = origIndex / myRightIter->getTotalItemNb();
   unsigned int rightIndex = origIndex % myRightIter->getTotalItemNb();
-  cout << __FUNCTION__ << "leftIndex=" << leftIndex << "/rightIndex=" << rightIndex << endl;
   leftTagPtr = new FDataTag(*tmpTagPtr, leftIndex, false);
   rightTagPtr = new FDataTag(rightIndex, false);
-  cout << __FUNCTION__ << " leftTag => " << leftTagPtr->toString()
-                      << "rightTag => " << rightTagPtr->toString() << endl;
   delete tmpTagPtr;
   return true;
 }
 
+/*****************************************************************************/
+/*                           MatchIterator                                   */
+/*****************************************************************************/
+
+MatchIterator::MatchIterator(InputIterator* leftIter,
+                             InputIterator* rightIter)
+  : CrossIterator(leftIter, rightIter) {
+   myId = createId(leftIter,rightIter);
+}
+
+MatchIterator::~MatchIterator() {
+}
+
+string
+MatchIterator::createId(InputIterator* leftIter,
+                        InputIterator* rightIter) {
+  return ("(" + leftIter->getId() + "_M_" + rightIter->getId() + ")");
+}
+
+/**
+ * Updates the current tag (used when iterator position changes)
+ * TODO this copy of right tag could be avoided ie avoid using currTag
+ */
+bool
+MatchIterator::setTag() {
+  clearTag();
+  currTag = new FDataTag(myRightIter->getCurrentTag());
+  return true;
+}
+
+/**
+ * Check if the current item can NOT be selected (either already selected or
+ * not selectable)
+ */
+bool
+MatchIterator::isFlagged() {
+  return !isMatched();
+}
+
+bool
+MatchIterator::isMatched() {
+  const FDataTag& leftTag = myLeftIter->getCurrentTag();
+  const FDataTag& rightTag = myRightIter->getCurrentTag();
+  if (leftTag.getLevel() > rightTag.getLevel()) {
+    WARNING("Operator " << getId() << " : invalid input depths" << endl);
+    return false;
+  }
+  FDataTag rightPrefix = rightTag.getAncestor(leftTag.getLevel()); // truncate the right tag
+  if (!(rightPrefix < leftTag) && !(leftTag < rightPrefix))
+    return true;
+  else return false;
+}
+
+bool
+MatchIterator::splitTag(const FDataTag& tag, FDataTag*& leftTagPtr, FDataTag*& rightTagPtr) {
+  leftTagPtr = tag.getLeftPart(leftTagLength);
+  rightTagPtr = new FDataTag(tag);
+  return true;
+}
+
+void
+MatchIterator::removeItem() {
+  const FDataTag& leftTag  = myLeftIter->getCurrentTag();
+  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "removeItem(): removing "
+      << currTag->toString() << endl);
+  // mark the removed item
+  myFlags[*currTag] = true;
+  // increment the counter of matched items for the left tag
+  unsigned int matchCount = incrementMatchCount(leftTag);
+  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "removeItem(): match count of "
+      << leftTag.toString() << " is " << matchCount << endl);
+  // remove the matched right item (it cannot be used by other left items)
+  myRightIter->removeItem();
+  // if right iter is at the end then go to next left item
+  if (myRightIter->isAtEnd())
+    myLeftIter->next();
+  else {
+    if (!isMatched()) next();
+    else setTag();
+  }
+}
+
+bool
+MatchIterator::isDone() const {
+  TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "isDone()" << endl);
+  return myRightIter->isDone();
+}
+
+bool
+MatchIterator::isTotalDefined() const {
+  return myRightIter->isDone();  // all right items processed
+}
+
+unsigned int
+MatchIterator::getTotalItemNb() const {
+  // make sum of all matches for each left item
+  int sum = 0;
+  for (map<FDataTag,int>::const_iterator countIter = myCounters.begin();
+       countIter != myCounters.end();
+       ++countIter)
+    sum += (int) countIter->second;
+  if (sum < 0) {
+    INTERNAL_ERROR(__FUNCTION__ << "Invalid sum of counters" << endl,1);
+  }
+  return (unsigned int) sum;
+}
 
 /*****************************************************************************/
 /*                           DotIterator                                   */

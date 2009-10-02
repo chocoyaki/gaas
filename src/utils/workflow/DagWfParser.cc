@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.36  2009/10/02 07:44:56  bisnard
+ * new wf data operators MATCH & N-CROSS
+ *
  * Revision 1.35  2009/09/25 12:49:45  bisnard
  * handle user data tags
  *
@@ -475,6 +478,9 @@ DagWfParser::createPort( const WfPort::WfPortType param_type,
     ++typeDepth;
   }
   short baseType = WfCst::cvtStrToWfType(curType);
+  if (baseType == WfCst::TYPE_UNKNOWN)
+    throw XMLParsingException(XMLParsingException::eINVALID_DATA,
+                              "Unknown data type : "+type);
   // Use depth attribute (second syntax)
   if (!depth.empty())
     typeDepth = atoi(depth.c_str());
@@ -825,6 +831,9 @@ FWfParser::createNode(const DOMElement* element, const string& elementName) {
   short dataType = 0;
   if (!type.empty()) {
     dataType = WfCst::cvtStrToWfType(type);
+    if (dataType == WfCst::TYPE_UNKNOWN)
+      throw XMLParsingException(XMLParsingException::eINVALID_DATA,
+                                "Unknown data type : "+type);
   }
   // Convert depth
   unsigned int typeDepth = 0;
@@ -1053,24 +1062,21 @@ FWfParser::parseIterationStrategy(const DOMElement * element,
       } else
       if (child_name == "match") {
         vector<string>* opInputIds = parseIterationStrategy(child_elt, procNode);
+        if (opInputIds->size() > 2)
+          throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
+                                    "MATCH iterator only accepts 2 input ports");
         const string& opId = procNode->createInputOperator(FProcNode::OPER_MATCH, *opInputIds);
         inputIds->push_back(opId);
         delete opInputIds;
       } else
       if (child_name == "cross") {
 	vector<string>* opInputIds = parseIterationStrategy(child_elt, procNode);
-        if (opInputIds->size() > 2)
-          throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
-                                    "CROSS iterator only accepts 2 input ports");
         const string& opId = procNode->createInputOperator(FProcNode::OPER_CROSS, *opInputIds);
         inputIds->push_back(opId);
         delete opInputIds;
       } else
       if (child_name == "flatcross") {
 	vector<string>* opInputIds = parseIterationStrategy(child_elt, procNode);
-        if (opInputIds->size() > 2)
-          throw XMLParsingException(XMLParsingException::eBAD_STRUCT,
-                                    "FLAT-CROSS iterator only accepts 2 input ports");
         const string& opId = procNode->createInputOperator(FProcNode::OPER_FLATCROSS, *opInputIds);
         inputIds->push_back(opId);
         delete opInputIds;
@@ -1116,6 +1122,8 @@ FWfParser::parseOtherNodeSubElt(const DOMElement * element,
     if (!estimAttr.empty()) {
       aNode->setDIETEstimationOption(estimAttr);
     }
+  } else if ((elementName == "beanshell") || (elementName == "gasw")) {
+    ; // tags used by other workflow engines
   // VALUE of constants (may be replaced by a 'value' attribute within
   //  the <constant> tag)
   } else if (elementName == "value") {
