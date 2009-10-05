@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.55  2009/10/05 08:36:59  bdepardo
+ * Added stats for multi-MA
+ *
  * Revision 1.54  2009/03/27 09:29:30  bisnard
  * submit_pb_set: provide service info when service missing
  *
@@ -476,6 +479,9 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
 
 #ifdef HAVE_MULTI_MA
     if (decision->servers.length() == 0) {
+      sprintf(statMsg, "start floodRequest %ld", (unsigned long) creq.reqID);
+      stat_in(this->myName,statMsg);
+
       FloodRequest& floodRequest =
 	*(new FloodRequest(MADescription(),
 			   MADescription(_this(), myName),
@@ -507,6 +513,9 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
 	WARNING(e) ;
       }
       delete &floodRequest ;
+
+      sprintf(statMsg, "stop floodRequest %ld", (unsigned long) creq.reqID);
+      stat_out(this->myName,statMsg);
     }
 #endif // HAVE_MULTI_MA
   } catch(...) {
@@ -735,10 +744,18 @@ void MasterAgentImpl::searchService(MasterAgent_ptr predecessor,
 				    const char* predecessorId,
 				    const corba_request_t& request) {
 
+  char statMsg[128];
+
   //printTime() ;
   //fprintf(stderr, ">>>>>searchService from %s, %d, %s\n", predecessorId,  (int)request.reqID, (const char*)myName) ;
   TRACE_TEXT(TRACE_ALL_STEPS, predecessorId << " search "
 	     << request.pb.path << " request (" << request.reqID << ")\n") ;
+
+  /* Initialize statistics module */
+  stat_init();
+
+  sprintf(statMsg, "start searchService %ld", (unsigned long) request.reqID);
+  stat_in(this->myName,statMsg);
 
   reqIdList.lock() ;
   ReqIdList::iterator pos = reqIdList.find(request.reqID) ;
@@ -773,6 +790,10 @@ void MasterAgentImpl::searchService(MasterAgent_ptr predecessor,
     }
 
   }
+
+  sprintf(statMsg, "stop searchService %ld", (unsigned long) request.reqID);
+  stat_out(this->myName,statMsg);
+  stat_flush();
 
   //printf("<<<<<search service from %s\n", predecessorId) ;
 
