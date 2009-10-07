@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.50  2009/10/07 08:14:08  bisnard
+ * modified trace messages
+ *
  * Revision 1.49  2009/09/25 12:42:09  bisnard
  * - use new DagNodeLauncher classes to manage threads
  * - added dag cancellation method
@@ -400,8 +403,6 @@ MultiWfScheduler::run() {
       ChainedNodeQueue * waitQ = this->waitingQueues[readyQ];
       nodeTodoCount+= (int)readyQ->size() + (int)waitQ->size(); // for stats only
       while ((npc) && (n = readyQ->popFirstNode())) {
-        TRACE_TEXT(TRACE_MAIN_STEPS,"  #### Ready node : " << n->getCompleteId()
-            << " / wait prio = " << n->getPriority() << endl);
         // save the address of the readyQ for this node (used if node pushed back)
         n->setLastQueue(readyQ);
         // set priority of node (depends on choosen algorithm)
@@ -851,10 +852,10 @@ MultiWfScheduler::postWakeUp() {
     myWakeUpLock.unlock();
     if (info.isNewDag)
     {
-      TRACE_TEXT (TRACE_ALL_STEPS,"Scheduler waking up (NEW DAG)" << endl);
+      TRACE_TEXT (TRACE_MAIN_STEPS,"Scheduler waking up (NEW DAG)" << endl);
     } else
     {
-      TRACE_TEXT (TRACE_ALL_STEPS,"Scheduler waking up (END OF NODE)" << endl);
+      TRACE_TEXT (TRACE_MAIN_STEPS,"Scheduler waking up (END OF NODE)" << endl);
       if (info.nodeRef)
       {
         info.nodeRef->terminate();
