@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.36  2009/10/07 08:09:57  bisnard
+ * reduced memory usage by freeing profiles earlier
+ *
  * Revision 1.35  2009/09/25 12:42:13  bisnard
  * - use new DagNodeLauncher classes to manage threads
  * - added dag cancellation method
@@ -526,6 +529,9 @@ CltWfMgr::wfDagCallCommon(diet_wf_desc_t *dagProfile, Dag *dag, bool parse, bool
   } catch (...) {
     cerr << "Unknown exception with WfLogService (setWf)" << endl;
   }
+
+  delete dagProfile->abstract_wf;
+  delete corba_profile;
 
   return res;
 }
@@ -1069,7 +1075,7 @@ CltWfMgr::wf_free(diet_wf_desc_t * profile) {
       }
     }
     this->myProfiles.erase(profile);
-    delete profile->abstract_wf;
+//     delete profile->abstract_wf;
     delete profile;
     stat_out("cltwfmgr",statMsg);
   } else {
