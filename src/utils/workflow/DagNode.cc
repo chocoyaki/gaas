@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2009/10/07 08:12:42  bisnard
+ * fixed bug when using prec tag in dags
+ *
  * Revision 1.23  2009/09/25 12:46:56  bisnard
  * - use new DagNodeLauncher classes to manage threads
  * - removed node_running attribute
@@ -296,7 +299,7 @@ void
 DagNode::addNodePredecessor(WfNode * node, const string& fullNodeId) {
   // check if predecessor is not already done
   DagNode *predNode = dynamic_cast<DagNode*>(node);
-  if (!predNode->isDone())
+  if ((predNode == NULL) || !predNode->isDone())
     addPrevId(fullNodeId);
 }
 
