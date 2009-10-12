@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2009/10/12 14:59:05  bisnard
+ * fixed bug in port instanciation (wrong port order)
+ *
  * Revision 1.16  2009/09/25 12:49:45  bisnard
  * handle user data tags
  *
@@ -478,7 +481,7 @@ FNodeInPort::createRealInstance(Dag* dag, DagNode* nodeInst, FDataHandle* dataHd
   string portId = this->getId();
   TRACE_TEXT (TRACE_ALL_STEPS,"   # Creating new instance of IN port: " << portId << endl);
   WfPort* portInst = nodeInst->newPort(portId,
-                                      nodeInst->getPortNb(),
+                                      getIndex(),
                                       portType,
                                       getBaseDataType(),
                                       depth);
