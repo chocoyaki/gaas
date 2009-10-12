@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2009/10/12 15:00:14  bisnard
+ * added some const
+ *
  * Revision 1.2  2009/05/27 08:43:42  bisnard
  * added new addPort method to avoid direct access to map
  *
@@ -144,13 +147,8 @@ public:
    * To get the node id *
    */
   const string&
-  getId();
+  getId() const;
 
-  /**
-   * node container
-   */
-//   virtual NodeSet*
-//   getNodeSet() = 0;
 
   /******************************/
   /* Links with other nodes     */
@@ -178,7 +176,7 @@ public:
    * (setNodePredecessors must be called before)
    */
   unsigned int
-  prevNodesNb();
+  prevNodesNb() const;
 
   /**
    * return an iterator on the first previous nodes
@@ -196,7 +194,7 @@ public:
    * return the number of next nodes
    */
   unsigned int
-  nextNodesNb();
+  nextNodesNb() const;
 
   /**
    * return an iterator on the first next node
@@ -221,14 +219,14 @@ public:
    * only the nodes with no previous node are considered as dag input  *
    */
   virtual bool
-  isAnInput();
+  isAnInput() const;
 
   /**
    * return true if the node is an output node *
    * only the nodes with no next node are considered as dag exit  *
    */
   virtual bool
-  isAnExit();
+  isAnExit() const;
 
   /******************************/
   /* PORTS                      */

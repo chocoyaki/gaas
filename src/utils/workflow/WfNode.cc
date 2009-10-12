@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2009/10/12 15:00:14  bisnard
+ * added some const
+ *
  * Revision 1.3  2009/08/26 10:32:11  bisnard
  * corrected  warnings
  *
@@ -214,7 +217,7 @@ WfNode::~WfNode() {
 /*                              Basic GET/SET                               */
 /****************************************************************************/
 
-const string& WfNode::getId() { return this->myId; }
+const string& WfNode::getId() const { return this->myId; }
 
 /****************************************************************************/
 /*                       Predecessor/Successors Mgmt                        */
@@ -299,7 +302,7 @@ WfNode::setPrev(int index, WfNode * node) {
  * return the number of previous nodes
  */
 unsigned int
-WfNode::prevNodesNb() {
+WfNode::prevNodesNb() const {
   return prevNodes.size();
 }
 
@@ -331,7 +334,7 @@ WfNode::addNext(WfNode * node) {
  * return the number of next nodes
  */
 unsigned int
-WfNode::nextNodesNb() {
+WfNode::nextNodesNb() const {
   return nextNodes.size();
 }
 
@@ -356,7 +359,7 @@ WfNode::nextNodesEnd() {
  * only the nodes with no previous node are considered as dag input  *
  */
 bool
-WfNode::isAnInput() {
+WfNode::isAnInput() const {
   return (prevNodes.size()==0);
 }
 
@@ -365,7 +368,7 @@ WfNode::isAnInput() {
  * only the nodes with no next node are considered as dag exit  *
  */
 bool
-WfNode::isAnExit() {
+WfNode::isAnExit() const {
   return (nextNodes.size() == 0);
 }
 
