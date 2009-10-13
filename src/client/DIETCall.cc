@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2009/10/13 15:09:37  bisnard
+ * removed Dagda exceptions catch in diet_call_common
+ *
  * Revision 1.3  2009/08/17 12:36:17  bdepardo
  * Be more consistent in stat messages
  *
@@ -482,21 +485,16 @@ diet_call_common(MasterAgent_var& MA,
 #endif // HAVE_DAGDA
   /* Computation */
   sprintf(statMsg, "computation %ld", (unsigned long) profile->dietReqID);
-  try {
-    stat_in("Client",statMsg);
 
-    TRACE_TEXT(TRACE_MAIN_STEPS, "Calling the ref Corba of the SeD\n");
+  stat_in("Client",statMsg);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Calling the ref Corba of the SeD\n");
 #if HAVE_FD
-    fd_set_transition_handler(diet_call_failure_recover);
+  fd_set_transition_handler(diet_call_failure_recover);
 #endif
-    solve_res = chosenServer->solve(profile->pb_name, corba_profile);
-    stat_out("Client",statMsg);
-   } catch(CORBA::SystemException& e) {
-    ERROR("Got a CORBA " << e._name() << " exception ("
-        << e.NP_minorString() << ")\n",1) ;
-   } catch(CORBA::UserException& e) {
-    ERROR("Got an exception "  << e._name() << endl, 1);
-   }
+  /* CORBA CALL to SED */
+  solve_res = chosenServer->solve(profile->pb_name, corba_profile);
+
+  stat_out("Client",statMsg);
 
 #if ! HAVE_DAGDA
   /* reaffect identifier */
