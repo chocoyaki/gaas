@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2009/10/13 12:43:40  bisnard
+ * removed obsolete ifdefs for DAGDA
+ *
  * Revision 1.18  2009/09/25 12:39:19  bisnard
  * modified includes to reduce inter-dependencies
  *
@@ -75,11 +78,9 @@
 #include "debug.hh"
 
 // DIET core headers
-#if HAVE_DAGDA
 extern "C" {
 #include "DIET_Dagda.h"
 }
-#endif
 
 // DIET workflows headers
 
@@ -471,7 +472,6 @@ WfMultiplePortAdapter::getSourceDataID() {
   }
   // If ok then create container to merge all adapters
   char* idCont;
-#if HAVE_DAGDA
   TRACE_TEXT (TRACE_ALL_STEPS,"## Creating container to merge ports" << endl);
   dagda_create_container(&idCont);
   int ix=0;
@@ -493,9 +493,6 @@ WfMultiplePortAdapter::getSourceDataID() {
   }
   containerID = idCont;
   TRACE_TEXT (TRACE_ALL_STEPS,"## End of merge ports" << endl);
-#else
-  ERROR("WfMultiplePortAdapter Error: trying to use containers without Dagda enabled" << endl, errorID);
-#endif
   return containerID;
 }
 
@@ -652,43 +649,49 @@ WfValueAdapter::getSourceDataID() {
   if (!myDataID.empty()) return myDataID;
   char *valID;
   char **valIDPtr = &valID;
-#if HAVE_DAGDA
-  switch (myDataType) {
-    case WfCst::TYPE_CHAR:
-      dagda_put_scalar(newChar(), DIET_CHAR, DIET_PERSISTENT, valIDPtr);
-      break;
-    case WfCst::TYPE_SHORT:
-      dagda_put_scalar(newShort(), DIET_SHORT, DIET_PERSISTENT, valIDPtr);
-      break;
-    case WfCst::TYPE_INT:
-      dagda_put_scalar(newInt(), DIET_INT, DIET_PERSISTENT, valIDPtr);
-      break;
-    case WfCst::TYPE_LONGINT:
-      dagda_put_scalar(newLong(), DIET_LONGINT, DIET_PERSISTENT, valIDPtr);
-      break;
-    case WfCst::TYPE_FLOAT:
-      dagda_put_scalar(newFloat(), DIET_FLOAT, DIET_PERSISTENT, valIDPtr);
-      break;
-    case WfCst::TYPE_DOUBLE:
-      dagda_put_scalar(newDouble(), DIET_DOUBLE, DIET_PERSISTENT, valIDPtr);
-      break;
-    case WfCst::TYPE_PARAMSTRING:
-      dagda_put_paramstring(newString(), DIET_PERSISTENT, valIDPtr);
-      break;
-    case WfCst::TYPE_STRING:
-      dagda_put_string(newString(), DIET_PERSISTENT, valIDPtr);
-      break;
-    case WfCst::TYPE_FILE:
-      dagda_put_file(newFile(), DIET_PERSISTENT, valIDPtr);
-      break;
-    default:
-      throw WfDataException(WfDataException::eWRONGTYPE,
-                          "Cannot initialize data due to unknown type in value adapter");
-  } // end (switch)
+  string errorMsg = "DAGDA failed to upload data to the platform (value '" + myValue + "')";
+  try {
+    switch (myDataType) {
+      case WfCst::TYPE_CHAR:
+        dagda_put_scalar(newChar(), DIET_CHAR, DIET_PERSISTENT, valIDPtr);
+        break;
+      case WfCst::TYPE_SHORT:
+        dagda_put_scalar(newShort(), DIET_SHORT, DIET_PERSISTENT, valIDPtr);
+        break;
+      case WfCst::TYPE_INT:
+        dagda_put_scalar(newInt(), DIET_INT, DIET_PERSISTENT, valIDPtr);
+        break;
+      case WfCst::TYPE_LONGINT:
+        dagda_put_scalar(newLong(), DIET_LONGINT, DIET_PERSISTENT, valIDPtr);
+        break;
+      case WfCst::TYPE_FLOAT:
+        dagda_put_scalar(newFloat(), DIET_FLOAT, DIET_PERSISTENT, valIDPtr);
+        break;
+      case WfCst::TYPE_DOUBLE:
+        dagda_put_scalar(newDouble(), DIET_DOUBLE, DIET_PERSISTENT, valIDPtr);
+        break;
+      case WfCst::TYPE_PARAMSTRING:
+        dagda_put_paramstring(newString(), DIET_PERSISTENT, valIDPtr);
+        break;
+      case WfCst::TYPE_STRING:
+        dagda_put_string(newString(), DIET_PERSISTENT, valIDPtr);
+        break;
+      case WfCst::TYPE_FILE:
+        dagda_put_file(newFile(), DIET_PERSISTENT, valIDPtr);
+        break;
+      default:
+        throw WfDataException(WfDataException::eWRONGTYPE,
+                            "Cannot initialize data due to unknown type in value adapter");
+    } // end (switch)
+  } catch (Dagda::ReadError& ex) {
+    errorMsg += "(Read Error)";
+    throw WfDataException(WfDataException::eINVALID_VALUE, errorMsg);
+  } catch (...) {
+    errorMsg += "(Dagda Exception)";
+    throw WfDataException(WfDataException::eINVALID_VALUE, errorMsg);
+  }
   myDataID = valID;
-#else
-  ERROR("WfValueAdapter Error: Dagda not enabled" << endl, errorID);
-#endif
+
   return myDataID;
 }
 
@@ -975,6 +978,9 @@ WfDataIDAdapter::getAndWriteData(WfDataWriter* dataWriter,
   } catch (Dagda::DataNotFound& e) {
     string errorMsg = "Data ID = " + string(dataID.c_str());
     throw WfDataException(WfDataException::eNOTFOUND, errorMsg);
+  } catch (Dagda::ReadError& e) {
+    string errorMsg = "Data ID = " + string(dataID.c_str());
+    throw WfDataException(WfDataException::eINVALID_VALUE, errorMsg);
   }
 }
 
