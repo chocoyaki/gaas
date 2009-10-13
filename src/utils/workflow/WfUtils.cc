@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2009/10/13 14:50:08  bisnard
+ * updated gwendia types
+ *
  * Revision 1.15  2009/10/02 07:46:15  bisnard
  * conversion of types for gwendia wf language
  *
@@ -186,6 +189,13 @@ static const pair<short, const string> XSTypes[] = {
 static const pair<const string, const string> gw2dietTypes[] = {
   pair<const string, const string>( "", ""),
   pair<const string, const string>( "string", "DIET_STRING"),
+  pair<const string, const string>( "file", "DIET_FILE"),
+  pair<const string, const string>( "integer", "DIET_INT"),
+  pair<const string, const string>( "short", "DIET_SHORT"),
+  pair<const string, const string>( "double", "DIET_DOUBLE"),
+  pair<const string, const string>( "longint", "DIET_LONGINT"),
+  pair<const string, const string>( "boolean", "DIET_CHAR"),
+  pair<const string, const string>( "float", "DIET_FLOAT"),
 };
 
 static map<short,short> WfTypesToDietTypes(wf2DietTypes, wf2DietTypes
