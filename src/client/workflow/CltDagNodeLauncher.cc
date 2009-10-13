@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2009/10/13 15:08:54  bisnard
+ * added Dagda exceptions handling
+ *
  * Revision 1.1  2009/09/25 12:36:18  bisnard
  * created new classes DagNodeLauncher & childs
  *
@@ -57,6 +60,21 @@ CltDagNodeLauncher::execNode(bool& successful)
     }
   } catch(Dagda::DataNotFound& e) {
     WARNING(traceHeader << "Data not found (ID=" << e.dataID << ")");
+    successful = false;
+  } catch(Dagda::ReadError& e) {
+    WARNING(traceHeader << "Data read error");
+    successful = false;
+  } catch(Dagda::InvalidPathName& e) {
+    WARNING(traceHeader << "Invalid path name");
+    successful = false;
+  } catch(Dagda::UnreachableFile& e) {
+    WARNING(traceHeader << "Unreachable file");
+    successful = false;
+  } catch(Dagda::PermissionDenied& e) {
+    WARNING(traceHeader << "Permission denied");
+    successful = false;
+  } catch(Dagda::UnavailableData& e) {
+    WARNING(traceHeader << "Unavailable data");
     successful = false;
   } catch(CORBA::SystemException& e) {
     WARNING(traceHeader << "Got a CORBA " << e._name() << " exception ("
