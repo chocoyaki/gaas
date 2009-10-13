@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2009/10/13 12:42:06  bisnard
+ * modified exception messages
+ *
  * Revision 1.16  2009/09/25 12:49:45  bisnard
  * handle user data tags
  *
@@ -550,8 +553,8 @@ FDataHandle::getTag() const {
 //private
 void
 FDataHandle::setCardinal(unsigned int card) {
-  TRACE_TEXT (TRACE_ALL_STEPS, "Set cardinal of " << myTag.toString()
-                               << " = " << card << endl);
+//   TRACE_TEXT (TRACE_ALL_STEPS, "Set cardinal of " << myTag.toString()
+//                                << " = " << card << endl);
   myCard = card;
   cardDef = true;
 }
@@ -1047,7 +1050,7 @@ FDataHandle::writeValue(WfDataWriter *dataWriter) {
 void
 FDataHandle::downloadValue() {
   if (isValueDefined()) return;
-  TRACE_TEXT (TRACE_ALL_STEPS,"Retrieving value of data..." << endl);
+//   TRACE_TEXT (TRACE_ALL_STEPS,"Retrieving value of data..." << endl);
   ostringstream  valStr;
   WfDataWriter  *dataWriter;
   if (myDepth > 0)
@@ -1059,13 +1062,13 @@ FDataHandle::downloadValue() {
     writeValue(dataWriter);
 
   } catch (WfDataHandleException& e) {
-    TRACE_TEXT(TRACE_ALL_STEPS, "Cannot download value (" << e.ErrorMsg() << ")" << endl);
+    string errorMsg = "Cannot get data (" + e.ErrorMsg() + ")";
     delete dataWriter;
-    throw WfDataHandleException(WfDataHandleException::eVALUE_UNDEF, getTag().toString());
+    throw WfDataHandleException(WfDataHandleException::eVALUE_UNDEF, errorMsg);
   } catch (WfDataException& e) {
-    TRACE_TEXT(TRACE_ALL_STEPS, "Cannot download value (" << e.ErrorMsg() << ")" << endl);
+    string errorMsg = "Cannot get data (" + e.ErrorMsg() + ")";
     delete dataWriter;
-    throw WfDataHandleException(WfDataHandleException::eVALUE_UNDEF, getTag().toString());
+    throw WfDataHandleException(WfDataHandleException::eVALUE_UNDEF, errorMsg);
   }
   myValue = valStr.str();	//FIXME use setValue
   valueDef = true;
