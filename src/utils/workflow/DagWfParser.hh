@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2009/10/14 09:19:18  bisnard
+ * moved XML utility methods to public part
+ *
  * Revision 1.25  2009/09/25 12:49:45  bisnard
  * handle user data tags
  *
@@ -184,6 +187,55 @@ public:
   void
   parseXml(bool checkValid = false);
 
+
+  /********************/
+  /* Utility methods  */
+  /********************/
+
+  /**
+   * utility method to get the attribute value in a DOM element
+   * @param attr_name the attribute name
+   * @param elt      the DOM element
+   */
+  static string
+      getAttributeValue(const char * attr_name, const DOMElement * elt);
+
+  /**
+   * utility method to check that the attribute is non-empty
+   */
+  static void
+      checkMandatoryAttr(const string& tagName,
+                         const string& attrName,
+                         const string& attrValue);
+
+  /**
+   * utility method to check that an element does not contain any child
+   */
+  static void
+      checkLeafElement(const DOMElement * element, const string& tagName);
+
+  /**
+   * Utility method to get the text content of a DOM element
+   * @param element the DOM element
+   * @param buffer  the string that will contain the value
+   */
+  static void
+      getTextContent(const DOMElement * element, string& buffer);
+
+  /**
+   * Utility method to trim spaces from strings
+   */
+  static string&
+      stringTrim(string& str);
+
+  /**
+   * Utility method to parse multiple assignmnent data
+   */
+  static void
+      getPortMap(const string& thenMapStr,
+                 map<string,string>& thenMap) throw (XMLParsingException);
+
+
 protected:
 
   /**
@@ -322,55 +374,6 @@ protected:
 		    const string& name,
 		    unsigned int lastArg,
 		    WfNode * node );
-
-
-  /********************/
-  /* Utility methods  */
-  /********************/
-
-  /**
-   * utility method to get the attribute value in a DOM element
-   * @param attr_name the attribute name
-   * @param elt      the DOM element
-   */
-  static string
-      getAttributeValue(const char * attr_name, const DOMElement * elt);
-
-  /**
-   * utility method to check that the attribute is non-empty
-   */
-  static void
-      checkMandatoryAttr(const string& tagName,
-                         const string& attrName,
-                         const string& attrValue);
-
-  /**
-   * utility method to check that an element does not contain any child
-   */
-  static void
-      checkLeafElement(const DOMElement * element, const string& tagName);
-
-  /**
-   * Utility method to get the text content of a DOM element
-   * @param element the DOM element
-   * @param buffer  the string that will contain the value
-   */
-  static void
-      getTextContent(const DOMElement * element, string& buffer);
-
-  /**
-   * Utility method to trim spaces from strings
-   */
-  static string&
-      stringTrim(string& str);
-
-  /**
-   * Utility method to parse multiple assignmnent data
-   */
-  static void
-      getPortMap(const string& thenMapStr,
-                 map<string,string>& thenMap) throw (XMLParsingException);
-
 
 }; // end class DagWfParser
 
