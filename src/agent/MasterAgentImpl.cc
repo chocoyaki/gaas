@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.56  2009/10/16 16:43:23  bdepardo
+ * Added "***.." in traces.
+ *
  * Revision 1.55  2009/10/05 08:36:59  bdepardo
  * Added stats for multi-MA
  *
@@ -791,6 +794,8 @@ void MasterAgentImpl::searchService(MasterAgent_ptr predecessor,
 
   }
 
+  TRACE_TEXT(TRACE_MAIN_STEPS,
+	     "**************************************************\n");
   sprintf(statMsg, "stop searchService %ld", (unsigned long) request.reqID);
   stat_out(this->myName,statMsg);
   stat_flush();
