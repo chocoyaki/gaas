@@ -24,4 +24,9 @@ ELSE( NOT BLAS_FOUND )
                            ${DIET_CLIENT_LIBRARIES} ${BLAS_LIBRARIES} )
     INSTALL_TARGETS( /bin/examples/BLAS ${loop_var} )
   ENDFOREACH( loop_var )
+
+  ADD_EXECUTABLE( clientthread dgemm_client_thread.cc )
+  TARGET_LINK_LIBRARIES( clientthread ${DIET_CLIENT_LIBRARIES} )
+  INSTALL_TARGETS( /bin/examples/BLAS clientthread )
+
 ENDIF( NOT BLAS_FOUND )
