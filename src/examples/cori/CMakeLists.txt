@@ -15,6 +15,10 @@ ELSE( NOT DIET_USE_CORI )
   TARGET_LINK_LIBRARIES( client ${DIET_CLIENT_LIBRARIES} )
   INSTALL_TARGETS( /bin/examples/cori client )
 
+  ADD_EXECUTABLE( clientthread client_thread.cc )
+  TARGET_LINK_LIBRARIES( clientthread ${DIET_CLIENT_LIBRARIES} )
+  INSTALL_TARGETS( /bin/examples/cori clientthread )
+
   ### ... and a test program
   ADD_EXECUTABLE( coriEasyTester coriEasyTester.cc )
   TARGET_LINK_LIBRARIES( coriEasyTester ${DIET_SERVER_LIBRARIES} )
