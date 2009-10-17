@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.32  2009/10/17 08:28:08  bdepardo
+ * Removed compilation warnings
+ *
  * Revision 1.31  2009/04/22 06:21:21  ycaniou
  * Correct a bug: when adding at least 20 services, matching_children[20] wasn't
  *   initialized and matching_children[20].children wasn't allocated thus a
@@ -871,7 +874,7 @@ ServiceTable::dump(FILE* f)
   // be called on stdout !
 
   fprintf(f, "\n--------------------------------------------------\n");
-  fprintf(f,   "Service Table (%ld services)\n", nb_s);
+  fprintf(f,   "Service Table (%u services)\n", nb_s);
   fprintf(f,   "--------------------------------------------------\n\n");
 
   for (size_t i = 0; i < nb_s; i++) {
@@ -891,14 +894,14 @@ ServiceTable::dump(FILE* f)
         fprintf(f, "no child");
       else {
         if (matching_children[i].nb_children == 1)
-          fprintf(f, "child %ld", matching_children[i].children[0]);
+          fprintf(f, "child %u", matching_children[i].children[0]);
         else {
           size_t j;
-          fprintf(f, "children %ld", matching_children[i].children[0]);
+          fprintf(f, "children %u", matching_children[i].children[0]);
           for (j = 1; j < (matching_children[i].nb_children - 1); j++)
-            fprintf(f, ", %ld", matching_children[i].children[j]);
+            fprintf(f, ", %u", matching_children[i].children[j]);
           // Re-use j to shorten next line
-          fprintf(f, " and %ld.", matching_children[i].children[j]);
+          fprintf(f, " and %u.", matching_children[i].children[j]);
         }
       }
     }
