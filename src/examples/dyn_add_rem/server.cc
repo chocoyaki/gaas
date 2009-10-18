@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2009/10/18 09:15:11  bdepardo
+ * CheckUsage
+ *
  * Revision 1.2  2008/12/22 12:14:06  bdepardo
  * Corrected example in case Diet is compiled with Batch support.
  *
@@ -137,6 +140,13 @@ add_service(const char* service_name)
 }
 
 
+int checkUsage(int argc, char ** argv) {
+  if (argc != 2) {
+    usage(argv[0]);
+    exit(1);
+  }
+  return 0;
+}
 
 /*
  * MAIN
@@ -146,6 +156,8 @@ main( int argc, char* argv[])
 {
   int res;
   std::string service_name = "dyn_add_rem_0";
+
+  checkUsage(argc, argv);
 
   /* Add service */
   diet_service_table_init(1);
