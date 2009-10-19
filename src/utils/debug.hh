@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.31  2009/10/19 11:41:04  bdepardo
+ * Removed compilation warnings
+ *
  * Revision 1.30  2009/10/01 09:14:19  dloureir
  * Removing the #ifndef HUGE_VAL statement replaced by the include of math.h (there was a problem under the cygwin environment because _DBLINF was not defined) which is a standard header file.
  *
@@ -241,7 +244,7 @@ extern omni_mutex debug_log_mutex ;
     struct timeval tv;                              \
     debug_log_mutex.lock() ;                        \
     gettimeofday(&tv, NULL);                        \
-    printf("%10ld.%06ld: ", tv.tv_sec, tv.tv_usec); \
+    printf("%10ld.%06ld: ", (unsigned long)tv.tv_sec, (unsigned long)tv.tv_usec); \
     cout << formatted_text;                         \
     debug_log_mutex.unlock() ;                      \
   }

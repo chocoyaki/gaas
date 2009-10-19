@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.37  2009/10/19 11:41:04  bdepardo
+ * Removed compilation warnings
+ *
  * Revision 1.36  2009/03/27 09:09:41  bisnard
  * replace container size attr by dynamic value
  *
@@ -150,9 +153,9 @@ displayResponse(FILE* os, const corba_response_t* resp)
 #endif
 
   fprintf(os, "\n----------------------------------------\n");
-  fprintf(os, " Response structure for request %lu :\n\n", resp->reqID);
+  fprintf(os, " Response structure for request %u :\n\n", resp->reqID);
   if (TRACE_LEVEL >= TRACE_ALL_STEPS) {
-    fprintf(os, " I'm son nb %ld\n", resp->myID);
+    fprintf(os, " I'm son nb %u\n", resp->myID);
   }
 
   fprintf(os, " %ld servers are able to solve the problem:\n",
@@ -248,7 +251,7 @@ displayResponseShort(FILE* os, const corba_response_t* resp)
   const char * jobSpec ;
 #endif
 
-  fprintf(os, "\n---------- Responses for request %lu ----------\n",
+  fprintf(os, "\n---------- Responses for request %u ----------\n",
       resp->reqID);
 
   for (size_t i = 0; i < resp->servers.length(); i++){
