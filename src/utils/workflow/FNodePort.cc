@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2009/10/20 09:26:36  bisnard
+ * fixed bug in port instanciation (wrong port order for out ports)
+ *
  * Revision 1.17  2009/10/12 14:59:05  bisnard
  * fixed bug in port instanciation (wrong port order)
  *
@@ -158,7 +161,7 @@ FNodeOutPort::createRealInstance(Dag* dag, DagNode* nodeInst, const FDataTag& ta
   string portId = this->getId();
   TRACE_TEXT (TRACE_ALL_STEPS,"   # Creating new instance of OUT port: " << portId << endl);
   WfPort* portInst = nodeInst->newPort(portId,
-                                      nodeInst->getPortNb(),
+                                      getIndex(),
                                       portType,
                                       getBaseDataType(),
                                       depth);
