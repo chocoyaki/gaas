@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2009/10/23 14:03:14  bisnard
+ * new method FSourceNode::createList
+ *
  * Revision 1.20  2009/09/25 12:49:45  bisnard
  * handle user data tags
  *
@@ -383,6 +386,14 @@ class FSourceNode : public FNode {
      */
     FDataHandle *
         createData( const FDataTag& tag );
+
+    /**
+     * Instanciate a new list for the source (used by parser)
+     * @param tag the data tag
+     * @return ref on the data
+     */
+    FDataHandle *
+        createList( const FDataTag& tag );
 
     /**
      * Set the value of the data
