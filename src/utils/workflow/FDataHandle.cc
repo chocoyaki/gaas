@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2009/10/23 14:04:25  bisnard
+ * bug corrections in FDataHandle
+ *
  * Revision 1.17  2009/10/13 12:42:06  bisnard
  * modified exception messages
  *
@@ -935,7 +938,7 @@ FDataHandle::createPortAdapter(const string& currDagName) {
       myAdapter = new WfDataIDAdapter(getValueType(),
                                       getDepth(),
                                       myTag.getLastIndex(),
-                                      getDataID());
+                                      getParent()->getDataID());
 
   } else if (myAdapterType == ADAPTER_VALUE) {
       myAdapter = new WfValueAdapter(getValueType(),
@@ -1111,8 +1114,8 @@ FDataHandle::downloadTreeData() {
       WARNING("Data Error (" << e.ErrorMsg() << ")" << endl);
     }
   } else {
-    for (map<FDataTag,FDataHandle*>::iterator childIter = myData->begin();
-         childIter != myData->end();
+    for (map<FDataTag,FDataHandle*>::iterator childIter = this->begin();
+         childIter != this->end();
          ++childIter) {
       ((FDataHandle*)childIter->second)->downloadTreeData();
     }
@@ -1147,8 +1150,8 @@ void
 FDataHandle::downloadElementDataIDs() {
   downloadDataID();
   downloadCardinal();
-  for (map<FDataTag,FDataHandle*>::iterator childIter = myData->begin();
-       childIter != myData->end();
+  for (map<FDataTag,FDataHandle*>::iterator childIter = this->begin();
+       childIter != this->end();
        ++childIter) {
     ((FDataHandle*)childIter->second)->downloadDataID();
   }
@@ -1158,8 +1161,8 @@ void
 FDataHandle::toXML(WfXMLDataWriter& XMLWriter) {
   if ( myDepth > 0 ) {
     XMLWriter.startContainer(getDataID());
-    for (map<FDataTag,FDataHandle*>::iterator childIter = myData->begin();
-       childIter != myData->end();
+    for (map<FDataTag,FDataHandle*>::iterator childIter = this->begin();
+       childIter != this->end();
        ++childIter) {
       ((FDataHandle*)childIter->second)->toXML(XMLWriter);
     }
@@ -1179,9 +1182,11 @@ FDataHandle::freePersistentDataRec(MasterAgent_var& MA) {
     }
     myAdapterType = ADAPTER_UNDEFINED;  // avoid warning in case of double call
   }
-  if ((myDepth > 0) && (myData->size() > 0)) {
-    for (map<FDataTag,FDataHandle*>::iterator childIter = myData->begin();
-         childIter != myData->end();
+  if (myDepth > 0) {
+    if (isDataIDDefined())
+      downloadElementDataIDs();
+    for (map<FDataTag,FDataHandle*>::iterator childIter = this->begin();
+         childIter != this->end();
          ++childIter) {
       ((FDataHandle*) childIter->second)->freePersistentDataRec(MA);
     }

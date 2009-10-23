@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2009/10/23 14:04:25  bisnard
+ * bug corrections in FDataHandle
+ *
  * Revision 1.19  2009/10/13 12:43:40  bisnard
  * removed obsolete ifdefs for DAGDA
  *
@@ -840,9 +843,15 @@ WfDataIDAdapter::getSourceRef() const {
 const string&
 WfDataIDAdapter::getSourceDataID() {
   if (myDataID.empty()) {
+    // retrieve dataID in case this is an element of a dataID (2nd constructor)
     diet_container_t *content = new diet_container_t;
+    if (myContainerID.empty()) {
+      WARNING("WfDataIDAdapter::getSourceDataID() : empty container ID");
+    }
     TRACE_TEXT (TRACE_ALL_STEPS, "data ID '" + myContainerID + "' : get container ID list" << endl);
-    if (dagda_get_container(myDataID.c_str())) {
+    try {
+      dagda_get_container(myContainerID.c_str());
+    } catch (...) {
       string errorMsg = "data ID '" + myContainerID + "' : not found or invalid type";
       throw WfDataException(WfDataException::eNOTFOUND, errorMsg);
     }
@@ -876,13 +885,14 @@ WfDataIDAdapter::getSourceDataCardinal() {
   if (!myDataID.empty() && (myDepth > 0)) {
     diet_container_t *content = new diet_container_t;
     content->size = 0;
-    TRACE_TEXT (TRACE_ALL_STEPS, "data ID '" + myDataID + "' : get container ID list" << endl);
-    if (dagda_get_container(myDataID.c_str())) {
-      string errorMsg = "data ID '" + myDataID + "' : not found or invalid type";
+    try {
+      dagda_get_container(myDataID.c_str());
+    } catch (...) {
+      string errorMsg = "container ID '" + myDataID + "' : not found or invalid type";
       throw WfDataException(WfDataException::eNOTFOUND, errorMsg);
     }
     if (dagda_get_container_elements(myDataID.c_str(), content)) {
-      string errorMsg = "data ID '" + myDataID + "' : cannot get container elements";
+      string errorMsg = "container ID '" + myDataID + "' : cannot get container elements";
       throw WfDataException(WfDataException::eINVALID_CONTAINER, errorMsg);
     }
     unsigned int card = content->size;
@@ -920,8 +930,11 @@ WfDataIDAdapter::getAndWriteData(WfDataWriter* dataWriter,
       dataWriter->startContainer();
       diet_container_t* content = new diet_container_t;
       content->size = 0;
-      if (dagda_get_container(dataID.c_str()))
+      try {
+        dagda_get_container(dataID.c_str());
+      } catch (...) {
         throw WfDataException(WfDataException::eNOTFOUND, dataID);
+      }
       if (dagda_get_container_elements(dataID.c_str(), content))
           throw WfDataException(WfDataException::eINVALID_CONTAINER, dataID);
 
