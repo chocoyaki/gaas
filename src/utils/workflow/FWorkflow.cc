@@ -10,6 +10,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2009/10/23 14:01:17  bisnard
+ * improved exception handling
+ * avoid double instanciation of sinks
+ *
  * Revision 1.21  2009/09/25 12:39:18  bisnard
  * modified includes to reduce inter-dependencies
  *
@@ -487,16 +491,31 @@ FWorkflow::instanciate(Dag * dag) {
     FProcNode::instanciate(dag); // run the iterator and call createReal/VoidInstance
   }
   TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "###### Instanciate sources/constants ..." << endl);
-  // initialize the INTERFACE (this will create the input data items if source is XML)
+  // instanciate the INTERFACE (this will create the input data items if source is XML)
   for(map<string,FNode*>::iterator iter = myInterface.begin();
       iter != myInterface.end();
-      ++iter) {
-    FNode* interfNode = (FNode*) iter->second;
-    interfNode->resumeInstanciation();
-    if (interfNode->instanciationReady())
-      interfNode->instanciate(dag);
-    if (interfNode->instanciationCompleted())
-      interfNode->finalize();
+      ++iter)
+  {
+    // CONSTANT NODES
+    FConstantNode* cstNode = dynamic_cast<FConstantNode*>((FNode*) iter->second);
+    if (cstNode) {
+      cstNode->instanciate(dag);
+    }
+    // SOURCE NODES
+    FSourceNode* srcNode = dynamic_cast<FSourceNode*>((FNode*) iter->second);
+    if (srcNode) {
+      srcNode->resumeInstanciation();
+      if (srcNode->instanciationReady()) {
+        try {
+          srcNode->instanciate(dag);
+        } catch (WfDataHandleException& e) {
+          WARNING("Failure during node " << srcNode->getId() << " instanciation:"
+                  << endl << e.ErrorMsg());
+        }
+      }
+      if (srcNode->instanciationCompleted())
+        srcNode->finalize();
+    }
   }
 
   TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "###### Instanciate processors..." << endl);
@@ -522,10 +541,10 @@ FWorkflow::instanciate(Dag * dag) {
         currProc->instanciate(dag);
       } catch (WfDataHandleException& e) {
         WARNING("Failure during node " << currProc->getId() << " instanciation:"
-                << endl << e.ErrorMsg() << endl);
+                << endl << e.ErrorMsg());
       } catch (WfDataException& e) {
         WARNING("Data failure during node " << currProc->getId() << " instanciation:"
-                << endl << e.ErrorMsg() << endl);
+                << endl << e.ErrorMsg());
       }
       // if on hold, then set the whole wf on hold
       if (currProc->instanciationOnHold()) {
