@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2009/10/23 13:59:25  bisnard
+ * replaced \n by std::endl
+ *
  * Revision 1.18  2009/10/20 09:26:36  bisnard
  * fixed bug in port instanciation (wrong port order for out ports)
  *
@@ -205,10 +208,10 @@ FNodeOutPort::sendData(FDataHandle* dataHdl) {
       checkTotalDataNb(inPort);
     } catch (WfDataHandleException& e) {
       if  (e.Type() == WfDataHandleException::eADAPT_UNDEF) {
-        TRACE_TEXT (TRACE_ALL_STEPS," ==> insert failed (missing adapter)\n");
+        TRACE_TEXT (TRACE_ALL_STEPS," ==> insert failed (missing adapter)" << endl);
       } else if ((e.Type() == WfDataHandleException::eCARD_UNDEF)
           || (e.Type() == WfDataHandleException::eVALUE_UNDEF)) {
-        TRACE_TEXT (TRACE_ALL_STEPS," ==> insert failed (missing value or cardinal)\n");
+        TRACE_TEXT (TRACE_ALL_STEPS," ==> insert failed (missing value or cardinal)" << endl);
         if (dataHdl->isDataIDDefined()) {
           reSendData(dataHdl, inPort);
         } else {
@@ -386,6 +389,7 @@ FNodeInPort::addData(FDataHandle* dataHdl) {
   TRACE_TEXT (TRACE_ALL_STEPS,"     # add data " << dataHdl->getTag().toString()
               << " to port " << getCompleteId()
               << (dataHdl->isValueDefined() ? " /value=" + dataHdl->getValue() : "")
+              << (dataHdl->isDataIDDefined() ? " /ID=" + dataHdl->getDataID() : "")
               << endl);
 
   if (!dataHdl->isAdapterDefined()) {

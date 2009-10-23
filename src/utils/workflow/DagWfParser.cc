@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.37  2009/10/23 13:59:25  bisnard
+ * replaced \n by std::endl
+ *
  * Revision 1.36  2009/10/02 07:44:56  bisnard
  * new wf data operators MATCH & N-CROSS
  *
@@ -1385,7 +1388,7 @@ DataSourceHandler::startList(const   Attributes&     attrs) {
     }
 
     // create my data handle & insert in the data tree
-    myCurrListDH = myNode->createData( *myTag);
+    myCurrListDH = myNode->createList( *myTag);
     if (!myTag->isEmpty())
       myNode->insertData( myCurrListDH );
 
@@ -1504,7 +1507,7 @@ DataSourceHandler::startTag(const   Attributes&     attrs) {
     if (currDH)
       currDH->addProperty( currTagKey, currTagValue );
     else {
-      INTERNAL_ERROR("Cannot store data tag: no current data\n",1);
+      INTERNAL_ERROR("Cannot store data tag: no current data",1);
     }
   }
 }

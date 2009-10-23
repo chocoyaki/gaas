@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.37  2009/10/23 13:59:24  bisnard
+ * replaced \n by std::endl
+ *
  * Revision 1.36  2009/10/07 08:09:57  bisnard
  * reduced memory usage by freeing profiles earlier
  *
@@ -583,10 +586,6 @@ CltWfMgr::wfFunctionalCall(diet_wf_desc_t * profile) {
   TRACE_TEXT (TRACE_MAIN_STEPS, "*** Initialize functional wf ****" << endl);
   try {
     wf->initialize();
-  } catch (XMLParsingException& e) {
-    cerr << "FATAL ERROR: DATA FILE Parsing exception: " << endl;
-    cerr << e.ErrorMsg() << endl;
-    return XML_MALFORMED;
   } catch (WfStructException& e) {
     cerr << "FATAL ERROR: BAD FUNCTIONAL WORKFLOW STRUCTURE: " << endl;
     cerr << e.ErrorMsg() << endl;
@@ -618,7 +617,13 @@ CltWfMgr::wfFunctionalCall(diet_wf_desc_t * profile) {
     currDag->setId("WF_" + wf->getId() + "_DAG_" + itoa(dagCounter++));
     currDag->setWorkflow(wf);
     LOCK    /** LOCK */
-    wf->instanciate(currDag);
+    try {
+      wf->instanciate(currDag);
+    } catch (XMLParsingException& e) {
+      cerr << "FATAL ERROR: DATA FILE Parsing exception: " << endl;
+      cerr << e.ErrorMsg() << endl;
+      wf->stopInstanciation();
+    }
     UNLOCK  /** UNLOCK */
 
     if (currDag->size() == 0) {
@@ -695,12 +700,12 @@ CltWfMgr::wfFunctionalCall(diet_wf_desc_t * profile) {
   if (!wf->instanciationCompleted()) {
     cerr << "FUNCTIONAL WORKFLOW INSTANCIATION or EXECUTION FAILED!" << endl;
     res = 1;
-    TRACE_TEXT (TRACE_MAIN_STEPS, "*** RELEASE request on MADAG ***" << endl);
-    try {
-      myMaDag->releaseMultiDag(wfReqId);
-    } catch (...) {
-      WARNING("Multi-dag release FAILURE");
-    }
+//     TRACE_TEXT (TRACE_MAIN_STEPS, "*** RELEASE request on MADAG ***" << endl);
+//     try {
+//       myMaDag->releaseMultiDag(wfReqId);
+//     } catch (...) {
+//       WARNING("Multi-dag release FAILURE");
+//     }
   }
   wf->displayDagSummary(cout);
 //    myMA->getDataManager()->checkpointState();
@@ -1079,7 +1084,7 @@ CltWfMgr::wf_free(diet_wf_desc_t * profile) {
     delete profile;
     stat_out("cltwfmgr",statMsg);
   } else {
-    WARNING("wf_free : profile not found\n");
+    WARNING("wf_free : profile not found");
   }
 //   cout << "SAVE PLATFORM!!" << endl;
 //   dagda_save_platform();

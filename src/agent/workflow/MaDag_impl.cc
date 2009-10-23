@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.30  2009/10/23 13:59:18  bisnard
+ * replaced \n by std::endl
+ *
  * Revision 1.29  2009/09/25 12:42:09  bisnard
  * - use new DagNodeLauncher classes to manage threads
  * - added dag cancellation method
@@ -434,7 +437,7 @@ MaDag_impl::getWfReqId() {
 CORBA::Long
 MaDag_impl::ping()
 {
-  TRACE_TEXT(TRACE_ALL_STEPS, "ping()\n");
+  TRACE_TEXT(TRACE_ALL_STEPS, "ping()" << endl);
   stat_flush();
   return getpid();
 } // ping()
@@ -532,7 +535,7 @@ MaDag_impl::setupDietLogComponent(){
 	Parsers::Results::USELOGSERVICE);
   useLS = false;
   if (ULSptr == NULL) {
-    WARNING(" useLogService not configured. Disabled by default\n");
+    WARNING(" useLogService not configured. Disabled by default" << endl);
   } else {
     if (*ULSptr) {
       useLS = true;
@@ -561,7 +564,7 @@ MaDag_impl::setupDietLogComponent(){
   }
 
   if (useLS) {
-    TRACE_TEXT(TRACE_ALL_STEPS, "LogService enabled\n");
+    TRACE_TEXT(TRACE_ALL_STEPS, "LogService enabled" << endl);
     char* agtTypeName;
     char* agtParentName;
     char* agtName;
@@ -584,7 +587,7 @@ MaDag_impl::setupDietLogComponent(){
     free(agtTypeName);
 
   } else {
-    TRACE_TEXT(TRACE_ALL_STEPS, "LogService disabled\n");
+    TRACE_TEXT(TRACE_ALL_STEPS, "LogService disabled" << endl);
     this->dietLogComponent = NULL;
   }
 }

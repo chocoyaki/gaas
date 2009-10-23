@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2009/10/23 13:59:25  bisnard
+ * replaced \n by std::endl
+ *
  * Revision 1.21  2009/10/02 07:44:56  bisnard
  * new wf data operators MATCH & N-CROSS
  *
@@ -354,16 +357,10 @@ void
 FSourceNode::instanciate(Dag* dag) {
   TRACE_TEXT (TRACE_ALL_STEPS, traceId() << "Instanciate source" << endl);
   if (!isConnected) {
-    try {
-      myParser->parseXml(wf->getDataSrcXmlFile());
-      myOutPort->uploadAllData(dag->getExecutionAgent());
-      myOutPort->updateAllDataCardinal();
-      myOutPort->sendAllData();
-
-    } catch (XMLParsingException& e) {
-      cerr << "FATAL ERROR during SOURCE '" << getId() << "' XML parsing:\n"
-          << e.ErrorMsg() << endl;
-    }
+    myParser->parseXml(wf->getDataSrcXmlFile());
+    myOutPort->uploadAllData(dag->getExecutionAgent());
+    myOutPort->updateAllDataCardinal();
+    myOutPort->sendAllData();
     // check if empty
     if (myOutPort->getBufferRootDH()->isEmpty()) {
       WARNING("Workflow source '" << getId() << "' contains no data" << endl);
@@ -390,16 +387,21 @@ FSourceNode::createInstance(const FDataTag& currTag,
 
 void
 FSourceNode::toXML(ostream& output) {
-  output << "<source name=\"" << this->getId() << "\">\n";
+  output << "<source name=\"" << this->getId() << "\">" << endl;
   myOutPort->writeAllDataAsXML(output);
   output << "</source>" << endl;
 }
 
 FDataHandle*
 FSourceNode::createData( const FDataTag& tag ) {
+  return new FDataHandle(tag, getDataType(), 0);
+}
+
+FDataHandle*
+FSourceNode::createList( const FDataTag& tag ) {
   // depth may be wrong but it will be updated at the end by
   // updateAllDataCardinal on the whole data tree
-  return new FDataHandle(tag, getDataType(), 0);
+  return new FDataHandle(tag, getDataType(), 1);
 }
 
 void
@@ -421,7 +423,11 @@ FSourceNode::setDataProperty( FDataHandle* DH,
 
 void
 FSourceNode::insertData( FDataHandle* newDH ) {
-  myOutPort->storeData(newDH);
+  try {
+    myOutPort->storeData(newDH);
+  } catch (WfDataHandleException& e) {
+    WARNING(e.ErrorMsg());
+  }
 }
 
 /*****************************************************************************/
@@ -508,7 +514,7 @@ FSinkNode::displayResults(ostream& output) {
 
 void
 FSinkNode::toXML(ostream& output) {
-  output << "<sink name=\"" << this->getId() << "\">\n";
+  output << "<sink name=\"" << this->getId() << "\">" << endl;
   myOutPort->writeAllDataAsXML( output );
   output << "</sink>" << endl;
 }

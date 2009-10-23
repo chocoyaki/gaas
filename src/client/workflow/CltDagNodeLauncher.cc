@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2009/10/23 13:59:24  bisnard
+ * replaced \n by std::endl
+ *
  * Revision 1.2  2009/10/13 15:08:54  bisnard
  * added Dagda exceptions handling
  *
@@ -78,7 +81,7 @@ CltDagNodeLauncher::execNode(bool& successful)
     successful = false;
   } catch(CORBA::SystemException& e) {
     WARNING(traceHeader << "Got a CORBA " << e._name() << " exception ("
-                        << e.NP_minorString() << ")\n") ;
+                        << e.NP_minorString() << ")") ;
     successful = false;
   }
 }
