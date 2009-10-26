@@ -39,6 +39,7 @@ OPTION( DIET_BUILD_EXAMPLES      "Build DIET examples." OFF )
 OPTION( DIET_USE_ALT_BATCH  "Build DIET with Batch support." OFF )
 OPTION( DIET_USE_CORI   "Build DIET with CORI support." OFF )
 OPTION( DIET_USE_DART   "Build DIET with dart reporting support." OFF)
+OPTION( DIET_USE_DYNAMICS   "Build DIET with dynamic hierarchy modifications features." OFF)
 OPTION( DIET_USE_FAST   "Build DIET with FAST support." OFF )
 OPTION( DIET_USE_FD     "Build DIET with Fault Detector support." OFF)
 OPTION( DIET_USE_JUXMEM "Build DIET with JuxMem support." OFF )
@@ -80,6 +81,10 @@ ENDIF( DIET_BUILD_BLAS_EXAMPLES AND NOT DIET_BUILD_EXAMPLES )
 IF( NOT DIET_BUILD_LIBRARIES  AND DIET_BUILD_EXAMPLES )
   MESSAGE(SEND_ERROR "DIET_BUILD_LIBRARIES must be set for building examples.")
 ENDIF( NOT DIET_BUILD_LIBRARIES AND DIET_BUILD_EXAMPLES )
+
+IF( DIET_USE_DYNAMICS AND NOT DIET_USE_DAGDA )
+  MESSAGE(SEND_ERROR "DIET_USE_DYNAMICS requires DIET_USE_DAGDA.")
+ENDIF( DIET_USE_DYNAMICS AND NOT DIET_USE_DAGDA )
 
 # JXTA (see below) is used to provide functionalities similar to the ones
 # of the DIET_WITH_MULTI_MA. For the time being those two extensions
@@ -451,6 +456,12 @@ IF( DIET_TAU_PROFILING )
   INCLUDE( ${CMAKE_MODULE_PATH}/TAU/TAU_Profiling.cmake )
 ENDIF( DIET_TAU_PROFILING )
 
+
+
+# ---------------- DYNAMIC HIERARCHY MODIFICATION FEATURES ----------------
+IF( DIET_USE_DYNAMICS )
+  ADD_DEFINITIONS( -DHAVE_DYNAMICS )
+ENDIF( DIET_USE_DYNAMICS )
 
 
 # ---------------- STATIC LINKING FIXES ------------------------------------
