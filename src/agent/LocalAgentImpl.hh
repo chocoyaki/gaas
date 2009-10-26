@@ -10,6 +10,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2009/10/26 09:17:37  bdepardo
+ * Added methods for dynamic hierarchy management:
+ * - bindParent(const char * parentName)
+ * - disconnect()
+ * - removeElement(bool recursive)
+ * Renamed serverRemoveService(...) into childRemoveService(...)
+ *
  * Revision 1.6  2008/11/18 10:15:23  bdepardo
  * - Added the possibility to dynamically create and destroy a service
  *   (even if the SeD is already started). An example is available.
@@ -55,6 +62,24 @@ public :
     return this->POA_LocalAgent::_this();
   };
 
+
+#ifdef HAVE_DYNAMICS
+  /** Change the parent */
+  CORBA::Long
+  bindParent(const char * parentName);
+
+  /** Disconnect from the parent */
+  CORBA::Long
+  disconnect();
+
+  /** Sends a request to the agent to commit suicide.
+   * If "recursive" is true, then the agent forwards the request
+   * to its children.
+   */
+  virtual CORBA::Long
+  removeElement(bool recursive);
+#endif // HAVE_DYNAMICS
+
   /** Launch this agent (initialization + registration in the hierarchy). */
   int
   run();
@@ -70,10 +95,16 @@ public :
   virtual CORBA::Long
   addServices(CORBA::ULong myID, const SeqCorbaProfileDesc_t& services);
 
+#ifdef HAVE_DYNAMICS
+  virtual CORBA::Long
+  childUnsubscribe(CORBA::ULong childID,
+		   const SeqCorbaProfileDesc_t& services);
+#endif // HAVE_DYNAMICS
+
 #ifdef HAVE_DAGDA
   /** Remove services into the service table for a given child */
   virtual CORBA::Long
-  serverRemoveService(CORBA::ULong childID, const corba_profile_desc_t& profile);
+  childRemoveService(CORBA::ULong childID, const corba_profile_desc_t& profile);
 #endif
 
 

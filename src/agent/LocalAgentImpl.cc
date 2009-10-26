@@ -10,6 +10,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.16  2009/10/26 09:17:37  bdepardo
+ * Added methods for dynamic hierarchy management:
+ * - bindParent(const char * parentName)
+ * - disconnect()
+ * - removeElement(bool recursive)
+ * Renamed serverRemoveService(...) into childRemoveService(...)
+ *
  * Revision 1.15  2008/11/18 10:15:22  bdepardo
  * - Added the possibility to dynamically create and destroy a service
  *   (even if the SeD is already started). An example is available.
@@ -84,6 +91,154 @@ LocalAgentImpl::LocalAgentImpl()
   this->parent = Agent::_nil();
 }
 
+#ifdef HAVE_DYNAMICS
+/* Method to disconnect from the parent */
+CORBA::Long
+LocalAgentImpl::disconnect() {
+  long rv = 0;
+  SeqCorbaProfileDesc_t* profiles(NULL);
+  profiles = SrvT->getProfiles();
+
+  /* Do we already have a parent?
+   * If yes, we need to unsubscribe.
+   */
+  if (! CORBA::is_nil(this->parent)) {
+    try {
+      /* Unsubscribe from parent */
+      if (childID != -1)
+	this->parent->childUnsubscribe(childID, *profiles);
+      this->parent = Agent::_nil();
+      childID = -1;
+      
+      /* Unsubscribe data manager */
+      this->dataManager->unsubscribeParent();
+
+      /* Log */
+      if (dietLogComponent != NULL)
+      	dietLogComponent->logDisconnect();
+    } catch (CORBA::Exception& e) {
+      CORBA::Any tmp;
+      tmp <<= e;
+      CORBA::TypeCode_var tc = tmp.type();
+      WARNING("exception caught (" << tc->name() << ") while unsubscribing to "
+	      << "parent: either the latter is down, "
+	      << "or there is a problem with the CORBA name server");
+      rv = 1;
+    }
+  }
+
+  delete profiles;
+  return rv;
+}
+
+/* Method to dynamically change the parent of the SeD */
+CORBA::Long
+LocalAgentImpl::bindParent(const char * parentName) {
+  long rv = 0;
+  SeqCorbaProfileDesc_t* profiles(NULL);
+  profiles = SrvT->getProfiles();
+
+  /* Check that the parent isn't itself */
+  if (! strcmp(parentName, this->myName)) {
+    WARNING("given parent name is the same as LA name. Won't try to connect");
+    return 1;
+  }
+
+  /* Does the new parent exists? */
+  Agent_var parentTmp =
+    Agent::_duplicate(Agent::_narrow(ORBMgr::getObjReference(ORBMgr::AGENT,
+							     parentName)));
+  if (CORBA::is_nil(parentTmp)) {
+    if (CORBA::is_nil(this->parent)) {
+      WARNING("cannot locate agent " << parentName << ", will now wait");
+    } else {
+      WARNING("cannot locate agent " << parentName << ", won't change current parent");
+    }
+    return 1;
+  }
+
+  /* Do we already have a parent?
+   * If yes, we need to unsubscribe.
+   */
+  if (! CORBA::is_nil(this->parent)) {
+    try {
+      /* Unsubscribe from parent */
+      if (childID != -1)
+	this->parent->childUnsubscribe(childID, *profiles);
+      this->parent = Agent::_nil();
+      childID = -1;
+      
+      /* Unsubscribe data manager */
+      this->dataManager->unsubscribeParent();
+    } catch (CORBA::Exception& e) {
+      CORBA::Any tmp;
+      tmp <<= e;
+      CORBA::TypeCode_var tc = tmp.type();
+      WARNING("exception caught (" << tc->name() << ") while unsubscribing to "
+	      << "parent: either the latter is down, "
+	      << "or there is a problem with the CORBA name server");
+    }
+  }
+
+  /* Now we try to subscribe to a new parent */
+  this->parent = parentTmp;
+    
+  try {
+    if (profiles->length())
+      childID = parent->agentSubscribe(this->_this(), localHostName,
+				       *profiles);
+    TRACE_TEXT(TRACE_ALL_STEPS, "* Bound myself to parent: " << parentName << std::endl);
+
+    /* Data manager also needs to connect to the new parent */
+    this->dataManager->subscribeParent(parentName);
+
+    /* Log */
+    if (dietLogComponent != NULL)
+      dietLogComponent->logNewParent("LA", parentName);
+  } catch (CORBA::Exception& e) {
+    CORBA::Any tmp;
+    tmp <<= e;
+    CORBA::TypeCode_var tc = tmp.type();
+    WARNING("exception caught (" << tc->name() << ") while subscribing to "
+	    << parentName << ": either the latter is down, "
+	    << "or there is a problem with the CORBA name server");
+    rv = 1;
+  }
+
+  delete profiles;
+  return rv;
+}
+
+
+
+CORBA::Long
+LocalAgentImpl::removeElement(bool recursive) {
+  SeqCorbaProfileDesc_t* profiles(NULL);
+  profiles = SrvT->getProfiles();
+
+  /* Do we already have a parent?
+   * If yes, we need to unsubscribe.
+   */
+  if (! CORBA::is_nil(this->parent)) {
+    /* Unsubscribe from parent */
+    if (childID != -1)
+      this->parent->childUnsubscribe(childID, *profiles);
+    this->parent = Agent::_nil();
+    childID = -1;
+
+    /* Unsubscribe data manager */
+    this->dataManager->unsubscribeParent();
+  }
+
+  delete profiles;
+
+  /* Destroy or not the underlying hierarchy and commit suicide */
+  return this->AgentImpl::removeElement(recursive);
+}
+
+#endif // HAVE_DYNAMICS
+
+
 /**
  * Launch this agent (initialization + registration in the hierarchy).
  */
@@ -98,13 +253,21 @@ LocalAgentImpl::run()
   char* parentName = (char*)
     Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
   if (parentName == NULL)
+#ifndef HAVE_DYNAMICS
     return 1;
+#else
+    WARNING("no parent specified, will now wait");
+#endif
 
   this->parent =
     Agent::_duplicate(Agent::_narrow(ORBMgr::getObjReference(ORBMgr::AGENT,
 							     parentName)));
   if (CORBA::is_nil(this->parent)) {
+#ifndef HAVE_DYNAMICS
      ERROR("cannot locate agent " << parentName, 1);
+#else
+    WARNING("cannot locate agent " << parentName << ", will now wait");
+#endif // HAVE_DYNAMICS
   }
 
   TRACE_TEXT(TRACE_MAIN_STEPS,
@@ -132,13 +295,19 @@ LocalAgentImpl::addServices(CORBA::ULong myID,
       return (-1);
     }
     /* Then propagate the complete service table to the parent */
-    tmp = this->SrvT->getProfiles();
-    this->childID = this->parent->agentSubscribe(this->_this(), 
-						 this->localHostName, *tmp);
-    if (this->childID < 0) {
-      return (-1);
+#ifdef HAVE_DYNAMICS
+    if (! CORBA::is_nil(this->parent)) {
+#endif
+      tmp = this->SrvT->getProfiles();
+      this->childID = this->parent->agentSubscribe(this->_this(), 
+						   this->localHostName, *tmp);
+      if (this->childID < 0) {
+	return (-1);
+      }
+      delete tmp;
+#ifdef HAVE_DYNAMICS
     }
-    delete tmp;
+#endif
   } else {
     /* First, propagate asynchronously the new services to parent */
     this->parent->addServices(this->childID, services);
@@ -152,23 +321,49 @@ LocalAgentImpl::addServices(CORBA::ULong myID,
 } // addServices((CORBA::ULong myID, ...)
 
 
+#ifdef HAVE_DYNAMICS
+/**
+ * Unsubscribe a child. Remotely called by a SeD or another LA.
+ */
+CORBA::Long
+LocalAgentImpl::childUnsubscribe(CORBA::ULong childID,
+			     const SeqCorbaProfileDesc_t& services) {
+  if (this->AgentImpl::childUnsubscribe(childID, services) != 0) {
+    return (-1);
+  }
+  if (! CORBA::is_nil(this->parent))
+    for (size_t i = 0; i < services.length(); i++) {
+      if (this->SrvT->lookupService(&(services[i])) == -1)
+	this->parent->childRemoveService(this->childID, services[i]);
+    }
+
+  return 0;
+}
+#endif // HAVE_DYNAMICS
+
+
 #ifdef HAVE_DAGDA
 /**
  * Remove \c services from the service table, and inform upper hierarchy.
  */
 CORBA::Long
-LocalAgentImpl::serverRemoveService(CORBA::ULong childID,
-				    const corba_profile_desc_t& profile)
+LocalAgentImpl::childRemoveService(CORBA::ULong childID,
+				   const corba_profile_desc_t& profile)
 {
   LA_TRACE_FUNCTION(childID);
   
   /* Update local service table first */
-  if (this->AgentImpl::serverRemoveService(childID, profile) != 0) {
+  if (this->AgentImpl::childRemoveService(childID, profile) != 0) {
     return (-1);
   }
   /* Then propagate the complete service table to the parent */
-  return this->parent->serverRemoveService(this->childID, profile);
-} // serverRemoveService(...)
+#ifdef HAVE_DYNAMICS
+  if (! CORBA::is_nil(this->parent))
+#endif
+  if (this->SrvT->lookupService(&profile) == -1)
+    return this->parent->childRemoveService(this->childID, profile);
+  return 0;
+} // childRemoveService(...)
 #endif // HAVE_DAGDA
 
 
@@ -176,6 +371,10 @@ LocalAgentImpl::serverRemoveService(CORBA::ULong childID,
 void
 LocalAgentImpl::getRequest(const corba_request_t& req)
 {
+#ifdef HAVE_DYNAMICS
+  Agent_var parentTmp = this->parent;
+#endif
+
   if (dietLogComponent != NULL) {
     dietLogComponent->logAskForSeD(&req);
   }
@@ -196,7 +395,11 @@ LocalAgentImpl::getRequest(const corba_request_t& req)
   }
 
   /* The agent is an LA, the response must be sent to the parent */
+#ifndef HAVE_DYNAMICS
   this->parent->getResponse(resp);
+#else
+  this->parent->getResponse(resp);
+#endif // HAVE_DYNAMICS
 
   this->reqList[req.reqID] = NULL;
   delete currRequest;
