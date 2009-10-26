@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.46  2009/10/26 09:14:23  bdepardo
+ * Added methods for dynamic hierarchy modifications:
+ * - bindParent(const char * parentName)
+ * - disconnect()
+ * - removeElement()
+ *
  * Revision 1.45  2009/06/23 09:28:27  bisnard
  * new API method for EFT estimation
  *
@@ -268,6 +274,15 @@ public:
 #endif // HAVE_JXTA
   ~SeDImpl();
 
+#ifdef HAVE_DYNAMICS
+  virtual CORBA::Long
+  bindParent(const char * parentName);
+  virtual CORBA::Long
+  disconnect();
+  virtual CORBA::Long
+  removeElement();
+#endif // HAVE_DYNAMICS
+
   int
   run(ServiceTable* services);
 
@@ -383,6 +398,12 @@ private:
 
   /** Reference of the parent */
   Agent_var parent;
+
+#ifdef HAVE_DYNAMICS
+  /** Identity in the CORBA Naming Service */
+  char* myName;
+#endif // HAVE_DYNAMICS
+
   /** ID of this agent amongst the children of its parent */
   ChildID childID;
 

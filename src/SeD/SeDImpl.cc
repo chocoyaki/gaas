@@ -9,6 +9,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.114  2009/10/26 09:14:23  bdepardo
+ * Added methods for dynamic hierarchy modifications:
+ * - bindParent(const char * parentName)
+ * - disconnect()
+ * - removeElement()
+ *
  * Revision 1.113  2009/06/23 09:28:27  bisnard
  * new API method for EFT estimation
  *
@@ -273,6 +279,10 @@ using namespace std;
 #include <unistd.h>   // For gethostname()
 #include <time.h>
 
+#ifdef HAVE_DYNAMICS
+#include <signal.h>
+#endif // HAVE_DYNAMICS
+
 /* CLEAN ME: this was a hilarious pun except that slimfast_api.h is nowhere
    to be found. The Changelog file of package fast-0.8.7 simply mentions:
    - For the LONG CHANGELOG entry of version 0.8.0:
@@ -374,6 +384,148 @@ SeDImpl::~SeDImpl()
   stat_finalize();
 }
 
+
+#ifdef HAVE_DYNAMICS
+/* Method to disconnect from the parent */
+CORBA::Long
+SeDImpl::disconnect() {
+  long rv = 0;
+  SeqCorbaProfileDesc_t* profiles(NULL);
+  profiles = SrvT->getProfiles();
+
+  /* Do we already have a parent?
+   * If yes, we need to unsubscribe.
+   */
+  if (! CORBA::is_nil(this->parent)) {
+    try {
+      /* Unsubscribe from parent */
+      this->parent->childUnsubscribe(childID, *profiles);
+      this->parent = Agent::_nil();
+
+      /* Unsubscribe data manager */
+      this->dataManager->unsubscribeParent();
+
+      /* Log */
+      if (dietLogComponent != NULL)
+      	dietLogComponent->logDisconnect();
+    } catch (CORBA::Exception& e) {
+      CORBA::Any tmp;
+      tmp <<= e;
+      CORBA::TypeCode_var tc = tmp.type();
+      WARNING("exception caught (" << tc->name() << ") while unsubscribing to "
+	      << "parent: either the latter is down, "
+	      << "or there is a problem with the CORBA name server");
+      rv = 1;
+    }
+  }
+
+  delete profiles;
+  return rv;
+}
+
+/* Method to dynamically change the parent of the SeD */
+CORBA::Long
+SeDImpl::bindParent(const char * parentName) {
+  long rv = 0;
+  SeqCorbaProfileDesc_t* profiles(NULL);
+  profiles = SrvT->getProfiles();
+
+  /* Does the new parent exists? */
+  Agent_var parentTmp =
+    Agent::_duplicate(Agent::_narrow(ORBMgr::getObjReference(ORBMgr::AGENT,
+							     parentName)));
+  if (CORBA::is_nil(parentTmp)) {
+    if (CORBA::is_nil(this->parent)) {
+      WARNING("cannot locate agent " << parentName << ", will now wait");
+    } else {
+      WARNING("cannot locate agent " << parentName << ", won't change current parent");
+    }
+    return 1;
+  }
+
+  /* Do we already have a parent?
+   * If yes, we need to unsubscribe.
+   */
+  if (! CORBA::is_nil(this->parent)) {
+    try {
+      /* Unsubscribe from parent */
+      this->parent->childUnsubscribe(childID, *profiles);
+      this->parent = Agent::_nil();
+
+      /* Unsubscribe data manager */
+      this->dataManager->unsubscribeParent();
+    } catch (CORBA::Exception& e) {
+      CORBA::Any tmp;
+      tmp <<= e;
+      CORBA::TypeCode_var tc = tmp.type();
+      WARNING("exception caught (" << tc->name() << ") while unsubscribing to "
+	      << "parent: either the latter is down, "
+	      << "or there is a problem with the CORBA name server");
+    }
+  }
+
+  /* Now we try to subscribe to a new parent */
+  this->parent = parentTmp;
+    
+  try {
+    childID = this->parent->serverSubscribe(this->_this(), localHostName,
+#if HAVE_JXTA
+				      uuid,
+#endif //HAVE_JXTA
+				      *profiles);
+
+    TRACE_TEXT(TRACE_ALL_STEPS, "* Bound myself to parent: " << parentName << std::endl);
+
+    /* Data manager also needs to connect to the new parent */
+    this->dataManager->subscribeParent(parentName);
+
+    /* Log */
+    if (dietLogComponent != NULL)
+      dietLogComponent->logNewParent("SeD", parentName);
+  } catch (CORBA::Exception& e) {
+    CORBA::Any tmp;
+    tmp <<= e;
+    CORBA::TypeCode_var tc = tmp.type();
+    WARNING("exception caught (" << tc->name() << ") while subscribing to "
+	    << parentName << ": either the latter is down, "
+	    << "or there is a problem with the CORBA name server");
+    rv = 1;
+  }
+  if (childID < 0) {
+    WARNING(__FUNCTION__ << ": error subscribing server\n");
+    this->parent = Agent::_nil();
+    rv = 1;
+  }
+
+  delete profiles;
+  return rv;
+}
+
+
+CORBA::Long
+SeDImpl::removeElement() {
+  SeqCorbaProfileDesc_t* profiles(NULL);
+  profiles = SrvT->getProfiles();
+
+  /* Do we already have a parent?
+   * If yes, we need to unsubscribe.
+   */
+  if (! CORBA::is_nil(this->parent)) {
+    /* Unsubscribe from parent */
+    this->parent->childUnsubscribe(childID, *profiles);
+    this->parent = Agent::_nil();
+
+    /* Unsubscribe data manager */
+    this->dataManager->unsubscribeParent();
+  }
+
+  delete profiles;
+  /* Send signal to commit suicide */
+  return raise(SIGINT);
+}
+#endif // HAVE_DYNAMICS
+
+
 int
 SeDImpl::run(ServiceTable* services)
 {
@@ -383,6 +535,27 @@ SeDImpl::run(ServiceTable* services)
     ERROR("could not get hostname", 1);
   }
   localHostName[255] = '\0'; // If truncated, ensure null termination
+
+#ifdef HAVE_DYNAMICS
+  char * name;
+  /* Bind this SeD to its name in the CORBA Naming Service */
+  name = (char*)Parsers::Results::getParamValue(Parsers::Results::NAME);
+  if (name == NULL) {
+    /* Generate a name for this SeD and print it */    
+    name = new char[strlen(localHostName) + 7];
+    sprintf(name, "%ld_%s", random() % 99999, localHostName);
+    this->myName = new char[strlen(name)+1];
+    strcpy(this->myName, name);
+    delete [] name;
+  } else {
+    this->myName = new char[strlen(name)+1];
+    strcpy(this->myName, name);
+  }
+  TRACE_TEXT(TRACE_ALL_STEPS, "* Declared myself as: " << this->myName << std::endl);
+  if (ORBMgr::bindObjToName(_this(), ORBMgr::SED, this->myName)) {
+    ERROR("could not declare myself as " << this->myName, 1);
+  }
+#endif // HAVE_DYNAMICS
 
   this->SrvT = services;
 
@@ -414,16 +587,25 @@ SeDImpl::run(ServiceTable* services)
     TRACE_TEXT(TRACE_MAIN_STEPS,"pathToTmp: " << batch->getTmpPath() << "\n") ;
   }
 #endif
+
   char* parent_name = (char*)
     Parsers::Results::getParamValue(Parsers::Results::PARENTNAME);
   if (parent_name == NULL) {
+#ifndef HAVE_DYNAMICS
     return 1;
+#else
+    WARNING("no parent specified, will now wait");
+#endif // HAVE_DYNAMICS
   }
   parent =
     Agent::_duplicate(Agent::_narrow(ORBMgr::getObjReference(ORBMgr::AGENT,
                                                              parent_name)));
   if (CORBA::is_nil(parent)) {
+#ifndef HAVE_DYNAMICS
     ERROR("cannot locate agent " << parent_name, 1);
+#else
+    WARNING("cannot locate agent " << parent_name << ", will now wait");
+#endif // HAVE_DYNAMICS
   }
 
   profiles = SrvT->getProfiles();
@@ -434,6 +616,9 @@ SeDImpl::run(ServiceTable* services)
     }
   }
 
+#ifdef HAVE_DYNAMICS
+  if (! CORBA::is_nil(parent)) {
+#endif // HAVE_DYNAMICS
   try {
     childID = parent->serverSubscribe(this->_this(), localHostName,
 #if HAVE_JXTA
@@ -451,6 +636,9 @@ SeDImpl::run(ServiceTable* services)
   if (childID < 0) {
     ERROR(__FUNCTION__ << ": error subscribing server\n", 1);
   }
+#ifdef HAVE_DYNAMICS
+  } // end: if (! CORBA::is_nil(parent))
+#endif // HAVE_DYNAMICS
   delete profiles;
 
   unsigned int* endPoint = (unsigned int*)
@@ -546,6 +734,9 @@ SeDImpl::getRequest(const corba_request_t& creq)
 {
   corba_response_t resp;
   char statMsg[128];
+#ifdef HAVE_DYNAMICS
+  Agent_var parentTmp = this->parent;
+#endif // HAVE_DYNAMICS
 
 #ifdef HAVE_ALT_BATCH
   const char * jobSpec ;
@@ -627,7 +818,11 @@ SeDImpl::getRequest(const corba_request_t& creq)
 */
   stat_out("SeD",statMsg);
 
+#ifndef HAVE_DYNAMICS
   parent->getResponse(resp);
+#else
+  parentTmp->getResponse(resp);
+#endif
 }
 
 CORBA::Long
@@ -753,7 +948,7 @@ SeDImpl::solve(const char* path, corba_profile_t& pb)
     this->accessController->waitForResource();
   }
 
-  sprintf(statMsg, "solve %ld", pb.dietReqID);
+  sprintf(statMsg, "solve %ld", (unsigned long) pb.dietReqID);
   stat_in("SeD",statMsg);
 
   if (dietLogComponent != NULL) {
@@ -958,7 +1153,7 @@ SeDImpl::solveAsync(const char* path, const corba_profile_t& pb,
 	  this->accessController->waitForResource();
 	}
 
-	sprintf(statMsg, "solveAsync %ld", pb.dietReqID);
+	sprintf(statMsg, "solveAsync %ld", (unsigned long) pb.dietReqID);
 	stat_in("SeD",statMsg);
 
 	if (dietLogComponent != NULL) {
@@ -1694,6 +1889,9 @@ SeDImpl::removeService(const diet_profile_t* const profile)
   int res = 0;
   corba_profile_desc_t corba_profile;
   diet_profile_desc_t profileDesc;
+#ifdef HAVE_DYNAMICS
+  Agent_var parentTmp = this->parent;
+#endif // HAVE_DYNAMICS
 
   if (profile == NULL) {
     ERROR(__FUNCTION__ << ": NULL profile", -1);
@@ -1730,7 +1928,11 @@ SeDImpl::removeService(const diet_profile_t* const profile)
   if ((res = this->SrvT->rmService(&corba_profile)) != 0)
     return res;
 
-  res = parent->serverRemoveService(this->childID, corba_profile);
+#ifndef HAVE_DYNAMICS
+  res = parent->childRemoveService(this->childID, corba_profile);
+#else
+  res = parentTmp->childRemoveService(this->childID, corba_profile);
+#endif // HAVE_DYNAMICS
 
   return res;
 }
@@ -1741,6 +1943,10 @@ SeDImpl::removeServiceDesc(const diet_profile_desc_t* profile)
 {
   int res = 0;
   corba_profile_desc_t corba_profile;
+#ifdef HAVE_DYNAMICS
+  Agent_var parentTmp = this->parent;
+#endif // HAVE_DYNAMICS
+
 
   if (profile == NULL) {
     ERROR(__FUNCTION__ << ": NULL profile", -1);
@@ -1758,7 +1964,11 @@ SeDImpl::removeServiceDesc(const diet_profile_desc_t* profile)
   if ((res = this->SrvT->rmService(&corba_profile)) != 0)
     return res;
 
-  res = parent->serverRemoveService(this->childID, corba_profile);
+#ifndef HAVE_DYNAMICS
+  res = parent->childRemoveService(this->childID, corba_profile);
+#else
+  res = parentTmp->childRemoveService(this->childID, corba_profile);
+#endif // HAVE_DYNAMICS
 
   return res;
 }
