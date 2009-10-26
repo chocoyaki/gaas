@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2009/10/26 09:04:08  bdepardo
+ * Added 2 methods to dynamically manage the hierarchy:
+ * - long bindParent(in string parentName): change the parent of the LA
+ * - long disconnect(): unsubscribe the LA from its parent
+ *
  * Revision 1.1  2003/04/10 12:31:47  pcombes
  * Replace localAgent.idl. Update doxygen doc.
  *
@@ -26,6 +31,14 @@ interface LocalAgent : Agent {
    * in an internal list and processed as soon as possible.
    */
   oneway void getRequest(in corba_request_t req);
+
+
+#ifdef HAVE_DYNAMICS
+  /** Send an order for the agent to connect to a new parent */
+  long bindParent(in string parentName);
+  /** Send an order for the agent to disconnect from its parent */
+  long disconnect();
+#endif // HAVE_DYNAMICS
 
 };
 
