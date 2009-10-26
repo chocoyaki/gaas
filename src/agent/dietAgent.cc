@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.33  2009/10/26 09:15:54  bdepardo
+ * When using dynamic hierarchy management, catches SIGINT for clean termination.
+ *
  * Revision 1.32  2008/06/01 14:06:56  rbolze
  * replace most ot the cout by adapted function from debug.cc
  * there are some left ...
@@ -397,9 +400,18 @@ main(int argc, char** argv)
     WARNING("Error while exiting the ORBMgr::wait() function");
   }
 
+#ifdef HAVE_DYNAMICS
+  signal(SIGINT, SIG_IGN);
+  Agt->removeElement(false);
+  signal(SIGINT, SIG_DFL);
+#endif // HAVE_DYNAMICS
+
+
   /* shutdown and destroy the ORB
    * Servants will be deactivated and deleted automatically */
   ORBMgr::destroy();
+
+  TRACE_TEXT(TRACE_ALL_STEPS, "Agent has exited" << std::endl);
 
   return 0;
 }
