@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.37  2009/10/26 09:12:14  bdepardo
+ * Added logs for dynamic hierarchy modifications:
+ * - NEW_PARENT
+ * - DISCONNECT
+ *
  * Revision 1.36  2009/06/23 09:28:46  bisnard
  * use new estimation vector entry (EST_EFT)
  *
@@ -263,7 +268,7 @@ DietLogComponent::DietLogComponent(const char* name,
   pingThread=NULL;
 
   // define tags
-  tagCount = 20;
+  tagCount = 22;
   tagFlags = createBoolArrayFalse(tagCount);
   tagNames = new char*[this->tagCount];
   tagNames[0] = strdup("ADD_SERVICE");
@@ -288,6 +293,8 @@ DietLogComponent::DietLogComponent(const char* name,
   tagNames[17] = strdup("FD_OBSERVE");
   tagNames[18] = strdup("MADAG_SCHEDULER");
   tagNames[19] = strdup("DAG");
+  tagNames[20] = strdup("NEW_PARENT");
+  tagNames[21] = strdup("DISCONNECT");
 
 
   CORBA::Object_ptr myLCCptr;
@@ -738,6 +745,34 @@ DietLogComponent::logAddService(const
     log(tagNames[0], serviceDescription->path);
   }
 }
+
+#ifdef HAVE_DYNAMICS
+/**
+ * Change parent
+ */
+void
+DietLogComponent::logNewParent(const char* type, const char* parent) {
+  if (tagFlags[20]) {
+    char * msg = new char[(strlen(type) + strlen(parent) + 2) * sizeof(char)];
+    sprintf(msg, "%s %s", type, parent);
+    log(tagNames[20], msg);
+    delete [] msg;
+  }
+}
+
+/**
+ * Disconnect element
+ */
+void
+DietLogComponent::logDisconnect() {
+  if (tagFlags[21]) {
+    char * str = new char[10];
+    sprintf(str, "L");
+    log(tagNames[21], str);
+    delete [] str;
+  }
+}
+#endif // HAVE_DYNAMICS
 
 /**
  * Find SeD and solve problem

@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2009/10/26 09:12:14  bdepardo
+ * Added logs for dynamic hierarchy modifications:
+ * - NEW_PARENT
+ * - DISCONNECT
+ *
  * Revision 1.18  2008/07/08 09:49:27  rbolze
  * add new function maDagSchedulerType in order to log
  * what is the scheduler of the madag
@@ -270,6 +275,11 @@ public:
    * has to be declared in a single message.
    */
   void logAddService(const corba_profile_desc_t* serviceProfile);
+
+#ifdef HAVE_DYNAMICS
+  void logNewParent(const char* type, const char* parent);
+  void logDisconnect();
+#endif // HAVE_DYNAMICS
 
   /**
    * Request best SeD for problem
