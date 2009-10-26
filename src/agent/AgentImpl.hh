@@ -10,6 +10,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.25  2009/10/26 09:18:57  bdepardo
+ * Added method for dynamic hierarchy management:
+ * - childUnsubscribe(...)
+ * - removeElement(bool recursive)
+ * Renamed serverRemoveService(...) into childRemoveService(...)
+ *
  * Revision 1.24  2008/11/18 10:15:22  bdepardo
  * - Added the possibility to dynamically create and destroy a service
  *   (even if the SeD is already started). An example is available.
@@ -176,6 +182,22 @@ public:
 #endif // HAVE_JXTA
 		  const SeqCorbaProfileDesc_t& services);
 
+#ifdef HAVE_DYNAMICS
+  /** Unsubscribe a child. Remotely called by an SeD. */
+  virtual CORBA::Long
+  childUnsubscribe(CORBA::ULong childID,
+		   const SeqCorbaProfileDesc_t& services);
+
+  /** Sends a request to the agent to commit suicide.
+   * If "recursive" is true, then the agent forwards the request
+   * to its children.
+   */
+  virtual CORBA::Long
+  removeElement(bool recursive);
+#endif // HAVE_DYNAMICS
+
+
+
   /** Add services into the service table, and attach them to child me.*/
   virtual CORBA::Long
   addServices(CORBA::ULong myID, const SeqCorbaProfileDesc_t& services);
@@ -183,7 +205,7 @@ public:
 #ifdef HAVE_DAGDA
   /** Remove services into the service table for a given child */
   virtual CORBA::Long
-  serverRemoveService(CORBA::ULong childID, const corba_profile_desc_t& profile);
+  childRemoveService(CORBA::ULong childID, const corba_profile_desc_t& profile);
 #endif
 
 

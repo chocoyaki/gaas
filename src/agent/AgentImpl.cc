@@ -5,6 +5,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.58  2009/10/26 09:18:57  bdepardo
+ * Added method for dynamic hierarchy management:
+ * - childUnsubscribe(...)
+ * - removeElement(bool recursive)
+ * Renamed serverRemoveService(...) into childRemoveService(...)
+ *
  * Revision 1.57  2009/04/03 13:46:04  bisnard
  * bug correction (missing _duplicate() for Dagda agent ref)
  *
@@ -191,6 +197,10 @@ using namespace std;
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>  // For gethostname()
+
+#ifdef HAVE_DYNAMICS
+#include <signal.h>
+#endif // HAVE_DYNAMICS
 
 #include "common_types.hh"
 #include "debug.hh"
@@ -397,6 +407,83 @@ AgentImpl::serverSubscribe(SeD_ptr me, const char* hostName,
 } // serverSubscribe(SeD_ptr me, const char* hostName, ...)
 
 
+#ifdef HAVE_DYNAMICS
+/**
+ * Unsubscribe a child. Remotely called by a SeD or an LA.
+ */
+CORBA::Long
+AgentImpl::childUnsubscribe(CORBA::ULong childID,
+			    const SeqCorbaProfileDesc_t& services) {
+  bool childFound = false;
+  TRACE_TEXT(TRACE_ALL_STEPS, "Unsubscription request from child " << childID << endl);
+  this->srvTMutex.lock();
+  for (size_t i = 0; i < services.length(); i++) {
+    this->SrvT->rmChildService(&(services[i]), childID);
+    
+    if (TRACE_LEVEL >= TRACE_STRUCTURES)
+      this->SrvT->dump(stdout);
+  }
+  this->srvTMutex.unlock();
+
+  /* Is the child an agent ? */
+  if (childID < static_cast<CORBA::ULong>(LAChildren.size())) {
+    LAChild& childDesc = LAChildren[childID];
+    if (childDesc.defined()) {
+      LAChildren[childID] = LAChild();
+      --nbLAChildren;    
+      childFound = true;
+    }
+  } else if(!childFound && childID < static_cast<CORBA::ULong>(SeDChildren.size())){
+    /* Then it must be a server */
+    SeDChild& childDesc = SeDChildren[childID];
+    if (childDesc.defined()) {
+      SeDChildren[childID] = SeDChild();
+      --nbSeDChildren;
+    }
+  }
+  return 0;
+}
+
+CORBA::Long
+AgentImpl::removeElement(bool recursive) {
+  /* Do we need to recursively destroy the underlying hierarchy? */
+  if (recursive) {
+    unsigned long childID;
+    /* Forward to LAs */
+    for (childID = 0; childID < LAChildren.size(); ++ childID) {
+      LAChild& childDesc = LAChildren[childID];
+      if (childDesc.defined()) {
+	try {
+	  childDesc->removeElement(recursive);
+	} catch (CORBA::COMM_FAILURE& ex) {
+	  WARNING("COMM_FAILURE when contacting LAChild " << childID);
+	} catch (CORBA::TRANSIENT& e) {
+	  WARNING("TRANSIENT when contacting LAChild " << childID);
+	}
+      }
+    }
+
+    /* Forward to SeDs */
+    for (childID = 0; childID < SeDChildren.size(); ++ childID) {
+      SeDChild& childDesc = SeDChildren[childID];
+      if (childDesc.defined()) {
+	try {
+	  childDesc->removeElement();
+	} catch (CORBA::COMM_FAILURE& ex) {
+	  WARNING("COMM_FAILURE when contacting SeDChild " << childID);
+	} catch (CORBA::TRANSIENT& e) {
+	  WARNING("TRANSIENT when contacting SeDChild " << childID);
+	}
+      }
+    }    
+  }
+
+  /* Send signal to commit suicide */
+  return raise(SIGINT);
+}
+#endif // HAVE_DYNAMICS
+
+
 /**
  * Add \c services into the service table, and attach them to child \c me.
  */
@@ -449,7 +536,7 @@ AgentImpl::addServices(CORBA::ULong myID,
 
 #ifdef HAVE_DAGDA
 CORBA::Long
-AgentImpl::serverRemoveService(CORBA::ULong childID, const corba_profile_desc_t& profile)
+AgentImpl::childRemoveService(CORBA::ULong childID, const corba_profile_desc_t& profile)
 {
   int result;
 
