@@ -41,6 +41,12 @@ IF( DIET_BUILD_LIBRARIES )
 	 SeD.hh
      )
   ENDIF( DIET_USE_USERSCHED )
+
+  IF( DIET_USE_DYNAMICS )
+     SET( DIET_IDL_FLAGS "${DIET_IDL_FLAGS} -DHAVE_DYNAMICS" )
+  ENDIF( DIET_USE_DYNAMICS )
+    
+
 # ------------------------------------------------------------
 
   SEPARATE_ARGUMENTS( DIET_IDL_FLAGS )
