@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.83  2009/10/26 09:13:43  bdepardo
+ * When using dynamic hierarchy, catches SIGINT for clean termination.
+ *
  * Revision 1.82  2009/06/23 09:28:27  bisnard
  * new API method for EFT estimation
  *
@@ -960,9 +963,17 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
   /* Wait for RPCs : */
   ORBMgr::wait();
 
+#ifdef HAVE_DYNAMICS
+  signal(SIGINT, SIG_IGN);
+  SeD->removeElement();
+  signal(SIGINT, SIG_DFL);
+#endif // HAVE_DYNAMICS
+
   /* shutdown and destroy the ORB
    * Servants will be deactivated and deleted automatically */
   ORBMgr::destroy();
+
+  TRACE_TEXT(TRACE_ALL_STEPS, "SeD has exited" << std::endl);
 
   return 0;
 }
