@@ -1,0 +1,267 @@
+\chapter{Dynamic management}
+\label{ch:dynamic}
+
+\section{Dynamically modifying the hierarchy}
+
+\subsection{Motivations}
+
+So far we saw that \diet's hierarchy was mainly static: once the shape
+of the hierarchy chosen, and the hierarchy deployed, the only thing
+you can do is kill part of the hierarchy, or add new subtrees to the
+already hierarchy. But whenever an agent is killed, the whole
+underlying hierarchy is lost. This has several drawbacks: some \sed
+will become unavailable, and if you want to reuse the machines on
+which those \sed (or agents) are, you need to kill the existing \diet
+element, and redeploy a new subtree. Another problem due to this
+static asignement of the parent/children links is that if you have an
+agent that is overloaded, you cannot move part of its children to an
+underloaded agent somewhere else in the hierarchy without once again
+killing part of the hierarchy, and deploying once again.
+
+
+\subsection{``And thus it began to evolve''}
+
+Hence, \diet also has a mode in which you can dynamically modify its
+shape using CORBA calls. For this, you need to compile \diet with the
+option \texttt{DIET\_USE\_DYNAMICS}. In this mode, if a \diet element
+cannot reach its parent, when initializing, it won't exit, but will
+wait for an order to connect itself to a new parent. Hence, you do not
+need to deploy \diet starting from the MA down to the \sed, you can
+launch all the elements at once, and then, send the orders for each
+element to connect to its correct parent (you do not even need to
+follow the shape of the tree, you can start from the bottom to the
+tree up to the root, or use a random order, the service tables will be
+correctly initialized.)
+
+You now have access to the
+following CORBA methods:
+\begin{itemize}
+\item \verb|long bindParent(in string parentName)|: sends an order to
+  a \sed or agent to bind to a new parent having the name
+  ``\verb|parentName|'' if this parent can be contacted, otherwise the
+  element keeps its old parent. If the element already has a parent,
+  it unsubscribes itself from the parent, so that this latter is able
+  to update its service table and list of children. A null value is
+  returned if the change occured, otherwise a value different from 0
+  is returned if a problem occured.
+
+\item \verb|long disconnect()|: sends an order to disconnect an
+  element from its parent. This does not kill the element, but merely
+  removes the link between the element and its parent. Thus, the
+  underlying hierarchy will be unreachable until the element is
+  connected to a new parent.
+
+\item \verb|long removeElement()|: sends an order to a \sed to kill
+  itself. The \sed first unsubscribe from its parent before ending
+  itself properly.
+
+\item \verb|long removeElement(in boolean recursive)|: same as above
+  but for agents. The parameter ``\verb|recursive|'' if true also
+  destroys the underlying hierarchy, otherwise only the agent is
+  killed.
+\end{itemize}
+
+Now, what happens if during a request submission an element receives
+an order to change its parent? Actually, nothing will change, as
+whenever a request is received a reference to the parent from which
+the request originates is locally kept. So if the parent changes
+before the request is sent back to the parent, as we keep a local
+reference on the parent, the request will be sent back to the correct
+``parent''. Hence, for a short period of time, an element can have
+multiple parents.
+
+\textbf{WARNING: currently no control is done on whether or not you
+  are creating loops in the hierarchy when changing a parent.}
+
+\subsection{Example}
+
+Two examples on how to call those CORBA methods are present in\newline
+\texttt{src/examples/dynamic\_hierarchy}:
+\begin{itemize}
+\item \texttt{connect.cc} sends orders to change the parent of an element.\newline
+%
+    \texttt{Usage: ./connect <SED|LA> <element name> <parent name>}.
+
+\item \texttt{disconnect.cc} sends orders to disconnect an element
+  from its parent. It does not kill the element, but only disconnects
+  it from the \diet hierarchy (useful when your platform is not
+  heavily loaded and you want to use only part of the
+  hierarchy)\newline
+%
+  \texttt{Usage: ./disconnect <SED|LA> <element name>}.
+
+\item \texttt{remove.cc} sends orders to remove an element.\newline
+%
+    \texttt{Usage: ./remove <SED|AGENT> <element name> [recursive: 0|1]}
+\end{itemize}
+
+
+\section{Changing offered services}
+
+\subsection{Presentation}
+A \sed does not necessarily need to declare all its services
+initially, \ie as presented in Chapter~\ref{ch:server} before
+launching the \sed via \verb|diet_SeD(...)|. One could want to
+initially declare a given set of services, and then, depending on
+parameters, or external events, one could want to modify this set of
+services. An example of such usage is to spawn a service that is in
+charge of cleaning temporary files when they won't be needed nor by
+this \sed, nor by any other \sed or clients, and when this service is
+called, it cleans whatever needs to be cleaned, and then this service
+is removed from the service table.
+
+Adding a service has already been introduced in
+Chapter~\ref{ch:server}: using \verb|diet_service_table_add(...)| you
+can easily add a new service (be it before running the \sed or within
+a service). Well, removing a service is as easy, you only need to call
+one of these methods:
+{\footnotesize
+\begin{verbatim}
+int diet_service_table_remove(const diet_profile_t* const profile);
+int diet_service_table_remove_desc(const diet_profile_desc_t* const profile);
+\end{verbatim}
+}
+
+So basically, when you want to remove the service that is called, you
+only need to pass the \verb|diet_profile_t| you receive in the solve
+function to \verb|diet_service_table_remove|. If you want to remove
+another service, you need to build its profile description (just as if
+you wanted to create a new service), and pass it to
+\verb|diet_service_table_remove_desc|.
+
+
+\subsection{Example}
+
+The following example (present in \texttt{src/examples/dyn\_add\_rem})
+initially declares one service. This service receives an integer $n$
+as parameter. It creates $n$ services, and removes the service that
+has just been called. Hence a service can only be called once, but it
+spawns $n$ new services.
+
+{\footnotesize
+\begin{verbatim}
+#include <iostream>
+#include <sstream>
+#include <cstring>
+
+#include "DIET_server.h"
+#include "DIET_Dagda.h"
+
+/* begin function prototypes*/
+int service(diet_profile_t *pb);
+int add_service(const char* service_name);
+/* end function prototypes*/
+
+static unsigned int NB = 1;
+
+template <typename T>
+std::string toString( T t ) {
+    std::ostringstream oss;
+    oss << t;
+    return oss.str();
+}
+
+/* Solve Function */
+int
+service(diet_profile_t* pb) {
+  int *nb;
+
+  if (pb->pb_name)
+    std::cout << "## Executing " << pb->pb_name << std::endl;
+  else {
+    std::cout << "## ERROR: No name for the service" << std::endl;
+    return -1;
+  }
+
+  diet_scalar_get(diet_parameter(pb,0), &nb, NULL);
+  std::cout << "## Will create " << *nb << " services." << std::endl;
+
+  for (int i = 0; i < *nb; i++) {
+    add_service(std::string("dyn_add_rem_" + toString(NB++)).c_str());
+  }
+
+  std::cout << "## Services added" << std::endl;
+  diet_print_service_table();
+
+  /* Removing */
+  std::cout << "## Removing service " << pb->pb_name << std::endl;
+#ifdef HAVE_ALT_BATCH
+  pb->parallel_flag = 1;
+#endif
+  diet_service_table_remove(pb);
+  std::cout << "## Service removed" << std::endl;
+
+  /* Print service table */
+  diet_print_service_table();
+
+  return 0;
+}
+
+/* usage function */
+int
+usage(char* cmd) {
+  std::cerr << "Usage: " << cmd << " <SeD.cfg>" << std::endl;
+  return -1;
+}
+
+/* add_service function: declares SeD's service */
+int
+add_service(const char* service_name) {
+  diet_profile_desc_t* profile = NULL;
+  unsigned int pos = 0;
+
+  /* Set profile parameters: */
+  profile = diet_profile_desc_alloc(strdup(service_name),0,0,0);
+
+  diet_generic_desc_set(diet_param_desc(profile,pos++),DIET_SCALAR, DIET_INT);
+
+  /* Add service to the service table */
+  if (diet_service_table_add(profile, NULL, service )) return 1;
+
+  /* Free the profile, since it was deep copied */
+  diet_profile_desc_free(profile);
+
+  std::cout << "Service '" << service_name << "' added!" << std::endl;
+
+  return 0;
+}
+
+int checkUsage(int argc, char ** argv) {
+  if (argc != 2) {
+    usage(argv[0]);
+    exit(1);
+  }
+  return 0;
+}
+
+/* MAIN */
+int
+main( int argc, char* argv[]) {
+  int res;
+  std::string service_name = "dyn_add_rem_0";
+
+  checkUsage(argc, argv);
+
+  /* Add service */
+  diet_service_table_init(1);
+  add_service(service_name.c_str());
+
+  /* Print service table and launch daemon */
+  diet_print_service_table();
+  res = diet_SeD(argv[1],argc,argv);
+  return res;
+}
+\end{verbatim}
+}
+
+
+\subsection{Going further}
+
+Finally, another example is provided in
+\texttt{src/examples/dynamicServiceMgr} showing how to dynamically
+load and unload libraries containing services. Hence, a client can
+send a library to as server, and for as long as the library is
+compiled for the right architecture, the server will be able to load
+it, and instanciate the service present in the library. The service
+can further be called by other clients, and whenever it is not
+required anymore, it can be easily removed.
