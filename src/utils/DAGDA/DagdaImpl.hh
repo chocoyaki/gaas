@@ -8,6 +8,11 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.27  2009/10/26 09:11:26  bdepardo
+ * Added method for dynamically managing the hierarchy:
+ * - void subscribeParent(const char * parentID)
+ * - void unsubscribeParent()
+ *
  * Revision 1.26  2009/04/17 08:50:49  bisnard
  * added handling of container empty elements
  *
@@ -77,6 +82,19 @@ public:
    * @param me the child data mgr ref
    */
   virtual void unsubscribe(Dagda_ptr me) = 0;
+
+#ifdef HAVE_DYNAMICS
+  /**
+   * subscribe to a new parent
+   * @param parentID ID of the new parent
+   */
+  virtual  void subscribeParent(const char * parentID) = 0;
+
+  /**
+   * unsubscribe from current parent
+   */
+  virtual  void unsubscribeParent() = 0;
+#endif // HAVE_DYNAMICS
 
   /**
    * Check if data is stored on the Data Mgr (local, subtree or platform)
@@ -333,6 +351,12 @@ public:
 
   virtual void subscribe(Dagda_ptr me);
   virtual void unsubscribe(Dagda_ptr me);
+
+#ifdef HAVE_DYNAMICS
+  virtual  void subscribeParent(const char * parentID);
+  virtual  void unsubscribeParent();
+#endif // HAVE_DYNAMICS
+
 
   virtual CORBA::Boolean lclIsDataPresent(const char* dataID);
   virtual CORBA::Boolean lvlIsDataPresent(const char* dataID);

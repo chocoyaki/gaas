@@ -8,6 +8,11 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.33  2009/10/26 09:11:26  bdepardo
+ * Added method for dynamically managing the hierarchy:
+ * - void subscribeParent(const char * parentID)
+ * - void unsubscribeParent()
+ *
  * Revision 1.32  2009/10/02 07:42:42  bisnard
  * reduced trace verbosity for containers
  *
@@ -340,6 +345,44 @@ void DagdaImpl::setDataStatus(const char* dataID, Dagda::dataStatus status) {
   dataStatusMutex.unlock();
 }
 
+#ifdef HAVE_DYNAMICS
+void SimpleDagdaImpl::subscribeParent(const char * parentID) {
+  if (parentID!=NULL) {
+    string dagdaParentID = parentID;
+    dagdaParentID += "_DAGDA";
+    parentID = CORBA::string_dup(dagdaParentID.c_str());
+    
+    Dagda_ptr parent = 
+      Dagda::_duplicate(Dagda::_narrow(ORBMgr::getObjReference(ORBMgr::DATAMGR, parentID)));
+    
+    /* We only change the parent if it exists */
+    if (!CORBA::is_nil(parent)) {
+      setParent(parent);
+    }
+  }
+
+  if (getParent() != NULL) {
+    try {
+      getParent()->subscribe(_this());
+    } catch (CORBA::Exception& e) {
+      WARNING("Exception caught while subscribing to parent");
+    }
+    TRACE_TEXT(TRACE_ALL_STEPS, "*** Subscribed to parent: "<< parentID << endl);
+  }
+}
+
+void SimpleDagdaImpl::unsubscribeParent() {
+  if (this->getParent() != NULL)
+    try {
+      getParent()->unsubscribe(_this());
+    } catch (CORBA::Exception& e) {
+      WARNING("Exception caught while unsubscribing to parent");
+    }
+  TRACE_TEXT(TRACE_ALL_STEPS, "*** Unsubscribed from parent" << endl);
+}
+#endif // HAVE_DYNAMICS
+
+
 /* CORBA */
 void SimpleDagdaImpl::subscribe(Dagda_ptr me) {
   string name(me->getID());
@@ -381,8 +424,13 @@ int SimpleDagdaImpl::init(const char* ID, const char* parentID,
   else {
 	parentID = CORBA::string_dup(parentID);
 
-    setParent(Dagda::_duplicate(Dagda::_narrow(
-		ORBMgr::getObjReference(ORBMgr::DATAMGR, parentID))));
+	Dagda_ptr parent = Dagda::_duplicate(Dagda::_narrow(
+		            ORBMgr::getObjReference(ORBMgr::DATAMGR, parentID)));
+
+	if (CORBA::is_nil(parent))
+	  setParent(NULL);
+	else
+	  setParent(parent);
   }
 
   TRACE_TEXT(TRACE_MAIN_STEPS,
@@ -936,10 +984,12 @@ void SimpleDagdaImpl::remData(const char* dataID) {
 	  unlink(it->second.desc.specific.file().path);
 	  freeDiskSpace(it->second.desc.specific.file().size);
     } else {
-      if (status!=Dagda::notOwner)
+      if (status!=Dagda::notOwner) {
 	 freeMemSpace(it->second.value.length());
-      if (it->second.desc.specific._d()==DIET_CONTAINER)
+      }
+      if (it->second.desc.specific._d()==DIET_CONTAINER) {
         getContainerRelationMgr()->remAllRelation(dataID);
+      }
       getData()->erase(it);
     }
   }
