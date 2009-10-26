@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2009/10/26 07:25:36  bdepardo
+ * Changed default behavior: now a DIET element will wait on a SIGINT signal.
+ * This allows a clean termination.
+ *
  * Revision 1.17  2009/06/23 09:15:32  bisnard
  * bug correction (enum mismatch for CORBA contexts)
  *
@@ -59,7 +63,7 @@
 #include <omniORB4/CORBA.h>
 #include <setjmp.h>
 
-#define INTERRUPTION_MGR 0
+#define INTERRUPTION_MGR 1
 
 /**
  * This class unifies the interface to all ORBs supported by DIET.
@@ -135,7 +139,7 @@ private:
   getRootContext();
 
 #if INTERRUPTION_MGR
-  static sigjmp_buf buff_int;
+  static omni_mutex waitLock;
   static void
   SigIntHandler(int sig);
 #endif // INTERRUPTION_MGR

@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2009/10/26 07:25:36  bdepardo
+ * Changed default behavior: now a DIET element will wait on a SIGINT signal.
+ * This allows a clean termination.
+ *
  * Revision 1.20  2008/04/14 09:10:38  bisnard
  *  - Workflow rescheduling (CltReoMan) no longer used with MaDag v2
  *  - AbstractWfSched and derived classes no longer used with MaDag v2
@@ -82,7 +86,7 @@ const char* ORBMgr::CONTEXTS[] =
   };
 
 #if INTERRUPTION_MGR
-sigjmp_buf ORBMgr::buff_int;
+omni_mutex ORBMgr::waitLock;
 #endif
 
 int
@@ -168,18 +172,13 @@ int
 ORBMgr::wait()
 {
   signal(SIGINT, ORBMgr::SigIntHandler);
-  if (! sigsetjmp(buff_int, 1)) {
-    try {
-      char c;
-      // This loop replaces ORB->run()
-      // it might not be the official way but it works very well
-      printf("Press CRTL-D to exit\n");
-      while(cin.get(c)) {
-        if (c==10) printf("Press CRTL-D to exit\n");
-      }
-    } catch (...) {
-      ERROR("exception caught in ORBMgr::" << __FUNCTION__, true);
-    }
+  try {
+    std::cout << "Press CTRL+C to exit" << std::endl;
+    waitLock.lock();
+    waitLock.lock();
+    waitLock.unlock();
+  } catch (...) {
+    ERROR("exception caught in ORBMgr::" << __FUNCTION__, true);
   }
   return 0;
 }
@@ -407,7 +406,7 @@ ORBMgr::SigIntHandler(int sig)
 {
   /* Prevent from raising a new SIGINT handler */
   signal(SIGINT, SIG_IGN);
-  siglongjmp(buff_int, 1);
+  waitLock.unlock();
 }
 #endif // INTERRUPTION_MGR
 
