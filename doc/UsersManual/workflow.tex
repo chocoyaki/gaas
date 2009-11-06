@@ -10,6 +10,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.12  2009/11/06 13:07:37  bisnard
+%* small corrections
+%*
 %* Revision 1.11  2009/10/23 13:55:23  bisnard
 %* Added functional workflow language
 %*
@@ -44,7 +47,7 @@ section \ref{sec:dag_desc}.
 Because of large amounts of computations and data involved in some workflow
 applications, the number of tasks in a DAG can grow very fast. The need for a
 more abstract way of representing a workflow that separates the data instances from
-the data flow has led to the definition a "functional workflow language" called the
+the data flow has led to the definition of a "functional workflow language" called the
 \textit{Gwendia language}. A complex application can be defined using this language that
 provides data operators and control structures (if/then/else, loops, ...). To
 execute the application one need to provide both the workflow description (see
@@ -89,7 +92,8 @@ This is an example of generating command line:
 Workflow support was tested in the following configurations:
 
 \begin{itemize}
-\item gcc version 4.0.2 and higher.
+\item gcc version 4.0.2 and higher
+\item \textit{omniORB} version 4.1.0 and higher
 \item \textit{Xerces} 3.0.1
 \item \textit{XQilla} 2.2.0
 \end{itemize}
@@ -101,11 +105,14 @@ Workflow support was tested in the following configurations:
 The directory \texttt{examples/workflow} includes some examples of
 workflows.  You can find a simple DAG workflow (see
 Figure~\ref{fig:example1}) in the file \texttt{xml/scalar.xml} and you
-can test it with the following command:
+can test it with the following command, where local_client.cfg is the
+DIET configuration file (example provided in the \texttt{etc/client_wf.cfg}
+file).
 
 \verb|./generic_client local_client.cfg -dag scalar.xml |
 
-You need to have a running \diet platform with the needed services. You
+You need to have a running \diet platform with the MaDag agent and
+the needed services. You
 can launch a single \sed (\texttt{scalar\_server}) that includes all the
 needed services. (read Chapter~\ref{ch:server} for more details).
 
