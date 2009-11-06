@@ -8,6 +8,9 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.24  2009/11/06 14:44:47  bisnard
+ * removed debug message
+ *
  * Revision 1.23  2009/05/15 11:00:05  bisnard
  * bug correction for container empty elements
  *
@@ -111,13 +114,7 @@ void dagda_mrsh_profile(corba_profile_t* corba_profile, diet_profile_t* profile,
     if (profile->parameters[i].desc.id != NULL) {
       if (strlen(profile->parameters[i].desc.id)!=0) {
         // The data is stored on the platform. Get its description.
-        try {
-          data.desc = *MA->get_data_arg(profile->parameters[i].desc.id);
-        } catch (CORBA::SystemException& e) {
-          cerr << "call to MA::get_data_arg() Caught a CORBA " << e._name() << " exception ("
-           << e.NP_minorString() << ")" << endl ;
-          throw;
-        }
+        data.desc = *MA->get_data_arg(profile->parameters[i].desc.id);
         haveID = true;
       }
     }
