@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.38  2009/11/06 13:06:37  bisnard
+ * replaced 'list' tag by 'array' tag in data files
+ *
  * Revision 1.37  2009/10/23 13:59:25  bisnard
  * replaced \n by std::endl
  *
@@ -1320,7 +1323,8 @@ DataSourceHandler::startElement(const   XMLCh* const    uri,
   char* eltName = XTOC(qname);
 
   if (strcmp("source",eltName) == 0) startSource(attrs);
-  if (strcmp("list",eltName) == 0)   startList(attrs);
+  if (strcmp("array",eltName) == 0)  startList(attrs);
+  if (strcmp("list",eltName) == 0)   startList(attrs);  // obsolete
   if (strcmp("item",eltName) == 0)   startItem(attrs);
   if (strcmp("tag",eltName) == 0)    startTag(attrs);
 
@@ -1334,7 +1338,8 @@ DataSourceHandler::endElement(const   XMLCh* const    uri,
   char* eltName = XTOC(qname);
 
   if (strcmp("source",eltName) == 0) endSource();
-  if (strcmp("list",eltName) == 0)   endList();
+  if (strcmp("array",eltName) == 0)  endList();
+  if (strcmp("list",eltName) == 0)   endList(); // obsolete
   if (strcmp("item",eltName) == 0)   endItem();
   if (strcmp("tag",eltName) == 0)    endTag();
 
@@ -1372,7 +1377,7 @@ DataSourceHandler::startList(const   Attributes&     attrs) {
 
     // only one <list> element (root tag) is possible
     if (isListFound && myCurrTag && myCurrTag->isEmpty()) {
-      string errorMsg = "Error in data source XML file (source must contain one list element)";
+      string errorMsg = "Error in data source XML file (source must contain one array element)";
       throw XMLParsingException(XMLParsingException::eBAD_STRUCT, errorMsg);
     }
 

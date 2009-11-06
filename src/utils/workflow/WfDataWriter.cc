@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2009/11/06 13:06:37  bisnard
+ * replaced 'list' tag by 'array' tag in data files
+ *
  * Revision 1.3  2009/08/26 10:32:11  bisnard
  * corrected  warnings
  *
@@ -80,22 +83,22 @@ WfXMLDataWriter::WfXMLDataWriter(ostream& output)
 
 void
 WfXMLDataWriter::startContainer() {
-  myOutput << "<list>" << endl;
+  myOutput << "<array>" << endl;
 }
 
 void
 WfXMLDataWriter::startContainer(const string& dataID) {
-  myOutput << "<list dataId=\"" << dataID << "\">" << endl;
+  myOutput << "<array dataId=\"" << dataID << "\">" << endl;
 }
 
 void
 WfXMLDataWriter::endContainer() {
-  myOutput << "</list>" << endl;
+  myOutput << "</array>" << endl;
 }
 
 void
 WfXMLDataWriter::itemValue(const string& valueStr) {
-  // FIXME tag should not be added if no list was open previously
+  // FIXME tag should not be added if no array was open previously
   myOutput << "<item>";
   rawValue(valueStr);
   myOutput << "</item>" << endl;
