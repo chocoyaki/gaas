@@ -8,6 +8,10 @@
 /***********************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.34  2009/11/06 14:42:44  bisnard
+ * modified filename generator to avoid loosing the file extension
+ * during transfers and to suppress double slash in pathes
+ *
  * Revision 1.33  2009/10/26 09:11:26  bdepardo
  * Added method for dynamically managing the hierarchy:
  * - void subscribeParent(const char * parentID)
@@ -142,7 +146,13 @@ char* DagdaImpl::writeFile(const SeqChar& data, const char* basename,
 string gen_filename(string basename) {
   unsigned long int idx = basename.find_last_of('/');
   if (idx!=string::npos)
-    basename=basename.substr(idx);
+    basename=basename.substr(idx+1);
+  unsigned long int dot = basename.find_last_of('.');
+  string suffix;
+  if (dot!=string::npos) {
+    suffix=basename.substr(dot);
+    basename=basename.substr(0, dot);
+  }
   ostringstream name;
 #if HAVE_ADVANCED_UUID
   uuid_t uuid;
@@ -151,9 +161,9 @@ string gen_filename(string basename) {
   uuid_generate(uuid);
   uuid_unparse(uuid, ID);
 
-  name << basename << "-" << ID;
+  name << basename << "-" << ID << suffix;
 #else
-  name << basename << "." << getpid();
+  name << basename << "." << getpid() << suffix;
 #endif
   return name.str();
 }
@@ -161,7 +171,7 @@ string gen_filename(string basename) {
 string conditional_filename(string basename) {
   unsigned long int idx = basename.find_last_of('/');
   if (idx!=string::npos)
-    basename=basename.substr(idx);
+    basename=basename.substr(idx+1);
 
   if (fnmatch("*-????????""-????""-????""-????????????*",
               basename.c_str(), FNM_CASEFOLD)==0) {
