@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.69  2009/11/19 14:45:00  ycaniou
+ * Walltime in profile is in seconds
+ * Renamed Global var
+ * Management of time HH:MM:SS in batch scripts
+ *
  * Revision 1.68  2009/08/26 10:34:27  bisnard
  * added new API methods for workflows (data in/out, transcript)
  *
@@ -355,7 +360,7 @@ typedef struct {
   unsigned short int parallel_flag ;
   int nbprocs ;
   int nbprocess ;
-  unsigned long walltime ; /* in minutes */
+  unsigned long walltime ; /* in seconds */
   /* Used for correspondance batch job ID / DIET job ID */
 #endif
 } diet_profile_t;

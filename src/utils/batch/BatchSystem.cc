@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2009/11/19 14:45:01  ycaniou
+ * Walltime in profile is in seconds
+ * Renamed Global var
+ * Management of time HH:MM:SS in batch scripts
+ *
  * Revision 1.6  2008/08/19 02:07:43  bdepardo
  * Removed the whitespaces between the options and their value
  *
@@ -173,7 +178,7 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
 {
   int nbread ;
   char * script = NULL ;
-  char small_chaine[50] ; // This must be gt NBDIGITS_MAX_BATCH_ID
+  char small_chaine[NBDIGITS_MAX_BATCH_JOB_ID+1] ;
   char * chaine ; 
   char * options ;
   int file_descriptor ;
@@ -196,18 +201,25 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
 	  "Service not launched\n\n", -1);
   }
   
+  /* Convert the walltime in hh:mm:ss, standard for every batch */
+  /* TODO: should be checked if possible, and even possible, with Cori! */
+  sprintf(small_chaine,"%02d:%02d:%02d",
+	  (int)(profile->walltime/3600),
+	  (int)(profile->walltime%3600)/60,
+	  (int)(profile->walltime%3600)%60) ;
+  
   if( profile->parallel_flag == 1 )
     sprintf(options,
 	    "%s\n"
-	    "%s%ld\n",
+	    "%s%s\n",
 	    this->serial,
-	    this->walltime, profile->walltime) ;
+	    this->walltime, small_chaine) ;
   else
     sprintf(options,
 	    "%s%d\n"
-	    "%s%ld\n",
+	    "%s%s\n",
 	    this->nodesNumber, profile->nbprocs,
-	    this->walltime, profile->walltime) ;
+	    this->walltime, small_chaine) ;
   sprintf(options+strlen(options),
 	  "%s%s\n",
 	  submittingQueue, batchQueueName) ;
@@ -219,11 +231,11 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
   //	    "%s bash\n",
   //	    shell ) ;
 
-  if( setSTDERR != emptyString ) /* FIXME: only for ldl.. */
+  if( setSTDERR != emptyString ) /* FIXME: only for LL.. */
     sprintf(options+strlen(options),
 	    "%s$(job_name).err\n",
 	    setSTDERR ) ;
-  if( setSTDOUT != emptyString ) /* FIXME: only for ldl.. */
+  if( setSTDOUT != emptyString ) /* FIXME: only for LL.. */
     sprintf(options+strlen(options),
 	    "%s$(job_name).out\n",
 	    setSTDOUT ) ;
@@ -341,9 +353,9 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
     ERROR("Cannot open batch I/O redirection file",-1) ;
   }
   /* Get batch Job ID */  
-  for( int i = 0 ; i<=NBDIGITS_MAX_BATCH_ID ; i++ )
+  for( int i = 0 ; i<=NBDIGITS_MAX_BATCH_JOB_ID ; i++ )
     small_chaine[i] = '\0' ;
-  if( (nbread=readn(file_descriptor_2,small_chaine,NBDIGITS_MAX_BATCH_ID))
+  if( (nbread=readn(file_descriptor_2,small_chaine,NBDIGITS_MAX_BATCH_JOB_ID))
       == 0 ) {
     ERROR("Error during submission or with I/O file."
 	  " Cannot read the batch ID", -1) ;

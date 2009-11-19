@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2009/11/19 14:45:01  ycaniou
+ * Walltime in profile is in seconds
+ * Renamed Global var
+ * Management of time HH:MM:SS in batch scripts
+ *
  * Revision 1.6  2008/05/11 16:19:51  ycaniou
  * Check that pathToTmp and pathToNFS exist
  * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
@@ -54,7 +59,7 @@
 
 
 #define NBDIGITS_MAX_RESOURCES 4 // #char to code the # of computing resources
-#define NBDIGITS_MAX_BATCH_ID 10 // #char to code the job ID
+#define NBDIGITS_MAX_BATCH_JOB_ID 10 // #char to code the job ID, at least 8!
 #define NBDIGITS_MAX_JOB_STATUS 15
 
 //#define YC_DEBUG

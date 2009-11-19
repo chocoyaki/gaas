@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2009/11/19 14:45:01  ycaniou
+ * Walltime in profile is in seconds
+ * Renamed Global var
+ * Management of time HH:MM:SS in batch scripts
+ *
  * Revision 1.3  2008/05/11 16:19:51  ycaniou
  * Check that pathToTmp and pathToNFS exist
  * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
@@ -117,7 +122,7 @@ SGE_BatchSystem::askBatchJobStatus(int batchJobID)
 
   /* Ask batch system the job status */      
   chaine = (char*)malloc(sizeof(char)*(strlen(wait4Command)
-				       + NBDIGITS_MAX_BATCH_ID
+				       + NBDIGITS_MAX_BATCH_JOB_ID
 				       + strlen(waitFilter)
 				       + strlen(filename)
 				       + 7 + 1) ) ;
@@ -140,7 +145,7 @@ SGE_BatchSystem::askBatchJobStatus(int batchJobID)
     ERROR("Cannot submit script", NB_STATUS) ;
   }
   /* Get job status */  
-  for( int i = 0 ; i<=NBDIGITS_MAX_BATCH_ID ; i++ )
+  for( int i = 0 ; i<=NBDIGITS_MAX_BATCH_JOB_ID ; i++ )
     chaine[i] = '\0' ;
   if( (nbread=readn(file_descriptor,chaine,NBDIGITS_MAX_JOB_STATUS))
       == 0 ) {

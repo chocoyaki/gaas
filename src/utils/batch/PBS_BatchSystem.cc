@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2009/11/19 14:45:01  ycaniou
+ * Walltime in profile is in seconds
+ * Renamed Global var
+ * Management of time HH:MM:SS in batch scripts
+ *
  * Revision 1.2  2008/08/19 00:29:37  bdepardo
  * A few corrections.
  * It seems to work
@@ -117,7 +122,7 @@ PBS_BatchSystem::askBatchJobStatus(int batchJobID)
 
   /*** Ask batch system the job status ***/      
   chaine = (char*)malloc(sizeof(char)*(strlen(wait4Command) * 2
-				       + NBDIGITS_MAX_BATCH_ID * 2
+				       + NBDIGITS_MAX_BATCH_JOB_ID * 2
 				       + strlen(waitFilter) * 2
 				       + strlen(filename) * 3
 				       + 73 + 1) ) ;
@@ -135,7 +140,7 @@ PBS_BatchSystem::askBatchJobStatus(int batchJobID)
   }
 
   /* Get job status */  
-  for( int i = 0 ; i<=NBDIGITS_MAX_BATCH_ID ; i++ )
+  for( int i = 0 ; i<=NBDIGITS_MAX_BATCH_JOB_ID ; i++ )
     chaine[i] = '\0' ;
 
   if( (nbread=readn(file_descriptor,chaine,NBDIGITS_MAX_JOB_STATUS)) == 0 ) {
