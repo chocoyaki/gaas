@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.33  2009/11/19 06:31:54  ycaniou
+ * Correct initializing bug in AddService
+ *
  * Revision 1.32  2009/10/17 08:28:08  bdepardo
  * Removed compilation warnings
  *
@@ -254,7 +257,6 @@ ServiceTable::lookupService(const char* path, const corba_profile_t* pb)
   return (ServiceReference_t) ((i == nb_s) ? -1 : (int)i);
 }
 
-/* Called from DIET_server::diet_service_table_add */
 int
 ServiceTable::addService(const corba_profile_desc_t* profile,
                          const diet_convertor_t* const cvt,
@@ -262,6 +264,7 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
                          diet_eval_t evalf,
                          diet_perfmetric_t perfmetric_fn)
 {
+  /* Called from DIET_server::diet_service_table_add */
   ServiceReference_t service_idx(-1);
 
   if (matching_children) {
@@ -282,7 +285,7 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
         realloc(convertors, max_nb_s * sizeof(diet_convertor_t));
       perfmetrics = (diet_perfmetric_t *)
         realloc(perfmetrics, max_nb_s * sizeof(diet_perfmetric_t));
-      for (size_t i = nb_s + 1; i < max_nb_s; i++) {
+      for (size_t i = nb_s; i < max_nb_s; i++) {
         profiles[i].param_desc.length(0);
         solvers[i]              = NULL;
         eval_functions[i]       = NULL;
