@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.38  2009/11/19 07:27:41  ycaniou
+ * Remove warnings
+ *
  * Revision 1.37  2009/10/19 11:41:04  bdepardo
  * Removed compilation warnings
  *
@@ -153,9 +156,9 @@ displayResponse(FILE* os, const corba_response_t* resp)
 #endif
 
   fprintf(os, "\n----------------------------------------\n");
-  fprintf(os, " Response structure for request %u :\n\n", resp->reqID);
+  fprintf(os, " Response structure for request %ld :\n\n", resp->reqID);
   if (TRACE_LEVEL >= TRACE_ALL_STEPS) {
-    fprintf(os, " I'm son nb %u\n", resp->myID);
+    fprintf(os, " I'm son nb %ld\n", (long)resp->myID);
   }
 
   fprintf(os, " %ld servers are able to solve the problem:\n",
@@ -251,8 +254,8 @@ displayResponseShort(FILE* os, const corba_response_t* resp)
   const char * jobSpec ;
 #endif
 
-  fprintf(os, "\n---------- Responses for request %u ----------\n",
-      resp->reqID);
+  fprintf(os, "\n---------- Responses for request %lu ----------\n",
+	  (unsigned long)resp->reqID);
 
   for (size_t i = 0; i < resp->servers.length(); i++){
     estVectorConst_t ev = &(resp->servers[i].estim);

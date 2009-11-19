@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.34  2009/11/19 07:27:41  ycaniou
+ * Remove warnings
+ *
  * Revision 1.33  2009/11/19 06:31:54  ycaniou
  * Correct initializing bug in AddService
  *
@@ -877,7 +880,7 @@ ServiceTable::dump(FILE* f)
   // be called on stdout !
 
   fprintf(f, "\n--------------------------------------------------\n");
-  fprintf(f,   "Service Table (%u services)\n", nb_s);
+  fprintf(f,   "Service Table (%lu services)\n", (unsigned long)nb_s);
   fprintf(f,   "--------------------------------------------------\n\n");
 
   for (size_t i = 0; i < nb_s; i++) {
@@ -897,14 +900,14 @@ ServiceTable::dump(FILE* f)
         fprintf(f, "no child");
       else {
         if (matching_children[i].nb_children == 1)
-          fprintf(f, "child %u", matching_children[i].children[0]);
+          fprintf(f, "child %lu", matching_children[i].children[0]);
         else {
           size_t j;
-          fprintf(f, "children %u", matching_children[i].children[0]);
+          fprintf(f, "children %lu", matching_children[i].children[0]);
           for (j = 1; j < (matching_children[i].nb_children - 1); j++)
-            fprintf(f, ", %u", matching_children[i].children[j]);
+            fprintf(f, ", %lu", matching_children[i].children[j]);
           // Re-use j to shorten next line
-          fprintf(f, " and %u.", matching_children[i].children[j]);
+          fprintf(f, " and %lu.", matching_children[i].children[j]);
         }
       }
     }

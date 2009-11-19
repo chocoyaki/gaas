@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2009/11/19 07:27:41  ycaniou
+ * Remove warnings
+ *
  * Revision 1.1  2009/10/16 08:09:14  bdepardo
  * Threaded version of the client.
  *
@@ -25,11 +28,6 @@
 
 
 #include "DIET_client.h"
-
-#define NB_PB 1
-static const char* PB[NB_PB] =
-  {"FIBO"};
-
 
 /* argv[1]: client config file path
    argv[2]: one of the strings above 
@@ -49,9 +47,9 @@ void *
 call(void* par) {
   diet_profile_t* profile = NULL;
   /* Use the long type for all "integer" types. */
-  long*   pl2 = NULL;
-  char * path = "FIBO";
-  long     l1 = *(long*) par;
+  long * pl2 = NULL;
+  char * path = strdup("FIBO");
+  long l1 = *(long*) par;
   unsigned int id = nb;
   nb ++;
 
