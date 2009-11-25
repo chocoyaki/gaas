@@ -37,7 +37,7 @@ SET( CMAKE_MODULE_PATH ${DIET_DOC_SOURCE_DIR}/Cmake )
 
   FIND_PACKAGE( Doxygen )
   IF( NOT DOXYGEN_EXECUTABLE OR NOT DOXYGEN_DOT_EXECUTABLE )
-    MESSAGE( "Doxygen or Dot were not found." )
+    MESSAGE( "Doxygen or Dot (from graphviz package) were not found." )
     SET( BUILD_DOCUMENTATION OFF )
   ENDIF( NOT DOXYGEN_EXECUTABLE OR NOT DOXYGEN_DOT_EXECUTABLE )
 
