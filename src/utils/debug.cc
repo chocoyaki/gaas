@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.40  2009/11/26 12:05:32  ycaniou
+ * Warning--
+ *
  * Revision 1.39  2009/11/26 11:01:22  ycaniou
  * Warnings--
  *
@@ -288,13 +291,13 @@ displayResponseShort(FILE* os, const corba_response_t* resp)
             "    %ld: %s:%ld:%s;%s: tComp %g fCpu %g fMem %g\n",
             (long int)i,
             (const char *)(resp->servers[i].loc.hostName),
-            resp->servers[i].loc.port,
+            (long int)resp->servers[i].loc.port,
 	    serverType, jobSpec,
 #else
             "    %ld: %s:%ld: tComp %g fCpu %g fMem %g\n",
             (long int)i,
             (const char *)(resp->servers[i].loc.hostName),
-            resp->servers[i].loc.port,
+            (long int)resp->servers[i].loc.port,
 #endif
             diet_est_get_internal(ev, EST_TCOMP, HUGE_VAL),
             diet_est_get_internal(ev, EST_FREECPU, HUGE_VAL),

@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.11  2009/11/26 12:05:32  ycaniou
+ * Warning--
+ *
  * Revision 1.10  2008/08/13 16:49:38  bdepardo
  * Added #include <string.h> in order to compile with gcc 4.3
  *
@@ -130,7 +133,7 @@ class worker : public omni_thread
     char * requestID = new char[10];
     MUTEX_WORKER.lock();
     while ( n_loops > 0){
-      printf("---------------- %ld loops left -------------------\n",
+      printf("---------------- %u loops left -------------------\n",
 	     (unsigned int) n_loops);
       n_loops--;
       MUTEX_WORKER.unlock();
