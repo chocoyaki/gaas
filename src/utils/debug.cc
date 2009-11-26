@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.39  2009/11/26 11:01:22  ycaniou
+ * Warnings--
+ *
  * Revision 1.38  2009/11/19 07:27:41  ycaniou
  * Remove warnings
  *
@@ -156,7 +159,7 @@ displayResponse(FILE* os, const corba_response_t* resp)
 #endif
 
   fprintf(os, "\n----------------------------------------\n");
-  fprintf(os, " Response structure for request %ld :\n\n", resp->reqID);
+  fprintf(os, " Response structure for request %ud :\n\n", resp->reqID);
   if (TRACE_LEVEL >= TRACE_ALL_STEPS) {
     fprintf(os, " I'm son nb %ld\n", (long)resp->myID);
   }
@@ -283,13 +286,13 @@ displayResponseShort(FILE* os, const corba_response_t* resp)
     fprintf(stdout,
 #ifdef HAVE_ALT_BATCH
             "    %ld: %s:%ld:%s;%s: tComp %g fCpu %g fMem %g\n",
-            (long)i,
+            (long int)i,
             (const char *)(resp->servers[i].loc.hostName),
             resp->servers[i].loc.port,
 	    serverType, jobSpec,
 #else
             "    %ld: %s:%ld: tComp %g fCpu %g fMem %g\n",
-            (long)i,
+            (long int)i,
             (const char *)(resp->servers[i].loc.hostName),
             resp->servers[i].loc.port,
 #endif
@@ -508,7 +511,7 @@ displayProfileDesc(const corba_profile_desc_t* desc)
         fprintf(f," No priorities assigned");
       } else {
         for (unsigned int i = 0; i < prior.priorityList.length(); i++) {
-          fprintf(f," %ld", prior.priorityList[i]);
+          fprintf(f," %d", prior.priorityList[i]);
         }
       }
       fprintf(f, " )\n");

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.35  2009/11/26 11:01:22  ycaniou
+ * Warnings--
+ *
  * Revision 1.34  2009/11/19 07:27:41  ycaniou
  * Remove warnings
  *
@@ -900,14 +903,14 @@ ServiceTable::dump(FILE* f)
         fprintf(f, "no child");
       else {
         if (matching_children[i].nb_children == 1)
-          fprintf(f, "child %lu", matching_children[i].children[0]);
+          fprintf(f, "child %u", matching_children[i].children[0]);
         else {
           size_t j;
-          fprintf(f, "children %lu", matching_children[i].children[0]);
+          fprintf(f, "children %u", matching_children[i].children[0]);
           for (j = 1; j < (matching_children[i].nb_children - 1); j++)
-            fprintf(f, ", %lu", matching_children[i].children[j]);
+            fprintf(f, ", %u", matching_children[i].children[j]);
           // Re-use j to shorten next line
-          fprintf(f, " and %lu.", matching_children[i].children[j]);
+          fprintf(f, " and %u.", matching_children[i].children[j]);
         }
       }
     }
