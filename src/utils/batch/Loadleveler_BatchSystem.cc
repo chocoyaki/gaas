@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2009/11/27 03:24:30  ycaniou
+ * Add user_command possibility before the end of Batch prologue (only
+ * to be used for batch dependent code!)
+ * Memory leak/segfault--
+ * New easy Batch basic example
+ * Management of OAR2_X Batch scheduler
+ *
  * Revision 1.4  2009/11/19 14:45:01  ycaniou
  * Walltime in profile is in seconds
  * Renamed Global var
@@ -62,7 +69,7 @@ Loadleveler_BatchSystem::Loadleveler_BatchSystem(int ID, const char * batchname)
   /* first line is mandatory to end LL batch directives, 
      second is to get a file containing the nodes ID. Hope it is unique
   */
-  postfixe = "#@ queue\n";
+  postfixe = "#@ queue";
   /* "export MP_SAVEHOSTFILE=$LOADL_STEP_INITDIR/machine_$LOADL_STEP_ID" ; */
 
   /* #@ network.MPI  indicates which switch adapter is used, whether
@@ -83,16 +90,17 @@ Loadleveler_BatchSystem::Loadleveler_BatchSystem(int ID, const char * batchname)
   */
   nodesNumber = "#@ job_type = parallel\n#@ node =" ;
   serial = "#@ job_type = serial" ;
-  walltime = "#@ wall_clock_limit =" ;
-  submittingQueue = "#@ Class = " ;
+  coresNumber = BatchSystem::emptyString ;
+  walltime = "\n#@ wall_clock_limit =" ;
+  submittingQueue = "\n#@ Class = " ;
   minimumMemoryUsed = BatchSystem::emptyString ;
   
   /* TODO: When we use some ID for DIET client, change there! */
-  mail = "#@ notification = never\n#@ notify_user =" ;
-  account = "#@ account_no =" ;
-  setSTDOUT = "#@ output =" ;
-  setSTDIN = "#@ input =" ; /* Not used for the moment */
-  setSTDERR = "#@ error =" ;
+  mail = "\n#@ notification = never\n#@ notify_user =" ;
+  account = "\n#@ account_no =" ;
+  setSTDOUT = "\n#@ output =" ;
+  setSTDIN = "\n#@ input =" ; /* Not used for the moment */
+  setSTDERR = "\n#@ error =" ;
 
   submitCommand = "llsubmit " ;
   killCommand = "llcancel " ;

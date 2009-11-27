@@ -95,6 +95,7 @@ IF( DIET_BUILD_LIBRARIES )
 		 BatchCreator.cc
 		 BatchSystem.cc
 		 OAR1_6BatchSystem.cc
+		 OAR2_XBatchSystem.cc
 		 Loadleveler_BatchSystem.cc
 		 PBS_BatchSystem.cc
 		 SGE_BatchSystem.cc )

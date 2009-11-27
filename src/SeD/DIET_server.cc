@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.84  2009/11/27 03:24:30  ycaniou
+ * Add user_command possibility before the end of Batch prologue (only
+ * to be used for batch dependent code!)
+ * Memory leak/segfault--
+ * New easy Batch basic example
+ * Management of OAR2_X Batch scheduler
+ *
  * Revision 1.83  2009/10/26 09:13:43  bdepardo
  * When using dynamic hierarchy, catches SIGINT for clean termination.
  *
@@ -1468,7 +1475,6 @@ int diet_estimate_eft(estVector_t ev,
 void
 diet_set_server_status( diet_server_status_t status )
 {
-  TRACE_TEXT(TRACE_MAIN_STEPS,"SeD is...\n") ;
   if( (status > -1) && (status<NB_SERVER_STATUS) ) {
     st = status ;
     //#if defined YC_DEBUG
@@ -1489,10 +1495,12 @@ diet_set_server_status( diet_server_status_t status )
 
 #ifdef HAVE_ALT_BATCH
 int
-diet_submit_parallel(diet_profile_t * profile, const char * command)
+diet_submit_parallel(diet_profile_t * profile, 
+		     const char * addon_prologue,
+		     const char * command)
 {
   return ((((SeDImpl*)profile->SeDPtr)->getBatch())->
-	  diet_submit_parallel(profile,command)) ;
+	  diet_submit_parallel(profile, addon_prologue, command)) ;
 }
 
 /* This is to be used later: a SeD can manage a reservation as he wants. It

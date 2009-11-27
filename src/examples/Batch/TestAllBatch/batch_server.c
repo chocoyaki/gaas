@@ -7,6 +7,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2009/11/27 03:24:30  ycaniou
+ * Add user_command possibility before the end of Batch prologue (only
+ * to be used for batch dependent code!)
+ * Memory leak/segfault--
+ * New easy Batch basic example
+ * Management of OAR2_X Batch scheduler
+ *
  * Revision 1.4  2008/05/11 16:19:50  ycaniou
  * Check that pathToTmp and pathToNFS exist
  * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
@@ -88,11 +95,11 @@ void make_perf(diet_profile_t * pb)
   /* For the moment, give arbitrary values */
 
   if( pb->parallel_flag == 1 ) { /* Job requested is sequential */
-    pb->walltime = 125 ;
+    pb->walltime = 125 ; /* in seconds */
     pb->nbprocs = 1 ;
     pb->nbprocess = pb->nbprocs ;
   } else {
-    pb->walltime = 125 ;
+    pb->walltime = 125 ; /* in seconds */
     pb->nbprocs = 2 ;
     pb->nbprocess = pb->nbprocs ;
   }
@@ -309,7 +316,7 @@ int solve_concatenation_seq(diet_profile_t *pb)
   make_perf(pb) ;
   
   /* Submission */
-  result = diet_submit_parallel(pb, script) ;
+  result = diet_submit_parallel(pb, NULL, script) ;
 
   /* Free memory */
   free(prologue) ;
@@ -531,7 +538,7 @@ int solve_concatenation_parallel(diet_profile_t *pb)
   make_perf(pb) ;
   
   /* Submission */
-  result = diet_submit_parallel(pb, script) ;
+  result = diet_submit_parallel(pb, NULL, script) ;
 
   /* Free memory */
   free(prologue) ;
@@ -568,12 +575,12 @@ main(int argc, char* argv[])
     return 1;
   }  
 
-  /* Initialize table with maximum services */
-  diet_service_table_init(nb_max_services);
-
   /* Initialize state of SeD: batch or not */
   printf("Server -> %d\n",(int)BATCH) ;
   diet_set_server_status( BATCH ) ;
+
+  /* Initialize table with maximum services */
+  diet_service_table_init(nb_max_services);
 
   /******************************** For fct1 *********************************/
   /* Allocate profiles (IN, INOUT, OUT) */

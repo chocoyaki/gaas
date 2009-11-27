@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2009/11/27 03:24:30  ycaniou
+ * Add user_command possibility before the end of Batch prologue (only
+ * to be used for batch dependent code!)
+ * Memory leak/segfault--
+ * New easy Batch basic example
+ * Management of OAR2_X Batch scheduler
+ *
  * Revision 1.4  2009/11/19 14:45:01  ycaniou
  * Walltime in profile is in seconds
  * Renamed Global var
@@ -59,20 +66,21 @@ SGE_BatchSystem::SGE_BatchSystem(int ID, const char * batchname)
   batchName = batchname ;
   
   shell = "-S " ;
-  prefixe = "#!/bin/sh\n\n" ;
+  prefixe = "#!/bin/sh" ;
   postfixe = BatchSystem::emptyString ;
 
   nodesNumber = "#@ job_type=parallel\n#@ node=" ;
   serial = "#@ job_type = serial" ;
-  walltime = "#@ wall_clock_limit=" ;
-  submittingQueue = "#@ Class= " ;
+  coresNumber = BatchSystem::emptyString ;
+  walltime = "\n#@ wall_clock_limit=" ;
+  submittingQueue = "\n#@ Class= " ;
   minimumMemoryUsed = BatchSystem::emptyString ;
   
-  mail = "#@ notification=always\n#@ notify_user=" ;
-  account = "#@ account_no=" ;
-  setSTDOUT = "#@ output=" ;
+  mail = "\n#@ notification=always\n#@ notify_user=" ;
+  account = "\n#@ account_no=" ;
+  setSTDOUT = "\n#@ output=" ;
   setSTDIN = BatchSystem::emptyString ;
-  setSTDERR = "#@ error=" ;
+  setSTDERR = "\n#@ error=" ;
 
   /* Here is an output of a submission */
   submitCommand = "llsubmit " ;

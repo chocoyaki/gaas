@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2009/11/27 03:24:30  ycaniou
+ * Add user_command possibility before the end of Batch prologue (only
+ * to be used for batch dependent code!)
+ * Memory leak/segfault--
+ * New easy Batch basic example
+ * Management of OAR2_X Batch scheduler
+ *
  * Revision 1.3  2009/11/19 14:45:01  ycaniou
  * Walltime in profile is in seconds
  * Renamed Global var
@@ -52,17 +59,18 @@ PBS_BatchSystem::PBS_BatchSystem(int ID, const char * batchname)
   batchName = batchname ;
   
   shell    = BatchSystem::emptyString ;
-  prefixe  = "#!/bin/sh\n" ;
+  prefixe  = "#!/bin/sh" ;
   // the -V option declares that all environment variables in the qsub
   // command's environment are to be exported to the batch job
   // the -N option is to set the name of the job (usefull to debug)
-  postfixe = "#PBS -V\n#PBS -N DIET_SeD\n" ;
+  postfixe = "#PBS -V\n#PBS -N DIET_SeD" ;
 
   nodesNumber       = "#PBS -l nodes=" ;
   serial            = "#PBS -l nodes=1" ;
-  walltime          = "#PBS -l walltime=" ;
-  submittingQueue   = "#PBS -q " ;
-  minimumMemoryUsed = "#PBS -l mem=" ;
+  coresNumber = BatchSystem::emptyString ;
+  walltime          = "\n#PBS -l walltime=" ;
+  submittingQueue   = "\n#PBS -q " ;
+  minimumMemoryUsed = "\n#PBS -l mem=" ;
   
   /* TODO: When we use some ID for DIET client, change there! */
   //mail      = "#PBS -m a\n#PBS -M " ; // -m, send mail when:
@@ -73,9 +81,9 @@ PBS_BatchSystem::PBS_BatchSystem(int ID, const char * batchname)
                                       // -M, recipient list
   mail      = BatchSystem::emptyString ;
   account   = BatchSystem::emptyString ;
-  setSTDOUT = "#PBS -o " ;
+  setSTDOUT = "\n#PBS -o " ;
   setSTDIN  = BatchSystem::emptyString ;
-  setSTDERR = "#PBS -e " ;
+  setSTDERR = "\n#PBS -e " ;
 
   submitCommand = "qsub " ;
   killCommand   = "qdel " ;

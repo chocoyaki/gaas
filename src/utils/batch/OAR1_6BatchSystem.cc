@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2009/11/27 03:24:30  ycaniou
+ * Add user_command possibility before the end of Batch prologue (only
+ * to be used for batch dependent code!)
+ * Memory leak/segfault--
+ * New easy Batch basic example
+ * Management of OAR2_X Batch scheduler
+ *
  * Revision 1.6  2009/11/19 14:45:01  ycaniou
  * Walltime in profile is in seconds
  * Renamed Global var
@@ -55,7 +62,7 @@ const char * const OAR1_6BatchSystem::statusNames[] = {
 OAR1_6BatchSystem::OAR1_6BatchSystem(int ID, const char * batchname)
 {
   if( pathToNFS == NULL ) {
-    ERROR_EXIT("OAR needs a path to a NFS directory to store its script\n") ;
+    ERROR_EXIT("OAR1.6 needs a path to a NFS directory to store its script\n") ;
   }
 #if defined YC_DEBUG
   TRACE_TEXT(TRACE_ALL_STEPS,"Nom NFS: " << getNFSPath() << "\n") ;
@@ -77,8 +84,9 @@ OAR1_6BatchSystem::OAR1_6BatchSystem(int ID, const char * batchname)
 
   nodesNumber = "#OAR -l nodes=" ;
   serial = "#OAR -l nodes=1" ;
-  walltime = "#OAR -l walltime=" ;
-  submittingQueue = "#OAR -q " ;
+  coresNumber = BatchSystem::emptyString ;
+  walltime = "\n#OAR -l walltime=" ;
+  submittingQueue = "\n#OAR -q " ;
   minimumMemoryUsed = BatchSystem::emptyString ;
   
   mail = BatchSystem::emptyString ;

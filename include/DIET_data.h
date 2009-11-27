@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.70  2009/11/27 03:24:29  ycaniou
+ * Add user_command possibility before the end of Batch prologue (only
+ * to be used for batch dependent code!)
+ * Memory leak/segfault--
+ * New easy Batch basic example
+ * Management of OAR2_X Batch scheduler
+ *
  * Revision 1.69  2009/11/19 14:45:00  ycaniou
  * Walltime in profile is in seconds
  * Renamed Global var
@@ -361,7 +368,6 @@ typedef struct {
   int nbprocs ;
   int nbprocess ;
   unsigned long walltime ; /* in seconds */
-  /* Used for correspondance batch job ID / DIET job ID */
 #endif
 } diet_profile_t;
 

@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2009/11/27 03:24:30  ycaniou
+ * Add user_command possibility before the end of Batch prologue (only
+ * to be used for batch dependent code!)
+ * Memory leak/segfault--
+ * New easy Batch basic example
+ * Management of OAR2_X Batch scheduler
+ *
  * Revision 1.7  2009/11/19 14:45:01  ycaniou
  * Walltime in profile is in seconds
  * Renamed Global var
@@ -121,10 +128,14 @@ public :
   
   /** Submit a job corresponding to given @param profile problem with a
       partially defined script contained in the string @param command .
+      @param addon_prologue can be used for batch-dedicated (non inter-batch
+      portable) script: corresponding commands are added before the termination
+      of the batch prologue (e.g., QUEUE for LL).
       Returns -1 if error, 0 on succes.
   */
   int
   diet_submit_parallel(diet_profile_t * profile,
+		       const char * addon_prologue,
 		       const char * command) ;
 
   /** Submit a job partially defined in a file 
@@ -337,6 +348,7 @@ protected :
   */
   const char * nodesNumber ; // If more than 1 proc
   const char * serial ;      // If serial, proc == 1, DONT use nodesNumber!
+  const char * coresNumber ; // for 0AR2.. not used
   const char * walltime ;
   const char * submittingQueue ;
   const char * minimumMemoryUsed ; // not managed for the moment

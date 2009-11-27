@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2009/11/27 03:24:30  ycaniou
+ * Add user_command possibility before the end of Batch prologue (only
+ * to be used for batch dependent code!)
+ * Memory leak/segfault--
+ * New easy Batch basic example
+ * Management of OAR2_X Batch scheduler
+ *
  * Revision 1.7  2009/11/19 14:45:01  ycaniou
  * Walltime in profile is in seconds
  * Renamed Global var
@@ -57,6 +64,7 @@ using namespace std ;
 #include "debug.hh"      // ERROR
 #include "Parsers.hh"
 #include "BatchSystem.hh"
+#include "BatchCreator.hh" // LOADLVELER, OAR1.6, etc. definition
 
 #define WAITING_BATCH_JOB_COMPLETION 30 //test all W_B_J_C sec if job completed
 
@@ -97,7 +105,7 @@ BatchSystem::BatchSystem()
   else if( tmpString[strlen(tmpString) - 1] == '/' )
     pathToNFS = strdup(tmpString) ;
   else {
-    tmpChaine = (char*)malloc(strlen(tmpString+1) * sizeof(char)) ;
+    tmpChaine = (char*)malloc((strlen(tmpString)+2) * sizeof(char)) ;
     sprintf(tmpChaine,"%s/",tmpString) ;
     pathToNFS = tmpChaine ;
   }
@@ -112,7 +120,7 @@ BatchSystem::BatchSystem()
   } else if( tmpString[strlen(tmpString) - 1] == '/' )
     pathToTmp = strdup(tmpString) ;
   else {
-    tmpChaine = (char*)malloc(strlen(tmpString+1) * sizeof(char)) ;
+    tmpChaine = (char*)malloc((strlen(tmpString)+2) * sizeof(char)) ;
     sprintf(tmpChaine,"%s/",tmpString) ;
     pathToTmp = tmpChaine ;
   }
@@ -174,6 +182,7 @@ BatchSystem::checkIfDietJobCompleted(diet_profile_t * profile)
 
 int
 BatchSystem::diet_submit_parallel(diet_profile_t * profile,
+				  const char * addon_prologue,
 				  const char * command)
 {
   int nbread ;
@@ -185,6 +194,8 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
   int file_descriptor_2 ;
   char * filename ;
   char * filename_2 ;
+  const char * loc_addon_prologue ;
+  
   /* Options, if available, are in the following order:
      nbnodes
      walltime
@@ -202,7 +213,10 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
   }
   
   /* Convert the walltime in hh:mm:ss, standard for every batch */
-  /* TODO: should be checked if possible, and even possible, with Cori! */
+  /* TODO: 
+     1) should be checked if possible, and even possible, with Cori!
+     2) for LSF, hh:mm only
+  */
   sprintf(small_chaine,"%02d:%02d:%02d",
 	  (int)(profile->walltime/3600),
 	  (int)(profile->walltime%3600)/60,
@@ -210,18 +224,16 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
   
   if( profile->parallel_flag == 1 )
     sprintf(options,
-	    "%s\n"
-	    "%s%s\n",
+	    "%s%s%s",
 	    this->serial,
 	    this->walltime, small_chaine) ;
   else
     sprintf(options,
-	    "%s%d\n"
-	    "%s%s\n",
+	    "%s%d%s%s",
 	    this->nodesNumber, profile->nbprocs,
 	    this->walltime, small_chaine) ;
   sprintf(options+strlen(options),
-	  "%s%s\n",
+	  "%s%s",
 	  submittingQueue, batchQueueName) ;
 
   /* TODO: the user will be able to set the shell, mail, stdin, etc. */
@@ -231,25 +243,32 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
   //	    "%s bash\n",
   //	    shell ) ;
 
-  if( setSTDERR != emptyString ) /* FIXME: only for LL.. */
-    sprintf(options+strlen(options),
-	    "%s$(job_name).err\n",
-	    setSTDERR ) ;
-  if( setSTDOUT != emptyString ) /* FIXME: only for LL.. */
-    sprintf(options+strlen(options),
-	    "%s$(job_name).out\n",
-	    setSTDOUT ) ;
+//   if( setSTDERR != emptyString ) /* FIXME: only for LL.. */
+//     sprintf(options+strlen(options),
+// 	    "%s$(job_name).err\n",
+// 	    setSTDERR ) ;
+//   if( setSTDOUT != emptyString ) /* FIXME: only for LL.. */
+//     sprintf(options+strlen(options),
+// 	    "%s$(job_name).out\n",
+// 	    setSTDOUT ) ;
   /*
   if( setSTDIN != emptyString ) ** & if user has set one entry
   sprintf(options+strlen(options),
   "%s %s
   */
 
+  /* Define addon_prologue for strlen */
+  if( addon_prologue == NULL )
+    loc_addon_prologue = emptyString ;
+  else
+    loc_addon_prologue = addon_prologue ;
+
   // Build Script, copy it on the NFS path and launch in a system()
-  // record the pid of the batch job
+  // and record the pid of the batch job
   script = (char*)malloc(sizeof(char)*(100
 				       + strlen(prefixe)
 				       + strlen(options)
+				       + strlen(loc_addon_prologue)
 				       + strlen(postfixe)
 				       + 300
 				       + strlen(command))) ;
@@ -258,33 +277,47 @@ BatchSystem::diet_submit_parallel(diet_profile_t * profile,
 	  "Service not launched\n\n", -1);
   }
 
-  if( batch_ID == 1 ) // Loadlever.. should be better coded
-    sprintf(script,
-	    "%s\n"
-	    "%s\n"
-	    "%s\n"
-	    "\n%s\n"
-	    ,prefixe
-	    ,options
-	    ,postfixe
-	    ,command
-	    ) ;
-  else
-    sprintf(script,
-	    "%s\n"
-	    "%s\n"
-	    "%s\n"
-	    "DIET_BATCH_NODESFILE=%s\n"
-	    "DIET_BATCH_NODESLIST=`cat %s | sort | uniq`\n"
-	    "DIET_BATCH_NBNODES=`echo $DIET_BATCH_NODESLIST | wc -l`\n"
-	    "\n%s\n"
-	    ,prefixe
-	    ,options
-	    ,postfixe
-	    ,nodeFileName
-	    ,nodeFileName
-	    ,command
-	    ) ;
+  switch( (int)batch_ID ) 
+    {
+    case BatchCreator::LOADLEVELER:
+      sprintf(script,
+	      "%s\n"
+	      "%s"
+	      "%s"
+	      "%s\n"
+	      "\n%s\n"
+	      ,prefixe
+	      ,options
+	      ,loc_addon_prologue
+	      ,postfixe
+	      ,command
+	      ) ;
+      break ;
+    case BatchCreator::OAR1_6:
+    case BatchCreator::OAR2_X:
+    case BatchCreator::SGE:
+    case BatchCreator::PBS:
+      sprintf(script,
+	      "%s\n"
+	      "%s"
+	      "%s"
+	      "%s\n"
+	      "DIET_BATCH_NODESFILE=%s\n"
+	      "DIET_BATCH_NODESLIST=`cat %s | sort | uniq`\n"
+	      "DIET_BATCH_NBNODES=`echo $DIET_BATCH_NODESLIST | wc -l`\n"
+	      "\n%s\n"
+	      ,prefixe
+	      ,options
+	      ,loc_addon_prologue
+	      ,postfixe
+	      ,nodeFileName
+	      ,nodeFileName
+	      ,command
+	      ) ;
+      break ;
+    default:
+      ERROR("BatchSystem not managed?", -1);
+    }
   
   /* Replace DIET meta-variable in SeD programmer's command */
   sprintf(small_chaine,"%d",profile->nbprocs) ;
@@ -428,33 +461,35 @@ BatchSystem::removeBatchJobID(int dietReqID)
   corresID * index_1 = this->batchJobQueue ;
   corresID * index_2 ;
   
-  if( index_1 != NULL )    
-    if( index_1->dietReqID != dietReqID ) {
-      index_2 = index_1->nextStruct ;
-  
-      while( (index_2 != NULL) && (index_2->dietReqID != dietReqID) ) {
-	index_1 = index_2 ;
-	index_2 = index_2->nextStruct ;
+  if( index_1 != NULL ) 
+    {
+      if( index_1->dietReqID != dietReqID ) {
+	index_2 = index_1->nextStruct ;
+
+	while( (index_2 != NULL) && (index_2->dietReqID != dietReqID) ) {
+	  index_1 = index_2 ;
+	  index_2 = index_2->nextStruct ;
+	}
+	if( index_2 == NULL )
+	  return -1 ;
+	index_1 = index_2->nextStruct ;
+	if( index_2->scriptFileName != NULL ) {
+	  unlink( index_2->scriptFileName ) ;
+	  free(index_2->scriptFileName) ;
+	  index_2->scriptFileName = NULL ;
+	}
+	free(index_2) ;
+	return 1 ;
+      } else {
+	this->batchJobQueue = this->batchJobQueue->nextStruct ;
+	if( index_1->scriptFileName != NULL ) {
+	  unlink( index_1->scriptFileName ) ;
+	  free(index_1->scriptFileName) ;
+	  index_1->scriptFileName = NULL ;
+	}
+	free( index_1 ) ;
+	return 1 ;
       }
-      if( index_2 == NULL )
-	return -1 ;
-      index_1 = index_2->nextStruct ;
-      if( index_2->scriptFileName != NULL ) {
-	unlink( index_2->scriptFileName ) ;
-	free(index_2->scriptFileName) ;
-	index_2->scriptFileName = NULL ;
-      }
-      free(index_2) ;
-      return 1 ;
-    } else {
-      this->batchJobQueue = this->batchJobQueue->nextStruct ;
-      if( index_1->scriptFileName != NULL ) {
-	unlink( index_1->scriptFileName ) ;
-	free(index_1->scriptFileName) ;
-	index_1->scriptFileName = NULL ;
-      }
-      free( index_1 ) ;
-      return 1 ;
     }
   return -1 ;
 }
@@ -749,7 +784,7 @@ BatchSystem::createUniqueTemporaryNFSFile(const char * pattern)
   char * filename ;
   
   filename = (char*)malloc(sizeof(char)*strlen(pathToNFS) + 30 ) ;
-  sprintf(filename,"%s%s.XXXXXX", pathToTmp, pattern) ;
+  sprintf(filename,"%s%s.XXXXXX", pathToNFS, pattern) ;
   file_descriptor = mkstemp( filename ) ;
   if( file_descriptor == -1 ) {
     ERROR("Cannot create batch I/O redirection file."

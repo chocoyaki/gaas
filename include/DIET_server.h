@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.48  2009/11/27 03:24:29  ycaniou
+ * Add user_command possibility before the end of Batch prologue (only
+ * to be used for batch dependent code!)
+ * Memory leak/segfault--
+ * New easy Batch basic example
+ * Management of OAR2_X Batch scheduler
+ *
  * Revision 1.47  2009/06/23 09:22:01  bisnard
  * added new API method for EFT estimation
  *
@@ -510,11 +517,16 @@ diet_SeD(char* config_file_name, int argc, char* argv[]);
 /****************************************************************************/
 #if defined HAVE_ALT_BATCH
   /**
-   * @param command is the content of the script that the SeD programmer wants
-   * to submit in order to provide the service @param profile
+     Submit a batch job corresponding to given @param profile service with a
+     partially defined script contained in the string @param command .
+     @param addon_prologue can be used for batch-dedicated (non inter-batch
+     portable) script: corresponding commands are added before the termination
+     of the batch prologue (e.g., QUEUE for LL).
    */
   int
-  diet_submit_parallel(diet_profile_t * profile, const char * command) ;
+  diet_submit_parallel(diet_profile_t * profile, 
+		       const char * addon_prologue,
+		       const char * command) ;
 
   /* TODO: this will disapear when BatchSystem will implement seqFIFO,
      paralFIFO, LOADLEVELER, etc., since the definition would be

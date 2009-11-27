@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.7  2009/11/27 03:24:30  ycaniou
+ * Add user_command possibility before the end of Batch prologue (only
+ * to be used for batch dependent code!)
+ * Memory leak/segfault--
+ * New easy Batch basic example
+ * Management of OAR2_X Batch scheduler
+ *
  * Revision 1.6  2008/08/17 08:10:19  bdepardo
  * Added PBS batch system
  * /!\ not tested yet
@@ -53,6 +60,7 @@ public :
     LOADLEVELER,
     SGE,
     PBS,
+    OAR2_X,
     NUMBER_OF_SUPPORTED_BATCH
   } batchID_t ;
 

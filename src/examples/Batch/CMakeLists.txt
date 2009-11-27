@@ -13,9 +13,10 @@ IF( DIET_USE_BATCH )
 
   ### Two servers...
   SET( C_SERVER_EXAMPLES
-    batch_server
-    parallel_server 
-    sequential_server )
+       batch_server 
+       sequential_server
+       parallel_server
+       )
 
   FOREACH( loop_var ${C_SERVER_EXAMPLES} )
     ADD_EXECUTABLE( ${loop_var} ${loop_var}.c )
@@ -42,10 +43,7 @@ ELSE( DIET_USE_BATCH )
 
   ### Two servers...
   SET( C_SERVER_EXAMPLES
-    batch_server
-    sequential_server )
-#    parallel_server 
-
+    batch_server )
 
   FOREACH( loop_var ${C_SERVER_EXAMPLES} )
     ADD_EXECUTABLE( ${loop_var} ${loop_var}.c )
@@ -65,7 +63,7 @@ ELSE( DIET_USE_BATCH )
   ### Do Lammps example, Decrypthon suites, SparseSolver/PasTiX prototype
   # ADD_SUBDIRECTORY( Lammps )
   ADD_SUBDIRECTORY( TestAllBatch )
-  ADD_SUBDIRECTORY( SparseSolver )
+  # ADD_SUBDIRECTORY( Cori_cycle_stealing )
 
 ENDIF( DIET_USE_BATCH )
 

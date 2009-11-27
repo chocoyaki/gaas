@@ -7,6 +7,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2009/11/27 03:24:30  ycaniou
+ * Add user_command possibility before the end of Batch prologue (only
+ * to be used for batch dependent code!)
+ * Memory leak/segfault--
+ * New easy Batch basic example
+ * Management of OAR2_X Batch scheduler
+ *
  * Revision 1.1  2007/11/02 16:12:57  ycaniou
  * Ajout des fichiers exemple. Tests en cours.
  *
@@ -22,8 +29,6 @@
 #include "DIET_client.h"
 
 #include <sys/time.h>
-
-/* argv[1]: client config file path */
 
 #define SUBMISSION_TYPE 0 /* 0: seq or //, 1: // only, 2: seq only */
 

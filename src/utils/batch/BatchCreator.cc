@@ -8,6 +8,13 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2009/11/27 03:24:30  ycaniou
+ * Add user_command possibility before the end of Batch prologue (only
+ * to be used for batch dependent code!)
+ * Memory leak/segfault--
+ * New easy Batch basic example
+ * Management of OAR2_X Batch scheduler
+ *
  * Revision 1.5  2008/08/19 00:46:37  bdepardo
  * PBS -> pbs for the name of the batch scheduler
  *
@@ -30,6 +37,7 @@
 
 //#include <cstring>
 #include "OAR1_6BatchSystem.hh"
+#include "OAR2_XBatchSystem.hh"
 #include "Loadleveler_BatchSystem.hh"
 #include "PBS_BatchSystem.hh"
 #include "BatchCreator.hh"
@@ -44,7 +52,8 @@ const char * const BatchCreator::batchNames[NUMBER_OF_SUPPORTED_BATCH] = {
   "oar1.6",
   "loadleveler",
   "sge",
-  "pbs"
+  "pbs",
+  "oar2.x"
 } ;
 
 // "shellscript",
@@ -63,21 +72,16 @@ BatchCreator::getBatchSystem( const char * batchName )
   if( !(existBatchScheduler(batchName,&batchID) ) ) {
     return NULL ;
   }
-  
+
   switch( (int)batchID ) {
-    // case SHELL:
-    //       batch = new SHELLBatch() ;
-    //     case CONDOR:
-    //     case DQS:
-    //     case LSF:
-    //     case PBS:
-    //     case SGE:
   case OAR1_6:
     return new OAR1_6BatchSystem(batchID,batchNames[batchID]) ;
   case LOADLEVELER:
     return new Loadleveler_BatchSystem(batchID,batchNames[batchID]) ;
   case PBS:
     return new PBS_BatchSystem(batchID,batchNames[batchID]) ;
+  case OAR2_X:
+    return new OAR2_XBatchSystem(batchID,batchNames[batchID]) ;
   default:
     return NULL ;
   }
