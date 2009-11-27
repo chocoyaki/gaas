@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.41  2009/11/27 02:28:07  ycaniou
+ * Warnings--
+ *
  * Revision 1.40  2009/11/26 12:05:32  ycaniou
  * Warning--
  *
@@ -162,9 +165,10 @@ displayResponse(FILE* os, const corba_response_t* resp)
 #endif
 
   fprintf(os, "\n----------------------------------------\n");
-  fprintf(os, " Response structure for request %ud :\n\n", resp->reqID);
+  fprintf(os, " Response structure for request %lu :\n\n",
+	  (long unsigned int)resp->reqID);
   if (TRACE_LEVEL >= TRACE_ALL_STEPS) {
-    fprintf(os, " I'm son nb %ld\n", (long)resp->myID);
+    fprintf(os, " I'm son nb %lu\n", (long unsigned int)resp->myID);
   }
 
   fprintf(os, " %ld servers are able to solve the problem:\n",
@@ -514,7 +518,7 @@ displayProfileDesc(const corba_profile_desc_t* desc)
         fprintf(f," No priorities assigned");
       } else {
         for (unsigned int i = 0; i < prior.priorityList.length(); i++) {
-          fprintf(f," %d", prior.priorityList[i]);
+          fprintf(f," %ld", (long int)prior.priorityList[i]);
         }
       }
       fprintf(f, " )\n");
