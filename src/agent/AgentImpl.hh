@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.26  2009/11/30 17:57:47  bdepardo
+ * New methods to remove the agent in a cleaner way when killing it.
+ *
  * Revision 1.25  2009/10/26 09:18:57  bdepardo
  * Added method for dynamic hierarchy management:
  * - childUnsubscribe(...)
@@ -194,6 +197,8 @@ public:
    */
   virtual CORBA::Long
   removeElement(bool recursive);
+  void removeElementChildren(bool recursive);
+  void removeElementClean(bool recursive);
 #endif // HAVE_DYNAMICS
 
 

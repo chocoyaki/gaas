@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.34  2009/11/30 17:57:47  bdepardo
+ * New methods to remove the agent in a cleaner way when killing it.
+ *
  * Revision 1.33  2009/10/26 09:15:54  bdepardo
  * When using dynamic hierarchy management, catches SIGINT for clean termination.
  *
@@ -402,7 +405,7 @@ main(int argc, char** argv)
 
 #ifdef HAVE_DYNAMICS
   signal(SIGINT, SIG_IGN);
-  Agt->removeElement(false);
+  Agt->removeElementClean(false);
   signal(SIGINT, SIG_DFL);
 #endif // HAVE_DYNAMICS
 

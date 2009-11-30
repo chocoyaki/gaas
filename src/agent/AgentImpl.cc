@@ -5,6 +5,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.59  2009/11/30 17:57:47  bdepardo
+ * New methods to remove the agent in a cleaner way when killing it.
+ *
  * Revision 1.58  2009/10/26 09:18:57  bdepardo
  * Added method for dynamic hierarchy management:
  * - childUnsubscribe(...)
@@ -446,6 +449,15 @@ AgentImpl::childUnsubscribe(CORBA::ULong childID,
 
 CORBA::Long
 AgentImpl::removeElement(bool recursive) {
+
+  removeElementChildren(recursive);
+
+  /* Send signal to commit suicide */
+  return raise(SIGINT);
+}
+
+void
+AgentImpl::removeElementChildren(bool recursive) {
   /* Do we need to recursively destroy the underlying hierarchy? */
   if (recursive) {
     unsigned long childID;
@@ -462,6 +474,7 @@ AgentImpl::removeElement(bool recursive) {
 	}
       }
     }
+    LAChildren.clear();
 
     /* Forward to SeDs */
     for (childID = 0; childID < SeDChildren.size(); ++ childID) {
@@ -475,11 +488,18 @@ AgentImpl::removeElement(bool recursive) {
 	  WARNING("TRANSIENT when contacting SeDChild " << childID);
 	}
       }
-    }    
+    }
+    SeDChildren.clear();
   }
+}
 
-  /* Send signal to commit suicide */
-  return raise(SIGINT);
+void
+AgentImpl::removeElementClean(bool recursive) {
+  removeElementChildren(recursive);
+
+  /* Log */
+  if (dietLogComponent != NULL)
+    dietLogComponent->logRemoveElement();
 }
 #endif // HAVE_DYNAMICS
 
