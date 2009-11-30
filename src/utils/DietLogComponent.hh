@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.20  2009/11/30 17:56:15  bdepardo
+ * Added message when killing element.
+ *
  * Revision 1.19  2009/10/26 09:12:14  bdepardo
  * Added logs for dynamic hierarchy modifications:
  * - NEW_PARENT
@@ -279,6 +282,7 @@ public:
 #ifdef HAVE_DYNAMICS
   void logNewParent(const char* type, const char* parent);
   void logDisconnect();
+  void logRemoveElement();
 #endif // HAVE_DYNAMICS
 
   /**

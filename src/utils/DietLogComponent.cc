@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.38  2009/11/30 17:56:15  bdepardo
+ * Added message when killing element.
+ *
  * Revision 1.37  2009/10/26 09:12:14  bdepardo
  * Added logs for dynamic hierarchy modifications:
  * - NEW_PARENT
@@ -268,7 +271,7 @@ DietLogComponent::DietLogComponent(const char* name,
   pingThread=NULL;
 
   // define tags
-  tagCount = 22;
+  tagCount = 23;
   tagFlags = createBoolArrayFalse(tagCount);
   tagNames = new char*[this->tagCount];
   tagNames[0] = strdup("ADD_SERVICE");
@@ -295,6 +298,7 @@ DietLogComponent::DietLogComponent(const char* name,
   tagNames[19] = strdup("DAG");
   tagNames[20] = strdup("NEW_PARENT");
   tagNames[21] = strdup("DISCONNECT");
+  tagNames[22] = strdup("REMOVE");
 
 
   CORBA::Object_ptr myLCCptr;
@@ -767,8 +771,21 @@ void
 DietLogComponent::logDisconnect() {
   if (tagFlags[21]) {
     char * str = new char[10];
-    sprintf(str, "L");
+    sprintf(str, "D");
     log(tagNames[21], str);
+    delete [] str;
+  }
+}
+
+/**
+ * Remove element
+ */
+void
+DietLogComponent::logRemoveElement() {
+  if (tagFlags[22]) {
+    char * str = new char[2];
+    sprintf(str, "R");
+    log(tagNames[22], str);
     delete [] str;
   }
 }
