@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.85  2009/11/30 17:58:08  bdepardo
+ * New methods to remove the SeD in a cleaner way.
+ *
  * Revision 1.84  2009/11/27 03:24:30  ycaniou
  * Add user_command possibility before the end of Batch prologue (only
  * to be used for batch dependent code!)
@@ -972,7 +975,7 @@ diet_SeD(char* config_file_name, int argc, char* argv[])
 
 #ifdef HAVE_DYNAMICS
   signal(SIGINT, SIG_IGN);
-  SeD->removeElement();
+  SeD->removeElementClean();
   signal(SIGINT, SIG_DFL);
 #endif // HAVE_DYNAMICS
 

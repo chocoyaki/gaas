@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.47  2009/11/30 17:58:08  bdepardo
+ * New methods to remove the SeD in a cleaner way.
+ *
  * Revision 1.46  2009/10/26 09:14:23  bdepardo
  * Added methods for dynamic hierarchy modifications:
  * - bindParent(const char * parentName)
@@ -281,6 +284,7 @@ public:
   disconnect();
   virtual CORBA::Long
   removeElement();
+  void removeElementClean();
 #endif // HAVE_DYNAMICS
 
   int

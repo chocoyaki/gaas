@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.115  2009/11/30 17:58:08  bdepardo
+ * New methods to remove the SeD in a cleaner way.
+ *
  * Revision 1.114  2009/10/26 09:14:23  bdepardo
  * Added methods for dynamic hierarchy modifications:
  * - bindParent(const char * parentName)
@@ -504,6 +507,14 @@ SeDImpl::bindParent(const char * parentName) {
 
 CORBA::Long
 SeDImpl::removeElement() {
+  // removeElementClean();
+
+  /* Send signal to commit suicide */
+  return raise(SIGINT);
+}
+
+void
+SeDImpl::removeElementClean() {
   SeqCorbaProfileDesc_t* profiles(NULL);
   profiles = SrvT->getProfiles();
 
@@ -520,9 +531,12 @@ SeDImpl::removeElement() {
   }
 
   delete profiles;
-  /* Send signal to commit suicide */
-  return raise(SIGINT);
+
+  /* Log */
+  if (dietLogComponent != NULL)
+    dietLogComponent->logRemoveElement();
 }
+
 #endif // HAVE_DYNAMICS
 
 
