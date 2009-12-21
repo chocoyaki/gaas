@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.17  2009/12/21 14:17:26  bdepardo
+ * Write request number in getRequest statistics
+ *
  * Revision 1.16  2009/10/26 09:17:37  bdepardo
  * Added methods for dynamic hierarchy management:
  * - bindParent(const char * parentName)
@@ -374,6 +377,7 @@ LocalAgentImpl::getRequest(const corba_request_t& req)
 #ifdef HAVE_DYNAMICS
   Agent_var parentTmp = this->parent;
 #endif
+  char statMsg[128];
 
   if (dietLogComponent != NULL) {
     dietLogComponent->logAskForSeD(&req);
@@ -385,7 +389,8 @@ LocalAgentImpl::getRequest(const corba_request_t& req)
 
   /* Initialize statistics module */
   stat_init();
-  stat_in(this->myName,"getRequest");
+  sprintf(statMsg, "getRequest %ld", (unsigned long) req.reqID);
+  stat_in(this->myName,statMsg);
 
   corba_response_t& resp = *(this->findServer(currRequest, req.max_srv));
   resp.myID = this->childID;
@@ -398,13 +403,13 @@ LocalAgentImpl::getRequest(const corba_request_t& req)
 #ifndef HAVE_DYNAMICS
   this->parent->getResponse(resp);
 #else
-  this->parent->getResponse(resp);
+  parentTmp->getResponse(resp);
 #endif // HAVE_DYNAMICS
 
   this->reqList[req.reqID] = NULL;
   delete currRequest;
   delete &resp;
 
-  stat_out(this->myName,"getRequest");
+  stat_out(this->myName,statMsg);
   stat_flush();
 } // getRequest(const corba_request_t& req)
