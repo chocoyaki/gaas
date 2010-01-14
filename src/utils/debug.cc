@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.42  2010/01/14 13:15:08  bdepardo
+ * "\n" -> endl
+ *
  * Revision 1.41  2009/11/27 02:28:07  ycaniou
  * Warnings--
  *
@@ -184,7 +187,7 @@ displayResponse(FILE* os, const corba_response_t* resp)
     else if( resp->servers[i].loc.serverType == SERIAL )
       serverType = "serial" ;
     else {
-      WARNING("Type of server is not well defined!\n");
+      WARNING("Type of server is not well defined!" << endl);
       serverType = "" ;
     }
     if( resp->servers[i].loc.parallel_flag == 1 )
@@ -192,7 +195,7 @@ displayResponse(FILE* os, const corba_response_t* resp)
     else if( resp->servers[i].loc.parallel_flag == 2 )
       jobSpec = "parallel" ;
     else {
-      WARNING("Type of job is not well defined!\n");
+      WARNING("Type of job is not well defined!" << endl);
       jobSpec = "" ;
     }
 
@@ -277,7 +280,7 @@ displayResponseShort(FILE* os, const corba_response_t* resp)
   else if( resp->servers[i].loc.serverType == SERIAL )
     serverType = "serial" ;
   else {
-    WARNING("Type of server is not well defined!\n");
+    WARNING("Type of server is not well defined!" << endl);
     serverType = "" ;
   }
   if( resp->servers[i].loc.parallel_flag == 1 )
@@ -285,7 +288,7 @@ displayResponseShort(FILE* os, const corba_response_t* resp)
   else if( resp->servers[i].loc.parallel_flag == 2 )
     jobSpec = "parallel" ;
   else {
-    WARNING("Type of job is not well defined!\n");
+    WARNING("Type of job is not well defined!" << endl);
     jobSpec = "" ;
   }
 #endif
@@ -427,7 +430,7 @@ displayProfileDesc(const diet_profile_desc_t* desc, const char* path)
   else if( desc->parallel_flag == 2 )
     jobSpec = "parallel" ;
   else {
-    WARNING("Type of job is not well defined!\n");
+    WARNING("Type of job is not well defined!" << endl);
     jobSpec = "" ;
   }
 #endif
@@ -485,7 +488,7 @@ displayProfileDesc(const corba_profile_desc_t* desc)
   else if( desc->parallel_flag == 2 )
     jobSpec = "parallel" ;
   else {
-    WARNING("Type of job is not well defined!\n");
+    WARNING("Type of job is not well defined!" << endl);
     jobSpec = "" ;
   }
   fprintf(f, " - Service %s (%s)", path, jobSpec);
@@ -543,7 +546,7 @@ displayProfile(const diet_profile_t* profile, const char* path)
   else if( profile->parallel_flag == 2 )
     jobSpec = "parallel" ;
   else {
-    WARNING("Type of job is not well defined!\n");
+    WARNING("Type of job is not well defined!" << endl);
     jobSpec = "" ;
   }
   fprintf(f, " - Service %s (%s)", path, jobSpec);
@@ -575,7 +578,7 @@ displayProfile(const corba_profile_t* profile, const char* path)
   else if( profile->parallel_flag == 2 )
     jobSpec = "parallel" ;
   else {
-    WARNING("Type of job is not well defined!\n");
+    WARNING("Type of job is not well defined!" << endl);
     jobSpec = "" ;
   }
   fprintf(f, " - Service %s (%s)", path, jobSpec);
@@ -608,7 +611,7 @@ displayPbDesc(const corba_pb_desc_t* profile)
   else if( profile->parallel_flag == 2 )
     jobSpec = "parallel" ;
   else {
-    WARNING("Type of job is not well defined!\n");
+    WARNING("Type of job is not well defined!" << endl);
     jobSpec = "" ;
   }
   fprintf(f, " - Service %s (%s)", path, jobSpec);

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.37  2010/01/14 13:15:08  bdepardo
+ * "\n" -> endl
+ *
  * Revision 1.36  2009/11/27 02:28:07  ycaniou
  * Warnings--
  *
@@ -277,7 +280,7 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
   ServiceReference_t service_idx(-1);
 
   if (matching_children) {
-    SRVT_ERROR("attempting to add a service with\n"
+    SRVT_ERROR("attempting to add a service with" << endl
                << "  solver in a table initialized with children");
   }
 
@@ -320,7 +323,7 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
     return -1;
     // service is already in table
   } else {
-    SRVT_ERROR("attempting to add 2 services with\n"
+    SRVT_ERROR("attempting to add 2 services with" << endl
                << "  same path and profile, but with different solvers");
   }
   return 0;
@@ -334,7 +337,7 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
   ServiceReference_t service_idx(-1);
   
   if (solvers) {
-    SRVT_ERROR("attempting to add a service with\n"
+    SRVT_ERROR("attempting to add a service with" << endl
                << "  child in a table initialized with solvers");
   }
 
@@ -363,7 +366,7 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
       const corba_aggregator_desc_t *a1 = &(storedProfile->aggregator);
       const corba_aggregator_desc_t *a2 = &(profile->aggregator);
       if (a1->agg_specific._d() != a2->agg_specific._d()) {
-        ERROR(__FUNCTION__ << ": aggregator type mismatch\n", -2);
+        ERROR(__FUNCTION__ << ": aggregator type mismatch" << endl, -2);
       }
       switch (a1->agg_specific._d()) {
 /* New : The user aggregator case.                           */
@@ -383,7 +386,7 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
                   p1->priorityList.length() <<
                   " != " <<
                   p2->priorityList.length() <<
-                  ")\n", -2);
+                  ")" << endl, -2);
           }
           for (unsigned int pvIter = 0 ;
                pvIter < p1->priorityList.length() ;
@@ -396,7 +399,7 @@ ServiceTable::addService(const corba_profile_desc_t* profile,
                     p1->priorityList[pvIter] <<
                     " != " <<
                     p2->priorityList[pvIter] <<
-                    ")\n" <<
+                    ")" << endl <<
 		    "TIPS : check diet_aggregator_priority_ function in all SeD", -2);
             }
           }
@@ -537,7 +540,7 @@ ServiceTable::rmChild(const CORBA::ULong child)
   ServiceReference_t ref(-1);
   
   if (solvers) {
-    SRVT_ERROR("attempting to remove a child from\n"
+    SRVT_ERROR("attempting to remove a child from" << endl
                << "  a table initialized with solvers");
   }
   for (ref = 0; (size_t)ref < nb_s; ref++) {
@@ -602,7 +605,7 @@ ServiceTable::getSolver(const corba_profile_desc_t* profile)
   ServiceReference_t ref(-1);
   
   if ((ref = lookupService(profile)) == -1) {
-    SRVT_ERROR("attempting to get solver\n"
+    SRVT_ERROR("attempting to get solver" << endl
                << "  of a service that is not in table");
   }
   return getSolver(ref);
@@ -613,7 +616,7 @@ diet_solve_t
 ServiceTable::getSolver(const ServiceReference_t ref)
 {
   if (!solvers) {
-    SRVT_ERROR("attempting to get a solver\n"
+    SRVT_ERROR("attempting to get a solver" << endl
                << "  in a table initialized with children");
   }
   if (((int) ref < 0) || ((size_t) ref >= nb_s)) {
@@ -629,7 +632,7 @@ ServiceTable::getEvalf(const corba_profile_desc_t* profile)
   ServiceReference_t ref;
   
   if ((ref = lookupService(profile)) == -1) {
-    SRVT_ERROR("attempting to get eval function\n"
+    SRVT_ERROR("attempting to get eval function" << endl
                << "  of a service that is not in table");
   }
   return getEvalf(ref);
@@ -640,7 +643,7 @@ diet_eval_t
 ServiceTable::getEvalf(const ServiceReference_t ref)
 {
   if (!solvers) {
-    SRVT_ERROR("attempting to get an eval function\n"
+    SRVT_ERROR("attempting to get an eval function" << endl
                << "  in a table initialized with children");
   }
   if (((int) ref < 0) || ((size_t) ref >= nb_s)) {
@@ -656,7 +659,7 @@ ServiceTable::getConvertor(const corba_profile_desc_t* profile)
   ServiceReference_t ref(-1);
   
   if ((ref = lookupService(profile)) == -1) {
-    SRVT_ERROR("attempting to get convertor\n"
+    SRVT_ERROR("attempting to get convertor" << endl
                << "  of a service that is not in table");
   }
   return getConvertor(ref);
@@ -667,7 +670,7 @@ diet_convertor_t*
 ServiceTable::getConvertor(const ServiceReference_t ref)
 {
   if (!solvers) {
-    SRVT_ERROR("attempting to get a convertor\n"
+    SRVT_ERROR("attempting to get a convertor" << endl
                << "  in a table initialized with children");
   }
   if (((int) ref < 0) || ((size_t) ref >= nb_s)) {
@@ -683,7 +686,7 @@ ServiceTable::getPerfMetric(const corba_profile_desc_t* profile)
   ServiceReference_t ref(-1);
   
   if ((ref = lookupService(profile)) == -1) {
-    SRVT_ERROR("attempting to get performance metric\n"
+    SRVT_ERROR("attempting to get performance metric" << endl
                << "  of a service that is not in table");
   }
   return (this->getPerfMetric(ref));
@@ -694,7 +697,7 @@ diet_perfmetric_t
 ServiceTable::getPerfMetric(const ServiceReference_t ref)
 {
   if (!solvers) {
-    SRVT_ERROR("attempting to get a performance metric\n"
+    SRVT_ERROR("attempting to get a performance metric" << endl
                << "  in a table initialized with children");
   }
   if (((int) ref < 0) || ((size_t) ref >= nb_s)) {
@@ -710,7 +713,7 @@ ServiceTable::getPerfMetric(const ServiceReference_t ref)
    ServiceReference_t ref(-1);
    
    if ((ref = lookupService(profile)) == -1) {
-   SRVT_ERROR("attempting to get children\n"
+   SRVT_ERROR("attempting to get children" << endl
    << "  of a service that is not in table");
    }
    return getChildren(ref);
@@ -723,7 +726,7 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc,
 			  CORBA::ULong * frontier)
 {
   if (solvers) {
-    SRVT_ERROR("attempting to get children\n"
+    SRVT_ERROR("attempting to get children" << endl
                << "  in a table initialized with solvers");
   }
   if (((int) serviceRef < 0) || ((size_t) serviceRef >= nb_s)) {
@@ -738,7 +741,7 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc,
   while( (i < nb_s) && (!profile_match(&(profiles[i]), pb_desc)) )
     i++ ;
   if( i == nb_s ) {
-    SRVT_ERROR("attempting to get children\n"
+    SRVT_ERROR("attempting to get children" << endl
                << "  of a service that is not in table");
   }
   first_found = i ;
@@ -769,7 +772,7 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc,
     /* Copy children, ordered parallel flag = 1 first */
     if( profiles[ serviceRef ].parallel_flag == 1 ) {
 #ifdef YC_DEBUG
-      cout << "Identities of the children for seq service\n" ;
+      cout << "Identities of the children for seq service" << endl ;
 #endif
       for( i=0; i<matching_children[ first_found ].nb_children ; i++ ) {
 	mc->children[ i ] =
@@ -779,11 +782,11 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc,
 #endif
       }
 #ifdef YC_DEBUG
-	cout << "\n" ;
+	cout << endl ;
 #endif
       if( second_found > 0 ) {
 #ifdef YC_DEBUG
-	cout << "Identities of the children for parallel service\n" ;
+	cout << "Identities of the children for parallel service" << endl ;
 #endif
 	for(j=0 ; j<matching_children[ second_found ].nb_children ; i++, j++) {
 	  mc->children[ i ] =
@@ -793,7 +796,7 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc,
 #endif
 	}
 #ifdef YC_DEBUG
-	cout << "\n" ;
+	cout << endl ;
 #endif
       }
       /* set frontier */
@@ -801,7 +804,7 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc,
     } else {
       if( second_found > 0 ) {
 #ifdef YC_DEBUG
-      cout << "Identities of the children for seq service\n" ;
+	cout << "Identities of the children for seq service" << endl ;
 #endif
 	for( i=0; i<matching_children[ second_found ].nb_children ; i++ ) {
 	  mc->children[ i ] =
@@ -811,13 +814,13 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc,
 #endif
 	}
 #ifdef YC_DEBUG
-	cout << "\n" ;
+	cout << endl ;
 #endif
 	/* set frontier */
 	(*frontier)=matching_children[ second_found ].nb_children ;
       } else {
 #ifdef YC_DEBUG
-      cout << "Identities of the children for parallel service\n" ;
+	cout << "Identities of the children for parallel service" << endl ;
 #endif 
       for( j=0, i=0 ; j<matching_children[ first_found ].nb_children ;
 	   i++, j++ ) {
@@ -828,7 +831,7 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc,
 #endif
       }
 #ifdef YC_DEBUG
-	cout << "\n" ;
+	cout << endl ;
 #endif
       /* set frontier */
       (*frontier)=0 ;
@@ -841,7 +844,7 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc,
     mc->children =
       new CORBA::ULong[mc->nb_children] ;
 #ifdef YC_DEBUG
-    cout << "Identities of the children for service\n" ;
+    cout << "Identities of the children for service" << endl ;
 #endif
     for( i=0; i<matching_children[ first_found ].nb_children ; i++ ) {
       mc->children[ i ] =
@@ -851,7 +854,7 @@ ServiceTable::getChildren(const corba_pb_desc_t * pb_desc,
 #endif
     }
 #ifdef YC_DEBUG
-	cout << "\n" ;
+	cout << endl ;
 #endif
     /* set frontier */
     if( profiles[ serviceRef ].parallel_flag == 1 )
@@ -867,7 +870,7 @@ const ServiceTable::matching_children_t*
 ServiceTable::getChildren(const ServiceReference_t ref)
 {
   if (solvers) {
-    SRVT_ERROR("attempting to get children\n"
+    SRVT_ERROR("attempting to get children" << endl
                << "  in a table initialized with solvers");
   }
   if (((int) ref < 0) || ((size_t) ref >= nb_s)) {

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.54  2010/01/14 13:15:08  bdepardo
+ * "\n" -> endl
+ *
  * Revision 1.53  2009/09/25 13:44:43  bdepardo
  * Fixed a bug on clientMaxNbSeD: there was an inconsistency in the type of
  * the parameter.
@@ -438,14 +441,15 @@ Parsers::checkFASTEntries()
 #if HAVE_FAST
 
   if (PARAM(FASTUSE).value == NULL) {
-    PARSERS_WARNING(PARAM(FASTUSE).kwd << " is missing.\n I guess "
+    PARSERS_WARNING(PARAM(FASTUSE).kwd << " is missing."
+		    << endl << "I guess "
 		    << PARAM(FASTUSE).kwd << " = 0");
     PARAM(FASTUSE).value = new size_t(0);
   }
 
     // size_t --> unsigned int
   use = *((unsigned int*)PARAM(FASTUSE).value);
-  TRACE_TEXT(TRACE_ALL_STEPS, PARAM(FASTUSE).kwd << " = " << use << ".\n");
+  TRACE_TEXT(TRACE_ALL_STEPS, PARAM(FASTUSE).kwd << " = " << use << "." << endl);
 
   if (use > 0) {
 
@@ -453,7 +457,8 @@ Parsers::checkFASTEntries()
     if (PARAM(LDAPUSE).value == NULL) {
       // Display warning for SeDs only, when ldapUse is not set
       if (PARAM(AGENTTYPE).value != NULL) {
-	PARSERS_WARNING(PARAM(LDAPUSE).kwd << " is missing.\n I guess "
+	PARSERS_WARNING(PARAM(LDAPUSE).kwd << " is missing."
+			<< endl << "I guess "
 			<< PARAM(LDAPUSE).kwd << " = 0");
 	*((unsigned int*)PARAM(LDAPUSE).value) = 0;
       } else {
@@ -464,7 +469,7 @@ Parsers::checkFASTEntries()
 
     use = *((unsigned int*)PARAM(LDAPUSE).value);
     TRACE_TEXT(TRACE_ALL_STEPS,
-	       ' ' << PARAM(LDAPUSE).kwd << " = " << use << ".\n");
+	       ' ' << PARAM(LDAPUSE).kwd << " = " << use << "." << endl);
 
     if (use > 0) {
       if (PARAM(LDAPBASE).value == NULL) {
@@ -485,14 +490,15 @@ Parsers::checkFASTEntries()
 
     /* Check NWS entries */
     if (PARAM(NWSUSE).value == NULL) {
-      PARSERS_WARNING(PARAM(NWSUSE).kwd << " is missing.\n  I guess "
+      PARSERS_WARNING(PARAM(NWSUSE).kwd << " is missing."
+		      << endl << "I guess "
 		      << PARAM(NWSUSE).kwd << " = 0");
       *((unsigned int*)PARAM(NWSUSE).value) = 0;
     }
 
     use = *((unsigned int*)PARAM(NWSUSE).value);
     TRACE_TEXT(TRACE_ALL_STEPS,
-	       ' ' << PARAM(NWSUSE).kwd << " = " << use << ".\n");
+	       ' ' << PARAM(NWSUSE).kwd << " = " << use << "." << endl);
 
     if (use > 0) {
       if (PARAM(NWSNAMESERVER).value == NULL) {
@@ -560,7 +566,7 @@ Parsers::checkValidity(bool checkFASTEntries, unsigned int nbCompulsoryParams,
   }
   if (someAreMissing) {
     cerr << "Error: " << "Parsers::" << __FUNCTION__
-	 << ": some compulsory parameters are missing:\n";
+	 << ": some compulsory parameters are missing:" << endl;
     for (size_t i = 0; i < nbCompulsoryParams; i++) {
       Results::param_type_t type = compulsoryParams[i];
       if (Results::params[type].noLine == 0)

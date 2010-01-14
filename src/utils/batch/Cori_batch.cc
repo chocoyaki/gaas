@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2010/01/14 13:15:08  bdepardo
+ * "\n" -> endl
+ *
  * Revision 1.4  2008/05/11 16:19:51  ycaniou
  * Check that pathToTmp and pathToNFS exist
  * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
@@ -48,20 +51,20 @@ className::printMetric( estVector_t vector_v, int type_Info )
   switch( type_Info ){
   
   case EST_SERVER_TYPE: /* Value appears only once */
-    cout << "In construction: EST_SERVER_TYPE\n\n" ;
+    cout << "In construction: EST_SERVER_TYPE" << endl << endl ;
     break;
   case EST_PARAL_NBTOT_RESOURCES:
-    cout << "In construction: EST_PARAL_NBTOT_RESOURCES\n\n" ;
+    cout << "In construction: EST_PARAL_NBTOT_RESOURCES" << endl << endl ;
     break;
   case EST_PARAL_NBTOT_FREE_RESOURCES:
-    cout << "In construction: EST_PARAL_NBTOT_FREE_RESOURCES\n\n" ;
+    cout << "In construction: EST_PARAL_NBTOT_FREE_RESOURCES" << endl << endl ;
     break;
   case EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE:
     cout << 
       "CoRI: EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE... " <<
       (int)diet_est_get_system(vector_v,
 			       EST_PARAL_NB_FREE_RESOURCES_IN_DEFAULT_QUEUE, 0)
-	 << "\n\n" ;
+	 << endl << endl ;
     break;
   default: {
   INTERNAL_WARNING( "CoRI: Tag " << type_Info <<" for printing info");

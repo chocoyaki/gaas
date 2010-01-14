@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.32  2010/01/14 13:15:08  bdepardo
+ * "\n" -> endl
+ *
  * Revision 1.31  2009/10/19 11:41:04  bdepardo
  * Removed compilation warnings
  *
@@ -129,7 +132,7 @@ extern omni_mutex debug_log_mutex ;
  * preprocessing inclusion for this to work.
  */
 #ifndef EXIT_FUNCTION
-#define EXIT_FUNCTION cout << "DEBUG WARNING: EXIT_FUNCTION undeclared !\n"
+#define EXIT_FUNCTION cout << "DEBUG WARNING: EXIT_FUNCTION undeclared !" << endl
 #endif
 
 
@@ -154,19 +157,19 @@ extern omni_mutex debug_log_mutex ;
  */
 #define ERROR(formatted_msg,return_value) {         \
   debug_log_mutex.lock() ;                          \
-  cerr << "DIET ERROR: " << formatted_msg << ".\n"; \
+  cerr << "DIET ERROR: " << formatted_msg << "." << endl;	\
   debug_log_mutex.unlock() ;                        \
   return return_value ; }
 
 #define ERROR_EXIT(formatted_msg) {                 \
   debug_log_mutex.lock() ;                          \
-  cerr << "DIET ERROR: " << formatted_msg << ".\n"; \
+  cerr << "DIET ERROR: " << formatted_msg << "." << endl;	\
   debug_log_mutex.unlock() ;                        \
   exit(1) ; }
 
 #define INTERNAL_ERROR_EXIT(formatted_msg) {                 \
   debug_log_mutex.lock() ;                          \
-  cerr << "DIET ERROR: " << formatted_msg << ".\n"; \
+  cerr << "DIET ERROR: " << formatted_msg << "." << endl;	\
   debug_log_mutex.unlock() ;                        \
   exit(1) ; }
 
@@ -175,7 +178,7 @@ extern omni_mutex debug_log_mutex ;
  */
 #define WARNING(formatted_msg) {                     \
   debug_log_mutex.lock() ;                           \
-  cerr << "DIET WARNING: " << formatted_msg << ".\n";\
+  cerr << "DIET WARNING: " << formatted_msg << "." << endl;	\
   debug_log_mutex.unlock() ; }
 
 
@@ -184,8 +187,8 @@ extern omni_mutex debug_log_mutex ;
  */
 #define INTERNAL_ERROR(formatted_msg,exit_value) {            \
   debug_log_mutex.lock() ;                                    \
-  cerr << "DIET INTERNAL ERROR: " << formatted_msg << ".\n"   \
-       "Please send bug report to diet-usr@ens-lyon.fr\n" ;   \
+  cerr << "DIET INTERNAL ERROR: " << formatted_msg << "." << endl <<	\
+    "Please send bug report to diet-usr@ens-lyon.fr" << endl ;		\
   debug_log_mutex.unlock() ; }                                \
   EXIT_FUNCTION;                                              \
   exit(exit_value)
@@ -195,9 +198,9 @@ extern omni_mutex debug_log_mutex ;
  */
 #define INTERNAL_WARNING(formatted_msg) {                     \
   debug_log_mutex.lock() ;                                    \
-  cerr << "DIET INTERNAL WARNING: " << formatted_msg << ".\n" \
+  cerr << "DIET INTERNAL WARNING: " << formatted_msg << "." << endl <<	\
        "This is not a fatal bug, but please send a report "   \
-      "to diet-dev@ens-lyon.fr\n"                           ; \
+    "to diet-dev@ens-lyon.fr" << endl                           ;  \
   debug_log_mutex.unlock() ; }
 
 
@@ -216,7 +219,7 @@ extern omni_mutex debug_log_mutex ;
 #define TRACE_FUNCTION(level,formatted_text)               \
   if ((int)TRACE_LEVEL >= (int)(level)) {            \
     debug_log_mutex.lock() ;                               \
-    cout << __FUNCTION__ << '(' << formatted_text << ")\n";\
+    cout << __FUNCTION__ << '(' << formatted_text << ")" << endl;	\
     debug_log_mutex.unlock() ; }
 
 // DEBUG trace: print formatted_text following the iostream format (no '\n'

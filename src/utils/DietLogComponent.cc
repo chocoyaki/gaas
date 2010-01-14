@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.39  2010/01/14 13:15:08  bdepardo
+ * "\n" -> endl
+ *
  * Revision 1.38  2009/11/30 17:56:15  bdepardo
  * Added message when killing element.
  *
@@ -145,16 +148,16 @@ using namespace std;
  * Error message - exit with exit_value.
  */
 #define DLC_ERROR(formatted_msg,exit_value)              \
-  cerr << "DIET ERROR: " << formatted_msg << ".\n"   \
-       << "cannot proceed.\n"; \
+  cerr << "DIET ERROR: " << formatted_msg << "." << endl	 \
+       << "cannot proceed." << endl; \
   exit(exit_value)
 
 /**
  * Warning message.
  */
 #define DLC_WARNING(formatted_msg)                       \
-  cerr << "DIET WARNING: " << formatted_msg << ".\n" \
-       << "DIET can proceed, but you may encounter unexpected behaviour.\n"
+  cerr << "DIET WARNING: " << formatted_msg << "." << endl			\
+       << "DIET can proceed, but you may encounter unexpected behaviour." << endl
 
 /**
  * FlushBufferThread
@@ -727,7 +730,7 @@ void
 DietLogComponent::handleDisconnect(CORBA::SystemException &e) {
   DLC_WARNING("Connection to LogCentral failed");
 #ifdef DLC_ERROR_BEHAVIOUR_FATAL
-  DLC_ERROR("Cannot proceed without LogCentral connection\n",1);
+  DLC_ERROR("Cannot proceed without LogCentral connection",1);
 #else
   DLC_WARNING("LogComponent module stopped - agent will continue without LogCentral");
   isConnected = false;

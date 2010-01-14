@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2010/01/14 13:15:08  bdepardo
+ * "\n" -> endl
+ *
  * Revision 1.3  2006/11/01 14:13:02  ecaron
  * Add missing header for release
  *
@@ -35,7 +38,7 @@ diet_est_set_internal(estVector_t ev, int tag, double value)
     ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
   }
   if (tag < 0) {
-    ERROR(__FUNCTION__ << ": tag must be non-negative (" << tag << ")\n", -1);
+    ERROR(__FUNCTION__ << ": tag must be non-negative (" << tag << ")" << endl, -1);
   }
 
   for (unsigned int valIter = 0 ; valIter < EV_LEN(ev) ; valIter++) {
@@ -64,7 +67,7 @@ diet_est_get_internal(estVectorConst_t ev, int tag, double errVal)
     ERROR(__FUNCTION__ <<
           ": tag must be non-negative (" <<
           tag <<
-          ")\n",
+          ")" << endl,
           errVal);
   }
 
@@ -85,7 +88,7 @@ diet_est_defined_internal(estVectorConst_t ev, int tag)
     ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
   }
   if (tag < 0) {
-    ERROR(__FUNCTION__ << ": tag must be non-negative (" << tag << ")\n", -1);
+    ERROR(__FUNCTION__ << ": tag must be non-negative (" << tag << ")" << endl, -1);
   }
 
 //   cout << "AS: [" << __FUNCTION__ << "] num values = " << EV_LEN(ev) << endl;
@@ -107,7 +110,7 @@ diet_est_array_size_internal(estVectorConst_t ev, int tag)
     ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
   }
   if (tag < 0) {
-    ERROR(__FUNCTION__ << ": tag must be non-negative (" << tag << ")\n", -1);
+    ERROR(__FUNCTION__ << ": tag must be non-negative (" << tag << ")" << endl, -1);
   }
 
   int maxIdx = -1;
@@ -128,10 +131,10 @@ diet_est_array_set_internal(estVector_t ev, int tag, int idx, double value)
     ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
   }
   if (tag < 0) {
-    ERROR(__FUNCTION__ << ": tag must be non-negative (" << tag << ")\n", -1);
+    ERROR(__FUNCTION__ << ": tag must be non-negative (" << tag << ")" << endl, -1);
   }
   if (idx < 0) {
-    ERROR(__FUNCTION__ << ": idx must be non-negative (" << idx << ")\n", -1);
+    ERROR(__FUNCTION__ << ": idx must be non-negative (" << idx << ")" << endl, -1);
   }
 
   for (unsigned int valIter = 0 ; valIter < EV_LEN(ev) ; valIter++) {
@@ -163,14 +166,14 @@ diet_est_array_get_internal(estVectorConst_t ev,
     ERROR(__FUNCTION__ <<
           ": tag must be non-negative (" <<
           tag <<
-          ")\n",
+          ")" << endl,
           errVal);
   }
   if (idx < 0) {
     ERROR(__FUNCTION__ <<
           ": idx must be non-negative (" <<
           idx <<
-          ")\n",
+          ")" << endl,
           errVal);
   }
 
@@ -191,10 +194,10 @@ diet_est_array_defined_internal(estVectorConst_t ev, int tag, int idx)
     ERROR(__FUNCTION__ << ": NULL estimation vector", -1);
   }
   if (tag < 0) {
-    ERROR(__FUNCTION__ << ": tag must be non-negative (" << tag << ")\n", -1);
+    ERROR(__FUNCTION__ << ": tag must be non-negative (" << tag << ")" << endl, -1);
   }
   if (idx < 0) {
-    ERROR(__FUNCTION__ << ": idx must be non-negative (" << idx << ")\n", -1);
+    ERROR(__FUNCTION__ << ": idx must be non-negative (" << idx << ")" << endl, -1);
   }
 
   for (unsigned int valIter = 0 ; valIter < EV_LEN(ev) ; valIter++) {
