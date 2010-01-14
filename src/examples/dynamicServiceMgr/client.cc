@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2010/01/14 10:58:09  bdepardo
+ * Changes to compile with gcc 4.4
+ *
  * Revision 1.1  2008/12/08 15:32:43  bdepardo
  * Added an example to dynamically load a service given a library:
  * the library is sent by the client, and the SeD loads it and uses the new
@@ -46,7 +49,7 @@ main(int argc, char* argv[])
   checkUsage(argc, argv);
 
   if (diet_initialize(argv[1], argc, argv)) {
-    fprintf(stderr, "DIET initialization failed !\n");
+    std::cerr << "DIET initialization failed !" << std::endl;
     return 1;
   } 
 
@@ -76,7 +79,7 @@ main(int argc, char* argv[])
   if (diet_call(profile)) {
     return 1;
   }
-  printf("DIET CALL finished\n");
+  std::cout << "DIET CALL finished" << std::endl;
 
 
   /* End */

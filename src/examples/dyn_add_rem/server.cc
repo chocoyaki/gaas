@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2010/01/14 10:57:48  bdepardo
+ * Changes to compile with gcc 4.4
+ *
  * Revision 1.3  2009/10/18 09:15:11  bdepardo
  * CheckUsage
  *
@@ -30,6 +33,7 @@
 #include <iostream>
 #include <sstream>
 #include <cstring>
+#include <cstdlib>
 
 #include "DIET_server.h"
 #include "DIET_Dagda.h"

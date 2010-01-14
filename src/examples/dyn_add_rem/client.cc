@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2010/01/14 10:57:48  bdepardo
+ * Changes to compile with gcc 4.4
+ *
  * Revision 1.1  2008/11/18 10:18:13  bdepardo
  * - Added the possibility to dynamically create and destroy a service
  *   (even if the SeD is already started). An example is available.
@@ -31,6 +34,7 @@ void usage(char * s) {
   std::cout << "Usage: " << s << "<file.cfg> <service number> <number of services to spawn>" << std::endl;
   exit(1);
 }
+
 int checkUsage(int argc, char ** argv) {
   if (argc != 4) {
     usage(argv[0]);
@@ -48,7 +52,7 @@ main(int argc, char* argv[])
   checkUsage(argc, argv);
 
   if (diet_initialize(argv[1], argc, argv)) {
-    fprintf(stderr, "DIET initialization failed !\n");
+    std::cerr << "DIET initialization failed !" << std::endl;
     return 1;
   } 
 
@@ -65,7 +69,7 @@ main(int argc, char* argv[])
   if (diet_call(profile)) {
     return 1;
   }
-  printf("DIET CALL finished\n");
+  std::cout << "DIET CALL finished" << std::endl;
 
 
   /* End */

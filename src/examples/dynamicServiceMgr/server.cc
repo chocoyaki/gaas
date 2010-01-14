@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2010/01/14 10:58:09  bdepardo
+ * Changes to compile with gcc 4.4
+ *
  * Revision 1.1  2008/12/08 15:32:43  bdepardo
  * Added an example to dynamically load a service given a library:
  * the library is sent by the client, and the SeD loads it and uses the new
@@ -62,7 +65,7 @@ serviceAdd(diet_profile_t* pb)
   }
     
   diet_file_get(diet_parameter(pb,0), NULL, &arg_size, &path) ;
-  fprintf(stderr, "on %s (%d) ", path, (int) arg_size);
+  std::cerr << "on " << path << " (" << (int) arg_size << ") ";
   if ((status = stat(path, &buf)))
     return status;
   /* Regular file */
