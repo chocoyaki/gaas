@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.35  2010/01/14 11:06:22  bdepardo
+ * Compiles with gcc 4.4
+ *
  * Revision 1.34  2009/11/30 17:57:47  bdepardo
  * New methods to remove the agent in a cleaner way when killing it.
  *
@@ -114,6 +117,8 @@
 #include "ExitClass.hh"
 #include <iostream>
 #include <stdlib.h>
+#include <signal.h>
+
 using namespace std;
 
 #include "debug.hh"

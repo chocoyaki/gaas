@@ -10,13 +10,17 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2010/01/14 11:06:37  bdepardo
+ * Compiles with gcc 4.4
+ *
  * Revision 1.1  2009/10/26 09:23:51  bdepardo
  * Examples to dynamically manage the hierarchy.
  *
-/****************************************************************************/
+ *****************************************************************************/
 
 #include <iostream>
 #include <fstream>
+#include <cstdlib>
 
 #include <omniORB4/CORBA.h>
 

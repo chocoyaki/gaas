@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.86  2010/01/14 11:06:10  bdepardo
+ * Compiles with gcc 4.4
+ *
  * Revision 1.85  2009/11/30 17:58:08  bdepardo
  * New methods to remove the SeD in a cleaner way.
  *
@@ -204,6 +207,7 @@
 using namespace std;
 #include <unistd.h>  // For gethostname()
 #include <stdlib.h>
+#include <signal.h>
 
 #include "DIET_server.h"
 
