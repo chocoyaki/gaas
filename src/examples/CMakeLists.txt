@@ -2,8 +2,13 @@
 #* DIET cmake local file                                                    *#
 #****************************************************************************#
 
-SET( DIET_CLIENT_LIBRARIES DIET_client)
-SET( DIET_SERVER_LIBRARIES DIET_SeD)
+IF ( DIET_USE_DAGDA )
+   SET( DIET_CLIENT_LIBRARIES DIET_client Dagda UtilsNodes UtilsCommon)
+   SET( DIET_SERVER_LIBRARIES DIET_SeD Dagda UtilsNodes UtilsCommon)
+ELSE ( DIET_USE_DAGDA )
+   SET( DIET_CLIENT_LIBRARIES DIET_client UtilsNodes UtilsCommon)
+   SET( DIET_SERVER_LIBRARIES DIET_SeD UtilsNodes UtilsCommon)
+ENDIF ( DIET_USE_DAGDA )
 
 IF( DIET_USE_DYNAMICS )
   ADD_SUBDIRECTORY( dynamic_hierarchy )

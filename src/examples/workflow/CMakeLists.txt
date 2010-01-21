@@ -3,9 +3,6 @@
 #****************************************************************************#
 
 
-SET( DIET_CLIENT_LIBRARIES DIET_client )
-SET( DIET_SERVER_LIBRARIES DIET_SeD )
-
 INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/include
                      ${DIET_SOURCE_DIR}/src/utils/DAGDA )
 
