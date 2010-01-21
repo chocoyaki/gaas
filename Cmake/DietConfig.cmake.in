@@ -11,8 +11,13 @@ SET( DIET_INCLUDE_DIR "@CMAKE_INSTALL_PREFIX@/include" )
 SET( DIET_LIBRARY_DIR "@CMAKE_INSTALL_PREFIX@/lib" )
 LINK_DIRECTORIES( ${DIET_LIBRARY_DIR} )
 # The DIET libraries to link against
-SET( DIET_CLIENT_LIBRARIES DIET_client )
-SET( DIET_SERVER_LIBRARIES DIET_SeD )
+IF ( DIET_USE_DAGDA )
+   SET( DIET_CLIENT_LIBRARIES DIET_client Dagda UtilsNodes UtilsCommon)
+   SET( DIET_SERVER_LIBRARIES DIET_SeD Dagda UtilsNodes UtilsCommon)
+ELSE ( DIET_USE_DAGDA )
+   SET( DIET_CLIENT_LIBRARIES DIET_client UtilsNodes UtilsCommon)
+   SET( DIET_SERVER_LIBRARIES DIET_SeD UtilsNodes UtilsCommon)
+ENDIF ( DIET_USE_DAGDA )
 
 # --------------------------------------------------------------------------
 # Version number
