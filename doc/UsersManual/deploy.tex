@@ -11,6 +11,11 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.22  2010/01/21 14:05:58  bdepardo
+%* DIET -> \diet
+%* SeD -> \sed
+%* GoDIET -> \godiet
+%*
 %* Revision 1.21  2008/07/16 23:02:48  ecaron
 %* Fixe the problem with too long list of hosts
 %*
@@ -66,30 +71,30 @@
 %* explain how to copy cfgs file in install_dir/etc directory and correct my english
 %****************************************************************************%
 
-\chapter{Deploying a DIET platform}
+\chapter{Deploying a \diet platform}
 \label{ch:deploying}
 
-Deployment is the process of launching a DIET platform including agents
-and servers.  For DIET, this process includes writing configuration
+Deployment is the process of launching a \diet platform including agents
+and servers.  For \diet, this process includes writing configuration
 files for each element and launching the elements in the correct
-hierarchical order. There are three primary ways to deploy DIET.
+hierarchical order. There are three primary ways to deploy \diet.
 
-Launching \textbf{by hand} is a reasonable way to deploy DIET for
+Launching \textbf{by hand} is a reasonable way to deploy \diet for
 small-scale testing and verification. This chapter explains the 
-necessary services, how to write DIET configuration files, and in
-what order DIET elements should be launched.  See
+necessary services, how to write \diet configuration files, and in
+what order \diet elements should be launched.  See
 Section~\ref{sec:deployBasics} for details.
 
-\textbf{GoDIET} is a Java-based tool for automatic DIET deployment
+\textbf{\godiet} is a Java-based tool for automatic \diet deployment
 that manages configuration file creation, staging of files, launch
 of elements, monitoring and reporting on launch success, and process
-cleanup when the DIET deployment is no longer needed.   See 
+cleanup when the \diet deployment is no longer needed.   See 
 Section~\ref{sec:deployGoDIET} for details.
 
 \textbf{Writing your own scripts} is a surprisingly popular
 approach.  This approach often looks easy initially, but can
 sometimes take much, much longer than you predict as there are many
-complexities to manage.  Learn GoDIET -- it will save you time!
+complexities to manage.  Learn \godiet -- it will save you time!
 
 
 
@@ -100,20 +105,20 @@ complexities to manage.  Learn GoDIET -- it will save you time!
 \subsection{Using CORBA} 
 \label{sec:CORBA_services}
 
-CORBA is used for all communications in DIET and for communications
-between DIET and accessory services such as LogService, VizDIET, and
-GoDIET.  This section gives basic information on how to use DIET
+CORBA is used for all communications in \diet and for communications
+between \diet and accessory services such as LogService, VizDIET, and
+\godiet.  This section gives basic information on how to use \diet
 with CORBA.  Please refer to the documentation of your ORB if you
 need more details.
 
 \subsubsection{The naming service}
 
-DIET uses a standard CORBA naming service for translating an
+\diet uses a standard CORBA naming service for translating an
 user-friendly string-based name for an object into an Interoperable
 Object Reference (IOR) that is a globally unique identifier
 incorporating the host and port where the object can be contacted.
 The naming service in omniORB is called \texttt{omniNames} and it
-must be launched before any other DIET entities.  DIET entities can
+must be launched before any other \diet entities.  \diet entities can
 then locate each other using only a string-based name and the
 $<$host:port$>$ of the name server.
 
@@ -172,9 +177,9 @@ Checkpointing completed.
 \end{verbatim}
 }
 
-\subsubsection{CORBA usage for DIET}
+\subsubsection{CORBA usage for \diet}
 
-Every DIET entity must connect to the CORBA name server:
+Every \diet entity must connect to the CORBA name server:
 it is the way services discover each others. The reference to the
 omniORB name server is written in a CORBA configuration file, whose path
 is given to omniORB through the environment variable
@@ -182,7 +187,7 @@ is given to omniORB through the environment variable
 time, through the configure script option:
 \texttt{--with-omniORB-config} ). An example of such a
 configuration file is given in the directory
-\texttt{src/examples/cfgs} of the DIET source tree and installed in
+\texttt{src/examples/cfgs} of the \diet source tree and installed in
 \texttt{$<$install\_dir$>$/etc}. The lines concerning the name server
 in the omniORB configuration file are built as follows:
 \begin{description}
@@ -210,24 +215,24 @@ environment variable should now be :\\ \texttt{LD\_LIBRARY\_PATH$=
 
 \textbf{NB1:} In order to avoid name collision, every agent must be 
 assigned a different name in the name server; since they don't have any 
-children, SeDs do not need names assigned to them and they don't register with
+children, \seds do not need names assigned to them and they don't register with
 the name server.
 
-\textbf{NB2:} Each DIET hierarchy can use a different name server, or multiple 
+\textbf{NB2:} Each \diet hierarchy can use a different name server, or multiple 
 hierarchies can share one name server (assuming all agents are assigned 
 unique names).  In a multi-MA environment, in order for multiple hierarchies
 to be able to cooperate it is necessary that they all share the same
 name server.
 
 %====[ DIET configuration file ]===============================================
-\subsection{DIET configuration file}
+\subsection{\diet configuration file}
 \label{sec:diet_config_files}
 
-A configuration file is needed to launch a DIET entity. Some fully
+A configuration file is needed to launch a \diet entity. Some fully
 commented examples of such configuration files are given in the
-directory \texttt{src/examples/cfgs} of the DIET source files and
+directory \texttt{src/examples/cfgs} of the \diet source files and
 installed in \texttt{$<$install\_dir$>$/etc} \footnote{if there isn't
-\texttt{$<$install\_dir$>$/etc} directory, please configure DIET with
+\texttt{$<$install\_dir$>$/etc} directory, please configure \diet with
 \texttt{--enable-examples} and/or run \texttt{make install} command in
 \texttt{src/examples} directory.}. Please note that:
 \begin{itemize}
@@ -254,7 +259,7 @@ This option controls debugging trace output. The following levels are defined:
   level $<$ 10 & Print errors and messages for all steps\\
   level $=$ 10 & Print errors, all steps, and some important structures (such
   as the list of offered services)\\
-  level $>$ 10 & Print all DIET messages AND omniORB messages corresponding to
+  level $>$ 10 & Print all \diet messages AND omniORB messages corresponding to
   an omniORB traceLevel of (level~-~10)
  \end{tabular}
 \end{center}
@@ -273,7 +278,7 @@ to the CORBA name server.
 
 \noindent
 \texttt{agentType} \ \ \emph{default}\texttt{ = }\emph{none}\\
-As DIET offers only one executable for both types of agent, it is
+As \diet offers only one executable for both types of agent, it is
 \textbf{mandatory} to specify which kind of agent must be launched. Two values
 are available: \texttt{DIET\_MASTER\_AGENT} and \texttt{DIET\_LOCAL\_AGENT}.
 They have aliases, respectively \texttt{MA} and \texttt{LA}.
@@ -285,11 +290,11 @@ They have aliases, respectively \texttt{MA} and \texttt{LA}.
 agent will register to the CORBA name server.
 
 
-\subsubsection{LA and SeD parameters}
+\subsubsection{LA and \sed parameters}
 
 \noindent
 \texttt{parentName} \ \ \emph{default}\texttt{ = }\emph{none}\\ This
-is a \textbf{mandatory} parameter for Local Agents and SeDs, but 
+is a \textbf{mandatory} parameter for Local Agents and \seds, but 
 not for the MA.  It indicates the name of the parent (an LA or the
 MA) to register to.
 
@@ -297,7 +302,7 @@ MA) to register to.
 
 \noindent
 \texttt{dietPort} \ \ \emph{default} \texttt{ = none }\\ This
-option specifies the listening port of an agent or SeD. If not
+option specifies the listening port of an agent or \sed. If not
 specified, the ORB gets a port from the system. This option is very
 useful when a machine is behind a firewall. By default this option
 is disabled.\\
@@ -319,7 +324,7 @@ exist or when there is no DNS.
 activates the connection to LogService. 
 If
 this option is set to 1 then the LogCentral must be started before any
-DIET entities. Agents and SeDs will connect to LogCentral to deliver
+\diet entities. Agents and \seds will connect to LogCentral to deliver
 their monitoring information and they will refuse to start if they
 cannot establish this connection. See Section~\ref{sec:LogService} 
 to learn more about LogService.\\
@@ -327,7 +332,7 @@ to learn more about LogService.\\
 \noindent
 \texttt{lsOutbuffersize} \ \ \emph{default}\texttt{ = 0}\\
 \noindent
-\texttt{lsFlushinterval} \ \ \emph{default}\texttt{ = 10000}\\ DIETs
+\texttt{lsFlushinterval} \ \ \emph{default}\texttt{ = 10000}\\ \diet's
 LogService connection can buffer outgoing messages and send them
 asynchronously. This can decrease the network load when
 several messages are sent at one time. It can also be used to decouple
@@ -342,15 +347,15 @@ if \texttt{useLogService} is set to 0.
 \subsubsection{FAST options}
 
 \noindent
-Currently, FAST is only used at the SeD-level, so these parameters
-will only have an effect in SeD configuration files.\\
+Currently, FAST is only used at the \sed-level, so these parameters
+will only have an effect in \sed configuration files.\\
 
 \noindent
 \texttt{fastUse} \ \ \emph{default}\texttt{ = 0}\\ This option
-activates the requests to FAST. It is ignored if DIET was compiled
+activates the requests to FAST. It is ignored if \diet was compiled
 without FAST, and defaults to 0 otherwise. \\
 
-The following options are ignored if DIET was compiled without FAST or if
+The following options are ignored if \diet was compiled without FAST or if
 \texttt{fastUse} is set to 0.
 
 \noindent
@@ -358,7 +363,7 @@ The following options are ignored if DIET was compiled without FAST or if
 
 \noindent
 \texttt{ldapUse} \ \ \emph{default}\texttt{ = 0} \\
-This option activates the use of LDAP in FAST requests.  Only SeDs
+This option activates the use of LDAP in FAST requests.  Only \seds
 need to connect to the LDAP so the option is ignored at the agent-level. \\
 
 The following two options are ignored if \texttt{ldapUse} is set to 0.
@@ -447,7 +452,7 @@ Here is an example of a complete platform deployment. Let us assume
 that:
 
 \begin{itemize}
-\item DIET was compiled with FAST on all machines used,
+\item \diet was compiled with FAST on all machines used,
 \item the LDAP server is launched on the machine \texttt{ldaphost} and listens
   on the port 9000,
 \item the NWS name server is launched on the machine \texttt{nwshost} and
@@ -539,7 +544,7 @@ For such a platform, a \sed\ configuration file could be:
 \begin{center}
  \footnotesize
  \begin{tabular}{lcll}
-  \multicolumn{4}{l}{\# file SeD\_example.cfg, configuration file for a SeD}\\
+  \multicolumn{4}{l}{\# file SeD\_example.cfg, configuration file for a \sed}\\
   parentName   &=&LA\_example        &\\
   \#traceLevel &=&1                 &\# default\\
   \#dietPort    &=&<port>             &\# not needed\\
@@ -558,7 +563,7 @@ For such a platform, a \sed\ configuration file could be:
 \rm
 
 The \sed\ will register as a child of LA\_example. Run the executable
-that you linked with the DIET SeD library, and do not forget that the
+that you linked with the \diet \sed library, and do not forget that the
 first argument of the method call \texttt{diet\_SeD} must be the path of the
 configuration file above.
 
@@ -577,42 +582,42 @@ Our client must connect to the MA\_example:
 \end{center}
 \rm
 
-Run the executable that you linked with the DIET client library, and
+Run the executable that you linked with the \diet client library, and
 do not forget that the first argument of the method call
 \texttt{diet\_initialize} must be the path of the configuration
 file above.
 
-\section{GoDIET}
+\section{\godiet}
 \label{sec:deployGoDIET}
 
-GoDIET is a Java-based tool for automatic DIET deployment that
+\godiet is a Java-based tool for automatic \diet deployment that
 manages configuration file creation, staging of files, launch of
 elements, monitoring and reporting on launch success, and process
-cleanup when the DIET deployment is no longer needed~\cite{CDa05}.
-The user of GoDIET describes the desired deployment in an XML file
+cleanup when the \diet deployment is no longer needed~\cite{CDa05}.
+The user of \godiet describes the desired deployment in an XML file
 including all needed external services (e.g. omniNames and
 LogService); the desired hierarchical organization of agents and
 servers is expressed directly using the hierarchical organization of
 XML.  The user also defines all machines available for the
 deployment, disk scratch space available at each site for storage of
 configuration files, and which machines share the same disk to avoid
-unecessary copies. GoDIET is extremely useful for large deployments
+unecessary copies. \godiet is extremely useful for large deployments
 (e.g. more than 5 elements) and for experiments where one needs to
 deploy and shut-down multiple deployments to test different
 configurations. Note that debugging deployment problems when using
-GoDIET can be difficult, especially if you don't fully understand
+\godiet can be difficult, especially if you don't fully understand
 the role of each element you are launching.  If you have trouble
 identifying the problem, read the rest of this chapter in full and
-try launching key elements of your deployment by hand.  GoDIET is
+try launching key elements of your deployment by hand.  \godiet is
 available for download on the
 web\footnote{http://graal.ens-lyon.fr/DIET/godiet.html}.
 
 An example input XML file is shown in Figure~\ref{fig:godietXml}; see
 \cite{CDa05} for a full explanation of all entries in the XML. You can
 also have a look at the fully commented XML example file provided in
-the GoDIET distribution under examples/commented.xml, each option is
-explained. To launch GoDIET for the simple example XML file provided
-in the GoDIET distribution under examples/example1.xml, run:
+the \godiet distribution under examples/commented.xml, each option is
+explained. To launch \godiet for the simple example XML file provided
+in the \godiet distribution under examples/example1.xml, run:
 
 \begin{verbatim}
 ~ > java -jar GoDIET-x.x.x.jar example1.xml
@@ -621,7 +626,7 @@ Parsing xml file: example1.xml
 GoDIET>
 \end{verbatim}
 
-GoDIET reads the XML file and then enters an interactive console mode.
+\godiet reads the XML file and then enters an interactive console mode.
 In this mode you have a number of options:
 
 \begin{verbatim}
@@ -638,7 +643,7 @@ The following commands are available:
 
 We will now launch this example; note that this example is intentionally very 
 simple with all components running locally to provide initial familiarity 
-with the GoDIET run procedure.  Deployment with GoDIET is especially useful 
+with the \godiet run procedure.  Deployment with \godiet is especially useful 
 when launching components on multiple remote machines.
 
 \begin{verbatim}
@@ -675,9 +680,9 @@ Waiting for 2 seconds after launch without log service feedback
 \end{verbatim}
 
 The \texttt{status} command will print out the run-time status of all launched 
-components.  The \texttt{LaunchState} reports whether GoDIET observed
+components.  The \texttt{LaunchState} reports whether \godiet observed
 any errors during the launch itself.  When the user requests the launch
-of LogService in the input XML file, GoDIET can connect to the LogService 
+of LogService in the input XML file, \godiet can connect to the LogService 
 after launching it to obtain the state of launched components; when
 available, this state is reported in the \texttt{LogState} column.
 
@@ -690,8 +695,8 @@ Status   Element   LaunchState   LogState   Resource     PID
          SeD_0     running       none       localHost    1329
 \end{verbatim}
 
-Finally, when you are done with your DIET deployment you should always run 
-\texttt{stop}.  To clean-up each element, GoDIET runs a \texttt{kill}
+Finally, when you are done with your \diet deployment you should always run 
+\texttt{stop}.  To clean-up each element, \godiet runs a \texttt{kill}
 operation on the appropriate host using the stored PID of that element.
 
 \begin{verbatim}
@@ -709,7 +714,7 @@ Trying to stop element OmniNames
 
 \begin{figure}[p]
 \input{xml_example.tex}.
-\caption{Example XML input file for GoDIET.\label{fig:godietXml}}
+\caption{Example XML input file for \godiet.\label{fig:godietXml}}
 \end{figure}
 
 

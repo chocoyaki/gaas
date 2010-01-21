@@ -10,6 +10,11 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.17  2010/01/21 14:05:58  bdepardo
+%* DIET -> \diet
+%* SeD -> \sed
+%* GoDIET -> \godiet
+%*
 %* Revision 1.16  2008/07/11 10:11:53  ecaron
 %* - Ajout def API (un user a demandé)
 %* - Pas mal de modifications sur le chapitre des workflows
@@ -68,13 +73,13 @@
 
 The most difficult part of building a client program is to understand how
 to describe the problem interface. Once this step is done, it is
-fairly easy to build calls to DIET.
+fairly easy to build calls to \diet.
 
 \section{Structure of a client program}
 \label{sec:cl_struct}
 
-Since the client side of DIET is a library, a client program has to define a
-\texttt{main} function that uses DIET through function calls. The complete
+Since the client side of \diet is a library, a client program has to define a
+\texttt{main} function that uses \diet through function calls. The complete
 client-side interface is described in the files
 \texttt{DIET\_data.h} (see Chapter \ref{ch:data}) and
 \texttt{DIET\_client.h} found in \texttt{$<$install\_dir$>$/include}.
@@ -98,9 +103,9 @@ int main(int argc, char *argv[])
 \end{verbatim}
 }
 
-The client program must open its DIET session with a call to
+The client program must open its \diet session with a call to
 \texttt{diet\_initialize}, which parses the configuration file to set
-all options and get a reference to the DIET Master Agent. The session
+all options and get a reference to the \diet Master Agent. The session
 is closed with a call to \texttt{diet\_finalize}, which frees all
 resources associated with this session on the client. Note that
 memory allocated for all INOUT and OUT arguments brought back onto
@@ -121,8 +126,8 @@ GridRPC API.
  
     A problem is managed through a \emph{function\_handle}, that
 associates a server to a problem name. For compliance with GridRPC
-DIET accepts \texttt{diet\_function\_handle\_init}, but the server 
-specified in the call will be ignored; DIET is designed to
+\diet accepts \texttt{diet\_function\_handle\_init}, but the server 
+specified in the call will be ignored; \diet is designed to
 automatically select the best server. The structure allocation is
 performed through the function
 \texttt{diet\_function\_handle\_default}.
@@ -302,11 +307,11 @@ int main(int argc, char **argv)
 \label{sec:cl_comp}
 
 After compiling the client program, the user must link it with the
-DIET libraries and the CORBA libraries.
+\diet libraries and the CORBA libraries.
 
 \subsection{Compilation when using Makefiles}
 
-When using Makefiles, the easiest way to compile a program using DIET
+When using Makefiles, the easiest way to compile a program using \diet
 with all necessary flags and link it with the proper libraries is to
 trust the \texttt{Makefile.inc} available in 
 \texttt{$<$include\_dir$>$/include} by including it at the beginning
@@ -319,9 +324,9 @@ to be used when you compile C code,
 \item \texttt{CXXFLAGS\_DIET} which contains pre-processing instructions
 to be used when you compile C++ code,
 \item \texttt{DIET\_CLIENT\_LIBS} which contains the linker instructions
-in otder to link your program against the DIET client library.
+in otder to link your program against the \diet client library.
 \item \texttt{CC} and \texttt{CXX} which contains the name of the C compiler,
-respectively C++ compiler, used to compiled DIET itself and which you
+respectively C++ compiler, used to compiled \diet itself and which you
 might choose to compile your own programs (in order to guarantee the 
 compatibility of the compilers).
 \end{itemize}
@@ -381,7 +386,7 @@ INSTALL_TARGETS( /bin simple_client )
 
 In order to test drive the cmake configuration of this example, and
 assuming the \texttt{DIET\_HOME} points to a directory containing
-an installation of DIET, simply try:
+an installation of \diet, simply try:
 
 {\footnotesize
 \begin{verbatim}

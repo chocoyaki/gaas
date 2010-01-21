@@ -10,6 +10,11 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.15  2010/01/21 14:05:58  bdepardo
+%* DIET -> \diet
+%* SeD -> \sed
+%* GoDIET -> \godiet
+%*
 %* Revision 1.14  2008/07/17 21:54:32  ecaron
 %* Update scale for figures
 %*
@@ -73,13 +78,13 @@
 %* explain how to copy cfgs file in install_dir/etc directory and correct my english
 %****************************************************************************%
 
-\chapter{DIET dashboard}
+\chapter{\diet dashboard}
 \label{ch:dashboard}
 
-This section discussed monitoring tools that can be used with DIET. 
-We are currently working on a tool called DIET Dashboard that will
+This section discussed monitoring tools that can be used with \diet. 
+We are currently working on a tool called \diet Dashboard that will
 integrate a variety of external tools to provide a single management
-and monitoring environment for DIET.  Currently, however, each of
+and monitoring environment for \diet.  Currently, however, each of
 these tools is available separately.  See
 Section~\ref{sec:LogService} for a description of LogService, 
 Section~\ref{sec:VizDIET} for a description of VizDIET, and 
@@ -88,13 +93,13 @@ Section~\ref{sec:deployGoDIET} for a description of GoDIET.
 %====[ Dependencies ]==========================================================
 \section{LogService}
 \label{sec:LogService}
-%DIET use a third part software in order to be able to be monitored.
+%\diet use a third part software in order to be able to be monitored.
 %We have choose to used LogService as monitoring system.
 %LogService is a monitoring system which implement the three-thier model and offers
-%a easy way to DIET components to be monitored.
+%a easy way to \diet components to be monitored.
 %LogService use CORBA for all communication
 
-The DIET platform can be monitored using a system called LogService. 
+The \diet platform can be monitored using a system called LogService. 
 %\cite{LogService}.
 This monitoring service offers the capability to be aware of information that
 you want to relay from the platform.  As shown in
@@ -122,7 +127,7 @@ modules: \textit{LogComponent}, \textit{LogCentral} and
 \end{itemize}
 The main interest in LogService is that information is collected by
 a central point \textit{LogCentral} that receives \textit{logEvents}
-from \textit{LogComponents} that are attached to DIET elements (MA,
+from \textit{LogComponents} that are attached to \diet elements (MA,
 LA and SeD). \textit{LogCentral} offers the possibility to
 re-send this information to several tools (\textit{LogTools})
 that are responsible for analysing these message and offering
@@ -197,8 +202,8 @@ LogService defines and implements several functionalities:
     length of the list of important messages to a minimum.
     \end{description}
 
-All DIET components implement the \textit{LogComponent} interface. By
-using LogCentral, the DIET architecture is able to relay information
+All \diet components implement the \textit{LogComponent} interface. By
+using LogCentral, the \diet architecture is able to relay information
 to LogCentral, and then it is possible to connect to LogCentral by
 using a \textit{LogTool} to collect, store and analyse this
 information. LogService is available for download. See the web page
@@ -207,20 +212,20 @@ information.
 
 \section{VizDIET}
 \label{sec:VizDIET}
-VizDIET is the monitoring tool written for DIET to be able to
-vizualise and analyse the status and activities of a running DIET
+VizDIET is the monitoring tool written for \diet to be able to
+vizualise and analyse the status and activities of a running \diet
 deployment. As described in Section~\ref{sec:LogService},
-all DIET's components integrate a \textit{LogComponent}, and VizDIET
+all \diet's components integrate a \textit{LogComponent}, and VizDIET
 implements the \textit{LogTool} interface in order to be able to
-collect all information sent by DIET's components through their
+collect all information sent by \diet's components through their
 \textit{LogComponent}.
 
-VizDIET provides a graphic representation of the DIET architecture
+VizDIET provides a graphic representation of the \diet architecture
 being monitored. There are two ways to use VizDIET.
 \begin{description}
         \item[Real-time monitoring:] VizDIET is directly connected
         to the LogCentral using a Corba connection and receives
-        directly all information about the running DIET platform.
+        directly all information about the running \diet platform.
 
         \item[Post-mortem monitoring:] VizDIET reads a log file
         containing all log messages received by \textit{LogCentral}.
@@ -240,7 +245,7 @@ being monitored. There are two ways to use VizDIET.
 \end{figure}
 
 As described in Section~\ref{sec:solvepb}, there are two main steps
-in the treatment of a request in DIET: one step to find and schedule
+in the treatment of a request in \diet: one step to find and schedule
 a service, and one step to solve this service. So two main
 activities are represented: schedule and compute information\\
 \begin{description}
@@ -269,13 +274,13 @@ activities are represented: schedule and compute information\\
 aggregation of one \textit{FindRequest} and its
 \textit{SolveRequest} is concatenated in one request:
 \textit{DIETRequest}. \textit{DIETResquest} can be see as a job
-execution in a DIET platform as seen by an end-user. A
+execution in a \diet platform as seen by an end-user. A
 \textit{DIETRequest} is also associated with a 
 \textbf{latency}, which is time between the end of a
 \textit{FindRequest} and the beginning of a \textit{SolveRequest}.
 
 VizDIET offers the possiblity to visualize all of these requests from 
-either the point of view of the DIET platform, in which case you
+either the point of view of the \diet platform, in which case you
 will see the \textit{DIETRequests}, or in the point of view of the
 Agents or SeDs, in which case you will see respectively the
 \textit{FindRequest} and the \textit{SolveRequest}. The different
@@ -290,15 +295,15 @@ the possiblity to export all data collected by VizDIET into
 a file using a format that you specify.
 
 Finally, VizDIET is quite useful for understanding the behavior of the
-DIET hierarchy and quite simple to use. You have to keep in mind
+\diet hierarchy and quite simple to use. You have to keep in mind
 that VizDIET bases its information upon log information that is
-forwarded by LogCentral from DIET components. Therefore, the
-information displayed and computed in VizDIET is limited to the DIET
+forwarded by LogCentral from \diet components. Therefore, the
+information displayed and computed in VizDIET is limited to the \diet
 hierarchy (e.g. there is no information about clients).
 
 Future development of VizDIET will depend on new developments in
-DIET. For example, a new integration between DIET and JuxMem allows
-DIET to store data in the JuxMem service.  Correspondingly, the
+\diet. For example, a new integration between \diet and JuxMem allows
+\diet to store data in the JuxMem service.  Correspondingly, the
 capability to log and visualize these transfers has been added to
 VizDIET.  VizDIET is available for download. See the web page
 \url{http://graal.ens-lyon.fr/DIET/vizdiet.html} for more information.

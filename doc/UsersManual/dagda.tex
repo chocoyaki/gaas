@@ -1,34 +1,34 @@
 \chapter{DAGDA extension}
 \textsc{DAGDA} (\textbf{D}ata \textbf{A}rrangement for \textbf{G}rid and
-\textbf{D}istributed \textbf{A}pplications) is a new data manager for DIET.
-DAGDA offers  to the DIET application developers a simple and efficient way 
+\textbf{D}istributed \textbf{A}pplications) is a new data manager for \diet.
+DAGDA offers  to the \diet application developers a simple and efficient way 
 to manage the data. It was not designed to replace the JuxMem extension
 but to be possibly coupled with it. In a future work, DAGDA will be
 divided in two parts: The DAGDA data manager and the DAGDA data interface.
 The data interface will make interactions between DAGDA, JuxMem, FTP
 etc. and other data transfer/management protocols. In this chapter, we will
 present the current version of DAGDA which is an alternative data manager
-for DIET with several advanced data management features.
+for \diet with several advanced data management features.
 \section{Overview}
 DAGDA allows data explicit or
 implicit replications and advanced data management on the grid. It was
 designed to be backward compatible with previously developed
-applications for DIET which benefit transparently of the data
+applications for \diet which benefit transparently of the data
 replications. Moreover, DAGDA limits the data size loaded in memory to
 a user-fixed value and avoids CORBA errors when transmitting too large
 data regarding to the ORB configuration.
 
-DAGDA offers a new way to manage the data on DIET. The API allows the
+DAGDA offers a new way to manage the data on \diet. The API allows the
 application developer to replicate, move, add or delete a data to be
-reused later or by another application. Each component of DIET can
+reused later or by another application. Each component of \diet can
 interact with DAGDA and the data manipulation can be done from a
 client application, a server or an agent through a plug-in
 scheduler.
 
-A DAGDA component is associated to each element in a DIET platform
+A DAGDA component is associated to each element in a \diet platform
 (client, Master Agent, Local Agent, SeD). These components are connected
-following the DIET deployment topology. Figure \ref{fig:DAGDAarch} shows how
-the DAGDA and DIET classical components are connected. In contrary of a DIET
+following the \diet deployment topology. Figure \ref{fig:DAGDAarch} shows how
+the DAGDA and \diet classical components are connected. In contrary of a \diet
 architecture, each DAGDA component has the same role. It can store, transfer
 or move a data. The client's DAGDA component is isolated of the architecture and
 communicates only with the chosen SeDs DAGDA components when necessary. When
@@ -44,7 +44,7 @@ DAGDA uses the pull model: It is the destination node that ask for the data
 transfer.
 \begin{figure}[h]
 \centerline{\includegraphics[width=0.7\linewidth]{fig/dagdaArch}}
-\caption{DAGDA architecture in DIET.\label{fig:DAGDAarch}}
+\caption{DAGDA architecture in \diet.\label{fig:DAGDAarch}}
 \end{figure}
 
 Figure \ref{fig:DAGDAarch} presents how DAGDA manages the data when a client
@@ -69,7 +69,7 @@ platform and they should be updated after the job execution.
 \end{enumerate}
 
 %Using DAGDA, each data stored on the platform can be replicated as many
-%time as there is free space on the platform. To avoid DIET to take up all
+%time as there is free space on the platform. To avoid \diet to take up all
 %the storage ressources (disk or memory) of the nodes, DAGDA allows to fix
 %a limit to the data size that can be stored for each DAGDA component. When
 %a job needs a data, it asks DAGDA for it using its unique ID and gets it
@@ -99,7 +99,7 @@ platform and they should be updated after the job execution.
 %at least one replica of a data leaves on the platform is to declare
 %one of them as \emph{sticky} data.
 
-%Extending the DIET API, DAGDA allows to explicitly manage the data in the
+%Extending the \diet API, DAGDA allows to explicitly manage the data in the
 %platform by communicating directly with the DAGDA hierarchy. However, DAGDA
 %does not deal with the replicas consistency and the data availability. The
 %user is responsible of what he does with the data. Even if DAGDA offers
@@ -203,8 +203,8 @@ algorithm. DAGDA offers three algorithm to manage the cache replacement:
 \end{itemize}
 
 \section{The DAGDA API}
-By compiling DIET with the DAGDA extension activated, the
-\textit{DIET\_Dagda.h} file is installed on the DIET include directory.
+By compiling \diet with the DAGDA extension activated, the
+\textit{DIET\_Dagda.h} file is installed on the \diet include directory.
 This file contains some data management functions and macros.
 \subsection{Note on the memory management}
 On the SeD side, DAGDA and the SeD share the
@@ -222,7 +222,7 @@ and the data will be freed according to its persistence mode.\\[4mm]
 \begin{minipage}{\textwidth - 2cm}
 \textbf{On the SeD and agent sides, DAGDA takes the control of the data
 pointers. To free a data may cause major bugs which could be very hard to
-find. The users could only free a DIET data on the client side after the end of
+find. The users could only free a \diet data on the client side after the end of
 a transfer.}
 \end{minipage}
 \subsection{Synchronous data transfers}
@@ -401,7 +401,7 @@ for more details.
 \end{itemize}
 
 It is frequent that a plugin scheduler developer wants to make an asynchronous
-data transfer to the local DIET node. In that case, to wait the end of the
+data transfer to the local \diet node. In that case, to wait the end of the
 transfers before to return can be a problem. But with the previously defined
 functions, DAGDA maintains a reference to the transfer thread which will be
 released after a call to the waiting function. To avoid DAGDA to keep
@@ -427,7 +427,7 @@ called from a client, records all the data managed by the agents or SeDs DAGDA
 components that allow it.\\
 Then, the \textit{"restoreOnStart"} configuration file option asks to the
 DAGDA component to restore the data stored on the \textit{"dataBackupFile"}
-file when the component starts. This mechanism allows to stop the DIET
+file when the component starts. This mechanism allows to stop the \diet
 platform for a while and to restart it conserving the same data distribution.
 
 \subsection{Create data ID aliases.}
@@ -446,7 +446,7 @@ expressive strings to retrieve a data ID. Two functions are defined to do it:
 
 \subsection{Data replication}
 After a data has been added to the DAGDA hierarchy, the users can choose to
-replicate it explicitely on one or several DIET nodes. With the current
+replicate it explicitely on one or several \diet nodes. With the current
 DAGDA version, we allow to choose the nodes where the data will be replicated
 by hostname or DAGDA component ID. In future developments, it will be
 possible to select the nodes differently. To maintain backward compatibility,
@@ -473,7 +473,7 @@ rule.
 
 \section{On correct usage of DAGDA}
 Some things to keep in mind when using DAGDA as data manager for
-DIET:
+\diet:
 \begin{itemize}
 \item All the data managed by DAGDA are entirely managed by DAGDA: The user
   must not free them. DAGDA avoids memory leaks, so the user does not
@@ -491,7 +491,7 @@ DIET:
   The DAGDA API should be used to share, replicate or retrieve an existing
   data. Using the API allows the user to optimize their applications, not
   to proceed to a diet\_call even if it works fine. Indeed, the DAGDA
-  client component is not linked to the DIET hierarchy, so using the API to
+  client component is not linked to the \diet hierarchy, so using the API to
   add a data and then to use it as a profile parameter makes DAGDA to
   do additionnal and useless transfers.
 \item DAGDA can be used without any configuration, but it is allways a
