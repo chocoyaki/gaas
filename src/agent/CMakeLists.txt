@@ -92,8 +92,11 @@ IF( DIET_BUILD_LIBRARIES )
   
   #########################################################################
   ADD_EXECUTABLE( dietAgent dietAgent.cc )
-  TARGET_LINK_LIBRARIES( dietAgent AgentCommon)
-  
+  TARGET_LINK_LIBRARIES( dietAgent
+      AgentCommon
+      UtilsNodes
+     )
+
   IF (DIET_USE_WORKFLOW)
       SUBDIRS( workflow )
   ENDIF ( DIET_USE_WORKFLOW)
@@ -131,12 +134,12 @@ IF( DIET_BUILD_LIBRARIES )
     ADD_LIBRARY( dietLocalAgent ${CMAKE_CURRENT_SOURCE_DIR}/localAgentJNI.cc )
 
     TARGET_LINK_LIBRARIES( dietLocalAgent
+      AgentCommon
       UtilsNodes
       UtilsVector
       CorbaCommon
       IDLLA
       IDLMA
-      AgentCommon
       ${OMNIORB4_LIBRARIES}
     )
 
@@ -179,12 +182,12 @@ IF( DIET_BUILD_LIBRARIES )
     ADD_LIBRARY( dietMasterAgent ${CMAKE_CURRENT_SOURCE_DIR}/masterAgentJNI.cc )
 
     TARGET_LINK_LIBRARIES( dietMasterAgent
+      AgentCommon
       UtilsNodes
       UtilsVector
       CorbaCommon
       IDLLA
       IDLMA
-      AgentCommon
       ${OMNIORB4_LIBRARIES}
     )
 

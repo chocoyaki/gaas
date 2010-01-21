@@ -36,7 +36,9 @@ IF( DIET_BUILD_LIBRARIES )
 
   ADD_EXECUTABLE ( maDagAgent maDagAgent.cc )
   TARGET_LINK_LIBRARIES (maDagAgent
-      MaDag )
+      MaDag
+      UtilsNodes
+      )
   INSTALL_TARGETS(/bin/ maDagAgent )
   INSTALL_TARGETS(/lib/ MaDag )
 
