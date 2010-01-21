@@ -22,6 +22,7 @@
 
 #include <iostream>
 #include <string>
+#include <cstdlib>
 #include "ORBMgr.hh"
 
 #ifndef EXIT_SUCCESS
@@ -62,7 +63,7 @@ bool ORBMgrInit( std::string OmniNamesHost,
    TempArgv = (char**)malloc( TempArgc * sizeof(char*) );
  
    // First argument:
-   TempArgv[ 0 ] = "-ORBInitRef";
+   TempArgv[ 0 ] = (char*)"-ORBInitRef";
    
    // Second argument is of the form NameService=corbaname::<host>:<port>:
    std::string EndPointArg = "NameService=corbaloc::";
