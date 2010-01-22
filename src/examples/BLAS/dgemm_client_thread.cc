@@ -9,6 +9,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2010/01/22 10:36:48  bdepardo
+ * Matrices initialization outside the loop in order to obtain a better
+ * throughput.
+ *
  * Revision 1.1  2009/10/16 08:07:34  bdepardo
  * Threaded version of the client
  *
@@ -70,29 +74,30 @@ call(void* par) {
   oB = DIET_COL_MAJOR;
   oC = DIET_ROW_MAJOR;
 
+  /* Fill A, B and C randomly ... */
+  A = (double*) calloc(m*k, sizeof(double));
+  B = (double*) calloc(k*n, sizeof(double));
+  C = (double*) calloc(m*n, sizeof(double));
+  for (i = j = 0; i < m * k; i++) A[i] = 1.0 + j++;
+  for (i = 0; i < k * n; i++)     B[i] = 1.0 + j++;
+  for (i = 0; i < m * n; i++)     C[i] = 1.0 + j++;
+
+  profile = diet_profile_alloc(path, 3, 4, 4);
+  
+  diet_scalar_set(diet_parameter(profile,0), &alpha,
+		  DIET_VOLATILE, DIET_DOUBLE);
+  diet_matrix_set(diet_parameter(profile,1), A,
+		  DIET_VOLATILE, DIET_DOUBLE, m, k, oA);
+  diet_matrix_set(diet_parameter(profile,2), B,
+		  DIET_VOLATILE, DIET_DOUBLE, k, n, oB);
+  diet_scalar_set(diet_parameter(profile,3), &beta,
+		  DIET_VOLATILE, DIET_DOUBLE);
+  diet_matrix_set(diet_parameter(profile,4), C,
+		  DIET_VOLATILE, DIET_DOUBLE, m, n, oC);
+
   for (;;) {
-    /* Fill A, B and C randomly ... */
-    A = (double*) calloc(m*k, sizeof(double));
-    B = (double*) calloc(k*n, sizeof(double));
-    C = (double*) calloc(m*n, sizeof(double));
-    for (i = j = 0; i < m * k; i++) A[i] = 1.0 + j++;
-    for (i = 0; i < k * n; i++)     B[i] = 1.0 + j++;
-    for (i = 0; i < m * n; i++)     C[i] = 1.0 + j++;
     
     printf("Calling DGEMM (%u)\n", id);
-
-    profile = diet_profile_alloc(path, 3, 4, 4);
-    
-    diet_scalar_set(diet_parameter(profile,0), &alpha,
-		    DIET_VOLATILE, DIET_DOUBLE);
-    diet_matrix_set(diet_parameter(profile,1), A,
-		    DIET_VOLATILE, DIET_DOUBLE, m, k, oA);
-    diet_matrix_set(diet_parameter(profile,2), B,
-		    DIET_VOLATILE, DIET_DOUBLE, k, n, oB);
-    diet_scalar_set(diet_parameter(profile,3), &beta,
-		    DIET_VOLATILE, DIET_DOUBLE);
-    diet_matrix_set(diet_parameter(profile,4), C,
-		    DIET_VOLATILE, DIET_DOUBLE, m, n, oC);
     
     /*    print_matrix(A, m, k, (oA == DIET_ROW_MAJOR));
     print_matrix(B, k, n, (oB == DIET_ROW_MAJOR));
@@ -100,14 +105,13 @@ call(void* par) {
     */
     if (!diet_call(profile)) {
       //print_matrix(C, m, n, (oC == DIET_ROW_MAJOR));
-    }
-    
-    free(A);
-    free(B);
-    free(C);
-
-    diet_profile_free(profile);
+    }    
   }
+
+  diet_profile_free(profile);
+  free(A);
+  free(B);
+  free(C);  
 }
 
 
