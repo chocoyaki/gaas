@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.5  2010/01/24 22:21:06  bdepardo
+ * Definition of _NSIG under Darwin.
+ *
  * Revision 1.4  2006/11/07 00:37:44  ecaron
  * Bug fix for MacOSX support
  *
@@ -35,6 +38,12 @@
 #if (defined(__ppc__) || defined(__ppc64__))
 #define _NSIG  NSIG
 #endif
+
+/* NSIG under Mac OS X */
+#if (not defined(_NSIG) && defined(__darwin__))
+#define _NSIG  NSIG
+#endif
+ 
 
       /****************\
        * private data *
