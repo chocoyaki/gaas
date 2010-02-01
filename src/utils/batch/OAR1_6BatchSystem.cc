@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.9  2010/02/01 03:18:38  ycaniou
+ * Solves bug 81
+ *
  * Revision 1.8  2010/02/01 02:05:45  ycaniou
  * First step to integrate SGE. Still miss mpi/OpenMP types for SGE to work.
  * Remove SparseSolver which will become a cori batch example once tested
@@ -77,6 +80,9 @@ OAR1_6BatchSystem::OAR1_6BatchSystem(int ID, const char * batchname)
   /* Dirty Trick for OAR1.6 to get information on default queue */
   internQueueName = strdup((char*)
     Parsers::Results::getParamValue(Parsers::Results::INTERNOARQUEUENAME)) ;
+  if( interQueueName == NULL ) {
+    ERROR_EXIT("We need to know the internal queue name to be able to gather information with Cori\n") ;
+  }
 #if defined YC_DEBUG
   TRACE_TEXT(TRACE_ALL_STEPS,"Nom queue interne: " << internQueueName 
 	     << "\n") ;
