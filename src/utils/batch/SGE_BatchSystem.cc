@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2010/02/01 02:05:45  ycaniou
+ * First step to integrate SGE. Still miss mpi/OpenMP types for SGE to work.
+ * Remove SparseSolver which will become a cori batch example once tested
+ *
  * Revision 1.5  2009/11/27 03:24:30  ycaniou
  * Add user_command possibility before the end of Batch prologue (only
  * to be used for batch dependent code!)
@@ -42,11 +46,11 @@
 #include "SGE_BatchSystem.hh"
 
 const char * const SGE_BatchSystem::statusNames[] = {
-  "Error", // not OK: sucks, because error or terminated
-  "Error", // not OK  it seems that LL reports no info with llq
-  "Error", // not OK  so, how to decide if all is ok? Parse the error file?
-  "running",
-  "waiting",
+  "E", // Error
+  "d", // canceled = deleted
+  "-", // The job does not appear in qstat if it has ended
+  "r", // running
+  "qw", //
   "pending",
   "preempted"
 } ;
@@ -70,17 +74,17 @@ SGE_BatchSystem::SGE_BatchSystem(int ID, const char * batchname)
   postfixe = BatchSystem::emptyString ;
 
   nodesNumber = "#@ job_type=parallel\n#@ node=" ;
-  serial = "#@ job_type = serial" ;
+  serial = BatchSystem::emptyString ;
   coresNumber = BatchSystem::emptyString ;
-  walltime = "\n#@ wall_clock_limit=" ;
-  submittingQueue = "\n#@ Class= " ;
-  minimumMemoryUsed = BatchSystem::emptyString ;
+  walltime = "\n#$ -l h_cpu=" ;
+  submittingQueue = "\n#$ -q " ;
+  minimumMemoryUsed = "\n#$ -l mem_free=" ;
   
-  mail = "\n#@ notification=always\n#@ notify_user=" ;
+  mail = "\n#$ -M " ;
   account = "\n#@ account_no=" ;
-  setSTDOUT = "\n#@ output=" ;
+  setSTDOUT = "\n#$ -o " ;
   setSTDIN = BatchSystem::emptyString ;
-  setSTDERR = "\n#@ error=" ;
+  setSTDERR = "\n#$ -e " ;
 
   /* Here is an output of a submission */
   submitCommand = "llsubmit " ;

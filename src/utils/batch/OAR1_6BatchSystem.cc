@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.8  2010/02/01 02:05:45  ycaniou
+ * First step to integrate SGE. Still miss mpi/OpenMP types for SGE to work.
+ * Remove SparseSolver which will become a cori batch example once tested
+ *
  * Revision 1.7  2009/11/27 03:24:30  ycaniou
  * Add user_command possibility before the end of Batch prologue (only
  * to be used for batch dependent code!)
@@ -56,7 +60,7 @@ const char * const OAR1_6BatchSystem::statusNames[] = {
   "Terminated",
   "Running",
   "Waiting",
-  "Launching",
+  "Launching"
 } ;
 
 OAR1_6BatchSystem::OAR1_6BatchSystem(int ID, const char * batchname)

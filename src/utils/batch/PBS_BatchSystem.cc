@@ -8,6 +8,10 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2010/02/01 02:05:45  ycaniou
+ * First step to integrate SGE. Still miss mpi/OpenMP types for SGE to work.
+ * Remove SparseSolver which will become a cori batch example once tested
+ *
  * Revision 1.4  2009/11/27 03:24:30  ycaniou
  * Add user_command possibility before the end of Batch prologue (only
  * to be used for batch dependent code!)
@@ -42,7 +46,7 @@ const char * PBS_BatchSystem::statusNames[] = {
   "W", // Job is Held
   "Q", // Job is Queued, eligible to run or be routed
   "S", // ?? Job is Suspended
-  "H",  // ?? Job is waiting for its requested execution time to be reached
+  "H"  // ?? Job is waiting for its requested execution time to be reached
        //   or job specified a stage-in request which failed for some reason
 } ;
 
