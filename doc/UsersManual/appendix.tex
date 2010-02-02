@@ -8,6 +8,9 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.5  2010/02/02 19:41:43  bdepardo
+%* A few corrections
+%*
 %* Revision 1.4  2010/02/01 06:55:44  ycaniou
 %* Typo
 %*
@@ -110,7 +113,7 @@
 \item{\bf{fastUse}}
   \begin{itemize}
   \item Component: Agent and \sed
-  \item Mode: ?
+  \item Mode: FAST
   \item Type: Boolean
   \item Description: If set to 0, all LDAP and NWS parameters are
     ignored, and all requests to FAST are disabled (when \diet is compiled
@@ -121,7 +124,7 @@
 \item{\bf{ldapUse}}
   \begin{itemize}
   \item Component: Agent and \sed
-  \item Mode: ?
+  \item Mode: FAST
   \item Type: Boolean
   \item Description: 0 tells FAST not to look for the services in an
     LDAP base.
@@ -130,7 +133,7 @@
 \item{\bf{ldapBase}}
   \begin{itemize}
   \item Component: Agent and \sed
-  \item Mode: ?
+  \item Mode: FAST
   \item Type: Address 
   \item Description: <host:port> of the LDAP base that stores
     FAST-known services.
@@ -139,7 +142,7 @@
 \item{\bf{ldapMask}}
   \begin{itemize}
   \item Component: Agent and \sed
-  \item Mode: ?
+  \item Mode: FAST
   \item Type: String
   \item Description: the mask which is registered in the LDAP base.
   \end{itemize}
@@ -147,7 +150,7 @@
 \item{\bf{nwsUse}}
   \begin{itemize}
   \item Component: Agent and \sed
-  \item Mode: ?
+  \item Mode: FAST
   \item Type: Boolean
   \item Description: 0 tells FAST not to use NWS for its comm times
     forecasts.
@@ -156,7 +159,7 @@
 \item{\bf{nwsNameserver}}
   \begin{itemize}
   \item Component: Agent and \sed
-  \item Mode: ?
+  \item Mode: FAST
   \item Type: Address
   \item Description: <host:port> of the NWS nameserver.
   \end{itemize}
@@ -164,9 +167,9 @@
 \item{\bf{nwsForecaster}}
   \begin{itemize}
   \item Component: Agent and \sed
-  \item Mode: ?
+  \item Mode: FAST
   \item Type: Address
-  \item Description: ?
+  \item Description: FAST
   \end{itemize}
 
 \item{\bf{useAsyncAPI}}
@@ -188,7 +191,7 @@
 \item{\bf{lsOutbuffersize}}
   \begin{itemize}
   \item Component: Agent and \sed
-  \item Mode: ?
+  \item Mode: All
   \item Type: Integer
   \item Description: the size of the buffer for outgoing messages.
   \end{itemize}
@@ -196,7 +199,7 @@
 \item{\bf{lsFlushinterval}}
   \begin{itemize}
   \item Component: Agent and \sed
-  \item Mode: ?
+  \item Mode: All
   \item Type: Integer
   \item Description: the flush interval for the outgoing message buffer.
   \end{itemize}
@@ -204,7 +207,7 @@
 \item{\bf{neighbours}}
   \begin{itemize}
   \item Component: MA
-  \item Mode: ?
+  \item Mode: Multi MA
   \item Type: String
   \item Description: A list of Master Agent that must be contacted to
     build a federation. The format is a list of host:port.
@@ -213,7 +216,7 @@
 \item{\bf{minimumNeighbours}}
   \begin{itemize}
   \item Component: MA
-  \item Mode: ?
+  \item Mode: Multi MA
   \item Type: Integer
   \item Description: Minimum number of connected neighbours. If the
     agent has less that this number of connected neighbours, is going to
@@ -224,7 +227,7 @@
   \begin{itemize}
   \item Component: MA
   \item Mode: Integer 
-  \item Type: ?
+  \item Type: Multi MA
   \item Description: maximum number of connected neighbours. The agent
     does not accept a greater number of connection to build the federation
     than maximumNeighbours.
@@ -233,7 +236,7 @@
 \item{\bf{updateLinkPeriod}}
   \begin{itemize}
   \item Component: MA
-  \item Mode: ?
+  \item Mode: Multi MA
   \item Type: Integer
   \item Description: The agent check at a regular time basis that all
     it's neighbours are still alive and try to connect to a new one if the
