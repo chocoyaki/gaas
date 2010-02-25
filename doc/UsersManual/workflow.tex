@@ -10,6 +10,10 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.18  2010/02/25 09:05:06  ycaniou
+%* Correct reference error
+%* Only one example -> subsection--
+%*
 %* Revision 1.17  2010/02/25 07:46:42  ycaniou
 %* ie, i.e -> Use macro
 %* Typos + ispell
@@ -452,8 +456,8 @@ Note that all the operators and functions defined in the XQuery standard (see
 \url{http://www.w3.org/TR/xquery-operators/}) can be used to make the boolean
 expression of the \texttt{<if>} tag. These can process both numerical and
 string variables, and can also contain XPath expressions to access elements of
-an array when the input port type is an array (for ex. the expression <<
-\texttt{contains(\$in\/list\/item[1]\/text(), 'a')} >> tests if the 1st element
+an array when the input port type is an array (for ex. the expression ``
+\texttt{contains(\$in\/list\/item[1]\/text(), 'a')} '' tests if the 1st element
 of the array provided by the 'in' port contains the letter 'a').
 
 
@@ -562,7 +566,7 @@ the functional workflows API.
     %
   \end{tabular}
   \caption{Diet workflow common API}
-  \label{tab::wf_api}
+  \label{tab::wf_common_api}
 \end{table}
 
 \begin{table}[htbp]
@@ -657,10 +661,11 @@ the functional workflows API.
 \end{table}
 
 
-\subsection{Examples}
+%\subsection{Examples}
+\subsection{The simplest example}
 \label{sec:examples}
 
-\subsubsection{Example 1 : the simplest example}
+%\subsubsection{The simplest example}
 \label{sec:ex1}
 
 This example represents the basic client code to execute a DAG. Line 26
