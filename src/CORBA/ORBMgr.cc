@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2010/02/25 16:00:13  bdepardo
+ * Removed maxGIOPConnectionPerServer = 50 from the default options.
+ * This prevented the user from tweaking this value within the configuration
+ * file.
+ *
  * Revision 1.21  2009/10/26 07:25:36  bdepardo
  * Changed default behavior: now a DIET element will wait on a SIGINT signal.
  * This allows a clean termination.
@@ -95,7 +100,7 @@ ORBMgr::init(int argc, char** argv, bool init_POA)
 #if defined (__OMNIORB4__)
   const char* options[][2]
     = {{"inConScanPeriod","0"},{"outConScanPeriod","0"},
-       {"maxGIOPConnectionPerServer","50"},
+       //{"maxGIOPConnectionPerServer","50"},
        //{"giopMaxMsgSize","33554432"},
        {0,0}};
   ORB = CORBA::ORB_init(argc, argv, "omniORB4", options);
