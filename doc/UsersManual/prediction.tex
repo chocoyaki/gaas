@@ -12,25 +12,23 @@
 \label{chapter:performance}
 \section{Introduction}
 
-As we have seen in Chapter~\ref{ch:plugin} the agent needs some
-information from the \sed to make an optimal scheduling. This
-information is a performance prediction of the \sed. The agent will ask
-the \sed to fill the data structure defined in Chapter~\ref{ch:plugin}
-with the information it needs. The \sed returns the information and the
-agent can make the scheduling. \\ Performance prediction can be based
-on hardware information, the charge of the \sed (the charge of the CPU,
-of the memory,...) or an advanced performance prediction can combine
-a set of basic performance predictions. It is possible to use FAST in
-the plug-in scheduler to obtain advanced performance predictions. A
-second possibility to get performance prediction, called CoRI, is now
-available.  The aim of CoRI is to simplify the access to the
-information. Inside of CoRI, FAST can be called, but it is only one
-source of information among other sources (for example Cori-Easy). \\
-FAST is described in Section~\ref{sec:FAST}, CoRI is described in
-Section~\ref{sec:CORI}.\\ The default compiling is without FAST and
-without CoRI. Note that if you compile with batch enabled, then CoRI
-is also enabled.  In the table~\ref{t:depcompil} you can see which
-information is available with each compiling option.
+As we have seen in Chapter~\ref{ch:plugin} the agent needs some information
+from the \sed to make an optimal scheduling. This information is a performance
+prediction of the \sed. The agent will ask the \sed to fill the data structure
+defined in Chapter~\ref{ch:plugin} with the information it needs. The \sed
+returns the information and the agent can make the scheduling.\\ Performance
+prediction can be based on hardware information, the charge of the \sed (the
+charge of the CPU, of the memory,...) or an advanced performance prediction can
+combine a set of basic performance predictions. It is possible to use FAST in
+the plug-in scheduler to obtain advanced performance predictions. A second
+possibility to get performance prediction, called CoRI, is now available.  The
+aim of CoRI is to simplify the access to the information. Inside of CoRI, FAST
+can be called, but it is only one source of information among other sources
+(for example Cori-Easy).\\ FAST is described in Section~\ref{sec:FAST}, CoRI is
+described in Section~\ref{sec:CORI}.\\ The default compiling is without FAST
+and without CoRI. Note that if you compile with batch enabled, then CoRI is
+also enabled.  In the table~\ref{t:depcompil} you can see which information is
+available with each compiling option.
 
 \begin{table}[h]
  \tiny
@@ -96,26 +94,23 @@ information is available with each compiling option.
 \section{FAST: Fast Agent's System Timer}
 \label{sec:FAST}
 
-This section deals with FAST, a performance prediction module that can
-be used by \diet. It is non-mandatory, but can provide {\sed}s with
-improved performance prediction capability.\\
-You can use FAST in stand-alone mode without having compiled with
-CoRI option.
+This section deals with FAST, a performance prediction module that can be used
+by \diet. It is non-mandatory, but can provide {\sed}s with improved
+performance prediction capability.\\ You can use FAST in stand-alone mode
+without having compiled with CoRI option.
 
-FAST~\cite{Qui02} is a tool for dynamic performance forecasting in a
-Grid environment. As shown in Figure~\ref{fig:fast-overview}, FAST
-is composed of several layers and relies on a variety of low-level
-software. First, it uses the Network Weather Service
-(NWS)~\cite{WSH99}, a distributed system that periodically monitors
-and dynamically forecasts the performances of various network and
-computational resources. The resource availabilities acquisition
-module of FAST uses and enhances NWS. Indeed, if there is no direct
-NWS monitoring between two machines, FAST automatically searches for
-the shortest path between them in the graph of monitored links. It
-estimates the bandwidth as the minimum of those in the path and the
-latency as the sum of those measured. This allows the
-availability of more predictions when \diet is deployed over a
-hierarchical network.
+FAST~\cite{Qui02} is a tool for dynamic performance forecasting in a Grid
+environment. As shown in Figure~\ref{fig:fast-overview}, FAST is composed of
+several layers and relies on a variety of low-level software. First, it uses
+the Network Weather Service (NWS)~\cite{WSH99}, a distributed system that
+periodically monitors and dynamically forecasts the performances of various
+network and computational resources. The resource availabilities acquisition
+module of FAST uses and enhances NWS. Indeed, if there is no direct NWS
+monitoring between two machines, FAST automatically searches for the shortest
+path between them in the graph of monitored links. It estimates the bandwidth
+as the minimum of those in the path and the latency as the sum of those
+measured. This allows the availability of more predictions when \diet is
+deployed over a hierarchical network.
 
 \begin{figure}[htb]
   \begin{center}
@@ -125,26 +120,23 @@ hierarchical network.
   \end{center}
 \end{figure}
 
-In addition to system availabilities, FAST can also forecast the
-time and space needs of certain computational routines as a function
-of the problem parameters and the machines where the computations
-would take place.  FAST is particularly suited to numerical algebra
-routines whose performance is not data-dependent and where a clear
-relationship exists between problem size and performance. As a basis
-for predictions, FAST benchmarks the routines at installation time
-on each machine for a representative set of parameters. After
-polynomial data fitting, the results are stored in an LDAP tree. The
-user API of FAST is composed of a small set of functions that
-combine resource availabilities and routine needs from low-level
-software to produce ready-to-use values.  These results can be
-combined into analytical models by the parallel
-extension~\cite{CS02} to forecast execution times of parallel
-routines.
+In addition to system availabilities, FAST can also forecast the time and space
+needs of certain computational routines as a function of the problem parameters
+and the machines where the computations would take place.  FAST is particularly
+suited to numerical algebra routines whose performance is not data-dependent
+and where a clear relationship exists between problem size and performance. As
+a basis for predictions, FAST benchmarks the routines at installation time on
+each machine for a representative set of parameters. After polynomial data
+fitting, the results are stored in an LDAP tree. The user API of FAST is
+composed of a small set of functions that combine resource availabilities and
+routine needs from low-level software to produce ready-to-use values.  These
+results can be combined into analytical models by the parallel
+extension~\cite{CS02} to forecast execution times of parallel routines.
 
-FAST clients can access information like the time needed to move a
-given amount of data between two FAST-enabled machines {\sed}s, the
-time to solve a problem with a given set of computational resources,
-or the combination of these two quantities.\\
+FAST clients can access information like the time needed to move a given amount
+of data between two FAST-enabled machines {\sed}s, the time to solve a problem
+with a given set of computational resources, or the combination of these two
+quantities.\\
 
 For more details about FAST, please refer to the FAST
 webpage~\footnote{\url{http://www.loria.fr/~quinson/fast.html}}.
@@ -152,22 +144,22 @@ webpage~\footnote{\url{http://www.loria.fr/~quinson/fast.html}}.
 
 \subsection{Building FAST}
 
-The first step is to download and install FAST and its
-dependent programs.  FAST depends on:
+The first step is to download and install FAST and its dependent programs.
+FAST depends on:
 \begin{itemize}
- \item{\textbf{NWS}} the Network Weather Service
- \item{\textbf{GSL}} the GNU Scientific Library
- \item{\textbf{OpenLDAP}} an implementation of the Lightweight
-                          Directory Access Protocol
+\item{\textbf{NWS}} the Network Weather Service
+\item{\textbf{GSL}} the GNU Scientific Library
+\item{\textbf{OpenLDAP}} an implementation of the Lightweight Directory Access
+  Protocol
 \end{itemize}
 Of course, you also need to install the FAST SDK itself. It is important to
- basically understand how FAST works, and the role of its dependencies, to
+basically understand how FAST works, and the role of its dependencies, to
 deactivate the ones that are not needed by the user.
 
 \subsection{Using FAST in the plug-in scheduler}\label{subsection:callFAST}
 
-FAST- and NWS-based performance estimation metrics are stored in
-  an estimation metric vector (see Chapter~\ref{ch:plugin} for more details) by calling
+FAST- and NWS-based performance estimation metrics are stored in an estimation
+metric vector (see Chapter~\ref{ch:plugin} for more details) by calling
   \begin{tabbing}
     \texttt{int diet\_estimate\_fast(}\=\texttt{estVector\_t ev,} \\
     \> \texttt{const diet\_profile\_t* const profilePtr)};
@@ -175,59 +167,52 @@ FAST- and NWS-based performance estimation metrics are stored in
    with an appropriate value for \texttt{ev} and the
    \texttt{profilePtr} corresponding to the current \diet request.
 
-   \textbf{Attention: } this option it not available when compiling 
-   with the option \texttt{-DDIET\_USE\_CORI} set to \texttt{OFF}, 
-   To access to this information use CoRI.
-   (see Section~\ref{sec:CORI}).
+   \textbf{Attention: } this option it not available when compiling  with the
+   option \texttt{-DDIET\_USE\_CORI} set to \texttt{OFF},  To access to this
+   information use CoRI.  (see Section~\ref{sec:CORI}).
 
 \subsection{Building a server application with FAST}
 
-Since performance prediction is performed only in the \diet \sed,
-no modification is needed to the client code.
+Since performance prediction is performed only in the \diet \sed, no
+modification is needed to the client code.
 
 On the other hand, at the \sed-level the code must sometimes be adapted.  In
-the next subsection we explain convertors and show how they can be used
-in an example.
+the next subsection we explain convertors and show how they can be used in an
+example.
 
 \subsubsection{Using convertors}
 
-The service profiles offered by \diet are sometimes not
-understandable by the service implementations. To solve this problem,
-a convertor processes each profile before it is passed to the
-implementation. This is mainly used to
-hide the implementation specific profile of a service from
-the user. It allows different servers to declare the same
-service with the same profile using different implementations
-of the service. As FAST relies on the path of the service, the
-convertor can also change the path of the declared profile to
-enable a correct evaluation of the incoming requests by FAST.
-If no convertor is passed when declaring a new service, a
-default convertor is assigned to it that does not change its
-profile nor its path.
+The service profiles offered by \diet are sometimes not understandable by the
+service implementations. To solve this problem, a convertor processes each
+profile before it is passed to the implementation. This is mainly used to hide
+the implementation specific profile of a service from the user. It allows
+different servers to declare the same service with the same profile using
+different implementations of the service. As FAST relies on the path of the
+service, the convertor can also change the path of the declared profile to
+enable a correct evaluation of the incoming requests by FAST.  If no convertor
+is passed when declaring a new service, a default convertor is assigned to it
+that does not change its profile nor its path.
 
-To translate a profile, the convertor defines a new
-destination profile with a new path. It then chooses for
-each argument of the new profile a predefined function
-to assign this argument from the source profile. This
-allows the following operations:
+To translate a profile, the convertor defines a new destination profile with a
+new path. It then chooses for each argument of the new profile a predefined
+function to assign this argument from the source profile. This allows the
+following operations:
 
 \begin{description}
-\item{\textbf{Permutation of arguments}}. This is done implicitly by
-  specifying which argument in the source profile corresponds to which
-  argument in the destination profile.
-\item{\textbf{Copy of arguments}}. Arguments can be simply used by
-  applying the \texttt{DIET\_CVT\_IDENTITY} function. If the same
-  source argument corresponds to two destination arguments it is
-  automatically copied.
-\item{\textbf{Creation of new arguments}}. New arguments can either
-  contain static values or the properties of existing arguments. To
-  create a new static value, the index for the source argument must be
-  invalid (e.g. -1) and the arg parameter must be set to the static
-  argument. To extract a property of an existing argument, other
-  functions than \texttt{DIET\_CVT\_IDENTITY} must be applied. The
-  result of this function will then be used as the value for the
-  destination argument.  Corresponding to the \diet datatypes, the
-  following functions exist: \\
+\item{\textbf{Permutation of arguments}}. This is done implicitly by specifying
+  which argument in the source profile corresponds to which argument in the
+  destination profile.
+\item{\textbf{Copy of arguments}}. Arguments can be simply used by applying the
+  \texttt{DIET\_CVT\_IDENTITY} function. If the same source argument
+  corresponds to two destination arguments it is automatically copied.
+\item{\textbf{Creation of new arguments}}. New arguments can either contain
+  static values or the properties of existing arguments. To create a new static
+  value, the index for the source argument must be invalid (\eg -1) and the arg
+  parameter must be set to the static argument. To extract a property of an
+  existing argument, other functions than \texttt{DIET\_CVT\_IDENTITY} must be
+  applied. The result of this function will then be used as the value for the
+  destination argument.  Corresponding to the \diet datatypes, the following
+  functions exist: \\
 \begin{itemize}
 \item{\texttt{DIET\_CVT\_IDENTITY}} Copy the argument
 \item{\texttt{DIET\_CVT\_VECT\_SIZE}} Get the size of a vector
@@ -237,8 +222,8 @@ allows the following operations:
 \item{\texttt{DIET\_CVT\_STR\_LEN}} Get the length of the string
 \item{\texttt{DIET\_CVT\_FILE\_SIZE}} Get the size of the file
 \end{itemize}
-Only the \texttt{DIET\_CVT\_IDENTITY} function can be applied to any
-argument; all other functions only operate on one type of argument.
+Only the \texttt{DIET\_CVT\_IDENTITY} function can be applied to any argument;
+all other functions only operate on one type of argument.
 
 \end{description}
 
@@ -291,16 +276,16 @@ argument; all other functions only operate on one type of argument.
 \normalsize
 
 \noindent More examples on how to create and use convertors are given in the
-files \\
-\texttt{examples/dmat\_manips/server.c} and \texttt{examples/BLAS/server.c}.
+files\\ \texttt{examples/dmat\_manips/server.c} and
+\texttt{examples/BLAS/server.c}.
 
 \section{CoRI: Collectors of Ressource Information}
 \label{sec:CORI}
 
-CoRI manages the access to different tools for collecting information
-about the \sed. At present, three tools, called collectors, are
-implemented: FAST, CoRI Easy and CoRI batch. The user can choose which
-collector will provide the information.
+CoRI manages the access to different tools for collecting information about the
+\sed. At present, three tools, called collectors, are implemented: FAST, CoRI
+Easy and CoRI batch. The user can choose which collector will provide the
+information.
 
 \begin{figure}[h]
   \begin{center}
@@ -311,12 +296,11 @@ collector will provide the information.
 \end{figure}
 
 \subsection{Functions and tags}
-The tags for information are of type \texttt{integer} and defined in
-the table~\ref{t:tags}. The second type of tag
-\texttt{diet\_est\_collect\_tag\_t} is used to specify which collector
-will provide the information: \texttt{EST\_COLL\_FAST},
-\texttt{EST\_COLL\_EASY} or \texttt{EST\_COLL\_BATCH}. Three different
-functions are provided with CoRI.
+The tags for information are of type \texttt{integer} and defined in the
+table~\ref{t:tags}. The second type of tag \texttt{diet\_est\_collect\_tag\_t}
+is used to specify which collector will provide the information:
+\texttt{EST\_COLL\_FAST}, \texttt{EST\_COLL\_EASY} or
+\texttt{EST\_COLL\_BATCH}. Three different functions are provided with CoRI.
 
 The first function initializes a specific collector.
 
@@ -326,13 +310,12 @@ The first function initializes a specific collector.
   diet_estimate_cori_add_collector(diet_est_collect_tag_t collector_type,
                                    void * data);
 \end{verbatim}
-\normalsize The second parameter is reserved for initializing
-collectors which need additional information on initialization. For
-example, the BATCH collector needs for its initialization the profile
-of the service to be solved.
+\normalsize The second parameter is reserved for initializing collectors which
+need additional information on initialization. For example, the BATCH collector
+needs for its initialization the profile of the service to be solved.
 
-After the initialization, accessing to the information is done by
-specifying the collector and the information type. 
+After the initialization, accessing to the information is done by specifying
+the collector and the information type.
 \footnotesize
 \begin{verbatim}
   int
@@ -343,10 +326,10 @@ specifying the collector and the information type.
 \end{verbatim}
 \normalsize
 
-Cori-Easy doesn't need more information, but FAST and BATCH need a
-profile of type ``diet\_profile\_t''. The last parameter is reserved
-for it. \\ The last function is used to test Cori-Easy. It prints all
-information Cori-Easy finds to the standard output.
+Cori-Easy doesn't need more information, but FAST and BATCH need a profile of
+type ``diet\_profile\_t''. The last parameter is reserved for it. \\ The last
+function is used to test Cori-Easy. It prints all information Cori-Easy finds
+to the standard output.
 
 \footnotesize
 \begin{verbatim}
@@ -373,30 +356,27 @@ end printing CoRI values
 \normalsize
 
 \subsection{FAST}
-FAST as collector of CoRI gives the user the same information as
-without CoRI, see table~\ref{t:depcompil} to know which information FAST can
-provide.
+FAST as collector of CoRI gives the user the same information as without CoRI,
+see table~\ref{t:depcompil} to know which information FAST can provide.
 
 \subsection{CoRI-Easy}
 The CoRI-Easy collector makes some basic system calls to gather the
-information. CoRI-Easy is only available if \diet is compiled with the
-option \texttt{-DDIET\_USE\_CORI} set to \texttt{ON}. The last collumn
-of the table~\ref{t:depcompil} corresponds to the CoRI-Easy's
-functionality.
+information. CoRI-Easy is only available if \diet is compiled with the option
+\texttt{-DDIET\_USE\_CORI} set to \texttt{ON}. The last collumn of the
+table~\ref{t:depcompil} corresponds to the CoRI-Easy's functionality.
 
 There is an example on how to use CoRI-Easy in the
 \verb!<diet_src>/src/examples/cori/! directory.
 
 \subsection{CoRI batch}\label{section:cori_batch}
-With the help of the CoRI batch collector, a \sed programmer can use
-some information obtained from the batch system. It is only available
-if \diet is compiled with the option \texttt{-DDIET\_USE\_BATCH} set
-to \texttt{ON}. For the moment, only simple information can be
-accessed but functionalities will be improved as well as the number of
-recognizable batch systems.
+With the help of the CoRI batch collector, a \sed programmer can use some
+information obtained from the batch system. It is only available if \diet is
+compiled with the option \texttt{-DDIET\_USE\_BATCH} set to \texttt{ON}. For
+the moment, only simple information can be accessed but functionalities will be
+improved as well as the number of recognizable batch systems.
 
-There is an example on how to use CoRI batch in the\\
-\verb!<diet_src>/src/examples/Batch/SparseSolver/! directory.
+There is an example on how to use CoRI batch in
+the\\ \verb!<diet_src>/src/examples/Batch/SparseSolver/! directory.
 
 \section{Future Work}
 

@@ -10,6 +10,10 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.46  2010/02/25 08:05:27  ycaniou
+%* e.g -> Use macro
+%* Typo + ispell
+%*
 %* Revision 1.45  2010/02/25 07:46:42  ycaniou
 %* ie, i.e -> Use macro
 %* Typos + ispell
@@ -269,7 +273,7 @@ free to follow your conventions):
   \verb+ccmake ..+ to enter the GUI
   \begin{itemize}
   \item press \verb+c+ (equivalent of bootstrap.sh of the autotools)
-  \item toggle the desired options e.g. \verb+DIET_BUILD_EXAMPLES+ or
+  \item toggle the desired options \eg \verb+DIET_BUILD_EXAMPLES+ or
     \verb+DIET_USE_JXTA+. 
   \item specify the \verb+CMAKE_INSTALL_PREFIX+ parameter (if you wish to
     install in a directory different from \verb+/usr/local+)
@@ -303,7 +307,7 @@ Here are the main configuration flags:
 \item
   \verb+DIET_BUILD_EXAMPLES+ activates the compilation of a set of
   general client/server examples. Note that some specific examples
-  (e.g. \verb+DIET_BUILD_BLAS_EXAMPLES+) require some additional flag
+  (\eg \verb+DIET_BUILD_BLAS_EXAMPLES+) require some additional flag
   to be activated too.
 
 \item
@@ -371,7 +375,7 @@ obtain the compilation of the desired extensions.
   system path for the \verb+fast-config+ command and set the
   \verb+FAST_CONFIG_EXECUTABLE+ with the result. Upon failure, it is
   up to the user to manually set the full path name to this command
-  (e.g. with [c]cmake command line argument\\ 
+  (\eg with [c]cmake command line argument\\ 
   \verb+-DFAST_CONFIG_EXECUTABLE:PATH=$HOME/local/bin/fast-config+.
 
 \item

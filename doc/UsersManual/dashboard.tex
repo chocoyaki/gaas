@@ -10,6 +10,10 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.18  2010/02/25 08:05:27  ycaniou
+%* e.g -> Use macro
+%* Typo + ispell
+%*
 %* Revision 1.17  2010/02/25 07:46:42  ycaniou
 %* ie, i.e -> Use macro
 %* Typos + ispell
@@ -22,8 +26,8 @@
 This section discussed monitoring tools that can be used with \diet.  We are
 currently working on a tool called \diet Dashboard that will integrate a
 variety of external tools to provide a single management and monitoring
-environment for \diet.  Currently, however, each of these tools is available
-separately.  See Section~\ref{sec:LogService} for a description of LogService,
+environment for \diet. Currently, however, each of these tools is available
+separately. See Section~\ref{sec:LogService} for a description of LogService,
 Section~\ref{sec:VizDIET} for a description of VizDIET, and
 Section~\ref{sec:deployGoDIET} for a description of GoDIET.
 
@@ -73,11 +77,12 @@ LogService defines and implements several functionalities:
 \begin{description}
   \item[Filtering mechanisms] As few messages as possible should be sent to
     minimize network traffic.  With respect to the three-tier model, the
-    communications between applications (e.g. LogComponent) and the collector
-    (e.g. LogCentral), as well as between the collector and the monitoring
-    tools (e.g. LogTools), should be minimized.  When a LogTool registers with
-    the LogCentral, it also registers a filter defining which messages are
-    required by the tool.
+    communications between applications (\eg LogComponent) and the collector
+    (\eg LogCentral), as well as between the collector and the monitoring tools
+    (\eg LogTools), should be minimized.  When a LogTool registers with the
+    LogCentral, it also registers a filter defining which messages are required
+    by the tool.
+
   \item[Message ordering] Event ordering is another important feature of a
     monitoring system. LogService handles this problem by the introduction of a
     global time line. At generation each message receives a time-stamp. The
@@ -122,7 +127,7 @@ LogService defines and implements several functionalities:
     connect and disconnect at runtime. After a disconnection of a component the
     respective information is no longer relevant for the system state.
     Therefore, all messages which originated at this component can be removed
-    from the list.  They have become obsolete due to the disconnection of the
+    from the list. They have become obsolete due to the disconnection of the
     component and can be safely deleted in order to reduce the length of the
     list of important messages to a minimum.
     \end{description}
@@ -146,16 +151,15 @@ their \textit{LogComponent}.
 VizDIET provides a graphic representation of the \diet architecture being
 monitored. There are two ways to use VizDIET.
 \begin{description}
-        \item[Real-time monitoring:] VizDIET is directly connected to the
-          LogCentral using a Corba connection and receives directly all
-          information about the running \diet platform.
+\item[Real-time monitoring:] VizDIET is directly connected to the LogCentral
+  using a Corba connection and receives directly all information about the
+  running \diet platform.
 
-        \item[Post-mortem monitoring:] VizDIET reads a log file containing all
-          log messages received by \textit{LogCentral}.  This post-mortem
-          analysis can also be replayed in  real time if the log file is time
-          sorted.  The log file is created during the real deployment by a
-          special tool provided with LogService that receives all messages from
-          LogCentral and writes them to a file.
+\item[Post-mortem monitoring:] VizDIET reads a log file containing all log
+  messages received by \textit{LogCentral}.  This post-mortem analysis can also
+  be replayed in  real time if the log file is time sorted.  The log file is
+  created during the real deployment by a special tool provided with LogService
+  that receives all messages from LogCentral and writes them to a file.
 \end{description}
 
 \begin{figure}[htb]
@@ -202,21 +206,20 @@ the point of view of the \diet platform, in which case you will see the
 \textit{DIETRequests}, or in the point of view of the Agents or SeDs, in which
 case you will see respectively the \textit{FindRequest} and the
 \textit{SolveRequest}. The different kinds of requests are represented in
-different types of graphics such as a gantt chart, taskflow chart, or bar
+different types of graphics such as a Gantt chart, taskflow chart, or bar
 chart.
 
 VizDIET also computes some other statistics for the platform such as average
 time for scheduling, for solving, or latency. This information can be see for
 the whole service in the platform or for one specific service. VizDIET has one
-other interesting feature: the possiblity to export all data collected by
+other interesting feature: the possibility to export all data collected by
 VizDIET into a file using a format that you specify.
 
-Finally, VizDIET is quite useful for understanding the behavior of the
-\diet hierarchy and quite simple to use. You have to keep in mind
-that VizDIET bases its information upon log information that is
-forwarded by LogCentral from \diet components. Therefore, the
-information displayed and computed in VizDIET is limited to the \diet
-hierarchy (e.g. there is no information about clients).
+Finally, VizDIET is quite useful for understanding the behavior of the \diet
+hierarchy and quite simple to use. You have to keep in mind that VizDIET bases
+its information upon log information that is forwarded by LogCentral from \diet
+components. Therefore, the information displayed and computed in VizDIET is
+limited to the \diet hierarchy (\eg there is no information about clients).
 
 Future development of VizDIET will depend on new developments in \diet. For
 example, a new integration between \diet and JuxMem allows \diet to store data
