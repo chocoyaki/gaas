@@ -1,3 +1,19 @@
+%****************************************************************************%
+%* DIET User's Manual: Dynamic Management                                   *%
+%*                                                                          *%
+%*  Author(s):                                                              *%
+%*    - Benjamin Depardon                                                   *%
+%*                                                                          *%
+%* $LICENSE$                                                                *%
+%****************************************************************************%
+%* $Id$
+%* $Log$
+%* Revision 1.3  2010/02/25 07:21:15  ycaniou
+%* Add log infos at beginning of document
+%* Ispelled
+%*
+%****************************************************************************%
+
 \chapter{Dynamic management}
 \label{ch:dynamic}
 
@@ -33,8 +49,7 @@ follow the shape of the tree, you can start from the bottom to the
 tree up to the root, or use a random order, the service tables will be
 correctly initialized.)
 
-You now have access to the
-following CORBA methods:
+You now have access to the following CORBA methods:
 \begin{itemize}
 \item \verb|long bindParent(in string parentName)|: sends an order to
   a \sed or agent to bind to a new parent having the name
@@ -42,8 +57,8 @@ following CORBA methods:
   element keeps its old parent. If the element already has a parent,
   it unsubscribes itself from the parent, so that this latter is able
   to update its service table and list of children. A null value is
-  returned if the change occured, otherwise a value different from 0
-  is returned if a problem occured.
+  returned if the change occurred, otherwise a value different from 0
+  is returned if a problem occurred.
 
 \item \verb|long disconnect()|: sends an order to disconnect an
   element from its parent. This does not kill the element, but merely
@@ -114,8 +129,7 @@ Adding a service has already been introduced in
 Chapter~\ref{ch:server}: using \verb|diet_service_table_add(...)| you
 can easily add a new service (be it before running the \sed or within
 a service). Well, removing a service is as easy, you only need to call
-one of these methods:
-{\footnotesize
+one of these methods: {\footnotesize
 \begin{verbatim}
 int diet_service_table_remove(const diet_profile_t* const profile);
 int diet_service_table_remove_desc(const diet_profile_desc_t* const profile);
