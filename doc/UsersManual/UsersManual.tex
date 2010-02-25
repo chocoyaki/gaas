@@ -8,6 +8,11 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.58  2010/02/25 08:55:43  ycaniou
+%* Add a couple of macro like \seddiet \sedj (differs from \sed$_\diet$ which
+%*   adds a space)
+%* Changed *.tex accordingly
+%*
 %* Revision 1.57  2010/02/25 07:15:57  ycaniou
 %* DAGDA -> macro + sc
 %* Add info logs à dagda.tex
@@ -118,6 +123,21 @@
 \newcommand{\ie}{\emph{i.e.,} }
 \newcommand{\eg}{\emph{e.g.,} }
 
+\newcommand{\dietj}{{\sc Diet}$_J$\xspace}
+\newcommand{\sedj}{{\textit SeD}$_J$\xspace}
+\newcommand{\seddiet}{{\textit SeD}$_{\sc Diet}$\xspace}
+\newcommand{\sedsdiet}{{\textit SeDs}$_{\sc Diet}$\xspace}
+\newcommand{\MAj}{{\textit MA}$_J$\xspace}
+\newcommand{\MAsj}{{\textit MAs}$_J$\xspace}
+\newcommand{\MAdiet}{{\textit MA}$_{\sc Diet}$\xspace}
+\newcommand{\MAsdiet}{{\textit MAs}$_{\sc Diet}$\xspace}
+\newcommand{\LAj}{{\textit LA}$_J$\xspace}
+\newcommand{\LAsj}{{\textit LAs}$_J$\xspace}
+\newcommand{\LAdiet}{{\textit LA}$_{\sc Diet}$\xspace}
+\newcommand{\LAsdiet}{{\textit LAs}$_{\sc Diet}$\xspace}
+\newcommand{\clientj}{{\textit client}$_J$\xspace}
+\newcommand{\clientsj}{{\textit clients}$_J$\xspace}
+\newcommand{\clientdiet}{{\textit client}$_{\sc Diet}$\xspace}
 \newcommand{\dagda}{{\sc Dagda}\xspace}
 \newcommand{\diet}{{\sc Diet}\xspace}
 \newcommand{\godiet}{{\sc GoDiet}\xspace}

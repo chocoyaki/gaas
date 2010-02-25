@@ -8,6 +8,11 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.19  2010/02/25 08:55:43  ycaniou
+%* Add a couple of macro like \seddiet \sedj (differs from \sed$_\diet$ which
+%*   adds a space)
+%* Changed *.tex accordingly
+%*
 %* Revision 1.18  2010/02/25 06:45:38  ycaniou
 %* Add local variables
 %*
@@ -74,7 +79,7 @@
 %* add chapter called P2P DIET extension to the DIET user's manual
 %****************************************************************************%
 
-\chapter{P2P \diet extension: \diet$_{J}$}
+\chapter{P2P \diet extension: \dietj}
 \label{ch:p2pextension}
 
 To extend the field of the available services for each client in a
@@ -103,30 +108,27 @@ tools to develop a Multi-Agent system using peer-to-peer technology.
 \section{Description of the current architecture developed with JXTA}
 \label{sec:archi}
 
-In this chapter we discuss \textbf{one prototype}. We plan to update
-this prototype that will be totally merged in \diet and able to process
-all requests supported by \diet. The \diet$_{J}$ architecture is shown
-Figure 7.1.  We can consider that the elements allowing its use are
-divided in two parts:
+In this chapter we discuss \textbf{one prototype}. We plan to update this
+prototype that will be totally merged in \diet and able to process all requests
+supported by \diet. The \dietj architecture is shown Figure 7.1.  We can
+consider that the elements allowing its use are divided in two parts:
 
 \begin{itemize}
-\item{a JXTA part that includes client$_{J}$, MA$_{J}$ and
-    \sed$_{J}$. These components are written in java to be able to
-    communicate together using JXTA.}
+\item{a JXTA part that includes \clientj, \MAj and \sedj. These components are
+  written in java to be able to communicate together using JXTA.}
   
-\item{a part of integration of the JXTA part in \diet: java (JXTA) and
-    C++ (\diet) must cooperate. The technology used to allow this
-    integration is JNI~\cite{JNI} that allows java to call functions
-    written in C++. JNI is located in the MA and the \sed: The
-    MA$_{J}$ has to launch and communicate with a C++ MA$_{\diet}$.
-    A similar interface appears in the \sed communication process.}
+\item{a part of integration of the JXTA part in \diet: java (JXTA) and C++
+  (\diet) must cooperate. The technology used to allow this integration is
+  JNI~\cite{JNI} that allows java to call functions written in C++. JNI is
+  located in the MA and the \sed: The \MAj has to launch and communicate with a
+  C++ \MAdiet. A similar interface appears in the \sed communication process.}
 \end{itemize}
 
 \begin{figure}[htb]
  \begin{center}
    \includegraphics[scale=0.6]{fig/global_platform_jxta}
 %%   \label{fig:platform}
-  \caption{\diet$_{J}$ architecture}
+  \caption{\dietj architecture}
  \end{center}
 \end{figure}
 
@@ -136,191 +138,174 @@ divided in two parts:
 \subsubsection{The client$_{J}$}
 \label{sssec:jxtaclient}
 
-Only one component, the client, is fully written in java. Since it
-communicates only with JXTA components, it doesn't need the \diet
-client library.  JXTA pipes do not allow all types of data to be sent
-through. The description of the problem and the problem itself have to
-be packed to be sent through JXTA pipes. These messages are unpacked
-inside the MA$_{\diet}$ and \sed$_{\diet}$.
+Only one component, the client, is fully written in java. Since it communicates
+only with JXTA components, it doesn't need the \diet client library. JXTA pipes
+do not allow all types of data to be sent through. The description of the
+problem and the problem itself have to be packed to be sent through JXTA
+pipes. These messages are unpacked inside the \MAdiet and \seddiet.
 
 The behaviour of the JXTA client is:
 
 \begin {itemize}
 \item{launch a new JXTA peer,}
-\item{get MA$_{J}$ advertisements (JXTA messages travelling through
-    the network identifying a JXTA object) by sending a JXTA discovery
-    query,}
-\item{extract the reference of the input pipe of the first
-    MA$_{J}$ advertisement discovered,}
+\item{get \MAj advertisements (JXTA messages travelling through the network
+  identifying a JXTA object) by sending a JXTA discovery query,}
+\item{extract the reference of the input pipe of the first \MAj advertisement
+  discovered,}
 \item{create an output pipe to bind the input pipe extracted,}
-\item{create and send the description of the problem via the pipe
-    created and wait for the response of the MA$_{J}$ bound, including
-    references of {\sed}s able to solve the problem,}
-\item{Try to create an output pipe to bind the input pipe of one of
-    the {\sed}s found,}
-\item{Send the packed problem including data needed for the
-    computation to the \sed bound and wait for its response,}
+\item{create and send the description of the problem via the pipe created and
+  wait for the response of the \MAj bound, including references of \seds able
+  to solve the problem,}
+\item{Try to create an output pipe to bind the input pipe of one of the \seds
+  found,}
+\item{Send the packed problem including data needed for the computation to the
+  \sed bound and wait for its response,}
 \item{Extract results of the response received.}
 \end{itemize}
 
-\subsubsection{The \sed$_{J}$}
+\subsubsection{The \sedj}
 \label{sssec:jxtased}
 
-The role of the \sed$_{J}$ is to allow the clients$_{J}$ to send
-computation requests to the \sed$_{\diet}$. The \sed$_{\diet}$ receives
-the requests sent by clients$_{J}$, calls the \sed$_{\diet}$ (that
-returns the response) and then sends the result to the client.
+The role of the \sedj is to allow \clientsj to send computation requests to the
+\seddiet. The \seddiet receives the requests sent by \clientsj, calls the
+\seddiet (that returns the response) and then sends the result to the client.
 
-The general behaviour of the \sed$_{J}$ is written below:
+The general behavior of the \sedj is written below:
 
 \begin{itemize}
   
 \item{launch a new JXTA peer,}
 \item{create an input pipe to receive the clients' requests,}
-\item{launch the \sed$_{\diet}$,}
+\item{launch the \seddiet,}
 \item{process each request by a thread that:
 \begin{itemize}
-\item{forwards the packed request received to the \sed$_{\diet}$ and
-    waits for a packed response,}
-\item{sends the response to the client after having bound an output
-    pipe to its input pipe.}
+\item{forwards the packed request received to the \seddiet and waits for a
+  packed response,}
+\item{sends the response to the client after having bound an output pipe to its
+  input pipe.}
 \end {itemize}}
 \end{itemize}
 
-\subsubsection{The Multi-MA$_{J}$}
+\subsubsection{The Multi-MAj}
 \label{sssec:jxtamultima}
 
-The Multi-MA$_{J}$ is composed of all MAs$_{J}$ running at the same
-time. The MA$_{J}$ is able to connect the clients$_{J}$ to others
-running MAs$_{J}$. Thus, each client knows only one MA$_{J}$, that is
-its access to the Multi-MA. Each MA$_{J}$ publishes an advertisement
-with a lifetime in order to avoid clients or other MA$_{J}$ to connect
-to a stopped MA$_{J}$. When it receives a request coming from a
-client, the MA$_{J}$ submits the problem description to \diet via the
-MA$_{\diet}$ it has itself launched. If the submission returns a \diet
-failure, the MA$_{J}$ searches other MAs$_{J}$. Then, it forwards the
-client's request to other MAs$_{J}$. \sed references thus collected are
-merged and sent to the client.
+The Multi-\MAj is composed of all \MAsj running at the same time. The \MAj is
+able to connect the \clientsj to others running \MAsj. Thus, each client knows
+only one \MAj, that is its access to the Multi-MA. Each \MAj publishes an
+advertisement with a lifetime in order to avoid clients or other \MAj to
+connect to a stopped \MAj. When it receives a request coming from a client, the
+\MAj submits the problem description to \diet via the \MAdiet it has itself
+launched. If the submission returns a \diet failure, the \MAj searches other
+\MAsj. Then, it forwards the client's request to other \MAsj. \sed references
+thus collected are merged and sent to the client.
 
-The general algorithm of the MA$_{J}$ is as follows:
+The general algorithm of the \MAj is as follows:
 
 \begin{itemize}
 \item{launch a new JXTA Peer,}
-\item{build an input pipe to listen to clients' requests or agents
-    forwarded requests,}
-\item{create an advertisement including its input pipe reference
-    allowing clients to connect to it back and publish it with a
-    hardcoded lifetime,}
+\item{build an input pipe to listen to clients' requests or agents forwarded
+  requests,}
+\item{create an advertisement including its input pipe reference allowing
+  clients to connect to it back and publish it with a hardcoded lifetime,}
 \item{process each client or agent message by a thread :
 \begin{itemize}
 \item{if the source of the message received is a client,}
   \begin{itemize}
-  \item{call the MA$_{\diet}$ with the packed problem and get \sed
-      reference(s),}
-  \item{if any, send it to the client, else search other MA(s)$_{J}$,
-      forward the query to the other MA(s)$_{J}$ discovered and
-      send a response containing all \sed references thus received to
-      the client.}
+  \item{call the \MAdiet with the packed problem and get \sed reference(s),}
+  \item{if any, send it to the client, else search other \MAj, forward the
+    query to all other \MAsj discovered and send a response containing all \sed
+    references thus received to the client.}
   \end{itemize}
 \item{if the source is an agent,}
-          \begin{itemize}
-          \item{call the MA$_{\diet}$ on the problem received and get
-              \sed references found in its own \diet tree, }
-          \item{propagate the request to the other MA(s) (in order to
-              find the fastest path to reach all the MA(s)$_{J}$ on
-              the network.}
-          \item{send a response including \sed reference(s) to the
-              MA$_{J}$ from which it received the request, and forward
-              the responses from other MA(s)$_{J}$ it has reached
-              first back to the MA$_{J}$ that reached first this
-              MA$_{J}$.}
-          \end{itemize}
+  \begin{itemize}
+  \item{call the \MAdiet on the problem received and get \sed references found
+    in its own \diet tree, }
+  \item{propagate the request to the other MA(s) (in order to find the fastest
+    path to reach all the \MAsj on the network.}
+  \item{send a response including \sed reference(s) to the \MAj from which it
+    received the request, and forward the responses from other \MAsj it has
+    reached first back to the \MAj that reached first this \MAj.}
+  \end{itemize}
 \end{itemize}}
 \end{itemize}
 
 \subsection{Interfacing JXTA and \diet with JNI}
 \label{ssec:jni}
 
-JNI is a technology allowing programmers to call native methods
-(written in C/C++) from a program written in java. As seen before, the
-\diet$_{J}$ components having a \diet part and a JXTA part are the MA
-and the \sed.
+JNI is a technology allowing programmers to call native methods (written in
+C/C++) from a program written in java. As seen before, the \dietj components
+having a \diet part and a JXTA part are the MA and the \sed.
 
-\subsubsection{The MA$_{\diet}$}
+\subsubsection{The \MAdiet}
 \label{sssec:jnima}
 
-To submit the client's requests to \diet, the MA$_{J}$ needs to call
-the MA$_{\diet}$  \texttt{submit} function. To allow this, the MA$_{J}$
-launches a MA$_{\diet}$ via a native method and calls the
-\texttt{submit} function via another.
+To submit the client's requests to \diet, the \MAj needs to call the \MAdiet
+\texttt{submit} function. To allow this, the \MAj launches a \MAdiet via a
+native method and calls the \texttt{submit} function via another.
 
-The MA$_{\diet}$ contains:
+The \MAdiet contains:
 
 \begin{itemize}
-\item{a native method that launches the MA$_{\diet}$,}
+\item{a native method that launches the \MAdiet,}
 \item{a native method \texttt{submitJXTA} that:}
 \begin{itemize}
 \item{unpacks the description of the problem to be solved in order to
     build a \diet problem description,}
 \item{calls the \diet \texttt{submit} function and thus gets a
     response,}
-\item{extracts and returns the \sed reference(s) to the MA$_{J}$.}
+\item{extracts and returns the \sed reference(s) to the \MAj.}
   \end{itemize}
 \end{itemize}
 
-\subsubsection{The \sed$_{\diet}$}
+\subsubsection{The \seddiet}
 \label{sssec:jnised}
 
-To solve the client's computation requests, the \sed$_{J}$ needs to
-call the \sed$_{\diet}$ \texttt{solve} function. In the same manner as
-above, to allow this, the \sed$_{J}$ launches the \sed$_{\diet}$ via a
-native method, and calls the \texttt{solve} function via another.
+To solve the client's computation requests, the \sedj needs to call the
+\seddiet \texttt{solve} function. In the same manner as above, to allow this,
+the \sedj launches the \seddiet via a native method, and calls the
+\texttt{solve} function via another.
 
-The \sed$_{\diet}$ contains:
+The \seddiet contains:
 
 \begin{itemize}
-\item{a native method that launches the \sed$_{\diet}$,}
+\item{a native method that launches the \seddiet,}
 \item{a native method \texttt{solveJXTA} that:}
-        \begin{itemize}
-        \item{unpacks the problem to be solved and builds a \diet
-            profile,}
-        \item{calls the \texttt{solve} function,}
-        \item{extracts and returns the response to the \sed$_{J}$.}
-        \end{itemize}
+  \begin{itemize}
+  \item{unpacks the problem to be solved and builds a \diet profile,}
+  \item{calls the \texttt{solve} function,}
+  \item{extracts and returns the response to the \sedj.}
+  \end{itemize}
 \end{itemize}
 
-\section{The future of \diet$_{J}$}
+\section{The future of \dietj}
 \label{sec:future}
 
 \subsection{Remaining problems}
 \label{ssec:remainingpbs}
 
 \begin{itemize}
-\item{An unsolved problem dealing with \textbf{omniORB and JNI}
-    results in a failure when a JNI \sed$_{\diet}$ registers to a \diet
-    Agent not launched via JNI. Because of that, to deploy some LAs
-    between a \diet$_{J}$ MA and a \diet$_{J}$ \sed, they have to
-    be launched via JNI.  Moreover, a \diet$_{J}$ MA won't be able
-    to know LAs or {\sed}s not launched via JNI.  The current
-    \diet$_{J}$ tree is unable to contain classic LAs$_{\diet}$ or
-    {\sed}s$_{\diet}$.}
+\item{An unsolved problem dealing with \textbf{omniORB and JNI} results in a
+  failure when a JNI \seddiet registers to a \diet Agent not launched via
+  JNI. Because of that, to deploy some LAs between a \dietj MA and a \dietj
+  \sed, they have to be launched via JNI. Moreover, a \dietj MA won't be able
+  to know LAs or \seds not launched via JNI. The current \dietj tree is unable
+  to contain classic \LAsdiet or \sedsdiet.}
   
-\item{The current version of the \diet$_{J}$ platform works only for
-    problems having two input matrices and one output matrix. The
-    serialization has been written only for these cases. One of the
-    first things to do is to write a \textbf{generic packing and
-      unpacking}, to be able to process all problems supported
-    by \diet.}
-\item{The client$_{J}$ isn't very simple to write, because nothing is
-    hidden to the user, neither the details of the JXTA communication
-    nor the creation of the problem. As for the client$_{\diet}$, an
-    API providing all mechanisms needed to communicate with \diet via
-    JXTA pipes should be written. The implementation of a Java Client
-    taking in account the JXTA communication seems to be the solution.}
+\item{The current version of the \dietj platform works only for problems having
+  two input matrices and one output matrix. The serialization has been written
+  only for these cases. One of the first things to do is to write a
+  \textbf{generic packing and unpacking}, to be able to process all problems
+  supported by \diet.}
+\item{The \clientj isn't very simple to write, because nothing is hidden to the
+  user, neither the details of the JXTA communication nor the creation of the
+  problem. As for the \clientdiet, an API providing all mechanisms needed to
+  communicate with \diet via JXTA pipes should be written. The implementation
+  of a Java Client taking in account the JXTA communication seems to be the
+  solution.}
 
 \end{itemize}
 
-\section{Working with a \diet$_{J}$ platform}
+\section{Working with a \dietj platform}
 \label{sec:workwithjxta}
 
 \subsection{Installation and configuration}
@@ -329,26 +314,25 @@ The \sed$_{\diet}$ contains:
 \begin{itemize}
 \item{You need a JDK1.4.1 or later release from for instance:\\
     \noindent
-    {\footnotesize
-      \texttt{http://java.sun.com/javase/downloads/index.jsp} }\\
-      (Previous JDKs and other java compiler are known to generate
-      errors) Ensure that environment variable PATH contains the javac
-      and javah binaries location.}
+    {\footnotesize \texttt{http://java.sun.com/javase/downloads/index.jsp}
+    }\\ (Previous JDKs and other java compiler are known to generate errors)
+    Ensure that environment variable PATH contains the javac and javah binaries
+    location.}
   
 \item{Then, to configure \diet with the JXTA option, switch the {\tt
-    DIET\_USE\_JXTA} option to {\tt ON} inside the {\tt ccmake}
-    GUI. The JXTA client example is compiled if {\tt
-    DIET\_BUILD\_EXAMPLE} is also switched to {\tt ON}.}
+    DIET\_USE\_JXTA} option to {\tt ON} inside the {\tt ccmake} GUI. The JXTA
+  client example is compiled if {\tt DIET\_BUILD\_EXAMPLE} is also switched to
+  {\tt ON}.}
 
 \end{itemize}
 
-\subsection {Deploying a \diet$_{J}$ platform}
+\subsection {Deploying a \dietj platform}
 \label{ssec:deployjxta}
 
 
 
-Please refer to the previous chapter for more information concerning
-things to do before deploying the platform.
+Please refer to the previous chapter for more information concerning things to
+do before deploying the platform.
 
 \begin{figure}[htb]
  \begin{center}
@@ -360,57 +344,51 @@ things to do before deploying the platform.
 
 \begin{itemize}
 
-  \item{\textbf{First step}: launching a MA$_{J}$. After having set
-      the \texttt{LD\_LIBRARY\_PATH}, \\ \texttt{OMNIORB\_CONFIG} and
-      \texttt{OMNINAMES\_LOGDIR} paths, \diet is ready to run, except
-      the JXTA part :}
-    \begin{itemize}
-      \item{Set an environment variable called \texttt{JXTA\_LIB}
-      containing the path to the JXTA JAR files. They are by default
-      provided in the \texttt{<diet\_root>/src/lib} directory.}
+\item{\textbf{First step}: launching a \MAj. After having set the
+  \texttt{LD\_LIBRARY\_PATH}, \\ \texttt{OMNIORB\_CONFIG} and
+  \texttt{OMNINAMES\_LOGDIR} paths, \diet is ready to run, except the JXTA
+  part:}
+  \begin{itemize}
+  \item{Set an environment variable called \texttt{JXTA\_LIB} containing the
+    path to the JXTA JAR files. They are by default provided in the
+    \texttt{<diet\_root>/src/lib} directory.}
 
-  \item{At last, the command to be launched to run a MA$_{J}$ is:\\
-      \noindent
-      {\footnotesize \texttt{\$ java -cp <JXTA\_JARS> JXTAMultiMA
-          <DIET\_MA\_config\_file>} } \\Ensure that this command is
-      launched inside the right directory : indeed, only one peer can
-      be launched by directory : information concerning this peer is
-      available in a \texttt{.jxta} directory under the directory
-      where you launched the peer.  Delete this directory before
-      launching a peer if you have already used it on another machine,
-      in order to clean the platform configuration.}
-    \end{itemize}
+  \item{At last, the command to be launched to run a \MAj is:\\
+    \noindent
+        {\footnotesize \texttt{\$ java -cp <JXTA\_JARS> JXTAMultiMA
+            <DIET\_MA\_config\_file>} } \\Ensure that this command is launched
+        inside the right directory : indeed, only one peer can be launched by
+        directory : information concerning this peer is available in a
+        \texttt{.jxta} directory under the directory where you launched the
+        peer.  Delete this directory before launching a peer if you have
+        already used it on another machine, in order to clean the platform
+        configuration.}
+  \end{itemize}
     
-  \item{Each time a new JXTA peer is launched, you have to configure
-      it.  On the first setup screen, the name of the peer is required
-      and must be unique, for instance, ``MA1'' for the first MA$_{J}$
-      you load. The second screen, named ``advanced'', displays the
-      TCP and HTTP settings. When using \diet$_{J}$ on a single
-      machine, the configuration is as shown on
-      Figure~\ref{fig:platformjxta}, else, just replace \texttt{localhost}
-      by the IP address of the machine.  Please note that, for each
-      peer on a single machine, the TCP and HTTP ports have to be
-      different. For instance : 9701 and 9700 for the first peer, 9703
-      and 9702 for the second, etc. The third setup screen deals with
-      the web access. If you want to access peers outside the local
-      network, references of rendezvous and relay peers placed at the
-      disposal of JXTA users by the JXTA community can be
-      downloaded. Otherwise, don't do anything with this screen. The
-      last screen deals with username and password, but these
-      parameters are filled with default values.}
+\item{Each time a new JXTA peer is launched, you have to configure it.  On the
+  first setup screen, the name of the peer is required and must be unique, for
+  instance, ``MA1'' for the first \MAj you load. The second screen, named
+  ``advanced'', displays the TCP and HTTP settings. When using \dietj on a
+  single machine, the configuration is as shown on
+  Figure~\ref{fig:platformjxta}, else, just replace \texttt{localhost} by the
+  IP address of the machine.  Please note that, for each peer on a single
+  machine, the TCP and HTTP ports have to be different. For instance : 9701 and
+  9700 for the first peer, 9703 and 9702 for the second, etc. The third setup
+  screen deals with the web access. If you want to access peers outside the
+  local network, references of rendezvous and relay peers placed at the
+  disposal of JXTA users by the JXTA community can be downloaded. Otherwise,
+  don't do anything with this screen. The last screen deals with username and
+  password, but these parameters are filled with default values.}
 
-\item{\textbf{Second step}: registering a \sed to the MA. Be sure that
-    the \texttt{parentName} inside the configuration file matches the
-    name of the MA$_{\diet}$ previously launched. The command to run is:\\
-    {\footnotesize \texttt{\$ java -cp <JXTA\_JARS> JXTASeD
-        <DIET\_SeD\_config\_file> <computation\_abilities>}
-    }\\
-    If you want to put LA(s) between the MA and the
-    \sed, launch the following command before loading the \sed:\\
-    {\footnotesize
-      \texttt{\$ java LA <DIET\_LA\_config\_file>}
-    }\\ Check the \diet tree coherence and the \texttt{parentName}
-    variables inside the configuration files. }
+\item{\textbf{Second step}: registering a \sed to the MA. Be sure that the
+  \texttt{parentName} inside the configuration file matches the name of the
+  \MAdiet previously launched. The command to run is:\\ {\footnotesize
+    \texttt{\$ java -cp <JXTA\_JARS> JXTASeD <DIET\_SeD\_config\_file>
+      <computation\_abilities>} }\\ If you want to put LA(s) between the MA and
+  the \sed, launch the following command before loading the
+  \sed:\\ {\footnotesize \texttt{\$ java LA <DIET\_LA\_config\_file>} }\\ Check
+  the \diet tree coherence and the \texttt{parentName} variables inside the
+  configuration files. }
 \item{\textbf{Third step}: Launch a client$_{J}$ with the command:\\
     {\footnotesize
       \texttt{\$ java -cp <JXTA\_JARS> JXTAClient <pb>}
@@ -418,17 +396,16 @@ things to do before deploying the platform.
    }
  }
 
-  \end{itemize}
+\end{itemize}
   
 
-At this point, you still haven't tested the Multi-MA. To achieve this,
-launch other MA$_{J}$(s) and launch again the client.
+At this point, you still haven't tested the Multi-MA. To achieve this, launch
+at least one \MAj and launch again the client.
 
-Scripts have been left at your disposal. You just need to check the
-environment variables and paths required. As said before, only one
-JXTA peer can be run in one directory, so each script is inside a
-different one. These directories have to be edited (for
-configuration), are named \texttt{MMA1/}, \texttt{MMA2/},
+Scripts have been left at your disposal. You just need to check the environment
+variables and paths required. As said before, only one JXTA peer can be run in
+one directory, so each script is inside a different one. These directories have
+to be edited (for configuration), are named \texttt{MMA1/}, \texttt{MMA2/},
 \texttt{MMA3/}, \texttt{LA1/}, \texttt{SeD1/}, \texttt{SeD2/} and
 \texttt{client/}.  and are located in :
 \texttt{<DIET\_root>/src/examples/JXTA/scripts}.
