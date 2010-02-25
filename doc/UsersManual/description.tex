@@ -8,6 +8,13 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.27  2010/02/25 06:38:15  ycaniou
+%* Add local variable
+%* + Ispell
+%* + eg, NES etc. -> \eg..
+%* Version of supported GCC updated
+%* + formatage .tex
+%*
 %* Revision 1.26  2010/01/21 14:05:58  bdepardo
 %* DIET -> \diet
 %* SeD -> \sed
@@ -124,12 +131,13 @@ the hierarchical organization of \diet.
 \section{\diet components}
 \label{sec:components}
 
-The different components of our software architecture are the following:
+The different components of our software architecture are the
+following:
 
 \begin{description}
 %....[ Client ]................................................................
 \item \textbf{Client}\\ A client is an application which uses \diet to
-  solve problems.  Many types of clients are able to connect to
+  solve problems. Many types of clients are able to connect to
   \textsc{Diet}, from a web page, a \pse such as Matlab or \sci, or
   from a compiled program.
 %....[ Master Agent (MA) ].....................................................
@@ -171,11 +179,11 @@ The different components of our software architecture are the following:
 \section{Communications layer}
 \label{sec:CORBA}
 
-NES environments can be implemented using a classic socket
+\nes environments can be implemented using a classic socket
 communication layer.  Several problems to this approach have been
 pointed out such as the lack of portability or limits on the number of
 sockets that can be opened concurrently.  Our aim is to implement and
-deploy a distributed NES environment that works at a wider
+deploy a distributed \nes environment that works at a wider
 scale. Distributed object environments, such as \emph{Java},
 \emph{DCOM} or CORBA have proven to be a good base for building
 applications that manage access to distributed services. They not only
@@ -189,7 +197,8 @@ to that of sockets, CORBA is well suited to support distributed
 applications in a large scale Grid environment. New specialized
 services can be easily published and existing services can also be
 used.  \diet is based upon \emph{OmniORB 3}~\cite{OMNIORB} or later, a
-free CORBA implementation that provides good communication performance.
+free CORBA implementation that provides good communication
+performance.
 
 
 
@@ -211,29 +220,29 @@ clients.
   \end{center}
 \end{figure}
 
-In step (2), an LA is launched and registers itself with the MA.
-At this step of system initialization, two kinds of components can
-connect to
-the LA: a \sed ~(3), which manages some computational resource, or
-another LA~(4), to add a hierarchical level in this branch. When the
-\sed\ registers to its parent LA, it submits a list of the services it
-offers.  The agent then reports the new service offering through its
-parent agent until the MA.  If the service was previously unavailable
-along that arm of the hierarchy the agents update their records.
-Finally, clients can access the registered service by contacting
-the MA~(5) to get a reference to the best server available and then
-directly connect to it~(6) to launch the computation.
+In step (2), an LA is launched and registers itself with the MA.  At
+this step of system initialization, two kinds of components can
+connect to the LA: a \sed ~(3), which manages some computational
+resource, or another LA~(4), to add a hierarchical level in this
+branch. When the \sed\ registers to its parent LA, it submits a list
+of the services it offers.  The agent then reports the new service
+offering through its parent agent until the MA.  If the service was
+previously unavailable along that arm of the hierarchy the agents
+update their records.  Finally, clients can access the registered
+service by contacting the MA~(5) to get a reference to the best server
+available and then directly connect to it~(6) to launch the
+computation.
 
 The architecture of the hierarchy is described in configuration files
-(see Section~\ref{sec:diet_config_files})
-and each component transmits the local configuration to its
-parent. Thus, the system administration can also be hierarchical. For
-instance, an MA can manage a domain like a university, providing
-prioritary access to users of this domain. Then each laboratory can
-run an LA, while each team of the laboratory can run some other LAs to
-administrate its own servers. This hierarchical administration of the
-system allows local changes in the configuration without interfering
-with the whole platform.
+(see Section~\ref{sec:diet_config_files}) and each component transmits
+the local configuration to its parent. Thus, the system administration
+can also be hierarchical. For instance, an MA can manage a domain like
+a university, providing prioritary access to users of this
+domain. Then each laboratory can run an LA, while each team of the
+laboratory can run some other LAs to administrate its own
+servers. This hierarchical administration of the system allows local
+changes in the configuration without interfering with the whole
+platform.
 
 
 
@@ -242,19 +251,20 @@ with the whole platform.
 \label{sec:solvepb}
 
 Assuming that the architecture described in Section
-~\ref{sec:components} includes several servers able to solve the
-same problem, the algorithm presented below lets an MA select a
-server for the computation among those available. This decision is
-made in four steps.
+~\ref{sec:components} includes several servers able to solve the same
+problem, the algorithm presented below lets an MA select a server for
+the computation among those available. This decision is made in four
+steps.
 
 \begin{itemize}
 \item The MA propagates the client request through its subtrees down
   to the capable servers; actually, the agents only forward the
   request on those subtrees offering the service.
-\item Each server that can satisfy the request can send his 
-  performance and hardware information or  an estimation of  the 
-  computation time necessary to process the request to its ``parent'' (an LA)
-  (via performance prediction tools: see Chapter~\ref{chapter:performance}). 
+\item Each server that can satisfy the request can send his
+  performance and hardware information or  an estimation of  the
+  computation time necessary to process the request to its ``parent''
+  (an LA) (via performance prediction tools: see
+  Chapter~\ref{chapter:performance}). 
 \item Each LA that receives one or more positive responses from its
   children sorts the servers and forwards the best responses to the MA
   through the hierarchy.
@@ -283,7 +293,7 @@ In multi-MA mode, the behavior of a \diet hierarchy does not change
 when a client requests a service that is available under the queried
 MA. However, if a request sent to a MA does not found a \sed that can
 resolve its problem, \diet will forward the request to other MAs of
-the federation.  To read more about multi-MA, see
+the federation. To read more about multi-MA, see
 Chapter~\ref{ch:multiMAextension} and Chapter~\ref{ch:p2pextension}.
 
 %====[ FAST ]==============================================================
@@ -323,3 +333,9 @@ for details on using CoRI.
 % performed at this stage.
 %%%%%%%%%%%%%%%
 
+%%% Local Variables:
+%%% mode: latex
+%%% ispell-local-dictionary: "american"
+%%% mode: flyspell
+%%% fill-column: 79
+%%% End:
