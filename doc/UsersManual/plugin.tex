@@ -307,13 +307,12 @@ the logical mechanism by which {\sed} responses are sorted~-- is
 associated with the service; the default behavior was described in
 Section~\ref{sect:default_sched}.
 
-If application-specific data \emph{are} supplied (i.e.,~the
-estimation function has been redefined), an alternative method for
-aggregation is needed.  Currently, a basic
-\emph{priority scheduler} has been implemented, enabling an
-application developer to specify a series of performance values that
-are to be optimized in succession.  A developer may implement a
-priority scheduler using the following interface:
+If application-specific data \emph{are} supplied (\ie the estimation function
+has been redefined), an alternative method for aggregation is needed.
+Currently, a basic \emph{priority scheduler} has been implemented, enabling an
+application developer to specify a series of performance values that are to be
+optimized in succession.  A developer may implement a priority scheduler using
+the following interface:
 \begin{code}
 \begin{tabbing}
 diet\_aggregator\_desc\_t* \\
@@ -401,12 +400,11 @@ existence of databases in selecting a server, and thus, the expected
 result is that one of the {\sed}s with the fewest number of database
 mismatches will be selected.
 
-In the \texttt{main} function of the \texttt{server.c} file, the
-following block of code (a)~specifies the use of the priority
-aggregator for this service, (b)~declares a performance estimation
-function to supply the necessary data at request-time, and
-(c)~defines the order of precedence of the performance values
-(i.e.,~minimizing the number of database mismatches, and then
+In the \texttt{main} function of the \texttt{server.c} file, the following
+block of code (a)~specifies the use of the priority aggregator for this
+service, (b)~declares a performance estimation function to supply the necessary
+data at request-time, and (c)~defines the order of precedence of the
+performance values (\ie minimizing the number of database mismatches, and then
 maximizing the elapsed execution time).
 \begin{verbatim}
   {

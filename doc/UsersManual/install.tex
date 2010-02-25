@@ -10,6 +10,10 @@
 %****************************************************************************%
 %* $Id$
 %* $Log$
+%* Revision 1.45  2010/02/25 07:46:42  ycaniou
+%* ie, i.e -> Use macro
+%* Typos + ispell
+%*
 %* Revision 1.44  2010/02/25 06:38:15  ycaniou
 %* Add local variable
 %* + Ispell
@@ -78,95 +82,87 @@
 
 \subsection{General remarks on \diet platform dependencies}
 
-\diet is itself written in C/C++ and for limited parts in java. \diet
-is based on CORBA and thus depends on the chosen CORBA implementation.
-Additionally, some of \diet extensions make a strong use of libraries
-themselves written in C/C++ and java. Thus, we could expect \diet to
-be effective on any platform offering decent version of such
-compilers.
+\diet is itself written in C/C++ and for limited parts in java. \diet is based
+on CORBA and thus depends on the chosen CORBA implementation.  Additionally,
+some of \diet extensions make a strong use of libraries themselves written in
+C/C++ and java. Thus, we could expect \diet to be effective on any platform
+offering decent version of such compilers.
 
 \diet undergoes daily regression tests (see
-\url{http://graal.ens-lyon.fr/DietDashboard}) on various hardwares, a
-couple of Un*x based operating systems (under different
-distributions), MacOSX and AIX, and mainly with GCC. But thanks to
-users reports (punctual deployments and special tests conduced before
-every release), \diet is known to be effective on a wide range of
-platforms.
+\url{http://graal.ens-lyon.fr/DietDashboard}) on various hardwares, a couple of
+Un*x based operating systems (under different distributions), MacOSX and AIX,
+and mainly with GCC. But thanks to users reports (punctual deployments and
+special tests conduced before every release), \diet is known to be effective on
+a wide range of platforms.
 
-Nevertheless, if you encounter installation difficulties don't
-hesitate to post on \diet's users mailing list:
-\verb+diet-usr@listes.ens-lyon.fr+ (for the archives refer to
-\url{http://graal.ens-lyon.fr/DIET/mail-lists.html}).  If you find a
-bug in \diet, please don't hesitate to submit a bug report on
-\url{http://graal.ens-lyon.fr/bugzilla}. If you have multiple bugs to
-report, please make multiple submissions, rather than submitting
-multiple bugs in a single report.
+Nevertheless, if you encounter installation difficulties don't hesitate to post
+on \diet's users mailing list: \verb+diet-usr@listes.ens-lyon.fr+ (for the
+archives refer to \url{http://graal.ens-lyon.fr/DIET/mail-lists.html}).  If you
+find a bug in \diet, please don't hesitate to submit a bug report on
+\url{http://graal.ens-lyon.fr/bugzilla}. If you have multiple bugs to report,
+please make multiple submissions, rather than submitting multiple bugs in a
+single report.
 
 \subsection{Hardware dependencies}
-\diet is fully tested on Linux/i386 and Linux/i686 platforms. \diet is
-known to be effective on Linux/Sparc, Linux/i64, Linux/amd64,
-Linux/Alpha, Linux/PowerPC, AIX/PowerPC and MacOS/PowerPC platforms.
-At some point in \diet history, \diet used to be tested on the
-Solaris/Sparc platform...
+\diet is fully tested on Linux/i386 and Linux/i686 platforms. \diet is known to
+be effective on Linux/Sparc, Linux/i64, Linux/amd64, Linux/Alpha,
+Linux/PowerPC, AIX/PowerPC and MacOS/PowerPC platforms.  At some point in \diet
+history, \diet used to be tested on the Solaris/Sparc platform...
 
 \subsection{Supported compilers}
-\diet is supported on GCC with versions ranging from 3.2.X to 4.3.4.
-Note that due to omniORB 4 (see \ref{sec:software_dependencies})
-requirements towards thread-safe management of exception handling,
-compiling \diet with \verb+gcc+ requires at least \verb+gcc-2.96+.
-\diet is also supported on XL complier(IBM) and Intel compiler.
+\diet is supported on GCC with versions ranging from 3.2.X to 4.3.4.  Note that
+due to omniORB 4 (see \ref{sec:software_dependencies}) requirements towards
+thread-safe management of exception handling, compiling \diet with \verb+gcc+
+requires at least \verb+gcc-2.96+. \diet is also supported on XL complier(IBM)
+and Intel compiler.
 
 \subsection{Operating system dependencies}
-\diet is fully tested on Linux [with varying distributions like
-  Debian, Red Hat Enterprise Linux (REL-ES-3), Fedora Core (5)], on
-AIX (5.3) and on MacOSX (Darwin 8).
+\diet is fully tested on Linux [with varying distributions like Debian, Red Hat
+  Enterprise Linux (REL-ES-3), Fedora Core (5)], on AIX (5.3) and on MacOSX
+(Darwin 8).
 
 \subsection{Software dependencies}
 \label{sec:software_dependencies}
 
-As explained in Section~\ref{sec:CORBA}, CORBA is used for all
-communications inside the platform.  The implementations of CORBA
-currently supported in \diet is \textbf{omniORB 4} which itself
-depends on \textbf{Python}.
+As explained in Section~\ref{sec:CORBA}, CORBA is used for all communications
+inside the platform.  The implementations of CORBA currently supported in \diet
+is \textbf{omniORB 4} which itself depends on \textbf{Python}.
 
 \noindent 
-\textbf{NB:} We have noticed that some problems occur with
-\textbf{Python 2.3}: the C++ code generated by idl could not be
-compiled. It has been patched in \diet, but some warnings may still
-appear.
+\textbf{NB:} We have noticed that some problems occur with \textbf{Python 2.3}:
+the C++ code generated by idl could not be compiled. It has been patched in
+\diet, but some warnings may still appear.
 
-\textbf{omniORB 4} itself also depends on \textbf{OpenSSL} in case you
-wish to secure your \diet platform. If you want to deploy a secure
-\diet platform, SSL support is not yet implemented  in \diet, but an
-easy way to do so is to deploy \diet over a VPN.
+\textbf{omniORB 4} itself also depends on \textbf{OpenSSL} in case you wish to
+secure your \diet platform. If you want to deploy a secure \diet platform, SSL
+support is not yet implemented  in \diet, but an easy way to do so is to deploy
+\diet over a VPN.
 
-In order to deploy CORBA services with omniORB, a configuration file
-and a log directory are required: see Section \ref{sec:CORBA_services}
-for a complete description of the services.  Their paths can be given
-to omniORB either at runtime (through the well-known environment
-variables \texttt{\$OMNIORB\_CONFIG} and
-\texttt{\$OMNINAMES\_LOGDIR}), and/or at omniORB compile time (with
-the \linebreak\texttt{--with-omniORB-config} and
-\texttt{--with-omniNames-logdir} options.)  Some examples provided in
-the \diet sources depend on the BLAS and
-\scalapack\ libraries. However the compilation of those BLAS and
-\scalapack\ dependent examples are optional.
+In order to deploy CORBA services with omniORB, a configuration file and a log
+directory are required: see Section \ref{sec:CORBA_services} for a complete
+description of the services.  Their paths can be given to omniORB either at
+runtime (through the well-known environment variables
+\texttt{\$OMNIORB\_CONFIG} and \texttt{\$OMNINAMES\_LOGDIR}), and/or at omniORB
+compile time (with the \linebreak\texttt{--with-omniORB-config} and
+\texttt{--with-omniNames-logdir} options.)  Some examples provided in the \diet
+sources depend on the BLAS and \scalapack\ libraries. However the compilation
+of those BLAS and \scalapack\ dependent examples are optional.
 
 %====[ Compilation ]===========================================================
 \section{Compiling the platform}
 \label{sec:compil_platform}
 
-\diet compilation process moved away from the traditional \verb+autotools+
-way of things to a tool named \verb+cmake+ (mainly to benefit from
-\verb+cmake+'s built-in regression tests mechanism).
+\diet compilation process moved away from the traditional \verb+autotools+ way
+of things to a tool named \verb+cmake+ (mainly to benefit from \verb+cmake+'s
+built-in regression tests mechanism).
 
 Before compiling \diet itself, first install the above mentioned (cf
-Section~\ref{sec:software_dependencies}) dependencies.  Then untar the
-\diet archive and change current directory to its root directory.
+Section~\ref{sec:software_dependencies}) dependencies.  Then untar the \diet
+archive and change current directory to its root directory.
 
 %==================
 \subsection{Obtaining and installing cmake per se}
-\diet requires using \verb+cmake+ at least version \verb+2.4.3+.  For
+\diet requires using \verb+cmake+ at least version \verb+2.4.3+. For
 many popular distributions \verb+cmake+ is incorporated by default or
 at least \verb+apt-get+ (or whatever your distro package installer
 might be) is \verb+cmake+ aware. Still, in case you need to install
@@ -199,62 +195,58 @@ commands \verb+ccmake+ and \verb+cmake+ (the first one has an extra
   order to define the parameters with the \verb+-D+ flag directly from
   the command line.
 \end{description}
-In the above syntax description of both commands,
-{\verb+<path-to-source>+} specifies a path to the top level of the
-source tree (i.e. the directory where the top level CMakeLists.txt
-file is to be encountered). Also the current working directory will be
-used as the root of the build tree for the project (out of source
-building is generally encouraged especially when working on a CVS
-tree).
+In the above syntax description of both commands, {\verb+<path-to-source>+}
+specifies a path to the top level of the source tree (\ie the directory where
+the top level CMakeLists.txt file is to be encountered). Also the current
+working directory will be used as the root of the build tree for the project
+(out of source building is generally encouraged especially when working on a
+CVS tree).
 
 \noindent
-Here is a short list of \verb+cmake+ internal parameters that are
-worth mentioning:
+Here is a short list of \verb+cmake+ internal parameters that are worth
+mentioning:
 \begin{itemize}
 \item
   \verb+CMAKE_BUILD_TYPE+ controls the type of build mode among which
   \verb+Debug+ will produce binaries and libraries with the debugging
   information
 \item
-   \verb+CMAKE_VERBOSE_MAKEFILE+ is a Boolean parameter which when set
-   to ON will generate makefiles without the .SILENT directive. This
-   is useful for watching the invoked commands and their arguments in
-   case things go wrong.
+   \verb+CMAKE_VERBOSE_MAKEFILE+ is a Boolean parameter which when set to ON
+   will generate makefiles without the .SILENT directive. This is useful for
+   watching the invoked commands and their arguments in case things go wrong.
 \item
    \verb+CMAKE_C[XX]_FLAGS*+ is a family of parameters used for the
    setting and the customization of various C/C++ compiler options.
 \item
-   \verb+CMAKE_INSTALL_PREFIX+ variable defines the location of the
-   install directory (defaulted to \verb+/usr/local+ on un*x).  This
-   is cmake's portable equivalent of the autotools configure's
-   \texttt{--prefix=} option.
+   \verb+CMAKE_INSTALL_PREFIX+ variable defines the location of the install
+   directory (defaulted to \verb+/usr/local+ on un*x).  This is cmake's
+   portable equivalent of the autotools configure's \texttt{--prefix=} option.
 \end{itemize}
 %
 Eventually, here is a short list of \verb+ccmake+ interface tips:
 \begin{itemize}
 \item
-  when lost, look at the bottom lines of the interface which always
-  summarizes \verb+ccmake+'s most pertinent options (corresponding
-  keyboard shortcuts) depending on your current context
+  when lost, look at the bottom lines of the interface which always summarizes
+  \verb+ccmake+'s most pertinent options (corresponding keyboard shortcuts)
+  depending on your current context
 \item
-  hitting the "h" key will direct you \verb+ccmake+ embedded tutorial
-  and a list of keyboard shortcuts (as mentioned in the bottom lines,
-  hit "e" to exit)
+  hitting the "h" key will direct you \verb+ccmake+ embedded tutorial and a
+  list of keyboard shortcuts (as mentioned in the bottom lines, hit "e" to
+  exit)
 \item
-  up/down navigation among parameter items can be achieved with the
-  up/down arrows
+  up/down navigation among parameter items can be achieved with the up/down
+  arrows
 \item
-  when on a parameter item, the line in inverted colors (close above
-  the bottom of the screen) contains a short description of the
-  selected parameter as well as the set of possible/recommended values
+  when on a parameter item, the line in inverted colors (close above the bottom
+  of the screen) contains a short description of the selected parameter as well
+  as the set of possible/recommended values
 \item
   toggling of boolean parameters is made with enter
 \item
   press \verb+enter+ to edit path variables
 \item
-  when editing a \verb+PATH+ typed parameter the \verb+TAB+ keyboard
-  shortcut provides an emacs-like (or bash-like) automatic path
-  completion.
+  when editing a \verb+PATH+ typed parameter the \verb+TAB+ keyboard shortcut
+  provides an emacs-like (or bash-like) automatic path completion.
 \item
   toggling of advanced mode (press "t") reveals hidden parameters
 \end{itemize}
@@ -262,15 +254,14 @@ Eventually, here is a short list of \verb+ccmake+ interface tips:
 %==================
 \subsection{A ccmake walk-through for the impatients}
 
-Assume that \verb+CVS_DIET_HOME+ represents a path to the top level
-directory of \diet sources.  This \diet sources directories tree can
-be obtained by \diet users by expanding the \diet current source level
-distribution tarball. But for the \diet developers this directories
-tree simply corresponds to the directory GRAAL/devel/diet/diet of a
-cvs checkout of the \diet sources hierarchy.  Additionally, assume we
-created a build tree directory and \verb+cd+ to it (in the example
-below we chose \verb+CVS_DIET_HOME/Bin+ as build tree, but feel free
-to follow your conventions):
+Assume that \verb+CVS_DIET_HOME+ represents a path to the top level directory
+of \diet sources.  This \diet sources directories tree can be obtained by \diet
+users by expanding the \diet current source level distribution tarball. But for
+the \diet developers this directories tree simply corresponds to the directory
+GRAAL/devel/diet/diet of a cvs checkout of the \diet sources hierarchy.
+Additionally, assume we created a build tree directory and \verb+cd+ to it (in
+the example below we chose \verb+CVS_DIET_HOME/Bin+ as build tree, but feel
+free to follow your conventions):
 \begin{itemize}
 \item
   \verb+cd CVS_DIET_HOME/Bin+
@@ -280,16 +271,15 @@ to follow your conventions):
   \item press \verb+c+ (equivalent of bootstrap.sh of the autotools)
   \item toggle the desired options e.g. \verb+DIET_BUILD_EXAMPLES+ or
     \verb+DIET_USE_JXTA+. 
-  \item specify the \verb+CMAKE_INSTALL_PREFIX+ parameter (if you wish
-    to install in a directory different from \verb+/usr/local+)
+  \item specify the \verb+CMAKE_INSTALL_PREFIX+ parameter (if you wish to
+    install in a directory different from \verb+/usr/local+)
   \item press \verb+c+ again, for checking required dependencies
   \item check all the parameters preceded with the * (star) character
     whose value was automatically retrieved by \verb+cmake+.
-  \item provide the required information i.e. fill in the proper
-    values for all parameters whose value is terminated by NOT-FOUND
-  \item iterate the above process of parameter checking,
-    toggle/specification and configuration until all configuration
-    information is satisfied
+  \item provide the required information \ie fill in the proper values for all
+    parameters whose value is terminated by NOT-FOUND
+  \item iterate the above process of parameter checking, toggle/specification
+    and configuration until all configuration information is satisfied
   \item press \verb+g+ to generate the makefile
   \item press \verb+q+ to exit ccmake
   \end{itemize}
@@ -317,10 +307,10 @@ Here are the main configuration flags:
   to be activated too.
 
 \item
-  \verb+DIET_BUILD_LIBRARIES+ which is enabled by default, activates
-  the compilation of the \diet libraries. Disabling this option is
-  only useful if you wish to restrict the compilation to the
-  construction of the documentation.
+  \verb+DIET_BUILD_LIBRARIES+ which is enabled by default, activates the
+  compilation of the \diet libraries. Disabling this option is only useful if
+  you wish to restrict the compilation to the construction of the
+  documentation.
 \end{itemize}
 
 %==================
@@ -328,9 +318,9 @@ Here are the main configuration flags:
 
 \diet has many extensions (some of them are still) experimental. These
 extensions most often rely on external packages that need to be
-pre-installed. One should notice that some of those extensions offer
-concurrent functionalities. This explains the usage of configuration
-flags in order to obtain the compilation of the desired extensions.
+pre-installed. One should notice that some of those extensions offer concurrent
+functionalities. This explains the usage of configuration flags in order to
+obtain the compilation of the desired extensions.
 
 \begin{itemize}
 \item
@@ -381,18 +371,17 @@ flags in order to obtain the compilation of the desired extensions.
   system path for the \verb+fast-config+ command and set the
   \verb+FAST_CONFIG_EXECUTABLE+ with the result. Upon failure, it is
   up to the user to manually set the full path name to this command
-  (e.g. with [c]cmake command line argument
-  \\ \verb+-DFAST_CONFIG_EXECUTABLE:PATH=$HOME/local/bin/fast-config+.
+  (e.g. with [c]cmake command line argument\\ 
+  \verb+-DFAST_CONFIG_EXECUTABLE:PATH=$HOME/local/bin/fast-config+.
 
 \item
   \verb+DIET_USE_FD+ for activating Fault Detector.
 
 \item 
-  \verb+DIET_USE_JUXMEM+ activates \diet support of JuxMem which
-  allows the user to manage persistent data. When this option is
-  activated (disabled by default), a \sed can store data blocks within
-  JuxMem. Chapter~\ref{ch:juxmem} describes in more details JuxMem
-  and its use inside \diet.
+  \verb+DIET_USE_JUXMEM+ activates \diet support of JuxMem which allows the
+  user to manage persistent data. When this option is activated (disabled by
+  default), a \sed can store data blocks within JuxMem. Chapter~\ref{ch:juxmem}
+  describes in more details JuxMem and its use inside \diet.
 
 \item
   \verb+DIET_USE_JXTA+ activates the so called MULTI-Master-Agent
@@ -428,9 +417,9 @@ Eventually, some configuration flags control the general result of the
 compilation or some developers extensions:
 \begin{itemize}
 \item
-  \verb+BUILD_TESTING+ is a conventional variable (which is not a
-  cmake internal variable) which specifies that the regression tests
-  should also be compiled.
+  \verb+BUILD_TESTING+ is a conventional variable (which is not a cmake
+  internal variable) which specifies that the regression tests should also be
+  compiled.
 
 \item
   \verb+BUILD_SHARED_LIBS+ is a cmake internal variable which
@@ -441,10 +430,9 @@ compilation or some developers extensions:
 
 \item
   \verb+DIET_USE_DART+ enables DART reporting system (refer to
-  \url{http://public.kitware.com/Dart}) which is used for constructing
-  \diet's dashboard (see
-  \url{http://graal.ens-lyon.fr/DietDashboard}).  Note that setting
-  the \verb+DIET_USE_DART+ will force the option
+  \url{http://public.kitware.com/Dart}) which is used for constructing \diet's
+  dashboard (see \url{http://graal.ens-lyon.fr/DietDashboard}).  Note that
+  setting the \verb+DIET_USE_DART+ will force the option
   \linebreak\verb+BUILD_TESTING+ to be set.
 
 \item
@@ -465,9 +453,9 @@ compilation or some developers extensions:
 \subsection{Compiling and installing}
 
 \subsubsection{Summarizing the configuration choices}
-Once the configuration is properly made one can check the choices made
-by looking the little summary proposed by cmake.  This summary should
-look like (\verb+[...]+ denotes eluded portions): {\footnotesize
+Once the configuration is properly made one can check the choices made by
+looking the little summary proposed by cmake.  This summary should look like
+(\verb+[...]+ denotes eluded portions): {\footnotesize
 \begin{verbatim}
 ~/DIET > ./cmake ..
 [...]
@@ -503,75 +491,69 @@ package/library detections made by cmake.
 \subsubsection{Compiling stage}
 You are now done with the configuration stage (equivalent of both the
 \verb+bootstrap.sh+ and \verb+./configure+ stage of the
-\verb+autotools+).  You are now back to your platform level
+\verb+autotools+). You are now back to your platform level
 development tools \ie \verb+make+ when working on Unices. Hence you
 can now proceed with the compiling process by launching \verb+make+.
 
 \subsubsection{Testing}
-If you configured \diet with the \verb+BUILD_TESTING+ you can easily
-run the regression tests by invoking the \verb+make test+. This is
-equivalent to invoking \verb+ctest+ command (ctest is part of cmake
-package). \verb+ctest --help+ provides a summary of the advanced
-options of \verb+ctest+ among which we recommend the \verb+--verbose+
-option.
+If you configured \diet with the \verb+BUILD_TESTING+ you can easily run the
+regression tests by invoking the \verb+make test+. This is equivalent to
+invoking \verb+ctest+ command (ctest is part of cmake
+package). \verb+ctest --help+ provides a summary of the advanced options of
+\verb+ctest+ among which we recommend the \verb+--verbose+ option.
 
 \subsubsection{Installation stage}
-After compiling (linking, and testing) you can optionally proceed with
-the installation stage with the \verb+make install+ command.
+After compiling (linking, and testing) you can optionally proceed with the
+installation stage with the \verb+make install+ command.
 
 %==============================================================================
 \section{Diet client/server examples}
 \label{section:diet-examples}
 
-A set of various examples of \diet server/client are provided within
-the \diet archive:
+A set of various examples of \diet server/client are provided within the \diet
+archive:
 \begin{itemize}
-\item{\texttt{file\_transfer}}: the server computes the sizes of two
-  input files and returns them. A third output parameter may be
-  returned; the server decides randomly whether to send back the first
-  file. This is to show how to manage a variable number of arguments:
-  the profile declares all arguments that may be filled, even if they
-  might not be all filled at each request/computation.
+\item{\texttt{file\_transfer}}: the server computes the sizes of two input
+  files and returns them. A third output parameter may be returned; the server
+  decides randomly whether to send back the first file. This is to show how to
+  manage a variable number of arguments: the profile declares all arguments
+  that may be filled, even if they might not be all filled at each
+  request/computation.
 
-\item{\texttt{dmat\_manips}}: the server offers matrix manipulation
-  routines: transposition (\texttt{T}), product (\texttt{MatPROD}) and
-  sum (\texttt{MatSUM}, \texttt{SqMatSUM} for square matrices, and
-  \texttt{SqMatSUM\_opt} for square matrices but re-using the memory
-  space of the second operand for the result). Any subset of these
-  operations can be specified on the command line. The last two of
-  them are given for compatibility with a BLAS server as explained
-  below.
+\item{\texttt{dmat\_manips}}: the server offers matrix manipulation routines:
+  transposition (\texttt{T}), product (\texttt{MatPROD}) and sum
+  (\texttt{MatSUM}, \texttt{SqMatSUM} for square matrices, and
+  \texttt{SqMatSUM\_opt} for square matrices but re-using the memory space of
+  the second operand for the result). Any subset of these operations can be
+  specified on the command line. The last two of them are given for
+  compatibility with a BLAS server as explained below.
   
 \item{\texttt{BLAS}}: the server offers the \texttt{dgemm} BLAS
-  functionality. We plan to offer all BLAS (Basic Linear Algebraic
-  Subroutines) in the future. Since this function computes $C = \alpha
-  AB + \beta C$, it can also compute a matrix-matrix product, a sum of
-  square matrices, etc. All these services are offered by the BLAS
-  server. Two clients are designed to use these services: one
-  (\texttt{dgemm\_client.c}) is designed to use the \texttt{dgemm\_}
-  function only, and the other one (\texttt{client.c}) to use all BLAS
-  functions (but currently only \texttt{dgemm\_}) and sub-services,
+  functionality. We plan to offer all BLAS (Basic Linear Algebraic Subroutines)
+  in the future. Since this function computes $C = \alpha AB + \beta C$, it can
+  also compute a matrix-matrix product, a sum of square matrices, etc. All
+  these services are offered by the BLAS server. Two clients are designed to
+  use these services: one (\texttt{dgemm\_client.c}) is designed to use the
+  \texttt{dgemm\_} function only, and the other one (\texttt{client.c}) to use
+  all BLAS functions (but currently only \texttt{dgemm\_}) and sub-services,
   such as \texttt{MatPROD}.
   
 \item{\texttt{\scalapack}}: the server is designed to offer all
-  \scalapack\  (parallel version of the LAPACK library) functions but
-  only manages the \texttt{pdgemm\_} function so far. The
-  \texttt{pdgemm\_} routine is the parallel version of the
-  \texttt{dgemm\_} function, so that the server also offers all the
-  same sub-services. Two clients are designed to use these services:
-  one (\texttt{pdgemm\_client.c}) is designed to use the
-  \texttt{pdgemm\_} function only, and the other one
-  (\texttt{client.c}) to use all \scalapack\ functions and
-  sub-services, such as \texttt{MatPROD}.
+  \scalapack\  (parallel version of the LAPACK library) functions but only
+  manages the \texttt{pdgemm\_} function so far. The \texttt{pdgemm\_} routine
+  is the parallel version of the \texttt{dgemm\_} function, so that the server
+  also offers all the same sub-services. Two clients are designed to use these
+  services: one (\texttt{pdgemm\_client.c}) is designed to use the
+  \texttt{pdgemm\_} function only, and the other one (\texttt{client.c}) to use
+  all \scalapack\ functions and sub-services, such as \texttt{MatPROD}.
 
-\item{\texttt{workflow}}: The programs in this directory are examples
-  that demonstrate how to use the workflow feature of diet.  The files
-  representing the workflows that can be tested are stored in xml
-  sub-directory. For each workflow, you can find the required services
-  in the corresponding xml file (check the path attribute of each node
-  element).  For the scalar manipulation example, you can use
-  \texttt{scalar\_server} that gathers four different elementary
-  services.
+\item{\texttt{workflow}}: The programs in this directory are examples that
+  demonstrate how to use the workflow feature of diet.  The files representing
+  the workflows that can be tested are stored in xml sub-directory. For each
+  workflow, you can find the required services in the corresponding xml file
+  (check the path attribute of each node element).  For the scalar manipulation
+  example, you can use \texttt{scalar\_server} that gathers four different
+  elementary services.
 \end{itemize}
 
 \subsection{Compiling the examples}
@@ -584,15 +566,14 @@ toggling the corresponding entry of \verb+ccmake+ GUI's or by adding
 \verb+[c]cmake+ invocation. Note that this option is disabled by
 default.
 
-The compilation of the examples, respectively the installation, is
-executed on the above described invocation of \verb+make+, resp.
-\verb+make install+ stages. The binary of the examples are placed in
-the  \texttt{$<$install\_dir$>$/bin/examples} sub-directory of the
-installation directory.  Likewise, the samples of configuration files
-located in \texttt{src/examples/cfgs} are processed by \texttt{make
-  install} to create ready-to-use configuration files in
-\texttt{src/examples/cfgs} and then copied into
-\texttt{$<$install\_dir$>$/etc/cfgs}.
+The compilation of the examples, respectively the installation, is executed on
+the above described invocation of \verb+make+, resp. \verb+make install+
+stages. The binary of the examples are placed in the
+\texttt{$<$install\_dir$>$/bin/examples} sub-directory of the installation
+directory. Likewise, the samples of configuration files located in
+\texttt{src/examples/cfgs} are processed by \texttt{make install} to create
+ready-to-use configuration files in \texttt{src/examples/cfgs} and then copied
+into \texttt{$<$install\_dir$>$/etc/cfgs}.
 
 %%% Local Variables:
 %%% mode: latex
