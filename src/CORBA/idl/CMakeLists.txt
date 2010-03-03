@@ -232,11 +232,6 @@ IF( DIET_BUILD_LIBRARIES )
     ${OMNIORB4_LIBRARIES}
   )
 
-  IF( APPLE )
-    SET_TARGET_PROPERTIES( IDLWf
-      PROPERTIES LINK_FLAGS "-flat_namespace -undefined suppress" )
-  ENDIF( APPLE )
-
   INSTALL_TARGETS(/lib/ IDLWf )
   ENDIF ( DIET_USE_WORKFLOW )
   ##########################################################################
