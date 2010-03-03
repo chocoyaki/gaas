@@ -31,12 +31,34 @@ FIND_PATH(
   /usr/local/include
 )
 
-FIND_LIBRARY(
-  XERCES_LIBRARY xerces-c
-  PATHS 
-  ${XERCES_DIR}/lib
-  /usr/lib
-)
+IF ( CYGWIN )
+
+  FIND_LIBRARY(
+    XERCES_LIBRARY 
+    NAMES xerces-c
+    PATHS 
+    ${XERCES_DIR}/bin
+    /bin
+    /usr/bin
+    /usr/local/bin
+    ${XERCES_DIR}/lib
+    /lib
+    /usr/lib
+    /usr/local/lib
+  )
+  
+ELSE ( CYGWIN )
+
+  FIND_LIBRARY(
+    XERCES_LIBRARY xerces-c
+    PATHS
+    ${XERCES_DIR}/lib
+    /lib
+    /usr/lib
+    /usr/local/lib
+  )
+  
+ENDIF( CYGWIN )
 
 SET( XERCES_FOUND FALSE )
 

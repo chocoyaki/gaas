@@ -31,13 +31,33 @@ FIND_PATH(
   /usr/local/include
 )
 
+IF ( CYGWIN )
+
+FIND_LIBRARY(
+  XQILLA_LIBRARY xqilla
+  PATHS
+  ${XQILLA_DIR}/bin
+  /bin
+  /usr/bin
+  /usr/local/bin
+  ${XQILLA_DIR}/lib
+  /lib
+  /usr/lib
+  /usr/local/lib
+)
+
+ELSE ( CYGWIN )
+
 FIND_LIBRARY(
   XQILLA_LIBRARY xqilla
   PATHS
   ${XQILLA_DIR}/lib
+  /lib
   /usr/lib
   /usr/local/lib
 )
+
+ENDIF ( CYGWIN )
 
 SET( XQILLA_FOUND FALSE )
 

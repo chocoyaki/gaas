@@ -8,7 +8,13 @@ SET( DIET_INCLUDE_DIR "@CMAKE_INSTALL_PREFIX@/include" )
 
 # --------------------------------------------------------------------------
 # Path to DIET libraries
-SET( DIET_LIBRARY_DIR "@CMAKE_INSTALL_PREFIX@/lib" )
+IF( CYGWIN AND BUILD_SHARED_LIBS )
+  # When compiling with gcc in gycwin shared libraries are installed in
+  # the bin directory
+  SET( DIET_LIBRARY_DIR "@CMAKE_INSTALL_PREFIX@/bin" )
+ELSE( CYGWIN AND BUILD_SHARED_LIBS )
+  SET( DIET_LIBRARY_DIR "@CMAKE_INSTALL_PREFIX@/lib" )
+ENDIF( CYGWIN AND BUILD_SHARED_LIBS )
 LINK_DIRECTORIES( ${DIET_LIBRARY_DIR} )
 # The DIET libraries to link against
 IF ( DIET_USE_DAGDA )

@@ -89,11 +89,21 @@ IF( CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX )
 
   IF( LINKER_IS_GNULD )
     IF( GNUCXX_MAJOR_VERSION_BIGER_THAN_FOUR )
-      SET( CMAKE_EXE_LINKER_FLAGS_MAINTAINER
-      "-Wl,--unresolved-symbols=report-all,--warn-unresolved-symbols,--warn-once"
-      )
+      IF( CYGWIN )
+        SET( CMAKE_EXE_LINKER_FLAGS_MAINTAINER
+        "-Wl,--unresolved-symbols=report-all,--warn-unresolved-symbols,--warn-once --enable-auto-import --export-dynamic -Wl,--export-dynamic,--enable-auto-import"
+        )
+      ELSE( CYGWIN )
+        SET( CMAKE_EXE_LINKER_FLAGS_MAINTAINER
+        "-Wl,--unresolved-symbols=report-all,--warn-unresolved-symbols,--warn-once"
+        )
+      ENDIF( CYGWIN )
     ELSE( GNUCXX_MAJOR_VERSION_BIGER_THAN_FOUR )
-      SET( CMAKE_EXE_LINKER_FLAGS_MAINTAINER "-Wl,--warn-once" )
+      IF( CYGWIN )
+        SET( CMAKE_EXE_LINKER_FLAGS_MAINTAINER "-Wl,--warn-once --enable-auto-import --export-dynamic -Wl,--export-dynamic,--enable-auto-import" )
+      ELSE( CYGWIN )
+        SET( CMAKE_EXE_LINKER_FLAGS_MAINTAINER "-Wl,--warn-once" )
+      ENDIF( CYGWIN)
     ENDIF( GNUCXX_MAJOR_VERSION_BIGER_THAN_FOUR )
   ELSE( LINKER_IS_GNULD )
       SET( CMAKE_EXE_LINKER_FLAGS_MAINTAINER "" )
