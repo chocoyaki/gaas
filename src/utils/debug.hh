@@ -9,6 +9,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.33  2010/03/03 13:59:55  bdepardo
+ * C++ includes instead of C includes
+ *
  * Revision 1.32  2010/01/14 13:15:08  bdepardo
  * "\n" -> endl
  *
@@ -99,12 +102,12 @@
 using namespace std;
 #include <omniconfig.h>
 #include <omnithread.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <sys/time.h>
-#include <time.h>
+#include <ctime>
 #include <unistd.h>
-#include <math.h> /* include used for the definition of HUGE_VAL*/
+#include <cmath> /* include used for the definition of HUGE_VAL*/
 
 #include "common_types.hh"
 #include "response.hh"
