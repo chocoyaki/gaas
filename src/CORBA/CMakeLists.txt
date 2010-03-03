@@ -1,7 +1,6 @@
 #****************************************************************************#
 #* DIET cmake local file                                                    *#
 #****************************************************************************#
-ADD_SUBDIRECTORY( idl )
 
 IF( DIET_BUILD_LIBRARIES )
 
@@ -12,6 +11,11 @@ IF( DIET_BUILD_LIBRARIES )
     ${DIET_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}
   )
+
+  IF( DIET_USE_DAGDA )
+    INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/src/utils/nodes )
+    INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/src/utils/DAGDA )
+  ENDIF( DIET_USE_DAGDA )
 
 IF( DIET_USE_ALT_BATCH )
   INCLUDE_DIRECTORIES(
@@ -80,22 +84,9 @@ ELSE( DIET_USE_ALT_BATCH )
 ENDIF( DIET_USE_ALT_BATCH )
 
   TARGET_LINK_LIBRARIES( CorbaCommon
+    UtilsCommon
     ${OMNIORB4_LIBRARIES}
   )
-  
-  ################### MacOS X and unresolved symbol at link time:
-  # The following kludge doesn't imply there is something wrong with MacOS X
-  # (well, at least in this case). It is just that by default when linking
-  # a shared library with gcc, the undefined symbols are NOT considered 
-  # as errors (also reported as warning by default). But on MacOS X when
-  # linking a shared library with the native linker undefined symbols 
-  # are considered as errors (by default)... Thus we need to override 
-  # this default behavior because CorbaCommon has indeed undefined symbols
-  # (see the above remark).
-  IF( APPLE )
-    SET_TARGET_PROPERTIES( CorbaCommon
-      PROPERTIES LINK_FLAGS "-flat_namespace -undefined suppress" )
-  ENDIF( APPLE )
 
   ## ------------- New : For scheduler load support. ---------------
   # Install the files needed for a scheduler creation.
@@ -108,13 +99,6 @@ ENDIF( DIET_USE_ALT_BATCH )
     )
   ENDIF( DIET_USE_USERSCHED )
 # ------------------------------------------------------------------
-
-  IF( DIET_USE_DAGDA )
-    INCLUDE_DIRECTORIES(
-      ${DIET_SOURCE_DIR}/src/utils
-      ${DIET_SOURCE_DIR}/src/utils/DAGDA
-    )
-  ENDIF( DIET_USE_DAGDA )
   
   INSTALL_TARGETS(/lib/ CorbaCommon )
 ENDIF( DIET_BUILD_LIBRARIES )

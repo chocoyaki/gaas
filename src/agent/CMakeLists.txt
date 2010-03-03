@@ -5,6 +5,7 @@ IF( DIET_BUILD_LIBRARIES )
     INCLUDE_DIRECTORIES(
       ${OMNIORB4_INCLUDE_DIR}
       ${DIET_SOURCE_DIR}/src/utils
+      ${DIET_SOURCE_DIR}/src/utils/nodes
       ${DIET_BINARY_DIR}/src/CORBA/idl
       ${DIET_SOURCE_DIR}/src/CORBA
       ${CMAKE_CURRENT_SOURCE_DIR}
@@ -14,6 +15,7 @@ IF( DIET_BUILD_LIBRARIES )
     INCLUDE_DIRECTORIES(
       ${OMNIORB4_INCLUDE_DIR}
       ${DIET_SOURCE_DIR}/src/utils
+      ${DIET_SOURCE_DIR}/src/utils/nodes
       ${DIET_BINARY_DIR}/src/CORBA/idl
       ${DIET_SOURCE_DIR}/src/CORBA
       ${CMAKE_CURRENT_SOURCE_DIR}

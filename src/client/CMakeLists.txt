@@ -26,7 +26,7 @@ IF( DIET_BUILD_LIBRARIES )
   ENDIF( DIET_USE_JUXMEM )
 
   IF( DIET_USE_DAGDA )
-    INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/src/utils/DAGDA ${UUID_PATH} )
+    INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/src/utils/DAGDA  ${DIET_SOURCE_DIR}/src/utils/nodes ${UUID_PATH} )
   ENDIF( DIET_USE_DAGDA )
 
 # COMPILE LIBRARY DIET_client
@@ -83,7 +83,6 @@ IF( DIET_BUILD_LIBRARIES )
     IDLMA
     UtilsCommon
     UtilsVector
-    UtilsSeDClt
     DIETCall
     ${OMNIORB4_LIBRARIES}
     ${DAGDA_LIBRARIES}
@@ -96,7 +95,7 @@ IF( DIET_BUILD_LIBRARIES )
     IDLMA
     UtilsCommon
     UtilsVector
-    UtilsSeDClt
+    UtilsNodes
     ${OMNIORB4_LIBRARIES}
     ${DAGDA_LIBRARIES}
   )

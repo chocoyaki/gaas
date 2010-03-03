@@ -21,14 +21,9 @@ IF( DIET_BUILD_LIBRARIES )
     CltWfMgr.cc )
 
   TARGET_LINK_LIBRARIES( CltWf
-    UtilsWf
+    UtilsWf IDLWf DIETCall
     ${XERCES_LIBRARY}  ${OMNIORB4_LIBRARIES}
     )
-
-  IF( APPLE )
-    SET_TARGET_PROPERTIES( CltWf
-      PROPERTIES LINK_FLAGS "-flat_namespace -undefined suppress" )
-  ENDIF( APPLE )
 
   INSTALL_TARGETS( /lib/ CltWf )
 

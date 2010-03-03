@@ -183,8 +183,21 @@ STRING( COMPARE EQUAL ${CMAKE_SYSTEM_NAME} "Darwin" APPLE )
 STRING( COMPARE EQUAL ${CMAKE_SYSTEM_NAME} "Linux" LINUX )
 STRING( COMPARE EQUAL ${CMAKE_SYSTEM_NAME} "SunOS" SUNOS )
 STRING( COMPARE EQUAL ${CMAKE_SYSTEM_NAME} "FreeBSD" FREEBSD )
+STRING( COMPARE EQUAL ${CMAKE_SYSTEM_NAME} "CYGWIN" CYGWIN )
 
-IF( AIX )
+IF( CYGWIN )
+  MESSAGE( STATUS "XXX System name Cygwin on Windows" )
+  ADD_DEFINITIONS( -D__cygwin__ )
+
+  # Workflow compilation on Windows inside the Cygwin environment
+  # is not permitted until the good compilation of the libraries of
+  # XQilla and Xerces are available.
+  # For instance it is not possible so we have to wait for the 
+  # problem resolution
+  # TODO : solve the problem.
+  SET( DIET_USE_WORKFLOW OFF CACHE BOOL "Unable to compile workflow on Windows with Cygwin. " FORCE )
+
+ELSEIF( AIX )
   MESSAGE( STATUS "XXX System name Aix" )
   ADD_DEFINITIONS( -D__aix__ )
 
@@ -211,7 +224,7 @@ ELSEIF( SUNOS )
 ELSEIF( FREEBSD )
   MESSAGE( STATUS "XXX System name FreeBSD" )
   ADD_DEFINITIONS( -D__freebsd__ )
-ENDIF( AIX )
+ENDIF( CYGWIN )
 
 
 
@@ -343,6 +356,7 @@ IF( DIET_USE_WORKFLOW )
       FIND_PACKAGE( XQilla )
       IF( XQILLA_FOUND )
         ADD_DEFINITIONS( -DHAVE_WORKFLOW )
+        SET ( DIET_USE_DAGDA ON )
       ELSE ( XQILLA_FOUND )
         MESSAGE( "Diet Workflow support requires XQilla library." )
         MESSAGE( "Workflow support will be disabled" )
@@ -490,6 +504,18 @@ IF( NOT BUILD_SHARED_LIBS )
     SET( OMNIORB4_LIBRARIES ${OMNIORB4_LIBRARIES} ${LIBRARY_PTHREAD} )
   ENDIF( LIBRARY_PTHREAD )
 ENDIF( NOT BUILD_SHARED_LIBS )
+# --------------------------------------------------------------------------
+
+IF( CYGWIN )
+  IF( BUILD_SHARED_LIBS )  
+    SET( DIET_INSTALL_LIBS_DIR ${CMAKE_INSTALL_PREFIX}/bin )
+  ELSE( BUILD_SHARED_LIBS )
+    SET( DIET_INSTALL_LIBS_DIR ${CMAKE_INSTALL_PREFIX}/lib )
+  ENDIF( BUILD_SHARED_LIBS )
+ELSE( CYGWIN )
+  SET( DIET_INSTALL_LIBS_DIR ${CMAKE_INSTALL_PREFIX}/lib )
+ENDIF( CYGWIN )
+
 
 # --------------------------------------------------------------------------
 ADD_SUBDIRECTORY( src )
