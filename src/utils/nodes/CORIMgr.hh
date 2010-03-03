@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.1  2010/03/03 14:26:35  bdepardo
+ * BEWARE!!!
+ * Huge modifications to take into account CYGWIN.
+ * Lots of files' directory have been changed.
+ *
  * Revision 1.7  2007/04/16 22:43:44  ycaniou
  * Make all necessary changes to have the new option HAVE_ALT_BATCH operational.
  * This is indented to replace HAVE_BATCH.

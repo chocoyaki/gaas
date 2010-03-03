@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.1  2010/03/03 14:26:35  bdepardo
+ * BEWARE!!!
+ * Huge modifications to take into account CYGWIN.
+ * Lots of files' directory have been changed.
+ *
  * Revision 1.2  2006/10/31 23:18:33  ecaron
  * Correct wrong header
  *

@@ -8,6 +8,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.1  2010/03/03 14:26:35  bdepardo
+ * BEWARE!!!
+ * Huge modifications to take into account CYGWIN.
+ * Lots of files' directory have been changed.
+ *
  * Revision 1.20  2008/11/18 10:19:38  bdepardo
  * - Added the possibility to dynamically create and destroy a service
  *   (even if the SeD is already started). An example is available.

@@ -10,6 +10,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.1  2010/03/03 14:26:35  bdepardo
+ * BEWARE!!!
+ * Huge modifications to take into account CYGWIN.
+ * Lots of files' directory have been changed.
+ *
  * Revision 1.1  2004/03/01 19:00:37  rbolze
  * Thread to enable monitoring from LogCentral
  *

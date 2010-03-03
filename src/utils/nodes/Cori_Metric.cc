@@ -9,6 +9,11 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.1  2010/03/03 14:26:35  bdepardo
+ * BEWARE!!!
+ * Huge modifications to take into account CYGWIN.
+ * Lots of files' directory have been changed.
+ *
  * Revision 1.9  2008/05/11 16:19:51  ycaniou
  * Check that pathToTmp and pathToNFS exist
  * Check and eventually correct if pathToTmp or pathToNFS finish or not by '/'
