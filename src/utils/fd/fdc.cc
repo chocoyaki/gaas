@@ -7,6 +7,9 @@
 /****************************************************************************/
 /* $Id$ 
  * $Log$
+ * Revision 1.6  2010/03/03 17:49:18  glemahec
+ * Little correction for cygwin compatibility
+ *
  * Revision 1.5  2010/01/24 22:21:06  bdepardo
  * Definition of _NSIG under Darwin.
  *
@@ -44,6 +47,10 @@
 #define _NSIG  NSIG
 #endif
  
+/* NSIG under Cygwin */
+#if (not defined(_NSIG) && defined(__cygwin__))
+#define _NSIG  NSIG
+#endif
 
       /****************\
        * private data *
