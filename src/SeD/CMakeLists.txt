@@ -13,19 +13,20 @@ IF( DIET_BUILD_LIBRARIES )
     SET( DIET_SeD_SOURCES
 	 ${DIET_SeD_SOURCES}
          ${DIET_SOURCE_DIR}/src/utils/Cori_batch.cc
-         ${DIET_SOURCE_DIR}/src/utils/FASTMgr.cc
-         ${DIET_SOURCE_DIR}/src/utils/Cori_Data_Easy.cc
-         ${DIET_SOURCE_DIR}/src/utils/Cori_Easy_CPU.cc
-         ${DIET_SOURCE_DIR}/src/utils/Cori_Easy_Disk.cc
-         ${DIET_SOURCE_DIR}/src/utils/Cori_Easy_Memory.cc
-         ${DIET_SOURCE_DIR}/src/utils/Cori_Fast.cc
-         ${DIET_SOURCE_DIR}/src/utils/Cori_Metric.cc
-         ${DIET_SOURCE_DIR}/src/utils/CORIMgr.cc )
+         ${DIET_SOURCE_DIR}/src/utils/nodes/FASTMgr.cc
+         ${DIET_SOURCE_DIR}/src/utils/nodes/Cori_Data_Easy.cc
+         ${DIET_SOURCE_DIR}/src/utils/nodes/Cori_Easy_CPU.cc
+         ${DIET_SOURCE_DIR}/src/utils/nodes/Cori_Easy_Disk.cc
+         ${DIET_SOURCE_DIR}/src/utils/nodes/Cori_Easy_Memory.cc
+         ${DIET_SOURCE_DIR}/src/utils/nodes/Cori_Fast.cc
+         ${DIET_SOURCE_DIR}/src/utils/nodes/Cori_Metric.cc
+         ${DIET_SOURCE_DIR}/src/utils/nodes/CORIMgr.cc )
   ENDIF( DIET_USE_ALT_BATCH )
   
   INCLUDE_DIRECTORIES(
     ${OMNIORB4_INCLUDE_DIR}
     ${DIET_SOURCE_DIR}/src/utils
+    ${DIET_SOURCE_DIR}/src/utils/nodes
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${DIET_SOURCE_DIR}/src/agent        # for e.g. ChildID.hh
     ${DIET_SOURCE_DIR}/src/CORBA        # for e.g. marshalling.hh
@@ -54,7 +55,6 @@ IF( DIET_BUILD_LIBRARIES )
        IDLAgent
        IDLCommon
        UtilsCommon
-       UtilsSeDClt
        UtilsVector
        ${OMNIORB4_LIBRARIES}
        ${DAGDA_LIBRARIES} )

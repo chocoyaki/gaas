@@ -25,21 +25,36 @@ IF( DIET_BUILD_LIBRARIES )
     ${DIET_SOURCE_DIR}/include
     ${DIET_BINARY_DIR}/src/CORBA/idl
     ${DIET_SOURCE_DIR}/src/agent
+    ${DIET_SOURCE_DIR}/src/utils/nodes
   )
 
   ADD_LIBRARY( Dagda ${DAGDA_SOURCES} )
   ADD_LIBRARY( DIET_Dagda ${DIET_DAGDA_SOURCES} )
-
-  TARGET_LINK_LIBRARIES( Dagda
-    CorbaCommon
-    IDLCommon
-    IDLDagda
-    UtilsCommon
-    UtilsNodes
-    UtilsDagda
-    ${OMNIORB4_LIBRARIES}
-    ${UUIDLIB}
-  )
+  
+  IF( CYGWIN )
+    TARGET_LINK_LIBRARIES( Dagda
+      CorbaCommon
+      IDLCommon
+      IDLDagda
+      UtilsCommon
+      UtilsNodes
+      UtilsDagda
+      ${OMNIORB4_LIBRARIES}
+      ${UUIDLIB}
+      /lib/e2fsprogs/libuuid.a
+    )
+  ELSE ( CYGWIN )
+    TARGET_LINK_LIBRARIES( Dagda
+      CorbaCommon
+      IDLCommon
+      IDLDagda
+      UtilsCommon
+      UtilsNodes
+      UtilsDagda
+      ${OMNIORB4_LIBRARIES}
+      ${UUIDLIB}
+    )
+  ENDIF( CYGWIN )  
 
   TARGET_LINK_LIBRARIES( DIET_Dagda
     CorbaCommon

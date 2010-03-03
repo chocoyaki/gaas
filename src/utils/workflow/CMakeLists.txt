@@ -4,8 +4,12 @@ IF( DIET_BUILD_LIBRARIES )
     ${DIET_BINARY_DIR}/src/CORBA/idl
     ${DIET_SOURCE_DIR}/src/CORBA        # for e.g. marshalling.hh
     ${CMAKE_CURRENT_SOURCE_DIR}         # for DIET_data_internal.hh
+    ${DIET_SOURCE_DIR}/src/utils/DAGDA
+    ${DIET_SOURCE_DIR}/src/utils/nodes
+    ${DIET_SOURCE_DIR}/src/utils
     ${DIET_SOURCE_DIR}/include
     ${DIET_SOURCE_DIR}/src/SeD
+    ${DIET_SOURCE_DIR}/src/agent
     ${XERCES_INCLUDE_DIR}
     ${XQILLA_INCLUDE_DIR}
     )
@@ -22,15 +26,10 @@ IF( DIET_BUILD_LIBRARIES )
     Thread.cc WfUtils.cc
     )
 
-  TARGET_LINK_LIBRARIES( UtilsWf
+  TARGET_LINK_LIBRARIES( UtilsWf AgentCommon DIET_Dagda
     ${DIET_DAGDA_LIBRARY}
     ${XERCES_LIBRARY}  ${OMNIORB4_LIBRARIES} ${XQILLA_LIBRARY}
     )
-
-  IF( APPLE )
-    SET_TARGET_PROPERTIES( UtilsWf
-      PROPERTIES LINK_FLAGS "-flat_namespace -undefined suppress" )
-  ENDIF( APPLE )
 
   INSTALL_TARGETS( /lib/ UtilsWf )
 
