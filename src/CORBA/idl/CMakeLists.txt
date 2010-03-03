@@ -3,6 +3,33 @@
 #****************************************************************************#
 
 IF( DIET_BUILD_LIBRARIES )
+  INCLUDE_DIRECTORIES(
+    ${OMNIORB4_INCLUDE_DIR}
+    ${DIET_BINARY_DIR}/src/CORBA/idl
+    ${DIET_SOURCE_DIR}/src/utils        # for DIET_data_internal.hh
+    ${DIET_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}
+  )
+
+  IF( DIET_USE_DAGDA )
+    INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/src/utils/nodes )
+    INCLUDE_DIRECTORIES( ${DIET_SOURCE_DIR}/src/utils/DAGDA )
+  ENDIF( DIET_USE_DAGDA )
+
+  IF( DIET_USE_ALT_BATCH )
+    INCLUDE_DIRECTORIES(
+      ${CMAKE_CURRENT_SOURCE_DIR}
+      ${DIET_BINARY_DIR}/src/CORBA        # for ORBMgr (for DietLogComponent)
+      ${DIET_SOURCE_DIR}/src/utils        # for DIET_data_internal.hh
+      ${DIET_SOURCE_DIR}/src/agent        # for e.g. ChildID.hh (for SeDImpl)
+      ${DIET_SOURCE_DIR}/src/SeD          # for SeDImpl and batch
+    )
+    IF( DIET_USE_JUXMEM )
+      INCLUDE_DIRECTORIES( ${JUXMEM_INCLUDE_DIR} )
+    ENDIF( DIET_USE_JUXMEM )
+  ENDIF( DIET_USE_ALT_BATCH )
+
+
   # Generate the code out of the IDL source files and build the ad-hoc
   # libraries (idl is part of omniORB which is mandatory).
 
@@ -52,9 +79,9 @@ IF( DIET_BUILD_LIBRARIES )
   SEPARATE_ARGUMENTS( DIET_IDL_FLAGS )
 
   SET( IDL_SOURCES
+    common_types
     Agent
     Callback
-    common_types
     DataMgr
     LogComponent
     LocalAgent
@@ -74,9 +101,12 @@ IF( DIET_BUILD_LIBRARIES )
 
   ## Use Dagda as data manager.
   IF( DIET_USE_DAGDA )
-  SET( IDL_SOURCES
-     Dagda
-     ${IDL_SOURCES} )
+    SET( IDL_SOURCES
+       Dagda
+       ${IDL_SOURCES} )
+    SET( DAGDA_IDL_BUILD_SRC
+       DagdaSK.cc
+       DagdaDynSK.cc ) 
   ENDIF( DIET_USE_DAGDA )
 
   # Some libraries of the utils directory (e.g. UtilsCommon) need the
@@ -162,6 +192,12 @@ IF( DIET_BUILD_LIBRARIES )
   INSTALL_TARGETS(/lib/ IDLCommon )
 
   ADD_LIBRARY( IDLAgent
+    common_typesSK.cc
+    common_typesDynSK.cc
+    SeDSK.cc
+    SeDDynSK.cc
+    responseSK.cc
+    responseDynSK.cc
     AgentSK.cc
     AgentDynSK.cc
     DataMgrSK.cc
@@ -172,6 +208,7 @@ IF( DIET_BUILD_LIBRARIES )
     LocMgrDynSK.cc
     LogTypesSK.cc
     LogTypesDynSK.cc
+    ${DAGDA_IDL_BUILD_SRC}
   )
   IF( DIET_USE_DAGDA )
     SET( DagdaLibs IDLDagda )
