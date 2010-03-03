@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2010/03/03 10:19:03  bdepardo
+ * Changed \n into endl
+ *
  * Revision 1.3  2004/12/15 15:57:08  sdahan
  * rewrite the FloodRequestsList to use a simplest implementation. The previous mutex bugs does not exist anymore.
  *
@@ -36,16 +39,16 @@
 #include "debug.hh"
 
 bool FloodRequestsList::put(FloodRequest& floodRequest) {
-  //TRACE_TEXT(15,"fr put lock\n") ;
+  //TRACE_TEXT(15,"fr put lock" << endl) ;
   mutex.lock() ;
-  //TRACE_TEXT(15,"fr put --lock\n") ;
+  //TRACE_TEXT(15,"fr put --lock" << endl) ;
   RequestID reqId = floodRequest.getId() ;
   iterator iter = requestsList.find(reqId) ;
   bool result = (iter == requestsList.end()) ;
   if(result) {
     requestsList[reqId] = &floodRequest ;
   }
-  //TRACE_TEXT(15,"fr put unlock\n") ;
+  //TRACE_TEXT(15,"fr put unlock" << endl) ;
   mutex.unlock() ;
   return result ;
 }
@@ -55,22 +58,22 @@ FloodRequest & FloodRequestsList::get(const RequestID & reqID) {
   FloodRequest* result = NULL;
   bool find = false ;
   while (!find && lp < 100) { // waits a maximum of one second
-    //TRACE_TEXT(15,"fr get lock\n") ;
+    //TRACE_TEXT(15,"fr get lock" << endl) ;
     mutex.lock() ;
-    //TRACE_TEXT(15,"fr get --lock\n") ;
+    //TRACE_TEXT(15,"fr get --lock" << endl) ;
     iterator iter = requestsList.find(reqID) ;
     find = (iter != requestsList.end()) ;
     if (find) {
       result = &(*iter->second) ;
       requestsList.erase(iter) ;
-      //TRACE_TEXT(15,"fr get unlock\n") ;
+      //TRACE_TEXT(15,"fr get unlock" << endl) ;
       mutex.unlock() ;
     } else {
       // if the request is not found, wait 10 ms that a thread free
       // the resource access
-      //TRACE_TEXT(15,"fr get unlock\n") ;
+      //TRACE_TEXT(15,"fr get unlock" << endl) ;
       mutex.unlock() ;
-      TRACE_TEXT(20, "FloodRequestsLists sleep 10ms\n") ;
+      TRACE_TEXT(20, "FloodRequestsLists sleep 10ms" << endl) ;
       usleep(10000) ;
     }
   }

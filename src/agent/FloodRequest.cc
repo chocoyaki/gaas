@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.6  2010/03/03 10:19:03  bdepardo
+ * Changed \n into endl
+ *
  * Revision 1.5  2006/05/12 12:12:32  sdahan
  * Add some documentation about multi-MA
  *
@@ -231,7 +234,7 @@ void FloodRequest::addResponseNotFound() {
 
 
 void FloodRequest::addResponseFloodedArea(KeyString senderId) {
-  cout << "void FloodRequest::addResponseFloodedArea(" << senderId << ")\n";
+  cout << "void FloodRequest::addResponseFloodedArea(" << senderId << ")" << endl;
   NeighbouringMAs::iterator senderIter = neighbouringMAs.find(senderId) ;
   if (senderIter != neighbouringMAs.end())
     senderIter->second.state = NeighbouringMA::nmaStateFlooded ;

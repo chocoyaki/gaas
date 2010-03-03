@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.36  2010/03/03 10:19:03  bdepardo
+ * Changed \n into endl
+ *
  * Revision 1.35  2010/01/14 11:06:22  bdepardo
  * Compiles with gcc 4.4
  *
@@ -272,7 +275,7 @@ main(int argc, char** argv)
               Parsers::Results::USELOGSERVICE);
   useLS = false;
   if (ULSptr == NULL) {
-	  WARNING(" useLogService not configured. Disabled by default\n");
+    WARNING(" useLogService not configured. Disabled by default" << endl);
   } else {
     if (*ULSptr) {
       useLS = true;
@@ -300,7 +303,7 @@ main(int argc, char** argv)
   }
 
   if (useLS) {
-    TRACE_TEXT(TRACE_ALL_STEPS, "LogService enabled\n");
+    TRACE_TEXT(TRACE_ALL_STEPS, "LogService enabled" << endl);
     char* agtTypeName;
     char* agtParentName;
     char* agtName;
@@ -326,7 +329,7 @@ main(int argc, char** argv)
     free(agtTypeName);
     
   } else {
-    TRACE_TEXT(TRACE_ALL_STEPS, "LogService disabled\n");
+    TRACE_TEXT(TRACE_ALL_STEPS, "LogService disabled" << endl);
     dietLogComponent = NULL;
   }
 
@@ -397,7 +400,7 @@ main(int argc, char** argv)
   { 
     cerr << "Open OutFile: "<< ackFile <<endl;
     ofstream out (ackFile);
-    out << "ok\n" << endl;
+    out << "ok" << endl << endl;
     out.close();
   } 
 #endif

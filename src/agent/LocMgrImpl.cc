@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.19  2010/03/03 10:19:03  bdepardo
+ * Changed \n into endl
+ *
  * Revision 1.18  2008/06/01 14:06:56  rbolze
  * replace most ot the cout by adapted function from debug.cc
  * there are some left ...
@@ -156,7 +159,7 @@ LocMgrImpl::run()
     }
   }
   TRACE_TEXT(TRACE_ALL_STEPS,
-	       "\nRoot LocMgr " << this->myName<< " started.\n\n");
+	     endl << "Root LocMgr " << this->myName<< " started." << endl << endl);
   return 0;
 }
 
@@ -546,7 +549,7 @@ LocMgrImpl::whereData(const char* argID)
     if (this->parent == LocMgr::_nil()) {
       /** I am the root Loc Manager */
       dataLocList.unlock();
-      WARNING("Data item " << argID << " not found in hierarchy\n");
+      WARNING("Data item " << argID << " not found in hierarchy" << endl);
       dataMgrRef = DataMgr::_nil();
     } else {
       /** I am not the root.  Try asking my parent. */
@@ -594,13 +597,13 @@ LocMgrImpl::whereDataSubtree(const char* argID)
           return DataMgr::_nil();
         }
       } else {
-        WARNING("Unknown object cChildID\n");
+        WARNING("Unknown object cChildID" << endl);
         return DataMgr::_nil();
       }
     }
   } else {
     dataLocList.unlock();
-    TRACE_TEXT(TRACE_STRUCTURES, "Data " << argID << " not in subhierarchy\n");
+    TRACE_TEXT(TRACE_STRUCTURES, "Data " << argID << " not in subhierarchy" << endl);
     return DataMgr::_nil();
   }
 } // whereDataSubtree(const char* argID)

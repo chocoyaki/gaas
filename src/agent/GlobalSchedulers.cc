@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.21  2010/03/03 10:19:03  bdepardo
+ * Changed \n into endl
+ *
  * Revision 1.20  2009/09/24 10:48:34  bdepardo
  * Fixed a bug when reverting to default scheduler: StdGS wasn't initialized
  * (in deserialize).
@@ -187,7 +190,7 @@ GlobalScheduler::deserialize(const char* serializedScheduler)
   {
     WARNING("unable to deserialize global scheduler ; "
 	    << "reverting to default (StdGS)");
-    cout << "scheduler was \"" << serializedScheduler << "\"\n";
+    cout << "scheduler was \"" << serializedScheduler << "\"" << endl;
     return (GlobalScheduler::chooseGlobalScheduler());
   }
 }
@@ -282,7 +285,7 @@ GlobalScheduler::chooseGlobalScheduler(const corba_request_t* req,
   ERROR(__FUNCTION__ <<
         ": unhandled aggregator (" <<
         agg.agg_specific._d() <<
-        ")\n", NULL);
+        ")" << endl, NULL);
   return (NULL);
 }
 
@@ -317,7 +320,7 @@ GlobalScheduler::aggregate(corba_response_t* aggrResp, size_t max_srv,
   */ 
   Vector_t evCache = new_Vector();
 
-//   cout << "global scheduler: " << this->name << "\n";
+//   cout << "global scheduler: " << this->name << endl;
 
   SCHED_TRACE_FUNCTION("nb_responses=" << nb_responses
 		       << ",max_srv=" << max_srv);
@@ -404,7 +407,7 @@ StdGS::deserialize(const char* serializedScheduler)
   StdGS* res = new StdGS();
   
   TRACE_TEXT(TRACE_ALL_STEPS,
-	     "StdGS::deserialize(" << serializedScheduler << ")\n");
+	     "StdGS::deserialize(" << serializedScheduler << ")" << endl);
   token = strsep( &ptr, ":" );
   assert(!strcmp(token, StdGS::stName));
    while (ptr) { // ptr == NULL when the last token is identified (no more ':')
@@ -495,7 +498,7 @@ PriorityGS::deserialize(const char* serializedScheduler)
   PriorityGS* res = new PriorityGS();
 
   TRACE_TEXT(TRACE_ALL_STEPS,
-             "PriorityGS::deserialize(" << serializedScheduler << ")\n");
+             "PriorityGS::deserialize(" << serializedScheduler << ")" << endl);
 
   // Eliminate the first token, which is to be stName
   token = strsep( &ptr, ":" );
@@ -523,7 +526,7 @@ PriorityGS::serialize(PriorityGS* GS)
 
   SCHED_TRACE_FUNCTION(GS->name);
   sprintf(res, GS->name);
-//   cout << "res is " << res << "\n";
+//   cout << "res is " << res << endl;
   while (iter->hasCurrent()) {
     Scheduler* sched = iter->getCurrent();
     char* tmp = Scheduler::serialize(sched);
@@ -537,7 +540,7 @@ PriorityGS::serialize(PriorityGS* GS)
     } else {
       sprintf((char*)(res+length), ":%s", tmp);
     }
-//     cout << "  res is " << res << "\n";
+//     cout << "  res is " << res << endl;
     length += tmp_length;
     delete [] tmp;
     iter->next();

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.4  2010/03/03 10:19:03  bdepardo
+ * Changed \n into endl
+ *
  * Revision 1.3  2004/12/02 08:21:07  sdahan
  * bug fix:
  *   - file id leak in the BindService
@@ -86,7 +89,7 @@ BindService::BindService(MasterAgentImpl* ma, unsigned int port) {
   struct sockaddr_in serverAddr;
   listenSocket = socket(AF_INET, SOCK_STREAM, 0);
   if (listenSocket < 0) {
-    ERROR("opening bind service socket: " << strerror(errno) << "\n", ;);
+    ERROR("opening bind service socket: " << strerror(errno) << endl, ;);
   }
   bzero((char *) &serverAddr, sizeof(serverAddr));
   serverAddr.sin_family = AF_INET;
@@ -94,11 +97,11 @@ BindService::BindService(MasterAgentImpl* ma, unsigned int port) {
   serverAddr.sin_port = htons(port);
   if (bind(listenSocket, (struct sockaddr *) &serverAddr,
 	   sizeof(serverAddr)) < 0)  {
-    ERROR("in binding the bind service socket: " << strerror(errno) << "\n", ;);
+    ERROR("in binding the bind service socket: " << strerror(errno) << endl, ;);
   }
   listen(listenSocket,5);
 
-  TRACE_TEXT(TRACE_ALL_STEPS, "bind service open\n") ;
+  TRACE_TEXT(TRACE_ALL_STEPS, "bind service open" << endl) ;
   start() ;
 }
 
@@ -115,19 +118,19 @@ MasterAgent_ptr BindService::lookup(const char* addr) {
     
   }
   if(portNo == 0) {
-    TRACE_TEXT(TRACE_ALL_STEPS, addr << " is not a valid address\n") ;
+    TRACE_TEXT(TRACE_ALL_STEPS, addr << " is not a valid address" << endl) ;
     return MasterAgent::_nil();
   }
 
   int sockfd = socket(AF_INET, SOCK_STREAM, 0);
   if (sockfd < 0) {
-    TRACE_TEXT(TRACE_ALL_STEPS, " opening socket:" << strerror(errno) << "\n");
+    TRACE_TEXT(TRACE_ALL_STEPS, " opening socket:" << strerror(errno) << endl);
     return MasterAgent::_nil();
   }
 
   struct hostent* server = gethostbyname(hostname);
   if (server == NULL) {
-    TRACE_TEXT(TRACE_ALL_STEPS, " no such host: " << hostname << "\n");
+    TRACE_TEXT(TRACE_ALL_STEPS, " no such host: " << hostname << endl);
     return MasterAgent::_nil();
   }
 
@@ -140,21 +143,21 @@ MasterAgent_ptr BindService::lookup(const char* addr) {
   servAddr.sin_port = htons(portNo);
 
   if (connect(sockfd,(const sockaddr*)&servAddr,sizeof(servAddr)) < 0)  {
-    TRACE_TEXT(TRACE_ALL_STEPS, " not connecting:" << strerror(errno) << "\n");
+    TRACE_TEXT(TRACE_ALL_STEPS, " not connecting:" << strerror(errno) << endl);
     return MasterAgent::_nil();
   }
   char buffer[2048] ;
   bzero(buffer,sizeof(buffer));
   int n = read(sockfd,buffer,sizeof(buffer)-1);
   if (n < 0) {
-    TRACE_TEXT(TRACE_ALL_STEPS, " reading from socket:" << strerror(errno) << "\n");
+    TRACE_TEXT(TRACE_ALL_STEPS, " reading from socket:" << strerror(errno) << endl);
     close(sockfd) ;
     return MasterAgent::_nil();
   }
   close(sockfd) ;
   CORBA::Object_var obj = ORBMgr::stringToObject(buffer) ;
   if (CORBA::is_nil(obj)) {
-    TRACE_TEXT(TRACE_ALL_STEPS, "is nil: " << buffer << "\n");
+    TRACE_TEXT(TRACE_ALL_STEPS, "is nil: " << buffer << endl);
     return MasterAgent::_nil();
   }
   return MasterAgent::_narrow(obj);

@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.3  2010/03/03 10:19:03  bdepardo
+ * Changed \n into endl
+ *
  * Revision 1.2  2004/03/01 18:45:28  rbolze
  * change in exitFunction()
  *
@@ -38,8 +41,8 @@ ExitClass::init(AgentImpl* agent)
 void
 ExitClass::exitFunction()
 {
-  TRACE_TEXT(TRACE_MAIN_STEPS, "______________________________\n");
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Stopping the Agent...\n");
+  TRACE_TEXT(TRACE_MAIN_STEPS, "______________________________" << endl);
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Stopping the Agent..." << endl);
   // Deactivate and destroy the agent
   try {
     if (ExitClass::agent != NULL) {
@@ -47,7 +50,7 @@ ExitClass::exitFunction()
     }
     ORBMgr::destroy();
   } catch (...) {}
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Agent stopped !\n");
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Agent stopped !" << endl);
 
   /* We do not need the parsing results any more */
   Parsers::endParsing();

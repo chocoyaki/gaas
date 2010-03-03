@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.57  2010/03/03 10:19:03  bdepardo
+ * Changed \n into endl
+ *
  * Revision 1.56  2009/10/16 16:43:23  bdepardo
  * Added "***.." in traces.
  *
@@ -302,7 +305,7 @@ MasterAgentImpl::run()
     * 1000 ;
   /* FIXME: initRequestID is not managed in the .cfg yet */
 
-  TRACE_TEXT(TRACE_ALL_STEPS, "Getting MAs references ...\n");
+  TRACE_TEXT(TRACE_ALL_STEPS, "Getting MAs references ..." << endl);
 
   /* get the list of neighbours */
   char* neighbours = static_cast<char*>(Parsers::Results::
@@ -342,12 +345,12 @@ MasterAgentImpl::run()
     new ReferenceUpdateThread(this, 300) ;
   else
     new ReferenceUpdateThread(this, *conf) ;
-  TRACE_TEXT(TRACE_ALL_STEPS, "Getting MAs references ... done.\n");
+  TRACE_TEXT(TRACE_ALL_STEPS, "Getting MAs references ... done." << endl);
 #endif // HAVE_MULTI_MA
 
   /* num_session thread safe*/
   TRACE_TEXT(TRACE_MAIN_STEPS,
-	     "\nMaster Agent " << this->myName << " started.\n");
+	     endl << "Master Agent " << this->myName << " started." << endl);
   fflush(stdout);
 #if HAVE_DAGDA
   catalog = new MapDagdaCatalog();
@@ -493,7 +496,7 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
 
       while((decision->servers.length() == 0) && (!floodRequest.flooded())) {
 	TRACE_TEXT(TRACE_ALL_STEPS, "multi-MAs search "
-		   << creq.pb.path << " request (" << creq.reqID << ")\n") ;
+		   << creq.pb.path << " request (" << creq.reqID << ")" << endl) ;
 	int flooded = floodRequest.floodNextStep() ;
 	if (!flooded) {
 	  bool requestAdded =
@@ -504,7 +507,7 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
 	    floodRequestsList->get(creq.reqID) ;
 	    *decision = floodRequest.getDecision() ;
 	    TRACE_TEXT(TRACE_ALL_STEPS, decision->servers.length() <<
-		       " SeD have been found for request (" << creq.reqID << ")\n") ;
+		       " SeD have been found for request (" << creq.reqID << ")" << endl) ;
 	  } catch(FloodRequestNotFoundException f) {
 	    WARNING("Can not found the requested decision in multi-MA search") ;
 	  }
@@ -522,7 +525,7 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
     }
 #endif // HAVE_MULTI_MA
   } catch(...) {
-    WARNING("An exception was caught\n") ;
+    WARNING("An exception was caught" << endl) ;
   }
 
   if (dietLogComponent != NULL) {
@@ -530,7 +533,7 @@ MasterAgentImpl::submit(const corba_pb_desc_t& pb_profile,
   }
 
   TRACE_TEXT(TRACE_MAIN_STEPS,
-	     "**************************************************\n");
+	     "**************************************************" << endl);
   sprintf(statMsg, "stop request %ld", (unsigned long) creq.reqID);
   stat_out(this->myName,statMsg);
   stat_flush();
@@ -549,7 +552,7 @@ MasterAgentImpl::submit_local(const corba_request_t& creq)
   Request*          req(NULL);
 
   /* Initialize the request with a global scheduler */
-  TRACE_TEXT(TRACE_ALL_STEPS, "Initialize the request " << creq.reqID << ".\n");
+  TRACE_TEXT(TRACE_ALL_STEPS, "Initialize the request " << creq.reqID << "." << endl);
   /* Check that service exists */
   ServiceTable::ServiceReference_t sref;
   srvTMutex.lock();
@@ -601,10 +604,10 @@ MasterAgentImpl::submit_local(const corba_request_t& creq)
   if ((resp != NULL) && (resp->servers.length() != 0)) {
     resp->servers.length(MIN(resp->servers.length(),
 			     static_cast<size_t>(creq.max_srv)));
-    TRACE_TEXT(TRACE_ALL_STEPS, "Decision signaled.\n");
+    TRACE_TEXT(TRACE_ALL_STEPS, "Decision signaled." << endl);
   } else {
     TRACE_TEXT(TRACE_MAIN_STEPS,
-	       "No server found for problem " << creq.pb.path << ".\n");
+	       "No server found for problem " << creq.pb.path << "." << endl);
   }
 
   reqList[creq.reqID] = NULL;
@@ -654,7 +657,7 @@ char* MasterAgentImpl::getBindName() {
 void
 MasterAgentImpl::updateRefs()
 {
-  //  cout << "updateRefs()\n" ;
+  //  cout << "updateRefs()" << endl ;
 
   MAIds.lock() ;
   MasterAgent_var ma ;
@@ -667,21 +670,21 @@ MasterAgentImpl::updateRefs()
       TRACE_TEXT(TRACE_ALL_STEPS, "Resolving " << *iter << "...");
       ma = bindSrv->lookup(*iter) ;
       if(CORBA::is_nil(ma)) {
-	TRACE_TEXT(TRACE_ALL_STEPS, "not found\n") ;
+	TRACE_TEXT(TRACE_ALL_STEPS, "not found" << endl) ;
       } else {
-	TRACE_TEXT(TRACE_ALL_STEPS, "found\n") ;
+	TRACE_TEXT(TRACE_ALL_STEPS, "found" << endl) ;
 	try {
 	  bool result = ma->handShake(_this(), bindName) ;
 	  if (result) {
-	    TRACE_TEXT(TRACE_ALL_STEPS, "connection accepted\n") ;
+	    TRACE_TEXT(TRACE_ALL_STEPS, "connection accepted" << endl) ;
 	    knownMAs[*iter] = MADescription(ma, ma->getHostname()) ;
 	    loopCpt++ ;
 	  } else {
-	    TRACE_TEXT(TRACE_ALL_STEPS, "connection refused\n") ;
+	    TRACE_TEXT(TRACE_ALL_STEPS, "connection refused" << endl) ;
 	    knownMAs.erase(*iter) ;
 	  }
 	} catch(CORBA::SystemException& ex) {
-	  TRACE_TEXT(TRACE_ALL_STEPS, "obsolete reference\n") ;
+	  TRACE_TEXT(TRACE_ALL_STEPS, "obsolete reference" << endl) ;
 	  knownMAs.erase(*iter) ;
 	}
       }
@@ -693,7 +696,7 @@ MasterAgentImpl::updateRefs()
 
   logNeighbors();
 
-  //  cout << "--updateRefs()\n" ;
+  //  cout << "--updateRefs()" << endl ;
 
 } // updateRefs()
 
@@ -707,14 +710,14 @@ MasterAgentImpl::updateRefs()
 CORBA::Boolean
 MasterAgentImpl::handShake(MasterAgent_ptr me, const char* myName)
 {
-  TRACE_TEXT(TRACE_ALL_STEPS, myName << " is shaking my hand (" << knownMAs.size() << "/" << maxMAlinks << ")\n") ;
+  TRACE_TEXT(TRACE_ALL_STEPS, myName << " is shaking my hand (" << knownMAs.size() << "/" << maxMAlinks << ")" << endl) ;
 
 
   /* FIXME: There is probably a cleaner way to find if to IOR are equal */
   char* myior = ORBMgr::getIORString(_this());
   char* hisior = ORBMgr::getIORString(me);
   if (!strcmp(myior, hisior)) {
-    TRACE_TEXT(TRACE_ALL_STEPS, "I refuse to handshake with myself\n") ;
+    TRACE_TEXT(TRACE_ALL_STEPS, "I refuse to handshake with myself" << endl) ;
     /* we need to return now, because the knownMA locker is already
        taken by the updateRefs function which call the handshake
        one. */
@@ -752,7 +755,7 @@ void MasterAgentImpl::searchService(MasterAgent_ptr predecessor,
   //printTime() ;
   //fprintf(stderr, ">>>>>searchService from %s, %d, %s\n", predecessorId,  (int)request.reqID, (const char*)myName) ;
   TRACE_TEXT(TRACE_ALL_STEPS, predecessorId << " search "
-	     << request.pb.path << " request (" << request.reqID << ")\n") ;
+	     << request.pb.path << " request (" << request.reqID << ")" << endl) ;
 
   /* Initialize statistics module */
   stat_init();
@@ -770,7 +773,7 @@ void MasterAgentImpl::searchService(MasterAgent_ptr predecessor,
   if (found) {
     predecessor->alreadyContacted(request.reqID, bindName) ;
     TRACE_TEXT(TRACE_ALL_STEPS, "already contacted for request (" <<
-	       request.reqID << ")\n") ;
+	       request.reqID << ")" << endl) ;
   } else {
     FloodRequest& floodRequest =
       *(new FloodRequest(MADescription(predecessor, predecessorId),
@@ -784,18 +787,18 @@ void MasterAgentImpl::searchService(MasterAgent_ptr predecessor,
     if (decision->servers.length() == 0) {
       predecessor->serviceNotFound(request.reqID, bindName) ;
       TRACE_TEXT(TRACE_ALL_STEPS, "no server for request (" <<
-		 request.reqID << ")\n") ;
+		 request.reqID << ")" << endl) ;
     } else {
       predecessor->serviceFound(request.reqID, *decision) ;
       TRACE_TEXT(TRACE_ALL_STEPS, decision->servers.length()
 		 << " server(s) found for request (" <<
-		 request.reqID << ")\n") ;
+		 request.reqID << ")" << endl) ;
     }
 
   }
 
   TRACE_TEXT(TRACE_MAIN_STEPS,
-	     "**************************************************\n");
+	     "**************************************************" << endl);
   sprintf(statMsg, "stop searchService %ld", (unsigned long) request.reqID);
   stat_out(this->myName,statMsg);
   stat_flush();
@@ -825,7 +828,7 @@ void MasterAgentImpl::serviceNotFound(CORBA::Long reqId,
   //fprintf(stderr, "serviceNotFound from %s, %s:%d, %s\n", senderId, (const char*)reqId.maId, (int)reqId.idNumber, (const char*)myName) ;
   try {
     TRACE_TEXT(TRACE_ALL_STEPS, "service not found by " << senderId
-	       << " for request (" << reqId << ")\n") ;
+	       << " for request (" << reqId << ")" << endl) ;
     FloodRequest& floodRequest =
       floodRequestsList->get(reqId) ;
     floodRequest.addResponseNotFound() ;
@@ -840,7 +843,7 @@ void MasterAgentImpl::newFlood(CORBA::Long reqId,
 			       const char* senderId){
   //fprintf(stderr, "newFlood from %s, %s:%d, %s\n", senderId, (const char*)reqId.maId, (int)reqId.idNumber, (const char*)myName) ;
     TRACE_TEXT(TRACE_ALL_STEPS, senderId << " continue the search for "
-	       << " request (" << reqId << ")\n") ;
+	       << " request (" << reqId << ")" << endl) ;
   try {
     FloodRequest& floodRequest =
       floodRequestsList->get(reqId) ;
@@ -879,7 +882,7 @@ void MasterAgentImpl::floodedArea(CORBA::Long reqId,
 				  const char* senderId) {
   //fprintf(stderr, "floodedArea from %s, %s:%d, %s\n", senderId, (const char*)reqId.maId, (int)reqId.idNumber, (const char*)myName) ;
   TRACE_TEXT(TRACE_ALL_STEPS, "stop the flood of " << senderId
-	     << " for request (" << reqId << ")\n") ;
+	     << " for request (" << reqId << ")" << endl) ;
   try {
     FloodRequest& floodRequest =
       floodRequestsList->get(reqId) ;
@@ -937,7 +940,7 @@ MasterAgentImpl::logNeighbors() {
     strcat(str, " ") ;
   }
   knownMAs.unlock() ;
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Multi-MAs neighbors " << str << "\n");
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Multi-MAs neighbors " << str << endl);
 
   if (dietLogComponent!=NULL) {
     dietLogComponent->logNeighbors(str);

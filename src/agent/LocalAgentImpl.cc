@@ -10,6 +10,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.18  2010/03/03 10:19:03  bdepardo
+ * Changed \n into endl
+ *
  * Revision 1.17  2009/12/21 14:17:26  bdepardo
  * Write request number in getRequest statistics
  *
@@ -274,7 +277,7 @@ LocalAgentImpl::run()
   }
 
   TRACE_TEXT(TRACE_MAIN_STEPS,
-	     "\nLocal Agent " << this->myName << " started.\n");
+	     endl << "Local Agent " << this->myName << " started." << endl);
   fflush(stdout);
 
   return 0;

@@ -11,6 +11,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.13  2010/03/03 10:19:03  bdepardo
+ * Changed \n into endl
+ *
  * Revision 1.12  2008/06/01 14:06:56  rbolze
  * replace most ot the cout by adapted function from debug.cc
  * there are some left ...
@@ -167,7 +170,7 @@ Java_JXTAMultiMA_startDIETAgent(JNIEnv *env,
     // For a local agent, PARENTNAME is compulsory.
     if (name == NULL) {
       ERROR("parsing " << config_file_name
-	   << ": no parent name specified.\n", 1);
+	    << ": no parent name specified." << endl, 1);
     }
   } else {
     if (name != NULL)
@@ -237,7 +240,7 @@ Java_JXTAMultiMA_startDIETAgent(JNIEnv *env,
               Parsers::Results::USELOGSERVICE);
   useLS = false;
   if (ULSptr == NULL) {
-	  WARNING(" useLogService not configured. Disabled by default\n");
+    WARNING(" useLogService not configured. Disabled by default" << endl);
   } else {
     if (*ULSptr) {
       useLS = true;
@@ -266,7 +269,7 @@ Java_JXTAMultiMA_startDIETAgent(JNIEnv *env,
   }
 
   if (useLS) {
-    TRACE_TEXT(TRACE_ALL_STEPS, "LogService enabled\n");
+    TRACE_TEXT(TRACE_ALL_STEPS, "LogService enabled" << endl);
     char* agtTypeName;
     char* agtParentName;
     char* agtName;
@@ -291,7 +294,7 @@ Java_JXTAMultiMA_startDIETAgent(JNIEnv *env,
     }
     free(agtTypeName);
   } else {
-    TRACE_TEXT(TRACE_ALL_STEPS, "LogService disabled\n");
+    TRACE_TEXT(TRACE_ALL_STEPS, "LogService disabled" << endl);
     dietLogComponent = NULL;
   }
 

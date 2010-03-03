@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.22  2010/03/03 10:19:03  bdepardo
+ * Changed \n into endl
+ *
  * Revision 1.21  2008/05/27 22:55:12  rbolze
  * add warning message when compare function retruned a COMPARE_UNDEFINED
  *
@@ -695,7 +698,7 @@ FASTScheduler::FASTScheduler(double epsilon)
     INTERNAL_WARNING("attempt to initialize FAST Scheduler with a negative "
                      << "epsilon: "
                      << epsilon
-                     << ".\nSet epsilon to 0.0");
+                     << "." << endl << "Set epsilon to 0.0");
     this->epsilon = 0.0;
   } else {
     this->epsilon = epsilon;
@@ -781,14 +784,10 @@ int NWSScheduler_compare(int serverIdx1,
   double sv1Weight = WEIGHT(s1est, wi);
   double sv2Weight = WEIGHT(s2est, wi);
 #if 0
-  fprintf(stderr,
-          "*****FASTTEST***** NWSScheduler_compare: s1weight = %.4f\n",
-          sv1Weight);
-  fprintf(stderr,
-          "*****FASTTEST***** NWSScheduler_compare: s2weight = %.4f\n",
-          sv2Weight);
-cerr<<"cpu "<<diet_est_get_internal(s1est, EST_FREECPU, 0.0)<<"^" <<(wi)->CPUPower<<"="<<pow(diet_est_get_internal(s1est, EST_FREECPU, 0.0),(wi)->CPUPower)<<"|| mem " <<diet_est_get_internal(s1est, EST_FREEMEM, 0.0)<<"^"<<(wi)->memPower<<"="<<pow(diet_est_get_internal(s1est, EST_FREEMEM, 0.0),(wi)->memPower)<<endl;
-cerr<<"cpu "<<diet_est_get_internal(s2est, EST_FREECPU, 0.0)<<"^" <<(wi)->CPUPower<<"="<<pow(diet_est_get_internal(s2est, EST_FREECPU, 0.0),(wi)->CPUPower)<<"|| mem " <<diet_est_get_internal(s2est, EST_FREEMEM, 0.0)<<"^"<<(wi)->memPower<<"="<<pow(diet_est_get_internal(s2est, EST_FREEMEM, 0.0),(wi)->memPower)<<endl;
+  cerr << "*****FASTTEST***** NWSScheduler_compare: s1weight = " << sv1Weight << endl;
+  cerr << "*****FASTTEST***** NWSScheduler_compare: s2weight = " << sv2Weight << endl;
+  cerr<<"cpu "<<diet_est_get_internal(s1est, EST_FREECPU, 0.0)<<"^" <<(wi)->CPUPower<<"="<<pow(diet_est_get_internal(s1est, EST_FREECPU, 0.0),(wi)->CPUPower)<<"|| mem " <<diet_est_get_internal(s1est, EST_FREEMEM, 0.0)<<"^"<<(wi)->memPower<<"="<<pow(diet_est_get_internal(s1est, EST_FREEMEM, 0.0),(wi)->memPower)<<endl;
+  cerr<<"cpu "<<diet_est_get_internal(s2est, EST_FREECPU, 0.0)<<"^" <<(wi)->CPUPower<<"="<<pow(diet_est_get_internal(s2est, EST_FREECPU, 0.0),(wi)->CPUPower)<<"|| mem " <<diet_est_get_internal(s2est, EST_FREEMEM, 0.0)<<"^"<<(wi)->memPower<<"="<<pow(diet_est_get_internal(s2est, EST_FREEMEM, 0.0),(wi)->memPower)<<endl;
 #endif
 
   if (sv1Weight == HUGE_VAL) {
