@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.5  2010/03/03 10:31:39  bdepardo
+ * Changed \n into endl
+ *
  * Revision 1.4  2009/10/13 15:09:37  bisnard
  * removed Dagda exceptions catch in diet_call_common
  *
@@ -163,11 +166,11 @@ request_submission(MasterAgent_var& MA,
 
         if (TRACE_LEVEL >= TRACE_MAIN_STEPS) {
           TRACE_TEXT(TRACE_MAIN_STEPS,
-                     "The Master Agent found the following server(s):\n");
+                     "The Master Agent found the following server(s):" << endl);
           for (size_t i = 0; i < response->servers.length(); i++) {
             TRACE_TEXT(TRACE_MAIN_STEPS,
                        "    " << response->servers[i].loc.hostName << ":"
-                       << response->servers[i].loc.port << "\n");
+                       << response->servers[i].loc.port << endl);
           }
         }
 #if 0
@@ -318,7 +321,7 @@ uploadClientDataJuxMem(diet_profile_t* profile)
 		       1, 1, EC_PROTOCOL, BASIC_SOG);
       TRACE_TEXT(TRACE_MAIN_STEPS, "A data space with ID = "
 		 << profile->parameters[i].desc.id
-		 << " for IN data has been attached inside JuxMem!\n");
+		 << " for IN data has been attached inside JuxMem!" << endl);
       /* The local memory is flush inside JuxMem */
 #if JUXMEM_LATENCY_THROUGHPUT
 	gettimeofday(&t_begin, NULL);
@@ -364,9 +367,9 @@ downloadClientDataJuxMem(diet_profile_t* profile)
     if (profile->parameters[i].desc.id != NULL &&
 	profile->parameters[i].desc.mode == DIET_PERSISTENT_RETURN) {
       if (i <= profile->last_inout) {
-	TRACE_TEXT(TRACE_MAIN_STEPS, "Reading IN_OUT data with ID = " << profile->parameters[i].desc.id << " from JuxMem ...\n");
+	TRACE_TEXT(TRACE_MAIN_STEPS, "Reading IN_OUT data with ID = " << profile->parameters[i].desc.id << " from JuxMem ..." << endl);
       } else {
-	TRACE_TEXT(TRACE_MAIN_STEPS, "Retrieving OUT data with ID = " << profile->parameters[i].desc.id << " from JuxMem ...\n");
+	TRACE_TEXT(TRACE_MAIN_STEPS, "Retrieving OUT data with ID = " << profile->parameters[i].desc.id << " from JuxMem ..." << endl);
 	profile->parameters[i].value = juxmem->mmap(profile->parameters[i].value, data_sizeof(&(profile->parameters[i].desc)), profile->parameters[i].desc.id, 0);
       }
 #if JUXMEM_LATENCY_THROUGHPUT
@@ -487,7 +490,7 @@ diet_call_common(MasterAgent_var& MA,
   sprintf(statMsg, "computation %ld", (unsigned long) profile->dietReqID);
 
   stat_in("Client",statMsg);
-  TRACE_TEXT(TRACE_MAIN_STEPS, "Calling the ref Corba of the SeD\n");
+  TRACE_TEXT(TRACE_MAIN_STEPS, "Calling the ref Corba of the SeD" << endl);
 #if HAVE_FD
   fd_set_transition_handler(diet_call_failure_recover);
 #endif

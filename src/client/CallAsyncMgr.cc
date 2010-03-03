@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.28  2010/03/03 10:31:39  bdepardo
+ * Changed \n into endl
+ *
  * Revision 1.27  2008/10/22 14:16:37  gcharrie
  * Adding MultiCall. It is used to devide a profile and make several calls with just one SeD. Some documentation will be added soon.
  *
@@ -529,7 +532,7 @@ int CallAsyncMgr::notifyRst (diet_reqID_t reqID, corba_profile_t * dp)
 
   try {
    TRACE_TEXT (TRACE_ALL_STEPS,"the service has computed the requestID=" 
-		   << reqID << " and notifies his answer\n");
+	       << reqID << " and notifies his answer" << endl);
 	fflush(stdout);
     // update diet_profile datas linked to this reqId
     CallAsyncList::iterator h = caList.find(reqID);
