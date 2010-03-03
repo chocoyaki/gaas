@@ -8,6 +8,9 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.2  2010/03/03 14:05:16  bdepardo
+ * Definition for CYGWIN compilation
+ *
  * Revision 1.1  2008/12/08 15:32:43  bdepardo
  * Added an example to dynamically load a service given a library:
  * the library is sent by the client, and the SeD loads it and uses the new
@@ -21,6 +24,17 @@
 #include "debug.hh"
 
 #include <iostream>
+/*
+* When compiling the example on cygwin the variable RTLD_LOCAL
+* was not declared and thus it is now setted to 0
+*
+* Perhaps the test would better be on the cygwin flag but
+* this problem could also appear on other platforms
+*
+*/
+#ifndef RTLD_LOCAL
+#define RTLD_LOCAL 0
+#endif
 
 /** The default constructor. */
 DynamicServiceMgr::DynamicServiceMgr() {
