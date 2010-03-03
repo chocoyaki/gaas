@@ -9,6 +9,7 @@ IF( DIET_BUILD_LIBRARIES )
     ${DIET_BINARY_DIR}/src/CORBA/idl
     ${DIET_SOURCE_DIR}/src/CORBA        # for e.g. marshalling.hh
     ${DIET_SOURCE_DIR}/src/utils        # for DIET_data_internal.hh
+    ${DIET_SOURCE_DIR}/src/utils/nodes        # for DIET_data_internal.hh
     ${DIET_SOURCE_DIR}/include
     )
   
