@@ -8,6 +8,12 @@
 /****************************************************************************/
 /* $Id$
  * $Log$
+ * Revision 1.23  2010/03/04 08:56:09  bdepardo
+ * Include C++ headers instead of C headers.
+ * strchr returns a const char* and not a char*, hence, in order to compile
+ * with gcc >= 4.4.1 we need to retrieve the result of strchr into a
+ * const char* and not just a char*.
+ *
  * Revision 1.22  2010/03/03 10:19:03  bdepardo
  * Changed \n into endl
  *
@@ -139,12 +145,12 @@
 #include <iostream>
 using namespace std;
 
-#include <assert.h>
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
+#include <cassert>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
 
 #include "est_internal.hh"
 #include "debug.hh"
@@ -226,7 +232,7 @@ Scheduler::deserialize(const char* serializedScheduler)
   int nameLength;
 
   {
-    char *comma;
+    const char *comma;
     if ((comma = strchr(serializedScheduler, ',')) != NULL) {
       nameLength = comma - serializedScheduler;
     }
